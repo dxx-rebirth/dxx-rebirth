@@ -1,4 +1,4 @@
-/* $Id: texpage.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: texpage.c,v 1.4 2005-01-24 22:22:37 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 
 #ifdef RCS
-static char rcsid[] = "$Id: texpage.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: texpage.c,v 1.4 2005-01-24 22:22:37 schaffner Exp $";
 #endif
 
 #include "inferno.h"
@@ -42,6 +42,7 @@ static char rcsid[] = "$Id: texpage.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
 #include "key.h"
 #include "mono.h"
 #include "gamesave.h"
+#include "mission.h"
 
 #include "texpage.h"
 #include "piggy.h"
@@ -313,16 +314,18 @@ void do_replacements_all(void)
 {
 	int	i;
 
-	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
-		load_level(Shareware_level_names[i]);
+	for (i = 0; i < Last_level; i++)
+	{
+		load_level(Level_names[i]);
 		do_replacements();
-		save_level(Shareware_level_names[i]);
+		save_level(Level_names[i]);
 	}
 
-	for (i=0; i<NUM_REGISTERED_LEVELS; i++) {
-		load_level(Registered_level_names[i]);
+	for (i = 0; i < -Last_secret_level; i++)
+	{
+		load_level(Secret_level_names[i]);
 		do_replacements();
-		save_level(Registered_level_names[i]);
+		save_level(Secret_level_names[i]);
 	}
 
 }

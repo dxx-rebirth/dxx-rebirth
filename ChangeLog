@@ -22,6 +22,7 @@
 	ui/number.c, ui/popup.c, ui/radio.c, ui/scroll.c, ui/ui.c,
 	ui/uidraw.c, ui/userbox.c, ui/window.c: include u_mem.h and pstypes.h
 	instead of d1-style mem.h and types.h
+	* main/editor/texpage.c: do texture replacement for any mission
 
 2005-01-23  Jason Owen  <shannara256@yahoo.com>
 
