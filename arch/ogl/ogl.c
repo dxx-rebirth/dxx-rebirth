@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.30 2004-05-22 22:24:24 btb Exp $ */
+/* $Id: ogl.c,v 1.31 2004-05-22 22:29:20 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -1553,7 +1553,8 @@ int tex_format_supported(int iformat,int format){
 //little hack to find the largest or equal multiple of 2 for a given number
 int pow2ize(int x){
 	int i;
-	for (i=2;i<=4096;i*=2)
+
+	for (i = 1; i <= 4096; i *= 2)
 		if (x<=i) return i;
 	return i;
 }
@@ -1890,7 +1891,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 			if (pdata.depth == 8 && pdata.color)
 			{
 				if (bm->gltexture == NULL)
-					ogl_init_texture(bm->gltexture = ogl_get_free_texture(), pdata.width, pdata.height, flags | ((pdata.alpha) ? OGL_FLAG_ALPHA : 0));
+					ogl_init_texture(bm->gltexture = ogl_get_free_texture(), pdata.width, pdata.height, flags | ((pdata.alpha || bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
 				ogl_loadtexture(pdata.data, 0, 0, bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels);
 				free(pdata.data);
 				if (pdata.palette)

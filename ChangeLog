@@ -1,5 +1,9 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/ogl.c: allow for texture dimensions of 1, and fix ogl
+	replacement texture paletted->rgb conversion alpha problem (d1x
+	r1.43)
+
 	* arch/ogl/ogl.c, include/pngfile.h, main/piggy.c, main/piggy.h,
 	misc/Makefile.am, misc/pngfile.c: add opengl replacement texture
 	support (requires libpng and zlib) (d1x r1.42, r1.1, r1.10, r1.4,
