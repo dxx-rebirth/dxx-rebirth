@@ -1,4 +1,4 @@
-/* $Id: automap.h,v 1.3 2003-10-10 09:36:34 btb Exp $ */
+/* $Id: automap.h,v 1.4 2003-11-15 00:36:54 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -53,7 +53,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern void do_automap(int key_code);
 extern void automap_clear_visited();
 extern ubyte Automap_visited[MAX_SEGMENTS];
-extern void modex_print_message(int x, int y, char *str);
 void DropBuddyMarker(object *objp);
 
 extern int Automap_active;
