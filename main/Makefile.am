@@ -9,7 +9,7 @@ noinst_LIBRARIES = libmain.a
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/arch/include
 
 if USE_NETWORK
-NETWORK_SRCS = kmatrix.c multi.c multibot.c network.c
+NETWORK_SRCS = kmatrix.c multi.c multibot.c network.c netmisc.c
 endif
 
 if EDITOR
@@ -26,7 +26,7 @@ gamesave.c  gameseg.c   gameseq.c   gauges.c    hoard.c     \
 hostage.c   \
 hud.c       inferno.c   kconfig.c   kludge.c    laser.c     \
 lighting.c  menu.c      mglobal.c   mission.c   morph.c     \
-movie.c     mvelib.c    mve_audio.c mveplay.c   netmisc.c   \
+movie.c     mvelib.c    mve_audio.c mveplay.c   \
 newdemo.c   newmenu.c   object.c    paging.c    physics.c   \
 piggy.c     player.c    playsave.c  polyobj.c   powerup.c   \
 render.c    robot.c     scores.c    segment.c   slew.c      \

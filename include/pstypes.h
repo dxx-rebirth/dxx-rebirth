@@ -46,14 +46,14 @@ typedef uint16_t u_int16_t;
 # include <sys/types.h>
 # define _MAX_PATH 1024
 # define _MAX_DIR 256
-#ifdef __MACOSX__
+# ifdef __MACOSX__
 typedef unsigned long ulong;
-#endif
-#if defined(__sparc__) || defined(sparc)
+# endif
+# ifdef __sun__
 typedef uint64_t u_int64_t;
 typedef uint32_t u_int32_t;
 typedef uint16_t u_int16_t;
-#endif
+# endif
 
 #elif defined __DJGPP__
 # include <sys/types.h>
@@ -75,11 +75,18 @@ typedef ubyte bool;
 #define NULL 0
 #endif
 
+// the following stuff has nothing to do with types but needed everywhere,
+// and since this file is included everywhere, it's here.
 #ifdef __GNUC__
 # define __pack__ __attribute__((packed))
 #else
 # define __pack__
 #endif
 
+#if defined(__sparc__) || defined(sparc)
+// this should be done by the configure script...
+#define WORDS_NEED_ALIGNMENT
 #endif
+
+#endif //_TYPES_H
 

@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.8 2002-10-28 20:57:11 btb Exp $ */
+/* $Id: interp.c,v 1.9 2003-01-02 23:13:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,16 +40,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.8 2002-10-28 20:57:11 btb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.9 2003-01-02 23:13:21 btb Exp $";
 #endif
 
 #include <stdlib.h>
 #include "error.h"
 
-#include "3d.h"
+#include "interp.h"
 #include "globvars.h"
 #include "gr.h"
 #include "byteswap.h"
+#include "u_mem.h"
 
 #define OP_EOF          0   //eof
 #define OP_DEFPOINTS    1   //defpoints
@@ -61,7 +62,7 @@ static char rcsid[] = "$Id: interp.c,v 1.8 2002-10-28 20:57:11 btb Exp $";
 #define OP_DEFP_START   7   //defpoints with start
 #define OP_GLOW         8   //glow value for next poly
 
-#define N_OPCODES (sizeof(opcode_table) / sizeof(*opcode_table))
+//#define N_OPCODES (sizeof(opcode_table) / sizeof(*opcode_table))
 
 #define MAX_POINTS_PER_POLY 25
 
@@ -85,6 +86,7 @@ void g3_set_interp_points(g3s_point *pointlist)
 
 #define w(p)  (*((short *) (p)))
 #define wp(p)  ((short *) (p))
+#define fp(p)  ((fix *) (p))
 #define vp(p)  ((vms_vector *) (p))
 
 void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
@@ -104,12 +106,16 @@ void short_swap(short *s)
 {
 	*s = SWAPSHORT(*s);
 }
+void fix_swap(fix *f)
+{
+	*f = (fix)SWAPINT((int)*f);
+}
 
 void vms_vector_swap(vms_vector *v)
 {
-	v->x = (fix)SWAPINT((int)v->x);
-	v->y = (fix)SWAPINT((int)v->y);
-	v->z = (fix)SWAPINT((int)v->z);
+	fix_swap(fp(&v->x));
+	fix_swap(fp(&v->y));
+	fix_swap(fp(&v->z));
 }
 
 void swap_polygon_model_data(ubyte *data)
@@ -165,8 +171,8 @@ void swap_polygon_model_data(ubyte *data)
 				vms_vector_swap(vp(p + 16));
 				for (i=0;i<n;i++) {
 					uvl_val = (g3s_uvl *)((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
-					uvl_val->u = (fix)SWAPINT((int)uvl_val->u);
-					uvl_val->v = (fix)SWAPINT((int)uvl_val->v);
+					fix_swap(&uvl_val->u);
+					fix_swap(&uvl_val->v);
 				}
 				short_swap(wp(p+28));
 				for (i=0;i<n;i++)
@@ -188,8 +194,8 @@ void swap_polygon_model_data(ubyte *data)
 				vms_vector_swap(vp(p + 20));
 				vms_vector_swap(vp(p + 4));
 				short_swap(wp(p+2));
-				*((int *)(p + 16)) = SWAPINT(*((int *)(p + 16)));
-				*((int *)(p + 32)) = SWAPINT(*((int *)(p + 32)));
+				fix_swap(fp(p + 16));
+				fix_swap(fp(p + 32));
 				p+=36;
 				break;
 
@@ -207,12 +213,217 @@ void swap_polygon_model_data(ubyte *data)
 				break;
 
 			default:
-				Int3();
+				Error("invalid polygon model\n"); //Int3();
 		}
 		short_swap(wp(p));
 	}
 }
 #endif
+
+#ifdef WORDS_NEED_ALIGNMENT
+
+#include <string.h> // for memcpy
+
+typedef struct chunk { // pointer-thing to next chunk of model_data
+	ubyte *old_base; // where the offset sets off from (relative to beginning of model_data)
+	ubyte *new_base; // where the base is in the aligned structure
+	short offset; // how much to add to base to get the address of the offset
+	short correction; // how much the value of the offset must be shifted for alignment
+} chunk;
+
+ubyte * old_dest(chunk o) // return where the chunk is (in unaligned structure)
+{
+	return o.old_base + INTEL_SHORT(w(o.old_base + o.offset));
+}
+
+ubyte * new_dest(chunk o) // return where the chunk is (in aligned structure)
+{
+	return o.new_base + INTEL_SHORT(w(o.old_base + o.offset)) + o.correction;
+}
+
+#define MAX_CHUNKS 100 // increase if insufficent
+
+int no_chunks; // the number of chunks currently in array
+chunk *chunk_list;
+
+void add_chunk(ubyte *old_base, ubyte *new_base, int offset) {
+	Assert(no_chunks + 1 < MAX_CHUNKS); //increase MAX_CHUNKS if you get this
+	chunk_list[no_chunks].old_base = old_base;
+	chunk_list[no_chunks].new_base = new_base;
+	chunk_list[no_chunks].offset = offset;
+	chunk_list[no_chunks].correction = 0;
+	no_chunks++;
+}
+
+chunk get_first_chunk() // return chunk (from old structure) with smallest address, removing it from array
+{
+	int i, first_index = 0;
+	chunk first;
+
+	Assert(no_chunks >= 1);
+	// find index of chunk with smallest address:
+	for (i = 1; i < no_chunks; i++)
+		if (old_dest(chunk_list[i]) < old_dest(chunk_list[first_index]))
+			first_index = i;
+	// assign it:
+	first = chunk_list[first_index];
+	// remove it from array:
+	no_chunks--;
+	for (i = first_index; i < no_chunks; i++)
+		chunk_list[i] = chunk_list[i + 1];
+	return first;
+}
+
+/*
+ * find out what chunks the chunk "data" points to, return length of current chunk
+ */
+int get_chunks(ubyte *data, ubyte *new_data)
+{
+	short n;
+	ubyte *p = data;
+
+	while (INTEL_SHORT(w(p)) != OP_EOF) {
+		switch (INTEL_SHORT(w(p))) {
+		case OP_DEFPOINTS:
+			n = INTEL_SHORT(w(p+2));
+			p += n*sizeof(struct vms_vector) + 4;
+			break;
+		case OP_DEFP_START:
+			n = INTEL_SHORT(w(p+2));
+			p += n*sizeof(struct vms_vector) + 8;
+			break;
+		case OP_FLATPOLY:
+			n = INTEL_SHORT(w(p+2));
+			p += 30 + ((n&~1)+1)*2;
+			break;
+		case OP_TMAPPOLY:
+			n = INTEL_SHORT(w(p+2));
+			p += 30 + ((n&~1)+1)*2 + n*12;
+			break;
+		case OP_SORTNORM:
+			add_chunk(p, p - data + new_data, 28);
+			add_chunk(p, p - data + new_data, 30);
+			p += 32;
+			break;
+		case OP_RODBM:
+			p+=36;
+			break;
+		case OP_SUBCALL:
+			add_chunk(p, p - data + new_data, 16);
+			p+=20;
+			break;
+		case OP_GLOW:
+			p += 4;
+			break;
+		default:
+			Error("invalid polygon model\n");
+		}
+	}
+	return p + 2 - data;
+}
+
+#define SHIFT_SPACE 500 // increase if insufficent
+
+void align_polygon_model_data(polymodel *pm)
+{
+	int i, chunk_len;
+	int total_correction = 0;
+	ubyte *cur_old, *cur_new;
+	chunk cur_ch;
+	chunk cl[MAX_CHUNKS]; // we need the chunk_list only in this function
+	int tmp_size = pm->model_data_size + SHIFT_SPACE;
+	ubyte *tmp = d_malloc(tmp_size); // where we build the aligned version of pm->model_data
+
+	Assert(tmp != NULL);
+	chunk_list = cl; // so other functions can access it
+	no_chunks = 0;
+	//start with first chunk (is always aligned!)
+	cur_old = pm->model_data;
+	cur_new = tmp;
+	chunk_len = get_chunks(cur_old, cur_new);
+	memcpy(cur_new, cur_old, chunk_len);
+	while (no_chunks > 0) {
+		cur_ch = get_first_chunk();
+		if ((u_int32_t)new_dest(cur_ch) % 4L != 0) { // if (new) address unaligned
+			short to_shift = 4 - (u_int32_t)new_dest(cur_ch) % 4L; // how much to align
+
+			// correct chunks' addresses
+			cur_ch.correction += to_shift;
+			for (i = 0; i < no_chunks; i++)
+				chunk_list[i].correction += to_shift;
+			total_correction += to_shift;
+			Assert((u_int32_t)new_dest(cur_ch) % 4L == 0);
+			Assert(total_correction <= SHIFT_SPACE); // if you get this, increase SHIFT_SPACE
+		}
+		//write (corrected) chunk for current chunk:
+		w(cur_ch.new_base + cur_ch.offset)
+		  = INTEL_SHORT(cur_ch.correction
+		  + INTEL_SHORT(w(cur_ch.old_base + cur_ch.offset)));
+		//write (correctly aligned) chunk:
+		cur_old = old_dest(cur_ch);
+		cur_new = new_dest(cur_ch);
+		chunk_len = get_chunks(cur_old, cur_new);
+		memcpy(cur_new, cur_old, chunk_len);
+		//correct submodel_ptr's for pm, too
+		for (i = 0; i < MAX_SUBMODELS; i++)
+			if (pm->model_data + pm->submodel_ptrs[i] >= cur_old
+			    && pm->model_data + pm->submodel_ptrs[i] < cur_old + chunk_len)
+				pm->submodel_ptrs[i] += (cur_new - tmp) - (cur_old - pm->model_data);
+ 	}
+	d_free(pm->model_data);
+	pm->model_data_size += total_correction;
+	pm->model_data = d_malloc(pm->model_data_size);
+	Assert(pm->model_data != NULL);
+	memcpy(pm->model_data, tmp, pm->model_data_size);
+	d_free(tmp);
+}
+
+#endif //def WORDS_NEED_ALIGNMENT
+
+void verify(ubyte *data)
+{
+	short n;
+	ubyte *p = data;
+
+	while (w(p) != OP_EOF) {
+		switch (w(p)) {
+		case OP_DEFPOINTS:
+			n = (w(p+2));
+			p += n*sizeof(struct vms_vector) + 4;
+			break;
+		case OP_DEFP_START:
+			n = (w(p+2));
+			p += n*sizeof(struct vms_vector) + 8;
+			break;
+		case OP_FLATPOLY:
+			n = (w(p+2));
+			p += 30 + ((n&~1)+1)*2;
+			break;
+		case OP_TMAPPOLY:
+			n = (w(p+2));
+			p += 30 + ((n&~1)+1)*2 + n*12;
+			break;
+		case OP_SORTNORM:
+			verify(p + w(p + 28));
+			verify(p + w(p + 30));
+			p += 32;
+			break;
+		case OP_RODBM:
+			p+=36;
+			break;
+		case OP_SUBCALL:
+			verify(p + w(p + 16));
+			p+=20;
+			break;
+		case OP_GLOW:
+			p += 4;
+			break;
+		default:
+			Error("invalid polygon model\n");
+		}
+	}
+}
+
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
@@ -378,7 +589,7 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 				break;
 
 			default:
-			;
+				Error("invalid polygon model\n");
 		}
 	return 1;
 }
@@ -631,8 +842,8 @@ void init_model_sub(ubyte *p)
 			case OP_GLOW:
 				p += 4;
 				break;
-		        default:
-			        Assert(0);
+			default:
+				Error("invalid polygon model\n");
 		}
 	}
 }
@@ -649,3 +860,18 @@ void g3_init_polygon_model(void *model_ptr)
 	init_model_sub((ubyte *) model_ptr);
 }
 
+// routine which allocates, reads, and inits a polymodel's model_data
+void polygon_model_data_read(polymodel *pm, CFILE *fp)
+{
+	pm->model_data = d_malloc(pm->model_data_size);
+	Assert(pm->model_data != NULL);
+	cfread(pm->model_data, sizeof(ubyte), pm->model_data_size, fp );
+#ifdef WORDS_NEED_ALIGNMENT
+	align_polygon_model_data(pm);
+#endif
+#ifdef WORDS_BIGENDIAN
+	swap_polygon_model_data(pm->model_data);
+#endif
+	//verify(pm->model_data);
+	g3_init_polygon_model(pm->model_data);
+}

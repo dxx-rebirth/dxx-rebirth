@@ -1,3 +1,4 @@
+/* $Id: collide.c,v 1.10 2003-01-02 23:13:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,25 +8,407 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/collide.c,v $
- * $Revision: 1.9 $
- * $Author: bradleyb $
- * $Date: 2001-11-08 10:30:27 $
  *
- * FIXME: put description here
+ * Routines to handle collisions
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.8  2001/10/25 02:15:55  bradleyb
- * conditionalize including multi.h and network.h, fix backslashes
+ * Old Log:
+ * Revision 1.3  1995/11/08  17:15:21  allender
+ * make collide_player_and_weapon play player_hit_sound if
+ * shareware and not my playernum
  *
- * Revision 1.7  2001/10/18 00:01:00  bradleyb
- * RCS headers added/changed
+ * Revision 1.2  1995/10/31  10:24:37  allender
+ * shareware stuff
  *
+ * Revision 1.1  1995/05/16  15:23:34  allender
+ * Initial revision
+ *
+ * Revision 2.5  1995/07/26  12:07:46  john
+ * Made code that pages in weapon_info->robot_hit_vclip not
+ * page in unless it is a badass weapon.  Took out old functionallity
+ * of using this if no robot exp1_vclip, since all robots have these.
+ *
+ * Revision 2.4  1995/03/30  16:36:09  mike
+ * text localization.
+ *
+ * Revision 2.3  1995/03/24  15:11:13  john
+ * Added ugly robot cheat.
+ *
+ * Revision 2.2  1995/03/21  14:41:04  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.1  1995/03/20  18:16:02  john
+ * Added code to not store the normals in the segment structure.
+ *
+ * Revision 2.0  1995/02/27  11:32:20  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.289  1995/02/22  13:56:06  allender
+ * remove anonymous unions from object structure
+ *
+ * Revision 1.288  1995/02/11  15:52:45  rob
+ * Included text.h.
+ *
+ * Revision 1.287  1995/02/11  15:04:11  rob
+ * Localized a string.
+ *
+ * Revision 1.286  1995/02/11  14:25:41  rob
+ * Added invul. controlcen option.
+ *
+ * Revision 1.285  1995/02/06  15:53:00  mike
+ * create awareness event for player:wall collision.
+ *
+ * Revision 1.284  1995/02/05  23:18:17  matt
+ * Deal with objects (such as fusion blobs) that get created already
+ * poking through a wall
+ *
+ * Revision 1.283  1995/02/01  17:51:33  mike
+ * fusion bolt can now toast multiple proximity bombs.
+ *
+ * Revision 1.282  1995/02/01  17:29:20  john
+ * Lintized
+ *
+ * Revision 1.281  1995/02/01  15:04:00  rob
+ * Changed sound of weapons hitting invulnerable players.
+ *
+ * Revision 1.280  1995/01/31  16:16:35  mike
+ * Separate smart blobs for robot and player.
+ *
+ * Revision 1.279  1995/01/29  15:57:10  rob
+ * Fixed another bug with robot_request_change calls.
+ *
+ * Revision 1.278  1995/01/28  18:15:06  rob
+ * Fixed a bug in multi_request_robot_change.
+ *
+ * Revision 1.277  1995/01/27  15:15:44  rob
+ * Fixing problems with controlcen damage.
+ *
+ * Revision 1.276  1995/01/27  15:13:10  mike
+ * comment out mprintf.
+ *
+ * Revision 1.275  1995/01/26  22:11:51  mike
+ * Purple chromo-blaster (ie, fusion cannon) spruce up (chromification)
+ *
+ * Revision 1.274  1995/01/26  18:57:55  rob
+ * Changed two uses of digi_play_sample to digi_link_sound_to_pos which
+ * made more sense.
+ *
+ * Revision 1.273  1995/01/25  23:37:58  mike
+ * make persistent objects not hit player more than once.
+ * Also, make them hit player before degrading them, else they often did 0 damage.
+ *
+ * Revision 1.272  1995/01/25  18:23:54  rob
+ * Don't let players pick up powerups in exit tunnel.
+ *
+ * Revision 1.271  1995/01/25  13:43:18  rob
+ * Added robot transfer for player collisions.
+ * Removed mprintf from collide.c on Mike's request.
+ *
+ * Revision 1.270  1995/01/25  10:24:01  mike
+ * Make sizzle and rock happen in lava even if you're invulnerable.
+ *
+ * Revision 1.269  1995/01/22  17:05:33  mike
+ * Call multi_robot_request_change when a robot gets whacked by a player or
+ * player weapon, if player_num != Player_num
+ *
+ * Revision 1.268  1995/01/21  21:20:28  matt
+ * Fixed stupid bug
+ *
+ * Revision 1.267  1995/01/21  18:47:47  rob
+ * Fixed a really dumb bug with player keys.
+ *
+ * Revision 1.266  1995/01/21  17:39:30  matt
+ * Cleaned up laser/player hit wall confusions
+ *
+ * Revision 1.265  1995/01/19  17:44:42  mike
+ * damage_force removed, that information coming from strength field.
+ *
+ * Revision 1.264  1995/01/18  17:12:56  rob
+ * Fixed control stuff for multiplayer.
+ *
+ * Revision 1.263  1995/01/18  16:12:33  mike
+ * Make control center aware of a cloaked playerr when he fires.
+ *
+ * Revision 1.262  1995/01/17  17:48:42  rob
+ * Added key syncing for coop players.
+ *
+ * Revision 1.261  1995/01/16  19:30:28  rob
+ * Fixed an assert error in fireball.c
+ *
+ * Revision 1.260  1995/01/16  19:23:51  mike
+ * Say Boss_been_hit if he been hit so he gates appropriately.
+ *
+ * Revision 1.259  1995/01/16  11:55:16  mike
+ * make enemies become aware of player if he damages control center.
+ *
+ * Revision 1.258  1995/01/15  16:42:00  rob
+ * Fixed problem with robot bumping damage.
+ *
+ * Revision 1.257  1995/01/14  19:16:36  john
+ * First version of new bitmap paging code.
+ *
+ * Revision 1.256  1995/01/03  17:58:37  rob
+ * Fixed scoring problems.
+ *
+ * Revision 1.255  1994/12/29  12:41:11  rob
+ * Tweaking robot exploding in coop.
+ *
+ * Revision 1.254  1994/12/28  10:37:59  rob
+ * Fixed ifdef of multibot stuff.
+ *
+ * Revision 1.253  1994/12/21  19:03:14  rob
+ * Fixing score accounting for multiplayer robots
+ *
+ * Revision 1.252  1994/12/21  17:36:31  rob
+ * Fix hostage pickup problem in network.
+ * tweaking robot powerup drops.
+ *
+ * Revision 1.251  1994/12/19  20:32:34  rob
+ * Remove awareness events from player collisions and lasers that are not the console player.
+ *
+ * Revision 1.250  1994/12/19  20:01:22  rob
+ * Added multibot.h include.
+ *
+ * Revision 1.249  1994/12/19  16:36:41  rob
+ * Patches damaging of multiplayer robots.
+ *
+ * Revision 1.248  1994/12/14  21:15:18  rob
+ * play lava hiss across network.
+ *
+ * Revision 1.247  1994/12/14  17:09:09  matt
+ * Fixed problem with no sound when lasers hit closed walls, like grates.
+ *
+ * Revision 1.246  1994/12/14  09:51:49  mike
+ * make any weapon cause proximity bomb detonation.
+ *
+ * Revision 1.245  1994/12/13  12:55:25  mike
+ * change number of proximity bomb powerups which get dropped.
+ *
+ * Revision 1.244  1994/12/12  17:17:53  mike
+ * make boss cloak/teleport when get hit, make quad laser 3/4 as powerful.
+ *
+ * Revision 1.243  1994/12/12  12:07:51  rob
+ * Don't take damage if we're in endlevel sequence.
+ *
+ * Revision 1.242  1994/12/11  23:44:52  mike
+ * less phys_apply_rot() at higher skill levels.
+ *
+ * Revision 1.241  1994/12/11  12:37:02  mike
+ * remove stupid robot spinning code.  it was really stupid.  (actually, call here, code in ai.c).
+ *
+ * Revision 1.240  1994/12/10  16:44:51  matt
+ * Added debugging code to track down door that turns into rock
+ *
+ * Revision 1.239  1994/12/09  14:59:19  matt
+ * Added system to attach a fireball to another object for rendering purposes,
+ * so the fireball always renders on top of (after) the object.
+ *
+ * Revision 1.238  1994/12/09  09:57:02  mike
+ * Don't allow robots or their weapons to pass through control center.
+ *
+ * Revision 1.237  1994/12/08  15:46:03  mike
+ * better robot behavior.
+ *
+ * Revision 1.236  1994/12/08  12:32:56  mike
+ * make boss dying more interesting.
+ *
+ * Revision 1.235  1994/12/07  22:49:15  mike
+ * tweak rotation due to collision.
+ *
+ * Revision 1.234  1994/12/07  16:44:50  mike
+ * make bump sound if supposed to, even if not taking damage.
+ *
+ * Revision 1.233  1994/12/07  12:55:08  mike
+ * tweak rotvel applied from collisions.
+ *
+ * Revision 1.232  1994/12/05  19:30:48  matt
+ * Fixed horrible segment over-dereferencing
+ *
+ * Revision 1.231  1994/12/05  00:32:15  mike
+ * do rotvel on badass and bump collisions.
+ *
+ * Revision 1.230  1994/12/03  12:49:22  mike
+ * don't play bonk sound when you collide with a volatile wall (like lava).
+ *
+ * Revision 1.229  1994/12/02  16:51:09  mike
+ * make lava sound only happen at 4 Hz.
+ *
+ * Revision 1.228  1994/11/30  23:55:27  rob
+ * Fixed a bug where a laser hitting a wall was making 2 sounds.
+ *
+ * Revision 1.227  1994/11/30  20:11:00  rob
+ * Fixed # of dropped laser powerups.
+ *
+ * Revision 1.226  1994/11/30  19:19:03  rob
+ * Transmit collission sounds for net games.
+ *
+ * Revision 1.225  1994/11/30  16:33:01  mike
+ * new boss behavior.
+ *
+ * Revision 1.224  1994/11/30  15:44:17  mike
+ * /2 on boss smart children damage.
+ *
+ * Revision 1.223  1994/11/30  14:03:03  mike
+ * hook for claw sounds
+ *
+ * Revision 1.222  1994/11/29  20:41:09  matt
+ * Deleted a bunch of commented-out lines
+ *
+ * Revision 1.221  1994/11/27  23:15:08  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.220  1994/11/19  16:11:28  rob
+ * Collision damage with walls or lava is counted as suicides in net games
+ *
+ * Revision 1.219  1994/11/19  15:20:41  mike
+ * rip out unused code and data
+ *
+ * Revision 1.218  1994/11/17  18:44:27  rob
+ * Added OBJ_GHOST to list of valid player types to create eggs.
+ *
+ * Revision 1.217  1994/11/17  14:57:59  mike
+ * moved segment validation functions from editor to main.
+ *
+ * Revision 1.216  1994/11/16  23:38:36  mike
+ * new improved boss teleportation behavior.
+ *
+ * Revision 1.215  1994/11/16  12:16:29  mike
+ * Enable collisions between robots.  A hack in fvi.c only does this for robots which lunge to attack (eg, green guy)
+ *
+ * Revision 1.214  1994/11/15  16:51:50  mike
+ * bump player when he hits a volatile wall.
+ *
+ * Revision 1.213  1994/11/12  16:38:44  mike
+ * allow flares to open doors.
+ *
+ * Revision 1.212  1994/11/10  13:09:19  matt
+ * Added support for new run-length-encoded bitmaps
+ *
+ * Revision 1.211  1994/11/09  17:05:43  matt
+ * Fixed problem with volatile walls
+ *
+ * Revision 1.210  1994/11/09  12:11:46  mike
+ * only award points if ConsoleObject killed robot.
+ *
+ * Revision 1.209  1994/11/09  11:11:03  yuan
+ * Made wall volatile if either tmap_num1 or tmap_num2 is a volatile wall.
+ *
+ * Revision 1.208  1994/11/08  12:20:15  mike
+ * moved do_controlcen_destroyed_stuff from here to cntrlcen.c
+ *
+ * Revision 1.207  1994/11/02  23:22:08  mike
+ * Make ` (backquote, KEY_LAPOSTRO) tell what wall was hit by laser.
+ *
+ * Revision 1.206  1994/11/02  18:03:00  rob
+ * Fix control_center_been_hit logic so it only cares about the local player.
+ * Other players take care of their own control center 'ai'.
+ *
+ * Revision 1.205  1994/11/01  19:37:33  rob
+ * Changed the max # of consussion missiles to 4.
+ * (cause they're lame and clutter things up)
+ *
+ * Revision 1.204  1994/11/01  18:06:35  john
+ * Tweaked wall banging sound constant.
+ *
+ * Revision 1.203  1994/11/01  18:01:40  john
+ * Made wall bang less obnoxious, but volume based.
+ *
+ * Revision 1.202  1994/11/01  17:11:05  rob
+ * Changed some stuff in drop_player_eggs.
+ *
+ * Revision 1.201  1994/11/01  12:18:23  john
+ * Added sound volume support. Made wall collisions be louder/softer.
+ *
+ * Revision 1.200  1994/10/31  13:48:44  rob
+ * Fixed bug in opening doors over network/modem.  Added a new message
+ * type to multi.c that communicates door openings across the net.
+ * Changed includes in multi.c and wall.c to accomplish this.
+ *
+ * Revision 1.199  1994/10/28  14:42:52  john
+ * Added sound volumes to all sound calls.
+ *
+ * Revision 1.198  1994/10/27  16:58:37  allender
+ * added demo recording of monitors blowing up
+ *
+ * Revision 1.197  1994/10/26  23:20:52  matt
+ * Tone down flash even more
+ *
+ * Revision 1.196  1994/10/26  23:01:50  matt
+ * Toned down red flash when damaged
+ *
+ * Revision 1.195  1994/10/26  15:56:29  yuan
+ * Tweaked some palette flashes.
+ *
+ * Revision 1.194  1994/10/25  11:32:26  matt
+ * Fixed bugs with vulcan powerups in mutliplayer
+ *
+ * Revision 1.193  1994/10/25  10:51:18  matt
+ * Vulcan cannon powerups now contain ammo count
+ *
+ * Revision 1.192  1994/10/24  14:14:05  matt
+ * Fixed bug in bump_two_objects()
+ *
+ * Revision 1.191  1994/10/23  19:17:04  matt
+ * Fixed bug with "no key" messages
+ *
+ * Revision 1.190  1994/10/22  00:08:46  matt
+ * Fixed up problems with bonus & game sequencing
+ * Player doesn't get credit for hostages unless he gets them out alive
+ *
+ * Revision 1.189  1994/10/21  20:42:34  mike
+ * Clear number of hostages on board between levels.
+ *
+ * Revision 1.188  1994/10/20  15:17:43  mike
+ * control center in boss handling.
+ *
+ * Revision 1.187  1994/10/20  10:09:47  mike
+ * Only ever drop 1 shield powerup in multiplayer (as an egg).
+ *
+ * Revision 1.186  1994/10/20  09:47:11  mike
+ * Fix bug in dropping vulcan ammo in multiplayer.
+ * Also control center stuff.
+ *
+ * Revision 1.185  1994/10/19  15:14:32  john
+ * Took % hits out of player structure, made %kills work properly.
+ *
+ * Revision 1.184  1994/10/19  11:33:16  john
+ * Fixed hostage rescued percent.
+ *
+ * Revision 1.183  1994/10/19  11:16:49  mike
+ * Don't allow crazy josh to open locked doors.
+ * Don't allow weapons to harm parent.
+ *
+ * Revision 1.182  1994/10/18  18:37:01  mike
+ * No more hostage killing.  Too much stuff to do to integrate into game.
+ *
+ * Revision 1.181  1994/10/18  16:37:35  mike
+ * Debug function for Yuan: Show seg:side when hit by puny laser if Show_seg_and_side != 0.
+ *
+ * Revision 1.180  1994/10/18  10:53:17  mike
+ * Support attack type as a property of a robot, not of being == GREEN_GUY.
+ *
+ * Revision 1.179  1994/10/17  21:18:36  mike
+ * diminish damage player does to robot due to collision, only took 2-3 hits to kill a josh.
+ *
+ * Revision 1.178  1994/10/17  20:30:40  john
+ * Made player_hostages_rescued or whatever count properly.
+ *
+ * Revision 1.177  1994/10/16  12:42:56  mike
+ * Trap bogus amount of vulcan ammo dropping.
+ *
+ * Revision 1.176  1994/10/15  19:06:51  mike
+ * Drop vulcan ammo if player has it, but no vulcan cannon (when he dies).
+ *
+ * Revision 1.175  1994/10/13  15:42:06  mike
+ * Remove afterburner.
+ *
+ * Revision 1.174  1994/10/13  11:12:57  mike
+ * Apply damage to robots.  I hosed it a couple weeks ago when I made the green guy special.
  *
  */
 
@@ -33,7 +416,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#include <string.h>	// for memset
 #include <stdlib.h>
 #include <stdio.h>
 

@@ -1,4 +1,4 @@
-/* $Id: 3d.h,v 1.8 2002-10-28 21:13:17 btb Exp $ */
+/* $Id: 3d.h,v 1.9 2003-01-02 23:13:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,6 +15,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Header file for 3d library
+ * except for functions implemented in interp.c
  *
  * Old Log:
  * Revision 1.2  1995/09/14  14:08:58  allender
@@ -330,34 +331,4 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 //NULL for either or both restores defaults
 void g3_set_special_render(void (*tmap_drawer)(),void (*flat_drawer)(),int (*line_drawer)(fix, fix, fix, fix));
 
-//Object functions:
-
-//gives the interpreter an array of points to use
-void g3_set_interp_points(g3s_point *pointlist);
-
-//calls the object interpreter to render an object.  The object renderer
-//is really a seperate pipeline. returns true if drew
-bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,fix light,fix *glow_values);
-
-//init code for bitmap models
-void g3_init_polygon_model(void *model_ptr);
-
-//un-initialize, i.e., convert color entries back to RGB15
-void g3_uninit_polygon_model(void *model_ptr);
-
-//alternate interpreter for morphing object
-bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,fix light,vms_vector *new_points);
-
-//this remaps the 15bpp colors for the models into a new palette.  It should
-//be called whenever the palette changes
-void g3_remap_interp_colors(void);
-
-// routine to convert little to big endian in polygon model data
-#ifdef WORDS_BIGENDIAN
-void swap_polygon_model_data(ubyte *data);
-#else
-#define swap_polygon_model_data(data)
 #endif
-
-#endif
-
