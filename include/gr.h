@@ -54,17 +54,20 @@ typedef struct _grs_point {
 
 //old font structure, could not add new items to it without screwing up gr_init_font
 typedef struct _grs_font {
-	int16_t		ft_w,ft_h;		// Width and height in pixels
-	int16_t		ft_flags;		// Proportional?
-	int16_t		ft_baseline;	//
-	ubyte		ft_minchar,		// The first and last chars defined by
-				ft_maxchar;		// This font
-	int16_t		ft_bytewidth;	// Width in unsigned chars
-	u_int32_t	ft_data;			// Ptr to raw data.
-	u_int32_t	ft_chars;		// Ptrs to data for each char (required for prop font)
-	u_int32_t	ft_widths;		// Array of widths (required for prop font)
-	u_int32_t	ft_kerndata;	// Array of kerning triplet data
+    short       ft_w;           // Width in pixels
+    short       ft_h;           // Height in pixels
+    short       ft_flags;       // Proportional?
+    short       ft_baseline;    //
+    ubyte       ft_minchar;     // First char defined by this font
+    ubyte       ft_maxchar;     // Last char defined by this font
+    short       ft_bytewidth;   // Width in unsigned chars
+    ubyte     * ft_data;        // Ptr to raw data.
+    ubyte    ** ft_chars;       // Ptrs to data for each char (required for prop font)
+    short     * ft_widths;      // Array of widths (required for prop font)
+    ubyte     * ft_kerndata;    // Array of kerning triplet data
 } __pack__ old_grs_font;
+
+#define OLD_GRS_FONT_SIZE 28 // how much file space it uses
 
 #define BM_LINEAR   0
 #define BM_MODEX    1

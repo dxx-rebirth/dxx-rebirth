@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.11 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: font.c,v 1.12 2002-07-26 23:03:56 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1582,6 +1582,24 @@ void decode_data_asm(ubyte *data, int num_pixels, ubyte * colormap, int * count 
 
 #endif
 
+/*
+ * reads an old_grs_font structure from a CFILE
+ */
+void old_grs_font_read(old_grs_font *ogf, CFILE *fp)
+{
+	ogf->ft_w = cfile_read_short(fp);
+	ogf->ft_h = cfile_read_short(fp);
+	ogf->ft_flags = cfile_read_short(fp);
+	ogf->ft_baseline = cfile_read_short(fp);
+	ogf->ft_minchar = cfile_read_byte(fp);
+	ogf->ft_maxchar = cfile_read_byte(fp);
+	ogf->ft_bytewidth = cfile_read_short(fp);
+	ogf->ft_data = (ubyte *)cfile_read_int(fp);
+	ogf->ft_chars = (ubyte **)cfile_read_int(fp);
+	ogf->ft_widths = (short *)cfile_read_int(fp);
+	ogf->ft_kerndata = (ubyte *)cfile_read_int(fp);
+}
+
 grs_font * gr_init_font( char * fontname )
 {
 	static int first_time=1;
@@ -1591,7 +1609,7 @@ grs_font * gr_init_font( char * fontname )
 	unsigned char * ptr;
 	int nchars;
 	CFILE *fontfile;
-	u_int32_t file_id;
+	char file_id[4];
 	int32_t datasize;	//size up to (but not including) palette
 
 	if (first_time) {
@@ -1612,13 +1630,14 @@ grs_font * gr_init_font( char * fontname )
 	if (!fontfile)
 		Error( "Can't open font file %s", fontname );
 
-	cfread(&file_id,sizeof(file_id),1,fontfile);
-	file_id=swapint(file_id);
-	cfread(&datasize,sizeof(datasize),1,fontfile);
-	datasize=swapint(datasize);
-
-	if (file_id != MAKE_SIG('N','F','S','P'))
+	cfread(file_id, 4, 1, fontfile);
+	if ( !strncmp( file_id, "NFSP", 4 ) )
 		Error( "File %s is not a font file", fontname );
+
+	datasize = cfile_read_int(fontfile);
+
+
+	printf("Font file %s has datasize %d\n", fontname, datasize);
 
 	font = (old_grs_font *) d_malloc(datasize);
 	newfont = (grs_font *) d_malloc(sizeof(grs_font));
@@ -1626,27 +1645,34 @@ grs_font * gr_init_font( char * fontname )
 
 	open_font[fontnum].ptr = newfont;
 
+	//old_grs_font_read(font, fontfile);
+
 	cfread(font,1,datasize,fontfile);
 
-	newfont->ft_flags=swapint(font->ft_flags);
-	newfont->ft_w=swapshort(font->ft_w);
-	newfont->ft_h=swapshort(font->ft_h);
-	newfont->ft_baseline=swapshort(font->ft_baseline);
-	newfont->ft_maxchar=font->ft_maxchar;
-	newfont->ft_minchar=font->ft_minchar;
-	newfont->ft_bytewidth=swapshort(font->ft_bytewidth);
+	newfont->ft_w = font->ft_w = INTEL_SHORT(font->ft_w);
+	newfont->ft_h = font->ft_h = INTEL_SHORT(font->ft_h);
+	newfont->ft_flags = font->ft_flags = INTEL_SHORT(font->ft_flags);
+	newfont->ft_baseline = font->ft_baseline = INTEL_SHORT(font->ft_baseline);
+	newfont->ft_maxchar = font->ft_maxchar;
+	newfont->ft_minchar = font->ft_minchar;
+	newfont->ft_bytewidth = font->ft_bytewidth = INTEL_SHORT(font->ft_bytewidth);
+	newfont->ft_data = font->ft_data = INTEL_INT(font->ft_data);
+	newfont->ft_chars = font->ft_chars = INTEL_INT(font->ft_chars);
+	newfont->ft_widths = font->ft_widths = INTEL_INT(font->ft_widths);
+	newfont->ft_kerndata = font->ft_kerndata = INTEL_INT(font->ft_kerndata);
 
 	nchars = newfont->ft_maxchar-newfont->ft_minchar+1;
 
 	if (newfont->ft_flags & FT_PROPORTIONAL) {
 
-		newfont->ft_widths = (short *) (swapint(font->ft_widths) + ((ubyte *) font));
-		newfont->ft_data = (swapint(font->ft_data)) + ((ubyte *) font);
+		newfont->ft_widths = (short *) ((int)font->ft_widths + ((ubyte *) font));
+		newfont->ft_data = (int)font->ft_data + (ubyte *)font;
 		newfont->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
 
 		ptr = newfont->ft_data;
 
 		for (i=0; i< nchars; i++ ) {
+			newfont->ft_widths[i] = INTEL_INT(newfont->ft_widths[i]);
 			newfont->ft_chars[i] = ptr;
 			if (newfont->ft_flags & FT_COLOR)
 				ptr += newfont->ft_widths[i] * newfont->ft_h;
@@ -1664,7 +1690,7 @@ grs_font * gr_init_font( char * fontname )
 	}
 
 	if (newfont->ft_flags & FT_KERNED)
-		newfont->ft_kerndata = swapint(font->ft_kerndata) + ((ubyte *) font);
+		newfont->ft_kerndata = (int)font->ft_kerndata + (ubyte *)font;
 
 	if (newfont->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];
