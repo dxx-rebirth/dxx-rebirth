@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.11 2002-08-26 06:54:31 btb Exp $ */
+/* $Id: titles.c,v 1.12 2002-08-27 04:15:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -88,6 +88,10 @@ char RobotPlaying=0;
 #endif
 
 #define	MAX_BRIEFING_COLORS	3
+
+// Descent 1 briefings
+char Ending_text_filename[13] = "endreg.tex";
+char Briefing_text_filename[13] = "briefing.tex";
 
 #define	SHAREWARE_ENDING_FILENAME	"ending.tex"
 
@@ -546,7 +550,7 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	gr_printf(Briefing_text_x+1, Briefing_text_y, message );
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-	gr_update();
+	if (delay) gr_update();
 
 //	if (the_char != ' ')
 //		if (!digi_is_sound_playing(SOUND_MARKER_HIT))
@@ -789,7 +793,7 @@ int show_briefing_message(int screen_num, char *message)
 			} else if (ch=='A') {
 				LineAdjustment=1-LineAdjustment;
 			} else if (ch=='Z') {
-				mprintf ((0,"Got a Z!\n"));
+				//mprintf ((0,"Got a Z!\n"));
 				GotZ=1;
 #if defined (D2_OEM) || defined(COMPILATION) || (defined(MACINTOSH) && defined(SHAREWARE))
 				DumbAdjust=1;
@@ -926,6 +930,7 @@ int show_briefing_message(int screen_num, char *message)
 				}
 				message++;
 				prev_ch = 10;
+				gr_update();
 			}
 		} else if (ch == '\t') {		//	Tab
 			if (Briefing_text_x - bsp->text_ulx < tab_stop)
@@ -1295,6 +1300,9 @@ void do_briefing_screens(char *filename,int level_num)
 	#endif
 
 	mprintf ((0,"Trying briefing screen! %s\n",filename));
+
+	if (!filename)
+		filename = Briefing_text_filename[0];
 
 	if (!filename)
 		return;
