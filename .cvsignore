@@ -1,6 +1,13 @@
 Makefile.in
 aclocal.m4
 autom4te.cache
+compile
 conf.h.in
+config.guess
+config.sub
 configure
+depcomp
+install-sh
+missing
+mkinstalldirs
 stamp-h.in
