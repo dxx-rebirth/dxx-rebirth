@@ -1,3 +1,4 @@
+/* $Id: scanline.h,v 1.3 2003-02-18 20:15:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,31 +8,22 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/texmap/scanline.h,v $
- * $Revision: 1.2 $
- * $Author: bradleyb $
- * $Date: 2001-10-25 02:22:46 $
- * 
+ *
  * Prototypes for C versions of texture mapped scanlines.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
- * Import of d2x-0.0.8
  *
- * Revision 1.1.1.1  1999/06/14 22:14:10  donut
- * Import of d1x 1.37 source.
- *
+ * Old Log:
  * Revision 1.2  1995/02/20  18:23:40  john
  * Added new module for C versions of inner loops.
- * 
+ *
  * Revision 1.1  1995/02/20  17:44:16  john
  * Initial revision
- * 
- * 
+ *
+ *
  */
 
 

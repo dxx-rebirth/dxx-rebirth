@@ -1,3 +1,4 @@
+; $Id: tmap_inc.asm,v 1.3 2003-02-18 20:15:48 btb Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -9,20 +10,10 @@
 ;AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
-; $Source: /cvs/cvsroot/d2x/texmap/tmap_inc.asm,v $
-; $Revision: 1.2 $
-; $Author: bradleyb $
-; $Date: 2001-10-18 23:59:23 $
 ;
 ; Mike's include file for the texture mapper library.
 ;
-; $Log: not supported by cvs2svn $
-; Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
-; Import of d2x-0.0.8
-;
-; Revision 1.1.1.1  1999/06/14 22:13:53  donut
-; Import of d1x 1.37 source.
-;
+; Old Log:
 ; Revision 1.10  1995/02/20  18:22:52  john
 ; Put all the externs in the assembly modules into tmap_inc.asm.
 ; Also, moved all the C versions of the inner loops into a new module,

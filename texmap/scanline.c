@@ -1,3 +1,4 @@
+/* $Id: scanline.c,v 1.6 2003-02-18 20:15:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,49 +8,22 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/texmap/scanline.c,v $
- * $Revision: 1.5 $
- * $Author: bradleyb $
- * $Date: 2001-11-14 20:13:19 $
- * 
+ *
  * Routines to draw the texture mapped scanlines.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.4  2001/10/25 08:25:34  bradleyb
- * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
  *
- * Revision 1.3  2001/10/25 02:22:46  bradleyb
- * adding support for runtime selection of tmap funcs
- *
- * Revision 1.2  2001/01/31 15:18:04  bradleyb
- * Makefile and conf.h fixes
- *
- * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
- * Import of d2x-0.0.8
- *
- * Revision 1.4  1999/10/18 00:31:01  donut
- * more alpha fixes from Falk Hueffner
- *
- * Revision 1.3  1999/10/14 04:48:21  donut
- * alpha fixes, and gl_font args
- *
- * Revision 1.2  1999/09/21 07:22:40  sekmu
- * remove unused var warning
- *
- * Revision 1.1.1.1  1999/06/14 22:14:08  donut
- * Import of d1x 1.37 source.
- *
+ * Old Log:
  * Revision 1.2  1995/02/20  18:23:39  john
  * Added new module for C versions of inner loops.
- * 
+ *
  * Revision 1.1  1995/02/20  17:42:27  john
  * Initial revision
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -57,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: scanline.c,v 1.5 2001-11-14 20:13:19 bradleyb Exp $";
+static char rcsid[] = "$Id: scanline.c,v 1.6 2003-02-18 20:15:48 btb Exp $";
 #endif
 
 #include <math.h>

@@ -1,3 +1,4 @@
+/* $Id: ntmap.c,v 1.7 2003-02-18 20:15:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,145 +8,114 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/texmap/ntmap.c,v $
- * $Revision: 1.6 $
- * $Author: bradleyb $
- * $Date: 2002-02-23 22:24:10 $
- * 
+ *
  * Start of conversion to new texture mapper.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.5  2001/10/25 09:12:16  bradleyb
- * Completed tmap selection code.
  *
- * Revision 1.4  2001/10/25 02:22:46  bradleyb
- * adding support for runtime selection of tmap funcs
- *
- * Revision 1.3  2001/01/31 15:18:04  bradleyb
- * Makefile and conf.h fixes
- *
- * Revision 1.2  2001/01/31 14:04:46  bradleyb
- * Fix compiler warnings
- *
- * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
- * Import of d2x-0.0.8
- *
- * Revision 1.4  1999/10/18 00:31:55  donut
- * allow FP_TMAP to be used without NO_ASM
- *
- * Revision 1.3  1999/08/05 22:53:41  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.2  1999/07/07 21:31:09  donut
- * removed unused vars from ntmap_scanline_lighted and slightly optomized it
- *
- * Revision 1.1.1.1  1999/06/14 22:14:06  donut
- * Import of d1x 1.37 source.
- *
+ * Old Log:
  * Revision 1.52  1995/03/14  15:13:06  john
  * Increased MAX_Y_Pointers to 480.
- * 
+ *
  * Revision 1.51  1995/02/23  14:25:09  john
  * Added editor tmap.
- * 
+ *
  * Revision 1.50  1995/02/20  18:22:58  john
  * Put all the externs in the assembly modules into tmap_inc.asm.
- * Also, moved all the C versions of the inner loops into a new module, 
+ * Also, moved all the C versions of the inner loops into a new module,
  * scanline.c.
- * 
+ *
  * Revision 1.49  1995/02/20  17:09:11  john
  * Added code so that you can build the tmapper with no assembly!
- * 
+ *
  * Revision 1.48  1995/01/06  11:11:30  mike
  * even when not in editor, have 400 lines in texture map scanline table.
- * 
+ *
  * Revision 1.47  1994/12/15  16:43:25  matt
  * Took out code only needed by editor
- * 
+ *
  * Revision 1.46  1994/12/09  22:35:37  mike
  * fix bug in before call to asm_tmap_scanline_per causing write of pixel onto past right border onto left.
- * 
+ *
  * Revision 1.45  1994/12/06  16:31:06  mike
  * fix bug in asm_tmap_scanline_matt interface.
- * 
+ *
  * Revision 1.44  1994/12/04  20:37:18  mike
  * *** empty log message ***
- * 
+ *
  * Revision 1.43  1994/12/02  23:30:04  mike
  * optimizations.
- * 
+ *
  * Revision 1.42  1994/11/30  00:57:43  mike
  * optimizations.
- * 
+ *
  * Revision 1.41  1994/11/28  13:34:27  mike
  * optimizations.
- * 
+ *
  * Revision 1.40  1994/11/28  01:30:01  mike
  * kill warning.
- * 
+ *
  * Revision 1.39  1994/11/28  01:28:59  mike
  * optimizations.
- * 
+ *
  * Revision 1.38  1994/11/21  14:08:07  john
  * Took out all multiple instead of divide code.
- * 
+ *
  * Revision 1.37  1994/11/19  15:21:52  mike
  * rip out unused code.
- * 
+ *
  * Revision 1.36  1994/11/14  11:42:51  mike
  * optimization.
- * 
+ *
  * Revision 1.35  1994/11/12  16:41:36  mike
  * *** empty log message ***
- * 
+ *
  * Revision 1.34  1994/11/10  21:28:41  mike
  * remove call to init_interface_vars_to_assembler.
- * 
+ *
  * Revision 1.33  1994/11/10  11:08:59  mike
  * detail level stuff.
- * 
+ *
  * Revision 1.32  1994/11/09  22:55:52  matt
  * Added variable Current_seg_depth for detail level optimization
- * 
+ *
  * Revision 1.31  1994/11/09  19:57:31  john
  * Added texture rle caching.
- * 
+ *
  * Revision 1.30  1994/11/09  19:54:48  mike
  * Call flat shader if Tmap_flat_flag set.
- * 
+ *
  * Revision 1.29  1994/11/02  21:33:31  john
  * Added Burger Bill's optimization, ie.. 2 muls per 8 pixels.
- * 
+ *
  * Revision 1.28  1994/11/02  11:32:16  john
- * Added code for c callable inner loop and code to 
+ * Added code for c callable inner loop and code to
  * test dividing out z0.
- * 
+ *
  * Revision 1.27  1994/10/28  20:54:32  matt
  * Added error checking
- * 
+ *
  * Revision 1.26  1994/10/25  11:20:20  mike
  * fix bug in lighting overflow checking for one scanline tall linear texture maps.
- * 
+ *
  * Revision 1.25  1994/08/03  15:40:33  mike
  * Prevent divide overflows, decrease occurrence of precision-caused glitches.
- * 
+ *
  * Revision 1.24  1994/07/27  09:31:16  mike
  * Fix concave texture map problem, decrease occurrence of unimportant int 3.
- * 
+ *
  * Revision 1.23  1994/06/17  12:23:31  mike
  * Support non-lighted texture maps.
- * 
+ *
  * Revision 1.22  1994/06/11  08:10:24  mike
  * Fix mysterious hang bug, lighting value was out of range.
- * 
+ *
  * Revision 1.21  1994/06/09  16:10:16  mike
  * Change SC2000 from constant to variable.
- * 
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -153,7 +123,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ntmap.c,v 1.6 2002-02-23 22:24:10 bradleyb Exp $";
+static char rcsid[] = "$Id: ntmap.c,v 1.7 2003-02-18 20:15:48 btb Exp $";
 #endif
 
 #define VESA 0
