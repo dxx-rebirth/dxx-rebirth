@@ -109,9 +109,11 @@ void network_dump_appletalk_player(ubyte node, ushort net, ubyte socket, int why
 
 }
 
+int digi_link_sound_to_object2( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance );
 int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end )
 {
-        return 0;
+	//FIXME: Total hack
+	return digi_link_sound_to_object2(org_soundnum, objnum, forever, max_volume, max_distance);
 }
 
 void digi_stop_sound(int channel)
@@ -153,10 +155,12 @@ void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int l
 {
 
 }
+
 void digi_change_looping_volume( fix volume )
 {
 
 }
+
 void digi_stop_looping_sound()
 {
 
