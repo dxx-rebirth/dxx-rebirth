@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.9 2002-08-06 09:30:24 btb Exp $ */
+/* $Id: titles.c,v 1.10 2002-08-23 10:43:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -392,7 +392,7 @@ void show_bitmap_frame(void)
 		}
 
 		WIN(DDGRLOCK(dd_grd_curcanv));
-			gr_bitmapm(0, 0, bitmap_ptr);
+		gr_bitmapm(0, 0, bitmap_ptr);
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 		WINDOS(
@@ -482,7 +482,7 @@ void init_spinning_robot(void) //(int x,int y,int w,int h)
  }
 #endif
 
-//	-----------------------------------------------------------------------------
+//	---------------------------------------------------------------------------
 //	Returns char width.
 //	If show_robot_flag set, then show a frame of the spinning robot.
 int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
@@ -491,47 +491,47 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	char	message[2];
 	static fix	start_time=0;
 
-   robot_num=0;
+	robot_num=0;
 	message[0] = the_char;
 	message[1] = 0;
 
-   if (start_time==0 && timer_get_fixed_seconds()<0)
-    start_time=timer_get_fixed_seconds(); 
- 
+	if (start_time==0 && timer_get_fixed_seconds()<0)
+		start_time=timer_get_fixed_seconds();
+
 	gr_get_string_size(message, &w, &h, &aw );
 
 	Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
 
 	//	Draw cursor if there is some delay and caller says to draw cursor
 	if (cursor_flag && delay) {
-	WIN(DDGRLOCK(dd_grd_curcanv));
+		WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
 		gr_printf(Briefing_text_x+1, Briefing_text_y, "_" );
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
+		WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 
-		if (delay)
-		 delay=fixdiv (F1_0,i2f(15));
+	if (delay)
+		delay=fixdiv (F1_0,i2f(15));
 
-		if (delay != 0)
-			show_bitmap_frame();
+	if (delay != 0)
+		show_bitmap_frame();
 
 #ifdef ROBOT_MOVIES
-		if (RobotPlaying && (delay != 0))
-			RotateRobot();
-      
-      
-		while (timer_get_fixed_seconds() < (start_time + delay)) {
-			if (RobotPlaying && delay != 0)
-				RotateRobot();
-		}
-#else
-                if (robot_num != -1)
-			show_spinning_robot_frame(robot_num);
-#endif
-		start_time = timer_get_fixed_seconds();
+	if (RobotPlaying && (delay != 0))
+		RotateRobot();
 
-WIN(DDGRLOCK(dd_grd_curcanv));
+	while (timer_get_fixed_seconds() < (start_time + delay)) {
+		if (RobotPlaying && delay != 0)
+			RotateRobot();
+	}
+#else
+	if (robot_num != -1)
+		show_spinning_robot_frame(robot_num);
+#endif
+
+	start_time = timer_get_fixed_seconds();
+
+	WIN(DDGRLOCK(dd_grd_curcanv));
 	//	Erase cursor
 	if (cursor_flag && delay) {
 		gr_set_fontcolor(Erase_color, -1);
@@ -544,7 +544,9 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 
 	gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
 	gr_printf(Briefing_text_x+1, Briefing_text_y, message );
-WIN(DDGRUNLOCK(dd_grd_curcanv));
+	WIN(DDGRUNLOCK(dd_grd_curcanv));
+
+	gr_update();
 
 //	if (the_char != ' ')
 //		if (!digi_is_sound_playing(SOUND_MARKER_HIT))
@@ -681,10 +683,10 @@ int show_briefing_message(int screen_num, char *message)
 	char *spinRobotName="rba.mve",kludge;  // matt don't change this!  
 #endif
 	char fname[15];
-   char DumbAdjust=0;
+	char DumbAdjust=0;
 	char chattering=0;
 	int hum_channel=-1,printing_channel=-1;
-	int LineAdjustment=0;	
+	int LineAdjustment=1;
 	WIN(int wpage_done=0);
 
 	Bitmap_name[0] = 0;
@@ -702,36 +704,31 @@ int show_briefing_message(int screen_num, char *message)
 	// mprintf((0, "Going to print message [%s] at x=%i, y=%i\n", message, x, y));
 	gr_set_curfont( GAME_FONT );
 
-   bsp=&Briefing_screens[0];
-   init_char_pos(bsp->text_ulx, bsp->text_uly-(8*(1+MenuHires)));
+	bsp=&Briefing_screens[0];
+	init_char_pos(bsp->text_ulx, bsp->text_uly-(8*(1+MenuHires)));
 
 	while (!done) {
 		ch = *message++;
 		if (ch == '$') {
 			ch = *message++;
-	      if (ch=='D')
-	       {
-	  	      screen_num=DefineBriefingBox (&message);
+			if (ch=='D') {
+				screen_num=DefineBriefingBox (&message);
 		    	//load_new_briefing_screen (Briefing_screens[screen_num].bs_name);
-				
-       	   bsp = &Briefing_screens[screen_num];
-            init_char_pos(bsp->text_ulx, bsp->text_uly);
-				LineAdjustment=0;
-            prev_ch = 10;                                     //      read to eoln
-          }
-         else if (ch=='U')
-          {
-	        screen_num=get_message_num(&message);
-           bsp = &Briefing_screens[screen_num];
-           init_char_pos(bsp->text_ulx, bsp->text_uly);
-           prev_ch = 10;                                                   //      read to eoln
-          }
-                       
-         else if (ch == 'C') {
+
+				bsp = &Briefing_screens[screen_num];
+				init_char_pos(bsp->text_ulx, bsp->text_uly);
+				//LineAdjustment=0;
+				prev_ch = 10;                                   // read to eoln
+			} else if (ch=='U') {
+				screen_num=get_message_num(&message);
+				bsp = &Briefing_screens[screen_num];
+				init_char_pos(bsp->text_ulx, bsp->text_uly);
+				prev_ch = 10;                                   // read to eoln
+			} else if (ch == 'C') {
 				Current_color = get_message_num(&message)-1;
 				Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
 				prev_ch = 10;
-			} else if (ch == 'F') {		//	toggle flashing cursor
+			} else if (ch == 'F') {     // toggle flashing cursor
 				flashing_cursor = !flashing_cursor;
 				prev_ch = 10;
 				while (*message++ != 10)
@@ -742,7 +739,7 @@ int show_briefing_message(int screen_num, char *message)
 				prev_ch = 10;							//	read to eoln
 			} else if (ch == 'R') {
 				if (Robot_canv != NULL) {
-					d_free(Robot_canv); 
+					d_free(Robot_canv);
 					Robot_canv=NULL;
 				}
 #ifdef ROBOT_MOVIES
@@ -750,7 +747,7 @@ int show_briefing_message(int screen_num, char *message)
 					DeInitRobotMovie();
 					RobotPlaying=0;
 				}
-				
+
 				kludge=*message++;
 				spinRobotName[2]=kludge; // ugly but proud
 
@@ -758,7 +755,7 @@ int show_briefing_message(int screen_num, char *message)
 
 				// gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
 
-				if (RobotPlaying) { 			
+				if (RobotPlaying) {
 					DoBriefingColorStuff ();
 					mprintf ((0,"Robot playing is %d!!!",RobotPlaying));
 				}
@@ -766,19 +763,23 @@ int show_briefing_message(int screen_num, char *message)
 				init_spinning_robot();
 				robot_num = get_message_num(&message);
 #endif
-            prev_ch = 10;							//	read to eoln
+				prev_ch = 10;                           // read to eoln
 			} else if (ch == 'N') {
-				//--grs_bitmap	*bitmap_ptr;
-				if (Robot_canv != NULL)
-					{d_free(Robot_canv); Robot_canv=NULL;}
+				//--grs_bitmap *bitmap_ptr;
+				if (Robot_canv != NULL) {
+					d_free(Robot_canv);
+					Robot_canv=NULL;
+				}
 
 				get_message_name(&message, Bitmap_name);
 				strcat(Bitmap_name, "#0");
 				Animating_bitmap_type = 0;
 				prev_ch = 10;
 			} else if (ch == 'O') {
-				if (Robot_canv != NULL)
-					{d_free(Robot_canv); Robot_canv=NULL;}
+				if (Robot_canv != NULL) {
+						d_free(Robot_canv);
+						Robot_canv=NULL;
+				}
 
 				get_message_name(&message, Bitmap_name);
 				strcat(Bitmap_name, "#0");
@@ -789,15 +790,15 @@ int show_briefing_message(int screen_num, char *message)
 			} else if (ch=='Z') {
 				mprintf ((0,"Got a Z!\n"));
 				GotZ=1;
-				#if defined (D2_OEM) || defined(COMPILATION) || (defined(MACINTOSH) && defined(SHAREWARE))
+#if defined (D2_OEM) || defined(COMPILATION) || (defined(MACINTOSH) && defined(SHAREWARE))
+				DumbAdjust=1;
+#else
+				if (LineAdjustment==1)
 					DumbAdjust=1;
-				#else
-					if (LineAdjustment==1)
-						DumbAdjust=1;
-					else
-						DumbAdjust=2;
-				#endif
-	
+				else
+					DumbAdjust=2;
+#endif
+
 				i=0;
 				while ((fname[i]=*message) != '\n') {
 					i++;
@@ -827,13 +828,15 @@ int show_briefing_message(int screen_num, char *message)
 				//load_new_briefing_screen (MenuHires?"end01b.pcx":"end01.pcx");
 
 			} else if (ch == 'B') {
-				char			bitmap_name[32];
-				grs_bitmap	guy_bitmap;
-				ubyte			temp_palette[768];
-				int			iff_error;
+				char        bitmap_name[32];
+				grs_bitmap  guy_bitmap;
+				ubyte       temp_palette[768];
+				int         iff_error;
 
-				if (Robot_canv != NULL)
-					{d_free(Robot_canv); Robot_canv=NULL;}
+				if (Robot_canv != NULL) {
+					d_free(Robot_canv);
+					Robot_canv=NULL;
+				}
 
 				get_message_name(&message, bitmap_name);
 				strcat(bitmap_name, ".bbm");
@@ -845,49 +848,52 @@ int show_briefing_message(int screen_num, char *message)
 				show_briefing_bitmap(&guy_bitmap);
 				d_free(guy_bitmap.bm_data);
 				prev_ch = 10;
-//		   } else if (ch==EOF) {
+//			} else if (ch==EOF) {
 //				done=1;
 //			} else if (ch == 'B') {
-//				if (Robot_canv != NULL)
-//					{d_free(Robot_canv); Robot_canv=NULL;}
+//				if (Robot_canv != NULL)	{
+//					d_free(Robot_canv);
+//					Robot_canv=NULL;
+//				}
 //
 //				bitmap_num = get_message_num(&message);
 //				if (bitmap_num != -1)
 //					show_briefing_bitmap(Textures[bitmap_num]);
-//				prev_ch = 10;							//	read to eoln
+//				prev_ch = 10;                           // read to eoln
 			} else if (ch == 'S') {
-				int	keypress;
-				fix	start_time;
-			
+				int keypress;
+				fix start_time;
+
 				chattering=0;
 				if (printing_channel>-1)
-				   digi_stop_sound( printing_channel );
+					digi_stop_sound( printing_channel );
 				printing_channel=-1;
 
-			#ifdef WINDOWS
+#ifdef WINDOWS
 				if (!wpage_done) {
 					DDGRRESTORE;
 					wpage_done =1;
 				}
-			#endif
+#endif
 
 				start_time = timer_get_fixed_seconds();
 				while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
-				#ifdef WINDOWS
+#ifdef WINDOWS
 					if (_RedrawScreen) {
 						_RedrawScreen = FALSE;
 						hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
 						keypress = KEY_ESC;
 						break;
 					}
-				#endif
+#endif
 
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
 					flash_cursor(flashing_cursor);
 
 #ifdef ROBOT_MOVIES
-					if (RobotPlaying)	RotateRobot ();
+					if (RobotPlaying)
+						RotateRobot ();
 #else
 					show_spinning_robot_frame(robot_num);
 #endif
@@ -907,14 +913,12 @@ int show_briefing_message(int screen_num, char *message)
 				done = 1;
 				WIN(wpage_done = 0);
 			} else if (ch == 'P') {		//	New page.
-				if (!GotZ)
-				 {
-			  		 Int3(); // Hey ryan!!!! You gotta load a screen before you start 
-								// printing to it! You know, $Z !!!
+				if (!GotZ) {
+					Int3(); // Hey ryan!!!! You gotta load a screen before you start
+					        // printing to it! You know, $Z !!!
 		  		    load_new_briefing_screen (MenuHires?"end01b.pcx":"end01.pcx");
-				 }
-					 				
-		
+				}
+
 				new_page = 1;
 				while (*message != 10) {
 					message++;	//	drop carriage return after special escape sequence
@@ -951,21 +955,19 @@ int show_briefing_message(int screen_num, char *message)
 			}
 
 		} else {
-			if (!GotZ)
-			 {
-		  		 Int3(); // Hey ryan!!!! You gotta load a screen before you start 
-							// printing to it! You know, $Z !!!
-		  		 load_new_briefing_screen (MenuHires?"end01b.pcx":"end01.pcx");
-			 }
-				 
+			if (!GotZ) {
+				Int3(); // Hey ryan!!!! You gotta load a screen before you start
+				        // printing to it! You know, $Z !!!
+				load_new_briefing_screen (MenuHires?"end01b.pcx":"end01.pcx");
+			}
+
 			prev_ch = ch;
 
-         if (!chattering)
-			 {
+			if (!chattering) {
 		 		printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, -1 );
-	  		   chattering=1;
-			 }
-		
+				chattering=1;
+			}
+
 			WIN(if (GRMODEINFO(emul)) delay_count = 0);
 
 			Briefing_text_x += show_char_delay(ch, delay_count, robot_num, flashing_cursor);
@@ -973,15 +975,18 @@ int show_briefing_message(int screen_num, char *message)
 		}
 
 		//	Check for Esc -> abort.
-		key_check = local_key_inkey();
+		if (delay_count)
+			key_check = local_key_inkey();
+		else
+			key_check = 0;
 
-	#ifdef WINDOWS
+#ifdef WINDOWS
 		if (_RedrawScreen) {
 			_RedrawScreen = FALSE;
 			hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
 			key_check = KEY_ESC;
 		}
-	#endif
+#endif
 		if ( key_check == KEY_ESC ) {
 			rval = 1;
 			done = 1;
@@ -1002,34 +1007,35 @@ int show_briefing_message(int screen_num, char *message)
 			new_page = 0;
 
 			if (printing_channel>-1)
-			   digi_stop_sound( printing_channel );
+				digi_stop_sound( printing_channel );
 			printing_channel=-1;
-			
+
 			chattering=0;
 
-			#ifdef WINDOWS
-				if (!wpage_done) {
-					DDGRRESTORE;
-					wpage_done =1;
-				}
-			#endif
+#ifdef WINDOWS
+			if (!wpage_done) {
+				DDGRRESTORE;
+				wpage_done =1;
+			}
+#endif
 
 			start_time = timer_get_fixed_seconds();
 			while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
-			#ifdef WINDOWS
+#ifdef WINDOWS
 				if (_RedrawScreen) {
 					_RedrawScreen = FALSE;
 					hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
 					keypress = KEY_ESC;
 					break;
 				}
-			#endif
+#endif
 
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
 				flash_cursor(flashing_cursor);
 #ifdef ROBOT_MOVIES
-				if (RobotPlaying) RotateRobot();
+				if (RobotPlaying)
+					RotateRobot();
 #else
 				show_spinning_robot_frame(robot_num);
 #endif
@@ -1038,7 +1044,8 @@ int show_briefing_message(int screen_num, char *message)
 			}
 
 #ifdef ROBOT_MOVIES
-			if (RobotPlaying) DeInitRobotMovie();
+			if (RobotPlaying)
+				DeInitRobotMovie();
 			RobotPlaying=0;
 #endif
 			robot_num = -1;
@@ -1055,7 +1062,7 @@ int show_briefing_message(int screen_num, char *message)
 			load_briefing_screen(screen_num);
 			Briefing_text_x = bsp->text_ulx;
 			Briefing_text_y = bsp->text_uly;
-         delay_count = KEY_DELAY_DEFAULT;
+			delay_count = KEY_DELAY_DEFAULT;
 
 			WIN(wpage_done = 0);
 		}
@@ -1074,7 +1081,7 @@ int show_briefing_message(int screen_num, char *message)
 	if (hum_channel>-1)
 		digi_stop_sound( hum_channel );
 	if (printing_channel>-1)
-	   digi_stop_sound( printing_channel );
+		digi_stop_sound( printing_channel );
 
 	return rval;
 }
@@ -1173,40 +1180,41 @@ int load_screen_text(char *filename, char **buf)
  return (1);
 }
 
-//	-----------------------------------------------------------------------------
-//	Return true if message got aborted, else return false.
+//-----------------------------------------------------------------------------
+// Return true if message got aborted, else return false.
 int show_briefing_text(int screen_num)
 {
 	char	*message_ptr;
 
-   message_ptr = get_briefing_message(screen_num);
-   if (message_ptr==NULL)
-	 return (0);
-    
-   DoBriefingColorStuff();
+	message_ptr = get_briefing_message(screen_num);
+	if (message_ptr==NULL)
+		return (0);
+
+	DoBriefingColorStuff();
 
 	return show_briefing_message(screen_num, message_ptr);
 }
+
 void DoBriefingColorStuff ()
- {
-   Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 40, 0);
-   Briefing_background_colors[0] = gr_find_closest_color_current( 0, 6, 0);
+{
+	Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 40, 0);
+	Briefing_background_colors[0] = gr_find_closest_color_current( 0, 6, 0);
 
-   Briefing_foreground_colors[1] = gr_find_closest_color_current( 40, 33, 35);
-   Briefing_background_colors[1] = gr_find_closest_color_current( 5, 5, 5);
+	Briefing_foreground_colors[1] = gr_find_closest_color_current( 40, 33, 35);
+	Briefing_background_colors[1] = gr_find_closest_color_current( 5, 5, 5);
 
-   Briefing_foreground_colors[2] = gr_find_closest_color_current( 8, 31, 54);
-   Briefing_background_colors[2] = gr_find_closest_color_current( 1, 4, 7);
+	Briefing_foreground_colors[2] = gr_find_closest_color_current( 8, 31, 54);
+	Briefing_background_colors[2] = gr_find_closest_color_current( 1, 4, 7);
 
-   Erase_color = gr_find_closest_color_current(0, 0, 0);
- } 
+	Erase_color = gr_find_closest_color_current(0, 0, 0);
+}
 
-//	-----------------------------------------------------------------------------
-//	Return true if screen got aborted by user, else return false.
+//-----------------------------------------------------------------------------
+// Return true if screen got aborted by user, else return false.
 int show_briefing_screen( int screen_num, int allow_keys)
 {
-	int	rval=0;
-	ubyte	palette_save[768];
+	int     rval=0;
+	ubyte   palette_save[768];
 
 	New_pal_254_bash = 0;
 

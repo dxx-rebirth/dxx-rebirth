@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.2 2002-08-07 07:34:09 btb Exp $ */
+/* $Id: mission.h,v 1.3 2002-08-23 10:43:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,6 +22,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_SECRET_LEVELS_PER_MISSION   6
 #define MISSION_NAME_LEN                25
 
+#define SHAREWARE_MISSION_FILENAME  "d2demo"
+#define SHAREWARE_MISSION_NAME      "Descent 2 Demo"
+#define SHAREWARE_MISSION_HOGSIZE   2292566
+#define MAC_SHARE_MISSION_HOGSIZE   4292746
+
+#define OEM_MISSION_FILENAME        "d2"
+#define OEM_MISSION_NAME            "D2 Destination:Quartzon"
+#define OEM_MISSION_HOGSIZE         6132957
+
+#define FULL_MISSION_FILENAME       "d2.mn2"
+#define FULL_MISSION_HOGSIZE        7595079
+
 //mission list entry
 typedef struct mle {
 	char    filename[9];                // path and filename without extension
@@ -40,6 +52,8 @@ extern mle Mission_list[MAX_MISSIONS];
 
 extern int Current_mission_num;
 extern char *Current_mission_filename,*Current_mission_longname;
+extern char *Builtin_mission_filename;
+extern int Builtin_mission_hogsize;
 
 //arrays of name of the level files
 extern char Level_names[MAX_LEVELS_PER_MISSION][FILENAME_LEN];

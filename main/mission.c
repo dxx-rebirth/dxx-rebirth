@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.8 2002-08-23 01:52:11 btb Exp $ */
+/* $Id: mission.c,v 1.9 2002-08-23 10:43:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -60,20 +60,8 @@ char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
 #define MISSION_DIR "./"
 #endif
 
-#define SHAREWARE_MISSION_FILENAME  "d2demo"
-#define SHAREWARE_MISSION_NAME      "Descent 2 Demo"
-#define SHAREWARE_MISSION_HOGSIZE   2292566
-#define MAC_SHARE_MISSION_HOGSIZE   4292746
-
-#define OEM_MISSION_FILENAME        "d2"
-#define OEM_MISSION_NAME            "D2 Destination:Quartzon"
-#define OEM_MISSION_HOGSIZE         6132957
-
-#define FULL_MISSION_FILENAME       "d2.mn2"
-#define FULL_MISSION_HOGSIZE        7595079
-
-char *builtin_mission;
-int builtin_mission_hogsize;
+char *Builtin_mission_filename;
+int Builtin_mission_hogsize;
 
 //
 //  Special versions of mission routines for shareware
@@ -90,7 +78,7 @@ int load_mission_shareware(int mission_num)
 	Last_level = 3;
 	Last_secret_level = 0;
 
-	switch (builtin_mission_hogsize) {
+	switch (Builtin_mission_hogsize) {
 	case MAC_SHARE_MISSION_HOGSIZE:
 		// mac demo is using the regular hog and rl2 files
 		strcpy(Level_names[0],"d2leva-1.rl2");
@@ -219,7 +207,7 @@ int read_mission_file(char *filename,int count,int location)
 	char filename2[100];
 	CFILE *mfile;
 
-	printf("reading: %s\n", filename);
+	//printf("reading: %s\n", filename);
 
 	switch (location) {
 		case ML_MISSIONDIR:
@@ -303,11 +291,11 @@ int read_mission_file(char *filename,int count,int location)
 
 void add_builtin_mission_to_list(int *count)
 {
-	builtin_mission_hogsize = cfile_size("descent2.hog");
-	if (builtin_mission_hogsize == -1)
-		builtin_mission_hogsize = cfile_size("d2demo.hog");
+	Builtin_mission_hogsize = cfile_size("descent2.hog");
+	if (Builtin_mission_hogsize == -1)
+		Builtin_mission_hogsize = cfile_size("d2demo.hog");
 
-	switch (builtin_mission_hogsize) {
+	switch (Builtin_mission_hogsize) {
 	case SHAREWARE_MISSION_HOGSIZE:
 	case MAC_SHARE_MISSION_HOGSIZE:
 		strcpy(Mission_list[*count].filename,SHAREWARE_MISSION_FILENAME);
@@ -320,14 +308,14 @@ void add_builtin_mission_to_list(int *count)
 		Mission_list[*count].anarchy_only_flag = 0;
 		break;
 	default:
-		Warning("Unknown hogsize %d, trying %s\n", builtin_mission_hogsize, FULL_MISSION_FILENAME);
+		Warning("Unknown hogsize %d, trying %s\n", Builtin_mission_hogsize, FULL_MISSION_FILENAME);
 		Int3(); //fall through
 	case FULL_MISSION_HOGSIZE:
 		if (!read_mission_file(FULL_MISSION_FILENAME,0,ML_CURDIR))
 			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME);
 	}
 
-	builtin_mission = strdup(Mission_list[*count].filename);
+	Builtin_mission_filename = strdup(Mission_list[*count].filename);
 	++(*count);
 }
 
@@ -351,17 +339,19 @@ void add_missions_to_list(char *search_name, int *count, int anarchy_mode)
 }
 
 /* move <mission_name> to <place> on mission list, increment <place> */
-void promote (char * mission_name, int * top_place, int num_missions) {
+void promote (char * mission_name, int * top_place, int num_missions)
+{
 	int i;
 	char name[FILENAME_LEN], * t;
 	strcpy(name, mission_name);
-		if ((t = strchr(name,'.')) != NULL)
-			*t = 0; //kill extension
-	printf("promoting: %s\n", name);
+	if ((t = strchr(name,'.')) != NULL)
+		*t = 0; //kill extension
+	//printf("promoting: %s\n", name);
 	for (i = *top_place; i < num_missions; i++)
 		if (!stricmp(Mission_list[i].filename, name)) {
 			//swap mission positions
 			mle temp;
+
 			temp = Mission_list[*top_place];
 			Mission_list[*top_place] = Mission_list[i];
 			Mission_list[i] = temp;
@@ -417,7 +407,7 @@ int build_mission_list(int anarchy_mode)
 	// to top of mission list
 	top_place = 0;
 	promote("descent", &top_place, count); // original descent 1 mission
-	promote(builtin_mission, &top_place, count); // descent 2
+	promote(Builtin_mission_filename, &top_place, count); // descent 2
 	promote("d2x", &top_place, count); // vertigo
 
 	if (count > top_place)
@@ -454,8 +444,8 @@ int load_mission(int mission_num)
 	int found_hogfile;
 	int enhanced_mission = 0;
 
-	if (!strcmp(Mission_list[mission_num].filename, builtin_mission)) {
-		switch (builtin_mission_hogsize) {
+	if (!strcmp(Mission_list[mission_num].filename, Builtin_mission_filename)) {
+		switch (Builtin_mission_hogsize) {
 		case SHAREWARE_MISSION_HOGSIZE:
 		case MAC_SHARE_MISSION_HOGSIZE:
 			return load_mission_shareware(mission_num);
@@ -498,7 +488,7 @@ int load_mission(int mission_num)
 	}
 
 	//for non-builtin missions, load HOG
-	if (strcmp(Mission_list[mission_num].filename, builtin_mission)) {
+	if (strcmp(Mission_list[mission_num].filename, Builtin_mission_filename)) {
 
 		strcpy(buf+strlen(buf)-4,".hog");		//change extension
 

@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.11 2002-08-06 05:06:38 btb Exp $ */
+/* $Id: gameseq.c,v 1.12 2002-08-23 10:43:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.11 2002-08-06 05:06:38 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.12 2002-08-23 10:43:11 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -122,6 +122,7 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.11 2002-08-06 05:06:38 btb Exp $";
 #include "editor/editor.h"
 #endif
 #include "makesig.h"
+#include "strutil.h"
 
 void StartNewLevelSecret(int level_num, int page_in_textures);
 void InitPlayerPosition(int random_flag);
@@ -278,7 +279,7 @@ gameseq_init_network_players()
 #endif
 #if defined (D2_OEM)
 
- 	if ((Game_mode & GM_MULTI) && Current_mission_num == 0 && Current_level_num==8)
+ 	if ((Game_mode & GM_MULTI) && stricmp(Current_mission_filename, Builtin_mission_filename) == 0 && Current_level_num==8)
 	 {
 	  for (i=0;i<N_players;i++)
 		 if (Players[i].connected && !(NetPlayers.players[i].version_minor & 0xF0))
@@ -574,7 +575,7 @@ void DoGameOver()
 {
 //	nm_messagebox( TXT_GAME_OVER, 1, TXT_OK, "" );
 
-	if (Current_mission_num == 0)
+	if (stricmp(Current_mission_filename, Builtin_mission_filename) == 0)
 		scores_maybe_add_player(0);
 
 	Function_mode = FMODE_MENU;
@@ -1525,7 +1526,7 @@ void DoEndGame(void)
 
 	key_flush();
 
-	if (/* Current_mission_num == 0 && */ !(Game_mode & GM_MULTI)) { //only built-in mission, & not multi
+	if (stricmp(Current_mission_filename, Builtin_mission_filename) == 0 && !(Game_mode & GM_MULTI)) { //only built-in mission, & not multi
 #ifndef SHAREWARE
 		int played=MOVIE_NOT_PLAYED;	//default is not played
 #endif
@@ -1534,15 +1535,15 @@ void DoEndGame(void)
 		played = PlayMovie(ENDMOVIE,MOVIE_REQUIRED);
 		close_subtitles();
 		if (!played) {
-#ifdef D2_OEM
-			songs_play_song( SONG_TITLE, 0 );
-			do_briefing_screens("end2oem.tex",1);
-#else
-			songs_play_song( SONG_ENDGAME, 0 );
-			mprintf((0,"doing briefing\n"));
-			do_briefing_screens("ending2.tex",1);
-			mprintf((0,"briefing done\n"));
-#endif
+			if (cfexist("end2oem.txb") || cfexist("end2oem.tex")) {
+				songs_play_song( SONG_TITLE, 0 );
+				do_briefing_screens("end2oem.tex",1);
+			} else {
+				songs_play_song( SONG_ENDGAME, 0 );
+				mprintf((0,"doing briefing\n"));
+				do_briefing_screens("ending2.tex",1);
+				mprintf((0,"briefing done\n"));
+			}
 		}
    } else if (!(Game_mode & GM_MULTI)) {    //not multi
 		char tname[FILENAME_LEN];
@@ -1568,7 +1569,7 @@ void DoEndGame(void)
 		// NOTE LINK TO ABOVE
 		DoEndLevelScoreGlitz(0);
 
-	if (Current_mission_num == 0 && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
+	if (stricmp(Current_mission_filename, Builtin_mission_filename) == 0 && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 		WINDOS(
 			dd_gr_set_current_canvas(NULL),
 			gr_set_current_canvas( NULL )
@@ -2119,22 +2120,20 @@ void ShowLevelIntro(int level_num)
 
 		memcpy(save_pal,gr_palette,sizeof(gr_palette));
 
-		#if defined(D2_OEM) || defined(COMPILATION)
-		if (level_num==1 && !intro_played)
-			do_briefing_screens ("brief2o.tex",1);	
-		#endif
+		if (cfexist("brief2o.txb") || cfexist("brief2o.tex"))
+			if (level_num == 1 && !intro_played)
+				do_briefing_screens ("brief2o.tex",1);
 
-		if (Current_mission_num==0)
-		{
+		if (!stricmp(Current_mission_filename, Builtin_mission_filename)) {
 #ifndef SHAREWARE
 			int movie=0;
 #endif
-			#ifdef SHAREWARE
+			if (cfexist("brief2.txb") || cfexist("brief2.tex")) {
 				if (level_num==1)
 				{
-					do_briefing_screens ("brief2.tex",1);	
+					do_briefing_screens ("brief2.tex",1);
 				}
-			#else
+			} else {
 				for (i=0;i<NUM_INTRO_MOVIES;i++)
 				{
 					if (intro_movie[i].level_num == level_num)
@@ -2155,7 +2154,7 @@ void ShowLevelIntro(int level_num)
 				if (robot_movies)
 				{
 					int hires_save=MenuHiresAvailable;
-					
+
 					if (robot_movies == 1)		//lowres only
 					{
 						MenuHiresAvailable = 0;		//pretend we can't do highres
@@ -2168,8 +2167,8 @@ void ShowLevelIntro(int level_num)
 					MenuHiresAvailable = hires_save;
 				}
 
-			#endif
-		}      
+			}
+		}
 		else {	//not the built-in mission.  check for add-on briefing
 			char tname[FILENAME_LEN];
 			sprintf(tname,"%s.tex",Current_mission_filename);

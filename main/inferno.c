@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.39 2002-08-08 23:15:03 btb Exp $ */
+/* $Id: inferno.c,v 1.40 2002-08-23 10:43:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -445,9 +445,7 @@ extern char Language[];
 //can we do highres menus?
 extern int MenuHiresAvailable;
 
-#ifdef D2_OEM
 int intro_played = 0;
-#endif
 
 int Inferno_verbose = 0;
 
@@ -683,17 +681,17 @@ int main(int argc,char **argv)
    #endif
 
 	// Load the palette stuff. Returns non-zero if error.
-	con_printf(CON_DEBUG, "\nInitializing palette system..." );
+	con_printf(CON_DEBUG, "Initializing palette system...\n" );
 	gr_use_palette_table(DEFAULT_PALETTE );
 
-	con_printf(CON_DEBUG, "\nInitializing font system..." );
+	con_printf(CON_DEBUG, "Initializing font system...\n" );
 	gamefont_init();	// must load after palette data loaded.
 
-	con_printf( CON_DEBUG, "\nInitializing movie libraries..." );
+	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
 	init_movies();		//init movie libraries
 
 #if 0
-	con_printf(CON_VERBOSE, "\nGoing into graphics mode...\n");
+	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
 #if defined(POLY_ACC)
 	gr_set_mode(SM_640x480x15xPA);
 #else
