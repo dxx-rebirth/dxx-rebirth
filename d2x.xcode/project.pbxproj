@@ -85,6 +85,7 @@
 			children = (
 				676AC26F0668A939007173EB,
 				676AC31D0668A939007173EB,
+				670E3867066C571F0085B671,
 			);
 			isa = PBXGroup;
 			name = Products;
@@ -115,10 +116,12 @@
 			targets = (
 				676AC1BF0668A938007173EB,
 				676AC2710668A939007173EB,
+				670E3866066C571F0085B671,
 			);
 		};
 		29B97314FDCFA39411CA2CEA = {
 			children = (
+				670E3796066C50C30085B671,
 				080E96DDFE201D6D7F000001,
 				29B97315FDCFA39411CA2CEA,
 				29B97317FDCFA39411CA2CEA,
@@ -126,6 +129,7 @@
 				19C28FACFE9D520D11CA2CBB,
 				675ED123066B196700E42AA7,
 				67F6FEEA066B13D900443922,
+				670E3869066C571F0085B671,
 			);
 			isa = PBXGroup;
 			name = d2x;
@@ -222,6 +226,203 @@
 //672
 //673
 //674
+		670E3796066C50C30085B671 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text;
+			path = ChangeLog;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		670E3862066C571F0085B671 = {
+			buildActionMask = 2147483647;
+			files = (
+				670E39DA066C59C40085B671,
+				670E3A42066C5C420085B671,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		670E3863066C571F0085B671 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		670E3864066C571F0085B671 = {
+			buildActionMask = 2147483647;
+			files = (
+				670E39B0066C598A0085B671,
+				670E39B1066C598A0085B671,
+				670E39B3066C598B0085B671,
+				670E39B5066C598B0085B671,
+				670E39BF066C598E0085B671,
+				670E39C5066C59A00085B671,
+				670E3A43066C5C430085B671,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		670E3865066C571F0085B671 = {
+			buildActionMask = 2147483647;
+			files = (
+				670E39EC066C5A0F0085B671,
+				670E39ED066C5A100085B671,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		670E3866066C571F0085B671 = {
+			buildPhases = (
+				670E3862066C571F0085B671,
+				670E3863066C571F0085B671,
+				670E3864066C571F0085B671,
+				670E3865066C571F0085B671,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = /Users/btb/Library/Frameworks;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				HEADER_SEARCH_PATHS = "$(HOME)/Library/Frameworks/SDL.framework/Headers";
+				INFOPLIST_FILE = "MVEPlayer-Info.plist";
+				INSTALL_PATH = "$(USER_APPS_DIR)";
+				OPTIMIZATION_CFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = MVEPlayer;
+				WARNING_CFLAGS = "-Wall";
+			};
+			dependencies = (
+			);
+			isa = PBXNativeTarget;
+			name = MVEPlayer;
+			productName = MVEPlayer;
+			productReference = 670E3867066C571F0085B671;
+			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>MVEPlayer</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
+	<key>CFBundleIconFile</key>
+	<string></string>
+	<key>CFBundleIdentifier</key>
+	<string>com.MySoftwareCompany.MVEPlayer</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string></string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>1.0.0d1</string>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>
+";
+			productType = "com.apple.product-type.application";
+		};
+		670E3867066C571F0085B671 = {
+			explicitFileType = wrapper.application;
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = MVEPlayer.app;
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		670E3869066C571F0085B671 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.xml;
+			name = "MVEPlayer-Info.plist";
+			path = "/Users/btb/Source/d2x/MVEPlayer-Info.plist";
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		670E39B0066C598A0085B671 = {
+			fileRef = 67B4421406687AD900DF26D8;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		670E39B1066C598A0085B671 = {
+			fileRef = 67B4421006687AD900DF26D8;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		670E39B3066C598B0085B671 = {
+			fileRef = 67B4421106687AD900DF26D8;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		670E39B5066C598B0085B671 = {
+			fileRef = 67B4421906687AD900DF26D8;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		670E39BF066C598E0085B671 = {
+			fileRef = 67B4421706687AD900DF26D8;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		670E39C4066C59A00085B671 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = mve_main.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		670E39C5066C59A00085B671 = {
+			fileRef = 670E39C4066C59A00085B671;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		670E39DA066C59C40085B671 = {
+			fileRef = 6791D0D106688B1100056A5A;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		670E39EC066C5A0F0085B671 = {
+			fileRef = 6710AAFE066B2D6100DB0F68;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		670E39ED066C5A100085B671 = {
+			fileRef = 1058C7A1FEA54F0111CA2CBB;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		670E3A42066C5C420085B671 = {
+			fileRef = 67F6FED0066B13B400443922;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		670E3A43066C5C430085B671 = {
+			fileRef = 67F6FED1066B13B400443922;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		6710AAFE066B2D6100DB0F68 = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
@@ -3837,6 +4038,7 @@
 				67B4421006687AD900DF26D8,
 				67B4421106687AD900DF26D8,
 				67B4421406687AD900DF26D8,
+				670E39C4066C59A00085B671,
 				67B4421706687AD900DF26D8,
 				67B4421906687AD900DF26D8,
 			);

@@ -1,3 +1,8 @@
+2004-06-01  Bradley Bell  <btb@icculus.org>
+
+	* MVEPlayer-Info.plist, d2x.xcode/project.pbxproj: added MVEPlayer
+	target to XCode project
+
 2004-05-31  Bradley Bell  <btb@icculus.org>
 
 	* include/pstypes.h: fix accidental solaris breakage
