@@ -11,7 +11,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/gauges.c,v $
+ * $Revision: 1.5 $
+ * $Author: bradleyb $
+ * $Date: 2001-11-04 09:00:25 $
+ *
+ * Inferno gauge drivers
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
 
 #ifdef WINDOWS
 #include "desw.h"
@@ -21,6 +35,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+
+#include "hudmsg.h"
 
 #include "pa_enabl.h"                   //$$POLY_ACC
 #include "inferno.h"
@@ -951,8 +967,6 @@ void get_hostage_window_coords(int *x,int *y,int *w,int *h)
 #define cv_w  cv_bitmap.bm_w
 #define cv_h  cv_bitmap.bm_h
 
-#define HUD_MESSAGE_LENGTH 150
-#define HUD_MAX_NUM 4
 extern int HUD_nmessages, hud_first; // From hud.c
 extern char HUD_messages[HUD_MAX_NUM][HUD_MESSAGE_LENGTH+5]; 
 extern fix ThisLevelTime;

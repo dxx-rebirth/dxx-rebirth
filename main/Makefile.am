@@ -44,6 +44,7 @@ ai.h aistruct.h automap.h bm.h bmread.h cdrom.h cntrlcen.h collide.h \
 compbit.h config.h controls.h credits.h desc_id.h desw.h digi.h effects.h \
 endlevel.h fireball.h fuelcen.h fvi.h fvi_a.h game.h gamefont.h gamemine.h \
 gamepal.h gamesave.h gameseg.h gameseq.h gamestat.h gauges.h hostage.h \
+hudmsg.h \
 inferno.h joydefs.h kconfig.h kmatrix.h laser.h lighting.h menu.h mission.h \
 modem.h morph.h movie.h multi.h multibot.h netmisc.h network.h newdemo.h \
 newmenu.h object.h paging.h physics.h piggy.h player.h playsave.h polyobj.h \

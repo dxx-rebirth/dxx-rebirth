@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ogl/gr.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-10-31 07:35:47 $
+ * $Date: 2001-11-04 09:00:25 $
  *
  * // OGL video functions. - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/10/31 07:35:47  bradleyb
+ * Sync with d1x
+ *
  * Revision 1.1  2001/10/25 08:25:34  bradleyb
  * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
  *
@@ -42,6 +45,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include "hudmsg.h"
 #include "game.h"
 #include "text.h"
 #include "gr.h"
@@ -58,7 +62,6 @@
 #include "mono.h"
 #include "args.h"
 #include "key.h"
-#include "u_mem.h"
 
 #define DECLARE_VARS
 #include "ogl_init.h"
@@ -675,7 +678,7 @@ void save_screen_shot(int automap_flag)
 	
 	if (!ogl_readpixels_ok){
 		if (!automap_flag)
-//			hud_message(MSGC_GAME_FEEDBACK,"glReadPixels not supported on your configuration");
+			hud_message(MSGC_GAME_FEEDBACK,"glReadPixels not supported on your configuration");
 		return;
 	}
 
@@ -700,7 +703,7 @@ void save_screen_shot(int automap_flag)
 //	gr_get_string_size(message,&w,&h,&aw);
 //		modex_print_message(32, 2, message);
 	} else {
-//		hud_message(MSGC_GAME_FEEDBACK,message);
+		hud_message(MSGC_GAME_FEEDBACK,message);
 	}
 	
 	buf = d_malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);

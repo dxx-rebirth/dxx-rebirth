@@ -11,14 +11,28 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/hud.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-11-04 09:00:25 $
+ *
+ * Routines for displaying HUD messages...
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
 
-
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+
+#include "hudmsg.h"
 
 #include "pstypes.h"
 #include "u_mem.h"
@@ -48,9 +62,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int hud_first = 0;
 int hud_last = 0;
 
-#define HUD_MESSAGE_LENGTH	150
-#define HUD_MAX_NUM 4
-
 int 	HUD_nmessages = 0;
 fix	HUD_message_timer = 0;		// Time, relative to Players[Player_num].time (int.frac seconds.frac), at which to erase gauge message
 char  HUD_messages[HUD_MAX_NUM][HUD_MESSAGE_LENGTH+5];
@@ -60,6 +71,9 @@ char Displayed_background_message[2][HUD_MESSAGE_LENGTH] = {"",""};
 int	Last_msg_ycrd = -1;
 int	Last_msg_height = 6;
 int	HUD_color = -1;
+
+int     MSG_Playermessages = 0;
+int     MSG_Noredundancy = 0;
 
 int	Modex_hud_msg_count;
 
@@ -449,4 +463,15 @@ void player_dead_message(void)
 // 	else
 // 		HUD_init_message("Afterburner disengaged.");
 // }
+
+void hud_message(int class, char *format, ...)
+{
+ va_list vp;
+ va_start(vp, format);
+  if ((!MSG_Noredundancy || (class & MSGC_NOREDUNDANCY)) &&
+      (!MSG_Playermessages || !(Game_mode & GM_MULTI) ||
+      (class & MSGC_PLAYERMESSAGES)))
+   HUD_init_message(format, vp);
+ va_end(vp);
+}
 
