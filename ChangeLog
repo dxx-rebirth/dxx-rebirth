@@ -1,3 +1,7 @@
+2003-02-26  Martin Schaffner <maschaffner@gmx.ch>
+
+	* main/gamemine.c: better texture conversion for d1 levels
+
 2003-02-26  Micah J. Lieske  <MicahJon@compuserve.com>
 
 	* main/kconfig.c: fix joystick support under MinGW

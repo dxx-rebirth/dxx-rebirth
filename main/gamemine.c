@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.17 2003-02-26 10:20:34 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.18 2003-02-27 04:31:04 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -145,10 +145,11 @@ int CreateDefaultNewSegment();
 
 /* converts descent 1 texture numbers to descent 2 texture numbers
  * textures whose names don't match between versions have extra spaces around "return"
+ * updated using the file config/convtabl.ini from the devil 2.2 level editor
  */
 short convert_d1_tmap_num(short d1_tmap_num) {
 	switch (d1_tmap_num) {
-	case   0:  return  43; // grey
+	case   0:  return  43; // grey (devil:95)
 	case   1: return 0;
 	case   2:  return  43; // grey
 	case   3: return 1;
@@ -157,26 +158,26 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case   6:  return  270; // blue
 	case   7:  return  271; // yellow
 	case   8: return 2;
-	case   9:  return  62; // purple
+	case   9:  return  62; // purple (devil:179)
 	case  10:  return  272; // red
 	case  11:  return  117;
-	case  12:  return  12;
+	case  12:  return  12; //devil:43
 	case  13: return 3;
 	case  14: return 4;
 	case  15: return 5;
 	case  16: return 6;
-	case  17:  return  17;
-	case  18:  return  18;
+	case  17:  return  17; //devil:52
+	case  18:  return  18; //devil:129
 	case  19: return 7;
 	case  20:  return  22;
 	case  21:  return  9;
 	case  22: return 8;
 	case  23: return 9;
 	case  24: return 10;
-	case  25:  return  12;
+	case  25:  return  12; //devil:35
 	case  26: return 11;
 	case  27: return 12;
-	case  28:  return  11;
+	case  28:  return  11; //devil:43
 	case  29: return 13;
 	case  30: return 14;
 	case  31: return 15;
@@ -186,101 +187,30 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case  35: return 19;
 	case  36: return 20;
 	case  37: return 21;
-	case  38:  return  163;
-	case  39:  return  31;
+	case  38:  return  163; //devil:27
+	case  39:  return  31; //devil:147
 	case  40: return 22;
 	case  41:  return  266;
 	case  42: return 23;
 	case  43: return 24;
-	case  44:  return  136;
+	case  44:  return  136; //devil:135
 	case  45: return 25;
 	case  46: return 26;
 	case  47: return 27;
 	case  48: return 28;
-	case  49:  return  43;
-	case  50:  return  131;
+	case  49:  return  43; //devil:60
+	case  50:  return  131; //devil:138
 	case  51: return 29;
 	case  52: return 30;
 	case  53: return 31;
 	case  54: return 32;
-	case  55:  return  165;
+	case  55:  return  165; //devil:193
 	case  56: return 33;
-	case  57:  return  132;
-	case  58: return 34;
-	case  59: return 35;
-	case  60: return 36;
-	case  61: return 37;
-	case  62: return 38;
-	case  63: return 39;
-	case  64: return 40;
-	case  65: return 41;
-	case  66: return 42;
-	case  67: return 43;
-	case  68: return 44;
-	case  69: return 45;
-	case  70: return 46;
-	case  71: return 47;
-	case  72: return 48;
-	case  73: return 49;
-	case  74: return 50;
-	case  75: return 51;
-	case  76: return 52;
-	case  77: return 53;
-	case  78: return 54;
-	case  79: return 55;
-	case  80: return 56;
-	case  81: return 57;
-	case  82: return 58;
-	case  83: return 59;
-	case  84: return 60;
-	case  85: return 61;
-	case  86: return 62;
-	case  87: return 63;
-	case  88:  return  66;
-	case  89: return 64;
-	case  90: return 65;
-	case  91: return 66;
-	case  92: return 67;
-	case  93: return 68;
-	case  94: return 69;
-	case  95: return 70;
-	case  96: return 71;
-	case  97: return 72;
-	case  98: return 73;
-	case  99: return 74;
-	case 100: return 75;
-	case 101: return 76;
-	case 102: return 77;
-	case 103: return 78;
-	case 104: return 79;
-	case 105: return 80;
-	case 106: return 81;
-	case 107: return 82;
-	case 108: return 83;
-	case 109: return 84;
-	case 110: return 85;
-	case 111: return 86;
-	case 112: return 87;
-	case 113: return 88;
-	case 114: return 89;
-	case 115: return 90;
-	case 116: return 91;
-	case 117: return 92;
-	case 118: return 93;
-	case 119: return 94;
-	case 120: return 95;
-	case 121: return 96;
-	case 122: return 97;
-	case 123: return 98;
-	case 124: return 99;
-	case 125: return 100;
-	case 126: return 101;
-	case 127: return 102;
-	case 128: return 103;
-	case 129: return 104;
-	case 130: return 105;
-	case 131: return 106;
-	case 132:  return  108;
+	case  57:  return  132; //devil:119
+	// range handled by default case
+	case  88:  return  66; //devil:15
+	// range handled by default case
+	case 132:  return  108; //devil:167
 	case 133: return 107;
 	case 134: return 108;
 	case 135: return 109;
@@ -289,27 +219,27 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 138: return 112;
 	case 139: return 113;
 	case 140: return 114;
-	case 141:  return  110;
+	case 141:  return  110; //devil:106
 	case 142: return 115;
 	case 143: return 116;
 	case 144: return 117;
 	case 145: return 118;
 	case 146: return 119;
-	case 147:  return  111;
+	case 147:  return  111; //devil:93
 	case 148: return 120;
 	case 149: return 121;
 	case 150: return 122;
 	case 151: return 123;
 	case 152: return 124;
 	case 153: return 125;
-	case 154:  return  82;
-	case 155:  return  66;
+	case 154:  return  82; //devil:27
+	case 155:  return  66; //devil:126
 	case 156: return 200;
 	case 157: return 201;
-	case 158:  return  186;
-	case 159:  return  190;
+	case 158:  return  186; //devil:227
+	case 159:  return  190; //devil:246
 	case 160:  return  206;
-	case 161:  return  114;
+	case 161:  return  114; //devil:206
 	case 162: return 202;
 	case 163: return 203;
 	case 164: return 204;
@@ -318,8 +248,8 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 167:  return  206;
 	case 168:  return  206;
 	case 169:  return  206;
-	case 170:  return  206;
-	case 171:  return  227;
+	case 170:  return  227;//206;
+	case 171:  return  206;//227;
 	case 172: return 207;
 	case 173: return 208;
 	case 174:  return  202;
@@ -333,7 +263,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 182: return 215;
 	case 183: return 216;
 	case 184: return 217;
-	case 185:  return  325;
+	case 185:  return  325; //devil:217
 	case 186: return 218;
 	case 187: return 219;
 	case 188: return 220;
@@ -342,15 +272,15 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 191: return 223;
 	case 192: return 224;
 	case 193:  return  206;
-	case 194:  return  206;
+	case 194:  return  203;//206;
 	case 195:  return  234;
 	case 196: return 225;
 	case 197: return 226;
 	case 198:  return  225;
-	case 199:  return  206;
-	case 200:  return  206;
+	case 199:  return  206; //devil:204
+	case 200:  return  206; //devil:204
 	case 201: return 227;
-	case 202:  return  206;
+	case 202:  return  206; //devil:227
 	case 203: return 228;
 	case 204: return 229;
 	case 205: return 230;
@@ -358,8 +288,8 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 207: return 232;
 	case 208: return 233;
 	case 209: return 234;
-	case 210:  return  234;
-	case 211:  return  206;
+	case 210:  return  234; //devil:242
+	case 211:  return  206; //devil:240
 	case 212: return 235;
 	case 213: return 236;
 	case 214: return 237;
@@ -368,17 +298,17 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 217: return 240;
 	case 218: return 241;
 	case 219: return 242;
-	case 220:  return  242;
+	case 220:  return  242; //devil:240
 	case 221: return 243;
 	case 222: return 244;
 	case 223: return  313;
 	case 224: return 245;
 	case 225: return 246;
-	case 226: return 247;
-	case 227:  return  179;
-	case 228: return 248;
-	case 229:  return  15;
-	case 230:  return  15;
+	case 226: return  164;//247; matching names but not matching textures
+	case 227:  return  179; //devil:181
+	case 228: return  196;//248; matching names but not matching textures
+	case 229:  return  15; //devil:66
+	case 230:  return  15; //devil:66
 	case 231: return 249;
 	case 232: return 250;
 	case 233: return 251;
@@ -388,10 +318,10 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 237: return 255;
 	case 238: return 256;
 	case 239: return 257;
-	case 240:  return  6;
-	case 241:  return  130;
-	case 242:  return  78;
-	case 243:  return  33;
+	case 240:  return  6; //devil:132
+	case 241:  return  130; //devil:131
+	case 242:  return  78; //devil:15
+	case 243:  return  33; //devil:38
 	case 244: return 258;
 	case 245: return 259;
 	case 246:  return  321;
@@ -405,83 +335,34 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 254: return 263;
 	case 255: return 264;
 	case 256: return 265;
-	case 257:  return  246;
-	case 258:  return  246;
-	case 259:  return  246;
-	case 260:  return  246;
+	case 257:  return  249;//246;
+	case 258:  return  251;//246;
+	case 259:  return  252;//246;
+	case 260:  return  256;//246;
 	case 261: return 273;
 	case 262: return 274;
 	case 263:  return  281;
 	case 264: return 275;
 	case 265: return 276;
-	case 266:  return  279;
-	case 267: return 277;
-	case 268: return 278;
-	case 269: return 279;
-	case 270: return 280;
-	case 271: return 281;
-	case 272: return 282;
-	case 273: return 283;
-	case 274: return 284;
-	case 275: return 285;
-	case 276: return 286;
-	case 277: return 287;
-	case 278: return 288;
-	case 279: return 289;
-	case 280: return 290;
-	case 281: return 291;
+	case 266:  return  279; //devil:291
+	// range handled by default case
 	case 282: return 293;
 	case 283:  return  295;
 	case 284: return 295;
 	case 285: return 296;
 	case 286: return 298;
-	case 287: return 300;
-	case 288: return 301;
-	case 289: return 302;
-	case 290: return 303;
-	case 291: return 304;
-	case 292: return 305;
-	case 293: return 306;
-	case 294: return 307;
-	case 295: return 308;
-	case 296: return 309;
-	case 297: return 310;
-	case 298:  return  364;
-	case 299: return 311;
-	case 300: return 312;
-	case 301: return 313;
-	case 302: return 314;
-	case 303: return 315;
-	case 304: return 316;
-	case 305: return 317;
-	case 306: return 318;
-	case 307: return 319;
-	case 308: return 320;
-	case 309: return 321;
-	case 310: return 322;
-	case 311: return 323;
-	case 312: return 324;
-	case 313: return 325;
-	case 314: return 326;
+	// range handled by default case
+	case 298:  return  364; //devil:374
+	// range handled by default case
 	case 315:  return  361; // broken producer
-	case 316: return 327;
-	case 317: return 328;
-	case 318: return 329;
-	case 319: return 330;
-	case 320: return 331;
-	case 321: return 332;
-	case 322: return 333;
-	case 323: return 334;
-	case 324: return 335;
-	case 325: return 336;
-	case 326: return 337;
+	// range handled by default case
 	case 327: return 352;
 	case 328: return 353;
 	case 329: return 354;
-	case 330:  return  366;
+	case 330:  return  366; //devil:380
 	case 331: return 373;
-	case 332: return 344;
- 	case 333: return   409; // lava
+	case 332: return  355;//344; matching names but not matching textures
+ 	case 333: return  409; // lava  //devil:404
 	case 334: return 356;
 	case 335: return 357;
 	case 336: return 358;
@@ -497,20 +378,20 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 346: return 376;
 	case 347: return 370;
 	case 348: return 367;
-	case 349:  return  370;
+	case 349:  return  370; //devil:372
 	case 350: return 369;
-	case 351: return 429;
-	case 352: return 387;
+	case 351: return  374;//429; matching names but not matching textures
+	case 352: return  375;//387; matching names but not matching textures
 	case 353: return 371;
-	case 354: return 425;
+	case 354: return  377;//425; matching names but not matching textures
 	case 355:  return  408;
 	case 356: return 378; // lava02
-	case 357: return 384;
-	case 358: return 385;
-	case 359: return 386;
+	case 357: return  383;//384; matching names but not matching textures
+	case 358: return  384;//385; matching names but not matching textures
+	case 359: return  385;//386; matching names but not matching textures
 	case 360: return 386;
 	case 361: return 387;
-	case 362:  return  388; // mntr04a
+	case 362:  return  388; // mntr04a (devil: -1)
 	case 363: return 388;
 	case 364: return 391;
 	case 365: return 392;
@@ -518,18 +399,33 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 367: return 394;
 	case 368: return 395;
 	case 369: return 396;
-	case 370:  return  392; // mntr04b
+	case 370:  return  392; // mntr04b (devil: -1)
+	// range 371 - 584 handled by default
 	default:
-		if (d1_tmap_num > 370 && d1_tmap_num < 584) // wall01 and door frames
+		// ranges:
+		if (d1_tmap_num >= 58 && d1_tmap_num <= 87)
+			return d1_tmap_num - 24;
+		if (d1_tmap_num >= 89 && d1_tmap_num <= 131)
+			return d1_tmap_num - 25;
+		if (d1_tmap_num >= 267 && d1_tmap_num <= 281)
+			return d1_tmap_num + 10;
+		if (d1_tmap_num >= 287 && d1_tmap_num <= 297)
+			return d1_tmap_num + 13;
+		if (d1_tmap_num >= 299 && d1_tmap_num <= 314)
+			return d1_tmap_num + 12;
+		if (d1_tmap_num >= 316 && d1_tmap_num <= 326)
+			return d1_tmap_num + 11;
+		// wall01 and door frames:
+		if (d1_tmap_num > 370 && d1_tmap_num < 584)
 			return d1_tmap_num + 64;
-		{ // the following case (orientation != 0) occurs rarely
+		{ // handle rare case where orientation != 0
 			short tmap_num = d1_tmap_num &  TMAP_NUM_MASK;
 			short orient = d1_tmap_num & ~TMAP_NUM_MASK;
-			if (orient == 0) {
-				Warning("convert_d1_tmap_num doesn't know tmap #%d.\n", tmap_num);
-				return d1_tmap_num;
-			} else {
+			if (orient != 0) {
 				return orient | convert_d1_tmap_num(tmap_num);
+			} else {
+				Warning("can't convert unknown descent 1 texture #%d.\n", tmap_num);
+				return d1_tmap_num;
 			}
 		}
 	}
