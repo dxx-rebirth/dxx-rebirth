@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.7 2002-07-30 11:05:53 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.8 2002-08-01 23:28:57 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -161,7 +161,7 @@ int load_mine_data(CFILE *LoadFile)
 
 	for (i=0; i<MAX_TEXTURES; i++ )
 		tmap_times_used[i] = 0;
-	
+
 	#ifdef EDITOR
 	// Create a new mine to initialize things.
 	//texpage_goto_first();
@@ -626,13 +626,13 @@ void read_special(int segnum,ubyte bit_mask,CFILE *LoadFile)
 	}
 }
 
-int load_mine_data_compiled(CFILE *LoadFile)
+int load_mine_data_compiled(CFILE *LoadFile, int file_version)
 {
-	int		i,segnum,sidenum;
-	ubyte		version;
-	short		temp_short;
-	ushort	temp_ushort;
-	ubyte		bit_mask;
+	int     i, segnum, sidenum;
+	ubyte   compiled_version;
+	short   temp_short;
+	ushort  temp_ushort;
+	ubyte   bit_mask;
 
 	//	For compiled levels, textures map to themselves, prevent tmap_override always being gray,
 	//	bug which Matt and John refused to acknowledge, so here is Mike, fixing it.
@@ -645,8 +645,8 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	fuelcen_reset();
 
 	//=============================== Reading part ==============================
-	version = cfile_read_byte(LoadFile);
-	Assert( version==COMPILED_MINE_VERSION );
+	compiled_version = cfile_read_byte(LoadFile);
+	Assert( compiled_version==COMPILED_MINE_VERSION );
 
 	Num_vertices = cfile_read_short(LoadFile);
 	Assert( Num_vertices <= MAX_VERTICES );
@@ -673,18 +673,24 @@ int load_mine_data_compiled(CFILE *LoadFile)
 #else
 		read_children(segnum,bit_mask,LoadFile);
 		read_verts(segnum,LoadFile);
-		// --read_special(segnum,bit_mask,LoadFile);
+		if (file_version <= 1) { // descent 1 level
+			read_special(segnum,bit_mask,LoadFile);
+		}
 #endif
 
 		Segments[segnum].objects = -1;
 
-#ifdef SHAREWARE
-		// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-		temp_ushort = cfile_read_short(LoadFile);
-		Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
+#ifndef SHAREWARE
+		if (file_version <= 1) { // descent 1 level
 #endif
-		//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
-	
+			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
+			temp_ushort = cfile_read_short(LoadFile);
+			Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
+			//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
+#ifndef SHAREWARE
+		}
+#endif
+
 		// Read the walls as a 6 byte array
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
 			Segments[segnum].sides[sidenum].pad = 0;
@@ -696,9 +702,9 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 			if (bit_mask & (1 << sidenum)) {
 				byte_wallnum = cfile_read_byte(LoadFile);
-				if ( byte_wallnum == 255 )			
+				if ( byte_wallnum == 255 )
 					Segments[segnum].sides[sidenum].wall_num = -1;
-				else		
+				else
 					Segments[segnum].sides[sidenum].wall_num = byte_wallnum;
 			} else
 					Segments[segnum].sides[sidenum].wall_num = -1;
@@ -727,7 +733,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 					temp_ushort = cfile_read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].l = ((fix)temp_ushort) << 1;
 					//cfread( &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1, LoadFile );
-				}	
+				}
 			} else {
 				Segments[segnum].sides[sidenum].tmap_num = 0;
 				Segments[segnum].sides[sidenum].tmap_num2 = 0;
@@ -735,40 +741,40 @@ int load_mine_data_compiled(CFILE *LoadFile)
 					Segments[segnum].sides[sidenum].uvls[i].u = 0;
 					Segments[segnum].sides[sidenum].uvls[i].v = 0;
 					Segments[segnum].sides[sidenum].uvls[i].l = 0;
-				}	
+				}
 			}
 		}
 	}
 
-#if 0	
+#if 0
 	{
 		FILE *fp;
-		
+
 		fp = fopen("segments.out", "wt");
 		for (i = 0; i <= Highest_segment_index; i++) {
-
-	side		sides[MAX_SIDES_PER_SEGMENT];	// 6 sides
-	short		children[MAX_SIDES_PER_SEGMENT];	// indices of 6 children segments, front, left, top, right, bottom, back
-	short		verts[MAX_VERTICES_PER_SEGMENT];	// vertex ids of 4 front and 4 back vertices
-	int		objects;								// pointer to objects in this segment
+			side	sides[MAX_SIDES_PER_SEGMENT];	// 6 sides
+			short	children[MAX_SIDES_PER_SEGMENT];	// indices of 6 children segments, front, left, top, right, bottom, back
+			short	verts[MAX_VERTICES_PER_SEGMENT];	// vertex ids of 4 front and 4 back vertices
+			int		objects;								// pointer to objects in this segment
 
 			for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
-	byte		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
-	ubyte		pad;									//keep us longword alligned
-	short		wall_num;
-	short		tmap_num;
-	short		tmap_num2;
-	uvl		uvls[4];
-	vms_vector	normals[2];						// 2 normals, if quadrilateral, both the same.
-				fprintf(fp, "%d\n", Segments[i].sides[j].type;
-				fprintf(fp, "%d\n", Segments[i].sides[j].pad;
-				fprintf(fp, "%d\n", Segments[i].sides[j].wall_num;
-				fprintf(fp, "%d\n", Segments[i].tmap_num
-			
+				byte	type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
+				ubyte	pad;									//keep us longword alligned
+				short	wall_num;
+				short	tmap_num;
+				short	tmap_num2;
+				uvl		uvls[4];
+				vms_vector	normals[2];						// 2 normals, if quadrilateral, both the same.
+				fprintf(fp, "%d\n", Segments[i].sides[j].type);
+				fprintf(fp, "%d\n", Segments[i].sides[j].pad);
+				fprintf(fp, "%d\n", Segments[i].sides[j].wall_num);
+				fprintf(fp, "%d\n", Segments[i].tmap_num);
+
+			}
+			fclose(fp);
 		}
-		fclose(fp);
 	}
-#endif	
+#endif
 
 	Highest_vertex_index = Num_vertices-1;
 	Highest_segment_index = Num_segments-1;
@@ -777,7 +783,8 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 	for (i=0; i<Num_segments; i++) {
 #ifndef SHAREWARE
-		segment2_read(&Segment2s[i], LoadFile);
+		if (file_version > 1)
+			segment2_read(&Segment2s[i], LoadFile);
 #endif
 		fuelcen_activate( &Segments[i], Segment2s[i].special );
 	}

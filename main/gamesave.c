@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.8 2002-07-27 22:39:57 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.9 2002-08-01 23:28:57 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1356,11 +1356,7 @@ int check_segment_connections(void);
 
 extern void	set_ambient_sound_flags(void);
 
-// -----------------------------------------------------------------------------
-//loads from an already-open file
-// returns 0=everything ok, 1=old version, -1=error
-int load_mine_data(CFILE *LoadFile);
-int load_mine_data_compiled(CFILE *LoadFile);
+// ----------------------------------------------------------------------------
 
 #define LEVEL_FILE_VERSION		8
 //1 -> 2  add palette name
@@ -1486,12 +1482,14 @@ int load_level(char * filename_passed)
 		if (Current_level_palette[strlen(Current_level_palette)-1] == '\n')
 			Current_level_palette[strlen(Current_level_palette)-1] = 0;
 	}
+	if (version <= 1 || Current_level_palette[0]==0) // descent 1 level
+		strcpy(Current_level_palette,"groupa.256");
 
 	if (version >= 3)
 		Base_control_center_explosion_time = cfile_read_int(LoadFile);
 	else
 		Base_control_center_explosion_time = DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
-		
+
 	if (version >= 4)
 		Reactor_strength = cfile_read_int(LoadFile);
 	else
@@ -1507,9 +1505,6 @@ int load_level(char * filename_passed)
 	}
 	else
 		Num_flickering_lights = 0;
-
-	if (version <= 1 || Current_level_palette[0]==0)
-		strcpy(Current_level_palette,"groupa.256");
 
 	if (version < 6) {
 		Secret_return_segment = 0;
@@ -1540,7 +1535,7 @@ int load_level(char * filename_passed)
 	} else
 	#endif
 		//NOTE LINK TO ABOVE!!
-		mine_err = load_mine_data_compiled(LoadFile);
+		mine_err = load_mine_data_compiled(LoadFile, version);
 
 	if (mine_err == -1) {	//error!!
 		cfclose(LoadFile);

@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: console.c,v 1.8 2002-08-01 23:28:57 btb Exp $ */
 /*
  *
  * FIXME: put description here
@@ -57,7 +57,7 @@ int con_init(void)
 
 	/* Initialise the cvars */
 	cvar_registervariable (&con_threshold);
-	return 0;	
+	return 0;
 }
 
 /* ======
@@ -72,13 +72,17 @@ void con_printf(int priority, char *fmt, ...)
 	if (priority <= ((int)con_threshold.value))
 	{
 		va_start (arglist, fmt);
-                vsprintf (buffer,  fmt, arglist);
-		if (text_console_enabled) vprintf(fmt, arglist);
+		vsprintf (buffer,  fmt, arglist);
 		va_end (arglist);
+		if (text_console_enabled) {
+			va_start (arglist, fmt);
+			vprintf(fmt, arglist);
+			va_end (arglist);
+		}
 
 /*		for (i=0; i<l; i+=CON_LINE_LEN,con_line++)
 		{
-			memcpy(con_display, &buffer[i], min(80, l-i));	
+			memcpy(con_display, &buffer[i], min(80, l-i));
 		}*/
 	}
 }
@@ -106,7 +110,7 @@ void con_update(void)
 void cvar_registervariable (cvar_t *cvar)
 {
 	cvar_t *ptr;
-	
+
 	Assert(cvar != NULL);
 
 	cvar->next = NULL;
