@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.25 2003-12-08 22:32:56 btb Exp $ */
+/* $Id: game.c,v 1.26 2004-05-20 01:29:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -407,7 +407,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.25 2003-12-08 22:32:56 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.26 2004-05-20 01:29:14 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -832,6 +832,9 @@ void game_show_warning(char *s)
 #define cv_w  cv_bitmap.bm_w
 #define cv_h  cv_bitmap.bm_h
 
+//added 3/24/99 by Owen Evans for screen res changing
+u_int32_t Game_screen_mode = 0;
+//end added - OE
 int Game_window_x = 0;
 int Game_window_y = 0;
 int Game_window_w = 0;

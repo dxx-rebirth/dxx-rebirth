@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.74 2004-05-19 22:16:38 btb Exp $ */
+/* $Id: inferno.c,v 1.75 2004-05-20 01:29:17 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1305,7 +1305,6 @@ int main(int argc, char *argv[])
 		int screen_height = 480;
 		int vr_mode = VR_NONE;
 		int screen_flags = VRF_USE_PAGING;
-		u_int32_t Game_screen_mode = 0; // HACK -- from d1x game.c
 
 		if (FindResArg("", &screen_width, &screen_height))
 		{

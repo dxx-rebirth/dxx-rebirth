@@ -1,5 +1,8 @@
 2004-05-19  Bradley Bell  <btb@icculus.org>
 
+	* main/game.c, main/game.h, main/inferno.c, main/menu.c: inserted
+	d1x-style res change menu (mostly works)
+
 	* misc/args.c: use strnicmp instead of strncasecmp
 
 2004-05-19  Matthew Mueller  <donut@dakotacom.net>

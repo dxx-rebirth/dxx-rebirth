@@ -1,4 +1,4 @@
-/* $Id: game.h,v 1.6 2003-12-08 22:32:56 btb Exp $ */
+/* $Id: game.h,v 1.7 2004-05-20 01:29:16 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -289,6 +289,9 @@ extern int ft_preference;
 #define NUM_DETAIL_LEVELS   6
 
 extern int Game_mode;
+//added 3/24/99 by Owen Evans
+extern u_int32_t Game_screen_mode;
+//end added - OE
 
 extern int Game_paused;
 extern int gauge_message_on;

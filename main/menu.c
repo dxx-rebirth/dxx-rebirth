@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.34 2003-11-18 01:08:07 btb Exp $ */
+/* $Id: menu.c,v 1.35 2004-05-20 01:29:19 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1002,7 +1002,8 @@ void do_screen_res_menu()
 
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	if (m[fullscreenc].value != gr_check_fullscreen()){
-	    gr_toggle_fullscreen();
+		gr_toggle_fullscreen();
+		Game_screen_mode = -1;
 	}
 #endif
 
@@ -1158,6 +1159,119 @@ void options_menuset(int nitems, newmenu_item * items, int *last_key, int citem 
 }
 
 
+// added on 9/20/98 by Victor Rachels to attempt to add screen res change ingame
+// Changed on 3/24/99 by Owen Evans to make it work  =)
+void change_res_poll()
+{
+}
+
+void change_res()
+{
+	// edited 05/27/99 Matt Mueller - ingame fullscreen changing
+	newmenu_item m[8];
+	u_int32_t modes[8];
+	int i = 0, mc = 0;
+#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
+	int fullscreenc;
+#endif
+	//end edit -MM
+	u_int32_t screen_mode = 0;
+	int screen_width = 0;
+	int screen_height = 0;
+	int vr_mode = VR_NONE;
+	int screen_flags = 0;
+
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x200"; m[mc].value = (Game_screen_mode == SM(320, 200)); m[mc].group = 0; modes[mc] = SM(320, 200); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x480"; m[mc].value = (Game_screen_mode == SM(640, 480)); m[mc].group = 0; modes[mc] = SM(640, 480); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x400"; m[mc].value = (Game_screen_mode == SM(320, 400)); m[mc].group = 0; modes[mc] = SM(320, 400); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x400"; m[mc].value = (Game_screen_mode == SM(640, 400)); m[mc].group = 0; modes[mc] = SM(640, 400); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "800x600"; m[mc].value = (Game_screen_mode == SM(800, 600)); m[mc].group = 0; modes[mc] = SM(800, 600); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1024x768"; m[mc].value = (Game_screen_mode == SM(1024, 768)); m[mc].group = 0; modes[mc] = SM(1024, 768); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x1024"; m[mc].value = (Game_screen_mode == SM(1280, 1024)); m[mc].group = 0; modes[mc] = SM(1280, 1024); mc++;
+
+	//m[mc].type = NM_TYPE_CHECK; m[mc].text = "No Doublebuffer"; m[mc].value = use_double_buffer;
+
+	// added 05/27/99 Matt Mueller - ingame fullscreen changing
+#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
+	fullscreenc = mc; m[mc].type = NM_TYPE_CHECK; m[mc].text = "Fullscreen"; m[mc].value = gr_check_fullscreen(); mc++;
+#endif
+	// end addition -MM
+
+
+	i = newmenu_do1(NULL, "Screen Resolution", mc, m, &change_res_poll, i);
+
+	// added 05/27/99 Matt Mueller - ingame fullscreen changing
+#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
+	if (m[fullscreenc].value != gr_check_fullscreen())
+	{
+		gr_toggle_fullscreen();
+        Game_screen_mode = -1;
+	}
+#endif
+	// end addition -MM
+
+	for (i = 0; (m[i].value == 0) && (i < 6); i++);
+
+	switch (screen_mode = modes[i])
+	{
+	case SM(320, 200):
+		screen_width = 320;
+		screen_height = 200;
+		screen_flags = VRF_ALLOW_COCKPIT + VRF_COMPATIBLE_MENUS;
+		break;
+	case SM(640, 480):
+		screen_width = 640;
+		screen_height = 480;
+		screen_flags = VRF_ALLOW_COCKPIT + VRF_COMPATIBLE_MENUS;
+		break;
+	case SM(320, 400):
+		screen_width = 320;
+		screen_height = 400;
+		screen_flags = VRF_USE_PAGING;
+		break;
+	case SM(640, 400):
+		screen_width = 640;
+		screen_height = 400;
+		screen_flags = VRF_COMPATIBLE_MENUS;
+		break;
+	case SM(800, 600):
+		screen_width = 800;
+		screen_height = 600;
+		screen_flags = VRF_COMPATIBLE_MENUS;
+		break;
+	case SM(1024, 768):
+		screen_width = 1024;
+		screen_height = 768;
+		screen_flags = VRF_COMPATIBLE_MENUS;
+		break;
+	case SM(1280, 1024):
+		screen_width = 1280;
+		screen_height = 1024;
+		screen_flags = VRF_COMPATIBLE_MENUS;
+		break;
+	}
+#ifdef __MSDOS__
+	if (FindArg("-nodoublebuffer"))
+#endif
+	{
+		screen_flags &= ~VRF_USE_PAGING;
+	}
+
+	// added 6/15/1999 by Owen Evans to eliminate unneccesary mode modification
+	if (Game_screen_mode == screen_mode)
+		return;
+	//gr_set_mode(Game_screen_mode);
+	// end section - OE
+
+	//VR_offscreen_buffer = 0; // Disable VR (so that VR_Screen_mode doesnt mess us up
+	Game_screen_mode = screen_mode;
+	Game_window_w = screen_width;
+	Game_window_h = screen_height;
+	game_init_render_buffers(screen_mode, screen_width, screen_height, vr_mode, screen_flags);
+}
+//End changed section (OE)
+
+
 //added on 8/18/98 by Victor Rachels to add d1x options menu, maxfps setting
 //added/edited on 8/18/98 by Victor Rachels to set maxfps always on, max=80
 //added/edited on 9/7/98 by Victor Rachels to attempt dir browsing.  failed.
@@ -1199,11 +1313,9 @@ void d2x_options_menu()
 	//end this section addition - VR
 #endif
 
-#if 0
-	//enabled 3/24/99 - Owen Evans
-	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Change Screen Resolution";         opt++;
-	//end enabled stuff - OE
-#endif
+	// enabled 3/24/99 - Owen Evans
+	m[opt].type = NM_TYPE_MENU; m[opt].text = "Change Screen Resolution"; opt++;
+	// end enabled stuff - OE
 
 	commands=opt;
 #if 0
@@ -1253,11 +1365,9 @@ void d2x_options_menu()
 				case 0: kconfig(4, "D2X Keys"); break;
 					//end this section addition - VR
 #endif
-#if 0
-					//enabled 3/24/99 - Owen Evans
-				case 3: change_res(); break;
-					//end enabled stuff - OE
-#endif
+					// enabled 3/24/99 - Owen Evans
+				case 0: change_res(); break;
+					// end enabled stuff - OE
 				}
 			}
 
