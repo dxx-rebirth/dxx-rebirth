@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.44 2003-11-03 11:03:48 btb Exp $ */
+/* $Id: piggy.c,v 1.45 2003-11-03 11:08:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.44 2003-11-03 11:03:48 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.45 2003-11-03 11:08:35 btb Exp $";
 #endif
 
 
@@ -2381,8 +2381,8 @@ void load_d1_bitmap_replacements()
 
 	switch (cfilelength(d1_Piggy_fp)) {
 	case D1_SHAREWARE_10_PIGSIZE:
-	case D1_SHAREWARE_BIG_PIGSIZE:
-	case D1_SHAREWARE_PIGSIZE:
+	case D1_SHARE_BIG_PIGSIZE:
+	case D1_SHARE_PIGSIZE:
 	case D1_10_BIG_PIGSIZE:
 	case D1_10_PIGSIZE:
 		pig_data_start = 0;
@@ -2487,8 +2487,8 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 
 		switch (cfilelength(d1_Piggy_fp)) {
 		case D1_SHAREWARE_10_PIGSIZE:
-		case D1_SHAREWARE_BIG_PIGSIZE:
-		case D1_SHAREWARE_PIGSIZE:
+		case D1_SHARE_BIG_PIGSIZE:
+		case D1_SHARE_PIGSIZE:
 		case D1_10_BIG_PIGSIZE:
 		case D1_10_PIGSIZE:
 			pig_data_start = 0;

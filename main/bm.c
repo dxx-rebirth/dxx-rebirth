@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.39 2003-11-03 11:03:48 btb Exp $ */
+/* $Id: bm.c,v 1.40 2003-11-03 11:08:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -719,8 +719,8 @@ int load_exit_models()
 			break;
 		default:
 		case D1_SHAREWARE_10_PIGSIZE:
-		case D1_SHAREWARE_BIG_PIGSIZE:
-		case D1_SHAREWARE_PIGSIZE:
+		case D1_SHARE_BIG_PIGSIZE:
+		case D1_SHARE_PIGSIZE:
 		case D1_10_BIG_PIGSIZE:
 		case D1_10_PIGSIZE:
 			Int3();             /* exit models should be in .pofs */
