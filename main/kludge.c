@@ -1,4 +1,4 @@
-/* $Id: kludge.c,v 1.16 2004-11-28 05:16:38 btb Exp $ */
+/* $Id: kludge.c,v 1.17 2004-11-29 05:25:58 btb Exp $ */
 
 /*
  *
@@ -93,41 +93,6 @@ void serial_leave_game()
 }
 
 void network_dump_appletalk_player(ubyte node, ushort net, ubyte socket, int why)
-{
-
-}
-
-void digi_stop_digi_sounds(void)
-{
-
-}
-
-void digi_pause_digi_sounds()
-{
-
-}
-
-void digi_resume_digi_sounds()
-{
-
-}
-void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int loop_end )
-{
-
-}
-
-void digi_change_looping_volume( fix volume )
-{
-
-}
-
-void digi_stop_looping_sound()
-{
-
-}
-
-// Plays a queued voice sound.
-void digi_start_sound_queued( short soundnum, fix volume )
 {
 
 }

@@ -1,7 +1,7 @@
 // MIDI stuff follows.
-
 #include <stdio.h>
 
+#include "error.h"
 #include "hmpfile.h"
 
 hmp_file *hmp = NULL;
@@ -61,4 +61,37 @@ void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, in
 	}
 	else
 		printf("hmp_open failed\n");
+}
+
+
+int sound_paused = 0;
+
+void digi_pause_midi()
+{
+#if 0
+	if (!digi_initialised)
+		return;
+#endif
+
+	if (sound_paused == 0)
+	{
+		// pause here
+	}
+	sound_paused++;
+}
+
+void digi_resume_midi()
+{
+#if 0
+	if (!digi_initialised)
+		return;
+#endif
+
+	Assert(sound_paused > 0);
+
+	if (sound_paused == 1)
+	{
+		// resume sound here
+	}
+	sound_paused--;
 }

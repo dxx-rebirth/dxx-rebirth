@@ -1,5 +1,10 @@
 2004-11-28  Bradley Bell  <btb@icculus.org>
 
+	* arch/sdl/digi.c, arch/win32/midi.c, main/Makefile.am,
+	main/digiobj.c, main/digi.h, main/kludge.c, main/old/digiobj.c:
+	ripped object stuff out of digi.c, now using digiobj.c. get rid of
+	a bunch of kludges, sound should be more true to original game now
+
 	* acinclude.m4, cygconf: put sdl.m4 in acinclude.m4, to make
 	autogen simpler
 

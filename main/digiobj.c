@@ -1,3 +1,4 @@
+/* $Id: digiobj.c,v 1.1 2004-11-29 05:25:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,24 +13,27 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: digiobj.c,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $";
-#pragma on (unreferenced)
-
-#include<stdlib.h>
-#include<stdio.h>
-#include<dos.h>
-#include<fcntl.h> 
-#include<malloc.h> 
-
-#ifndef MACINTOSH
-	#include<bios.h>
+#ifdef RCS
+static char rcsid[] = "$Id: digiobj.c,v 1.1 2004-11-29 05:25:58 btb Exp $";
 #endif
 
-#include<io.h>
-#include<conio.h> 
-#include<string.h>
-#include<ctype.h>
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h> 
+
+#ifdef __MSDOS__
+# include <dos.h>
+# include <bios.h>
+# include <io.h>
+# include <conio.h> 
+#endif
+
+#include <string.h>
+#include <ctype.h>
 
 #include "fix.h"
 #include "object.h"
@@ -42,7 +46,9 @@ static char rcsid[] = "$Id: digiobj.c,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp
 #include "key.h"
 #include "newdemo.h"
 #include "game.h"
+#ifdef __MSDOS__
 #include "dpmi.h"
+#endif
 #include "error.h"
 #include "wall.h"
 #include "cfile.h"
@@ -55,7 +61,7 @@ static char rcsid[] = "$Id: digiobj.c,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp
 #define SOF_LINK_TO_OBJ		4		// Sound is linked to a moving object. If object dies, then finishes play and quits.
 #define SOF_LINK_TO_POS		8		// Sound is linked to segment, pos
 #define SOF_PLAY_FOREVER	16		// Play forever (or until level is stopped), otherwise plays once
-#define SOF_PERMANANT		32		// Part of the level, like a waterfall or fan
+#define SOF_PERMANENT		32		// Part of the level, like a waterfall or fan
 
 typedef struct sound_object {
 	short			signature;		// A unique signature to this sound
@@ -92,13 +98,17 @@ int digi_sounds_initialized=0;
 
 int digi_lomem 						= 0;
 
+/* Find the sound which actually equates to a sound number */
 int digi_xlat_sound(int soundno)
 {
-	if ( soundno < 0 ) return -1;
+	if (soundno < 0)
+		return -1;
 
-	if ( digi_lomem )	{
+	if (digi_lomem)
+	{
 		soundno = AltSounds[soundno];
-		if ( soundno == 255 ) return -1;
+		if (soundno == 255)
+			return -1;
 	}
 
 	Assert(Sounds[soundno] != 255);	//if hit this, probably using undefined sound
@@ -220,6 +230,10 @@ void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups )
 }
 
 
+void SoundQ_init();
+void SoundQ_process();
+void SoundQ_pause();
+
 void digi_init_sounds()
 {
 	int i;
@@ -317,8 +331,8 @@ void digi_start_sound_object(int i)
 // -- MK, 2/22/96 -- 	if ( Newdemo_state == ND_STATE_RECORDING )
 // -- MK, 2/22/96 -- 		newdemo_record_sound_3d_once( digi_unxlat_sound(SoundObjects[i].soundnum), SoundObjects[i].pan, SoundObjects[i].volume );
 
-	// only use up to half the sound channels for "permanant" sounts
-	if ((SoundObjects[i].flags & SOF_PERMANANT) && (N_active_sound_objects >= max(1,digi_max_channels/4)) )
+	// only use up to half the sound channels for "permanent" sounts
+	if ((SoundObjects[i].flags & SOF_PERMANENT) && (N_active_sound_objects >= max(1, digi_get_max_channels() / 4)))
 		return;
 
 	// start the sample playing
@@ -395,7 +409,7 @@ int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix
 
 	if (Dont_start_sound_objects) { 		//started at level start
 
-		SoundObjects[i].flags |= SOF_PERMANANT;
+		SoundObjects[i].flags |= SOF_PERMANENT;
 		SoundObjects[i].channel =  -1;
 	}
 	else {
@@ -481,7 +495,7 @@ int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_
 
 	if (Dont_start_sound_objects) {		//started at level start
 
-		SoundObjects[i].flags |= SOF_PERMANANT;
+		SoundObjects[i].flags |= SOF_PERMANENT;
 
 		SoundObjects[i].channel =  -1;
 	}
