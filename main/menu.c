@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.28 2003-10-08 19:18:46 btb Exp $ */
+/* $Id: menu.c,v 1.29 2003-10-08 21:02:17 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1054,8 +1054,6 @@ void do_screen_res_menu()
 void do_new_game_menu()
 {
 	int new_level_num,player_highest_level;
-
-#ifndef SHAREWARE
 	int n_missions;
 
 	n_missions = build_mission_list(0);
@@ -1085,7 +1083,6 @@ void do_new_game_menu()
 			return;
 		}
 	}
-#endif
 
 	new_level_num = 1;
 
@@ -1242,19 +1239,18 @@ void d2x_options_menu()
 			{
 				switch(i)
 				{
-					int n = 0;
 #if 0
-				case n++: reorder_primary(); break;
-				case n++: reorder_secondary(); break;
+				case 0: reorder_primary(); break;
+				case 1: reorder_secondary(); break;
 #endif
 #ifdef D2X_KEYS
 					//added on 2/4/99 by Victor Rachels for new key menu
-				case n++: kconfig(4, "D2X Keys"); break;
+				case 0: kconfig(4, "D2X Keys"); break;
 					//end this section addition - VR
 #endif
 #if 0
 					//enabled 3/24/99 - Owen Evans
-				case n++: change_res(); break;
+				case 3: change_res(); break;
 					//end enabled stuff - OE
 #endif
 				}

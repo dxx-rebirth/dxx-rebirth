@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.27 2003-08-03 22:00:14 btb Exp $ */
+/* $Id: gameseq.c,v 1.28 2003-10-08 21:02:17 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.27 2003-08-03 22:00:14 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.28 2003-10-08 21:02:17 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -153,9 +153,7 @@ void filter_objects_from_level();
 int	Current_level_num=0,Next_level_num;
 char	Current_level_name[LEVEL_NAME_LEN];
 
-#if !defined(SHAREWARE) && !defined(D2_OEM)
-int Last_level,Last_secret_level;
-#endif
+int Last_level, Last_secret_level;
 
 // Global variables describing the player
 int 				N_players=1;						// Number of players ( >1 means a net game, eh?)
@@ -1458,10 +1456,9 @@ void DoEndGame(void)
 
 	key_flush();
 
-	if (Current_mission_num == Builtin_mission_num && !(Game_mode & GM_MULTI)) { //only built-in mission, & not multi
-#ifndef SHAREWARE
+	if (Current_mission_num == Builtin_mission_num && !(Game_mode & GM_MULTI))
+	{ //only built-in mission, & not multi
 		int played=MOVIE_NOT_PLAYED;	//default is not played
-#endif
 
 		init_subtitles(ENDMOVIE ".tex");	//ingore errors
 		played = PlayMovie(ENDMOVIE,MOVIE_REQUIRED);
