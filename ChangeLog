@@ -1,3 +1,7 @@
+2004-11-23  Bradley Bell  <btb@icculus.org>
+
+	* debian/control: depend on libsdl1.2-dev instead of libsdl-dev
+
 2004-11-22  Bradley Bell  <btb@icculus.org>
 
 	* configure.ac, arch/include/joy.h, arch/linux/joydefs.c,
