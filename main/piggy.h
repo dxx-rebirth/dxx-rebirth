@@ -1,4 +1,4 @@
-/* $Id: piggy.h,v 1.24 2003-11-04 08:03:08 btb Exp $ */
+/* $Id: piggy.h,v 1.25 2003-11-04 21:33:30 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -100,29 +100,6 @@ typedef struct bitmap_index {
 	ushort index;
 } __pack__ bitmap_index;
 
-typedef struct DiskBitmapHeader {
-	char name[8];
-	ubyte dflags;                   //bits 0-5 anim frame num, bit 6 abm flag
-	ubyte width;                    //low 8 bits here, 4 more bits in wh_extra
-	ubyte height;                   //low 8 bits here, 4 more bits in wh_extra
-	ubyte wh_extra;                 //bits 0-3 width, bits 4-7 height
-	ubyte flags;
-	ubyte avg_color;
-	int offset;
-} __pack__ DiskBitmapHeader;
-
-#define DISKBITMAPHEADER_SIZE 18 // for disk i/o
-#define DISKBITMAPHEADER_D1_SIZE 17 // for disk i/o
-
-typedef struct DiskSoundHeader {
-	char name[8];
-	int length;
-	int data_length;
-	int offset;
-} __pack__ DiskSoundHeader;
-
-#define DISKSOUNDHEADER_SIZE 20 // for disk i/o
-
 int piggy_init();
 void piggy_close();
 void piggy_dump_all();
@@ -187,8 +164,6 @@ void load_d1_bitmap_replacements();
 #ifdef FAST_FILE_IO
 #define bitmap_index_read(bi, fp) cfread(bi, sizeof(bitmap_index), 1, fp)
 #define bitmap_index_read_n(bi, n, fp) cfread(bi, sizeof(bitmap_index), n, fp)
-#define DiskBitmapHeader_read(dbh, fp) cfread(dbh, sizeof(DiskBitmapHeader), 1, fp)
-#define DiskSoundHeader_read(dsh, fp) cfread(dsh, sizeof(DiskSoundHeader), 1, fp)
 #else
 /*
  * reads a bitmap_index structure from a CFILE
@@ -199,22 +174,7 @@ void bitmap_index_read(bitmap_index *bi, CFILE *fp);
  * reads n bitmap_index structs from a CFILE
  */
 int bitmap_index_read_n(bitmap_index *bi, int n, CFILE *fp);
-
-/*
- * reads a DiskBitmapHeader structure from a CFILE
- */
-void DiskBitmapHeader_read(DiskBitmapHeader *dbh, CFILE *fp);
-
-/*
- * reads a DiskSoundHeader structure from a CFILE
- */
-void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp);
 #endif // FAST_FILE_IO
-
-/*
- * reads a descent 1 DiskBitmapHeader structure from a CFILE
- */
-void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, CFILE *fp);
 
 /*
  * Find and load the named bitmap from descent.pig

@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.46 2003-11-03 12:03:44 btb Exp $ */
+/* $Id: piggy.c,v 1.47 2003-11-04 21:33:30 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.46 2003-11-03 12:03:44 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.47 2003-11-04 21:33:30 btb Exp $";
 #endif
 
 
@@ -515,6 +515,72 @@ int piggy_page_flushed = 0;
 
 #define BM_FLAGS_TO_COPY (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT \
                          | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE | BM_FLAG_RLE_BIG)
+
+typedef struct DiskBitmapHeader {
+	char name[8];
+	ubyte dflags;           // bits 0-5 anim frame num, bit 6 abm flag
+	ubyte width;            // low 8 bits here, 4 more bits in wh_extra
+	ubyte height;           // low 8 bits here, 4 more bits in wh_extra
+	ubyte wh_extra;         // bits 0-3 width, bits 4-7 height
+	ubyte flags;
+	ubyte avg_color;
+	int offset;
+} __pack__ DiskBitmapHeader;
+
+#define DISKBITMAPHEADER_D1_SIZE 17 // no wh_extra
+
+typedef struct DiskSoundHeader {
+	char name[8];
+	int length;
+	int data_length;
+	int offset;
+} __pack__ DiskSoundHeader;
+
+#ifdef FAST_FILE_IO
+#define DiskBitmapHeader_read(dbh, fp) cfread(dbh, sizeof(DiskBitmapHeader), 1, fp)
+#define DiskSoundHeader_read(dsh, fp) cfread(dsh, sizeof(DiskSoundHeader), 1, fp)
+#else
+/*
+ * reads a DiskBitmapHeader structure from a CFILE
+ */
+void DiskBitmapHeader_read(DiskBitmapHeader *dbh, CFILE *fp)
+{
+	cfread(dbh->name, 8, 1, fp);
+	dbh->dflags = cfile_read_byte(fp);
+	dbh->width = cfile_read_byte(fp);
+	dbh->height = cfile_read_byte(fp);
+	dbh->wh_extra = cfile_read_byte(fp);
+	dbh->flags = cfile_read_byte(fp);
+	dbh->avg_color = cfile_read_byte(fp);
+	dbh->offset = cfile_read_int(fp);
+}
+
+/*
+ * reads a DiskSoundHeader structure from a CFILE
+ */
+void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
+{
+	cfread(dsh->name, 8, 1, fp);
+	dsh->length = cfile_read_int(fp);
+	dsh->data_length = cfile_read_int(fp);
+	dsh->offset = cfile_read_int(fp);
+}
+#endif // FAST_FILE_IO
+
+/*
+ * reads a descent 1 DiskBitmapHeader structure from a CFILE
+ */
+void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, CFILE *fp)
+{
+	cfread(dbh->name, 8, 1, fp);
+	dbh->dflags = cfile_read_byte(fp);
+	dbh->width = cfile_read_byte(fp);
+	dbh->height = cfile_read_byte(fp);
+	dbh->wh_extra = 0;
+	dbh->flags = cfile_read_byte(fp);
+	dbh->avg_color = cfile_read_byte(fp);
+	dbh->offset = cfile_read_int(fp);
+}
 
 ubyte BigPig = 0;
 
@@ -958,7 +1024,7 @@ void piggy_init_pigfile(char *filename)
 
 	N_bitmaps = cfile_read_int(Piggy_fp);
 
-	header_size = N_bitmaps*DISKBITMAPHEADER_SIZE;
+	header_size = N_bitmaps * sizeof(DiskBitmapHeader);
 
 	data_start = header_size + cftell(Piggy_fp);
 
@@ -1093,7 +1159,7 @@ void piggy_new_pigfile(char *pigname)
 
 		N_bitmaps = cfile_read_int(Piggy_fp);
 
-		header_size = N_bitmaps*DISKBITMAPHEADER_SIZE;
+		header_size = N_bitmaps * sizeof(DiskBitmapHeader);
 
 		data_start = header_size + cftell(Piggy_fp);
 
@@ -1366,7 +1432,7 @@ int read_hamfile()
 
 		sound_start = cftell(ham_fp);
 
-		header_size = N_sounds * DISKSOUNDHEADER_SIZE;
+		header_size = N_sounds * sizeof(DiskSoundHeader);
 
 		//Read sounds
 
@@ -1842,7 +1908,7 @@ void piggy_write_pigfile(char *filename)
 	Num_bitmap_files++;
 
 	bitmap_data_start = ftell(pig_fp);
-	bitmap_data_start += (Num_bitmap_files-1)*DISKBITMAPHEADER_SIZE; 
+	bitmap_data_start += (Num_bitmap_files - 1) * sizeof(DiskBitmapHeader);
 	data_offset = bitmap_data_start;
 
 	change_filename_ext(tname,filename,"lst");
@@ -1916,7 +1982,7 @@ void piggy_write_pigfile(char *filename)
 			bmh.flags &= ~BM_FLAG_PAGED_OUT;
 		}
 		bmh.avg_color=GameBitmaps[i].avg_color;
-		fwrite( &bmh, DISKBITMAPHEADER_SIZE, 1, pig_fp );                    // Mark as a bitmap
+		fwrite(&bmh, sizeof(DiskBitmapHeader), 1, pig_fp);  // Mark as a bitmap
 	}
 
 	fclose(pig_fp);
@@ -2196,7 +2262,7 @@ void load_bitmap_replacements(char *level_name)
 		for (i = 0; i < n_bitmaps; i++)
 			indices[i] = cfile_read_short(ifile);
 
-		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - DISKBITMAPHEADER_SIZE * n_bitmaps;
+		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - sizeof(DiskBitmapHeader) * n_bitmaps;
 		MALLOC( Bitmap_replacement_data, ubyte, bitmap_data_size );
 
 		for (i=0;i<n_bitmaps;i++) {
@@ -2408,7 +2474,7 @@ void load_d1_bitmap_replacements()
 	{
 		int N_sounds = cfile_read_int(d1_Piggy_fp);
 		int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
-			+ N_sounds * DISKSOUNDHEADER_SIZE;
+			+ N_sounds * sizeof(DiskSoundHeader);
 		bitmap_header_start = pig_data_start + 2 * sizeof(int);
 		bitmap_data_start = bitmap_header_start + header_size;
 	}
@@ -2511,7 +2577,7 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 		{
 			int N_sounds = cfile_read_int(d1_Piggy_fp);
 			int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
-				+ N_sounds * DISKSOUNDHEADER_SIZE;
+				+ N_sounds * sizeof(DiskSoundHeader);
 			bitmap_header_start = pig_data_start + 2 * sizeof(int);
 			bitmap_data_start = bitmap_header_start + header_size;
 		}
@@ -2564,45 +2630,4 @@ int bitmap_index_read_n(bitmap_index *bi, int n, CFILE *fp)
 		bi[i].index = cfile_read_short(fp);
 	return i;
 }
-
-/*
- * reads a DiskBitmapHeader structure from a CFILE
- */
-void DiskBitmapHeader_read(DiskBitmapHeader *dbh, CFILE *fp)
-{
-	cfread(dbh->name, 8, 1, fp);
-	dbh->dflags = cfile_read_byte(fp);
-	dbh->width = cfile_read_byte(fp);
-	dbh->height = cfile_read_byte(fp);
-	dbh->wh_extra = cfile_read_byte(fp);
-	dbh->flags = cfile_read_byte(fp);
-	dbh->avg_color = cfile_read_byte(fp);
-	dbh->offset = cfile_read_int(fp);
-}
-
-/*
- * reads a DiskSoundHeader structure from a CFILE
- */
-void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
-{
-	cfread(dsh->name, 8, 1, fp);
-	dsh->length = cfile_read_int(fp);
-	dsh->data_length = cfile_read_int(fp);
-	dsh->offset = cfile_read_int(fp);
-}
 #endif // FAST_FILE_IO
-
-/*
- * reads a descent 1 DiskBitmapHeader structure from a CFILE
- */
-void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, CFILE *fp)
-{
-	cfread(dbh->name, 8, 1, fp);
-	dbh->dflags = cfile_read_byte(fp);
-	dbh->width = cfile_read_byte(fp);
-	dbh->height = cfile_read_byte(fp);
-	dbh->wh_extra = 0;
-	dbh->flags = cfile_read_byte(fp);
-	dbh->avg_color = cfile_read_byte(fp);
-	dbh->offset = cfile_read_int(fp);
-}
