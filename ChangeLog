@@ -1,9 +1,9 @@
 2004-05-18  Bradley Bell  <btb@icculus.org>
 
-	* arch/sdl/digi.c: fix typo
-
 	* arch/ogl/ogl.c, include/ogl_init.h, main/polyobj.c: fix briefing
 	spinning robot display in OGL (d1x r1.28, r1.20, r1.2)
+
+	* arch/sdl/digi.c: fix typo
 
 	* main/state.c: fix savegame thumbnail saving in OGL (d1x r1.6)
 

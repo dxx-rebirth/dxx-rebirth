@@ -81,6 +81,8 @@ void ogl_close(void);//one time shutdown
 void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap);
 void ogl_freebmtexture(grs_bitmap *bm);
 
+void ogl_start_offscreen_render(int x, int y, int w, int h);
+void ogl_end_offscreen_render(void);
 void ogl_start_frame(void);
 void ogl_end_frame(void);
 void ogl_swap_buffers(void);
@@ -102,4 +104,4 @@ bool g3_draw_tmap_2(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *b
 
 void ogl_draw_reticle(int cross, int primary, int secondary);
 
-#endif _OGL_INIT_H_
+#endif /* _OGL_INIT_H_ */

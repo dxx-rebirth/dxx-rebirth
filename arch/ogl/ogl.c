@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.15 2004-05-16 00:45:25 schaffner Exp $ */
+/* $Id: ogl.c,v 1.16 2004-05-19 03:29:04 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -1155,6 +1155,39 @@ bool ogl_ubitblt_copy(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * sr
 	return 0;
 }
 
+grs_canvas *offscreen_save_canv = NULL, *offscreen_canv = NULL;
+
+void ogl_start_offscreen_render(int x, int y, int w, int h)
+{
+	if (offscreen_canv)
+		Error("ogl_start_offscreen_render: offscreen_canv!=NULL");
+	offscreen_save_canv = grd_curcanv;
+	offscreen_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
+	gr_set_current_canvas(offscreen_canv);
+	glDrawBuffer(GL_BACK);
+}
+void ogl_end_offscreen_render(void)
+{
+	int y;
+
+	if (!offscreen_canv)
+		Error("ogl_end_offscreen_render: no offscreen_canv");
+
+	glDrawBuffer(GL_FRONT);
+	glReadBuffer(GL_BACK);
+	OGL_DISABLE(TEXTURE_2D);
+
+	y = last_height - offscreen_canv->cv_bitmap.bm_y - offscreen_canv->cv_bitmap.bm_h;
+	glRasterPos2f(offscreen_canv->cv_bitmap.bm_x/(float)last_width, y/(float)last_height);
+	glCopyPixels(offscreen_canv->cv_bitmap.bm_x, y,
+	             offscreen_canv->cv_bitmap.bm_w,
+                 offscreen_canv->cv_bitmap.bm_h, GL_COLOR);
+
+	gr_free_sub_canvas(offscreen_canv);
+	gr_set_current_canvas(offscreen_save_canv);
+	offscreen_canv=NULL;
+}
+
 void ogl_start_frame(void){
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitmapc=0;r_ubitbltc=0;r_upixelc=0;
 //	gl_badtexture=500;
@@ -1210,7 +1243,6 @@ void ogl_end_frame(void){
 	//gluPerspective(90.0,(GLfloat)(grd_curscreen->sc_w*3)/(GLfloat)(grd_curscreen->sc_h*4),1.0,1000000.0);
 //	ogl_swap_buffers();//platform specific code
 //	glClear(GL_COLOR_BUFFER_BIT);
- 
 }
 void ogl_swap_buffers(void){
 	ogl_clean_texture_cache();

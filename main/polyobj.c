@@ -1,4 +1,4 @@
-/* $Id: polyobj.c,v 1.16 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: polyobj.c,v 1.17 2004-05-19 03:29:04 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -113,7 +113,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.16 2003-10-10 09:36:35 btb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.17 2004-05-19 03:29:04 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -150,6 +150,10 @@ static char rcsid[] = "$Id: polyobj.c,v 1.16 2003-10-10 09:36:35 btb Exp $";
 
 #ifdef _3DFX
 #include "3dfx_des.h"
+#endif
+
+#ifdef OGL
+#include "ogl_init.h"
 #endif
 
 polymodel Polygon_models[MAX_POLYGON_MODELS];	// = {&bot11,&bot17,&robot_s2,&robot_b2,&bot11,&bot17,&robot_s2,&robot_b2};
@@ -939,12 +943,18 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 {
 	vms_vector	temp_pos=ZERO_VECTOR;
 	vms_matrix	temp_orient = IDENTITY_MATRIX;
+#ifndef OGL
 	grs_canvas	*save_canv = grd_curcanv,*temp_canv;
+#endif
 
 	Assert(mn>=0 && mn<N_polygon_models);
 
+#ifdef OGL
+	ogl_start_offscreen_render(0, 0, grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
+#else
 	temp_canv = gr_create_canvas(save_canv->cv_bitmap.bm_w,save_canv->cv_bitmap.bm_h);
 	gr_set_current_canvas(temp_canv);
+#endif
 	gr_clear_canvas( BM_XRGB(0,0,0) );
 
 	g3_start_frame();
@@ -962,11 +972,17 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,f1_0,NULL,NULL);
 	PA_DFX (Lighting_on = save_light);
 
+	g3_end_frame();
+
+#ifdef OGL
+	ogl_end_offscreen_render();
+#else
 	gr_set_current_canvas(save_canv);
 
 	gr_bitmap(0,0,&temp_canv->cv_bitmap);
 
 	gr_free_canvas(temp_canv);
+#endif
 }
 
 #ifndef FAST_FILE_IO
