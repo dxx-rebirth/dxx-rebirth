@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.30 2004-05-22 21:55:29 btb Exp $ */
+/* $Id: gr.c,v 1.31 2004-05-22 23:06:58 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -162,7 +162,10 @@ const char *gl_vendor,*gl_renderer,*gl_version,*gl_extensions;
 
 void ogl_get_verinfo(void)
 {
-	int t, arb_max_textures = -1, sgi_max_textures = -1, nv_register_combiners = -1;
+	int t, arb_max_textures = -1, sgi_max_textures = -1;
+#ifdef GL_NV_register_combiners
+	int nv_register_combiners = -1;
+#endif
 	float anisotropic_max = 0;
 
 	gl_vendor=glGetString(GL_VENDOR);
@@ -279,7 +282,10 @@ void ogl_get_verinfo(void)
 		ogl_setgammaramp_ok = atoi(Args[t + 1]);
 	}
 
- 	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i(%i units) gl_sgis_multitexture:%i(%i units) gl_nv_texture_env_combine4:%i gl_nv_register_combiners:%i(%i stages)\n", ogl_arb_multitexture_ok, arb_max_textures, ogl_sgis_multitexture_ok, sgi_max_textures, ogl_nv_texture_env_combine4_ok, 0/*ogl_nv_register_combiners_ok*/, nv_register_combiners);
+ 	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i(%i units) gl_sgis_multitexture:%i(%i units) gl_nv_texture_env_combine4:%i\n", ogl_arb_multitexture_ok, arb_max_textures, ogl_sgis_multitexture_ok, sgi_max_textures, ogl_nv_texture_env_combine4_ok);
+#ifdef GL_NV_register_combiners
+	con_printf(CON_VERBOSE, "gl_nv_register_combiners:%i(%i stages)\n", ogl_nv_register_combiners_ok, nv_register_combiners);
+#endif
 	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i gl_ext_texture_filter_anisotropic:%i(%f max)\n", ogl_intensity4_ok, ogl_luminance4_alpha4_ok, ogl_rgba2_ok, ogl_readpixels_ok, ogl_gettexlevelparam_ok, ogl_setgammaramp_ok, ogl_ext_texture_filter_anisotropic_ok, anisotropic_max);
 }
 

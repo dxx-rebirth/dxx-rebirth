@@ -1,5 +1,8 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/gr.c: fix compile when GL_NV_register_combiners isn't
+	defined (d1x r1.40)
+
 	* arch/win32/digi.c: fix strict-aliasing errors (d1x r1.13)
 
 	* arch/win32/digi.c, arch/win32/key.c: Fix mismatched arg types in
