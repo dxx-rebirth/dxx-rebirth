@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.27 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: cfile.c,v 1.28 2004-08-29 17:39:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,6 +24,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <string.h>
+#ifdef _WIN32_WCE
+# include <windows.h>
+#elif defined(macintosh)
+# include <Files.h>
+# include <CFURL.h>
+#else
+# include <sys/stat.h>
+#endif
 
 #include "pstypes.h"
 #include "u_mem.h"
@@ -71,20 +79,19 @@ char AltHogdir_initialized = 0;
 // see a \ character in the dos path.  The sequence .\ a tthe
 // beginning of a path is turned into a :
 
-#ifdef MACINTOSH
-void macify_dospath(char *dos_path, char *mac_path)
+// routine to take a POSIX style path and turn it into a pre OS X
+// pathname.  This routine uses CFURL's. This function is necessary
+// because even though fopen exists in StdCLib
+// it must take a path in the OS native format.
+
+#ifdef macintosh
+void macify_posix_path(char *posix_path, char *mac_path)
 {
-	char *p;
+    CFURLRef	url;
 
-	if (!strncmp(dos_path, ".\\", 2)) {
-		strcpy(mac_path, ":");
-		strcat(mac_path, &(dos_path[2]) );
-	} else
-		strcpy(mac_path, dos_path);
-
-	while ( (p = strchr(mac_path, '\\')) != NULL)
-		*p = ':';
-
+    url = CFURLCreateWithBytes (kCFAllocatorDefault, (ubyte *) posix_path, strlen(posix_path), GetApplicationTextEncoding(), NULL);
+    CFURLGetFileSystemRepresentation (url, 0, (ubyte *) mac_path, 255);
+    CFRelease(url);
 }
 #endif
 
@@ -114,27 +121,40 @@ void cfile_set_critical_error_counter_ptr(int *ptr)
 
 FILE * cfile_get_filehandle( char * filename, char * mode )
 {
-	FILE * fp;
-	char temp[128];
+    FILE * fp;
+    char temp[128];
+#ifdef macintosh
+    char mac_path[256];
+#endif
 
-	*critical_error_counter_ptr = 0;
-	fp = fopen( filename, mode );
-	if ( fp && *critical_error_counter_ptr )	{
-		fclose(fp);
-		fp = NULL;
-	}
-	if ( (fp==NULL) && (AltHogdir_initialized) )	{
-		strcpy( temp, AltHogDir );
-		strcat( temp, "/");
-		strcat( temp, filename );
-		*critical_error_counter_ptr = 0;
-		fp = fopen( temp, mode );
-		if ( fp && *critical_error_counter_ptr )	{
-			fclose(fp);
-			fp = NULL;
-		}
-	}
-	return fp;
+    *critical_error_counter_ptr = 0;
+#ifdef macintosh
+    macify_posix_path(filename, mac_path);
+    fp = fopen( mac_path, mode );
+#else
+    fp = fopen( filename, mode );
+#endif
+    if ( fp && *critical_error_counter_ptr )	{
+        fclose(fp);
+        fp = NULL;
+    }
+    if ( (fp==NULL) && (AltHogdir_initialized) )	{
+        strcpy( temp, AltHogDir );
+        strcat( temp, "/");
+        strcat( temp, filename );
+        *critical_error_counter_ptr = 0;
+#ifdef macintosh
+        macify_posix_path(temp, mac_path);
+        fp = fopen( mac_path, mode );
+#else
+        fp = fopen( temp, mode );
+#endif
+        if ( fp && *critical_error_counter_ptr )	{
+            fclose(fp);
+            fp = NULL;
+        }
+    }
+    return fp;
 }
 
 //returns 1 if file loaded with no errors
@@ -182,21 +202,11 @@ int cfile_init_hogfile(char *fname, hogfile * hog_files, int * nfiles )
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
 int cfile_init(char *hogname)
 {
-	#ifdef MACINTOSH
-	char mac_path[255];
-
-	macify_dospath(hogname, mac_path);
-	#endif
 
 	Assert(Hogfile_initialized == 0);
 
-	#ifndef MACINTOSH
 	if (cfile_init_hogfile(hogname, HogFiles, &Num_hogfiles )) {
 		strcpy( HogFilename, hogname );
-	#else
-	if (cfile_init_hogfile(mac_path, HogFiles, &Num_hogfiles )) {
-		strcpy( HogFilename, mac_path );
-	#endif
 		Hogfile_initialized = 1;
 		return 1;
 	}
@@ -273,14 +283,7 @@ FILE * cfile_find_libfile(char * name, int * length)
 int cfile_use_alternate_hogfile( char * name )
 {
 	if ( name )	{
-		#ifdef MACINTOSH
-		char mac_path[255];
-
-		macify_dospath(name, mac_path);
-		strcpy( AltHogFilename, mac_path);
-		#else
 		strcpy( AltHogFilename, name );
-		#endif
 		cfile_init_hogfile( AltHogFilename, AltHogFiles, &AltNum_hogfiles );
 		AltHogfile_initialized = 1;
 		return (AltNum_hogfiles > 0);
@@ -293,14 +296,7 @@ int cfile_use_alternate_hogfile( char * name )
 int cfile_use_descent1_hogfile( char * name )
 {
 	if (name)	{
-#ifdef MACINTOSH
-		char mac_path[255];
-
-		macify_dospath(name, mac_path);
-		strcpy(D1HogFilename, mac_path);
-#else
 		strcpy(D1HogFilename, name);
-#endif
 		cfile_init_hogfile(D1HogFilename, D1HogFiles, &D1Num_hogfiles);
 		D1Hogfile_initialized = 1;
 		return (D1Num_hogfiles > 0);
@@ -412,16 +408,9 @@ CFILE * cfopen(char * filename, char * mode )
 	FILE * fp;
 	CFILE *cfile;
 
-	if (filename[0] != '\x01') {
-		#ifdef MACINTOSH
-		char mac_path[255];
-
-		macify_dospath(filename, mac_path);
-		fp = cfile_get_filehandle( mac_path, mode);
-		#else
+	if (filename[0] != '\x01')
 		fp = cfile_get_filehandle( filename, mode );		// Check for non-hog file first...
-		#endif
-	} else {
+	else {
 		fp = NULL;		//don't look in dir, only in hogfile
 		filename++;
 	}

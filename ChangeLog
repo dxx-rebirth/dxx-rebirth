@@ -1,3 +1,7 @@
+2004-08-29  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* cfile/cfile.c: change macify_dospath to macify_posix_path for carbon
+
 2004-08-29  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* ChangeLog-old, main/editor/med.c, main/editor/segment.c:
