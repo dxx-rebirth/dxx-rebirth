@@ -1,3 +1,7 @@
+2004-05-12  Bradley Bell  <btb@icculus.org>
+
+	* maths/rand.c, maths/tables.c: formatting
+
 2004-05-11  Bradley Bell  <btb@icculus.org>
 
 	* arch/ogl/ogl.c: fix alpha calculation in g3_draw_poly, again
