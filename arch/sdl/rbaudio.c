@@ -1,4 +1,4 @@
-/* $Id: rbaudio.c,v 1.1 2002-07-18 08:22:18 bradleyb Exp $ */
+/* $Id: rbaudio.c,v 1.2 2002-08-04 23:19:37 btb Exp $ */
 /*
  *
  * SDL CD Audio functions
@@ -47,6 +47,10 @@ void RBAInit()
 		return;
 	}
  	s_cd = SDL_CDOpen(0);
+	if (s_cd == NULL) {
+		Warning("Could not open cdrom for redbook audio!\n");
+		return;
+	}
  	atexit(RBAExit);
 	initialised = 1;
 }
