@@ -8,14 +8,13 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
  *
  * Inferno main menu.
- *
  *
  */
 
@@ -446,7 +445,7 @@ void do_option ( int select)
 
 #ifdef NETWORK
 		case MENU_START_IPX_NETGAME:
-			load_mission(0);
+			load_mission(Builtin_mission_num);
 			#ifdef MACINTOSH
 			Network_game_type = IPX_GAME;
 			#endif
@@ -455,7 +454,7 @@ void do_option ( int select)
 			break;
 
 		case MENU_JOIN_IPX_NETGAME:
-			load_mission(0);
+			load_mission(Builtin_mission_num);
 			#ifdef MACINTOSH
 			Network_game_type = IPX_GAME;
 			#endif
@@ -465,7 +464,7 @@ void do_option ( int select)
 
 #ifdef MACINTOSH
 		case MENU_START_APPLETALK_NETGAME:
-			load_mission(0);
+			load_mission(Builtin_mission_num);
 			#ifdef MACINTOSH
 			Network_game_type = APPLETALK_GAME;
 			#endif
@@ -473,7 +472,7 @@ void do_option ( int select)
 			break;
 
 		case MENU_JOIN_APPLETALK_NETGAME:
-			load_mission(0);
+			load_mission(Builtin_mission_num);
 			#ifdef MACINTOSH
 			Network_game_type = APPLETALK_GAME;
 			#endif
