@@ -33,7 +33,7 @@ songs.c     state.c     switch.c    terrain.c   texmerge.c  \
 text.c      titles.c    vclip.c     wall.c      weapon.c
 
 EXTRA_libmain_a_SOURCES = \
-kmatrix.c multi.c multibot.c network.c \
+kmatrix.c multi.c multibot.c network.c netmisc.c \
 bmread.c
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \

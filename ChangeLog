@@ -1,3 +1,7 @@
+2003-04-30  Bradley Bell  <btb@icculus.org>
+
+	* main/Makefile.am: make dist fix
+
 0.2.2:
 	
 2003-04-29  Bradley Bell  <btb@icculus.org>
