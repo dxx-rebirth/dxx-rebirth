@@ -1,3 +1,4 @@
+/* $Id: newmenu.h,v 1.3 2002-08-30 08:04:44 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,38 +8,36 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-
-
 
 #ifndef _NEWMENU_H
 #define _NEWMENU_H
 
-#define NM_TYPE_MENU  	0		// A menu item... when enter is hit on this, newmenu_do returns this item number
-#define NM_TYPE_INPUT 	1		// An input box... fills the text field in, and you need to fill in text_len field.
-#define NM_TYPE_CHECK 	2		// A check box. Set and get its status by looking at flags field (1=on, 0=off)
-#define NM_TYPE_RADIO 	3		// Same as check box, but only 1 in a group can be set at a time. Set group fields.
-#define NM_TYPE_TEXT	 	4		// A line of text that does nothing.
-#define NM_TYPE_NUMBER	5		// A numeric entry counter.  Changes value from min_value to max_value;
-#define NM_TYPE_INPUT_MENU	6		// A inputbox that you hit Enter to edit, when done, hit enter and menu leaves.
-#define NM_TYPE_SLIDER	7		// A slider from min_value to max_value. Draws with text_len chars.
+#define NM_TYPE_MENU        0   // A menu item... when enter is hit on this, newmenu_do returns this item number
+#define NM_TYPE_INPUT       1   // An input box... fills the text field in, and you need to fill in text_len field.
+#define NM_TYPE_CHECK       2   // A check box. Set and get its status by looking at flags field (1=on, 0=off)
+#define NM_TYPE_RADIO       3   // Same as check box, but only 1 in a group can be set at a time. Set group fields.
+#define NM_TYPE_TEXT        4   // A line of text that does nothing.
+#define NM_TYPE_NUMBER      5   // A numeric entry counter.  Changes value from min_value to max_value;
+#define NM_TYPE_INPUT_MENU  6   // A inputbox that you hit Enter to edit, when done, hit enter and menu leaves.
+#define NM_TYPE_SLIDER      7   // A slider from min_value to max_value. Draws with text_len chars.
 
-#define NM_MAX_TEXT_LEN	50
+#define NM_MAX_TEXT_LEN     50
 
 typedef struct newmenu_item {
-	int 	type;				// What kind of item this is, see NM_TYPE_????? defines
-	int 	value;			// For checkboxes and radio buttons, this is 1 if marked initially, else 0
-	int 	min_value, max_value;	// For sliders and number bars.
-	int 	group;			// What group this belongs to for radio buttons.
-	int	text_len;		// The maximum length of characters that can be entered by this inputboxes
-	char	*text;			// The text associated with this item.
+	int     type;           // What kind of item this is, see NM_TYPE_????? defines
+	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
+	int     min_value, max_value;   // For sliders and number bars.
+	int     group;          // What group this belongs to for radio buttons.
+	int     text_len;       // The maximum length of characters that can be entered by this inputboxes
+	char    *text;          // The text associated with this item.
 	// The rest of these are used internally by by the menu system, so don't set 'em!!
-	short	x, y;			
-	short w, h;
-	short right_offset;
-	ubyte redraw;
+	short	x, y;
+	short 	w, h;
+	short 	right_offset;
+	ubyte 	redraw;
 	char	saved_text[NM_MAX_TEXT_LEN+1];
 } newmenu_item;
 
@@ -67,7 +66,7 @@ extern int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item 
 			int mmn;
 			newmenu_item mm[8];
 			char xtext[21];
-	
+
 			strcpy( xtext, "John" );
 
 			mm[0].type=NM_TYPE_MENU; mm[0].text="Play game";
@@ -108,7 +107,7 @@ extern char *Newmenu_allowed_chars;
 // int lb_callback( int * citem, int *nitems, char * items[], int *keypress )
 // {
 // 	int i;
-// 
+//
 // 	if ( *keypress = KEY_CTRLED+KEY_D )	{
 // 		if ( *nitems > 1 )	{
 // 			unlink( items[*citem] );		// Delete the file
@@ -121,7 +120,7 @@ extern char *Newmenu_allowed_chars;
 // 			return 1;	// redraw;
 // 		}
 //			*keypress = 0;
-// 	}			
+// 	}
 // 	return 0;
 // }
 
