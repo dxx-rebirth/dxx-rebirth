@@ -1,3 +1,4 @@
+/* $Id: inferno.c,v 1.31 2002-07-18 08:35:58 bradleyb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,82 +13,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.30 $
- * $Author: bradleyb $
- * $Date: 2002-07-16 22:29:24 $
  *
  * FIXME: put description here
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.29  2002/07/16 20:47:27  bradleyb
- * don't use althogdir on non-unix
- *
- * Revision 1.28  2002/07/16 19:05:13  bradleyb
- * need limits.h on mingw also
- *
- * Revision 1.27  2002/02/16 02:08:31  bradleyb
- * allow older sdl versions
- *
- * Revision 1.26  2002/02/15 12:24:53  bradleyb
- * automap resolution now selectable
- *
- * Revision 1.25  2002/02/14 11:29:31  bradleyb
- * allow gr_init lowres
- *
- * Revision 1.24  2002/02/13 10:39:21  bradleyb
- * Lotsa networking stuff from d1x
- *
- * Revision 1.23  2002/02/02 23:30:26  bradleyb
- * Enabled RELEASE option
- *
- * Revision 1.22  2002/01/29 10:11:56  bradleyb
- * update copyright date
- *
- * Revision 1.21  2002/01/29 00:08:13  bradleyb
- * Added d_mkdir macro
- *
- * Revision 1.20  2002/01/28 00:03:47  bradleyb
- * Data files now go in DATADIR/games/d2x, user files now go in ~/.d2x
- *
- * Revision 1.19  2002/01/18 07:01:37  bradleyb
- * allow -h for help
- *
- * Revision 1.18  2001/12/28 09:26:41  bradleyb
- * document -nomovies option
- *
- * Revision 1.17  2001/11/09 06:55:08  bradleyb
- * added documentation
- *
- * Revision 1.16  2001/11/08 10:30:28  bradleyb
- * Enabled shareware build, endlevel flythrough sequence
- *
- * Revision 1.15  2001/11/05 07:39:08  bradleyb
- * Change args_init back to InitArgs
- *
- * Revision 1.14  2001/11/04 09:01:41  bradleyb
- * SDL applies to more than X11...
- *
- * Revision 1.13  2001/10/31 07:41:54  bradleyb
- * Sync with d1x
- *
- * Revision 1.12  2001/10/27 01:39:23  bradleyb
- * added some documentation
- *
- * Revision 1.11  2001/10/25 09:12:16  bradleyb
- * Completed tmap selection code.
- *
- * Revision 1.10  2001/10/25 02:19:31  bradleyb
- * conditionalize including multi.h and network.h, fix backslashes, fix compiler errors with EDITOR
- *
- * Revision 1.9  2001/10/19 08:08:50  bradleyb
- * conditionalize conf.h
- *
- * Revision 1.8  2001/10/19 00:31:51  bradleyb
- * Trying to get network working on win32
- *
- * Revision 1.7  2001/10/18 00:01:01  bradleyb
- * RCS headers added/changed
  *
  *
  */
