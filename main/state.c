@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.18 2004-12-17 09:16:59 btb Exp $ */
+/* $Id: state.c,v 1.19 2004-12-17 13:17:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -231,7 +231,7 @@ void rpad_string( char * string, int max_chars )
 	*string = 0;		// NULL terminate
 }
 
-int state_get_save_file(char * fname, char * dsc, int multi )
+int state_get_save_file(char * fname, char * dsc, int multi, int blind_save)
 {
 	PHYSFS_file *fp;
 	int i, choice, version;
@@ -284,7 +284,10 @@ int state_get_save_file(char * fname, char * dsc, int multi )
 	}
 
 	sc_last_item = -1;
-	choice = newmenu_do1( NULL, "Save Game", NUM_SAVES, m, NULL, state_default_item );
+	if (blind_save && state_default_item >= 0)
+		choice = state_default_item;
+	else
+		choice = newmenu_do1(NULL, "Save Game", NUM_SAVES, m, NULL, state_default_item);
 
 	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )
@@ -463,7 +466,7 @@ extern int Final_boss_is_dead;
 
 //	-----------------------------------------------------------------------------------
 //	blind_save means don't prompt user for any info.
-int state_save_all(int between_levels, int secret_save, char *filename_override)
+int state_save_all(int between_levels, int secret_save, char *filename_override, int blind_save)
 {
 	int	rval, filenum = -1;
 
@@ -508,7 +511,9 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 		if (filename_override) {
 			strcpy( filename, filename_override);
 			sprintf(desc, "[autosave backup]");
-		} else if (!(filenum = state_get_save_file(filename,desc,0))) {
+		}
+		else if (!(filenum = state_get_save_file(filename, desc, 0, blind_save)))
+		{
 			start_time();
 			return 0;
 		}
@@ -577,6 +582,8 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 	}
 	
 	rval = state_save_all_sub(filename, desc, between_levels);
+	if (rval && !secret_save)
+		HUD_init_message("Game saved.");
 
 	return rval;
 }
@@ -1028,7 +1035,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 		#else
 		sprintf(temp_filename, "Players/%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
 		#endif
-		state_save_all(!in_game, secret_restore, temp_filename);
+		state_save_all(!in_game, secret_restore, temp_filename, 0);
 	}
 
 	if ( !secret_restore && in_game ) {

@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.24 2004-05-21 02:45:34 btb Exp $ */
+/* $Id: gamecntl.c,v 1.25 2004-12-17 13:17:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1236,6 +1236,24 @@ int HandleSystemKey(int key)
 			#endif
 			break;
 
+		MAC(case KEY_COMMAND + KEY_6:)
+		case KEY_F6:
+			if (!Player_is_dead && !(Game_mode & GM_MULTI))
+			{
+				int rsave, gsave, bsave;
+				rsave = PaletteRedAdd;
+				gsave = PaletteGreenAdd;
+				bsave = PaletteBlueAdd;
+
+				full_palette_save();
+				PaletteRedAdd = rsave;
+				PaletteGreenAdd = gsave;
+				PaletteBlueAdd = bsave;
+				state_save_all(0, 0, NULL, 1); // 0 means not between levels.
+				palette_restore();
+			}
+			break;
+
 		MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 			#ifdef NETWORK
@@ -1324,10 +1342,10 @@ int HandleSystemKey(int key)
 				PaletteRedAdd = rsave;
 				PaletteGreenAdd = gsave;
 				PaletteBlueAdd = bsave;
-				state_save_all( 0, 0, NULL );
+				state_save_all(0, 0, NULL, 0); // 0 means not between levels.
 				palette_restore();
 			}
-			break;  // 0 means not between levels.
+			break;
 
 		MAC(case KEY_COMMAND+KEY_O:)
 		MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)

@@ -1,4 +1,4 @@
-/* $Id: multi.c,v 1.17 2004-10-23 18:59:02 schaffner Exp $ */
+/* $Id: multi.c,v 1.18 2004-12-17 13:17:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -3620,7 +3620,7 @@ void multi_initiate_save_game()
 
 	//stop_time();
 
-	slot = state_get_save_file(filename, desc, 1 );
+	slot = state_get_save_file(filename, desc, 1, 0);
 	if (!slot)      {
 		//start_time();
 		return;

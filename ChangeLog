@@ -2,6 +2,9 @@
 
 	* main/state.c: open autosave file for writing, not reading
 
+	* main/game.c, main/gamecntl.c, main/gameseq.c, main/multi.c,
+	main/state.c, main/state.h: added fast save
+
 2004-12-07  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* 2d/font.c: Initialise the dataptr member correctly.
