@@ -1,4 +1,4 @@
-/* $Id: key.c,v 1.2 2003-01-15 02:42:41 btb Exp $ */
+/* $Id: key.c,v 1.3 2003-02-27 22:07:21 btb Exp $ */
 /*
  *
  * SDL keyboard input support
@@ -20,9 +20,6 @@
 #include "key.h"
 #include "timer.h"
 
-//added on 9/3/98 by Matt Mueller to free some cpu instead of hogging during menus and such
-#include "d_delay.h"
-//end this section addition - Matt Mueller
 
 #define KEY_BUFFER_SIZE 16
 
@@ -515,7 +512,7 @@ int key_inkey()
 		key_data.keyhead = add_one(key_data.keyhead);
 	}
 //added 9/3/98 by Matt Mueller to free cpu time instead of hogging during menus and such
-	else d_delay(1);
+	else timer_delay(1);
 //end addition - Matt Mueller
 	     
         return key;

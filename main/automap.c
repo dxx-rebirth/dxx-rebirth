@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.6 2002-08-06 09:30:24 btb Exp $ */
+/* $Id: automap.c,v 1.7 2003-02-27 22:07:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -75,7 +75,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "automap.h"
 #include "cntrlcen.h"
-#include "d_delay.h"
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"

@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.16 2003-02-27 04:28:18 btb Exp $ */
+/* $Id: kconfig.c,v 1.17 2003-02-27 22:07:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.16 2003-02-27 04:28:18 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.17 2003-02-27 22:07:21 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -398,7 +398,6 @@ static char rcsid[] = "$Id: kconfig.c,v 1.16 2003-02-27 04:28:18 btb Exp $";
 #include "poly_acc.h"
 #endif
 
-#include "d_delay.h"
 #include "collide.h"
 
 #ifdef __unix__
@@ -1672,7 +1671,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 //		if ( Game_mode & GM_MULTI )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
-		d_delay(10);
+		timer_delay(f0_1/10);
 		kc_drawquestion( item );
 	
 		for (i=0; i<256; i++ )	{
@@ -1741,7 +1740,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 //		if ( Game_mode & GM_MULTI )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
-		d_delay(10);
+		timer_delay(f0_1/10);
 
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
@@ -1830,7 +1829,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 //		if ( Game_mode & GM_MULTI )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
-		d_delay(10);
+		timer_delay(f0_1/10);
 
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
@@ -1907,7 +1906,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 //		if ( Game_mode & GM_MULTI )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
-		d_delay(10);
+		timer_delay(f0_1/10);
 
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
@@ -1995,7 +1994,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 //		if ( Game_mode & GM_MULTI )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
-		d_delay(10);
+		timer_delay(f0_1/10);
 
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);

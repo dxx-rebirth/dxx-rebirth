@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.16 2002-10-03 03:46:34 btb Exp $ */
+/* $Id: game.c,v 1.17 2003-02-27 22:07:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.16 2002-10-03 03:46:34 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.17 2003-02-27 22:07:21 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -117,7 +117,6 @@ char game_rcsid[] = "$Id: game.c,v 1.16 2002-10-03 03:46:34 btb Exp $";
 #include "robot.h"
 #include "playsave.h"
 #include "fix.h"
-#include "d_delay.h"
 #include "hudmsg.h"
 
 int VGA_current_mode;
@@ -1210,10 +1209,9 @@ void calc_frame_time()
 	do {
 	    timer_value = timer_get_fixed_seconds();
 	    FrameTime = timer_value - last_timer_value;
+		Assert(FrameTime > 0);
 	    if (FrameTime < f1_0/max_fps);
-	    {
-		d_delay(1);
-	    }
+			timer_delay(1);
 	} while (FrameTime < f1_0/max_fps);
 
 	#if defined(TIMER_TEST) && !defined(NDEBUG)

@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ggi/key.c,v $
- * $Revision: 1.1 $
- * $Author: bradleyb $
- * $Date: 2001-10-24 09:25:05 $
+ * $Revision: 1.2 $
+ * $Author: btb $
+ * $Date: 2003-02-27 22:07:21 $
  *
  * GGI keyboard input support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/24 09:25:05  bradleyb
+ * Moved input stuff to arch subdirs, as in d1x.
+ *
  * Revision 1.3  2001/01/29 14:03:57  bradleyb
  * Fixed build, minor fixes
  *
@@ -27,9 +30,6 @@
 #include "timer.h"
 #include "mono.h"
 
-//added on 9/3/98 by Matt Mueller to free some cpu instead of hogging during menus and such
-#include "d_delay.h"
-//end this section addition - Matt Mueller
 
 #define KEY_BUFFER_SIZE 16
 
@@ -382,7 +382,7 @@ int key_inkey()
 		key_data.keyhead = add_one(key_data.keyhead);
 	}
 //added 9/3/98 by Matt Mueller to free cpu time instead of hogging during menus and such
-//	else d_delay(1);
+//	else timer_delay(1);
 //end addition - Matt Mueller
         return key;
 }

@@ -1,3 +1,10 @@
+2003-02-27  Bradley Bell  <btb@icculus.org>
+
+	* arch/ggi/key.c, arch/sdl/key.c, arch/svgalib/key.c,
+	include/d_delay.h, main/automap.c, main/game.c, main/kconfig.c,
+	main/multi.c, main/newdemo.c, misc/Makefile.am, misc/d_delay.c:
+	use timer_delay instead of d_delay
+
 2003-02-27  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/render.c: added replacement qsort for solaris

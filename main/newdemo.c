@@ -84,7 +84,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "controls.h"
 #include "d_io.h"
-#include "d_delay.h"
+#include "timer.h"
 
 #include "findfile.h"
 
@@ -3329,47 +3329,41 @@ void nd_render_extras (ubyte which,object *obj)
  } 
 
 void DoJasonInterpolate (fix recorded_time)
- {
-  int the_delay;
-  float MyRecFrameTime,ThisFrameTime;
+{
+	fix the_delay;
 
-  JasonPlaybackTotal+=FrameTime;
-	  
- 
-  if (!First_time_playback)
-    {
-     // get the difference between the recorded time and the playback time
-     
-  	   MyRecFrameTime=f2fl(recorded_time); 
-      ThisFrameTime=f2fl(FrameTime);
-  
-	   the_delay=((MyRecFrameTime-ThisFrameTime)*1000.0);       
-	   //mprintf ((0,"The delay=%d\n",the_delay));
-		if (the_delay>=0)
-	  	  {
-	      stop_time();
-		   d_delay (the_delay);
-		   start_time();
-	     }
+	JasonPlaybackTotal+=FrameTime;
+
+	if (!First_time_playback)
+	{
+		// get the difference between the recorded time and the playback time
+		the_delay=(recorded_time - FrameTime);
+		//mprintf ((0,"The delay=%d\n", f2i(the_delay)));
+		if (the_delay >= f0_0)
+		{
+			stop_time();
+			timer_delay(the_delay);
+			start_time();
+		}
 		else
-		 {
-			while (JasonPlaybackTotal > nd_recorded_total) 
-	   		if (newdemo_read_frame_information() == -1) 
-		   	 {
-					 newdemo_stop_playback();
-					 return;
-				 }
-				
-		//	the_delay=(f2fl(nd_recorded_total-JasonPlaybackTotal))*1000.0;
-			//if (delay>0)
-		//		delay (the_delay);
-		 }
+		{
+			while (JasonPlaybackTotal > nd_recorded_total)
+				if (newdemo_read_frame_information() == -1)
+				{
+					newdemo_stop_playback();
+					return;
+				}
 
-	 }
-  
-  First_time_playback=0;    
- }
-   
+			//the_delay = nd_recorded_total - JasonPlaybackTotal;
+			//if (the_delay > f0_0)
+			//	timer_delay(the_delay);
+		}
+
+	}
+
+	First_time_playback=0;
+}
+
 #ifdef MACINTOSH
 #pragma global_optimizer reset
 #endif

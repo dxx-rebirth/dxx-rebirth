@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/multi.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  * $Author: btb $
- * $Date: 2002-12-31 23:19:42 $
+ * $Date: 2003-02-27 22:07:21 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2002/12/31 23:19:42  btb
+ * comments/whitespace
+ *
  * Revision 1.6  2002/08/30 01:01:18  btb
  * more networking fixes
  *
@@ -81,7 +84,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "sounds.h"
 #include "args.h"
-#include "d_delay.h"
 #include "cfile.h"
 #include "effects.h"
 
@@ -1063,8 +1065,7 @@ multi_menu_poll(void)
 
 	multi_in_menu--;
 
-//	timer_delay(f1_0/10);   changed by allender for portability
-	d_delay(100);				// delay 100 milliseconds
+	timer_delay(f1_0/10);   // delay 100 milliseconds
 		
 	if (Endlevel_sequence || (Control_center_destroyed && !was_fuelcen_alive) || (Player_is_dead != player_was_dead) || (Players[Player_num].shields < old_shields))
 	{
