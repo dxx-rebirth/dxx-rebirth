@@ -1,3 +1,8 @@
+2004-05-20  Bradley Bell  <btb@icculus.org>
+
+	* texmap/Makefile.am, texmap/scanline.c: don't need texmappers for
+	OpenGL
+
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 
 	* main/inferno.c: document -gl_refresh (d1x r1.20)

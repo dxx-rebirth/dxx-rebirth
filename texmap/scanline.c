@@ -1,4 +1,4 @@
-/* $Id: scanline.c,v 1.6 2003-02-18 20:15:48 btb Exp $ */
+/* $Id: scanline.c,v 1.7 2004-05-20 22:31:03 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: scanline.c,v 1.6 2003-02-18 20:15:48 btb Exp $";
+static char rcsid[] = "$Id: scanline.c,v 1.7 2004-05-20 22:31:03 btb Exp $";
 #endif
 
 #include <math.h>
@@ -964,9 +964,11 @@ void (*cur_tmap_scanline_shaded)(void);
 
 //runtime selection of optimized tmappers.  12/07/99  Matthew Mueller
 //the reason I did it this way rather than having a *tmap_funcs that then points to a c_tmap or fp_tmap struct thats already filled in, is to avoid a second pointer dereference.
-void select_tmap(char *type){
-	if (!type){
-#ifndef NO_ASM
+void select_tmap(char *type)
+{
+	if (!type)
+	{
+#if !defined(NO_ASM) && !defined(OGL)
 #if defined(__pentiumpro__)
 		select_tmap("ppro");
 #elif defined(__pentium__)
@@ -979,8 +981,9 @@ void select_tmap(char *type){
 #endif
 		return;
 	}
-#ifndef NO_ASM
-	if (stricmp(type,"i386")==0){
+#if !defined(NO_ASM) && !defined(OGL)
+	if (stricmp(type, "i386")==0)
+	{
 		cur_tmap_scanline_per=asm_tmap_scanline_per;
 		cur_tmap_scanline_per_nolight=asm_tmap_scanline_per;
 		cur_tmap_scanline_lin=asm_tmap_scanline_lin_lighted;
