@@ -1,4 +1,5 @@
 --- Version 0.2.6 ---
+- Fixed OpenGL textures under Windows and OS X
 - Added optional console (not really useful, yet)
 - Improved movie player
 - Improved networking (especially Windows and bigendian unix)

@@ -1,10 +1,38 @@
-In addition to d2x, you need some data files to play.  On un*x, these
-files need to go into a shared data directory
-(/usr/local/share/games/d2x by default).  On Windows or DOS, they go
-in the same directory as the d2x binary.
+Installing d2x on Windows
+-------------------------
 
-Base Installation
------------------
+Unzip the binary release (d2x-x.x.x_mingw.zip), placing the files in
+your descent2 directory (C:\GAMES\DESCENT2 by default)
+
+You will also need the SDL and SDL_image runtime libraries.
+Get SDL-1.2.x-win32.zip from here:
+http://www.libsdl.org/download-1.2.php
+And get SDL_image-1.2.x-win32.zip from here:
+http://www.libsdl.org/projects/SDL_image/
+
+Unzip these files and place the DLLs in your descent2 directory, or
+you can place them in your system directory if you want to use them
+with programs other than d2x.
+See below for data installation.
+
+
+Installing d2x on MacOS X
+-------------------------
+
+I guess we need to figure out the binary distribution first, eh?
+
+
+Base Data Installation
+----------------------
+
+In addition to d2x, you need some data files to play.
+In Windows or DOS, they go in the same directory as the d2x binary
+(C:\GAMES\DESCENT2 by default).
+
+On unix, these files usually go into a shared data directory
+(/usr/local/share/games/d2x by default).
+They can also go in $HOME/.d2x, or in an arbitrary directory specified
+with the -hogdir option on the d2x command line.
 
 The base install depends on which version of the datafiles you have.
 d2x currently supports just about any version of Descent II, and can
@@ -60,8 +88,8 @@ exit.ham
 d2.mn2
 
 
-Mission Installation
---------------------
+Add-on Mission Installation
+---------------------------
 
 d2x should be able to play any missions for Descent I or Descent II,
 including the original Descent I mission (Descent: First Strike)

@@ -1,3 +1,7 @@
+2003-11-07  Bradley Bell  <btb@icculus.org>
+
+	* NEWS, installation.txt: s'more documentation
+
 2003-11-07  Steffen Pohle  <stpohle@gmx.net>
 
 	* configure.ac: fix .exe extension problems
