@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.30 2004-11-19 18:42:48 schaffner Exp $ */
+/* $Id: mission.c,v 1.31 2004-11-27 05:10:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -401,6 +401,7 @@ void add_d1_builtin_mission_to_list(int *count)
 		break;
 	}
 
+	Mission_list[*count].builtin_hogsize = 0;
 	Mission_list[*count].descent_version = 1;
 	Mission_list[*count].anarchy_only_flag = 0;
 	++(*count);

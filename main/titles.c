@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.33 2004-10-24 12:46:49 schaffner Exp $ */
+/* $Id: titles.c,v 1.34 2004-11-27 05:10:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -268,11 +268,10 @@ typedef struct {
 
 #define MAX_BRIEFING_SCREENS 60
 
-#if 0
 briefing_screen Briefing_screens[MAX_BRIEFING_SCREENS]=
  {{"brief03.pcx",0,3,8,8,257,177}}; // default=0!!!
-#else
-briefing_screen Briefing_screens[] = {
+
+briefing_screen D1_Briefing_screens[] = {
 	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
 	{ "brief02.pcx",   0,  2,  27,  34, 257, 177 },
 	{ "brief03.pcx",   0,  3,  20,  22, 257, 177 },
@@ -335,7 +334,6 @@ briefing_screen Briefing_screens[] = {
 
 };
 
-#endif
 
 int	Briefing_text_x, Briefing_text_y;
 
@@ -1455,6 +1453,11 @@ void do_briefing_screens(char *filename,int level_num)
 	key_flush();
 
 	if (EMULATING_D1) {
+		int i;
+
+		for (i = 0; i < MAX_BRIEFING_SCREENS; i++)
+			memcpy(&Briefing_screens[i], &D1_Briefing_screens[i], sizeof(briefing_screen));
+
 		if (level_num == 1) {
 			while ((!abort_briefing_screens) && (Briefing_screens[cur_briefing_screen].level_num == 0)) {
 				abort_briefing_screens = show_briefing_screen(cur_briefing_screen, 0);

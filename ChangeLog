@@ -1,5 +1,7 @@
 2004-11-26  Bradley Bell  <btb@icculus.org>
 
+	* main/mission.c, main/titles.c: fix d1 briefing glitches
+
 	* main/game.c: free up cpu by not calling timer_delay so many
 	times (fixes Bug 2034)
 
