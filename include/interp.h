@@ -1,4 +1,4 @@
-/* $Id: interp.h,v 1.4 2003-01-22 00:54:13 btb Exp $ */
+/* $Id: interp.h,v 1.5 2003-02-13 22:02:29 btb Exp $ */
 /*
  *
  * took out functions declarations from include/3d.h
@@ -41,5 +41,28 @@ void g3_remap_interp_colors(void);
 // routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(ubyte *data);
 #endif
+
+#ifdef WORDS_NEED_ALIGNMENT
+/*
+ * A chunk struct (as used for alignment) contains all relevant data
+ * concerning a piece of data that may need to be aligned.
+ * To align it, we need to copy it to an aligned position,
+ * and update all pointers  to it.
+ * (Those pointers are actually offsets
+ * relative to start of model_data) to it.
+ */
+typedef struct chunk {
+	ubyte *old_base; // where the offset sets off from (relative to beginning of model_data)
+	ubyte *new_base; // where the base is in the aligned structure
+	short offset; // how much to add to base to get the address of the offset
+	short correction; // how much the value of the offset must be shifted for alignment
+} chunk;
+#define MAX_CHUNKS 100 // increase if insufficent
+/*
+ * finds what chunks the data points to, adds them to the chunk_list, 
+ * and returns the length of the current chunk
+ */
+int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no);
+#endif //def WORDS_NEED_ALIGNMENT
 
 #endif //_INTERP_H

@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.11 2003-01-03 00:57:00 btb Exp $ */
+/* $Id: interp.c,v 1.12 2003-02-13 22:02:29 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.11 2003-01-03 00:57:00 btb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.12 2003-02-13 22:02:29 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -222,63 +222,22 @@ void swap_polygon_model_data(ubyte *data)
 #endif
 
 #ifdef WORDS_NEED_ALIGNMENT
-
-#include <string.h> // for memcpy
-
-typedef struct chunk { // pointer-thing to next chunk of model_data
-	ubyte *old_base; // where the offset sets off from (relative to beginning of model_data)
-	ubyte *new_base; // where the base is in the aligned structure
-	short offset; // how much to add to base to get the address of the offset
-	short correction; // how much the value of the offset must be shifted for alignment
-} chunk;
-
-ubyte * old_dest(chunk o) // return where the chunk is (in unaligned structure)
+void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
+	       chunk *chunk_list, int *no_chunks)
 {
-	return o.old_base + INTEL_SHORT(w(o.old_base + o.offset));
-}
-
-ubyte * new_dest(chunk o) // return where the chunk is (in aligned structure)
-{
-	return o.new_base + INTEL_SHORT(w(o.old_base + o.offset)) + o.correction;
-}
-
-#define MAX_CHUNKS 100 // increase if insufficent
-
-int no_chunks; // the number of chunks currently in array
-chunk *chunk_list;
-
-void add_chunk(ubyte *old_base, ubyte *new_base, int offset) {
-	Assert(no_chunks + 1 < MAX_CHUNKS); //increase MAX_CHUNKS if you get this
-	chunk_list[no_chunks].old_base = old_base;
-	chunk_list[no_chunks].new_base = new_base;
-	chunk_list[no_chunks].offset = offset;
-	chunk_list[no_chunks].correction = 0;
-	no_chunks++;
-}
-
-chunk get_first_chunk() // return chunk (from old structure) with smallest address, removing it from array
-{
-	int i, first_index = 0;
-	chunk first;
-
-	Assert(no_chunks >= 1);
-	// find index of chunk with smallest address:
-	for (i = 1; i < no_chunks; i++)
-		if (old_dest(chunk_list[i]) < old_dest(chunk_list[first_index]))
-			first_index = i;
-	// assign it:
-	first = chunk_list[first_index];
-	// remove it from array:
-	no_chunks--;
-	for (i = first_index; i < no_chunks; i++)
-		chunk_list[i] = chunk_list[i + 1];
-	return first;
+	Assert(*no_chunks + 1 < MAX_CHUNKS); //increase MAX_CHUNKS if you get this
+	chunk_list[*no_chunks].old_base = old_base;
+	chunk_list[*no_chunks].new_base = new_base;
+	chunk_list[*no_chunks].offset = offset;
+	chunk_list[*no_chunks].correction = 0;
+	(*no_chunks)++;
 }
 
 /*
- * find out what chunks the chunk "data" points to, return length of current chunk
+ * finds what chunks the data points to, adds them to the chunk_list, 
+ * and returns the length of the current chunk
  */
-int get_chunks(ubyte *data, ubyte *new_data)
+int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no)
 {
 	short n;
 	ubyte *p = data;
@@ -302,15 +261,15 @@ int get_chunks(ubyte *data, ubyte *new_data)
 			p += 30 + ((n&~1)+1)*2 + n*12;
 			break;
 		case OP_SORTNORM:
-			add_chunk(p, p - data + new_data, 28);
-			add_chunk(p, p - data + new_data, 30);
+			add_chunk(p, p - data + new_data, 28, list, no);
+			add_chunk(p, p - data + new_data, 30, list, no);
 			p += 32;
 			break;
 		case OP_RODBM:
 			p+=36;
 			break;
 		case OP_SUBCALL:
-			add_chunk(p, p - data + new_data, 16);
+			add_chunk(p, p - data + new_data, 16, list, no);
 			p+=20;
 			break;
 		case OP_GLOW:
@@ -322,63 +281,6 @@ int get_chunks(ubyte *data, ubyte *new_data)
 	}
 	return p + 2 - data;
 }
-
-#define SHIFT_SPACE 500 // increase if insufficent
-
-void align_polygon_model_data(polymodel *pm)
-{
-	int i, chunk_len;
-	int total_correction = 0;
-	ubyte *cur_old, *cur_new;
-	chunk cur_ch;
-	chunk cl[MAX_CHUNKS]; // we need the chunk_list only in this function
-	int tmp_size = pm->model_data_size + SHIFT_SPACE;
-	ubyte *tmp = d_malloc(tmp_size); // where we build the aligned version of pm->model_data
-
-	Assert(tmp != NULL);
-	chunk_list = cl; // so other functions can access it
-	no_chunks = 0;
-	//start with first chunk (is always aligned!)
-	cur_old = pm->model_data;
-	cur_new = tmp;
-	chunk_len = get_chunks(cur_old, cur_new);
-	memcpy(cur_new, cur_old, chunk_len);
-	while (no_chunks > 0) {
-		cur_ch = get_first_chunk();
-		if ((u_int32_t)new_dest(cur_ch) % 4L != 0) { // if (new) address unaligned
-			short to_shift = 4 - (u_int32_t)new_dest(cur_ch) % 4L; // how much to align
-
-			// correct chunks' addresses
-			cur_ch.correction += to_shift;
-			for (i = 0; i < no_chunks; i++)
-				chunk_list[i].correction += to_shift;
-			total_correction += to_shift;
-			Assert((u_int32_t)new_dest(cur_ch) % 4L == 0);
-			Assert(total_correction <= SHIFT_SPACE); // if you get this, increase SHIFT_SPACE
-		}
-		//write (corrected) chunk for current chunk:
-		w(cur_ch.new_base + cur_ch.offset)
-		  = INTEL_SHORT(cur_ch.correction
-		  + INTEL_SHORT(w(cur_ch.old_base + cur_ch.offset)));
-		//write (correctly aligned) chunk:
-		cur_old = old_dest(cur_ch);
-		cur_new = new_dest(cur_ch);
-		chunk_len = get_chunks(cur_old, cur_new);
-		memcpy(cur_new, cur_old, chunk_len);
-		//correct submodel_ptr's for pm, too
-		for (i = 0; i < MAX_SUBMODELS; i++)
-			if (pm->model_data + pm->submodel_ptrs[i] >= cur_old
-			    && pm->model_data + pm->submodel_ptrs[i] < cur_old + chunk_len)
-				pm->submodel_ptrs[i] += (cur_new - tmp) - (cur_old - pm->model_data);
- 	}
-	d_free(pm->model_data);
-	pm->model_data_size += total_correction;
-	pm->model_data = d_malloc(pm->model_data_size);
-	Assert(pm->model_data != NULL);
-	memcpy(pm->model_data, tmp, pm->model_data_size);
-	d_free(tmp);
-}
-
 #endif //def WORDS_NEED_ALIGNMENT
 
 void verify(ubyte *data)
