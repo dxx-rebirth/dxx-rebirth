@@ -99,32 +99,32 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //char *menu_difficulty_text[] = { "Trainee", "Rookie", "Fighter", "Hotshot", "Insane" };
 //char *menu_detail_text[] = { "Lowest", "Low", "Medium", "High", "Highest", "", "Custom..." };
 
-#define MENU_NEW_GAME            0
-#define MENU_GAME                               1 
-#define MENU_EDITOR                                     2
-#define MENU_VIEW_SCORES                        3
-#define MENU_QUIT                4
-#define MENU_LOAD_GAME                          5
-#define MENU_SAVE_GAME                          6
-#define MENU_DEMO_PLAY                          8
-#define MENU_LOAD_LEVEL                         9
-#define MENU_START_IPX_NETGAME                  10
-#define MENU_JOIN_IPX_NETGAME                   11
-#define MENU_CONFIG                             13
-#define MENU_REJOIN_NETGAME                     14
-#define MENU_DIFFICULTY                         15
-#define MENU_START_SERIAL                       18
-#define MENU_HELP                               19
-#define MENU_NEW_PLAYER                         20
-#define MENU_MULTIPLAYER                        21
-#define MENU_STOP_MODEM                         22
-#define MENU_SHOW_CREDITS                       23
-#define MENU_ORDER_INFO                         24
-#define MENU_PLAY_SONG                          25
-#define MENU_START_TCP_NETGAME                  26
-#define MENU_JOIN_TCP_NETGAME                   27
-#define MENU_START_APPLETALK_NETGAME            28
-#define MENU_JOIN_APPLETALK_NETGAME    	        30
+#define MENU_NEW_GAME                   0
+#define MENU_GAME                       1 
+#define MENU_EDITOR                     2
+#define MENU_VIEW_SCORES                3
+#define MENU_QUIT                       4
+#define MENU_LOAD_GAME                  5
+#define MENU_SAVE_GAME                  6
+#define MENU_DEMO_PLAY                  8
+#define MENU_LOAD_LEVEL                 9
+#define MENU_START_IPX_NETGAME          10
+#define MENU_JOIN_IPX_NETGAME           11
+#define MENU_CONFIG                     13
+#define MENU_REJOIN_NETGAME             14
+#define MENU_DIFFICULTY                 15
+#define MENU_START_SERIAL               18
+#define MENU_HELP                       19
+#define MENU_NEW_PLAYER                 20
+#define MENU_MULTIPLAYER                21
+#define MENU_STOP_MODEM                 22
+#define MENU_SHOW_CREDITS               23
+#define MENU_ORDER_INFO                 24
+#define MENU_PLAY_SONG                  25
+#define MENU_START_TCP_NETGAME          26
+#define MENU_JOIN_TCP_NETGAME           27
+#define MENU_START_APPLETALK_NETGAME    28
+#define MENU_JOIN_APPLETALK_NETGAME     30
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
 //ADD_ITEM("Send net message...", MENU_SEND_NET_MESSAGE, -1 );
@@ -334,7 +334,8 @@ int DoMenu()
 
 	do {
 		keyd_time_when_last_pressed = timer_get_fixed_seconds();                // .. 20 seconds from now!
-		if (main_menu_choice < 0 )      main_menu_choice = 0;           
+		if (main_menu_choice < 0 )
+			main_menu_choice = 0;
 		Menu_draw_copyright = 1;
 		main_menu_choice = newmenu_do2( "", NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
 		if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
@@ -343,7 +344,7 @@ int DoMenu()
 
 //      if (main_menu_choice != -2)
 //              do_auto_demo = 0;               // No more auto demos
-	if ( Function_mode==FMODE_GAME )        
+	if ( Function_mode==FMODE_GAME )
 		gr_palette_fade_out( gr_palette, 32, 0 );
 
 	return main_menu_choice;
@@ -882,7 +883,7 @@ void do_screen_res_menu()
 	if (i >= 3)
 		i++;
 
-#if 0 //def SHAREWARE
+#ifdef SHAREWARE
 	if (i > 1)
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, 
 			"High resolution modes are\n"
@@ -1017,7 +1018,7 @@ void do_screen_res_menu()
 	}
 
 #endif
-#if 0 //def SHAREWARE
+#ifdef SHAREWARE
 		if (i != 0)
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, 
 				"High resolution modes are\n"
@@ -1050,7 +1051,7 @@ void do_new_game_menu()
 		default_mission = 0;
 		for (i=0;i<n_missions;i++) {
 			m[i] = Mission_list[i].mission_name;
-			if ( !stricmp( m[i], config_last_mission ) )    
+			if ( !stricmp( m[i], config_last_mission ) )
 				default_mission = i;
 		}
 
@@ -1060,7 +1061,7 @@ void do_new_game_menu()
 			return;         //abort!
 
 		strcpy(config_last_mission, m[new_mission_num]  );
-		
+
 		if (!load_mission(new_mission_num)) {
 			nm_messagebox( NULL, 1, TXT_OK, "Error in Mission file"); 
 			return;
@@ -1298,7 +1299,7 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 
 	// don't enable redbook for a non-apple demo version of the shareware demo
 	#if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-		
+
 	if (Config_redbook_volume != items[2].value )   {
 		Config_redbook_volume = items[2].value;
 		set_redbook_volume(Config_redbook_volume);
@@ -1360,11 +1361,11 @@ void do_sound_menu()
 
 	do {
 		m[ 0].type = NM_TYPE_SLIDER; m[ 0].text=TXT_FX_VOLUME; m[0].value=Config_digi_volume;m[0].min_value=0; m[0].max_value=8; 
-		m[ 1].type = (Redbook_playing?NM_TYPE_TEXT:NM_TYPE_SLIDER); m[ 1].text="MIDI music volume"; m[1].value=Config_midi_volume;m[1].min_value=0; m[1].max_value=8; 
+		m[ 1].type = (Redbook_playing?NM_TYPE_TEXT:NM_TYPE_SLIDER); m[ 1].text="MIDI music volume"; m[1].value=Config_midi_volume;m[1].min_value=0; m[1].max_value=8;
 
 	#ifdef WINDOWS
 		if (!wmidi_support_volchange() && !Redbook_playing) {
-			m[1].type = NM_TYPE_CHECK; 
+			m[1].type = NM_TYPE_CHECK;
 			m[1].text = "MIDI MUSIC";
 			if (Config_midi_volume) m[1].value = 1;
 		}
@@ -1375,13 +1376,13 @@ void do_sound_menu()
 			m[ 3].type = NM_TYPE_TEXT; m[ 3].text="";
 			m[ 4].type = NM_TYPE_TEXT; m[ 4].text="";
 			#ifdef MACINTOSH
-				m[ 3].type = NM_TYPE_SLIDER; m[ 3].text="Sound Manager Volume"; m[3].value=Config_master_volume;m[3].min_value=0; m[3].max_value=8; 
-		
+				m[ 3].type = NM_TYPE_SLIDER; m[ 3].text="Sound Manager Volume"; m[3].value=Config_master_volume;m[3].min_value=0; m[3].max_value=8;
+
 				#ifdef APPLE_DEMO
 					m[ 2].type = (Redbook_playing?NM_TYPE_SLIDER:NM_TYPE_TEXT); m[ 2].text="CD music volume"; m[2].value=Config_redbook_volume;m[2].min_value=0; m[2].max_value=8;
 					m[ 4].type = NM_TYPE_CHECK;  m[ 4].text="CD Music (Redbook) enabled"; m[4].value=(Redbook_playing!=0);
 				#endif
-		
+
 			#endif
 
 		#else		// ifdef SHAREWARE

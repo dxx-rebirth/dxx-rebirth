@@ -1,3 +1,4 @@
+/* $Id: mission.c,v 1.5 2002-08-06 05:12:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,19 +8,14 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/mission.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2002-01-29 10:14:25 $
  *
  * Stuff for loading missions
  *
- * $Log: not supported by cvs2svn $
  *
  */
 
@@ -234,7 +230,7 @@ char *get_value(char *buf)
 char *get_parm_value(char *parm,CFILE *f)
 {
 	static char buf[80];
-	
+
 	if (!mfgets(buf,80,f))
 		return NULL;
 
@@ -253,7 +249,7 @@ int ml_sort_func(mle *e0,mle *e1)
 extern char CDROM_dir[];
 extern int HoardEquipped();
 
-#define BUILTIN_MISSION "d2.mn2"
+#define BUILTIN_MISSION (cfexist("d2.mn2")?"d2.mn2":"d2demo.mn2")
 
 //returns 1 if file read ok, else 0
 int read_mission_file(char *filename,int count,int location)
@@ -263,18 +259,18 @@ int read_mission_file(char *filename,int count,int location)
 
 	switch (location) {
 		case ML_MISSIONDIR:
-			strcpy(filename2,MISSION_DIR);	
+			strcpy(filename2,MISSION_DIR);
 			break;
 
-		case ML_CDROM:			
+		case ML_CDROM:
 			songs_stop_redbook();		//so we can read from the CD
-			strcpy(filename2,CDROM_dir);		
+			strcpy(filename2,CDROM_dir);
 			break;
 
-		default:					
+		default:
 			Int3();		//fall through
 
-		case ML_CURDIR:		
+		case ML_CURDIR:
 			strcpy(filename2,"");
 			break;
 	}
@@ -372,7 +368,7 @@ int build_mission_list(int anarchy_mode)
 	if (!read_mission_file(BUILTIN_MISSION,0,ML_CURDIR))		//read built-in first
 		Error("Could not find required mission file <%s>",BUILTIN_MISSION);
 
-	special_count = count=1; 
+	special_count = count=1;
 
 	if( !FileFindFirst( search_name, &find ) ) {
 		do	{

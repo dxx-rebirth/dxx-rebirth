@@ -1,4 +1,4 @@
-/* $Id: piggy.h,v 1.8 2002-08-02 11:05:26 btb Exp $ */
+/* $Id: piggy.h,v 1.9 2002-08-06 05:12:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -29,6 +29,8 @@ typedef struct alias {
 
 extern alias alias_list[MAX_ALIASES];
 extern int Num_aliases;
+
+extern int Piggy_hamfile_version;
 
 typedef struct bitmap_index {
 	ushort	index;

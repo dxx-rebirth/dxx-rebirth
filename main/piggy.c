@@ -1,3 +1,4 @@
+/* $Id: piggy.c,v 1.15 2002-08-06 05:12:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.14 2002-08-02 04:57:19 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.15 2002-08-06 05:12:09 btb Exp $";
 #endif
 
 
@@ -64,17 +65,12 @@ static char rcsid[] = "$Id: piggy.c,v 1.14 2002-08-02 04:57:19 btb Exp $";
 
 #define DEFAULT_PIGFILE_REGISTERED      "groupa.pig"
 #define DEFAULT_PIGFILE_SHAREWARE       "d2demo.pig"
+#define DEFAULT_HAMFILE_REGISTERED      "descent2.ham"
+#define DEFAULT_HAMFILE_SHAREWARE       "d2demo.ham"
 
-
-#ifdef SHAREWARE
-	#define DEFAULT_HAMFILE         "d2demo.ham"
-	#define DEFAULT_PIGFILE         DEFAULT_PIGFILE_SHAREWARE
-	#define DEFAULT_SNDFILE			DEFAULT_HAMFILE //"descent2.s11"
-#else
-	#define DEFAULT_HAMFILE         "descent2.ham"
-	#define DEFAULT_PIGFILE         DEFAULT_PIGFILE_REGISTERED
-	#define DEFAULT_SNDFILE	 		((digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
-#endif	// end of ifdef SHAREWARE
+#define DEFAULT_PIGFILE (cfexist(DEFAULT_PIGFILE_REGISTERED)?DEFAULT_PIGFILE_REGISTERED:DEFAULT_PIGFILE_SHAREWARE)
+#define DEFAULT_HAMFILE (cfexist(DEFAULT_HAMFILE_REGISTERED)?DEFAULT_HAMFILE_REGISTERED:DEFAULT_HAMFILE_SHAREWARE)
+#define DEFAULT_SNDFILE	((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
 
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
@@ -105,6 +101,8 @@ int Num_bitmap_files_new = 0;
 int Num_sound_files_new = 0;
 BitmapFile AllBitmaps[ MAX_BITMAP_FILES ];
 static SoundFile AllSounds[ MAX_SOUND_FILES ];
+
+int Piggy_hamfile_version = 0;
 
 int piggy_low_memory = 0;
 
@@ -525,24 +523,23 @@ void piggy_init_pigfile(char *filename)
 
 	piggy_close_file();             //close old pig if still open
 
-	#ifdef SHAREWARE                //rename pigfile for shareware
-	if (stricmp(filename,DEFAULT_PIGFILE_REGISTERED)==0)
+	//rename pigfile for shareware
+	if (stricmp(DEFAULT_PIGFILE, DEFAULT_PIGFILE_SHAREWARE) == 0 && stricmp(filename,DEFAULT_PIGFILE_REGISTERED) == 0)
 		filename = DEFAULT_PIGFILE_SHAREWARE;
-	#endif
 
 	#ifndef MACINTOSH
 		Piggy_fp = cfopen( filename, "rb" );
 	#else
 		sprintf(name, ":Data:%s", filename);
 		Piggy_fp = cfopen( name, "rb" );
-	
+
 		#ifdef SHAREWARE	// if we are in the shareware version, we must have the pig by now.
 			if (Piggy_fp == NULL)
 			{
 				Error("Cannot load required file <%s>",name);
 			}
 		#endif	// end of if def shareware
-	
+
 	#endif
 
 	if (!Piggy_fp) {
@@ -625,14 +622,14 @@ void piggy_init_pigfile(char *filename)
 	BitmapBits = d_malloc( Piggy_bitmap_cache_size );
 	if ( BitmapBits == NULL )
 		Error( "Not enough memory to load bitmaps\n" );
-	Piggy_bitmap_cache_data = BitmapBits;   
+	Piggy_bitmap_cache_data = BitmapBits;
 	Piggy_bitmap_cache_next = 0;
-	
+
 	#if defined(MACINTOSH) && defined(SHAREWARE)
 //	load_exit_models();
 	#endif
 
-	Pigfile_initialized=1;  
+	Pigfile_initialized=1;
 }
 
 #define FILENAME_LEN 13
@@ -657,10 +654,9 @@ void piggy_new_pigfile(char *pigname)
 
 	strlwr(pigname);
 
-	#ifdef SHAREWARE                //rename pigfile for shareware
-	if (stricmp(pigname,DEFAULT_PIGFILE_REGISTERED)==0)
+	//rename pigfile for shareware
+	if (stricmp(DEFAULT_PIGFILE, DEFAULT_PIGFILE_SHAREWARE) == 0 && stricmp(pigname,DEFAULT_PIGFILE_REGISTERED) == 0)
 		pigname = DEFAULT_PIGFILE_SHAREWARE;
-	#endif
 
 	if (strnicmp(Current_pigfile,pigname,sizeof(Current_pigfile))==0)
 		return;         //already have correct pig
@@ -920,11 +916,7 @@ ubyte bogus_bitmap_initialized=0;
 digi_sound bogus_sound;
 
 #define HAMFILE_ID              MAKE_SIG('!','M','A','H') //HAM!
-#ifdef SHAREWARE
-#define HAMFILE_VERSION 2
-#else
 #define HAMFILE_VERSION 3
-#endif
 //version 1 -> 2:  save marker_model_num
 //version 2 -> 3:  removed sound files
 
@@ -934,7 +926,7 @@ digi_sound bogus_sound;
 int read_hamfile()
 {
 	CFILE * ham_fp = NULL;
-	int ham_id,ham_version;
+	int ham_id;
 	int sound_offset = 0;
 	#ifdef MACINTOSH
 	char name[255];
@@ -954,21 +946,25 @@ int read_hamfile()
 
 	//make sure ham is valid type file & is up-to-date
 	ham_id = cfile_read_int(ham_fp);
-	ham_version = cfile_read_int(ham_fp);
-	if (ham_id != HAMFILE_ID || ham_version != HAMFILE_VERSION) {
+	Piggy_hamfile_version = cfile_read_int(ham_fp);
+	if (ham_id != HAMFILE_ID)
+		Error("Cannot open ham file %s\n", DEFAULT_HAMFILE);
+#if 0
+	if (ham_id != HAMFILE_ID || Piggy_hamfile_version != HAMFILE_VERSION) {
 		Must_write_hamfile = 1;
 		cfclose(ham_fp);						//out of date ham
 		return 0;
 	}
+#endif
 
-	if (ham_version < 3) // hamfile contains sound info
+	if (Piggy_hamfile_version < 3) // hamfile contains sound info
 		sound_offset = cfile_read_int(ham_fp);
 
 	#ifndef EDITOR
 	{
 		//int i;
 
-		bm_read_all(ham_fp, ham_version);
+		bm_read_all(ham_fp);
 		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
 		// no swap here?
 		//for (i = 0; i < MAX_BITMAP_FILES; i++) {
@@ -978,7 +974,7 @@ int read_hamfile()
 	}
 	#endif
 
-	if (ham_version < 3) {
+	if (Piggy_hamfile_version < 3) {
 		int N_sounds;
 		int sound_start;
 		int header_size;
@@ -1162,12 +1158,10 @@ int piggy_init(void)
 	piggy_init_pigfile(DEFAULT_PIGFILE);
 	#endif
 
-#ifndef SHAREWARE
-	ham_ok = read_hamfile();
-	snd_ok = read_sndfile();
-#else
 	snd_ok = ham_ok = read_hamfile();
-#endif
+
+	if (Piggy_hamfile_version >= 3)
+		snd_ok = read_sndfile();
 
 	atexit(piggy_close);
 
@@ -1217,7 +1211,7 @@ void piggy_read_sounds(void)
 		if ( SoundOffset[i] > 0 )       {
 			if ( piggy_is_needed(i) )       {
 				cfseek( fp, SoundOffset[i], SEEK_SET );
-	
+
 				// Read in the sound data!!!
 				snd->data = ptr;
 				ptr += snd->length;

@@ -83,26 +83,26 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAXDISPLAYABLEITEMS 15
 
-#define LHX(x)		((x)*(MenuHires?2:1))
-#define LHY(y)		((y)*(MenuHires?2.4:1))
+#define LHX(x)      ((x)*(MenuHires?2:1))
+#define LHY(y)      ((y)*(MenuHires?2.4:1))
 
-#define TITLE_FONT  		HUGE_FONT
-#define NORMAL_FONT  	MEDIUM1_FONT		//normal, non-highlighted item
-#define SELECTED_FONT  	MEDIUM2_FONT		//highlighted item
-#define SUBTITLE_FONT	MEDIUM3_FONT
+#define TITLE_FONT      HUGE_FONT
+#define NORMAL_FONT     MEDIUM1_FONT    //normal, non-highlighted item
+#define SELECTED_FONT   MEDIUM2_FONT    //highlighted item
+#define SUBTITLE_FONT   MEDIUM3_FONT
 
-#define NORMAL_CHECK_BOX	""
-#define CHECKED_CHECK_BOX       "‚"    
+#define NORMAL_CHECK_BOX    ""
+#define CHECKED_CHECK_BOX   "‚"
 
-#define NORMAL_RADIO_BOX	""
-#define CHECKED_RADIO_BOX	"€"
-#define CURSOR_STRING		"_"
-#define SLIDER_LEFT			"ƒ"		// 131
-#define SLIDER_RIGHT			"„"		// 132
-#define SLIDER_MIDDLE		"…"		// 133
-#define SLIDER_MARKER		"†"		// 134
-#define UP_ARROW_MARKER       "‡"    // 135
-#define DOWN_ARROW_MARKER       "ˆ"      // 136
+#define NORMAL_RADIO_BOX    ""
+#define CHECKED_RADIO_BOX   "€"
+#define CURSOR_STRING       "_"
+#define SLIDER_LEFT         "ƒ"  // 131
+#define SLIDER_RIGHT        "„"  // 132
+#define SLIDER_MIDDLE       "…"  // 133
+#define SLIDER_MARKER       "†"  // 134
+#define UP_ARROW_MARKER     "‡"  // 135
+#define DOWN_ARROW_MARKER   "ˆ"  // 136
 
 int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode );
 void show_extra_netgame_info(int choice);
@@ -168,11 +168,15 @@ void nm_draw_background1(char * filename)
 	//@@Assert(grd_curcanv->cv_bitmap.bm_w == 320);
 	//@@Assert(grd_curcanv->cv_bitmap.bm_h == 200);
 
-#ifdef SHAREWARE
-	bmp = gr_create_bitmap(320,200); //high res pcx not available
-#else
-	bmp = gr_create_bitmap(grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h);
-#endif
+	{
+		PCXHeader ph;
+		CFILE * fp;
+
+		fp = cfopen(filename, "rb");
+		PCXHeader_read(&ph, fp);
+		bmp = gr_create_bitmap(ph.Xmax - ph.Xmin + 1, ph.Ymax - ph.Ymin + 1);
+		cfclose(fp);
+	}
 
 	pcx_error = pcx_read_bitmap(filename,bmp,bmp->bm_type,pal);
 	Assert(pcx_error == PCX_ERROR_NONE);
@@ -182,10 +186,10 @@ void nm_draw_background1(char * filename)
 
 	{	//remap stuff. this code is kindof a hack
 
-		//now, before we bring up the menu, we need to 
+		//now, before we bring up the menu, we need to
 		//do some stuff to make sure the palette is ok.  First, we need to
 		//get our current palette into the 2d's array, so the remapping will
-		//work.  Second, we need to remap the fonts.  Third, we need to fill 
+		//work.  Second, we need to remap the fonts.  Third, we need to fill
 		//in part of the fade tables so the darkening of the menu edges works
 
 		gr_copy_palette(gr_palette, pal, sizeof(gr_palette));
@@ -658,7 +662,7 @@ int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item,
 int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height )
  {
   return newmenu_do4( title, subtitle, nitems, item, subfunction, citem, filename, width, height,0 );
- } 
+ }
 
 int newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height){
 	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
@@ -914,13 +918,13 @@ RePaintNewmenu4:
 			aw = average_width;
 		h += string_height+1;		// Find the height of all strings
 	}
-   
+
    // Big hack for allowing the netgame options menu to spill over
 
    MaxOnMenu=MAXDISPLAYABLEITEMS;
-   if (ExtGameStatus==GAMESTAT_NETGAME_OPTIONS || ExtGameStatus==GAMESTAT_MORE_NETGAME_OPTIONS) 
+   if (ExtGameStatus==GAMESTAT_NETGAME_OPTIONS || ExtGameStatus==GAMESTAT_MORE_NETGAME_OPTIONS)
 		MaxOnMenu++;
- 
+
    if (!TinyMode && (h>((MaxOnMenu+1)*(string_height+1))+(LHY(8))))
     {
      IsScrollBox=1;
@@ -960,10 +964,10 @@ RePaintNewmenu4:
 
    if (RestoringMenu)
 	 { right_offset=0; twidth=0;}
-	
+
 	mprintf(( 0, "Right offset = %d\n", right_offset ));
 
-			
+
 	// Find min point of menu border
 //	x = (grd_curscreen->sc_w-w)/2;
 //	y = (grd_curscreen->sc_h-h)/2;
@@ -979,7 +983,7 @@ RePaintNewmenu4:
 
 	if ( x < 0 ) x = 0;
 	if ( y < 0 ) y = 0;
-		
+
 	if ( filename != NULL )	{
 		nm_draw_background1( filename );
 		gr_palette_load(gr_palette);

@@ -1,3 +1,4 @@
+/* $Id: menu.h,v 1.3 2002-08-06 05:12:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -21,6 +22,7 @@ extern void do_options_menu();
 
 extern int MenuHires;
 
+#if 0
 #ifdef SHAREWARE
 	#ifdef RELEASE
 		#ifdef MACINTOSH
@@ -46,6 +48,9 @@ extern int MenuHires;
 			#define Menu_pcx_name (MenuHires?"menub.pcx":"menu.pcx")		//name of background bitmap
 		#endif
 	#endif
+#endif
+#else
+#define Menu_pcx_name (MenuHires && cfexist("menub.pcx")?"menub.pcx":(cfexist("menu.pcx")?"menu.pcx":"menud.pcx"))
 #endif
 
 extern void set_detail_level_parameters(int detail_level);
