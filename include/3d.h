@@ -1,4 +1,4 @@
-/* $Id: 3d.h,v 1.6 2002-09-05 08:03:22 btb Exp $ */
+/* $Id: 3d.h,v 1.7 2002-10-28 20:57:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -353,7 +353,11 @@ bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angve
 void g3_remap_interp_colors(void);
 
 // routine to convert little to big endian in polygon model data
+#ifdef WORDS_BIGENDIAN
 void swap_polygon_model_data(ubyte *data);
+#else
+#define swap_polygon_model_date(data)
+#endif
 
 #endif
 

@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.15 2002-10-11 00:36:46 btb Exp $ */
+/* $Id: network.c,v 1.16 2002-10-28 20:57:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.15 2002-10-11 00:36:46 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.16 2002-10-28 20:57:11 btb Exp $";
 #endif
 
 #define PATCH12
@@ -4942,7 +4942,7 @@ void squish_short_frame_info(short_frame_info old_info, ubyte *data)
 	
 	data[0] = old_info.type;                                            loc++;
 	/* skip three for pad byte */                                       loc += 3;
-	tmpi = swapint(old_info.numpackets);
+	tmpi = INTEL_INT(old_info.numpackets);
 	memcpy(&(data[loc]), &tmpi, 4);                                     loc += 4;
 
 	memcpy(&(data[loc]), old_info.thepos.bytemat, 9);                   loc += 9;
@@ -4961,7 +4961,7 @@ void squish_short_frame_info(short_frame_info old_info, ubyte *data)
 	tmps = INTEL_SHORT(old_info.thepos.velz);
 	memcpy(&(data[loc]), &tmps, 2);                                     loc += 2;
 
-	tmps = swapshort(old_info.data_size);
+	tmps = INTEL_SHORT(old_info.data_size);
 	memcpy(&(data[loc]), &tmps, 2);                                     loc += 2;
 
 	data[loc] = old_info.playernum;                                     loc++;

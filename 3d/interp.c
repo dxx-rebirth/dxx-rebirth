@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.7 2002-08-09 00:48:57 btb Exp $ */
+/* $Id: interp.c,v 1.8 2002-10-28 20:57:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,12 +11,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Polygon object interpreter
  *
  * Old Log:
- *
  * Revision 1.4  1995/10/10  22:20:09  allender
  * new morphing code from Matt
  *
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.7 2002-08-09 00:48:57 btb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.8 2002-10-28 20:57:11 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -102,14 +102,14 @@ int glow_num = -1;
 #ifdef WORDS_BIGENDIAN
 void short_swap(short *s)
 {
-	*s = swapshort(*s);
+	*s = SWAPSHORT(*s);
 }
 
 void vms_vector_swap(vms_vector *v)
 {
-	v->x = (fix)swapint((int)v->x);
-	v->y = (fix)swapint((int)v->y);
-	v->z = (fix)swapint((int)v->z);
+	v->x = (fix)SWAPINT((int)v->x);
+	v->y = (fix)SWAPINT((int)v->y);
+	v->z = (fix)SWAPINT((int)v->z);
 }
 
 void swap_polygon_model_data(ubyte *data)
@@ -165,8 +165,8 @@ void swap_polygon_model_data(ubyte *data)
 				vms_vector_swap(vp(p + 16));
 				for (i=0;i<n;i++) {
 					uvl_val = (g3s_uvl *)((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
-					uvl_val->u = (fix)swapint((int)uvl_val->u);
-					uvl_val->v = (fix)swapint((int)uvl_val->v);
+					uvl_val->u = (fix)SWAPINT((int)uvl_val->u);
+					uvl_val->v = (fix)SWAPINT((int)uvl_val->v);
 				}
 				short_swap(wp(p+28));
 				for (i=0;i<n;i++)
@@ -188,8 +188,8 @@ void swap_polygon_model_data(ubyte *data)
 				vms_vector_swap(vp(p + 20));
 				vms_vector_swap(vp(p + 4));
 				short_swap(wp(p+2));
-				*((int *)(p + 16)) = swapint(*((int *)(p + 16)));
-				*((int *)(p + 32)) = swapint(*((int *)(p + 32)));
+				*((int *)(p + 16)) = SWAPINT(*((int *)(p + 16)));
+				*((int *)(p + 32)) = SWAPINT(*((int *)(p + 32)));
 				p+=36;
 				break;
 

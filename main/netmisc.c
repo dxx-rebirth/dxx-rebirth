@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: netmisc.c,v 1.5 2002-10-10 19:12:00 btb Exp $";
+static char rcsid[] = "$Id: netmisc.c,v 1.6 2002-10-28 20:57:11 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -128,7 +128,6 @@ ushort netmisc_calc_checksum_pc( void * vptr, int len )
 // this code must be kept in total sync
 
 #include "ipx.h"
-#include "byteswap.h"
 #include "multi.h"
 #ifdef NETWORK
 #include "network.h"
@@ -152,7 +151,7 @@ void receive_netplayer_info(ubyte *data, netplayer_info *info)
 	info->connected = data[loc];								loc++;
 	memcpy(&(info->socket), &(data[loc]), 2);					loc += 2; 
    memcpy (&(info->rank),&(data[loc]),1);					   loc++;
-//MWA  don't think we need to swap this because we need it in high order	info->socket = swapshort(info->socket);
+//MWA  don't think we need to swap this because we need it in high order	info->socket = INTEL_SHORT(info->socket);
 }
 
 void send_netplayers_packet(ubyte *server, ubyte *node)
@@ -215,7 +214,7 @@ void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte
 	out_buffer[loc] = seq.player.version_minor;						loc++;
 	out_buffer[loc] = seq.player.computer_type;						loc++;
 	out_buffer[loc] = seq.player.connected;							loc++;
-	tmps = swapshort(seq.player.socket);
+	tmps = INTEL_SHORT(seq.player.socket);
 	memcpy(&(out_buffer[loc]), &tmps, 2);							loc += 2;
    out_buffer[loc]=seq.player.rank;									loc++;		// for pad byte
 	if (net_address != NULL)	
@@ -450,12 +449,12 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int lite_flag)
 	memcpy(&(netgame->level_time), &(data[loc]), 4);					loc += 4;
 	netgame->level_time = INTEL_INT(netgame->level_time);
 	memcpy(&(netgame->control_invul_time), &(data[loc]), 4);			loc += 4;
-	netgame->control_invul_time = swapint(netgame->control_invul_time);
+	netgame->control_invul_time = INTEL_INT(netgame->control_invul_time);
 	memcpy(&(netgame->monitor_vector), &(data[loc]), 4);				loc += 4;
-	netgame->monitor_vector = swapint(netgame->monitor_vector);
+	netgame->monitor_vector = INTEL_INT(netgame->monitor_vector);
 	for (i = 0; i < MAX_PLAYERS; i++) {
 		memcpy(&(netgame->player_score[i]), &(data[loc]), 4);			loc += 4;
-		netgame->player_score[i] = swapint(netgame->player_score[i]);
+		netgame->player_score[i] = INTEL_INT(netgame->player_score[i]);
 	}
 	for (i = 0; i < MAX_PLAYERS; i++) {
 		memcpy(&(netgame->player_flags[i]), &(data[loc]), 1); loc++;

@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.18 2002-10-03 03:46:34 btb Exp $ */
+/* $Id: bm.c,v 1.19 2002-10-28 20:57:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -55,7 +55,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "endlevel.h"
 #include "cntrlcen.h"
-#include "byteswap.h"
 #include "makesig.h"
 
 ubyte Sounds[MAX_SOUNDS];
@@ -225,17 +224,13 @@ void load_exit_models()
 		Polygon_models[exit_modelnum].model_data = d_malloc(Polygon_models[exit_modelnum].model_data_size);
 		Assert( Polygon_models[exit_modelnum].model_data != NULL );
 		cfread( Polygon_models[exit_modelnum].model_data, sizeof(ubyte), Polygon_models[exit_modelnum].model_data_size, exit_hamfile );
-#ifdef WORDS_BIGENDIAN
 		swap_polygon_model_data(Polygon_models[exit_modelnum].model_data);
-#endif
 		g3_init_polygon_model(Polygon_models[exit_modelnum].model_data);
 
 		Polygon_models[destroyed_exit_modelnum].model_data = d_malloc(Polygon_models[destroyed_exit_modelnum].model_data_size);
 		Assert( Polygon_models[destroyed_exit_modelnum].model_data != NULL );
 		cfread( Polygon_models[destroyed_exit_modelnum].model_data, sizeof(ubyte), Polygon_models[destroyed_exit_modelnum].model_data_size, exit_hamfile );
-#ifdef WORDS_BIGENDIAN
 		swap_polygon_model_data(Polygon_models[destroyed_exit_modelnum].model_data);
-#endif
 		g3_init_polygon_model(Polygon_models[destroyed_exit_modelnum].model_data);
 		cfclose(exit_hamfile);
 
@@ -311,9 +306,7 @@ void bm_read_all(CFILE * fp)
 		Polygon_models[i].model_data = d_malloc(Polygon_models[i].model_data_size);
 		Assert( Polygon_models[i].model_data != NULL );
 		cfread( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
-#ifdef WORDS_BIGENDIAN
 		swap_polygon_model_data(Polygon_models[i].model_data);
-#endif
 		g3_init_polygon_model(Polygon_models[i].model_data);
 	}
 
@@ -422,9 +415,7 @@ void bm_read_extra_robots(char *fname,int type)
 		Polygon_models[i].model_data = d_malloc(Polygon_models[i].model_data_size);
 		Assert( Polygon_models[i].model_data != NULL );
 		cfread( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
-#ifdef WORDS_BIGENDIAN
 		swap_polygon_model_data(Polygon_models[i].model_data);
-#endif
 		g3_init_polygon_model(Polygon_models[i].model_data);
 	}
 
@@ -501,9 +492,7 @@ void load_robot_replacements(char *level_name)
 		Assert( Polygon_models[i].model_data != NULL );
 
 		cfread( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
-#ifdef WORDS_BIGENDIAN
 		swap_polygon_model_data(Polygon_models[i].model_data);
-#endif
 		g3_init_polygon_model(Polygon_models[i].model_data);
 
 		Dying_modelnums[i] = cfile_read_int(fp);
