@@ -1,7 +1,0 @@
-CFLAGS=`sdl-config --cflags` -Wall -g -DSTANDALONE -I../include
-LDFLAGS=`sdl-config --libs`
-
-mveplay: mveplay.o mvelib.o mve_audio.o decoder16.o decoder8.o mve_main.o
-
-clean:
-	rm -f mveplay mveplay.o mvelib.o mve_audio.o decoder16.o decoder8.o mve_main.o

@@ -4,6 +4,12 @@ DIST_SUBDIRS = editor
 
 EXTRA_SUBDIRS = old
 
+EXTRA_PROGRAMS = mveplayer
+
+mveplayer_SOURCES = decoder16.c decoder8.c mve_audio.c mve_main.c mvelib.c mveplay.c
+
+mveplayer_CFLAGS = -DSTANDALONE
+
 noinst_LIBRARIES = libmain.a
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/arch/include
