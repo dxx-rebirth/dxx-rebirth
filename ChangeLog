@@ -1,3 +1,9 @@
+2004-12-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* main/editor/eobject.c, main/editor/kgame.c,
+	main/editor/segment.c, main/gameseg.h, main/physics.c: Pass the
+	extra two parameters to get_seg_masks.
+
 2004-12-19  Bradley Bell  <btb@icculus.org>
 
 	* ui/Makefile.am: fix ui Makefile.am

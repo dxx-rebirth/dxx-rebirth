@@ -1,4 +1,4 @@
-/* $Id: gameseg.h,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: gameseg.h,v 1.6 2004-12-20 06:28:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -77,7 +77,7 @@ extern int get_num_faces(side *sidep);
 segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_file, int calling_linenum);
 
 //this macro returns true if the segnum for an object is correct
-#define check_obj_seg(obj) (get_seg_masks(&(obj)->pos,(obj)->segnum,0).centermask == 0)
+#define check_obj_seg(obj) (get_seg_masks(&(obj)->pos, (obj)->segnum, 0, __FILE__, __LINE__).centermask == 0)
 
 //Tries to find a segment for a point, in the following way:
 // 1. Check the given segment

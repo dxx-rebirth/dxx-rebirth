@@ -1,4 +1,4 @@
-/* $Id: kgame.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: kgame.c,v 1.4 2004-12-20 06:28:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kgame.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: kgame.c,v 1.4 2004-12-20 06:28:10 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -112,7 +112,8 @@ int SaveGameData()
 			Perm_player_segnum = -1;
 
 		if (Perm_player_segnum!=-1) {
-			if (get_seg_masks(&Perm_player_position,Perm_player_segnum,0).centermask==0) {
+			if (get_seg_masks(&Perm_player_position, Perm_player_segnum, 0, __FILE__, __LINE__).centermask == 0)
+			{
 				ConsoleObject->pos = Perm_player_position;
 				obj_relink(ConsoleObject-Objects,Perm_player_segnum);
 				ConsoleObject->orient = Perm_player_orient;

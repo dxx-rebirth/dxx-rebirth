@@ -1,4 +1,4 @@
-/* $Id: eobject.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: eobject.c,v 1.4 2004-12-20 06:28:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: eobject.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: eobject.c,v 1.4 2004-12-20 06:28:10 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -495,7 +495,8 @@ int move_object_within_mine(object * obj, vms_vector *newpos )
 	int segnum;
 
 	for (segnum=0;segnum <= Highest_segment_index; segnum++) {
-		segmasks	result = get_seg_masks(&obj->pos,segnum,0);
+		segmasks result = get_seg_masks(&obj->pos, segnum, 0, __FILE__, __LINE__);
+
 		if (result.centermask == 0) {
 			int	fate;
 			fvi_info	hit_info;
@@ -530,7 +531,7 @@ int move_object_within_mine(object * obj, vms_vector *newpos )
 //	Return 0 if object is in expected segment, else return 1
 int verify_object_seg(object *objp, vms_vector *newpos)
 {
-	segmasks	result = get_seg_masks(newpos, objp->segnum, objp->size);
+	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
 	if (result.facemask == 0)
 		return 0;
@@ -900,7 +901,7 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 {
 	object	*objp = &Objects[objnum];
 
-	segmasks	result = get_seg_masks(newpos, objp->segnum, objp->size);
+	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
 	if (result.facemask == 0) {
 		//mprintf((0, "Object #%i moved from (%7.3f %7.3f %7.3f) to (%7.3f %7.3f %7.3f)\n", objnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z), f2fl(newpos->x), f2fl(newpos->y), f2fl(newpos->z)));

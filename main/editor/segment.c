@@ -1,4 +1,4 @@
-/* $Id: segment.c,v 1.4 2004-12-19 14:52:48 btb Exp $ */
+/* $Id: segment.c,v 1.5 2004-12-20 06:28:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2101,7 +2101,7 @@ void check_for_overlapping_segment(int segnum)
 
 	for (i=0;i<=Highest_segment_index; i++) {
 		if (i != segnum) {
-			masks = get_seg_masks(&segcenter, i, 0);
+			masks = get_seg_masks(&segcenter, i, 0, __FILE__, __LINE__);
 			if (masks.centermask == 0) {
 				mprintf((0, "Segment %i center is contained in segment %i\n", segnum, i));
 				continue;
@@ -2112,7 +2112,7 @@ void check_for_overlapping_segment(int segnum)
 
 				vm_vec_sub(&pdel, &Vertices[Segments[segnum].verts[v]], &segcenter);
 				vm_vec_scale_add(&presult, &segcenter, &pdel, (F1_0*15)/16);
-				masks = get_seg_masks(&presult, i, 0);
+				masks = get_seg_masks(&presult, i, 0, __FILE__, __LINE__);
 				if (masks.centermask == 0) {
 					mprintf((0, "Segment %i near vertex %i is contained in segment %i\n", segnum, v, i));
 					break;

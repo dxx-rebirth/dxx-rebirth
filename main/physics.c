@@ -1,4 +1,4 @@
-/* $Id: physics.c,v 1.7 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: physics.c,v 1.8 2004-12-20 06:28:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: physics.c,v 1.7 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: physics.c,v 1.8 2004-12-20 06:28:10 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -593,7 +593,7 @@ save_p1 = *fq.p1;
 
 		Assert(!((fate==HIT_WALL) && ((WallHitSeg == -1) || (WallHitSeg > Highest_segment_index))));
 
-		//if(!get_seg_masks(&hit_info.hit_pnt,hit_info.hit_seg,0).centermask==0)
+		//if(!get_seg_masks(&hit_info.hit_pnt, hit_info.hit_seg, 0, __FILE__, __LINE__).centermask == 0)
 		//	Int3();
 
 		save_pos = obj->pos;			//save the object's position
