@@ -1,5 +1,9 @@
 2004-05-19  Bradley Bell  <btb@icculus.org>
 
+	* include/args.h, main/inferno.c, misc/args.c: allow arbitrary
+	resolutions to be specified on command line (d1x r1.2, r1.29,
+	r1.4) -- doesn't work yet
+
 	* arch/linux/hmiplay.c: needs to include args.h now (d1x r1.9)
 
 	* arch/linux/hmiplay.c: implement -nomusic for linux hmiplay (d1x

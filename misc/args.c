@@ -1,4 +1,4 @@
-/* $Id: args.c,v 1.10 2003-11-26 12:26:33 btb Exp $ */
+/* $Id: args.c,v 1.11 2004-05-19 21:20:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -57,7 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.10 2003-11-26 12:26:33 btb Exp $";
+static char rcsid[] = "$Id: args.c,v 1.11 2004-05-19 21:20:09 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -71,7 +71,8 @@ static char rcsid[] = "$Id: args.c,v 1.10 2003-11-26 12:26:33 btb Exp $";
 int Num_args=0;
 char * Args[100];
 
-int FindArg( char * s )	{
+int FindArg(char *s)
+{
 	int i;
 
 	for (i=0; i<Num_args; i++ )
@@ -79,6 +80,33 @@ int FindArg( char * s )	{
 			return i;
 
 	return 0;
+}
+
+int FindResArg(char *prefix, int *sw, int *sh)
+{
+	int i;
+	int w, h;
+	char *endptr;
+	int prefixlen = strlen(prefix);
+
+	for (i = 0; i < Num_args; ++i)
+		if (Args[i][0] == '-' && !strncasecmp(Args[i] + 1, prefix, prefixlen))
+		{
+			w = strtol(Args[i] + 1 + prefixlen, &endptr, 10);
+			if (w > 0 && endptr && endptr[0] == 'x')
+			{
+				h = strtol(endptr + 1, &endptr, 10);
+				if (h > 0 && endptr[0] == '\0')
+				{
+					*sw = w;
+					*sh = h;
+					return i;
+				}
+			}
+		}
+
+	return 0;
+
 }
 
 void args_exit(void)
