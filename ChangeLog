@@ -1,3 +1,7 @@
+2004-05-20  Bradley Bell  <btb@icculus.org>
+
+	* VisualC/d2xgl/d2xgl.dsp: don't need texmappers for OpenGL
+
 2004-05-20  David Cleaver  <wraithx@morpheus.net>
 
 	* main/controls.c, main/gamecntl.c, main/kconfig.c,

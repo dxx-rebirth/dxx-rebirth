@@ -649,10 +649,6 @@ SOURCE=..\..\texmap\ntmap.c
 
 SOURCE=..\..\texmap\scanline.c
 # End Source File
-# Begin Source File
-
-SOURCE=..\..\texmap\tmapflat.c
-# End Source File
 # End Group
 # End Group
 # Begin Group "Header Files"
