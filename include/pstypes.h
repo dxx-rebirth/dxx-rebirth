@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.27 2004-05-31 08:33:41 btb Exp $ */
+/* $Id: pstypes.h,v 1.28 2004-06-01 05:59:36 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -37,14 +37,14 @@ typedef signed char sbyte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
-#if defined(_WIN32) || defined(__sun__)
+#ifdef _WIN32
 typedef unsigned short ushort;
 typedef unsigned int uint;
 #endif
 
 #if defined(_WIN32) || defined(__sun__) // platforms missing u_int??_t
 #include <SDL_types.h>
-#ifndef __unix__ // platforms missing int??_t
+#ifdef _WIN32 // platforms missing int??_t
 typedef Sint16 int16_t;
 typedef Sint32 int32_t;
 typedef Sint64 int64_t;
@@ -108,6 +108,12 @@ typedef ubyte bool;
 
 #ifndef PACKAGE_STRING
 # define PACKAGE_STRING "d2x"
+#endif
+
+#ifndef WORDS_BIGENDIAN
+# ifdef __BIG_ENDIAN__
+#  define WORDS_BIGENDIAN
+# endif
 #endif
 
 #endif //_TYPES_H
