@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.15 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: interp.c,v 1.16 2004-12-20 09:25:44 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.15 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.16 2004-12-20 09:25:44 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -754,4 +754,11 @@ void g3_init_polygon_model(void *model_ptr)
 	highest_texture_num = -1;
 
 	init_model_sub((ubyte *) model_ptr);
+}
+
+//uninit code for bitmap models
+void g3_uninit_polygon_model(void *model_ptr)
+{
+	// not required, the above g3_init_polygon_model doesn't change the data
+	model_ptr = model_ptr;
 }
