@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.25 $
+ * $Revision: 1.26 $
  * $Author: bradleyb $
- * $Date: 2002-02-14 11:29:31 $
+ * $Date: 2002-02-15 12:24:53 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.25  2002/02/14 11:29:31  bradleyb
+ * allow gr_init lowres
+ *
  * Revision 1.24  2002/02/13 10:39:21  bradleyb
  * Lotsa networking stuff from d1x
  *
@@ -153,6 +156,10 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "d_io.h"
 
 // #  include "3dfx_des.h"
+
+//added on 9/30/98 by Matt Mueller for selectable automap modes
+#include "automap.h"
+//end addition -MM
 
 #include "../texmap/scanline.h" //for select_tmap -MM
 
@@ -355,6 +362,10 @@ void print_commandline_help()
 	printf( "  -xname          %s\n","FIXME: Undocumented");
 	printf( "  -xver           %s\n","FIXME: Undocumented");
 	printf( "  -tmap <t>       %s\n","select texmapper to use (c,fp,i386,pent,ppro)");
+	printf( "  -automap<X>x<Y> %s\n","Set automap resolution to <X> by <Y>");
+	printf( "  -automap_gameres %s\n","Set automap to use the same resolution as in game");
+//	printf( "  -menu<X>x<Y>    %s\n","Set menu resolution to <X> by <Y>");
+//	printf( "  -menu_gameres   %s\n","Set menus to use the same resolution as in game");
 	printf( "\n");
 
 	printf( "D2X System Options:\n\n");
@@ -529,6 +540,9 @@ int main(int argc,char **argv)
 {
 	int i,t;
 	ubyte title_pal[768];
+	int screen_width = 640;
+	int screen_height = 480;
+	u_int32_t screen_mode = SM(640,480);
 
 	con_init();  // Initialise the console
 	mem_init();
@@ -653,6 +667,67 @@ int main(int argc,char **argv)
 	if (!VR_offscreen_buffer)	//if hasn't been initialied (by headset init)
 		set_display_mode(0);		//..then set default display mode
 #endif
+
+	{
+//added on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
+		int i, argnum=INT_MAX;
+//end addition -MM
+		int vr_mode = VR_NONE;
+		int screen_compatible = 1;
+		int use_double_buffer = 0;
+
+//added/edited on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
+//added on 9/30/98 by Matt Mueller clean up screen mode code, and add higher resolutions
+#define SCREENMODE(X,Y,C) if ( (i=FindArg( "-" #X "x" #Y ))&&(i<argnum))  {argnum=i; screen_mode = SM( X , Y ); con_printf(CON_VERBOSE, "Using " #X "x" #Y " ...\n" );screen_width = X;screen_height = Y;use_double_buffer = 1;screen_compatible = C;}
+//aren't #defines great? :)
+
+		SCREENMODE(320,100,0);
+		SCREENMODE(320,200,1);
+//end addition/edit -MM
+		SCREENMODE(320,240,0);
+		SCREENMODE(320,400,0);
+		SCREENMODE(640,400,0);
+		SCREENMODE(640,480,0);
+		SCREENMODE(800,600,0);
+		SCREENMODE(1024,768,0);
+		SCREENMODE(1152,864,0);
+		SCREENMODE(1280,960,0);
+		SCREENMODE(1280,1024,0);
+		SCREENMODE(1600,1200,0);
+//end addition -MM
+		
+//added ifdefs on 9/30/98 by Matt Mueller to fix high res in linux
+#ifdef __MSDOS__
+		if ( FindArg( "-nodoublebuffer" ) )	{
+			con_printf(CON_VERBOSE, "Double-buffering disabled...\n" );
+#endif
+			use_double_buffer = 0;
+#ifdef __MSDOS__
+		}
+#endif
+//end addition -MM
+
+		//added 3/24/99 by Owen Evans for screen res changing
+//		Game_Screen_mode = screen_mode;
+		//end added -OE
+		game_init_render_buffers(screen_mode, screen_width, screen_height, vr_mode, screen_compatible);
+                
+	}
+	{
+//added/edited on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
+		int i, argnum=INT_MAX;
+//added on 9/30/98 by Matt Mueller for selectable automap modes - edited 11/21/99 whee, more fun with defines.
+#define SMODE(V,VV,VG,X,Y) if ( (i=FindArg( "-" #V #X "x" #Y )) && (i<argnum))  {argnum=i; VV = SM( X , Y );VG=0;}
+#define SMODE_GR(V,VG) if ((i=FindArg("-" #V "_gameres"))){if (i<argnum) VG=1;}
+#define SMODE_PRINT(V,VV,VG) if (VG) con_printf(CON_VERBOSE, #V " using game resolution ...\n"); else con_printf(CON_VERBOSE, #V " using %ix%i ...\n",SM_W(VV),SM_H(VV) );
+//aren't #defines great? :)
+//end addition/edit -MM
+#define S_MODE(V,VV,VG) argnum=INT_MAX;SMODE(V,VV,VG,320,200);SMODE(V,VV,VG,320,240);SMODE(V,VV,VG,320,400);SMODE(V,VV,VG,640,400);SMODE(V,VV,VG,640,480);SMODE(V,VV,VG,800,600);SMODE(V,VV,VG,1024,768);SMODE(V,VV,VG,1280,1024);SMODE(V,VV,VG,1600,1200);SMODE_GR(V,VG);SMODE_PRINT(V,VV,VG);
+
+		S_MODE(automap,automap_mode,automap_use_game_res);
+//		S_MODE(menu,menu_screen_mode,menu_use_game_res);
+	 }
+//end addition -MM
 
 	i = FindArg( "-xcontrol" );
 	if ( i > 0 )	{
