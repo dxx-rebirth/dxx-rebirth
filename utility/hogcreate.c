@@ -3,19 +3,20 @@
  * I grant this program to public domain.
  */
 
-#include<stdio.h>
-#include<sys/types.h>
-#include<sys/stat.h>
-#include<fcntl.h>
-#include<dirent.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <dirent.h>
 
-void
+int
 main(int argc, char *argv[])
 {
 	FILE *hogfile, *readfile;
 	DIR *dp;
 	struct dirent *ep;
-	int fp, len, fseekret = 0;
 	char filename[13];
 	char *buf;
 	struct stat statbuf;
@@ -33,11 +34,11 @@ main(int argc, char *argv[])
 	free(buf);
 	dp = opendir("./");
 	if (dp != NULL) {
-		while (ep = readdir(dp)) {
+		while ((ep = readdir(dp))) {
 			strcpy(filename, ep->d_name);
 			stat(filename, &statbuf);
 			if(! S_ISDIR(statbuf.st_mode)) {
-				printf("Filename: %s \tLength: %i\n", filename, statbuf.st_size);
+				printf("Filename: %s \tLength: %i\n", filename, (int)statbuf.st_size);
 				readfile = fopen(filename, "r");
 				buf = (char *)malloc(statbuf.st_size);
 				if (buf == NULL) {
@@ -55,4 +56,6 @@ main(int argc, char *argv[])
 		closedir(dp);
 	}
 	fclose(hogfile);
+
+	return 0;
 }

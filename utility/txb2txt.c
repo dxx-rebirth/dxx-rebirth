@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-void
+int
 main(int argc, char *argv[])
 {
 	FILE *file, *outfile;
-	char equals, ch;
+	char ch;
 	int code;
 
 	if (argc != 3) {
@@ -39,4 +39,6 @@ main(int argc, char *argv[])
 
 	fclose(outfile);
 	fclose(file);
+
+	return 0;
 }

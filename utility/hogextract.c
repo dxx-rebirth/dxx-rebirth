@@ -4,15 +4,16 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 
-void
+int
 main(int argc, char *argv[])
 {
 	FILE *hogfile, *writefile;
-	int fp, len, fseekret=0;
+	int len;
 	char filename[13];
 	char *buf;
 	struct stat statbuf;
@@ -24,7 +25,7 @@ main(int argc, char *argv[])
 	}
 	hogfile = fopen(argv[1], "r");
 	stat(argv[1], &statbuf);
-	printf("%i\n", statbuf.st_size);
+	printf("%i\n", (int)statbuf.st_size);
 	buf = (char *)malloc(3);
 	fread(buf, 3, 1, hogfile);
 	printf("Extracting from: %s\n", argv[1]);
@@ -45,4 +46,6 @@ main(int argc, char *argv[])
 		}
 	}
 	fclose(hogfile);
+
+	return 0;
 }
