@@ -21,7 +21,7 @@ ac_help="$ac_help
 ac_help="$ac_help
   --with-opengl                Build OpenGL support "
 ac_help="$ac_help
-  --with-ggi                   Build GGI suuport "
+  --with-ggi                   Build GGI support "
 ac_help="$ac_help
   --with-svga                  Build SVGALib support "
 ac_help="$ac_help

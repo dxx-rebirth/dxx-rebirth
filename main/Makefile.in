@@ -343,9 +343,13 @@ maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
 @ENV_DJGPP_TRUE@ d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a  ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
 
-@ENV_DJGPP_FALSE@@USE_OPENGL_TRUE@  d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread -lGL -lGLU -lgii -L/usr/X11R6/lib -lXext
-@ENV_DJGPP_FALSE@@USE_OPENGL_FALSE@@USE_SVGALIB_TRUE@    d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread ${SVGA_LIBS}
-@ENV_DJGPP_FALSE@@USE_OPENGL_FALSE@@USE_SVGALIB_FALSE@    d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread
+@ENV_DJGPP_FALSE@ d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -ldl -lpthread ${SDL_LIBS}
+
+@ENV_DJGPP_FALSE@@USE_OPENGL_TRUE@ d2x_LDADD += ${OGL_LIBS} -lgii -L/usr/X11R6/lib -lXext
+
+@ENV_DJGPP_FALSE@@USE_SVGALIB_TRUE@ d2x_LDADD += ${SVGA_LIBS}
+
+@ENV_DJGPP_FALSE@@USE_GGI_TRUE@ d2x_LDADD += ${GGI_LIBS}
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -135,16 +135,16 @@ void ogl_get_verinfo(void){
 	}
 
 	//allow overriding of stuff.
-	if ((t=FindArg("-gl_intensity4_ok"))){
+	if ((t=args_find("-gl_intensity4_ok"))){
 		ogl_intensity4_ok=atoi(Args[t+1]);
 	}
-	if ((t=FindArg("-gl_luminance4_alpha4_ok"))){
+	if ((t=args_find("-gl_luminance4_alpha4_ok"))){
 		ogl_luminance4_alpha4_ok=atoi(Args[t+1]);
 	}
-	if ((t=FindArg("-gl_rgba2_ok"))){
+	if ((t=args_find("-gl_rgba2_ok"))){
 		ogl_rgba2_ok=atoi(Args[t+1]);
 	}
-	if ((t=FindArg("-gl_readpixels_ok"))){
+	if ((t=args_find("-gl_readpixels_ok"))){
 		ogl_readpixels_ok=atoi(Args[t+1]);
 	}
 
@@ -240,7 +240,7 @@ int ogl_init_load_library(void)
 	int retcode=0;
 	if (!ogl_rt_loaded){
 		int t;
-		if ((t=FindArg("-gl_library")))
+		if ((t=args_find("-gl_library")))
 			OglLibPath=Args[t+1];
 
 		retcode = OpenGL_LoadLibrary(true);
@@ -275,48 +275,48 @@ int gr_init()
 #endif
 
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
-	if (FindArg("-gl_voodoo")){
+	if (args_find("-gl_voodoo")){
 		ogl_voodoohack=1;
 		gr_toggle_fullscreen();
 	}
-	if (FindArg("-fullscreen"))
+	if (args_find("-fullscreen"))
 		gr_toggle_fullscreen();
 #endif
-	if ((glt=FindArg("-gl_alttexmerge")))
+	if ((glt=args_find("-gl_alttexmerge")))
 		ogl_alttexmerge=1;
-	if ((t=FindArg("-gl_stdtexmerge")))
+	if ((t=args_find("-gl_stdtexmerge")))
 		if (t>=glt)//allow overriding of earlier args
 			ogl_alttexmerge=0;
 			
-	if ((glt=FindArg("-gl_16bittextures")))
+	if ((glt=args_find("-gl_16bittextures")))
 		ogl_rgba_format=GL_RGB5_A1;
 
-	if ((glt=FindArg("-gl_mipmap"))){
+	if ((glt=args_find("-gl_mipmap"))){
 		GL_texmagfilt=GL_LINEAR;
 		GL_texminfilt=GL_LINEAR_MIPMAP_NEAREST;
 	}
-	if ((t=FindArg("-gl_simple"))){
+	if ((t=args_find("-gl_simple"))){
 		if (t>=glt){//allow overriding of earlier args
 			glt=t;
 			GL_texmagfilt=GL_NEAREST;
 			GL_texminfilt=GL_NEAREST;
 		}
 	}
-	if ((t=FindArg("-gl_texmagfilt")) || (t=FindArg("-gl_texmagfilter"))){
+	if ((t=args_find("-gl_texmagfilt")) || (t=args_find("-gl_texmagfilter"))){
 		if (t>=glt)//allow overriding of earlier args
 			GL_texmagfilt=ogl_atotexfilti(Args[t+1],0);
 	}
-	if ((t=FindArg("-gl_texminfilt")) || (t=FindArg("-gl_texminfilter"))){
+	if ((t=args_find("-gl_texminfilt")) || (t=args_find("-gl_texminfilter"))){
 		if (t>=glt)//allow overriding of earlier args
 			GL_texminfilt=ogl_atotexfilti(Args[t+1],1);
 	}
 	GL_needmipmaps=ogl_testneedmipmaps(GL_texminfilt);
 	mprintf((0,"gr_init: texmagfilt:%x texminfilt:%x needmipmaps=%i\n",GL_texmagfilt,GL_texminfilt,GL_needmipmaps));
 	
-	if ((t=FindArg("-gl_vidmem"))){
+	if ((t=args_find("-gl_vidmem"))){
 		ogl_mem_target=atoi(Args[t+1])*1024*1024;
 	}
-	if ((t=FindArg("-gl_reticle"))){
+	if ((t=args_find("-gl_reticle"))){
 		gl_reticle=atoi(Args[t+1]);
 	}
 	//printf("ogl_mem_target=%i\n",ogl_mem_target);
