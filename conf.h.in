@@ -30,6 +30,9 @@
 /* Define if building under msdos */
 #undef __ENV_DJGPP__
 
+/* Define to disable asserts, int3, etc. */
+#undef NDEBUG
+
 /* General defines */
 #define NMONO 1
 #define PIGGY_USE_PAGING 1

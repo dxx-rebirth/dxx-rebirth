@@ -26,9 +26,9 @@ AC_ARG_ENABLE(werror,
 
 dnl Build with NDEBUG?
 AC_ARG_ENABLE(ndebug,
-  [  --enable-ndebug              Build with NDEBUG defined ],
+  [  --enable-ndebug              Take out extra Asserts, Int3, etc ],
   [case "${enableval}" in
-    yes) CFLAGS="-DNDEBUG $CFLAGS" ;;
+    yes) AC_DEFINE(NDEBUG) ;;
     no)  ;;
     *) AC_MSG_ERROR(bad value ${withval} for --enable-ndebug) ;;
   esac],)
