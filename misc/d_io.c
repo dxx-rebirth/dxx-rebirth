@@ -1,5 +1,8 @@
-// some misc. file/disk routines
-// Arne de Bruijn, 1998
+/* $Id: d_io.c,v 1.5 2003-02-18 20:35:35 btb Exp $ */
+/*
+ * some misc. file/disk routines
+ * Arne de Bruijn, 1998
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>

@@ -1,4 +1,7 @@
-//added on 9/2/98 by Matt Mueller
+/* $Id: d_delay.c,v 1.5 2003-02-18 20:35:35 btb Exp $ */
+/*
+ * added on 9/2/98 by Matt Mueller
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
