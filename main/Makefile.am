@@ -19,7 +19,11 @@ endif
 d2x_LDADD = ${ARCH_LIBS} ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
 
 if MINGW32
+if USE_NETWORK
 d2x_sdl_LDADD = ${d2x_LDADD} ${SDL_LIBS} -lwsock32
+else
+d2x_sdl_LDADD = ${d2x_LDADD} ${SDL_LIBS}
+endif
 else
 d2x_sdl_LDADD = ${d2x_LDADD} -lm -ldl -lpthread ${SDL_LIBS}
 endif

@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  * $Author: bradleyb $
- * $Date: 2001-10-18 00:01:01 $
+ * $Date: 2001-10-19 00:31:51 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2001/10/18 00:01:01  bradleyb
+ * RCS headers added/changed
+ *
  *
  */
 
@@ -294,7 +297,7 @@ void print_commandline_help()
 #ifdef SDL_VIDEO
         printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
 #endif
-#ifdef __ENV_LINUX__
+#ifdef __linux__
         printf( "  -serialdevice <s> %s\n", "Set serial/modem device to <s>");
         printf( "  -serialread <r> %s\n", "Set serial/modem to read from <r>");
 #endif
@@ -357,14 +360,14 @@ void do_register_player(ubyte *title_pal)
 void do_network_init()
 {
 	if (!FindArg( "-nonetwork" ))	{
-		int socket=0, showaddress=0, t;
+		int socket=0, t;
 		int ipx_error;
 
 		con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
 		if ((t=FindArg("-socket")))
 			socket = atoi( Args[t+1] );
 		//@@if ( FindArg("-showaddress") ) showaddress=1;
-		if ((ipx_error=ipx_init(IPX_DEFAULT_SOCKET+socket,showaddress))==0)	{
+		if ((ipx_error=ipx_init(IPX_DEFAULT_SOCKET+socket))==0)	{
   			con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, socket );
 			Network_active = 1;
 		} else {
@@ -405,6 +408,8 @@ extern int MenuHiresAvailable;
 #ifdef D2_OEM
 int intro_played = 0;
 #endif
+
+int Inferno_verbose = 0;
 
 int open_movie_file(char *filename,int must_have);
 

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/args.h,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-24 04:29:45 $
+ * $Date: 2001-10-19 00:31:51 $
  * 
  * Prototypes for accessing arguments.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/24 04:29:45  bradleyb
+ * changed args_find to FindArg
+ *
  * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
  * Import of d2x-0.0.8
  *
@@ -54,5 +57,6 @@ extern int Num_args;
 extern char * Args[];						
 extern int FindArg( char * s );
 extern void args_init( int argc, char **argv );
+extern int Inferno_verbose;
 
 #endif

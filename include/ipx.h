@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/ipx.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:16 $
+ * $Date: 2001-10-19 00:31:51 $
  * 
  * Prototype for IPX communications.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.1.1.1  1999/06/14 22:02:16  donut
  * Import of d1x 1.37 source.
  *
@@ -119,7 +122,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //				-3 if IPX not installed.
 //				-4 if couldn't allocate low dos memory
 //				-5 if error with getting internetwork address
-extern int ipx_init( int socket_number, int show_address );
+extern int ipx_init( int socket_number);
 
 extern int ipx_change_default_socket( ushort socket_number );
 

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.4 2001-01-31 15:17:54 bradleyb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.5 2001-10-19 00:31:51 bradleyb Exp $";
 #endif
 
 #ifdef NETWORK
@@ -243,6 +243,9 @@ int     Network_games_changed = 0;
 
 int     Network_socket = 0;
 int     Network_allow_socket_changes = 1;
+
+int	Network_initial_pps = 10;
+int	Network_initial_shortpackets = 0;
 
 int     NetSecurityFlag=NETSECURITY_OFF;
 int     NetSecurityNum=0;

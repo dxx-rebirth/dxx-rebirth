@@ -127,6 +127,10 @@ extern int Network_status;
 extern fix LastPacketTime[MAX_PLAYERS];
 
 extern ushort my_segments_checksum;
+
+extern int Network_initial_pps;
+extern int Network_initial_shortpackets;
+
 // By putting an up-to-20-char-message into Network_message and 
 // setting Network_message_reciever to the player num you want to
 // send it to (100 for broadcast) the next frame the player will
