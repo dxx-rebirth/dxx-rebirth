@@ -1,4 +1,4 @@
-/* $Id: alsadigi.c,v 1.2 2003-03-13 00:20:21 btb Exp $ */
+/* $Id: alsadigi.c,v 1.3 2005-02-25 07:02:46 btb Exp $ */
 /*
  *
  * ALSA digital audio support
@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/asoundlib.h>
+#include <alsa/asoundlib.h>
 #include <pthread.h>
 
 #include "error.h"
@@ -176,7 +176,7 @@ void reset_sounds_on_channel(int channel);
 /* Threading/ALSA stuff */
 #define LOCK() pthread_mutex_lock(&mutex)
 #define UNLOCK() pthread_mutex_unlock(&mutex)
-void *snd_devhandle;
+snd_pcm_t *snd_devhandle;
 pthread_t thread_id;
 pthread_mutex_t mutex;
 
@@ -225,8 +225,10 @@ static void audio_mixcallback(void *userdata, ubyte *stream, int len)
      sldata = sl->samples;
     }
     v = *(sldata++) - 0x80;
-    *(sp++) = mix8[ *sp + fixmul(v, vl) + 0x80 ];
-    *(sp++) = mix8[ *sp + fixmul(v, vr) + 0x80 ];
+				*sp = mix8[*sp + fixmul(v, vl) + 0x80];
+				sp++;
+				*sp = mix8[*sp + fixmul(v, vr) + 0x80];
+				sp++;
    }
    sl->position = sldata - sl->samples;
   }
@@ -234,29 +236,52 @@ static void audio_mixcallback(void *userdata, ubyte *stream, int len)
 }
 //end changes by adb
 
-void *mixer_thread(void *data) {
-// int i=0;
- ubyte buffer[512];
- /* Allow ourselves to be asynchronously cancelled */
- pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
- while (1) {
-//   printf("i=%d\n",i++);
-   memset(buffer, 0x80, 512);
-   LOCK();
-   audio_mixcallback(NULL,buffer,512);
-   UNLOCK();
-   snd_pcm_write(snd_devhandle, buffer, 512);
- } 
- return 0;
+void *mixer_thread(void *data)
+{
+	int err;
+	ubyte buffer[SOUND_BUFFER_SIZE];
+
+	/* Allow ourselves to be asynchronously cancelled */
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	while (1)
+	{
+		memset(buffer, 0x80, SOUND_BUFFER_SIZE);
+		LOCK();
+		audio_mixcallback(NULL,buffer,512);
+		UNLOCK();
+	again:
+		err = snd_pcm_writei(snd_devhandle, buffer, SOUND_BUFFER_SIZE / 2);
+
+		if (err == -EPIPE)
+		{
+			// Sound buffer underrun
+			err = snd_pcm_prepare(snd_devhandle);
+			if (err < 0)
+			{
+				fprintf(stderr, "Can't recover from underrun: %s\n", snd_strerror(err));
+			}
+		}
+		else if (err == -EAGAIN)
+		{
+			goto again;
+		}
+		else if (err != SOUND_BUFFER_SIZE / 2)
+		{
+			// Each frame has size 2 bytes - hence we expect SOUND_BUFFER_SIZE/2
+			// frames to be written.
+			fprintf(stderr, "Unknown err %d: %s\n", err, snd_strerror(err));
+		}
+	}
+	return 0;
 }
 
 
 /* Initialise audio devices. */
 int digi_init()
 {
- int card=0, device=0, err;
- snd_pcm_format_t format;
- snd_pcm_playback_params_t params;
+	int err, tmp;
+	char *device = "plughw:0,0";
+	snd_pcm_hw_params_t *params;
  pthread_attr_t attr;
  pthread_mutexattr_t mutexattr;
 
@@ -265,31 +290,53 @@ int digi_init()
  //end edit by adb
 
  /* Open the ALSA sound device */
- if ((err = snd_pcm_open(&snd_devhandle, card, device, 
-     SND_PCM_OPEN_PLAYBACK)) < 0) {  
+	if ((err = snd_pcm_open(&snd_devhandle, device, SND_PCM_STREAM_PLAYBACK)) < 0)
+	{
      fprintf(stderr, "open failed: %s\n", snd_strerror( err ));  
      return -1; 
- } 
+	}
 
- memset(&format, 0, sizeof(format));
- format.format = SND_PCM_SFMT_U8;
- format.rate = 11025;
- format.channels = 2;
- if ((err = snd_pcm_playback_format(snd_devhandle, &format)) < 0) { 
-    fprintf(stderr, "format setup failed: %s\n", snd_strerror( err ));
-    snd_pcm_close( snd_devhandle ); 
-    return -1; 
- } 
+	snd_pcm_hw_params_alloca(&params);
+	err = snd_pcm_hw_params_any(snd_devhandle, params);
+	if (err < 0)
+	{
+		printf("ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
+	err = snd_pcm_hw_params_set_access(snd_devhandle, params, SND_PCM_ACCESS_RW_INTERLEAVED);
+	if (err < 0)
+	{
+		printf("ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
+	err = snd_pcm_hw_params_set_format(snd_devhandle, params, SND_PCM_FORMAT_U8);
+	if (err < 0)
+	{
+		printf("ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
+	err = snd_pcm_hw_params_set_channels(snd_devhandle, params, 2);
+	if (err < 0)
+	{
+		printf("ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
+	tmp = 11025;
+	err = snd_pcm_hw_params_set_rate_near(snd_devhandle, params, &tmp, NULL);
+	if (err < 0)
+	{
+		printf("ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
+	snd_pcm_hw_params_set_periods(snd_devhandle, params, 3, 0);
+	snd_pcm_hw_params_set_buffer_size(snd_devhandle,params, (SOUND_BUFFER_SIZE*3)/2);
 
- memset(&params, 0, sizeof(params));
- params.fragment_size=512;
- params.fragments_max=2;
- params.fragments_room=1;
- if ((err = snd_pcm_playback_params(snd_devhandle, &params)) < 0) { 
-    fprintf(stderr, "params setup failed: %s\n", snd_strerror( err ));
-    snd_pcm_close( snd_devhandle ); 
-    return -1; 
- }
+	err = snd_pcm_hw_params(snd_devhandle, params);
+	if (err < 0)
+	{
+		printf("ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
 
  /* Start the mixer thread */
 
@@ -321,10 +368,10 @@ void digi_reset() { }
 void digi_close()
 {
  if (!digi_initialised) return;
- digi_initialised = 0;
- snd_pcm_close(snd_devhandle);
- pthread_mutex_destroy(&mutex);
  pthread_cancel(thread_id);
+ digi_initialised = 0;
+ pthread_mutex_destroy(&mutex);
+ snd_pcm_close(snd_devhandle);
 }
 
 /* Find the sound which actually equates to a sound number */
@@ -609,7 +656,7 @@ int digi_link_sound_to_object( int soundnum, short objnum, int forever, fix max_
 int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance )
 {
 	int i, volume, pan;
-	int soundnum;
+	//int soundnum;
 
 	soundnum = digi_xlat_sound(org_soundnum);
 
