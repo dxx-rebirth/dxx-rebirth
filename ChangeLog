@@ -1,4 +1,6 @@
 2003-02-21  Bradley Bell <btb@icculus.org>
+
+	* configure.ac: check for mingw when enabling nasm
 	* main/playsave.c: enable loading player files of either byte
 	order
 

@@ -268,7 +268,7 @@ if test x$enable_assembler != xno; then
     else
         NASMFLAGS="-i\$(srcdir)/ $NASMFLAGS"
         case $host_os in
-            cygwin*)
+            cygwin* | mingw*)
                 NASMFLAGS="-f win32 $NASMFLAGS"
                 ;;
             msdos*)
