@@ -43,6 +43,9 @@ case $host_cpu in
 	;;
 esac
 
+build_macosx_bundle=no
+build_simple_bundle=no
+
 case $host_os in
     cygwin)
         AC_MSG_WARN([Cygwin found, setting -mno-cygwin])
@@ -54,7 +57,14 @@ case $host_os in
         ;;
     darwin*)
         MACOSX=yes
-        ;;
+	AC_MSG_RESULT(Mac OS X/Darwin; Mac OS X bundle)
+	build_macosx_bundle=yes
+	DATADIR='EXE>>../Resources'
+	#SCOREDIR='/Library/Preferences/KoboDeluxe/scores'
+	#CONFIGDIR='HOME>>Library/Preferences'
+	#CONFIGFILE='KoboDeluxe Preferences'
+	MATHLIB=""
+	;;
     msdos*)
         MSDOS=yes
         ;;
@@ -73,6 +83,8 @@ else
 fi
 
 AM_CONDITIONAL(MACOSX, test x$MACOSX = xyes)
+AM_CONDITIONAL(BUILD_MACOSX_BUNDLE, test x$build_macosx_bundle = xyes)
+AM_CONDITIONAL(BUILD_SIMPLE_BUNDLE, test x$build_simple_bundle = xyes)
 
 dnl Set $prefix and $exec_prefix to $ac_default_prefix if they are not set
 test "x$prefix" = "xNONE" && prefix=$ac_default_prefix
@@ -378,6 +390,7 @@ AC_OUTPUT(
     utilities/Makefile
     debian/changelog
     rpm/d2x.spec
+    Info.plist
 )
 
 AC_MSG_RESULT([

@@ -2,6 +2,14 @@ SUBDIRS = 2d 3d maths mem cfile iff texmap misc arch main libmve utilities
 
 EXTRA_SUBDIRS = include unused debian rpm
 
+if BUILD_MACOSX_BUNDLE
+bundle_contents = @PACKAGE@.app/Contents
+else
+if BUILD_SIMPLE_BUNDLE
+bundle_contents = @PACKAGE@
+endif
+endif
+
 bin_PROGRAMS = @TARGETS@
 
 EXTRA_PROGRAMS = d2x d2x-sdl d2x-gl d2x-svga d2x-ggi
@@ -47,6 +55,60 @@ dist-hook:
 
 pkgdatadir = @sharepath@
 missiondir = ${pkgdatadir}/missions
+
+CLEANFILES = @TARGETS@ Info.plist
+
+if BUILD_MACOSX_BUNDLE
+
+@PACKAGE@_bundle: @TARGETS@
+	mkdir -p $(bundle_contents)/MacOS
+	echo "APPL????" > $(bundle_contents)/PkgInfo
+	$(INSTALL_DATA) Info.plist $(bundle_contents)
+	$(INSTALL_PROGRAM) @TARGETS@ $(bundle_contents)/MacOS/
+
+install-exec-hook: @PACKAGE@_bundle
+	rm -rf $(DESTDIR)$(prefix)/@PACKAGE@.app
+	mkdir -p $(DESTDIR)$(prefix)/
+	cp -r @PACKAGE@.app $(DESTDIR)$(prefix)/
+
+clean-local:
+	rm -rf $(bundle_contents)
+
+else
+
+if BUILD_SIMPLE_BUNDLE
+
+@PACKAGE@_bundle: @TARGETS@
+	$(INSTALL_PROGRAM) @TARGETS@ $(bundle_contents)/
+
+install-exec-hook: @PACKAGE@_bundle
+	rm -rf $(DESTDIR)/$(prefix)/@PACKAGE@
+	mkdir -p $(DESTDIR)/$(prefix)/
+	cp COPYING @PACKAGE@/COPYING.txt
+	cp COPYING.LIB @PACKAGE@/COPYING_LIB.txt
+	cp ChangeLog @PACKAGE@/ChangeLog.txt
+	cp TODO @PACKAGE@/TODO.txt
+	cp README @PACKAGE@/README.txt
+	cp README.jp @PACKAGE@/README_jp.txt
+	cp README.sfont @PACKAGE@/sfont.txt
+	cp README.xkobo @PACKAGE@/xkobo.txt
+	cp README.xkobo.jp @PACKAGE@/xkobo_jp.txt
+	cp 501 @PACKAGE@/scores/42
+	cp -r @PACKAGE@	 $(DESTDIR)/$(prefix)/
+
+clean-local:
+	rm -rf $(bundle_contents)
+
+else
+@PACKAGE@_bundle:
+
+install-exec-hook:
+
+clean-local:
+
+endif
+
+endif
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 ChangeLog \
