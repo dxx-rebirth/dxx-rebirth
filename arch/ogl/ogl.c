@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.35 2004-08-28 18:11:19 schaffner Exp $ */
+/* $Id: ogl.c,v 1.36 2004-11-14 09:50:36 schaffner Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -1676,6 +1676,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 		}
 	}
 }
+
 int tex_format_verify(ogl_texture *tex){
 	while (!tex_format_supported(tex->internalformat,tex->format)){
 		glmprintf((0,"tex format %x not supported",tex->internalformat));
@@ -1693,6 +1694,9 @@ int tex_format_verify(ogl_texture *tex){
 					break;
 				}//note how it will fall through here if the statement is false
 			case GL_RGBA2:
+#if defined(__APPLE__) && defined(__MACH__)
+			case GL_RGB8:	// Quartz doesn't support RGB only
+#endif
 				tex->internalformat = ogl_rgba_internalformat;
 				tex->format=GL_RGBA;
 				break;
@@ -1780,11 +1784,8 @@ void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 	
 	if(gr_badtexture>0) return;
 
-#if !(defined(__APPLE__) && defined(__MACH__))
-	// always fails on OS X, but textures work fine!
 	if (tex_format_verify(tex))
 		return;
-#endif
 
 	//calculate u/v values that would make the resulting texture correctly sized
 	tex->u=(float)tex->w/(float)tex->tw;
