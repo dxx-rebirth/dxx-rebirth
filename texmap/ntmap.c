@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/ntmap.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 09:12:16 $
+ * $Date: 2002-02-23 22:24:10 $
  * 
  * Start of conversion to new texture mapper.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/10/25 09:12:16  bradleyb
+ * Completed tmap selection code.
+ *
  * Revision 1.4  2001/10/25 02:22:46  bradleyb
  * adding support for runtime selection of tmap funcs
  *
@@ -150,7 +153,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ntmap.c,v 1.5 2001-10-25 09:12:16 bradleyb Exp $";
+static char rcsid[] = "$Id: ntmap.c,v 1.6 2002-02-23 22:24:10 bradleyb Exp $";
 #endif
 
 #define VESA 0
@@ -211,11 +214,8 @@ int	window_bottom;
 int  	window_width;
 int  	window_height;
 
-#ifdef EDITOR_TMAP
-#define MAX_Y_POINTERS  600
-#else
-#define MAX_Y_POINTERS  600
-#endif
+#define MAX_Y_POINTERS  1024
+
 int	y_pointers[MAX_Y_POINTERS];
 
 fix fix_recip[FIX_RECIP_TABLE_SIZE];
@@ -1158,4 +1158,3 @@ void draw_tmap(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 	Lighting_on = lighting_on_save;
 
 }
-
