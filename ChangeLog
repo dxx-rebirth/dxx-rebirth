@@ -1,3 +1,7 @@
+2003-08-01  Martin Schaffner  <martin.schaffner@epfl.ch>
+
+	* main/playsave.c: comments
+
 2003-07-24  Martin Schaffner  <martin.schaffner@epfl.ch>
 
 	* cfile/cfile.c: update raw_position in cfwrite

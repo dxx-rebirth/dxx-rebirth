@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.14 2003-06-16 07:11:40 btb Exp $ */
+/* $Id: playsave.c,v 1.15 2003-08-02 06:45:42 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,7 +14,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * Functions to load & save player games
+ * Functions to load & save player's settings (*.plr file)
  *
  * Old Log:
  * Revision 1.1  1995/12/05  16:05:47  allender
