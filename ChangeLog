@@ -1,5 +1,8 @@
 2003-03-13  Bradley Bell  <btb@icculus.org>
 
+	* main/Makefile.am, main/joydefs.c, main/old/joydefs.c: moved old
+	joydefs to main
+
 	* arch/linux/Makefile.am: removed extra backslash
 
 	* TODO, installation.txt: updated some documentation
@@ -7,11 +10,9 @@
 	* main/gamecntl.c, main/menu.c, main/menu.h: added "d2x options"
 	menu, with maxfps option
 
-2003-03-12  Bradley Bell  <bradleyb@smeagol>
+2003-03-12  Bradley Bell  <btb@icculus.org>
 
 	* main/game.c, main/game.h, main/inferno.c: added -maxfps option
-
-2003-03-12  Bradley Bell  <btb@icculus.org>
 
 	* arch/linux/alsadigi.c, arch/linux/findfile.c,
 	arch/linux/hmiplay.c, arch/linux/init.c, arch/linux/ipx_bsd.c,
@@ -24,7 +25,7 @@
 	arch/linux/include/music.h, arch/linux/include/serial.h,
 	arch/linux/include/ukali.h: formatting
 
-2003-03-11  Chris Arena <ccarena@cox.net>
+2003-03-11  Chris Arena  <ccarena@cox.net>
 
 	* main/menu.c (do_options_menu): fixed brightness slider
 

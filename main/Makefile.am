@@ -50,4 +50,4 @@ object.h paging.h physics.h piggy.h player.h playsave.h polyobj.h powerup.h \
 render.h reorder.h robot.h scores.h screens.h segment.h segpoint.h slew.h \
 songs.h sounds.h state.h switch.h terrain.h texmerge.h text.h textures.h \
 titles.h vclip.h vers_id.h wall.h weapon.h \
-dumpmine.c
+dumpmine.c joydefs.c
