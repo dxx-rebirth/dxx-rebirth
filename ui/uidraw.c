@@ -1,4 +1,4 @@
-/* $Id: uidraw.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: uidraw.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: uidraw.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: uidraw.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -21,7 +21,7 @@ static char rcsid[] = "$Id: uidraw.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
 #endif
 
 #include "fix.h"
-#include "types.h"
+#include "pstypes.h"
 #include "gr.h"
 #include "ui.h"
 

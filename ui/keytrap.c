@@ -1,4 +1,4 @@
-/* $Id: keytrap.c,v 1.2 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: keytrap.c,v 1.3 2005-01-24 22:19:10 schaffner Exp $ */
 
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "fix.h"
-#include "types.h"
+#include "pstypes.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"

@@ -16,6 +16,12 @@
 	* main/editor/macro.c: remove unused variable "length"
 	* main/editor/med.c: don't set screen mode to SM_ORIGINAL
 	* main/editor/medmisc.c: Pass both arguments to render_frame
+	* ui/barbox.c, ui/button.c, ui/checkbox.c, ui/file.c, ui/gadget.c,
+	ui/icon.c, ui/inputbox.c, ui/keypad.c, ui/keypress.c, ui/keytrap.c,
+	ui/listbox.c, ui/menu.c, ui/menubar.c, ui/message.c, ui/mouse.c,
+	ui/number.c, ui/popup.c, ui/radio.c, ui/scroll.c, ui/ui.c,
+	ui/uidraw.c, ui/userbox.c, ui/window.c: include u_mem.h and pstypes.h
+	instead of d1-style mem.h and types.h
 
 2005-01-23  Jason Owen  <shannara256@yahoo.com>
 
