@@ -1,4 +1,4 @@
-/* $Id: wall.c,v 1.13 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: wall.c,v 1.14 2005-01-24 21:41:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.13 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.14 2005-01-24 21:41:35 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -122,15 +122,6 @@ int check_transparency( segment * seg, int side )
 	else
 		return 0;
 }
-
-//define these here so I don't have to change wall_is_doorway and run
-//the risk of screwing it up.
-#define WID_WALL						2	// 0/1/0		wall	
-#define WID_TRANSPARENT_WALL		6	//	0/1/1		transparent wall
-#define WID_ILLUSORY_WALL			3	//	1/1/0		illusory wall
-#define WID_TRANSILLUSORY_WALL	7	//	1/1/1		transparent illusory wall
-#define WID_NO_WALL					5	//	1/0/1		no wall, can fly through
-#define WID_EXTERNAL					8	// 0/0/0/1	don't see it, dont fly through it
 
 //-----------------------------------------------------------------
 // This function checks whether we can fly through the given side.
