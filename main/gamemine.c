@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.5 2002-07-30 04:52:01 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.6 2002-07-30 04:52:45 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -656,14 +656,13 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 	for (i = 0; i < Num_vertices; i++)
 		cfile_read_vector( &(Vertices[i]), LoadFile);
+
 	for (segnum=0; segnum<Num_segments; segnum++ )	{
 
 		#ifdef EDITOR
 		Segments[segnum].segnum = segnum;
 		Segments[segnum].group = 0;
 		#endif
-
-		printf("%4x  ", cftell(LoadFile));
 
  		bit_mask = cfile_read_byte(LoadFile);
 
@@ -679,9 +678,8 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 		Segments[segnum].objects = -1;
 
-		// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-
 #ifdef SHAREWARE
+		// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
 		temp_ushort = cfile_read_short(LoadFile);
 		Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
 #endif

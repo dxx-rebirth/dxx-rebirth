@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: weapon.c,v 1.3 2002-07-26 09:22:05 btb Exp $";
+static char rcsid[] = "$Id: weapon.c,v 1.4 2002-07-30 04:52:01 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -1334,12 +1334,16 @@ extern void weapon_info_read(weapon_info *wi, CFILE *fp)
 	wi->flash = cfile_read_byte(fp);
 	wi->afterburner_size = cfile_read_byte(fp);
 		
+#ifndef SHAREWARE
 	wi->children = cfile_read_byte(fp);
+#endif
 
 	wi->energy_usage = cfile_read_fix(fp);
 	wi->fire_wait = cfile_read_fix(fp);
 		
+#ifndef SHAREWARE
 	wi->multi_damage_scale = cfile_read_fix(fp);
+#endif
 		
 	wi->bitmap.index = cfile_read_short(fp);	// bitmap_index = short
 
@@ -1358,5 +1362,7 @@ extern void weapon_info_read(weapon_info *wi, CFILE *fp)
 	wi->lifetime = cfile_read_fix(fp);
 	wi->damage_radius = cfile_read_fix(fp);
 	wi->picture.index = cfile_read_short(fp);		// bitmap_index is a short
+#ifndef SHAREWARE
 	wi->hires_picture.index = cfile_read_short(fp);		// bitmap_index is a short
+#endif
 }

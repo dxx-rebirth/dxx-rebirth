@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.11 2002-07-30 04:52:01 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.12 2002-07-30 04:52:45 btb Exp $";
 #endif
 
 
@@ -1000,7 +1000,6 @@ int read_hamfile()
 
 		//Read sounds
 
-		printf("%#4x: reading %d x DiskSoundHeader\n", cftell(ham_fp), N_sounds);
 		for (i=0; i<N_sounds; i++ )     {
 			DiskSoundHeader_read(&sndh, ham_fp);
 			temp_sound.length = sndh.length;
@@ -1077,7 +1076,6 @@ int read_sndfile()
 
 	//Read sounds
 
-	printf("%#4x: reading %d x DiskSoundHeader\n", cftell(snd_fp), N_sounds);
 	for (i=0; i<N_sounds; i++ )     {
 		DiskSoundHeader_read(&sndh, snd_fp);
 		//size -= sizeof(DiskSoundHeader);

@@ -48,6 +48,15 @@ typedef struct DiskBitmapHeader {
 
 #define DISKBITMAPHEADER_SIZE 18 // for disk i/o
 
+typedef struct DiskSoundHeader {
+	char name[8];
+	int length;
+	int data_length;
+	int offset;
+} DiskSoundHeader;
+
+#define DISKSOUNDHEADER_SIZE 20 // for disk i/o
+
 int piggy_init();
 void piggy_close();
 void piggy_dump_all();
@@ -113,5 +122,10 @@ void bitmap_index_read(bitmap_index *bi, CFILE *fp);
  * reads a DiskBitmapHeader structure from a CFILE
  */
 void DiskBitmapHeader_read(DiskBitmapHeader *dbh, CFILE *fp);
+
+/*
+ * reads a DiskSoundHeader structure from a CFILE
+ */
+void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp);
 
 #endif
