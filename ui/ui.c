@@ -1,4 +1,4 @@
- /* $Id: ui.c,v 1.5 2005-01-25 19:57:40 schaffner Exp $ */
+ /* $Id: ui.c,v 1.6 2005-02-26 00:47:08 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: ui.c,v 1.5 2005-01-25 19:57:40 schaffner Exp $";
+static char rcsid[] = "$Id: ui.c,v 1.6 2005-02-26 00:47:08 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -24,7 +24,6 @@ static char rcsid[] = "$Id: ui.c,v 1.5 2005-01-25 19:57:40 schaffner Exp $";
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#include <dos.h>
 
 #include "fix.h"
 #include "pstypes.h"

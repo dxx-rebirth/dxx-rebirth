@@ -1,4 +1,4 @@
-/* $Id: keypad.c,v 1.4 2005-01-25 21:26:44 schaffner Exp $ */
+/* $Id: keypad.c,v 1.5 2005-02-26 00:47:08 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,11 +18,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <conio.h>
 #include <math.h>
-#include <dos.h>
 #include <string.h>
-#include <direct.h>
 
 
 #include "fix.h"
