@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.82 2004-05-22 02:31:48 schaffner Exp $ */
+/* $Id: inferno.c,v 1.83 2004-05-22 06:56:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1017,6 +1017,7 @@ void print_commandline_help()
 	printf( "  -automap_gameres %s\n","Set automap to use the same resolution as in game");
 //	printf( "  -menu<X>x<Y>    %s\n","Set menu resolution to <X> by <Y>");
 //	printf( "  -menu_gameres   %s\n","Set menus to use the same resolution as in game");
+	printf("  -rearviewtime t %s\n", "time holding rearview key to use toggle mode (default 0.0625 seconds)");
 	printf( "\n");
 
 	printf( "D2X System Options:\n\n");
@@ -1266,6 +1267,13 @@ int main(int argc, char *argv[])
 	arch_init();
 
 	//con_printf(CON_VERBOSE, "\n%s...", "Checking for Descent 2 CD-ROM");
+
+	if ((t = FindArg("-rearviewtime")))
+	{
+		float f = atof(Args[t + 1]);
+		Rear_view_leave_time = f * f1_0;
+	}
+	con_printf(CON_VERBOSE, "Rear_view_leave_time=0x%x (%f sec)\n", Rear_view_leave_time, Rear_view_leave_time / (float)f1_0));
 
 	//added/edited 8/18/98 by Victor Rachels to set maximum fps <= 100
 	if ((t = FindArg( "-maxfps" ))) {

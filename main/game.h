@@ -1,4 +1,4 @@
-/* $Id: game.h,v 1.7 2004-05-20 01:29:16 btb Exp $ */
+/* $Id: game.h,v 1.8 2004-05-22 06:56:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -387,6 +387,7 @@ extern int Game_window_w,       // width and height of player's game window
            Game_window_h;
 
 extern int Rear_view;           // if true, looking back.
+extern fix Rear_view_leave_time;// how long until we decide key is down
 
 // initalize flying
 void fly_init(object *obj);
