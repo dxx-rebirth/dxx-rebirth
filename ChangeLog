@@ -1,4 +1,9 @@
-2003-02-28  Bradley Bell  <bradleyb@smeagol>
+2003-02-28  Bradley Bell  <btb@icculus.org>
+
+	* configure.ac, arch/win32/Makefile.am, arch/win32/ipx_drv.h,
+	arch/win32/ipx_win.c, arch/win32/mingw_init.c,
+	arch/win32/winnet.c: MinGW compiles with network enabled again,
+	but still doesn't work
 
 	* NEWS: Updated
 

@@ -1,4 +1,4 @@
-/* $Id: winnet.c,v 1.4 2002-08-31 03:16:35 btb Exp $ */
+/* $Id: winnet.c,v 1.5 2003-02-28 23:34:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -27,10 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <winsock.h>
 
-#include "pstypes.h"
-#include "config.h"
 #include "args.h"
-
 #include "ipx_drv.h"
 
 extern struct ipx_driver ipx_win;

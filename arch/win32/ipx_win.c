@@ -1,4 +1,4 @@
-/* $Id: ipx_win.c,v 1.4 2002-08-31 03:16:35 btb Exp $ */
+/* $Id: ipx_win.c,v 1.5 2003-02-28 23:34:15 btb Exp $ */
 
 /*
  *
@@ -16,10 +16,12 @@
 #include <winsock.h>
 #include <wsipx.h>
 #include <errno.h>
+#include <stdio.h>
 
 #include "ipx_drv.h"
 
-#include "mono.h"
+#define _do_mprintf(n, format, args...) printf(format, ## args)
+#define mprintf(args) _do_mprintf args
 
 //#define n_printf(format, args...) mprintf((1, format, ## args))
 

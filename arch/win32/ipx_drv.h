@@ -16,7 +16,16 @@
 #define IPX_MANUAL_ADDRESS
 
 #include <winsock.h>
-#include "pstypes.h"
+
+typedef unsigned char ubyte;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+
+#ifdef __GNUC__
+# define __pack__ __attribute__((packed))
+#else
+# define __pack__
+#endif
 
 #define MAX_PACKET_DATA 1500
 

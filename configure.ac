@@ -247,10 +247,10 @@ if test x$enable_network != xno; then
 		AC_MSG_WARN([OS X detected.  disabling network])
 		enable_network="no";
 	fi
-	if test x$MINGW32 = xyes; then
-		AC_MSG_WARN([MINGW detected.  disabling network])
-		enable_network="no";
-	fi
+#	if test x$MINGW32 = xyes; then
+#		AC_MSG_WARN([MINGW detected.  disabling network])
+#		enable_network="no";
+#	fi
 fi
 if test x$enable_network != xno; then
     AC_DEFINE(NETWORK,,[Define if you want a network build])

@@ -1,12 +1,6 @@
 /*
- * $Source: /cvs/cvsroot/d2x/arch/win32/mingw_init.c,v $
- * $Revision: 1.1 $
- * $Author: bradleyb $
- * $Date: 2001-10-19 09:01:56 $
  *
  * mingw_init.c - Basically same as linux init.c
- *
- * $Log: not supported by cvs2svn $
  *
  */
 
