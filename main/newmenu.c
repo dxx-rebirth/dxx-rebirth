@@ -214,7 +214,10 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 }
 
-#define MENU_BACKGROUND_BITMAP ((MenuHires && cfexist("scoresb.pcx"))?"scoresb.pcx":"scores.pcx")
+#define MENU_BACKGROUND_BITMAP_HIRES (cfexist("scoresb.pcx")?"scoresb.pcx":"scores.pcx")
+#define MENU_BACKGROUND_BITMAP_LORES (cfexist("scores.pcx")?"scores.pcx":"scoresb.pcx") // Mac datafiles only have scoresb.pcx
+
+#define MENU_BACKGROUND_BITMAP (MenuHires?MENU_BACKGROUND_BITMAP_HIRES:MENU_BACKGROUND_BITMAP_LORES)
 
 int Background_hires;
 int No_darkening=0;

@@ -83,7 +83,7 @@ void songs_init()
 	#endif
 
 
-	#ifndef MACINTOSH	// macs don't use the .sng file
+	if (cfexist("descent.sng")) {   // mac (demo?) datafiles don't have the .sng file
 		fp = cfopen( "descent.sng", "rb" );
 		if ( fp == NULL )
 		{
@@ -109,7 +109,7 @@ void songs_init()
 		if (Num_songs <= SONG_FIRST_LEVEL_SONG)
 			Error("Must have at least %d songs",SONG_FIRST_LEVEL_SONG+1);
 		cfclose(fp);
-	#endif // endof ifdef macintosh for dealing with the .sng file
+	}
 
 	Songs_initialized = 1;
 
