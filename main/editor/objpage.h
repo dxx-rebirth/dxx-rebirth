@@ -1,4 +1,4 @@
-/* $Id: objpage.h,v 1.2 2004-12-19 14:52:48 btb Exp $ */
+/* $Id: objpage.h,v 1.3 2005-03-31 09:38:53 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -30,6 +30,6 @@ void objpage_init( UI_WINDOW *win );
 void objpage_close();
 void objpage_do();
 
-extern void draw_robot_picture(int id, vms_angvec *orient_angles, int type);
+extern void draw_object_picture(int id, vms_angvec *orient_angles, int type);
 
 #endif

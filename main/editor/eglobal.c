@@ -1,4 +1,4 @@
-/* $Id: eglobal.c,v 1.4 2005-01-25 21:44:24 schaffner Exp $ */
+/* $Id: eglobal.c,v 1.5 2005-03-31 09:38:53 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: eglobal.c,v 1.4 2005-01-25 21:44:24 schaffner Exp $";
+static char rcsid[] = "$Id: eglobal.c,v 1.5 2005-03-31 09:38:53 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -92,8 +92,9 @@ int	Num_tilings = 1;					// Number of tilings per wall
 
 short Cur_object_index = -1;
 
-// The current robot type
-int Cur_robot_type = 0;
+// The current object type and id
+short Cur_object_type = 4;	// OBJ_PLAYER
+short Cur_object_id = 0;
 
 //	!0 if a degenerate segment has been found.
 int	Degenerate_segment_found=0;

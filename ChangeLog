@@ -1,3 +1,12 @@
+2005-03-31  Chris Taylor  <chris@icculus.org>
+
+	* main/bm.c, main/bm.h, main/bmread.c, main/editor/editor.h,
+	main/editor/eglobal.c, main/editor/eobject.c,
+	main/editor/medrobot.c, main/editor/objpage.c,
+	main/editor/objpage.h: remove ObjType, ObjId, ObjStrength and
+	OL_ constants; use "object" instead of "robot" in some places;
+	draw and place reactors with correct modelnum
+
 2005-03-29  Bradley Bell  <btb@icculus.org>
 
 	* mem/mem.c: remove obsolete malloc.h

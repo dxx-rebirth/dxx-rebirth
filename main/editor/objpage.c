@@ -1,4 +1,4 @@
-/* $Id: objpage.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: objpage.c,v 1.4 2005-03-31 09:38:53 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: objpage.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: objpage.c,v 1.4 2005-03-31 09:38:53 chris Exp $";
 #endif
 
 // Num_robot_types -->  N_polygon_models
@@ -47,7 +47,7 @@ static char rcsid[] = "$Id: objpage.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
 #include "bm.h"
 #include "player.h"
 #include "piggy.h"
-
+#include "cntrlcen.h"
 
 #define OBJS_PER_PAGE 8
 
@@ -98,43 +98,37 @@ extern int polyobj_lighting;
 
 
 //canvas set
-//	Type is optional.  If you pass -1, type is determined, else type is used, and id is not xlated through ObjId.
-void draw_robot_picture(int id, vms_angvec *orient_angles, int type)
+void draw_object_picture(int id, vms_angvec *orient_angles, int type)
 {
 
-	if (id >= Num_total_object_types)
+	if (id >= Num_object_subtypes)
 		return;
-
-	if ( type == -1 )	{
-		type = ObjType[id];		// Find the object type, given an object id.
-		id = ObjId[id];	// Translate to sub-id.
-	}
 
 	switch (type) {
 
-		case OL_HOSTAGE:
+		case OBJ_HOSTAGE:
 			PIGGY_PAGE_IN(Vclip[Hostage_vclip_num[id]].frames[0]);
 			gr_bitmap(0,0,&GameBitmaps[Vclip[Hostage_vclip_num[id]].frames[0].index]);
 			break;
 
-		case OL_POWERUP:
+		case OBJ_POWERUP:
 			if ( Powerup_info[id].vclip_num > -1 )	{
 				PIGGY_PAGE_IN(Vclip[Powerup_info[id].vclip_num].frames[0]);
 				gr_bitmap(0,0,&GameBitmaps[Vclip[Powerup_info[id].vclip_num].frames[0].index]);
 			}
 			break;
 
-		case OL_PLAYER:
+		case OBJ_PLAYER:
 			draw_model_picture(Player_ship->model_num,orient_angles);		// Draw a poly model below
 			break;
 
-		case OL_ROBOT:
+		case OBJ_ROBOT:
 			draw_model_picture(Robot_info[id].model_num,orient_angles);	// Draw a poly model below
 			break;
 
-		case OL_CONTROL_CENTER:
-		case OL_CLUTTER:
-			draw_model_picture(id,orient_angles);
+		case OBJ_CNTRLCEN:
+		case OBJ_CLUTTER:
+			draw_model_picture(Reactors[id].model_num, orient_angles);
 			break;
 		default:
 			//Int3();	// Invalid type!!!
@@ -149,7 +143,7 @@ void redraw_current_object()
 
 	cc = grd_curcanv;
 	gr_set_current_canvas(ObjCurrent->canvas);
-	draw_robot_picture(Cur_robot_type,&objpage_view_orient, -1);
+	draw_object_picture(Cur_object_id, &objpage_view_orient, Cur_object_type);
 	gr_set_current_canvas(cc);
 }
 
@@ -157,7 +151,7 @@ void gr_label_box( int i)
 {
 
 	gr_clear_canvas(BM_XRGB(0,0,0));
-	draw_robot_picture(i,&objpage_view_orient, -1);
+	draw_object_picture(i, &objpage_view_orient, Cur_object_type);
 
 //	char s[20];
 //	sprintf( s, " %d ", i );
@@ -173,7 +167,7 @@ int objpage_goto_first()
 	ObjectPage=0;
 	for (i=0;  i<OBJS_PER_PAGE; i++ ) {
 		gr_set_current_canvas(ObjBox[i]->canvas);
-		if (i+ObjectPage*OBJS_PER_PAGE < Num_total_object_types ) {
+		if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes ) {
 			//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 			gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
 		} else
@@ -187,11 +181,11 @@ int objpage_goto_last()
 {
 	int i;
 
-	ObjectPage=(Num_total_object_types)/OBJS_PER_PAGE;
+	ObjectPage=(Num_object_subtypes)/OBJS_PER_PAGE;
 	for (i=0;  i<OBJS_PER_PAGE; i++ )
 	{
 		gr_set_current_canvas(ObjBox[i]->canvas);
-		if (i+ObjectPage*OBJS_PER_PAGE < Num_total_object_types )
+		if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes )
 		{
 			//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 			gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
@@ -210,7 +204,7 @@ static int objpage_goto_prev()
 		for (i=0;  i<OBJS_PER_PAGE; i++ )
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
-			if (i+ObjectPage*OBJS_PER_PAGE < Num_total_object_types)
+			if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
 			{
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
@@ -225,12 +219,12 @@ static int objpage_goto_prev()
 static int objpage_goto_next()
 {
 	int i;
-	if ((ObjectPage+1)*OBJS_PER_PAGE < Num_total_object_types) {
+	if ((ObjectPage+1)*OBJS_PER_PAGE < Num_object_subtypes) {
 		ObjectPage++;
 		for (i=0;  i<OBJS_PER_PAGE; i++ )
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
-			if (i+ObjectPage*OBJS_PER_PAGE < Num_total_object_types)
+			if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
 			{
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
@@ -246,15 +240,15 @@ int objpage_grab_current(int n)
 {
 	int i;
 
-	if ( (n<0) || ( n>= Num_total_object_types) ) return 0;
+	if ((n < 0) || (n >= Num_object_subtypes)) return 0;
 	
 	ObjectPage = n / OBJS_PER_PAGE;
 	
-	if (ObjectPage*OBJS_PER_PAGE < Num_total_object_types) {
+	if (ObjectPage*OBJS_PER_PAGE < Num_object_subtypes) {
 		for (i=0;  i<OBJS_PER_PAGE; i++ )
 		{
 			gr_set_current_canvas(ObjBox[i]->canvas);
-			if (i+ObjectPage*OBJS_PER_PAGE < Num_total_object_types)
+			if (i + ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
 			{
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
@@ -264,10 +258,10 @@ int objpage_grab_current(int n)
 		}
 	}
 
-	Cur_robot_type = n;
+	Cur_object_id = n;
 	gr_set_current_canvas(ObjCurrent->canvas);
 	//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ Cur_robot_type ] ] );
-	gr_label_box(Cur_robot_type);
+	gr_label_box(Cur_object_id);
 
 	//objpage_display_name( Texture[Cur_robot_type]->filename );
 	
@@ -276,12 +270,37 @@ int objpage_grab_current(int n)
 
 int objpage_goto_next_object()
 {
-	int n;
+	// there should be a pop-up menu for this
+	switch (Cur_object_type)
+	{
+		case OBJ_ROBOT:
+			Cur_object_type = OBJ_HOSTAGE;
+			Num_object_subtypes = 1;
+			break;
 
-	n = Cur_robot_type++;
- 	if (n >= Num_total_object_types) n = 0;
+		case OBJ_HOSTAGE:
+			Cur_object_type = OBJ_PLAYER;
+			Num_object_subtypes = 1;	// can have anarchy/coop, but this is handled automatically
+			break;
 
-	objpage_grab_current(n);
+		case OBJ_PLAYER:
+			Cur_object_type = OBJ_POWERUP;
+			Num_object_subtypes = N_powerup_types;
+			break;
+
+		case OBJ_POWERUP:
+			Cur_object_type = OBJ_CNTRLCEN;
+			Num_object_subtypes = Num_reactors;
+			break;
+
+		case OBJ_CNTRLCEN:
+		default:
+			Cur_object_type = OBJ_ROBOT;
+			Num_object_subtypes = N_robot_types;
+			break;
+	}
+
+	objpage_grab_current(0);
 
 	return 1;
 
@@ -400,7 +419,7 @@ void objpage_init( UI_WINDOW *win )
 	for (i=0;  i<OBJS_PER_PAGE; i++ )
 	{
 		gr_set_current_canvas(ObjBox[i]->canvas);
-		if (i+ObjectPage*OBJS_PER_PAGE < Num_total_object_types)
+		if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
 		{
 				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
 				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
@@ -413,7 +432,7 @@ void objpage_init( UI_WINDOW *win )
 //	Cur_robot_type = ObjectPage*OBJS_PER_PAGE;
 	gr_set_current_canvas(ObjCurrent->canvas);
 	//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ Cur_robot_type ] ] );
-	gr_label_box(Cur_robot_type);
+	gr_label_box(Cur_object_id);
 
 	//ObjnameCanvas = gr_create_sub_canvas(&grd_curscreen->sc_canvas, OBJCURBOX_X , OBJCURBOX_Y + OBJBOX_H + 10, 100, 20);
 	//gr_set_current_canvas( ObjnameCanvas );
@@ -437,12 +456,12 @@ void objpage_do()
 
 	for (i=0; i<OBJS_PER_PAGE; i++ )
 	{
-		if (ObjBox[i]->b1_clicked && (i+ObjectPage*OBJS_PER_PAGE < Num_total_object_types))
+		if (ObjBox[i]->b1_clicked && (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes))
 		{
-			Cur_robot_type = i+ObjectPage*OBJS_PER_PAGE;
+			Cur_object_id = i+ObjectPage*OBJS_PER_PAGE;
 			gr_set_current_canvas(ObjCurrent->canvas);
 			//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ Cur_robot_type ] ] );
-			gr_label_box(Cur_robot_type);
+			gr_label_box(Cur_object_id);
 			//objpage_display_name( Texture[Cur_robot_type]->filename );
 		}
 	}

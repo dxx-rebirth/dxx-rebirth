@@ -1,4 +1,4 @@
-/* $Id: bmread.c,v 1.14 2005-02-26 07:04:47 chris Exp $ */
+/* $Id: bmread.c,v 1.15 2005-03-31 09:38:53 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -428,10 +428,6 @@ int bm_init_use_tbl()
 	load_palette(DEFAULT_PIG_PALETTE,-2,0);		//special: tell palette code which pig is loaded
 
 	init_polygon_models();
-
-	ObjType[0] = OL_PLAYER;
-	ObjId[0] = 0;
-	Num_total_object_types = 1;
 
 	for (i=0; i<MAX_SOUNDS; i++ )	{
 		Sounds[i] = 255;
@@ -1266,8 +1262,6 @@ void bm_read_robot()
 		Robot_info[N_robot_types].model_num = -1;
 		N_robot_types++;
 		Assert(N_robot_types < MAX_ROBOT_TYPES);
-		Num_total_object_types++;
-		Assert(Num_total_object_types < MAX_OBJTYPE);
 		clear_to_end_of_line();
 		return;
 	}
@@ -1427,9 +1421,6 @@ void bm_read_robot()
 		Int3();
 	}
 
-	ObjType[Num_total_object_types] = OL_ROBOT;
-	ObjId[Num_total_object_types] = N_robot_types;
-
 	Robot_info[N_robot_types].exp1_vclip_num = exp1_vclip_num;
 	Robot_info[N_robot_types].exp2_vclip_num = exp2_vclip_num;
 	Robot_info[N_robot_types].exp1_sound_num = exp1_sound_num;
@@ -1476,10 +1467,8 @@ void bm_read_robot()
 	strcpy(Robot_names[N_robot_types], name);
 
 	N_robot_types++;
-	Num_total_object_types++;
 
 	Assert(N_robot_types < MAX_ROBOT_TYPES);
-	Assert(Num_total_object_types < MAX_OBJTYPE);
 
 	bm_flag = BM_NONE;
 }
@@ -1514,8 +1503,6 @@ void bm_read_reactor()
 	arg = strtok( NULL, space );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
-	type = OL_CONTROL_CENTER;
-
 	while (arg!=NULL)	{
 
 		equal_ptr = strchr( arg, '=' );
@@ -1525,13 +1512,6 @@ void bm_read_reactor()
 			equal_ptr++;
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-
-			//@@if (!stricmp(arg,"type")) {
-			//@@	if (!stricmp(equal_ptr,"controlcen"))
-			//@@		type = OL_CONTROL_CENTER;
-			//@@	else if (!stricmp(equal_ptr,"clutter"))
-			//@@		type = OL_CLUTTER;
-			//@@}
 
 			if (!stricmp( arg, "exp_vclip" ))	{
 				explosion_vclip_num = atoi(equal_ptr);
@@ -1575,14 +1555,6 @@ void bm_read_reactor()
 
 	Reactors[Num_reactors].model_num = model_num;
 	Reactors[Num_reactors].n_guns = read_model_guns(model_name,Reactors[Num_reactors].gun_points,Reactors[Num_reactors].gun_dirs,NULL);
-
-	ObjType[Num_total_object_types] = type;
-	ObjId[Num_total_object_types] = Num_reactors;
-	ObjStrength[Num_total_object_types] = strength;
-	
-	//printf( "Object type %d is a control center\n", Num_total_object_types );
-	Num_total_object_types++;
-	Assert(Num_total_object_types < MAX_OBJTYPE);
 
 	Num_reactors++;
 }
@@ -1674,14 +1646,6 @@ void bm_read_exitmodel()
 		Dead_modelnums[model_num]  = load_polygon_model(model_name_dead,N_ObjBitmapPtrs-first_bitmap_num_dead,first_bitmap_num_dead,NULL);
 	else
 		Dead_modelnums[model_num] = -1;
-
-//@@	ObjType[Num_total_object_types] = type;
-//@@	ObjId[Num_total_object_types] = model_num;
-//@@	ObjStrength[Num_total_object_types] = strength;
-//@@	
-//@@	//printf( "Object type %d is a control center\n", Num_total_object_types );
-//@@	Num_total_object_types++;
-//@@	Assert(Num_total_object_types < MAX_OBJTYPE);
 
 	exit_modelnum = model_num;
 	destroyed_exit_modelnum = Dead_modelnums[model_num];
@@ -2104,11 +2068,6 @@ void bm_read_weapon(int unused_flag)
 			} else if (!stricmp(arg, "placable" )) {
 				if (atoi(equal_ptr)) {
 					Weapon_info[n].flags |= WIF_PLACABLE;
-
-					Assert(Num_total_object_types < MAX_OBJTYPE);
-					ObjType[Num_total_object_types] = OL_WEAPON;
-					ObjId[Num_total_object_types] = n;
-					Num_total_object_types++;
 				}
 			} else {
 				Int3();
@@ -2217,13 +2176,6 @@ void bm_read_powerup(int unused_flag)
 		}
 		arg = strtok( NULL, space );
 	}
-
-	ObjType[Num_total_object_types] = OL_POWERUP;
-	ObjId[Num_total_object_types] = n;
-	//printf( "Object type %d is a powerup\n", Num_total_object_types );
-	Num_total_object_types++;
-	Assert(Num_total_object_types < MAX_OBJTYPE);
-
 }
 
 void bm_read_hostage()
@@ -2260,13 +2212,6 @@ void bm_read_hostage()
 		}
 		arg = strtok( NULL, space );
 	}
-
-	ObjType[Num_total_object_types] = OL_HOSTAGE;
-	ObjId[Num_total_object_types] = n;
-	//printf( "Object type %d is a hostage\n", Num_total_object_types );
-	Num_total_object_types++;
-	Assert(Num_total_object_types < MAX_OBJTYPE);
-
 }
 
 //these values are the number of each item in the release of d2
@@ -2380,13 +2325,6 @@ fprintf(tfile,"player_ship size = %d\n",sizeof(player_ship));
 	fwrite( cockpit_bitmap, sizeof(bitmap_index), Num_cockpits, fp );
 
 fprintf(tfile,"Num_cockpits = %d, cockpit_bitmaps array = %d\n",Num_cockpits,sizeof(bitmap_index)*Num_cockpits);
-
-//@@	fwrite( &Num_total_object_types, sizeof(int), 1, fp );
-//@@	fwrite( ObjType, sizeof(sbyte), Num_total_object_types, fp );
-//@@	fwrite( ObjId, sizeof(sbyte), Num_total_object_types, fp );
-//@@	fwrite( ObjStrength, sizeof(fix), Num_total_object_types, fp );
-
-fprintf(tfile,"Num_total_object_types = %d, ObjType array = %d, ObjId array = %d, ObjStrength array = %d\n",Num_total_object_types,Num_total_object_types,Num_total_object_types,sizeof(fix)*Num_total_object_types);
 
 	fwrite( &First_multi_bitmap_num, sizeof(int), 1, fp );
 

@@ -1,4 +1,4 @@
-/* $Id: editor.h,v 1.7 2005-01-25 20:46:55 schaffner Exp $ */
+/* $Id: editor.h,v 1.8 2005-03-31 09:38:53 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -601,8 +601,9 @@ int rotate_segment_new(vms_angvec *pbh);
 int alloc_vert();
 void free_vert(int vert_num);
 
-// The current robot type declared in eglobal.c
-extern int Cur_robot_type;
+// The current object type and id declared in eglobal.c
+extern short Cur_object_type;
+extern short Cur_object_id;
 
 //	From med.c
 extern int DisplayCurrentRobotType(void);
@@ -638,9 +639,6 @@ extern void med_point_2_vec(grs_canvas *canv,vms_vector *v,short sx,short sy);
 
 //shutdown ui on the editor screen
 void close_editor_screen(void);
-
-//	From eobject.c
-extern int place_object(segment *segp, vms_vector *object_pos, int object_type);
 
 // from ksegsize.c
 extern void med_extract_up_vector_from_segment_side(segment *sp, int sidenum, vms_vector *vp);

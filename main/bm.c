@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.48 2005-03-16 23:06:14 btb Exp $ */
+/* $Id: bm.c,v 1.49 2005-03-31 09:38:53 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -62,10 +62,7 @@ ubyte Sounds[MAX_SOUNDS];
 ubyte AltSounds[MAX_SOUNDS];
 
 #ifdef EDITOR
-int Num_total_object_types;
-sbyte ObjType[MAX_OBJTYPE];
-sbyte ObjId[MAX_OBJTYPE];
-fix	ObjStrength[MAX_OBJTYPE];
+int Num_object_subtypes = 1;
 #endif
 
 //for each model, a model number for dying & dead variants, or -1 if none

@@ -1,4 +1,4 @@
-/* $Id: bm.h,v 1.14 2005-03-16 23:06:14 btb Exp $ */
+/* $Id: bm.h,v 1.15 2005-03-31 09:38:53 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -77,21 +77,7 @@ void bm_close();
 // Initializes the Texture[] array of bmd_bitmap structures.
 void init_textures();
 
-#define OL_ROBOT            1
-#define OL_HOSTAGE          2
-#define OL_POWERUP          3
-#define OL_CONTROL_CENTER   4
-#define OL_PLAYER           5
-#define OL_CLUTTER          6   //some sort of misc object
-#define OL_EXIT             7   //the exit model for external scenes
-#define OL_WEAPON           8   //a weapon that can be placed
-
-#define MAX_OBJTYPE         140
-
-extern int  Num_total_object_types;     // Total number of object types, including robots, hostages, powerups, control centers, faces
-extern sbyte ObjType[MAX_OBJTYPE];      // Type of an object, such as Robot, eg if ObjType[11] == OL_ROBOT, then object #11 is a robot
-extern sbyte ObjId[MAX_OBJTYPE];        // ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
-extern fix  ObjStrength[MAX_OBJTYPE];   // initial strength of each object
+extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
 
 #define MAX_OBJ_BITMAPS     610
 

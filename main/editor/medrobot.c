@@ -1,4 +1,4 @@
-/* $Id: medrobot.c,v 1.5 2005-01-24 22:26:06 schaffner Exp $ */
+/* $Id: medrobot.c,v 1.6 2005-03-31 09:38:53 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: medrobot.c,v 1.5 2005-01-24 22:26:06 schaffner Exp $";
+static char rcsid[] = "$Id: medrobot.c,v 1.6 2005-03-31 09:38:53 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -79,38 +79,6 @@ static int old_object;
 static fix Time;
 static vms_angvec angles={0,0,0}, goody_angles={0,0,0};
 
-//-------------------------------------------------------------------------
-// Given a pointer to an object, returns a number that cooresponds to the
-// object id as used in the objpage stuff.
-//-------------------------------------------------------------------------
-int get_object_id( object * obj )
-{
- 	int i;
-	int goal_type;
-
-	switch( obj->type )	{
-	case OBJ_PLAYER: goal_type=OL_PLAYER; break;
-	case OBJ_ROBOT: goal_type=OL_ROBOT; break;
-	case OBJ_POWERUP: goal_type=OL_POWERUP; break;
-	case OBJ_CNTRLCEN: goal_type=OL_CONTROL_CENTER; break;
-	case OBJ_HOSTAGE: goal_type=OL_HOSTAGE; break;
-	case OBJ_CLUTTER: goal_type=OL_CLUTTER; break;
-	default:
-		Int3();	// Invalid object type
-		return -1;
-	}
-
-	// Find first object with the same type as this
-	// one and then add the object id to that to find
-	// the offset into the list.
-
-	for (i=0; i< Num_total_object_types; i++ )	{
-		if ( ObjType[i]==goal_type)
-			return obj->id + i;
-	}
-	return -1;
-}
-
 void call_init_ai_object(object *objp, int behavior)
 {
 	int	hide_segment;
@@ -166,7 +134,7 @@ int RobotNextType()
 			obj->shields = Robot_info[obj->id].strength;
 			call_init_ai_object(obj, AIB_NORMAL);
 
-			Cur_robot_type = obj->id;
+			Cur_object_id = obj->id;
 		}
 	}
 	Update_flags |= UF_WORLD_CHANGED;
@@ -195,7 +163,7 @@ int RobotPrevType()
 			obj->shields = Robot_info[obj->id].strength;
 			call_init_ai_object(obj, AIB_NORMAL);
 
-			Cur_robot_type = obj->id;
+			Cur_object_id = obj->id;
 		}
 	}
 	Update_flags |= UF_WORLD_CHANGED;
@@ -472,10 +440,11 @@ int LocalObjectPlaceObject(void)
 
 	Cur_goody_count = 0;
 
-	while (ObjType[Cur_robot_type] != OL_ROBOT) { // && (ObjType[Cur_robot_type] != OL_POWERUP)) {
-		Cur_robot_type++;
-		if (Cur_robot_type >= N_robot_types)
-			Cur_robot_type = 0;
+	if (Cur_object_type != OBJ_ROBOT)
+	{
+		Cur_object_type = OBJ_ROBOT;
+		Cur_object_id = 3;	// class 1 drone
+		Num_object_subtypes = N_robot_types;
 	}
 
 	rval = ObjectPlaceObject();
@@ -642,11 +611,11 @@ void do_robot_window()
 	// Redraw the object in the little 64x64 box
 	//------------------------------------------------------------
 	if (Cur_object_index > -1 )	{
-		int id;
+		object *obj = &Objects[Cur_object_index];
+
 		gr_set_current_canvas( RobotViewBox->canvas );
-		id = get_object_id(&Objects[Cur_object_index]);
-		if ( id > -1 )	
-			draw_robot_picture(id, &angles, -1 );
+		if ( obj->id > -1 )	
+			draw_object_picture(obj->id, &angles, obj->type );
 		else
 			gr_clear_canvas( CGREY );
 		angles.h += fixmul(0x1000, DeltaTime );
@@ -662,21 +631,10 @@ void do_robot_window()
 	// Redraw the contained object in the other little box
 	//------------------------------------------------------------
 	if ((Cur_object_index > -1 ) && (Cur_goody_count > 0))	{
-		int id;
-
 		gr_set_current_canvas( ContainsViewBox->canvas );
-		id = Cur_goody_id;
-		if ( id > -1 )	 {
-                        int ol_type=0;
-			if (Cur_goody_type == OBJ_ROBOT)
-				ol_type = OL_ROBOT;
-			else if (Cur_goody_type == OBJ_POWERUP)
-				ol_type = OL_POWERUP;
-			else
-				Int3();	//	Error?  Unknown goody type!
-
-			draw_robot_picture(id, &goody_angles, ol_type );
-		} else
+		if ( Cur_goody_id > -1 )
+			draw_object_picture(Cur_goody_id, &goody_angles, Cur_goody_type);
+		else
 			gr_clear_canvas( CGREY );
 		goody_angles.h += fixmul(0x1000, DeltaTime );
 	} else {
