@@ -1,4 +1,4 @@
-/* $Id: polyobj.c,v 1.9 2003-01-02 23:31:50 btb Exp $ */
+/* $Id: polyobj.c,v 1.10 2003-01-03 00:56:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.9 2003-01-02 23:31:50 btb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.10 2003-01-03 00:56:33 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -38,6 +38,7 @@ static char rcsid[] = "$Id: polyobj.c,v 1.9 2003-01-02 23:31:50 btb Exp $";
 #include "mono.h"
 #include "u_mem.h"
 #include "args.h"
+#include "byteswap.h"
 
 #ifndef DRIVE
 #include "texmap.h"
@@ -70,6 +71,37 @@ int	Pof_addr;
 
 #define	MODEL_BUF_SIZE	32768
 
+#ifdef WORDS_BIGENDIAN
+void short_swap(short *s)
+{
+	*s = SWAPSHORT(*s);
+}
+
+void fix_swap(fix *f)
+{
+	*f = (fix)SWAPINT((int)*f);
+}
+
+void fixang_swap(fixang *f)
+{
+	*f = (fixang)SWAPSHORT((short)*f);
+}
+
+void vms_vector_swap(vms_vector *v)
+{
+	fix_swap(&v->x);
+	fix_swap(&v->y);
+	fix_swap(&v->z);
+}
+
+void vms_angvec_swap(vms_angvec *v)
+{
+	fixang_swap(&v->p);
+	fixang_swap(&v->b);
+	fixang_swap(&v->h);
+}
+#endif
+
 void _pof_cfseek(int len,int type)
 {
 	switch (type) {
@@ -93,7 +125,7 @@ int pof_read_int(ubyte *bufp)
 
 	i = *((int *) &bufp[Pof_addr]);
 	Pof_addr += 4;
-	return i;
+	return INTEL_INT(i);
 
 //	if (cfread(&i,sizeof(i),1,f) != 1)
 //		Error("Unexpected end-of-file while reading object");
@@ -125,7 +157,7 @@ short pof_read_short(ubyte *bufp)
 
 	s = *((short *) &bufp[Pof_addr]);
 	Pof_addr += 2;
-	return s;
+	return INTEL_SHORT(s);
 //	if (cfread(&s,sizeof(s),1,f) != 1)
 //		Error("Unexpected end-of-file while reading object");
 //
@@ -151,7 +183,26 @@ void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 
 	memcpy(vecs, &bufp[Pof_addr], n*sizeof(*vecs));
 	Pof_addr += n*sizeof(*vecs);
-	
+
+#ifdef WORDS_BIGENDIAN
+	while (n > 0)
+		vms_vector_swap(&vecs[--n]);
+#endif
+
+	if (Pof_addr > MODEL_BUF_SIZE)
+		Int3();
+}
+
+void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
+{
+	memcpy(angs, &bufp[Pof_addr], n*sizeof(*angs));
+	Pof_addr += n*sizeof(*angs);
+
+#ifdef WORDS_BIGENDIAN
+	while (n > 0)
+		vms_angvec_swap(&angs[--n]);
+#endif
+
 	if (Pof_addr > MODEL_BUF_SIZE)
 		Int3();
 }
@@ -184,9 +235,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	int anim_flag = 0;
 	ubyte *model_buf;
 
-#ifdef WORDS_BIGENDIAN
-	Error("read_model_file(): This function is not bigendian-friendly!\n");
-#endif
 	model_buf = (ubyte *)d_malloc( MODEL_BUF_SIZE * sizeof(ubyte) );
 	if (!model_buf)
 		Error("Can't allocate space to read model %s\n", filename);
@@ -214,7 +262,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 		printf( "bspgen -c1" );
 
 	while (new_pof_read_int(id,model_buf) == 1) {
-
+		id = INTEL_INT(id);
 		//id  = pof_read_int(model_buf);
 		len = pof_read_int(model_buf);
 		next_chunk = Pof_addr + len;
@@ -329,7 +377,8 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 
 					for (m=0;m<pm->n_models;m++)
 						for (f=0;f<n_frames;f++)
-							pof_cfread(&anim_angs[f][m],1,sizeof(vms_angvec),model_buf);
+							pof_read_angs(&anim_angs[f][m], 1, model_buf);
+
 
 					robot_set_angles(r,pm,anim_angs);
 				
@@ -392,6 +441,14 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	
 	d_free(model_buf);
 
+#ifdef WORDS_NEED_ALIGNMENT
+	align_polygon_model_data(pm);
+#endif
+#ifdef WORDS_BIGENDIAN
+	swap_polygon_model_data(pm->model_data);
+#endif
+	//verify(pm->model_data);
+
 	return pm;
 }
 
@@ -431,7 +488,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
 	while (new_pof_read_int(id,model_buf) == 1) {
-
+		id = INTEL_INT(id);
 		//id  = pof_read_int(model_buf);
 		len = pof_read_int(model_buf);
 
