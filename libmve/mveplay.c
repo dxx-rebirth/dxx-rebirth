@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.11 2003-04-30 20:05:52 btb Exp $ */
+/* $Id: mveplay.c,v 1.12 2003-06-02 01:58:10 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -121,6 +121,13 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
 /*************************
  * timer handlers
  *************************/
+
+#if !HAVE_STRUCT_TIMEVAL
+struct timeval {
+	long    tv_sec;
+	long    tv_usec;
+};
+#endif
 
 /*
  * timer variables
