@@ -2,7 +2,7 @@ EXTRA_SUBDIRS = include d3dframe
 
 noinst_LIBRARIES = libarch_win32.a
 
-INCLUDES = -I$(top_srcdir)/arch/include -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(srcdir)/include
+INCLUDES = -I$(top_srcdir)/arch/include -I$(top_srcdir)/include -I$(top_srcdir)/main -I$(srcdir)/include
 
 if USE_NETWORK
 NETWORK_SRCS = winnet.c ipx_win.c \
