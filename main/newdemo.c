@@ -1,4 +1,4 @@
-/* $Id: newdemo.c,v 1.11 2003-03-17 07:59:11 btb Exp $ */
+/* $Id: newdemo.c,v 1.12 2003-03-18 02:31:16 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,6 +17,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Code to make a complete demo playback system.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.11  2003/03/17 07:59:11  btb
+ * also look in shared data dir for demos
+ *
  * Revision 1.10  2003/03/17 07:10:21  btb
  * comments/formatting
  *
@@ -887,11 +890,7 @@ byte RenderingWasRecorded[32];
 #define DEMO_VERSION            15      // last D1 version was 13
 #define DEMO_GAME_TYPE          3       // 1 was shareware, 2 registered
 
-#ifndef MACINTOSH
-#define DEMO_FILENAME           "demos/tmpdemo.dem"
-#else
-#define DEMO_FILENAME           ":Demos:tmpdemo.dem"
-#endif
+#define DEMO_FILENAME           DEMO_DIR "tmpdemo.dem"
 
 #define DEMO_MAX_LEVELS         29
 
