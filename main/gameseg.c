@@ -1,4 +1,4 @@
-/* $Id: gameseg.c,v 1.4 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: gameseg.c,v 1.5 2004-04-14 08:54:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -249,7 +249,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.4 2003-10-04 03:14:47 btb Exp $";
+static char rcsid[] = "$Id: gameseg.c,v 1.5 2004-04-14 08:54:35 btb Exp $";
 #endif
 
 // How far a point can be from a plane, and still be "in" the plane
@@ -2065,9 +2065,9 @@ void pick_random_point_in_seg(vms_vector *new_pos, int segnum)
 	vms_vector	vec2;
 
 	compute_segment_center(new_pos, &Segments[segnum]);
-	vnum = (rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
+	vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
 	vm_vec_sub(&vec2, &Vertices[Segments[segnum].verts[vnum]], new_pos);
-	vm_vec_scale(&vec2, rand());			//	rand() always in 0..1/2
+	vm_vec_scale(&vec2, d_rand());          // d_rand() always in 0..1/2
 	vm_vec_add2(new_pos, &vec2);
 }
 
