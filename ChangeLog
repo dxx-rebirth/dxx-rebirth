@@ -1,5 +1,8 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/ogl.c: don't try to use paletted textures with
+	mipmapping since gluBuild2DMipmaps can't handle it (d1x r1.39)
+
 	* arch/ogl/gr.c, arch/ogl/ogl.c, include/loadgl.h,
 	include/ogl_init.h: add ogl paletted texture support (d1x r1.36,
 	r1.38, r1.5, r1.24)

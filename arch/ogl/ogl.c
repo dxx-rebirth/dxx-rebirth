@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.26 2004-05-22 08:43:02 btb Exp $ */
+/* $Id: ogl.c,v 1.27 2004-05-22 08:47:14 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -1598,7 +1598,9 @@ void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 	tex->v=(float)tex->h/(float)tex->th;
 
 #ifdef GL_EXT_paletted_texture
-	if (ogl_shared_palette_ok && tex->format == GL_RGBA)
+	if (ogl_shared_palette_ok && tex->format == GL_RGBA &&
+		!(tex->wantmip && GL_needmipmaps) // gluBuild2DMipmaps doesn't support paletted textures.. this could be worked around be generating our own mipmaps, but thats too much trouble at the moment.
+		)
 	{
 		// descent makes palette entries 254 and 255 both do double duty, depending upon the setting of BM_FLAG_SUPER_TRANSPARENT and BM_FLAG_TRANSPARENT.
 		// So if the texture doesn't have BM_FLAG_TRANSPARENT set, yet uses index 255, we cannot use the palette for it since that color would be incorrect. (this case is much less common than transparent textures, hence why we don't exclude those instead.)
