@@ -29,7 +29,7 @@ typedef struct control_center_triggers {
 	short   num_links;
 	short   seg[MAX_CONTROLCEN_LINKS];
 	short   side[MAX_CONTROLCEN_LINKS];
-} control_center_triggers;
+} __pack__ control_center_triggers;
 
 extern control_center_triggers ControlCenterTriggers;
 
@@ -38,7 +38,7 @@ typedef struct reactor {
 	int	n_guns;
 	vms_vector gun_points[MAX_CONTROLCEN_GUNS];
 	vms_vector gun_dirs[MAX_CONTROLCEN_GUNS];
-} reactor;
+} __pack__ reactor;
 
 #define MAX_REACTORS 7
 
@@ -74,14 +74,19 @@ extern int Control_center_destroyed,Countdown_seconds_left;
 extern int Base_control_center_explosion_time;		//how long to blow up on insane
 extern int Reactor_strength;
 
+#ifdef FAST_FILE_IO
+#define reactor_read_n(r, n, fp) cfread(r, sizeof(reactor), n, fp)
+#define control_center_triggers_read(cct, fp) cfread(cct, sizeof(control_center_triggers), 1, fp)
+#else
 /*
- * reads a reactor structure from a CFILE
+ * reads n reactor structs from a CFILE
  */
-extern void reactor_read(reactor *r, CFILE *fp);
+extern int reactor_read_n(reactor *r, int n, CFILE *fp);
 
 /*
  * reads a control_center_triggers structure from a CFILE
  */
 extern void control_center_triggers_read(control_center_triggers *cct, CFILE *fp);
+#endif
 
 #endif

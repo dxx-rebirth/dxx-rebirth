@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: fuelcen.c,v 1.4 2002-07-27 22:39:57 btb Exp $";
+static char rcsid[] = "$Id: fuelcen.c,v 1.5 2002-08-06 01:31:07 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1128,6 +1128,7 @@ void fuelcen_check_for_hoard_goal(segment *segp)
 
 #endif
 
+#ifndef FAST_FILE_IO
 /*
  * reads an old_matcen_info structure from a CFILE
  */
@@ -1152,3 +1153,4 @@ void matcen_info_read(matcen_info *mi, CFILE *fp)
 	mi->segnum = cfile_read_short(fp);
 	mi->fuelcen_num = cfile_read_short(fp);
 }
+#endif

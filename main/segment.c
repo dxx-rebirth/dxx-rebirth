@@ -1,4 +1,4 @@
-/* $Id: segment.c,v 1.1 2002-07-27 22:39:57 btb Exp $ */
+/* $Id: segment.c,v 1.2 2002-08-06 01:31:07 btb Exp $ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
@@ -8,9 +8,10 @@
 #include "cfile.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: segment.c,v 1.1 2002-07-27 22:39:57 btb Exp $";
+static char rcsid[] = "$Id: segment.c,v 1.2 2002-08-06 01:31:07 btb Exp $";
 #endif
 
+#ifndef FAST_FILE_IO
 /*
  * reads a segment2 structure from a CFILE
  */
@@ -43,8 +44,9 @@ void delta_light_read(delta_light *dl, CFILE *fp)
  */
 void dl_index_read(dl_index *di, CFILE *fp)
 {
-	di->segnum = cfile_read_short(fp);					
+	di->segnum = cfile_read_short(fp);
 	di->sidenum = cfile_read_byte(fp);
 	di->count = cfile_read_byte(fp);
 	di->index = cfile_read_short(fp);
 }
+#endif

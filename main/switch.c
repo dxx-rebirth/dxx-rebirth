@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: switch.c,v 1.6 2002-07-27 04:39:23 btb Exp $";
+static char rcsid[] = "$Id: switch.c,v 1.7 2002-08-06 01:31:07 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -645,6 +645,7 @@ void triggers_frame_process()
 			Triggers[i].time -= FrameTime;
 }
 
+#ifndef FAST_FILE_IO
 /*
  * reads a v29_trigger structure from a CFILE
  */
@@ -700,3 +701,4 @@ extern void trigger_read(trigger *t, CFILE *fp)
 	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->side[i] = cfile_read_short(fp);
 }
+#endif

@@ -57,7 +57,7 @@ typedef struct v29_trigger {
 	short   num_links;
 	short   seg[MAX_WALLS_PER_LINK];
 	short   side[MAX_WALLS_PER_LINK];
-} v29_trigger;
+} __pack__ v29_trigger;
 
 typedef struct v30_trigger {
 	short   flags;
@@ -67,7 +67,7 @@ typedef struct v30_trigger {
 	fix     time;
 	short   seg[MAX_WALLS_PER_LINK];
 	short   side[MAX_WALLS_PER_LINK];
-} v30_trigger;
+} __pack__ v30_trigger;
 
 //flags for V30 & below triggers
 #define TRIGGER_CONTROL_DOORS      1    // Control Trigger
@@ -96,7 +96,7 @@ typedef struct trigger {
 	fix		time;
 	short 	seg[MAX_WALLS_PER_LINK];
 	short		side[MAX_WALLS_PER_LINK];
-} trigger;
+} __pack__ trigger;
 
 extern trigger Triggers[MAX_TRIGGERS];
 
@@ -107,6 +107,11 @@ extern void check_trigger(segment *seg, short side, short objnum,int shot);
 extern int check_trigger_sub(int trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
 
+#ifdef FAST_FILE_IO
+#define v29_trigger_read(t, fp) cfread(t, sizeof(v29_trigger), 1, fp)
+#define v30_trigger_read(t, fp) cfread(t, sizeof(v30_trigger), 1, fp)
+#define trigger_read(t, fp) cfread(t, sizeof(trigger), 1, fp)
+#else
 /*
  * reads a v29_trigger structure from a CFILE
  */
@@ -121,5 +126,6 @@ extern void v30_trigger_read(v30_trigger *t, CFILE *fp);
  * reads a trigger structure from a CFILE
  */
 extern void trigger_read(trigger *t, CFILE *fp);
+#endif
 
 #endif

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.5 2002-07-27 04:39:23 btb Exp $";
+static char rcsid[] = "$Id: cntrlcen.c,v 1.6 2002-08-06 01:31:07 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -507,19 +507,23 @@ void special_reactor_stuff(void)
 	}
 }
 
+#ifndef FAST_FILE_IO
 /*
- * reads a reactor structure from a CFILE
+ * reads n reactor structs from a CFILE
  */
-extern void reactor_read(reactor *r, CFILE *fp)
+extern int reactor_read_n(reactor *r, int n, CFILE *fp)
 {
-	int i;
+	int i, j;
 
-	r->model_num = cfile_read_int(fp);
-	r->n_guns = cfile_read_int(fp);
-	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		cfile_read_vector(&(r->gun_points[i]), fp);
-	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		cfile_read_vector(&(r->gun_dirs[i]), fp);
+	for (i = 0, i < n; i++) {
+		r[i].model_num = cfile_read_int(fp);
+		r[i].n_guns = cfile_read_int(fp);
+		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
+			cfile_read_vector(&(r[i].gun_points[j]), fp);
+		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
+			cfile_read_vector(&(r[i].gun_dirs[j]), fp);
+	}
+	return i;
 }
 
 /*
@@ -530,8 +534,9 @@ extern void control_center_triggers_read(control_center_triggers *cct, CFILE *fp
 	int i;
 
 	cct->num_links = cfile_read_short(fp);
-	for (i=0; i<MAX_CONTROLCEN_LINKS; i++ )
-		cct->seg[i] = cfile_read_short( fp );
-	for (i=0; i<MAX_CONTROLCEN_LINKS; i++ )
-		cct->side[i] = cfile_read_short( fp );
+	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
+		cct->seg[i] = cfile_read_short(fp);
+	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
+		cct->side[i] = cfile_read_short(fp);
 }
+#endif

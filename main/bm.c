@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.12 2002-08-02 04:57:19 btb Exp $ */
+/* $Id: bm.c,v 1.13 2002-08-06 01:31:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -323,8 +323,7 @@ void bm_read_all(CFILE * fp, int hamfile_version)
 	First_multi_bitmap_num = cfile_read_int(fp);
 
 	Num_reactors = cfile_read_int(fp);
-	for (i = 0; i < Num_reactors; i++)
-		reactor_read(&Reactors[i], fp);
+	reactor_read_n(Reactors, Num_reactors, fp);
 
 	Marker_model_num = cfile_read_int(fp);
 
