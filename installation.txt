@@ -7,13 +7,31 @@ Base Installation
 -----------------
 
 The base install depends on which version of the datafiles you have.
-d2x currently supports the full version, the OEM version (Destination:
-Quartzon), the PC shareware version, and the Mac shareware version.
+d2x currently supports just about any version of Descent II, and can
+use almost any version of Descent I as an add-on.
+
 Place these files into your shared data dir:
 
-Full Version:
+Full Version (PC or Mac):
+descent2.ham
+descent2.hog
+descent2.s11
+descent2.s22
 alien1.pig
 alien2.pig
+fire.pig
+groupa.pig
+ice.pig
+water.pig
+
+If you want movies, place the .mvl files in your shared data dir:
+intro-h.mvl and/or intro-l.mvl
+other-h.mvl and/or other-l.mvl
+robots-h.mvl and/or robots-l.mvl
+The mvl files from the Mac version will not work.  They are in a
+different format!
+
+OEM Version (Destination: Quartzon):
 descent2.ham
 descent2.hog
 descent2.s11
@@ -23,15 +41,10 @@ groupa.pig
 ice.pig
 water.pig
 
-OEM Version:
-descent2.ham
-descent2.hog
-descent2.s11
-descent2.s22
-fire.pig
-groupa.pig
-ice.pig
-water.pig
+If you want movies, place the .mvl files in your shared data dir:
+intro-l.mvl
+other-l.mvl
+robots-h.mvl and/or robots-l.mvl
 
 PC Shareware:
 d2demo.ham
@@ -46,11 +59,12 @@ descent2.s11
 exit.ham
 d2.mn2
 
+
 Mission Installation
 --------------------
 
-d2x should be able to play any missions for Descent 1 or Descent 2,
-including the original Descent 1 mission (Descent: First Strike)
+d2x should be able to play any missions for Descent I or Descent II,
+including the original Descent I mission (Descent: First Strike)
 
 In order to play any add-on missions, you need to have a full set of
 textures.  That is, your base installation above must be the "Full
@@ -61,27 +75,29 @@ To install an additional mission, just place the .hog and the .msn or
 inside the system-wide data dir, or your $HOME/.d2x dir.  d2x will
 look in both places.
 
-To install the original Descent 1 mission:
+To install the original Descent I mission:
 Place descent.hog into your data dir.
 
 
 Vertigo Installation
 --------------------
 
-Vertigo consists of both game enhancements (codenamed HOARD) and an
+Vertigo consists of both netgame enhancements (codenamed HOARD) and an
 additional mission.  To install HOARD, place hoard.ham in your data
 dir.  To play the vertigo mission, place d2x.hog and d2x.mn2 in your
 mission dir.
+If you want the movies that go with the vertigo mission, place
+d2x-h.mvl and/or d2x-l.mvl in your data dir.
 
 
 Notes
 -----
 
-In unix, the filenames must be in _lower case_. It's important.
+In unix, all filenames must be in _lower case_. It's important.
 
 It is not necessary to run the D2 setup program to extract the files
 you need, just use unarj to extract the files from descent2.sow on the
 cd.
 
-If you use the mac data files, and they are not auto-detected (colors
-come out wrong), use the -macdata switch.
+If you use the mac demo data files, and they are not auto-detected
+(colors come out wrong), use the -macdata switch.

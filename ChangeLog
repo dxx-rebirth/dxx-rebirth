@@ -1,5 +1,7 @@
 2003-03-13  Bradley Bell  <btb@icculus.org>
 
+	* TODO, installation.txt: updated some documentation
+
 	* main/gamecntl.c, main/menu.c, main/menu.h: added "d2x options"
 	menu, with maxfps option
 

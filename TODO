@@ -1,6 +1,6 @@
+See bugzilla for a more complete list of issues:
+https://bugzilla.icculus.org/buglist.cgi?product=d2x&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED
+
 * Rearrange build system
-* Glitches with mission briefings
-* D1 mission briefings (render spinning robots, etc.)
-* bigendian networking (joining)
 * use autoconf macros to replace junk in pstypes.h
 * use unarj (or code) to extract necessary files from the CD as needed.
