@@ -1,5 +1,7 @@
 2005-02-11  Bradley Bell  <btb@icculus.org>
 
+	* arch/ogl/Makefile.am: added internal.h to dist
+
 	* Makefile.am, arch/win32/Makefile.am: remove old files from dist
 
 2005-01-25  Chris Taylor  <c.taylor@student.curtin.edu.au>

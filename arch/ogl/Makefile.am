@@ -4,6 +4,6 @@ INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/include -I$(top_srcdir)/arch/include 
 
 libarch_ogl_a_SOURCES = gr.c ogl.c sdlgl.c
 
-# Not currently used
 EXTRA_DIST = \
+internal.h \
 wgl.c glx.c
