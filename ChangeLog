@@ -1,3 +1,8 @@
+2004-05-20  Matthew Mueller  <donut@dakotacom.net>
+
+	* arch/win32/key.c: win32: fixed space key not working in messages
+	(d1x r1.2)
+
 2004-05-20  Bradley Bell  <btb@icculus.org>
 
 	* texmap/Makefile.am, texmap/scanline.c: don't need texmappers for
