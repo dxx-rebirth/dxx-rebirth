@@ -1,3 +1,7 @@
+2004-12-19  Bradley Bell  <btb@icculus.org>
+
+	* ui/Makefile.am: fix ui Makefile.am
+
 2004-12-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* include/u_mem.h: prototype for strdup with MPW
@@ -104,9 +108,6 @@
 	ui/message.c ui/mouse.c ui/number.c ui/popup.c ui/radio.c
 	ui/scroll.c ui/ui.c ui/uidraw.c ui/userbox.c ui/window.c: include
 	conf.h in new editor files
-
-
-:
 
 2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
