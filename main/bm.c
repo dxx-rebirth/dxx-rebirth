@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/bm.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 02:15:55 $
+ * $Date: 2001-11-02 02:22:25 $
  *
  * Bitmap and palette loading functions.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/10/25 02:15:55  bradleyb
+ * conditionalize including multi.h and network.h, fix backslashes
+ *
  * Revision 1.4  2001/10/19 08:06:20  bradleyb
  * Partial application of linux/alpha patch.  Courtesy of Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
  *
@@ -505,7 +508,7 @@ void load_exit_models()
 #ifndef PORTABLE_LOADER
 	cfread( &Polygon_models[exit_modelnum], sizeof(polymodel), 1, exit_hamfile );
 	cfread( &Polygon_models[destroyed_exit_modelnum], sizeof(polymodel), 1, exit_hamfile );
-	#else
+#else
 	for (i = exit_modelnum; i <= destroyed_exit_modelnum; i++) {
 		Polygon_models[i].n_models = cfile_read_int(exit_hamfile);
 		Polygon_models[i].model_data_size = cfile_read_int(exit_hamfile);
@@ -535,7 +538,7 @@ void load_exit_models()
 	}
 	Polygon_models[exit_modelnum].first_texture = start_num;
 	Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
-	#endif
+#endif
 
 	Polygon_models[exit_modelnum].model_data = d_malloc(Polygon_models[exit_modelnum].model_data_size);
 	Assert( Polygon_models[exit_modelnum].model_data != NULL );
