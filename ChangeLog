@@ -1,7 +1,6 @@
-2004-12-19  Bradley Bell  <btb@icculus.org>
+2004-12-21  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
-	* include/strutil.h, misc/strutil.c, main/bmread.c: implement
-	removeext, use it in ds_load instead of splitpath
+	* main/bmread.c: don't duplicate the period in the filename
 
 2004-12-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
@@ -23,6 +22,9 @@
 2004-12-19  Bradley Bell  <btb@icculus.org>
 
 	* ui/Makefile.am: fix ui Makefile.am
+
+	* include/strutil.h, misc/strutil.c, main/bmread.c: implement
+	removeext, use it in ds_load instead of splitpath
 
 2004-12-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
