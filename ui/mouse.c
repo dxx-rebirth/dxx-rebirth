@@ -1,4 +1,4 @@
-/* $Id: mouse.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $ */
+/* $Id: mouse.c,v 1.6 2005-01-25 21:31:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: mouse.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $";
+static char rcsid[] = "$Id: mouse.c,v 1.6 2005-01-25 21:31:45 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -240,7 +240,7 @@ void ui_mouse_init()
 	w = grd_curscreen->sc_w;
 	h = grd_curscreen->sc_h;
 
-	mouse_set_limits( 0,0, w-1, h-1 );
+	//mouse_set_limits(0, 0, w - 1, h - 1);
 
 	Mouse.x = w/2;
 	Mouse.y = h/2;

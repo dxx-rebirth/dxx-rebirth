@@ -1,4 +1,4 @@
-/* $Id: popup.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: popup.c,v 1.5 2005-01-25 21:31:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: popup.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: popup.c,v 1.5 2005-01-25 21:31:45 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -112,7 +112,7 @@ int PopupMenu( int NumButtons, char * text[] )
 
 	wnd = ui_open_window( x, y, width, height, WIN_DIALOG );
 
-	mouse_set_pos( Mouse.x, Mouse.y );
+	//mouse_set_pos(Mouse.x, Mouse.y);
 
 	x = MENU_BORDER+3;
 	y = MENU_BORDER+3;

@@ -17,6 +17,8 @@
 	main/gamesave.c: s/128/PATH_MAX
 	* include/pstypes.h, main/newmenu.c: clean up path/file length macros
 	* ui/inputbox.c, ui/keypad.c: use unsigned char when comparing to > 127
+	* ui/mouse.c, file ui/popup.c, ui/window.c: comment out uses of
+	mouse_set_limits and mouse_set_pos (we don't want to limit user)
 	
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
