@@ -1,4 +1,4 @@
-/* $Id: error.h,v 1.10 2003-11-26 12:26:28 btb Exp $ */
+/* $Id: error.h,v 1.11 2004-08-06 21:28:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -82,9 +82,14 @@ void Int3();
 #ifndef NDEBUG		//macros for debugging
 
 #ifdef NO_ASM
+# if defined(__APPLE__) || defined(macintosh)
+extern void Debugger(void);	// Avoids some name clashes
+#  define Int3 Debugger
+# else
 //# define Int3() Error("int 3 %s:%i\n",__FILE__,__LINE__);
 //# define Int3() {volatile int a=0,b=1/a;}
-# define Int3() ((void)0)
+#  define Int3() ((void)0)
+# endif // Macintosh
 
 #else // NO_ASM
 

@@ -8,6 +8,8 @@
 
 	* include/mono.h: disable mprintf on carbon to avoid significant bloat
 
+	* include/error.h: on Mac OS 9 and X, define Int3 to be a Debugger
+
 2004-08-04 Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* include/ogl_init.h: Include glu.h on OS X, it is sometimes necessary
