@@ -1,4 +1,4 @@
-/* $Id: gamerend.c,v 1.14 2004-10-09 15:59:28 schaffner Exp $ */
+/* $Id: gamerend.c,v 1.15 2005-01-24 21:11:58 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.14 2004-10-09 15:59:28 schaffner Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.15 2005-01-24 21:11:58 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1720,11 +1720,6 @@ void update_cockpits(int force_redraw)
 {
 	//int x, y, w, h;
 
-	if (Cockpit_mode != last_drawn_cockpit[VR_current_page] || force_redraw )
-		last_drawn_cockpit[VR_current_page] = Cockpit_mode;
-	else
-		return;
-
 	//Redraw the on-screen cockpit bitmaps
 	if (VR_render_mode != VR_NONE )	return;
 
@@ -1793,6 +1788,11 @@ void update_cockpits(int force_redraw)
 	WINDOS (	dd_gr_set_current_canvas(&dd_VR_screen_pages[VR_current_page]),
 				gr_set_current_canvas(&VR_screen_pages[VR_current_page])
 	);
+
+	if (Cockpit_mode != last_drawn_cockpit[VR_current_page] || force_redraw )
+		last_drawn_cockpit[VR_current_page] = Cockpit_mode;
+	else
+		return;
 
 	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
 		init_gauges();
