@@ -1,6 +1,1157 @@
-2002-07-22 21:27  btb
+2003-02-12 09:15  btb
 
-	* main/mveplay.c: use SDL for timers and threads
+	* utilities/mvlextract.c: bigendian mvl support
+
+2003-02-12 09:14  btb
+
+	* main/mveplay.c: formatting, stuff
+
+2003-02-12 09:03  btb
+
+	* main/: Makefile.am, Makefile.mveplay: lotsa movie cleanups, added
+	truecolor mve support, standalone mveplayer
+
+2003-02-12 08:58  btb
+
+	* include/mve_audio.h, include/mvelib.h, main/decoder16.c,
+	main/decoder8.c, main/movie.c, main/mve_main.c, main/mvelib.c,
+	main/mveplay.c: lotsa movie cleanups, added truecolor mve support,
+	standalone mveplayer
+
+2003-01-22 00:51  btb
+
+	* include/: interp.h, interp.h: restore prototype for
+	swap_polygon_model_data
+
+2003-01-21 22:28  btb
+
+	* main/piggy.c: use memcpy to avoid alignment problem
+
+2003-01-21 19:32  btb
+
+	* compilerdefs.txt: updated some defs, added sunos/sparc
+
+2003-01-15 21:36  btb
+
+	* main/render.c, arch/ogl/ogl.c: use __sun__ for sunos
+
+2003-01-15 02:47  btb
+
+	* main/gamemine.c: attempting to support d1 shareware
+
+2003-01-15 02:46  btb
+
+	* compilerdefs.txt: update defs
+
+2003-01-15 02:44  btb
+
+	* main/mveplay.c: fix several bugs, comments, formatting. courtesy
+	of David Costanzo <david_costanzo@yahoo.com>
+
+2003-01-15 02:42  btb
+
+	* arch/ogl/sdlgl.c, arch/sdl/digi.c, arch/sdl/event.c,
+	arch/sdl/gr.c, arch/sdl/init.c, arch/sdl/joy.c, arch/sdl/key.c,
+	arch/sdl/mouse.c, arch/sdl/rbaudio.c, arch/sdl/timer.c,
+	include/error.h, main/gamecntl.c, main/inferno.c: changed path for
+	SDL headers
+
+2003-01-15 02:40  btb
+
+	* arch/: ogl/glx.c, ogl/gr.c, ogl/ogl.c, ogl/wgl.c, sdl/joydefs.c:
+	formatting, comments
+
+2003-01-11 02:58  btb
+
+	* main/: mission.c, mission.h: attempt to support d1 for mac
+	mission
+
+2003-01-11 02:57  btb
+
+	* arch/sdl/joy.c, main/mvelib.c, main/titles.c: gcc 3.2 warnings
+
+2003-01-11 01:11  btb
+
+	* main/object.h: foo
+
+2003-01-09 00:57  btb
+
+	* main/movie.c: use ifdef around gr_toggle_fullscreen
+
+2003-01-07 03:10  btb
+
+	* Makefile.am, descent.msn, installation.txt, main/mission.c,
+	main/mission.h: don't need .msn file for descent.hog anymore
+
+2003-01-07 00:14  btb
+
+	* README: stuff
+
+2003-01-06 23:10  btb
+
+	* main/mission.h, main/mission.c: comments
+
+2003-01-06 22:42  btb
+
+	* README, TODO, cvshowto.txt, installation.txt, debian/copyright:
+	documentations
+
+2003-01-03 01:11  btb
+
+	* utilities/: txb2txt.c, txt2txb.c: remove old files
+
+2003-01-03 00:57  btb
+
+	* 3d/interp.c, include/byteswap.h, main/gamemine.c: formatting
+
+2003-01-03 00:56  btb
+
+	* main/polyobj.c: attempt to make read_model_file
+	bigendian-friendly
+
+2003-01-03 00:55  btb
+
+	* main/menu.c: move vertigo text
+
+2003-01-02 23:31  btb
+
+	* 3d/interp.c, include/interp.h, main/morph.c, main/polyobj.c,
+	main/polyobj.h: cleanup alignment changes
+
+2003-01-02 23:13  btb
+
+	* NEWS, 3d/interp.c, include/3d.h, include/interp.h,
+	include/pstypes.h, main/Makefile.am, main/bm.c, main/collide.c,
+	main/object.h: fix alignment issues on sparc
+
+2003-01-02 21:55  btb
+
+	* cvshowto.txt: update cvs info
+
+2003-01-02 21:43  btb
+
+	* NEWS: news
+
+2003-01-02 21:32  btb
+
+	* 2d/rle.c: make rle_swap handle RLE_BIG
+
+2003-01-01 01:02  btb
+
+	* main/render.c: workaround solaris qsort bug
+
+2003-01-01 00:56  btb
+
+	* arch/linux/linuxnet.c, arch/linux/ukali.c,
+	arch/linux/include/ukali.h, main/inferno.c: enabled kali
+
+2003-01-01 00:55  btb
+
+	* arch/linux/Makefile.am: enabled linux joystick, kali
+
+2003-01-01 00:55  btb
+
+	* configure.ac, arch/linux/joystick.c, arch/sdl/Makefile.am,
+	arch/sdl/event.c: enabled linux joystick
+
+2002-12-31 23:20  btb
+
+	* main/gamemine.c: simplified warning msg
+
+2002-12-31 23:19  btb
+
+	* NEWS, TODO, main/multi.c, main/netmisc.c: comments/whitespace
+
+2002-12-31 22:26  btb
+
+	* main/render.h: fix compiler warning
+
+2002-12-31 21:51  btb
+
+	* 2d/rle.c, main/inferno.c, main/piggy.c: fixed rle_swap leaks,
+	thanks to martin schaffner
+
+2002-12-24 06:09  btb
+
+	* main/mission.c: fixes an infinite loop which was caused by d2x
+	thinking d2demo was a descent 1 mission
+
+2002-12-24 05:49  btb
+
+	* arch/ogl/ogl.c, main/render.c: fix compiler warnings, courtesy of
+	maschaffner@gmx.ch
+
+2002-12-24 05:30  btb
+
+	* main/render.c: comments
+
+2002-10-30 22:04  btb
+
+	* main/inferno.c: add help for -hogdir option
+
+2002-10-30 22:02  btb
+
+	* main/inferno.c: added -hogdir option
+
+2002-10-28 21:28  btb
+
+	* main/: inferno.c, menu.c: enabled Vertigo displays
+
+2002-10-28 21:13  btb
+
+	* include/3d.h: typo
+
+2002-10-28 20:57  btb
+
+	* 3d/interp.c, include/3d.h, include/byteswap.h, main/bm.c,
+	main/netmisc.c, main/network.c: simplify and eliminate redundant
+	swap macros. maschaffner@gmx.ch and btb
+
+2002-10-28 20:12  btb
+
+	* maths/fixc.c: fix infinite loop in quad_sqrt. courtesy of Martin
+	Schaffner <maschaffner@gmx.ch>
+
+2002-10-28 19:49  btb
+
+	* 3d/points.c, include/maths.h, include/pstypes.h, maths/fixc.c,
+	maths/vecmat.c: sparc/sunos support: rename quad to quadint.
+	courtesy of Martin Schaffner <maschaffner@gmx.ch>
+
+2002-10-12 03:09  btb
+
+	* 2d/2dsline.c: handle BM_OGL in gr_scanline()
+
+2002-10-11 05:14  btb
+
+	* main/hud.c: make hud_message work correctly
+
+2002-10-11 03:37  btb
+
+	* 2d/palette.c, arch/sdl/gr.c, include/palette.h, main/inferno.c:
+	enable -nofade
+
+2002-10-11 00:36  btb
+
+	* main/network.c: formatting, small fixes
+
+2002-10-10 20:08  btb
+
+	* main/netmisc.h: no swap_object for little-endian
+
+2002-10-10 19:40  btb
+
+	* main/: netmisc.h, network.c: use macros to simplify network
+	endian conversion
+
+2002-10-10 19:17  btb
+
+	* main/piggy.c: disable autodetect of mac pig (use --enable-macdata
+	for now)
+
+2002-10-10 19:16  btb
+
+	* main/inferno.c: enable loading screen for mac shareware with
+	-nohires
+
+2002-10-10 19:12  btb
+
+	* main/netmisc.c: whitespace
+
+2002-10-10 19:11  btb
+
+	* 2d/bitmap.c, main/inferno.c, main/mission.c, main/playsave.c:
+	comments
+
+2002-10-10 19:08  btb
+
+	* main/hud.c: whitespace
+
+2002-10-10 19:07  btb
+
+	* configure.ac: remove shareware build, add macdata build
+
+2002-10-10 19:04  btb
+
+	* main/songs.c: whitespace
+
+2002-10-10 18:55  btb
+
+	* 2d/circle.c, 2d/clip.h, 2d/disc.c, 2d/gpixel.c, 2d/line.c,
+	2d/pixel.c, 2d/poly.c, 2d/rect.c, 2d/tmerge.c, main/gamerend.c:
+	whitespace
+
+2002-10-10 18:39  btb
+
+	* 2d/: Makefile.am, tmerge_a.asm: enable TRANSPARENCY_COLOR for
+	assembly
+
+2002-10-04 07:19  btb
+
+	* cfile/cfile.c, include/iff.h, main/gamepal.c, main/titles.c:
+	comments, formatting, etc. courtesy of Martin Schaffner
+	<maschaffner@gmx.ch>
+
+2002-10-04 07:14  btb
+
+	* iff/iff.c: fix bigendian iff loading, courtesy of Martin
+	Schaffner <maschaffner@gmx.ch>
+
+2002-10-03 03:48  btb
+
+	* utilities/txb2tex.c: typo
+
+2002-10-03 03:46  btb
+
+	* 3d/clipper.c, main/bm.c, main/game.c, main/gamecntl.c,
+	main/newmenu.c, main/switch.c, main/terrain.c, main/text.c:
+	whitespace
+
+2002-10-03 03:42  btb
+
+	* arch/sdl/mouse.c: whitespace
+
+2002-09-19 05:43  btb
+
+	* main/kconfig.c: fix a oops, add old logs
+
+2002-09-19 03:45  btb
+
+	* main/kconfig.c: support for >3 mouse buttons
+
+2002-09-18 18:16  btb
+
+	* include/gr.h: fix palette swap define
+
+2002-09-14 00:32  btb
+
+	* main/titles.c: load hires briefing screen if lores doesn't exist
+	(i.e. vertigo) and MenuHires=0
+
+2002-09-14 00:23  btb
+
+	* main/: multi.h, network.h: pack some structures for ipx
+	compatibility - courtesy of Werner Augustin
+	<descent-source@mailinglist.gnuher.de>
+
+2002-09-14 00:20  btb
+
+	* cfile/cfile.c, main/endlevel.c, main/gamesave.c: revert cfgets()
+	and load_endlevel_data() to expect newline-terminated strings, fix
+	load_game_data to read null-terminated string for
+	Current_level_name
+
+2002-09-07 07:27  btb
+
+	* main/newmenu.c: added error message
+
+2002-09-07 07:24  btb
+
+	* main/menu.h: enable -nohires with mac shareware
+
+2002-09-07 07:18  btb
+
+	* 2d/palette.c, include/gr.h: enable 0/255 palette swap
+
+2002-09-07 07:17  btb
+
+	* 2d/font.c: enable 0/255 palette swap for fonts
+
+2002-09-07 07:15  btb
+
+	* 2d/bitblt.c: add TRANSPARENCY_COLOR to assembly code, nother OGL
+	fix
+
+2002-09-07 07:14  btb
+
+	* 2d/2dsline.c: fix ogl blooper
+
+2002-09-05 08:20  btb
+
+	* 2d/rle.c, 2d/scalec.c, include/rle.h: better just do it the old
+	way
+
+2002-09-05 08:05  btb
+
+	* include/strutil.h: need string.h for strcasecmp
+
+2002-09-05 08:04  btb
+
+	* include/rle.h: okay, maybe it needs to be this way
+
+2002-09-05 08:03  btb
+
+	* include/: 3d.h, gr.h: more stuff from d2src, mostly formatting
+
+2002-09-05 08:02  btb
+
+	* 2d/scalec.c: more stuff from d2src
+
+2002-09-05 07:57  btb
+
+	* 2d/rle.c: more stuff from d2src, formatting
+
+2002-09-05 07:56  btb
+
+	* 2d/font.c: useless cruft
+
+2002-09-05 07:52  btb
+
+	* 2d/: 2dsline.c, bitmap.c, bitmap.h: more stuff from d2src
+
+2002-09-05 01:30  btb
+
+	* 2d/bitblt.c, include/grdef.h: moved gr_linear_movsd assembly from
+	grdef.h to bitblt.c
+
+2002-09-04 23:30  btb
+
+	* include/grdef.h: fix compiler warnings
+
+2002-09-04 23:29  btb
+
+	* 2d/bitblt.c: fix compiler warnings, #ifdef out dos-only code
+
+2002-09-04 23:13  btb
+
+	* include/grdef.h: gr_linear_movsd isn't static for NO_ASM,
+	obviously
+
+2002-09-04 23:05  btb
+
+	* main/game.c: we want the mac ibitblt for everything but dos and
+	windows, I think.
+
+2002-09-04 22:47  btb
+
+	* main/texmerge.c: these routines are in tmerge.c
+
+2002-09-04 22:29  btb
+
+	* main/credits.c: enable credits for mac and oem data
+
+2002-09-04 22:28  btb
+
+	* main/bm.c: use either exit.ham or exit.pofs
+
+2002-09-04 22:27  btb
+
+	* include/ibitblt.h: enable some more code from d2src
+
+2002-09-04 22:27  btb
+
+	* include/gr.h: enable mac ubitblt_double
+
+2002-09-04 22:25  btb
+
+	* 2d/rle.c: added gr_rle_expand_scanline_generic_masked from d2src
+
+2002-09-04 22:21  btb
+
+	* include/grdef.h: moved some inline asm from linear.h
+
+2002-09-04 22:18  btb
+
+	* 2d/ibitblt.c: brought in line with original d2 version
+
+2002-09-04 22:01  btb
+
+	* 2d/bitblt.c: reverted to original d2 version of this file, then
+	added d1x enhancements
+
+2002-09-04 21:58  btb
+
+	* 2d/2dsline.c: formatting, use __MSDOS__ instead of __DJGPP__
+
+2002-09-04 21:49  btb
+
+	* 2d/linear.h: moved these back to their original locations
+	(bitblt.c, grdef.h)
+
+2002-09-04 08:15  btb
+
+	* main/mveplay.c: close some memory holes, speed up palette loading
+
+2002-09-04 08:13  btb
+
+	* main/movie.c: added fullscreen toggle while playing movies
+
+2002-09-04 08:13  btb
+
+	* main/inferno.c: comment out -superhires help text (always on)
+
+2002-09-04 08:12  btb
+
+	* include/timer.h: added approx_fsec_to_usec macro
+
+2002-09-04 08:11  btb
+
+	* arch/sdl/joy.c: fix compiler warning
+
+2002-09-01 02:49  btb
+
+	* main/network.c: oops
+
+2002-09-01 02:49  btb
+
+	* main/: movie.c, mveplay.c, mveplay.h: more movie improvements
+
+2002-09-01 02:46  btb
+
+	* arch/sdl/timer.c, include/timer.h: added timer_delay, faster
+	timer_get_fixed_seconds
+
+2002-09-01 02:44  btb
+
+	* TODO: todo
+
+2002-08-31 12:14  btb
+
+	* TODO, main/inferno.c, main/movie.c, main/mveplay.c: movie
+	improvements
+
+2002-08-31 05:27  btb
+
+	* main/multi.h: network endian stuff
+
+2002-08-31 05:24  btb
+
+	* 2d/font.c, include/gr.h: fast file i/o for font headers
+
+2002-08-31 03:22  btb
+
+	* arch/win32/arch_ip.cpp: unused file
+
+2002-08-31 03:21  btb
+
+	* main/: netmisc.c, netmisc.h, network.c, network.h: formatting,
+	bigendian networking fixes
+
+2002-08-31 03:18  btb
+
+	* main/menu.c: make net menu more accurate, also make superhires
+	always on
+
+2002-08-31 03:17  btb
+
+	* include/pstypes.h: better to have __pack__ all the time, I think.
+	 needed for networking, e.g.
+
+2002-08-31 03:16  btb
+
+	* arch/win32/: ipx_drv.h, ipx_win.c, winnet.c: win32 networking
+	backtrack
+
+2002-08-31 03:15  btb
+
+	* arch/win32/Makefile.am: unused file
+
+2002-08-31 03:14  btb
+
+	* TODO: todo stuff
+
+2002-08-30 18:31  btb
+
+	* arch/win32/ipx_drv.h: re-added arch/win32/ipx_drv.h
+
+2002-08-30 08:04  btb
+
+	* main/: newmenu.h, titles.c: formatting
+
+2002-08-30 08:02  btb
+
+	* NEWS, arch/linux/Makefile.am, arch/linux/include/ukali.h,
+	main/multi.h: networking works, finally
+
+2002-08-30 06:16  btb
+
+	* TODO: added TODO file
+
+2002-08-30 06:12  btb
+
+	* arch/linux/arch_ip.cpp: unused fine
+
+2002-08-30 06:02  btb
+
+	* README: network sorta working
+
+2002-08-30 01:01  btb
+
+	* main/: Makefile.am, multi.c, network.c, network.h: more
+	networking fixes
+
+2002-08-30 00:58  btb
+
+	* main/menu.c: load builtin mission correctly
+
+2002-08-30 00:57  btb
+
+	* main/inferno.c: documentation
+
+2002-08-30 00:55  btb
+
+	* main/: hoard.c, hoard.h, gamesave.c, mission.c: move hoard stuff
+	out of network
+
+2002-08-30 00:54  btb
+
+	* main/Makefile.mveplay: don't need no more
+
+2002-08-29 22:24  btb
+
+	* main/: ip_base.cpp, ip_base.h, ip_basec.h, ipclienc.c,
+	ipclient.cpp, ipclient.h, ipserver.cpp, ipx_drv.c, multipow.c,
+	multipow.h, netlist.c, netpkt.c, netpkt.h: deleting unused d1x
+	stuff
+
+2002-08-29 19:14  btb
+
+	* include/ipx_drv.h: more network fixing
+
+2002-08-29 19:02  btb
+
+	* arch/linux/include/ipx_drv.h: more network fixing
+
+2002-08-29 09:03  btb
+
+	* include/ipx.h: formatting
+
+2002-08-29 08:59  btb
+
+	* arch/linux/ipx_kali.c, include/ipx.h: fixed networking fuck-up?
+
+2002-08-29 08:54  btb
+
+	* NEWS, arch/linux/Makefile.am, arch/linux/ipx_bsd.c,
+	arch/linux/ipx_udp.c, arch/linux/linuxnet.c, main/Makefile.am,
+	main/inferno.c: fixed networking fuck-up?
+
+2002-08-29 08:43  btb
+
+	* Makefile.am: moved mingw info to README
+
+2002-08-29 04:15  btb
+
+	* README, mingw32.txt: moved mingw info to README
+
+2002-08-27 08:15  btb
+
+	* utilities/mvlextract.c: allow specifying file to extract
+
+2002-08-27 08:09  btb
+
+	* utilities/: tex2txb.c, txb2tex.c: use default extension to
+	convert tex<->txb
+
+2002-08-27 08:05  btb
+
+	* utilities/hogextract.c: allow specifying file to extract
+
+2002-08-27 08:02  btb
+
+	* main/mission.c: Have to get mission_num _after_ promoting...
+
+2002-08-27 08:02  btb
+
+	* main/: gameseq.c, titles.c: beginning d1 briefing support
+
+2002-08-27 07:59  btb
+
+	* descent.msn: beginning d1 briefing support
+
+2002-08-27 04:15  btb
+
+	* main/: titles.c, titles.h: d1-style mission briefings
+
+2002-08-27 04:14  btb
+
+	* main/piggy.h: whitespace
+
+2002-08-27 04:14  btb
+
+	* main/movie.c: beginning robot movie support, fall back on lo/hi
+	res if hi/lo not available
+
+2002-08-27 04:12  btb
+
+	* main/mission.c: added Builtin_mission_num for builtin mission,
+	D1Hogdir, d1-style mission briefings
+
+2002-08-27 04:11  btb
+
+	* main/: gameseq.c, mission.h: added Builtin_mission_num for
+	builtin mission
+
+2002-08-27 04:05  btb
+
+	* cfile/cfile.c, include/cfile.h: add capability for 3rd hogfile
+	(for d1 missions that need d1 data)
+
+2002-08-27 04:03  btb
+
+	* 2d/ibitblt.c: whitespace
+
+2002-08-26 08:20  btb
+
+	* utilities/mvlcreate.c: oops
+
+2002-08-26 08:06  btb
+
+	* utilities/: Makefile.am, mvlcreate.c, mvlextract.c: added mvl
+	utilities
+
+2002-08-26 07:51  btb
+
+	* utilities/hogextract.c: added [v]iew option
+
+2002-08-26 07:51  btb
+
+	* utilities/: tex2txb.c, txb2tex.c: changed txt to tex
+
+2002-08-26 06:54  btb
+
+	* main/titles.c: fix writable string, disable DumbAdjust thing
+
+2002-08-26 06:52  btb
+
+	* main/polyobj.h: whitespace
+
+2002-08-26 06:52  btb
+
+	* main/newmenu.c: added pcx_get_dimensions(), other stuff from
+	d2src
+
+2002-08-26 06:50  btb
+
+	* main/movie.c: read movies from AltHogDir, other fixes
+
+2002-08-26 06:46  btb
+
+	* main/: mission.c, mission.h: fix bug w/mission filename
+
+2002-08-26 06:45  btb
+
+	* main/gameseq.c: comments
+
+2002-08-26 06:44  btb
+
+	* main/digi.h: whitespace n stuff
+
+2002-08-26 06:42  btb
+
+	* include/mve_audio.h: added audio flag macros
+
+2002-08-26 06:41  btb
+
+	* 2d/pcx.c, include/pcx.h: added pcx_get_dimensions(), other stuff
+	from d2src
+
+2002-08-26 06:37  btb
+
+	* 2d/font.c: stuff
+
+2002-08-23 10:43  btb
+
+	* main/: gameseq.c, inferno.c, mission.c, mission.h, titles.c: fix
+	briefing stuff
+
+2002-08-23 07:43  btb
+
+	* Makefile.am: remove d2demo.mn2
+
+2002-08-23 01:52  btb
+
+	* cfile/cfile.c, include/cfile.h: add cfile_size function
+
+2002-08-23 01:52  btb
+
+	* d2demo.mn2, installation.txt, main/gameseq.h, main/mission.c:
+	eliminate need for .mn2 files for oem and demo
+
+2002-08-22 20:49  btb
+
+	* main/bm.c: fix for vertigo
+
+2002-08-22 19:18  btb
+
+	* main/menu.h: make OEM menu pcx available
+
+2002-08-22 02:43  btb
+
+	* 2d/rle.c: merge with original d2 file
+
+2002-08-22 02:24  btb
+
+	* Makefile.am, configure.ac: let mission files get installed by
+	make
+
+2002-08-17 11:23  btb
+
+	* configure.ac: make FAST_FILE_IO the default on little-endian
+	machines
+
+2002-08-17 11:21  btb
+
+	* NEWS, README, compilerdefs.txt, readme.txt: documentation
+
+2002-08-17 11:19  btb
+
+	* 2d/bitblt.c, 2d/rle.c, arch/ogl/ogl.c: implement BM_FLAG_RLE_BIG
+	(cockpit support?)
+
+2002-08-15 18:31  btb
+
+	* main/: game.c, menu.c, mission.c: promote builtin missions. patch
+	from Martin Schaffner <maschaffner@gmx.ch>
+
+2002-08-15 08:53  btb
+
+	* 2d/font.c, 2d/rle.c, include/gr.h, include/rle.h, main/piggy.c:
+	improved mac pig loading/reverted TRANSPARENCY_COLOR changes
+
+2002-08-15 07:20  btb
+
+	* utilities/.cvsignore: added cvsignore
+
+2002-08-15 07:17  btb
+
+	* 2d/palette.c, include/palette.h, main/gamesave.c: mac data file
+	loading
+
+2002-08-15 05:49  btb
+
+	* main/piggy.c: mac data file loading
+
+2002-08-15 05:42  btb
+
+	* 2d/font.c, 2d/rle.c, include/gr.h, include/rle.h: set
+	transparency and swap 0/255 correctly for mac data files
+
+2002-08-13 21:40  btb
+
+	* Makefile.am, configure.ac, utilities/Makefile.am: moved utility
+	to utilities to avoid conflict with c++ std lib <utility>
+
+2002-08-13 21:34  btb
+
+	* utilities/: Makefile.am, hogcreate.c, hogextract.c, txb2txt.c,
+	txt2txb.c: moved utility to utilities to avoid conflict with c++
+	std lib <utility>
+
+2002-08-13 07:16  btb
+
+	* Makefile.am, configure.ac: add utilities
+
+2002-08-09 00:48  btb
+
+	* 2d/palette.c, 3d/interp.c, include/gr.h, main/render.c:
+	formatting
+
+2002-08-08 23:15  btb
+
+	* main/inferno.c: comments
+
+2002-08-08 21:43  btb
+
+	* main/: newmenu.c, songs.c: mac demo datafile support
+
+2002-08-08 09:26  btb
+
+	* installation.txt: update
+
+2002-08-08 09:10  btb
+
+	* main/gamesave.c: use lowercase for consistency
+
+2002-08-08 09:09  btb
+
+	* main/: bm.c, bm.h, endlevel.c, polyobj.c: enable loading of exit
+	models for other than d2demo
+
+2002-08-07 22:38  btb
+
+	* main/gamemine.c: formatting, patch for better d1 texture
+	conversion from Martin Schaffner <maschaffner@gmx.ch>
+
+2002-08-07 07:44  btb
+
+	* Makefile.am: recognize .msn mission files. patch from Martin
+	Schaffner <maschaffner@gmx.ch>
+
+2002-08-07 07:39  btb
+
+	* .cvsignore: added .cvsignore files
+
+2002-08-07 07:34  btb
+
+	* descent.mn2, descent.msn, main/mission.c, main/mission.h:
+	recognize .msn mission files. patch from Martin Schaffner
+	<maschaffner@gmx.ch>
+
+2002-08-07 05:39  btb
+
+	* 2d/.cvsignore, 3d/.cvsignore, arch/.cvsignore,
+	arch/dos/.cvsignore, arch/ggi/.cvsignore, arch/linux/.cvsignore,
+	arch/ogl/.cvsignore, arch/sdl/.cvsignore, arch/svgalib/.cvsignore,
+	arch/win32/.cvsignore, cfile/.cvsignore, iff/.cvsignore,
+	main/.cvsignore, main/editor/.cvsignore, maths/.cvsignore,
+	mem/.cvsignore, misc/.cvsignore, texmap/.cvsignore: added
+	.cvsignore files
+
+2002-08-06 09:30  btb
+
+	* main/: automap.c, laser.c, songs.c, titles.c: shareware stuff
+
+2002-08-06 09:28  btb
+
+	* main/Makefile.am: formatting
+
+2002-08-06 09:28  btb
+
+	* 2d/font.c: make gr_remap_font just reload the whole thing
+
+2002-08-06 09:25  btb
+
+	* configure.ac: formatting
+
+2002-08-06 09:24  btb
+
+	* Makefile.am: added d2demo.mn2
+
+2002-08-06 07:26  btb
+
+	* d2demo.mn2: mission file for shareware
+
+2002-08-06 05:21  btb
+
+	* include/u_mem.h, main/ai.c, main/gamesave.c, main/inferno.c,
+	main/laser.h, main/text.h, main/titles.c, main/weapon.c: whitespace
+
+2002-08-06 05:16  btb
+
+	* main/sounds.h: shareware stuff, whitespace
+
+2002-08-06 05:13  btb
+
+	* main/: polyobj.c, polyobj.h: more fast i/o macros
+
+2002-08-06 05:12  btb
+
+	* main/: menu.c, menu.h, mission.c, newmenu.c, piggy.c, piggy.h:
+	shareware stuff
+
+2002-08-06 05:06  btb
+
+	* main/: endlevel.c, endlevel.h, gamemine.c, gameseq.c: merged
+	endlevel stuff to non-shareware, allow movies/endlevel for
+	alternate missions
+
+2002-08-06 04:55  btb
+
+	* main/cntrlcen.c: typo
+
+2002-08-06 04:55  btb
+
+	* main/bm.h: use global Piggy_hamfile_version
+
+2002-08-06 04:53  btb
+
+	* main/bm.c: merged endlevel stuff to non-shareware, more fast i/o
+	macros, use global Piggy_hamfile_version
+
+2002-08-06 04:50  btb
+
+	* main/Makefile.am: terrain and movie stuff always used now
+
+2002-08-06 04:49  btb
+
+	* 2d/pcx.c, include/pcx.h: make pcx header available to other
+	files, whitespace
+
+2002-08-06 01:31  btb
+
+	* main/: gamemine.c, gamesave.c: load DMB levels
+
+2002-08-06 01:31  btb
+
+	* main/: bm.c, cntrlcen.c, cntrlcen.h, fuelcen.c, fuelcen.h,
+	segment.c, segment.h, switch.c, switch.h: fast i/o macros
+
+2002-08-04 23:37  btb
+
+	* main/gamemine.c, main/gamesave.c, mem/mem.c: d1 level stuff from
+	maschaffner@gmx.ch
+
+2002-08-04 23:24  btb
+
+	* main/inferno.c: shareware stuff, formatting
+
+2002-08-04 23:19  btb
+
+	* arch/sdl/rbaudio.c: gracefully handle redbook non-availability
+
+2002-08-04 23:18  btb
+
+	* arch/sdl/gr.c: don't need to set mode in gr_init
+
+2002-08-02 23:28  btb
+
+	* main/: gamemine.c, gamemine.h, gamesave.c, gamesave.h: more d1
+	level loading stuff
+
+2002-08-02 20:10  btb
+
+	* Makefile.am, descent.mn2: added mission file for descent 1
+
+2002-08-02 11:05  btb
+
+	* arch/sdl/digi.c, arch/sdl/gr.c, include/error.h,
+	include/oldsdl.h, main/gamecntl.c, main/inferno.c, main/laser.c,
+	main/piggy.h, misc/error.c: junk
+
+2002-08-02 10:57  btb
+
+	* main/: endlevel.c, escort.c, gameseq.c, newmenu.c, render.c,
+	render.h, scores.c, scores.h, terrain.c: shareware stuff
+
+2002-08-02 04:57  btb
+
+	* configure.ac, include/pstypes.h, main/bm.c, main/bm.h,
+	main/effects.c, main/effects.h, main/piggy.c, main/piggy.h,
+	main/powerup.c, main/powerup.h, main/robot.c, main/robot.h,
+	main/vclip.c, main/vclip.h, main/wall.c, main/wall.h,
+	main/weapon.c, main/weapon.h: fast i/o macros
+
+2002-08-01 23:28  btb
+
+	* NEWS, cfile/cfile.c, main/console.c, main/gamemine.c,
+	main/gamemine.h, main/gamesave.c: load d1 levels
+
+2002-07-30 21:26  btb
+
+	* configure.ac: oops
+
+2002-07-30 21:21  btb
+
+	* configure.ac, arch/ogl/gr.c, arch/ogl/ogl.c, include/ogl_init.h:
+	OSX OGL fixes
+
+2002-07-30 11:28  btb
+
+	* main/menu.c, main/titles.c, NEWS: support shareware datafiles\!
+
+2002-07-30 11:05  btb
+
+	* 2d/font.c, include/gr.h, include/grdef.h, main/game.c,
+	main/gamefont.c, main/gamefont.h, main/gamemine.c, main/inferno.c,
+	main/movie.c, main/newmenu.c, main/piggy.c, main/titles.c: support
+	shareware datafiles\!
+
+2002-07-30 04:52  btb
+
+	* main/: bm.c, gamemine.c, piggy.c, piggy.h, weapon.c, gamemine.c,
+	piggy.c: SHAREWARE fixes
+
+2002-07-29 02:32  btb
+
+	* NEWS, include/fileutil.h, main/bm.c, main/gameseq.c,
+	main/mveplay.c, main/piggy.c, main/piggy.h, main/playsave.c,
+	misc/fileutil.c: Portability - OS X support
+
+2002-07-27 22:39  btb
+
+	* main/: Makefile.am, fuelcen.c, fuelcen.h, game.c, game.h,
+	gamemine.c, gamesave.c, gameseq.c, piggy.c, piggy.h, segment.c,
+	segment.h: portability
+
+2002-07-27 04:39  btb
+
+	* cfile/cfile.c, include/cfile.h, main/cntrlcen.c, main/cntrlcen.h,
+	main/gamesave.c, main/switch.c, main/switch.h, main/wall.c,
+	main/wall.h: portabilization
+
+2002-07-27 03:10  btb
+
+	* 2d/font.c: portability
+
+2002-07-27 02:20  btb
+
+	* 2d/font.c, include/gr.h: portability
+
+2002-07-26 23:13  btb
+
+	* 2d/font.c: portability
+
+2002-07-26 23:03  btb
+
+	* 2d/font.c, include/gr.h: portability
+
+2002-07-26 21:48  btb
+
+	* arch/linux/findfile.c, include/pstypes.h: os x fixes
+
+2002-07-26 21:10  btb
+
+	* 2d/pcx.c: portability
+
+2002-07-26 20:59  btb
+
+	* main/movie.c: portability
+
+2002-07-26 20:23  btb
+
+	* main/player.c: foo
+
+2002-07-26 20:09  btb
+
+	* misc/fileutil.c, include/fileutil.h, misc/fileutil.c: oops
+
+2002-07-26 20:01  btb
+
+	* include/fileutil.h: oops
+
+2002-07-26 19:59  btb
+
+	* include/fileutil.h, misc/Makefile.am, misc/fileutil.c,
+	misc/fileutil.h: portable file i/o utils
+
+2002-07-26 09:25  btb
+
+	* main/: Makefile.mveplay, inferno.c, movie.c, newmenu.c: s not a
+	writable string anymore... / formatting
+
+2002-07-26 09:22  btb
+
+	* main/Makefile.am, main/bm.c, main/bm.h, main/cntrlcen.c,
+	main/cntrlcen.h, main/effects.c, main/effects.h, main/piggy.c,
+	main/piggy.h, main/player.c, main/player.h, main/polyobj.c,
+	main/polyobj.h, main/powerup.c, main/powerup.h, main/robot.c,
+	main/robot.h, main/vclip.c, main/vclip.h, main/wall.c, main/wall.h,
+	main/weapon.c, main/weapon.h, 3d/interp.c, include/cfile.h:
+	portable-izing file loading routines
+
+2002-07-24 10:31  btb
+
+	* main/mveplay.c: correctly play files with 16bit uncompressed
+	audio, mem checking, etc
+
+2002-07-24 01:03  btb
+
+	* main/: Makefile.mveplay, mvelib.c, mveplay.c: enable standalone
+	mve player
+
+2002-07-23 21:24  btb
+
+	* misc/Makefile.am: unused file
+
+2002-07-23 21:24  btb
+
+	* configure.ac, main/endlevel.c, main/endlevel.h, main/menu.c,
+	main/sounds.h: remove experimental nmovie stuff
+
+2002-07-23 08:22  btb
+
+	* main/movie.c: add some debugging output
 
 2002-07-22 18:26  btb
 
@@ -1562,496 +2713,8 @@
 
 2001-01-19 03:33  bradleyb
 
-	* copying, djgpp.bat, djgpp.sh, main/link.bat, misc/dos_disk.h,
-	arch/dos_dpmi.c, arch/dos_findfile.c, arch/dos_init.c,
-	arch/dos_ipx.c, arch/dos_modex.asm, arch/dos_timer.asm,
-	arch/dos_tweak.inc, arch/dos_vesa.c, arch/dos_vgaregs.inc,
-	arch/linux_findfile.c, arch/linux_init.c, arch/linux_ipx_bsd.c,
-	arch/linux_ipx_lin.c, arch/linux_ipx_udp.c, arch/linux_net.c,
-	arch/sdl_init.c, arch/sdl_timer.c, arch/dos/Makefile.am,
-	arch/dos/Makefile.in, arch/dos/cdrom.c, arch/dos/digi.c,
-	arch/dos/findfile.c: Initial revision
-
-2001-01-19 03:33  bradleyb
-
-	* conf.h.in, README, configure, configure.in, copying, djgpp.bat,
-	djgpp.sh, readme.txt, 2d/canvas.c, 2d/diff, 2d/line.c,
-	2d/2dsline.c, 2d/bitblt.c, 2d/box.c, 2d/gpixel.c, 2d/linear.h,
-	2d/pixel.c, maths/vecmat.c, main/digi.h, main/kconfig.c,
-	main/Makefile.am, main/console.c, main/inferno.c, main/kludge.c,
-	main/multi.c, main/inferno.ini, main/network.c, main/config.c,
-	main/gamerend.c, main/Makefile.in, main/link.bat, misc/d_io.c,
-	misc/dos_disk.h, misc/strutil.c, unused/bios/dd.bat,
-	unused/bios/mouse.asm, unused/bios/d.bat, unused/bios/joy.asm,
-	unused/bios/key.asm, unused/bios/keys.inc,
-	unused/bios/make0000.bat, unused/bios/make0001.bat,
-	unused/bios/make0100.bat, unused/bios/oldkey.asm,
-	unused/bios/rbaudio.new, unused/bios/testk.lnk,
-	unused/bios/testm.lnk, unused/bios/timer.asm, unused/bios/x,
-	unused/bios/x.bat, unused/bios/y.bat, unused/win95/dd.bat,
-	arch/Makefile.am, arch/Makefile.in, arch/dos_dpmi.c,
-	arch/dos_findfile.c, arch/dos_init.c, arch/dos_ipx.c,
-	arch/dos_modex.asm, arch/dos_timer.asm, arch/dos_tweak.inc,
-	arch/dos_vesa.c, arch/dos_vgaregs.inc, arch/linux_findfile.c,
-	arch/linux_init.c, arch/linux_ipx_bsd.c, arch/linux_ipx_lin.c,
-	arch/linux_ipx_udp.c, unused/vga/dd.bat, unused/vga/framebuf.jas,
-	unused/vga/modex.asm, unused/vga/tweak.inc, unused/vga/vesa.asm,
-	unused/vga/vga.jas, unused/vga/vgaregs.inc, unused/vga/xyz.bat,
-	unused/win95/winckpit.asm, arch/linux_net.c, arch/sdl_init.c,
-	arch/sdl_timer.c, arch/dos/Makefile.am, arch/dos/Makefile.in,
-	arch/dos/cdrom.c, arch/dos/digi.c, arch/dos/disk.c,
-	arch/dos/dosgr.c, arch/dos/dpmi.c, arch/dos/findfile.c,
-	arch/dos/init.c, arch/dos/joyc.c, arch/dos/joydefs.c,
-	arch/dos/key.c, arch/dos/mouse.c, arch/dos/vesa.c,
-	arch/dos/include/joy.h, arch/dos/include/key.h,
-	arch/dos/include/mouse.h, arch/linux/Makefile.am,
-	arch/linux/findfile.c, arch/linux/ipx_lin.c, arch/linux/linuxnet.c,
-	arch/linux/init.c, arch/linux/ipx_bsd.c, arch/linux/ipx_udp.c,
-	arch/linux/Makefile.in, arch/sdl/Makefile.in, include/d.bat,
-	include/d_io.h, include/dtypes.inc, include/gr.h, include/grdef.h,
-	include/lst.bat, include/m.bat, include/psmacros.inc,
-	include/pstypes.h, include/pstypes.inc, include/strutil.h,
-	include/test.lnk, include/timer.h: Import of d2x-0.0.9-pre1
+	*  Import of d2x-0.0.9-pre1
 
 2001-01-19 03:29  bradleyb
 
-	* AUTHORS, COPYING, Makefile.am, aclocal.m4, autogen.sh, conf.h.in,
-	config.sub, configure, ltconfig, readme.txt, stamp-h.in, ChangeLog,
-	INSTALL, Makefile.in, config.guess, configure.in, libtool, missing,
-	mkinstalldirs, NEWS, README, install-sh, ltmain.sh, thinking.txt,
-	2d/Makefile.am, 2d/bitmap.h, 2d/canvas.c, 2d/disc.c, 2d/ibitblt.c,
-	2d/line.c, 2d/tmerge_a.asm, 2d/bitblt.c, 2d/bitmap.c, 2d/box.c,
-	2d/circle.c, 2d/clip.h, 2d/diff, 2d/font.c, 2d/linear.asm,
-	2d/linear.h, 2d/pcx.c, 2d/pixel.c, 2d/poly.c, 2d/rle.c, 2d/scale.c,
-	2d/scalea.asm, 2d/scalec.c, 2d/tmerge.c, 2d/2dsline.c,
-	2d/Makefile.in, 2d/gpixel.c, 2d/palette.c, 2d/rect.c, 2d/scalea.h,
-	3d/Makefile.am, 3d/Makefile.in, 3d/clipper.c, 3d/clipper.h,
-	3d/draw.c, 3d/globvars.c, 3d/globvars.h, 3d/instance.c,
-	3d/interp.asm, 3d/interp.c, 3d/matrix.c, 3d/points.c, 3d/rod.c,
-	3d/setup.c, iff/Makefile.am, iff/Makefile.in, iff/iff.c,
-	iff/archive/iff15bpp.c, iff/archive/iff8bpp.c,
-	iff/archive/iffmike.c, iff/archive/ifftest.c,
-	iff/archive/ifftestv.c, maths/Makefile.am, maths/Makefile.in,
-	maths/fix.asm, maths/fixc.c, maths/rand.c, maths/tables.c,
-	maths/vecmat.c, maths/vecmata.asm, mem/Makefile.am,
-	mem/Makefile.in, mem/mem.c, cfile/Makefile.am, cfile/Makefile.in,
-	cfile/cfile.c, cfile/nocfile.h, main/Makefile.am, main/bm.h,
-	main/cdrom.h, main/cntrlcen.c, main/collide.h, main/compbit.h,
-	main/config.h, main/console.c, main/controls.h, main/desc_id.h,
-	main/digi.h, main/fuelcen.c, main/fvi.h, main/game.h,
-	main/gamepal.h, main/gamesave.c, main/gamesave.h, main/gameseq.h,
-	main/hostage.c, main/kconfig.c, main/kconfig.h, main/kmatrix.c,
-	main/menu.c, main/mglobal.c, main/mission.h, main/object.h,
-	main/paging.c, main/paging.h, main/playsave.h, main/robot.h,
-	main/slew.h, main/switch.h, main/text.h, main/vclip.c,
-	main/weapon.c, main/automap.h, main/collide.c, main/descent.cfg,
-	main/dumpmine.c, main/effects.c, main/escort.c, main/fireball.h,
-	main/gamemine.h, main/gamepal.c, main/gauges.c, main/hostage.h,
-	main/hud.c, main/inferno.c, main/kludge.c, main/lighting.c,
-	main/morph.h, main/movie.h, main/object.c, main/physics.h,
-	main/polyobj.h, main/screens.h, main/segment.h, main/songs.h,
-	main/sounds.h, main/state.c, main/state.h, main/terrain.h,
-	main/test.txt, main/textures.h, main/wall.c, main/wall.h,
-	main/ai2.c, main/aistruct.h, main/bm.c, main/bmread.c,
-	main/bmread.h, main/cmd.c, main/controls.c, main/crypt.c,
-	main/endlevel.c, main/endlevel.h, main/fireball.c, main/fvi.c,
-	main/fvi_a.h, main/game.c, main/gamemine.c, main/gameseg.c,
-	main/gameseg.h, main/gauges.h, main/inferno.ini, main/lighting.h,
-	main/menu.h, main/modem.h, main/multi.c, main/multibot.h,
-	main/netmisc.c, main/netmisc.h, main/newdemo.c, main/newmenu.c,
-	main/physics.c, main/piggy.h, main/player.h, main/polyobj.c,
-	main/render.c, main/scores.c, main/segpoint.h, main/slew.c,
-	main/switch.c, main/texmerge.h, main/text.c, main/titles.c,
-	main/titles.h, main/weapon.h, main/ai.c, main/automap.c,
-	main/cntrlcen.h, main/config.c, main/credits.h, main/desw.h,
-	main/gamecntl.c, main/gamerend.c, main/gamestat.h, main/inferno.h,
-	main/joydefs.h, main/laser.c, main/laser.h, main/morph.c,
-	main/multi.h, main/network.c, main/piggy.c, main/playsave.c,
-	main/powerup.c, main/scores.h, main/vclip.h, main/Makefile.in,
-	main/credits.c, main/fuelcen.h, main/gamefont.c, main/multibot.c,
-	main/newmenu.h, main/render.h, main/songs.c, main/ai.h,
-	main/aipath.c, main/effects.h, main/gamefont.h, main/gameseq.c,
-	main/kmatrix.h, main/mission.c, main/network.h, main/newdemo.h,
-	main/powerup.h, main/robot.c, main/texmerge.c, main/vers_id.h,
-	main/editor/editor.h, main/editor/kdefs.h, main/editor/texpage.h,
-	main/old/coindev.c, main/old/modem.c, main/old/settings.h,
-	main/old/3dfx.c, main/old/3dfx_des.h, main/old/arcade.h,
-	main/old/cdmix32.c, main/old/cdrom.c, main/old/coindev.h,
-	main/old/descentw.c, main/old/digiobj.c, main/old/files.h,
-	main/old/iglasses.c, main/old/iglasses.h, main/old/joydefs.c,
-	main/old/joydefsw.c, main/old/movie.c, main/old/newmodel.c,
-	main/old/rbtest.c, main/old/terrain.c, main/old/windigi.c,
-	main/old/winferno.c, main/old/winmodem.c, main/old/winvideo.c,
-	misc/Makefile.am, misc/Makefile.in, misc/args.c, misc/byteswap.c,
-	misc/byteswap.h, misc/d_delay.c, misc/d_glob.c, misc/d_io.c,
-	misc/error.c, misc/errtest.c, misc/fileutil.c, misc/fileutil.h,
-	misc/hash.c, misc/parsarg.c, misc/parsarg.h, misc/parstest.c,
-	misc/strio.c, misc/strutil.c, unused/readme.txt, unused/bios/d.bat,
-	unused/bios/dd.bat, unused/bios/dpmi.c, unused/bios/dpmi.h,
-	unused/bios/error.c, unused/bios/error.h, unused/bios/findfile.c,
-	unused/bios/findfile.h, unused/bios/ipx.c, unused/bios/ipx.h,
-	unused/bios/joy.asm, unused/bios/joy.h, unused/bios/joyc.c,
-	unused/bios/key.asm, unused/bios/key.c, unused/bios/key.h,
-	unused/bios/keys.inc, unused/bios/make0000.bat,
-	unused/bios/make0001.bat, unused/bios/make0100.bat,
-	unused/bios/mono.c, unused/bios/mouse.asm, unused/bios/mouse.c,
-	unused/bios/mouse.h, unused/bios/oldkey.asm, unused/bios/rbaudio.c,
-	unused/bios/rbaudio.h, unused/bios/rbaudio.new,
-	unused/bios/speaker.c, unused/bios/swiftcfg.h, unused/bios/testj.c,
-	unused/bios/testk.c, unused/bios/testk.lnk, unused/bios/testm.c,
-	unused/bios/testm.lnk, unused/bios/testms.c, unused/bios/testt.c,
-	unused/bios/timer.asm, unused/bios/timer.h, unused/bios/timerp.c,
-	unused/bios/x, unused/bios/x.bat, unused/bios/x.c,
-	unused/bios/y.bat, unused/pa_null/pa_enabl.h,
-	unused/pa_null/poly_acc.c, unused/pa_null/poly_acc.h,
-	unused/ui/gadget.c, unused/ui/icon.c, unused/ui/keypress.c,
-	unused/ui/keytrap.c, unused/ui/listbox.c, unused/ui/medfunc.c,
-	unused/ui/menu.c, unused/ui/menubar.c, unused/ui/message.c,
-	unused/ui/mouse.c, unused/ui/number.c, unused/ui/popup.c,
-	unused/ui/radio.c, unused/ui/scroll.c, unused/ui/ui.h,
-	arch/Makefile.am, arch/Makefile.in, arch/dos/bcd.c,
-	arch/dos/digiallg.c, arch/dos/digimm.c, arch/dos/disk.c,
-	arch/dos/dosgr.c, arch/dos/dpmi.c, arch/dos/init.c, arch/dos/ipx.c,
-	arch/dos/ipx.h, arch/dos/joy2.asm, arch/dos/joyc.c,
-	arch/dos/joydefs.c, arch/dos/key.c, arch/dos/midiallg.c,
-	arch/dos/modex.asm, arch/dos/mono.c, arch/dos/mono.h,
-	arch/dos/mouse.c, arch/dos/serial.c, arch/dos/sgrep.out,
-	arch/dos/timer.asm, arch/dos/tweak.inc, arch/dos/vesa.c,
-	arch/dos/vgaregs.inc, arch/dos/allg_snd/allg_snd.c,
-	arch/dos/allg_snd/internal.h, arch/dos/allg_snd/sound/allegro.h,
-	arch/dos/allg_snd/sound/config.c, arch/dos/allg_snd/sound/digmid.c,
-	arch/dos/allg_snd/sound/interndj.h, arch/dos/allg_snd/sound/midi.c,
-	arch/dos/allg_snd/sound/mixer.c, arch/dos/allg_snd/sound/readme.d1,
-	arch/dos/allg_snd/sound/readme.txt,
-	arch/dos/allg_snd/sound/snddrv.c, arch/dos/allg_snd/sound/sound.c,
-	arch/dos/allg_snd/sound/drv/adlib.c,
-	arch/dos/allg_snd/sound/drv/awedata.c,
-	arch/dos/allg_snd/sound/drv/dma.c,
-	arch/dos/allg_snd/sound/drv/emu8k.c,
-	arch/dos/allg_snd/sound/drv/emu8k.h,
-	arch/dos/allg_snd/sound/drv/emu8kmid.c,
-	arch/dos/allg_snd/sound/drv/fm_instr.h,
-	arch/dos/allg_snd/sound/drv/gus.c,
-	arch/dos/allg_snd/sound/drv/mpu.c,
-	arch/dos/allg_snd/sound/drv/sb.c, arch/dos/bak/ipx.c,
-	arch/dos/comm/commlib.c, arch/dos/comm/dzcomm.c,
-	arch/dos/comm/dzqueue.c, arch/dos/comm/irq.c,
-	arch/dos/comm/irqwrap.S, arch/dos/comm/include/allegro.h,
-	arch/dos/comm/include/asmdef.inc,
-	arch/dos/comm/include/asmdefs.inc, arch/dos/comm/include/commlib.h,
-	arch/dos/comm/include/internal.h, arch/dos/include/commlib.h,
-	arch/dos/include/disk.h, arch/dos/include/dzcomm.h,
-	arch/dos/include/joy.h, arch/dos/include/key.h,
-	arch/dos/include/midiallg.h, arch/dos/include/mouse.h,
-	arch/dos/include/serial.h, arch/dos/mm_snd/drv_sb.c,
-	arch/dos/mm_snd/mdma.c, arch/dos/mm_snd/mirq.c,
-	arch/dos/mm_snd/readme.txt, arch/dos/mm_snd/include/mdma.h,
-	arch/dos/mm_snd/include/mikmod.h, arch/dos/mm_snd/include/mirq.h,
-	arch/dos/mm_snd/include/mm_drv.h, arch/dos/mm_snd/include/mmio.h,
-	arch/dos/mm_snd/include/mtypes.h, arch/linux/Makefile.am,
-	arch/linux/Makefile.in, arch/linux/alsadigi.c,
-	arch/linux/findfile.c, arch/linux/hmiplay.c, arch/linux/hmistub.c,
-	arch/linux/init.c, arch/linux/ipx_bsd.c, arch/linux/ipx_kali.c,
-	arch/linux/ipx_lin.c, arch/linux/ipx_udp.c, arch/linux/linuxnet.c,
-	arch/linux/mono.c, arch/linux/serial.c, arch/linux/stHqFIq1,
-	arch/linux/timer.c, arch/linux/ukali.c,
-	arch/linux/include/ipx_bsd.h, arch/linux/include/ipx_drv.h,
-	arch/linux/include/ipx_hlpr.h, arch/linux/include/ipx_kali.h,
-	arch/linux/include/ipx_ld.h, arch/linux/include/ipx_lin.h,
-	arch/linux/include/ipx_udp.h, arch/linux/include/music.h,
-	arch/linux/include/serial.h, arch/linux/include/ukali.h,
-	arch/sdl/Makefile.am, arch/sdl/init.c, arch/sdl/timer.c,
-	arch/win32/d1x.ico, arch/win32/d1x.rc, arch/win32/d3d.ico,
-	arch/win32/debug.cpp, arch/win32/descent.ico, arch/win32/digi.c,
-	arch/win32/glinit.c, arch/win32/gr.c, arch/win32/hmpfile.c,
-	arch/win32/init.c, arch/win32/ipx_drv.h, arch/win32/ipx_win.c,
-	arch/win32/joydefs.c, arch/win32/joyhh.c, arch/win32/key.c,
-	arch/win32/mono.c, arch/win32/mouse.c, arch/win32/palw32.c,
-	arch/win32/pch.cpp, arch/win32/scene.cpp, arch/win32/serial.c,
-	arch/win32/texture.cpp, arch/win32/timer.c, arch/win32/win32.c,
-	arch/win32/winmain.cpp, arch/win32/winnet.c,
-	arch/win32/d3dframe/d3denum.cpp, arch/win32/d3dframe/d3denum.h,
-	arch/win32/d3dframe/d3dframe.cpp, arch/win32/d3dframe/d3dframe.h,
-	arch/win32/d3dframe/d3dmath.cpp, arch/win32/d3dframe/d3dmath.h,
-	arch/win32/d3dframe/d3dtextr.cpp, arch/win32/d3dframe/d3dtextr.h,
-	arch/win32/d3dframe/d3dutil.cpp, arch/win32/d3dframe/d3dutil.h,
-	arch/win32/d3dframe/ddenum.cpp, arch/win32/d3dframe/ddmm.h,
-	arch/win32/d3dframe/ddutil.h, arch/win32/d3dframe/ddutil2.h,
-	arch/win32/d3dframe/dsutil.h, arch/win32/d3dframe/lbprintf.h,
-	arch/win32/d3dframe/resource.h, arch/win32/d3dframe/userdlg.cpp,
-	arch/win32/include/d3dhelp.h, arch/win32/include/debug.h,
-	arch/win32/include/hmpfile.h, arch/win32/include/joy.h,
-	arch/win32/include/key.h, arch/win32/include/mouse.h,
-	arch/win32/include/pch.h, arch/win32/include/resource.h,
-	arch/win32/include/scene.h, arch/win32/include/serial.h,
-	arch/win32/include/texture.h, arch/win32/include/winmain.h,
-	arch/win32/include/wsipx.h, unused/lib/fix.h, unused/lib/rbaudio.h,
-	unused/novga/files.rc, unused/novga/novesa.c, unused/ui/barbox.c,
-	unused/ui/button.c, unused/ui/checkbox.c, unused/ui/file.c,
-	unused/ui/func.c, unused/ui/func.h, unused/ui/harderr.c,
-	unused/ui/inputbox.c, unused/ui/keypad.c, unused/ui/ui.c,
-	unused/ui/uidraw.c, unused/ui/userbox.c, unused/ui/window.c,
-	unused/vga/dd.bat, unused/vga/framebuf.c, unused/vga/framebuf.jas,
-	unused/vga/fxdpmi.h, unused/vga/fxvesa.h, unused/vga/grx.h,
-	unused/vga/modex.asm, unused/vga/palette.c, unused/vga/tweak.inc,
-	unused/vga/vesa.asm, unused/vga/vga.c, unused/vga/vga.h,
-	unused/vga/vga.jas, unused/vga/vgaregs.inc, unused/vga/xyz.bat,
-	unused/vga/new/palette.c, unused/vga/new/vga.c,
-	unused/win95/comm.c, unused/win95/comm.h, unused/win95/dd.bat,
-	unused/win95/dd.c, unused/win95/dd.h, unused/win95/ddgfx.c,
-	unused/win95/ddgr.c, unused/win95/ddraw.c, unused/win95/direct3d.c,
-	unused/win95/direct3d.h, unused/win95/ds.c, unused/win95/ds.h,
-	unused/win95/error.c, unused/win95/error.h,
-	unused/win95/findfile.c, unused/win95/gfx.c, unused/win95/global.h,
-	unused/win95/iforce.c, unused/win95/iforce.h, unused/win95/ipx.c,
-	unused/win95/joyc.c, unused/win95/key.c, unused/win95/midifile.h,
-	unused/win95/midiseq.h, unused/win95/mono.c, unused/win95/mouse.c,
-	unused/win95/palette.c, unused/win95/rbaudio.c,
-	unused/win95/swift.c, unused/win95/tactile.c,
-	unused/win95/tactile.h, unused/win95/timer.c,
-	unused/win95/winapp.c, unused/win95/winapp.h,
-	unused/win95/winckpit.asm, unused/win95/winmidi.c,
-	unused/win95/winmidi.h, unused/win95/winmono.c,
-	unused/win95/winregs.c, unused/win95/winregs.h,
-	unused/win95/xtapi.c, unused/win95/xtapi.h, arch/sdl/Makefile.in,
-	include/3d.h, include/args.h, include/byteswap.h, include/cfile.h,
-	include/checker.h, include/cmd.h, include/console.h, include/d.bat,
-	include/d_delay.h, include/d_io.h, include/dtypes.h,
-	include/dtypes.inc, include/error.h, include/findfile.h,
-	include/fix.h, include/gr.h, include/grdef.h, include/hash.h,
-	include/ibitblt.h, include/iff.h, include/ipx.h, include/loadgl.h,
-	include/lst.bat, include/m.bat, include/maths.h, include/modex.h,
-	include/mono.h, include/ogl_init.h, include/pa_enabl.h,
-	include/palette.h, include/pcx.h, include/psmacros.inc,
-	include/pstypes.h, include/pstypes.inc, include/rle.h,
-	include/strio.h, include/strutil.h, include/test.c,
-	include/test.lnk, include/texmap.h, include/timer.h,
-	include/u_dpmi.h, include/u_mem.h, include/vecmat.h,
-	include/vesa.h, texmap/Makefile.am, texmap/Makefile.in,
-	texmap/ntmap.c, texmap/scanline.c, texmap/scanline.h,
-	texmap/texmapl.h, texmap/tmap_flt.asm, texmap/tmap_inc.asm,
-	texmap/tmap_lin.asm, texmap/tmap_ll.asm, texmap/tmap_per.asm,
-	texmap/tmapfade.asm, texmap/tmapflat.c, texmap/tmappent.S,
-	texmap/tmapppro.S: Initial revision
-
-2001-01-19 03:29  bradleyb
-
-	* AUTHORS, COPYING, Makefile.am, aclocal.m4, autogen.sh, conf.h.in,
-	config.sub, configure, ltconfig, readme.txt, stamp-h.in, ChangeLog,
-	INSTALL, Makefile.in, config.guess, configure.in, libtool, missing,
-	mkinstalldirs, NEWS, README, install-sh, ltmain.sh, thinking.txt,
-	2d/Makefile.am, 2d/bitmap.h, 2d/canvas.c, 2d/disc.c, 2d/ibitblt.c,
-	2d/line.c, 2d/tmerge_a.asm, 2d/bitblt.c, 2d/bitmap.c, 2d/box.c,
-	2d/circle.c, 2d/clip.h, 2d/diff, 2d/font.c, 2d/linear.asm,
-	2d/linear.h, 2d/pcx.c, 2d/pixel.c, 2d/poly.c, 2d/rle.c, 2d/scale.c,
-	2d/scalea.asm, 2d/scalec.c, 2d/tmerge.c, 2d/2dsline.c,
-	2d/Makefile.in, 2d/gpixel.c, 2d/palette.c, 2d/rect.c, 2d/scalea.h,
-	3d/Makefile.am, 3d/Makefile.in, 3d/clipper.c, 3d/clipper.h,
-	3d/draw.c, 3d/globvars.c, 3d/globvars.h, 3d/instance.c,
-	3d/interp.asm, 3d/interp.c, 3d/matrix.c, 3d/points.c, 3d/rod.c,
-	3d/setup.c, iff/Makefile.am, iff/Makefile.in, iff/iff.c,
-	iff/archive/iff15bpp.c, iff/archive/iff8bpp.c,
-	iff/archive/iffmike.c, iff/archive/ifftest.c,
-	iff/archive/ifftestv.c, maths/Makefile.am, maths/Makefile.in,
-	maths/fix.asm, maths/fixc.c, maths/rand.c, maths/tables.c,
-	maths/vecmat.c, maths/vecmata.asm, mem/Makefile.am,
-	mem/Makefile.in, mem/mem.c, cfile/Makefile.am, cfile/Makefile.in,
-	cfile/cfile.c, cfile/nocfile.h, main/Makefile.am, main/bm.h,
-	main/cdrom.h, main/cntrlcen.c, main/collide.h, main/compbit.h,
-	main/config.h, main/console.c, main/controls.h, main/desc_id.h,
-	main/digi.h, main/fuelcen.c, main/fvi.h, main/game.h,
-	main/gamepal.h, main/gamesave.c, main/gamesave.h, main/gameseq.h,
-	main/hostage.c, main/kconfig.c, main/kconfig.h, main/kmatrix.c,
-	main/menu.c, main/mglobal.c, main/mission.h, main/object.h,
-	main/paging.c, main/paging.h, main/playsave.h, main/robot.h,
-	main/slew.h, main/switch.h, main/text.h, main/vclip.c,
-	main/weapon.c, main/automap.h, main/collide.c, main/descent.cfg,
-	main/dumpmine.c, main/effects.c, main/escort.c, main/fireball.h,
-	main/gamemine.h, main/gamepal.c, main/gauges.c, main/hostage.h,
-	main/hud.c, main/inferno.c, main/kludge.c, main/lighting.c,
-	main/morph.h, main/movie.h, main/object.c, main/physics.h,
-	main/polyobj.h, main/screens.h, main/segment.h, main/songs.h,
-	main/sounds.h, main/state.c, main/state.h, main/terrain.h,
-	main/test.txt, main/textures.h, main/wall.c, main/wall.h,
-	main/ai2.c, main/aistruct.h, main/bm.c, main/bmread.c,
-	main/bmread.h, main/cmd.c, main/controls.c, main/crypt.c,
-	main/endlevel.c, main/endlevel.h, main/fireball.c, main/fvi.c,
-	main/fvi_a.h, main/game.c, main/gamemine.c, main/gameseg.c,
-	main/gameseg.h, main/gauges.h, main/inferno.ini, main/lighting.h,
-	main/menu.h, main/modem.h, main/multi.c, main/multibot.h,
-	main/netmisc.c, main/netmisc.h, main/newdemo.c, main/newmenu.c,
-	main/physics.c, main/piggy.h, main/player.h, main/polyobj.c,
-	main/render.c, main/scores.c, main/segpoint.h, main/slew.c,
-	main/switch.c, main/texmerge.h, main/text.c, main/titles.c,
-	main/titles.h, main/weapon.h, main/ai.c, main/automap.c,
-	main/cntrlcen.h, main/config.c, main/credits.h, main/desw.h,
-	main/gamecntl.c, main/gamerend.c, main/gamestat.h, main/inferno.h,
-	main/joydefs.h, main/laser.c, main/laser.h, main/morph.c,
-	main/multi.h, main/network.c, main/piggy.c, main/playsave.c,
-	main/powerup.c, main/scores.h, main/vclip.h, main/Makefile.in,
-	main/credits.c, main/fuelcen.h, main/gamefont.c, main/multibot.c,
-	main/newmenu.h, main/render.h, main/songs.c, main/ai.h,
-	main/aipath.c, main/effects.h, main/gamefont.h, main/gameseq.c,
-	main/kmatrix.h, main/mission.c, main/network.h, main/newdemo.h,
-	main/powerup.h, main/robot.c, main/texmerge.c, main/vers_id.h,
-	main/editor/editor.h, main/editor/kdefs.h, main/editor/texpage.h,
-	main/old/coindev.c, main/old/modem.c, main/old/settings.h,
-	main/old/3dfx.c, main/old/3dfx_des.h, main/old/arcade.h,
-	main/old/cdmix32.c, main/old/cdrom.c, main/old/coindev.h,
-	main/old/descentw.c, main/old/digiobj.c, main/old/files.h,
-	main/old/iglasses.c, main/old/iglasses.h, main/old/joydefs.c,
-	main/old/joydefsw.c, main/old/movie.c, main/old/newmodel.c,
-	main/old/rbtest.c, main/old/terrain.c, main/old/windigi.c,
-	main/old/winferno.c, main/old/winmodem.c, main/old/winvideo.c,
-	misc/Makefile.am, misc/Makefile.in, misc/args.c, misc/byteswap.c,
-	misc/byteswap.h, misc/d_delay.c, misc/d_glob.c, misc/d_io.c,
-	misc/error.c, misc/errtest.c, misc/fileutil.c, misc/fileutil.h,
-	misc/hash.c, misc/parsarg.c, misc/parsarg.h, misc/parstest.c,
-	misc/strio.c, misc/strutil.c, unused/readme.txt, unused/bios/d.bat,
-	unused/bios/dd.bat, unused/bios/dpmi.c, unused/bios/dpmi.h,
-	unused/bios/error.c, unused/bios/error.h, unused/bios/findfile.c,
-	unused/bios/findfile.h, unused/bios/ipx.c, unused/bios/ipx.h,
-	unused/bios/joy.asm, unused/bios/joy.h, unused/bios/joyc.c,
-	unused/bios/key.asm, unused/bios/key.c, unused/bios/key.h,
-	unused/bios/keys.inc, unused/bios/make0000.bat,
-	unused/bios/make0001.bat, unused/bios/make0100.bat,
-	unused/bios/mono.c, unused/bios/mouse.asm, unused/bios/mouse.c,
-	unused/bios/mouse.h, unused/bios/oldkey.asm, unused/bios/rbaudio.c,
-	unused/bios/rbaudio.h, unused/bios/rbaudio.new,
-	unused/bios/speaker.c, unused/bios/swiftcfg.h, unused/bios/testj.c,
-	unused/bios/testk.c, unused/bios/testk.lnk, unused/bios/testm.c,
-	unused/bios/testm.lnk, unused/bios/testms.c, unused/bios/testt.c,
-	unused/bios/timer.asm, unused/bios/timer.h, unused/bios/timerp.c,
-	unused/bios/x, unused/bios/x.bat, unused/bios/x.c,
-	unused/bios/y.bat, unused/pa_null/pa_enabl.h,
-	unused/pa_null/poly_acc.c, unused/pa_null/poly_acc.h,
-	unused/ui/gadget.c, unused/ui/icon.c, unused/ui/keypress.c,
-	unused/ui/keytrap.c, unused/ui/listbox.c, unused/ui/medfunc.c,
-	unused/ui/menu.c, unused/ui/menubar.c, unused/ui/message.c,
-	unused/ui/mouse.c, unused/ui/number.c, unused/ui/popup.c,
-	unused/ui/radio.c, unused/ui/scroll.c, unused/ui/ui.h,
-	arch/Makefile.am, arch/Makefile.in, arch/dos/bcd.c,
-	arch/dos/digiallg.c, arch/dos/digimm.c, arch/dos/disk.c,
-	arch/dos/dosgr.c, arch/dos/dpmi.c, arch/dos/init.c, arch/dos/ipx.c,
-	arch/dos/ipx.h, arch/dos/joy2.asm, arch/dos/joyc.c,
-	arch/dos/joydefs.c, arch/dos/key.c, arch/dos/midiallg.c,
-	arch/dos/modex.asm, arch/dos/mono.c, arch/dos/mono.h,
-	arch/dos/mouse.c, arch/dos/serial.c, arch/dos/sgrep.out,
-	arch/dos/timer.asm, arch/dos/tweak.inc, arch/dos/vesa.c,
-	arch/dos/vgaregs.inc, arch/dos/allg_snd/allg_snd.c,
-	arch/dos/allg_snd/internal.h, arch/dos/allg_snd/sound/allegro.h,
-	arch/dos/allg_snd/sound/config.c, arch/dos/allg_snd/sound/digmid.c,
-	arch/dos/allg_snd/sound/interndj.h, arch/dos/allg_snd/sound/midi.c,
-	arch/dos/allg_snd/sound/mixer.c, arch/dos/allg_snd/sound/readme.d1,
-	arch/dos/allg_snd/sound/readme.txt,
-	arch/dos/allg_snd/sound/snddrv.c, arch/dos/allg_snd/sound/sound.c,
-	arch/dos/allg_snd/sound/drv/adlib.c,
-	arch/dos/allg_snd/sound/drv/awedata.c,
-	arch/dos/allg_snd/sound/drv/dma.c,
-	arch/dos/allg_snd/sound/drv/emu8k.c,
-	arch/dos/allg_snd/sound/drv/emu8k.h,
-	arch/dos/allg_snd/sound/drv/emu8kmid.c,
-	arch/dos/allg_snd/sound/drv/fm_instr.h,
-	arch/dos/allg_snd/sound/drv/gus.c,
-	arch/dos/allg_snd/sound/drv/mpu.c,
-	arch/dos/allg_snd/sound/drv/sb.c, arch/dos/bak/ipx.c,
-	arch/dos/comm/commlib.c, arch/dos/comm/dzcomm.c,
-	arch/dos/comm/dzqueue.c, arch/dos/comm/irq.c,
-	arch/dos/comm/irqwrap.S, arch/dos/comm/include/allegro.h,
-	arch/dos/comm/include/asmdef.inc,
-	arch/dos/comm/include/asmdefs.inc, arch/dos/comm/include/commlib.h,
-	arch/dos/comm/include/internal.h, arch/dos/include/commlib.h,
-	arch/dos/include/disk.h, arch/dos/include/dzcomm.h,
-	arch/dos/include/joy.h, arch/dos/include/key.h,
-	arch/dos/include/midiallg.h, arch/dos/include/mouse.h,
-	arch/dos/include/serial.h, arch/dos/mm_snd/drv_sb.c,
-	arch/dos/mm_snd/mdma.c, arch/dos/mm_snd/mirq.c,
-	arch/dos/mm_snd/readme.txt, arch/dos/mm_snd/include/mdma.h,
-	arch/dos/mm_snd/include/mikmod.h, arch/dos/mm_snd/include/mirq.h,
-	arch/dos/mm_snd/include/mm_drv.h, arch/dos/mm_snd/include/mmio.h,
-	arch/dos/mm_snd/include/mtypes.h, arch/linux/Makefile.am,
-	arch/linux/Makefile.in, arch/linux/alsadigi.c,
-	arch/linux/findfile.c, arch/linux/hmiplay.c, arch/linux/hmistub.c,
-	arch/linux/init.c, arch/linux/ipx_bsd.c, arch/linux/ipx_kali.c,
-	arch/linux/ipx_lin.c, arch/linux/ipx_udp.c, arch/linux/linuxnet.c,
-	arch/linux/mono.c, arch/linux/serial.c, arch/linux/stHqFIq1,
-	arch/linux/timer.c, arch/linux/ukali.c,
-	arch/linux/include/ipx_bsd.h, arch/linux/include/ipx_drv.h,
-	arch/linux/include/ipx_hlpr.h, arch/linux/include/ipx_kali.h,
-	arch/linux/include/ipx_ld.h, arch/linux/include/ipx_lin.h,
-	arch/linux/include/ipx_udp.h, arch/linux/include/music.h,
-	arch/linux/include/serial.h, arch/linux/include/ukali.h,
-	arch/sdl/Makefile.am, arch/sdl/init.c, arch/sdl/timer.c,
-	arch/win32/d1x.ico, arch/win32/d1x.rc, arch/win32/d3d.ico,
-	arch/win32/debug.cpp, arch/win32/descent.ico, arch/win32/digi.c,
-	arch/win32/glinit.c, arch/win32/gr.c, arch/win32/hmpfile.c,
-	arch/win32/init.c, arch/win32/ipx_drv.h, arch/win32/ipx_win.c,
-	arch/win32/joydefs.c, arch/win32/joyhh.c, arch/win32/key.c,
-	arch/win32/mono.c, arch/win32/mouse.c, arch/win32/palw32.c,
-	arch/win32/pch.cpp, arch/win32/scene.cpp, arch/win32/serial.c,
-	arch/win32/texture.cpp, arch/win32/timer.c, arch/win32/win32.c,
-	arch/win32/winmain.cpp, arch/win32/winnet.c,
-	arch/win32/d3dframe/d3denum.cpp, arch/win32/d3dframe/d3denum.h,
-	arch/win32/d3dframe/d3dframe.cpp, arch/win32/d3dframe/d3dframe.h,
-	arch/win32/d3dframe/d3dmath.cpp, arch/win32/d3dframe/d3dmath.h,
-	arch/win32/d3dframe/d3dtextr.cpp, arch/win32/d3dframe/d3dtextr.h,
-	arch/win32/d3dframe/d3dutil.cpp, arch/win32/d3dframe/d3dutil.h,
-	arch/win32/d3dframe/ddenum.cpp, arch/win32/d3dframe/ddmm.h,
-	arch/win32/d3dframe/ddutil.h, arch/win32/d3dframe/ddutil2.h,
-	arch/win32/d3dframe/dsutil.h, arch/win32/d3dframe/lbprintf.h,
-	arch/win32/d3dframe/resource.h, arch/win32/d3dframe/userdlg.cpp,
-	arch/win32/include/d3dhelp.h, arch/win32/include/debug.h,
-	arch/win32/include/hmpfile.h, arch/win32/include/joy.h,
-	arch/win32/include/key.h, arch/win32/include/mouse.h,
-	arch/win32/include/pch.h, arch/win32/include/resource.h,
-	arch/win32/include/scene.h, arch/win32/include/serial.h,
-	arch/win32/include/texture.h, arch/win32/include/winmain.h,
-	arch/win32/include/wsipx.h, unused/lib/fix.h, unused/lib/rbaudio.h,
-	unused/novga/files.rc, unused/novga/novesa.c, unused/ui/barbox.c,
-	unused/ui/button.c, unused/ui/checkbox.c, unused/ui/file.c,
-	unused/ui/func.c, unused/ui/func.h, unused/ui/harderr.c,
-	unused/ui/inputbox.c, unused/ui/keypad.c, unused/ui/ui.c,
-	unused/ui/uidraw.c, unused/ui/userbox.c, unused/ui/window.c,
-	unused/vga/dd.bat, unused/vga/framebuf.c, unused/vga/framebuf.jas,
-	unused/vga/fxdpmi.h, unused/vga/fxvesa.h, unused/vga/grx.h,
-	unused/vga/modex.asm, unused/vga/palette.c, unused/vga/tweak.inc,
-	unused/vga/vesa.asm, unused/vga/vga.c, unused/vga/vga.h,
-	unused/vga/vga.jas, unused/vga/vgaregs.inc, unused/vga/xyz.bat,
-	unused/vga/new/palette.c, unused/vga/new/vga.c,
-	unused/win95/comm.c, unused/win95/comm.h, unused/win95/dd.bat,
-	unused/win95/dd.c, unused/win95/dd.h, unused/win95/ddgfx.c,
-	unused/win95/ddgr.c, unused/win95/ddraw.c, unused/win95/direct3d.c,
-	unused/win95/direct3d.h, unused/win95/ds.c, unused/win95/ds.h,
-	unused/win95/error.c, unused/win95/error.h,
-	unused/win95/findfile.c, unused/win95/gfx.c, unused/win95/global.h,
-	unused/win95/iforce.c, unused/win95/iforce.h, unused/win95/ipx.c,
-	unused/win95/joyc.c, unused/win95/key.c, unused/win95/midifile.h,
-	unused/win95/midiseq.h, unused/win95/mono.c, unused/win95/mouse.c,
-	unused/win95/palette.c, unused/win95/rbaudio.c,
-	unused/win95/swift.c, unused/win95/tactile.c,
-	unused/win95/tactile.h, unused/win95/timer.c,
-	unused/win95/winapp.c, unused/win95/winapp.h,
-	unused/win95/winckpit.asm, unused/win95/winmidi.c,
-	unused/win95/winmidi.h, unused/win95/winmono.c,
-	unused/win95/winregs.c, unused/win95/winregs.h,
-	unused/win95/xtapi.c, unused/win95/xtapi.h, arch/sdl/Makefile.in,
-	include/3d.h, include/args.h, include/byteswap.h, include/cfile.h,
-	include/checker.h, include/cmd.h, include/console.h, include/d.bat,
-	include/d_delay.h, include/d_io.h, include/dtypes.h,
-	include/dtypes.inc, include/error.h, include/findfile.h,
-	include/fix.h, include/gr.h, include/grdef.h, include/hash.h,
-	include/ibitblt.h, include/iff.h, include/ipx.h, include/loadgl.h,
-	include/lst.bat, include/m.bat, include/maths.h, include/modex.h,
-	include/mono.h, include/ogl_init.h, include/pa_enabl.h,
-	include/palette.h, include/pcx.h, include/psmacros.inc,
-	include/pstypes.h, include/pstypes.inc, include/rle.h,
-	include/strio.h, include/strutil.h, include/test.c,
-	include/test.lnk, include/texmap.h, include/timer.h,
-	include/u_dpmi.h, include/u_mem.h, include/vecmat.h,
-	include/vesa.h, texmap/Makefile.am, texmap/Makefile.in,
-	texmap/ntmap.c, texmap/scanline.c, texmap/scanline.h,
-	texmap/texmapl.h, texmap/tmap_flt.asm, texmap/tmap_inc.asm,
-	texmap/tmap_lin.asm, texmap/tmap_ll.asm, texmap/tmap_per.asm,
-	texmap/tmapfade.asm, texmap/tmapflat.c, texmap/tmappent.S,
-	texmap/tmapppro.S: Import of d2x-0.0.8
-
+	*  Import of d2x-0.0.8
