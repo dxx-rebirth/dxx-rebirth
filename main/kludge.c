@@ -21,18 +21,9 @@ char CDROM_dir[40] = ".";
 int gr_check_mode(u_int32_t a)
 {
   return 0;
-} 
-#endif
-
-extern int Num_computed_colors;
-void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size)
-{
-	        memcpy(gr_palette, pal, size);
-
-	        Num_computed_colors = 0;
 }
 
-#ifndef __DJGPP__
+
 void joy_set_btn_values( int btn, int state, int time_down, int downcount, int upcount )
 {
 

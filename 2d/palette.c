@@ -1,4 +1,4 @@
-/* $Id: palette.c,v 1.8 2003-03-19 19:21:34 btb Exp $ */
+/* $Id: palette.c,v 1.9 2003-06-10 07:31:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -192,6 +192,14 @@ void gr_palette_set_gamma( int gamma )
 int gr_palette_get_gamma()
 {
 	return gr_palette_gamma_param;
+}
+
+
+void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size)
+{
+	        memcpy(gr_palette, pal, size);
+
+	        Num_computed_colors = 0;
 }
 
 

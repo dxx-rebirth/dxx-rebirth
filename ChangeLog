@@ -1,5 +1,8 @@
 2003-06-09  Bradley Bell  <btb@icculus.org>
 
+	* 2d/palette.c, main/kludge.c: gr_copy_palette not really a
+	kludge, I think
+
 	* include/libmve.h, libmve/mve_main.c, libmve/mvelib.c,
 	libmve/mvelib.h, libmve/mveplay.c, main/movie.c: merged libmve
 	from physfs branch
