@@ -4,14 +4,14 @@
 #include <stdio.h>
 #include <string.h>
 #include "d_io.h"
-#ifdef __MSDOS__
-#include "disk.h"
+#ifdef __ENV_DJGPP__
+#include "dos_disk.h"
 #endif
 //added 05/17/99 Matt Mueller
 #include "u_mem.h"
 //end addition -MM
 
-#ifdef __WINDOWS__
+#ifdef __ENV_WINDOWS__
 #include <windows.h>
 #define lseek(a,b,c) _lseek(a,b,c)
 #endif
@@ -34,10 +34,10 @@ long ffilelength(FILE *fh)
 
 unsigned long d_getdiskfree()
 {
-#ifdef __MSDOS__
+#ifdef __ENV_MSDOS__
   return getdiskfree();
 #else
-#ifdef __WINDOWS__
+#ifdef __ENV_WINDOWS__
 	ULONG cbCluster = 0;
 	ULONG cClusters = 0;
 

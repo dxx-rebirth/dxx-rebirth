@@ -1,5 +1,7 @@
 /* DPH: This is the file where all the stub functions go. The aim is to have nothing in here ,eventually */
 #include <conf.h>
+
+#ifdef SDL_AUDIO
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
@@ -118,3 +120,5 @@ int CD_blast_mixer()
 {
  return 0;
 }
+
+#endif //SDL_AUDIO

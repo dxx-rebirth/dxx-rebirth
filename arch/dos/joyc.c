@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/joyc.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:15 $
+ * $Date: 2001-01-19 03:33:52 $
  * 
  * Routines for joystick reading.
  * 
@@ -155,19 +155,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
-#ifdef RCS
-static char rcsid[] = "$Id: joyc.c,v 1.1.1.1 2001-01-19 03:30:15 bradleyb Exp $";
-#endif
+#include <conf.h>
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <conio.h>
 #include <dos.h>
-#include <i86.h>
 
 //#define ARCADE 1
 
-#include "types.h"
+#include "pstypes.h"
 #include "mono.h"
 #include "joy.h"
 #include "u_dpmi.h"
@@ -447,9 +443,9 @@ int joy_init()
 	int i;
 	int temp_axis[4];
 
-//        if(FindArg("-joy209"))
+//        if(args_find("-joy209"))
 //         use_alt_joyport=1;
-        if(FindArg("-joy209"))
+        if(args_find("-joy209"))
          JOY_PORT = 521;  //209h;
          
 	joy_flush();

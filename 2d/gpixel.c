@@ -16,20 +16,20 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 #include "grdef.h"
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 #include "modex.h"
 #include "vesa.h"
 #endif
 
 unsigned char gr_ugpixel( grs_bitmap * bitmap, int x, int y )
 {
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 	switch(bitmap->bm_type)
 	{
 	case BM_LINEAR:
 #endif
 		return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
         case BM_MODEX:
 		x += bitmap->bm_x;
 		y += bitmap->bm_y;
@@ -50,13 +50,13 @@ unsigned char gr_ugpixel( grs_bitmap * bitmap, int x, int y )
 unsigned char gr_gpixel( grs_bitmap * bitmap, int x, int y )
 {
 	if ((x<0) || (y<0) || (x>=bitmap->bm_w) || (y>=bitmap->bm_h)) return 0;
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 	switch(bitmap->bm_type)
 	{
 	case BM_LINEAR:
 #endif
 		return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
         case BM_MODEX:
 		x += bitmap->bm_x;
 		y += bitmap->bm_y;

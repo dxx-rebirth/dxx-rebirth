@@ -70,7 +70,8 @@ VERSION = @VERSION@
 
 noinst_LIBRARIES = libsound.a
 INCLUDES = -I $(top_srcdir) -I$(top_srcdir)/includes -I$(top_srcdir)/main
-libsound_a_SOURCES = sdl_digi.c sdl_cdrom.c
+libsound_a_SOURCES = sdl_digi.c sdl_cdrom.c dos_digi.c dos_cdrom.c
+
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../conf.h
 CONFIG_CLEAN_FILES = 
@@ -82,7 +83,7 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libsound_a_LIBADD = 
-libsound_a_OBJECTS =  sdl_digi.o sdl_cdrom.o
+libsound_a_OBJECTS =  sdl_digi.o sdl_cdrom.o dos_digi.o dos_cdrom.o
 AR = ar
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -94,7 +95,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/sdl_cdrom.P .deps/sdl_digi.P
+DEP_FILES =  .deps/dos_cdrom.P .deps/dos_digi.P .deps/sdl_cdrom.P \
+.deps/sdl_digi.P
 SOURCES = $(libsound_a_SOURCES)
 OBJECTS = $(libsound_a_OBJECTS)
 

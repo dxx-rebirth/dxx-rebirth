@@ -22,7 +22,7 @@
 
 _DATA	segment	dword public USE32 'DATA'
 
-rcsid	db	"$Id: winckpit.asm,v 1.1.1.1 2001-01-19 03:30:15 bradleyb Exp $"
+rcsid	db	"$Id: winckpit.asm,v 1.1.1.2 2001-01-19 03:33:51 bradleyb Exp $"
 	align	4
 
 _DATA	ends

@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "clip.h"
 
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 #include "modex.h"
 #endif
 #ifdef OGL
@@ -279,7 +279,7 @@ int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 		gr_linear_line( a1, b1, a2, b2 );
                #endif
 		return 0;
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
         case BM_MODEX:
 		modex_line_x1 = a1+XOFFSET;		
 		modex_line_y1 = b1+YOFFSET;		

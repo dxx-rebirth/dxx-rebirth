@@ -12,7 +12,7 @@
 
 _DATA   SEGMENT BYTE PUBLIC USE32 'DATA'
 
-rcsid	db	"$Id: joy.asm,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $"
+rcsid	db	"$Id: joy.asm,v 1.1.1.2 2001-01-19 03:33:50 bradleyb Exp $"
 
 	LastTick 	dd	0
 	TotalTicks	dd	0

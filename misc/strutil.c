@@ -30,6 +30,8 @@ char *d_strdup(char *str)
 	return a;
 }
 
+
+#if !defined  __ENV_LINUX__ && !defined __ENV_DJGPP__
 // string compare without regard to case
 
 int stricmp( char *s1, char *s2 )
@@ -55,6 +57,10 @@ int strnicmp( char *s1, char *s2, int n )
 	return 0;
 }
 
+#endif
+
+#ifndef __ENV_DJGPP__
+
 void strlwr( char *s1 )
 {
 	while( *s1 )	{
@@ -70,6 +76,8 @@ void strupr( char *s1 )
 		s1++;
 	}
 }
+
+#endif
 
 void strrev( char *s1 )
 {

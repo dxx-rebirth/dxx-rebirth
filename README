@@ -1,7 +1,35 @@
-Ok folks, this is the d2x port of descent 2.
-At this stage most of descent 2 works under linux:
+===========
+D2X
+===========
 
-Known bugs/unintentional features/missing stuff:
+
+Linux:
+======
+
+Required tools:
+* GCC 2.95
+* SDL 1.0 (get it from http://www.devolution.com/~slouken/projects/SDL/)
+* NASM 0.98 (OPTIONAL but RECOMMENDED, not sure, try your linux distribution)
+* A thread safe X server.
+* Make, sed, etc...
+
+
+Build instructions:
+Install all of the components above. Next, from the d2x directory:
+
+./configure
+(./configure --help will show you the available options)
+For OpenGL support, try configuring with --with-opengl. Your mileage may vary
+(but basically, you need an accelerated Mesa sitting somewhere where d2x cab
+ see it)... The OpenGL support isn't perfect, but it works...
+
+make
+
+Hopefully d2x will build. Do not be concerned about warnings, they are fairly
+unimportant.
+
+
+Known bugs/issues:
 * Serial support doesn't work. (UDP and IPX networking does)
 * Movies (unlikely ever to be supported)
 * Sound glitches (due to stuff I haven't implemented)
@@ -9,11 +37,44 @@ Known bugs/unintentional features/missing stuff:
 * Something went screwy with the control config system, it kinda got "d1xed"...
 * OpenGL leaks memory like it is going out of fashion. It leaked about 64meg in a few minutes for me. I need to debug this =)
 
-Basically, to compile this under linux:
-You need the SDL 1.0 or greater, and a thread-safe X server.
-Do a ./autogen.sh then a make. Cross your fingers and pray, it worked on my machine.
 
-For OpenGL support, try building with --with-opengl. Your mileage may vary (but basically, you need an accelerated Mesa sitting somewhere where I can see it)... The OpenGL support isn't perfect, but it works...
+MS-DOS:
+=======
+
+Required tools:
+* DJGPP v2
+The following DJGPP packages are ALL REQUIRED (newer versions are ok)!
+v2/
+djdev203.zip
+v2gnu/
+bnu281b.zip gcc2952b.zip mak3781b.zip bsh1147b.zip sed302b.zip
+m4-14b.zip acnf213b.zip gwk304b.zip txt20b.zip grep22b.zip dif272b.zip
+So many packages are needed to support the autoconf build system that d2x
+uses. (Sorry! =)
+* NASM v0.98 or better is REQUIRED
+
+
+Build instructions:
+Install all of the djgpp packages above. Make sure that DJGPP is properly
+configure (see the DJGPP docs for more information).
+Make a copy of bash.exe in your djgpp bin/ directory. Call it "sh.exe". This
+step is VERY IMPORTANT (otherwise all the scripts will fail).
+
+Now, run the following from the d2x directory:
+djgpp.bat
+make
+
+Hopefully things will work out and the package will build correctly for you.
+
+Known bugs/issues:
+* Serial and network support missing.
+* Sound support missing.
+* Movie support missing
+
+
+
+Reporting bugs/feedback:
+========================
 
 There are two ways to report bugs and give feedback:
 1) Get on the descent-source mailing list by sending an email to majordomo@warpcore.org with the body as: "subscribe descent-source <your email address>". Discussions about the source code in general are available here, and is the main list that d2x and d1x, a similar project for descent 1 is discussed on. Patches and questions can be posted there, as well.

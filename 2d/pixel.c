@@ -41,7 +41,7 @@ void gr_upixel( int x, int y )
 	case BM_LINEAR:
 		DATA[ ROWSIZE*y+x ] = COLOR;
 		return;
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
         case BM_MODEX:
 		gr_modex_setplane( (x+XOFFSET) & 3 );
 		gr_video_memory[(ROWSIZE * (y+YOFFSET)) + ((x+XOFFSET)>>2)] = COLOR;
@@ -73,7 +73,7 @@ inline void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char color )
 	case BM_LINEAR:
 		bm->bm_data[ bm->bm_rowsize*y+x ] = color;
 		return;
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
         case BM_MODEX:
 		x += bm->bm_x;
 		y += bm->bm_y;

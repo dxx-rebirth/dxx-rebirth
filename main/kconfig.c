@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2001-01-19 03:29:59 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.1.1.2 2001-01-19 03:33:43 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -3504,7 +3504,7 @@ void kconfig_read_external_controls()
 		kc_external_control->automap_state = 1;
 	//memset(&r,0,sizeof(r));
 
-  #if !defined WINDOWS && !defined __ENV_LINUX__
+  #if !defined WINDOWS && !defined __ENV_LINUX__ && !defined __ENV_DJGPP__
  
 	int386 ( kc_external_intno, &r, &r);		// Read external info...
 

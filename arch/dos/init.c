@@ -1,3 +1,6 @@
+#include <conf.h>
+#ifdef __ENV_DJGPP__
+
 #include <stdio.h>
 #include <string.h>
 #ifdef __DJGPP__
@@ -7,6 +10,7 @@
 
 #include "../../main/inferno.h"
 #include "../../main/text.h"
+#include "console.h"
 #include "args.h"
 #include "error.h"
 
@@ -18,10 +22,9 @@
 #include "mouse.h"
 
 //added on 9/15/98 by Victor Rachels to add cd controls
-#include "bcd.h"
+//#include "bcd.h"
 //end this section addition - Victor Rachels
 
-int WVIDEO_running=0;           //debugger can set to 1 if running
 
 void install_int3_handler(void);
 
@@ -212,8 +215,6 @@ void check_memory()
         }
 }
 
-extern int Inferno_verbose;
-
 //NO_STACK_SIZE_CHECK uint * stack, *stack_ptr;
 //NO_STACK_SIZE_CHECK int stack_size, unused_stack_space;
 //NO_STACK_SIZE_CHECK int sil;
@@ -268,12 +269,12 @@ void arch_init_start() {
         // (To check memory size and availbabitliy and allocate some low DOS memory)
         // adb: no TXT_... loaded yet
         //if (Inferno_verbose) printf( "%s... ", TXT_INITIALIZING_DPMI);
-        if (Inferno_verbose) printf( "Initializing DPMI services... ");
-        dpmi_init(Inferno_verbose);             // Before anything
-        if (Inferno_verbose) printf( "\n" );
+        con_printf(CON_VERBOSE, "Initializing DPMI services... ");
+        dpmi_init(1);             // Before anything
+        con_printf(CON_VERBOSE, "\n" );
 
 #ifndef __GNUC__
-        if (Inferno_verbose) printf( "\n%s...", TXT_INITIALIZING_CRIT);
+        con_printf(CON_VERBOSE, "\n%s...", TXT_INITIALIZING_CRIT);
         if (!dpmi_lock_region((void near *)descent_critical_error_handler,(char *)chandler_end - (char near *)descent_critical_error_handler))  {
                 Error( "Unable to lock critial error handler" );
         }
@@ -293,13 +294,13 @@ void arch_init_start() {
 }
 
 void arch_init() {
-	if ( !FindArg( "-nodoscheck" ))
+        if ( !args_find( "-nodoscheck" ))
                 check_dos_version();
         
-        if ( !FindArg( "-nofilecheck" ))
+        if ( !args_find( "-nofilecheck" ))
                 dos_check_file_handles(5);
 
-        if ( !FindArg( "-nomemcheck" ))
+        if ( !args_find( "-nomemcheck" ))
                 check_memory();
 
 	#ifndef NDEBUG
@@ -308,48 +309,48 @@ void arch_init() {
                 mopen( 1, 2, 1, 78,  5, "Errors & Serious Warnings");
         #endif
 
-        if (!WVIDEO_running)
-                mprintf((0,"WVIDEO_running = %d\n",WVIDEO_running));
+/*        if (!WVIDEO_running)
+                mprintf((0,"WVIDEO_running = %d\n",WVIDEO_running));*/
 
         //if (!WVIDEO_running) install_int3_handler();
 
 
-        if (Inferno_verbose) printf( "\n%s", TXT_VERBOSE_2);
+        con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_2);
         timer_init();
         timer_set_rate( digi_timer_rate );                      // Tell our timer how fast to go (120 Hz)
         joy_set_timer_rate( digi_timer_rate );      // Tell joystick how fast timer is going
 
-        if (Inferno_verbose) printf( "\n%s", TXT_VERBOSE_3);
+        con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_3);
         key_init();
-        if (!FindArg( "-nomouse" ))     {
-                if (Inferno_verbose) printf( "\n%s", TXT_VERBOSE_4);
-                if (FindArg( "-nocyberman" ))
+        if (!args_find( "-nomouse" ))     {
+                con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_4);
+                if (args_find( "-nocyberman" ))
                         mouse_init(0);
                 else
                         mouse_init(1);
         } else {
-                if (Inferno_verbose) printf( "\n%s", TXT_VERBOSE_5);
+                con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_5);
         }
-        if (!FindArg( "-nojoystick" ))  {
-                if (Inferno_verbose) printf( "\n%s", TXT_VERBOSE_6);
+        if (!args_find( "-nojoystick" ))  {
+                con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_6);
                 joy_init();
-                if ( FindArg( "-joyslow" ))     {
-                        if (Inferno_verbose) printf( "\n%s", TXT_VERBOSE_7);
+                if ( args_find( "-joyslow" ))     {
+                        con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_7);
                         joy_set_slow_reading(JOY_SLOW_READINGS);
                 }
-                if ( FindArg( "-joypolled" ))   {
-                        if (Inferno_verbose) printf( "\n%s", TXT_VERBOSE_8);
+                if ( args_find( "-joypolled" ))   {
+                        con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_8);
                         joy_set_slow_reading(JOY_POLLED_READINGS);
                 }
-                if ( FindArg( "-joybios" ))     {
-                        if (Inferno_verbose) printf( "\n%s", TXT_VERBOSE_9);
+                if ( args_find( "-joybios" ))     {
+                        con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_9);
                         joy_set_slow_reading(JOY_BIOS_READINGS);
                 }
-                if ( FindArg( "-joynice" ))     {
-                        if (Inferno_verbose) printf( "\n%s", "Using nice joystick poller..." );
+                if ( args_find( "-joynice" ))     {
+                        con_printf(CON_VERBOSE, "\n%s", "Using nice joystick poller..." );
                         joy_set_slow_reading(JOY_FRIENDLY_READINGS);
                 }
-                if ( FindArg( "-gameport" ))    {
+                if ( args_find( "-gameport" ))    {
                         if ( init_gameport() )  {                       
                                 joy_set_slow_reading(JOY_BIOS_READINGS);
                         } else {
@@ -357,10 +358,12 @@ void arch_init() {
                         }
                 }
         } else {
-                if (Inferno_verbose) printf( "\n%s", TXT_VERBOSE_10);
+                con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_10);
         }
         #if 0 // no divzero
         if (Inferno_verbose) printf( "\n%s", TXT_VERBOSE_11);
         div0_init(DM_ERROR);
         #endif
 }
+
+#endif // __ENV_DJGPP__

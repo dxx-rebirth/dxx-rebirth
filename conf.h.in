@@ -18,18 +18,27 @@
 /* Define if you want an OpenGL build */
 #undef OGL
 
+/* Define if building under linux */
+#undef __ENV_LINUX__
+
+/* Define if building under msdos */
+#undef __ENV_DJGPP__
+
+/* General defines */
 #define NMONO 1
-#define SDL_AUDIO 1
 #define PIGGY_USE_PAGING 1
 #define NEWDEMO 1
 
-#ifdef OGL
-# define GLX_VIDEO 1
-# define GII_INPUT 1
-# define GII_XWIN 1
-#else
-# define SDL_VIDEO 1
-# define SDL_INPUT 1
-#endif
 
-#define __ENV_LINUX__ 1
+#ifdef __ENV_LINUX__
+# define SDL_AUDIO 1
+
+# ifdef OGL
+#  define GLX_VIDEO 1
+#  define GII_INPUT 1
+#  define GII_XWIN 1
+# else
+#  define SDL_VIDEO 1
+#  define SDL_INPUT 1
+# endif
+#endif

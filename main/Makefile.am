@@ -1,8 +1,4 @@
-if USE_OPENGL
-INCLUDES = -I $(top_srcdir)/includes -I $(top_srcdir)/input/ggi/include -I $(top_srcdir)/input/linux/include -fwritable-strings
-else
-INCLUDES = -I $(top_srcdir)/includes -I $(top_srcdir)/input/sdl/include -I $(top_srcdir)/input/linux/include -fwritable-strings
-endif
+INCLUDES = -I $(top_srcdir)/includes -fwritable-strings
 
 bin_PROGRAMS = d2x
 
@@ -23,9 +19,14 @@ console.c   cmd.c
 
 
 d2x_LDFLAGS = -export-dynamic
-if USE_OPENGL
-d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread -lMesaGL -lMesaGLU -lgii -L/usr/X11R6/lib -lXext
-else
-d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread
-endif
 
+if ENV_DJGPP
+ d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a  ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
+
+else 
+if USE_OPENGL
+  d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread -lMesaGL -lMesaGLU -lgii -L/usr/X11R6/lib -lXext
+else
+  d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread
+endif
+endif

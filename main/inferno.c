@@ -123,34 +123,6 @@ void check_joystick_calibration(void);
 
 extern int piggy_low_memory;
 
-void mem_int_to_string( int number, char *dest )
-{
-	int i,l,c;
-	char buffer[20],*p;
-
-	sprintf( buffer, "%d", number );
-
-	l = strlen(buffer);
-	if (l<=3) {
-		// Don't bother with less than 3 digits
-		sprintf( dest, "%d", number );
-		return;
-	}
-
-	c = 0;
-	p=dest;
-	for (i=l-1; i>=0; i-- )	{
-		if (c==3) {
-			*p++=',';
-			c = 0;
-		}
-		c++;
-		*p++ = buffer[i];
-	}
-	*p++ = '\0';
-	strrev(dest);
-}
-
 
 int descent_critical_error = 0;
 unsigned descent_critical_deverror = 0;

@@ -59,7 +59,7 @@ DEBUG EQU 1
 
 _DATA   SEGMENT BYTE PUBLIC USE32 'DATA'
 
-rcsid	db	"$Id: key.asm,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $"
+rcsid	db	"$Id: key.asm,v 1.1.1.2 2001-01-19 03:33:50 bradleyb Exp $"
 
 PUBLIC  _keyd_pressed     ; Must start with a _ so C can see the variable.
 

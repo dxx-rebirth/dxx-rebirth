@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/main/digi.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:29:59 $
+ * $Date: 2001-01-19 03:33:43 $
  * 
  * Include file for sound hardware.
  * 
@@ -164,7 +164,7 @@ typedef struct digi_sound       {
 
 
 
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 extern int digi_driver_board;
 extern int digi_driver_port;
 extern int digi_driver_irq;

@@ -26,8 +26,22 @@ typedef unsigned char ubyte;
 # include <sys/types.h>
 # define _MAX_PATH 1024
 # define _MAX_DIR 256
-#define min(a,b) (((a)>(b))?(b):(a))
-#define max(a,b) (((a)<(b))?(b):(a))
+# define min(a,b) (((a)>(b))?(b):(a))
+# define max(a,b) (((a)<(b))?(b):(a))
+#elif defined __ENV_DJGPP__
+# include <sys/types.h>
+# define min(a,b) (((a)>(b))?(b):(a))
+# define max(a,b) (((a)<(b))?(b):(a))
+# define _MAX_PATH 255
+# define _MAX_DIR 63
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+typedef signed long int32_t;
+typedef unsigned long u_int32_t;
+typedef signed short int16_t;
+typedef unsigned short u_int16_t;
+
 #else
 typedef unsigned short ushort;
 typedef unsigned int uint;

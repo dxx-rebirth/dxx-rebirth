@@ -35,7 +35,7 @@
 
 _DATA   SEGMENT BYTE PUBLIC USE32 'DATA'
 
-rcsid   db  "$Id: mouse.asm,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $"
+rcsid   db  "$Id: mouse.asm,v 1.1.1.2 2001-01-19 03:33:49 bradleyb Exp $"
 
 		MOUSE_EVENT STRUCT 2
 			MouseDX         dw  ?

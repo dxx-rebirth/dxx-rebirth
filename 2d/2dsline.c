@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 #include "modex.h"
 #include "vesa.h"
 #endif
@@ -98,13 +98,13 @@ void gr_linear_darken(ubyte * dest, int darkening_level, int count, ubyte * fade
 void gr_uscanline( int x1, int x2, int y )
 {
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS )	{
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 		switch(TYPE)
 		{
 		case BM_LINEAR:
 #endif
 			gr_linear_stosd( DATA + ROWSIZE*y + x1, (unsigned char)COLOR, x2-x1+1);
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
                         break;
 		case BM_MODEX:
 			gr_modex_uscanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
@@ -115,13 +115,13 @@ void gr_uscanline( int x1, int x2, int y )
 		}
 #endif
 	} else {
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 		switch(TYPE)
 		{
 		case BM_LINEAR:
 #endif
 			gr_linear_darken( DATA + ROWSIZE*y + x1, Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 			break;
 		case BM_MODEX:
 			gr_modex_uscanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
@@ -147,13 +147,13 @@ void gr_scanline( int x1, int x2, int y )
 	if (x2 > MAXX) x2 = MAXX;
 
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS )	{
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 		switch(TYPE)
 		{
 		case BM_LINEAR:
 #endif
 			gr_linear_stosd( DATA + ROWSIZE*y + x1, (unsigned char)COLOR, x2-x1+1);
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 			break;
 		case BM_MODEX:
 			gr_modex_uscanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
@@ -164,13 +164,13 @@ void gr_scanline( int x1, int x2, int y )
 		}
 #endif
 	} else {
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 		switch(TYPE)
 		{
 		case BM_LINEAR:
 #endif
 			gr_linear_darken( DATA + ROWSIZE*y + x1, Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 			break;
 		case BM_MODEX:
 			gr_modex_uscanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );

@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/include/key.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:15 $
+ * $Date: 2001-01-19 03:33:52 $
  *
  * Header for keyboard functions
  *
@@ -85,7 +85,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _KEY_H 
 
 #include "fix.h"
-#include "types.h"
+#include "pstypes.h"
 
 //==========================================================================
 // This installs the int9 vector and initializes the keyboard in buffered

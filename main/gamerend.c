@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.1.1.1 2001-01-19 03:30:02 bradleyb Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.1.1.2 2001-01-19 03:33:47 bradleyb Exp $";
 #endif
 
 
@@ -423,7 +423,7 @@ extern int gr_bitblt_dest_step_shift;
 extern int gr_wait_for_retrace;
 extern int gr_bitblt_double;
 
-#if !defined MACINTOSH && !defined __ENV_LINUX__
+#if !defined MACINTOSH && !defined __ENV_LINUX__ && !defined __ENV_DJGPP__
 void expand_row(ubyte * dest, ubyte * src, int num_src_pixels );
 #pragma aux expand_row parm [edi] [esi] [ecx] modify exact [ecx esi edi eax ebx] = \
 	"add	esi, ecx"			\

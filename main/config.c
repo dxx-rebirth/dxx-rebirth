@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.1.1.1 2001-01-19 03:30:02 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.1.1.2 2001-01-19 03:33:47 bradleyb Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -369,17 +369,15 @@ int ReadConfigFile()
 	Config_digi_type = digi_driver_board;
 	Config_digi_dma = digi_driver_dma;*/
 
-#if !defined WINDOWS && !defined __ENV_LINUX__
+#if !defined WINDOWS && !defined __ENV_LINUX__ && !defined __ENV_DJGPP__
 	if (digi_driver_board_16 > 0 && !args_find("-no16bit") && digi_driver_board_16 != _GUS_16_ST) {
 		digi_driver_board = digi_driver_board_16;
 		digi_driver_dma = digi_driver_dma_16;
 	}
-#endif
 
-	// HACK!!! 
+	// HACK!!!
 	//Hack to make some cards look like others, such as
 	//the Crytal Lake look like Microsoft Sound System
-#if !defined WINDOWS && !defined __ENV_LINUX__
 	if ( digi_driver_board == _CRYSTAL_LAKE_8_ST )	{
 		ubyte tmp;
 		tmp = CrystalLakeReadMCP( CL_MC1 );
@@ -578,7 +576,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.1.1.1 2001-01-19 03:30:02 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.1.1.2 2001-01-19 03:33:47 bradleyb Exp $";
 #endif
 
 #define MAX_CTB_LEN	512

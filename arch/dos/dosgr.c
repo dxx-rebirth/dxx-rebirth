@@ -1,5 +1,7 @@
 // Graphics functions for DOS.
 
+#include <conf.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <io.h>
@@ -14,8 +16,6 @@
 #include "vesa.h"
 #include "modex.h"
 #include "error.h"
-
-#include "gamefont.h"
 
 #ifdef __DJGPP__
 #include <sys/nearptr.h>
@@ -52,6 +52,7 @@ typedef struct screen_save {
 screen_save gr_saved_screen;
 
 int gr_show_screen_info = 0;
+extern int VGA_current_mode;
 
 void gr_set_cellheight( ubyte height )
 {
@@ -244,8 +245,8 @@ int isvga()
 	regs.w.ax = 0x1a00;
 	int386( 0x10, &regs, &regs );
 
-	if ( regs.h.al == 0x1a )
-		 return 1;
+        if ( regs.h.al == 0x1a )
+                 return 1;
 
 	return 0;
 }
@@ -414,7 +415,7 @@ return 0;
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*3,grd_curscreen->sc_h*4);
+        grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*3,grd_curscreen->sc_h*4);
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
@@ -422,22 +423,24 @@ return 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = r;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_type = t;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = (unsigned char *)data;
+        VGA_current_mode = mode;
 	gr_set_current_canvas(NULL);
 
 	//gr_enable_default_palette_loading();
-	gamefont_choose_game_font(w,h);
+//        gamefont_choose_game_font(w,h);
 
 	return 0;
 }
 
-int gr_init(int mode)
+int gr_init(void)
 {
 	int org_gamma;
 	int retcode;
+        int mode = SM(320,200);
 
 	// Only do this function once!
 	if (gr_installed==1)
-		return 1;
+                return 3;
 
 #ifdef __DJGPP__
 	if (!__djgpp_nearptr_enable()) {
@@ -464,7 +467,7 @@ int gr_init(int mode)
 
 	// Save the current text screen mode
 	if (gr_save_mode()==1)
-		return 1;
+                return 2;
 
 #ifndef NOGRAPH
 	// Save the current palette, and fade it out to black.
@@ -573,7 +576,7 @@ int gr_check_mode(u_int32_t mode)
 //	case SM_640x480V15:	return gr_vesa_setmode( 0x110 ); 
 //	case SM_800x600V15:	return gr_vesa_setmode( 0x113 ); 
 	}
-	return 11;
+        return 11;
 }
 
 /* Palette Stuff Starts Here... */

@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/grdef.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:16 $
+ * $Date: 2001-01-19 03:34:09 $
  *
  * Internal definitions for graphics lib.
  *
@@ -100,7 +100,7 @@ void gr_linear_line( int x0, int y0, int x1, int y1);
 
 extern unsigned int Table8to32[256];
 
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP_
 extern unsigned char * gr_video_memory;
 #endif
 

@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/key.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:15 $
+ * $Date: 2001-01-19 03:33:52 $
  * 
  * Functions for keyboard handler.
  * 
@@ -140,15 +140,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define PASS_KEYS_TO_BIOS	1			//if set, bios gets keys
 
-#ifdef RCS
-static char rcsid[] = "$Id: key.c,v 1.1.1.1 2001-01-19 03:30:15 bradleyb Exp $";
-#endif
-
+#include <conf.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <conio.h>
 #include <dos.h>
-#include <i86.h>
 
 //#define WATCOM_10
 #ifdef __DJGPP__
@@ -219,7 +214,7 @@ unsigned char shifted_ascii_table[128] =
   255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
   255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
   255,255,255,255,255,255,255,255 };
-
+/*
 char * key_text[256] = {
 "","ESC","1","2","3","4","5","6","7","8","9","0","-",
 "=","BSPC","TAB","Q","W","E","R","T","Y","U","I","O",
@@ -241,7 +236,7 @@ char * key_text[256] = {
 "DEL","","","","","","","","","","","","","","","","","",
 "","","","","","","","","","","","","","","","","","","","",
 "","","","","","","" };
-
+*/
 unsigned char key_to_ascii(int keycode )
 {
 	int shifted;

@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/timer.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:16 $
+ * $Date: 2001-01-19 03:34:09 $
  *
  * Header for timer functions
  *
@@ -71,11 +71,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // interrupt rate.
 
 #define TIMER_FREQUENCY 1193180
-#if !defined (__MSDOS__) || defined(__GNUC__)
 #define _far
 #define __far
 #define __interrupt
-#endif
 
 extern void timer_init();
 extern void timer_close();
@@ -91,7 +89,7 @@ extern void timer_set_function( void _far * function );
 // 1 hr, respectively.
 
 extern fix timer_get_fixed_seconds();   // Rolls about every 9 hours...
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 extern fix timer_get_fixed_secondsX(); // Assume interrupts already disabled
 extern fix timer_get_approx_seconds();		// Returns time since program started... accurate to 1/120th of a second
 extern void timer_set_joyhandler( void (*joy_handler)() );
@@ -108,11 +106,11 @@ extern void timer_set_joyhandler( void (*joy_handler)() );
 
 //==========================================================================
 // Use to access the BIOS ticker... ie...   i = TICKER
-#ifdef __LINUX__
+#ifndef __ENV_DJGPP__
 #define TICKER (timer_get_fixed_seconds())
 #endif
 
-#ifdef __MSDOS__
+#ifdef __ENV_DJGPP__
 
 #ifndef __GNUC__
 #define TICKER (*(volatile int *)0x46C)

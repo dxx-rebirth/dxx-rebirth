@@ -291,8 +291,8 @@ static inline void modex_copy_column_m(ubyte * src, ubyte * dest, int num_pixels
     "addl   %%edx, %%edi;"
     "decl   %%ecx;"
     "jne    0b"
- : : "S" (src), "D" (dest), "c" (num_pixels), "b" (src_rowsize), "d" (dest_rowsize)
- :	"%eax", "%ecx", "%esi", "%edi");
+ : "=c" (num_pixels), "=S" (src), "=D" (dest) : "S" (src), "D" (dest), "c" (num_pixels), "b" (src_rowsize), "d" (dest_rowsize)
+ :      "%eax");
 }
 
 static inline void modex_copy_scanline( ubyte * src, ubyte * dest, int npixels ) {
@@ -325,8 +325,8 @@ static inline void modex_copy_scanline( ubyte * src, ubyte * dest, int npixels )
 "       decl %%ebx;"
 "       jne 2b;"
 "3:"
- : : "S" (src), "D" (dest), "c" (npixels)
- :      "%eax", "%ebx", "%ecx", "%edx", "%esi", "%edi");
+ : "=c" (npixels), "=S" (src), "=D" (dest): "S" (src), "D" (dest), "c" (npixels)
+ :      "%eax", "%ebx", "%edx");
 }
 
 static inline void modex_copy_scanline_2x( ubyte * src, ubyte * dest, int npixels ) {
@@ -359,8 +359,8 @@ static inline void modex_copy_scanline_2x( ubyte * src, ubyte * dest, int npixel
 "       decl %%ebx;"
 "       jne 2b;"
 "3:"
- : : "S" (src), "D" (dest), "c" (npixels)
- :	"%eax", "%ebx", "%ecx", "%edx", "%esi", "%edi");
+ : "=c" (npixels), "=S" (src), "=D" (dest): "S" (src), "D" (dest), "c" (npixels)
+ :      "%eax", "%ebx", "%edx");
 }
 #elif defined _MSC_VER
 

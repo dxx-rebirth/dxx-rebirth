@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/include/mouse.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:15 $
+ * $Date: 2001-01-19 03:33:52 $
  *
  * Header for mouse functions
  *
@@ -59,7 +59,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef MOUSE_H
 #define MOUSE_H
 
-#include "types.h"
+#include "pstypes.h"
 #include "fix.h"
 
 #define MB_LEFT			0

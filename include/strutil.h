@@ -19,13 +19,20 @@ char *d_strdup(char *str);
 #ifdef __ENV_LINUX__
 #define stricmp(a,b) strcasecmp(a,b)
 #define strnicmp(a,b,c) strncasecmp(a,b,c)
-#else
-extern int stricmp(char *str1, char *str2);
-extern int strnicmp(char *str1, char *str2, int n);
-#endif
 
 void strupr( char *s1 );
 void strlwr( char *s1 );
+#elif defined __ENV_DJGPP__
+// Nothing needed
+
+#else
+extern int stricmp(char *str1, char *str2);
+extern int strnicmp(char *str1, char *str2, int n);
+
+void strupr( char *s1 );
+void strlwr( char *s1 );
+#endif
+
 void strrev( char *s1 );
 
 void _splitpath(char *name, char *drive, char *path, char *base, char *ext);

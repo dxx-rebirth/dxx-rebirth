@@ -1,6 +1,8 @@
 // SDL digital audio support
 
 #include <conf.h>
+
+#ifdef SDL_AUDIO
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -840,3 +842,5 @@ void digi_reset_digi_sounds() {
 //#endif
 //}
 //end this section kill - MM
+
+#endif // SDL_AUDIO

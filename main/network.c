@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.1.1.1 2001-01-19 03:30:02 bradleyb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.1.1.2 2001-01-19 03:33:46 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -26,6 +26,7 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.1 2001-01-19 03:30:02 bradleyb Exp
 #include <stdlib.h>
 
 #include "pstypes.h"
+#include "strutil.h"
 #include "args.h"
 #include "timer.h"
 #include "mono.h"

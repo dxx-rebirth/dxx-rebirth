@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/joydefs.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:15 $
+ * $Date: 2001-01-19 03:33:52 $
  * 
  * .
  * 
@@ -270,12 +270,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: joydefs.c,v 1.1.1.1 2001-01-19 03:30:15 bradleyb Exp $";
-#pragma on (unreferenced)
-#endif
+#include <conf.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -304,6 +299,8 @@ static char rcsid[] = "$Id: joydefs.c,v 1.1.1.1 2001-01-19 03:30:15 bradleyb Exp
 #include "playsave.h"
 
 int joydefs_calibrate_flag = 0;
+
+int Joy_is_Sidewinder = 0;
 
 void joy_delay()
 {
@@ -571,8 +568,6 @@ void joydef_menuset_1(int nitems, newmenu_item * items, int *last_key, int citem
 extern ubyte kc_use_external_control;
 extern ubyte kc_enable_external_control;
 extern ubyte *kc_external_name;
-
-int Joy_is_Sidewinder=0;
 
 void joydefs_config()
 {

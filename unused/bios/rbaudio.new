@@ -1,8 +1,8 @@
 /*
  * $Source: /cvs/cvsroot/d2x/unused/bios/rbaudio.new,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:14 $
+ * $Date: 2001-01-19 03:33:50 $
  *
  * Redbook Audio Library  
  *
@@ -69,7 +69,7 @@
  * 
  */
 
-char rbaudio_rcsid[] = "$Id: rbaudio.new,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $";
+char rbaudio_rcsid[] = "$Id: rbaudio.new,v 1.1.1.2 2001-01-19 03:33:50 bradleyb Exp $";
 
 
 #include <dos.h>

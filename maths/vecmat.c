@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/maths/vecmat.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:29:58 $
+ * $Date: 2001-01-19 03:33:42 $
  * 
  * C version of vecmat library
  * 
@@ -47,7 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: vecmat.c,v 1.1.1.1 2001-01-19 03:29:58 bradleyb Exp $";
+static char rcsid[] = "$Id: vecmat.c,v 1.1.1.2 2001-01-19 03:33:42 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -79,7 +79,7 @@ vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
 	return dest;
 }
 
-#ifndef ASM_VECMAT
+#ifdef NO_ASM
 vms_vector vmd_zero_vector = {0,0,0};
 vms_matrix vmd_identity_matrix = {	{ f1_0,0,0 },
 												{ 0,f1_0,0 },

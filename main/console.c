@@ -10,7 +10,13 @@
 #include "console.h"
 #include "cmd.h"
 
+#ifdef __ENV_LINUX__
 int text_console_enabled = 1;
+#else
+int isvga();
+#define text_console_enabled (!isvga())
+#endif
+
 cvar_t *cvar_vars = NULL;
 
 /* Console specific cvars */
@@ -55,7 +61,7 @@ void con_printf(int priority, char *fmt, ...)
 	if (priority <= ((int)con_threshold.value))
 	{
 		va_start (arglist, fmt);
-		vsnprintf (buffer, 2048, fmt, arglist);
+                vsprintf (buffer,  fmt, arglist);
 		if (text_console_enabled) vprintf(fmt, arglist);
 		va_end (arglist);
 

@@ -1,6 +1,7 @@
+#include <conf.h>
 #include <dos.h>
 #include <limits.h>
-#include "types.h"
+#include "pstypes.h"
 #include "error.h"
 
 unsigned long getdiskfree() {

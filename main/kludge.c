@@ -19,10 +19,12 @@ int Dont_start_sound_objects = 1;
 int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 char CDROM_dir[40] = ".";
 
-int gr_check_mode(int a)
+#ifndef __ENV_DJGPP__
+int gr_check_mode(u_int32_t a)
 {
   return 0;
-}
+} 
+#endif
 
 extern int Num_computed_colors;
 void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size)
@@ -32,10 +34,12 @@ void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size)
 	        Num_computed_colors = 0;
 }
 
+#ifndef __ENV_DJGPP__
 int joy_set_btn_values( int btn, int state, int time_down, int downcount, int upcount )
 {
 
 }
+#endif
 
 int request_cd(void)
 {

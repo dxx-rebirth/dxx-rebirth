@@ -67,8 +67,8 @@ PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 SDL_LIBS = @SDL_LIBS@
 VERSION = @VERSION@
-@USE_OPENGL_TRUE@INCLUDES = -I $(top_srcdir)/includes -I $(top_srcdir)/input/ggi/include -I $(top_srcdir)/input/linux/include -fwritable-strings
-@USE_OPENGL_FALSE@INCLUDES = -I $(top_srcdir)/includes -I $(top_srcdir)/input/sdl/include -I $(top_srcdir)/input/linux/include -fwritable-strings
+
+INCLUDES = -I $(top_srcdir)/includes -fwritable-strings
 
 bin_PROGRAMS = d2x
 
@@ -76,8 +76,6 @@ d2x_SOURCES =  ai.c	    gamerend.c  lighting.c	paging.c    switch.c ai2.c	    ef
 
 
 d2x_LDFLAGS = -export-dynamic
-@USE_OPENGL_TRUE@d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread -lMesaGL -lMesaGLU -lgii -L/usr/X11R6/lib -lXext
-@USE_OPENGL_FALSE@d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../conf.h
 CONFIG_CLEAN_FILES = 
@@ -98,18 +96,8 @@ inferno.o netmisc.o robot.o config.o gamecntl.o kconfig.o network.o \
 scores.o controls.o gamefont.o kludge.o newdemo.o slew.o credits.o \
 gamemine.o kmatrix.o newmenu.o songs.o crypt.o gamepal.o laser.o \
 object.o state.o console.o cmd.o
-@USE_OPENGL_TRUE@d2x_DEPENDENCIES =  ../3d/lib3d.a ../2d/lib2d.a \
-@USE_OPENGL_TRUE@../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a \
-@USE_OPENGL_TRUE@../texmap/libtexmap.a ../misc/libmisc.a \
-@USE_OPENGL_TRUE@../maths/libmaths.a ../arch/libarch.a \
-@USE_OPENGL_TRUE@../video/libvideo.a ../sound/libsound.a \
-@USE_OPENGL_TRUE@../input/libinput.a
-@USE_OPENGL_FALSE@d2x_DEPENDENCIES =  ../3d/lib3d.a ../2d/lib2d.a \
-@USE_OPENGL_FALSE@../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a \
-@USE_OPENGL_FALSE@../texmap/libtexmap.a ../misc/libmisc.a \
-@USE_OPENGL_FALSE@../maths/libmaths.a ../arch/libarch.a \
-@USE_OPENGL_FALSE@../video/libvideo.a ../sound/libsound.a \
-@USE_OPENGL_FALSE@../input/libinput.a
+d2x_LDADD = $(LDADD)
+d2x_DEPENDENCIES = 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
@@ -349,6 +337,11 @@ uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
+
+@ENV_DJGPP_TRUE@ d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a  ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
+
+@ENV_DJGPP_FALSE@@USE_OPENGL_TRUE@  d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread -lMesaGL -lMesaGLU -lgii -L/usr/X11R6/lib -lXext
+@ENV_DJGPP_FALSE@@USE_OPENGL_FALSE@  d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

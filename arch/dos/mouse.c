@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/mouse.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.1.1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:15 $
+ * $Date: 2001-01-19 03:33:52 $
  * 
  * Functions to access Mouse and Cyberman...
  * 
@@ -65,9 +65,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: mouse.c,v 1.1.1.1 2001-01-19 03:30:15 bradleyb Exp $";
-#endif
+#include <conf.h>
 
 #ifdef __DJGPP__
 #include <dpmi.h>
@@ -80,9 +78,9 @@ _go32_dpmi_registers handler_regs;
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <conio.h>
+//#include <conio.h>
 #include <dos.h>
-#include <i86.h>
+//#include <i86.h>
 #include <string.h>
 
 #include "error.h"
