@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/bm.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2001-10-19 08:06:20 $
+ * $Date: 2001-10-25 02:15:55 $
  *
  * Bitmap and palette loading functions.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/10/19 08:06:20  bradleyb
+ * Partial application of linux/alpha patch.  Courtesy of Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+ *
  *
  */
 
@@ -44,7 +47,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "textures.h"
 #include "game.h"
+#ifdef NETWORK
 #include "multi.h"
+#endif
 #include "iff.h"
 #include "cfile.h"
 #include "powerup.h"

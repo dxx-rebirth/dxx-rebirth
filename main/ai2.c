@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ai2.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
+static char rcsid[] = "$Id: ai2.c,v 1.3 2001-10-25 02:15:55 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -51,8 +51,10 @@ static char rcsid[] = "$Id: ai2.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
 #include "sounds.h"
 #include "cntrlcen.h"
 #include "multibot.h"
+#ifdef NETWORK
 #include "multi.h"
 #include "network.h"
+#endif
 #include "gameseq.h"
 #include "key.h"
 #include "powerup.h"
@@ -60,8 +62,8 @@ static char rcsid[] = "$Id: ai2.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
 #include "text.h"
 
 #ifdef EDITOR
-#include "editor\editor.h"
-#include "editor\kdefs.h"
+#include "editor/editor.h"
+#include "editor/kdefs.h"
 #endif
 
 #ifndef NDEBUG

@@ -39,7 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 #define	PARALLAX	0		//	If !0, then special debugging for Parallax eyes enabled.

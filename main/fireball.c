@@ -41,13 +41,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "collide.h"
 #include "newmenu.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "gameseq.h"
 #include "physics.h"
 #include "scores.h"
 #include "laser.h"
 #include "wall.h"
+#ifdef NETWORK
 #include "multi.h"
+#endif
 #include "endlevel.h"
 #include "timer.h"
 #include "fuelcen.h"

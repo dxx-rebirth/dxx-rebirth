@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/object.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  * $Author: bradleyb $
- * $Date: 2001-10-18 00:01:01 $
+ * $Date: 2001-10-25 02:15:57 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2001/10/18 00:01:01  bradleyb
+ * RCS headers added/changed
+ *
  *
  */
 
@@ -75,7 +78,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "player.h"
 #include "weapon.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "newmenu.h"
 #include "gauges.h"
 #include "multi.h"
@@ -91,7 +96,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 #ifdef _3DFX

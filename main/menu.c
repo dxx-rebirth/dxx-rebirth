@@ -47,7 +47,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "gamefont.h"
 #include "newmenu.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "scores.h"
 #include "joydefs.h"
 #include "modem.h"
@@ -75,7 +77,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 #if defined(POLY_ACC)

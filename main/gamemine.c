@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.2 2001-01-31 15:17:52 bradleyb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.3 2001-10-25 02:15:56 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -41,7 +41,7 @@ static char rcsid[] = "$Id: gamemine.c,v 1.2 2001-01-31 15:17:52 bradleyb Exp $"
 #include "newmenu.h"
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 #include "cfile.h"		

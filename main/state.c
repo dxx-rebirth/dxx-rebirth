@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-char state_rcsid[] = "$Id: state.c,v 1.3 2001-01-31 14:04:45 bradleyb Exp $";
+char state_rcsid[] = "$Id: state.c,v 1.4 2001-10-25 02:15:57 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -71,7 +71,9 @@ char state_rcsid[] = "$Id: state.c,v 1.3 2001-01-31 14:04:45 bradleyb Exp $";
 #include "mission.h"
 #include "pcx.h"
 #include "u_mem.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "args.h"
 #include "ai.h"
 #include "fireball.h"

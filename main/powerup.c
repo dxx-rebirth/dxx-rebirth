@@ -53,7 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef EDITOR
 #include "gr.h"	//	for powerup outline drawing
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 int N_powerup_types = 0;

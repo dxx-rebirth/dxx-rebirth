@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.3 2001-01-31 15:17:59 bradleyb Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.4 2001-10-25 02:15:57 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -50,7 +50,7 @@ static char rcsid[] = "$Id: wall.c,v 1.3 2001-01-31 15:17:59 bradleyb Exp $";
 #include "effects.h"
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 //	Special door on boss level which is locked if not in multiplayer...sorry for this awful solution --MK.

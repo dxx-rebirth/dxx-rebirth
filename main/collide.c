@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/collide.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  * $Author: bradleyb $
- * $Date: 2001-10-18 00:01:00 $
+ * $Date: 2001-10-25 02:15:55 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2001/10/18 00:01:00  bradleyb
+ * RCS headers added/changed
+ *
  *
  */
 
@@ -64,12 +67,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "gauges.h"
 #include "powerup.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "newmenu.h"
 #include "scores.h"
 #include "effects.h"
 #include "textures.h"
+#ifdef NETWORK
 #include "multi.h"
+#endif
 #include "cntrlcen.h"
 #include "newdemo.h"
 #include "endlevel.h"
@@ -85,7 +92,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif 
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 #include "collide.h"

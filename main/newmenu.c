@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: newmenu.c,v 1.3 2001-01-31 15:17:56 bradleyb Exp $";
+static char rcsid[] = "$Id: newmenu.c,v 1.4 2001-10-25 02:15:57 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -46,7 +46,9 @@ static char rcsid[] = "$Id: newmenu.c,v 1.3 2001-01-31 15:17:56 bradleyb Exp $";
 #include "newmenu.h"
 #include "gamefont.h"
 #include "gamepal.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "iff.h"
 #include "pcx.h"
 #include "u_mem.h"

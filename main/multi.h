@@ -11,12 +11,22 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/multi.h,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-25 02:15:56 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifndef _MULTI_H
 #define _MULTI_H
 
 #define MAX_MESSAGE_LEN 35
-
-#ifdef NETWORK
 
 // Defines
 #include "gameseq.h"
@@ -412,7 +422,5 @@ void change_playernum_to(int new_pnum);
 #define MISSILE_ADJUST	100
 #define FLARE_ADJUST		127
 
-
-#endif
 
 #endif

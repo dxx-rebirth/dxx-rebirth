@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-char ai_rcsid[] = "$Id: ai.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
+char ai_rcsid[] = "$Id: ai.c,v 1.3 2001-10-25 02:15:55 bradleyb Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,8 +48,10 @@ char ai_rcsid[] = "$Id: ai.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
 #include "sounds.h"
 #include "cntrlcen.h"
 #include "multibot.h"
+#ifdef NETWORK
 #include "multi.h"
 #include "network.h"
+#endif
 #include "gameseq.h"
 #include "key.h"
 #include "powerup.h"
@@ -60,7 +62,7 @@ char ai_rcsid[] = "$Id: ai.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
 #include "kconfig.h"
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 #include "string.h"

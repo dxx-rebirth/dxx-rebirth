@@ -11,7 +11,17 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef NETWORK
+/*
+ * $Source: /cvs/cvsroot/d2x/main/network.h,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-25 02:15:57 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
 
 #ifndef _NETWORK_H
 #define _NETWORK_H
@@ -150,5 +160,4 @@ void network_send_game_info(sequence_packet *their);
 int GetMyNetRanking();
 int HoardEquipped();
 
-#endif
 #endif

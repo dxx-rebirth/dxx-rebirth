@@ -70,7 +70,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "palette.h"
 #include "multi.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "text.h"
 #include "cntrlcen.h"
 #include "aistruct.h"
@@ -83,7 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "findfile.h"
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 #ifdef MACINTOSH

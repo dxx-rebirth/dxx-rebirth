@@ -51,15 +51,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "gameseq.h"
 #include "gamefont.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "kconfig.h"
+#ifdef NETWORK
 #include "multi.h"
+#endif
 #include "endlevel.h"
 #include "text.h"
 #include "gauges.h"
 #include "songs.h"
 #include "powerup.h"
-#include "network.h"
 #include "switch.h"
 #include "automap.h"
 #include "cntrlcen.h"

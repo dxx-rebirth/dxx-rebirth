@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: switch.c,v 1.3 2001-01-31 15:17:57 bradleyb Exp $";
+static char rcsid[] = "$Id: switch.c,v 1.4 2001-10-25 02:15:57 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -42,13 +42,15 @@ static char rcsid[] = "$Id: switch.c,v 1.3 2001-01-31 15:17:57 bradleyb Exp $";
 #include "endlevel.h"
 #include "gameseq.h"
 #include "multi.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "palette.h"
 #include "robot.h"
 #include "bm.h"
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 trigger Triggers[MAX_TRIGGERS];

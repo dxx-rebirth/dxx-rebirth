@@ -40,8 +40,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "powerup.h"
 #include "sounds.h"
+#ifdef NETWORK
 #include "multi.h"
 #include "network.h"
+#endif
 #include "endlevel.h"
 #include "cntrlcen.h"
 #include "controls.h"

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.2 2001-01-31 15:17:49 bradleyb Exp $";
+static char rcsid[] = "$Id: cntrlcen.c,v 1.3 2001-10-25 02:15:55 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -37,7 +37,9 @@ static char rcsid[] = "$Id: cntrlcen.c,v 1.2 2001-01-31 15:17:49 bradleyb Exp $"
 #include "laser.h"
 #include "gameseq.h"
 #include "ai.h"
+#ifdef NETWORK
 #include "multi.h"
+#endif
 #include "wall.h"
 #include "object.h"
 #include "robot.h"

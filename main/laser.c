@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char laser_rcsid[] = "$Id: laser.c,v 1.3 2001-01-31 15:17:54 bradleyb Exp $";
+char laser_rcsid[] = "$Id: laser.c,v 1.4 2001-10-25 02:15:56 bradleyb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -46,7 +46,9 @@ char laser_rcsid[] = "$Id: laser.c,v 1.3 2001-01-31 15:17:54 bradleyb Exp $";
 #include "timer.h"
 #include "player.h"
 #include "sounds.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "ai.h"
 #include "modem.h"
 #include "powerup.h"

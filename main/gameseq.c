@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.4 2001-01-31 15:17:53 bradleyb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.5 2001-10-25 02:15:56 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -80,7 +80,9 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.4 2001-01-31 15:17:53 bradleyb Exp $"
 #include "gamefont.h"
 #include "newmenu.h"
 #include "endlevel.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "playsave.h"
 #include "ctype.h"
 #include "multi.h"
@@ -100,7 +102,9 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.4 2001-01-31 15:17:53 bradleyb Exp $"
 #include "mission.h"
 #include "state.h"
 #include "songs.h"
+#ifdef NETWORK
 #include "netmisc.h"
+#endif
 #include "gamepal.h"
 #include "movie.h"
 #include "controls.h"
@@ -114,7 +118,7 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.4 2001-01-31 15:17:53 bradleyb Exp $"
 #endif
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 

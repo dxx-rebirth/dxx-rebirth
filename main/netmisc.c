@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: netmisc.c,v 1.2 2001-01-31 15:17:54 bradleyb Exp $";
+static char rcsid[] = "$Id: netmisc.c,v 1.3 2001-10-25 02:15:57 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -130,7 +130,9 @@ ushort netmisc_calc_checksum_pc( void * vptr, int len )
 #include "ipx.h"
 #include "byteswap.h"
 #include "multi.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "object.h"
 #include "powerup.h"
 #include "error.h"
