@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/sound/sdl_digi.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:53:28 $
+ * $Date: 2001-10-12 06:36:55 $
  *
  * SDL digital audio support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 13:53:28  bradleyb
+ * Fixed build, minor fixes
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -200,7 +203,7 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
   if (sl->playing)
   {
    Uint8 *sldata = sl->samples + sl->position, *slend = sl->samples + sl->length;
-   Uint8 *sp = stream;
+   Uint8 *sp = stream, s;
    signed char v;
    fix vl, vr;
    int x;
@@ -229,8 +232,10 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
      sldata = sl->samples;
     }
     v = *(sldata++) - 0x80;
-    *(sp++) = mix8[ *sp + fixmul(v, vl) + 0x80 ];
-    *(sp++) = mix8[ *sp + fixmul(v, vr) + 0x80 ];
+    s = *sp;
+    *(sp++) = mix8[ s + fixmul(v, vl) + 0x80 ];
+    s = *sp;
+    *(sp++) = mix8[ s + fixmul(v, vr) + 0x80 ];
    }
    sl->position = sldata - sl->samples;
   }
@@ -241,11 +246,8 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 /* Initialise audio devices. */
 int digi_init()
 {
-
- if (SDL_Init(SDL_INIT_AUDIO) < 0)
- {
-	Warning("SDL library audio initialisation failed: %s.",SDL_GetError());
-	return 1;
+ if (SDL_InitSubSystem(SDL_INIT_AUDIO)<0){
+    Error("SDL audio initialisation failed: %s.",SDL_GetError());
  }
  //added on 980905 by adb to init sound kill system
  memset(SampleHandles, 255, sizeof(SampleHandles));
@@ -804,7 +806,18 @@ int digi_is_sound_playing(int soundno)
 
 void digi_pause_all() { }
 void digi_resume_all() { }
-void digi_stop_all() { }
+void digi_stop_all() {
+       int i;
+       // ... Ano. The lack of this was causing ambient sounds to crash.
+       // fixed, added digi_stop_all 07/19/01 - bluecow
+       
+       for (i=0; i<MAX_SOUND_OBJECTS; i++ )    {
+               if ( SoundObjects[i].flags & SOF_USED ) {
+                       SoundSlots[SoundObjects[i].handle].playing = 0;
+                       SoundObjects[i].flags = 0;
+               }
+       }
+}
 
  //added on 980905 by adb to make sound channel setting work
 void digi_set_max_channels(int n) { 
