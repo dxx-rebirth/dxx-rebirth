@@ -1,3 +1,8 @@
+2003-12-08  Bradley Bell <btb@icculus.org>
+
+	* include/dtypes.h, include/dtypes.inc: remove unused, redundant
+	files
+
 2003-12-08  Alexander Y. Yeikovich <demon@mci.net.ua>
 
 	* arch/linux/ipx_kali.c, arch/linux/ipx_mcast4.c,
