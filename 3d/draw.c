@@ -21,14 +21,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: draw.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
+static char rcsid[] = "$Id: draw.c,v 1.3 2001-10-31 03:54:50 bradleyb Exp $";
 #endif
 
 #include "error.h"
 
-#include "fix.h"
-#include "vecmat.h"
-#include "gr.h"
 #include "3d.h"
 #include "globvars.h"
 #include "texmap.h"

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/3d/interp.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-10-19 08:06:20 $
+ * $Date: 2001-10-31 03:54:50 $
  * 
  * Polygon object interpreter
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/19 08:06:20  bradleyb
+ * Partial application of linux/alpha patch.  Courtesy of Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+ *
  * Revision 1.2  2001/01/31 15:17:48  bradleyb
  * Makefile and conf.h fixes
  *
@@ -51,17 +54,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.3 2001-10-19 08:06:20 bradleyb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.4 2001-10-31 03:54:50 bradleyb Exp $";
 #endif
 
 #include <stdlib.h>
+#include "error.h"
 
-#include "fix.h"
-#include "vecmat.h"
-#include "gr.h"
 #include "3d.h"
 #include "globvars.h"
-#include "error.h"
+#include "gr.h"
 
 #define OP_EOF				0	//eof
 #define OP_DEFPOINTS		1	//defpoints

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/3d/globvars.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 15:17:48 $
+ * $Date: 2001-10-31 03:54:50 $
  * 
  * Global variables for 3d
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/31 15:17:48  bradleyb
+ * Makefile and conf.h fixes
+ *
  * Revision 1.1.1.1  2001/01/19 03:29:58  bradleyb
  * Import of d2x-0.0.8
  *
@@ -42,12 +45,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: globvars.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
+static char rcsid[] = "$Id: globvars.c,v 1.3 2001-10-31 03:54:50 bradleyb Exp $";
 #endif
 
-#include "fix.h"
-#include "vecmat.h"
-#include "gr.h"
 #include "3d.h"
 #include "globvars.h"
 
