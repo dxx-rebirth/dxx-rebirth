@@ -1,4 +1,4 @@
-/* $Id: pcx.h,v 1.2 2002-08-06 04:49:43 btb Exp $ */
+/* $Id: pcx.h,v 1.3 2002-08-26 06:41:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -35,8 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PCX_H
 #define _PCX_H
 
-#include "cfile.h"
-
 #define PCX_ERROR_NONE          0
 #define PCX_ERROR_OPENING       1
 #define PCX_ERROR_NO_HEADER     2
@@ -46,28 +44,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PCX_ERROR_WRITING       6
 #define PCX_ERROR_MEMORY        7
 
-/* PCX Header data type */
-typedef struct	{
-	ubyte		Manufacturer;
-	ubyte		Version;
-	ubyte		Encoding;
-	ubyte		BitsPerPixel;
-	short		Xmin;
-	short		Ymin;
-	short		Xmax;
-	short		Ymax;
-	short		Hdpi;
-	short		Vdpi;
-	ubyte		ColorMap[16][3];
-	ubyte		Reserved;
-	ubyte		Nplanes;
-	short		BytesPerLine;
-	ubyte		filler[60];
-} PCXHeader;
-
 // Reads filename into bitmap bmp, and fills in palette.  If bmp->bm_data==NULL,
 // then bmp->bm_data is allocated and the w,h are filled.
 // If palette==NULL the palette isn't read in.  Returns error code.
+
+extern int pcx_get_dimensions( char *filename, int *width, int *height);
 
 extern int pcx_read_bitmap( char * filename, grs_bitmap * bmp, int bitmap_type, ubyte * palette );
 
@@ -77,11 +58,10 @@ extern int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette 
 
 extern char *pcx_errormsg(int error_number);
 
-int pcx_read_fullscr(char * filename, ubyte * palette);
+#ifdef MACINTOSH
+extern int pcx_read_bitmap_palette( char *filename, ubyte *palette);
+#endif
 
-/*
- * reads a PCXHeader structure from a CFILE
- */
-void PCXHeader_read(PCXHeader *ph, CFILE *fp);
+int pcx_read_fullscr(char * filename, ubyte * palette);
 
 #endif

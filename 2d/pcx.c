@@ -1,4 +1,4 @@
-/* $Id: pcx.c,v 1.5 2002-08-06 04:49:43 btb Exp $ */
+/* $Id: pcx.c,v 1.6 2002-08-26 06:41:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,6 +14,25 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Routines to read/write pcx images.
+ *
+ * Old Log:
+ * Revision 1.6  1995/03/01  15:38:12  john
+ * Better ModeX support.
+ *
+ * Revision 1.5  1995/01/21  17:54:17  john
+ * Added pcx reader for modes other than modex.
+ *
+ * Revision 1.4  1994/12/08  19:03:56  john
+ * Made functions use cfile.
+ *
+ * Revision 1.3  1994/11/29  02:53:24  john
+ * Added error messages; made call be more similiar to iff.
+ *
+ * Revision 1.2  1994/11/28  20:03:50  john
+ * Added PCX functions.
+ *
+ * Revision 1.1  1994/11/28  19:57:56  john
+ * Initial revision
  *
  */
 
@@ -31,8 +50,127 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pcx.h"
 #include "cfile.h"
 
+#if defined(POLY_ACC)
+#include "poly_acc.h"
+#endif
+
 int pcx_encode_byte(ubyte byt, ubyte cnt, FILE * fid);
 int pcx_encode_line(ubyte *inBuff, int inLen, FILE * fp);
+
+/* PCX Header data type */
+typedef struct {
+	ubyte   Manufacturer;
+	ubyte   Version;
+	ubyte   Encoding;
+	ubyte   BitsPerPixel;
+	short   Xmin;
+	short   Ymin;
+	short   Xmax;
+	short   Ymax;
+	short   Hdpi;
+	short   Vdpi;
+	ubyte   ColorMap[16][3];
+	ubyte   Reserved;
+	ubyte   Nplanes;
+	short   BytesPerLine;
+	ubyte   filler[60];
+} __pack__ PCXHeader;
+
+#define PCXHEADER_SIZE 128
+
+#ifdef FAST_FILE_IO
+#define PCXHeader_read_n(ph, n, fp) cfread(ph, sizeof(PCXHeader), n, fp)
+#else
+/*
+ * reads n PCXHeader structs from a CFILE
+ */
+int PCXHeader_read_n(PCXHeader *ph, int n, CFILE *fp)
+{
+	int i;
+
+	for (i = 0; i < n; i++) {
+		ph->Manufacturer = cfile_read_byte(fp);
+		ph->Version = cfile_read_byte(fp);
+		ph->Encoding = cfile_read_byte(fp);
+		ph->BitsPerPixel = cfile_read_byte(fp);
+		ph->Xmin = cfile_read_short(fp);
+		ph->Ymin = cfile_read_short(fp);
+		ph->Xmax = cfile_read_short(fp);
+		ph->Ymax = cfile_read_short(fp);
+		ph->Hdpi = cfile_read_short(fp);
+		ph->Vdpi = cfile_read_short(fp);
+		cfread(&ph->ColorMap, 16*3, 1, fp);
+		ph->Reserved = cfile_read_byte(fp);
+		ph->Nplanes = cfile_read_byte(fp);
+		ph->BytesPerLine = cfile_read_short(fp);
+		cfread(&ph->filler, 60, 1, fp);
+	}
+	return i;
+}
+#endif
+
+int pcx_get_dimensions( char *filename, int *width, int *height)
+{
+	CFILE *PCXfile;
+	PCXHeader header;
+
+	PCXfile = cfopen(filename, "rb");
+	if (!PCXfile) return PCX_ERROR_OPENING;
+
+	if (PCXHeader_read_n(&header, 1, PCXfile) != 1) {
+		cfclose(PCXfile);
+		return PCX_ERROR_NO_HEADER;
+	}
+	cfclose(PCXfile);
+
+	*width = header.Xmax - header.Xmin+1;
+	*height = header.Ymax - header.Ymin+1;
+
+	return PCX_ERROR_NONE;
+}
+
+#ifdef MACINTOSH
+int pcx_read_bitmap_palette( char *filename, ubyte *palette)
+{
+	PCXHeader header;
+	CFILE * PCXfile;
+	ubyte data;
+	int i;
+
+	PCXfile = cfopen( filename , "rb" );
+	if ( !PCXfile )
+		return PCX_ERROR_OPENING;
+
+	// read 128 char PCX header
+	if (PCXHeader_read_n( &header, 1, PCXfile )!=1)	{
+		cfclose( PCXfile );
+		return PCX_ERROR_NO_HEADER;
+	}
+	// Is it a 256 color PCX file?
+	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
+		cfclose( PCXfile );
+		return PCX_ERROR_WRONG_VERSION;
+	}
+
+	// Read the extended palette at the end of PCX file
+	// Read in a character which should be 12 to be extended palette file
+
+	if (palette != NULL) {
+		cfseek( PCXfile, -768, SEEK_END );
+		cfread( palette, 3, 256, PCXfile );
+		cfseek( PCXfile, PCXHEADER_SIZE, SEEK_SET );
+		for (i=0; i<768; i++ )
+			palette[i] >>= 2;
+#ifdef MACINTOSH
+		for (i = 0; i < 3; i++) {
+			data = palette[i];
+			palette[i] = palette[765+i];
+			palette[765+i] = data;
+		}
+#endif
+	}
+}
+#endif
 
 int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
 {
@@ -40,19 +178,21 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 	CFILE * PCXfile;
 	int i, row, col, count, xsize, ysize;
 	ubyte data, *pixdata;
+#if defined(POLY_ACC)
+    unsigned char local_pal[768];
+
+    pa_flush();
+#endif
 
 	PCXfile = cfopen( filename , "rb" );
 	if ( !PCXfile )
 		return PCX_ERROR_OPENING;
 
 	// read 128 char PCX header
-	PCXHeader_read(&header, PCXfile);
-#if 0
-	if (cfread( &header, sizeof(PCXHeader), 1, PCXfile )!=1)	{
+	if (PCXHeader_read_n( &header, 1, PCXfile )!=1) {
 		cfclose( PCXfile );
 		return PCX_ERROR_NO_HEADER;
 	}
-#endif
 
 	// Is it a 256 color PCX file?
 	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
@@ -63,6 +203,20 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 	// Find the size of the image
 	xsize = header.Xmax - header.Xmin + 1;
 	ysize = header.Ymax - header.Ymin + 1;
+
+#if defined(POLY_ACC)
+    // Read the extended palette at the end of PCX file
+    if(bitmap_type == BM_LINEAR15)      // need palette for conversion from 8bit pcx to 15bit.
+    {
+        cfseek( PCXfile, -768, SEEK_END );
+        cfread( local_pal, 3, 256, PCXfile );
+        cfseek( PCXfile, PCXHEADER_SIZE, SEEK_SET );
+        for (i=0; i<768; i++ )
+            local_pal[i] >>= 2;
+        pa_save_clut();
+        pa_update_clut(local_pal, 0, 256, 0);
+    }
+#endif
 
 	if ( bitmap_type == BM_LINEAR )	{
 		if ( bmp->bm_data == NULL )	{
@@ -84,15 +238,60 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 						cfclose( PCXfile );
 						return PCX_ERROR_READING;
 					}
+#ifdef MACINTOSH
+					if (data == 0)
+						data = 255;
+					else if (data == 255)
+						data = 0;
+#endif
 					memset( pixdata, data, count );
 					pixdata += count;
 					col += count;
 				} else {
+#ifdef MACINTOSH
+					if (data == 0)
+						data = 255;
+					else if (data == 255)
+						data = 0;
+#endif
 					*pixdata++ = data;
 					col++;
 				}
 			}
 		}
+#if defined(POLY_ACC)
+    } else if( bmp->bm_type == BM_LINEAR15 )    {
+        ushort *pixdata2, pix15;
+        PA_DFX (pa_set_backbuffer_current());
+		  PA_DFX (pa_set_write_mode(0));
+		for (row=0; row< ysize ; row++)      {
+            pixdata2 = (ushort *)&bmp->bm_data[bmp->bm_rowsize*row];
+			for (col=0; col< xsize ; )      {
+				if (cfread( &data, 1, 1, PCXfile )!=1 )	{
+					cfclose( PCXfile );
+					return PCX_ERROR_READING;
+				}
+				if ((data & 0xC0) == 0xC0)     {
+					count =  data & 0x3F;
+					if (cfread( &data, 1, 1, PCXfile )!=1 )	{
+						cfclose( PCXfile );
+						return PCX_ERROR_READING;
+					}
+                    pix15 = pa_clut[data];
+                    for(i = 0; i != count; ++i) pixdata2[i] = pix15;
+                    pixdata2 += count;
+					col += count;
+				} else {
+                    *pixdata2++ = pa_clut[data];
+					col++;
+				}
+			}
+        }
+        pa_restore_clut();
+		  PA_DFX (pa_swap_buffer());
+        PA_DFX (pa_set_frontbuffer_current());
+
+#endif
 	} else {
 		for (row=0; row< ysize ; row++)      {
 			for (col=0; col< xsize ; )      {
@@ -128,6 +327,13 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 				}
 				for (i=0; i<768; i++ )
 					palette[i] >>= 2;
+#ifdef MACINTOSH
+				for (i = 0; i < 3; i++) {
+					data = palette[i];
+					palette[i] = palette[765+i];
+					palette[765+i] = data;
+				}
+#endif
 			}
 		} else {
 			cfclose( PCXfile );
@@ -146,7 +352,7 @@ int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 	PCXHeader header;
 	FILE * PCXfile;
 
-	memset( &header, 0, sizeof( PCXHeader ) );
+	memset( &header, 0, PCXHEADER_SIZE );
 
 	header.Manufacturer = 10;
 	header.Encoding = 1;
@@ -161,7 +367,7 @@ int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 	if ( !PCXfile )
 		return PCX_ERROR_OPENING;
 
-	if ( fwrite( &header, sizeof( PCXHeader ), 1, PCXfile ) != 1 )	{
+	if ( fwrite( &header, PCXHEADER_SIZE, 1, PCXfile ) != 1 )	{
 		fclose( PCXfile );
 		return PCX_ERROR_WRITING;
 	}
@@ -285,6 +491,7 @@ char *pcx_errormsg(int error_number)
 	}
 
 	return p;
+
 }
 
 // fullscreen loading, 10/14/99 Jan Bobrowski
@@ -299,26 +506,4 @@ int pcx_read_fullscr(char * filename, ubyte * palette)
 		show_fullscr(&bm);
 	gr_free_bitmap_data(&bm);
 	return pcx_error;
-}
-
-/*
- * reads a PCXHeader structure from a CFILE
- */
-void PCXHeader_read(PCXHeader *ph, CFILE *fp)
-{
-	ph->Manufacturer = cfile_read_byte(fp);
-	ph->Version = cfile_read_byte(fp);
-	ph->Encoding = cfile_read_byte(fp);
-	ph->BitsPerPixel = cfile_read_byte(fp);
-	ph->Xmin = cfile_read_short(fp);
-	ph->Ymin = cfile_read_short(fp);
-	ph->Xmax = cfile_read_short(fp);
-	ph->Ymax = cfile_read_short(fp);
-	ph->Hdpi = cfile_read_short(fp);
-	ph->Vdpi = cfile_read_short(fp);
-	cfread(&ph->ColorMap, 16*3, 1, fp);
-	ph->Reserved = cfile_read_byte(fp);
-	ph->Nplanes = cfile_read_byte(fp);
-	ph->BytesPerLine = cfile_read_short(fp);
-	cfread(&ph->filler, 60, 1, fp);
 }
