@@ -1,3 +1,8 @@
+2003-04-29  Bradley Bell  <btb@icculus.org>
+
+	* configure.ac, 2d/2dsline.c, main/automap.c, libmve/mveplay.c:
+	fixes for OS X 10.2
+
 2003-04-24  Bradley Bell  <btb@icculus.org>
 
 	* configure.ac: increment version number

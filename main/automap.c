@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.9 2003-04-12 02:52:38 btb Exp $ */
+/* $Id: automap.c,v 1.10 2003-04-29 08:33:25 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -909,7 +909,7 @@ void do_automap( int key_code )	{
 	int leave_mode=0;
 	int first_time=1;
 	int pcx_error;
-#ifndef AUTOMAP_DIRECT_RENDER
+#if !defined(AUTOMAP_DIRECT_RENDER) || !defined(NDEBUG)
 	int i;
 #endif
 	int c, marker_num;
