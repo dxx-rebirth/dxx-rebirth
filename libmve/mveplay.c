@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.1 2003-02-18 07:37:19 btb Exp $ */
+/* $Id: mveplay.c,v 1.2 2003-02-18 23:28:47 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -66,6 +66,7 @@
 
 int g_spdFactorNum=0;
 static int g_spdFactorDenom=10;
+static int g_frameUpdated = 0;
 
 #ifdef STANDALONE
 static int playing = 1;
@@ -645,6 +646,7 @@ static int display_video_handler(unsigned char major, unsigned char minor, unsig
 
 	gr_palette_load(g_palette);
 #endif
+	g_frameUpdated = 1;
 
 	return 1;
 }
@@ -853,7 +855,10 @@ int MVE_rmStepMovie()
 	if (!timer_started)
 		timer_start();
 
-	cont = mve_play_next_chunk(mve);
+	while (cont && !g_frameUpdated) // make a "step" be a frame, not a chunk...
+		cont = mve_play_next_chunk(mve);
+	g_frameUpdated = 0;
+
 	if (micro_frame_delay  && !init_timer) {
 		timer_start();
 		init_timer = 1;
