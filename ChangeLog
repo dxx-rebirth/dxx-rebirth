@@ -1,4 +1,4 @@
-2004-12-01  Chris Taylor  <c.taylor@student.curtin.edu.au>
+2004-12-02  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/bm.c, main/piggy.c: fix cfile bugs from recent changes
 
@@ -7,6 +7,8 @@
 	* main/mission.c: set builtin_hogsize for non-built-in missions
 
 	* main/mission.c: pass individual mission around instead of whole list
+
+	* main/mission.c: remove mission list from global memory
 
 2004-12-02  Bradley Bell  <btb@icculus.org>
 

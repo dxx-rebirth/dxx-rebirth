@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.34 2004-12-02 16:46:33 schaffner Exp $ */
+/* $Id: mission.c,v 1.35 2004-12-02 16:50:20 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -65,8 +65,6 @@ typedef struct mle {
 #define ML_CURDIR       0
 #define ML_MISSIONDIR   1
 #define ML_CDROM        2
-
-mle mission_list[MAX_MISSIONS];
 
 int num_missions = -1;
 
@@ -513,6 +511,7 @@ extern char AltHogdir_initialized;
 
 mle *build_mission_list(int anarchy_mode)
 {
+	mle *mission_list;
 	int top_place;
     char	builtin_mission_filename[FILENAME_LEN];
 
@@ -530,6 +529,7 @@ mle *build_mission_list(int anarchy_mode)
 //@@		return num_missions;
 //@@	}
 
+	MALLOC(mission_list, mle, MAX_MISSIONS);
 	num_missions = 0;
 	
 	add_builtin_mission_to_list(mission_list + num_missions, builtin_mission_filename);  //read built-in first
@@ -561,6 +561,12 @@ mle *build_mission_list(int anarchy_mode)
     atexit(free_mission);
 
 	return mission_list;
+}
+
+void free_mission_list(mle *mission_list)
+{
+	d_free(mission_list);
+	num_missions = 0;
 }
 
 void init_extra_robot_movie(char *filename);
@@ -784,24 +790,26 @@ int load_mission(mle *mission)
 int load_mission_by_name(char *mission_name)
 {
 	int i;
-
-	build_mission_list(1);
+	mle *mission_list = build_mission_list(1);
+	bool found = 0;
 
 	for (i = 0; i < num_missions; i++)
 		if (!stricmp(mission_name, mission_list[i].filename))
-			return load_mission(mission_list + i);
+			found = load_mission(mission_list + i);
 
-	return 0;		//couldn't find mission
+	free_mission_list(mission_list);
+	return found;
 }
 
 int select_mission(int anarchy_mode, char *message)
 {
-    build_mission_list(anarchy_mode);
+    mle *mission_list = build_mission_list(anarchy_mode);
+	int new_mission_num;
 
     if (num_missions <= 1) {
-        load_mission(mission_list);
+        new_mission_num = load_mission(mission_list) ? 0 : -1;
     } else {
-        int new_mission_num,i, default_mission;
+        int i, default_mission;
         char * m[MAX_MISSIONS];
 
         default_mission = 0;
@@ -813,16 +821,17 @@ int select_mission(int anarchy_mode, char *message)
 
         new_mission_num = newmenu_listbox1( message, num_missions, m, 1, default_mission, NULL );
 
-        if (new_mission_num == -1)
-            return 0;         //abort!
-
-        strcpy(config_last_mission, m[new_mission_num]  );
-
-        if (!load_mission(mission_list + new_mission_num)) {
-            nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
-            return 0;
-        }
+        if (new_mission_num >= 0) {
+			// Chose a mission
+			strcpy(config_last_mission, m[new_mission_num]  );
+	
+			if (!load_mission(mission_list + new_mission_num)) {
+				nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
+				new_mission_num = -1;
+			}
+		}
     }
 
-    return 1;
+	free_mission_list(mission_list);
+    return (new_mission_num >= 0);
 }
