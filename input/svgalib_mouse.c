@@ -1,4 +1,13 @@
-/* SVGALib mouse input support */
+/*
+ * $Source: /cvs/cvsroot/d2x/input/svgalib_mouse.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-28 16:09:39 $
+ *
+ * SVGALib mouse support
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
 #include <conf.h>
 
@@ -11,6 +20,8 @@
 #include "timer.h"
 #include "event.h"
 #include "mouse.h"
+
+#define MOUSE_MAX_BUTTONS       8
 
 ubyte installed = 0;
 
@@ -75,23 +86,25 @@ void d_mouse_close(void)
  installed = 0;
 }
 
-void d_mouse_init(void)
+int
+d_mouse_init(int enable_cyberman)
 {
  memset(&Mouse,0,sizeof(Mouse));
  vga_setmousesupport(1);
  if (!installed)
 	atexit(d_mouse_close);
  installed = 1;
+ return 0; /* should return # of buttons... dunno how w/svgalib */
 }
 
-int mouse_set_limits( int x1, int y1, int x2, int y2 )
+void
+mouse_set_limits( int x1, int y1, int x2, int y2 )
 {
  event_poll();
  Mouse.min_x = x1;
  Mouse.min_y = y1;
  Mouse.max_x = x2;
  Mouse.max_y = y2;
- return 0;
 }
 
 void mouse_flush()	// clears all mice events...

@@ -1,7 +1,7 @@
-SUBDIRS = ggi sdl linux svgalib
+SUBDIRS = linux
 
 noinst_LIBRARIES = libinput.a
-INCLUDES = -I $(top_srcdir)/includes -I $(top_srcdir)/main
+INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(top_srcdir)/arch/include
 
 libinput_a_SOURCES = \
 dos_key.c dos_joyc.c dos_joydefs.c dos_mouse.c \

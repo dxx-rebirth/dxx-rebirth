@@ -1,2 +1,2 @@
 EXTRA_DIST = \
-joy.h joystick.h
+linux_joystick.h

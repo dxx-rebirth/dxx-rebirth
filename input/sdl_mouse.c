@@ -10,6 +10,8 @@
 #include "event.h"
 #include "mouse.h"
 
+#define MOUSE_MAX_BUTTONS       8
+
 struct mousebutton {
  ubyte pressed;
  fix time_went_down;
@@ -87,8 +89,8 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 }
 //end this section addition - Hans
 
-
-int mouse_set_limits( int x1, int y1, int x2, int y2 )
+void
+mouse_set_limits( int x1, int y1, int x2, int y2 )
 {
 //added on 10/17/98 by Hans de Goede for mouse functionality
 //-killed- // Shrug...
@@ -98,7 +100,6 @@ int mouse_set_limits( int x1, int y1, int x2, int y2 )
  Mouse.max_x = x2;
  Mouse.max_y = y2;
 //end this section addition - Hans
- return 0;
 }
 
 void mouse_flush()	// clears all mice events...

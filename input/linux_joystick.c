@@ -3,7 +3,7 @@
 #ifdef __ENV_LINUX__
 #include <stdlib.h>
 #include <stdio.h>
-#include "joystick.h"
+#include <linux/joystick.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -12,6 +12,8 @@
 #include "pstypes.h"
 #include "mono.h"
 #include "joy.h"
+
+#include "linux_joystick.h"
 
 char joy_installed = 0;
 char joy_present = 0;

@@ -83,13 +83,13 @@ void Mouse_init(void)
 	memset(&Mouse, 0, sizeof(Mouse));
 }
 
-int mouse_set_limits( int x1, int y1, int x2, int y2 )
+void
+mouse_set_limits( int x1, int y1, int x2, int y2 )
 {
 	Mouse.min_x = x1;
 	Mouse.max_x = x2;
 	Mouse.min_y = y1;
 	Mouse.max_y = y2;
-	return MOUSE_MAX_BUTTONS;	
 }
 
 void mouse_flush()	// clears all mice events...

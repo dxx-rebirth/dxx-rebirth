@@ -41,6 +41,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "playsave.h"
 
+#include "linux_joystick.h"
+
 int joydefs_calibrate_flag = 0;
 
 //added 9/6/98 Matt Mueller - not needed at all in linux code but bunches 
