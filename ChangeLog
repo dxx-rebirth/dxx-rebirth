@@ -1,5 +1,7 @@
 2003-05-12  Bradley Bell  <btb@icculus.org>
 
+	* configure.ac: must check for timespec after setting -mno-cygwin
+
 	* main/inferno.c: added -nohogdir and -userdir options
 
 	* main/titles.c: use briefings with no extension

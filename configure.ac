@@ -36,8 +36,6 @@ AC_PROG_CXX
 AC_STDC_HEADERS
 AC_PATH_PROGS(NASM, nasm nasmw, no)
 AC_C_BIGENDIAN
-AC_CHECK_DECLS(nanosleep,,,[#include <time.h>])
-AC_CHECK_TYPES(struct timespec)
 
 case $host_cpu in
 	sparc)
@@ -61,6 +59,9 @@ case $host_os in
         MSDOS=yes
         ;;
 esac
+
+AC_CHECK_DECLS(nanosleep,,,[#include <time.h>])
+AC_CHECK_TYPES(struct timespec)
 
 AM_CONDITIONAL(MINGW32, test x$MINGW32 = xyes)
 if test x$MINGW32 = xyes; then
