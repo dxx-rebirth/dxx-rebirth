@@ -1,12 +1,15 @@
 /*
- * $Source: /cvs/cvsroot/d2x/video/ogl.c,v $
- * $Revision: 1.7 $
+ * $Source: /cvs/cvsroot/d2x/arch/ogl/ogl.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-10-12 00:18:40 $
+ * $Date: 2001-10-25 08:25:34 $
  *
  * Graphics support functions for OpenGL.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2001/10/12 00:18:40  bradleyb
+ * Switched from Cygwin to mingw32 on MS boxes.  Vastly improved compilability.
+ *
  * Revision 1.6  2001/10/09 03:00:08  bradleyb
  * opengl improvments (following d1x changes)
  *

@@ -1,8 +1,8 @@
 /*
- * $Source: /cvs/cvsroot/d2x/video/ogl_wgl.c,v $
- * $Revision: 1.2 $
+ * $Source: /cvs/cvsroot/d2x/arch/ogl/wgl.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:47:52 $
+ * $Date: 2001-10-25 08:25:34 $
  *
  * opengl platform specific functions for WGL - added by Peter Hawkins
  * fullscreen example code courtesy of Jeff Slutter
@@ -10,6 +10,9 @@
  *         (with some win32 help from Nirvana)
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 13:47:52  bradleyb
+ * Fixed build, some minor cleanups.
+ *
  */
 
 #ifdef HAVE_CONFIG_H

@@ -1,12 +1,15 @@
 /*
- * $Source: /cvs/cvsroot/d2x/video/ogl_glx.c,v $
- * $Revision: 1.3 $
+ * $Source: /cvs/cvsroot/d2x/arch/ogl/glx.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:47:52 $
+ * $Date: 2001-10-25 08:25:34 $
  *
  * opengl platform specific functions for GLX - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/01/29 13:47:52  bradleyb
+ * Fixed build, some minor cleanups.
+ *
  */
 
 #ifdef HAVE_CONFIG_H

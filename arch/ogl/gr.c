@@ -1,12 +1,15 @@
 /*
- * $Source: /cvs/cvsroot/d2x/video/ogl_gr.c,v $
- * $Revision: 1.7 $
+ * $Source: /cvs/cvsroot/d2x/arch/ogl/gr.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 02:23:48 $
+ * $Date: 2001-10-25 08:25:34 $
  *
  * // OGL video functions. - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2001/10/25 02:23:48  bradleyb
+ * formatting fix
+ *
  * Revision 1.6  2001/10/18 23:59:23  bradleyb
  * Changed __ENV_LINUX__ to __linux__
  *

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/scanline.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 02:22:46 $
+ * $Date: 2001-10-25 08:25:34 $
  * 
  * Routines to draw the texture mapped scanlines.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/25 02:22:46  bradleyb
+ * adding support for runtime selection of tmap funcs
+ *
  * Revision 1.2  2001/01/31 15:18:04  bradleyb
  * Makefile and conf.h fixes
  *
@@ -51,7 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: scanline.c,v 1.3 2001-10-25 02:22:46 bradleyb Exp $";
+static char rcsid[] = "$Id: scanline.c,v 1.4 2001-10-25 08:25:34 bradleyb Exp $";
 #endif
 
 #include <math.h>
@@ -67,6 +70,7 @@ static char rcsid[] = "$Id: scanline.c,v 1.3 2001-10-25 02:22:46 bradleyb Exp $"
 #include "texmap.h"
 #include "texmapl.h"
 #include "scanline.h"
+#include "strutil.h"
 
 void c_tmap_scanline_flat()
 {

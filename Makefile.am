@@ -1,4 +1,4 @@
-SUBDIRS = 2d 3d maths mem cfile iff texmap misc video sound arch main
+SUBDIRS = 2d 3d maths mem cfile iff texmap misc arch main
 
 EXTRA_SUBDIRS = includes tools unused
 

@@ -13,7 +13,8 @@ AM_INIT_AUTOMAKE(d2x, 0.1.1)
 AM_MAINTAINER_MODE
 
 AC_PROG_INSTALL
-AC_CHECK_TOOL(CC, gcc, :)
+AC_PROG_CC
+AC_PROG_MAKE_SET
 AC_ISC_POSIX
 AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_CHECK_TOOL(AR, ar, :)
@@ -108,6 +109,7 @@ else
     done
     AC_DEFINE(OGL)
     TARGETS=d2x-ogl
+    D2X_ARCH_SUBDIRS="${D2X_ARCH_SUBDIRS} ogl"
   fi
   AC_SUBST(OGL_LIBS)
   AM_CONDITIONAL(USE_OPENGL, test x$with_opengl = xyes)
@@ -124,7 +126,7 @@ else
       [AC_MSG_ERROR([GII not found, GGI version cannot be built]); ggi=false])
     AC_DEFINE(GGI)
     TARGETS=d2x-ggi
-    D2X_ARCH_SUBDIRS = "${D2X_ARCH_SUBDIRS} ggi"
+    D2X_ARCH_SUBDIRS="${D2X_ARCH_SUBDIRS} ggi"
   fi
   AC_SUBST(GGI_LIBS)
   AM_CONDITIONAL(USE_GGI, test x$with_ggi = xyes)
@@ -145,7 +147,7 @@ else
        -lvga)
     AC_DEFINE(SVGA)
     TARGETS=d2x-svga
-    D2X_ARCH_SUBDIRS = "${D2X_ARCH_SUBDIRS} svgalib"
+    D2X_ARCH_SUBDIRS="${D2X_ARCH_SUBDIRS} svgalib"
   fi
   AC_SUBST(SVGA_LIBS)
   AM_CONDITIONAL(USE_SVGALIB, test x$with_svga = yes)
@@ -215,6 +217,7 @@ arch/Makefile
 arch/dos/Makefile
 arch/ggi/Makefile
 arch/linux/Makefile
+arch/ogl/Makefile
 arch/sdl/Makefile
 arch/svgalib/Makefile
 arch/win32/Makefile
@@ -225,7 +228,5 @@ main/editor/Makefile
 maths/Makefile
 mem/Makefile
 misc/Makefile
-sound/Makefile
 texmap/Makefile
-video/Makefile
 )

@@ -1,12 +1,15 @@
 /*
- * $Source: /cvs/cvsroot/d2x/video/ogl_sdl.c,v $
- * $Revision: 1.4 $
+ * $Source: /cvs/cvsroot/d2x/arch/ogl/sdlgl.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-10-09 08:17:07 $
+ * $Date: 2001-10-25 08:25:34 $
  *
  * Graphics functions for SDL-GL.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/10/09 08:17:07  bradleyb
+ * changed window caption to include version info
+ *
  * Revision 1.3  2001/10/09 02:58:20  bradleyb
  * Added window caption, hide mouse cursor
  *

@@ -1,12 +1,15 @@
 /*
- * $Source: /cvs/cvsroot/d2x/video/sdl_gr.c,v $
- * $Revision: 1.5 $
+ * $Source: /cvs/cvsroot/d2x/arch/sdl/gr.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-10-09 08:17:07 $
+ * $Date: 2001-10-25 08:25:34 $
  *
  * SDL video functions.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/10/09 08:17:07  bradleyb
+ * changed window caption to include version info
+ *
  * Revision 1.4  2001/01/31 13:59:23  bradleyb
  * Fullscreen toggle added to screen res menu
  *

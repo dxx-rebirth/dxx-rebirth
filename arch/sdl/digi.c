@@ -1,12 +1,15 @@
 /*
- * $Source: /cvs/cvsroot/d2x/sound/dos_digi.c,v $
- * $Revision: 1.3 $
+ * $Source: /cvs/cvsroot/d2x/arch/sdl/digi.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 14:04:45 $
+ * $Date: 2001-10-25 08:25:34 $
  *
- * DOS digital audio support
+ * SDL digital audio support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/12 06:36:55  bradleyb
+ * Fix a gcc 3.0 warning, couple updates from d1x
+ *
  * Revision 1.2  2001/01/29 13:53:28  bradleyb
  * Fixed build, minor fixes
  *
@@ -19,6 +22,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <SDL/SDL.h>
+#include <SDL/SDL_audio.h>
 
 #include "pstypes.h"
 #include "error.h"
@@ -34,7 +40,6 @@
 #include "kconfig.h"
 
 int digi_sample_rate=11025;
-int digi_timer_rate                                     = 9943;                 // rate for the timer to go off to handle the driver system (120 Hz)
 
 //edited 05/17/99 Matt Mueller - added ifndef NO_ASM
 //added on 980905 by adb to add inline fixmul for mixer on i386
@@ -65,7 +70,7 @@ extern inline fix fixmul(fix x, fix y) { return do_fixmul(x,y); }
  * the value to avoid overflow.  (used with permission from ARDI)
  * DPH: Taken from SDL/src/SDL_mixer.c.
  */
-static const unsigned char mix8[] =
+static const Uint8 mix8[] =
 {
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -177,6 +182,7 @@ struct sound_slot {
  unsigned int position; // Position we are at at the moment.
 } SoundSlots[MAX_SOUND_SLOTS];
 
+static SDL_AudioSpec WaveSpec;
 static int digi_sounds_initialized = 0;
 
 //added on 980905 by adb to add rotating/volume based sound kill system
@@ -190,17 +196,17 @@ void digi_reset_digi_sounds(void);
 
 /* Audio mixing callback */
 //changed on 980905 by adb to cleanup, add pan support and optimize mixer
-static void audio_mixcallback(void *userdata, unsigned char *stream, int len)
+static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 {
- unsigned char *streamend = stream + len;
+ Uint8 *streamend = stream + len;
  struct sound_slot *sl;
   
  for (sl = SoundSlots; sl < SoundSlots + MAX_SOUND_SLOTS; sl++)
  {
   if (sl->playing)
   {
-   unsigned char *sldata = sl->samples + sl->position, *slend = sl->samples + sl->length;
-   unsigned char *sp = stream;
+   Uint8 *sldata = sl->samples + sl->position, *slend = sl->samples + sl->length;
+   Uint8 *sp = stream, s;
    signed char v;
    fix vl, vr;
    int x;
@@ -229,8 +235,10 @@ static void audio_mixcallback(void *userdata, unsigned char *stream, int len)
      sldata = sl->samples;
     }
     v = *(sldata++) - 0x80;
-    *(sp++) = mix8[ *sp + fixmul(v, vl) + 0x80 ];
-    *(sp++) = mix8[ *sp + fixmul(v, vr) + 0x80 ];
+    s = *sp;
+    *(sp++) = mix8[ s + fixmul(v, vl) + 0x80 ];
+    s = *sp;
+    *(sp++) = mix8[ s + fixmul(v, vr) + 0x80 ];
    }
    sl->position = sldata - sl->samples;
   }
@@ -241,12 +249,33 @@ static void audio_mixcallback(void *userdata, unsigned char *stream, int len)
 /* Initialise audio devices. */
 int digi_init()
 {
-    /* this is just here now to stop gcc from complaining about 
-     * audio_mixcallback being declared static and not used...
-     */
-    if (0) audio_mixcallback(NULL,NULL,0);
+ if (SDL_InitSubSystem(SDL_INIT_AUDIO)<0){
+    Error("SDL audio initialisation failed: %s.",SDL_GetError());
+ }
+ //added on 980905 by adb to init sound kill system
+ memset(SampleHandles, 255, sizeof(SampleHandles));
+ //end edit by adb
 
- return 1;
+ WaveSpec.freq = 11025;
+//added/changed by Sam Lantinga on 12/01/98 for new SDL version
+ WaveSpec.format = AUDIO_U8;
+ WaveSpec.channels = 2;
+//end this section addition/change - SL
+ WaveSpec.samples = SOUND_BUFFER_SIZE;
+ WaveSpec.callback = audio_mixcallback;
+
+ if ( SDL_OpenAudio(&WaveSpec, NULL) < 0 ) {
+//edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
+	 Warning("\nError: Couldn't open audio: %s\n", SDL_GetError());
+//killed  exit(2);
+	 return 1;
+//end edit -MM
+ }
+ SDL_PauseAudio(0);
+
+ atexit(digi_close);
+ digi_initialised = 1;
+ return 0;
 }
 
 /* Toggle audio */
@@ -257,6 +286,7 @@ void digi_close()
 {
  if (!digi_initialised) return;
  digi_initialised = 0;
+ SDL_CloseAudio();
 }
 
 /* Find the sound which actually equates to a sound number */
@@ -779,7 +809,18 @@ int digi_is_sound_playing(int soundno)
 
 void digi_pause_all() { }
 void digi_resume_all() { }
-void digi_stop_all() { }
+void digi_stop_all() {
+       int i;
+       // ... Ano. The lack of this was causing ambient sounds to crash.
+       // fixed, added digi_stop_all 07/19/01 - bluecow
+       
+       for (i=0; i<MAX_SOUND_OBJECTS; i++ )    {
+               if ( SoundObjects[i].flags & SOF_USED ) {
+                       SoundSlots[SoundObjects[i].handle].playing = 0;
+                       SoundObjects[i].flags = 0;
+               }
+       }
+}
 
  //added on 980905 by adb to make sound channel setting work
 void digi_set_max_channels(int n) { 
