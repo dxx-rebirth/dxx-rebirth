@@ -1,4 +1,4 @@
-/* $Id: multibot.c,v 1.5 2003-10-04 02:58:23 btb Exp $ */
+/* $Id: multibot.c,v 1.6 2004-04-22 21:07:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -693,7 +693,7 @@ multi_do_claim_robot(char *buf)
 
 	pnum = buf[1];
 
-	GET_INTEL_SHORT(remote_botnum, buf+2);
+	remote_botnum = GET_INTEL_SHORT(buf + 2);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[4]);
 
 	if ((botnum > Highest_object_index) || (botnum < 0)) {
@@ -735,7 +735,7 @@ multi_do_release_robot(char *buf)
 
 	pnum = buf[1];
 
-	GET_INTEL_SHORT(remote_botnum, buf+2);
+	remote_botnum = GET_INTEL_SHORT(buf + 2);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[4]);
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
@@ -777,7 +777,7 @@ multi_do_robot_position(char *buf)
 
 	pnum = buf[loc];										loc += 1;
 
-	GET_INTEL_SHORT(remote_botnum, buf+loc);
+	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
@@ -835,7 +835,7 @@ multi_do_robot_fire(char *buf)
 	robot_info *robptr;
 
 	pnum = buf[loc];												loc += 1;
-	GET_INTEL_SHORT(remote_botnum, buf+loc);
+	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
 	gun_num = (sbyte)buf[loc];                                      loc += 1;
 	memcpy(&fire, buf+loc, sizeof(vms_vector));
@@ -959,9 +959,9 @@ multi_do_robot_explode(char *buf)
 	char thief;
 
 	pnum = buf[loc]; 					loc += 1;
-	GET_INTEL_SHORT(remote_killer, buf+loc);
+	remote_killer = GET_INTEL_SHORT(buf + loc);
 	killer = objnum_remote_to_local(remote_killer, (sbyte)buf[loc+2]); loc += 3;
-	GET_INTEL_SHORT(remote_botnum, buf+loc);
+	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
    thief=buf[loc];
 
@@ -993,7 +993,7 @@ multi_do_create_robot(char *buf)
 	vms_vector cur_object_loc, direction;
 	object *obj;
 
-	GET_INTEL_SHORT(objnum, buf+3);
+	objnum = GET_INTEL_SHORT(buf + 3);
 
 	if ((pnum < 0) || (objnum < 0) || (fuelcen_num < 0) || (fuelcen_num >= Num_fuelcenters) || (pnum >= N_players))
 	{
@@ -1049,11 +1049,11 @@ multi_do_boss_actions(char *buf)
 	short remote_objnum, segnum;
 
 	pnum = buf[loc]; 									loc += 1;
-	GET_INTEL_SHORT(boss_objnum, buf+loc);              loc += 2;
+	boss_objnum = GET_INTEL_SHORT(buf + loc);           loc += 2;
 	action = buf[loc];									loc += 1;
 	secondary = buf[loc];								loc += 1;
-	GET_INTEL_SHORT(remote_objnum, buf+loc);            loc += 2;
-	GET_INTEL_SHORT(segnum, buf+loc);                   loc += 2;
+	remote_objnum = GET_INTEL_SHORT(buf + loc);         loc += 2;
+	segnum = GET_INTEL_SHORT(buf + loc);                loc += 2;
 	
 	if ((boss_objnum < 0) || (boss_objnum > Highest_object_index))
 	{
@@ -1158,7 +1158,7 @@ multi_do_create_robot_powerups(char *buf)
 	del_obj.contains_count = buf[loc];						loc += 1;	
 	del_obj.contains_type = buf[loc];						loc += 1;
 	del_obj.contains_id = buf[loc]; 						loc += 1;
-	GET_INTEL_SHORT(del_obj.segnum, buf+loc);               loc += 2;
+	del_obj.segnum = GET_INTEL_SHORT(buf + loc);            loc += 2;
 	memcpy(&del_obj.pos, buf+loc, sizeof(vms_vector));      loc += 12;
 	
 	vm_vec_zero(&del_obj.mtype.phys_info.velocity);
@@ -1185,7 +1185,7 @@ multi_do_create_robot_powerups(char *buf)
 	{
 		short s;
 		
-		GET_INTEL_SHORT(s, buf+loc);
+		s = GET_INTEL_SHORT(buf + loc);
 		if ( s != -1)
 			map_objnum_local_to_remote((short)Net_create_objnums[i], s, pnum);
 		else

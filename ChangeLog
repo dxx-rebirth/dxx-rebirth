@@ -1,5 +1,7 @@
 2004-04-22  Bradley Bell  <btb@icculus.org>
 
+	* main/multi.c, main/multibot.c: use new GET_INTEL_* macros
+
 	* include/byteswap.h: rewrite GET_INTEL_* macros, fix bugs in
 	aligned version of PUT_INTEL_* macros
 

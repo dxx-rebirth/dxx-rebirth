@@ -1,4 +1,4 @@
-/* $Id: multi.c,v 1.14 2003-10-21 09:50:56 schaffner Exp $ */
+/* $Id: multi.c,v 1.15 2004-04-22 21:07:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1546,7 +1546,7 @@ multi_do_fire(char *buf)
 	weapon = buf[2];
 #endif
 	flags = buf[4];
-	GET_INTEL_SHORT(Network_laser_track, buf+6);
+	Network_laser_track = GET_INTEL_SHORT(buf + 6);
 
 	Assert (pnum < N_players);
 
@@ -1686,7 +1686,7 @@ multi_do_reappear(char *buf)
 {
 	short objnum;
 
-	GET_INTEL_SHORT(objnum, buf+1);
+	objnum = GET_INTEL_SHORT(buf + 1);
 
 	Assert(objnum >= 0);
 	//      Assert(Players[Objects[objnum].id]].objnum == objnum);
@@ -1732,8 +1732,8 @@ multi_do_player_explode(char *buf)
 	// Stuff the Players structure to prepare for the explosion
 
 	count = 2;
-	GET_INTEL_SHORT(Players[pnum].primary_weapon_flags, buf+count); count += 2;
-	GET_INTEL_SHORT(Players[pnum].secondary_weapon_flags, buf+count); count += 2;
+	Players[pnum].primary_weapon_flags = GET_INTEL_SHORT(buf + count); count += 2;
+	Players[pnum].secondary_weapon_flags = GET_INTEL_SHORT(buf + count); count += 2;
 	Players[pnum].laser_level = buf[count];                                                 count++;
 	Players[pnum].secondary_ammo[HOMING_INDEX] = buf[count];                count++;
 	Players[pnum].secondary_ammo[CONCUSSION_INDEX] = buf[count];count++;
@@ -1747,9 +1747,9 @@ multi_do_player_explode(char *buf)
 	Players[pnum].secondary_ammo[SMISSILE4_INDEX] = buf[count]; count++;
 	Players[pnum].secondary_ammo[SMISSILE5_INDEX] = buf[count]; count++;
 
-	GET_INTEL_SHORT(Players[pnum].primary_ammo[VULCAN_INDEX], buf+count); count += 2;
-	GET_INTEL_SHORT(Players[pnum].primary_ammo[GAUSS_INDEX], buf+count); count += 2;
-	GET_INTEL_INT(Players[pnum].flags, buf+count);                     count += 4;
+	Players[pnum].primary_ammo[VULCAN_INDEX] = GET_INTEL_SHORT(buf + count); count += 2;
+	Players[pnum].primary_ammo[GAUSS_INDEX] = GET_INTEL_SHORT(buf + count); count += 2;
+	Players[pnum].flags = GET_INTEL_INT(buf + count);               count += 4;
 
 	multi_adjust_remote_cap (pnum);
 
@@ -1776,7 +1776,7 @@ multi_do_player_explode(char *buf)
 	{
 		short s;
 
-		GET_INTEL_SHORT(s, buf+count);
+		s = GET_INTEL_SHORT(buf + count);
 
 		if ((i < Net_create_loc) && (s > 0))
 			map_objnum_local_to_remote((short)Net_create_objnums[i], s, pnum);
@@ -1828,7 +1828,7 @@ multi_do_kill(char *buf)
 	killed = Players[pnum].objnum;
 	count += 1;
 
-	GET_INTEL_SHORT(killer, buf+count);
+	killer = GET_INTEL_SHORT(buf + count);
 	if (killer > 0)
 		killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
 
@@ -1853,7 +1853,7 @@ void multi_do_controlcen_destroy(char *buf)
 	sbyte who;
 	short objnum;
 
-	GET_INTEL_SHORT(objnum, buf+1);
+	objnum = GET_INTEL_SHORT(buf + 1);
 	who = buf[3];
 
 	if (Control_center_destroyed != 1)
@@ -1910,7 +1910,7 @@ multi_do_remobj(char *buf)
 	short local_objnum;
 	sbyte obj_owner; // which remote list is it entered in
 
-	GET_INTEL_SHORT(objnum, buf+1);
+	objnum = GET_INTEL_SHORT(buf + 1);
 	obj_owner = buf[3];
 
 	Assert(objnum >= 0);
@@ -2044,7 +2044,7 @@ multi_do_door_open(char *buf)
 	wall *w;
 	ubyte flag;
 
-	GET_INTEL_SHORT(segnum, buf+1);
+	segnum = GET_INTEL_SHORT(buf + 1);
 	side = buf[3];
 	flag= buf[4];
 
@@ -2113,7 +2113,7 @@ multi_do_controlcen_fire(char *buf)
 	to_target.z = (fix)INTEL_INT((int)to_target.z);
 #endif
 	gun_num = buf[count];                       count += 1;
-	GET_INTEL_SHORT(objnum, buf+count);         count += 2;
+	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
 	Laser_create_new_easy(&to_target, &Gun_pos[(int)gun_num], objnum, CONTROLCEN_WEAPON_NUM, 1);
 }
@@ -2134,8 +2134,8 @@ multi_do_create_powerup(char *buf)
 
 	pnum = buf[count++];
 	powerup_type = buf[count++];
-	GET_INTEL_SHORT(segnum, buf+count); count+=2;
-	GET_INTEL_SHORT(objnum, buf+count); count+=2;
+	segnum = GET_INTEL_SHORT(buf + count); count += 2;
+	objnum = GET_INTEL_SHORT(buf + count); count += 2;
 
 	if ((segnum < 0) || (segnum > Highest_segment_index)) {
 		Int3();
@@ -2207,11 +2207,11 @@ multi_do_score(char *buf)
 
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		int score;
-		GET_INTEL_INT(score, buf+2);
+		score = GET_INTEL_INT(buf + 2);
 		newdemo_record_multi_score(pnum, score);
 	}
 
-	GET_INTEL_INT(Players[pnum].score, buf+2);
+	Players[pnum].score = GET_INTEL_INT(buf + 2);
 
 	multi_sort_kill_list();
 }
@@ -2247,9 +2247,9 @@ void multi_do_drop_marker (char *buf)
 	if (pnum==Player_num)  // my marker? don't set it down cuz it might screw up the orientation
 		return;
 
-	GET_INTEL_INT(position.x, buf+3);
-	GET_INTEL_INT(position.y, buf+7);
-	GET_INTEL_INT(position.z, buf+11);
+	position.x = GET_INTEL_INT(buf + 3);
+	position.y = GET_INTEL_INT(buf + 7);
+	position.z = GET_INTEL_INT(buf + 11);
 
 	for (i=0;i<40;i++)
 		MarkerMessage[(pnum*2)+mesnum][i]=buf[15+i];
@@ -2273,8 +2273,8 @@ void multi_do_hostage_door_status(char *buf)
 	int wallnum;
 	fix hps;
 
-	GET_INTEL_SHORT(wallnum, buf+count);        count += 2;
-	GET_INTEL_INT(hps, buf+count);              count += 4;
+	wallnum = GET_INTEL_SHORT(buf + count);     count += 2;
+	hps = GET_INTEL_INT(buf + count);           count += 4;
 
 	if ((wallnum < 0) || (wallnum > Num_walls) || (hps < 0) || (Walls[wallnum].type != WALL_BLASTABLE))
 	{
@@ -2296,7 +2296,7 @@ void multi_do_save_game(char *buf)
 	char desc[25];
 
 	slot = *(ubyte *)(buf+count);           count += 1;
-	GET_INTEL_INT(id, buf+count);           count += 4;
+	id = GET_INTEL_INT(buf + count);        count += 4;
 	memcpy( desc, &buf[count], 20 );        count += 20;
 
 	multi_save_game( slot, id, desc );
@@ -2309,7 +2309,7 @@ void multi_do_restore_game(char *buf)
 	uint id;
 
 	slot = *(ubyte *)(buf+count);           count += 1;
-	GET_INTEL_INT(id, buf+count);           count += 4;
+	id = GET_INTEL_INT(buf + count);        count += 4;
 
 	multi_restore_game( slot, id );
 }
@@ -3894,10 +3894,10 @@ void multi_do_drop_weapon (char *buf)
 	int powerup_id;
 
 	powerup_id=(int)(buf[1]);
-	GET_INTEL_SHORT(pnum, buf+2);
-	GET_INTEL_SHORT(remote_objnum, buf+4);
-	GET_INTEL_SHORT(ammo, buf+6);
-	GET_INTEL_INT(seed, buf+8);
+	pnum = GET_INTEL_SHORT(buf + 2);
+	remote_objnum = GET_INTEL_SHORT(buf + 4);
+	ammo = GET_INTEL_SHORT(buf + 6);
+	seed = GET_INTEL_INT(buf + 8);
 
 	objp = &Objects[Players[pnum].objnum];
 
@@ -4069,7 +4069,7 @@ void multi_do_wall_status (char *buf)
 	short wallnum;
 	ubyte flag,type,state;
 
-	GET_INTEL_SHORT(wallnum, buf+1);
+	wallnum = GET_INTEL_SHORT(buf + 1);
 	type=buf[3];
 	flag=buf[4];
 	state=buf[5];
@@ -4138,7 +4138,7 @@ void multi_do_heartbeat (char *buf)
 {
 	fix num;
 
-	GET_INTEL_INT(num, buf+1);
+	num = GET_INTEL_INT(buf + 1);
 
 	ThisLevelTime=num;
 }
@@ -4191,8 +4191,8 @@ extern fix Seismic_disturbance_end_time;
 
 void multi_do_seismic (char *buf)
 {
-	GET_INTEL_INT(Seismic_disturbance_start_time, buf+1);
-	GET_INTEL_INT(Seismic_disturbance_end_time, buf+5);
+	Seismic_disturbance_start_time = GET_INTEL_INT(buf + 1);
+	Seismic_disturbance_end_time = GET_INTEL_INT(buf + 5);
 	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
 }
 
@@ -4233,13 +4233,13 @@ void multi_do_light (char *buf)
 	int i, seg;
 	ubyte sides=*(char *)(buf+5);
 
-	GET_INTEL_INT(seg, buf+1);
+	seg = GET_INTEL_INT(buf + 1);
 	for (i=0;i<6;i++)
 	{
 		if ((sides & (1<<i)))
 		{
 			subtract_light (seg,i);
-			GET_INTEL_SHORT(Segments[seg].sides[i].tmap_num2, buf+(6+(2*i)) );
+			Segments[seg].sides[i].tmap_num2 = GET_INTEL_SHORT(buf + (6 + (2 * i)));
 			//mprintf ((0,"Got %d!\n",Segments[seg].sides[i].tmap_num2));
 		}
 	}
@@ -4286,7 +4286,7 @@ void multi_do_flags (char *buf)
 	char pnum=buf[1];
 	uint flags;
 
-	GET_INTEL_INT(flags, buf+2);
+	flags = GET_INTEL_INT(buf + 2);
 	if (pnum!=Player_num)
 		Players[(int)pnum].flags=flags;
 }
@@ -4733,10 +4733,10 @@ void multi_do_drop_flag (char *buf)
 	int powerup_id;
 
 	powerup_id=buf[1];
-	GET_INTEL_SHORT(pnum, buf+2);
-	GET_INTEL_SHORT(remote_objnum, buf+4);
-	GET_INTEL_SHORT(ammo, buf+6);
-	GET_INTEL_INT(seed, buf+8);
+	pnum = GET_INTEL_SHORT(buf + 2);
+	remote_objnum = GET_INTEL_SHORT(buf + 4);
+	ammo = GET_INTEL_SHORT(buf + 6);
+	seed = GET_INTEL_INT(buf + 8);
 
 	objp = &Objects[Players[pnum].objnum];
 
