@@ -2,7 +2,7 @@
 
 	* libmve/mveplay.c: use _sleep instead of sleep on win32
 
-	* README, arch/sdl/digi.c, arch/sdl/joy.c, arch/win32/Makefile.am,
+	* Makefile.am, README, arch/sdl/digi.c, arch/sdl/joy.c, arch/win32/Makefile.am,
 	include/byteswap.h, include/cfile.h, include/error.h,
 	libmve/Makefile.am, libmve/decoders.h, main/Makefile.am,
 	main/endlevel.c, main/endlevel.h, main/playsave.c,

@@ -46,6 +46,7 @@ missiondir = ${pkgdatadir}/missions
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 ChangeLog \
+README.utils \
 djgpp.bat djgpp.sh \
 autogen.sh cygconf \
 cvshowto.txt readme.txt installation.txt compilerdefs.txt \
