@@ -1,4 +1,4 @@
-/* $Id: timer.h,v 1.3 2002-09-01 02:46:06 btb Exp $ */
+/* $Id: timer.h,v 1.4 2002-09-04 08:12:37 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -117,6 +117,7 @@ void timer_delay(fix seconds);
 
 
 #define approx_usec_to_fsec(usec) ((usec) >> 4)
+#define approx_fsec_to_usec(fsec) ((fsec) << 4)
 #define approx_msec_to_fsec(msec) ((msec) << 6)
 #define approx_fsec_to_msec(fsec) ((fsec) >> 6)
 
