@@ -59,6 +59,7 @@ typedef struct _ogl_texture {
 } ogl_texture;
 
 extern ogl_texture* ogl_get_free_texture();
+void ogl_init_texture(ogl_texture* t, int w, int h, int flags);
 
 extern int ogl_alttexmerge;//merge textures by just printing the seperate textures?
 extern int ogl_rgba_internalformat;

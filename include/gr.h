@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.26 2004-05-22 02:01:34 btb Exp $ */
+/* $Id: gr.h,v 1.27 2004-05-22 09:21:22 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -438,6 +438,8 @@ void gr_linear_movsd_double(ubyte *src, ubyte *dest, int num_pixels);
 #endif /* def MACINTOSH */
 
 void gr_update_buffer( void * sbuf1, void * sbuf2, void * dbuf, int size );
+
+void gr_set_transparent(grs_bitmap *pbm, int bTransparent);
 
 //=========================================================================
 // Color functions:

@@ -1,3 +1,8 @@
+2004-05-22  Bradley Bell  <btb@icculus.org>
+
+	* arch/ogl/internal.h, include/gr.h, include/ogl_init.h: function
+	prototypes
+
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
 	* 2d/font.c, arch/ogl/gr.c, arch/ogl/internal.h, arch/ogl/ogl.c,
