@@ -1,3 +1,9 @@
+/* $Id: mve_main.c,v 1.2 2003-02-19 00:42:40 btb Exp $ */
+
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -7,6 +13,8 @@
 #include <SDL.h>
 
 #include "mvelib.h"
+
+#define SWAPINT(x)   (((x)<<24) | (((unsigned int)(x)) >> 24) | (((x) &0x0000ff00) << 8) | (((x) & 0x00ff0000) >> 8))
 
 #define MAX_FILES 256
 
@@ -94,6 +102,13 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "Error reading %s\n", mvlfile);
 			exit(1);
 		}
+#ifdef WORDS_BIGENDIAN
+		nfiles = SWAPINT(nfiles);
+#endif
+		if (nfiles > MAX_FILES) {
+			fprintf(stderr, "Error reading %s: nfiles = %d, MAX_FILES = %d\n",
+					mvlfile, nfiles, MAX_FILES);
+		}
 		for (i = 0; i < nfiles; i++) {
 			if ((read(filehandle, filename[i], 13) < 13) ||
 				(read(filehandle, &filesize[i], 4) < 4) ||
@@ -101,6 +116,9 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "Error reading %s\n", mvlfile);
 				exit(1);
 			}
+#ifdef WORDS_BIGENDIAN
+			filesize[i] = SWAPINT(filesize[i]);
+#endif
 		}
 
 		for (i = 0; i < nfiles; i++) {

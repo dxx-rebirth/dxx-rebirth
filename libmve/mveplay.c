@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.2 2003-02-18 23:28:47 btb Exp $ */
+/* $Id: mveplay.c,v 1.3 2003-02-19 00:42:40 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -30,6 +30,7 @@
 #include "u_mem.h"
 #include "gr.h"
 #include "palette.h"
+#include "args.h"
 #endif
 
 #ifdef STANDALONE
@@ -355,7 +356,11 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 	mve_audio_compressed = compressed;
 
 	if (bitsize == 1) {
+#ifdef WORDS_BIGENDIAN
+		format = AUDIO_S16MSB;
+#else
 		format = AUDIO_S16LSB;
+#endif
 	} else {
 		format = AUDIO_U8;
 	}
