@@ -5,7 +5,7 @@
 
 2005-02-24  Chris Taylor  <chris@icculus.org>
 
-	* include/physfsx.h: use PHYSFSX_openReadBuffered and 
+	* include/physfsx.h, main/state.c: use PHYSFSX_openReadBuffered and 
 	PHYSFSX_openWriteBuffered, where appropriate
 
 2005-02-11  Bradley Bell  <btb@icculus.org>

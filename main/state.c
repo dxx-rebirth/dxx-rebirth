@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.21 2005-01-23 14:38:04 schaffner Exp $ */
+/* $Id: state.c,v 1.22 2005-02-25 03:58:32 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -409,13 +409,12 @@ int state_get_restore_file(char * fname, int multi)
 
 #define	DESC_OFFSET	8
 
-#define	CF_BUF_SIZE	1024
-
 //	-----------------------------------------------------------------------------------
 //	Imagine if C had a function to copy a file...
 int copy_file(char *old_file, char *new_file)
 {
-	sbyte	buf[CF_BUF_SIZE];
+	sbyte	*buf;
+	int		buf_size;
 	PHYSFS_file *in_file, *out_file;
 
 	out_file = PHYSFS_openWrite(new_file);
@@ -428,19 +427,27 @@ int copy_file(char *old_file, char *new_file)
 	if (in_file == NULL)
 		return -2;
 
+	buf_size = PHYSFS_fileLength(in_file);
+	while (buf_size && !(buf = d_malloc(buf_size)))
+		buf_size /= 2;
+	if (buf_size == 0)
+		return -5;	// likely to be an empty file
+
 	while (!PHYSFS_eof(in_file))
 	{
 		int bytes_read;
 
-		bytes_read = PHYSFS_read(in_file, buf, 1, CF_BUF_SIZE);
+		bytes_read = PHYSFS_read(in_file, buf, 1, buf_size);
 		if (bytes_read < 0)
 			Error("Cannot read from file <%s>: %s", old_file, PHYSFS_getLastError());
 
-		Assert(bytes_read == CF_BUF_SIZE || PHYSFS_eof(in_file));
+		Assert(bytes_read == buf_size || PHYSFS_eof(in_file));
 
 		if (PHYSFS_write(out_file, buf, 1, bytes_read) < bytes_read)
 			Error("Cannot write to file <%s>: %s", new_file, PHYSFS_getLastError());
 	}
+
+	d_free(buf);
 
 	if (!PHYSFS_close(in_file))
 	{
