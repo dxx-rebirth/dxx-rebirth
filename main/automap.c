@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.13 2003-11-14 23:24:54 btb Exp $ */
+/* $Id: automap.c,v 1.14 2003-11-14 23:29:57 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -710,8 +710,8 @@ int AutomapHires;
 					break;
 			}
 		}
-	
-		gr_bitmapm(AutomapHires?10:AutomapHires?10:5,5,&name_canv_left->cv_bitmap);
+
+		gr_bitmapm(AutomapHires?10:5, AutomapHires?10:5, &name_canv_left->cv_bitmap);
 		gr_bitmapm(grd_curcanv->cv_bitmap.bm_w-(AutomapHires?10:5)-name_canv_right->cv_bitmap.bm_w,AutomapHires?10:5,&name_canv_right->cv_bitmap);
 	}
 
@@ -860,7 +860,7 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 
 	g3_end_frame();
 
-	gr_bitmapm(AutomapHires?10:AutomapHires?10:5,5,&name_canv_left->cv_bitmap);
+	gr_bitmapm(AutomapHires?10:5, AutomapHires?10:5, &name_canv_left->cv_bitmap);
 	gr_bitmapm(grd_curcanv->cv_bitmap.bm_w-(AutomapHires?10:5)-name_canv_right->cv_bitmap.bm_w,AutomapHires?10:5,&name_canv_right->cv_bitmap);
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
