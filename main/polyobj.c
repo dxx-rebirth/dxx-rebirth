@@ -1,4 +1,4 @@
-/* $Id: polyobj.c,v 1.11 2003-02-13 22:02:29 btb Exp $ */
+/* $Id: polyobj.c,v 1.12 2003-02-13 22:07:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.11 2003-02-13 22:02:29 btb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.12 2003-02-13 22:07:58 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -70,37 +70,6 @@ int	Pof_file_end;
 int	Pof_addr;
 
 #define	MODEL_BUF_SIZE	32768
-
-#ifdef WORDS_BIGENDIAN
-void short_swap(short *s)
-{
-	*s = SWAPSHORT(*s);
-}
-
-void fix_swap(fix *f)
-{
-	*f = (fix)SWAPINT((int)*f);
-}
-
-void fixang_swap(fixang *f)
-{
-	*f = (fixang)SWAPSHORT((short)*f);
-}
-
-void vms_vector_swap(vms_vector *v)
-{
-	fix_swap(&v->x);
-	fix_swap(&v->y);
-	fix_swap(&v->z);
-}
-
-void vms_angvec_swap(vms_angvec *v)
-{
-	fixang_swap(&v->p);
-	fixang_swap(&v->b);
-	fixang_swap(&v->h);
-}
-#endif
 
 void _pof_cfseek(int len,int type)
 {

@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.12 2003-02-13 22:02:29 btb Exp $ */
+/* $Id: interp.c,v 1.13 2003-02-13 22:07:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.12 2003-02-13 22:02:29 btb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.13 2003-02-13 22:07:58 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -117,6 +117,18 @@ void vms_vector_swap(vms_vector *v)
 	fix_swap(fp(&v->x));
 	fix_swap(fp(&v->y));
 	fix_swap(fp(&v->z));
+}
+
+void fixang_swap(fixang *f)
+{
+	*f = (fixang)SWAPSHORT((short)*f);
+}
+
+void vms_angvec_swap(vms_angvec *v)
+{
+	fixang_swap(&v->p);
+	fixang_swap(&v->b);
+	fixang_swap(&v->h);
 }
 
 void swap_polygon_model_data(ubyte *data)

@@ -1,4 +1,4 @@
-/* $Id: interp.h,v 1.5 2003-02-13 22:02:29 btb Exp $ */
+/* $Id: interp.h,v 1.6 2003-02-13 22:07:58 btb Exp $ */
 /*
  *
  * took out functions declarations from include/3d.h
@@ -40,6 +40,9 @@ void g3_remap_interp_colors(void);
 #ifdef WORDS_BIGENDIAN
 // routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(ubyte *data);
+//routines to convert little to big endian in vectors
+void vms_vector_swap(vms_vector *v);
+void vms_angvec_swap(vms_angvec *v);
 #endif
 
 #ifdef WORDS_NEED_ALIGNMENT
