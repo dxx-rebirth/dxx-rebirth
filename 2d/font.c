@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.17 2002-08-06 09:28:00 btb Exp $ */
+/* $Id: font.c,v 1.18 2002-08-15 05:42:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1725,16 +1725,17 @@ grs_font * gr_init_font( char * fontname )
 
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
 
-		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;		// chaged from colormap[255] = 255 to this for macintosh
+#ifdef MACINTOSH
+		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
+#else
+		colormap[255] = 255;
+#endif
 
 		decode_data_asm(font->ft_data, ptr - font->ft_data, colormap, freq );
 
 	}
 
 	cfclose(fontfile);
-
-//	memcpy(newfont,font,(ubyte*)&newfont->oldfont-(ubyte*)newfont);//fill in newfont data from oldfont struct
-//	mprintf((0,"%i %i %i\n",sizeof(grs_font),sizeof(old_grs_font),(ubyte*)&newfont->oldfont-(ubyte*)newfont));
 
 	//set curcanv vars
 
@@ -1855,11 +1856,15 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
 
-		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;		// chaged from colormap[255] = 255 to this for macintosh
+#ifdef MACINTOSH
+		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
+#else
+		colormap[255] = 255;
+#endif
 
 		decode_data_asm(font->ft_data, ptr - font->ft_data, colormap, freq );
-	}
 
+	}
 
 	cfclose(fontfile);
 

@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: rle.c,v 1.5 2002-08-15 05:42:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -21,7 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.5 2002-08-15 05:42:33 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -664,5 +664,37 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 				gr_bm_pixel( dest, dx++, dy, color );
 			i += count;
 		}
-	}	
+	}
+}
+
+void rle_swap_0_255(grs_bitmap *bmp)
+{
+	int i, j;
+
+	if (!bmp->bm_data)
+		return;
+
+	if (bmp->bm_flags & BM_FLAG_RLE_BIG)
+		j = 4 + 2 * bmp->bm_h;
+	else
+		j = 4 + bmp->bm_h;
+
+	for (i = 0; i < bmp->bm_h; i++) {
+		if ((bmp->bm_data[j] & RLE_CODE) != RLE_CODE) {
+			if (bmp->bm_data[j] == 0)
+				bmp->bm_data[j] = 255;
+			else if (bmp->bm_data[j] == 255)
+				bmp->bm_data[j] = 0;
+			j++;
+		} else {
+			if ((bmp->bm_data[j] & NOT_RLE_CODE) == 0)
+				continue;
+			j++;
+			if (bmp->bm_data[j] == 0)
+				bmp->bm_data[j] = 255;
+			else if (bmp->bm_data[j] == 255)
+				bmp->bm_data[j] = 0;
+			j++;
+		}
+	}
 }
