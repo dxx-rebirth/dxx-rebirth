@@ -21,13 +21,15 @@ extern ubyte virtual_memory_on;
 
 extern int show_mem_info;
 
-void * mem_display_blocks();
+void mem_display_blocks();
 extern void * mem_malloc( unsigned int size, char * var, char * file, int line, int fill_zero );
+extern void * mem_realloc( void * buffer, unsigned int size, char * var, char * file, int line );
 extern void mem_free( void * buffer );
 
 /* DPH: Changed malloc, etc. to d_malloc. Overloading system calls is very evil and error prone */
 #define d_malloc(size)    mem_malloc((size),"Unknown", __FILE__,__LINE__, 0 )
 #define d_calloc(n,size)  mem_malloc((n*size),"Unknown", __FILE__,__LINE__, 1 )
+#define d_realloc(ptr,size) mem_realloc((ptr),(size),"Unknown", __FILE__,__LINE__ )
 #define d_free(ptr)       do{ mem_free(ptr); ptr=NULL; } while(0)
 
 #define MALLOC( var, type, count )   (var=(type *)mem_malloc((count)*sizeof(type),#var, __FILE__,__LINE__,0 ))
@@ -38,6 +40,8 @@ void mem_validate_heap();
 #else
 
 #define d_malloc(size)    malloc(size)
+#define d_calloc(size)    calloc(n*size)
+#define d_realloc(ptr,size) realloc(ptr,size)
 #define d_free(ptr)       do{ free(ptr); ptr=NULL; } while(0)
 
 #define MALLOC( var, type, count )   (var=(type *)malloc((count)*sizeof(type)))

@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/mem/mem.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  * $Author: bradleyb $
- * $Date: 2001-10-19 08:06:20 $
+ * $Date: 2001-11-08 10:17:40 $
  *
  * Files for debugging memory allocator
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/10/19 08:06:20  bradleyb
+ * Partial application of linux/alpha patch.  Courtesy of Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -660,3 +663,26 @@ void PurgeTempMem()
 }
 
 #endif
+
+void *mem_realloc(void * buffer, unsigned int size, char * var, char * filename, int line)
+{
+	void *newbuffer;
+	int id;
+
+	if (size == 0) {
+		mem_free(buffer);
+		newbuffer = NULL;
+	} else if (buffer == NULL) {
+		newbuffer = mem_malloc(size, var, filename, line, 0);
+	} else {
+		newbuffer = mem_malloc(size, var, filename, line, 0);
+		if (newbuffer != NULL) {
+			id = mem_find_id(buffer);
+			if (MallocSize[id] < size)
+				size = MallocSize[id];
+			memcpy(newbuffer, buffer, size);
+			mem_free(buffer);
+		}
+	}
+	return newbuffer;
+}
