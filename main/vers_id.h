@@ -5,4 +5,4 @@
 
 
 #define VERSION_TYPE	"Full Version" 
-
+#define DESCENT_VERSION "D2X " VERSION
