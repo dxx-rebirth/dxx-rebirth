@@ -1,4 +1,4 @@
-/* $Id: joy.c,v 1.17 2005-04-04 09:18:08 btb Exp $ */
+/* $Id: joy.c,v 1.18 2005-04-05 07:35:09 btb Exp $ */
 /*
  *
  * SDL joystick support
@@ -151,6 +151,8 @@ int joy_init()
 	}
 
 	memset(&Joystick,0,sizeof(Joystick));
+	memset(joyaxis_text, 0, JOY_MAX_AXES * sizeof(char *));
+	memset(joybutton_text, 0, JOY_MAX_BUTTONS * sizeof(char *));
 
 	n = SDL_NumJoysticks();
 

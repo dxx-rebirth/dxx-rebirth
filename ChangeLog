@@ -1,3 +1,8 @@
+2005-04-05  Bradley Bell  <btb@icculus.org>
+
+	* arch/linux/joystick.c, arch/sdl/joy.c, main/kconfig.c: fix some
+	bugs in joystick initialization
+
 2005-04-04  Bradley Bell  <btb@icculus.org>
 
 	* main/kconfig.c: cosmetic fixes to joystick config screen

@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.37 2005-04-04 09:48:50 btb Exp $ */
+/* $Id: kconfig.c,v 1.38 2005-04-05 07:35:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.37 2005-04-04 09:48:50 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.38 2005-04-05 07:35:09 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -854,7 +854,10 @@ int get_item_height(kc_item *item)
 #ifdef USE_LINUX_JOY
 				sprintf(btext, "J%d B%d", j_button[item->value].joydev, j_Get_joydev_button_number(item->value));
 #elif defined(SDL_INPUT)
-				strncpy(btext, joybutton_text[item->value], 10);
+				if (joybutton_text[item->value])
+					strncpy(btext, joybutton_text[item->value], 10);
+				else
+					sprintf(btext, "BTN%2d", item->value + 1);
 #else
 				if ( joybutton_text[item->value] !=-1 )
 					strncpy( btext, Text_string[ joybutton_text[item->value]  ], 10 );
@@ -866,7 +869,10 @@ int get_item_height(kc_item *item)
 #ifdef USE_LINUX_JOY
 				sprintf( btext, "J%d A%d", j_axis[item->value].joydev, j_Get_joydev_axis_number (item->value) );
 #elif defined(SDL_INPUT)
-				strncpy(btext, joyaxis_text[item->value], 10);
+				if (joyaxis_text[item->value])
+					strncpy(btext, joyaxis_text[item->value], 10);
+				else
+					sprintf(btext, "AXIS%2d", item->value + 1);
 #else
 				strncpy(btext, Text_string[joyaxis_text[item->value]], 10);
 #endif
@@ -1385,7 +1391,10 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 #ifdef USE_LINUX_JOY
 				sprintf(btext, "J%d B%d", j_button[item->value].joydev, j_Get_joydev_button_number(item->value));
 #elif defined(SDL_INPUT)
-				strncpy(btext, joybutton_text[item->value], 10);
+				if (joybutton_text[item->value])
+					strncpy(btext, joybutton_text[item->value], 10);
+				else
+					sprintf(btext, "BTN%2d", item->value + 1);
 #else
 # ifndef MACINTOSH
 #  ifdef WINDOWS
@@ -1410,7 +1419,10 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 #ifdef USE_LINUX_JOY
 				sprintf(btext, "J%d A%d", j_axis[item->value].joydev, j_Get_joydev_axis_number(item->value));
 #elif defined(SDL_INPUT)
-				strncpy(btext, joyaxis_text[item->value], 10);
+				if (joyaxis_text[item->value])
+					strncpy(btext, joyaxis_text[item->value], 10);
+				else
+					sprintf(btext, "AXIS%2d", item->value + 1);
 #else
 				strncpy(btext, Text_string[joyaxis_text[item->value]], 10);
 #endif

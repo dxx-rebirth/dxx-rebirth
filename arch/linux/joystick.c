@@ -1,4 +1,4 @@
-/* $Id: joystick.c,v 1.7 2005-04-04 09:18:08 btb Exp $ */
+/* $Id: joystick.c,v 1.8 2005-04-05 07:35:09 btb Exp $ */
 /*
  *
  * Linux joystick support
@@ -213,10 +213,10 @@ int joy_init () {
 		j_joystick[1].buffer = open ("/dev/js1", O_NONBLOCK);
 		j_joystick[2].buffer = open ("/dev/js2", O_NONBLOCK);
 		j_joystick[3].buffer = open ("/dev/js3", O_NONBLOCK);
-		j_joystick[0].buffer = open("/dev/input/js0", O_NONBLOCK);
-		j_joystick[1].buffer = open("/dev/input/js1", O_NONBLOCK);
-		j_joystick[2].buffer = open("/dev/input/js2", O_NONBLOCK);
-		j_joystick[3].buffer = open("/dev/input/js3", O_NONBLOCK);
+		j_joystick[4].buffer = open("/dev/input/js0", O_NONBLOCK);
+		j_joystick[5].buffer = open("/dev/input/js1", O_NONBLOCK);
+		j_joystick[6].buffer = open("/dev/input/js2", O_NONBLOCK);
+		j_joystick[7].buffer = open("/dev/input/js3", O_NONBLOCK);
 
 		// Determine whether any sticks were found
 		joystick_found = 0;
