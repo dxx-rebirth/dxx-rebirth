@@ -30,7 +30,11 @@ static inline void _do_mprintf(int n, char *fmt, ...)
 	con_printf (CON_DEBUG, buffer);
 }
 
+#ifndef macintosh
 #define mprintf(args) _do_mprintf args
+#else
+#define mprintf(args)
+#endif
 
 #define minit()
 #define mclose(n)
