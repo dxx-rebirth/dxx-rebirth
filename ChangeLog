@@ -1,3 +1,7 @@
+2004-04-14  Sean Taylor <sscthunderbird@yahoo.com>
+
+	* main/songs.c: uncomment calls to RBAStop (fixes #473)
+
 2004-01-08  Martin Schaffner <maschaffner@gmx.ch>
 
         * configure.ac, arch/linux/ipx_udp.c, maths/fixc.c:

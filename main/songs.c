@@ -1,4 +1,4 @@
-/* $Id: songs.c,v 1.10 2003-11-26 12:26:33 btb Exp $ */
+/* $Id: songs.c,v 1.11 2004-04-14 07:35:55 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -174,7 +174,7 @@ void songs_init()
 				RBARegisterCD();
 			}
 		}
-		//atexit(RBAStop);	// stop song on exit
+		atexit(RBAStop);    // stop song on exit
 	#endif	// endof ifndef SHAREWARE, ie ifdef SHAREWARE
 }
 
@@ -201,7 +201,7 @@ void songs_stop_redbook(void)
 		} while (new_volume > 0);
 	}
 
-	//RBAStop();						// Stop CD, if playing
+	RBAStop();              	// Stop CD, if playing
 
 	RBASetVolume(old_volume);	//restore volume
 
