@@ -16,9 +16,6 @@
 /* Define if building under linux */
 #undef __ENV_LINUX__
 
-/* Define if building under msdos */
-#undef __ENV_DJGPP__
-
 /* Define to disable asserts, int3, etc. */
 #undef NDEBUG
 
