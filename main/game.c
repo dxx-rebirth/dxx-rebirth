@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.14 2002-08-15 18:31:05 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.15 2002-09-04 23:05:01 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -532,7 +532,7 @@ void init_cockpit()
 			);
 
 #ifndef WINDOWS
-#if 1 // def MACINTOSH
+#ifndef __MSDOS__
 		gr_ibitblt_create_mask( bm, minx, miny, maxx-minx+1, maxy-miny+1, VR_offscreen_buffer->cv_bitmap.bm_rowsize);
 #else
 		if ( Current_display_mode ) {
@@ -547,7 +547,7 @@ void init_cockpit()
 #endif
 		bm->bm_flags = 0;		// Clear all flags for offscreen canvas
 #else
-		Game_cockpit_copy_code  = (ubyte *)(1); 
+		Game_cockpit_copy_code  = (ubyte *)(1);
 		bm->bm_flags = 0;		// Clear all flags for offscreen canvas
 #endif
 		game_init_render_sub_buffers( 0, 0, maxx-minx+1, maxy-miny+1 );
