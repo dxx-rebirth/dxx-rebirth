@@ -1,4 +1,4 @@
-/* $Id: keypad.c,v 1.3 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: keypad.c,v 1.4 2005-01-25 21:26:44 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -89,11 +89,11 @@ void LineParse( int n, char * dest, char * source )
 
 	// Go to the n'th line
 	while (cn < n )
-		if (source[i++] == 179 )
+		if ((unsigned char) source[i++] == 179)
 			cn++;
 
 	// Read up until the next comma
-	while ( source[i] != 179 )
+	while ((unsigned char) source[i] != 179)
 	{
 		dest[j] = source[i++];
 		j++;		

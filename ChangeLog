@@ -16,7 +16,8 @@
 	main/editor/kgame.c, main/editor/kmine.c, main/editor/macro.c,
 	main/gamesave.c: s/128/PATH_MAX
 	* include/pstypes.h, main/newmenu.c: clean up path/file length macros
-
+	* ui/inputbox.c, ui/keypad.c: use unsigned char when comparing to > 127
+	
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* 2d/font.c: fix bug #2167: some characters would not display because
