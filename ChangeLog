@@ -1,3 +1,7 @@
+2003-10-10  Bradley Bell  <btb@icculus.org>
+
+	* main/piggy.c: increased D1_MAX_TMAP_NUM
+
 2003-10-10  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/bm.c, main/bm.h, main/piggy.c: fixes d1 still textures

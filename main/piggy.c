@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.38 2003-10-10 21:57:38 btb Exp $ */
+/* $Id: piggy.c,v 1.39 2003-10-10 22:11:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.38 2003-10-10 21:57:38 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.39 2003-10-10 22:11:41 btb Exp $";
 #endif
 
 
@@ -2292,7 +2292,7 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 }
 
 #define D1_MAX_TEXTURES 800
-#define D1_MAX_TMAP_NUM 1200 // a test gave me 1169 with descent.pig mac shareware
+#define D1_MAX_TMAP_NUM 1600 // 1555 in descent.pig PC registered
 
 /* the inverse of the Textures array, for descent 1.
  * "Textures" looks up a d2 bitmap index given a d2 tmap_num
