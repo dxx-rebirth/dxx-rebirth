@@ -1,5 +1,7 @@
 2004-05-18  Bradley Bell  <btb@icculus.org>
 
+	* arch/linux/hmiplay.c: updated SDL include path (d1x r1.3)
+
 	* include/vecmat.h: comments/formatting
 
 2004-05-18  Martin Schaffner  <maschaffner@gmx.ch>

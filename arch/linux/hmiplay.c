@@ -1,4 +1,4 @@
-/* $Id: hmiplay.c,v 1.2 2003-03-13 00:20:21 btb Exp $ */
+/* $Id: hmiplay.c,v 1.3 2004-05-19 01:59:14 btb Exp $ */
 /*
  * HMI midi playing routines by Jani Frilander
  *
@@ -23,7 +23,7 @@
 #include "music.h"
 #include "cfile.h"
 
-#include <SDL_thread.h>
+#include <SDL/SDL_thread.h>
 
 //#define WANT_AWE32 1
 
