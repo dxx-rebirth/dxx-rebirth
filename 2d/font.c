@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.28 2004-05-22 08:10:26 btb Exp $ */
+/* $Id: font.c,v 1.29 2004-05-22 09:15:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1196,6 +1196,7 @@ void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 }
 
 void ogl_init_font(grs_font * font){
+	int oglflags = OGL_FLAG_ALPHA;
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int i,w,h,tw,th,x,y,curx=0,cury=0;
 	char *fp;
@@ -1207,8 +1208,11 @@ void ogl_init_font(grs_font * font){
 	data=d_malloc(tw*th);
 	memset(data, 0, tw * th);
 	gr_init_bitmap(&font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
+	gr_set_transparent(&font->ft_parent_bitmap, 1);
 
-	font->ft_parent_bitmap.gltexture=ogl_get_free_texture();
+	if (!(font->ft_flags & FT_COLOR))
+		oglflags |= OGL_FLAG_NOCOLOR;
+	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
 	font->ft_bitmaps=(grs_bitmap*)d_malloc( nchars * sizeof(grs_bitmap));
 	mprintf((0,"ogl_init_font %s, %s, nchars=%i, (%ix%i tex)\n",(font->ft_flags & FT_PROPORTIONAL)?"proportional":"fixedwidth",(font->ft_flags & FT_COLOR)?"color":"mono",nchars,tw,th));
@@ -1273,23 +1277,7 @@ void ogl_init_font(grs_font * font){
 
 		curx+=w+gap;
 	}
-	if (!(font->ft_flags & FT_COLOR)) {
-		//use GL_INTENSITY instead of GL_RGB
-		if (ogl_intensity4_ok){
-			font->ft_parent_bitmap.gltexture->internalformat=GL_INTENSITY4;
-			font->ft_parent_bitmap.gltexture->format=GL_LUMINANCE;
-		}else if (ogl_luminance4_alpha4_ok){
-			font->ft_parent_bitmap.gltexture->internalformat=GL_LUMINANCE4_ALPHA4;
-			font->ft_parent_bitmap.gltexture->format=GL_LUMINANCE_ALPHA;
-		}else if (ogl_rgba2_ok){
-			font->ft_parent_bitmap.gltexture->internalformat=GL_RGBA2;
-			font->ft_parent_bitmap.gltexture->format=GL_RGBA;
-		}else{
-			font->ft_parent_bitmap.gltexture->internalformat=ogl_rgba_format;
-			font->ft_parent_bitmap.gltexture->format=GL_RGBA;
-		}
-	}
-	ogl_loadbmtexture_m(&font->ft_parent_bitmap,0);
+	ogl_loadbmtexture_f(&font->ft_parent_bitmap, oglflags);
 }
 
 int ogl_internal_string(int x, int y, char *s )

@@ -61,7 +61,8 @@ typedef struct _ogl_texture {
 extern ogl_texture* ogl_get_free_texture();
 
 extern int ogl_alttexmerge;//merge textures by just printing the seperate textures?
-extern int ogl_rgba_format;
+extern int ogl_rgba_internalformat;
+extern int ogl_rgb_internalformat;
 extern int ogl_setgammaramp_ok;
 extern int ogl_intensity4_ok;
 extern int ogl_luminance4_alpha4_ok;
@@ -131,7 +132,11 @@ void ogl_destroy_window(void);//destroy window/etc
 void ogl_init(void);//one time initialization
 void ogl_close(void);//one time shutdown
 
-void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap);
+
+#define OGL_FLAG_MIPMAP (1 << 0)
+#define OGL_FLAG_NOCOLOR (1 << 1)
+#define OGL_FLAG_ALPHA (1 << 31) // not required for ogl_loadbmtexture, since it uses the BM_FLAG_TRANSPARENT, but is needed for ogl_init_texture.
+void ogl_loadbmtexture_f(grs_bitmap *bm, int flags);
 void ogl_freebmtexture(grs_bitmap *bm);
 
 void ogl_start_offscreen_render(int x, int y, int w, int h);

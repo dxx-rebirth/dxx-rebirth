@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.27 2004-05-22 08:42:59 btb Exp $ */
+/* $Id: gr.c,v 1.28 2004-05-22 09:15:15 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -422,9 +422,12 @@ int gr_init()
 	if ((t=FindArg("-gl_stdtexmerge")))
 		if (t>=glt)//allow overriding of earlier args
 			ogl_alttexmerge=0;
-			
-	if ((glt=FindArg("-gl_16bittextures")))
-		ogl_rgba_format=GL_RGB5_A1;
+
+	if ((glt = FindArg("-gl_16bittextures")))
+	{
+		ogl_rgba_internalformat = GL_RGB5_A1;
+		ogl_rgb_internalformat = GL_RGB5;
+	}
 
 	if ((glt=FindArg("-gl_mipmap"))){
 		GL_texmagfilt=GL_LINEAR;

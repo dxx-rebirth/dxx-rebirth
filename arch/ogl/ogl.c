@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.27 2004-05-22 08:47:14 btb Exp $ */
+/* $Id: ogl.c,v 1.28 2004-05-22 09:15:26 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -77,7 +77,8 @@ int GL_texclamp_enabled=-1;
 extern int gr_badtexture;
 int r_texcount = 0, r_cachedtexcount = 0;
 int ogl_alttexmerge=1;//merge textures by just printing the seperate textures?
-int ogl_rgba_format=4;
+int ogl_rgba_internalformat = GL_RGBA8;
+int ogl_rgb_internalformat = GL_RGB8;
 int ogl_intensity4_ok=1;
 int ogl_luminance4_alpha4_ok=1;
 int ogl_rgba2_ok=1;
@@ -117,7 +118,7 @@ int ogl_texture_list_cur;
 #define OGLTEXBUFSIZE (2048*2048*4)
 extern GLubyte texbuf[OGLTEXBUFSIZE];
 //void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int width,int height,int  twidth,int theight);
-void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type);
+void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags);
 void ogl_loadbmtexture(grs_bitmap *bm);
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,intdyo , int *texid,float *u,float *v,char domipmap,float prio);
 void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags);
@@ -129,15 +130,67 @@ void ogl_init_texture_stats(ogl_texture* t){
 	t->lastrend=0;
 	t->numrend=0;
 }
-void ogl_init_texture(ogl_texture* t){
-	t->handle=0;
-	t->internalformat=ogl_rgba_format;
-	t->format=GL_RGBA;
+void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
+{
+	t->handle = 0;
+	if (flags & OGL_FLAG_NOCOLOR)
+	{
+		// use GL_INTENSITY instead of GL_RGB
+		if (flags & OGL_FLAG_ALPHA)
+		{
+			if (ogl_intensity4_ok)
+			{
+				t->internalformat = GL_INTENSITY4;
+				t->format = GL_LUMINANCE;
+			}
+			else if (ogl_luminance4_alpha4_ok)
+			{
+				t->internalformat = GL_LUMINANCE4_ALPHA4;
+				t->format = GL_LUMINANCE_ALPHA;
+			}
+			else if (ogl_rgba2_ok)
+			{
+				t->internalformat = GL_RGBA2;
+				t->format = GL_RGBA;
+			}
+			else
+			{
+				t->internalformat = ogl_rgba_internalformat;
+				t->format = GL_RGBA;
+			}
+		}
+		else
+		{
+			// there are certainly smaller formats we could use here, but nothing needs it ATM.
+			t->internalformat = ogl_rgb_internalformat;
+			t->format = GL_RGB;
+		}
+	}
+	else
+	{
+		if (flags & OGL_FLAG_ALPHA)
+		{
+			t->internalformat = ogl_rgba_internalformat;
+			t->format = GL_RGBA;
+		}
+		else
+		{
+			t->internalformat = ogl_rgb_internalformat;
+			t->format = GL_RGB;
+		}
+	}
 	t->wrapstate[0] = -1;
 	t->wrapstate[1] = -1;
-	t->w=t->h=0;
+	t->lw = t->w = w;
+	t->h = h;
 	ogl_init_texture_stats(t);
 }
+
+void ogl_reset_texture(ogl_texture* t)
+{
+	ogl_init_texture(t, 0, 0, 0);
+}
+
 void ogl_reset_texture_stats_internal(void){
 	int i;
 	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++)
@@ -149,7 +202,7 @@ void ogl_init_texture_list_internal(void){
 	int i;
 	ogl_texture_list_cur=0;
 	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++)
-		ogl_init_texture(&ogl_texture_list[i]);
+		ogl_reset_texture(&ogl_texture_list[i]);
 }
 void ogl_smash_texture_list_internal(void){
 	int i;
@@ -190,7 +243,8 @@ ogl_texture* ogl_get_free_texture(void){
 //	return NULL;
 }
 int ogl_texture_stats(void){
-	int used=0,usedl4a4=0,usedrgba=0,databytes=0,truebytes=0,datatexel=0,truetexel=0,i;
+	int used = 0, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
+	int databytes = 0, truebytes = 0, datatexel = 0, truetexel = 0, i;
 	int prio0=0,prio1=0,prio2=0,prio3=0,prioh=0;
 //	int grabbed=0;
 	ogl_texture* t;
@@ -207,6 +261,14 @@ int ogl_texture_stats(void){
 			else if (t->prio<0.499)prio2++;
 			else if (t->prio<0.599)prio3++;
 			else prioh++;
+			if (t->format == GL_RGBA)
+				usedrgba++;
+			else if (t->format == GL_RGB)
+				usedrgb++;
+			else if (t->format == GL_COLOR_INDEX)
+				usedidx++;
+			else
+				usedother++;
 		}
 //		else if(t->w!=0)
 //			grabbed++;
@@ -226,7 +288,7 @@ int ogl_texture_stats(void){
 		glGetIntegerv(GL_DEPTH_BITS, &depth);
 		colorsize = (idx * res * dbl) / 8;
 		depthsize = res * depth / 8;
-		gr_printf(5, GAME_FONT->ft_h * 14 + 3 * 14, "%i(%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedl4a4, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
+		gr_printf(5, GAME_FONT->ft_h * 14 + 3 * 14, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
 		gr_printf(5, GAME_FONT->ft_h * 15 + 3 * 15, "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
 		gr_printf(5, GAME_FONT->ft_h * 16 + 3 * 16, "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 	}
@@ -1108,9 +1170,8 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 //	unsigned char *oldpal;
 	r_ubitbltc++;
 
-	ogl_init_texture(&tex);
-	tex.w=sw;tex.h=sh;
-	tex.prio=0.0;tex.wantmip=0;
+	ogl_init_texture(&tex, sw, sh, OGL_FLAG_ALPHA);
+	tex.prio = 0.0;
 	tex.lw=src->bm_rowsize;
 
 /*	if (w==src->bm_w && sx==0){
@@ -1416,7 +1477,7 @@ int pow2ize(int x){
 
 //GLubyte texbuf[512*512*4];
 GLubyte texbuf[OGLTEXBUFSIZE];
-void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type)
+void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags)
 {
 //	GLushort *tex=(GLushort *)texp;
 	int x,y,c,i;
@@ -1430,8 +1491,9 @@ void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,in
 			if (x<width && y<height)
 				c=data[i++];
 			else
-				c=255;//fill the pad space with transparancy
-			if (c==255){
+				c = 256; // fill the pad space with transparancy
+			if ((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256)
+			{
 				switch (type){
 					case GL_LUMINANCE:
 						(*(texp++))=0;
@@ -1439,6 +1501,11 @@ void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,in
 					case GL_LUMINANCE_ALPHA:
 						(*(texp++))=0;
 						(*(texp++))=0;
+						break;
+					case GL_RGB:
+						(*(texp++)) = 0;
+						(*(texp++)) = 0;
+						(*(texp++)) = 0;
 						break;
 					case GL_RGBA:
 						(*(texp++))=0;
@@ -1462,6 +1529,11 @@ void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,in
 					case GL_LUMINANCE_ALPHA:
 						(*(texp++))=255;
 						(*(texp++))=255;
+						break;
+					case GL_RGB:
+						(*(texp++)) = ogl_pal[c * 3] * 4;
+						(*(texp++)) = ogl_pal[c * 3 + 1] * 4;
+						(*(texp++)) = ogl_pal[c * 3 + 2] * 4;
 						break;
 					case GL_RGBA:
 						//(*(texp++))=gr_palette[c*3]*4;
@@ -1501,7 +1573,7 @@ int tex_format_verify(ogl_texture *tex){
 					break;
 				}//note how it will fall through here if the statement is false
 			case GL_RGBA2:
-				tex->internalformat=ogl_rgba_format;
+				tex->internalformat = ogl_rgba_internalformat;
 				tex->format=GL_RGBA;
 				break;
 			default:
@@ -1559,6 +1631,7 @@ void tex_set_size(ogl_texture *tex){
 		case GL_LUMINANCE_ALPHA:
 			bi=8;
 			break;
+		case GL_RGB:
 		case GL_RGBA:
 			bi=16;
 			break;
@@ -1598,7 +1671,7 @@ void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 	tex->v=(float)tex->h/(float)tex->th;
 
 #ifdef GL_EXT_paletted_texture
-	if (ogl_shared_palette_ok && tex->format == GL_RGBA &&
+	if (ogl_shared_palette_ok && (tex->format == GL_RGBA || tex->format == GL_RGB) &&
 		!(tex->wantmip && GL_needmipmaps) // gluBuild2DMipmaps doesn't support paletted textures.. this could be worked around be generating our own mipmaps, but thats too much trouble at the moment.
 		)
 	{
@@ -1626,7 +1699,7 @@ void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 
 	//	if (width!=twidth || height!=theight)
 	//		glmprintf((0,"sizing %ix%i texture up to %ix%i\n",width,height,twidth,theight));
-	ogl_filltexbuf(data,texbuf,tex->lw,tex->w,tex->h,dxo,dyo,tex->tw,tex->th,tex->format);
+	ogl_filltexbuf(data, texbuf, tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, tex->format, bm_flags);
 
 	// Generate OpenGL texture IDs.
 	glGenTextures(1, &tex->handle);
@@ -1671,18 +1744,14 @@ void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 
 unsigned char decodebuf[512*512];
 
-void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap)
+void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 {
 	unsigned char *buf;
 	while (bm->bm_parent)
 		bm=bm->bm_parent;
 	buf=bm->bm_data;
 	if (bm->gltexture==NULL){
-		ogl_init_texture(bm->gltexture=ogl_get_free_texture());
-		bm->gltexture->lw=bm->bm_w;
-		bm->gltexture->w=bm->bm_w;
-		bm->gltexture->h=bm->bm_h;
-		bm->gltexture->wantmip=domipmap;
+ 		ogl_init_texture(bm->gltexture = ogl_get_free_texture(), bm->bm_w, bm->bm_h, flags | ((bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
 	}
 	else {
 		if (bm->gltexture->handle>0)
@@ -1720,7 +1789,7 @@ void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap)
 
 void ogl_loadbmtexture(grs_bitmap *bm)
 {
-	ogl_loadbmtexture_m(bm,1);
+	ogl_loadbmtexture_f(bm, OGL_FLAG_MIPMAP);
 }
 
 void ogl_freetexture(ogl_texture *gltexture)
@@ -1730,7 +1799,7 @@ void ogl_freetexture(ogl_texture *gltexture)
 		glmprintf((0,"ogl_freetexture(%p):%i (last rend %is) (%i left)\n",gltexture,gltexture->handle,(GameTime-gltexture->lastrend)/f1_0,r_texcount));
 		glDeleteTextures( 1, &gltexture->handle );
 //		gltexture->handle=0;
-		ogl_init_texture(gltexture);
+		ogl_reset_texture(gltexture);
 	}
 }
 void ogl_freebmtexture(grs_bitmap *bm){

@@ -1,5 +1,10 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* 2d/font.c, arch/ogl/gr.c, arch/ogl/internal.h, arch/ogl/ogl.c,
+	include/ogl_init.h: use GL_RGB for non-transparent textures, and
+	fix fonts not having transparent flag set (wouldn't get paletted)
+	(d1x r1.15, r1.37, r1.40, r1.25)
+
 	* arch/ogl/ogl.c: don't try to use paletted textures with
 	mipmapping since gluBuild2DMipmaps can't handle it (d1x r1.39)
 
