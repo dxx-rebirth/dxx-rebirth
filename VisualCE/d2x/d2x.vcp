@@ -61,7 +61,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib  ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE emulator) Debug"
 
@@ -94,7 +94,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib  ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Release"
 
@@ -127,7 +127,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib aygshell.lib  ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
@@ -160,7 +160,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib aygshell.lib  ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ENDIF 
 
@@ -216,6 +216,7 @@ NODEP_CPP_2DSLI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_2DSLI=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\grdef.h"\
@@ -281,6 +282,7 @@ NODEP_CPP_BITBL=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_BITBL=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\byteswap.h"\
 	"..\..\include\console.h"\
@@ -345,6 +347,7 @@ NODEP_CPP_BITMA=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_BITMA=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -397,6 +400,7 @@ NODEP_CPP_BOX_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_BOX_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\grdef.h"\
@@ -445,6 +449,7 @@ NODEP_CPP_CANVA=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CANVA=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\grdef.h"\
@@ -489,6 +494,7 @@ NODEP_CPP_CIRCL=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CIRCL=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\grdef.h"\
@@ -531,6 +537,7 @@ NODEP_CPP_DISC_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_DISC_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\grdef.h"\
@@ -606,6 +613,7 @@ NODEP_CPP_FONT_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FONT_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\2d\bitmap.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\args.h"\
@@ -670,6 +678,7 @@ NODEP_CPP_GPIXE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GPIXE=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\grdef.h"\
@@ -729,6 +738,7 @@ NODEP_CPP_IBITB=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_IBITB=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\grdef.h"\
@@ -795,6 +805,7 @@ NODEP_CPP_LINE_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_LINE_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\2d\clip.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
@@ -859,6 +870,7 @@ NODEP_CPP_PALET=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PALET=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
 	"..\..\include\fix.h"\
@@ -918,6 +930,7 @@ NODEP_CPP_PCX_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PCX_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -976,6 +989,7 @@ NODEP_CPP_PIXEL=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PIXEL=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -1025,6 +1039,7 @@ NODEP_CPP_POLY_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_POLY_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\grdef.h"\
@@ -1070,6 +1085,7 @@ NODEP_CPP_RECT_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_RECT_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -1129,6 +1145,7 @@ NODEP_CPP_RLE_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_RLE_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\byteswap.h"\
 	"..\..\include\console.h"\
 	"..\..\include\fix.h"\
@@ -1175,6 +1192,7 @@ NODEP_CPP_SCALE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SCALE=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\grdef.h"\
@@ -1211,6 +1229,7 @@ NODEP_CPP_TMERG=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TMERG=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\maths.h"\
@@ -1261,6 +1280,7 @@ NODEP_CPP_CLIPP=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CLIPP=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\3d\clipper.h"\
 	"..\..\3d\globvars.h"\
 	"..\..\include\3d.h"\
@@ -1318,6 +1338,7 @@ NODEP_CPP_DRAW_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_DRAW_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\3d\clipper.h"\
 	"..\..\3d\globvars.h"\
 	"..\..\include\3d.h"\
@@ -1366,6 +1387,7 @@ NODEP_CPP_GLOBV=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GLOBV=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\3d\globvars.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
@@ -1416,6 +1438,7 @@ NODEP_CPP_INSTA=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_INSTA=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\3d\globvars.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
@@ -1471,6 +1494,7 @@ NODEP_CPP_INTER=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_INTER=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\3d\globvars.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\byteswap.h"\
@@ -1521,6 +1545,7 @@ NODEP_CPP_MATRI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MATRI=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\3d\globvars.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
@@ -1567,6 +1592,7 @@ NODEP_CPP_POINT=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_POINT=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\3d\globvars.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
@@ -1616,6 +1642,7 @@ NODEP_CPP_ROD_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ROD_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\3d\globvars.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
@@ -1671,6 +1698,7 @@ NODEP_CPP_SETUP=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SETUP=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\3d\clipper.h"\
 	"..\..\3d\globvars.h"\
 	"..\..\include\3d.h"\
@@ -2145,6 +2173,28 @@ NODEP_CPP_JOYDE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_JOYDE=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -2280,6 +2330,7 @@ NODEP_CPP_MINGW=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MINGW=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\event.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\include\args.h"\
@@ -2518,6 +2569,7 @@ NODEP_CPP_ARGS_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ARGS_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\maths.h"\
 	"..\..\include\pstypes.h"\
@@ -2570,6 +2622,7 @@ NODEP_CPP_CFILE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CFILE=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\byteswap.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\d_io.h"\
@@ -2592,7 +2645,6 @@ SOURCE=..\..\console\CON_console.c
 NODEP_CPP_CON_C=\
 	"..\..\console\CON_console.h"\
 	"..\..\console\gr.h"\
-	"..\..\console\strutil.h"\
 	"..\..\console\timer.h"\
 	"..\..\console\u_mem.h"\
 	
@@ -2602,7 +2654,6 @@ NODEP_CPP_CON_C=\
 NODEP_CPP_CON_C=\
 	"..\..\console\CON_console.h"\
 	"..\..\console\gr.h"\
-	"..\..\console\strutil.h"\
 	"..\..\console\timer.h"\
 	"..\..\console\u_mem.h"\
 	
@@ -2612,7 +2663,6 @@ NODEP_CPP_CON_C=\
 NODEP_CPP_CON_C=\
 	"..\..\console\CON_console.h"\
 	"..\..\console\gr.h"\
-	"..\..\console\strutil.h"\
 	"..\..\console\timer.h"\
 	"..\..\console\u_mem.h"\
 	
@@ -2620,13 +2670,13 @@ NODEP_CPP_CON_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CON_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\CON_console.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\maths.h"\
 	"..\..\include\pstypes.h"\
-	"..\..\include\strutil.h"\
 	"..\..\include\timer.h"\
 	"..\..\include\u_mem.h"\
 	
@@ -2710,6 +2760,7 @@ NODEP_CPP_ERROR=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ERROR=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\console.h"\
 	"..\..\include\mono.h"\
 	"..\..\include\pstypes.h"\
@@ -2788,6 +2839,7 @@ NODEP_CPP_IFF_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_IFF_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -2829,6 +2881,7 @@ NODEP_CPP_MEM_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MEM_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\console.h"\
 	"..\..\include\mono.h"\
 	"..\..\include\pstypes.h"\
@@ -2868,6 +2921,7 @@ NODEP_CPP_STRIO=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_STRIO=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\maths.h"\
 	"..\..\include\pstypes.h"\
@@ -3104,6 +3158,7 @@ NODEP_CPP_AI_C64=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_AI_C64=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
@@ -3346,6 +3401,7 @@ NODEP_CPP_AI2_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_AI2_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
@@ -3519,6 +3575,7 @@ NODEP_CPP_AIPAT=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_AIPAT=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -3757,6 +3814,28 @@ NODEP_CPP_AUTOM=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_AUTOM=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\arch\include\mouse.h"\
@@ -3970,6 +4049,7 @@ NODEP_CPP_BM_C6c=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_BM_C6c=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -4049,6 +4129,7 @@ NODEP_CPP_CMD_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CMD_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cmd.h"\
 	"..\..\include\console.h"\
 	"..\..\include\pstypes.h"\
@@ -4184,6 +4265,7 @@ NODEP_CPP_CNTRL=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CNTRL=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
 	"..\..\include\fix.h"\
@@ -4440,6 +4522,28 @@ NODEP_CPP_COLLI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_COLLI=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
@@ -4633,6 +4737,7 @@ NODEP_CPP_CONFI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CONFI=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\include\args.h"\
 	"..\..\include\cfile.h"\
@@ -4908,6 +5013,7 @@ NODEP_CPP_CONTR=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CONTR=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\arch\include\mouse.h"\
@@ -5090,6 +5196,28 @@ NODEP_CPP_CREDI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CREDI=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\arch\include\mouse.h"\
@@ -5247,6 +5375,7 @@ NODEP_CPP_EFFEC=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_EFFEC=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
 	"..\..\include\fix.h"\
@@ -5448,6 +5577,7 @@ NODEP_CPP_ENDLE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ENDLE=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
@@ -5679,6 +5809,28 @@ NODEP_CPP_ESCOR=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ESCOR=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
@@ -5895,6 +6047,28 @@ NODEP_CPP_FIREB=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FIREB=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -6102,6 +6276,7 @@ NODEP_CPP_FUELC=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FUELC=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -6265,6 +6440,7 @@ NODEP_CPP_FVI_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FVI_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
 	"..\..\include\fix.h"\
@@ -6591,6 +6767,28 @@ NODEP_CPP_GAME_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAME_=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\arch\include\mouse.h"\
@@ -7113,6 +7311,7 @@ NODEP_CPP_GAMEF=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMEF=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
 	"..\..\include\maths.h"\
@@ -7245,6 +7444,28 @@ NODEP_CPP_GAMEM=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMEM=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\byteswap.h"\
 	"..\..\include\cfile.h"\
@@ -7371,6 +7592,28 @@ NODEP_CPP_GAMEP=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMEP=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\fix.h"\
@@ -7583,6 +7826,28 @@ NODEP_CPP_GAMER=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMER=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -7825,6 +8090,28 @@ NODEP_CPP_GAMES=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMES=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\byteswap.h"\
@@ -7977,6 +8264,7 @@ NODEP_CPP_GAMESE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMESE=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\byteswap.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -8318,6 +8606,28 @@ NODEP_CPP_GAMESEQ=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMESEQ=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
@@ -8598,6 +8908,7 @@ NODEP_CPP_GAUGE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAUGE=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
@@ -8759,6 +9070,7 @@ NODEP_CPP_HOSTA=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_HOSTA=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -8930,6 +9242,7 @@ NODEP_CPP_HUD_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_HUD_C=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\args.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -9522,6 +9835,28 @@ NODEP_CPP_KCONF=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_KCONF=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\arch\include\mouse.h"\
@@ -9625,6 +9960,7 @@ NODEP_CPP_KLUDG=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_KLUDG=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\findfile.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -9789,6 +10125,7 @@ NODEP_CPP_LASER=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_LASER=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\args.h"\
@@ -9958,6 +10295,7 @@ NODEP_CPP_LIGHT=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_LIGHT=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -10250,6 +10588,28 @@ NODEP_CPP_MENU_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MENU_=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
@@ -10411,6 +10771,7 @@ NODEP_CPP_MGLOB=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MGLOB=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\fix.h"\
@@ -10536,6 +10897,7 @@ NODEP_CPP_MISSI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MISSI=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
 	"..\..\include\findfile.h"\
@@ -10672,6 +11034,7 @@ NODEP_CPP_MORPH=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MORPH=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -10797,6 +11160,7 @@ NODEP_CPP_MOVIE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MOVIE=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\args.h"\
 	"..\..\include\byteswap.h"\
@@ -11044,6 +11408,28 @@ NODEP_CPP_NEWDE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_NEWDE=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\args.h"\
@@ -11289,6 +11675,28 @@ NODEP_CPP_NEWME=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_NEWME=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\arch\include\mouse.h"\
@@ -11567,6 +11975,28 @@ NODEP_CPP_OBJEC=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_OBJEC=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\args.h"\
@@ -11789,6 +12219,7 @@ NODEP_CPP_PAGIN=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PAGIN=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -11960,6 +12391,7 @@ NODEP_CPP_PHYSI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PHYSI=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\cfile.h"\
@@ -12139,6 +12571,28 @@ NODEP_CPP_PIGGY=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PIGGY=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\include\args.h"\
 	"..\..\include\byteswap.h"\
 	"..\..\include\cfile.h"\
@@ -12264,6 +12718,7 @@ NODEP_CPP_PLAYE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PLAYE=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -12461,6 +12916,28 @@ NODEP_CPP_PLAYS=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PLAYS=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\include\byteswap.h"\
 	"..\..\include\cfile.h"\
@@ -12633,6 +13110,7 @@ NODEP_CPP_POLYO=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_POLYO=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\args.h"\
 	"..\..\include\byteswap.h"\
@@ -12831,6 +13309,7 @@ NODEP_CPP_POWER=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_POWER=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
@@ -13048,6 +13527,28 @@ NODEP_CPP_RENDE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_RENDE=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
@@ -13188,6 +13689,7 @@ NODEP_CPP_ROBOT=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ROBOT=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -13343,6 +13845,28 @@ NODEP_CPP_SCORE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SCORE=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\arch\include\mouse.h"\
@@ -13428,6 +13952,7 @@ NODEP_CPP_SEGME=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SEGME=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\maths.h"\
@@ -13545,6 +14070,7 @@ NODEP_CPP_SLEW_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SLEW_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\args.h"\
@@ -13682,6 +14208,7 @@ NODEP_CPP_SONGS=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SONGS=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\args.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -13921,6 +14448,28 @@ NODEP_CPP_STATE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_STATE=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\args.h"\
@@ -14134,6 +14683,28 @@ NODEP_CPP_SWITC=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SWITC=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -14281,6 +14852,7 @@ NODEP_CPP_TERRA=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TERRA=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -14408,6 +14980,7 @@ NODEP_CPP_TEXME=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TEXME=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -14491,6 +15064,7 @@ NODEP_CPP_TEXT_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TEXT_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\args.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\maths.h"\
@@ -14677,6 +15251,28 @@ NODEP_CPP_TITLE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TITLE=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\arch\include\joy.h"\
 	"..\..\arch\include\key.h"\
 	"..\..\include\3d.h"\
@@ -14816,6 +15412,7 @@ NODEP_CPP_VCLIP=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_VCLIP=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -14987,6 +15584,7 @@ NODEP_CPP_WALL_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_WALL_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
 	"..\..\include\fix.h"\
@@ -15169,6 +15767,28 @@ NODEP_CPP_WEAPO=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_WEAPO=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\include\args.h"\
 	"..\..\include\cfile.h"\
 	"..\..\include\console.h"\
@@ -15243,6 +15863,7 @@ NODEP_CPP_FIXC_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FIXC_=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\maths.h"\
 	"..\..\include\pstypes.h"\
 	
@@ -15290,6 +15911,7 @@ NODEP_CPP_TABLE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TABLE=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\maths.h"\
 	"..\..\include\pstypes.h"\
 	
@@ -15325,6 +15947,7 @@ NODEP_CPP_VECMA=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_VECMA=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\maths.h"\
 	"..\..\include\pstypes.h"\
 	"..\..\include\vecmat.h"\
@@ -15392,6 +16015,7 @@ NODEP_CPP_NTMAP=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_NTMAP=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -15459,6 +16083,7 @@ NODEP_CPP_SCANL=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SCANL=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\console.h"\
 	"..\..\include\fix.h"\
@@ -15529,6 +16154,7 @@ NODEP_CPP_TMAPF=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TMAPF=\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
 	"..\..\include\3d.h"\
 	"..\..\include\fix.h"\
 	"..\..\include\gr.h"\
@@ -15549,6 +16175,10 @@ DEP_CPP_TMAPF=\
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\..\include\d_io.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\include\error.h

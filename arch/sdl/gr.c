@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.11 2003-03-28 09:27:07 btb Exp $ */
+/* $Id: gr.c,v 1.12 2003-11-26 12:39:00 btb Exp $ */
 /*
  *
  * SDL video functions.
@@ -27,11 +27,18 @@
 //added 10/05/98 by Matt Mueller - make fullscreen mode optional
 #include "args.h"
 
+#ifdef _WIN32_WCE // should really be checking for "Pocket PC" somehow
+# define LANDSCAPE
+#endif
+
 int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE;
 char checkvidmodeok=0;
 //end addition -MM
 
 SDL_Surface *screen;
+#ifdef LANDSCAPE
+static SDL_Surface *real_screen;
+#endif
 
 int gr_installed = 0;
 
@@ -62,6 +69,55 @@ inline void gr_dounlock(void) {
 #endif
 //end addition -MM
 
+#ifdef LANDSCAPE
+/* Create a new rotated surface for drawing */
+SDL_Surface *CreateRotatedSurface(SDL_Surface *s)
+{
+    return(SDL_CreateRGBSurface(s->flags, s->h, s->w,
+    s->format->BitsPerPixel,
+    s->format->Rmask,
+    s->format->Gmask,
+    s->format->Bmask,
+    s->format->Amask));
+}
+
+/* Used to copy the rotated scratch surface to the screen */
+void BlitRotatedSurface(SDL_Surface *from, SDL_Surface *to)
+{
+
+    int bpp = from->format->BytesPerPixel;
+    int w=from->w, h=from->h, pitch=to->pitch;
+    int i,j;
+    Uint8 *pfrom, *pto, *to0;
+
+    SDL_LockSurface(from);
+    SDL_LockSurface(to);
+    pfrom=(Uint8 *)from->pixels;
+    to0=(Uint8 *) to->pixels+pitch*(w-1);
+    for (i=0; i<h; i++)
+    {
+        to0+=bpp;
+        pto=to0;
+        for (j=0; j<w; j++)
+        {
+            if (bpp==1) *pto=*pfrom;
+            else if (bpp==2) *(Uint16 *)pto=*(Uint16 *)pfrom;
+            else if (bpp==4) *(Uint32 *)pto=*(Uint32 *)pfrom;
+            else if (bpp==3)
+                {
+                    pto[0]=pfrom[0];
+                    pto[1]=pfrom[1];
+                    pto[2]=pfrom[2];
+                }
+            pfrom+=bpp;
+            pto-=pitch;
+        }
+    }
+    SDL_UnlockSurface(from);
+    SDL_UnlockSurface(to);
+}
+#endif
+
 void gr_palette_clear(); // Function prototype for gr_init;
 
 
@@ -70,7 +126,15 @@ void gr_update()
 	//added 05/19/99 Matt Mueller - locking stuff
 //	gr_testunlock();
 	//end addition -MM
- SDL_UpdateRect(screen,0,0,0,0);
+#ifdef LANDSCAPE
+	BlitRotatedSurface(screen, real_screen);
+	if ( (real_screen->flags & SDL_DOUBLEBUF) == SDL_DOUBLEBUF )
+		SDL_Flip(real_screen);
+	else
+		SDL_UpdateRect(real_screen, 0, 0, 0, 0);
+#else
+	SDL_Flip(screen);
+#endif
 }
 
 extern int VGA_current_mode; // DPH: kludge - remove at all costs
@@ -112,12 +176,25 @@ int gr_set_mode(u_int32_t mode)
 //edited 10/05/98 by Matt Mueller - make fullscreen mode optional
 	  // changed by adb on 980913: added SDL_HWPALETTE (should be option?)
         // changed by someone on 980923 to add SDL_FULLSCREEN
+#ifdef _WIN32_WCE
+	if(!checkvidmodeok || SDL_VideoModeOK(w,h,0,sdl_video_flags)){
+#ifdef LANDSCAPE
+		real_screen = SDL_SetVideoMode(h, w, 0, sdl_video_flags);
+		screen = CreateRotatedSurface(real_screen);
+#else
+		screen = SDL_SetVideoMode(w, h, 0, sdl_video_flags);
+#endif
+	} else {
+	  screen=NULL;
+	}
+#else
 	if(!checkvidmodeok || SDL_VideoModeOK(w,h,8,sdl_video_flags)){
 	  screen = SDL_SetVideoMode(w, h, 8, sdl_video_flags);
 	} else {
 	  screen=NULL;
 	}
-        // end changes by someone
+#endif
+		// end changes by someone
         // end changes by adb
 //end edit -MM
         if (screen == NULL) {

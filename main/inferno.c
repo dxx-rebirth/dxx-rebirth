@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.67 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: inferno.c,v 1.68 2003-11-26 12:39:00 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1167,7 +1167,7 @@ int main(int argc, char *argv[])
 			strcpy(buf, home);
 			strcat(buf, "/.d2x");
 			if (chdir(buf)) {
-				d_mkdir(buf);
+				mkdir(buf);
 				if (chdir(buf))
 					fprintf(stderr, "Cannot change to $HOME/.d2x\n");
 			}

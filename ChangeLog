@@ -1,14 +1,15 @@
 2003-11-26  Bradley Bell  <btb@icculus.org>
 
-	* 2d/font.c, VisualC/d2x/d2x.dsp,
+	* 2d/font.c, VisualC/d2x/d2x.dsp, VisualCE/d2x/d2x.vcp,
 	VisualCE/mveplayer/mveplayer.vcp, arch/win32/ipx_mcast4.c,
-	arch/win32/ipx_udp.c, arch/win32/ipx_win.c, cfile/cfile.c,
-	console/CON_console.c, include/d_io.h, include/error.h,
-	include/pstypes.h, include/strutil.h, include/u_dpmi.h,
-	libmve/mve_main.c, libmve/mveplay.c, main/cntrlcen.c,
-	main/gameseq.c, main/movie.c, main/newdemo.c, main/newmenu.c,
-	main/newmenu.h, main/playsave.c, main/songs.c, main/state.c,
-	main/text.c, misc/args.c, misc/d_io.c, misc/strutil.c: Visual C,
+	arch/win32/ipx_udp.c, arch/win32/ipx_win.c, arch/sdl/gr.c,
+	cfile/cfile.c, console/CON_console.c, include/d_io.h,
+	include/error.h, include/pstypes.h, include/strutil.h,
+	include/u_dpmi.h, libmve/mve_main.c, libmve/mveplay.c,
+	main/cntrlcen.c, main/console.c, main/gameseq.c, main/inferno.c,
+	main/movie.c, main/newdemo.c, main/newmenu.c, main/newmenu.h,
+	main/playsave.c, main/songs.c, main/state.c, main/text.c,
+	mem/mem.c, misc/args.c, misc/d_io.c, misc/strutil.c: Visual C,
 	PocketPC fixes
 
 2003-11-25  Bradley Bell  <btb@icculus.org>

@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 
 !ENDIF 
 
@@ -1331,7 +1331,31 @@ SOURCE=..\..\include\3d.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\main\ai.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\aistruct.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\args.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\automap.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\2d\bitmap.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\bm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\bmread.h
 # End Source File
 # Begin Source File
 
@@ -1343,7 +1367,27 @@ SOURCE=..\..\include\cfile.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\2d\clip.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\3d\clipper.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\cmd.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\cntrlcen.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\collide.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\compbit.h
 # End Source File
 # Begin Source File
 
@@ -1351,7 +1395,19 @@ SOURCE=..\..\include\CON_console.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\main\config.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\console.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\controls.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\credits.h
 # End Source File
 # Begin Source File
 
@@ -1359,7 +1415,39 @@ SOURCE=..\..\include\d_io.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\main\desc_id.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\digi.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\effects.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\endlevel.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\error.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\escort.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\arch\include\event.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\findfile.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\fireball.h
 # End Source File
 # Begin Source File
 
@@ -1367,7 +1455,139 @@ SOURCE=..\..\include\fix.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\main\fuelcen.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\fvi.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\fvi_a.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\game.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\gamefont.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\gamemine.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\gamepal.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\gamesave.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\gameseg.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\gameseq.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\gamestat.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\gauges.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\3d\globvars.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\gr.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\grdef.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\hash.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\hostage.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\hudmsg.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\ibitblt.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\iff.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\inferno.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\interp.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\ipx.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\arch\win32\ipx_drv.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\arch\win32\include\ipx_mcast4.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\arch\win32\include\ipx_udp.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\arch\include\joy.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\joydefs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\kconfig.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\arch\include\key.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\kmatrix.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\laser.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\lighting.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\makesig.h
 # End Source File
 # Begin Source File
 
@@ -1375,7 +1595,51 @@ SOURCE=..\..\include\maths.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\main\menu.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\mission.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\modem.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\modex.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\mono.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\morph.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\arch\include\mouse.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\movie.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\multi.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\multibot.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\netmisc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\newdemo.h
 # End Source File
 # Begin Source File
 
@@ -1383,7 +1647,47 @@ SOURCE=..\..\main\newmenu.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\main\object.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\pa_enabl.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\paging.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\palette.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\pcx.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\physics.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\main\piggy.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\player.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\playsave.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\polyobj.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\powerup.h
 # End Source File
 # Begin Source File
 
@@ -1391,11 +1695,103 @@ SOURCE=..\..\include\pstypes.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\rbaudio.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\render.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\reorder.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\rle.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\robot.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\texmap\scanline.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\scores.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\screens.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\segment.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\segpoint.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\slew.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\songs.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\sounds.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\state.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\strio.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\strutil.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\main\switch.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\terrain.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\texmap.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\texmap\texmapl.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\texmerge.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\text.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\textures.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\timer.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\titles.h
 # End Source File
 # Begin Source File
 
@@ -1407,7 +1803,27 @@ SOURCE=..\..\include\u_mem.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\main\vclip.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\vecmat.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\main\vers_id.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\vesa.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\wall.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\weapon.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

@@ -1,4 +1,4 @@
-/* $Id: console.c,v 1.17 2003-10-10 09:36:34 btb Exp $ */
+/* $Id: console.c,v 1.18 2003-11-26 12:39:00 btb Exp $ */
 /*
  *
  * Code for controlling the console
@@ -14,7 +14,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#ifndef _WIN32_WCE
 #include <fcntl.h>
+#endif
 #include <ctype.h>
 
 #include <SDL.h>
