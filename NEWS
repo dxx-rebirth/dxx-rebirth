@@ -1,3 +1,6 @@
+--- Version 0.2.4 ---
+- Fix crash on some mission briefings
+
 --- Version 0.2.3 ---
 - Fix linking bug on OS X
 

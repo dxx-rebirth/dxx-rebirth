@@ -1,3 +1,7 @@
+2003-05-12  Bradley Bell  <btb@icculus.org>
+
+	* main/titles.c: use briefings with no extension
+
 0.2.3:
 
 2003-04-30  Bradley Bell  <btb@icculus.org>

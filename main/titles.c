@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.24 2003-03-01 12:50:45 btb Exp $ */
+/* $Id: titles.c,v 1.25 2003-05-12 22:45:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1207,8 +1207,8 @@ int load_screen_text(char *filename, char **buf)
 		char nfilename[30], *ptr;
 
 		strcpy(nfilename, filename);
-		ptr = strrchr(nfilename, '.');
-		*ptr = '\0';
+		if ((ptr = strrchr(nfilename, '.')))
+			*ptr = '\0';
 		strcat(nfilename, ".txb");
 		if ((ifile = cfopen(nfilename, "rb")) == NULL) {
 			mprintf ((0,"can't open %s!\n",nfilename));
