@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.11 2001-11-14 11:02:55 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.12 2002-03-23 09:13:00 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1596,7 +1596,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
   			if ( abs(axis[i]-old_axis[i])>200 )	{
 #endif
 				code = i;
-				printf("Axis Movement detected: Axis %i\n", i);
+				con_printf(CON_DEBUG, "Axis Movement detected: Axis %i\n", i);
 			}
 			//old_axis[i] = axis[i];
 		}

@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/joy.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2002-03-05 12:13:33 $
+ * $Date: 2002-03-23 09:13:00 $
  *
  * SDL joystick support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2002/03/05 12:13:33  bradleyb
+ * SDL joystick stuff mostly done
+ *
  * Revision 1.2  2001/12/03 02:43:02  bradleyb
  * lots of makefile fixes, and sdl joystick stuff
  *
@@ -227,9 +230,6 @@ ubyte joystick_read_raw_axis( ubyte mask, int * axis )
 
 	for (i = 0; i <= JOY_NUM_AXES; i++) {
 		axis[i] = Joystick.axes[i].value;
-#ifdef JOYSTICK_DEBUG
-		printf("sdl-joystick: axis %d: %d\n", i, axis[i]);
-#endif
 	}
 
 	return 0;
@@ -286,8 +286,11 @@ void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max)
 
 int joy_get_scaled_reading( int raw, int axis_num )
 {
+#if 1
+	return raw/256;
+#else
 	int d, x;
-	
+
 	raw -= Joystick.axes[axis_num].center_val;
 	
 	if (raw < 0)
@@ -311,11 +314,8 @@ int joy_get_scaled_reading( int raw, int axis_num )
 	if ((x > (-1*d)) && (x < d))
 		x = 0;
 	
-#ifdef JOYSTICK_DEBUG
-	printf("scaled: axis %d: %d\n", axis_num, x);
-#endif
-
 	return x;
+#endif
 }
 
 void joy_set_slow_reading( int flag )
