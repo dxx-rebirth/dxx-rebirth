@@ -150,7 +150,6 @@ SrcFiles        =  ¶
 				  :maths:vecmat.c ¶
 				  :mem:mem.c ¶
 				  :misc:args.c ¶
-				  :misc:d_io.c ¶
 				  :misc:error.c ¶
 				  :misc:hash.c ¶
 				  :misc:ignorecase.c ¶
@@ -292,7 +291,6 @@ ObjFiles-PPC    =  ¶
 				  "{ObjDir}vecmat.c.x" ¶
 				  "{ObjDir}mem.c.x" ¶
 				  "{ObjDir}args.c.x" ¶
-				  "{ObjDir}d_io.c.x" ¶
 				  "{ObjDir}error.c.x" ¶
 				  "{ObjDir}hash.c.x" ¶
 				  "{ObjDir}ignorecase.c.x" ¶
@@ -474,7 +472,6 @@ directories Ä
 "{ObjDir}vecmat.c.x"  Ä  :maths:vecmat.c
 "{ObjDir}mem.c.x"  Ä  :mem:mem.c
 "{ObjDir}args.c.x"  Ä  :misc:args.c
-"{ObjDir}d_io.c.x"  Ä  :misc:d_io.c
 "{ObjDir}error.c.x"  Ä  :misc:error.c
 "{ObjDir}hash.c.x"  Ä  :misc:hash.c
 "{ObjDir}ignorecase.c.x"  Ä  :misc:ignorecase.c
