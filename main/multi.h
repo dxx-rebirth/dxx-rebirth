@@ -1,4 +1,4 @@
-/* $Id: multi.h,v 1.11 2003-10-08 17:09:48 schaffner Exp $ */
+/* $Id: multi.h,v 1.12 2003-10-12 09:17:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -504,6 +504,7 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 #define NETGAME_FLAG_REALLY_FORMING     64
 
 #define NETGAME_NAME_LEN                15
+#define NETGAME_AUX_SIZE                20  // Amount of extra data for the network protocol to store in the netgame packet
 
 enum comp_type {DOS,WIN_32,WIN_95,MAC} __pack__ ;
 
@@ -653,6 +654,7 @@ typedef struct netgame_info {
 	ubyte   player_flags[MAX_PLAYERS];
 	short   PacketsPerSec;
 	ubyte   ShortPackets;
+	ubyte   AuxData[NETGAME_AUX_SIZE];  // Storage for protocol-specific data (e.g., multicast session and port)
 
 } __pack__ netgame_info;
 
@@ -666,5 +668,4 @@ void change_playernum_to(int new_pnum);
 #define MISSILE_ADJUST  100
 #define FLARE_ADJUST    127
 
-
-#endif
+#endif /* _MULTI_H */

@@ -1,4 +1,4 @@
-/* $Id: ipx.h,v 1.7 2003-10-04 03:18:02 btb Exp $ */
+/* $Id: ipx.h,v 1.8 2003-10-12 09:17:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -112,6 +112,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define IPX_DRIVER_IPX  1 // IPX "IPX driver" :-)
 #define IPX_DRIVER_KALI 2
 #define IPX_DRIVER_UDP  3 // UDP/IP, user datagrams protocol over the internet
+#define IPX_DRIVER_MCAST4 4 // UDP/IP, user datagrams protocol over multicast networks
 
 /* Sets the "IPX driver" (net driver).  Takes one of the above consts as argument. */
 extern void arch_ipx_set_driver(int ipx_driver);
@@ -148,6 +149,15 @@ extern void ipx_send_broadcast_packet_data( ubyte * data, int datasize );
 // Sends a packet to a certain address
 extern void ipx_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address );
 extern void ipx_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * server, ubyte *address );
+
+// Sends a packet to everyone in the game
+extern int ipx_send_game_packet(ubyte *data, int datasize);
+
+// Initialize and handle the protocol-specific field of the netgame struct.
+extern void ipx_init_netgame_aux_data(ubyte data[]);
+extern int ipx_handle_netgame_aux_data(const ubyte data[]);
+// Handle disconnecting from the game
+extern void ipx_handle_leave_game();
 
 #define IPX_MAX_DATA_SIZE (542)		//(546-4)
 

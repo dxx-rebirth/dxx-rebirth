@@ -1,4 +1,4 @@
-/* $Id: ipx_kali.c,v 1.5 2003-03-13 00:20:21 btb Exp $ */
+/* $Id: ipx_kali.c,v 1.6 2003-10-12 09:17:47 btb Exp $ */
 /*
  *
  * IPX driver for KaliNix interface
@@ -123,5 +123,9 @@ struct ipx_driver ipx_kali = {
 	ipx_kali_CloseSocket,
 	ipx_kali_SendPacket,
 	ipx_kali_ReceivePacket,
-	ipx_general_PacketReady
+	ipx_general_PacketReady,
+	NULL,	// InitNetgameAuxData
+	NULL,	// HandleNetgameAuxData
+	NULL,	// HandleLeaveGame
+	NULL	// SendGamePacket
 };

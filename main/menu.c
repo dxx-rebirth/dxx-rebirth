@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.31 2003-10-11 09:28:38 btb Exp $ */
+/* $Id: menu.c,v 1.32 2003-10-12 09:17:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -131,6 +131,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MENU_JOIN_UDP_NETGAME           31
 #define MENU_START_KALI_NETGAME         32 // Kali support copied from d1x
 #define MENU_JOIN_KALI_NETGAME          33
+#define MENU_START_MCAST4_NETGAME       34 // UDP/IP over multicast networks
+#define MENU_JOIN_MCAST4_NETGAME        35
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
 //ADD_ITEM("Send net message...", MENU_SEND_NET_MESSAGE, -1 );
@@ -461,6 +463,8 @@ void do_option ( int select)
 		case MENU_JOIN_UDP_NETGAME:
 		case MENU_START_KALI_NETGAME:
 		case MENU_JOIN_KALI_NETGAME:
+		case MENU_START_MCAST4_NETGAME:
+		case MENU_JOIN_MCAST4_NETGAME:
 			load_mission(Builtin_mission_num);
 #ifdef MACINTOSH
 			Network_game_type = IPX_GAME;
@@ -470,6 +474,7 @@ void do_option ( int select)
 			case MENU_START_IPX_NETGAME: ipx_set_driver(IPX_DRIVER_IPX); break;
 			case MENU_START_UDP_NETGAME: ipx_set_driver(IPX_DRIVER_UDP); break;
 			case MENU_START_KALI_NETGAME: ipx_set_driver(IPX_DRIVER_KALI); break;
+			case MENU_START_MCAST4_NETGAME: ipx_set_driver(IPX_DRIVER_MCAST4); break;
 			default: Int3();
 			}
 
@@ -1726,6 +1731,8 @@ void do_multi_player_menu()
 		//ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_JOIN_TCP_NETGAME, -1);
 		ADD_ITEM("Start UDP/IP Netgame", MENU_START_UDP_NETGAME, -1);
 		ADD_ITEM("Join UDP/IP Netgame\n", MENU_JOIN_UDP_NETGAME, -1);
+		ADD_ITEM("Start Multicast UDP/IP Netgame", MENU_START_MCAST4_NETGAME, -1);
+		ADD_ITEM("Join Multicast UDP/IP Netgame\n", MENU_JOIN_MCAST4_NETGAME, -1);
 #ifdef __unix__
 		ADD_ITEM("Start Kali Netgame", MENU_START_KALI_NETGAME, -1);
 		ADD_ITEM("Join Kali Netgame\n", MENU_JOIN_KALI_NETGAME, -1);

@@ -1,4 +1,4 @@
-/* $Id: linuxnet.c,v 1.11 2003-10-10 09:36:34 btb Exp $ */
+/* $Id: linuxnet.c,v 1.12 2003-10-12 09:17:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,6 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -38,10 +39,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ipx.h"
 #include "ipx_drv.h"
 #ifdef NATIVE_IPX
-#  include "ipx_bsd.h"
+# include "ipx_bsd.h"
 #endif //NATIVE_IPX
 #include "ipx_kali.h"
 #include "ipx_udp.h"
+#include "ipx_mcast4.h"
+#include "error.h"
+#include "../../main/player.h"	/* for Players */
+#include "../../main/multi.h"	/* for NetPlayers */
 //added 05/17/99 Matt Mueller - needed to redefine FD_* so that no asm is used
 //#include "checker.h"
 //end addition -MM
@@ -105,6 +110,7 @@ void arch_ipx_set_driver(int ipx_driver)
 #endif //NATIVE_IPX
 	case IPX_DRIVER_KALI: driver = &ipx_kali; break;
 	case IPX_DRIVER_UDP: driver = &ipx_udp; break;
+	case IPX_DRIVER_MCAST4: driver = &ipx_mcast4; break;
 	default: Int3();
 	}
 }
@@ -174,6 +180,8 @@ void ipx_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *ad
 {
 	u_char buf[MAX_IPX_DATA];
 	IPXPacket_t ipx_header;
+
+	Assert(datasize <= MAX_IPX_DATA+4);
 	
 	memcpy(ipx_header.Destination.Network, network, 4);
 	memcpy(ipx_header.Destination.Node, immediate_address, 6);
@@ -372,4 +380,52 @@ void ipx_read_network_file(char * filename)
 		}
 	}
 	fclose(fp);
+}
+
+// Initalizes the protocol-specific member of the netgame packet.
+void ipx_init_netgame_aux_data(ubyte buf[])
+{
+	if(driver->InitNetgameAuxData)
+		driver->InitNetgameAuxData(&ipx_socket_data, buf);
+}
+
+// Handles the protocol-specific member of the netgame packet.
+int ipx_handle_netgame_aux_data(const ubyte buf[])
+{
+	if(driver->HandleNetgameAuxData)
+		return driver->HandleNetgameAuxData(&ipx_socket_data, buf);
+	return 0;
+}
+
+// Notifies the protocol that we're done with a particular game
+void ipx_handle_leave_game()
+{
+	if(driver->HandleLeaveGame)
+		driver->HandleLeaveGame(&ipx_socket_data);
+}
+
+// Send a packet to every member of the game.
+int ipx_send_game_packet(ubyte *data, int datasize)
+{
+	if(driver->SendGamePacket) {
+		u_char buf[MAX_IPX_DATA];
+
+		*(uint *)buf = ipx_packetnum++;
+		memcpy(buf + 4, data, datasize);
+		*(uint *)data = ipx_packetnum++;
+		return driver->SendGamePacket(&ipx_socket_data, buf, datasize + 4);
+	} else {
+		// Loop through all the players unicasting the packet.
+		int i;
+
+		//printf("Sending game packet: N_players = %i\n", N_players);
+
+		for(i=0; i<N_players; i++) {
+			if(Players[i].connected && (i != Player_num))
+				ipx_send_packet_data(data, datasize, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
+		}
+		return datasize;
+	}
+
+	return 0;
 }

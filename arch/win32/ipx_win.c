@@ -1,4 +1,4 @@
-/* $Id: ipx_win.c,v 1.6 2003-03-19 23:10:34 btb Exp $ */
+/* $Id: ipx_win.c,v 1.7 2003-10-12 09:17:47 btb Exp $ */
 
 /*
  *
@@ -205,5 +205,9 @@ struct ipx_driver ipx_win = {
 	ipx_win_CloseSocket,
 	ipx_win_SendPacket,
 	ipx_win_ReceivePacket,
-	ipx_general_PacketReady
+	ipx_general_PacketReady,
+	NULL,	// InitNetgameAuxData
+	NULL,	// HandleNetgameAuxData
+	NULL,	// HandleLeaveGame
+	NULL	// SendGamePack
 };

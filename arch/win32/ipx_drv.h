@@ -1,4 +1,4 @@
-/* $Id: ipx_drv.h,v 1.6 2003-10-04 03:18:02 btb Exp $ */
+/* $Id: ipx_drv.h,v 1.7 2003-10-12 09:17:47 btb Exp $ */
 
 /*
  *
@@ -67,6 +67,10 @@ struct ipx_driver {
 	int (*ReceivePacket)(ipx_socket_t *s, char *buffer, int bufsize,
 	                     struct ipx_recv_data *rec);
 	int (*PacketReady)(ipx_socket_t *s);
+	void (*InitNetgameAuxData)(ipx_socket_t *s, u_char buf[]);
+	int (*HandleNetgameAuxData)(ipx_socket_t *s, const u_char buf[]);
+	void (*HandleLeaveGame)(ipx_socket_t *s);
+	int (*SendGamePacket)(ipx_socket_t *s, u_char *data, int dataLen);
 };
 
 int ipx_general_PacketReady(ipx_socket_t *s);

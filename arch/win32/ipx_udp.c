@@ -1,4 +1,4 @@
-/* $Id: ipx_udp.c,v 1.2 2003-10-08 19:24:17 btb Exp $ */
+/* $Id: ipx_udp.c,v 1.3 2003-10-12 09:17:47 btb Exp $ */
 /*
  *
  * IPX driver for native Linux TCP/IP networking (UDP implementation)
@@ -357,7 +357,7 @@ unsigned short ports;
 /* Startup... Uninteresting parsing...
  */
 
-static int ipx_udp_GetMyAddress(void) {
+int ipx_udp_GetMyAddress(void) {
 
 char buf[256];
 int i;
@@ -614,5 +614,9 @@ struct ipx_driver ipx_udp = {
 	ipx_udp_CloseSocket,
 	ipx_udp_SendPacket,
 	ipx_udp_ReceivePacket,
-	ipx_general_PacketReady
+	ipx_general_PacketReady,
+	NULL,	// InitNetgameAuxData
+	NULL,	// HandleNetgameAuxData
+	NULL,	// HandleLeaveGame
+	NULL	// SendGamePacke
 };

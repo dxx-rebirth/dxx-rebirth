@@ -1,4 +1,4 @@
-/* $Id: ipx_bsd.c,v 1.6 2003-03-13 00:20:21 btb Exp $ */
+/* $Id: ipx_bsd.c,v 1.7 2003-10-12 09:17:47 btb Exp $ */
 /*
  *
  * IPX driver using BSD style sockets
@@ -229,5 +229,9 @@ struct ipx_driver ipx_bsd = {
 	ipx_bsd_CloseSocket,
 	ipx_bsd_SendPacket,
 	ipx_bsd_ReceivePacket,
-	ipx_general_PacketReady
+	ipx_general_PacketReady,
+	NULL,	// InitNetgameAuxData
+	NULL,	// HandleNetgameAuxData
+	NULL,	// HandleLeaveGame
+	NULL	// SendGamePacket
 };
