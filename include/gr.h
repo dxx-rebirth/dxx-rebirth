@@ -52,23 +52,6 @@ typedef struct _grs_point {
 #define CC_LSPACING_S 	"\x2"		//next char specifies line spacing
 #define CC_UNDERLINE_S	"\x3"		//next char is underlined
 
-//old font structure, could not add new items to it without screwing up gr_init_font
-typedef struct _grs_font {
-    short       ft_w;           // Width in pixels
-    short       ft_h;           // Height in pixels
-    short       ft_flags;       // Proportional?
-    short       ft_baseline;    //
-    ubyte       ft_minchar;     // First char defined by this font
-    ubyte       ft_maxchar;     // Last char defined by this font
-    short       ft_bytewidth;   // Width in unsigned chars
-    ubyte     * ft_data;        // Ptr to raw data.
-    ubyte    ** ft_chars;       // Ptrs to data for each char (required for prop font)
-    short     * ft_widths;      // Array of widths (required for prop font)
-    ubyte     * ft_kerndata;    // Array of kerning triplet data
-} __pack__ old_grs_font;
-
-#define OLD_GRS_FONT_SIZE 28 // how much file space it uses
-
 #define BM_LINEAR   0
 #define BM_MODEX    1
 #define BM_SVGA     2
@@ -138,24 +121,27 @@ typedef struct _grs_bitmap {
 
 } grs_bitmap;
 
-//new font structure, which does not suffer from the inability to add new items
-typedef struct _new_grs_font {
-	short		ft_w,ft_h;		// Width and height in pixels
-	short		ft_flags;		// Proportional?
-	short		ft_baseline;	//
-	ubyte		ft_minchar,		// The first and last chars defined by
-				ft_maxchar;		// This font
-	short		ft_bytewidth;	// Width in unsigned chars
-	ubyte	* 	ft_data;			// Ptr to raw data.
-	ubyte	**	ft_chars;		// Ptrs to data for each char (required for prop font)
-	short	*	ft_widths;		// Array of widths (required for prop font)
-	ubyte *  ft_kerndata;	// Array of kerning triplet data
-	old_grs_font * oldfont;
+//font structure
+typedef struct _grs_font {
+    short       ft_w;           // Width in pixels
+    short       ft_h;           // Height in pixels
+    short       ft_flags;       // Proportional?
+    short       ft_baseline;    //
+    ubyte       ft_minchar;     // First char defined by this font
+    ubyte       ft_maxchar;     // Last char defined by this font
+    short       ft_bytewidth;   // Width in unsigned chars
+    ubyte     * ft_data;        // Ptr to raw data.
+    ubyte    ** ft_chars;       // Ptrs to data for each char (required for prop font)
+    short     * ft_widths;      // Array of widths (required for prop font)
+    ubyte     * ft_kerndata;    // Array of kerning triplet data
 #ifdef OGL
+	// These fields do not participate in disk i/o!
 	grs_bitmap *ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;
 #endif
 } grs_font;
+
+#define GRS_FONT_SIZE 28    // how much space it takes up on disk
 
 typedef struct _grs_canvas {
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
@@ -365,7 +351,7 @@ grs_font * gr_init_font( char * fontfile );
 void gr_close_font( grs_font * font );
 
 //remap a font, re-reading its data & palette
-void gr_remap_font( grs_font *font, char * fontname );
+void gr_remap_font( grs_font *font, char * fontname, char *font_data );
 
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts();
