@@ -1,4 +1,4 @@
-/* $Id: */
+/* $Id: playsave.c,v 1.9 2003-02-27 04:24:43 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -569,6 +569,9 @@ int read_player_file()
 	if (player_file_version > 255) // bigendian file?
 		swap = 1;
 
+	if (swap)
+		player_file_version = SWAPSHORT(player_file_version);
+
 	if (player_file_version<COMPATIBLE_PLAYER_FILE_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
 		fclose(file);
@@ -579,7 +582,6 @@ int read_player_file()
 	Game_window_h					= file_read_short(file);
 
 	if (swap) {
-		player_file_version = SWAPSHORT(player_file_version);
 		Game_window_w = SWAPSHORT(Game_window_w);
 		Game_window_h = SWAPSHORT(Game_window_h);
 	}
