@@ -1,4 +1,4 @@
-/* $Id: ipx_udp.c,v 1.8 2003-10-12 09:17:47 btb Exp $ */
+/* $Id: ipx_udp.c,v 1.9 2003-12-08 22:55:27 btb Exp $ */
 /*
  *
  * IPX driver for native Linux TCP/IP networking (UDP implementation)
@@ -73,6 +73,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include <netinet/in.h> /* for htons & co. */
 #include <unistd.h>
 #include <stdarg.h>

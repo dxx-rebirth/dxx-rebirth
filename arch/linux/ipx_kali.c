@@ -1,4 +1,4 @@
-/* $Id: ipx_kali.c,v 1.6 2003-10-12 09:17:47 btb Exp $ */
+/* $Id: ipx_kali.c,v 1.7 2003-12-08 22:55:27 btb Exp $ */
 /*
  *
  * IPX driver for KaliNix interface
@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <arpa/inet.h>
 #include <netinet/in.h> /* for htons & co. */
 #include "ipx_drv.h"
 #include "ukali.h"

@@ -1,4 +1,4 @@
-/* $Id: ipx_mcast4.c,v 1.1 2003-10-12 09:17:47 btb Exp $ */
+/* $Id: ipx_mcast4.c,v 1.2 2003-12-08 22:55:27 btb Exp $ */
 
 /*
  *
@@ -13,8 +13,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <stdarg.h>
 #include <unistd.h>
 #include <sys/socket.h>

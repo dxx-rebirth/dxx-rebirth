@@ -1,8 +1,13 @@
+2003-12-08  Alexander Y. Yeikovich <demon@mci.net.ua>
+
+	* arch/linux/ipx_kali.c, arch/linux/ipx_mcast4.c,
+	arch/linux/ipx_udp.c: fix FreeBSD compile errors
+
 2003-12-08  Alexander Y. Yeikovich <demon@mci.net.ua> and Bradley Bell <btb@icculus.org>
 
 	* 2d/ibitblt.c, include/maths.h, include/ogl_init.h,
-	include/pstypes.h, main/game.c, main/game.h, main,
-	unused/bios/ipx.c: get rid of silly ulongs
+	include/pstypes.h, main/game.c, main/game.h, unused/bios/ipx.c:
+	get rid of silly ulongs
 
 	* configure.ac, 2d/bitblt.c, 2d/linear.asm, maths/fix.asm,
 	maths/vecmata.asm, texmap/tmap_inc.asm, texmap/tmap_per.asm,
