@@ -13,11 +13,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 
-#ifndef _NOCFILE_H
-#define _NOCFILE_H
+#ifndef _CFILE_H
+#define _CFILE_H
 
 #include <stdio.h>
-#include <io.h>
+//#include <io.h>
 
 #define CFILE FILE
 

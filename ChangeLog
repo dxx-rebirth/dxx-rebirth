@@ -9,7 +9,12 @@
 	only on last level of built-in mission.
 	* main/gauges.c: fix bug #2110: redraw energy/afterburner gauges
 	whenever necessary
-	* change cfopen to use buffers (speeding it up), and use cfopen instead of PHYSFS_openRead/PHYSFS_openWrite where appropriate
+	* arch/ogl/gr.c, include/cfile.h, main/config.c, main/newdemo.c,
+	main/playsave.c, main/state.c, misc/args.c: change cfopen to use
+	buffers (speeding it up), and use cfopen instead of
+	PHYSFS_openRead/PHYSFS_openWrite where appropriate
+	* include/nocfile.h, main/editor/kmine.c, main/editor/mine.c: make
+	sure nocfile.h and cfile.h are never both included
 
 2005-01-10  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
