@@ -23,6 +23,9 @@
 #include "newdemo.h"
 #include "kconfig.h"
 #include "hmpfile.h"
+
+#include "altsound.h"
+
 hmp_file *hmp = NULL;
 
 #ifdef DIGI_SOUND
@@ -30,8 +33,8 @@ hmp_file *hmp = NULL;
 #define MIN_VOLUME 10
 
 
-#define SOF_USED			1		// Set if this sample is used
-#define SOF_PLAYING			2		// Set if this sample is playing on a channel
+#define SOF_USED                1               // Set if this sample is used
+#define SOF_PLAYING             2               // Set if this sample is playing on a channel
 #define SOF_LINK_TO_OBJ		4		// Sound is linked to a moving object. If object dies, then finishes play and quits.
 #define SOF_LINK_TO_POS		8		// Sound is linked to segment, pos
 #define SOF_PLAY_FOREVER	16		// Play forever (or until level is stopped), otherwise plays once
@@ -139,10 +142,8 @@ int digi_init()
 	 waveformat.wBitsPerSample=8;
 	 waveformat.nChannels = 1;
 	 waveformat.nSamplesPerSec = digi_sample_rate; //11025;
-	 waveformat.nBlockAlign =
-	 waveformat.nChannels * (waveformat.wBitsPerSample/8);
-	 waveformat.nAvgBytesPerSec =
-	 waveformat.nSamplesPerSec * waveformat.nBlockAlign;	
+	 waveformat.nBlockAlign = waveformat.nChannels * (waveformat.wBitsPerSample / 8);
+	 waveformat.nAvgBytesPerSec = waveformat.nSamplesPerSec * waveformat.nBlockAlign;
 
 	  if ((hr = DirectSoundCreate(NULL, &lpds, NULL)) != DS_OK)
 	   return -1;
@@ -169,18 +170,6 @@ int digi_init()
 		digi_atexit_initialised=1;
 	}
  return 0;
-}
-
-/* Find the sound which actually equates to a sound number */
-int digi_xlat_sound(int soundno)
-{
-	if ( soundno < 0 ) return -1;
-
-	if ( digi_lomem )	{
-		soundno = AltSounds[soundno];
-		if ( soundno == 255 ) return -1;
-	}
-	return Sounds[soundno];
 }
 
 // added 2000/01/15 Matt Mueller -- remove some duplication (and fix a big memory leak, in the kill=0 one case)
@@ -239,88 +228,89 @@ int digi_start_sound(int soundnum, fix volume, fix pan)
  int slot;
  HRESULT hr;
 
- if (!digi_initialised) return -1;
+	if (!digi_initialised)
+		return -1;
 
- //added on 980905 by adb from original source to add sound kill system
- // play at most digi_max_channel samples, if possible kill sample with low volume
- ntries = 0;
+	// added on 980905 by adb from original source to add sound kill system
+	// play at most digi_max_channel samples, if possible kill sample with low volume
+	ntries = 0;
 
 TryNextChannel:
- if ( (SampleHandles[next_handle] >= 0) && (SoundSlots[SampleHandles[next_handle]].playing)  )
- {
-  if ( (SoundSlots[SampleHandles[next_handle]].volume > digi_volume) && (ntries<digi_max_channels) )
-  {
-   //mprintf(( 0, "Not stopping loud sound %d.\n", next_handle ));
-   next_handle++;
-   if ( next_handle >= digi_max_channels )
-    next_handle = 0;
-   ntries++;
-   goto TryNextChannel;
-  }
-  //mprintf(( 0, "[SS:%d]", next_handle ));
-  SoundSlots[SampleHandles[next_handle]].playing = 0;
-	DS_release_slot(SampleHandles[next_handle], 1);
-  SampleHandles[next_handle] = -1;
- }
- //end edit by adb
+	if ((SampleHandles[next_handle] >= 0) && (SoundSlots[SampleHandles[next_handle]].playing))
+	{
+		if ((SoundSlots[SampleHandles[next_handle]].volume > digi_volume) && (ntries < digi_max_channels))
+		{
+			//mprintf((0, "Not stopping loud sound %d.\n", next_handle));
+			next_handle++;
+			if (next_handle >= digi_max_channels)
+				next_handle = 0;
+			ntries++;
+			goto TryNextChannel;
+		}
+		//mprintf((0, "[SS:%d]", next_handle));
+		SoundSlots[SampleHandles[next_handle]].playing = 0;
+		SampleHandles[next_handle] = -1;
+	}
+	// end edit by adb
 
- slot = get_free_slot();
- if (slot<0) return -1;
+	slot = get_free_slot();
+	if (slot < 0)
+		return -1;
 
- SoundSlots[slot].soundno = soundnum;
- SoundSlots[slot].samples = GameSounds[soundnum].data;
- SoundSlots[slot].length = GameSounds[soundnum].length;
- SoundSlots[slot].volume = fixmul(digi_volume, volume);
- SoundSlots[slot].pan = pan;
- SoundSlots[slot].position = 0;
- SoundSlots[slot].looped = 0;
- SoundSlots[slot].playing = 1;
+	SoundSlots[slot].soundno = soundnum;
+	SoundSlots[slot].samples = Sounddat(soundnum)->data;
+	SoundSlots[slot].length = Sounddat[soundnum].length;
+	SoundSlots[slot].volume = fixmul(digi_volume, volume);
+	SoundSlots[slot].pan = pan;
+	SoundSlots[slot].position = 0;
+	SoundSlots[slot].looped = 0;
+	SoundSlots[slot].playing = 1;
 
- memset(&waveformat, 0, sizeof(waveformat));
- waveformat.wFormatTag=WAVE_FORMAT_PCM;
- waveformat.wBitsPerSample=8;
- waveformat.nChannels = 1;
- waveformat.nSamplesPerSec = digi_sample_rate; //11025;
- waveformat.nBlockAlign =
-   waveformat.nChannels * (waveformat.wBitsPerSample/8);
- waveformat.nAvgBytesPerSec =
-   waveformat.nSamplesPerSec * waveformat.nBlockAlign;
+	memset(&waveformat, 0, sizeof(waveformat));
+	waveformat.wFormatTag = WAVE_FORMAT_PCM;
+	waveformat.wBitsPerSample = Sounddat(soundnum)->bits;
+	waveformat.nChannels = 1;
+	waveformat.nSamplesPerSec = Sounddat(soundnum)->freq; //digi_sample_rate;
+	waveformat.nBlockAlign = waveformat.nChannels * (waveformat.wBitsPerSample / 8);
+	waveformat.nAvgBytesPerSec = waveformat.nSamplesPerSec * waveformat.nBlockAlign;
 
- memset(&dsbd, 0, sizeof(dsbd));
- dsbd.dwSize = sizeof(dsbd);
- dsbd.dwFlags = DSBCAPS_CTRLDEFAULT | DSBCAPS_GETCURRENTPOSITION2;
- dsbd.dwReserved=0;
- dsbd.dwBufferBytes = SoundSlots[slot].length;
- dsbd.lpwfxFormat = &waveformat;
+	memset(&dsbd, 0, sizeof(dsbd));
+	dsbd.dwSize = sizeof(dsbd);
+	dsbd.dwFlags = DSBCAPS_CTRLDEFAULT | DSBCAPS_GETCURRENTPOSITION2;
+	dsbd.dwReserved=0;
+	dsbd.dwBufferBytes = SoundSlots[slot].length;
+	dsbd.lpwfxFormat = &waveformat;
 
- hr = IDirectSound_CreateSoundBuffer(lpds, &dsbd, &SoundSlots[slot].lpsb, NULL);
- if ( hr != DS_OK ) {
-  printf("Createsoundbuffer failed! hr=0x%X\n", (int)hr);
-  abort();
- }
- {
-  char *ptr1, *ptr2;
-  int len1, len2;
-  IDirectSoundBuffer_Lock(SoundSlots[slot].lpsb, 0, GameSounds[soundnum].length,
-         (void **)&ptr1, &len1, (void **)&ptr2, &len2, 0);
-  memcpy(ptr1,GameSounds[soundnum].data, MIN(len1, GameSounds[soundnum].length));
-  IDirectSoundBuffer_Unlock(SoundSlots[slot].lpsb, ptr1, len1, ptr2, len2);
- }
- IDirectSoundBuffer_SetPan(SoundSlots[slot].lpsb, ((int)(f2fl(pan) * 20000.0))-10000);
-// IDirectSoundBuffer_SetVolume(SoundSlots[slot].lpsb, MIN(((int)(f2fl(SoundSlots[slot].volume) * 15000.0)) - 10000, 0));//nope
- IDirectSoundBuffer_SetVolume(SoundSlots[slot].lpsb, D1vol2DSvol(SoundSlots[slot].volume));
- 
- IDirectSoundBuffer_Play(SoundSlots[slot].lpsb, 0, 0, 0);
+	hr = IDirectSound_CreateSoundBuffer(lpds, &dsbd, &SoundSlots[slot].lpsb, NULL);
+	if (hr != DS_OK)
+	{
+		printf("Createsoundbuffer failed! hr=0x%X\n", (int)hr);
+		abort();
+	}
 
- //added on 980905 by adb to add sound kill system from original sos digi.c
- reset_sounds_on_channel(slot);
- SampleHandles[next_handle] = slot;
- next_handle++;
- if ( next_handle >= digi_max_channels )
-  next_handle = 0;
- //end edit by adb
+	{
+		char *ptr1, *ptr2;
+		int len1, len2;
 
- return slot;
+		IDirectSoundBuffer_Lock(SoundSlots[slot].lpsb, 0, Sounddat(soundnum)->length,
+		                        (void **)&ptr1, &len1, (void **)&ptr2, &len2, 0);
+		memcpy(ptr1, Sounddat(soundnum)->data, MIN(len1, Sounddat(soundnum)->length));
+		IDirectSoundBuffer_Unlock(SoundSlots[slot].lpsb, ptr1, len1, ptr2, len2);
+	}
+
+	IDirectSoundBuffer_SetPan(SoundSlots[slot].lpsb, ((int)(f2fl(pan) * 20000.0)) - 10000);
+	IDirectSoundBuffer_SetVolume(SoundSlots[slot].lpsb, D1vol2DSvol(SoundSlots[slot].volume));
+	IDirectSoundBuffer_Play(SoundSlots[slot].lpsb, 0, 0, 0);
+
+	// added on 980905 by adb to add sound kill system from original sos digi.c
+	reset_sounds_on_channel(slot);
+	SampleHandles[next_handle] = slot;
+	next_handle++;
+	if (next_handle >= digi_max_channels)
+		next_handle = 0;
+	// end edit by adb
+
+	return slot;
 }
 
  //added on 980905 by adb to add sound kill system from original sos digi.c
@@ -339,64 +329,67 @@ int digi_start_sound_object(int obj)
  int slot;
  HRESULT hr;
 
- if (!digi_initialised) return -1;
- slot = get_free_slot();
+	if (!digi_initialised)
+		return -1;
 
- if (slot<0) return -1;
+	slot = get_free_slot();
+
+	if (slot < 0)
+		return -1;
 
 
- SoundSlots[slot].soundno = SoundObjects[obj].soundnum;
- SoundSlots[slot].samples = GameSounds[SoundObjects[obj].soundnum].data;
- SoundSlots[slot].length = GameSounds[SoundObjects[obj].soundnum].length;
- SoundSlots[slot].volume = fixmul(digi_volume, SoundObjects[obj].volume);
- SoundSlots[slot].pan = SoundObjects[obj].pan;
- SoundSlots[slot].position = 0;
- SoundSlots[slot].looped = (SoundObjects[obj].flags & SOF_PLAY_FOREVER);
- SoundSlots[slot].playing = 1;
+	SoundSlots[slot].soundno = SoundObjects[obj].soundnum;
+	SoundSlots[slot].samples = Sounddat(SoundObjects[obj].soundnum)->data;
+	SoundSlots[slot].length = Sounddat(SoundObjects[obj].soundnum).length;
+	SoundSlots[slot].volume = fixmul(digi_volume, SoundObjects[obj].volume);
+	SoundSlots[slot].pan = SoundObjects[obj].pan;
+	SoundSlots[slot].position = 0;
+	SoundSlots[slot].looped = (SoundObjects[obj].flags & SOF_PLAY_FOREVER);
+	SoundSlots[slot].playing = 1;
 
- memset(&waveformat, 0, sizeof(waveformat));
- waveformat.wFormatTag=WAVE_FORMAT_PCM;
- waveformat.wBitsPerSample=8;
- waveformat.nChannels = 1;
- waveformat.nSamplesPerSec = digi_sample_rate; // 11025;
- waveformat.nBlockAlign =
- waveformat.nChannels * (waveformat.wBitsPerSample/8);
- waveformat.nAvgBytesPerSec =
- waveformat.nSamplesPerSec * waveformat.nBlockAlign;
+	memset(&waveformat, 0, sizeof(waveformat));
+	waveformat.wFormatTag = WAVE_FORMAT_PCM;
+	waveformat.wBitsPerSample = Sounddat(SoundObjects[obj].soundnum)->bits;
+	waveformat.nChannels = 1;
+	waveformat.nSamplesPerSec = Sounddat(SoundObjects[obj].soundnum)->freq; //digi_sample_rate;
+	waveformat.nBlockAlign = waveformat.nChannels * (waveformat.wBitsPerSample / 8);
+	waveformat.nAvgBytesPerSec = waveformat.nSamplesPerSec * waveformat.nBlockAlign;
 
- memset(&dsbd, 0, sizeof(dsbd));
- dsbd.dwSize = sizeof(dsbd);
- dsbd.dwFlags = DSBCAPS_CTRLDEFAULT | DSBCAPS_GETCURRENTPOSITION2;
- dsbd.dwReserved=0;
- dsbd.dwBufferBytes = SoundSlots[slot].length;
- dsbd.lpwfxFormat = &waveformat;
+	memset(&dsbd, 0, sizeof(dsbd));
+	dsbd.dwSize = sizeof(dsbd);
+	dsbd.dwFlags = DSBCAPS_CTRLDEFAULT | DSBCAPS_GETCURRENTPOSITION2;
+	dsbd.dwReserved = 0;
+	dsbd.dwBufferBytes = SoundSlots[slot].length;
+	dsbd.lpwfxFormat = &waveformat;
 
- hr = IDirectSound_CreateSoundBuffer(lpds, &dsbd, &SoundSlots[slot].lpsb, NULL);
- if ( hr != DS_OK ) {
-  abort();
- }
- {
-  char *ptr1, *ptr2;
-  int len1, len2;
-  IDirectSoundBuffer_Lock(SoundSlots[slot].lpsb, 0, SoundSlots[slot].length,
-         (void **)&ptr1, &len1, (void **)&ptr2, &len2, 0);
-  memcpy(ptr1, SoundSlots[slot].samples, MIN(len1,(int)SoundSlots[slot].length));
-  IDirectSoundBuffer_Unlock(SoundSlots[slot].lpsb, (void *)ptr1, len1, (void *)ptr2, len2);
- }
- IDirectSoundBuffer_SetPan(SoundSlots[slot].lpsb, ((int)(f2fl(SoundSlots[slot].pan) * 20000))-10000);
-// IDirectSoundBuffer_SetVolume(SoundSlots[slot].lpsb, MIN(((int)(f2fl(SoundSlots[slot].volume) * 15000.0)) - 10000, 0));//nope
- IDirectSoundBuffer_SetVolume(SoundSlots[slot].lpsb,D1vol2DSvol(SoundSlots[slot].volume));
- IDirectSoundBuffer_Play(SoundSlots[slot].lpsb, 0, 0, SoundSlots[slot].looped?DSBPLAY_LOOPING:0);
+	hr = IDirectSound_CreateSoundBuffer(lpds, &dsbd, &SoundSlots[slot].lpsb, NULL);
+	if (hr != DS_OK)
+	{
+		abort();
+	}
 
- SoundObjects[obj].signature = next_signature++;
- SoundObjects[obj].handle = slot;
+	{
+		char *ptr1, *ptr2;
+		int len1, len2;
 
- SoundObjects[obj].flags |= SOF_PLAYING;
- //added on 980905 by adb to add sound kill system from original sos digi.c
- reset_sounds_on_channel(slot);
- //end edit by adb
- 
- return 0;
+		IDirectSoundBuffer_Lock(SoundSlots[slot].lpsb, 0, SoundSlots[slot].length,
+		                        (void **)&ptr1, &len1, (void **)&ptr2, &len2, 0);
+		memcpy(ptr1, SoundSlots[slot].samples, MIN(len1, (int)SoundSlots[slot].length));
+		IDirectSoundBuffer_Unlock(SoundSlots[slot].lpsb, (void *)ptr1, len1, (void *)ptr2, len2);
+	}
+	IDirectSoundBuffer_SetPan(SoundSlots[slot].lpsb, ((int)(f2fl(SoundSlots[slot].pan) * 20000)) - 10000);
+	IDirectSoundBuffer_SetVolume(SoundSlots[slot].lpsb, D1vol2DSvol(SoundSlots[slot].volume));
+	IDirectSoundBuffer_Play(SoundSlots[slot].lpsb, 0, 0, SoundSlots[slot].looped ? DSBPLAY_LOOPING : 0);
+
+	SoundObjects[obj].signature = next_signature++;
+	SoundObjects[obj].handle = slot;
+
+	SoundObjects[obj].flags |= SOF_PLAYING;
+	// added on 980905 by adb to add sound kill system from original sos digi.c
+	reset_sounds_on_channel(slot);
+	// end edit by adb
+
+	return 0;
 }
 
 
@@ -405,12 +398,13 @@ int digi_start_sound_object(int obj)
 void digi_play_sample( int soundno, fix max_volume )
 {
 #ifdef NEWDEMO
-	if ( Newdemo_state == ND_STATE_RECORDING )
-		newdemo_record_sound( soundno );
+	if (Newdemo_state == ND_STATE_RECORDING)
+		newdemo_record_sound(soundno);
 #endif
-	soundno = digi_xlat_sound(soundno);
-
-	if (!digi_initialised) return;
+	if (!digi_initialised)
+		return;
+	if (digi_xlat_sound(soundno) < 0)
+		return;
 
 	if (soundno < 0 ) return;
 
@@ -424,22 +418,22 @@ void digi_play_sample_once( int soundno, fix max_volume )
 	int i;
 
 #ifdef NEWDEMO
-	if ( Newdemo_state == ND_STATE_RECORDING )
-		newdemo_record_sound( soundno );
+	if (Newdemo_state == ND_STATE_RECORDING)
+		newdemo_record_sound(soundno);
 #endif
-	soundno = digi_xlat_sound(soundno);
+	if (!digi_initialised)
+		return;
+	if(digi_xlat_sound(soundno) < 0)
+		return;
 
-	if (!digi_initialised) return;
+	for (i = 0; i < MAX_SOUND_SLOTS; i++)
+		if (SoundSlots[i].soundno == soundno)
+		{
+			SoundSlots[i].playing = 0;
+			DS_release_slot(i, 1);
+		}
 
-	if (soundno < 0 ) return;
-
-        for (i=0; i < MAX_SOUND_SLOTS; i++)
-          if (SoundSlots[i].soundno == soundno) {
-             SoundSlots[i].playing = 0;
-				DS_release_slot(i, 1);
-          }
 	digi_start_sound(soundno, max_volume, F0_5);
-
 }
 
 void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups ) // Volume from 0-0x7fff
@@ -447,25 +441,27 @@ void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups ) // V
 	no_dups = 1;
 
 #ifdef NEWDEMO
-	if ( Newdemo_state == ND_STATE_RECORDING )		{
-		if ( no_dups )
-			newdemo_record_sound_3d_once( soundno, angle, volume );
+	if (Newdemo_state == ND_STATE_RECORDING)
+	{
+		if (no_dups)
+			newdemo_record_sound_3d_once(soundno, angle, volume);
 		else
-			newdemo_record_sound_3d( soundno, angle, volume );
+			newdemo_record_sound_3d(soundno, angle, volume);
 	}
 #endif
-	soundno = digi_xlat_sound(soundno);
+	if (!digi_initialised)
+		return;
+	if (digi_xlat_sound(soundno) < 0)
+		return;
+	if (volume < MIN_VOLUME)
+		return;
 
-	if (!digi_initialised) return;
-	if (soundno < 0 ) return;
-
-	if (volume < MIN_VOLUME ) return;
 	digi_start_sound(soundno, volume, angle);
 }
 
 void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int listener_seg, vms_vector * sound_pos, int sound_seg, fix max_volume, int *volume, int *pan, fix max_distance )
 {	  
-	vms_vector	vector_to_sound;
+	vms_vector vector_to_sound;
 	fix angle_from_ear, cosang,sinang;
 	fix distance;
 	fix path_distance;
@@ -473,7 +469,7 @@ void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int l
 	*volume = 0;
 	*pan = 0;
 
-	max_distance = (max_distance*5)/4;		// Make all sounds travel 1.25 times as far.
+	max_distance = (max_distance * 5) / 4;  // Make all sounds travel 1.25 times as far.
 
 	//	Warning: Made the vm_vec_normalized_dir be vm_vec_normalized_dir_quick and got illegal values to acos in the fang computation.
 	distance = vm_vec_normalized_dir_quick( &vector_to_sound, sound_pos, listener_pos );
@@ -499,45 +495,47 @@ void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int l
 	}																					  
 }
 
-int digi_link_sound_to_object2( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance )
+int digi_link_sound_to_object2(int soundnum, short objnum, int forever, fix max_volume, fix max_distance)
 {
-	int i,volume,pan;
-	object * objp;
+	int i, volume, pan;
+	object *objp;
 	int soundnum;
 
-	soundnum = digi_xlat_sound(org_soundnum);
-
-	if ( max_volume < 0 ) return -1;
-//	if ( max_volume > F1_0 ) max_volume = F1_0;
-
-	if (!digi_initialised) return -1;
-	if (soundnum < 0 ) return -1;
-	if (GameSounds[soundnum].data==NULL) {
+	if (max_volume < 0)
+		return -1;
+	if (!digi_initialised)
+		return -1;
+	if (digi_xlat_sound(soundnum) < 0)
+		return -1;
+	if (Sounddat(soundnum)->data == NULL)
+	{
 		Int3();
 		return -1;
 	}
-	if ((objnum<0)||(objnum>Highest_object_index))
+	if ((objnum < 0) || (objnum > Highest_object_index))
 		return -1;
 
-	if ( !forever )	{
+	if (!forever)
+	{
 		// Hack to keep sounds from building up...
-		digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, &Objects[objnum].pos, Objects[objnum].segnum, max_volume,&volume, &pan, max_distance );
-		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
+		digi_get_sound_loc(&Viewer->orient, &Viewer->pos, Viewer->segnum, &Objects[objnum].pos, Objects[objnum].segnum, max_volume, &volume, &pan, max_distance);
+		digi_play_sample_3d(soundnum, pan, volume, 0);
 		return -1;
 	}
 
-       	for (i=0; i<MAX_SOUND_OBJECTS; i++ )
-        	if (SoundObjects[i].flags==0)
-	           break;
+	for (i = 0; i < MAX_SOUND_OBJECTS; i++)
+		if (SoundObjects[i].flags == 0)
+			break;
 
-	if (i==MAX_SOUND_OBJECTS) {
-		mprintf((1, "Too many sound objects!\n" ));
+	if (i == MAX_SOUND_OBJECTS)
+	{
+		mprintf((1, "Too many sound objects!\n"));
 		return -1;
 	}
 
-	SoundObjects[i].signature=next_signature++;
+	SoundObjects[i].signature = next_signature++;
 	SoundObjects[i].flags = SOF_USED | SOF_LINK_TO_OBJ;
-	if ( forever )
+	if (forever)
 		SoundObjects[i].flags |= SOF_PLAY_FOREVER;
 	SoundObjects[i].lo_objnum = objnum;
 	SoundObjects[i].lo_objsignature = Objects[objnum].signature;
@@ -546,11 +544,10 @@ int digi_link_sound_to_object2( int org_soundnum, short objnum, int forever, fix
 	SoundObjects[i].volume = 0;
 	SoundObjects[i].pan = 0;
 	SoundObjects[i].soundnum = soundnum;
-
 	objp = &Objects[SoundObjects[i].lo_objnum];
-	digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, 
-                       &objp->pos, objp->segnum, SoundObjects[i].max_volume,
-                       &SoundObjects[i].volume, &SoundObjects[i].pan, SoundObjects[i].max_distance );
+	digi_get_sound_loc(&Viewer->orient, &Viewer->pos, Viewer->segnum,
+	                   &objp->pos, objp->segnum, SoundObjects[i].max_volume,
+	                   &SoundObjects[i].volume, &SoundObjects[i].pan, SoundObjects[i].max_distance);
 
 	if (!forever || SoundObjects[i].volume >= MIN_VOLUME)
 	       digi_start_sound_object(i);
@@ -559,48 +556,48 @@ int digi_link_sound_to_object2( int org_soundnum, short objnum, int forever, fix
 }
 
 int digi_link_sound_to_object( int soundnum, short objnum, int forever, fix max_volume )
-{ return digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, 256*F1_0); }
+{
+	return digi_link_sound_to_object2(soundnum, objnum, forever, max_volume, 256 * F1_0);
+}
 
-int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance )
+int digi_link_sound_to_pos2(int soundnum, short segnum, short sidenum, vms_vector *pos, int forever, fix max_volume, fix max_distance)
 {
 	int i, volume, pan;
-	int soundnum;
 
-	soundnum = digi_xlat_sound(org_soundnum);
-
-	if ( max_volume < 0 ) return -1;
-//	if ( max_volume > F1_0 ) max_volume = F1_0;
-
-	if (!digi_initialised) return -1;
-	if (soundnum < 0 ) return -1;
-	if (GameSounds[soundnum].data==NULL) {
+	if (max_volume < 0 )
+		return -1;
+	if (!digi_initialised)
+		return -1;
+	if (digi_xlat_sound(soundnum) < 0)
+		return -1;
+	if (Sounddat(soundnum)->data == NULL)
+	{
 		Int3();
 		return -1;
 	}
 
-	if ((segnum<0)||(segnum>Highest_segment_index))
-		return -1;
-
-	if ( !forever )	{
+	if (!forever)
+	{
 		// Hack to keep sounds from building up...
-		digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, pos, segnum, max_volume, &volume, &pan, max_distance );
-		digi_play_sample_3d( org_soundnum, pan, volume, 0 );
+		digi_get_sound_loc(&Viewer->orient, &Viewer->pos, Viewer->segnum, pos, segnum, max_volume, &volume, &pan, max_distance);
+		digi_play_sample_3d(org_soundnum, pan, volume, 0);
 		return -1;
 	}
 
-	for (i=0; i<MAX_SOUND_OBJECTS; i++ )
-		if (SoundObjects[i].flags==0)
+	for (i = 0; i < MAX_SOUND_OBJECTS; i++)
+		if (SoundObjects[i].flags == 0)
 			break;
-	
-	if (i==MAX_SOUND_OBJECTS) {
-		mprintf((1, "Too many sound objects!\n" ));
+
+	if (i == MAX_SOUND_OBJECTS)
+	{
+		mprintf((1, "Too many sound objects!\n"));
 		return -1;
 	}
 
 
-	SoundObjects[i].signature=next_signature++;
+	SoundObjects[i].signature = next_signature++;
 	SoundObjects[i].flags = SOF_USED | SOF_LINK_TO_POS;
-	if ( forever )
+	if (forever)
 		SoundObjects[i].flags |= SOF_PLAY_FOREVER;
 	SoundObjects[i].lp_segnum = segnum;
 	SoundObjects[i].lp_sidenum = sidenum;
@@ -610,11 +607,11 @@ int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_
 	SoundObjects[i].max_distance = max_distance;
 	SoundObjects[i].volume = 0;
 	SoundObjects[i].pan = 0;
-	digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, 
+	digi_get_sound_loc(&Viewer->orient, &Viewer->pos, Viewer->segnum,
 					   &SoundObjects[i].lp_position, SoundObjects[i].lp_segnum,
 					   SoundObjects[i].max_volume,
-                       &SoundObjects[i].volume, &SoundObjects[i].pan, SoundObjects[i].max_distance );
-	
+                       &SoundObjects[i].volume, &SoundObjects[i].pan, SoundObjects[i].max_distance);
+
 	if (!forever || SoundObjects[i].volume >= MIN_VOLUME)
 		digi_start_sound_object(i);
 
@@ -623,41 +620,45 @@ int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_
 
 int digi_link_sound_to_pos( int soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume )
 {
-	return digi_link_sound_to_pos2( soundnum, segnum, sidenum, pos, forever, max_volume, F1_0 * 256 );
+	return digi_link_sound_to_pos2(soundnum, segnum, sidenum, pos, forever, max_volume, F1_0 * 256);
 }
 
 void digi_kill_sound_linked_to_segment( int segnum, int sidenum, int soundnum )
 {
-	int i,killed;
+	int i, killed;
 
-	soundnum = digi_xlat_sound(soundnum);
-
-	if (!digi_initialised) return;
+	if (!digi_initialised)
+		return;
 
 	killed = 0;
 
-	for (i=0; i<MAX_SOUND_OBJECTS; i++ )	{
-		if ( (SoundObjects[i].flags & SOF_USED) && (SoundObjects[i].flags & SOF_LINK_TO_POS) )	{
-			if ((SoundObjects[i].lp_segnum == segnum) && (SoundObjects[i].soundnum==soundnum ) && (SoundObjects[i].lp_sidenum==sidenum) ) {
-				if ( SoundObjects[i].flags & SOF_PLAYING )	{
-				        SoundSlots[SoundObjects[i].handle].playing = 0;
-					DS_release_slot(SoundObjects[i].handle, 1);
-				}
-				SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
-				killed++;
+	for (i = 0; i < MAX_SOUND_OBJECTS; i++)
+		if ((SoundObjects[i].flags & SOF_USED) &&
+		    (SoundObjects[i].flags & SOF_LINK_TO_POS) &&
+		    (SoundObjects[i].lp_segnum == segnum) &&
+		    (SoundObjects[i].soundnum == soundnum) &&
+		    (SoundObjects[i].lp_sidenum==sidenum))
+		{
+			if (SoundObjects[i].flags & SOF_PLAYING)
+			{
+				SoundSlots[SoundObjects[i].handle].playing = 0;
+				DS_release_slot(SoundObjects[i].handle, 1);
 			}
+			SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
+			killed++;
 		}
-	}
-	// If this assert happens, it means that there were 2 sounds
-	// that got deleted. Weird, get John.
-	if ( killed > 1 )	{
-		mprintf( (1, "ERROR: More than 1 sounds were deleted from seg %d\n", segnum ));
-	}
+
+		// If this assert happens, it means that there were 2 sounds
+		// that got deleted. Weird, get John.
+		if (killed > 1)
+		{
+			mprintf((1, "ERROR: More than 1 sounds were deleted from seg %d\n", segnum));
+		}
 }
 
 void digi_kill_sound_linked_to_object( int objnum )
 {
-	int i,killed;
+	int i, killed;
 
 	if (!digi_initialised) return;
 
