@@ -16,6 +16,9 @@
 /* Define to disable asserts, int3, etc. */
 #undef NDEBUG
 
+/* Define to enable cross-platform bitmap/palette loading functions */
+#undef PORTABLE_LOADER
+
 @BOTTOM@
 
 /* General defines */

@@ -63,28 +63,12 @@ int read_int(CFILE *fp)
 	return i;
 }
 
-int read_int_swap(CFILE *fp)
-{
-	uint i;
-	
-	cfread(&i, sizeof(uint), 1, fp);
-	return swapint(i);
-}
-
 fix read_fix(CFILE *fp)
 {
 	fix f;
 	
 	cfread(&f, sizeof(fix), 1, fp);
 	return f;
-}
-
-fix read_fix_swap(CFILE *fp)
-{
-	fix f;
-	
-	cfread(&f, sizeof(fix), 1, fp);
-	return (fix)swapint((uint)f);
 }
 
 int write_byte(FILE *fp, byte b)

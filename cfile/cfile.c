@@ -431,10 +431,10 @@ void cfclose( CFILE * fp )
 
 int cfile_read_int(CFILE *file)
 {
-	int i;
+	int32_t i;
 
 	if (cfread( &i, sizeof(i), 1, file) != 1)
-		Error( "Error reading short in cfile_read_int()" );
+		Error( "Error reading int in cfile_read_int()" );
 
 	i = INTEL_INT(i);
 	return i;
@@ -442,7 +442,7 @@ int cfile_read_int(CFILE *file)
 
 short cfile_read_short(CFILE *file)
 {
-	short s;
+	int16_t s;
 
 	if (cfread( &s, sizeof(s), 1, file) != 1)
 		Error( "Error reading short in cfile_read_short()" );
@@ -461,23 +461,38 @@ byte cfile_read_byte(CFILE *file)
 	return b;
 }
 
-#if 0
-fix read_fix(CFILE *file)
+fix cfile_read_fix(CFILE *file)
 {
 	fix f;
 
 	if (cfread( &f, sizeof(f), 1, file) != 1)
-		Error( "Error reading fix in gamesave.c" );
+		Error( "Error reading fix in cfile_read_fix()" );
 
 	f = (fix)INTEL_INT((int)f);
 	return f;
 }
 
-static void read_vector(vms_vector *v,CFILE *file)
+fixang cfile_read_fixang(CFILE *file)
 {
-	v->x = read_fix(file);
-	v->y = read_fix(file);
-	v->z = read_fix(file);
-}
-#endif
+	fixang f;
 
+	if (cfread(&f, 2, 1, file) != 1)
+		Error("Error reading fixang in cfile_read_fixang()");
+
+	f = (fixang) INTEL_SHORT((int) f);
+	return f;
+}
+
+void cfile_read_vector(vms_vector *v, CFILE *file)
+{
+	v->x = cfile_read_fix(file);
+	v->y = cfile_read_fix(file);
+	v->z = cfile_read_fix(file);
+}
+
+void cfile_read_angvec(vms_angvec *v, CFILE *file)
+{
+	v->p = cfile_read_fixang(file);
+	v->b = cfile_read_fixang(file);
+	v->h = cfile_read_fixang(file);
+}

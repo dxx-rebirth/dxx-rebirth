@@ -59,10 +59,12 @@ again_ddn:
 static void decode_data_asm(ubyte *data, int num_pixels, ubyte *colormap, int *count)
 {
 	int i;
+	ubyte mapped;
 	
 	for (i = 0; i < num_pixels; i++) {
 		count[*data]++;
-		*data = colormap[*data];
+		mapped = *data;
+		*data = colormap[mapped];
 		data++;
 	}
 }

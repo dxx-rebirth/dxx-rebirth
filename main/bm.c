@@ -11,12 +11,20 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/bm.c,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-19 08:06:20 $
+ *
+ * Bitmap and palette loading functions.
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef RCS
-static char rcsid[] = "$Id: bm.c,v 1.3 2001-01-31 15:17:49 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -87,7 +95,7 @@ int					First_multi_bitmap_num=-1;
 bitmap_index		ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, since some are used twice.
 
-#ifdef MACINTOSH
+#ifdef PORTABLE_LOADER
 void read_tmap_info(CFILE *fp, int inNumTexturesToRead, int inOffset)
 {
 	int i;
@@ -359,23 +367,23 @@ void read_polygon_models(CFILE *fp, int inNumPolygonModelsToRead, int inOffset)
 	{
 		Polygon_models[i].n_models = cfile_read_int(fp);
 		Polygon_models[i].model_data_size = cfile_read_int(fp);
-		Polygon_models[i].model_data = (ubyte *)read_int_swap(fp);
+		Polygon_models[i].model_data = (ubyte *) cfile_read_int(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
 			Polygon_models[i].submodel_ptrs[j] = cfile_read_int(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(Polygon_models[i].submodel_offsets), fp);
+			cfile_read_vector(&(Polygon_models[i].submodel_offsets[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(Polygon_models[i].submodel_norms), fp);
+			cfile_read_vector(&(Polygon_models[i].submodel_norms[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(Polygon_models[i].submodel_pnts), fp);
+			cfile_read_vector(&(Polygon_models[i].submodel_pnts[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
 			Polygon_models[i].submodel_rads[j] = cfile_read_fix(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
 			Polygon_models[i].submodel_parents[j] = cfile_read_byte(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(Polygon_models[i].submodel_mins), fp);
+			cfile_read_vector(&(Polygon_models[i].submodel_mins[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(Polygon_models[i].submodel_maxs), fp);
+			cfile_read_vector(&(Polygon_models[i].submodel_maxs[j]), fp);
 		cfile_read_vector(&(Polygon_models[i].mins), fp);
 		cfile_read_vector(&(Polygon_models[i].maxs), fp);
 		Polygon_models[i].rad = cfile_read_fix(fp);		
@@ -411,9 +419,9 @@ void read_reactor_info(CFILE *fp, int inNumReactorsToRead, int inOffset)
 		Reactors[i].model_num = cfile_read_int(fp);
 		Reactors[i].n_guns = cfile_read_int(fp);
 		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
-			cfile_read_vector(&(Reactors[i].gun_points), fp);
+			cfile_read_vector(&(Reactors[i].gun_points[j]), fp);
 		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
-			cfile_read_vector(&(Reactors[i].gun_dirs), fp);
+			cfile_read_vector(&(Reactors[i].gun_dirs[j]), fp);
 	}
 }
 
@@ -489,7 +497,7 @@ void load_exit_models()
 	exit_modelnum = N_polygon_models++;
 	destroyed_exit_modelnum = N_polygon_models++;
 
-	#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( &Polygon_models[exit_modelnum], sizeof(polymodel), 1, exit_hamfile );
 	cfread( &Polygon_models[destroyed_exit_modelnum], sizeof(polymodel), 1, exit_hamfile );
 	#else
@@ -545,7 +553,7 @@ void load_exit_models()
 }
 #endif		// SHAREWARE
 
-#endif		// MACINTOSH
+#endif		// PORTABLE_LOADER
 
 //-----------------------------------------------------------------
 // Read data from piggy.
@@ -571,7 +579,7 @@ void bm_read_all(CFILE * fp)
 	int i,t;
 
 	NumTextures = cfile_read_int(fp);
-#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( Textures, sizeof(bitmap_index), NumTextures, fp );
 	cfread( TmapInfo, sizeof(tmap_info), NumTextures, fp );
 #else
@@ -585,55 +593,55 @@ void bm_read_all(CFILE * fp)
 	cfread( AltSounds, sizeof(ubyte), t, fp );
 
 	Num_vclips = cfile_read_int(fp);
-#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( Vclip, sizeof(vclip), Num_vclips, fp );
 #else
 	read_vclip_info(fp, Num_vclips, 0);
 #endif
 
 	Num_effects = cfile_read_int(fp);
-#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( Effects, sizeof(eclip), Num_effects, fp );
 #else	
 	read_effect_info(fp, Num_effects, 0);
 #endif
 
 	Num_wall_anims = cfile_read_int(fp);
-#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( WallAnims, sizeof(wclip), Num_wall_anims, fp );
 #else
 	read_wallanim_info(fp, Num_wall_anims, 0);
 #endif
 
 	N_robot_types = cfile_read_int(fp);
-#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( Robot_info, sizeof(robot_info), N_robot_types, fp );
 #else
 	read_robot_info(fp, N_robot_types, 0);
 #endif
 	N_robot_joints = cfile_read_int(fp);
-#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( Robot_joints, sizeof(jointpos), N_robot_joints, fp );
 #else
 	read_robot_joint_info(fp, N_robot_joints, 0);
 #endif
 
 	N_weapon_types = cfile_read_int(fp);
-#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( Weapon_info, sizeof(weapon_info), N_weapon_types, fp );
 #else
 	read_weapon_info(fp, N_weapon_types, 0);
 #endif
 
 	N_powerup_types = cfile_read_int(fp);
-#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( Powerup_info, sizeof(powerup_type_info), N_powerup_types, fp );
 #else
 	read_powerup_info(fp, N_powerup_types, 0);
 #endif
 	
 	N_polygon_models = cfile_read_int(fp);
-#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( Polygon_models, sizeof(polymodel), N_polygon_models, fp );
 #else
 	read_polygon_models(fp, N_polygon_models, 0);
@@ -682,7 +690,7 @@ void bm_read_all(CFILE * fp)
 	}
 #endif
 
-#ifndef MACINTOSH
+#ifndef PORTABLE_LOADER
 	cfread( &only_player_ship, sizeof(player_ship), 1, fp );
 #else
 	read_player_ship(fp);
@@ -690,7 +698,7 @@ void bm_read_all(CFILE * fp)
 
 	Num_cockpits = cfile_read_int(fp);
 	cfread( cockpit_bitmap, sizeof(bitmap_index), Num_cockpits, fp );
-#ifdef MACINTOSH
+#ifdef PORTABLE_LOADER
 	for (i = 0; i < Num_cockpits; i++)
 		cockpit_bitmap[i].index = SWAPSHORT(cockpit_bitmap[i].index);
 #endif

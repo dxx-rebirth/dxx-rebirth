@@ -16,6 +16,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _CFILE_H
 #define _CFILE_H
 
+#include "maths.h"
+#include "vecmat.h"
+
 typedef struct CFILE {
 	FILE 				*file;
 	int				size;
@@ -54,5 +57,8 @@ void cfile_set_critical_error_counter_ptr(int *ptr);
 int cfile_read_int(CFILE *file);
 short cfile_read_short(CFILE *file);
 byte cfile_read_byte(CFILE *file);
+fix cfile_read_fix(CFILE *file);
+void cfile_read_vector(vms_vector *v, CFILE *file);
+void cfile_read_angvec(vms_angvec *v, CFILE *file);
 
 #endif

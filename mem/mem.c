@@ -11,11 +11,20 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/mem/mem.c,v $
+ * $Revision: 1.5 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-19 08:06:20 $
+ *
+ * Files for debugging memory allocator
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
-#ifdef RCS
-static char rcsid[] = "$Id: mem.c,v 1.4 2001-08-02 22:02:37 thimo Exp $";
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
 #endif
-
 
 // Warning( "MEM: Too many malloc's!" );
 // Warning( "MEM: Malloc returnd an already alloced block!" );
@@ -25,7 +34,6 @@ static char rcsid[] = "$Id: mem.c,v 1.4 2001-08-02 22:02:37 thimo Exp $";
 // Warning( "MEM: %d/%d check bytes were overwritten at the end of %8x", ec, CHECKSIZE, buffer  );
 // Warning( "MEM: %d blocks were left allocated!", numleft );
 
-#include <conf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -160,7 +168,6 @@ void PrintInfo( int id )
 
 void * mem_malloc( unsigned int size, char * var, char * filename, int line, int fill_zero )
 {
-	void *base;
 	int i, id;
 	void *ptr;
 	char * pc;
@@ -230,9 +237,7 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 		Error( "MEM_OUT_OF_MEMORY" );
 	}
 
-	base = (void *)ptr;
-
-	MallocBase[id] = (void *)ptr;
+	MallocBase[id] = ptr;
 	MallocSize[id] = size;
 	Varname[id] = var;
 	Filename[id] = filename;

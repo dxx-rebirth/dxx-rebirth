@@ -29,8 +29,6 @@ extern fix read_fix(CFILE *fp);
 // versions which swap bytes
 #define read_byte_swap(fp) read_byte(fp)
 extern short read_short_swap(CFILE *fp);
-extern int read_int_swap(CFILE *fp);
-extern fix read_fix_swap(CFILE *fp);
 
 // routines which write basic data types
 extern int write_byte(FILE *fp, byte b);
