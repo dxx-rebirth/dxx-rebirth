@@ -1,8 +1,8 @@
 2004-05-31  Bradley Bell  <btb@icculus.org>
 
-	* d2x-Info.plist, d2xgl-Info.plist, arch/cocoa/SDLMain.h,
-	arch/cocoa/SDLMain.m, d2x.xcode/project.pbxproj: added XCode
-	project files
+	* English.lproj/InfoPlist.strings, d2x-Info.plist,
+	d2xgl-Info.plist, arch/cocoa/SDLMain.h, arch/cocoa/SDLMain.m,
+	d2x.xcode/project.pbxproj: added XCode project files
 
 2004-05-22  Bradley Bell  <btb@icculus.org>
 
