@@ -1,3 +1,8 @@
+2003-11-07  Bradley Bell  <btb@icculus.org>
+
+	* arch/ogl/ogl.c: disable texture format verification for OS X -
+	Textures work fine!
+
 2003-11-06  Bradley Bell  <btb@icculus.org>
 
 	* main/automap.c, main/gamecntl.c, main/movie.c, main/titles.c:
