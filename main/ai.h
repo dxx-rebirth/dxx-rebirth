@@ -1,4 +1,4 @@
-/* $Id: ai.h,v 1.4 2003-03-14 21:28:29 btb Exp $ */
+/* $Id: ai.h,v 1.5 2003-03-27 01:23:18 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -441,8 +441,6 @@ extern void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to
 extern void move_away_from_player(object *objp, vms_vector *vec_to_player, int attack_type);
 extern void move_towards_vector(object *objp, vms_vector *vec_goal, int dot_based);
 extern void init_ai_frame(void);
-extern void detect_escort_goal_accomplished(int index);
-extern void set_escort_special_goal(int key);
 
 extern void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs);
 extern void init_thief_for_level();

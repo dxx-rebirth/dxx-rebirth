@@ -1,3 +1,9 @@
+2003-03-26  Bradley Bell  <btb@icculus.org>
+
+	* main/ai.h, main/collide.c, main/escort.c, main/escort.h,
+	main/fuelcen.c, main/gamecntl.c, main/playsave.c, main/powerup.c:
+	added escort.h header
+
 2003-03-25  Bradley Bell  <btb@icculus.org>
 
 	* main/bm.c, main/piggy.c, main/piggy.h, main/gameseq.c: added

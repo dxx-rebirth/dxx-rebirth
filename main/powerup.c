@@ -49,7 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 
 #include "newdemo.h"
-#include "ai.h"
+#include "escort.h"
 
 #ifdef EDITOR
 #include "gr.h"	//	for powerup outline drawing

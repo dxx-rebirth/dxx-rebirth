@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: fuelcen.c,v 1.5 2002-08-06 01:31:07 btb Exp $";
+static char rcsid[] = "$Id: fuelcen.c,v 1.6 2003-03-27 01:23:18 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -52,6 +52,7 @@ static char rcsid[] = "$Id: fuelcen.c,v 1.5 2002-08-06 01:31:07 btb Exp $";
 #include "multi.h"
 #endif
 #include "multibot.h"
+#include "escort.h"
 
 // The max number of fuel stations per mine.
 

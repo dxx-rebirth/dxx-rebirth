@@ -1,4 +1,4 @@
-/* $Id: escort.c,v 1.4 2002-08-02 10:57:12 btb Exp $ */
+/* $Id: escort.c,v 1.5 2003-03-27 01:23:18 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -53,6 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "laser.h"
 #include "pa_enabl.h"
+#include "escort.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -104,8 +105,6 @@ int	Last_buddy_key;
 
 fix	Last_buddy_message_time;
 
-//if change this length, change in playsave.c also
-#define GUIDEBOT_NAME_LEN 9
 char guidebot_name[GUIDEBOT_NAME_LEN+1] = "GUIDE-BOT";
 char real_guidebot_name[GUIDEBOT_NAME_LEN+1] = "GUIDE-BOT";
 
