@@ -445,6 +445,7 @@ void do_option ( int select)
 
 #ifdef NETWORK
 		case MENU_START_IPX_NETGAME:
+		case MENU_START_TCP_NETGAME:
 			load_mission(Builtin_mission_num);
 			#ifdef MACINTOSH
 			Network_game_type = IPX_GAME;
@@ -454,6 +455,7 @@ void do_option ( int select)
 			break;
 
 		case MENU_JOIN_IPX_NETGAME:
+		case MENU_JOIN_TCP_NETGAME:
 			load_mission(Builtin_mission_num);
 			#ifdef MACINTOSH
 			Network_game_type = IPX_GAME;
@@ -479,13 +481,13 @@ void do_option ( int select)
 			network_join_game();
 			break;
 #endif
-		
+#if 0
 		case MENU_START_TCP_NETGAME:
 		case MENU_JOIN_TCP_NETGAME:
 			nm_messagebox (TXT_SORRY,1,TXT_OK,"Not available in shareware version!");
 			// DoNewIPAddress();
 			break;
-                  
+#endif
 		case MENU_START_SERIAL:
 			com_main_menu();
 			break;
@@ -800,7 +802,7 @@ void set_display_mode(int mode)
 		return;								//...don't change
 
 	#if !defined(MACINTOSH) && !defined(WINDOWS)
-	if (mode >= 5 && !FindArg("-superhires"))
+	if (0) // (mode >= 5 && !FindArg("-superhires"))
 		mode = 4;
 	#endif
 
@@ -949,7 +951,7 @@ void do_screen_res_menu()
 	m[5].type=NM_TYPE_RADIO; m[5].value=0; m[5].group=0; m[5].text=" 640x400";
 	m[6].type=NM_TYPE_RADIO; m[6].value=0; m[6].group=0; m[6].text=" 800x600";
 	n_items = 7;
-	if (FindArg("-superhires")) {
+	if (1) { //(FindArg("-superhires")) {
 		m[7].type=NM_TYPE_RADIO; m[7].value=0; m[7].group=0; m[7].text=" 1024x768";
 		m[8].type=NM_TYPE_RADIO; m[8].value=0; m[8].group=0; m[8].text=" 1280x1024";
 		n_items += 2;
@@ -1519,10 +1521,13 @@ void do_multi_player_menu()
 		old_game_mode = Game_mode;
 		num_options = 0;
 
-		ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_IPX_NETGAME, -1 );
-		ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_IPX_NETGAME, -1 );
-		//ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_TCP_NETGAME, -1 );
-		//ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_JOIN_TCP_NETGAME, -1 );
+		if (!FindArg("-udp")) {
+			ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_IPX_NETGAME, -1 );
+			ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_IPX_NETGAME, -1 );
+		} else {
+			ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_TCP_NETGAME, -1 );
+			ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_JOIN_TCP_NETGAME, -1 );
+		}
 
         #ifdef MACINTOSH
 		ADD_ITEM("Start Appletalk Netgame", MENU_START_APPLETALK_NETGAME, -1 );
