@@ -1,4 +1,4 @@
-/* $Id: 2dsline.c,v 1.8 2002-09-07 07:14:22 btb Exp $ */
+/* $Id: 2dsline.c,v 1.9 2002-10-12 03:09:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -239,9 +239,6 @@ void gr_uscanline( int x1, int x2, int y )
 			gr_linear15_stosd( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), COLOR, x2-x1+1);
 			break;
 #endif
-		default:
-			Error("Bad BM_TYPE!\n");
-			break;
 		}
 	} else {
 		switch(TYPE)
@@ -287,9 +284,6 @@ void gr_uscanline( int x1, int x2, int y )
 			gr_linear15_darken( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
 			break;
 #endif
-		default:
-			Error("Bad BM_TYPE!\n");
-			break;
 		}
 	}
 }
@@ -310,6 +304,9 @@ void gr_scanline( int x1, int x2, int y )
 		switch(TYPE)
 		{
 		case BM_LINEAR:
+#ifdef OGL
+		case BM_OGL:
+#endif
 			gr_linear_stosd( DATA + ROWSIZE*y + x1, (unsigned char)COLOR, x2-x1+1);
 			break;
 #ifdef __MSDOS__
@@ -325,14 +322,14 @@ void gr_scanline( int x1, int x2, int y )
 			gr_linear15_stosd( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), COLOR, x2-x1+1);
 			break;
 #endif
-		default:
-			Error("Bad BM_TYPE!\n");
-			break;
 		}
 	} else {
 		switch(TYPE)
 		{
 		case BM_LINEAR:
+#ifdef OGL
+		case BM_OGL:
+#endif
 			gr_linear_darken( DATA + ROWSIZE*y + x1, Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
 			break;
 #ifdef __MSDOS__
@@ -370,9 +367,6 @@ void gr_scanline( int x1, int x2, int y )
 			gr_linear15_darken( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
 			break;
 #endif
-		default:
-			Error("Bad BM_TYPE!\n");
-			break;
 		}
 	}
 }
