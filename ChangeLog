@@ -1,3 +1,7 @@
+2003-03-19  Bradley Bell  <btb@icculus.org>
+
+	* README: added some OS X info
+
 2003-03-17  Bradley Bell  <btb@icculus.org>
 
 	* main/newdemo.c: simplify DEMO_FILENAME macro

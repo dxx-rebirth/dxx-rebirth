@@ -122,6 +122,25 @@ Known bugs/issues:
 * Sound support missing.
 
 
+MAC OS X
+========
+
+Install the latest version of apple's developer tools.
+You may also need to install automake and autoconf.
+Download and install SDL.
+
+configure and compile as with other unices.
+
+The final linking will probably fail (because of circular
+dependencies, I think) Until I fix it or find a better workaround,
+I've just been linking by hand (i.e. gcc [...] -o d2x-sdl `find
+. -name "*.o"` [...])
+
+Known bugs/issues:
+* Serial and network support missing
+* GL version very buggy
+
+
 Bugs/feedback:
 ==============
 
