@@ -26,7 +26,7 @@ export __GL_SYNC_TO_VBLANK="1"
 export __GL_FSAA_MODE="3"
 #
 # Note: this is *mandatory* with single-threaded applications
-# like d2x-ogl on systems equipped with NVidia cards and an old
+# like d2x-gl on systems equipped with NVidia cards and an old
 # version of ld.so.
 #   (see /usr/share/doc/NVIDIA_GLX-1.0/README)
 #
@@ -35,7 +35,7 @@ export __GL_SINGLE_THREADED="1"
 # Finally, run the real game.
 # All switches can be overwritten by command-line arguments.
 #
-nice /usr/games/d2x-ogl.real -tmap fp -nocdrom -nomovies \
+nice /usr/games/d2x-gl.real -tmap fp -nocdrom -nomovies \
 	-gl_mipmap -gl_alttexmerge -gl_reticle 2 \
 	-nofades \
 	$1 $2 $3 $4 $5
