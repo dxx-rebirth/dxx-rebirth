@@ -1,3 +1,8 @@
+2003-04-07  Bradley Bell  <btb@icculus.org>
+
+	* main/inferno.c: print some useful info if hog not found, allow
+	-help to work if no text available
+
 2003-04-07  Steffen Pohle <stpohle@gmx.net>
 
 	* arch/linux/Makefile.am: revert to previous version, so linux

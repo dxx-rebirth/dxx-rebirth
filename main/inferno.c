@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.59 2003-03-31 19:52:02 btb Exp $ */
+/* $Id: inferno.c,v 1.60 2003-04-07 23:29:28 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -870,29 +870,34 @@ void print_commandline_help()
 	if (!ifile) {
 		ifile = cfopen("help.txb","rb");
 		if (!ifile)
-			Error("Cannot load help text file.");
+			Warning("Cannot load help text file.");
 		have_binary = 1;
 	}
 
-	while (cfgets(line,LINE_LEN,ifile)) {
+	if (ifile)
+	{
 
-		if (have_binary) {
-			int i;
-			for (i = 0; i < strlen(line) - 1; i++) {
-				encode_rotate_left(&(line[i]));
-				line[i] = line[i] ^ BITMAP_TBL_XOR;
-				encode_rotate_left(&(line[i]));
+		while (cfgets(line,LINE_LEN,ifile)) {
+
+			if (have_binary) {
+				int i;
+				for (i = 0; i < strlen(line) - 1; i++) {
+					encode_rotate_left(&(line[i]));
+					line[i] = line[i] ^ BITMAP_TBL_XOR;
+					encode_rotate_left(&(line[i]));
+				}
 			}
+
+			if (line[0] == ';')
+				continue;		//don't show comments
+
+			printf("%s",line);
+
 		}
 
-		if (line[0] == ';')
-			continue;		//don't show comments
-
-		printf("%s",line);
+		cfclose(ifile);
 
 	}
-
-	cfclose(ifile);
 
 //	printf( " Diagnostic:\n\n");
 //	printf( "  -emul           %s\n", "Certain video cards need this option in order to run game");
@@ -1219,7 +1224,14 @@ int main(int argc,char **argv)
 
 	if (! cfile_init("descent2.hog"))
 		if (! cfile_init("d2demo.hog"))
-			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)");
+			Warning("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
+#ifdef __unix__
+			      "\t$HOME/.d2x\n"
+			      "\t" SHAREPATH "\n"
+#else
+				  "\tCurrent directory\n"
+#endif
+				  "Or use the -hogdir option to specify an alternate location.");
 	load_text();
 
 	//print out the banner title
