@@ -1,4 +1,4 @@
-/* $Id: strutil.c,v 1.12 2004-12-03 18:39:20 schaffner Exp $ */
+/* $Id: strutil.c,v 1.13 2004-12-17 14:02:54 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -25,6 +25,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 
 #ifdef macintosh
+# if defined(NDEBUG)
+char *strdup(const char *str)
+{
+	char *newstr;
+
+	newstr = malloc(strlen(str) + 1);
+	strcpy(newstr, str);
+
+	return newstr;
+}
+# endif // NDEBUG
+
 // string compare without regard to case
 
 int stricmp( const char *s1, const char *s2 )
