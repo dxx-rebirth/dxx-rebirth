@@ -56,8 +56,10 @@ typedef unsigned short u_int16_t;
 
 #endif
 
+#ifndef __cplusplus
 //define a boolean
 typedef ubyte bool;
+#endif
 
 #ifndef NULL
 #define NULL 0
