@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.9 2001-10-18 23:59:22 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.10 2001-10-24 09:30:02 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -72,7 +72,7 @@ static char rcsid[] = "$Id: kconfig.c,v 1.9 2001-10-18 23:59:22 bradleyb Exp $";
 #include "collide.h"
 
 #ifdef __linux__
-#include "linux_joystick.h"
+#include "joystick.h"
 #endif
 
 ubyte ExtGameStatus=1;

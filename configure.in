@@ -75,17 +75,11 @@ if test "$host_os" = "msdosdjgpp"; then
 
   CFLAGS="-I \$(top_srcdir)/arch/dos/include $CFLAGS"
   AC_PATH_PROG(NASM, nasm, no)
+  TARGETS=d2x
   D2X_ARCH_SUBDIRS=dos
 else
 
   CFLAGS="-pipe $CFLAGS"
-
-  D2X_ARCH_SUBDIRS=sdl
-  if test x$MINGW32 = xyes; then
-    D2X_ARCH_SUBDIRS="win32 ${D2X_ARCH_SUBDIRS}"
-  else
-    D2X_ARCH_SUBDIRS="linux ${D2X_ARCH_SUBDIRS}"
-  fi
 
   dnl Check for SDL
   AM_PATH_SDL(1.1.7,
@@ -95,6 +89,9 @@ else
   AC_SUBST(SDL_LIBS)
 
   CFLAGS="$SDL_CFLAGS $CFLAGS"
+
+  TARGETS=d2x-sdl
+  D2X_ARCH_SUBDIRS=sdl
 
   AC_CHECK_HEADERS(netipx/ipx.h)
 
@@ -111,6 +108,7 @@ else
 	)
     done
     AC_DEFINE(OGL)
+    TARGETS=d2x-ogl
   fi
   AC_SUBST(OGL_LIBS)
   AM_CONDITIONAL(USE_OPENGL, test x$with_opengl = xyes)
@@ -126,9 +124,11 @@ else
       GGI_LIBS="${GGI_LIBS} -lgii",
       [AC_MSG_ERROR([GII not found, GGI version cannot be built]); ggi=false])
     AC_DEFINE(GGI)
+    TARGETS=d2x-ggi
+    D2X_ARCH_SUBDIRS = "${D2X_ARCH_SUBDIRS} ggi"
   fi
   AC_SUBST(GGI_LIBS)
-  AM_CONDITIONAL(USE_GGI, test x$with_ggi = xtrue)
+  AM_CONDITIONAL(USE_GGI, test x$with_ggi = xyes)
 
   # Check for SVGALib
   AC_ARG_WITH(svga,
@@ -145,9 +145,18 @@ else
        svga=false],
        -lvga)
     AC_DEFINE(SVGA)
+    TARGETS=d2x-svga
+    D2X_ARCH_SUBDIRS = "${D2X_ARCH_SUBDIRS} svgalib"
   fi
   AC_SUBST(SVGA_LIBS)
   AM_CONDITIONAL(USE_SVGALIB, test x$with_svga = yes)
+
+  if test x$MINGW32 = xyes; then
+    D2X_ARCH_SUBDIRS="${D2X_ARCH_SUBDIRS} win32"
+  else
+    CFLAGS="-I \$(top_srcdir)/arch/linux/include $CFLAGS"
+    D2X_ARCH_SUBDIRS="${D2X_ARCH_SUBDIRS} linux"
+  fi
 
   AC_PATH_PROG(NASM, $NASM_PROG, no)
 fi
@@ -189,6 +198,8 @@ AM_CONDITIONAL(USE_ASM, test x$enable_assembler != xno)
 
 AC_SUBST(D2X_ARCH_SUBDIRS)
 
+AC_SUBST(TARGETS)
+
 AC_SUBST(NASMFLAGS)
 
 AC_SUBST(CFLAGS)
@@ -199,12 +210,13 @@ Makefile
 3d/Makefile
 arch/Makefile
 arch/dos/Makefile
+arch/ggi/Makefile
 arch/linux/Makefile
 arch/sdl/Makefile
+arch/svgalib/Makefile
 arch/win32/Makefile
 cfile/Makefile
 iff/Makefile
-input/Makefile
 main/Makefile
 maths/Makefile
 mem/Makefile
