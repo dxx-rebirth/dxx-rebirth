@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.14 2002-08-08 09:10:28 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.15 2002-08-15 07:17:39 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1363,13 +1363,13 @@ extern void	set_ambient_sound_flags(void);
 
 // ----------------------------------------------------------------------------
 
-#define LEVEL_FILE_VERSION		8
+#define LEVEL_FILE_VERSION      8
 //1 -> 2  add palette name
 //2 -> 3  add control center explosion time
 //3 -> 4  add reactor strength
 //4 -> 5  killed hostage text stuff
 //5 -> 6  added Secret_return_segment and Secret_return_orient
-//6 -> 7	 added flickering lights
+//6 -> 7  added flickering lights
 //7 -> 8  made version 8 to be not compatible with D2 1.0 & 1.1
 
 #ifndef RELEASE
@@ -1488,7 +1488,7 @@ int load_level(char * filename_passed)
 			Current_level_palette[strlen(Current_level_palette)-1] = 0;
 	}
 	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
-		strcpy(Current_level_palette,"groupa.256");
+		strcpy(Current_level_palette, DEFAULT_LEVEL_PALETTE);
 
 	if (Gamesave_current_version >= 3)
 		Base_control_center_explosion_time = cfile_read_int(LoadFile);

@@ -1,4 +1,4 @@
-/* $Id: palette.c,v 1.4 2002-08-09 00:48:57 btb Exp $ */
+/* $Id: palette.c,v 1.5 2002-08-15 07:17:39 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -34,6 +34,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //added/remove by dph on 1/9/99
 //#include "key.h"
 //end remove
+
+#include "palette.h"
 
 extern int gr_installed;
 
@@ -74,8 +76,19 @@ void gr_use_palette_table( char * filename )
 	int i,fsize;
 
 	fp = cfopen( filename, "rb" );
+
+	// the following is a hack to enable the loading of d2 levels
+	// even if only the d2 mac shareware datafiles are present.
+	// However, if the pig file is present but the palette file isn't,
+	// the textures in the level will look wierd...
 	if ( fp==NULL)
-		Error("Can't open palette file <%s>",filename);
+		fp = cfopen( DEFAULT_LEVEL_PALETTE, "rb" );
+	if ( fp==NULL)
+		Error("Can open neither palette file <%s> "
+		      "nor default palette file <"
+		      DEFAULT_LEVEL_PALETTE
+		      ">.\n",
+		      filename);
 
 	fsize	= cfilelength( fp );
 	Assert( fsize == 9472 );
