@@ -1,5 +1,7 @@
 2003-05-12  Bradley Bell  <btb@icculus.org>
 
+	* main/bm.c: use con_printf for exit model warnings
+
 	* configure.ac: must check for timespec after setting -mno-cygwin
 
 	* main/inferno.c: added -nohogdir and -userdir options

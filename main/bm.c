@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.31 2003-03-29 22:34:59 btb Exp $ */
+/* $Id: bm.c,v 1.32 2003-05-13 01:13:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -669,7 +669,7 @@ int load_exit_models()
 		!bm_load_extra_objbitmap("rbot061.bbm") ||
 		!bm_load_extra_objbitmap("rbot063.bbm"))
 	{
-		Warning("Can't load exit models!\n");
+		con_printf(CON_NORMAL, "Can't load exit models!\n");
 		return 0;
 	}
 
@@ -719,7 +719,7 @@ int load_exit_models()
 		case D1_OEM_PIGSIZE:
 		case D1_MAC_PIGSIZE:
 		case D1_MAC_SHARE_PIGSIZE:
-			Warning("Can't load exit models!\n");
+			con_printf(CON_NORMAL, "Can't load exit models!\n");
 			return 0;
 			break;
 		}
@@ -737,7 +737,7 @@ int load_exit_models()
 
 		cfclose(exit_hamfile);
 	} else {
-		Warning("Can't load exit models!\n");
+		con_printf(CON_NORMAL, "Can't load exit models!\n");
 		return 0;
 	}
 
