@@ -1,5 +1,7 @@
 2004-05-18  Bradley Bell  <btb@icculus.org>
 
+	* arch/ogl/ogl.c: fix ogl gr_ucircle (d1x r1.29)
+
 	* arch/ogl/gr.c: fix off-by-one error in ogl_urect, right and
 	bottom are inclusive not exclusive (d1x r1.28)
 
