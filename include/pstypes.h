@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.25 2003-12-08 22:32:56 btb Exp $ */
+/* $Id: pstypes.h,v 1.26 2004-01-06 17:59:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -42,15 +42,17 @@ typedef unsigned short ushort;
 typedef unsigned int uint;
 #endif
 
-#ifndef __unix__
+#if ! defined(__unix__) || defined(__sun__) // platforms missing u_int??_t
 #include <SDL_types.h>
+#ifndef __unix__ // platforms missing int??_t
 typedef Sint16 int16_t;
 typedef Sint32 int32_t;
 typedef Sint64 int64_t;
+#endif // !defined(__unix__)
 typedef Uint16 u_int16_t;
 typedef Uint32 u_int32_t;
 typedef Uint64 u_int64_t;
-#endif
+#endif // ! defined(__unix__) || defined(__sun__)
 
 #ifdef _MSC_VER
 # include <stdlib.h> // this is where min and max are defined
