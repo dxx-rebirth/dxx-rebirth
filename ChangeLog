@@ -2,6 +2,8 @@
 
 	* include/u_mem.h: prototype for strdup with MPW
 
+	* main/laser.c: abort weapon fire if unable to create object
+
 2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/state.c: open autosave file for writing, not reading

@@ -1,4 +1,4 @@
-/* $Id: laser.c,v 1.12 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: laser.c,v 1.13 2004-12-19 09:52:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char laser_rcsid[] = "$Id: laser.c,v 1.12 2004-08-28 23:17:45 schaffner Exp $";
+char laser_rcsid[] = "$Id: laser.c,v 1.13 2004-12-19 09:52:59 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -278,7 +278,9 @@ int create_weapon_object(int weapon_type,int segnum,vms_vector *position)
 	Assert(rtype != -1);
 
 	objnum = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
-
+	if (objnum == -1)
+		return -1;
+	
 	obj = &Objects[objnum];
 
 	if (Weapon_info[weapon_type].render_type == WEAPON_RENDER_POLYMODEL) {
