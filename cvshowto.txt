@@ -10,14 +10,11 @@ A quick howto on accessing the d2x source with CVS.
 
 1) cd <your source dir>
 
-1.5) cvs -d ":pserver:<username>@shelob.classrooms.washington.edu:/var/cvs" login
-  Unless you already know your username and password, you want
-  "anonymous" for the username, and "readonly" for the password.
+2) cvs -d :pserver:anonymous@cvs.icculus.org:/cvs/cvsroot" login
+   (password is "anonymous")
+   cvs -z3 -d :pserver:anonymous@cvs.icculus.org:/cvs/cvsroot" co d2x
 
-2) cvs -d ":pserver:<username>@shelob.classrooms.washington.edu:/var/cvs" checkout d2x
   This will retrieve the source into <current dir>/d2x
-  (you may wish to look into the -z flag, ex "-z3" to compress the code for
-  faster transmission)
   (note that this should only be done once.  After you already have the code,
   merely do a "cvs update -PAd" from the d2x dir to update to the latest code)
 
@@ -29,7 +26,7 @@ A quick howto on accessing the d2x source with CVS.
 
 5) If you have readonly access:
   If you have only modified existing files, this should generate a usable diff:
-  cvs -q diff -uRN . > mychanges.patch 
+  cvs -q diff -uRN . > mychanges.patch
   (hopefully you would use a more useful name, and remember to examine the
   result first, to make sure its ok.)
   If you have added files or directories, this won't be as useful since you
