@@ -1,3 +1,7 @@
+2004-11-14  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* arch/ogl/ogl.c: make Mac OS 9 Voodoo display textures
+
 2004-10-30  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* main/gamemine.c, main/piggy.c: read descent 1 textures also from

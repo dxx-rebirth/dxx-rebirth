@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.35 2004-08-06 20:36:02 schaffner Exp $ */
+/* $Id: gr.c,v 1.36 2004-11-14 09:34:23 schaffner Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -224,6 +224,11 @@ void ogl_get_verinfo(void)
 		//  orulz (Matrox G200)
 		ogl_intensity4_ok=0;
 	}
+#ifdef macintosh
+	if (stricmp(gl_renderer,"3dfx Voodoo 3")==0){ // strangely, includes Voodoo 2
+		ogl_gettexlevelparam_ok=0; // Always returns 0
+	}
+#endif
 
 	//allow overriding of stuff.
 #ifdef GL_ARB_multitexture
