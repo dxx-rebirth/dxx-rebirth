@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.13 2004-05-08 18:56:04 schaffner Exp $ */
+/* $Id: digi.c,v 1.14 2004-05-13 12:31:34 schaffner Exp $ */
 /*
  *
  * SDL digital audio support
@@ -169,16 +169,16 @@ int digi_lomem = 0;
 static int digi_initialised = 0;
 
 struct sound_slot {
- int soundno;
- int playing;   // Is there a sample playing on this channel?
- int looped;    // Play this sample looped?
- fix pan;       // 0 = far left, 1 = far right
- fix volume;    // 0 = nothing, 1 = fully on
- //changed on 980905 by adb from char * to unsigned char * 
- unsigned char *samples;
- //end changes by adb
- unsigned int length; // Length of the sample
- unsigned int position; // Position we are at at the moment.
+	int soundno;
+	int playing;   // Is there a sample playing on this channel?
+	int looped;    // Play this sample looped?
+	fix pan;       // 0 = far left, 1 = far right
+	fix volume;    // 0 = nothing, 1 = fully on
+	//changed on 980905 by adb from char * to unsigned char * 
+	unsigned char *samples;
+	//end changes by adb
+	unsigned int length; // Length of the sample
+	unsigned int position; // Position we are at at the moment.
 } SoundSlots[MAX_SOUND_SLOTS];
 
 static SDL_AudioSpec WaveSpec;
@@ -197,86 +197,78 @@ void digi_reset_digi_sounds(void);
 //changed on 980905 by adb to cleanup, add pan support and optimize mixer
 static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 {
- Uint8 *streamend = stream + len;
- struct sound_slot *sl;
+	Uint8 *streamend = stream + len;
+	struct sound_slot *sl;
 
- memset(stream, 0x80, len); // fix "static" sound bug on Mac OS X
+	memset(stream, 0x80, len); // fix "static" sound bug on Mac OS X
 
- for (sl = SoundSlots; sl < SoundSlots + MAX_SOUND_SLOTS; sl++)
- {
-  if (sl->playing)
-  {
-   Uint8 *sldata = sl->samples + sl->position, *slend = sl->samples + sl->length;
-   Uint8 *sp = stream, s;
-   signed char v;
-   fix vl, vr;
-   int x;
+	for (sl = SoundSlots; sl < SoundSlots + MAX_SOUND_SLOTS; sl++) {
+		if (sl->playing) {
+			Uint8 *sldata = sl->samples + sl->position, *slend = sl->samples + sl->length;
+			Uint8 *sp = stream, s;
+			signed char v;
+			fix vl, vr;
+			int x;
 
-   if ((x = sl->pan) & 0x8000)
-   {
-    vl = 0x20000 - x * 2;
-    vr = 0x10000;
-   }
-   else
-   {
-    vl = 0x10000;
-    vr = x * 2;
-   }
-   vl = fixmul(vl, (x = sl->volume));
-   vr = fixmul(vr, x);
-   while (sp < streamend) 
-   {
-    if (sldata == slend)
-    {
-     if (!sl->looped)
-     {
-      sl->playing = 0;
-      break;
-     }
-     sldata = sl->samples;
-    }
-    v = *(sldata++) - 0x80;
-    s = *sp;
-    *(sp++) = mix8[ s + fixmul(v, vl) + 0x80 ];
-    s = *sp;
-    *(sp++) = mix8[ s + fixmul(v, vr) + 0x80 ];
-   }
-   sl->position = sldata - sl->samples;
-  }
- }
+			if ((x = sl->pan) & 0x8000) {
+				vl = 0x20000 - x * 2;
+				vr = 0x10000;
+			} else {
+				vl = 0x10000;
+				vr = x * 2;
+			}
+			vl = fixmul(vl, (x = sl->volume));
+			vr = fixmul(vr, x);
+			while (sp < streamend) {
+				if (sldata == slend) {
+					if (!sl->looped) {
+						sl->playing = 0;
+						break;
+					}
+					sldata = sl->samples;
+				}
+				v = *(sldata++) - 0x80;
+				s = *sp;
+				*(sp++) = mix8[ s + fixmul(v, vl) + 0x80 ];
+				s = *sp;
+				*(sp++) = mix8[ s + fixmul(v, vr) + 0x80 ];
+			}
+			sl->position = sldata - sl->samples;
+		}
+	}
 }
 //end changes by adb
 
 /* Initialise audio devices. */
 int digi_init()
 {
- if (SDL_InitSubSystem(SDL_INIT_AUDIO)<0){
-    Error("SDL audio initialisation failed: %s.",SDL_GetError());
- }
- //added on 980905 by adb to init sound kill system
- memset(SampleHandles, 255, sizeof(SampleHandles));
- //end edit by adb
-
- WaveSpec.freq = digi_sample_rate;
-//added/changed by Sam Lantinga on 12/01/98 for new SDL version
- WaveSpec.format = AUDIO_U8;
- WaveSpec.channels = 2;
-//end this section addition/change - SL
- WaveSpec.samples = SOUND_BUFFER_SIZE;
- WaveSpec.callback = audio_mixcallback;
-
- if ( SDL_OpenAudio(&WaveSpec, NULL) < 0 ) {
-//edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
-	 Warning("\nError: Couldn't open audio: %s\n", SDL_GetError());
-//killed  exit(2);
-	 return 1;
-//end edit -MM
- }
- SDL_PauseAudio(0);
-
- atexit(digi_close);
- digi_initialised = 1;
- return 0;
+	if (SDL_InitSubSystem(SDL_INIT_AUDIO)<0) {
+		Error("SDL audio initialisation failed: %s.",SDL_GetError());
+	}
+	//added on 980905 by adb to init sound kill system
+	memset(SampleHandles, 255, sizeof(SampleHandles));
+	//end edit by adb
+	
+	WaveSpec.freq = digi_sample_rate;
+	//added/changed by Sam Lantinga on 12/01/98 for new SDL version
+	WaveSpec.format = AUDIO_U8;
+	WaveSpec.channels = 2;
+	//end this section addition/change - SL
+	WaveSpec.samples = SOUND_BUFFER_SIZE;
+	WaveSpec.callback = audio_mixcallback;
+	
+	if ( SDL_OpenAudio(&WaveSpec, NULL) < 0 ) {
+		//edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
+		Warning("\nError: Couldn't open audio: %s\n", SDL_GetError());
+		//killed  exit(2);
+		return 1;
+		//end edit -MM
+	}
+	SDL_PauseAudio(0);
+	
+	atexit(digi_close);
+	digi_initialised = 1;
+	return 0;
 }
 
 /* Toggle audio */
@@ -285,9 +277,9 @@ void digi_reset() { }
 /* Shut down audio */
 void digi_close()
 {
- if (!digi_initialised) return;
- digi_initialised = 0;
- SDL_CloseAudio();
+	if (!digi_initialised) return;
+	digi_initialised = 0;
+	SDL_CloseAudio();
 }
 
 /* Find the sound which actually equates to a sound number */
@@ -295,7 +287,7 @@ int digi_xlat_sound(int soundno)
 {
 	if ( soundno < 0 ) return -1;
 
-	if ( digi_lomem )	{
+	if ( digi_lomem ) {
 		soundno = AltSounds[soundno];
 		if ( soundno == 255 ) return -1;
 	}
@@ -306,112 +298,109 @@ int digi_xlat_sound(int soundno)
 
 static int get_free_slot()
 {
- int i;
- for (i=0; i<MAX_SOUND_SLOTS; i++)
- {
-  if (!SoundSlots[i].playing) return i;
- }
- return -1;
+	int i;
+	for (i=0; i<MAX_SOUND_SLOTS; i++) {
+		if (!SoundSlots[i].playing) return i;
+	}
+	return -1;
 }
 
 int digi_start_sound(int soundnum, fix volume, fix pan, int looping, int loop_start, int loop_end, int soundobj)
 {
- int ntries;
- int slot;
+	int ntries;
+	int slot;
 
- if (!digi_initialised) return -1;
+	if (!digi_initialised) return -1;
 
- if (soundnum < 0) return -1;
+	if (soundnum < 0) return -1;
 
- //added on 980905 by adb from original source to add sound kill system
- // play at most digi_max_channel samples, if possible kill sample with low volume
- ntries = 0;
+	//added on 980905 by adb from original source to add sound kill system
+	// play at most digi_max_channel samples, if possible kill sample with low volume
+	ntries = 0;
 
 TryNextChannel:
- if ( (SampleHandles[next_handle] >= 0) && (SoundSlots[SampleHandles[next_handle]].playing)  )
- {
-  if ( (SoundSlots[SampleHandles[next_handle]].volume > digi_volume) && (ntries<digi_max_channels) )
-  {
-   //mprintf(( 0, "Not stopping loud sound %d.\n", next_handle ));
-   next_handle++;
-   if ( next_handle >= digi_max_channels )
-    next_handle = 0;
-   ntries++;
-   goto TryNextChannel;
-  }
-  //mprintf(( 0, "[SS:%d]", next_handle ));
-  SoundSlots[SampleHandles[next_handle]].playing = 0;
-  SampleHandles[next_handle] = -1;
- }
- //end edit by adb
+	if ( (SampleHandles[next_handle] >= 0) && (SoundSlots[SampleHandles[next_handle]].playing)  ) {
+		if ( (SoundSlots[SampleHandles[next_handle]].volume > digi_volume) && (ntries<digi_max_channels) ) {
+			//mprintf(( 0, "Not stopping loud sound %d.\n", next_handle ));
+			next_handle++;
+			if ( next_handle >= digi_max_channels )
+				next_handle = 0;
+			ntries++;
+			goto TryNextChannel;
+		}
+		//mprintf(( 0, "[SS:%d]", next_handle ));
+		SoundSlots[SampleHandles[next_handle]].playing = 0;
+		SampleHandles[next_handle] = -1;
+	}
+	//end edit by adb
 
- slot = get_free_slot();
- if (slot<0) return -1;
+	slot = get_free_slot();
+	if (slot<0) return -1;
 
- SoundSlots[slot].soundno = soundnum;
- SoundSlots[slot].samples = GameSounds[soundnum].data;
- SoundSlots[slot].length = GameSounds[soundnum].length;
- SoundSlots[slot].volume = fixmul(digi_volume, volume);
- SoundSlots[slot].pan = pan;
- SoundSlots[slot].position = 0;
- SoundSlots[slot].looped = looping;
- SoundSlots[slot].playing = 1;
+	SoundSlots[slot].soundno = soundnum;
+	SoundSlots[slot].samples = GameSounds[soundnum].data;
+	SoundSlots[slot].length = GameSounds[soundnum].length;
+	SoundSlots[slot].volume = fixmul(digi_volume, volume);
+	SoundSlots[slot].pan = pan;
+	SoundSlots[slot].position = 0;
+	SoundSlots[slot].looped = looping;
+	SoundSlots[slot].playing = 1;
 
- //added on 980905 by adb to add sound kill system from original sos digi.c
- reset_sounds_on_channel(slot);
- SampleHandles[next_handle] = slot;
- next_handle++;
- if ( next_handle >= digi_max_channels )
-  next_handle = 0;
- //end edit by adb
+	//added on 980905 by adb to add sound kill system from original sos digi.c
+	reset_sounds_on_channel(slot);
+	SampleHandles[next_handle] = slot;
+	next_handle++;
+	if ( next_handle >= digi_max_channels )
+		next_handle = 0;
+	//end edit by adb
 
- return slot;
+	return slot;
 }
 
  //added on 980905 by adb to add sound kill system from original sos digi.c
 void reset_sounds_on_channel( int channel )
 {
- int i;
+	int i;
 
- for (i=0; i<digi_max_channels; i++)
-  if (SampleHandles[i] == channel)
-   SampleHandles[i] = -1;
+	for (i=0; i<digi_max_channels; i++)
+		if (SampleHandles[i] == channel)
+			SampleHandles[i] = -1;
 }
 //end edit by adb
 
 int digi_start_sound_object(int obj)
 {
- int slot;
+	int slot;
 
- if (!digi_initialised) return -1;
- slot = get_free_slot();
+	if (!digi_initialised) return -1;
+	slot = get_free_slot();
 
- if (slot<0) return -1;
+	if (slot<0) return -1;
 
 #if 0
- // only use up to half the sound channels for "permanant" sounts
- if ((SoundObjects[i].flags & SOF_PERMANANT) && (N_active_sound_objects >= max(1,digi_get_max_channels()/4)) )
-	 return -1;
+	// only use up to half the sound channels for "permanant" sounts
+	if ((SoundObjects[i].flags & SOF_PERMANANT) && (N_active_sound_objects >= max(1,digi_get_max_channels()/4)) )
+		return -1;
 #endif
 
- SoundSlots[slot].soundno = SoundObjects[obj].soundnum;
- SoundSlots[slot].samples = GameSounds[SoundObjects[obj].soundnum].data;
- SoundSlots[slot].length = GameSounds[SoundObjects[obj].soundnum].length;
- SoundSlots[slot].volume = fixmul(digi_volume, SoundObjects[obj].volume);
- SoundSlots[slot].pan = SoundObjects[obj].pan;
- SoundSlots[slot].position = 0;
- SoundSlots[slot].looped = (SoundObjects[obj].flags & SOF_PLAY_FOREVER);
- SoundSlots[slot].playing = 1;
+	SoundSlots[slot].soundno = SoundObjects[obj].soundnum;
+	SoundSlots[slot].samples = GameSounds[SoundObjects[obj].soundnum].data;
+	SoundSlots[slot].length = GameSounds[SoundObjects[obj].soundnum].length;
+	SoundSlots[slot].volume = fixmul(digi_volume, SoundObjects[obj].volume);
+	SoundSlots[slot].pan = SoundObjects[obj].pan;
+	SoundSlots[slot].position = 0;
+	SoundSlots[slot].looped = (SoundObjects[obj].flags & SOF_PLAY_FOREVER);
+	SoundSlots[slot].playing = 1;
 
- SoundObjects[obj].signature = next_signature++;
- SoundObjects[obj].handle = slot;
+	SoundObjects[obj].signature = next_signature++;
+	SoundObjects[obj].handle = slot;
 
- SoundObjects[obj].flags |= SOF_PLAYING;
- //added on 980905 by adb to add sound kill system from original sos digi.c
- reset_sounds_on_channel(slot);
- //end edit by adb
+	SoundObjects[obj].flags |= SOF_PLAYING;
+	//added on 980905 by adb to add sound kill system from original sos digi.c
+	reset_sounds_on_channel(slot);
+	//end edit by adb
  
- return 0;
+	return 0;
 }
 
 
@@ -575,8 +564,7 @@ int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix
 
 		SoundObjects[i].flags |= SOF_PERMANANT;
 		SoundObjects[i].handle =  -1;
-	}
-	else {
+	} else {
 		objp = &Objects[SoundObjects[i].lo_objnum];
 		digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, 
                        &objp->pos, objp->segnum, SoundObjects[i].max_volume,
@@ -662,8 +650,7 @@ int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_
 		SoundObjects[i].flags |= SOF_PERMANANT;
 
 		SoundObjects[i].handle =  -1;
-	}
-	else {
+	} else {
 
 		digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, 
 					   &SoundObjects[i].lp_position, SoundObjects[i].lp_segnum,
@@ -913,29 +900,29 @@ void digi_stop_sound(int channel)
 }
 
 void digi_reset_digi_sounds() {
- int i;
+	int i;
 
- for (i=0; i< MAX_SOUND_SLOTS; i++)
-  SoundSlots[i].playing=0;
+	for (i=0; i< MAX_SOUND_SLOTS; i++)
+		SoundSlots[i].playing=0;
  
- //added on 980905 by adb to reset sound kill system
- memset(SampleHandles, 255, sizeof(SampleHandles));
- next_handle = 0;
- //end edit by adb
+	//added on 980905 by adb to reset sound kill system
+	memset(SampleHandles, 255, sizeof(SampleHandles));
+	next_handle = 0;
+	//end edit by adb
 }
 
 
+#if 0 //added/killed on 11/25/98 by Matthew Mueller
 // MIDI stuff follows.
-//added/killed on 11/25/98 by Matthew Mueller
-//void digi_set_midi_volume( int mvolume ) { }
-//void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {}
-//void digi_stop_current_song()
-//{
-//#ifdef HMIPLAY
-//        char buf[10];
-//    
-//        sprintf(buf,"s");
-//        send_ipc(buf);
-//#endif
-//}
-//end this section kill - MM
+void digi_set_midi_volume( int mvolume ) { }
+void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {}
+void digi_stop_current_song()
+{
+#ifdef HMIPLAY
+        char buf[10];
+    
+        sprintf(buf,"s");
+        send_ipc(buf);
+#endif
+}
+#endif // end this section kill - MM
