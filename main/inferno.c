@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.51 2002-12-31 21:51:37 btb Exp $ */
+/* $Id: inferno.c,v 1.52 2003-01-01 00:56:24 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -938,6 +938,9 @@ void print_commandline_help()
 	printf( "  -ipxnetwork <num> %s\n","Use IPX network number <num>");
 	printf( "  -jasen          %s\n","FIXME: Undocumented");
 	printf( "  -joyslow        %s\n","FIXME: Undocumented");
+#ifdef NETWORK
+	printf( "  -kali           %s\n","use Kali for networking");
+#endif
 //	printf( "  -logfile        %s\n","FIXME: Undocumented");
 //	printf( "  -lowresmovies   %s\n","FIXME: Undocumented");
 #if defined(EDITOR) || !defined(MACDATA)

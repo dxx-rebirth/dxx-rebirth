@@ -1,6 +1,8 @@
+/* $Id: ukali.h,v 1.5 2003-01-01 00:56:24 btb Exp $ */
+
 /*
  *
- * FIXME: add description
+ * Header for kali support functions
  *
  */
 
@@ -56,7 +58,7 @@ typedef struct kaliaddr_ipx_tag {
 // Process name that shows up in /whois and /games list.
 // Maximum of 8 characters.
 //edited on 10/04/98 by Matt Mueller to show correct ver in kali
-#define KALI_PROCESS_NAME "D1X" D1XMAJOR D1XMINOR
+#define KALI_PROCESS_NAME "D2X" VERSION
 //end edit -MM
 #define MAX_PACKET_SIZE 1500
 

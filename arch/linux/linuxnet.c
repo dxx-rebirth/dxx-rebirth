@@ -1,3 +1,4 @@
+/* $Id: linuxnet.c,v 1.7 2003-01-01 00:56:24 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -104,13 +105,12 @@ ubyte * ipx_get_my_local_address()
 int ipx_init( int socket_number, int show_address )
 {
 	int i;
-	
-/* DPH: killed kali for now 
+
 	if (FindArg("-kali")) {
 		printf("Using Kali for network games\n");
 		driver = &ipx_kali;
 //added on 12/20/98 by Jan Kratochvil for direct TCP/IP games
-        } else*/ if (FindArg("-udp")) {
+	} else if (FindArg("-udp")) {
                 printf("Using native TCP/IP (UDP) for network games\n");
                 driver = &ipx_udp;
 //end this section addition - JK
