@@ -1,5 +1,8 @@
 2004-11-28  Bradley Bell  <btb@icculus.org>
 
+	* arch/sdl/digi.c, main/digi.h: original prototype in d2src is
+	wrong, I guess
+
 	* arch/sdl/digi.c, arch/win32/midi.c, main/Makefile.am,
 	main/digiobj.c, main/digi.h, main/kludge.c, main/old/digiobj.c:
 	ripped object stuff out of digi.c, now using digiobj.c. get rid of

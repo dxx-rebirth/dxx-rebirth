@@ -1,4 +1,4 @@
-/* $Id: digi.h,v 1.5 2004-11-29 05:25:58 btb Exp $ */
+/* $Id: digi.h,v 1.6 2004-11-29 06:09:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -109,7 +109,7 @@ extern void digi_stop_sound( int channel );
 extern int digi_find_channel(int soundno);
 
 // Volume 0-F1_0
-extern int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int persistent);
+extern int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj);
 
 // Stops all sounds that are playing
 void digi_stop_all_channels();

@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.18 2004-11-29 05:25:58 btb Exp $ */
+/* $Id: digi.c,v 1.19 2004-11-29 06:09:06 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -253,7 +253,7 @@ static int get_free_slot()
 	return -1;
 }
 
-int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int persistent)
+int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj)
 {
 	int ntries;
 	int slot;
