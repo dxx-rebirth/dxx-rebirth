@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.19 2003-02-19 03:09:38 btb Exp $ */
+/* $Id: movie.c,v 1.20 2003-02-24 07:03:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.19 2003-02-19 03:09:38 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.20 2003-02-24 07:03:47 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -313,6 +313,9 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 int InitMovieBriefing()
 {
+	if (!robot_movies)
+		return 0;
+
 	if (MenuHires)
 		gr_set_mode(SM(640,480));
 	else

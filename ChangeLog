@@ -1,5 +1,7 @@
 2003-02-23  Bradley Bell <btb@icculus.org>
 
+	* main/movie.c: fixed crash when using shareware data files
+	without -nohires
 	* arch/sdl/digi.c: fix crash on non-existent sounds
 	(i.e. shareware data)
 
