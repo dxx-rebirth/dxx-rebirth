@@ -1,4 +1,4 @@
-/* $Id: medwall.c,v 1.6 2005-01-25 19:34:50 schaffner Exp $ */
+/* $Id: medwall.c,v 1.7 2005-01-25 19:36:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: medwall.c,v 1.6 2005-01-25 19:34:50 schaffner Exp $";
+static char rcsid[] = "$Id: medwall.c,v 1.7 2005-01-25 19:36:27 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -47,7 +47,7 @@ static char rcsid[] = "$Id: medwall.c,v 1.6 2005-01-25 19:34:50 schaffner Exp $"
 #include "medrobot.h"
 #include "timer.h"
 #include "mono.h"
-//#include "fuelcen.h"
+#include "cntrlcen.h"
 #include "key.h"
 #include "ehostage.h"
 #include "centers.h"
