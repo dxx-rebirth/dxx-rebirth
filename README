@@ -2,7 +2,7 @@
 D2X
 ===========
 
-http://shelob.classrooms.washington.edu/d2x
+http://icculus.org/d2x
 
 Linux:
 ======
@@ -20,30 +20,27 @@ Build instructions:
 Install all of the components above. Next, from the d2x directory:
 
 ./configure
-(./configure --help will show you the available options)
-For OpenGL support, try configuring with --with-opengl. Your mileage may vary
-(but basically, you need an accelerated Mesa sitting somewhere where d2x can
- see it)... The OpenGL support isn't perfect, but it works...
+	./configure --help will show you the available options.
+	If you have a 3d graphics card, use --with-opengl
 
 make
+make install
 
-Hopefully d2x will build. Do not be concerned about warnings, they are fairly
-unimportant.
+see installation.txt for info on where to put your datafiles, etc.
 
 
 Known bugs/issues:
 * Serial support doesn't work. (UDP and IPX networking does)
-* Movies (unlikely ever to be supported)
 * Sound glitches (due to stuff I haven't implemented)
 * The mouse support is at the same level as it was in d1x (as in, it
   kind of works)
-* Something went screwy with the control config system, it kinda got "d1xed"...
-* OpenGL leaks memory like it is going out of fashion. It leaked about
-  64meg in a few minutes for me. I need to debug this =)
 
 
 MS-DOS:
 =======
+
+Dos support isn't a high priority right now, so things may be a little
+messed up.
 
 Required tools:
 * DJGPP v2
@@ -73,7 +70,6 @@ Hopefully things will work out and the package will build correctly for you.
 Known bugs/issues:
 * Serial and network support missing.
 * Sound support missing.
-* Movie support missing
 
 
 

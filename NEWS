@@ -3,7 +3,8 @@
 - Lots of portability fixes
 - OS X support!
 - Other bigendian linux/unix support.
-- Shareware data files support!
+- Shareware data files support... Including the ability to play other
+  missions if you have only the mac demo datafiles.
 - Descent 1 level support! thanks to Martin Schaffner <maschaffner@gmx.ch>
 
 --- Version 0.1.3 ---
