@@ -1,5 +1,8 @@
 2004-05-18  Bradley Bell  <btb@icculus.org>
 
+	* arch/ogl/gr.c: fix off by .5 errors in ogl_upixelc and
+	ogl_ulinec (d1x r1.29)
+
 	* arch/ogl/ogl.c: fix ogl gr_ucircle (d1x r1.29)
 
 	* arch/ogl/gr.c: fix off-by-one error in ogl_urect, right and

@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.18 2004-05-19 03:35:48 btb Exp $ */
+/* $Id: gr.c,v 1.19 2004-05-19 03:47:03 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -477,7 +477,7 @@ void ogl_upixelc(int x, int y, int c){
 //	ogl_pal=gr_current_pal;
 		glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
 //	ogl_pal=gr_palette;
-		glVertex2f((x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height);
+		glVertex2f((x + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width, 1.0 - (y + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height);
 //		glVertex2f(x/((float)last_width+1),1.0-y/((float)last_height+1));
 		glEnd();
 //	}
@@ -502,12 +502,12 @@ void ogl_urect(int left,int top,int right,int bot){
 }
 void ogl_ulinec(int left,int top,int right,int bot,int c){
 	GLfloat xo,yo,xf,yf;
-	
-	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
-	xf=(right+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
-	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
-	yf=1.0-(bot+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
-	
+
+	xo = (left + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
+	xf = (right + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
+	yo = 1.0 - (top + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
+	yf = 1.0 - (bot + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
+
 	OGL_DISABLE(TEXTURE_2D);
 	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
 	glBegin(GL_LINES);
