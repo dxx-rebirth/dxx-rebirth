@@ -170,7 +170,8 @@ void nm_draw_background1(char * filename)
 	//@@Assert(grd_curcanv->cv_bitmap.bm_h == 200);
 
 	pcx_error = pcx_get_dimensions(filename, &width, &height);
-	Assert(pcx_error == PCX_ERROR_NONE);
+	if (pcx_error != PCX_ERROR_NONE)
+		Error("Could not open pcx file <%s>\n", filename);
 
 	bmp = gr_create_bitmap(width, height);
 
