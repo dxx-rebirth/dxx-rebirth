@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.7 2003-03-01 01:51:15 btb Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.8 2003-03-17 09:07:57 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -194,6 +194,7 @@ void show_framerate()
    //static int q;
 
 	fix rate;
+	int x = 8, y = 5; // position measured from lower right corner
 
 	frame_time_total += RealFrameTime - frame_time_list[frame_time_cntr];
 	frame_time_list[frame_time_cntr] = RealFrameTime;
@@ -205,7 +206,9 @@ void show_framerate()
 	gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 
 	ftoa( temp, rate );	// Convert fixed to string
-	gr_printf(grd_curcanv->cv_w-(8*GAME_FONT->ft_w),grd_curcanv->cv_h-5*(GAME_FONT->ft_h+GAME_FONT->ft_h/4),"FPS: %s ", temp );
+	if (Game_mode & GM_MULTI)
+		y = 7;
+	gr_printf(grd_curcanv->cv_w-(x*GAME_FONT->ft_w),grd_curcanv->cv_h-y*(GAME_FONT->ft_h+GAME_FONT->ft_h/4),"FPS: %s ", temp );
 //   if ( !( q++ % 30 ) )
 //      mprintf( (0,"fps: %s\n", temp ) );
 }
