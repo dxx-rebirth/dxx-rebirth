@@ -1,4 +1,4 @@
-/* $Id: text.c,v 1.15 2004-10-23 17:42:13 schaffner Exp $ */
+/* $Id: text.c,v 1.16 2004-11-28 07:32:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.15 2004-10-23 17:42:13 schaffner Exp $";
+static char rcsid[] = "$Id: text.c,v 1.16 2004-11-28 07:32:12 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -74,6 +74,24 @@ void decode_text_line(char *p)
 		encode_rotate_left(p);
 	}
 }
+
+// decode buffer of text, preserves newlines
+void decode_text(char *buf, int len)
+{
+	char *ptr;
+	int i;
+
+	for (i = 0, ptr = buf; i < len; i++, ptr++)
+	{
+		if (*ptr != '\n')
+		{
+			encode_rotate_left(ptr);
+			*ptr = *ptr  ^ BITMAP_TBL_XOR;
+			encode_rotate_left(ptr);
+		}
+	}
+}
+
 
 #if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>

@@ -1,5 +1,8 @@
 2004-11-27  Bradley Bell  <btb@icculus.org>
 
+	* main/text.c, main/text.h, main/titles.c: added function to
+	properly decode multi-line strings
+
 	* Makefile.am, arch/sdl/digi.c, arch/win32/Makefile.am,
 	arch/win32/hmpfile.c, arch/win32/midi.c, main/kludge.c: enabled
 	midi on win32

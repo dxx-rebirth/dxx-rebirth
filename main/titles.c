@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.34 2004-11-27 05:10:33 btb Exp $ */
+/* $Id: titles.c,v 1.35 2004-11-28 07:32:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1246,17 +1246,8 @@ int load_screen_text(char *filename, char **buf)
 		cfclose(tfile);
 	}
 
-	if (have_binary) {
-		char *ptr = *buf;
-		char *endline;
-		while ((endline = strchr (ptr, '\n')) != NULL) {
-			*endline = '\0';
-			decode_text_line (ptr);
-			*endline = '\n';
-			ptr = endline + 1;
-		}
-		decode_text_line (ptr);
-	}
+	if (have_binary)
+		decode_text(*buf, len);
 
 	return (1);
 }
