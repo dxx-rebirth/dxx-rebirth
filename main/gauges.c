@@ -1,4 +1,4 @@
-/* $Id: gauges.c,v 1.15 2005-02-25 06:16:57 chris Exp $ */
+/* $Id: gauges.c,v 1.16 2005-02-25 06:24:52 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2705,6 +2705,14 @@ void draw_weapon_boxes()
 				newdemo_record_secondary_ammo(old_ammo_count[1][VR_current_page], Players[Player_num].secondary_ammo[Secondary_weapon]);
 			draw_secondary_ammo_info(Players[Player_num].secondary_ammo[Secondary_weapon]);
 			old_ammo_count[1][VR_current_page] = Players[Player_num].secondary_ammo[Secondary_weapon];
+
+			if (Secondary_weapon != which_bomb())	// don't draw two bomb counts
+			{
+				if (Cockpit_mode == CM_STATUS_BAR)
+					show_bomb_count(SB_BOMB_COUNT_X, SB_BOMB_COUNT_Y, gr_find_closest_color(0, 0, 0), 0);
+				else
+					show_bomb_count(BOMB_COUNT_X, BOMB_COUNT_Y, gr_find_closest_color(0, 0, 0), 0);
+			}
 		}
 	}
 	else if (weapon_box_user[1] == WBU_STATIC)
@@ -3494,8 +3502,6 @@ void render_gauges()
 
 		show_homing_warning();
 
-		show_bomb_count(BOMB_COUNT_X,BOMB_COUNT_Y,gr_find_closest_color(0,0,0),0);
-	
 	} else if (Cockpit_mode == CM_STATUS_BAR) {
 
 		{
@@ -3566,8 +3572,6 @@ void render_gauges()
 			//if (score_time)
 				sb_show_score_added();
 		}
-
-		show_bomb_count(SB_BOMB_COUNT_X,SB_BOMB_COUNT_Y,gr_find_closest_color(5,5,5),0);
 	}
 
 

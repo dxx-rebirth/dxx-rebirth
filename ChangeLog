@@ -12,6 +12,9 @@
 
 	* main/gauges.c: draw behind the shield number properly with OpenGL
 
+	* main/gauges.c: draw the bomb count in OpenGL, but not when a bomb
+	is selected as a secondary weapon
+
 2005-02-11  Bradley Bell  <btb@icculus.org>
 
 	* debian/control: build-dep on libphysfs-dev
