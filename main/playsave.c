@@ -529,6 +529,7 @@ int read_player_file()
 	int errno_ret = EZERO;
 	int id,player_file_version,i;
 	int rewrite_it=0;
+	int swap;
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
@@ -565,6 +566,9 @@ int read_player_file()
 
 	player_file_version = file_read_short(file);
 
+	if (player_file_version > 255) // bigendian file?
+		swap = 1;
+
 	if (player_file_version<COMPATIBLE_PLAYER_FILE_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
 		fclose(file);
@@ -573,6 +577,12 @@ int read_player_file()
 
 	Game_window_w					= file_read_short(file);
 	Game_window_h					= file_read_short(file);
+
+	if (swap) {
+		player_file_version = SWAPSHORT(player_file_version);
+		Game_window_w = SWAPSHORT(Game_window_w);
+		Game_window_h = SWAPSHORT(Game_window_h);
+	}
 
 	Player_default_difficulty	= file_read_byte(file);
 	Default_leveling_on			= file_read_byte(file);
@@ -602,6 +612,9 @@ int read_player_file()
 	//read new highest level info
 
 	n_highest_levels = file_read_short(file);
+	if (swap)
+		n_highest_levels = SWAPSHORT(n_highest_levels);
+
 	if (fread(highest_levels,sizeof(hli),n_highest_levels,file) != n_highest_levels) {
 		errno_ret			= errno;
 		fclose(file);
@@ -658,6 +671,10 @@ int read_player_file()
 		 {
 		  Cockpit_3d_view[0]=file_read_int(file);
 		  Cockpit_3d_view[1]=file_read_int(file);
+		  if (swap) {
+			  Cockpit_3d_view[0] = SWAPINT(Cockpit_3d_view[0]);
+			  Cockpit_3d_view[1] = SWAPINT(Cockpit_3d_view[1]);
+		  }
 		 }	
 		
                   
@@ -672,6 +689,10 @@ int read_player_file()
 #ifdef NETWORK
 		Netlife_kills=file_read_int (file);
 		Netlife_killed=file_read_int (file);
+		if (swap) {
+			Netlife_kills = SWAPINT(Netlife_kills);
+			Netlife_killed = SWAPINT(Netlife_killed);
+		}
 #else
 		file_read_int(file); file_read_int(file);
 #endif
@@ -686,6 +707,8 @@ int read_player_file()
 	if (player_file_version>=23)
 	 {
 	  i=file_read_int (file);	
+	  if (swap)
+		  i = SWAPINT(i);
 #ifdef NETWORK
 	  mprintf ((0,"Reading: lifetime checksum is %d\n",i));
 	  if (i!=get_lifetime_checksum (Netlife_kills,Netlife_killed))

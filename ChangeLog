@@ -1,3 +1,7 @@
+2003-02-21  Bradley Bell <btb@icculus.org>
+	* main/playsave.c: enable loading player files of either byte
+	order
+
 2003-02-20  Bradley Bell <btb@icculus.org>
 
 	* main/bm.c, main/bm.h, main/endlevel.c: fixed up endlevel stuff
