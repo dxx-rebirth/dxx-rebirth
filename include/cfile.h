@@ -48,6 +48,12 @@ int cfexist( char * filename );	// Returns true if file exists on disk (1) or in
 // If NULL passed, returns 1
 int cfile_use_alternate_hogfile( char * name );
 
+// Allows files to be gotten from the Descent 1 hog file.
+// Passing NULL disables this.
+// Returns 1 if hogfile found (& contains file), else 0.
+// If NULL passed, returns 1
+int cfile_use_descent1_hogfile(char * name);
+
 // All cfile functions will check this directory if no file exists
 // in the current directory.
 void cfile_use_alternate_hogdir( char * path );

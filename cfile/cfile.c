@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.7 2002-08-23 01:52:59 btb Exp $ */
+/* $Id: cfile.c,v 1.8 2002-08-27 04:05:29 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -39,11 +39,16 @@ typedef struct hogfile {
 hogfile HogFiles[MAX_HOGFILES];
 char Hogfile_initialized = 0;
 int Num_hogfiles = 0;
+char HogFilename[64];
+
+hogfile D1HogFiles[MAX_HOGFILES];
+char D1Hogfile_initialized = 0;
+int D1Num_hogfiles = 0;
+char D1HogFilename[64];
 
 hogfile AltHogFiles[MAX_HOGFILES];
 char AltHogfile_initialized = 0;
 int AltNum_hogfiles = 0;
-char HogFilename[64];
 char AltHogFilename[64];
 
 char AltHogDir[64];
@@ -218,6 +223,18 @@ FILE * cfile_find_libfile(char * name, int * length)
 		}
 	}
 
+	if (D1Hogfile_initialized)	{
+		for (i = 0; i < D1Num_hogfiles; i++) {
+			if (!stricmp(D1HogFiles[i].name, name)) {
+				fp = cfile_get_filehandle(D1HogFilename, "rb");
+				if (fp == NULL) return NULL;
+				fseek(fp,  D1HogFiles[i].offset, SEEK_SET);
+				*length = D1HogFiles[i].length;
+				return fp;
+			}
+		}
+	}
+
 	if ( !Hogfile_initialized ) 	{
 		//@@cfile_init_hogfile( "DESCENT2.HOG", HogFiles, &Num_hogfiles );
 		//@@Hogfile_initialized = 1;
@@ -253,6 +270,26 @@ int cfile_use_alternate_hogfile( char * name )
 		return (AltNum_hogfiles > 0);
 	} else {
 		AltHogfile_initialized = 0;
+		return 1;
+	}
+}
+
+int cfile_use_descent1_hogfile( char * name )
+{
+	if (name)	{
+#ifdef MACINTOSH
+		char mac_path[255];
+
+		macify_dospath(name, mac_path);
+		strcpy(D1HogFilename, mac_path);
+#else
+		strcpy(D1HogFilename, name);
+#endif
+		cfile_init_hogfile(D1HogFilename, D1HogFiles, &D1Num_hogfiles);
+		D1Hogfile_initialized = 1;
+		return (D1Num_hogfiles > 0);
+	} else {
+		D1Hogfile_initialized = 0;
 		return 1;
 	}
 }
