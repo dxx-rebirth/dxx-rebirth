@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.18 $
+ * $Revision: 1.19 $
  * $Author: bradleyb $
- * $Date: 2001-12-28 09:26:41 $
+ * $Date: 2002-01-18 07:01:37 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.18  2001/12/28 09:26:41  bradleyb
+ * document -nomovies option
+ *
  * Revision 1.17  2001/11/09 06:55:08  bradleyb
  * added documentation
  *
@@ -368,7 +371,7 @@ void print_commandline_help()
 	printf( "  -serialread <r> %s\n", "Set serial/modem to read from <r>");
 #endif
 	printf( "\n Help:\n\n");
-	printf( "  -help, -?, ?    %s\n", "View this help screen");
+	printf( "  -help, -h, -?, ? %s\n", "View this help screen");
 	printf( "\n");
 }
 
@@ -541,7 +544,7 @@ int main(int argc,char **argv)
 	con_printf(CON_NORMAL, "                                         Copyright (c) 2001 Bradley Bell\n");
 
 
-	if (FindArg( "-?" ) || FindArg( "-help" ) || FindArg( "?" ) ) {
+	if (FindArg( "-?" ) || FindArg( "-help" ) || FindArg( "?" ) || FindArg( "-h" ) ) {
 		print_commandline_help();
 		set_exit_message("");
 #ifdef __MINGW32__
