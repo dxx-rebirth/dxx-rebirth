@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ogl/glx.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-10-31 07:35:47 $
+ * $Date: 2001-11-04 08:49:57 $
  *
  * opengl platform specific functions for GLX - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/10/31 07:35:47  bradleyb
+ * Sync with d1x
+ *
  * Revision 1.1  2001/10/25 08:25:34  bradleyb
  * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
  *
@@ -180,6 +183,8 @@ inline void ogl_swap_buffers_internal(void){
 int ogl_init_window(int x, int y){
 	if (gl_initialized){
 		XResizeWindow(dpy,win,x,y);
+		set_wm_hints(ogl_fullscreen);
+
 	}else {
 		glxcontext=glXCreateContext(dpy,visinfo,0,GL_TRUE);
 

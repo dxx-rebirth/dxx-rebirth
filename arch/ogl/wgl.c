@@ -1,8 +1,8 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ogl/wgl.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 08:25:34 $
+ * $Date: 2001-11-04 08:49:57 $
  *
  * opengl platform specific functions for WGL - added by Peter Hawkins
  * fullscreen example code courtesy of Jeff Slutter
@@ -10,6 +10,9 @@
  *         (with some win32 help from Nirvana)
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/25 08:25:34  bradleyb
+ * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
+ *
  * Revision 1.2  2001/01/29 13:47:52  bradleyb
  * Fixed build, some minor cleanups.
  *
@@ -29,9 +32,16 @@
 #include "mouse.h"
 #include "digi.h"
 #include "args.h"
+#include "resource.h"
 /*#include "event.h"*/
+#include <stdio.h>
 
+//not defined in cygwin, needed to keep windows from resizing everything to fit the fullscreen res.
+#ifndef CDS_FULLSCREEN
+#define CDS_FULLSCREEN 0x4
+#endif
 
+DEVMODE devmode;//global so the activate proc can reset the screen mode.
 HINSTANCE hInst=NULL;
 HWND g_hWnd=NULL;
 
@@ -78,6 +88,34 @@ static void finiObjects()
 } 
 
 
+int vid_susp=0;
+int wgl_game_activate(int active,int min){
+	int i=0;//do_game_activate(active,min);
+	if (!gl_initialized) return -1;
+	//	printf("****** wgl_game_activate: %i %i,%i %i *******\n",GLPREF_windowed,active,min,vid_susp);
+	if (!active){
+		mouse_close();
+		if (!GLPREF_windowed)
+			if (!vid_susp){
+				ChangeDisplaySettings(NULL,0);
+				vid_susp=1;
+			}
+	}else{
+		mouse_init(0);
+		if (!GLPREF_windowed)
+			if (vid_susp){
+				ChangeDisplaySettings(&devmode,CDS_FULLSCREEN);
+				ShowWindow(g_hWnd,SW_SHOWNORMAL);
+				SetWindowPos(g_hWnd,HWND_TOPMOST,0,0,GLPREF_width,GLPREF_height,SWP_FRAMECHANGED);//if you don't set the pos, it comes up half off the screen, or just shows the desktop
+				UpdateWindow(g_hWnd);
+				wglMakeCurrent(NULL, NULL);
+				wglMakeCurrent(hDC,GL_ResourceContext);//this seems to fix some glitches that appear when you alt-tab back in.
+				vid_susp=0;
+			}
+	}
+	//	printf("****** -----------------: %i %i,%i %i *******\n",GLPREF_windowed,active,min,vid_susp);
+	return i;
+}
 long PASCAL DescentWndProc(HWND hWnd,UINT message,
 						   WPARAM wParam,LPARAM lParam )
 {
@@ -104,7 +142,14 @@ long PASCAL DescentWndProc(HWND hWnd,UINT message,
 	 break;
    case WM_PALETTECHANGED:
    case WM_PALETTEISCHANGING:
-   return 0;
+	 return 0;
+   case WM_KILLFOCUS:
+	 if (!GLPREF_windowed)
+		 ShowWindow(g_hWnd, SW_SHOWMINNOACTIVE);//this minimizes the game after you alt-tab out.
+	 break;
+   case WM_ACTIVATE:
+	 wgl_game_activate((!(LOWORD(wParam) == WA_INACTIVE)),(BOOL) HIWORD(wParam));
+	 break;
    case WM_ACTIVATEAPP:
 //     Win32_Key_Hook(wParam);
 // DPH: This doesn't work... no idea why not...
@@ -113,8 +158,10 @@ long PASCAL DescentWndProc(HWND hWnd,UINT message,
          finiObjects();
 	 PostQuitMessage(0);
 	 break;
+   default:
+	 return DefWindowProc(hWnd,message,wParam,lParam);
   }
-  return DefWindowProc(hWnd,message,wParam,lParam);
+  return 1;
 }
 
 
@@ -145,7 +192,8 @@ void win32_create_window(int x,int y)
 	wcDescentClass.hInstance     = hInst;
 	wcDescentClass.lpfnWndProc   = DescentWndProc;
 	wcDescentClass.hCursor       = LoadCursor(NULL, IDC_ARROW);
-	wcDescentClass.hIcon         = LoadIcon(NULL, IDI_WINLOGO);
+	//wcDescentClass.hIcon         = LoadIcon(NULL, IDI_WINLOGO);
+	wcDescentClass.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(IDI_MAIN_ICON));
 	wcDescentClass.lpszMenuName  = NULL;
 	wcDescentClass.hbrBackground = NULL;
 	wcDescentClass.style         = CS_OWNDC;
@@ -159,9 +207,11 @@ void win32_create_window(int x,int y)
 	}
 
 	if (ogl_fullscreen)
-		flags=WS_POPUP | WS_SYSMENU;
+		flags=WS_POPUP;//uh.. don't remember if removing sysmenu did anything or not.. but it works.
+		//flags=WS_POPUP | WS_SYSMENU;
 	else
-		flags=WS_OVERLAPPED | WS_BORDER | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+		flags=WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX;//let us minimize it.
+		//flags=WS_OVERLAPPED | WS_BORDER | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 
 	if (!ogl_fullscreen){
 		x+=get_win_x_bs();y+=get_win_y_bs();
@@ -187,40 +237,36 @@ void win32_create_window(int x,int y)
 	ShowWindow(g_hWnd,SW_SHOWNORMAL);
 	UpdateWindow(g_hWnd);
 
+	OpenGL_Initialize();
+
 	if (ogl_fullscreen){
         ShowCursor(FALSE);
         mouse_hidden = 1;
 	}
 
 	key_init();
-	if (!FindArg( "-nomouse" ))
-		mouse_init(0);
-	if (!FindArg( "-nojoystick" ))
-		joy_init(JOYSTICKID1);
+	mouse_init(0);
+	joy_init(JOYSTICKID1);
 	if (!FindArg( "-nosound" ))
 		digi_init();
 //	printf("arch_init successfully completed\n");
-		
-	OpenGL_Initialize();
-		
+
 	gl_initialized=1;
 }
 void ogl_destroy_window(void){
 	if (gl_initialized){
 		ogl_smash_texture_list_internal();
-		OpenGL_Shutdown();
 		if (mouse_hidden){
 			ShowCursor(TRUE);
 			mouse_hidden = 0;
 		}
 		if (g_hWnd){
 			key_close();
-			if (!FindArg( "-nomouse" ))
-				mouse_close();
-			if (!FindArg( "-nojoystick" ))
-				joy_close();
+			mouse_close();
+			joy_close();
 			if (!FindArg( "-nosound" ))
 				digi_close();
+			OpenGL_Shutdown();
 			DestroyWindow(g_hWnd);
 		}else
 			Error("ogl_destroy_window: no g_hWnd?\n");
@@ -300,7 +346,6 @@ bool OpenGL_Initialize(void)
 		{
 			// First set our display mode
 			// Create direct draw surface
-			DEVMODE devmode;
 			int retval;
 
 			devmode.dmSize=sizeof(devmode);
@@ -308,8 +353,14 @@ bool OpenGL_Initialize(void)
 			devmode.dmPelsWidth=GLPREF_width;
 			devmode.dmPelsHeight=GLPREF_height;
 			devmode.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
+			if ((retval=FindArg("-gl_refresh"))){
+				devmode.dmDisplayFrequency=atoi(Args[retval+1]);
+				if (devmode.dmDisplayFrequency>=60)//uhh, I hope no one actually wants a refresh lower than 60.. gag.
+					devmode.dmFields|=DM_DISPLAYFREQUENCY;
+				printf("trying refresh %i hz\n",devmode.dmDisplayFrequency);
+			}
 
-			retval=ChangeDisplaySettings(&devmode,0);
+			retval=ChangeDisplaySettings(&devmode,CDS_FULLSCREEN);
 
 			if (retval!=DISP_CHANGE_SUCCESSFUL)
 			{
@@ -321,7 +372,7 @@ bool OpenGL_Initialize(void)
 				devmode.dmPelsHeight=480;
 				devmode.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;
 
-				retval=ChangeDisplaySettings(&devmode,0);
+				retval=ChangeDisplaySettings(&devmode,CDS_FULLSCREEN);
 				if (retval!=DISP_CHANGE_SUCCESSFUL)
 				{
 					errstr="ChangeDisplaySettings";
@@ -377,21 +428,22 @@ bool OpenGL_Initialize(void)
 #endif
 
 	// Setup our pixel format
-		
+
 	memset(&pfd,0,sizeof(pfd));
 	pfd.nSize        = sizeof(pfd);
 	pfd.nVersion     = 1;
 	pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
 //	pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER | PFD_GENERIC_ACCELERATED;
 	pfd.iPixelType   = PFD_TYPE_RGBA;
-	pfd.cColorBits = 16;
-	pfd.cAlphaBits = 8;
-	pfd.cDepthBits = 0;
-	pfd.cAccumBits = 0;
-	pfd.cStencilBits = 0;
+	//let the ogl driver decide. (fixes no hw accel in 16bit mode in w2k with tnt2)
+//	pfd.cColorBits = 16;
+//	pfd.cAlphaBits = 8;
+//	pfd.cDepthBits = 0;
+//	pfd.cAccumBits = 0;
+//	pfd.cStencilBits = 0;
 	pfd.iLayerType = PFD_MAIN_PLANE;
 	pfd.dwLayerMask = PFD_MAIN_PLANE;
-					
+
 
 	// Find the user's "best match" PFD 
 	pf = ChoosePixelFormat(hDC,&pfd);
