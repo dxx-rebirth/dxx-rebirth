@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: iff.c,v 1.5 2001-10-31 07:41:54 bradleyb Exp $";
+static char rcsid[] = "$Id: iff.c,v 1.6 2002-10-04 07:14:31 btb Exp $";
 #endif
 
 #define COMPRESS		1	//do the RLE or not? (for debugging mostly)
@@ -111,7 +111,7 @@ long get_sig(FFILE *f)
 //	if ((s[1]=cfgetc(f))==EOF) return(EOF);
 //	if ((s[0]=cfgetc(f))==EOF) return(EOF);
 
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	if (f->position>=f->length) return EOF;
 	s[3] = f->data[f->position++];
 	if (f->position>=f->length) return EOF;
@@ -747,8 +747,7 @@ int iff_parse_bitmap(FFILE *ifile,grs_bitmap *bm,int bitmap_type,byte *palette,g
 	sig=get_sig(ifile);
 
 	if (sig != form_sig) {
-		ret = IFF_NOT_IFF;
-		goto done;
+		return IFF_NOT_IFF;
 	}
 
 	form_len = get_long(ifile);
@@ -764,7 +763,7 @@ int iff_parse_bitmap(FFILE *ifile,grs_bitmap *bm,int bitmap_type,byte *palette,g
 
 	if (ret != IFF_NO_ERROR) {		//got an error parsing
 		if (bmheader.raw_data) d_free(bmheader.raw_data); 
-		goto done;
+		return ret;
 	}
 
 	//If IFF file is ILBM, convert to PPB
@@ -772,7 +771,8 @@ int iff_parse_bitmap(FFILE *ifile,grs_bitmap *bm,int bitmap_type,byte *palette,g
 
 		ret = convert_ilbm_to_pbm(&bmheader);
 
-		if (ret != IFF_NO_ERROR) goto done;
+		if (ret != IFF_NO_ERROR)
+			return ret;
 	}
 
 	//Copy data from iff_bitmap_header structure into grs_bitmap structure
@@ -800,10 +800,9 @@ int iff_parse_bitmap(FFILE *ifile,grs_bitmap *bm,int bitmap_type,byte *palette,g
 
 	if (bitmap_type == BM_RGB15) {
 		ret = convert_rgb15(bm,&bmheader);
-		if (ret != IFF_NO_ERROR) goto done;
+		if (ret != IFF_NO_ERROR)
+			return ret;
 	}
-
-done:
 
 	return ret;
 
@@ -816,13 +815,10 @@ int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palett
 	FFILE ifile;
 
 	ret = open_fake_file(ifilename,&ifile);		//read in entire file
-	if (ret != IFF_NO_ERROR) goto done;
-
-	bm->bm_data = NULL;
-
-	ret = iff_parse_bitmap(&ifile,bm,bitmap_type,palette,NULL);
-
-done:
+	if (ret == IFF_NO_ERROR) {
+		bm->bm_data = NULL;
+		ret = iff_parse_bitmap(&ifile,bm,bitmap_type,palette,NULL);
+	}
 
 	if (ifile.data) d_free(ifile.data);
 
@@ -841,11 +837,9 @@ int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm,byte *palette)
 	FFILE ifile;
 
 	ret = open_fake_file(ifilename,&ifile);		//read in entire file
-	if (ret != IFF_NO_ERROR) goto done;
-
-	ret = iff_parse_bitmap(&ifile,bm,bm->bm_type,palette,NULL);
-
-done:
+	if (ret == IFF_NO_ERROR) {
+		ret = iff_parse_bitmap(&ifile,bm,bm->bm_type,palette,NULL);
+	}
 
 	if (ifile.data) d_free(ifile.data);
 
@@ -1153,11 +1147,11 @@ int iff_write_bitmap(char *ofilename,grs_bitmap *bm,ubyte *palette)
 
 	//open file and write
 
-	if ((ofile = fopen(ofilename,"wb")) == NULL) {ret=IFF_NO_FILE; goto done;}
-
-	ret = write_pbm(ofile,&bmheader,compression_on);
-
-done:
+	if ((ofile = fopen(ofilename,"wb")) == NULL) {
+		ret=IFF_NO_FILE;
+	} else {
+		ret = write_pbm(ofile,&bmheader,compression_on);
+	}
 
 	fclose(ofile);
 
