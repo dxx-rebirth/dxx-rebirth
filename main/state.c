@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.11 2003-11-26 12:26:33 btb Exp $ */
+/* $Id: state.c,v 1.12 2003-11-27 00:21:04 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -253,6 +253,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef OGL
+# ifdef _MSC_VER
+#  include <windows.h>
+# endif
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #else

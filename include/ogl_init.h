@@ -2,12 +2,14 @@
 #ifndef _OGL_INIT_H_ 
 #define _OGL_INIT_H_
 
-#ifdef __WINDOWS__
+#ifdef _MSC_VER
+# undef MAC // dirty feckin hack
 #include <windows.h>
 #include <stddef.h>
+# define MAC(x)
 #endif
 
-//#ifdef __WINDOWS__
+//#ifdef _WIN32
 //#define OGL_RUNTIME_LOAD
 //#endif
 

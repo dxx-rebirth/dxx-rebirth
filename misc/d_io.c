@@ -1,4 +1,4 @@
-/* $Id: d_io.c,v 1.6 2003-11-26 12:26:36 btb Exp $ */
+/* $Id: d_io.c,v 1.7 2003-11-27 00:21:04 btb Exp $ */
 /*
  * some misc. file/disk routines
  * Arne de Bruijn, 1998
@@ -53,7 +53,7 @@ unsigned long d_getdiskfree()
 #ifdef __MSDOS__
   return getdiskfree();
 #else
-#ifdef __WINDOWS__
+#if 0//def __WINDOWS__
 	ULONG cbCluster = 0;
 	ULONG cClusters = 0;
 

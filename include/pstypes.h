@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.21 2003-11-26 12:26:28 btb Exp $ */
+/* $Id: pstypes.h,v 1.22 2003-11-27 00:21:04 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -64,15 +64,14 @@ typedef Uint64 u_int64_t;
 #define max(a,b) (((a)<(b))?(b):(a))
 #endif
 
-#ifdef _MSC_VER
-# define PATH_MAX _MAX_PATH
-#endif
-
-#ifdef _WIN32_WCE
-# define _MAX_DIR 256
-#endif
-
-#ifdef __unix__
+#ifdef _WIN32
+# ifndef __MINGW32__
+#  define PATH_MAX _MAX_PATH
+# endif
+# ifdef _WIN32_WCE
+#  define _MAX_DIR 256
+# endif
+#elif defined(__unix__)
 # include <sys/types.h>
 # define _MAX_PATH 1024
 # define _MAX_DIR 256

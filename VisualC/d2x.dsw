@@ -18,6 +18,21 @@ Package=<4>
 
 ###############################################################################
 
+Project: "d2xgl"=.\d2xgl\d2xgl.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libmve
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "libmve"=.\libmve\libmve.dsp - Package Owner=<4>
 
 Package=<5>

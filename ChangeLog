@@ -1,5 +1,12 @@
 2003-11-26  Bradley Bell  <btb@icculus.org>
 
+	* configure.ac cygconf VisualC/d2x.dsw VisualC/d2x/d2x.dsp
+	VisualC/d2xgl/.cvsignore VisualC/d2xgl/d2xgl.dsp arch/ogl/gr.c
+	arch/ogl/ogl.c include/d_io.h include/loadgl.h include/ogl_init.h
+	include/pstypes.h include/u_mem.h main /state.c main/vers_id.h
+	misc/d_io.c: added Visual C project for opengl, buncha macro fixes
+	and stuff
+
 	* arch/sdl/gr.c: fix sdl gr_update
 
 	* 2d/font.c, VisualC/d2x/d2x.dsp, VisualCE/d2x/d2x.vcp,

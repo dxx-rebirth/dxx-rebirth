@@ -9,13 +9,7 @@
 #ifndef __LOADGL_H__
 #define __LOADGL_H__
 
-#ifndef WIN32
-#ifdef __WINDOWS__
-#define WIN32
-#endif
-#endif
-
-#if defined(WIN32)
+#ifdef _WIN32
 #include <windows.h>
 #define OGLFUNCCALL	__stdcall
 #else
@@ -394,7 +388,7 @@
 #define glMultiTexCoord2fSGIS dglMultiTexCoord2fSGIS
 #define glSelectTextureSGIS dglSelectTextureSGIS
 
-#ifdef WIN32
+#ifdef _WIN32
 #define wglCopyContext dwglCopyContext
 #define wglCreateContext dwglCreateContext
 #define wglCreateLayerContext dwglCreateLayerContext
@@ -760,7 +754,7 @@ typedef void (OGLFUNCCALL *glActiveTextureARB_fp)(GLenum target);
 typedef void (OGLFUNCCALL *glMultiTexCoord2fSGIS_fp)(GLenum target, GLfloat s, GLfloat t);
 typedef void (OGLFUNCCALL *glSelectTextureSGIS_fp)(GLenum target);
 
-#ifdef WIN32
+#ifdef _WIN32
 typedef BOOL  (OGLFUNCCALL *wglCopyContext_fp)(HGLRC, HGLRC, UINT);
 typedef HGLRC (OGLFUNCCALL *wglCreateContext_fp)(HDC);
 typedef HGLRC (OGLFUNCCALL *wglCreateLayerContext_fp)(HDC, int);
@@ -1126,7 +1120,7 @@ DEFVAR glActiveTextureARB_fp dglActiveTextureARB;
 DEFVAR glMultiTexCoord2fSGIS_fp dglMultiTexCoord2fSGIS;
 DEFVAR glSelectTextureSGIS_fp dglSelectTextureSGIS;
 
-#ifdef WIN32
+#ifdef _WIN32
 DEFVAR wglCopyContext_fp dwglCopyContext;
 DEFVAR wglCreateContext_fp dwglCreateContext;
 DEFVAR wglCreateLayerContext_fp dwglCreateLayerContext;
@@ -1153,7 +1147,7 @@ DEFVAR wglSwapMultipleBuffers_fp dwglSwapMultipleBuffers;
 #ifdef DECLARE_VARS
 
 // Dynamic module load functions
-#ifdef WIN32
+#ifdef _WIN32
 void *dll_LoadModule(const char *name)
 {
 	HINSTANCE handle;
@@ -1569,7 +1563,7 @@ bool OpenGL_LoadLibrary(bool load)
 		dglVertexPointer = (glVertexPointer_fp)dll_GetSymbol(OpenGLModuleHandle,"glVertexPointer");
 		dglViewport = (glViewport_fp)dll_GetSymbol(OpenGLModuleHandle,"glViewport");
 	
-#ifdef WIN32
+#ifdef _WIN32
 		dwglCopyContext = (wglCopyContext_fp)dll_GetSymbol(OpenGLModuleHandle,"wglCopyContext");
 		dwglCreateContext = (wglCreateContext_fp)dll_GetSymbol(OpenGLModuleHandle,"wglCreateContext");
 		dwglCreateLayerContext = (wglCreateLayerContext_fp)dll_GetSymbol(OpenGLModuleHandle,"wglCreateLayerContext");
@@ -1942,7 +1936,7 @@ void OpenGL_SetFuncsToNull(void)
 	dglMultiTexCoord2fSGIS = NULL;
 	dglSelectTextureSGIS = NULL;
 
-#ifdef WIN32
+#ifdef _WIN32
 	dwglCopyContext = NULL;
 	dwglCreateContext = NULL;
 	dwglCreateLayerContext = NULL;

@@ -4,7 +4,7 @@
 #define _D_IO_H
 
 #ifndef _WIN32_WCE
-#if _WIN32
+#ifdef _WIN32
 #include <io.h>
 #else
 #include <unistd.h>

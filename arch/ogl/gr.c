@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.14 2003-11-06 08:58:53 btb Exp $ */
+/* $Id: gr.c,v 1.15 2003-11-27 00:21:04 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef __WINDOWS__
+#ifdef _MSC_VER
 #include <windows.h>
 #endif
 
@@ -22,7 +22,9 @@
 #else
 //#include <GL/gl.h>
 #endif
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -169,7 +171,7 @@ void ogl_get_verinfo(void){
 
 	ogl_intensity4_ok=1;ogl_luminance4_alpha4_ok=1;ogl_rgba2_ok=1;ogl_gettexlevelparam_ok=1;
 
-#ifdef __WINDOWS__
+#if 0 //WGL only, I think
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
 	dglActiveTextureARB = (glActiveTextureARB_fp)wglGetProcAddress("glActiveTextureARB");
 	dglMultiTexCoord2fSGIS = (glMultiTexCoord2fSGIS_fp)wglGetProcAddress("glMultiTexCoord2fSGIS");
@@ -312,7 +314,7 @@ int ogl_testneedmipmaps(int i){
 //	return -1;
 }
 #ifdef OGL_RUNTIME_LOAD
-#if defined(__WINDOWS__) || defined(__MINGW32__)
+#ifdef _WIN32
 char *OglLibPath="opengl32.dll";
 #endif
 #ifdef __unix__
@@ -614,8 +616,8 @@ void gr_palette_read(ubyte * pal)
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
 void write_bmp(char *savename,int w,int h,unsigned char *buf){
 	int f;
-#if defined(__WINDOWS__) || defined(__MINGW32__)
-	f=open(savename,O_CREAT|O_EXCL|O_WRONLY,S_IRUSR|S_IWUSR);
+#ifdef _WIN32
+	f=open(savename,O_CREAT|O_EXCL|O_WRONLY,S_IREAD|S_IWRITE);
 #else
 	f=open(savename,O_CREAT|O_EXCL|O_WRONLY,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
 #endif

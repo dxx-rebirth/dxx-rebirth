@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.10 2003-11-07 18:09:48 btb Exp $ */
+/* $Id: ogl.c,v 1.11 2003-11-27 00:21:04 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -11,7 +11,7 @@
 #endif
 
 //#include <stdio.h>
-#ifdef __WINDOWS__
+#ifdef _WIN32
 #include <windows.h>
 #include <stddef.h>
 #endif
@@ -56,7 +56,7 @@
 #define M_PI 3.14159
 #endif
 
-#if defined(__WINDOWS__) || defined(__MINGW32__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__sun__)
+#if defined(_WIN32) || (defined(__APPLE__) && defined(__MACH__)) || defined(__sun__)
 #define cosf(a) cos(a)
 #define sinf(a) sin(a)
 #endif

@@ -281,6 +281,11 @@ if test x$enable_network != xno; then
             enable_native_ipx="no";
             ;;
     esac
+	case $host_os in
+		cygwin* | mingw* | msdos*)
+			enable_kalinix="no";
+			;;
+	esac
     case $host_os in
         *solaris*)
             AC_CHECK_LIB(socket, socket, LIBS="${LIBS} -lsocket",
