@@ -1,4 +1,4 @@
-/* $Id: physics.c,v 1.4 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: physics.c,v 1.5 2004-05-21 00:02:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -258,7 +258,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: physics.c,v 1.4 2003-10-10 09:36:35 btb Exp $";
+static char rcsid[] = "$Id: physics.c,v 1.5 2004-05-21 00:02:38 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1154,7 +1154,7 @@ save_p1 = *fq.p1;
 				if (orig_segnum==-1)
 					Error("orig_segnum == -1 in physics");
 
-				create_abs_vertex_lists( &num_faces, vertex_list, orig_segnum, sidenum);
+				create_abs_vertex_lists(&num_faces, vertex_list, orig_segnum, sidenum, __FILE__, __LINE__);
 
 				//let's pretend this wall is not triangulated
 				vertnum = vertex_list[0];

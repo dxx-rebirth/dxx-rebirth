@@ -1,4 +1,4 @@
-/* $Id: gameseg.c,v 1.6 2004-05-15 18:07:12 schaffner Exp $ */
+/* $Id: gameseg.c,v 1.7 2004-05-21 00:02:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -249,7 +249,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.6 2004-05-15 18:07:12 schaffner Exp $";
+static char rcsid[] = "$Id: gameseg.c,v 1.7 2004-05-21 00:02:35 btb Exp $";
 #endif
 
 // How far a point can be from a plane, and still be "in" the plane
@@ -399,7 +399,7 @@ void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			Error("Illegal side type (1), type = %i, segment # = %i, side # = %i\n", sidep->type, segnum, sidenum);
+			Error("Illegal side type (1), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
 			break;
 	}
 
@@ -457,15 +457,15 @@ void create_all_vertnum_lists(int *num_faces, int *vertnums, int segnum, int sid
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			Error("Illegal side type (2), type = %i, segment # = %i, side # = %i\n", sidep->type, segnum, sidenum);
+			Error("Illegal side type (2), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
 			break;
 	}
 
 }
 
 // -----
-//like create_all_vertex_lists(), but generate absolute point numbers
-void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum)
+// like create_all_vertex_lists(), but generate absolute point numbers
+void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum, char *calling_file, int calling_linenum)
 {
 	short	*vp = Segments[segnum].verts;
 	side	*sidep = &Segments[segnum].sides[sidenum];
@@ -512,7 +512,7 @@ void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			Error("Illegal side type (3), type = %i, segment # = %i, side # = %i\n", sidep->type, segnum, sidenum);
+			Error("Illegal side type (3), type = %i, segment # = %i, side # = %i caller:%s:%i\n Please report this bug.\n", sidep->type, segnum, sidenum, calling_file, calling_linenum);
 			break;
 	}
 
@@ -550,7 +550,7 @@ segmasks get_seg_masks(vms_vector *checkp,int segnum,fix rad)
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		create_abs_vertex_lists( &num_faces, vertex_list, segnum, sn);
+		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn, __FILE__, __LINE__);
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -698,7 +698,7 @@ ubyte get_side_dists(vms_vector *checkp,int segnum,fix *side_dists)
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		create_abs_vertex_lists( &num_faces, vertex_list, segnum, sn);
+		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn, __FILE__, __LINE__);
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -850,7 +850,7 @@ int check_segment_connections(void)
 
 			s = &seg->sides[sidenum];
 
-			create_abs_vertex_lists( &num_faces, vertex_list, segnum, sidenum);
+			create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum, __FILE__, __LINE__);
 
 			csegnum = seg->children[sidenum];
 
@@ -866,7 +866,7 @@ int check_segment_connections(void)
 
 				cs = &cseg->sides[csidenum];
 
-				create_abs_vertex_lists( &con_num_faces, con_vertex_list, csegnum, csidenum);
+				create_abs_vertex_lists(&con_num_faces, con_vertex_list, csegnum, csidenum, __FILE__, __LINE__);
 
 				if (con_num_faces != num_faces) {
 					mprintf((0,"Seg %x, side %d: num_faces (%d) mismatch with seg %x, side %d (%d)\n",segnum,sidenum,num_faces,csegnum,csidenum,con_num_faces));
@@ -1753,7 +1753,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 			int			vertnum;
 			side			*s;
 
-			create_abs_vertex_lists( &num_faces, vertex_list, sp-Segments, sidenum);
+			create_abs_vertex_lists(&num_faces, vertex_list, sp - Segments, sidenum, __FILE__, __LINE__);
 
 			Assert(num_faces == 2);
 

@@ -1,4 +1,4 @@
-/* $Id: gameseg.h,v 1.2 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: gameseg.h,v 1.3 2004-05-21 00:02:37 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -143,7 +143,7 @@ void get_side_verts(short *vertlist,int segnum,int sidenum);
 extern void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum);
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-extern void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum);
+extern void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum, char *calling_file, int calling_linenum);
 
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to
