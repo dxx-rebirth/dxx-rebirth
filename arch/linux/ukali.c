@@ -1,4 +1,4 @@
-/* $Id: ukali.c,v 1.5 2003-03-13 00:20:21 btb Exp $ */
+/* $Id: ukali.c,v 1.6 2003-10-03 07:58:14 btb Exp $ */
 /*
  *
  * Kali support functions
@@ -9,8 +9,8 @@
 #include <conf.h>
 #endif
 
-#include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <string.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

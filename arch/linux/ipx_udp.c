@@ -1,4 +1,4 @@
-/* $Id: ipx_udp.c,v 1.6 2003-03-13 00:20:21 btb Exp $ */
+/* $Id: ipx_udp.c,v 1.7 2003-10-03 07:58:14 btb Exp $ */
 /*
  *
  * IPX driver for native Linux TCP/IP networking (UDP implementation)
@@ -27,6 +27,11 @@
  * Configuration:
  * --------------
  * No network server software is needed, neither KIX nor KaliNIX.
+ *
+ *    NOTE: with the change to allow the user to choose the network
+ *    driver from the game menu, the following is not anymore precise:
+ *    the command line argument "-udp" is only necessary to supply udp
+ *    options!
  *
  * Add command line argument "-udp". In default operation D1X will send
  * broadcasts too all the local interfaces found. But you may also use
@@ -73,8 +78,12 @@
 #include <stdarg.h>
 #include <netdb.h>
 #include <stdlib.h>
-#include <net/if.h>
 #include <sys/ioctl.h>
+#include <sys/socket.h>
+#ifdef __sun__
+#  include <sys/sockio.h>
+#endif
+#include <net/if.h>
 #include <ctype.h>
 
 #include "ipx_drv.h"
@@ -229,8 +238,16 @@ struct sockaddr_in *sinp,*sinmp;
 			FAIL("ioctl(udp,\"%s\",SIOCGIF{DST/BRD}ADDR) error: %m",ifconf.ifc_req[i].ifr_name);
 			}
 
-		sinp =(struct sockaddr_in *)&ifconf.ifc_req[i].ifr_broadaddr;
-		sinmp=(struct sockaddr_in *)&ifconf.ifc_req[i].ifr_netmask  ;
+		sinp = (struct sockaddr_in *)&ifconf.ifc_req[i].ifr_broadaddr;
+#if 0 // old, not portable code
+		sinmp = (struct sockaddr_in *)&ifconf.ifc_req[i].ifr_netmask;
+#else // portable code
+		if (ioctl(sock, SIOCGIFNETMASK, ifconf.ifc_req+i)) {
+			close(sock);
+			FAIL("ioctl(udp,\"%s\",SIOCGIFNETMASK) error: %m", ifconf.ifc_req[i].ifr_name);
+		}
+		sinmp = (struct sockaddr_in *)&ifconf.ifc_req[i].ifr_addr;
+#endif
 		if (sinp->sin_family!=AF_INET || sinmp->sin_family!=AF_INET) continue;
 		broads[j]=*sinp;
 		broads[j].sin_port=UDP_BASEPORT; //FIXME: No possibility to override from cmdline
@@ -551,6 +568,7 @@ static int ipx_udp_ReceivePacket(ipx_socket_t *s, char *outbuf, int outbufsize,
 		}
 	rd->dst_socket = s->socket;
 
+	// check if we already have sender of this packet in broadcast list
 	for (i=0;i<broadnum;i++) {
 		if (i>=masksnum) {
 			if (addreq(fromaddr,broads[i])) break; 
@@ -561,7 +579,7 @@ static int ipx_udp_ReceivePacket(ipx_socket_t *s, char *outbuf, int outbufsize,
 			==(broads[i].sin_addr.s_addr & broadmasks[i].sin_addr.s_addr)) break;
 			}
 		}
-	if (i>=broadnum) {
+	if (i>=broadnum) { // we don't have sender of this packet in our broadcast list
 		chkbroadsize();
 		broads[broadnum++]=fromaddr;
 		fputs(MSGHDR "Adding host ",stdout);

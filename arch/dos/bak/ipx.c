@@ -1,4 +1,4 @@
-/* $Id: ipx.c,v 1.2 2003-10-03 03:37:43 btb Exp $ */
+/* $Id: ipx.c,v 1.3 2003-10-03 07:58:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -161,7 +161,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: ipx.c,v 1.2 2003-10-03 03:37:43 btb Exp $";
+static char rcsid[] = "$Id: ipx.c,v 1.3 2003-10-03 07:58:14 btb Exp $";
 #endif
 
 #ifdef __GNUC__
@@ -469,12 +469,7 @@ void ipx_close()
 //---------------------------------------------------------------
 // Initializes all IPX internals. 
 // If socket_number==0, then opens next available socket.
-// Returns:	0  if successful.
-//				-1 if socket already open.
-//				-2	if socket table full.
-//				-3 if IPX not installed.
-//				-4 if couldn't allocate low dos memory
-//				-5 if error with getting internetwork address
+// Returns one of the constants defined in include/ipx.h
 
 int ipx_init( int socket_number, int show_address )
 {
@@ -500,7 +495,7 @@ int ipx_init( int socket_number, int show_address )
 	dpmi_real_int386x( 0x2f, &rregs );
 
 	if ( (rregs.eax & 0xFF) != 0xFF )	{
-		return 3;   
+		return IPX_NOT_INSTALLED;   
 	}
 	ipx_vector_offset = rregs.edi & 0xFFFF;
 	ipx_vector_segment = rregs.es;
@@ -519,7 +514,7 @@ int ipx_init( int socket_number, int show_address )
 	
 	if ( rregs.eax & 0xFF )	{
 		//mprintf( (1, "IPX error opening channel %d\n", socket_number-IPX_DEFAULT_SOCKET ));
-		return -2;
+		return IPX_SOCKET_TABLE_FULL;
 	}
 	
 	ipx_installed = 1;
@@ -528,7 +523,7 @@ int ipx_init( int socket_number, int show_address )
 	ipx_real_buffer = dpmi_get_temp_low_buffer( 1024 );	// 1k block
 	if ( ipx_real_buffer == NULL )	{
 		//printf( "Error allocation realmode memory\n" );
-		return -4;
+		return IPX_NO_LOW_DOS_MEM;
 	}
 
 	memset(&rregs,0,sizeof(dpmi_real_regs));
@@ -539,7 +534,7 @@ int ipx_init( int socket_number, int show_address )
 
 	if ( rregs.eax & 0xFF )	{
 		//printf( "Error getting internetwork address!\n" );
-		return -2;
+		return IPX_SOCKET_TABLE_FULL;
 	}
 
 	memcpy( &ipx_network, ipx_real_buffer, 4 );
@@ -558,12 +553,12 @@ int ipx_init( int socket_number, int show_address )
 	packets = dpmi_real_malloc( sizeof(ipx_packet)*ipx_num_packets, &ipx_packets_selector );
 	if ( packets == NULL )	{
 		//printf( "Couldn't allocate real memory for %d packets\n", ipx_num_packets );
-		return -4;
+		return IPX_NO_LOW_DOS_MEM;
 	}
 #if 0 /* adb: not needed, fails with cwsdpmi */
 	if (!dpmi_lock_region( packets, sizeof(ipx_packet)*ipx_num_packets ))	{
 		//printf( "Couldn't lock real memory for %d packets\n", ipx_num_packets );
-		return -4;
+		return IPX_NO_LOW_DOS_MEM;
 	}
 #endif
 	memset( packets, 0, sizeof(ipx_packet)*ipx_num_packets );
@@ -604,7 +599,7 @@ outpackets = dpmi_real_malloc( sizeof(ipx_packet)*ipx_num_packets, &ipx_packets_
 
 
 //end this section replace - Kevin Bently
-	return 0;
+	return IPX_INIT_OK;
 }
 
 void ipx_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address )

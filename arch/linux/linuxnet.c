@@ -1,4 +1,4 @@
-/* $Id: linuxnet.c,v 1.9 2003-08-02 07:32:59 btb Exp $ */
+/* $Id: linuxnet.c,v 1.10 2003-10-03 07:58:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,7 +14,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * Linux net
+ * Linux lower-level network code.
+ * implements functions declared in include/ipx.h
  *
  */
 
@@ -23,18 +24,24 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef NETWORK
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
 #include <netinet/in.h> /* for htons & co. */
 
 #include "pstypes.h"
 #include "args.h"
+#include "error.h"
 
+#include "ipx.h"
 #include "ipx_drv.h"
-#include "ipx_bsd.h"
+#ifdef NATIVE_IPX
+#  include "ipx_bsd.h"
+#endif //NATIVE_IPX
 #include "ipx_kali.h"
 #include "ipx_udp.h"
 //added 05/17/99 Matt Mueller - needed to redefine FD_* so that no asm is used
@@ -67,8 +74,6 @@ user_address Ipx_users[MAX_USERS];
 int Ipx_num_networks = 0;
 uint Ipx_networks[MAX_NETWORKS];
 
-void ipx_close(void);
-
 int ipx_general_PacketReady(ipx_socket_t *s) {
 	fd_set set;
 	struct timeval tv;
@@ -82,7 +87,7 @@ int ipx_general_PacketReady(ipx_socket_t *s) {
 		return 0;
 }
 
-struct ipx_driver *driver = &ipx_bsd;
+struct ipx_driver *driver = &ipx_udp;
 
 ubyte * ipx_get_my_server_address()
 {
@@ -94,31 +99,22 @@ ubyte * ipx_get_my_local_address()
 	return (ubyte *)(ipx_MyAddress + 4);
 }
 
-//---------------------------------------------------------------
-// Initializes all IPX internals. 
-// If socket_number==0, then opens next available socket.
-// Returns:	0  if successful.
-//				-1 if socket already open.
-//				-2	if socket table full.
-//				-3 if IPX not installed.
-//				-4 if couldn't allocate low dos memory
-//				-5 if error with getting internetwork address
-int ipx_init( int socket_number, int show_address )
+void arch_ipx_set_driver(int ipx_driver)
+{
+	switch(ipx_driver) {
+#ifdef NATIVE_IPX
+	case IPX_DRIVER_IPX: driver = &ipx_bsd; break;
+#endif //NATIVE_IPX
+	case IPX_DRIVER_KALI: driver = &ipx_kali; break;
+	case IPX_DRIVER_UDP: driver = &ipx_udp; break;
+	default: Int3();
+	}
+}
+
+int ipx_init(int socket_number)
 {
 	int i;
 
-	if (FindArg("-kali")) {
-		printf("Using Kali for network games\n");
-		driver = &ipx_kali;
-//added on 12/20/98 by Jan Kratochvil for direct TCP/IP games
-	} else if (FindArg("-udp")) {
-                printf("Using native TCP/IP (UDP) for network games\n");
-                driver = &ipx_udp;
-//end this section addition - JK
-	} else {
-		printf("Using real IPX for network games\n");
-		driver = &ipx_bsd;
-	}
 	if ((i = FindArg("-ipxnetwork")) && Args[i + 1]) {
 		unsigned long n = strtol(Args[i + 1], NULL, 16);
 		ipx_MyAddress[0] = n >> 24; ipx_MyAddress[1] = (n >> 16) & 255;
@@ -126,7 +122,7 @@ int ipx_init( int socket_number, int show_address )
 		printf("IPX: Using network %08x\n", (unsigned int)n);
 	}
 	if (driver->OpenSocket(&ipx_socket_data, socket_number)) {
-		return -3;
+		return IPX_NOT_INSTALLED;
 	}
 	driver->GetMyAddress();
 	memcpy(&ipx_network, ipx_MyAddress, 4);
@@ -134,7 +130,7 @@ int ipx_init( int socket_number, int show_address )
 	memcpy( &Ipx_networks[Ipx_num_networks++], &ipx_network, 4 );
 	ipx_installed = 1;
 	atexit(ipx_close);
-	return 0;
+	return IPX_INIT_OK;
 }
 
 void ipx_close()
@@ -242,7 +238,12 @@ void ipx_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * serv
 {
 	ubyte local_address[6];
 
-	if ( (*(uint *)server) != 0 )	{
+#ifdef WORDS_NEED_ALIGNMENT
+	int zero = 0;
+	if (memcmp(server, &zero, 4)) {
+#else // WORDS_NEED_ALIGNMENT
+	if ((*(uint *)server) != 0) {
+#endif // WORDS_NEED_ALIGNMENT
 		ipx_get_local_target( server, address, local_address );
 		ipx_send_packet_data( data, datasize, server, address, local_address );
 	} else {

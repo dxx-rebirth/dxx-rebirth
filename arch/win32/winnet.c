@@ -1,4 +1,4 @@
-/* $Id: winnet.c,v 1.5 2003-02-28 23:34:15 btb Exp $ */
+/* $Id: winnet.c,v 1.6 2003-10-03 07:58:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,7 +14,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * Win32 net
+ * Win32 lower-level network code.
+ * implements functions declared in include/ipx.h
  *
  */
 
@@ -56,8 +57,6 @@ user_address Ipx_users[MAX_USERS];
 int Ipx_num_networks = 0;
 uint Ipx_networks[MAX_NETWORKS];
 
-void ipx_close(void);
-
 int ipx_general_PacketReady(ipx_socket_t *s) {
 	fd_set set;
 	struct timeval tv;
@@ -83,16 +82,15 @@ ubyte * ipx_get_my_local_address()
 	return (ubyte *)(ipx_MyAddress + 4);
 }
 
-//---------------------------------------------------------------
-// Initializes all IPX internals. 
-// If socket_number==0, then opens next available socket.
-// Returns:	0  if successful.
-//				-1 if socket already open.
-//				-2	if socket table full.
-//				-3 if IPX not installed.
-//				-4 if couldn't allocate low dos memory
-//				-5 if error with getting internetwork address
-int ipx_init( int socket_number, int show_address )
+void arch_ipx_set_driver(int ipx_driver)
+{
+	if (ipx_driver != IPX_DRIVER_IPX)
+		Warning("Unknown network driver! Defaulting to real IPX");
+
+        driver = &ipx_win;
+}
+
+int ipx_init(int socket_number)
 {
 	int i;
 
@@ -102,7 +100,7 @@ int ipx_init( int socket_number, int show_address )
         wVersionRequested = MAKEWORD(2, 0);
         if (WSAStartup( wVersionRequested, &wsaData))
         {
-          return -1;
+          return IPX_SOCKET_ALREADY_OPEN;
         }
 
 #if 0
@@ -110,12 +108,10 @@ int ipx_init( int socket_number, int show_address )
           HIBYTE( wsaData.wVersion ) != 0 ) {
            /* We couldn't find a usable WinSock DLL. */
            WSACleanup( );
-           return -2;
+           return IPX_SOCKET_TABLE_FULL;
         }
 #endif
 
-        printf("Using real IPX for network games\n");
-        driver = &ipx_win;
 	if ((i = FindArg("-ipxnetwork")) && Args[i + 1]) {
 		unsigned long n = strtol(Args[i + 1], NULL, 16);
 		ipx_MyAddress[0] = (unsigned char)n >> 24; ipx_MyAddress[1] = (unsigned char)(n >> 16) & 255;
@@ -123,7 +119,7 @@ int ipx_init( int socket_number, int show_address )
                 printf("IPX: Using network %08x\n", (int) n);
 	}
 	if (driver->OpenSocket(&ipx_socket_data, socket_number)) {
-		return -3;
+		return IPX_NOT_INSTALLED;
 	}
 	driver->GetMyAddress();
 	memcpy(&ipx_network, ipx_MyAddress, 4);
@@ -132,7 +128,7 @@ int ipx_init( int socket_number, int show_address )
 	ipx_installed = 1;
 	atexit(ipx_close);
         printf("ipx succesfully installed\n");
-	return 0;
+	return IPX_INIT_OK;
 }
 
 void ipx_close()

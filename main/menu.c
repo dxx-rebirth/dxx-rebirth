@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.24 2003-04-12 02:52:38 btb Exp $ */
+/* $Id: menu.c,v 1.25 2003-10-03 07:58:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -58,13 +58,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "newmenu.h"
 #ifdef NETWORK
-#include "network.h"
+#  include "network.h"
+#  include "ipx.h"
+#  include "multi.h"
 #endif
 #include "scores.h"
 #include "joydefs.h"
 #include "modem.h"
 #include "playsave.h"
-#include "multi.h"
 #include "kconfig.h"
 #include "titles.h"
 #include "credits.h"
@@ -120,10 +121,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MENU_SHOW_CREDITS               23
 #define MENU_ORDER_INFO                 24
 #define MENU_PLAY_SONG                  25
-#define MENU_START_TCP_NETGAME          26
-#define MENU_JOIN_TCP_NETGAME           27
+//#define MENU_START_TCP_NETGAME          26 // TCP/IP support was planned in Descent II,
+//#define MENU_JOIN_TCP_NETGAME           27 // but never realized.
 #define MENU_START_APPLETALK_NETGAME    28
-#define MENU_JOIN_APPLETALK_NETGAME     30
+#define MENU_JOIN_APPLETALK_NETGAME     29
+#define MENU_START_UDP_NETGAME          30 // UDP/IP support copied from d1x
+#define MENU_JOIN_UDP_NETGAME           31
+#define MENU_START_KALI_NETGAME         32 // Kali support copied from d1x
+#define MENU_JOIN_KALI_NETGAME          33
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
 //ADD_ITEM("Send net message...", MENU_SEND_NET_MESSAGE, -1 );
@@ -149,10 +154,12 @@ int EscortHotKeys=1;
 
 // Function Prototypes added after LINTING
 void do_option(int select);
-void do_detail_level_menu_custon(void);
-void do_multi_player_menu(void);
 void do_detail_level_menu_custom(void);
 void do_new_game_menu(void);
+#ifdef NETWORK
+void do_multi_player_menu(void);
+void ipx_set_driver(int ipx_driver);
+#endif //NETWORK
 
 //returns the number of demo files on the disk
 int newdemo_count_demos();
@@ -407,7 +414,7 @@ void do_option ( int select)
 			do_show_help();
 			break;
 
-		#ifndef RELEASE
+#ifndef RELEASE
 
 		case MENU_PLAY_SONG:    {
 				int i;
@@ -441,28 +448,34 @@ void do_option ( int select)
 
 			break;
 		}
-		#endif
+#endif //ifndef RELEASE
 
 
 #ifdef NETWORK
+		//case MENU_START_TCP_NETGAME:
+		//case MENU_JOIN_TCP_NETGAME:
 		case MENU_START_IPX_NETGAME:
-		case MENU_START_TCP_NETGAME:
-			load_mission(Builtin_mission_num);
-			#ifdef MACINTOSH
-			Network_game_type = IPX_GAME;
-			#endif
-//			WIN(ipx_create_read_thread());
-			network_start_game();
-			break;
-
 		case MENU_JOIN_IPX_NETGAME:
-		case MENU_JOIN_TCP_NETGAME:
+		case MENU_START_UDP_NETGAME:
+		case MENU_JOIN_UDP_NETGAME:
+		case MENU_START_KALI_NETGAME:
+		case MENU_JOIN_KALI_NETGAME:
 			load_mission(Builtin_mission_num);
-			#ifdef MACINTOSH
+#ifdef MACINTOSH
 			Network_game_type = IPX_GAME;
-			#endif
+#endif
 //			WIN(ipx_create_read_thread());
-			network_join_game();
+			switch (select & ~0x1) {
+			case MENU_START_IPX_NETGAME: ipx_set_driver(IPX_DRIVER_IPX); break;
+			case MENU_START_UDP_NETGAME: ipx_set_driver(IPX_DRIVER_UDP); break;
+			case MENU_START_KALI_NETGAME: ipx_set_driver(IPX_DRIVER_KALI); break;
+			default: Int3();
+			}
+
+			if ((select & 0x1) == 0) // MENU_START_*_NETGAME
+				network_start_game();
+			else // MENU_JOIN_*_NETGAME
+				network_join_game();
 			break;
 
 #ifdef MACINTOSH
@@ -1689,10 +1702,11 @@ void do_toggles_menu()
 
 }
 
+#ifdef NETWORK
 void do_multi_player_menu()
 {
-	int menu_choice[5];
-	newmenu_item m[5];
+	int menu_choice[9];
+	newmenu_item m[9];
 	int choice = 0, num_options = 0;
 	int old_game_mode;
 
@@ -1702,18 +1716,23 @@ void do_multi_player_menu()
 		old_game_mode = Game_mode;
 		num_options = 0;
 
-		if (!FindArg("-udp")) {
-			ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_IPX_NETGAME, -1 );
-			ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_IPX_NETGAME, -1 );
-		} else {
-			ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_TCP_NETGAME, -1 );
-			ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_JOIN_TCP_NETGAME, -1 );
-		}
+#ifdef NATIVE_IPX
+		ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_IPX_NETGAME, -1);
+		ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_IPX_NETGAME, -1);
+#endif //NATIVE_IPX
+		//ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_TCP_NETGAME, -1);
+		//ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_JOIN_TCP_NETGAME, -1);
+#ifdef __unix__
+		ADD_ITEM("Start UDP/IP Netgame", MENU_START_UDP_NETGAME, -1);
+		ADD_ITEM("Join UDP/IP Netgame\n", MENU_JOIN_UDP_NETGAME, -1);
+		ADD_ITEM("Start Kali Netgame", MENU_START_KALI_NETGAME, -1);
+		ADD_ITEM("Join Kali Netgame\n", MENU_JOIN_KALI_NETGAME, -1);
+#endif //__unix__
 
-        #ifdef MACINTOSH
+#ifdef MACINTOSH
 		ADD_ITEM("Start Appletalk Netgame", MENU_START_APPLETALK_NETGAME, -1 );
 		ADD_ITEM("Join Appletalk Netgame\n", MENU_JOIN_APPLETALK_NETGAME, -1 );
-        #endif
+#endif
 
 		ADD_ITEM(TXT_MODEM_GAME, MENU_START_SERIAL, -1);
 
@@ -1727,6 +1746,51 @@ void do_multi_player_menu()
 
 	} while( choice > -1 );
 
+}
+
+/*
+ * ipx_set_driver was called do_network_init and located in main/inferno
+ * before the change which allows the user to choose the network driver
+ * from the game menu instead of having to supply command line args.
+ */
+void ipx_set_driver(int ipx_driver)
+{
+	ipx_close();
+
+	if (!FindArg("-nonetwork")) {
+		int ipx_error;
+		int socket = 0, t;
+
+		con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
+
+		if ((t = FindArg("-socket")))
+			socket = atoi(Args[t + 1]);
+
+		arch_ipx_set_driver(ipx_driver);
+
+		if ((ipx_error = ipx_init(IPX_DEFAULT_SOCKET + socket)) == IPX_INIT_OK) {
+			con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, socket );
+			Network_active = 1;
+		} else {
+			switch(ipx_error) {
+			case IPX_NOT_INSTALLED: con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK); break;
+			case IPX_SOCKET_TABLE_FULL: con_printf(CON_VERBOSE, "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET+socket); break;
+			case IPX_NO_LOW_DOS_MEM: con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX ); break;
+			default: con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, ipx_error );
+			}
+			con_printf(CON_VERBOSE, "%s\n",TXT_NETWORK_DISABLED);
+			Network_active = 0;		// Assume no network
+		}
+		ipx_read_user_file("descent.usr");
+		ipx_read_network_file("descent.net");
+		//@@if (FindArg("-dynamicsockets"))
+		//@@	Network_allow_socket_changes = 1;
+		//@@else
+		//@@	Network_allow_socket_changes = 0;
+	} else {
+		con_printf(CON_VERBOSE, "%s\n", TXT_NETWORK_DISABLED);
+		Network_active = 0;		// Assume no network
+	}
 }
 
 void DoNewIPAddress ()
@@ -1746,3 +1810,5 @@ void DoNewIPAddress ()
 
   nm_messagebox (TXT_SORRY,1,TXT_OK,"That address is not valid!");
  }
+
+#endif // NETWORK

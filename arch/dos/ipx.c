@@ -1,4 +1,4 @@
-/* $Id: ipx.c,v 1.5 2003-10-03 03:37:43 btb Exp $ */
+/* $Id: ipx.c,v 1.6 2003-10-03 07:58:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,7 +14,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * Routines for IPX communications.
+ * Routines for IPX communications, copied from d1x
  *
  * Old Log:
  * Revision 2.10  1995/03/29  17:27:55  john
@@ -433,7 +433,7 @@ static void ipx_dos_get_local_target( ubyte * server, ubyte * node, ubyte * loca
 	memcpy( local_target, info->local_target, 6 );
 }
 
-static void ipx_dos_close()
+static void ipx_close()
 {
 	dpmi_real_regs rregs;
 	if ( ipx_installed )	{
@@ -448,18 +448,7 @@ static void ipx_dos_close()
 	}
 }
 
-
-//---------------------------------------------------------------
-// Initializes all IPX internals. 
-// If socket_number==0, then opens next available socket.
-// Returns:	0  if successful.
-//				-1 if socket already open.
-//				-2	if socket table full.
-//				-3 if IPX not installed.
-//				-4 if couldn't allocate low dos memory
-//				-5 if error with getting internetwork address
-
-static int ipx_dos_init( int socket_number )
+static int ipx_init(int socket_number)
 {
 	int show_address=0;
 	dpmi_real_regs rregs;
@@ -484,7 +473,7 @@ static int ipx_dos_init( int socket_number )
 	dpmi_real_int386x( 0x2f, &rregs );
 
 	if ( (rregs.eax & 0xFF) != 0xFF )	{
-		return 3;   
+		return IPX_NOT_INSTALLED;   
 	}
 	ipx_vector_offset = rregs.edi & 0xFFFF;
 	ipx_vector_segment = rregs.es;
@@ -503,7 +492,7 @@ static int ipx_dos_init( int socket_number )
 	
 	if ( rregs.eax & 0xFF )	{
 		//mprintf( (1, "IPX error opening channel %d\n", socket_number-IPX_DEFAULT_SOCKET ));
-		return -2;
+		return IPX_SOCKET_TABLE_FULL;
 	}
 	
 	ipx_installed = 1;
@@ -512,7 +501,7 @@ static int ipx_dos_init( int socket_number )
 	ipx_real_buffer = dpmi_get_temp_low_buffer( 1024 );	// 1k block
 	if ( ipx_real_buffer == NULL )	{
 		//printf( "Error allocation realmode memory\n" );
-		return -4;
+		return IPX_NO_LOW_DOS_MEM;
 	}
 
 	memset(&rregs,0,sizeof(dpmi_real_regs));
@@ -523,7 +512,7 @@ static int ipx_dos_init( int socket_number )
 
 	if ( rregs.eax & 0xFF )	{
 		//printf( "Error getting internetwork address!\n" );
-		return -2;
+		return IPX_SOCKET_TABLE_FULL;
 	}
 
 /*	memcpy( &ipx_network, ipx_real_buffer, 4 );
@@ -540,12 +529,12 @@ static int ipx_dos_init( int socket_number )
 	packets = dpmi_real_malloc( sizeof(ipx_packet)*ipx_num_packets, &ipx_packets_selector );
 	if ( packets == NULL )	{
 		//printf( "Couldn't allocate real memory for %d packets\n", ipx_num_packets );
-		return -4;
+		return IPX_NO_LOW_DOS_MEM;
 	}
 #if 0 /* adb: not needed, fails with cwsdpmi */
 	if (!dpmi_lock_region( packets, sizeof(ipx_packet)*ipx_num_packets ))	{
 		//printf( "Couldn't lock real memory for %d packets\n", ipx_num_packets );
-		return -4;
+		return IPX_NO_LOW_DOS_MEM;
 	}
 #endif
 	memset( packets, 0, sizeof(ipx_packet)*ipx_num_packets );
@@ -571,7 +560,7 @@ static int ipx_dos_init( int socket_number )
 //	memcpy( packets[0].ipx.destination.network_id, &ipx_network, 4 );
 	memset( packets[0].ipx.destination.network_id, 0, 4 );
 
-	return 0;
+	return IPX_INIT_OK;
 }
 
 static void ipx_dos_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address )
@@ -682,8 +671,8 @@ static void ipx_dos_send_packet_data( ubyte * data, int datasize, ubyte *network
 
 struct ipx_driver ipx_dos = {
 //	NULL,
-	ipx_dos_init,
-	ipx_dos_close,
+	ipx_init,
+	ipx_close,
 	NULL,
 	NULL,
 	NULL,
@@ -694,9 +683,11 @@ struct ipx_driver ipx_dos = {
 	ipx_dos_send_packet_data
 };
 
-struct ipx_driver * arch_ipx_set_driver(char *arg)
+void arch_ipx_set_driver(int ipx_driver)
 {
-	return &ipx_dos;
+	driver = &ipx_dos;
+	if (ipx_driver != IPX_DRIVER_IPX)
+		Warning("Unknown network driver! Defaulting to real IPX");
 }
 
 

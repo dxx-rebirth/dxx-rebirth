@@ -1,4 +1,4 @@
-/* $Id: ipx.h,v 1.5 2002-08-29 09:03:36 btb Exp $ */
+/* $Id: ipx.h,v 1.6 2003-10-03 07:58:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  *
- * Prototype for IPX communications.
+ * Prototypes for lower-level network routines.
+ * This file is called ipx.h and the prefix of these routines is "ipx_"
+ * because orignally IPX was the only network driver.
+ *
  *
  * Old Log:
  * Revision 2.6  1995/03/29  11:19:32  john
@@ -104,16 +107,24 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
          #define IPX_DEFAULT_SOCKET 0x5130
 #endif
 
-//---------------------------------------------------------------
-// Initializes all IPX internals.
-// If socket_number==0, then opens next available socket.
-// Returns:	0  if successful.
-//				-1 if socket already open.
-//				-2	if socket table full.
-//				-3 if IPX not installed.
-//				-4 if couldn't allocate low dos memory
-//				-5 if error with getting internetwork address
-extern int ipx_init( int socket_number, int show_address );
+#define IPX_DRIVER_IPX  1 // IPX "IPX driver" :-)
+#define IPX_DRIVER_KALI 2
+#define IPX_DRIVER_UDP  3 // UDP/IP, user datagrams protocol over the internet
+
+/* Sets the "IPX driver" (net driver).  Takes one of the above consts as argument. */
+extern void arch_ipx_set_driver(int ipx_driver);
+
+#define IPX_INIT_OK              0
+#define IPX_SOCKET_ALREADY_OPEN -1
+#define IPX_SOCKET_TABLE_FULL   -2
+#define IPX_NOT_INSTALLED       -3
+#define IPX_NO_LOW_DOS_MEM      -4 // couldn't allocate low dos memory
+#define IPX_ERROR_GETTING_ADDR  -5 // error with getting internetwork address
+
+/* returns one of the above constants */
+extern int ipx_init(int socket_number);
+
+extern void ipx_close(void);
 
 extern int ipx_change_default_socket( ushort socket_number );
 

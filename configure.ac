@@ -269,16 +269,34 @@ dnl Check for network
 AC_ARG_ENABLE(network,
     [  --disable-network       Do not build network/serial support ],,)
 if test x$enable_network != xno; then
-	if test x$MACOSX = xyes; then
-		AC_MSG_WARN([OS X detected.  disabling network])
-		enable_network="no";
-	fi
+    case $host_os in
+        cygwin* | mingw* | msdos* | linux*)
+            enable_native_ipx="yes";
+           ;;
+       *)
+            AC_MSG_WARN([d2x doesn't support native ipx on this host.  disabling native ipx])
+            enable_native_ipx="no";
+            ;;
+    esac
+    case $host_os in
+        *solaris*)
+            AC_CHECK_LIB(socket, socket, LIBS="${LIBS} -lsocket",
+	        [AC_MSG_ERROR(socket lib required for net support on solaris not found)])
+            AC_CHECK_LIB(nsl, inet_addr, LIBS="${LIBS} -lnsl",
+	        [AC_MSG_ERROR(nsl lib required for net support on solaris not found)])		
+           ;;
+    esac
 fi
 if test x$enable_network != xno; then
+    if test x$enable_native_ipx != xno; then
+        D2X_FEATURES="ipx ${D2X_FEATURES}"
+        AC_DEFINE(NATIVE_IPX,,[Define to use the IPX support of the OS])
+    fi
     AC_DEFINE(NETWORK,,[Define if you want a network build])
     D2X_FEATURES="network ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(USE_NETWORK, test x$enable_network != xno)
+AM_CONDITIONAL(USE_NATIVE_IPX, test x$enable_native_ipx != xno)
 
 dnl Check for assembler
 AC_ARG_ENABLE(assembler,

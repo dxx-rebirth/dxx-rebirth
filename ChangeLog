@@ -1,3 +1,14 @@
+2003-10-03  Martin Schaffner <maschaffner@gmx.ch>
+
+	* arch/dos/bak/ipx.c, arch/dos/ipx.c, arch/linux/Makefile.am,
+	arch/linux/include/ipx_lin.h, arch/linux/ipx_lin.c,
+	arch/linux/ipx_udp.c, arch/linux/linuxnet.c, arch/linux/ukali.c,
+	arch/win32/winnet.c, configure.ac, include/byteswap.h,
+	include/ipx.h, main/inferno.c, main/menu.c, main/multi.c,
+	main/multibot.c, main/network.c: Make network architecture
+	choosable from game menu, add support for UDP/IP on Mac OS X and
+	Solaris
+
 2003-10-02  Martin Schaffner <maschaffner@gmx.ch>
 
 	* include/byteswap.h: added macros for coping with alignment

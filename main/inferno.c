@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.63 2003-06-16 07:11:40 btb Exp $ */
+/* $Id: inferno.c,v 1.64 2003-10-03 07:58:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -758,7 +758,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "titles.h"
 #include "player.h"
 #include "text.h"
-#include "ipx.h"
 #include "newdemo.h"
 #ifdef NETWORK
 #include "network.h"
@@ -1104,44 +1103,6 @@ void do_register_player(ubyte *title_pal)
 
 }
 
-#ifdef NETWORK
-void do_network_init()
-{
-	if (!FindArg( "-nonetwork" ))	{
-		int socket = 0, showaddress = 0, t;
-		int ipx_error;
-
-		con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
-		if ((t=FindArg("-socket")))
-			socket = atoi( Args[t+1] );
-		//@@if ( FindArg("-showaddress") ) showaddress=1;
-		if ((ipx_error=ipx_init(IPX_DEFAULT_SOCKET+socket, showaddress))==0)	{
-  			con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, socket );
-			Network_active = 1;
-		} else {
-			switch( ipx_error )	{
-			case 3: 	con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK); break;
-			case -2: con_printf(CON_VERBOSE, "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET+socket); break;
-			case -4: con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX ); break;
-			default:
-				con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, ipx_error );
-			}
-			con_printf(CON_VERBOSE, "%s\n",TXT_NETWORK_DISABLED);
-			Network_active = 0;		// Assume no network
-		}
-		ipx_read_user_file( "descent.usr" );
-		ipx_read_network_file( "descent.net" );
-		//@@if ( FindArg( "-dynamicsockets" ))
-		//@@	Network_allow_socket_changes = 1;
-		//@@else
-		//@@	Network_allow_socket_changes = 0;
-	} else {
-		con_printf(CON_VERBOSE, "%s\n", TXT_NETWORK_DISABLED);
-		Network_active = 0;		// Assume no network
-	}
-}
-#endif
-
 #define PROGNAME argv[0]
 
 extern char Language[];
@@ -1324,10 +1285,6 @@ int main(int argc, char *argv[])
 	ReadConfigFile();
 
 	do_joystick_init();
-
-#ifdef NETWORK
-	do_network_init();
-#endif
 
 #if defined(POLY_ACC)
     Current_display_mode = -1;
