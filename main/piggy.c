@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.17 2002-08-15 08:53:11 btb Exp $ */
+/* $Id: piggy.c,v 1.18 2002-10-10 19:17:37 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.17 2002-08-15 08:53:11 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.18 2002-10-10 19:17:37 btb Exp $";
 #endif
 
 
@@ -1319,9 +1319,10 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 			Piggy_bitmap_cache_next += zsize-4;
 
+#if 0
 			if (cfilelength(Piggy_fp) == 4929684) // mac version of d2demo.pig
 				rle_swap_0_255( bmp );
-
+#endif
 		} else {
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
 			Assert( Piggy_bitmap_cache_next+(bmp->bm_h*bmp->bm_w) < Piggy_bitmap_cache_size );
@@ -1337,9 +1338,10 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 
+#if 0
 			if (cfilelength(Piggy_fp) == 4929684) // mac version of d2demo.pig
 				swap_0_255( bmp );
-
+#endif
 		}
 
 
