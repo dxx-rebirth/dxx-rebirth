@@ -1,4 +1,4 @@
-/* $Id: medrobot.c,v 1.4 2004-12-21 11:58:14 btb Exp $ */
+/* $Id: medrobot.c,v 1.5 2005-01-24 22:26:06 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: medrobot.c,v 1.4 2004-12-21 11:58:14 btb Exp $";
+static char rcsid[] = "$Id: medrobot.c,v 1.5 2005-01-24 22:26:06 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -140,8 +140,8 @@ void call_init_ai_object(object *objp, int behavior)
 			mseg = Markedsegp-Segments;
 		}
 
-		objp->ctype.ai_info.follow_path_start_seg = Cursegp-Segments;
-		objp->ctype.ai_info.follow_path_end_seg = Markedsegp-Segments;
+		//objp->ctype.ai_info.follow_path_start_seg = Cursegp-Segments;
+		//objp->ctype.ai_info.follow_path_end_seg = Markedsegp-Segments;
 	}
 }
 

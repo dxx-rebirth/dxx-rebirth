@@ -24,6 +24,7 @@
 	instead of d1-style mem.h and types.h
 	* main/editor/texpage.c: do texture replacement for any mission
 	* main/editor/medwall.c: add prototype for create_removable_wall
+	* main/editor/medrobot.c: don't try to set the removed follow_path
 
 2005-01-23  Jason Owen  <shannara256@yahoo.com>
 
