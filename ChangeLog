@@ -3,6 +3,9 @@
 	* include/strio.h, include/strutil.h, misc/args.c, misc/strio.c,
 	misc/strutil.c: d2x can now handle any line ending when reading d2x.ini
 
+	* arch/ogl/gr.c, cfile/cfile.c, main/movie.c: make d2x compile (but not
+	link) on MPW on Mac OS 9 (carbon)
+
 2004-08-04 Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* include/ogl_init.h: Include glu.h on OS X, it is sometimes necessary

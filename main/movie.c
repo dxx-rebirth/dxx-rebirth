@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.35 2004-08-01 16:28:33 schaffner Exp $ */
+/* $Id: movie.c,v 1.36 2004-08-06 20:36:02 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.35 2004-08-01 16:28:33 schaffner Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.36 2004-08-06 20:36:02 schaffner Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -546,7 +546,7 @@ int init_subtitles(char *filename)
 
 	size = cfilelength(ifile);
 
-	MALLOC (subtitle_raw_data, ubyte, size+1);
+	MALLOC (subtitle_raw_data, char, size+1);
 
 	read_count = cfread(subtitle_raw_data, 1, size, ifile);
 

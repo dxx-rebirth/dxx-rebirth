@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.24 2004-08-01 14:32:07 schaffner Exp $ */
+/* $Id: cfile.c,v 1.25 2004-08-06 20:36:02 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -125,11 +125,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <string.h>
-#ifndef _WIN32_WCE
-#include <sys/stat.h>
-#else
-# include <windows.h>
-#endif
 
 #include "pstypes.h"
 #include "u_mem.h"

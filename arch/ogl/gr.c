@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.34 2004-08-01 16:28:33 schaffner Exp $ */
+/* $Id: gr.c,v 1.35 2004-08-06 20:36:02 schaffner Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -320,7 +320,7 @@ return 0;
 
 //	ogl_init_state();
 	
-	gr_bm_data=grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
+	gr_bm_data=(char *)grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
