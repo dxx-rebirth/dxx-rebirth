@@ -12,8 +12,8 @@ configure: configure-stamp configure-gl-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	mkdir -p d2x-sdl
-	cd d2x-sdl && ../configure --disable-debug --enable-release \
+	mkdir -p build_d2x-sdl
+	cd build_d2x-sdl && ../configure --disable-debug --enable-release \
 		--prefix=/usr --bindir=\$${prefix}/games
 
 	touch configure-stamp
@@ -21,8 +21,8 @@ configure-stamp:
 configure-gl-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	mkdir -p d2x-ogl
-	cd d2x-ogl && ../configure --disable-debug --enable-release --with-opengl \
+	mkdir -p build_d2x-gl
+	cd build_d2x-gl && ../configure --disable-debug --enable-release --with-opengl \
 		--prefix=/usr --bindir=\$${prefix}/games
 
 	touch configure-gl-stamp
@@ -33,7 +33,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	cd d2x-sdl && $(MAKE)
+	cd build_d2x-sdl && $(MAKE)
 
 	touch build-stamp
 
@@ -41,7 +41,7 @@ build-gl-stamp: configure-gl-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	cd d2x-ogl && $(MAKE)
+	cd build_d2x-gl && $(MAKE)
 
 	touch build-stamp
 
@@ -51,7 +51,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
-	rm -rf d2x-sdl d2x-ogl
+	rm -rf build_d2x-sdl build_d2x-gl
 
 	dh_clean
 
@@ -62,8 +62,8 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/d2x.
-	cd d2x-sdl && $(MAKE) install DESTDIR=$(CURDIR)/debian/d2x
-	cd d2x-ogl && $(MAKE) install DESTDIR=$(CURDIR)/debian/d2x-gl
+	cd build_d2x-sdl && $(MAKE) install DESTDIR=$(CURDIR)/debian/d2x-sdl
+	cd build_d2x-gl && $(MAKE) install DESTDIR=$(CURDIR)/debian/d2x-gl
 
 
 # Build architecture-independent files here.
@@ -75,7 +75,7 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 #	dh_installdebconf	
-	dh_installdocs NEWS README readme.txt
+	dh_installdocs NEWS README readme.txt license.txt
 	dh_installexamples
 	dh_installmenu
 #	dh_installlogrotate

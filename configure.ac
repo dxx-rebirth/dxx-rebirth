@@ -170,7 +170,7 @@ else
     )
     done
     AC_DEFINE(OGL,,[Define if you want an OpenGL build])
-    TARGETS=d2x-ogl
+    TARGETS=d2x-gl
     D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
   fi
   AC_SUBST(OGL_LIBS)

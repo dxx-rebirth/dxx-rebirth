@@ -4,7 +4,7 @@ EXTRA_SUBDIRS = include tools unused debian rpm
 
 bin_PROGRAMS = @TARGETS@
 
-EXTRA_PROGRAMS = d2x d2x-sdl d2x-ogl d2x-svga d2x-ggi
+EXTRA_PROGRAMS = d2x d2x-sdl d2x-gl d2x-svga d2x-ggi
 
 CCLD = ${CC}
 LDFLAGS = -export-dynamic
@@ -22,7 +22,7 @@ endif
 
 d2x_SOURCES =
 d2x_sdl_SOURCES =
-d2x_ogl_SOURCES =
+d2x_gl_SOURCES =
 d2x_svga_SOURCES =
 d2x_ggi_SOURCES =
 
@@ -37,7 +37,7 @@ endif
 else
 d2x_sdl_LDADD = ${d2x_LDADD} -lm -ldl -lpthread
 endif
-d2x_ogl_LDADD = ${d2x_sdl_LDADD} ${OGL_LIBS}
+d2x_gl_LDADD = ${d2x_sdl_LDADD} ${OGL_LIBS}
 d2x_svga_LDADD = ${d2x_sdl_LDADD} ${SVGA_LIBS}
 d2x_ggi_LDADD = ${d2x_sdl_LDADD} ${GGI_LIBS}
 
@@ -58,4 +58,4 @@ ChangeLog \
 djgpp.bat djgpp.sh \
 autogen.sh cygconf \
 cvshowto.txt readme.txt license.txt installation.txt mingw32.txt compilerdefs.txt \
-d2x-sdl.sh d2x-ogl.sh
+d2x-sdl.sh d2x-gl.sh

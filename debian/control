@@ -5,14 +5,16 @@ Maintainer: Bradley Bell <bradleyb@u.washington.edu>
 Build-Depends: debhelper (>> 3.0.0), libsdl-dev, nasm, libgl-dev
 Standards-Version: 3.5.0
 
-Package: d2x
+Package: d2x-sdl
 Architecture: any
 Depends: ${shlibs:Depends}
+Provides: d2x
 Description: Descent II
  Descent II
 
 Package: d2x-gl
 Architecture: any
 Depends: ${shlibs:Depends}
+Provides: d2x
 Description: Descent II, GL-accelerated
  Descent II, GL-accelerated

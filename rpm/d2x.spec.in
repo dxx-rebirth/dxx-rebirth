@@ -41,13 +41,13 @@ of Descent 2 Version 1.2 installed in /usr/share/games/descent2.
 
 This version uses SDL for Audio, Input/Output and graphics rendering.
 
-%package -n d2x-ogl
+%package -n d2x-gl
 Group:         Contrib/Games
 Summary:       Descent 2 Version 1.2 for Linux, OpenGL version.
-Provides:      d2x-ogl
+Provides:      d2x-gl
 Requires:      d2x
 
-%description -n d2x-ogl
+%description -n d2x-gl
 This is the port of Descent 2 Version 1.2, the famous 3D game for PC.
 
 D2X is based on source code that was released the 14 December 1999 by
@@ -68,7 +68,7 @@ rendering.
 %configure --with-sharepath=/usr/share/games/descent2 --disable-debug
 make
 mv d2x-sdl d2x-sdl.real
-# d2x-ogl
+# d2x-gl
 make clean
 rm -f config.cache
 # Tell configure where to find libGLU (nonstandard location).
@@ -77,16 +77,16 @@ export LDFLAGS="${LDFLAGS} -L/usr/X11R6/lib"
 	--disable-debug
 # Tell make where to link libGLU (nonstandard location).
 make LDFLAGS="${LDFLAGS} -L /usr/X11R6/lib"
-mv d2x-ogl d2x-ogl.real
+mv d2x-gl d2x-gl.real
 
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/usr/games/
 mkdir -p $RPM_BUILD_ROOT/usr/share/games/descent2/missions/
 install -m 755 d2x-sdl.sh $RPM_BUILD_ROOT/usr/games/d2x-sdl
-install -m 755 d2x-ogl.sh $RPM_BUILD_ROOT/usr/games/d2x-ogl
+install -m 755 d2x-gl.sh $RPM_BUILD_ROOT/usr/games/d2x-gl
 install d2x-sdl.real $RPM_BUILD_ROOT/usr/games/
-install d2x-ogl.real $RPM_BUILD_ROOT/usr/games/
+install d2x-gl.real $RPM_BUILD_ROOT/usr/games/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -104,10 +104,10 @@ rm -rf $RPM_BUILD_ROOT
 /usr/games/d2x-sdl
 /usr/games/d2x-sdl.real
 
-%files -n d2x-ogl
+%files -n d2x-gl
 %defattr(-,root,root)
-/usr/games/d2x-ogl
-/usr/games/d2x-ogl.real
+/usr/games/d2x-gl
+/usr/games/d2x-gl.real
 
 %changelog
 * Tue Feb  7 2002 - Paolo Ulivi <pulivi@libero.it>
