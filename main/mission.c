@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.40 2005-02-25 10:28:42 chris Exp $ */
+/* $Id: mission.c,v 1.41 2005-02-25 12:07:08 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -58,7 +58,8 @@ typedef struct mle {
 	char    mission_name[MISSION_NAME_LEN+1];
 	ubyte   descent_version;    // descent 1 or descent 2?
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
-	ubyte   location;           // see defines below
+	char	*path;				// relative file path
+	int		location;           // see defines below
 } mle;
 
 //values that describe where a mission is located
@@ -311,17 +312,23 @@ int read_mission_file(mle *mission, char *filename, int location)
 
 	if (mfile) {
 		char *p;
-		char temp[FILENAME_LEN],*t;
+		char temp[PATH_MAX], *ext;
 
 		strcpy(temp,filename);
-		if ((t = strchr(temp,'.')) == NULL)
+		p = strrchr(temp, '/');	// get the filename at the end of the path
+		if (!p)
+			p = temp;
+		else p++;
+		
+		if ((ext = strchr(p, '.')) == NULL)
 			return 0;	//missing extension
 		// look if it's .mn2 or .msn
-		mission->descent_version = (t[3] == '2') ? 2 : 1;
-		*t = 0;			//kill extension
+		mission->descent_version = (ext[3] == '2') ? 2 : 1;
+		*ext = 0;			//kill extension
 
-		mission->filename = d_strdup(temp);
+		mission->path = d_strdup(temp);
 		mission->anarchy_only_flag = 0;
+		mission->filename = mission->path + (p - temp);
 		mission->location = location;
 
 		p = get_parm_value("name",mfile);
@@ -349,7 +356,7 @@ int read_mission_file(mle *mission, char *filename, int location)
 		}
 		else {
 			cfclose(mfile);
-			d_free(mission->filename);
+			d_free(mission->path);
 			return 0;
 		}
 
@@ -406,6 +413,7 @@ void add_d1_builtin_mission_to_list(mle *mission)
 	mission->descent_version = 1;
 	mission->anarchy_only_flag = 0;
 	mission->builtin_hogsize = 0;
+	mission->path = mission->filename;
 	num_missions++;
 }
 
@@ -578,7 +586,7 @@ void free_mission_list(mle *mission_list)
 	int i;
 
 	for (i = 0; i < num_missions; i++)
-		d_free(mission_list[i].filename);
+		d_free(mission_list[i].path);
 	
 	d_free(mission_list);
 	num_missions = 0;
@@ -594,7 +602,7 @@ void init_extra_robot_movie(char *filename);
 int load_mission(mle *mission)
 {
 	CFILE *mfile;
-	char buf[80], *v;
+	char buf[PATH_MAX], *v;
     int found_hogfile;
 
     if (Current_mission)
@@ -648,7 +656,7 @@ int load_mission(mle *mission)
 		strcpy(buf,"");
 		break;
 	}
-	strcat(buf, mission->filename);
+	strcat(buf, mission->path);
 	if (mission->descent_version == 2)
 		strcat(buf,".mn2");
 	else
