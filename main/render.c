@@ -1,4 +1,4 @@
-/* $Id: render.c,v 1.10 2002-12-24 05:30:33 btb Exp $ */
+/* $Id: render.c,v 1.11 2002-12-24 05:49:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1335,7 +1335,7 @@ int matt_find_connect_side(int seg0,int seg1);
 char visited2[MAX_SEGMENTS];
 #endif
 
-char visited[MAX_SEGMENTS];
+unsigned char visited[MAX_SEGMENTS];
 short Render_list[MAX_RENDER_SEGS];
 short Seg_depth[MAX_RENDER_SEGS];		//depth for each seg in Render_list
 ubyte processed[MAX_RENDER_SEGS];		//whether each entry has been processed
@@ -2376,7 +2376,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 		//if (!no_render_flag[nn])
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=-1)) {
+		if (segnum!=-1 && (_search_mode || visited[segnum]!=255)) {
 			//set global render window vars
 
 			if (window_check) {

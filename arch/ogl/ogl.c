@@ -56,7 +56,7 @@
 #define M_PI 3.14159
 #endif
 
-#if defined(__WINDOWS__) || defined(__MINGW32__) || defined(__MACOSX__)
+#if defined(__WINDOWS__) || defined(__MINGW32__) || defined(__MACOSX__) || defined(__SUN__)
 #define cosf(a) cos(a)
 #define sinf(a) sin(a)
 #endif
