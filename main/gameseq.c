@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.12 2002-08-23 10:43:11 btb Exp $ */
+/* $Id: gameseq.c,v 1.13 2002-08-26 06:45:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.12 2002-08-23 10:43:11 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.13 2002-08-26 06:45:09 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1535,7 +1535,7 @@ void DoEndGame(void)
 		played = PlayMovie(ENDMOVIE,MOVIE_REQUIRED);
 		close_subtitles();
 		if (!played) {
-			if (cfexist("end2oem.txb") || cfexist("end2oem.tex")) {
+			if (cfexist("end2oem.txb") || cfexist("end2oem.tex")) { // #ifdef D2_OEM
 				songs_play_song( SONG_TITLE, 0 );
 				do_briefing_screens("end2oem.tex",1);
 			} else {
@@ -2120,20 +2120,20 @@ void ShowLevelIntro(int level_num)
 
 		memcpy(save_pal,gr_palette,sizeof(gr_palette));
 
-		if (cfexist("brief2o.txb") || cfexist("brief2o.tex"))
+		if (cfexist("brief2o.txb") || cfexist("brief2o.tex")) // #if defined(D2_OEM) || defined(COMPILATION)
 			if (level_num == 1 && !intro_played)
 				do_briefing_screens ("brief2o.tex",1);
 
-		if (!stricmp(Current_mission_filename, Builtin_mission_filename)) {
+		if (!stricmp(Current_mission_filename, Builtin_mission_filename)) { // (Current_mission_num == 0)
 #ifndef SHAREWARE
 			int movie=0;
 #endif
-			if (cfexist("brief2.txb") || cfexist("brief2.tex")) {
+			if (cfexist("brief2.txb") || cfexist("brief2.tex")) { // #ifdef SHAREWARE
 				if (level_num==1)
 				{
 					do_briefing_screens ("brief2.tex",1);
 				}
-			} else {
+			} else { // full version
 				for (i=0;i<NUM_INTRO_MOVIES;i++)
 				{
 					if (intro_movie[i].level_num == level_num)
