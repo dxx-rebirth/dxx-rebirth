@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.45 2004-12-01 08:24:55 btb Exp $ */
+/* $Id: bm.c,v 1.46 2004-12-02 16:27:29 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -694,9 +694,10 @@ int load_exit_models()
 	else if (cfexist(D1_PIGFILE))
 	{
 		int offset, offset2;
-		int hamsize = cfilelength(exit_hamfile);
+		int hamsize;
 
 		exit_hamfile = cfopen(D1_PIGFILE, "rb");
+		hamsize = cfilelength(exit_hamfile);
 		switch (hamsize) { //total hack for loading models
 		case D1_PIGSIZE:
 			offset = 91848;     /* and 92582  */
