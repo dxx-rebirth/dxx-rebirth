@@ -11,12 +11,20 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/mission.c,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2002-01-29 10:14:25 $
+ *
+ * Stuff for loading missions
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef RCS
-static char rcsid[] = "$Id: mission.c,v 1.3 2002-01-29 10:11:31 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
