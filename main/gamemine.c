@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.19 2003-02-27 04:34:51 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.20 2003-03-14 22:08:22 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -141,7 +141,7 @@ struct mfi_v19 {
 
 int CreateDefaultNewSegment();
 
-int	New_file_format_load = 1;
+int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
 
 #define TMAP_NUM_MASK 0x3FFF
 
@@ -168,8 +168,8 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case  14: return 4;
 	case  15: return 5;
 	case  16: return 6;
-	case  17:  return  17; //devil:52
-	case  18:  return  18; //devil:129
+	case  17:  return  52;
+	case  18:  return  129;
 	case  19: return 7;
 	case  20:  return  22;
 	case  21:  return  9;
@@ -210,9 +210,9 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case  56: return 33;
 	case  57:  return  132; //devil:119
 	// range handled by default case
-	case  88:  return  66; //devil:15
+	case  88:  return  197; //devil:15
 	// range handled by default case
-	case 132:  return  108; //devil:167
+	case 132:  return  167;
 	case 133: return 107;
 	case 134: return 108;
 	case 135: return 109;
@@ -227,15 +227,15 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 144: return 117;
 	case 145: return 118;
 	case 146: return 119;
-	case 147:  return  111; //devil:93
+	case 147:  return  93;
 	case 148: return 120;
 	case 149: return 121;
 	case 150: return 122;
 	case 151: return 123;
 	case 152: return 124;
 	case 153: return 125;
-	case 154:  return  82; //devil:27
-	case 155:  return  66; //devil:126
+	case 154:  return  27;
+	case 155:  return  126; //was: 66
 	case 156: return 200;
 	case 157: return 201;
 	case 158:  return  186; //devil:227
@@ -265,7 +265,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 182: return 215;
 	case 183: return 216;
 	case 184: return 217;
-	case 185:  return  325; //devil:217
+	case 185:  return  217;
 	case 186: return 218;
 	case 187: return 219;
 	case 188: return 220;
@@ -306,9 +306,9 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 223: return  313;
 	case 224: return 245;
 	case 225: return 246;
-	case 226: return  164;//247; matching names but not matching textures
+	case 226:  return  164;//247; matching names but not matching textures
 	case 227:  return  179; //devil:181
-	case 228: return  196;//248; matching names but not matching textures
+	case 228:  return  196;//248; matching names but not matching textures
 	case 229:  return  15; //devil:66
 	case 230:  return  15; //devil:66
 	case 231: return 249;
@@ -330,10 +330,10 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 247: return 260;
 	case 248: return 261;
 	case 249: return 262;
-	case 250: return  340; // white entrance
-	case 251: return  412; // red entrance
-	case 252: return  410; // blue entrance
-	case 253: return  411; // yellow entrance
+	case 250:  return  340; // white entrance
+	case 251:  return  412; // red entrance
+	case 252:  return  410; // blue entrance
+	case 253:  return  411; // yellow entrance
 	case 254: return 263;
 	case 255: return 264;
 	case 256: return 265;
@@ -361,10 +361,10 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 327: return 352;
 	case 328: return 353;
 	case 329: return 354;
-	case 330:  return  366; //devil:380
-	case 331: return 373;
-	case 332: return  355;//344; matching names but not matching textures
- 	case 333: return  409; // lava  //devil:404
+	case 330:  return  380;
+	case 331:  return  379;//373; matching names but not matching textures;
+	case 332:  return  355;//344; matching names but not matching textures
+ 	case 333:  return  409; // lava  //devil:404
 	case 334: return 356;
 	case 335: return 357;
 	case 336: return 358;
@@ -380,17 +380,17 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 346: return 376;
 	case 347: return 370;
 	case 348: return 367;
-	case 349:  return  370; //devil:372
+	case 349:  return  372;
 	case 350: return 369;
-	case 351: return  374;//429; matching names but not matching textures
-	case 352: return  375;//387; matching names but not matching textures
-	case 353: return 371;
-	case 354: return  377;//425; matching names but not matching textures
+	case 351:  return  374;//429; matching names but not matching textures
+	case 352:  return  375;//387; matching names but not matching textures
+	case 353:  return 371;
+	case 354:  return  377;//425; matching names but not matching textures
 	case 355:  return  408;
 	case 356: return 378; // lava02
-	case 357: return  383;//384; matching names but not matching textures
-	case 358: return  384;//385; matching names but not matching textures
-	case 359: return  385;//386; matching names but not matching textures
+	case 357:  return  383;//384; matching names but not matching textures
+	case 358:  return  384;//385; matching names but not matching textures
+	case 359:  return  385;//386; matching names but not matching textures
 	case 360: return 386;
 	case 361: return 387;
 	case 362:  return  388; // mntr04a (devil: -1)
@@ -418,26 +418,17 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 		if (d1_tmap_num >= 316 && d1_tmap_num <= 326)
 			return d1_tmap_num + 11;
 		// wall01 and door frames:
-		if (New_file_format_load) {
-			if (d1_tmap_num > 370 && d1_tmap_num < 584)
-				return d1_tmap_num + 64;
-		} else {
-			if (d1_tmap_num > 370 && d1_tmap_num <= 409)
-				return d1_tmap_num + 68;
-			if (d1_tmap_num >= 410 && d1_tmap_num <= 416)
-				return d1_tmap_num + 73;
-			if (d1_tmap_num >= 417 && d1_tmap_num <= 445)
-				return d1_tmap_num + 91;
-			if (d1_tmap_num >= 446 && d1_tmap_num <= 452)
-				return d1_tmap_num + 104;
-			if (d1_tmap_num >= 453 && d1_tmap_num <= 461)
-				return d1_tmap_num + 111;
-			if (d1_tmap_num >= 462 && d1_tmap_num <= 485)
-				return d1_tmap_num + 117;
-			if (d1_tmap_num >= 486 && d1_tmap_num <= 493)
-				return d1_tmap_num + 141;
-			if (d1_tmap_num >= 494 && d1_tmap_num < 584)
-				return d1_tmap_num + 147;
+		if (d1_tmap_num > 370 && d1_tmap_num < 584) {
+			if (New_file_format_load) return d1_tmap_num + 64;
+			// d1 shareware needs special treatment:
+			if (d1_tmap_num < 410) return d1_tmap_num + 68;
+			if (d1_tmap_num < 417) return d1_tmap_num + 73;
+			if (d1_tmap_num < 446) return d1_tmap_num + 91;
+			if (d1_tmap_num < 453) return d1_tmap_num + 104;
+			if (d1_tmap_num < 462) return d1_tmap_num + 111;
+			if (d1_tmap_num < 486) return d1_tmap_num + 117;
+			if (d1_tmap_num < 494) return d1_tmap_num + 141;
+			if (d1_tmap_num < 584) return d1_tmap_num + 147;
 		}
 		{ // handle rare case where orientation != 0
 			short tmap_num = d1_tmap_num &  TMAP_NUM_MASK;

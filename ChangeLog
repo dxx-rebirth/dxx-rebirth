@@ -1,3 +1,8 @@
+2003-03-14  Martin Schaffner <maschaffner@gmx.ch>
+
+	* main/gamemine.c: formatting, better texture conversion for d1
+	levels
+
 2003-03-14  Bradley Bell  <btb@icculus.org>
 
 	* main/piggy.c: must swap all mac version pigfiles
