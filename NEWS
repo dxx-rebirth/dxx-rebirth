@@ -1,15 +1,17 @@
 --- Version 0.1.2 ---
-SDL uses mouse wheel to emulate 3rd axis.
-Player files created with descent 2 should now work with d2x.
-Savegame thumbnails work in OpenGL
-Menus now work in OpenGL!
-Automap works in OpenGL!
-Fonts work in OpenGL!
-You can now use the -tmap option to select between the different
-texture mapping routines (c, fp, i386, pent, ppro) at runtime.
-Please bear with me while the source undergoes some rather ugly
-reorganization to fit more closely to the layout of d1x. This makes
-synchronization with d1x far, far easier.
+- SDL uses mouse wheel to emulate 3rd axis.
+- Player files created with descent 2 should now work with d2x.
+- Savegame thumbnails work in OpenGL
+- Menus now work in OpenGL!
+- Automap works in OpenGL!
+- Fonts work in OpenGL!
+- You can now use the -tmap option to select between the different
+  texture mapping routines (c, fp, i386, pent, ppro) at runtime.
+- Please bear with me while the source undergoes some rather ugly
+  reorganization to fit more closely to the layout of d1x. This makes
+  synchronization with d1x far, far easier.
+- Fixed assembly bug causing crash on game start.  Thanks to Craig
+  Hadady <chadady@iglou.com>
 
 --- Version 0.1.1 ---
 Assembly under mingw32 now works.
