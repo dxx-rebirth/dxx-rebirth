@@ -1,4 +1,4 @@
-/* $Id: window.c,v 1.8 2005-02-26 01:03:37 chris Exp $ */
+/* $Id: window.c,v 1.9 2005-02-26 09:50:36 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: window.c,v 1.8 2005-02-26 01:03:37 chris Exp $";
+static char rcsid[] = "$Id: window.c,v 1.9 2005-02-26 09:50:36 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -215,7 +215,7 @@ UI_WINDOW * ui_open_window( short x, short y, short w, short h, int flags )
 	UI_WINDOW * wnd;
 	int sw, sh, req_w, req_h;
 
-	wnd = (UI_WINDOW *)malloc(sizeof(UI_WINDOW));
+	wnd = (UI_WINDOW *) d_malloc(sizeof(UI_WINDOW));
 	if (wnd==NULL) exit(1);
 
 	W_NEXT = NULL;

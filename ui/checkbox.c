@@ -1,4 +1,4 @@
-/* $Id: checkbox.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: checkbox.c,v 1.5 2005-02-26 09:50:36 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: checkbox.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: checkbox.c,v 1.5 2005-02-26 09:50:36 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -75,7 +75,7 @@ UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_WINDOW * wnd, short x, short y, 
 
 	checkbox = (UI_GADGET_CHECKBOX *)ui_gadget_add( wnd, 5, x, y, x+w-1, y+h-1 );
 
-	checkbox->text = malloc(strlen(text)+5);
+	checkbox->text = d_malloc(strlen(text) + 5);
 	strcpy(checkbox->text,text);
 	checkbox->width = w;
 	checkbox->height = h;

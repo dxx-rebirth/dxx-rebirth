@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: menu.c,v 1.5 2005-02-26 09:50:36 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: menu.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: menu.c,v 1.5 2005-02-26 09:50:36 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -45,8 +45,8 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 
 	int choice;
 
-	ButtonG = (UI_GADGET_BUTTON **)malloc( sizeof(UI_GADGET_BUTTON *)*NumButtons );
-	Button = (char **)malloc( sizeof(char *)*NumButtons );
+	ButtonG = (UI_GADGET_BUTTON **) d_malloc(sizeof(UI_GADGET_BUTTON *)*NumButtons);
+	Button = (char **) d_malloc(sizeof(char *)*NumButtons);
 
 	button_width = button_height = 0;
 

@@ -1,4 +1,4 @@
-/* $Id: inputbox.c,v 1.5 2005-01-25 21:26:44 schaffner Exp $ */
+/* $Id: inputbox.c,v 1.6 2005-02-26 09:50:36 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: inputbox.c,v 1.5 2005-01-25 21:26:44 schaffner Exp $";
+static char rcsid[] = "$Id: inputbox.c,v 1.6 2005-02-26 09:50:36 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -96,7 +96,7 @@ UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_WINDOW * wnd, short x, short y, 
 
 	f = 0;
 
-	inputbox->text = malloc( length + 1);
+	inputbox->text = d_malloc(length + 1);
 	strncpy( inputbox->text, text, length );
 	inputbox->position = strlen(inputbox->text);
 	inputbox->oldposition = inputbox->position;
