@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.3 2002-08-23 10:43:11 btb Exp $ */
+/* $Id: mission.h,v 1.4 2002-08-26 06:46:37 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define OEM_MISSION_NAME            "D2 Destination:Quartzon"
 #define OEM_MISSION_HOGSIZE         6132957
 
-#define FULL_MISSION_FILENAME       "d2.mn2"
+#define FULL_MISSION_FILENAME       "d2"
 #define FULL_MISSION_HOGSIZE        7595079
 
 //mission list entry
@@ -52,7 +52,7 @@ extern mle Mission_list[MAX_MISSIONS];
 
 extern int Current_mission_num;
 extern char *Current_mission_filename,*Current_mission_longname;
-extern char *Builtin_mission_filename;
+extern char Builtin_mission_filename[9];
 extern int Builtin_mission_hogsize;
 
 //arrays of name of the level files

@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.9 2002-08-23 10:43:11 btb Exp $ */
+/* $Id: mission.c,v 1.10 2002-08-26 06:46:37 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -60,7 +60,7 @@ char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
 #define MISSION_DIR "./"
 #endif
 
-char *Builtin_mission_filename;
+char Builtin_mission_filename[9];
 int Builtin_mission_hogsize;
 
 //
@@ -308,14 +308,14 @@ void add_builtin_mission_to_list(int *count)
 		Mission_list[*count].anarchy_only_flag = 0;
 		break;
 	default:
-		Warning("Unknown hogsize %d, trying %s\n", Builtin_mission_hogsize, FULL_MISSION_FILENAME);
+		Warning("Unknown hogsize %d, trying %s\n", Builtin_mission_hogsize, FULL_MISSION_FILENAME ".mn2");
 		Int3(); //fall through
 	case FULL_MISSION_HOGSIZE:
-		if (!read_mission_file(FULL_MISSION_FILENAME,0,ML_CURDIR))
-			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME);
+		if (!read_mission_file(FULL_MISSION_FILENAME ".mn2", 0, ML_CURDIR))
+			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
 	}
 
-	Builtin_mission_filename = strdup(Mission_list[*count].filename);
+	strcpy(Builtin_mission_filename, Mission_list[*count].filename);
 	++(*count);
 }
 
