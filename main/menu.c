@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/menu.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  * $Author: bradleyb $
- * $Date: 2002-02-13 10:39:21 $
+ * $Date: 2002-07-16 08:14:35 $
  *
  * Inferno main menu.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2002/02/13 10:39:21  bradleyb
+ * Lotsa networking stuff from d1x
+ *
  *
  */
 
@@ -85,7 +88,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "strutil.h"
 #include "reorder.h"
-#include "ipx.h"
 
 #ifdef MACINTOSH
 	#include "resource.h"
@@ -113,40 +115,23 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MENU_SAVE_GAME                          6
 #define MENU_DEMO_PLAY                          8
 #define MENU_LOAD_LEVEL                         9
-#if 0 // original D2 definitions
 #define MENU_START_IPX_NETGAME                  10
 #define MENU_JOIN_IPX_NETGAME                   11
-#else
-#define MENU_START_NETGAME                      10
-#define MENU_JOIN_NETGAME                       11
-#endif
 #define MENU_CONFIG                             13
 #define MENU_REJOIN_NETGAME                     14
 #define MENU_DIFFICULTY                         15
 #define MENU_START_SERIAL                       18
 #define MENU_HELP                               19
 #define MENU_NEW_PLAYER                         20
-#ifdef NETWORK
 #define MENU_MULTIPLAYER                        21
-#endif
 #define MENU_STOP_MODEM                         22
 #define MENU_SHOW_CREDITS                       23
 #define MENU_ORDER_INFO                         24
 #define MENU_PLAY_SONG                          25
-#ifdef NETWORK
-#if 0 // original D2 definitions
 #define MENU_START_TCP_NETGAME                  26
 #define MENU_JOIN_TCP_NETGAME                   27
-#define MENU_START_APPLETALK_NETGAME			28
-#define MENU_JOIN_APPLETALK_NETGAME				30
-#else
-#define MENU_IPX_MULTIPLAYER                    26
-#define MENU_KALI_MULTIPLAYER                   27
-#define MENU_IP_MULTIPLAYER                     28
-#define MENU_IP_SERV_CONNECT                    29
-#define MENU_MANUAL_IP_JOIN                     30
-#endif
-#endif
+#define MENU_START_APPLETALK_NETGAME            28
+#define MENU_JOIN_APPLETALK_NETGAME    	        30
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
 //ADD_ITEM("Send net message...", MENU_SEND_NET_MESSAGE, -1 );
@@ -174,11 +159,6 @@ int EscortHotKeys=1;
 void do_option(int select);
 void do_detail_level_menu_custon(void);
 void do_multi_player_menu(void);
-void do_ipx_multi_player_menu();
-void do_kali_multi_player_menu();
-void do_ip_multi_player_menu();
-void do_ip_manual_join_menu();
-void do_ip_serv_connect_menu();
 void do_detail_level_menu_custom(void);
 void do_new_game_menu(void);
 
@@ -470,29 +450,25 @@ void do_option ( int select)
 		#endif
 
 
-		case MENU_START_NETGAME: //MENU_START_IPX_NETGAME:
 #ifdef NETWORK
+		case MENU_START_IPX_NETGAME:
 			load_mission(0);
 			#ifdef MACINTOSH
 			Network_game_type = IPX_GAME;
 			#endif
 //			WIN(ipx_create_read_thread());
 			network_start_game();
-#endif
 			break;
 
-		case MENU_JOIN_NETGAME: //MENU_JOIN_IPX_NETGAME:
-#ifdef NETWORK
+		case MENU_JOIN_IPX_NETGAME:
 			load_mission(0);
 			#ifdef MACINTOSH
 			Network_game_type = IPX_GAME;
 			#endif
 //			WIN(ipx_create_read_thread());
 			network_join_game();
-#endif
 			break;
 
-#ifdef NETWORK
 #ifdef MACINTOSH
 		case MENU_START_APPLETALK_NETGAME:
 			load_mission(0);
@@ -511,32 +487,12 @@ void do_option ( int select)
 			break;
 #endif
 		
-#if 0
 		case MENU_START_TCP_NETGAME:
 		case MENU_JOIN_TCP_NETGAME:
 			nm_messagebox (TXT_SORRY,1,TXT_OK,"Not available in shareware version!");
 			// DoNewIPAddress();
 			break;
-#endif
                   
-		case MENU_IPX_MULTIPLAYER:
-			do_ipx_multi_player_menu();
-			break;
-		case MENU_KALI_MULTIPLAYER:
-			do_kali_multi_player_menu();
-			break;
-#if 1 //def SUPPORTS_NET_IP
-		case MENU_IP_MULTIPLAYER:
-			do_ip_multi_player_menu();
-			break;
-		case MENU_IP_SERV_CONNECT:
-			do_ip_serv_connect_menu();
-			break;
-		case MENU_MANUAL_IP_JOIN:
-			do_ip_manual_join_menu();
-			break;
-#endif
-
 		case MENU_START_SERIAL:
 			com_main_menu();
 			break;
@@ -1555,47 +1511,12 @@ void do_toggles_menu()
 
 }
 
-#ifdef NETWORK
 void do_multi_player_menu()
-{
-	int menu_choice[4];
-	newmenu_item m[4];
-	int choice = 0, num_options = 0;
-	int old_game_mode;
-
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
-
-		ADD_ITEM("IPX", MENU_IPX_MULTIPLAYER, -1 );
-#if 1 //def SUPPORTS_NET_IP
-		ADD_ITEM("udp/ip", MENU_IP_MULTIPLAYER, -1 );
-#endif
-#ifdef __linux__
-		ADD_ITEM("Kalinix", MENU_KALI_MULTIPLAYER, -1 );
-#endif
-		ADD_ITEM(TXT_MODEM_GAME, MENU_START_SERIAL, -1);
-
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
-
-		if ( choice > -1 )
-			do_option(menu_choice[choice]);
-
-		if (old_game_mode != Game_mode)
-			break;		// leave menu
-
-	} while( choice > -1 );
-
-}
-
-void do_ipx_multi_player_menu()
 {
 	int menu_choice[5];
 	newmenu_item m[5];
 	int choice = 0, num_options = 0;
 	int old_game_mode;
-
-	if (ipx_set_driver("ipx")) return;
 
 	do {
 //		WIN(ipx_destroy_read_thread());
@@ -1603,10 +1524,8 @@ void do_ipx_multi_player_menu()
 		old_game_mode = Game_mode;
 		num_options = 0;
 
-		ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_NETGAME, -1 );
-		ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_NETGAME, -1 );
-		//ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_IPX_NETGAME, -1 );
-		//ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_IPX_NETGAME, -1 );
+		ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_IPX_NETGAME, -1 );
+		ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_IPX_NETGAME, -1 );
 		//ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_TCP_NETGAME, -1 );
 		//ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_JOIN_TCP_NETGAME, -1 );
 
@@ -1614,6 +1533,8 @@ void do_ipx_multi_player_menu()
 		ADD_ITEM("Start Appletalk Netgame", MENU_START_APPLETALK_NETGAME, -1 );
 		ADD_ITEM("Join Appletalk Netgame\n", MENU_JOIN_APPLETALK_NETGAME, -1 );
         #endif
+
+		ADD_ITEM(TXT_MODEM_GAME, MENU_START_SERIAL, -1);
 
 		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
 		
@@ -1626,124 +1547,6 @@ void do_ipx_multi_player_menu()
 	} while( choice > -1 );
 
 }
-
-void do_kali_multi_player_menu()
-{
-#ifdef __linux__
-	int menu_choice[3];
-	newmenu_item m[3];
-	int choice = 0, num_options = 0;
-	int old_game_mode;
-
-	if (ipx_set_driver("kali"))return;
-
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
-
-		ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_NETGAME, -1 );
-		ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_NETGAME, -1 );
-
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
-		
-		if ( choice > -1 )	
-			do_option(menu_choice[choice]);
-	
-		if (old_game_mode != Game_mode)
-			break;		// leave menu
-
-	} while( choice > -1 );
-#endif
-}
-
-#if 1 //def SUPPORTS_NET_IP
-
-int ip_connect_manual(char *addr);
-void do_ip_manual_join_menu()
-{
-	int menu_choice[3];
-	newmenu_item m[3];
-	int choice = 0, num_options = 0;
-	int old_game_mode;
-	char buf[128]="";
-
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
-
-		m[num_options].type = NM_TYPE_INPUT; m[num_options].text=buf; m[num_options].text_len=128;menu_choice[num_options]=-1; num_options++;
-
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
-
-		if ( choice > -1 ){
-			ip_connect_manual(buf);
-//			do_option(menu_choice[choice]);
-		}
-
-		if (old_game_mode != Game_mode)
-			break;		// leave menu
-	} while( choice > -1 );
-}
-
-void do_ip_serv_connect_menu()
-{
-	int menu_choice[3];
-	newmenu_item m[3];
-	int choice = 0, num_options = 0;
-	int old_game_mode;
-
-	return;
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
-
-		ADD_ITEM("Connect to game list server",MENU_IP_SERV_CONNECT, -1 );
-		ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_NETGAME, -1 );
-		ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_MANUAL_IP_JOIN, -1 );
-
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
-		
-		if ( choice > -1 )	
-			do_option(menu_choice[choice]);
-	
-		if (old_game_mode != Game_mode)
-			break;		// leave menu
-
-	} while( choice > -1 );
-
-}
-
-void do_ip_multi_player_menu()
-{
-	int menu_choice[3];
-	newmenu_item m[3];
-	int choice = 0, num_options = 0;
-	int old_game_mode;
-
-	if (ipx_set_driver("ip"))return;
-
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
-
-		ADD_ITEM("Connect to game list server",MENU_IP_SERV_CONNECT, -1 );
-		ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_NETGAME, -1 );
-		ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_MANUAL_IP_JOIN, -1 );
-
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
-
-		if ( choice > -1 )
-			do_option(menu_choice[choice]);
-
-		if (old_game_mode != Game_mode)
-			break;		// leave menu
-
-	} while( choice > -1 );
-
-}
-
-#endif
-#endif //NETWORK
 
 void DoNewIPAddress ()
  {
@@ -1762,7 +1565,3 @@ void DoNewIPAddress ()
 
   nm_messagebox (TXT_SORRY,1,TXT_OK,"That address is not valid!");
  }
-
-
-  
-

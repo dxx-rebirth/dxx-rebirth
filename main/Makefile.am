@@ -11,8 +11,8 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/arch/include
 CFLAGS += -fwritable-strings
 
 if USE_NETWORK
-NETWORK_SRCS = ipx_drv.c kmatrix.c multi.c multibot.c network.c ipclienc.c \
-               ip_base.cpp ipclient.cpp netlist.c netpkt.c multipow.c
+NETWORK_SRCS = ipx_drv.c kmatrix.c multi.c multibot.c network.c
+#               ipclienc.c ip_base.cpp ipclient.cpp netlist.c netpkt.c multipow.c
 endif
 
 if EDITOR

@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/network.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  * $Author: bradleyb $
- * $Date: 2002-04-19 21:27:00 $
+ * $Date: 2002-07-16 08:14:35 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.9  2002/04/19 21:27:00  bradleyb
+ * let hoard.ham be a cfile
+ *
  * Revision 1.8  2002/02/14 09:24:19  bradleyb
  * d1x->d2x
  *
@@ -4342,65 +4345,6 @@ zone_done:
 #endif
 
 void nm_draw_background1(char * filename);
-
-//moved 2000/02/07 Matt Mueller - clipped stuff from network_join_game into new network_do_join_game to allow easy joining from other funcs too.
-int network_do_join_game(netgame_info *jgame, AllNetPlayers_info *jplayers){
-	if (jgame->game_status == NETSTAT_ENDLEVEL)
-	{
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
-		return 0;
-	}
-
-	if ((jgame->protocol_version != MULTI_PROTO_VERSION) &&
-	    (jgame->protocol_version != MULTI_PROTO_D2X_VER))
-	{
-                nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
-		return 0;
-	}
-#ifndef SHAREWARE
-	if (jgame->protocol_version == MULTI_PROTO_D2X_VER &&
-	    jgame->required_subprotocol > MULTI_PROTO_D2X_MINOR)
-	{
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, "This game uses features\nnot present in this version.");
-		return 0;
-	}
-	{	
-		// Check for valid mission name
-			mprintf((0, "Loading mission:%s.\n", jgame->mission_name));
-			if (!load_mission_by_name(jgame->mission_name))
-			{
-				nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
-
-                                //add getlevel functionality here - Victor Rachels
-
-				return 0;
-			}
-	}
-#endif
-
-	if (!can_join_netgame(jgame, jplayers))
-	{
-		if (jgame->numplayers == jgame->max_numplayers)
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
-		else
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
-		return 0;
-	}
-
-	// Choice is valid, prepare to join in
-
-	memcpy(&Netgame, jgame, sizeof(netgame_info));
-
-	Difficulty_level = Netgame.difficulty;
-	MaxNumNetPlayers = Netgame.max_numplayers;
-	change_playernum_to(1);
-
-	network_set_game_mode(Netgame.gamemode);
-
-	StartNewLevel(Netgame.levelnum, 0);
-
-	return 1;     // look ma, we're in a game!!!
-}
 
 void network_join_game()
 {

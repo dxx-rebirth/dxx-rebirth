@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/multi.h,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2002-02-14 09:24:19 $
+ * $Date: 2002-07-16 08:14:35 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2002/02/14 09:24:19  bradleyb
+ * d1x->d2x
+ *
  * Revision 1.3  2002/02/13 10:39:21  bradleyb
  * Lotsa networking stuff from d1x
  *
@@ -45,18 +48,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #define MULTI_PROTO_VERSION	4
 #endif
+
 // Protocol versions:
 //   1 Descent Shareware
 //   2 Descent Registered/Commercial
 //   3 Descent II Shareware
 //   4 Descent II Commercial
-
-#define MULTI_PROTO_D2X_VER 5
-
-//edit 4/18/99 Matt Mueller - Needed to add data onto netgame_lite packet for flags.
-//Incrementing this seems the only way possible.  Still stays backwards compitible.
-#define MULTI_PROTO_D2X_MINOR 1
-//end edit -MM
 
 // Save multiplayer games?
 
@@ -304,10 +301,6 @@ typedef struct netplayer_info {
 
    ubyte rank;
 
-#ifndef SHAREWARE
-	/* following D2X only */
-	ubyte		sub_protocol;
-#endif
 } netplayer_info;
 
 typedef struct AllNetPlayers_info
@@ -425,11 +418,7 @@ typedef struct netgame_info {
    ubyte             player_flags[MAX_PLAYERS];
 	short					PacketsPerSec;
 	ubyte					ShortPackets;
-// from protocol v 3.0 (d1x)
-//	ubyte					packets_per_sec;
-	uint					flags;
-	ubyte					subprotocol; // constant for given version
-	ubyte					required_subprotocol; // depends on game mode etc.
+
 } __pack__ netgame_info;
 
 extern struct netgame_info Netgame;

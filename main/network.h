@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/network.h,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  * $Author: bradleyb $
- * $Date: 2002-02-14 09:24:19 $
+ * $Date: 2002-07-16 08:14:35 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6  2002/02/14 09:24:19  bradleyb
+ * d1x->d2x
+ *
  * Revision 1.5  2002/02/13 10:39:22  bradleyb
  * Lotsa networking stuff from d1x
  *
@@ -50,8 +53,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CONNECT_FOUND_SECRET		4
 #define CONNECT_ESCAPE_TUNNEL		5
 #define CONNECT_END_MENU			6
-
-#define MAX_ACTIVE_NETGAMES                     12
 
 #define NETGAMEIPX                              1
 #define NETGAMETCP                              2
