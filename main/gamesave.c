@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.16 2002-08-30 00:57:06 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.17 2002-09-14 00:20:44 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -926,15 +926,18 @@ int load_game_data(CFILE *LoadFile)
 		game_fileinfo.delta_light_sizeof = cfile_read_int(LoadFile);
 	}
 
-	if (game_top_fileinfo.fileinfo_version >= 14) {	//load mine filename
-		//@@char *p=Current_level_name;
-		//@@//must do read one char at a time, since no cfgets()
-		//@@do *p = cfgetc(LoadFile); while (*p++!=0);
-
+	if (game_top_fileinfo.fileinfo_version >= 31) { //load mine filename
+		// read newline-terminated string, not sure what version this changed.
 		cfgets(Current_level_name,sizeof(Current_level_name),LoadFile);
 
 		if (Current_level_name[strlen(Current_level_name)-1] == '\n')
 			Current_level_name[strlen(Current_level_name)-1] = 0;
+	}
+	else if (game_top_fileinfo.fileinfo_version >= 14) { //load mine filename
+		// read null-terminated string
+		char *p=Current_level_name;
+		//must do read one char at a time, since no cfgets()
+		do *p = cfgetc(LoadFile); while (*p++!=0);
 	}
 	else
 		Current_level_name[0]=0;

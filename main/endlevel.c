@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.9 2002-08-08 09:09:43 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.10 2002-09-14 00:20:44 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -1507,7 +1507,7 @@ try_again:
 	while (cfgets(line,LINE_LEN,ifile)) {
 
 		if (have_binary) {
-			for (i = 0; i < strlen(line); i++) {
+			for (i = 0; i < strlen(line) - 1; i++) {
 				encode_rotate_left(&(line[i]));
 				line[i] = line[i] ^ BITMAP_TBL_XOR;
 				encode_rotate_left(&(line[i]));
@@ -1534,17 +1534,16 @@ try_again:
 					d_free(terrain_bm_instance.bm_data);
 
 				Assert(terrain_bm_instance.bm_data == NULL);
-				
+
 				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
-					mprintf((1, "File %s - IFF error: %s",p,iff_errormsg(iff_error)));
 					Error("File %s - IFF error: %s",p,iff_errormsg(iff_error));
 				}
 
 				terrain_bitmap = &terrain_bm_instance;
 
 				gr_remap_bitmap_good( terrain_bitmap, pal, iff_transparent_color, -1);
-				
+
 				break;
 			}
 

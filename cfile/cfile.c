@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.8 2002-08-27 04:05:29 btb Exp $ */
+/* $Id: cfile.c,v 1.9 2002-09-14 00:20:44 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -394,40 +394,37 @@ int cfgetc( CFILE * fp )
 	return c;
 }
 
-/*
- * read string terminated by zero or a platform's line ending.
- * Martin: cleaned up line ending mess, and made it read
- * zero-terminated strings (for descent 1 levels).
- * assumed that no string has any zero's or other platform's line
- * endings inside
- * platform's line endings reference: UN*X: LF (10), Mac: CR (13),
- * DOS: CR,LF
- */
 char * cfgets( char * buf, size_t n, CFILE * fp )
 {
 	char * t = buf;
 	int i;
 	int c;
 
-	for (i=0; i<n-1; i++ )	{
-		if (fp->raw_position >= fp->size ) {
-			*buf = 0;
-			return NULL;
-		}
-		c = fgetc( fp->file );
-		fp->raw_position++;
-		if (c == 0 || c == 10) // UN*X line ending or zero
-			break;
-		if (c == 13) { // it could be Mac or DOS line ending
-			c = fgetc( fp->file );
-			if ( c == 10 ) { // DOS line ending
-				break;
-			} else { // Mac line ending, undo last character read
-				fseek( fp->file, -1, SEEK_CUR);
-				break;
+	for (i=0; i<n-1; i++ ) {
+		do {
+			if (fp->raw_position >= fp->size ) {
+				*buf = 0;
+				return NULL;
 			}
-		}
+			c = fgetc( fp->file );
+			fp->raw_position++;
+			if (c == 0 || c == 10)        // Unix line ending
+				break;
+			if (c == 13) {      // Mac or DOS line ending
+				int c1;
+
+				c1 = fgetc( fp->file );
+				fseek( fp->file, -1, SEEK_CUR);
+				if ( c1 == 10 ) // DOS line ending
+					continue;
+				else            // Mac line ending
+					break;
+			}
+		} while ( c == 13 );
+ 		if ( c == 13 )  // because cr-lf is a bad thing on the mac
+ 			c = '\n';   // and anyway -- 0xod is CR on mac, not 0x0a
 		*buf++ = c;
+		if ( c=='\n' ) break;
 	}
 	*buf++ = 0;
 	return  t;
