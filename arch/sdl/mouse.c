@@ -1,4 +1,4 @@
-/* $Id: mouse.c,v 1.7 2003-11-27 09:10:52 btb Exp $ */
+/* $Id: mouse.c,v 1.8 2003-11-27 09:24:43 btb Exp $ */
 /*
  *
  * SDL mouse driver.
@@ -121,6 +121,7 @@ void mouse_flush()	// clears all mice events...
 	Mouse.x = 0;
 	Mouse.y = 0;
 	Mouse.z = 0;
+	SDL_GetMouseState(&Mouse.x, &Mouse.y); // necessary because polling only gives us the delta.
 }
 
 //========================================================================
