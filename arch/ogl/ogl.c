@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.11 2003-11-27 00:21:04 btb Exp $ */
+/* $Id: ogl.c,v 1.12 2004-05-11 01:53:34 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -614,6 +614,22 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	for (c=0;c<nv;c++){
 	//	glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
 		glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
+	}
+	glEnd();
+	return 0;
+}
+
+bool g3_draw_transp_poly(int nv, g3s_point **pointlist)
+{
+	int c;
+
+	r_polyc++;
+	OGL_DISABLE(TEXTURE_2D);
+	glColor4f(0, 0, 0, (float)Gr_scanline_darkening_level / 31.0);
+	glBegin(GL_TRIANGLE_FAN);
+	for (c = 0; c < nv; c++)
+	{
+		glVertex3f(f2glf(pointlist[c]->p3_vec.x), f2glf(pointlist[c]->p3_vec.y), -f2glf(pointlist[c]->p3_vec.z));
 	}
 	glEnd();
 	return 0;

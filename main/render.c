@@ -1,4 +1,4 @@
-/* $Id: render.c,v 1.18 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: render.c,v 1.19 2004-05-11 01:53:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -619,9 +619,13 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 		int wall_num = Segments[segnum].sides[sidenum].wall_num;
 		Assert(wall_num != -1);
 		Gr_scanline_darkening_level = Walls[wall_num].cloak_value;
-		gr_setcolor(BM_XRGB(0,0,0));	//set to black (matters for s3)
+#ifdef OGL
+		g3_draw_transp_poly(nv,pointlist);  // draw as flat poly
+#else
+		gr_setcolor(BM_XRGB(0,0,0));        // set to black (matters for s3)
 
-		g3_draw_poly(nv,pointlist);		//draw as flat poly
+		g3_draw_poly(nv,pointlist);         // draw as flat poly
+#endif
 
 		Gr_scanline_darkening_level = GR_FADE_LEVELS;
 

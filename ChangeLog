@@ -1,3 +1,11 @@
+2004-05-10  Dietfrid Mali  <dietfrid.mali@q-dial.de>
+
+	* arch/ogl/ogl.c, include/3d.h: added g3_draw_transp_poly() for
+	rendering transparent (e.g. cloaked) walls
+
+	* main/render.c: render_face now calls g3_draw_transp_poly() for
+	cloaked walls in OpenGL
+
 2004-05-08  Martin Schaffner  <maschaffner@gmx.ch>
 
         * arch/sdl/digi.c: fix bug on Mac OS X where all sound, including
