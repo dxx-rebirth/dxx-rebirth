@@ -1,6 +1,6 @@
-SUBDIRS = 2d 3d maths mem cfile iff texmap misc arch main libmve utilities @D2X_SUBDIRS@
+DIST_SUBDIRS = 2d 3d maths mem cfile iff texmap misc arch main libmve utilities
 
-DIST_SUBDIRS = console
+SUBDIRS = ${DIST_SUBDIRS} @D2X_SUBDIRS@
 
 EXTRA_SUBDIRS = include unused debian rpm
 

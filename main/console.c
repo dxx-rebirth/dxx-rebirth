@@ -1,4 +1,4 @@
-/* $Id: console.c,v 1.11 2003-06-02 05:56:37 btb Exp $ */
+/* $Id: console.c,v 1.12 2003-06-02 06:15:41 btb Exp $ */
 /*
  *
  * FIXME: put description here
@@ -226,7 +226,7 @@ void con_show(void)
 #endif
 }
 
-#if 0
+#ifdef CONSOLE
 void con_parse(ConsoleInformation *console, char *command)
 {
 	cmd_parse(command);
