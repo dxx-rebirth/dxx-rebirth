@@ -95,9 +95,10 @@ else
   if test x$opengl = xtrue; then
     for lib in $GL_LIBS; do
 	AC_CHECK_LIB($lib, main,
-	    OGL_LIBS="$OGL_LIBS -l$lib",
+	    OGL_LIBS="${OGL_LIBS} -l$lib",
 	    [AC_MSG_ERROR([$lib not found, --with-opengl cannot be used])
 	    opengl=false],
+	    ${OGL_LIBS}
 	)
     done
   fi
