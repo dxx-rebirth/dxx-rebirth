@@ -1,3 +1,7 @@
+2005-03-15  Bradley Bell  <btb@icculus.org>
+
+	* main/state.c: Fix crash if Num_walls=0
+
 2005-03-12  Bradley Bell  <btb@icculus.org>
 
 	* Makefile.am, configure.ac: enable editor in unix-style builds

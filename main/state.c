@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.23 2005-02-25 05:20:36 chris Exp $ */
+/* $Id: state.c,v 1.24 2005-03-15 21:16:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1312,7 +1312,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 		//Restore wall info
 		PHYSFS_read(fp, &i, sizeof(int), 1);
 		Num_walls = i;
-		PHYSFS_read(fp, Walls, sizeof(wall) * Num_walls, 1);
+		PHYSFS_read(fp, Walls, sizeof(wall), Num_walls);
 
 		//now that we have the walls, check if any sounds are linked to
 		//walls that are now open
