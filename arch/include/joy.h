@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/arch/include/joy.h,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-28 16:10:57 $
+ * $Date: 2001-01-29 13:36:14 $
  *
  * Header for joystick functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/01/28 16:10:57  bradleyb
+ * unified input headers.
+ *
  */
 
 #ifndef _JOY_H
@@ -44,7 +47,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined WINDOWS
 #define JOY_NUM_AXES		7
 #elif defined __ENV_LINUX__
-#define MAX_AXES		32
 #define JOY_NUM_AXES		5
 #else
 #define JOY_NUM_AXES		4
