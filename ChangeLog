@@ -7,6 +7,8 @@
 	* main/kconfig.c: disable call to reset_cockpit() which was
 	causing the "letterbox" bug
 
+	* main/inferno.c: don't die if title screens not found
+
 2004-12-02  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* configure.ac: require PhysicsFS header and library

@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.93 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: inferno.c,v 1.94 2004-12-03 10:39:49 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -878,14 +878,16 @@ int main(int argc, char *argv[])
 					strcpy(filename, "iplogo1.pcx"); // SHAREWARE
 				if (! cfexist(filename))
 					strcpy(filename, "mplogo.pcx"); // MAC SHAREWARE
-				show_title_screen(filename, 1, 1 );
+				if (cfexist(filename))
+					show_title_screen(filename, 1, 1);
 
 				strcpy(filename, MenuHires?"logob.pcx":"logo.pcx"); // OEM
 				if (! cfexist(filename))
 					strcpy(filename, "logo.pcx"); // SHAREWARE
 				if (! cfexist(filename))
 					strcpy(filename, "plogo.pcx"); // MAC SHAREWARE
-				show_title_screen(filename, 1, 1 );
+				if (cfexist(filename))
+					show_title_screen(filename, 1, 1);
 			}
 		}
 
