@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: credits.c,v 1.4 2001-10-25 02:15:55 bradleyb Exp $";
+static char rcsid[] = "$Id: credits.c,v 1.5 2002-09-04 22:29:49 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -116,15 +116,7 @@ typedef struct box {
 	int left, top, width, height;
 } box;
 
-#ifdef MACINTOSH
-#define CREDITS_FILE	"mcredits.tex"
-#else
-#ifdef D2_OEM
-#define CREDITS_FILE	"ocredits.tex"
-#else
-#define CREDITS_FILE	"credits.tex"
-#endif
-#endif
+#define CREDITS_FILE    (cfexist("mcredits.tex")?"mcredits.tex":cfexist("ocredits.tex")?"ocredits.tex":"credits.tex")
 
 //if filename passed is NULL, show normal credits
 void credits_show(char *credits_filename)
