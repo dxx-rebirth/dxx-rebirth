@@ -1,4 +1,4 @@
-/* $Id: rbaudio.c,v 1.4 2003-03-15 01:28:19 btb Exp $ */
+/* $Id: rbaudio.c,v 1.5 2003-03-15 13:12:07 btb Exp $ */
 /*
  *
  * SDL CD Audio functions
@@ -14,6 +14,11 @@
 #include <stdlib.h>
 
 #include <SDL.h>
+
+#ifdef __linux__
+#include <sys/ioctl.h>
+#include <linux/cdrom.h>
+#endif
 
 #include "pstypes.h"
 #include "error.h"
@@ -49,18 +54,18 @@ void RBAInit()
 		Warning("No cdrom drives found!\n");
 		return;
 	}
- 	s_cd = SDL_CDOpen(0);
+	s_cd = SDL_CDOpen(0);
 	if (s_cd == NULL) {
 		Warning("Could not open cdrom for redbook audio!\n");
 		return;
 	}
- 	atexit(RBAExit);
+	atexit(RBAExit);
 	initialised = 1;
 }
 
 int RBAEnabled()
 {
- return 1;
+	return 1;
 }
 
 void RBARegisterCD()
@@ -70,68 +75,90 @@ void RBARegisterCD()
 
 int RBAPlayTrack(int a)
 {
- if (!initialised) return -1;
+	if (!initialised) return -1;
 
- if (CD_INDRIVE(SDL_CDStatus(s_cd)) ) {
-	 SDL_CDPlayTracks(s_cd, a-1, 0, 0, 0);
- }
- return a;
- 
+	if (CD_INDRIVE(SDL_CDStatus(s_cd)) ) {
+		SDL_CDPlayTracks(s_cd, a-1, 0, 0, 0);
+	}
+	return a;
 }
 
 void RBAStop()
 {
-  if (!initialised) return;
-  SDL_CDStop(s_cd);
+	if (!initialised) return;
+	SDL_CDStop(s_cd);
 }
 
-void RBASetVolume(int a)
+void RBASetVolume(int volume)
 {
+#ifdef __linux__
+	int cdfile, level;
+	struct cdrom_volctrl volctrl;
 
+	if (!initialised) return;
+
+	cdfile = s_cd->id;
+	level = volume * 3;
+
+	if ((level<0) || (level>255)) {
+		fprintf(stderr, "illegal volume value (allowed values 0-255)\n");
+		return;
+	}
+
+	volctrl.channel0
+		= volctrl.channel1
+		= volctrl.channel2
+		= volctrl.channel3
+		= level;
+	if ( ioctl(cdfile, CDROMVOLCTRL, &volctrl) == -1 ) {
+		fprintf(stderr, "CDROMVOLCTRL ioctl failed\n");
+		return;
+	}
+#endif
 }
 
 void RBAPause()
 {
-  if (!initialised) return;
-  SDL_CDPause(s_cd);
+	if (!initialised) return;
+	SDL_CDPause(s_cd);
 }
 
 int RBAResume()
 {
-  if (!initialised) return -1;
-  SDL_CDResume(s_cd);
-  return 1;
+	if (!initialised) return -1;
+	SDL_CDResume(s_cd);
+	return 1;
 }
 
 int RBAGetNumberOfTracks()
 {
-  if (!initialised) return -1;
- SDL_CDStatus(s_cd);
- return s_cd->numtracks;
+	if (!initialised) return -1;
+	SDL_CDStatus(s_cd);
+	return s_cd->numtracks;
 }
 
 int RBAPlayTracks(int tracknum,int something)
 {
-  if (!initialised) return -1;
- if (CD_INDRIVE(SDL_CDStatus(s_cd)) ) {
-	 SDL_CDPlayTracks(s_cd, tracknum-1, 0, 0, 0);
- }
- return tracknum;
+	if (!initialised) return -1;
+	if (CD_INDRIVE(SDL_CDStatus(s_cd)) ) {
+		SDL_CDPlayTracks(s_cd, tracknum-1, 0, 0, 0);
+	}
+	return tracknum;
 }
 
 int RBAGetTrackNum()
 {
-  if (!initialised) return -1;
- SDL_CDStatus(s_cd);
- return s_cd->cur_track;
+	if (!initialised) return -1;
+	SDL_CDStatus(s_cd);
+	return s_cd->cur_track;
 }
 
 int RBAPeekPlayStatus()
 {
-  return (SDL_CDStatus(s_cd) == CD_PLAYING);
+	return (SDL_CDStatus(s_cd) == CD_PLAYING);
 }
 
 int CD_blast_mixer()
 {
- return 0;
+	return 0;
 }

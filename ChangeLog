@@ -1,5 +1,8 @@
 2003-03-15  Bradley Bell  <bradleyb@smeagol>
 
+	* arch/sdl/rbaudio.c: formatting, enabled volume control under
+	linux
+
 	* arch/ogl/gr.c: fixed dark font bug by calling gr_set_mode from
 	gr_init.  don't really know why this works, though
 
