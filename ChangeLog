@@ -1,11 +1,11 @@
 2003-06-15  Bradley Bell  <btb@icculus.org>
 
 	* 2d/pcx.c, include/strio.h, main/ai.c, main/ai.h,
-	main/cntrlcen.c, main/config.c, main/gameseq.c, main/movie.c,
-	main/multi.c, main/network.c, main/newdemo.c, main/newmenu.c,
-	main/piggy.c, main/playsave.c, main/polyobj.c, main/scores.c,
-	main/state.c, main/text.c, misc/args.c, misc/strio.c: convert file
-	i/o to cfile
+	main/cntrlcen.c, main/config.c, main/gamesave.c, main/gameseq.c,
+	main/movie.c, main/multi.c, main/network.c, main/newdemo.c,
+	main/newmenu.c, main/piggy.c, main/playsave.c, main/polyobj.c,
+	main/scores.c, main/state.c, main/text.c, misc/args.c,
+	misc/strio.c: convert file i/o to cfile
 
 2003-06-14  Bradley Bell  <btb@icculus.org>
 

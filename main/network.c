@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.17 2003-02-28 03:54:55 btb Exp $ */
+/* $Id: network.c,v 1.18 2003-06-16 07:11:40 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.17 2003-02-28 03:54:55 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.18 2003-06-16 07:11:40 btb Exp $";
 #endif
 
 #define PATCH12
@@ -306,8 +306,10 @@ extern void multi_send_wall_status_specific (int,int,ubyte,ubyte,ubyte);
 extern void game_disable_cheats();
 
 char IWasKicked=0;
+#ifdef NETPROFILING
 FILE *SendLogFile,*RecieveLogFile;
 int TTSent[100],TTRecv[100];
+#endif
 
 extern int Final_boss_is_dead;
 

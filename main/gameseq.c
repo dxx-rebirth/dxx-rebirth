@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.25 2003-03-25 10:17:05 btb Exp $ */
+/* $Id: gameseq.c,v 1.26 2003-06-16 07:11:40 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.25 2003-03-25 10:17:05 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.26 2003-06-16 07:11:40 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -700,7 +700,9 @@ int MakeNewPlayerFile(int allow_abort)
 	char filename[14];
 	newmenu_item m;
 	char text[CALLSIGN_LEN+1]="";
+#if 0
 	FILE *fp;
+#endif
 
 	strncpy(text, Players[Player_num].callsign,CALLSIGN_LEN);
 
@@ -721,6 +723,7 @@ try_again:
 
 	sprintf( filename, "%s.plr", text );
 
+#if 0
 	fp = fopen( filename, "rb" );
 
 #ifndef MACINTOSH
@@ -737,6 +740,13 @@ try_again:
 		fclose(fp);
 		goto try_again;
 	}
+#else
+	if (cfexist(filename))
+	{
+		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS );
+		goto try_again;
+	}
+#endif
 
 	if ( !new_player_config() )
 		goto try_again;			// They hit Esc during New player config
@@ -1154,9 +1164,8 @@ int p_secret_level_destroyed(void)
 	if (First_secret_visit) {
 		return 0;		//	Never been there, can't have been destroyed.
 	} else {
-		FILE	*fp;
-		if ((fp = fopen(SECRETC_FILENAME, "rb")) != NULL) {
-			fclose(fp);
+		if (cfexist(SECRETC_FILENAME))
+		{
 			return 0;
 		} else {
 			return 1;
@@ -1221,9 +1230,8 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		if (First_secret_visit) {
 			do_secret_message(TXT_SECRET_EXIT);
 		} else {
-			FILE	*fp;
-			if ((fp = fopen(SECRETC_FILENAME, "rb")) != NULL) {
-				fclose(fp);
+			if (cfexist(SECRETC_FILENAME))
+			{
 				do_secret_message(TXT_SECRET_EXIT);
 			} else {
 				char	text_str[128];
@@ -1269,11 +1277,9 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		reset_special_effects();
 		StartSecretLevel();
 	} else {
-		FILE	*fp;
-		if ((fp = fopen(SECRETC_FILENAME, "rb")) != NULL) {
+		if (cfexist(SECRETC_FILENAME))
+		{
 			int	pw_save, sw_save;
-
-			fclose(fp);
 
 			pw_save = Primary_weapon;
 			sw_save = Secondary_weapon;
@@ -1318,8 +1324,6 @@ int	Entered_from_level;
 //	Called from switch.c when player is on a secret level and hits exit to return to base level.
 void ExitSecretLevel(void)
 {
-	FILE	*fp;
-
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
 
@@ -1327,11 +1331,11 @@ void ExitSecretLevel(void)
 		state_save_all(0, 2, SECRETC_FILENAME);
 	}
 
-	if ((fp = fopen(SECRETB_FILENAME, "rb")) != NULL) {
+	if (cfexist(SECRETB_FILENAME))
+	{
 		int	pw_save, sw_save;
 
 		returning_to_level_message();
-		fclose(fp);
 		pw_save = Primary_weapon;
 		sw_save = Secondary_weapon;
 		state_restore_all(1, 1, SECRETB_FILENAME);
@@ -1804,10 +1808,8 @@ void DoPlayerDead()
 		died_in_mine_message(); // Give them some indication of what happened
 
 		if (Current_level_num < 0) {
-			FILE	*fp;
-
-			if ((fp = fopen(SECRETB_FILENAME, "rb")) != NULL) {
-				fclose(fp);
+			if (cfexist(SECRETB_FILENAME))
+			{
 				returning_to_level_message();
 				state_restore_all(1, 2, SECRETB_FILENAME);			//	2 means you died
 				set_pos_from_return_segment();
@@ -1827,9 +1829,8 @@ void DoPlayerDead()
 		}
 
 	} else if (Current_level_num < 0) {
-		FILE	*fp;
-		if ((fp = fopen(SECRETB_FILENAME, "rb")) != NULL) {
-			fclose(fp);
+		if (cfexist(SECRETB_FILENAME))
+		{
 			returning_to_level_message();
 			if (!Control_center_destroyed)
 				state_save_all(0, 2, SECRETC_FILENAME);

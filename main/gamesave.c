@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.20 2003-06-07 20:51:13 btb Exp $ */
+/* $Id: gamesave.c,v 1.21 2003-06-16 07:15:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -287,7 +287,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.20 2003-06-07 20:51:13 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.21 2003-06-16 07:15:59 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -397,9 +397,13 @@ struct {
 
 //  LINT: adding function prototypes
 void read_object(object *obj, CFILE *f, int version);
+#ifdef EDITOR
 void write_object(object *obj, FILE *f);
 void do_load_save_levels(int save);
+#endif
+#ifndef NDEBUG
 void dump_mine_info(void);
+#endif
 
 extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern char PowerupsInMine[MAX_POWERUP_TYPES];

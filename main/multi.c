@@ -1,4 +1,4 @@
-/* $Id: multi.c,v 1.9 2003-03-14 21:24:03 btb Exp $ */
+/* $Id: multi.c,v 1.10 2003-06-16 07:11:40 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2418,8 +2418,10 @@ void multi_reset_object_texture (object *objp)
 
 
 
+#ifdef NETPROFILING
 extern int TTRecv[];
 extern FILE *RecieveLogFile;
+#endif
 
 void
 multi_process_bigdata(char *buf, int len)

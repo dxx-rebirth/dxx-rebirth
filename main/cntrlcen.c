@@ -1,4 +1,4 @@
-/* $Id: cntrlcen.c,v 1.9 2003-04-03 07:15:43 btb Exp $ */
+/* $Id: cntrlcen.c,v 1.10 2003-06-16 07:11:40 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.9 2003-04-03 07:15:43 btb Exp $";
+static char rcsid[] = "$Id: cntrlcen.c,v 1.10 2003-06-16 07:11:40 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -261,9 +261,9 @@ void do_controlcen_destroyed_stuff(object *objp)
 	if (Current_level_num < 0) {
 		int	rval;
 		#ifndef MACINTOSH
-		rval = unlink("secret.sgc");
+		rval = cfile_delete("secret.sgc");
 		#else
-		rval = unlink(":Players:secret.sgc");
+		rval = cfile_delete(":Players:secret.sgc");
 		#endif
 		mprintf((0, "Deleting secret.sgc, return value = %i\n", rval));
 	}
