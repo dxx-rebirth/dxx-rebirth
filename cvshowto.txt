@@ -11,8 +11,8 @@ A quick howto on accessing the d2x source with CVS.
 1) cd <your source dir>
 
 1.5) cvs -d ":pserver:<username>@shelob.classrooms.washington.edu:/var/cvs" login
-  Unless you already know your username, you want "anonymous".  When
-  prompted for the password just hit return (no password).
+  Unless you already know your username and password, you want
+  "anonymous" for the username, and "readonly" for the password.
 
 2) cvs -d ":pserver:<username>@shelob.classrooms.washington.edu:/var/cvs" checkout d2x
   This will retrieve the source into <current dir>/d2x
