@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.41 2005-02-25 12:07:08 chris Exp $ */
+/* $Id: mission.c,v 1.42 2005-02-25 12:46:24 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -455,31 +455,43 @@ void add_builtin_mission_to_list(mle *mission, char *name)
 }
 
 
-void add_missions_to_list(mle *mission, int anarchy_mode)
+void add_missions_to_list(mle *mission_list, char *path, char *rel_path, int anarchy_mode)
 {
 	char **find, **i, *ext;
 
-	find = PHYSFS_enumerateFiles(MISSION_DIR);
+	find = PHYSFS_enumerateFiles(path);
 
 	for (i = find; *i != NULL; i++)
 	{
-		ext = strrchr(*i, '.');
-		if (ext && (!strnicmp(ext, ".msn", 4) || !strnicmp(ext, ".mn2", 4)))
-			if (read_mission_file(mission, *i, ML_MISSIONDIR))
+		if (strlen(path) + strlen(*i) + 1 >= PATH_MAX)
+			continue;	// path is too long
+
+		strcat(rel_path, *i);
+		if (PHYSFS_isDirectory(path))
+		{
+			strcat(rel_path, "/");
+			add_missions_to_list(mission_list, path, rel_path, anarchy_mode);
+			*(strrchr(path, '/')) = 0;
+		}
+		else if ((ext = strrchr(*i, '.')) && (!strnicmp(ext, ".msn", 4) || !strnicmp(ext, ".mn2", 4)))
+			if (read_mission_file(&mission_list[num_missions], rel_path, ML_MISSIONDIR))
 			{
-				if (anarchy_mode || !mission->anarchy_only_flag) {
-					mission->builtin_hogsize = 0;
-					mission++;
+				if (anarchy_mode || !mission_list[num_missions].anarchy_only_flag)
+				{
+					mission_list[num_missions].builtin_hogsize = 0;
 					num_missions++;
 				}
 				else
-					d_free(mission->filename);
+					d_free(mission_list[num_missions].path);
 			}
+		
 		if (num_missions >= MAX_MISSIONS)
 		{
 			mprintf((0, "Warning: more missions than d2x can handle\n"));
 			break;
 		}
+
+		(strrchr(path, '/'))[1] = 0;	// chop off the entry
 	}
 
 	PHYSFS_freeList(find);
@@ -532,6 +544,7 @@ mle *build_mission_list(int anarchy_mode)
 	mle *mission_list;
 	int top_place;
     char	builtin_mission_filename[FILENAME_LEN];
+	char	search_str[PATH_MAX] = MISSION_DIR;
 
 	//now search for levels on disk
 
@@ -552,7 +565,7 @@ mle *build_mission_list(int anarchy_mode)
 	
 	add_builtin_mission_to_list(mission_list + num_missions, builtin_mission_filename);  //read built-in first
 	add_d1_builtin_mission_to_list(mission_list + num_missions);
-	add_missions_to_list(mission_list + num_missions, anarchy_mode);
+	add_missions_to_list(mission_list, search_str, search_str + strlen(search_str), anarchy_mode);
 	
 	// move original missions (in story-chronological order)
 	// to top of mission list
