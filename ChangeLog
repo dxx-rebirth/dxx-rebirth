@@ -4,6 +4,8 @@
 
 	* main/text.c: fix crash on Mac OS X, probably fix bug 738
 
+	* include/mono.h: add mprintf support for carbon (Mac OS 9)
+
 2004-10-09  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* main/automap.c, main/cntrlcen.c, main/collide.c, main/endlevel.c,
