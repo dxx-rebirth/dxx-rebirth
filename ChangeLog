@@ -1,11 +1,7 @@
-2005-02-25  Chris Taylor  <chris@icculus.org>
+2005-02-26  Chris Taylor  <chris@icculus.org>
 
-	* arch/carbon/conf.h, D2X.make: no defining OGL in conf.h, 
-	allowing Mac OS 9 and X to both use conf.h but one can build for
-	OpenGL while the other doesn't.
-
-	* main/editor/mine.c: use the Descent 2 definitions for maximum 
-	segments and vertices
+	* ui/keypad.c, ui/ui.c: no unnecessarily including MS DOS
+	headers
 
 2005-02-25  Bradley Bell  <btb@icculus.org>
 
