@@ -1,5 +1,12 @@
+2003-02-25  Bradley Bell  <btb@icculus.org>
+
+	* autogen.sh: add warning about old auto* versions, use
+	automake --copy
+
 2003-02-24  Bradley Bell <btb@icculus.org>
 
+	* main/gameseq.c, main/movies.c, main/titles.c: Descent I
+	briefings mostly working
 	* main/movie.c, main/titles.c: fixed some more briefing glitches
 
 2003-02-23  Bradley Bell <btb@icculus.org>
