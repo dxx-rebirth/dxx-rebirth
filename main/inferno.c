@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.75 2004-05-20 01:29:17 btb Exp $ */
+/* $Id: inferno.c,v 1.76 2004-05-20 05:16:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1031,6 +1031,7 @@ void print_commandline_help()
 	printf("  -gl_mipmap      %s\n", "set gl texture filters to \"standard\" (bilinear) mipmapping");
 	printf("  -gl_trilinear   %s\n", "set gl texture filters to trilinear mipmapping");
 	printf( "  -gl_simple      %s\n","set gl texture filters to gl_nearest for \"original\" look. (default)");
+	printf("  -gl_anisotropy <f> %s\n", "set maximum degree of anisotropy to <f>");
 	printf( "  -gl_alttexmerge %s\n","use new texmerge, usually uses less ram (default)");
 	printf( "  -gl_stdtexmerge %s\n","use old texmerge, uses more ram, but _might_ be a bit faster");
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE

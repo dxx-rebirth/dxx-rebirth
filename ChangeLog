@@ -1,5 +1,9 @@
 2004-05-19  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/gr.c, arch/ogl/ogl.c, include/ogl_init.h,
+	main/inferno.c: add anisotropic texture filtering suport (d1x
+	r1.33, r1.32, r1.23, r1.32)
+
 	* arch/ogl/ogl.c: make RENDERSTATS show size of color/depth buffer
 	too (d1x r1.31)
 

@@ -98,8 +98,16 @@ extern int ogl_gettexlevelparam_ok;
 #endif
 extern int ogl_nv_texture_env_combine4_ok;
 
+#ifndef GL_EXT_texture_filter_anisotropic
+#define GL_EXT_texture_filter_anisotropic 1
+#define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+#endif
+extern int ogl_ext_texture_filter_anisotropic_ok;
+
 extern int gl_initialized;
 extern int GL_texmagfilt,GL_texminfilt,GL_needmipmaps;
+extern float GL_texanisofilt;
 extern int gl_reticle;
 
 extern int active_texture_unit;

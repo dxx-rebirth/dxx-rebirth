@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.19 2004-05-20 05:02:53 btb Exp $ */
+/* $Id: ogl.c,v 1.20 2004-05-20 05:16:00 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -65,6 +65,7 @@ unsigned char *ogl_pal=gr_palette;
 
 int GL_texmagfilt=GL_NEAREST;
 int GL_texminfilt=GL_NEAREST;
+float GL_texanisofilt = 0;
 int GL_needmipmaps=0;
 
 int last_width=-1,last_height=-1;
@@ -87,6 +88,7 @@ int ogl_arb_multitexture_ok=0;
 int ogl_sgis_multitexture_ok=0;
 #endif
 int ogl_nv_texture_env_combine4_ok = 0;
+int ogl_ext_texture_filter_anisotropic_ok = 0;
 
 int sphereh=0;
 int cross_lh[2]={0,0};
@@ -1517,7 +1519,11 @@ void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex)
 	if (tex->wantmip){
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_texmagfilt);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_texminfilt);
-	}else{
+		if (ogl_ext_texture_filter_anisotropic_ok && GL_texanisofilt)
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, GL_texanisofilt);
+	}
+	else
+	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
