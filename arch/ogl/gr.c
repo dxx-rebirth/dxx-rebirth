@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.17 2004-05-16 00:45:25 schaffner Exp $ */
+/* $Id: gr.c,v 1.18 2004-05-19 03:35:48 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -487,10 +487,10 @@ void ogl_urect(int left,int top,int right,int bot){
 	int c=COLOR;
 	
 	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
-	xf=(right+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
+	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / (float)last_width;
 	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
-	yf=1.0-(bot+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
-	
+	yf = 1.0 - (bot + 1 + grd_curcanv->cv_bitmap.bm_y) / (float)last_height;
+
 	OGL_DISABLE(TEXTURE_2D);
 	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
 	glBegin(GL_QUADS);

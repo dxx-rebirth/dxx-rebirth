@@ -1,5 +1,8 @@
 2004-05-18  Bradley Bell  <btb@icculus.org>
 
+	* arch/ogl/gr.c: fix off-by-one error in ogl_urect, right and
+	bottom are inclusive not exclusive (d1x r1.28)
+
 	* arch/ogl/ogl.c, include/ogl_init.h, main/polyobj.c: fix briefing
 	spinning robot display in OGL (d1x r1.28, r1.20, r1.2)
 
