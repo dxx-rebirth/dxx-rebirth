@@ -2,7 +2,7 @@ DIST_SUBDIRS = 2d 3d arch console iff libmve main maths mem misc texmap utilitie
 
 SUBDIRS = ${DIST_SUBDIRS} @D2X_SUBDIRS@
 
-EXTRA_SUBDIRS = ui include unused debian rpm VisualC VisualCE
+EXTRA_SUBDIRS = ui include unused debian rpm VisualC VisualCE English.lproj d2x.xcode
 
 bin_PROGRAMS = @TARGETS@
 
@@ -57,7 +57,9 @@ missiondir = ${pkgdatadir}/missions
 CLEANFILES = @TARGETS@ Info.plist
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
-ChangeLog \
+ChangeLog ChangeLog-old \
+D2X.make \
+MVEPlayer-Info.plist d2x-Info.plist d2xgl-Info.plist \
 README.utils \
 djgpp.bat djgpp.sh \
 autogen.sh \

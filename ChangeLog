@@ -1,5 +1,7 @@
 2005-03-20  Bradley Bell  <btb@icculus.org>
 
+	* Makefile.am: add some stuff to dist
+
 	* main/game.c, main/game.h, main/inferno.c, main/menu.c: added
 	MAX_FPS constant
 
