@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: netmisc.c,v 1.7 2002-12-31 23:19:42 btb Exp $";
+static char rcsid[] = "$Id: netmisc.c,v 1.8 2003-10-03 03:19:03 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -103,24 +103,6 @@ ushort netmisc_calc_checksum( void * vptr, int len )
 	vptr = vptr;
 	len = len;
 	return mac_calc_segment_checksum();
-}
-
-// Calculates the checksum of a block of memory.
-ushort netmisc_calc_checksum_pc( void * vptr, int len )
-{
-	ubyte * ptr = (ubyte *)vptr;
-	unsigned int sum1,sum2;
-
-	sum1 = sum2 = 0;
-
-	while(len--)	{
-		sum1 += *ptr++;
-		if (sum1 >= 255 ) sum1 -= 255;
-		sum2 += sum1;
-	}
-	sum2 %= 255;
-	
-	return ((sum1<<8)+ sum2);
 }
 
 // following are routine for macintosh only that will swap the elements of
@@ -613,7 +595,7 @@ void swap_object(object *obj)
 
 }
 
-#else
+#else /* !WORDS_BIGENDIAN */
 
 
 // Calculates the checksum of a block of memory.
@@ -634,7 +616,8 @@ ushort netmisc_calc_checksum( void * vptr, int len )
 	return ((sum1<<8)+ sum2);
 }
 
-#endif
+#endif /* WORDS_BIGENDIAN */
+
 //--unused-- //Finds the difference between block1 and block2.  Fills in diff_buffer and 
 //--unused-- //returns the size of diff_buffer.
 //--unused-- int netmisc_find_diff( void *block1, void *block2, int block_size, void *diff_buffer )

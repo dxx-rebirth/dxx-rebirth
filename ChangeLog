@@ -1,3 +1,7 @@
+2003-10-02  Bradley Bell  <btb@icculus.org>
+
+	* main/netmisc.c: delete duplicate function
+
 2003-10-01  Bradley Bell  <btb@icculus.org>
 
 	* main/bm.c: make sure d1_texture_indices gets freed between
