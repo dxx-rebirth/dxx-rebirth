@@ -5,6 +5,15 @@
 
 	* ui/window.c: only disable the keyboard for MS DOS
 
+2005-02-25  Chris Taylor  <chris@icculus.org>
+
+	* arch/carbon/conf.h, D2X.make: no defining OGL in conf.h,
+	allowing Mac OS 9 and X to both use conf.h but one can build for
+	OpenGL while the other doesn't.
+
+	* main/editor/mine.c: use the Descent 2 definitions for maximum
+	segments and vertices
+
 2005-02-25  Bradley Bell  <btb@icculus.org>
 
 	* arch/dos/digi.c, arch/dos/digiallg.c, arch/dos/digimm.c,
@@ -12,6 +21,9 @@
 	d2src system for persistent sounds. Untested, of course.
 
 	* ChangeLog-old: clean up old changelog a little
+
+	* ChangeLog-old: converted old changelog to "cvs log" format, so
+	it can be manipulated with cvs2cl and other tools.
 
 2005-02-24  Tim Massey  <tmassey@obscorp.com>
 
