@@ -1,13 +1,16 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/linux/arch_ip.cpp,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2002-02-06 09:22:41 $
+ * $Date: 2002-02-15 06:41:41 $
  *
  * arch_ip.cpp - arch specific udp/ip code.  (linux ver)
  * added 2000/02/07 Matt Mueller (some code borrowed from ipx_udp.c)
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2002/02/06 09:22:41  bradleyb
+ * Adding d1x network code
+ *
  *
  */
 
@@ -95,10 +98,10 @@ int ip_sendtoca(ip_addr addr,const void *buf,int len){
 	memcpy(&toaddr.sin_addr,addr.addr,4);
 	toaddr.sin_port=*(unsigned short *)(addr.addr+4);
 #ifdef UDPDEBUG
-	printf(MSGHDR "sendtoca((%d) ",len);
+	con_printf(CON_DEBUG, MSGHDR "sendtoca((%d) ",len);
 	//dumpraddr(addr.addr);
 	addr.dump();
-	puts(").");
+	con_printf(CON_DEBUG, ").\n");
 #endif
 	return sendto(mysock,buf,len,0,(struct sockaddr *)&toaddr,sizeof(toaddr));
 }
@@ -161,9 +164,9 @@ int arch_ip_get_my_addr(u_short myport){
 		if (sinp->sin_family!=AF_INET) continue;
 		addr.set(4,(ubyte*)&sinp->sin_addr,htons(myport));
 #ifdef UDPDEBUG
-		printf(MSGHDR"added if ");
+		con_printf(CON_DEBUG, MSGHDR"added if ");
 		addr.dump();
-		printf("\n");
+		con_printf(CON_DEBUG, "\n");
 #endif
 		ip_my_addrs.add(addr);
 	}
@@ -225,9 +228,9 @@ int arch_ip_recvfrom(char*outbuf,int outbufsize,struct ipx_recv_data *rd){
 	if (fromaddr.sin_family!=AF_INET) return -1;
 
 #ifdef UDPDEBUG
-	printf(MSGHDR "recvfrom((%d-2=%d),",size,size-2);
+	con_printf(CON_DEBUG, MSGHDR "recvfrom((%d-2=%d),",size,size-2);
 	dumpaddr(&fromaddr);
-	puts(").");
+	con_printf(CON_DEBUG, ").\n");
 #endif
 
 	ip_fromaddr.set(4,(u_char*)&fromaddr.sin_addr,fromaddr.sin_port);

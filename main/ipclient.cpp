@@ -1,13 +1,16 @@
 /*
  * $Source: /cvs/cvsroot/d2x/main/ipclient.cpp,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2002-02-14 09:27:09 $
+ * $Date: 2002-02-15 06:41:42 $
  *
  * ipclient.cpp - udp/ip client code
  * added 2000/02/07 Matt Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2002/02/14 09:27:09  bradleyb
+ * d1x->d2x
+ *
  * Revision 1.1  2002/02/06 09:22:42  bradleyb
  * Adding d1x network code
  *
@@ -50,9 +53,9 @@ int ip_connect_manual(char *textaddr) {
 		return -1;
 	}
 #ifdef UDPDEBUG
-    printf("connecting to ");
+    con_printf(CON_DEBUG, "connecting to ");
     addr.dump();
-    printf("\n");
+    con_printf(CON_DEBUG, "\n");
 #endif
 
     network_init();
@@ -138,13 +141,13 @@ static int ipx_ip_SendPacket(IPXPacket_t *IPXHeader,
 	memcpy(buf+2,data,dataLen);
 
 #ifdef UDPDEBUG
-	printf(MSGHDR "sendto((%d),Node=[4] %02X %02X,Socket=%02X %02X,s_port=%u,",
+	con_printf(CON_DEBUG, MSGHDR "sendto((%d),Node=[4] %02X %02X,Socket=%02X %02X,s_port=%u,",
 			dataLen,
 			IPXHeader->Destination.Node [4],IPXHeader->Destination.Node  [5],
 			IPXHeader->Destination.Socket[0],IPXHeader->Destination.Socket[1],
 			ntohs(*(unsigned short *)(IPXHeader->Destination.Socket)));
 	dumprid(IPXHeader->Destination.Node);
-	puts(").");
+	con_printf(CON_DEBUG, ").\n");
 #endif
 
 	//toaddr.sin_family=AF_INET;
@@ -232,10 +235,10 @@ static int ipx_ip_ReceivePacket(char *outbuf, int outbufsize,
 
 	rd->pkt_type = 0;
 #ifdef UDPDEBUG
-	printf(MSGHDR "ReceivePacket: size=%d,from=",size);
+	con_printf(CON_DEBUG, MSGHDR "ReceivePacket: size=%d,from=",size);
 //	dumpraddr(rd->src_node);
 	fromaddr->dump();
-	putchar('\n');
+	con_printf(CON_DEBUG, "\n");
 #endif
 /*	ip_peer *p=peer_list.find_by_addr(*fromaddr);
 	if(p)

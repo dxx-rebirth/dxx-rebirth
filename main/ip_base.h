@@ -1,13 +1,16 @@
 /*
  * $Source: /cvs/cvsroot/d2x/main/ip_base.h,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2002-02-14 09:24:19 $
+ * $Date: 2002-02-15 06:41:42 $
  *
  * ip_base.h - base for NAT-compatible udp/ip code.
  * added 2000/02/07 Matt Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2002/02/14 09:24:19  bradleyb
+ * d1x->d2x
+ *
  * Revision 1.2  2002/02/13 10:45:49  bradleyb
  * Lotsa networking stuff from d1x
  *
@@ -19,6 +22,10 @@
 
 #ifndef ___IP_BASE_H
 #define ___IP_BASE_H
+
+#ifndef NDEBUG
+#define UDPDEBUG
+#endif
 
 #include <map.h>
 #include <list.h>
@@ -78,7 +85,8 @@ unsigned short ip_portshift(unsigned short baseport, const char *cs);
  */
 
 #ifdef UDPDEBUG
-#include <stdio.h>
+#include "console.h"
+
 inline char *ip_hs_statetoa(int state){
 	if (!state)
 		return "NOSTATE";
@@ -94,14 +102,14 @@ inline char *ip_hs_statetoa(int state){
 }
 inline void dumprid(const unsigned char *a)
 {
-    printf("<%u.%u.%u.%u.%u.%u>",a[0],a[1],a[2],a[3],a[4],a[5]);
+    con_printf(CON_DEBUG, "<%u.%u.%u.%u.%u.%u>",a[0],a[1],a[2],a[3],a[4],a[5]);
 }
 inline void dumpraddr(const unsigned char *addr)
 {
 	ushort port;
-	printf("[%u.%u.%u.%u]",addr[0],addr[1],addr[2],addr[3]);
+	con_printf(CON_DEBUG, "[%u.%u.%u.%u]",addr[0],addr[1],addr[2],addr[3]);
 	port=(unsigned short)ntohs(*(unsigned short *)(addr+4));
-	printf(":%d",port);
+	con_printf(CON_DEBUG, ":%d",port);
 }
 #endif
 

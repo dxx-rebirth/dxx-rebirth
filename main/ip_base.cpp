@@ -1,13 +1,16 @@
 /*
  * $Source: /cvs/cvsroot/d2x/main/ip_base.cpp,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2002-02-14 09:24:19 $
+ * $Date: 2002-02-15 06:41:42 $
  *
  * ip_base.cpp - base for NAT-compatible udp/ip code.
  * added 2000/02/07 Matt Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2002/02/14 09:24:19  bradleyb
+ * d1x->d2x
+ *
  * Revision 1.2  2002/02/13 10:39:21  bradleyb
  * Lotsa networking stuff from d1x
  *
@@ -168,13 +171,13 @@ void ip_peer::send_handshake(ip_handshake_base*hsb){
 /*#ifdef UDPDEBUG
 	{
 		int hj;
-		printf(MSGHDR"sending handshake %i (t%i state %i(%s)) for (%i)",hsb->attempts,hsb->type,hsb->state,ip_hs_statetoa(hsb->state),addr.goodaddr);
+		con_printf(CON_DEBUG, MSGHDR"sending handshake %i (t%i state %i(%s)) for (%i)",hsb->attempts,hsb->type,hsb->state,ip_hs_statetoa(hsb->state),addr.goodaddr);
 		for (hj=0;hj<numaddr;hj++){
 			if (hj>0)
-				printf(", ");
+				con_printf(CON_DEBUG, ", ");
 			dumpraddr(addr[hj].addr);
 		}
-		printf(" v%i\n",iver);
+		con_printf(CON_DEBUG, " v%i\n",iver);
 	}
 #endif*/
 }
@@ -295,13 +298,13 @@ struct do_peer_handshake : public unary_function<ip_peer *, void>{
 				if(hsb->attempts>IP_MAX_HS_ATTEMPTS){
 /*#ifdef UDPDEBUG
 					int hj;
-					printf(MSGHDR"handshake timeout (state %i(%s)) for (%i)",hsb->state,ip_hs_statetoa(hsb->state),peer->goodaddr);
+					con_printf(CON_DEBUG, MSGHDR"handshake timeout (state %i(%s)) for (%i)",hsb->state,ip_hs_statetoa(hsb->state),peer->goodaddr);
 					for (hj=0;hj<peer->numaddr;hj++){
 						if (hj>0)
-							printf(", ");
+							con_printf(CON_DEBUG, ", ");
 						dumpraddr(peer->addr[hj].addr);
 					}
-					printf(" v%i\n",peer->iver);
+					con_printf(CON_DEBUG, " v%i\n",peer->iver);
 #endif*/
 					hsb->setstate(STATE_ERR);
 				}else{
@@ -352,7 +355,7 @@ ip_peer_list::~ip_peer_list(){
 
 static void dumpid(unsigned char *a)
 {
-	printf("<%u.%u.%u.%u.%u.%u>",a[0],a[1],a[2],a[3],a[4],a[5]);
+	con_printf(CON_DEBUG, "<%u.%u.%u.%u.%u.%u>",a[0],a[1],a[2],a[3],a[4],a[5]);
 }
 #endif
 
@@ -361,9 +364,9 @@ int ip_sendtoid(ubyte *id,const void *buf,int len){
 	ip_peer *p=peer_list.find_byid(id);
 	if (!p || p->addr.goodaddr==NULL){
 #ifdef UDPDEBUG
-		printf(MSGHDR"send to invalid id(");
+		con_printf(CON_DEBUG, MSGHDR"send to invalid id(");
 		dumpid(id);
-		printf(") %p.",p);
+		con_printf(CON_DEBUG, ") %p.",p);
 #endif
 		return -1;
 	}
@@ -376,17 +379,17 @@ void ip_receive_cfg(ubyte *buf,int buflen,ip_addr fromaddr){
 		case IP_CFG_SORRY:
 			{
 #ifdef UDPDEBUG
-	printf("ip_receive_cfg: %i %i ",buf[0],buf[1]);
+	con_printf(CON_DEBUG, "ip_receive_cfg: %i %i ",buf[0],buf[1]);
 	dumprid(buf+2);
-        printf(" v%i tryid%u\n",ntohs(*(unsigned short*)(buf+8)),(unsigned int)ntohl(*(u_int32_t*)(buf+10)));
+        con_printf(CON_DEBUG, " v%i tryid%u\n",ntohs(*(unsigned short*)(buf+8)),(unsigned int)ntohl(*(u_int32_t*)(buf+10)));
 #endif
 
 			}break;
 		case IP_CFG_HANDSHAKE:
 #ifdef UDPDEBUG
-	printf("ip_receive_cfg: %i %i ",buf[0],buf[1]);
+	con_printf(CON_DEBUG, "ip_receive_cfg: %i %i ",buf[0],buf[1]);
 	dumprid(buf+2);
-        printf(" v%i tryid%u\n",ntohs(*(unsigned short*)(buf+8)),(unsigned int)ntohl(*(u_int32_t*)(buf+10)));
+        con_printf(CON_DEBUG, " v%i tryid%u\n",ntohs(*(unsigned short*)(buf+8)),(unsigned int)ntohl(*(u_int32_t*)(buf+10)));
 #endif
 			{
 				ip_handshake_info *hsi=new ip_handshake_info(buf);
@@ -394,9 +397,9 @@ void ip_receive_cfg(ubyte *buf,int buflen,ip_addr fromaddr){
 				ip_handshake_info *lhsi=NULL;
 				p=peer_list.find_byid(hsi->id);
 /*#ifdef UDPDEBUG
-				printf("hsi %i %i id=",hsi->type,hsi->state);
+				con_printf(CON_DEBUG, "hsi %i %i id=",hsi->type,hsi->state);
 				hsi->id.dump();
-				printf(" ver=%i tryid=%u\n",hsi->iver,hsi->tryid);
+				con_printf(CON_DEBUG, " ver=%i tryid=%u\n",hsi->iver,hsi->tryid);
 				mprintf((0,"peer_list.find_byid=%p\n",p));
 #endif*/
 				if (!p){
@@ -436,11 +439,11 @@ void ip_receive_cfg(ubyte *buf,int buflen,ip_addr fromaddr){
 				ip_peer *rp;
 				ip_handshake_relay hsr(buf);
 #ifdef UDPDEBUG
-				printf("ip_receive_cfg: %i %i ",buf[0],buf[1]);
+				con_printf(CON_DEBUG, "ip_receive_cfg: %i %i ",buf[0],buf[1]);
 				dumprid(buf+2);
-				printf(" v%i r_id ",ntohs(*(unsigned short*)(buf+8)));
+				con_printf(CON_DEBUG, " v%i r_id ",ntohs(*(unsigned short*)(buf+8)));
 				hsr.r_id.dump();
-				printf(" r_iv%i\n",hsr.r_iver);
+				con_printf(CON_DEBUG, " r_iv%i\n",hsr.r_iver);
 #endif
 				p=peer_list.find_byid(hsr.id);
 				if (!p) {
@@ -458,11 +461,11 @@ void ip_receive_cfg(ubyte *buf,int buflen,ip_addr fromaddr){
 						break;
 					rhsr->setstate(0);
 #ifdef UDPDEBUG
-					printf("**** ");
+					con_printf(CON_DEBUG, "**** ");
 					p->id.dump();
-					printf(" is ok with ");
+					con_printf(CON_DEBUG, " is ok with ");
 					rp->id.dump();
-					printf("\n");
+					con_printf(CON_DEBUG, "\n");
 #endif
 				}else{
 					if (!rp)
@@ -497,7 +500,7 @@ int ipx_ip_GetMyAddress(void) {
 	u_int32_t myhandshakeid;
 
 	d_srand( timer_get_approx_seconds() );
-//	printf("set my id to %u\n",myhandshakeid);
+//	con_printf(CON_DEBUG, "set my id to %u\n",myhandshakeid);
 
 	ip_my_addrs.clear();
 
@@ -527,9 +530,9 @@ int ipx_ip_GetMyAddress(void) {
 	memcpy(ipx_MyAddress+6,&myhandshakeid,4);
 
 #ifdef UDPDEBUG
-	printf(MSGHDR "Using TCP/IP id ");
+	con_printf(CON_DEBUG, MSGHDR "Using TCP/IP id ");
 	dumprid(ipx_MyAddress+4);
-	putchar('\n');
+	con_printf(CON_DEBUG, "\n");
 #endif
 	return 0;
 }
