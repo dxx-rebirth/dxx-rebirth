@@ -1,4 +1,4 @@
-/* $Id: config.c,v 1.14 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: config.c,v 1.15 2005-01-23 14:38:04 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -59,7 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.14 2004-12-01 12:48:13 btb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.15 2005-01-23 14:38:04 schaffner Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -237,7 +237,7 @@ int ReadConfigFile()
 	SaveMovieHires = MovieHires;
 	save_redbook_enabled = Redbook_enabled;
 
-	infile = PHYSFS_openRead("descent.cfg");
+	infile = cfopen("descent.cfg", "rb");
 	if (infile == NULL) {
 		WIN(CheckMovieAttributes());
 		return 1;
@@ -413,7 +413,7 @@ int ReadConfigFile()
 	} else
 		digi_driver_board		= digi_driver_board;
 #else
-	infile = PHYSFS_openRead("descentw.cfg");
+	infile = cfopen("descentw.cfg", "rb");
 	if (infile) {
 		while (!PHYSFS_eof(infile))
 		{
@@ -463,7 +463,7 @@ int WriteConfigFile()
    }
 #endif
 
-	infile = PHYSFS_openWrite("descent.cfg");
+	infile = cfopen("descent.cfg", "wb");
 	if (infile == NULL) {
 		return 1;
 	}
@@ -589,7 +589,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.14 2004-12-01 12:48:13 btb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.15 2005-01-23 14:38:04 schaffner Exp $";
 #endif
 
 #define MAX_CTB_LEN	512

@@ -1,4 +1,4 @@
-/* $Id: newdemo.c,v 1.18 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: newdemo.c,v 1.19 2005-01-23 14:38:04 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2958,7 +2958,7 @@ void newdemo_start_recording()
 	Newdemo_num_written = 0;
 	Newdemo_no_space=0;
 	Newdemo_state = ND_STATE_RECORDING;
-	outfile = PHYSFS_openWrite(DEMO_FILENAME);
+	outfile = cfopen(DEMO_FILENAME, "wb");
 
 #if !defined(MACINTOSH) && !defined(_WIN32_WCE)
 	if (outfile == NULL && errno == ENOENT) {   //dir doesn't exist?
@@ -2966,7 +2966,7 @@ void newdemo_start_recording()
 	if (outfile == NULL) {                      //dir doesn't exist and no errno on mac!
 #endif
 		PHYSFS_mkdir(DEMO_DIR); //try making directory
-		outfile = PHYSFS_openWrite(DEMO_FILENAME);
+		outfile = cfopen(DEMO_FILENAME, "wb");
 	}
 
 	if (outfile == NULL)
@@ -3196,7 +3196,7 @@ void newdemo_start_playback(char * filename)
 			return;
 	}
 
-	infile = PHYSFS_openRead(filename2);
+	infile = cfopen(filename2, "rb");
 
 	if (infile==NULL) {
 		mprintf( (0, "Error reading '%s'\n", filename ));

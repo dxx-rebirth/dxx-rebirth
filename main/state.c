@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.20 2005-01-07 22:34:33 btb Exp $ */
+/* $Id: state.c,v 1.21 2005-01-23 14:38:04 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1083,7 +1083,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 		Int3();
 	#endif
 
-	fp = PHYSFS_openRead(filename);
+	fp = cfopen(filename, "rb");
 	if ( !fp ) return 0;
 
 //Read id

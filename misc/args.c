@@ -1,4 +1,4 @@
-/* $Id: args.c,v 1.15 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: args.c,v 1.16 2005-01-23 14:38:04 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,14 +23,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.15 2004-12-01 12:48:13 btb Exp $";
+static char rcsid[] = "$Id: args.c,v 1.16 2005-01-23 14:38:04 schaffner Exp $";
 #endif
 
 #include <stdlib.h>
 #include <string.h>
 
-#include <physfs.h>
-
+#include "cfile.h"
 #include "args.h"
 #include "u_mem.h"
 #include "strio.h"
@@ -112,9 +111,9 @@ void AppendArgs(void)
 	int i;
 	
 	if((i=FindArg("-ini")))
-		f = PHYSFS_openRead(Args[i+1]);
+		f = cfopen(Args[i+1], "rb");
 	else
-		f = PHYSFS_openRead("d2x.ini");
+		f = cfopen("d2x.ini", "rb");
 	
 	if(f) {
 		while(!PHYSFS_eof(f) && Num_args < MAX_ARGS)

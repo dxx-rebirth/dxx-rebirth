@@ -9,6 +9,7 @@
 	only on last level of built-in mission.
 	* main/gauges.c: fix bug #2110: redraw energy/afterburner gauges
 	whenever necessary
+	* change cfopen to use buffers (speeding it up), and use cfopen instead of PHYSFS_openRead/PHYSFS_openWrite where appropriate
 
 2005-01-10  Chris Taylor  <c.taylor@student.curtin.edu.au>
 

@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.21 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: playsave.c,v 1.22 2005-01-23 14:38:04 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -329,7 +329,7 @@ int read_player_file()
 	if (!PHYSFS_exists(filename))
 		return ENOENT;
 
-	file = PHYSFS_openRead(filename);
+	file = cfopen(filename, "rb");
 
 #if 0
 #ifndef MACINTOSH
@@ -654,7 +654,7 @@ int write_player_file()
 #else
 	sprintf(filename, ":Players:%.8s.plr",Players[Player_num].callsign);
 #endif
-	file = PHYSFS_openWrite(filename);
+	file = cfopen(filename, "wb");
 
 #if 0 //ndef MACINTOSH
 	//check filename

@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.39 2005-01-23 13:48:35 schaffner Exp $ */
+/* $Id: gr.c,v 1.40 2005-01-23 14:38:04 schaffner Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -730,7 +730,7 @@ void gr_palette_read(ubyte * pal)
 void write_bmp(char *savename,int w,int h,unsigned char *buf){
 	PHYSFS_file *f;
 
-	f = PHYSFS_openWrite(savename);
+	f = cfopen(savename, "wb");
 		
 	if (f>=0){
 		GLubyte    targaMagic[12] = { 0, //no identification field

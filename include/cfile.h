@@ -1,4 +1,4 @@
-/* $Id: cfile.h,v 1.15 2004-12-04 04:07:16 btb Exp $ */
+/* $Id: cfile.h,v 1.16 2005-01-23 14:38:04 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "vecmat.h"
 #include "physfsx.h"
+#include "strutil.h"
 
 #define CFILE            PHYSFS_file
 #define cfread(p,s,n,fp) PHYSFS_read(fp,p,s,n)
@@ -37,24 +38,32 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define cfexist          PHYSFS_exists
 #define cfilelength      PHYSFS_fileLength
 
-//Open a file, set up a read buffer
+//Open a file, set up a buffer
 static inline PHYSFS_file *cfopen(char *filename, char *mode)
 {
 	PHYSFS_file *fp;
-	PHYSFS_uint64 bufSize;
+	PHYSFS_uint64 bufSize = 1024*1024;
 	
-	mode = mode;	// no warning
-
 	if (filename[0] == '\x01')
 	{
 		//FIXME: don't look in dir, only in hogfile
 		filename++;
 	}
-	fp = PHYSFS_openRead(filename);
-	if (!fp)
-		return NULL;
 
-	bufSize = PHYSFS_fileLength(fp);
+	if (!stricmp(mode, "rb"))
+	{
+		fp = PHYSFS_openRead(filename);
+		if (!fp)
+			return NULL;
+		bufSize = PHYSFS_fileLength(fp);
+	}
+	else if (!stricmp(mode, "wb"))
+	{
+		fp = PHYSFS_openWrite(filename);
+		if (!fp)
+			return NULL;
+	}
+		
 	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
 		bufSize /= 2;	// even if the error isn't memory full, for a 20MB file it'll only do this 8 times
 
