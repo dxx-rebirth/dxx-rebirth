@@ -1,4 +1,4 @@
-/* $Id: mine.c,v 1.6 2005-01-23 14:46:49 schaffner Exp $ */
+/* $Id: mine.c,v 1.7 2005-02-25 14:55:49 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: mine.c,v 1.6 2005-01-23 14:46:49 schaffner Exp $";
+static char rcsid[] = "$Id: mine.c,v 1.7 2005-02-25 14:55:49 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -291,15 +291,15 @@ int save_mine_data_compiled(FILE * SaveFile)
 	med_compress_mine();
 	warn_if_concave_segments();
 
-	if (Highest_segment_index >= MAX_GAME_SEGMENTS) {
+	if (Highest_segment_index >= MAX_SEGMENTS) {
 		char	message[128];
-		sprintf(message, "Error: Too many segments (%i > %i) for game (not editor)", Highest_segment_index+1, MAX_GAME_SEGMENTS);
+		sprintf(message, "Error: Too many segments (%i > %i) for game (not editor)", Highest_segment_index+1, MAX_SEGMENTS);
 		MessageBox( -2, -2, 1, message, "Ok" );
 	}
 
-	if (Highest_vertex_index >= MAX_GAME_VERTICES) {
+	if (Highest_vertex_index >= MAX_VERTICES) {
 		char	message[128];
-		sprintf(message, "Error: Too many vertices (%i > %i) for game (not editor)", Highest_vertex_index+1, MAX_GAME_VERTICES);
+		sprintf(message, "Error: Too many vertices (%i > %i) for game (not editor)", Highest_vertex_index+1, MAX_VERTICES);
 		MessageBox( -2, -2, 1, message, "Ok" );
 	}
 
@@ -370,15 +370,15 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 	med_compress_mine();
 	warn_if_concave_segments();
 
-	if (Highest_segment_index >= MAX_GAME_SEGMENTS) {
+	if (Highest_segment_index >= MAX_SEGMENTS) {
 		char	message[128];
-		sprintf(message, "Error: Too many segments (%i > %i) for game (not editor)", Highest_segment_index+1, MAX_GAME_SEGMENTS);
+		sprintf(message, "Error: Too many segments (%i > %i) for game (not editor)", Highest_segment_index+1, MAX_SEGMENTS);
 		MessageBox( -2, -2, 1, message, "Ok" );
 	}
 
-	if (Highest_vertex_index >= MAX_GAME_VERTICES) {
+	if (Highest_vertex_index >= MAX_VERTICES) {
 		char	message[128];
-		sprintf(message, "Error: Too many vertices (%i > %i) for game (not editor)", Highest_vertex_index+1, MAX_GAME_VERTICES);
+		sprintf(message, "Error: Too many vertices (%i > %i) for game (not editor)", Highest_vertex_index+1, MAX_VERTICES);
 		MessageBox( -2, -2, 1, message, "Ok" );
 	}
 

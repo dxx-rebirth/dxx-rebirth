@@ -4,6 +4,9 @@
 	allowing Mac OS 9 and X to both use conf.h but one can build for
 	OpenGL while the other doesn't.
 
+	* main/editor/mine.c: use the Descent 2 definitions for maximum 
+	segments and vertices
+
 2005-02-25  Bradley Bell  <btb@icculus.org>
 
 	* arch/dos/digi.c, arch/dos/digiallg.c, arch/dos/digimm.c,
@@ -60,7 +63,7 @@
 2005-01-25  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* arch/carbon/conf.h, arch/ogl/gr.c, include/loadgl.h: on Carbon,
-	dynamically find and load the OpenGL library on carbon
+	dynamically find and load the OpenGL library
 
 	* main/editor/macro.c: use physfs instead of non-existing cflib.h
 
