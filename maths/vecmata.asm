@@ -10,13 +10,16 @@
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
 ; $Source: /cvs/cvsroot/d2x/maths/vecmata.asm,v $
-; $Revision: 1.1.1.1 $
+; $Revision: 1.2 $
 ; $Author: bradleyb $
-; $Date: 2001-01-19 03:29:58 $
+; $Date: 2001-10-19 09:34:02 $
 ;
 ; Source for vector/matrix library
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.1.1.1  2001/01/19 03:29:58  bradleyb
+; Import of d2x-0.0.8
+;
 ; Revision 1.1.1.1  1999/06/14 22:13:33  donut
 ; Import of d1x 1.37 source.
 ;
@@ -198,7 +201,7 @@
 
 [BITS 32]
 
-%ifdef __ENV_LINUX__
+%ifdef __linux__
 ; Cater for linux ELF compilers which don't prefix underscores...
 ; Variables:
 %define _vmd_zero_vector              vmd_zero_vector

@@ -11,7 +11,7 @@
 
 [BITS 32]
 
-%ifdef __ENV_LINUX__
+%ifdef __linux__
 %define _fixdivquadlong fixdivquadlong
 %define _fixmul fixmul
 %define _fixdiv fixdiv

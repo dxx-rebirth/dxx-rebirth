@@ -10,13 +10,16 @@
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
 ; $Source: /cvs/cvsroot/d2x/2d/linear.asm,v $
-; $Revision: 1.1.1.1 $
+; $Revision: 1.2 $
 ; $Author: bradleyb $
-; $Date: 2001-01-19 03:29:57 $
+; $Date: 2001-10-19 09:34:02 $
 ;
 ; Routines to access linear VGA memory
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.1.1.1  2001/01/19 03:29:57  bradleyb
+; Import of d2x-0.0.8
+;
 ; Revision 1.1.1.1  1999/06/14 21:57:07  donut
 ; Import of d1x 1.37 source.
 ;
@@ -90,7 +93,7 @@
 
 section .data
 		; Put data here
-%ifdef __ENV_LINUX__
+%ifdef __linux__
 %define _gr_var_color gr_var_color
 %define _gr_var_bitmap gr_var_bitmap
 %define _gr_var_bwidth gr_var_bwidth
