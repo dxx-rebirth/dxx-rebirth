@@ -1,4 +1,4 @@
-/* $Id: gamemine.c,v 1.29 2004-10-09 21:52:43 schaffner Exp $ */
+/* $Id: gamemine.c,v 1.30 2004-10-30 18:34:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.29 2004-10-09 21:52:43 schaffner Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.30 2004-10-30 18:34:28 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -950,7 +950,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		case D1_SHARE_PIGSIZE:
 		case D1_10_BIG_PIGSIZE:
 		case D1_10_PIGSIZE:
-			d1_pig_present = 0;
+			//d1_pig_present = 0;
 		}
 		cfclose (d1_Piggy_fp);
 	}

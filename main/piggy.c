@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.54 2004-10-09 21:52:43 schaffner Exp $ */
+/* $Id: piggy.c,v 1.55 2004-10-30 18:34:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.54 2004-10-09 21:52:43 schaffner Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.55 2004-10-30 18:34:28 schaffner Exp $";
 #endif
 
 
@@ -2024,9 +2024,9 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 #define D1_MAX_TEXTURES 800
 #define D1_MAX_TMAP_NUM 1630 // 1621 in descent.pig Mac registered
 
-/* the inverse of the Textures array, for descent 1.
- * "Textures" looks up a d2 bitmap index given a d2 tmap_num
- * "d1_tmap_nums" looks up a d1 tmap_num given a d1 bitmap. "-1" means "None"
+/* the inverse of the d2 Textures array, but for the descent 1 pigfile.
+ * "Textures" looks up a d2 bitmap index given a d2 tmap_num.
+ * "d1_tmap_nums" looks up a d1 tmap_num given a d1 bitmap. "-1" means "None".
  */
 short *d1_tmap_nums = NULL;
 
@@ -2054,6 +2054,114 @@ void bm_read_d1_tmap_nums(CFILE *d1pig)
 	atexit(free_d1_tmap_nums);
 }
 
+void remove_char( char * s, char c )
+{
+	char *p;
+	p = strchr(s,c);
+	if (p) *p = '\0';
+}
+
+#define REMOVE_EOL(s)           remove_char((s),'\n')
+#define REMOVE_COMMENTS(s)      remove_char((s),';')
+#define REMOVE_DOTS(s)          remove_char((s),'.')
+char *space = { " \t" };
+char *equal_space = { " \t=" };
+
+// this function is at the same position in the d1 shareware piggy loading 
+// algorithm as bm_load_sub in main/bmread.c
+int get_d1_bm_index(char *filename, CFILE *d1_pig) {
+	int i, N_bitmaps;
+	DiskBitmapHeader bmh;
+	if (strchr (filename, '.'))
+		*strchr (filename, '.') = '\0'; // remove extension
+	cfseek (d1_pig, 0, SEEK_SET);
+	N_bitmaps = cfile_read_int (d1_pig);
+	cfseek (d1_pig, 8, SEEK_SET);
+	for (i = 1; i <= N_bitmaps; i++) {
+		DiskBitmapHeader_d1_read(&bmh, d1_pig);
+		if (!strnicmp(bmh.name, filename, 8))
+			return i;
+	}
+	return -1;
+}
+
+// imitate the algorithm of bm_init_use_tbl in main/bmread.c
+void read_d1_tmap_nums_from_hog(CFILE *d1_pig)
+{
+#define LINEBUF_SIZE 600
+	int reading_textures = 0;
+	short texture_count = 0;
+	char inputline[LINEBUF_SIZE];
+	CFILE * bitmaps;
+	int bitmaps_tbl_is_binary = 0;
+	int i;
+
+	bitmaps = cfopen ("bitmaps.tbl", "rb");
+	if (!bitmaps) {
+		bitmaps = cfopen ("bitmaps.bin", "rb");
+		bitmaps_tbl_is_binary = 1;
+	}
+
+	if (!bitmaps) {
+		Warning ("Could not find bitmaps.* for reading d1 textures");
+		return;
+	}
+
+	free_d1_tmap_nums();
+	MALLOC(d1_tmap_nums, short, D1_MAX_TMAP_NUM);
+	for (i = 0; i < D1_MAX_TMAP_NUM; i++)
+		d1_tmap_nums[i] = -1;
+	atexit(free_d1_tmap_nums);
+
+	while (cfgets (inputline, LINEBUF_SIZE, bitmaps)) {
+		if (bitmaps_tbl_is_binary)
+			decode_text_line((inputline));
+		else
+			while (inputline[(i=strlen(inputline))-2]=='\\')
+				cfgets(inputline+i-2,LINEBUF_SIZE-(i-2), bitmaps); // strip comments
+		REMOVE_EOL(inputline);
+                if (strchr(inputline, ';')!=NULL) REMOVE_COMMENTS(inputline);
+		if (strlen(inputline) == LINEBUF_SIZE-1) {
+			Warning("Possible line truncation in BITMAPS.TBL");
+			return;
+		}
+		char *arg = strtok( inputline, space );
+                if (arg && arg[0] == '@') {
+			arg++;
+			//Registered_only = 1;
+		}
+
+                while (arg != NULL) {
+			if (*arg == '$')
+				reading_textures = 0; // default
+			if (!strcmp(arg, "$TEXTURES")) // BM_TEXTURES
+				reading_textures = 1;
+			else if (! stricmp(arg, "$ECLIP") // BM_ECLIP
+				   || ! stricmp(arg, "$WCLIP")) // BM_WCLIP
+					texture_count++;
+			else // not a special token, must be a bitmap!
+				if (reading_textures) {
+					while (*arg == '\t' || *arg == ' ')
+						arg++;//remove unwanted blanks
+					if (*arg == '\0')
+						break;
+					if (d1_tmap_num_unique(texture_count)) {
+						int d1_index = get_d1_bm_index(arg, d1_pig);
+						if (d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM) {
+							d1_tmap_nums[d1_index] = texture_count;
+							//int d2_index = d2_index_for_d1_index(d1_index);
+						}
+				}
+				Assert (texture_count < D1_MAX_TEXTURES);
+				texture_count++;
+			}
+
+			arg = strtok (NULL, equal_space);
+		}
+	}
+	cfclose (bitmaps);
+}
+
 /* If the given d1_index is the index of a bitmap we have to load
  * (because it is unique to descent 1), then returns the d2_index that
  * the given d1_index replaces.
@@ -2065,8 +2173,8 @@ short d2_index_for_d1_index(short d1_index)
 	if (! d1_tmap_nums || d1_tmap_nums[d1_index] == -1
 	    || ! d1_tmap_num_unique(d1_tmap_nums[d1_index]))
   		return -1;
-	else
-		return Textures[convert_d1_tmap_num(d1_tmap_nums[d1_index])].index;
+
+	return Textures[convert_d1_tmap_num(d1_tmap_nums[d1_index])].index;
 }
 
 #define D1_BITMAPS_SIZE 300000
@@ -2102,9 +2210,8 @@ void load_d1_bitmap_replacements()
 	case D1_10_BIG_PIGSIZE:
 	case D1_10_PIGSIZE:
 		pig_data_start = 0;
-		Warning(D1_PIG_LOAD_FAILED ". descent.pig of v1.0 and all PC shareware versions not supported."); // KEEP THIS IN SYNC WITH d1_pig_present IN gamemine.c
-		cfclose (d1_Piggy_fp);
-		return;
+		// OK, now we need to read d1_tmap_nums by emulating d1's bm_init_use_tbl()
+		read_d1_tmap_nums_from_hog(d1_Piggy_fp);
 		break;
 	default:
 		Warning("Unknown size for " D1_PIGFILE);
