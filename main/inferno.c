@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.33 2002-07-22 22:59:24 btb Exp $ */
+/* $Id: inferno.c,v 1.34 2002-07-26 09:25:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -769,7 +769,7 @@ int main(int argc,char **argv)
 
 			if (played == MOVIE_NOT_PLAYED) {
 #if defined(POLY_ACC)
-            gr_set_mode(SM_640x480x15xPA);
+				gr_set_mode(SM_640x480x15xPA);
 #else
 				gr_set_mode(MenuHires?SM_640x480V:SM_320x200C);
 #endif

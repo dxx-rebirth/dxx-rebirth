@@ -1,7 +1,9 @@
-CFLAGS=`sdl-config --cflags` -I../include -DSTANDALONE
+CFLAGS= -g -O2 -Wall -Werror `sdl-config --cflags` -I../include -DSTANDALONE
 LDFLAGS=`sdl-config --libs`
 
-mveplay: mveplay.o mvelib.o mve_audio.o
+OBJS=mveplay.o mvelib.o mve_audio.o ../mem/mem.o ../misc/error.o ../misc/args.o console.o ../misc/strutil.o ../misc/strio.o
+
+mveplay: ${OBJS}
 
 clean:
-	rm -f mveplay mveplay.o mvelib.o mve_audio.o
+	rm -f mveplay ${OBJS}

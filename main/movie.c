@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.5 2002-07-23 08:22:12 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.6 2002-07-26 09:25:10 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -120,7 +120,9 @@ int PlayMovie(const char *filename, int must_have)
 {
 	char name[FILENAME_LEN],*p;
 	int c, ret;
+#if 0
 	int save_sample_rate;
+#endif
 	
 	con_printf(DEBUG_LEVEL, "movie: PlayMovie: %s %d\n", filename, must_have);
 
@@ -155,7 +157,9 @@ int PlayMovie(const char *filename, int must_have)
 
 	ret = RunMovie(name,MovieHires,must_have,-1,-1);
 
+#if 0
 	gr_palette_clear();		//clear out palette in case movie aborted
+#endif
 
 #if 0
 	digi_sample_rate = save_sample_rate;		//restore rate for game
@@ -198,10 +202,12 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 #endif
 	}
 
+#if 0
 	if (hires_flag)
 		gr_set_mode(SM(640,480));
 	else
 		gr_set_mode(SM(320,200));
+#endif
 
 	frame_num = 0;
 
@@ -260,10 +266,12 @@ int InitMovieBriefing()
 {
 	con_printf(DEBUG_LEVEL, "movie: InitMovieBriefing\n");
 
+#if 0
 	if (MenuHires)
 		gr_set_mode(SM(640,480));
 	else
 		gr_set_mode(SM(320,200));
+#endif
 	return 1;
 }
 
@@ -280,11 +288,77 @@ void DeInitRobotMovie(void)
 }
 
 
-int InitRobotMovie(char *a)
+int InitRobotMovie(char *filename)
 {
-	con_printf(DEBUG_LEVEL, "STUB: movie: InitRobotMovie: %s\n", a);
+	con_printf(DEBUG_LEVEL, "STUB: movie: InitRobotMovie: %s\n", filename);
 
+#if 0
+	FlipFlop=0;
+
+	RobBufCount=0; PlayingBuf=0; RobBufLimit=0;
+
+	if (FindArg("-nomovies"))
+		return 0;
+   
+//   digi_stop_all();
+
+//@@   if (MovieHires)
+//@@		filename[4]='h';
+//@@	else
+//@@		filename[4]='l';
+  
+	if ((FirstVid=calloc (65000L,1))==NULL) {
+		FreeRoboBuffer(49);
+		return (NULL);
+	}
+	if ((SecondVid=calloc (65000L,1))==NULL) {
+		free (FirstVid);
+		FreeRoboBuffer(49);
+		return (NULL);
+	}
+
+#if 0
+	MVE_SOS_sndInit(-1);		//tell movies to play no sound for robots
+
+	MVE_memCallbacks(MPlayAlloc, MPlayFree);
+	MVE_ioCallbacks(FileRead);
+	MVE_memVID (FirstVid,SecondVid,65000);
+#endif
+
+	RoboFile = open_movie_file(filename,1);
+
+	if (RoboFile == -1) {
+		free (FirstVid);
+		free (SecondVid);	
+		FreeRoboBuffer (49);
+#ifdef RELEASE
+		Error("movie: InitRobotMovie: Cannot open movie file <%s>",filename);
+#else
+		return MOVIE_NOT_PLAYED;
+#endif
+	}
+
+	Vid_State = VID_PLAY;                           
+
+#if 0
+	if (MVE_rmPrepMovie(RoboFile, 280, 200, 0)) {
+		Int3();
+		free (FirstVid);
+		free (SecondVid);	
+		FreeRoboBuffer (49);
+		return 0;
+	}
+
+	MVE_palCallbacks (PaletteChecker);
+#endif
+
+	RoboFilePos=lseek (RoboFile,0L,SEEK_CUR);
+
+	con_printf(DEBUG_LEVEL, "movie: InitRobotMovie: FilePos=%d!\n",RoboFilePos);
+	return 1;
+#else
 	return 0;
+#endif
 }
 
 

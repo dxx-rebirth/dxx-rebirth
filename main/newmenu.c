@@ -1,3 +1,4 @@
+/* $ Id: $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,16 +13,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/newmenu.c,v $
- * $Revision: 1.8 $
- * $Author: bradleyb $
- * $Date: 2002-02-13 10:39:22 $
  *
  * FIXME: put description here
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.7  2002/02/11 07:39:11  bradleyb
- * added fixedfont menu functions
  *
  *
  */
@@ -323,63 +316,61 @@ void nm_restore_background( int x, int y, int w, int h )
 // Draw a left justfied string
 void nm_string( bkg * b, int w1,int x, int y, char * s)
 {
-   int w,h,aw,tx=0,t=0,i;
-	char *p,*s1,measure[2];
-   int XTabs[]={15,87,124,162,228,253};
+	int w,h,aw,tx=0,t=0,i;
+	char *p,*s1,*s2,measure[2];
+	int XTabs[]={15,87,124,162,228,253};
    
-   p=s1=NULL;
+	p=s1=NULL;
+	s2 = d_strdup(s);
 
-	for (i=0;i<6;i++)
-	 {
-	  XTabs[i]=(LHX(XTabs[i]));
-     XTabs[i]+=x;
-	 } 	
+	for (i=0;i<6;i++) {
+		XTabs[i]=(LHX(XTabs[i]));
+		XTabs[i]+=x;
+	}
  
-        measure[1]=0;
+	measure[1]=0;
 
-        if (!SurfingNet)
-         {
-           p = strchr( s, '\t' );
-           if (p && (w1>0) ) {
-					*p = '\0';
-					s1 = p+1;
-   	       }
-         }
+	if (!SurfingNet) {
+		p = strchr( s2, '\t' );
+		if (p && (w1>0) ) {
+			*p = '\0';
+			s1 = p+1;
+		}
+	}
 
-	gr_get_string_size(s, &w, &h, &aw  );
+	gr_get_string_size(s2, &w, &h, &aw  );
 
 	if (w1 > 0)
 		w = w1;
 
-		// CHANGED
-		gr_bm_bitblt(b->background->bm_w-15, h+2, 5, y-1, 5, y-1, b->background, &(grd_curcanv->cv_bitmap) );
-		//gr_bm_bitblt(w, h, x, y, x, y, b->background, &(grd_curcanv->cv_bitmap) );
+	// CHANGED
+	gr_bm_bitblt(b->background->bm_w-15, h+2, 5, y-1, 5, y-1, b->background, &(grd_curcanv->cv_bitmap) );
+	//gr_bm_bitblt(w, h, x, y, x, y, b->background, &(grd_curcanv->cv_bitmap) );
 
-	  	if (SurfingNet)
-   	{
-     		for (i=0;i<strlen(s);i++)
-       	{
-        		if (s[i]=='\t' && SurfingNet)
-            {
-      	   	x=XTabs[t];
-   	         t++;
-	            continue;
-         	}
-	        	measure[0]=s[i];
-   	     	gr_get_string_size(measure,&tx,&h,&aw);
-      	  	gr_string(x,y,measure);
-         	x+=tx;
-	     	}
-  		}
-      else 	gr_string (x,y,s);
-         
-     	if (!SurfingNet && p && (w1>0) )       {
-			gr_get_string_size(s1, &w, &h, &aw  );
-
-			gr_string( x+w1-w, y, s1 );
-
-			*p = '\t';
+	if (SurfingNet) {
+		for (i=0;i<strlen(s2);i++) {
+			if (s2[i]=='\t' && SurfingNet) {
+				x=XTabs[t];
+				t++;
+				continue;
+			}
+			measure[0]=s2[i];
+			gr_get_string_size(measure,&tx,&h,&aw);
+			gr_string(x,y,measure);
+			x+=tx;
 		}
+	}
+	else
+		gr_string (x,y,s2);
+         
+	if (!SurfingNet && p && (w1>0) ) {
+		gr_get_string_size(s1, &w, &h, &aw  );
+
+		gr_string( x+w1-w, y, s1 );
+
+		*p = '\t';
+	}
+	d_free(s2);
 }
 
 // Draw a slider and it's string
