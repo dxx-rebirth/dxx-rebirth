@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.42 2004-12-17 13:17:46 btb Exp $ */
+/* $Id: gameseq.c,v 1.43 2004-12-17 13:32:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.42 2004-12-17 13:17:46 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.43 2004-12-17 13:32:50 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -842,6 +842,7 @@ void LoadLevel(int level_num,int page_in_textures)
 #if 1 //defined(POLY_ACC) || defined(OGL)
     gr_palette_load(gr_palette);
     show_boxed_message(TXT_LOADING);
+	gr_update();
 #else
 	show_boxed_message(TXT_LOADING);
 	gr_palette_load(gr_palette);

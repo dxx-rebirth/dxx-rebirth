@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.94 2004-12-03 10:39:49 btb Exp $ */
+/* $Id: inferno.c,v 1.95 2004-12-17 13:32:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -954,6 +954,7 @@ int main(int argc, char *argv[])
 			//vfx_set_palette_sub( title_pal );
 			gr_palette_clear();
 			gr_palette_fade_in( title_pal, 32, 0 );
+			gr_update();
 		} else
 			Error( "Couldn't load pcx file '%s', PCX load error: %s\n",filename, pcx_errormsg(pcx_error));
 	}
