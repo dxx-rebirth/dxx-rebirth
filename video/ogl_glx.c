@@ -1,6 +1,17 @@
-//opengl platform specific functions for GLX - Added 9/15/99 Matthew Mueller
+/*
+ * $Source: /cvs/cvsroot/d2x/video/ogl_glx.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:47:52 $
+ *
+ * opengl platform specific functions for GLX - Added 9/15/99 Matthew Mueller
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef GLX_GL_VIDEO
+#endif
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>
@@ -239,5 +250,3 @@ void ogl_close(void){
 	}
 	XCloseDisplay(dpy);
 }
-
-#endif //OGL

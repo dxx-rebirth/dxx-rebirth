@@ -1,7 +1,17 @@
-// SDL video functions.
+/*
+ * $Source: /cvs/cvsroot/d2x/video/sdl_gr.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:47:52 $
+ *
+ * SDL video functions.
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef SDL_VIDEO
+#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -448,5 +458,3 @@ void gr_palette_read(ubyte * pal)
      pal[j++] = palette->colors[i].b / 4;
  }
 }
-
-#endif // SDL_VIDEO

@@ -1,6 +1,17 @@
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/video/ggi_gr.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:47:51 $
+ *
+ * Graphics functions for GGI.
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
-#ifdef GGI_VIDEO
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <ggi/ggi.h>
 #include <stdlib.h>
@@ -334,5 +345,3 @@ void gr_palette_read (ubyte *pal)
                 pal[j++] = colors[i].b / 0x3ff;
 	}
 }
-
-#endif /* GGI_VIDEO */

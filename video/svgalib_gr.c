@@ -1,7 +1,17 @@
-/* SVGALib video functions */
+/*
+ * $Source: /cvs/cvsroot/d2x/video/svgalib_gr.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:47:52 $
+ *
+ * SVGALib video functions
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef SVGALIB_VIDEO
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -313,5 +323,3 @@ void gr_palette_read (ubyte *pal)
 	for (i = 0; i < 768; i++)
 		pal[i] = colors[i];
 }
-
-#endif /* SVGALIB_VIDEO */

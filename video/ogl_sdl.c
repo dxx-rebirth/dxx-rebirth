@@ -1,5 +1,17 @@
+/*
+ * $Source: /cvs/cvsroot/d2x/video/ogl_sdl.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:47:52 $
+ *
+ * Graphics functions for SDL-GL.
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef SDL_GL_VIDEO
+#endif
 
 #include <SDL/SDL.h>
 #include <GL/gl.h>
@@ -73,5 +85,3 @@ void ogl_init(void){
 void ogl_close(void){
 	ogl_destroy_window();
 }
-
-#endif // SDL_GL_VIDEO

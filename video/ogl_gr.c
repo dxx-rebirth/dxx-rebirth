@@ -1,8 +1,17 @@
-// OGL video functions. - Added 9/15/99 Matthew Mueller
+/*
+ * $Source: /cvs/cvsroot/d2x/video/ogl_gr.c,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:47:52 $
+ *
+ * // OGL video functions. - Added 9/15/99 Matthew Mueller
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef OGL
-
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -621,5 +630,3 @@ void save_screen_shot(int automap_flag)
 	key_flush();
 	start_time();
 }
-
-#endif //OGL

@@ -1,5 +1,17 @@
+/*
+ * $Source: /cvs/cvsroot/d2x/video/ogl.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:47:52 $
+ *
+ * Graphics support functions for OpenGL.
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef OGL
+#endif
 
 //#include <stdio.h>
 #ifdef __WINDOWS__
@@ -1321,5 +1333,3 @@ void ogl_freebmtexture(grs_bitmap *bm){
 //		bm->gltexture=-1;
 	}
 }
-
-#endif // OGL

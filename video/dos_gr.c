@@ -1,7 +1,17 @@
-// Graphics functions for DOS.
+/*
+ * $Source: /cvs/cvsroot/d2x/video/dos_gr.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:47:51 $
+ *
+ * Graphics functions for DOS.
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_DJGPP__
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -723,6 +733,3 @@ void gr_palette_read(ubyte * palette)
 
 void gr_update(void)
 { }
-
-
-#endif // __ENV_DJGPP__
