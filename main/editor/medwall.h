@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/main/editor/medwall.h,v $
- * $Revision: 1.2 $
- * $Author: schaffner $
- * $Date: 2004-08-28 23:17:45 $
+ * $Revision: 1.3 $
+ * $Author: btb $
+ * $Date: 2004-12-19 11:01:29 $
  * 
  * Created from version 1.6 of main\wall.h
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2004/08/28 23:17:45  schaffner
+ * move old per-file change logs into new file ChangeLog-old
+ *
  * Revision 1.1  2001/10/25 02:27:17  bradleyb
  * attempt at support for editor, makefile changes, etc
  *
@@ -56,7 +59,7 @@ extern int wall_remove_blastable();
 
 // Adds a wall. (visually)
 extern int wall_add_to_curside();
-extern int wall_add_to_markedside(byte type);
+extern int wall_add_to_markedside(sbyte type);
  
 // Removes a wall. (visually)
 extern int wall_remove();
