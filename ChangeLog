@@ -1,3 +1,9 @@
+2005-02-25  Bradley Bell  <btb@icculus.org>
+
+	* arch/dos/digi.c, arch/dos/digiallg.c, arch/dos/digimm.c,
+	arch/linux/alsadigi, arch/win32/digi.c: rip out digiobj stuff, use
+	d2src system for persistent sounds. Untested, of course.
+
 2005-02-24  Tim Massey  <tmassey@obscorp.com>
 
 	* main/inferno.c: allow -notitles to work in shareware [and
