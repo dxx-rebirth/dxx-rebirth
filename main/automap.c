@@ -1,3 +1,4 @@
+/* $Id: automap.c,v 1.6 2002-08-06 09:30:24 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,21 +8,13 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/automap.c,v $
- * $Revision: 1.5 $
- * $Author: bradleyb $
- * $Date: 2002-02-15 12:24:53 $
  *
  * FIXME: put description here
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.4  2001/10/31 11:16:08  bradleyb
- * automap works in opengl
  *
  *
  */
@@ -897,7 +890,7 @@ int Automap_active = 0;
 #ifdef RELEASE
 #define MAP_BACKGROUND_FILENAME (AutomapHires?"\x01MAPB.PCX":"\x01MAP.PCX")	//load only from hog file
 #else
-#define MAP_BACKGROUND_FILENAME (AutomapHires?"MAPB.PCX":"MAP.PCX")
+#define MAP_BACKGROUND_FILENAME ((AutomapHires && cfexist("mapb.pcx"))?"MAPB.PCX":"MAP.PCX")
 #endif
 
 int Automap_always_hires=0;
@@ -981,7 +974,7 @@ void do_automap( int key_code )	{
 		set_screen_mode(SCREEN_GAME);
 	#endif
 
-	FontHires = AutomapHires;
+	FontHires = FontHiresAvailable && AutomapHires;
 
 	create_name_canv();
 

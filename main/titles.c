@@ -1,3 +1,4 @@
+/* $Id: titles.c,v 1.9 2002-08-06 09:30:24 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -558,7 +559,7 @@ int load_briefing_screen( int screen_num )
 	int	pcx_error;
 
 	WIN(DDGRLOCK(dd_grd_curcanv));
-      if ((pcx_error=pcx_read_fullscr( CurBriefScreenName, New_pal ))!=PCX_ERROR_NONE)     {
+	if ((pcx_error=pcx_read_fullscr( CurBriefScreenName, New_pal ))!=PCX_ERROR_NONE) {
 		printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens[screen_num].bs_name, pcx_errormsg(pcx_error));
 		printf( "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens[screen_num].bs_name, pcx_errormsg(pcx_error), pcx_error);
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
@@ -573,31 +574,31 @@ int load_briefing_screen( int screen_num )
 
 int load_new_briefing_screen( char *fname )
 {
-	int	pcx_error;
+	int pcx_error;
 
-   mprintf ((0,"Loading new briefing %s!\n",fname));
-   strcpy (CurBriefScreenName,fname);
+	mprintf ((0,"Loading new briefing %s!\n",fname));
+	strcpy (CurBriefScreenName,fname);
 
-// WIN(DEFINE_SCREEN(CurBriefScreenName));
+	//WIN(DEFINE_SCREEN(CurBriefScreenName));
 
-	if (gr_palette_fade_out( New_pal, 32, 0 ))	
+	if (gr_palette_fade_out( New_pal, 32, 0 ))
 		return 0;
 
-WIN(DDGRLOCK(dd_grd_curcanv));
-   if ((pcx_error=pcx_read_fullscr( fname, New_pal ))!=PCX_ERROR_NONE)     {
-	   	printf( "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",fname, pcx_errormsg(pcx_error), pcx_error);
-			WIN(DDGRUNLOCK(dd_grd_curcanv));
+	WIN(DDGRLOCK(dd_grd_curcanv));
+	if ((pcx_error=pcx_read_fullscr( fname, New_pal ))!=PCX_ERROR_NONE)     {
+		printf( "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",fname, pcx_errormsg(pcx_error), pcx_error);
+		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
 	}
-WIN(DDGRUNLOCK(dd_grd_curcanv));
+	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-WIN(DDGRRESTORE);
+	WIN(DDGRRESTORE);
 
 	gr_copy_palette(gr_palette, New_pal, sizeof(gr_palette));
 
-	if (gr_palette_fade_in( New_pal, 32, 0 ))	
+	if (gr_palette_fade_in( New_pal, 32, 0 ))
 		return 0;
-   DoBriefingColorStuff();
+	DoBriefingColorStuff();
 
 	return 1;
 }
@@ -803,27 +804,27 @@ int show_briefing_message(int screen_num, char *message)
 					message++;
 				}
 				fname[i]=0;
-  
-				if (MenuHires)
-				 {
-				   i=0; 
-				   while (fname[i]!='.')
-				   	i++;
+
+				if (MenuHires) {
+					char fname2[15];
+
+					i=0;
+					while (fname[i]!='.')
+						fname2[i] = fname[i++];
 #ifndef SHAREWARE
-				   fname[i++]='b';
+					fname2[i++]='b';
 #endif
-				   fname[i++]='.';	
-				   fname[i++]='p';	
-				   fname[i++]='c';	
-				   fname[i++]='x';	
-				   fname[i++]=0;	
+					fname2[i++]='.';
+					fname2[i++]='p';
+					fname2[i++]='c';
+					fname2[i++]='x';
+					fname2[i++]=0;
 
-				   load_new_briefing_screen (fname);
-				 }
-				else
-				   load_new_briefing_screen (fname);
+					load_new_briefing_screen (cfexist(fname2)?fname2:fname);
+				} else
+					load_new_briefing_screen (fname);
 
-				//load_new_briefing_screen (MenuHires?"end01b.pcx":"end01.pcx");	
+				//load_new_briefing_screen (MenuHires?"end01b.pcx":"end01.pcx");
 
 			} else if (ch == 'B') {
 				char			bitmap_name[32];

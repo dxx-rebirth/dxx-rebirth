@@ -253,7 +253,7 @@ int songs_haved2_cd()
 void songs_play_song( int songnum, int repeat )
 {
 	#ifndef SHAREWARE
-	Assert(songnum != SONG_ENDLEVEL && songnum != SONG_ENDGAME);	//not in full version
+	//Assert(songnum != SONG_ENDLEVEL && songnum != SONG_ENDGAME);	//not in full version
 	#endif
 
 	if ( !Songs_initialized ) 

@@ -1,4 +1,4 @@
-/* $Id: laser.c,v 1.6 2002-08-02 11:05:26 btb Exp $ */
+/* $Id: laser.c,v 1.7 2002-08-06 09:30:24 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char laser_rcsid[] = "$Id: laser.c,v 1.6 2002-08-02 11:05:26 btb Exp $";
+char laser_rcsid[] = "$Id: laser.c,v 1.7 2002-08-06 09:30:24 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -2070,10 +2070,12 @@ void create_smart_children(object *objp, int num_smart_children)
 		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);
 
 #ifndef SHAREWARE
+#if 0
 // -- DEBUG --
 	if ((objp->type == OBJ_WEAPON) && ((objp->id == SMART_ID) || (objp->id == SUPERPROX_ID) || (objp->id == ROBOT_SUPERPROX_ID) || (objp->id == EARTHSHAKER_ID)))
 		Assert(Weapon_info[objp->id].children != -1);
 // -- DEBUG --
+#endif
 
 	if (((objp->type == OBJ_WEAPON) && (Weapon_info[objp->id].children != -1)) || (objp->type == OBJ_ROBOT)) {
 		int	i, objnum;
