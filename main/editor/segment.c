@@ -13,138 +13,21 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/editor/segment.c,v $
- * $Revision: 1.1 $
- * $Author: bradleyb $
- * $Date: 2001-10-25 02:27:17 $
+ * $Revision: 1.2 $
+ * $Author: schaffner $
+ * $Date: 2004-08-29 14:03:51 $
  *
  * Interrogation functions for segment data structure.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/25 02:27:17  bradleyb
+ * attempt at support for editor, makefile changes, etc
+ *
  * Revision 1.2  1999/09/02 13:37:06  sekmu
  * remove warning in editor compile
  *
  * Revision 1.1.1.1  1999/06/14 22:04:21  donut
  * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:21  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.191  1995/02/22  15:28:30  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.190  1995/02/02  02:59:40  yuan
- * Working on exterminating bogus matcen_nums... (harmless though)
- * 
- * Revision 1.189  1995/02/01  16:29:51  yuan
- * Stabilizing triggers and matcens.
- * 
- * Revision 1.188  1995/02/01  11:31:47  yuan
- * Trigger bug fixed.
- * 
- * Revision 1.187  1994/11/27  23:17:24  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.186  1994/11/17  14:48:12  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.185  1994/10/30  14:13:17  mike
- * rip out local segment stuff.
- * 
- * Revision 1.184  1994/10/27  10:04:24  matt
- * When triangulating, don't use WID() to see if connected, look at children
- * 
- * Revision 1.183  1994/10/26  13:40:23  mike
- * debug code for matt.
- * 
- * Revision 1.182  1994/10/24  16:34:00  mike
- * Force render after mine compress to prevent bugs in segment selection via clicking in 3d window.
- * 
- * Revision 1.181  1994/10/20  18:16:15  mike
- * Initialize ControlCenterTriggers.num_links in create_new_mine.
- * 
- * Revision 1.180  1994/10/18  16:29:14  mike
- * Write function to automatically fix bogus segnums in segment array.
- * 
- * Revision 1.179  1994/10/08  17:10:41  matt
- * Correctly set current_level_num when loading/creating mine in editor
- * 
- * Revision 1.178  1994/09/25  14:17:51  mike
- * Initialize (to 0) Num_robot_centers and Num_open_doors at mine creation.
- * 
- * Revision 1.177  1994/09/20  14:36:06  mike
- * Write function to find overlapping segments.
- * 
- * Revision 1.176  1994/08/25  21:55:57  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.175  1994/08/23  15:28:03  mike
- * Fix peculiarity in med_combine_duplicate_vertices.
- * 
- * Revision 1.174  1994/08/09  16:06:17  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.173  1994/08/05  21:18:10  matt
- * Allow two doors to be linked together
- * 
- * Revision 1.172  1994/08/04  19:13:16  matt
- * Changed a bunch of vecmat calls to use multiple-function routines, and to
- * allow the use of C macros for some functions
- * 
- * Revision 1.171  1994/07/22  12:37:00  matt
- * Cleaned up editor/game interactions some more.
- * 
- * Revision 1.170  1994/07/22  11:20:08  mike
- * Set Lsegments validity.
- * 
- * Revision 1.169  1994/07/21  19:02:49  mike
- * lsegment stuff.
- * 
- * Revision 1.168  1994/07/21  13:27:17  matt
- * Ripped out remants of old demo system, and added demo
- * disables object movement and game options from menu.
- * 
- * Revision 1.167  1994/07/19  20:15:48  matt
- * Name for each level now saved in the .SAV file & stored in Current_level_name
- * 
- * Revision 1.166  1994/07/06  12:42:45  john
- * Made generic messages for hostages.
- * 
- * Revision 1.165  1994/06/24  17:04:29  john
- * *** empty log message ***
- * 
- * Revision 1.164  1994/06/15  15:42:40  mike
- * Initialize static_light field in new segments.
- * 
- * Revision 1.163  1994/06/13  17:49:19  mike
- * Fix bug in med_validate_side which was toasting lighting for removable walls.
- * 
- * Revision 1.162  1994/06/13  10:52:20  mike
- * Fix bug in triangulation of sides between connected segments.
- * Was assigning SIDE_IS_02 regardless of how triangulated, was
- * causing physics bugs.
- * 
- * Revision 1.161  1994/06/08  18:14:16  mike
- * Fix triangulation of sides in hallways (ie, where there is no wall),
- * so they get triangulated the same way, so find_new_seg doesn't get
- * stuck in an infinite recursion.
- * 
- * Revision 1.160  1994/06/08  11:44:31  mike
- * Fix bug in normals not being opposite on opposite sides of a segment.
- * Problem occurred due to difference in handling of remainder in signed divide.
- * 
- * Revision 1.159  1994/05/31  19:00:15  yuan
- * Fixed gamestate restore.
- * 
- * Revision 1.158  1994/05/30  20:22:36  yuan
- * New triggers.
- * 
- * Revision 1.157  1994/05/26  19:32:51  mike
- * Add bfs_parse.
- * 
- * Revision 1.156  1994/05/23  14:56:46  mike
- * make current segment be add segment.,
  * 
  */
 

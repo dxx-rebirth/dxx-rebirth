@@ -12,150 +12,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/main/editor/med.c,v $
- * $Revision: 1.1 $
- * $Author: bradleyb $
- * $Date: 2001-10-25 02:27:17 $
+ * $Revision: 1.2 $
+ * $Author: schaffner $
+ * $Date: 2004-08-29 14:03:51 $
  *
  * Editor loop for Inferno
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/25 02:27:17  bradleyb
+ * attempt at support for editor, makefile changes, etc
+ *
  * Revision 1.1.1.1  1999/06/14 22:03:43  donut
  * Import of d1x 1.37 source.
- *
- * Revision 2.3  1995/03/06  18:23:52  john
- * Fixed bug with font screwing up.
- * 
- * Revision 2.2  1995/03/06  16:34:55  john
- * Fixed bug with previous.
- * 
- * Revision 2.1  1995/03/06  15:20:57  john
- * New screen mode method.
- * 
- * Revision 2.0  1995/02/27  11:35:54  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.192  1994/11/30  12:33:55  mike
- * set window clearing mode for editor.
- * 
- * Revision 1.191  1994/11/27  23:17:02  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.190  1994/11/19  00:04:33  john
- * Changed some shorts to ints.
- * 
- * Revision 1.189  1994/11/17  14:47:57  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.188  1994/11/14  11:41:38  john
- * Fixed bug with editor/game sequencing.
- * 
- * Revision 1.187  1994/11/13  15:36:44  john
- * Changed game sequencing with editor.
- * 
- * Revision 1.186  1994/11/10  16:49:12  matt
- * Don't sort seg list if no segs in list
- * 
- * Revision 1.185  1994/11/08  09:28:39  mike
- * reset ai paths on going to game.
- * 
- * Revision 1.184  1994/10/30  14:13:05  mike
- * rip out repair center stuff.
- * 
- * Revision 1.183  1994/10/27  10:07:06  mike
- * adapt to no inverse table.
- * 
- * Revision 1.182  1994/10/20  12:48:03  matt
- * Replaced old save files (MIN/SAV/HOT) with new LVL files
- * 
- * Revision 1.181  1994/10/13  11:39:22  john
- * Took out network stuff/.
- * 
- * Revision 1.180  1994/10/07  22:21:38  mike
- * Stop Delete-{whatever} from hanging you!
- * 
- * Revision 1.179  1994/10/03  23:39:37  mike
- * Adapt to newer, better, fuelcen_activate function.
- * 
- * Revision 1.178  1994/09/30  00:38:05  mike
- * Shorten diagnostic message erase -- was erasing outside canvas.
- * 
- * Revision 1.177  1994/09/28  17:31:37  mike
- * Add call to check_wall_validity();
- * 
- * Revision 1.176  1994/08/19  10:57:42  mike
- * Fix status message erase bug.
- * 
- * Revision 1.175  1994/08/18  10:48:12  john
- * Cleaned up game sequencing.
- * 
- * Revision 1.174  1994/08/16  18:11:04  yuan
- * Maded C place you in the center of a segment.
- * 
- * Revision 1.173  1994/08/10  19:55:05  john
- * Changed font stuff.
- * 
- * Revision 1.172  1994/08/09  16:06:06  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.171  1994/08/04  09:14:11  matt
- * Fixed problem I said I fixed last time
- * 
- * Revision 1.170  1994/08/04  00:27:57  matt
- * When viewing a wall, update the objects segnum if moved out of the segment
- * 
- * Revision 1.169  1994/08/02  14:18:12  mike
- * Clean up dialog boxes.
- * 
- * Revision 1.168  1994/07/29  15:34:35  mike
- * Kill some mprintfs.
- * 
- * Revision 1.167  1994/07/29  14:56:46  yuan
- * Close centers window, when you go into game.
- * 
- * Revision 1.166  1994/07/28  17:16:20  john
- * MAde editor use Network stuff.
- * 
- * Revision 1.165  1994/07/28  16:59:10  mike
- * objects containing objects.
- * 
- * Revision 1.164  1994/07/22  12:37:07  matt
- * Cleaned up editor/game interactions some more.
- * 
- * Revision 1.163  1994/07/21  19:35:11  yuan
- * Fixed #include problem
- * 
- * Revision 1.162  1994/07/21  18:02:09  matt
- * Don't re-init player stats when going from editor -> game
- * 
- * Revision 1.161  1994/07/21  12:47:53  mike
- * Add tilde key functionality for object movement.
- * 
- * Revision 1.160  1994/07/18  10:44:55  mike
- * One-click access to keypads.
- * 
- * Revision 1.159  1994/07/01  18:05:54  john
- * *** empty log message ***
- * 
- * Revision 1.158  1994/07/01  17:57:06  john
- * First version of not-working hostage system
- * 
- * 
- * Revision 1.157  1994/07/01  11:32:29  john
- * *** empty log message ***
- * 
- * Revision 1.156  1994/06/24  17:04:36  john
- * *** empty log message ***
- * 
- * Revision 1.155  1994/06/23  15:53:47  matt
- * Finished hacking in 3d rendering in big window
- * 
- * Revision 1.154  1994/06/21  16:17:54  yuan
- * Init stats when you go to game from editor
- * 
- * Revision 1.153  1994/06/21  12:57:14  yuan
- * Remove center from segment function added to menu.
  * 
  */
 

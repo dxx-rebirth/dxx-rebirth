@@ -1,3 +1,8 @@
+2004-08-29  Martin Schaffner  <maschaffner@gmx.ch>
+
+	* ChangeLog-old, main/editor/med.c, main/editor/segment.c:
+	move more old change logs into ChangeLog-old
+
 2004-08-28  Chris Taylor  <c.taylor@student.curtin.edu.au>
 	    and Martin Schaffner  <maschaffner@gmx.ch>
 
@@ -54,7 +59,7 @@
 	texmap/tmapflat.c:
 	move old per-file change logs into new file ChangeLog-old
 
-2004-08-28  ~HJ  <kasxavulpo-dev@yahoo.com>
+2004-08-28  H. Jones  <kasxavulpo-dev@yahoo.com>
 
 	* arch/ogl/ogl.c: enable -gl_mipmap switch
 
