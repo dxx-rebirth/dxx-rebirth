@@ -15,5 +15,5 @@ changelog::
 EXTRA_DIST = \
 ChangeLog \
 djgpp.bat djgpp.sh \
-cygconf \
-cvshowto.txt readme.txt
+autogen.sh cygconf \
+cvshowto.txt readme.txt license.txt thinking.txt
