@@ -1,4 +1,9 @@
+0.2.3:
+
 2003-04-30  Bradley Bell  <btb@icculus.org>
+
+	* Makefile.am, NEWS, README, configure.ac: fix linking bug,
+	increment version number
 
 	* main/Makefile.am: make dist fix
 

@@ -1,3 +1,6 @@
+--- Version 0.2.3 ---
+- Fix linking bug on OS X
+
 --- Version 0.2.2 ---
 - Support for OS X 10.2 added
 

@@ -130,11 +130,6 @@ Compile and install SDL from source: d2x doesn't use Project Builder.
 
 configure and compile as with other unices.
 
-The final linking will probably fail (because of circular
-dependencies, I think) Until I fix it or find a better workaround,
-I've just been linking by hand (i.e. gcc [...] -o d2x-sdl `find
-. -name "*.o"` [...])
-
 Known bugs/issues:
 * Serial and network support missing
 * GL version very buggy

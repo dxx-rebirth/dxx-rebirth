@@ -2,7 +2,7 @@
 
 define([D2X_MAJOR],0)
 define([D2X_MINOR],2)
-define([D2X_MICRO],2)
+define([D2X_MICRO],3)
 
 AC_INIT(d2x,[D2X_MAJOR.D2X_MINOR.D2X_MICRO],[descent-source@warpcore.org])
 AC_PREREQ(2.52)
