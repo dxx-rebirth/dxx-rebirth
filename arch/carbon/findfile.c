@@ -22,16 +22,22 @@ extern void macify_posix_path(char *posix_path, char *mac_path);
 #include <CoreServices/CoreServices.h>
 #endif
 
-// Gets the names of matching files and the number of matching files.
-int FindFiles(char *search_str, int max_matches, char **names)
+//	Global Variables
+
+FSIterator		iterator;
+int				path_len;
+FSRef			*refs;
+int				i;
+char			type[5];
+ItemCount 		num_new_files;
+
+
+//	Functions
+
+int FileFindFirst(char *search_str, FILEFINDSTRUCT *ffstruct)
 {
     FSRef 			parent;
     char			path[_MAX_PATH];
-    int				path_len;
-    FSRef			*refs;
-    ItemCount		num_found = 0;
-    FSIterator		iterator;
-    int				i;
     OSStatus		myErr;
     
     for (path_len = 0; *search_str && *search_str != '*'; path_len ++)
@@ -39,6 +45,7 @@ int FindFiles(char *search_str, int max_matches, char **names)
     path[path_len] = 0;
     if (*search_str == '*')
         search_str++;
+    strcpy(type, search_str);
 
 #ifdef macintosh
     // Convert the search directory to an FSRef in a way that OS 9 can handle
@@ -49,17 +56,17 @@ int FindFiles(char *search_str, int max_matches, char **names)
         macify_posix_path(path, path);
         CopyCStringToPascal(path, pascalPath);
         if (FSMakeFSSpec(0, 0, pascalPath, &parentSpec) != noErr)
-            return 0;
+            return 1;
         if (FSpMakeFSRef(&parentSpec, &parent) != noErr)
-            return 0;
+            return 1;
     }
 #else
 // "This function, though available through Carbon on Mac OS 8 and 9, is only implemented on Mac OS X."
     if ((myErr = FSPathMakeRef((unsigned char const *) (path_len? path : "."), &parent, NULL)) != noErr)
-        return 0;
+        return 1;
 #endif
     if (FSRefMakePath(&parent, (unsigned char *) path, _MAX_PATH) != noErr)	// Get the full path, to get the length
-        return 0;
+        return 1;
     path_len = strlen(path)
 #ifndef macintosh
         + 1 // For the '/'
@@ -67,33 +74,69 @@ int FindFiles(char *search_str, int max_matches, char **names)
         ;
     
     if (FSOpenIterator(&parent, kFSIterateFlat, &iterator) != noErr)
-        return 0;
+        return 1;
     
-    MALLOC(refs, FSRef, max_matches);
+    MALLOC(refs, FSRef, 256);
+    
+    myErr = FSGetCatalogInfoBulk(iterator, 256, &num_new_files, NULL, kFSCatInfoNone, NULL, refs, NULL, NULL);
+    
+    i = 0;
+    do {
+        char *p = path + path_len;
+        char *matchingType;
+
+        if (i >= num_new_files) {
+            if (!myErr) {
+                myErr = FSGetCatalogInfoBulk(iterator, 256, &num_new_files, NULL, kFSCatInfoNone, NULL, refs, NULL, NULL);
+                i = 0;
+            } else
+                return 1;	// The last file
+        }
+        
+        FSRefMakePath (refs + i, (unsigned char *) path, 255);
+        for (matchingType = p; *matchingType && strnicmp(matchingType, search_str, strlen(search_str)); matchingType++) {}
+
+        i++;
+        if (*matchingType) {
+            strncpy(ffstruct->name, p, 12);
+            return 0;	// Found one
+        }
+    } while (1);
+}
+
+int	FileFindNext(FILEFINDSTRUCT *ffstruct)
+{
+    OSErr myErr;
     
     do {
-        ItemCount num_new_files;
-        
-        myErr = FSGetCatalogInfoBulk(iterator, max_matches, &num_new_files, NULL, kFSCatInfoNone, NULL, refs, NULL, NULL);
-        
-        for (i = 0; i < num_new_files; i++) {
-            char *p = path + path_len;
-            char *filename;
-            
-            FSRefMakePath (refs + i, (unsigned char *) path, 255);
-            for (filename = p; *filename && strnicmp(filename, search_str, strlen(search_str)); filename++) {}
-            
-            if (*filename) {
-                strncpy(*names, p, 12);
-                num_found++;
-                names++;
-            }
-        }
-    } while (myErr == noErr && num_found < max_matches);
+        char path[_MAX_PATH];
+        char *p = path + path_len;
+        char *matchingType;
     
+        if (i >= num_new_files) {
+            if (!myErr) {
+                myErr = FSGetCatalogInfoBulk(iterator, 256, &num_new_files, NULL, kFSCatInfoNone, NULL, refs, NULL, NULL);
+                i = 0;
+            } else
+                return 1;	// The last file
+        }
+    
+        FSRefMakePath (refs + i, (unsigned char *) path, 255);
+        for (matchingType = p; *matchingType && strnicmp(matchingType, type, strlen(type)); matchingType++) {}
+    
+        i++;
+        if (*matchingType) {
+            strncpy(ffstruct->name, p, 12);
+            return 0;	// Found one
+        }
+    } while (1);
+}
+
+int	FileFindClose(void)
+{
     d_free(refs);
     if (FSCloseIterator(iterator) != noErr)
-        return 0;
+        return 1;
     
-    return num_found;
+    return 0;
 }

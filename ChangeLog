@@ -6,6 +6,8 @@
 
 	* arch/carbon/descent.r: swap min and max size to correct places
 
+	* arch/carbon/findfile.c: implement findfile for Mac OS Carbon
+
 2004-08-06  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/gamesave.c: fix a bug introduced with the change of 2004-06-26
