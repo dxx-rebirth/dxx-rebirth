@@ -1,3 +1,7 @@
+2004-10-14  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* main/config.c: fix bug uncovered by having fgets cut off ending \n
+
 2004-10-09  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* main/automap.c, main/cntrlcen.c, main/collide.c, main/endlevel.c,

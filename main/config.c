@@ -1,4 +1,4 @@
-/* $Id: config.c,v 1.12 2004-08-29 17:57:23 schaffner Exp $ */
+/* $Id: config.c,v 1.13 2004-10-14 16:30:56 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -56,7 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.12 2004-08-29 17:57:23 schaffner Exp $";
+static char rcsid[] = "$Id: config.c,v 1.13 2004-10-14 16:30:56 schaffner Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -249,6 +249,8 @@ int ReadConfigFile()
 		if (*ptr != '\0') {
 			token = strtok(ptr, "=");
 			value = strtok(NULL, "=");
+			if (!value)
+				value = "";
 /*			if (!strcmp(token, digi_dev8_str))
 				digi_driver_board = strtol(value, NULL, 16);
 			else if (!strcmp(token, digi_dev16_str))
@@ -584,7 +586,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.12 2004-08-29 17:57:23 schaffner Exp $";
+static char rcsid[] = "$Id: config.c,v 1.13 2004-10-14 16:30:56 schaffner Exp $";
 #endif
 
 #define MAX_CTB_LEN	512
