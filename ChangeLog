@@ -1,7 +1,9 @@
 2003-03-21  Martin Schaffner <maschaffner@gmx.ch>
 
-	* fix bug: when opening d1 level 1 with oem data files, both d1
-	and d2 oem briefing where showed
+	* main/bm.c: fix mem leak
+
+	* main/gameseq.c: fix bug: when opening d1 level 1 with oem data
+	files, both d1 and d2 oem briefing where showed
 
 	* main/inferno.c, main/movie.c: Change the default movie
 	resolution to "high", implement the option -lowresmovies

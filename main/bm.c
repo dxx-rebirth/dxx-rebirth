@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.22 2003-03-19 22:44:15 btb Exp $ */
+/* $Id: bm.c,v 1.23 2003-03-22 02:26:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -380,6 +380,8 @@ void bm_read_all(CFILE * fp)
 #define D1_WEAPON_INFO_SIZE 115
 
 #define D1_LAST_STATIC_TMAP_NUM 324
+
+// store the Textures[] array as read from the descent 2 pig.
 short *d2_Textures_backup = NULL;
 
 void undo_bm_read_all_d1() {
@@ -398,6 +400,8 @@ void undo_bm_read_all_d1() {
 void bm_read_all_d1(CFILE * fp)
 {
 	int i;
+
+	atexit(undo_bm_read_all_d1);
 
 	/*NumTextures = */ cfile_read_int(fp);
 	//bitmap_index_read_n(Textures, D1_MAX_TEXTURES, fp );
