@@ -1,4 +1,4 @@
-/* $Id: physfsx.h,v 1.7 2004-12-05 10:56:32 btb Exp $ */
+/* $Id: physfsx.h,v 1.8 2005-02-25 02:02:22 chris Exp $ */
 
 /*
  *
@@ -144,6 +144,45 @@ static inline PHYSFS_sint64 PHYSFSX_getFreeDiskSpace()
 #else
 	return 0x7FFFFFFF;
 #endif
+}
+
+//Open a file for reading, set up a buffer
+static inline PHYSFS_file *PHYSFSX_openReadBuffered(char *filename)
+{
+	PHYSFS_file *fp;
+	PHYSFS_uint64 bufSize;
+
+	if (filename[0] == '\x01')
+	{
+		//FIXME: don't look in dir, only in hogfile
+		filename++;
+	}
+
+	fp = PHYSFS_openRead(filename);
+	if (!fp)
+		return NULL;
+
+	bufSize = PHYSFS_fileLength(fp);
+	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
+		bufSize /= 2;	// even if the error isn't memory full, for a 20MB file it'll only do this 8 times
+
+	return fp;
+}
+
+//Open a file for writing, set up a buffer
+static inline PHYSFS_file *PHYSFSX_openWriteBuffered(char *filename)
+{
+	PHYSFS_file *fp;
+	PHYSFS_uint64 bufSize = 1024*1024;	// hmm, seems like an OK size.
+
+	fp = PHYSFS_openWrite(filename);
+	if (!fp)
+		return NULL;
+
+	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
+		bufSize /= 2;
+
+	return fp;
 }
 
 #endif /* PHYSFSX_H */
