@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.9 2002-08-26 06:50:45 btb Exp $ */
+/* $Id: movie.c,v 1.10 2002-08-27 04:14:18 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.9 2002-08-26 06:50:45 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.10 2002-08-27 04:14:18 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -103,6 +103,9 @@ int MVEPaletteCalls = 0;
 int robot_movies = 0; //0 means none, 1 means lowres, 2 means hires
 
 int MovieHires = 0;   //default for now is lores
+
+int RoboFile = 0;
+MVESTREAM *Robo_mve;
 
 
 //      Function Prototypes
@@ -194,7 +197,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	if (filehndl == -1) {
 #ifndef EDITOR
 		if (must_have)
-			Warning("movie: RunMovie: Cannot open movie file <%s>\n",filename);
+			Warning("movie: RunMovie: Cannot open movie <%s>\n",filename);
 #endif
 		return MOVIE_NOT_PLAYED;
 	}
@@ -274,89 +277,46 @@ int InitMovieBriefing()
 }
 
 
-void RotateRobot()
+//returns 1 if frame updated ok
+int RotateRobot()
 {
-	con_printf(DEBUG_LEVEL, "STUB: movie: RotateRobot\n");
+	con_printf(DEBUG_LEVEL, "movie: RotateRobot\n");
+
+	return mve_play_next_chunk(Robo_mve);
 }
 
 
 void DeInitRobotMovie(void)
 {
-	con_printf(DEBUG_LEVEL, "STUB: movie: DeInitRobotMovie\n");
+	con_printf(DEBUG_LEVEL, "movie: DeInitRobotMovie\n");
+
+	shutdownMovie(Robo_mve);
+
+	close(RoboFile);
 }
 
 
 int InitRobotMovie(char *filename)
 {
-	con_printf(DEBUG_LEVEL, "STUB: movie: InitRobotMovie: %s\n", filename);
-
-#if 0
-	FlipFlop=0;
-
-	RobBufCount=0; PlayingBuf=0; RobBufLimit=0;
-
-	//if (FindArg("-nomovies"))
-	if (!FindArg("-movies"))
-		return 0;
-   
-//   digi_stop_all();
-
-//@@   if (MovieHires)
-//@@		filename[4]='h';
-//@@	else
-//@@		filename[4]='l';
-  
-	if ((FirstVid=calloc (65000L,1))==NULL) {
-		FreeRoboBuffer(49);
-		return (NULL);
-	}
-	if ((SecondVid=calloc (65000L,1))==NULL) {
-		free (FirstVid);
-		FreeRoboBuffer(49);
-		return (NULL);
-	}
-
-#if 0
-	MVE_SOS_sndInit(-1);		//tell movies to play no sound for robots
-
-	MVE_memCallbacks(MPlayAlloc, MPlayFree);
-	MVE_ioCallbacks(FileRead);
-	MVE_memVID (FirstVid,SecondVid,65000);
-#endif
+	con_printf(DEBUG_LEVEL, "movie: InitRobotMovie: %s\n", filename);
 
 	RoboFile = open_movie_file(filename,1);
 
 	if (RoboFile == -1) {
-		free (FirstVid);
-		free (SecondVid);	
-		FreeRoboBuffer (49);
-#ifdef RELEASE
-		Error("movie: InitRobotMovie: Cannot open movie file <%s>",filename);
-#else
+		Warning("movie: InitRobotMovie: Cannot open movie file <%s>",filename);
 		return MOVIE_NOT_PLAYED;
-#endif
 	}
 
-	Vid_State = VID_PLAY;                           
+	Robo_mve = mve_open(RoboFile);
+    if (Robo_mve == NULL)
+    {
+        fprintf(stderr, "can't open MVE file '%s'\n", filename);
+        return 0;
+    }
 
-#if 0
-	if (MVE_rmPrepMovie(RoboFile, 280, 200, 0)) {
-		Int3();
-		free (FirstVid);
-		free (SecondVid);	
-		FreeRoboBuffer (49);
-		return 0;
-	}
-
-	MVE_palCallbacks (PaletteChecker);
-#endif
-
-	RoboFilePos=lseek (RoboFile,0L,SEEK_CUR);
+	initializeMovie(Robo_mve);
 
 	return 1;
-#else
-	return 0;
-#endif
 }
 
 
@@ -680,6 +640,7 @@ void close_movies()
 void init_movie(char *filename,int libnum,int is_robots,int required)
 {
 	int high_res;
+	int try = 0;
 
 #ifndef RELEASE
 	//if (FindArg("-nomovies")) {
@@ -698,9 +659,7 @@ void init_movie(char *filename,int libnum,int is_robots,int required)
 	if (high_res)
 		strchr(filename,'.')[-1] = 'h';
 
-#if defined(D2_OEM)
 try_again:;
-#endif
 
 	if ((movie_libs[libnum] = init_movie_lib(filename)) == NULL) {
 		char name2[100];
@@ -713,23 +672,22 @@ try_again:;
 			movie_libs[libnum]->flags |= MLF_ON_CD;
 		else {
 			if (required) {
-#if defined(RELEASE) && !defined(D2_OEM)		//allow no movies if not release
-					strupr(filename);
-					Error("Cannot open movie file <%s>",filename);
-#endif
+				Warning("Cannot open movie file <%s>\n",filename);
 			}
-#if defined(D2_OEM)		//if couldn't get highres, try low
-			if (is_robots == 1) {	//first try, try again with lowres
-				strchr(filename,'.')[-1] = 'l';
-				high_res = 0;
-				is_robots++;
-				goto try_again;
+
+			if (!try) {                                         // first try
+				if (strchr(filename, '.')[-1] == 'h') {         // try again with lowres
+					strchr(filename, '.')[-1] = 'l';
+					Warning("Trying to open movie file <%s> instead\n", filename);
+					try++;
+					goto try_again;
+				} else if (strchr(filename, '.')[-1] == 'l') {  // try again with highres
+					strchr(filename, '.')[-1] = 'h';
+					Warning("Trying to open movie file <%s> instead\n", filename);
+					try++;
+					goto try_again;
+				}
 			}
-			else if (is_robots == 2) {		//failed twice. bail with error
-				strupr(filename);
-				Error("Cannot open movie file <%s>",filename);
-			}
-#endif
 		}
 	}
 
@@ -760,9 +718,12 @@ void init_movies()
 }
 
 
-void init_extra_robot_movie(char *f)
+void init_extra_robot_movie(char *filename)
 {
-	con_printf(DEBUG_LEVEL, "STUB: movie: init_extra_robot_movie: %s\n", f);
+	con_printf(DEBUG_LEVEL, "movie: init_extra_robot_movie: %s\n", filename);
+
+	close_movie(EXTRA_ROBOT_LIB);
+	init_movie(filename,EXTRA_ROBOT_LIB,1,0);
 }
 
 
