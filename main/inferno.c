@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.19 $
+ * $Revision: 1.20 $
  * $Author: bradleyb $
- * $Date: 2002-01-18 07:01:37 $
+ * $Date: 2002-01-28 00:03:47 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.19  2002/01/18 07:01:37  bradleyb
+ * allow -h for help
+ *
  * Revision 1.18  2001/12/28 09:26:41  bradleyb
  * document -nomovies option
  *
@@ -68,6 +71,13 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef __unix__
+#include <unistd.h>
+#include <limits.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
 
 #include "pstypes.h"
 #include "strutil.h"
@@ -504,6 +514,24 @@ int main(int argc,char **argv)
 
 	error_init(NULL, NULL);
 
+#ifdef __unix__
+	{
+		char *home = getenv("HOME");
+
+		if (home) {
+			char buf[PATH_MAX + 5];
+			
+			strcpy(buf, home);
+			strcat(buf, "/.d2x");
+			if (chdir(buf)) {
+				mkdir(buf, 0755);
+				if (chdir(buf))
+					fprintf(stderr, "Cannot change to ~/.d2x\n");
+			}
+		}
+	}
+#endif
+
 	InitArgs( argc,argv );
 
 	if ( FindArg( "-debug") )
@@ -519,6 +547,9 @@ int main(int argc,char **argv)
 	arch_init_start();
 
 	arch_init();
+
+	//tell cfile where hogdir is
+	cfile_use_alternate_hogdir(SHAREPATH);
 
 	//tell cfile about our counter
 	cfile_set_critical_error_counter_ptr(&descent_critical_error);

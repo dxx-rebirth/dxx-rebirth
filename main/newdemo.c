@@ -21,6 +21,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>	// for memset
 #include <errno.h>
 #include <ctype.h>      /* for isdigit */
+#ifdef __unix__
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
 
 #include "u_mem.h"
 #include "inferno.h"
@@ -93,10 +97,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 void DoJasonInterpolate (fix recorded_time);
-
-#ifndef __MINGW32__
-void mkdir (char*); /* no idea */
-#endif
 
 //#include "nocfile.h"
 
@@ -2960,7 +2960,7 @@ void newdemo_start_recording()
 	#else
 	if (outfile == NULL) {							//dir doesn't exist and no errno on mac!
 	#endif	
-		mkdir(DEMO_DIR);								//try making directory
+		mkdir(DEMO_DIR, 0755); //try making directory
 		outfile = fopen( DEMO_FILENAME, "wb" );
 	}
 

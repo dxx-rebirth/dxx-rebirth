@@ -12,6 +12,10 @@
   synchronization with d1x far, far easier.
 - Fixed assembly bug causing crash on game start.  Thanks to Craig
   Hadady <chadady@iglou.com>
+- Applied chdir patch from Falk Hueffner
+  <falk.hueffner@student.uni-tuebingen.de>, and added code to load
+  hogfiles from a central location, so it now doesn't matter what dir
+  you start d2x from.
 
 --- Version 0.1.1 ---
 Assembly under mingw32 now works.

@@ -106,6 +106,7 @@ FILE * cfile_get_filehandle( char * filename, char * mode )
 	}
 	if ( (fp==NULL) && (AltHogdir_initialized) )	{
 		strcpy( temp, AltHogDir );
+		strcat( temp, "/");
 		strcat( temp, filename );
 		*critical_error_counter_ptr = 0;
 		fp = fopen( temp, mode );

@@ -34,6 +34,9 @@
 /* Define to use SDL Joystick */
 #undef SDL_JOYSTICK
 
+/* Define this to be the shared game directory root */
+#undef SHAREPATH
+
 @BOTTOM@
 
 /* General defines */

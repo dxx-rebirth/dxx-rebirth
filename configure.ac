@@ -38,6 +38,14 @@ else
     GL_LIBS="GL GLU"
 fi
 
+dnl Set $prefix and $exec_prefix to $ac_default_prefix if they are not set
+test "x$prefix" = "xNONE" && prefix=$ac_default_prefix
+test "x$exec_prefix" = "xNONE" && exec_prefix="${prefix}"
+
+dnl Set default locations to find data files.
+eval foo="$datadir"
+default_sharepath="$foo/games/$PACKAGE"
+
 CFLAGS="-Wall $CFLAGS"
 
 dnl Enable editor build?
@@ -96,6 +104,14 @@ if test x$enable_debug = xno; then
 else
     CFLAGS="-g $CFLAGS"
 fi
+
+AC_ARG_WITH(sharepath,
+  [[  --with-sharepath=DIR    Use DIR for shared game data [DATADIR/games/d2x]]],
+  sharepath=$withval, sharepath="auto")
+if test "x$sharepath" = "xauto" -o "x$sharepath" = "xyes" -o "x$sharepath" = "x"; then
+    sharepath="$default_sharepath"
+fi
+AC_DEFINE_UNQUOTED(SHAREPATH, "$sharepath")
 
 # Test for DJGPP
 AM_CONDITIONAL(DJGPP, test "$host_os" = "msdosdjgpp")
