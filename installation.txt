@@ -101,3 +101,9 @@ cd.
 
 If you use the mac demo data files, and they are not auto-detected
 (colors come out wrong), use the -macdata switch.
+
+If your computer has performance problems playing the movies, you can
+tell it to play the low resolution versions by setting MovieHires=0 in
+your descent.cfg file.
+You can also override this setting by passing the -lowresmovies switch
+or by deleting all *-h.mvl files.
