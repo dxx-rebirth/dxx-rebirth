@@ -32,6 +32,8 @@ int FileFindFirst(char *search_str, FILEFINDSTRUCT *ffstruct)
   r = glob(search_str, 0, NULL, &glob_a);
   if (r) return 1;
 
+  if (! glob_a.gl_pathc) return 1;
+
   glob_whichfile = 0;
   
   t = strrchr(glob_a.gl_pathv[glob_whichfile], '/');

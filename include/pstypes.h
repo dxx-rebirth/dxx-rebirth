@@ -46,6 +46,9 @@ typedef uint16_t u_int16_t;
 # include <sys/types.h>
 # define _MAX_PATH 1024
 # define _MAX_DIR 256
+#ifdef __MACOSX__
+typedef unsigned long ulong;
+#endif
 
 #elif defined __DJGPP__
 # include <sys/types.h>
