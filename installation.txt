@@ -79,7 +79,7 @@ To install the original Descent I mission:
 Place descent.hog into your data dir.
 
 d2x tries to make Descent I levels look as close to the original as
-possible, using just Descent II textures from. However, if d2x finds
+possible, using just Descent II textures. However, if d2x finds
 a .pig file from Descent I (except PC shareware and 1.0 versions)
 installed in the data dir, it is able to improve the originality
 by reading textures from there (except for animated textures).
