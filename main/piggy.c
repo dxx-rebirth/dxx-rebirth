@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.35 2003-08-03 22:00:14 btb Exp $ */
+/* $Id: piggy.c,v 1.36 2003-10-10 21:04:43 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.35 2003-08-03 22:00:14 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.36 2003-10-10 21:04:43 btb Exp $";
 #endif
 
 
@@ -510,7 +510,8 @@ ushort GameBitmapXlat[MAX_BITMAP_FILES];
 
 int piggy_page_flushed = 0;
 
-#define DBM_FLAG_ABM            64
+#define DBM_FLAG_ABM    64 // animated bitmap
+#define DBM_NUM_FRAMES  63
 
 #define BM_FLAGS_TO_COPY (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT \
                          | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE | BM_FLAG_RLE_BIG)
@@ -970,7 +971,7 @@ void piggy_init_pigfile(char *filename)
 		memcpy( temp_name_read, bmh.name, 8 );
 		temp_name_read[8] = 0;
 		if ( bmh.dflags & DBM_FLAG_ABM )        
-			sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & 63 );
+			sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES );
 		else
 			strcpy( temp_name, temp_name_read );
 		memset( &temp_bitmap, 0, sizeof(grs_bitmap) );
@@ -1104,7 +1105,7 @@ void piggy_new_pigfile(char *pigname)
 			temp_name_read[8] = 0;
 	
 			if ( bmh.dflags & DBM_FLAG_ABM )        
-				sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & 63 );
+				sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES );
 			else
 				strcpy( temp_name, temp_name_read );
 	
@@ -1150,7 +1151,7 @@ void piggy_new_pigfile(char *pigname)
 
 			p = strchr(AllBitmaps[i].name,'#');
 
-			if (p) {                //this is an ABM
+			if (p) {   // this is an ABM == animated bitmap
 				char abmname[FILENAME_LEN];
 				int fnum;
 				grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
@@ -1160,7 +1161,7 @@ void piggy_new_pigfile(char *pigname)
 				int nframes;
 			
 				strcpy(basename,AllBitmaps[i].name);
-				basename[p-AllBitmaps[i].name] = 0;             //cut off "#nn" part
+				basename[p-AllBitmaps[i].name] = 0;  //cut off "#nn" part
 				
 				sprintf( abmname, "%s.abm", basename );
 
@@ -1810,7 +1811,7 @@ void change_filename_ext( char *dest, char *src, char *ext );
 void piggy_write_pigfile(char *filename)
 {
 	FILE *pig_fp;
-	int bitmap_data_start,data_offset;
+	int bitmap_data_start, data_offset;
 	DiskBitmapHeader bmh;
 	int org_offset;
 	char subst_name[32];
@@ -1855,8 +1856,8 @@ void piggy_write_pigfile(char *filename)
 
 		{               
 			char * p, *p1;
-			p = strchr(AllBitmaps[i].name,'#');
-			if (p)  {
+			p = strchr(AllBitmaps[i].name, '#');
+			if (p) {   // this is an ABM == animated bitmap
 				int n;
 				p1 = p; p1++; 
 				n = atoi(p1);
@@ -1864,10 +1865,10 @@ void piggy_write_pigfile(char *filename)
 				if (fp2 && n==0)
 					fprintf( fp2, "%s.abm\n", AllBitmaps[i].name );
 				memcpy( bmh.name, AllBitmaps[i].name, 8 );
-				Assert( n <= 63 );
+				Assert( n <= DBM_NUM_FRAMES );
 				bmh.dflags = DBM_FLAG_ABM + n;
 				*p = '#';
-			}else {
+			} else {
 				if (fp2)
 					fprintf( fp2, "%s.bbm\n", AllBitmaps[i].name );
 				memcpy( bmh.name, AllBitmaps[i].name, 8 );
@@ -2231,37 +2232,136 @@ void load_bitmap_replacements(char *level_name)
 	atexit(free_bitmap_replacements);
 }
 
-/* If the given d1_index is the index of a bitmap we have to load (because it is unique
- * to descent 1), then returns which d2_index it replaces.
+/* calculate table to translate d1 bitmaps to current palette,
+ * return -1 on error
+ */
+int get_d1_colormap( ubyte *colormap )
+{
+	int freq[256];
+	ubyte d1_palette[256*3];
+	CFILE * palette_file = cfopen(D1_PALETTE, "rb");
+	if (!palette_file || cfilelength(palette_file) != 9472)
+		return -1;
+	cfread( d1_palette, 256, 3, palette_file);
+	cfclose( palette_file );
+	build_colormap_good( d1_palette, colormap, freq );
+	// don't change transparencies:
+	colormap[254] = 254;
+	colormap[255] = 255;
+	return 0;
+}
+
+void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
+                     CFILE *d1_Piggy_fp, /* read from this file */
+                     int bitmap_data_start, /* specific to file */
+                     DiskBitmapHeader *bmh, /* header info for bitmap */
+                     ubyte *(*get_mem)(int), /* function to find out where to store data */
+                     ubyte *colormap) /* how to translate bitmap's colors */
+{
+	int zsize;
+	memset( bitmap, 0, sizeof(grs_bitmap) );
+
+	bitmap->bm_w = bitmap->bm_rowsize = bmh->width + ((short) (bmh->wh_extra&0x0f)<<8);
+	bitmap->bm_h = bmh->height + ((short) (bmh->wh_extra&0xf0)<<4);
+	bitmap->avg_color = bmh->avg_color;
+	bitmap->bm_flags |= bmh->flags & BM_FLAGS_TO_COPY;
+
+	cfseek(d1_Piggy_fp, bitmap_data_start + bmh->offset, SEEK_SET);
+	if (bmh->flags & BM_FLAG_RLE) {
+		zsize = cfile_read_int(d1_Piggy_fp);
+		cfseek(d1_Piggy_fp, -4, SEEK_CUR);
+	} else
+		zsize = bitmap->bm_h * bitmap->bm_w;
+
+	bitmap->bm_data = (*get_mem)(zsize);
+	cfread(bitmap->bm_data, 1, zsize, d1_Piggy_fp);
+	switch(cfilelength(d1_Piggy_fp)) {
+	case D1_MAC_PIGSIZE:
+	case D1_MAC_SHARE_PIGSIZE:
+		if (bmh->flags & BM_FLAG_RLE)
+			rle_swap_0_255(bitmap);
+		else
+			swap_0_255(bitmap);
+	}
+	if (bmh->flags & BM_FLAG_RLE)
+		rle_remap(bitmap, colormap);
+	else
+		gr_remap_bitmap_good(bitmap, colormap, TRANSPARENCY_COLOR, -1);
+	if (bmh->flags & BM_FLAG_RLE)
+		memcpy(&zsize, bitmap->bm_data, 4);
+}
+
+#define D1_MAX_TEXTURES 800
+#define D1_MAX_TMAP_NUM 1200 // a test gave me 1169 with descent.pig mac shareware
+
+/* the inverse of the Textures array, for descent 1.
+ * "Textures" looks up a d2 bitmap index given a d2 tmap_num
+ * "d1_tmap_nums" looks up a d1 tmap_num given a d1 bitmap. "-1" means "None"
+ */
+short *d1_tmap_nums = NULL;
+
+void free_d1_tmap_nums() {
+	if (d1_tmap_nums) {
+		d_free(d1_tmap_nums);
+		d1_tmap_nums = NULL;
+	}
+}
+
+void bm_read_d1_tmap_nums(CFILE *d1pig)
+{
+	int i, d1_index;
+
+	free_d1_tmap_nums();
+	cfseek(d1pig, 8, SEEK_SET);
+	MALLOC(d1_tmap_nums, short, D1_MAX_TMAP_NUM);
+	for (i = 0; i < D1_MAX_TMAP_NUM; i++)
+		d1_tmap_nums[i] = -1;
+	for (i = 0; i < D1_MAX_TEXTURES; i++) {
+		d1_index = cfile_read_short(d1pig);
+		Assert(d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM);
+		d1_tmap_nums[d1_index] = i;
+	}
+	atexit(free_d1_tmap_nums);
+}
+
+/* If the given d1_index is the index of a bitmap we have to load
+ * (because it is unique to descent 1), then returns the d2_index that
+ * the given d1_index replaces.
  * Returns -1 if the given d1_index is not unique to descent 1.
  */
 short d2_index_for_d1_index(short d1_index)
 {
-	int i;
-	int d1_tmap_num = -1;
-	if (d1_Texture_indices)
-		for (i = 0; i < D1_MAX_TEXTURES; i++)
-			if (d1_Texture_indices[i] == d1_index) {
-				d1_tmap_num = i;
-				break;
-			}
-	if (d1_tmap_num == -1 || ! d1_tmap_num_unique(d1_tmap_num))
-		return -1;
-	else {
-		return Textures[convert_d1_tmap_num(d1_tmap_num)].index;
-	}
+	Assert(d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM);
+	if (! d1_tmap_nums || d1_tmap_nums[d1_index] == -1
+	    || ! d1_tmap_num_unique(d1_tmap_nums[d1_index]))
+	else
+		return Textures[convert_d1_tmap_num(d1_tmap_nums[d1_index])].index;
+}
+
+#define D1_BITMAPS_SIZE 300000
+
+static ubyte *next_bitmap; // to which address we write the next bitmap in load_d1_bitmap_replacements
+static ubyte *get_next_bitmap(int zsize)
+{
+	ubyte *this_bitmap = next_bitmap;
+	next_bitmap += zsize;
+	Assert(next_bitmap - Bitmap_replacement_data < D1_BITMAPS_SIZE);
+	return this_bitmap;
+}
+static ubyte *my_d_malloc(int zsize)
+{
+	return d_malloc(zsize);
 }
 
 void load_d1_bitmap_replacements()
 {
 	CFILE * d1_Piggy_fp;
-	grs_bitmap temp_bitmap;
 	DiskBitmapHeader bmh;
 	int pig_data_start, bitmap_header_start, bitmap_data_start;
-	int N_bitmaps, zsize;
+	int N_bitmaps;
 	short d1_index, d2_index;
 	ubyte colormap[256];
-	ubyte *next_bitmap; // to which address we write the next bitmap
+	char *p;
 
 	d1_Piggy_fp = cfopen( D1_PIGFILE, "rb" );
 
@@ -2274,37 +2374,25 @@ void load_d1_bitmap_replacements()
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
-	// read d1 palette, build colormap
-	{
-		int freq[256];
-		ubyte d1_palette[256*3];
-		CFILE * palette_file = cfopen(D1_PALETTE, "rb" );
-		Assert( palette_file );
-		Assert( cfilelength( palette_file ) == 9472 );
-		cfread( d1_palette, 256, 3, palette_file);
-		cfclose( palette_file );
-		build_colormap_good( d1_palette, colormap, freq );
-		// don't change transparencies:
-		colormap[254] = 254;
-		colormap[255] = 255;
-	}
+	Assert( get_d1_colormap( colormap ) == 0 );
 
 	switch (cfilelength(d1_Piggy_fp)) {
 	case D1_SHAREWARE_10_PIGSIZE:
 	case D1_SHAREWARE_PIGSIZE:
 		pig_data_start = 0;
-		Warning(D1_PIG_LOAD_FAILED " Support for descent.pig of descent 1 shareware not complete.");
+		Warning(D1_PIG_LOAD_FAILED ". descent.pig of descent 1 PC shareware not supported.");
 		return;
 		break;
 	default:
 		Warning("Unknown size for " D1_PIGFILE);
 		Int3();
+		// fall through
 	case D1_PIGSIZE:
 	case D1_OEM_PIGSIZE:
 	case D1_MAC_PIGSIZE:
 	case D1_MAC_SHARE_PIGSIZE:
 		pig_data_start = cfile_read_int(d1_Piggy_fp );
-		bm_read_d1_texture_indices(d1_Piggy_fp); //was: bm_read_all_d1(fp);
+		bm_read_d1_tmap_nums(d1_Piggy_fp); //was: bm_read_all_d1(fp);
 		//for (i = 0; i < 1800; i++) GameBitmapXlat[i] = cfile_read_short(d1_Piggy_fp);
 		break;
 	}
@@ -2319,7 +2407,6 @@ void load_d1_bitmap_replacements()
 		bitmap_data_start = bitmap_header_start + header_size;
 	}
 
-#define D1_BITMAPS_SIZE 300000
 	MALLOC( Bitmap_replacement_data, ubyte, D1_BITMAPS_SIZE);
 	if (!Bitmap_replacement_data) {
 		Warning(D1_PIG_LOAD_FAILED);
@@ -2336,48 +2423,20 @@ void load_d1_bitmap_replacements()
 			cfseek(d1_Piggy_fp, bitmap_header_start + (d1_index-1) * DISKBITMAPHEADER_D1_SIZE, SEEK_SET);
 			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
 
-			memset( &temp_bitmap, 0, sizeof(grs_bitmap) );
-
-			temp_bitmap.bm_w = temp_bitmap.bm_rowsize = bmh.width + ((short) (bmh.wh_extra&0x0f)<<8);
-			temp_bitmap.bm_h = bmh.height + ((short) (bmh.wh_extra&0xf0)<<4);
-			temp_bitmap.avg_color = bmh.avg_color;
-
-			//GameBitmapFlags[d2_index] = 0;
-
-			temp_bitmap.bm_flags |= bmh.flags & BM_FLAGS_TO_COPY;
-
-			cfseek(d1_Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
-			if (bmh.flags & BM_FLAG_RLE) {
-				zsize = cfile_read_int(d1_Piggy_fp);
-				cfseek(d1_Piggy_fp, -4, SEEK_CUR);
-			} else {
-				zsize = temp_bitmap.bm_h * temp_bitmap.bm_w;
-			}
-			Assert(next_bitmap + zsize - Bitmap_replacement_data < D1_BITMAPS_SIZE);
-			cfread(next_bitmap, 1, zsize, d1_Piggy_fp);
-
-			temp_bitmap.bm_data = next_bitmap;
-
-			switch(cfilelength(d1_Piggy_fp)) {
-			case D1_MAC_PIGSIZE:
-			case D1_MAC_SHARE_PIGSIZE:
-				if (bmh.flags & BM_FLAG_RLE)
-					rle_swap_0_255(&temp_bitmap);
-				else
-					swap_0_255(&temp_bitmap);
-			}
-			if (bmh.flags & BM_FLAG_RLE)
-				rle_remap(&temp_bitmap, colormap);
-			else
-				gr_remap_bitmap_good(&temp_bitmap, colormap, TRANSPARENCY_COLOR, -1);
-
-			GameBitmaps[d2_index] = temp_bitmap;
+			bitmap_read_d1( &GameBitmaps[d2_index], d1_Piggy_fp, bitmap_data_start, &bmh, &get_next_bitmap, colormap );
 			GameBitmapOffset[d2_index] = 0; // don't try to read bitmap from current d2 pigfile
 			GameBitmapFlags[d2_index] = bmh.flags;
-			if (bmh.flags & BM_FLAG_RLE)
-				memcpy(&zsize, temp_bitmap.bm_data, 4);
-			next_bitmap += zsize;
-			Assert(next_bitmap - Bitmap_replacement_data < D1_BITMAPS_SIZE);
+
+			if ( (p = strchr(AllBitmaps[d2_index].name, '#')) /* d2 BM is animated */
+			     && !(bmh.dflags & DBM_FLAG_ABM) ) { /* d1 bitmap is not animated */
+				int i, len = p - AllBitmaps[d2_index].name;
+				for (i = 0; i < Num_bitmap_files; i++)
+					if (i != d2_index && ! memcmp(AllBitmaps[d2_index].name, AllBitmaps[i].name, len)) {
+						GameBitmaps[i] = GameBitmaps[d2_index];
+						GameBitmapOffset[i] = 0;
+						GameBitmapFlags[i] = bmh.flags;
+					}
+			}
 		}
 	}
 
@@ -2407,7 +2466,7 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 		int i;
 		DiskBitmapHeader bmh;
 		int pig_data_start, bitmap_header_start, bitmap_data_start;
-		int N_bitmaps, zsize;
+		int N_bitmaps;
 		ubyte colormap[256];
 
 		d1_Piggy_fp = cfopen(D1_PIGFILE, "rb");
@@ -2417,87 +2476,7 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 			return bitmap_num;
 		}
 
-		// read d1 palette, build colormap
-		{
-			int freq[256];
-			ubyte d1_palette[256*3];
-			CFILE * palette_file = cfopen(D1_PALETTE, "rb");
-			if (!palette_file || cfilelength(palette_file) != 9472)
-			{
-				con_printf(CON_DEBUG, "could not open %s\n", D1_PALETTE);
-				return bitmap_num;
-			}
-			cfread( d1_palette, 256, 3, palette_file);
-			cfclose( palette_file );
-			build_colormap_good( d1_palette, colormap, freq );
-			// don't change transparencies:
-			colormap[254] = 254;
-			colormap[255] = 255;
-		}
-
-		switch (cfilelength(d1_Piggy_fp)) {
-		case D1_SHAREWARE_10_PIGSIZE:
-		case D1_SHAREWARE_PIGSIZE:
-			pig_data_start = 0;
-			break;
-		default:
-			Int3();
-		case D1_PIGSIZE:
-		case D1_OEM_PIGSIZE:
-		case D1_MAC_PIGSIZE:
-		case D1_MAC_SHARE_PIGSIZE:
-			pig_data_start = cfile_read_int(d1_Piggy_fp);
-			break;
-		}
-
-		cfseek(d1_Piggy_fp, pig_data_start, SEEK_SET);
-		N_bitmaps = cfile_read_int(d1_Piggy_fp);
-		{
-			int N_sounds = cfile_read_int(d1_Piggy_fp);
-			int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
-				+ N_sounds * DISKSOUNDHEADER_SIZE;
-			bitmap_header_start = pig_data_start + 2 * sizeof(int);
-			bitmap_data_start = bitmap_header_start + header_size;
-		}
-
-		for (i = 0; i < N_bitmaps; i++)
-		{
-			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
-			if (!strnicmp(bmh.name, name, 8))
-				break;
-		}
-
-		if (strnicmp(bmh.name, name, 8))
-		{
-			con_printf(CON_DEBUG, "could not find bitmap %s\n", name);
-			return bitmap_num;
-		}
-
-		memset( new, 0, sizeof(grs_bitmap) );
-
-		new->bm_w = new->bm_rowsize = bmh.width + ((short) (bmh.wh_extra&0x0f)<<8);
-		new->bm_h = bmh.height + ((short) (bmh.wh_extra&0xf0)<<4);
-		new->avg_color = bmh.avg_color;
-
-		new->bm_flags |= bmh.flags & BM_FLAGS_TO_COPY;
-
-		if ( bmh.flags & BM_FLAG_RLE )
-		{
-			cfseek(d1_Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
-			zsize = cfile_read_int(d1_Piggy_fp);
-		}
-		else
-			zsize = new->bm_w * new->bm_h;
-		new->bm_data = d_malloc(zsize);
-		cfseek(d1_Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
-		cfread(new->bm_data, 1, zsize, d1_Piggy_fp);
-
-		switch(cfilelength(d1_Piggy_fp)) {
-		case D1_MAC_PIGSIZE:
-		case D1_MAC_SHARE_PIGSIZE:
-			rle_swap_0_255(new);
-		}
-		rle_remap(new, colormap);
+		bitmap_read_d1( new, d1_Piggy_fp, bitmap_data_start, &bmh, &my_d_malloc, colormap );
 
 		cfclose(d1_Piggy_fp);
 	}

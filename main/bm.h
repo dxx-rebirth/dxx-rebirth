@@ -1,4 +1,4 @@
-/* $Id: bm.h,v 1.11 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: bm.h,v 1.12 2003-10-10 21:04:43 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -304,11 +304,6 @@ extern int First_multi_bitmap_num;
 int bm_init_use_tbl(void);
 
 extern void bm_read_all(CFILE * fp);
-
-#define D1_MAX_TEXTURES 800
-extern short *d1_Texture_indices; // descent 1 texture bitmap indicies
-extern void free_d1_texture_indices();
-extern void bm_read_d1_texture_indices(CFILE *d1pig);
 
 int load_exit_models();
 

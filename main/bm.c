@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.35 2003-10-02 04:05:19 btb Exp $ */
+/* $Id: bm.c,v 1.36 2003-10-10 21:04:43 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -250,31 +250,6 @@ void bm_read_all(CFILE * fp)
 	}
 	else
 		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
-}
-
-/* when reading descent.pig of descent 1, we only replace some textures */
-
-#define D1_MAX_TEXTURES 800
-
-short *d1_Texture_indices = NULL; // descent 1 texture bitmap indicies
-
-void free_d1_texture_indices() {
-	if (d1_Texture_indices) {
-		d_free(d1_Texture_indices);
-		d1_Texture_indices = NULL;
-	}
-}
-
-void bm_read_d1_texture_indices(CFILE *d1pig)
-{
-	int i;
-
-	free_d1_texture_indices();
-	cfseek(d1pig, 8, SEEK_SET);
-	MALLOC(d1_Texture_indices, short, D1_MAX_TEXTURES);
-	for (i = 0; i < D1_MAX_TEXTURES; i++)
-		d1_Texture_indices[i] = cfile_read_short(d1pig);
-	atexit(free_d1_texture_indices);
 }
 
 // the following is old code for reading descent 1 textures.
