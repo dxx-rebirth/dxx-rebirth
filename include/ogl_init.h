@@ -15,7 +15,7 @@
 #include "loadgl.h"
 int ogl_init_load_library(void);
 #else
-#ifdef __MACOSX__
+#if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>

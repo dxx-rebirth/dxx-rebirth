@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: state.c,v 1.8 2003-04-11 23:51:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,13 +8,13 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Game save/restore functions
- *
  *
  */
 
@@ -25,7 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef WINDOWS
 #include "desw.h"
 #endif
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,7 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef OGL
-#ifdef __MACOSX__
+#if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #else
 #include <GL/gl.h>
@@ -62,7 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "screens.h"
 #include "newmenu.h"
-#include "cfile.h"		
+#include "cfile.h"
 #include "fuelcen.h"
 #include "hash.h"
 #include "key.h"
@@ -139,7 +138,7 @@ extern fix Fusion_next_sound_time;
 
 extern int Laser_rapid_fire;
 extern int Physics_cheat_flag;
-extern int	Lunacy;
+extern int Lunacy;
 extern void do_lunacy_on(void);
 extern void do_lunacy_off(void);
 extern int First_secret_visit;
@@ -1067,7 +1066,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	player restore_players[MAX_PLAYERS];
 #endif
 	fix	old_gametime = GameTime;
-	
+
 	#if defined(MACINTOSH) && !defined(NDEBUG) 
 	if ( strncmp(filename, ":Players:", 9) )
 		Int3();
@@ -1100,7 +1099,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
         fseek( fp, 768, SEEK_CUR );
 
 // Read the Between levels flag...
-	fread( &between_levels, sizeof(int), 1, fp );
+        fread( &between_levels, sizeof(int), 1, fp );
 
 	Assert(between_levels == 0);	//between levels save ripped out
 

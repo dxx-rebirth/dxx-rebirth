@@ -69,9 +69,6 @@ else
     GL_LIBS="GL GLU"
 fi
 
-if test x$MACOSX = xyes; then
-    AC_DEFINE(__MACOSX__,,[Define if building on MAC OS X])
-fi
 AM_CONDITIONAL(MACOSX, test x$MACOSX = xyes)
 
 dnl Set $prefix and $exec_prefix to $ac_default_prefix if they are not set
@@ -306,7 +303,7 @@ AH_BOTTOM([
 #define PIGGY_USE_PAGING 1
 #define NEWDEMO 1
 
-#ifdef __MACOSX__
+#if defined(__APPLE__) && defined(__MACH__)
 #define __unix__
 #endif
 

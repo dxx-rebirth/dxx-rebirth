@@ -1,3 +1,7 @@
+2003-04-11  Bradley Bell  <btb@icculus.org>
+
+	* configure.ac: use different defines for os x
+
 2003-04-07  Bradley Bell  <btb@icculus.org>
 
 	* include/error.h, misc/error.c: put some old stuff back in,
