@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.18 2003-02-28 09:56:10 btb Exp $ */
+/* $Id: newmenu.c,v 1.19 2003-03-17 07:59:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -574,6 +574,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include "pa_enabl.h"                   //$$POLY_ACC
 #include "error.h"
@@ -2647,6 +2648,24 @@ ReadFileNames:
 			}
 		} while( !FileFindNext( &find ) );
 		FileFindClose();
+	}
+
+	if (demo_mode && AltHogdir_initialized) {
+		char filespec2[PATH_MAX + FILENAME_LEN];
+		strcpy(filespec2, AltHogDir);
+		strcat(filespec2, "/");
+		strcat(filespec2, filespec);
+		if ( !FileFindFirst( filespec2, &find ) ) {
+			do {
+				if (NumFiles<MAX_FILES)	{
+					strncpy( &filenames[NumFiles*14], find.name, FILENAME_LEN );
+					NumFiles++;
+				} else {
+					break;
+				}
+			} while( !FileFindNext( &find ) );
+			FileFindClose();
+		}
 	}
 
 	if ( (NumFiles < 1) && demos_deleted )	{

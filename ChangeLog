@@ -1,5 +1,8 @@
 2003-03-16  Bradley Bell  <bradleyb@smeagol>
 
+	* main/menu.c, main/newdemo.c, main/newdemo.h, main/newmenu.c:
+	also look in shared data dir for demos
+
 	* main/newdemo.c, main/newdemo.h: comments/formatting
 
 2003-03-15  Christopher Thielen  <chris@luethy.net>

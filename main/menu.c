@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.21 2003-03-14 05:11:29 btb Exp $ */
+/* $Id: menu.c,v 1.22 2003-03-17 07:59:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -368,13 +368,12 @@ void do_option ( int select)
 		case MENU_GAME:
 			break;
 		case MENU_DEMO_PLAY:
-			{ 
-				char demo_file[16];
-				if (newmenu_get_filename( TXT_SELECT_DEMO, "demos/*.dem", demo_file, 1 ))     {
-					newdemo_start_playback(demo_file);
-				}
-			}
+		{
+			char demo_file[16];
+			if (newmenu_get_filename( TXT_SELECT_DEMO, DEMO_DIR "*.dem", demo_file, 1 ))
+				newdemo_start_playback(demo_file);
 			break;
+		}
 		case MENU_LOAD_GAME:
 			state_restore_all(0, 0, NULL);
 			break;

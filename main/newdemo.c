@@ -1,4 +1,4 @@
-/* $Id: newdemo.c,v 1.10 2003-03-17 07:10:21 btb Exp $ */
+/* $Id: newdemo.c,v 1.11 2003-03-17 07:59:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,6 +17,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Code to make a complete demo playback system.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.10  2003/03/17 07:10:21  btb
+ * comments/formatting
+ *
  * Revision 1.12  1995/10/31  10:19:43  allender
  * shareware stuff
  *
@@ -736,6 +739,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h> // for memset
 #include <errno.h>
 #include <ctype.h>      /* for isdigit */
+#include <limits.h>
 #ifdef __unix__
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -885,10 +889,8 @@ byte RenderingWasRecorded[32];
 
 #ifndef MACINTOSH
 #define DEMO_FILENAME           "demos/tmpdemo.dem"
-#define DEMO_DIR                "demos/"
 #else
 #define DEMO_FILENAME           ":Demos:tmpdemo.dem"
-#define DEMO_DIR                ":Demos:"
 #endif
 
 #define DEMO_MAX_LEVELS         29
@@ -3851,11 +3853,23 @@ int newdemo_count_demos()
 	FILEFINDSTRUCT find;
 	int NumFiles=0;
 
-	if( !FileFindFirst("demos/*.dem", &find ) ) {
+	if( !FileFindFirst( DEMO_DIR "*.dem", &find ) ) {
 		do {
 			NumFiles++;
 		} while( !FileFindNext( &find ) );
 		FileFindClose();
+	}
+
+	if ( AltHogdir_initialized ) {
+		char search_name[PATH_MAX + 5];
+		strcpy(search_name, AltHogDir);
+		strcat(search_name, "/" DEMO_DIR "*.dem");
+		if( !FileFindFirst( search_name, &find ) ) {
+			do {
+				NumFiles++;
+			} while( !FileFindNext( &find ) );
+			FileFindClose();
+		}
 	}
 
 	return NumFiles;
@@ -3865,7 +3879,7 @@ void newdemo_start_playback(char * filename)
 {
 	FILEFINDSTRUCT find;
 	int rnd_demo = 0;
-	char filename2[7+FILENAME_LEN] = DEMO_DIR;
+	char filename2[PATH_MAX+FILENAME_LEN] = DEMO_DIR;
 
 #ifdef NETWORK
 	change_playernum_to(0);
@@ -3885,7 +3899,7 @@ void newdemo_start_playback(char * filename)
 		}
 		RandFileNum = d_rand() % NumFiles;
 		NumFiles = 0;
-		if( !FileFindFirst( "demos/*.dem", &find ) ) {
+		if( !FileFindFirst( DEMO_DIR "*.dem", &find ) ) {
 			do {
 				if ( NumFiles==RandFileNum ) {
 					filename = (char *)&find.name;
@@ -3895,6 +3909,23 @@ void newdemo_start_playback(char * filename)
 			} while( !FileFindNext( &find ) );
 			FileFindClose();
 		}
+
+		if ( filename == NULL && AltHogdir_initialized ) {
+			char search_name[PATH_MAX + 5];
+			strcpy(search_name, AltHogDir);
+			strcat(search_name, "/" DEMO_DIR "*.dem");
+			if( !FileFindFirst( search_name, &find ) ) {
+				do {
+					if ( NumFiles==RandFileNum ) {
+						filename = (char *)&find.name;
+						break;
+					}
+					NumFiles++;
+				} while( !FileFindNext( &find ) );
+				FileFindClose();
+			}
+		}
+
 		if ( filename==NULL) return;
 	}
 
@@ -3904,6 +3935,14 @@ void newdemo_start_playback(char * filename)
 	strcat(filename2,filename);
 
 	infile = fopen( filename2, "rb" );
+
+	if (infile==NULL && AltHogdir_initialized) {
+		strcpy(filename2, AltHogDir);
+		strcat(filename2, "/" DEMO_DIR);
+		strcat(filename2, filename);
+		infile = fopen( filename2, "rb" );
+	}
+
 	if (infile==NULL) {
 		mprintf( (0, "Error reading '%s'\n", filename ));
 		return;

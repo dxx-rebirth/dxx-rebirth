@@ -1,4 +1,4 @@
-/* $Id: newdemo.h,v 1.2 2003-03-17 07:10:21 btb Exp $ */
+/* $Id: newdemo.h,v 1.3 2003-03-17 07:59:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -178,6 +178,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ND_STATE_ONEFRAMEFORWARD    6
 #define ND_STATE_ONEFRAMEBACKWARD   7
 #define ND_STATE_PRINTSCREEN        8
+
+#ifndef MACINTOSH
+#define DEMO_DIR                "demos/"
+#else
+#define DEMO_DIR                ":Demos:"
+#endif
 
 // Gives state of recorder
 extern int Newdemo_state;
