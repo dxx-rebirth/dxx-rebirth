@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.57 2003-03-19 23:20:09 btb Exp $ */
+/* $Id: inferno.c,v 1.58 2003-03-21 23:13:25 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -942,7 +942,7 @@ void print_commandline_help()
 	printf( "  -kali           %s\n","use Kali for networking");
 #endif
 //	printf( "  -logfile        %s\n","FIXME: Undocumented");
-//	printf( "  -lowresmovies   %s\n","FIXME: Undocumented");
+	printf( "  -lowresmovies   %s\n","Play low resolution movies if available (for slow machines)");
 #if defined(EDITOR) || !defined(MACDATA)
 	printf( "  -macdata        %s\n","Read (and, for editor, write) mac data files (swap colors)");
 #endif
@@ -1386,6 +1386,9 @@ int main(int argc,char **argv)
 #endif
 		//NOTE LINK TO ABOVE!
 		MenuHires = MenuHiresAvailable = 1;
+
+	if (FindArg( "-lowresmovies" ))
+		MovieHires = 0;
 
 	if ((t=gr_init())!=0)				//doesn't do much
 		Error(TXT_CANT_INIT_GFX,t);
