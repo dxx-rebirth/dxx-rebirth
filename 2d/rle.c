@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.13 2003-01-02 21:32:18 btb Exp $ */
+/* $Id: rle.c,v 1.14 2003-03-14 09:19:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -125,7 +125,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.13 2003-01-02 21:32:18 btb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.14 2003-03-14 09:19:48 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -142,6 +142,7 @@ static char rcsid[] = "$Id: rle.c,v 1.13 2003-01-02 21:32:18 btb Exp $";
 #include "error.h"
 //#include "key.h"
 #include "rle.h"
+#include "byteswap.h"
 
 #define RLE_CODE        0xE0
 #define NOT_RLE_CODE    31
@@ -1048,7 +1049,7 @@ void rle_swap_0_255(grs_bitmap *bmp)
 	for (i = 0; i < bmp->bm_h; i++) {
 		start = ptr2;
 		if (rle_big)
-			line_size = *((unsigned short *)&bmp->bm_data[4 + 2 * i]);
+			line_size = INTEL_SHORT(*((unsigned short *)&bmp->bm_data[4 + 2 * i]));
 		else
 			line_size = bmp->bm_data[4 + i];
 		for (j = 0; j < line_size; j++) {
@@ -1072,7 +1073,7 @@ void rle_swap_0_255(grs_bitmap *bmp)
 			}
 		}
 		if (rle_big)                // set line size
-			*((unsigned short *)&temp[4 + 2 * i]) = ptr2 - start;
+			*((unsigned short *)&temp[4 + 2 * i]) = INTEL_SHORT(ptr2 - start);
 		else
 			temp[4 + i] = ptr2 - start;
 		ptr += line_size;           // go to next line

@@ -1,5 +1,8 @@
 2003-03-14  Bradley Bell  <btb@icculus.org>
 
+	* 2d/rle.c (rle_swap_0_255): need to swap line_size on bigendian
+	machines
+
 	* main/mission.c, main/mission.h: detect mac full version hogfile
 
 2003-03-13  Bradley Bell  <btb@icculus.org>
