@@ -1,4 +1,7 @@
-2003-08-01  Martin Schaffner  <martin.schaffner@epfl.ch>
+2003-08-02  Martin Schaffner  <martin.schaffner@epfl.ch>
+
+	* main/endlevel.c, main/mission.c: handle missing exit sequence
+	components gracefully
 
 	* main/playsave.c: comments
 

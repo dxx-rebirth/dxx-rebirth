@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.21 2003-03-14 09:17:08 btb Exp $ */
+/* $Id: mission.c,v 1.22 2003-08-02 07:02:49 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -746,7 +746,7 @@ int load_mission(int mission_num)
 		// for Descent 1 missions, load descent.hog
 		if (Mission_list[mission_num].descent_version == 1 && strcmp(buf, "descent.hog"))
 			if (!cfile_use_descent1_hogfile("descent.hog"))
-				Warning("descent.hog not available, this mission may be missing some files required for briefings\n");
+				Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
 	}
 
 	//init vars

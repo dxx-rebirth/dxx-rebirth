@@ -1,4 +1,4 @@
-/* $Id: endlevel.c,v 1.15 2003-04-12 00:11:46 btb Exp $ */
+/* $Id: endlevel.c,v 1.16 2003-08-02 07:02:49 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.15 2003-04-12 00:11:46 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.16 2003-08-02 07:02:49 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -303,16 +303,14 @@ void start_endlevel_sequence()
 {
 	int	i;
 	int movie_played = MOVIE_NOT_PLAYED;
-	int inited = 0;
+	int inited;
 
-	if (!inited) {
-		if (Piggy_hamfile_version >= 3 &&
-			(Mission_list[Current_mission_num].descent_version == 1 ||
-			 Current_mission_num == Builtin_mission_num))
-			inited = load_exit_models();
-		else
-			inited = 1;
-	}
+	if ((Mission_list[Current_mission_num].descent_version == 1
+		|| Current_mission_num == Builtin_mission_num)
+		&& Piggy_hamfile_version >= 3)
+                inited = load_exit_models();
+	else
+		inited = 1;
 
 	if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 		Newdemo_state = ND_STATE_PAUSED;
@@ -1490,7 +1488,7 @@ try_again:
 		if (!ifile) {
 			if (level_num==1) {
 				con_printf(CON_DEBUG, "Cannot load file text of binary version of <%s>\n",filename);
-				endlevel_data_loaded = 0;
+				endlevel_data_loaded = 0; // won't be able to play endlevel sequence
 				return;
 			}
 			else {
@@ -1540,7 +1538,10 @@ try_again:
 
 				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
-					Error("File %s - IFF error: %s",p,iff_errormsg(iff_error));
+					Warning("Can't load exit terrain from file %s: IFF error: %s",
+                                                p, iff_errormsg(iff_error));
+					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
+					return;
 				}
 
 				terrain_bitmap = &terrain_bm_instance;
@@ -1575,8 +1576,10 @@ try_again:
 
 				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
-					mprintf((1, "File %s - IFF error: %s",p,iff_errormsg(iff_error)));
-					Error("File %s - IFF error: %s",p,iff_errormsg(iff_error));
+					Warning("Can't load exit satellite from file %s: IFF error: %s",
+                                                p, iff_errormsg(iff_error));
+					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
+					return;
 				}
 
 				satellite_bitmap = &satellite_bm_instance;
