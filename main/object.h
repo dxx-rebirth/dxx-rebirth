@@ -1,4 +1,4 @@
-/* $Id: object.h,v 1.5 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: object.h,v 1.6 2003-10-08 17:09:48 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -458,7 +458,7 @@ typedef struct object {
 	union {
 		physics_info phys_info; // a physics object
 		vms_vector   spin_rate; // for spinning objects
-	} __pack__ mtype;
+	} mtype __pack__ ;
 
 	// control info, determined by CONTROL_TYPE
 	union {
@@ -467,13 +467,13 @@ typedef struct object {
 		ai_static       ai_info;
 		light_info      light_info;     // why put this here?  Didn't know what else to do with it.
 		powerup_info    powerup_info;
-	} __pack__ ctype;
+	} ctype __pack__ ;
 
 	// render info, determined by RENDER_TYPE
 	union {
 		polyobj_info    pobj_info;      // polygon model
 		vclip_info      vclip_info;     // vclip
-	} __pack__ rtype;
+	} rtype __pack__ ;
 
 #ifdef WORDS_NEED_ALIGNMENT
 	short   pad2;

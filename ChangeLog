@@ -1,3 +1,8 @@
+2003-10-08
+
+	* main/object.h, main/multi.h: get rid of most warnings issued by
+	cpp-precomp of gcc from Mac OS X dev tools
+
 2003-10-05  Bradley Bell  <btb@icculus.org>
 
 	* NEWS, configure.ac: increment version number

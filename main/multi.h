@@ -1,4 +1,4 @@
-/* $Id: multi.h,v 1.10 2003-10-04 02:58:23 btb Exp $ */
+/* $Id: multi.h,v 1.11 2003-10-08 17:09:48 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -505,7 +505,7 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 
 #define NETGAME_NAME_LEN                15
 
-enum __pack__ comp_type {DOS,WIN_32,WIN_95,MAC};
+enum comp_type {DOS,WIN_32,WIN_95,MAC} __pack__ ;
 
 // sigh...the socket structure member was moved away from it's friends.
 // I'll have to create a union for appletalk network info with just
