@@ -1,4 +1,4 @@
-/* $Id: object.c,v 1.10 2004-05-15 17:16:34 schaffner Exp $ */
+/* $Id: object.c,v 1.11 2004-05-15 17:24:17 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2218,7 +2218,7 @@ void object_move_one( object * obj )
 	obj->last_pos = obj->pos;			// Save the current position
 
 	if ((obj->type==OBJ_PLAYER) && (Player_num==obj->id))	{
-		fix fuel;
+		fix fuel, shields;
 		
 #ifdef NETWORK
       if (Game_mode & GM_CAPTURE)
