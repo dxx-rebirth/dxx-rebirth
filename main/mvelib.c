@@ -1,5 +1,8 @@
 #include <string.h> // for mem* functions
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "mvelib.h"
 
@@ -12,13 +15,16 @@ static const short MVE_HDRCONST3 = 0x1133;
  * private utility functions
  */
 static short _mve_get_short(unsigned char *data);
+static unsigned short _mve_get_ushort(unsigned char *data);
 
 /*
  * private functions for mvefile
  */
 static MVEFILE *_mvefile_alloc(void);
 static void _mvefile_free(MVEFILE *movie);
-static int _mvefile_open(MVEFILE *movie, int filehandle);
+static void _mvefile_free_filehandle(MVEFILE *movie);
+static int _mvefile_open(MVEFILE *movie, const char *filename);
+static int _mvefile_open_filehandle(MVEFILE *movie, int filehandle);
 static int  _mvefile_read_header(MVEFILE *movie);
 static void _mvefile_set_buffer_size(MVEFILE *movie, int buf_size);
 static int _mvefile_fetch_next_chunk(MVEFILE *movie);
@@ -28,7 +34,9 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie);
  */
 static MVESTREAM *_mvestream_alloc(void);
 static void _mvestream_free(MVESTREAM *movie);
-static int _mvestream_open(MVESTREAM *movie, int filehandle);
+static void _mvestream_free_filehandle(MVESTREAM *movie);
+static int _mvestream_open(MVESTREAM *movie, const char *filename);
+static int _mvestream_open_filehandle(MVESTREAM *movie, int filehandle);
 
 /************************************************************
  * public MVEFILE functions
@@ -37,13 +45,13 @@ static int _mvestream_open(MVESTREAM *movie, int filehandle);
 /*
  * open an MVE file
  */
-MVEFILE *mvefile_open(filehandle)
+MVEFILE *mvefile_open(const char *filename)
 {
     MVEFILE *file;
 
     /* create the file */
     file = _mvefile_alloc();
-    if (! _mvefile_open(file, filehandle))
+    if (! _mvefile_open(file, filename))
     {
         _mvefile_free(file);
         return NULL;
@@ -65,12 +73,45 @@ MVEFILE *mvefile_open(filehandle)
     return file;
 }
 
+MVEFILE *mvefile_open_filehandle(int filehandle)
+{
+    MVEFILE *file;
+
+    /* create the file */
+    file = _mvefile_alloc();
+    if (! _mvefile_open_filehandle(file, filehandle))
+    {
+        _mvefile_free_filehandle(file);
+        return NULL;
+    }
+
+    /* initialize the file */
+    _mvefile_set_buffer_size(file, 1024);
+
+    /* verify the file's header */
+    if (! _mvefile_read_header(file))
+    {
+        _mvefile_free_filehandle(file);
+        return NULL;
+    }
+
+    /* now, prefetch the next chunk */
+    _mvefile_fetch_next_chunk(file);
+
+    return file;
+}
+
 /*
  * close a MVE file
  */
 void mvefile_close(MVEFILE *movie)
 {
     _mvefile_free(movie);
+}
+
+void mvefile_close_filehandle(MVEFILE *movie)
+{
+    _mvefile_free_filehandle(movie);
 }
 
 /*
@@ -157,7 +198,7 @@ void mvefile_advance_segment(MVEFILE *movie)
 
     /* else, advance to next segment */
     movie->next_segment +=
-        (4 + _mve_get_short(movie->cur_chunk + movie->next_segment));
+        (4 + _mve_get_ushort(movie->cur_chunk + movie->next_segment));
 }
 
 /*
@@ -175,7 +216,7 @@ int mvefile_fetch_next_chunk(MVEFILE *movie)
 /*
  * open an MVE stream
  */
-MVESTREAM *mve_open(int filehandle)
+MVESTREAM *mve_open(const char *filename)
 {
     MVESTREAM *movie;
 
@@ -183,9 +224,26 @@ MVESTREAM *mve_open(int filehandle)
     movie = _mvestream_alloc();
 
     /* open */
-    if (! _mvestream_open(movie, filehandle))
+    if (! _mvestream_open(movie, filename))
     {
         _mvestream_free(movie);
+        return NULL;
+    }
+
+    return movie;
+}
+
+MVESTREAM *mve_open_filehandle(int filehandle)
+{
+    MVESTREAM *movie;
+
+    /* allocate */
+    movie = _mvestream_alloc();
+
+    /* open */
+    if (! _mvestream_open_filehandle(movie, filehandle))
+    {
+        _mvestream_free_filehandle(movie);
         return NULL;
     }
 
@@ -198,6 +256,11 @@ MVESTREAM *mve_open(int filehandle)
 void mve_close(MVESTREAM *movie)
 {
     _mvestream_free(movie);
+}
+
+void mve_close_filehandle(MVESTREAM *movie)
+{
+    _mvestream_free_filehandle(movie);
 }
 
 /*
@@ -263,7 +326,7 @@ int mve_play_next_chunk(MVESTREAM *movie)
 static MVEFILE *_mvefile_alloc(void)
 {
     MVEFILE *file = (MVEFILE *)malloc(sizeof(MVEFILE));
-    file->stream = 0;
+    file->stream = -1;
     file->cur_chunk = NULL;
     file->buf_size = 0;
     file->cur_fill = 0;
@@ -278,7 +341,28 @@ static MVEFILE *_mvefile_alloc(void)
 static void _mvefile_free(MVEFILE *movie)
 {
     /* free the stream */
-    movie->stream = 0;
+    if (movie->stream != -1)
+        close(movie->stream);
+    movie->stream = -1;
+
+    /* free the buffer */
+    if (movie->cur_chunk)
+        free(movie->cur_chunk);
+    movie->cur_chunk = NULL;
+
+    /* not strictly necessary */
+    movie->buf_size = 0;
+    movie->cur_fill = 0;
+    movie->next_segment = 0;
+
+    /* free the struct */
+    free(movie);
+}
+
+static void _mvefile_free_filehandle(MVEFILE *movie)
+{
+    /* free the stream */
+	movie->stream = -1;
 
     /* free the buffer */
     if (movie->cur_chunk)
@@ -297,9 +381,20 @@ static void _mvefile_free(MVEFILE *movie)
 /*
  * open the file stream in thie object
  */
-static int _mvefile_open(MVEFILE *file, int filehandle)
+static int _mvefile_open(MVEFILE *file, const char *filename)
+{
+    file->stream = open(filename, O_RDONLY);
+    if (file->stream == -1)
+        return 0;
+
+    return 1;
+}
+
+static int _mvefile_open_filehandle(MVEFILE *file, int filehandle)
 {
     file->stream = filehandle;
+    if (file->stream == -1)
+        return 0;
 
     return 1;
 }
@@ -312,7 +407,7 @@ static int _mvefile_read_header(MVEFILE *movie)
     unsigned char buffer[26];
 
     /* check the file is open */
-    if (movie->stream == 0)
+    if (movie->stream == -1)
         return 0;
 
     /* check the file is long enough */
@@ -345,7 +440,7 @@ static void _mvefile_set_buffer_size(MVEFILE *movie, int buf_size)
 
     /* allocate new buffer */
     new_len = 100 + buf_size;
-    new_buffer = malloc(new_len);
+    new_buffer = (unsigned char *)malloc(new_len);
 
     /* copy old data */
     if (movie->cur_chunk  &&  movie->cur_fill)
@@ -369,7 +464,7 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie)
     unsigned short length;
 
     /* fail if not open */
-    if (movie->stream == 0)
+    if (movie->stream == -1)
         return 0;
 
     /* fail if we can't read the next segment descriptor */
@@ -394,6 +489,13 @@ static int _mvefile_fetch_next_chunk(MVEFILE *movie)
 static short _mve_get_short(unsigned char *data)
 {
     short value;
+    value = data[0] | (data[1] << 8);
+    return value;
+}
+
+static unsigned short _mve_get_ushort(unsigned char *data)
+{
+    unsigned short value;
     value = data[0] | (data[1] << 8);
     return value;
 }
@@ -429,12 +531,31 @@ static void _mvestream_free(MVESTREAM *movie)
     memset(movie->handlers, 0, sizeof(movie->handlers));
 }
 
+static void _mvestream_free_filehandle(MVESTREAM *movie)
+{
+    /* close MVEFILE */
+    if (movie->movie)
+        mvefile_close_filehandle(movie->movie);
+    movie->movie = NULL;
+
+    /* clear context and handlers */
+    movie->context = NULL;
+    memset(movie->handlers, 0, sizeof(movie->handlers));
+}
+
 /*
  * open an MVESTREAM object
  */
-static int _mvestream_open(MVESTREAM *movie, int filehandle)
+static int _mvestream_open(MVESTREAM *movie, const char *filename)
 {
-    movie->movie = mvefile_open(filehandle);
+    movie->movie = mvefile_open(filename);
+
+    return (movie->movie == NULL) ? 0 : 1;
+}
+
+static int _mvestream_open_filehandle(MVESTREAM *movie, int filehandle)
+{
+    movie->movie = mvefile_open_filehandle(filehandle);
 
     return (movie->movie == NULL) ? 0 : 1;
 }

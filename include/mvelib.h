@@ -19,12 +19,14 @@ typedef struct MVEFILE
 /*
  * open a .MVE file
  */
-MVEFILE *mvefile_open(int filehandle);
+MVEFILE *mvefile_open(const char *filename);
+MVEFILE *mvefile_open_filehandle(int filehandle);
 
 /*
  * close a .MVE file
  */
 void mvefile_close(MVEFILE *movie);
+void mvefile_close_filehandle(MVEFILE *movie);
 
 /*
  * get size of next segment in chunk (-1 if no more segments in chunk)
@@ -75,12 +77,14 @@ typedef struct MVESTREAM
 /*
  * open an MVE stream
  */
-MVESTREAM *mve_open(int filehandle);
+MVESTREAM *mve_open(const char *filename);
+MVESTREAM *mve_open_filehandle(int filehandle);
 
 /*
  * close an MVE stream
  */
 void mve_close(MVESTREAM *movie);
+void mve_close_filehandle(MVESTREAM *movie);
 
 /*
  * set segment type handler

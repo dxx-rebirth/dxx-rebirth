@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.14 2003-01-09 00:57:42 btb Exp $ */
+/* $Id: movie.c,v 1.15 2003-02-12 08:58:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.14 2003-01-09 00:57:42 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.15 2003-02-12 08:58:38 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -282,7 +282,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	FontHires = FontHiresAvailable && hires_flag;
 
-    mve = mve_open(filehndl);
+    mve = mve_open_filehandle(filehndl);
 
 	mve_bitmap = gr_create_bitmap(w, h); // w, h must match the mve exactly!
 
@@ -364,7 +364,7 @@ int RotateRobot()
 		mveplay_shutdownMovie(Robo_mve);
 		mve_close(Robo_mve);
 		lseek(RoboFile, Robo_filepos, SEEK_SET);
-		Robo_mve = mve_open(RoboFile);
+		Robo_mve = mve_open_filehandle(RoboFile);
 		mveplay_initializeMovie(Robo_mve, Robo_bitmap);
 	}
 
@@ -394,7 +394,7 @@ int InitRobotMovie(char *filename)
 
 	Robo_filepos = lseek(RoboFile, 0, SEEK_CUR);
 
-	Robo_mve = mve_open(RoboFile);
+	Robo_mve = mve_open_filehandle(RoboFile);
 
 	Robo_bitmap = gr_create_bitmap(MenuHires?320:160, MenuHires?200:88);
 
