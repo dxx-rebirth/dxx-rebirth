@@ -13,22 +13,28 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  * $Author: bradleyb $
- * $Date: 2001-10-19 00:31:51 $
+ * $Date: 2001-10-19 08:08:50 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.8  2001/10/19 00:31:51  bradleyb
+ * Trying to get network working on win32
+ *
  * Revision 1.7  2001/10/18 00:01:01  bradleyb
  * RCS headers added/changed
  *
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPORATION";
 
-#include <conf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
