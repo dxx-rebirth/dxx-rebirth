@@ -1,3 +1,7 @@
+2003-02-26  Bradley Bell  <bradleyb@smeagol>
+
+	* main/gamemine.c: load d1 shareware levels!
+
 2003-02-25  Bradley Bell  <btb@icculus.org>
 
 	* TODO: update

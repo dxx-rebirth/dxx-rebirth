@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.16 2003-01-15 02:47:19 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.17 2003-02-26 10:20:34 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -986,6 +986,8 @@ int load_mine_data(CFILE *LoadFile)
 
 #define COMPILED_MINE_VERSION 0
 
+int	New_file_format_load = 1;
+
 void read_children(int segnum,ubyte bit_mask,CFILE *LoadFile)
 {
 	int bit;
@@ -1030,6 +1032,9 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	ushort  temp_ushort;
 	ubyte   bit_mask;
 
+	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
+		New_file_format_load = 0; // descent 1 shareware
+
 	//	For compiled levels, textures map to themselves, prevent tmap_override always being gray,
 	//	bug which Matt and John refused to acknowledge, so here is Mike, fixing it.
 #ifdef EDITOR
@@ -1046,19 +1051,17 @@ int load_mine_data_compiled(CFILE *LoadFile)
  	if (compiled_version!=COMPILED_MINE_VERSION)
 		mprintf((0,"compiled mine version=%i\n", compiled_version)); //many levels have "wrong" versions.  Theres no point in aborting because of it, I think.
 
-	Num_vertices = cfile_read_short(LoadFile);
+	if (New_file_format_load)
+		Num_vertices = cfile_read_short(LoadFile);
+	else
+		Num_vertices = cfile_read_int(LoadFile);
 	Assert( Num_vertices <= MAX_VERTICES );
 
-	// skip two bytes for shareware D1 levels
-	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
-		cfseek(LoadFile, 2, SEEK_CUR);
-
-	Num_segments = cfile_read_short(LoadFile);
+	if (New_file_format_load)
+		Num_segments = cfile_read_short(LoadFile);
+	else
+		Num_segments = cfile_read_int(LoadFile);
 	Assert( Num_segments <= MAX_SEGMENTS );
-
-	// skip two bytes for shareware D1 levels
-	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
-		cfseek(LoadFile, 2, SEEK_CUR);
 
 	for (i = 0; i < Num_vertices; i++)
 		cfile_read_vector( &(Vertices[i]), LoadFile);
@@ -1070,7 +1073,10 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		Segments[segnum].group = 0;
 		#endif
 
- 		bit_mask = cfile_read_byte(LoadFile);
+		if (New_file_format_load)
+			bit_mask = cfile_read_byte(LoadFile);
+		else
+			bit_mask = 0x7f; // read all six children and special stuff...
 
 		if (Gamesave_current_version == 5) { // d2 SHAREWARE level
 			read_special(segnum,bit_mask,LoadFile);
@@ -1098,7 +1104,10 @@ int load_mine_data_compiled(CFILE *LoadFile)
 			Segments[segnum].sides[sidenum].pad = 0;
 		}
 
- 		bit_mask = cfile_read_byte(LoadFile);
+		if (New_file_format_load)
+			bit_mask = cfile_read_byte(LoadFile);
+		else
+			bit_mask = 0x3f; // read all six sides
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			ubyte byte_wallnum;
 
@@ -1116,14 +1125,16 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
-				temp_ushort = cfile_read_short(LoadFile);
-				Segments[segnum].sides[sidenum].tmap_num = temp_ushort & 0x7fff;
-
+				if (New_file_format_load) {
+					temp_ushort = cfile_read_short(LoadFile);
+					Segments[segnum].sides[sidenum].tmap_num = temp_ushort & 0x7fff;
+				} else
+					Segments[segnum].sides[sidenum].tmap_num = cfile_read_short(LoadFile);
 
 				if (Gamesave_current_version <= 1)
 				  Segments[segnum].sides[sidenum].tmap_num = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num);
 
-				if (!(temp_ushort & 0x8000))
+				if (New_file_format_load && !(temp_ushort & 0x8000))
 					Segments[segnum].sides[sidenum].tmap_num2 = 0;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
