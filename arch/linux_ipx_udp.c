@@ -1,4 +1,10 @@
-/* IPX driver for native Linux TCP/IP networking (UDP implementation)
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/linux_ipx_udp.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:35:08 $
+ *
+ * IPX driver for native Linux TCP/IP networking (UDP implementation)
  *   Version 0.99.2
  * Contact Jan [Lace] Kratochvil <short@ucw.cz> for assistance
  * (no "It somehow doesn't work! What should I do?" complaints, please)
@@ -56,11 +62,14 @@
  * ./d1x -udp +UPPER_DISTANT_MACHINE_NAME
  *
  * Have fun!
+ *
+ * $Log: not supported by cvs2svn $
  */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_LINUX__
-#ifdef NETWORK
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <netinet/in.h> /* for htons & co. */
@@ -589,5 +598,3 @@ struct ipx_driver ipx_udp = {
 	ipx_udp_ReceivePacket,
 	ipx_general_PacketReady
 };
-#endif // NETWORK
-#endif // __ENV_LINUX__

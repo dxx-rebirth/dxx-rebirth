@@ -1,13 +1,24 @@
-SUBDIRS = include dos linux ogl sdl win32
+SUBDIRS = include dos linux ogl win32
 
 noinst_LIBRARIES = libarch.a
 INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(top_srcdir)/arch/include
 
-libarch_a_SOURCES = \
-dos_init.c dos_vesa.c dos_findfile.c dos_dpmi.c dos_ipx.c \
-linux_init.c linux_findfile.c linux_net.c linux_ipx_bsd.c \
-linux_ipx_lin.c linux_ipx_udp.c \
-sdl_init.c sdl_timer.c
+if ENV_DJGPP
+libarch_a_SOURCES = dos_init.c dos_vesa.c dos_findfile.c dos_dpmi.c dos_ipx.c
+else
+if USE_NETWORK
+libarch_a_SOURCES = linux_init.c linux_findfile.c sdl_init.c sdl_timer.c \
+	linux_ipx_bsd.c linux_ipx_lin.c linux_ipx_udp.c linux_net.c
+else
+libarch_a_SOURCES = linux_init.c linux_findfile.c sdl_init.c sdl_timer.c
+endif
+endif
+
+EXTRA_libarch_a_SOURCES = \
+	dos_init.c dos_vesa.c dos_findfile.c dos_dpmi.c dos_ipx.c \
+	linux_init.c linux_findfile.c \
+	linux_net.c linux_ipx_bsd.c linux_ipx_lin.c linux_ipx_udp.c \
+	sdl_init.c sdl_timer.c
 
 SUFFIXES = .asm
 %.o: %.asm

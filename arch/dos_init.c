@@ -1,5 +1,17 @@
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/dos_init.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:35:08 $
+ *
+ * Dos initialization
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_DJGPP__
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -366,5 +378,3 @@ void arch_init() {
         div0_init(DM_ERROR);
         #endif
 }
-
-#endif // __ENV_DJGPP__

@@ -1,3 +1,15 @@
+;
+; $Source: /cvs/cvsroot/d2x/arch/dos_timer.asm,v $
+; $Revision: 1.2 $
+; $Author: bradleyb $
+; $Date: 2001-01-29 13:35:08 $
+;
+; DOS timer routines
+;
+; $Log: not supported by cvs2svn $
+;
+
+
 [BITS 32]
 
 [EXTERN _atexit]

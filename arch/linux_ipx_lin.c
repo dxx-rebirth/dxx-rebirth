@@ -1,8 +1,18 @@
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/linux_ipx_lin.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:35:08 $
+ *
+ * Linux IPX
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
 
-#ifdef __ENV_LINUX__
-
-#ifdef NETWORK
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -214,5 +224,3 @@ int ipx_linux_ReceivePacket(ipx_socket_t *s, char *buffer, int bufsize,
   
 	return size;
 }
-#endif // NETWORK
-#endif // __ENV_LINUX__

@@ -11,9 +11,20 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/dos_dpmi.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:35:08 $
+ *
+ * Dos DPMI
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_DJGPP__
+#endif
 
 #ifdef __DJGPP__
 #define _BORLAND_DOS_REGS 1
@@ -394,5 +405,3 @@ int dpmi_set_pm_handler(unsigned intnum, void far * isr )
 		return 0;
 	return 1;
 }
-
-#endif // __ENV_DJGPP__

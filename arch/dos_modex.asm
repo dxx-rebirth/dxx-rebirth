@@ -10,13 +10,16 @@
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
 ; $Source: /cvs/cvsroot/d2x/arch/dos_modex.asm,v $
-; $Revision: 1.1.1.1 $
+; $Revision: 1.2 $
 ; $Author: bradleyb $
-; $Date: 2001-01-19 03:33:51 $
+; $Date: 2001-01-29 13:35:08 $
 ;
 ; Routines to access ModeX VGA memory
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.1.1.1  2001/01/19 03:30:15  bradleyb
+; Import of d2x-0.0.8
+;
 ; Revision 1.1.1.1  1999/06/14 21:57:56  donut
 ; Import of d1x 1.37 source.
 ;
@@ -79,8 +82,8 @@
 [BITS 32]
 
 section .data
-%include "dos_vgaregs.inc"
-%include "dos_tweak.inc"
+%include "vgaregs.inc"
+%include "tweak.inc"
 
 extern _gr_var_bwidth
 extern _gr_video_memory

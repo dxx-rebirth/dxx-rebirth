@@ -1,8 +1,18 @@
-/* IPX driver using BSD style sockets */
-/* Mostly taken from dosemu */
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/linux_ipx_bsd.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:35:08 $
+ *
+ * IPX driver using BSD style sockets
+ * Mostly taken from dosemu
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_LINUX__
-#ifdef NETWORK
+#endif
 
 #include <stdio.h>
 #include <sys/types.h>
@@ -226,5 +236,3 @@ struct ipx_driver ipx_bsd = {
 	ipx_bsd_ReceivePacket,
 	ipx_general_PacketReady
 };
-#endif // NETWORK
-#endif // __ENV_LINUX__

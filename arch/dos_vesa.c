@@ -1,6 +1,17 @@
-#include <conf.h>
-#ifdef __ENV_DJGPP__
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/dos_vesa.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:35:08 $
+ *
+ * Dos VESA
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <string.h>
 #include "gr.h"
@@ -135,6 +146,3 @@ void gr_vesa_pixel(unsigned char color, unsigned int addr) {
     gr_vesa_setpage(addr >> 16);
     gr_video_memory[addr & 0xffff] = color;
 }
-
-
-#endif // __ENV_DJGPP__

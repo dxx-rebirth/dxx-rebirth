@@ -10,10 +10,22 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-#include <conf.h>
 
-#ifdef __ENV_LINUX__
-#ifdef NETWORK
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/linux_net.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:35:09 $
+ *
+ * Linux net
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -364,5 +376,3 @@ void ipx_read_network_file(char * filename)
 	}
 	fclose(fp);
 }
-#endif //NETWORK
-#endif // __ENV_LINUX__

@@ -1,5 +1,17 @@
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/linux_findfile.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:35:08 $
+ *
+ * Linux findfile functions
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_LINUX__
+#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -53,6 +65,3 @@ int FileFindClose(void)
  globfree(&glob_a);
  return 0;
 }
-
-
-#endif // __ENV_LINUX__

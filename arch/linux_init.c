@@ -1,6 +1,17 @@
-// linux init.c - added Matt Mueller 9/6/98
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/linux_init.c,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:35:08 $
+ *
+ * linux init.c - added Matt Mueller 9/6/98
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_LINUX__
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -46,6 +57,3 @@ void arch_init()
 	//end addition -MM
     key_init();
 }
-
-
-#endif // __ENV_LINUX__

@@ -11,9 +11,20 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/dos_findfile.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:35:08 $
+ *
+ * Dos findfile functions
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_DJGPP__
+#endif
 
 #include <dos.h>
 #include <string.h>
@@ -90,6 +101,3 @@ int SetFileDateTime(int filehandle, FILETIMESTRUCT *ftstruct)
 {
 	return _dos_setftime(filehandle, ftstruct->date, ftstruct->time);
 }
-
-
-#endif //__ENV_DJGPP__
