@@ -57,6 +57,8 @@ esac
 AM_CONDITIONAL(MINGW32, test x$MINGW32 = xyes)
 if test x$MINGW32 = xyes; then
     GL_LIBS="opengl32 glu32"
+elif test x$MACOSX = xyes; then
+	GL_LIBS=""
 else
     GL_LIBS="GL GLU"
 fi
@@ -146,7 +148,6 @@ else
   # Check for OpenGL
   AC_ARG_WITH(opengl,
     [  --with-opengl           Build OpenGL support ],,)
-    if test x$with_opengl = xyes -a x$MACOSX != xyes; then
     for lib in $GL_LIBS; do
       AC_CHECK_LIB($lib, main,
         OGL_LIBS="${OGL_LIBS} -l$lib",
@@ -154,11 +155,10 @@ else
         opengl=false],
         ${OGL_LIBS}
       )
-      done
-      AC_DEFINE(OGL,,[Define if you want an OpenGL build])
-      TARGETS=d2x-gl
-      D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
-    fi
+    done
+    AC_DEFINE(OGL,,[Define if you want an OpenGL build])
+    TARGETS=d2x-gl
+    D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
     AC_SUBST(OGL_LIBS)
     AM_CONDITIONAL(USE_OPENGL, test x$with_opengl = xyes)
 

@@ -50,6 +50,7 @@
 #include "ogl_init.h"
 #ifdef __MACOSX__
 #include <OpenGL/glu.h>
+#undef GL_ARB_multitexture // hack!
 #else
 #include <GL/glu.h>
 #endif

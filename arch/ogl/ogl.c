@@ -55,7 +55,7 @@
 #define M_PI 3.14159
 #endif
 
-#if defined(__WINDOWS__) || defined(__MINGW32__)
+#if defined(__WINDOWS__) || defined(__MINGW32__) || defined(__MACOSX__)
 #define cosf(a) cos(a)
 #define sinf(a) sin(a)
 #endif
@@ -895,6 +895,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 
 	return 0;
 }
+
 bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c)
 {
 	GLfloat xo,yo,xf,yf;
@@ -1215,7 +1216,7 @@ int tex_format_supported(int iformat,int format){
 			if (!ogl_rgba2_ok) return 0; break;
 	}
 	if (ogl_gettexlevelparam_ok){
-		int internalFormat;
+		GLint internalFormat;
 		glTexImage2D(GL_PROXY_TEXTURE_2D, 0, iformat, 64, 64, 0,
 				format, GL_UNSIGNED_BYTE, texbuf);//NULL?
 		glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0,
@@ -1337,9 +1338,10 @@ void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
 	glmprintf((0,"tex_set_size1: %ix%i, %ib(%i) %iB\n",w,h,bits,dbits,tex->bytes));
 }
 void tex_set_size(ogl_texture *tex){
-	int w,h,bi=16,a=0;
+	GLint w,h;
+	int bi=16,a=0;
 	if (ogl_gettexlevelparam_ok){
-		int t;
+		GLint t;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&w);
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&h);
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_LUMINANCE_SIZE,&t);a+=t;

@@ -41,7 +41,7 @@ int ogl_init_load_library(void);
 #define OGL_TEXTURE_LIST_SIZE 2000
 
 typedef struct _ogl_texture {
-	int handle;
+	GLuint handle;
 	GLint internalformat;
 	GLenum format;
 	int w,h,tw,th,lw;
