@@ -12,13 +12,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /* $Source: /cvs/cvsroot/d2x/2d/font.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  * $Author: bradleyb $
- * $Date: 2001-11-04 03:58:25 $
+ * $Date: 2001-11-08 10:37:25 $
  *
  * Graphical routines for drawing fonts.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.8  2001/11/04 03:58:25  bradleyb
+ * re-init ogl fonts after remapping colors.
+ *
  * Revision 1.7  2001/11/02 10:46:23  bradleyb
  * fixed gr_remap_font, minor stuff
  *
@@ -1824,6 +1827,11 @@ void gr_remap_font( grs_font *font, char * fontname )
 	cfclose(fontfile);
 
 #ifdef OGL
+	if (font->ft_bitmaps)
+		d_free( font->ft_bitmaps );
+	gr_free_bitmap_data(&font->ft_parent_bitmap);
+//	ogl_freebmtexture(&font->ft_parent_bitmap);
+
 	ogl_init_font(font);
 #endif
 }
