@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: collide.c,v 1.5 2001-10-12 06:40:49 bradleyb Exp $";
+static char rcsid[] = "$Id: collide.c,v 1.6 2001-10-17 23:43:03 bradleyb Exp $";
 #endif
 
 #include <string.h>	// for memset
@@ -1363,12 +1363,13 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
 	//	Also invulnerable if his cheat for firing weapons is in effect.
-	if (Robot_info[robot->id].companion)
+	if (Robot_info[robot->id].companion) {
 //		if ((Current_mission_num == 0 && Current_level_num == Last_level) || Buddy_dude_cheat)
 #ifdef NETWORK
 		if ((Current_mission_num == 0 && Current_level_num == Last_level) )
 			return 0;
 #endif
+	}
 
 //	if (robot->control_type == CT_REMOTE)
 //		return 0; // Can't damange a robot controlled by another player
