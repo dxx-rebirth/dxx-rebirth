@@ -1,4 +1,4 @@
-/* $Id: newdemo.c,v 1.19 2005-01-23 14:38:04 schaffner Exp $ */
+/* $Id: newdemo.c,v 1.20 2005-02-25 05:20:36 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2958,7 +2958,7 @@ void newdemo_start_recording()
 	Newdemo_num_written = 0;
 	Newdemo_no_space=0;
 	Newdemo_state = ND_STATE_RECORDING;
-	outfile = cfopen(DEMO_FILENAME, "wb");
+	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 
 #if !defined(MACINTOSH) && !defined(_WIN32_WCE)
 	if (outfile == NULL && errno == ENOENT) {   //dir doesn't exist?
@@ -2966,7 +2966,7 @@ void newdemo_start_recording()
 	if (outfile == NULL) {                      //dir doesn't exist and no errno on mac!
 #endif
 		PHYSFS_mkdir(DEMO_DIR); //try making directory
-		outfile = cfopen(DEMO_FILENAME, "wb");
+		outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 	}
 
 	if (outfile == NULL)
@@ -3196,7 +3196,7 @@ void newdemo_start_playback(char * filename)
 			return;
 	}
 
-	infile = cfopen(filename2, "rb");
+	infile = PHYSFSX_openReadBuffered(filename2);
 
 	if (infile==NULL) {
 		mprintf( (0, "Error reading '%s'\n", filename ));
@@ -3260,7 +3260,7 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 
 	bytes_done = 0;
 	total_size = PHYSFS_fileLength(infile);
-	outfile = PHYSFS_openWrite(outname);
+	outfile = PHYSFSX_openWriteBuffered(outname);
 	if (outfile == NULL) {
 		newmenu_item m[1];
 

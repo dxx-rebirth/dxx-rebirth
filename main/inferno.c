@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.96 2004-12-20 06:48:06 btb Exp $ */
+/* $Id: inferno.c,v 1.97 2005-02-25 05:20:36 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -980,7 +980,7 @@ int main(int argc, char *argv[])
 								"enemyorb.raw","enemyorb.r22",	//SOUND_OPPONENT_GOT_ORB	
 								"OPSCORE1.raw","OPSCORE1.r22"};	//SOUND_OPPONENT_HAS_SCORED
 
-		ofile = PHYSFS_openWrite("hoard.ham");
+		ofile = PHYSFSX_openWriteBuffered("hoard.ham");
 
 	   iff_error = iff_read_animbrush("orb.abm",bm,MAX_BITMAPS_PER_BRUSH,&nframes,palette);
 		Assert(iff_error == IFF_NO_ERROR);

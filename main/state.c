@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.22 2005-02-25 03:58:32 chris Exp $ */
+/* $Id: state.c,v 1.23 2005-02-25 05:20:36 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -256,7 +256,7 @@ int state_get_save_file(char * fname, char * dsc, int multi, int blind_save)
 			sprintf( filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i );
 			#endif
 		valid = 0;
-		fp = PHYSFS_openRead(filename[i]);
+		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
 			//Read id
 			//FIXME: check for swapped file, react accordingly...
@@ -333,7 +333,7 @@ int state_get_restore_file(char * fname, int multi)
 			sprintf( filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i );
 			#endif
 		valid = 0;
-		fp = PHYSFS_openRead(filename[i]);
+		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
 			//Read id
 			//FIXME: check for swapped file, react accordingly...
@@ -569,7 +569,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 	if (!filename_override) {
 		PHYSFS_file *tfp;
 
-		tfp = PHYSFS_openWrite(filename);
+		tfp = PHYSFSX_openWriteBuffered(filename);
 
 		if ( tfp ) {
 			char	newname[128];
@@ -622,7 +622,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		Int3();
 	#endif
 
-	fp = PHYSFS_openWrite(filename);
+	fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
 		if ( !(Game_mode & GM_MULTI) )
 			nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
@@ -1090,7 +1090,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 		Int3();
 	#endif
 
-	fp = cfopen(filename, "rb");
+	fp = PHYSFSX_openReadBuffered(filename);
 	if ( !fp ) return 0;
 
 //Read id

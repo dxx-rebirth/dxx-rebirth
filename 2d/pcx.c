@@ -1,4 +1,4 @@
-/* $Id: pcx.c,v 1.10 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: pcx.c,v 1.11 2005-02-25 05:20:36 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -349,7 +349,7 @@ int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 	header.Ymax = bmp->bm_h-1;
 	header.BytesPerLine = bmp->bm_w;
 
-	PCXfile = PHYSFS_openWrite(filename);
+	PCXfile = PHYSFSX_openWriteBuffered(filename);
 	if ( !PCXfile )
 		return PCX_ERROR_OPENING;
 

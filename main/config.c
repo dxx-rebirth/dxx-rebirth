@@ -1,4 +1,4 @@
-/* $Id: config.c,v 1.15 2005-01-23 14:38:04 schaffner Exp $ */
+/* $Id: config.c,v 1.16 2005-02-25 05:20:36 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -59,7 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.15 2005-01-23 14:38:04 schaffner Exp $";
+static char rcsid[] = "$Id: config.c,v 1.16 2005-02-25 05:20:36 chris Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -237,7 +237,7 @@ int ReadConfigFile()
 	SaveMovieHires = MovieHires;
 	save_redbook_enabled = Redbook_enabled;
 
-	infile = cfopen("descent.cfg", "rb");
+	infile = PHYSFSX_openReadBuffered("descent.cfg");
 	if (infile == NULL) {
 		WIN(CheckMovieAttributes());
 		return 1;
@@ -413,7 +413,7 @@ int ReadConfigFile()
 	} else
 		digi_driver_board		= digi_driver_board;
 #else
-	infile = cfopen("descentw.cfg", "rb");
+	infile = PHYSFSX_openReadBuffered("descentw.cfg");
 	if (infile) {
 		while (!PHYSFS_eof(infile))
 		{
@@ -463,7 +463,7 @@ int WriteConfigFile()
    }
 #endif
 
-	infile = cfopen("descent.cfg", "wb");
+	infile = PHYSFSX_openWriteBuffered("descent.cfg");
 	if (infile == NULL) {
 		return 1;
 	}
@@ -532,7 +532,7 @@ int WriteConfigFile()
 
 	joy_get_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
 	
-	infile = cfopen("descentw.cfg", "wt");
+	infile = PHYSFSX_openWriteBuffered("descentw.cfg");
 	if (infile == NULL) return 1;
 
 	sprintf(str, "%s=%d,%d,%d,%d,%d,%d,%d\n", joystick_min_str,
@@ -589,7 +589,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.15 2005-01-23 14:38:04 schaffner Exp $";
+static char rcsid[] = "$Id: config.c,v 1.16 2005-02-25 05:20:36 chris Exp $";
 #endif
 
 #define MAX_CTB_LEN	512
