@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.12 2002-09-01 02:49:06 btb Exp $ */
+/* $Id: movie.c,v 1.13 2002-09-04 08:13:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.12 2002-09-01 02:49:06 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.13 2002-09-04 08:13:59 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -288,7 +288,9 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	mveplay_initializeMovie(mve, mve_bitmap);
 
-	while((result = mveplay_stepMovie(mve))) {
+	while(result) {
+
+		result = mveplay_stepMovie(mve);
 
 		gr_bitmap(x, y, mve_bitmap);
 
@@ -296,19 +298,24 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 		key = key_inkey();
 
-		// If ESCAPE pressed, then quit movie.
-		if (key == KEY_ESC) {
+		switch (key) {
+		case KEY_ESC:
+			// If ESCAPE pressed, then quit movie.
 			result = 0;
 			aborted = 1;
 			break;
-		}
-
-		// If PAUSE pressed, then pause movie
-		if (key == KEY_PAUSE) {
+		case KEY_PAUSE:
+			// If PAUSE pressed, then pause movie
 			show_pause_message(TXT_PAUSE);
 			while (!key_inkey()) ;
 			mveplay_restartTimer(mve);
 			clear_pause_message();
+			break;
+		case KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER:
+		case KEY_ALTED+KEY_CTRLED+KEY_PADENTER:
+		case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER:
+			gr_toggle_fullscreen();
+			break;
 		}
 
 		frame_num++;
