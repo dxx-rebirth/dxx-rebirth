@@ -1,4 +1,4 @@
-/* $Id: centers.c,v 1.4 2004-12-24 05:17:09 btb Exp $ */
+/* $Id: centers.c,v 1.5 2004-12-24 05:55:56 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: centers.c,v 1.4 2004-12-24 05:17:09 btb Exp $";
+static char rcsid[] = "$Id: centers.c,v 1.5 2004-12-24 05:55:56 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -64,7 +64,7 @@ static char rcsid[] = "$Id: centers.c,v 1.4 2004-12-24 05:17:09 btb Exp $";
 static UI_WINDOW 				*MainWindow = NULL;
 static UI_GADGET_BUTTON 	*QuitButton;
 static UI_GADGET_RADIO		*CenterFlag[MAX_CENTER_TYPES];
-static UI_GADGET_CHECKBOX	*RobotMatFlag[MAX_ROBOT_TYPES];
+static UI_GADGET_CHECKBOX	*RobotMatFlag[64];	// 2 ints = 64 bits
 
 static int old_seg_num;
 
@@ -104,8 +104,8 @@ int do_centers_dialog()
 	CenterFlag[3] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "ControlCen" );	i += 24;
 	CenterFlag[4] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RobotCen" );		i += 24;
 
-	// These are the checkboxes for each door flag.
-	for (i=0; i<N_robot_types; i++)
+	// These are the checkboxes for each robot flag.
+	for (i=0; i < 64; i++)
 		RobotMatFlag[i] = ui_add_gadget_checkbox( MainWindow, 128 + (i%2)*92, 20+(i/2)*24, 16, 16, 0, Robot_names[i]);
 																									  
 	old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
@@ -124,8 +124,9 @@ void close_centers_window()
 void do_centers_window()
 {
 	int i;
-//	int robot_flags;
+	int robot_flags;
 	int redraw_window;
+	int robot_index;
 
 	if ( MainWindow == NULL ) return;
 
@@ -151,12 +152,20 @@ void do_centers_window()
 		mprintf((0, "Curseg2p->matcen_num = %i\n", Curseg2p->matcen_num));
 
 		//	Read materialization center robot bit flags
-		for (	i=0; i < N_robot_types; i++ ) {
-			RobotMatFlag[i]->status = 1;		// Tells ui to redraw button
-			if (RobotCenters[Curseg2p->matcen_num].robot_flags[0] & (1 << i))
-				RobotMatFlag[i]->flag = 1;		// Tells ui that this button is checked
-			else
-				RobotMatFlag[i]->flag = 0;		// Tells ui that this button is not checked
+		for (i = 0; i < 2; i++)
+		{
+			robot_index = i * 32;
+			robot_flags = RobotCenters[Curseg2p->matcen_num].robot_flags[i];
+			while (robot_flags)
+			{
+				RobotMatFlag[i]->status = 1;    // Tells ui to redraw button
+				if (robot_flags & 1)
+					RobotMatFlag[i]->flag = 1;  // Tells ui that this button is checked
+				else
+					RobotMatFlag[i]->flag = 0;  // Tells ui that this button is not checked
+				robot_flags >>= 1;
+				robot_index++;
+			}
 		}
 
 	}
@@ -181,19 +190,28 @@ void do_centers_window()
                  }
 	}
 
-	for (	i=0; i < N_robot_types; i++ )	{
-		if ( RobotMatFlag[i]->flag == 1 ) {
-			if (!(RobotCenters[Curseg2p->matcen_num].robot_flags[0] & (1 << i)))
-			{
-				RobotCenters[Curseg2p->matcen_num].robot_flags[0] |= (1 << i);
-				mprintf((0, "Segment %i, matcen = %i, Robot_flags %d\n", Cursegp - Segments, Curseg2p->matcen_num, RobotCenters[Curseg2p->matcen_num].robot_flags[0]));
-			} 
-		}
-		else if (RobotCenters[Curseg2p->matcen_num].robot_flags[0] & 1 << i)
+	for (i = 0; i < 2; i++)
+	{
+		robot_flags = RobotCenters[curseg2p->matcen_num].robot_flags[i];
+
+		for (robot_index = 0; robot_index < 32; robot_index++)
 		{
-			RobotCenters[Curseg2p->matcen_num].robot_flags[0] &= ~(1 << i);
-			mprintf((0, "Segment %i, matcen = %i, Robot_flags %d\n", Cursegp - Segments, Curseg2p->matcen_num, RobotCenters[Curseg2p->matcen_num].robot_flags[0]));
+			if (RobotMatFlag[robot_index + i * 32]->flag == 1)
+			{
+				if (!(robot_flags & (1 << robot_index)))
+				{
+					robot_flags |= (1 << robot_index);
+					mprintf((0, "Segment %i, matcen = %i, robot_flags[%d] = %d\n", Cursegp - Segments, Curseg2p->matcen_num, i, robot_flags));
+				}
+			}
+			else if (robot_flags & 1 << robot_index)
+			{
+				robot_flags &= ~(1 << robot_index);
+				mprintf((0, "Segment %i, matcen = %i, robot_flags[%d] = %d\n", Cursegp - Segments, Curseg2p->matcen_num, i, robot_flags));
+			}
 		}
+
+		RobotCenters[curseg2p->matcen_num].robot_flags[i] = robot_flags;
 	}
 	
 	//------------------------------------------------------------
