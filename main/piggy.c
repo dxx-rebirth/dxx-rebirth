@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.34 2003-08-02 18:17:50 btb Exp $ */
+/* $Id: piggy.c,v 1.35 2003-08-03 22:00:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.34 2003-08-02 18:17:50 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.35 2003-08-03 22:00:14 btb Exp $";
 #endif
 
 
@@ -412,6 +412,8 @@ static char rcsid[] = "$Id: piggy.c,v 1.34 2003-08-02 18:17:50 btb Exp $";
 #include "rle.h"
 #include "screens.h"
 #include "piggy.h"
+#include "gamemine.h"
+#include "textures.h"
 #include "texmerge.h"
 #include "paging.h"
 #include "game.h"
@@ -1013,6 +1015,8 @@ void piggy_init_pigfile(char *filename)
 
 extern int compute_average_pixel(grs_bitmap *new);
 
+ubyte *Bitmap_replacement_data = NULL;
+
 //reads in a new pigfile (for new palette)
 //returns the size of all the bitmap data
 void piggy_new_pigfile(char *pigname)
@@ -1034,8 +1038,9 @@ void piggy_new_pigfile(char *pigname)
 	if (stricmp(DEFAULT_PIGFILE, DEFAULT_PIGFILE_SHAREWARE) == 0 && !cfexist(pigname))
 		pigname = DEFAULT_PIGFILE_SHAREWARE;
 
-	if (strnicmp(Current_pigfile,pigname,sizeof(Current_pigfile))==0)
-		return;         //already have correct pig
+	if (strnicmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0 // correct pig already loaded
+	    && !Bitmap_replacement_data) // no need to reload: no bitmaps were altered
+		return;
 
 	if (!Pigfile_initialized) {                     //have we ever opened a pigfile?
 		piggy_init_pigfile(pigname);            //..no, so do initialization stuff
@@ -2149,8 +2154,6 @@ void piggy_bitmap_page_out_all_w()
 extern void change_filename_extension( char *dest, char *src, char *new_ext );
 extern char last_palette_loaded_pig[];
 
-ubyte *Bitmap_replacement_data=NULL;
-
 void free_bitmap_replacements()
 {
 	if (Bitmap_replacement_data) {
@@ -2211,6 +2214,7 @@ void load_bitmap_replacements(char *level_name)
 			temp_bitmap.bm_flags |= bmh.flags & BM_FLAGS_TO_COPY;
 
 			GameBitmaps[indices[i]] = temp_bitmap;
+			// don't we need the following? GameBitmapOffset[indices[i]] = 0; // don't try to read bitmap from current pigfile
 		}
 
 		cfread(Bitmap_replacement_data,1,bitmap_data_size,ifile);
@@ -2227,9 +2231,26 @@ void load_bitmap_replacements(char *level_name)
 	atexit(free_bitmap_replacements);
 }
 
-#define FIRST_D1_TEXTURE 722
-#define LAST_D1_STATIC_TEXTURE 1042//1342 //afterwards, we have door frames and stuff
-#define FIRST_D2_TEXTURE 1243
+/* If the given d1_index is the index of a bitmap we have to load (because it is unique
+ * to descent 1), then returns which d2_index it replaces.
+ * Returns -1 if the given d1_index is not unique to descent 1.
+ */
+short d2_index_for_d1_index(short d1_index)
+{
+	int i;
+	int d1_tmap_num = -1;
+	if (d1_Texture_indices)
+		for (i = 0; i < D1_MAX_TEXTURES; i++)
+			if (d1_Texture_indices[i] == d1_index) {
+				d1_tmap_num = i;
+				break;
+			}
+	if (d1_tmap_num == -1 || ! d1_tmap_num_unique(d1_tmap_num))
+		return -1;
+	else {
+		return Textures[convert_d1_tmap_num(d1_tmap_num)].index;
+	}
+}
 
 void load_d1_bitmap_replacements()
 {
@@ -2238,14 +2259,17 @@ void load_d1_bitmap_replacements()
 	DiskBitmapHeader bmh;
 	int pig_data_start, bitmap_header_start, bitmap_data_start;
 	int N_bitmaps, zsize;
-	int d1_index, d2_index;
+	short d1_index, d2_index;
 	ubyte colormap[256];
 	ubyte *next_bitmap; // to which address we write the next bitmap
 
 	d1_Piggy_fp = cfopen( D1_PIGFILE, "rb" );
 
-	if (!d1_Piggy_fp)
-		return; // use d2 bitmaps instead...
+#define D1_PIG_LOAD_FAILED "Failed loading " D1_PIGFILE
+	if (!d1_Piggy_fp) {
+		Warning(D1_PIG_LOAD_FAILED);
+		return;
+	}
 
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
@@ -2269,16 +2293,18 @@ void load_d1_bitmap_replacements()
 	case D1_SHAREWARE_10_PIGSIZE:
 	case D1_SHAREWARE_PIGSIZE:
 		pig_data_start = 0;
+		Warning(D1_PIG_LOAD_FAILED " Support for descent.pig of descent 1 shareware not complete.");
+		return;
 		break;
 	default:
+		Warning("Unknown size for " D1_PIGFILE);
 		Int3();
 	case D1_PIGSIZE:
 	case D1_OEM_PIGSIZE:
 	case D1_MAC_PIGSIZE:
 	case D1_MAC_SHARE_PIGSIZE:
-		//int i;
 		pig_data_start = cfile_read_int(d1_Piggy_fp );
-		bm_read_all_d1( d1_Piggy_fp );
+		bm_read_d1_texture_indices(d1_Piggy_fp); //was: bm_read_all_d1(fp);
 		//for (i = 0; i < 1800; i++) GameBitmapXlat[i] = cfile_read_short(d1_Piggy_fp);
 		break;
 	}
@@ -2293,16 +2319,20 @@ void load_d1_bitmap_replacements()
 		bitmap_data_start = bitmap_header_start + header_size;
 	}
 
-	MALLOC( Bitmap_replacement_data, ubyte, cfilelength(d1_Piggy_fp) - bitmap_data_start ); // too much
-	//TODO: handle case where b_r_d == 0! (have to convert textures, return, not bm_read_all_d1)
+#define D1_BITMAPS_SIZE 300000
+	MALLOC( Bitmap_replacement_data, ubyte, D1_BITMAPS_SIZE);
+	if (!Bitmap_replacement_data) {
+		Warning(D1_PIG_LOAD_FAILED);
+		return;
+	}
+	atexit(free_bitmap_replacements);
 
 	next_bitmap = Bitmap_replacement_data;
 
-	for (d1_index=1; d1_index<=N_bitmaps; d1_index++ ) {
-		// only change wall texture bitmaps
-		if (d1_index >= FIRST_D1_TEXTURE && d1_index <= LAST_D1_STATIC_TEXTURE) {
-			d2_index = d1_index + FIRST_D2_TEXTURE - FIRST_D1_TEXTURE;
-
+	for (d1_index = 1; d1_index <= N_bitmaps; d1_index++ ) {
+		d2_index = d2_index_for_d1_index(d1_index);
+		// only change bitmaps which are unique to d1
+		if (d2_index != -1) {
 			cfseek(d1_Piggy_fp, bitmap_header_start + (d1_index-1) * DISKBITMAPHEADER_D1_SIZE, SEEK_SET);
 			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
 
@@ -2312,28 +2342,42 @@ void load_d1_bitmap_replacements()
 			temp_bitmap.bm_h = bmh.height + ((short) (bmh.wh_extra&0xf0)<<4);
 			temp_bitmap.avg_color = bmh.avg_color;
 
-			//GameBitmapFlags[convert_d1_bitmap_num(d1_index)] = 0;
+			//GameBitmapFlags[d2_index] = 0;
 
 			temp_bitmap.bm_flags |= bmh.flags & BM_FLAGS_TO_COPY;
 
-			temp_bitmap.bm_data = next_bitmap;
-
 			cfseek(d1_Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
-			zsize = cfile_read_int(d1_Piggy_fp);
-			cfseek(d1_Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
+			if (bmh.flags & BM_FLAG_RLE) {
+				zsize = cfile_read_int(d1_Piggy_fp);
+				cfseek(d1_Piggy_fp, -4, SEEK_CUR);
+			} else {
+				zsize = temp_bitmap.bm_h * temp_bitmap.bm_w;
+			}
+			Assert(next_bitmap + zsize - Bitmap_replacement_data < D1_BITMAPS_SIZE);
 			cfread(next_bitmap, 1, zsize, d1_Piggy_fp);
+
+			temp_bitmap.bm_data = next_bitmap;
 
 			switch(cfilelength(d1_Piggy_fp)) {
 			case D1_MAC_PIGSIZE:
 			case D1_MAC_SHARE_PIGSIZE:
-				rle_swap_0_255(&temp_bitmap);
+				if (bmh.flags & BM_FLAG_RLE)
+					rle_swap_0_255(&temp_bitmap);
+				else
+					swap_0_255(&temp_bitmap);
 			}
-			rle_remap(&temp_bitmap, colormap);
+			if (bmh.flags & BM_FLAG_RLE)
+				rle_remap(&temp_bitmap, colormap);
+			else
+				gr_remap_bitmap_good(&temp_bitmap, colormap, TRANSPARENCY_COLOR, -1);
 
 			GameBitmaps[d2_index] = temp_bitmap;
-
-			memcpy(&zsize, temp_bitmap.bm_data, 4);
+			GameBitmapOffset[d2_index] = 0; // don't try to read bitmap from current d2 pigfile
+			GameBitmapFlags[d2_index] = bmh.flags;
+			if (bmh.flags & BM_FLAG_RLE)
+				memcpy(&zsize, temp_bitmap.bm_data, 4);
 			next_bitmap += zsize;
+			Assert(next_bitmap - Bitmap_replacement_data < D1_BITMAPS_SIZE);
 		}
 	}
 
@@ -2342,8 +2386,6 @@ void load_d1_bitmap_replacements()
 	last_palette_loaded_pig[0]= 0;  //force pig re-load
 
 	texmerge_flush();       //for re-merging with new textures
-
-	atexit(free_bitmap_replacements);
 }
 
 

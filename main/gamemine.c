@@ -1,4 +1,4 @@
-/* $Id: gamemine.c,v 1.23 2003-04-12 02:52:38 btb Exp $ */
+/* $Id: gamemine.c,v 1.24 2003-08-03 22:00:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -142,7 +142,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.23 2003-04-12 02:52:38 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.24 2003-08-03 22:00:14 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -268,58 +268,74 @@ int CreateDefaultNewSegment();
 
 int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
 
-int d1_pig_loaded = 0; // can descent.pig from descent 1 be loaded?
+int d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
+
+/* returns nonzero if d1_tmap_num references a texture which isn't available in d2. */
+int d1_tmap_num_unique(short d1_tmap_num) {
+	switch (d1_tmap_num) {
+	case   0: case   2: case   4: case   5: case   6: case   7: case   9:
+	case  10: case  11: case  12: case  17: case  18:
+	case  20: case  21: case  25: case  28:
+	case  38: case  39: case  41: case  44: case  49:
+	case  50: case  55: case  57: case  88:
+	case 132: case 141: case 147:
+	case 154: case 155: case 158: case 159:
+	case 160: case 161: case 167: case 168: case 169:
+	case 170: case 171: case 174: case 175: case 185:
+	case 193: case 194: case 195: case 198: case 199:
+	case 200: case 202: case 210: case 211:
+	case 220: case 226: case 227: case 228: case 229: case 230:
+	case 240: case 241: case 242: case 243: case 246:
+	case 250: case 251: case 252: case 253: case 257: case 258: case 259:
+	case 260: case 263: case 266: case 283: case 298:
+	case 315: case 317: case 319: case 320: case 321:
+	case 330: case 331: case 332: case 333: case 349:
+	case 351: case 352: case 353: case 354:
+	case 355: case 357: case 358: case 359:
+	case 362: case 370: return 1;
+	default: return 0;
+	}
+}
 
 #define TMAP_NUM_MASK 0x3FFF
 
-/* converts descent 1 texture numbers to descent 2 texture numbers
- * textures whose names don't match between versions have extra spaces around "return"
- * updated using the file config/convtabl.ini from the devil 2.2 level editor
+/* Converts descent 1 texture numbers to descent 2 texture numbers.
+ * Textures from d1 which are unique to d1 have extra spaces around "return".
+ * If we can load the original d1 pig, we make sure this function is bijective.
+ * This function was updated using the file config/convtabl.ini from devil 2.2.
  */
 short convert_d1_tmap_num(short d1_tmap_num) {
-	if (d1_pig_loaded && d1_tmap_num < 324) // we use original d1 textures for non-animated textures
-		return d1_tmap_num;
 	switch (d1_tmap_num) {
-	case   0:  return  43; // grey (devil:95)
+	case 0: case 2: case 4: case 5: // all refer to the same bitmap (exception to bijectivity rule)
+		return  d1_pig_present ? 137 : 43;  // grey (devil:95)
 	case   1: return 0;
-	case   2:  return  43; // grey
 	case   3: return 1;
-	case   4:  return  43; // grey
-	case   5:  return  43; // grey
 	case   6:  return  270; // blue
 	case   7:  return  271; // yellow
 	case   8: return 2;
-	case   9:  return  62; // purple (devil:179)
+	case   9:  return  d1_pig_present ? 138 : 62; // purple (devil:179)
 	case  10:  return  272; // red
-	case  11:  return  117;
-	case  12:  return  12; //devil:43
+	case  11:  return  d1_pig_present ? 139 : 117;
+	case  12:  return  d1_pig_present ? 140 : 12; //devil:43
 	case  13: return 3;
 	case  14: return 4;
 	case  15: return 5;
 	case  16: return 6;
-	case  17:  return  52;
+	case  17:  return  d1_pig_present ? 141 : 52;
 	case  18:  return  129;
 	case  19: return 7;
-	case  20:  return  22;
-	case  21:  return  9;
+	case  20:  return  d1_pig_present ? 142 : 22;
+	case  21:  return  d1_pig_present ? 143 : 9;
 	case  22: return 8;
 	case  23: return 9;
 	case  24: return 10;
-	case  25:  return  12; //devil:35
+	case  25:  return  d1_pig_present ? 144 : 12; //devil:35
 	case  26: return 11;
 	case  27: return 12;
-	case  28:  return  11; //devil:43
-	case  29: return 13;
-	case  30: return 14;
-	case  31: return 15;
-	case  32: return 16;
-	case  33: return 17;
-	case  34: return 18;
-	case  35: return 19;
-	case  36: return 20;
-	case  37: return 21;
+	case  28:  return  d1_pig_present ? 145 : 11; //devil:43
+	//range handled by default case, returns 13..21
 	case  38:  return  163; //devil:27
-	case  39:  return  31; //devil:147
+	case  39:  return  147; //31
 	case  40: return 22;
 	case  41:  return  266;
 	case  42: return 23;
@@ -329,7 +345,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case  46: return 26;
 	case  47: return 27;
 	case  48: return 28;
-	case  49:  return  43; //devil:60
+	case  49:  return  d1_pig_present ? 146 : 43; //devil:60
 	case  50:  return  131; //devil:138
 	case  51: return 29;
 	case  52: return 30;
@@ -338,124 +354,82 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case  55:  return  165; //devil:193
 	case  56: return 33;
 	case  57:  return  132; //devil:119
-	// range handled by default case
+	// range handled by default case, returns 34..63
 	case  88:  return  197; //devil:15
-	// range handled by default case
+	// range handled by default case, returns 64..106
 	case 132:  return  167;
-	case 133: return 107;
-	case 134: return 108;
-	case 135: return 109;
-	case 136: return 110;
-	case 137: return 111;
-	case 138: return 112;
-	case 139: return 113;
-	case 140: return 114;
-	case 141:  return  110; //devil:106
+        // range handled by default case, returns 107..114
+	case 141:  return  d1_pig_present ? 148 : 110; //devil:106
 	case 142: return 115;
 	case 143: return 116;
 	case 144: return 117;
 	case 145: return 118;
 	case 146: return 119;
-	case 147:  return  93;
+	case 147:  return  d1_pig_present ? 149 : 93;
 	case 148: return 120;
 	case 149: return 121;
 	case 150: return 122;
 	case 151: return 123;
 	case 152: return 124;
 	case 153: return 125;
-	case 154:  return  27;
-	case 155:  return  126; //was: 66
+	case 154:  return  d1_pig_present ? 150 : 27;
+	case 155:  return  126;
 	case 156: return 200;
 	case 157: return 201;
 	case 158:  return  186; //devil:227
 	case 159:  return  190; //devil:246
-	case 160:  return  206;
-	case 161:  return  114; //devil:206
+	case 160:  return  d1_pig_present ? 151 : 206;
+	case 161:  return  d1_pig_present ? 152 : 114; //devil:206
 	case 162: return 202;
 	case 163: return 203;
 	case 164: return 204;
 	case 165: return 205;
 	case 166: return 206;
-	case 167:  return  206;
-	case 168:  return  206;
-	case 169:  return  206;
-	case 170:  return  227;//206;
-	case 171:  return  206;//227;
+	case 167:  return  d1_pig_present ? 153 : 206;
+	case 168:  return  d1_pig_present ? 154 : 206;
+	case 169:  return  d1_pig_present ? 155 : 206;
+	case 170:  return  d1_pig_present ? 156 : 227;//206;
+	case 171:  return  d1_pig_present ? 157 : 206;//227;
 	case 172: return 207;
 	case 173: return 208;
-	case 174:  return  202;
-	case 175:  return  206;
-	case 176: return 209;
-	case 177: return 210;
-	case 178: return 211;
-	case 179: return 212;
-	case 180: return 213;
-	case 181: return 214;
-	case 182: return 215;
-	case 183: return 216;
-	case 184: return 217;
-	case 185:  return  217;
-	case 186: return 218;
-	case 187: return 219;
-	case 188: return 220;
-	case 189: return 221;
-	case 190: return 222;
-	case 191: return 223;
-	case 192: return 224;
-	case 193:  return  206;
-	case 194:  return  203;//206;
-	case 195:  return  234;
+	case 174:  return  d1_pig_present ? 158 : 202;
+	case 175:  return  d1_pig_present ? 159 : 206;
+	// range handled by default case, returns 209..217
+	case 185:  return  d1_pig_present ? 160 : 217;
+	// range handled by default case, returns 218..224
+	case 193:  return  d1_pig_present ? 161 : 206;
+	case 194:  return  d1_pig_present ? 162 : 203;//206;
+	case 195:  return  d1_pig_present ? 166 : 234;
 	case 196: return 225;
 	case 197: return 226;
-	case 198:  return  225;
-	case 199:  return  206; //devil:204
-	case 200:  return  206; //devil:204
+	case 198:  return  d1_pig_present ? 167 : 225;
+	case 199:  return  d1_pig_present ? 168 : 206; //devil:204
+	case 200:  return  d1_pig_present ? 169 : 206; //devil:204
 	case 201: return 227;
-	case 202:  return  206; //devil:227
-	case 203: return 228;
-	case 204: return 229;
-	case 205: return 230;
-	case 206: return 231;
-	case 207: return 232;
-	case 208: return 233;
-	case 209: return 234;
-	case 210:  return  234; //devil:242
-	case 211:  return  206; //devil:240
-	case 212: return 235;
-	case 213: return 236;
-	case 214: return 237;
-	case 215: return 238;
-	case 216: return 239;
-	case 217: return 240;
-	case 218: return 241;
-	case 219: return 242;
-	case 220:  return  242; //devil:240
+	case 202:  return  d1_pig_present ? 170 : 206; //devil:227
+	// range handled by default case, returns 228..234
+	case 210:  return  d1_pig_present ? 171 : 234; //devil:242
+	case 211:  return  d1_pig_present ? 172 : 206; //devil:240
+	// range handled by default case, returns 235..242
+	case 220:  return  d1_pig_present ? 173 : 242; //devil:240
 	case 221: return 243;
 	case 222: return 244;
-	case 223: return  313;
+	case 223:  return  d1_pig_present ? 174 : 313;
 	case 224: return 245;
 	case 225: return 246;
 	case 226:  return  164;//247; matching names but not matching textures
 	case 227:  return  179; //devil:181
 	case 228:  return  196;//248; matching names but not matching textures
-	case 229:  return  15; //devil:66
-	case 230:  return  15; //devil:66
-	case 231: return 249;
-	case 232: return 250;
-	case 233: return 251;
-	case 234: return 252;
-	case 235: return 253;
-	case 236: return 254;
-	case 237: return 255;
-	case 238: return 256;
-	case 239: return 257;
-	case 240:  return  6; //devil:132
+	case 229:  return  d1_pig_present ? 175 : 15; //devil:66
+	case 230:  return  d1_pig_present ? 176 : 15; //devil:66
+	// range handled by default case, returns 249..257
+	case 240:  return  d1_pig_present ? 177 : 6; //devil:132
 	case 241:  return  130; //devil:131
-	case 242:  return  78; //devil:15
-	case 243:  return  33; //devil:38
+	case 242:  return  d1_pig_present ? 178 : 78; //devil:15
+	case 243:  return  d1_pig_present ? 180 : 33; //devil:38
 	case 244: return 258;
 	case 245: return 259;
-	case 246:  return  321;
+	case 246:  return  d1_pig_present ? 181 : 321;
 	case 247: return 260;
 	case 248: return 261;
 	case 249: return 262;
@@ -466,32 +440,32 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 254: return 263;
 	case 255: return 264;
 	case 256: return 265;
-	case 257:  return  249;//246;
-	case 258:  return  251;//246;
-	case 259:  return  252;//246;
-	case 260:  return  256;//246;
+	case 257:  return  d1_pig_present ? 182 : 249;//246;
+	case 258:  return  d1_pig_present ? 183 : 251;//246;
+	case 259:  return  d1_pig_present ? 184 : 252;//246;
+	case 260:  return  d1_pig_present ? 185 : 256;//246;
 	case 261: return 273;
 	case 262: return 274;
-	case 263:  return  281;
+	case 263:  return  d1_pig_present ? 187 : 281;
 	case 264: return 275;
 	case 265: return 276;
-	case 266:  return  279; //devil:291
-	// range handled by default case
+	case 266:  return  d1_pig_present ? 188 : 279; //devil:291
+	// range handled by default case, returns 277..291
 	case 282: return 293;
-	case 283:  return  295;
+	case 283:  return  d1_pig_present ? 189 : 295;
 	case 284: return 295;
 	case 285: return 296;
 	case 286: return 298;
-	// range handled by default case
-	case 298:  return  364; //devil:374
-	// range handled by default case
-	case 315:  return  361; // broken producer
-	// range handled by default case
+	// range handled by default case, returns 300..310
+	case 298:  return  d1_pig_present ? 191 : 364; //devil:374
+	// range handled by default case, returns 311..326
+	case 315:  return  d1_pig_present ? 192 : 361; // broken producer
+	// range handled by default case,  returns  327..337
 	case 327: return 352;
 	case 328: return 353;
 	case 329: return 354;
 	case 330:  return  380;
-	case 331:  return  379;//373; matching names but not matching textures;
+	case 331:  return  379;//373; matching names but not matching textures
 	case 332:  return  355;//344; matching names but not matching textures
  	case 333:  return  409; // lava  //devil:404
 	case 334: return 356;
@@ -499,7 +473,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 336: return 358;
 	case 337: return 359;
 	case 338: return 360;
-	case 339: return 361;
+	case 339: return 361; // producer
 	case 340: return 362;
 	case 341: return 364;
 	case 342: return 363;
@@ -513,7 +487,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 350: return 369;
 	case 351:  return  374;//429; matching names but not matching textures
 	case 352:  return  375;//387; matching names but not matching textures
-	case 353:  return 371;
+	case 353:  return  371;
 	case 354:  return  377;//425; matching names but not matching textures
 	case 355:  return  408;
 	case 356: return 378; // lava02
@@ -522,7 +496,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 359:  return  385;//386; matching names but not matching textures
 	case 360: return 386;
 	case 361: return 387;
-	case 362:  return  388; // mntr04a (devil: -1)
+	case 362:  return  d1_pig_present ? 194 : 388; // mntr04a (devil: -1)
 	case 363: return 388;
 	case 364: return 391;
 	case 365: return 392;
@@ -530,14 +504,28 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 367: return 394;
 	case 368: return 395;
 	case 369: return 396;
-	case 370:  return  392; // mntr04b (devil: -1)
-	// range 371 - 584 handled by default
+	case 370:  return  d1_pig_present ? 195 : 392; // mntr04b (devil: -1)
+	// range 371..584 handled by default case (wall01 and door frames)
 	default:
 		// ranges:
+		if (d1_tmap_num >= 29 && d1_tmap_num <= 37)
+			return d1_tmap_num - 16;
 		if (d1_tmap_num >= 58 && d1_tmap_num <= 87)
 			return d1_tmap_num - 24;
 		if (d1_tmap_num >= 89 && d1_tmap_num <= 131)
 			return d1_tmap_num - 25;
+		if (d1_tmap_num >= 133 && d1_tmap_num <= 140)
+			return d1_tmap_num - 26;
+		if (d1_tmap_num >= 176 && d1_tmap_num <= 184)
+			return d1_tmap_num + 33;
+		if (d1_tmap_num >= 186 && d1_tmap_num <= 192)
+			return d1_tmap_num + 32;
+		if (d1_tmap_num >= 203 && d1_tmap_num <= 209)
+			return d1_tmap_num + 25;
+		if (d1_tmap_num >= 212 && d1_tmap_num <= 219)
+			return d1_tmap_num + 23;
+		if (d1_tmap_num >= 231 && d1_tmap_num <= 239)
+			return d1_tmap_num + 18;
 		if (d1_tmap_num >= 267 && d1_tmap_num <= 281)
 			return d1_tmap_num + 10;
 		if (d1_tmap_num >= 287 && d1_tmap_num <= 297)
@@ -545,7 +533,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 		if (d1_tmap_num >= 299 && d1_tmap_num <= 314)
 			return d1_tmap_num + 12;
 		if (d1_tmap_num >= 316 && d1_tmap_num <= 326)
-			return d1_tmap_num + 11;
+			 return  d1_tmap_num + 11; // matching names but not matching textures
 		// wall01 and door frames:
 		if (d1_tmap_num > 370 && d1_tmap_num < 584) {
 			if (New_file_format_load) return d1_tmap_num + 64;
@@ -588,6 +576,8 @@ int load_mine_data(CFILE *LoadFile)
 	int 	translate;
 	char 	*temptr;
 	int	mine_start = cftell(LoadFile);
+
+	d1_pig_present = cfexist(D1_PIGFILE);
 
 	oldsizeadjust=(sizeof(int)*2)+sizeof (vms_matrix);
 	fuelcen_reset();
@@ -1066,6 +1056,8 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	short   temp_short;
 	ushort  temp_ushort = 0;
 	ubyte   bit_mask;
+
+	d1_pig_present = cfexist(D1_PIGFILE);
 
 	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
 		New_file_format_load = 0; // descent 1 shareware

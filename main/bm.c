@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.33 2003-06-07 20:46:33 btb Exp $ */
+/* $Id: bm.c,v 1.34 2003-08-03 22:00:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -252,6 +252,32 @@ void bm_read_all(CFILE * fp)
 		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
 }
 
+/* when reading descent.pig of descent 1, we only replace some textures */
+
+#define D1_MAX_TEXTURES 800
+
+short *d1_Texture_indices = NULL; // descent 1 texture bitmap indicies
+
+void free_d1_texture_indices() {
+	if (d1_Texture_indices) {
+		d_free(d1_Texture_indices);
+		d1_Texture_indices = NULL;
+	}
+}
+
+void bm_read_d1_texture_indices(CFILE *d1pig)
+{
+	int i;
+	atexit(free_d1_texture_indices);
+	cfseek(d1pig, 8, SEEK_SET);
+	MALLOC(d1_Texture_indices, short, D1_MAX_TEXTURES);
+	for (i = 0; i < D1_MAX_TEXTURES; i++)
+		d1_Texture_indices[i] = cfile_read_short(d1pig);
+}
+
+// the following is old code for reading descent 1 textures.
+#if 0
+
 #define D1_MAX_TEXTURES 800
 #define D1_MAX_SOUNDS 250
 #define D1_MAX_VCLIPS 70
@@ -396,6 +422,8 @@ void bm_read_all_d1(CFILE * fp)
 	/*exit_modelnum = */ cfile_read_int(fp);
 	/*destroyed_exit_modelnum = */ cfile_read_int(fp);
 }
+
+#endif // if 0, old code for reading descent 1 textures
 
 //these values are the number of each item in the release of d2
 //extra items added after the release get written in an additional hamfile

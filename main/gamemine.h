@@ -1,4 +1,4 @@
-/* $Id: gamemine.h,v 1.4 2003-03-19 22:44:15 btb Exp $ */
+/* $Id: gamemine.h,v 1.5 2003-08-03 22:00:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -119,6 +119,9 @@ extern short tmap_xlate_table[];
 extern fix Level_shake_frequency, Level_shake_duration;
 extern int Secret_return_segment;
 extern vms_matrix Secret_return_orient;
-extern int d1_pig_loaded; // has descent.pig from descent 1 been loaded?
+
+/* stuff for loading descent.pig of descent 1 */
+extern short convert_d1_tmap_num(short d1_tmap_num);
+extern int d1_tmap_num_unique(short d1_tmap_num); //is d1_tmap_num's texture only in d1?
 
 #endif // _GAMEMINE_H
