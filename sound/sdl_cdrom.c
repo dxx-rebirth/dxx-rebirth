@@ -1,7 +1,19 @@
-/* DPH: This is the file where all the stub functions go. The aim is to have nothing in here ,eventually */
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/sound/sdl_cdrom.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:53:28 $
+ *
+ * DPH: This is the file where all the stub functions go.
+ * The aim is to have nothing in here, eventually
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
-#ifdef SDL_AUDIO
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
@@ -120,5 +132,3 @@ int CD_blast_mixer()
 {
  return 0;
 }
-
-#endif //SDL_AUDIO

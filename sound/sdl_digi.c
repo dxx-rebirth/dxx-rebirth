@@ -1,8 +1,18 @@
-// SDL digital audio support
+/*
+ * $Source: /cvs/cvsroot/d2x/sound/sdl_digi.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:53:28 $
+ *
+ * SDL digital audio support
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
 
-#ifdef SDL_AUDIO
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -842,5 +852,3 @@ void digi_reset_digi_sounds() {
 //#endif
 //}
 //end this section kill - MM
-
-#endif // SDL_AUDIO

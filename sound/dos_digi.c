@@ -1,7 +1,18 @@
-// SDL digital audio support
+/*
+ * $Source: /cvs/cvsroot/d2x/sound/dos_digi.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:53:28 $
+ *
+ * DOS digital audio support
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_DJGPP__
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -809,5 +820,3 @@ void digi_reset_digi_sounds() {
 //#endif
 //}
 //end this section kill - MM
-
-#endif // __ENV_DJGPP__

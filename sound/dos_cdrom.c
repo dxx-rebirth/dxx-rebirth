@@ -1,6 +1,19 @@
-/* DPH: This is the file where all the stub functions go. The aim is to have nothing in here ,eventually */
+/*
+ * $Source: /cvs/cvsroot/d2x/sound/dos_cdrom.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 13:53:28 $
+ *
+ * DPH: This is the file where all the stub functions go.
+ * The aim is to have nothing in here, eventually
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_DJGPP__
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "pstypes.h"
@@ -76,5 +89,3 @@ int CD_blast_mixer()
 {
  return 0;
 }
-
-#endif // __ENV_DJGPP__
