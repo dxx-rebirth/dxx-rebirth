@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.11 2002-08-27 04:12:55 btb Exp $ */
+/* $Id: mission.c,v 1.12 2002-08-27 08:02:51 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -315,7 +315,6 @@ void add_builtin_mission_to_list(int *count)
 			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
 	}
 
-	Builtin_mission_num = *count;
 	strcpy(Builtin_mission_filename, Mission_list[*count].filename);
 	++(*count);
 }
@@ -409,6 +408,7 @@ int build_mission_list(int anarchy_mode)
 	top_place = 0;
 	promote("descent", &top_place, count); // original descent 1 mission
 	promote(Builtin_mission_filename, &top_place, count); // d2 or d2demo
+	Builtin_mission_num = top_place - 1;
 	promote("d2x", &top_place, count); // vertigo
 
 	if (count > top_place)
@@ -513,7 +513,7 @@ int load_mission(int mission_num)
 	}
 
 	//init vars
-	Last_level = 		0;
+	Last_level = 0;
 	Last_secret_level = 0;
 	Briefing_text_filename[0] = 0;
 	Ending_text_filename[0] = 0;
