@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/misc/args.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2001-11-05 07:39:26 $
+ * $Date: 2001-11-09 06:57:27 $
  * 
  * Functions for accessing arguments.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/11/05 07:39:26  bradleyb
+ * Change args_init back to InitArgs
+ *
  * Revision 1.3  2001/01/31 15:18:04  bradleyb
  * Makefile and conf.h fixes
  *
@@ -78,7 +81,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.4 2001-11-05 07:39:26 bradleyb Exp $";
+static char rcsid[] = "$Id: args.c,v 1.5 2001-11-09 06:57:27 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -135,8 +138,11 @@ void InitArgs( int argc,char **argv )
     }
   if((i=FindArg("-ini")))
    f=fopen(Args[i+1],"rt");
-  else
-   f=fopen("d1x.ini","rt");
+  else {
+   f=fopen("d2x.ini","rt");
+   if (!f)
+    f=fopen("d1x.ini","rt");
+  }
 
      if(f)
       {
