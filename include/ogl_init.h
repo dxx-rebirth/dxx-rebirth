@@ -26,6 +26,7 @@ int ogl_init_load_library(void);
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #else
+#define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #endif
 #endif
@@ -104,6 +105,17 @@ extern int ogl_nv_texture_env_combine4_ok;
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
 #endif
 extern int ogl_ext_texture_filter_anisotropic_ok;
+
+#ifndef GL_EXT_shared_texture_palette
+#define GL_EXT_shared_texture_palette     1
+#define GL_SHARED_TEXTURE_PALETTE_EXT     0x81FB
+#endif
+
+#ifdef GL_EXT_paletted_texture
+extern int ogl_paletted_texture_ok;
+extern int ogl_shared_palette_ok;
+#endif
+void ogl_init_shared_palette(void);
 
 extern int gl_initialized;
 extern int GL_texmagfilt,GL_texminfilt,GL_needmipmaps;

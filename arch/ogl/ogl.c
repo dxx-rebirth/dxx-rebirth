@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.25 2004-05-20 07:43:57 btb Exp $ */
+/* $Id: ogl.c,v 1.26 2004-05-22 08:43:02 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -91,6 +91,10 @@ int ogl_sgis_multitexture_ok=0;
 #endif
 int ogl_nv_texture_env_combine4_ok = 0;
 int ogl_ext_texture_filter_anisotropic_ok = 0;
+#ifdef GL_EXT_paletted_texture
+int ogl_shared_palette_ok = 0;
+int ogl_paletted_texture_ok = 0;
+#endif
 
 int sphereh=0;
 int cross_lh[2]={0,0};
@@ -116,7 +120,7 @@ extern GLubyte texbuf[OGLTEXBUFSIZE];
 void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type);
 void ogl_loadbmtexture(grs_bitmap *bm);
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,intdyo , int *texid,float *u,float *v,char domipmap,float prio);
-void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex);
+void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags);
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_do_palfx(void);
 
@@ -1134,7 +1138,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	
 //	oldpal=ogl_pal;
 	ogl_pal=gr_current_pal;
-	ogl_loadtexture(src->bm_data,sx,sy,&tex);
+	ogl_loadtexture(src->bm_data, sx, sy, &tex, src->bm_flags);
 //	ogl_pal=oldpal;
 	ogl_pal=gr_palette;
 	OGL_BINDTEXTURE(tex.handle);
@@ -1349,6 +1353,38 @@ void ogl_swap_buffers(void){
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void ogl_init_shared_palette(void)
+{
+#ifdef GL_EXT_paletted_texture
+	if (ogl_shared_palette_ok)
+	{
+		int i;
+
+		glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
+		//glColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGB, 256, GL_RGB, GL_UNSIGNED_BYTE, ogl_pal);
+
+		for (i = 0; i < 256; i++)
+		{
+			if (i == 255)
+			{
+				texbuf[i * 4] = 0;
+				texbuf[i * 4 + 1] = 0;
+				texbuf[i * 4 + 2] = 0;
+				texbuf[i * 4 + 3] = 0;
+			}
+			else
+			{
+				texbuf[i * 4] = gr_current_pal[i * 3] * 4;
+				texbuf[i * 4 + 1] = gr_current_pal[i * 3 + 1] * 4;
+				texbuf[i * 4 + 2] = gr_current_pal[i * 3 + 2] * 4;
+				texbuf[i * 4 + 3] = 255;
+			}
+		}
+		glColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, texbuf);
+	}
+#endif
+}
+
 int tex_format_supported(int iformat,int format){
 	switch (iformat){
 		case GL_INTENSITY4:
@@ -1410,6 +1446,12 @@ void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,in
 						(*(texp++))=0;
 						(*(texp++))=0;//transparent pixel
 						break;
+					case GL_COLOR_INDEX:
+						(*(texp++)) = c;
+						break;
+					default:
+						Error("ogl_filltexbuf unknown texformat\n");
+						break;
 				}
 //				(*(tex++))=0;
 			}else{
@@ -1430,6 +1472,12 @@ void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,in
 						(*(texp++))=ogl_pal[c*3+2]*4;
 						(*(texp++))=255;//not transparent
 						//				(*(tex++))=(ogl_pal[c*3]>>1) + ((ogl_pal[c*3+1]>>1)<<5) + ((ogl_pal[c*3+2]>>1)<<10) + (1<<15);
+						break;
+					case GL_COLOR_INDEX:
+						(*(texp++)) = c;
+						break;
+					default:
+						Error("ogl_filltexbuf unknown texformat\n");
 						break;
 				}
 			}
@@ -1493,6 +1541,13 @@ void tex_set_size(ogl_texture *tex){
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_GREEN_SIZE,&t);a+=t;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_BLUE_SIZE,&t);a+=t;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_ALPHA_SIZE,&t);a+=t;
+#ifdef GL_EXT_paletted_texture
+		if (ogl_paletted_texture_ok)
+		{
+			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INDEX_SIZE_EXT, &t);
+			a += t;
+		}
+#endif
 	}else{
 		w=tex->tw;
 		h=tex->th;
@@ -1507,6 +1562,9 @@ void tex_set_size(ogl_texture *tex){
 		case GL_RGBA:
 			bi=16;
 			break;
+		case GL_COLOR_INDEX:
+			bi = 8;
+			break;
 		default:
 			Error("tex_set_size unknown texformat\n");
 			break;
@@ -1518,7 +1576,7 @@ void tex_set_size(ogl_texture *tex){
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex)
+void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags)
 {
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,int dyo, int *texid,float *u,float *v,char domipmap,float prio){
 //	int internalformat=GL_RGBA;
@@ -1538,6 +1596,31 @@ void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex)
 	//calculate u/v values that would make the resulting texture correctly sized
 	tex->u=(float)tex->w/(float)tex->tw;
 	tex->v=(float)tex->h/(float)tex->th;
+
+#ifdef GL_EXT_paletted_texture
+	if (ogl_shared_palette_ok && tex->format == GL_RGBA)
+	{
+		// descent makes palette entries 254 and 255 both do double duty, depending upon the setting of BM_FLAG_SUPER_TRANSPARENT and BM_FLAG_TRANSPARENT.
+		// So if the texture doesn't have BM_FLAG_TRANSPARENT set, yet uses index 255, we cannot use the palette for it since that color would be incorrect. (this case is much less common than transparent textures, hence why we don't exclude those instead.)
+		// We don't handle super transparent textures with ogl yet, so we don't bother checking that here.
+		int usesthetransparentindexcolor = 0;
+		if (!(bm_flags & BM_FLAG_TRANSPARENT))
+		{
+			int i;
+
+			for (i=0; i < tex->w * tex->h; ++i)
+				if (data[i] == 255)
+					usesthetransparentindexcolor += 1;
+		}
+		if (!usesthetransparentindexcolor)
+		{
+			tex->internalformat = GL_COLOR_INDEX8_EXT;
+			tex->format = GL_COLOR_INDEX;
+		}
+		//else
+		//	printf("bm data=%p w=%i h=%i used the transparent color %i times\n",data, tex->w, tex->h, usesthetransparentindexcolor);
+	}
+#endif
 
 	//	if (width!=twidth || height!=theight)
 	//		glmprintf((0,"sizing %ix%i texture up to %ix%i\n",width,height,twidth,theight));
@@ -1630,7 +1713,7 @@ void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap)
 		}
 		buf=decodebuf;
 	}
-	ogl_loadtexture(buf,0,0,bm->gltexture);
+	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags);
 }
 
 void ogl_loadbmtexture(grs_bitmap *bm)

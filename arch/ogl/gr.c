@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.26 2004-05-22 07:55:34 btb Exp $ */
+/* $Id: gr.c,v 1.27 2004-05-22 08:42:59 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -183,6 +183,7 @@ void ogl_get_verinfo(void)
 	dglActiveTextureARB = (glActiveTextureARB_fp)wglGetProcAddress("glActiveTextureARB");
 	dglMultiTexCoord2fSGIS = (glMultiTexCoord2fSGIS_fp)wglGetProcAddress("glMultiTexCoord2fSGIS");
 	dglSelectTextureSGIS = (glSelectTextureSGIS_fp)wglGetProcAddress("glSelectTextureSGIS");
+	dglColorTableEXT = (glColorTableEXT_fp)wglGetProcAddress("glColorTableEXT");
 #endif
 
 #ifdef GL_ARB_multitexture
@@ -199,6 +200,10 @@ void ogl_get_verinfo(void)
 	if (ogl_ext_texture_filter_anisotropic_ok)
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropic_max);
 
+#ifdef GL_EXT_paletted_texture
+	ogl_paletted_texture_ok = (strstr(gl_extensions, "GL_EXT_paletted_texture") != 0 && glColorTableEXT != 0);
+	ogl_shared_palette_ok = (strstr(gl_extensions, "GL_EXT_shared_texture_palette") != 0 && ogl_paletted_texture_ok);
+#endif
 	//add driver specific hacks here.  whee.
 	if ((stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && stricmp(gl_version,"1.2 Mesa 3.0")==0){
 		ogl_intensity4_ok=0;//ignores alpha, always black background instead of transparent.
@@ -226,6 +231,18 @@ void ogl_get_verinfo(void)
 	}
 	if (ogl_sgis_multitexture_ok)
 		glGetIntegerv(GL_MAX_TEXTURES_SGIS, &sgi_max_textures);
+#endif
+#ifdef GL_EXT_paletted_texture
+	if ((t = FindArg("-gl_paletted_texture_ok")))
+	{
+		ogl_paletted_texture_ok = atoi(Args[t + 1]);
+	}
+	if ((t = FindArg("-gl_shared_palette_ok")))
+	{
+		ogl_shared_palette_ok = atoi(Args[t + 1]);
+	}
+	ogl_shared_palette_ok = ogl_shared_palette_ok && ogl_paletted_texture_ok; // shared palettes require palette support in the first place, obviously ;)
+	printf("gl_paletted_texture: %i  gl_shared_palette: %i  (using paletted textures: %i)\n", ogl_paletted_texture_ok, ogl_shared_palette_ok, ogl_shared_palette_ok);
 #endif
 	if ((t=FindArg("-gl_intensity4_ok"))){
 		ogl_intensity4_ok=atoi(Args[t+1]);
@@ -646,6 +663,8 @@ void gr_palette_load( ubyte *pal )
 	gr_palette_step_up(0, 0, 0); // make ogl_setbrightness_internal get run so that menus get brightened too.
 
  init_computed_colors();
+
+	ogl_init_shared_palette();
 }
 
 

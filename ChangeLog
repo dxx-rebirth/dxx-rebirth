@@ -1,5 +1,9 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/gr.c, arch/ogl/ogl.c, include/loadgl.h,
+	include/ogl_init.h: add ogl paletted texture support (d1x r1.36,
+	r1.38, r1.5, r1.24)
+
 	* 2d/font.c: memset ogl font bitmap data since the copy function
 	leaves some (unused) parts uninitialized, which aggravates
 	valgrind (d1x r1.14)

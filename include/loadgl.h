@@ -1,4 +1,4 @@
-/* $Id: loadgl.h,v 1.7 2004-05-20 03:31:34 btb Exp $ */
+/* $Id: loadgl.h,v 1.8 2004-05-22 08:43:08 btb Exp $ */
 /*
  *
  * dynamic opengl loading - courtesy of Jeff Slutter
@@ -32,6 +32,12 @@
 #define GL_TEXTURE0_SGIS 0x835F
 #define GL_TEXTURE1_SGIS 0x8360
 #define GL_MAX_TEXTURES_SGIS 0x835D
+#endif
+
+#ifndef GL_EXT_paletted_texture
+#define GL_EXT_paletted_texture 1
+#define GL_COLOR_INDEX8_EXT 0x80E5
+#define GL_TEXTURE_INDEX_SIZE_EXT 0x80ED
 #endif
 
 #ifdef _cplusplus
@@ -389,6 +395,8 @@
 #define glActiveTextureARB dglActiveTextureARB
 #define glMultiTexCoord2fSGIS dglMultiTexCoord2fSGIS
 #define glSelectTextureSGIS dglSelectTextureSGIS
+
+#define glColorTableEXT dglColorTableEXT
 
 #ifdef _WIN32
 #define wglCopyContext dwglCopyContext
@@ -755,6 +763,7 @@ typedef void (OGLFUNCCALL *glMultiTexCoord2fARB_fp)(GLenum target, GLfloat s, GL
 typedef void (OGLFUNCCALL *glActiveTextureARB_fp)(GLenum target);
 typedef void (OGLFUNCCALL *glMultiTexCoord2fSGIS_fp)(GLenum target, GLfloat s, GLfloat t);
 typedef void (OGLFUNCCALL *glSelectTextureSGIS_fp)(GLenum target);
+typedef void (OGLFUNCCALL *glColorTableEXT_fp)(GLenum target, GLenum internalformat, GLsizei width, GLenum format, GLenum type, const GLvoid *table);
 
 #ifdef _WIN32
 typedef BOOL  (OGLFUNCCALL *wglCopyContext_fp)(HGLRC, HGLRC, UINT);
@@ -1121,6 +1130,7 @@ DEFVAR glMultiTexCoord2fARB_fp dglMultiTexCoord2fARB;
 DEFVAR glActiveTextureARB_fp dglActiveTextureARB;
 DEFVAR glMultiTexCoord2fSGIS_fp dglMultiTexCoord2fSGIS;
 DEFVAR glSelectTextureSGIS_fp dglSelectTextureSGIS;
+DEFVAR glColorTableEXT_fp dglColorTableEXT;
 
 #ifdef _WIN32
 DEFVAR wglCopyContext_fp dwglCopyContext;
@@ -1937,6 +1947,7 @@ void OpenGL_SetFuncsToNull(void)
 	dglActiveTextureARB = NULL;
 	dglMultiTexCoord2fSGIS = NULL;
 	dglSelectTextureSGIS = NULL;
+	dglColorTableEXT = NULL;
 
 #ifdef _WIN32
 	dwglCopyContext = NULL;
