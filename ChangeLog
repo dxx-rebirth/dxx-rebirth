@@ -4,6 +4,8 @@
 
 	* arch/ogl/gr.c: Implement fading in ogl_urect()
 
+	* main/gauges.c: Draw ship before shields in HUD.
+
 2004-12-23  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/editor/centers.c: Use both ints with the robot producer

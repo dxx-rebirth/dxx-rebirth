@@ -1,4 +1,4 @@
-/* $Id: gauges.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: gauges.c,v 1.12 2005-01-06 05:25:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -3447,6 +3447,16 @@ void render_gauges()
 		if (Players[Player_num].homing_object_dist >= 0)
 			newdemo_record_homing_distance(Players[Player_num].homing_object_dist);
 
+	if (frc || cloak != old_cloak[VR_current_page] || cloak_fade_state || (cloak && GameTime>Players[Player_num].cloak_time+CLOAK_TIME_MAX-i2f(3)))
+	{
+		if (Cockpit_mode == CM_FULL_COCKPIT)
+			draw_player_ship(cloak, old_cloak[VR_current_page], SHIP_GAUGE_X, SHIP_GAUGE_Y);
+		else
+			draw_player_ship(cloak, old_cloak[VR_current_page], SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
+
+		old_cloak[VR_current_page] = cloak;
+	}
+
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
 		if (energy != old_energy[VR_current_page]) {
 			if (Newdemo_state==ND_STATE_RECORDING ) {
@@ -3562,15 +3572,6 @@ void render_gauges()
 		}
 
 		show_bomb_count(SB_BOMB_COUNT_X,SB_BOMB_COUNT_Y,gr_find_closest_color(5,5,5),0);
-	}
-
-	if (frc || cloak != old_cloak[VR_current_page] || cloak_fade_state || (cloak && GameTime>Players[Player_num].cloak_time+CLOAK_TIME_MAX-i2f(3))) {
-		if (Cockpit_mode == CM_FULL_COCKPIT)
-			draw_player_ship(cloak,old_cloak[VR_current_page],SHIP_GAUGE_X,SHIP_GAUGE_Y);
-		else
-			draw_player_ship(cloak,old_cloak[VR_current_page],SB_SHIP_GAUGE_X,SB_SHIP_GAUGE_Y);
-
-		old_cloak[VR_current_page]=cloak;
 	}
 
 
