@@ -1,4 +1,4 @@
-/* $Id: object.c,v 1.14 2004-05-22 02:05:51 btb Exp $ */
+/* $Id: object.c,v 1.15 2004-05-31 18:22:20 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2346,12 +2346,12 @@ void object_move_one( object * obj )
 			explode_object(obj,0);
 	}
 
-	// the following ( if !dead) statement added by WraithX
-	if (!Player_is_dead)
-	{
-	if (obj->type == OBJ_NONE || obj->flags&OF_SHOULD_BE_DEAD)
-		return;			//object has been deleted
-	}// end addition by WraithX
+	if (obj->type == OBJ_NONE)
+		return;         // object has been deleted
+
+	// stay around if !dead, for WraithX's death-cam
+	if (!Player_is_dead && obj->flags&OF_SHOULD_BE_DEAD)
+		return;
 
 	switch (obj->movement_type) {
 
