@@ -1,13 +1,6 @@
 2003-06-06  Bradley Bell  <btb@icculus.org>
 
-	* main/kconfig.c: fix crash in control menus
-
 	* console/.cvsignore: added .cvsignore
-
-	* main/gauges.c: force cockpit redraw in opengl
-
-	* main/gamerend.c: move ogl swap, so cockpit and console get
-	rendered properly
 
 	* main/console.c: can't write to console after it's closed
 
@@ -52,6 +45,21 @@
 
 	* Info.plist.in, Makefile.am, configure.ac: add support for MacOS
 	X bundle
+
+0.2.5:
+
+2003-06-06  Bradley Bell  <btb@icculus.org>
+
+	* main/kconfig.c: fix crash in control menus
+
+	* main/gauges.c: force cockpit redraw in opengl
+
+	* main/gamerend.c: move ogl swap, so cockpit and console get
+	rendered properly
+
+2003-06-01  Bradley Bell  <btb@icculus.org>
+
+	* configure.ac, libmve/mveplay.c: define struct timeval if needed
 
 0.2.4:
 
