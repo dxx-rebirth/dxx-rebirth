@@ -1,9 +1,10 @@
-/* $Id: midi.c,v 1.3 2005-03-18 03:42:43 btb Exp $ */
+/* $Id: midi.c,v 1.4 2005-04-04 08:54:12 btb Exp $ */
 // MIDI stuff follows.
 #include <stdio.h>
 
 #include "error.h"
 #include "hmpfile.h"
+#include "args.h"
 
 hmp_file *hmp = NULL;
 
@@ -46,6 +47,9 @@ void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, in
 	if (!digi_initialised)
 		return;
 #endif
+
+	if (FindArg("-nosound"))
+		return;
 
 	digi_stop_current_song();
 
