@@ -2,6 +2,9 @@
 
 	* misc/strutil.c: fix stricmp and strnicmp
 
+	* main/mission.c: set builtin_hogsize to 0 for the Descent 1 built
+	in mission
+
 2004-12-02  Bradley Bell  <btb@icculus.org>
 
 	* include/physfsx.h: use sprintf in PHYSFSX_getRealPath() because
