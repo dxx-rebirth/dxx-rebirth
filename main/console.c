@@ -1,14 +1,7 @@
+/* $ Id: $ */
 /*
- * $Source: /cvs/cvsroot/d2x/main/console.c,v $
- * $Revision: 1.6 $
- * $Author: btb $
- * $Date: 2002-07-22 02:17:10 $
  *
  * FIXME: put description here
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.5  2001/10/19 09:47:34  bradleyb
- * RCS headers added
  *
  *
  */

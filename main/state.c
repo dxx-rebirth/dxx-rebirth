@@ -1,3 +1,4 @@
+/* $ Id: $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -10,18 +11,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-
 /*
- * $Source: /cvs/cvsroot/d2x/main/state.c,v $
- * $Revision: 1.6 $
- * $Author: btb $
- * $Date: 2002-07-22 02:17:10 $
  *
  * Game save/restore functions
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.5  2001/11/09 11:40:25  bradleyb
- * Enabled savegame thumbnails under OpenGL
  *
  *
  */
