@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.26 2004-10-23 19:39:35 schaffner Exp $ */
+/* $Id: network.c,v 1.27 2004-10-30 10:30:57 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.26 2004-10-23 19:39:35 schaffner Exp $";
+static char rcsid[] = "$Id: network.c,v 1.27 2004-10-30 10:30:57 schaffner Exp $";
 #endif
 
 #define PATCH12
@@ -397,9 +397,6 @@ network_init(void)
 	memset(&My_Seq, 0, sizeof(sequence_packet));
 	My_Seq.type = PID_REQUEST;
 	memcpy(My_Seq.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
-
-	if (is_D2_OEM)
-	   Version_minor|=NETWORK_OEM;
 
 	My_Seq.player.version_major=Version_major;
 	My_Seq.player.version_minor=Version_minor;
@@ -3750,6 +3747,9 @@ network_start_game()
 
 	if (i<0) return;
 
+    if (is_D2_OEM)
+        My_Seq.player.version_minor|=NETWORK_OEM;
+    
 	N_players = 0;
 
 // LoadLevel(level); Old, no longer used.
@@ -4452,7 +4452,10 @@ remenu:
 				nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
 				goto remenu;
 			}
-	}
+            
+            if (is_D2_OEM)
+                My_Seq.player.version_minor|=NETWORK_OEM;
+    }
 #endif
 
 	if (is_D2_OEM)

@@ -1,3 +1,7 @@
+2004-10-30  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* main/network.c: fix crash introduced with previous change
+
 2004-10-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/gameseq.c, main/gameseq.h, main/mission.c, main/mission.h,
