@@ -1,5 +1,8 @@
 2003-02-26  Bradley Bell  <bradleyb@smeagol>
 
+	* NEWS, configure.ac, readme.txt: clean stuff up, getting ready
+	for 0.2.0 release
+
 	* main/titles.c: begin support for rendering spinning robots in
 	briefings
 

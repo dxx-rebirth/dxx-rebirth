@@ -1,8 +1,8 @@
 # -*- mode: shell-script -*-
 
 define([D2X_MAJOR],0)
-define([D2X_MINOR],1)
-define([D2X_MICRO],4)
+define([D2X_MINOR],2)
+define([D2X_MICRO],0)
 
 AC_INIT(d2x,[D2X_MAJOR.D2X_MINOR.D2X_MICRO],[descent-source@warpcore.org])
 AC_PREREQ(2.52)
@@ -292,6 +292,7 @@ AM_CONDITIONAL(USE_ASM, test x$enable_assembler != xno)
 
 AH_BOTTOM([
         /* General defines */
+#define VERSION_NAME PACKAGE_STRING
 #define NMONO 1
 #define PIGGY_USE_PAGING 1
 #define NEWDEMO 1

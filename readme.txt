@@ -1,6 +1,3 @@
-Please view the file README before this file.
-
-
 Legal Stuff:
 
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
