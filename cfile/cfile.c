@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.13 2003-06-22 23:06:00 btb Exp $ */
+/* $Id: cfile.c,v 1.14 2003-07-23 05:48:36 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -551,6 +551,8 @@ int cfilelength( CFILE *fp )
 //
 int cfwrite(void *buf, int elsize, int nelem, CFILE *cfile)
 {
+	int items_written;
+
 	Assert(cfile != NULL);
 	Assert(buf != NULL);
 	Assert(elsize > 0);
@@ -558,7 +560,12 @@ int cfwrite(void *buf, int elsize, int nelem, CFILE *cfile)
 	Assert(cfile->file != NULL);
 	Assert(cfile->lib_offset == 0);
 
-	return fwrite(buf, elsize, nelem, cfile->file);
+	items_written = fwrite(buf, elsize, nelem, cfile->file);
+
+	cfile->raw_position += items_written;
+	Assert(cfile->raw_position == ftell(cfile->file));
+
+	return items_written;
 }
 
 
