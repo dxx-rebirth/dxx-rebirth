@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.21 2003-03-22 01:38:54 btb Exp $ */
+/* $Id: gameseq.c,v 1.22 2003-03-22 02:41:42 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.21 2003-03-22 01:38:54 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.22 2003-03-22 02:41:42 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -909,25 +909,25 @@ void load_bitmap_replacements(char *level_name)
 
 void load_d1_bitmap_replacements()
 {
-	CFILE * Piggy_fp;
-	int i;
+	CFILE * d1_Piggy_fp;
 	grs_bitmap temp_bitmap;
 	DiskBitmapHeader bmh;
-	int current_pos, zsize;
-	int bitmap_data_start, pig_data_start;
-	int N_bitmaps;
+	int pig_data_start, bitmap_header_start, bitmap_data_start;
+	int N_bitmaps, zsize;
+	int d1_index, d2_index;
 	ubyte colormap[256];
-	ubyte *next_bitmap; // where we write the next bitmap to
+	ubyte *next_bitmap; // to which address we write the next bitmap
 
 #ifndef MACINTOSH
-	Piggy_fp = cfopen( "descent.pig", "rb" );
+	d1_Piggy_fp = cfopen( "descent.pig", "rb" );
 #else
-	Piggy_fp = cfopen( "Data:Descent.pig", "rb" );
+	d1_Piggy_fp = cfopen( "Data:Descent.pig", "rb" );
 #endif  // end of ifndef/else MACINTOSH
 
-	if (!Piggy_fp)
+	if (!d1_Piggy_fp)
 		return; // use d2 bitmaps instead...
 
+	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
 	// read d1 palette, build colormap
@@ -946,42 +946,45 @@ void load_d1_bitmap_replacements()
 	}
 
 
-	if (0) //TODO: put here cfilelength(Piggy_fp) == D1_PIG_SHARE
+	if (0) //TODO: put here cfilelength(d1_Piggy_fp) == D1_PIG_SHARE
 		pig_data_start = 0;
 	else {
 		//int i;
-		pig_data_start = cfile_read_int(Piggy_fp );
-		bm_read_all_d1( Piggy_fp );
-		//for (i = 0; i < 1800; i++) GameBitmapXlat[i] = cfile_read_short(Piggy_fp);
+		pig_data_start = cfile_read_int(d1_Piggy_fp );
+		bm_read_all_d1( d1_Piggy_fp );
+		//for (i = 0; i < 1800; i++) GameBitmapXlat[i] = cfile_read_short(d1_Piggy_fp);
 	}
-	cfseek( Piggy_fp, pig_data_start, SEEK_SET );
-	N_bitmaps = cfile_read_int(Piggy_fp);
+	cfseek( d1_Piggy_fp, pig_data_start, SEEK_SET );
+	N_bitmaps = cfile_read_int(d1_Piggy_fp);
 	{
-		int N_sounds = cfile_read_int(Piggy_fp);
+		int N_sounds = cfile_read_int(d1_Piggy_fp);
 		int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
 				+ N_sounds * DISKSOUNDHEADER_SIZE;
-		bitmap_data_start = pig_data_start + 2*sizeof(int) + header_size;
+		bitmap_header_start = pig_data_start + 2 * sizeof(int);
+		bitmap_data_start = bitmap_header_start + header_size;
 	}
-	
-	MALLOC( Bitmap_replacement_data, ubyte, cfilelength(Piggy_fp) - bitmap_data_start ); // too much
+
+	MALLOC( Bitmap_replacement_data, ubyte, cfilelength(d1_Piggy_fp) - bitmap_data_start ); // too much
 	//TODO: handle case where b_r_d == 0! (have to convert textures, return, not bm_read_all_d1)
 
 	next_bitmap = Bitmap_replacement_data;
 
-	for (i=1; i<=N_bitmaps; i++ ) {
-		DiskBitmapHeader_d1_read(&bmh, Piggy_fp);
-
+	for (d1_index=1; d1_index<=N_bitmaps; d1_index++ ) {
 		// only change wall texture bitmaps
-		if (i >= FIRST_D1_TEXTURE && i <= LAST_D1_STATIC_TEXTURE) {
-			current_pos = cftell(Piggy_fp);
+		if (d1_index >= FIRST_D1_TEXTURE && d1_index <= LAST_D1_STATIC_TEXTURE) {
+			d2_index = d1_index + FIRST_D2_TEXTURE - FIRST_D1_TEXTURE;
+
+			cfseek(d1_Piggy_fp, bitmap_header_start + (d1_index-1) * DISKBITMAPHEADER_D1_SIZE, SEEK_SET);
+			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
+
 			memset( &temp_bitmap, 0, sizeof(grs_bitmap) );
-		
+
 			temp_bitmap.bm_w = temp_bitmap.bm_rowsize = bmh.width + ((short) (bmh.wh_extra&0x0f)<<8);
 			temp_bitmap.bm_h = bmh.height + ((short) (bmh.wh_extra&0xf0)<<4);
 			temp_bitmap.avg_color = bmh.avg_color;
 
-			//GameBitmapFlags[convert_d1_bitmap_num(i)] = 0;
-			
+			//GameBitmapFlags[convert_d1_bitmap_num(d1_index)] = 0;
+
 			if ( bmh.flags & BM_FLAG_TRANSPARENT )
 				temp_bitmap.bm_flags |= BM_FLAG_TRANSPARENT;
 			if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT )
@@ -992,29 +995,35 @@ void load_d1_bitmap_replacements()
 				temp_bitmap.bm_flags |= BM_FLAG_RLE;
 			if ( bmh.flags & BM_FLAG_RLE_BIG )
 				temp_bitmap.bm_flags |= BM_FLAG_RLE_BIG;
-				
+
 			temp_bitmap.bm_data = next_bitmap;
 
-			cfseek(Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
-			zsize = cfile_read_int(Piggy_fp);
-			cfseek(Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
-			cfread(next_bitmap, 1, zsize, Piggy_fp);
-			cfseek(Piggy_fp, current_pos, SEEK_SET);
+			cfseek(d1_Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
+			zsize = cfile_read_int(d1_Piggy_fp);
+			cfseek(d1_Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
+			cfread(next_bitmap, 1, zsize, d1_Piggy_fp);
 
-			//rle_swap_0_255(&temp_bitmap);
+			switch(cfilelength(d1_Piggy_fp)) {
+			case D1_MAC_PIGSIZE:
+			case D1_MAC_SHARE_PIGSIZE:
+				rle_swap_0_255(&temp_bitmap);
+			}
 			rle_remap(&temp_bitmap, colormap);
-			GameBitmaps[i + FIRST_D2_TEXTURE - FIRST_D1_TEXTURE] = temp_bitmap;
+
+			GameBitmaps[d2_index] = temp_bitmap;
 
 			memcpy(&zsize, temp_bitmap.bm_data, 4);
 			next_bitmap += zsize;
 		}
 	}
 
-	cfclose(Piggy_fp);
+	cfclose(d1_Piggy_fp);
 
 	last_palette_loaded_pig[0]= 0;	//force pig re-load
 
 	texmerge_flush();		//for re-merging with new textures
+
+	atexit(free_bitmap_replacements);
 }
 
 

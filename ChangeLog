@@ -1,5 +1,7 @@
 2003-03-21  Martin Schaffner <maschaffner@gmx.ch>
 
+	* main/gameseq.c: attempt to support mac d1 descent.pig
+
 	* main/bm.c: fix mem leak
 
 	* main/gameseq.c: fix bug: when opening d1 level 1 with oem data
