@@ -1,4 +1,4 @@
-/* $Id: byteswap.h,v 1.7 2003-04-12 00:11:46 btb Exp $ */
+/* $Id: byteswap.h,v 1.8 2003-10-03 04:01:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,6 +15,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * code to swap bytes because of big/little endian problems.
+ * contains the macros:
+ * SWAP{INT,SHORT}(x): returns a swapped version of x
+ * INTEL_{INT,SHORT}(x): returns x after conversion to/from little endian
+ * GET_INTEL_{INT,SHORT}(dest, src): gets value dest from buffer src
+ * PUT_INTEL_{INT,SHORT}(dest, src): puts value src into buffer dest
+ *
+ * the GET/PUT macros are safe to use on platforms which segfault on unaligned word access
  *
  * Old Log:
  * Revision 1.4  1995/08/23  21:28:15  allender
@@ -40,11 +47,29 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SWAPINT(x)   (((x)<<24) | (((uint)(x)) >> 24) | (((x) &0x0000ff00) << 8) | (((x) & 0x00ff0000) >> 8))
 
 #ifndef WORDS_BIGENDIAN
-#define INTEL_INT(x)	x
-#define INTEL_SHORT(x)	x
-#else
-#define INTEL_INT(x)	SWAPINT(x)
-#define INTEL_SHORT(x)	SWAPSHORT(x)
-#endif
+#define INTEL_INT(x)    x
+#define INTEL_SHORT(x)  x
+#else // ! WORDS_BIGENDIAN
+#define INTEL_INT(x)    SWAPINT(x)
+#define INTEL_SHORT(x)  SWAPSHORT(x)
+#endif // ! WORDS_BIGENDIAN
 
-#endif
+#ifndef WORDS_NEED_ALIGNMENT
+#define GET_INTEL_INT(d, s)     { (uint)(d) = INTEL_INT(*(uint *)(s)); }
+#define GET_INTEL_SHORT(d, s)   { (ushort)(d) = INTEL_SHORT(*(ushort *)(s)); }
+#define PUT_INTEL_INT(d, s)     { *(uint *)(d) = INTEL_INT((uint)(s)); }
+#define PUT_INTEL_SHORT(d, s)   { *(ushort *)(d) = INTEL_SHORT((ushort)(s)); }
+#else // ! WORDS_NEED_ALIGNMENT
+#define GET_INTEL_INT(d, s)     { uint tmp; \
+                                  memcpy((void *)&tmp, (void *)(s), 4); \
+                                  (uint)(d) = INTEL_INT(tmp); }
+#define GET_INTEL_SHORT(d, s)   { ushort tmp; \
+                                  memcpy((void *)&tmp, (void *)(s), 4); \
+                                  (ushort)(d) = INTEL_SHORT(tmp); }
+#define PUT_INTEL_INT(d, s)     { uint tmp = INTEL_INT(s); \
+                                  memcpy((void *)d, (void *)&tmp, 4);}
+#define PUT_INTEL_SHORT(d, s)   { ushort tmp = INTEL_SHORT(s); \
+                                  memcpy((void *)d, (void *)&tmp, 4);}
+#endif // ! WORDS_NEED_ALIGNMENT
+
+#endif // ! _BYTESWAP_H
