@@ -2,6 +2,8 @@
 
 	* cfile/cfile.c: update raw_position in cfwrite
 
+	* main/network.c: comments/formatting
+
 2003-06-22  Bradley Bell  <btb@icculus.org>
 
 	* cfile/cfile.c: use standard fgets for non-archive files

@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.18 2003-06-16 07:11:40 btb Exp $ */
+/* $Id: network.c,v 1.19 2003-07-25 05:08:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.18 2003-06-16 07:11:40 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.19 2003-07-25 05:08:08 btb Exp $";
 #endif
 
 #define PATCH12
@@ -77,26 +77,34 @@ static char rcsid[] = "$Id: network.c,v 1.18 2003-06-16 07:11:40 btb Exp $";
 #define LHX(x)          ((x)*(MenuHires?2:1))
 #define LHY(y)          ((y)*(MenuHires?2.4:1))
 
-#define PID_LITE_INFO           43
-#define PID_SEND_ALL_GAMEINFO   44
-#define PID_PLAYERSINFO         45
-#define PID_REQUEST             46
-#define PID_SYNC                47
-#define PID_PDATA               48
-#define PID_ADDPLAYER           49
-#define PID_DUMP                51
-#define PID_ENDLEVEL            52
-#define PID_QUIT_JOINING        54
-#define PID_OBJECT_DATA         55
-#define PID_GAME_LIST           56
-#define PID_GAME_INFO           57
-#define PID_PING_SEND           58
-#define PID_PING_RETURN         59
-#define PID_GAME_UPDATE         60
-#define PID_ENDLEVEL_SHORT      61
-#define PID_NAKED_PDATA         62
-#define PID_GAME_PLAYERS        63
-#define PID_NAMES_RETURN        64
+/* the following are the possible packet identificators.
+ * they are stored in the "type" field of the packet structs.
+ * they are offset 4 bytes from the beginning of the raw IPX data
+ * because of the "driver's" ipx_packetnum (see linuxnet.c).
+ */
+#define PID_LITE_INFO       43 // 0x2B lite game info
+#define PID_SEND_ALL_GAMEINFO 44 // 0x2C plz send more than lite only
+#define PID_PLAYERSINFO     45 // 0x2D here's my name & personal data
+#define PID_REQUEST         46 // 0x2E may i join, plz send sync
+#define PID_SYNC            47 // 0x2F master says: enter mine now!
+#define PID_PDATA           48 // 0x30
+#define PID_ADDPLAYER       49
+
+#define PID_DUMP            51 // 0x33 you can't join this game
+#define PID_ENDLEVEL        52
+
+#define PID_QUIT_JOINING    54
+#define PID_OBJECT_DATA     55 // array of bots, players, powerups, ...
+#define PID_GAME_LIST       56 // 0x38 give me the list of your games
+#define PID_GAME_INFO       57 // 0x39 here's a game i've started
+#define PID_PING_SEND       58
+#define PID_PING_RETURN     59
+#define PID_GAME_UPDATE     60 // inform about new player/team change
+#define PID_ENDLEVEL_SHORT  61
+#define PID_NAKED_PDATA     62
+#define PID_GAME_PLAYERS    63
+#define PID_NAMES_RETURN    64 // 0x40
+
 
 #define NETGAME_ANARCHY         0
 #define NETGAME_TEAM_ANARCHY    1
@@ -106,10 +114,15 @@ static char rcsid[] = "$Id: network.c,v 1.18 2003-06-16 07:11:40 btb Exp $";
 #define NETGAME_HOARD           5
 #define NETGAME_TEAM_HOARD      6
 
+/* The following are values for NetSecurityFlag */
 #define NETSECURITY_OFF                 0
 #define NETSECURITY_WAIT_FOR_PLAYERS    1
 #define NETSECURITY_WAIT_FOR_GAMEINFO   2
 #define NETSECURITY_WAIT_FOR_SYNC       3
+/* The NetSecurityNum and the "Security" field of the network structs
+ * identifies a netgame. It is a random number chosen by the network master
+ * (the one that did "start netgame").
+ */
 
 // MWA -- these structures are aligned -- please save me sanity and
 // headaches by keeping alignment if these are changed!!!!  Contact
@@ -120,7 +133,7 @@ typedef struct endlevel_info {
 	ubyte                               player_num;
 	byte                                connected;
 	ubyte                               seconds_left;
-	short                               kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
+	short                              kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 	short                               kills;
 	short                               killed;
 } endlevel_info;
@@ -277,20 +290,21 @@ char WantPlayersInfo=0;
 char WaitingForPlayerInfo=0;
 
 char *RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
-								"Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
+                     "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
 extern obj_position Player_init[MAX_PLAYERS];
 
 extern int force_cockpit_redraw;
 
-#define DUMP_CLOSED     0
-#define DUMP_FULL       1
+// reasons for a packet with type PID_DUMP
+#define DUMP_CLOSED     0 // no new players allowed after game started
+#define DUMP_FULL       1 // player cound maxed out
 #define DUMP_ENDLEVEL   2
 #define DUMP_DORK       3
 #define DUMP_ABORTED    4
-#define DUMP_CONNECTED  5
+#define DUMP_CONNECTED  5 // never used
 #define DUMP_LEVEL      6
-#define DUMP_KICKED     7
+#define DUMP_KICKED     7 // never used
 
 extern ubyte Version_major,Version_minor;
 extern ubyte SurfingNet;
@@ -444,8 +458,8 @@ network_i_am_master(void)
 			return 0;
 	return 1;
 }
-int
-network_who_is_master(void)
+
+int network_who_is_master(void)
 {
 	// Who is the master of this game?
 
@@ -1794,24 +1808,23 @@ network_send_endlevel_sub(int player_num)
 	}
 }
 
+/* Send an updated endlevel status to other hosts */
 void
 network_send_endlevel_packet(void)
 {
-	// Send an updated endlevel status to other hosts
-
 	network_send_endlevel_sub(Player_num);
 }
 
 
+/* Send an endlevel packet for a player */
 void
 network_send_endlevel_short_sub(int from_player_num,int to_player)
 {
 	endlevel_info_short end;
 
-	// Send an endlevel packet for a player
-	end.type                = PID_ENDLEVEL_SHORT;
+	end.type = PID_ENDLEVEL_SHORT;
 	end.player_num = from_player_num;
-	end.connected   = Players[from_player_num].connected;
+	end.connected = Players[from_player_num].connected;
 	end.seconds_left = Countdown_seconds_left;
 
 
@@ -1961,10 +1974,9 @@ void network_send_lite_info(sequence_packet *their)
 
 }       
 
+/* Send game info to all players in this game */
 void network_send_netgame_update()
 {
-	// Send game info to someone who requested it
-
 	char old_type, old_status;
 	int i;
 
@@ -2755,9 +2767,11 @@ network_read_object_packet( ubyte *data )
 	} // For each object in packet
 }
 	
+/* Polling loop waiting for sync packet to start game
+ * after having sent request
+ */
 void network_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
 {
-	// Polling loop waiting for sync packet to start game
 
 	static fix t1 = 0;
 
@@ -4126,11 +4140,10 @@ menu:
 		goto menu;
 }
 
+/* Do required syncing after each level, before starting new one */
 int
 network_level_sync(void)
 {
-	// Do required syncing between (before) levels
-
 	int result;
 
 	mprintf((0, "Player %d entering network_level_sync.\n", Player_num));
