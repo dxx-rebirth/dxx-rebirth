@@ -1,3 +1,7 @@
+2003-04-03  Bradley Bell  <btb@icculus.org>
+
+	* main/endlevel.c: fixed exit model scheme yet again
+
 2003-04-02  Bradley Bell  <btb@icculus.org>
 
 	* misc/error.c: call Int3 on Assert

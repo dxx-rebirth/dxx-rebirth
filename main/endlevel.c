@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.13 2003-03-29 22:34:59 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.14 2003-04-03 08:38:33 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -306,7 +306,9 @@ void start_endlevel_sequence()
 	int inited = 0;
 
 	if (!inited) {
-		if (Piggy_hamfile_version >= 3)
+		if (Piggy_hamfile_version >= 3 &&
+			(Mission_list[Current_mission_num].descent_version == 1 ||
+			 Current_mission_num == Builtin_mission_num))
 			inited = load_exit_models();
 		else
 			inited = 1;
