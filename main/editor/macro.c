@@ -1,4 +1,4 @@
-/* $Id: macro.c,v 1.5 2005-01-24 22:09:54 schaffner Exp $ */
+/* $Id: macro.c,v 1.6 2005-01-25 19:31:56 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: macro.c,v 1.5 2005-01-24 22:09:54 schaffner Exp $";
+static char rcsid[] = "$Id: macro.c,v 1.6 2005-01-25 19:31:56 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -46,7 +46,6 @@ static char rcsid[] = "$Id: macro.c,v 1.5 2005-01-24 22:09:54 schaffner Exp $";
 #include "bm.h"
 #include "error.h"
 #include "medlisp.h"
-#include "cflib.h"
 
 #include "kdefs.h"
 
@@ -116,20 +115,38 @@ int MacroSave()
 		return 1;
 	}
 
-	if (ui_get_filename( filename, "*.MAC", "SAVE MACRO" ))   {
+	if (ui_get_filename( filename, "*.MAC", "SAVE MACRO" ))
+	{
+		PHYSFS_file *fp = PHYSFS_openWrite(filename);
+
+		if (!fp) return 0;
 		RecordBuffer[0].type = 7;
 		RecordBuffer[0].frame = 0;
 		RecordBuffer[0].data = MacroNumEvents;
-		WriteFile(  filename, RecordBuffer, sizeof(UI_EVENT)*MacroNumEvents );
+		PHYSFS_write(fp, RecordBuffer, sizeof(UI_EVENT), MacroNumEvents);
+		PHYSFS_close(fp);
 	}
 	return 1;
 }
 
 int MacroLoad()
 {
-	if (ui_get_filename( filename, "*.MAC", "LOAD MACRO" ))   {
-		if (RecordBuffer) free( RecordBuffer );
-		RecordBuffer = (UI_EVENT *)ReadFile( filename, &length );
+	if (ui_get_filename( filename, "*.MAC", "LOAD MACRO" ))
+	{
+		PHYSFS_file *fp = PHYSFS_openRead(filename);
+		int length;
+
+		if (!fp)
+			return 0;
+		if (RecordBuffer)
+			free( RecordBuffer );
+		length = PHYSFS_fileLength(fp);
+		RecordBuffer = d_malloc(length);
+		if (!RecordBuffer)
+			return 0;
+
+		PHYSFS_read(fp, RecordBuffer, length, 1);
+		PHYSFS_close(fp);
 		MacroNumEvents = RecordBuffer[0].data;
 	}
 	return 1;
