@@ -1,3 +1,4 @@
+/* $Id: 3d.h,v 1.6 2002-09-05 08:03:22 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,40 +8,120 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/include/3d.h,v $
- * $Revision: 1.5 $
- * $Author: bradleyb $
- * $Date: 2001-11-05 07:38:09 $
  *
  * Header file for 3d library
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.4  2001/10/31 07:41:54  bradleyb
- * Sync with d1x
- *
- * Revision 1.3  2001/10/25 02:06:58  bradleyb
- * added prototype for g3_uninit_polygon_model
- *
- * Revision 1.2  2001/01/20 13:49:14  bradleyb
- * Got rid of all compiler warnings, for non-OpenGL on linux, anyway...
- *
- * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
- * Import of d2x-0.0.8
- *
- * Revision 1.1.1.1  1999/06/14 22:02:03  donut
- * Import of d1x 1.37 source.
- *
+ * Old Log:
  * Revision 1.2  1995/09/14  14:08:58  allender
  * return value for g3_draw_sphere
  *
  * Revision 1.1  1995/05/05  08:48:41  allender
  * Initial revision
  *
- * 
+ * Revision 1.34  1994/11/11  19:22:14  matt
+ * Added new function, g3_calc_point_depth()
+ *
+ * Revision 1.33  1994/09/09  14:23:58  matt
+ * Added support for glowing textures, to add engine glow to Descent.
+ *
+ * Revision 1.32  1994/09/01  10:42:27  matt
+ * Blob routine, renamed g3_draw_bitmap(), now takes seperate 3d width & height.
+ *
+ * Revision 1.31  1994/07/29  18:16:14  matt
+ * Added instance by angles, and corrected parms for g3_init()
+ *
+ * Revision 1.30  1994/07/25  00:00:00  matt
+ * Made 3d no longer deal with point numbers, but only with pointers.
+ *
+ * Revision 1.29  1994/07/22  17:57:27  matt
+ * Changed the name of the rod functions, and took out some debugging code
+ *
+ * Revision 1.28  1994/06/07  16:49:12  matt
+ * Made interpreter take lighting value as parm, rather than in global var
+ *
+ * Revision 1.27  1994/05/31  18:35:28  matt
+ * Added light value to g3_draw_facing_bitmap()
+ *
+ * Revision 1.26  1994/05/30  22:48:04  matt
+ * Added support for morph effect
+ *
+ * Revision 1.25  1994/05/30  11:34:57  matt
+ * Added g3_set_special_render() to allow a user to specify functions to
+ * call for 2d draws.
+ *
+ * Revision 1.24  1994/05/19  21:46:31  matt
+ * Moved texture lighting out of 3d and into the game
+ *
+ * Revision 1.23  1994/05/14  15:26:48  matt
+ * Added extern for polyobj outline flag
+ *
+ * Revision 1.22  1994/04/19  18:26:33  matt
+ * Added g3_draw_sphere() function.
+ *
+ * Revision 1.21  1994/03/25  18:22:28  matt
+ * g3_draw_polygon_model() now takes ptr to list of angles
+ *
+ * Revision 1.20  1994/03/15  21:23:23  matt
+ * Added interpreter functions
+ *
+ * Revision 1.19  1994/02/15  17:37:34  matt
+ * New function, g3_draw_blob()
+ *
+ * Revision 1.18  1994/02/09  11:47:47  matt
+ * Added rod & delta point functions
+ *
+ * Revision 1.17  1994/01/26  12:38:11  matt
+ * Added function g3_compute_lighting_value()
+ *
+ * Revision 1.16  1994/01/25  18:00:02  yuan
+ * Fixed variable beam_brightness...
+ *
+ * Revision 1.15  1994/01/24  14:08:34  matt
+ * Added instancing functions
+ *
+ * Revision 1.14  1994/01/22  18:21:48  matt
+ * New lighting stuff now done in 3d; g3_draw_tmap() takes lighting parm
+ *
+ * Revision 1.13  1994/01/20  17:21:24  matt
+ * New function g3_compute_sky_polygon()
+ *
+ * Revision 1.12  1994/01/14  17:20:25  matt
+ * Added prototype for new function g3_draw_horizon()
+ *
+ * Revision 1.10  1993/12/20  20:21:52  matt
+ * Added g3_point_2_vec()
+ *
+ * Revision 1.9  1993/12/07  23:05:47  matt
+ * Fixed mistyped function name.
+ *
+ * Revision 1.8  1993/12/05  23:47:03  matt
+ * Added function g3_draw_line_ptrs()
+ *
+ * Revision 1.7  1993/12/05  23:13:22  matt
+ * Added prototypes for g3_rotate_point() and g3_project_point()
+ *
+ * Revision 1.6  1993/12/05  23:03:28  matt
+ * Changed uvl structs to g3s_uvl
+ *
+ * Revision 1.5  1993/11/22  10:51:09  matt
+ * Moved uvl structure here from segment.h, made texture map functions use it
+ *
+ * Revision 1.4  1993/11/21  20:08:31  matt
+ * Added function g3_draw_object()
+ *
+ * Revision 1.3  1993/11/04  18:49:19  matt
+ * Added system to only rotate points once per frame
+ *
+ * Revision 1.2  1993/11/04  08:16:06  mike
+ * Add light field (p3_l) to g3s_point.
+ *
+ * Revision 1.1  1993/10/29  22:20:56  matt
+ * Initial revision
  *
  */
 
@@ -48,11 +129,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _3D_H
 
 #include "fix.h"
-#include "vecmat.h"	//the vector/matrix library
+#include "vecmat.h" //the vector/matrix library
 #include "gr.h"
 
-extern int g3d_interp_outline;		//if on, polygon models outlined in white
-extern vms_vector Matrix_scale;
+extern int g3d_interp_outline;      //if on, polygon models outlined in white
+
+extern vms_vector Matrix_scale;     //how the matrix is currently scaled
+
 extern short highest_texture_num;
 
 //Structure for storing u,v,light values.  This structure doesn't have a
@@ -63,36 +146,36 @@ typedef struct g3s_uvl {
 
 //Stucture to store clipping codes in a word
 typedef struct g3s_codes {
-	ubyte or,and;	//or is low byte, and is high byte
+	ubyte or,and;   //or is low byte, and is high byte
 } g3s_codes;
 
 //flags for point structure
-#define PF_PROJECTED 	1	//has been projected, so sx,sy valid
-#define PF_OVERFLOW		2	//can't project
-#define PF_TEMP_POINT	4	//created during clip
-#define PF_UVS				8	//has uv values set
-#define PF_LS				16	//has lighting values set
+#define PF_PROJECTED    1   //has been projected, so sx,sy valid
+#define PF_OVERFLOW     2   //can't project
+#define PF_TEMP_POINT   4   //created during clip
+#define PF_UVS          8   //has uv values set
+#define PF_LS           16  //has lighting values set
 
 //clipping codes flags
 
-#define CC_OFF_LEFT	1
-#define CC_OFF_RIGHT	2
-#define CC_OFF_BOT	4
-#define CC_OFF_TOP	8
-#define CC_BEHIND		0x80
+#define CC_OFF_LEFT     1
+#define CC_OFF_RIGHT    2
+#define CC_OFF_BOT      4
+#define CC_OFF_TOP      8
+#define CC_BEHIND       0x80
 
 //Used to store rotated points for mines.  Has frame count to indictate
 //if rotated, and flag to indicate if projected.
 typedef struct g3s_point {
-	vms_vector p3_vec;         //reference as vector...
+	vms_vector p3_vec;  //x,y,z of rotated point
 #ifdef D1XD3D
 	vms_vector p3_orig;
 #endif
-	fix p3_u,p3_v,p3_l;
-	fix p3_sx,p3_sy;		//screen x&y
-	ubyte p3_codes;		//clipping codes
-	ubyte p3_flags;		//projected?
-	short p3_pad;			//keep structure longwork aligned
+	fix p3_u,p3_v,p3_l; //u,v,l coords
+	fix p3_sx,p3_sy;    //screen x&y
+	ubyte p3_codes;     //clipping codes
+	ubyte p3_flags;     //projected?
+	short p3_pad;       //keep structure longword aligned
 } g3s_point;
 
 //macros to reference x,y,z elements of a 3d point
@@ -239,9 +322,9 @@ bool g3_draw_rod_flat(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fi
 //returns 1 if off screen, 0 if drew
 bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,fix light);
 
-//draws a bitmap with the specified 3d width & height 
+//draws a bitmap with the specified 3d width & height
 //returns 1 if off screen, 0 if drew
-bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm,int orientation);
+bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int orientation);
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults
@@ -258,11 +341,16 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 
 //init code for bitmap models
 void g3_init_polygon_model(void *model_ptr);
-//maps the colors back to RGB15
+
+//un-initialize, i.e., convert color entries back to RGB15
 void g3_uninit_polygon_model(void *model_ptr);
 
 //alternate interpreter for morphing object
 bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,fix light,vms_vector *new_points);
+
+//this remaps the 15bpp colors for the models into a new palette.  It should
+//be called whenever the palette changes
+void g3_remap_interp_colors(void);
 
 // routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(ubyte *data);

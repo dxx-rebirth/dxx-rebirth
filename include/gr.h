@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.15 2002-09-04 22:27:04 btb Exp $ */
+/* $Id: gr.h,v 1.16 2002-09-05 08:03:40 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -64,34 +64,31 @@ typedef struct _grs_point {
 
 //@@// Define these modes for Gameplay too, since the game was developed under
 //@@// DOS, we will adapt these modes to other systems thru rendering.
+//@@#define SM_ORIGINAL		-1
+//@@#define SM_320x200C     0
+//@@#define SM_320x200U     1
+//@@#define SM_320x240U     2
+//@@#define SM_360x200U     3
+//@@#define SM_360x240U     4
+//@@#define SM_376x282U     5
+//@@#define SM_320x400U     6
+//@@#define SM_320x480U     7
+//@@#define SM_360x400U     8
+//@@#define SM_360x480U     9
+//@@#define SM_360x360U     10
+//@@#define SM_376x308U     11
+//@@#define SM_376x564U     12
+//@@#define SM_640x400V     13
+//@@#define SM_640x480V     14
+//@@#define SM_800x600V     15
+//@@#define SM_1024x768V    16
+//@@#define SM_640x480V15   17
+//@@#define SM_800x600V15   18
+
 #define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
 #define SM_W(m) (m>>16)
 #define SM_H(m) (m&0xFFFF)
 
-#define SM_ORIGINAL 0
-/*
-#define SM_ORIGINAL     -1
-#define SM_320x200C     0
-#define SM_320x200U     1
-#define SM_320x240U     2
-#define SM_360x200U     3
-#define SM_360x240U     4
-#define SM_376x282U     5
-#define SM_320x400U     6
-#define SM_320x480U     7
-#define SM_360x400U     8
-#define SM_360x480U     9
-#define SM_360x360U     10
-#define SM_376x308U     11
-#define SM_376x564U     12
-#define SM_640x400V     13
-#define SM_640x480V     14
-#define SM_800x600V     15
-#define SM_1024x768V    16
-#define SM_640x480V15   17
-#define SM_800x600V15   18
-#define SM_1280x1024V    19
-*/
 
 #define BM_FLAG_TRANSPARENT         1
 #define BM_FLAG_SUPER_TRANSPARENT   2
