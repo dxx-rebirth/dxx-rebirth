@@ -15,6 +15,7 @@
 int  con_init(void);
 void con_printf(int level, char *fmt, ...);
 
+void con_show(void);
 void con_draw(void);
 void con_update(void);
 

@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.17 2003-03-27 01:25:41 btb Exp $ */
+/* $Id: gamecntl.c,v 1.18 2003-06-02 01:55:03 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,6 +22,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+
+#include "CON_console.h"
 
 #include "pstypes.h"
 #include "console.h"
@@ -1105,6 +1107,11 @@ int HandleSystemKey(int key)
 
 	switch (key) {
 
+		case KEY_SHIFTED + KEY_ESC:
+			con_show();
+			break;
+
+#if 0
 		case KEY_SHIFTED + KEY_ESC:     //quick exit
 			#ifdef EDITOR
 				if (! SafetyCheck()) break;
@@ -1114,6 +1121,7 @@ int HandleSystemKey(int key)
 			Game_aborted=1;
 			Function_mode=FMODE_EXIT;
 			break;
+#endif
 
 		MAC( case KEY_COMMAND+KEY_P: )
 		case KEY_PAUSE: 

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.8 2003-03-17 09:07:57 btb Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.9 2003-06-02 01:55:03 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1424,6 +1424,8 @@ void game_render_frame_mono(void)
 #endif
 
 #endif
+
+	con_update();
 
 	gr_update();
 }
