@@ -1,4 +1,4 @@
-/* $Id: init.c,v 1.2 2004-05-19 02:39:21 btb Exp $ */
+/* $Id: init.c,v 1.3 2004-05-20 23:06:24 btb Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +6,7 @@
 #include <ddraw.h>
 #include <mmsystem.h>
 #include "args.h"
+#include "resource.h"
 
 #ifndef NDEBUG
 #ifdef _MSC_VER
@@ -132,7 +133,8 @@ void arch_init()
 	wcDescentClass.hInstance     = hInst;
 	wcDescentClass.lpfnWndProc   = DescentWndProc;
 	wcDescentClass.hCursor       = LoadCursor(NULL, IDC_ARROW);
-	wcDescentClass.hIcon         = LoadIcon(NULL, IDI_WINLOGO);
+	//wcDescentClass.hIcon         = LoadIcon(NULL, IDI_WINLOGO);
+	wcDescentClass.hIcon         = LoadIcon(hInst, MAKEINTRESOURCE(IDI_MAIN_ICON));
 	wcDescentClass.lpszMenuName  = NULL;
 	wcDescentClass.hbrBackground = NULL;
 	wcDescentClass.style         = CS_HREDRAW | CS_VREDRAW;
