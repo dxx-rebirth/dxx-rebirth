@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.15 2003-01-03 00:57:00 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.16 2003-01-15 02:47:19 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1049,8 +1049,16 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	Num_vertices = cfile_read_short(LoadFile);
 	Assert( Num_vertices <= MAX_VERTICES );
 
+	// skip two bytes for shareware D1 levels
+	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
+		cfseek(LoadFile, 2, SEEK_CUR);
+
 	Num_segments = cfile_read_short(LoadFile);
 	Assert( Num_segments <= MAX_SEGMENTS );
+
+	// skip two bytes for shareware D1 levels
+	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
+		cfseek(LoadFile, 2, SEEK_CUR);
 
 	for (i = 0; i < Num_vertices; i++)
 		cfile_read_vector( &(Vertices[i]), LoadFile);
