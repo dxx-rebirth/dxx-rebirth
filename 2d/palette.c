@@ -1,4 +1,4 @@
-/* $Id: palette.c,v 1.10 2003-06-10 17:50:50 btb Exp $ */
+/* $Id: palette.c,v 1.11 2004-05-12 22:06:02 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -402,3 +402,22 @@ void gr_make_cthru_table(ubyte * table, ubyte r, ubyte g, ubyte b )
 	}
 }
 
+void gr_make_blend_table(ubyte *blend_table, ubyte r, ubyte g, ubyte b)
+{
+	int i, j;
+	float alpha;
+	ubyte r1, g1, b1;
+
+	for (j = 0; j < GR_FADE_LEVELS; j++)
+	{
+		alpha = 1.0 - (float)j / ((float)GR_FADE_LEVELS - 1);
+		for (i = 0; i < 255; i++)
+		{
+			r1 = (ubyte)((1.0 - alpha) * (float)gr_palette[i * 3 + 0] + (alpha * (float)r));
+			g1 = (ubyte)((1.0 - alpha) * (float)gr_palette[i * 3 + 1] + (alpha * (float)g));
+			b1 = (ubyte)((1.0 - alpha) * (float)gr_palette[i * 3 + 2] + (alpha * (float)b));
+			blend_table[i + j * 256] = gr_find_closest_color(r1, g1, b1);
+		}
+		blend_table[i + j * 256] = 255; // leave white alone
+	}
+}
