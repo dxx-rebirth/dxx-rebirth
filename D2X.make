@@ -85,6 +85,7 @@ SrcFiles        =  ¶
 				  :main:controls.c ¶
 				  :main:credits.c ¶
 				  :main:crypt.c ¶
+				  :main:digiobj.c ¶
 				  :main:effects.c ¶
 				  :main:endlevel.c ¶
 				  :main:escort.c ¶
@@ -226,6 +227,7 @@ ObjFiles-PPC    =  ¶
 				  "{ObjDir}controls.c.x" ¶
 				  "{ObjDir}credits.c.x" ¶
 				  "{ObjDir}crypt.c.x" ¶
+				  "{ObjDir}digiobj.c.x" ¶
 				  "{ObjDir}effects.c.x" ¶
 				  "{ObjDir}endlevel.c.x" ¶
 				  "{ObjDir}escort.c.x" ¶
@@ -407,6 +409,7 @@ directories Ä
 "{ObjDir}controls.c.x"  Ä  :main:controls.c
 "{ObjDir}credits.c.x"  Ä  :main:credits.c
 "{ObjDir}crypt.c.x"  Ä  :main:crypt.c
+"{ObjDir}digiobj.c.x"  Ä  :main:digiobj.c
 "{ObjDir}effects.c.x"  Ä  :main:effects.c
 "{ObjDir}endlevel.c.x"  Ä  :main:endlevel.c
 "{ObjDir}escort.c.x"  Ä  :main:escort.c

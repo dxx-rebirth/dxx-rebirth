@@ -2,6 +2,7 @@
 
 	* main/bm.c, main/piggy.c: fix cfile bugs from recent changes
 
+	* D2X.make: fix build on Carbon by adding digiobj.c
 2004-12-02  Bradley Bell  <btb@icculus.org>
 
 	* include/cfile.h, include/physfsx.h: fix RELEASE build, make sure
