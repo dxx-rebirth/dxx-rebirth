@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.12 2003-02-13 19:44:55 btb Exp $ */
+/* $Id: mveplay.c,v 1.13 2003-02-13 20:34:49 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -705,6 +705,8 @@ void playMovie(MVESTREAM *mve)
 void shutdownMovie(MVESTREAM *mve)
 {
 	int i;
+
+	timer_stop();
 
 	for (i = 0; i < 32*256; i++) {
 		if (unhandled_chunks[i]) {

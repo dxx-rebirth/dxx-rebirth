@@ -1,13 +1,12 @@
 /*
  * Written 1999 Jan 29 by Josh Cogliati
- * I grant this program to public domain.
- *
- * Modified for mvl by Bradley Bell, 2002
- * All modifications under GPL, version 2 or later
+ * Modified for mvl by Bradley Bell, 2002, 2003
+ * This program is licensed under the terms of the GPL, version 2 or later
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

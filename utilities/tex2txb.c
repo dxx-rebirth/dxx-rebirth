@@ -1,6 +1,6 @@
 /*
- * Modified by Bradley Bell, 2002
- * All modifications under GPL, version 2 or later
+ * Modified by Bradley Bell, 2002, 2003
+ * This program is licensed under the terms of the GPL, version 2 or later
  */
 
 #include <stdio.h>
@@ -16,17 +16,17 @@ main(int argc, char *argv[])
 
 	if (argc < 2) {
 		printf("TEX2TXB V1.0 Copyright (c) Bryan Aamot, 1995\n"
-			   "Modified by Bradley Bell, 2002\n"
+			   "Modified by Bradley Bell, 2002, 2003\n"
 		       "Text to TXB converter for Descent HOG files.\n"
 		       "Converts an ascii text file to *.txb descent hog file.\n"
 		       "Usage: TEX2TXB <text file name> <txb file name>\n"
 		       "Example: TEX2TXB briefing.tex briefing.txb\n");
-		exit(1);
+		return 1;
 	}
 	file = fopen(argv[1], "rb");
 	if (!file) {
 		printf("Can't open file (%s)\n", argv[1]);
-		exit(2);
+		return 2;
 	}
 
 	if (argc > 2)
@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 	if (!outfile) {
 		printf("Can't open file (%s)\n", outfilename);
 		fclose(file);
-		exit(2);
+		return 2;
 	}
 
 	for (;;) {
