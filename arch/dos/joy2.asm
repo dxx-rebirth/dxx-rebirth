@@ -9,14 +9,17 @@
 ;AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
-; $Source: /cvs/cvsroot/d2x/input/dos_joy2.asm,v $
-; $Revision: 1.1.1.1 $
+; $Source: /cvs/cvsroot/d2x/arch/dos/joy2.asm,v $
+; $Revision: 1.3 $
 ; $Author: bradleyb $
-; $Date: 2001-01-19 03:33:43 $
+; $Date: 2001-10-24 09:25:05 $
 ;
 ; Contains routines for joystick interface.
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.1.1.1  2001/01/19 03:33:43  bradleyb
+; Import of d2x-0.0.9-pre1
+;
 ; Revision 1.1.1.1  1999/06/14 21:57:53  donut
 ; Import of d1x 1.37 source.
 ;

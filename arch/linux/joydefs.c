@@ -12,14 +12,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/input/linux_joydefs.c,v $
- * $Revision: 1.3 $
+ * $Source: /cvs/cvsroot/d2x/arch/linux/joydefs.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 14:03:57 $
+ * $Date: 2001-10-24 09:25:05 $
  *
  * Linux joystick support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/01/29 14:03:57  bradleyb
+ * Fixed build, minor fixes
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -54,7 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "playsave.h"
 
-#include "linux_joystick.h"
+#include "joystick.h"
 
 int joydefs_calibrate_flag = 0;
 

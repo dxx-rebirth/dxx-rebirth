@@ -12,14 +12,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/input/dos_mouse.c,v $
+ * $Source: /cvs/cvsroot/d2x/arch/dos/mouse.c,v $
  * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 14:04:44 $
+ * $Date: 2001-10-24 09:25:05 $
  * 
  * Functions to access Mouse and Cyberman...
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/01/31 14:04:44  bradleyb
+ * Fix compiler warnings
+ *
  * Revision 1.2  2001/01/29 14:03:57  bradleyb
  * Fixed build, minor fixes
  *

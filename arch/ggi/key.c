@@ -1,12 +1,15 @@
 /*
- * $Source: /cvs/cvsroot/d2x/input/svgalib_key.c,v $
- * $Revision: 1.2 $
+ * $Source: /cvs/cvsroot/d2x/arch/ggi/key.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 14:03:57 $
+ * $Date: 2001-10-24 09:25:05 $
  *
- * SVGALib keyboard input support
+ * GGI keyboard input support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/01/29 14:03:57  bradleyb
+ * Fixed build, minor fixes
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -16,12 +19,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <vgakeyboard.h> 
+#include <ggi/gii.h> 
 
 #include "event.h"
 #include "error.h"
 #include "key.h"
 #include "timer.h"
+#include "mono.h"
 
 //added on 9/3/98 by Matt Mueller to free some cpu instead of hogging during menus and such
 #include "d_delay.h"
@@ -59,7 +63,7 @@ typedef struct keyboard	{
 
 static /*volatile*/ keyboard key_data;
 
-char *key_text[256];
+char * key_text[256];
 
 unsigned char ascii_table[128] = 
 { 255, 255, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=',255,255,
@@ -82,6 +86,127 @@ unsigned char shifted_ascii_table[128] =
   255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
   255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,255,
   255,255,255,255,255,255,255,255 };
+
+int giiKeyTranslate (int keylabel) {
+ switch (keylabel)
+ {
+  case GIIUC_0: return KEY_0;
+  case GIIUC_1: return KEY_1;
+  case GIIUC_2: return KEY_2;
+  case GIIUC_3: return KEY_3;
+  case GIIUC_4: return KEY_4;
+  case GIIUC_5: return KEY_5;
+  case GIIUC_6: return KEY_6;
+  case GIIUC_7: return KEY_7;
+  case GIIUC_8: return KEY_8;
+  case GIIUC_9: return KEY_9;
+
+  case GIIUC_A: return KEY_A;
+  case GIIUC_B: return KEY_B;
+  case GIIUC_C: return KEY_C;
+  case GIIUC_D: return KEY_D;
+  case GIIUC_E: return KEY_E;
+  case GIIUC_F: return KEY_F;
+  case GIIUC_G: return KEY_G;
+  case GIIUC_H: return KEY_H;
+  case GIIUC_I: return KEY_I;
+  case GIIUC_J: return KEY_J;
+  case GIIUC_K: return KEY_K;
+  case GIIUC_L: return KEY_L;
+  case GIIUC_M: return KEY_M;
+  case GIIUC_N: return KEY_N;
+  case GIIUC_O: return KEY_O;
+  case GIIUC_P: return KEY_P;
+  case GIIUC_Q: return KEY_Q;
+  case GIIUC_R: return KEY_R;
+  case GIIUC_S: return KEY_S;
+  case GIIUC_T: return KEY_T;
+  case GIIUC_U: return KEY_U;
+  case GIIUC_V: return KEY_V;
+  case GIIUC_W: return KEY_W;
+  case GIIUC_X: return KEY_X;
+  case GIIUC_Y: return KEY_Y;
+  case GIIUC_Z: return KEY_Z;
+
+  case GIIUC_Minus: return KEY_MINUS;
+  case GIIUC_Equal: return KEY_EQUAL;
+  case GIIUC_Slash: return KEY_DIVIDE;
+  case GIIUC_BackSlash: return KEY_SLASH;
+  case GIIUC_Comma: return KEY_COMMA;
+  case GIIUC_Period: return KEY_PERIOD;
+  case GIIUC_Semicolon: return KEY_SEMICOL;
+
+  case GIIUC_BracketLeft: return KEY_LBRACKET;
+  case GIIUC_BracketRight: return KEY_RBRACKET;
+ 
+  case GIIUC_Apostrophe: return KEY_RAPOSTRO;
+  case GIIUC_Grave:  return KEY_LAPOSTRO;
+
+  case GIIUC_Escape: return KEY_ESC;
+  case GIIK_Enter: return KEY_ENTER;
+  case GIIUC_BackSpace: return KEY_BACKSP;
+  case GIIUC_Tab: return KEY_TAB;
+  case GIIUC_Space: return KEY_SPACEBAR;
+
+  case GIIK_NumLock: return KEY_NUMLOCK;
+  case GIIK_ScrollLock: return KEY_SCROLLOCK;
+  case GIIK_CapsLock: return KEY_CAPSLOCK;
+
+  case GIIK_ShiftL: return KEY_LSHIFT;
+  case GIIK_ShiftR: return KEY_RSHIFT;
+
+  case GIIK_AltL: return KEY_LALT;
+  case GIIK_AltR: return KEY_RALT;
+
+  case GIIK_CtrlL: return KEY_LCTRL;
+  case GIIK_CtrlR: return KEY_RCTRL;
+
+  case GIIK_F1: return KEY_F1;
+  case GIIK_F2: return KEY_F2;
+  case GIIK_F3: return KEY_F3;
+  case GIIK_F4: return KEY_F4;
+  case GIIK_F5: return KEY_F5;
+  case GIIK_F6: return KEY_F6;
+  case GIIK_F7: return KEY_F7;
+  case GIIK_F8: return KEY_F8;
+  case GIIK_F9: return KEY_F9;
+  case GIIK_F10: return KEY_F10;
+  case GIIK_F11: return KEY_F11;
+  case GIIK_F12: return KEY_F12;
+
+  case GIIK_P0: return KEY_PAD0;
+  case GIIK_P1: return KEY_PAD1;
+  case GIIK_P2: return KEY_PAD2;
+  case GIIK_P3: return KEY_PAD3;
+  case GIIK_P4: return KEY_PAD4;
+  case GIIK_P5: return KEY_PAD5;
+  case GIIK_P6: return KEY_PAD6;
+  case GIIK_P7: return KEY_PAD7;
+  case GIIK_P8: return KEY_PAD8;
+  case GIIK_P9: return KEY_PAD9;
+  case GIIK_PMinus: return KEY_PADMINUS;
+  case GIIK_PPlus: return KEY_PADPLUS;
+  case GIIK_PDecimal: return KEY_PADPERIOD;
+  case GIIK_PSlash: return KEY_PADDIVIDE;
+  case GIIK_PAsterisk: return KEY_PADMULTIPLY;
+  case GIIK_PEnter: return KEY_PADENTER;
+
+  case GIIK_Insert: return KEY_INSERT;
+  case GIIK_Home: return KEY_HOME;
+  case GIIK_PageUp: return KEY_PAGEUP;
+  case GIIK_Delete: return KEY_DELETE;
+  case GIIK_End: return KEY_END;
+  case GIIK_PageDown: return KEY_PAGEDOWN;
+  case GIIK_Up: return KEY_UP;
+  case GIIK_Down: return KEY_DOWN;
+  case GIIK_Left: return KEY_LEFT;
+  case GIIK_Right: return KEY_RIGHT;
+
+  case GIIK_PrintScreen: return KEY_PRINT_SCREEN;
+  case GIIK_Pause: return KEY_PAUSE;
+ }
+ return 0;
+}
 
 //killed on 10/03/98 by Matt Mueller
 //unsigned char key_to_ascii(int a)
@@ -113,21 +238,17 @@ unsigned char key_to_ascii(int keycode)
 }
 //end addition -MM
 
-void key_handler(int scancode, int press)
+void keyboard_handler(int button, ubyte state)
 {
-	ubyte state, key_state;
-	int i, keycode, event_key;
+	ubyte key_state;
+	int i, keycode;
+	unsigned short event_key;
 	Key_info *key;
 	unsigned char temp;
 
-	if (press == KEY_EVENTPRESS)
-		key_state = 1;
-	else if (press == KEY_EVENTRELEASE)
-		key_state = 0;
-	else
-		return;
-
-	event_key = scancode;
+	key_state = state;
+	event_key = giiKeyTranslate(button);
+	//mprintf((0,"keyboard_handler(%i,%i):%i\n",button,state,event_key));
 
 	//=====================================================
 	//Here a translation from win keycodes to mac keycodes!
@@ -189,16 +310,12 @@ void key_handler(int scancode, int press)
 void key_close()
 {
 	Installed = 0;
-	keyboard_close();
 }
 
 void key_init()
 {
-	if (keyboard_init())
-		Error ("SVGAlib Keyboard Init Failed");
 	Installed=1;
 
-	keyboard_seteventhandler (key_handler);
 	keyd_time_when_last_pressed = timer_get_fixed_seconds();
 	keyd_buffer_type = 1;
 	keyd_repeat = 1;
@@ -224,7 +341,6 @@ void key_flush()
 		key_data.time_pressed[i] = 0;
 	}
 
-//use gettimeofday here:
 	curtime = timer_get_fixed_seconds();
 
 	for (i=0; i<256; i++ )	{
