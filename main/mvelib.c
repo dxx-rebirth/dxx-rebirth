@@ -298,8 +298,7 @@ static void _mvefile_free(MVEFILE *movie)
  */
 static int _mvefile_open(MVEFILE *file, int filehandle)
 {
-    if (! (file->stream = filehandle))
-        return 0;
+    file->stream = filehandle;
 
     return 1;
 }

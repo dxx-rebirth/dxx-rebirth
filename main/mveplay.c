@@ -5,6 +5,9 @@
 #include <errno.h>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
 
@@ -12,36 +15,89 @@
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 
-int doPlay(const char *filename);
+#ifdef STANDALONE
+static int doPlay(const char *filename);
 
-void usage(void)
+static void usage(void)
 {
     fprintf(stderr, "usage: mveplay filename\n");
     exit(1);
 }
+#endif
 
-int g_spdFactorNum=0;
-int g_spdFactorDenom=10;
+static int g_spdFactorNum=0;
+static int g_spdFactorDenom=10;
 
+#ifdef STANDALONE
+int main(int c, char **v)
+{
+    if (c != 2  &&  c != 3)
+        usage();
+
+    if (c == 3)
+        g_spdFactorNum = atoi(v[2]);
+
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+    {
+        fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
+        exit(1);
+    }
+    atexit(SDL_Quit);
+
+    return doPlay(v[1]);
+}
+#endif
+
+#ifdef STANDALONE
+static void initializeMovie(MVESTREAM *mve);
+static void playMovie(MVESTREAM *mve);
+static void shutdownMovie(MVESTREAM *mve);
+#else
 void initializeMovie(MVESTREAM *mve);
-void playMovie(MVESTREAM *mve);
 void shutdownMovie(MVESTREAM *mve);
+#endif
 
-short get_short(unsigned char *data)
+#ifdef STANDALONE
+static int doPlay(const char *filename)
+{
+    MVESTREAM *mve;
+	int filehandle;
+
+	filehandle = open(filename, O_RDONLY);
+
+    if (filehandle == -1)
+    {
+        fprintf(stderr, "can't open MVE file '%s'\n", filename);
+        return 1;
+    }
+
+	mve = mve_open(filehandle);
+
+    initializeMovie(mve);
+    playMovie(mve);
+    shutdownMovie(mve);
+
+    mve_close(mve);
+
+    return 0;
+}
+#endif
+
+static short get_short(unsigned char *data)
 {
     short value;
     value = data[0] | (data[1] << 8);
     return value;
 }
 
-int get_int(unsigned char *data)
+static int get_int(unsigned char *data)
 {
     int value;
     value = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24);
     return value;
 }
 
-int default_seg_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int default_seg_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     fprintf(stderr, "unknown chunk type %02x/%02x\n", major, minor);
     return 1;
@@ -50,7 +106,7 @@ int default_seg_handler(unsigned char major, unsigned char minor, unsigned char 
 /*************************
  * general handlers
  *************************/
-int end_movie_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int end_movie_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     return 0;
 }
@@ -62,11 +118,13 @@ int end_movie_handler(unsigned char major, unsigned char minor, unsigned char *d
 /*
  * timer variables
  */
-int micro_frame_delay=0;
-int timer_started=0;
-Uint32 timer_expire = 0;
+static int micro_frame_delay=0;
+#ifdef STANDALONE
+static int timer_started=0;
+static Uint32 timer_expire = 0;
+#endif
 
-int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     long long temp;
     micro_frame_delay = get_int(data) * (int)get_short(data+4);
@@ -81,14 +139,15 @@ int create_timer_handler(unsigned char major, unsigned char minor, unsigned char
     return 1;
 }
 
-void timer_start(void)
+#ifdef STANDALONE
+static void timer_start(void)
 {
     timer_expire = SDL_GetTicks();
     timer_expire += micro_frame_delay / 1000;
     timer_started=1;
 }
 
-void do_timer_wait(void)
+static void do_timer_wait(void)
 {
     Uint32 ts, tv;
     if (! timer_started)
@@ -104,22 +163,23 @@ void do_timer_wait(void)
 end:
     timer_expire += micro_frame_delay / 1000;
 }
+#endif
 
 /*************************
  * audio handlers
  *************************/
-void mve_audio_callback(void *userdata, Uint8 *stream, int len); 
-short *mve_audio_buffers[64];
-int    mve_audio_buflens[64];
-int    mve_audio_curbuf_curpos=0;
-int mve_audio_bufhead=0;
-int mve_audio_buftail=0;
-int mve_audio_playing=0;
-int mve_audio_canplay=0;
-SDL_AudioSpec *mve_audio_spec=NULL;
-SDL_mutex *mve_audio_mutex=NULL;
+static void mve_audio_callback(void *userdata, Uint8 *stream, int len); 
+static short *mve_audio_buffers[64];
+static int    mve_audio_buflens[64];
+static int    mve_audio_curbuf_curpos=0;
+static int mve_audio_bufhead=0;
+static int mve_audio_buftail=0;
+static int mve_audio_playing=0;
+static int mve_audio_canplay=0;
+static SDL_AudioSpec *mve_audio_spec=NULL;
+static SDL_mutex *mve_audio_mutex = NULL;
 
-void mve_audio_callback(void *userdata, Uint8 *stream, int len)
+static void mve_audio_callback(void *userdata, Uint8 *stream, int len)
 {
     int total=0;
     int length;
@@ -184,7 +244,7 @@ fprintf(stderr, "- <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_cur
     SDL_mutexV(mve_audio_mutex);
 }
 
-int create_audiobuf_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int create_audiobuf_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     int sample_rate;
     int desired_buffer;
@@ -217,7 +277,7 @@ fprintf(stderr, "   failure : %s\n", SDL_GetError());
     return 1;
 }
 
-int play_audio_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int play_audio_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     if (mve_audio_canplay  &&  !mve_audio_playing  &&  mve_audio_bufhead != mve_audio_buftail)
     {
@@ -228,9 +288,9 @@ int play_audio_handler(unsigned char major, unsigned char minor, unsigned char *
     return 1;
 }
 
-int audio_data_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int audio_data_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-    const int selected_chan=1;
+    static const int selected_chan=1;
     int chan;
     int nsamp;
     if (mve_audio_canplay)
@@ -272,15 +332,15 @@ int audio_data_handler(unsigned char major, unsigned char minor, unsigned char *
 /*************************
  * video handlers
  *************************/
-SDL_Surface *g_screen;
-int g_screenWidth, g_screenHeight;
-int g_width, g_height;
-unsigned char g_palette[768];
-unsigned char *g_vBackBuf1, *g_vBackBuf2;
-unsigned char *g_pCurMap=NULL;
-int g_nMapLength=0;
+static SDL_Surface *g_screen;
+static int g_screenWidth, g_screenHeight;
+static int g_width, g_height;
+static unsigned char g_palette[768];
+static unsigned char *g_vBackBuf1, *g_vBackBuf2;
+static unsigned char *g_pCurMap=NULL;
+static int g_nMapLength=0;
 
-int create_videobuf_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int create_videobuf_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     short w, h;
     w = get_short(data);
@@ -294,8 +354,8 @@ int create_videobuf_handler(unsigned char major, unsigned char minor, unsigned c
     return 1;
 }
 
-int stupefaction=0;
-int display_video_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+//static int stupefaction=0;
+static int display_video_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     int i;
     unsigned char *pal = g_palette;
@@ -342,7 +402,7 @@ int display_video_handler(unsigned char major, unsigned char minor, unsigned cha
     return 1;
 }
 
-int init_video_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int init_video_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     short width, height;
     width = get_short(data);
@@ -354,7 +414,7 @@ int init_video_handler(unsigned char major, unsigned char minor, unsigned char *
     return 1;
 }
 
-int video_palette_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int video_palette_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     short start, count;
     start = get_short(data);
@@ -363,16 +423,16 @@ int video_palette_handler(unsigned char major, unsigned char minor, unsigned cha
     return 1;
 }
 
-int video_codemap_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int video_codemap_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     g_pCurMap = data;
     g_nMapLength = len;
     return 1;
 }
 
-void decodeFrame(unsigned char *pFrame, unsigned char *pMap, int mapRemain, unsigned char *pData, int dataRemain);
+static void decodeFrame(unsigned char *pFrame, unsigned char *pMap, int mapRemain, unsigned char *pData, int dataRemain);
 
-int video_data_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int video_data_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     short nFrameHot, nFrameCold;
     short nXoffset, nYoffset;
@@ -401,7 +461,7 @@ int video_data_handler(unsigned char major, unsigned char minor, unsigned char *
     return 1;
 }
 
-int end_chunk_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
+static int end_chunk_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     g_pCurMap=NULL;
     return 1;
@@ -424,7 +484,8 @@ void initializeMovie(MVESTREAM *mve)
     mve_set_handler(mve, 0x11, video_data_handler);
 }
 
-void playMovie(MVESTREAM *mve)
+#ifdef STANDALONE
+static void playMovie(MVESTREAM *mve)
 {
     int init_timer=0;
     int cont=1;
@@ -440,14 +501,18 @@ void playMovie(MVESTREAM *mve)
         do_timer_wait();
     }
 }
+#endif
 
+#ifdef STANDALONE
+static
+#endif
 void shutdownMovie(MVESTREAM *mve)
 {
 }
 
-void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
+static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 
-void decodeFrame(unsigned char *pFrame, unsigned char *pMap, int mapRemain, unsigned char *pData, int dataRemain)
+static void decodeFrame(unsigned char *pFrame, unsigned char *pMap, int mapRemain, unsigned char *pData, int dataRemain)
 {
     int i, j;
     int xb, yb;
@@ -477,7 +542,7 @@ void decodeFrame(unsigned char *pFrame, unsigned char *pMap, int mapRemain, unsi
     }
 }
 
-void relClose(int i, int *x, int *y)
+static void relClose(int i, int *x, int *y)
 {
     int ma, mi;
 
@@ -488,7 +553,7 @@ void relClose(int i, int *x, int *y)
     *y = ma - 8;
 }
 
-void relFar(int i, int sign, int *x, int *y)
+static void relFar(int i, int sign, int *x, int *y)
 {
     if (i < 56)
     {
@@ -502,7 +567,7 @@ void relFar(int i, int sign, int *x, int *y)
     }
 }
 
-void copyFrame(unsigned char *pDest, unsigned char *pSrc)
+static void copyFrame(unsigned char *pDest, unsigned char *pSrc)
 {
     int i;
 
@@ -514,7 +579,7 @@ void copyFrame(unsigned char *pDest, unsigned char *pSrc)
     }
 }
 
-void patternRow4Pixels(unsigned char *pFrame,
+static void patternRow4Pixels(unsigned char *pFrame,
                               unsigned char pat0, unsigned char pat1,
                               unsigned char *p)
 {
@@ -530,7 +595,7 @@ void patternRow4Pixels(unsigned char *pFrame,
     }
 }
 
-void patternRow4Pixels2(unsigned char *pFrame,
+static void patternRow4Pixels2(unsigned char *pFrame,
                                unsigned char pat0,
                                unsigned char *p)
 {
@@ -553,7 +618,7 @@ void patternRow4Pixels2(unsigned char *pFrame,
     }
 }
 
-void patternRow4Pixels2x1(unsigned char *pFrame, unsigned char pat, unsigned char *p)
+static void patternRow4Pixels2x1(unsigned char *pFrame, unsigned char pat, unsigned char *p)
 {
     unsigned char mask=0x03;
     unsigned char shift=0;
@@ -570,7 +635,7 @@ void patternRow4Pixels2x1(unsigned char *pFrame, unsigned char pat, unsigned cha
     }
 }
 
-void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, unsigned char pat1, unsigned char pat2, unsigned char pat3, unsigned char *p)
+static void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, unsigned char pat1, unsigned char pat2, unsigned char pat3, unsigned char *p)
 {
     unsigned long mask = 0x00000003UL;
     int shift=0;
@@ -590,7 +655,7 @@ void patternQuadrant4Pixels(unsigned char *pFrame, unsigned char pat0, unsigned 
 }
 
 
-void patternRow2Pixels(unsigned char *pFrame, unsigned char pat, unsigned char *p)
+static void patternRow2Pixels(unsigned char *pFrame, unsigned char pat, unsigned char *p)
 {
     unsigned char mask=0x01;
 
@@ -601,7 +666,7 @@ void patternRow2Pixels(unsigned char *pFrame, unsigned char pat, unsigned char *
     }
 }
 
-void patternRow2Pixels2(unsigned char *pFrame, unsigned char pat, unsigned char *p)
+static void patternRow2Pixels2(unsigned char *pFrame, unsigned char pat, unsigned char *p)
 {
     unsigned char pel;
     unsigned char mask=0x1;
@@ -620,7 +685,7 @@ void patternRow2Pixels2(unsigned char *pFrame, unsigned char pat, unsigned char 
     }
 }
 
-void patternQuadrant2Pixels(unsigned char *pFrame, unsigned char pat0, unsigned char pat1, unsigned char *p)
+static void patternQuadrant2Pixels(unsigned char *pFrame, unsigned char pat0, unsigned char pat1, unsigned char *p)
 {
     unsigned short mask = 0x0001;
     int i;
@@ -637,7 +702,7 @@ void patternQuadrant2Pixels(unsigned char *pFrame, unsigned char pat0, unsigned 
     }
 }
 
-void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, unsigned char **pData, int *pDataRemain, int *curXb, int *curYb)
+static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, unsigned char **pData, int *pDataRemain, int *curXb, int *curYb)
 {
     unsigned char p[4];
     unsigned char pat[16];
