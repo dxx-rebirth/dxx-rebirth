@@ -1,0 +1,5 @@
+* Rearrange build system (one big makefile in a src/ directory)
+* Use gr functions for mveplay
+* Glitches with mission briefings
+* Robot movies
+* D1 mission briefings (render spinning robots, etc.)
