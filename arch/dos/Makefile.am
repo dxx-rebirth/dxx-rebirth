@@ -5,7 +5,7 @@ noinst_LIBRARIES = libarch_dos.a
 INCLUDES = -I$(top_srcdir)/arch/include -I$(top_srcdir)/include -I$(top_srcdir)/main -I$(srcdir)/include
 
 libarch_dos_a_SOURCES = \
-cdrom.c digi.c dpmi.c findfile.c gr.c init.c ipx.c joyc.c joydefs.c key.c mouse.c vesa.c
+digi.c dpmi.c findfile.c gr.c init.c ipx.c joyc.c joydefs.c key.c mouse.c rbaudio.c vesa.c
 
 SUFFIXES = .asm
 %.o: %.asm

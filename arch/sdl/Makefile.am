@@ -17,7 +17,7 @@ VIDEO_SRCS = gr.c
 endif
 
 libarch_sdl_a_SOURCES = ${JOYSTICK_SRCS} ${VIDEO_SRCS} ${INPUT_SRCS} \
-cdrom.c digi.c init.c timer.c
+digi.c init.c rbaudio.c timer.c
 
 EXTRA_libarch_sdl_a_SOURCES = \
 event.c gr.c joy.c joydefs.c key.c mouse.c

@@ -1,13 +1,16 @@
 /*
- * $Source: /cvs/cvsroot/d2x/arch/dos/cdrom.c,v $
- * $Revision: 1.3 $
+ * $Source: /cvs/cvsroot/d2x/arch/dos/rbaudio.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 08:25:33 $
+ * $Date: 2002-07-18 08:22:18 $
  *
  * DPH: This is the file where all the stub functions go.
  * The aim is to have nothing in here, eventually
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/25 08:25:33  bradleyb
+ * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
+ *
  * Revision 1.3  2001/01/31 14:04:45  bradleyb
  * Fix compiler warnings
  *
@@ -25,7 +28,7 @@
 #include "pstypes.h"
 #include "error.h"
 #include "args.h"
-
+#include "rbaudio.h"
 
 extern int Redbook_playing;
 static int initialised = 0;

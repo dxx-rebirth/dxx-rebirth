@@ -51,7 +51,7 @@ ip_base.cpp ipclient.cpp
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 descent.cfg inferno.ini \
 link.bat \
-ai.h aistruct.h automap.h bm.h bmread.h cdrom.h cntrlcen.h collide.h \
+ai.h aistruct.h automap.h bm.h bmread.h cntrlcen.h collide.h \
 compbit.h config.h controls.h credits.h desc_id.h desw.h digi.h effects.h \
 endlevel.h fireball.h fuelcen.h fvi.h fvi_a.h game.h gamefont.h gamemine.h \
 gamepal.h gamesave.h gameseg.h gameseq.h gamestat.h gauges.h hostage.h \

@@ -94,8 +94,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "multibot.h"
 #include "ai.h"
+#include "rbaudio.h"
 #include "switch.h"
-#include "cdrom.h"
 
 #ifdef POLY_ACC
 	#include "poly_acc.h"

@@ -1,15 +1,7 @@
+/* $Id: rbaudio.c,v 1.1 2002-07-18 08:22:18 bradleyb Exp $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/sdl/cdrom.c,v $
- * $Revision: 1.1 $
- * $Author: bradleyb $
- * $Date: 2001-10-25 08:25:34 $
  *
- * DPH: This is the file where all the stub functions go.
- * The aim is to have nothing in here, eventually
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.3  2001/01/29 13:53:28  bradleyb
- * Fixed build, minor fixes
+ * SDL CD Audio functions
  *
  */
 
@@ -24,7 +16,7 @@
 #include "pstypes.h"
 #include "error.h"
 #include "args.h"
-
+#include "rbaudio.h"
 
 static SDL_CD *s_cd = NULL;
 extern int Redbook_playing;
@@ -97,10 +89,11 @@ void RBAPause()
   SDL_CDPause(s_cd);
 }
 
-void RBAResume()
+int RBAResume()
 {
-  if (!initialised) return;
+  if (!initialised) return -1;
   SDL_CDResume(s_cd);
+  return 1;
 }
 
 int RBAGetNumberOfTracks()
@@ -128,7 +121,7 @@ int RBAGetTrackNum()
 
 int RBAPeekPlayStatus()
 {
- return 1;
+  return (SDL_CDStatus(s_cd) == CD_PLAYING);
 }
 
 int CD_blast_mixer()

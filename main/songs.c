@@ -29,9 +29,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mono.h"
 #include "cfile.h"
 #include "digi.h"
+#include "rbaudio.h"
 #include "kconfig.h"
 #include "timer.h"
-#include "cdrom.h"
 
 song_info Songs[MAX_NUM_SONGS];
 int Songs_initialized = 0;
@@ -121,7 +121,7 @@ void songs_init()
 		}
 		else	// use redbook
 		{
-			#if defined(WINDOWS) || defined(MACINTOSH)
+			#ifndef __MSDOS__ // defined(WINDOWS) || defined(MACINTOSH)
 				RBAInit();
 			#else
 				RBAInit(toupper(CDROM_dir[0]) - 'A');
@@ -180,7 +180,7 @@ int force_rb_register=0;
 
 void reinit_redbook()
 {
-	#if defined(WINDOWS) || defined(MACINTOSH)
+	#ifndef __MSDOS__ // defined(WINDOWS) || defined(MACINTOSH)
 		RBAInit();
 	#else
 		RBAInit(toupper(CDROM_dir[0]) - 'A');
