@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.22 2003-03-17 07:59:11 btb Exp $ */
+/* $Id: menu.c,v 1.23 2003-03-22 04:04:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -607,7 +607,7 @@ void set_detail_level_parameters(int detail_level)
 void do_detail_level_menu(void)
 {
 	int s;
-	newmenu_item m[7];
+	newmenu_item m[8];
 
 	m[0].type=NM_TYPE_MENU; m[0].text=MENU_DETAIL_TEXT(0);
 	m[1].type=NM_TYPE_MENU; m[1].text=MENU_DETAIL_TEXT(1);
@@ -616,8 +616,9 @@ void do_detail_level_menu(void)
 	m[4].type=NM_TYPE_MENU; m[4].text=MENU_DETAIL_TEXT(4);
 	m[5].type=NM_TYPE_TEXT; m[5].text="";
 	m[6].type=NM_TYPE_MENU; m[6].text=MENU_DETAIL_TEXT(5);
+	m[7].type=NM_TYPE_CHECK; m[7].text="Show High Res movies"; m[7].value=MovieHires;
 
-	s = newmenu_do1( NULL, TXT_DETAIL_LEVEL , NDL+2, m, NULL, Detail_level);
+	s = newmenu_do1( NULL, TXT_DETAIL_LEVEL , NDL+3, m, NULL, Detail_level);
 
 	if (s > -1 )    {
 		switch (s)      {
@@ -636,7 +637,7 @@ void do_detail_level_menu(void)
 				break;
 		}
 	}
-
+	MovieHires = m[7].value;
 }
 
 //      -----------------------------------------------------------------------------

@@ -48,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.5 2001-11-14 10:31:40 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.6 2003-03-22 04:04:47 btb Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -508,7 +508,7 @@ int WriteConfigFile()
 	fputs(str, infile);
 	sprintf (str, "%s=%d\n", config_vr_tracking_str, Config_vr_tracking );
 	fputs(str, infile);
-	sprintf (str, "%s=%d\n", movie_hires_str, SaveMovieHires );
+	sprintf (str, "%s=%d\n", movie_hires_str, (FindArg("-nohires") || FindArg("-nohighres") || FindArg("-lowresmovies"))?SaveMovieHires:MovieHires);
 	fputs(str, infile);
 
 	fclose(infile);
@@ -578,7 +578,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.5 2001-11-14 10:31:40 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.6 2003-03-22 04:04:47 btb Exp $";
 #endif
 
 #define MAX_CTB_LEN	512
