@@ -1,4 +1,4 @@
-/* $Id: interp.h,v 1.3 2003-01-22 00:51:49 btb Exp $ */
+/* $Id: interp.h,v 1.4 2003-01-22 00:54:13 btb Exp $ */
 /*
  *
  * took out functions declarations from include/3d.h
@@ -38,6 +38,7 @@ bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angve
 void g3_remap_interp_colors(void);
 
 #ifdef WORDS_BIGENDIAN
+// routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(ubyte *data);
 #endif
 
