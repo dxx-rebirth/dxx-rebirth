@@ -1,3 +1,7 @@
+2003-10-09  Bradley Bell  <btb@icculus.org>
+
+	* include/DT_drawtext.h: deleted unused file
+
 2003-10-08  Bradley Bell  <btb@icculus.org>
 
 	* main/gameseq.c, main/inferno.c, main/menu.c: SHAREWARE fixes
