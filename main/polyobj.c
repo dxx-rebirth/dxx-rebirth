@@ -1,3 +1,4 @@
+/* $Id: polyobj.c,v 1.7 2002-08-06 05:13:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.6 2002-07-26 09:22:05 btb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.7 2002-08-06 05:13:58 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -480,7 +481,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 {
 	polymodel *po;
 	int i;
-   PA_DFX (int save_light);
+	PA_DFX (int save_light);
 
 	Assert(model_num < N_polygon_models);
 
@@ -758,6 +759,7 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	gr_free_canvas(temp_canv);
 }
 
+#ifndef FAST_FILE_IO
 /*
  * reads a polymodel structure from a CFILE
  */
@@ -785,8 +787,45 @@ extern void polymodel_read(polymodel *pm, CFILE *fp)
 		cfile_read_vector(&(pm->submodel_maxs[i]), fp);
 	cfile_read_vector(&(pm->mins), fp);
 	cfile_read_vector(&(pm->maxs), fp);
-	pm->rad = cfile_read_fix(fp);		
+	pm->rad = cfile_read_fix(fp);
 	pm->n_textures = cfile_read_byte(fp);
 	pm->first_texture = cfile_read_short(fp);
 	pm->simpler_model = cfile_read_byte(fp);
 }
+
+/*
+ * reads n polymodel structs from a CFILE
+ */
+extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp)
+{
+	int i, j;
+
+	for (i = 0; i < n; i++) {
+		pm[i].n_models = cfile_read_int(fp);
+		pm[i].model_data_size = cfile_read_int(fp);
+		pm[i].model_data = (ubyte *) cfile_read_int(fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			pm[i].submodel_ptrs[j] = cfile_read_int(fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			cfile_read_vector(&(pm[i].submodel_offsets[j]), fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			cfile_read_vector(&(pm[i].submodel_norms[j]), fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			cfile_read_vector(&(pm[i].submodel_pnts[j]), fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			pm[i].submodel_rads[j] = cfile_read_fix(fp);
+		cfread(pm[i].submodel_parents, MAX_SUBMODELS, 1, fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			cfile_read_vector(&(pm[i].submodel_mins[j]), fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			cfile_read_vector(&(pm[i].submodel_maxs[j]), fp);
+		cfile_read_vector(&(pm[i].mins), fp);
+		cfile_read_vector(&(pm[i].maxs), fp);
+		pm[i].rad = cfile_read_fix(fp);
+		pm[i].n_textures = cfile_read_byte(fp);
+		pm[i].first_texture = cfile_read_short(fp);
+		pm[i].simpler_model = cfile_read_byte(fp);
+	}
+	return i;
+}
+#endif

@@ -1,3 +1,4 @@
+/* $Id: polyobj.h,v 1.3 2002-08-06 05:13:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -46,7 +47,7 @@ typedef struct polymodel {
 	ushort	first_texture;
 	ubyte		simpler_model;		//alternate model with less detail (0 if none, model_num+1 else)
 //	vms_vector min,max;
-} polymodel;
+} __pack__ polymodel;
 
 //array of pointers to polygon objects
 extern polymodel Polygon_models[];
@@ -87,10 +88,19 @@ extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 extern g3s_point robot_points[];
 
+#ifdef FAST_FILE_IO
+#define polymodel_read(pm, fp) cfread(pm, sizeof(polymodel), 1, fp)
+#define polymodel_read_n(pm, n, fp) cfread(pm, sizeof(polymodel), n, fp)
+#else
 /*
  * reads a polymodel structure from a CFILE
  */
 extern void polymodel_read(polymodel *pm, CFILE *fp);
 
+/*
+ * reads n polymodel structs from a CFILE
+ */
+extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp);
 #endif
 
+#endif
