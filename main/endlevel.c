@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.4 2001-11-08 10:30:27 bradleyb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.5 2001-11-09 06:54:23 bradleyb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -303,7 +303,7 @@ extern char last_palette_loaded[];
 void start_endlevel_sequence()
 {
 	int	i;
-	int movie_played;
+	int movie_played = MOVIE_NOT_PLAYED;
 	#if defined(MACINTOSH) && defined(SHAREWARE)
 	static int inited = 0;
 	
@@ -1265,11 +1265,13 @@ void do_endlevel_flythrough(int n)
 	if (flydata->first_time || obj->segnum != old_player_seg) {		//moved into new seg
 		vms_vector curcenter,nextcenter;
 		fix step_size,seg_time;
-		short entry_side,exit_side;	//what sides we entry and leave through
+		short entry_side,exit_side = -1;//what sides we entry and leave through
 		vms_vector dest_point;		//where we are heading (center of exit_side)
 		vms_angvec dest_angles;		//where we want to be pointing
 		vms_matrix dest_orient;
-		int up_side;
+		int up_side=0;
+
+		entry_side=0;
 
 		//find new exit side
 
@@ -1307,17 +1309,18 @@ void do_endlevel_flythrough(int n)
 
 		//offset object sideways
 		if (flydata->offset_frac) {
-			int s0=-1,s1,i;
+			int s0=-1,s1=0,i;
 			vms_vector s0p,s1p;
 			fix dist;
 
 			for (i=0;i<6;i++)
-				if (i!=entry_side && i!=exit_side && i!=up_side && i!=Side_opposite[up_side]) {
+				if (i!=entry_side && i!=exit_side && i!=up_side && i!=Side_opposite[up_side])
+				 {
 					if (s0==-1)
 						s0 = i;
 					else
 						s1 = i;
-				}
+				 }
 
 			compute_center_point_on_side(&s0p,pseg,s0);
 			compute_center_point_on_side(&s1p,pseg,s1);
@@ -1477,7 +1480,7 @@ void load_endlevel_data(int level_num)
 	char line[LINE_LEN],*p;
 	CFILE *ifile;
 	int var,segnum,sidenum;
-	int exit_side, i;
+	int exit_side=0, i;
 	int have_binary = 0;
 
 	endlevel_data_loaded = 0;		//not loaded yet
