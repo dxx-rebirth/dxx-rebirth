@@ -1,4 +1,4 @@
-/* $Id: switch.c,v 1.9 2003-10-04 03:14:48 btb Exp $ */
+/* $Id: switch.c,v 1.10 2004-05-17 21:16:28 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -163,7 +163,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: switch.c,v 1.9 2003-10-04 03:14:48 btb Exp $";
+static char rcsid[] = "$Id: switch.c,v 1.10 2004-05-17 21:16:28 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -385,9 +385,17 @@ int do_change_walls(sbyte trigger_num)
 			segp = &Segments[Triggers[trigger_num].seg[i]];
 			side = Triggers[trigger_num].side[i];
 
-			csegp = &Segments[segp->children[side]];
-			cside = find_connect_side(segp, csegp);
-			Assert(cside != -1);
+			if (segp->children[side] < 0)
+			{
+				csegp = NULL;
+				cside = -1;
+			}
+			else
+			{
+				csegp = &Segments[segp->children[side]];
+				cside = find_connect_side(segp, csegp);
+				Assert(cside != -1);
+			}
 
 			//segp->sides[side].wall_num = -1;
 			//csegp->sides[cside].wall_num = -1;
@@ -402,7 +410,9 @@ int do_change_walls(sbyte trigger_num)
 					break;
 			}
 
-			if (Walls[segp->sides[side].wall_num].type == new_wall_type && Walls[csegp->sides[cside].wall_num].type == new_wall_type)
+			if (Walls[segp->sides[side].wall_num].type == new_wall_type &&
+			    (cside < 0 || csegp->sides[cside].wall_num < 0 ||
+			     Walls[csegp->sides[cside].wall_num].type == new_wall_type))
 				continue;		//already in correct state, so skip
 
 			ret = 1;
@@ -417,9 +427,12 @@ int do_change_walls(sbyte trigger_num)
 						compute_center_point_on_side(&pos, segp, side );
 						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp-Segments, side, &pos, 0, F1_0 );
 						Walls[segp->sides[side].wall_num].type = new_wall_type;
-						Walls[csegp->sides[cside].wall_num].type = new_wall_type;
 						digi_kill_sound_linked_to_segment(segp-Segments,side,SOUND_FORCEFIELD_HUM);
-						digi_kill_sound_linked_to_segment(csegp-Segments,cside,SOUND_FORCEFIELD_HUM);
+						if (cside > -1 && csegp->sides[cside].wall_num > -1)
+						{
+							Walls[csegp->sides[cside].wall_num].type = new_wall_type;
+							digi_kill_sound_linked_to_segment(csegp-Segments, cside, SOUND_FORCEFIELD_HUM);
+						}
 					}
 					else
 						start_wall_cloak(segp,side);
@@ -436,7 +449,8 @@ int do_change_walls(sbyte trigger_num)
 						compute_center_point_on_side(&pos, segp, side );
 						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp-Segments,side,&pos,1, F1_0/2);
 						Walls[segp->sides[side].wall_num].type = new_wall_type;
-						Walls[csegp->sides[cside].wall_num].type = new_wall_type;
+						if (cside > -1 && csegp->sides[cside].wall_num > -1)
+							Walls[csegp->sides[cside].wall_num].type = new_wall_type;
 					}
 					else
 						start_wall_decloak(segp,side);
@@ -445,13 +459,15 @@ int do_change_walls(sbyte trigger_num)
 				case TT_ILLUSORY_WALL:
 					mprintf((0,"Illusory wall\n"));
 					Walls[segp->sides[side].wall_num].type = new_wall_type;
-					Walls[csegp->sides[cside].wall_num].type = new_wall_type;
+					if (cside > -1 && csegp->sides[cside].wall_num > -1)
+						Walls[csegp->sides[cside].wall_num].type = new_wall_type;
 					break;
 			}
 
 
 			kill_stuck_objects(segp->sides[side].wall_num);
-			kill_stuck_objects(csegp->sides[cside].wall_num);
+			if (cside > -1 && csegp->sides[cside].wall_num > -1)
+				kill_stuck_objects(csegp->sides[cside].wall_num);
 
   		}
   	}
