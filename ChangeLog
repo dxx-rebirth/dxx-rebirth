@@ -1,7 +1,7 @@
 2004-05-20  Bradley Bell  <btb@icculus.org>
 
-	* main/game.c: move gr_renderstats and gr_badtexture back to
-	game.c
+	* main/kludge.c, main/game.c: move gr_renderstats and
+	gr_badtexture back to game.c
 
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 

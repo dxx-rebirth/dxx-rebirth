@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.26 2004-05-20 01:29:14 btb Exp $ */
+/* $Id: game.c,v 1.27 2004-05-20 07:42:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -407,7 +407,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.26 2004-05-20 01:29:14 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.27 2004-05-20 07:42:38 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2478,6 +2478,11 @@ int Automap_flag;
 int Config_menu_flag;
 
 jmp_buf LeaveGame;
+
+int gr_renderstats = 0;
+// need to define "cheat" for renderstats
+int gr_badtexture = 0;
+// need to define "cheat" for badtexture
 
 int Cheats_enabled=0;
 

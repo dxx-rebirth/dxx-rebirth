@@ -1,4 +1,4 @@
-/* $Id: kludge.c,v 1.14 2003-11-27 04:50:22 btb Exp $ */
+/* $Id: kludge.c,v 1.15 2004-05-20 07:42:41 btb Exp $ */
 
 /*
  *
@@ -18,9 +18,6 @@
 #include "pstypes.h"
 #include "maths.h"
 #include "findfile.h"
-
-int gr_renderstats = 0;
-int gr_badtexture = 0;
 
 extern int VGA_current_mode;
 
