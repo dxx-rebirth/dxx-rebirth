@@ -1,5 +1,8 @@
 2004-05-18  Bradley Bell  <btb@icculus.org>
 
+	* arch/linux/hmiplay.c: apply patch from bluecow to fix hmiplay
+	sync issues and lack of midi reset (d1x r1.5)
+
 	* arch/sdl/digi.c: fix crash on exit if sounds are still playing
 	(d1x r1.8)
 

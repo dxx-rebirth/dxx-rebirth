@@ -1,4 +1,4 @@
-/* $Id: hmiplay.c,v 1.4 2004-05-19 02:02:42 btb Exp $ */
+/* $Id: hmiplay.c,v 1.5 2004-05-19 02:30:05 btb Exp $ */
 /*
  * HMI midi playing routines by Jani Frilander
  *
@@ -35,6 +35,19 @@
 //#define WANT_MPU401 1
 
 #ifdef WANT_MPU401
+
+unsigned char reset_genmidi[5] =
+	{ 0x7e, 0x7f, 0x09, 0x01, 0xf7 };
+
+#define MIDI_RESET {                            \
+	SEQ_MIDIOUT(synth_dev,MIDI_SYSTEM_PREFIX);  \
+	SEQ_MIDIOUT(synth_dev,reset_genmidi[0]);    \
+	SEQ_MIDIOUT(synth_dev,reset_genmidi[1]);    \
+	SEQ_MIDIOUT(synth_dev,reset_genmidi[2]);    \
+	SEQ_MIDIOUT(synth_dev,reset_genmidi[3]);    \
+	SEQ_MIDIOUT(synth_dev,reset_genmidi[4]);    \
+}
+
 #define MIDI_MESSAGE2(a,b) {		\
 	SEQ_MIDIOUT(synth_dev,a);	\
 	SEQ_MIDIOUT(synth_dev,b);	\
@@ -183,7 +196,8 @@ int seq_init()
 	}
 	
 	if (card_info.synth_type==SYNTH_TYPE_MIDI) {
-		// Insert some sort of midi reset here later.
+		MIDI_RESET;
+		SEQ_DUMPBUF();
 	} else
 #endif
 #ifdef WANT_AWE32    
@@ -383,6 +397,8 @@ void stop_all()
 #endif
 #ifdef WANT_MPU401
 	  if (card_info.synth_type==SYNTH_TYPE_MIDI) {
+		MIDI_RESET;
+		SEQ_DUMPBUF();
 	  } else
 #endif
 	{
@@ -530,7 +546,7 @@ void send_ipc(char *message)
 				     IPC_CREAT | 0660);
 		snd=malloc(sizeof(long) + 32);
 		snd->mtype=1;
-		player_thread=SDL_CreateThread(play_hmi, NULL);
+		player_thread=SDL_CreateThread((int (*)(void *))play_hmi, NULL);
 //		player_pid = play_hmi();
 	}    
 	if (strlen(message) < 16)
@@ -605,7 +621,7 @@ void play_hmi (void * arg)
 	int n_chunks = 0;
 	int low_dtime;
 	int low_chunk;
-	int csec;
+	int csec, lcsec;
 //	pid_t loc_pid;
 	int qid;
 	int ipc_read = 0;
@@ -671,7 +687,9 @@ void play_hmi (void * arg)
 			t_info[i].time = get_dtime(data,&t_info[i].position);
 			pos += (( (0xff & data[pos + 5]) << 8 ) + (0xff & data[pos + 4]));
 		}
-		
+
+		lcsec = 0;
+
 		SEQ_START_TIMER();
 		do
 		{
@@ -713,7 +731,11 @@ void play_hmi (void * arg)
 				k = 0;
 			}
 			
-			SEQ_WAIT_TIME(csec);
+			if (csec != lcsec) {
+				SEQ_WAIT_TIME(csec);
+			}
+			
+			lcsec = csec;
 			
 			t_info[low_chunk].status = do_track_event(data,&t_info[low_chunk].position);
 			
