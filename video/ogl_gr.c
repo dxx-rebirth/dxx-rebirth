@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/video/ogl_gr.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  * $Author: bradleyb $
- * $Date: 2001-10-18 23:59:23 $
+ * $Date: 2001-10-25 02:23:48 $
  *
  * // OGL video functions. - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6  2001/10/18 23:59:23  bradleyb
+ * Changed __ENV_LINUX__ to __linux__
+ *
  * Revision 1.5  2001/10/12 00:18:40  bradleyb
  * Switched from Cygwin to mingw32 on MS boxes.  Vastly improved compilability.
  *
@@ -541,7 +544,7 @@ void gr_palette_read(ubyte * pal)
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
 void write_bmp(char *savename,int w,int h,unsigned char *buf){
 	int f;
-#if defined(__WINDOWS__) || defined (__MINGW32__)
+#if defined(__WINDOWS__) || defined(__MINGW32__)
 	f=open(savename,O_CREAT|O_EXCL|O_WRONLY,S_IRUSR|S_IWUSR);
 #else
 	f=open(savename,O_CREAT|O_EXCL|O_WRONLY,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
