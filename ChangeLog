@@ -1,3 +1,7 @@
+2003-03-19  Bradley Bell  <btb@icculus.org>
+
+	* arch/win32/ipx_win.c: ipx on win32 fixed!
+
 2003-03-19  Martin Schaffner <maschaffner@gmx.ch>
 
 	* 2d/rle.c, include/gr.h, include/rle.h, main/bm.c, main/bm.h,
