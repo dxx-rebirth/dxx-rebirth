@@ -117,10 +117,14 @@ void digi_reset_digi_sounds(void);
 
 void digi_reset() { }
 
-void digi_close(void) {
-  if(digi_initialised)
-   IDirectSound_Release(lpds);
- digi_initialised = 0;
+void digi_close(void)
+{
+	if(digi_initialised)
+	{
+		digi_reset_digi_sounds();
+		IDirectSound_Release(lpds);
+	}
+	digi_initialised = 0;
 }
 
 /* Initialise audio devices. */

@@ -1,5 +1,8 @@
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/win32/digi.c: call digi_reset_digi_sounds in digi_close to
+	fix crashing (d1x r1.4)
+
 	* arch/win32/digi.c: win32's digi_start_sound was not calling
 	DS_release_slot after setting .playing=0, resulting in a
 	memleak. Thanks to Stefan Ring for catching this (d1x r1.9)
