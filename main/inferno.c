@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.38 2002-08-06 05:21:33 btb Exp $ */
+/* $Id: inferno.c,v 1.39 2002-08-08 23:15:03 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,9 +13,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
+ * inferno.c: Entry point of program (main procedure)
  *
- * FIXME: put description here
- *
+ * After main initializes everything, most of the time is spent in the loop
+ * while (Function_mode != FMODE_EXIT)
+ * In this loop, the main menu is brought up first.
  *
  */
 
