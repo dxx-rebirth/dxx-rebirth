@@ -1,5 +1,9 @@
 2004-08-06 Chris Taylor  <c.taylor@student.curtin.edu.au>
 
+	* main/gamesave.c: fix a bug introduced with change of 2004-06-26
+
+2004-08-06 Chris Taylor  <c.taylor@student.curtin.edu.au>
+
 	* include/strio.h, include/strutil.h, misc/args.c, misc/strio.c,
 	misc/strutil.c: d2x can now handle any line ending when reading d2x.ini
 

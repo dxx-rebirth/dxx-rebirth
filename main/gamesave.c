@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.22 2004-06-26 16:27:17 schaffner Exp $ */
+/* $Id: gamesave.c,v 1.23 2004-08-17 18:02:43 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -287,7 +287,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.22 2004-06-26 16:27:17 schaffner Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.23 2004-08-17 18:02:43 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -1138,6 +1138,9 @@ int load_game_data(CFILE *LoadFile)
 		cfseek(LoadFile, 8, SEEK_CUR);
 		num_delta_lights = cfile_read_int(LoadFile);
 		cfseek(LoadFile, 4, SEEK_CUR);
+	} else {
+		Num_static_lights = 0;
+		num_delta_lights = 0;
 	}
 
 	if (game_top_fileinfo_version >= 31) { //load mine filename
