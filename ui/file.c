@@ -1,4 +1,4 @@
-/* $Id: file.c,v 1.8 2005-02-27 05:33:27 chris Exp $ */
+/* $Id: file.c,v 1.9 2005-03-05 09:14:59 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: file.c,v 1.8 2005-02-27 05:33:27 chris Exp $";
+static char rcsid[] = "$Id: file.c,v 1.9 2005-03-05 09:14:59 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -32,6 +32,7 @@ static char rcsid[] = "$Id: file.c,v 1.8 2005-02-27 05:33:27 chris Exp $";
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"
+#include "strutil.h"
 
 #include "ui.h"
 #include "mono.h"
@@ -41,32 +42,9 @@ static char rcsid[] = "$Id: file.c,v 1.8 2005-02-27 05:33:27 chris Exp $";
 char filename_list[300][13];
 char directory_list[100][13];
 
-void file_sort( int n, char list[][13] )
+int file_sort_func(char *e0, char *e1)
 {
-	int i, j, incr;
-	char t[14];
-
-	incr = n / 2;
-	while( incr > 0 )
-	{
-		for (i=incr; i<n; i++ )
-		{
-			j = i - incr;
-			while (j>=0 )
-			{
-				if (strncmp(list[j], list[j+incr], 12) > 0)
-				{
-					memcpy( t, list[j], 13 );
-					memcpy( list[j], list[j+incr], 13 );
-					memcpy( list[j+incr], t, 13 );
-					j -= incr;
-				}
-				else
-					break;
-			}
-		}
-		incr = incr / 2;
-	}
+	return stricmp(e0, e1);
 }
 
 
@@ -219,7 +197,7 @@ int file_getdirlist( int MaxNum, char list[][13] )
 		}
 	}
 
-	file_sort( NumDirs, list );
+	qsort(list, NumDirs, 13, (int (*)( const void *, const void * ))file_sort_func);
 
 	for (i=1; i<=26; i++ )
 	{
@@ -261,7 +239,7 @@ int file_getfilelist( int MaxNum, char list[][13], char * filespec )
 		}
 	}
 
-	file_sort( NumFiles, list );
+	qsort(list, NumFiles, 13, (int (*)( const void *, const void * ))file_sort_func);
 
 	return NumFiles;
 }
