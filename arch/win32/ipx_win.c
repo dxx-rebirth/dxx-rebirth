@@ -1,4 +1,4 @@
-/* $Id: ipx_win.c,v 1.5 2003-02-28 23:34:15 btb Exp $ */
+/* $Id: ipx_win.c,v 1.6 2003-03-19 23:10:34 btb Exp $ */
 
 /*
  *
@@ -96,7 +96,8 @@ static int ipx_win_OpenSocket(ipx_socket_t *sk, int port)
 */
   /* do a socket call, then bind to this port */
 //  sock = socket(AF_IPX, SOCK_DGRAM, PF_IPX);
-  sock = socket(AF_IPX, SOCK_DGRAM, 0);
+//  sock = socket(AF_IPX, SOCK_DGRAM, 0);
+  sock = socket(AF_IPX, SOCK_DGRAM, NSPROTO_IPX);//why NSPROTO_IPX?  I looked in the quake source and thats what they used. :) -MPM  (on w2k 0 and PF_IPX don't work)
   if (sock == -1) {
     mprintf((1,"IPX: could not open IPX socket.\n"));
     return -1;
