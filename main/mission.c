@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.7 2002-08-15 18:31:06 btb Exp $ */
+/* $Id: mission.c,v 1.8 2002-08-23 01:52:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -60,95 +60,69 @@ char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
 #define MISSION_DIR "./"
 #endif
 
-#ifdef SHAREWARE
+#define SHAREWARE_MISSION_FILENAME  "d2demo"
+#define SHAREWARE_MISSION_NAME      "Descent 2 Demo"
+#define SHAREWARE_MISSION_HOGSIZE   2292566
+#define MAC_SHARE_MISSION_HOGSIZE   4292746
+
+#define OEM_MISSION_FILENAME        "d2"
+#define OEM_MISSION_NAME            "D2 Destination:Quartzon"
+#define OEM_MISSION_HOGSIZE         6132957
+
+#define FULL_MISSION_FILENAME       "d2.mn2"
+#define FULL_MISSION_HOGSIZE        7595079
+
+char *builtin_mission;
+int builtin_mission_hogsize;
 
 //
 //  Special versions of mission routines for shareware
 //
 
-#define SHAREWARE_MISSION_FILENAME	"d2demo"
-#define SHAREWARE_MISSION_NAME		"Descent 2 Demo"
-
-int build_mission_list(int anarchy_mode)
+int load_mission_shareware(int mission_num)
 {
-	anarchy_mode++;		//kill warning
-
-	strcpy(Mission_list[0].filename,SHAREWARE_MISSION_FILENAME);
-	strcpy(Mission_list[0].mission_name,SHAREWARE_MISSION_NAME);
-	Mission_list[0].anarchy_only_flag = 0;
-
-	return load_mission(0);
-}
-
-int load_mission(int mission_num)
-{
-	Assert(mission_num == 0);
-
-	Current_mission_num = 0;
-	Current_mission_filename = Mission_list[0].filename;
-	Current_mission_longname = Mission_list[0].mission_name;
+	Current_mission_num = mission_num;
+	Current_mission_filename = Mission_list[mission_num].filename;
+	Current_mission_longname = Mission_list[mission_num].mission_name;
 
 	N_secret_levels = 0;
 
-	Assert(Last_level == 3);
+	Last_level = 3;
+	Last_secret_level = 0;
 
-#ifdef MACINTOSH	// mac demo is using the regular hog and rl2 files
-	strcpy(Level_names[0],"d2leva-1.rl2");
-	strcpy(Level_names[1],"d2leva-2.rl2");
-	strcpy(Level_names[2],"d2leva-3.rl2");
-#else
-	strcpy(Level_names[0],"d2leva-1.sl2");
-	strcpy(Level_names[1],"d2leva-2.sl2");
-	strcpy(Level_names[2],"d2leva-3.sl2");
-#endif 	// end of ifdef macintosh
+	switch (builtin_mission_hogsize) {
+	case MAC_SHARE_MISSION_HOGSIZE:
+		// mac demo is using the regular hog and rl2 files
+		strcpy(Level_names[0],"d2leva-1.rl2");
+		strcpy(Level_names[1],"d2leva-2.rl2");
+		strcpy(Level_names[2],"d2leva-3.rl2");
+		break;
+	default:
+		Int3(); // fall through
+	case SHAREWARE_MISSION_HOGSIZE:
+		strcpy(Level_names[0],"d2leva-1.sl2");
+		strcpy(Level_names[1],"d2leva-2.sl2");
+		strcpy(Level_names[2],"d2leva-3.sl2");
+	}
 
 	return 1;
 }
 
-int load_mission_by_name(char *mission_name)
-{
-	if (strcmp(mission_name,SHAREWARE_MISSION_FILENAME))
-		return 0;		//cannot load requested mission
-	else
-		return load_mission(0);
-
-}
-
-
-
-#else // else of ifdef SHAREWARE
-
-#if defined(D2_OEM)
 
 //
 //  Special versions of mission routines for Diamond/S3 version
 //
 
-#define OEM_MISSION_FILENAME	"d2"
-#define OEM_MISSION_NAME		"D2 Destination:Quartzon"
-
-int build_mission_list(int anarchy_mode)
+int load_mission_oem(int mission_num)
 {
-	anarchy_mode++;		//kill warning
-
-	strcpy(Mission_list[0].filename,OEM_MISSION_FILENAME);
-	strcpy(Mission_list[0].mission_name,OEM_MISSION_NAME);
-	Mission_list[0].anarchy_only_flag = 0;
-
-	return load_mission(0);
-}
-
-int load_mission(int mission_num)
-{
-	Assert(mission_num == 0);
-
-	Current_mission_num = 0;
-	Current_mission_filename = Mission_list[0].filename;
-	Current_mission_longname = Mission_list[0].mission_name;
+	Current_mission_num = mission_num;
+	Current_mission_filename = Mission_list[mission_num].filename;
+	Current_mission_longname = Mission_list[mission_num].mission_name;
 
 	N_secret_levels = 2;
 
-	Assert(Last_level == 8);
+	Last_level = 8;
+	Last_secret_level = -2;
 
 	strcpy(Level_names[0],"d2leva-1.rl2");
 	strcpy(Level_names[1],"d2leva-2.rl2");
@@ -170,16 +144,6 @@ int load_mission(int mission_num)
 	return 1;
 }
 
-int load_mission_by_name(char *mission_name)
-{
-	if (strcmp(mission_name,OEM_MISSION_FILENAME))
-		return 0;		//cannot load requested mission
-	else
-		return load_mission(0);
-
-}
-
-#else // else of ifdef D2_OEM, ifdef SHAREWARE
 
 //strips damn newline from end of line
 char *mfgets(char *s,int n,CFILE *f)
@@ -249,13 +213,13 @@ int ml_sort_func(mle *e0,mle *e1)
 extern char CDROM_dir[];
 extern int HoardEquipped();
 
-#define BUILTIN_MISSION (cfexist("d2.mn2")?"d2.mn2":"d2demo.mn2")
-
 //returns 1 if file read ok, else 0
 int read_mission_file(char *filename,int count,int location)
 {
 	char filename2[100];
 	CFILE *mfile;
+
+	printf("reading: %s\n", filename);
 
 	switch (location) {
 		case ML_MISSIONDIR:
@@ -325,7 +289,7 @@ int read_mission_file(char *filename,int count,int location)
 
 		p = get_parm_value("type",mfile);
 
-		//get mission type 
+		//get mission type
 		if (p)
 			Mission_list[count].anarchy_only_flag = istok(p,"anarchy");
 
@@ -337,8 +301,39 @@ int read_mission_file(char *filename,int count,int location)
 	return 0;
 }
 
+void add_builtin_mission_to_list(int *count)
+{
+	builtin_mission_hogsize = cfile_size("descent2.hog");
+	if (builtin_mission_hogsize == -1)
+		builtin_mission_hogsize = cfile_size("d2demo.hog");
 
-void add_missions_to_list(char * search_name, int * count, int anarchy_mode) {
+	switch (builtin_mission_hogsize) {
+	case SHAREWARE_MISSION_HOGSIZE:
+	case MAC_SHARE_MISSION_HOGSIZE:
+		strcpy(Mission_list[*count].filename,SHAREWARE_MISSION_FILENAME);
+		strcpy(Mission_list[*count].mission_name,SHAREWARE_MISSION_NAME);
+		Mission_list[*count].anarchy_only_flag = 0;
+		break;
+	case OEM_MISSION_HOGSIZE:
+		strcpy(Mission_list[*count].filename,OEM_MISSION_FILENAME);
+		strcpy(Mission_list[*count].mission_name,OEM_MISSION_NAME);
+		Mission_list[*count].anarchy_only_flag = 0;
+		break;
+	default:
+		Warning("Unknown hogsize %d, trying %s\n", builtin_mission_hogsize, FULL_MISSION_FILENAME);
+		Int3(); //fall through
+	case FULL_MISSION_HOGSIZE:
+		if (!read_mission_file(FULL_MISSION_FILENAME,0,ML_CURDIR))
+			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME);
+	}
+
+	builtin_mission = strdup(Mission_list[*count].filename);
+	++(*count);
+}
+
+
+void add_missions_to_list(char *search_name, int *count, int anarchy_mode)
+{
 	FILEFINDSTRUCT find;
 	if( !FileFindFirst( search_name, &find ) ) {
 		do	{
@@ -362,7 +357,7 @@ void promote (char * mission_name, int * top_place, int num_missions) {
 	strcpy(name, mission_name);
 		if ((t = strchr(name,'.')) != NULL)
 			*t = 0; //kill extension
-	printf("mission_name:%s\n", name);
+	printf("promoting: %s\n", name);
 	for (i = *top_place; i < num_missions; i++)
 		if (!stricmp(Mission_list[i].filename, name)) {
 			//swap mission positions
@@ -404,11 +399,7 @@ int build_mission_list(int anarchy_mode)
 //@@		return num_missions;
 //@@	}
 
-	if (!read_mission_file(BUILTIN_MISSION,0,ML_CURDIR))		//read built-in first
-		Error("Could not find required mission file <%s>",BUILTIN_MISSION);
-
-	count = 1;
-
+	add_builtin_mission_to_list(&count);  //read built-in first
 	add_missions_to_list(MISSION_DIR "*.mn2", &count, anarchy_mode);
 	add_missions_to_list(MISSION_DIR "*.msn", &count, anarchy_mode);
 
@@ -426,7 +417,7 @@ int build_mission_list(int anarchy_mode)
 	// to top of mission list
 	top_place = 0;
 	promote("descent", &top_place, count); // original descent 1 mission
-	promote(BUILTIN_MISSION, &top_place, count); // descent 2 (demo?)
+	promote(builtin_mission, &top_place, count); // descent 2
 	promote("d2x", &top_place, count); // vertigo
 
 	if (count > top_place)
@@ -463,11 +454,23 @@ int load_mission(int mission_num)
 	int found_hogfile;
 	int enhanced_mission = 0;
 
+	if (!strcmp(Mission_list[mission_num].filename, builtin_mission)) {
+		switch (builtin_mission_hogsize) {
+		case SHAREWARE_MISSION_HOGSIZE:
+		case MAC_SHARE_MISSION_HOGSIZE:
+			return load_mission_shareware(mission_num);
+			break;
+		case OEM_MISSION_HOGSIZE:
+			return load_mission_oem(mission_num);
+			break;
+		}
+	}
+
 	Current_mission_num = mission_num;
 
 	mprintf(( 0, "Loading mission %d\n", mission_num ));
 
-	//read mission from file 
+	//read mission from file
 
 	switch (Mission_list[mission_num].location) {
 	case ML_MISSIONDIR:
@@ -495,7 +498,7 @@ int load_mission(int mission_num)
 	}
 
 	//for non-builtin missions, load HOG
-	if (strcmp(Mission_list[mission_num].filename, BUILTIN_MISSION)) {
+	if (strcmp(Mission_list[mission_num].filename, builtin_mission)) {
 
 		strcpy(buf+strlen(buf)-4,".hog");		//change extension
 
@@ -631,7 +634,3 @@ int load_mission_by_name(char *mission_name)
 
 	return 0;		//couldn't find mission
 }
-
-#endif // ifdef, else D2_OEM
-#endif // ifdef, else SHAREWARE
-

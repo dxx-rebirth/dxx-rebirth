@@ -3,15 +3,16 @@ files need to go into a shared data directory
 (/usr/local/share/games/d2x by default).  On Windows or DOS, they go
 in the same directory as the d2x binary.
 
-To Play the Descent 2 demo:
-Place these files into your shared data dir:
-d2demo.ham
-d2demo.hog
-d2demo.pig
-d2demo.mn2 (distributed with d2x)
+Base Installation
+-----------------
 
-To Play Descent 2 registered:
+The base install depends on which version of the datafiles you have.
+d2x currently supports the full version, the OEM version (Destination:
+Quartzon), and the PC shareware version (Mac shareware version coming
+soon)
 Place these files into your shared data dir:
+
+Full Version:
 alien1.pig
 alien2.pig
 descent2.ham
@@ -23,14 +24,58 @@ groupa.pig
 ice.pig
 water.pig
 
-To play Descent 1 registered:
-All the files from Descent 2 registered, plus:
-Place these files into the missions subdir of your shared data dir:
+OEM Version:
+descent2.ham
+descent2.hog
+descent2.s11
+descent2.s22
+fire.pig
+groupa.pig
+ice.pig
+water.pig
+
+PC Shareware:
+d2demo.ham
+d2demo.hog
+d2demo.pig
+
+Mac Shareware:
+d2demo.ham
+d2demo.hog
+d2demo.pig
+descent2.s11
+exit.ham
+d2.mn2
+
+Mission Installation
+--------------------
+
+d2x should be able to play any missions for Descent 1 or Descent 2,
+including the original Descent 1 mission (Descent: First Strike)
+
+To install an additional mission, just place the .hog and the .msn or
+.mn2 file into your missions directory.  The missions directory can be
+inside the system-wide data dir, or your $HOME/.d2x dir.  d2x will
+look in both places.
+
+To install the mission from Descent 1:
+Place these files into your missions directory:
 descent.hog
 descent.msn (distributed with d2x)
 
-Note the filenames must be in _lower case_. It's important.
 
-Note also that you don't have to run the D2 setup program to extract
-the files, just unarj descent2.sow from the cd.
+Vertigo Installation
+--------------------
 
+Vertigo consists of both game enhancements (codenamed HOARD) and an
+additional mission.  To install HOARD, place hoard.ham in your data
+dir.  To play the vertigo mission, place d2x.hog and d2x.mn2 in your
+mission dir.
+
+
+Notes
+-----
+
+In unix, the filenames must be in _lower case_. It's important.
+Also, you don't have to run the D2 setup program to extract the files,
+just unarj descent2.sow from the cd.
