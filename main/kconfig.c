@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.26 2003-12-18 10:32:57 btb Exp $ */
+/* $Id: kconfig.c,v 1.27 2003-12-18 11:24:04 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.26 2003-12-18 10:32:57 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.27 2003-12-18 11:24:04 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -428,6 +428,7 @@ sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,
 
 int invert_text[2] = { TNUM_N, TNUM_Y };
 
+#ifndef USE_LINUX_JOY
 #ifdef WINDOWS
 	int joybutton_text[28] = 
 	{ TNUM_BTN_1, TNUM_BTN_2, TNUM_BTN_3, TNUM_BTN_4,
@@ -452,7 +453,8 @@ int invert_text[2] = { TNUM_N, TNUM_Y };
 	int joyaxis_text[7] = { TNUM_X1, TNUM_Y1, TNUM_Z1, TNUM_UN, TNUM_P1,TNUM_R1,TNUM_YA1 };
 //	int joyaxis_text[4] = { TNUM_X1, TNUM_Y1, TNUM_X2, TNUM_Y2 };
 #endif
-	
+#endif
+
 int mouseaxis_text[3] = { TNUM_L_R, TNUM_F_B, TNUM_Z1 };
 #ifndef MACINTOSH
 int mousebutton_text[3] = { TNUM_LEFT, TNUM_RIGHT, TNUM_MID };
@@ -1120,13 +1122,22 @@ int get_item_height(kc_item *item)
 			case BT_MOUSE_AXIS:
 				strncpy( btext, Text_string[mouseaxis_text[item->value]], 10 ); break;
 			case BT_JOY_BUTTON:
+#ifdef USE_LINUX_JOY
+				sprintf(btext, "J%d B%d", j_button[item->value].joydev, j_Get_joydev_button_number(item->value));
+#else
 				if ( joybutton_text[item->value] !=-1 )
 					strncpy( btext, Text_string[ joybutton_text[item->value]  ], 10 );
 				else
 					sprintf( btext, "BTN%d", item->value );
+#endif
 				break;
 			case BT_JOY_AXIS:
-				strncpy( btext, Text_string[joyaxis_text[item->value]], 10 ); break;
+#ifdef USE_LINUX_JOY
+				sprintf( btext, "J%d A%d", j_axis[item->value].joydev, j_Get_joydev_axis_number (item->value) );
+#else
+				strncpy(btext, Text_string[joyaxis_text[item->value]], 10);
+#endif
+				break;
 			case BT_INVERT:
 				strncpy( btext, Text_string[invert_text[item->value]], 10 ); break;
 		}
@@ -1628,26 +1639,35 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 			case BT_MOUSE_AXIS:
 				strncpy( btext, Text_string[mouseaxis_text[item->value]], 10 ); break;
 			case BT_JOY_BUTTON:
-#ifndef MACINTOSH
-	#ifdef WINDOWS
+#ifdef USE_LINUX_JOY
+				sprintf(btext, "J%d B%d", j_button[item->value].joydev, j_Get_joydev_button_number(item->value));
+#else
+# ifndef MACINTOSH
+#  ifdef WINDOWS
 				if (joybutton_text[item->value] != -1) 
 					strncpy( btext, Text_string[ joybutton_text[item->value]  ], 10 );
 				else 
 					sprintf( btext, "BTN%2d", item->value+1 );
-	#else	
+#  else
 				if ( joybutton_text[item->value] !=-1 )
 					strncpy( btext, Text_string[ joybutton_text[item->value]  ], 10 );
 				else
 					sprintf( btext, "BTN%d", item->value );
-	#endif
-#else
+#  endif
+# else
 				strncpy( btext, joy_btn_name( item->value ), 10);
 				if (btext == NULL)
 					sprintf( btext, "BTN%d", item->value );
+# endif
 #endif
 				break;
 			case BT_JOY_AXIS:
-				strncpy( btext, Text_string[joyaxis_text[item->value]], 10 ); break;
+#ifdef USE_LINUX_JOY
+				sprintf(btext, "J%d A%d", j_axis[item->value].joydev, j_Get_joydev_axis_number(item->value));
+#else
+				strncpy(btext, Text_string[joyaxis_text[item->value]], 10);
+#endif
+				break;
 			case BT_INVERT:
 				strncpy( btext, Text_string[invert_text[item->value]], 10 ); break;
 		}
@@ -1930,7 +1950,7 @@ void kc_change_joyaxis( kc_item * item )
 #ifdef USE_LINUX_JOY
 	int axis[MAX_AXES];
 	int old_axis[MAX_AXES];
-	int numaxis = MAX_AXES;
+	int numaxis = j_num_axes;
 #else
 	int axis[JOY_NUM_AXES];
 	int old_axis[JOY_NUM_AXES];

@@ -1,5 +1,7 @@
 2003-12-18  Bradley Bell  <btb@icculus.org>
 
+	* main/kconfig.c: fixes for linux-native joystick
+
 	* main/kconfig.c: bunch of fixes (esp. for non linux-native
 	joystick)
 
