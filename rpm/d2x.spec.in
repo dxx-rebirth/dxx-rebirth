@@ -2,7 +2,7 @@
 # Spec file for package d2x.
 #
 Name:          d2x
-Version:       0.1.2
+Version:       @VERSION@
 Release:       1
 Copyright:     Freely Redistributable
 Packager:      bradleyb@u.washington.edu
