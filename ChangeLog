@@ -1,3 +1,8 @@
+2005-02-24  Tim Massey  <tmassey@obscorp.com>
+
+	* main/inferno.c: allow -notitles to work in shareware [and
+	non-RELEASE] version too. (d1x r1.35)
+
 2005-02-24  Peter Hawkins  <peterh@isa.net.au>
 
 	* arch/linux/alsadigi.c: update to alsa 1.0 API. (d1x r1.3)

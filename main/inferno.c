@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.97 2005-02-25 05:20:36 chris Exp $ */
+/* $Id: inferno.c,v 1.98 2005-02-25 07:19:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -809,12 +809,10 @@ int main(int argc, char *argv[])
 #endif
 #endif
 
-	#ifndef RELEASE
 	if ( FindArg( "-notitles" ) )
 		songs_play_song( SONG_TITLE, 1);
 	else
-	#endif
-	{	//NOTE LINK TO ABOVE!
+	{
 #ifndef SHAREWARE
 		int played=MOVIE_NOT_PLAYED;	//default is not played
 #endif
@@ -1152,9 +1150,7 @@ int main(int argc, char *argv[])
 
 	WriteConfigFile();
 
-	#ifndef RELEASE
 	if (!FindArg( "-notitles" ))
-	#endif
 		show_order_form();
 
 	#ifndef NDEBUG
