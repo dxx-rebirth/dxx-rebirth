@@ -6,6 +6,8 @@
 
 	* main/mission.c: set builtin_hogsize for non-built-in missions
 
+	* main/mission.c: pass individual mission around instead of whole list
+
 2004-12-02  Bradley Bell  <btb@icculus.org>
 
 	* include/cfile.h, include/physfsx.h: fix RELEASE build, make sure
