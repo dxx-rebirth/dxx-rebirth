@@ -1,5 +1,8 @@
 2003-04-07  Bradley Bell  <btb@icculus.org>
 
+	* include/error.h, misc/error.c: put some old stuff back in,
+	eliminate duplicate error messages
+
 	* main/text.c: don't die on text not found
 	formatting
 

@@ -1,4 +1,4 @@
-/* $Id: error.h,v 1.7 2003-01-15 02:42:41 btb Exp $ */
+/* $Id: error.h,v 1.8 2003-04-08 00:59:17 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -69,7 +69,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define __format
 #endif
 
-int error_init(char *fmt,...);			//init error system, set default message, returns 0=ok
+int error_init(void (*func)(char *), char *fmt,...);    //init error system, set default message, returns 0=ok
 void set_exit_message(char *fmt,...);	//specify message to print at exit
 void Warning(char *fmt,...);				//print out warning message to user
 void set_warn_func(void (*f)(char *s));//specifies the function to call with warning messages
