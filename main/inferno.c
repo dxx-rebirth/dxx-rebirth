@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.35 2002-07-30 11:05:53 btb Exp $ */
+/* $Id: inferno.c,v 1.36 2002-08-02 11:05:26 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -115,10 +115,6 @@ extern int Current_display_mode;        //$$ there's got to be a better way than
 
 #ifdef SDL_INPUT
 #include <SDL/SDL.h>
-#endif
-
-#ifndef SDL_VERSION_ATLEAST
-#include "oldsdl.h"
 #endif
 
 #include "vers_id.h"
@@ -245,9 +241,7 @@ void print_commandline_help()
 //	printf( "  -dynamicsockets %s\n","FIXME: Undocumented");
 //	printf( "  -forcegfx       %s\n","FIXME: Undocumented");
 #ifdef SDL_INPUT
-#if SDL_VERSION_ATLEAST(1,0,2)
 	printf( "  -grabmouse      %s\n","Keeps the mouse from wandering out of the window");
-#endif
 #endif
 //	printf( "  -hw_3dacc       %s\n","FIXME: Undocumented");
 #ifndef RELEASE
@@ -1007,21 +1001,17 @@ int main(int argc,char **argv)
 			#endif
 
 #ifdef SDL_INPUT
-#if SDL_VERSION_ATLEAST(1,0,2)
 			/* keep the mouse from wandering in SDL */
 			if (FindArg("-grabmouse"))
 			    SDL_WM_GrabInput(SDL_GRAB_ON);
-#endif
 #endif
 
 			game();
 
 #ifdef SDL_INPUT
-#if SDL_VERSION_ATLEAST(1,0,2)
 			/* give control back to the WM */
 			if (FindArg("-grabmouse"))
 			    SDL_WM_GrabInput(SDL_GRAB_OFF);
-#endif
 #endif
 
 			if ( Function_mode == FMODE_MENU )

@@ -1,3 +1,4 @@
+/* $Id: error.c,v 1.3 2002-08-02 11:05:26 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,20 +12,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvs/cvsroot/d2x/misc/error.c,v $
- * $Revision: 1.2 $
- * $Author: bradleyb $
- * $Date: 2001-01-31 15:18:04 $
  *
  * Error handling/printing/exiting code
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  2001/01/19 03:30:14  bradleyb
- * Import of d2x-0.0.8
- *
- * Revision 1.1.1.1  1999/06/14 22:13:48  donut
- * Import of d1x 1.37 source.
- *
+ * Old Log:
  * Revision 1.12  1994/12/07  18:49:39  matt
  * error_init() can now take NULL as parm
  * 
@@ -70,7 +61,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: error.c,v 1.2 2001-01-31 15:18:04 bradleyb Exp $";
+static char rcsid[] = "$Id: error.c,v 1.3 2002-08-02 11:05:26 btb Exp $";
 #endif
 
 #include <stdio.h>

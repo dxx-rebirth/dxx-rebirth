@@ -1,5 +1,4 @@
-//#define DOOR_DEBUGGING
-
+/* $Id: gamecntl.c,v 1.12 2002-08-02 11:05:25 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,6 +15,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
+
+//#define DOOR_DEBUGGING
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -121,10 +122,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef SDL_INPUT
 #include <SDL/SDL.h>
-#endif
-
-#ifndef SDL_VERSION_ATLEAST
-#include "oldsdl.h"
 #endif
 
 extern void full_palette_save(void);
@@ -503,11 +500,9 @@ int do_game_pause()
 	gr_update();
 
 #ifdef SDL_INPUT
-#if SDL_VERSION_ATLEAST(1,0,2)
 	/* give control back to the WM */
 	if (FindArg("-grabmouse"))
 	    SDL_WM_GrabInput(SDL_GRAB_OFF);
-#endif
 #endif
 
 	while (Game_paused) 
@@ -570,11 +565,9 @@ int do_game_pause()
 	}
 
 #ifdef SDL_INPUT
-#if SDL_VERSION_ATLEAST(1,0,2)
 	/* keep the mouse from wandering in SDL */
 	if (FindArg("-grabmouse"))
 	    SDL_WM_GrabInput(SDL_GRAB_ON);
-#endif
 #endif
 
 	if (VR_screen_flags & VRF_COMPATIBLE_MENUS) {

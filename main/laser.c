@@ -1,3 +1,4 @@
+/* $Id: laser.c,v 1.6 2002-08-02 11:05:26 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char laser_rcsid[] = "$Id: laser.c,v 1.5 2001-11-08 10:30:28 bradleyb Exp $";
+char laser_rcsid[] = "$Id: laser.c,v 1.6 2002-08-02 11:05:26 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -2041,16 +2042,16 @@ int create_homing_missile(object *objp, int goal_obj, int objtype, int make_soun
 
 extern void blast_nearby_glass(object *objp, fix damage);
 
-//	-------------------------------------------------------------------------------------------
-//	Create the children of a smart bomb, which is a bunch of homing missiles.
+//-----------------------------------------------------------------------------
+// Create the children of a smart bomb, which is a bunch of homing missiles.
 void create_smart_children(object *objp, int num_smart_children)
 {
-	int		parent_type, parent_num;
+	int	parent_type, parent_num;
 #ifndef SHAREWARE
-	int		make_sound;
-	int		numobjs=0;
-	int		objlist[MAX_OBJDISTS];
-	int		blob_id;
+	int	make_sound;
+	int	numobjs=0;
+	int	objlist[MAX_OBJDISTS];
+	int	blob_id;
 #endif
 
 	if (objp->type == OBJ_WEAPON) {

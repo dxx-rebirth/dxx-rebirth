@@ -1,3 +1,4 @@
+/* $Id: error.h,v 1.6 2002-08-02 11:05:25 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,36 +12,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvs/cvsroot/d2x/include/error.h,v $
- * $Revision: 1.5 $
- * $Author: bradleyb $
- * $Date: 2002-02-16 02:08:31 $
  *
  * Header for error handling/printing/exiting code
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.4  2002/01/18 07:00:59  bradleyb
- * don't die on int3, unless -debug given
- *
- * Revision 1.3  2001/11/14 10:51:04  bradleyb
- * kludge to ungrab mouse when we hit an int3
- *
- * Revision 1.2  2001/01/22 15:49:14  bradleyb
- * fix compiler warnings w/opengl
- *
- * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
- * Import of d2x-0.0.8
- *
- * Revision 1.3  1999/10/14 04:48:21  donut
- * alpha fixes, and gl_font args
- *
- * Revision 1.2  1999/08/05 22:53:41  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.1.1.1  1999/06/14 22:02:09  donut
- * Import of d1x 1.37 source.
- *
+ * Old Log:
  * Revision 1.12  1994/06/17  15:22:46  matt
  * Added pragma for Error() for when NDEBUG
  * 
@@ -113,18 +88,13 @@ void Int3();
 #else
 #ifdef SDL_INPUT
 #include <SDL/SDL.h>
-#ifndef SDL_VERSION_ATLEAST
-#include "oldsdl.h"
-#endif
 #endif
 #include "args.h"
 static inline void _Int3()
 {
 	if (FindArg("-debug")) {
 #ifdef SDL_INPUT
-#if SDL_VERSION_ATLEAST(1,0,2)
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
-#endif
 #endif
 		asm("int $3");
 	}

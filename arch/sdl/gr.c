@@ -1,32 +1,8 @@
+/* $Id: gr.c,v 1.6 2002-08-02 11:05:25 btb Exp $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/sdl/gr.c,v $
- * $Revision: 1.5 $
- * $Author: bradleyb $
- * $Date: 2002-02-23 21:38:15 $
  *
  * SDL video functions.
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.4  2002/02/16 02:08:31  bradleyb
- * allow older sdl versions
- *
- * Revision 1.3  2002/02/14 11:29:31  bradleyb
- * allow gr_init lowres
- *
- * Revision 1.2  2001/10/31 07:41:54  bradleyb
- * Sync with d1x
- *
- * Revision 1.1  2001/10/25 08:25:34  bradleyb
- * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
- *
- * Revision 1.5  2001/10/09 08:17:07  bradleyb
- * changed window caption to include version info
- *
- * Revision 1.4  2001/01/31 13:59:23  bradleyb
- * Fullscreen toggle added to screen res menu
- *
- * Revision 1.3  2001/01/29 13:47:52  bradleyb
- * Fixed build, some minor cleanups.
  *
  */
 
@@ -38,9 +14,6 @@
 #include <string.h>
 #include <SDL/SDL.h>
 
-#ifndef SDL_VERSION_ATLEAST
-#include "oldsdl.h"
-#endif
 #include "gr.h"
 #include "grdef.h"
 #include "palette.h"
@@ -179,11 +152,7 @@ int gr_check_fullscreen(void){
 
 int gr_toggle_fullscreen(void){
 	sdl_video_flags^=SDL_FULLSCREEN;
-#if SDL_VERSION_ATLEAST(1,0,5)
 	SDL_WM_ToggleFullScreen(screen);
-#else
-	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
-#endif
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 
