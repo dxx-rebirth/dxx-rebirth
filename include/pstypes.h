@@ -22,20 +22,24 @@ typedef signed char byte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
-#ifndef __ENV_LINUX__
+#ifndef __linux__
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
 #endif
 
-# define min(a,b) (((a)>(b))?(b):(a))
-# define max(a,b) (((a)<(b))?(b):(a))
+#ifndef min
+#define min(a,b) (((a)>(b))?(b):(a))
+#endif
+#ifndef max
+#define max(a,b) (((a)<(b))?(b):(a))
+#endif
 
 #if defined __MINGW32__
 #include <stdint.h>
 typedef uint32_t u_int32_t;
 
-#elif defined __ENV_LINUX__
+#elif defined __linux__
 # include <sys/types.h>
 # define _MAX_PATH 1024
 # define _MAX_DIR 256
