@@ -52,17 +52,18 @@ typedef struct _grs_point {
 #define CC_LSPACING_S 	"\x2"		//next char specifies line spacing
 #define CC_UNDERLINE_S	"\x3"		//next char is underlined
 
-typedef struct _old_grs_font {
-	short		ft_w,ft_h;		// Width and height in pixels
-	short		ft_flags;		// Proportional?
-	short		ft_baseline;	//
+//old font structure, could not add new items to it without screwing up gr_init_font
+typedef struct _grs_font {
+	int16_t		ft_w,ft_h;		// Width and height in pixels
+	int16_t		ft_flags;		// Proportional?
+	int16_t		ft_baseline;	//
 	ubyte		ft_minchar,		// The first and last chars defined by
 				ft_maxchar;		// This font
-	short		ft_bytewidth;	// Width in unsigned chars
-	ubyte	* 	ft_data;			// Ptr to raw data.
-	ubyte	**	ft_chars;		// Ptrs to data for each char (required for prop font)
-	short	*	ft_widths;		// Array of widths (required for prop font)
-	ubyte *  ft_kerndata;	// Array of kerning triplet data
+	int16_t		ft_bytewidth;	// Width in unsigned chars
+	u_int32_t	ft_data;			// Ptr to raw data.
+	u_int32_t	ft_chars;		// Ptrs to data for each char (required for prop font)
+	u_int32_t	ft_widths;		// Array of widths (required for prop font)
+	u_int32_t	ft_kerndata;	// Array of kerning triplet data
 } __pack__ old_grs_font;
 
 #define BM_LINEAR   0
@@ -134,6 +135,7 @@ typedef struct _grs_bitmap {
 
 } grs_bitmap;
 
+//new font structure, which does not suffer from the inability to add new items
 typedef struct _new_grs_font {
 	short		ft_w,ft_h;		// Width and height in pixels
 	short		ft_flags;		// Proportional?

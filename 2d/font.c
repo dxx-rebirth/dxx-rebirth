@@ -11,6 +11,17 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/* $Source: /cvs/cvsroot/d2x/2d/font.c,v $
+ * $Revision: 1.6 $
+ * $Author: bradleyb $
+ * $Date: 2001-11-02 02:03:35 $
+ *
+ * Graphical routines for drawing fonts.
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -1016,7 +1027,7 @@ int gr_internal_string5m(int x, int y, char *s )
 }
 #endif
 
-#if 1 //ndef OGL
+#ifndef OGL
 //a bitmap for the character
 grs_bitmap char_bm = {
 				0,0,0,0,						//x,y,w,h
@@ -1398,7 +1409,7 @@ int gr_string(int x, int y, char *s )
 	}
 
 	// Partially clipped...
-#if 0 //def OGL
+#ifdef OGL
 	if (TYPE==BM_OGL)
 		return ogl_internal_string(x,y,s);
 #endif
@@ -1414,7 +1425,7 @@ int gr_string(int x, int y, char *s )
 
 int gr_ustring(int x, int y, char *s )
 {
-#if 0 //def OGL
+#ifdef OGL
 	if (TYPE==BM_OGL)
 		return ogl_internal_string(x,y,s);
 #endif
@@ -1531,8 +1542,8 @@ void gr_close_font( grs_font * font )
 
 		if ( font->ft_chars )
 			d_free( font->ft_chars );
-//		d_free( font->oldfont );
-#if 0 //def OGL
+		d_free( font->oldfont );
+#ifdef OGL
 		if (font->ft_bitmaps)
 			d_free( font->ft_bitmaps );
 		gr_free_bitmap_data(&font->ft_parent_bitmap);
@@ -1552,9 +1563,18 @@ void gr_remap_color_fonts()
 		grs_font *font;
 
 		font = open_font[fontnum].ptr;
-
+		
 		if (font && (font->ft_flags & FT_COLOR))
-			gr_remap_font(font,open_font[fontnum].filename);
+			// Unless gr_remap_font is fixed, we gotta just
+			// reload the whole font
+			{
+				char fontname[FILENAME_LEN];
+
+				strncpy(fontname,open_font[fontnum].filename,FILENAME_LEN);
+				gr_close_font(font);
+				font = gr_init_font(fontname);
+			}
+//			gr_remap_font(font,open_font[fontnum].filename);
 	}
 }
 
@@ -1577,7 +1597,8 @@ void decode_data_asm(ubyte *data, int num_pixels, ubyte * colormap, int * count 
 grs_font * gr_init_font( char * fontname )
 {
 	static int first_time=1;
-	grs_font *font;
+	old_grs_font *font;
+	grs_font *newfont;
 	int i,fontnum;
 	unsigned char * ptr;
 	int nchars;
@@ -1603,71 +1624,61 @@ grs_font * gr_init_font( char * fontname )
 	if (!fontfile)
 		Error( "Can't open font file %s", fontname );
 
-	file_id = cfile_read_int(fontfile);
-	datasize = cfile_read_int(fontfile);
+	cfread(&file_id,sizeof(file_id),1,fontfile);
+	file_id=swapint(file_id);
+	cfread(&datasize,sizeof(datasize),1,fontfile);
+	datasize=swapint(datasize);
 
 	if (file_id != 0x4e465350) /* 'NFSP' */
 		Error( "File %s is not a font file", fontname );
 
-	font = (grs_font *) d_malloc(datasize);
+	font = (old_grs_font *) d_malloc(datasize);
+	newfont = (grs_font *) d_malloc(sizeof(grs_font));
+	newfont->oldfont=font;
 
-	open_font[fontnum].ptr = font;
+	open_font[fontnum].ptr = newfont;
 
 	cfread(font,1,datasize,fontfile);
 
-#ifdef MACINTOSH
-// gotta translate those endian things
+	newfont->ft_flags=swapint(font->ft_flags);
+	newfont->ft_w=swapshort(font->ft_w);
+	newfont->ft_h=swapshort(font->ft_h);
+	newfont->ft_baseline=swapshort(font->ft_baseline);
+	newfont->ft_maxchar=font->ft_maxchar;
+	newfont->ft_minchar=font->ft_minchar;
+	newfont->ft_bytewidth=swapshort(font->ft_bytewidth);
 
-	font->ft_w = SWAPSHORT(font->ft_w);
-	font->ft_h = SWAPSHORT(font->ft_h);
-	font->ft_flags = SWAPSHORT(font->ft_flags);
-	font->ft_bytewidth = SWAPSHORT(font->ft_bytewidth);
-	font->ft_data = (ubyte *)SWAPINT((int)(font->ft_data));
-	font->ft_chars = (ubyte **)SWAPINT((int)(font->ft_chars));
-	font->ft_widths = (short *)SWAPINT((int)(font->ft_widths));
-	font->ft_kerndata = (ubyte *)SWAPINT((int)(font->ft_kerndata));
-#endif
+	nchars = newfont->ft_maxchar-newfont->ft_minchar+1;
 
-	nchars = font->ft_maxchar-font->ft_minchar+1;
+	if (newfont->ft_flags & FT_PROPORTIONAL) {
 
-	if (font->ft_flags & FT_PROPORTIONAL) {
+		newfont->ft_widths = (short *) (swapint(font->ft_widths) + ((ubyte *) font));
+		newfont->ft_data = (swapint(font->ft_data)) + ((ubyte *) font);
+		newfont->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
 
-		font->ft_widths = (short *) (((int) font->ft_widths) + ((ubyte *) font));
-
-#ifdef MACINTOSH
-		for (i = 0; i < nchars; i++)
-			font->ft_widths[i] = SWAPSHORT(font->ft_widths[i]);
-#endif
-
-		font->ft_data = ((int) font->ft_data) + ((ubyte *) font);
-
-		font->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
-
-		ptr = font->ft_data;
+		ptr = newfont->ft_data;
 
 		for (i=0; i< nchars; i++ ) {
-			font->ft_chars[i] = ptr;
-			if (font->ft_flags & FT_COLOR)
-				ptr += font->ft_widths[i] * font->ft_h;
+			newfont->ft_chars[i] = ptr;
+			if (newfont->ft_flags & FT_COLOR)
+				ptr += newfont->ft_widths[i] * newfont->ft_h;
 			else
-				ptr += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
+				ptr += BITS_TO_BYTES(newfont->ft_widths[i]) * newfont->ft_h;
 		}
 
 	} else  {
 
-		font->ft_data = ((unsigned char *) font) + sizeof(*font);
+		newfont->ft_data   = ((unsigned char *) font) + sizeof(*font);
+		newfont->ft_chars  = NULL;
+		newfont->ft_widths = NULL;
 
-		font->ft_chars	= NULL;
-		font->ft_widths = NULL;
-
-		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
+		ptr = newfont->ft_data + (nchars * newfont->ft_w * newfont->ft_h);
 	}
 
-	if (font->ft_flags & FT_KERNED)
-		font->ft_kerndata = ((int) font->ft_kerndata) + ((ubyte *) font);
+	if (newfont->ft_flags & FT_KERNED)
+		newfont->ft_kerndata = swapint(font->ft_kerndata) + ((ubyte *) font);
 
-
-	if (font->ft_flags & FT_COLOR) {		//remap palette
+	if (newfont->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];
 		ubyte colormap[256];
 		int freq[256];
@@ -1687,11 +1698,11 @@ grs_font * gr_init_font( char * fontname )
 
 //  we also need to swap the data entries as well.  black is white and white is black
 
-			for (i = 0; i < ptr-font->ft_data; i++) {
-				if (font->ft_data[i] == 0)
-					font->ft_data[i] = 255;
-				else if (font->ft_data[i] == 255)
-					font->ft_data[i] = 0;
+			for (i = 0; i < ptr-newfont->ft_data; i++) {
+				if (newfont->ft_data[i] == 0)
+					newfont->ft_data[i] = 255;
+				else if (newfont->ft_data[i] == 255)
+					newfont->ft_data[i] = 0;
 			}
 
 		}
@@ -1701,23 +1712,33 @@ grs_font * gr_init_font( char * fontname )
 
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;		// chaged from colormap[255] = 255 to this for macintosh
 
-		decode_data_asm(font->ft_data, ptr-font->ft_data, colormap, freq );
+		decode_data_asm(newfont->ft_data, ptr-newfont->ft_data, colormap, freq );
 
 	}
 
 	cfclose(fontfile);
 
+//	memcpy(newfont,font,(ubyte*)&newfont->oldfont-(ubyte*)newfont);//fill in newfont data from oldfont struct
+//	mprintf((0,"%i %i %i\n",sizeof(grs_font),sizeof(old_grs_font),(ubyte*)&newfont->oldfont-(ubyte*)newfont));
+
 	//set curcanv vars
 
-	FONT        = font;
+	FONT        = newfont;
 	FG_COLOR    = 0;
 	BG_COLOR    = 0;
 
-#if 0 //def OGL
-	ogl_init_font(font);
+	{
+		int x,y,aw;
+		char tests[]="abcdefghij1234.A";
+		gr_get_string_size(tests,&x,&y,&aw);
+//		newfont->ft_aw=x/(float)strlen(tests);
+	}
+
+#ifdef OGL
+	ogl_init_font(newfont);
 #endif
 
-	return font;
+	return newfont;
 
 }
 

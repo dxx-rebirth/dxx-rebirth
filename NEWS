@@ -1,6 +1,7 @@
 --- Version 0.1.2 ---
 Menus now work in OpenGL!
 Automap works in OpenGL!
+Fonts work in OpenGL!
 You can now use the -tmap option to select between the different
 texture mapping routines (c, fp, i386, pent, ppro) at runtime.
 Please bear with me while the source undergoes some rather ugly
