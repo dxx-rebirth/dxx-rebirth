@@ -122,16 +122,17 @@ Known bugs/issues:
 * Sound support missing.
 
 
-Reporting bugs/feedback:
-========================
+Bugs/feedback:
+==============
 
-There are two ways to report bugs and give feedback:
-1) Get on the descent-source mailing list by sending an email to
+You can get on the descent-source mailing list by sending an email to
 majordomo@warpcore.org with the body as: "subscribe descent-source
 <your email address>". Discussions about the source code in general
 are available here, and is the main list that d2x and d1x, a similar
-project for descent 1 is discussed on. Patches and questions can be
+project for descent 1, are discussed on. Patches and questions can be
 posted there, as well.
 
-2) Send feedback directly to me, btb@icculus.org.  I'll try to get
-back to you ASAP, depending on real-life concerns =)
+Use Bugzilla. https://bugzilla.icculus.org/
+
+Contact me directly, btb@icculus.org.  I'll try to get back to you
+ASAP, depending on real-life concerns =)
