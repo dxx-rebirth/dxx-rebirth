@@ -1,4 +1,4 @@
-SUBDIRS = editor old
+EXTRA_SUBDIRS = editor old
 
 CFLAGS += -fwritable-strings
 
@@ -55,3 +55,8 @@ powerup.h render.h robot.h scores.h screens.h segment.h segpoint.h slew.h \
 songs.h sounds.h state.h switch.h terrain.h texmerge.h text.h textures.h \
 titles.h vclip.h vers_id.h wall.h weapon.h \
 dumpmine.c
+
+dist-hook:
+	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
+	 tar --exclude=CVS -cf - $$subdir | ( cd $(distdir) && tar xf - ) \
+	done

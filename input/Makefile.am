@@ -1,4 +1,4 @@
-SUBDIRS = linux
+EXTRA_SUBDIRS = linux
 
 INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(top_srcdir)/arch/include
 
@@ -43,3 +43,8 @@ endif
 EXTRA_DIST = \
 dos_joy2.asm \
 ggi_init.c
+
+dist-hook:
+	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
+	 tar --exclude=CVS -cf - $$subdir | ( cd $(distdir) && tar xf - ) \
+	done

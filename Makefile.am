@@ -1,7 +1,11 @@
-SUBDIRS = 2d 3d maths mem cfile iff texmap misc input video sound arch main \
-includes tools unused
+SUBDIRS = 2d 3d maths mem cfile iff texmap misc input video sound arch main
+
+EXTRA_SUBDIRS = includes tools unused
 
 dist-hook:
+	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
+	 tar --exclude=CVS -cf - $$subdir | ( cd $(distdir) && tar xf - ) \
+	done
 	$(MAKE) changelog
 	cp -a ChangeLog $(distdir)
 

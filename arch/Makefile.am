@@ -1,4 +1,4 @@
-SUBDIRS = include dos linux win32
+EXTRA_SUBDIRS = dos include linux win32
 
 noinst_LIBRARIES = libarch.a
 INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(top_srcdir)/arch/include
@@ -41,3 +41,8 @@ endif
 EXTRA_DIST = \
 dos_tweak.inc dos_vgaregs.inc \
 dos_modex.asm dos_timer.asm
+
+dist-hook:
+	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
+	 tar --exclude=CVS -cf - $$subdir | ( cd $(distdir) && tar xf - ) \
+	done
