@@ -25,13 +25,15 @@
 /* Define to enable cross-platform bitmap/palette loading functions */
 #undef PORTABLE_LOADER
 
+/* Define to render endlevel flythrough sequences (instead of movies) */
+#undef NMOVIES
+
 @BOTTOM@
 
 /* General defines */
 #define NMONO 1
 #define PIGGY_USE_PAGING 1
 #define NEWDEMO 1
-#define NMOVIES 1
 
 #ifdef __linux__
 # define __SDL__ 1
