@@ -5,6 +5,8 @@
 	* main/editor/editor.h: baptize the coefficients in vms_equation 'n'
 	* main/gamerend.c, main/gauges.c: fix bug #1893: fade ship and weapon
 	gauge when appropriate
+	* main/editor/kdefs.h, main/gamesave.c, main/gamesave.h: change
+	all functions in kfuncs.c to return int instead of void
 
 2005-01-23  Jason Owen  <shannara256@yahoo.com>
 

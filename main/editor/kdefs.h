@@ -1,4 +1,4 @@
-/* $Id: kdefs.h,v 1.2 2004-12-19 14:52:48 btb Exp $ */
+/* $Id: kdefs.h,v 1.3 2005-01-24 21:26:24 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -36,7 +36,7 @@ int SaveSituation();
 int LoadSituation();
 
 // In kgame.c
-void SetPlayerPosition(void);
+int SetPlayerPosition(void);
 int SaveGameData();
 int LoadGameData();
 int LoadMineOnly();
@@ -60,7 +60,7 @@ int Degroup();
 int RotateGroup();
 
 // In segment.c
-void ToggleBottom();
+int ToggleBottom();
 void make_curside_bottom_side();
 int select_segment_by_number();
 int select_segment_with_powerup();
@@ -242,9 +242,9 @@ int	LightAmbientLighting();
 // seguvs.c
 int fix_bogus_uvs_on_side();
 int fix_bogus_uvs_all();
-void set_average_light_on_curside(void);
-void set_average_light_on_all(void);
-void set_average_light_on_all_quick(void);
+int set_average_light_on_curside(void);
+int set_average_light_on_all(void);
+int set_average_light_on_all_quick(void);
 
 // Miscellaneous, please put in correct file if you have time
 int IncreaseDrawDepth();
@@ -323,7 +323,7 @@ extern int repaircen_create_from_curseg();
 extern int controlcen_create_from_curseg();
 extern int robotmaker_create_from_curseg();
 extern int fuelcen_reset_all();
-extern void RestoreGameState();
+extern int RestoreGameState();
 extern int fuelcen_delete_from_curseg();
 extern int goal_blue_create_from_curseg();
 extern int goal_red_create_from_curseg();

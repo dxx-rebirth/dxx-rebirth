@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.27 2004-12-20 06:34:42 btb Exp $ */
+/* $Id: gamesave.c,v 1.28 2005-01-24 21:26:24 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.27 2004-12-20 06:34:42 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.28 2005-01-24 21:26:24 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -1512,7 +1512,7 @@ int load_level(char * filename_passed)
 }
 
 #ifdef EDITOR
-void get_level_name()
+int get_level_name()
 {
 //NO_UI!!!	UI_WINDOW 				*NameWindow = NULL;
 //NO_UI!!!	UI_GADGET_INPUTBOX	*NameText;
@@ -1548,7 +1548,7 @@ void get_level_name()
 	m[0].type = NM_TYPE_TEXT; m[0].text = "Please enter a name for this mine:";
 	m[1].type = NM_TYPE_INPUT; m[1].text = Current_level_name; m[1].text_len = LEVEL_NAME_LEN;
 
-	newmenu_do( NULL, "Enter mine name", 2, m, NULL );
+	return newmenu_do( NULL, "Enter mine name", 2, m, NULL ) >= 0;
 
 }
 #endif
