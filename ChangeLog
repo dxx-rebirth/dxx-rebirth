@@ -1,3 +1,8 @@
+2003-03-13  Bradley Bell  <btb@icculus.org>
+
+	* main/gamecntl.c, main/menu.c, main/menu.h: added "d2x options"
+	menu, with maxfps option
+
 2003-03-12  Bradley Bell  <bradleyb@smeagol>
 
 	* main/game.c, main/game.h, main/inferno.c: added -maxfps option

@@ -1,4 +1,4 @@
-/* $Id: menu.h,v 1.5 2002-09-07 07:24:29 btb Exp $ */
+/* $Id: menu.h,v 1.6 2003-03-13 22:34:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,6 +19,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //returns number of item chosen
 extern int DoMenu();
 extern void do_options_menu();
+extern void d2x_options_menu();
 
 extern int MenuHires;
 
