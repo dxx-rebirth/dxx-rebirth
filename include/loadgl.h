@@ -1,4 +1,4 @@
-/* $Id: loadgl.h,v 1.9 2004-05-22 21:48:41 btb Exp $ */
+/* $Id: loadgl.h,v 1.10 2004-05-22 21:55:33 btb Exp $ */
 /*
  *
  * dynamic opengl loading - courtesy of Jeff Slutter
@@ -456,6 +456,7 @@
 #define glCombinerParameteriNV dglCombinerParameteriNV
 #define glCombinerInputNV dglCombinerInputNV
 #define glCombinerOutputNV dglCombinerOutputNV
+#define glFinalCombinerInputNV dglFinalCombinerInputNV
 
 #ifdef _WIN32
 #define wglCopyContext dwglCopyContext
@@ -826,6 +827,7 @@ typedef void (OGLFUNCCALL *glColorTableEXT_fp)(GLenum target, GLenum internalfor
 typedef void (OGLFUNCCALL *glCombinerParameteriNV_fp)(GLenum, GLint);
 typedef void (OGLFUNCCALL *glCombinerInputNV_fp)(GLenum, GLenum, GLenum, GLenum, GLenum, GLenum);
 typedef void (OGLFUNCCALL *glCombinerOutputNV_fp)(GLenum, GLenum, GLenum, GLenum, GLenum, GLenum, GLenum, GLboolean, GLboolean, GLboolean);
+typedef void (OGLFUNCCALL *glFinalCombinerInputNV_fp)(GLenum, GLenum, GLenum, GLenum);
 
 #ifdef _WIN32
 typedef BOOL  (OGLFUNCCALL *wglCopyContext_fp)(HGLRC, HGLRC, UINT);
@@ -1193,6 +1195,10 @@ DEFVAR glActiveTextureARB_fp dglActiveTextureARB;
 DEFVAR glMultiTexCoord2fSGIS_fp dglMultiTexCoord2fSGIS;
 DEFVAR glSelectTextureSGIS_fp dglSelectTextureSGIS;
 DEFVAR glColorTableEXT_fp dglColorTableEXT;
+DEFVAR glCombinerParameteriNV_fp dglCombinerParameteriNV;
+DEFVAR glCombinerInputNV_fp dglCombinerInputNV;
+DEFVAR glCombinerOutputNV_fp dglCombinerOutputNV;
+DEFVAR glFinalCombinerInputNV_fp dglFinalCombinerInputNV;
 
 #ifdef _WIN32
 DEFVAR wglCopyContext_fp dwglCopyContext;
@@ -2014,6 +2020,7 @@ void OpenGL_SetFuncsToNull(void)
 	dglCombinerParameteriNV = NULL;
 	dglCombinerInputNV = NULL;
 	dglCombinerOutputNV = NULL;
+	dglFinalCombinerInputNV = NULL;
 
 #ifdef _WIN32
 	dwglCopyContext = NULL;

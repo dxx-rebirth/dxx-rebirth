@@ -1,5 +1,8 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/gr.c, include/loadgl.h: fix win32
+	GL_NV_register_combiners build stuff (d1x r1.39, r1.7)
+
 	* arch/ogl/gr.c, arch/ogl/ogl.c, include/loadgl.h,
 	include/ogl_init.h, main/render.c: opengl hardware
 	super-transparency support using GL_NV_register_combiners (d1x

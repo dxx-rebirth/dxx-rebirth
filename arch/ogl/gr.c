@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.29 2004-05-22 21:48:33 btb Exp $ */
+/* $Id: gr.c,v 1.30 2004-05-22 21:55:29 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -187,6 +187,7 @@ void ogl_get_verinfo(void)
 	dglCombinerParameteriNV = (glCombinerParameteriNV_fp)wglGetProcAddress("glCombinerParameteriNV");
 	dglCombinerInputNV = (glCombinerInputNV_fp)wglGetProcAddress("glCombinerInputNV");
 	dglCombinerOutputNV = (glCombinerOutputNV_fp)wglGetProcAddress("glCombinerOutputNV");
+	dglFinalCombinerInputNV = (glFinalCombinerInputNV_fp)wglGetProcAddress("glFinalCombinerInputNV");
 #endif
 
 #ifdef GL_ARB_multitexture
