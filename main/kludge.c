@@ -16,11 +16,7 @@ int Dont_start_sound_objects = 1;
 
 int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 
-#if 0
 char CDROM_dir[40] = ".";
-#else
-char CDROM_dir[40] = "/cdrom/d2data/";
-#endif
 
 #ifndef __DJGPP__
 int gr_check_mode(u_int32_t a)
