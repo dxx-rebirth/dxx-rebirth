@@ -52,11 +52,11 @@ Known bugs/issues:
   kind of works) (btb: works pretty good for me.)
 
 
-Win32:
-======
+Win32 (unix style):
+===================
 
 Required tools:
-* Cygwin or MinGW + MSys
+* MSYS (with MinGW) or Cygwin
 * SDL 1.2
 * PhysicsFS
 * NASM 0.98 (OPTIONAL but RECOMMENDED)
@@ -76,8 +76,41 @@ Now you can configure d2x as normal.  i.e.
 ./configure
 or
 ./configure --with-opengl
+and build with:
+make
 
-Then just copy your executable and SDL.dll into the descent2 directory.
+VPATH builds, described above, also work in MSYS or Cygwin
+Then just copy your executable and SDL.dll into the descent2
+directory.
+
+
+Win32 (MSVC):
+=============
+
+Required tools:
+* MSVC++
+* SDL 1.2
+* PhysicsFS
+
+Download the SDL 1.2 SDK for MSVC and the source code for PhysicsFS.
+Unpack them in your source directory, along with the d2x source code.
+This can be whereever you like, but if your directory structure looks
+like this, then you won't have to mess with the project settings:
+
+sdl\
+sdl\SDL-1.2.7\
+physfs
+physfs\physfs-1.0.0\
+descent\d2x\
+
+First you have to compile the PhysicsFS library.  Open
+physfs_static.dsw, select the "Release" configuration, and build.
+
+Now open d2x.dsw, select the active project to d2x or d2xgl, select
+the "Release" or "Debug" configuration as desired, and build.
+
+Then just copy your executable and SDL.dll into your descent2
+directory.
 
 
 MS-DOS:

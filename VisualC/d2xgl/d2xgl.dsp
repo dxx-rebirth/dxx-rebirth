@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\include" /I "..\..\main" /I "..\..\arch\include" /I "..\..\arch\win32\include" /I "..\..\..\..\sdl\SDL-1.2.7\include" /D "NDEBUG" /D "RELEASE" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "NO_ASM" /D "NMONO" /D "PIGGY_USE_PAGING" /D "NEWDEMO" /D "SDL_INPUT" /D "SDL_GL_VIDEO" /D "FAST_FILE_IO" /D "CONSOLE" /D "NETWORK" /D "NATIVE_IPX" /D "OGL" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "." /I "..\..\include" /I "..\..\main" /I "..\..\arch\include" /I "..\..\arch\win32\include" /I "..\..\..\..\sdl\SDL-1.2.7\include" /I "..\..\..\..\physfs\physfs-1.0.0" /D "NDEBUG" /D "RELEASE" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "HAVE_CONFIG_H" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib opengl32.lib glu32.lib /nologo /subsystem:windows /machine:I386
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib winmm.lib opengl32.lib glu32.lib /nologo /subsystem:windows /machine:I386 /nodefaultlib:"libcmt"
 
 !ELSEIF  "$(CFG)" == "d2xgl - Win32 Debug"
 
@@ -69,7 +69,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\include" /I "..\..\main" /I "..\..\arch\include" /I "..\..\arch\win32\include" /I "..\..\..\..\sdl\SDL-1.2.7\include" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "NO_ASM" /D "NMONO" /D "PIGGY_USE_PAGING" /D "NEWDEMO" /D "SDL_INPUT" /D "SDL_GL_VIDEO" /D "FAST_FILE_IO" /D "CONSOLE" /D "NETWORK" /D "NATIVE_IPX" /D "OGL" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "." /I "..\..\include" /I "..\..\main" /I "..\..\arch\include" /I "..\..\arch\win32\include" /I "..\..\..\..\sdl\SDL-1.2.7\include" /I "..\..\..\..\physfs\physfs-1.0.0" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "HAVE_CONFIG_H" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib opengl32.lib glu32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib winmm.lib opengl32.lib glu32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"libcmt" /pdbtype:sept
 
 !ENDIF 
 
@@ -223,11 +223,11 @@ SOURCE=..\..\arch\sdl\event.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\arch\win32\findfile.c
+SOURCE=..\..\arch\ogl\gr.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\arch\ogl\gr.c
+SOURCE=..\..\arch\win32\hmpfile.c
 # End Source File
 # Begin Source File
 
@@ -244,6 +244,10 @@ SOURCE=..\..\arch\sdl\joydefs.c
 # Begin Source File
 
 SOURCE=..\..\arch\sdl\key.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\arch\win32\midi.c
 # End Source File
 # Begin Source File
 
@@ -279,15 +283,7 @@ SOURCE=..\..\misc\args.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\cfile\cfile.c
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\console\CON_console.c
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\misc\d_io.c
 # End Source File
 # Begin Source File
 
@@ -303,7 +299,15 @@ SOURCE=..\..\iff\iff.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\misc\ignorecase.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\mem\mem.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\misc\physfsrwops.c
 # End Source File
 # Begin Source File
 
@@ -368,6 +372,10 @@ SOURCE=..\..\main\credits.c
 # Begin Source File
 
 SOURCE=..\..\main\crypt.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\main\digiobj.c
 # End Source File
 # Begin Source File
 
@@ -720,6 +728,10 @@ SOURCE=..\..\include\CON_console.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\conf.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\main\config.h
 # End Source File
 # Begin Source File
@@ -860,7 +872,15 @@ SOURCE=..\..\include\iff.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\ignorecase.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\main\inferno.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\arch\ogl\internal.h
 # End Source File
 # Begin Source File
 
@@ -908,7 +928,15 @@ SOURCE=..\..\main\laser.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\libmve.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\main\lighting.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\loadgl.h
 # End Source File
 # Begin Source File
 
@@ -993,6 +1021,14 @@ SOURCE=..\..\include\palette.h
 # Begin Source File
 
 SOURCE=..\..\include\pcx.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\physfsrwops.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\physfsx.h
 # End Source File
 # Begin Source File
 
@@ -1161,11 +1197,15 @@ SOURCE=..\..\main\weapon.h
 # End Group
 # Begin Source File
 
+SOURCE="..\..\..\..\sdl\SDL-1.2.7\lib\SDLmain.lib"
+# End Source File
+# Begin Source File
+
 SOURCE="..\..\..\..\sdl\SDL-1.2.7\lib\SDL.lib"
 # End Source File
 # Begin Source File
 
-SOURCE="..\..\..\..\sdl\SDL-1.2.7\lib\SDLmain.lib"
+SOURCE="..\..\..\..\physfs\physfs-1.0.0\physfs_static_release\physfs_static.lib"
 # End Source File
 # End Target
 # End Project

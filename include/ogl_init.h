@@ -13,9 +13,9 @@
 # define MAC(x)
 #endif
 
-//#ifdef _WIN32
-//#define OGL_RUNTIME_LOAD
-//#endif
+#ifdef _MSC_VER //_WIN32
+#define OGL_RUNTIME_LOAD
+#endif
 
 #ifdef OGL_RUNTIME_LOAD
 #include "loadgl.h"

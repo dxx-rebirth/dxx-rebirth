@@ -1,3 +1,11 @@
+2004-12-01  Bradley Bell  <btb@icculus.org>
+
+	* README, configure.ac, VisualC/d2x/d2x.dsp,
+	VisualC/d2xgl/d2xgl.dsp, VisualC/libmve/libmve.dsp,
+	VisualC/mveplayer/mveplayer.dsp, include/loadgl.h,
+	include/ogl_init.h, include/physfsx.h: Updated MSVC build, now
+	uses dynamic opengl loading
+
 2004-12-01  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* arch/ogl/gr.c: make write_bmp use PhysicsFS

@@ -1,4 +1,4 @@
-/* $Id: physfsx.h,v 1.2 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: physfsx.h,v 1.3 2004-12-02 08:52:59 btb Exp $ */
 
 /*
  *
@@ -9,7 +9,7 @@
 #ifndef PHYSFSX_H
 #define PHYSFSX_H
 
-#ifndef macintosh
+#if !defined(macintosh) && !defined(_MSC_VER)
 #include <sys/param.h>
 #endif
 #if defined(__linux__)

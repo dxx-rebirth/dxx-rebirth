@@ -1,4 +1,4 @@
-/* $Id: loadgl.h,v 1.10 2004-05-22 21:55:33 btb Exp $ */
+/* $Id: loadgl.h,v 1.11 2004-12-02 08:52:59 btb Exp $ */
 /*
  *
  * dynamic opengl loading - courtesy of Jeff Slutter
@@ -40,7 +40,11 @@
 #define GL_TEXTURE_INDEX_SIZE_EXT 0x80ED
 #endif
 
-+ #ifndef GL_NV_register_combiners
+#ifndef GL_TEXTURE_INDEX_SIZE_EXT
+#define GL_TEXTURE_INDEX_SIZE_EXT 0x80ED
+#endif
+
+#ifndef GL_NV_register_combiners
 #define GL_NV_register_combiners 1
 #define GL_REGISTER_COMBINERS_NV          0x8522
 #define GL_VARIABLE_A_NV                  0x8523

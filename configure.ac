@@ -381,7 +381,7 @@ AH_BOTTOM([
 # endif
 #endif
 
-#ifdef __MINGW32__
+#ifdef _WIN32
 # define SDL_INPUT 1
 # ifdef OGL
 #  define SDL_GL_VIDEO 1
