@@ -16,10 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 
-#include "pstypes.h"
 #include "fix.h"
-
-extern int filelength(int fd);
 
 // routines which read basic data types
 extern byte file_read_byte(FILE *fp);
