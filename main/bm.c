@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.32 2003-05-13 01:13:08 btb Exp $ */
+/* $Id: bm.c,v 1.33 2003-06-07 20:46:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -721,7 +721,6 @@ int load_exit_models()
 		case D1_MAC_SHARE_PIGSIZE:
 			con_printf(CON_NORMAL, "Can't load exit models!\n");
 			return 0;
-			break;
 		}
 		cfseek(exit_hamfile, offset, SEEK_SET);
 		exit_modelnum = N_polygon_models++;
