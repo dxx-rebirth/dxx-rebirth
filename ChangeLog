@@ -1,3 +1,8 @@
+2003-03-26  Micah J. Lieske  <MicahJon@compuserve.com>
+
+	* arch/sdl/event.c, arch/sdl/joy.c: added hat support for sdl
+	joysticks
+
 2003-03-26  Bradley Bell  <btb@icculus.org>
 
 	* main/piggy.c: fix crash when d1 data not present

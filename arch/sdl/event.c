@@ -1,4 +1,4 @@
-/* $Id: event.c,v 1.8 2003-01-15 02:42:41 btb Exp $ */
+/* $Id: event.c,v 1.9 2003-03-27 02:26:02 btb Exp $ */
 /*
  *
  * SDL Event related stuff
@@ -20,6 +20,7 @@ extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);
 extern void mouse_motion_handler(SDL_MouseMotionEvent *mme);
 #ifndef USE_LINUX_JOY // stpohle - so we can choose at compile time..
 extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
+extern void joy_hat_handler(SDL_JoyHatEvent *jhe);
 extern void joy_axis_handler(SDL_JoyAxisEvent *jae);
 #endif
 
@@ -50,8 +51,10 @@ void event_poll()
 		case SDL_JOYAXISMOTION:
 			joy_axis_handler((SDL_JoyAxisEvent *)&event);
 			break;
-		case SDL_JOYBALLMOTION:
 		case SDL_JOYHATMOTION:
+			joy_hat_handler((SDL_JoyHatEvent *)&event);
+			break;
+		case SDL_JOYBALLMOTION:
 			break;
 #endif
 		case SDL_QUIT: {
