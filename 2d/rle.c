@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.7 2002-08-17 11:19:56 btb Exp $ */
+/* $Id: rle.c,v 1.8 2002-08-22 02:43:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,16 +14,118 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
+ * Routines to do run length encoding/decoding
+ * on bitmaps.
+ *
  * Changed shorts to ints in parameters.
  *
+ *
+ * Old Log:
+ * Revision 1.10  1995/08/14  14:26:34  allender
+ * changed transparency color to 0
+ *
+ * Revision 1.9  1995/07/05  16:07:49  allender
+ * transparency/kitchen chagnes
+ *
+ * Revision 1.8  1995/05/12  11:54:03  allender
+ * changed memory stuff again
+ *
+ * Revision 1.7  1995/05/11  12:49:19  allender
+ * change transparency color
+ *
+ * Revision 1.6  1995/05/04  20:00:30  allender
+ * use NewPtr instead of malloc.  Fix gr_rle_scanline (which caused me
+ * *many* hours of frustration!!!!)
+ *
+ * Revision 1.5  1995/05/01  08:40:32  allender
+ * trying to find memory bug....this stuff works -- it's johns code
+ *
+ * Revision 1.4  1995/04/27  07:38:24  allender
+ * new rle code ala John
+ *
+ * Revision 1.3  1995/04/19  14:36:06  allender
+ * *** empty log message ***
+ *
+ * Revision 1.2  1995/04/18  12:08:30  allender
+ * *** empty log message ***
+ *
+ * Revision 1.1  1995/03/09  09:23:04  allender
+ * Initial revision
+ *
+ *
+ * --- PC RCS information ---
+ * Revision 1.19  1995/01/14  19:18:31  john
+ * Added assert to check for paged out bitmap.
+ *
+ * Revision 1.18  1995/01/14  11:32:07  john
+ * Added rle_cache_flush function.
+ *
+ * Revision 1.17  1994/12/13  10:58:27  john
+ * Fixed bug with 2 consecutive calls to get_expanded_Texture
+ * with 2 different bitmaps, returning the same rle texture,
+ * causing doors to disapper.
+ *
+ * Revision 1.16  1994/11/30  00:55:03  mike
+ * optimization
+ *
+ * Revision 1.15  1994/11/24  13:24:44  john
+ * Made sure that some rep movs had the cld set first.
+ * Took some unused functions out.
+ *
+ * Revision 1.14  1994/11/23  16:03:46  john
+ * Fixed generic rle'ing to use new bit method.
+ *
+ * Revision 1.13  1994/11/23  15:45:51  john
+ * Changed to a 3 bit rle scheme.
+ *
+ * Revision 1.12  1994/11/18  22:50:24  john
+ * Changed shorts to ints in parameters.
+ *
+ * Revision 1.11  1994/11/14  17:06:13  john
+ * Took out Key_f12.
+ *
+ * Revision 1.10  1994/11/14  15:54:09  john
+ * Put code in for maybe checking bogus rle data.
+ *
+ * Revision 1.9  1994/11/14  15:51:58  john
+ * Added rle_disable_caching variable to prove the stability of my rle
+ * caching code to any non-believers.
+ *
+ * Revision 1.8  1994/11/10  10:31:20  john
+ * Reduce cache buffers to 16.
+ *
+ * Revision 1.7  1994/11/09  19:53:43  john
+ * Added texture rle caching.
+ *
+ * Revision 1.6  1994/11/09  17:41:44  john
+ * Made a slow version of rle bitblt to svga, modex.
+ *
+ * Revision 1.5  1994/11/09  17:07:50  john
+ * Fixed bug with bitmap that gets bigger with rle.
+ *
+ * Revision 1.4  1994/11/09  16:35:17  john
+ * First version with working RLE bitmaps.
+ *
+ * Revision 1.3  1994/10/26  12:54:47  john
+ * Fixed bug with decode that used rep movsd instead of
+ * rep stosd.
+ *
+ * Revision 1.2  1994/10/06  17:05:25  john
+ * First version of rle stuff.
+ *
+ * Revision 1.1  1994/10/06  16:53:34  john
+ * Initial revision
+ *
+ *
  */
+
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.7 2002-08-17 11:19:56 btb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.8 2002-08-22 02:43:35 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -40,11 +142,9 @@ static char rcsid[] = "$Id: rle.c,v 1.7 2002-08-17 11:19:56 btb Exp $";
 #include "error.h"
 //#include "key.h"
 #include "rle.h"
-//#define RLE_CODE 		0xC0
-//#define NOT_RLE_CODE	63
 
-#define RLE_CODE 			0xE0
-#define NOT_RLE_CODE		31
+#define RLE_CODE        0xE0
+#define NOT_RLE_CODE    31
 
 void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 );
 
@@ -52,40 +152,40 @@ void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 );
 #ifdef __WATCOMC__
 int gr_rle_decode_asm( ubyte * src, ubyte * dest );
 #pragma aux gr_rle_decode_asm parm [esi] [edi] value [edi] modify exact [eax ebx ecx edx esi edi] = \
-"  cld                  " \
-"   xor ecx, ecx        " \
-"   cld                 " \
-"   jmp NextByte        " \
-"                           " \
-"Unique:                    " \
-"   mov [edi],al        " \
+"  cld              " \
+"   xor ecx, ecx    " \
+"   cld             " \
+"   jmp NextByte    " \
+"                   " \
+"Unique:            " \
+"   mov [edi],al    " \
 "   inc edi         " \
-"                           " \
-"NextByte:              " \
-"   mov al,[esi]        " \
+"                   " \
+"NextByte:          " \
+"   mov al,[esi]    " \
 "   inc esi         " \
-"                           " \
+"                   " \
 "   mov ah, al      " \
 "   and ah, 0xE0    " \
-"  cmp  ah, 0xE0        " \
-"   jne   Unique        " \
-"                           " \
+"  cmp  ah, 0xE0    " \
+"   jne   Unique    " \
+"                   " \
 "   mov cl, al      " \
-"   and cl, 31          " \
-"   je      done            " \
-"                           " \
-"   mov al,[esi]        " \
+"   and cl, 31      " \
+"   je      done    " \
+"                   " \
+"   mov al,[esi]    " \
 "   inc esi         " \
 "   mov ah, al      " \
-"   shr ecx,1           " \
-"   rep stosw           " \
-"   jnc NextByte        " \
-"   mov [edi],al        " \
+"   shr ecx,1       " \
+"   rep stosw       " \
+"   jnc NextByte    " \
+"   mov [edi],al    " \
 "   inc edi         " \
-"                           " \
-"   jmp NextByte        " \
-"                           " \
-"done:                  ";
+"                   " \
+"   jmp NextByte    " \
+"                   " \
+"done:              ";
 
 void rle_stosb(char *dest, int len, int color);
 #pragma aux rle_stosb = "cld rep    stosb" parm [edi] [ecx] [eax] modify exact [edi ecx];
@@ -213,7 +313,7 @@ void gr_rle_decode( ubyte * src, ubyte * dest )
 			count = data & NOT_RLE_CODE;
 			if (count==0) return;
 			data = *src++;
-			for (i=0; i<count; i++ )	
+			for (i=0; i<count; i++ )
 				*dest++ = data;
 		}
 	}
@@ -250,11 +350,11 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 	
 	if ( x1+count > x2 )	{
 		count = x2-x1+1;
-		if ( color != 255 )	rle_stosb( dest, count, color );
+		if ( color != TRANSPARENCY_COLOR )	rle_stosb( dest, count, color );
 		return;
 	}
 
-	if ( color != 255 )	rle_stosb( dest, count, color );
+	if ( color != TRANSPARENCY_COLOR )	rle_stosb( dest, count, color );
 	dest += count;
 	i += count;
 
@@ -270,12 +370,12 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 		}
 		// we know have '*count' pixels of 'color'.
 		if ( i+count <= x2 )	{
-			if ( color != 255 )rle_stosb( dest, count, color );
+			if ( color != TRANSPARENCY_COLOR )rle_stosb( dest, count, color );
 			i += count;
 			dest += count;
 		} else {
 			count = x2-i+1;
-			if ( color != 255 )rle_stosb( dest, count, color );
+			if ( color != TRANSPARENCY_COLOR )rle_stosb( dest, count, color );
 			i += count;
 			dest += count;
 		}
@@ -575,13 +675,16 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 			lowest_count = rle_cache[i].last_used;
 			least_recently_used = i;
 		}
-	}	
+	}
+
+	Assert(bmp->bm_w<=64 && bmp->bm_h<=64); //dest buffer is 64x64
 	rle_misses++;
 	rle_expand_texture_sub( bmp, rle_cache[least_recently_used].expanded_bitmap );
 	rle_cache[least_recently_used].rle_bitmap = bmp;
 	rle_cache[least_recently_used].last_used = rle_counter;
 	return rle_cache[least_recently_used].expanded_bitmap;
 }
+
 
 void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 {
@@ -596,19 +699,19 @@ void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 	Assert (bmp->iMagic == BM_MAGIC_NUMBER);
 #endif
 
-	sbits = &bmp->bm_data[4 + 64];
+	sbits = &bmp->bm_data[4 + bmp->bm_h];
 	dbits = rle_temp_bitmap_1->bm_data;
 
 	rle_temp_bitmap_1->bm_flags = bmp->bm_flags & (~BM_FLAG_RLE);
 
-	for (i=0; i < 64; i++ )    {
-#ifdef NO_ASM
-		gr_rle_decode(sbits,dbits);
-#else
+	for (i=0; i < bmp->bm_h; i++ )    {
+#ifndef NO_ASM
 		dbits1=(unsigned char *)gr_rle_decode_asm( sbits, dbits );
+#else
+		gr_rle_decode( sbits, dbits );
 #endif
 		sbits += (int)bmp->bm_data[4+i];
-		dbits += 64;
+		dbits += bmp->bm_w;
 #ifndef NO_ASM
 		Assert( dbits == dbits1 );		// Get John, bogus rle data!
 #endif
@@ -618,13 +721,11 @@ void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 #endif
 }
 
-
-void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *src, 
-	int x1, int x2, int masked  )
+void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *src, int x1, int x2, int masked  )
 {
 	int i = 0, j;
-        int count=0;
-        ubyte color=0;
+	int count=0;
+	ubyte color=0;
 
 	if ( x2 < x1 ) return;
 
