@@ -32,10 +32,6 @@ void arch_init()
 {
  // Initialise the library
 	arch_sdl_init();
-	if (!FindArg( "-nojoystick" ))  {
-		con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_6);
-		joy_init();
-	}
 	//added 06/09/99 Matt Mueller - fix nonetwork compile
 #ifdef NETWORK
 	//end addition -MM

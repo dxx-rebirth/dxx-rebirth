@@ -1,3 +1,7 @@
+2005-04-04  Bradley Bell  <btb@icculus.org>
+
+	* arch/win32/mingw_init.c: remove redundnt joy_init()
+
 2005-04-01  Chris Taylor  <chris@icculus.org>
 
 	* main/game.c, main/editor/kdefs.h, main/editor/kfuncs.c,
