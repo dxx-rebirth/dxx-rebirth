@@ -1,17 +1,24 @@
+/*
+ * Modified by Bradley Bell, 2002
+ * All modifications under GPL, version 2 or later
+ */
+
 #include <stdio.h>
+#include <string.h>
 
 int
 main(int argc, char *argv[])
 {
 	FILE *file, *outfile;
+	char outfilename[64];
 	char ch;
 	int code;
 
-	if (argc != 3) {
+	if (argc < 2) {
 		printf("TEX2TXB V1.0 Copyright (c) Bryan Aamot, 1995\n"
 			   "Modified by Bradley Bell, 2002\n"
 		       "Text to TXB converter for Descent HOG files.\n"
-		       "Converts a ascii text files to *.txb descent hog file format.\n"
+		       "Converts an ascii text file to *.txb descent hog file.\n"
 		       "Usage: TEX2TXB <text file name> <txb file name>\n"
 		       "Example: TEX2TXB briefing.tex briefing.txb\n");
 		exit(1);
@@ -22,9 +29,16 @@ main(int argc, char *argv[])
 		exit(2);
 	}
 
-	outfile = fopen(argv[2], "wb");
+	if (argc > 2)
+		strcpy(outfilename, argv[2]);
+	else {
+		strcpy(outfilename, argv[1]);
+		strcpy(strrchr(outfilename, '.'), ".txb");
+	}
+
+	outfile = fopen(outfilename, "wb");
 	if (!outfile) {
-		printf("Can't open file (%s)\n", argv[2]);
+		printf("Can't open file (%s)\n", outfilename);
 		fclose(file);
 		exit(2);
 	}

@@ -1,13 +1,20 @@
+/*
+ * Modified by Bradley Bell, 2002
+ * All modifications under GPL, version 2 or later
+ */
+
 #include <stdio.h>
+#include <string.h>
 
 int
 main(int argc, char *argv[])
 {
 	FILE *file, *outfile;
+	char outfilename[64];
 	char ch;
 	int code;
 
-	if (argc != 3) {
+	if (argc < 2) {
 		printf("TXB2TEX V1.0 Copyright (c) Bryan Aamot, 1995\n"
 			   "Modified by Bradley Bell, 2002\n"
 		       "TXB to Text converter for Descent HOG files.\n"
@@ -21,9 +28,17 @@ main(int argc, char *argv[])
 		printf("Can't open txb file (%s)\n", argv[1]);
 		exit(2);
 	}
-	outfile = fopen(argv[2], "wb");
+
+	if (argc > 2)
+		strcpy(outfilename, argv[2]);
+	else {
+		strcpy(outfilename, argv[1]);
+		strcpy(strrchr(outfilename, '.'), ".tex");
+	}
+
+	outfile = fopen(outfilename, "wb");
 	if (!outfile) {
-		printf("Can't open file (%s)\n", argv[2]);
+		printf("Can't open file (%s)\n", outfilename);
 		fclose(file);
 		exit(2);
 	}
