@@ -8,7 +8,7 @@ noinst_LIBRARIES = libmain.a
 
 INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/arch/include
 
-CFLAGS += -fwritable-strings ${SDL_CFLAGS}
+CFLAGS += -fwritable-strings
 
 if USE_NETWORK
 NETWORK_SRCS = ipx_drv.c kmatrix.c multi.c multibot.c network.c

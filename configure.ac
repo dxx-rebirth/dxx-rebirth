@@ -17,6 +17,7 @@ AC_PROG_MAKE_SET
 AC_ISC_POSIX
 AC_CHECK_TOOL(CC, gcc, :)
 AC_CHECK_TOOL(RANLIB, ranlib, :)
+AC_CHECK_TOOL(STRIP, strip, :)
 AC_CHECK_TOOL(AR, ar, :)
 AC_PROG_CC
 AC_STDC_HEADERS
@@ -104,7 +105,8 @@ else
     :,
     AC_MSG_ERROR(SDL not found. Make sure sdl-config is in your PATH, or specify with --with-sdl-prefix)
   )
-  AC_SUBST(SDL_LIBS)
+  CFLAGS="$SDL_CFLAGS $CFLAGS"
+  LIBS="$SDL_LIBS $LIBS"
 
   TARGETS=d2x-sdl
   D2X_ARCH_SUBDIRS=sdl

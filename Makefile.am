@@ -44,12 +44,12 @@ d2x_LDADD = ${LD_KLUDGE} main/libmain.a ${EDITOR_LIBS} 3d/lib3d.a 2d/lib2d.a ${A
 
 if MINGW32
 if USE_NETWORK
-d2x_sdl_LDADD = ${d2x_LDADD} ${SDL_LIBS} -lwsock32
+d2x_sdl_LDADD = ${d2x_LDADD} -lwsock32
 else
-d2x_sdl_LDADD = ${d2x_LDADD} ${SDL_LIBS}
+d2x_sdl_LDADD = ${d2x_LDADD}
 endif
 else
-d2x_sdl_LDADD = ${d2x_LDADD} -lm -ldl -lpthread ${SDL_LIBS}
+d2x_sdl_LDADD = ${d2x_LDADD} -lm -ldl -lpthread
 endif
 d2x_ogl_LDADD = ${d2x_sdl_LDADD} ${OGL_LIBS}
 d2x_svga_LDADD = ${d2x_sdl_LDADD} ${SVGA_LIBS}
