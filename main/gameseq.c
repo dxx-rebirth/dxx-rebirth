@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.39 2004-11-19 18:42:48 schaffner Exp $ */
+/* $Id: gameseq.c,v 1.40 2004-11-26 09:45:29 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.39 2004-11-19 18:42:48 schaffner Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.40 2004-11-26 09:45:29 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2059,7 +2059,7 @@ void ShowLevelIntro(int level_num)
 		if (PLAYING_BUILTIN_MISSION) {
 			int movie=0;
 
-			if (is_SHAREWARE)
+			if (is_SHAREWARE || is_MAC_SHARE)
 			{
 				if (level_num==1)
 					do_briefing_screens ("brief2.tex", 1);
