@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/arch/include/joy.h,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-10-12 00:18:37 $
+ * $Date: 2001-10-18 23:59:22 $
  *
  * Header for joystick functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/12 00:18:37  bradleyb
+ * Switched from Cygwin to mingw32 on MS boxes.  Vastly improved compilability.
+ *
  * Revision 1.2  2001/01/29 13:36:14  bradleyb
  * Removed duplicate files
  *
@@ -49,7 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined WINDOWS
 #define JOY_NUM_AXES		7
-#elif defined __ENV_LINUX__
+#elif defined __linux__
 #define JOY_NUM_AXES		5
 #else
 #define JOY_NUM_AXES		4
@@ -71,7 +74,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /* not present in d2src, maybe we don't really need it? */
 #define JOY_FRIENDLY_READINGS	8
 
-#ifdef __ENV_LINUX__
+#ifdef __linux__
 #define MAX_BUTTONS 64
 #else
 #define MAX_BUTTONS 20

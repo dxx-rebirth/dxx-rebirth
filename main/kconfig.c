@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.8 2001-10-12 00:18:39 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.9 2001-10-18 23:59:22 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -71,7 +71,7 @@ static char rcsid[] = "$Id: kconfig.c,v 1.8 2001-10-12 00:18:39 bradleyb Exp $";
 #include "d_delay.h"
 #include "collide.h"
 
-#ifdef __ENV_LINUX__
+#ifdef __linux__
 #include "linux_joystick.h"
 #endif
 
@@ -2680,7 +2680,7 @@ void controls_read_all()
 	int idx, idy;
 	fix ctime;
 	fix mouse_axis[2];
-#ifdef __ENV_LINUX__
+#ifdef __linux__
 	int raw_joy_axis[MAX_AXES];
 #else
 	int raw_joy_axis[JOY_NUM_AXES];
@@ -2721,7 +2721,7 @@ void controls_read_all()
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 		
 		for (i=0; i<6; i++ )	{
-#ifndef  __ENV_LINUX__
+#ifndef __linux__
 			if (channel_masks&(1<<i))	{
 #endif
 				int joy_null_value = 10;
@@ -2742,7 +2742,7 @@ void controls_read_all()
 					  raw_joy_axis[i] = 0;
 					joy_axis[i]	= (raw_joy_axis[i]*FrameTime)/128;	
 				}
-#ifndef  __ENV_LINUX__
+#ifndef __linux__
 			} else {
 				joy_axis[i] = 0;
 			}

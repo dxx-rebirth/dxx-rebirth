@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/video/ogl_gr.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  * $Author: bradleyb $
- * $Date: 2001-10-12 00:18:40 $
+ * $Date: 2001-10-18 23:59:23 $
  *
  * // OGL video functions. - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/10/12 00:18:40  bradleyb
+ * Switched from Cygwin to mingw32 on MS boxes.  Vastly improved compilability.
+ *
  * Revision 1.4  2001/01/29 13:47:52  bradleyb
  * Fixed build, some minor cleanups.
  *
@@ -241,7 +244,7 @@ int ogl_testneedmipmaps(int i){
 #ifdef OGL_RUNTIME_LOAD
 #if defined(__WINDOWS__) || defined(__MINGW32__)
 char *OglLibPath="opengl32.dll";
-#elif defined(__ENV_LINUX__)
+#else
 char *OglLibPath="libGL.so";
 #endif
 

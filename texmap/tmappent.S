@@ -152,7 +152,7 @@
 				// (ready to start the next division)
 .endm
 
-#ifdef __ENV_LINUX__
+#ifdef __linux__
 .equ _pixptr, pixptr
 .equ _gr_fade_table, gr_fade_table
 .equ _write_buffer, write_buffer
@@ -216,7 +216,7 @@ ctlwd:		.word	0		// the pre-tweaked FPU control word
 // void c_tmap_scanline_per(void)
 //
 
-#ifdef __ENV_LINUX__
+#ifdef __linux__
 asm_tmap_scanline_per:
 #else
 _asm_tmap_scanline_per:

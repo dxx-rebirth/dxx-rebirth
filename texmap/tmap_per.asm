@@ -10,13 +10,16 @@
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
 ; $Source: /cvs/cvsroot/d2x/texmap/tmap_per.asm,v $
-; $Revision: 1.1.1.1 $
+; $Revision: 1.2 $
 ; $Author: bradleyb $
-; $Date: 2001-01-19 03:30:16 $
+; $Date: 2001-10-18 23:59:23 $
 ;
 ; Perspective texture mapper inner loop.
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
+; Import of d2x-0.0.8
+;
 ; Revision 1.1.1.1  1999/06/14 22:14:01  donut
 ; Import of d1x 1.37 source.
 ;
@@ -125,7 +128,7 @@ global	asm_tmap_scanline_per
 [SECTION .data]
 align 4
     ;extern _per2_flag;:dword
-%ifdef __ENV_LINUX__
+%ifdef __linux__
 ; Cater for linux ELF compilers...
 global x
 %define _loop_count loop_count

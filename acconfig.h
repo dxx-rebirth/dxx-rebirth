@@ -13,9 +13,6 @@
 /* Define if you want a GGI build */
 #undef GGI
 
-/* Define if building under linux */
-#undef __ENV_LINUX__
-
 /* Define to disable asserts, int3, etc. */
 #undef NDEBUG
 
@@ -26,7 +23,7 @@
 #define PIGGY_USE_PAGING 1
 #define NEWDEMO 1
 
-#ifdef __ENV_LINUX__
+#ifdef __linux__
 # define __SDL__ 1
 # define SDL_AUDIO 1
 

@@ -1144,7 +1144,7 @@ void *dll_GetSymbol(void *dllhandle,const char *symname)
 	return (void *)GetProcAddress((HINSTANCE)dllhandle,symname);
 }
 #endif
-#ifdef __ENV_LINUX__
+#ifdef __linux__
 #include <dlfcn.h>
 void *dll_LoadModule(const char *name)
 {

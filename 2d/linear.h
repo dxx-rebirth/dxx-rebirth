@@ -222,7 +222,7 @@ static inline void gr_linear_rep_movsdm_faded(void * src, void * dest, unsigned 
 "  incl   %%esi;"
 "  cmpb   $255, %%al;"
 "  je 1f;"
-#ifdef __ENV_LINUX__
+#ifdef __linux__
 "  movb   gr_fade_table(%%eax), %%al;"
 #else
 "  movb   _gr_fade_table(%%eax), %%al;"

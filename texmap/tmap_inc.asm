@@ -10,13 +10,16 @@
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
 ; $Source: /cvs/cvsroot/d2x/texmap/tmap_inc.asm,v $
-; $Revision: 1.1.1.1 $
+; $Revision: 1.2 $
 ; $Author: bradleyb $
-; $Date: 2001-01-19 03:30:16 $
+; $Date: 2001-10-18 23:59:23 $
 ;
 ; Mike's include file for the texture mapper library.
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
+; Import of d2x-0.0.8
+;
 ; Revision 1.1.1.1  1999/06/14 22:13:53  donut
 ; Import of d1x 1.37 source.
 ;
@@ -88,7 +91,7 @@ SCREEN_HEIGHT	=	480
 BYTES_PER_PIXEL	=	2
 %endif
 
-%ifdef __ENV_LINUX__
+%ifdef __linux__
 ; It appears that ELF C compilers do not prefix symbols with '_', so here we
 ; cater for them...
 %define _gr_fade_table  gr_fade_table
