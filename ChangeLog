@@ -1,896 +1,435 @@
-2003-02-12 09:15  btb
+2003-02-12  Bradley Bell <btb@icculus.org>
 
 	* utilities/mvlextract.c: bigendian mvl support
-
-2003-02-12 09:14  btb
-
 	* main/mveplay.c: formatting, stuff
-
-2003-02-12 09:03  btb
-
 	* main/: Makefile.am, Makefile.mveplay: lotsa movie cleanups, added
 	truecolor mve support, standalone mveplayer
-
-2003-02-12 08:58  btb
-
 	* include/mve_audio.h, include/mvelib.h, main/decoder16.c,
 	main/decoder8.c, main/movie.c, main/mve_main.c, main/mvelib.c,
 	main/mveplay.c: lotsa movie cleanups, added truecolor mve support,
 	standalone mveplayer
 
-2003-01-22 00:51  btb
+2003-01-22  Bradley Bell <btb@icculus.org>
 
 	* include/: interp.h, interp.h: restore prototype for
 	swap_polygon_model_data
 
-2003-01-21 22:28  btb
+2003-01-21  Bradley Bell <btb@icculus.org>
 
 	* main/piggy.c: use memcpy to avoid alignment problem
-
-2003-01-21 19:32  btb
-
 	* compilerdefs.txt: updated some defs, added sunos/sparc
 
-2003-01-15 21:36  btb
+2003-01-15  Bradley Bell <btb@icculus.org>
 
 	* main/render.c, arch/ogl/ogl.c: use __sun__ for sunos
-
-2003-01-15 02:47  btb
-
 	* main/gamemine.c: attempting to support d1 shareware
-
-2003-01-15 02:46  btb
-
 	* compilerdefs.txt: update defs
 
-2003-01-15 02:44  btb
+2003-01-15  David Costanzo <david_costanzo@yahoo.com>
 
-	* main/mveplay.c: fix several bugs, comments, formatting. courtesy
-	of David Costanzo <david_costanzo@yahoo.com>
+	* main/mveplay.c: fix several bugs, comments, formatting.
 
-2003-01-15 02:42  btb
+2003-01-15  Bradley Bell <btb@icculus.org>
 
 	* arch/ogl/sdlgl.c, arch/sdl/digi.c, arch/sdl/event.c,
 	arch/sdl/gr.c, arch/sdl/init.c, arch/sdl/joy.c, arch/sdl/key.c,
 	arch/sdl/mouse.c, arch/sdl/rbaudio.c, arch/sdl/timer.c,
 	include/error.h, main/gamecntl.c, main/inferno.c: changed path for
 	SDL headers
-
-2003-01-15 02:40  btb
-
 	* arch/: ogl/glx.c, ogl/gr.c, ogl/ogl.c, ogl/wgl.c, sdl/joydefs.c:
 	formatting, comments
 
-2003-01-11 02:58  btb
+2003-01-11  Bradley Bell <btb@icculus.org>
 
 	* main/: mission.c, mission.h: attempt to support d1 for mac
 	mission
-
-2003-01-11 02:57  btb
-
 	* arch/sdl/joy.c, main/mvelib.c, main/titles.c: gcc 3.2 warnings
-
-2003-01-11 01:11  btb
-
 	* main/object.h: foo
 
-2003-01-09 00:57  btb
+2003-01-09  Bradley Bell <btb@icculus.org>
 
 	* main/movie.c: use ifdef around gr_toggle_fullscreen
 
-2003-01-07 03:10  btb
+2003-01-07  Bradley Bell <btb@icculus.org>
 
 	* Makefile.am, descent.msn, installation.txt, main/mission.c,
 	main/mission.h: don't need .msn file for descent.hog anymore
-
-2003-01-07 00:14  btb
-
 	* README: stuff
 
-2003-01-06 23:10  btb
+2003-01-06  Bradley Bell <btb@icculus.org>
 
 	* main/mission.h, main/mission.c: comments
-
-2003-01-06 22:42  btb
-
 	* README, TODO, cvshowto.txt, installation.txt, debian/copyright:
 	documentations
 
-2003-01-03 01:11  btb
+2003-01-03  Bradley Bell <btb@icculus.org>
 
 	* utilities/: txb2txt.c, txt2txb.c: remove old files
-
-2003-01-03 00:57  btb
-
 	* 3d/interp.c, include/byteswap.h, main/gamemine.c: formatting
-
-2003-01-03 00:56  btb
-
 	* main/polyobj.c: attempt to make read_model_file
 	bigendian-friendly
-
-2003-01-03 00:55  btb
-
 	* main/menu.c: move vertigo text
 
-2003-01-02 23:31  btb
+2003-01-02  Bradley Bell <btb@icculus.org>
 
 	* 3d/interp.c, include/interp.h, main/morph.c, main/polyobj.c,
 	main/polyobj.h: cleanup alignment changes
-
-2003-01-02 23:13  btb
-
 	* NEWS, 3d/interp.c, include/3d.h, include/interp.h,
 	include/pstypes.h, main/Makefile.am, main/bm.c, main/collide.c,
 	main/object.h: fix alignment issues on sparc
-
-2003-01-02 21:55  btb
-
 	* cvshowto.txt: update cvs info
-
-2003-01-02 21:43  btb
-
 	* NEWS: news
-
-2003-01-02 21:32  btb
-
 	* 2d/rle.c: make rle_swap handle RLE_BIG
 
-2003-01-01 01:02  btb
+2003-01-01  Bradley Bell <btb@icculus.org>
 
 	* main/render.c: workaround solaris qsort bug
-
-2003-01-01 00:56  btb
-
 	* arch/linux/linuxnet.c, arch/linux/ukali.c,
 	arch/linux/include/ukali.h, main/inferno.c: enabled kali
-
-2003-01-01 00:55  btb
-
 	* arch/linux/Makefile.am: enabled linux joystick, kali
-
-2003-01-01 00:55  btb
-
 	* configure.ac, arch/linux/joystick.c, arch/sdl/Makefile.am,
 	arch/sdl/event.c: enabled linux joystick
 
-2002-12-31 23:20  btb
+2002-12-31  Bradley Bell <btb@icculus.org>
 
 	* main/gamemine.c: simplified warning msg
-
-2002-12-31 23:19  btb
-
 	* NEWS, TODO, main/multi.c, main/netmisc.c: comments/whitespace
-
-2002-12-31 22:26  btb
-
 	* main/render.h: fix compiler warning
 
-2002-12-31 21:51  btb
+2002-12-31  Martin Schaffner <maschaffner@gmx.ch>
 
-	* 2d/rle.c, main/inferno.c, main/piggy.c: fixed rle_swap leaks,
-	thanks to martin schaffner
+	* 2d/rle.c, main/inferno.c, main/piggy.c: fixed rle_swap leaks.
 
-2002-12-24 06:09  btb
+2002-12-24  Bradley Bell <btb@icculus.org>
 
 	* main/mission.c: fixes an infinite loop which was caused by d2x
 	thinking d2demo was a descent 1 mission
 
-2002-12-24 05:49  btb
+2002-12-24  Martin Schaffner <maschaffner@gmx.ch>
 
-	* arch/ogl/ogl.c, main/render.c: fix compiler warnings, courtesy of
-	maschaffner@gmx.ch
+	* arch/ogl/ogl.c, main/render.c: fix compiler warnings.
 
-2002-12-24 05:30  btb
+2002-12-24  Bradley Bell <btb@icculus.org>
 
 	* main/render.c: comments
 
-2002-10-30 22:04  btb
+2002-10-30  Bradley Bell <btb@icculus.org>
 
 	* main/inferno.c: add help for -hogdir option
-
-2002-10-30 22:02  btb
-
 	* main/inferno.c: added -hogdir option
 
-2002-10-28 21:28  btb
+2002-10-28  Bradley Bell <btb@icculus.org>
 
 	* main/: inferno.c, menu.c: enabled Vertigo displays
-
-2002-10-28 21:13  btb
-
 	* include/3d.h: typo
 
-2002-10-28 20:57  btb
+2002-10-28  Martin Schaffner <maschaffner@gmx.ch> and Bradley Bell <btb@icculus.org>
 
 	* 3d/interp.c, include/3d.h, include/byteswap.h, main/bm.c,
 	main/netmisc.c, main/network.c: simplify and eliminate redundant
-	swap macros. maschaffner@gmx.ch and btb
+	swap macros.
 
-2002-10-28 20:12  btb
+2002-10-28  Martin Schaffner <maschaffner@gmx.ch>
 
-	* maths/fixc.c: fix infinite loop in quad_sqrt. courtesy of Martin
-	Schaffner <maschaffner@gmx.ch>
-
-2002-10-28 19:49  btb
-
+	* maths/fixc.c: fix infinite loop in quad_sqrt.
 	* 3d/points.c, include/maths.h, include/pstypes.h, maths/fixc.c,
 	maths/vecmat.c: sparc/sunos support: rename quad to quadint.
-	courtesy of Martin Schaffner <maschaffner@gmx.ch>
 
-2002-10-12 03:09  btb
+2002-10-12  Bradley Bell <btb@icculus.org>
 
 	* 2d/2dsline.c: handle BM_OGL in gr_scanline()
 
-2002-10-11 05:14  btb
+2002-10-11  Bradley Bell <btb@icculus.org>
 
 	* main/hud.c: make hud_message work correctly
-
-2002-10-11 03:37  btb
-
 	* 2d/palette.c, arch/sdl/gr.c, include/palette.h, main/inferno.c:
 	enable -nofade
-
-2002-10-11 00:36  btb
-
 	* main/network.c: formatting, small fixes
 
-2002-10-10 20:08  btb
+2002-10-10  Bradley Bell <btb@icculus.org>
 
 	* main/netmisc.h: no swap_object for little-endian
-
-2002-10-10 19:40  btb
-
 	* main/: netmisc.h, network.c: use macros to simplify network
 	endian conversion
-
-2002-10-10 19:17  btb
-
 	* main/piggy.c: disable autodetect of mac pig (use --enable-macdata
 	for now)
-
-2002-10-10 19:16  btb
-
 	* main/inferno.c: enable loading screen for mac shareware with
 	-nohires
-
-2002-10-10 19:12  btb
-
 	* main/netmisc.c: whitespace
-
-2002-10-10 19:11  btb
-
 	* 2d/bitmap.c, main/inferno.c, main/mission.c, main/playsave.c:
 	comments
-
-2002-10-10 19:08  btb
-
 	* main/hud.c: whitespace
-
-2002-10-10 19:07  btb
-
 	* configure.ac: remove shareware build, add macdata build
-
-2002-10-10 19:04  btb
-
 	* main/songs.c: whitespace
-
-2002-10-10 18:55  btb
-
 	* 2d/circle.c, 2d/clip.h, 2d/disc.c, 2d/gpixel.c, 2d/line.c,
 	2d/pixel.c, 2d/poly.c, 2d/rect.c, 2d/tmerge.c, main/gamerend.c:
 	whitespace
-
-2002-10-10 18:39  btb
-
 	* 2d/: Makefile.am, tmerge_a.asm: enable TRANSPARENCY_COLOR for
 	assembly
 
-2002-10-04 07:19  btb
+2002-10-04  Martin Schaffner <maschaffner@gmx.ch>
 
 	* cfile/cfile.c, include/iff.h, main/gamepal.c, main/titles.c:
-	comments, formatting, etc. courtesy of Martin Schaffner
-	<maschaffner@gmx.ch>
+	comments, formatting, etc.
+	* iff/iff.c: fix bigendian iff loading.
 
-2002-10-04 07:14  btb
-
-	* iff/iff.c: fix bigendian iff loading, courtesy of Martin
-	Schaffner <maschaffner@gmx.ch>
-
-2002-10-03 03:48  btb
+2002-10-03  Bradley Bell <btb@icculus.org>
 
 	* utilities/txb2tex.c: typo
-
-2002-10-03 03:46  btb
-
 	* 3d/clipper.c, main/bm.c, main/game.c, main/gamecntl.c,
 	main/newmenu.c, main/switch.c, main/terrain.c, main/text.c:
 	whitespace
-
-2002-10-03 03:42  btb
-
 	* arch/sdl/mouse.c: whitespace
 
-2002-09-19 05:43  btb
+2002-09-19  Bradley Bell <btb@icculus.org>
 
 	* main/kconfig.c: fix a oops, add old logs
-
-2002-09-19 03:45  btb
-
 	* main/kconfig.c: support for >3 mouse buttons
 
-2002-09-18 18:16  btb
+2002-09-18  Bradley Bell <btb@icculus.org>
 
 	* include/gr.h: fix palette swap define
 
-2002-09-14 00:32  btb
+2002-09-14  Bradley Bell <btb@icculus.org>
 
 	* main/titles.c: load hires briefing screen if lores doesn't exist
 	(i.e. vertigo) and MenuHires=0
 
-2002-09-14 00:23  btb
+2002-09-14  Werner Augustin <descent-source@mailinglist.gnuher.de>
 
 	* main/: multi.h, network.h: pack some structures for ipx
-	compatibility - courtesy of Werner Augustin
-	<descent-source@mailinglist.gnuher.de>
+	compatibility.
 
-2002-09-14 00:20  btb
+2002-09-14  Bradley Bell <btb@icculus.org>
 
 	* cfile/cfile.c, main/endlevel.c, main/gamesave.c: revert cfgets()
 	and load_endlevel_data() to expect newline-terminated strings, fix
 	load_game_data to read null-terminated string for
 	Current_level_name
 
-2002-09-07 07:27  btb
+2002-09-07  Bradley Bell <btb@icculus.org>
 
 	* main/newmenu.c: added error message
-
-2002-09-07 07:24  btb
-
 	* main/menu.h: enable -nohires with mac shareware
-
-2002-09-07 07:18  btb
-
 	* 2d/palette.c, include/gr.h: enable 0/255 palette swap
-
-2002-09-07 07:17  btb
-
 	* 2d/font.c: enable 0/255 palette swap for fonts
-
-2002-09-07 07:15  btb
-
 	* 2d/bitblt.c: add TRANSPARENCY_COLOR to assembly code, nother OGL
 	fix
-
-2002-09-07 07:14  btb
-
 	* 2d/2dsline.c: fix ogl blooper
 
-2002-09-05 08:20  btb
+2002-09-05  Bradley Bell <btb@icculus.org>
 
 	* 2d/rle.c, 2d/scalec.c, include/rle.h: better just do it the old
 	way
-
-2002-09-05 08:05  btb
-
 	* include/strutil.h: need string.h for strcasecmp
-
-2002-09-05 08:04  btb
-
 	* include/rle.h: okay, maybe it needs to be this way
-
-2002-09-05 08:03  btb
-
 	* include/: 3d.h, gr.h: more stuff from d2src, mostly formatting
-
-2002-09-05 08:02  btb
-
 	* 2d/scalec.c: more stuff from d2src
-
-2002-09-05 07:57  btb
-
 	* 2d/rle.c: more stuff from d2src, formatting
-
-2002-09-05 07:56  btb
-
 	* 2d/font.c: useless cruft
-
-2002-09-05 07:52  btb
-
 	* 2d/: 2dsline.c, bitmap.c, bitmap.h: more stuff from d2src
-
-2002-09-05 01:30  btb
-
 	* 2d/bitblt.c, include/grdef.h: moved gr_linear_movsd assembly from
 	grdef.h to bitblt.c
 
-2002-09-04 23:30  btb
+2002-09-04  Bradley Bell <btb@icculus.org>
 
 	* include/grdef.h: fix compiler warnings
-
-2002-09-04 23:29  btb
-
 	* 2d/bitblt.c: fix compiler warnings, #ifdef out dos-only code
-
-2002-09-04 23:13  btb
-
 	* include/grdef.h: gr_linear_movsd isn't static for NO_ASM,
 	obviously
-
-2002-09-04 23:05  btb
-
 	* main/game.c: we want the mac ibitblt for everything but dos and
 	windows, I think.
-
-2002-09-04 22:47  btb
-
 	* main/texmerge.c: these routines are in tmerge.c
-
-2002-09-04 22:29  btb
-
 	* main/credits.c: enable credits for mac and oem data
-
-2002-09-04 22:28  btb
-
 	* main/bm.c: use either exit.ham or exit.pofs
-
-2002-09-04 22:27  btb
-
 	* include/ibitblt.h: enable some more code from d2src
-
-2002-09-04 22:27  btb
-
 	* include/gr.h: enable mac ubitblt_double
-
-2002-09-04 22:25  btb
-
 	* 2d/rle.c: added gr_rle_expand_scanline_generic_masked from d2src
-
-2002-09-04 22:21  btb
-
 	* include/grdef.h: moved some inline asm from linear.h
-
-2002-09-04 22:18  btb
-
 	* 2d/ibitblt.c: brought in line with original d2 version
-
-2002-09-04 22:01  btb
-
 	* 2d/bitblt.c: reverted to original d2 version of this file, then
 	added d1x enhancements
-
-2002-09-04 21:58  btb
-
 	* 2d/2dsline.c: formatting, use __MSDOS__ instead of __DJGPP__
-
-2002-09-04 21:49  btb
-
 	* 2d/linear.h: moved these back to their original locations
 	(bitblt.c, grdef.h)
-
-2002-09-04 08:15  btb
-
 	* main/mveplay.c: close some memory holes, speed up palette loading
-
-2002-09-04 08:13  btb
-
 	* main/movie.c: added fullscreen toggle while playing movies
-
-2002-09-04 08:13  btb
-
 	* main/inferno.c: comment out -superhires help text (always on)
-
-2002-09-04 08:12  btb
-
 	* include/timer.h: added approx_fsec_to_usec macro
-
-2002-09-04 08:11  btb
-
 	* arch/sdl/joy.c: fix compiler warning
 
-2002-09-01 02:49  btb
+2002-09-01  Bradley Bell <btb@icculus.org>
 
 	* main/network.c: oops
-
-2002-09-01 02:49  btb
-
 	* main/: movie.c, mveplay.c, mveplay.h: more movie improvements
-
-2002-09-01 02:46  btb
-
 	* arch/sdl/timer.c, include/timer.h: added timer_delay, faster
 	timer_get_fixed_seconds
-
-2002-09-01 02:44  btb
-
 	* TODO: todo
 
-2002-08-31 12:14  btb
+2002-08-31  Bradley Bell <btb@icculus.org>
 
 	* TODO, main/inferno.c, main/movie.c, main/mveplay.c: movie
 	improvements
-
-2002-08-31 05:27  btb
-
 	* main/multi.h: network endian stuff
-
-2002-08-31 05:24  btb
-
 	* 2d/font.c, include/gr.h: fast file i/o for font headers
-
-2002-08-31 03:22  btb
-
 	* arch/win32/arch_ip.cpp: unused file
-
-2002-08-31 03:21  btb
-
 	* main/: netmisc.c, netmisc.h, network.c, network.h: formatting,
 	bigendian networking fixes
-
-2002-08-31 03:18  btb
-
 	* main/menu.c: make net menu more accurate, also make superhires
 	always on
-
-2002-08-31 03:17  btb
-
 	* include/pstypes.h: better to have __pack__ all the time, I think.
 	 needed for networking, e.g.
-
-2002-08-31 03:16  btb
-
 	* arch/win32/: ipx_drv.h, ipx_win.c, winnet.c: win32 networking
 	backtrack
-
-2002-08-31 03:15  btb
-
 	* arch/win32/Makefile.am: unused file
-
-2002-08-31 03:14  btb
-
 	* TODO: todo stuff
 
-2002-08-30 18:31  btb
+2002-08-30  Bradley Bell <btb@icculus.org>
 
 	* arch/win32/ipx_drv.h: re-added arch/win32/ipx_drv.h
-
-2002-08-30 08:04  btb
-
 	* main/: newmenu.h, titles.c: formatting
-
-2002-08-30 08:02  btb
-
 	* NEWS, arch/linux/Makefile.am, arch/linux/include/ukali.h,
 	main/multi.h: networking works, finally
-
-2002-08-30 06:16  btb
-
 	* TODO: added TODO file
-
-2002-08-30 06:12  btb
-
 	* arch/linux/arch_ip.cpp: unused fine
-
-2002-08-30 06:02  btb
-
 	* README: network sorta working
-
-2002-08-30 01:01  btb
-
 	* main/: Makefile.am, multi.c, network.c, network.h: more
 	networking fixes
-
-2002-08-30 00:58  btb
-
 	* main/menu.c: load builtin mission correctly
-
-2002-08-30 00:57  btb
-
 	* main/inferno.c: documentation
-
-2002-08-30 00:55  btb
-
 	* main/: hoard.c, hoard.h, gamesave.c, mission.c: move hoard stuff
 	out of network
-
-2002-08-30 00:54  btb
-
 	* main/Makefile.mveplay: don't need no more
 
-2002-08-29 22:24  btb
+2002-08-29  Bradley Bell <btb@icculus.org>
 
 	* main/: ip_base.cpp, ip_base.h, ip_basec.h, ipclienc.c,
 	ipclient.cpp, ipclient.h, ipserver.cpp, ipx_drv.c, multipow.c,
 	multipow.h, netlist.c, netpkt.c, netpkt.h: deleting unused d1x
 	stuff
-
-2002-08-29 19:14  btb
-
 	* include/ipx_drv.h: more network fixing
-
-2002-08-29 19:02  btb
-
 	* arch/linux/include/ipx_drv.h: more network fixing
-
-2002-08-29 09:03  btb
-
 	* include/ipx.h: formatting
-
-2002-08-29 08:59  btb
-
 	* arch/linux/ipx_kali.c, include/ipx.h: fixed networking fuck-up?
-
-2002-08-29 08:54  btb
-
 	* NEWS, arch/linux/Makefile.am, arch/linux/ipx_bsd.c,
 	arch/linux/ipx_udp.c, arch/linux/linuxnet.c, main/Makefile.am,
 	main/inferno.c: fixed networking fuck-up?
-
-2002-08-29 08:43  btb
-
 	* Makefile.am: moved mingw info to README
-
-2002-08-29 04:15  btb
-
 	* README, mingw32.txt: moved mingw info to README
 
-2002-08-27 08:15  btb
+2002-08-27  Bradley Bell <btb@icculus.org>
 
 	* utilities/mvlextract.c: allow specifying file to extract
-
-2002-08-27 08:09  btb
-
 	* utilities/: tex2txb.c, txb2tex.c: use default extension to
 	convert tex<->txb
-
-2002-08-27 08:05  btb
-
 	* utilities/hogextract.c: allow specifying file to extract
-
-2002-08-27 08:02  btb
-
 	* main/mission.c: Have to get mission_num _after_ promoting...
-
-2002-08-27 08:02  btb
-
 	* main/: gameseq.c, titles.c: beginning d1 briefing support
-
-2002-08-27 07:59  btb
-
 	* descent.msn: beginning d1 briefing support
-
-2002-08-27 04:15  btb
-
 	* main/: titles.c, titles.h: d1-style mission briefings
-
-2002-08-27 04:14  btb
-
 	* main/piggy.h: whitespace
-
-2002-08-27 04:14  btb
-
 	* main/movie.c: beginning robot movie support, fall back on lo/hi
 	res if hi/lo not available
-
-2002-08-27 04:12  btb
-
 	* main/mission.c: added Builtin_mission_num for builtin mission,
 	D1Hogdir, d1-style mission briefings
-
-2002-08-27 04:11  btb
-
 	* main/: gameseq.c, mission.h: added Builtin_mission_num for
 	builtin mission
-
-2002-08-27 04:05  btb
-
 	* cfile/cfile.c, include/cfile.h: add capability for 3rd hogfile
 	(for d1 missions that need d1 data)
-
-2002-08-27 04:03  btb
-
 	* 2d/ibitblt.c: whitespace
 
-2002-08-26 08:20  btb
+2002-08-26  Bradley Bell <btb@icculus.org>
 
 	* utilities/mvlcreate.c: oops
-
-2002-08-26 08:06  btb
-
 	* utilities/: Makefile.am, mvlcreate.c, mvlextract.c: added mvl
 	utilities
-
-2002-08-26 07:51  btb
-
 	* utilities/hogextract.c: added [v]iew option
-
-2002-08-26 07:51  btb
-
 	* utilities/: tex2txb.c, txb2tex.c: changed txt to tex
-
-2002-08-26 06:54  btb
-
 	* main/titles.c: fix writable string, disable DumbAdjust thing
-
-2002-08-26 06:52  btb
-
 	* main/polyobj.h: whitespace
-
-2002-08-26 06:52  btb
-
 	* main/newmenu.c: added pcx_get_dimensions(), other stuff from
 	d2src
-
-2002-08-26 06:50  btb
-
 	* main/movie.c: read movies from AltHogDir, other fixes
-
-2002-08-26 06:46  btb
-
 	* main/: mission.c, mission.h: fix bug w/mission filename
-
-2002-08-26 06:45  btb
-
 	* main/gameseq.c: comments
-
-2002-08-26 06:44  btb
-
 	* main/digi.h: whitespace n stuff
-
-2002-08-26 06:42  btb
-
 	* include/mve_audio.h: added audio flag macros
-
-2002-08-26 06:41  btb
-
 	* 2d/pcx.c, include/pcx.h: added pcx_get_dimensions(), other stuff
 	from d2src
-
-2002-08-26 06:37  btb
-
 	* 2d/font.c: stuff
 
-2002-08-23 10:43  btb
+2002-08-23  Bradley Bell <btb@icculus.org>
 
 	* main/: gameseq.c, inferno.c, mission.c, mission.h, titles.c: fix
 	briefing stuff
-
-2002-08-23 07:43  btb
-
 	* Makefile.am: remove d2demo.mn2
-
-2002-08-23 01:52  btb
-
 	* cfile/cfile.c, include/cfile.h: add cfile_size function
-
-2002-08-23 01:52  btb
-
 	* d2demo.mn2, installation.txt, main/gameseq.h, main/mission.c:
 	eliminate need for .mn2 files for oem and demo
 
-2002-08-22 20:49  btb
+2002-08-22  Bradley Bell <btb@icculus.org>
 
 	* main/bm.c: fix for vertigo
-
-2002-08-22 19:18  btb
-
 	* main/menu.h: make OEM menu pcx available
-
-2002-08-22 02:43  btb
-
 	* 2d/rle.c: merge with original d2 file
-
-2002-08-22 02:24  btb
-
 	* Makefile.am, configure.ac: let mission files get installed by
 	make
 
-2002-08-17 11:23  btb
+2002-08-17  Bradley Bell <btb@icculus.org>
 
 	* configure.ac: make FAST_FILE_IO the default on little-endian
 	machines
-
-2002-08-17 11:21  btb
-
 	* NEWS, README, compilerdefs.txt, readme.txt: documentation
-
-2002-08-17 11:19  btb
-
 	* 2d/bitblt.c, 2d/rle.c, arch/ogl/ogl.c: implement BM_FLAG_RLE_BIG
 	(cockpit support?)
 
-2002-08-15 18:31  btb
+2002-08-15  Martin Schaffner <maschaffner@gmx.ch>
 
-	* main/: game.c, menu.c, mission.c: promote builtin missions. patch
-	from Martin Schaffner <maschaffner@gmx.ch>
+	* main/: game.c, menu.c, mission.c: promote builtin missions.
 
-2002-08-15 08:53  btb
+2002-08-15  Bradley Bell <btb@icculus.org>
 
 	* 2d/font.c, 2d/rle.c, include/gr.h, include/rle.h, main/piggy.c:
 	improved mac pig loading/reverted TRANSPARENCY_COLOR changes
-
-2002-08-15 07:20  btb
-
 	* utilities/.cvsignore: added cvsignore
-
-2002-08-15 07:17  btb
-
 	* 2d/palette.c, include/palette.h, main/gamesave.c: mac data file
 	loading
-
-2002-08-15 05:49  btb
-
 	* main/piggy.c: mac data file loading
-
-2002-08-15 05:42  btb
-
 	* 2d/font.c, 2d/rle.c, include/gr.h, include/rle.h: set
 	transparency and swap 0/255 correctly for mac data files
 
-2002-08-13 21:40  btb
+2002-08-13  Bradley Bell <btb@icculus.org>
 
 	* Makefile.am, configure.ac, utilities/Makefile.am: moved utility
 	to utilities to avoid conflict with c++ std lib <utility>
-
-2002-08-13 21:34  btb
-
 	* utilities/: Makefile.am, hogcreate.c, hogextract.c, txb2txt.c,
 	txt2txb.c: moved utility to utilities to avoid conflict with c++
 	std lib <utility>
-
-2002-08-13 07:16  btb
-
 	* Makefile.am, configure.ac: add utilities
 
-2002-08-09 00:48  btb
+2002-08-09  Bradley Bell <btb@icculus.org>
 
 	* 2d/palette.c, 3d/interp.c, include/gr.h, main/render.c:
 	formatting
 
-2002-08-08 23:15  btb
+2002-08-08  Bradley Bell <btb@icculus.org>
 
 	* main/inferno.c: comments
-
-2002-08-08 21:43  btb
-
 	* main/: newmenu.c, songs.c: mac demo datafile support
-
-2002-08-08 09:26  btb
-
 	* installation.txt: update
-
-2002-08-08 09:10  btb
-
 	* main/gamesave.c: use lowercase for consistency
-
-2002-08-08 09:09  btb
-
 	* main/: bm.c, bm.h, endlevel.c, polyobj.c: enable loading of exit
 	models for other than d2demo
 
-2002-08-07 22:38  btb
+2002-08-07  Martin Schaffner <maschaffner@gmx.ch>
 
-	* main/gamemine.c: formatting, patch for better d1 texture
-	conversion from Martin Schaffner <maschaffner@gmx.ch>
+	* main/gamemine.c: formatting, better d1 texture conversion
+	* Makefile.am, descent.mn2, descent.msn, main/mission.c,
+	main/mission.h: recognize .msn mission files.
 
-2002-08-07 07:44  btb
+2002-08-07  Bradley Bell <btb@icculus.org>
 
-	* Makefile.am: recognize .msn mission files. patch from Martin
-	Schaffner <maschaffner@gmx.ch>
-
-2002-08-07 07:39  btb
-
-	* .cvsignore: added .cvsignore files
-
-2002-08-07 07:34  btb
-
-	* descent.mn2, descent.msn, main/mission.c, main/mission.h:
-	recognize .msn mission files. patch from Martin Schaffner
-	<maschaffner@gmx.ch>
-
-2002-08-07 05:39  btb
-
-	* 2d/.cvsignore, 3d/.cvsignore, arch/.cvsignore,
+	* .cvsignore, 2d/.cvsignore, 3d/.cvsignore, arch/.cvsignore,
 	arch/dos/.cvsignore, arch/ggi/.cvsignore, arch/linux/.cvsignore,
 	arch/ogl/.cvsignore, arch/sdl/.cvsignore, arch/svgalib/.cvsignore,
 	arch/win32/.cvsignore, cfile/.cvsignore, iff/.cvsignore,
@@ -898,230 +437,103 @@
 	mem/.cvsignore, misc/.cvsignore, texmap/.cvsignore: added
 	.cvsignore files
 
-2002-08-06 09:30  btb
+2002-08-06  Bradley Bell <btb@icculus.org>
 
 	* main/: automap.c, laser.c, songs.c, titles.c: shareware stuff
-
-2002-08-06 09:28  btb
-
 	* main/Makefile.am: formatting
-
-2002-08-06 09:28  btb
-
 	* 2d/font.c: make gr_remap_font just reload the whole thing
-
-2002-08-06 09:25  btb
-
 	* configure.ac: formatting
-
-2002-08-06 09:24  btb
-
 	* Makefile.am: added d2demo.mn2
-
-2002-08-06 07:26  btb
-
 	* d2demo.mn2: mission file for shareware
-
-2002-08-06 05:21  btb
-
 	* include/u_mem.h, main/ai.c, main/gamesave.c, main/inferno.c,
 	main/laser.h, main/text.h, main/titles.c, main/weapon.c: whitespace
-
-2002-08-06 05:16  btb
-
 	* main/sounds.h: shareware stuff, whitespace
-
-2002-08-06 05:13  btb
-
 	* main/: polyobj.c, polyobj.h: more fast i/o macros
-
-2002-08-06 05:12  btb
-
 	* main/: menu.c, menu.h, mission.c, newmenu.c, piggy.c, piggy.h:
 	shareware stuff
-
-2002-08-06 05:06  btb
-
 	* main/: endlevel.c, endlevel.h, gamemine.c, gameseq.c: merged
 	endlevel stuff to non-shareware, allow movies/endlevel for
 	alternate missions
-
-2002-08-06 04:55  btb
-
 	* main/cntrlcen.c: typo
-
-2002-08-06 04:55  btb
-
 	* main/bm.h: use global Piggy_hamfile_version
-
-2002-08-06 04:53  btb
-
 	* main/bm.c: merged endlevel stuff to non-shareware, more fast i/o
 	macros, use global Piggy_hamfile_version
-
-2002-08-06 04:50  btb
-
 	* main/Makefile.am: terrain and movie stuff always used now
-
-2002-08-06 04:49  btb
-
 	* 2d/pcx.c, include/pcx.h: make pcx header available to other
 	files, whitespace
-
-2002-08-06 01:31  btb
-
 	* main/: gamemine.c, gamesave.c: load DMB levels
-
-2002-08-06 01:31  btb
-
 	* main/: bm.c, cntrlcen.c, cntrlcen.h, fuelcen.c, fuelcen.h,
 	segment.c, segment.h, switch.c, switch.h: fast i/o macros
 
-2002-08-04 23:37  btb
+2002-08-04  Martin Schaffner <maschaffner@gmx.ch>
 
-	* main/gamemine.c, main/gamesave.c, mem/mem.c: d1 level stuff from
-	maschaffner@gmx.ch
+	* main/gamemine.c, main/gamesave.c, mem/mem.c: d1 level stuff.
 
-2002-08-04 23:24  btb
+2002-08-04  Bradley Bell <btb@icculus.org>
 
 	* main/inferno.c: shareware stuff, formatting
-
-2002-08-04 23:19  btb
-
 	* arch/sdl/rbaudio.c: gracefully handle redbook non-availability
-
-2002-08-04 23:18  btb
-
 	* arch/sdl/gr.c: don't need to set mode in gr_init
 
-2002-08-02 23:28  btb
+2002-08-02  Bradley Bell <btb@icculus.org>
 
 	* main/: gamemine.c, gamemine.h, gamesave.c, gamesave.h: more d1
 	level loading stuff
-
-2002-08-02 20:10  btb
-
 	* Makefile.am, descent.mn2: added mission file for descent 1
-
-2002-08-02 11:05  btb
-
 	* arch/sdl/digi.c, arch/sdl/gr.c, include/error.h,
 	include/oldsdl.h, main/gamecntl.c, main/inferno.c, main/laser.c,
 	main/piggy.h, misc/error.c: junk
-
-2002-08-02 10:57  btb
-
 	* main/: endlevel.c, escort.c, gameseq.c, newmenu.c, render.c,
 	render.h, scores.c, scores.h, terrain.c: shareware stuff
-
-2002-08-02 04:57  btb
-
 	* configure.ac, include/pstypes.h, main/bm.c, main/bm.h,
 	main/effects.c, main/effects.h, main/piggy.c, main/piggy.h,
 	main/powerup.c, main/powerup.h, main/robot.c, main/robot.h,
 	main/vclip.c, main/vclip.h, main/wall.c, main/wall.h,
 	main/weapon.c, main/weapon.h: fast i/o macros
 
-2002-08-01 23:28  btb
+2002-08-01  Bradley Bell <btb@icculus.org>
 
 	* NEWS, cfile/cfile.c, main/console.c, main/gamemine.c,
 	main/gamemine.h, main/gamesave.c: load d1 levels
 
-2002-07-30 21:26  btb
+2002-07-30  Bradley Bell <btb@icculus.org>
 
 	* configure.ac: oops
-
-2002-07-30 21:21  btb
-
 	* configure.ac, arch/ogl/gr.c, arch/ogl/ogl.c, include/ogl_init.h:
 	OSX OGL fixes
-
-2002-07-30 11:28  btb
-
-	* main/menu.c, main/titles.c, NEWS: support shareware datafiles\!
-
-2002-07-30 11:05  btb
-
-	* 2d/font.c, include/gr.h, include/grdef.h, main/game.c,
-	main/gamefont.c, main/gamefont.h, main/gamemine.c, main/inferno.c,
-	main/movie.c, main/newmenu.c, main/piggy.c, main/titles.c: support
-	shareware datafiles\!
-
-2002-07-30 04:52  btb
-
+	* main/menu.c, main/titles.c, NEWS, 2d/font.c, include/gr.h,
+	include/grdef.h, main/game.c, main/gamefont.c, main/gamefont.h,
+	main/gamemine.c, main/inferno.c, main/movie.c, main/newmenu.c,
+	main/piggy.c, main/titles.c: support shareware datafiles!
 	* main/: bm.c, gamemine.c, piggy.c, piggy.h, weapon.c, gamemine.c,
 	piggy.c: SHAREWARE fixes
 
-2002-07-29 02:32  btb
+2002-07-29  Bradley Bell <btb@icculus.org>
 
 	* NEWS, include/fileutil.h, main/bm.c, main/gameseq.c,
 	main/mveplay.c, main/piggy.c, main/piggy.h, main/playsave.c,
 	misc/fileutil.c: Portability - OS X support
 
-2002-07-27 22:39  btb
+2002-07-27  Bradley Bell <btb@icculus.org>
 
 	* main/: Makefile.am, fuelcen.c, fuelcen.h, game.c, game.h,
 	gamemine.c, gamesave.c, gameseq.c, piggy.c, piggy.h, segment.c,
 	segment.h: portability
-
-2002-07-27 04:39  btb
-
 	* cfile/cfile.c, include/cfile.h, main/cntrlcen.c, main/cntrlcen.h,
 	main/gamesave.c, main/switch.c, main/switch.h, main/wall.c,
 	main/wall.h: portabilization
-
-2002-07-27 03:10  btb
-
-	* 2d/font.c: portability
-
-2002-07-27 02:20  btb
-
 	* 2d/font.c, include/gr.h: portability
 
-2002-07-26 23:13  btb
+2002-07-26  Bradley Bell <btb@icculus.org>
 
-	* 2d/font.c: portability
-
-2002-07-26 23:03  btb
-
-	* 2d/font.c, include/gr.h: portability
-
-2002-07-26 21:48  btb
-
+	* 2d/font.c, 2d/pcx.c, include/gr.h, main/movie.c: portability
 	* arch/linux/findfile.c, include/pstypes.h: os x fixes
-
-2002-07-26 21:10  btb
-
-	* 2d/pcx.c: portability
-
-2002-07-26 20:59  btb
-
-	* main/movie.c: portability
-
-2002-07-26 20:23  btb
-
 	* main/player.c: foo
-
-2002-07-26 20:09  btb
-
 	* misc/fileutil.c, include/fileutil.h, misc/fileutil.c: oops
-
-2002-07-26 20:01  btb
-
-	* include/fileutil.h: oops
-
-2002-07-26 19:59  btb
-
 	* include/fileutil.h, misc/Makefile.am, misc/fileutil.c,
 	misc/fileutil.h: portable file i/o utils
-
-2002-07-26 09:25  btb
-
 	* main/: Makefile.mveplay, inferno.c, movie.c, newmenu.c: s not a
 	writable string anymore... / formatting
-
-2002-07-26 09:22  btb
-
 	* main/Makefile.am, main/bm.c, main/bm.h, main/cntrlcen.c,
 	main/cntrlcen.h, main/effects.c, main/effects.h, main/piggy.c,
 	main/piggy.h, main/player.c, main/player.h, main/polyobj.c,
@@ -1130,839 +542,425 @@
 	main/weapon.c, main/weapon.h, 3d/interp.c, include/cfile.h:
 	portable-izing file loading routines
 
-2002-07-24 10:31  btb
+2002-07-24  Bradley Bell <btb@icculus.org>
 
 	* main/mveplay.c: correctly play files with 16bit uncompressed
 	audio, mem checking, etc
-
-2002-07-24 01:03  btb
-
 	* main/: Makefile.mveplay, mvelib.c, mveplay.c: enable standalone
 	mve player
 
-2002-07-23 21:24  btb
+2002-07-23  Bradley Bell <btb@icculus.org>
 
 	* misc/Makefile.am: unused file
-
-2002-07-23 21:24  btb
-
 	* configure.ac, main/endlevel.c, main/endlevel.h, main/menu.c,
 	main/sounds.h: remove experimental nmovie stuff
-
-2002-07-23 08:22  btb
-
 	* main/movie.c: add some debugging output
 
-2002-07-22 18:26  btb
+2002-07-22  Bradley Bell <btb@icculus.org>
 
 	* main/: console.c, state.c: simplified header
-
-2002-07-22 06:29  btb
-
 	* main/movie.c: enable mveplay audio
-
-2002-07-22 02:20  btb
-
 	* main/old/movie.c: moved to main/
-
-2002-07-22 02:20  btb
-
 	* include/mve_audio.h, include/mvelib.h, main/Makefile.am,
 	main/inferno.c, main/kludge.c, main/movie.c, main/mve_audio.c,
 	main/mvelib.c, main/mveplay.c: initial movie support
-
-2002-07-22 02:17  btb
-
 	* arch/linux/findfile.c, arch/ogl/gr.c, arch/ogl/ogl.c,
 	arch/sdl/init.c, arch/sdl/joy.c, include/byteswap.h,
 	include/ogl_init.h, include/pstypes.h, main/console.c,
 	main/state.c, mem/mem.c: OS X stuff
-
-2002-07-22 01:47  btb
-
 	* configure.ac: OS X and movie stuff
 
-2002-07-19 02:48  bradleyb
+2002-07-19  Bradley Bell <btb@icculus.org>
 
 	* compilerdefs.txt: OSX defs
 
-2002-07-18 08:35  bradleyb
+2002-07-18  Bradley Bell <btb@icculus.org>
 
 	* main/inferno.c: use simpler rcs tags
-
-2002-07-18 08:35  bradleyb
-
 	* autogen.sh: keep Changelog in cvs (and use --accum)
-
-2002-07-18 08:22  bradleyb
-
 	* arch/dos/Makefile.am, arch/dos/cdrom.c, arch/dos/rbaudio.c,
 	arch/sdl/Makefile.am, arch/sdl/cdrom.c, arch/sdl/rbaudio.c,
 	include/rbaudio.h, main/Makefile.am, main/cdrom.h, main/gamecntl.c,
 	main/songs.c: changed cdrom->rbaudio
-
-2002-07-18 07:06  bradleyb
-
 	* include/rbaudio.h: moved to /include
 
-2002-07-17 21:55  bradleyb
+2002-07-17  Bradley Bell <btb@icculus.org>
 
-	* 2d/bitblt.c, 2d/bitmap.c, 2d/bitmap.h, 2d/box.c, 2d/canvas.c,
-	2d/circle.c, 2d/clip.h, 2d/disc.c, 2d/font.c, 2d/gpixel.c,
-	2d/ibitblt.c, 2d/line.c, 2d/linear.asm, 2d/linear.h, 2d/palette.c,
-	2d/pcx.c, 2d/pixel.c, 2d/poly.c, 2d/rect.c, 2d/rle.c, 2d/scale.c,
-	2d/scalea.asm, 2d/scalec.c, 2d/tmerge.c, 2d/tmerge_a.asm,
-	3d/clipper.c, 3d/clipper.h, 3d/draw.c, 3d/globvars.c,
-	3d/globvars.h, 3d/instance.c, 3d/interp.asm, 3d/interp.c,
-	3d/matrix.c, 3d/points.c, 3d/rod.c, 3d/setup.c: use simpler rcs
-	tags
+	* 2d/d2sline.c, 2d/bitblt.c, 2d/bitmap.c, 2d/bitmap.h, 2d/box.c,
+	2d/canvas.c, 2d/circle.c, 2d/clip.h, 2d/disc.c, 2d/font.c,
+	2d/gpixel.c, 2d/ibitblt.c, 2d/line.c, 2d/linear.asm, 2d/linear.h,
+	2d/palette.c, 2d/pcx.c, 2d/pixel.c, 2d/poly.c, 2d/rect.c,
+	2d/rle.c, 2d/scale.c, 2d/scalea.asm, 2d/scalea.h, 2d/scalec.c,
+	2d/tmerge.c, 2d/tmerge_a.asm, 3d/clipper.c, 3d/clipper.h,
+	3d/draw.c, 3d/globvars.c, 3d/globvars.h, 3d/instance.c,
+	3d/interp.asm, 3d/interp.c, 3d/matrix.c, 3d/points.c, 3d/rod.c,
+	3d/setup.c: use simpler rcs tags
 
-2002-07-17 21:34  bradleyb
 
-	* 2d/scalea.h: use simpler rcs tags
+0.1.3:
 
-2002-07-17 21:10  bradleyb
+2002-07-17  Bradley Bell <btb@icculus.org>
 
-	* 2d/: 2dsline.c, 2dsline.c: use simpler rcs tags
-
-2002-07-17 02:09  bradleyb
-
+	* tools/cvs2cl/cvs2cl.pl: upgrade cvs2cl
 	* d2x-gl.sh, d2x-ogl.sh: changed d2x-ogl to d2x-gl
-
-2002-07-17 02:07  bradleyb
-
 	* debian/rules: don't need readme's
-
-2002-07-17 01:52  bradleyb
-
 	* debian/rules: move d1x license to COPYING, license clarifications
-
-2002-07-17 01:45  bradleyb
-
 	* COPYING, license.txt, debian/copyright, Makefile.am: move d1x
 	license to COPYING, license clarifications
-
-2002-07-17 01:32  bradleyb
-
 	* debian/rules: fix debian docs
-
-2002-07-17 01:30  bradleyb
-
 	* debian/rules: fix debian manpages
-
-2002-07-17 01:27  bradleyb
-
 	* debian/d2x-sdl.menu: fix debian menu
-
-2002-07-17 01:15  bradleyb
-
 	* debian/rules: link to undocumented man page for debs
-
-2002-07-17 01:03  bradleyb
-
 	* Makefile.am, configure.ac, debian/control, debian/copyright,
 	debian/d2x-gl.files, debian/d2x-gl.menu, debian/d2x-sdl.files,
 	debian/d2x-sdl.menu, debian/d2x.files, debian/d2x.menu,
 	debian/rules, rpm/d2x.spec.in: change d2x-ogl to d2x-gl, other
 	packaging stuff
 
-2002-07-16 23:33  bradleyb
+2002-07-16  Bradley Bell <btb@icculus.org>
 
 	* debian/: rules, changelog.in: deb stuff
-
-2002-07-16 23:32  bradleyb
-
 	* configure.ac: cleaner nasm detection
-
-2002-07-16 23:19  bradleyb
-
 	* debian/: changelog.in, control, rules: deb stuff
-
-2002-07-16 23:18  bradleyb
-
 	* README, installation.txt: typos, stuff
-
-2002-07-16 22:47  bradleyb
-
 	* configure.ac: better #defines
-
-2002-07-16 22:46  bradleyb
-
 	* configure.ac: whitespace
-
-2002-07-16 22:40  bradleyb
-
 	* configure.ac: better documentation
-
-2002-07-16 22:37  bradleyb
-
 	* configure.ac, arch/sdl/event.c, arch/sdl/init.c: SDL_AUDIO and
 	SDL_JOYSTICK not needed
-
-2002-07-16 22:29  bradleyb
-
 	* configure.ac, main/inferno.c: __SDL__ ugly and not needed at all
-
-2002-07-16 22:23  bradleyb
-
 	* configure.ac: need higher SDL for joystick
-
-2002-07-16 22:04  bradleyb
-
 	* debian/: control, rules: deb stuff
-
-2002-07-16 22:03  bradleyb
-
 	* arch/sdl/joy.c: old junk
-
-2002-07-16 22:03  bradleyb
-
 	* Makefile.am, configure.ac: automake updates
-
-2002-07-16 20:47  bradleyb
-
 	* main/: inferno.c, text.c: don't use althogdir on non-unix
-
-2002-07-16 20:46  bradleyb
-
 	* configure.ac: more autoconf updates
-
-2002-07-16 19:05  bradleyb
-
 	* misc/strutil.c: better strrev
-
-2002-07-16 19:05  bradleyb
-
 	* main/inferno.c: need limits.h on mingw also
-
-2002-07-16 08:11  bradleyb
-
 	* acconfig.h, configure.ac: Updated for autoconf 2.53 (no more
 	acconfig.h)
 
-2002-04-19 21:27  bradleyb
+2002-04-19  Bradley Bell <btb@icculus.org>
 
 	* main/network.c: let hoard.ham be a cfile
-
-2002-04-19 21:26  bradleyb
-
 	* main/text.c: better error message when hog not found
-
-2002-04-19 02:58  bradleyb
-
 	* NEWS: more news
 
-2002-03-23 10:29  bradleyb
+2002-03-23  Bradley Bell <btb@icculus.org>
 
 	* acconfig.h, configure.ac, arch/linux/Makefile.am,
 	arch/sdl/Makefile.am: Use SDL joystick automatically
+	* arch/sdl/joy.c, main/kconfig.c: SDL Joystick works!
 
-2002-03-23 09:13  bradleyb
+2002-03-05  Bradley Bell <btb@icculus.org>
 
-	* arch/sdl/joy.c, main/kconfig.c: SDL Joystick works\!
+	* arch/sdl/joydefs.c, arch/sdl/joy.c: SDL joystick stuff mostly
+	done
 
-2002-03-05 12:38  bradleyb
-
-	* arch/sdl/joydefs.c: SDL joystick stuff mostly done
-
-2002-03-05 12:13  bradleyb
-
-	* arch/sdl/joy.c: SDL joystick stuff mostly done
-
-2002-02-23 22:24  bradleyb
+2002-02-23  Bradley Bell <btb@icculus.org>
 
 	* texmap/ntmap.c: fix bug preventing higher res sdl modes
-
-2002-02-23 21:59  bradleyb
-
 	* arch/dos/Makefile.am, arch/ggi/Makefile.am,
 	arch/linux/Makefile.am, arch/ogl/Makefile.am, arch/sdl/Makefile.am,
 	arch/svgalib/Makefile.am, arch/win32/Makefile.am,
 	main/editor/Makefile.am: moved includes to include
-
-2002-02-23 21:38  bradleyb
-
 	* arch/sdl/gr.c: use SDL_VERSION_ATLEAST
-
-2002-02-23 21:36  bradleyb
-
 	* Makefile.am, 2d/Makefile.am, 3d/Makefile.am, cfile/Makefile.am,
 	iff/Makefile.am, main/Makefile.am, maths/Makefile.am,
 	mem/Makefile.am, misc/Makefile.am, texmap/Makefile.am: moved
 	includes to include
-
-2002-02-23 21:25  bradleyb
-
 	* main/game.c: disabled cockpit for OGL, formatting
-
-2002-02-23 21:24  bradleyb
-
 	* 2d/ibitblt.c: formatting
 
-2002-02-16 02:24  bradleyb
+2002-02-16  Bradley Bell <btb@icculus.org>
 
 	* include/oldsdl.h: check for older macros
-
-2002-02-16 02:08  bradleyb
-
 	* configure.ac, arch/sdl/digi.c, arch/sdl/event.c, arch/sdl/gr.c,
 	include/error.h, include/oldsdl.h, main/gamecntl.c, main/inferno.c:
 	allow older sdl versions
 
-2002-02-15 12:24  bradleyb
+2002-02-15  Bradley Bell <btb@icculus.org>
 
 	* main/: automap.c, automap.h, inferno.c: automap resolution now
 	selectable
-
-2002-02-15 12:21  bradleyb
-
 	* include/: gr.h, grdef.h: moved protos to from grdef.h to gr.h
-
-2002-02-15 07:22  bradleyb
-
 	* arch/: dos/key_arch.c, dos/include/key_arch.h, ggi/key_arch.c,
 	sdl/key_arch.c, svgalib/key_arch.c, win32/key_arch.c,
 	win32/include/key_arch.h: never mind - that would be pointless
-
-2002-02-15 07:18  bradleyb
-
 	* arch/: dos/key_arch.c, dos/include/key_arch.h, ggi/key_arch.c,
 	sdl/key_arch.c, svgalib/key_arch.c, win32/key_arch.c,
 	win32/include/key_arch.h: copied files from d1x
-
-2002-02-15 06:41  bradleyb
-
 	* arch/linux/arch_ip.cpp, arch/win32/arch_ip.cpp, main/ip_base.cpp,
 	main/ip_base.h, main/ipclient.cpp: enable udp debug messages
-
-2002-02-15 03:18  bradleyb
-
 	* main/multipow.c: need conf.h
-
-2002-02-15 02:35  bradleyb
-
 	* arch/win32/Makefile.am: new file
-
-2002-02-15 02:34  bradleyb
-
 	* include/pstypes.h: added u_int16_t (needed in base_ip)
-
-2002-02-15 02:29  bradleyb
-
 	* arch/win32/arch_ip.cpp: copied from d1x
 
-2002-02-14 11:29  bradleyb
+2002-02-14  Bradley Bell <btb@icculus.org>
 
 	* arch/sdl/gr.c, main/inferno.c: allow gr_init lowres
-
-2002-02-14 10:18  bradleyb
-
 	* NEWS, include/gr.h, main/game.c, main/game.h, main/gamecntl.c,
 	main/netlist.c: Added hotkeys to toggle fullscreen mode
-
-2002-02-14 09:24  bradleyb
-
 	* main/: ip_base.cpp, ip_base.h, multi.h, netlist.c, netpkt.c,
 	network.c, network.h, ipclient.cpp, netpkt.h: d1x->d2x
-
-2002-02-14 09:05  bradleyb
-
 	* main/: multipow.c, multipow.h, netlist.c, netpkt.c, netpkt.h,
 	reorder.h: Lotsa networking stuff from d1x
 
-2002-02-13 10:45  bradleyb
-
-	* main/ip_base.h: Lotsa networking stuff from d1x
-
-2002-02-13 10:45  bradleyb
+2002-02-13  Bradley Bell <btb@icculus.org>
 
 	* include/gr.h, main/game.c: Fullscreen toggle stuff
-
-2002-02-13 10:42  bradleyb
-
 	* arch/linux/Makefile.am, include/ipx.h: Lotsa networking stuff
 	from d1x
+	* main/: Makefile.am, inferno.c, ip_base.cpp, ip_base.h, menu.c,
+	multi.h, network.c, network.h, newmenu.c: Lotsa networking stuff
+	from d1x
 
-2002-02-13 10:39  bradleyb
-
-	* main/: Makefile.am, inferno.c, ip_base.cpp, menu.c, multi.h,
-	network.c, network.h, newmenu.c: Lotsa networking stuff from d1x
-
-2002-02-11 07:44  bradleyb
+2002-02-11  Bradley Bell <btb@icculus.org>
 
 	* main/bm.c: use portable loader if bigendian
-
-2002-02-11 07:44  bradleyb
-
 	* include/pstypes.h: don't define bool for c++
-
-2002-02-11 07:42  bradleyb
-
 	* include/cfile.h: extern AltHogDir stuff
-
-2002-02-11 07:42  bradleyb
-
 	* include/byteswap.h: use WORDS_BIGENDIAN
-
-2002-02-11 07:39  bradleyb
-
 	* main/: newmenu.c, newmenu.h: added fixedfont menu functions
-
-2002-02-11 07:37  bradleyb
-
 	* main/vers_id.h: added D2X_IVER
-
-2002-02-11 07:36  bradleyb
-
 	* misc/args.c: don't use d1x.ini
-
-2002-02-11 07:32  bradleyb
-
 	* Makefile.am: rpm stuff
-
-2002-02-11 07:17  bradleyb
-
 	* acconfig.h, configure.ac: c++, versioning, endianness, deb, rpm
 	stuff
 
-2002-02-09 23:35  bradleyb
+2002-02-09  Bradley Bell <btb@icculus.org>
 
 	* rpm/: d2x.spec, d2x.spec.in: auto-generate rpm spec file
 
-2002-02-09 23:20  bradleyb
+2002-02-09  Paolo Ulivi <pulivi@libero.it>
 
-	* d2x-ogl.sh, d2x-sdl.sh, rpm/.cvsignore, rpm/d2x.spec: Added rpm
-	patch from Paolo Ulivi <pulivi@libero.it>
+	* d2x-ogl.sh, d2x-sdl.sh, rpm/.cvsignore, rpm/d2x.spec: rpm
+	support
 
-2002-02-06 09:22  bradleyb
+2002-02-06  Bradley Bell <btb@icculus.org>
 
 	* arch/linux/arch_ip.cpp, main/ip_base.cpp, main/ip_base.h,
 	main/ip_basec.h, main/ipclienc.c, main/ipclient.cpp,
 	main/ipclient.h, main/ipserver.cpp: Adding d1x network code
-
-2002-02-06 06:58  bradleyb
-
 	* debian/: changelog.in, control, copyright, d2x-gl.files,
 	d2x-gl.menu, d2x.files, d2x.menu, rules: Added debian stuff
 
-2002-02-02 23:51  bradleyb
+0.1.2:
+
+2002-02-02  Bradley Bell <btb@icculus.org>
 
 	* NEWS, arch/ggi/Makefile.am: reenabled ggi build
-
-2002-02-02 23:30  bradleyb
-
 	* NEWS, acconfig.h, configure.ac, main/gamecntl.c, main/inferno.c:
 	Enabled RELEASE option
 
-2002-01-31 18:47  bradleyb
+2002-01-31  Bradley Bell <btb@icculus.org>
 
 	* Makefile.am, configure.ac: specify prerequisite versions of
 	autoconf and automake
 
-2002-01-29 10:14  bradleyb
+2002-01-29  Bradley Bell <btb@icculus.org>
 
 	* main/mission.c: RCS header added
-
-2002-01-29 10:11  bradleyb
-
 	* main/inferno.c: update copyright date
-
-2002-01-29 10:11  bradleyb
-
 	* main/mission.c: allow missions to be in AltHogDir
-
-2002-01-29 00:15  bradleyb
-
 	* configure.ac: Display results of configure
-
-2002-01-29 00:08  bradleyb
-
 	* include/d_io.h, main/inferno.c, main/newdemo.c: Added d_mkdir
 	macro
 
-2002-01-28 00:03  bradleyb
+2002-01-28  Bradley Bell <btb@icculus.org>
 
 	* NEWS, acconfig.h, configure.ac, cfile/cfile.c, main/inferno.c,
 	main/newdemo.c: Data files now go in DATADIR/games/d2x, user files
 	now go in ~/.d2x
 
-2002-01-24 22:26  bradleyb
+2002-01-24  Bradley Bell <btb@icculus.org>
 
 	* configure.ac: fix nasm not found error message
 
-2002-01-18 07:28  bradleyb
+2002-01-18  Bradley Bell <btb@icculus.org>
 
 	* configure.in: getting rid of old configure.in
-
-2002-01-18 07:26  bradleyb
-
 	* acconfig.h, configure.ac, main/Makefile.am, main/kludge.c,
 	main/movie.c: Movie playing kludgey stuff
-
-2002-01-18 07:02  bradleyb
-
 	* misc/args.c: formatting
-
-2002-01-18 07:01  bradleyb
-
 	* main/inferno.c: allow -h for help
-
-2002-01-18 07:00  bradleyb
-
 	* include/error.h: don't die on int3, unless -debug given
-
-2002-01-18 06:59  bradleyb
-
 	* mingw32.txt: more stuff
 
-2001-12-29 00:30  bradleyb
+2001-12-29  Bradley Bell <btb@icculus.org>
 
 	* Makefile.am: Got rid of thinking.txt
-
-2001-12-28 09:26  bradleyb
-
 	* main/inferno.c: document -nomovies option
 
-2001-12-28 09:23  bradleyb
+2001-12-28  Bradley Bell <btb@icculus.org>
 
 	* main/titles.c: formatting, put some code into place for rendering
 	of robots during briefings
 
-2001-12-27 20:48  bradleyb
+2001-12-27  Bradley Bell <btb@icculus.org>
 
 	* NEWS: stuff
 
-2001-12-23 09:10  bradleyb
+2001-12-23  Craig Hadady <chadady@iglou.com>
 
-	* 2d/rle.c: fixed bug in dummy array. thanks to Craig Hadady
-	<chadady@iglou.com>
+	* 2d/rle.c: fixed bug in dummy array.
 
-2001-12-03 02:45  bradleyb
+2001-12-03  Bradley Bell <btb@icculus.org>
 
 	* arch/sdl/init.c: fix formatting
-
-2001-12-03 02:43  bradleyb
-
 	* Makefile.am, acconfig.h, configure.ac, arch/linux/Makefile.am,
 	arch/sdl/Makefile.am, arch/sdl/event.c, arch/sdl/init.c,
 	arch/sdl/joy.c, arch/svgalib/Makefile.am: lots of makefile fixes,
 	and sdl joystick stuff
 
-2001-11-30 22:50  bradleyb
+2001-11-30  Bradley Bell <btb@icculus.org>
 
 	* thinking.txt: not needed
 
-2001-11-27 20:11  bradleyb
+2001-11-27  Bradley Bell <btb@icculus.org>
 
 	* cygconf, mingw32.txt: use sdl from source on cygwin
-
-2001-11-27 20:00  bradleyb
-
 	* Makefile.am, configure.ac, arch/ogl/Makefile.am,
 	arch/sdl/Makefile.am, main/Makefile.am: move SDL_LIBS to LIBS,
 	SDL_CFLAGS to CFLAGS
 
-2001-11-27 19:58  bradleyb
+2001-11-27  Bradley Bell <btb@icculus.org>
 
 	* AUTHORS: typo
 
-2001-11-14 20:13  bradleyb
+2001-11-14  Bradley Bell <btb@icculus.org>
 
 	* texmap/scanline.c: use optimization flags as texmap default
-
-2001-11-14 11:04  bradleyb
-
 	* NEWS: mouse wheel, etc
-
-2001-11-14 11:02  bradleyb
-
 	* arch/include/mouse.h, arch/sdl/mouse.c, main/kconfig.c: use mouse
 	wheel to emulate 3rd axis
-
-2001-11-14 10:59  bradleyb
-
 	* Makefile.am, configure.ac: change ENV_DJGPP to DJGPP
-
-2001-11-14 10:51  bradleyb
-
 	* include/error.h: kludge to ungrab mouse when we hit an int3
-
-2001-11-14 10:45  bradleyb
-
 	* include/d_io.h: change __ENV_WINDOWS__ to __WINDOWS__,
 	__ENV_MSDOS__ to __MSDOS__
-
-2001-11-14 10:44  bradleyb
-
 	* arch/sdl/mouse.c: remove cruft, fix formatting, use mouse wheel
 	to emulate 3rd axis
-
-2001-11-14 10:43  bradleyb
-
 	* arch/sdl/event.c: remove cruft, fix formatting, begin joystick
 	stuff
-
-2001-11-14 10:42  bradleyb
-
 	* arch/sdl/digi.c: implemented digi_set_volume
-
-2001-11-14 10:31  bradleyb
-
 	* include/grdef.h, main/config.c, misc/d_io.c: change
 	__ENV_WINDOWS__ to __WINDOWS__, __ENV_MSDOS__ to __MSDOS__
-
-2001-11-14 09:34  bradleyb
-
 	* 2d/font.c, main/bm.c, main/gamesave.c, main/gameseq.c,
 	main/piggy.c: use MAKE_SIG
-
-2001-11-14 09:22  bradleyb
-
 	* installation.txt: update
-
-2001-11-14 04:16  bradleyb
-
 	* configure.ac: new file
-
-2001-11-14 03:56  bradleyb
-
 	* arch/sdl/joydefs.c: #include pstypes.h
-
-2001-11-14 03:56  bradleyb
-
 	* arch/sdl/init.c: SDL joystick stuff
-
-2001-11-14 03:55  bradleyb
-
 	* acconfig.h: adjust MINGW defines
-
-2001-11-14 03:29  bradleyb
-
 	* arch/sdl/joydefs.c: copied joydefs_config from linux/joydefs.c -
 	controls menu now works
 
-2001-11-13 22:44  bradleyb
+2001-11-13  Bradley Bell <btb@icculus.org>
 
 	* main/Makefile.am: Make sure bmread.c and terrain.c get included
 	in dist
-
-2001-11-13 22:44  bradleyb
-
 	* Makefile.am: New file
-
-2001-11-13 22:44  bradleyb
-
 	* arch/dos/Makefile.am: Make sure gr.c and joy2.asm get included in
 	dist
-
-2001-11-13 22:34  bradleyb
-
 	* compilerdefs.txt: New file
-
-2001-11-13 21:17  bradleyb
-
 	* main/aipath.c: use D_RAND_MAX instead of RAND_MAX
 
-2001-11-12 00:59  bradleyb
+2001-11-12  Bradley Bell <btb@icculus.org>
 
 	* main/playsave.c: load player files regardless of byte order of
 	sig
 
-2001-11-11 23:39  bradleyb
+2001-11-11  Bradley Bell <btb@icculus.org>
 
 	* include/makesig.h, main/playsave.c: Created header for MAKE_SIG
 	macro
-
-2001-11-11 23:38  bradleyb
-
 	* main/Makefile.am: Don't use terrain.c unless SHAREWARE
-
-2001-11-11 23:37  bradleyb
-
 	* NEWS: GL savegame thumbnails
-
-2001-11-11 23:31  bradleyb
-
 	* acconfig.h, configure.in: make option for NMOVIES, default to off
 
-2001-11-09 11:40  bradleyb
+2001-11-09  Bradley Bell <btb@icculus.org>
 
 	* main/state.c: Enabled savegame thumbnails under OpenGL
-
-2001-11-09 07:30  bradleyb
-
 	* unused/pa_null/pa_enabl.h: remove duplicate header
-
-2001-11-09 06:57  bradleyb
-
 	* misc/args.c: use d2x.ini for option file
-
-2001-11-09 06:56  bradleyb
-
 	* mem/mem.c: Move mem_realloc inside the ifdef
-
-2001-11-09 06:56  bradleyb
-
 	* main/menu.c: fix 640x400 menu text
-
-2001-11-09 06:55  bradleyb
-
 	* main/inferno.c: added documentation
-
-2001-11-09 06:54  bradleyb
-
 	* main/endlevel.c: fix warnings
-
-2001-11-09 06:53  bradleyb
-
 	* arch/ogl/gr.c: Get rid of gl spew
-
-2001-11-09 06:52  bradleyb
-
 	* arch/linux/Makefile.am: move unused ipx_udp.c to EXTRA_DIST
-
-2001-11-09 06:52  bradleyb
-
 	* acconfig.h: Define __SDL__ for mingw
 
-2001-11-08 10:37  bradleyb
+2001-11-08  Bradley Bell <btb@icculus.org>
 
 	* 2d/font.c: free OGL font data when rereading
-
-2001-11-08 10:30  bradleyb
-
 	* main/collide.c, main/endlevel.c, main/endlevel.h, main/gameseq.c,
 	main/gauges.c, acconfig.h, configure.in, main/inferno.c,
 	main/laser.c, main/menu.c, main/menu.h, main/newmenu.c,
 	main/piggy.c, main/sounds.h, main/switch.c, main/titles.c,
 	main/weapon.h: Enabled shareware build, endlevel flythrough
 	sequence
-
-2001-11-08 10:21  bradleyb
-
 	* main/: Makefile.am, terrain.c, old/terrain.c: moved file, will be
 	of use for shareware build
-
-2001-11-08 10:19  bradleyb
-
 	* arch/ogl/: gr.c, sdlgl.c: use new d_realloc function, so mem
 	manager doesn't die
-
-2001-11-08 10:17  bradleyb
-
 	* include/u_mem.h, mem/mem.c: added d_realloc/mem_realloc functions
 
-2001-11-05 07:39  bradleyb
+2001-11-05  Bradley Bell <btb@icculus.org>
 
 	* include/args.h, main/inferno.c, misc/args.c: Change args_init
 	back to InitArgs
-
-2001-11-05 07:38  bradleyb
-
 	* include/3d.h: Add comment
 
-2001-11-04 10:33  bradleyb
+2001-11-04  Bradley Bell <btb@icculus.org>
 
 	* cfile/Makefile.am, cfile/nocfile.h, include/nocfile.h: Move
 	header to includes/
-
-2001-11-04 09:02  bradleyb
-
 	* arch/ogl/sdlgl.c: Hack to keep SDL from screwing up X when it
 	crashes
-
-2001-11-04 09:01  bradleyb
-
 	* main/: gamecntl.c, inferno.c: SDL applies to more than X11...
-
-2001-11-04 09:00  bradleyb
-
 	* arch/ogl/gr.c, main/Makefile.am, main/gauges.c, main/hud.c,
 	main/hudmsg.h: Enable d1x-style hud_message
-
-2001-11-04 08:49  bradleyb
-
 	* arch/ogl/: glx.c, wgl.c: Sync with d1x
-
-2001-11-04 03:58  bradleyb
-
 	* 2d/font.c: re-init ogl fonts after remapping colors.
 
-2001-11-02 10:46  bradleyb
+2001-11-02  Bradley Bell <btb@icculus.org>
 
 	* misc/Makefile.am: remove byteswap.h (duplicate header)
-
-2001-11-02 10:46  bradleyb
-
 	* 2d/font.c: fixed gr_remap_font, minor stuff
-
-2001-11-02 02:34  bradleyb
-
 	* configure.in: take out -O2 if doing debug build
-
-2001-11-02 02:22  bradleyb
-
 	* main/bm.c: formatting
-
-2001-11-02 02:03  bradleyb
-
-	* 2d/font.c, include/gr.h, NEWS: Enable OpenGL fonts\!
-
-2001-11-02 02:01  bradleyb
-
+	* 2d/font.c, include/gr.h, NEWS: Enable OpenGL fonts!
 	* include/byteswap.h, misc/Makefile.am: fix swapint, swapshort
 	macros, get rid of functions
 
-2001-11-01 04:29  bradleyb
+2001-11-01  Bradley Bell <btb@icculus.org>
 
 	* misc/byteswap.h: removed duplicate header
 
-2001-10-31 11:16  bradleyb
+2001-10-31  Bradley Bell <btb@icculus.org>
 
 	* NEWS, main/automap.c: automap works in opengl
-
-2001-10-31 10:09  bradleyb
-
 	* NEWS, configure.in: Added news
-
-2001-10-31 09:59  bradleyb
-
 	* main/newmenu.c: Must call set_screen_mode for menus when using GL
-
-2001-10-31 09:57  bradleyb
-
 	* 2d/: bitblt.c, canvas.c, linear.h, scalea.h: Sync with d1x
-
-2001-10-31 07:41  bradleyb
-
 	* arch/sdl/event.c, arch/sdl/gr.c, arch/sdl/init.c, iff/iff.c,
 	include/3d.h, include/loadgl.h, main/inferno.c, maths/fixc.c,
 	maths/vecmat.c, maths/vecmata.asm: Sync with d1x
-
-2001-10-31 07:40  bradleyb
-
 	* Makefile.am, arch/sdl/Makefile.am: Makefile fixes
-
-2001-10-31 07:35  bradleyb
-
 	* arch/ogl/: glx.c, gr.c, ogl.c, sdlgl.c: Sync with d1x
-
-2001-10-31 03:54  bradleyb
-
 	* 3d/: clipper.c, draw.c, globvars.c, instance.c, interp.c,
 	matrix.c, points.c, rod.c, setup.c: Minor sync with d1x
 
-2001-10-27 01:39  bradleyb
+2001-10-27  Bradley Bell <btb@icculus.org>
 
 	* main/inferno.c: added some documentation
 
-2001-10-25 09:12  bradleyb
+2001-10-25  Bradley Bell <btb@icculus.org>
 
 	* main/inferno.c, texmap/ntmap.c, texmap/tmapflat.c: Completed tmap
 	selection code.
-
-2001-10-25 08:25  bradleyb
-
 	* Makefile.am, configure.in, arch/Makefile.am,
 	arch/dos/Makefile.am, arch/dos/cdrom.c, arch/dos/digi.c,
 	arch/dos/gr.c, arch/ggi/Makefile.am, arch/ggi/gr.c,
@@ -1972,65 +970,35 @@
 	arch/sdl/gr.c, arch/svgalib/Makefile.am, arch/svgalib/gr.c,
 	texmap/scanline.c: Finished moving stuff to arch/blah.	I know,
 	it's ugly, but It'll be easier to sync with d1x.
-
-2001-10-25 02:27  bradleyb
-
 	* Makefile.am, configure.in, main/Makefile.am, main/editor/med.c,
 	main/editor/medwall.h, main/editor/segment.c, main/editor/seguvs.h,
 	main/editor/Makefile.am: attempt at support for editor, makefile
 	changes, etc
-
-2001-10-25 02:24  bradleyb
-
 	* misc/d_delay.c: formatting fix
-
-2001-10-25 02:22  bradleyb
-
 	* texmap/: Makefile.am, ntmap.c, scanline.c, scanline.h, texmapl.h,
 	tmappent.S, tmapppro.S: adding support for runtime selection of
 	tmap funcs
-
-2001-10-25 02:19  bradleyb
-
 	* main/: bmread.c, game.c, gamecntl.c, gamesave.c, inferno.c,
 	inferno.h, piggy.c, render.c, editor/editor.h: conditionalize
 	including multi.h and network.h, fix backslashes, fix compiler
 	errors with EDITOR
-
-2001-10-25 02:15  bradleyb
-
 	* main/: ai.c, ai2.c, aipath.c, automap.c, bm.c, cntrlcen.c,
 	collide.c, controls.c, credits.c, dumpmine.c, endlevel.c, escort.c,
 	fireball.c, fuelcen.c, gamemine.c, gameseq.c, gauges.c, laser.c,
 	menu.c, multi.h, netmisc.c, network.h, newdemo.c, newmenu.c,
 	object.c, powerup.c, state.c, switch.c, wall.c: conditionalize
 	including multi.h and network.h, fix backslashes
-
-2001-10-25 02:07  bradleyb
-
 	* include/pstypes.h: added typedef for u_int64_t on mingw
-
-2001-10-25 02:06  bradleyb
-
 	* include/3d.h: added prototype for g3_uninit_polygon_model
-
-2001-10-25 02:06  bradleyb
-
 	* arch/sdl/Makefile.am: Don't use SDL joystick except on mingw
 
-2001-10-24 09:34  bradleyb
+2001-10-24  Bradley Bell <btb@icculus.org>
 
 	* arch/: ggi/Makefile.am, svgalib/Makefile.am: Moved input stuff to
 	arch subdirs, as in d1x.
-
-2001-10-24 09:30  bradleyb
-
 	* Makefile.am, configure.in, main/kconfig.c: Revert bin_programs to
 	earlier style until i understand automake 1.5 better.  remove input
 	from SUBDIRS
-
-2001-10-24 09:25  bradleyb
-
 	* arch/: Makefile.am, dos/Makefile.am, dos/joy2.asm, dos/joyc.c,
 	dos/joydefs.c, dos/key.c, dos/mouse.c, ggi/event.c, ggi/init.c,
 	ggi/key.c, ggi/mouse.c, linux/Makefile.am, linux/joydefs.c,
@@ -2038,108 +1006,53 @@
 	sdl/event.c, sdl/joy.c, sdl/joydefs.c, sdl/key.c, sdl/mouse.c,
 	svgalib/event.c, svgalib/init.c, svgalib/key.c, svgalib/mouse.c:
 	Moved input stuff to arch subdirs, as in d1x.
-
-2001-10-24 07:08  bradleyb
-
 	* NEWS, configure.in: blah blah
 
-2001-10-23 23:09  bradleyb
+2001-10-23  Bradley Bell <btb@icculus.org>
 
 	* include/ui.h, unused/ui/ui.h: Moved ui.h to includes/
-
-2001-10-23 23:07  bradleyb
-
 	* texmap/tmapppro.S: no need for #include <conf.h> here
-
-2001-10-23 22:04  bradleyb
-
 	* main/Makefile.am: Build fixes. EDITOR_SRCS added to
 	libmain_a_SOURCES.
-
-2001-10-23 22:03  bradleyb
-
 	* main/: Makefile.am, network.c: No longer #ifdef'ing out the whole
 	file.  RCS header added
-
-2001-10-23 21:53  bradleyb
-
 	* main/: bmread.c, kmatrix.c, multi.c, multibot.c: No longer
 	#ifdef'ing out the whole file.	RCS header added
-
-2001-10-23 21:51  bradleyb
-
 	* Makefile.am, acconfig.h, configure.in, arch/dos/Makefile.am,
 	main/Makefile.am, maths/Makefile.am, texmap/Makefile.am: Build
 	fixes. Now works with automake 1.5 and autoconf 2.52.
 	--enable-editor option added. SDL_VIDEO and SDL_INPUT defined for
 	mingw (-grabmouse now works on win32).
-
-2001-10-23 21:43  bradleyb
-
 	* config.guess, config.sub, install-sh, missing, mkinstalldirs:
 	These don't belong in cvs
 
-2001-10-20 11:23  bradleyb
+0.1.1:
+
+2001-10-20  Bradley Bell <btb@icculus.org>
 
 	* 2d/font.c: Don't free unused variables...
-
-2001-10-20 11:02  bradleyb
-
 	* 2d/font.c, include/gr.h: Bringing font stuff more in line with
 	d1x
-
-2001-10-20 03:11  bradleyb
-
 	* Makefile.am, arch/Makefile.am, arch/dos/Makefile.am,
 	arch/linux/Makefile.am, arch/win32/Makefile.am, iff/Makefile.am,
 	main/Makefile.am: make dist more sensible
-
-2001-10-20 00:26  bradleyb
-
 	* Makefile.am: Kludge for linking on mingw
 
-2001-10-19 10:52  bradleyb
+2001-10-19  Bradley Bell <btb@icculus.org>
 
 	* Makefile.am, configure.in, arch/win32/Makefile.am,
 	arch/win32/ipx_win.c, arch/win32/winnet.c: Little fixes
-
-2001-10-19 10:50  bradleyb
-
 	* include/ipx_drv.h: Check for __MINGW32__
-
-2001-10-19 10:48  bradleyb
-
 	* include/i86.h: Imported from d1x
-
-2001-10-19 10:46  bradleyb
-
 	* arch/dos/: Makefile.am, ipx.c: Re-import of d1x files
-
-2001-10-19 10:08  bradleyb
-
 	* arch/dos/modex.asm: Fixed %include
-
-2001-10-19 09:47  bradleyb
-
 	* main/console.c: RCS headers added
-
-2001-10-19 09:45  bradleyb
-
 	* arch/sdl/: Makefile.am, init.c, timer.c: Moved arch/sdl_* to
 	arch/sdl
-
-2001-10-19 09:37  bradleyb
-
 	* Makefile.am, main/Makefile.am: Moved final link to top-level
 	directory instead of main/
-
-2001-10-19 09:34  bradleyb
-
 	* 2d/linear.asm, maths/fix.asm, maths/vecmata.asm: Changed
 	__ENV_LINUX__ to __linux__
-
-2001-10-19 09:01  bradleyb
-
 	* configure.in, arch/Makefile.am, arch/dos_dpmi.c,
 	arch/dos_findfile.c, arch/dos_init.c, arch/dos_ipx.c,
 	arch/dos_modex.asm, arch/dos_timer.asm, arch/dos_tweak.inc,
@@ -2151,39 +1064,26 @@
 	arch/linux/Makefile.am, arch/linux/init.c, arch/win32/Makefile.am,
 	arch/win32/mingw_init.c, main/Makefile.am: Moved arch/sdl_* to
 	arch/sdl
-
-2001-10-19 08:10  bradleyb
-
 	* configure.in: add --enable-xploader, support arch/linux subdir,
 	fix NASMFLAGS.
-
-2001-10-19 08:08  bradleyb
-
 	* main/inferno.c: conditionalize conf.h
 
-2001-10-19 08:06  bradleyb
+2001-10-19  Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
 
 	* acconfig.h, 2d/bitmap.h, 3d/interp.c, cfile/cfile.c,
 	include/cfile.h, main/bm.c, mem/mem.c, misc/fileutil.c,
-	misc/fileutil.h: Partial application of linux/alpha patch. 
-	Courtesy of Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+	misc/fileutil.h: Partial application of linux/alpha patch.
 
-2001-10-19 07:45  bradleyb
+2001-10-19  Bradley Bell <btb@icculus.org>
 
 	* main/Makefile.am, arch/linux/Makefile.am: Brought linux
 	networking in line with d1x, moved some arch/linux_* stuff to
 	arch/linux/
-
-2001-10-19 07:39  bradleyb
-
 	* arch/linux/: findfile.c, ipx_bsd.c, ipx_kali.c, ipx_lin.c,
 	linuxnet.c, ukali.c, include/ipx_bsd.h, include/ipx_hlpr.h,
 	include/ipx_kali.h, include/ipx_ld.h, include/ipx_lin.h,
 	include/ipx_udp.h, include/ukali.h: remove pesky * from RCS log
 	entry
-
-2001-10-19 07:29  bradleyb
-
 	* arch/: Makefile.am, linux_findfile.c, linux_ipx_bsd.c,
 	linux_ipx_lin.c, linux_ipx_udp.c, linux_net.c, linux/findfile.c,
 	linux/ipx_bsd.c, linux/ipx_kali.c, linux/ipx_lin.c,
@@ -2193,77 +1093,44 @@
 	linux/include/ipx_lin.h, linux/include/ipx_udp.h,
 	linux/include/ukali.h: Brought linux networking in line with d1x,
 	moved some arch/linux_* stuff to arch/linux/*
-
-2001-10-19 04:24  bradleyb
-
 	* include/ipx_drv.h: Imported from d1x
-
-2001-10-19 04:10  bradleyb
-
 	* main/ipx_drv.c: RCS info added, conf.h added, etc...
-
-2001-10-19 04:08  bradleyb
-
 	* main/ipx_drv.c: Imported from d1x
-
-2001-10-19 00:31  bradleyb
-
 	* include/args.h, include/ipx.h, main/inferno.c, main/network.c,
 	main/network.h, main/Makefile.am: Trying to get network working on
 	win32
-
-2001-10-19 00:30  bradleyb
-
 	* configure.in, 2d/Makefile.am, arch/win32/Makefile.am,
 	main/Makefile.am: build fixes
-
-2001-10-19 00:23  bradleyb
-
 	* arch/: win32/Makefile.am, win32/findfile.c, win32/ipx_drv.h,
 	win32/ipx_win.c, win32/winnet.c, Makefile.am, win32_findfile.c,
 	linux/include/ipx_drv.h: Moved win32_* to win32/* (a la d1x),
 	starting to get net working.
-
-2001-10-19 00:00  bradleyb
-
 	* include/pstypes.h: Changed __ENV_LINUX__ to __linux__,
 	conditionalized min,max macros
 
-2001-10-18 23:59  bradleyb
+2001-10-18  Bradley Bell <btb@icculus.org>
 
 	* acconfig.h, 2d/linear.h, arch/include/joy.h, include/loadgl.h,
 	include/strutil.h, include/vecmat.h, main/kconfig.c, misc/d_glob.c,
 	texmap/tmap_inc.asm, texmap/tmap_per.asm, texmap/tmappent.S,
 	texmap/tmapppro.S, main/console.c: Changed __ENV_LINUX__ to
 	__linux__
-
-2001-10-18 22:45  bradleyb
-
 	* 2d/2dsline.c: RCS headers added/changed
-
-2001-10-18 00:10  bradleyb
-
 	* configure.in: fix NASMFLAGS bug
-
-2001-10-18 00:01  bradleyb
-
 	* main/: collide.c, inferno.c, object.c, render.c: RCS headers
 	added/changed
 
-2001-10-17 23:59  bradleyb
+2001-10-17  Bradley Bell <btb@icculus.org>
 
 	* NEWS: Fixed the invulnerable robots bug!
-
-2001-10-17 23:43  bradleyb
-
 	* main/collide.c: Fixed the invulnerable robots bug!
 
-2001-10-14 19:49  bradleyb
+2001-10-14  Bradley Bell <btb@icculus.org>
 
 	* Makefile.am, arch/Makefile.am, iff/Makefile.am, main/Makefile.am:
 	Minor dist fix
 
-2001-10-13 05:46  bradleyb
+2001-10-13  Bradley Bell <btb@icculus.org>
 
 	* Makefile.am, autogen.sh, configure.in, 2d/Makefile.am,
 	arch/Makefile.am, arch/dos/Makefile.am,
@@ -2283,144 +1150,85 @@
 	unused/ui/Makefile.am, unused/vga/Makefile.am,
 	unused/vga/new/Makefile.am, unused/win95/Makefile.am: Removed
 	automake stuff from "inert" subdirs.  And there was much rejoicing.
-
-2001-10-13 03:02  bradleyb
-
 	* Makefile.am, NEWS, configure.in: Stuff
-
-2001-10-13 02:59  bradleyb
-
 	* ChangeLog: removing auto-generated file
-
-2001-10-13 02:37  bradleyb
-
 	* cygconf: Added instructions for mingw32 build
-
-2001-10-13 02:37  bradleyb
-
 	* Makefile.am: renamed INSTALL to installation.txt
-
-2001-10-13 02:33  bradleyb
-
 	* installation.txt, INSTALL: renamed INSTALL to installation.txt
-
-2001-10-13 02:29  bradleyb
-
 	* mingw32.txt: Added instructions for mingw32 build
-
-2001-10-13 01:31  bradleyb
-
 	* configure.in: Enable assembly under mingw32
 
-2001-10-12 10:21  bradleyb
+2001-10-12  Bradley Bell <btb@icculus.org>
 
-	* acconfig.h: Changed __ENV_DJGPP__ to __DJGPP__, since it's
-	built-in.
+	* acconfig.h, aclocal.m4, conf.h.in: remove superfluous files
+	* acconfig.h, aclocal.m4, conf.h.in, configure.in, 2d/2dsline.c,
+	2d/bitblt.c, 2d/box.c, 2d/canvas.c, 2d/gpixel.c, 2d/line.c,
+	2d/pixel.c, include/pstypes.h, include/strutil.h, include/timer.h,
+	main/digi.h, main/kludge.c, main/object.c, main/render.c,
+	misc/d_glob.c, misc/d_io.c, misc/strutil.c: Changed __ENV_DJGPP__
+	to __DJGPP__, since it's built-in.
 
-2001-10-12 10:20  bradleyb
-
-	* acconfig.h: remove superfluous files
-
-2001-10-12 10:17  bradleyb
-
-	* aclocal.m4, conf.h.in: remove superfluous files
-
-2001-10-12 10:03  bradleyb
-
-	* aclocal.m4, conf.h.in, configure.in, 2d/2dsline.c, 2d/bitblt.c,
-	2d/box.c, 2d/canvas.c, 2d/gpixel.c, 2d/line.c, 2d/pixel.c,
-	include/pstypes.h, include/strutil.h, include/timer.h, main/digi.h,
-	main/kludge.c, main/object.c, main/render.c, misc/d_glob.c,
-	misc/d_io.c, misc/strutil.c: Changed __ENV_DJGPP__ to __DJGPP__,
-	since it's built-in.
-
-2001-10-12 06:40  bradleyb
+2001-10-12  Paolo Ulivi <paoloulivi@tin.it>
 
 	* aclocal.m4, conf.h.in, include/vecmat.h, main/collide.c,
-	main/kludge.c, main/piggy.h: fix some gcc 3.0 warnings, courtesy of
-	paoloulivi@tin.it
+	main/kludge.c, main/piggy.h: fix some gcc 3.0 warnings.
 
-2001-10-12 03:06  bradleyb
+0.1.0:
+
+2001-10-12  Bradley Bell <btb@icculus.org>
 
 	* Makefile.am, unused/win95/Makefile.am: Fix some dist stuff
-
-2001-10-12 02:28  bradleyb
-
 	* Makefile.am: make sure cygconf gets archived
-
-2001-10-12 02:25  bradleyb
-
 	* configure.in: Increment version number in preparation for release
-
-2001-10-12 01:50  bradleyb
-
 	* configure.in: Fix detection of opengl
-
-2001-10-12 00:18  bradleyb
-
 	* Makefile.am, aclocal.m4, autogen.sh, conf.h.in, configure.in,
 	cygconf, arch/Makefile.am, arch/include/joy.h,
 	arch/include/mouse.h, include/loadgl.h, include/pstypes.h,
 	include/strutil.h, main/Makefile.am, main/config.c, main/console.c,
 	main/gamepal.h, main/gamerend.c, main/inferno.c, main/kconfig.c,
 	main/multi.c, main/newdemo.c, misc/d_delay.c, misc/d_glob.c,
-	misc/strutil.c: Switched from Cygwin to mingw32 on MS boxes. 
+	misc/strutil.c: Switched from Cygwin to mingw32 on MS boxes.
 	Vastly improved compilability.
 
-2001-10-11 22:12  bradleyb
+2001-10-11  Bradley Bell <btb@icculus.org>
 
 	* Makefile.am: Added macros/sdl.m4
-
-2001-10-11 19:06  bradleyb
-
 	* autogen.sh: Added macros/sdl.m4
 
-2001-10-09 08:12  bradleyb
+2001-10-09  Bradley Bell <btb@icculus.org>
 
 	* main/vers_id.h: Added DESCENT_VERSION constant
-
-2001-10-09 08:07  bradleyb
-
 	* main/inferno.c: Added command-line help.
-
-2001-10-09 03:00  bradleyb
-
 	* include/ogl_init.h: opengl improvments (following d1x changes)
 
-2001-10-07 22:19  bradleyb
+2001-10-07  Bradley Bell <btb@icculus.org>
 
 	* aclocal.m4, conf.h.in, configure.in, arch/Makefile.am,
 	arch/ogl/Makefile.am: Remove duplicate headers.
 
-2001-08-02 22:02  thimo
+2001-08-02  Thimo Neubauer <thimo@debian.org>
 
 	* mem/mem.c: totally crippled the memory manager because it does
 	not make sense for non-DOS-systems and it would have been too
 	complicated to get it 64bit clean
 
-2001-06-19 19:50  bradleyb
+2001-06-19  Bradley Bell <btb@icculus.org>
 
 	* cvshowto.txt: updated anonymous password
 
-2001-02-08 02:50  bradleyb
+2001-02-08  Bradley Bell <btb@icculus.org>
 
 	* COPYING, license.txt: Added d1x license
 
-2001-02-01 09:24  bradleyb
+2001-02-01  Bradley Bell <btb@icculus.org>
 
 	* aclocal.m4, configure.in: Better detecting of SDL and GL/GLU
 
-2001-01-31 16:31  bradleyb
+2001-01-31  Bradley Bell <btb@icculus.org>
 
 	* configure.in, arch/include/mouse.h, include/pstypes.h,
 	main/game.c, main/gamepal.h: OpenGL support under Cygwin/SDL
-
-2001-01-31 15:34  bradleyb
-
 	* main/polyobj.c: fix typo
-
-2001-01-31 15:17  bradleyb
-
 	* 2d/Makefile.am, 2d/bitblt.c, 2d/bitmap.c, 2d/box.c, 2d/canvas.c,
 	2d/circle.c, 2d/disc.c, 2d/font.c, 2d/gpixel.c, 2d/ibitblt.c,
 	2d/line.c, 2d/palette.c, 2d/pcx.c, 2d/pixel.c, 2d/poly.c,
@@ -2448,42 +1256,27 @@
 	misc/hash.c, misc/strio.c, misc/strutil.c, texmap/Makefile.am,
 	texmap/ntmap.c, texmap/scanline.c, texmap/tmapflat.c: Makefile and
 	conf.h fixes
-
-2001-01-31 14:04  bradleyb
-
 	* arch/dos_findfile.c, arch/dos_modex.asm, include/console.h,
 	include/modex.h, main/collide.c, main/gamesave.c, main/gameseq.c,
 	main/gauges.c, main/object.c, main/playsave.c, main/render.c,
 	main/state.c, mem/mem.c, texmap/ntmap.c, texmap/tmapflat.c: Fix
 	compiler warnings
-
-2001-01-31 13:59  bradleyb
-
 	* include/gr.h, main/menu.c: Fullscreen toggle added to screen res
 	menu
-
-2001-01-31 13:56  bradleyb
-
 	* configure.in, include/pstypes.h, main/kconfig.c: Support for
 	cross-compiling, and cygwin fixes
 
-2001-01-30 04:45  bradleyb
+2001-01-30  Bradley Bell <btb@icculus.org>
 
 	* configure.in, arch/Makefile.am, arch/win32_findfile.c,
 	include/pstypes.h, include/strutil.h, main/Makefile.am,
 	misc/strutil.c, unused/win95/findfile.c: Cygwin support, using SDL.
 	   needs --without-assembler and --without-network to compile
 
-2001-01-29 14:09  bradleyb
+2001-01-29  Bradley Bell <btb@icculus.org>
 
 	* configure.in, main/Makefile.am: Fixes to build system
-
-2001-01-29 14:08  bradleyb
-
 	* main/kconfig.c: fix for non-linux joysticks
-
-2001-01-29 13:36  bradleyb
-
 	* arch/: dos/Makefile.am, dos/cdrom.c, dos/digi.c, dos/dosgr.c,
 	dos/dpmi.c, dos/findfile.c, dos/init.c, dos/ipx.c, dos/joy2.asm,
 	dos/joyc.c, dos/joydefs.c, dos/key.c, dos/modex.asm, dos/mouse.c,
@@ -2492,74 +1285,43 @@
 	linux/ipx_bsd.c, linux/ipx_lin.c, linux/ipx_udp.c,
 	linux/linuxnet.c, sdl/Makefile.am, sdl/init.c, sdl/timer.c: Removed
 	duplicate files
-
-2001-01-29 13:35  bradleyb
-
 	* arch/: Makefile.am, dos_dpmi.c, dos_findfile.c, dos_init.c,
 	dos_ipx.c, dos_modex.asm, dos_timer.asm, dos_tweak.inc, dos_vesa.c,
 	dos_vgaregs.inc, linux_findfile.c, linux_init.c, linux_ipx_bsd.c,
 	linux_ipx_lin.c, linux_ipx_udp.c, linux_net.c, sdl_init.c,
 	sdl_timer.c: Fixed build system, minor fixes
-
-2001-01-29 13:28  bradleyb
-
 	* arch/dos/include/: joy.h, key.h, mouse.h: Unified input headers.
-
-2001-01-28 16:39  bradleyb
-
 	* arch/linux/Makefile.am, configure.in: Duplicate file removal.
 
-2001-01-28 16:21  bradleyb
+2001-01-28  Bradley Bell <btb@icculus.org>
 
 	* conf.h.in, configure.in, arch/Makefile.am,
 	arch/dos/include/Makefile.am, arch/include/Makefile.am,
 	arch/include/key.h, main/Makefile.am: More header unification...
-
-2001-01-28 16:21  bradleyb
-
 	* main/newdemo.c: Added <ctype.h>
-
-2001-01-28 16:10  bradleyb
-
 	* arch/include/: event.h, joy.h: unified input headers.
-
-2001-01-28 05:53  bradleyb
-
 	* acconfig.h, include/d_delay.h, main/Makefile.am, main/game.c:
 	OpenGL now uses SDL-GL instead of gii
-
-2001-01-28 05:46  bradleyb
-
 	* arch/include/: key.h, mouse.h: Unified arch headers
 
-2001-01-25 13:41  bradleyb
+2001-01-25  Bradley Bell <btb@icculus.org>
 
 	* autogen.sh: use "set -e" so execution stops if something goes
 	wrong.
 
-2001-01-24 12:51  bradleyb
+2001-01-24  Bradley Bell <btb@icculus.org>
 
 	* Makefile.am: typo
-
-2001-01-24 12:47  bradleyb
-
 	* Makefile.am: Add ChangeLog to dist
-
-2001-01-24 11:43  bradleyb
-
 	* ChangeLog: Putting this here so automake doesn't complain
 
-2001-01-24 11:21  bradleyb
+0.0.9:
+
+2001-01-24  Bradley Bell <btb@icculus.org>
 
 	* INSTALL, NEWS, README, cvshowto.txt: updated documentation
-
-2001-01-24 11:20  bradleyb
-
 	* tools/: Makefile.am, cvs2cl/Makefile.am, cvs2cl/cvs2cl.pl: cvs2cl
 	for building ChangeLog from RCS entries
-
-2001-01-24 11:11  bradleyb
-
 	* Makefile.am, acconfig.h, autogen.sh, conf.h.in, configure.in,
 	arch/dos/allg_snd/Makefile.am, arch/dos/allg_snd/sound/Makefile.am,
 	arch/dos/allg_snd/sound/drv/Makefile.am, arch/dos/bak/Makefile.am,
@@ -2579,44 +1341,19 @@
 	unused/win95/Makefile.am, main/Makefile.am, maths/Makefile.am,
 	misc/Makefile.am, texmap/Makefile.am: improved automake config. 
 	make dist, VPATH builds, ...
-
-2001-01-24 11:05  bradleyb
-
-	* configure, Makefile.in, stamp-h.in, 2d/Makefile.in,
-	3d/Makefile.in, arch/Makefile.in, arch/dos/Makefile.in,
-	arch/linux/Makefile.in, arch/sdl/Makefile.in, cfile/Makefile.in,
-	iff/Makefile.in, main/Makefile.in, maths/Makefile.in,
-	mem/Makefile.in, misc/Makefile.in, texmap/Makefile.in: cruft
-	removal
-
-2001-01-24 10:48  bradleyb
-
+	* configure, Makefile.in, libtool, ltconfig, ltmain.sh,
+	stamp-h.in, 2d/Makefile.in, 3d/Makefile.in, arch/Makefile.in,
+	arch/dos/Makefile.in, arch/linux/Makefile.in,
+	arch/sdl/Makefile.in, cfile/Makefile.in, iff/Makefile.in,
+	main/Makefile.in, maths/Makefile.in, mem/Makefile.in,
+	misc/Makefile.in, texmap/Makefile.in: cruft removal
 	* 2d/diff, arch/dos/sgrep.out, arch/linux/stHqFIq1, main/test.txt:
 	junk removal
-
-2001-01-24 10:47  bradleyb
-
-	* libtool, ltconfig, ltmain.sh: cruft removal
-
-2001-01-24 05:43  bradleyb
-
 	* ChangeLog, NEWS: moved old ChangeLog to NEWS
-
-2001-01-24 05:35  bradleyb
-
 	* configure.in, conf.h.in: moved NDEBUG to conf.h.in
-
-2001-01-24 04:42  bradleyb
-
 	* main/: game.c, kconfig.c, text.c: changed args_find to FindArg
-
-2001-01-24 04:38  bradleyb
-
 	* main/: gamecntl.c, inferno.c: changed args_find to FindArg, added
 	-grabmouse option
-
-2001-01-24 04:29  bradleyb
-
 	* arch/dos_init.c, arch/linux_init.c, arch/linux_ipx_udp.c,
 	arch/linux_net.c, arch/sdl_init.c, arch/dos/init.c,
 	arch/dos/joyc.c, arch/linux/init.c, arch/linux/ipx_udp.c,
@@ -2625,76 +1362,36 @@
 	main/network.c, main/piggy.c, main/polyobj.c, main/slew.c,
 	main/songs.c, misc/args.c: changed args_find to FindArg
 
-2001-01-22 15:50  bradleyb
+2001-01-22  Bradley Bell <btb@icculus.org>
 
 	* configure, main/Makefile.am, main/Makefile.in: configuration
 	fixes
-
-2001-01-22 15:49  bradleyb
-
 	* include/error.h, include/mono.h, main/game.c, main/gamerend.c:
 	fix compiler warnings w/opengl
-
-2001-01-22 15:45  bradleyb
-
 	* include/console.h: ggi support
-
-2001-01-22 14:58  bradleyb
-
 	* arch/linux_init.c: svgalib support
-
-2001-01-22 13:39  bradleyb
-
 	* Makefile.in, conf.h.in, configure, configure.in, 2d/Makefile.am,
 	2d/Makefile.in, 3d/Makefile.in, arch/Makefile.am, arch/Makefile.in,
 	arch/svgalib_init.c, cfile/Makefile.in, iff/Makefile.in,
 	main/Makefile.am, main/Makefile.in, maths/Makefile.am,
 	maths/Makefile.in, mem/Makefile.in, misc/Makefile.in,
 	texmap/Makefile.am, texmap/Makefile.in: configuration fixes
-
-2001-01-22 13:37  bradleyb
-
 	* iff/iff.c, include/u_mem.h: NDEBUG fixes
-
-2001-01-22 13:22  bradleyb
-
 	* main/: ai.h, inferno.c, lighting.c, object.c, render.c: fix
 	warnings and enable NDEBUG
-
-2001-01-22 12:54  bradleyb
-
-	* ChangeLog: joystick support
-
-2001-01-22 12:51  bradleyb
-
+	* ChangeLog, main/kconfig.c: joystick support
 	* arch/svgalib_init.c: svgalib support
 
-2001-01-22 12:27  bradleyb
-
-	* main/kconfig.c: joystick support
-
-2001-01-21 14:59  bradleyb
+2001-01-21  Bradley Bell <btb@icculus.org>
 
 	* cvshowto.txt: new file, taken from d1x webpage
-
-2001-01-21 14:58  bradleyb
-
 	* AUTHORS, README: Taking over as maintainer of d2x
-
-2001-01-21 14:57  bradleyb
-
 	* ChangeLog: Grab mouse with SDL/X11
-
-2001-01-21 14:49  bradleyb
-
 	* main/: gamecntl.c, inferno.c: Grab mouse with SDL/X11
 
-2001-01-20 13:56  bradleyb
+2001-01-20  Bradley Bell <btb@icculus.org>
 
 	* configure, configure.in: Turned -Werror back off by default
-
-2001-01-20 13:49  bradleyb
-
 	* README, configure, configure.in, 2d/font.c, arch/sdl_init.c,
 	iff/iff.c, include/3d.h, include/d_io.h, main/Makefile.am,
 	main/Makefile.in, main/bm.c, main/collide.c, main/credits.c,
@@ -2707,14 +1404,8 @@
 	main/switch.c, main/titles.c, main/wall.c: Got rid of all compiler
 	warnings, for non-OpenGL on linux, anyway...
 
-2001-01-19 04:21  bradleyb
+2001-01-19  Bradley Bell <btb@icculus.org>
 
 	* copying: remove duplicate file
-
-2001-01-19 03:33  bradleyb
-
 	*  Import of d2x-0.0.9-pre1
-
-2001-01-19 03:29  bradleyb
-
 	*  Import of d2x-0.0.8
