@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.6 2002-10-10 18:55:32 btb Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.7 2003-03-01 01:51:15 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -277,7 +277,7 @@ void render_countdown_gauge()
 
 		#if !defined(D2_OEM) && !defined(SHAREWARE)		// no countdown on registered only
 		//	On last level, we don't want a countdown.
-		if ((Current_mission_num == 0) && (Current_level_num == Last_level))
+		if ((Current_mission_num == Builtin_mission_num) && (Current_level_num == Last_level))
 	    {		
 	     if (!(Game_mode & GM_MULTI))
 		   return;

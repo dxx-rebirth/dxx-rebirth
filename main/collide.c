@@ -1,4 +1,4 @@
-/* $Id: collide.c,v 1.10 2003-01-02 23:13:21 btb Exp $ */
+/* $Id: collide.c,v 1.11 2003-03-01 01:51:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1764,9 +1764,9 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
 	//	Also invulnerable if his cheat for firing weapons is in effect.
 	if (Robot_info[robot->id].companion) {
-//		if ((Current_mission_num == 0 && Current_level_num == Last_level) || Buddy_dude_cheat)
+//		if ((Current_mission_num == Builtin_mission_num && Current_level_num == Last_level) || Buddy_dude_cheat)
 #ifdef NETWORK
-		if ((Current_mission_num == 0 && Current_level_num == Last_level) )
+		if ((Current_mission_num == Builtin_mission_num && Current_level_num == Last_level) )
 			return 0;
 #endif
 	}
@@ -1782,7 +1782,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	//	Do unspeakable hacks to make sure player doesn't die after killing boss.  Or before, sort of.
 	if (Robot_info[robot->id].boss_flag)
 #ifdef NETWORK
-		if ((Current_mission_num == 0) && Current_level_num == Last_level)
+		if ((Current_mission_num == Builtin_mission_num) && Current_level_num == Last_level)
 #endif
 			if (robot->shields < 0)
 			 {

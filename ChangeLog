@@ -1,5 +1,9 @@
 2003-02-28  Bradley Bell  <btb@icculus.org>
 
+	* main/automap.c, main/cntrlcen.c, main/collide.c,
+	main/gamerend.c: use Builtin_mission_num instead of 0 (if
+	descent.hog is present, d1 becomes mission 0)
+
 	* configure.ac, arch/win32/Makefile.am, arch/win32/ipx_drv.h,
 	arch/win32/ipx_win.c, arch/win32/mingw_init.c,
 	arch/win32/winnet.c: MinGW compiles with network enabled again,
