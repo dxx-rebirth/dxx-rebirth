@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.11 $
+ * $Revision: 1.12 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 09:12:16 $
+ * $Date: 2001-10-27 01:39:23 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.11  2001/10/25 09:12:16  bradleyb
+ * Completed tmap selection code.
+ *
  * Revision 1.10  2001/10/25 02:19:31  bradleyb
  * conditionalize including multi.h and network.h, fix backslashes, fix compiler errors with EDITOR
  *
@@ -218,8 +221,10 @@ void print_commandline_help()
         printf( "  -shortpackets   %s\n", "Set shortpackets to default as on");
         printf( "  -notitles       %s\n", "Do not show titlescreens on startup");
         printf( "  -ini <file>     %s\n", "option file (alternate to command line)");
-        printf( "  -autodemo       %s\n","FIXME: Undocumented");
-        printf( "  -autoload       %s\n","FIXME: Undocumented");
+        printf( "  -autodemo       %s\n", "Start in demo mode");
+#ifdef EDITOR
+        printf( "  -autoload <file>%s\n", "Autoload a level in the editor");
+#endif
         printf( "  -bigpig         %s\n","FIXME: Undocumented");
         printf( "  -bspgen         %s\n","FIXME: Undocumented");
         printf( "  -cdproxy        %s\n","FIXME: Undocumented");
@@ -319,7 +324,7 @@ void print_commandline_help()
         printf( "  -serialdevice <s> %s\n", "Set serial/modem device to <s>");
         printf( "  -serialread <r> %s\n", "Set serial/modem to read from <r>");
 #endif
-	printf( "Help:\n");
+	printf( "\n Help:\n\n");
         printf( "  -help, -?, ?    %s\n", "View this help screen");
         printf( "\n");
 }
@@ -499,6 +504,9 @@ int main(int argc,char **argv)
 	if (FindArg( "-?" ) || FindArg( "-help" ) || FindArg( "?" ) ) {
 		print_commandline_help();
 		set_exit_message("");
+#ifdef __MINGW32__
+		exit(0);  /* mingw hangs on this return.  dunno why */
+#endif
 		return(0);
 	}
 
