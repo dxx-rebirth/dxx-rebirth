@@ -1,4 +1,4 @@
-/* $Id: multi.h,v 1.6 2002-08-30 08:02:25 btb Exp $ */
+/* $Id: multi.h,v 1.7 2002-08-31 05:27:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -320,7 +320,7 @@ typedef struct netgame_info {
 // doing so will mean I don't have to do screwy things to
 // send this as network information
 
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	short DoMegas:1;
 	short DoSmarts:1;
 	short DoFusions:1;
@@ -405,7 +405,7 @@ typedef struct netgame_info {
 	short   PacketsPerSec;
 	ubyte   ShortPackets;
 
-} netgame_info;
+} __pack__ netgame_info;
 
 extern struct netgame_info Netgame;
 extern struct AllNetPlayers_info NetPlayers;
