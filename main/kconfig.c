@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: kconfig.c,v 1.15 2002-09-19 05:43:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,8 +16,337 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
+/*
+ *
+ * Routines to configure keyboard, joystick, etc..
+ *
+ * Old Log:
+ * Revision 1.18  1995/10/29  20:14:10  allender
+ * don't read mouse 30x/sec.  Still causes problems -- left with
+ * exposure at > 60 frame/s
+ *
+ * Revision 1.17  1995/10/27  14:16:35  allender
+ * don't set lastreadtime when doing mouse stuff if we didn't
+ * read mouse this frame
+ *
+ * Revision 1.16  1995/10/24  18:10:22  allender
+ * get mouse stuff working right this time?
+ *
+ * Revision 1.15  1995/10/23  14:50:50  allender
+ * corrected values for control type in kc_set_controls
+ *
+ * Revision 1.14  1995/10/21  16:36:54  allender
+ * fix up mouse read time
+ *
+ * Revision 1.13  1995/10/20  00:46:53  allender
+ * fix up mouse reading problem
+ *
+ * Revision 1.12  1995/10/19  13:36:38  allender
+ * mouse support in kconfig screens
+ *
+ * Revision 1.11  1995/10/18  21:06:06  allender
+ * removed Int3 in cruise stuff -- was in there for debugging and
+ * now not needed
+ *
+ * Revision 1.10  1995/10/17  13:12:47  allender
+ * fixed config menus so buttons don't get configured
+ *
+ * Revision 1.9  1995/10/15  23:07:55  allender
+ * added return key as second button for primary fire
+ *
+ * Revision 1.8  1995/09/05  08:49:47  allender
+ * change 'PADRTN' label to 'ENTER'
+ *
+ * Revision 1.7  1995/09/01  15:38:22  allender
+ * took out cap of reading controls max 25 times/sec
+ *
+ * Revision 1.6  1995/09/01  13:33:59  allender
+ * erase all old text
+ *
+ * Revision 1.5  1995/08/18  10:20:55  allender
+ * keep controls reading to 25 times/s max so fast
+ * frame rates don't mess up control reading
+ *
+ * Revision 1.4  1995/07/28  15:43:13  allender
+ * make mousebutton control primary fire
+ *
+ * Revision 1.3  1995/07/26  17:04:32  allender
+ * new defaults and make joystick main button work correctly
+ *
+ * Revision 1.2  1995/07/17  08:51:03  allender
+ * fixed up configuration menus to look right
+ *
+ * Revision 1.1  1995/05/16  15:26:56  allender
+ * Initial revision
+ *
+ * Revision 2.11  1995/08/23  16:08:04  john
+ * Added version 2 of external controls that passes the ship
+ * position and orientation the drivers.
+ *
+ * Revision 2.10  1995/07/07  16:48:01  john
+ * Fixed bug with new interface.
+ *
+ * Revision 2.9  1995/07/03  15:02:32  john
+ * Added new version of external controls for Cybermouse absolute position.
+ *
+ * Revision 2.8  1995/06/30  12:30:28  john
+ * Added -Xname command line.
+ *
+ * Revision 2.7  1995/03/30  16:36:56  mike
+ * text localization.
+ *
+ * Revision 2.6  1995/03/21  14:39:31  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.5  1995/03/16  10:53:07  john
+ * Move VFX center to Shift+Z instead of Enter because
+ * it conflicted with toggling HUD on/off.
+ *
+ * Revision 2.4  1995/03/10  13:47:24  john
+ * Added head tracking sensitivity.
+ *
+ * Revision 2.3  1995/03/09  18:07:06  john
+ * Fixed bug with iglasses tracking not "centering" right.
+ * Made VFX have bright headlight lighting.
+ *
+ * Revision 2.2  1995/03/08  15:32:39  john
+ * Made VictorMaxx head tracking use Greenleaf code.
+ *
+ * Revision 2.1  1995/03/06  15:23:31  john
+ * New screen techniques.
+ *
+ * Revision 2.0  1995/02/27  11:29:26  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.105  1995/02/22  14:11:58  allender
+ * remove anonymous unions from object structure
+ *
+ * Revision 1.104  1995/02/13  12:01:56  john
+ * Fixed bug with buggin not mmaking player faster.
+ *
+ * Revision 1.103  1995/02/09  22:00:46  john
+ * Added i-glasses tracking.
+ *
+ * Revision 1.102  1995/01/24  21:25:47  john
+ * Fixed bug with slide/bank on not working with
+ * Cyberman heading.,
+ *
+ * Revision 1.101  1995/01/24  16:09:56  john
+ * Fixed bug with Wingman extreme customize text overwriting title.
+ *
+ * Revision 1.100  1995/01/24  12:37:46  john
+ * Made Esc exit key define menu.
+ *
+ * Revision 1.99  1995/01/23  23:54:43  matt
+ * Made keypad enter work
+ *
+ * Revision 1.98  1995/01/23  16:42:00  john
+ * Made the external controls always turn banking off, leveling off
+ * and passed automap state thru to the tsr.
+ *
+ * Revision 1.97  1995/01/12  11:41:33  john
+ * Added external control reading.
+ *
+ * Revision 1.96  1995/01/05  10:43:58  mike
+ * Handle case when timer_get_fixed_seconds() goes negative.  Happens at 9.1
+ * hours.  Previously, joystick would stop functioning.  Now will work.
+ *
+ * Revision 1.95  1994/12/29  11:17:38  john
+ * Took out some warnings and mprintf.
+ *
+ * Revision 1.94  1994/12/29  11:07:41  john
+ * Fixed Thrustmaster and Logitech Wingman extreme
+ * Hat by reading the y2 axis during the center stage
+ * of the calibration, and using 75, 50, 27, and 3 %
+ * as values for the 4 positions.
+ *
+ * Revision 1.93  1994/12/27  12:16:20  john
+ * Fixed bug with slide on not working with joystick or mouse buttons.
+ *
+ * Revision 1.92  1994/12/20  10:34:15  john
+ * Made sensitivity work for mouse & joystick and made
+ * it only affect, pitch, heading, and roll.
+ *
+ * Revision 1.91  1994/12/16  00:11:23  matt
+ * Made delete key act normally when debug out
+ *
+ * Revision 1.90  1994/12/14  17:41:15  john
+ * Added more buttons so that  Yoke would work.
+ *
+ * Revision 1.89  1994/12/13  17:25:35  allender
+ * Added Assert for bogus time for joystick reading.
+ *
+ * Revision 1.88  1994/12/13  14:48:01  john
+ * Took out some debugging mprintf's
+ *
+ *
+ * Revision 1.87  1994/12/13  14:43:02  john
+ * Took out the code in kconfig to build direction array.
+ * Called kc_set_controls after selecting a new control type.
+ *
+ * Revision 1.86  1994/12/13  01:11:32  john
+ * Fixed bug with message clearing overwriting
+ * right border.
+ *
+ * Revision 1.85  1994/12/12  00:35:58  john
+ * Added or thing for keys.
+ *
+ * Revision 1.84  1994/12/09  17:08:06  john
+ * Made mouse a bit less sensitive.
+ *
+ * Revision 1.83  1994/12/09  16:04:00  john
+ * Increased mouse sensitivity.
+ *
+ * Revision 1.82  1994/12/09  00:41:26  mike
+ * fix hang in automap print screen
+ *
+ * Revision 1.81  1994/12/08  11:50:37  john
+ * Made strcpy only copy corect number of chars,.
+ *
+ * Revision 1.80  1994/12/07  16:16:06  john
+ * Added command to check to see if a joystick axes has been used.
+ *
+ * Revision 1.79  1994/12/07  14:52:28  yuan
+ * Localization 492
+ *
+ * Revision 1.78  1994/12/07  13:37:40  john
+ * Made the joystick thrust work in reverse.
+ *
+ * Revision 1.77  1994/12/07  11:28:24  matt
+ * Did a little localization support
+ *
+ * Revision 1.76  1994/12/04  12:30:03  john
+ * Made the Thrustmaster stick read every frame, not every 10 frames,
+ * because it uses analog axis as buttons.
+ *
+ * Revision 1.75  1994/12/03  22:35:25  yuan
+ * Localization 412
+ *
+ * Revision 1.74  1994/12/03  15:39:24  john
+ * Made numeric keypad move in conifg.
+ *
+ * Revision 1.73  1994/12/01  16:23:39  john
+ * Fixed include mistake.
+ *
+ * Revision 1.72  1994/12/01  16:07:57  john
+ * Fixed bug that disabled joystick in automap because it used gametime, which is
+ * paused during automap. Fixed be used timer_Get_fixed_seconds instead of GameTime.
+ *
+ * Revision 1.71  1994/12/01  12:30:49  john
+ * Made Ctrl+D delete, not Ctrl+E
+ *
+ * Revision 1.70  1994/12/01  11:52:52  john
+ * Added default values for GamePad.
+ *
+ * Revision 1.69  1994/11/30  00:59:12  mike
+ * optimizations.
+ *
+ * Revision 1.68  1994/11/29  03:45:50  john
+ * Added joystick sensitivity; Added sound channels to detail menu.  Removed -maxchannels
+ * command line arg.
+ *
+ * Revision 1.67  1994/11/27  23:13:44  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.66  1994/11/27  19:52:12  matt
+ * Made screen shots work in a few more places
+ *
+ * Revision 1.65  1994/11/22  16:54:50  mike
+ * autorepeat on missiles.
+ *
+ * Revision 1.64  1994/11/21  11:16:17  rob
+ * Changed calls to GameLoop to calls to multi_menu_poll and changed
+ * conditions under which they are called.
+ *
+ * Revision 1.63  1994/11/19  15:14:48  mike
+ * remove unused code and data
+ *
+ * Revision 1.62  1994/11/18  23:37:56  john
+ * Changed some shorts to ints.
+ *
+ * Revision 1.61  1994/11/17  13:36:35  rob
+ * Added better network hook in kconfig menu.
+ *
+ * Revision 1.60  1994/11/14  20:09:13  john
+ * Made Tab be default for automap.
+ *
+ * Revision 1.59  1994/11/13  16:34:07  matt
+ * Fixed victormaxx angle conversions
+ *
+ * Revision 1.58  1994/11/12  14:47:05  john
+ * Added support for victor head tracking.
+ *
+ * Revision 1.57  1994/11/08  15:14:55  john
+ * Added more calls so net doesn't die in net game.
+ *
+ * Revision 1.56  1994/11/07  14:01:07  john
+ * Changed the gamma correction sequencing.
+ *
+ * Revision 1.55  1994/11/01  16:40:08  john
+ * Added Gamma correction.
+ *
+ * Revision 1.54  1994/10/25  23:09:26  john
+ * Made the automap key configurable.
+ *
+ * Revision 1.53  1994/10/25  13:11:59  john
+ * Made keys the way Adam speced 'em for final game.
+ *
+ * Revision 1.52  1994/10/24  17:44:22  john
+ * Added stereo channel reversing.
+ *
+ * Revision 1.51  1994/10/22  13:23:18  john
+ * Made default rear view key be R.
+ *
+ * Revision 1.50  1994/10/22  13:20:09  john
+ * Took out toggle primary/secondary weapons.  Fixed black
+ * background for 'axes' and 'buttons' text.
+ *
+ * Revision 1.49  1994/10/21  15:20:15  john
+ * Made PrtScr do screen dump, not F2.
+ *
+ * Revision 1.48  1994/10/21  13:41:36  john
+ * Allowed F2 to screen dump.
+ *
+ * Revision 1.47  1994/10/17  13:07:05  john
+ * Moved the descent.cfg info into the player config file.
+ *
+ * Revision 1.46  1994/10/14  15:30:22  john
+ * Added Cyberman default positions.
+ *
+ * Revision 1.45  1994/10/14  15:24:54  john
+ * Made Cyberman work with config.
+ *
+ * Revision 1.44  1994/10/14  12:46:04  john
+ * Added the ability to reset all to default.
+ *
+ * Revision 1.43  1994/10/14  12:18:31  john
+ * Made mouse invert axis always be 0 or 1.
+ *
+ * Revision 1.42  1994/10/14  12:16:03  john
+ * Changed code so that by doing DEL+F12 saves the current kconfig
+ * values as default. Added support for drop_bomb key.  Took out
+ * unused slots for keyboard.  Made keyboard use control_type of 0
+ * save slots.
+ *
+ * Revision 1.41  1994/10/13  21:27:02  john
+ * Made axis invert value always be 0 or 1.
+ *
+ * Revision 1.40  1994/10/13  20:18:15  john
+ * Added some more system keys, such as F? and CAPSLOCK.
+ *
+ * Revision 1.39  1994/10/13  19:22:29  john
+ * Added separate config saves for different devices.
+ * Made all the devices work together better, such as mice won't
+ * get read when you're playing with the joystick.
+ *
+ * Revision 1.38  1994/10/13  15:41:57  mike
+ * Remove afterburner.
+ *
+ */
+
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.14 2002-09-19 03:45:14 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.15 2002-09-19 05:43:15 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1225,7 +1554,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 				strncpy( btext, key_text[item->value], 10 ); break;
 			case BT_MOUSE_BUTTON:
 				#ifndef MACINTOSH
-				strncpy( btext, Text_string[mousebutton_text[item->value]], 10 ); break;
+				//strncpy( btext, Text_string[mousebutton_text[item->value]], 10 ); break;
 				strncpy( btext, (item->value <= 3)?Text_string[mousebutton_text[item->value]]:mousebutton_textra[item->value-3], 10 ); break;
 				#else
 				strncpy( btext, mousebutton_text[item->value], 10 ); break;
