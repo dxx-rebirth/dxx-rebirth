@@ -40,7 +40,7 @@ typedef uint32_t u_int32_t;
 # define _MAX_PATH 1024
 # define _MAX_DIR 256
 
-#elif defined __ENV_DJGPP__
+#elif defined __DJGPP__
 # include <sys/types.h>
 # define _MAX_PATH 255
 # define _MAX_DIR 63

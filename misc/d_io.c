@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "d_io.h"
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 #include "dos_disk.h"
 #endif
 //added 05/17/99 Matt Mueller

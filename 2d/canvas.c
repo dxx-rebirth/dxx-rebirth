@@ -24,7 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 #include "grdef.h"
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 #include "modex.h"
 #include "vesa.h"
 #endif
@@ -72,7 +72,7 @@ void gr_init_canvas(grs_canvas *canv, unsigned char * pixdata, int pixtype, int 
 	canv->cv_font_bg_color = 0;
 
 
-#ifndef __ENV_DJGPP__
+#ifndef __DJGPP__
 	wreal = w;
 #else
 	wreal = (pixtype == BM_MODEX) ? w / 4 : w;
@@ -106,7 +106,7 @@ int gr_wait_for_retrace = 1;
 
 void gr_show_canvas( grs_canvas *canv )
 {
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 	if (canv->cv_bitmap.bm_type == BM_MODEX )
 		gr_modex_setstart( canv->cv_bitmap.bm_x, canv->cv_bitmap.bm_y, gr_wait_for_retrace );
 

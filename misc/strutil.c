@@ -62,7 +62,7 @@ int strnicmp( char *s1, char *s2, int n )
 #endif
 
 #ifndef __MINGW32__
-#ifndef __ENV_DJGPP__
+#ifndef __DJGPP__
 void strlwr( char *s1 )
 {
 	while( *s1 )	{

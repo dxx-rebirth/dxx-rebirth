@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: object.c,v 1.5 2001-01-31 15:17:56 bradleyb Exp $";
+static char rcsid[] = "$Id: object.c,v 1.6 2001-10-12 10:03:32 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1992,7 +1992,7 @@ void object_move_one( object * obj )
 
 		default:
 
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 			Error("Unknown control type %d in object %li, sig/type/id = %i/%i/%i",obj->control_type, obj-Objects, obj->signature, obj->type, obj->id);
 #else
 			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, obj-Objects, obj->signature, obj->type, obj->id);

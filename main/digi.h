@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/main/digi.h,v $
- * $Revision: 1.1.1.2 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:33:43 $
+ * $Date: 2001-10-12 10:03:32 $
  * 
  * Include file for sound hardware.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.2  2001/01/19 03:33:43  bradleyb
+ * Import of d2x-0.0.9-pre1
+ *
  * Revision 1.2  1999/11/15 10:43:15  sekmu
  * added freq/br to digi_sound struct for alt sounds
  *
@@ -164,7 +167,7 @@ typedef struct digi_sound       {
 
 
 
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 extern int digi_driver_board;
 extern int digi_driver_port;
 extern int digi_driver_irq;

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/timer.h,v $
- * $Revision: 1.1.1.2 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:34:09 $
+ * $Date: 2001-10-12 10:03:32 $
  *
  * Header for timer functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.2  2001/01/19 03:34:09  bradleyb
+ * Import of d2x-0.0.9-pre1
+ *
  * Revision 1.1.1.1  1999/06/14 22:02:21  donut
  * Import of d1x 1.37 source.
  *
@@ -89,7 +92,7 @@ extern void timer_set_function( void _far * function );
 // 1 hr, respectively.
 
 extern fix timer_get_fixed_seconds();   // Rolls about every 9 hours...
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 extern fix timer_get_fixed_secondsX(); // Assume interrupts already disabled
 extern fix timer_get_approx_seconds();		// Returns time since program started... accurate to 1/120th of a second
 extern void timer_set_joyhandler( void (*joy_handler)() );
@@ -106,11 +109,11 @@ extern void timer_set_joyhandler( void (*joy_handler)() );
 
 //==========================================================================
 // Use to access the BIOS ticker... ie...   i = TICKER
-#ifndef __ENV_DJGPP__
+#ifndef __DJGPP__
 #define TICKER (timer_get_fixed_seconds())
 #endif
 
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 
 #ifndef __GNUC__
 #define TICKER (*(volatile int *)0x46C)

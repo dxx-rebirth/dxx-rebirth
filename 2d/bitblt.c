@@ -144,7 +144,7 @@ void gr_ubitmap00m( int x, int y, grs_bitmap *bm )
 //"             jne     alignstart                              "       
 //"aligned4:                                                    "       
 
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 // From Linear to ModeX
 void gr_bm_ubitblt01(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
 {
@@ -313,7 +313,7 @@ void gr_ubitmap( int x, int y, grs_bitmap *bm )
 			Win32_BlitLinearToDirectX_bm(bm, 0, 0, bm->bm_w, bm->bm_h, x, y, 0);
 			return;
 #endif
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 		case BM_SVGA:
 			if ( bm->bm_flags & BM_FLAG_RLE )
 				gr_bm_ubitblt0x_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap, 0 );
@@ -368,7 +368,7 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 			Win32_BlitLinearToDirectX_bm(bm, 0, 0, bm->bm_w, bm->bm_h, x, y, 1);
 			return;
 #endif
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 		case BM_SVGA:
 			gr_ubitmapGENERICm(x, y, bm);
 			return;
@@ -386,7 +386,7 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 }
 
 
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 // From linear to SVGA
 void gr_bm_ubitblt02(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
 {
@@ -483,7 +483,7 @@ void gr_bm_ubitblt20(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * 
 
 	}
 }
-#endif // __ENV_DJGPP__
+#endif // __DJGPP__
 //@extern int Interlacing_on;
 
 // From Linear to Linear
@@ -634,7 +634,7 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest, 0 );
 	 	return;
 	}
-#ifdef __ENV_DJGPP__
+#ifdef __DJGPP__
 	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_SVGA ))
 	{
 		gr_bm_ubitblt02( w, h, dx, dy, sx, sy, src, dest );

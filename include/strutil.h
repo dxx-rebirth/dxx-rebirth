@@ -25,7 +25,7 @@ extern int strnicmp(char *str1, char *str2, int n);
 #endif
 
 #ifndef __MINGW32__
-#ifndef __ENV_DJGPP__
+#ifndef __DJGPP__
 void strupr( char *s1 );
 void strlwr( char *s1 );
 #endif

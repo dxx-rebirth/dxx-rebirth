@@ -11,7 +11,7 @@
 #include "u_mem.h"
 //end addition -MM
 
-#if defined(__ENV_DJGPP__) || defined(__ENV_LINUX__)
+#if defined(__DJGPP__) || defined(__ENV_LINUX__)
 #include <glob.h>
 
 int d_glob(const char *pattern, d_glob_t *g)
