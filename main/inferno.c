@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.21 $
+ * $Revision: 1.22 $
  * $Author: bradleyb $
- * $Date: 2002-01-29 00:08:13 $
+ * $Date: 2002-01-29 10:11:56 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.21  2002/01/29 00:08:13  bradleyb
+ * Added d_mkdir macro
+ *
  * Revision 1.20  2002/01/28 00:03:47  bradleyb
  * Data files now go in DATADIR/games/d2x, user files now go in ~/.d2x
  *
@@ -575,7 +578,7 @@ int main(int argc,char **argv)
 	con_printf(CON_NORMAL, "  %s %s\n", __DATE__,__TIME__);
 	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);	
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2. Copyright (c) 1999 Peter Hawkins\n");
-	con_printf(CON_NORMAL, "                                         Copyright (c) 2001 Bradley Bell\n");
+	con_printf(CON_NORMAL, "                                         Copyright (c) 2002 Bradley Bell\n");
 
 
 	if (FindArg( "-?" ) || FindArg( "-help" ) || FindArg( "?" ) || FindArg( "-h" ) ) {
