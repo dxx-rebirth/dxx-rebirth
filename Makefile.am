@@ -50,7 +50,7 @@ changelog::
 pkgdatadir = @sharepath@
 missiondir = ${pkgdatadir}/missions
 
-dist_mission_DATA = descent.msn d2demo.mn2
+dist_mission_DATA = descent.msn
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 ChangeLog \
