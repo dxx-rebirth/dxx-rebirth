@@ -1,6 +1,6 @@
 SUBDIRS = 2d 3d maths mem cfile iff texmap misc arch main
 
-EXTRA_SUBDIRS = include tools unused debian rpm utility
+EXTRA_SUBDIRS = include tools unused debian rpm utilities
 
 bin_PROGRAMS = @TARGETS@
 
