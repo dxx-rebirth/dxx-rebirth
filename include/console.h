@@ -13,12 +13,13 @@
 #define CON_DEBUG     2
 
 int  con_init(void);
+void con_resize(void);
 void con_printf(int level, char *fmt, ...);
 
 void con_show(void);
 void con_draw(void);
 void con_update(void);
-
+int  con_events(int key);
 
 /* CVar stuff */
 typedef struct cvar_s

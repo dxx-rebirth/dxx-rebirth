@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: credits.c,v 1.6 2003-03-15 14:17:52 btb Exp $";
+static char rcsid[] = "$Id: credits.c,v 1.7 2003-06-06 19:04:27 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -94,7 +94,6 @@ ubyte fade_values_hires[480] = { 1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,
 5,5,4,4,4,4,4,3,3,3,3,3,2,2,2,2,2,1,1};
 
 extern ubyte *gr_bitblt_fade_table;
-extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 grs_font * header_font;
 grs_font * title_font;

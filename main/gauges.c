@@ -13,13 +13,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/gauges.c,v $
- * $Revision: 1.6 $
- * $Author: bradleyb $
- * $Date: 2001-11-08 10:30:27 $
+ * $Revision: 1.7 $
+ * $Author: btb $
+ * $Date: 2003-06-06 19:04:27 $
  *
  * Inferno gauge drivers
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6.2.1  2003/06/06 10:00:31  btb
+ * force cockpit redraw in opengl
+ *
+ * Revision 1.6  2001/11/08 10:30:27  bradleyb
+ * Enabled shareware build, endlevel flythrough sequence
+ *
  * Revision 1.5  2001/11/04 09:00:25  bradleyb
  * Enable d1x-style hud_message
  *
@@ -3310,6 +3316,8 @@ void show_HUD_names()
 #endif
 
 
+extern int last_drawn_cockpit[2];
+
 //draw all the things on the HUD
 void draw_hud()
 {
@@ -3318,8 +3326,8 @@ void draw_hud()
         if (Cockpit_mode==CM_STATUS_BAR){
                 //ogl needs to redraw every frame, at least currently.
                 //              init_cockpit();
-                //              last_drawn_cockpit[0]=-1;
-                //              last_drawn_cockpit[1]=-1;
+			last_drawn_cockpit[0]=-1;
+			last_drawn_cockpit[1]=-1;
                                   init_gauges();
                 
                                //              vr_reset_display();

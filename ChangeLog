@@ -1,3 +1,38 @@
+2003-06-06  Bradley Bell  <btb@icculus.org>
+
+	* console/.cvsignore: added .cvsignore
+
+	* main/gauges.c: force cockpit redraw in opengl
+
+	* main/gamerend.c: move ogl swap, so cockpit and console get
+	rendered properly
+
+	* main/console.c: can't write to console after it's closed
+
+2003-06-05  Bradley Bell  <btb@icculus.org>
+
+	* arch/sdl/event.c, console/CON_console.c, console/Makefile.am,
+	console/internal.c, console/internal.h, include/CON_console.h,
+	include/console.h, main/console.c, main/gamecntl.c, main/hud.c:
+	finish console conversion away from SDL
+
+2003-06-04  Bradley Bell  <btb@icculus.org>
+
+	* console/CON_console.c, include/CON.console.h, include/console.h,
+	main/console.c, main/game.c: console conversion to native gr,
+	console resizing
+
+	* include/gr.h, main/credits.c, main/kconfig.c, main/newmenu.c:
+	put prototype for gr_bm_bitblt in gr.h
+
+2003-06-03  Bradley Bell  <btb@icculus.org>
+
+	* console/CON_console.c, console/DT_drawtext.c,
+	console/Makefile.am, include/CON_console.h, include/DT_drawtext.h,
+	main/console.c: use native fonts for console
+
+	* main/playsave.c: use shorts for short data
+
 2003-06-02  Bradley Bell  <btb@icculus.org>
 
 	* configure.ac, main/console.c: set console background, fix

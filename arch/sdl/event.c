@@ -1,4 +1,4 @@
-/* $Id: event.c,v 1.11 2003-06-02 05:56:37 btb Exp $ */
+/* $Id: event.c,v 1.12 2003-06-06 19:04:27 btb Exp $ */
 /*
  *
  * SDL Event related stuff
@@ -14,9 +14,6 @@
 #include <stdlib.h>
 
 #include <SDL.h>
-#ifdef CONSOLE
-#include "CON_console.h"
-#endif
 
 extern void key_handler(SDL_KeyboardEvent *event);
 extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);
@@ -34,10 +31,6 @@ void event_poll()
 	SDL_Event event;
 
 	while (SDL_PollEvent(&event)) {
-#ifdef CONSOLE
-		if(!CON_Events(&event))
-			continue;
-#endif
 		switch(event.type) {
 		case SDL_KEYDOWN:
 		case SDL_KEYUP:

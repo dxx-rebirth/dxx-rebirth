@@ -17,11 +17,12 @@ Have Fun!
 \author Garett Banuk <mongoose@mongeese.org> (Original Version)
 \author Clemens Wacha <reflex-2000@gmx.net> (Version 2.x, Documentation)
 \author Boris Lesner <talanthyr@tuxfamily.org> (Package Maintainer)
+\author Bradley Bell <btb@icculus.org> (Descent Version)
 */
 
 
-
-#include "SDL.h"
+#include "gr.h"
+#include "key.h"
 
 //! Cut the buffer line if it becomes longer than this
 #define CON_CHARS_PER_LINE   128
@@ -29,6 +30,8 @@ Have Fun!
 #define CON_BLINK_RATE       500
 //! Border in pixels from the most left to the first letter
 #define CON_CHAR_BORDER      4
+//! Spacing in pixels between lines
+#define CON_LINE_SPACE       1
 //! Default prompt used at the commandline
 #define CON_DEFAULT_PROMPT	"]"
 //! Scroll this many lines at a time (when pressing PGUP or PGDOWN)
@@ -40,7 +43,7 @@ Have Fun!
 //! Cursor shown if we are in overwrite mode
 #define CON_OVR_CURSOR "|"
 //! Defines the default hide key (Hide() the console if pressed)
-#define CON_DEFAULT_HIDEKEY	SDLK_ESCAPE
+#define CON_DEFAULT_HIDEKEY	KEY_ESC
 //! Defines the opening/closing speed
 #define CON_OPENCLOSE_SPEED 25
 
@@ -58,7 +61,6 @@ extern "C" {
 	/*! This is a struct for each consoles data */
 	typedef struct console_information_td {
 		int Visible;			//! enum that tells which visible state we are in CON_HIDE, CON_SHOW, CON_RAISE, CON_LOWER
-		int WasUnicode;			//! stores the UNICODE value before the console was shown. On Hide() the UNICODE value is restored.
 		int RaiseOffset;			//! Offset used when scrolling in the console
 		int HideKey;			//! the key that can hide the console
 		char **ConsoleLines;		//! List of all the past lines
@@ -66,10 +68,8 @@ extern "C" {
 		int TotalConsoleLines;		//! Total number of lines in the console
 		int ConsoleScrollBack;		//! How much the user scrolled back in the console
 		int TotalCommands;		//! Number of commands in the Back Commands
-		int FontNumber;			//! This is the number of the font for the console
 		int LineBuffer;			//! The number of visible lines in the console (autocalculated)
 		int VChars;			//! The number of visible characters in one console line (autocalculated)
-		int BackX, BackY;		//! Background images x and y coords
 		char* Prompt;			//! Prompt displayed in command line
 		char Command[CON_CHARS_PER_LINE];	//! current command in command line = lcommand + rcommand
 		char RCommand[CON_CHARS_PER_LINE];	//! left hand side of cursor
@@ -78,25 +78,24 @@ extern "C" {
 		int CursorPos;			//! Current cursor position in CurrentCommand
 		int Offset;			//! CommandOffset (first visible char of command) - if command is too long to fit into console
 		int InsMode;			//! Insert or Overwrite characters?
-		SDL_Surface *ConsoleSurface;	//! Surface of the console
-		SDL_Surface *OutputScreen;	//! This is the screen to draw the console to
-		SDL_Surface *BackgroundImage;	//! Background image for the console
-		SDL_Surface *InputBackground;	//! Dirty rectangle to draw over behind the users background
+		grs_canvas *ConsoleSurface;	//! Canvas of the console
+		grs_screen *OutputScreen;	//! This is the screen to draw the console to
+		grs_bitmap *BackgroundImage;	//! Background image for the console
+		grs_bitmap *InputBackground;	//! Dirty rectangle to draw over behind the users background
 		int DispX, DispY;		//! The top left x and y coords of the console on the display screen
+#if 0
 		unsigned char ConsoleAlpha;	//! The consoles alpha level
+#endif
 		int CommandScrollBack;		//! How much the users scrolled back in the command lines
 		void(*CmdFunction)(struct console_information_td *console, char* command);	//! The Function that is executed if you press <Return> in the console
 		char*(*TabFunction)(char* command);	//! The Function that is executed if you press <Tab> in the console
-
-		int FontHeight;
-		int FontWidth;
 	}
 	ConsoleInformation;
 
 	/*! Takes keys from the keyboard and inputs them to the console if the console isVisible().
 		If the event was not handled (i.e. WM events or unknown ctrl- or alt-sequences) 
 		the function returns the event for further processing. */
-	SDL_Event* CON_Events(SDL_Event *event);
+	int CON_Events(int event);
 	/*! Makes the console visible */
 	void CON_Show(ConsoleInformation *console);
 	/*! Hides the console */
@@ -108,13 +107,14 @@ extern "C" {
 	/*! Draws the console to the screen if it isVisible()*/
 	void CON_DrawConsole(ConsoleInformation *console);
 	/*! Initializes a new console */
-	ConsoleInformation *CON_Init(const char *FontName, SDL_Surface *DisplayScreen, int lines, SDL_Rect rect);
-	/*! Frees DT_DrawText and calls CON_Free */
+	ConsoleInformation *CON_Init(grs_font *Font, grs_screen *DisplayScreen, int lines, int x, int y, int w, int h);
+	/*! Calls CON_Free */
 	void CON_Destroy(ConsoleInformation *console);
 	/*! Frees all the memory loaded by the console */
 	void CON_Free(ConsoleInformation *console);
 	/*! printf for the console */
 	void CON_Out(ConsoleInformation *console, const char *str, ...);
+#if 0
 	/*! Sets the alpha channel of an SDL_Surface to the specified value (0 - transparend,
 		255 - opaque). Use this function also for OpenGL. */
 	void CON_Alpha(ConsoleInformation *console, unsigned char alpha);
@@ -122,14 +122,17 @@ extern "C" {
 		Preconditions: the surface in question is RGBA. 0 <= a <= 255, where 0 is transparent and 255 opaque */
 	void CON_AlphaGL(SDL_Surface *s, int alpha);
 	/*! Sets a background image for the console */
-	int CON_Background(ConsoleInformation *console, const char *image, int x, int y);
+#endif
+	int CON_Background(ConsoleInformation *console, grs_bitmap *image);
+	/*! Sets font info for the console */
+	void CON_Font(ConsoleInformation *console, grs_font *font, int fg, int bg);
 	/*! Changes current position of the console */
 	void CON_Position(ConsoleInformation *console, int x, int y);
 	/*! Changes the size of the console */
-	int CON_Resize(ConsoleInformation *console, SDL_Rect rect);
+	int CON_Resize(ConsoleInformation *console, int x, int y, int w, int h);
 	/*! Beams a console to another screen surface. Needed if you want to make a Video restart in your program. This
 		function first changes the OutputScreen Pointer then calls CON_Resize to adjust the new size. */
-	int CON_Transfer(ConsoleInformation* console, SDL_Surface* new_outputscreen, SDL_Rect rect);
+	int CON_Transfer(ConsoleInformation* console, grs_screen* new_outputscreen, int x, int y, int w, int h);
 	/*! Give focus to a console. Make it the "topmost" console. This console will receive events
 		sent with CON_Events() */
 	void CON_Topmost(ConsoleInformation *console);
@@ -181,7 +184,7 @@ extern "C" {
 	/*! Internal: Called if you press BACKSPACE (deletes character left of cursor) */
 	void Cursor_BSpace(ConsoleInformation *console);
 	/*! Internal: Called if you type in a character (add the char to the command) */
-	void Cursor_Add(ConsoleInformation *console, SDL_Event *event);
+	void Cursor_Add(ConsoleInformation *console, int event);
 
 	/*! Internal: Called if you press Ctrl-C (deletes the commandline) */
 	void Clear_Command(ConsoleInformation *console);

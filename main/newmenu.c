@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.19 2003-03-17 07:59:11 btb Exp $ */
+/* $Id: newmenu.c,v 1.20 2003-06-06 19:04:27 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -664,8 +664,6 @@ grs_bitmap nm_background,nm_background_save;
 #define MESSAGEBOX_TEXT_SIZE 300		// How many characters in messagebox
 #define MAX_TEXT_WIDTH 	200				// How many pixels wide a input box can be
 
-extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
-
 ubyte MenuReordering=0;
 ubyte SurfingNet=0;
 char Pauseable_menu=0;
@@ -805,6 +803,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	x2 = x1 + w - 1;
 	y2 = y1 + h - 1;
 
+#if 0
 	{
 		grs_bitmap *tmp = gr_create_bitmap(w, h);
 
@@ -817,6 +816,13 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 			gr_bm_bitblt(w, h, x1, y1, 0, 0, tmp, &(grd_curcanv->cv_bitmap) );
 		gr_free_bitmap(tmp);
 	}
+#else
+	WIN(DDGRLOCK(dd_grd_curcanv));
+	if (No_darkening)
+		gr_bm_bitblt(w, h, x1, y1, LHX(10), LHY(10), &nm_background, &(grd_curcanv->cv_bitmap) );
+	else
+		gr_bm_bitblt(w, h, x1, y1, 0, 0, &nm_background, &(grd_curcanv->cv_bitmap) );
+#endif
 
 	if (!No_darkening) {
 		Gr_scanline_darkening_level = 2*7;

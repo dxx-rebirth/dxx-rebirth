@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.19 2003-03-27 01:25:41 btb Exp $ */
+/* $Id: kconfig.c,v 1.20 2003-06-06 19:04:27 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.19 2003-03-27 01:25:41 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.20 2003-06-06 19:04:27 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2107,8 +2107,6 @@ void kc_change_invert( kc_item * item )
 }
 
 #include "screens.h"
-
-extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 void kconfig(int n, char * title)
 {

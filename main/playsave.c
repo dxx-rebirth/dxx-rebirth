@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.12 2003-04-12 00:11:46 btb Exp $ */
+/* $Id: playsave.c,v 1.13 2003-06-06 19:04:27 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -312,7 +312,7 @@ typedef struct hli {
 	ubyte	level_num;
 } hli;
 
-int n_highest_levels;
+short n_highest_levels;
 
 hli highest_levels[MAX_MISSIONS];
 
@@ -533,7 +533,8 @@ int read_player_file()
 	#endif
 	FILE *file;
 	int errno_ret = EZERO;
-	int id,player_file_version,i;
+	int id, i;
+	short player_file_version;
 	int rewrite_it=0;
 	int swap = 0;
 

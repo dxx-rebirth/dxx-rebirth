@@ -13,13 +13,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/hud.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  * $Author: btb $
- * $Date: 2002-10-11 05:14:59 $
+ * $Date: 2003-06-06 19:04:27 $
  *
  * Routines for displaying HUD messages...
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5.2.1  2003/06/06 03:35:41  btb
+ * finish console conversion away from SDL
+ *
+ * Revision 1.5  2002/10/11 05:14:59  btb
+ * make hud_message work correctly
+ *
  * Revision 1.4  2002/10/10 19:08:15  btb
  * whitespace
  *
@@ -340,10 +346,14 @@ int PlayerMessage=1;
 //  (message might not be drawn if previous message was same)
 int HUD_init_message_va(char * format, va_list args)
 {
-	int temp, temp2;
+	int temp;
 	char *message = NULL;
 	char *last_message=NULL;
+#if 0
+	int temp2;
 	char *cleanmessage;
+#endif
+	char con_message[HUD_MESSAGE_LENGTH + 3];
 
 	Modex_hud_msg_count = 2;
 
@@ -354,6 +364,7 @@ int HUD_init_message_va(char * format, va_list args)
 	message = &HUD_messages[hud_last][0];
 	vsprintf(message,format,args);
 
+#if 0
 	/* Produce a sanitised version and send it to the console */
 	cleanmessage = d_strdup(message);
 	for (temp=0,temp2=0; message[temp]!=0; temp++)
@@ -362,8 +373,18 @@ int HUD_init_message_va(char * format, va_list args)
 		else temp++; /* Skip next character as well */
 	}
 	cleanmessage[temp2] = 0;
-	con_printf(CON_NORMAL, "%s\n", message);
+	con_printf(CON_NORMAL, "%s\n", cleanmessage);
 	d_free(cleanmessage);
+#endif
+
+	/* Produce a colorised version and send it to the console */
+	if (HUD_color == -1)
+		HUD_color = BM_XRGB(0,28,0);
+	con_message[0] = CC_COLOR;
+	con_message[1] = HUD_color;
+	con_message[2] = '\0';
+	strcat(con_message, message);
+	con_printf(CON_NORMAL, "%s\n", con_message);
 
 	// Added by Leighton 
    
