@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.10 2002-08-26 06:46:37 btb Exp $ */
+/* $Id: mission.c,v 1.11 2002-08-27 04:12:55 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -44,9 +44,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 mle Mission_list[MAX_MISSIONS];
 
-int Current_mission_num;
+int Current_mission_num, Builtin_mission_num;
 int	N_secret_levels;		//	Made a global by MK for scoring purposes.  August 1, 1995.
 char *Current_mission_filename,*Current_mission_longname;
+
+char Builtin_mission_filename[9];
+int Builtin_mission_hogsize;
 
 //this stuff should get defined elsewhere
 
@@ -59,9 +62,6 @@ char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
 #else
 #define MISSION_DIR "./"
 #endif
-
-char Builtin_mission_filename[9];
-int Builtin_mission_hogsize;
 
 //
 //  Special versions of mission routines for shareware
@@ -315,6 +315,7 @@ void add_builtin_mission_to_list(int *count)
 			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
 	}
 
+	Builtin_mission_num = *count;
 	strcpy(Builtin_mission_filename, Mission_list[*count].filename);
 	++(*count);
 }
@@ -407,7 +408,7 @@ int build_mission_list(int anarchy_mode)
 	// to top of mission list
 	top_place = 0;
 	promote("descent", &top_place, count); // original descent 1 mission
-	promote(Builtin_mission_filename, &top_place, count); // descent 2
+	promote(Builtin_mission_filename, &top_place, count); // d2 or d2demo
 	promote("d2x", &top_place, count); // vertigo
 
 	if (count > top_place)
@@ -444,7 +445,7 @@ int load_mission(int mission_num)
 	int found_hogfile;
 	int enhanced_mission = 0;
 
-	if (!strcmp(Mission_list[mission_num].filename, Builtin_mission_filename)) {
+	if (mission_num == Builtin_mission_num) {
 		switch (Builtin_mission_hogsize) {
 		case SHAREWARE_MISSION_HOGSIZE:
 		case MAC_SHARE_MISSION_HOGSIZE:
@@ -453,6 +454,9 @@ int load_mission(int mission_num)
 		case OEM_MISSION_HOGSIZE:
 			return load_mission_oem(mission_num);
 			break;
+		case FULL_MISSION_HOGSIZE:
+		default:
+			// continue on...
 		}
 	}
 
@@ -501,11 +505,18 @@ int load_mission(int mission_num)
 			return 0;
 		}
 		#endif
+
+		// for Descent 1 missions, load descent.hog
+		if (Mission_list[mission_num].descent_version == 1 && strcmp(buf, "descent.hog"))
+			if (!cfile_use_descent1_hogfile("descent.hog"))
+				Warning("descent.hog not available, this mission may be missing some files required for briefings\n");
 	}
 
 	//init vars
 	Last_level = 		0;
 	Last_secret_level = 0;
+	Briefing_text_filename[0] = 0;
+	Ending_text_filename[0] = 0;
 
 	while (mfgets(buf,80,mfile)) {
 
@@ -520,7 +531,7 @@ int load_mission(int mission_num)
 			continue;						//already have name, go to next line
 		}
 		else if (istok(buf,"type"))
-			continue;						//already have name, go to next line				
+			continue;						//already have name, go to next line
 		else if (istok(buf,"hog")) {
 			char	*bufp = buf;
 
@@ -533,6 +544,20 @@ int load_mission(int mission_num)
 
 			cfile_use_alternate_hogfile(bufp);
 			mprintf((0, "Hog file override = [%s]\n", bufp));
+		}
+		else if (istok(buf,"briefing")) {
+			if ((v = get_value(buf)) != NULL) {
+				add_term(v);
+				if (strlen(v) < 13)
+					strcpy(Briefing_text_filename,v);
+			}
+		}
+		else if (istok(buf,"ending")) {
+			if ((v = get_value(buf)) != NULL) {
+				add_term(v);
+				if (strlen(v) < 13)
+					strcpy(Ending_text_filename,v);
+			}
 		}
 		else if (istok(buf,"num_levels")) {
 
