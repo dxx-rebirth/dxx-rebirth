@@ -26,7 +26,7 @@ extern uint swapint(uint i);
 #define SWAPSHORT(x) (((ubyte)x << 8) | (((ushort)x) >> 8))
 #define SWAPINT(x)   ((x<<24) | (((ulong)x) >> 24) | ((x &0x0000ff00) << 8) | ((x & 0x00ff00000) >> 8))
 
-#ifndef BIGENDIAN //MACINTOSH
+#ifndef WORDS_BIGENDIAN //MACINTOSH
 #define INTEL_INT(x)	x
 #define INTEL_SHORT(x)	x
 #else
