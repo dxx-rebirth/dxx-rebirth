@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.19 2004-08-01 13:01:39 schaffner Exp $ */
+/* $Id: mveplay.c,v 1.20 2004-10-21 16:33:11 schaffner Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -107,7 +107,7 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
  * timer handlers
  *************************/
 
-#if defined(HAVE_STRUCT_TIMEVAL) && !HAVE_STRUCT_TIMEVAL // ifdef _WIN32_WCE
+#if !defined(HAVE_STRUCT_TIMEVAL) || !HAVE_STRUCT_TIMEVAL // ifdef _WIN32_WCE
 struct timeval
 {
 	long tv_sec;
@@ -123,7 +123,7 @@ static int micro_frame_delay=0;
 static int timer_started=0;
 static struct timeval timer_expire = {0, 0};
 
-#if defined(HAVE_STRUCT_TIMESPEC) && !HAVE_STRUCT_TIMESPEC
+#if !defined(HAVE_STRUCT_TIMESPEC) || !HAVE_STRUCT_TIMESPEC
 struct timespec
 {
 	long int tv_sec;            /* Seconds.  */
