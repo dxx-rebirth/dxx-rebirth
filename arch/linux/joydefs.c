@@ -1,4 +1,4 @@
-/* $Id: joydefs.c,v 1.2 2003-03-13 00:20:21 btb Exp $ */
+/* $Id: joydefs.c,v 1.3 2004-05-22 01:32:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -82,7 +82,7 @@ int joycal_message( char * title, char * text )
 
 extern int WriteConfigFile();	
 
-extern joystick_device j_joystick[4];
+extern joystick_device j_joystick[MAX_JOY_DEVS];
 extern joystick_axis j_axis[MAX_AXES];
 extern joystick_button j_button[MAX_BUTTONS];
 

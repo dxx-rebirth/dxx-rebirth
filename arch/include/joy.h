@@ -1,4 +1,4 @@
-/* $Id: joy.h,v 1.6 2003-12-18 09:56:13 btb Exp $ */
+/* $Id: joy.h,v 1.7 2004-05-22 01:32:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -84,6 +84,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
+// added October 24, 2000 20:40  Steven Mueller: more than 4 joysticks now
+#define MAX_JOY_DEVS 8
 #define JOY_1_BUTTON_A  1
 #define JOY_1_BUTTON_B  2
 #define JOY_2_BUTTON_A  4

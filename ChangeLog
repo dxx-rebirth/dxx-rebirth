@@ -1,3 +1,9 @@
+2004-05-21  Steven Mueller  <diffusor@ugcs.caltech.edu>
+
+	* arch/include/joy.h, arch/linux/joydefs.c, arch/linux/joystick.c,
+	arch/linux/include/joystick.h: patch from Steven Mueller for using
+	more than 4 joystick devices in linux (d1x r1.3, r1.3, r1.3)
+
 2004-05-21  Victor Rachels  <sekmu@tisiphone.dhs.org>
 
 	* main/fvi.c, main/gameseg.c, main/gameseg.h, main/object.c,

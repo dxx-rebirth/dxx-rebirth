@@ -1,4 +1,4 @@
-/* $Id: joystick.h,v 1.2 2003-03-13 00:20:21 btb Exp $ */
+/* $Id: joystick.h,v 1.3 2004-05-22 01:32:13 btb Exp $ */
 
 #define MAX_AXES 32
 
@@ -32,7 +32,7 @@ typedef struct joystick_button {
 extern int j_num_axes;
 extern int j_num_buttons;
 
-extern joystick_device j_joystick[4];
+extern joystick_device j_joystick[MAX_JOY_DEVS];
 extern joystick_axis j_axis[MAX_AXES];
 extern joystick_button j_button[MAX_BUTTONS];
 

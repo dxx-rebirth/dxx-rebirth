@@ -1,4 +1,4 @@
-/* $Id: joystick.c,v 1.2 2003-01-01 00:55:03 btb Exp $ */
+/* $Id: joystick.c,v 1.3 2004-05-22 01:32:12 btb Exp $ */
 /*
  *
  * Linux joystick support
@@ -26,15 +26,15 @@
 char joy_installed = 0;
 char joy_present = 0;
 
-joystick_device j_joystick[4];
+joystick_device j_joystick[MAX_JOY_DEVS];
 joystick_axis j_axis[MAX_AXES];
 joystick_button j_button[MAX_BUTTONS];
 
 int j_num_axes = 0, j_num_buttons = 0;
 int timer_rate;
 
-int j_axes_in_sticks[4]; 	/* number of axes in the first [x] sticks */
-int j_buttons_in_sticks[4];     /* number of buttons in the first [x] sticks */
+int j_axes_in_sticks[MAX_JOY_DEVS];     /* number of axes in the first [x] sticks */
+int j_buttons_in_sticks[MAX_JOY_DEVS];  /* number of buttons in the first [x] sticks */
 
 int joy_deadzone = 0;
 
@@ -77,7 +77,8 @@ int j_Update_state () {
 		j_button[i].last_state = j_button[i].state;
 	}
 
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < MAX_JOY_DEVS; i++)
+	{
 		if (j_joystick[i].buffer >= 0) {
 			if (j_joystick[i].version) {
 				while (read (j_joystick[i].buffer, &current_event, sizeof (struct js_event)) > 0) {
@@ -194,6 +195,7 @@ ubyte joystick_read_raw_axis (ubyte mask, int *axes) {
 
 int joy_init () {
 	int i, j;
+	int joystick_found;
 
 	if (joy_installed) return 0;
 	joy_flush ();
@@ -206,11 +208,27 @@ int joy_init () {
 		j_joystick[1].buffer = open ("/dev/js1", O_NONBLOCK);
 		j_joystick[2].buffer = open ("/dev/js2", O_NONBLOCK);
 		j_joystick[3].buffer = open ("/dev/js3", O_NONBLOCK);
-		
-		if (j_joystick[0].buffer >= 0 || j_joystick[1].buffer >= 0 || j_joystick[2].buffer >= 0 || j_joystick[3].buffer >= 0) {
+		j_joystick[0].buffer = open("/dev/input/js0", O_NONBLOCK);
+		j_joystick[1].buffer = open("/dev/input/js1", O_NONBLOCK);
+		j_joystick[2].buffer = open("/dev/input/js2", O_NONBLOCK);
+		j_joystick[3].buffer = open("/dev/input/js3", O_NONBLOCK);
+
+		// Determine whether any sticks were found
+		joystick_found = 0;
+		for (i = 0; i < MAX_JOY_DEVS; i++)
+		{
+			if (j_joystick[i].buffer >= 0)
+			{
+				joystick_found = 1;
+				break;
+			}
+		}
+		if (joystick_found)
+		{
 			printf ("found: ");
 
-			for (i = 0; i < 4; i++) {
+			for (i = 0; i < MAX_JOY_DEVS; i++)
+			{
 				if (j_joystick[i].buffer >= 0) {
 					ioctl (j_joystick[i].buffer, JSIOCGAXES, &j_joystick[i].num_axes);
 					ioctl (j_joystick[i].buffer, JSIOCGBUTTONS, &j_joystick[i].num_buttons);
@@ -278,7 +296,8 @@ void joy_close() {
 
 	if (!joy_installed) return;
 
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < MAX_JOY_DEVS; i++)
+	{
 		if (j_joystick[i].buffer>=0) {
 			printf ("closing js%d\n", i);
 			close (j_joystick[i].buffer);
