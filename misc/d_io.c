@@ -1,4 +1,4 @@
-/* $Id: d_io.c,v 1.7 2003-11-27 00:21:04 btb Exp $ */
+/* $Id: d_io.c,v 1.8 2004-05-19 02:20:34 btb Exp $ */
 /*
  * some misc. file/disk routines
  * Arne de Bruijn, 1998
@@ -54,14 +54,14 @@ unsigned long d_getdiskfree()
   return getdiskfree();
 #else
 #if 0//def __WINDOWS__
-	ULONG cbCluster = 0;
-	ULONG cClusters = 0;
+	DWORD cbCluster = 0;
+	DWORD cClusters = 0;
 
 	GetDiskFreeSpace (
 		NULL,
-                (int *) &cbCluster,
+		&cbCluster,
 		NULL,
-                (int *) &cClusters,
+		&cClusters,
 		NULL);
 	
 	return cbCluster * cClusters;

@@ -1,7 +1,7 @@
 2004-05-18  Bradley Bell  <btb@icculus.org>
 
-	* arch/ogl/wgl.c, arch/win32/mouse.c: Fix mismatched arg types in
-	the win32 code (d1x r1.12, r1.7)
+	* arch/ogl/wgl.c, arch/win32/mouse.c, misc/d_io.c: Fix mismatched
+	arg types in the win32 code (d1x r1.12, r1.7, r1.2)
 
 	* arch/linux/hmiplay.c: fix problems with msgbuf struct not being
 	defined (d1x r1.4)
