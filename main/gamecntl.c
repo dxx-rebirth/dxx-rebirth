@@ -1387,7 +1387,49 @@ int HandleSystemKey(int key)
 			break;
 		#endif
 
-		default:								break;
+//added 8/23/99 by Matt Mueller for hot key res/fullscreen changing, and menu access
+#if 0
+		case KEY_CTRLED+KEY_SHIFTED+KEY_PADDIVIDE:
+		case KEY_ALTED+KEY_CTRLED+KEY_PADDIVIDE:
+		case KEY_ALTED+KEY_SHIFTED+KEY_PADDIVIDE:
+			d1x_options_menu();
+			break;
+		case KEY_CTRLED+KEY_SHIFTED+KEY_PADMULTIPLY:
+		case KEY_ALTED+KEY_CTRLED+KEY_PADMULTIPLY:
+		case KEY_ALTED+KEY_SHIFTED+KEY_PADMULTIPLY:
+			change_res();
+			break;
+		case KEY_CTRLED+KEY_SHIFTED+KEY_PADMINUS:
+		case KEY_ALTED+KEY_CTRLED+KEY_PADMINUS:
+		case KEY_ALTED+KEY_SHIFTED+KEY_PADMINUS:
+			//lower res 
+			//should we just cycle through the list that is displayed in the res change menu?
+			// what if their card/X/etc can't handle that mode? hrm. 
+			//well, the quick access to the menu is good enough for now.
+			break;
+		case KEY_CTRLED+KEY_SHIFTED+KEY_PADPLUS:
+		case KEY_ALTED+KEY_CTRLED+KEY_PADPLUS:
+		case KEY_ALTED+KEY_SHIFTED+KEY_PADPLUS:
+			//increase res
+			break;
+#endif
+		case KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER:
+		case KEY_ALTED+KEY_CTRLED+KEY_PADENTER:
+		case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER:
+			gr_toggle_fullscreen_game();
+			break;
+//end addition -MM
+			
+//added 11/01/98 Matt Mueller
+#if 0
+		case KEY_CTRLED+KEY_ALTED+KEY_LAPOSTRO:
+			toggle_hud_log();
+			break;
+#endif
+//end addition -MM
+
+		default:
+			break;
 
 	}	 //switch (key)
 

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.9 2002-02-13 10:45:05 bradleyb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.10 2002-02-14 10:18:23 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -117,6 +117,7 @@ char game_rcsid[] = "$Id: game.c,v 1.9 2002-02-13 10:45:05 bradleyb Exp $";
 #include "playsave.h"
 #include "fix.h"
 #include "d_delay.h"
+#include "hudmsg.h"
 
 int VGA_current_mode;
 
@@ -1080,6 +1081,22 @@ WIN(static int saved_window_h);
 	return 1;
 }
 
+int gr_toggle_fullscreen_game(void){
+#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
+	int i;
+	hud_message(MSGC_GAME_FEEDBACK, "toggling fullscreen mode %s",(i=gr_toggle_fullscreen())?"on":"off" );
+	//added 2000/06/19 Matthew Mueller - hack to fix "infinite toggle" problem
+	//it seems to be that the screen mode change takes long enough that the key has already sent repeat codes, or that its unpress event gets dropped, etc.  This is a somewhat ugly fix, but it works.
+//	generic_key_handler(KEY_PADENTER,0);
+	key_flush();
+	//end addition -MM
+	return i;
+#else
+	hud_message(MSGC_GAME_FEEDBACK, "fullscreen toggle not supported by this target");
+	return -1;
+#endif
+}
+
 int arch_toggle_fullscreen_menu(void);
 
 int gr_toggle_fullscreen_menu(void){
@@ -1087,7 +1104,7 @@ int gr_toggle_fullscreen_menu(void){
 	int i;
 	i=arch_toggle_fullscreen_menu();
 
-	generic_key_handler(KEY_PADENTER,0);
+//	generic_key_handler(KEY_PADENTER,0);
 	key_flush();
 
 	return i;

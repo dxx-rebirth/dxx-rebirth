@@ -1,13 +1,16 @@
 /*
  * $Source: /cvs/cvsroot/d2x/main/netlist.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2002-02-14 09:24:19 $
+ * $Date: 2002-02-14 10:18:24 $
  *
  * Descent II-a-like network game join menu
  * Arne de Bruijn, 1998
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2002/02/14 09:24:19  bradleyb
+ * d1x->d2x
+ *
  * Revision 1.1  2002/02/14 09:05:33  bradleyb
  * Lotsa networking stuff from d1x
  *
@@ -699,7 +702,9 @@ int network_join_game_menu() {
 				selected_game = -1;
 				done = 1;
 				break;
-			case KEYS_GR_TOGGLE_FULLSCREEN:
+			case KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER:
+			case KEY_ALTED+KEY_CTRLED+KEY_PADENTER:
+			case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER:
 				gr_toggle_fullscreen_menu();
 				break;
 		}

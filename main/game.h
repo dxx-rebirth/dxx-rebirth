@@ -255,5 +255,6 @@ void enable_flicker(int segnum,int sidenum);
 //returns 1 if ok, 0 if error
 int add_flicker(int segnum,int sidenum,fix delay,ulong mask);
 
-#endif
+int gr_toggle_fullscreen_game(void);
 
+#endif

@@ -1,3 +1,6 @@
+--- Version 0.1.3 ---
+- Added hotkeys to toggle fullscreen mode (same as d1x)
+
 --- Version 0.1.2 ---
 - SDL uses mouse wheel to emulate 3rd axis.
 - Player files created with descent 2 should now work with d2x.
