@@ -9,6 +9,8 @@ libmisc_a_SOURCES = ${PNG_SRCS} \
 args.c      error.c    strio.c \
 d_io.c      hash.c     strutil.c
 
+EXTRA_libmisc_a_SOURCES = pngfile.c
+
 # checker.c
 
 #checker.o: checker.c
