@@ -1,3 +1,8 @@
+2004-05-22  David Cleaver  <wraithx@morpheus.net>
+
+	* main/kconfig.c: joy configuration next axis key from WraithX
+	(d1x r1.10)
+
 2004-05-22  Bradley Bell  <btb@icculus.org>
 
 	* main/game.c, main/inferno.c: typo

@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.28 2004-05-21 02:45:51 btb Exp $ */
+/* $Id: kconfig.c,v 1.29 2004-05-22 07:20:54 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.28 2004-05-21 02:45:51 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.29 2004-05-22 07:20:54 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -983,6 +983,7 @@ void kc_drawitem( kc_item *item, int is_current );
 void kc_change_key( kc_item * item );
 void kc_change_joybutton( kc_item * item );
 void kc_change_mousebutton( kc_item * item );
+void kc_next_joyaxis(kc_item *item);  //added by WraithX on 11/22/00
 void kc_change_joyaxis( kc_item * item );
 void kc_change_mouseaxis( kc_item * item );
 void kc_change_invert( kc_item * item );
@@ -1500,6 +1501,16 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 			case BT_INVERT: 	kc_change_invert( &items[citem] ); break;
 			}
 			break;
+		//the following case added by WraithX on 11/22/00 to work around the weird joystick bug...
+		case KEY_SPACEBAR:
+			switch(items[citem].type)
+			{
+			case BT_JOY_AXIS:
+				kc_next_joyaxis(&items[citem]);
+				break;
+			}
+			break;
+		//end addition by WraithX
 		case -2:	
 		case KEY_ESC:
 			grd_curcanv->cv_font	= save_font;
@@ -1992,6 +2003,48 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 	game_flush_inputs();
 
 }
+
+
+// the following function added by WraithX on 11/22/00 to work around the weird joystick bug...
+void kc_next_joyaxis(kc_item *item)
+{
+	int n, i, k;
+	ubyte code = 0;
+
+	k = 255;
+	n = 0;
+	i = 0;
+
+	// I modelled this ifdef after the code in the kc_change_joyaxis method.
+	// So, if somethin's not workin here, it might not be workin there either.
+#ifdef USE_LINUX_JOY
+	code = (item->value + 1) % 32;
+#else
+	code = (item->value + 1) % JOY_NUM_AXES;
+#endif
+
+	if (code != 255)
+	{
+		for (i = 0; i < Num_items; i++)
+		{
+			n = item - All_items;
+			if ((i != n) && (All_items[i].type == BT_JOY_AXIS) && (All_items[i].value == code))
+			{
+				All_items[i].value = 255;
+				kc_drawitem(&All_items[i], 0);
+			}//end if
+		}//end for
+
+		item->value = code;
+	}//end if
+
+	kc_drawitem(item, 1);
+	nm_restore_background(0, LHY(INFO_Y), LHX(310), grd_curcanv->cv_font->ft_h);
+	game_flush_inputs();
+
+}//method kc_next_joyaxis
+//end addition by WraithX
+
 
 void kc_change_joyaxis( kc_item * item )
 {
