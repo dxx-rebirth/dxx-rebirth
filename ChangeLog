@@ -1,5 +1,7 @@
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/ogl.c: fix last commit (d1x r1.35)
+
 	* arch/ogl/ogl.c: add RENDERSTATS counter for number of textures
 	loaded after texture caching stage (d1x r1.34)
 

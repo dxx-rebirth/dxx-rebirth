@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.22 2004-05-20 07:13:20 btb Exp $ */
+/* $Id: ogl.c,v 1.23 2004-05-20 07:16:53 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -74,6 +74,7 @@ int GL_texclamp_enabled=-1;
 
 extern int gr_renderstats;
 extern int gr_badtexture;
+int r_texcount = 0, r_cachedtexcount = 0;
 int ogl_alttexmerge=1;//merge textures by just printing the seperate textures?
 int ogl_rgba_format=4;
 int ogl_intensity4_ok=1;
@@ -313,8 +314,6 @@ void ogl_cache_weapon_textures(weapon_info *w){
 	else if (w->render_type==WEAPON_RENDER_POLYMODEL)
 		ogl_cache_polymodel_textures(w->model_num);
 }
-
-int r_texcount = 0, r_cachedtexcount = 0;
 
 void ogl_cache_level_textures(void)
 {
