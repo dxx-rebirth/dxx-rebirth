@@ -63,19 +63,34 @@ Cygwin:
 #define __VERSION__ "3.2 20020927 (prerelease)"
 #define __declspec(x) __attribute__((x))
 
-Linux:
-#define __linux__ 1
-#define linux 1
-#define __i386__ 1
-#define __i386 1
-#define __GNUC_MINOR__ 95
-#define i386 1
-#define __unix 1
+Linux/x86:
+#define __HAVE_BUILTIN_SETJMP__ 1
 #define __unix__ 1
-#define __GNUC__ 2
-#define __linux 1
-#define __ELF__ 1
 #define unix 1
+#define __i386__ 1
+#define __SIZE_TYPE__ unsigned int
+#define __ELF__ 1
+#define __GNUC_PATCHLEVEL__ 2
+#define __linux 1
+#define __unix 1
+#define __linux__ 1
+#define __USER_LABEL_PREFIX__ 
+#define linux 1
+#define __STDC_HOSTED__ 1
+#define __WCHAR_TYPE__ long int
+#define __gnu_linux__ 1
+#define __WINT_TYPE__ unsigned int
+#define __GNUC__ 3
+#define __GXX_ABI_VERSION 102
+#define i386 1
+#define __GNUC_MINOR__ 2
+#define __STDC__ 1
+#define __PTRDIFF_TYPE__ int
+#define __tune_i386__ 1
+#define __REGISTER_PREFIX__ 
+#define __NO_INLINE__ 1
+#define __i386 1
+#define __VERSION__ "3.2.2 20030109 (Debian prerelease)"
 
 Djgpp:
 #define __DJGPP_MINOR 3
@@ -111,3 +126,19 @@ Mac OS X:
 #define __DYNAMIC__ 1
 #define __APPLE_CC__ 937
 #define __BIG_ENDIAN__ 1
+
+SunOS/Sparc:
+#define __GCC_NEW_VARARGS__ 1
+#define __sparc 1
+#define __svr4__ 1
+#define __GNUC_MINOR__ 95
+#define __sun 1
+#define sparc 1
+#define __sun__ 1
+#define __unix 1
+#define __unix__ 1
+#define __SVR4 1
+#define sun 1
+#define __GNUC__ 2
+#define __sparc__ 1
+#define unix 1
