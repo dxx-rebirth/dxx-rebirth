@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.91 2004-10-23 20:53:08 schaffner Exp $ */
+/* $Id: inferno.c,v 1.92 2004-11-27 11:55:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -778,7 +778,6 @@ int main(int argc, char *argv[])
 		#define MOVIE_REQUIRED 1
 		#endif
 
-#ifdef D2_OEM   //$$POLY_ACC, jay.
 		{	//show bundler screens
 			char filename[FILENAME_LEN];
 
@@ -796,7 +795,6 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-#endif
 
 		#ifndef SHAREWARE
 			init_subtitles("intro.tex");
@@ -804,25 +802,42 @@ int main(int argc, char *argv[])
 			close_subtitles();
 		#endif
 
-		#ifdef D2_OEM
 		if (played != MOVIE_NOT_PLAYED)
 			intro_played = 1;
 		else {						//didn't get intro movie, try titles
 
 			played = PlayMovie("titles.mve",MOVIE_REQUIRED);
 
-			if (played == MOVIE_NOT_PLAYED) {
+			if (played == MOVIE_NOT_PLAYED)
+			{
+				char filename[FILENAME_LEN];
+
 #if defined(POLY_ACC)
 				gr_set_mode(SM_640x480x15xPA);
 #else
-				gr_set_mode(MenuHires?SM_640x480V:SM_320x200C);
+				gr_set_mode(MenuHires?SM(640,480):SM(320,200));
+#endif
+#ifdef OGL
+				set_screen_mode(SCREEN_MENU);
 #endif
 				con_printf( CON_DEBUG, "\nPlaying title song..." );
 				songs_play_song( SONG_TITLE, 1);
 				song_playing = 1;
 				con_printf( CON_DEBUG, "\nShowing logo screens..." );
-				show_title_screen( MenuHires?"iplogo1b.pcx":"iplogo1.pcx", 1, 1 );
-				show_title_screen( MenuHires?"logob.pcx":"logo.pcx", 1, 1 );
+
+				strcpy(filename, MenuHires?"iplogo1b.pcx":"iplogo1.pcx"); // OEM
+				if (! cfexist(filename))
+					strcpy(filename, "iplogo1.pcx"); // SHAREWARE
+				if (! cfexist(filename))
+					strcpy(filename, "mplogo.pcx"); // MAC SHAREWARE
+				show_title_screen(filename, 1, 1 );
+
+				strcpy(filename, MenuHires?"logob.pcx":"logo.pcx"); // OEM
+				if (! cfexist(filename))
+					strcpy(filename, "logo.pcx"); // SHAREWARE
+				if (! cfexist(filename))
+					strcpy(filename, "plogo.pcx"); // MAC SHAREWARE
+				show_title_screen(filename, 1, 1 );
 			}
 		}
 
@@ -851,7 +866,6 @@ int main(int argc, char *argv[])
 				}
 			}
 		}
-		#endif
 
 		if (!song_playing)
 			songs_play_song( SONG_TITLE, 1);

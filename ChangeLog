@@ -1,3 +1,7 @@
+2004-11-27  Bradley Bell  <btb@icculus.org>
+
+	* main/inferno.c: enable logo screens for shareware/oem
+
 2004-11-26  Bradley Bell  <btb@icculus.org>
 
 	* main/mission.c, main/titles.c: fix d1 briefing glitches
