@@ -1,3 +1,4 @@
+/* $Id: timer.h,v 1.3 2002-09-01 02:46:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,54 +8,41 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/include/timer.h,v $
- * $Revision: 1.2 $
- * $Author: bradleyb $
- * $Date: 2001-10-12 10:03:32 $
  *
  * Header for timer functions
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.2  2001/01/19 03:34:09  bradleyb
- * Import of d2x-0.0.9-pre1
- *
- * Revision 1.1.1.1  1999/06/14 22:02:21  donut
- * Import of d1x 1.37 source.
- *
+ * Old Log:
  * Revision 1.8  1994/12/10  12:27:23  john
  * Added timer_get_approx_seconds.
- * 
+ *
  * Revision 1.7  1994/12/10  12:10:25  john
  * Added types.h.
- * 
- * 
- * 
- * 
+ *
  * Revision 1.6  1994/12/10  12:07:06  john
  * Added tick counter variable.
- * 
+ *
  * Revision 1.5  1994/11/15  12:04:15  john
  * Cleaned up timer code a bit... took out unused functions
  * like timer_get_milliseconds, etc.
- * 
+ *
  * Revision 1.4  1994/04/28  23:50:08  john
  * Changed calling for init_timer.  Made the function that the
  * timer calls be a far function. All of this was done to make
  * our timer system compatible with the HMI sound stuff.
- * 
+ *
  * Revision 1.3  1994/02/17  15:57:12  john
  * Changed key libary to C.
- * 
+ *
  * Revision 1.2  1994/01/18  10:58:34  john
  * Added timer_get_fixed_seconds
- * 
+ *
  * Revision 1.1  1993/07/10  13:10:41  matt
  * Initial revision
- * 
  *
  */
 
@@ -107,6 +95,8 @@ extern void timer_set_joyhandler( void (*joy_handler)() );
 //NOT_USED extern unsigned int timer_get_milliseconds();
 //NOT_USED extern unsigned int timer_get_millisecondsX();	// Assume interrupts disabled
 
+void timer_delay(fix seconds);
+
 //==========================================================================
 // Use to access the BIOS ticker... ie...   i = TICKER
 #ifndef __DJGPP__
@@ -124,5 +114,10 @@ extern void timer_set_joyhandler( void (*joy_handler)() );
 #endif
 #define USECS_PER_READING( start, stop, frames ) (((stop-start)*54945)/frames)
 #endif
+
+
+#define approx_usec_to_fsec(usec) ((usec) >> 4)
+#define approx_msec_to_fsec(msec) ((msec) << 6)
+#define approx_fsec_to_msec(fsec) ((fsec) >> 6)
 
 #endif
