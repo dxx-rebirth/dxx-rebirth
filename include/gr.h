@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.13 2002-08-15 08:53:11 btb Exp $ */
+/* $Id: gr.h,v 1.14 2002-08-31 05:25:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -139,7 +139,7 @@ typedef struct _grs_font {
 	grs_bitmap *ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;
 #endif
-} grs_font;
+} __pack__ grs_font;
 
 #define GRS_FONT_SIZE 28    // how much space it takes up on disk
 

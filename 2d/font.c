@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.20 2002-08-26 06:37:32 btb Exp $ */
+/* $Id: font.c,v 1.21 2002-08-31 05:24:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1589,6 +1589,9 @@ void decode_data_asm(ubyte *data, int num_pixels, ubyte * colormap, int * count 
 
 #endif
 
+#ifdef FAST_FILE_IO
+#define grs_font_read(gf, fp) cfread(gf, GRS_FONT_SIZE, 1, fp)
+#else
 /*
  * reads a grs_font structure from a CFILE
  */
@@ -1606,6 +1609,7 @@ void grs_font_read(grs_font *gf, CFILE *fp)
 	gf->ft_widths = (short *)cfile_read_int(fp);
 	gf->ft_kerndata = (ubyte *)cfile_read_int(fp);
 }
+#endif
 
 grs_font * gr_init_font( char * fontname )
 {
