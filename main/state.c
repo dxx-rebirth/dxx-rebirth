@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.17 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: state.c,v 1.18 2004-12-17 09:16:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -557,7 +557,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 	if (!filename_override) {
 		PHYSFS_file *tfp;
 
-		tfp = PHYSFS_openRead(filename);
+		tfp = PHYSFS_openWrite(filename);
 
 		if ( tfp ) {
 			char	newname[128];

@@ -1,3 +1,7 @@
+2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* main/state.c: open autosave file for writing, not reading
+
 2004-12-07  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* 2d/font.c: Initialise the dataptr member correctly.
