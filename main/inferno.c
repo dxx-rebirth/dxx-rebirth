@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.45 2002-10-10 19:11:23 btb Exp $ */
+/* $Id: inferno.c,v 1.46 2002-10-10 19:16:52 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1497,6 +1497,8 @@ int main(int argc,char **argv)
 			strcpy(filename, MenuHires?"descntob.pcx":"descento.pcx"); // OEM
 		if (! cfexist(filename))
 			strcpy(filename, "descentd.pcx"); // SHAREWARE
+		if (! cfexist(filename))
+			strcpy(filename, "descentb.pcx"); // MAC SHAREWARE
 
 #if defined(POLY_ACC)
 		gr_set_mode(SM_640x480x15xPA);
