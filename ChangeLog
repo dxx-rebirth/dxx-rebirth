@@ -1,5 +1,7 @@
 2005-03-16  Bradley Bell  <btb@icculus.org>
 
+	* ui/mouse.c: gcc doesn't like multi-line // comments
+
 	* main/dumpmine.c: get rid of compiler warnings
 
 2005-03-15  Bradley Bell  <btb@icculus.org>
