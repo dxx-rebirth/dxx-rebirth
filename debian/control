@@ -2,7 +2,7 @@ Source: d2x
 Section: games
 Priority: extra
 Maintainer: Bradley Bell <bradleyb@u.washington.edu>
-Build-Depends: debhelper (>> 3.0.0), libsdl-dev, nasm, libgl-dev
+Build-Depends: debhelper (>> 2.0.0), libsdl-dev, nasm, libgl-dev
 Standards-Version: 3.5.0
 
 Package: d2x

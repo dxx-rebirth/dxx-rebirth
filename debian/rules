@@ -6,7 +6,7 @@
 #export DH_VERBOSE=1
 
 # This is the debhelper compatability version to use.
-export DH_COMPAT=3
+export DH_COMPAT=2
 
 configure: configure-stamp configure-gl-stamp
 configure-stamp:
@@ -63,7 +63,7 @@ install: build
 
 	# Add here commands to install the package into debian/d2x.
 	cd d2x-sdl && $(MAKE) install DESTDIR=$(CURDIR)/debian/d2x
-	cd d2x-ogl && $(MAKE) install DESTDIR=$(CURDIR)/debian/d2x-ogl
+	cd d2x-ogl && $(MAKE) install DESTDIR=$(CURDIR)/debian/d2x-gl
 
 
 # Build architecture-independent files here.
