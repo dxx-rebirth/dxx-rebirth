@@ -80,7 +80,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "strutil.h"
 #include "reorder.h"
-#include "hoard.h"
 
 #ifdef MACINTOSH
 	#include "resource.h"
@@ -202,8 +201,8 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 				gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2,grd_curcanv->cv_bitmap.bm_h-GAME_FONT->ft_h-2,"V%d.%d",Version_major,Version_minor);
 			#endif
 
-		//say this is hoard version
-		if (HoardEquipped()) {
+		//say this is vertigo version
+		if (cfexist(MISSION_DIR "d2x.hog")) {
 			gr_set_curfont(MEDIUM2_FONT);
 			gr_printf(MenuHires?495:248, MenuHires?88:37, "Vertigo");
 		}

@@ -1,9 +1,9 @@
 2003-02-27  Bradley Bell  <btb@icculus.org>
 
 	* main/Makefile.am, main/gamesave.c, main/hoard.c, main/hoard.h,
-	main/inferno.c, main/network.c, main/network.h main/mission.c,
-	main/mission.h: noted that hoard.ham is only needed for
-	multiplayer HOARD games, and should not be equated with
+	main/inferno.c, main/menu.c, main/mission.c, main/mission.h,
+	main/network.c, main/network.h: noted that hoard.ham is only needed
+	for multiplayer HOARD games, and should not be equated with
 	"vertigo". put HoardEquipped() back in network.c.
 
 	* arch/ggi/key.c, arch/sdl/key.c, arch/svgalib/key.c,
