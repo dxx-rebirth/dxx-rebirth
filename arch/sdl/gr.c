@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.6 2002-08-02 11:05:25 btb Exp $ */
+/* $Id: gr.c,v 1.7 2002-08-04 23:18:11 btb Exp $ */
 /*
  *
  * SDL video functions.
@@ -158,8 +158,6 @@ int gr_toggle_fullscreen(void){
 
 int gr_init(void)
 {
- int retcode;
- int mode = MenuHires?SM(640,480):SM(320,200);
  	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
@@ -182,11 +180,6 @@ int gr_init(void)
 	if (FindArg("-nosdlvidmodecheck"))
 		checkvidmodeok=0;
 	
-	// Set the mode.
-	if ((retcode=gr_set_mode(mode)))
-	{
-		return retcode;
-	}
 	grd_curscreen->sc_canvas.cv_color = 0;
 	grd_curscreen->sc_canvas.cv_drawmode = 0;
 	grd_curscreen->sc_canvas.cv_font = NULL;
