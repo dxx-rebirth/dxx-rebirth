@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.77 2004-05-20 07:25:22 btb Exp $ */
+/* $Id: inferno.c,v 1.78 2004-05-20 19:10:25 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1051,6 +1051,9 @@ void print_commandline_help()
 	printf( "  -gl_vidmem      %s\n","FIXME: Undocumented");
 #ifdef OGL_RUNTIME_LOAD
 	printf( "  -gl_library <l> %s\n","use alternate opengl library");
+#endif
+#ifdef WGL_VIDEO
+	printf("  -gl_refresh <r> %s\n", "set refresh rate (in fullscreen mode)");
 #endif
 #endif
 #ifdef SDL_VIDEO
