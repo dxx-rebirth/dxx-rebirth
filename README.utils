@@ -39,4 +39,5 @@ Converts an encrypted txb file to an ascii tex file.
 
 To build the rest of the utilities, configure the source tree as
 normal.  Then, from within the utilities subdirectory, execute "make
-<utility>" to build just that utility, or "make" to build all of them.
+<utility>" to build just that utility, or "make utils" to build all of
+them.

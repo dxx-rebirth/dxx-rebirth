@@ -1,6 +1,6 @@
-SUBDIRS = 2d 3d maths mem cfile iff texmap misc arch main libmve
+SUBDIRS = 2d 3d maths mem cfile iff texmap misc arch main libmve utilities
 
-EXTRA_SUBDIRS = include unused debian rpm utilities
+EXTRA_SUBDIRS = include unused debian rpm
 
 bin_PROGRAMS = @TARGETS@
 
