@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.13 2002-08-06 05:21:33 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.14 2002-08-08 09:10:28 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1423,18 +1423,17 @@ int load_level(char * filename_passed)
 	#endif
 
 	strcpy(filename,filename_passed);
-	strupr(filename);
 
 	#ifdef EDITOR
 		//if we have the editor, try the LVL first, no matter what was passed.
 		//if we don't have an LVL, try RDL  
 		//if we don't have the editor, we just use what was passed
 	
-		change_filename_extension(filename,filename_passed,".LVL");
+		change_filename_extension(filename,filename_passed,".lvl");
 		use_compiled_level = 0;
 	
 		if (!cfexist(filename))	{
-			change_filename_extension(filename,filename,".RL2");
+			change_filename_extension(filename,filename,".rl2");
 			use_compiled_level = 1;
 		}		
 	#endif
