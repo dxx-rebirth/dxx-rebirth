@@ -1,3 +1,7 @@
+2004-11-16  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* arch/carbon/findfile.c: fix Mac OS 9 bug with missions > 12 chars
+
 2004-11-14  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* arch/ogl/ogl.c: make Mac OS 9 Voodoo display textures

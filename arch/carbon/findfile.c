@@ -83,7 +83,6 @@ int FileFindFirst(char *search_str, FILEFINDSTRUCT *ffstruct)
     i = 0;
     do {
         char *p = path + path_len;
-        char *matchingType;
 
         if (i >= num_new_files) {
             if (!myErr) {
@@ -94,11 +93,10 @@ int FileFindFirst(char *search_str, FILEFINDSTRUCT *ffstruct)
         }
         
         FSRefMakePath (refs + i, (unsigned char *) path, 255);
-        for (matchingType = p; *matchingType && strnicmp(matchingType, search_str, strlen(search_str)); matchingType++) {}
 
         i++;
-        if (*matchingType) {
-            strncpy(ffstruct->name, p, 12);
+        if (!stricmp(p + strlen(p) - strlen(search_str), search_str)) {
+            strncpy(ffstruct->name, p, 256);
             return 0;	// Found one
         }
     } while (1);
@@ -111,7 +109,6 @@ int	FileFindNext(FILEFINDSTRUCT *ffstruct)
     do {
         char path[_MAX_PATH];
         char *p = path + path_len;
-        char *matchingType;
     
         if (i >= num_new_files) {
             if (!myErr) {
@@ -122,11 +119,10 @@ int	FileFindNext(FILEFINDSTRUCT *ffstruct)
         }
     
         FSRefMakePath (refs + i, (unsigned char *) path, 255);
-        for (matchingType = p; *matchingType && strnicmp(matchingType, type, strlen(type)); matchingType++) {}
     
         i++;
-        if (*matchingType) {
-            strncpy(ffstruct->name, p, 12);
+        if (!stricmp(p + strlen(p) - strlen(type), type)) {
+            strncpy(ffstruct->name, p, 256);
             return 0;	// Found one
         }
     } while (1);
