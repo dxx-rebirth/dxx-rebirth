@@ -1,4 +1,4 @@
-/* $Id: joystick.h,v 1.4 2004-11-22 23:32:54 btb Exp $ */
+/* $Id: joystick.h,v 1.5 2005-04-04 09:18:08 btb Exp $ */
 
 typedef struct joystick_device {
 	int		device_number;
@@ -32,7 +32,7 @@ extern int j_num_buttons;
 
 extern joystick_device j_joystick[MAX_JOY_DEVS];
 extern joystick_axis j_axis[JOY_MAX_AXES];
-extern joystick_button j_button[MAX_BUTTONS];
+extern joystick_button j_button[JOY_MAX_BUTTONS];
 
 extern int j_Update_state ();
 extern int j_Get_joydev_axis_number (int all_axis_number);

@@ -1,4 +1,4 @@
-/* $Id: joy.c,v 1.16 2005-04-04 08:56:34 btb Exp $ */
+/* $Id: joy.c,v 1.17 2005-04-04 09:18:08 btb Exp $ */
 /*
  *
  * SDL joystick support
@@ -59,7 +59,7 @@ static struct joyinfo {
 	int n_axes;
 	int n_buttons;
 	struct joyaxis axes[JOY_MAX_AXES];
-	struct joybutton buttons[MAX_BUTTONS];
+	struct joybutton buttons[JOY_MAX_BUTTONS];
 } Joystick;
 
 /* This struct is an array, with one entry for each physical joystick

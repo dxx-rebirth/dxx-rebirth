@@ -1,4 +1,4 @@
-/* $Id: joy.h,v 1.9 2004-11-22 23:32:54 btb Exp $ */
+/* $Id: joy.h,v 1.10 2005-04-04 09:18:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -66,9 +66,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define JOY_FRIENDLY_READINGS   8
 
 #ifdef USE_LINUX_JOY
-#define MAX_BUTTONS 64
+#define JOY_MAX_BUTTONS 64
 #else
-#define MAX_BUTTONS 20
+#define JOY_MAX_BUTTONS 20
 #endif
 
 //==========================================================================

@@ -1,3 +1,4 @@
+/* $Id: joyc.c,v 1.2 2005-04-04 09:21:25 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +14,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #pragma off (unreferenced)
-static char rcsid[] = "$Id: joyc.c,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $";
+static char rcsid[] = "$Id: joyc.c,v 1.2 2005-04-04 09:21:25 btb Exp $";
 #pragma on (unreferenced)
 
 #include <stdlib.h>
@@ -50,9 +51,9 @@ char joy_present = 0;
 #define JOY_READ_BUTTONS 	((~(inp(0x201) >> 4))&0xf)
 #ifdef ARCADE
 #define JOY_READ_BUTTONS_ARCADE	(~(inp(0x2A1)))
-#define MAX_BUTTONS 28
+#define JOY_MAX_BUTTONS 28
 #else
-#define MAX_BUTTONS 20
+#define JOY_MAX_BUTTONS 20
 #endif
 
 typedef struct Button_info {
@@ -70,7 +71,7 @@ typedef struct Joy_info {
 	int			max_timer;
 	int			read_count;
 	ubyte			last_value;
-	Button_info	buttons[MAX_BUTTONS];
+	Button_info buttons[JOY_MAX_BUTTONS];
 	int			axis_min[4];
 	int			axis_center[4];
 	int			axis_max[4];
@@ -122,7 +123,8 @@ void joy_flush()	{
 	if (!joy_installed) return;
 
 	_disable();
-	for (i=0; i<MAX_BUTTONS; i++ )	{
+	for (i = 0; i < JOY_MAX_BUTTONS; i++)
+	{
 		joystick.buttons[i].ignore = 0;
 		joystick.buttons[i].state = 0;	
 		joystick.buttons[i].timedown = 0;	
@@ -163,7 +165,8 @@ void joy_handler(int ticks_this_time)	{
 	#endif
 	}
 
-	for (i=0; i<MAX_BUTTONS; i++ )	{
+	for (i = 0; i < JOY_MAX_BUTTONS; i++)
+	{
 		button = &joystick.buttons[i];
 		if (!button->ignore) {
 			if ( i < 5 )
@@ -311,7 +314,7 @@ int joy_init()
 	joy_flush();
 
 	_disable();
-	for (i=0; i<MAX_BUTTONS; i++ )	
+	for (i = 0; i < JOY_MAX_BUTTONS; i++)
 		joystick.buttons[i].last_state = 0;
 	_enable();
 
@@ -517,7 +520,8 @@ int joy_get_button_state( int btn )
 
 	if ((!joy_installed)||(!joy_present)) return 0;
 
-	if ( btn >= MAX_BUTTONS ) return 0;
+	if (btn >= JOY_MAX_BUTTONS)
+		return 0;
 
 	_disable();
 	count = joystick.buttons[btn].state;
@@ -532,7 +536,8 @@ int joy_get_button_up_cnt( int btn )
 
 	if ((!joy_installed)||(!joy_present)) return 0;
 
-	if ( btn >= MAX_BUTTONS ) return 0;
+	if (btn >= JOY_MAX_BUTTONS)
+		return 0;
 
 	_disable();
 	count = joystick.buttons[btn].upcount;
@@ -547,7 +552,8 @@ int joy_get_button_down_cnt( int btn )
 	int count;
 
 	if ((!joy_installed)||(!joy_present)) return 0;
-	if ( btn >= MAX_BUTTONS ) return 0;
+	if (btn >= JOY_MAX_BUTTONS)
+		return 0;
 
 	_disable();
 	count = joystick.buttons[btn].downcount;
@@ -563,7 +569,8 @@ fix joy_get_button_down_time( int btn )
 	fix count;
 
 	if ((!joy_installed)||(!joy_present)) return 0;
-	if ( btn >= MAX_BUTTONS ) return 0;
+	if (btn >= JOY_MAX_BUTTONS)
+		return 0;
 
 	_disable();
 	count = joystick.buttons[btn].timedown;

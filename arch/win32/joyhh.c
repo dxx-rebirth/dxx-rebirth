@@ -1,4 +1,4 @@
-/* $Id: joyhh.c,v 1.5 2004-05-22 08:00:04 btb Exp $ */
+/* $Id: joyhh.c,v 1.6 2005-04-04 09:18:08 btb Exp $ */
 //JOYC.C for D1_3Dfx and D1OpenGL
 //D1_3Dfx is a Win32 executable using Glide and DirectX 3
 //D1OpenGL is a Win32 executable using OpenGL and DirectX 3
@@ -72,7 +72,7 @@ typedef struct Joy_info {
 	int			max_timer;
 	int			read_count;
 	ubyte			last_value;
-	Button_info	buttons[MAX_BUTTONS];
+	Button_info buttons[JOY_MAX_BUTTONS];
         int                     axis_min[JOY_NUM_AXES];    //changed 
         int                     axis_center[JOY_NUM_AXES]; //changed --orulz
         int                     axis_max[JOY_NUM_AXES];    //changed 
@@ -122,7 +122,8 @@ void joy_flush()	{
 
 	if (!joy_installed) return;
 
-	for (i=0; i<MAX_BUTTONS; i++ )	{
+	for (i = 0; i < JOY_MAX_BUTTONS; i++)
+	{
 		joystick.buttons[i].ignore = 0;
 		joystick.buttons[i].state = 0;	
 		joystick.buttons[i].timedown = 0;	
@@ -150,7 +151,8 @@ ubyte joy_read_raw_buttons()
         if (joyGetPosEx(joystick.joyid, &joy)!=JOYERR_NOERROR)
 		return 0;
 
-        for (i = 0; i < MAX_BUTTONS; i++) {
+	for (i = 0; i < JOY_MAX_BUTTONS; i++)
+	{
                 joystick.buttons[i].last_state = joystick.buttons[i].state;
                 joystick.buttons[i].state = (joy.dwButtons >> i) & 0x1;
                 if (!joystick.buttons[i].last_state && joystick.buttons[i].state) {
@@ -235,7 +237,7 @@ int joy_init(int joyid) //HH: added joyid parameter
 	joy_flush();
 	memset(&joystick, 0, sizeof(joystick));
 
-	for (i=0; i<MAX_BUTTONS; i++)
+	for (i = 0; i < JOY_MAX_BUTTONS; i++)
 		joystick.buttons[i].last_state = 0;
 
 	if ( !joy_installed )   {
@@ -493,7 +495,8 @@ void joy_get_btn_down_cnt( int *btn0, int *btn1 )
 int joy_get_button_state( int btn )	
 {    
 	if ((!joy_installed)||(!joy_present)) return 0;
-	if ( btn >= MAX_BUTTONS ) return 0;
+	if (btn >= JOY_MAX_BUTTONS)
+		return 0;
 
         joy_get_btns();
 
@@ -506,7 +509,8 @@ int joy_get_button_up_cnt( int btn )
 
 	if ((!joy_installed)||(!joy_present)) return 0;
 
-	if ( btn >= MAX_BUTTONS ) return 0;
+	if (btn >= JOY_MAX_BUTTONS)
+		return 0;
 
 	count = joystick.buttons[btn].upcount;
 	joystick.buttons[btn].upcount = 0;
@@ -519,7 +523,8 @@ int joy_get_button_down_cnt( int btn )
 	int count;
 
 	if ((!joy_installed)||(!joy_present)) return 0;
-	if ( btn >= MAX_BUTTONS ) return 0;
+	if (btn >= JOY_MAX_BUTTONS)
+		return 0;
 
         joy_get_btns();
 
@@ -534,7 +539,8 @@ fix joy_get_button_down_time( int btn )
         fix count;
 
         if ((!joy_installed)||(!joy_present)) return 0;
-	if ( btn >= MAX_BUTTONS ) return 0;
+	if (btn >= JOY_MAX_BUTTONS)
+		return 0;
 
         joy_get_btns();
 

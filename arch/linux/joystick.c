@@ -1,4 +1,4 @@
-/* $Id: joystick.c,v 1.6 2004-11-22 23:32:54 btb Exp $ */
+/* $Id: joystick.c,v 1.7 2005-04-04 09:18:08 btb Exp $ */
 /*
  *
  * Linux joystick support
@@ -28,7 +28,7 @@ char joy_present = 0;
 
 joystick_device j_joystick[MAX_JOY_DEVS];
 joystick_axis j_axis[JOY_MAX_AXES];
-joystick_button j_button[MAX_BUTTONS];
+joystick_button j_button[JOY_MAX_BUTTONS];
 
 int joy_num_axes = 0, j_num_buttons = 0;
 int timer_rate;
@@ -285,8 +285,8 @@ int joy_init () {
 
 		if (joy_num_axes > JOY_MAX_AXES)
 			joy_num_axes = JOY_MAX_AXES;
-		if (j_num_buttons > MAX_BUTTONS)
-			j_num_buttons = MAX_BUTTONS;
+		if (j_num_buttons > JOY_MAX_BUTTONS)
+			j_num_buttons = JOY_MAX_BUTTONS;
 
 		joy_present = 1;
 		joy_installed = 1;

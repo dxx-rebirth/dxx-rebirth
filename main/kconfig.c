@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.35 2005-04-04 08:56:34 btb Exp $ */
+/* $Id: kconfig.c,v 1.36 2005-04-04 09:18:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.35 2005-04-04 08:56:34 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.36 2005-04-04 09:18:08 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -118,7 +118,7 @@ int invert_text[2] = { TNUM_N, TNUM_Y };
 	};
 	int joyaxis_text[7] = { TNUM_X1, TNUM_Y1, TNUM_Z1, TNUM_UN, TNUM_P1,TNUM_R1,TNUM_YA1 };
 #elif defined(SDL_INPUT)
-char *joybutton_text[MAX_BUTTONS];
+char *joybutton_text[JOY_MAX_BUTTONS];
 char *joyaxis_text[JOY_MAX_AXES];
 #else
 	int joybutton_text[28] = 
@@ -1608,7 +1608,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 				}
 			}
 		} else {
-			for (i = 0; i < MAX_BUTTONS; i++)
+			for (i = 0; i < JOY_MAX_BUTTONS; i++)
 			{
 				if ( joy_get_button_state(i) )
 					code = i;
