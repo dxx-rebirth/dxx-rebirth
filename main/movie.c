@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.2 2002-07-22 02:20:05 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.3 2002-07-22 06:29:00 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -145,18 +145,26 @@ int PlayMovie(const char *filename, int must_have)
 	// Stop all songs
 	songs_stop_all();
 
+#if 0
 	save_sample_rate = digi_sample_rate;
 	digi_sample_rate = SAMPLE_RATE_22K;		//always 22K for movies
 	digi_reset(); digi_reset();
+#else
+	digi_close();
+#endif
 
 	ret = RunMovie(name,MovieHires,must_have,-1,-1);
 
-	//gr_palette_clear();		//clear out palette in case movie aborted
+	gr_palette_clear();		//clear out palette in case movie aborted
 
+#if 0
 	digi_sample_rate = save_sample_rate;		//restore rate for game
 	digi_reset(); digi_reset();
+#else
+	digi_init();
+#endif
 
-	//Screen_mode = -1;		//force screen reset
+	Screen_mode = -1;		//force screen reset
 
 	return ret;
 }
@@ -190,12 +198,10 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 #endif
 	}
 
-#if 0
 	if (hires_flag)
 		gr_set_mode(SM(640,480));
 	else
 		gr_set_mode(SM(320,200));
-#endif
 
 	frame_num = 0;
 
@@ -219,7 +225,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 		// If ESCAPE pressed, then quit movie.
 		if (key == KEY_ESC) {
-			result = aborted = 1;
+			result = 0;
+			aborted = 1;
 			break;
 		}
 
@@ -243,7 +250,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
  
 	// Restore old graphic state
 
-	//Screen_mode=-1;  //force reset of screen mode
+	Screen_mode=-1;  //force reset of screen mode
 
 	return (aborted?MOVIE_ABORTED:MOVIE_PLAYED_FULL);
 }
@@ -253,12 +260,10 @@ int InitMovieBriefing()
 {
 	con_printf(DEBUG_LEVEL, "movie: InitMovieBriefing\n");
 
-#if 0
 	if (MenuHires)
 		gr_set_mode(SM(640,480));
 	else
 		gr_set_mode(SM(320,200));
-#endif
 	return 1;
 }
 
