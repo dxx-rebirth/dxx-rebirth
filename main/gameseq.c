@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.17 2003-02-28 11:27:05 btb Exp $ */
+/* $Id: gameseq.c,v 1.18 2003-03-15 03:55:52 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.17 2003-02-28 11:27:05 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.18 2003-03-15 03:55:52 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -820,6 +820,14 @@ extern char last_palette_loaded_pig[];
 
 ubyte *Bitmap_replacement_data=NULL;
 
+void free_bitmap_replacements()
+{
+	if (Bitmap_replacement_data) {
+		d_free(Bitmap_replacement_data);
+		Bitmap_replacement_data = NULL;
+	}
+}
+
 void load_bitmap_replacements(char *level_name)
 {
 	char ifile_name[FILENAME_LEN];
@@ -827,10 +835,7 @@ void load_bitmap_replacements(char *level_name)
 	int i;
 
 	//first, free up data allocated for old bitmaps
-	if (Bitmap_replacement_data) {
-		d_free(Bitmap_replacement_data);
-		Bitmap_replacement_data = NULL;
-	}
+	free_bitmap_replacements();
 
 	change_filename_extension(ifile_name, level_name, ".POG" );
 	
@@ -891,6 +896,8 @@ void load_bitmap_replacements(char *level_name)
 
 		texmerge_flush();		//for re-merging with new textures
 	}
+
+	atexit(free_bitmap_replacements);
 }
 
 void load_robot_replacements(char *level_name);
@@ -2401,13 +2408,3 @@ void StartLevel(int random_flag)
 
 	Robot_firing_enabled = 1;
 }
-
-
-
-
-
-
-
-
-
-

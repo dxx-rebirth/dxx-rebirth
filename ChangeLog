@@ -1,3 +1,9 @@
+2003-03-14  Bradley Bell  <bradleyb@smeagol>
+
+	* main/gameseq.c: fix Bitmap_replacement_data mem leakage
+
+	* unused/bios/rbaudio.h: removed duplicate file
+
 2003-03-14  Christopher Thielen  <chris@luethy.net>
 
 	* arch/sdl/rbaudio.c (RBAExit): stop cd audio when exiting
