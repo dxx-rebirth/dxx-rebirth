@@ -1,4 +1,4 @@
-/* $Id: ibitblt.c,v 1.6 2002-09-04 22:18:43 btb Exp $ */
+/* $Id: ibitblt.c,v 1.7 2003-10-25 01:44:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,10 +14,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * Mac Version:
+ * "PC" Version:
+ * Rountines to copy a bitmap on top of another bitmap, but
+ * only copying to pixels that are transparent.
+ * "Mac" Version:
  * Routines to to inverse bitblitting -- well not really.
  * We don't inverse bitblt like in the PC, but this code
  * does set up a structure that blits around the cockpit
+ *
+ * d2x uses the "Mac" version for everything except __MSDOS__
  *
  * Old Log: ibitblt.c
  * Revision 1.3  1995/09/13  11:43:22  allender
@@ -62,10 +67,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ibitblt.c,v 1.6 2002-09-04 22:18:43 btb Exp $";
+static char rcsid[] = "$Id: ibitblt.c,v 1.7 2003-10-25 01:44:23 btb Exp $";
 #endif
 
-#ifdef __MSDOS__
+#ifdef __MSDOS__ //ndef MACINTOSH
 
 #include <conio.h>
 #include <dos.h>
@@ -652,7 +657,7 @@ void    gr_ibitblt_find_hole_size( grs_bitmap * mask_bmp, int *minx, int *miny, 
 	}
 }
 
-#else // ifdef __MSDOS__
+#else /* __MSDOS__ */ // was: /* !MACINTOSH */
 
 #include "pa_enabl.h"
 #include "pstypes.h"
@@ -708,7 +713,7 @@ void gr_ibitblt(grs_bitmap *src_bmp, grs_bitmap *dest_bmp, ubyte pixel_double)
 
 		dy = sy;
 		for (y = sy; y < sy + sh; y++) {
-			gr_linear_movsd_double(src, scan, sw*2);
+			gr_linear_rep_movsd_2x(src, scan, sw); // was: gr_linear_movsd_double(src, scan, sw*2);
 			current_hole = start_points[dy];
 			current_hole_length = hole_length[dy];
 			for (x = 0; x < MAX_HOLES; x++) {
@@ -915,4 +920,4 @@ void gr_ibitblt_find_hole_size(grs_bitmap *mask_bmp, int *minx, int *miny, int *
 	Assert (count);
 }
 
-#endif // ifdef __MSDOS__
+#endif /* __MSDOS__ */ // was: /* !MACINTOSH */

@@ -1,4 +1,4 @@
-/* $Id: bitblt.c,v 1.11 2003-10-04 02:58:23 btb Exp $ */
+/* $Id: bitblt.c,v 1.12 2003-10-25 01:44:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -426,7 +426,7 @@ static void gr_linear_rep_movsdm_faded(ubyte * src, ubyte * dest, unsigned int n
 #endif
 
 
-static void gr_linear_rep_movsd_2x(ubyte * src, ubyte * dest, unsigned int num_dest_pixels );
+void gr_linear_rep_movsd_2x(ubyte *src, ubyte *dest, unsigned int num_dest_pixels);
 
 #if !defined(NO_ASM) && defined(__WATCOMC__)
 
@@ -452,7 +452,8 @@ static void gr_linear_rep_movsd_2x(ubyte * src, ubyte * dest, unsigned int num_d
 
 #elif !defined(NO_ASM) && defined (__GNUC__)
 
-static inline void gr_linear_rep_movsd_2x(ubyte * src, ubyte * dest, unsigned int num_dest_pixels ) {
+inline void gr_linear_rep_movsd_2x(ubyte *src, ubyte *dest, unsigned int num_dest_pixels)
+{
 /* #pragma aux gr_linear_rep_movsd_2x parm [esi] [edi] [ecx] modify exact [ecx esi edi eax ebx] */
 	int dummy[3];
  __asm__ __volatile__ (
@@ -481,7 +482,7 @@ static inline void gr_linear_rep_movsd_2x(ubyte * src, ubyte * dest, unsigned in
 
 #elif !defined(NO_ASM) && defined(_MSC_VER)
 
-__inline void gr_linear_rep_movsd_2x(ubyte * src, ubyte * dest, unsigned int num_dest_pixels )
+__inline void gr_linear_rep_movsd_2x(ubyte *src, ubyte *dest, unsigned int num_dest_pixels)
 {
  __asm {
   mov esi, [src]
@@ -510,7 +511,7 @@ done:
 
 #else
 
-static void gr_linear_rep_movsd_2x(ubyte *src, ubyte *dest, unsigned int num_pixels)
+void gr_linear_rep_movsd_2x(ubyte *src, ubyte *dest, unsigned int num_pixels)
 {
 	double  *d = (double *)dest;
 	uint    *s = (uint *)src;
@@ -1347,7 +1348,7 @@ void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *
 
 extern void gr_lbitblt( grs_bitmap * source, grs_bitmap * dest, int height, int width );
 
-#if 1 //def MACINTOSH
+#ifdef MACINTOSH
 
 // width == number of destination pixels
 
@@ -1387,7 +1388,6 @@ void gr_linear_movsd_double(ubyte *src, ubyte *dest, int width)
 
 //extern void BlitLargeAlign(ubyte *draw_buffer, int dstRowBytes, ubyte *dstPtr, int w, int h, int modulus);
 
-#ifdef MACINTOSH
 asm void BlitLargeAlign(ubyte *rSrcPtr, int rDblDStrd, ubyte *rDst1Ptr, int rWidth, int rHeight, int rModulus)
 {
     stw     r31,-4(SP)          // store non-volatile reg in red zone
@@ -1465,7 +1465,6 @@ void gr_bm_ubitblt_double(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 	Assert( !((int)dbits & 0x7) );  // assert to check double word alignment
 	BlitLargeAlign(sbits, dstep, dbits, src->bm_w, src->bm_h, src->bm_rowsize);
 }
-#endif
 
 // w and h are the doubled width and height
 
@@ -1488,7 +1487,7 @@ void gr_bm_ubitblt_double_slow(int w, int h, int dx, int dy, int sx, int sy, grs
 	}
 }
 
-#endif
+#endif /* MACINTOSH */
 
 
 // Clipped bitmap ...

@@ -1,4 +1,4 @@
-/* $Id: grdef.h,v 1.8 2002-09-05 01:30:00 btb Exp $ */
+/* $Id: grdef.h,v 1.9 2003-10-25 01:44:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -79,6 +79,7 @@ extern unsigned int gr_var_bwidth;
 extern unsigned char * gr_var_bitmap;
 
 void gr_linear_movsd( ubyte * source, ubyte * dest, unsigned int nbytes);
+void gr_linear_rep_movsd_2x(ubyte *source, ubyte *dest, unsigned int nbytes);
 
 void gr_linear_line( int x0, int y0, int x1, int y1);
 

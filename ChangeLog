@@ -1,3 +1,9 @@
+2003-10-24  Bradley Bell  <btb@icculus.org>
+
+	* 2d/bitblt.c, 2d/ibitblt.c, include/gr.h, include/grdef.h: use
+	gr_linear_rep_movsd_2x instead of almost identical
+	gr_linear_movsd_double. Better since we have assembly versions.
+
 2003-10-22 Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/gamemine.c, main/piggy.c: fix "psychedelic" walls
