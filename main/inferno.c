@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.14 $
+ * $Revision: 1.15 $
  * $Author: bradleyb $
- * $Date: 2001-11-04 09:01:41 $
+ * $Date: 2001-11-05 07:39:08 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.14  2001/11/04 09:01:41  bradleyb
+ * SDL applies to more than X11...
+ *
  * Revision 1.13  2001/10/31 07:41:54  bradleyb
  * Sync with d1x
  *
@@ -468,7 +471,7 @@ int main(int argc,char **argv)
 
 	error_init(NULL, NULL);
 
-	args_init( argc,argv );
+	InitArgs( argc,argv );
 
 	if ( FindArg( "-debug") )
 	{

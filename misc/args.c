@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/misc/args.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 15:18:04 $
+ * $Date: 2001-11-05 07:39:26 $
  * 
  * Functions for accessing arguments.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/01/31 15:18:04  bradleyb
+ * Makefile and conf.h fixes
+ *
  * Revision 1.2  2001/01/24 04:29:48  bradleyb
  * changed args_find to FindArg
  *
@@ -75,7 +78,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.3 2001-01-31 15:18:04 bradleyb Exp $";
+static char rcsid[] = "$Id: args.c,v 1.4 2001-11-05 07:39:26 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -109,7 +112,7 @@ void args_exit(void)
 }
 //end additions - adb
 
-void args_init( int argc,char **argv )
+void InitArgs( int argc,char **argv )
 {
  int i;
  FILE *f;
