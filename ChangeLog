@@ -39,6 +39,9 @@
 	* README: add PhysicsFS to the required 'tools' in README, and
 	instructions for building in MPW.
 
+	* include/cfile.h: Make cfopen into an inline, where a read buffer
+	is set up.  This speeds up loading significantly.
+
 2004-12-01  Bradley Bell  <btb@icculus.org>
 
 	* include/physfsx.h, include/strio.h, main/cntrlcen.c,

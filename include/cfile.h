@@ -1,4 +1,4 @@
-/* $Id: cfile.h,v 1.12 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: cfile.h,v 1.13 2004-12-01 13:01:00 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,12 +31,29 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 
 #define CFILE            PHYSFS_file
-#define cfopen(n,m)      PHYSFS_openRead(n)
 #define cfread(p,s,n,fp) PHYSFS_read(fp,p,s,n)
 #define cfclose          PHYSFS_close
 #define cftell           PHYSFS_tell
 #define cfexist          PHYSFS_exists
 #define cfilelength      PHYSFS_fileLength
+
+//Open a file, set up a read buffer
+static inline PHYSFS_file *cfopen(char *filename, char *mode)
+{
+	PHYSFS_file *fp;
+	PHYSFS_uint64 bufSize;
+	
+	mode = mode;	// no warning
+	fp = PHYSFS_openRead(filename);
+	if (!fp)
+		return NULL;
+
+	bufSize = PHYSFS_fileLength(fp);
+	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
+		bufSize /= 2;	// even if the error isn't memory full, for a 20MB file it'll only do this 8 times
+
+	return fp;
+}
 
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
 static inline int cfile_init(char *hogname)
