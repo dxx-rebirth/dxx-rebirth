@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
 * $Source: /cvs/cvsroot/d2x/arch/win32/mouse.c,v $
-* $Revision: 1.1.1.1 $
-* $Author: bradleyb $
-* $Date: 2001-01-19 03:30:15 $
+* $Revision: 1.2 $
+* $Author: btb $
+* $Date: 2004-05-19 02:18:19 $
 * 
 * Functions to access Mouse and Cyberman...
 * 
 * $Log: not supported by cvs2svn $
+* Revision 1.1.1.1  2001/01/19 03:30:15  bradleyb
+* Import of d2x-0.0.8
+*
 * Revision 1.5  1999/10/15 05:27:48  donut
 * include to fix undef'd err
 *
@@ -220,7 +223,7 @@ extern HWND g_hWnd;
 
 HRESULT ReadMouse (DIDEVICEOBJECTDATA *pdidod)
 {
-	ULONG cElements = 1;
+	DWORD cElements = 1;
 	HRESULT hr;
 
 	if (g_lpdidMouse == NULL)
@@ -230,7 +233,7 @@ HRESULT ReadMouse (DIDEVICEOBJECTDATA *pdidod)
 		g_lpdidMouse,
 		sizeof (*pdidod),
 		pdidod,
-                (int *) &cElements,
+		&cElements,
 		0);
 
 	if (hr == DIERR_INPUTLOST)
@@ -242,7 +245,7 @@ HRESULT ReadMouse (DIDEVICEOBJECTDATA *pdidod)
 				g_lpdidMouse,
 				sizeof (*pdidod),
 				pdidod,
-                                (int *) &cElements,
+				&cElements,
 				0);
 		}
 	}
@@ -341,14 +344,14 @@ void mouse_flush()
 	//	_enable();
 
 	{
-		ULONG cElements = INFINITE;
+		DWORD cElements = INFINITE;
 //                HRESULT hr =
-        IDirectInputDevice_GetDeviceData (
+		IDirectInputDevice_GetDeviceData (
 			g_lpdidMouse,
-                        sizeof (DIDEVICEOBJECTDATA),
+			sizeof (DIDEVICEOBJECTDATA),
 			NULL,
-                        (int *) &cElements,
-                        0);
+			&cElements,
+			0);
 	}
 }
 
