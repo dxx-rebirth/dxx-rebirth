@@ -16,6 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _STRUTILS_H
 
 #ifdef __unix__
+#include <string.h>
 #define stricmp(a,b) strcasecmp(a,b)
 #define strnicmp(a,b,c) strncasecmp(a,b,c)
 #elif 0
