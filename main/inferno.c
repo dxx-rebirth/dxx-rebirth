@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.83 2004-05-22 06:56:41 btb Exp $ */
+/* $Id: inferno.c,v 1.84 2004-05-22 07:16:04 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1273,7 +1273,7 @@ int main(int argc, char *argv[])
 		float f = atof(Args[t + 1]);
 		Rear_view_leave_time = f * f1_0;
 	}
-	con_printf(CON_VERBOSE, "Rear_view_leave_time=0x%x (%f sec)\n", Rear_view_leave_time, Rear_view_leave_time / (float)f1_0));
+	con_printf(CON_VERBOSE, "Rear_view_leave_time=0x%x (%f sec)\n", Rear_view_leave_time, Rear_view_leave_time / (float)f1_0);
 
 	//added/edited 8/18/98 by Victor Rachels to set maximum fps <= 100
 	if ((t = FindArg( "-maxfps" ))) {

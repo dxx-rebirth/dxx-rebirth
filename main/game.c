@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.29 2004-05-22 06:56:34 btb Exp $ */
+/* $Id: game.c,v 1.30 2004-05-22 07:15:04 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -407,7 +407,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.29 2004-05-22 06:56:34 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.30 2004-05-22 07:15:04 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2404,7 +2404,7 @@ void show_help()
 //temp function until Matt cleans up game sequencing
 extern void temp_reset_stuff_on_level();
 
-fix Rear_view_leave_time = 0x1000   // how long until we decide key is down (Used to be 0x4000)
+fix Rear_view_leave_time = 0x1000;   // how long until we decide key is down (Used to be 0x4000)
 
 //deal with rear view - switch it on, or off, or whatever
 void check_rear_view()
