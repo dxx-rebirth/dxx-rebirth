@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.19 2003-03-19 22:44:15 btb Exp $ */
+/* $Id: gameseq.c,v 1.20 2003-03-20 22:50:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.19 2003-03-19 22:44:15 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.20 2003-03-20 22:50:50 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -831,14 +831,6 @@ void free_bitmap_replacements()
 	}
 }
 
-void clear_bitmap_replacement()
-{
-	if (Bitmap_replacement_data) {
-		d_free(Bitmap_replacement_data);
-		Bitmap_replacement_data = NULL;
-	}
-}
-
 void load_bitmap_replacements(char *level_name)
 {
 	char ifile_name[FILENAME_LEN];
@@ -936,7 +928,7 @@ void load_d1_bitmap_replacements()
 	if (!Piggy_fp)
 		return; // use d2 bitmaps instead...
 
-	clear_bitmap_replacement();
+	free_bitmap_replacements();
 
 	// read d1 palette, build colormap
 	{
@@ -1088,8 +1080,8 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	if (Mission_list[Current_mission_num].descent_version == 1)
 		load_d1_bitmap_replacements();
-	else 
-	load_bitmap_replacements(level_name);
+	else
+		load_bitmap_replacements(level_name);
 
 	if (Robot_replacements_loaded) {
 		read_hamfile();		//load original data

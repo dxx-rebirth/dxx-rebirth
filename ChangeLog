@@ -1,5 +1,7 @@
 2003-03-20  Martin Schaffner <maschaffner@gmx.ch>
 
+	* main/gameseq.c: delete duplicate function
+
 	* 2d/rle.c: fix color swapping on big endian of big rle bitmaps
 
 2003-03-19  Bradley Bell  <btb@icculus.org>
