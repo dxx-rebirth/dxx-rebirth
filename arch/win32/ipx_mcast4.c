@@ -1,4 +1,4 @@
-/* $Id: ipx_mcast4.c,v 1.1 2003-10-12 09:17:47 btb Exp $ */
+/* $Id: ipx_mcast4.c,v 1.2 2003-10-14 20:48:15 btb Exp $ */
 
 /*
  *
@@ -25,6 +25,7 @@
 #include "args.h"
 #include "error.h"
 #include "../../main/multi.h"
+#include "../../main/newmenu.h"
 
 //#define IPX_MCAST4_DEBUG
 

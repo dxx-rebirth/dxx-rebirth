@@ -1,3 +1,7 @@
+2003-10-14  Bradley Bell  <btb@icculus.org>
+
+	* arch/win32/ipx_mcast4.c: include newmenu header (for FAIL macro)
+
 2003-10-12  Bradley Bell  <btb@icculus.org>
 
 	* main/cntrlcen.c, main/endlevel.c, main/gamerend.c,
