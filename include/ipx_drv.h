@@ -11,7 +11,7 @@
 
 #include "pstypes.h"
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) || defined(__MINGW32__)
 #include <winsock.h>
 #else
 #include <netinet/in.h> /* for htons & co. */
