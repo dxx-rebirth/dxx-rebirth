@@ -1,3 +1,4 @@
+/* $Id: grdef.h,v 1.4 2002-07-30 11:05:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,25 +12,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvs/cvsroot/d2x/include/grdef.h,v $
- * $Revision: 1.3 $
- * $Author: bradleyb $
- * $Date: 2002-02-15 12:21:45 $
  *
  * Internal definitions for graphics lib.
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.2  2001/11/14 10:31:40  bradleyb
- * change __ENV_WINDOWS__ to __WINDOWS__, __ENV_MSDOS__ to __MSDOS__
- *
- * Revision 1.1.1.2  2001/01/19 03:34:09  bradleyb
- * Import of d2x-0.0.9-pre1
- *
- * Revision 1.2  1999/11/20 10:05:16  donut
- * variable size menu patch from Jan Bobrowski.  Variable menu font size support and a bunch of fixes for menus that didn't work quite right, by me (MPM).
- *
- * Revision 1.1.1.1  1999/06/14 22:02:14  donut
- * Import of d1x 1.37 source.
+ * Old Log:
  *
  * Revision 1.5  1995/09/14  15:36:33  allender
  * added stuff for 68k version
@@ -77,7 +63,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define USE_2D_ASM 1
  
 void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline);
-void show_fullscr(grs_bitmap *bm);
 void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int w, int h );
 void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data );
 

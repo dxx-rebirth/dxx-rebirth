@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamefont.c,v 1.2 2001-01-31 15:17:52 bradleyb Exp $";
+static char rcsid[] = "$Id: gamefont.c,v 1.3 2002-07-30 11:05:53 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -27,6 +27,7 @@ static char rcsid[] = "$Id: gamefont.c,v 1.2 2001-01-31 15:17:52 bradleyb Exp $"
 
 //if 1, use high-res versions of fonts
 int FontHires=0;
+int FontHiresAvailable=0;
 
 char * Gamefont_filenames[] = {	"font1-1.fnt",			// Font 0
 										 	"font1-1h.fnt",		// Font 0 High-res
@@ -50,9 +51,15 @@ void gamefont_init()
 
 	if (Gamefont_installed) return;
 	Gamefont_installed = 1;
+	FontHiresAvailable = 1;
 
-	for (i=0; i<MAX_FONTS; i++ )
+	for (i=0; i<MAX_FONTS; i+=2)
 		Gamefonts[i] = gr_init_font(Gamefont_filenames[i]);
+	for (i=1; i<MAX_FONTS; i+=2) {
+		Gamefonts[i] = gr_init_font(Gamefont_filenames[i]);
+		if (!Gamefonts[i])
+			FontHiresAvailable = 0;
+	}
 
 	atexit( gamefont_close );
 }

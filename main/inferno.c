@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.34 2002-07-26 09:25:10 btb Exp $ */
+/* $Id: inferno.c,v 1.35 2002-07-30 11:05:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -839,9 +839,9 @@ int main(int argc,char **argv)
 		gr_set_mode(MenuHires?SM(640,480):SM(320,200));
 #endif
 
-		FontHires = MenuHires;
+		FontHires = FontHiresAvailable && MenuHires;
 
-		if ((pcx_error=pcx_read_bitmap( filename, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, title_pal ))==PCX_ERROR_NONE)	{
+		if ((pcx_error=pcx_read_fullscr( filename, title_pal ))==PCX_ERROR_NONE)	{
 			//vfx_set_palette_sub( title_pal );
 			gr_palette_clear();
 			gr_palette_fade_in( title_pal, 32, 0 );
@@ -1116,7 +1116,7 @@ void show_order_form()
 	#endif
 	#endif
 
-	if ((pcx_error=pcx_read_bitmap( exit_screen, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, title_pal ))==PCX_ERROR_NONE) {
+	if ((pcx_error=pcx_read_fullscr( exit_screen, title_pal ))==PCX_ERROR_NONE) {
 		//vfx_set_palette_sub( title_pal );
 		gr_palette_fade_in( title_pal, 32, 0 );
 		key_getch();

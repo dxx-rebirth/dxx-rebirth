@@ -168,7 +168,11 @@ void nm_draw_background1(char * filename)
 	//@@Assert(grd_curcanv->cv_bitmap.bm_w == 320);
 	//@@Assert(grd_curcanv->cv_bitmap.bm_h == 200);
 
+#ifdef SHAREWARE
+	bmp = gr_create_bitmap(320,200); //high res pcx not available
+#else
 	bmp = gr_create_bitmap(grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h);
+#endif
 
 	pcx_error = pcx_read_bitmap(filename,bmp,bmp->bm_type,pal);
 	Assert(pcx_error == PCX_ERROR_NONE);
@@ -194,7 +198,7 @@ WIN(DDGRLOCK(dd_grd_curcanv));
     pa_save_clut();
     pa_update_clut(gr_palette, 0, 256, 0);
 #endif
-	gr_bitmap(0,0,bmp);
+	show_fullscr(bmp);
 #if defined(POLY_ACC)
     pa_restore_clut();
 #endif

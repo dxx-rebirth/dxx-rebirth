@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.15 2002-07-27 03:10:52 btb Exp $ */
+/* $Id: font.c,v 1.16 2002-07-30 11:05:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1622,6 +1622,7 @@ grs_font * gr_init_font( char * fontname )
 		int i;
 		for (i=0;i<MAX_OPEN_FONTS;i++)
 			open_font[i].ptr = NULL;
+			open_font[i].dataptr = NULL;
 		first_time=0;
 	}
 
@@ -1633,12 +1634,16 @@ grs_font * gr_init_font( char * fontname )
 
 	fontfile = cfopen(fontname, "rb");
 
-	if (!fontfile)
-		Error( "Can't open font file %s", fontname );
+	if (!fontfile) {
+		con_printf(CON_VERBOSE, "Can't open font file %s", fontname);
+		return NULL;
+	}
 
 	cfread(file_id, 4, 1, fontfile);
-	if ( !strncmp( file_id, "NFSP", 4 ) )
-		Error( "File %s is not a font file", fontname );
+	if ( !strncmp( file_id, "NFSP", 4 ) ) {
+		con_printf(CON_NORMAL, "File %s is not a font file", fontname );
+		return NULL;
+	}
 
 	datasize = cfile_read_int(fontfile);
 	datasize -= GRS_FONT_SIZE; // subtract the size of the header.

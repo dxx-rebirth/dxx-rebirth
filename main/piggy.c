@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.12 2002-07-30 04:52:45 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.13 2002-07-30 11:05:53 btb Exp $";
 #endif
 
 
@@ -69,7 +69,7 @@ static char rcsid[] = "$Id: piggy.c,v 1.12 2002-07-30 04:52:45 btb Exp $";
 #ifdef SHAREWARE
 	#define DEFAULT_HAMFILE         "d2demo.ham"
 	#define DEFAULT_PIGFILE         DEFAULT_PIGFILE_SHAREWARE
-	#define DEFAULT_SNDFILE			"descent2.s11"
+	#define DEFAULT_SNDFILE			DEFAULT_HAMFILE //"descent2.s11"
 #else
 	#define DEFAULT_HAMFILE         "descent2.ham"
 	#define DEFAULT_PIGFILE         DEFAULT_PIGFILE_REGISTERED
@@ -971,7 +971,6 @@ int read_hamfile()
 		//int i;
 
 		bm_read_all( ham_fp );  // Note connection to above if!!!
-		printf("position: %d\n", cftell(ham_fp));
 		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
 		// no swap here?
 		//for (i = 0; i < MAX_BITMAP_FILES; i++) {
@@ -1000,7 +999,7 @@ int read_hamfile()
 
 		//Read sounds
 
-		for (i=0; i<N_sounds; i++ )     {
+		for (i=0; i<N_sounds; i++ ) {
 			DiskSoundHeader_read(&sndh, ham_fp);
 			temp_sound.length = sndh.length;
 			temp_sound.data = (ubyte *)(sndh.offset + header_size + sound_start);
@@ -1076,7 +1075,7 @@ int read_sndfile()
 
 	//Read sounds
 
-	for (i=0; i<N_sounds; i++ )     {
+	for (i=0; i<N_sounds; i++ ) {
 		DiskSoundHeader_read(&sndh, snd_fp);
 		//size -= sizeof(DiskSoundHeader);
 		temp_sound.length = sndh.length;

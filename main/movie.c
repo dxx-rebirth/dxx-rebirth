@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: movie.c,v 1.8 2002-07-30 11:05:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.7 2002-07-26 20:59:41 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.8 2002-07-30 11:05:53 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -125,10 +125,9 @@ int PlayMovie(const char *filename, int must_have)
 	int save_sample_rate;
 #endif
 	
-	con_printf(DEBUG_LEVEL, "movie: PlayMovie: %s %d\n", filename, must_have);
-
 #ifndef RELEASE
-	if (FindArg("-nomovies"))
+	//if (FindArg("-nomovies"))
+	if (!FindArg("-movies"))
 		return MOVIE_NOT_PLAYED;
 #endif
 
@@ -184,8 +183,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	int result=1,aborted=0;
 	int frame_num;
 	MVESTREAM *mve;
-
-	con_printf(DEBUG_LEVEL, "movie: RunMovie: %s, %d, %d, %d\n", filename, hires_flag, must_have, dx, dy);
 
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
@@ -265,8 +262,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 int InitMovieBriefing()
 {
-	con_printf(DEBUG_LEVEL, "movie: InitMovieBriefing\n");
-
 #if 0
 	if (MenuHires)
 		gr_set_mode(SM(640,480));
@@ -355,7 +350,6 @@ int InitRobotMovie(char *filename)
 
 	RoboFilePos=lseek (RoboFile,0L,SEEK_CUR);
 
-	con_printf(DEBUG_LEVEL, "movie: InitRobotMovie: FilePos=%d!\n",RoboFilePos);
 	return 1;
 #else
 	return 0;
@@ -373,8 +367,6 @@ ubyte *subtitle_raw_data;
 //search for next field following whitespace 
 ubyte *next_field(ubyte *p)
 {
-	con_printf(DEBUG_LEVEL, "movie: next_field: %c\n", *p);
-
 	while (*p && !isspace(*p))
 		p++;
 
@@ -397,8 +389,6 @@ int init_subtitles(char *filename)
 	int size,read_count;
 	ubyte *p;
 	int have_binary = 0;
-
-	con_printf(DEBUG_LEVEL, "movie: init_subtitles: %s\n", filename);
 
 	Num_subtitles = 0;
 
@@ -469,8 +459,6 @@ int init_subtitles(char *filename)
 
 void close_subtitles()
 {
-	con_printf(DEBUG_LEVEL, "movie: close_subtitles\n");
-
 	if (subtitle_raw_data)
 		d_free(subtitle_raw_data);
 	subtitle_raw_data = NULL;
@@ -485,8 +473,6 @@ void draw_subtitles(int frame_num)
 	static int num_active_subtitles,next_subtitle,line_spacing;
 	int t,y;
 	int must_erase=0;
-
-	con_printf(DEBUG_LEVEL, "movie: draw_subtitles: %d\n", frame_num);
 
 	if (frame_num == 0) {
 		num_active_subtitles = 0;
@@ -528,7 +514,6 @@ void draw_subtitles(int frame_num)
 	//now draw the current subtitles
 	for (t=0;t<num_active_subtitles;t++)
 		if (active_subtitles[t] != -1) {
-			con_printf(DEBUG_LEVEL, "%s\n", Subtitles[active_subtitles[t]].msg);
 			gr_string(0x8000,y,Subtitles[active_subtitles[t]].msg);
 			y += line_spacing+1;
 		}
@@ -548,13 +533,9 @@ movielib *init_new_movie_lib(char *filename,FILE *fp)
 	int i,n;
 	movielib *table;
 
-	con_printf(DEBUG_LEVEL, "movie: init_new_movie_lib: %s\n", filename);
-
 	//read movie file header
 
 	nfiles = file_read_int(fp);		//get number of files
-
-	con_printf(DEBUG_LEVEL, "movie: init_new_movie_lib: -> %d files\n", nfiles);
 
 	//table = d_malloc(sizeof(*table) + sizeof(ml_entry)*nfiles);
 	MALLOC(table, movielib, 1);
@@ -572,11 +553,7 @@ movielib *init_new_movie_lib(char *filename,FILE *fp)
 		if ( n != 1 )
 			break;		//end of file (probably)
 
-		con_printf(DEBUG_LEVEL, "movie: init_new_movie_lib: -> %s\n", table->movies[i].name);
-
 		len = file_read_int(fp);
-
-		con_printf(DEBUG_LEVEL, "movie: init_new_movie_lib: --> %d\n", len);
 
 		table->movies[i].len = len;
 		table->movies[i].offset = offset;
@@ -599,8 +576,6 @@ movielib *init_old_movie_lib(char *filename,FILE *fp)
 	int nfiles,size;
 	int i;
 	movielib *table,*table2;
-
-	con_printf(DEBUG_LEVEL, "movie: init_old_movie_lib: %s\n", filename);
 
 	nfiles = 0;
 
@@ -654,8 +629,6 @@ movielib *init_movie_lib(char *filename)
 	char id[4];
 	FILE * fp;
  
-	con_printf(DEBUG_LEVEL, "movie: init_movie_lib: %s\n", filename);
-
 	fp = fopen( filename, "rb" );
 	if ( fp == NULL ) 
 		return NULL;
@@ -676,8 +649,6 @@ movielib *init_movie_lib(char *filename)
 
 void close_movie(int i)
 {
-	con_printf(DEBUG_LEVEL, "movie: close_movie\n");
-
 	if (movie_libs[i]) {
 		d_free(movie_libs[i]->movies);
 		d_free(movie_libs[i]);
@@ -689,8 +660,6 @@ void close_movies()
 {
 	int i;
 
-	con_printf(DEBUG_LEVEL, "movie: close_movies\n");
-
 	for (i=0;i<N_MOVIE_LIBS;i++)
 		close_movie(i);
 }
@@ -700,10 +669,9 @@ void init_movie(char *filename,int libnum,int is_robots,int required)
 {
 	int high_res;
 
-	con_printf(DEBUG_LEVEL, "movie: init_movie: %s, %d, %d, %d\n", filename, libnum, is_robots, required);
-
 #ifndef RELEASE
-	if (FindArg("-nomovies")) {
+	//if (FindArg("-nomovies")) {
+	if (!FindArg("-movies")) {
 		movie_libs[libnum] = NULL;
 		return;
 	}
@@ -764,8 +732,6 @@ void init_movies()
 	int i;
 	int is_robots;
 
-	con_printf(DEBUG_LEVEL, "movie: init_movies\n");
-
 	for (i=0;i<N_BUILTIN_MOVIE_LIBS;i++) {
 
 		if (!strnicmp(movielib_files[i],"robot",5))
@@ -794,8 +760,6 @@ int search_movie_lib(movielib *lib,char *filename,int must_have)
 {
 	int i;
 	int filehandle;
-
-	con_printf(DEBUG_LEVEL, "movie: search_movie_lib: %s, %s, %d\n", lib->name, filename, must_have);
 
 	if (lib == NULL)
 		return -1;
@@ -835,8 +799,6 @@ int search_movie_lib(movielib *lib,char *filename,int must_have)
 int open_movie_file(char *filename,int must_have)
 {
 	int filehandle,i;
-
-	con_printf(DEBUG_LEVEL, "movie: open_movie_file: %s %d\n", filename, must_have);
 
 	for (i=0;i<N_MOVIE_LIBS;i++) {
 		if ((filehandle = search_movie_lib(movie_libs[i],filename,must_have)) != -1)

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.12 2002-07-27 22:39:57 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.13 2002-07-30 11:05:53 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -906,7 +906,7 @@ WIN(static int saved_window_h);
 									dd_grd_screencanv->canvas.cv_bitmap.bm_w,
 									dd_grd_screencanv->canvas.cv_bitmap.bm_h);
 			MenuHires = 1;
-			FontHires = 1;
+			FontHires = FontHiresAvailable;
 
 		#else
 		{
@@ -934,7 +934,7 @@ WIN(static int saved_window_h);
 			gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 			gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 
-			FontHires = MenuHires;
+			FontHires = FontHiresAvailable && MenuHires;
 
 		}
 		#endif
@@ -1026,15 +1026,15 @@ WIN(static int saved_window_h);
 		init_cockpit();
 
 	#ifdef WINDOWS
-		FontHires = (Current_display_mode != 0);
+		FontHires = FontHiresAvailable && (Current_display_mode != 0);
 		MenuHires = 1;
 	#else
-		FontHires = MenuHires = ((Current_display_mode != 0) && (Current_display_mode != 2));
+		FontHires = FontHiresAvailable && (MenuHires = ((Current_display_mode != 0) && (Current_display_mode != 2)));
 	#endif
 
 		if ( VR_render_mode != VR_NONE )	{
 			// for 640x480 or higher, use hires font.
-			if ( grd_curscreen->sc_h > 400 )
+			if (FontHiresAvailable && (grd_curscreen->sc_h > 400))
 				FontHires = 1;
 			else
 				FontHires = 0;

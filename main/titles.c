@@ -213,7 +213,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 
 	//vfx_set_palette_sub( New_pal );
 #ifdef OGL
-    	gr_palette_load( New_pal );
+	gr_palette_load( New_pal );
 #else
 	gr_palette_clear();	
 #endif
@@ -223,7 +223,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 		gr_set_current_canvas( NULL )
 	);
 	WIN(DDGRLOCK(dd_grd_curcanv));
-		gr_bitmap( 0, 0, &title_bm );
+	show_fullscr(&title_bm);
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	WIN(DDGRRESTORE);

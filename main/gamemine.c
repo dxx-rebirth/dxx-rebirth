@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.6 2002-07-30 04:52:45 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.7 2002-07-30 11:05:53 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -613,11 +613,11 @@ void read_verts(int segnum,CFILE *LoadFile)
 void read_special(int segnum,ubyte bit_mask,CFILE *LoadFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
-		// Read ubyte	Segments[segnum].special
+		// Read ubyte	Segment2s[segnum].special
 		Segment2s[segnum].special = cfile_read_byte(LoadFile);
-		// Read byte	Segments[segnum].matcen_num
+		// Read byte	Segment2s[segnum].matcen_num
 		Segment2s[segnum].matcen_num = cfile_read_byte(LoadFile);
-		// Read short	Segments[segnum].value
+		// Read short	Segment2s[segnum].value
 		Segment2s[segnum].value = cfile_read_short(LoadFile);
 	} else {
 		Segment2s[segnum].special = 0;
@@ -776,7 +776,9 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	validate_segment_all();			// Fill in side type and normals.
 
 	for (i=0; i<Num_segments; i++) {
+#ifndef SHAREWARE
 		segment2_read(&Segment2s[i], LoadFile);
+#endif
 		fuelcen_activate( &Segments[i], Segment2s[i].special );
 	}
 
