@@ -3,3 +3,4 @@
 * D1 mission briefings (render spinning robots, etc.)
 * Make networking compatible with official version
 * bigendian networking
+* fix -help text
