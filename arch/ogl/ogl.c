@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.34 2004-08-01 13:01:39 schaffner Exp $ */
+/* $Id: ogl.c,v 1.35 2004-08-28 18:11:19 schaffner Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -190,6 +190,7 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 	t->wrapstate[1] = -1;
 	t->lw = t->w = w;
 	t->h = h;
+	t->wantmip = flags & OGL_FLAG_MIPMAP;
 	ogl_init_texture_stats(t);
 }
 

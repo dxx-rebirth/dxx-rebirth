@@ -1,14 +1,18 @@
-2004-08-28 Chris Taylor  <c.taylor@student.curtin.edu.au>
+2004-08-28  ~HJ  <kasxavulpo-dev@yahoo.com>
+
+	* arch/ogl/ogl.c: enable -gl_mipmap switch
+
+2004-08-28  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* arch/carbon/descent.r: swap min and max size to correct places
 
-2004-08-06 Chris Taylor  <c.taylor@student.curtin.edu.au>
+2004-08-06  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/gamesave.c: fix a bug introduced with the change of 2004-06-26
 
 	* cfile/cfile.c: add mkdir for carbon, and support files ending in 0x0d
 
-2004-08-06 Chris Taylor  <c.taylor@student.curtin.edu.au>
+2004-08-06  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* include/strio.h, include/strutil.h, misc/args.c, misc/strio.c,
 	misc/strutil.c: d2x can now handle any line ending when reading d2x.ini
@@ -20,7 +24,7 @@
 
 	* include/error.h: on Mac OS 9 and X, define Int3 to be a Debugger
 
-2004-08-04 Chris Taylor  <c.taylor@student.curtin.edu.au>
+2004-08-04  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* include/ogl_init.h: Include glu.h on OS X, it is sometimes necessary
 
