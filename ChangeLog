@@ -1,5 +1,7 @@
 2003-06-22  Bradley Bell  <btb@icculus.org>
 
+	* cfile/cfile.c: use standard fgets for non-archive files
+
 	* main/movie.c: use con_printf for missing movie warning
 
 2003-06-18  Bradley Bell  <btb@icculus.org>

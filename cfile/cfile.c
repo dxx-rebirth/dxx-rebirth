@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.12 2003-06-15 04:14:53 btb Exp $ */
+/* $Id: cfile.c,v 1.13 2003-06-22 23:06:00 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -615,6 +615,13 @@ char * cfgets( char * buf, size_t n, CFILE * fp )
 	char * t = buf;
 	int i;
 	int c;
+
+	if (fp->lib_offset == 0) // This is not an archived file
+	{
+		t = fgets(buf, n, fp->file);
+		fp->raw_position = ftell(fp->file);
+		return t;
+	}
 
 	for (i=0; i<n-1; i++ ) {
 		do {
