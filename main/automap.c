@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.18 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: automap.c,v 1.19 2004-10-09 15:59:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -801,7 +801,7 @@ void create_name_canv()
 	else
 		sprintf(name_level_left, "Secret Level %i",-Current_level_num);
 
-	if (Current_mission_num == Builtin_mission_num && Current_level_num>0)		//built-in mission
+	if (PLAYING_BUILTIN_MISSION && Current_level_num > 0)
 		sprintf(name_level_right,"%s %d: ",system_name[(Current_level_num-1)/4],((Current_level_num-1)%4)+1);
 	else
 		strcpy(name_level_right, " ");

@@ -1,4 +1,4 @@
-/* $Id: endlevel.c,v 1.22 2004-08-29 17:57:23 schaffner Exp $ */
+/* $Id: endlevel.c,v 1.23 2004-10-09 15:59:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.22 2004-08-29 17:57:23 schaffner Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.23 2004-10-09 15:59:28 schaffner Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -211,7 +211,7 @@ int start_endlevel_movie()
 	int r;
 	ubyte save_pal[768];
 
-	//Assert(Current_mission_num == Builtin_mission_num);   //only play movie for built-in mission
+	//Assert(PLAYING_BUILTIN_MISSION); //only play movie for built-in mission
 
 	//Assert(N_MOVIES >= Last_level);
 	//Assert(N_MOVIES_SECRET >= -Last_secret_level);
@@ -313,7 +313,7 @@ void start_endlevel_sequence()
 		Newdemo_state = ND_STATE_PAUSED;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK) {		// don't do this if in playback mode
-		if (Current_mission_num == Builtin_mission_num) //only play movie for built-in mission
+		if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 			start_endlevel_movie();
 		strcpy(last_palette_loaded,"");		//force palette load next time
 		return;
@@ -341,11 +341,9 @@ void start_endlevel_sequence()
 	}
 #endif
 
-	if (Current_mission_num == Builtin_mission_num) {
-		// only play movie for built-in mission
+	if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		if (!(Game_mode & GM_MULTI))
 			movie_played = start_endlevel_movie();
-	}
 
 	if (!(Game_mode & GM_MULTI) && (movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded)
 	{   //don't have movie.  Do rendered sequence, if available
@@ -707,8 +705,7 @@ void do_endlevel_frame()
 
 			if (ConsoleObject->segnum == transition_segnum) {
 
-				if ((Current_mission_num == Builtin_mission_num) &&
-					(start_endlevel_movie() != MOVIE_NOT_PLAYED))
+				if (PLAYING_BUILTIN_MISSION && start_endlevel_movie() != MOVIE_NOT_PLAYED)
 					stop_endlevel_sequence();
 				else {
 					int objnum;

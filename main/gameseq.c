@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.36 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: gameseq.c,v 1.37 2004-10-09 15:59:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.36 2004-08-28 23:17:45 schaffner Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.37 2004-10-09 15:59:28 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -163,9 +163,9 @@ char	Current_level_name[LEVEL_NAME_LEN];
 int Last_level, Last_secret_level;
 
 // Global variables describing the player
-int 				N_players=1;						// Number of players ( >1 means a net game, eh?)
-int 				Player_num=0;						// The player number who is on the console.
-player                  Players[MAX_PLAYERS+4];                   // Misc player info
+int	N_players=1;	// Number of players ( >1 means a net game, eh?)
+int 	Player_num=0;	// The player number who is on the console.
+player	Players[MAX_PLAYERS+4];	// Misc player info
 obj_position	Player_init[MAX_PLAYERS];
 
 // Global variables telling what sort of game we have
@@ -285,7 +285,7 @@ gameseq_init_network_players()
 	}
 #endif
 #ifdef NETWORK
- 	if (is_D2_OEM && (Game_mode & GM_MULTI) && Current_mission_num == Builtin_mission_num && Current_level_num==8)
+ 	if (is_D2_OEM && (Game_mode & GM_MULTI) && PLAYING_BUILTIN_MISSION && Current_level_num==8)
 	 {
 	  for (i=0;i<N_players;i++)
 		 if (Players[i].connected && !(NetPlayers.players[i].version_minor & 0xF0))
@@ -295,7 +295,7 @@ gameseq_init_network_players()
 			}
 	 }
 
- 	if (is_MAC_SHARE && (Game_mode & GM_MULTI) && Current_mission_num == Builtin_mission_num && Current_level_num == 4)
+ 	if (is_MAC_SHARE && (Game_mode & GM_MULTI) && PLAYING_BUILTIN_MISSION && Current_level_num == 4)
 	{
 		for (i = 0; i < N_players; i++)
 			if (Players[i].connected && !(NetPlayers.players[i].version_minor & 0xF0))
@@ -582,7 +582,7 @@ void DoGameOver()
 {
 //	nm_messagebox( TXT_GAME_OVER, 1, TXT_OK, "" );
 
-	if (Current_mission_num == Builtin_mission_num)
+	if (PLAYING_BUILTIN_MISSION)
 		scores_maybe_add_player(0);
 
 	Function_mode = FMODE_MENU;
@@ -889,7 +889,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	if ( page_in_textures )
 		piggy_load_level_data();
 
-	if (Mission_list[Current_mission_num].descent_version == 1)
+	if (EMULATING_D1)
 		load_d1_bitmap_replacements();
 	else
 		load_bitmap_replacements(level_name);
@@ -1462,7 +1462,7 @@ void DoEndGame(void)
 
 	key_flush();
 
-	if (Current_mission_num == Builtin_mission_num && !(Game_mode & GM_MULTI))
+	if (PLAYING_BUILTIN_MISSION && !(Game_mode & GM_MULTI))
 	{ //only built-in mission, & not multi
 		int played=MOVIE_NOT_PLAYED;	//default is not played
 
@@ -1507,7 +1507,7 @@ void DoEndGame(void)
 		// NOTE LINK TO ABOVE
 		DoEndLevelScoreGlitz(0);
 
-	if (Current_mission_num == Builtin_mission_num && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
+	if (PLAYING_BUILTIN_MISSION && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 		WINDOS(
 			dd_gr_set_current_canvas(NULL),
 			gr_set_current_canvas( NULL )
@@ -2055,7 +2055,7 @@ void ShowLevelIntro(int level_num)
 
 		memcpy(save_pal,gr_palette,sizeof(gr_palette));
 
-		if (Current_mission_num == Builtin_mission_num) {
+		if (PLAYING_BUILTIN_MISSION) {
 			int movie=0;
 
 			if (is_SHAREWARE)
@@ -2107,7 +2107,7 @@ void ShowLevelIntro(int level_num)
 			}
 		}
 		else {	//not the built-in mission.  check for add-on briefing
-			if (Mission_list[Current_mission_num].descent_version == 1)
+			if (EMULATING_D1)
 				do_briefing_screens(Briefing_text_filename, level_num);
 			else {
 				char tname[FILENAME_LEN];

@@ -1,4 +1,4 @@
-/* $Id: cntrlcen.c,v 1.16 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: cntrlcen.c,v 1.17 2004-10-09 15:59:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.16 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: cntrlcen.c,v 1.17 2004-10-09 15:59:28 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -170,7 +170,7 @@ void do_countdown_frame()
 	if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)   // get countdown in OEM and SHAREWARE only
 	{
 		// On last level, we don't want a countdown.
-		if ((Current_mission_num == Builtin_mission_num) && (Current_level_num == Last_level))
+		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
 		{
 			if (!(Game_mode & GM_MULTI))
 				return;

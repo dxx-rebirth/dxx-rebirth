@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.30 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: titles.c,v 1.31 2004-10-09 15:59:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -622,7 +622,7 @@ int load_briefing_screen( int screen_num )
 	int	pcx_error;
 	char *fname;
 
-	if (Mission_list[Current_mission_num].descent_version == 1)
+	if (EMULATING_D1)
 		fname = Briefing_screens[screen_num].bs_name;
 	else
 		fname = CurBriefScreenName;
@@ -770,7 +770,7 @@ int show_briefing_message(int screen_num, char *message)
 	// mprintf((0, "Going to print message [%s] at x=%i, y=%i\n", message, x, y));
 	gr_set_curfont( GAME_FONT );
 
-	if (Mission_list[Current_mission_num].descent_version == 1) {
+	if (EMULATING_D1) {
 		GotZ = 1;
 		MALLOC(bsp, briefing_screen, 1);
 		memcpy(bsp, &Briefing_screens[screen_num], sizeof(briefing_screen));
@@ -824,7 +824,7 @@ int show_briefing_message(int screen_num, char *message)
 					RobotPlaying=0;
 				}
 
-				if (Mission_list[Current_mission_num].descent_version == 1) {
+				if (EMULATING_D1) {
 					init_spinning_robot();
 					robot_num = get_message_num(&message);
 					while (*message++ != 10)
@@ -1171,7 +1171,7 @@ int show_briefing_message(int screen_num, char *message)
 	if (printing_channel>-1)
 		digi_stop_sound( printing_channel );
 
-	if (Mission_list[Current_mission_num].descent_version == 1)
+	if (EMULATING_D1)
 		d_free(bsp);
 
 	return rval;
@@ -1274,10 +1274,9 @@ int show_briefing_text(int screen_num)
 {
 	char	*message_ptr;
 
-	if (Mission_list[Current_mission_num].descent_version == 1)
-		message_ptr = get_briefing_message(Briefing_screens[screen_num].message_num);
-	else
-		message_ptr = get_briefing_message(screen_num);
+	message_ptr = get_briefing_message
+		(EMULATING_D1 ? Briefing_screens[screen_num].message_num : screen_num);
+
 	if (message_ptr==NULL)
 		return (0);
 
@@ -1297,11 +1296,11 @@ void DoBriefingColorStuff ()
 	Briefing_foreground_colors[2] = gr_find_closest_color_current( 8, 31, 54);
 	Briefing_background_colors[2] = gr_find_closest_color_current( 1, 4, 7);
 
-	if (Mission_list[Current_mission_num].descent_version == 1) {
-        //green
-        Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 54, 0);
-        Briefing_background_colors[0] = gr_find_closest_color_current( 0, 19, 0);
-        //white
+	if (EMULATING_D1) {
+		//green
+		Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 54, 0);
+		Briefing_background_colors[0] = gr_find_closest_color_current( 0, 19, 0);
+		//white
 		Briefing_foreground_colors[1] = gr_find_closest_color_current( 42, 38, 32);
 		Briefing_background_colors[1] = gr_find_closest_color_current( 14, 14, 14);
 
@@ -1341,7 +1340,7 @@ int show_briefing_screen( int screen_num, int allow_keys)
 		return 0;
 	}
 
-	if (Mission_list[Current_mission_num].descent_version == 1) {
+	if (EMULATING_D1) {
 		int pcx_error;
 #if 1
 		grs_bitmap briefing_bm;
@@ -1460,7 +1459,7 @@ void do_briefing_screens(char *filename,int level_num)
 
 	key_flush();
 
-	if (Mission_list[Current_mission_num].descent_version == 1) {
+	if (EMULATING_D1) {
 		if (level_num == 1) {
 			while ((!abort_briefing_screens) && (Briefing_screens[cur_briefing_screen].level_num == 0)) {
 				abort_briefing_screens = show_briefing_screen(cur_briefing_screen, 0);

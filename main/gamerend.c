@@ -1,4 +1,4 @@
-/* $Id: gamerend.c,v 1.13 2003-10-12 09:38:48 btb Exp $ */
+/* $Id: gamerend.c,v 1.14 2004-10-09 15:59:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.13 2003-10-12 09:38:48 btb Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.14 2004-10-09 15:59:28 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -288,7 +288,7 @@ void render_countdown_gauge()
 		if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)    // no countdown on registered only
 		{
 			//	On last level, we don't want a countdown.
-			if ((Current_mission_num == Builtin_mission_num) && (Current_level_num == Last_level))
+			if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
 			{
 				if (!(Game_mode & GM_MULTI))
 					return;
