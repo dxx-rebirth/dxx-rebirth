@@ -1,5 +1,9 @@
 2003-10-10  Bradley Bell  <btb@icculus.org>
 
+	* arch/win32/winnet.c: fixed stupid win32 network bug
+
+2003-10-10  Bradley Bell  <btb@icculus.org>
+
 	* main/piggy.c: increased D1_MAX_TMAP_NUM
 
 2003-10-10  Martin Schaffner <maschaffner@gmx.ch>

@@ -1,4 +1,4 @@
-/* $Id: winnet.c,v 1.8 2003-10-05 22:27:01 btb Exp $ */
+/* $Id: winnet.c,v 1.9 2003-10-11 02:36:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -148,24 +148,29 @@ int ipx_get_packet_data( ubyte * data )
 {
 	struct ipx_recv_data rd;
 	char buf[MAX_IPX_DATA];
-	uint best_id = 0;
-	uint pkt_num;
+//killed 6-15-99 to get rid of compile warnings - OE
+//	uint best_id = 0;
+//	uint pkt_num;
+//end kill - OE
 	int size;
 	int best_size = 0;
-	
-	// Like the original, only take latest packet, throw away rest
+//edited 04/12/99 Matt Mueller - duh, we don't want to throw all that data away!
+	//--killed-- Like the original, only take latest packet, throw away rest
+	//do _NOT_ throw them away!
 	while (driver->PacketReady(&ipx_socket_data)) {
 		if ((size = 
 		     driver->ReceivePacket(&ipx_socket_data, buf, 
 		      sizeof(buf), &rd)) > 4) {
 		     if (!memcmp(rd.src_network, ipx_MyAddress, 10)) 
 		     	continue;	/* don't get own pkts */
-		     pkt_num = *(uint *)buf;
-		     if (pkt_num >= best_id) {
+//--killed--		     pkt_num = *(uint *)buf;
+//--killed--		     if (pkt_num >= best_id) {
 		     	memcpy(data, buf + 4, size - 4);
-		     	best_id = pkt_num;
-		     	best_size = size - 4;
-		     }
+				return size-4;
+//--killed--		     	best_id = pkt_num;
+//--killed--		     	best_size = size - 4;
+//--killed--		     }
+//end edit -MM
 		}
 	}
 	return best_size;
