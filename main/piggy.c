@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.36 2003-10-10 21:04:43 btb Exp $ */
+/* $Id: piggy.c,v 1.37 2003-10-10 21:56:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.36 2003-10-10 21:04:43 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.37 2003-10-10 21:56:21 btb Exp $";
 #endif
 
 
@@ -2334,6 +2334,7 @@ short d2_index_for_d1_index(short d1_index)
 	Assert(d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM);
 	if (! d1_tmap_nums || d1_tmap_nums[d1_index] == -1
 	    || ! d1_tmap_num_unique(d1_tmap_nums[d1_index]))
+  		return -1;
 	else
 		return Textures[convert_d1_tmap_num(d1_tmap_nums[d1_index])].index;
 }
