@@ -13,13 +13,16 @@
  */  
 /*
  * $Source: /cvs/cvsroot/d2x/include/vecmat.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:16 $
+ * $Date: 2001-10-12 06:40:49 $
  *
  * Header file for vector/matrix library
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.1.1.1  1999/06/14 22:02:28  donut
  * Import of d1x 1.37 source.
  *
@@ -247,8 +250,8 @@ vms_vector * vm_vec_make (vms_vector * v, fix x, fix y, fix z);
 
 #ifdef __WATCOMC__
 #pragma aux vm_vec_make "*_" parm [eax] [edx] [ebx] [ecx] value [eax] modify exact [] = \
-"mov 0[eax],edx" \ 
-"mov 4[eax],ebx" \ 
+"mov 0[eax],edx" \
+"mov 4[eax],ebx" \
 "mov 8[eax],ecx";
 
 #endif
@@ -258,8 +261,8 @@ vms_angvec * vm_angvec_make (vms_angvec * v, fixang p, fixang b, fixang h);
 
 #ifdef __WATCOMC__
 #pragma aux vm_angvec_make "*_" parm [eax] [dx] [bx] [cx] value [eax] modify exact [] = \
-"mov 0[eax],dx" \ 
-"mov 2[eax],bx" \ 
+"mov 0[eax],dx" \
+"mov 2[eax],bx" \
 "mov 4[eax],cx";
 
 #endif
@@ -470,20 +473,20 @@ fix vm_vec_dotprod (vms_vector * v0, vms_vector * v1);
 #ifdef INLINE
 #ifdef __WATCOMC__
 #pragma aux vm_vec_dotprod parm [esi] [edi] value [eax] modify exact [eax ebx ecx edx] = \
-"mov	eax,[esi]" \ 
-"imul	dword ptr [edi]" \ 
-"mov	ebx,eax" \ 
-"mov	ecx,edx" \ 
+"mov	eax,[esi]" \
+"imul	dword ptr [edi]" \
+"mov	ebx,eax" \
+"mov	ecx,edx" \
 \
-"mov	eax,4[esi]" \ 
-"imul	dword ptr 4[edi]" \ 
-"add	ebx,eax" \ 
-"adc	ecx,edx" \ 
+"mov	eax,4[esi]" \
+"imul	dword ptr 4[edi]" \
+"add	ebx,eax" \
+"adc	ecx,edx" \
 \
-"mov	eax,8[esi]" \ 
-"imul	dword ptr 8[edi]" \ 
-"add	eax,ebx" \ 
-"adc	edx,ecx" \ 
+"mov	eax,8[esi]" \
+"imul	dword ptr 8[edi]" \
+"add	eax,ebx" \
+"adc	edx,ecx" \
 \
 "shrd	eax,edx,16";
 

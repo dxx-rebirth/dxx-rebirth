@@ -75,7 +75,7 @@ static inline void _piggy_page_in(bitmap_index bmp) {
 	#define PIGGY_PAGE_IN(bmp)	\
 do {					\
 	if ( GameBitmaps[(bmp).index].bm_flags & BM_FLAG_PAGED_OUT )	{\
-		piggy_bitmap_page_in( bmp ); \	
+		piggy_bitmap_page_in( bmp ); \
 	}				\
 } while(0)
 /*		mprintf(( 0, "Paging in '%s' from file '%s', line %d\n", #bmp, __FILE__,__LINE__ ));	\ */

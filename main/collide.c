@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: collide.c,v 1.4 2001-01-31 15:17:49 bradleyb Exp $";
+static char rcsid[] = "$Id: collide.c,v 1.5 2001-10-12 06:40:49 bradleyb Exp $";
 #endif
 
 #include <string.h>	// for memset
@@ -559,7 +559,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 		if ((((ec=TmapInfo[tm].eclip_num)!=-1) && ((db=Effects[ec].dest_bm_num)!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))) ||	(ec==-1 && (TmapInfo[tm].destroyed!=-1))) {
 			fix u,v;
 			grs_bitmap *bm = &GameBitmaps[Textures[tm].index];
-			int x,y,t;
+			int x=0,y=0,t;
 
 			PIGGY_PAGE_IN(Textures[tm]);
 
