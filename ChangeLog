@@ -1,5 +1,7 @@
 2004-05-19  Bradley Bell  <btb@icculus.org>
 
+	* main/inferno.c: restore inferno.c initialization of screen_compatible and use_double_buffer to 'normal' values, broken long long ago in one of the high res menu patches (d1x r1.30)
+
 	* include/args.h, main/inferno.c, misc/args.c: allow arbitrary
 	resolutions to be specified on command line (d1x r1.2, r1.29,
 	r1.4) -- doesn't work yet

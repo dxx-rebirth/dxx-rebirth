@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.72 2004-05-19 21:20:07 btb Exp $ */
+/* $Id: inferno.c,v 1.73 2004-05-19 21:47:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1303,16 +1303,33 @@ int main(int argc, char *argv[])
 		int screen_width = 640;
 		int screen_height = 480;
 		int vr_mode = VR_NONE;
-		int screen_flags = VRF_COMPATIBLE_MENUS;
+		int screen_flags = VRF_USE_PAGING;
 		u_int32_t Game_screen_mode = 0; // HACK -- from d1x game.c
 
 		if (FindResArg("", &screen_width, &screen_height))
 		{
-			if ((screen_width == 320 && screen_height == 200) ||
-				(screen_width == 640 && screen_height == 480))
-				screen_flags |= VRF_COMPATIBLE_MENUS;
-			else
-				screen_flags &= ~VRF_COMPATIBLE_MENUS;
+			/* stuff below mirrors values from display_mode_info in
+			 * menu.c which is used by set_display_mode. In fact,
+			 * set_display_mode should probably be rewritten to allow
+			 * arbitrary resolutions, and then we get rid of this
+			 * stuff here.
+			 */
+			switch (SM(screen_width, screen_height))
+			{
+			case SM(320, 200):
+			case SM(640, 480):
+				screen_flags = VRF_ALLOW_COCKPIT + VRF_COMPATIBLE_MENUS;
+				break;
+			case SM(320, 400):
+				screen_flags = VRF_USE_PAGING;
+				break;
+			case SM(640, 400):
+			case SM(800, 600):
+			case SM(1024, 768):
+			case SM(1280, 1024):
+				screen_flags = VRF_COMPATIBLE_MENUS;
+				break;
+			}
 
 			con_printf(CON_VERBOSE, "Using %ix%i ...\n", screen_width, screen_height);
 		}
