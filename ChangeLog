@@ -1,5 +1,7 @@
 2003-03-17  Bradley Bell  <btb@icculus.org>
 
+	* main/console.c, main/game.c: enable experimental console support
+
 	* main/gamerend.c: fixed location of fps meter in multi
 
 2003-03-16  Bradley Bell  <btb@icculus.org>

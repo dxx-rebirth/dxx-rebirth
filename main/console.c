@@ -1,4 +1,4 @@
-/* $Id: console.c,v 1.8 2002-08-01 23:28:57 btb Exp $ */
+/* $Id: console.c,v 1.9 2003-03-17 09:33:49 btb Exp $ */
 /*
  *
  * FIXME: put description here
@@ -20,6 +20,7 @@
 #include "error.h"
 #include "console.h"
 #include "cmd.h"
+#include "gr.h"
 
 #ifndef __MSDOS__
 int text_console_enabled = 1;
@@ -93,14 +94,14 @@ void con_printf(int priority, char *fmt, ...)
  */
 void con_update(void)
 {
-//	char buffer[CMD_MAX_LENGTH], *t;
+	char buffer[CMD_MAX_LENGTH], *t;
 
 	/* Check for new input */
-/*	t = fgets(buffer, sizeof(buffer), stdin);
+	t = fgets(buffer, sizeof(buffer), stdin);
 	if (t == NULL) return;
 
-	cmd_parse(buffer);*/
-//	con_draw();
+	cmd_parse(buffer);
+	con_draw();
 }
 
 /* ======
@@ -165,12 +166,12 @@ float cvar (char *cvar_name)
  */
 void con_draw(void)
 {
-/*	char buffer[CON_LINE_LEN+1];
-	int i,j; */
-/*	for (i = con_line, j=0; j < 20; i = (i+1) % CON_NUM_LINES, j++)
+	char buffer[CON_LINE_LEN+1];
+	int i,j;
+	for (i = con_line, j=0; j < 20; i = (i+1) % CON_NUM_LINES, j++)
 	{
 		memcpy(buffer, con_display[i], CON_LINE_LEN);
 		buffer[CON_LINE_LEN] = 0;
 		gr_string(1,j*10,buffer);
-	}*/
+	}
 }

@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.19 2003-03-13 07:16:46 btb Exp $ */
+/* $Id: game.c,v 1.20 2003-03-17 09:33:49 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.19 2003-03-13 07:16:46 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.20 2003-03-17 09:33:49 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2605,7 +2605,9 @@ void flicker_lights();
 
 void GameLoop(int RenderFlag, int ReadControlsFlag )
 {
+#ifdef CONSOLE
 	con_update();
+#endif
 	#ifndef	NDEBUG
 	//	Used to slow down frame rate for testing things.
 	//	RenderFlag = 1; // DEBUG
