@@ -1,4 +1,4 @@
-/* $Id: endlevel.c,v 1.19 2003-10-11 20:14:44 btb Exp $ */
+/* $Id: endlevel.c,v 1.20 2003-10-12 09:38:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -241,7 +241,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.19 2003-10-11 20:14:44 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.20 2003-10-12 09:38:48 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -565,7 +565,7 @@ void start_endlevel_sequence()
 			movie_played = start_endlevel_movie();
 	}
 
-	if ((movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded)
+	if (!(Game_mode & GM_MULTI) && (movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded)
 	{   //don't have movie.  Do rendered sequence, if available
 		int exit_models_loaded = 0;
 

@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.22 2003-08-02 07:02:49 btb Exp $ */
+/* $Id: mission.c,v 1.23 2003-10-12 09:38:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -251,21 +251,28 @@ int load_mission_shareware(int mission_num)
 	Current_mission_filename = Mission_list[mission_num].filename;
 	Current_mission_longname = Mission_list[mission_num].mission_name;
 
-	N_secret_levels = 0;
-
-	Last_level = 3;
-	Last_secret_level = 0;
-
 	switch (Builtin_mission_hogsize) {
 	case MAC_SHARE_MISSION_HOGSIZE:
+		N_secret_levels = 1;
+
+		Last_level = 4;
+		Last_secret_level = -1;
+
 		// mac demo is using the regular hog and rl2 files
 		strcpy(Level_names[0],"d2leva-1.rl2");
 		strcpy(Level_names[1],"d2leva-2.rl2");
 		strcpy(Level_names[2],"d2leva-3.rl2");
+		strcpy(Level_names[3],"d2leva-4.rl2");
+		strcpy(Secret_level_names[0],"d2leva-s.rl2");
 		break;
 	default:
 		Int3(); // fall through
 	case SHAREWARE_MISSION_HOGSIZE:
+		N_secret_levels = 0;
+
+		Last_level = 3;
+		Last_secret_level = 0;
+
 		strcpy(Level_names[0],"d2leva-1.sl2");
 		strcpy(Level_names[1],"d2leva-2.sl2");
 		strcpy(Level_names[2],"d2leva-3.sl2");

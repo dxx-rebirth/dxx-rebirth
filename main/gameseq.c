@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.30 2003-10-11 09:28:38 btb Exp $ */
+/* $Id: gameseq.c,v 1.31 2003-10-12 09:38:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -292,7 +292,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.30 2003-10-11 09:28:38 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.31 2003-10-12 09:38:48 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -564,6 +564,16 @@ gameseq_init_network_players()
 			 return;
 			}
 	 }
+
+ 	if (is_MAC_SHARE && (Game_mode & GM_MULTI) && Current_mission_num == Builtin_mission_num && Current_level_num == 4)
+	{
+		for (i = 0; i < N_players; i++)
+			if (Players[i].connected && !(NetPlayers.players[i].version_minor & 0xF0))
+			{
+				nm_messagebox ("Warning!", 1 ,TXT_OK, "This shareware version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!");
+				return;
+			}
+	}
 }
 
 void gameseq_remove_unused_players()
@@ -1263,7 +1273,7 @@ extern int network_endlevel_poll2( int nitems, newmenu_item * menus, int * key, 
 
 extern int N_secret_levels;
 
-#define STARS_BACKGROUND ((MenuHires && cfexist("starsb.pcx"))?"starsb.pcx":"stars.pcx")
+#define STARS_BACKGROUND ((MenuHires && cfexist("starsb.pcx"))?"starsb.pcx":cfexist("stars.pcx")?"stars.pcx":"starsb.pcx")
 
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
