@@ -1,5 +1,8 @@
 2003-03-14  Bradley Bell  <btb@icculus.org>
 
+	* main/ai.c, main/ai.h, main/bm.h, main/crypt.c, main/joydefs.h,
+	main/multi.c: formatting, minor cleanups
+
 	* 2d/rle.c (rle_swap_0_255): need to swap line_size on bigendian
 	machines
 

@@ -1,3 +1,4 @@
+/* $Id: crypt.c,v 1.3 2003-03-14 21:24:03 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,44 +17,35 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char crypt_rcsid[] = "$Id: crypt.c,v 1.2 2001-01-31 15:17:50 bradleyb Exp $";
+char crypt_rcsid[] = "$Id: crypt.c,v 1.3 2003-03-14 21:24:03 btb Exp $";
 #endif
 
-#include <time.h>
-#include <stdlib.h>
+//#include <time.h>
+//#include <stdlib.h>
 #include <string.h>
 
-#include "inferno.h"
+//#include "inferno.h"
 
 char *jcrypt (char *plainstring)
- {
-  int i,t,len;
-  static char cryptstring[20];
-  
-  len=strlen (plainstring); 
-  if (len>8)
-	len=8;
-   
-  for (i=0;i<len;i++)
+{
+	int i,t,len;
+	static char cryptstring[20];
+
+	len=strlen (plainstring);
+	if (len>8)
+		len=8;
+
+	for (i=0;i<len;i++)
 	{
-    cryptstring[i]=0; 
-  
-	  for (t=0;t<8;t++)
+		cryptstring[i]=0;
+
+		for (t=0;t<8;t++)
 		{
-		 cryptstring[i]^=(plainstring[t] ^ plainstring[i%(t+1)]);
-		 cryptstring[i]%=90;
-		 cryptstring[i]+=33;
+			cryptstring[i]^=(plainstring[t] ^ plainstring[i%(t+1)]);
+			cryptstring[i]%=90;
+			cryptstring[i]+=33;
 		}
 	}
-  cryptstring[i]=0;
-  return ((char *)cryptstring);
- }
-		 
-	
-  
-   
- 
-
- 
-  
-
+	cryptstring[i]=0;
+	return ((char *)cryptstring);
+}
