@@ -1,4 +1,4 @@
-/* $Id: joydefs.c,v 1.1 2003-03-14 05:01:11 btb Exp $ */
+/* $Id: joydefs.c,v 1.2 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,7 +14,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * FIXME: add description
+ * Joystick Settings Stuff
  *
  * Old Log:
  * Revision 1.10  1995/10/18  22:21:21  allender
@@ -299,7 +299,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: joydefs.c,v 1.1 2003-03-14 05:01:11 btb Exp $";
+static char rcsid[] = "$Id: joydefs.c,v 1.2 2003-10-10 09:36:35 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H

@@ -1,4 +1,4 @@
-/* $Id: effects.h,v 1.3 2002-08-02 04:57:19 btb Exp $ */
+/* $Id: effects.h,v 1.4 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,6 +12,67 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Headerfile for effects.c
+ *
+ * Old Log:
+ * Revision 1.1  1995/05/16  15:56:08  allender
+ * Initial revision
+ *
+ * Revision 2.0  1995/02/27  11:27:34  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.15  1994/11/08  21:12:07  matt
+ * Added functions to stop & start effects
+ *
+ * Revision 1.14  1994/10/13  17:14:11  adam
+ * MAX_EFFECTS to 60 (ugh)
+ *
+ * Revision 1.13  1994/10/05  10:14:34  adam
+ * MAX_EFFECTS to 50
+ *
+ * Revision 1.12  1994/10/04  18:59:09  matt
+ * Exploding eclips now play eclip while exploding, then switch to static bm
+ *
+ * Revision 1.11  1994/10/04  15:17:52  matt
+ * Took out references to unused constant
+ *
+ * Revision 1.10  1994/09/29  14:15:00  matt
+ * Added sounds for eclips (wall effects)
+ *
+ * Revision 1.9  1994/09/25  00:40:24  matt
+ * Added the ability to make eclips (monitors, fans) which can be blown up
+ *
+ * Revision 1.8  1994/08/05  15:55:25  matt
+ * Cleaned up effects system, and added alternate effects for after mine
+ * destruction.
+ *
+ * Revision 1.7  1994/08/01  23:17:20  matt
+ * Add support for animating textures on robots
+ *
+ * Revision 1.6  1994/05/19  18:13:18  yuan
+ * MAX_EFFECTS increased to 30
+ *
+ * Revision 1.5  1994/03/15  16:32:37  yuan
+ * Cleaned up bm-loading code.
+ * (Fixed structures too)
+ *
+ * Revision 1.4  1994/03/04  17:09:07  yuan
+ * New door stuff.
+ *
+ * Revision 1.3  1994/01/19  18:22:45  yuan
+ * Changed number of effects from 10-20
+ *
+ * Revision 1.2  1994/01/11  10:39:07  yuan
+ * Special effects new implementation
+ *
+ * Revision 1.1  1994/01/10  10:36:14  yuan
+ * Initial revision
+ *
+ *
+ */
 
 
 #ifndef _EFFECTS_H
@@ -23,9 +84,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //flags for eclips.  If no flags are set, always plays
 
-#define EF_CRITICAL		1		//this doesn't get played directly (only when mine critical)
-#define EF_ONE_SHOT		2		//this is a special that gets played once
-#define EF_STOPPED		4		//this has been stopped
+#define EF_CRITICAL 1   //this doesn't get played directly (only when mine critical)
+#define EF_ONE_SHOT 2   //this is a special that gets played once
+#define EF_STOPPED  4   //this has been stopped
 
 typedef struct eclip {
 	vclip   vc;             //imbedded vclip
@@ -73,4 +134,4 @@ void restart_effect(int effect_num);
 extern int eclip_read_n(eclip *ec, int n, CFILE *fp);
 #endif
 
-#endif
+#endif /* _EFFECTS_H */

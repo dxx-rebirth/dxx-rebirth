@@ -1,3 +1,4 @@
+/* $Id: physics.c,v 1.4 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,16 +8,257 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Code for flying through the mines
+ *
+ * Old Log:
+ * Revision 1.5  1995/10/12  17:28:08  allender
+ * put in code to move and object to center of segment in
+ * do_physics sim when fvi fails with bad point
+ *
+ * Revision 1.4  1995/08/23  21:32:44  allender
+ * fix mcc compiler warnings
+ *
+ * Revision 1.3  1995/07/28  15:38:56  allender
+ * removed isqrt thing -- not required here
+ *
+ * Revision 1.2  1995/07/28  15:13:29  allender
+ * fixed vector magnitude thing
+ *
+ * Revision 1.1  1995/05/16  15:29:42  allender
+ * Initial revision
+ *
+ * Revision 2.2  1995/03/24  14:48:54  john
+ * Added cheat for player to go thru walls.
+ *
+ * Revision 2.1  1995/03/20  18:15:59  john
+ * Added code to not store the normals in the segment structure.
+ *
+ * Revision 2.0  1995/02/27  11:32:06  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.213  1995/02/22  13:40:48  allender
+ * remove anonymous unions from object structure
+ *
+ * Revision 1.212  1995/02/22  13:24:42  john
+ * Removed the vecmat anonymous unions.
+ *
+ * Revision 1.211  1995/02/06  19:46:59  matt
+ * New function (untested), set_thrust_from_velocity()
+ *
+ * Revision 1.210  1995/02/02  16:26:12  matt
+ * Changed assert that was causing a problem
+ *
+ * Revision 1.209  1995/02/02  14:07:00  matt
+ * Fixed confusion about which segment you are touching when you're
+ * touching a wall.  This manifested itself in spurious lava burns.
+ *
+ * Revision 1.208  1995/02/01  21:03:24  john
+ * Lintified.
+ *
+ * Revision 1.207  1995/01/25  13:53:35  rob
+ * Removed an Int3 from multiplayer games.
+ *
+ * Revision 1.206  1995/01/23  17:30:47  rob
+ * Removed Int3 on bogus sim time.
+ *
+ * Revision 1.205  1995/01/17  11:08:56  matt
+ * Disable new-ish FVI edge checking for all objects except the player,
+ * since it was causing problems with the fusion cannon.
+ *
+ * Revision 1.204  1995/01/05  09:43:49  matt
+ * Took out int3s from new code
+ *
+ * Revision 1.203  1995/01/04  22:19:23  matt
+ * Added hack to keep player from squeezing through closed walls/doors
+ *
+ * Revision 1.202  1995/01/02  12:38:48  mike
+ * physics hack to crazy josh not get hung up on proximity bombs.  Matt notified via email.
+ *
+ * Revision 1.201  1994/12/13  15:39:22  mike
+ * #ifndef NDEBUG some code.
+ *
+ * Revision 1.200  1994/12/13  13:28:34  yuan
+ * Fixed type.
+ *
+ * Revision 1.199  1994/12/13  13:25:00  matt
+ * Made bump hack compile out if so desired
+ *
+ * Revision 1.198  1994/12/13  12:02:39  matt
+ * Added hack to bump player a little if stuck
+ *
+ * Revision 1.197  1994/12/12  00:32:23  matt
+ * When objects other than player go out of mine, jerk to center of segment
+ *
+ * Revision 1.196  1994/12/10  22:52:42  mike
+ * make physics left-the-mine checking always be in.
+ *
+ * Revision 1.195  1994/12/08  00:53:01  mike
+ * oops...phys rot bug.
+ *
+ * Revision 1.194  1994/12/07  12:54:54  mike
+ * tweak rotvel applied from collisions.
+ *
+ * Revision 1.193  1994/12/07  00:36:08  mike
+ * fix phys_apply_rot for robots -- ai was bashing effect in next frame.
+ *
+ * Revision 1.192  1994/12/05  17:23:10  matt
+ * Made a bunch of debug code compile out
+ *
+ * Revision 1.191  1994/12/05  16:30:10  matt
+ * Was illegally changing an object's segment...shoot me.
+ *
+ * Revision 1.190  1994/12/05  11:58:51  mike
+ * fix stupid apply_force_rot() bug.
+ *
+ * Revision 1.189  1994/12/05  09:42:17  mike
+ * fix 0 mag problem when object applies force to itself.
+ *
+ * Revision 1.188  1994/12/04  22:48:40  matt
+ * Physics & FVI now only build seglist for player objects, and they
+ * responsilby deal with buffer full conditions
+ *
+ * Revision 1.187  1994/12/04  22:14:07  mike
+ * apply instantaneous rotation to an object due to a force blow.
+ *
+ * Revision 1.186  1994/12/04  18:51:30  matt
+ * When weapons get stuck, delete them!
+ *
+ * Revision 1.185  1994/12/04  18:38:56  matt
+ * Added better handling of point-not-in-seg problem
+ *
+ * Revision 1.184  1994/11/27  23:13:42  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.183  1994/11/25  23:46:18  matt
+ * Fixed drag problems with framerates over 60Hz
+ *
+ * Revision 1.182  1994/11/25  22:15:52  matt
+ * Added asserts to try to trap frametime < 0 bug
+ *
+ * Revision 1.181  1994/11/21  11:42:44  mike
+ * ndebug stuff.
+ *
+ * Revision 1.180  1994/11/19  15:15:04  mike
+ * remove unused code and data
+ *
+ * Revision 1.179  1994/11/16  11:25:22  matt
+ * Abort physics if negative frametime
+ *
+ * Revision 1.178  1994/10/05  19:50:41  rob
+ * Removed a non-critical Int3 where an object's segnum is checked.
+ * Left mprintf message.
+ *
+ * Revision 1.177  1994/10/03  22:57:50  matt
+ * Fixed problem with matrix corruption of non-moving (but rotating) objects
+ *
+ * Revision 1.176  1994/09/28  09:23:28  mike
+ * Add useful information to mprintf(1,... error messages.
+ *
+ * Revision 1.175  1994/09/21  17:16:54  mike
+ * Make objects stuck in doors go away when door opens.
+ *
+ * Revision 1.174  1994/09/12  14:19:06  matt
+ * Drag & thrust now handled differently
+ *
+ * Revision 1.173  1994/09/09  14:21:12  matt
+ * Use new thrust flag
+ *
+ * Revision 1.172  1994/09/08  16:21:57  matt
+ * Cleaned up player-hit-wall code, and added object scrape handling
+ * Also added weapon-on-weapon hit sound
+ *
+ * Revision 1.171  1994/09/02  12:30:37  matt
+ * Fixed weapons which go through objects
+ *
+ * Revision 1.170  1994/09/02  11:55:14  mike
+ * Kill redefinition of a constant which is properly defined in object.h
+ *
+ * Revision 1.169  1994/09/02  11:35:01  matt
+ * Fixed typo
+ *
+ * Revision 1.168  1994/09/02  11:32:48  matt
+ * Fixed object/object collisions, so you can't fly through robots anymore.
+ * Cleaned up object damage system.
+ *
+ * Revision 1.167  1994/08/30  21:58:15  matt
+ * Made phys_apply_force() do nothing to an object if it's not a phys object
+ *
+ * Revision 1.166  1994/08/26  10:47:01  john
+ * New version of controls.
+ *
+ * Revision 1.165  1994/08/25  21:53:57  mike
+ * Prevent counts of -1 which eventually add up to a positive number in do_ai_frame, causing
+ * the too-many-retries behavior.
+ *
+ * Revision 1.164  1994/08/25  18:43:33  john
+ * First revision of new control code.
+ *
+ * Revision 1.163  1994/08/17  22:18:05  mike
+ * Make robots which have rotvel or rotthrust, but not movement, move.
+ *
+ * Revision 1.162  1994/08/13  17:31:18  mike
+ * retry count stuff.
+ *
+ * Revision 1.161  1994/08/11  18:59:16  mike
+ * *** empty log message ***
+ *
+ * Revision 1.160  1994/08/10  19:53:47  mike
+ * Debug code (which is still in...)
+ * and adapt to changed interface to create_path_to_player.
+ *
+ * Revision 1.159  1994/08/08  21:38:43  matt
+ * Cleaned up a code a little and optimized a little
+ *
+ * Revision 1.158  1994/08/08  15:21:50  mike
+ * Trap retry count >= 4, but don't do AI hack unless >= 6.
+ *
+ * Revision 1.157  1994/08/08  11:47:15  matt
+ * Cleaned up fvi and physics a little
+ *
+ * Revision 1.156  1994/08/05  10:10:10  yuan
+ * Commented out debug stuff that was killing framerate.
+ *
+ * Revision 1.155  1994/08/04  19:12:36  matt
+ * Changed a bunch of vecmat calls to use multiple-function routines, and to
+ * allow the use of C macros for some functions
+ *
+ * Revision 1.154  1994/08/04  16:33:57  mike
+ * Kill a pile of RCS stuff.
+ * Call create_path_to_player for a stuck object.
+ *
+ * Revision 1.153  1994/08/04  00:21:02  matt
+ * Cleaned up fvi & physics error handling; put in code to make sure objects
+ * are in correct segment; simplified segment finding for objects and points
+ *
+ * Revision 1.152  1994/08/01  16:25:34  matt
+ * Check for moved_time == 0 when computing hit speed
+ *
+ * Revision 1.151  1994/08/01  13:30:32  matt
+ * Made fvi() check holes in transparent walls, and changed fvi() calling
+ * parms to take all input data in query structure.
+ *
+ * Revision 1.150  1994/07/29  23:41:46  matt
+ * Fixed turn banking, which changed when I added rotational velocity
+ *
+ * Revision 1.149  1994/07/27  20:53:23  matt
+ * Added rotational drag & thrust, so turning now has momemtum like moving
+ *
+ */
+
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: physics.c,v 1.3 2001-01-31 15:17:57 bradleyb Exp $";
+static char rcsid[] = "$Id: physics.c,v 1.4 2003-10-10 09:36:35 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -65,7 +307,7 @@ static char rcsid[] = "$Id: physics.c,v 1.3 2001-01-31 15:17:57 bradleyb Exp $";
 int Physics_cheat_flag = 0;
 extern char BounceCheat;
 
-//##//returns the distance of a point (checkp) from a plane (defined by norm & planep) 
+//##//returns the distance of a point (checkp) from a plane (defined by norm & planep)
 //##fix dist_to_plane(vms_vector *checkp,vms_vector *norm,vms_vector *planep)
 //##{
 //##    vms_vector deltap;
@@ -74,7 +316,7 @@ extern char BounceCheat;
 //##
 //##    return vm_vec_dot(&deltap,norm);
 //##}
- 
+
 //--unused-- int dpjm_old_joy_x, dpjm_old_joy_y;
 
 int floor_levelling=0;
@@ -295,7 +537,7 @@ void do_physics_sim_rot(object *obj)
 
 	//mprintf( (0, "Rot vel = %.3f,%.3f,%.3f\n", f2fl(obj->mtype.phys_info.rotvel.x),f2fl(obj->mtype.phys_info.rotvel.y), f2fl(obj->mtype.phys_info.rotvel.z) ));
 
-	//now rotate object 
+	//now rotate object
 
 	//unrotate object for bank caused by turn
 	if (obj->mtype.phys_info.turnroll) {
@@ -307,7 +549,7 @@ void do_physics_sim_rot(object *obj)
 		vm_matrix_x_matrix(&new_pm,&obj->orient,&rotmat);
 		obj->orient = new_pm;
 	}
-  
+
 	tangles.p = fixmul(obj->mtype.phys_info.rotvel.x,FrameTime);
 	tangles.h = fixmul(obj->mtype.phys_info.rotvel.y,FrameTime);
 	tangles.b  = fixmul(obj->mtype.phys_info.rotvel.z,FrameTime);
@@ -393,7 +635,7 @@ if (Dont_move_ai_objects)
 		printf("  sim_time = %x\n",sim_time);
 	}
 
-	//check for correct object segment 
+	//check for correct object segment
 	if(!get_seg_masks(&obj->pos,obj->segnum,0).centermask==0) {
 		#ifndef NDEBUG
 		mprintf((0,"Warning: object %d not in given seg!\n",objnum));
@@ -723,7 +965,7 @@ save_p1 = *fq.p1;
 					else {					// Slide object along wall
 						int check_vel=0;
 
-						//We're constrained by wall, so subtract wall part from 
+						//We're constrained by wall, so subtract wall part from
 						//velocity vector
 
 						wall_part = vm_vec_dot(&hit_info.hit_wallnorm,&obj->mtype.phys_info.velocity);
@@ -962,7 +1204,7 @@ save_p1 = *fq.p1;
 }
 
 //--unused-- //tell us what the given object will do (as far as hiting walls) in
-//--unused-- //the given time (in seconds) t.  Igores acceleration (sorry) 
+//--unused-- //the given time (in seconds) t.  Igores acceleration (sorry)
 //--unused-- //if check_objects is set, check with objects, else just with walls
 //--unused-- //returns fate, fills in hit time.  If fate==HIT_NONE, hit_time undefined
 //--unused-- int physics_lookahead(object *obj,fix t,int fvi_flags,fix *hit_time, fvi_info *hit_info)
@@ -970,13 +1212,13 @@ save_p1 = *fq.p1;
 //--unused-- 	vms_vector new_pos;
 //--unused-- 	int objnum,fate;
 //--unused-- 	fvi_query fq;
-//--unused-- 
+//--unused--
 //--unused-- 	Assert(obj->movement_type == MT_PHYSICS);
-//--unused-- 
+//--unused--
 //--unused-- 	objnum = obj-Objects;
-//--unused-- 
+//--unused--
 //--unused-- 	vm_vec_scale_add(&new_pos, &obj->pos, &obj->mtype.phys_info.velocity, t);
-//--unused-- 
+//--unused--
 //--unused-- 	fq.p0						= &obj->pos;
 //--unused-- 	fq.startseg				= obj->segnum;
 //--unused-- 	fq.p1						= &new_pos;
@@ -984,22 +1226,22 @@ save_p1 = *fq.p1;
 //--unused-- 	fq.thisobjnum			= objnum;
 //--unused-- 	fq.ignore_obj_list	= NULL;
 //--unused-- 	fq.flags					= fvi_flags;
-//--unused-- 
+//--unused--
 //--unused-- 	fate = find_vector_intersection(&fq,hit_info);
-//--unused-- 
+//--unused--
 //--unused-- 	if (fate != HIT_NONE) {
 //--unused-- 		fix dist,speed;
-//--unused-- 
+//--unused--
 //--unused-- 		dist = vm_vec_dist(&obj->pos, &hit_info->hit_pnt);
-//--unused-- 
+//--unused--
 //--unused-- 		speed = vm_vec_mag(&obj->mtype.phys_info.velocity);
-//--unused-- 
+//--unused--
 //--unused-- 		*hit_time = fixdiv(dist,speed);
-//--unused-- 
+//--unused--
 //--unused-- 	}
-//--unused-- 
+//--unused--
 //--unused-- 	return fate;
-//--unused-- 
+//--unused--
 //--unused-- }
 
 //Applies an instantaneous force on an object, resulting in an instantaneous
@@ -1019,7 +1261,7 @@ void phys_apply_force(object *obj,vms_vector *force_vec)
    if (TactileStick && obj==&Objects[Players[Player_num].objnum])
 		Tactile_apply_force (force_vec,&obj->orient);
 #endif
- 
+
 	//Add in acceleration due to force
 	vm_vec_scale_add2(&obj->mtype.phys_info.velocity,force_vec,fixdiv(f1_0,obj->mtype.phys_info.mass));
 

@@ -1,4 +1,4 @@
-/* $Id: escort.c,v 1.6 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: escort.c,v 1.7 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1992,4 +1992,3 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	reset_cockpit();
 }
-

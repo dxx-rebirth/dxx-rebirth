@@ -1,4 +1,4 @@
-/* $Id: endlevel.c,v 1.16 2003-08-02 07:02:49 btb Exp $ */
+/* $Id: endlevel.c,v 1.17 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,12 +12,236 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Code for rendering external scenes
+ *
+ * Old Log:
+ * Revision 1.5  1995/10/31  10:24:09  allender
+ * shareware stuff
+ *
+ * Revision 1.4  1995/09/14  16:33:54  allender
+ * fixed function return values for those that didn't
+ * have them...thanks matt!
+ *
+ * Revision 1.3  1995/07/28  15:36:26  allender
+ * reverse inverse sqrt change
+ *
+ * Revision 1.2  1995/07/28  15:17:40  allender
+ * inverse magnitude fixup
+ *
+ * Revision 1.1  1995/05/16  15:24:32  allender
+ * Initial revision
+ *
+ * Revision 2.2  1995/03/21  14:40:14  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.1  1995/03/20  18:15:50  john
+ * Added code to not store the normals in the segment structure.
+ *
+ * Revision 2.0  1995/02/27  11:30:42  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.80  1995/02/22  13:24:45  john
+ * Removed the vecmat anonymous unions.
+ *
+ * Revision 1.79  1995/02/11  12:41:54  john
+ * Added new song method, with FM bank switching..
+ *
+ * Revision 1.78  1995/02/08  11:37:41  mike
+ * Check for failures in call to obj_create.
+ *
+ * Revision 1.77  1995/02/05  22:09:49  matt
+ * Switch out of rear view when starting endlevel sequence
+ *
+ * Revision 1.76  1995/01/30  18:08:28  rob
+ * Add palette fade out before ending level on special missions.
+ *
+ * Revision 1.75  1995/01/29  16:19:19  rob
+ * Fixed endlevel for custom missions.
+ *
+ * Revision 1.74  1995/01/26  12:18:10  rob
+ * Changed calling convention of network_do_frame.
+ *
+ * Revision 1.73  1995/01/21  16:50:03  matt
+ * Made endlevel work with new mission stuff
+ *
+ * Revision 1.72  1994/12/20  18:22:51  john
+ * Added code to support non-looping songs, and put
+ * it in for endlevel and credits.
+ *
+ * Revision 1.71  1994/12/15  12:23:58  matt
+ * Added check for failure to create camera object
+ *
+ * Revision 1.70  1994/12/15  03:05:28  matt
+ * Added error checking for NULL return from object_create_explosion()
+ *
+ * Revision 1.69  1994/12/12  21:41:38  matt
+ * Don't start endlevel if OF_SHOULD_BE_DEAD is set for player
+ *
+ * Revision 1.68  1994/12/12  15:44:54  rob
+ * Rolled back a change to endlevel_start that caused more bugs than
+ * it fixed.
+ *
+ * Revision 1.67  1994/12/12  12:08:33  rob
+ * IF a player is dead upon entering the tunnel, make them not dead.  Not perfect solution
+ * but avoids some last-minute weirdness we want to fix.  This should be revisited in new
+ * versions if possible!
+ *
+ * Revision 1.66  1994/12/11  22:02:13  allender
+ * made endlevel data loading work with .txb encoded format (made with
+ * compbit -i level0?.end -o level0?.txb)
+ *
+ * Revision 1.65  1994/12/11  20:32:47  matt
+ * Made camera transition happen 1/3 of the way through exit tunnel
+ *
+ * Revision 1.64  1994/12/08  20:56:27  john
+ * More cfile stuff.
+ *
+ * Revision 1.63  1994/12/07  17:00:52  rob
+ * Trying to fix homing tone warning when in exit tunnel.
+ *
+ * Revision 1.62  1994/12/06  13:24:47  matt
+ * Made exit model come out of bitmaps.tbl
+ *
+ * Revision 1.61  1994/12/06  12:06:22  matt
+ * Fixed/cleaned up satellite (planet/sun) code
+ *
+ * Revision 1.60  1994/12/05  13:37:12  adam
+ * removed slew-mode
+ *
+ * Revision 1.59  1994/12/05  12:49:37  matt
+ * Made satellite a rod (instead of a plane old non-rotating bitmap), and
+ * made the size settable in the .end file
+ *
+ * Revision 1.58  1994/12/04  21:40:00  matt
+ * Added explosion sounds
+ *
+ * Revision 1.57  1994/12/04  18:31:41  matt
+ * Wasn't coding planet position, causing it to disappear sometimes
+ *
+ * Revision 1.56  1994/12/04  14:30:26  john
+ * Added hooks for music..
+ *
+ * Revision 1.55  1994/12/04  13:53:52  matt
+ * Added code to make camera off-centered during lookback
+ *
+ * Revision 1.54  1994/12/04  12:30:18  matt
+ * Fixed slew for short sequence
+ *
+ * Revision 1.53  1994/12/03  19:28:10  matt
+ * Added alternate model for exit model after mine destruction
+ *
+ * Revision 1.52  1994/12/03  00:17:23  matt
+ * Made endlevel sequence cut off early
+ * Made exit model and bit explosion always plot last (after all terrain)
+ *
+ * Revision 1.51  1994/12/01  20:15:43  yuan
+ * Localization.
+ *
+ * Revision 1.50  1994/11/30  23:27:35  adam
+ * mucked around carelessly
+ *
+ * Revision 1.49  1994/11/28  21:50:37  mike
+ * optimizations.
+ *
+ * Revision 1.48  1994/11/28  00:12:05  allender
+ * took out demo code that was in at one time to record endlevel sequence.
+ * We are _not_ recording endlevel sequence
+ *
+ * Revision 1.47  1994/11/27  23:35:54  allender
+ * pause demo recording when starting endlevel sequence.  on demo playback,
+ * don't do endlevel at all.
+ *
+ * Revision 1.46  1994/11/27  23:13:59  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.45  1994/11/26  23:17:29  matt
+ * When camera leaves mine, bank it so it's level with the ground
+ *
+ * Revision 1.44  1994/11/23  16:52:13  rob
+ * Ended netgame endlevel sequence a bit earlier.
+ *
+ * Revision 1.43  1994/11/22  19:20:46  rob
+ * Modem support for secret levels.
+ *
+ * Revision 1.42  1994/11/22  12:11:03  rob
+ * Fixed bug - file handle left open in load_endlevel_data.
+ *
+ * Revision 1.41  1994/11/21  17:29:22  matt
+ * Cleaned up sequencing & game saving for secret levels
+ *
+ * Revision 1.40  1994/11/19  15:14:54  mike
+ * remove unused code and data
+ *
+ * Revision 1.39  1994/11/19  12:41:32  matt
+ * Added system to read endlevel data from file, and to make it work
+ * with any exit tunnel.
+ *
+ * Revision 1.38  1994/11/17  15:02:24  mike
+ * support new segment validation functions.
+ *
+ * Revision 1.37  1994/11/17  13:04:45  allender
+ * backout out newdemo changes
+ *
+ * Revision 1.35  1994/11/16  14:52:33  rob
+ * Commented out SLEW_ON on Matt's direction.
+ * Changed something to fix demo recording.
+ *
+ * Revision 1.34  1994/11/16  11:49:29  matt
+ * Added code to rotate terrain to match mine
+ *
+ * Revision 1.33  1994/11/14  17:54:54  allender
+ * on exit sequence during demo recording, force player exited from mine
+ * packet to all other network players
+ *
+ * Revision 1.32  1994/11/10  21:27:42  matt
+ * Took out printf's
+ *
+ * Revision 1.31  1994/11/10  14:02:24  matt
+ * Hacked in support for player ships with different textures
+ *
+ * Revision 1.30  1994/11/09  10:31:33  matt
+ * Don't create explosions if can't find seg to create them in
+ *
+ * Revision 1.29  1994/11/05  17:22:37  john
+ * Fixed lots of sequencing problems with newdemo stuff.
+ *
+ * Revision 1.28  1994/11/03  11:10:39  matt
+ * Fixed chase angles code
+ * Maybe other things, too.
+ *
+ * Revision 1.27  1994/10/30  20:09:21  matt
+ * For endlevel: added big explosion at tunnel exit; made lights in tunnel
+ * go out; made more explosions on walls.
+ *
+ * Revision 1.26  1994/10/28  16:37:50  allender
+ * stop demo recording when endlevel sequence activated
+ *
+ * Revision 1.25  1994/10/27  21:15:21  matt
+ * Added explosions in mine chasing player
+ *
+ * Revision 1.24  1994/10/27  01:03:57  matt
+ * Fixed several small bugs in flythrough
+ *
+ * Revision 1.23  1994/10/22  01:32:30  matt
+ * Don't start endlevel sequence if player dead
+ *
+ * Revision 1.22  1994/10/22  00:08:06  matt
+ * Fixed up problems with bonus & game sequencing
+ * Player doesn't get credit for hostages unless he gets them out alive
+ *
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.16 2003-08-02 07:02:49 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.17 2003-10-10 09:36:35 btb Exp $";
 #endif
 
 //#define SLEW_ON 1

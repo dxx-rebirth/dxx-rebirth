@@ -1,4 +1,10 @@
-/* $Id: player.c,v 1.2 2002-07-26 20:23:30 btb Exp $ */
+/* $Id: player.c,v 1.3 2003-10-10 09:36:35 btb Exp $ */
+
+/*
+ *
+ * Player Stuff
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
@@ -8,7 +14,7 @@
 #include "cfile.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: player.c,v 1.2 2002-07-26 20:23:30 btb Exp $";
+static char rcsid[] = "$Id: player.c,v 1.3 2003-10-10 09:36:35 btb Exp $";
 #endif
 
 /*

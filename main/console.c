@@ -1,7 +1,7 @@
-/* $Id: console.c,v 1.16 2003-06-18 08:05:17 btb Exp $ */
+/* $Id: console.c,v 1.17 2003-10-10 09:36:34 btb Exp $ */
 /*
  *
- * FIXME: put description here
+ * Code for controlling the console
  *
  *
  */

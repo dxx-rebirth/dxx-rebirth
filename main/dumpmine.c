@@ -1,3 +1,4 @@
+/* $Id: dumpmine.c,v 1.4 2003-10-10 09:36:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,16 +8,110 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Functions to dump text description of mine.
+ * An editor-only function, called at mine load time.
+ * To be read by a human to verify the correctness and completeness of a mine.
+ *
+ * Old Log:
+ * Revision 1.1  1995/05/16  15:24:16  allender
+ * Initial revision
+ *
+ * Revision 2.1  1995/04/06  12:21:50  mike
+ * Add texture map information to txm files.
+ *
+ * Revision 2.0  1995/02/27  11:26:41  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.24  1995/01/23  15:34:43  mike
+ * New diagnostic code, levels.all stuff.
+ *
+ * Revision 1.23  1994/12/20  17:56:36  yuan
+ * Multiplayer object capability.
+ *
+ * Revision 1.22  1994/11/27  23:12:19  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.21  1994/11/23  12:19:04  mike
+ * move out level names, stick in gamesave.
+ *
+ * Revision 1.20  1994/11/21  16:54:36  mike
+ * oops.
+ *
+ *
+ * Revision 1.19  1994/11/20  22:12:55  mike
+ * Lotsa new stuff in this fine debug file.
+ *
+ * Revision 1.18  1994/11/17  14:58:09  mike
+ * moved segment validation functions from editor to main.
+ *
+ * Revision 1.17  1994/11/15  21:43:02  mike
+ * texture usage system.
+ *
+ * Revision 1.16  1994/11/15  12:45:59  mike
+ * debug code for dumping texture info.
+ *
+ * Revision 1.15  1994/11/14  20:47:50  john
+ * Attempted to strip out all the code in the game
+ * directory that uses any ui code.
+ *
+ * Revision 1.14  1994/10/14  17:33:38  mike
+ * Fix error reporting for number of multiplayer objects in mine.
+ *
+ * Revision 1.13  1994/10/14  13:37:46  mike
+ * Forgot parameter in fprintf, was getting bogus number of excess keys.
+ *
+ * Revision 1.12  1994/10/12  08:05:33  mike
+ * Detect keys contained in objects for error checking (txm file).
+ *
+ * Revision 1.11  1994/10/10  17:02:08  mike
+ * fix fix.
+ *
+ * Revision 1.10  1994/10/10  17:00:37  mike
+ * Add checking for proper number of players.
+ *
+ * Revision 1.9  1994/10/03  23:37:19  mike
+ * Adapt to clear and rational understanding of matcens as related to fuelcens as related to something that might work.
+ *
+ * Revision 1.8  1994/09/30  17:15:29  mike
+ * Fix error message, was telling bogus filename.
+ *
+ * Revision 1.7  1994/09/30  11:50:55  mike
+ * More diagnostics.
+ *
+ * Revision 1.6  1994/09/28  17:31:19  mike
+ * More error checking.
+ *
+ * Revision 1.5  1994/09/28  11:14:05  mike
+ * Better checking on bogus walls.
+ *
+ * Revision 1.4  1994/09/28  09:23:50  mike
+ * Change some Error messages to Warnings.
+ *
+ * Revision 1.3  1994/09/27  17:08:31  mike
+ * More mine validation stuff.
+ *
+ * Revision 1.2  1994/09/27  15:43:22  mike
+ * The amazing code to tell you everything and more about our mines!
+ *
+ * Revision 1.1  1994/09/27  10:51:15  mike
+ * Initial revision
+ *
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: dumpmine.c,v 1.3 2001-10-25 02:15:56 bradleyb Exp $";
+static char rcsid[] = "$Id: dumpmine.c,v 1.4 2003-10-10 09:36:34 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -58,7 +153,7 @@ static char rcsid[] = "$Id: dumpmine.c,v 1.3 2001-10-25 02:15:56 bradleyb Exp $"
 extern ubyte bogus_data[64*64];
 extern grs_bitmap bogus_bitmap;
 
-//	--------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 char	*object_types(int objnum)
 {
 	int	type = Objects[objnum].type;
@@ -67,7 +162,7 @@ char	*object_types(int objnum)
 	return	&Object_type_names[type];
 }
 
-//	--------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 char	*object_ids(int objnum)
 {
 	int	type = Objects[objnum].type;
@@ -112,7 +207,7 @@ void warning_printf(FILE *my_file, char * format, ... )
 	fprintf(my_file, "%s", message);
 }
 
-//	-----------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_exit_text(FILE *my_file)
 {
 	int	i, j, count;
@@ -165,12 +260,12 @@ void write_exit_text(FILE *my_file)
 		err_printf(my_file, "Error: No external wall in this mine.\n");
 	else if (count != 1) {
 		// -- warning_printf(my_file, "Warning: %i external walls in this mine.\n", count);
-		// -- warning_printf(my_file, "(If %i are secret exits, then no problem.)\n", count-1); 
+		// -- warning_printf(my_file, "(If %i are secret exits, then no problem.)\n", count-1);
 	} else
 		fprintf(my_file, "\n");
 }
 
-//	-----------------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_key_text(FILE *my_file)
 {
 	int	i;
@@ -305,7 +400,7 @@ void write_key_text(FILE *my_file)
 		err_printf(my_file, "Error: There are %i gold keys!\n", gold_count2);
 }
 
-//	------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_control_center_text(FILE *my_file)
 {
 	int	i, count, objnum, count2;
@@ -337,7 +432,7 @@ void write_control_center_text(FILE *my_file)
 		err_printf(my_file, "Error: More than one control center in this mine.\n");
 }
 
-//	------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_fuelcen_text(FILE *my_file)
 {
 	int	i;
@@ -352,7 +447,7 @@ void write_fuelcen_text(FILE *my_file)
 	}
 }
 
-//	------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_segment_text(FILE *my_file)
 {
 	int	i, objnum;
@@ -393,8 +488,9 @@ void write_segment_text(FILE *my_file)
 	}
 }
 
-//	------------------------------------------------------------------------------------------
-//	This routine is bogus.  It assumes that all centers are matcens, which is not true.  The setting of segnum is bogus.
+// ----------------------------------------------------------------------------
+// This routine is bogus.  It assumes that all centers are matcens,
+// which is not true.  The setting of segnum is bogus.
 void write_matcen_text(FILE *my_file)
 {
 	int	i, j, k;
@@ -431,7 +527,7 @@ void write_matcen_text(FILE *my_file)
 	}
 }
 
-//	------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_wall_text(FILE *my_file)
 {
 	int	i, j;
@@ -483,7 +579,7 @@ void write_wall_text(FILE *my_file)
 //	short		side[MAX_WALLS_PER_LINK];
 //	} trigger;
 
-//	------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_player_text(FILE *my_file)
 {
 	int	i, num_players=0;
@@ -503,7 +599,7 @@ void write_player_text(FILE *my_file)
 		err_printf(my_file, "Error: %i player objects.  %i are required.\n", num_players, MAX_PLAYERS);
 }
 
-//	------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_trigger_text(FILE *my_file)
 {
 	int	i, j, w;
@@ -511,7 +607,7 @@ void write_trigger_text(FILE *my_file)
 	fprintf(my_file, "-----------------------------------------------------------------------------\n");
 	fprintf(my_file, "Triggers:\n");
 	for (i=0; i<Num_triggers; i++) {
-		fprintf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", i, 
+		fprintf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", i,
 			Triggers[i].type, Triggers[i].flags, Triggers[i].value, Triggers[i].time, Triggers[i].num_links);
 
 		for (j=0; j<Triggers[i].num_links; j++)
@@ -531,7 +627,7 @@ void write_trigger_text(FILE *my_file)
 
 }
 
-//	------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void write_game_text_file(char *filename)
 {
 	char	my_filename[128];
@@ -613,27 +709,27 @@ void write_game_text_file(char *filename)
 // -- {
 // -- 	int	i, objnum;
 // -- 	polymodel	*po;
-// -- 
+// --
 // -- 	Assert(N_polygon_models);
-// -- 
+// --
 // -- 	for (objnum=0; objnum <= Highest_object_index; objnum++) {
 // -- 		int	model_num;
-// -- 
+// --
 // -- 		if (Objects[objnum].render_type == RT_POLYOBJ) {
 // -- 			model_num = Objects[objnum].rtype.pobj_info.model_num;
-// -- 
+// --
 // -- 			po=&Polygon_models[model_num];
-// -- 
+// --
 // -- 			for (i=0;i<po->n_textures;i++)	{
 // -- 				int	tli;
-// -- 
+// --
 // -- 				tli = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]];
 // -- 				Assert((tli>=0) && (tli<= Num_tmaps));
 // -- 				tmap_buf[tli]++;
 // -- 			}
 // -- 		}
 // -- 	}
-// -- 
+// --
 // -- }
 
 // --05/17/95--//	-----------------------------------------------------------------------------
@@ -746,7 +842,7 @@ extern BitmapFile AllBitmaps[ MAX_BITMAP_FILES ];
 
 int	Ignore_tmap_num2_error;
 
-//	-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, int *tmap_buf, int *wall_buf, byte *level_tmap_buf, int max_tmap)
 {
 	int	segnum, sidenum, objnum=max_tmap;
@@ -841,7 +937,7 @@ void determine_used_textures_level(int load_level_flag, int shareware_flag, int 
 	}
 }
 
-//	-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void merge_buffers(int *dest, int *src, int num)
 {
 	int	i;
@@ -851,7 +947,7 @@ void merge_buffers(int *dest, int *src, int num)
 			dest[i] += src[i];
 }
 
-//	-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void say_used_tmaps(FILE *my_file, int *tb)
 {
 	int	i;
@@ -888,7 +984,7 @@ void say_used_tmaps(FILE *my_file, int *tb)
 // --05/17/95--		}
 // --05/17/95--}
 
-//	-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void say_used_once_tmaps(FILE *my_file, int *tb, byte *tb_lnum)
 {
 	int	i;
@@ -903,7 +999,7 @@ void say_used_once_tmaps(FILE *my_file, int *tb, byte *tb_lnum)
 		}
 }
 
-//	-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void say_unused_tmaps(FILE *my_file, int *tb)
 {
 	int	i;
@@ -924,7 +1020,7 @@ void say_unused_tmaps(FILE *my_file, int *tb)
 		}
 }
 
-//	-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void say_unused_walls(FILE *my_file, int *tb)
 {
 	int	i;
@@ -934,7 +1030,7 @@ void say_unused_walls(FILE *my_file, int *tb)
 			fprintf(my_file, "Wall %3i is unused.\n", i);
 }
 
-//	-------------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 say_totals(FILE *my_file, char *level_name)
 {
 	int	i;		//, objnum;
@@ -1000,7 +1096,7 @@ say_totals(FILE *my_file, char *level_name)
 int	First_dump_level = 0;
 int	Last_dump_level = NUM_ADAM_LEVELS-1;
 
-//	-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void say_totals_all(void)
 {
 	int	i;
@@ -1069,7 +1165,7 @@ void dump_used_textures_level(FILE *my_file, int level_num)
 
 FILE	*my_file;
 
-//	-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void dump_used_textures_all(void)
 {
 	int	i;

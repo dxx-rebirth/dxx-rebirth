@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.29 2003-10-08 21:02:17 btb Exp $ */
+/* $Id: menu.c,v 1.30 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -64,7 +64,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "scores.h"
 #include "joydefs.h"
+#ifdef NETWORK
 #include "modem.h"
+#endif
 #include "playsave.h"
 #include "kconfig.h"
 #include "titles.h"

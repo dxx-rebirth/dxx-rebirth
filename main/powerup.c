@@ -1,3 +1,4 @@
+/* $Id: powerup.c,v 1.7 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,9 +8,149 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Code for powerup objects.
+ *
+ * Old Log:
+ * Revision 1.2  1995/10/31  10:18:55  allender
+ * shareware stuff
+ *
+ * Revision 1.1  1995/05/16  15:30:16  allender
+ * Initial revision
+ *
+ * Revision 2.2  1995/03/24  13:50:36  john
+ * Added mega-wowie zowie to release.
+ *
+ * Revision 2.1  1995/03/21  14:38:39  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.0  1995/02/27  11:27:15  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.94  1995/02/22  13:46:03  allender
+ * remove anonymous unions from object structure
+ *
+ * Revision 1.93  1995/02/06  15:52:51  mike
+ * add mini megawow powerup for giving reasonable weapons.
+ *
+ * Revision 1.92  1995/01/23  22:49:59  mike
+ * drop energy instead of primary weapon if you have primary weapon
+ * (drop nothing if want to drop vulcan ammo and you are maxed out)
+ * if you have primary weapon and primary weapon there, get energy instead.
+ *
+ * Revision 1.91  1995/01/19  09:42:22  allender
+ * record laser levels for demos
+ *
+ * Revision 1.90  1994/12/31  12:28:01  rob
+ * Added sound for coop key grabs.
+ *
+ * Revision 1.89  1994/12/19  19:55:17  rob
+ * Fixing key semantics for coop game.
+ *
+ * Revision 1.88  1994/12/07  12:55:21  mike
+ * tweak vulcan amounts.
+ *
+ * Revision 1.87  1994/12/06  13:55:36  matt
+ * Made shield & energy powerup messages round to match HUD message
+ *
+ * Revision 1.86  1994/12/03  19:03:57  matt
+ * Fixed vulcan ammo HUD message
+ *
+ * Revision 1.85  1994/11/29  11:35:41  rob
+ * Added sound casting for grabbing powerups.
+ *
+ * Revision 1.84  1994/11/28  11:26:38  matt
+ * Cleaned up hud message printing for picking up weapons
+ *
+ * Revision 1.83  1994/11/27  23:14:01  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.82  1994/11/21  16:02:51  mike
+ * comment out unused powerups.
+ *
+ * Revision 1.81  1994/11/20  18:25:47  john
+ * Fixed some #ifndef RELEASE inconsistancies.
+ *
+ * Revision 1.80  1994/11/19  23:54:13  mike
+ * limit megawowiezowie to shareware powerups if in shareware version.
+ *
+ * Revision 1.79  1994/11/14  16:06:16  yuan
+ * Made cloak and invulnerability only picked up once.
+ *
+ * Revision 1.78  1994/11/07  17:41:06  mike
+ * messages for when you're fully stocked with missiles.
+ *
+ * Revision 1.77  1994/10/28  14:42:50  john
+ * Added sound volumes to all sound calls.
+ *
+ * Revision 1.76  1994/10/26  15:55:23  yuan
+ * Made vulcan cannon give 100 ammo if it has less than that.
+ *
+ * Revision 1.75  1994/10/26  15:54:57  yuan
+ * *** empty log message ***
+ *
+ * Revision 1.74  1994/10/25  14:31:25  allender
+ * Fixed bug where getting cloak powerup while cloaked resulted in
+ * player being cloaked forever.
+ *
+ * Revision 1.73  1994/10/25  10:51:21  matt
+ * Vulcan cannon powerups now contain ammo count
+ *
+ * Revision 1.72  1994/10/21  20:41:32  mike
+ * Fix silly backwards (- instead of +) bug in invulnerability powerup.
+ *
+ * Revision 1.71  1994/10/20  09:49:23  mike
+ * Fix up powerups in some way.
+ *
+ * Revision 1.70  1994/10/19  11:16:25  mike
+ * Limit amount of each type of ammo player can hold.
+ *
+ * Revision 1.69  1994/10/17  14:12:11  matt
+ * Added sound for powerup disappearance effect
+ *
+ * Revision 1.68  1994/10/17  14:07:04  mike
+ * Make shields and energy max out at 200.
+ *
+ * Revision 1.67  1994/10/16  12:43:37  mike
+ * Don't allow you to pick up a primary weapon, or invulnerability, you already have.
+ * Make cloak time additive.
+ *
+ * Revision 1.66  1994/10/15  19:05:30  mike
+ * Define constants for vulcan ammo amounts.
+ *
+ * Revision 1.65  1994/10/14  15:57:28  mike
+ * When you pick up a laser boost or quad_laser powerup, update weapon display.
+ *
+ * Revision 1.64  1994/10/13  10:57:51  adam
+ * fiddled with powerup disappearance
+ *
+ * Revision 1.63  1994/10/12  13:07:33  mike
+ * Make powerup play vclip when it goes away.
+ *
+ * Revision 1.62  1994/10/12  08:04:42  mike
+ * Make proximity powerup worth 4 bombs.
+ *
+ * Revision 1.61  1994/10/08  23:37:33  matt
+ * Don't pick up weapons you already have; also fixed auto_select bug
+ * for seconary weapons
+ *
+ * Revision 1.60  1994/10/08  15:41:00  mike
+ * Diminish palette effect due to powerups.
+ *
+ * Revision 1.59  1994/10/07  23:37:45  matt
+ * Made weapons select when pick up better one
+ *
+ * Revision 1.58  1994/10/07  22:09:20  rob
+ * Added network hook for grabbing the cloaking device.
+ *
+ */
+
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
@@ -406,7 +547,7 @@ int do_powerup(object *obj)
 				if (!used && ammo_used) {
 					powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 					special_used = 1;
-					id = POW_VULCAN_AMMO;		//set new id for making sound at end of this function 
+					id = POW_VULCAN_AMMO;		//set new id for making sound at end of this function
 					if (obj->ctype.powerup_info.count == 0)
 						used = 1;		//say used if all ammo taken
 				}
@@ -546,16 +687,16 @@ int do_powerup(object *obj)
 					used = pick_up_energy();
 			} else {
 				Players[Player_num].flags |= PLAYER_FLAGS_CONVERTER;
-// DPH: anyone know what the hell this is supposed to do? it's always true =)				
+// DPH: anyone know what the hell this is supposed to do? it's always true =)
 /*				if ((GetKeyValue(54))<255)
 				 {*/
 					sprintf (temp_string,"Energy->Shield converter! (Press %c to use)",key_to_ascii(GetKeyValue(54)));
 			    	powerup_basic(15, 0, 15, 0, temp_string);
-/*				 } 
-			   else 
+/*				 }
+			   else
 			    	powerup_basic(15, 0, 15, 0, "Energy -> shield converter!"); */
-					
-	
+
+
 				used=1;
 			}
 			break;

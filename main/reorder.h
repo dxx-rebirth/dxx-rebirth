@@ -1,12 +1,8 @@
+/* $Id: reorder.h,v 1.2 2003-10-10 09:36:35 btb Exp $ */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/reorder.h,v $
- * $Revision: 1.1 $
- * $Author: bradleyb $
- * $Date: 2002-02-14 09:05:33 $
  *
  * User interface+data for weapon autoselect order selection
- *
- * $Log: not supported by cvs2svn $
  *
  */
 
@@ -17,4 +13,4 @@
 extern void ReorderPrimary();
 extern void ReorderSecondary();
 
-#endif
+#endif /* _REORDER_H */

@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.10 2003-04-29 08:33:25 btb Exp $ */
+/* $Id: automap.c,v 1.11 2003-10-10 09:36:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,8 +14,182 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * FIXME: put description here
+ * Routines for displaying the auto-map.
  *
+ * Old Log:
+ * Revision 1.8  1995/10/31  10:24:54  allender
+ * shareware stuff
+ *
+ * Revision 1.7  1995/10/21  16:18:20  allender
+ * blit pcx background directly to Page canvas instead of creating
+ * seperate bitmap for it -- hope to solve VM bug on some macs
+ *
+ * Revision 1.6  1995/10/20  00:49:16  allender
+ * added redbook check during automap
+ *
+ * Revision 1.5  1995/09/13  08:44:07  allender
+ * Dave Denhart's changes to speed up the automap
+ *
+ * Revision 1.4  1995/08/18  15:46:00  allender
+ * put text all on upper bar -- and fixed background since
+ * changing xparency color
+ *
+ * Revision 1.3  1995/08/03  15:15:18  allender
+ * fixed edge hashing problem causing automap to crash
+ *
+ * Revision 1.2  1995/07/12  12:49:27  allender
+ * works in 640x480 mode
+ *
+ * Revision 1.1  1995/05/16  15:22:59  allender
+ * Initial revision
+ *
+ * Revision 2.2  1995/03/21  14:41:26  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.1  1995/03/20  18:16:06  john
+ * Added code to not store the normals in the segment structure.
+ *
+ * Revision 2.0  1995/02/27  11:32:55  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.117  1995/02/22  14:11:31  allender
+ * remove anonymous unions from object structure
+ *
+ * Revision 1.116  1995/02/22  13:24:39  john
+ * Removed the vecmat anonymous unions.
+ *
+ * Revision 1.115  1995/02/09  14:57:02  john
+ * Reduced mem usage. Made automap slide farther.
+ *
+ * Revision 1.114  1995/02/07  20:40:44  rob
+ * Allow for anarchy automap of player pos by option.
+ *
+ * Revision 1.113  1995/02/07  15:45:33  john
+ * Made automap memory be static.
+ *
+ * Revision 1.112  1995/02/02  12:24:00  adam
+ * played with automap labels
+ *
+ * Revision 1.111  1995/02/02  01:52:52  john
+ * Made the automap use small font.
+ *
+ * Revision 1.110  1995/02/02  01:34:34  john
+ * Made Reset in automap not change segmentlimit.
+ *
+ * Revision 1.109  1995/02/02  01:23:11  john
+ * Finalized the new automap partial viewer.
+ *
+ * Revision 1.108  1995/02/02  00:49:45  mike
+ * new automap segment-depth functionality.
+ *
+ * Revision 1.107  1995/02/02  00:23:04  john
+ * Half of the code for new connected distance stuff in automap.
+ *
+ * Revision 1.106  1995/02/01  22:54:00  john
+ * Made colored doors not fade in automap. Made default
+ * viewing area be maxxed.
+ *
+ * Revision 1.105  1995/02/01  13:16:13  john
+ * Added great grates.
+ *
+ * Revision 1.104  1995/01/31  12:47:06  john
+ * Made Alt+F only work with cheats enabled.
+ *
+ * Revision 1.103  1995/01/31  12:41:23  john
+ * Working with new controls.
+ *
+ * Revision 1.102  1995/01/31  12:04:19  john
+ * Version 2 of new key control.
+ *
+ * Revision 1.101  1995/01/31  11:32:00  john
+ * First version of new automap system.
+ *
+ * Revision 1.100  1995/01/28  16:55:48  john
+ * Made keys draw in automap in the segments that you have
+ * visited.
+ *
+ * Revision 1.99  1995/01/28  14:44:51  john
+ * Made hostage doors show up on automap.
+ *
+ * Revision 1.98  1995/01/22  17:03:49  rob
+ * Fixed problem drawing playerships in automap coop/team mode
+ *
+ * Revision 1.97  1995/01/21  17:23:11  john
+ * Limited S movement in map. Made map bitmap load from disk
+ * and then freed it.
+ *
+ * Revision 1.96  1995/01/19  18:55:38  john
+ * Don't draw players in automap if not obj_player.
+ *
+ * Revision 1.95  1995/01/19  18:48:13  john
+ * Made player colors better in automap.
+ *
+ * Revision 1.94  1995/01/19  17:34:52  rob
+ * Added team colorizations in automap.
+ *
+ * Revision 1.93  1995/01/19  17:15:36  rob
+ * Trying to add player ships into map for coop and team mode.
+ *
+ * Revision 1.92  1995/01/19  17:11:09  john
+ * Added code for Rob to draw Multiplayer ships in automap.
+ *
+ * Revision 1.91  1995/01/12  13:35:20  john
+ * Fixed bug with Segment 0 not getting displayed
+ * in automap if you have EDITOR compiled in.
+ *
+ * Revision 1.90  1995/01/08  16:17:14  john
+ * Added code to draw player's up vector while in automap.
+ *
+ * Revision 1.89  1995/01/08  16:09:41  john
+ * Fixed problems with grate.
+ *
+ * Revision 1.88  1994/12/14  22:54:17  john
+ * Fixed bug that didn't show hostages in automap.
+ *
+ * Revision 1.87  1994/12/09  00:41:03  mike
+ * fix hang in automap print screen
+ *
+ * Revision 1.86  1994/12/05  23:37:15  matt
+ * Took out calls to warning() function
+ *
+ * Revision 1.85  1994/12/03  22:35:28  yuan
+ * Localization 412
+ *
+ * Revision 1.84  1994/12/02  15:05:45  matt
+ * Added new "official" cheats
+ *
+ * Revision 1.83  1994/11/30  12:10:49  adam
+ * added support for PCX titles/brief screens
+ *
+ * Revision 1.82  1994/11/27  23:15:12  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.81  1994/11/27  15:35:52  matt
+ * Enable screen shots even when debugging is turned off
+ *
+ * Revision 1.80  1994/11/26  22:51:43  matt
+ * Removed editor-only fields from segment structure when editor is compiled
+ * out, and padded segment structure to even multiple of 4 bytes.
+ *
+ * Revision 1.79  1994/11/26  16:22:48  matt
+ * Reduced leave_time
+ *
+ * Revision 1.78  1994/11/23  22:00:10  mike
+ * show level number.
+ *
+ * Revision 1.77  1994/11/21  11:40:33  rob
+ * Tweaked the game-loop for automap in multiplayer games.
+ *
+ * Revision 1.76  1994/11/18  16:42:06  adam
+ * removed a font
+ *
+ * Revision 1.75  1994/11/17  13:06:48  adam
+ * changed font
+ *
+ * Revision 1.74  1994/11/14  20:47:17  john
+ * Attempted to strip out all the code in the game
+ * directory that uses any ui code.
  *
  */
 
@@ -84,56 +258,56 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define AUTOMAP_DIRECT_RENDER
 #endif
 
-#define EF_USED			1		// This edge is used
-#define EF_DEFINING		2		// A structure defining edge that should always draw.
-#define EF_FRONTIER		4		// An edge between the known and the unknown.
-#define EF_SECRET			8		// An edge that is part of a secret wall.
-#define EF_GRATE			16		// A grate... draw it all the time.
-#define EF_NO_FADE		32		// An edge that doesn't fade with distance
-#define EF_TOO_FAR		64		// An edge that is too far away
+#define EF_USED     1   // This edge is used
+#define EF_DEFINING 2   // A structure defining edge that should always draw.
+#define EF_FRONTIER 4   // An edge between the known and the unknown.
+#define EF_SECRET   8   // An edge that is part of a secret wall.
+#define EF_GRATE    16  // A grate... draw it all the time.
+#define EF_NO_FADE  32  // An edge that doesn't fade with distance
+#define EF_TOO_FAR  64  // An edge that is too far away
 
 void modex_printf(int x,int y,char *s,grs_font *font,int color);
 
 typedef struct Edge_info {
-	short verts[2];				// 4 bytes
-	ubyte sides[4];				// 4 bytes
-	short segnum[4];			// 8 bytes	// This might not need to be stored... If you can access the normals of a side.
-	ubyte flags;				// 1 bytes 	// See the EF_??? defines above.
-	ubyte color;				// 1 bytes
-	ubyte num_faces;			// 1 bytes	// 19 bytes...
+	short verts[2];     // 4 bytes
+	ubyte sides[4];     // 4 bytes
+	short segnum[4];    // 8 bytes  // This might not need to be stored... If you can access the normals of a side.
+	ubyte flags;        // 1 bytes  // See the EF_??? defines above.
+	ubyte color;        // 1 bytes
+	ubyte num_faces;    // 1 bytes  // 19 bytes...
 } Edge_info;
 
-//OLD BUT GOOD -- #define MAX_EDGES_FROM_VERTS(v)   ((v*5)/2)
+// OLD BUT GOOD -- #define MAX_EDGES_FROM_VERTS(v)   ((v*5)/2)
 // THE following was determined by John by loading levels 1-14 and recording
-// numbers on 10/26/94. 
+// numbers on 10/26/94.
 //#define MAX_EDGES_FROM_VERTS(v)   (((v)*21)/10)
-#define MAX_EDGES_FROM_VERTS(v)		((v)*4)
+#define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
 //#define MAX_EDGES (MAX_EDGES_FROM_VERTS(MAX_VERTICES))
 
-#define MAX_EDGES 6000		// Determined by loading all the levels by John & Mike, Feb 9, 1995
+#define MAX_EDGES 6000  // Determined by loading all the levels by John & Mike, Feb 9, 1995
 
-#define	K_WALL_NORMAL_COLOR 			BM_XRGB( 29, 29, 29 )
-#define	K_WALL_DOOR_COLOR				BM_XRGB( 5, 27, 5 )
-#define	K_WALL_DOOR_BLUE				BM_XRGB( 0, 0, 31)
-#define	K_WALL_DOOR_GOLD				BM_XRGB( 31, 31, 0)
-#define	K_WALL_DOOR_RED				BM_XRGB( 31, 0, 0)
-#define	K_WALL_REVEALED_COLOR		BM_XRGB( 0, 0, 25 )	//what you see when you have the full map powerup
-#define	K_HOSTAGE_COLOR				BM_XRGB( 0, 31, 0 )
-#define	K_FONT_COLOR_20				BM_XRGB( 20, 20, 20 )
-#define	K_GREEN_31						BM_XRGB(0, 31, 0)
+#define K_WALL_NORMAL_COLOR     BM_XRGB(29, 29, 29 )
+#define K_WALL_DOOR_COLOR       BM_XRGB(5, 27, 5 )
+#define K_WALL_DOOR_BLUE        BM_XRGB(0, 0, 31)
+#define K_WALL_DOOR_GOLD        BM_XRGB(31, 31, 0)
+#define K_WALL_DOOR_RED         BM_XRGB(31, 0, 0)
+#define K_WALL_REVEALED_COLOR   BM_XRGB(0, 0, 25 ) //what you see when you have the full map powerup
+#define K_HOSTAGE_COLOR         BM_XRGB(0, 31, 0 )
+#define K_FONT_COLOR_20         BM_XRGB(20, 20, 20 )
+#define K_GREEN_31              BM_XRGB(0, 31, 0)
 
-int	Wall_normal_color;
-int	Wall_door_color;
-int	Wall_door_blue;
-int	Wall_door_gold;
-int	Wall_door_red;
-int	Wall_revealed_color;
-int	Hostage_color;
-int	Font_color_20;
-int	Green_31;
-int	White_63;
-int	Blue_48;
-int	Red_48;
+int Wall_normal_color;
+int Wall_door_color;
+int Wall_door_blue;
+int Wall_door_gold;
+int Wall_door_red;
+int Wall_revealed_color;
+int Hostage_color;
+int Font_color_20;
+int Green_31;
+int White_63;
+int Blue_48;
+int Red_48;
 
 void init_automap_colors(void)
 {
@@ -275,7 +449,7 @@ void DrawMarkerNumber (int num)
 
     FromPoint=BasePoint;
     ToPoint=BasePoint;
-  
+
     FromPoint.p3_x+=fixmul ((fl2f (ArrayX[num][i])),Matrix_scale.x);
     FromPoint.p3_y+=fixmul ((fl2f (ArrayY[num][i])),Matrix_scale.y);
     g3_code_point (&FromPoint);
@@ -285,12 +459,12 @@ void DrawMarkerNumber (int num)
     ToPoint.p3_y+=fixmul ((fl2f (ArrayY[num][i+1])),Matrix_scale.y);
     g3_code_point (&ToPoint);
     g3_project_point (&ToPoint);
-    
+
     #if	defined(MACINTOSH) && defined(POLY_ACC)
 	{
 		int savePAEnabledState = PAEnabled;	// icky hack.  automap draw context is no longer valid when this is called.
 											// so we can not use the pa_draw_line function for rave
-		
+
 		PAEnabled = 0;
 	    g3_draw_line( &FromPoint, &ToPoint );
 		PAEnabled = savePAEnabledState;
@@ -355,7 +529,7 @@ void DrawMarkers ()
    	maxdrop=2;
 	else
    	maxdrop=9;
-  
+
 	for (i=0;i<maxdrop;i++)
 		if (MarkerObject[(Player_num*2)+i] != -1) {
 
@@ -367,7 +541,7 @@ void DrawMarkers ()
 			g3_draw_sphere(&sphere_point,MARKER_SPHERE_SIZE/2);
 			gr_setcolor (gr_find_closest_color_current(cyc+20,0,0));
 			g3_draw_sphere(&sphere_point,MARKER_SPHERE_SIZE/4);
-	 
+
 			DrawMarkerNumber (i);
 		}
 
@@ -406,7 +580,7 @@ void automap_clear_visited()
 		Automap_visited[i] = 0;
 			  ClearMarkers();
 }
- 
+
 grs_canvas *name_canv_left,*name_canv_right;
 char name_level[128];
 
@@ -516,7 +690,7 @@ int AutomapHires;
 			gr_setcolor (Red_48);
 			
 			modex_printf(5,20,msg,SMALL_FONT,Font_color_20);
-		 } 
+		 }
 					
 		// Draw player(s)...
 		#ifdef NETWORK
@@ -673,7 +847,7 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_setcolor (Red_48);
 		
 		modex_printf(5,20,msg,SMALL_FONT,Font_color_20);
-	 } 
+	 }
 				
 	// Draw player(s)...
 #ifdef NETWORK
@@ -1067,7 +1241,7 @@ WIN(AutomapRedraw:)
 					return;
 				}
 		    }
-		    else 
+		    else
 		    {
 				pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME,&(grd_curcanv->cv_bitmap),BM_LINEAR,pal);
 				if ( pcx_error != PCX_ERROR_NONE )
@@ -1114,7 +1288,7 @@ WIN(AutomapRedraw:)
 WIN(if (!redraw_screen) {)
 	automap_build_edge_list();
 
-	if ( ViewDist==0 ) 
+	if ( ViewDist==0 )
 		ViewDist = ZOOM_DEFAULT;
 	ViewMatrix = Objects[Players[Player_num].objnum].orient;
 
@@ -1158,7 +1332,7 @@ WIN(if (redraw_screen) redraw_screen = 0);
 //			GameLoop( 0, 0 );		// Do game loop with no rendering and no reading controls.
 			ConsoleObject->mtype.phys_info.flags |= old_wiggle;	// Restore wiggle
 			Controls = saved_control_info;
-		} 
+		}
 
 	#ifndef WINDOWS
 		controls_read_all();		
@@ -1209,7 +1383,7 @@ WIN(if (redraw_screen) redraw_screen = 0);
 				else
 					gr_set_current_canvas(&Pages[current_page]);
 #endif
-				save_screen_shot(1); 
+				save_screen_shot(1);
 				break;
 			}
 	
@@ -1329,9 +1503,9 @@ WIN(if (redraw_screen) redraw_screen = 0);
 			case KEY_CTRLED+KEY_SHIFTED+KEY_PADMINUS:
 			case KEY_ALTED+KEY_CTRLED+KEY_PADMINUS:
 			case KEY_ALTED+KEY_SHIFTED+KEY_PADMINUS:
-				//lower res 
+				//lower res
 				//should we just cycle through the list that is displayed in the res change menu?
-				// what if their card/X/etc can't handle that mode? hrm. 
+				// what if their card/X/etc can't handle that mode? hrm.
 				//well, the quick access to the menu is good enough for now.
 				break;
 			case KEY_CTRLED+KEY_SHIFTED+KEY_PADPLUS:
@@ -1377,7 +1551,7 @@ WIN(if (redraw_screen) redraw_screen = 0);
 			if ( vm_vec_dist_quick( &view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )	{
 				view_target = old_vt;
 			}
-		} 
+		}
 
 		vm_angles_2_matrix(&tempm,&tangles);
 		vm_matrix_x_matrix(&ViewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
@@ -1630,10 +1804,10 @@ void add_one_edge( short va, short vb, ubyte color, ubyte side, short segnum, in
 	short tmp;
 
 	if ( Num_edges >= Max_edges)	{
-		// GET JOHN! (And tell him that his 
+		// GET JOHN! (And tell him that his
 		// MAX_EDGES_FROM_VERTS formula is hosed.)
-		// If he's not around, save the mine, 
-		// and send him  mail so he can look 
+		// If he's not around, save the mine,
+		// and send him  mail so he can look
 		// at the mine later. Don't modify it.
 		// This is important if this happens.
 		Int3();		// LOOK ABOVE!!!!!!
@@ -1997,7 +2171,7 @@ void MarkerInputMessage (int key)
 		if ( key > 0 )
 		 {
 		  int ascii = key_to_ascii(key);
-		  if ((ascii < 255 ))     
+		  if ((ascii < 255 ))
 		    if (Marker_index < 38 )
 		      {
 			Marker_input[Marker_index++] = ascii;
@@ -2008,7 +2182,7 @@ void MarkerInputMessage (int key)
 
 	}
  }
-  
+
 
 
 

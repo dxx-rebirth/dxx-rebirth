@@ -1,4 +1,11 @@
-/* $Id: segment.c,v 1.2 2002-08-06 01:31:07 btb Exp $ */
+/* $Id: segment.c,v 1.3 2003-10-10 09:36:35 btb Exp $ */
+
+/*
+ *
+ * Segment Loading Stuff
+ *
+ */
+
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
@@ -8,7 +15,7 @@
 #include "cfile.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: segment.c,v 1.2 2002-08-06 01:31:07 btb Exp $";
+static char rcsid[] = "$Id: segment.c,v 1.3 2003-10-10 09:36:35 btb Exp $";
 #endif
 
 #ifndef FAST_FILE_IO

@@ -1,3 +1,4 @@
+/* $Id: songs.c,v 1.9 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -10,6 +11,44 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Routines to manage the songs in Descent.
+ *
+ * Old Log:
+ * Revision 1.5  1995/11/03  12:52:59  allender
+ * shareware changes
+ *
+ * Revision 1.4  1995/10/18  01:51:33  allender
+ * fixed up stuff for redbook
+ *
+ * Revision 1.3  1995/10/17  13:13:44  allender
+ * dont' add resource value to songs to play -- now done in digi
+ * code
+ *
+ * Revision 1.2  1995/07/17  08:50:35  allender
+ * make work with new music system
+ *
+ * Revision 1.1  1995/05/16  15:31:05  allender
+ * Initial revision
+ *
+ * Revision 2.1  1995/05/02  16:15:21  john
+ * Took out printf.
+ *
+ * Revision 2.0  1995/02/27  11:27:13  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.2  1995/02/11  12:42:12  john
+ * Added new song method, with FM bank switching..
+ *
+ * Revision 1.1  1995/02/11  10:20:33  john
+ * Initial revision
+ *
+ *
+ */
+
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
@@ -291,7 +330,7 @@ int songs_haved2_cd()
 		chdir(cwd);
 		return 1;
 	}
-	
+
 	return 0;
 }
 #endif
@@ -303,7 +342,7 @@ void songs_play_song( int songnum, int repeat )
 	//Assert(songnum != SONG_ENDLEVEL && songnum != SONG_ENDGAME);	//not in full version
 	#endif
 
-	if ( !Songs_initialized ) 
+	if ( !Songs_initialized )
 		songs_init();
 
 	//stop any music already playing

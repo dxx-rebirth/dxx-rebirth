@@ -1,4 +1,10 @@
-/* $Id: escort.h,v 1.1 2003-03-27 01:23:18 btb Exp $ */
+/* $Id: escort.h,v 1.2 2003-10-10 09:36:35 btb Exp $ */
+
+/*
+ *
+ * Header for escort.c
+ *
+ */
 
 #ifndef _ESCORT_H
 #define _ESCORT_H

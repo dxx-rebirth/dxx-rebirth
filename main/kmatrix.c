@@ -1,3 +1,4 @@
+/* $Id: kmatrix.c,v 1.5 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,19 +8,104 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/kmatrix.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-10-23 21:53:18 $
  *
- * FIXME: put description here
+ * Kill matrix displayed at end of level.
  *
- * $Log: not supported by cvs2svn $
+ * Old Log:
+ * Revision 1.6  1995/09/24  10:57:48  allender
+ * made any key move off of kill matrix screen as text indicates it should
+ *
+ * Revision 1.5  1995/08/18  08:33:05  allender
+ * fixed text problem with top level player names
+ *
+ * Revision 1.4  1995/07/26  17:03:05  allender
+ * sort of fixed spacing for mac
+ *
+ * Revision 1.3  1995/06/06  15:36:14  allender
+ * be sure to bitblt to screen inside of kmatrix loop
+ *
+ * Revision 1.2  1995/06/02  07:47:15  allender
+ * removed bogus include files
+ *
+ * Revision 1.1  1995/05/16  15:27:07  allender
+ * Initial revision
+ *
+ * Revision 2.3  1995/05/02  17:01:22  john
+ * Fixed bug with kill list not showing up in VFX mode.
+ *
+ * Revision 2.2  1995/03/21  14:38:20  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.1  1995/03/06  15:22:54  john
+ * New screen techniques.
+ *
+ * Revision 2.0  1995/02/27  11:25:56  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.19  1995/02/15  14:47:23  john
+ * Added code to keep track of kills during endlevel.
+ *
+ * Revision 1.18  1995/02/08  11:00:06  rob
+ * Moved string to localized file
+ *
+ * Revision 1.17  1995/02/01  23:45:55  rob
+ * Fixed string.
+ *
+ * Revision 1.16  1995/01/30  21:47:11  rob
+ * Added a line of instructions.
+ *
+ * Revision 1.15  1995/01/20  16:58:43  rob
+ * careless careless careless...
+ *
+ *
+ * Revision 1.14  1995/01/20  13:43:48  rob
+ * Longer time to view.
+ *
+ * Revision 1.13  1995/01/20  13:42:34  rob
+ * Fixed sorting bug.
+ *
+ * Revision 1.12  1995/01/19  17:35:21  rob
+ * Fixed coloration of player names in team mode.
+ *
+ * Revision 1.11  1995/01/16  21:26:15  rob
+ * Fixed it!!
+ *
+ * Revision 1.10  1995/01/16  18:55:41  rob
+ * Added include of network.h
+ *
+ * Revision 1.9  1995/01/16  18:22:35  rob
+ * Fixed problem with signs.
+ *
+ * Revision 1.8  1995/01/12  16:07:51  rob
+ * ADded sorting before display.
+ *
+ * Revision 1.7  1995/01/04  08:46:53  rob
+ * JOHN CHECKED IN FOR ROB !!!
+ *
+ * Revision 1.6  1994/12/09  20:17:20  yuan
+ * Touched up
+ *
+ * Revision 1.5  1994/12/09  19:46:35  yuan
+ * Localized the sucker.
+ *
+ * Revision 1.4  1994/12/09  19:24:58  rob
+ * Yuan's fix to the centering.
+ *
+ * Revision 1.3  1994/12/09  19:02:37  yuan
+ * Cleaned up a bit.
+ *
+ * Revision 1.2  1994/12/09  16:19:46  yuan
+ * kill matrix stuff.
+ *
+ * Revision 1.1  1994/12/09  15:08:58  yuan
+ * Initial revision
+ *
  *
  */
 
@@ -85,7 +171,7 @@ void kmatrix_redraw_coop();
 
 #define LHX(x)		((x)*(MenuHires?2:1))
 #define LHY(y)		((y)*(MenuHires?2.4:1))
- 
+
 void kmatrix_draw_item( int  i, int *sorted )
 {
 	int j, x, y;
@@ -99,7 +185,7 @@ void kmatrix_draw_item( int  i, int *sorted )
 
    if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
 	   gr_printf (LHX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
-    
+   
 	for (j=0; j<N_players; j++) {
 
 		x = LHX(70 + CENTERING_OFFSET(N_players) + j*25);
@@ -144,7 +230,7 @@ void kmatrix_draw_coop_item( int  i, int *sorted )
 
 	gr_printf( LHX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
    gr_printf (LHX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
-    
+   
 
 	x = CENTERSCREEN;
 
@@ -221,17 +307,17 @@ void kmatrix_draw_deaths(int *sorted)
 	x = LHX(35);
 
 	{
-          
+         
 		int sw, sh, aw;
 	   				
       gr_set_fontcolor(gr_find_closest_color(63,20,0),-1);
-      gr_get_string_size("P-Playing E-Escaped D-Died", &sw, &sh, &aw); 
+      gr_get_string_size("P-Playing E-Escaped D-Died", &sw, &sh, &aw);
 
  	   if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
 		   gr_printf( CENTERSCREEN-(sw/2), y,"P-Playing E-Escaped D-Died");
-   
+  
       y+=(sh+5);
-	   gr_get_string_size("V-Viewing scores W-Waiting", &sw, &sh, &aw); 
+	   gr_get_string_size("V-Viewing scores W-Waiting", &sw, &sh, &aw);
 
 	   if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
 		   gr_printf( CENTERSCREEN-(sw/2), y,"V-Viewing scores W-Waiting");
@@ -246,12 +332,12 @@ void kmatrix_draw_deaths(int *sorted)
 
       if (Players[Player_num].connected==7)
        {
-        gr_get_string_size("Waiting for other players...",&sw, &sh, &aw); 
+        gr_get_string_size("Waiting for other players...",&sw, &sh, &aw);
         gr_printf( CENTERSCREEN-(sw/2), y,"Waiting for other players...");
        }
       else
        {
-        gr_get_string_size(TXT_PRESS_ANY_KEY2, &sw, &sh, &aw); 
+        gr_get_string_size(TXT_PRESS_ANY_KEY2, &sw, &sh, &aw);
         gr_printf( CENTERSCREEN-(sw/2), y, TXT_PRESS_ANY_KEY2);
        }
 	}
@@ -263,8 +349,8 @@ void kmatrix_draw_deaths(int *sorted)
      sprintf((char *)&reactor_message, "%s: %d %s  ", TXT_TIME_REMAINING, Countdown_seconds_left, TXT_SECONDS);
      kmatrix_reactor ((char *)&reactor_message);
    }
-  
-  if (Game_mode & GM_HOARD)  
+ 
+  if (Game_mode & GM_HOARD) 
 	  kmatrix_phallic();
 
 }
@@ -290,18 +376,18 @@ void kmatrix_draw_coop_deaths(int *sorted)
 	x = LHX(35);
 
 	{
-          
+         
 		int sw, sh, aw;
 
       gr_set_fontcolor(gr_find_closest_color(63,20,0),-1);
-      gr_get_string_size("P-Playing E-Escaped D-Died", &sw, &sh, &aw); 
+      gr_get_string_size("P-Playing E-Escaped D-Died", &sw, &sh, &aw);
 
 	  if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
 	      gr_printf( CENTERSCREEN-(sw/2), y,"P-Playing E-Escaped D-Died");
-  	   
-   
+  	  
+  
       y+=(sh+5);
-	   gr_get_string_size("V-Viewing scores W-Waiting", &sw, &sh, &aw); 
+	   gr_get_string_size("V-Viewing scores W-Waiting", &sw, &sh, &aw);
 
 	   if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
 	       gr_printf( CENTERSCREEN-(sw/2), y,"V-Viewing scores W-Waiting");
@@ -316,12 +402,12 @@ void kmatrix_draw_coop_deaths(int *sorted)
 
       if (Players[Player_num].connected==7)
        {
-        gr_get_string_size("Waiting for other players...",&sw, &sh, &aw); 
+        gr_get_string_size("Waiting for other players...",&sw, &sh, &aw);
         gr_printf( CENTERSCREEN-(sw/2), y,"Waiting for other players...");
        }
       else
        {
-        gr_get_string_size(TXT_PRESS_ANY_KEY2, &sw, &sh, &aw); 
+        gr_get_string_size(TXT_PRESS_ANY_KEY2, &sw, &sh, &aw);
         gr_printf( CENTERSCREEN-(sw/2), y, TXT_PRESS_ANY_KEY2);
        }
 	}
@@ -349,11 +435,11 @@ void kmatrix_reactor (char *message)
   if (oldmessage[0]!=0)
    {
     gr_set_fontcolor(gr_find_closest_color(0,0,0),-1);
-    gr_get_string_size(oldmessage, &sw, &sh, &aw); 
+    gr_get_string_size(oldmessage, &sw, &sh, &aw);
    // gr_printf( CENTERSCREEN-(sw/2), LHY(55+72+12), oldmessage);
    }
   gr_set_fontcolor(gr_find_closest_color(0,32,63),-1);
-  gr_get_string_size(message, &sw, &sh, &aw); 
+  gr_get_string_size(message, &sw, &sh, &aw);
   gr_printf( CENTERSCREEN-(sw/2), LHY(55+72+12), message);
 
   strcpy ((char *)&oldmessage,message);
@@ -371,7 +457,7 @@ void kmatrix_phallic ()
 
   if ((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL))
 	return;
-  
+ 
   if (PhallicMan==-1)
 	strcpy (message,"There was no record set for this level.");
   else
@@ -379,11 +465,11 @@ void kmatrix_phallic ()
 
   grd_curcanv->cv_font = SMALL_FONT;
   gr_set_fontcolor(gr_find_closest_color(63,63,63),-1);
-  gr_get_string_size(message, &sw, &sh, &aw); 
+  gr_get_string_size(message, &sw, &sh, &aw);
   gr_printf( CENTERSCREEN-(sw/2), LHY(55+72+3), message);
  }
 
- 
+
 void load_stars(void);
 
 WINDOS(dd_grs_canvas *StarBackCanvas,
@@ -399,13 +485,13 @@ WINDOS(
 	dd_grs_canvas *tempcanvas,
    grs_canvas *tempcanvas
 );
-   
+  
    if (Game_mode & GM_MULTI_COOP)
 	 {
 	  kmatrix_redraw_coop();
 	  return;
 	 }
-         
+        
 	multi_sort_kill_list();
 
 	WINDOS(
@@ -492,7 +578,7 @@ WINDOS(
 	dd_grs_canvas *tempcanvas,
 	grs_canvas *tempcanvas
 );
-        
+       
 	multi_sort_kill_list();
 
 WINDOS(
@@ -579,7 +665,7 @@ extern void load_stars_palette();
 extern void network_endlevel_poll3( int nitems, struct newmenu_item * menus, int * key, int citem );
 
 void kmatrix_view(int network)
-{											  
+{											 
    int i, k, done,choice;
 	fix entry_time = timer_get_approx_seconds();
 	int key;
@@ -588,7 +674,7 @@ void kmatrix_view(int network)
    int num_ready,num_escaped;
 
  	network=Game_mode & GM_NETWORK;
- 
+
    for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
    	digi_kill_sound_linked_to_object (Players[i].objnum);
  	
@@ -609,7 +695,7 @@ void kmatrix_view(int network)
 	} else
 	#endif							// note link to above if/else pair
 		load_stars();
-   
+  
    WaitingForOthers=0;
    kmatrix_redraw();
 
@@ -635,9 +721,9 @@ void kmatrix_view(int network)
 	#endif
 
       kmatrix_kills_changed = 0;
-      for (i=0; i<4; i++ ) 
-          if (joy_get_button_down_cnt(i)>0) 
-			  {  
+      for (i=0; i<4; i++ )
+          if (joy_get_button_down_cnt(i)>0)
+			  { 
 				  #if defined (D2_OEM)
 					 if (Current_level_num==8)
 						{
@@ -650,7 +736,7 @@ void kmatrix_view(int network)
 						);
 					    multi_leave_game();
 				       Kmatrix_nomovie_message=0;
-				       longjmp(LeaveGame, 0); 
+				       longjmp(LeaveGame, 0);
 	                return;
 						}
 				  #endif
@@ -661,7 +747,7 @@ void kmatrix_view(int network)
 				break;
 			  } 			
     	for (i=0; i<3; i++ )	
-          if (mouse_button_down_count(i)>0) 
+          if (mouse_button_down_count(i)>0)
 				{
 				  #if defined (D2_OEM)
 					 if (Current_level_num==8)
@@ -675,7 +761,7 @@ void kmatrix_view(int network)
 						);
 					    multi_leave_game();
 				       Kmatrix_nomovie_message=0;
-				       longjmp(LeaveGame, 0); 
+				       longjmp(LeaveGame, 0);
 	                return;
 						}
 				  #endif
@@ -710,7 +796,7 @@ void kmatrix_view(int network)
 						);
 					    multi_leave_game();
 				       Kmatrix_nomovie_message=0;
-				       longjmp(LeaveGame, 0); 
+				       longjmp(LeaveGame, 0);
 	                return;
 						}
 				  #endif
@@ -738,12 +824,12 @@ void kmatrix_view(int network)
 						);
 				    multi_leave_game();
 			       Kmatrix_nomovie_message=0;
-			       longjmp(LeaveGame, 0); 
+			       longjmp(LeaveGame, 0);
                 return;
                }
               else
                kmatrix_kills_changed=1;
-           
+          
 				  break;
 
 			case KEY_PRINT_SCREEN:
@@ -769,7 +855,7 @@ void kmatrix_view(int network)
 						);
 					    multi_leave_game();
 				       Kmatrix_nomovie_message=0;
-				       longjmp(LeaveGame, 0); 
+				       longjmp(LeaveGame, 0);
 	                return;
 						}
 				  #endif
@@ -782,12 +868,12 @@ void kmatrix_view(int network)
           Players[Player_num].connected=7;
 			 if (network)
 	          network_send_endlevel_packet();
-		   }	 
+		   }	
 
 		if (network && (Game_mode & GM_NETWORK))
 		{
         network_endlevel_poll2(0, NULL, &key, 0);
-                       
+                      
         for (num_escaped=0,num_ready=0,i=0;i<N_players;i++)
           {
             if (Players[i].connected && i!=Player_num)
@@ -798,7 +884,7 @@ void kmatrix_view(int network)
                     mprintf((0, "idle timeout for player %d.\n", i));
 			      	  Players[i].connected = 0;
                     network_send_endlevel_sub(i);
-                   }                        
+                   }
                 }
 
                if (Players[i].connected!=oldstates[i])
@@ -825,8 +911,8 @@ void kmatrix_view(int network)
              previous_seconds_left=Countdown_seconds_left;
 				 kmatrix_kills_changed=1;
 				}
-                                                 
-         if ( kmatrix_kills_changed )    
+
+         if ( kmatrix_kills_changed )
             {
              kmatrix_redraw();
              kmatrix_kills_changed=0;
@@ -837,10 +923,10 @@ void kmatrix_view(int network)
 
   Players[Player_num].connected=7;
 
-  if (network)	
+  if (network)
      network_send_endlevel_packet();  // make sure
 
-       
+
 // Restore background and exit
 	gr_palette_fade_out( gr_palette, 32, 0 );
 

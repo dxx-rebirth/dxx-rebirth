@@ -1,5 +1,16 @@
-/* DPH: This is the file where all the stub functions go. The aim is to have nothing in here ,eventually */
+/* $Id: kludge.c,v 1.13 2003-10-10 09:36:35 btb Exp $ */
+
+/*
+ *
+ * DPH: This is the file where all the stub functions go. The aim is
+ * to have nothing in here, eventually
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -20,7 +31,7 @@ char CDROM_dir[40] = ".";
 #ifndef __DJGPP__
 int gr_check_mode(u_int32_t a)
 {
-  return 0;
+	return 0;
 }
 
 
@@ -57,7 +68,7 @@ void g3_remap_interp_colors()
 
 int com_init(void)
 {
- return 0;
+	return 0;
 }
 
 void com_level_sync(void)

@@ -1,3 +1,4 @@
+/* $Id: desw.h,v 1.2 2003-10-10 09:36:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,22 +8,24 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
+/*
+ *
+ * Stuff for Windows
+ *
+ */
 
 #ifndef _DESW_H
 #define _DESW_H
 
 
-#ifdef WINDOWS
-
-#define DESCENT_VIEWPORT_WIDTH	640
-#define DESCENT_VIEWPORT_HEIGHT	480
-#define DESCENT_RENDER_WIDTH		320
-#define DESCENT_RENDER_HEIGHT		200
+#define DESCENT_VIEWPORT_WIDTH  640
+#define DESCENT_VIEWPORT_HEIGHT 480
+#define DESCENT_RENDER_WIDTH    320
+#define DESCENT_RENDER_HEIGHT   200
 
 
 #define WIN95
@@ -30,13 +33,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "win\dd.h"
-#include "win\winapp.h"
+#include "win/dd.h"
+#include "win/winapp.h"
 #include "pstypes.h"
 #include "fix.h"
 #include "gr.h"
 
-#undef	DEFAULT_PALETTE
+#undef DEFAULT_PALETTE
 
 
 #define WINAPP_NAME "Descent II"
@@ -58,17 +61,17 @@ typedef struct PALETTE {
 } PALETTE;
 
 typedef struct RGBBITMAPINFO {
-	BITMAPINFOHEADER	bmiHeader;
-	RGBQUAD				rgb[256];
+	BITMAPINFOHEADER    bmiHeader;
+	RGBQUAD             rgb[256];
 } RGBBITMAPINFO;
 
 
 
-//	Other Structures
+// Other Structures
 
-#define MSG_QUIT	0
-#define MSG_SHUTDOWN 1
-#define MSG_NORMAL 2
+#define MSG_QUIT        0
+#define MSG_SHUTDOWN    1
+#define MSG_NORMAL      2
 
 
 typedef struct WinJoystickDesc {
@@ -84,15 +87,15 @@ typedef struct WinJoystickDesc {
 } WinJoystickDesc;
 
 
-//	Globals
+// Globals
 
-extern HWND 		_hAppWnd;						// Descent Window
-extern HINSTANCE 	_hAppInstance;
-extern int			_DDraw;							// Direct X Implementation
-extern BOOL			_AppActive;
-extern BOOL 		SOS_DLLInit;
-extern BOOL			_RedrawScreen;
-extern SCREEN_CONTEXT _SCRContext;
+extern HWND             _hAppWnd;           // Descent Window
+extern HINSTANCE        _hAppInstance;
+extern int              _DDraw;             // Direct X Implementation
+extern BOOL             _AppActive;
+extern BOOL             SOS_DLLInit;
+extern BOOL             _RedrawScreen;
+extern SCREEN_CONTEXT   _SCRContext;
 
 
 extern dd_grs_canvas *dd_VR_offscreen_buffer;
@@ -102,24 +105,24 @@ extern dd_grs_canvas dd_VR_render_sub_buffer[2];
 
 
 
-//	WinG Stuff
+// WinG Stuff
 
-extern HPALETTE	_hAppPalette;					// Application Palette
-
-
-//	Other Globals
-
-extern RECT			ViewportRect;					// Viewport rect for window
-extern char			*_OffscreenCanvasBits;		// Pointer to DIB Bits.
-extern fix			WinFrameTime;					// Time per frame
-extern int			Platform_system;				// Tells us the platform
+extern HPALETTE _hAppPalette;               // Application Palette
 
 
-//	Functions
+// Other Globals
+
+extern RECT     ViewportRect;               // Viewport rect for window
+extern char     *_OffscreenCanvasBits;      // Pointer to DIB Bits.
+extern fix      WinFrameTime;               // Time per frame
+extern int      Platform_system;            // Tells us the platform
+
+
+// Functions
 
 extern void WinDelay(int msecs);
 
-//	misc functions
+// misc functions
 extern void WErrorPrint(char *msg);
 extern dd_grs_canvas *get_current_game_screen();
 extern BOOL SOSInit();
@@ -134,10 +137,10 @@ extern void ShowCursorW();
 extern void HideCursorW();
 
 
-//	Macros
-#define CanvasWidth(C) ((C).bmiHeader.biWidth)
+// Macros
+#define CanvasWidth(C)  ((C).bmiHeader.biWidth)
 #define CanvasHeight(C) (((C).bmiHeader.biHeight > 0) ? \
-							(C).bmiHeader.biHeight : -(C).bmiHeader.biHeight)
+                         (C).bmiHeader.biHeight : -(C).bmiHeader.biHeight)
 
 #define DebugMessageBox(c) (MessageBox(NULL,c,"Message",MB_OK))
 
@@ -146,8 +149,4 @@ extern void HideCursorW();
 #define WINNT_PLATFORM 1
 #define WIN95_PLATFORM 0
 
-
-#endif
-
-
-#endif
+#endif /* _DESW_H */

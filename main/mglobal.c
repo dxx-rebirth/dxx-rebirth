@@ -1,3 +1,4 @@
+/* $Id: mglobal.c,v 1.4 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -181,7 +182,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: mglobal.c,v 1.3 2003-10-04 03:14:47 btb Exp $";
+static char rcsid[] = "$Id: mglobal.c,v 1.4 2003-10-10 09:36:35 btb Exp $";
 #endif
 
 #include "fix.h"

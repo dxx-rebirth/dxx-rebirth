@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.66 2003-10-08 22:05:19 btb Exp $ */
+/* $Id: inferno.c,v 1.67 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -761,8 +761,8 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "newdemo.h"
 #ifdef NETWORK
 #include "network.h"
-#endif
 #include "modem.h"
+#endif
 #include "gamefont.h"
 #include "kconfig.h"
 #include "mouse.h"

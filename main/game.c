@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.22 2003-06-06 19:04:27 btb Exp $ */
+/* $Id: game.c,v 1.23 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,12 +12,402 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Game loop for Inferno
+ *
+ * Old Log:
+ * Revision 1.1  1995/12/05  16:01:09  allender
+ * Initial revision
+ *
+ * Revision 1.38  1995/11/13  13:02:35  allender
+ * put up HUD message when player starts tournament
+ *
+ * Revision 1.37  1995/11/13  09:21:05  allender
+ * ved and shorted tournament mode messages
+ *
+ * Revision 1.36  1995/11/09  17:27:00  allender
+ * took out cheats during demo playback
+ *
+ * Revision 1.35  1995/11/07  17:05:41  allender
+ * move registered cheats
+ *
+ * Revision 1.34  1995/11/03  12:55:45  allender
+ * shareware changes
+ *
+ * Revision 1.33  1995/10/29  20:15:00  allender
+ * took out frame rate cheat.  Pause for at least a second because
+ * of cmd-P problem
+ *
+ * Revision 1.32  1995/10/26  14:11:26  allender
+ * fix up message box stuff to align correctly
+ *
+ * Revision 1.31  1995/10/24  18:09:41  allender
+ * ixed cockpit weirdness -- don't update cockpit when do_appl_quit
+ * is called -- screen saved in mevent.c
+ *
+ * Revision 1.30  1995/10/21  23:39:10  allender
+ * ruise marking indicator
+ *
+ * Revision 1.29  1995/10/21  22:52:27  allender
+ * bald guy cheat -- print screen stuff
+ *
+ * Revision 1.28  1995/10/20  00:54:28  allender
+ * new help menus and redbook checking in outer game loop
+ *
+ * Revision 1.27  1995/10/17  15:34:19  allender
+ * pixel double is now default mode
+ *
+ * Revision 1.26  1995/10/12  17:34:44  allender
+ * bigger message box -- command key equivs for function keys
+ *
+ * Revision 1.25  1995/10/11  12:17:14  allender
+ * removed event loop processing
+ *
+ * Revision 1.24  1995/10/11  00:58:47  allender
+ * removed debugging code
+ *
+ * Revision 1.23  1995/10/10  11:50:32  allender
+ * fixed boxed message to align on 8 byte boundry,
+ * and some debug code
+ *
+ * Revision 1.22  1995/09/24  10:51:26  allender
+ * cannot go to finder in network..added cmd-q for quit
+ *
+ * Revision 1.21  1995/09/22  15:05:18  allender
+ * *more* hud and font type stuff (messages)
+ *
+ * Revision 1.20  1995/09/22  14:39:57  allender
+ * ved framerate counter up
+ *
+ * Revision 1.19  1995/09/18  17:01:28  allender
+ * start of compatibility stuff
+ *
+ * Revision 1.18  1995/09/15  15:53:13  allender
+ * better handling of PICT screen shots
+ *
+ * Revision 1.17  1995/09/14  15:27:41  allender
+ * fixed function type on message_box routiens
+ *
+ * Revision 1.16  1995/09/13  11:37:47  allender
+ * put in call to dump PICT file instead of PCX
+ *
+ * Revision 1.15  1995/09/08  17:13:28  allender
+ * put back in ibitblt.h and start of PICT picture dump
+ *
+ * Revision 1.14  1995/09/07  10:20:58  allender
+ * make cockpit mode default
+ *
+ * Revision 1.13  1995/09/07  10:17:34  allender
+ * added command key equivalents for function keys
+ *
+ * Revision 1.12  1995/09/04  11:36:47  allender
+ * fixed pixel double mode to have correct number of rendered
+ * lines
+ *
+ * Revision 1.11  1995/09/01  15:47:07  allender
+ * cap frame rate at 60 fps
+ *
+ * Revision 1.10  1995/08/26  16:25:59  allender
+ * whole buncha' stuff!!!!
+ *
+ * Revision 1.9  1995/08/01  16:04:47  allender
+ * put in ctrl_esc sequence to go to menubar
+ *
+ * Revision 1.8  1995/07/28  14:15:11  allender
+ * added FRAME cheat to display frame rate
+ *
+ * Revision 1.7  1995/07/17  08:54:19  allender
+ * *** empty log message ***
+ *
+ * Revision 1.6  1995/07/12  12:54:06  allender
+ * removed some debug keys
+ *
+ * Revision 1.5  1995/07/05  16:44:35  allender
+ * changed some debug keys
+ *
+ * Revision 1.4  1995/06/23  10:24:57  allender
+ * added scanline doubling routine
+ *
+ * Revision 1.3  1995/06/13  13:08:26  allender
+ * added special debug key to move window into upper left corner.
+ * also added debug key to put game in 640x480 mode
+ *
+ * Revision 1.2  1995/06/12  11:10:31  allender
+ * added DEL_SHIFT_M to move window to corner of screen
+ *
+ * Revision 1.1  1995/05/16  15:25:08  allender
+ * Initial revision
+ *
+ * Revision 2.36  1996/01/05  16:52:05  john
+ * Improved 3d stuff.
+ *
+ * Revision 2.35  1995/10/09  22:17:10  john
+ * Took out the page flipping in set_screen_mode, which shouldn't
+ * be there.  This was hosing the modex stuff.
+ *
+ * Revision 2.34  1995/10/09  19:46:34  john
+ * Fixed bug with modex paging with lcdbios.
+ *
+ * Revision 2.33  1995/10/08  11:46:09  john
+ * Fixed bug with 2d offset in interlaced mode in low res.
+ * Made LCDBIOS with pageflipping using VESA set start
+ * Address function.  X=CRTC offset, Y=0.
+ *
+ * Revision 2.32  1995/10/07  13:20:51  john
+ * Added new modes for LCDBIOS, also added support for -JoyNice,
+ * and added Shift+F1-F4 to controls various stereoscopic params.
+ *
+ * Revision 2.31  1995/05/31  14:34:43  unknown
+ * fixed warnings.
+ *
+ * Revision 2.30  1995/05/08  11:23:45  john
+ * Made 3dmax work like Kasan wants it to.
+ *
+ * Revision 2.29  1995/04/06  13:47:39  yuan
+ * Restored rear view to original.
+ *
+ * Revision 2.28  1995/04/06  12:13:07  john
+ * Fixed some bugs with 3dmax.
+ *
+ * Revision 2.27  1995/04/05  13:18:18  mike
+ * decrease energy usage on fusion cannon
+ *
+ * Revision 2.26  1995/03/30  16:36:32  mike
+ * text localization.
+ *
+ * Revision 2.25  1995/03/27  16:45:26  john
+ * Fixed some cheat bugs.  Added astral cheat.
+ *
+ * Revision 2.24  1995/03/27  15:37:11  mike
+ * boost fusion cannon for non-multiplayer modes.
+ *
+ * Revision 2.23  1995/03/24  17:48:04  john
+ * Fixed bug with menus and 320x100.
+ *
+ * Revision 2.22  1995/03/24  15:34:02  mike
+ * cheats.
+ *
+ * Revision 2.21  1995/03/24  13:11:39  john
+ * Added save game during briefing screens.
+ *
+ * Revision 2.20  1995/03/21  14:40:50  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.19  1995/03/16  22:07:16  john
+ * Made so only for screen can be used for anything other
+ * than mode 13.
+ *
+ * Revision 2.18  1995/03/16  21:45:35  john
+ * Made all paged modes have incompatible menus!
+ *
+ * Revision 2.17  1995/03/16  18:30:35  john
+ * Made wider than 320 screens not have
+ * a status bar mode.
+ *
+ * Revision 2.16  1995/03/16  10:53:34  john
+ * Move VFX center to Shift+Z instead of Enter because
+ * it conflicted with toggling HUD on/off.
+ *
+ * Revision 2.15  1995/03/16  10:18:33  john
+ * Fixed bug with VFX mode not working. also made warning
+ * when it can't set VESA mode.
+ *
+ * Revision 2.14  1995/03/14  16:22:39  john
+ * Added cdrom alternate directory stuff.
+ *
+ * Revision 2.13  1995/03/14  12:14:17  john
+ * Made VR helmets have 4 resolutions to choose from.
+ *
+ * Revision 2.12  1995/03/10  13:47:33  john
+ * Added head tracking sensitivity.
+ *
+ * Revision 2.11  1995/03/10  13:13:47  john
+ * Added code to show T-xx on iglasses.
+ *
+ * Revision 2.10  1995/03/09  18:07:29  john
+ * Fixed bug with iglasses tracking not "centering" right.
+ * Made VFX have bright headlight lighting.
+ *
+ * Revision 2.9  1995/03/09  11:48:02  john
+ * Added HUD for VR helmets.
+ *
+ * Revision 2.8  1995/03/07  15:12:53  john
+ * Fixed VFX,3dmax support.
+ *
+ * Revision 2.7  1995/03/07  11:35:03  john
+ * Fixed bug with cockpit in rear view.
+ *
+ * Revision 2.6  1995/03/06  18:40:17  john
+ * Added some ifdef EDITOR stuff.
+ *
+ * Revision 2.5  1995/03/06  18:31:21  john
+ * Fixed bug with nmenu popping up on editor screen.
+ *
+ * Revision 2.4  1995/03/06  17:28:33  john
+ * Fixed but with cockpit toggling wrong.
+ *
+ * Revision 2.3  1995/03/06  16:08:10  mike
+ * Fix compile errors if building without editor.
+ *
+ * Revision 2.2  1995/03/06  15:24:10  john
+ * New screen techniques.
+ *
+ * Revision 2.1  1995/02/27  13:41:03  john
+ * Removed floating point from frame rate calculations.
+ *
+ * Revision 2.0  1995/02/27  11:31:54  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.770  1995/02/22  12:45:15  allender
+ * remove anonymous unions from object structure
+ *
+ * Revision 1.769  1995/02/15  10:06:25  allender
+ * make pause pause game during demo playback
+ *
+ * Revision 1.768  1995/02/13  20:35:11  john
+ * Lintized
+ *
+ * Revision 1.767  1995/02/13  19:40:29  allender
+ * added place to demo record restoration from rear view in place that
+ * I forgot before
+ *
+ * Revision 1.766  1995/02/13  10:29:27  john
+ * Fixed bug with cheats not restoreing across save games.
+ *
+ * Revision 1.765  1995/02/11  22:54:33  john
+ * Made loading for pig not show up for demos.
+ *
+ * Revision 1.764  1995/02/11  17:30:08  allender
+ * ifndef NDEBUG around strip frame stuff
+ *
+ * Revision 1.763  1995/02/11  17:13:01  rob
+ * Took out modem.c code fille stuff.
+ *
+ * Revision 1.762  1995/02/11  16:36:47  allender
+ * debug key to strip frames from end of demo
+ *
+ * Revision 1.761  1995/02/11  14:29:16  john
+ * Turned off cheats when going into game.
+ *
+ * Revision 1.760  1995/02/11  13:46:54  mike
+ * fix cheats.
+ *
+ * Revision 1.759  1995/02/11  12:36:09  matt
+ * Cleaned up cheats
+ *
+ * Revision 1.758  1995/02/11  12:27:04  mike
+ * fix path-to-exit cheat.
+ *
+ * Revision 1.757  1995/02/11  01:56:24  mike
+ * robots don't fire cheat.
+ *
+ * Revision 1.756  1995/02/10  16:38:40  mike
+ * illuminate path to exit cheat.
+ *
+ * Revision 1.755  1995/02/10  16:19:40  mike
+ * new show-path-to-exit system, still buggy, compiled out.
+ *
+ * Revision 1.754  1995/02/10  15:54:46  matt
+ * Added new cheats
+ *
+ * Revision 1.753  1995/02/09  12:25:42  matt
+ * Made mem_fill() test routines not be called if RELEASE
+ *
+ * Revision 1.752  1995/02/09  08:49:32  mike
+ * change fill opcode value to 0xcc, int 3 value.
+ *
+ *
+ * Revision 1.751  1995/02/09  02:59:26  mike
+ * check code for 00066xxx bugs.
+ *
+ * Revision 1.750  1995/02/08  17:10:02  mike
+ * add, but don't call, debug code.
+ *
+ * Revision 1.749  1995/02/07  11:07:27  john
+ * Added hooks for confirm on game state restore.
+ *
+ * Revision 1.748  1995/02/06  15:52:45  mike
+ * add mini megawow powerup for giving reasonable weapons.
+ *
+ * Revision 1.747  1995/02/06  12:53:35  allender
+ * force endlevel_sequence to 0 to fix weird bug
+ *
+ * Revision 1.746  1995/02/04  10:03:30  mike
+ * Fly to exit cheat.
+ *
+ * Revision 1.745  1995/02/02  15:57:52  john
+ * Added turbo mode cheat.
+ *
+ * Revision 1.744  1995/02/02  14:43:39  john
+ * Uppped frametime limit to 150 Hz.
+ *
+ * Revision 1.743  1995/02/02  13:37:16  mike
+ * move T-?? message down in certain modes.
+ *
+ * Revision 1.742  1995/02/02  01:26:59  john
+ * Took out no key repeating.
+ *
+ * Revision 1.741  1995/01/29  21:36:44  mike
+ * make fusion cannon not make pitching slow.
+ *
+ * Revision 1.740  1995/01/28  15:57:57  john
+ * Made joystick calibration be only when wrong detected in
+ * menu or joystick axis changed.
+ *
+ * Revision 1.739  1995/01/28  15:21:03  yuan
+ * Added X-tra life cheat.
+ *
+ * Revision 1.738  1995/01/27  14:08:31  rob
+ * Fixed a bug.
+ *
+ * Revision 1.737  1995/01/27  14:04:59  rob
+ * Its not my fault, Mark told me to do it!
+ *
+ * Revision 1.736  1995/01/27  13:12:18  rob
+ * Added charging noises to play across net.
+ *
+ * Revision 1.735  1995/01/27  11:48:28  allender
+ * check for newdemo_state to be paused and stop recording.  We might be
+ * in between levels
+ *
+ * Revision 1.734  1995/01/26  22:11:41  mike
+ * Purple chromo-blaster (ie, fusion cannon) spruce up (chromification)
+ *
+ * Revision 1.733  1995/01/26  17:03:04  mike
+ * make fusion cannon have more chrome, make fusion, mega rock you!
+ *
+ * Revision 1.732  1995/01/25  14:37:25  john
+ * Made joystick only prompt for calibration once...
+ *
+ * Revision 1.731  1995/01/24  15:49:14  john
+ * Made typeing in long net messages wrap on
+ * small screen sizes.
+ *
+ * Revision 1.730  1995/01/24  15:23:42  mike
+ * network message tweaking.
+ *
+ * Revision 1.729  1995/01/24  12:00:47  john
+ * Fixed bug with defing macro passing keys to controls.
+ *
+ * Revision 1.728  1995/01/24  11:53:35  john
+ * Added better macro defining code.
+ *
+ * Revision 1.727  1995/01/23  22:17:15  john
+ * Fixed bug with not clearing key buffer when leaving f8.
+ *
+ * Revision 1.726  1995/01/23  22:07:09  john
+ * Added flush to game inputs during F8.
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.22 2003-06-06 19:04:27 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.23 2003-10-10 09:36:35 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -360,7 +750,7 @@ void win_get_span_list(grs_bitmap *bm, int miny, int maxy)
 	for (y = 0; y < miny; y++)
 		win_cockpit_mask[y].num = 0;
 
-	for (y = miny; y <= maxy; y++) 
+	for (y = miny; y <= maxy; y++)
 	{
 		span = 0;
 		//@@ fprintf(fp, "line %d: ", y);		
@@ -392,7 +782,7 @@ void win_get_span_list(grs_bitmap *bm, int miny, int maxy)
 				}
 			}
 			else {
-				switch(mode) 
+				switch(mode)
 				{
 					case 0:				// Start mode
 						mode = 2;
@@ -729,7 +1119,7 @@ void game_init_render_buffers(int screen_mode, int render_w, int render_h, int r
 	}
 	else if (GRMODEINFO(paged) && !GRMODEINFO(dbuf)) {
 	//	Here we will make the VR_offscreen_buffer the 2nd page and hopefully
-	//	we can just flip it, saving a blt.  
+	//	we can just flip it, saving a blt.
 
 		dd_VR_offscreen_buffer = dd_grd_backcanv;
 		VR_offscreen_buffer = & dd_grd_backcanv->canvas;
@@ -760,7 +1150,7 @@ void game_init_render_buffers(int screen_mode, int render_w, int render_h, int r
 // Sets up the canvases we will be rendering to (NORMAL VERSION)
 void game_init_render_buffers(int screen_mode, int render_w, int render_h, int render_method, int flags )
 {
-//	if (vga_check_mode(screen_mode) != 0) 
+//	if (vga_check_mode(screen_mode) != 0)
 //		Error("Cannot set requested video mode");
 
 	VR_screen_mode		=	screen_mode;
@@ -864,7 +1254,6 @@ WIN(static int saved_window_h);
 
 #ifdef OGL
 	if ((Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->sc_mode != VR_screen_mode) && (Screen_mode == SCREEN_GAME))) {
-             
 		gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
 		ogl_set_screen_mode();
 		return 1;
@@ -887,7 +1276,7 @@ WIN(static int saved_window_h);
 			// HACK!!!  Meant to save window size when switching from
 			// non-compat menu mode to menu mode.
 				saved_window_w = Game_window_w;
-				saved_window_h = Game_window_h; 
+				saved_window_h = Game_window_h;
 				force_mode_change = 1;
 			}
 			if (W95DisplayMode != SM95_640x480x8) {
@@ -979,7 +1368,7 @@ WIN(static int saved_window_h);
 				if (Cockpit_mode == CM_STATUS_BAR)
 		      	max_window_h = grd_curscreen->sc_h - GameBitmaps[cockpit_bitmap[CM_STATUS_BAR+(Current_display_mode?(Num_cockpits/2):0)].index].bm_h;
 			}
-			else if (Cockpit_mode != CM_LETTERBOX) 
+			else if (Cockpit_mode != CM_LETTERBOX)
 				Cockpit_mode = CM_FULL_SCREEN;
 
 	      if (Game_window_h==0 || Game_window_h > max_window_h || Game_window_w==0 || Game_window_w > max_window_w) {
@@ -1380,7 +1769,7 @@ void SavePictScreen(int multiplayer)
 	if (!multiplayer) {
 		show_cursor();
 		StandardPutFile("\pSave PICT as:", pfilename, &sf_reply);
-		if (!sf_reply.sfGood) 
+		if (!sf_reply.sfGood)
 			goto end;
 		memcpy( &spec, &(sf_reply.sfFile), sizeof(FSSpec) );
 		if (sf_reply.sfReplacing)
@@ -1507,7 +1896,7 @@ void save_screen_shot(int automap_flag)
 	if (modex_flag)
 		h *= 2;
 
-	//I changed how these coords were calculated for the high-res automap. -MT 
+	//I changed how these coords were calculated for the high-res automap. -MT
 	//x = (VR_screen_pages[VR_current_page].cv_w-w)/2;
 	//y = (VR_screen_pages[VR_current_page].cv_h-h)/2;
 	x = (grd_curcanv->cv_w-w)/2;
@@ -1701,7 +2090,7 @@ void do_afterburner_stuff(void)
 		{
 		 digi_kill_sound_linked_to_object( Players[Player_num].objnum);
 #ifdef NETWORK
-		 multi_send_sound_function (0,0);  
+		 multi_send_sound_function (0,0);
 #endif
 		}
 
@@ -1718,7 +2107,7 @@ void do_afterburner_stuff(void)
 			digi_link_sound_to_object2( SOUND_AFTERBURNER_PLAY, Players[Player_num].objnum, 0, F1_0, i2f(256));
 #ifdef NETWORK
 			if (Game_mode & GM_MULTI)
-			 	multi_send_sound_function (0,0);  
+			 	multi_send_sound_function (0,0);
 #endif
 			mprintf((0,"Killing afterburner sound\n"));
 		}
@@ -2205,7 +2594,7 @@ extern char IWasKicked;
 void game()
 {
 	game_setup();								// Replaces what was here earlier.
-													// Good for Windows Sake.  
+													// Good for Windows Sake.
 
 #ifdef MWPROFILE
 	ProfilerSetStatus(1);
@@ -2625,7 +3014,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		if (desc_id_exit_num) {				 // are we supposed to be checking
 			if (!(--desc_dead_countdown)) {// if so, at zero, then pull the plug
 				char time_str[32], time_str2[32];
-			
+
 				_ctime(&t_saved_time, time_str);
 				_ctime(&t_current_time, time_str2);
 
@@ -2641,7 +3030,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 		#endif
 
-      
+
 		update_player_stats();
 		diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
 		do_afterburner_stuff();
@@ -3287,7 +3676,7 @@ void game_win_init_cockpit_mask(int sram)
 
 	if (GRMODEINFO(paged) && !GRMODEINFO(dbuf)) {
 	//	Here we will make the VR_offscreen_buffer the 2nd page and hopefully
-	//	we can just flip it, saving a blt.  
+	//	we can just flip it, saving a blt.
 		Int3();
 	}
 	else if (GRMODEINFO(dbuf)||GRMODEINFO(emul)) {
@@ -3339,13 +3728,13 @@ void game_win_init_cockpit_mask(int sram)
 //@@	DDGRLOCK(dd_grd_curcanv)
 //@@	{
 //@@		if (W95DisplayMode == SM95_640x480x8) {
-//@@			pcx_error=pcx_read_bitmap( "MASKB.PCX", &grd_curcanv->cv_bitmap, 
-//@@				grd_curcanv->cv_bitmap.bm_type, 
+//@@			pcx_error=pcx_read_bitmap( "MASKB.PCX", &grd_curcanv->cv_bitmap,
+//@@				grd_curcanv->cv_bitmap.bm_type,
 //@@				title_pal );
 //@@		}
 //@@		else {
-//@@			pcx_error=pcx_read_bitmap( "MASK.PCX", &grd_curcanv->cv_bitmap, 
-//@@				grd_curcanv->cv_bitmap.bm_type, 
+//@@			pcx_error=pcx_read_bitmap( "MASK.PCX", &grd_curcanv->cv_bitmap,
+//@@				grd_curcanv->cv_bitmap.bm_type,
 //@@				title_pal );
 //@@		}
 //@@	}

@@ -1,3 +1,32 @@
+2003-10-10  Bradley Bell  <btb@icculus.org>
+
+	* arch/linux/linuxnet.c, main/automap.c, main/automap.h,
+	main/bmread.c, main/bmread.h, main/cntrlcen.c, main/cntrlcen.h,
+	main/collide.h, main/compbit.h, main/config.h, main/console.c,
+	main/controls.h, main/credits.c, main/credits.h, main/crypt.c,
+	main/desc_id.h, main/desw.h, main/dumpmine.c, main/effects.c,
+	main/effects.h, main/endlevel.c, main/endlevel.h, main/escort.c,
+	main/escort.h, main/fireball.h, main/fvi.c, main/fvi.h,
+	main/game.c, main/game.h, main/gamecntl.c, main/gamefont.c,
+	main/gamefont.h, main/gamemine.h, main/gamepal.c, main/gamepal.h,
+	main/gamerend.c, main/gamesave.h, main/gameseq.c, main/gameseq.h,
+	main/gamestat.h, main/gauges.h, main/hostage.c, main/hostage.h,
+	main/hud.c, main/hudmsg.h, main/inferno.c, main/inferno.h,
+	main/joydefs.c, main/joydefs.h, main/kconfig.h, main/kludge.c,
+	main/kmatrix.c, main/kmatrix.h, main/laser.c, main/lighting.h,
+	main/menu.c, main/menu.h, main/mglobal.c, main/modem.h,
+	main/morph.h, main/movie.c, main/movie.h, main/multibot.h,
+	main/netmisc.h, main/network.h, main/newmenu.h, main/paging.h,
+	main/physics.c, main/physics.h, main/piggy.h, main/player.c,
+	main/playsave.h, main/polyobj.c, main/polyobj.h, main/powerup.c,
+	main/powerup.h, main/render.c, main/render.h, main/reorder.h,
+	main/robot.c, main/scores.h, main/screens.h, main/segment.c,
+	main/segpoint.h, main/slew.c, main/slew.h, main/songs.c,
+	main/songs.h, main/sounds.h, main/state.h, main/terrain.c,
+	main/terrain.h, main/texmerge.h, main/text.h, main/textures.h,
+	main/titles.h, main/vclip.c, main/vclip.h, main/vers_id.h,
+	main/wall.h: comments/formatting
+
 2003-10-09  Bradley Bell  <btb@icculus.org>
 
 	* main/text.c: fix text when using old datafiles
@@ -14,8 +43,6 @@
 	* main/gameseq.c, main/inferno.c, main/menu.c: SHAREWARE fixes
 
 	* arch/win32/ipx_udp.c: use closesocket() instead of close()
-
-2003-10-08  Bradley Bell  <btb@icculus.org>
 
 	* arch/sdl/joydefs.c, main/gamecntl.c, main/kconfig.c,
 	main/menu.c: Disabled 'd2x keys' weapon selection

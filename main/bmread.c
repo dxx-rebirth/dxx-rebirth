@@ -1,3 +1,4 @@
+/* $Id: bmread.c,v 1.5 2003-10-10 09:36:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,21 +8,33 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/bmread.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-10-25 02:19:31 $
  *
- * FIXME: put description here
+ * Routines to parse bitmaps.tbl
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.3  2001/10/23 21:53:18  bradleyb
- * No longer #ifdef'ing out the whole file.  RCS header added
+ * Old Log:
+ * Revision 2.4  1995/03/28  18:05:29  john
+ * Fixed it so you don't have to delete pig after changing bitmaps.tbl
+ *
+ * Revision 2.3  1995/03/07  16:52:03  john
+ * Fixed robots not moving without edtiro bug.
+ *
+ * Revision 2.2  1995/03/06  16:10:20  mike
+ * Fix compile errors if building without editor.
+ *
+ * Revision 2.1  1995/03/02  14:55:40  john
+ * Fixed bug with EDITOR never defined.
+ *
+ * Revision 2.0  1995/02/27  11:33:10  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.1  1995/02/25  14:02:36  john
+ * Initial revision
  *
  *
  */
@@ -116,7 +129,7 @@ static short 		sound_num;
 static short 		frames;
 static float 		time;
 static int			hit_sound = -1;
-static byte 		bm_flag = BM_NONE;
+static sbyte 		bm_flag = BM_NONE;
 static int 			abm_flag = 0;
 static int 			rod_flag = 0;
 static short		wall_open_sound, wall_close_sound,wall_explodes,wall_blastable, wall_hidden;
@@ -226,7 +239,7 @@ bitmap_index bm_load_sub( char * filename )
 		//mprintf(( 0, "Found bitmap '%s' in pig!\n", fname ));
 		return bitmap_num;
 	}
-   
+
 	MALLOC( new, grs_bitmap, 1 );
 	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
 	new->bm_handle=0;
@@ -391,7 +404,7 @@ int get_int()
 //		*c |= 0x01;
 //}
 
-//loads a texture and returns the texture num 
+//loads a texture and returns the texture num
 int get_texture(char *name)
 {
 	char short_name[FILENAME_LEN];
@@ -419,7 +432,7 @@ int get_texture(char *name)
 
 //-----------------------------------------------------------------
 // Initializes all bitmaps from BITMAPS.TBL file.
-// This is called when the editor is IN.  
+// This is called when the editor is IN.
 // If no editor, bm_init() is called.
 int bm_init_use_tbl()
 {
@@ -510,7 +523,7 @@ int bm_init_use_tbl()
 		if (inputline[0]==' ' || inputline[0]=='\t') {
 			char *t;
 			for (t=inputline;*t && *t!='\n';t++)
-				if (! (*t==' ' || *t=='\t')) { 
+				if (! (*t==' ' || *t=='\t')) {
 					mprintf((1,"Suspicious: line %d of BITMAPS.TBL starts with whitespace\n",linenum));
 					break;
 				}
@@ -669,14 +682,14 @@ int bm_init_use_tbl()
 	#ifdef SHAREWARE
 	init_endlevel();		//this is here so endlevel bitmaps go into pig
 	#endif
-	
+
 	verify_textures();
 
 	//check for refereced but unused clip count
 	for (i=0; i<MAX_EFFECTS; i++ )
 		if (	(
 				  (Effects[i].changing_wall_texture!=-1) ||
-				  (Effects[i].changing_object_texture!=-1)     
+				  (Effects[i].changing_object_texture!=-1)
              )
 			 && (Effects[i].vc.num_frames==-1) )
 			Error("EClip %d referenced (by polygon object?), but not defined",i);
@@ -718,7 +731,7 @@ void verify_textures()
 		if ( (bmp->bm_w!=64)||(bmp->bm_h!=64)||(bmp->bm_rowsize!=64) )	{
 			mprintf( (1, "ERROR: Texture '%s' isn't 64x64 !\n", TmapInfo[i].filename ));
 			j++;
-		} 
+		}
 	}
 	if (j)
 		Error("%d textures were not 64x64.  See mono screen for list.",j);
@@ -749,7 +762,7 @@ void bm_read_alias()
 //--unused-- 	ubyte * p;
 //--unused-- 	fp = fopen( "XPARENT.LST", "wt" );
 //--unused-- 	for (i=0; i<Num_tmaps; i++ )	{
-//--unused-- 		k = 0; 
+//--unused-- 		k = 0;
 //--unused-- 		p = Textures[i]->bm_data;
 //--unused-- 		for (j=0; j<64*64; j++ )
 //--unused-- 			if ( (*p++)==255 ) k++;
@@ -769,7 +782,7 @@ void bm_close()
  	}
 }
 
-void set_lighting_flag(byte *bp)
+void set_lighting_flag(sbyte *bp)
 {
 	if (vlighting < 0)
 		*bp |= BM_FLAG_NO_LIGHTING;
@@ -818,7 +831,7 @@ void bm_read_eclip()
 		dest_bm_num = i;
 	}
 
-	if (!abm_flag)	{ 
+	if (!abm_flag)	{
 		bitmap = bm_load_sub(arg);
 
 		Effects[clip_num].vc.play_time = fl2f(time);
@@ -882,7 +895,7 @@ void bm_read_eclip()
 			ObjBitmaps[Effects[clip_num].changing_object_texture] = Effects[clip_num].vc.frames[0];
 		}
 
-		//if for an object, Effects_bm_ptrs set in object load 
+		//if for an object, Effects_bm_ptrs set in object load
 
 		for(clip_count=1;clip_count < Effects[clip_num].vc.num_frames; clip_count++) {
 			set_lighting_flag( &GameBitmaps[bm[clip_count].index].bm_flags);
@@ -923,7 +936,7 @@ void bm_read_gauges()
 	bitmap_index bitmap;
 	int i, num_abm_frames;
 
-	if (!abm_flag)	{ 
+	if (!abm_flag)	{
 		bitmap = bm_load_sub(arg);
 		Assert(clip_count < MAX_GAUGE_BMS);
 		Gauges[clip_count] = bitmap;
@@ -945,7 +958,7 @@ void bm_read_gauges_hires()
 	bitmap_index bitmap;
 	int i, num_abm_frames;
 
-	if (!abm_flag)	{ 
+	if (!abm_flag)	{
 		bitmap = bm_load_sub(arg);
 		Assert(clip_count < MAX_GAUGE_BMS);
 		Gauges_hires[clip_count] = bitmap;
@@ -1093,7 +1106,7 @@ void get4fix(fix *fixp)
 }
 
 // ------------------------------------------------------------------------------
-void get4byte(byte *bytep)
+void get4byte(sbyte *bytep)
 {
 	char	*curtext;
 	int	i;
@@ -1295,9 +1308,9 @@ void bm_read_robot()
 	first_bitmap_num[0] = N_ObjBitmapPtrs;
 	n_models = 1;
 
-	// Process bitmaps 
+	// Process bitmaps
 	bm_flag=BM_ROBOT;
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
 		if ( equal_ptr )	{
@@ -1527,9 +1540,9 @@ void bm_read_reactor()
 
 	model_name = strtok( NULL, space );
 
-	// Process bitmaps 
+	// Process bitmaps
 	bm_flag = BM_NONE;
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
 	type = OL_CONTROL_CENTER;
@@ -1614,9 +1627,9 @@ void bm_read_marker()
 
 	model_name = strtok( NULL, space );
 
-	// Process bitmaps 
+	// Process bitmaps
 	bm_flag = BM_NONE;
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
 	while (arg!=NULL)	{
@@ -1653,9 +1666,9 @@ void bm_read_exitmodel()
 
 	model_name = strtok( NULL, space );
 
-	// Process bitmaps 
+	// Process bitmaps
 	bm_flag = BM_NONE;
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
 	while (arg!=NULL)	{
@@ -1717,10 +1730,10 @@ void bm_read_player_ship()
 	robot_info ri;
 	int last_multi_bitmap_num=-1;
 
-	// Process bitmaps 
+	// Process bitmaps
 	bm_flag = BM_NONE;
 
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 
 	Player_ship->mass = Player_ship->drag = 0;	//stupid defaults
 	Player_ship->expl_vclip_num = -1;
@@ -1991,7 +2004,7 @@ void bm_read_weapon(int unused_flag)
 	Weapon_info[n].children = -1;
 
 	// Process arguments
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 
 	lighted = 1;			//assume first texture is lighted
 
@@ -2205,7 +2218,7 @@ void bm_read_powerup(int unused_flag)
 	Powerup_names[n][0] = 0;
 
 	// Process arguments
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
@@ -2244,7 +2257,7 @@ void bm_read_powerup(int unused_flag)
 
 }
 
-void bm_read_hostage()	
+void bm_read_hostage()
 {
 	int n;
 	char 	*equal_ptr;
@@ -2255,7 +2268,7 @@ void bm_read_hostage()
 	N_hostage_types++;
 
 	// Process arguments
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
@@ -2400,8 +2413,8 @@ fprintf(tfile,"player_ship size = %d\n",sizeof(player_ship));
 fprintf(tfile,"Num_cockpits = %d, cockpit_bitmaps array = %d\n",Num_cockpits,sizeof(bitmap_index)*Num_cockpits);
 
 //@@	fwrite( &Num_total_object_types, sizeof(int), 1, fp );
-//@@	fwrite( ObjType, sizeof(byte), Num_total_object_types, fp );
-//@@	fwrite( ObjId, sizeof(byte), Num_total_object_types, fp );
+//@@	fwrite( ObjType, sizeof(sbyte), Num_total_object_types, fp );
+//@@	fwrite( ObjId, sizeof(sbyte), Num_total_object_types, fp );
 //@@	fwrite( ObjStrength, sizeof(fix), Num_total_object_types, fp );
 
 fprintf(tfile,"Num_total_object_types = %d, ObjType array = %d, ObjId array = %d, ObjStrength array = %d\n",Num_total_object_types,Num_total_object_types,Num_total_object_types,sizeof(fix)*Num_total_object_types);

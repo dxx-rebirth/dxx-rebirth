@@ -1,3 +1,4 @@
+/* $Id: hud.c,v 1.8 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,31 +13,123 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/hud.c,v $
- * $Revision: 1.7 $
- * $Author: btb $
- * $Date: 2003-06-18 08:05:17 $
  *
  * Routines for displaying HUD messages...
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.6  2003/06/06 19:04:27  btb
- * merge (non-physfs stuff) from physfs branch
+ * Old Log:
+ * Revision 1.4  1995/08/24  16:03:09  allender
+ * fix up message placement
  *
- * Revision 1.5.2.1  2003/06/06 03:35:41  btb
- * finish console conversion away from SDL
+ * Revision 1.3  1995/08/18  10:25:21  allender
+ * added support for pixel doubling using PC game font
  *
- * Revision 1.5  2002/10/11 05:14:59  btb
- * make hud_message work correctly
+ * Revision 1.2  1995/08/12  11:33:22  allender
+ * removed #ifdef NEWDEMO -- always in
  *
- * Revision 1.4  2002/10/10 19:08:15  btb
- * whitespace
+ * Revision 1.1  1995/05/16  15:26:32  allender
+ * Initial revision
  *
- * Revision 1.3  2001/11/04 09:00:25  bradleyb
- * Enable d1x-style hud_message
+ * Revision 2.2  1995/03/30  16:36:40  mike
+ * text localization.
+ *
+ * Revision 2.1  1995/03/06  15:23:50  john
+ * New screen techniques.
+ *
+ * Revision 2.0  1995/02/27  11:30:41  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.27  1995/01/23  16:51:30  mike
+ * Show hud messages on 3d if window in three largest sizes.
+ *
+ * Revision 1.26  1995/01/17  17:42:45  rob
+ * Made message timeout for HUD messages longer.
+ *
+ * Revision 1.25  1995/01/04  11:39:03  rob
+ * Made HUD text get out of the way of large HUD messages.
+ *
+ * Revision 1.24  1995/01/01  14:20:32  rob
+ * longer timer for hud messages.
+ *
+ *
+ * Revision 1.23  1994/12/15  13:04:34  mike
+ * Replace Players[Player_num].time_total references with GameTime.
+ *
+ * Revision 1.22  1994/12/13  12:55:12  mike
+ * move press any key to continue message when you are dead to bottom of window.
+ *
+ * Revision 1.21  1994/12/07  17:08:01  rob
+ * removed unnecessary debug info.
+ *
+ * Revision 1.20  1994/12/07  16:24:16  john
+ * Took out code that kept track of messages differently for different
+ * screen modes... I made it so they just draw differently depending on screen mode.
+ *
+ * Revision 1.19  1994/12/07  15:42:57  rob
+ * Added a bunch of debug stuff to look for HUD message problems in net games...
+ *
+ * Revision 1.18  1994/12/06  16:30:35  yuan
+ * Localization
+ *
+ * Revision 1.17  1994/12/05  00:32:36  mike
+ * fix randomness of color on status bar hud messages.
+ *
+ * Revision 1.16  1994/11/19  17:05:53  rob
+ * Moved dead_player_message down to avoid overwriting HUD messages.
+ *
+ * Revision 1.15  1994/11/18  23:37:56  john
+ * Changed some shorts to ints.
+ *
+ * Revision 1.14  1994/11/12  16:38:25  mike
+ * clear some annoying debug messages.
+ *
+ * Revision 1.13  1994/11/11  15:36:39  mike
+ * write hud messages on background if 3d window small enough
+ *
+ * Revision 1.12  1994/10/20  09:49:31  mike
+ * Reduce number of messages.
+ *
+ * Revision 1.11  1994/10/17  10:49:15  john
+ * Took out some warnings.
+ *
+ * Revision 1.10  1994/10/17  10:45:13  john
+ * Made the player able to abort death by pressing any button or key.
+ *
+ * Revision 1.9  1994/10/13  15:17:33  mike
+ * Remove afterburner references.
+ *
+ * Revision 1.8  1994/10/11  12:06:32  mike
+ * Only show message advertising death sequence abort after player exploded.
+ *
+ * Revision 1.7  1994/10/10  17:21:53  john
+ * Made so instead of saying too many messages, it scrolls off the
+ * oldest message.
+ *
+ * Revision 1.6  1994/10/07  23:05:39  john
+ * Fixed bug with HUD not drawing stuff sometimes...
+ * ( I had a circular buffer that I was stepping thru
+ * to draw text that went: for (i=first;i<last;i++)...
+ * duh!! last could be less than first.)
+ * /
+ *
+ * Revision 1.5  1994/09/16  13:08:20  mike
+ * Arcade stuff, afterburner stuff.
+ *
+ * Revision 1.4  1994/09/14  16:26:57  mike
+ * player_dead_message.
+ *
+ * Revision 1.3  1994/08/18  16:35:45  john
+ * Made gauges messages stay up a bit longer.
+ *
+ * Revision 1.2  1994/08/18  12:10:21  john
+ * Made HUD messages scroll.
+ *
+ * Revision 1.1  1994/08/18  11:22:09  john
+ * Initial revision
  *
  *
  */
+
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
@@ -59,7 +152,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "error.h"
 
-#include "menu.h"			// For the font.
+#include "menu.h"           // For the font.
 #include "mono.h"
 #include "collide.h"
 #include "newdemo.h"
@@ -76,29 +169,29 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int hud_first = 0;
 int hud_last = 0;
 
-int 	HUD_nmessages = 0;
-fix	HUD_message_timer = 0;		// Time, relative to Players[Player_num].time (int.frac seconds.frac), at which to erase gauge message
+int HUD_nmessages = 0;
+fix HUD_message_timer = 0;      // Time, relative to Players[Player_num].time (int.frac seconds.frac), at which to erase gauge message
 char  HUD_messages[HUD_MAX_NUM][HUD_MESSAGE_LENGTH+5];
 
 extern void copy_background_rect(int left,int top,int right,int bot);
 char Displayed_background_message[2][HUD_MESSAGE_LENGTH] = {"",""};
-int	Last_msg_ycrd = -1;
-int	Last_msg_height = 6;
-int	HUD_color = -1;
+int Last_msg_ycrd = -1;
+int Last_msg_height = 6;
+int HUD_color = -1;
 
 int     MSG_Playermessages = 0;
 int     MSG_Noredundancy = 0;
 
-int	Modex_hud_msg_count;
+int Modex_hud_msg_count;
 
-#define LHX(x)		((x)*(FontHires?2:1))
-#define LHY(y)		((y)*(FontHires?2.4:1))
+#define LHX(x)      ((x)*(FontHires?2:1))
+#define LHY(y)      ((y)*(FontHires?2.4:1))
 
 #ifdef WINDOWS
 int extra_clear=0;
 #endif
 
-//	-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 void clear_background_messages(void)
 {
 	#ifdef WINDOWS
@@ -112,7 +205,7 @@ void clear_background_messages(void)
 #else
 	if (((Cockpit_mode == CM_STATUS_BAR) || (Cockpit_mode == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (VR_render_sub_buffer[0].cv_bitmap.bm_y >= 6)) {
 		grs_canvas	*canv_save = grd_curcanv;
-#endif	  
+#endif
 
 		WINDOS(	dd_gr_set_current_canvas(get_current_game_screen()),
 				gr_set_current_canvas(get_current_game_screen())
@@ -122,8 +215,8 @@ void clear_background_messages(void)
 		PA_DFX (copy_background_rect(0, Last_msg_ycrd, grd_curcanv->cv_bitmap.bm_w, Last_msg_ycrd+Last_msg_height-1));
 		PA_DFX (pa_set_backbuffer_current());
 		copy_background_rect(0, Last_msg_ycrd, grd_curcanv->cv_bitmap.bm_w, Last_msg_ycrd+Last_msg_height-1);
-	  
-		WINDOS(	
+
+		WINDOS(
 			dd_gr_set_current_canvas(canv_save),
 			gr_set_current_canvas(canv_save)
 		);
@@ -176,7 +269,7 @@ void modex_hud_message(int x, int y, char *s, grs_font *font, int color)
 
 extern int max_window_w;
 
-//	-----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //	Writes a message on the HUD and checks its timer.
 void HUD_render_message_frame()
 {
@@ -306,10 +399,10 @@ void HUD_render_message_frame()
 
 		  if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID &&
 		      Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window)
-			      y+=SMALL_FONT->ft_h+3; 
+			      y+=SMALL_FONT->ft_h+3;
 
 		WIN(DDGRLOCK(dd_grd_curcanv));
-		  	for (i=0; i<HUD_nmessages; i++ )	{	
+		  	for (i=0; i<HUD_nmessages; i++ )	{
 				n = (hud_first+i) % HUD_MAX_NUM;
 				if ((n < 0) || (n >= HUD_MAX_NUM))
 					Int3(); // Get Rob!!
@@ -317,7 +410,7 @@ void HUD_render_message_frame()
 					Int3(); // Get Rob!!
 				gr_get_string_size(&HUD_messages[n][0], &w, &h, &aw );
 				gr_set_fontcolor( HUD_color, -1);
-			
+
 				PA_DFX (pa_set_frontbuffer_current());
 				PA_DFX(gr_string((grd_curcanv->cv_bitmap.bm_w-w)/2,y, &HUD_messages[n][0] ));
 				PA_DFX (pa_set_backbuffer_current());
@@ -345,7 +438,7 @@ int PlayerMessage=1;
 
 
 // Call to flash a message on the HUD.  Returns true if message drawn.
-//  (message might not be drawn if previous message was same)
+// (message might not be drawn if previous message was same)
 int HUD_init_message_va(char * format, va_list args)
 {
 	int temp;
@@ -376,15 +469,15 @@ int HUD_init_message_va(char * format, va_list args)
 	strcat(con_message, message);
 	con_printf(CON_NORMAL, "%s\n", con_message);
 
-	// Added by Leighton 
-   
+	// Added by Leighton
+
    if ((Game_mode & GM_MULTI) && FindArg("-noredundancy"))
 	 if (!strnicmp ("You already",message,11))
 		return 0;
 
    if ((Game_mode & GM_MULTI) && FindArg("-PlayerMessages") && PlayerMessage==0)
 		return 0;
-  
+
 	if (HUD_nmessages > 0)	{
 		if (hud_last==0)
 			last_message = &HUD_messages[HUD_MAX_NUM-1][0];
@@ -436,29 +529,29 @@ int HUD_init_message(char * format, ... )
 //@@void player_dead_message(void)
 //@@{
 //@@	if (!Arcade_mode && Player_exploded) { //(ConsoleObject->flags & OF_EXPLODING)) {
-//@@		gr_set_curfont( SMALL_FONT );    
+//@@		gr_set_curfont( SMALL_FONT );
 //@@		if (HUD_color == -1)
 //@@			HUD_color = BM_XRGB(0,28,0);
 //@@		gr_set_fontcolor( HUD_color, -1);
 //@@
 //@@		gr_printf(0x8000, grd_curcanv->cv_bitmap.bm_h-8, TXT_PRESS_ANY_KEY);
-//@@		gr_set_curfont( GAME_FONT );    
+//@@		gr_set_curfont( GAME_FONT );
 //@@	}
 //@@
 //@@}
 
 void player_dead_message(void)
 {
-    if (Player_exploded) {      
+    if (Player_exploded) {
         if ( Players[Player_num].lives < 2 )    {
             int x, y, w, h, aw;
-            gr_set_curfont( HUGE_FONT );    
+            gr_set_curfont( HUGE_FONT );
             gr_get_string_size( TXT_GAME_OVER, &w, &h, &aw );
             w += 20;
             h += 8;
             x = (grd_curcanv->cv_w - w ) / 2;
             y = (grd_curcanv->cv_h - h ) / 2;
-            
+
             NO_DFX (Gr_scanline_darkening_level = 2*7);
             NO_DFX (gr_setcolor( BM_XRGB(0,0,0) ));
             NO_DFX (gr_rect( x, y, x+w, y+h ));
@@ -475,8 +568,8 @@ void player_dead_message(void)
             }
 #endif
 
-        } 
-        gr_set_curfont( GAME_FONT );    
+        }
+        gr_set_curfont( GAME_FONT );
         if (HUD_color == -1)
             HUD_color = BM_XRGB(0,28,0);
         gr_set_fontcolor( HUD_color, -1);

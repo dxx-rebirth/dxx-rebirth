@@ -1,4 +1,4 @@
-/* $Id: piggy.h,v 1.17 2003-09-11 17:15:02 schaffner Exp $ */
+/* $Id: piggy.h,v 1.18 2003-10-10 09:36:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,6 +11,57 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Interface to piggy functions.
+ *
+ * Old Log:
+ * Revision 1.1  1995/05/16  16:01:04  allender
+ * Initial revision
+ *
+ * Revision 2.0  1995/02/27  11:31:21  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.10  1995/02/03  17:08:29  john
+ * Changed sound stuff to allow low memory usage.
+ * Also, changed so that Sounds isn't an array of digi_sounds, it
+ * is a ubyte pointing into GameSounds, this way the digi.c code that
+ * locks sounds won't accidentally unlock a sound that is already playing, but
+ * since it's Sounds[soundno] is different, it would erroneously be unlocked.
+ *
+ * Revision 1.9  1995/01/24  14:33:49  john
+ * *** empty log message ***
+ *
+ * Revision 1.8  1995/01/24  14:32:35  john
+ * Took out paging in code.
+ *
+ * Revision 1.7  1995/01/23  12:30:17  john
+ * Made debug code that mprintf what bitmap gets paged in.
+ *
+ * Revision 1.6  1995/01/17  14:11:37  john
+ * Added function that is called after level loaded.
+ *
+ * Revision 1.5  1995/01/14  19:16:58  john
+ * First version of new bitmap paging code.
+ *
+ * Revision 1.4  1994/10/27  18:51:57  john
+ * Added -piglet option that only loads needed textures for a
+ * mine.  Only saved ~1MB, and code still doesn't free textures
+ * before you load a new mine.
+ *
+ * Revision 1.3  1994/06/08  14:20:47  john
+ * Made piggy dump before going into game.
+ *
+ * Revision 1.2  1994/05/06  13:02:40  john
+ * Added piggy stuff; worked on supertransparency
+ *
+ * Revision 1.1  1994/05/06  11:47:46  john
+ * Initial revision
+ *
+ *
+ */
 
 #ifndef _PIGGY_H
 #define _PIGGY_H

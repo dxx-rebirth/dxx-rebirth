@@ -1,13 +1,9 @@
+/* $Id: hudmsg.h,v 1.2 2003-10-10 09:36:35 btb Exp $ */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/hudmsg.h,v $
- * $Revision: 1.1 $
- * $Author: bradleyb $
- * $Date: 2001-11-04 09:00:25 $
  *
  * d1x style hud - not implemented yet
  * hud_message and message class definitions
- *
- * $Log: not supported by cvs2svn $
  *
  */
 
@@ -27,7 +23,7 @@
 #define MSGC_WEAPON_EMPTY	1024 // No weapons (no primary weapons available)
 #define MSGC_WEAPON_SELECT	2048 // Manual weapon selection
 #define MSGC_UNKNOWN		4096 // Unknown: External control interface message
-#define MSGC_DEBUG		8192 // Unknown: External control interface message
+#define MSGC_DEBUG		    8192 // Unknown: External control interface message
 
 #define MSGC_NOREDUNDANCY	(~(MSGC_PICKUP_TOOMUCH | MSGC_PICKUP_ALREADY))
 #define MSGC_PLAYERMESSAGES	(~(MSGC_PICKUP_TOOMUCH | MSGC_PICKUP_ALREADY | MSGC_PICKUP_OK))
