@@ -1,5 +1,6 @@
 name = Descent: First Strike
 type = normal
+briefing = briefing.txb
 num_levels = 27
 level01.rdl
 level02.rdl
@@ -32,3 +33,4 @@ num_secrets = 3
 levels1.rdl
 levels2.rdl
 levels3.rdl
+ending = endreg.txb
