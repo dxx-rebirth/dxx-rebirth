@@ -15,6 +15,7 @@
 
 #define IPX_MANUAL_ADDRESS
 
+#include <winsock.h>
 #include "pstypes.h"
 
 #define MAX_PACKET_DATA 1500
