@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.48 2002-10-28 21:28:04 btb Exp $ */
+/* $Id: inferno.c,v 1.49 2002-10-30 22:02:52 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1200,9 +1200,12 @@ int main(int argc,char **argv)
 	else if (FindArg("-verbose"))
 		con_threshold.value = (float)1;
 
-#ifdef __unix__
 	//tell cfile where hogdir is
-	cfile_use_alternate_hogdir(SHAREPATH);
+	if ((t=FindArg("-hogdir")))
+		cfile_use_alternate_hogdir(Args[t+1]);
+#ifdef __unix__
+	else
+		cfile_use_alternate_hogdir(SHAREPATH);
 #endif
 
 	//tell cfile about our counter
