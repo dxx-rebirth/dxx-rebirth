@@ -330,6 +330,7 @@ AC_OUTPUT(
     mem/Makefile
     misc/Makefile
     texmap/Makefile
+    utility/Makefile
     debian/changelog
     rpm/d2x.spec
 )
