@@ -428,7 +428,7 @@ void mem_display_blocks()
 
 	if (numleft &&  (!out_of_memory))
 	{
-		Warning( "MEM: %d blocks were left allocated!", numleft );
+		Warning( "MEM: %d blocks were left allocated!\n", numleft );
 	}
 
 }

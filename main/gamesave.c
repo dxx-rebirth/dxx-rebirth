@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.10 2002-08-02 23:28:40 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.11 2002-08-04 23:37:34 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -319,7 +319,7 @@ void verify_object( object * obj )	{
 
 		if (Gamesave_current_version <= 1) { // descent 1 reactor
 			obj->id = 0;                         // used to be only one kind of reactor
-			obj->rtype.pobj_info.model_num = 97; // approximately descent 1 type
+			obj->rtype.pobj_info.model_num = Reactors[0].model_num;// descent 1 reactor
 		}
 		//@@// Make model number is correct...
 		//@@for (i=0; i<Num_total_object_types; i++ )

@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.9 2002-08-02 23:28:40 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.10 2002-08-04 23:37:34 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -140,6 +140,386 @@ struct mfi_v19 {
 };
 
 int CreateDefaultNewSegment();
+
+/* converts descent 1 texture numbers to descent 2 texture numbers
+ * textures whose names don't match between versions have extra spaces around "return"
+ */
+short convert_d1_tmap_num(short d1_tmap_num) {
+	switch (d1_tmap_num) {
+	case   0:  return  43; // grey
+	case   1: return 0;
+	case   2:  return  43; // grey
+	case   3: return 1;
+	case   4:  return  43; // grey
+	case   5:  return  43; // grey
+	case   6:  return  270; // blue
+	case   7:  return  271; // yellow
+	case   8: return 2;
+	case   9:  return  62; // purple
+	case  10:  return  272; // red
+	case  11:  return  117; 
+	case  12:  return  12;
+	case  13: return 3;
+	case  14: return 4;
+	case  15: return 5;
+	case  16: return 6;
+	case  17:  return  17;
+	case  18:  return  18;
+	case  19: return 7;
+	case  20:  return  22;
+	case  21:  return  9;
+	case  22: return 8;
+	case  23: return 9;
+	case  24: return 10;
+	case  25:  return  12;
+	case  26: return 11;
+	case  27: return 12;
+	case  28:  return  11;
+	case  29: return 13;
+	case  30: return 14;
+	case  31: return 15;
+	case  32: return 16;
+	case  33: return 17;
+	case  34: return 18;
+	case  35: return 19;
+	case  36: return 20;
+	case  37: return 21;
+	case  38:  return  163;
+	case  39:  return  31;
+	case  40: return 22;
+	case  41:  return  266;
+	case  42: return 23;
+	case  43: return 24;
+	case  44:  return  136;
+	case  45: return 25;
+	case  46: return 26;
+	case  47: return 27;
+	case  48: return 28;
+	case  49:  return  43;
+	case  50:  return  131;
+	case  51: return 29;
+	case  52: return 30;
+	case  53: return 31;
+	case  54: return 32;
+	case  55:  return  165;
+	case  56: return 33;
+	case  57:  return  132;
+	case  58: return 34;
+	case  59: return 35;
+	case  60: return 36;
+	case  61: return 37;
+	case  62: return 38;
+	case  63: return 39;
+	case  64: return 40;
+	case  65: return 41;
+	case  66: return 42;
+	case  67: return 43;
+	case  68: return 44;
+	case  69: return 45;
+	case  70: return 46;
+	case  71: return 47;
+	case  72: return 48;
+	case  73: return 49;
+	case  74: return 50;
+	case  75: return 51;
+	case  76: return 52;
+	case  77: return 53;
+	case  78: return 54;
+	case  79: return 55;
+	case  80: return 56;
+	case  81: return 57;
+	case  82: return 58;
+	case  83: return 59;
+	case  84: return 60;
+	case  85: return 61;
+	case  86: return 62;
+	case  87: return 63;
+	case  88:  return  66;
+	case  89: return 64;
+	case  90: return 65;
+	case  91: return 66;
+	case  92: return 67;
+	case  93: return 68;
+	case  94: return 69;
+	case  95: return 70;
+	case  96: return 71;
+	case  97: return 72;
+	case  98: return 73;
+	case  99: return 74;
+	case 100: return 75;
+	case 101: return 76;
+	case 102: return 77;
+	case 103: return 78;
+	case 104: return 79;
+	case 105: return 80;
+	case 106: return 81;
+	case 107: return 82;
+	case 108: return 83;
+	case 109: return 84;
+	case 110: return 85;
+	case 111: return 86;
+	case 112: return 87;
+	case 113: return 88;
+	case 114: return 89;
+	case 115: return 90;
+	case 116: return 91;
+	case 117: return 92;
+	case 118: return 93;
+	case 119: return 94;
+	case 120: return 95;
+	case 121: return 96;
+	case 122: return 97;
+	case 123: return 98;
+	case 124: return 99;
+	case 125: return 100;
+	case 126: return 101;
+	case 127: return 102;
+	case 128: return 103;
+	case 129: return 104;
+	case 130: return 105;
+	case 131: return 106;
+	case 132:  return  108;
+	case 133: return 107;
+	case 134: return 108;
+	case 135: return 109;
+	case 136: return 110;
+	case 137: return 111;
+	case 138: return 112;
+	case 139: return 113;
+	case 140: return 114;
+	case 141:  return  110;
+	case 142: return 115;
+	case 143: return 116;
+	case 144: return 117;
+	case 145: return 118;
+	case 146: return 119;
+	case 147:  return  111;
+	case 148: return 120;
+	case 149: return 121;
+	case 150: return 122;
+	case 151: return 123;
+	case 152: return 124;
+	case 153: return 125;
+	case 154:  return  82;
+	case 155:  return  66;
+	case 156: return 200;
+	case 157: return 201;
+	case 158:  return  186;
+	case 159:  return  190;
+	case 160:  return  206;
+	case 161:  return  114;
+	case 162: return 202;
+	case 163: return 203;
+	case 164: return 204;
+	case 165: return 205;
+	case 166: return 206;
+	case 167:  return  206;
+	case 168:  return  206;
+	case 169:  return  206;
+	case 170:  return  206;
+	case 171:  return  227;
+	case 172: return 207;
+	case 173: return 208;
+	case 174:  return  202;
+	case 175:  return  206;
+	case 176: return 209;
+	case 177: return 210;
+	case 178: return 211;
+	case 179: return 212;
+	case 180: return 213;
+	case 181: return 214;
+	case 182: return 215;
+	case 183: return 216;
+	case 184: return 217;
+	case 185:  return  325;
+	case 186: return 218;
+	case 187: return 219;
+	case 188: return 220;
+	case 189: return 221;
+	case 190: return 222;
+	case 191: return 223;
+	case 192: return 224;
+	case 193:  return  206;
+	case 194:  return  206;
+	case 195:  return  234;
+	case 196: return 225;
+	case 197: return 226;
+	case 198:  return  225;
+	case 199:  return  206;
+	case 200:  return  206;
+	case 201: return 227;
+	case 202:  return  206;
+	case 203: return 228;
+	case 204: return 229;
+	case 205: return 230;
+	case 206: return 231;
+	case 207: return 232;
+	case 208: return 233;
+	case 209: return 234;
+	case 210:  return  234;
+	case 211:  return  206;
+	case 212: return 235;
+	case 213: return 236;
+	case 214: return 237;
+	case 215: return 238;
+	case 216: return 239;
+	case 217: return 240;
+	case 218: return 241;
+	case 219: return 242;
+	case 220:  return  242;
+	case 221: return 243;
+	case 222: return 244;
+	case 223: return  313;
+	case 224: return 245;
+	case 225: return 246;
+	case 226: return 247;
+	case 227:  return  179;
+	case 228: return 248;
+	case 229:  return  15;
+	case 230:  return  15;
+	case 231: return 249;
+	case 232: return 250;
+	case 233: return 251;
+	case 234: return 252;
+	case 235: return 253;
+	case 236: return 254;
+	case 237: return 255;
+	case 238: return 256;
+	case 239: return 257;
+	case 240:  return  6;
+	case 241:  return  130;
+	case 242:  return  78;
+	case 243:  return  33;
+	case 244: return 258;
+	case 245: return 259;
+	case 246:  return  321;
+	case 247: return 260;
+	case 248: return 261;
+	case 249: return 262;
+	case 250: return  340; // white entrance
+	case 251: return  412; // red entrance
+	case 252: return  410; // blue entrance
+	case 253: return  411; // yellow entrance
+	case 254: return 263;
+	case 255: return 264;
+	case 256: return 265;
+	case 257:  return  246;
+	case 258:  return  246;
+	case 259:  return  246;
+	case 260:  return  246;
+	case 261: return 273;
+	case 262: return 274;
+	case 263:  return  281;
+	case 264: return 275;
+	case 265: return 276;
+	case 266:  return  279;
+	case 267: return 277;
+	case 268: return 278;
+	case 269: return 279;
+	case 270: return 280;
+	case 271: return 281;
+	case 272: return 282;
+	case 273: return 283;
+	case 274: return 284;
+	case 275: return 285;
+	case 276: return 286;
+	case 277: return 287;
+	case 278: return 288;
+	case 279: return 289;
+	case 280: return 290;
+	case 281: return 291;
+	case 282: return 293;
+	case 283:  return  295;
+	case 284: return 295;
+	case 285: return 296;
+	case 286: return 298;
+	case 287: return 300;
+	case 288: return 301;
+	case 289: return 302;
+	case 290: return 303;
+	case 291: return 304;
+	case 292: return 305;
+	case 293: return 306;
+	case 294: return 307;
+	case 295: return 308;
+	case 296: return 309;
+	case 297: return 310;
+	case 298:  return  364;
+	case 299: return 311;
+	case 300: return 312;
+	case 301: return 313;
+	case 302: return 314;
+	case 303: return 315;
+	case 304: return 316;
+	case 305: return 317;
+	case 306: return 318;
+	case 307: return 319;
+	case 308: return 320;
+	case 309: return 321;
+	case 310: return 322;
+	case 311: return 323;
+	case 312: return 324;
+	case 313: return 325;
+	case 314: return 326;
+	case 315:  return  361; // broken producer
+	case 316: return 327;
+	case 317: return 328;
+	case 318: return 329;
+	case 319: return 330;
+	case 320: return 331;
+	case 321: return 332;
+	case 322: return 333;
+	case 323: return 334;
+	case 324: return 335;
+	case 325: return 336;
+	case 326: return 337;
+	case 327: return 352;
+	case 328: return 353;
+	case 329: return 354;
+	case 330:  return  366;
+	case 331: return 373;
+	case 332: return 344;
+ 	case 333: return   409; // lava
+	case 334: return 356;
+	case 335: return 357;
+	case 336: return 358;
+	case 337: return 359;
+	case 338: return 360;
+	case 339: return 361;
+	case 340: return 362;
+	case 341: return 364;
+	case 342: return 363;
+	case 343: return 366;
+	case 344: return 365;
+	case 345: return 368;
+	//case 346:  return  ;
+	case 347: return 370;
+	case 348: return 367;
+	case 349: return 395;
+	case 350: return 369;
+	case 351: return 429;
+	case 352: return 387;
+	case 353: return 371;
+	case 354: return 425;
+	case 355:  return  408;
+	case 356: return 378; // lava02
+	case 357: return 384;
+	case 358: return 385;
+	case 359: return 386;
+	case 360: return 386;
+	case 361: return 387;
+	case 362:  return  388;
+	case 363: return 388;
+	case 364: return 391;
+	case 365: return 392;
+	case 366: return 393;
+	case 367: return 394;
+	case 368: return 395;
+	case 369: return 396;
+	case 370:  return  392;
+	default: return d1_tmap_num;
+	}
+}
 
 #ifdef EDITOR
 
@@ -719,11 +1099,17 @@ int load_mine_data_compiled(CFILE *LoadFile)
 				temp_ushort = cfile_read_short(LoadFile);
 				Segments[segnum].sides[sidenum].tmap_num = temp_ushort & 0x7fff;
 
+
+				if (Gamesave_current_version <= 1)
+				  Segments[segnum].sides[sidenum].tmap_num = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num);
+
 				if (!(temp_ushort & 0x8000))
 					Segments[segnum].sides[sidenum].tmap_num2 = 0;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
 					Segments[segnum].sides[sidenum].tmap_num2 = cfile_read_short(LoadFile);
+					if (Gamesave_current_version <= 1)
+					  Segments[segnum].sides[sidenum].tmap_num2 = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num2);
 				}
 
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
