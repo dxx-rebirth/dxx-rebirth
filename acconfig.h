@@ -44,7 +44,7 @@
 #   else
 #    define SDL_VIDEO 1
 #    define SDL_INPUT 1
-#   endif  
+#   endif
 #  endif
 # endif
 #endif
