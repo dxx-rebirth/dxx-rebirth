@@ -1,3 +1,4 @@
+/* $Id: mouse.c,v 1.4 2004-05-21 00:48:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,67 +13,51 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/arch/dos/mouse.c,v $
- * $Revision: 1.3 $
- * $Author: bradleyb $
- * $Date: 2001-10-24 09:25:05 $
- * 
+ *
  * Functions to access Mouse and Cyberman...
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.3  2001/01/31 14:04:44  bradleyb
- * Fix compiler warnings
  *
- * Revision 1.2  2001/01/29 14:03:57  bradleyb
- * Fixed build, minor fixes
- *
- * Revision 1.1.1.2  2001/01/19 03:33:52  bradleyb
- * Import of d2x-0.0.9-pre1
- *
- * Revision 1.1.1.1  1999/06/14 21:58:38  donut
- * Import of d1x 1.37 source.
- *
+ * Old Log:
  * Revision 1.11  1995/02/10  18:52:17  john
  * Fixed bug with mouse not getting closed.
- * 
+ *
  * Revision 1.10  1995/02/02  11:10:33  john
  * Changed a bunch of mouse stuff around to maybe get
  * around PS/2 mouse hang.
- * 
+ *
  * Revision 1.9  1995/01/14  19:19:52  john
  * Fixed signed short error cmp with -1 that caused mouse
  * to break under Watcom 10.0
- * 
+ *
  * Revision 1.8  1994/12/27  12:38:23  john
  * Made mouse use temporary dos buffer instead of
- * 
+ *
  * allocating its own.
- * 
- * 
+ *
+ *
  * Revision 1.7  1994/12/05  23:54:53  john
  * Fixed bug with mouse_get_delta only returning positive numbers..
- * 
+ *
  * Revision 1.6  1994/11/18  23:18:18  john
  * Changed some shorts to ints.
- * 
+ *
  * Revision 1.5  1994/09/13  12:34:02  john
  * Added functions to get down count and state.
- * 
+ *
  * Revision 1.4  1994/08/29  20:52:19  john
  * Added better cyberman support; also, joystick calibration
  * value return funcctiionn,
- * 
+ *
  * Revision 1.3  1994/08/24  18:54:32  john
  * *** empty log message ***
- * 
+ *
  * Revision 1.2  1994/08/24  18:53:46  john
  * Made Cyberman read like normal mouse; added dpmi module; moved
  * mouse from assembly to c. Made mouse buttons return time_down.
- * 
+ *
  * Revision 1.1  1994/08/24  13:56:37  john
  * Initial revision
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -356,6 +341,9 @@ int mouse_init(int enable_cyberman)
 #else
        if (_dos_getvect(0x33) == NULL) {
 #endif
+			// added on 1/13/2000 by Victor Rachels for more info
+			con_printf(CON_NORMAL, "\nNo mouse driver found!\n");
+			// end this section addition - VR
 		// No mouse driver loaded
 		return 0;
        }
@@ -365,17 +353,33 @@ int mouse_init(int enable_cyberman)
 	inregs.w.ax = 0;
 	int386(0x33, &inregs, &outregs);
 	if (outregs.w.ax != 0xffff)
+	{
+		// added on 1/13/2000 by Victor Rachels for more info
+		con_printf(CON_NORMAL, "\nUnable to reset mouse!\n");
+		// end this section edit - VR
+
 		return 0;
+	}
 
 	Mouse.num_buttons = outregs.w.bx;
 	Mouse.cyberman = 0;
 
 	// Enable mouse driver
-	memset( &inregs, 0, sizeof(inregs) );
-	inregs.w.ax = 0x0020;
-	int386(0x33, &inregs, &outregs);
-	if (outregs.w.ax != 0xffff )
-		return 0;
+	// added/edited on 1/15/2000 by Victor Rachels to make this optional - can usually be used w or w/o this reset
+	if(!FindArg("-ihaveabrokenmouse"))
+	{
+		memset(&inregs, 0, sizeof(inregs));
+		inregs.w.ax = 0x0020;
+		int386(0x33, &inregs, &outregs);
+		if (outregs.w.ax != 0xffff)
+		{
+			// added on 1/13/2000 by Victor Rachels for more info
+			con_printf(CON_NORMAL, "\nUnable to enable mouse! (%x)\n", outregs.w.ax);
+			// end this section edit - VR
+			return 0;
+		}
+	}
+	// end this section edit/addition - VR
 
 	if ( enable_cyberman )	{
 		Mouse_dos_mem = dpmi_get_temp_low_buffer( 64 );

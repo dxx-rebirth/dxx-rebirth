@@ -1,14 +1,7 @@
+/* $Id: init.c,v 1.5 2004-05-21 00:48:12 btb Exp $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/dos/init.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-10-19 09:01:56 $
  *
  * Dos initialization
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.3  2001/01/29 13:35:08  bradleyb
- * Fixed build system, minor fixes
  *
  */
 
@@ -341,9 +334,17 @@ void arch_init() {
         if (!FindArg( "-nomouse" ))     {
                 con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_4);
                 if (FindArg( "-nocyberman" ))
-                        mouse_init(0);
-                else
-                        mouse_init(1);
+			// added/edited on 1/13/00 by Victor Rachels to display mouse init errors
+			{
+				if(!mouse_init(0))
+					con_printf(CON_NORMAL, "\nError initializing mouse.\n");
+			}
+			else
+			{
+				if(!mouse_init(1))
+					con_printf(CON_NORMAL, "\nError initializing mouse.\n");
+			}
+			// end this section addition - VR
         } else {
                 con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_5);
         }

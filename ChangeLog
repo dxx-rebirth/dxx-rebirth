@@ -1,3 +1,8 @@
+2004-05-20  Victor Rachels  <sekmu@tisiphone.dhs.org>
+
+	* arch/dos/init.c, arch/dos/mouse.c: added new arg and printfs for
+	mouse driver problems (d1x r1.2, r1.2)
+
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 
 	* main/newmenu.c: increased MESSAGEBOX_TEXT_SIZE to fix netgame
