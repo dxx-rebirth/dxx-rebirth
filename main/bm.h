@@ -96,7 +96,7 @@ extern int First_multi_bitmap_num;
 // Initializes all bitmaps from BITMAPS.TBL file.
 int bm_init_use_tbl(void);
 
-extern void bm_read_all(CFILE * fp, int hamfile_version);
+extern void bm_read_all(CFILE * fp);
 
 #endif
 
