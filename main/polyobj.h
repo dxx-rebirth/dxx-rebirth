@@ -1,4 +1,4 @@
-/* $Id: polyobj.h,v 1.5 2003-01-02 23:31:50 btb Exp $ */
+/* $Id: polyobj.h,v 1.6 2003-03-24 00:14:07 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -82,6 +82,9 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 //into an off-screen canvas that it creates, then copies to the current
 //canvas.
 void draw_model_picture(int mn,vms_angvec *orient_angles);
+
+//free up a model, getting rid of all its memory
+void free_model(polymodel *po);
 
 #define MAX_POLYOBJ_TEXTURES 100
 extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];

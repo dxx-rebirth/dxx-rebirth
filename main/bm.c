@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.25 2003-03-23 23:34:38 btb Exp $ */
+/* $Id: bm.c,v 1.26 2003-03-24 00:14:07 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -642,7 +642,7 @@ void load_robot_replacements(char *level_name)
 			Error("Polygon model (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_polygon_models-1);
 		polymodel_read(&Polygon_models[i], fp);
 
-		free_model(Polygon_models[i]);
+		free_model(&Polygon_models[i]);
 		polygon_model_data_read(&Polygon_models[i], fp);
 
 		Dying_modelnums[i] = cfile_read_int(fp);
