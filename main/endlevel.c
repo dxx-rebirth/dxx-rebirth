@@ -1,4 +1,4 @@
-/* $Id: endlevel.c,v 1.18 2003-10-11 09:28:38 btb Exp $ */
+/* $Id: endlevel.c,v 1.19 2003-10-11 20:14:44 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -241,7 +241,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.18 2003-10-11 09:28:38 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.19 2003-10-11 20:14:44 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -526,14 +526,6 @@ void start_endlevel_sequence()
 {
 	int	i;
 	int movie_played = MOVIE_NOT_PLAYED;
-	int inited;
-
-	if ((Mission_list[Current_mission_num].descent_version == 1
-		|| Current_mission_num == Builtin_mission_num)
-		&& Piggy_hamfile_version >= 3)
-                inited = load_exit_models();
-	else
-		inited = 1;
 
 	if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 		Newdemo_state = ND_STATE_PAUSED;
@@ -573,12 +565,23 @@ void start_endlevel_sequence()
 			movie_played = start_endlevel_movie();
 	}
 
-	if (inited && endlevel_data_loaded && (movie_played == MOVIE_NOT_PLAYED)) {
-		//don't have movie.  Do rendered sequence, if available
+	if ((movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded)
+	{   //don't have movie.  Do rendered sequence, if available
+		int exit_models_loaded = 0;
+
+		if (Piggy_hamfile_version < 3)
+			exit_models_loaded = 1; // built-in for PC shareware
+
+		else
+			exit_models_loaded = load_exit_models();
+
 #ifndef WINDOWS
-		start_rendered_endlevel_sequence();
+		if (exit_models_loaded)
+		{
+			start_rendered_endlevel_sequence();
+			return;
+		}
 #endif
-		return;
 	}
 
 	//don't have movie or rendered sequence, fade out

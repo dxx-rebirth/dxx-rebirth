@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.39 2003-10-10 22:11:41 btb Exp $ */
+/* $Id: piggy.c,v 1.40 2003-10-11 20:14:44 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.39 2003-10-10 22:11:41 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.40 2003-10-11 20:14:44 btb Exp $";
 #endif
 
 
@@ -2465,13 +2465,58 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 	{
 		CFILE *d1_Piggy_fp;
 		DiskBitmapHeader bmh;
-		int bitmap_data_start;
+		int pig_data_start, bitmap_header_start, bitmap_data_start;
+		int i, N_bitmaps;
 		ubyte colormap[256];
 
 		d1_Piggy_fp = cfopen(D1_PIGFILE, "rb");
+
 		if (!d1_Piggy_fp)
 		{
-			con_printf(CON_DEBUG, "could not open %s\n", D1_PIGFILE);
+			Warning(D1_PIG_LOAD_FAILED);
+			return bitmap_num;
+		}
+
+		Assert( get_d1_colormap( colormap ) == 0 );
+
+		switch (cfilelength(d1_Piggy_fp)) {
+		case D1_SHAREWARE_10_PIGSIZE:
+		case D1_SHAREWARE_PIGSIZE:
+			pig_data_start = 0;
+			break;
+		default:
+			Warning("Unknown size for " D1_PIGFILE);
+			Int3();
+			// fall through
+		case D1_PIGSIZE:
+		case D1_OEM_PIGSIZE:
+		case D1_MAC_PIGSIZE:
+		case D1_MAC_SHARE_PIGSIZE:
+			pig_data_start = cfile_read_int(d1_Piggy_fp );
+
+			break;
+		}
+
+		cfseek( d1_Piggy_fp, pig_data_start, SEEK_SET );
+		N_bitmaps = cfile_read_int(d1_Piggy_fp);
+		{
+			int N_sounds = cfile_read_int(d1_Piggy_fp);
+			int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
+				+ N_sounds * DISKSOUNDHEADER_SIZE;
+			bitmap_header_start = pig_data_start + 2 * sizeof(int);
+			bitmap_data_start = bitmap_header_start + header_size;
+		}
+
+		for (i = 1; i <= N_bitmaps; i++)
+		{
+			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
+			if (!strnicmp(bmh.name, name, 8))
+				break;
+		}
+
+		if (strnicmp(bmh.name, name, 8))
+		{
+			con_printf(CON_DEBUG, "could not find bitmap %s\n", name);
 			return bitmap_num;
 		}
 
