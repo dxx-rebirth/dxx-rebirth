@@ -1,4 +1,4 @@
-/* $Id: cfile.h,v 1.8 2003-04-12 00:11:46 btb Exp $ */
+/* $Id: cfile.h,v 1.9 2003-06-15 04:14:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -66,12 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "vecmat.h"
 
-typedef struct CFILE {
-	FILE 			*file;
-	int				size;
-	int				lib_offset;
-	int				raw_position;
-} CFILE;
+typedef struct CFILE CFILE;
 
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
 int cfile_init(char *hogname);
@@ -81,13 +76,34 @@ int cfile_size(char *hogname);
 CFILE * cfopen(char * filename, char * mode);
 int cfilelength( CFILE *fp );							// Returns actual size of file...
 size_t cfread( void * buf, size_t elsize, size_t nelem, CFILE * fp );
-void cfclose( CFILE * cfile );
+int cfclose(CFILE *cfile);
 int cfgetc( CFILE * fp );
 int cfseek( CFILE *fp, long int offset, int where );
 int cftell( CFILE * fp );
 char * cfgets( char * buf, size_t n, CFILE * fp );
 
+int cfeof(CFILE *cfile);
+int cferror(CFILE *cfile);
+
 int cfexist( char * filename );	// Returns true if file exists on disk (1) or in hog (2).
+
+// Deletes a file.
+int cfile_delete(char *filename);
+
+// Rename a file.
+int cfile_rename(char *oldname, char *newname);
+
+// Make a directory
+int cfile_mkdir(char *pathname);
+
+// cfwrite() writes to the file
+int cfwrite(void *buf, int elsize, int nelem, CFILE *cfile);
+
+// cfputc() writes a character to a file
+int cfputc(int c, CFILE *cfile);
+
+// cfputs() writes a string to a file
+int cfputs(char *str, CFILE *cfile);
 
 // Allows files to be gotten from an alternate hog file.
 // Passing NULL disables this.
@@ -118,7 +134,16 @@ void cfile_read_vector(vms_vector *v, CFILE *file);
 void cfile_read_angvec(vms_angvec *v, CFILE *file);
 void cfile_read_matrix(vms_matrix *v, CFILE *file);
 
-extern char AltHogDir[];
-extern char AltHogdir_initialized;
+// Reads variable length, null-termined string.   Will only read up
+// to n characters.
+void cfile_read_string(char *buf, int n, CFILE *file);
+
+// functions for writing cfiles
+int cfile_write_int(int i, CFILE *file);
+int cfile_write_short(short s, CFILE *file);
+int cfile_write_byte(byte u, CFILE *file);
+
+// writes variable length, null-termined string.
+int cfile_write_string(char *buf, CFILE *file);
 
 #endif

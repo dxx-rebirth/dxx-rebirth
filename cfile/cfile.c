@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.11 2003-04-14 18:34:40 btb Exp $ */
+/* $Id: cfile.c,v 1.12 2003-06-15 04:14:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -134,6 +134,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "cfile.h"
 #include "byteswap.h"
+
+struct CFILE {
+	FILE    *file;
+	int     size;
+	int     lib_offset;
+	int     raw_position;
+};
 
 typedef struct hogfile {
 	char    name[13];
@@ -405,6 +412,29 @@ int cfile_use_descent1_hogfile( char * name )
 	}
 }
 
+
+// cfeof() Tests for end-of-file on a stream
+//
+// returns a nonzero value after the first read operation that attempts to read
+// past the end of the file. It returns 0 if the current position is not end of file.
+// There is no error return.
+
+int cfeof(CFILE *cfile)
+{
+	Assert(cfile != NULL);
+
+	Assert(cfile->file != NULL);
+
+    return (cfile->raw_position >= cfile->size);
+}
+
+
+int cferror(CFILE *cfile)
+{
+	return ferror(cfile->file);
+}
+
+
 int cfexist( char * filename )
 {
 	int length;
@@ -433,15 +463,36 @@ int cfexist( char * filename )
 }
 
 
+// Deletes a file.
+int cfile_delete(char *filename)
+{
+	return remove(filename);
+}
+
+
+// Rename a file.
+int cfile_rename(char *oldname, char *newname)
+{
+	return rename(oldname, newname);
+}
+
+
+// Make a directory.
+int cfile_mkdir(char *pathname)
+{
+#if defined(__WINDOWS__) || defined(__MINGW32__)
+	return mkdir(pathname);
+#else
+	return mkdir(pathname, 0755);
+#endif
+}
+
+
 CFILE * cfopen(char * filename, char * mode )
 {
 	int length;
 	FILE * fp;
 	CFILE *cfile;
-
-	if (stricmp( mode, "rb"))	{
-		Error( "cfiles can only be opened with mode==rb\n" );
-	}
 
 	if (filename[0] != '\x01') {
 		#ifdef MACINTOSH
@@ -461,6 +512,8 @@ CFILE * cfopen(char * filename, char * mode )
 		fp = cfile_find_libfile(filename, &length );
 		if ( !fp )
 			return NULL;		// No file found
+		if (stricmp(mode, "rb"))
+			Error("mode must be rb for files in hog.\n");
 		cfile = d_malloc ( sizeof(CFILE) );
 		if ( cfile == NULL ) {
 			fclose(fp);
@@ -490,6 +543,41 @@ int cfilelength( CFILE *fp )
 	return fp->size;
 }
 
+
+// cfwrite() writes to the file
+//
+// returns:   number of full elements actually written
+//
+//
+int cfwrite(void *buf, int elsize, int nelem, CFILE *cfile)
+{
+	Assert(cfile != NULL);
+	Assert(buf != NULL);
+	Assert(elsize > 0);
+
+	Assert(cfile->file != NULL);
+	Assert(cfile->lib_offset == 0);
+
+	return fwrite(buf, elsize, nelem, cfile->file);
+}
+
+
+// cfputc() writes a character to a file
+//
+// returns:   success ==> returns character written
+//            error   ==> EOF
+//
+int cfputc(int c, CFILE *cfile)
+{
+	Assert(cfile != NULL);
+
+	Assert(cfile->file != NULL);
+	Assert(cfile->lib_offset == 0);
+
+	return fputc(c, cfile->file);
+}
+
+
 int cfgetc( CFILE * fp )
 {
 	int c;
@@ -504,6 +592,23 @@ int cfgetc( CFILE * fp )
 
 	return c;
 }
+
+
+// cfputs() writes a string to a file
+//
+// returns:   success ==> non-negative value
+//            error   ==> EOF
+//
+int cfputs(char *str, CFILE *cfile)
+{
+	Assert(cfile != NULL);
+	Assert(str != NULL);
+
+	Assert(cfile->file != NULL);
+
+	return fputs(str, cfile->file);
+}
+
 
 char * cfgets( char * buf, size_t n, CFILE * fp )
 {
@@ -581,11 +686,14 @@ int cfseek( CFILE *fp, long int offset, int where )
 	return c;
 }
 
-void cfclose( CFILE * fp ) 
-{	
-	fclose(fp->file);
+int cfclose(CFILE *fp)
+{
+	int result;
+
+	result = fclose(fp->file);
 	d_free(fp);
-	return;
+
+	return result;
 }
 
 // routines to read basic data types from CFILE's.  Put here to
@@ -666,3 +774,54 @@ void cfile_read_matrix(vms_matrix *m,CFILE *file)
 	cfile_read_vector(&m->fvec,file);
 }
 
+
+void cfile_read_string(char *buf, int n, CFILE *file)
+{
+	char c;
+
+	do {
+		c = (char)cfile_read_byte(file);
+		if (n > 0)
+		{
+			*buf++ = c;
+			n--;
+		}
+	} while (c != 0);
+}
+
+
+// equivalent write functions of above read functions follow
+
+int cfile_write_int(int i, CFILE *file)
+{
+	i = INTEL_INT(i);
+	return cfwrite(&i, sizeof(i), 1, file);
+}
+
+
+int cfile_write_short(short s, CFILE *file)
+{
+	s = INTEL_SHORT(s);
+	return cfwrite(&s, sizeof(s), 1, file);
+}
+
+
+int cfile_write_byte(byte b, CFILE *file)
+{
+	return cfwrite(&b, sizeof(b), 1, file);
+}
+
+
+int cfile_write_string(char *buf, CFILE *file)
+{
+	int len;
+
+	if ((!buf) || (buf && !buf[0]))
+		return cfile_write_byte(0, file);
+
+	len = strlen(buf);
+	if (!cfwrite(buf, len, 1, file))
+		return 0;
+
+	return cfile_write_byte(0, file);   // write out NULL termination
+}

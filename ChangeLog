@@ -1,3 +1,9 @@
+2003-06-14  Bradley Bell  <btb@icculus.org>
+
+	* include/cfile.h, cfile/cfile.c: implemented cfile wrappers for
+	writing and other modes besides "rb" (mostly taken from
+	freespace2)
+
 2003-06-09  Bradley Bell  <btb@icculus.org>
 
 	* 2d/palette.c, main/kludge.c: gr_copy_palette not really a
