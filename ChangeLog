@@ -1,5 +1,9 @@
 2003-03-13  Bradley Bell  <btb@icculus.org>
 
+	* arch/sdl/joydefs.c, main/kconfig.c, main/kconfig.h, main/menu.c:
+	added joy/mouse sensitivity slider, increased range to 16, and
+	added d2x keys menu
+
 	* main/Makefile.am, main/joydefs.c, main/old/joydefs.c: moved old
 	joydefs to main
 

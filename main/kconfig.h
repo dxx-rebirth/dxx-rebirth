@@ -182,6 +182,14 @@ extern control_info Controls;
 extern void controls_read_all();
 extern void kconfig(int n, char * title );
 
+//added on 2/4/99 by Victor Rachels to add new keys menu
+#define NUM_D2X_CONTROLS 20
+#define MAX_D2X_CONTROLS 40
+
+extern ubyte kconfig_d2x_settings[MAX_D2X_CONTROLS];
+extern ubyte default_kconfig_d2x_settings[MAX_D2X_CONTROLS];
+//end this section addition - VR
+
 #define NUM_KEY_CONTROLS 57
 #define NUM_OTHER_CONTROLS 31
 #define MAX_CONTROLS 60         //there are actually 48, so this leaves room for more   

@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.20 2003-03-13 22:34:58 btb Exp $ */
+/* $Id: menu.c,v 1.21 2003-03-14 05:11:29 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1157,9 +1157,9 @@ void d2x_options_menu()
 	newmenu_item m[14];
 	int i=0;
 	int opt = 0;
-	int inputs;
+	int inputs, commands;
 #if 0
-	int checks, commands;
+	int checks;
 #endif
 
 	char smaxfps[4];
@@ -1176,11 +1176,13 @@ void d2x_options_menu()
 
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Primary autoselect ordering...";   opt++;
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Secondary autoselect ordering..."; opt++;
+#endif
 
 	//added on 2/4/99 by Victor Rachels for new key menu
-	m[opt].type = NM_TYPE_MENU;  m[opt].text = "D1X Keys"; opt++;
+	m[opt].type = NM_TYPE_MENU;  m[opt].text = "D2X Keys"; opt++;
 	//end this section addition - VR
 
+#if 0
 	//enabled 3/24/99 - Owen Evans
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Change Screen Resolution";         opt++;
 	//end enabled stuff - OE
@@ -1219,22 +1221,26 @@ void d2x_options_menu()
 
 		if(i>-1)
 		{
-#if 0
             if(i<commands)
 			{
 				switch(i)
 				{
+#if 0
                 case 0: reorder_primary(); break;
                 case 1: reorder_secondary(); break;
+#endif
 					//added on 2/4/99 by Victor Rachels for new key menu
-                case 2: kconfig(3,"D1X Keys"); break;
+                case 0: kconfig(4,"D2X Keys"); break;
 					//end this section addition - VR
+#if 0
 					//enabled 3/24/99 - Owen Evans
                 case 3: change_res(); break;
 					//end enabled stuff - OE
+#endif
 				}
 			}
 
+#if 0
             //added on 2/4/99 by Victor Rachels for bans
 #ifdef NETWORK
             if(i==commands+0)
@@ -1256,7 +1262,6 @@ void d2x_options_menu()
 					maxfps = 80;
 					i = (inputs+0);
 				}
-				else break;  // FIXME: temporary hack to exit menu right away
 			}
 #if 0
             else if(i==inputs+2)
