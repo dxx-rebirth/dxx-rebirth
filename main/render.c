@@ -1,4 +1,4 @@
-/* $Id: render.c,v 1.8 2002-08-02 10:57:12 btb Exp $ */
+/* $Id: render.c,v 1.9 2002-08-09 00:48:57 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -288,18 +288,18 @@ void flash_frame()
 
 }
 
-// -----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //	Render a face.
-//	It would be nice to not have to pass in segnum and sidenum, but they are used for our
-//	hideously hacked in headlight system.
+//	It would be nice to not have to pass in segnum and sidenum, but
+//	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap2, uvl *uvlp, int wid_flags)
 {
 	// -- Using new headlight system...fix			face_light;
-	grs_bitmap	*bm;
+	grs_bitmap  *bm;
 #ifdef OGL
-        grs_bitmap      *bm2=NULL;
+	grs_bitmap  *bm2 = NULL;
 #endif
 
 	fix			reflect;
@@ -341,29 +341,27 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 	}
 
 #ifdef OGL
-        if (ogl_alttexmerge){
-                PIGGY_PAGE_IN(Textures[tmap1]);
-                bm = &GameBitmaps[Textures[tmap1].index];
-                if (tmap2){
-                        PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
-                        bm2 = &GameBitmaps[Textures[tmap2&0x3FFF].index];
-                }
-                if (bm2 && (bm2->bm_flags&BM_FLAG_SUPER_TRANSPARENT)){
-                        bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
-                        bm2 = NULL;
-                }
-        }else                                                           
+	if (ogl_alttexmerge){
+		PIGGY_PAGE_IN(Textures[tmap1]);
+		bm = &GameBitmaps[Textures[tmap1].index];
+		if (tmap2){
+			PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
+			bm2 = &GameBitmaps[Textures[tmap2&0x3FFF].index];
+		}
+		if (bm2 && (bm2->bm_flags&BM_FLAG_SUPER_TRANSPARENT)){
+			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
+			bm2 = NULL;
+		}
+	} else
 #endif
 
-	// New code for overlapping textures...
-	if (tmap2 != 0)
-   {
-		bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
-   }
-	else	{
-		bm = &GameBitmaps[Textures[tmap1].index];
-		PIGGY_PAGE_IN(Textures[tmap1]);
-	}
+		// New code for overlapping textures...
+		if (tmap2 != 0) {
+			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
+		} else {
+			bm = &GameBitmaps[Textures[tmap1].index];
+			PIGGY_PAGE_IN(Textures[tmap1]);
+		}
 
 	Assert( !(bm->bm_flags & BM_FLAG_PAGED_OUT) );
 
@@ -406,19 +404,19 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 #endif
 
 #ifdef OGL
-                if (bm2){
-                        g3_draw_tmap_2(nv,pointlist,(g3s_uvl *) uvl_copy,bm,bm2,((tmap2&0xC000)>>14) & 3);
-                }else
+		if (bm2){
+			g3_draw_tmap_2(nv,pointlist,(g3s_uvl *) uvl_copy,bm,bm2,((tmap2&0xC000)>>14) & 3);
+		}else
 #endif
-   		g3_draw_tmap(nv,pointlist,(g3s_uvl *) uvl_copy,bm);
+			g3_draw_tmap(nv,pointlist,(g3s_uvl *) uvl_copy,bm);
 
-	#ifndef NDEBUG
+#ifndef NDEBUG
 	if (Outline_mode) draw_outline(nv, pointlist);
-	#endif
+#endif
 }
 
 #ifdef EDITOR
-// -----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
 void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tmap1, int tmap2, uvl *uvlp)
@@ -455,7 +453,6 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tma
 			found_side = sidenum;
 			found_face = facenum;
 		}
-		
 	}
 }
 #endif
@@ -487,12 +484,12 @@ void render_side(segment *segp, int sidenum)
 	if (!(wid_flags & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
 		return;
 
-	#ifdef COMPACT_SEGS	
-		get_side_normals(segp, sidenum, &normals[0], &normals[1] );
-	#else
-		normals[0] = segp->sides[sidenum].normals[0];
-		normals[1] = segp->sides[sidenum].normals[1];
-	#endif
+#ifdef COMPACT_SEGS
+	get_side_normals(segp, sidenum, &normals[0], &normals[1] );
+#else
+	normals[0] = segp->sides[sidenum].normals[0];
+	normals[1] = segp->sides[sidenum].normals[1];
+#endif
 
 	//	========== Mark: Here is the change...beginning here: ==========
 

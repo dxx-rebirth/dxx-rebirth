@@ -1,4 +1,4 @@
-/* $Id: palette.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: palette.c,v 1.4 2002-08-09 00:48:57 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
@@ -52,14 +52,14 @@ void gr_palette_set_gamma( int gamma )
 	if ( gamma < 0 ) gamma = 0;
 //added/changed on 10/27/98 by Victor Rachels to increase brightness slider
         if ( gamma > 16 ) gamma = 16;      //was 8
-//end this section change - Victor Rachels 
+//end this section change - Victor Rachels
 
 	if (gr_palette_gamma_param != gamma )	{
 		gr_palette_gamma_param = gamma;
 		gr_palette_gamma = gamma;
 		if (!gr_palette_faded_out)
 			gr_palette_load( gr_palette );
-	}	
+	}
 }
 
 int gr_palette_get_gamma()

@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.6 2002-07-26 09:22:39 btb Exp $ */
+/* $Id: interp.c,v 1.7 2002-08-09 00:48:57 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,13 +8,13 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * 
+ *
  * Polygon object interpreter
- * 
+ *
  * Old Log:
  *
  * Revision 1.4  1995/10/10  22:20:09  allender
@@ -31,8 +31,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Revision 1.1  1995/04/17  06:44:33  matt
  * Initial revision
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.6 2002-07-26 09:22:39 btb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.7 2002-08-09 00:48:57 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -51,24 +51,24 @@ static char rcsid[] = "$Id: interp.c,v 1.6 2002-07-26 09:22:39 btb Exp $";
 #include "gr.h"
 #include "byteswap.h"
 
-#define OP_EOF				0	//eof
-#define OP_DEFPOINTS		1	//defpoints
-#define OP_FLATPOLY		2	//flat-shaded polygon
-#define OP_TMAPPOLY		3	//texture-mapped polygon
-#define OP_SORTNORM		4	//sort by normal
-#define OP_RODBM			5	//rod bitmap
-#define OP_SUBCALL		6	//call a subobject
-#define OP_DEFP_START	7	//defpoints with start
-#define OP_GLOW			8	//glow value for next poly
+#define OP_EOF          0   //eof
+#define OP_DEFPOINTS    1   //defpoints
+#define OP_FLATPOLY     2   //flat-shaded polygon
+#define OP_TMAPPOLY     3   //texture-mapped polygon
+#define OP_SORTNORM     4   //sort by normal
+#define OP_RODBM        5   //rod bitmap
+#define OP_SUBCALL      6   //call a subobject
+#define OP_DEFP_START   7   //defpoints with start
+#define OP_GLOW         8   //glow value for next poly
 
 #define N_OPCODES (sizeof(opcode_table) / sizeof(*opcode_table))
 
-#define MAX_POINTS_PER_POLY		25
+#define MAX_POINTS_PER_POLY 25
 
-short	highest_texture_num;
-int	g3d_interp_outline;
+short highest_texture_num;
+int g3d_interp_outline;
 
-g3s_point *Interp_point_list=NULL;
+g3s_point *Interp_point_list = NULL;
 
 #define MAX_INTERP_COLORS 100
 
@@ -205,7 +205,7 @@ void swap_polygon_model_data(ubyte *data)
 				short_swap(wp(p + 2));
 				p += 4;
 				break;
-				
+
 			default:
 				Int3();
 		}
