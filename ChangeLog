@@ -1,6 +1,6 @@
-2003-07-15  Martin Schaffner  <martin.schaffner@epfl.ch>
+2003-07-24  Martin Schaffner  <martin.schaffner@epfl.ch>
 
-	* cfile/cfile.c: update raw pointer in cfwrite
+	* cfile/cfile.c: update raw_position in cfwrite
 
 2003-06-22  Bradley Bell  <btb@icculus.org>
 
