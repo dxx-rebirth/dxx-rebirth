@@ -1,5 +1,8 @@
 2004-05-19  Bradley Bell  <btb@icculus.org>
 
+	* arch/linux/hmiplay.c: implement -nomusic for linux hmiplay (d1x
+	r1.8)
+
 	* arch/linux/hmiplay.c: correct linux hmiplay handling of midi 0
 	volume song stop/starting (d1x r1.7)
 

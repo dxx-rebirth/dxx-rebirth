@@ -1,4 +1,4 @@
-/* $Id: hmiplay.c,v 1.7 2004-05-19 19:04:41 btb Exp $ */
+/* $Id: hmiplay.c,v 1.8 2004-05-19 19:14:52 btb Exp $ */
 /*
  * HMI midi playing routines by Jani Frilander
  *
@@ -812,6 +812,9 @@ void play_hmi (void * arg)
 
 void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, int loop)
 {
+	if (FindArg("-nomusic"))
+		return;
+
 	if (!filename)
 		send_ipc("p");
 	else
@@ -823,8 +826,10 @@ void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, in
 }
 
 void digi_set_midi_volume( int mvolume ) { 
-        char buf[128];
-    
-        sprintf(buf,"v%i",mvolume);
-        send_ipc(buf);
+	char buf[128];
+	if(FindArg("-nomusic"))
+		return;
+
+	sprintf(buf,"v%i",mvolume);
+	send_ipc(buf);
 }
