@@ -117,9 +117,15 @@ fi
 
 dnl Build with FAST_FILE_IO?
 AC_ARG_ENABLE(fastfileio,
-    [  --enable-fastfileio     Fast file i/o build.  little-endian only ],,)
-if test x$enable_fastfileio = xyes; then
-    AC_DEFINE(FAST_FILE_IO,,[Define for a faster file i/o on little-endian machines])
+    [  --disable-fastfileio    Disable fast file i/o. ],,)
+if test x$enable_fastfileio != xno; then
+	if test x$ac_cv_c_bigendian = xyes; then
+		AC_MSG_WARN([big-endian cpu detected.  disabling fastfileio])
+		enable_fastfileio="no";
+	fi
+fi
+if test x$enable_fastfileio != xno; then
+    AC_DEFINE(FAST_FILE_IO,,[Define for faster i/o on little-endian cpus])
     D2X_FEATURES="fastfileio ${D2X_FEATURES}"
 fi
 
