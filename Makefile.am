@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS=1.5
 
 SUBDIRS = 2d 3d maths mem cfile iff texmap misc arch main
 
-EXTRA_SUBDIRS = includes tools unused
+EXTRA_SUBDIRS = includes tools unused debian rpm
 
 bin_PROGRAMS = @TARGETS@
 
@@ -59,4 +59,5 @@ EXTRA_DIST = ${EXTRA_SUBDIRS} \
 ChangeLog \
 djgpp.bat djgpp.sh \
 autogen.sh cygconf \
-cvshowto.txt readme.txt license.txt installation.txt mingw32.txt compilerdefs.txt
+cvshowto.txt readme.txt license.txt installation.txt mingw32.txt compilerdefs.txt \
+d2x-sdl.sh d2x-ogl.sh
