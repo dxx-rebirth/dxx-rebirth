@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/hud.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  * $Author: btb $
- * $Date: 2003-06-06 19:04:27 $
+ * $Date: 2003-06-18 08:05:17 $
  *
  * Routines for displaying HUD messages...
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6  2003/06/06 19:04:27  btb
+ * merge (non-physfs stuff) from physfs branch
+ *
  * Revision 1.5.2.1  2003/06/06 03:35:41  btb
  * finish console conversion away from SDL
  *
@@ -42,7 +45,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 #include "hudmsg.h"
 
@@ -364,18 +366,6 @@ int HUD_init_message_va(char * format, va_list args)
 	message = &HUD_messages[hud_last][0];
 	vsprintf(message,format,args);
 
-#if 0
-	/* Produce a sanitised version and send it to the console */
-	cleanmessage = d_strdup(message);
-	for (temp=0,temp2=0; message[temp]!=0; temp++)
-	{
-        	if (isprint(message[temp])) cleanmessage[temp2++] = message[temp];
-		else temp++; /* Skip next character as well */
-	}
-	cleanmessage[temp2] = 0;
-	con_printf(CON_NORMAL, "%s\n", cleanmessage);
-	d_free(cleanmessage);
-#endif
 
 	/* Produce a colorised version and send it to the console */
 	if (HUD_color == -1)

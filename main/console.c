@@ -1,4 +1,4 @@
-/* $Id: console.c,v 1.15 2003-06-08 01:33:27 btb Exp $ */
+/* $Id: console.c,v 1.16 2003-06-18 08:05:17 btb Exp $ */
 /*
  *
  * FIXME: put description here
@@ -15,6 +15,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <fcntl.h>
+#include <ctype.h>
 
 #include <SDL.h>
 #ifdef CONSOLE
@@ -148,8 +149,6 @@ void con_printf(int priority, char *fmt, ...)
 		va_start (arglist, fmt);
 		vsprintf (buffer,  fmt, arglist);
 		va_end (arglist);
-		if (text_console_enabled)
-			printf(buffer);
 
 #ifdef CONSOLE
 		if (con_initialized)
@@ -160,6 +159,30 @@ void con_printf(int priority, char *fmt, ...)
 		{
 			memcpy(con_display, &buffer[i], min(80, l-i));
 		}*/
+
+		if (text_console_enabled)
+		{
+			/* Produce a sanitised version and send it to the console */
+			char *p1, *p2;
+
+			p1 = p2 = buffer;
+			do
+				switch (*p1)
+				{
+				case CC_COLOR:
+				case CC_LSPACING:
+					p1++;
+				case CC_UNDERLINE:
+					p1++;
+					break;
+				default:
+					*p2++ = *p1++;
+				}
+			while (*p1);
+			*p2 = 0;
+
+			printf(buffer);
+		}
 	}
 }
 

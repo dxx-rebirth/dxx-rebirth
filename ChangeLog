@@ -1,5 +1,8 @@
 2003-06-18  Bradley Bell  <btb@icculus.org>
 
+	* main/console.c, main/hud.c: strip out colors, etc when printing
+	to stdout
+
 	* include/u_mem.h: fix NDEBUG calloc macro
 
 2003-06-15  Bradley Bell  <btb@icculus.org>
