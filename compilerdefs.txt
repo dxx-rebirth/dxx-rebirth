@@ -2,54 +2,66 @@ Typical predefined macros, obtained by executing something like:
 gcc -dM -E - < /dev/null
 
 MinGW:
-#define _stdcall __attribute__((__stdcall__))
-#define __i386__ 1
-#define _X86_ 1
-#define __i386 1
-#define WIN32 1
-#define __i686 1
-#define __GNUC_MINOR__ 95
-#define WINNT 1
-#define __declspec(x) __attribute__((x))
-#define pentiumpro 1
-#define __MSVCRT__ 1
-#define __MINGW32__ 1
-#define _cdecl __attribute__((__cdecl__))
-#define __pentiumpro 1
-#define i386 1
-#define i686 1
-#define __pentiumpro__ 1
 #define _WIN32 1
-#define __stdcall __attribute__((__stdcall__))
-#define __WIN32__ 1
-#define __i686__ 1
-#define __GNUC__ 2
-#define __cdecl __attribute__((__cdecl__))
+#define _X86_ 1
+#define __HAVE_BUILTIN_SETJMP__ 1
+#define __tune_pentium2__ 1
+#define __i386__ 1
+#define __SIZE_TYPE__ unsigned int
+#define __GNUC_PATCHLEVEL__ 0
+#define _stdcall __attribute__((__stdcall__))
+#define __MSVCRT__ 1
+#define __USER_LABEL_PREFIX__ _
+#define __STDC_HOSTED__ 1
 #define __WIN32 1
+#define __stdcall __attribute__((__stdcall__))
+#define __tune_i686__ 1
+#define __WCHAR_TYPE__ short unsigned int
+#define __MINGW32__ 1
+#define WIN32 1
+#define __WINT_TYPE__ unsigned int
+#define __GNUC__ 3
+#define _cdecl __attribute__((__cdecl__))
+#define __tune_pentium3__ 1
+#define __tune_pentiumpro__ 1
+#define __fastcall __attribute__((__fastcall__))
 
 Cygwin:
-#define _stdcall __attribute__((__stdcall__))
-#define __i386__ 1
 #define _X86_ 1
-#define __i386 1
-#define __i686 1
-#define __GNUC_MINOR__ 95
-#define __declspec(x) __attribute__((x))
-#define pentiumpro 1
-#define __CYGWIN__ 1
-#define _cdecl __attribute__((__cdecl__))
-#define __pentiumpro 1
-#define i386 1
-#define i686 1
-#define __pentiumpro__ 1
-#define __stdcall __attribute__((__stdcall__))
-#define __unix 1
+#define __HAVE_BUILTIN_SETJMP__ 1
+#define __tune_pentium2__ 1
 #define __unix__ 1
-#define __i686__ 1
-#define __GNUC__ 2
-#define __cdecl __attribute__((__cdecl__))
-#define __CYGWIN32__ 1
 #define unix 1
+#define __i386__ 1
+#define __SIZE_TYPE__ unsigned int
+#define __GNUC_PATCHLEVEL__ 0
+#define _stdcall __attribute__((__stdcall__))
+#define __CYGWIN__ 1
+#define __unix 1
+#define __USER_LABEL_PREFIX__ _
+#define __STDC_HOSTED__ 1
+#define __stdcall __attribute__((__stdcall__))
+#define __tune_i686__ 1
+#define __WCHAR_TYPE__ short unsigned int
+#define __WINT_TYPE__ unsigned int
+#define __GNUC__ 3
+#define _cdecl __attribute__((__cdecl__))
+#define __tune_pentium3__ 1
+#define __tune_pentiumpro__ 1
+#define __fastcall __attribute__((__fastcall__))
+#define _fastcall __attribute__((__fastcall__))
+#define __CYGWIN32__ 1
+#define __GXX_ABI_VERSION 102
+#define i386 1
+#define __GNUC_MINOR__ 2
+#define __STDC__ 1
+#define __PTRDIFF_TYPE__ int
+#define __REGISTER_PREFIX__ 
+#define __cdecl __attribute__((__cdecl__))
+#define __NO_INLINE__ 1
+#define __i386 1
+#define __VERSION__ "3.2 20020927 (prerelease)"
+#define __declspec(x) __attribute__((x))
 
 Linux:
 #define __linux__ 1
