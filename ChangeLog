@@ -1,3 +1,7 @@
+2003-10-03  Bradley Bell  <btb@icculus.org>
+
+	* configure.ac: better checking for timeval
+
 2003-10-03  Martin Schaffner <maschaffner@gmx.ch>
 
 	* arch/dos/bak/ipx.c, arch/dos/ipx.c, arch/linux/Makefile.am,
