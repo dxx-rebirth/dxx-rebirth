@@ -235,6 +235,7 @@ TryNextChannel:
   }
   //mprintf(( 0, "[SS:%d]", next_handle ));
   SoundSlots[SampleHandles[next_handle]].playing = 0;
+	DS_release_slot(SampleHandles[next_handle], 1);
   SampleHandles[next_handle] = -1;
  }
  //end edit by adb

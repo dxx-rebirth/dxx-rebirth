@@ -1,10 +1,15 @@
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/win32/digi.c: win32's digi_start_sound was not calling
+	DS_release_slot after setting .playing=0, resulting in a
+	memleak. Thanks to Stefan Ring for catching this (d1x r1.9)
+
 	* arch/win32/joyhh.c: remove joySetCapture in win32 joystick code,
 	apparently it was somehow causing some joysticks (Sidewinder
 	Precision 2) to only turn when the stick was moving, but not when
 	at turned but held stationary.  And it was completely unused
-	anyway.  Thanks to Stefan Ring for (somehow) finding this
+	anyway.  Thanks to Stefan Ring for (somehow) finding this (d1x
+	r1.4)
 
 	* main/game.c: add alt+enter to toggle fullscreen (in addition to
 	previous key combos (d1x r1.29)
