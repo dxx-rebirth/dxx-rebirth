@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.59 2004-12-02 16:27:29 schaffner Exp $ */
+/* $Id: piggy.c,v 1.60 2005-01-10 17:47:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.59 2004-12-02 16:27:29 schaffner Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.60 2005-01-10 17:47:27 schaffner Exp $";
 #endif
 
 
@@ -35,6 +35,7 @@ static char rcsid[] = "$Id: piggy.c,v 1.59 2004-12-02 16:27:29 schaffner Exp $";
 #include "strutil.h"
 #include "inferno.h"
 #include "gr.h"
+#include "grdef.h"
 #include "u_mem.h"
 #include "iff.h"
 #include "mono.h"
@@ -276,7 +277,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 
 	strncpy( AllBitmaps[Num_bitmap_files].name, name, 12 );
 	hashtable_insert( &AllBitmapsNames, AllBitmaps[Num_bitmap_files].name, Num_bitmap_files );
-	GameBitmaps[Num_bitmap_files] = *bmp;
+	//GameBitmaps[Num_bitmap_files] = *bmp;
 	if ( !in_file ) {
 		GameBitmapOffset[Num_bitmap_files] = 0;
 		GameBitmapFlags[Num_bitmap_files] = bmp->bm_flags;
@@ -613,7 +614,6 @@ void piggy_init_pigfile(char *filename)
 	int i;
 	char temp_name[16];
 	char temp_name_read[16];
-	grs_bitmap temp_bitmap;
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_size, data_start;
 	#ifdef MACINTOSH
@@ -681,7 +681,11 @@ void piggy_init_pigfile(char *filename)
 
 	Num_bitmap_files = 1;
 
-	for (i=0; i<N_bitmaps; i++ )    {
+	for (i=0; i<N_bitmaps; i++ )
+    {
+		int width;
+		grs_bitmap *bm = &GameBitmaps[i + 1];
+		
 		DiskBitmapHeader_read(&bmh, Piggy_fp);
 		memcpy( temp_name_read, bmh.name, 8 );
 		temp_name_read[8] = 0;
@@ -689,18 +693,16 @@ void piggy_init_pigfile(char *filename)
 			sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES );
 		else
 			strcpy( temp_name, temp_name_read );
-		memset( &temp_bitmap, 0, sizeof(grs_bitmap) );
-		temp_bitmap.bm_w = temp_bitmap.bm_rowsize = bmh.width + ((short) (bmh.wh_extra&0x0f)<<8);
-		temp_bitmap.bm_h = bmh.height + ((short) (bmh.wh_extra&0xf0)<<4);
-		temp_bitmap.bm_flags = BM_FLAG_PAGED_OUT;
-		temp_bitmap.avg_color = bmh.avg_color;
-		temp_bitmap.bm_data = Piggy_bitmap_cache_data;
+		width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
+		gr_init_bitmap(bm, 0, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
+		bm->bm_flags = BM_FLAG_PAGED_OUT;
+		bm->avg_color = bmh.avg_color;
 
 		GameBitmapFlags[i+1] = bmh.flags & BM_FLAGS_TO_COPY;
 
 		GameBitmapOffset[i+1] = bmh.offset + data_start;
 		Assert( (i+1) == Num_bitmap_files );
-		piggy_register_bitmap( &temp_bitmap, temp_name, 1 );
+		piggy_register_bitmap(bm, temp_name, 1);
 	}
 
 #ifdef EDITOR
@@ -730,6 +732,7 @@ void piggy_init_pigfile(char *filename)
 #define MAX_BITMAPS_PER_BRUSH 30
 
 extern int compute_average_pixel(grs_bitmap *new);
+extern void gr_set_bitmap_data(grs_bitmap *bm, unsigned char *data);
 
 ubyte *Bitmap_replacement_data = NULL;
 
@@ -740,7 +743,6 @@ void piggy_new_pigfile(char *pigname)
 	int i;
 	char temp_name[16];
 	char temp_name_read[16];
-	grs_bitmap temp_bitmap;
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_size, data_start;
 	int must_rewrite_pig = 0;
@@ -814,7 +816,11 @@ void piggy_new_pigfile(char *pigname)
 
 		data_size = cfilelength(Piggy_fp) - data_start;
 
-		for (i=1; i<=N_bitmaps; i++ )   {
+		for (i=1; i<=N_bitmaps; i++ )
+		{
+			grs_bitmap *bm = &GameBitmaps[i];
+			int width;
+			
 			DiskBitmapHeader_read(&bmh, Piggy_fp);
 			memcpy( temp_name_read, bmh.name, 8 );
 			temp_name_read[8] = 0;
@@ -832,19 +838,15 @@ void piggy_new_pigfile(char *pigname)
 	
 			strcpy(AllBitmaps[i].name,temp_name);
 
-			memset( &temp_bitmap, 0, sizeof(grs_bitmap) );
-	
-			temp_bitmap.bm_w = temp_bitmap.bm_rowsize = bmh.width + ((short) (bmh.wh_extra&0x0f)<<8);
-			temp_bitmap.bm_h = bmh.height + ((short) (bmh.wh_extra&0xf0)<<4);
-			temp_bitmap.bm_flags = BM_FLAG_PAGED_OUT;
-			temp_bitmap.avg_color = bmh.avg_color;
-			temp_bitmap.bm_data = Piggy_bitmap_cache_data;
+			width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
+			gr_set_bitmap_data(bm, NULL);	// free ogl texture
+			gr_init_bitmap(bm, 0, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
+			bm->bm_flags = BM_FLAG_PAGED_OUT;
+			bm->avg_color = bmh.avg_color;
 
 			GameBitmapFlags[i] = bmh.flags & BM_FLAGS_TO_COPY;
 	
 			GameBitmapOffset[i] = bmh.offset + data_start;
-	
-			GameBitmaps[i] = temp_bitmap;
 		}
 	}
 	else
@@ -1003,7 +1005,6 @@ void piggy_new_pigfile(char *pigname)
 }
 
 ubyte bogus_data[64*64];
-grs_bitmap bogus_bitmap;
 ubyte bogus_bitmap_initialized=0;
 digi_sound bogus_sound;
 
@@ -1210,10 +1211,8 @@ int piggy_init(void)
 	if ( !bogus_bitmap_initialized )        {
 		int i;
 		ubyte c;
+
 		bogus_bitmap_initialized = 1;
-		memset( &bogus_bitmap, 0, sizeof(grs_bitmap) );
-		bogus_bitmap.bm_w = bogus_bitmap.bm_h = bogus_bitmap.bm_rowsize = 64;
-		bogus_bitmap.bm_data = bogus_data;
 		c = gr_find_closest_color( 0, 0, 63 );
 		for (i=0; i<4096; i++ ) bogus_data[i] = c;
 		c = gr_find_closest_color( 63, 0, 0 );
@@ -1222,7 +1221,8 @@ int piggy_init(void)
 			bogus_data[i*64+i] = c;
 			bogus_data[i*64+(63-i)] = c;
 		}
-		piggy_register_bitmap( &bogus_bitmap, "bogus", 1 );
+		gr_init_bitmap(&GameBitmaps[Num_bitmap_files], 0, 0, 0, 64, 64, 64, bogus_data);
+		piggy_register_bitmap(&GameBitmaps[Num_bitmap_files], "bogus", 1);
 		bogus_sound.length = 64*64;
 		bogus_sound.data = bogus_data;
 		GameBitmapOffset[0] = 0;
@@ -1345,6 +1345,8 @@ void piggy_critical_error()
 	grd_curcanv->cv_font = save_font;
 }
 
+extern void gr_set_bitmap_flags(grs_bitmap *pbm, int flags);
+
 void piggy_bitmap_page_in( bitmap_index bitmap )
 {
 	grs_bitmap * bmp;
@@ -1382,8 +1384,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			goto ReDoIt;
 		}
 
-		bmp->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
-		bmp->bm_flags = GameBitmapFlags[i];
+		gr_set_bitmap_flags(bmp, GameBitmapFlags[i]);
 
 		if ( bmp->bm_flags & BM_FLAG_RLE )      {
 			int zsize = 0, pigsize = cfilelength(Piggy_fp);
@@ -1407,6 +1408,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				piggy_critical_error();
 				goto ReDoIt;
 			}
+			*((int *) (Piggy_bitmap_cache_data + Piggy_bitmap_cache_next)) = INTEL_INT(zsize);
+			gr_set_bitmap_data(bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 
 #ifndef MACDATA
 			switch (pigsize) {
@@ -1426,7 +1429,6 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 #endif
 
-			memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], &zsize, sizeof(int) );
 			Piggy_bitmap_cache_next += zsize;
 			if ( Piggy_bitmap_cache_next+zsize >= Piggy_bitmap_cache_size ) {
 				Int3();
@@ -1448,6 +1450,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				piggy_critical_error();
 				goto ReDoIt;
 			}
+			gr_set_bitmap_data(bmp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next]);
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 
 #ifndef MACDATA
@@ -1507,7 +1510,7 @@ void piggy_bitmap_page_out_all()
 	for (i=0; i<Num_bitmap_files; i++ )             {
 		if ( GameBitmapOffset[i] > 0 )  {       // Don't page out bitmaps read from disk!!!
 			GameBitmaps[i].bm_flags = BM_FLAG_PAGED_OUT;
-			GameBitmaps[i].bm_data = Piggy_bitmap_cache_data;
+			gr_set_bitmap_data(&GameBitmaps[i], NULL);
 		}
 	}
 
@@ -1917,24 +1920,29 @@ void load_bitmap_replacements(char *level_name)
 
 		for (i=0;i<n_bitmaps;i++) {
 			DiskBitmapHeader bmh;
-			grs_bitmap temp_bitmap;
+			grs_bitmap *bm = &GameBitmaps[indices[i]];
+			int width;
 
 			DiskBitmapHeader_read(&bmh, ifile);
 
-			memset( &temp_bitmap, 0, sizeof(grs_bitmap) );
+			width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
+			gr_set_bitmap_data(bm, NULL);	// free ogl texture
+			gr_init_bitmap(bm, 0, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
+			bm->avg_color = bmh.avg_color;
+			bm->bm_data = (ubyte *) bmh.offset;
 
-			temp_bitmap.bm_w = temp_bitmap.bm_rowsize = bmh.width + ((short) (bmh.wh_extra&0x0f)<<8);
-			temp_bitmap.bm_h = bmh.height + ((short) (bmh.wh_extra&0xf0)<<4);
-			temp_bitmap.avg_color = bmh.avg_color;
-			temp_bitmap.bm_data = Bitmap_replacement_data + bmh.offset;
+			gr_set_bitmap_flags(bm, bmh.flags & BM_FLAGS_TO_COPY);
 
-			temp_bitmap.bm_flags |= bmh.flags & BM_FLAGS_TO_COPY;
-
-			GameBitmaps[indices[i]] = temp_bitmap;
-			// don't we need the following? GameBitmapOffset[indices[i]] = 0; // don't try to read bitmap from current pigfile
+			GameBitmapOffset[indices[i]] = 0; // don't try to read bitmap from current pigfile
 		}
 
 		cfread(Bitmap_replacement_data,1,bitmap_data_size,ifile);
+
+		for (i = 0; i < n_bitmaps; i++)
+		{
+			grs_bitmap *bm = &GameBitmaps[indices[i]];
+			gr_set_bitmap_data(bm, Bitmap_replacement_data + (int) bm->bm_data);
+		}
 
 		d_free(indices);
 
@@ -1976,12 +1984,14 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
                      ubyte *colormap) /* how to translate bitmap's colors */
 {
 	int zsize, pigsize = cfilelength(d1_Piggy_fp);
-	memset( bitmap, 0, sizeof(grs_bitmap) );
+	ubyte *data;
+	int width;
 
-	bitmap->bm_w = bitmap->bm_rowsize = bmh->width + ((short) (bmh->wh_extra&0x0f)<<8);
-	bitmap->bm_h = bmh->height + ((short) (bmh->wh_extra&0xf0)<<4);
+	width = bmh->width + ((short) (bmh->wh_extra & 0x0f) << 8);
+	gr_set_bitmap_data(bitmap, NULL);	// free ogl texture
+	gr_init_bitmap(bitmap, 0, 0, 0, width, bmh->height + ((short) (bmh->wh_extra & 0xf0) << 4), width, NULL);
 	bitmap->avg_color = bmh->avg_color;
-	bitmap->bm_flags |= bmh->flags & BM_FLAGS_TO_COPY;
+	gr_set_bitmap_flags(bitmap, bmh->flags & BM_FLAGS_TO_COPY);
 
 	cfseek(d1_Piggy_fp, bitmap_data_start + bmh->offset, SEEK_SET);
 	if (bmh->flags & BM_FLAG_RLE) {
@@ -1991,12 +2001,15 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 		zsize = bitmap->bm_h * bitmap->bm_w;
 
 	if (next_bitmap) {
-		bitmap->bm_data = *next_bitmap;
+		data = *next_bitmap;
 		*next_bitmap += zsize;
 	} else {
-		bitmap->bm_data = d_malloc(zsize + JUST_IN_CASE);
+		data = d_malloc(zsize + JUST_IN_CASE);
 	}
-	cfread(bitmap->bm_data, 1, zsize, d1_Piggy_fp);
+	if (!data) return;
+
+	cfread(data, 1, zsize, d1_Piggy_fp);
+	gr_set_bitmap_data(bitmap, data);
 	switch(pigsize) {
 	case D1_MAC_PIGSIZE:
 	case D1_MAC_SHARE_PIGSIZE:
@@ -2267,7 +2280,9 @@ void load_d1_bitmap_replacements()
 			     && !(bmh.dflags & DBM_FLAG_ABM) ) { /* d1 bitmap is not animated */
 				int i, len = p - AllBitmaps[d2_index].name;
 				for (i = 0; i < Num_bitmap_files; i++)
-					if (i != d2_index && ! memcmp(AllBitmaps[d2_index].name, AllBitmaps[i].name, len)) {
+					if (i != d2_index && ! memcmp(AllBitmaps[d2_index].name, AllBitmaps[i].name, len))
+					{
+						gr_set_bitmap_data(&GameBitmaps[i], NULL);	// free ogl texture
 						GameBitmaps[i] = GameBitmaps[d2_index];
 						GameBitmapOffset[i] = 0;
 						GameBitmapFlags[i] = bmh.flags;

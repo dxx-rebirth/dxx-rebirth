@@ -1,4 +1,4 @@
-/* $Id: bmread.c,v 1.11 2004-12-21 11:06:21 btb Exp $ */
+/* $Id: bmread.c,v 1.12 2005-01-10 17:47:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -242,7 +242,6 @@ bitmap_index bm_load_sub( char * filename )
 	return bitmap_num;
 }
 
-extern grs_bitmap bogus_bitmap;
 extern ubyte bogus_bitmap_initialized;
 extern digi_sound bogus_sound;
 

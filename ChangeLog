@@ -1,3 +1,8 @@
+2005-01-10  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* main/bmread.c, main/dumpmine.c, main/gameseq.c, main/piggy.c:
+	fix bug #1676 (filling up of OLG texture list)
+
 2005-01-07  Alexander Zielke  <vulture@vultures-nest.de>
 
 	* main/state.c: fix problems with copying/deleting save files

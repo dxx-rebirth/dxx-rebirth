@@ -1,4 +1,4 @@
-/* $Id: dumpmine.c,v 1.9 2004-12-21 11:24:23 btb Exp $ */
+/* $Id: dumpmine.c,v 1.10 2005-01-10 17:47:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: dumpmine.c,v 1.9 2004-12-21 11:24:23 btb Exp $";
+static char rcsid[] = "$Id: dumpmine.c,v 1.10 2005-01-10 17:47:27 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -65,7 +65,6 @@ static char rcsid[] = "$Id: dumpmine.c,v 1.9 2004-12-21 11:24:23 btb Exp $";
 #ifdef EDITOR
 
 extern ubyte bogus_data[64*64];
-extern grs_bitmap bogus_bitmap;
 
 void dump_used_textures_level(FILE *my_file, int level_num);
 void say_totals(FILE *my_file, char *level_name);

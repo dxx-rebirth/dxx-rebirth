@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.44 2005-01-06 03:59:32 btb Exp $ */
+/* $Id: gameseq.c,v 1.45 2005-01-10 17:47:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.44 2005-01-06 03:59:32 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.45 2005-01-10 17:47:27 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -862,9 +862,6 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	load_endlevel_data(level_num);
 
-	if ( page_in_textures )
-		piggy_load_level_data();
-
 	if (EMULATING_D1)
 		load_d1_bitmap_replacements();
 	else
@@ -884,6 +881,9 @@ void LoadLevel(int level_num,int page_in_textures)
 		Robot_replacements_loaded = 0;
 	}
 	load_robot_replacements(level_name);
+
+	if ( page_in_textures )
+		piggy_load_level_data();
 
 #ifdef NETWORK
 	my_segments_checksum = netmisc_calc_checksum(Segments, sizeof(segment)*(Highest_segment_index+1));
