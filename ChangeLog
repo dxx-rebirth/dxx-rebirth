@@ -1,3 +1,7 @@
+2004-05-22  Bradley Bell  <btb@icculus.org>
+
+	* rpm/d2x.spec.in: Changed descriptions
+
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
 	* arch/ogl/gr.c: fix compile when GL_NV_register_combiners isn't

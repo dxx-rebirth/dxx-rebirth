@@ -10,7 +10,7 @@ Copyright:     Freely Redistributable
 Packager:      btb@icculus.org
 
 Group:         Contrib/Games
-Summary:       The port of Descent 2 Version 1.2 for Linux.
+Summary:       The port of Descent 2 for Linux.
 Provides:      d2x, descent2
 
 URL:           http://icculus.org/d2x/
@@ -18,45 +18,45 @@ Source:        d2x-%{version}.tar.gz
 BuildRoot:     /var/tmp/%name-buildroot
 
 %description
-This is the port of Descent 2 Version 1.2, the famous 3D game for PC.
+This is the port of Descent 2, the famous 3D game for PC.
 
 D2X is based on source code that was released the 14 December 1999 by
 Parallax Software Corporation.
 
-To use this package you'll need the datafiles from the Retail version
-of Descent 2 Version 1.2 installed in /usr/share/games/descent2.
+To use this package you'll need some datafiles installed in
+/usr/share/games/descent2.  See installation.txt.
 
 %package -n d2x-sdl
 Group:         Contrib/Games
-Summary:       Descent 2 Version 1.2 for Linux, SDL version.
+Summary:       Descent 2 for Linux, SDL version.
 Provides:      d2x-sdl
 Requires:      d2x
 
 %description -n d2x-sdl
-This is the port of Descent 2 Version 1.2, the famous 3D game for PC.
+This is the port of Descent 2, the famous 3D game for PC.
 
 D2X is based on source code that was released the 14 December 1999 by
 Parallax Software Corporation.
 
-To use this package you'll need the datafiles from the Retail version
-of Descent 2 Version 1.2 installed in /usr/share/games/descent2.
+To use this package you'll need some datafiles installed in
+/usr/share/games/descent2.  See installation.txt.
 
 This version uses SDL for Audio, Input/Output and graphics rendering.
 
 %package -n d2x-gl
 Group:         Contrib/Games
-Summary:       Descent 2 Version 1.2 for Linux, OpenGL version.
+Summary:       Descent 2 for Linux, OpenGL version.
 Provides:      d2x-gl
 Requires:      d2x
 
 %description -n d2x-gl
-This is the port of Descent 2 Version 1.2, the famous 3D game for PC.
+This is the port of Descent 2, the famous 3D game for PC.
 
 D2X is based on source code that was released the 14 December 1999 by
 Parallax Software Corporation.
 
-To use this package you'll need the datafiles from the Retail version
-of Descent 2 Version 1.2 installed in /usr/share/games/descent2.
+To use this package you'll need some datafiles installed in
+/usr/share/games/descent2.  See installation.txt.
 
 This version uses SDL for Audio and Input/Output and OpenGL for graphics
 rendering.
@@ -137,6 +137,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/games/d2x-gl.real
 
 %changelog
+* Thu Oct 16 2003 - Bradley Bell <btb@icculus.org>
+- Changed descriptions
 * Sun Jul 13 2003 - Paolo Ulivi <pulivi@libero.it>
 - Build correctly with gcc3.
 - Build all of the utilities and install manpages.
