@@ -3,6 +3,9 @@
 	* include/d.bat, include/lst.bat, include/m.bat, include/test.c,
 	include/test.lnk: remove unnecessary files
 
+	* configure.ac: add -no-cpp-precomp when compiling on Mac OS X.
+	This enables compilation with gcc 3.1
+
 2004-05-17  Dietfrid Mali  <dietfrid.mali@q-dial.de>
 
 	* main/switch.c: took care of switches triggering single-sided

@@ -67,6 +67,7 @@ case $host_os in
 	#CONFIGDIR='HOME>>Library/Preferences'
 	#CONFIGFILE='KoboDeluxe Preferences'
 	MATHLIB=""
+	CFLAGS="-no-cpp-precomp $CFLAGS"
 	;;
     msdos*)
         MSDOS=yes
