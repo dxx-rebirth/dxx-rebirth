@@ -1,5 +1,7 @@
 2005-03-17  Bradley Bell  <btb@icculus.org>
 
+	* Add RCS ID tag
+
 	* README, VisualC/d2x/d2x.dsp, VisualC/d2xgl/d2xgl.dsp,
 	VisualC/libmve/libmve.dsp, VisualC/mveplayer/mveplayer.dsp:
 	Update SDL to 1.2.8
