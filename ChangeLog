@@ -1,7 +1,9 @@
 2005-01-23  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
-	* main/collide: fix bug #2140, even ifndef NETWORK do last level hack
+	* main/collide.c: fix bug #2140: even ifndef NETWORK do last level hack
 	only on last level of built-in mission.
+	* main/gauges.c: fix bug #2110: redraw energy/afterburner gauges
+	whenever necessary
 
 2005-01-10  Chris Taylor  <c.taylor@student.curtin.edu.au>
 

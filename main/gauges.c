@@ -1,4 +1,4 @@
-/* $Id: gauges.c,v 1.12 2005-01-06 05:25:59 btb Exp $ */
+/* $Id: gauges.c,v 1.13 2005-01-23 13:41:42 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2717,28 +2717,28 @@ void sb_draw_energy_bar(energy)
 	int erase_height, w, h, aw;
 	char energy_str[20];
 
-	gr_set_current_canvas( Canv_SBEnergyGauge );
-
-	PAGE_IN_GAUGE( SB_GAUGE_ENERGY );
-	gr_ubitmapm( 0, 0, &GameBitmaps[ GET_GAUGE_INDEX(SB_GAUGE_ENERGY) ] );
-
-	erase_height = (100 - energy) * SB_ENERGY_GAUGE_H / 100;
-
-	if (erase_height > 0) {
-		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect(0,0,SB_ENERGY_GAUGE_W-1,erase_height-1);
-	}
+	//gr_set_current_canvas( Canv_SBEnergyGauge );
 
 	WINDOS(
 	dd_gr_set_current_canvas(get_current_game_screen()),
 	gr_set_current_canvas(get_current_game_screen())
 	);
-
 	WIN(DDGRLOCK(dd_grd_curcanv));
+
+	PAGE_IN_GAUGE( SB_GAUGE_ENERGY );
+	gr_ubitmapm(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_ENERGY)]);
+
+	erase_height = (100 - energy) * SB_ENERGY_GAUGE_H / 100;
+
+	if (erase_height > 0) {
+		gr_setcolor( BM_XRGB(0,0,0) );
+		gr_rect(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_ENERGY_GAUGE_X + SB_ENERGY_GAUGE_W - 1, SB_ENERGY_GAUGE_Y + erase_height - 1);
+	}
+
    PA_DFX (pa_set_frontbuffer_current());
    PA_DFX (gr_ubitmapm( SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &Canv_SBEnergyGauge->cv_bitmap));
    PA_DFX (pa_set_backbuffer_current());
-	gr_ubitmapm( SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &Canv_SBEnergyGauge->cv_bitmap );
+	//gr_ubitmapm( SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &Canv_SBEnergyGauge->cv_bitmap );
 
 	//draw numbers
 	sprintf(energy_str, "%d", energy);
@@ -2756,24 +2756,24 @@ void sb_draw_afterburner()
 	int erase_height, w, h, aw;
 	char ab_str[3] = "AB";
 
-	gr_set_current_canvas( Canv_SBAfterburnerGauge );
+	//gr_set_current_canvas( Canv_SBAfterburnerGauge );
+	WINDOS(
+		dd_gr_set_current_canvas(get_current_game_screen()),
+		gr_set_current_canvas(get_current_game_screen())
+	);
+	WIN(DDGRLOCK(dd_grd_curcanv));
 	PAGE_IN_GAUGE( SB_GAUGE_AFTERBURNER );
-	gr_ubitmapm( 0, 0, &GameBitmaps[ GET_GAUGE_INDEX(SB_GAUGE_AFTERBURNER) ] );
+	gr_ubitmapm(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_AFTERBURNER)]);
 
 	erase_height = fixmul((f1_0 - Afterburner_charge),SB_AFTERBURNER_GAUGE_H);
 
 	if (erase_height > 0) {
 		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect(0,0,SB_AFTERBURNER_GAUGE_W-1,erase_height-1);
+		gr_rect(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_AFTERBURNER_GAUGE_X + SB_AFTERBURNER_GAUGE_W - 1, SB_AFTERBURNER_GAUGE_Y + erase_height - 1);
 	}
 
-WINDOS(
-	dd_gr_set_current_canvas(get_current_game_screen()),
-	gr_set_current_canvas(get_current_game_screen())
-);
-WIN(DDGRLOCK(dd_grd_curcanv));
    PA_DFX (pa_set_frontbuffer_current());
-	gr_ubitmapm( SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, &Canv_SBAfterburnerGauge->cv_bitmap );
+	//gr_ubitmapm( SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, &Canv_SBAfterburnerGauge->cv_bitmap );
    PA_DFX (pa_set_backbuffer_current());
 	PA_DFX (gr_ubitmapm( SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, &Canv_SBAfterburnerGauge->cv_bitmap ));
 
