@@ -179,7 +179,7 @@ ushort long_sqrt (int32_t a);
 
 //computes the square root of a quadint, returning a long
 u_int32_t quad_sqrt (u_int32_t low, int32_t high);
-//ulong quad_sqrt (long low, long high);
+//unsigned long quad_sqrt (long low, long high);
 
 //computes the square root of a fix, returning a fix
 fix fix_sqrt (fix a);

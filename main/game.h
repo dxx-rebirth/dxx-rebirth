@@ -1,4 +1,4 @@
-/* $Id: game.h,v 1.5 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: game.h,v 1.6 2003-12-08 22:32:56 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -421,7 +421,7 @@ extern void apply_modified_palette(void);
 //Flickering light system
 typedef struct  {
 	short segnum, sidenum;
-	ulong mask;             // determines flicker pattern
+	unsigned long mask;     // determines flicker pattern
 	fix timer;              // time until next change
 	fix delay;              // time between changes
 } flickering_light;
@@ -441,7 +441,7 @@ void disable_flicker(int segnum, int sidenum);
 void enable_flicker(int segnum, int sidenum);
 
 // returns 1 if ok, 0 if error
-int add_flicker(int segnum, int sidenum, fix delay, ulong mask);
+int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask);
 
 int gr_toggle_fullscreen_game(void);
 

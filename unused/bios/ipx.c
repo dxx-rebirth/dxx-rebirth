@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #pragma off (unreferenced)
-static char rcsid[] = "$Id: ipx.c,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $";
+static char rcsid[] = "$Id: ipx.c,v 1.2 2003-12-08 22:32:56 btb Exp $";
 #pragma on (unreferenced)
 
 #include <i86.h>
@@ -577,7 +577,7 @@ void ipx_read_user_file(char * filename)
 	printf( "Broadcast Users:\n" );
 
 	while (fgets(temp_line, 132, fp)) {
-		ulong net;
+		unsigned long net;
 		char *np;
 		ln++;
 		p1 = strchr(temp_line,'\n'); if (p1) *p1 = '\0';
@@ -638,7 +638,7 @@ void ipx_read_network_file(char * filename)
 	}
 
 	while (fgets(temp_line, 132, fp)) {
-		ulong net;
+		unsigned long net;
 		ln++;
 		p1 = strchr(temp_line,'\n'); if (p1) *p1 = '\0';
 		p1 = strchr(temp_line,';'); if (p1) *p1 = '\0';

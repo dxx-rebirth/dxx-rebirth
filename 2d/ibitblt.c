@@ -1,4 +1,4 @@
-/* $Id: ibitblt.c,v 1.8 2003-11-07 06:16:15 btb Exp $ */
+/* $Id: ibitblt.c,v 1.9 2003-12-08 22:32:56 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -62,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ibitblt.c,v 1.8 2003-11-07 06:16:15 btb Exp $";
+static char rcsid[] = "$Id: ibitblt.c,v 1.9 2003-12-08 22:32:56 btb Exp $";
 #endif
 
 #ifdef __MSDOS__ //ndef MACINTOSH
@@ -529,7 +529,7 @@ ubyte   *gr_ibitblt_create_mask( grs_bitmap * mask_bmp, int sx, int sy, int sw, 
 }
 
 #if defined(POLY_ACC)
-ulong *pa_emit_blit(int gencode, ulong *buf, int w, int h, int sx, int sy, int dx, int dy)
+unsigned long *pa_emit_blit(int gencode, unsigned long *buf, int w, int h, int sx, int sy, int dx, int dy)
 {
 	if(w == 0 || h == 0)
 		return buf;
@@ -545,7 +545,7 @@ ulong *pa_emit_blit(int gencode, ulong *buf, int w, int h, int sx, int sy, int d
 
 ubyte   *gr_ibitblt_create_mask_pa( grs_bitmap * mask_bmp, int sx, int sy, int sw, int sh, int srowsize )
 {
-	ulong *ret, *code = 0;
+	unsigned long *ret, *code = 0;
 	int pass, x, y, n;
 	ushort *s;
 
@@ -573,8 +573,8 @@ ubyte   *gr_ibitblt_create_mask_pa( grs_bitmap * mask_bmp, int sx, int sy, int s
 		}
 		if(pass == 0)
 		{
-			ret = malloc((int)code + sizeof(ulong));
-			ret[0] = (int)code / sizeof(ulong);        // store num ulongs in list.
+			ret = malloc((int)code + sizeof(unsigned long));
+			ret[0] = (int)code / sizeof(unsigned long);        // store num unsigned longs in list.
 			code = ret + 1;
 		}
 	}
@@ -753,7 +753,7 @@ void gr_ibitblt(grs_bitmap *src_bmp, grs_bitmap *dest_bmp, ubyte pixel_double)
 
 #if defined(POLY_ACC)
 
-ulong *pa_emit_blit(int gencode, ulong *buf, int w, int h, int sx, int sy, int dx, int dy)
+unsigned long *pa_emit_blit(int gencode, unsigned long *buf, int w, int h, int sx, int sy, int dx, int dy)
 {
 	if(w == 0 || h == 0)
 		return buf;
@@ -769,7 +769,7 @@ ulong *pa_emit_blit(int gencode, ulong *buf, int w, int h, int sx, int sy, int d
 
 void gr_ibitblt_create_mask_pa( grs_bitmap * mask_bmp, int sx, int sy, int sw, int sh, int srowsize )
 {
-	ulong *ret, *code = 0;
+	unsigned long *ret, *code = 0;
 	int pass, x, y, n;
 	ushort *s;
 
@@ -797,8 +797,8 @@ void gr_ibitblt_create_mask_pa( grs_bitmap * mask_bmp, int sx, int sy, int sw, i
 		}
 
 		if(pass == 0) {
-			ret = malloc((int)code + sizeof(ulong));
-			ret[0] = (int)code / sizeof(ulong);        // store num ulongs in list.
+			ret = malloc((int)code + sizeof(unsigned long));
+			ret[0] = (int)code / sizeof(unsigned long);        // store num unsigned longs in list.
 			code = ret + 1;
 		}
 	}

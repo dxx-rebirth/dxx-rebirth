@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.24 2003-11-18 00:29:53 btb Exp $ */
+/* $Id: game.c,v 1.25 2003-12-08 22:32:56 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -407,7 +407,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.24 2003-11-18 00:29:53 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.25 2003-12-08 22:32:56 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -3418,7 +3418,7 @@ void enable_flicker(int segnum,int sidenum)
 #ifdef EDITOR
 
 //returns 1 if ok, 0 if error
-int add_flicker(int segnum,int sidenum,fix delay,ulong mask)
+int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask)
 {
 	int l;
 	flickering_light *f;

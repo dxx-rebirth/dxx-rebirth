@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.24 2003-11-27 04:05:14 btb Exp $ */
+/* $Id: pstypes.h,v 1.25 2003-12-08 22:32:56 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,10 +40,6 @@ typedef unsigned char ubyte;
 #ifndef __unix__
 typedef unsigned short ushort;
 typedef unsigned int uint;
-typedef unsigned long ulong;
-#endif
-#if defined(__APPLE__) && defined(__MACH__)
-typedef unsigned long ulong;
 #endif
 
 #ifndef __unix__

@@ -53,7 +53,7 @@ typedef struct _ogl_texture {
 	GLfloat prio;
 	int wrapstate;
 	fix lastrend;
-	ulong numrend;
+	unsigned long numrend;
 	char wantmip;
 } ogl_texture;
 
