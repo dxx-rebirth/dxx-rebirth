@@ -9,6 +9,7 @@
 	* include/ui.h, ui/barbox.c: make ui_barbox_update return void
 	* patching file ui/file.c, ui/listbox.c, file ui/mouse.c, ui/scroll.c,
 	ui/window.c: use timer_get_fixed_seconds instead of TICKER macro
+	* ui/number.c: s/inputbox/Inputbox/
 
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
