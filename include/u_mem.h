@@ -11,6 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
  
+#include <stdlib.h>
+
 #ifdef MACINTOSH
 extern ubyte virtual_memory_on;
 #endif
@@ -35,10 +37,9 @@ void mem_validate_heap();
 
 #else
 
-#define free(ptr)       do{ free(ptr); ptr=NULL; } while(0)
+#define d_malloc(size)    malloc(size)
+#define d_free(ptr)       do{ free(ptr); ptr=NULL; } while(0)
 
 #define MALLOC( var, type, count )   (var=(type *)malloc((count)*sizeof(type)))
 
 #endif
-
-
