@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.25 2004-05-20 07:25:14 btb Exp $ */
+/* $Id: gr.h,v 1.26 2004-05-22 02:01:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -650,6 +650,14 @@ int gr_toggle_fullscreen(void);
 
 #endif /* defined(SDL_VIDEO) || defined(OGL)) */
 
+/* currently only OGL can toggle in the menus, because its screen data
+ * is not used (and stays in the same place).  whereas software modes,
+ * toggling fullscreen would very likely make the data buffer point to
+ * a different location, and all the subbitmaps of it would have
+ * invalid addresses in them. */
+#ifdef OGL
+#define GR_SUPPORTS_FULLSCREEN_MENU_TOGGLE
+#endif
 int gr_toggle_fullscreen_menu(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)
 
 #endif /* def _GR_H */
