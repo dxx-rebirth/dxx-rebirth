@@ -36,10 +36,7 @@ see installation.txt for info on where to put your datafiles, etc.
 
 Known bugs/issues:
 
-* Serial support doesn't work. (UDP and IPX networking does (btb: it
-  does? UDP?!))
-
-
+* Serial support doesn't work. (UDP and IPX networking does)
 * Sound glitches (due to stuff I haven't implemented)
 * The mouse support is at the same level as it was in d1x (as in, it
   kind of works) (btb: works pretty good for me.)
