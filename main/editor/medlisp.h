@@ -1,4 +1,4 @@
-/* $Id: medlisp.h,v 1.2 2004-12-19 14:52:48 btb Exp $ */
+/* $Id: medlisp.h,v 1.3 2004-12-19 15:21:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,9 +11,15 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+#ifndef _MEDLISP_H
+#define _MEDLISP_H
+
 int     medlisp_init();
 void    medlisp_go();
 void    medlisp_do_string( char * s, int length, int show_results );
 void    medlisp_close();
 int     medlisp_attach_function( char * LispFuncName, double (* Cfunction)(void), int NumArgs );
 extern  double medlisp_args[];
+
+#endif

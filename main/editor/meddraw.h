@@ -1,4 +1,4 @@
-/* $Id: meddraw.h,v 1.2 2004-12-19 14:52:48 btb Exp $ */
+/* $Id: meddraw.h,v 1.3 2004-12-19 15:21:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,11 +18,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-
 #ifndef _MEDDRAW_H
 #define _MEDDRAW_H
-
 
 void meddraw_init_views( grs_canvas * canvas);
 void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int depth);

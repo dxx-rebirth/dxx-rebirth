@@ -1,4 +1,4 @@
-/* $Id: objpage.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
+/* $Id: objpage.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,15 +18,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-
 #ifdef RCS
-static char rcsid[] = "$Id: objpage.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
+static char rcsid[] = "$Id: objpage.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
 #endif
 
 // Num_robot_types -->  N_polygon_models
 // Cur_robot_type --> Cur_robot_type
 // Texture[Cur_robot_type]->bitmap  ---> robot_bms[robot_bm_nums[ Cur_robot_type ] ] 
+
+#ifdef HAVE_CONFIG_H
+#include "conf.h"
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>

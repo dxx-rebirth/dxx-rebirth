@@ -81,6 +81,33 @@
 	main/editor/texpage.h, main/editor/texture.c: Move old logs to
 	ChangeLog-old
 
+	* main/editor/autosave.c main/editor/centers.c
+	main/editor/centers.h main/editor/curves.c main/editor/eglobal.c
+	main/editor/ehostage.c main/editor/ehostage.h main/editor/elight.c
+	main/editor/eobject.c main/editor/eobject.h main/editor/eswitch.c
+	main/editor/fixseg.c main/editor/func.c main/editor/group.c
+	main/editor/info.c main/editor/info.h main/editor/kbuild.c
+	main/editor/kcurve.c main/editor/kfuncs.c main/editor/kfuncs.h
+	main/editor/kgame.c main/editor/khelp.c main/editor/kmine.c
+	main/editor/ksegmove.c main/editor/ksegsel.c
+	main/editor/ksegsize.c main/editor/ktmap.c main/editor/kview.c
+	main/editor/macro.c main/editor/macro.h main/editor/meddraw.c
+	main/editor/meddraw.h main/editor/medlisp.h main/editor/medmisc.c
+	main/editor/medmisc.h main/editor/medrobot.c
+	main/editor/medrobot.h main/editor/medsel.c main/editor/medsel.h
+	main/editor/medwall.c main/editor/mine.c main/editor/objpage.c
+	main/editor/seguvs.c main/editor/seguvs.h main/editor/texpage.c
+	main/editor/texpage.h main/editor/texture.c ui/barbox.c
+	ui/button.c ui/checkbox.c ui/file.c ui/func.c ui/gadget.c
+	ui/harderr.c ui/icon.c ui/inputbox.c ui/keypad.c ui/keypress.c
+	ui/keytrap.c ui/listbox.c ui/medfunc.c ui/menu.c ui/menubar.c
+	ui/message.c ui/mouse.c ui/number.c ui/popup.c ui/radio.c
+	ui/scroll.c ui/ui.c ui/uidraw.c ui/userbox.c ui/window.c: include
+	conf.h in new editor files
+
+
+:
+
 2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/state.c: open autosave file for writing, not reading

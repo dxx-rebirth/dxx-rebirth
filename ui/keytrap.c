@@ -1,3 +1,9 @@
+/* $Id: keytrap.c,v 1.2 2004-12-19 15:21:11 btb Exp $ */
+
+#ifdef HAVE_CONFIG_H
+#include "conf.h"
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -31,8 +37,3 @@ void ui_keytrap_do( UI_GADGET_KEYTRAP * keytrap, int keypress )
 		result = keytrap->user_function();
 	}
 }
-
-
-
-
-ÿ

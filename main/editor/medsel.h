@@ -1,4 +1,4 @@
-/* $Id: medsel.h,v 1.2 2004-12-19 14:52:48 btb Exp $ */
+/* $Id: medsel.h,v 1.3 2004-12-19 15:21:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,8 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * rountines stipped from med.c for segment selection
  *
  */
-
-
 
 #ifndef _MEDSEL_H
 #define _MEDSEL_H
