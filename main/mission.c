@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.13 2002-08-30 00:57:06 btb Exp $ */
+/* $Id: mission.c,v 1.14 2002-10-10 19:11:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -401,7 +401,7 @@ int build_mission_list(int anarchy_mode)
 		add_missions_to_list(search_name, &count, anarchy_mode);
 	}
 
-	// move original missions (in stroy-chronological order)
+	// move original missions (in story-chronological order)
 	// to top of mission list
 	top_place = 0;
 	promote("descent", &top_place, count); // original descent 1 mission
