@@ -22,15 +22,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int filelength(int fd);
 
 // routines which read basic data types
-extern byte read_byte(FILE *fp);
-extern short read_short(FILE *fp);
-extern int read_int(FILE *fp);
-extern fix read_fix(FILE *fp);
+extern byte file_read_byte(FILE *fp);
+extern short file_read_short(FILE *fp);
+extern int file_read_int(FILE *fp);
+extern fix file_read_fix(FILE *fp);
 
 // routines which write basic data types
-extern int write_byte(FILE *fp, byte b);
-extern int write_short(FILE *fp, short s);
-extern int write_int(FILE *fp, int i);
-extern int write_fix(FILE *fp, fix f);
+extern int file_write_byte(FILE *fp, byte b);
+extern int file_write_short(FILE *fp, short s);
+extern int file_write_int(FILE *fp, int i);
+extern int file_write_fix(FILE *fp, fix f);
 
 #endif
