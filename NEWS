@@ -1,3 +1,11 @@
+--- Version 0.1.2 ---
+Menus now work in OpenGL!
+You can now use the -tmap option to select between the different
+texture mapping routines (c, fp, i386, pent, ppro) at runtime.
+Please bear with me while the source undergoes some rather ugly
+reorganization to fit more closely to the layout of d1x. This makes
+synchronization with d1x far, far easier.
+
 --- Version 0.1.1 ---
 Assembly under mingw32 now works.
 Invulnerable robots bug fixed!
