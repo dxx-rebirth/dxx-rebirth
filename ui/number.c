@@ -1,4 +1,4 @@
-/* $Id: number.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: number.c,v 1.5 2005-01-25 19:37:59 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: number.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: number.c,v 1.5 2005-01-25 19:37:59 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -35,8 +35,8 @@ double ui_input_number( short xc, short yc, char * text, double OrgNumber )
 	UI_WINDOW * wnd;
 	UI_GADGET_INPUTBOX * InputBox;
 
-	short i, width, height, avg, x, y;
-	short box_width, box_height, text_height, text_width;
+	int text_width, text_height, avg;
+	short box_width, box_height, width, height, x, y;
 	short w, h;
 	char string[100];
 
