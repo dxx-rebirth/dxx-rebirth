@@ -1,3 +1,7 @@
+2003-03-20  Martin Schaffner <maschaffner@gmx.ch>
+
+	* 2d/rle.c: fix color swapping on big endian of big rle bitmaps
+
 2003-03-19  Bradley Bell  <btb@icculus.org>
 
 	* arch/sdl/rbaudio.c, include/rbaudio.h: starting d2 cd detection
