@@ -4,15 +4,17 @@ EXTRA_SUBDIRS = includes tools unused
 
 dist-hook:
 	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
-	 tar --exclude=CVS -cf - $$subdir | ( cd $(distdir) && tar xf - ) \
+	 ( cd $(srcdir) && tar --exclude=CVS/ -cf - $$subdir ) \
+	  | ( cd $(distdir) && tar xf - ) \
 	done
 	$(MAKE) changelog
 	cp -a ChangeLog $(distdir)
 
 changelog::
-	-touch ChangeLog
-	-tools/cvs2cl/cvs2cl.pl -b --utc
-	-rm -f ChangeLog.bak
+	rm -f $(srcdir)/ChangeLog
+	touch $(srcdir)/ChangeLog
+	$(srcdir)/tools/cvs2cl/cvs2cl.pl -b --utc
+	rm -f ChangeLog.bak
 
 EXTRA_DIST = \
 ChangeLog \

@@ -44,5 +44,6 @@ dos_modex.asm dos_timer.asm
 
 dist-hook:
 	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
-	 tar --exclude=CVS -cf - $$subdir | ( cd $(distdir) && tar xf - ) \
+	 ( cd $(srcdir) && tar --exclude=CVS -cf - $$subdir ) \
+	  | ( cd $(distdir) && tar xf - ) \
 	done
