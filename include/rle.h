@@ -33,15 +33,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-
 #ifndef _RLE_H
 #define _RLE_H
 
 #include "pstypes.h"
 #include "gr.h"
 
-void gr_rle_decode( ubyte * src, ubyte * dest );
+void gr_rle_decode( ubyte * src, ubyte * dest, int dest_len );
 int gr_rle_encode( int org_size, ubyte *src, ubyte *dest );
 int gr_rle_getsize( int org_size, ubyte *src );
 ubyte * gr_rle_find_xth_pixel( ubyte *src, int x,int * count, ubyte color );
