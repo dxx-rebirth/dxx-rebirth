@@ -1,6 +1,7 @@
 2004-11-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/gamemine.c, main/piggy.c: compile again on older C compilers
+	* main/polyobj.c: don't corrupt model_data, so it can be freed properly
 
 2004-11-16  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
