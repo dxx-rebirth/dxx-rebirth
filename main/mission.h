@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.19 2004-10-23 18:59:02 schaffner Exp $ */
+/* $Id: mission.h,v 1.20 2004-10-23 19:15:46 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -95,7 +95,7 @@ extern char Level_names[MAX_LEVELS_PER_MISSION][FILENAME_LEN];
 extern char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
 
 //fills in the global list of missions.  Returns the number of missions
-//in the list.  If anarchy_mode set, don't include non-anarchy levels.
+//in the list.  If anarchy_mode is set, then also add anarchy-only missions.
 //if there is only one mission, this function will call load_mission on it.
 int build_mission_list(int anarchy_mode);
 

@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.27 2004-10-23 18:59:02 schaffner Exp $ */
+/* $Id: mission.c,v 1.28 2004-10-23 19:15:46 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -487,7 +487,7 @@ void promote (char * mission_name, int * top_place, int num_missions)
 
 
 //fills in the global list of missions.  Returns the number of missions
-//in the list.  If anarchy_mode set, don't include non-anarchy levels.
+//in the list.  If anarchy_mode is set, then also add anarchy-only missions.
 
 extern char CDROM_dir[];
 extern char AltHogDir[];
