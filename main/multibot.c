@@ -1,3 +1,4 @@
+/* $Id: multibot.c,v 1.3 2003-08-02 07:32:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,19 +8,13 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/multibot.c,v $
- * $Revision: 1.2 $
- * $Author: bradleyb $
- * $Date: 2001-10-23 21:53:19 $
  *
- * FIXME: put description here
- *
- * $Log: not supported by cvs2svn $
+ * Multiplayer robot code
  *
  */
 
@@ -457,7 +452,7 @@ multi_send_robot_position_sub(int objnum)
 {
 	int loc = 0;
 	short s;
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
 
@@ -469,7 +464,7 @@ multi_send_robot_position_sub(int objnum)
 	*(short *)(multibuf+loc) = INTEL_SHORT(s);						
 
 																		loc += 3;
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	create_shortpos((shortpos *)(multibuf+loc), Objects+objnum,0);		loc += sizeof(shortpos);
 #else
 	create_shortpos(&sp, Objects+objnum, 1);
@@ -522,7 +517,7 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 	// Send robot fire event
 	int loc = 0;
 	short s;
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	vms_vector swapped_vec;
 #endif
 
@@ -532,7 +527,7 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 	*(short *)(multibuf+loc) = INTEL_SHORT(s);
 																		loc += 3;
 	multibuf[loc] = gun_num;									loc += 1;
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	*(vms_vector *)(multibuf+loc) = *fire;					loc += sizeof(vms_vector); // 12
 	// 																--------------------------
 	//																 	Total = 18
@@ -650,7 +645,7 @@ multi_send_create_robot_powerups(object *del_obj)
 
 	int loc = 0;
 	int i;
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	vms_vector swapped_vec;
 #endif
 
@@ -660,7 +655,7 @@ multi_send_create_robot_powerups(object *del_obj)
 	multibuf[loc] = del_obj->contains_type; 					loc += 1;
 	multibuf[loc] = del_obj->contains_id;						loc += 1;
 	*(short *)(multibuf+loc) = INTEL_SHORT(del_obj->segnum);	loc += 2;
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	*(vms_vector *)(multibuf+loc) = del_obj->pos;				loc += 12;
 #else
 	swapped_vec.x = (fix)INTEL_INT((int)del_obj->pos.x);
@@ -776,7 +771,7 @@ multi_do_robot_position(char *buf)
 	short botnum;
 	char pnum;
 	int loc = 1;
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
 
@@ -819,7 +814,7 @@ multi_do_robot_position(char *buf)
 	set_thrust_from_velocity(&Objects[botnum]); // Try to smooth out movement
 //	Objects[botnum].phys_info.drag = Robot_info[Objects[botnum].id].drag >> 4; // Set drag to low
 
-#ifndef MACINTOSH	
+#ifndef WORDS_BIGENDIAN
 	extract_shortpos(&Objects[botnum], (shortpos *)(buf+loc), 0);
 #else
 	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + loc), 9);		loc += 9;

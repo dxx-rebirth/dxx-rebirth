@@ -1,4 +1,4 @@
-/* $Id: linuxnet.c,v 1.8 2003-03-19 23:20:09 btb Exp $ */
+/* $Id: linuxnet.c,v 1.9 2003-08-02 07:32:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,6 +40,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //added 05/17/99 Matt Mueller - needed to redefine FD_* so that no asm is used
 //#include "checker.h"
 //end addition -MM
+#include "byteswap.h"
+
 #define MAX_IPX_DATA 576
 
 int ipx_fd;
@@ -161,7 +163,7 @@ int ipx_get_packet_data( ubyte * data )
 		      sizeof(buf), &rd)) > 4) {
 		     if (!memcmp(rd.src_network, ipx_MyAddress, 10)) 
 		     	continue;	/* don't get own pkts */
-//--killed--		     pkt_num = *(uint *)buf;
+//--killed--		     pkt_num = INTEL_INT(*(uint *)buf);
 //--killed--		     if (pkt_num >= best_id) {
 		     	memcpy(data, buf + 4, size - 4);
 				return size-4;
@@ -183,7 +185,8 @@ void ipx_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *ad
 	memcpy(ipx_header.Destination.Node, immediate_address, 6);
 	*(u_short *)ipx_header.Destination.Socket = htons(ipx_socket_data.socket);
 	ipx_header.PacketType = 4; /* Packet Exchange */
-	*(uint *)buf = ipx_packetnum++;
+	*(uint *)buf = INTEL_INT(ipx_packetnum);
+	ipx_packetnum++;
     //ipx_packettotal+=datasize+4;
     //if (f2i(Players[Player_num].time_level) && (f2i(Players[Player_num].time_level)%10!=ipx_lastspeed))
 	//{

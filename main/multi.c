@@ -1,4 +1,4 @@
-/* $Id: multi.c,v 1.10 2003-06-16 07:11:40 btb Exp $ */
+/* $Id: multi.c,v 1.11 2003-08-02 07:32:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1644,7 +1644,7 @@ multi_do_message(char *buf)
 void
 multi_do_position(char *buf)
 {
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
 
@@ -1662,7 +1662,7 @@ multi_do_position(char *buf)
     }
 
 
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos *)(buf+1),0);
 #else
 	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + 1), 9);
@@ -2100,7 +2100,7 @@ multi_do_controlcen_fire(char *buf)
 	int count = 1;
 
 	memcpy(&to_target, buf+count, 12);      count += 12;
-#ifdef MACINTOSH	// swap the vector to_target
+#ifdef WORDS_BIGENDIAN	// swap the vector to_target
 	to_target.x = (fix)INTEL_INT((int)to_target.x);
 	to_target.y = (fix)INTEL_INT((int)to_target.y);
 	to_target.z = (fix)INTEL_INT((int)to_target.z);
@@ -2136,7 +2136,7 @@ multi_do_create_powerup(char *buf)
 	}
 
 	new_pos = *(vms_vector *)(buf+count); count+=sizeof(vms_vector);
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	new_pos.x = (fix)SWAPINT((int)new_pos.x);
 	new_pos.y = (fix)SWAPINT((int)new_pos.y);
 	new_pos.z = (fix)SWAPINT((int)new_pos.z);
@@ -2851,7 +2851,7 @@ multi_send_reappear()
 void
 multi_send_position(int objnum)
 {
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
 	int count=0;
@@ -2861,7 +2861,7 @@ multi_send_position(int objnum)
 	}
 
 	multibuf[count++] = (char)MULTI_POSITION;
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	create_shortpos((shortpos *)(multibuf+count), Objects+objnum,0);
 	count += sizeof(shortpos);
 #else
@@ -3050,13 +3050,13 @@ multi_send_create_explosion(int pnum)
 void
 multi_send_controlcen_fire(vms_vector *to_goal, int best_gun_num, int objnum)
 {
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	vms_vector swapped_vec;
 #endif
 	int count = 0;
 
 	multibuf[count] = MULTI_CONTROLCEN_FIRE;                count +=  1;
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	memcpy(multibuf+count, to_goal, 12);                    count += 12;
 #else
 	swapped_vec.x = (fix)INTEL_INT( (int)to_goal->x );
@@ -3078,7 +3078,7 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 	// placement of used powerups like missiles and cloaking
 	// powerups.
 
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	vms_vector swapped_vec;
 #endif
 	int count = 0;
@@ -3091,7 +3091,7 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 	multibuf[count] = powerup_type;                                 count += 1;
 	*(short *)(multibuf+count) = INTEL_SHORT( (short)segnum );     count += 2;
 	*(short *)(multibuf+count) = INTEL_SHORT( (short)objnum );     count += 2;
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	*(vms_vector *)(multibuf+count) = *pos;         count += sizeof(vms_vector);
 #else
 	swapped_vec.x = (fix)INTEL_INT( (int)pos->x );
@@ -3907,7 +3907,7 @@ void multi_do_drop_weapon (char *buf)
 
 void multi_send_guided_info (object *miss,char done)
 {
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
 	int count=0;
@@ -3918,7 +3918,7 @@ void multi_send_guided_info (object *miss,char done)
 	multibuf[count++]=(char)Player_num;
 	multibuf[count++]=done;
 
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	create_shortpos((shortpos *)(multibuf+count), miss,0);
 	count+=sizeof(shortpos);
 #else
@@ -3937,7 +3937,7 @@ void multi_do_guided (char *buf)
 	char pnum=buf[1];
 	int count=3;
 	static int fun=200;
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
 
@@ -3969,7 +3969,7 @@ void multi_do_guided (char *buf)
 		return;
 	}
 
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	extract_shortpos(Guided_missile[(int)pnum], (shortpos *)(buf+count),0);
 #else
 	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + count), 9);
@@ -4326,7 +4326,9 @@ void multi_do_powerup_update (char *buf)
 extern active_door ActiveDoors[];
 extern int Num_open_doors;          // Number of open doors
 
-void multi_send_active_door (char i)
+
+#if 0 // never used...
+void multi_send_active_door (int i)
 {
 	int count;
 
@@ -4334,13 +4336,13 @@ void multi_send_active_door (char i)
 	multibuf[1]=i;
 	multibuf[2]=Num_open_doors;
 	count = 3;
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	memcpy ((char *)(&multibuf[3]),&ActiveDoors[(int)i],sizeof(struct active_door));
 	count += sizeof(active_door);
 #else
 	*(int *)(multibuf + count) = INTEL_INT(ActiveDoors[i].n_parts);                 count += 4;
 	*(short *)(multibuf + count) = INTEL_SHORT(ActiveDoors[i].front_wallnum[0]);    count += 2;
-	*(short *)(multibuf + count) = INTEL_SHORT(ActiveDoors[i].front_wallnum[1])     count += 2;
+	*(short *)(multibuf + count) = INTEL_SHORT(ActiveDoors[i].front_wallnum[1]);    count += 2;
 	*(short *)(multibuf + count) = INTEL_SHORT(ActiveDoors[i].back_wallnum[0]);     count += 2;
 	*(short *)(multibuf + count) = INTEL_SHORT(ActiveDoors[i].back_wallnum[1]);     count += 2;
 	*(int *)(multibuf + count) = INTEL_INT(ActiveDoors[i].time);                    count += 4;
@@ -4348,6 +4350,8 @@ void multi_send_active_door (char i)
 	//multi_send_data (multibuf,sizeof(struct active_door)+3,1);
 	multi_send_data (multibuf,count,1);
 }
+#endif
+
 
 void multi_do_active_door (char *buf)
 {
@@ -4356,7 +4360,7 @@ void multi_do_active_door (char *buf)
 	Num_open_doors=buf[2];
 
 	count = 3;
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	memcpy (&ActiveDoors[(int)i],buf+count,sizeof(struct active_door));
 #else
 	ActiveDoors[i].n_parts = INTEL_INT( *(int *)(buf+count) );              count += 4;
@@ -4375,7 +4379,7 @@ void multi_send_sound_function (char whichfunc,char sound)
 	multibuf[0]=MULTI_SOUND_FUNCTION;   count++;
 	multibuf[1]=Player_num;             count++;
 	multibuf[2]=whichfunc;              count++;
-#ifndef MACINTOSH
+#ifndef WORDS_BIGENDIAN
 	*(uint *)(multibuf+count)=sound;    count++;
 #else
 	multibuf[3] = sound; count++;       // this would probably work on the PC as well.  Jason?
