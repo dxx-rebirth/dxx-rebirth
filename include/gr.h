@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.14 2002-08-31 05:25:11 btb Exp $ */
+/* $Id: gr.h,v 1.15 2002-09-04 22:27:04 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -265,7 +265,7 @@ void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char color );
 void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
-#ifdef MACINTOSH
+#ifndef __MSDOS__
 void gr_bm_ubitblt_double(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_bitmap *dest);
 void gr_linear_movsd_double(ubyte *src, ubyte *dest, int num_pixels);
 #endif
