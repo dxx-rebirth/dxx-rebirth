@@ -1,3 +1,4 @@
+#include <string.h> // for mem* functions
 #include <unistd.h>
 
 #include "mvelib.h"

@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: joy.c,v 1.8 2003-01-11 02:57:39 btb Exp $ */
 /*
  *
  * SDL joystick support
@@ -10,6 +10,7 @@
 #include <conf.h>
 #endif
 
+#include <string.h>   // for memset
 #include <SDL/SDL.h>
 
 #include "joy.h"

@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.16 2002-10-04 07:19:59 btb Exp $ */
+/* $Id: titles.c,v 1.17 2003-01-11 02:57:39 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1069,8 +1069,10 @@ int show_briefing_message(int screen_num, char *message)
 					char fname2[15];
 
 					i=0;
-					while (fname[i]!='.')
-						fname2[i] = fname[i++];
+					while (fname[i]!='.') {
+						fname2[i] = fname[i];
+						i++;
+					}
 #ifndef SHAREWARE
 					fname2[i++]='b';
 #endif
