@@ -12,6 +12,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#define SWAPINT(x)   (((x)<<24) | (((uint)(x)) >> 24) | (((x) &0x0000ff00) << 8) | (((x) & 0x00ff0000) >> 8))
+
 #define MAX_FILES 256
 
 int
@@ -23,6 +25,7 @@ main(int argc, char *argv[])
 	char *buf;
 	struct stat statbuf;
 	int v = 0;
+	int bigendian = 0;
 
 	if (argc > 1 && !strcmp(argv[1], "v")) {
 		v = 1;
@@ -43,11 +46,18 @@ main(int argc, char *argv[])
 	buf = (char *)malloc(4);
 	fread(buf, 4, 1, mvlfile);
 	fread(&nfiles, 4, 1, mvlfile);
+	printf("%d files\n", nfiles);
+	if (nfiles > MAX_FILES) // must be a bigendian mvl
+		bigendian = 1;
+	if (bigendian)
+		nfiles = SWAPINT(nfiles);
 	printf("Extracting from: %s\n", argv[1]);
 	free(buf);
 	for (i = 0; i < nfiles; i++) {
 		fread(filename[i], 13, 1, mvlfile);
 		fread(&len[i], 4, 1, mvlfile);
+		if (bigendian)
+			len[i] = SWAPINT(len[i]);
 		if (argc == 2 || !strcmp(argv[2], filename[i]))
 			printf("Filename: %s \tLength: %i\n", filename[i], len[i]);
 	}
