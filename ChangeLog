@@ -5,6 +5,9 @@
 
 2003-10-02  Bradley Bell  <btb@icculus.org>
 
+	* main/multi.h: added padding to little-endian version of
+	netgame_info
+
 	* arch/dos/bak/ipx.c, arch/dos/ipx.c: comments/whitespace
 
 	* main/netmisc.c: delete duplicate function

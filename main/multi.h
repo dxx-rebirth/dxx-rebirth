@@ -1,4 +1,4 @@
-/* $Id: multi.h,v 1.8 2002-09-14 00:23:06 btb Exp $ */
+/* $Id: multi.h,v 1.9 2003-10-03 06:44:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,7 +14,255 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * FIXME: put description here
+ * Defines and exported variables for multi.c
+ *
+ * Old Log:
+ * Revision 2.3  1995/04/03  08:49:50  john
+ * Added code to get someone's player struct.
+ *
+ * Revision 2.2  1995/03/27  12:59:17  john
+ * Initial version of multiplayer save games.
+ *
+ * Revision 2.1  1995/03/21  14:39:06  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.0  1995/02/27  11:28:34  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.74  1995/02/11  11:36:42  rob
+ * Added new var.
+ *
+ * Revision 1.73  1995/02/08  18:17:41  rob
+ * Added prototype for reset function.
+ *
+ * Revision 1.72  1995/02/05  14:37:42  rob
+ * Made object mapping more efficient.
+ *
+ * Revision 1.71  1995/02/01  18:07:36  rob
+ * Change object mapping to int functions.
+ *
+ * Revision 1.70  1995/02/01  12:55:00  rob
+ * Changed message type.
+ *
+ * Revision 1.69  1995/01/31  12:46:12  rob
+ * Fixed a bug with object overflow handling.
+ *
+ * Revision 1.68  1995/01/27  11:15:13  rob
+ * removed extern of variable no longer in multi.c
+ *
+ * Revision 1.67  1995/01/24  11:53:13  john
+ * Added better macro defining code.
+ *
+ * Revision 1.66  1995/01/24  11:32:03  john
+ * Added new defining macro method.
+ *
+ * Revision 1.65  1995/01/23  17:17:06  john
+ * Added multi_sending_message.
+ *
+ * Revision 1.64  1995/01/23  16:02:42  rob
+ * Added prototype for mission select function.
+ *
+ * Revision 1.63  1995/01/18  19:01:21  rob
+ * Added new message for hostage door sync.
+ *
+ * Revision 1.62  1995/01/14  18:39:57  rob
+ * Added new message type for dropping robot powerups.
+ *
+ * Revision 1.61  1995/01/12  21:41:13  rob
+ * Fixed incompat. with 1.0 and 1.1.
+ *
+ * Revision 1.60  1995/01/04  21:40:55  rob
+ * Added new type for boss actions in coop.
+ *
+ * Revision 1.59  1995/01/04  11:38:09  rob
+ * Fixed problem with lost character in messages.
+ *
+ * Revision 1.58  1995/01/03  20:12:44  rob
+ * Made max message length in shareware = 40.
+ *
+ * Revision 1.57  1995/01/03  14:27:25  rob
+ * ADded trigger messages.
+ *
+ * Revision 1.56  1995/01/02  20:08:21  rob
+ * Added robot creation.
+ *
+ * Revision 1.55  1995/01/02  14:41:30  rob
+ * Added score syncing.
+ *
+ * Revision 1.54  1994/12/21  21:02:01  rob
+ * Added new message type for ROBOT_FIRE
+ *
+ * Revision 1.53  1994/12/21  17:27:25  rob
+ * Changed the format for send_create_powerup messages.
+ *
+ *
+ * Revision 1.52  1994/12/20  20:41:39  rob
+ * ADded robot release message type.
+ *
+ * Revision 1.51  1994/12/19  19:00:12  rob
+ * Changed buf to multibuf so it can be safely externed.
+ *
+ * Revision 1.50  1994/12/19  16:41:14  rob
+ * Added new message types for robot support.
+ * Added prototype for external use of multi_send_data (from multibot.c)
+ *
+ * Revision 1.49  1994/12/11  13:30:13  rob
+ * Added new variables to get players out of nested menus.
+ *
+ * Revision 1.48  1994/12/11  01:58:57  rob
+ * Added variable to track menu deth..
+ *
+ * Revision 1.47  1994/12/08  12:41:17  rob
+ * Added audio taunts.
+ *
+ * Revision 1.46  1994/12/07  21:53:12  rob
+ * Fixing sequencing bugginess in modem/serial.
+ *
+ * Revision 1.45  1994/12/07  16:46:58  rob
+ * Added prototype.
+ *
+ * Revision 1.44  1994/12/01  12:22:31  rob
+ * Added de-cloak message for demo.
+ *
+ * Revision 1.43  1994/12/01  00:54:14  rob
+ * Added variable for tracking homing missiles.
+ *
+ * Revision 1.42  1994/11/30  16:04:39  rob
+ * Added show reticle name variable for team games.
+ *
+ * Revision 1.41  1994/11/29  19:33:38  rob
+ * Team support.
+ *
+ * Revision 1.40  1994/11/29  12:49:37  rob
+ * Added more team support stuff.
+ *
+ * Revision 1.39  1994/11/28  21:20:49  rob
+ * Cleaned up the .h file, removed an unused function.
+ *
+ * Revision 1.38  1994/11/28  21:04:50  rob
+ * Added support for network sound-casting.
+ *
+ * Revision 1.37  1994/11/28  14:02:08  rob
+ * Added protocol versioning for registered versus shareware.
+ *
+ * Revision 1.36  1994/11/28  13:30:04  rob
+ * Added a define for protocol version.
+ *
+ * Revision 1.35  1994/11/22  19:19:48  rob
+ * remove unused function.
+ *
+ * Revision 1.34  1994/11/22  18:47:34  rob
+ * Added hooks for modem support for secret levels.
+ *
+ * Revision 1.33  1994/11/22  17:10:50  rob
+ * Fix for secret levels in network play mode.
+ *
+ * Revision 1.32  1994/11/21  16:00:28  rob
+ * Added secret-level hooks.
+ *
+ * Revision 1.31  1994/11/18  18:28:50  rob
+ * Added new function for multiplayer score screen.
+ *
+ * Revision 1.30  1994/11/18  16:31:05  rob
+ * Added kill list timer variable.
+ *
+ * Revision 1.29  1994/11/17  16:38:15  rob
+ * Added creation of net powerups.
+ *
+ * Revision 1.28  1994/11/17  13:37:33  rob
+ * Added prototype for multi_new_game.
+ *
+ * Revision 1.27  1994/11/17  12:58:45  rob
+ * Added kill matrix.
+ *
+ * Revision 1.26  1994/11/16  20:35:24  rob
+ * Changed explosion hook.
+ *
+ * Revision 1.25  1994/11/15  21:31:13  rob
+ * Bumped max message size, was giving modem.c fits.
+ *
+ * Revision 1.24  1994/11/15  19:28:37  matt
+ * Added prototypes
+ *
+ * Revision 1.23  1994/11/14  17:22:19  rob
+ * Added extern for message macros.
+ *
+ * Revision 1.22  1994/11/11  18:16:44  rob
+ * Made multi_menu_poll return a value to exit menus.
+ *
+ * Revision 1.21  1994/11/11  11:06:19  rob
+ * Added prototype for multi_menu_poll.
+ *
+ * Revision 1.20  1994/11/10  21:48:41  rob
+ * Changed multi_endlevel to return an int.
+ *
+ * Revision 1.19  1994/11/08  17:48:14  rob
+ * Fixing endlevel stuff.
+ *
+ * Revision 1.18  1994/11/07  17:49:07  rob
+ * Changed prototype for object mapping funcs.
+ *
+ * Revision 1.17  1994/11/07  15:46:32  rob
+ * Changed the way remote object number mapping works, and it was a real
+ * pain in the ass..  I think it will work more reliably now.
+ *
+ * Revision 1.16  1994/11/04  19:53:01  rob
+ * Added a new message type for Player_leave 'explosions'.
+ * Added a prototype for function moved over from network.c
+ *
+ * Revision 1.15  1994/11/02  18:02:33  rob
+ * Added message type for control center firing.
+ *
+ * Revision 1.14  1994/11/02  11:38:00  rob
+ * Added player-in-process-of-dying explosions to network game.
+ *
+ * Revision 1.13  1994/11/01  19:31:44  rob
+ * Bumped max_net_create_objects to 20 to accomodate a fully equipped
+ * character blowing up.
+ *
+ * Revision 1.12  1994/10/31  13:48:02  rob
+ * Fixed bug in opening doors over network/modem.  Added a new message
+ * type to multi.c that communicates door openings across the net.
+ * Changed includes in multi.c and wall.c to accomplish this.
+ *
+ * Revision 1.11  1994/10/09  20:08:20  rob
+ * Added some exported func prototypes.
+ * Changed max net message length to 25 (from 30).
+ * Removed some message types no longer used.
+ *
+ * Revision 1.10  1994/10/08  20:06:10  rob
+ * fixed a typo.
+ *
+ * Revision 1.9  1994/10/08  19:59:43  rob
+ * Moved MAX_MESSAGE_LEN to here.
+ *
+ * Revision 1.8  1994/10/07  23:09:54  rob
+ * Fixed some prototypes.
+ *
+ * Revision 1.7  1994/10/07  18:11:19  rob
+ * Added multi_do_death to multi.c.
+ *
+ * Revision 1.6  1994/10/07  16:14:32  rob
+ * Added new message type for player reappear
+ *
+ * Revision 1.5  1994/10/07  12:58:17  rob
+ * Added multi_leave_game.
+ *
+ * Revision 1.4  1994/10/07  12:17:17  rob
+ * Fixed some stuff in multi_do_frame and exported the message_length
+ * array.
+ *
+ * Revision 1.3  1994/10/07  11:10:17  john
+ * Added function to parse multiple messages into individual
+ * messages.
+ *
+ * Revision 1.2  1994/10/07  10:28:06  rob
+ * Headers and stuff for multi.c (obviously)
+ *
+ * Revision 1.1  1994/10/06  16:07:39  rob
+ * Initial revision
+ *
  *
  */
 
@@ -352,6 +600,7 @@ typedef struct netgame_info {
 	short ShowAllNames:1;
 	short BrightPlayers:1;
 	short invul:1;
+	short bitfield_not_used2:1;
 #else
 	short DoSmartMine:1;
 	short DoSpread:1;
