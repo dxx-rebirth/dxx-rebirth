@@ -1,6 +1,6 @@
 2004-12-19  Bradley Bell  <btb@icculus.org>
 
-	* include/ui.h, main/dumpmine.c, main/editor/editor.h,
+	* include/ui.h, main/bm.c, main/dumpmine.c, main/editor/editor.h,
 	main/editor/medwall.h, main/editor/segment.c: replace byte with
 	sbyte
 

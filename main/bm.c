@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.46 2004-12-02 16:27:29 schaffner Exp $ */
+/* $Id: bm.c,v 1.47 2004-12-19 12:15:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -63,8 +63,8 @@ ubyte AltSounds[MAX_SOUNDS];
 
 #ifdef EDITOR
 int Num_total_object_types;
-byte	ObjType[MAX_OBJTYPE];
-byte	ObjId[MAX_OBJTYPE];
+sbyte ObjType[MAX_OBJTYPE];
+sbyte ObjId[MAX_OBJTYPE];
 fix	ObjStrength[MAX_OBJTYPE];
 #endif
 
