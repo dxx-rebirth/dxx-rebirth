@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.81 2004-05-22 00:26:25 btb Exp $ */
+/* $Id: inferno.c,v 1.82 2004-05-22 02:31:48 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1060,7 +1060,7 @@ void print_commandline_help()
 	printf( "  -hwsurface      %s\n","FIXME: Undocumented");
 #endif
 #ifdef NETWORK
-	printf("  -udp            %s\n", "Use udp/ip on local network");
+	printf("  -udp            %s\n", "Specify options for udp/ip:");
 	printf("    @<shift>      %s\n", "  shift udp port base offset");
 	printf("    =<HOST_LIST>  %s\n", "  broadcast both local and to HOST_LIST");
 	printf("    +<HOST_LIST>  %s\n", "  broadcast only to HOST_LIST");
