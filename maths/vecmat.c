@@ -1,3 +1,4 @@
+/* $Id: vecmat.c,v 1.5 2003-02-18 20:23:22 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,30 +8,15 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/maths/vecmat.c,v $
- * $Revision: 1.4 $
- * $Author: btb $
- * $Date: 2002-10-28 19:49:15 $
- * 
+ *
  * C version of vecmat library
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.3  2001/10/31 07:41:54  bradleyb
- * Sync with d1x
  *
- * Revision 1.2  2001/01/31 15:18:04  bradleyb
- * Makefile and conf.h fixes
- *
- * Revision 1.1.1.2  2001/01/19 03:33:42  bradleyb
- * Import of d2x-0.0.9-pre1
- *
- * Revision 1.1.1.1  1999/06/14 22:13:42  donut
- * Import of d1x 1.37 source.
- *
+ * Old Log:
  * Revision 1.5  1995/10/30  11:08:16  allender
  * fix check_vec to return if vector is the NULL vector
  *
@@ -51,8 +37,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * --- PC RCS Information ---
  * Revision 1.1  1995/03/08  15:56:50  matt
  * Initial revision
- * 
- * 
+ *
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -60,7 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: vecmat.c,v 1.4 2002-10-28 19:49:15 btb Exp $";
+static char rcsid[] = "$Id: vecmat.c,v 1.5 2003-02-18 20:23:22 btb Exp $";
 #endif
 
 #include <stdlib.h>
