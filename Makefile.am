@@ -71,4 +71,4 @@ EXTRA_DIST = ${EXTRA_SUBDIRS} \
 ChangeLog \
 djgpp.bat djgpp.sh \
 autogen.sh cygconf \
-cvshowto.txt readme.txt license.txt thinking.txt installation.txt mingw32.txt
+cvshowto.txt readme.txt license.txt thinking.txt installation.txt mingw32.txt compilerdefs.txt
