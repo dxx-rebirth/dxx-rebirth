@@ -1,3 +1,8 @@
+2004-05-20  Matthew Mueller  <donut@dakotacom.net>
+
+	* arch/ogl/ogl.c: use GL_INDEX_BITS to get bpp for color buffer
+	for renderstats (d1x r1.33)
+
 2004-05-19  Matthew Mueller  <donut@dakotacom.net>
 
 	* arch/ogl/gr.c, arch/ogl/ogl.c, include/ogl_init.h,
