@@ -1,4 +1,4 @@
-/* $Id: glx.c,v 1.5 2004-05-16 00:45:25 schaffner Exp $ */
+/* $Id: glx.c,v 1.6 2004-05-20 02:15:15 btb Exp $ */
 /*
  *
  * opengl platform specific functions for GLX - Added 9/15/99 Matthew Mueller
@@ -163,6 +163,11 @@ void ogl_do_fullscreen_internal(void){
 		//return to normal
 #endif
 	}
+}
+
+int ogl_setbrightness_internal(void)
+{
+	return -1; // TODO: not yet implemented
 }
 
 inline void ogl_swap_buffers_internal(void){
