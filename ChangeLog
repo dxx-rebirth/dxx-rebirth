@@ -10,6 +10,7 @@
 	* main/editor/ehostage.c, main/editor/eobject.c, main/editor/segment.c:
 	disable old hostage system in editor (d2 is simpler in this regard)
 	* main/wall.c, main/wall.h: move consts for WALL_IS_DOORWAY to header
+	* main/editor/info.c: only include i86.h and malloc.h ifdef DO_MEMINFO
 
 2005-01-23  Jason Owen  <shannara256@yahoo.com>
 

@@ -1,4 +1,4 @@
-/* $Id: info.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: info.c,v 1.4 2005-01-24 21:59:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,18 +19,21 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: info.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: info.c,v 1.4 2005-01-24 21:59:35 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
 
-#include <i86.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>												  
+#include <string.h>
+
+#ifdef DO_MEMINFO
+#include <i86.h>
 #include <malloc.h>
+#endif
 
 #include "inferno.h"
 #include "segment.h"
