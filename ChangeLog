@@ -1,6 +1,7 @@
 2004-12-19  Bradley Bell  <btb@icculus.org>
 
-	* include/ui.h, main/editor/editor.h: replace byte with sbyte
+	* include/ui.h, main/editor/editor.h, main/editor/segment.c:
+	replace byte with sbyte
 
 2004-12-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
