@@ -1,3 +1,8 @@
+2003-02-23  Bradley Bell <btb@icculus.org>
+
+	* arch/sdl/digi.c: fix crash on non-existent sounds
+	(i.e. shareware data)
+
 2003-02-22  Bradley Bell <btb@icculus.org>
 
 	* main/titles.c: fixed fullscreen toggle in briefings

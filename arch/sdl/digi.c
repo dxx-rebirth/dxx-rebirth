@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.6 2003-02-21 05:05:41 btb Exp $ */
+/* $Id: digi.c,v 1.7 2003-02-24 06:16:17 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -288,6 +288,8 @@ int digi_xlat_sound(int soundno)
 		soundno = AltSounds[soundno];
 		if ( soundno == 255 ) return -1;
 	}
+	if (Sounds[soundno] == 255) return -1;
+
 	return Sounds[soundno];
 }
 
@@ -307,6 +309,8 @@ int digi_start_sound(int soundnum, fix volume, fix pan, int looping, int loop_st
  int slot;
 
  if (!digi_initialised) return -1;
+
+ if (soundnum < 0) return -1;
 
  //added on 980905 by adb from original source to add sound kill system
  // play at most digi_max_channel samples, if possible kill sample with low volume
