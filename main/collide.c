@@ -11,12 +11,20 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/collide.c,v $
+ * $Revision: 1.7 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-18 00:01:00 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef RCS
-static char rcsid[] = "$Id: collide.c,v 1.6 2001-10-17 23:43:03 bradleyb Exp $";
 #endif
 
 #include <string.h>	// for memset
