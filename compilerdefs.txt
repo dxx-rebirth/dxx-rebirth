@@ -1,0 +1,89 @@
+Typical predefined macros, obtained by executing something like:
+gcc -dM -E - < /dev/null
+
+MinGW:
+#define _stdcall __attribute__((__stdcall__)) 
+#define __i386__ 1 
+#define _X86_ 1 
+#define __i386 1 
+#define WIN32 1 
+#define __i686 1 
+#define __GNUC_MINOR__ 95 
+#define WINNT 1 
+#define __declspec(x) __attribute__((x)) 
+#define pentiumpro 1 
+#define __MSVCRT__ 1 
+#define __MINGW32__ 1 
+#define _cdecl __attribute__((__cdecl__)) 
+#define __pentiumpro 1 
+#define i386 1 
+#define i686 1 
+#define __pentiumpro__ 1 
+#define _WIN32 1 
+#define __stdcall __attribute__((__stdcall__)) 
+#define __WIN32__ 1 
+#define __i686__ 1 
+#define __GNUC__ 2 
+#define __cdecl __attribute__((__cdecl__)) 
+#define __WIN32 1 
+
+Cygwin:
+#define _stdcall __attribute__((__stdcall__)) 
+#define __i386__ 1 
+#define _X86_ 1 
+#define __i386 1 
+#define __i686 1 
+#define __GNUC_MINOR__ 95 
+#define __declspec(x) __attribute__((x)) 
+#define pentiumpro 1 
+#define __CYGWIN__ 1 
+#define _cdecl __attribute__((__cdecl__)) 
+#define __pentiumpro 1 
+#define i386 1 
+#define i686 1 
+#define __pentiumpro__ 1 
+#define __stdcall __attribute__((__stdcall__)) 
+#define __unix 1 
+#define __unix__ 1 
+#define __i686__ 1 
+#define __GNUC__ 2 
+#define __cdecl __attribute__((__cdecl__)) 
+#define __CYGWIN32__ 1 
+#define unix 1 
+
+Linux:
+#define __linux__ 1
+#define linux 1
+#define __i386__ 1
+#define __i386 1
+#define __GNUC_MINOR__ 95
+#define i386 1
+#define __unix 1
+#define __unix__ 1
+#define __GNUC__ 2
+#define __linux 1
+#define __ELF__ 1
+#define unix 1
+
+Djgpp:
+#define __DJGPP_MINOR 3
+#define __i386__ 1
+#define __GO32__ 1
+#define __i386 1
+#define GO32 1
+#define __GNUC_MINOR__ 95
+#define __DJGPP__ 2
+#define __tune_pentium__ 1
+#define __DJGPP 2
+#define i386 1
+#define __MSDOS 1
+#define __MSDOS__ 1
+#define __unix 1
+#define DJGPP_MINOR 3
+#define __unix__ 1
+#define __GNUC__ 2
+#define DJGPP 2
+#define MSDOS 1
+#define __DJGPP_MINOR__ 3
+#define unix 1
+#define __GO32 1
