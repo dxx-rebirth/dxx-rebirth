@@ -17,8 +17,7 @@ if EDITOR
 EDITOR_SRCS = bmread.c
 endif
 
-libmain_a_SOURCES = \
-${EDITOR_SRCS} ${NETWORK_SRCS} \
+libmain_a_SOURCES = ${EDITOR_SRCS} ${NETWORK_SRCS} \
 ai.c        ai2.c       aipath.c    automap.c   bm.c        \
 cmd.c       cntrlcen.c  collide.c   config.c    console.c   \
 controls.c  credits.c   crypt.c     effects.c   endlevel.c  \

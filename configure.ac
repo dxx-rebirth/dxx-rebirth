@@ -42,23 +42,23 @@ case $host_os in
         AC_MSG_WARN([Cygwin found, setting -mno-cygwin])
         CFLAGS="-mno-cygwin $CFLAGS"
         MINGW32=yes
-    ;;
+        ;;
     mingw*)
         MINGW32=yes
-    ;;
+        ;;
     darwin*)
         MACOSX=yes
-    ;;
+        ;;
     msdos*)
         MSDOS=yes
-    ;;
+        ;;
 esac
 
 AM_CONDITIONAL(MINGW32, test x$MINGW32 = xyes)
 if test x$MINGW32 = xyes; then
     GL_LIBS="opengl32 glu32"
 elif test x$MACOSX = xyes; then
-	GL_LIBS=""
+    GL_LIBS=""
 else
     GL_LIBS="GL GLU"
 fi
@@ -80,7 +80,7 @@ CFLAGS="-Wall $CFLAGS"
 
 dnl Enable editor build?
 AC_ARG_ENABLE(editor,
-  [  --enable-editor         Build editor? (not functional)],,)
+    [  --enable-editor         Build editor? (not functional)],,)
 if test x$enable_editor = xyes; then
     AC_DEFINE(EDITOR,,[Define if you want to build the editor])
     D2X_MAIN_SUBDIRS=editor
@@ -89,7 +89,7 @@ AM_CONDITIONAL(EDITOR, test x$enable_editor = xyes)
 
 dnl Enable shareware build?
 AC_ARG_ENABLE(shareware,
-  [  --enable-shareware      Build for demo datafiles (not functional)],,)
+    [  --enable-shareware      Build for demo datafiles (not functional)],,)
 if test x$enable_shareware = xyes; then
     AC_DEFINE(SHAREWARE,,[Define if you want to build the demo version])
     D2X_FEATURES="shareware ${D2X_FEATURES}"
@@ -98,7 +98,7 @@ AM_CONDITIONAL(SHAREWARE, test x$enable_shareware = xyes)
 
 dnl Build with NDEBUG?
 AC_ARG_ENABLE(debug,
-  [  --disable-debug         Take out debug symbols, Asserts, Int3, etc ],,)
+    [  --disable-debug         Take out debug symbols, Asserts, Int3, etc ],,)
 if test x$enable_debug = xno; then
     AC_DEFINE(NDEBUG,,[Define to disable asserts, int3, etc.])
     CFLAGS="-O2 $CFLAGS"
@@ -109,7 +109,7 @@ fi
 
 dnl Build with RELEASE?
 AC_ARG_ENABLE(release,
-  [  --enable-release        Release build.  Removes debug/editor things ],,)
+    [  --enable-release        Release build.  Removes debug/editor things ],,)
 if test x$enable_release = xyes; then
     AC_DEFINE(RELEASE,,[Define for a "release" build])
     D2X_FEATURES="release ${D2X_FEATURES}"
@@ -117,15 +117,15 @@ fi
 
 dnl Build with FAST_FILE_IO?
 AC_ARG_ENABLE(fastfileio,
-  [  --enable-fastfileio     Fast file i/o build.  little-endian only ],,)
+    [  --enable-fastfileio     Fast file i/o build.  little-endian only ],,)
 if test x$enable_fastfileio = xyes; then
     AC_DEFINE(FAST_FILE_IO,,[Define for a faster file i/o on little-endian machines])
     D2X_FEATURES="fastfileio ${D2X_FEATURES}"
 fi
 
 AC_ARG_WITH(sharepath,
-  [[  --with-sharepath=DIR    Use DIR for shared game data (unix only) [DATADIR/games/d2x]]],
-  sharepath=$withval, sharepath="auto")
+    [[  --with-sharepath=DIR    Use DIR for shared game data (unix only) [DATADIR/games/d2x]]],
+    sharepath=$withval, sharepath="auto")
 if test "x$sharepath" = "xauto" -o "x$sharepath" = "xyes" -o "x$sharepath" = "x"; then
     sharepath="$default_sharepath"
 fi
@@ -133,94 +133,94 @@ AC_DEFINE_UNQUOTED(SHAREPATH, "$sharepath",[Define this to be the shared game di
 
 # Test for MSDOS
 if test x$MSDOS = xyes; then
-  CFLAGS="-I \$(top_srcdir)/arch/dos/include $CFLAGS"
-  TARGETS=d2x
-  D2X_ARCH_SUBDIRS=dos
+    CFLAGS="-I \$(top_srcdir)/arch/dos/include $CFLAGS"
+    TARGETS=d2x
+    D2X_ARCH_SUBDIRS=dos
 else
 
-  CFLAGS="-pipe $CFLAGS"
+    CFLAGS="-pipe $CFLAGS"
 
-  dnl Check for SDL
-  AM_PATH_SDL(1.1.0,
-    :,
-    AC_MSG_ERROR(SDL not found. Make sure sdl-config is in your PATH, or specify with --with-sdl-prefix)
-  )
-  CFLAGS="$SDL_CFLAGS $CFLAGS"
-  LIBS="$SDL_LIBS $LIBS"
+    dnl Check for SDL
+    AM_PATH_SDL(1.1.0,
+        :,
+        AC_MSG_ERROR(SDL not found. Make sure sdl-config is in your PATH, or specify with --with-sdl-prefix)
+    )
+    CFLAGS="$SDL_CFLAGS $CFLAGS"
+    LIBS="$SDL_LIBS $LIBS"
 
-  TARGETS=d2x-sdl
-  D2X_ARCH_SUBDIRS=sdl
+    TARGETS=d2x-sdl
+    D2X_ARCH_SUBDIRS=sdl
 
-  AC_CHECK_HEADERS(netipx/ipx.h)
+    AC_CHECK_HEADERS(netipx/ipx.h)
 
   # Check for OpenGL
-  AC_ARG_WITH(opengl,
-    [  --with-opengl           Build OpenGL support ],,)
-	if test x$with_opengl = xyes; then
-      for lib in $GL_LIBS; do
-        AC_CHECK_LIB($lib, main,
-          OGL_LIBS="${OGL_LIBS} -l$lib",
-          [AC_MSG_ERROR([$lib not found, --with-opengl cannot be used])
-          opengl=false],
-          ${OGL_LIBS}
-        )
-      done
-      AC_DEFINE(OGL,,[Define if you want an OpenGL build])
-      TARGETS=d2x-gl
-      D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
-	fi
+    AC_ARG_WITH(opengl,
+        [  --with-opengl           Build OpenGL support ],,)
+    if test x$with_opengl = xyes; then
+        for lib in $GL_LIBS; do
+            AC_CHECK_LIB($lib, main,
+                OGL_LIBS="${OGL_LIBS} -l$lib",
+                [AC_MSG_ERROR([$lib not found, --with-opengl cannot be used])
+                    opengl=false],
+                ${OGL_LIBS}
+            )
+        done
+        AC_DEFINE(OGL,,[Define if you want an OpenGL build])
+        TARGETS=d2x-gl
+        D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
+    fi
     AC_SUBST(OGL_LIBS)
     AM_CONDITIONAL(USE_OPENGL, test x$with_opengl = xyes)
 
   # Check for GGI
-  AC_ARG_WITH(ggi,
-    [  --with-ggi              Build GGI support ],,)
-  if test x$with_ggi = xyes; then
-    AC_CHECK_LIB(ggi, ggiInit,
-      GGI_LIBS="-lggi",
-      [AC_MSG_ERROR([GGI not found, GGI version cannot be built]); ggi=false])
-    AC_CHECK_LIB(gii, giiInit,
-      GGI_LIBS="${GGI_LIBS} -lgii",
-      [AC_MSG_ERROR([GII not found, GGI version cannot be built]); ggi=false])
-    AC_DEFINE(GGI,,[Define if you want a GGI build])
-    TARGETS=d2x-ggi
-    D2X_ARCH_SUBDIRS="ggi ${D2X_ARCH_SUBDIRS}"
-  fi
-  AC_SUBST(GGI_LIBS)
-  AM_CONDITIONAL(USE_GGI, test x$with_ggi = xyes)
+    AC_ARG_WITH(ggi,
+        [  --with-ggi              Build GGI support ],,)
+    if test x$with_ggi = xyes; then
+        AC_CHECK_LIB(ggi, ggiInit,
+            GGI_LIBS="-lggi",
+            [AC_MSG_ERROR([GGI not found, GGI version cannot be built]); ggi=false])
+        AC_CHECK_LIB(gii, giiInit,
+            GGI_LIBS="${GGI_LIBS} -lgii",
+            [AC_MSG_ERROR([GII not found, GGI version cannot be built]); ggi=false])
+        AC_DEFINE(GGI,,[Define if you want a GGI build])
+        TARGETS=d2x-ggi
+        D2X_ARCH_SUBDIRS="ggi ${D2X_ARCH_SUBDIRS}"
+    fi
+    AC_SUBST(GGI_LIBS)
+    AM_CONDITIONAL(USE_GGI, test x$with_ggi = xyes)
 
   # Check for SVGALib
-  AC_ARG_WITH(svga,
-    [  --with-svga             Build SVGALib support ],,)
-  if test x$with_svga = xyes; then
-    AC_CHECK_LIB(vga,vga_getmousetype,
-      SVGA_LIBS="-lvga",
-      [AC_MSG_ERROR([vga not found, SVGALib cannot be built])
-       svga=false],
-       )
-    AC_CHECK_LIB(vgagl,gl_getcontext,
-      SVGA_LIBS="${SVGA_LIBS} -lvgagl",
-      [AC_MSG_ERROR([vgagl not found, SVGALib cannot be built])
-       svga=false],
-       -lvga)
-    AC_DEFINE(SVGA,,[Define if you want an SVGALib build])
-    TARGETS=d2x-svga
-    D2X_ARCH_SUBDIRS="svgalib ${D2X_ARCH_SUBDIRS}"
-  fi
-  AC_SUBST(SVGA_LIBS)
-  AM_CONDITIONAL(USE_SVGALIB, test x$with_svga = xyes)
+    AC_ARG_WITH(svga,
+        [  --with-svga             Build SVGALib support ],,)
+    if test x$with_svga = xyes; then
+        AC_CHECK_LIB(vga,vga_getmousetype,
+            SVGA_LIBS="-lvga",
+            [AC_MSG_ERROR([vga not found, SVGALib cannot be built])
+                svga=false],
+        )
+        AC_CHECK_LIB(vgagl,gl_getcontext,
+            SVGA_LIBS="${SVGA_LIBS} -lvgagl",
+            [AC_MSG_ERROR([vgagl not found, SVGALib cannot be built])
+                svga=false],
+            -lvga)
+        AC_DEFINE(SVGA,,[Define if you want an SVGALib build])
+        TARGETS=d2x-svga
+        D2X_ARCH_SUBDIRS="svgalib ${D2X_ARCH_SUBDIRS}"
+    fi
+    AC_SUBST(SVGA_LIBS)
+    AM_CONDITIONAL(USE_SVGALIB, test x$with_svga = xyes)
 
-  if test x$MINGW32 = xyes; then
-    D2X_ARCH_SUBDIRS="win32 ${D2X_ARCH_SUBDIRS}"
-  else
-    CFLAGS="-I \$(top_srcdir)/arch/linux/include $CFLAGS"
-    D2X_ARCH_SUBDIRS="linux ${D2X_ARCH_SUBDIRS}"
-  fi
+    if test x$MINGW32 = xyes; then
+        D2X_ARCH_SUBDIRS="win32 ${D2X_ARCH_SUBDIRS}"
+    else
+        CFLAGS="-I \$(top_srcdir)/arch/linux/include $CFLAGS"
+        D2X_ARCH_SUBDIRS="linux ${D2X_ARCH_SUBDIRS}"
+    fi
 fi
 
 dnl Check for network
 AC_ARG_ENABLE(network,
-  [  --disable-network       Do not build network/serial support ],,)
+    [  --disable-network       Do not build network/serial support ],,)
 if test x$enable_network != xno; then
     AC_DEFINE(NETWORK,,[Define if you want a network build])
     D2X_FEATURES="network ${D2X_FEATURES}"
@@ -229,26 +229,27 @@ AM_CONDITIONAL(USE_NETWORK, test x$enable_network != xno)
 
 dnl Check for assembler
 AC_ARG_ENABLE(assembler,
-  [  --disable-assembler     Do not use assembler optimization ],,)
+    [  --disable-assembler     Do not use assembler optimization ],,)
 if test x$enable_assembler != xno; then
     if test x$NASM = xno; then
-	AC_MSG_WARN([nasm not found. disabling assembler])
-	enable_assembler="no"
+        AC_MSG_WARN([nasm not found. disabling assembler])
+        enable_assembler="no"
     else
         NASMFLAGS="-i\$(srcdir)/ $NASMFLAGS"
         case $host_os in
-          cygwin*)
-              NASMFLAGS="-f win32 $NASMFLAGS"
-              ;;
-          msdos*)
-              NASMFLAGS="-f coff $NASMFLAGS"
-              ;;
-          linux*)
-              NASMFLAGS="-f elf -d__linux__ $NASMFLAGS"
-              ;;
-          *)
-              AC_MSG_WARN([nasm not supported for this OS. disabling assembler])
-	      enable_assembler="no"
+            cygwin*)
+                NASMFLAGS="-f win32 $NASMFLAGS"
+                ;;
+            msdos*)
+                NASMFLAGS="-f coff $NASMFLAGS"
+                ;;
+            linux*)
+                NASMFLAGS="-f elf -d__linux__ $NASMFLAGS"
+                ;;
+            *)
+                AC_MSG_WARN([nasm not supported for this OS. disabling assembler])
+                enable_assembler="no"
+                ;;
         esac
     fi
 fi
@@ -259,7 +260,7 @@ fi
 AM_CONDITIONAL(USE_ASM, test x$enable_assembler != xno)
 
 AH_BOTTOM([
-/* General defines */
+        /* General defines */
 #define NMONO 1
 #define PIGGY_USE_PAGING 1
 #define NEWDEMO 1
@@ -295,7 +296,7 @@ AH_BOTTOM([
 #  define SDL_VIDEO 1
 # endif
 #endif
-])
+        ])
 
 AM_PROG_AS
 
@@ -310,34 +311,34 @@ AC_SUBST(NASMFLAGS)
 AC_SUBST(CFLAGS)
 
 AC_OUTPUT(
-Makefile
-2d/Makefile
-3d/Makefile
-arch/Makefile
-arch/dos/Makefile
-arch/ggi/Makefile
-arch/linux/Makefile
-arch/ogl/Makefile
-arch/sdl/Makefile
-arch/svgalib/Makefile
-arch/win32/Makefile
-cfile/Makefile
-iff/Makefile
-main/Makefile
-main/editor/Makefile
-maths/Makefile
-mem/Makefile
-misc/Makefile
-texmap/Makefile
-debian/changelog
-rpm/d2x.spec
+    Makefile
+    2d/Makefile
+    3d/Makefile
+    arch/Makefile
+    arch/dos/Makefile
+    arch/ggi/Makefile
+    arch/linux/Makefile
+    arch/ogl/Makefile
+    arch/sdl/Makefile
+    arch/svgalib/Makefile
+    arch/win32/Makefile
+    cfile/Makefile
+    iff/Makefile
+    main/Makefile
+    main/editor/Makefile
+    maths/Makefile
+    mem/Makefile
+    misc/Makefile
+    texmap/Makefile
+    debian/changelog
+    rpm/d2x.spec
 )
 
 AC_MSG_RESULT([
-    d2x has been configured successfully.
+        d2x has been configured successfully.
 
-    Platform(s): $D2X_ARCH_SUBDIRS
-    Features   : $D2X_FEATURES $D2X_MAIN_SUBDIRS
+        Platform(s): $D2X_ARCH_SUBDIRS
+        Features   : $D2X_FEATURES $D2X_MAIN_SUBDIRS
 
-    Shared game data directory (unix only): $sharepath
-])
+        Shared game data directory (unix only): $sharepath
+        ])
