@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.56 2004-11-19 18:02:32 schaffner Exp $ */
+/* $Id: piggy.c,v 1.57 2004-12-01 08:24:55 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.56 2004-11-19 18:02:32 schaffner Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.57 2004-12-01 08:24:55 btb Exp $";
 #endif
 
 
@@ -1386,7 +1386,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		bmp->bm_flags = GameBitmapFlags[i];
 
 		if ( bmp->bm_flags & BM_FLAG_RLE )      {
-			int zsize = 0;
+			int zsize = 0, pigsize = cfilelength(Piggy_fp);
 			descent_critical_error = 0;
 			zsize = cfile_read_int(Piggy_fp);
 			if ( descent_critical_error )   {
@@ -1409,7 +1409,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 
 #ifndef MACDATA
-			switch (cfilelength(Piggy_fp)) {
+			switch (pigsize) {
 			default:
 				if (!FindArg("-macdata"))
 					break;
@@ -1435,6 +1435,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 
 		} else {
+			int pigsize = cfilelength(Piggy_fp);
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
 			Assert( Piggy_bitmap_cache_next+(bmp->bm_h*bmp->bm_w) < Piggy_bitmap_cache_size );
 			if ( Piggy_bitmap_cache_next+(bmp->bm_h*bmp->bm_w) >= Piggy_bitmap_cache_size ) {
@@ -1450,7 +1451,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 
 #ifndef MACDATA
-			switch (cfilelength(Piggy_fp)) {
+			switch (pigsize) {
 			default:
 				if (!FindArg("-macdata"))
 					break;
@@ -1974,7 +1975,7 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 		     ubyte *d1_palette, /* what palette the bitmap has */
                      ubyte *colormap) /* how to translate bitmap's colors */
 {
-	int zsize;
+	int zsize, pigsize = cfilelength(d1_Piggy_fp);
 	memset( bitmap, 0, sizeof(grs_bitmap) );
 
 	bitmap->bm_w = bitmap->bm_rowsize = bmh->width + ((short) (bmh->wh_extra&0x0f)<<8);
@@ -1996,7 +1997,7 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 		bitmap->bm_data = d_malloc(zsize + JUST_IN_CASE);
 	}
 	cfread(bitmap->bm_data, 1, zsize, d1_Piggy_fp);
-	switch(cfilelength(d1_Piggy_fp)) {
+	switch(pigsize) {
 	case D1_MAC_PIGSIZE:
 	case D1_MAC_SHARE_PIGSIZE:
 		if (bmh->flags & BM_FLAG_RLE)
@@ -2191,6 +2192,7 @@ void load_d1_bitmap_replacements()
 	ubyte colormap[256];
 	ubyte d1_palette[256*3];
 	char *p;
+	int pigsize;
 
 	d1_Piggy_fp = cfopen( D1_PIGFILE, "rb" );
 
@@ -2205,7 +2207,8 @@ void load_d1_bitmap_replacements()
 
 	Assert( get_d1_colormap( d1_palette, colormap ) == 0 );
 
-	switch (cfilelength(d1_Piggy_fp)) {
+	pigsize = cfilelength(d1_Piggy_fp);
+	switch (pigsize) {
 	case D1_SHARE_BIG_PIGSIZE:
 	case D1_SHARE_10_PIGSIZE:
 	case D1_SHARE_PIGSIZE:
@@ -2301,6 +2304,7 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 		int i, N_bitmaps;
 		ubyte colormap[256];
 		ubyte d1_palette[256*3];
+		int pigsize = cfilelength(d1_Piggy_fp);
 
 		d1_Piggy_fp = cfopen(D1_PIGFILE, "rb");
 
@@ -2312,7 +2316,7 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 
 		Assert( get_d1_colormap( d1_palette, colormap ) == 0 );
 
-		switch (cfilelength(d1_Piggy_fp)) {
+		switch (pigsize) {
 		case D1_SHARE_BIG_PIGSIZE:
 		case D1_SHARE_10_PIGSIZE:
 		case D1_SHARE_PIGSIZE:

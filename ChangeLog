@@ -7,6 +7,9 @@
 
 	* iff/iff.c: Get rid of MIN redefinition.
 
+	* main/bm.c, main/piggy.c: Assign result of cfilelength to an int,
+	MPW doesn't like switches of long longs
+
 2004-11-30  Bradley Bell  <btb@icculus.org>
 
 	* .cvsignore, 2d/.cvsignore, 3d/.cvsignore, arch/.cvsignore,
