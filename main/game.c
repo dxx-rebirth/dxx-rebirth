@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.3 2001-01-22 15:49:14 bradleyb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.4 2001-01-24 04:42:20 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2597,7 +2597,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 	#endif
 
 		#ifndef RELEASE
-		if (args_find("-invulnerability"))
+		if (FindArg("-invulnerability"))
 			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 		#endif
 
@@ -2704,7 +2704,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		}
 
 		#ifndef NDEBUG
-		if (args_find("-checktime") != 0)
+		if (FindArg("-checktime") != 0)
 			if (GameTime >= i2f(600))		//wrap after 10 minutes
 				GameTime = FrameTime;
 		#endif

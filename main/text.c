@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp $";
+static char rcsid[] = "$Id: text.c,v 1.2 2001-01-24 04:42:21 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -74,7 +74,7 @@ void load_text()
 	char *tptr;
 	char *filename="descent.tex";
 
-	if ((i=args_find("-text"))!=0)
+	if ((i=FindArg("-text"))!=0)
 		filename = Args[i+1];
 
 	if ((tfile = cfopen(filename,"rb")) == NULL) {

@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.3 2001-01-22 12:27:55 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.4 2001-01-24 04:42:21 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -1896,7 +1896,7 @@ void kconfig_init_external_controls(int intno, int address)
 	kc_use_external_control = 1;
 	kc_enable_external_control  = 1;
 
-	i = args_find ( "-xname" );
+	i = FindArg ( "-xname" );
 	if ( i )	
 		kc_external_name = Args[i+1];
 	else
@@ -1906,7 +1906,7 @@ void kconfig_init_external_controls(int intno, int address)
     if (kc_external_name[i]=='_')
 	  kc_external_name[i]=' '; 
 
-	i = args_find ( "-xver" );
+	i = FindArg ( "-xver" );
 	if ( i )
 		kc_external_version = atoi(Args[i+1]);
 	
