@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: netmisc.c,v 1.6 2002-10-28 20:57:11 btb Exp $";
+static char rcsid[] = "$Id: netmisc.c,v 1.7 2002-12-31 23:19:42 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -141,17 +141,17 @@ byte out_buffer[IPX_MAX_DATA_SIZE];		// used for tmp netgame packets as well as 
 void receive_netplayer_info(ubyte *data, netplayer_info *info)
 {
 	int loc = 0;
-	
-	memcpy(info->callsign, &(data[loc]), CALLSIGN_LEN+1);		loc += CALLSIGN_LEN+1;
-	memcpy(&(info->network.ipx.server), &(data[loc]), 4);					loc += 4;
-	memcpy(&(info->network.ipx.node), &(data[loc]), 6);						loc += 6;
-	info->version_major = data[loc];							loc++;
-	info->version_minor = data[loc];							loc++;
-	memcpy(&(info->computer_type), &(data[loc]), 1);			loc++;		// memcpy to avoid compile time warning about enum
-	info->connected = data[loc];								loc++;
-	memcpy(&(info->socket), &(data[loc]), 2);					loc += 2; 
-   memcpy (&(info->rank),&(data[loc]),1);					   loc++;
-//MWA  don't think we need to swap this because we need it in high order	info->socket = INTEL_SHORT(info->socket);
+
+	memcpy(info->callsign, &(data[loc]), CALLSIGN_LEN+1);       loc += CALLSIGN_LEN+1;
+	memcpy(&(info->network.ipx.server), &(data[loc]), 4);       loc += 4;
+	memcpy(&(info->network.ipx.node), &(data[loc]), 6);         loc += 6;
+	info->version_major = data[loc];                            loc++;
+	info->version_minor = data[loc];                            loc++;
+	memcpy(&(info->computer_type), &(data[loc]), 1);            loc++;      // memcpy to avoid compile time warning about enum
+	info->connected = data[loc];                                loc++;
+	memcpy(&(info->socket), &(data[loc]), 2);                   loc += 2;
+	memcpy (&(info->rank),&(data[loc]),1);                      loc++;
+//MWA  don't think we need to swap this because we need it in high order    info->socket = INTEL_SHORT(info->socket);
 }
 
 void send_netplayers_packet(ubyte *server, ubyte *node)

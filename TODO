@@ -2,5 +2,5 @@
 * Glitches with mission briefings
 * D1 mission briefings (render spinning robots, etc.)
 * Make networking compatible with official version
-* bigendian networking
-* fix -help text
+* bigendian networking (joining)
+* use autoconf macros to replace junk in pstypes.h

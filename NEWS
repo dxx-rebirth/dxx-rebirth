@@ -1,8 +1,7 @@
 --- Version 0.1.4 ---
 - mve support :-)
 - Lots of portability fixes
-- OS X support!
-- Other bigendian linux/unix support.
+- Bigendian linux/unix support, including OS X
 - Shareware data files support... Including the ability to play other
   missions if you have only the mac demo datafiles.
 - Descent 1 level support! thanks to Martin Schaffner <maschaffner@gmx.ch>
