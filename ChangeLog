@@ -1,6 +1,7 @@
 2003-03-15  Bradley Bell  <bradleyb@smeagol>
 
-	* 2d/font.c: fixed opengl credits
+	* 2d/font.c, main/credits.c, main/scores.c: fixed opengl credits,
+	scores
 
 	* arch/sdl/rbaudio.c: formatting, enabled volume control under
 	linux
