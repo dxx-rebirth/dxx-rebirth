@@ -1,4 +1,4 @@
-/* $Id: network.h,v 1.10 2002-09-14 00:23:06 btb Exp $ */
+/* $Id: network.h,v 1.11 2003-02-28 03:54:55 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -142,5 +142,8 @@ void network_do_frame(int force, int listen);
 // Tacks data of length 'len' onto the end of the next
 // packet that we're transmitting.
 void network_send_data( ubyte * ptr, int len, int urgent );
+
+// returns 1 if hoard.ham available
+extern int HoardEquipped();
 
 #endif

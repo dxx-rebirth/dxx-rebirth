@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.53 2003-01-15 02:42:41 btb Exp $ */
+/* $Id: inferno.c,v 1.54 2003-02-28 03:54:55 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -781,7 +781,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "movie.h"
 #include "compbit.h"
 #include "d_io.h"
-#include "hoard.h"
 
 // #  include "3dfx_des.h"
 
@@ -1227,7 +1226,7 @@ int main(int argc,char **argv)
 	#ifdef VERSION_NAME
 	con_printf(CON_NORMAL, "  %s", VERSION_NAME);
 	#endif
-	if (HoardEquipped())
+	if (cfexist(MISSION_DIR "d2x.hog"))
 		con_printf(CON_NORMAL, "  Vertigo Enhanced");
 
 	con_printf(CON_NORMAL, "  %s %s\n", __DATE__,__TIME__);

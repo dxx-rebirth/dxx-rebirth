@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.16 2002-10-28 20:57:11 btb Exp $ */
+/* $Id: network.c,v 1.17 2003-02-28 03:54:55 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.16 2002-10-28 20:57:11 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.17 2003-02-28 03:54:55 btb Exp $";
 #endif
 
 #define PATCH12
@@ -66,7 +66,7 @@ static char rcsid[] = "$Id: network.c,v 1.16 2002-10-28 20:57:11 btb Exp $";
 #include "netmisc.h"
 #include "kconfig.h"
 #include "playsave.h"
-#include "hoard.h"
+#include "cfile.h"
 
 #ifdef MACINTOSH
 #include <Events.h>
@@ -6391,3 +6391,22 @@ void network_send_player_names (sequence_packet *their)
 	   ipx_send_internetwork_packet_data((ubyte *)buf, count, their->player.network.ipx.server, their->player.network.ipx.node);
 	#endif
  }
+
+
+int HoardEquipped()
+{
+	static int checked=-1;
+
+#ifdef WINDOWS
+	return 0;
+#endif
+
+	if (checked==-1)
+	{
+		if (cfexist("hoard.ham"))
+			checked=1;
+		else
+			checked=0;
+	}
+	return (checked);
+}

@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.9 2003-02-26 11:03:27 btb Exp $ */
+/* $Id: mission.h,v 1.10 2003-02-28 03:54:55 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -93,6 +93,13 @@ typedef struct mle {
 #define ML_CURDIR       0
 #define ML_MISSIONDIR   1
 #define ML_CDROM        2
+
+//where the missions go
+#ifndef EDITOR
+#define MISSION_DIR "missions/"
+#else
+#define MISSION_DIR "./"
+#endif
 
 extern mle Mission_list[MAX_MISSIONS];
 

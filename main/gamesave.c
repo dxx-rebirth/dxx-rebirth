@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.17 2002-09-14 00:20:44 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.18 2003-02-28 03:54:55 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -71,7 +71,6 @@ char gamesave_rcsid[] = "$Id: gamesave.c,v 1.17 2002-09-14 00:20:44 btb Exp $";
 #include "byteswap.h"
 #include "multi.h"
 #include "makesig.h"
-#include "hoard.h"
 
 char Gamesave_current_filename[128];
 
@@ -1467,15 +1466,9 @@ int load_level(char * filename_passed)
 	Assert(sig == MAKE_SIG('P','L','V','L'));
 
 	if (Gamesave_current_version >= 8) {    //read dummy data
-		if (HoardEquipped())
-		{
-			cfile_read_int(LoadFile);
-			cfile_read_short(LoadFile);
-			cfile_read_byte(LoadFile);
-		}
-		else
-			Error("This level requires the Vertigo Enhanced version of D2.");
-
+		cfile_read_int(LoadFile);
+		cfile_read_short(LoadFile);
+		cfile_read_byte(LoadFile);
 	}
 
 	if (Gamesave_current_version < 5)
@@ -1538,7 +1531,7 @@ int load_level(char * filename_passed)
 	#ifdef EDITOR
 	if (!use_compiled_level) {
 		mine_err = load_mine_data(LoadFile);
-#if 0 //dunno - 3rd party stuff?
+#if 0 // get from d1src if needed
 		// Compress all uv coordinates in mine, improves texmap precision. --MK, 02/19/96
 		compress_uv_coordinates_all();
 #endif

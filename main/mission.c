@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.19 2003-02-26 11:03:27 btb Exp $ */
+/* $Id: mission.c,v 1.20 2003-02-28 03:54:55 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -132,7 +132,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mono.h"
 #include "error.h"
 #include "findfile.h"
-#include "hoard.h"
 
 mle Mission_list[MAX_MISSIONS];
 
@@ -152,13 +151,6 @@ int D1_Builtin_mission_hogsize;
 
 char Level_names[MAX_LEVELS_PER_MISSION][FILENAME_LEN];
 char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
-
-//where the missions go
-#ifndef EDITOR
-#define MISSION_DIR "missions/"
-#else
-#define MISSION_DIR "./"
-#endif
 
 //values for d1 built-in mission
 #define BIM_LAST_LEVEL          27
@@ -437,12 +429,9 @@ int read_mission_file(char *filename,int count,int location)
 			p = get_parm_value("xname",mfile);
 		}
 
-		if (HoardEquipped())
-		{
-			if (!p) {		//try super-enhanced mission!
-				cfseek(mfile,0,SEEK_SET);
-				p = get_parm_value("zname",mfile);
-			}
+		if (!p) {       //try super-enhanced mission!
+			cfseek(mfile,0,SEEK_SET);
+			p = get_parm_value("zname",mfile);
 		}
 
 		if (p) {
