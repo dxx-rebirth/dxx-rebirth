@@ -186,7 +186,7 @@ int joy_get_button_down_cnt( int btn )
 
 fix joy_get_button_down_time(int btn)
 {
-	fix time;
+	fix time = F0_0;
 
 	if (!num_joysticks)
 		return 0;
