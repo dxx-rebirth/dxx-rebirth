@@ -3,24 +3,26 @@ Instructions for building D2X for MinGW32
 
 Using Cygwin
 ------------
-First you will need SDL.  Download the development libraries for
-Win32/mingw32 from http://www.libsdl.org/ Currently, it is
-SDL-devel-1.2.2-mingw32.tar.gz.  Inside this file, you will find
-another tar.gz, called i386-mingw32msvc.tar.gz.  This should be
-untarred under /usr/local/cross-tools:
-mkdir /usr/local/cross-tools
-cd /usr/local/cross-tools
-tar zxf /path/to/i386-mingw32msvc.tar.gz
+First you will need SDL.
+Download the source code tarball from http://www.libsdl.org/
+Currently, it is SDL-1.2.3.tar.gz.
 
-Then you should place SDL.dll and sdl-config somewhere in your PATH.
-I recommend /usr/local/bin:
-cp /usr/local/cross-tools/i386-mingw32msvc/lib/SDL.dll /usr/local/bin
-cp /usr/local/cross-tools/i386-mingw32msvc/bin/sdl-config /usr/local/bin
+tar zxf SDL-1.2.3.tar.gz
+cd SDL-1.2.3
+./configure
+make
+make install
+
+Note that SDL.dll needs to be in your executable PATH, since that is
+where windows looks for dlls.
+I recommend copying it to /usr/local/bin:
+cp /usr/local/lib/SDL.dll /usr/local/bin
 
 If you need to run autogen.sh (e.g. to rebuild the configure scripts,
-or to build from cvs) you have to have the ACLOCAL_FLAGS variable set.
-for example:
-export ACLOCAL_FLAGS=/usr/local/cross-tools/i386-mingw32msvc/share/aclocal
+or to build from cvs) sdl.m4 will have to be somewhere where aclocal
+can find it.
+You can fix this by setting the ACLOCAL_FLAGS variable like this:
+export ACLOCAL_FLAGS=/usr/local/share/aclocal
 
 You should also install NASM, for compiling assembler files.  Download
 it from http://www.web-sites.co.uk/nasm/where.html and place nasmw.exe
