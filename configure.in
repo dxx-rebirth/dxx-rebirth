@@ -52,18 +52,25 @@ if test "$host_os" = "msdosdjgpp"; then
   TARGETS=d2x
 
 else
-  CFLAGS="-D_REENTRANT -pipe $CFLAGS"
+  CFLAGS="-pipe $CFLAGS"
   AM_CONDITIONAL(ENV_CYGWIN, test "$host_os" = "cygwin")
 
   AC_DEFINE(__ENV_LINUX__)
 
+  AM_PATH_SDL(1.1.7,
+    AC_MSG_RESULT([SDL_CFLAGS=$SDL_CFLAGS SDL_LIBS=$SDL_LIBS]),
+    AC_MSG_ERROR(SDL not found. Make sure sdl-config is in your PATH, or specify with --with-sdl-prefix)
+  )
   if test "$host_os" = "cygwin"; then
-    AC_CHECK_LIB(SDL, SDL_Init, SDL_LIBS="-lSDL", AC_MSG_ERROR(The SDL which is required not found.))
-  else
-    AC_CHECK_LIB(SDL, SDL_Init, SDL_LIBS="-lSDL", AC_MSG_ERROR(The SDL which is required not found.),-ldl -lpthread)
+    # mingw32-specific stuff, I guess...?
+    SDL_CFLAGS=`echo $SDL_CFLAGS | sed 's/-Dmain=SDL_main//'`
+    SDL_LIBS=`echo $SDL_LIBS | sed 's/-lmingw32//' | sed 's/-mwindows//' | sed 's/-lSDLmain//'`
+    AC_MSG_RESULT([Using SDL_CFLAGS=$SDL_CFLAGS SDL_LIBS=$SDL_LIBS])
   fi
-  AC_CHECK_HEADERS(netipx/ipx.h)
+
   AC_SUBST(SDL_LIBS)
+
+  AC_CHECK_HEADERS(netipx/ipx.h)
 
   # Check for OpenGL
   AC_ARG_WITH(opengl,
@@ -76,16 +83,16 @@ else
   
   if test x$opengl = xtrue; then
    if test "$host_os" = "cygwin"; then
-    AC_CHECK_LIB(GL, main,
+    AC_CHECK_LIB(opengl32, main,
       OGL_LIBS="-lopengl32", 
-      [AC_MSG_ERROR([GL not found, OpenGL cannot be built])
+      [AC_MSG_ERROR([opengl32 not found, OpenGL cannot be built])
        opengl=false],
        )
-    AC_CHECK_LIB(GLU,main,
+    AC_CHECK_LIB(glu32,main,
       OGL_LIBS="${OGL_LIBS} -lglu32",
-      [AC_MSG_ERROR([GLU not found, OpenGL cannot be built])
+      [AC_MSG_ERROR([glu32 not found, OpenGL cannot be built])
        opengl=false],
-       -lGL)
+       -lopengl32)
    else
     AC_CHECK_LIB(GL, main,
       OGL_LIBS="-lGL", 
@@ -101,6 +108,8 @@ else
   fi
   AC_SUBST(OGL_LIBS)
   AM_CONDITIONAL(USE_OPENGL, test x$opengl = xtrue)
+
+  CFLAGS="$SDL_CFLAGS $CFLAGS"
 
   # Check for GGI
   AC_ARG_WITH(ggi,
