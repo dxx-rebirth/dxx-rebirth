@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ogl/sdlgl.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-10-31 07:35:48 $
+ * $Date: 2001-11-04 09:02:18 $
  *
  * Graphics functions for SDL-GL.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/10/31 07:35:48  bradleyb
+ * Sync with d1x
+ *
  * Revision 1.1  2001/10/25 08:25:34  bradleyb
  * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
  *
@@ -100,7 +103,7 @@ void ogl_init(void){
 }
 
 void ogl_close(void){
-#if 0
+#if 1  // shouldn't really be necessary...
 	if (ogl_fullscreen){
 		ogl_fullscreen=0;
 		ogl_do_fullscreen_internal();
