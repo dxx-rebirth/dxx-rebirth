@@ -259,7 +259,7 @@ TryNextChannel:
 
 	SoundSlots[slot].soundno = soundnum;
 	SoundSlots[slot].samples = Sounddat(soundnum)->data;
-	SoundSlots[slot].length = Sounddat[soundnum].length;
+	SoundSlots[slot].length = Sounddat(soundnum)->length;
 	SoundSlots[slot].volume = fixmul(digi_volume, volume);
 	SoundSlots[slot].pan = pan;
 	SoundSlots[slot].position = 0;
@@ -499,7 +499,6 @@ int digi_link_sound_to_object2(int soundnum, short objnum, int forever, fix max_
 {
 	int i, volume, pan;
 	object *objp;
-	int soundnum;
 
 	if (max_volume < 0)
 		return -1;
