@@ -100,6 +100,8 @@ void swap_object(object *obj);
 #define receive_lite_netgame_packet(data, netgame) \
 	memcpy((ubyte *)(netgame), data, sizeof(lite_info))
 
+#define swap_object(obj)
+
 #endif
 
 #endif
