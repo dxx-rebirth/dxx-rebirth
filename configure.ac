@@ -82,7 +82,7 @@ AM_CONDITIONAL(SHAREWARE, test x$enable_shareware = xyes)
 
 dnl Enable movie trick?
 AC_ARG_ENABLE(movies,
-  [  --enable-movie-trick    Enable trick to show movies],,)
+  [  --enable-movie-trick    Enable trick to show movies (experimental)],,)
 if test x$enable_movie_trick = xyes; then
     AC_DEFINE(MOVIE_TRICK,,[Define to enable trick to show movies])
     D2X_FEATURES="movie_trick ${D2X_FEATURES}"
@@ -91,9 +91,9 @@ AM_CONDITIONAL(MOVIE_TRICK, test x$enable_movie_trick = xyes)
 
 dnl Enable NMOVIES?
 AC_ARG_ENABLE(nmovies,
-  [  --enable-nmovies        Turn off movies (render endlevel flythrough)],,)
+  [  --enable-nmovies        Turn off movies (render extra sequences) (experimental)],,)
 if test x$enable_nmovies = xyes; then
-    AC_DEFINE(NMOVIES,,[Define to render endlevel flythrough sequences (instead of movies)])
+    AC_DEFINE(NMOVIES,,[Define to render some extra sequences (instead of movies)])
     D2X_FEATURES="nmovies ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(NMOVIES, test x$enable_nmovies = xyes)
