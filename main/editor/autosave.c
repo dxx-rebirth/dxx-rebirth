@@ -1,4 +1,4 @@
-/* $Id: autosave.c,v 1.4 2004-12-21 11:58:14 btb Exp $ */
+/* $Id: autosave.c,v 1.5 2005-01-25 20:46:55 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -20,7 +20,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: autosave.c,v 1.4 2004-12-21 11:58:14 btb Exp $";
+static char rcsid[] = "$Id: autosave.c,v 1.5 2005-01-25 20:46:55 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -78,7 +78,7 @@ void close_autosave(void) {
 
     for (i=0;i<Autosave_total;i++) {
 
-	MALLOC(delname, char, 128);
+	MALLOC(delname, char, PATH_MAX);
 
         strcpy ( delname, mine_filename );
         strupr( delname );
@@ -100,7 +100,7 @@ void autosave_mine(char *name) {
 
 	if (Autosave_flag) {
 	
-	    MALLOC(savename, char, 128);
+	    MALLOC(savename, char, PATH_MAX);
 
 	
 	    strcpy ( savename, name );
@@ -215,7 +215,7 @@ int undo( void ) {
 //@@
 //@@    if (Autosave_numfiles > 1) {
 //@@
-//@@        MALLOC(loadname, char, 128);
+//@@        MALLOC(loadname, char, PATH_MAX);
 //@@
 //@@        strcpy ( loadname, mine_filename );
 //@@        strupr( loadname );

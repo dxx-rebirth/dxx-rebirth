@@ -1,4 +1,4 @@
-/* $Id: macro.c,v 1.6 2005-01-25 19:31:56 schaffner Exp $ */
+/* $Id: macro.c,v 1.7 2005-01-25 20:46:55 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: macro.c,v 1.6 2005-01-25 19:31:56 schaffner Exp $";
+static char rcsid[] = "$Id: macro.c,v 1.7 2005-01-25 20:46:55 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -58,7 +58,7 @@ UI_EVENT * RecordBuffer;
 int MacroNumEvents = 0;
 int MacroStatus = 0;
 
-static char filename[128] = "*.MIN";
+static char filename[PATH_MAX] = "*.MIN";
 
 int MacroRecordAll()
 {

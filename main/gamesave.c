@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.28 2005-01-24 21:26:24 schaffner Exp $ */
+/* $Id: gamesave.c,v 1.29 2005-01-25 20:46:55 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.28 2005-01-24 21:26:24 schaffner Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.29 2005-01-25 20:46:55 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -71,7 +71,7 @@ char gamesave_rcsid[] = "$Id: gamesave.c,v 1.28 2005-01-24 21:26:24 schaffner Ex
 #include "multi.h"
 #include "makesig.h"
 
-char Gamesave_current_filename[128];
+char Gamesave_current_filename[PATH_MAX];
 
 int Gamesave_current_version;
 
@@ -1300,7 +1300,7 @@ int load_level(char * filename_passed)
 	int use_compiled_level=1;
 #endif
 	CFILE * LoadFile;
-	char filename[128];
+	char filename[PATH_MAX];
 	int sig, minedata_offset, gamedata_offset;
 	int mine_err, game_err;
 #ifdef NETWORK
@@ -1712,7 +1712,7 @@ int save_mine_data(FILE * SaveFile);
 int save_level_sub(char * filename, int compiled_version)
 {
 	FILE * SaveFile;
-	char temp_filename[128];
+	char temp_filename[PATH_MAX];
 	int sig = MAKE_SIG('P','L','V','L'),version=LEVEL_FILE_VERSION;
 	int minedata_offset=0,gamedata_offset=0;
 

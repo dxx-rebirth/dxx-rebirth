@@ -1,4 +1,4 @@
-/* $Id: kmine.c,v 1.5 2005-01-23 14:46:49 schaffner Exp $ */
+/* $Id: kmine.c,v 1.6 2005-01-25 20:46:55 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kmine.c,v 1.5 2005-01-23 14:46:49 schaffner Exp $";
+static char rcsid[] = "$Id: kmine.c,v 1.6 2005-01-25 20:46:55 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -50,10 +50,10 @@ static char rcsid[] = "$Id: kmine.c,v 1.5 2005-01-23 14:46:49 schaffner Exp $";
 
 #define MINESAVE_CRIPPLED	0
 
-char mine_filename[128] = "*.MIN";
-char sit_filename[128] = "*.SIT";
+char mine_filename[PATH_MAX] = "*.MIN";
+char sit_filename[PATH_MAX] = "*.SIT";
 
-#define MAX_NAME_LENGTH 128
+#define MAX_NAME_LENGTH PATH_MAX
 
 //	See if filename f contains an extent.  If not, add extent ext.
 void checkforext( char * f, char *ext )

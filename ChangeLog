@@ -12,6 +12,9 @@
 	* ui/number.c: s/inputbox/Inputbox/
 	* ui/ui.c: InstallErrorHandler() no longer exists, don't use it anymore
 	* main/bmread.c: externalize N_ObjBitmaps & remove_char, solve conflict
+	* main/editor/autosave.c, main/editor/editor.h, main/editor/group.c,
+	main/editor/kgame.c, main/editor/kmine.c, main/editor/macro.c,
+	main/gamesave.c: s/128/PATH_MAX
 
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 

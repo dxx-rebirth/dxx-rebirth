@@ -1,4 +1,4 @@
-/* $Id: editor.h,v 1.6 2005-01-24 21:11:58 schaffner Exp $ */
+/* $Id: editor.h,v 1.7 2005-01-25 20:46:55 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -589,7 +589,7 @@ extern void set_editor_time_of_day();
 
 // Undo function
 extern int undo(void);
-extern char mine_filename[128];
+extern char mine_filename[PATH_MAX];
 extern char undo_status[10][100];
 
 //	group.c
