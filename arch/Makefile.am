@@ -1,4 +1,4 @@
-SUBDIRS = include dos linux ogl win32
+SUBDIRS = include dos linux win32
 
 noinst_LIBRARIES = libarch.a
 INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(top_srcdir)/arch/include

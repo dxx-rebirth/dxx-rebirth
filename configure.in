@@ -243,8 +243,6 @@ arch/dos/include/Makefile
 arch/dos/mm_snd/Makefile
 arch/dos/mm_snd/include/Makefile
 arch/include/Makefile
-arch/ogl/Makefile
-arch/ogl/include/Makefile
 arch/linux/Makefile
 arch/linux/include/Makefile
 arch/win32/Makefile

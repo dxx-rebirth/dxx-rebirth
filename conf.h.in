@@ -1,7 +1,4 @@
-/* conf.h.in.  Generated automatically from configure.in by autoheader.  */
-
-/* Define if you need to in order for stat and other things to work.  */
-#undef _POSIX_SOURCE
+/* conf.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
 
 /* Define if you have the ANSI C header files.  */
 #undef STDC_HEADERS
