@@ -11,6 +11,9 @@
 	* main/bmread.c, main/inferno.c: if EDITOR is defined, game 
 	still works if there's no BITMAPS.TBL in a PhysicsFS search path
 
+	* main/inferno.c: determine properly if 800x600 resolution is
+	available (for editor)
+
 2005-02-25  Chris Taylor  <chris@icculus.org>
 
 	* arch/carbon/conf.h, D2X.make: no defining OGL in conf.h,

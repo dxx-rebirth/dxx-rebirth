@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.99 2005-02-26 07:04:47 chris Exp $ */
+/* $Id: inferno.c,v 1.100 2005-02-26 09:30:04 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -141,10 +141,6 @@ int Screen_mode=-1;					//game screen or editor screen?
 //--unused-- grs_bitmap Inferno_bitmap_title;
 
 int WVIDEO_running=0;		//debugger can set to 1 if running
-
-#ifdef EDITOR
-int Inferno_is_800x600_available = 0;
-#endif
 
 //--unused-- int Cyberman_installed=0;			// SWIFT device present
 ubyte CybermouseActive=0;
@@ -673,7 +669,8 @@ int main(int argc, char *argv[])
 //	if (init_graphics()) return 1;
 
 	#ifdef EDITOR
-	if (!Inferno_is_800x600_available)	{
+	if (gr_check_mode(SM(800, 600)) != 0)
+	{
 		con_printf(CON_NORMAL, "The editor will not be available, press any key to start game...\n" );
 		Function_mode = FMODE_MENU;
 	}
