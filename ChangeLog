@@ -1,5 +1,7 @@
 2003-04-24  Bradley Bell  <btb@icculus.org>
 
+	* configure.ac: increment version number
+
 	* main/inferno.c: redeclare main() 'the SDL way', make sure SDL.h
 	is always included.
 
