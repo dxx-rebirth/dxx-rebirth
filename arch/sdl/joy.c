@@ -1,4 +1,4 @@
-/* $Id: joy.c,v 1.14 2004-11-22 23:32:54 btb Exp $ */
+/* $Id: joy.c,v 1.15 2004-11-23 00:16:10 btb Exp $ */
 /*
  *
  * SDL joystick support
@@ -301,7 +301,8 @@ ubyte joystick_read_raw_axis( ubyte mask, int * axis )
 
 	event_poll();
 
-	for (i = 0; i < Joystick.n_axes; i++) {
+	for (i = 0; i < Joystick.n_axes; i++)
+	{
 		if ((axis[i] = Joystick.axes[i].value))
 			channel_masks |= 1 << i;
 	}
@@ -340,7 +341,8 @@ void joy_get_cal_vals(int *axis_min, int *axis_center, int *axis_max)
 {
 	int i;
 
-	for (i = 0; i < Joystick.n_axes; i++) {
+	for (i = 0; i < Joystick.n_axes; i++)
+	{
 		axis_center[i] = Joystick.axes[i].center_val;
 		axis_min[i] = Joystick.axes[i].min_val;
 		axis_max[i] = Joystick.axes[i].max_val;
@@ -351,7 +353,8 @@ void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max)
 {
 	int i;
 
-	for (i = 0; i < Joystick.n_axes; i++) {
+	for (i = 0; i < Joystick.n_axes; i++)
+	{
 		Joystick.axes[i].center_val = axis_center[i];
 		Joystick.axes[i].min_val = axis_min[i];
 		Joystick.axes[i].max_val = axis_max[i];
