@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.10 2003-04-29 08:05:41 btb Exp $ */
+/* $Id: mveplay.c,v 1.11 2003-04-30 20:05:52 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -130,18 +130,20 @@ static int micro_frame_delay=0;
 static int timer_started=0;
 static struct timeval timer_expire = {0, 0};
 
+#if !HAVE_STRUCT_TIMESPEC
+struct timespec
+{
+	long int tv_sec;            /* Seconds.  */
+	long int tv_nsec;           /* Nanoseconds.  */
+};
+#endif
+
 #if defined(HAVE_DECL_NANOSLEEP) && !HAVE_DECL_NANOSLEEP
 int nanosleep(struct timespec *ts, void *rem);
 #endif
 
 #ifdef __WIN32
 #include <sys/timeb.h>
-
-struct timespec
-{
-	long int tv_sec;            /* Seconds.  */
-	long int tv_nsec;           /* Nanoseconds.  */
-};
 
 int gettimeofday(struct timeval *tv, void *tz)
 {

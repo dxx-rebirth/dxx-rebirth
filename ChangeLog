@@ -2,6 +2,9 @@
 
 2003-04-30  Bradley Bell  <btb@icculus.org>
 
+	* configure.ac, libmve/mveplay.c: use autoconf to check for struct
+	timespec
+
 	* Makefile.am, NEWS, README, configure.ac: fix linking bug,
 	increment version number
 
