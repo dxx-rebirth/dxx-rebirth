@@ -2,6 +2,8 @@
 
 	* main/bmread.c: don't duplicate the period in the filename
 
+	* main/dumpmine.c: Add function prototypes to remove warnings
+
 2004-12-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/editor/eobject.c, main/editor/kgame.c,
