@@ -1,5 +1,7 @@
 2003-04-02  Bradley Bell  <btb@icculus.org>
 
+	* misc/error.c: call Int3 on Assert
+
 	* main/cntrlcen.c, main/cntrlcen.h, main/gamesave.c: modified
 	trigger reader
 

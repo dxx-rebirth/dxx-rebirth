@@ -1,4 +1,4 @@
-/* $Id: error.c,v 1.4 2003-02-18 20:35:35 btb Exp $ */
+/* $Id: error.c,v 1.5 2003-04-03 07:16:57 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -61,7 +61,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: error.c,v 1.4 2003-02-18 20:35:35 btb Exp $";
+static char rcsid[] = "$Id: error.c,v 1.5 2003-04-03 07:16:57 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -117,8 +117,8 @@ void set_exit_message(char *fmt,...)
 
 void _Assert(int expr,char *expr_text,char *filename,int linenum)
 {
+	Int3();
 	if (!(expr)) Error("Assertion failed: %s, file %s, line %d",expr_text,filename,linenum);
-
 }
 
 void print_exit_message(void)
