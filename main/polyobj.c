@@ -1,4 +1,4 @@
-/* $Id: polyobj.c,v 1.19 2004-11-19 18:29:20 schaffner Exp $ */
+/* $Id: polyobj.c,v 1.20 2004-11-27 12:28:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.19 2004-11-19 18:29:20 schaffner Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.20 2004-11-27 12:28:10 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -906,8 +906,7 @@ extern void polymodel_read(polymodel *pm, CFILE *fp)
 
 	pm->n_models = cfile_read_int(fp);
 	pm->model_data_size = cfile_read_int(fp);
-	// pm->model_data = (ubyte *) // this is malloced later
-	                              cfile_read_int(fp);
+	pm->model_data = (ubyte *)cfile_read_int(fp); // garbage, read it anyway just for consistency
 	for (i = 0; i < MAX_SUBMODELS; i++)
 		pm->submodel_ptrs[i] = cfile_read_int(fp);
 	for (i = 0; i < MAX_SUBMODELS; i++)
@@ -941,8 +940,7 @@ extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp)
 	for (i = 0; i < n; i++) {
 		pm[i].n_models = cfile_read_int(fp);
 		pm[i].model_data_size = cfile_read_int(fp);
-		// pm->model_data = (ubyte *) // this is malloced later
-	                                      cfile_read_int(fp);
+		pm->model_data = (ubyte *)cfile_read_int(fp); // garbage, read it anyway just for consistency
 		for (j = 0; j < MAX_SUBMODELS; j++)
 			pm[i].submodel_ptrs[j] = cfile_read_int(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)

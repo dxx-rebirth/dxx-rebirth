@@ -1,5 +1,7 @@
 2004-11-27  Bradley Bell  <btb@icculus.org>
 
+	* main/bm.c, main/polyobj.c: better fix for model data freeing bug
+
 	* main/inferno.c: enable logo screens for shareware/oem
 
 2004-11-26  Bradley Bell  <btb@icculus.org>
