@@ -2,7 +2,7 @@ EXTRA_SUBDIRS = allg_snd bak comm include mm_snd
 
 noinst_LIBRARIES = libarch_dos.a
 
-INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(srcdir)/include
+INCLUDES = -I$(top_srcdir)/arch/include -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(srcdir)/include
 
 libarch_dos_a_SOURCES = dpmi.c findfile.c init.c ipx.c vesa.c
 

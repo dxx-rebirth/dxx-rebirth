@@ -13,18 +13,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/ipx.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-10-19 09:01:56 $
+ * $Date: 2001-10-19 10:46:06 $
  * 
  * Routines for IPX communications.
  * 
  * $Log: not supported by cvs2svn $
- * Revision 1.2  2001/01/29 13:35:08  bradleyb
- * Fixed build system, minor fixes
- *
- * Revision 1.1.1.1  2001/01/19 03:30:15  bradleyb
- * Import of d2x-0.0.8
+ * Revision 1.2  2000/02/07 10:26:05  donut
+ * new ipx code structure reduces some redundancy and gives all arches multi netcode ability
  *
  * Revision 1.1.1.1  1999/06/14 21:58:22  donut
  * Import of d1x 1.37 source.
@@ -176,20 +173,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: ipx.c,v 1.3 2001-10-19 09:01:56 bradleyb Exp $";
-#endif
-
 #ifdef __GNUC__
 #define _BORLAND_DOS_REGS 1
 #define far
 #endif
 
+#include <i86.h>
 #include <dos.h>
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>
 #include <stdlib.h>
+#include <conio.h>
 #include <assert.h>
 
 #include "pstypes.h"
@@ -198,6 +193,7 @@ static char rcsid[] = "$Id: ipx.c,v 1.3 2001-10-19 09:01:56 bradleyb Exp $";
 #include "error.h"
 #include "u_dpmi.h"
 #include "key.h"
+#include "ipx_drv.h"
 
 typedef unsigned char BYTE;
 typedef unsigned short WORD;
@@ -247,21 +243,7 @@ typedef struct ipx_packet {
 	packet_data	pd;
 } __pack__ ipx_packet;
 
-typedef struct user_address {
-	ubyte network[4];
-	ubyte node[6];
-	ubyte address[6];
-} __pack__ user_address;
-
-#define MAX_USERS 64
-int Ipx_num_users = 0;
-user_address Ipx_users[MAX_USERS];
-
-#define MAX_NETWORKS 64
-int Ipx_num_networks = 0;
-uint Ipx_networks[MAX_NETWORKS];
-
-int ipx_packetnum = 0;
+static int ipx_packetnum = 0;
 
 #define MAX_PACKETS 64
 
@@ -272,12 +254,13 @@ static int largest_packet_index = 0;
 static short packet_size[MAX_PACKETS];
 
 WORD ipx_socket=0;
-ubyte ipx_installed=0;
+static ubyte ipx_installed=0;
 WORD ipx_vector_segment;
 WORD ipx_vector_offset;
 ubyte ipx_socket_life = 0; 	// 0=closed at prog termination, 0xff=closed when requested.
-DWORD ipx_network = 0;
-local_address ipx_my_node;
+//DWORD ipx_network = 0;
+//local_address ipx_my_node;
+#define ipx_my_node (ipx_MyAddress+4)
 WORD ipx_num_packets=32;		// 32 Ipx packets
 ipx_packet * packets;
 int neterrors = 0;
@@ -286,10 +269,10 @@ ushort ipx_packets_selector;
 ecb_header * last_ecb=NULL;
 int lastlen=0;
 
-void got_new_packet( ecb_header * ecb );
-void ipx_listen_for_packet(ecb_header * ecb );
+static void got_new_packet( ecb_header * ecb );
+static void ipx_listen_for_packet(ecb_header * ecb );
 
-void free_packet( int id )
+static void free_packet( int id )
 {
 	packet_buffers[id].packetnum = -1;
 	packet_free_list[ --num_packets ] = id;
@@ -297,7 +280,7 @@ void free_packet( int id )
 		while ((--largest_packet_index>0) && (packet_buffers[largest_packet_index].packetnum == -1 ));
 }
 
-int ipx_get_packet_data( ubyte * data )
+static int ipx_dos_get_packet_data( ubyte * data )
 {
 	int i, n, best, best_id, size;
 
@@ -346,7 +329,7 @@ static inline unsigned int swap_short( unsigned int sshort ) {
 }
 #endif
 
-void got_new_packet( ecb_header * ecb )
+static void got_new_packet( ecb_header * ecb )
 {
 	ipx_packet * p;
 	int id;
@@ -361,7 +344,7 @@ void got_new_packet( ecb_header * ecb )
 
 	//	Error( "Recieve error %d for completion code", p->ecb.completion_code );
 	
-	if ( memcmp( &p->ipx.source.node_id, &ipx_my_node, 6 ) )	{
+	if ( memcmp( &p->ipx.source.node_id, ipx_my_node, 6 ) )	{
 		datasize=swap_short(p->ipx.length);
 		lastlen=datasize;
 		datasize -= sizeof(ipx_header);
@@ -387,7 +370,7 @@ void got_new_packet( ecb_header * ecb )
 	//ipx_listen_for_packet(&p->ecb);
 }
 
-ubyte * ipx_get_my_local_address()
+/*ubyte * ipx_get_my_local_address()
 {
 	return ipx_my_node.address;
 }
@@ -395,9 +378,9 @@ ubyte * ipx_get_my_local_address()
 ubyte * ipx_get_my_server_address()
 {
 	return (ubyte *)&ipx_network;
-}
+}*/
 
-void ipx_listen_for_packet(ecb_header * ecb )	
+static void ipx_listen_for_packet(ecb_header * ecb )	
 {
 	dpmi_real_regs rregs;
 	ecb->in_use = 0x1d;
@@ -408,7 +391,7 @@ void ipx_listen_for_packet(ecb_header * ecb )
 	dpmi_real_int386x( 0x7A, &rregs );
 }
 
-void ipx_cancel_listen_for_packet(ecb_header * ecb )	
+/*static void ipx_cancel_listen_for_packet(ecb_header * ecb )	
 {
 	dpmi_real_regs rregs;
 	memset(&rregs,0,sizeof(dpmi_real_regs));
@@ -417,9 +400,9 @@ void ipx_cancel_listen_for_packet(ecb_header * ecb )
 	rregs.es = DPMI_real_segment(ecb);
 	dpmi_real_int386x( 0x7A, &rregs );
 }
+*/
 
-
-void ipx_send_packet(ecb_header * ecb )	
+static void ipx_send_packet(ecb_header * ecb )	
 {
 	dpmi_real_regs rregs;
 	memset(&rregs,0,sizeof(dpmi_real_regs));
@@ -435,7 +418,7 @@ typedef struct {
 	ubyte		local_target[6];
 } __pack__ net_xlat_info;
 
-void ipx_get_local_target( ubyte * server, ubyte * node, ubyte * local_target )
+static void ipx_dos_get_local_target( ubyte * server, ubyte * node, ubyte * local_target )
 {
 	net_xlat_info * info;
 	dpmi_real_regs rregs;
@@ -459,7 +442,7 @@ void ipx_get_local_target( ubyte * server, ubyte * node, ubyte * local_target )
 	memcpy( local_target, info->local_target, 6 );
 }
 
-void ipx_close()
+static void ipx_dos_close()
 {
 	dpmi_real_regs rregs;
 	if ( ipx_installed )	{
@@ -485,13 +468,14 @@ void ipx_close()
 //				-4 if couldn't allocate low dos memory
 //				-5 if error with getting internetwork address
 
-int ipx_init( int socket_number, int show_address )
+static int ipx_dos_init( int socket_number )
 {
+	int show_address=0;
 	dpmi_real_regs rregs;
 	ubyte *ipx_real_buffer;
 	int i;
 
-	atexit(ipx_close);
+//	atexit(ipx_close);
 
 	ipx_packetnum = 0;
 
@@ -551,11 +535,9 @@ int ipx_init( int socket_number, int show_address )
 		return -2;
 	}
 
-	memcpy( &ipx_network, ipx_real_buffer, 4 );
-	memcpy( &ipx_my_node, &ipx_real_buffer[4], 6 );
-
-	Ipx_num_networks = 0;
-	memcpy( &Ipx_networks[Ipx_num_networks++], &ipx_network, 4 );
+/*	memcpy( &ipx_network, ipx_real_buffer, 4 );
+	memcpy( ipx_my_node, &ipx_real_buffer[4], 6 );*/
+	memcpy(ipx_MyAddress,ipx_real_buffer,10);
 
 	if ( show_address )	{
 		printf( "My IPX addresss is " );
@@ -601,7 +583,7 @@ int ipx_init( int socket_number, int show_address )
 	return 0;
 }
 
-void ipx_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address )
+static void ipx_dos_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address )
 {
 	assert(ipx_installed);
 
@@ -649,53 +631,7 @@ void ipx_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *ad
 
 }
 
-void ipx_send_broadcast_packet_data( ubyte * data, int datasize )	
-{
-	int i, j;
-	ubyte broadcast[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-	ubyte local_address[6];
-
-	// Set to all networks besides mine
-	for (i=0; i<Ipx_num_networks; i++ )	{
-		if ( memcmp( &Ipx_networks[i], &ipx_network, 4 ) )	{
-			ipx_get_local_target( (ubyte *)&Ipx_networks[i], broadcast, local_address );
-			ipx_send_packet_data( data, datasize, (ubyte *)&Ipx_networks[i], broadcast, local_address );
-		} else {
-			ipx_send_packet_data( data, datasize, (ubyte *)&Ipx_networks[i], broadcast, broadcast );
-		}
-	}
-
-	//OLDipx_send_packet_data( data, datasize, (ubyte *)&ipx_network, broadcast, broadcast );
-
-	// Send directly to all users not on my network or in the network list.
-	for (i=0; i<Ipx_num_users; i++ )	{
-		if ( memcmp( Ipx_users[i].network, &ipx_network, 4 ) )	{
-			for (j=0; j<Ipx_num_networks; j++ )		{
-				if (!memcmp( Ipx_users[i].network, &Ipx_networks[j], 4 ))
-					goto SkipUser;
-			}
-			ipx_send_packet_data( data, datasize, Ipx_users[i].network, Ipx_users[i].node, Ipx_users[i].address );
-SkipUser:
-			j = 0;
-		}
-	}
-}
-
-// Sends a non-localized packet... needs 4 byte server, 6 byte address
-void ipx_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * server, ubyte *address )
-{
-	ubyte local_address[6];
-
-	if ( (*(uint *)server) != 0 )	{
-		ipx_get_local_target( server, address, local_address );
-		ipx_send_packet_data( data, datasize, server, address, local_address );
-	} else {
-		// Old method, no server info.
-		ipx_send_packet_data( data, datasize, server, address, address );
-	}
-}
-
-int ipx_change_default_socket( ushort socket_number )
+/*static int ipx_change_default_socket( ushort socket_number )
 {
 	int i;
 	WORD new_ipx_socket;
@@ -751,87 +687,27 @@ int ipx_change_default_socket( ushort socket_number )
 
 	return 0;
 }
+*/
 
-void ipx_read_user_file(char * filename)
+struct ipx_driver ipx_dos = {
+//	NULL,
+	ipx_dos_init,
+	ipx_dos_close,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	1,
+	ipx_dos_get_local_target,
+	ipx_dos_get_packet_data,
+	ipx_dos_send_packet_data
+};
+
+struct ipx_driver * arch_ipx_set_driver(char *arg)
 {
-	FILE * fp;
-	user_address tmp;
-	char temp_line[132], *p1;
-	int n, ln=0;
-
-	if (!filename) return;
-
-	Ipx_num_users = 0;
-
-	fp = fopen( filename, "rt" );
-	if ( !fp ) return;
-
-	printf( "Broadcast Users:\n" );
-
-	while (fgets(temp_line, 132, fp)) {
-		ln++;
-		p1 = strchr(temp_line,'\n'); if (p1) *p1 = '\0';
-		p1 = strchr(temp_line,';'); if (p1) *p1 = '\0';
-                n = sscanf( temp_line, "%2x%2x%2x%2x/%2x%2x%2x%2x%2x%2x",(unsigned int *)&tmp.network[0],(unsigned int *) &tmp.network[1],(unsigned int *) &tmp.network[2],(unsigned int *) &tmp.network[3],(unsigned int *) &tmp.node[0],(unsigned int *) &tmp.node[1],(unsigned int *) &tmp.node[2],(unsigned int *)&tmp.node[3],(unsigned int *) &tmp.node[4],(unsigned int *) &tmp.node[5] );
-		if ( n != 10 ) continue;
-		if ( Ipx_num_users < MAX_USERS )	{
-			ubyte * ipx_real_buffer = (ubyte *)&tmp;
-			ipx_get_local_target( tmp.network, tmp.node, tmp.address );
-			Ipx_users[Ipx_num_users++] = tmp;
-			printf( "%02X%02X%02X%02X/", ipx_real_buffer[0],ipx_real_buffer[1],ipx_real_buffer[2],ipx_real_buffer[3] );
-			printf( "%02X%02X%02X%02X%02X%02X\n", ipx_real_buffer[4],ipx_real_buffer[5],ipx_real_buffer[6],ipx_real_buffer[7],ipx_real_buffer[8],ipx_real_buffer[9] );
-		} else {
-			printf( "Too many addresses in %s! (Limit of %d)\n", filename, MAX_USERS );
-			fclose(fp);
-			return;
-		}
-	}
-	fclose(fp);
+	return &ipx_dos;
 }
 
-
-void ipx_read_network_file(char * filename)
-{
-	FILE * fp;
-	user_address tmp;
-	char temp_line[132], *p1;
-	int i, n, ln=0;
-
-	if (!filename) return;
-
-	fp = fopen( filename, "rt" );
-	if ( !fp ) return;
-
-	printf( "Using Networks:\n" );
-	for (i=0; i<Ipx_num_networks; i++ )		{
-		ubyte * n1 = (ubyte *)&Ipx_networks[i];
-		printf("* %02x%02x%02x%02x\n", n1[0], n1[1], n1[2], n1[3] );
-	}
-
-	while (fgets(temp_line, 132, fp)) {
-		ln++;
-		p1 = strchr(temp_line,'\n'); if (p1) *p1 = '\0';
-		p1 = strchr(temp_line,';'); if (p1) *p1 = '\0';
-                n = sscanf( temp_line, "%2x%2x%2x%2x",(unsigned int *) &tmp.network[0],(unsigned int *) &tmp.network[1],(unsigned int *) &tmp.network[2],(unsigned int *) &tmp.network[3] );
-		if ( n != 4 ) continue;
-		if ( Ipx_num_networks < MAX_NETWORKS  )	{
-			int j;
-			for (j=0; j<Ipx_num_networks; j++ )	
-				if ( !memcmp( &Ipx_networks[j], tmp.network, 4 ) )
-					break;
-			if ( j >= Ipx_num_networks )	{
-				memcpy( &Ipx_networks[Ipx_num_networks++], tmp.network, 4 );
-				printf("  %02x%02x%02x%02x\n", tmp.network[0], tmp.network[1], tmp.network[2], tmp.network[3] );
-			}
-		} else {
-			printf( "Too many networks in %s! (Limit of %d)\n", filename, MAX_NETWORKS );
-			fclose(fp);
-			return;
-		}
-	}
-	fclose(fp);
-
-}
 
 //---typedef struct rip_entry {
 //---	uint	 	network;
