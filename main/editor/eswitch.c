@@ -1,3 +1,4 @@
+/* $Id: eswitch.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,113 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/eswitch.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Editor switch functions. 
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:03  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:35:18  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.33  1995/01/14  19:18:04  john
- * First version of object paging.
- * 
- * Revision 1.32  1994/11/27  23:18:01  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.31  1994/11/07  10:55:42  yuan
- * *** empty log message ***
- * 
- * Revision 1.30  1994/10/13  13:15:06  yuan
- * Fixed trigger removal bug.
- * 
- * Revision 1.29  1994/10/06  21:24:16  matt
- * Added switch for exit to secret level
- * 
- * Revision 1.28  1994/09/29  17:06:10  matt
- * Took out references to obsolete external triggers
- * 
- * Revision 1.27  1994/09/28  13:40:34  yuan
- * Fixed control center trigger bug.
- * 
- * Revision 1.26  1994/09/26  16:25:04  yuan
- * Only allow one binding of each matcen .
- * 
- * Revision 1.25  1994/09/24  17:10:19  yuan
- * Added Matcen triggers.
- * 
- * Revision 1.24  1994/09/20  18:23:58  yuan
- * Killed the BOGIFYING WALL DRAGON...
- * 
- * There was a problem with triggers being created that had bogus
- * pointers back to their segments.
- * 
- * Revision 1.23  1994/08/25  21:56:33  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.22  1994/08/15  18:06:54  yuan
- * Added external trigger.
- * 
- * Revision 1.21  1994/07/22  17:18:47  yuan
- * Working on dialog box for refuel/repair/material/control centers.
- * 
- * Revision 1.20  1994/07/06  10:55:55  john
- * New structures for hostages.
- * 
- * Revision 1.19  1994/07/01  16:36:20  yuan
- * Working on triggers that aren't always on.
- * 
- * Revision 1.18  1994/06/21  18:50:14  john
- * Made ESC key exit dialog.
- * 
- * Revision 1.17  1994/06/20  22:30:36  yuan
- * Fixed crazy runaway trigger bug that Adam found
- * 
- * Revision 1.16  1994/05/31  10:03:48  yuan
- * Fixed compiler warnings...
- * 
- * 
- * Revision 1.15  1994/05/30  20:22:30  yuan
- * New triggers.
- * 
- * Revision 1.14  1994/05/27  12:33:50  yuan
- * Fixed some bugs when adding trigger.
- * 
- * Revision 1.13  1994/05/27  10:34:29  yuan
- * Added new Dialog boxes for Walls and Triggers.
- * 
- * Revision 1.12  1994/05/25  18:15:02  yuan
- * Fixed make warnings to save 10 cents!
- * 
- * Revision 1.11  1994/05/25  18:08:03  yuan
- * Revamping walls and triggers interface.
- * Wall interface complete, but triggers are still in progress.
- * 
- * Revision 1.10  1994/04/29  15:05:50  yuan
- * Trigger/Link removing stuff still needs to be fixed.
- * 
- * Revision 1.9  1994/04/28  23:25:34  yuan
- * Obliterated warnings.
- * 
- * Revision 1.8  1994/04/28  18:08:06  yuan
- * Fixed trigger bug.
- * 
+ * Editor switch functions.
+ *
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: eswitch.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: eswitch.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdio.h>

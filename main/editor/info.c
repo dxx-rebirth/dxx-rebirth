@@ -1,3 +1,4 @@
+/* $Id: info.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,159 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/info.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Print debugging info in ui.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:18  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:35:34  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.42  1995/02/22  15:12:50  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.41  1994/12/08  13:59:39  matt
- * *** empty log message ***
- * 
- * Revision 1.40  1994/09/30  00:38:30  mike
- * Fix some diagnostic messages
- * 
- * Revision 1.39  1994/09/29  20:13:12  mike
- * Clean up some text, prevent it from writing outside canvas.
- * 
- * Revision 1.38  1994/09/29  09:32:17  mike
- * Fix text clipping problem in UI keypad info text.
- * 
- * Revision 1.37  1994/09/25  23:42:20  matt
- * Took out references to obsolete constants
- * 
- * Revision 1.36  1994/08/25  21:57:05  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.35  1994/08/23  16:39:50  mike
- * mode replaced by behavior in ai_info.
- * 
- * Revision 1.34  1994/07/18  10:45:23  mike
- * Fix erase window in texture pads after adding more click-boxes.
- * 
- * Revision 1.33  1994/07/15  12:34:10  mike
- * Remove use of AIM_FOLLOW_PATH_CIRCULAR.
- * 
- * Revision 1.32  1994/06/17  17:13:46  yuan
- * Fixed text so it doesn't overflow screen
- * 
- * Revision 1.31  1994/06/01  17:22:31  matt
- * Set font color before drawing info; got rid of superfluous %d
- * 
- * Revision 1.30  1994/05/29  23:40:29  matt
- * Killed reference to now-unused movement type
- * 
- * Revision 1.29  1994/05/29  22:52:32  matt
- * Deleted unused stuff
- * 
- * Revision 1.28  1994/05/27  10:34:16  yuan
- * Added new Dialog boxes for Walls and Triggers.
- * 
- * Revision 1.27  1994/05/17  10:34:35  matt
- * Changed Num_objects to num_objects, since it's not really global anymore
- * 
- * Revision 1.26  1994/05/14  17:17:59  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.25  1994/05/12  14:47:07  mike
- * Adjust for Ai_states killed, replaced by field in object structure.
- * 
- * Revision 1.24  1994/05/06  12:52:11  yuan
- * Adding some gamesave checks...
- * 
- * Revision 1.23  1994/05/03  19:21:28  matt
- * Removed reference to robot flythrough mode, which doesn't exist anymore
- * 
- * Revision 1.22  1994/05/03  11:03:06  mike
- * Customize text for segment sizing keypad.
- * 
- * Revision 1.21  1994/04/29  15:05:40  yuan
- * More info added...
- * 
- * Revision 1.20  1994/04/22  17:45:58  john
- * MAde top 2 bits of paste-ons pick the 
- * orientation of the bitmap.
- * 
- * Revision 1.19  1994/04/20  17:29:30  yuan
- * Added tmap_num info.
- * 
- * Revision 1.18  1994/04/13  19:12:55  mike
- * Fix font color problems in keypads.
- * 
- * Revision 1.17  1994/04/13  13:26:37  mike
- * Kill a mprintf.
- * 
- * Revision 1.16  1994/04/13  13:24:44  mike
- * Separate info display, customize for each keypad.
- * 
- * Revision 1.15  1994/03/19  17:21:31  yuan
- * Wall system implemented until specific features need to be added...
- * (Needs to be hammered on though.)
- * 
- * Revision 1.14  1994/02/22  18:13:13  yuan
- * Added tmap number field.
- * 
- * Revision 1.13  1994/02/17  09:46:27  matt
- * Removed include of slew.h
- * 
- * Revision 1.12  1994/02/16  19:58:56  yuan
- * Added type to info
- * 
- * Revision 1.11  1994/02/16  16:48:08  yuan
- * Added Curside.
- * 
- * Revision 1.10  1994/02/03  17:26:43  yuan
- * Fixed formatting of vertex numbering.
- * 
- * Revision 1.9  1994/01/31  12:17:06  yuan
- * Make sure Num_segments, etc. are drawn.
- * 
- * Revision 1.8  1994/01/22  13:43:12  yuan
- * Cosmetic fixes.
- * 
- * Revision 1.7  1994/01/21  12:14:59  yuan
- * Fixed cosmetic problem
- * 
- * Revision 1.6  1994/01/21  12:01:03  yuan
- * Added segment and vertex info
- * 
- * Revision 1.5  1994/01/20  11:28:11  john
- * *** empty log message ***
- * 
- * Revision 1.4  1994/01/19  10:44:42  john
- * *** empty log message ***
- * 
- * Revision 1.3  1994/01/19  10:32:36  john
- * *** empty log message ***
- * 
- * Revision 1.2  1994/01/19  09:34:31  john
- * First version.
- * 
- * Revision 1.1  1994/01/19  09:30:43  john
- * Initial revision
- * 
- * 
+ * Print debugging info in ui.
+ *
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: info.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: info.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <i86.h>

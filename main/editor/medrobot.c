@@ -1,3 +1,4 @@
+/* $Id: medrobot.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,85 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/medrobot.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Dialog box to edit robot properties.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:56  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:35:59  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.46  1995/02/22  15:22:03  allender
- * remove anonyous unions from object structure
- * 
- * Revision 1.45  1994/11/27  23:17:32  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.44  1994/11/14  11:39:57  mike
- * fix default robot behavior
- * 
- * Revision 1.43  1994/11/02  16:18:47  matt
- * Moved draw_model_picture() out of editor, and cleaned up code
- * 
- * Revision 1.42  1994/10/10  17:23:23  mike
- * Verify that not placing too many player objects.
- * 
- * Revision 1.41  1994/10/09  22:04:38  mike
- * Maybe improve, maybe not, robot selection in shift-R menu.
- * 
- * Revision 1.40  1994/09/30  21:49:01  mike
- * Fix stupid shift-R dialog bug which caused lots of mprintf and selecting of object and frustration.
- * 
- * Revision 1.39  1994/09/30  11:51:33  mike
- * Fix boolean logic on an error trap.
- * 
- * Revision 1.38  1994/09/20  14:36:32  mike
- * Clean up Robot dialog.
- * 
- * Revision 1.37  1994/09/12  19:11:56  mike
- * Fix stupid bugs in selecting objects.
- * 
- * Revision 1.36  1994/09/01  17:05:51  matt
- * Don't force redraw if object select fails
- * 
- * Revision 1.35  1994/08/31  19:24:40  mike
- * Fix hang bug when only objects in mine are not robots.
- * 
- * Revision 1.34  1994/08/25  21:56:38  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.33  1994/08/23  16:39:29  mike
- * mode replaced by behavior in ai_info.
- * 
- * Revision 1.32  1994/08/15  23:47:16  mike
- * fix bugs.
- * 
- * Revision 1.31  1994/08/13  17:32:45  mike
- * set to still function.
- * 
- * Revision 1.30  1994/08/09  16:06:02  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.29  1994/08/02  16:22:48  matt
- * Finished object editor dialog
- * 
+ * Dialog box to edit robot properties.
+ *
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: medrobot.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: medrobot.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdlib.h>

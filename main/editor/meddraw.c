@@ -1,3 +1,4 @@
+/* $Id: meddraw.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,85 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/meddraw.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Med drawing functions.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:50  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:34:42  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.34  1994/11/09  11:46:30  matt
- * Don't draw non-existant special segments
- * 
- * Revision 1.33  1994/10/27  10:06:38  mike
- * adapt to no inverse table.
- * 
- * Revision 1.32  1994/10/17  18:06:23  john
- * Made net player objects draw in dark green.
- * 
- * Revision 1.31  1994/09/26  16:44:33  yuan
- * Colored special segments.
- * 
- * Revision 1.30  1994/09/01  17:02:41  matt
- * Redraw pointer after world draw
- * 
- * Revision 1.29  1994/08/25  21:56:21  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.28  1994/08/11  18:59:46  mike
- * Adapt to new int (vs short) version of gameseg functions.
- * 
- * Revision 1.27  1994/08/09  16:06:03  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.26  1994/07/25  00:03:05  matt
- * Various changes to accomodate new 3d, which no longer takes point numbers
- * as parms, and now only takes pointers to points.
- * 
- * Revision 1.25  1994/07/09  17:38:13  mike
- * comment out mprintf(0, "\n");
- * 
- * Revision 1.24  1994/07/07  19:34:47  matt
- * These changes are mostly Mike's, but I fixed a little bug that caused
- * some edges to think they were never used.
- * 
- * Revision 1.23  1994/07/06  16:36:18  mike
- * Optionally only draw segment lines which are in only one segment.
- * 
- * Revision 1.22  1994/05/27  10:34:28  yuan
- * Added new Dialog boxes for Walls and Triggers.
- * 
- * Revision 1.21  1994/05/14  18:00:56  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.20  1994/05/09  23:35:21  mike
- * Change order of drawing found and selected segments.
- * 
- * Revision 1.19  1994/05/05  12:55:38  yuan
- * Fixed a bunch of group bugs.
- * 
- * Revision 1.18  1994/05/04  13:07:52  matt
- * Made current edge draw in green in wire-frame window
- * Also, moved a bunch of color constants here from editor.h
- * 
+ * Med drawing functions.
+ *
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: meddraw.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: meddraw.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdio.h>

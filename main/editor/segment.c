@@ -1,3 +1,4 @@
+/* $Id: segment.c,v 1.4 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,31 +8,14 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/segment.c,v $
- * $Revision: 1.3 $
- * $Author: btb $
- * $Date: 2004-12-19 11:00:32 $
  *
  * Interrogation functions for segment data structure.
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.2  2004/08/29 14:03:51  schaffner
- * move more old change logs into ChangeLog-old
- *
- * Revision 1.1  2001/10/25 02:27:17  bradleyb
- * attempt at support for editor, makefile changes, etc
- *
- * Revision 1.2  1999/09/02 13:37:06  sekmu
- * remove warning in editor compile
- *
- * Revision 1.1.1.1  1999/06/14 22:04:21  donut
- * Import of d1x 1.37 source.
- * 
  */
 
 #ifdef HAVE_CONFIG_H

@@ -1,3 +1,4 @@
+/* $Id: ehostage.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,87 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/ehostage.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Routines for placing hostages, etc...
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:02:53  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:35:45  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.17  1995/01/14  19:18:05  john
- * First version of object paging.
- * 
- * Revision 1.16  1994/11/20  14:11:41  matt
- * Show object number in hostage window
- * 
- * Revision 1.15  1994/11/19  19:55:46  matt
- * Added code to full support different hostage head clip & message for
- * each hostage.
- * 
- * 
- * Revision 1.14  1994/10/28  15:03:27  john
- * Made digi_play_sample use volume.
- * 
- * 
- * Revision 1.13  1994/10/23  02:11:39  matt
- * Got rid of obsolete hostage_info stuff
- * 
- * Revision 1.12  1994/10/04  13:15:44  john
- * Changed PLAY_SOUND to digi_play_sample.
- * 
- * Revision 1.11  1994/08/02  14:17:28  mike
- * Clean up dialog boxes.
- * 
- * Revision 1.10  1994/07/22  17:19:17  yuan
- * Working on dialog box for refuel/repair/material/control centers.
- * 
- * Revision 1.9  1994/07/06  15:22:34  john
- * Added new sound.
- * 
- * 
- * Revision 1.8  1994/07/06  14:26:07  john
- * Added vclip.
- * 
- * Revision 1.7  1994/07/06  13:25:52  john
- * Added compress hostages functions.
- * 
- * Revision 1.6  1994/07/06  12:52:27  john
- * Fixed warnings.
- * 
- * Revision 1.5  1994/07/06  12:43:04  john
- * Made generic messages for hostages.
- * 
- * Revision 1.4  1994/07/06  11:49:01  john
- * Made adding hostage update current object.
- * 
- * Revision 1.3  1994/07/06  10:56:00  john
- * New structures for hostages.
- * 
- * Revision 1.2  1994/07/01  17:57:13  john
- * First version of not-working hostage system
- * 
- * 
- * Revision 1.1  1994/07/01  14:21:44  john
- * Initial revision
- * 
- * 
+ * Routines for placing hostages, etc...
+ *
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: ehostage.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: ehostage.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdlib.h>

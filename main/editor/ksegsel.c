@@ -1,3 +1,4 @@
+/* $Id: ksegsel.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,69 +8,18 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/ksegsel.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
  *
  * Functions for selecting segments
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:30  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:33  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.12  1994/08/25  21:57:02  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.11  1994/05/23  14:48:35  mike
- * make current segment be add segment.
- * 
- * Revision 1.10  1993/12/06  19:33:43  yuan
- * Fixed autosave stuff so that undo restores Cursegp and
- * Markedsegp
- * 
- * Revision 1.9  1993/12/02  12:39:37  matt
- * Removed extra includes
- * 
- * Revision 1.8  1993/11/12  13:08:17  yuan
- * Fixed warning for concave segment so it appears after any
- * "less important" diagnostic messages.
- * 
- * Revision 1.7  1993/11/05  17:32:49  john
- * added funcs
- * .,
- * 
- * Revision 1.6  1993/11/01  09:53:18  mike
- * Write functions get_next_segment and get_previous_segment.
- * 
- * Revision 1.5  1993/10/31  18:06:56  mike
- * Only set_view_target_from_segment if in that mode.
- * 
- * Revision 1.4  1993/10/28  15:01:09  matt
- * Mucked with update flags
- * 
- * Revision 1.3  1993/10/14  18:07:47  mike
- * Change use of CONNECTIVITY to MAX_SIDES_PER_SEGMENT
- * 
- * Revision 1.2  1993/10/14  11:47:34  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/10/13  18:53:39  john
- * Initial revision
- * 
  *
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: ksegsel.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: ksegsel.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <string.h>

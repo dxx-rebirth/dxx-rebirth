@@ -1,3 +1,4 @@
+/* $Id: group.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,121 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*		
- * $Source: /cvs/cvsroot/d2x/main/editor/group.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
+
+/*
+ *
  * group functions
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.2  2003/03/09 06:34:09  donut
- * change byte typedef to sbyte to avoid conflict with win32 byte which is unsigned
  *
- * Revision 1.1.1.1  1999/06/14 22:03:16  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:05  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.65  1994/11/27  23:17:21  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.64  1994/11/17  14:48:08  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.63  1994/11/17  11:38:56  matt
- * Ripped out code to load old mines
- * 
- * Revision 1.62  1994/10/27  10:06:20  mike
- * adapt to no inverse table.
- * 
- * Revision 1.61  1994/10/03  23:40:08  mike
- * New fuelcen_activate parameters.
- * 
- * Revision 1.60  1994/09/28  17:32:01  mike
- * Make group copying work for copying a group's walls.
- * 
- * Revision 1.59  1994/09/20  14:35:28  mike
- * Fix bugs in group subtraction code.  Don't allow to attach a group if the attach side is unfree.
- * 
- * Revision 1.58  1994/08/25  21:58:07  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.57  1994/08/04  19:12:58  matt
- * Changed a bunch of vecmat calls to use multiple-function routines, and to
- * allow the use of C macros for some functions
- * 
- * Revision 1.56  1994/08/03  15:40:01  mike
- * Enable calls to compress_mine to get rid of bugs in group
- * copying -- was creating invalid segments.
- * 
- * Revision 1.55  1994/06/30  10:59:13  yuan
- * Fixed texture translations.
- * 
- * Revision 1.54  1994/06/22  17:36:00  mike
- * Fix bug in group creation, was stuffing first two group segs over number
- * of segments in group (then number would overwrite them), so there would
- * be two bogus segments in group, one of which was always 0, the other
- * would be a small number.
- * 
- * Revision 1.53  1994/06/14  17:07:15  john
- * *** empty log message ***
- * 
- * Revision 1.52  1994/06/14  16:59:09  mike
- * Fix references to tmap_num2, must strip off orientation bits.
- * 
- * Revision 1.51  1994/05/23  14:56:37  mike
- * make current segment be add segment.
- * 
- * Revision 1.50  1994/05/19  12:10:01  matt
- * Use new vecmat macros and globals
- * 
- * Revision 1.49  1994/05/17  10:33:59  matt
- * Deleted unused get_free_object_num() func.
- * 
- * Revision 1.48  1994/05/09  23:34:17  mike
- * Punch all sloppy sides in a group, speed up segment rotation.
- * 
- * Revision 1.47  1994/05/06  14:39:56  mike
- * Make objects move and copy with groups.
- * 
- * Revision 1.46  1994/05/05  16:05:54  yuan
- * Added fuelcen/repaircens to groups...
- * 
- * Eventually, walls will be added too...
- * 
- * Revision 1.45  1994/05/05  12:56:25  yuan
- * Fixed a bunch of group bugs.
- * 
- * Revision 1.44  1994/05/04  14:10:04  mike
- * Assert added to prevent bombing out when current_group = -1
- * 
- * Revision 1.43  1994/05/02  17:59:18  yuan
- * Changed undo_status into an array rather than malloced pointers.
- * 
- * Revision 1.42  1994/05/02  15:23:19  mike
- * Call med_combine_duplicate_vertices in med_copy_group and med_move_group.
- * 
- * Revision 1.41  1994/04/27  12:11:23  mike
- * Fix bug in group rotation.
- * 
- * Revision 1.40  1994/04/22  10:07:37  yuan
- * Make sure we don't get obj->next equal itself error.
- * 
- * Revision 1.39  1994/04/18  17:15:13  yuan
- * Added error checking for select prev, and next group.
- * 
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: group.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: group.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 

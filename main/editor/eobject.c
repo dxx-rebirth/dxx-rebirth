@@ -1,3 +1,4 @@
+/* $Id: eobject.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,97 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/eobject.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Editor object functions.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:00  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:35:14  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.93  1995/02/22  15:09:04  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.92  1995/01/12  12:10:32  yuan
- * Added coop object capability.
- * 
- * Revision 1.91  1994/12/20  17:57:02  yuan
- * Multiplayer object stuff.
- * 
- * Revision 1.90  1994/11/27  23:17:49  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.89  1994/11/17  14:48:06  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.88  1994/11/14  11:40:03  mike
- * fix default robot behavior.
- * 
- * Revision 1.87  1994/10/25  10:51:31  matt
- * Vulcan cannon powerups now contain ammo count
- * 
- * Revision 1.86  1994/10/23  02:11:40  matt
- * Got rid of obsolete hostage_info stuff
- * 
- * Revision 1.85  1994/10/17  21:35:32  matt
- * Added support for new Control Center/Main Reactor
- * 
- * Revision 1.84  1994/10/10  17:23:13  mike
- * Verify that not placing too many player objects.
- * 
- * Revision 1.83  1994/09/24  14:15:35  mike
- * Custom colored object support.
- * 
- * Revision 1.82  1994/09/15  22:58:12  matt
- * Made new objects be oriented to their segment
- * Added keypad function to flip an object upside-down
- * 
- * Revision 1.81  1994/09/01  10:58:41  matt
- * Sizes for powerups now specified in bitmaps.tbl; blob bitmaps now plot
- * correctly if width & height of bitmap are different.
- * 
- * Revision 1.80  1994/08/25  21:58:14  mike
- * Write ObjectSelectPrevInMine and something else, I think...
- * 
- * Revision 1.79  1994/08/16  20:19:54  mike
- * Make STILL default (from CHASE_OBJECT).
- * 
- * Revision 1.78  1994/08/14  23:15:45  matt
- * Added animating bitmap hostages, and cleaned up vclips a bit
- * 
- * Revision 1.77  1994/08/13  14:58:43  matt
- * Finished adding support for miscellaneous objects
- * 
- * Revision 1.76  1994/08/12  22:24:58  matt
- * Generalized polygon objects (such as control center)
- * 
- * Revision 1.75  1994/08/09  16:06:11  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.74  1994/08/05  18:18:55  matt
- * Made object rotation have 4x resolution, and SHIFT+rotate do old resolution.
- * 
- * Revision 1.73  1994/08/01  13:30:56  matt
- * Made fvi() check holes in transparent walls, and changed fvi() calling
- * parms to take all input data in query structure.
- * 
+ * Editor object functions.
+ *
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: eobject.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: eobject.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdio.h>

@@ -1,3 +1,4 @@
+/* $Id: khelp.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,46 +8,18 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/khelp.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
  *
  * Functions for showing help.
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:26  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:34:27  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.5  1993/12/02  12:39:30  matt
- * Removed extra includes
- * 
- * Revision 1.4  1993/11/05  17:32:57  john
- * added funcs
- * .,
- * 
- * Revision 1.3  1993/11/03  13:42:41  yuan
- * Updated help commands
- * 
- * Revision 1.2  1993/10/22  19:48:07  yuan
- * added ctrl-shift-keypad comment in help.
- * 
- * Revision 1.1  1993/10/13  18:53:16  john
- * Initial revision
- * 
  *
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: khelp.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: khelp.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include "inferno.h"

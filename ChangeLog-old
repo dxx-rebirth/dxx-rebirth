@@ -1053,6 +1053,9 @@ arch/dos/ipx.c:
 arch/dos/ipx.h:
 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2004/08/29 14:03:51  schaffner
+ * move more old change logs into ChangeLog-old
+ *
  * Revision 1.2  2004/08/28 23:37:35  schaffner
  * move old per-file change logs into new file ChangeLog-old
  *
@@ -1144,6 +1147,9 @@ arch/dos/ipx.h:
 arch/dos/joy.c:
 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2004/08/29 14:03:51  schaffner
+ * move more old change logs into ChangeLog-old
+ *
  * Revision 1.2  2004/08/28 23:37:35  schaffner
  * move old per-file change logs into new file ChangeLog-old
  *
@@ -1301,6 +1307,9 @@ arch/dos/joy.c:
 arch/dos/joydefs.c:
 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2004/08/29 14:03:51  schaffner
+ * move more old change logs into ChangeLog-old
+ *
  * Revision 1.2  2004/08/28 23:37:35  schaffner
  * move old per-file change logs into new file ChangeLog-old
  *
@@ -1568,6 +1577,9 @@ arch/dos/joydefs.c:
 arch/dos/key.c:
 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2004/08/29 14:03:51  schaffner
+ * move more old change logs into ChangeLog-old
+ *
  * Revision 1.2  2004/08/28 23:37:35  schaffner
  * move old per-file change logs into new file ChangeLog-old
  *
@@ -1706,6 +1718,9 @@ arch/dos/key.c:
 arch/dos/mono.c:
 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2004/08/29 14:03:51  schaffner
+ * move more old change logs into ChangeLog-old
+ *
  * Revision 1.2  2004/08/28 23:37:35  schaffner
  * move old per-file change logs into new file ChangeLog-old
  *
@@ -2932,6 +2947,9 @@ include/rle.h:
 include/texmap.h:
 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2004/08/29 14:03:51  schaffner
+ * move more old change logs into ChangeLog-old
+ *
  * Revision 1.2  2004/08/28 23:37:35  schaffner
  * move old per-file change logs into new file ChangeLog-old
  *
@@ -5548,6 +5566,1668 @@ main/dumpmine.c:
  * Initial revision
 
 ------------------------------------------------------------------------
+main/editor/autosave.c:
+
+ * Revision 2.0  1995/02/27  11:34:53  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.25  1994/11/19  00:04:40  john
+ * Changed some shorts to ints.
+ * 
+ * Revision 1.24  1994/11/17  11:38:59  matt
+ * Ripped out code to load old mines
+ * 
+ * Revision 1.23  1994/07/28  17:00:01  mike
+ * fix diagnostic_message erasing.
+ * 
+ * Revision 1.22  1994/07/21  12:48:28  mike
+ * Make time of day a global, fix clock so it doesn't show 10:2 instead of 10:02
+ * 
+ * Revision 1.21  1994/05/14  17:17:58  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.20  1994/05/02  18:04:14  yuan
+ * Fixed warning.
+ * 
+ * Revision 1.19  1994/05/02  17:59:04  yuan
+ * Changed undo_status into an array rather than malloced pointers.
+ * 
+ * Revision 1.18  1994/03/16  09:55:48  mike
+ * Flashing : in time.
+ * 
+ * Revision 1.17  1994/02/11  10:27:36  matt
+ * Changed 'if !DEMO' to 'ifndef DEMO'
+ * 
+ * Revision 1.16  1994/02/08  12:43:18  yuan
+ * Crippled save game function from demo version
+ * 
+ * Revision 1.15  1994/02/01  13:27:26  yuan
+ * autosave default off.
+ * 
+ * Revision 1.14  1994/01/05  09:57:37  yuan
+ * Fixed calendar/clock problem.
+ * 
+ * Revision 1.13  1993/12/17  16:09:59  yuan
+ * Changed clock font from Red to Black.
+ * 
+ * Revision 1.12  1993/12/15  13:08:38  yuan
+ * Fixed :0x times, so that the 0 shows up.
+ * 
+ * Revision 1.11  1993/12/15  11:19:52  yuan
+ * Added code to display clock in upper right.
+ * 
+ * Revision 1.10  1993/12/14  21:18:51  yuan
+ * Added diagnostic message to display
+ * 
+ * Revision 1.9  1993/12/14  18:32:59  yuan
+ * Added timed autosave code
+ * 
+ * Revision 1.8  1993/12/13  17:23:25  yuan
+ * Fixed bugs with undo.
+ * They were caused by badly changed extensions.
+ * 
+ * Revision 1.7  1993/12/09  16:42:32  yuan
+ * Changed extension of temp mines from .mi? -> .mn? 
+ * and now to .m? (So it doesn't interfere with .mnu)
+ * 
+ * Revision 1.6  1993/12/09  16:27:06  yuan
+ * Added toggle for autosave
+ * 
+ * Revision 1.5  1993/11/29  19:46:32  matt
+ * Changed includes
+ * 
+ * Revision 1.4  1993/11/11  15:54:11  yuan
+ * Added display message for Undo...
+ * Eg. Attach Segment UNDONE.
+ * 
+ * Revision 1.3  1993/11/09  18:53:11  yuan
+ * Autosave/Undo works up to 10 moves.
+ * 
+ * Revision 1.2  1993/11/08  19:14:03  yuan
+ * Added Undo command (not working yet)
+ * 
+ * Revision 1.1  1993/11/08  16:57:59  yuan
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/centers.c:
+
+ * Revision 2.0  1995/02/27  11:35:30  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.9  1994/11/27  23:17:28  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.8  1994/10/05  22:13:46  mike
+ * Clean up Centers dialog.
+ * 
+ * Revision 1.7  1994/10/03  23:39:55  mike
+ * Call fuelcen_activate instead of fuelcen_create.
+ * 
+ * Revision 1.6  1994/08/02  12:16:35  mike
+ * Change materialization center functionality.
+ * 
+ * Revision 1.5  1994/08/01  11:04:42  yuan
+ * New materialization centers.
+ * 
+ * Revision 1.4  1994/07/22  17:19:10  yuan
+ * Working on dialog box for refuel/repair/material/control centers.
+ * 
+ * Revision 1.3  1994/07/21  19:35:09  yuan
+ * Fixed #include problem
+ * 
+ * Revision 1.2  1994/07/21  19:02:41  yuan
+ * *** empty log message ***
+ * 
+ * Revision 1.1  1994/07/18  16:00:54  yuan
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/centers.h:
+
+ * Revision 2.0  1995/02/27  11:35:02  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.3  1994/08/02  12:16:27  mike
+ * Prototype Center_names.
+ * 
+ * Revision 1.2  1994/07/21  19:35:20  yuan
+ * Fixed #include problem
+ * 
+ * Revision 1.1  1994/07/21  19:11:36  yuan
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/eglobal.c:
+
+ * Revision 2.0  1995/02/27  11:35:52  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.35  1994/05/23  14:48:15  mike
+ * make current segment be add segment.
+ * 
+ * Revision 1.34  1994/05/19  12:10:30  matt
+ * Use new vecmat macros and globals
+ * 
+ * Revision 1.33  1994/05/04  19:16:27  mike
+ * Add Degenerate_segment_found.
+ * 
+ * Revision 1.32  1994/05/03  11:02:57  mike
+ * Add SegSizeMode.
+ * 
+ * Revision 1.31  1994/02/16  13:49:12  mike
+ * enable editor to compile out.
+ * 
+ * Revision 1.30  1994/02/10  15:36:35  matt
+ * Various changes to make editor compile out.
+ * 
+ * Revision 1.29  1993/12/16  14:00:33  mike
+ * Add Curvert and Curedge.
+ * 
+ * Revision 1.28  1993/12/10  14:48:28  mike
+ * Kill orthogonal views.
+ * 
+ * Revision 1.27  1993/12/08  10:58:49  mike
+ * Add Cur_object_index.
+ * 
+ * Revision 1.26  1993/12/06  18:45:45  matt
+ * Changed object loading & handling
+ * 
+ * Revision 1.25  1993/12/02  17:51:49  john
+ * Changed my variable to match Mike's.
+ * 
+ * Revision 1.24  1993/12/02  17:36:13  john
+ * Added cur_obj_type
+ * 
+ * Revision 1.23  1993/11/24  14:41:16  mike
+ * Add variable Num_tilings.
+ * 
+ * Revision 1.22  1993/11/12  16:40:55  mike
+ * Add Identity_matrix, which is an identity matrix.
+ * 
+ * Revision 1.21  1993/11/02  13:08:17  mike
+ * Add N_warning_segs and Warning_segs
+ * 
+ * Revision 1.20  1993/11/02  10:31:53  mike
+ * Document some variables,
+ * Add Been_visited, removing it from editor.c
+ * Add Selected_segs[] and N_selected_segs.
+ * 
+ * Revision 1.19  1993/10/31  18:07:48  mike
+ * Add variable Lock_view_to_cursegp.
+ * 
+ * Revision 1.18  1993/10/19  20:54:51  matt
+ * Changed/cleaned up window updates
+ * 
+ * Revision 1.17  1993/10/18  18:35:43  mike
+ * Move Highest_vertex_index and Highest_segment_index here because they need
+ * to be globals.
+ * 
+ * Revision 1.16  1993/10/15  13:10:00  mike
+ * Move globals from editor.c to eglobal.c
+ * 
+ * Revision 1.15  1993/10/14  18:08:55  mike
+ * Change use of CONNECTIVITY to MAX_SIDES_PER_SEGMENT
+ * 
+ * Revision 1.14  1993/10/13  11:11:38  matt
+ * Made coordinate axes off by default
+ * 
+ * Revision 1.13  1993/10/12  09:59:27  mike
+ * Remove definition of Side_to_verts, which belongs in the game, not in the editor.
+ * 
+ * Revision 1.12  1993/10/09  15:48:07  mike
+ * Change type of Vertex_active and Side_to_verts from char to byte
+ * Move N_found_segs and Found_segs here from render.c
+ * Add Show_axes_flag.
+ * 
+ * Revision 1.11  1993/10/06  11:29:58  mike
+ * Add prototype for Side_opposite
+ * 
+ * Revision 1.10  1993/10/05  17:00:17  mike
+ * Add Vertex_active.
+ * 
+ * Revision 1.9  1993/10/04  17:18:16  mike
+ * Add variables Markedsegp, Markedside
+ * 
+ * Revision 1.8  1993/10/02  18:18:02  mike
+ * Added Draw_all_segments.  If !0, then all segments are drawn in draw_world.  If not set, then only those segments which
+ * are connected to the first segment are drawn.
+ * 
+ * Revision 1.7  1993/10/01  10:03:15  mike
+ * Fix ordering of vertices on front face: Used to be 0,1,2,3 made it 3,2,1,0
+ * 
+ * Revision 1.6  1993/09/27  16:04:28  mike
+ * Add Side_to_verts to replace _verts, which was local to segment.c
+ * 
+ * Revision 1.5  1993/09/27  15:20:52  mike
+ * Add Curside, which is current side, so we can make a certain side active.
+ * 
+ * Revision 1.4  1993/09/23  15:01:13  mike
+ * Remove game specific variables, put in mglobal.c
+ * 
+ * Revision 1.3  1993/09/22  10:52:17  mike
+ * Add global New_segment
+ * 
+ * Revision 1.2  1993/09/22  09:41:21  mike
+ * Change constand and variable names to conform to coding standards.
+ * 
+ * Revision 1.1  1993/09/20  17:06:09  mike
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/ehostage.c:
+
+ * Revision 2.0  1995/02/27  11:35:45  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.17  1995/01/14  19:18:05  john
+ * First version of object paging.
+ * 
+ * Revision 1.16  1994/11/20  14:11:41  matt
+ * Show object number in hostage window
+ * 
+ * Revision 1.15  1994/11/19  19:55:46  matt
+ * Added code to full support different hostage head clip & message for
+ * each hostage.
+ * 
+ * 
+ * Revision 1.14  1994/10/28  15:03:27  john
+ * Made digi_play_sample use volume.
+ * 
+ * 
+ * Revision 1.13  1994/10/23  02:11:39  matt
+ * Got rid of obsolete hostage_info stuff
+ * 
+ * Revision 1.12  1994/10/04  13:15:44  john
+ * Changed PLAY_SOUND to digi_play_sample.
+ * 
+ * Revision 1.11  1994/08/02  14:17:28  mike
+ * Clean up dialog boxes.
+ * 
+ * Revision 1.10  1994/07/22  17:19:17  yuan
+ * Working on dialog box for refuel/repair/material/control centers.
+ * 
+ * Revision 1.9  1994/07/06  15:22:34  john
+ * Added new sound.
+ * 
+ * 
+ * Revision 1.8  1994/07/06  14:26:07  john
+ * Added vclip.
+ * 
+ * Revision 1.7  1994/07/06  13:25:52  john
+ * Added compress hostages functions.
+ * 
+ * Revision 1.6  1994/07/06  12:52:27  john
+ * Fixed warnings.
+ * 
+ * Revision 1.5  1994/07/06  12:43:04  john
+ * Made generic messages for hostages.
+ * 
+ * Revision 1.4  1994/07/06  11:49:01  john
+ * Made adding hostage update current object.
+ * 
+ * Revision 1.3  1994/07/06  10:56:00  john
+ * New structures for hostages.
+ * 
+ * Revision 1.2  1994/07/01  17:57:13  john
+ * First version of not-working hostage system
+ * 
+ * 
+ * Revision 1.1  1994/07/01  14:21:44  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/ehostage.h:
+
+ * Revision 2.0  1995/02/27  11:35:13  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.2  1994/07/01  17:57:14  john
+ * First version of not-working hostage system
+ * 
+ * 
+ * Revision 1.1  1994/07/01  14:24:41  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/elight.c:
+
+ * Revision 2.0  1995/02/27  11:35:16  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.21  1994/06/14  16:59:23  mike
+ * Fix references to tmap_num2, must strip off orientation bits.
+ * 
+ * Revision 1.20  1994/05/31  12:31:57  mike
+ * fix bug in lighting -- WALL_IS_DOORWAY return value getting ignored,
+ * almost never recursively propagated light.
+ * 
+ * Revision 1.19  1994/05/19  23:35:12  mike
+ * Support uv coordinates in range 0..1.0.
+ * 
+ * Revision 1.18  1994/05/16  12:05:29  john
+ * Made texturemap light be a fix from 0 to 1.
+ * 
+ * Revision 1.17  1994/05/14  18:00:38  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.16  1994/05/03  11:04:27  mike
+ * Add function to select edge.
+ * 
+ * Revision 1.15  1994/04/20  17:29:11  yuan
+ * Fixed bug where tmaps above 256 don't light properly.
+ * (duh!)
+ * 
+ * Revision 1.14  1994/03/22  14:20:46  yuan
+ * Made texture map 1 also cast light.  (Cumulative with tmap_num2)
+ * 
+ * Revision 1.13  1994/03/15  16:34:14  yuan
+ * Fixed bm loader (might have some changes in walls and switches)
+ * 
+ * Revision 1.12  1994/02/22  18:55:10  yuan
+ * Ambient lighting "shines" on doors too!
+ * 
+ * Revision 1.11  1994/02/17  12:05:55  matt
+ * Got rid of warnings
+ * 
+ * Revision 1.10  1994/02/16  22:28:03  mike
+ * fix ambient lighting and smoothing.
+ * 
+ * Revision 1.9  1994/02/14  12:05:42  mike
+ * change segment data structure.
+ * 
+ * Revision 1.8  1994/01/26  17:27:45  yuan
+ * Still not perfected ambient lighting
+ * 
+ * Revision 1.7  1994/01/25  17:58:08  yuan
+ * Added ambient lighting, and also added fixing bogus segments
+ * functions to the editor... (they don't work fully... need to
+ * check out seguvs.c
+ * 
+ * Revision 1.6  1994/01/24  11:46:10  yuan
+ * *** empty log message ***
+ * 
+ * Revision 1.5  1994/01/24  11:03:05  yuan
+ * Set lgiht maximum added... Changes are still in progress
+ * 
+ * Revision 1.4  1994/01/18  19:16:07  yuan
+ * Added assign default to lighting pad.
+ * 
+ * Revision 1.3  1993/12/17  12:26:00  mike
+ * Add functions for setting light values on whole segment at once.
+ * 
+ * Revision 1.2  1993/12/16  16:56:12  mike
+ * Add new texture map lighting control functions.
+ * 
+ * Revision 1.1  1993/12/16  13:21:50  mike
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/eobject.c:
+
+ * Revision 2.0  1995/02/27  11:35:14  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.93  1995/02/22  15:09:04  allender
+ * remove anonymous unions from object structure
+ * 
+ * Revision 1.92  1995/01/12  12:10:32  yuan
+ * Added coop object capability.
+ * 
+ * Revision 1.91  1994/12/20  17:57:02  yuan
+ * Multiplayer object stuff.
+ * 
+ * Revision 1.90  1994/11/27  23:17:49  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.89  1994/11/17  14:48:06  mike
+ * validation functions moved from editor to game.
+ * 
+ * Revision 1.88  1994/11/14  11:40:03  mike
+ * fix default robot behavior.
+ * 
+ * Revision 1.87  1994/10/25  10:51:31  matt
+ * Vulcan cannon powerups now contain ammo count
+ * 
+ * Revision 1.86  1994/10/23  02:11:40  matt
+ * Got rid of obsolete hostage_info stuff
+ * 
+ * Revision 1.85  1994/10/17  21:35:32  matt
+ * Added support for new Control Center/Main Reactor
+ * 
+ * Revision 1.84  1994/10/10  17:23:13  mike
+ * Verify that not placing too many player objects.
+ * 
+ * Revision 1.83  1994/09/24  14:15:35  mike
+ * Custom colored object support.
+ * 
+ * Revision 1.82  1994/09/15  22:58:12  matt
+ * Made new objects be oriented to their segment
+ * Added keypad function to flip an object upside-down
+ * 
+ * Revision 1.81  1994/09/01  10:58:41  matt
+ * Sizes for powerups now specified in bitmaps.tbl; blob bitmaps now plot
+ * correctly if width & height of bitmap are different.
+ * 
+ * Revision 1.80  1994/08/25  21:58:14  mike
+ * Write ObjectSelectPrevInMine and something else, I think...
+ * 
+ * Revision 1.79  1994/08/16  20:19:54  mike
+ * Make STILL default (from CHASE_OBJECT).
+ * 
+ * Revision 1.78  1994/08/14  23:15:45  matt
+ * Added animating bitmap hostages, and cleaned up vclips a bit
+ * 
+ * Revision 1.77  1994/08/13  14:58:43  matt
+ * Finished adding support for miscellaneous objects
+ * 
+ * Revision 1.76  1994/08/12  22:24:58  matt
+ * Generalized polygon objects (such as control center)
+ * 
+ * Revision 1.75  1994/08/09  16:06:11  john
+ * Added the ability to place players.  Made old
+ * Player variable be ConsoleObject.
+ * 
+ * Revision 1.74  1994/08/05  18:18:55  matt
+ * Made object rotation have 4x resolution, and SHIFT+rotate do old resolution.
+ * 
+ * Revision 1.73  1994/08/01  13:30:56  matt
+ * Made fvi() check holes in transparent walls, and changed fvi() calling
+ * parms to take all input data in query structure.
+
+------------------------------------------------------------------------
+main/editor/eobject.h:
+
+ * Revision 2.0  1995/02/27  11:35:30  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.5  1994/09/15  22:57:46  matt
+ * Made new objects be oriented to their segment
+ * Added keypad function to flip an object upside-down
+ * 
+ * Revision 1.4  1994/08/25  21:57:23  mike
+ * Prototype ObjectSelectPrevInMine, and probably wrote it too, though not in this file.
+ * 
+ * Revision 1.3  1994/08/05  18:17:48  matt
+ * Made object rotation have 4x resolution, and SHIFT+rotate do old resolution.
+ * 
+ * Revision 1.2  1994/05/14  18:00:59  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.1  1994/05/14  17:36:30  matt
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/eswitch.c:
+
+ * Revision 2.0  1995/02/27  11:35:18  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.33  1995/01/14  19:18:04  john
+ * First version of object paging.
+ * 
+ * Revision 1.32  1994/11/27  23:18:01  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.31  1994/11/07  10:55:42  yuan
+ * *** empty log message ***
+ * 
+ * Revision 1.30  1994/10/13  13:15:06  yuan
+ * Fixed trigger removal bug.
+ * 
+ * Revision 1.29  1994/10/06  21:24:16  matt
+ * Added switch for exit to secret level
+ * 
+ * Revision 1.28  1994/09/29  17:06:10  matt
+ * Took out references to obsolete external triggers
+ * 
+ * Revision 1.27  1994/09/28  13:40:34  yuan
+ * Fixed control center trigger bug.
+ * 
+ * Revision 1.26  1994/09/26  16:25:04  yuan
+ * Only allow one binding of each matcen .
+ * 
+ * Revision 1.25  1994/09/24  17:10:19  yuan
+ * Added Matcen triggers.
+ * 
+ * Revision 1.24  1994/09/20  18:23:58  yuan
+ * Killed the BOGIFYING WALL DRAGON...
+ * 
+ * There was a problem with triggers being created that had bogus
+ * pointers back to their segments.
+ * 
+ * Revision 1.23  1994/08/25  21:56:33  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.22  1994/08/15  18:06:54  yuan
+ * Added external trigger.
+ * 
+ * Revision 1.21  1994/07/22  17:18:47  yuan
+ * Working on dialog box for refuel/repair/material/control centers.
+ * 
+ * Revision 1.20  1994/07/06  10:55:55  john
+ * New structures for hostages.
+ * 
+ * Revision 1.19  1994/07/01  16:36:20  yuan
+ * Working on triggers that aren't always on.
+ * 
+ * Revision 1.18  1994/06/21  18:50:14  john
+ * Made ESC key exit dialog.
+ * 
+ * Revision 1.17  1994/06/20  22:30:36  yuan
+ * Fixed crazy runaway trigger bug that Adam found
+ * 
+ * Revision 1.16  1994/05/31  10:03:48  yuan
+ * Fixed compiler warnings...
+ * 
+ * 
+ * Revision 1.15  1994/05/30  20:22:30  yuan
+ * New triggers.
+ * 
+ * Revision 1.14  1994/05/27  12:33:50  yuan
+ * Fixed some bugs when adding trigger.
+ * 
+ * Revision 1.13  1994/05/27  10:34:29  yuan
+ * Added new Dialog boxes for Walls and Triggers.
+ * 
+ * Revision 1.12  1994/05/25  18:15:02  yuan
+ * Fixed make warnings to save 10 cents!
+ * 
+ * Revision 1.11  1994/05/25  18:08:03  yuan
+ * Revamping walls and triggers interface.
+ * Wall interface complete, but triggers are still in progress.
+ * 
+ * Revision 1.10  1994/04/29  15:05:50  yuan
+ * Trigger/Link removing stuff still needs to be fixed.
+ * 
+ * Revision 1.9  1994/04/28  23:25:34  yuan
+ * Obliterated warnings.
+ * 
+ * Revision 1.8  1994/04/28  18:08:06  yuan
+ * Fixed trigger bug.
+
+------------------------------------------------------------------------
+main/editor/eswitch.h:
+
+ * Revision 2.0  1995/02/27  11:35:40  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.6  1994/05/30  20:22:35  yuan
+ * New triggers.
+ * 
+ * Revision 1.5  1994/05/27  10:34:35  yuan
+ * Added new Dialog boxes for Walls and Triggers.
+ * 
+ * Revision 1.4  1994/05/25  18:08:39  yuan
+ * Revamping walls and triggers interface.
+ * Wall interface complete, but triggers are still in progress.
+ * 
+ * Revision 1.3  1994/04/28  23:46:56  yuan
+ * Added prototype for remove_trigger.
+ * 
+ * Revision 1.2  1994/03/15  16:34:20  yuan
+ * Fixed bm loader (might have some changes in walls and switches)
+ * 
+ * Revision 1.1  1994/03/10  14:49:03  yuan
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/fixseg.c:
+
+ * Revision 2.0  1995/02/27  11:36:25  john
+ * Version 2.0. Ansi-fied.
+ * 
+ * Revision 1.7  1994/11/27  23:18:01  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.6  1994/11/17  14:48:00  mike
+ * validation functions moved from editor to game.
+ * 
+ * Revision 1.5  1994/08/04  19:13:26  matt
+ * Changed a bunch of vecmat calls to use multiple-function routines, and to
+ * allow the use of C macros for some functions
+ * 
+ * Revision 1.4  1994/02/10  15:36:31  matt
+ * Various changes to make editor compile out.
+ * 
+ * Revision 1.3  1993/12/03  18:45:09  mike
+ * initial stuff.
+ * 
+ * Revision 1.2  1993/11/30  17:05:09  mike
+ * Added part of code to make a side planar.
+ * 
+ * Revision 1.1  1993/11/30  10:05:36  mike
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/func.c:
+
+ * Revision 1.1  1994/11/21  14:13:17  matt
+ * Initial revision
+ * 
+ * Revision 1.1  1993/11/15  12:28:17  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/group.c:
+
+ * Revision 2.0  1995/02/27  11:35:05  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.65  1994/11/27  23:17:21  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.64  1994/11/17  14:48:08  mike
+ * validation functions moved from editor to game.
+ * 
+ * Revision 1.63  1994/11/17  11:38:56  matt
+ * Ripped out code to load old mines
+ * 
+ * Revision 1.62  1994/10/27  10:06:20  mike
+ * adapt to no inverse table.
+ * 
+ * Revision 1.61  1994/10/03  23:40:08  mike
+ * New fuelcen_activate parameters.
+ * 
+ * Revision 1.60  1994/09/28  17:32:01  mike
+ * Make group copying work for copying a group's walls.
+ * 
+ * Revision 1.59  1994/09/20  14:35:28  mike
+ * Fix bugs in group subtraction code.  Don't allow to attach a group if the attach side is unfree.
+ * 
+ * Revision 1.58  1994/08/25  21:58:07  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.57  1994/08/04  19:12:58  matt
+ * Changed a bunch of vecmat calls to use multiple-function routines, and to
+ * allow the use of C macros for some functions
+ * 
+ * Revision 1.56  1994/08/03  15:40:01  mike
+ * Enable calls to compress_mine to get rid of bugs in group
+ * copying -- was creating invalid segments.
+ * 
+ * Revision 1.55  1994/06/30  10:59:13  yuan
+ * Fixed texture translations.
+ * 
+ * Revision 1.54  1994/06/22  17:36:00  mike
+ * Fix bug in group creation, was stuffing first two group segs over number
+ * of segments in group (then number would overwrite them), so there would
+ * be two bogus segments in group, one of which was always 0, the other
+ * would be a small number.
+ * 
+ * Revision 1.53  1994/06/14  17:07:15  john
+ * *** empty log message ***
+ * 
+ * Revision 1.52  1994/06/14  16:59:09  mike
+ * Fix references to tmap_num2, must strip off orientation bits.
+ * 
+ * Revision 1.51  1994/05/23  14:56:37  mike
+ * make current segment be add segment.
+ * 
+ * Revision 1.50  1994/05/19  12:10:01  matt
+ * Use new vecmat macros and globals
+ * 
+ * Revision 1.49  1994/05/17  10:33:59  matt
+ * Deleted unused get_free_object_num() func.
+ * 
+ * Revision 1.48  1994/05/09  23:34:17  mike
+ * Punch all sloppy sides in a group, speed up segment rotation.
+ * 
+ * Revision 1.47  1994/05/06  14:39:56  mike
+ * Make objects move and copy with groups.
+ * 
+ * Revision 1.46  1994/05/05  16:05:54  yuan
+ * Added fuelcen/repaircens to groups...
+ * 
+ * Eventually, walls will be added too...
+ * 
+ * Revision 1.45  1994/05/05  12:56:25  yuan
+ * Fixed a bunch of group bugs.
+ * 
+ * Revision 1.44  1994/05/04  14:10:04  mike
+ * Assert added to prevent bombing out when current_group = -1
+ * 
+ * Revision 1.43  1994/05/02  17:59:18  yuan
+ * Changed undo_status into an array rather than malloced pointers.
+ * 
+ * Revision 1.42  1994/05/02  15:23:19  mike
+ * Call med_combine_duplicate_vertices in med_copy_group and med_move_group.
+ * 
+ * Revision 1.41  1994/04/27  12:11:23  mike
+ * Fix bug in group rotation.
+ * 
+ * Revision 1.40  1994/04/22  10:07:37  yuan
+ * Make sure we don't get obj->next equal itself error.
+ * 
+ * Revision 1.39  1994/04/18  17:15:13  yuan
+ * Added error checking for select prev, and next group.
+
+------------------------------------------------------------------------
+main/editor/info.c:
+
+ * Revision 2.0  1995/02/27  11:35:34  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.42  1995/02/22  15:12:50  allender
+ * remove anonymous unions from object structure
+ * 
+ * Revision 1.41  1994/12/08  13:59:39  matt
+ * *** empty log message ***
+ * 
+ * Revision 1.40  1994/09/30  00:38:30  mike
+ * Fix some diagnostic messages
+ * 
+ * Revision 1.39  1994/09/29  20:13:12  mike
+ * Clean up some text, prevent it from writing outside canvas.
+ * 
+ * Revision 1.38  1994/09/29  09:32:17  mike
+ * Fix text clipping problem in UI keypad info text.
+ * 
+ * Revision 1.37  1994/09/25  23:42:20  matt
+ * Took out references to obsolete constants
+ * 
+ * Revision 1.36  1994/08/25  21:57:05  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.35  1994/08/23  16:39:50  mike
+ * mode replaced by behavior in ai_info.
+ * 
+ * Revision 1.34  1994/07/18  10:45:23  mike
+ * Fix erase window in texture pads after adding more click-boxes.
+ * 
+ * Revision 1.33  1994/07/15  12:34:10  mike
+ * Remove use of AIM_FOLLOW_PATH_CIRCULAR.
+ * 
+ * Revision 1.32  1994/06/17  17:13:46  yuan
+ * Fixed text so it doesn't overflow screen
+ * 
+ * Revision 1.31  1994/06/01  17:22:31  matt
+ * Set font color before drawing info; got rid of superfluous %d
+ * 
+ * Revision 1.30  1994/05/29  23:40:29  matt
+ * Killed reference to now-unused movement type
+ * 
+ * Revision 1.29  1994/05/29  22:52:32  matt
+ * Deleted unused stuff
+ * 
+ * Revision 1.28  1994/05/27  10:34:16  yuan
+ * Added new Dialog boxes for Walls and Triggers.
+ * 
+ * Revision 1.27  1994/05/17  10:34:35  matt
+ * Changed Num_objects to num_objects, since it's not really global anymore
+ * 
+ * Revision 1.26  1994/05/14  17:17:59  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.25  1994/05/12  14:47:07  mike
+ * Adjust for Ai_states killed, replaced by field in object structure.
+ * 
+ * Revision 1.24  1994/05/06  12:52:11  yuan
+ * Adding some gamesave checks...
+ * 
+ * Revision 1.23  1994/05/03  19:21:28  matt
+ * Removed reference to robot flythrough mode, which doesn't exist anymore
+ * 
+ * Revision 1.22  1994/05/03  11:03:06  mike
+ * Customize text for segment sizing keypad.
+ * 
+ * Revision 1.21  1994/04/29  15:05:40  yuan
+ * More info added...
+ * 
+ * Revision 1.20  1994/04/22  17:45:58  john
+ * MAde top 2 bits of paste-ons pick the 
+ * orientation of the bitmap.
+ * 
+ * Revision 1.19  1994/04/20  17:29:30  yuan
+ * Added tmap_num info.
+ * 
+ * Revision 1.18  1994/04/13  19:12:55  mike
+ * Fix font color problems in keypads.
+ * 
+ * Revision 1.17  1994/04/13  13:26:37  mike
+ * Kill a mprintf.
+ * 
+ * Revision 1.16  1994/04/13  13:24:44  mike
+ * Separate info display, customize for each keypad.
+ * 
+ * Revision 1.15  1994/03/19  17:21:31  yuan
+ * Wall system implemented until specific features need to be added...
+ * (Needs to be hammered on though.)
+ * 
+ * Revision 1.14  1994/02/22  18:13:13  yuan
+ * Added tmap number field.
+ * 
+ * Revision 1.13  1994/02/17  09:46:27  matt
+ * Removed include of slew.h
+ * 
+ * Revision 1.12  1994/02/16  19:58:56  yuan
+ * Added type to info
+ * 
+ * Revision 1.11  1994/02/16  16:48:08  yuan
+ * Added Curside.
+ * 
+ * Revision 1.10  1994/02/03  17:26:43  yuan
+ * Fixed formatting of vertex numbering.
+ * 
+ * Revision 1.9  1994/01/31  12:17:06  yuan
+ * Make sure Num_segments, etc. are drawn.
+ * 
+ * Revision 1.8  1994/01/22  13:43:12  yuan
+ * Cosmetic fixes.
+ * 
+ * Revision 1.7  1994/01/21  12:14:59  yuan
+ * Fixed cosmetic problem
+ * 
+ * Revision 1.6  1994/01/21  12:01:03  yuan
+ * Added segment and vertex info
+ * 
+ * Revision 1.5  1994/01/20  11:28:11  john
+ * *** empty log message ***
+ * 
+ * Revision 1.4  1994/01/19  10:44:42  john
+ * *** empty log message ***
+ * 
+ * Revision 1.3  1994/01/19  10:32:36  john
+ * *** empty log message ***
+ * 
+ * Revision 1.2  1994/01/19  09:34:31  john
+ * First version.
+ * 
+ * Revision 1.1  1994/01/19  09:30:43  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/info.h:
+
+ * Revision 2.0  1995/02/27  11:34:32  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.2  1994/05/14  17:18:17  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.1  1994/05/14  16:30:39  matt
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/kbuild.c:
+
+ * Revision 2.0  1995/02/27  11:35:43  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.20  1995/02/22  11:00:47  yuan
+ * prototype include.
+ * 
+ * Revision 1.19  1995/02/22  10:59:01  yuan
+ * Save sloppy mine before punching.
+ * 
+ * Revision 1.18  1994/08/25  21:57:56  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.17  1994/05/16  12:00:52  mike
+ * Call med_combine_duplicate_vertices before various build functions.
+ * 
+ * Revision 1.16  1994/05/09  23:34:31  mike
+ * Punch all sloppy sides in a group.
+ * 
+ * Revision 1.15  1994/02/16  15:23:06  yuan
+ * Checking in for editor make.
+ * 
+ * Revision 1.14  1994/01/21  12:01:31  yuan
+ * Added clearer editor_status messages (sloppy joint vs. joint)
+ * 
+ * Revision 1.13  1994/01/14  11:59:52  yuan
+ * New function in build menu. 
+ * "Punch" through walls to force a joint formation with
+ * closest segment:side, if the closest segment:side allows
+ * a connection.
+ * 
+ * Revision 1.12  1994/01/07  17:45:05  yuan
+ * Just changed some tabs and formatting I believe.
+ * 
+ * Revision 1.11  1993/12/06  19:33:36  yuan
+ * Fixed autosave stuff so that undo restores Cursegp and
+ * Markedsegp
+ * 
+ * Revision 1.10  1993/12/02  12:39:15  matt
+ * Removed extra includes
+ * 
+ * Revision 1.9  1993/11/12  14:31:31  yuan
+ * Added warn_if_concave_segments.
+ * 
+ * Revision 1.8  1993/11/11  17:12:45  yuan
+ * Fixed display of messages, so that concave segment
+ * warning doesn't wipe them out immediately.
+ * 
+ * Revision 1.7  1993/11/09  12:09:28  mike
+ * Remove extern for mine_filename, put it in editor.h
+ * 
+ * Revision 1.6  1993/11/08  19:14:06  yuan
+ * Added Undo command (not working yet)
+ * 
+ * Revision 1.5  1993/11/05  17:32:36  john
+ * added funcs
+ * .,
+ * 
+ * Revision 1.4  1993/11/01  16:53:51  mike
+ * Add CreateAdjacentJointsSegment and CreateAdjacentJointsAll
+ * 
+ * Revision 1.3  1993/11/01  11:24:59  mike
+ * Add CreateJointAdjacent
+ * 
+ * Revision 1.2  1993/10/29  19:13:11  yuan
+ * Added diagnostic messages
+ * 
+ * Revision 1.1  1993/10/13  18:53:27  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/kcurve.c:
+
+ * Revision 2.0  1995/02/27  11:35:29  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.17  1994/08/25  21:56:43  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.16  1994/05/14  17:17:54  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.15  1994/01/28  10:52:24  mike
+ * Bind set_average_light_on_curside to DeleteCurve
+ * 
+ * Revision 1.14  1994/01/25  17:34:47  mike
+ * Stupidly bound fix_bogus_uvs_all to delete curve.
+ * 
+ * Revision 1.13  1993/12/06  19:34:15  yuan
+ * Fixed autosave so that undo restores Cursegp
+ * and Markedsegp
+ * 
+ * Revision 1.12  1993/12/02  12:39:28  matt
+ * Removed extra includes
+ * 
+ * Revision 1.11  1993/11/12  13:08:38  yuan
+ * Fixed warning for concave segment so it appears after any
+ * "less important" diagnostic messages.
+ * 
+ * Revision 1.10  1993/11/11  17:03:25  yuan
+ * Fixed undo-status display
+ * 
+ * Revision 1.9  1993/11/11  15:55:11  yuan
+ * Added undo messages.
+ * 
+ * Revision 1.8  1993/11/08  19:13:30  yuan
+ * Added Undo command (not working yet)
+ * 
+ * Revision 1.7  1993/11/05  17:32:51  john
+ * added funcs
+ * .,
+ * 
+ * Revision 1.6  1993/10/29  19:12:41  yuan
+ * Added diagnostic messages
+ * 
+ * Revision 1.5  1993/10/29  16:26:30  yuan
+ * Added diagnostic messages for curve generation
+ * 
+ * Revision 1.4  1993/10/22  19:47:30  yuan
+ * Can't build curve if Marked Seg has a segment attached.
+ * 
+ * Revision 1.3  1993/10/19  20:54:50  matt
+ * Changed/cleaned up window updates
+ * 
+ * Revision 1.2  1993/10/14  13:52:17  mike
+ * Add return value to AssignTexture
+ * 
+ * Revision 1.1  1993/10/13  18:53:11  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/kfuncs.c:
+
+ * Revision 2.1  1995/03/08  16:07:23  yuan
+ * Added segment sizing default functions.
+ * 
+ * Revision 2.0  1995/02/27  11:34:45  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.112  1995/01/12  12:10:31  yuan
+ * Added coop object capability.
+ * 
+ * Revision 1.111  1994/11/27  23:17:16  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.110  1994/11/23  12:17:22  mike
+ * bind retmap functions.
+ * 
+ * Revision 1.109  1994/11/19  15:20:54  mike
+ * rip out unused code and data.
+ * 
+ * Revision 1.108  1994/11/17  11:39:02  matt
+ * Ripped out code to load old mines
+ * 
+ * Revision 1.107  1994/10/27  10:06:12  mike
+ * kill macro stuff.
+ * 
+ * Revision 1.106  1994/10/18  15:31:43  mike
+ * Bind mine correction function to test keypad, key=1.
+ * 
+ * Revision 1.105  1994/09/26  23:22:06  matt
+ * Added functions to keep player's starting position from getting messed up
+ * 
+ * Revision 1.104  1994/09/24  14:15:41  mike
+ * Custom colored object support.
+ * 
+ * Revision 1.103  1994/09/23  18:03:54  yuan
+ * Finished wall checking code.
+ * 
+ * Revision 1.102  1994/09/22  19:03:52  mike
+ * Test function test_shortpos on ctrl-keypad3
+ * 
+ * Revision 1.101  1994/09/20  14:35:56  mike
+ * Bind functions to keypad 2, 3.
+ * 
+ * Revision 1.100  1994/09/15  22:58:10  matt
+ * Made new objects be oriented to their segment
+ * Added keypad function to flip an object upside-down
+ * 
+ * Revision 1.99  1994/09/14  16:50:50  yuan
+ * Added load mine only function
+ * 
+ * Revision 1.98  1994/08/25  21:57:52  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.97  1994/08/16  18:10:52  yuan
+ * Maded C place you in the center of a segment.
+ * 
+ * Revision 1.96  1994/08/15  17:48:01  yuan
+ * Added external walls.
+ * 
+ * Revision 1.95  1994/08/13  17:32:38  mike
+ * test function.
+ * 
+ * Revision 1.94  1994/08/05  21:17:57  matt
+ * Allow two doors to be linked together
+ * 
+ * Revision 1.93  1994/08/05  18:18:52  matt
+ * Made object rotation have 4x resolution, and SHIFT+rotate do old resolution.
+ * 
+ * Revision 1.92  1994/08/03  10:31:06  mike
+ * Add texture map propagation without uv assignment.
+ * 
+ * Revision 1.91  1994/08/02  14:17:00  mike
+ * Clean up dialog boxes, add one for Matt.
+ * 
+ * Revision 1.90  1994/07/30  17:04:47  mike
+ * Bind key for max_depth on path testing.
+
+------------------------------------------------------------------------
+main/editor/kfuncs.h:
+
+ * Revision 2.0  1995/02/27  11:34:33  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.2  1994/05/14  17:18:18  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.1  1994/05/14  16:37:14  matt
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/kgame.c:
+
+ * Revision 2.0  1995/02/27  11:34:55  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.25  1995/02/23  10:18:05  allender
+ * fixed parameter mismatch with compute_segment_center
+ * 
+ * Revision 1.24  1994/11/17  11:38:59  matt
+ * Ripped out code to load old mines
+ * 
+ * Revision 1.23  1994/11/09  11:58:56  matt
+ * Fixed small bug
+ * 
+ * Revision 1.22  1994/10/20  12:48:02  matt
+ * Replaced old save files (MIN/SAV/HOT) with new LVL files
+ * 
+ * Revision 1.21  1994/10/15  19:08:47  mike
+ * Fix bug if player object out of mine at save.
+ * 
+ * Revision 1.20  1994/10/13  13:15:43  matt
+ * Properly relink player object when bashed for "permanant" position save
+ * 
+ * Revision 1.19  1994/10/11  17:07:23  matt
+ * Fixed problem that sometimes caused bad player segnum after compress
+ * 
+ * Revision 1.18  1994/10/08  17:10:40  matt
+ * Correctly set current_level_num when loading/creating mine in editor
+ * 
+ * Revision 1.17  1994/09/26  23:46:13  matt
+ * Improved player position save code
+ * 
+ * Revision 1.16  1994/09/26  23:22:50  matt
+ * Added functions to keep player's starting position from getting messed up
+ * 
+ * Revision 1.15  1994/09/14  16:50:51  yuan
+ * Added load mine only function
+ * 
+ * Revision 1.14  1994/07/22  12:36:50  matt
+ * Cleaned up editor/game interactions some more.
+ * 
+ * Revision 1.13  1994/07/21  17:26:26  matt
+ * When new mine created, the default save filename is now reset
+ * 
+ * Revision 1.12  1994/06/03  12:27:05  yuan
+ * Fixed restore game state.
+ * 
+ * 
+ * Revision 1.11  1994/05/30  11:36:09  yuan
+ * Do gamesave if new mine is loaded and game is entered...
+ * 
+ * Revision 1.10  1994/05/14  18:00:33  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.9  1994/05/10  12:15:44  yuan
+ * Fixed load_game functions to match prototype.
+ * 
+ * Revision 1.8  1994/05/06  12:52:15  yuan
+ * Adding some gamesave checks...
+ * 
+ * Revision 1.7  1994/05/04  17:32:05  yuan
+ * med_load_game changed to load_game
+ * med_save_game changed to save_game
+
+------------------------------------------------------------------------
+main/editor/khelp.c:
+
+ * Revision 2.0  1995/02/27  11:34:27  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.5  1993/12/02  12:39:30  matt
+ * Removed extra includes
+ * 
+ * Revision 1.4  1993/11/05  17:32:57  john
+ * added funcs
+ * .,
+ * 
+ * Revision 1.3  1993/11/03  13:42:41  yuan
+ * Updated help commands
+ * 
+ * Revision 1.2  1993/10/22  19:48:07  yuan
+ * added ctrl-shift-keypad comment in help.
+ * 
+ * Revision 1.1  1993/10/13  18:53:16  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/kmine.c:
+
+ * Revision 2.0  1995/02/27  11:34:22  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.53  1995/02/22  15:04:52  allender
+ * remove anonymous unions from vecmat stuff
+ * 
+ * Revision 1.52  1994/11/27  23:17:13  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.51  1994/11/17  14:48:05  mike
+ * validation functions moved from editor to game.
+ * 
+ * Revision 1.50  1994/11/17  11:38:49  matt
+ * Ripped out code to load old mines
+ * 
+ * Revision 1.49  1994/10/08  17:10:22  matt
+ * Correctly set current_level_num when loading/creating mine in editor
+ * 
+ * Revision 1.48  1994/10/03  11:30:45  matt
+ * Fixed problem with permanant player position when creating a new mine
+ * 
+ * Revision 1.47  1994/09/29  17:42:19  matt
+ * Cleaned up game_mode a little
+ * 
+ * Revision 1.46  1994/08/18  10:48:21  john
+ * Cleaned up game sequencing.
+ * 
+ * Revision 1.45  1994/08/09  16:05:36  john
+ * Added the ability to place players.  Made old
+ * Player variable be ConsoleObject.
+ * 
+ * Revision 1.44  1994/07/22  12:37:06  matt
+ * Cleaned up editor/game interactions some more.
+ * 
+ * Revision 1.43  1994/07/21  17:26:50  matt
+ * When new mine created, the default save filename is now reset
+ * 
+ * Revision 1.42  1994/06/08  14:29:25  matt
+ * Took out support for old mine versions
+ * 
+ * Revision 1.41  1994/06/03  12:28:04  yuan
+ * Fixed game restore state.
+ * 
+ * Revision 1.40  1994/05/19  12:10:29  matt
+ * Use new vecmat macros and globals
+ * 
+ * Revision 1.39  1994/05/14  17:17:56  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.38  1994/05/12  14:47:47  mike
+ * New previous mine structure and object structure.
+ * 
+ * Revision 1.37  1994/05/06  12:52:12  yuan
+ * Adding some gamesave checks...
+ * 
+ * Revision 1.36  1994/05/05  20:37:02  yuan
+ * Added gamesave checks when entering and leaving the game.
+ * 
+ * Removed Load Game Save Game functions...
+ * Now there is only Load/Save Mine... (equivalent to old Load/Save Game)
+ * 
+ * Revision 1.35  1994/04/27  22:57:54  matt
+ * Made sit mine load from path of sit file
+ * 
+ * Revision 1.34  1994/04/21  18:29:55  matt
+ * Don't use same variable for mine filename & sit filename
+ * 
+ * Revision 1.33  1994/04/21  18:21:43  matt
+ * Strip path from mine filename in sit file
+ * 
+ * Revision 1.32  1994/04/18  10:54:35  mike
+ * Add situation save/load
+ * 
+ * Revision 1.31  1994/02/16  16:47:54  yuan
+ * Removed temp.min.
+ * 
+ * Revision 1.30  1994/02/16  15:22:51  yuan
+ * Checking in for editor make.
+ * 
+ * Revision 1.29  1994/02/09  15:04:23  yuan
+ * brought back save ability
+ * 
+ * Revision 1.28  1994/02/08  12:42:45  yuan
+ * fixed log.
+ * 
+ * Revision 1.27  1994/02/08  12:41:47  yuan
+ *	Crippled save mine function from demo version.
+ * 
+ * Revision 1.26  1994/01/13  13:26:05  yuan
+ * Added med_compress_mine when creating new mine or
+ * when loading mine
+ * 
+ * Revision 1.25  1994/01/11  12:03:23  yuan
+ * Fixed so that when old mine implementation not in,
+ * message is displayed when you try to load an old mine
+ * 
+ * Revision 1.24  1994/01/11  11:47:57  yuan
+ * *** empty log message ***
+ * 
+ * Revision 1.23  1994/01/05  09:59:56  yuan
+ * Added load old mine funciton
+ * 
+ * Revision 1.22  1993/12/16  15:58:08  john
+ * moved texture selection page to texpage.c
+ * ,
+ * 
+ * Revision 1.21  1993/12/10  14:48:55  mike
+ * Kill orthogonal views.
+ * 
+ * Revision 1.20  1993/12/03  16:44:06  yuan
+ * Changed some 0.0 return values to 0
+ * 
+ * 
+ * Revision 1.19  1993/12/02  12:39:34  matt
+ * Removed extra includes
+ * 
+ * Revision 1.18  1993/11/17  13:14:48  yuan
+ * Moved Save Group to group.c
+ * 
+ * Revision 1.17  1993/11/16  17:25:48  yuan
+ * Unworking group function added... 
+ * 
+ * Revision 1.16  1993/11/15  14:46:25  john
+ * Changed Menu to MenuX
+ * 
+ * Revision 1.15  1993/11/08  19:13:45  yuan
+ * Added Undo command (not working yet)
+
+------------------------------------------------------------------------
+main/editor/ksegmove.c:
+
+ * Revision 2.0  1995/02/27  11:33:37  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.5  1993/12/02  12:39:36  matt
+ * Removed extra includes
+ * 
+ * Revision 1.4  1993/11/12  16:40:23  mike
+ * Use rotate_segment_new in place of med_rotate_segment_ang.
+ * 
+ * Revision 1.3  1993/11/05  17:32:54  john
+ * added funcs
+ * .,
+ * 
+ * Revision 1.2  1993/10/26  11:28:41  mike
+ * Write common routine SegOrientCommon so all movement can pass
+ * through the same routine to check for concavity, among other things.
+ * 
+ * Revision 1.1  1993/10/13  18:53:21  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/ksegsel.c:
+
+ * Revision 2.0  1995/02/27  11:35:33  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.12  1994/08/25  21:57:02  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.11  1994/05/23  14:48:35  mike
+ * make current segment be add segment.
+ * 
+ * Revision 1.10  1993/12/06  19:33:43  yuan
+ * Fixed autosave stuff so that undo restores Cursegp and
+ * Markedsegp
+ * 
+ * Revision 1.9  1993/12/02  12:39:37  matt
+ * Removed extra includes
+ * 
+ * Revision 1.8  1993/11/12  13:08:17  yuan
+ * Fixed warning for concave segment so it appears after any
+ * "less important" diagnostic messages.
+ * 
+ * Revision 1.7  1993/11/05  17:32:49  john
+ * added funcs
+ * .,
+ * 
+ * Revision 1.6  1993/11/01  09:53:18  mike
+ * Write functions get_next_segment and get_previous_segment.
+ * 
+ * Revision 1.5  1993/10/31  18:06:56  mike
+ * Only set_view_target_from_segment if in that mode.
+ * 
+ * Revision 1.4  1993/10/28  15:01:09  matt
+ * Mucked with update flags
+ * 
+ * Revision 1.3  1993/10/14  18:07:47  mike
+ * Change use of CONNECTIVITY to MAX_SIDES_PER_SEGMENT
+ * 
+ * Revision 1.2  1993/10/14  11:47:34  john
+ * *** empty log message ***
+ * 
+ * Revision 1.1  1993/10/13  18:53:39  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/ksegsize.c:
+
+ * Revision 2.1  1995/03/08  16:07:21  yuan
+ * Added segment sizing default functions.
+ * 
+ * Revision 2.0  1995/02/27  11:35:46  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.15  1994/11/17  14:47:42  mike
+ * validation functions moved from editor to game.
+ * 
+ * Revision 1.14  1994/08/25  21:57:45  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.13  1994/07/18  10:44:43  mike
+ * Fix uv propagation after segment sizing.
+ * 
+ * Revision 1.12  1994/05/04  19:16:34  mike
+ * *** empty log message ***
+ * 
+ * Revision 1.11  1994/05/03  18:31:00  mike
+ * Add PerturbCurside.
+ * 
+ * Revision 1.10  1994/05/03  11:05:14  mike
+ * Overhaul segment sizing system to allow sizing of non-free vertices,
+ * and also sizing of vertices on a side, edge or a single vertex.
+ * 
+ * Revision 1.9  1993/12/12  17:16:00  mike
+ * Kill some mprintf code.
+ * 
+ * 
+ * Revision 1.8  1993/12/10  11:10:53  mike
+ * Fix bugs in tmap propagation in segment sizing.
+ * 
+ * Revision 1.7  1993/12/06  13:25:30  mike
+ * Fix bug in setting size of New_segment after segment scale.
+ * 
+ * Revision 1.6  1993/11/17  18:57:52  mike
+ * Change scaling to be additive.
+ * 
+ * Revision 1.5  1993/11/12  16:52:57  mike
+ * *** empty log message ***
+ * 
+ * Revision 1.4  1993/11/05  17:32:47  john
+ * added funcs
+ * .,
+ * 
+ * Revision 1.3  1993/10/19  11:22:11  matt
+ * Removed extra includes
+ * 
+ * Revision 1.2  1993/10/17  14:17:52  mike
+ * Add big scale changes for segment.
+ * 
+ * Revision 1.1  1993/10/13  18:53:01  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/ktmap.c:
+
+ * Revision 2.0  1995/02/27  11:35:37  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.26  1994/08/25  21:57:12  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.25  1994/08/03  10:32:41  mike
+ * Texture map stretching.
+ * 
+ * Revision 1.24  1994/05/14  17:17:35  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.23  1994/04/28  10:48:38  yuan
+ * Fixed undo message for Clear Texture.
+ * 
+ * Revision 1.22  1994/04/22  17:45:42  john
+ * MAde top 2 bits of paste-ons pick the 
+ * orientation of the bitmap.
+ * 
+ * Revision 1.21  1994/04/01  14:36:08  yuan
+ * Fixed propogate function so you can propogate and move.
+ * 
+ * Revision 1.20  1994/03/19  17:22:08  yuan
+ * Wall system implemented until specific features need to be added...
+ * (Needs to be hammered on though.)
+ * 
+ * Revision 1.19  1994/02/14  12:06:12  mike
+ * change segment data structure.
+ * 
+ * Revision 1.18  1994/01/25  17:58:47  yuan
+ * Added ambient lighting, and also added fixing bogus segments
+ * functions to the editor... (they don't work fully... need to
+ * check out seguvs.c
+ * 
+ * Revision 1.17  1994/01/24  11:54:52  yuan
+ * Checking everything in
+ * 
+ * Revision 1.16  1994/01/18  16:05:57  yuan
+ * Added clear texture 2 function (shift 0)
+ * 
+ * Revision 1.15  1994/01/18  10:15:01  yuan
+ * added texture stuff
+ * 
+ * Revision 1.14  1993/12/06  19:33:57  yuan
+ * Fixed autosave stuff so that undo restores Cursegp and
+ * Markedsegp
+ * 
+ * Revision 1.13  1993/12/02  12:39:39  matt
+ * Removed extra includes
+ * 
+ * Revision 1.12  1993/11/28  17:31:34  mike
+ * Use new segment data structure.
+ * 
+ * Revision 1.11  1993/11/12  16:38:37  mike
+ * Change call to med_propagate_tmaps_to_segments to include new uv_only_flag parameter.
+ * 
+ * Revision 1.10  1993/11/11  15:53:30  yuan
+ * Fixed undo display message
+ * 
+ * Revision 1.9  1993/11/08  19:13:46  yuan
+ * Added Undo command (not working yet)
+ * 
+ * Revision 1.8  1993/11/05  17:32:48  john
+ * added funcs
+ * .,
+ * 
+ * Revision 1.7  1993/11/02  10:31:08  mike
+ * Add PropagateTexturesSelected.
+ * 
+ * Revision 1.6  1993/10/29  11:43:15  mike
+ * Write PropagateTextures
+ * 
+ * Revision 1.5  1993/10/25  13:26:39  mike
+ * Force redraw whenever a texture map is assigned.
+ * 
+ * Revision 1.4  1993/10/15  17:42:53  mike
+ * Make AssignTexture also assign texture maps to New_segment.
+ * 
+ * Revision 1.3  1993/10/15  13:10:24  mike
+ * Adapt AssignTexture to new segment structure.
+ * 
+ * Revision 1.2  1993/10/14  18:09:17  mike
+ * Debug code for AssignTexture and comment out code.
+ * 
+ * Revision 1.1  1993/10/14  14:01:49  mike
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/kview.c:
+
+ * Revision 2.0  1995/02/27  11:34:21  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.11  1993/12/02  12:39:41  matt
+ * Removed extra includes
+ * 
+ * Revision 1.10  1993/11/16  13:47:54  john
+ * Xchanged move away/closer
+ * 
+ * Revision 1.9  1993/11/16  13:45:32  john
+ * Exchanged zoom in/out.
+ * 
+ * Revision 1.8  1993/11/05  17:32:56  john
+ * added funcs
+ * .,
+ * 
+ * Revision 1.7  1993/11/03  12:10:21  yuan
+ * No keypress associated with chase mode
+ * 
+ * Revision 1.6  1993/11/02  17:06:55  yuan
+ * Icon stuff added.
+ * 
+ * Revision 1.5  1993/11/01  12:48:59  yuan
+ * Added Chase mode icon to status bar.
+ * 
+ * Revision 1.4  1993/10/29  19:12:55  yuan
+ * Added diagnostic messages
+ * 
+ * Revision 1.3  1993/10/27  18:26:16  matt
+ * Made zoom & related keys not do anything if no current view
+ * 
+ * Revision 1.2  1993/10/19  20:54:33  matt
+ * Changed/cleaned up window updates
+ * 
+ * Revision 1.1  1993/10/13  18:53:34  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/macro.c:
+
+ * Revision 2.0  1995/02/27  11:35:09  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.12  1993/11/15  14:46:37  john
+ * Changed Menu to MenuX
+ * 
+ * Revision 1.11  1993/11/05  17:32:44  john
+ * added funcs
+ * .,
+ * 
+ * Revision 1.10  1993/10/28  16:23:20  john
+ * *** empty log message ***
+ * 
+ * Revision 1.9  1993/10/28  13:03:12  john
+ * ..
+ * 
+ * Revision 1.8  1993/10/25  16:02:35  john
+ * *** empty log message ***
+ * 
+ * Revision 1.7  1993/10/22  13:35:29  john
+ * *** empty log message ***
+ * 
+ * Revision 1.6  1993/10/21  17:10:09  john
+ * Fixed bug w/ load macro.
+ * 
+ * Revision 1.5  1993/10/19  12:58:47  john
+ * *** empty log message ***
+ * 
+ * Revision 1.4  1993/10/19  12:55:02  john
+ * *** empty log message ***
+ * 
+ * Revision 1.3  1993/10/19  12:49:49  john
+ * made EventBuffer dynamic, use ReadFile, WriteFile
+ * 
+ * Revision 1.2  1993/10/15  17:42:20  john
+ * *** empty log message ***
+ * 
+ * Revision 1.1  1993/10/15  17:28:06  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/macro.h:
+
+ * Revision 2.0  1995/02/27  11:34:32  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.2  1994/05/14  17:18:19  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.1  1994/05/14  16:38:50  matt
+ * Initial revision
+
+------------------------------------------------------------------------
 main/editor/med.c:
 
  * Revision 2.3  1995/03/06  18:23:52  john
@@ -5686,6 +7366,501 @@ main/editor/med.c:
  * Remove center from segment function added to menu.
 
 ------------------------------------------------------------------------
+main/editor/meddraw.c:
+
+ * Revision 2.0  1995/02/27  11:34:42  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.34  1994/11/09  11:46:30  matt
+ * Don't draw non-existant special segments
+ * 
+ * Revision 1.33  1994/10/27  10:06:38  mike
+ * adapt to no inverse table.
+ * 
+ * Revision 1.32  1994/10/17  18:06:23  john
+ * Made net player objects draw in dark green.
+ * 
+ * Revision 1.31  1994/09/26  16:44:33  yuan
+ * Colored special segments.
+ * 
+ * Revision 1.30  1994/09/01  17:02:41  matt
+ * Redraw pointer after world draw
+ * 
+ * Revision 1.29  1994/08/25  21:56:21  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.28  1994/08/11  18:59:46  mike
+ * Adapt to new int (vs short) version of gameseg functions.
+ * 
+ * Revision 1.27  1994/08/09  16:06:03  john
+ * Added the ability to place players.  Made old
+ * Player variable be ConsoleObject.
+ * 
+ * Revision 1.26  1994/07/25  00:03:05  matt
+ * Various changes to accomodate new 3d, which no longer takes point numbers
+ * as parms, and now only takes pointers to points.
+ * 
+ * Revision 1.25  1994/07/09  17:38:13  mike
+ * comment out mprintf(0, "\n");
+ * 
+ * Revision 1.24  1994/07/07  19:34:47  matt
+ * These changes are mostly Mike's, but I fixed a little bug that caused
+ * some edges to think they were never used.
+ * 
+ * Revision 1.23  1994/07/06  16:36:18  mike
+ * Optionally only draw segment lines which are in only one segment.
+ * 
+ * Revision 1.22  1994/05/27  10:34:28  yuan
+ * Added new Dialog boxes for Walls and Triggers.
+ * 
+ * Revision 1.21  1994/05/14  18:00:56  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.20  1994/05/09  23:35:21  mike
+ * Change order of drawing found and selected segments.
+ * 
+ * Revision 1.19  1994/05/05  12:55:38  yuan
+ * Fixed a bunch of group bugs.
+ * 
+ * Revision 1.18  1994/05/04  13:07:52  matt
+ * Made current edge draw in green in wire-frame window
+ * Also, moved a bunch of color constants here from editor.h
+
+------------------------------------------------------------------------
+main/editor/meddraw.h:
+
+ * Revision 2.0  1995/02/27  11:35:12  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.3  1994/07/06  16:36:54  mike
+ * Prototype for draw_mine_all.
+ * 
+ * Revision 1.2  1993/12/17  12:05:09  john
+ * Took stuff out of med.c; moved into medsel.c, meddraw.c, medmisc.c
+ * 
+ * Revision 1.1  1993/12/17  08:55:14  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/medmisc.c:
+
+ * Revision 2.1  1995/03/06  15:20:50  john
+ * New screen mode method.
+ * 
+ * Revision 2.0  1995/02/27  11:36:40  john
+ * Version 2.0. Ansi-fied.
+ * 
+ * Revision 1.31  1994/11/27  23:17:20  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.30  1994/11/17  14:48:11  mike
+ * validation functions moved from editor to game.
+ * 
+ * Revision 1.29  1994/08/25  21:56:15  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.28  1994/08/09  16:06:00  john
+ * Added the ability to place players.  Made old
+ * Player variable be ConsoleObject.
+ * 
+ * Revision 1.27  1994/07/21  17:25:43  matt
+ * Took out unused func medlisp_create_new_mine() and its prototype
+ * 
+ * Revision 1.26  1994/07/21  13:27:01  matt
+ * Cleaned up render code and added error checking
+ * 
+ * Revision 1.25  1994/07/20  15:32:52  matt
+ * Added func to call g3_point_2_vec() for texture-mapped window
+ * 
+ * Revision 1.24  1994/07/15  15:26:53  yuan
+ * Fixed warning
+ * 
+ * Revision 1.23  1994/07/14  14:45:16  yuan
+ * Added function to set default segment and attach.
+ * 
+ * Revision 1.22  1994/07/14  09:46:34  yuan
+ * Make E attach segment as well as make default.
+ * 
+ * 
+ * Revision 1.21  1994/07/11  18:39:17  john
+ * Reversed y axis roll.
+ * 
+ * Revision 1.20  1994/07/06  16:36:32  mike
+ * Add hook for game to render wireframe view: draw_world_from_game.
+ * 
+ * Revision 1.19  1994/06/24  14:08:31  john
+ * Changed calling params for render_frame.
+ * 
+ * Revision 1.18  1994/06/23  15:54:02  matt
+ * Finished hacking in 3d rendering in big window
+ * 
+ * Revision 1.17  1994/06/22  00:32:56  matt
+ * New version, without all the errors of the last version. Sorry.
+ * 
+ * Revision 1.15  1994/05/23  14:48:54  mike
+ * make current segment be add segment.
+ * 
+ * Revision 1.14  1994/05/19  12:09:35  matt
+ * Use new vecmat macros and globals
+ * 
+ * Revision 1.13  1994/05/14  17:17:55  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.12  1994/05/09  23:35:06  mike
+ * Add ClearFoundList, which is probably no longer being called.
+ * 
+ * Revision 1.11  1994/05/04  14:11:40  mike
+ * Increase render depth from 4 to 6 by default.
+ * 
+ * Revision 1.10  1994/04/27  21:00:25  matt
+ * Made texture-mapped window redraw when editor state variables (such as
+ * current object) have changed.
+ * 
+ * Revision 1.9  1994/03/31  12:03:38  matt
+ * Cleaned up includes
+ * 
+ * Revision 1.8  1994/02/17  11:31:21  matt
+ * Changes in object system
+ * 
+ * Revision 1.7  1994/02/11  11:05:14  yuan
+ * Make chase mode unsettable... Gives a warning on the mono.
+ * 
+ * Revision 1.6  1994/01/21  17:37:24  matt
+ * Moved code from render_frame() to caller, making code cleaner
+ * 
+ * Revision 1.5  1994/01/11  18:12:43  yuan
+ * compress_mines removed.  Now it is called within
+ * the gamesave.min save whenever we go into the game.
+ * 
+ * Revision 1.4  1994/01/05  10:54:15  john
+ * New object code by John
+ * 
+ * Revision 1.3  1993/12/29  16:15:27  mike
+ * Kill scale field from segment struct.
+ * 
+ * Revision 1.2  1993/12/17  12:05:00  john
+ * Took stuff out of med.c; moved into medsel.c, meddraw.c, medmisc.c
+ * 
+ * Revision 1.1  1993/12/17  08:35:47  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/medmisc.h:
+
+ * Revision 2.0  1995/02/27  11:34:40  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.3  1994/07/21  17:25:28  matt
+ * Took out unused func medlisp_create_new_mine() and its prototype
+ * 
+ * Revision 1.2  1993/12/17  12:05:04  john
+ * Took stuff out of med.c; moved into medsel.c, meddraw.c, medmisc.c
+ * 
+ * Revision 1.1  1993/12/17  08:45:23  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/medrobot.c:
+
+ * Revision 2.0  1995/02/27  11:35:59  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.46  1995/02/22  15:22:03  allender
+ * remove anonyous unions from object structure
+ * 
+ * Revision 1.45  1994/11/27  23:17:32  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.44  1994/11/14  11:39:57  mike
+ * fix default robot behavior
+ * 
+ * Revision 1.43  1994/11/02  16:18:47  matt
+ * Moved draw_model_picture() out of editor, and cleaned up code
+ * 
+ * Revision 1.42  1994/10/10  17:23:23  mike
+ * Verify that not placing too many player objects.
+ * 
+ * Revision 1.41  1994/10/09  22:04:38  mike
+ * Maybe improve, maybe not, robot selection in shift-R menu.
+ * 
+ * Revision 1.40  1994/09/30  21:49:01  mike
+ * Fix stupid shift-R dialog bug which caused lots of mprintf and selecting of object and frustration.
+ * 
+ * Revision 1.39  1994/09/30  11:51:33  mike
+ * Fix boolean logic on an error trap.
+ * 
+ * Revision 1.38  1994/09/20  14:36:32  mike
+ * Clean up Robot dialog.
+ * 
+ * Revision 1.37  1994/09/12  19:11:56  mike
+ * Fix stupid bugs in selecting objects.
+ * 
+ * Revision 1.36  1994/09/01  17:05:51  matt
+ * Don't force redraw if object select fails
+ * 
+ * Revision 1.35  1994/08/31  19:24:40  mike
+ * Fix hang bug when only objects in mine are not robots.
+ * 
+ * Revision 1.34  1994/08/25  21:56:38  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.33  1994/08/23  16:39:29  mike
+ * mode replaced by behavior in ai_info.
+ * 
+ * Revision 1.32  1994/08/15  23:47:16  mike
+ * fix bugs.
+ * 
+ * Revision 1.31  1994/08/13  17:32:45  mike
+ * set to still function.
+ * 
+ * Revision 1.30  1994/08/09  16:06:02  john
+ * Added the ability to place players.  Made old
+ * Player variable be ConsoleObject.
+ * 
+ * Revision 1.29  1994/08/02  16:22:48  matt
+ * Finished object editor dialog
+
+------------------------------------------------------------------------
+main/editor/medrobot.h:
+
+ * Revision 2.0  1995/02/27  11:35:04  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.4  1994/08/02  14:17:56  mike
+ * Clean up dialog boxes.
+ * 
+ * Revision 1.3  1994/07/21  19:34:58  yuan
+ * Fixed #include problem
+ * 
+ * Revision 1.2  1994/04/27  21:01:16  matt
+ * Added prototypes for robot functions
+ * 
+ * Revision 1.1  1994/04/27  20:28:59  matt
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/medsel.c:
+
+ * Revision 2.0  1995/02/27  11:35:20  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.10  1994/08/09  16:05:59  john
+ * Added the ability to place players.  Made old
+ * Player variable be ConsoleObject.
+ * 
+ * Revision 1.9  1994/05/23  14:56:27  mike
+ * make current segment be add segment.
+ * 
+ * Revision 1.8  1994/05/14  18:00:50  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.7  1994/03/31  12:03:33  matt
+ * Cleaned up includes
+ * 
+ * Revision 1.6  1994/02/17  12:52:13  yuan
+ * Unbackdated
+ * y
+ * 
+ * Revision 1.4  1994/02/17  09:46:53  matt
+ * Removed include of slew.h
+ * 
+ * Revision 1.3  1994/01/05  10:54:23  john
+ * New object code by John
+ * 
+ * Revision 1.2  1993/12/17  12:18:22  john
+ * Moved selection stuff out of med.c
+ * 
+ * Revision 1.1  1993/12/17  09:29:34  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/medsel.h:
+
+ * Revision 2.0  1995/02/27  11:34:28  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.2  1993/12/17  12:18:35  john
+ * Moved selection stuff out of med.c
+ * 
+ * Revision 1.1  1993/12/17  09:29:51  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/medwall.c:
+
+ * Revision 2.0  1995/02/27  11:35:47  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.71  1995/02/01  16:30:03  yuan
+ * Stabilizing triggers and matcens.
+ * 
+ * Revision 1.70  1995/01/28  15:28:08  yuan
+ * Return proper bug description.
+ * 
+ * Revision 1.69  1995/01/14  19:18:07  john
+ * First version of object paging.
+ * 
+ * Revision 1.68  1995/01/12  12:10:44  yuan
+ * Added delete trigger function
+ * 
+ * Revision 1.67  1994/11/29  16:51:53  yuan
+ * Fixed false bogus trigger info.
+ * 
+ * Revision 1.66  1994/11/27  23:17:29  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.65  1994/11/15  11:59:42  john
+ * Changed timing for door to use fixed seconds instead of milliseconds.
+ * 
+ * Revision 1.64  1994/11/03  10:41:17  yuan
+ * Made walls add whichever the previous type was.
+ * 
+ * Revision 1.63  1994/10/13  13:14:59  yuan
+ * Fixed trigger removal bug.
+ * 
+ * Revision 1.62  1994/10/07  17:43:39  yuan
+ * Make validate walls default to 1.
+ * 
+ * Revision 1.61  1994/10/03  23:40:20  mike
+ * Fix hosedness in walls in group copying.
+ * 
+ * Revision 1.60  1994/09/29  00:20:36  matt
+ * Took out reference to unused external wall type
+ * 
+ * Revision 1.59  1994/09/28  17:32:24  mike
+ * Functions to copy walls withing groups.
+ * 
+ * Revision 1.58  1994/09/28  13:40:46  yuan
+ * Fixed control center trigger bug.
+ * 
+ * Revision 1.57  1994/09/24  12:41:52  matt
+ * Took out references to obsolete constants
+ * 
+ * Revision 1.56  1994/09/23  18:03:55  yuan
+ * Finished wall checking code.
+ * 
+ * Revision 1.55  1994/09/22  14:35:25  matt
+ * Made blastable walls work again
+ * 
+ * Revision 1.54  1994/09/21  16:46:07  yuan
+ * Fixed bug that reset wall slot which was just deleted.
+ * 
+ * Revision 1.53  1994/09/20  18:31:21  yuan
+ * Output right Wallnum
+ * 
+ * Revision 1.52  1994/09/20  18:23:24  yuan
+ * Killed the BOGIFYING WALL DRAGON...
+ * 
+ * There was a problem with triggers being created that had bogus
+ * pointers back to their segments.
+ * 
+ * Revision 1.51  1994/09/20  11:13:11  yuan
+ * Delete all bogus walls when checking walls.
+ * 
+ * Revision 1.50  1994/09/19  23:31:14  yuan
+ * Adding wall checking stuff.
+ * 
+ * Revision 1.49  1994/09/13  21:11:20  matt
+ * Added wclips that use tmap1 instead of tmap2, saving lots of merging
+ * 
+ * Revision 1.48  1994/09/10  13:32:08  matt
+ * Made exploding walls a type of blastable walls.
+ * Cleaned up blastable walls, making them tmap2 bitmaps.
+ * 
+ * Revision 1.47  1994/09/10  09:47:47  yuan
+ * Added wall checking function.
+ * 
+ * Revision 1.46  1994/08/26  14:14:56  yuan
+ * Fixed wall clip being set to -2 bug.
+ * 
+ * Revision 1.45  1994/08/25  21:56:26  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.44  1994/08/19  19:30:27  matt
+ * Added informative message if wall is already external when making it so.
+ * 
+ * Revision 1.43  1994/08/17  11:13:46  matt
+ * Changed way external walls work
+ * 
+ * Revision 1.42  1994/08/15  17:47:29  yuan
+ * Added external walls
+ * 
+ * Revision 1.41  1994/08/05  21:18:09  matt
+ * Allow two doors to be linked together
+ * 
+ * Revision 1.40  1994/08/02  14:18:06  mike
+ * Clean up dialog boxes.
+ * 
+ * Revision 1.39  1994/08/01  11:04:33  yuan
+ * New materialization centers.
+ * 
+ * Revision 1.38  1994/07/22  17:19:11  yuan
+ * Working on dialog box for refuel/repair/material/control centers.
+ * 
+ * Revision 1.37  1994/07/20  17:35:33  yuan
+ * Added new gold key.
+ * 
+ * Revision 1.36  1994/07/19  14:31:44  yuan
+ * Fixed keys bug.
+ * 
+ * Revision 1.35  1994/07/18  15:58:31  yuan
+ * Hopefully prevent any "Adam door bombouts"
+ * 
+ * Revision 1.34  1994/07/18  15:48:40  yuan
+ * Made minor cosmetic change.
+ * 
+ * Revision 1.33  1994/07/15  16:09:22  yuan
+ * Error checking
+ * 
+ * Revision 1.32  1994/07/14  16:47:05  yuan
+ * Fixed wall dialog for selected dooranims.
+ * 
+ * Revision 1.31  1994/07/11  15:09:16  yuan
+ * Wall anim filenames stored in wclip structure.
+ * 
+ * Revision 1.30  1994/07/06  10:56:01  john
+ * New structures for hostages.
+ * 
+ * Revision 1.29  1994/07/01  16:35:54  yuan
+ * Added key system
+ * 
+ * Revision 1.28  1994/06/21  18:50:12  john
+ * Made ESC key exit dialog.
+ * 
+ * Revision 1.27  1994/06/20  22:29:59  yuan
+ * Fixed crazy runaway trigger bug that Adam found
+ * 
+ * Revision 1.26  1994/06/01  15:50:25  yuan
+ * Added one more door... Needs to be set by bm.c in the future.
+ * 
+ * Revision 1.25  1994/05/30  20:22:34  yuan
+ * New triggers.
+ * 
+ * Revision 1.24  1994/05/27  10:34:31  yuan
+ * Added new Dialog boxes for Walls and Triggers.
+ * 
+ * Revision 1.23  1994/05/25  18:08:45  yuan
+ * Revamping walls and triggers interface.
+ * Wall interface complete, but triggers are still in progress.
+ * 
+ * Revision 1.22  1994/05/18  18:21:56  yuan
+ * Fixed delete segment and walls bug.
+ * 
+ * Revision 1.21  1994/05/11  18:24:29  yuan
+ * Oops.. trigger not triggers..
+ * 
+ * Revision 1.20  1994/05/11  18:23:53  yuan
+ * Fixed trigger not set to -1 bug.
+
+------------------------------------------------------------------------
 main/editor/medwall.h:
 
  * Revision 2.0  1995/02/27  11:35:10  john
@@ -5718,6 +7893,250 @@ main/editor/medwall.h:
  * Fixed bm loader (might have some changes in walls and switches)
  * 
  * Revision 1.1  1994/02/10  17:52:01  matt
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/mine.c:
+
+ * Revision 2.0  1995/02/27  11:34:38  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.82  1995/01/19  15:19:42  mike
+ * New super-compressed registered file format.
+ * 
+ * Revision 1.81  1994/12/15  16:51:39  mike
+ * fix error message.
+ * 
+ * Revision 1.80  1994/12/09  22:52:27  yuan
+ * *** empty log message ***
+ * 
+ * Revision 1.79  1994/11/27  23:17:14  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.78  1994/11/26  21:48:24  matt
+ * Fixed saturation in short light value
+ * 
+ * Revision 1.77  1994/11/18  09:43:22  mike
+ * mprintf and clean up instead of Assert on values which don't fit in a short.
+ * 
+ * Revision 1.76  1994/11/17  20:37:37  john
+ * Added comment to get mike or john.
+ * 
+ * Revision 1.75  1994/11/17  20:08:51  john
+ * Added new compiled level format.
+ * 
+ * Revision 1.74  1994/11/17  11:39:00  matt
+ * Ripped out code to load old mines
+ * 
+ * Revision 1.73  1994/10/20  12:47:47  matt
+ * Replaced old save files (MIN/SAV/HOT) with new LVL files
+ * 
+ * Revision 1.72  1994/09/23  22:13:58  matt
+ * Tooks out references to obsolete structure fields
+ * 
+ * Revision 1.71  1994/09/22  18:39:40  john
+ * *** empty log message ***
+ * 
+ * Revision 1.70  1994/09/22  18:38:09  john
+ * Added better help for locked files.
+ * 
+ * Revision 1.69  1994/08/01  11:04:44  yuan
+ * New materialization centers.
+ * 
+ * Revision 1.68  1994/06/08  14:29:35  matt
+ * Took out support for old mine versions
+ * 
+ * Revision 1.67  1994/05/27  10:34:37  yuan
+ * Added new Dialog boxes for Walls and Triggers.
+ * 
+ * Revision 1.66  1994/05/23  14:48:08  mike
+ * make current segment be add segment.
+ * 
+ * Revision 1.65  1994/05/17  10:34:52  matt
+ * New parm to reset_objects; Num_objects no longer global
+ * 
+ * Revision 1.64  1994/05/12  14:46:46  mike
+ * Load previous mine type.
+ * 
+ * Revision 1.63  1994/05/06  12:52:13  yuan
+ * Adding some gamesave checks...
+ * 
+ * Revision 1.62  1994/05/05  12:56:32  yuan
+ * Fixed a bunch of group bugs.
+ * 
+ * Revision 1.61  1994/05/03  11:36:55  yuan
+ * Fixing mine save.
+ * 
+ * Revision 1.60  1994/03/19  17:22:14  yuan
+ * Wall system implemented until specific features need to be added...
+ * (Needs to be hammered on though.)
+ * 
+ * Revision 1.59  1994/03/17  18:08:32  yuan
+ * New wall stuff... Cut out switches....
+ * 
+ * Revision 1.58  1994/03/15  16:34:15  yuan
+ * Fixed bm loader (might have some changes in walls and switches)
+ * 
+ * Revision 1.57  1994/03/01  18:14:09  yuan
+ * Added new walls, switches, and triggers.
+
+------------------------------------------------------------------------
+main/editor/objpage.c:
+
+ * Revision 2.0  1995/02/27  11:34:43  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.37  1995/01/14  19:17:55  john
+ * First version of object paging.
+ * 
+ * Revision 1.36  1995/01/05  16:20:13  mike
+ * bah, remove the int3.
+ * 
+ * Revision 1.35  1995/01/05  12:47:13  mike
+ * Move code about to prevent compiler warning.
+ * 
+ * Revision 1.34  1994/11/18  15:23:55  john
+ * Made so the int3 for drawing an invalib object just returns.
+ * 
+ * Revision 1.33  1994/11/02  16:19:18  matt
+ * Moved draw_model_picture() out of editor, and cleaned up code
+ * 
+ * Revision 1.32  1994/10/23  02:11:18  matt
+ * Got rid of obsolete hostage_info stuff
+ * 
+ * Revision 1.31  1994/09/09  14:41:35  matt
+ * New parms for draw_polygon_model()
+ * 
+ * Revision 1.30  1994/08/29  19:26:53  matt
+ * Fixed botches change from yesterday
+ * 
+ * Revision 1.29  1994/08/28  23:40:35  matt
+ * 
+ * 
+ * Revision 1.28  1994/08/14  23:15:32  matt
+ * Added animating bitmap hostages, and cleaned up vclips a bit
+ * 
+ * Revision 1.27  1994/08/13  14:59:02  matt
+ * Finished adding support for miscellaneous objects
+ * 
+ * Revision 1.26  1994/08/09  16:06:15  john
+ * Added the ability to place players.  Made old
+ * Player variable be ConsoleObject.
+ * 
+ * Revision 1.25  1994/07/28  16:59:23  mike
+ * objects containing objects.
+ * 
+ * Revision 1.24  1994/06/08  18:17:25  john
+ * Changed the way object types and id's work for hostages
+ * and powerups.
+ * 
+ * Revision 1.23  1994/06/07  16:52:30  matt
+ * Made object lighting work correctly; changed name of Ambient_light to
+ * Dynamic_light; cleaned up polygobj object rendering a little.
+ * 
+ * Revision 1.22  1994/05/31  18:42:07  matt
+ * Made robot photos unlighted
+ * 
+ * Revision 1.21  1994/05/26  21:09:34  matt
+ * Moved robot stuff out of polygon model and into robot_info struct
+ * Made new file, robot.c, to deal with robots
+ * 
+ * Revision 1.20  1994/05/19  12:10:11  matt
+ * Use new vecmat macros and globals
+ * 
+ * Revision 1.19  1994/05/17  14:45:27  mike
+ * Get object type and id from ObjType and ObjId.
+ * 
+ * Revision 1.18  1994/05/17  12:03:36  mike
+ * Deal with little known fact that polygon object != robot.
+ * 
+ * Revision 1.17  1994/04/29  09:16:56  matt
+ * Added support for multiple-piece explosions
+ * 
+ * Revision 1.16  1994/04/18  14:15:00  john
+ * Initial version of robot dialog box.
+ * 
+ * Revision 1.15  1994/04/11  12:01:36  yuan
+ * Fixed resetting to first object on page annoyance.
+ * 
+ * Revision 1.14  1994/04/01  14:35:50  yuan
+ * Removed debug "id %d\n" for placing objects
+ * 
+ * Revision 1.13  1994/04/01  11:17:04  yuan
+ * Added objects to objpage. Added buttons for easier tmap scrolling.
+ * Objects are selected fully from objpage and add object menu or pad.
+ * 
+ * Revision 1.12  1994/03/25  18:42:26  matt
+ * Adjusted constant to make robot pictures more correct size
+ * 
+ * Revision 1.11  1994/03/25  16:57:17  matt
+ * New parm to draw_polygon_object(), and draw object "snapshots" in
+ * correct size (although this probably doesn't work yet).
+ * 
+ * Revision 1.10  1994/03/25  14:23:01  matt
+ * Disabled lighting when taking "snapshots" of robots
+ * 
+ * Revision 1.9  1994/03/17  10:47:24  john
+ * Corrected all kinds of problems associated with N_polygon_objects.
+ * 
+ * Revision 1.8  1994/03/16  11:07:31  john
+ * Made zoom work a bit better.
+ * 
+ * Revision 1.7  1994/03/16  10:50:32  john
+ * fixed warning with constant length.
+ * 
+ * Revision 1.6  1994/03/16  10:43:18  john
+ * Added controls to rotate/zoom object.
+ * 
+ * Revision 1.5  1994/03/15  22:23:24  matt
+ * Render little bitmap pictures of robots for display on editor page
+ * 
+ * Revision 1.4  1994/02/01  11:27:14  john
+ * Hacked in 8 object types for demo.
+ * 
+ * Revision 1.3  1994/01/26  16:42:19  john
+ * Display numbers instead of bitmaps... made 
+ * Num_robot_types or whatever be set to 4
+ * in init_object_page... this is a hack!!!
+ * 
+ * Revision 1.2  1993/12/16  17:26:24  john
+ * Moved texture and object selection to texpage and objpage
+ * 
+ * Revision 1.1  1993/12/16  16:12:57  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/objpage.h:
+
+ * Revision 2.0  1995/02/27  11:35:32  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.8  1994/11/02  16:19:20  matt
+ * Moved draw_model_picture() out of editor, and cleaned up code
+ * 
+ * Revision 1.7  1994/07/28  16:59:36  mike
+ * objects containing objects.
+ * 
+ * Revision 1.6  1994/05/17  14:45:48  mike
+ * Get object type and id from ObjectType and ObjectId.
+ * 
+ * Revision 1.5  1994/05/17  12:03:55  mike
+ * Deal with little known fact that polygon object != robot.
+ * 
+ * Revision 1.4  1994/05/14  18:00:33  matt
+ * Got rid of externs in source (non-header) files
+ * 
+ * Revision 1.3  1994/04/01  11:17:06  yuan
+ * Added objects to objpage. Added buttons for easier tmap scrolling.
+ * Objects are selected fully from objpage and add object menu or pad.
+ * 
+ * Revision 1.2  1993/12/16  17:26:27  john
+ * Moved texture and object selection to texpage and objpage
+ * 
+ * Revision 1.1  1993/12/16  16:13:08  john
  * Initial revision
 
 ------------------------------------------------------------------------
@@ -5844,6 +8263,115 @@ main/editor/segment.c:
  * make current segment be add segment.,
 
 ------------------------------------------------------------------------
+main/editor/seguvs.c:
+
+ * Revision 2.1  1995/05/08  10:49:34  mike
+ * fix lighting bug: oblong segments could be very dark.
+ * 
+ * Revision 2.0  1995/02/27  11:36:37  john
+ * Version 2.0. Ansi-fied.
+ * 
+ * Revision 1.84  1994/11/27  23:17:18  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.83  1994/11/17  14:48:02  mike
+ * validation functions moved from editor to game.
+ * 
+ * Revision 1.82  1994/10/15  19:08:26  mike
+ * Disable exhaustive search mprintfs in find_point_seg during lighting.
+ * 
+ * Revision 1.81  1994/08/25  21:55:50  mike
+ * IS_CHILD stuff.
+ * 
+ * Revision 1.80  1994/08/04  19:13:22  matt
+ * Changed a bunch of vecmat calls to use multiple-function routines, and to
+ * allow the use of C macros for some functions
+ * 
+ * Revision 1.79  1994/08/03  10:31:33  mike
+ * Texture map propagation without uv assignment.
+ * 
+ * Revision 1.78  1994/08/01  13:31:12  matt
+ * Made fvi() check holes in transparent walls, and changed fvi() calling
+ * parms to take all input data in query structure.
+ * 
+ * Revision 1.77  1994/07/08  14:31:24  matt
+ * New parms for FVI
+ * 
+ * Revision 1.76  1994/06/23  14:01:04  mike
+ * Fix cache bug which caused some vertices to not get light, mainly
+ * noticeable at joints which had doors.
+ * 
+ * Revision 1.75  1994/06/22  17:33:11  mike
+ * Make position of light (which is always towards center of segment from
+ * actual light panel) constant, not dependent on segment size, which fixes
+ * bug of dark light panels in very large segments.
+ * 
+ * Revision 1.74  1994/06/21  18:58:18  mike
+ * Fix stupid bug in light propagation, was using wrong vector in fvi caching.
+ * 
+ * Revision 1.73  1994/06/20  11:20:24  mike
+ * Fix stupid lighting bug introduced when I went to cached fvi results.
+ * 
+ * Revision 1.72  1994/06/19  16:26:37  mike
+ * Speed up lighting by storing and hashing fvi results.
+ * 
+ * Revision 1.71  1994/06/17  16:05:56  mike
+ * Support optional quick lighting propagation: no find_vector_intersection.
+ * 
+ * Revision 1.70  1994/06/15  15:42:30  mike
+ * Propagate static_light.
+ * 
+ * Revision 1.69  1994/06/14  16:59:37  mike
+ * Fix references to tmap_num2, must strip off orientation bits.
+ * 
+ * Revision 1.68  1994/06/09  09:58:58  matt
+ * Moved find_vector_intersection() from physics.c to new file fvi.c
+ * 
+ * 
+ * Revision 1.67  1994/06/08  18:14:02  mike
+ * mprintf a dot in light casting.
+ * 
+ * Revision 1.66  1994/06/08  14:37:45  mike
+ * double static light value in going from value (a short) to static_light (a fix).
+ * 
+ * Revision 1.65  1994/06/08  14:29:44  matt
+ * Added static_light field to segment structure, and padded side struct
+ * to be longword aligned.
+ * 
+ * Revision 1.64  1994/06/08  11:45:24  mike
+ * New, supercool, superslow lighting function.
+ * 
+ * Revision 1.63  1994/06/07  09:38:11  mike
+ * Make lighting function yet better by calling find_vector_intersection.
+ * 
+ * Revision 1.62  1994/06/06  13:14:33  mike
+ * Make illusory walls cast light.
+ * 
+ * Revision 1.61  1994/06/05  20:39:47  mike
+ * Add new distance and dot product based lighting function.
+ * 
+ * Revision 1.60  1994/05/31  12:31:18  mike
+ * fix bugs in lighting, though it's not perfect, will be changing all
+ * lighting to be distance based.  Bug had to do with not handling one
+ * of the return values from WALL_IS_DOORWAY, so assuming light couldn't
+ * be recursively propagated almost all the time.
+ * 
+ * Revision 1.59  1994/05/19  23:35:26  mike
+ * Support uv coordinates in range 0..1.0.
+ * 
+ * Revision 1.58  1994/05/19  12:10:21  matt
+ * Use new vecmat macros and globals
+ * 
+ * Revision 1.57  1994/05/04  19:15:53  mike
+ * Error checking for degenerate segments.
+ * 
+ * Revision 1.56  1994/05/03  11:02:34  mike
+ * Change how default texture map assignment works; now pixels are constant size.
+ * 
+ * Revision 1.55  1994/04/28  23:25:26  yuan
+ * Obliterated warnings.
+
+------------------------------------------------------------------------
 main/editor/seguvs.h:
 
  * Revision 2.0  1995/02/27  11:34:58  john
@@ -5857,6 +8385,103 @@ main/editor/seguvs.h:
  * Got rid of externs in source (non-header) files
  * 
  * Revision 1.1  1994/05/14  17:27:26  matt
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/texpage.c:
+
+ * Revision 2.0  1995/02/27  11:34:51  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.14  1995/01/14  19:18:02  john
+ * First version of object paging.
+ * 
+ * Revision 1.13  1994/11/27  23:17:15  matt
+ * Made changes for new mprintf calling convention
+ * 
+ * Revision 1.12  1994/11/23  15:49:00  mike
+ * fix bug in tmapnum == 0 always getting reassigned.
+ * 
+ * Revision 1.11  1994/11/23  12:17:34  mike
+ * changing texture maps in all mines.
+ * 
+ * Revision 1.10  1994/11/19  00:04:42  john
+ * Changed some shorts to ints.
+ * 
+ * Revision 1.9  1994/11/16  17:59:36  john
+ * Fixed bug with writing to canvas before initing it.
+ * 
+ * Revision 1.8  1994/11/16  13:15:21  matt
+ * Fixed grab bug, and cleaned up code
+ * 
+ * Revision 1.7  1994/08/05  12:26:37  matt
+ * Fixed overplot problem with texture names
+ * 
+ * Revision 1.6  1994/04/11  12:01:58  yuan
+ * Fixed resetting to first texture on page annoyance.
+ * 
+ * Revision 1.5  1994/04/01  11:15:53  yuan
+ * Added objects to objpage. Added buttons for easier tmap scrolling.
+ * Objects are selected fully from objpage and add object menu or pad.
+ * 
+ * Revision 1.4  1994/03/15  16:33:37  yuan
+ * Fixed bm loader (might have some changes in walls and switches)
+ * 
+ * Revision 1.3  1993/12/16  17:25:46  john
+ * Moved texture and object selection to texpage and objpage
+ * 
+ * Revision 1.2  1993/12/16  15:57:39  john
+ * moved texture selection stuff to texpage.c
+ * 
+ * Revision 1.1  1993/12/16  15:06:56  john
+ * Initial revision
+
+------------------------------------------------------------------------
+main/editor/texture.c:
+
+ * Revision 2.0  1995/02/27  11:34:50  john
+ * Version 2.0! No anonymous unions, Watcom 10.0, with no need
+ * for bitmaps.tbl.
+ * 
+ * Revision 1.13  1994/08/04  19:13:15  matt
+ * Changed a bunch of vecmat calls to use multiple-function routines, and to
+ * allow the use of C macros for some functions
+ * 
+ * Revision 1.12  1994/08/03  10:31:56  mike
+ * Texture map propagation without uv assignment.
+ * 
+ * Revision 1.11  1994/07/14  19:36:34  yuan
+ * Tuning texture slides.
+ * 
+ * Revision 1.10  1994/07/14  19:29:08  yuan
+ * Fixed sliding.
+ * 
+ * Revision 1.9  1994/07/14  14:43:06  yuan
+ * Added 3x rotation.
+ * 
+ * Revision 1.8  1994/07/14  11:12:42  yuan
+ * Made sliding 3x more sensitive
+ * 
+ * Revision 1.7  1994/07/14  10:49:56  yuan
+ * Made texture rotation 3x finer
+ * 
+ * Revision 1.6  1994/02/14  12:06:00  mike
+ * change segment data structure.
+ * 
+ * Revision 1.5  1993/12/06  13:26:52  mike
+ * Make rotation and sliding work for triangulated sides.
+ * 
+ * Revision 1.4  1993/12/04  17:18:46  mike
+ * Add tiling functions, set_default.
+ * 
+ * Revision 1.3  1993/12/03  18:39:12  unknown
+ * Add texture map sliding, allow to work on triangulated sides.
+ * 
+ * Revision 1.2  1993/11/30  17:06:09  mike
+ * Texture map functions.
+ * 
+ * Revision 1.1  1993/11/29  16:00:57  mike
  * Initial revision
 
 ------------------------------------------------------------------------

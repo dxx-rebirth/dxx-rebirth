@@ -1,3 +1,4 @@
+/* $Id: centers.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,58 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/centers.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Dialog box stuff for control centers, material centers, etc.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:02:47  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:35:30  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.9  1994/11/27  23:17:28  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.8  1994/10/05  22:13:46  mike
- * Clean up Centers dialog.
- * 
- * Revision 1.7  1994/10/03  23:39:55  mike
- * Call fuelcen_activate instead of fuelcen_create.
- * 
- * Revision 1.6  1994/08/02  12:16:35  mike
- * Change materialization center functionality.
- * 
- * Revision 1.5  1994/08/01  11:04:42  yuan
- * New materialization centers.
- * 
- * Revision 1.4  1994/07/22  17:19:10  yuan
- * Working on dialog box for refuel/repair/material/control centers.
- * 
- * Revision 1.3  1994/07/21  19:35:09  yuan
- * Fixed #include problem
- * 
- * Revision 1.2  1994/07/21  19:02:41  yuan
- * *** empty log message ***
- * 
- * Revision 1.1  1994/07/18  16:00:54  yuan
- * Initial revision
- * 
- * 
+ * Dialog box stuff for control centers, material centers, etc.
+ *
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: centers.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: centers.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdio.h>

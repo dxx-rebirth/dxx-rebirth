@@ -1,3 +1,4 @@
+/* $Id: macro.c,v 1.3 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,71 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/macro.c,v $
- * $Revision: 1.2 $
- * $Author: btb $
- * $Date: 2004-12-19 14:10:33 $
- * 
+ *
  * Routines for recording/playing/saving macros
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1  2004/12/19 13:54:27  btb
- * imported missing editor files from d1x
  *
- * Revision 1.1.1.1  1999/06/14 22:03:35  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:09  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.12  1993/11/15  14:46:37  john
- * Changed Menu to MenuX
- * 
- * Revision 1.11  1993/11/05  17:32:44  john
- * added funcs
- * .,
- * 
- * Revision 1.10  1993/10/28  16:23:20  john
- * *** empty log message ***
- * 
- * Revision 1.9  1993/10/28  13:03:12  john
- * ..
- * 
- * Revision 1.8  1993/10/25  16:02:35  john
- * *** empty log message ***
- * 
- * Revision 1.7  1993/10/22  13:35:29  john
- * *** empty log message ***
- * 
- * Revision 1.6  1993/10/21  17:10:09  john
- * Fixed bug w/ load macro.
- * 
- * Revision 1.5  1993/10/19  12:58:47  john
- * *** empty log message ***
- * 
- * Revision 1.4  1993/10/19  12:55:02  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/10/19  12:49:49  john
- * made EventBuffer dynamic, use ReadFile, WriteFile
- * 
- * Revision 1.2  1993/10/15  17:42:20  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/10/15  17:28:06  john
- * Initial revision
- * 
- * 
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: macro.c,v 1.2 2004-12-19 14:10:33 btb Exp $";
+static char rcsid[] = "$Id: macro.c,v 1.3 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdio.h>

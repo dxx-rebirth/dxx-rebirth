@@ -1,3 +1,4 @@
+/* $Id: ksegsize.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,81 +8,18 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/ksegsize.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
  *
  * Functions for sizing segments
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:32  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.1  1995/03/08  16:07:21  yuan
- * Added segment sizing default functions.
- * 
- * Revision 2.0  1995/02/27  11:35:46  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.15  1994/11/17  14:47:42  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.14  1994/08/25  21:57:45  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.13  1994/07/18  10:44:43  mike
- * Fix uv propagation after segment sizing.
- * 
- * Revision 1.12  1994/05/04  19:16:34  mike
- * *** empty log message ***
- * 
- * Revision 1.11  1994/05/03  18:31:00  mike
- * Add PerturbCurside.
- * 
- * Revision 1.10  1994/05/03  11:05:14  mike
- * Overhaul segment sizing system to allow sizing of non-free vertices,
- * and also sizing of vertices on a side, edge or a single vertex.
- * 
- * Revision 1.9  1993/12/12  17:16:00  mike
- * Kill some mprintf code.
- * 
- * 
- * Revision 1.8  1993/12/10  11:10:53  mike
- * Fix bugs in tmap propagation in segment sizing.
- * 
- * Revision 1.7  1993/12/06  13:25:30  mike
- * Fix bug in setting size of New_segment after segment scale.
- * 
- * Revision 1.6  1993/11/17  18:57:52  mike
- * Change scaling to be additive.
- * 
- * Revision 1.5  1993/11/12  16:52:57  mike
- * *** empty log message ***
- * 
- * Revision 1.4  1993/11/05  17:32:47  john
- * added funcs
- * .,
- * 
- * Revision 1.3  1993/10/19  11:22:11  matt
- * Removed extra includes
- * 
- * Revision 1.2  1993/10/17  14:17:52  mike
- * Add big scale changes for segment.
- * 
- * Revision 1.1  1993/10/13  18:53:01  john
- * Initial revision
- * 
  *
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: ksegsize.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: ksegsize.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdlib.h>

@@ -1,3 +1,4 @@
+/* $Id: medwall.h,v 1.4 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,27 +8,14 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/medwall.h,v $
- * $Revision: 1.3 $
- * $Author: btb $
- * $Date: 2004-12-19 11:01:29 $
- * 
+ *
  * Created from version 1.6 of main\wall.h
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.2  2004/08/28 23:17:45  schaffner
- * move old per-file change logs into new file ChangeLog-old
  *
- * Revision 1.1  2001/10/25 02:27:17  bradleyb
- * attempt at support for editor, makefile changes, etc
- *
- * Revision 1.1.1.1  1999/06/14 22:02:40  donut
- * Import of d1x 1.37 source.
- * 
  */
 
 #ifndef _MEDWALL_H

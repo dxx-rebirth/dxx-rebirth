@@ -1,3 +1,4 @@
+/* $Id: autosave.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,110 +8,20 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/autosave.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Autosave system: 
- * Saves current mine to disk to prevent loss of work, and support undo.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:02:47  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:34:53  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.25  1994/11/19  00:04:40  john
- * Changed some shorts to ints.
- * 
- * Revision 1.24  1994/11/17  11:38:59  matt
- * Ripped out code to load old mines
- * 
- * Revision 1.23  1994/07/28  17:00:01  mike
- * fix diagnostic_message erasing.
- * 
- * Revision 1.22  1994/07/21  12:48:28  mike
- * Make time of day a global, fix clock so it doesn't show 10:2 instead of 10:02
- * 
- * Revision 1.21  1994/05/14  17:17:58  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.20  1994/05/02  18:04:14  yuan
- * Fixed warning.
- * 
- * Revision 1.19  1994/05/02  17:59:04  yuan
- * Changed undo_status into an array rather than malloced pointers.
- * 
- * Revision 1.18  1994/03/16  09:55:48  mike
- * Flashing : in time.
- * 
- * Revision 1.17  1994/02/11  10:27:36  matt
- * Changed 'if !DEMO' to 'ifndef DEMO'
- * 
- * Revision 1.16  1994/02/08  12:43:18  yuan
- * Crippled save game function from demo version
- * 
- * Revision 1.15  1994/02/01  13:27:26  yuan
- * autosave default off.
- * 
- * Revision 1.14  1994/01/05  09:57:37  yuan
- * Fixed calendar/clock problem.
- * 
- * Revision 1.13  1993/12/17  16:09:59  yuan
- * Changed clock font from Red to Black.
- * 
- * Revision 1.12  1993/12/15  13:08:38  yuan
- * Fixed :0x times, so that the 0 shows up.
- * 
- * Revision 1.11  1993/12/15  11:19:52  yuan
- * Added code to display clock in upper right.
- * 
- * Revision 1.10  1993/12/14  21:18:51  yuan
- * Added diagnostic message to display
- * 
- * Revision 1.9  1993/12/14  18:32:59  yuan
- * Added timed autosave code
- * 
- * Revision 1.8  1993/12/13  17:23:25  yuan
- * Fixed bugs with undo.
- * They were caused by badly changed extensions.
- * 
- * Revision 1.7  1993/12/09  16:42:32  yuan
- * Changed extension of temp mines from .mi? -> .mn? 
- * and now to .m? (So it doesn't interfere with .mnu)
- * 
- * Revision 1.6  1993/12/09  16:27:06  yuan
- * Added toggle for autosave
- * 
- * Revision 1.5  1993/11/29  19:46:32  matt
- * Changed includes
- * 
- * Revision 1.4  1993/11/11  15:54:11  yuan
- * Added display message for Undo...
- * Eg. Attach Segment UNDONE.
- * 
- * Revision 1.3  1993/11/09  18:53:11  yuan
- * Autosave/Undo works up to 10 moves.
- * 
- * Revision 1.2  1993/11/08  19:14:03  yuan
- * Added Undo command (not working yet)
- * 
- * Revision 1.1  1993/11/08  16:57:59  yuan
- * Initial revision
- * 
- * 
+ * Autosave system:
+ * Saves current mine to disk to prevent loss of work, and support undo.
+ *
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: autosave.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: autosave.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdio.h>

@@ -1,3 +1,4 @@
+/* $Id: texture.c,v 1.2 2004-12-19 14:53:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,74 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/texture.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
+ *
  * Texture map assignment.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.2  2003/03/09 06:34:09  donut
- * change byte typedef to sbyte to avoid conflict with win32 byte which is unsigned
  *
- * Revision 1.1.1.1  1999/06/14 22:04:34  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:34:50  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.13  1994/08/04  19:13:15  matt
- * Changed a bunch of vecmat calls to use multiple-function routines, and to
- * allow the use of C macros for some functions
- * 
- * Revision 1.12  1994/08/03  10:31:56  mike
- * Texture map propagation without uv assignment.
- * 
- * Revision 1.11  1994/07/14  19:36:34  yuan
- * Tuning texture slides.
- * 
- * Revision 1.10  1994/07/14  19:29:08  yuan
- * Fixed sliding.
- * 
- * Revision 1.9  1994/07/14  14:43:06  yuan
- * Added 3x rotation.
- * 
- * Revision 1.8  1994/07/14  11:12:42  yuan
- * Made sliding 3x more sensitive
- * 
- * Revision 1.7  1994/07/14  10:49:56  yuan
- * Made texture rotation 3x finer
- * 
- * Revision 1.6  1994/02/14  12:06:00  mike
- * change segment data structure.
- * 
- * Revision 1.5  1993/12/06  13:26:52  mike
- * Make rotation and sliding work for triangulated sides.
- * 
- * Revision 1.4  1993/12/04  17:18:46  mike
- * Add tiling functions, set_default.
- * 
- * Revision 1.3  1993/12/03  18:39:12  unknown
- * Add texture map sliding, allow to work on triangulated sides.
- * 
- * Revision 1.2  1993/11/30  17:06:09  mike
- * Texture map functions.
- * 
- * Revision 1.1  1993/11/29  16:00:57  mike
- * Initial revision
- * 
- * 
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: texture.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: texture.c,v 1.2 2004-12-19 14:53:48 btb Exp $";
 #endif
 
 #include <stdio.h>

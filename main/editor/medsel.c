@@ -1,3 +1,4 @@
+/* $Id: medsel.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,60 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/medsel.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Routines stripped from med.c for segment selection
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:57  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:35:20  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.10  1994/08/09  16:05:59  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.9  1994/05/23  14:56:27  mike
- * make current segment be add segment.
- * 
- * Revision 1.8  1994/05/14  18:00:50  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.7  1994/03/31  12:03:33  matt
- * Cleaned up includes
- * 
- * Revision 1.6  1994/02/17  12:52:13  yuan
- * Unbackdated
- * y
- * 
- * Revision 1.4  1994/02/17  09:46:53  matt
- * Removed include of slew.h
- * 
- * Revision 1.3  1994/01/05  10:54:23  john
- * New object code by John
- * 
- * Revision 1.2  1993/12/17  12:18:22  john
- * Moved selection stuff out of med.c
- * 
- * Revision 1.1  1993/12/17  09:29:34  john
- * Initial revision
- * 
- * 
+ * Routines stripped from med.c for segment selection
+ *
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: medsel.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: medsel.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdio.h>

@@ -1,3 +1,4 @@
+/* $Id: kbuild.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,96 +8,18 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/kbuild.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
  *
  * Functions for building parts of mines.
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:19  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:43  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.20  1995/02/22  11:00:47  yuan
- * prototype include.
- * 
- * Revision 1.19  1995/02/22  10:59:01  yuan
- * Save sloppy mine before punching.
- * 
- * Revision 1.18  1994/08/25  21:57:56  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.17  1994/05/16  12:00:52  mike
- * Call med_combine_duplicate_vertices before various build functions.
- * 
- * Revision 1.16  1994/05/09  23:34:31  mike
- * Punch all sloppy sides in a group.
- * 
- * Revision 1.15  1994/02/16  15:23:06  yuan
- * Checking in for editor make.
- * 
- * Revision 1.14  1994/01/21  12:01:31  yuan
- * Added clearer editor_status messages (sloppy joint vs. joint)
- * 
- * Revision 1.13  1994/01/14  11:59:52  yuan
- * New function in build menu. 
- * "Punch" through walls to force a joint formation with
- * closest segment:side, if the closest segment:side allows
- * a connection.
- * 
- * Revision 1.12  1994/01/07  17:45:05  yuan
- * Just changed some tabs and formatting I believe.
- * 
- * Revision 1.11  1993/12/06  19:33:36  yuan
- * Fixed autosave stuff so that undo restores Cursegp and
- * Markedsegp
- * 
- * Revision 1.10  1993/12/02  12:39:15  matt
- * Removed extra includes
- * 
- * Revision 1.9  1993/11/12  14:31:31  yuan
- * Added warn_if_concave_segments.
- * 
- * Revision 1.8  1993/11/11  17:12:45  yuan
- * Fixed display of messages, so that concave segment
- * warning doesn't wipe them out immediately.
- * 
- * Revision 1.7  1993/11/09  12:09:28  mike
- * Remove extern for mine_filename, put it in editor.h
- * 
- * Revision 1.6  1993/11/08  19:14:06  yuan
- * Added Undo command (not working yet)
- * 
- * Revision 1.5  1993/11/05  17:32:36  john
- * added funcs
- * .,
- * 
- * Revision 1.4  1993/11/01  16:53:51  mike
- * Add CreateAdjacentJointsSegment and CreateAdjacentJointsAll
- * 
- * Revision 1.3  1993/11/01  11:24:59  mike
- * Add CreateJointAdjacent
- * 
- * Revision 1.2  1993/10/29  19:13:11  yuan
- * Added diagnostic messages
- * 
- * Revision 1.1  1993/10/13  18:53:27  john
- * Initial revision
- * 
  *
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kbuild.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: kbuild.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <string.h>

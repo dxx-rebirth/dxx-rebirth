@@ -1,3 +1,4 @@
+/* $Id: fixseg.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,55 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/fixseg.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
+ *
  * Functions to make faces planar and probably other things.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.2  2003/03/09 06:34:09  donut
- * change byte typedef to sbyte to avoid conflict with win32 byte which is unsigned
  *
- * Revision 1.1.1.1  1999/06/14 22:03:05  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:36:25  john
- * Version 2.0. Ansi-fied.
- * 
- * Revision 1.7  1994/11/27  23:18:01  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.6  1994/11/17  14:48:00  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.5  1994/08/04  19:13:26  matt
- * Changed a bunch of vecmat calls to use multiple-function routines, and to
- * allow the use of C macros for some functions
- * 
- * Revision 1.4  1994/02/10  15:36:31  matt
- * Various changes to make editor compile out.
- * 
- * Revision 1.3  1993/12/03  18:45:09  mike
- * initial stuff.
- * 
- * Revision 1.2  1993/11/30  17:05:09  mike
- * Added part of code to make a side planar.
- * 
- * Revision 1.1  1993/11/30  10:05:36  mike
- * Initial revision
- * 
- * 
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: fixseg.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: fixseg.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdio.h>

@@ -1,3 +1,4 @@
+/* $Id: medmisc.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,127 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/medmisc.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Miscellaneous functions stripped out of med.c
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:51  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.1  1995/03/06  15:20:50  john
- * New screen mode method.
- * 
- * Revision 2.0  1995/02/27  11:36:40  john
- * Version 2.0. Ansi-fied.
- * 
- * Revision 1.31  1994/11/27  23:17:20  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.30  1994/11/17  14:48:11  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.29  1994/08/25  21:56:15  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.28  1994/08/09  16:06:00  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.27  1994/07/21  17:25:43  matt
- * Took out unused func medlisp_create_new_mine() and its prototype
- * 
- * Revision 1.26  1994/07/21  13:27:01  matt
- * Cleaned up render code and added error checking
- * 
- * Revision 1.25  1994/07/20  15:32:52  matt
- * Added func to call g3_point_2_vec() for texture-mapped window
- * 
- * Revision 1.24  1994/07/15  15:26:53  yuan
- * Fixed warning
- * 
- * Revision 1.23  1994/07/14  14:45:16  yuan
- * Added function to set default segment and attach.
- * 
- * Revision 1.22  1994/07/14  09:46:34  yuan
- * Make E attach segment as well as make default.
- * 
- * 
- * Revision 1.21  1994/07/11  18:39:17  john
- * Reversed y axis roll.
- * 
- * Revision 1.20  1994/07/06  16:36:32  mike
- * Add hook for game to render wireframe view: draw_world_from_game.
- * 
- * Revision 1.19  1994/06/24  14:08:31  john
- * Changed calling params for render_frame.
- * 
- * Revision 1.18  1994/06/23  15:54:02  matt
- * Finished hacking in 3d rendering in big window
- * 
- * Revision 1.17  1994/06/22  00:32:56  matt
- * New version, without all the errors of the last version. Sorry.
- * 
- * Revision 1.15  1994/05/23  14:48:54  mike
- * make current segment be add segment.
- * 
- * Revision 1.14  1994/05/19  12:09:35  matt
- * Use new vecmat macros and globals
- * 
- * Revision 1.13  1994/05/14  17:17:55  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.12  1994/05/09  23:35:06  mike
- * Add ClearFoundList, which is probably no longer being called.
- * 
- * Revision 1.11  1994/05/04  14:11:40  mike
- * Increase render depth from 4 to 6 by default.
- * 
- * Revision 1.10  1994/04/27  21:00:25  matt
- * Made texture-mapped window redraw when editor state variables (such as
- * current object) have changed.
- * 
- * Revision 1.9  1994/03/31  12:03:38  matt
- * Cleaned up includes
- * 
- * Revision 1.8  1994/02/17  11:31:21  matt
- * Changes in object system
- * 
- * Revision 1.7  1994/02/11  11:05:14  yuan
- * Make chase mode unsettable... Gives a warning on the mono.
- * 
- * Revision 1.6  1994/01/21  17:37:24  matt
- * Moved code from render_frame() to caller, making code cleaner
- * 
- * Revision 1.5  1994/01/11  18:12:43  yuan
- * compress_mines removed.  Now it is called within
- * the gamesave.min save whenever we go into the game.
- * 
- * Revision 1.4  1994/01/05  10:54:15  john
- * New object code by John
- * 
- * Revision 1.3  1993/12/29  16:15:27  mike
- * Kill scale field from segment struct.
- * 
- * Revision 1.2  1993/12/17  12:05:00  john
- * Took stuff out of med.c; moved into medsel.c, meddraw.c, medmisc.c
- * 
- * Revision 1.1  1993/12/17  08:35:47  john
- * Initial revision
- * 
- * 
+ * Miscellaneous functions stripped out of med.c
+ *
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: medmisc.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: medmisc.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdio.h>

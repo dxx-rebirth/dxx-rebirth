@@ -78,7 +78,8 @@
 	main/editor/medwall.h, main/editor/mine.c, main/editor/objpage.c,
 	main/editor/objpage.h, main/editor/segment.c,
 	main/editor/seguvs.c, main/editor/seguvs.h, main/editor/texpage.c,
-	main/editor/texpage.h: Move old logs to ChangeLog-old
+	main/editor/texpage.h, main/editor/texture.c: Move old logs to
+	ChangeLog-old
 
 2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
 

@@ -1,3 +1,4 @@
+/* $Id: objpage.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,151 +8,20 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/objpage.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * object selection stuff.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:04:10  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:34:43  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.37  1995/01/14  19:17:55  john
- * First version of object paging.
- * 
- * Revision 1.36  1995/01/05  16:20:13  mike
- * bah, remove the int3.
- * 
- * Revision 1.35  1995/01/05  12:47:13  mike
- * Move code about to prevent compiler warning.
- * 
- * Revision 1.34  1994/11/18  15:23:55  john
- * Made so the int3 for drawing an invalib object just returns.
- * 
- * Revision 1.33  1994/11/02  16:19:18  matt
- * Moved draw_model_picture() out of editor, and cleaned up code
- * 
- * Revision 1.32  1994/10/23  02:11:18  matt
- * Got rid of obsolete hostage_info stuff
- * 
- * Revision 1.31  1994/09/09  14:41:35  matt
- * New parms for draw_polygon_model()
- * 
- * Revision 1.30  1994/08/29  19:26:53  matt
- * Fixed botches change from yesterday
- * 
- * Revision 1.29  1994/08/28  23:40:35  matt
- * 
- * 
- * Revision 1.28  1994/08/14  23:15:32  matt
- * Added animating bitmap hostages, and cleaned up vclips a bit
- * 
- * Revision 1.27  1994/08/13  14:59:02  matt
- * Finished adding support for miscellaneous objects
- * 
- * Revision 1.26  1994/08/09  16:06:15  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.25  1994/07/28  16:59:23  mike
- * objects containing objects.
- * 
- * Revision 1.24  1994/06/08  18:17:25  john
- * Changed the way object types and id's work for hostages
- * and powerups.
- * 
- * Revision 1.23  1994/06/07  16:52:30  matt
- * Made object lighting work correctly; changed name of Ambient_light to
- * Dynamic_light; cleaned up polygobj object rendering a little.
- * 
- * Revision 1.22  1994/05/31  18:42:07  matt
- * Made robot photos unlighted
- * 
- * Revision 1.21  1994/05/26  21:09:34  matt
- * Moved robot stuff out of polygon model and into robot_info struct
- * Made new file, robot.c, to deal with robots
- * 
- * Revision 1.20  1994/05/19  12:10:11  matt
- * Use new vecmat macros and globals
- * 
- * Revision 1.19  1994/05/17  14:45:27  mike
- * Get object type and id from ObjType and ObjId.
- * 
- * Revision 1.18  1994/05/17  12:03:36  mike
- * Deal with little known fact that polygon object != robot.
- * 
- * Revision 1.17  1994/04/29  09:16:56  matt
- * Added support for multiple-piece explosions
- * 
- * Revision 1.16  1994/04/18  14:15:00  john
- * Initial version of robot dialog box.
- * 
- * Revision 1.15  1994/04/11  12:01:36  yuan
- * Fixed resetting to first object on page annoyance.
- * 
- * Revision 1.14  1994/04/01  14:35:50  yuan
- * Removed debug "id %d\n" for placing objects
- * 
- * Revision 1.13  1994/04/01  11:17:04  yuan
- * Added objects to objpage. Added buttons for easier tmap scrolling.
- * Objects are selected fully from objpage and add object menu or pad.
- * 
- * Revision 1.12  1994/03/25  18:42:26  matt
- * Adjusted constant to make robot pictures more correct size
- * 
- * Revision 1.11  1994/03/25  16:57:17  matt
- * New parm to draw_polygon_object(), and draw object "snapshots" in
- * correct size (although this probably doesn't work yet).
- * 
- * Revision 1.10  1994/03/25  14:23:01  matt
- * Disabled lighting when taking "snapshots" of robots
- * 
- * Revision 1.9  1994/03/17  10:47:24  john
- * Corrected all kinds of problems associated with N_polygon_objects.
- * 
- * Revision 1.8  1994/03/16  11:07:31  john
- * Made zoom work a bit better.
- * 
- * Revision 1.7  1994/03/16  10:50:32  john
- * fixed warning with constant length.
- * 
- * Revision 1.6  1994/03/16  10:43:18  john
- * Added controls to rotate/zoom object.
- * 
- * Revision 1.5  1994/03/15  22:23:24  matt
- * Render little bitmap pictures of robots for display on editor page
- * 
- * Revision 1.4  1994/02/01  11:27:14  john
- * Hacked in 8 object types for demo.
- * 
- * Revision 1.3  1994/01/26  16:42:19  john
- * Display numbers instead of bitmaps... made 
- * Num_robot_types or whatever be set to 4
- * in init_object_page... this is a hack!!!
- * 
- * Revision 1.2  1993/12/16  17:26:24  john
- * Moved texture and object selection to texpage and objpage
- * 
- * Revision 1.1  1993/12/16  16:12:57  john
- * Initial revision
- * 
- * 
+ * object selection stuff.
+ *
  */
 
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: objpage.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: objpage.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 // Num_robot_types -->  N_polygon_models

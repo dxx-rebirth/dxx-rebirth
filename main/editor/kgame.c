@@ -1,3 +1,4 @@
+/* $Id: kgame.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,88 +8,18 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/kgame.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
- * Game Loading editor functions
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:24  donut
- * Import of d1x 1.37 source.
  *
- * Revision 2.0  1995/02/27  11:34:55  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.25  1995/02/23  10:18:05  allender
- * fixed parameter mismatch with compute_segment_center
- * 
- * Revision 1.24  1994/11/17  11:38:59  matt
- * Ripped out code to load old mines
- * 
- * Revision 1.23  1994/11/09  11:58:56  matt
- * Fixed small bug
- * 
- * Revision 1.22  1994/10/20  12:48:02  matt
- * Replaced old save files (MIN/SAV/HOT) with new LVL files
- * 
- * Revision 1.21  1994/10/15  19:08:47  mike
- * Fix bug if player object out of mine at save.
- * 
- * Revision 1.20  1994/10/13  13:15:43  matt
- * Properly relink player object when bashed for "permanant" position save
- * 
- * Revision 1.19  1994/10/11  17:07:23  matt
- * Fixed problem that sometimes caused bad player segnum after compress
- * 
- * Revision 1.18  1994/10/08  17:10:40  matt
- * Correctly set current_level_num when loading/creating mine in editor
- * 
- * Revision 1.17  1994/09/26  23:46:13  matt
- * Improved player position save code
- * 
- * Revision 1.16  1994/09/26  23:22:50  matt
- * Added functions to keep player's starting position from getting messed up
- * 
- * Revision 1.15  1994/09/14  16:50:51  yuan
- * Added load mine only function
- * 
- * Revision 1.14  1994/07/22  12:36:50  matt
- * Cleaned up editor/game interactions some more.
- * 
- * Revision 1.13  1994/07/21  17:26:26  matt
- * When new mine created, the default save filename is now reset
- * 
- * Revision 1.12  1994/06/03  12:27:05  yuan
- * Fixed restore game state.
- * 
- * 
- * Revision 1.11  1994/05/30  11:36:09  yuan
- * Do gamesave if new mine is loaded and game is entered...
- * 
- * Revision 1.10  1994/05/14  18:00:33  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.9  1994/05/10  12:15:44  yuan
- * Fixed load_game functions to match prototype.
- * 
- * Revision 1.8  1994/05/06  12:52:15  yuan
- * Adding some gamesave checks...
- * 
- * Revision 1.7  1994/05/04  17:32:05  yuan
- * med_load_game changed to load_game
- * med_save_game changed to save_game
- * 
+ * Game Loading editor functions
+ *
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kgame.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: kgame.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <string.h>

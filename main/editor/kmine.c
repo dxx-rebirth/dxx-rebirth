@@ -1,3 +1,4 @@
+/* $Id: kmine.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,154 +8,18 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvs/cvsroot/d2x/main/editor/kmine.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
  *
  * Functions to change entire mines.
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 22:03:28  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:34:22  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.53  1995/02/22  15:04:52  allender
- * remove anonymous unions from vecmat stuff
- * 
- * Revision 1.52  1994/11/27  23:17:13  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.51  1994/11/17  14:48:05  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.50  1994/11/17  11:38:49  matt
- * Ripped out code to load old mines
- * 
- * Revision 1.49  1994/10/08  17:10:22  matt
- * Correctly set current_level_num when loading/creating mine in editor
- * 
- * Revision 1.48  1994/10/03  11:30:45  matt
- * Fixed problem with permanant player position when creating a new mine
- * 
- * Revision 1.47  1994/09/29  17:42:19  matt
- * Cleaned up game_mode a little
- * 
- * Revision 1.46  1994/08/18  10:48:21  john
- * Cleaned up game sequencing.
- * 
- * Revision 1.45  1994/08/09  16:05:36  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.44  1994/07/22  12:37:06  matt
- * Cleaned up editor/game interactions some more.
- * 
- * Revision 1.43  1994/07/21  17:26:50  matt
- * When new mine created, the default save filename is now reset
- * 
- * Revision 1.42  1994/06/08  14:29:25  matt
- * Took out support for old mine versions
- * 
- * Revision 1.41  1994/06/03  12:28:04  yuan
- * Fixed game restore state.
- * 
- * Revision 1.40  1994/05/19  12:10:29  matt
- * Use new vecmat macros and globals
- * 
- * Revision 1.39  1994/05/14  17:17:56  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.38  1994/05/12  14:47:47  mike
- * New previous mine structure and object structure.
- * 
- * Revision 1.37  1994/05/06  12:52:12  yuan
- * Adding some gamesave checks...
- * 
- * Revision 1.36  1994/05/05  20:37:02  yuan
- * Added gamesave checks when entering and leaving the game.
- * 
- * Removed Load Game Save Game functions...
- * Now there is only Load/Save Mine... (equivalent to old Load/Save Game)
- * 
- * Revision 1.35  1994/04/27  22:57:54  matt
- * Made sit mine load from path of sit file
- * 
- * Revision 1.34  1994/04/21  18:29:55  matt
- * Don't use same variable for mine filename & sit filename
- * 
- * Revision 1.33  1994/04/21  18:21:43  matt
- * Strip path from mine filename in sit file
- * 
- * Revision 1.32  1994/04/18  10:54:35  mike
- * Add situation save/load
- * 
- * Revision 1.31  1994/02/16  16:47:54  yuan
- * Removed temp.min.
- * 
- * Revision 1.30  1994/02/16  15:22:51  yuan
- * Checking in for editor make.
- * 
- * Revision 1.29  1994/02/09  15:04:23  yuan
- * brought back save ability
- * 
- * Revision 1.28  1994/02/08  12:42:45  yuan
- * fixed log.
- * 
- * Revision 1.27  1994/02/08  12:41:47  yuan
- *	Crippled save mine function from demo version.
- * 
- * Revision 1.26  1994/01/13  13:26:05  yuan
- * Added med_compress_mine when creating new mine or
- * when loading mine
- * 
- * Revision 1.25  1994/01/11  12:03:23  yuan
- * Fixed so that when old mine implementation not in,
- * message is displayed when you try to load an old mine
- * 
- * Revision 1.24  1994/01/11  11:47:57  yuan
- * *** empty log message ***
- * 
- * Revision 1.23  1994/01/05  09:59:56  yuan
- * Added load old mine funciton
- * 
- * Revision 1.22  1993/12/16  15:58:08  john
- * moved texture selection page to texpage.c
- * ,
- * 
- * Revision 1.21  1993/12/10  14:48:55  mike
- * Kill orthogonal views.
- * 
- * Revision 1.20  1993/12/03  16:44:06  yuan
- * Changed some 0.0 return values to 0
- * 
- * 
- * Revision 1.19  1993/12/02  12:39:34  matt
- * Removed extra includes
- * 
- * Revision 1.18  1993/11/17  13:14:48  yuan
- * Moved Save Group to group.c
- * 
- * Revision 1.17  1993/11/16  17:25:48  yuan
- * Unworking group function added... 
- * 
- * Revision 1.16  1993/11/15  14:46:25  john
- * Changed Menu to MenuX
- * 
- * Revision 1.15  1993/11/08  19:13:45  yuan
- * Added Undo command (not working yet)
- * 
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kmine.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: kmine.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <string.h>

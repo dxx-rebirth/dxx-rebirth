@@ -1,3 +1,4 @@
+/* $Id: seguvs.c,v 1.2 2004-12-19 14:52:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,135 +8,19 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
- /*
- * $Source: /cvs/cvsroot/d2x/main/editor/seguvs.c,v $
- * $Revision: 1.1 $
- * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
- * 
+
+/*
+ *
  * u,v coordinate computation for segment faces
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.2  2003/03/09 06:34:09  donut
- * change byte typedef to sbyte to avoid conflict with win32 byte which is unsigned
  *
- * Revision 1.1.1.1  1999/06/14 22:04:31  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.1  1995/05/08  10:49:34  mike
- * fix lighting bug: oblong segments could be very dark.
- * 
- * Revision 2.0  1995/02/27  11:36:37  john
- * Version 2.0. Ansi-fied.
- * 
- * Revision 1.84  1994/11/27  23:17:18  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.83  1994/11/17  14:48:02  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.82  1994/10/15  19:08:26  mike
- * Disable exhaustive search mprintfs in find_point_seg during lighting.
- * 
- * Revision 1.81  1994/08/25  21:55:50  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.80  1994/08/04  19:13:22  matt
- * Changed a bunch of vecmat calls to use multiple-function routines, and to
- * allow the use of C macros for some functions
- * 
- * Revision 1.79  1994/08/03  10:31:33  mike
- * Texture map propagation without uv assignment.
- * 
- * Revision 1.78  1994/08/01  13:31:12  matt
- * Made fvi() check holes in transparent walls, and changed fvi() calling
- * parms to take all input data in query structure.
- * 
- * Revision 1.77  1994/07/08  14:31:24  matt
- * New parms for FVI
- * 
- * Revision 1.76  1994/06/23  14:01:04  mike
- * Fix cache bug which caused some vertices to not get light, mainly
- * noticeable at joints which had doors.
- * 
- * Revision 1.75  1994/06/22  17:33:11  mike
- * Make position of light (which is always towards center of segment from
- * actual light panel) constant, not dependent on segment size, which fixes
- * bug of dark light panels in very large segments.
- * 
- * Revision 1.74  1994/06/21  18:58:18  mike
- * Fix stupid bug in light propagation, was using wrong vector in fvi caching.
- * 
- * Revision 1.73  1994/06/20  11:20:24  mike
- * Fix stupid lighting bug introduced when I went to cached fvi results.
- * 
- * Revision 1.72  1994/06/19  16:26:37  mike
- * Speed up lighting by storing and hashing fvi results.
- * 
- * Revision 1.71  1994/06/17  16:05:56  mike
- * Support optional quick lighting propagation: no find_vector_intersection.
- * 
- * Revision 1.70  1994/06/15  15:42:30  mike
- * Propagate static_light.
- * 
- * Revision 1.69  1994/06/14  16:59:37  mike
- * Fix references to tmap_num2, must strip off orientation bits.
- * 
- * Revision 1.68  1994/06/09  09:58:58  matt
- * Moved find_vector_intersection() from physics.c to new file fvi.c
- * 
- * 
- * Revision 1.67  1994/06/08  18:14:02  mike
- * mprintf a dot in light casting.
- * 
- * Revision 1.66  1994/06/08  14:37:45  mike
- * double static light value in going from value (a short) to static_light (a fix).
- * 
- * Revision 1.65  1994/06/08  14:29:44  matt
- * Added static_light field to segment structure, and padded side struct
- * to be longword aligned.
- * 
- * Revision 1.64  1994/06/08  11:45:24  mike
- * New, supercool, superslow lighting function.
- * 
- * Revision 1.63  1994/06/07  09:38:11  mike
- * Make lighting function yet better by calling find_vector_intersection.
- * 
- * Revision 1.62  1994/06/06  13:14:33  mike
- * Make illusory walls cast light.
- * 
- * Revision 1.61  1994/06/05  20:39:47  mike
- * Add new distance and dot product based lighting function.
- * 
- * Revision 1.60  1994/05/31  12:31:18  mike
- * fix bugs in lighting, though it's not perfect, will be changing all
- * lighting to be distance based.  Bug had to do with not handling one
- * of the return values from WALL_IS_DOORWAY, so assuming light couldn't
- * be recursively propagated almost all the time.
- * 
- * Revision 1.59  1994/05/19  23:35:26  mike
- * Support uv coordinates in range 0..1.0.
- * 
- * Revision 1.58  1994/05/19  12:10:21  matt
- * Use new vecmat macros and globals
- * 
- * Revision 1.57  1994/05/04  19:15:53  mike
- * Error checking for degenerate segments.
- * 
- * Revision 1.56  1994/05/03  11:02:34  mike
- * Change how default texture map assignment works; now pixels are constant size.
- * 
- * Revision 1.55  1994/04/28  23:25:26  yuan
- * Obliterated warnings.
- * 
  */
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: seguvs.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
+static char rcsid[] = "$Id: seguvs.c,v 1.2 2004-12-19 14:52:48 btb Exp $";
 #endif
 
 #include <stdio.h>
