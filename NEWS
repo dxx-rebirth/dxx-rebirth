@@ -1,4 +1,7 @@
+--- Version 0.1.1 ---
 Assembly under mingw32 now works.
+Invulnerable robots bug fixed!
+Build process much faster.
 
 --- Version 0.1.0 ---
 Builds with SDL/OpenGL, even on Windows (MingW32)
