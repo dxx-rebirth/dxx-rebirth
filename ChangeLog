@@ -51,6 +51,12 @@
 
 	* main/Makefile.am: build dumpmine.c for editor
 
+	* main/editor/macro.c, ui/barbox.c, ui/button.c, ui/checkbox.c,
+	ui/gadget.c, ui/icon.c, ui/inputbox.c, ui/keypress.c,
+	ui/listbox.c, ui/menu.c, ui/menubar.c, ui/message.c, ui/mouse.c,
+	ui/number.c, ui/popup.c, ui/radio.c, ui/scroll.c, ui/ui.c,
+	ui/uidraw.c, ui/userbox.c, ui/window.c: ifdef RCS for rcsid
+
 2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/state.c: open autosave file for writing, not reading

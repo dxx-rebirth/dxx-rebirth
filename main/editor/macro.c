@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/main/editor/macro.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: btb $
- * $Date: 2004-12-19 13:54:27 $
+ * $Date: 2004-12-19 14:10:33 $
  * 
  * Routines for recording/playing/saving macros
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2004/12/19 13:54:27  btb
+ * imported missing editor files from d1x
+ *
  * Revision 1.1.1.1  1999/06/14 22:03:35  donut
  * Import of d1x 1.37 source.
  *
@@ -67,9 +70,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: macro.c,v 1.1 2004-12-19 13:54:27 btb Exp $";
-#pragma on (unreferenced)
+#ifdef RCS
+static char rcsid[] = "$Id: macro.c,v 1.2 2004-12-19 14:10:33 btb Exp $";
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>

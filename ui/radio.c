@@ -11,9 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: radio.c,v 1.1 2004-12-19 13:08:49 btb Exp $";
-#pragma on (unreferenced)
+#ifdef RCS
+static char rcsid[] = "$Id: radio.c,v 1.2 2004-12-19 14:10:33 btb Exp $";
+#endif
 #include <stdlib.h>
 #include <string.h>
 
