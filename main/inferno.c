@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.47 2002-10-11 03:37:58 btb Exp $ */
+/* $Id: inferno.c,v 1.48 2002-10-28 21:28:04 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -781,6 +781,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "movie.h"
 #include "compbit.h"
 #include "d_io.h"
+#include "hoard.h"
 
 // #  include "3dfx_des.h"
 
@@ -1199,10 +1200,6 @@ int main(int argc,char **argv)
 	else if (FindArg("-verbose"))
 		con_threshold.value = (float)1;
 
-	arch_init_start();
-
-	arch_init();
-
 #ifdef __unix__
 	//tell cfile where hogdir is
 	cfile_use_alternate_hogdir(SHAREPATH);
@@ -1218,8 +1215,14 @@ int main(int argc,char **argv)
 
 	//print out the banner title
 	con_printf(CON_NORMAL, "\nDESCENT 2 %s v%d.%d",VERSION_TYPE,Version_major,Version_minor);
+	#ifdef VERSION_NAME
+	con_printf(CON_NORMAL, "  %s", VERSION_NAME);
+	#endif
+	if (HoardEquipped())
+		con_printf(CON_NORMAL, "  Vertigo Enhanced");
+
 	con_printf(CON_NORMAL, "  %s %s\n", __DATE__,__TIME__);
-	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);	
+	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2. Copyright (c) 1999 Peter Hawkins\n");
 	con_printf(CON_NORMAL, "                                         Copyright (c) 2002 Bradley Bell\n");
 
@@ -1236,6 +1239,10 @@ int main(int argc,char **argv)
 	con_printf(CON_NORMAL, "\n");
 	con_printf(CON_NORMAL, TXT_HELP, PROGNAME);		//help message has %s for program name
 	con_printf(CON_NORMAL, "\n");
+
+	arch_init_start();
+
+	arch_init();
 
 	//con_printf(CON_VERBOSE, "\n%s...", "Checking for Descent 2 CD-ROM");
 

@@ -80,6 +80,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "strutil.h"
 #include "reorder.h"
+#include "hoard.h"
 
 #ifdef MACINTOSH
 	#include "resource.h"
@@ -201,12 +202,11 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 				gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2,grd_curcanv->cv_bitmap.bm_h-GAME_FONT->ft_h-2,"V%d.%d",Version_major,Version_minor);
 			#endif
 
-		#ifdef SANTA		//say this is hoard version
+		//say this is hoard version
 		if (HoardEquipped()) {
 			gr_set_curfont(MEDIUM2_FONT);
 			gr_printf(MenuHires?495:00,MenuHires?88:44,"Vertigo");
 		}
-		#endif
 
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
