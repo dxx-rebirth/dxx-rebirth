@@ -1,14 +1,7 @@
+/* $Id: joystick.c,v 1.2 2003-01-01 00:55:03 btb Exp $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/linux/joystick.c,v $
- * $Revision: 1.1 $
- * $Author: bradleyb $
- * $Date: 2001-10-24 09:25:05 $
  *
  * Linux joystick support
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.4  2001/01/29 14:03:57  bradleyb
- * Fixed build, minor fixes
  *
  */
 
@@ -112,7 +105,9 @@ int j_Update_state () {
 }
 
 
-void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max) {
+void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max)
+{
+/* stpohle - this is already done in the "joy_init" function, so we don't need it in here.
 	int i;
 
 	for (i = 0; i < 4; i++) {
@@ -120,6 +115,8 @@ void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max) {
 		j_axis[i].min_val = axis_min[i];
 		j_axis[i].max_val = axis_max[i];
 	}
+
+*/
 }
 
 
