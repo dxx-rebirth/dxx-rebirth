@@ -99,7 +99,6 @@ void multi_do_play_by_play (char *buf);
 
 #define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
 
-void reset_player_object(void); // In object.c but not in object.h
 void drop_player_eggs(object *player); // from collide.c
 void GameLoop(int, int); // From game.c
 
@@ -381,7 +380,8 @@ map_objnum_local_to_local(int local_objnum)
 void
 multi_endlevel_score(void)
 {
-	int old_connect,i;
+        int old_connect=0;
+	int i;
 
 	// Show a score list to end of net players
 
@@ -941,8 +941,6 @@ multi_send_data(char *buf, int len, int repeat)
 	else if (Game_mode & GM_NETWORK)
 		network_send_data(buf, len, repeat);
 }
-
-extern void AdjustMineSpawn();
 
 void
 multi_leave_game(void)

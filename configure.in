@@ -13,7 +13,7 @@ AC_STDC_HEADERS
 AC_CYGWIN
 AC_MINGW32
 
-CFLAGS="-g -O2 -Wall"
+CFLAGS="-g -O2 -Wall -Werror"
 
 # Test for DJGPP
 if test "$OSTYPE" = "MSDOS"; then
@@ -45,16 +45,16 @@ else
     esac],[opengl=false])
   
   if test x$opengl = xtrue; then
-    AC_CHECK_LIB(MesaGL, main,
-      OGL_LIBS="-lMesaGL", 
-      [AC_MSG_ERROR(MesaGL not found, OpenGL cannot be built)
+    AC_CHECK_LIB(GL, main,
+      OGL_LIBS="-lGL", 
+      [AC_MSG_ERROR(GL not found, OpenGL cannot be built)
        opengl=false],
        -L/usr/X11R6/lib -lX11 -lXext -lm)
-    AC_CHECK_LIB(MesaGLU,main,
-      OGL_LIBS="${OGL_LIBS} -lMesaGLU",
-      [AC_MSG_ERROR(MesaGLU not found, OpenGL cannot be built)
+    AC_CHECK_LIB(GLU,main,
+      OGL_LIBS="${OGL_LIBS} -lGLU",
+      [AC_MSG_ERROR(GLU not found, OpenGL cannot be built)
        opengl=false],
-       -lMesaGL -L/usr/X11R6/lib -lX11 -lXext -lm)
+       -lGL -L/usr/X11R6/lib -lX11 -lXext -lm)
   fi
 
   if test x$opengl = xtrue; then

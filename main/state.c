@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-char state_rcsid[] = "$Id: state.c,v 1.1.1.1 2001-01-19 03:30:00 bradleyb Exp $";
+char state_rcsid[] = "$Id: state.c,v 1.2 2001-01-20 13:49:17 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -78,6 +78,7 @@ char state_rcsid[] = "$Id: state.c,v 1.1.1.1 2001-01-19 03:30:00 bradleyb Exp $"
 #include "controls.h"
 #include "laser.h"
 #include "multibot.h"
+#include "state.h"
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
@@ -148,6 +149,7 @@ extern byte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 extern ubyte Hack_DblClick_MenuMode;
 #endif
 
+void compute_all_static_light(void);
 
 //-------------------------------------------------------------------
 void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
@@ -422,7 +424,7 @@ int copy_file(char *old_file, char *new_file)
 		fwrite(buf, 1, bytes_read, out_file);
 
 		if (ferror(out_file))
-			Error("Cannot write to file <%s>: %s", out_file, strerror(errno));
+			Error("Cannot write to file <%s>: %s", new_file, strerror(errno));
 	}
 
 	if (fclose(in_file)) {
@@ -1006,7 +1008,6 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 	return state_restore_all_sub(filename, 0, secret_restore);
 }
 
-extern void reset_player_object(void);
 extern void init_player_stats_new_ship(void);
 
 void ShowLevelIntro(int level_num);
@@ -1355,14 +1356,14 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 			MarkerObject[num] = -1;
 	}
 
-	if (version>=11)
+	if (version>=11) {
 		if (secret_restore != 1)
 			fread (&Afterburner_charge,sizeof(fix),1,fp);
 		else {
 			fix	dummy_fix;
 			fread (&dummy_fix,sizeof(fix),1,fp);
 		}
-
+	}
 	if (version>=12) {
 		//read last was super information
 		fread(&Primary_last_was_super,sizeof(Primary_last_was_super),1,fp);

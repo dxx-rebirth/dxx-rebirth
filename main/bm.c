@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: bm.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp $";
+static char rcsid[] = "$Id: bm.c,v 1.2 2001-01-20 13:49:14 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -746,7 +746,7 @@ void bm_read_extra_robots(char *fname,int type)
 		int sig;
 
 		sig = cfile_read_int(fp);
-		if (sig != 'XHAM')
+		if (sig != 0x5848414d) /* 'XHAM' */
 			return;
 		version = cfile_read_int(fp);
 	}

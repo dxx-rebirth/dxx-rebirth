@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2001-01-19 03:30:04 bradleyb Exp $";
+static char rcsid[] = "$Id: credits.c,v 1.2 2001-01-20 13:49:14 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -90,6 +90,7 @@ ubyte fade_values_hires[480] = { 1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,
 5,5,4,4,4,4,4,3,3,3,3,3,2,2,2,2,2,1,1};
 
 extern ubyte *gr_bitblt_fade_table;
+extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 grs_font * header_font;
 grs_font * title_font;
@@ -189,7 +190,9 @@ WIN(int credinit = 0;)
 
 	WIN(DEFINE_SCREEN(NULL));
 
+#ifdef WINDOWS
 CreditsPaint:
+#endif
 	gr_use_palette_table( "credits.256" );
 #if defined(POLY_ACC)
 	pa_update_clut(gr_palette, 0, 256, 0);

@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.1.1.2 2001-01-19 03:33:43 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -66,6 +66,9 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.2 2001-01-19 03:33:43 bradleyb Exp
 #if defined(POLY_ACC)
 #include "poly_acc.h"
 #endif
+
+#include "d_delay.h"
+#include "collide.h"
 
 ubyte ExtGameStatus=1;
 
@@ -583,6 +586,17 @@ kc_item kc_mouse[NUM_OTHER_CONTROLS] = {
 
 #endif
 
+void kc_drawitem( kc_item *item, int is_current );
+void kc_change_key( kc_item * item );
+void kc_change_joybutton( kc_item * item );
+void kc_change_mousebutton( kc_item * item );
+void kc_change_joyaxis( kc_item * item );
+void kc_change_mouseaxis( kc_item * item );
+void kc_change_invert( kc_item * item );
+void kconfig_read_fcs( int raw_axis );
+void kconfig_set_fcs_button( int btn, int button );
+void kconfig_read_external_controls( void );
+
 int kconfig_is_axes_used(int axis)
 {
 	int i;
@@ -780,7 +794,9 @@ WINDOS(
 );		
 	save_font = grd_curcanv->cv_font;
 
+#ifdef WINDOWS
 KConfigPaint:
+#endif
 	game_flush_inputs();
 	old_keyd_repeat = keyd_repeat;
 	keyd_repeat = 1;
@@ -1192,7 +1208,7 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	if (item->value==255) {
-		sprintf( btext, "" );
+		strcpy( btext, "" );
 	} else {
 		switch( item->type )	{
 			case BT_KEY:
@@ -1890,7 +1906,7 @@ void kconfig_init_external_controls(int intno, int address)
 	if ( i )
 		kc_external_version = atoi(Args[i+1]);
 	
-	printf( "%s int: 0x%x, data: 0x%x, ver:%d\n", kc_external_name, kc_external_intno, kc_external_control, kc_external_version );
+	printf( "%s int: 0x%x, data: 0x%p, ver:%d\n", kc_external_name, kc_external_intno, kc_external_control, kc_external_version );
 
 }
 
@@ -2658,6 +2674,9 @@ void controls_read_all()
 	int use_mouse, use_joystick;
 	int speed_factor=1;
 
+	mouse_buttons=0;
+	use_mouse=0;
+
 	if (Game_turbo_mode)
 		speed_factor = 2;
 	
@@ -2763,7 +2782,7 @@ void controls_read_all()
 	} else if (CybermouseActive) {
 //		ReadOWL (kc_external_control);
 //		CybermouseAdjust();
-   } else {
+	} else {
 		mouse_axis[0] = 0;
 		mouse_axis[1] = 0;
 		mouse_buttons = 0;
@@ -3427,8 +3446,8 @@ void CybermouseAdjust ()
 
 char GetKeyValue (char key)
   {
-	mprintf ((0,"Returning %c!\n",kc_keyboard[key].value));
-   return (kc_keyboard[key].value);
+	mprintf ((0,"Returning %c!\n",kc_keyboard[(int)key].value));
+	return (kc_keyboard[(int)key].value);
   }
 
 #if !defined(MACINTOSH)

@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.1.1.1 2001-01-19 03:30:02 bradleyb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.2 2001-01-20 13:49:17 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -1252,6 +1252,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 	grs_bitmap * bmp;
 	int i,org_i,temp;
 
+        org_i = 0;
+			
 	i = bitmap.index;
 	Assert( i >= 0 );
 	Assert( i < MAX_BITMAP_FILES );

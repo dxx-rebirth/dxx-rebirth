@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: collide.c,v 1.1.1.1 2001-01-19 03:30:00 bradleyb Exp $";
+static char rcsid[] = "$Id: collide.c,v 1.2 2001-01-20 13:49:14 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -523,6 +523,8 @@ void scrape_object_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, int force_blowup_flag)
 {
 	int tm,tmf,ec,db;
+
+	db=0;
 
 	//	If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
 	{

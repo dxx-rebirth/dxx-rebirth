@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.1.1.2 2001-01-19 03:33:47 bradleyb Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $";
 #endif
 
 
@@ -1444,6 +1444,7 @@ void toggle_cockpit()
 
 		case CM_REAR_VIEW:
 		case CM_LETTERBOX:
+	        default:
 			return;			//do nothing
 			break;
 

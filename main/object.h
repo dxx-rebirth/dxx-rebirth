@@ -382,7 +382,7 @@ extern int find_object_seg(object * obj );
 
 //go through all objects and make sure they have the correct segment numbers
 //used when debugging is on
-int fix_object_segs();
+void fix_object_segs();
 
 //	Drops objects contained in objp.
 int object_create_egg(object *objp);
@@ -429,5 +429,9 @@ extern void create_small_fireball_on_object(object *objp, fix size_scale, int so
 int drop_marker_object(vms_vector *pos,int segnum,vms_matrix *orient,int marker_num);
 
 extern void wake_up_rendered_objects(object *gmissp, int window_num);
+
+extern void AdjustMineSpawn();
+
+void reset_player_object(void);
 
 #endif

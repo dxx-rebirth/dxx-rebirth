@@ -1554,7 +1554,7 @@ echo "$ac_t""$ac_cv_mingw32" 1>&6
 MINGW32=
 test "$ac_cv_mingw32" = yes && MINGW32=yes
 
-CFLAGS="-g -O2 -Wall"
+CFLAGS="-g -O2 -Wall -Werror"
 
 # Test for DJGPP
 if test "$OSTYPE" = "MSDOS"; then
@@ -1727,14 +1727,14 @@ fi
 
   
   if test x$opengl = xtrue; then
-    echo $ac_n "checking for main in -lMesaGL""... $ac_c" 1>&6
-echo "configure:1732: checking for main in -lMesaGL" >&5
-ac_lib_var=`echo MesaGL'_'main | sed 'y%./+-%__p_%'`
+    echo $ac_n "checking for main in -lGL""... $ac_c" 1>&6
+echo "configure:1732: checking for main in -lGL" >&5
+ac_lib_var=`echo GL'_'main | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_save_LIBS="$LIBS"
-LIBS="-lMesaGL -L/usr/X11R6/lib -lX11 -lXext -lm $LIBS"
+LIBS="-lGL -L/usr/X11R6/lib -lX11 -lXext -lm $LIBS"
 cat > conftest.$ac_ext <<EOF
 #line 1740 "configure"
 #include "confdefs.h"
@@ -1758,21 +1758,21 @@ LIBS="$ac_save_LIBS"
 fi
 if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   echo "$ac_t""yes" 1>&6
-  OGL_LIBS="-lMesaGL"
+  OGL_LIBS="-lGL"
 else
   echo "$ac_t""no" 1>&6
-{ echo "configure: error: MesaGL not found" 1>&2; exit 1; }
+{ echo "configure: error: GL not found" 1>&2; exit 1; }
        opengl=false
 fi
 
-    echo $ac_n "checking for main in -lMesaGLU""... $ac_c" 1>&6
-echo "configure:1770: checking for main in -lMesaGLU" >&5
-ac_lib_var=`echo MesaGLU'_'main | sed 'y%./+-%__p_%'`
+    echo $ac_n "checking for main in -lGLU""... $ac_c" 1>&6
+echo "configure:1770: checking for main in -lGLU" >&5
+ac_lib_var=`echo GLU'_'main | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_save_LIBS="$LIBS"
-LIBS="-lMesaGLU -lMesaGL -L/usr/X11R6/lib -lX11 -lXext -lm $LIBS"
+LIBS="-lGLU -lGL -L/usr/X11R6/lib -lX11 -lXext -lm $LIBS"
 cat > conftest.$ac_ext <<EOF
 #line 1778 "configure"
 #include "confdefs.h"
@@ -1796,10 +1796,10 @@ LIBS="$ac_save_LIBS"
 fi
 if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
   echo "$ac_t""yes" 1>&6
-  OGL_LIBS="${OGL_LIBS} -lMesaGLU"
+  OGL_LIBS="${OGL_LIBS} -lGLU"
 else
   echo "$ac_t""no" 1>&6
-{ echo "configure: error: MesaGLU not found" 1>&2; exit 1; }
+{ echo "configure: error: GLU not found" 1>&2; exit 1; }
        opengl=false
 fi
 

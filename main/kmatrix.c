@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: kmatrix.c,v 1.1.1.1 2001-01-19 03:29:59 bradleyb Exp $";
+static char rcsid[] = "$Id: kmatrix.c,v 1.2 2001-01-20 13:49:16 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -71,7 +71,10 @@ char WaitingForOthers=0;
 int Kmatrix_nomovie_message=0;
 
 extern char MaxPowerupsAllowed[],PowerupsInMine[];
-extern void network_send_endlevel_sub(int);
+
+void kmatrix_reactor (char *message);
+void kmatrix_phallic ();
+void kmatrix_redraw_coop();
 
 #define LHX(x)		((x)*(MenuHires?2:1))
 #define LHY(y)		((y)*(MenuHires?2.4:1))
@@ -250,8 +253,8 @@ void kmatrix_draw_deaths(int *sorted)
    kmatrix_reactor(TXT_REACTOR_EXPLODED);
   else
    {
-     sprintf(&reactor_message, "%s: %d %s  ", TXT_TIME_REMAINING, Countdown_seconds_left, TXT_SECONDS);
-     kmatrix_reactor (&reactor_message);
+     sprintf((char *)&reactor_message, "%s: %d %s  ", TXT_TIME_REMAINING, Countdown_seconds_left, TXT_SECONDS);
+     kmatrix_reactor ((char *)&reactor_message);
    }
   
   if (Game_mode & GM_HOARD)  
@@ -320,8 +323,8 @@ void kmatrix_draw_coop_deaths(int *sorted)
    kmatrix_reactor(TXT_REACTOR_EXPLODED);
   else
    {
-     sprintf(&reactor_message, "%s: %d %s  ", TXT_TIME_REMAINING, Countdown_seconds_left, TXT_SECONDS);
-     kmatrix_reactor (&reactor_message);
+     sprintf((char *)&reactor_message, "%s: %d %s  ", TXT_TIME_REMAINING, Countdown_seconds_left, TXT_SECONDS);
+     kmatrix_reactor ((char *)&reactor_message);
    }
 
 }
@@ -346,7 +349,7 @@ void kmatrix_reactor (char *message)
   gr_get_string_size(message, &sw, &sh, &aw); 
   gr_printf( CENTERSCREEN-(sw/2), LHY(55+72+12), message);
 
-  strcpy (&oldmessage,message);
+  strcpy ((char *)&oldmessage,message);
  }
 
 extern int PhallicLimit,PhallicMan;

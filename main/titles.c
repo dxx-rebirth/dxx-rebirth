@@ -272,9 +272,9 @@ byte	Door_dir=1, Door_div_count=0, Animating_bitmap_type=0;
 void show_bitmap_frame(void)
 {
 #ifdef WINDOWS
-	dd_grs_canvas *curcanv_save, *bitmap_canv;
+	dd_grs_canvas *curcanv_save, *bitmap_canv=0;
 #else
-	grs_canvas	*curcanv_save, *bitmap_canv;
+	grs_canvas	*curcanv_save, *bitmap_canv=0;
 #endif
 
 	grs_bitmap	*bitmap_ptr;

@@ -8,6 +8,7 @@
 #include "event.h"
 #include "error.h"
 #include "args.h"
+#include "digi.h"
 
 extern void d_mouse_init();
 

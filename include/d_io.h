@@ -15,4 +15,6 @@ unsigned long d_getdiskfree();
 // remove extension from filename, doesn't work with paths.
 void removeext(const char *filename, char *out);
 
+unsigned long GetDiskFree();
+
 #endif

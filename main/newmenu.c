@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp $";
+static char rcsid[] = "$Id: newmenu.c,v 1.2 2001-01-20 13:49:16 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -96,6 +96,10 @@ static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp
 #define SLIDER_MARKER		"†"		// 134
 #define UP_ARROW_MARKER       "‡"    // 135
 #define DOWN_ARROW_MARKER       "ˆ"      // 136
+
+int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode );
+void show_extra_netgame_info(int choice);
+
 
 int Newmenu_first_time = 1;
 //--unused-- int Newmenu_fade_in = 1;
@@ -305,6 +309,8 @@ void nm_string( bkg * b, int w1,int x, int y, char * s)
 	char *p,*s1,measure[2];
    int XTabs[]={15,87,124,162,228,253};
    
+   p=s1=NULL;
+
 	for (i=0;i<6;i++)
 	 {
 	  XTabs[i]=(LHX(XTabs[i]));
@@ -363,6 +369,8 @@ void nm_string_slider( bkg * b, int w1,int x, int y, char * s )
 {
 	int w,h,aw;
 	char *p,*s1;
+
+	s1=NULL;
 
 	p = strchr( s, '\t' );
 	if (p)	{
@@ -764,7 +772,9 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		#endif
 	}
 
+#ifdef WINDOWS
 RePaintNewmenu4:
+#endif
 	WINDOS( save_canvas = dd_grd_curcanv, save_canvas = grd_curcanv );
 
 	WINDOS( dd_gr_set_current_canvas(NULL), gr_set_current_canvas(NULL) );
@@ -1922,7 +1932,7 @@ int nm_messagebox1( char *title, void (*subfunction)(int nitems,newmenu_item * i
                 nm_message_items[i].type = NM_TYPE_MENU; nm_message_items[i].text = s;
 	}
 	format = va_arg( args, char * );
-	sprintf(	nm_text, "" );
+	strcpy( nm_text, "" );
 	vsprintf(nm_text,format,args);
 	va_end(args);
 
@@ -1949,7 +1959,7 @@ int nm_messagebox( char *title, int nchoices, ... )
 		nm_message_items[i].type = NM_TYPE_MENU; nm_message_items[i].text = s;
 	}
 	format = va_arg( args, char * );
-	sprintf(	nm_text, "" );
+	strcpy( nm_text, "" );
 	vsprintf(nm_text,format,args);
 	va_end(args);
 
@@ -2030,6 +2040,9 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 #endif
 WIN(int win_redraw=0);
 
+	w_x=w_y=w_w=w_h=title_height=0;
+	box_x=box_y=box_w=box_h=0;
+
 	filenames = d_malloc( MAX_FILES * 14 );
 	if (filenames==NULL) return 0;
 
@@ -2101,9 +2114,9 @@ ReadFileNames:
 //		set_screen_mode(SCREEN_MENU);
 		set_popup_screen();
 
+        #ifdef WINDOWS
 RePaintNewmenuFile:
 
-	#ifdef WINDOWS
 		dd_gr_set_current_canvas(NULL);
 	#else
 		gr_set_current_canvas(NULL);
@@ -2731,9 +2744,9 @@ WIN(int win_redraw=0);
 //	set_screen_mode(SCREEN_MENU);
 	set_popup_screen();
 
+#ifdef WINDOWS
 RePaintNewmenuListbox:
  
-#ifdef WINDOWS
 	dd_gr_set_current_canvas(NULL);
 #else
 	gr_set_current_canvas(NULL);
@@ -3232,7 +3245,7 @@ void show_extra_netgame_info(int choice)
 	
    for (i=0;i<5;i++)
 	{
-	 m[i].text=&mtext[i];
+	 m[i].text=(char *)&mtext[i];
     m[i].type=NM_TYPE_TEXT;		
 	}
 

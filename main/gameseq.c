@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.1.1.1 2001-01-19 03:30:05 bradleyb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -560,8 +560,6 @@ void editor_reset_stuff_on_level()
 	Slide_segs_computed = 0;
 }
 #endif
-
-void reset_player_object();
 
 //do whatever needs to be done when a player dies in multiplayer
 
@@ -2240,7 +2238,7 @@ void StartNewLevel(int level_num, int secret_flag)
 //initialize the player object position & orientation (at start of game, or new ship)
 void InitPlayerPosition(int random_flag)
 {
-	int NewPlayer;
+	int NewPlayer=0;
 
 #ifdef NETWORK
 	if (! ((Game_mode & GM_MULTI) && !(Game_mode&GM_MULTI_COOP)) ) // If not deathmatch

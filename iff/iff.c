@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: iff.c,v 1.1.1.1 2001-01-19 03:29:58 bradleyb Exp $";
+static char rcsid[] = "$Id: iff.c,v 1.2 2001-01-20 13:49:14 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -274,6 +274,9 @@ int parse_body(FFILE *ifile,long len,iff_bitmap_header *bmheader)
 	unsigned char *data_end;
 	int end_pos;
 	int row_count=0;
+
+        width=0;
+        depth=0;
 
 	end_pos = ifile->position + len;
 	if (len&1)
@@ -911,6 +914,8 @@ int rle_span(ubyte *dest,ubyte *src,int len)
 {
 	int n,lit_cnt,rep_cnt;
 	ubyte last,*cnt_ptr,*dptr;
+
+        cnt_ptr=0;
 
 	dptr = dest;
 

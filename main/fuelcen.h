@@ -131,4 +131,6 @@ extern void init_all_matcens(void);
 
 extern fix EnergyToCreateOneRobot;
 
+void fuelcen_check_for_hoard_goal(segment *segp);
+
 #endif

@@ -429,6 +429,8 @@ int do_game_pause()
 	char msg[1000];
 	char total_time[9],level_time[9];
 
+	key=0;
+
 	if (Game_paused) {		//unpause!
 		Game_paused=0;
       #if defined (TACTILE)

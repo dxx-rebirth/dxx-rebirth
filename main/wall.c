@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.1.1.1 2001-01-19 03:30:00 bradleyb Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.2 2001-01-20 13:49:18 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -595,8 +595,10 @@ void start_wall_decloak(segment *seg, int side)
 		d->time = 0;
 		if (Num_cloaking_walls >= MAX_CLOAKING_WALLS) {		//no more!
 			Int3();		//ran out of cloaking wall slots
+			/* what is this _doing_ here?
 			w->type = WALL_CLOSED;
 			Walls[csegp->sides[Connectside].wall_num].type = WALL_CLOSED;
+			*/
 			return;
 		}
 		Num_cloaking_walls++;

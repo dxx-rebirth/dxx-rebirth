@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.2 2001-01-20 13:49:14 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1402,6 +1402,8 @@ void save_screen_shot(int automap_flag)
 	int w,h,aw,x,y;
 	int modex_flag;
 	int stereo=0;
+
+	temp_canv2=NULL;
 
 //	// Can't do screen shots in VR modes.
 //	if ( VR_render_mode != VR_NONE )

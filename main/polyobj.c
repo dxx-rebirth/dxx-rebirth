@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.2 2001-01-20 13:49:17 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -154,12 +154,12 @@ void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 		Int3();
 }
 
-#define ID_OHDR 'RDHO'	//Object header
-#define ID_SOBJ 'JBOS'	//Subobject header
-#define ID_GUNS 'SNUG'	//List of guns on this object
-#define ID_ANIM 'MINA'	//Animation data
-#define ID_IDTA 'ATDI'	//Interpreter data
-#define ID_TXTR 'RTXT'	//Texture filename list
+#define ID_OHDR 0x5244484f // 'RDHO'  //Object header
+#define ID_SOBJ 0x4a424f53 // 'JBOS'  //Subobject header
+#define ID_GUNS 0x534e5547 // 'SNUG'  //List of guns on this object
+#define ID_ANIM 0x4d494e41 // 'MINA'  //Animation data
+#define ID_IDTA 0x41544449 // 'ATDI'  //Interpreter data
+#define ID_TXTR 0x52545854 // 'RTXT'  //Texture filename list
 
 #ifdef DRIVE
 #define robot_info void
@@ -195,7 +195,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 
 	id = pof_read_int(model_buf);
 
-	if (id!='OPSP')
+	if (id!=0x4f505350) /* 'OPSP' */
 		Error("Bad ID in model file <%s>",filename);
 
 	version = pof_read_short(model_buf);
@@ -413,7 +413,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 
 	id = pof_read_int(model_buf);
 
-	if (id!='OPSP')
+	if (id!=0x4f505350) /* 'OPSP' */
 		Error("Bad ID in model file <%s>",filename);
 
 	version = pof_read_short(model_buf);

@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: physics.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp $";
+static char rcsid[] = "$Id: physics.c,v 1.2 2001-01-20 13:49:17 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -101,7 +101,7 @@ void do_physics_align_object( object * obj )
 	fix d,largest_d=-f1_0;
 	int i,best_side;
 
-
+        best_side=0;
 	// bank player according to segment orientation
 
 	//find side of segment that player is most alligned with

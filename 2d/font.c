@@ -145,6 +145,8 @@ int gr_internal_string0(int x, int y, char *s )
 
 	unsigned int VideoOffset, VideoOffset1;
 
+        bits=0;
+
 	VideoOffset1 = y * ROWSIZE + x;
 
 	next_row = s;
@@ -256,6 +258,8 @@ int gr_internal_string0m(int x, int y, char *s )
 	int	skip_lines = 0;
 
 	unsigned int VideoOffset, VideoOffset1;
+
+        bits=0;
 
 	VideoOffset1 = y * ROWSIZE + x;
 
@@ -1515,6 +1519,8 @@ int gr_internal_string_clipped(int x, int y, char *s )
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int x1 = x, last_x;
 
+        bits=0;
+
 	next_row = s;
 
 	while (next_row != NULL )
@@ -1612,6 +1618,8 @@ int gr_internal_string_clipped_m(int x, int y, char *s )
 	char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int x1 = x, last_x;
+
+        bits=0;
 
 	next_row = s;
 

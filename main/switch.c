@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: switch.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp $";
+static char rcsid[] = "$Id: switch.c,v 1.2 2001-01-20 13:49:18 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -246,6 +246,10 @@ int do_change_walls(byte trigger_num)
 				case TT_OPEN_WALL:		new_wall_type = WALL_OPEN; break;
 				case TT_CLOSE_WALL:		new_wall_type = WALL_CLOSED; break;
 				case TT_ILLUSORY_WALL:	new_wall_type = WALL_ILLUSION; break;
+			        default:
+					Assert(0); /* new_wall_type unset */
+					return(0);
+					break;
 			}
 
 			if (Walls[segp->sides[side].wall_num].type == new_wall_type && Walls[csegp->sides[cside].wall_num].type == new_wall_type)

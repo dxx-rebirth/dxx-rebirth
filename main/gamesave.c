@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.1.1.1 2001-01-19 03:29:59 bradleyb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -1242,6 +1242,8 @@ int load_game_data(CFILE *LoadFile)
 				if (game_top_fileinfo.fileinfo_version < 31) {
 					v30_trigger trig;
 					int t,type;
+
+					type=0;
 
 					if (game_top_fileinfo.fileinfo_version < 30) {
 						v29_trigger trig29;

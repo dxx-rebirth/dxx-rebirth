@@ -37,6 +37,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "poly_acc.h"
 #endif
 
+extern void g3_remap_interp_colors();
+
 char Current_level_palette[FILENAME_LEN];
 
 extern int Color_0_31_0, HUD_color;

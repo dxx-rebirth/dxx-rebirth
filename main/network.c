@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.1.1.2 2001-01-19 03:33:46 bradleyb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.2 2001-01-20 13:49:16 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -71,6 +71,39 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.2 2001-01-19 03:33:46 bradleyb Exp
 #include <Errors.h>		// for appletalk networking errors
 #include "appltalk.h"
 #endif
+
+void network_send_rejoin_sync(int player_num);
+void network_update_netgame(void);
+void network_read_endlevel_packet( ubyte *data );
+void network_read_object_packet( ubyte *data );
+void network_read_sync_packet( netgame_info * sp, int d1x );
+void network_flush();
+void network_listen();
+void network_read_pdata_packet(frame_info *pd );
+
+void network_check_for_old_version (char pnum);
+void network_send_endlevel_short_sub(int from_player_num,int to_player);
+int network_wait_for_playerinfo();
+void network_process_pdata (char *data);
+void network_read_endlevel_short_packet( ubyte *data );
+void network_ping (ubyte flag,int pnum);
+void network_handle_ping_return (ubyte pnum);
+void network_process_names_return (char *data);
+void network_send_player_names (sequence_packet *their);
+int network_choose_connect ();
+void network_more_game_options ();
+void network_count_powerups_in_mine(void);
+int network_wait_for_all_info (int choice);
+void network_do_big_wait(int choice);
+void network_send_extras ();
+void network_read_pdata_short_packet(short_frame_info *pd );
+
+void network_AdjustMaxDataSize ();
+
+void ClipRank (signed char *rank);
+void DoRefuseStuff (sequence_packet *their);
+void SetAllAllowablesTo (int on);
+int GetNewPlayerNumber (sequence_packet *their);
 
 #define LHX(x)          ((x)*(MenuHires?2:1))
 #define LHY(y)          ((y)*(MenuHires?2.4:1))
@@ -810,7 +843,7 @@ void network_welcome_player(sequence_packet *their)
 
 	if (args_find("-NoMatrixCheat"))
 	{
-		if (their->player.version_minor & 0x0F<3)
+		if (their->player.version_minor & (0x0F<3))
 		{
 					network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_DORK);
 					return;
@@ -1980,7 +2013,8 @@ void network_send_netgame_update()
 {
 	// Send game info to someone who requested it
 
-	char old_type, old_status,i;
+	char old_type, old_status;
+	int i;
 
 	mprintf((0, "Sending updated game info.\n"));
 
@@ -2204,7 +2238,8 @@ void network_process_dump(sequence_packet *their)
 {
 	// Our request for join was denied.  Tell the user why.
 
-   char temp[40],i;
+   char temp[40];
+   int i;
  
 	mprintf((0, "Dumped by player %s, type %d.\n", their->player.callsign, their->player.connected));
 
@@ -2927,7 +2962,7 @@ int opt_refuse,opt_capture;
 
 void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int citem )
 {
-	static oldmaxnet=0;
+	static int oldmaxnet=0;
 
 	if (((HoardEquipped() && menus[opt_team_hoard].value) || (menus[opt_team_anarchy].value || menus[opt_capture].value)) && !menus[opt_closed].value && !menus[opt_refuse].value) { 
 		menus[opt_refuse].value = 1;
@@ -4402,7 +4437,7 @@ void network_join_game()
 		if (Network_allow_socket_changes)
 			sprintf( m[0].text, "\tCurrent IPX Socket is default %+d (PgUp/PgDn to change)", Network_socket );
 		else
-			sprintf( m[0].text, "" );
+			strcpy( m[0].text, "" );
 	#ifdef MACINTOSH
 	} else {
 		p2cstr(Network_zone_name);
@@ -5889,7 +5924,7 @@ void network_send_fly_thru_triggers (int pnum)
  {
   // send the fly thru triggers that have been disabled
 
-  char i;
+  int i;
 
   for (i=0;i<Num_triggers;i++)
    if (Triggers[i].flags & TF_DISABLED)
@@ -6194,8 +6229,10 @@ int network_choose_connect ()
 #else
 int network_choose_connect ()
  {
+#if 0
 	newmenu_item m[16];
 	int choice,opt=0;
+#endif
 
 	if (Network_game_type == IPX_GAME) {  
 		#if 0
@@ -6298,8 +6335,8 @@ void ClipRank (signed char *rank)
  }
 void network_check_for_old_version (char pnum)
  {  
-  if (NetPlayers.players[pnum].version_major==1 && (NetPlayers.players[pnum].version_minor & 0x0F)==0)
-	NetPlayers.players[pnum].rank=0;
+  if (NetPlayers.players[(int)pnum].version_major==1 && (NetPlayers.players[(int)pnum].version_minor & 0x0F)==0)
+	NetPlayers.players[(int)pnum].rank=0;
  }
 
 void network_request_player_names (int n)
@@ -6339,7 +6376,7 @@ void network_process_names_return (char *data)
 	
    for (i=0;i<12;i++)
 	{
-	 m[i].text=&mtext[i];
+	 m[i].text=(char *)&mtext[i];
     m[i].type=NM_TYPE_TEXT;		
 	}
 
@@ -6450,7 +6487,7 @@ extern int file_exists (char *);
 
 int HoardEquipped ()
 {
-	static checked=-1;
+	static int checked=-1;
 	
 	#ifdef WINDOWS
 		return 0;

@@ -104,7 +104,6 @@ void network_leave_game();
 int network_endlevel(int *secret);
 void network_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
 
-
 int network_level_sync();
 void network_send_endlevel_packet();
 
@@ -112,6 +111,7 @@ int network_delete_extra_objects();
 int network_find_max_net_players();
 int network_objnum_is_past(int objnum);
 char * network_get_player_name( int objnum );
+void network_send_endlevel_sub(int player_num);
 
 void network_disconnect_player(int playernum);
 
@@ -138,6 +138,13 @@ void network_do_frame(int force, int listen);
 // Tacks data of length 'len' onto the end of the next
 // packet that we're transmitting.
 void network_send_data( ubyte * ptr, int len, int urgent );
+
+void network_send_objects(void);
+void network_dump_player(ubyte * server, ubyte *node, int why);
+void network_send_game_info(sequence_packet *their);
+
+int GetMyNetRanking();
+int HoardEquipped();
 
 #endif
 #endif

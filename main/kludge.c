@@ -35,7 +35,7 @@ void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size)
 }
 
 #ifndef __ENV_DJGPP__
-int joy_set_btn_values( int btn, int state, int time_down, int downcount, int upcount )
+void joy_set_btn_values( int btn, int state, int time_down, int downcount, int upcount )
 {
 
 }
@@ -43,10 +43,10 @@ int joy_set_btn_values( int btn, int state, int time_down, int downcount, int up
 
 int request_cd(void)
 {
-
+        return 0;
 }
 
-int key_putkey(char i)
+void key_putkey(char i)
 {
 
 }
@@ -78,7 +78,7 @@ void init_movies()
 
 int InitMovieBriefing()
 {
-
+        return  0;
 }
 
 void RotateRobot()
@@ -88,7 +88,7 @@ void RotateRobot()
 
 int InitRobotMovie(char *a)
 {
-
+        return 0;
 }
 
 void DeInitRobotMovie(void)
@@ -144,7 +144,7 @@ void network_dump_appletalk_player(ubyte node, ushort net, ubyte socket, int why
 
 int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end )
 {
-
+        return 0;
 }
 
 void digi_stop_sound(int channel)

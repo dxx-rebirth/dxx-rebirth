@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-char laser_rcsid[] = "$Id: laser.c,v 1.1.1.1 2001-01-19 03:30:02 bradleyb Exp $";
+char laser_rcsid[] = "$Id: laser.c,v 1.2 2001-01-20 13:49:16 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -71,7 +71,7 @@ extern char BounceCheat;
 extern void newdemo_record_guided_end();
 extern void newdemo_record_guided_start();
 
-
+int find_homing_object(vms_vector *curpos, object *tracker);
 
 //---------------------------------------------------------------------------------
 // Called by render code.... determines if the laser is from a robot or the
@@ -2054,8 +2054,11 @@ void create_smart_children(object *objp, int num_smart_children)
 	} else if (objp->type == OBJ_ROBOT) {
 		parent_type = OBJ_ROBOT;
 		parent_num = objp-Objects;
-	} else
+	} else {
 		Int3();	//	Hey, what kind of object is this!?
+		parent_type = 0;
+		parent_num = 0;
+	}
 
 	if (objp->id == EARTHSHAKER_ID)
 		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);

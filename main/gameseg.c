@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp $";
+static char rcsid[] = "$Id: gameseg.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $";
 #endif
 
 // How far a point can be from a plane, and still be "in" the plane
@@ -1864,7 +1864,7 @@ int set_segment_depths(int start_seg, ubyte *segbuf)
 	int	queue[MAX_SEGMENTS];
 	int	head, tail;
 	int	depth;
-	int	parent_depth;
+	int	parent_depth=0;
 
 	depth = 1;
 	head = 0;

@@ -1322,6 +1322,8 @@ void hud_show_orbs (void)
 		int x,y;
 		grs_bitmap *bm;
 
+		x=y=0;
+
 		if (Cockpit_mode == CM_FULL_COCKPIT) {
 			y = 2*Line_spacing;
 			x = 4*GAME_FONT->ft_w;
@@ -1352,6 +1354,8 @@ void hud_show_flag(void)
 {
 	if ((Game_mode & GM_CAPTURE) && (Players[Player_num].flags & PLAYER_FLAGS_FLAG)) {
 		int x,y,icon;
+
+		x=y=0;
 
 		if (Cockpit_mode == CM_FULL_COCKPIT) {
 			y = 2*Line_spacing;
@@ -3597,6 +3601,8 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	gauge_box *box;
 	int rear_view_save = Rear_view;
 	int w,h,dx;
+
+	box = NULL;
 
 	if (viewer == NULL) {								//this user is done
 
