@@ -210,7 +210,7 @@ if test x$enable_assembler = xno; then
     AC_DEFINE(NO_ASM)
 else
     if test x$NASM = xno; then
-	AC_MSG_ERROR([$NASM_PROG not found. Install it or use --disable-assembler])
+	AC_MSG_ERROR([nasm not found. Install it or use --disable-assembler])
     else
         NASMFLAGS="-i\$(srcdir)/ $NASMFLAGS"
         case $host_os in
