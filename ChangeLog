@@ -1,6 +1,78 @@
-2002-07-17 03:05  bradleyb
+2002-07-22 21:27  btb
 
-	* tools/cvs2cl/cvs2cl.pl: upgrade cvs2cl
+	* main/mveplay.c: use SDL for timers and threads
+
+2002-07-22 18:26  btb
+
+	* main/: console.c, state.c: simplified header
+
+2002-07-22 06:29  btb
+
+	* main/movie.c: enable mveplay audio
+
+2002-07-22 02:20  btb
+
+	* main/old/movie.c: moved to main/
+
+2002-07-22 02:20  btb
+
+	* include/mve_audio.h, include/mvelib.h, main/Makefile.am,
+	main/inferno.c, main/kludge.c, main/movie.c, main/mve_audio.c,
+	main/mvelib.c, main/mveplay.c: initial movie support
+
+2002-07-22 02:17  btb
+
+	* arch/linux/findfile.c, arch/ogl/gr.c, arch/ogl/ogl.c,
+	arch/sdl/init.c, arch/sdl/joy.c, include/byteswap.h,
+	include/ogl_init.h, include/pstypes.h, main/console.c,
+	main/state.c, mem/mem.c: OS X stuff
+
+2002-07-22 01:47  btb
+
+	* configure.ac: OS X and movie stuff
+
+2002-07-19 02:48  bradleyb
+
+	* compilerdefs.txt: OSX defs
+
+2002-07-18 08:35  bradleyb
+
+	* main/inferno.c: use simpler rcs tags
+
+2002-07-18 08:35  bradleyb
+
+	* autogen.sh: keep Changelog in cvs (and use --accum)
+
+2002-07-18 08:22  bradleyb
+
+	* arch/dos/Makefile.am, arch/dos/cdrom.c, arch/dos/rbaudio.c,
+	arch/sdl/Makefile.am, arch/sdl/cdrom.c, arch/sdl/rbaudio.c,
+	include/rbaudio.h, main/Makefile.am, main/cdrom.h, main/gamecntl.c,
+	main/songs.c: changed cdrom->rbaudio
+
+2002-07-18 07:06  bradleyb
+
+	* include/rbaudio.h: moved to /include
+
+2002-07-17 21:55  bradleyb
+
+	* 2d/bitblt.c, 2d/bitmap.c, 2d/bitmap.h, 2d/box.c, 2d/canvas.c,
+	2d/circle.c, 2d/clip.h, 2d/disc.c, 2d/font.c, 2d/gpixel.c,
+	2d/ibitblt.c, 2d/line.c, 2d/linear.asm, 2d/linear.h, 2d/palette.c,
+	2d/pcx.c, 2d/pixel.c, 2d/poly.c, 2d/rect.c, 2d/rle.c, 2d/scale.c,
+	2d/scalea.asm, 2d/scalec.c, 2d/tmerge.c, 2d/tmerge_a.asm,
+	3d/clipper.c, 3d/clipper.h, 3d/draw.c, 3d/globvars.c,
+	3d/globvars.h, 3d/instance.c, 3d/interp.asm, 3d/interp.c,
+	3d/matrix.c, 3d/points.c, 3d/rod.c, 3d/setup.c: use simpler rcs
+	tags
+
+2002-07-17 21:34  bradleyb
+
+	* 2d/scalea.h: use simpler rcs tags
+
+2002-07-17 21:10  bradleyb
+
+	* 2d/: 2dsline.c, 2dsline.c: use simpler rcs tags
 
 2002-07-17 02:09  bradleyb
 
