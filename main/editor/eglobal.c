@@ -1,4 +1,4 @@
-/* $Id: eglobal.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: eglobal.c,v 1.4 2005-01-25 21:44:24 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: eglobal.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: eglobal.c,v 1.4 2005-01-25 21:44:24 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -32,42 +32,42 @@ static char rcsid[] = "$Id: eglobal.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
 #include "editor.h"
 
 // Global pointer to current vertices, right now always Vertices.  Set in create_new_mine.
-segment	New_segment;				// The segment which can be added to the mine.
-segment	*Cursegp;					// Pointer to current segment in mine.
-int		Curside;						// Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
-int		Curedge;						//	Current edge on current side, in 0..3
-int		Curvert;						//	Current vertex on current side, in 0..3
-int		AttachSide = WFRONT;		//	Side on segment to attach.
-segment	*Markedsegp;				// Marked segment, used in conjunction with *Cursegp to form joints.
-int		Markedside;					// Marked side on Markedsegp.
+// segment New_segment;  // segment which can be added to the mine. // replaced by a macro
+segment *Cursegp;        // Pointer to current segment in mine.
+int Curside;             // Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
+int Curedge;             // Current edge on current side, in 0..3
+int Curvert;             // Current vertex on current side, in 0..3
+int AttachSide = WFRONT; // Side on segment to attach.
+segment *Markedsegp;     // Marked segment, used in conjunction with *Cursegp to form joints.
+int Markedside;          // Marked side on Markedsegp.
 
-int		Draw_all_segments;		// Set to 1 means draw_world draws all segments in Segments, else draw only connected segments
+int Draw_all_segments;   // Set to 1 means draw_world draws all segments in Segments, else draw only connected segments
 
-sbyte		Vertex_active[MAX_VERTICES];	// !0 means vertex is in use, 0 means not in use.
+sbyte Vertex_active[MAX_VERTICES]; // !0 means vertex is in use, 0 means not in use.
 
-int		N_selected_segs=0;							// Number of segments found at Selected_segs
-short		Selected_segs[MAX_SELECTED_SEGS];		// List of segment numbers currently selected
+int N_selected_segs = 0;  // Number of segments found at Selected_segs
+short Selected_segs[MAX_SELECTED_SEGS]; // List of segment numbers currently selected
 
-int		N_warning_segs=0;								// Number of segments warning-worthy, such as a concave segment
-short		Warning_segs[MAX_WARNING_SEGS];			// List of segment numbers currently selected
+int N_warning_segs = 0;   // Number of segments warning-worthy, such as a concave segment
+short Warning_segs[MAX_WARNING_SEGS]; // List of segment numbers currently selected
 
-int		N_found_segs=0;								// Number of segments found with last shift-mouse-click
-short		Found_segs[MAX_FOUND_SEGS];				// List of warning-worthy segments
+int N_found_segs = 0;    // Number of segments found with last shift-mouse-click
+short Found_segs[MAX_FOUND_SEGS]; // List of warning-worthy segments
 
-int		Show_axes_flag=0;								// 0 = don't show, !0 = do show coordinate axes in *Cursegp orientation
+int Show_axes_flag = 0; // 0 = don't show, !0 = do show coordinate axes in *Cursegp orientation
 
-sbyte		Been_visited[MAX_SEGMENTS];				//	List of segments visited in a recursive search, if element n set, segment n done been visited
+sbyte Been_visited[MAX_SEGMENTS]; // List of segments visited in a recursive search, if element n set, segment n done been visited
 
 // Variables global to this editor.c and the k?????.c files.
 uint        Update_flags = UF_ALL;  //force total redraw
-int			Funky_chase_mode = 0;
-vms_angvec	Seg_orientation = {0,0,0};
-vms_vector	Seg_scale = {F1_0*20,F1_0*20,F1_0*20};
+int         Funky_chase_mode = 0;
+vms_angvec  Seg_orientation = {0,0,0};
+vms_vector  Seg_scale = {F1_0*20,F1_0*20,F1_0*20};
 int         mine_changed = 0;
 int         ModeFlag;
 editor_view *current_view;
 
-int	SegSizeMode = 1;									// Mode = 0/1 = not/is legal to move bound vertices, 
+int         SegSizeMode = 1; // Mode = 0/1 = not/is legal to move bound vertices, 
 
 //the view for the different windows.
 editor_view LargeView = {0,1, NULL, i2f(100),{{f1_0,0,0},{0,f1_0,0},{0,0,f1_0}},f1_0};
