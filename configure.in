@@ -1,13 +1,22 @@
+# -*- mode: shell-script -*-
 AC_INIT(main/inferno.c)
+
+AC_VALIDATE_CACHED_SYSTEM_TUPLE(
+        rm $cache_file
+        echo restart configure
+        exit 1
+)
 
 AM_CONFIG_HEADER(conf.h)
 AM_INIT_AUTOMAKE(d2x, 0.0.9)
 
 AM_MAINTAINER_MODE
 
+AC_PROG_INSTALL
+AC_CHECK_TOOL(CC, gcc, :)
 AC_ISC_POSIX
-AC_PROG_CC
-AC_PROG_RANLIB
+AC_CHECK_TOOL(RANLIB, ranlib, :)
+AC_CHECK_TOOL(AR, ar, :)
 AC_STDC_HEADERS
 
 AC_CYGWIN
@@ -16,41 +25,39 @@ AC_MINGW32
 CFLAGS="-g -O2 -Wall"
 
 dnl Count warnings as errors?
-AC_ARG_ENABLE(werror,
-  [  --enable-werror              Count compiler warning as errors ],
-  [case "${enableval}" in
+AC_ARG_WITH(werror,
+  [  --with-werror                Count compiler warning as errors ],
+  [case "${withval}" in
     yes) CFLAGS="-Werror $CFLAGS" ;;
     no)  ;;
-    *) AC_MSG_ERROR(bad value ${enableval} for --enable-werror) ;;
+    *) AC_MSG_ERROR(bad value ${withval} for --with-werror) ;;
   esac],)
 
 dnl Build with NDEBUG?
-AC_ARG_ENABLE(ndebug,
-  [  --enable-ndebug              Take out extra Asserts, Int3, etc ],
-  [case "${enableval}" in
+AC_ARG_WITH(ndebug,
+  [  --with-ndebug                Take out extra Asserts, Int3, etc ],
+  [case "${withval}" in
     yes) AC_DEFINE(NDEBUG) ;;
     no)  ;;
-    *) AC_MSG_ERROR(bad value ${withval} for --enable-ndebug) ;;
+    *) AC_MSG_ERROR(bad value ${withval} for --with-ndebug) ;;
   esac],)
 
 # Test for DJGPP
-AM_CONDITIONAL(ENV_DJGPP, test "$OSTYPE" = "MSDOS")
-if test "$OSTYPE" = "MSDOS"; then
+AM_CONDITIONAL(ENV_DJGPP, test "$host_os" = "msdosdjgpp")
+if test "$host_os" = "msdosdjgpp"; then
 
   CFLAGS="-I \$(top_srcdir)/arch/dos/include $CFLAGS"
   AC_DEFINE(__ENV_DJGPP__)
-  AC_PATH_PROG(NASM, nasmw, no)
+  AC_PATH_PROG(NASM, nasm, no)
   TARGETS=d2x
 
 else
   CFLAGS="-D_REENTRANT -pipe $CFLAGS"
-  AM_CONDITIONAL(ENV_CYGWIN, test "$CYGWIN" = "yes")
+  AM_CONDITIONAL(ENV_CYGWIN, test "$host_os" = "cygwin")
 
-  AM_CONDITIONAL(ENV_LINUX, test "$OSTYPE" != "MSDOS")
   AC_DEFINE(__ENV_LINUX__)
 
-
-  if test "$CYGWIN" = "yes"; then
+  if test "$host_os" = "cygwin"; then
     AC_CHECK_LIB(SDL, SDL_Init, SDL_LIBS="-lSDL", AC_MSG_ERROR(The SDL which is required not found.))
   else
     AC_CHECK_LIB(SDL, SDL_Init, SDL_LIBS="-lSDL", AC_MSG_ERROR(The SDL which is required not found.),-ldl -lpthread)
@@ -169,17 +176,18 @@ if test "$NO_ASM" = 1; then
         AC_DEFINE(NO_ASM)
         NASMFLAGS=""
 else
-        case $ARCH in
-          win32)
-              NASMFLAGS="-f win32"
+        case $host_os in
+          cygwin)
+              NASMFLAGS="-f win32 -i\$(srcdir)/"
               ;;
-          *)
-              if test "$OSTYPE" = "MSDOS"; then
-                  NASMFLAGS="-f coff"
-              else
-                  NASMFLAGS="-f elf -d__ENV_LINUX__ -i\$(srcdir)/"
-              fi
+	  msdosdjgpp)
+	      NASMFLAGS="-f coff -i\$(srcdir)/"
+	      ;;
+          linux*)
+              NASMFLAGS="-f elf -d__ENV_LINUX__ -i\$(srcdir)/"
               ;;
+	  *)
+	      AC_MSG_ERROR([Assembler not supported for this OS])
         esac
 fi  
 if test "$NO_NETWORK" = 0; then

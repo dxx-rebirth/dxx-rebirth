@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.5 2001-01-29 14:08:24 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.6 2001-01-31 13:56:54 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -149,7 +149,7 @@ char * key_text[256] = {
 "","","","","","","","","","","","","","","","",
 "","","","","","","","","","","","","","","",""};
 #else
-#ifndef OGL
+#if !defined OGL && !defined SDL_INPUT
 char * key_text[256] = {         \
 "","ESC","1","2","3","4","5","6","7","8","9","0","-", 			\
 "=","BSPC","TAB","Q","W","E","R","T","Y","U","I","O",				\

@@ -23,6 +23,10 @@ typedef signed char byte;
 //define unsigned types;
 typedef unsigned char ubyte;
 #if defined __CYGWIN__
+# define _MAX_PATH 260
+# define _MAX_DIR 256
+# define min(a,b) (((a)>(b))?(b):(a))
+# define max(a,b) (((a)<(b))?(b):(a))
 typedef unsigned long ulong;
 #elif defined __ENV_LINUX__
 # include <sys/types.h>
@@ -39,8 +43,8 @@ typedef unsigned long ulong;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
-typedef signed long int32_t;
-typedef unsigned long u_int32_t;
+typedef signed int int32_t;
+typedef unsigned int u_int32_t;
 typedef signed short int16_t;
 typedef unsigned short u_int16_t;
 
