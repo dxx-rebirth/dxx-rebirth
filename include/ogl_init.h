@@ -101,6 +101,13 @@ extern int ogl_gettexlevelparam_ok;
 #endif
 extern int ogl_nv_texture_env_combine4_ok;
 
+#ifdef GL_NV_register_combiners
+extern int ogl_nv_register_combiners_ok;
+#define OGL_SUPER_TRANSPARENT_OK (ogl_nv_register_combiners_ok)
+#else
+#define OGL_SUPER_TRANSPARENT_OK (0)
+#endif
+
 #ifndef GL_EXT_texture_filter_anisotropic
 #define GL_EXT_texture_filter_anisotropic 1
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE

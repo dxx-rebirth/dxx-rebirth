@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.28 2004-05-22 09:15:15 btb Exp $ */
+/* $Id: gr.c,v 1.29 2004-05-22 21:48:33 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -162,7 +162,7 @@ const char *gl_vendor,*gl_renderer,*gl_version,*gl_extensions;
 
 void ogl_get_verinfo(void)
 {
-	int t, arb_max_textures = -1, sgi_max_textures = -1;
+	int t, arb_max_textures = -1, sgi_max_textures = -1, nv_register_combiners = -1;
 	float anisotropic_max = 0;
 
 	gl_vendor=glGetString(GL_VENDOR);
@@ -184,6 +184,9 @@ void ogl_get_verinfo(void)
 	dglMultiTexCoord2fSGIS = (glMultiTexCoord2fSGIS_fp)wglGetProcAddress("glMultiTexCoord2fSGIS");
 	dglSelectTextureSGIS = (glSelectTextureSGIS_fp)wglGetProcAddress("glSelectTextureSGIS");
 	dglColorTableEXT = (glColorTableEXT_fp)wglGetProcAddress("glColorTableEXT");
+	dglCombinerParameteriNV = (glCombinerParameteriNV_fp)wglGetProcAddress("glCombinerParameteriNV");
+	dglCombinerInputNV = (glCombinerInputNV_fp)wglGetProcAddress("glCombinerInputNV");
+	dglCombinerOutputNV = (glCombinerOutputNV_fp)wglGetProcAddress("glCombinerOutputNV");
 #endif
 
 #ifdef GL_ARB_multitexture
@@ -195,6 +198,9 @@ void ogl_get_verinfo(void)
 	mprintf((0,"a:%p b:%p\n",strstr(gl_extensions,"GL_SGIS_multitexture"),glSelectTextureSGIS));
 #endif
 	ogl_nv_texture_env_combine4_ok = (strstr(gl_extensions, "GL_NV_texture_env_combine4") != 0);
+#ifdef GL_NV_register_combiners
+	ogl_nv_register_combiners_ok=(strstr(gl_extensions,"GL_NV_register_combiners")!=0 && glCombinerOutputNV!=0);
+#endif
 
 	ogl_ext_texture_filter_anisotropic_ok = (strstr(gl_extensions, "GL_EXT_texture_filter_anisotropic") != 0);
 	if (ogl_ext_texture_filter_anisotropic_ok)
@@ -232,6 +238,14 @@ void ogl_get_verinfo(void)
 	if (ogl_sgis_multitexture_ok)
 		glGetIntegerv(GL_MAX_TEXTURES_SGIS, &sgi_max_textures);
 #endif
+#ifdef GL_NV_register_combiners
+	if ((t = FindArg("-gl_nv_register_combiners_ok")))
+	{
+		ogl_nv_register_combiners_ok=atoi(Args[t + 1]);
+	}
+	if (ogl_nv_register_combiners_ok)
+		glGetIntegerv(GL_MAX_GENERAL_COMBINERS_NV, &nv_register_combiners);
+#endif
 #ifdef GL_EXT_paletted_texture
 	if ((t = FindArg("-gl_paletted_texture_ok")))
 	{
@@ -264,7 +278,7 @@ void ogl_get_verinfo(void)
 		ogl_setgammaramp_ok = atoi(Args[t + 1]);
 	}
 
-	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i(%i units) gl_sgis_multitexture:%i(%i units) gl_nv_texture_env_combine4:%i\n", ogl_arb_multitexture_ok, arb_max_textures, ogl_sgis_multitexture_ok, sgi_max_textures, ogl_nv_texture_env_combine4_ok);
+ 	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i(%i units) gl_sgis_multitexture:%i(%i units) gl_nv_texture_env_combine4:%i gl_nv_register_combiners:%i(%i stages)\n", ogl_arb_multitexture_ok, arb_max_textures, ogl_sgis_multitexture_ok, sgi_max_textures, ogl_nv_texture_env_combine4_ok, 0/*ogl_nv_register_combiners_ok*/, nv_register_combiners);
 	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i gl_ext_texture_filter_anisotropic:%i(%f max)\n", ogl_intensity4_ok, ogl_luminance4_alpha4_ok, ogl_rgba2_ok, ogl_readpixels_ok, ogl_gettexlevelparam_ok, ogl_setgammaramp_ok, ogl_ext_texture_filter_anisotropic_ok, anisotropic_max);
 }
 

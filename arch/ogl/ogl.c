@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.28 2004-05-22 09:15:26 btb Exp $ */
+/* $Id: ogl.c,v 1.29 2004-05-22 21:48:36 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -91,6 +91,9 @@ int ogl_arb_multitexture_ok=0;
 int ogl_sgis_multitexture_ok=0;
 #endif
 int ogl_nv_texture_env_combine4_ok = 0;
+#ifdef GL_NV_register_combiners
+int ogl_nv_register_combiners_ok = 0;
+#endif
 int ogl_ext_texture_filter_anisotropic_ok = 0;
 #ifdef GL_EXT_paletted_texture
 int ogl_shared_palette_ok = 0;
@@ -446,7 +449,7 @@ void ogl_cache_level_textures(void)
 				if (tmap2 != 0){
 					PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
 					bm2 = &GameBitmaps[Textures[tmap2&0x3FFF].index];
-					if (ogl_alttexmerge==0 || (bm2->bm_flags & BM_FLAG_SUPER_TRANSPARENT))
+					if (ogl_alttexmerge == 0 || (!OGL_SUPER_TRANSPARENT_OK && (bm2->bm_flags & BM_FLAG_SUPER_TRANSPARENT)))
 						bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
 					else {
 						ogl_loadbmtexture(bm2);
@@ -849,8 +852,8 @@ void ogl_MultiTexCoord2f(int t, float u, float v)
 
 bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
-#if (defined(GL_NV_texture_env_combine4) && (defined(GL_ARB_multitexture) || defined(GL_SGIS_multitexture)))
-	if (ogl_nv_texture_env_combine4_ok && (ogl_arb_multitexture_ok || ogl_sgis_multitexture_ok))
+#if ((defined(GL_NV_register_combiners) || defined(GL_NV_texture_env_combine4)) && (defined(GL_ARB_multitexture) || defined(GL_SGIS_multitexture)))
+	if ((/*ogl_nv_register_combiners_ok ||*/ ogl_nv_texture_env_combine4_ok) && (ogl_arb_multitexture_ok || ogl_sgis_multitexture_ok))
 	{
 		int c;
 		float l, u1, v1;
@@ -871,38 +874,101 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap
 		ogl_bindbmtex(bm);
 		ogl_texwrap(bm->gltexture,GL_REPEAT);
 
+#ifdef GL_NV_register_combiners
+		if (ogl_nv_register_combiners_ok)
+		{
+			glEnable(GL_REGISTER_COMBINERS_NV);
+			glCombinerParameteriNV(GL_NUM_GENERAL_COMBINERS_NV, 1);
+			// spare0 = tex0 * (1-alpha1) + tex1 * alpha1
+			glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_A_NV, GL_TEXTURE0_ARB, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
+			glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_B_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
+			glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_C_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
+			glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_D_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+			glCombinerOutputNV(
+			                   GL_COMBINER0_NV,   //GLenum stage
+			                   GL_RGB,            //GLenum portion,
+			                   GL_DISCARD_NV,     //GLenum abOutput,
+			                   GL_DISCARD_NV,     //GLenum cdOutput,
+			                   GL_SPARE0_NV,      //GLenum sumOutput,
+			                   GL_NONE,           //GLenum scale,
+			                   GL_NONE,           //GLenum bias,
+			                   GL_FALSE,          //GLboolean abDotProduct,
+			                   GL_FALSE,          //GLboolean cdDotProduct,
+			                   GL_FALSE           //GLboolean muxSum
+			                   );
+			// out = spare0 * color
+			// ( out = AB + (1-A)C + D )
+			glFinalCombinerInputNV(GL_VARIABLE_A_NV, GL_SPARE0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
+			glFinalCombinerInputNV(GL_VARIABLE_B_NV, GL_PRIMARY_COLOR_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
+			glFinalCombinerInputNV(GL_VARIABLE_C_NV, GL_ZERO, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
+			glFinalCombinerInputNV(GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
+
+			if (bm->bm_flags & BM_FLAG_SUPER_TRANSPARENT)
+			{
+				// out = alpha0*(1-tex1) + alpha1
+				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_A_NV, GL_TEXTURE0_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_B_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_INVERT_NV, GL_BLUE);
+				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_C_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
+			}
+			else
+			{
+				// out = alpha0 + alpha1
+				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_A_NV, GL_TEXTURE0_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
+				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_C_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
+			}
+			glCombinerOutputNV(
+			                   GL_COMBINER0_NV,   //GLenum stage
+			                   GL_ALPHA,          //GLenum portion,
+			                   GL_DISCARD_NV,     //GLenum abOutput,
+			                   GL_DISCARD_NV,     //GLenum cdOutput,
+			                   GL_SPARE0_NV,      //GLenum sumOutput,
+			                   GL_NONE,           //GLenum scale,
+			                   GL_NONE,           //GLenum bias,
+			                   GL_FALSE,          //GLboolean abDotProduct,
+			                   GL_FALSE,          //GLboolean cdDotProduct,
+			                   GL_FALSE           //GLboolean muxSum
+			                   );
+			glFinalCombinerInputNV(GL_VARIABLE_G_NV, GL_SPARE0_NV, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+		}
+		else
+#endif
+		{
+			//http://oss.sgi.com/projects/ogl-sample/registry/NV/texture_env_combine4.txt
+			//only GL_NV_texture_env_combine4 lets us do what we need:
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE4_NV);
+
+			//multiply top texture by color(vertex lighting) and add bottom texture(where alpha says to)
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_ADD);
+
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_PRIMARY_COLOR_EXT);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_TEXTURE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE3_RGB_NV, GL_PREVIOUS_EXT);
+
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_ONE_MINUS_SRC_ALPHA);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND3_RGB_NV, GL_SRC_COLOR);
+
+			//add up alpha channels
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_ADD);
+
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_EXT, GL_ZERO);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_PREVIOUS_EXT);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE3_ALPHA_NV, GL_ZERO);
+
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_ONE_MINUS_SRC_ALPHA);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_EXT, GL_SRC_ALPHA);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND3_ALPHA_NV, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
 		// GL_DECAL works sorta ok but the top texture is fullbright.
 		//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-
-		// http://oss.sgi.com/projects/ogl-sample/registry/NV/texture_env_combine4.txt
-		// only GL_NV_texture_env_combine4 lets us do what we need:
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE4_NV);
-
-		// multiply top texture by color(vertex lighting) and add bottom texture(where alpha says to)
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_ADD);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_PRIMARY_COLOR_EXT);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE3_RGB_NV, GL_PREVIOUS_EXT);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_ONE_MINUS_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND3_RGB_NV, GL_SRC_COLOR);
-
-		// add up alpha channels
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_ADD);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_EXT, GL_ZERO);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_PREVIOUS_EXT);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE3_ALPHA_NV, GL_ZERO);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_ONE_MINUS_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_EXT, GL_SRC_ALPHA);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND3_ALPHA_NV, GL_ONE_MINUS_SRC_ALPHA);
 
 		// GL_ARB_texture_env_combine comes close, but doesn't quite make it.
 		//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
@@ -924,7 +990,6 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap
 		//glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_ADD);
 		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
 		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_PREVIOUS_ARB);
-
 
 		glBegin(GL_TRIANGLE_FAN);
 		for (c=0;c<nv;c++){
@@ -960,7 +1025,16 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap
 		}
 		glEnd();
 		//ogl_setActiveTexture(1); // still the active texture
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+#ifdef GL_NV_register_combiners
+		if (ogl_nv_register_combiners_ok)
+		{
+			glDisable(GL_REGISTER_COMBINERS_NV);
+		}
+		else
+#endif
+		{
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		}
 		glDisable(GL_TEXTURE_2D);
 		ogl_setActiveTexture(0);
 	}
@@ -1426,7 +1500,14 @@ void ogl_init_shared_palette(void)
 
 		for (i = 0; i < 256; i++)
 		{
-			if (i == 255)
+			if (i == 254)
+			{
+				texbuf[i * 4] = 255;
+				texbuf[i * 4 + 1] = 255;
+				texbuf[i * 4 + 2] = 255;
+				texbuf[i * 4 + 3] = 0;
+			}
+			else if (i == 255)
 			{
 				texbuf[i * 4] = 0;
 				texbuf[i * 4 + 1] = 0;
@@ -1491,8 +1572,30 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 			if (x<width && y<height)
 				c=data[i++];
 			else
-				c = 256; // fill the pad space with transparancy
-			if ((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256)
+				c = 256; // fill the pad space with transparency (or blackness)
+			if (c == 254 && (bm_flags & BM_FLAG_SUPER_TRANSPARENT))
+			{
+				switch (type)
+				{
+				case GL_LUMINANCE_ALPHA:
+					(*(texp++)) = 255;
+					(*(texp++)) = 0;
+					break;
+				case GL_RGBA:
+					(*(texp++)) = 255;
+					(*(texp++)) = 255;
+					(*(texp++)) = 255;
+					(*(texp++)) = 0; // transparent pixel
+					break;
+				case GL_COLOR_INDEX:
+					(*(texp++)) = c;
+					break;
+				default:
+					Error("ogl_filltexbuf unhandled super-transparent texformat\n");
+					break;
+				}
+			}
+			else if ((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256)
 			{
 				switch (type){
 					case GL_LUMINANCE:
@@ -1520,7 +1623,6 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 						Error("ogl_filltexbuf unknown texformat\n");
 						break;
 				}
-//				(*(tex++))=0;
 			}else{
 				switch (type){
 					case GL_LUMINANCE://these could prolly be done to make the intensity based upon the intensity of the resulting color, but its not needed for anything (yet?) so no point. :)
@@ -1678,7 +1780,16 @@ void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 		// descent makes palette entries 254 and 255 both do double duty, depending upon the setting of BM_FLAG_SUPER_TRANSPARENT and BM_FLAG_TRANSPARENT.
 		// So if the texture doesn't have BM_FLAG_TRANSPARENT set, yet uses index 255, we cannot use the palette for it since that color would be incorrect. (this case is much less common than transparent textures, hence why we don't exclude those instead.)
 		// We don't handle super transparent textures with ogl yet, so we don't bother checking that here.
-		int usesthetransparentindexcolor = 0;
+		int usesthetransparentindexcolor = 0, usesthesupertransparentindexcolor = 0;
+
+		if (!(bm_flags & BM_FLAG_SUPER_TRANSPARENT))
+		{
+			int i;
+
+			for (i = 0; i < tex->w * tex->h; ++i)
+				if (data[i] == 254)
+					usesthesupertransparentindexcolor += 1;
+		}
 		if (!(bm_flags & BM_FLAG_TRANSPARENT))
 		{
 			int i;
@@ -1687,13 +1798,13 @@ void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 				if (data[i] == 255)
 					usesthetransparentindexcolor += 1;
 		}
-		if (!usesthetransparentindexcolor)
+		if (!usesthetransparentindexcolor && !usesthesupertransparentindexcolor)
 		{
 			tex->internalformat = GL_COLOR_INDEX8_EXT;
 			tex->format = GL_COLOR_INDEX;
 		}
 		//else
-		//	printf("bm data=%p w=%i h=%i used the transparent color %i times\n",data, tex->w, tex->h, usesthetransparentindexcolor);
+		//	printf("bm data=%p w=%i h=%i transparent:%i supertrans:%i\n", data, tex->w, tex->h, usesthetransparentindexcolor, usesthesupertransparentindexcolor);
 	}
 #endif
 

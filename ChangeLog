@@ -1,3 +1,10 @@
+2004-05-22  Matthew Mueller  <donut@dakotacom.net>
+
+	* arch/ogl/gr.c, arch/ogl/ogl.c, include/loadgl.h,
+	include/ogl_init.h, main/render.c: opengl hardware
+	super-transparency support using GL_NV_register_combiners (d1x
+	r1.38, r1.41, r1.6, r1.26, r1.7)
+
 2004-05-22  Bradley Bell  <btb@icculus.org>
 
 	* arch/ogl/internal.h, include/gr.h, include/ogl_init.h: function
