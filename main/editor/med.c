@@ -1,4 +1,4 @@
-/* $Id: med.c,v 1.8 2005-02-27 03:55:46 chris Exp $ */
+/* $Id: med.c,v 1.9 2005-04-01 03:21:32 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -278,7 +278,8 @@ int ExitEditor()
 	return 1;
 }
 
-int	GotoGameCommon(int mode) {
+int	GotoGameScreen()
+{
 	stop_time();
 
 //@@	init_player_stats();
@@ -301,18 +302,14 @@ int	GotoGameCommon(int mode) {
 
 	start_time();
 
-	ModeFlag = mode;
+	ModeFlag = 3;
 	return 1;
 }
 
-int GotoGameScreen()
+int GotoMainMenu()
 {
-	return GotoGameCommon(3);
-}
-
-int GotoGame()
-{
-	return GotoGameCommon(2);
+	ModeFlag = 2;
+	return 1;
 }
 
 
@@ -1196,10 +1193,10 @@ void editor(void)
 
 		if (ModeFlag==2) //-- && MacroStatus==UI_STATUS_NORMAL )
 		{
-			ui_mouse_hide();
-			Function_mode = FMODE_GAME;
-			gr_bm_ubitblt( w, h, 0, 0, 0, 0, savedbitmap, &GameViewBox->canvas->cv_bitmap);
-			gr_free_bitmap( savedbitmap );
+			close_editor_screen();
+			Function_mode = FMODE_MENU;
+			set_screen_mode(SCREEN_MENU);		//put up menu screen
+			gr_free_bitmap(savedbitmap);
 			break;
 		}
 

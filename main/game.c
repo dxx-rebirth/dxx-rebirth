@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.35 2005-03-20 12:53:33 btb Exp $ */
+/* $Id: game.c,v 1.36 2005-04-01 03:21:32 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.35 2005-03-20 12:53:33 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.36 2005-04-01 03:21:32 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -854,7 +854,7 @@ WIN(static int force_mode_change=0);
 WIN(static int saved_window_w);
 WIN(static int saved_window_h);
 
-#ifdef EDITOR
+#if 0 //def EDITOR
 	if ( (sm==SCREEN_MENU) && (Screen_mode==SCREEN_EDITOR) )	{
 		gr_set_current_canvas( Canv_editor );
 		return 1;

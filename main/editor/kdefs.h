@@ -1,4 +1,4 @@
-/* $Id: kdefs.h,v 1.3 2005-01-24 21:26:24 schaffner Exp $ */
+/* $Id: kdefs.h,v 1.4 2005-04-01 03:21:32 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -249,7 +249,7 @@ int set_average_light_on_all_quick(void);
 // Miscellaneous, please put in correct file if you have time
 int IncreaseDrawDepth();
 int DecreaseDrawDepth();
-int GotoGame();
+int GotoMainMenu();
 int GotoGameScreen();
 int DropIntoDebugger();
 int CreateDefaultNewSegment();

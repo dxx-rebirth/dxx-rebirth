@@ -1,3 +1,8 @@
+2005-04-01  Chris Taylor  <chris@icculus.org>
+
+	* main/game.c, main/editor/kdefs.h, main/editor/kfuncs.c,
+	main/editor/med.c: "Go to Main Menu" now works in editor
+
 2005-03-31  Chris Taylor  <chris@icculus.org>
 
 	* main/bm.c, main/bm.h, main/bmread.c, main/editor/editor.h,

@@ -1,4 +1,4 @@
-/* $Id: kfuncs.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: kfuncs.c,v 1.4 2005-04-01 03:21:32 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kfuncs.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: kfuncs.c,v 1.4 2005-04-01 03:21:32 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -367,7 +367,7 @@ FUNCTION med_functions[] = {
 
 {   "med-increase-draw-depth",          0,        IncreaseDrawDepth },
 {   "med-decrease-draw-depth",          0,        DecreaseDrawDepth },
-{   "med-goto-game",                    0,        GotoGame },
+{   "med-goto-main-menu",                    0,        GotoMainMenu },
 {   "med-goto-game-screen",             0,        GotoGameScreen },
 {   "med-drop-into-debugger",           0,        DropIntoDebugger },
 // {   "med-sync-large-view",              0,        SyncLargeView },
