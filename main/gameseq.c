@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.13 2002-08-26 06:45:09 btb Exp $ */
+/* $Id: gameseq.c,v 1.14 2002-08-27 04:11:31 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.13 2002-08-26 06:45:09 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.14 2002-08-27 04:11:31 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -279,7 +279,7 @@ gameseq_init_network_players()
 #endif
 #if defined (D2_OEM)
 
- 	if ((Game_mode & GM_MULTI) && stricmp(Current_mission_filename, Builtin_mission_filename) == 0 && Current_level_num==8)
+ 	if ((Game_mode & GM_MULTI) && Current_mission_num == Builtin_mission_num && Current_level_num==8)
 	 {
 	  for (i=0;i<N_players;i++)
 		 if (Players[i].connected && !(NetPlayers.players[i].version_minor & 0xF0))
@@ -575,7 +575,7 @@ void DoGameOver()
 {
 //	nm_messagebox( TXT_GAME_OVER, 1, TXT_OK, "" );
 
-	if (stricmp(Current_mission_filename, Builtin_mission_filename) == 0)
+	if (Current_mission_num == Builtin_mission_num)
 		scores_maybe_add_player(0);
 
 	Function_mode = FMODE_MENU;
@@ -1526,7 +1526,7 @@ void DoEndGame(void)
 
 	key_flush();
 
-	if (stricmp(Current_mission_filename, Builtin_mission_filename) == 0 && !(Game_mode & GM_MULTI)) { //only built-in mission, & not multi
+	if (Current_mission_num == Builtin_mission_num && !(Game_mode & GM_MULTI)) { //only built-in mission, & not multi
 #ifndef SHAREWARE
 		int played=MOVIE_NOT_PLAYED;	//default is not played
 #endif
@@ -1569,7 +1569,7 @@ void DoEndGame(void)
 		// NOTE LINK TO ABOVE
 		DoEndLevelScoreGlitz(0);
 
-	if (stricmp(Current_mission_filename, Builtin_mission_filename) == 0 && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
+	if (Current_mission_num == Builtin_mission_num && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 		WINDOS(
 			dd_gr_set_current_canvas(NULL),
 			gr_set_current_canvas( NULL )
@@ -2124,7 +2124,7 @@ void ShowLevelIntro(int level_num)
 			if (level_num == 1 && !intro_played)
 				do_briefing_screens ("brief2o.tex",1);
 
-		if (!stricmp(Current_mission_filename, Builtin_mission_filename)) { // (Current_mission_num == 0)
+		if (Current_mission_num == Builtin_mission_num) {
 #ifndef SHAREWARE
 			int movie=0;
 #endif

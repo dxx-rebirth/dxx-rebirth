@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.4 2002-08-26 06:46:37 btb Exp $ */
+/* $Id: mission.h,v 1.5 2002-08-27 04:13:03 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -50,7 +50,7 @@ typedef struct mle {
 
 extern mle Mission_list[MAX_MISSIONS];
 
-extern int Current_mission_num;
+extern int Current_mission_num, Builtin_mission_num;
 extern char *Current_mission_filename,*Current_mission_longname;
 extern char Builtin_mission_filename[9];
 extern int Builtin_mission_hogsize;
