@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.11 2003-10-10 09:36:34 btb Exp $ */
+/* $Id: automap.c,v 1.12 2003-11-07 06:30:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1514,9 +1514,8 @@ WIN(if (redraw_screen) redraw_screen = 0);
 				//increase res
 				break;
 #endif
-			case KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER:
-			case KEY_ALTED+KEY_CTRLED+KEY_PADENTER:
-			case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER:
+			case KEY_ALTED+KEY_ENTER:
+			case KEY_ALTED+KEY_PADENTER:
 				gr_toggle_fullscreen_game();
 				break;
 //end addition -MM

@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.22 2003-10-11 09:28:38 btb Exp $ */
+/* $Id: gamecntl.c,v 1.23 2003-11-07 06:30:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1427,9 +1427,8 @@ int HandleSystemKey(int key)
 			//increase res
 			break;
 #endif
-		case KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER:
-		case KEY_ALTED+KEY_CTRLED+KEY_PADENTER:
-		case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER:
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen_game();
 			break;
 //end addition -MM

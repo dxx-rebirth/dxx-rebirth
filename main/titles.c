@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.26 2003-10-04 03:14:48 btb Exp $ */
+/* $Id: titles.c,v 1.27 2003-11-07 06:30:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1261,9 +1261,8 @@ int show_briefing_message(int screen_num, char *message)
 			delay_count = 0;
 
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
-		if ((key_check == KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER) ||
-			(key_check == KEY_ALTED+KEY_CTRLED+KEY_PADENTER) ||
-			(key_check == KEY_ALTED+KEY_SHIFTED+KEY_PADENTER))
+		if ((key_check == KEY_ALTED+KEY_ENTER) ||
+			(key_check == KEY_ALTED+KEY_PADENTER))
 			gr_toggle_fullscreen();
 #endif
 

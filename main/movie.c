@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.31 2003-10-31 16:48:10 schaffner Exp $ */
+/* $Id: movie.c,v 1.32 2003-11-07 06:30:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.31 2003-10-31 16:48:10 schaffner Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.32 2003-11-07 06:30:06 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -382,9 +382,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		}
 
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
-		if ((key == KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER) ||
-			(key == KEY_ALTED+KEY_CTRLED+KEY_PADENTER) ||
-			(key == KEY_ALTED+KEY_SHIFTED+KEY_PADENTER))
+		if ((key == KEY_ALTED+KEY_ENTER) ||
+		    (key == KEY_ALTED+KEY_PADENTER))
 			gr_toggle_fullscreen();
 #endif
 
