@@ -1,4 +1,4 @@
-/* $Id: interp.h,v 1.2 2003-01-02 23:31:50 btb Exp $ */
+/* $Id: interp.h,v 1.3 2003-01-22 00:51:49 btb Exp $ */
 /*
  *
  * took out functions declarations from include/3d.h
@@ -36,5 +36,9 @@ bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angve
 //this remaps the 15bpp colors for the models into a new palette.  It should
 //be called whenever the palette changes
 void g3_remap_interp_colors(void);
+
+#ifdef WORDS_BIGENDIAN
+void swap_polygon_model_data(ubyte *data);
+#endif
 
 #endif //_INTERP_H
