@@ -1,5 +1,9 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/sdlgl.c, arch/ogl/wgl.c, main/inferno.c: made opengl
+	use 32bpp screen mode by default, add option to use 16bpp (d1x
+	r1.4, r1.16, r1.34)
+
 	* arch/ogl/ogl.c: allow for texture dimensions of 1, and fix ogl
 	replacement texture paletted->rgb conversion alpha problem (d1x
 	r1.43)

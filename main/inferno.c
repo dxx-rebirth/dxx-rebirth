@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.84 2004-05-22 07:16:04 btb Exp $ */
+/* $Id: inferno.c,v 1.85 2004-05-22 22:43:56 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1041,6 +1041,7 @@ void print_commandline_help()
 	printf( "  -gl_voodoo      %s\n","force fullscreen mode only");
 #endif
 	printf( "  -gl_16bittextures %s\n","attempt to use 16bit textures");
+	printf("  -gl_16bpp       %s\n", "attempt to use 16bit screen mode");
 	printf( "  -gl_reticle <r> %s\n","use OGL reticle 0=never 1=above 320x* 2=always");
 	printf( "  -gl_intensity4_ok %s\n","FIXME: Undocumented");
 	printf( "  -gl_luminance4_alpha4_ok %s\n","FIXME: Undocumented");

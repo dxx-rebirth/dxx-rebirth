@@ -1,4 +1,4 @@
-/* $Id: wgl.c,v 1.8 2004-05-20 07:49:21 btb Exp $ */
+/* $Id: wgl.c,v 1.9 2004-05-22 22:43:52 btb Exp $ */
 /*
  *
  * opengl platform specific functions for WGL - added by Peter Hawkins
@@ -355,7 +355,7 @@ bool OpenGL_Initialize(void)
 			int retval;
 
 			devmode.dmSize=sizeof(devmode);
-			devmode.dmBitsPerPel=16;
+			devmode.dmBitsPerPel = FindArg("-gl_16bpp") ? 16 : 32;
 			devmode.dmPelsWidth=GLPREF_width;
 			devmode.dmPelsHeight=GLPREF_height;
 			devmode.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT;

@@ -1,4 +1,4 @@
-/* $Id: sdlgl.c,v 1.11 2004-05-20 02:04:28 btb Exp $ */
+/* $Id: sdlgl.c,v 1.12 2004-05-22 22:43:50 btb Exp $ */
 /*
  *
  * Graphics functions for SDL-GL.
@@ -68,7 +68,10 @@ int ogl_check_mode(int x, int y)
 }
 
 
-int ogl_init_window(int x, int y){
+int ogl_init_window(int x, int y)
+{
+	int bpp = FindArg("-gl_16bpp") ? 16 : 32;
+
 	if (gl_initialized){
 		if (x==curx && y==cury && curfull==ogl_fullscreen)
 			return 0;
@@ -86,9 +89,10 @@ int ogl_init_window(int x, int y){
 	}
 #endif
 
-        if (!SDL_SetVideoMode(x,y, 16, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0))) {
-           Error("Could not set %dx%dx16 opengl video mode\n",x,y);
-        }
+	if (!SDL_SetVideoMode(x, y, bpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
+	{
+		Error("Could not set %dx%dx%d opengl video mode\n", x, y, bpp);
+	}
 	SDL_ShowCursor(0);
 
 	curx=x;cury=y;curfull=ogl_fullscreen;
