@@ -1,4 +1,4 @@
-/* $Id: console.c,v 1.10 2003-06-02 01:55:03 btb Exp $ */
+/* $Id: console.c,v 1.11 2003-06-02 05:56:37 btb Exp $ */
 /*
  *
  * FIXME: put description here
@@ -17,7 +17,9 @@
 #include <fcntl.h>
 
 #include <SDL.h>
+#ifdef CONSOLE
 #include "CON_console.h"
+#endif
 
 #include "pstypes.h"
 #include "u_mem.h"
@@ -47,12 +49,14 @@ static char con_display[40][40];
 static int  con_line; /* Current display line */
 #endif
 
+#ifdef CONSOLE
 static int con_initialized;
 
 ConsoleInformation *Console;
 extern SDL_Surface *screen;
 
 void con_parse(ConsoleInformation *console, char *command);
+#endif
 
 
 /* ======
@@ -66,6 +70,7 @@ int con_init(void)
 	return 0;
 }
 
+#ifdef CONSOLE
 void real_con_init(void)
 {
 	SDL_Rect Con_rect;
@@ -81,6 +86,7 @@ void real_con_init(void)
 
 	con_initialized = 1;
 }
+#endif
 
 /* ======
  * con_printf - Print a message to the console.
@@ -102,7 +108,9 @@ void con_printf(int priority, char *fmt, ...)
 			va_end (arglist);
 		}
 
+#ifdef CONSOLE
 		CON_Out(Console, buffer);
+#endif
 
 /*		for (i=0; i<l; i+=CON_LINE_LEN,con_line++)
 		{
@@ -191,9 +199,10 @@ float cvar (char *cvar_name)
  */
 void con_draw(void)
 {
-#if 1
+#ifdef CONSOLE
 	CON_DrawConsole(Console);
 #else
+#if 0
 	char buffer[CON_LINE_LEN+1];
 	int i,j;
 	for (i = con_line, j=0; j < 20; i = (i+1) % CON_NUM_LINES, j++)
@@ -203,18 +212,23 @@ void con_draw(void)
 		gr_string(1,j*10,buffer);
 	}
 #endif
+#endif
 }
 
 void con_show(void)
 {
+#ifdef CONSOLE
 	if (!con_initialized)
 		real_con_init();
 
 	CON_Show(Console);
 	CON_Topmost(Console);
+#endif
 }
 
+#if 0
 void con_parse(ConsoleInformation *console, char *command)
 {
 	cmd_parse(command);
 }
+#endif

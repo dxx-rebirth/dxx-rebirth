@@ -154,6 +154,15 @@ if test x$enable_fastfileio != xno; then
     D2X_FEATURES="fastfileio ${D2X_FEATURES}"
 fi
 
+dnl Build with CONSOLE? 	 
+AC_ARG_ENABLE(console, 	 
+    [  --enable-console        Enable console (experimental) ],,) 	 
+if test x$enable_console = xyes; then 	 
+    AC_DEFINE(CONSOLE,,[Define to enable console]) 	 
+    D2X_SUBDIRS=console
+fi 	 
+AM_CONDITIONAL(CONSOLE, test x$enable_console = xyes)
+ 
 AC_ARG_WITH(sharepath,
     [[  --with-sharepath=DIR    Use DIR for shared game data (unix only) [DATADIR/games/d2x]]],
     sharepath=$withval, sharepath="auto")
@@ -348,6 +357,8 @@ AH_BOTTOM([
 
 AM_PROG_AS
 
+AC_SUBST(D2X_SUBDIRS)
+
 AC_SUBST(D2X_ARCH_SUBDIRS)
 
 AC_SUBST(D2X_MAIN_SUBDIRS)
@@ -390,7 +401,7 @@ AC_MSG_RESULT([
         d2x has been configured successfully.
 
         Platform(s): $D2X_ARCH_SUBDIRS
-        Features   : $D2X_FEATURES $D2X_MAIN_SUBDIRS
+        Features   : $D2X_FEATURES $D2X_SUBDIRS $D2X_MAIN_SUBDIRS
 
         Shared game data directory (unix only): $sharepath
         ])
