@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.40 2002-08-23 10:43:11 btb Exp $ */
+/* $Id: inferno.c,v 1.41 2002-08-29 08:54:42 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -295,7 +295,9 @@ void print_commandline_help()
 //	printf( "  -tsengdebug1    %s\n","FIXME: Undocumented");
 //	printf( "  -tsengdebug2    %s\n","FIXME: Undocumented");
 //	printf( "  -tsengdebug3    %s\n","FIXME: Undocumented");
-//	printf( "  -udp            %s\n","FIXME: Undocumented");
+#ifdef NETWORK
+	printf( "  -udp            %s\n","Use TCP/UDP for networking");
+#endif
 //	printf( "  -vidram         %s\n","FIXME: Undocumented");
 	printf( "  -xcontrol       %s\n","FIXME: Undocumented");
 	printf( "  -xname          %s\n","FIXME: Undocumented");
@@ -404,14 +406,14 @@ void do_register_player(ubyte *title_pal)
 void do_network_init()
 {
 	if (!FindArg( "-nonetwork" ))	{
-		int socket=0, t;
+		int socket = 0, showaddress = 0, t;
 		int ipx_error;
 
 		con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
 		if ((t=FindArg("-socket")))
 			socket = atoi( Args[t+1] );
 		//@@if ( FindArg("-showaddress") ) showaddress=1;
-		if ((ipx_error=ipx_init(IPX_DEFAULT_SOCKET+socket))==0)	{
+		if ((ipx_error=ipx_init(IPX_DEFAULT_SOCKET+socket, showaddress))==0)	{
   			con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, socket );
 			Network_active = 1;
 		} else {

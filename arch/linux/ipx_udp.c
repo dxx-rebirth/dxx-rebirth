@@ -1,8 +1,6 @@
+/* $Id: */
+
 /*
- * $Source: /cvs/cvsroot/d2x/arch/linux/ipx_udp.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-10-19 07:29:37 $
  *
  * IPX driver for native Linux TCP/IP networking (UDP implementation)
  *   Version 0.99.2
@@ -62,10 +60,6 @@
  * ./d1x -udp +UPPER_DISTANT_MACHINE_NAME
  *
  * Have fun!
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.3  2001/01/29 13:35:08  bradleyb
- * Fixed build system, minor fixes
  *
  */
 

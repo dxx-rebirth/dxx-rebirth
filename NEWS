@@ -6,6 +6,7 @@
 - Shareware data files support... Including the ability to play other
   missions if you have only the mac demo datafiles.
 - Descent 1 level support! thanks to Martin Schaffner <maschaffner@gmx.ch>
+- Networking fuck-up fixed?
 
 --- Version 0.1.3 ---
 - deb and rpm support added

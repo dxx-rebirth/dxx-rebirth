@@ -6,8 +6,7 @@ INCLUDES = -I$(top_srcdir)/arch/include -I$(top_srcdir)/include -I$(top_srcdir)/
 
 
 if USE_NETWORK
-NETWORK_SRCS = ipx_bsd.c ipx_kali.c ipx_lin.c linuxnet.c ukali.c
-#               arch_ip.cpp
+NETWORK_SRCS = ipx_bsd.c ipx_kali.c ipx_lin.c ipx_udp.c linuxnet.c
 endif
 
 libarch_linux_a_SOURCES = ${NETWORK_SRCS} findfile.c init.c
