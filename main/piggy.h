@@ -1,4 +1,4 @@
-/* $Id: piggy.h,v 1.11 2003-03-19 22:44:15 btb Exp $ */
+/* $Id: piggy.h,v 1.12 2003-03-22 03:14:31 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -115,6 +115,11 @@ void piggy_read_sounds();
 //reads in a new pigfile (for new palette)
 //returns the size of all the bitmap data
 void piggy_new_pigfile(char *pigname);
+
+//loads custom bitmaps for current level
+void load_bitmap_replacements(char *level_name);
+//if descent.pig exists, loads descent 1 texture bitmaps
+void load_d1_bitmap_replacements();
 
 #ifdef FAST_FILE_IO
 #define bitmap_index_read(bi, fp) cfread(bi, sizeof(bitmap_index), 1, fp)

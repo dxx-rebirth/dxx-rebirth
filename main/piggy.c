@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.25 2003-03-22 03:14:30 btb Exp $ */
+/* $Id: piggy.c,v 1.26 2003-03-22 03:19:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.25 2003-03-22 03:14:30 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.26 2003-03-22 03:19:50 btb Exp $";
 #endif
 
 
@@ -2234,9 +2234,9 @@ void load_bitmap_replacements(char *level_name)
 
 		cfclose(ifile);
 
-		last_palette_loaded_pig[0]= 0;	//force pig re-load
+		last_palette_loaded_pig[0]= 0;  //force pig re-load
 
-		texmerge_flush();		//for re-merging with new textures
+		texmerge_flush();       //for re-merging with new textures
 	}
 
 	atexit(free_bitmap_replacements);
@@ -2298,7 +2298,7 @@ void load_d1_bitmap_replacements()
 	{
 		int N_sounds = cfile_read_int(d1_Piggy_fp);
 		int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
-				+ N_sounds * DISKSOUNDHEADER_SIZE;
+			+ N_sounds * DISKSOUNDHEADER_SIZE;
 		bitmap_header_start = pig_data_start + 2 * sizeof(int);
 		bitmap_data_start = bitmap_header_start + header_size;
 	}
@@ -2358,9 +2358,9 @@ void load_d1_bitmap_replacements()
 
 	cfclose(d1_Piggy_fp);
 
-	last_palette_loaded_pig[0]= 0;	//force pig re-load
+	last_palette_loaded_pig[0]= 0;  //force pig re-load
 
-	texmerge_flush();		//for re-merging with new textures
+	texmerge_flush();       //for re-merging with new textures
 
 	atexit(free_bitmap_replacements);
 }
