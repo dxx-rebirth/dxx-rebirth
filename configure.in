@@ -75,6 +75,18 @@ else
     esac],[opengl=false])
   
   if test x$opengl = xtrue; then
+   if test "$host_os" = "cygwin"; then
+    AC_CHECK_LIB(GL, main,
+      OGL_LIBS="-lopengl32", 
+      [AC_MSG_ERROR([GL not found, OpenGL cannot be built])
+       opengl=false],
+       )
+    AC_CHECK_LIB(GLU,main,
+      OGL_LIBS="${OGL_LIBS} -lglu32",
+      [AC_MSG_ERROR([GLU not found, OpenGL cannot be built])
+       opengl=false],
+       -lGL)
+   else
     AC_CHECK_LIB(GL, main,
       OGL_LIBS="-lGL", 
       [AC_MSG_ERROR([GL not found, OpenGL cannot be built])
@@ -85,6 +97,7 @@ else
       [AC_MSG_ERROR([GLU not found, OpenGL cannot be built])
        opengl=false],
        -lGL)
+   fi
   fi
   AC_SUBST(OGL_LIBS)
   AM_CONDITIONAL(USE_OPENGL, test x$opengl = xtrue)

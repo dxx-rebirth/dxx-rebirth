@@ -25,7 +25,9 @@ typedef unsigned char ubyte;
 #if defined __CYGWIN__
 # define _MAX_PATH 260
 # define _MAX_DIR 256
+# undef min
 # define min(a,b) (((a)>(b))?(b):(a))
+# undef max
 # define max(a,b) (((a)<(b))?(b):(a))
 typedef unsigned long ulong;
 #elif defined __ENV_LINUX__

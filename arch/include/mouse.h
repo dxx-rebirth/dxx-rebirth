@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/arch/include/mouse.h,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-28 05:46:33 $
+ * $Date: 2001-01-31 16:31:13 $
  *
  * Header for mouse functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/01/28 05:46:33  bradleyb
+ * Unified arch headers
+ *
  */
 
 #ifndef MOUSE_H
@@ -30,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MB_LEFT			0
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__CYGWIN__)
 #undef MB_RIGHT	
 #endif
 

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.6 2001-01-31 15:17:50 bradleyb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.7 2001-01-31 16:31:13 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -36,6 +36,10 @@ char game_rcsid[] = "$Id: game.c,v 1.6 2001-01-31 15:17:50 bradleyb Exp $";
 #include <Quickdraw.h>
 #include <Script.h>
 #include <Strings.h>
+#endif
+
+#ifdef OGL
+#include "ogl_init.h"
 #endif
 
 #include "pstypes.h"
@@ -111,10 +115,6 @@ char game_rcsid[] = "$Id: game.c,v 1.6 2001-01-31 15:17:50 bradleyb Exp $";
 #include "playsave.h"
 #include "fix.h"
 #include "d_delay.h"
-
-#ifdef OGL
-#include "ogl_init.h"
-#endif
 
 int VGA_current_mode;
 
