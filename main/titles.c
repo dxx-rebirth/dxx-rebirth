@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.10 2002-08-23 10:43:11 btb Exp $ */
+/* $Id: titles.c,v 1.11 2002-08-26 06:54:31 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -588,6 +588,7 @@ int load_new_briefing_screen( char *fname )
 
 	WIN(DDGRLOCK(dd_grd_curcanv));
 	if ((pcx_error=pcx_read_fullscr( fname, New_pal ))!=PCX_ERROR_NONE)     {
+	//if ((pcx_error=pcx_read_bitmap( fname, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, New_pal ))!=PCX_ERROR_NONE)     {
 		printf( "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",fname, pcx_errormsg(pcx_error), pcx_error);
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
@@ -680,7 +681,7 @@ int show_briefing_message(int screen_num, char *message)
 	int	flashing_cursor=0;
 	int	new_page=0,GotZ=0;
 #ifdef ROBOT_MOVIES
-	char *spinRobotName="rba.mve",kludge;  // matt don't change this!  
+	char spinRobotName[]="rba.mve",kludge;  // matt don't change this!
 #endif
 	char fname[15];
 	char DumbAdjust=0;
@@ -938,7 +939,7 @@ int show_briefing_message(int screen_num, char *message)
 		} else if (ch == 10) {
 			if (prev_ch != '\\') {
 				prev_ch = ch;
-				if (DumbAdjust==0)
+				if (1) //DumbAdjust==0)
 					Briefing_text_y += (8*(MenuHires+1));
 				else
 					DumbAdjust--;
@@ -975,10 +976,10 @@ int show_briefing_message(int screen_num, char *message)
 		}
 
 		//	Check for Esc -> abort.
-		if (delay_count)
-			key_check = local_key_inkey();
+		if(delay_count)
+			key_check=local_key_inkey();
 		else
-			key_check = 0;
+			key_check=0;
 
 #ifdef WINDOWS
 		if (_RedrawScreen) {
