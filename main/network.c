@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.14 2002-10-10 19:40:21 btb Exp $ */
+/* $Id: network.c,v 1.15 2002-10-11 00:36:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.14 2002-10-10 19:40:21 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.15 2002-10-11 00:36:46 btb Exp $";
 #endif
 
 #define PATCH12
@@ -1266,9 +1266,9 @@ void network_send_objects(void)
 			obj_count = 0;
 			Network_send_object_mode = 0;
 //       mprintf((0, "Sending object array to player %d.\n", player_num));
-			*(short *)(object_buffer+loc) = INTEL_SHORT(-1);        loc += 2;
-			object_buffer[loc] = player_num;                loc += 1;
-													loc += 2; // Placeholder for remote_objnum, not used here
+			*(short *)(object_buffer+loc) = INTEL_SHORT(-1);            loc += 2;
+			object_buffer[loc] = player_num;                            loc += 1;
+			/* Placeholder for remote_objnum, not used here */          loc += 2;
 			Network_send_objnum = 0;
 			obj_count_frame = 1;
 			frame_num = 0;
@@ -1295,13 +1295,12 @@ void network_send_objects(void)
 			remote_objnum = objnum_local_to_remote((short)i, &owner);
 			Assert(owner == object_owner[i]);
 
-			*(short *)(object_buffer+loc) = INTEL_SHORT((short)i);                  loc += 2;
-			object_buffer[loc] = owner;                                                                                     loc += 1;
-			*(short *)(object_buffer+loc) = INTEL_SHORT(remote_objnum);             loc += 2;
+			*(short *)(object_buffer+loc) = INTEL_SHORT((short)i);      loc += 2;
+			object_buffer[loc] = owner;                                 loc += 1;
+			*(short *)(object_buffer+loc) = INTEL_SHORT(remote_objnum); loc += 2;
 			memcpy(&object_buffer[loc], &Objects[i], sizeof(object));
-			if (Network_game_type == IPX_GAME) {
+			if (Network_game_type == IPX_GAME)
 				swap_object((object *)&object_buffer[loc]);
-			}
 			loc += sizeof(object);
 //                      mprintf((0, "..packing object %d, remote %d\n", i, remote_objnum));
 		}
@@ -1982,7 +1981,7 @@ void network_send_netgame_update()
 	for (i=0; i<N_players; i++ )    {
 		if ( (Players[i].connected) && (i!=Player_num ) )       {
 			if (Network_game_type == IPX_GAME) {
-				send_full_netgame_packet(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
+				send_lite_netgame_packet(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
 			#ifdef MACINTOSH
 			} else {
 				appletalk_send_packet_data( (ubyte *)&Netgame, sizeof(lite_info), NetPlayers.players[i].network.appletalk.node,
@@ -2639,7 +2638,7 @@ network_verify_objects(int remote, int local)
 
 	return(1);
 }
-	
+
 void
 network_read_object_packet( ubyte *data )
 {
@@ -2665,8 +2664,8 @@ network_read_object_packet( ubyte *data )
 	for (i = 0; i < nobj; i++)
 	{
 		objnum = INTEL_SHORT( *(short *)(data+loc) );                   loc += 2;
-		obj_owner = data[loc];                                                                  loc += 1;
-		remote_objnum = INTEL_SHORT( *(short *)(data+loc) );    loc += 2;
+		obj_owner = data[loc];                                          loc += 1;
+		remote_objnum = INTEL_SHORT( *(short *)(data+loc) );            loc += 2;
 
 		if (objnum == -1) 
 		{
@@ -2737,6 +2736,7 @@ network_read_object_packet( ubyte *data )
 				memcpy(obj, &data[loc], sizeof(object));
 				if (Network_game_type == IPX_GAME)
 					swap_object(obj);
+				loc += sizeof(object);
 				segnum = obj->segnum;
 				obj->next = obj->prev = obj->segnum = -1;
 				obj->attached_obj = -1;
@@ -4940,32 +4940,33 @@ void squish_short_frame_info(short_frame_info old_info, ubyte *data)
 	int tmpi;
 	short tmps;
 	
-	data[0] = old_info.type;                              loc++;  loc += 3;               // skip three for pad byte
+	data[0] = old_info.type;                                            loc++;
+	/* skip three for pad byte */                                       loc += 3;
 	tmpi = swapint(old_info.numpackets);
-	memcpy(&(data[loc]), &tmpi, 4);                                                 loc += 4;
+	memcpy(&(data[loc]), &tmpi, 4);                                     loc += 4;
 
-	memcpy(&(data[loc]), old_info.thepos.bytemat, 9);               loc += 9;
+	memcpy(&(data[loc]), old_info.thepos.bytemat, 9);                   loc += 9;
 	tmps = INTEL_SHORT(old_info.thepos.xo);
-	memcpy(&(data[loc]), &tmps, 2);                 loc += 2;
+	memcpy(&(data[loc]), &tmps, 2);                                     loc += 2;
 	tmps = INTEL_SHORT(old_info.thepos.yo);
-	memcpy(&(data[loc]), &tmps, 2);                 loc += 2;
+	memcpy(&(data[loc]), &tmps, 2);                                     loc += 2;
 	tmps = INTEL_SHORT(old_info.thepos.zo);
-	memcpy(&(data[loc]), &tmps, 2);                 loc += 2;
+	memcpy(&(data[loc]), &tmps, 2);                                     loc += 2;
 	tmps = INTEL_SHORT(old_info.thepos.segment);
-	memcpy(&(data[loc]), &tmps, 2);    loc += 2;
+	memcpy(&(data[loc]), &tmps, 2);                                     loc += 2;
 	tmps = INTEL_SHORT(old_info.thepos.velx);
-	memcpy(&(data[loc]), &tmps, 2);               loc += 2;
+	memcpy(&(data[loc]), &tmps, 2);                                     loc += 2;
 	tmps = INTEL_SHORT(old_info.thepos.vely);
-	memcpy(&(data[loc]), &tmps, 2);               loc += 2;
+	memcpy(&(data[loc]), &tmps, 2);                                     loc += 2;
 	tmps = INTEL_SHORT(old_info.thepos.velz);
-	memcpy(&(data[loc]), &tmps, 2);               loc += 2;
+	memcpy(&(data[loc]), &tmps, 2);                                     loc += 2;
 
 	tmps = swapshort(old_info.data_size);
-	memcpy(&(data[loc]), &tmps, 2);                                                 loc += 2;
+	memcpy(&(data[loc]), &tmps, 2);                                     loc += 2;
 
-	data[loc] = old_info.playernum; loc++;
-	data[loc] = old_info.obj_render_type; loc++;
-	data[loc] = old_info.level_num; loc++;
+	data[loc] = old_info.playernum;                                     loc++;
+	data[loc] = old_info.obj_render_type;                               loc++;
+	data[loc] = old_info.level_num;                                     loc++;
 	memcpy(&(data[loc]), old_info.data, old_info.data_size);
 }
 #endif
@@ -5380,17 +5381,18 @@ void get_short_frame_info(ubyte *old_info, short_frame_info *new_info)
 {
 	int loc = 0;
 	
-	new_info->type = old_info[loc];                                                                 loc++;  loc += 3;               // skip three for pad byte
-	memcpy(&(new_info->numpackets), &(old_info[loc]), 4);                   loc += 4;
+	new_info->type = old_info[loc];                                     loc++;
+	/* skip three for pad byte */                                       loc += 3;
+	memcpy(&(new_info->numpackets), &(old_info[loc]), 4);               loc += 4;
 	new_info->numpackets = INTEL_INT(new_info->numpackets);
-	memcpy(new_info->thepos.bytemat, &(old_info[loc]), 9);                  loc += 9;
-	memcpy(&(new_info->thepos.xo), &(old_info[loc]), 2);                    loc += 2;
-	memcpy(&(new_info->thepos.yo), &(old_info[loc]), 2);                    loc += 2;
-	memcpy(&(new_info->thepos.zo), &(old_info[loc]), 2);                    loc += 2;
-	memcpy(&(new_info->thepos.segment), &(old_info[loc]), 2);               loc += 2;
-	memcpy(&(new_info->thepos.velx), &(old_info[loc]), 2);                  loc += 2;
-	memcpy(&(new_info->thepos.vely), &(old_info[loc]), 2);                  loc += 2;
-	memcpy(&(new_info->thepos.velz), &(old_info[loc]), 2);                  loc += 2;
+	memcpy(new_info->thepos.bytemat, &(old_info[loc]), 9);              loc += 9;
+	memcpy(&(new_info->thepos.xo), &(old_info[loc]), 2);                loc += 2;
+	memcpy(&(new_info->thepos.yo), &(old_info[loc]), 2);                loc += 2;
+	memcpy(&(new_info->thepos.zo), &(old_info[loc]), 2);                loc += 2;
+	memcpy(&(new_info->thepos.segment), &(old_info[loc]), 2);           loc += 2;
+	memcpy(&(new_info->thepos.velx), &(old_info[loc]), 2);              loc += 2;
+	memcpy(&(new_info->thepos.vely), &(old_info[loc]), 2);              loc += 2;
+	memcpy(&(new_info->thepos.velz), &(old_info[loc]), 2);              loc += 2;
 	new_info->thepos.xo = INTEL_SHORT(new_info->thepos.xo);
 	new_info->thepos.yo = INTEL_SHORT(new_info->thepos.yo);
 	new_info->thepos.zo = INTEL_SHORT(new_info->thepos.zo);
@@ -5399,11 +5401,11 @@ void get_short_frame_info(ubyte *old_info, short_frame_info *new_info)
 	new_info->thepos.vely = INTEL_SHORT(new_info->thepos.vely);
 	new_info->thepos.velz = INTEL_SHORT(new_info->thepos.velz);
 
-	memcpy(&(new_info->data_size), &(old_info[loc]), 2);            loc += 2;
+	memcpy(&(new_info->data_size), &(old_info[loc]), 2);                loc += 2;
 	new_info->data_size = INTEL_SHORT(new_info->data_size);
-	new_info->playernum = old_info[loc];                                            loc++;
-	new_info->obj_render_type = old_info[loc];                                      loc++;
-	new_info->level_num = old_info[loc];                                            loc++;
+	new_info->playernum = old_info[loc];                                loc++;
+	new_info->obj_render_type = old_info[loc];                          loc++;
+	new_info->level_num = old_info[loc];                                loc++;
 	memcpy(new_info->data, &(old_info[loc]), new_info->data_size);
 }
 #else
