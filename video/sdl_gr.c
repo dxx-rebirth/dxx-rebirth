@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/video/sdl_gr.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 13:59:23 $
+ * $Date: 2001-10-09 08:17:07 $
  *
  * SDL video functions.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/01/31 13:59:23  bradleyb
+ * Fullscreen toggle added to screen res menu
+ *
  * Revision 1.3  2001/01/29 13:47:52  bradleyb
  * Fixed build, some minor cleanups.
  *
@@ -105,7 +108,7 @@ int gr_set_mode(u_int32_t mode)
 //Style "D1X*"  NoTitle, NoHandles, BorderWidth 0
 //if you can't use -fullscreen like me (crashes X), this is a big help in
 //getting the window centered correctly (if you use SmartPlacement)
-	SDL_WM_SetCaption("D2x", "Descent II");
+	SDL_WM_SetCaption(DESCENT_VERSION, "Descent II");
 //end addition -MM
 
 //edited 10/05/98 by Matt Mueller - make fullscreen mode optional
