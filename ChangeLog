@@ -1,3 +1,7 @@
+2003-03-14  Micah J. Lieske  <MicahJon@compuserve.com>
+
+	* main/gamecntl.c: add comments to the "only matt knows" cheats
+
 2003-03-14  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/gamemine.c: formatting, better texture conversion for d1

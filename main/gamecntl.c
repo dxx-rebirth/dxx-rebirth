@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.15 2003-03-13 22:34:58 btb Exp $ */
+/* $Id: gamecntl.c,v 1.16 2003-03-15 00:20:37 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2038,27 +2038,27 @@ char *LamerCheats[]={   "!UyN#E$I",	// gabba-gabbahey
 
 #define N_LAMER_CHEATS (sizeof(LamerCheats) / sizeof(*LamerCheats))
 
-char *WowieCheat			="F_JMO3CV";	//only Matt knows
-char *AllKeysCheat		="%v%MrgbU";	//only Matt knows
-char *InvulCheat			="Wv_\\JJ\\Z";	//only Matt knows
-char *HomingCheatString	="t\\LIhSB[";	//only Matt knows
-char *BouncyCheat			="bGbiChQJ";	//only Matt knows
-char *FullMapCheat		="PI<XQHRI";	//only Matt knows
-char *LevelWarpCheat		="ZQHtqbb\"";	//only Matt knows
-char *MonsterCheat		="nfpEfRQp";	//only Matt knows
-char *BuddyLifeCheat		="%A-BECuY";	//only Matt knows
-char *BuddyDudeCheat		="u#uzIr%e";	//only Matt knows
-char *KillRobotsCheat	="&wxbs:5O";	//only Matt knows
-char *FinishLevelCheat	="%bG_bZ<D";	//only Matt knows
-char *RapidFireCheat	="*jLgHi'J";	//only Matt knows
+char *WowieCheat        ="F_JMO3CV";    //only Matt knows / h-onestbob
+char *AllKeysCheat      ="%v%MrgbU";    //only Matt knows / or-algroove
+char *InvulCheat        ="Wv_\\JJ\\Z";  //only Matt knows / almighty
+char *HomingCheatString ="t\\LIhSB[";   //only Matt knows / l-pnlizard
+char *BouncyCheat       ="bGbiChQJ";    //only Matt knows / duddaboo
+char *FullMapCheat      ="PI<XQHRI";    //only Matt knows / rockrgrl
+char *LevelWarpCheat    ="ZQHtqbb\"";   //only Matt knows / f-reespace
+char *MonsterCheat      ="nfpEfRQp";    //only Matt knows / godzilla
+char *BuddyLifeCheat    ="%A-BECuY";    //only Matt knows / he-lpvishnu
+char *BuddyDudeCheat    ="u#uzIr%e";    //only Matt knows / g-owingnut
+char *KillRobotsCheat   ="&wxbs:5O";    //only Matt knows / spaniard
+char *FinishLevelCheat  ="%bG_bZ<D";    //only Matt knows / d-elshiftb
+char *RapidFireCheat    ="*jLgHi'J";    //only Matt knows / wildfire
 
-char *RobotsKillRobotsCheat	="rT6xD__S";	// New for 1.1
-char *AhimsaCheat					="!Uscq_yc";	// New for 1.1
+char *RobotsKillRobotsCheat ="rT6xD__S"; // New for 1.1 / silkwing
+char *AhimsaCheat       ="!Uscq_yc";    // New for 1.1 / im-agespace 
 
-char *AccessoryCheat		="dWdz[kCK";	// al-ifalafel
-char *JohnHeadCheat		="ou]];H:%";	// p-igfarmer
-char *AcidCheat			="qPmwxz\"S";	// bit-tersweet
-char *FramerateCheat		="rQ60#ZBN";	// f-rametime
+char *AccessoryCheat    ="dWdz[kCK";    // al-ifalafel
+char *JohnHeadCheat     ="ou]];H:%";    // p-igfarmer
+char *AcidCheat         ="qPmwxz\"S";   // bit-tersweet
+char *FramerateCheat    ="rQ60#ZBN";    // f-rametime
 
 char CheatBuffer[]="AAAAAAAAAAAAAAA";
 
