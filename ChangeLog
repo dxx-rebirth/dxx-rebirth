@@ -7,6 +7,9 @@
 	gauge when appropriate
 	* main/editor/kdefs.h, main/gamesave.c, main/gamesave.h: change
 	all functions in kfuncs.c to return int instead of void
+	* main/editor/ehostage.c, main/editor/eobject.c, main/editor/segment.c:
+	disable old hostage system in editor (d2 is simpler in this regard)
+	
 
 2005-01-23  Jason Owen  <shannara256@yahoo.com>
 

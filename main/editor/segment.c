@@ -1,4 +1,4 @@
-/* $Id: segment.c,v 1.5 2004-12-20 06:28:10 btb Exp $ */
+/* $Id: segment.c,v 1.6 2005-01-24 21:33:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1803,7 +1803,7 @@ int create_new_mine(void)
 
 	// Clear refueling center code
 	fuelcen_reset();
-	hostage_init_all();
+//	hostage_init_all();
 
 	init_all_vertices();
 

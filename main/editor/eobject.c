@@ -1,4 +1,4 @@
-/* $Id: eobject.c,v 1.4 2004-12-20 06:28:10 btb Exp $ */
+/* $Id: eobject.c,v 1.5 2005-01-24 21:33:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: eobject.c,v 1.4 2004-12-20 06:28:10 btb Exp $";
+static char rcsid[] = "$Id: eobject.c,v 1.5 2005-01-24 21:33:28 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -140,7 +140,7 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 			obj = &Objects[objnum];
 
 			// Fill in obj->id and other hostage info
-			hostage_init_info( objnum );
+			// hostage_init_info( objnum );	//don't need to anymore
 		
 			obj->control_type = CT_POWERUP;
 			

@@ -1,4 +1,4 @@
-/* $Id: ehostage.c,v 1.4 2004-12-21 11:58:14 btb Exp $ */
+/* $Id: ehostage.c,v 1.5 2005-01-24 21:33:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,12 +19,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: ehostage.c,v 1.4 2004-12-21 11:58:14 btb Exp $";
+static char rcsid[] = "$Id: ehostage.c,v 1.5 2005-01-24 21:33:28 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
+
+#if 0	// the hostage code was simplified for Descent 2
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -340,12 +342,14 @@ int PlayHostageSound()	{
 //@@	return 1;
 //@@}
 
+#endif // 0
 
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the hostage dialog box
 //-------------------------------------------------------------------------
 int do_hostage_dialog()
 {
+#if 0
 	int i;
 
 	// Only open 1 instance of this window...
@@ -389,21 +393,24 @@ int do_hostage_dialog()
 	
 //	if ( CurrentHostageIndex == -1 )
 //		SelectNextHostage();
-
+#endif
 	return 1;
 
 }
 
 void hostage_close_window()
 {
+#if 0
 	if ( MainWindow!=NULL )	{
 		ui_close_window( MainWindow );
 		MainWindow = NULL;
 	}
+#endif
 }
 
 void do_hostage_window()
 {
+#if 0	// redundant
 	fix DeltaTime, Temp;
 
 	if ( MainWindow == NULL ) return;
@@ -495,6 +502,7 @@ void do_hostage_window()
 	}		
 
 	LastHostageIndex = CurrentHostageIndex;
+#endif
 }
 
 
