@@ -1,3 +1,9 @@
+2005-03-17  Bradley Bell  <btb@icculus.org>
+
+	* README, VisualC/d2x/d2x.dsp, VisualC/d2xgl/d2xgl.dsp,
+	VisualC/libmve/libmve.dsp, VisualC/mveplayer/mveplayer.dsp:
+	Update SDL to 1.2.8
+
 2005-03-16  Bradley Bell  <btb@icculus.org>
 
 	* main/bm.c, main/bm.h: use hardcoded value instead of

@@ -61,16 +61,14 @@ Required tools:
 * PhysicsFS
 * NASM 0.98 (OPTIONAL but RECOMMENDED)
 
-Note that SDL.dll needs to be in your executable PATH, since that is
-where windows looks for dlls.
-I recommend copying or moving it to /usr/local/bin:
-cp /usr/local/lib/SDL.dll /usr/local/bin
+Download the SDL 1.2 SDK for MinGW, unpack and install it from the
+MSYS shell with "make native".  You will need to manually copy the
+file bin/i386-mingw32msvc-sdl-config to /usr/bin/sdl-config, and edit
+it, setting the "prefix" variable to "/usr".
 
-If you need to run autogen.sh (e.g. to rebuild the configure scripts,
-or to build from cvs) sdl.m4 will have to be somewhere where aclocal
-can find it.
-You can fix this by setting the ACLOCAL_FLAGS variable like this:
-export ACLOCAL_FLAGS=/usr/local/share/aclocal
+If you are compiling from CVS, you will also need to have msysDTK
+installed.  This is required to run autogen.sh and also includes the
+cvs client itself, among other useful tools.
 
 Now you can configure d2x as normal.  i.e.
 ./configure
@@ -98,7 +96,7 @@ This can be whereever you like, but if your directory structure looks
 like this, then you won't have to mess with the project settings:
 
 sdl\
-sdl\SDL-1.2.7\
+sdl\SDL-1.2.8\
 physfs
 physfs\physfs-1.0.0\
 descent\d2x\
