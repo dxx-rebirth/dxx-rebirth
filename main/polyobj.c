@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.2 2001-01-20 13:49:17 bradleyb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.3 2001-01-24 04:29:48 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -203,7 +203,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	if (version < PM_COMPATIBLE_VERSION || version > PM_OBJFILE_VERSION)
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
-	if ( args_find( "-bspgen" )) 
+	if ( FindArg( "-bspgen" )) 
 		printf( "bspgen -c1" );
 
 	while (new_pof_read_int(id,model_buf) == 1) {
@@ -227,7 +227,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 				pof_read_vecs(&pmmin,1,model_buf);
 				pof_read_vecs(&pmmax,1,model_buf);
 
-				if ( args_find( "-bspgen" ))	{
+				if ( FindArg( "-bspgen" ))	{
 					vms_vector v;
 					fix l;
 				
@@ -372,7 +372,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 //	for (i=0;i<pm->n_models;i++)
 //		pm->submodel_ptrs[i] += (int) pm->model_data;
 
-	if ( args_find( "-bspgen" )) {
+	if ( FindArg( "-bspgen" )) {
 		char *p = strchr( filename, '.' );
 		*p = 0;
 

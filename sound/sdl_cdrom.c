@@ -26,7 +26,7 @@ void RBAExit()
 void RBAInit()
 {
 	if (initialised) return;
-	if (args_find("-nocdrom")) return; 
+	if (FindArg("-nocdrom")) return; 
 
 	if (SDL_Init(SDL_INIT_CDROM) < 0)
 	{

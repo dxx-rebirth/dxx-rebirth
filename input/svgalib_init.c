@@ -10,7 +10,7 @@ extern void d_mouse_init();
 
 void arch_svgalib_init()
 {
- if (!args_find("-nomouse"))
+ if (!FindArg("-nomouse"))
 	d_mouse_init();
 }
 

@@ -788,7 +788,7 @@ void set_display_mode(int mode)
 		return;								//...don't change
 
 	#if !defined(MACINTOSH) && !defined(WINDOWS)
-	if (mode >= 5 && !args_find("-superhires"))
+	if (mode >= 5 && !FindArg("-superhires"))
 		mode = 4;
 	#endif
 
@@ -932,7 +932,7 @@ void do_screen_res_menu()
 	m[5].type=NM_TYPE_RADIO; m[5].value=0; m[5].group=0; m[5].text=" 640x480";
 	m[6].type=NM_TYPE_RADIO; m[6].value=0; m[6].group=0; m[6].text=" 800x600";
 	n_items = 7;
-	if (args_find("-superhires")) {
+	if (FindArg("-superhires")) {
 		m[7].type=NM_TYPE_RADIO; m[7].value=0; m[7].group=0; m[7].text=" 1024x768";
 		m[8].type=NM_TYPE_RADIO; m[8].value=0; m[8].group=0; m[8].text=" 1280x1024";
 		n_items += 2;
@@ -1277,7 +1277,7 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 
 	if (items[4].value != (Redbook_playing!=0)) {
 
-		if (items[4].value && args_find("-noredbook")) {
+		if (items[4].value && FindArg("-noredbook")) {
 			nm_messagebox (TXT_SORRY,1,TXT_OK,"Redbook audio has been disabled\non the command line");
 			items[4].value = 0;
 			items[4].redraw = 1;

@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.2 2001-01-20 13:49:17 bradleyb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.3 2001-01-24 04:29:48 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -181,7 +181,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 
 	if (!in_file)   {
 #ifdef EDITOR
-		if ( args_find("-macdata") )
+		if ( FindArg("-macdata") )
 			swap_0_255( bmp );
 #endif
 		if ( !BigPig )  gr_bitmap_rle_compress( bmp );
@@ -851,7 +851,7 @@ void piggy_new_pigfile(char *pigname)
 					bm[fnum]->avg_color = compute_average_pixel(bm[fnum]);
 
 #ifdef EDITOR
-					if ( args_find("-macdata") )
+					if ( FindArg("-macdata") )
 						swap_0_255( bm[fnum] );
 #endif
 					if ( !BigPig ) gr_bitmap_rle_compress( bm[fnum] );
@@ -904,7 +904,7 @@ void piggy_new_pigfile(char *pigname)
 				new->avg_color = compute_average_pixel(new);
 			
 #ifdef EDITOR
-					if ( args_find("-macdata") )
+					if ( FindArg("-macdata") )
 						swap_0_255( new );
 #endif
 				if ( !BigPig )  gr_bitmap_rle_compress( new );
@@ -1131,13 +1131,13 @@ int piggy_init(void)
 		GameBitmapOffset[0] = 0;
 	}
 
-	if ( args_find( "-bigpig" ))
+	if ( FindArg( "-bigpig" ))
 		BigPig = 1;
 
-	if ( args_find( "-lowmem" ))
+	if ( FindArg( "-lowmem" ))
 		piggy_low_memory = 1;
 
-	if ( args_find( "-nolowmem" ))
+	if ( FindArg( "-nolowmem" ))
 		piggy_low_memory = 0;
 
 	if (piggy_low_memory)

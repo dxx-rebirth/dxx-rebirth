@@ -4946,7 +4946,7 @@ void multi_add_lifetime_kills ()
   if (oldrank!=GetMyNetRanking())
    {
   	 multi_send_ranking();
-    if (!args_find("-norankings"))
+    if (!FindArg("-norankings"))
 	  {
   		 HUD_init_message ("You have been promoted to %s!",RankStrings[GetMyNetRanking()]);
    	 digi_play_sample (SOUND_BUDDY_MET_GOAL,F1_0*2);
@@ -4975,7 +4975,7 @@ void multi_add_lifetime_killed ()
 	  multi_send_ranking();
 	  NetPlayers.players[Player_num].rank=GetMyNetRanking();
 	  
-     if (!args_find("-norankings"))	
+     if (!FindArg("-norankings"))	
 		  HUD_init_message ("You have been demoted to %s!",RankStrings[GetMyNetRanking()]);
   
 	}	
@@ -5007,7 +5007,7 @@ void multi_do_ranking (char *buf)
 
   NetPlayers.players[(int)pnum].rank=rank;
 
-  if (!args_find("-norankings"))
+  if (!FindArg("-norankings"))
 	  HUD_init_message ("%s has been %s to %s!",Players[(int)pnum].callsign,rankstr,RankStrings[(int)rank]);
  }
 void multi_send_modem_ping ()

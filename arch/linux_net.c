@@ -98,11 +98,11 @@ int ipx_init( int socket_number, int show_address )
 	int i;
 	
 /* DPH: killed kali for now 
-	if (args_find("-kali")) {
+	if (FindArg("-kali")) {
 		printf("Using Kali for network games\n");
 		driver = &ipx_kali;
 //added on 12/20/98 by Jan Kratochvil for direct TCP/IP games
-        } else*/ if (args_find("-udp")) {
+        } else*/ if (FindArg("-udp")) {
                 printf("Using native TCP/IP (UDP) for network games\n");
                 driver = &ipx_udp;
 //end this section addition - JK
@@ -110,7 +110,7 @@ int ipx_init( int socket_number, int show_address )
 		printf("Using real IPX for network games\n");
 		driver = &ipx_bsd;
 	}
-	if ((i = args_find("-ipxnetwork")) && Args[i + 1]) {
+	if ((i = FindArg("-ipxnetwork")) && Args[i + 1]) {
 		unsigned long n = strtol(Args[i + 1], NULL, 16);
 		ipx_MyAddress[0] = n >> 24; ipx_MyAddress[1] = (n >> 16) & 255;
 		ipx_MyAddress[2] = (n >> 8) & 255; ipx_MyAddress[3] = n & 255;

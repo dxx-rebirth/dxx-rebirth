@@ -340,7 +340,7 @@ char *s,*s2,*ns;
 	if (!have_empty_address())
 		return 0;
 
-	if (!((i=args_find("-udp")) && (s=Args[i+1]) && (*s=='=' || *s=='+' || *s=='@'))) s=NULL;
+	if (!((i=FindArg("-udp")) && (s=Args[i+1]) && (*s=='=' || *s=='+' || *s=='@'))) s=NULL;
 
 	if (gethostname(buf,sizeof(buf))) FAIL("Error getting my hostname");
 	if (!(queryhost(buf))) FAIL("Querying my own hostname \"%s\"",buf);

@@ -294,13 +294,13 @@ void arch_init_start() {
 }
 
 void arch_init() {
-        if ( !args_find( "-nodoscheck" ))
+        if ( !FindArg( "-nodoscheck" ))
                 check_dos_version();
         
-        if ( !args_find( "-nofilecheck" ))
+        if ( !FindArg( "-nofilecheck" ))
                 dos_check_file_handles(5);
 
-        if ( !args_find( "-nomemcheck" ))
+        if ( !FindArg( "-nomemcheck" ))
                 check_memory();
 
 	#ifndef NDEBUG
@@ -322,35 +322,35 @@ void arch_init() {
 
         con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_3);
         key_init();
-        if (!args_find( "-nomouse" ))     {
+        if (!FindArg( "-nomouse" ))     {
                 con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_4);
-                if (args_find( "-nocyberman" ))
+                if (FindArg( "-nocyberman" ))
                         mouse_init(0);
                 else
                         mouse_init(1);
         } else {
                 con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_5);
         }
-        if (!args_find( "-nojoystick" ))  {
+        if (!FindArg( "-nojoystick" ))  {
                 con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_6);
                 joy_init();
-                if ( args_find( "-joyslow" ))     {
+                if ( FindArg( "-joyslow" ))     {
                         con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_7);
                         joy_set_slow_reading(JOY_SLOW_READINGS);
                 }
-                if ( args_find( "-joypolled" ))   {
+                if ( FindArg( "-joypolled" ))   {
                         con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_8);
                         joy_set_slow_reading(JOY_POLLED_READINGS);
                 }
-                if ( args_find( "-joybios" ))     {
+                if ( FindArg( "-joybios" ))     {
                         con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_9);
                         joy_set_slow_reading(JOY_BIOS_READINGS);
                 }
-                if ( args_find( "-joynice" ))     {
+                if ( FindArg( "-joynice" ))     {
                         con_printf(CON_VERBOSE, "\n%s", "Using nice joystick poller..." );
                         joy_set_slow_reading(JOY_FRIENDLY_READINGS);
                 }
-                if ( args_find( "-gameport" ))    {
+                if ( FindArg( "-gameport" ))    {
                         if ( init_gameport() )  {                       
                                 joy_set_slow_reading(JOY_BIOS_READINGS);
                         } else {

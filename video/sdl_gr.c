@@ -163,14 +163,14 @@ int gr_init(void)
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 
 //added 10/05/98 by Matt Mueller - make fullscreen mode optional
-	if (args_find("-fullscreen"))
+	if (FindArg("-fullscreen"))
 	     sdl_video_flags|=SDL_FULLSCREEN;
 //end addition -MM
 	//added 05/19/99 Matt Mueller - make HW surface optional
-	if (args_find("-hwsurface"))
+	if (FindArg("-hwsurface"))
 	     sdl_video_flags|=SDL_HWSURFACE;
 	//end addition -MM
-	if (args_find("-nosdlvidmodecheck"))
+	if (FindArg("-nosdlvidmodecheck"))
 		checkvidmodeok=0;
 	
 	// Set the mode.

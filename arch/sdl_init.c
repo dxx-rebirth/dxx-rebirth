@@ -22,10 +22,10 @@ void arch_sdl_init()
  // Initialise the library
 //edited on 01/03/99 by Matt Mueller - if we use SDL_INIT_EVERYTHING, cdrom is initialized even if -nocdaudio is used
 #ifdef SDL_INPUT
- if (!args_find("-nomouse"))
+ if (!FindArg("-nomouse"))
    d_mouse_init();
 #endif
- if (!args_find("-nosound"))
+ if (!FindArg("-nosound"))
    digi_init();
  atexit(sdl_close);
 }

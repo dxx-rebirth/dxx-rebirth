@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: slew.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp $";
+static char rcsid[] = "$Id: slew.c,v 1.2 2001-01-24 04:29:48 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -89,7 +89,7 @@ int do_slew_movement(object *obj, int check_keys, int check_joy )
 
 	if (check_keys) {
 		if (Function_mode == FMODE_EDITOR) {
-			if (args_find("-jasen"))
+			if (FindArg("-jasen"))
 				obj->mtype.phys_info.velocity.x += VEL_SPEED * (key_down_time(KEY_PAD3) - key_down_time(KEY_PAD1));
 			else
 				obj->mtype.phys_info.velocity.x += VEL_SPEED * (key_down_time(KEY_PAD9) - key_down_time(KEY_PAD7));
@@ -97,7 +97,7 @@ int do_slew_movement(object *obj, int check_keys, int check_joy )
 			obj->mtype.phys_info.velocity.z += VEL_SPEED * (key_down_time(KEY_PAD8) - key_down_time(KEY_PAD2));
 
 			rotang.p = (key_down_time(KEY_LBRACKET) - key_down_time(KEY_RBRACKET))/ROT_SPEED ;
-			if (args_find("-jasen"))
+			if (FindArg("-jasen"))
 				rotang.b  = (key_down_time(KEY_PAD7) - key_down_time(KEY_PAD9))/ROT_SPEED;
 			else
 				rotang.b  = (key_down_time(KEY_PAD1) - key_down_time(KEY_PAD3))/ROT_SPEED;

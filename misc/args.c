@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/misc/args.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:14 $
+ * $Date: 2001-01-24 04:29:48 $
  * 
  * Functions for accessing arguments.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:14  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.3  1999/08/05 22:53:41  sekmu
  *
  * D3D patch(es) from ADB
@@ -66,7 +69,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $";
+static char rcsid[] = "$Id: args.c,v 1.2 2001-01-24 04:29:48 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -82,7 +85,7 @@ static char rcsid[] = "$Id: args.c,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $"
 int Num_args=0;
 char * Args[100];
 
-int args_find( char * s )	{
+int FindArg( char * s )	{
 	int i;
 
 	for (i=0; i<Num_args; i++ )
@@ -122,7 +125,7 @@ void args_init( int argc,char **argv )
      if ( Args[i][0] == '-' )
       strlwr( Args[i]  );             // Convert all args to lowercase
     }
-  if((i=args_find("-ini")))
+  if((i=FindArg("-ini")))
    f=fopen(Args[i+1],"rt");
   else
    f=fopen("d1x.ini","rt");

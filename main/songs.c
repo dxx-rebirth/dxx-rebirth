@@ -77,7 +77,7 @@ void songs_init()
 
 
 	#if !defined(MACINTOSH) && !defined(WINDOWS)  	// don't crank it if on a macintosh!!!!!
-		if (!args_find("-nomixer"))
+		if (!FindArg("-nomixer"))
 			CD_blast_mixer();   // Crank it!
 	#endif
 
@@ -114,7 +114,7 @@ void songs_init()
 
 	//	RBA Hook
 	#if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-		if (args_find("-noredbook"))
+		if (FindArg("-noredbook"))
 		{
 			Redbook_enabled = 0;
 		}
@@ -201,7 +201,7 @@ int play_redbook_track(int tracknum,int keep_playing)
 {
 	Redbook_playing = 0;
 
-	if (!RBAEnabled() && Redbook_enabled && !args_find("-noredbook"))
+	if (!RBAEnabled() && Redbook_enabled && !FindArg("-noredbook"))
 		reinit_redbook();
 
 	if (force_rb_register) {
@@ -302,7 +302,7 @@ void songs_play_level_song( int levelnum )
 
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 	
-	if (!RBAEnabled() && Redbook_enabled && !args_find("-noredbook"))
+	if (!RBAEnabled() && Redbook_enabled && !FindArg("-noredbook"))
 		reinit_redbook();
 
 	if (force_rb_register) {

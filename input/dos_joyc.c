@@ -299,9 +299,9 @@ int joy_init()
 	int i;
 	int temp_axis[4];
 
-//        if(args_find("-joy209"))
+//        if(FindArg("-joy209"))
 //         use_alt_joyport=1;
-        if(args_find("-joy209"))
+        if(FindArg("-joy209"))
          JOY_PORT = 521;  //209h;
          
 	joy_flush();

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/joyc.c,v $
- * $Revision: 1.1.1.2 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:33:52 $
+ * $Date: 2001-01-24 04:29:45 $
  * 
  * Routines for joystick reading.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.2  2001/01/19 03:33:52  bradleyb
+ * Import of d2x-0.0.9-pre1
+ *
  * Revision 1.1.1.1  1999/06/14 21:58:26  donut
  * Import of d1x 1.37 source.
  *
@@ -443,9 +446,9 @@ int joy_init()
 	int i;
 	int temp_axis[4];
 
-//        if(args_find("-joy209"))
+//        if(FindArg("-joy209"))
 //         use_alt_joyport=1;
-        if(args_find("-joy209"))
+        if(FindArg("-joy209"))
          JOY_PORT = 521;  //209h;
          
 	joy_flush();

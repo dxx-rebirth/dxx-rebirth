@@ -30,7 +30,7 @@ void arch_init()
 #ifdef SVGALIB_INPUT
 	arch_svgalib_init();
 #endif
-	if (!args_find( "-nojoystick" ))  {
+	if (!FindArg( "-nojoystick" ))  {
 		con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_6);
 		joy_init();
 	}
@@ -38,7 +38,7 @@ void arch_init()
 #ifdef NETWORK
 	//end addition -MM
 //added on 10/19/98 by Victor Rachels to add serial support (from DPH)
-    if(!(args_find("-noserial")))
+    if(!(FindArg("-noserial")))
      com_init();
 //end this section addition - Victor 
 	//added 06/09/99 Matt Mueller - fix nonetwork compile

@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.1.1.2 2001-01-19 03:33:47 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.2 2001-01-24 04:29:45 bradleyb Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -339,7 +339,7 @@ int ReadConfigFile()
 	joy_set_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
 #endif
 
-	i = args_find( "-volume" );
+	i = FindArg( "-volume" );
 	
 	if ( i > 0 )	{
 		i = atoi( Args[i+1] );
@@ -370,7 +370,7 @@ int ReadConfigFile()
 	Config_digi_dma = digi_driver_dma;*/
 
 #if !defined WINDOWS && !defined __ENV_LINUX__ && !defined __ENV_DJGPP__
-	if (digi_driver_board_16 > 0 && !args_find("-no16bit") && digi_driver_board_16 != _GUS_16_ST) {
+	if (digi_driver_board_16 > 0 && !FindArg("-no16bit") && digi_driver_board_16 != _GUS_16_ST) {
 		digi_driver_board = digi_driver_board_16;
 		digi_driver_dma = digi_driver_dma_16;
 	}
@@ -474,7 +474,7 @@ int WriteConfigFile()
 	fputs(str, infile);*/
 	sprintf (str, "%s=%d\n", midi_volume_str, Config_midi_volume);
 	fputs(str, infile);
-	sprintf (str, "%s=%d\n", redbook_enabled_str, args_find("-noredbook")?save_redbook_enabled:Redbook_enabled);
+	sprintf (str, "%s=%d\n", redbook_enabled_str, FindArg("-noredbook")?save_redbook_enabled:Redbook_enabled);
 	fputs(str, infile);
 	sprintf (str, "%s=%d\n", redbook_volume_str, Config_redbook_volume);
 	fputs(str, infile);
@@ -576,7 +576,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.1.1.2 2001-01-19 03:33:47 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.2 2001-01-24 04:29:45 bradleyb Exp $";
 #endif
 
 #define MAX_CTB_LEN	512
