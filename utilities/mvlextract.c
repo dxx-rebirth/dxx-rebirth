@@ -39,7 +39,7 @@ main(int argc, char *argv[])
 			   "  v    View files, don't extract\n");
 		exit(0);
 	}
-	mvlfile = fopen(argv[1], "r");
+	mvlfile = fopen(argv[1], "rb");
 	stat(argv[1], &statbuf);
 	printf("%i\n", (int)statbuf.st_size);
 	buf = (char *)malloc(4);
@@ -78,7 +78,7 @@ main(int argc, char *argv[])
 					printf("Unable to allocate memory\n");
 				} else {
 					fread(buf, len[i], 1, mvlfile);
-					writefile = fopen(filename[i], "w");
+					writefile = fopen(filename[i], "wb");
 					fwrite(buf, len[i], 1, writefile);
 					fclose(writefile);
 					free(buf);

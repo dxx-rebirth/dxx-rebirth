@@ -1,5 +1,9 @@
 2003-10-05  Bradley Bell  <btb@icculus.org>
 
+	* utilities/hogcreate.c, utilities/hogextract.c,
+	utilities/mvlcreate.c, utilities/mvlextract.c: use binary mode for
+	reading/writing files
+
 	* arch/win32/Makefile.am, arch/win32/include/ipx_udp.h,
 	arch/win32/ipx_udp.c, arch/win32/winnet.c, main/menu.c: added UDP
 	support for win32

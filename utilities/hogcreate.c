@@ -34,7 +34,7 @@ main(int argc, char *argv[])
 		       "creates hogfile using all the files in the current directory\n");
 		exit(0);
 	}
-	hogfile = fopen(argv[1], "w");
+	hogfile = fopen(argv[1], "wb");
 	buf = (char *)malloc(3);
 	strncpy(buf, "DHF", 3);
 	fwrite(buf, 3, 1, hogfile);
@@ -52,7 +52,7 @@ main(int argc, char *argv[])
 			stat(filename, &statbuf);
 			if(! S_ISDIR(statbuf.st_mode)) {
 				printf("Filename: %s \tLength: %i\n", filename, (int)statbuf.st_size);
-				readfile = fopen(filename, "r");
+				readfile = fopen(filename, "rb");
 				buf = (char *)malloc(statbuf.st_size);
 				if (buf == NULL) {
 					printf("Unable to allocate memery\n");

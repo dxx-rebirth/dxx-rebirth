@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 	closedir(dp);
 
 	printf("Creating: %s\n", argv[1]);
-	mvlfile = fopen(argv[1], "w");
+	mvlfile = fopen(argv[1], "wb");
 	buf = (char *)malloc(4);
 	strncpy(buf, "DMVL", 4);
 	fwrite(buf, 4, 1, mvlfile);
@@ -79,7 +79,7 @@ main(int argc, char *argv[])
 	}
 
 	for (i = 0; i < nfiles; i++) {
-		readfile = fopen(filename[i], "r");
+		readfile = fopen(filename[i], "rb");
 		buf = (char *)malloc(len[i]);
 		if (buf == NULL) {
 			printf("Unable to allocate memory\n");

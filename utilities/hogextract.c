@@ -40,7 +40,7 @@ main(int argc, char *argv[])
 			   "  v    View files, don't extract\n");
 		exit(0);
 	}
-	hogfile = fopen(argv[1], "r");
+	hogfile = fopen(argv[1], "rb");
 	stat(argv[1], &statbuf);
 	printf("%i\n", (int)statbuf.st_size);
 	buf = (char *)malloc(3);
@@ -49,7 +49,7 @@ main(int argc, char *argv[])
 	free(buf);
 	while(ftell(hogfile)<statbuf.st_size) {
 		fread(filename, 13, 1, hogfile);
-		fread(&len, 4, 1, hogfile);
+		fread(&len, 1, 4, hogfile);
 #ifdef WORDS_BIGENDIAN
 		len = SWAPINT(len);
 #endif
@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 					printf("Unable to allocate memory\n");
 				} else {
 					fread(buf, len, 1, hogfile);
-					writefile = fopen(filename, "w");
+					writefile = fopen(filename, "wb");
 					fwrite(buf, len, 1, writefile);
 					fclose(writefile);
 					free(buf);
