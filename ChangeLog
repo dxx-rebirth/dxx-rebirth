@@ -1,3 +1,7 @@
+2004-05-18  Bradley Bell  <btb@icculus.org>
+
+	* include/vecmat.h: comments/formatting
+
 2004-05-18  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* include/d.bat, include/lst.bat, include/m.bat, include/test.c,
