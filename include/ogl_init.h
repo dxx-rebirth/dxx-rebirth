@@ -121,6 +121,7 @@ extern int last_width,last_height;
 inline 
 #endif
 void ogl_swap_buffers_internal(void);
+int ogl_check_mode(int x, int y); // check if mode is valid
 int ogl_init_window(int x, int y);//create a window/switch modes/etc
 void ogl_destroy_window(void);//destroy window/etc
 void ogl_init(void);//one time initialization
