@@ -87,3 +87,15 @@ Djgpp:
 #define __DJGPP_MINOR__ 3
 #define unix 1
 #define __GO32 1
+
+Mac OS X:
+#define __MACH__ 1 
+#define __NATURAL_ALIGNMENT__ 1 
+#define __APPLE__ 1 
+#define __GNUC_MINOR__ 95 
+#define __ppc__ 1 
+#define __GNUC__ 2 
+#define __STDC__ 1 
+#define __DYNAMIC__ 1 
+#define __APPLE_CC__ 937 
+#define __BIG_ENDIAN__ 1 
