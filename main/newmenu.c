@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.17 2003-02-14 03:42:24 btb Exp $ */
+/* $Id: newmenu.c,v 1.18 2003-02-28 09:56:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -731,6 +731,9 @@ void nm_draw_background1(char * filename)
 		//in part of the fade tables so the darkening of the menu edges works
 
 		gr_copy_palette(gr_palette, pal, sizeof(gr_palette));
+#ifdef OGL
+		gr_palette_load(gr_palette);
+#endif
 		remap_fonts_and_menus(1);
 
 	}

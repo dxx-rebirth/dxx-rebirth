@@ -1,4 +1,4 @@
-/* $Id: pcx.c,v 1.6 2002-08-26 06:41:38 btb Exp $ */
+/* $Id: pcx.c,v 1.7 2003-02-28 09:56:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -49,6 +49,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "pcx.h"
 #include "cfile.h"
+
+#ifdef OGL
+#include "palette.h"
+#endif
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
@@ -502,8 +506,12 @@ int pcx_read_fullscr(char * filename, ubyte * palette)
 	grs_bitmap bm;
 	gr_init_bitmap_data(&bm);
 	pcx_error = pcx_read_bitmap(filename, &bm, BM_LINEAR, palette);
-	if (pcx_error == PCX_ERROR_NONE)
+	if (pcx_error == PCX_ERROR_NONE) {
+#ifdef OGL
+		gr_palette_load(palette);
+#endif
 		show_fullscr(&bm);
+	}
 	gr_free_bitmap_data(&bm);
 	return pcx_error;
 }

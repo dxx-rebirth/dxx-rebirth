@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.9 2003-01-15 02:40:54 btb Exp $ */
+/* $Id: gr.c,v 1.10 2003-02-28 09:56:10 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -345,8 +345,8 @@ int ogl_init_load_library(void)
 
 int gr_init()
 {
- int mode = SM(640,480);
- int retcode,t,glt=0;
+ 	int t,glt=0;
+
  	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
@@ -410,12 +410,6 @@ int gr_init()
 	MALLOC( grd_curscreen,grs_screen,1 );
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
-
-	// Set the mode.
-	if ((retcode=gr_set_mode(mode)))
-	{
-		return retcode;
-	}
 	grd_curscreen->sc_canvas.cv_color = 0;
 	grd_curscreen->sc_canvas.cv_drawmode = 0;
 	grd_curscreen->sc_canvas.cv_font = NULL;

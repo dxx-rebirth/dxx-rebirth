@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.54 2003-02-28 03:54:55 btb Exp $ */
+/* $Id: inferno.c,v 1.55 2003-02-28 09:56:10 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1393,11 +1393,13 @@ int main(int argc,char **argv)
 	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
 	init_movies();		//init movie libraries
 
+#if 0
 	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
 #if defined(POLY_ACC)
 	gr_set_mode(SM_640x480x15xPA);
 #else
 	gr_set_mode(MovieHires?SM(640,480):SM(320,200));
+#endif
 #endif
 
 	#ifndef RELEASE
@@ -1519,6 +1521,9 @@ int main(int argc,char **argv)
 		gr_set_mode(SM_640x480x15xPA);
 #else
 		gr_set_mode(MenuHires?SM(640,480):SM(320,200));
+#endif
+#ifdef OGL
+		set_screen_mode(SCREEN_MENU);
 #endif
 
 		FontHires = FontHiresAvailable && MenuHires;
