@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.41 2002-08-29 08:54:42 btb Exp $ */
+/* $Id: inferno.c,v 1.42 2002-08-30 00:57:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,6 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
+ *
  * inferno.c: Entry point of program (main procedure)
  *
  * After main initializes everything, most of the time is spent in the loop
@@ -225,7 +226,7 @@ void print_commandline_help()
 	printf( "  -noredundancy   %s\n", "Do not send messages when picking up redundant items in multi");
 	printf( "  -shortpackets   %s\n", "Set shortpackets to default as on");
 	printf( "  -notitles       %s\n", "Do not show titlescreens on startup");
-	printf( "  -ini <file>     %s\n", "option file (alternate to command line) defaults to d2x.ini, or d1x.ini");
+	printf( "  -ini <file>     %s\n", "option file (alternate to command line), defaults to d2x.ini");
 	printf( "  -autodemo       %s\n", "Start in demo mode");
 	printf( "  -bigpig         %s\n","FIXME: Undocumented");
 	printf( "  -bspgen         %s\n","FIXME: Undocumented");
