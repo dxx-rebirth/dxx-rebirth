@@ -1,4 +1,4 @@
-; $Id: vecmata.asm,v 1.4 2003-02-18 20:23:22 btb Exp $
+; $Id: vecmata.asm,v 1.5 2003-12-08 21:21:16 btb Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -192,8 +192,8 @@
 
 [BITS 32]
 
-%ifdef __linux__
-; Cater for linux ELF compilers which don't prefix underscores...
+%ifdef __ELF__
+; Cater for ELF compilers which don't prefix underscores...
 ; Variables:
 %define _vmd_zero_vector              vmd_zero_vector
 %define _vmd_identity_matrix          vmd_identity_matrix

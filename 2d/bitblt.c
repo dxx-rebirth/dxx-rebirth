@@ -1,4 +1,4 @@
-/* $Id: bitblt.c,v 1.12 2003-10-25 01:44:23 btb Exp $ */
+/* $Id: bitblt.c,v 1.13 2003-12-08 21:21:16 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -363,7 +363,7 @@ static inline void gr_linear_rep_movsdm_faded(ubyte * src, ubyte * dest, unsigne
 "  incl   %%esi;"
 "  cmpb   $" TRANSPARENCY_COLOR_STR ", %%al;"
 "  je 1f;"
-#ifdef __linux__
+#ifdef __ELF__
 "  movb   gr_fade_table(%%eax), %%al;"
 #else
 "  movb   _gr_fade_table(%%eax), %%al;"

@@ -1,4 +1,4 @@
-; $Id: fix.asm,v 1.3 2003-02-18 20:23:22 btb Exp $
+; $Id: fix.asm,v 1.4 2003-12-08 21:21:16 btb Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -12,7 +12,7 @@
 
 [BITS 32]
 
-%ifdef __linux__
+%ifdef __ELF__
 %define _fixdivquadlong fixdivquadlong
 %define _fixmul fixmul
 %define _fixdiv fixdiv

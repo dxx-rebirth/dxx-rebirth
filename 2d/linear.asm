@@ -1,4 +1,4 @@
-; $Id: linear.asm,v 1.3 2002-07-17 21:55:19 bradleyb Exp $
+; $Id: linear.asm,v 1.4 2003-12-08 21:21:16 btb Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -85,7 +85,7 @@
 
 section .data
 		; Put data here
-%ifdef __linux__
+%ifdef __ELF__
 %define _gr_var_color gr_var_color
 %define _gr_var_bitmap gr_var_bitmap
 %define _gr_var_bwidth gr_var_bwidth

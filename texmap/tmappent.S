@@ -1,4 +1,4 @@
-/// $Id: tmappent.S,v 1.4 2003-02-18 20:15:48 btb Exp $
+/// $Id: tmappent.S,v 1.5 2003-12-08 21:21:16 btb Exp $
 /// tmap_scanline_per - Pentium-optimized assembly version
 /// written by Brian Raiter, Mar 1998.
 /// lighting roundoff error fixed by Matt Mueller, July 1999
@@ -153,7 +153,7 @@
 				// (ready to start the next division)
 .endm
 
-#ifdef __linux__
+#ifdef __ELF__
 .equ _pixptr, pixptr
 .equ _gr_fade_table, gr_fade_table
 .equ _write_buffer, write_buffer
@@ -217,7 +217,7 @@ ctlwd:		.word	0		// the pre-tweaked FPU control word
 // void c_tmap_scanline_per(void)
 //
 
-#ifdef __linux__
+#ifdef __ELF__
 asm_pent_tmap_scanline_per:
 #else
 _asm_pent_tmap_scanline_per:

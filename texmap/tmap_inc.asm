@@ -1,4 +1,4 @@
-; $Id: tmap_inc.asm,v 1.3 2003-02-18 20:15:48 btb Exp $
+; $Id: tmap_inc.asm,v 1.4 2003-12-08 21:21:16 btb Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -82,7 +82,7 @@ SCREEN_HEIGHT	=	480
 BYTES_PER_PIXEL	=	2
 %endif
 
-%ifdef __linux__
+%ifdef __ELF__
 ; It appears that ELF C compilers do not prefix symbols with '_', so here we
 ; cater for them...
 %define _gr_fade_table  gr_fade_table

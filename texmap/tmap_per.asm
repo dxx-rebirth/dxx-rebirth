@@ -1,4 +1,4 @@
-; $Id: tmap_per.asm,v 1.3 2003-02-18 20:15:48 btb Exp $
+; $Id: tmap_per.asm,v 1.4 2003-12-08 21:21:16 btb Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -119,8 +119,8 @@ global	asm_tmap_scanline_per
 [SECTION .data]
 align 4
     ;extern _per2_flag;:dword
-%ifdef __linux__
-; Cater for linux ELF compilers...
+%ifdef __ELF__
+; Cater for ELF compilers...
 global x
 %define _loop_count loop_count
 %define _new_end new_end

@@ -329,8 +329,8 @@ if test x$enable_assembler != xno; then
             msdos*)
                 NASMFLAGS="-f coff $NASMFLAGS"
                 ;;
-            linux*)
-                NASMFLAGS="-f elf -d__linux__ $NASMFLAGS"
+			linux* | freebsd*)
+				NASMFLAGS="-f elf -d__ELF__ $NASMFLAGS"
                 ;;
             *)
                 AC_MSG_WARN([nasm not supported for this OS. disabling assembler])

@@ -1,3 +1,10 @@
+2003-12-08  Alexander Y. Yeikovich <demon@mci.net.ua> and Bradley Bell <btb@icculus.org>
+
+	* configure.ac, 2d/bitblt.c, 2d/linear.asm, maths/fix.asm,
+	maths/vecmata.asm, texmap/tmap_inc.asm, texmap/tmap_per.asm,
+	texmap/tmappent.S, texmap/tmapppro.S: enable nasm on FreeBSD,
+	change relevant __linux__ macros to __ELF__
+
 2003-11-27  Bradley Bell  <btb@icculus.org>
 
 	* include/ogl_init.h: added proto for ogl_check_mode
