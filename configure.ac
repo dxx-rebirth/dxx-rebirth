@@ -7,7 +7,18 @@ AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
 AM_CONFIG_HEADER(conf.h)
-AM_INIT_AUTOMAKE(d2x, 0.1.2)
+
+D2XMAJOR=0
+D2XMINOR=1
+D2XMICRO=3
+
+AC_DEFINE_UNQUOTED(D2XMAJOR)
+AC_DEFINE_UNQUOTED(D2XMINOR)
+AC_DEFINE_UNQUOTED(D2XMICRO)
+
+VERSION=$D2XMAJOR.$D2XMINOR.$D2XMICRO
+
+AM_INIT_AUTOMAKE(d2x, $VERSION)
 
 AM_MAINTAINER_MODE
 
@@ -22,8 +33,10 @@ AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_CHECK_TOOL(STRIP, strip, :)
 AC_CHECK_TOOL(AR, ar, :)
 AC_PROG_CC
+AC_PROG_CXX
 AC_STDC_HEADERS
 AC_PATH_PROGS(NASM, nasmw nasm, no)
+AC_C_BIGENDIAN
 
 AC_CYGWIN
 AC_MINGW32
@@ -85,14 +98,6 @@ if test x$enable_nmovies = xyes; then
     D2X_FEATURES="nmovies ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(NMOVIES, test x$enable_nmovies = xyes)
-
-dnl Enable cross-platform bitmap/palette loader?
-AC_ARG_ENABLE(xploader,
-  [  --enable-xploader       Enable cross-platform bitmap/palette loader ],,)
-if test x$enable_xploader = xyes; then
-    AC_DEFINE(PORTABLE_LOADER)
-    D2X_FEATURES="xploader ${D2X_FEATURES}"
-fi
 
 dnl Count warnings as errors?
 AC_ARG_ENABLE(werror,
@@ -297,6 +302,8 @@ maths/Makefile
 mem/Makefile
 misc/Makefile
 texmap/Makefile
+debian/changelog
+rpm/d2x.spec
 )
 
 AC_MSG_RESULT([

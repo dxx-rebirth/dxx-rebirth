@@ -25,9 +25,6 @@
 /* Define for a "release" build */
 #undef RELEASE
 
-/* Define to enable cross-platform bitmap/palette loading functions */
-#undef PORTABLE_LOADER
-
 /* Define to enable trick to show movies */
 #undef MOVIE_TRICK
 
@@ -40,8 +37,16 @@
 /* Define this to be the shared game directory root */
 #undef SHAREPATH
 
-@BOTTOM@
+/* d2x major version */
+#undef D2XMAJOR
 
+/* d2x minor version */
+#undef D2XMINOR
+
+/* d2x micro version */
+#undef D2XMICRO
+
+@BOTTOM@
 /* General defines */
 #define NMONO 1
 #define PIGGY_USE_PAGING 1
