@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int PlayMovie(const char *filename, int allow_abort);
 extern int PlayMovies(int num_files, const char *filename[], int graphmode, int allow_abort);
 extern int InitRobotMovie (char *filename);
+extern int RotateRobot();
 extern void DeInitRobotMovie(void);
 
 //find and initialize the movie libraries

@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.18 2003-02-18 07:05:14 btb Exp $ */
+/* $Id: titles.c,v 1.19 2003-02-18 23:30:44 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -66,9 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "poly_acc.h"
 #endif
 
-#ifdef ROBOT_MOVIES
-extern void RotateRobot();
-#endif
 
 void DoBriefingColorStuff ();
 int get_new_message_num(char **message);
@@ -1013,6 +1010,7 @@ int show_briefing_message(int screen_num, char *message)
 				// gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
 
 				if (RobotPlaying) {
+					RotateRobot();
 					DoBriefingColorStuff ();
 					mprintf ((0,"Robot playing is %d!!!",RobotPlaying));
 				}
