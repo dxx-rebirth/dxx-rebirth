@@ -882,7 +882,7 @@ void do_screen_res_menu()
 	if (i >= 3)
 		i++;
 
-#ifdef SHAREWARE
+#if 0 //def SHAREWARE
 	if (i > 1)
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, 
 			"High resolution modes are\n"
@@ -1017,17 +1017,17 @@ void do_screen_res_menu()
 	}
 
 #endif
-	#ifdef SHAREWARE
+#if 0 //def SHAREWARE
 		if (i != 0)
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, 
 				"High resolution modes are\n"
 				"only available in the\n"
 				"Commercial version of Descent 2.");
 		return;
-	#else
+#else
 		if (i != Current_display_mode)
 			set_display_mode(i);
-	#endif
+#endif
 
 }
 #endif	// end of PC version of do_screen_res_menu()
