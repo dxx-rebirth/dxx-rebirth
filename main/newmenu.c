@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: newmenu.c,v 1.17 2003-02-14 03:42:24 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,7 +14,548 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * FIXME: put description here
+ * Routines for menus.
+ *
+ * Old Log:
+ * Revision 1.26  1996/04/14  21:07:35  allender
+ * some change for update
+ *
+ * Revision 1.25  1995/10/31  10:19:25  allender
+ * shareware stuff
+ *
+ * Revision 1.24  1995/10/27  11:09:04  allender
+ * always cd to descent dir before any menu processing --
+ * sanity check because of way mac does volume mounting and
+ * other file stuff
+ *
+ * Revision 1.23  1995/10/24  18:11:19  allender
+ * do_appl_quit saves and restores background -- don't
+ * do any special processing.  fixed newmenu_do3 to pass width
+ * and height to ...do_4
+ *
+ * Revision 1.22  1995/10/21  23:26:25  allender
+ * can't do cmd-q in multiplayer games
+ *
+ * Revision 1.21  1995/10/21  22:53:25  allender
+ * menus need to be 8 byte multiple wide -- printscreen stuff
+ *
+ * Revision 1.20  1995/10/20  00:50:15  allender
+ * redbook stuff and make esc leave menu always
+ *
+ * Revision 1.19  1995/10/17  13:14:52  allender
+ * mouse support for other menus now operational -- dragging
+ * mouse will also move sliders
+ *
+ * Revision 1.18  1995/10/12  17:35:19  allender
+ * mouse support for pilot and demos
+ *
+ * Revision 1.17  1995/10/11  12:17:47  allender
+ * removed event loop processing
+ *
+ * Revision 1.16  1995/10/10  11:51:29  allender
+ * align menus to 8 byte boundry
+ *
+ * Revision 1.15  1995/10/05  14:09:36  allender
+ * lowered starting x location on menus to fixup network
+ * status screen chopping off characters
+ *
+ * Revision 1.14  1995/09/24  10:52:27  allender
+ * made close boxes work
+ * maybe some other minor stuff?
+ *
+ * Revision 1.13  1995/09/15  09:02:04  allender
+ * started putting mouse support in listboxes
+ *
+ * Revision 1.12  1995/09/13  08:50:14  allender
+ * close box in this rev?  Worked on getting list box better
+ * looking
+ *
+ * Revision 1.11  1995/09/01  10:52:37  allender
+ * fixed up list boxes
+ *
+ * Revision 1.10  1995/08/24  16:23:08  allender
+ * mouse support for most menus
+ *
+ * Revision 1.9  1995/08/08  13:46:56  allender
+ * added macsys header file
+ *
+ * Revision 1.8  1995/08/01  16:03:54  allender
+ * added file list with Desalvo's directory stuff
+ *
+ * Revision 1.7  1995/07/26  17:03:37  allender
+ * show then hide cursor during newmenu operations -- not quite
+ * right yet
+ *
+ * Revision 1.6  1995/07/17  08:56:26  allender
+ * fixed up menus to look better with new high res fonts
+ *
+ * Revision 1.5  1995/07/12  10:35:52  allender
+ * removed old debug thing
+ *
+ * Revision 1.4  1995/06/23  10:23:21  allender
+ * menus should work in any resolution now
+ *
+ * Revision 1.3  1995/06/20  09:11:19  allender
+ * changed menu system to support 640x480 instead of 320x200
+ *
+ * Revision 1.2  1995/06/13  13:07:30  allender
+ * added special key to move 320x200 window to upper left corner of screen
+ *
+ * Revision 1.1  1995/05/16  15:29:13  allender
+ * Initial revision
+ *
+ * Revision 2.8  1995/05/26  16:16:28  john
+ * Split SATURN into define's for requiring cd, using cd, etc.
+ * Also started adding all the Rockwell stuff.
+ *
+ * Revision 2.7  1995/04/23  14:54:17  john
+ * Fixed bug with background breaking in first menu.
+ *
+ * Revision 2.6  1995/03/21  14:38:46  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.5  1995/03/15  14:33:29  john
+ * Added code to force the Descent CD-rom in the drive.
+ *
+ * Revision 2.4  1995/03/14  18:24:28  john
+ * Force Destination Saturn to use CD-ROM drive.
+ *
+ * Revision 2.3  1995/03/14  16:22:23  john
+ * Added cdrom alternate directory stuff.
+ *
+ * Revision 2.2  1995/03/06  18:30:51  john
+ * Fixed bug with newmenu trashing editor font.
+ *
+ * Revision 2.1  1995/03/06  15:23:17  john
+ * New screen techniques.
+ *
+ * Revision 2.0  1995/02/27  11:27:55  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.129  1995/02/11  16:19:56  john
+ * Added code to make the default mission be the one last played.
+ *
+ * Revision 1.128  1995/02/02  19:41:33  john
+ * Added 10 save game slots.
+ *
+ * Revision 1.127  1995/02/01  18:13:52  john
+ * Fixed some constants.
+ *
+ * Revision 1.126  1995/02/01  18:04:01  yuan
+ * Added 50 characters to list.
+ *
+ * Revision 1.125  1995/02/01  13:39:35  john
+ * Made menu text that changes not overwrite.
+ *
+ * Revision 1.124  1995/01/31  10:47:57  john
+ * Added menu that you can specify the width of the menu.
+ *
+ * Revision 1.123  1995/01/28  17:18:12  john
+ * Added file list box.
+ *
+ * Revision 1.122  1995/01/27  17:15:55  john
+ * Made prev comment actually work.
+ *
+ * Revision 1.121  1995/01/27  16:49:03  john
+ * *** empty log message ***
+ *
+ * Revision 1.120  1995/01/27  16:46:40  john
+ * Made so that input_menu only clears text if -empty-.
+ *
+ * Revision 1.119  1995/01/27  15:25:04  john
+ * Delete saved game when deleteing a pilot file.
+ *
+ * Revision 1.118  1995/01/25  16:36:09  john
+ * Made so that when you hit enter during
+ * game save, -empty- goes away.
+ *
+ * Revision 1.117  1995/01/24  16:59:30  john
+ * took out mono debugging text.
+ *
+ * Revision 1.116  1995/01/24  16:23:16  john
+ * Fixed some bugs with listboxes.
+ *
+ * Revision 1.115  1995/01/23  23:47:36  matt
+ * Made keypad enter work in menus
+ *
+ * Revision 1.114  1995/01/23  19:29:59  john
+ * Added scrolling listbox menus.
+ *
+ * Revision 1.113  1995/01/19  12:33:34  john
+ * Made keys jump to sliders, etc in menus.
+ *
+ * Revision 1.112  1995/01/15  14:33:08  rob
+ * Fixed problem with nested nm_messageboxes.
+ *
+ * Revision 1.111  1995/01/03  17:33:40  john
+ * Made scrolling textbox. Used it for scores cool saying.
+ *
+ * Revision 1.110  1994/12/28  10:42:58  john
+ * More VFX tweaking.
+ *
+ * Revision 1.109  1994/12/28  10:26:39  john
+ * Fixed some VFX problems.
+ *
+ * Revision 1.108  1994/12/15  23:18:10  john
+ * Added fix so that VFX mode doesn't hang.
+ *
+ * Revision 1.107  1994/12/15  12:19:55  john
+ * Made menu use clipped bitblt functions.
+ *
+ * Revision 1.106  1994/12/09  00:41:30  mike
+ * fix hang in automap print screen
+ *
+ * Revision 1.105  1994/12/08  10:01:34  john
+ * Changed the way the player callsign stuff works.
+ *
+ * Revision 1.104  1994/12/04  15:34:30  john
+ * Fixed bug with newmenu not restoring font properly.
+ *
+ * Revision 1.103  1994/12/03  17:47:09  john
+ * Fixed bug that didn't free filename mem when not .plr files found.
+ *
+ * Revision 1.102  1994/12/03  15:06:15  john
+ * If no pilot exists, bring up box asking for name.
+ *
+ * Revision 1.101  1994/12/03  11:04:02  john
+ * Changed newmenu code a bit to fix bug with bogus
+ * backgrounds occcasionally.
+ *
+ * Revision 1.100  1994/12/01  20:15:48  yuan
+ * Localization.
+ *
+ * Revision 1.99  1994/12/01  10:33:28  john
+ * Fixed bug with large menu backgrounds not drawing correctly.
+ *
+ * Revision 1.98  1994/12/01  02:41:56  john
+ * Fixed warnining.
+ *
+ * Revision 1.97  1994/11/30  22:52:43  john
+ * Fixed bug in code that made the backgrounds behind menus.
+ *
+ * Revision 1.96  1994/11/30  19:47:42  john
+ * Added a check for out o' memory when mallocing background.
+ *
+ * Revision 1.95  1994/11/30  19:39:10  john
+ * ..
+ *
+ * Revision 1.94  1994/11/30  19:38:27  john
+ * fixed bug with previous.
+ *
+ * Revision 1.93  1994/11/30  19:36:47  john
+ * Made Gravis Ultrasound work again.  Made the scores blink
+ * at a constant rate.  Revamped the newmenu background storage,
+ * which hopefully fixed some bugs.  Made menus in ame not pause
+ * sound, except for the pause key.               ^== Game!
+ *
+ * Revision 1.92  1994/11/30  18:06:05  matt
+ * When player types space in callsign, comes up as underscore
+ *
+ * Revision 1.91  1994/11/30  12:28:22  adam
+ * added PCX support
+ *
+ * Revision 1.90  1994/11/30  12:10:59  adam
+ * added support for PCX titles/brief screens
+ *
+ * Revision 1.89  1994/11/29  00:59:12  allender
+ * change newmenu_get_filename so demo files can be deleted too
+ *
+ * Revision 1.88  1994/11/27  21:16:18  allender
+ * made some return values in newmenu_get_filename 0 instead of -1
+ *
+ * Revision 1.87  1994/11/27  16:58:17  matt
+ * Made printscreen work all the time (not just when no ndebug) and made it
+ * work when getting a filename.
+ *
+ * Revision 1.86  1994/11/27  16:47:51  john
+ * Made the call to fade in palette only happen if it needs to be, just
+ * because I thought it might reduce code paging with vm in menus.
+ *
+ * Revision 1.85  1994/11/26  15:30:16  matt
+ * Allow escape out of change pilot menu
+ *
+ * Revision 1.84  1994/11/26  14:17:26  matt
+ * Player can now only enter valid chars for his name
+ *
+ * Revision 1.83  1994/11/23  14:13:17  allender
+ * if no demo files, displays less "techy" message
+ *
+ * Revision 1.82  1994/11/21  11:55:52  john
+ * Fixed some sound pausing in menus bugs.
+ *
+ * Revision 1.81  1994/11/19  15:14:58  mike
+ * remove unused code and data
+ *
+ * Revision 1.80  1994/11/18  23:37:54  john
+ * Changed some shorts to ints.
+ *
+ * Revision 1.79  1994/11/15  09:29:21  john
+ * Made it so that pressing a letter when selecting players moves to
+ * a matching choice.
+ *
+ * Revision 1.78  1994/11/14  17:12:28  adam
+ * *** empty log message ***
+ *
+ * Revision 1.77  1994/11/14  16:58:31  rob
+ * Tried to fix a problem with save demo dialog.
+ *
+ * Revision 1.76  1994/11/14  16:13:46  matt
+ * Fixed handling of players with DOS device names
+ *
+ * Revision 1.75  1994/11/13  18:12:53  matt
+ * Fixed handling of filenames that are the same as DOS devices
+ *
+ * Revision 1.74  1994/11/13  17:20:44  john
+ * Fixed text a bit.
+ *
+ * Revision 1.73  1994/11/13  17:18:22  john
+ * Changed wording of new pilot.
+ *
+ * Revision 1.72  1994/11/13  17:14:21  john
+ * Fixed bug with player list box.
+ *
+ * Revision 1.71  1994/11/13  17:12:48  john
+ * Fixed broken demo file list.
+ *
+ * Revision 1.70  1994/11/13  17:04:49  john
+ * Made the callsign entry be a list box and gave the ability
+ * to delete players.
+ *
+ * Revision 1.69  1994/11/13  15:38:03  john
+ * Added critical error handler to game.  Took out -editor command line
+ * option because it didn't work anymore and wasn't worth fixing.  Made scores
+ * not use MINER enviroment variable on release version, and made scores
+ * not print an error if there is no descent.hi.
+ *
+ * Revision 1.68  1994/11/11  18:17:03  rob
+ * Made multi_menu_poll return a value to exit menus.
+ *
+ * Revision 1.67  1994/11/11  11:07:06  rob
+ * Added include of multi.h
+ *
+ * Revision 1.66  1994/11/10  20:25:16  rob
+ * John's stuff to make network menus work.
+ *
+ * Revision 1.65  1994/11/08  14:51:39  john
+ * Added nm_messagebox1, (like the original, only you can pass a function).
+ *
+ * Revision 1.64  1994/11/08  08:30:39  john
+ * Fixed bug with centering titles.
+ *
+ * Revision 1.63  1994/11/08  08:27:00  john
+ * Made titles and subtitles center.
+ *
+ * Revision 1.62  1994/11/07  09:40:48  john
+ * Neatend file list box some.
+ *
+ * Revision 1.61  1994/11/05  17:22:41  john
+ * Fixed lots of sequencing problems with newdemo stuff.
+ *
+ * Revision 1.60  1994/11/05  15:04:08  john
+ * Added non-popup menu for the main menu, so that scores and credits don't have to save
+ * the background.
+ *
+ * Revision 1.59  1994/11/05  14:03:52  john
+ * Fixed fade transitions between all screens by making gr_palette_fade_in and out keep
+ * track of whether the palette is faded in or not.  Then, wherever the code needs to fade out,
+ * it just calls gr_palette_fade_out and it will fade out if it isn't already.  The same with fade_in.
+ * This eliminates the need for all the flags like Menu_fade_out, game_fade_in palette, etc.
+ *
+ * Revision 1.58  1994/11/04  20:11:50  john
+ * Neatening up palette stuff with demos.
+ *
+ * Revision 1.57  1994/11/04  13:49:24  allender
+ * fixed newmenu_get_filename to work with less than 10 files
+ *
+ * Revision 1.56  1994/11/03  19:37:44  john
+ * Added scrolling file list box
+ *
+ * Revision 1.55  1994/10/31  18:16:42  john
+ * Made Pad arrows work with menus.
+ *
+ * Revision 1.54  1994/10/28  14:54:25  john
+ * Added forward dec. for newmenu_close.
+ * .\
+ *
+ * Revision 1.53  1994/10/28  14:53:00  john
+ * Fixed hideous bug that would bomb if you called newmenu_draw_background
+ * before any menus were ever displayed.
+ *
+ * Revision 1.52  1994/10/24  19:56:53  john
+ * Made the new user setup prompt for config options.
+ *
+ * Revision 1.51  1994/10/24  15:15:49  john
+ * Made Esc exit nm_messagebox's,
+ * ,
+ *
+ * Revision 1.50  1994/10/21  15:20:20  john
+ * Made PrtScr do screen dump, not F2.
+ *
+ * Revision 1.49  1994/10/18  12:33:38  john
+ * Only used copy the item text into the saved_text field
+ * if it is an inputbox or inputbox_menu.
+ *
+ * Revision 1.48  1994/10/17  11:04:01  john
+ * Made backtab work also.
+ *
+ * Revision 1.47  1994/10/17  10:47:49  john
+ * MAde Tab work like down arrow.
+ *
+ * Revision 1.46  1994/10/17  10:45:10  john
+ * Made the player able to abort death by pressing any button or key.
+ *
+ * Revision 1.45  1994/10/13  21:52:02  john
+ * Made it so that if a messagebox has 1 choice, then
+ * Esc will return -1.
+ *
+ * Revision 1.44  1994/10/13  11:35:38  john
+ * Made Thrustmaster FCS Hat work.  Put a background behind the
+ * keyboard configure.  Took out turn_sensitivity.  Changed sound/config
+ * menu to new menu. Made F6 be calibrate joystick.
+ *
+ * Revision 1.43  1994/10/11  17:18:52  john
+ * Fixed bug with sliders always starting at -1.
+ *
+ * Revision 1.42  1994/10/11  17:08:29  john
+ * Added sliders for volume controls.
+ *
+ * Revision 1.41  1994/10/06  16:04:40  john
+ * Made text items color differently than others. Adam
+ * is gonna make a diff colored font for these.
+ *
+ * Revision 1.40  1994/10/06  15:08:23  rob
+ * Allowed any negative key value to abort the menu and return.
+ *
+ * Revision 1.39  1994/10/04  10:26:06  matt
+ * Changed fade in to happen every time a global var is set
+ *
+ * Revision 1.38  1994/10/04  09:16:08  john
+ * If you pass -1 as choice in newmenu_do1, then
+ * no item is highlighted until you press up or
+ * down arrows.
+ *
+ * Revision 1.37  1994/10/03  23:44:37  matt
+ * Save & restore palette effect around menus & pause message
+ *
+ * Revision 1.36  1994/10/03  22:59:40  matt
+ * Re-enabled backspace to generate Int3()
+ *
+ * Revision 1.35  1994/10/03  19:11:21  matt
+ * Changed string input cursor to blinking underscore
+ *
+ * Revision 1.34  1994/10/03  14:44:15  john
+ * Added newmenu_do1, which allows you to pass the starting
+ * item to the menu system
+ *
+ * Revision 1.33  1994/09/30  11:51:21  john
+ * Added Matt's NM_TYPE_INPUT_MENU
+ *
+ * Revision 1.32  1994/09/28  17:22:56  matt
+ * Added extra space between subtitle and menu items
+ * Made shortcut key check ignore leading spaces in text
+ *
+ * Revision 1.31  1994/09/15  16:11:22  john
+ * Added support for VFX1 head tracking. Fixed bug with memory over-
+ * write when using stereo mode.
+ *
+ * Revision 1.30  1994/09/12  09:52:59  john
+ * Made global flush function that flushes keyboard,mouse, and joystick.
+ *
+ * Revision 1.29  1994/09/10  19:10:54  matt
+ * Fixed a few things (like arrow key handling) for menus with all
+ * text items, such as the key help message.
+ *
+ * Revision 1.28  1994/09/01  18:55:38  john
+ * freed scores.lbm
+ *
+ * Revision 1.27  1994/09/01  18:03:50  john
+ * Neatened up scores a bit.
+ *
+ * Revision 1.26  1994/08/30  20:38:13  john
+ * Passed citem in newmenu sub.
+ *
+ * Revision 1.25  1994/08/30  11:13:01  john
+ * Added beveled edges to menus.
+ *
+ * Revision 1.24  1994/08/26  13:01:58  john
+ * Put high score system in.
+ *
+ * Revision 1.23  1994/08/16  00:18:44  john
+ * Made pressing the first letter of a menu
+ * item move to it.
+ *
+ * Revision 1.22  1994/08/15  23:17:43  john
+ * *** empty log message ***
+ *
+ * Revision 1.21  1994/08/15  23:15:28  john
+ * Made 1 menu/checkbox return with any keypress.
+ *
+ * Revision 1.20  1994/08/12  10:18:23  john
+ * *** empty log message ***
+ *
+ * Revision 1.19  1994/08/12  10:09:11  john
+ * Made borders better.
+ *
+ * Revision 1.18  1994/08/12  03:11:16  john
+ * Made network be default off; Moved network options into
+ * main menu.  Made starting net game check that mines are the
+ * same.
+ *
+ * Revision 1.17  1994/08/11  22:14:43  john
+ * Free'd up some memory that I forgot to free.
+ *
+ * Revision 1.16  1994/08/11  19:27:35  john
+ * Made the Backspace drop into the debugger only
+ * if you're not in an inputbox.
+ *
+ * Revision 1.15  1994/08/11  18:01:49  matt
+ * Added F2 and BACKSPACE keys to new menu system
+ *
+ * Revision 1.14  1994/08/11  14:25:58  john
+ * *** empty log message ***
+ *
+ * Revision 1.13  1994/08/11  14:25:40  john
+ * *** empty log message ***
+ *
+ * Revision 1.12  1994/08/11  13:47:02  john
+ * Made newmenu have subtitles, passed key through to
+ * the newmenu subfunctions.
+ *
+ * Revision 1.11  1994/08/11  12:45:08  john
+ * *** empty log message ***
+ *
+ * Revision 1.10  1994/08/11  12:25:45  john
+ * Made right_offset spacing different
+ *
+ * Revision 1.9  1994/08/11  12:09:49  john
+ * Made work with bitmapped fonts.
+ *
+ * Revision 1.8  1994/08/10  19:56:16  john
+ * Changed font stuff; Took out old menu; messed up lots of
+ * other stuff like game sequencing messages, etc.
+ *
+ * Revision 1.7  1994/07/27  16:12:23  john
+ * Changed newmenu system to have a callback function.
+ * /.
+ *
+ * Revision 1.6  1994/07/25  15:10:23  john
+ * *** empty log message ***
+ *
+ * Revision 1.5  1994/07/25  12:33:35  john
+ * Network "pinging" in.
+ *
+ * Revision 1.4  1994/07/24  18:21:27  john
+ * Took out first time stuff.
+ *
+ * Revision 1.3  1994/07/24  17:32:47  john
+ * Added percent item.  Also neatend up a bit.
+ *
+ * Revision 1.2  1994/07/22  17:48:13  john
+ * Added new menuing system.
+ *
+ * Revision 1.1  1994/07/22  13:55:38  john
+ * Initial revision
  *
  *
  */
