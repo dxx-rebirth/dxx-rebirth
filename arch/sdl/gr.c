@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.12 2003-11-26 12:39:00 btb Exp $ */
+/* $Id: gr.c,v 1.13 2003-11-26 21:08:59 btb Exp $ */
 /*
  *
  * SDL video functions.
@@ -128,12 +128,9 @@ void gr_update()
 	//end addition -MM
 #ifdef LANDSCAPE
 	BlitRotatedSurface(screen, real_screen);
-	if ( (real_screen->flags & SDL_DOUBLEBUF) == SDL_DOUBLEBUF )
-		SDL_Flip(real_screen);
-	else
-		SDL_UpdateRect(real_screen, 0, 0, 0, 0);
+	SDL_UpdateRect(real_screen, 0, 0, 0, 0);
 #else
-	SDL_Flip(screen);
+	SDL_UpdateRect(screen, 0, 0, 0, 0);
 #endif
 }
 
