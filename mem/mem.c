@@ -11,13 +11,11 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: mem.c,v 1.3 2001-01-31 15:18:04 bradleyb Exp $";
+static char rcsid[] = "$Id: mem.c,v 1.4 2001-08-02 22:02:37 thimo Exp $";
 #endif
+
 
 // Warning( "MEM: Too many malloc's!" );
 // Warning( "MEM: Malloc returnd an already alloced block!" );
@@ -70,17 +68,13 @@ static char rcsid[] = "$Id: mem.c,v 1.3 2001-01-31 15:18:04 bradleyb Exp $";
 
 #define MAX_INDEX 10000
 
-static unsigned int MallocBase[MAX_INDEX];
+static void *MallocBase[MAX_INDEX];
 static unsigned int MallocSize[MAX_INDEX];
-static unsigned int MallocRealSize[MAX_INDEX];
 static unsigned char Present[MAX_INDEX];
 static char * Filename[MAX_INDEX];
 static char * Varname[MAX_INDEX];
 static int LineNum[MAX_INDEX];
 static int BytesMalloced = 0;
-
-static unsigned int SmallestAddress = 0xFFFFFFF;
-static unsigned int LargestAddress = 0x0;
 
 int show_mem_info = 1;
 
@@ -107,15 +101,11 @@ void mem_init()
 		free_list[i] = i;
 		MallocBase[i] = 0;
 		MallocSize[i] = 0;
-		MallocRealSize[i] = 0;
 		Present[i] = 0;
 		Filename[i] = NULL;
 		Varname[i] = NULL;
 		LineNum[i] = 0;
 	}
-
-	SmallestAddress = 0xFFFFFFF;
-	LargestAddress = 0x0;
 
 	num_blocks = 0;
 	LargestIndex = 0;
@@ -170,11 +160,10 @@ void PrintInfo( int id )
 
 void * mem_malloc( unsigned int size, char * var, char * filename, int line, int fill_zero )
 {
-	unsigned int base;
+	void *base;
 	int i, id;
 	void *ptr;
 	char * pc;
-	int * data;
 
 	if (Initialized==0)
 		mem_init();
@@ -241,13 +230,9 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 		Error( "MEM_OUT_OF_MEMORY" );
 	}
 
-	base = (unsigned int)ptr;
-	if ( base < SmallestAddress ) SmallestAddress = base;
-	if ( (base+size) > LargestAddress ) LargestAddress = base+size;
+	base = (void *)ptr;
 
-	MallocBase[id] = (unsigned int)ptr;
-	data = (int *)((ssize_t)MallocBase[id]-4);
-	MallocRealSize[id] = *data;
+	MallocBase[id] = (void *)ptr;
 	MallocSize[id] = size;
 	Varname[id] = var;
 	Filename[id] = filename;
@@ -273,9 +258,9 @@ int mem_find_id( void * buffer )
 	int i;
 
 	for (i=0; i<=LargestIndex; i++ )
-		if (Present[i]==1)
-			if (MallocBase[i] == (unsigned int)buffer )
-				return i;
+	  if (Present[i]==1)
+	    if (MallocBase[i] == buffer )
+	      return i;
 
 	// Didn't find id.
 	return -1;
@@ -283,24 +268,11 @@ int mem_find_id( void * buffer )
 
 int mem_check_integrity( int block_number )
 {
-#ifdef CHECK_DWORD_BELOW
-	int * data;
-#endif
 	int i, ErrorCount;
 	ubyte * CheckData;
 
 	CheckData = (char *)(MallocBase[block_number] + MallocSize[block_number]);
 
-#ifdef CHECK_DWORD_BELOW
-	data = (int *)((int)MallocBase[block_number]-4);
-
-	if ( *data != MallocRealSize[block_number] )	{
-		fprintf( stderr, "\nMEM_BAD_LENGTH: The length field of an allocated block was overwritten.\n" );
-		PrintInfo( block_number );
-		//Int3();
-		*data = MallocRealSize[block_number];
-	}
-#endif
 	ErrorCount = 0;
 			
 	for (i=0; i<CHECKSIZE; i++ )
@@ -418,13 +390,6 @@ void mem_display_blocks()
 		Warning( "MEM: %d blocks were left allocated!", numleft );
 	}
 
-	if (show_mem_info)	{
-		fprintf( stderr, "\n\nMEMORY USAGE:\n" );
-		fprintf( stderr, "  %6u Kbytes dynamic data\n", (LargestAddress-SmallestAddress+512)/1024 );
-		fprintf( stderr, "  %6u Kbytes code/static data.\n", (SmallestAddress-(4*1024*1024)+512)/1024 );
-		fprintf( stderr, "  ---------------------------\n" );
-		fprintf( stderr, "  %6u Kbytes required.\n\n", 	(LargestAddress-(4*1024*1024)+512)/1024 );
-	}
 }
 
 void mem_validate_heap()
