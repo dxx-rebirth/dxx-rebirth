@@ -1,4 +1,4 @@
-/* $Id: joy.c,v 1.11 2003-03-29 20:57:32 btb Exp $ */
+/* $Id: joy.c,v 1.12 2003-04-12 00:11:46 btb Exp $ */
 /*
  *
  * SDL joystick support
@@ -114,7 +114,7 @@ void joy_hat_handler(SDL_JoyHatEvent *jhe)
 		}
 		else if(Joystick.buttons[hat+hbi].last_state && !Joystick.buttons[hat+hbi].state)  //last_state down, current state up
 		{
-			Joystick.buttons[hat+hbi].num_ups ++;
+			Joystick.buttons[hat+hbi].num_ups++;
 		}
 	}
 }

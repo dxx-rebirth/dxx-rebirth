@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: endlevel.c,v 1.15 2003-04-12 00:11:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.14 2003-04-03 08:38:33 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.15 2003-04-12 00:11:46 btb Exp $";
 #endif
 
 //#define SLEW_ON 1

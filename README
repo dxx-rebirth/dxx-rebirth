@@ -126,8 +126,7 @@ MAC OS X
 ========
 
 Install the latest version of apple's developer tools.
-You may also need to install automake and autoconf.
-Download and install SDL.
+Compile and install SDL from source: d2x doesn't use Project Builder.
 
 configure and compile as with other unices.
 
@@ -143,6 +142,8 @@ Known bugs/issues:
 
 Bugs/feedback:
 ==============
+
+There are three places to report bugs and give feedback:
 
 You can get on the descent-source mailing list by sending an email to
 majordomo@warpcore.org with the body as: "subscribe descent-source

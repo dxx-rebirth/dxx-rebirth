@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: fileutil.c,v 1.7 2003-04-12 00:11:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,6 +11,30 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * utilities for file manipulation
+ *
+ * Old Log:
+ * Revision 1.6  1995/10/30  11:09:51  allender
+ * use FILE, not CFILE on the write* routines
+ *
+ * Revision 1.5  1995/05/11  13:00:34  allender
+ * added write functions which swap bytes
+ *
+ * Revision 1.4  1995/05/04  20:10:38  allender
+ * remove include for fcntl
+ *
+ * Revision 1.3  1995/04/26  10:14:39  allender
+ * added byteswap header file
+ *
+ * Revision 1.2  1995/04/26  10:13:21  allender
+ *
+ * Revision 1.1  1995/03/30  15:02:34  allender
+ * Initial revision
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>

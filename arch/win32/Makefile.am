@@ -15,4 +15,5 @@ EXTRA_libarch_win32_a_SOURCES = winnet.c ipx_win.c
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 d1x.ico d1x.rc d3d.ico debug.cpp descent.ico digi.c findfile.c glinit.c gr.c \
 hmpfile.c init.c joydefs.c joyhh.c key.c mono.c mouse.c palw32.c \
-pch.cpp scene.cpp serial.c texture.cpp timer.c win32.c winmain.cpp
+pch.cpp scene.cpp serial.c texture.cpp timer.c win32.c winmain.cpp \
+ipx_drv.h

@@ -12,4 +12,4 @@ INCLUDES = -I$(top_srcdir)/include
 
 libmve_a_SOURCES = decoder16.c decoder8.c mve_audio.c mvelib.c mveplay.c
 
-EXTRA_DIST = mve_audio.h mvelib.h
+EXTRA_DIST = decoders.h mve_audio.h mvelib.h
