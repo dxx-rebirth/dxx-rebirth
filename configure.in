@@ -190,8 +190,9 @@ if test "$NASM" = "no"; then
 fi
 if test "$NO_ASM" = 1; then
         AC_DEFINE(NO_ASM)
-        NASMFLAGS="-i\$(srcdir)/ $NASMFLAGS"
+        NASMFLAGS=""
 else
+        NASMFLAGS="-i\$(srcdir)/ $NASMFLAGS"
         case $host_os in
           cygwin)
               NASMFLAGS="-f win32 $NASMFLAGS"
