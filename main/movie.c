@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.10 2002-08-27 04:14:18 btb Exp $ */
+/* $Id: movie.c,v 1.11 2002-08-31 12:14:01 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.10 2002-08-27 04:14:18 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.11 2002-08-31 12:14:01 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -105,7 +105,9 @@ int robot_movies = 0; //0 means none, 1 means lowres, 2 means hires
 int MovieHires = 0;   //default for now is lores
 
 int RoboFile = 0;
+char Robo_filename[FILENAME_LEN];
 MVESTREAM *Robo_mve;
+grs_bitmap *Robo_bitmap;
 
 
 //      Function Prototypes
@@ -129,8 +131,7 @@ int PlayMovie(const char *filename, int must_have)
 #endif
 
 #ifndef RELEASE
-	//if (FindArg("-nomovies"))
-	if (!FindArg("-movies"))
+	if (FindArg("-nomovies"))
 		return MOVIE_NOT_PLAYED;
 #endif
 
@@ -176,7 +177,7 @@ int PlayMovie(const char *filename, int must_have)
 	return ret;
 }
 
-void initializeMovie(MVESTREAM *mve);
+void initializeMovie(MVESTREAM *mve, grs_bitmap *mve_bitmap);
 void shutdownMovie(MVESTREAM *mve);
 
 //returns status.  see movie.h
@@ -186,6 +187,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	int result=1,aborted=0;
 	int frame_num;
 	MVESTREAM *mve;
+	grs_bitmap *mve_bitmap;
 
 	result=1;
 	con_printf(DEBUG_LEVEL, "movie: RunMovie: %s %d %d %d %d\n", filename, hires_flag, must_have, dx, dy);
@@ -202,16 +204,14 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		return MOVIE_NOT_PLAYED;
 	}
 
-#if 0
 	if (hires_flag)
 		gr_set_mode(SM(640,480));
 	else
 		gr_set_mode(SM(320,200));
-#endif
 
 	frame_num = 0;
 
-	FontHires = hires_flag;
+	FontHires = FontHiresAvailable && hires_flag;
 
     mve = mve_open(filehndl);
     if (mve == NULL)
@@ -220,13 +220,18 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
         return 1;
     }
 
-#if 1
-    initializeMovie(mve);
+	mve_bitmap = gr_create_bitmap(hires_flag?592:320, hires_flag?312:200);
+
+    initializeMovie(mve, mve_bitmap);
 
 	while((result = mve_play_next_chunk(mve))) {
 		int key;
 
+		gr_bitmap(hires_flag?24:12, hires_flag?84:42, mve_bitmap);
+
 		draw_subtitles(frame_num);
+
+		gr_update();
 
 		key = key_inkey();
 
@@ -251,7 +256,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	Assert(aborted || !result);	 ///movie should be over
 
     shutdownMovie(mve);
-#endif
+
+	gr_free_bitmap(mve_bitmap);
 
     mve_close(mve);
 
@@ -267,12 +273,11 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 int InitMovieBriefing()
 {
-#if 0
 	if (MenuHires)
 		gr_set_mode(SM(640,480));
 	else
 		gr_set_mode(SM(320,200));
-#endif
+
 	return 1;
 }
 
@@ -280,9 +285,17 @@ int InitMovieBriefing()
 //returns 1 if frame updated ok
 int RotateRobot()
 {
-	con_printf(DEBUG_LEVEL, "movie: RotateRobot\n");
+	int ret;
 
-	return mve_play_next_chunk(Robo_mve);
+	ret = mve_play_next_chunk(Robo_mve);
+	gr_bitmap(MenuHires?280:200, MenuHires?140:80, Robo_bitmap);
+
+	if (!ret) {
+		DeInitRobotMovie();
+		InitRobotMovie(Robo_filename);
+	}
+
+	return 1;
 }
 
 
@@ -292,6 +305,8 @@ void DeInitRobotMovie(void)
 
 	shutdownMovie(Robo_mve);
 
+	gr_free_bitmap(Robo_bitmap);
+
 	close(RoboFile);
 }
 
@@ -300,12 +315,14 @@ int InitRobotMovie(char *filename)
 {
 	con_printf(DEBUG_LEVEL, "movie: InitRobotMovie: %s\n", filename);
 
-	RoboFile = open_movie_file(filename,1);
+	RoboFile = open_movie_file(filename, 1);
 
 	if (RoboFile == -1) {
 		Warning("movie: InitRobotMovie: Cannot open movie file <%s>",filename);
 		return MOVIE_NOT_PLAYED;
 	}
+
+	strcpy(Robo_filename, filename);
 
 	Robo_mve = mve_open(RoboFile);
     if (Robo_mve == NULL)
@@ -314,7 +331,9 @@ int InitRobotMovie(char *filename)
         return 0;
     }
 
-	initializeMovie(Robo_mve);
+	Robo_bitmap = gr_create_bitmap(MenuHires?320:160, MenuHires?200:100);
+
+	initializeMovie(Robo_mve, Robo_bitmap);
 
 	return 1;
 }
@@ -643,8 +662,7 @@ void init_movie(char *filename,int libnum,int is_robots,int required)
 	int try = 0;
 
 #ifndef RELEASE
-	//if (FindArg("-nomovies")) {
-	if (!FindArg("-movies")) {
+	if (FindArg("-nomovies")) {
 		movie_libs[libnum] = NULL;
 		return;
 	}

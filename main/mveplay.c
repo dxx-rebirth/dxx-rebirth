@@ -2,9 +2,6 @@
 #include <conf.h>
 #endif
 
-#include "mvelib.h"                                             /* next buffer */
-#include "mve_audio.h"
-
 #include <string.h>
 #include <errno.h>
 #include <time.h>
@@ -12,87 +9,26 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
 
-#if 1
+#include "error.h"
 #include "u_mem.h"
-#else
-#define d_malloc(a) malloc(a)
-#define d_free(a) free(a)
-#endif
+#include "mvelib.h"
+#include "mve_audio.h"
+#include "gr.h"
+#include "palette.h"
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 
-#ifdef STANDALONE
-static int doPlay(const char *filename);
-
-static void usage(void)
-{
-    fprintf(stderr, "usage: mveplay filename\n");
-    exit(1);
-}
-#endif
-
 static int g_spdFactorNum=0;
 static int g_spdFactorDenom=10;
 
-#ifdef STANDALONE
-int main(int c, char **v)
-{
-    if (c != 2  &&  c != 3)
-        usage();
-
-    if (c == 3)
-        g_spdFactorNum = atoi(v[2]);
-
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
-    {
-        fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
-        exit(1);
-    }
-    atexit(SDL_Quit);
-
-    return doPlay(v[1]);
-}
-#endif
-
-#ifdef STANDALONE
-static void initializeMovie(MVESTREAM *mve);
-static void playMovie(MVESTREAM *mve);
-static void shutdownMovie(MVESTREAM *mve);
-#else
-void initializeMovie(MVESTREAM *mve);
+void initializeMovie(MVESTREAM *mve, grs_bitmap *mve_bitmap);
 void shutdownMovie(MVESTREAM *mve);
-#endif
-
-#ifdef STANDALONE
-static int doPlay(const char *filename)
-{
-    MVESTREAM *mve;
-    int filehandle;
-
-    filehandle = open(filename, O_RDONLY);
-
-    if (filehandle == -1)
-    {
-        fprintf(stderr, "can't open MVE file '%s'\n", filename);
-        return 1;
-    }
-
-    mve = mve_open(filehandle);
-
-    initializeMovie(mve);
-    playMovie(mve);
-    shutdownMovie(mve);
-
-    mve_close(mve);
-
-    return 0;
-}
-#endif
 
 static short get_short(unsigned char *data)
 {
@@ -119,7 +55,7 @@ static int default_seg_handler(unsigned char major, unsigned char minor, unsigne
  *************************/
 static int end_movie_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-    return 0;
+        return 0;
 }
 
 /*************************
@@ -130,10 +66,6 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
  * timer variables
  */
 static int micro_frame_delay=0;
-#ifdef STANDALONE
-static int timer_started=0;
-static Uint32 timer_expire = 0;
-#endif
 
 static int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
@@ -150,36 +82,11 @@ static int create_timer_handler(unsigned char major, unsigned char minor, unsign
     return 1;
 }
 
-#ifdef STANDALONE
-static void timer_start(void)
-{
-    timer_expire = SDL_GetTicks();
-    timer_expire += micro_frame_delay / 1000;
-    timer_started=1;
-}
-
-static void do_timer_wait(void)
-{
-    Uint32 ts, tv;
-    if (! timer_started)
-        return;
-
-    tv = SDL_GetTicks();
-    if (tv > timer_expire)
-        goto end;
-
-    ts = timer_expire - tv;
-    SDL_Delay(ts);
-
-end:
-    timer_expire += micro_frame_delay / 1000;
-}
-#endif
 
 /*************************
  * audio handlers
  *************************/
-static void mve_audio_callback(void *userdata, Uint8 *stream, int len); 
+static void mve_audio_callback(void *userdata, Uint8 *stream, int len);
 static short *mve_audio_buffers[64];
 static int    mve_audio_buflens[64];
 static int    mve_audio_curbuf_curpos=0;
@@ -269,15 +176,15 @@ fprintf(stderr, "creating audio buffers\n");
 fprintf(stderr, "stereo=%d 16bit=%d compressed=%d sample_rate=%d desired_buffer=%d\n",
         flags & 1, (flags >> 1) & 1, (flags >> 2) & 1, sample_rate, desired_buffer);
 
-    mve_audio_compressed = (flags >> 2) & 1;
+    mve_audio_compressed = flags & MVE_AUDIO_FLAGS_COMPRESSED;
     mve_audio_spec = (SDL_AudioSpec *)d_malloc(sizeof(SDL_AudioSpec));
     mve_audio_spec->freq = sample_rate;
 #ifdef WORDS_BIGENDIAN
-    mve_audio_spec->format = ((flags >> 1) & 1)?AUDIO_S16MSB:AUDIO_U8;
+    mve_audio_spec->format = (flags & MVE_AUDIO_FLAGS_16BIT)?AUDIO_S16MSB:AUDIO_U8;
 #else
-    mve_audio_spec->format = ((flags >> 1) & 1)?AUDIO_S16LSB:AUDIO_U8;
+    mve_audio_spec->format = (flags & MVE_AUDIO_FLAGS_16BIT)?AUDIO_S16LSB:AUDIO_U8;
 #endif
-    mve_audio_spec->channels = (flags &1 )?2:1;
+    mve_audio_spec->channels = (flags & MVE_AUDIO_FLAGS_STEREO)?2:1;
     mve_audio_spec->samples = 32768;
     mve_audio_spec->callback = mve_audio_callback;
     mve_audio_spec->userdata = NULL;
@@ -325,7 +232,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
         {
             SDL_mutexP(mve_audio_mutex);
             mve_audio_buflens[mve_audio_buftail] = nsamp;
-            mve_audio_buffers[mve_audio_buftail] = (short *)d_malloc(nsamp);
+            mve_audio_buffers[mve_audio_buftail] = (short *)d_malloc(nsamp+4);
             if (major == 8)
                 if (mve_audio_compressed)
                     mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail], data, -1); /* XXX */
@@ -352,7 +259,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 /*************************
  * video handlers
  *************************/
-static SDL_Surface *g_screen;
+static grs_bitmap *g_screen;
 static int g_screenWidth, g_screenHeight;
 static int g_width, g_height;
 static unsigned char g_palette[768];
@@ -367,6 +274,8 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
     h = get_short(data+2);
     g_width = w << 3;
     g_height = h << 3;
+    printf("mve width, height: %d, %d\n", g_width, g_height);
+    Assert((g_width == g_screen->bm_w) && (g_height == g_screen->bm_h));
     g_vBackBuf1 = d_malloc(g_width * g_height);
     g_vBackBuf2 = d_malloc(g_width * g_height);
     memset(g_vBackBuf1, 0, g_width * g_height);
@@ -374,51 +283,12 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
     return 1;
 }
 
-//static int stupefaction=0;
 static int display_video_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-    int i;
-    unsigned char *pal = g_palette;
-    unsigned char *pDest;
-    unsigned char *pixels = g_vBackBuf1;
-    SDL_Surface *screenSprite;
-    SDL_Rect renderArea;
-    int x, y;
+    gr_palette_load(g_palette);
 
-    SDL_Surface *initSprite = SDL_CreateRGBSurface(SDL_SWSURFACE, g_width, g_height, 8, 0, 0, 0, 0);
-    for(i = 0; i < 256; i++)
-    {
-        initSprite->format->palette->colors[i].r = (*pal++) << 2;
-        initSprite->format->palette->colors[i].g = (*pal++) << 2;
-        initSprite->format->palette->colors[i].b = (*pal++) << 2;
-        initSprite->format->palette->colors[i].unused = 0;
-    }
+    memcpy(g_screen->bm_data, g_vBackBuf1, g_width * g_height);
 
-    pDest = initSprite->pixels;
-    for (i=0; i<g_height; i++)
-    {
-        memcpy(pDest, pixels, g_width);
-        pixels += g_width;
-        pDest += initSprite->pitch;
-    }
-
-    screenSprite = SDL_DisplayFormat(initSprite);
-    SDL_FreeSurface(initSprite);
-
-    if (g_screenWidth > screenSprite->w) x = (g_screenWidth - screenSprite->w) >> 1;
-    else x=0;
-    if (g_screenHeight > screenSprite->h) y = (g_screenHeight - screenSprite->h) >> 1;
-    else y=0;
-    renderArea.x = x;
-    renderArea.y = y;
-    renderArea.w = MIN(g_screenWidth  - x, screenSprite->w);
-    renderArea.h = MIN(g_screenHeight - y, screenSprite->h);
-    SDL_BlitSurface(screenSprite, NULL, g_screen, &renderArea);
-    if ( (g_screen->flags & SDL_DOUBLEBUF) == SDL_DOUBLEBUF )
-        SDL_Flip(g_screen);
-    else
-        SDL_UpdateRects(g_screen, 1, &renderArea);
-    SDL_FreeSurface(screenSprite);
     return 1;
 }
 
@@ -427,7 +297,6 @@ static int init_video_handler(unsigned char major, unsigned char minor, unsigned
     short width, height;
     width = get_short(data);
     height = get_short(data+2);
-    g_screen = SDL_SetVideoMode(width, height, 16, SDL_ANYFORMAT);
     g_screenWidth = width;
     g_screenHeight = height;
     memset(g_palette, 0, 768);
@@ -487,8 +356,10 @@ static int end_chunk_handler(unsigned char major, unsigned char minor, unsigned 
     return 1;
 }
 
-void initializeMovie(MVESTREAM *mve)
+void initializeMovie(MVESTREAM *mve, grs_bitmap *mve_bitmap)
 {
+    g_screen = mve_bitmap;
+
     mve_set_handler(mve, 0x00, end_movie_handler);
     mve_set_handler(mve, 0x01, end_chunk_handler);
     mve_set_handler(mve, 0x02, create_timer_handler);
@@ -513,30 +384,20 @@ void initializeMovie(MVESTREAM *mve)
     //mve_set_handler(mve, 0x15, default_seg_handler);
 }
 
-#ifdef STANDALONE
-static void playMovie(MVESTREAM *mve)
-{
-    int init_timer=0;
-    int cont=1;
-    while (cont)
-    {
-        cont = mve_play_next_chunk(mve);
-        if (micro_frame_delay  &&  !init_timer)
-        {
-            timer_start();
-            init_timer = 1;
-        }
-
-        do_timer_wait();
-    }
-}
-#endif
-
-#ifdef STANDALONE
-static
-#endif
 void shutdownMovie(MVESTREAM *mve)
 {
+    int i;
+
+    SDL_CloseAudio();
+    for (i = 0; i < 64; i++)
+        if (mve_audio_buffers[i] != NULL) {
+            d_free(mve_audio_buffers[i]);
+            mve_audio_buffers[i] = NULL;
+        }
+
+    d_free(mve_audio_spec);
+    d_free(g_vBackBuf1);
+    d_free(g_vBackBuf2);
 }
 
 static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
