@@ -1,3 +1,99 @@
+2003-02-20  Bradley Bell <btb@icculus.org>
+
+	* tools/cvs2cl/cvs2cl.pl: updated cvs2cl
+	* compilerdefs.txt: added linux/mips info
+	* ChangeLog: clean up changelog
+
+2003-02-19  Bradley Bell <btb@icculus.org>
+
+	* libmve/mveplay.c: os x needs nanosleep prototype.
+
+2003-02-18  Bradley Bell <btb@icculus.org>
+
+	* .cvsignore, libmve/.cvsignore: added files to .cvsignore
+	* include/libmve.h, libmve/mveplay.c, main/movie.c: added function
+	to disable/enable audio
+	* libmve/: mve_main.c, mveplay.c: bigendian fixes
+	* main/: movie.h, titles.c: make sure movie's palette is set before
+	writing briefing text.	Fixes bug #359
+	* libmve/mveplay.c: make MVE_rmStepMovie play a full frame instead
+	of a chunk
+	* misc/: args.c, byteswap.c, d_delay.c, d_io.c, dos_disk.h,
+	error.c, hash.c, parsarg.c, parsarg.h, strio.c, strutil.c:
+	formatting
+	* maths/: fix.asm, rand.c, tables.c, vecmat.c, vecmata.asm:
+	formatting
+	* texmap/: ntmap.c, scanline.c, scanline.h, texmapl.h,
+	tmap_flt.asm, tmap_inc.asm, tmap_lin.asm, tmap_ll.asm,
+	tmap_per.asm, tmapfade.asm, tmapflat.c, tmappent.S, tmapppro.S:
+	formatting
+	* include/libmve.h: blah
+
+2003-02-18  Martin Schaffner <martin.schaffner@epfl.ch>
+
+	* main/render.c: 2nd attempt to fix solaris qsort bug
+
+2003-02-18  Bradley Bell <btb@icculus.org>
+
+	* configure.ac, include/pstypes.h: put alignment detection in
+	configure.ac
+
+2003-02-17  Bradley Bell <btb@icculus.org>
+
+	* Makefile.am, README.utils, configure.ac, include/libmve.h,
+	include/mve_audio.h, include/mvelib.h, libmve/Makefile.am,
+	libmve/decoder16.c, libmve/decoder8.c, libmve/mve_audio.c,
+	libmve/mve_audio.h, libmve/mve_main.c, libmve/mvelib.c,
+	libmve/mvelib.h, libmve/mveplay.c, main/Makefile.am,
+	main/decoder16.c, main/decoder8.c, main/movie.c, main/mve_audio.c,
+	main/mve_main.c, main/mvelib.c, main/mveplay.c, main/mveplay.h:
+	moved mve stuff to separate subdir
+	* include/mvelib.h, main/movie.c, main/mve_main.c, main/mvelib.c,
+	main/mveplay.c, main/mveplay.h, main/titles.c: many improvements to
+	mve code.  Fixes (at least) bugs #41, #348, and #350.
+
+2003-02-14  Bradley Bell <btb@icculus.org>
+
+	* main/Makefile.am: no more Makefile.mveplay. again
+	* main/mveplay.c: typo
+
+2003-02-13  Bradley Bell <btb@icculus.org>
+
+	* utilities/mvlextract.c: uint -> unsigned int
+	* main/: mve_main.c, mvelib.c, mveplay.c: add fullscreen mode to
+	standalone mveplayer, win32 support
+	* main/movie.c: random bugfixes, win32 support
+	* arch/sdl/Makefile.am: formatting
+	* configure.ac: disable networking on mac/win for now
+	* main/newmenu.c: comments
+
+2003-02-13  Martin Schaffner <martin.schaffner@epfl.ch>
+
+	* 3d/interp.c, include/interp.h, main/polyobj.c: get rid of some
+	redundant swap functions.
+
+2003-02-13  Bradley Bell <btb@icculus.org>
+
+	* ChangeLog: update changelog
+
+2003-02-13  Martin Schaffner <martin.schaffner@epfl.ch>
+
+	* 3d/interp.c, include/interp.h, main/polyobj.c: fix remaining
+	polymodel alignment issues.
+
+2003-02-13  Bradley Bell <btb@icculus.org>
+
+	* utilities/: hogcreate.c, hogextract.c, mvlcreate.c, mvlextract.c:
+	fix various little bugs
+	* main/mveplay.c, utilities/hogextract.c, utilities/mvlextract.c,
+	utilities/tex2txb.c, utilities/txb2tex.c: eliminate warning
+	* main/: Makefile.am, Makefile.mveplay: build mveplayer from
+	regular makefiles
+	* README.utils: new file
+	* main/: mve_main.c, mveplay.c: more movie fixes
+	* README: updated README
+	* 2d/Makefile.am, main/Makefile.am: some OS X and dist fixes
+
 2003-02-12  Bradley Bell <btb@icculus.org>
 
 	* utilities/mvlextract.c: bigendian mvl support
