@@ -1,3 +1,8 @@
+2004-05-20  Matthew Mueller  <donut@dakotacom.net>
+
+	* main/newmenu.c: increased MESSAGEBOX_TEXT_SIZE to fix netgame
+	join list score crash (d1x r1.8)
+
 2004-05-20  Victor Rachels  <sekmu@tisiphone.dhs.org>
 
 	* main/fvi.c, main/gameseg.c, main/gameseg.h, main/physics.c:

@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.25 2003-11-27 04:52:18 btb Exp $ */
+/* $Id: newmenu.c,v 1.26 2004-05-21 00:33:03 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -663,7 +663,7 @@ typedef struct bkg {
 
 grs_bitmap nm_background,nm_background_save;
 
-#define MESSAGEBOX_TEXT_SIZE 300		// How many characters in messagebox
+#define MESSAGEBOX_TEXT_SIZE 2176   // How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
 #define MAX_TEXT_WIDTH 	200				// How many pixels wide a input box can be
 
 ubyte MenuReordering=0;
