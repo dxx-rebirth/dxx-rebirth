@@ -43,6 +43,7 @@ AC_ARG_ENABLE(editor,
   [  --enable-editor         Build editor? (not functional)],,)
 if test x$enable_editor = xyes; then
     AC_DEFINE(EDITOR)
+    D2X_MAIN_SUBDIRS=editor
 fi
 AM_CONDITIONAL(EDITOR, test x$enable_editor = xyes)
 
@@ -87,8 +88,6 @@ else
     AC_MSG_ERROR(SDL not found. Make sure sdl-config is in your PATH, or specify with --with-sdl-prefix)
   )
   AC_SUBST(SDL_LIBS)
-
-  CFLAGS="$SDL_CFLAGS $CFLAGS"
 
   TARGETS=d2x-sdl
   D2X_ARCH_SUBDIRS=sdl
@@ -196,7 +195,11 @@ else
 fi
 AM_CONDITIONAL(USE_ASM, test x$enable_assembler != xno)
 
+AM_PROG_AS
+
 AC_SUBST(D2X_ARCH_SUBDIRS)
+
+AC_SUBST(D2X_MAIN_SUBDIRS)
 
 AC_SUBST(TARGETS)
 
@@ -218,6 +221,7 @@ arch/win32/Makefile
 cfile/Makefile
 iff/Makefile
 main/Makefile
+main/editor/Makefile
 maths/Makefile
 mem/Makefile
 misc/Makefile

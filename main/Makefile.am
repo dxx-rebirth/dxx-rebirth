@@ -1,10 +1,14 @@
-EXTRA_SUBDIRS = editor old
+SUBDIRS = @D2X_MAIN_SUBDIRS@
+
+DIST_SUBDIRS = editor
+
+EXTRA_SUBDIRS = old
 
 noinst_LIBRARIES = libmain.a
 
-CFLAGS += -fwritable-strings
-
 INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/arch/include
+
+CFLAGS += -fwritable-strings ${SDL_CFLAGS}
 
 if USE_NETWORK
 NETWORK_SRCS = ipx_drv.c kmatrix.c multi.c multibot.c network.c

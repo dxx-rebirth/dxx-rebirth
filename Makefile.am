@@ -21,13 +21,17 @@ ARCH_LIBS = arch/linux/libarch_linux.a arch/sdl/libarch_sdl.a
 endif
 endif
 
+if EDITOR
+EDITOR_LIBS = main/editor/libeditor.a
+endif
+
 d2x_SOURCES =
 d2x_sdl_SOURCES =
 d2x_ogl_SOURCES =
 d2x_svga_SOURCES =
 d2x_ggi_SOURCES =
 
-d2x_LDADD = ${LD_KLUDGE} main/libmain.a 3d/lib3d.a 2d/lib2d.a ${ARCH_LIBS} mem/libmem.a cfile/libcfile.a iff/libiff.a texmap/libtexmap.a misc/libmisc.a maths/libmaths.a video/libvideo.a sound/libsound.a input/libinput.a
+d2x_LDADD = ${LD_KLUDGE} main/libmain.a ${EDITOR_LIBS} 3d/lib3d.a 2d/lib2d.a ${ARCH_LIBS} mem/libmem.a cfile/libcfile.a iff/libiff.a texmap/libtexmap.a misc/libmisc.a maths/libmaths.a video/libvideo.a sound/libsound.a
 
 if MINGW32
 if USE_NETWORK

@@ -1,5 +1,7 @@
 INCLUDES = -I $(top_srcdir) -I$(top_srcdir)/includes -I$(top_srcdir)/main
 
+CFLAGS += ${SDL_CFLAGS}
+
 noinst_LIBRARIES = libsound.a
 
 if ENV_DJGPP
