@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.21 2004-05-20 07:02:54 btb Exp $ */
+/* $Id: ogl.c,v 1.22 2004-05-20 07:13:20 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -220,7 +220,7 @@ int ogl_texture_stats(void){
 		glGetIntegerv(GL_DEPTH_BITS, &depth);
 		colorsize = (idx * res * dbl) / 8;
 		depthsize = res * depth / 8;
-		gr_printf(5, GAME_FONT->ft_h * 14 + 3 * 14, "%i(%i,%i) %iK(%iK wasted)", used, usedrgba, usedl4a4, truebytes / 1024, (truebytes - databytes) / 1024);
+		gr_printf(5, GAME_FONT->ft_h * 14 + 3 * 14, "%i(%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedl4a4, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
 		gr_printf(5, GAME_FONT->ft_h * 15 + 3 * 15, "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
 		gr_printf(5, GAME_FONT->ft_h * 16 + 3 * 16, "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 	}
@@ -313,7 +313,11 @@ void ogl_cache_weapon_textures(weapon_info *w){
 	else if (w->render_type==WEAPON_RENDER_POLYMODEL)
 		ogl_cache_polymodel_textures(w->model_num);
 }
-void ogl_cache_level_textures(void){
+
+int r_texcount = 0, r_cachedtexcount = 0;
+
+void ogl_cache_level_textures(void)
+{
 	int seg,side,i;
 	eclip *ec;
 	short tmap1,tmap2;
@@ -420,10 +424,10 @@ void ogl_cache_level_textures(void){
 		}
 	}
 	glmprintf((0,"finished caching\n"));
+	r_cachedtexcount = r_texcount;
 }
 
 int r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc,r_ubitbltc,r_upixelc;
-int r_texcount=0;
 #define f2glf(x) (f2fl(x))
 
 bool g3_draw_line(g3s_point *p0,g3s_point *p1)
