@@ -2,6 +2,8 @@
 
 	* main/gamemine.c, main/piggy.c: compile again on older C compilers
 	* main/polyobj.c: don't corrupt model_data, so it can be freed properly
+	* main/gameseq.c, main/mission.c, main/mission.h: for enhanced (like
+	Vertigo) missions, load add-on ham file at every load, not only the 1st
 
 2004-11-16  Chris Taylor  <c.taylor@student.curtin.edu.au>
 

@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.29 2004-10-24 12:46:49 schaffner Exp $ */
+/* $Id: mission.c,v 1.30 2004-11-19 18:42:48 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -578,7 +578,6 @@ int load_mission(int mission_num)
 	CFILE *mfile;
 	char buf[80], *v;
     int found_hogfile;
-	int enhanced_mission = 0;
 
     if (Current_mission)
         free_mission();
@@ -666,14 +665,16 @@ int load_mission(int mission_num)
 
 	while (cfgets(buf,80,mfile)) {
 
-		if (istok(buf,"name"))
+		if (istok(buf,"name")) {
+			Current_mission->enhanced = 0;
 			continue;						//already have name, go to next line
+		}
 		if (istok(buf,"xname")) {
-			enhanced_mission = 1;
+			Current_mission->enhanced = 1;
 			continue;						//already have name, go to next line
 		}
 		if (istok(buf,"zname")) {
-			enhanced_mission = 2;
+			Current_mission->enhanced = 2;
 			continue;						//already have name, go to next line
 		}
 		else if (istok(buf,"type"))
@@ -765,11 +766,11 @@ int load_mission(int mission_num)
 		return 0;
 	}
 
-	if (enhanced_mission) {
+	if (Current_mission->enhanced) {
 		char t[50];
 		extern void bm_read_extra_robots();
 		sprintf(t,"%s.ham",Current_mission_filename);
-		bm_read_extra_robots(t,enhanced_mission);
+		bm_read_extra_robots(t, Current_mission->enhanced);
 		strncpy(t,Current_mission_filename,6);
 		strcat(t,"-l.mvl");
 		init_extra_robot_movie(t);
