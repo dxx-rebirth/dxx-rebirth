@@ -1,14 +1,33 @@
-/* IPX driver using BSD style sockets */
-/* Mostly taken from dosemu */
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/win32/ipx_win.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-19 00:23:56 $
+ *
+ * IPX driver using BSD style sockets
+ * Mostly taken from dosemu
+ *
+ * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/01/29 13:35:09  bradleyb
+ * Fixed build system, minor fixes
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <winsock.h>
-#include <wsipx.h>
-#include <errno.h>
+//#include <errno.h>
 
 #include "ipx_drv.h"
+#include "wsipx.h"
 
 #include "mono.h"
+
+static ipx_socket_t mysock;
 
 //#define n_printf(format, args...) mprintf((1, format, ## args))
 
@@ -66,13 +85,31 @@ static int ipx_win_GetMyAddress( void )
   return(0);
 }
 
-static int ipx_win_OpenSocket(ipx_socket_t *sk, int port)
+static int ipx_win_OpenSocket(int port)
 {
   int sock;			/* sock here means Linux socket handle */
   int opt;
   struct sockaddr_ipx ipxs;
   int len;
   struct sockaddr_ipx ipxs2;
+
+        WORD wVersionRequested;
+        WSADATA wsaData;
+
+        wVersionRequested = MAKEWORD(2, 0);
+        if (WSAStartup( wVersionRequested, &wsaData))
+        {
+          return -1;
+        }
+#if 0
+        if ( LOBYTE( wsaData.wVersion ) != 2 ||
+          HIBYTE( wsaData.wVersion ) != 0 ) {
+           /* We couldn't find a usable WinSock DLL. */
+           WSACleanup( );
+           return -2;
+        }
+#endif
+
 
   /* DANG_FIXTHIS - kludge to support broken linux IPX stack */
   /* need to convert dynamic socket open into a real socket number */
@@ -83,7 +120,8 @@ static int ipx_win_OpenSocket(ipx_socket_t *sk, int port)
 */
   /* do a socket call, then bind to this port */
 //  sock = socket(AF_IPX, SOCK_DGRAM, PF_IPX);
-  sock = socket(AF_IPX, SOCK_DGRAM, 0);
+//  sock = socket(AF_IPX, SOCK_DGRAM, 0);
+  sock = socket(AF_IPX, SOCK_DGRAM, NSPROTO_IPX);//why NSPROTO_IPX?  I looked in the quake source and thats what they used. :) -MPM  (on w2k 0 and PF_IPX don't work)
   if (sock == -1) {
     mprintf((1,"IPX: could not open IPX socket.\n"));
     return -1;
@@ -136,19 +174,23 @@ static int ipx_win_OpenSocket(ipx_socket_t *sk, int port)
   memcpy(ipx_MyAddress, ipxs2.sa_netnum, 4);
   memcpy(ipx_MyAddress + 4, ipxs2.sa_nodenum, 6);
 
-  sk->fd = sock;
-  sk->socket = port;
+  mysock.fd = sock;
+  mysock.socket = port;
+
+  ipx_win_GetMyAddress();
+
   return 0;
 }
 
-static void ipx_win_CloseSocket(ipx_socket_t *mysock) {
+static void ipx_win_CloseSocket(void) {
   /* now close the file descriptor for the socket, and free it */
-  mprintf((1,"IPX: closing file descriptor on socket %x\n", mysock->socket));
-  closesocket(mysock->fd);
+  mprintf((1,"IPX: closing file descriptor on socket %x\n", mysock.socket));
+  closesocket(mysock.fd);
+  WSACleanup();
 }
 
-static int ipx_win_SendPacket(ipx_socket_t *mysock, IPXPacket_t *IPXHeader,
- u_char *data, int dataLen) {
+static int ipx_win_SendPacket(IPXPacket_t *IPXHeader,
+ ubyte *data, int dataLen) {
   struct sockaddr_ipx ipxs;
  
   ipxs.sa_family = AF_IPX;
@@ -160,36 +202,46 @@ static int ipx_win_SendPacket(ipx_socket_t *mysock, IPXPacket_t *IPXHeader,
 /*  ipxs.sa_netnum = htonl(MyNetwork); */
   }
   memcpy(&ipxs.sa_nodenum, IPXHeader->Destination.Node, 6);
-  memcpy(&ipxs.sa_socket, IPXHeader->Destination.Socket, 2);
+//  memcpy(&ipxs.sa_socket, IPXHeader->Destination.Socket, 2);
+  ipxs.sa_socket=htons(mysock.socket);
 //  ipxs.sa_type = IPXHeader->PacketType;
   /*	ipxs.sipx_port=htons(0x452); */
-  return sendto(mysock->fd, data, dataLen, 0,
+  return sendto(mysock.fd, data, dataLen, 0,
 	     (struct sockaddr *) &ipxs, sizeof(ipxs));
 }
 
-static int ipx_win_ReceivePacket(ipx_socket_t *s, char *buffer, int bufsize, 
+static int ipx_win_ReceivePacket(char *buffer, int bufsize, 
  struct ipx_recv_data *rd) {
 	int sz, size;
 	struct sockaddr_ipx ipxs;
  
 	sz = sizeof(ipxs);
-	if ((size = recvfrom(s->fd, buffer, bufsize, 0,
+	if ((size = recvfrom(mysock.fd, buffer, bufsize, 0,
 	     (struct sockaddr *) &ipxs, &sz)) <= 0)
 	     return size;
         memcpy(rd->src_network, ipxs.sa_netnum, 4);
 	memcpy(rd->src_node, ipxs.sa_nodenum, 6);
 	rd->src_socket = ipxs.sa_socket;
-	rd->dst_socket = s->socket;
+	rd->dst_socket = mysock.socket;
 //	rd->pkt_type = ipxs.sipx_type;
   
 	return size;
 }
 
+static int ipx_win_general_PacketReady(void) {
+	return ipx_general_PacketReady(mysock.fd);
+}
+
 struct ipx_driver ipx_win = {
-	ipx_win_GetMyAddress,
+//	ipx_win_GetMyAddress,
 	ipx_win_OpenSocket,
 	ipx_win_CloseSocket,
 	ipx_win_SendPacket,
 	ipx_win_ReceivePacket,
-	ipx_general_PacketReady
+	ipx_win_general_PacketReady,
+	NULL,
+	1,
+	NULL,
+	NULL,
+	NULL
 };
