@@ -57,4 +57,6 @@ void rle_cache_flush();
 
 void rle_swap_0_255(grs_bitmap *bmp);
 
+void rle_remap(grs_bitmap *bmp, ubyte *colormap);
+
 #endif

@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.21 2003-02-21 07:14:32 btb Exp $ */
+/* $Id: bm.c,v 1.22 2003-03-19 22:44:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -120,6 +120,20 @@ int tmap_info_read_n(tmap_info *ti, int n, CFILE *fp)
 	return i;
 }
 #endif
+
+int tmap_info_read_n_d1(tmap_info *ti, int n, CFILE *fp)
+{
+	int i;
+
+	for (i = 0; i < n; i++) {
+		cfseek(fp, 13, SEEK_CUR);// skip filename
+		ti[i].flags = cfile_read_byte(fp);
+		ti[i].lighting = cfile_read_fix(fp);
+		ti[i].damage = cfile_read_fix(fp);
+		ti[i].eclip_num = cfile_read_int(fp);
+	}
+	return i;
+}
 
 extern int Num_bitmap_files;
 int extra_bitmap_num;
@@ -345,6 +359,146 @@ void bm_read_all(CFILE * fp)
 
 }
 
+#define D1_MAX_TEXTURES 800
+#define D1_MAX_SOUNDS 250
+#define D1_MAX_VCLIPS 70
+#define D1_MAX_EFFECTS 60
+#define D1_MAX_WALL_ANIMS 30
+#define D1_MAX_ROBOT_TYPES 30
+#define D1_MAX_ROBOT_JOINTS 600
+#define D1_MAX_WEAPON_TYPES 30
+#define D1_MAX_POWERUP_TYPES 29
+#define D1_MAX_GAUGE_BMS 80
+#define D1_MAX_OBJ_BITMAPS 210
+#define D1_MAX_COCKPIT_BITMAPS 4
+#define D1_MAX_OBJTYPE 100
+#define D1_MAX_POLYGON_MODELS 85
+
+#define D1_TMAP_INFO_SIZE 26
+#define D1_VCLIP_SIZE 66
+#define D1_ROBOT_INFO_SIZE 486
+#define D1_WEAPON_INFO_SIZE 115
+
+#define D1_LAST_STATIC_TMAP_NUM 324
+short *d2_Textures_backup = NULL;
+
+void undo_bm_read_all_d1() {
+	if (d2_Textures_backup) {
+		int i;
+		for (i = 0; i < D1_LAST_STATIC_TMAP_NUM; i++)
+			Textures[i].index = d2_Textures_backup[i];
+		d_free(d2_Textures_backup);
+		d2_Textures_backup = NULL;
+	}
+}
+
+/*
+ * used by piggy_d1_init to read in descent 1 pigfile
+ */
+void bm_read_all_d1(CFILE * fp)
+{
+	int i;
+
+	/*NumTextures = */ cfile_read_int(fp);
+	//bitmap_index_read_n(Textures, D1_MAX_TEXTURES, fp );
+	//for (i = 0; i < D1_MAX_TEXTURES; i++)
+	//	Textures[i].index = cfile_read_short(fp) + 600;  
+	//cfseek(fp, D1_MAX_TEXTURES * sizeof(short), SEEK_CUR);
+	MALLOC(d2_Textures_backup, short, D1_LAST_STATIC_TMAP_NUM);
+	for (i = 0; i < D1_LAST_STATIC_TMAP_NUM; i++) {
+		d2_Textures_backup[i] = Textures[i].index;
+		Textures[i].index = cfile_read_short(fp) + 521;
+	}
+	cfseek(fp, (D1_MAX_TEXTURES - D1_LAST_STATIC_TMAP_NUM) * sizeof(short), SEEK_CUR);
+
+	//tmap_info_read_n_d1(TmapInfo, D1_MAX_TEXTURES, fp);
+	cfseek(fp, D1_MAX_TEXTURES * D1_TMAP_INFO_SIZE, SEEK_CUR);
+
+	/*
+	cfread( Sounds, sizeof(ubyte), D1_MAX_SOUNDS, fp );
+	cfread( AltSounds, sizeof(ubyte), D1_MAX_SOUNDS, fp );
+	*/cfseek(fp, D1_MAX_SOUNDS * 2, SEEK_CUR);
+
+	/*Num_vclips = */ cfile_read_int(fp);
+	//vclip_read_n(Vclip, D1_MAX_VCLIPS, fp);
+	cfseek(fp, D1_MAX_VCLIPS * D1_VCLIP_SIZE, SEEK_CUR);
+
+	/*
+	Num_effects = cfile_read_int(fp);
+	eclip_read_n(Effects, D1_MAX_EFFECTS, fp);
+
+	Num_wall_anims = cfile_read_int(fp);
+	wclip_read_n_d1(WallAnims, D1_MAX_WALL_ANIMS, fp);
+	*/
+
+	/*
+	N_robot_types = cfile_read_int(fp);
+	//robot_info_read_n(Robot_info, D1_MAX_ROBOT_TYPES, fp);
+	cfseek(fp, D1_MAX_ROBOT_TYPES * D1_ROBOT_INFO_SIZE, SEEK_CUR);
+
+	N_robot_joints = cfile_read_int(fp);
+	jointpos_read_n(Robot_joints, D1_MAX_ROBOT_JOINTS, fp);
+
+	N_weapon_types = cfile_read_int(fp);
+	//weapon_info_read_n(Weapon_info, D1_MAX_WEAPON_TYPES, fp, Piggy_hamfile_version);
+	cfseek(fp, D1_MAX_WEAPON_TYPES * D1_WEAPON_INFO_SIZE, SEEK_CUR);
+
+	N_powerup_types = cfile_read_int(fp);
+	powerup_type_info_read_n(Powerup_info, D1_MAX_POWERUP_TYPES, fp);
+	*/
+
+	/* in the following code are bugs, solved by hack
+	N_polygon_models = cfile_read_int(fp);
+	polymodel_read_n(Polygon_models, N_polygon_models, fp);
+	for (i=0; i<N_polygon_models; i++ )
+		polygon_model_data_read(&Polygon_models[i], fp);
+	*/cfseek(fp, 521490-160, SEEK_SET); // OK, I admit, this is a dirty hack
+	//bitmap_index_read_n(Gauges, D1_MAX_GAUGE_BMS, fp);
+	cfseek(fp, D1_MAX_GAUGE_BMS * sizeof(bitmap_index), SEEK_CUR);
+
+	/*
+	for (i = 0; i < D1_MAX_POLYGON_MODELS; i++)
+		Dying_modelnums[i] = cfile_read_int(fp);
+	for (i = 0; i < D1_MAX_POLYGON_MODELS; i++)
+		Dead_modelnums[i] = cfile_read_int(fp);
+	*/ cfseek(fp, D1_MAX_POLYGON_MODELS * 8, SEEK_CUR);
+
+	//bitmap_index_read_n(ObjBitmaps, D1_MAX_OBJ_BITMAPS, fp);
+	cfseek(fp, D1_MAX_OBJ_BITMAPS * sizeof(bitmap_index), SEEK_CUR);
+	for (i = 0; i < D1_MAX_OBJ_BITMAPS; i++)
+		cfseek(fp, 2, SEEK_CUR);//ObjBitmapPtrs[i] = cfile_read_short(fp);
+
+	//player_ship_read(&only_player_ship, fp);
+	cfseek(fp, sizeof(player_ship), SEEK_CUR);
+
+	/*Num_cockpits = */ cfile_read_int(fp);
+	//bitmap_index_read_n(cockpit_bitmap, D1_MAX_COCKPIT_BITMAPS, fp);
+	cfseek(fp, D1_MAX_COCKPIT_BITMAPS * sizeof(bitmap_index), SEEK_CUR);
+
+	/*
+	cfread( Sounds, sizeof(ubyte), D1_MAX_SOUNDS, fp );
+	cfread( AltSounds, sizeof(ubyte), D1_MAX_SOUNDS, fp );
+	*/cfseek(fp, D1_MAX_SOUNDS * 2, SEEK_CUR);
+
+	/*Num_total_object_types = */ cfile_read_int( fp );
+	/*
+	cfread( ObjType, sizeof(byte), D1_MAX_OBJTYPE, fp );
+	cfread( ObjId, sizeof(byte), D1_MAX_OBJTYPE, fp );
+	for (i=0; i<D1_MAX_OBJTYPE; i++ )
+		ObjStrength[i] = cfile_read_int( fp );
+	*/ cfseek(fp, D1_MAX_OBJTYPE * 6, SEEK_CUR);
+
+	/*First_multi_bitmap_num =*/ cfile_read_int(fp);
+	/*Reactors[0].n_guns = */ cfile_read_int( fp );
+	/*for (i=0; i<4; i++)
+		cfile_read_vector(&(Reactors[0].gun_points[i]), fp);
+	for (i=0; i<4; i++)
+		cfile_read_vector(&(Reactors[0].gun_dirs[i]), fp);
+	*/cfseek(fp, 8 * 12, SEEK_CUR);
+
+	/*exit_modelnum = */ cfile_read_int(fp);
+	/*destroyed_exit_modelnum = */ cfile_read_int(fp);
+}
 
 //these values are the number of each item in the release of d2
 //extra items added after the release get written in an additional hamfile

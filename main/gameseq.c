@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.18 2003-03-15 03:55:52 btb Exp $ */
+/* $Id: gameseq.c,v 1.19 2003-03-19 22:44:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.18 2003-03-15 03:55:52 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.19 2003-03-19 22:44:15 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -110,6 +110,7 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.18 2003-03-15 03:55:52 btb Exp $";
 #include "movie.h"
 #include "controls.h"
 #include "credits.h"
+#include "gamemine.h"
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
@@ -121,8 +122,10 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.18 2003-03-15 03:55:52 btb Exp $";
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
+
 #include "makesig.h"
 #include "strutil.h"
+#include "rle.h"
 
 void StartNewLevelSecret(int level_num, int page_in_textures);
 void InitPlayerPosition(int random_flag);
@@ -828,6 +831,14 @@ void free_bitmap_replacements()
 	}
 }
 
+void clear_bitmap_replacement()
+{
+	if (Bitmap_replacement_data) {
+		d_free(Bitmap_replacement_data);
+		Bitmap_replacement_data = NULL;
+	}
+}
+
 void load_bitmap_replacements(char *level_name)
 {
 	char ifile_name[FILENAME_LEN];
@@ -900,6 +911,121 @@ void load_bitmap_replacements(char *level_name)
 	atexit(free_bitmap_replacements);
 }
 
+#define FIRST_D1_TEXTURE 722
+#define LAST_D1_STATIC_TEXTURE 1042//1342 //afterwards, we have door frames and stuff
+#define FIRST_D2_TEXTURE 1243
+
+void load_d1_bitmap_replacements()
+{
+	CFILE * Piggy_fp;
+	int i;
+	grs_bitmap temp_bitmap;
+	DiskBitmapHeader bmh;
+	int current_pos, zsize;
+	int bitmap_data_start, pig_data_start;
+	int N_bitmaps;
+	ubyte colormap[256];
+	ubyte *next_bitmap; // where we write the next bitmap to
+
+#ifndef MACINTOSH
+	Piggy_fp = cfopen( "descent.pig", "rb" );
+#else
+	Piggy_fp = cfopen( "Data:Descent.pig", "rb" );
+#endif  // end of ifndef/else MACINTOSH
+
+	if (!Piggy_fp)
+		return; // use d2 bitmaps instead...
+
+	clear_bitmap_replacement();
+
+	// read d1 palette, build colormap
+	{
+		int freq[256];
+		ubyte d1_palette[256*3];
+		CFILE * palette_file = cfopen( "palette.256", "rb" );
+		Assert( palette_file );
+		Assert( cfilelength( palette_file ) == 9472 );
+		cfread( d1_palette, 256, 3, palette_file);
+		cfclose( palette_file );
+		build_colormap_good( d1_palette, colormap, freq );
+		// don't change transparencies:
+		colormap[254] = 254;
+		colormap[255] = 255;
+	}
+
+
+	if (0) //TODO: put here cfilelength(Piggy_fp) == D1_PIG_SHARE
+		pig_data_start = 0;
+	else {
+		//int i;
+		pig_data_start = cfile_read_int(Piggy_fp );
+		bm_read_all_d1( Piggy_fp );
+		//for (i = 0; i < 1800; i++) GameBitmapXlat[i] = cfile_read_short(Piggy_fp);
+	}
+	cfseek( Piggy_fp, pig_data_start, SEEK_SET );
+	N_bitmaps = cfile_read_int(Piggy_fp);
+	{
+		int N_sounds = cfile_read_int(Piggy_fp);
+		int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
+				+ N_sounds * DISKSOUNDHEADER_SIZE;
+		bitmap_data_start = pig_data_start + 2*sizeof(int) + header_size;
+	}
+	
+	MALLOC( Bitmap_replacement_data, ubyte, cfilelength(Piggy_fp) - bitmap_data_start ); // too much
+	//TODO: handle case where b_r_d == 0! (have to convert textures, return, not bm_read_all_d1)
+
+	next_bitmap = Bitmap_replacement_data;
+
+	for (i=1; i<=N_bitmaps; i++ ) {
+		DiskBitmapHeader_d1_read(&bmh, Piggy_fp);
+
+		// only change wall texture bitmaps
+		if (i >= FIRST_D1_TEXTURE && i <= LAST_D1_STATIC_TEXTURE) {
+			current_pos = cftell(Piggy_fp);
+			memset( &temp_bitmap, 0, sizeof(grs_bitmap) );
+		
+			temp_bitmap.bm_w = temp_bitmap.bm_rowsize = bmh.width + ((short) (bmh.wh_extra&0x0f)<<8);
+			temp_bitmap.bm_h = bmh.height + ((short) (bmh.wh_extra&0xf0)<<4);
+			temp_bitmap.avg_color = bmh.avg_color;
+
+			//GameBitmapFlags[convert_d1_bitmap_num(i)] = 0;
+			
+			if ( bmh.flags & BM_FLAG_TRANSPARENT )
+				temp_bitmap.bm_flags |= BM_FLAG_TRANSPARENT;
+			if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT )
+				temp_bitmap.bm_flags |= BM_FLAG_SUPER_TRANSPARENT;
+			if ( bmh.flags & BM_FLAG_NO_LIGHTING )
+				temp_bitmap.bm_flags |= BM_FLAG_NO_LIGHTING;
+			if ( bmh.flags & BM_FLAG_RLE )
+				temp_bitmap.bm_flags |= BM_FLAG_RLE;
+			if ( bmh.flags & BM_FLAG_RLE_BIG )
+				temp_bitmap.bm_flags |= BM_FLAG_RLE_BIG;
+				
+			temp_bitmap.bm_data = next_bitmap;
+
+			cfseek(Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
+			zsize = cfile_read_int(Piggy_fp);
+			cfseek(Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
+			cfread(next_bitmap, 1, zsize, Piggy_fp);
+			cfseek(Piggy_fp, current_pos, SEEK_SET);
+
+			//rle_swap_0_255(&temp_bitmap);
+			rle_remap(&temp_bitmap, colormap);
+			GameBitmaps[i + FIRST_D2_TEXTURE - FIRST_D1_TEXTURE] = temp_bitmap;
+
+			memcpy(&zsize, temp_bitmap.bm_data, 4);
+			next_bitmap += zsize;
+		}
+	}
+
+	cfclose(Piggy_fp);
+
+	last_palette_loaded_pig[0]= 0;	//force pig re-load
+
+	texmerge_flush();		//for re-merging with new textures
+}
+
+
 void load_robot_replacements(char *level_name);
 int read_hamfile();
 extern int Robot_replacements_loaded;
@@ -919,6 +1045,9 @@ void LoadLevel(int level_num,int page_in_textures)
 		level_name = Secret_level_names[-level_num-1];
 	else					//normal level
 		level_name = Level_names[level_num-1];
+
+	undo_bm_read_all_d1();
+	d1_pig_loaded = cfexist("descent.pig");
 
 	#ifdef WINDOWS
 		dd_gr_set_current_canvas(NULL);
@@ -957,6 +1086,9 @@ void LoadLevel(int level_num,int page_in_textures)
 	if ( page_in_textures )
 		piggy_load_level_data();
 
+	if (Mission_list[Current_mission_num].descent_version == 1)
+		load_d1_bitmap_replacements();
+	else 
 	load_bitmap_replacements(level_name);
 
 	if (Robot_replacements_loaded) {

@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.14 2003-03-14 09:19:48 btb Exp $ */
+/* $Id: rle.c,v 1.15 2003-03-19 22:44:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -125,7 +125,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.14 2003-03-14 09:19:48 btb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.15 2003-03-19 22:44:15 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -146,6 +146,8 @@ static char rcsid[] = "$Id: rle.c,v 1.14 2003-03-14 09:19:48 btb Exp $";
 
 #define RLE_CODE        0xE0
 #define NOT_RLE_CODE    31
+
+#define IS_RLE_CODE(x) (((x) & RLE_CODE) == RLE_CODE)
 
 #if !defined(NO_ASM) && defined(__WATCOMC__)
 #define RLE_DECODE_ASM
@@ -295,7 +297,7 @@ void gr_rle_decode( ubyte * src, ubyte * dest )
 
 	while(1) {
 		data = *src++;
-		if ( (data & RLE_CODE) != RLE_CODE ) {
+		if ( ! IS_RLE_CODE(data) ) {
 			*dest++ = data;
 		} else {
 			count = data & NOT_RLE_CODE;
@@ -364,7 +366,7 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 	while ( i < x1 )	{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
-		if ( (color & RLE_CODE)==RLE_CODE )	{
+		if ( IS_RLE_CODE(color) )	{
 			count = color & (~RLE_CODE);
 			color = *src++;
 		} else {
@@ -390,7 +392,7 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 	while( i <= x2 )		{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
-		if ( (color & RLE_CODE) == (RLE_CODE) )	{
+		if ( IS_RLE_CODE(color) )	{
 			count = color & (~RLE_CODE);
 			color = *src++;
 		} else {
@@ -424,7 +426,7 @@ void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )
 	while ( i < x1 )	{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
-		if ( (color & RLE_CODE)==RLE_CODE )	{
+		if ( IS_RLE_CODE(color) )	{
 			count = color & (~RLE_CODE);
 			color = *src++;
 		} else {
@@ -450,7 +452,7 @@ void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )
 	while( i <= x2 )		{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
-		if ( (color & RLE_CODE)==RLE_CODE )	{
+		if ( IS_RLE_CODE(color) )	{
 			count = color & (~RLE_CODE);
 			color = *src++;
 		} else {
@@ -487,7 +489,7 @@ int gr_rle_encode( int org_size, ubyte *src, ubyte *dest )
 		c = *src++;
 		if ( c!=oc )	{
 			if ( count )	{
-				if ( (count==1) && ((oc & RLE_CODE)!=RLE_CODE) )	{
+				if ( (count==1) && (! IS_RLE_CODE(oc)) )	{
 					*dest++ = oc;
 					Assert( oc != RLE_CODE );
 				} else {
@@ -508,7 +510,7 @@ int gr_rle_encode( int org_size, ubyte *src, ubyte *dest )
 		}
 	}
 	if (count)	{
-		if ( (count==1) && ((oc & RLE_CODE)!=RLE_CODE) )	{
+		if ( (count==1) && (! IS_RLE_CODE(oc)) )	{
 			*dest++ = oc;
 			Assert( oc != RLE_CODE );
 		} else {
@@ -537,7 +539,7 @@ int gr_rle_getsize( int org_size, ubyte *src )
 		c = *src++;
 		if ( c!=oc )	{
 			if ( count )	{
-				if ( (count==1) && ((oc & RLE_CODE)!=RLE_CODE) )	{
+				if ( (count==1) && (! IS_RLE_CODE(oc)) )	{
 					dest_size++;
 				} else {
 					dest_size++;
@@ -555,7 +557,7 @@ int gr_rle_getsize( int org_size, ubyte *src )
 		}
 	}
 	if (count)	{
-		if ( (count==1) && ((oc & RLE_CODE)!=RLE_CODE) )	{
+		if ( (count==1) && (! IS_RLE_CODE(oc)) )	{
 			dest_size++;
 		} else {
 			dest_size++;
@@ -776,7 +778,7 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 	while ( i < x1 )	{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
-		if ( (color & RLE_CODE) == RLE_CODE )	{
+		if ( IS_RLE_CODE(color) )	{
 			count = color & NOT_RLE_CODE;
 			color = *src++;
 		} else {
@@ -803,7 +805,7 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 	while( i <= x2 )		{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
-		if ( (color & RLE_CODE) == RLE_CODE )	{
+		if ( IS_RLE_CODE(color) )	{
 			count = color & NOT_RLE_CODE;
 			color = *src++;
 		} else {
@@ -836,7 +838,7 @@ void gr_rle_expand_scanline_generic_masked( grs_bitmap * dest, int dx, int dy, u
 	while ( i < x1 )	{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
-		if ( (color & RLE_CODE) == RLE_CODE )	{
+		if ( IS_RLE_CODE(color) )	{
 			count = color & NOT_RLE_CODE;
 			color = *src++;
 		} else {
@@ -868,7 +870,7 @@ void gr_rle_expand_scanline_generic_masked( grs_bitmap * dest, int dx, int dy, u
 	while( i <= x2 )		{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
-		if ( (color & RLE_CODE) == RLE_CODE )	{
+		if ( IS_RLE_CODE(color) )	{
 			count = color & NOT_RLE_CODE;
 			color = *src++;
 		} else {
@@ -923,7 +925,7 @@ void gr_rle_expand_scanline_svga_masked( grs_bitmap * dest, int dx, int dy, ubyt
 	while ( i < x1 )	{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
-		if ( (color & RLE_CODE) == RLE_CODE )	{
+		if ( IS_RLE_CODE(color) )	{
 			count = color & NOT_RLE_CODE;
 			color = *src++;
 		} else {
@@ -973,7 +975,7 @@ void gr_rle_expand_scanline_svga_masked( grs_bitmap * dest, int dx, int dy, ubyt
 	while( i <= x2 )		{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
-		if ( (color & RLE_CODE) == RLE_CODE )	{
+		if ( IS_RLE_CODE(color) )	{
 			count = color & NOT_RLE_CODE;
 			color = *src++;
 		} else {
@@ -1053,7 +1055,7 @@ void rle_swap_0_255(grs_bitmap *bmp)
 		else
 			line_size = bmp->bm_data[4 + i];
 		for (j = 0; j < line_size; j++) {
-			if ((ptr[j] & RLE_CODE) != RLE_CODE) {
+			if ( ! IS_RLE_CODE(ptr[j]) ) {
 				if (ptr[j] == 0) {
 					*ptr2++ = RLE_CODE | 1;
 					*ptr2++ = 255;
@@ -1070,6 +1072,57 @@ void rle_swap_0_255(grs_bitmap *bmp)
 					*ptr2++ = 0;
 				else
 					*ptr2++ = ptr[j];
+			}
+		}
+		if (rle_big)                // set line size
+			*((unsigned short *)&temp[4 + 2 * i]) = ptr2 - start;
+		else
+			temp[4 + i] = ptr2 - start;
+		ptr += line_size;           // go to next line
+	}
+	len = ptr2 - temp;
+	*((int *)temp) = len;           // set total size
+	memcpy(bmp->bm_data, temp, len);
+	d_free(temp);
+}
+
+/*
+ * remaps all entries using colormap in an RLE bitmap without uncompressing it
+ */
+void rle_remap(grs_bitmap *bmp, ubyte *colormap)
+{
+	int i, j, len, rle_big;
+	unsigned char *ptr, *ptr2, *temp, *start;
+	unsigned short line_size;
+
+	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
+
+	temp = d_malloc(4 + bmp->bm_h + (bmp->bm_w + 1) * bmp->bm_h + 30000);
+
+	if (rle_big) {                  // set ptrs to first lines
+		ptr = bmp->bm_data + 4 + 2 * bmp->bm_h;
+		ptr2 = temp + 4 + 2 * bmp->bm_h;
+	} else {
+		ptr = bmp->bm_data + 4 + bmp->bm_h;
+		ptr2 = temp + 4 + bmp->bm_h;
+	}
+	for (i = 0; i < bmp->bm_h; i++) {
+		start = ptr2;
+		if (rle_big)
+			line_size = *((unsigned short *)&bmp->bm_data[4 + 2 * i]);
+		else
+			line_size = bmp->bm_data[4 + i];
+		for (j = 0; j < line_size; j++) {
+			if ( ! IS_RLE_CODE(ptr[j])) {
+				if (IS_RLE_CODE(colormap[ptr[j]])) 
+					*ptr2++ = RLE_CODE | 1; // add "escape sequence"
+				*ptr2++ = colormap[ptr[j]]; // translate
+			} else {
+				*ptr2++ = ptr[j]; // just copy current rle code
+				if ((ptr[j] & NOT_RLE_CODE) == 0)
+					break;
+				j++;
+				*ptr2++ = colormap[ptr[j]]; // translate
 			}
 		}
 		if (rle_big)                // set line size

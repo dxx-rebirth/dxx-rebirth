@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.20 2003-03-14 22:08:22 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.21 2003-03-19 22:44:15 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -143,6 +143,8 @@ int CreateDefaultNewSegment();
 
 int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
 
+int d1_pig_loaded = 0; // can descent.pig from descent 1 be loaded?
+
 #define TMAP_NUM_MASK 0x3FFF
 
 /* converts descent 1 texture numbers to descent 2 texture numbers
@@ -150,6 +152,8 @@ int New_file_format_load = 1; // "new file format" is everything newer than d1 s
  * updated using the file config/convtabl.ini from the devil 2.2 level editor
  */
 short convert_d1_tmap_num(short d1_tmap_num) {
+	if (d1_pig_loaded && d1_tmap_num < 324) // we use original d1 textures for non-animated textures
+		return d1_tmap_num;
 	switch (d1_tmap_num) {
 	case   0:  return  43; // grey (devil:95)
 	case   1: return 0;

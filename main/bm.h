@@ -1,4 +1,4 @@
-/* $Id: bm.h,v 1.7 2003-03-14 21:24:03 btb Exp $ */
+/* $Id: bm.h,v 1.8 2003-03-19 22:44:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -95,6 +95,9 @@ extern int First_multi_bitmap_num;
 int bm_init_use_tbl(void);
 
 extern void bm_read_all(CFILE * fp);
+
+extern void bm_read_all_d1(CFILE * fp);
+extern void undo_bm_read_all_d1(void);
 
 int load_exit_models();
 void free_exit_model_data();

@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.22 2003-03-14 21:59:19 btb Exp $ */
+/* $Id: piggy.c,v 1.23 2003-03-19 22:44:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.22 2003-03-14 21:59:19 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.23 2003-03-19 22:44:15 btb Exp $";
 #endif
 
 
@@ -1828,3 +1828,18 @@ void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
 	dsh->offset = cfile_read_int(fp);
 }
 #endif // FAST_FILE_IO
+
+/*
+ * reads a descent 1 DiskBitmapHeader structure from a CFILE
+ */
+void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, CFILE *fp)
+{
+	cfread(dbh->name, 8, 1, fp);
+	dbh->dflags = cfile_read_byte(fp);
+	dbh->width = cfile_read_byte(fp);
+	dbh->height = cfile_read_byte(fp);
+	dbh->wh_extra = 0;
+	dbh->flags = cfile_read_byte(fp);
+	dbh->avg_color = cfile_read_byte(fp);
+	dbh->offset = cfile_read_int(fp);
+}

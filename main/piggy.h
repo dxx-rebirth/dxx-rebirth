@@ -1,4 +1,4 @@
-/* $Id: piggy.h,v 1.10 2002-08-27 04:14:58 btb Exp $ */
+/* $Id: piggy.h,v 1.11 2003-03-19 22:44:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -32,6 +32,7 @@ extern int Num_aliases;
 
 extern int Piggy_hamfile_version;
 
+// an index into the bitmap collection of the piggy file
 typedef struct bitmap_index {
 	ushort index;
 } __pack__ bitmap_index;
@@ -48,6 +49,7 @@ typedef struct DiskBitmapHeader {
 } __pack__ DiskBitmapHeader;
 
 #define DISKBITMAPHEADER_SIZE 18 // for disk i/o
+#define DISKBITMAPHEADER_D1_SIZE 17 // for disk i/o
 
 typedef struct DiskSoundHeader {
 	char name[8];
@@ -139,6 +141,11 @@ void DiskBitmapHeader_read(DiskBitmapHeader *dbh, CFILE *fp);
  * reads a DiskSoundHeader structure from a CFILE
  */
 void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp);
-#endif
+#endif // FAST_FILE_IO
 
-#endif
+/*
+ * reads a descent 1 DiskBitmapHeader structure from a CFILE
+ */
+void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, CFILE *fp);
+
+#endif //_PIGGY_H

@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.18 2002-09-18 18:16:13 btb Exp $ */
+/* $Id: gr.h,v 1.19 2003-03-19 22:44:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -423,6 +423,8 @@ extern void gr_remap_bitmap( grs_bitmap * bmp, ubyte * palette, int transparent_
 // Same as above, but searches using gr_find_closest_color which uses
 // 18-bit accurracy instead of 15bit when translating colors.
 extern void gr_remap_bitmap_good( grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color );
+
+extern void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq );
 
 extern void gr_palette_step_up( int r, int g, int b );
 

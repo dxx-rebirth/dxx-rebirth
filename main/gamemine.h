@@ -1,4 +1,4 @@
-/* $Id: gamemine.h,v 1.3 2002-08-02 23:28:40 btb Exp $ */
+/* $Id: gamemine.h,v 1.4 2003-03-19 22:44:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -119,4 +119,6 @@ extern short tmap_xlate_table[];
 extern fix Level_shake_frequency, Level_shake_duration;
 extern int Secret_return_segment;
 extern vms_matrix Secret_return_orient;
-#endif
+extern int d1_pig_loaded; // has descent.pig from descent 1 been loaded?
+
+#endif // _GAMEMINE_H
