@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.4 2002-07-27 22:39:57 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.5 2002-07-30 04:52:01 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -610,24 +610,21 @@ void read_verts(int segnum,CFILE *LoadFile)
 		Segments[segnum].verts[i] = cfile_read_short(LoadFile);
 }
 
-// -- void read_special(int segnum,ubyte bit_mask,CFILE *LoadFile)
-// -- {
-// -- 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
-// -- 		// Read ubyte	Segments[segnum].special
-// -- //		cfread( &Segments[segnum].special, sizeof(ubyte), 1, LoadFile );
-// -- 		Segment2s[segnum].special = cfile_read_byte(LoadFile);
-// -- 		// Read byte	Segments[segnum].matcen_num
-// -- //		cfread( &Segments[segnum].matcen_num, sizeof(ubyte), 1, LoadFile );
-// -- 		Segment2s[segnum].matcen_num = cfile_read_byte(LoadFile);
-// -- 		// Read short	Segments[segnum].value
-// -- //		cfread( &Segments[segnum].value, sizeof(short), 1, LoadFile );
-// -- 		Segment2s[segnum].value = cfile_read_short(LoadFile);
-// -- 	} else {
-// -- 		Segment2s[segnum].special = 0;
-// -- 		Segment2s[segnum].matcen_num = -1;
-// -- 		Segment2s[segnum].value = 0;
-// -- 	}
-// -- }
+void read_special(int segnum,ubyte bit_mask,CFILE *LoadFile)
+{
+	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
+		// Read ubyte	Segments[segnum].special
+		Segment2s[segnum].special = cfile_read_byte(LoadFile);
+		// Read byte	Segments[segnum].matcen_num
+		Segment2s[segnum].matcen_num = cfile_read_byte(LoadFile);
+		// Read short	Segments[segnum].value
+		Segment2s[segnum].value = cfile_read_short(LoadFile);
+	} else {
+		Segment2s[segnum].special = 0;
+		Segment2s[segnum].matcen_num = -1;
+		Segment2s[segnum].value = 0;
+	}
+}
 
 int load_mine_data_compiled(CFILE *LoadFile)
 {
@@ -659,7 +656,6 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 	for (i = 0; i < Num_vertices; i++)
 		cfile_read_vector( &(Vertices[i]), LoadFile);
-
 	for (segnum=0; segnum<Num_segments; segnum++ )	{
 
 		#ifdef EDITOR
@@ -667,24 +663,28 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		Segments[segnum].group = 0;
 		#endif
 
- 		cfread( &bit_mask, sizeof(ubyte), 1, LoadFile );
+		printf("%4x  ", cftell(LoadFile));
 
-		#if defined(SHAREWARE) && !defined(MACINTOSH)
-			// -- read_special(segnum,bit_mask,LoadFile);
-			read_verts(segnum,LoadFile);
-			read_children(segnum,bit_mask,LoadFile);
-		#else
-			read_children(segnum,bit_mask,LoadFile);
-			read_verts(segnum,LoadFile);
-			// --read_special(segnum,bit_mask,LoadFile);
-		#endif
+ 		bit_mask = cfile_read_byte(LoadFile);
+
+#if defined(SHAREWARE) && !defined(MACINTOSH)
+		read_special(segnum,bit_mask,LoadFile);
+		read_verts(segnum,LoadFile);
+		read_children(segnum,bit_mask,LoadFile);
+#else
+		read_children(segnum,bit_mask,LoadFile);
+		read_verts(segnum,LoadFile);
+		// --read_special(segnum,bit_mask,LoadFile);
+#endif
 
 		Segments[segnum].objects = -1;
 
 		// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-//		cfread( &temp_ushort, sizeof(temp_ushort), 1, LoadFile );
-//		temp_ushort = cfile_read_short(LoadFile);
-//		Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
+
+#ifdef SHAREWARE
+		temp_ushort = cfile_read_short(LoadFile);
+		Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
+#endif
 		//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
 	
 		// Read the walls as a 6 byte array
@@ -692,12 +692,12 @@ int load_mine_data_compiled(CFILE *LoadFile)
 			Segments[segnum].sides[sidenum].pad = 0;
 		}
 
- 		cfread( &bit_mask, sizeof(ubyte), 1, LoadFile );
+ 		bit_mask = cfile_read_byte(LoadFile);
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			ubyte byte_wallnum;
 
 			if (bit_mask & (1 << sidenum)) {
-				cfread( &byte_wallnum, sizeof(ubyte), 1, LoadFile );
+				byte_wallnum = cfile_read_byte(LoadFile);
 				if ( byte_wallnum == 255 )			
 					Segments[segnum].sides[sidenum].wall_num = -1;
 				else		

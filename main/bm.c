@@ -111,7 +111,7 @@ void tmap_info_read(tmap_info *ti, CFILE *fp)
 	ti->slide_v = cfile_read_short(fp);
 }
 
-#ifdef MACINTOSH
+//#ifdef MACINTOSH
 
 #ifdef SHAREWARE
 extern int exit_modelnum,destroyed_exit_modelnum, Num_bitmap_files;
@@ -122,7 +122,7 @@ bitmap_index exitmodel_bm_load_sub( char * filename )
 	bitmap_index bitmap_num;
 	grs_bitmap * new;
 	ubyte newpal[256*3];
-	int i, iff_error;		//reference parm to avoid warning message
+	int iff_error;		//reference parm to avoid warning message
 
 	bitmap_num.index = 0;
 
@@ -166,8 +166,6 @@ grs_bitmap *load_exit_model_bitmap(char *name)
 void load_exit_models()
 {
 	CFILE *exit_hamfile;
-	int i, j;
-	ubyte pal[768];
 	int start_num;
 
 	start_num = N_ObjBitmaps;
@@ -213,7 +211,7 @@ void load_exit_models()
 }
 #endif		// SHAREWARE
 
-#endif		// MACINTOSH
+//#endif		// MACINTOSH
 
 //-----------------------------------------------------------------
 // Read data from piggy.

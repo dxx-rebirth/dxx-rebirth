@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.10 2002-07-29 02:32:32 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.11 2002-07-30 04:52:01 btb Exp $";
 #endif
 
 
@@ -133,13 +133,6 @@ ushort GameBitmapXlat[MAX_BITMAP_FILES];
 int piggy_page_flushed = 0;
 
 #define DBM_FLAG_ABM            64
-
-typedef struct DiskSoundHeader {
-	char name[8];
-	int length;
-	int data_length;
-	int offset;
-} __pack__ DiskSoundHeader;
 
 ubyte BigPig = 0;
 
@@ -944,6 +937,7 @@ int read_hamfile()
 {
 	CFILE * ham_fp = NULL;
 	int ham_id,ham_version;
+	int sound_offset = 0;
 	#ifdef MACINTOSH
 	char name[255];
 	#endif
@@ -969,22 +963,68 @@ int read_hamfile()
 		return 0;
 	}
 
-	if (ham_version < 3) //mystery value
-		cfseek(ham_fp, 4, SEEK_CUR);
+	if (ham_version < 3) // hamfile contains sound info
+		sound_offset = cfile_read_int(ham_fp);
 	
 	#ifndef EDITOR
 	{
-		int i;
+		//int i;
 
 		bm_read_all( ham_fp );  // Note connection to above if!!!
 		printf("position: %d\n", cftell(ham_fp));
 		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
-		for (i = 0; i < MAX_BITMAP_FILES; i++) {
+		// no swap here?
+		//for (i = 0; i < MAX_BITMAP_FILES; i++) {
 			//GameBitmapXlat[i] = INTEL_SHORT(GameBitmapXlat[i]);
 			//printf("GameBitmapXlat[%d] = %d\n", i, GameBitmapXlat[i]);
-		}
+		//}
 	}
 	#endif
+
+	if (ham_version < 3) {
+		int N_sounds;
+		int sound_start;
+		int header_size;
+		int i;
+		DiskSoundHeader sndh;
+		digi_sound temp_sound;
+		char temp_name_read[16];
+		int sbytes = 0;
+
+		cfseek(ham_fp, sound_offset, SEEK_SET);
+		N_sounds = cfile_read_int(ham_fp);
+
+		sound_start = cftell(ham_fp);
+
+		header_size = N_sounds * DISKSOUNDHEADER_SIZE;
+
+		//Read sounds
+
+		printf("%#4x: reading %d x DiskSoundHeader\n", cftell(ham_fp), N_sounds);
+		for (i=0; i<N_sounds; i++ )     {
+			DiskSoundHeader_read(&sndh, ham_fp);
+			temp_sound.length = sndh.length;
+			temp_sound.data = (ubyte *)(sndh.offset + header_size + sound_start);
+			SoundOffset[Num_sound_files] = sndh.offset + header_size + sound_start;
+			memcpy( temp_name_read, sndh.name, 8 );
+			temp_name_read[8] = 0;
+			piggy_register_sound( &temp_sound, temp_name_read, 1 );
+#ifdef MACINTOSH
+			if (piggy_is_needed(i))
+#endif		// note link to if.
+				sbytes += sndh.length;
+			//mprintf(( 0, "%d bytes of sound\n", sbytes ));
+		}
+
+		SoundBits = d_malloc( sbytes + 16 );
+		if ( SoundBits == NULL )
+			Error( "Not enough memory to load sounds\n" );
+
+		mprintf(( 0, "\nBitmaps: %d KB   Sounds: %d KB\n", Piggy_bitmap_cache_size/1024, sbytes/1024 ));
+
+		//	piggy_read_sounds(ham_fp);
+
+	}
 
 	cfclose(ham_fp);
 
@@ -1037,12 +1077,9 @@ int read_sndfile()
 
 	//Read sounds
 
+	printf("%#4x: reading %d x DiskSoundHeader\n", cftell(snd_fp), N_sounds);
 	for (i=0; i<N_sounds; i++ )     {
-		cfread( sndh.name, 8, 1, snd_fp);
-		sndh.length = cfile_read_int(snd_fp);
-		sndh.data_length = cfile_read_int(snd_fp);
-		sndh.offset = cfile_read_int(snd_fp);
-//		cfread( &sndh, sizeof(DiskSoundHeader), 1, snd_fp );
+		DiskSoundHeader_read(&sndh, snd_fp);
 		//size -= sizeof(DiskSoundHeader);
 		temp_sound.length = sndh.length;
 		temp_sound.data = (ubyte *)(sndh.offset + header_size + sound_start);
@@ -1130,13 +1167,16 @@ int piggy_init(void)
 	piggy_init_pigfile(DEFAULT_PIGFILE);
 	#endif
 
+#ifndef SHAREWARE
 	ham_ok = read_hamfile();
-
 	snd_ok = read_sndfile();
+#else
+	snd_ok = ham_ok = read_hamfile();
+#endif
 
 	atexit(piggy_close);
 
-   mprintf ((0,"HamOk=%d SndOk=%d\n",ham_ok,snd_ok));
+	mprintf ((0,"HamOk=%d SndOk=%d\n",ham_ok,snd_ok));
 	return (ham_ok && snd_ok);               //read ok
 }
 
@@ -1719,4 +1759,15 @@ void DiskBitmapHeader_read(DiskBitmapHeader *dbh, CFILE *fp)
 	dbh->flags = cfile_read_byte(fp);
 	dbh->avg_color = cfile_read_byte(fp);
 	dbh->offset = cfile_read_int(fp);
+}
+
+/*
+ * reads a DiskSoundHeader structure from a CFILE
+ */
+void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
+{
+	cfread(dsh->name, 8, 1, fp);
+	dsh->length = cfile_read_int(fp);
+	dsh->data_length = cfile_read_int(fp);
+	dsh->offset = cfile_read_int(fp);
 }
