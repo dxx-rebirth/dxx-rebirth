@@ -1,5 +1,9 @@
 2004-05-13  Bradley Bell  <btb@icculus.org>
 
+	* VisualC/d2/d2x/d2x.dsp, VisualC/d2xgl/d2xgl.dsp,
+	VisualC/libmve/libmve.dsp, VisualC/mveplayer/mveplayer.dsp:
+	updated project files for SDL 1.2.7
+
 	* Makefile.am: add VisualC, VisualCE dirs to tarball
 
 2004-05-13  Martin Schaffner  <maschaffner@gmx.ch>
