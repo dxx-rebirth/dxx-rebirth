@@ -40,12 +40,6 @@ d2x_ggi_LDADD = ${d2x_sdl_LDADD} ${GGI_LIBS}
 dist-hook:
 	rm -rf `find $(distdir) -name CVS`
 #	rm -f `find $(distdir) -name Makefile`
-	$(MAKE) changelog
-	cp -a $(srcdir)/ChangeLog $(distdir)
-
-changelog::
-	cd $(srcdir) && tools/cvs2cl/cvs2cl.pl -b --utc --accum
-#	rm -f $(srcdir)/ChangeLog.bak
 
 pkgdatadir = @sharepath@
 missiondir = ${pkgdatadir}/missions
