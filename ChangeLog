@@ -1,5 +1,8 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/linux/joystick.c: fix crash/hang when using -nojoystick in
+	linux version (d1x r1.5)
+
 	* main/kconfig.c: make next axis config key skip currently
 	allocated axes (d1x r1.11)
 

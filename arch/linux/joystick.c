@@ -1,4 +1,4 @@
-/* $Id: joystick.c,v 1.4 2004-05-22 01:40:14 btb Exp $ */
+/* $Id: joystick.c,v 1.5 2004-05-22 07:31:38 btb Exp $ */
 /*
  *
  * Linux joystick support
@@ -181,7 +181,9 @@ void joy_flush () {
 
 ubyte joystick_read_raw_axis (ubyte mask, int *axes) {
 	int i;
-	
+
+	if (!joy_installed)
+		return 0;
 	j_Update_state();
 
 	for (i = 0; i < j_num_axes; i++) {
@@ -367,6 +369,8 @@ int joy_get_btns () {
 
 
 int joy_get_button_state (int btn) {
+	if (!joy_installed)
+		return 0;
   if(btn >= j_num_buttons)
    return 0;
         j_Update_state ();
@@ -378,6 +382,8 @@ int joy_get_button_state (int btn) {
 int joy_get_button_down_cnt (int btn) {
 	int downcount;
 
+	if (!joy_installed)
+		return 0;
 	j_Update_state ();
 
 	downcount = j_button[btn].downcount;
@@ -390,6 +396,9 @@ int joy_get_button_down_cnt (int btn) {
 //changed 6/24/99 to finally squish the timedown bug - Owen Evans
 fix joy_get_button_down_time(int btn)  {
 	fix downtime;
+
+	if (!joy_installed)
+		return 0;
 	j_Update_state ();
 
 	if (j_button[btn].state) {
