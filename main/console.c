@@ -1,4 +1,4 @@
-/* $Id: console.c,v 1.12 2003-06-02 06:15:41 btb Exp $ */
+/* $Id: console.c,v 1.13 2003-06-02 20:45:32 btb Exp $ */
 /*
  *
  * FIXME: put description here
@@ -76,13 +76,15 @@ void real_con_init(void)
 	SDL_Rect Con_rect;
 
 	Con_rect.x = Con_rect.y = 0;
-	Con_rect.w = Con_rect.h = 300;
+	Con_rect.w = 320;
+	Con_rect.h = 200;
 
 	Console = CON_Init("ConsoleFont.png", screen, CON_NUM_LINES, Con_rect);
 
 	Assert(Console);
 
 	CON_SetExecuteFunction(Console, con_parse);
+	CON_Background(Console, "scores.pcx", 0, 0);
 
 	con_initialized = 1;
 }
