@@ -1,5 +1,9 @@
 2003-11-25  Bradley Bell  <btb@icculus.org>
 
+	* VisualC/d2x, VisualC/d2x/.cvsignore, VisualC/d2x/d2x.dsp,
+	VisualC/d2x.dsw, VisualC/libmve/libmve.dsp,
+	libmve/VisualC/mveplayer.dsp: updated project files
+
 	* libmve/mve_main.c, libmve/mvelib.c, libmve/mveplay.c: mveplayer
 	working w/Visual C++
 

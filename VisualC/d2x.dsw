@@ -3,6 +3,21 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "d2x"=.\d2x\d2x.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name libmve
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "libmve"=.\libmve\libmve.dsp - Package Owner=<4>
 
 Package=<5>
