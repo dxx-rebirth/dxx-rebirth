@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.15 2003-11-25 04:36:25 btb Exp $ */
+/* $Id: mveplay.c,v 1.16 2003-11-26 03:07:45 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -9,7 +9,7 @@
 //#define DEBUG
 
 #include <string.h>
-#ifndef _WIN32_WCE
+#ifndef _WIN32
 #include <errno.h>
 #include <time.h>
 #include <sys/time.h>
@@ -102,13 +102,6 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
  * timer handlers
  *************************/
 
-#if !HAVE_STRUCT_TIMEVAL
-struct timeval {
-	long    tv_sec;
-	long    tv_usec;
-};
-#endif
-
 /*
  * timer variables
  */
@@ -129,40 +122,17 @@ struct timespec
 int nanosleep(struct timespec *ts, void *rem);
 #endif
 
-#ifdef _WIN32_WCE
+#ifdef _WIN32
 int gettimeofday(struct timeval *tv, void *tz)
 {
 	static int counter = 0;
 	DWORD now;
 
 	counter++;
-	now = GetTickCount();	
+	now = GetTickCount();
 
 	tv->tv_sec = now / 1000;
 	tv->tv_usec = (now % 1000) * 1000 + counter;
-	
-	return 0;
-}
-
-#elif defined(__WIN32)
-#include <sys/timeb.h>
-
-int gettimeofday(struct timeval *tv, void *tz)
-{
-	static int counter = 0;
-	struct timeb tm;
-
-	counter++; /* to avoid collisions */
-	ftime(&tm);
-	tv->tv_sec  = tm.time;
-	tv->tv_usec = (tm.millitm * 1000) + counter;
-
-	return 0;
-}
-
-int nanosleep(struct timespec *ts, void *rem)
-{
-	_sleep(ts->tv_sec * 1000 + ts->tv_nsec / 1000000);
 
 	return 0;
 }
@@ -171,7 +141,7 @@ int nanosleep(struct timespec *ts, void *rem)
 static int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
 
-#ifndef _WIN32_WCE
+#ifndef _WIN32 //FIXME
 	__extension__ long long temp;
 #else
 	long temp;
@@ -236,10 +206,8 @@ static void do_timer_wait(void)
 		ts.tv_nsec += 1000000000UL;
 		--ts.tv_sec;
 	}
-#ifdef _WIN32_WCE
+#ifdef _WIN32
 	Sleep(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
-#elif defined(__CYGWIN__)
-	usleep(ts.tv_sec * 1000000 + ts.tv_nsec / 1000);
 #else
 	if (nanosleep(&ts, NULL) == -1  &&  errno == EINTR)
 		exit(1);

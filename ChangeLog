@@ -1,5 +1,14 @@
 2003-11-25  Bradley Bell  <btb@icculus.org>
 
+	* libmve/mve_main.c, libmve/mvelib.c, libmve/mveplay.c: mveplayer
+	working w/Visual C++
+
+	* VisualC, VisualC/.cvsignore, VisualC/d2x.dsw, VisualC/libmve,
+	VisualC/libmve/.cvsignore, VisualC/libmve/libmve.dsp,
+	VisualC/mveplayer, VisualC/mveplayer/.cvsignore,
+	VisualC/mveplayer/mveplayer.dsp: added project files for Visual
+	C++
+
 	* VisualCE/.cvsignore, VisualCE/d2x/.cvsignore,
 	VisualCE/libmve/.cvsignore, VisualCE/mveplayer/.cvsignore: added
 	.cvsignore files

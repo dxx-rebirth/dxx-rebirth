@@ -1,9 +1,9 @@
-/* $Id: mve_main.c,v 1.4 2003-11-25 04:36:25 btb Exp $ */
+/* $Id: mve_main.c,v 1.5 2003-11-26 03:07:45 btb Exp $ */
 
 #include <stdlib.h>
 #include <assert.h>
 
-#ifdef _WIN32_WCE
+#ifdef _WIN32
 # include <windows.h>
 #endif
 

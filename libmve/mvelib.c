@@ -1,5 +1,5 @@
 #include <string.h> // for mem* functions
-#ifndef _WIN32_WCE
+#ifndef _WIN32
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
