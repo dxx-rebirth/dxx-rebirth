@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.29 2004-05-22 07:20:54 btb Exp $ */
+/* $Id: kconfig.c,v 1.30 2004-05-22 07:27:29 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.29 2004-05-22 07:20:54 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.30 2004-05-22 07:27:29 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2005,10 +2005,10 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 
-// the following function added by WraithX on 11/22/00 to work around the weird joystick bug...
+// the following function added by WraithX on 11/22/00 to work around the weird joystick bug... - modified my Matt Mueller to skip already allocated axes
 void kc_next_joyaxis(kc_item *item)
 {
-	int n, i, k;
+	int n, i, k, max, tries;
 	ubyte code = 0;
 
 	k = 255;
@@ -2018,10 +2018,12 @@ void kc_next_joyaxis(kc_item *item)
 	// I modelled this ifdef after the code in the kc_change_joyaxis method.
 	// So, if somethin's not workin here, it might not be workin there either.
 #ifdef USE_LINUX_JOY
-	code = (item->value + 1) % 32;
+	max = 32;
 #else
-	code = (item->value + 1) % JOY_NUM_AXES;
+	max = JOY_NUM_AXES;
 #endif
+	tries = 1;
+	code = (item->value + 1) % max;
 
 	if (code != 255)
 	{
@@ -2030,8 +2032,10 @@ void kc_next_joyaxis(kc_item *item)
 			n = item - All_items;
 			if ((i != n) && (All_items[i].type == BT_JOY_AXIS) && (All_items[i].value == code))
 			{
-				All_items[i].value = 255;
-				kc_drawitem(&All_items[i], 0);
+				if (tries > max)
+					return; // all axes allocated already
+				i = -1; // -1 so the i++ will push back to 0
+				code = (item->value + ++tries) % max; // try next axis
 			}//end if
 		}//end for
 
