@@ -1,3 +1,4 @@
+/* $Id: */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.8 2002-08-01 23:28:57 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.9 2002-08-02 23:28:40 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -44,7 +45,7 @@ static char rcsid[] = "$Id: gamemine.c,v 1.8 2002-08-01 23:28:57 btb Exp $";
 #include "editor/editor.h"
 #endif
 
-#include "cfile.h"		
+#include "cfile.h"
 #include "fuelcen.h"
 
 #include "hash.h"
@@ -52,6 +53,7 @@ static char rcsid[] = "$Id: gamemine.c,v 1.8 2002-08-01 23:28:57 btb Exp $";
 #include "piggy.h"
 
 #include "byteswap.h"
+#include "gamesave.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
@@ -626,7 +628,7 @@ void read_special(int segnum,ubyte bit_mask,CFILE *LoadFile)
 	}
 }
 
-int load_mine_data_compiled(CFILE *LoadFile, int file_version)
+int load_mine_data_compiled(CFILE *LoadFile)
 {
 	int     i, segnum, sidenum;
 	ubyte   compiled_version;
@@ -673,7 +675,7 @@ int load_mine_data_compiled(CFILE *LoadFile, int file_version)
 #else
 		read_children(segnum,bit_mask,LoadFile);
 		read_verts(segnum,LoadFile);
-		if (file_version <= 1) { // descent 1 level
+		if (Gamesave_current_version <= 1) { // descent 1 level
 			read_special(segnum,bit_mask,LoadFile);
 		}
 #endif
@@ -681,7 +683,7 @@ int load_mine_data_compiled(CFILE *LoadFile, int file_version)
 		Segments[segnum].objects = -1;
 
 #ifndef SHAREWARE
-		if (file_version <= 1) { // descent 1 level
+		if (Gamesave_current_version <= 1) { // descent 1 level
 #endif
 			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
 			temp_ushort = cfile_read_short(LoadFile);
@@ -783,7 +785,7 @@ int load_mine_data_compiled(CFILE *LoadFile, int file_version)
 
 	for (i=0; i<Num_segments; i++) {
 #ifndef SHAREWARE
-		if (file_version > 1)
+		if (Gamesave_current_version > 1)
 			segment2_read(&Segment2s[i], LoadFile);
 #endif
 		fuelcen_activate( &Segments[i], Segment2s[i].special );

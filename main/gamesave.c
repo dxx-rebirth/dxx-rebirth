@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.9 2002-08-01 23:28:57 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.10 2002-08-02 23:28:40 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -74,63 +74,65 @@ char gamesave_rcsid[] = "$Id: gamesave.c,v 1.9 2002-08-01 23:28:57 btb Exp $";
 
 char Gamesave_current_filename[128];
 
-#define GAME_VERSION					32
-#define GAME_COMPATIBLE_VERSION	22
+int Gamesave_current_version;
 
-//version 28->29	add delta light support
+#define GAME_VERSION            32
+#define GAME_COMPATIBLE_VERSION 22
+
+//version 28->29  add delta light support
 //version 27->28  controlcen id now is reactor number, not model number
 //version 28->29  ??
-//version 29->30	changed trigger structure
-//version 30->31	changed trigger structure some more
-//version 31->32	change segment structure, make it 512 bytes w/o editor, add Segment2s array.
+//version 29->30  changed trigger structure
+//version 30->31  changed trigger structure some more
+//version 31->32  change segment structure, make it 512 bytes w/o editor, add Segment2s array.
 
-#define MENU_CURSOR_X_MIN			MENU_X
-#define MENU_CURSOR_X_MAX			MENU_X+6
+#define MENU_CURSOR_X_MIN       MENU_X
+#define MENU_CURSOR_X_MAX       MENU_X+6
 
 struct {
-	ushort 	fileinfo_signature;
-	ushort	fileinfo_version;
-	int		fileinfo_sizeof;
+	ushort  fileinfo_signature;
+	ushort  fileinfo_version;
+	int     fileinfo_sizeof;
 } game_top_fileinfo;    // Should be same as first two fields below...
 
 struct {
-	ushort 	fileinfo_signature;
-	ushort	fileinfo_version;
-	int		fileinfo_sizeof;
-	char		mine_filename[15];
-	int		level;
-	int		player_offset;				// Player info
-	int		player_sizeof;
-	int		object_offset;				// Object info
-	int		object_howmany;    	
-	int		object_sizeof;  
-	int		walls_offset;
-	int		walls_howmany;
-	int		walls_sizeof;
-	int		doors_offset;
-	int		doors_howmany;
-	int		doors_sizeof;
-	int		triggers_offset;
-	int		triggers_howmany;
-	int		triggers_sizeof;
-	int		links_offset;
-	int		links_howmany;
-	int		links_sizeof;
-	int		control_offset;
-	int		control_howmany;
-	int		control_sizeof;
-	int		matcen_offset;
-	int		matcen_howmany;
-	int		matcen_sizeof;
-	int		dl_indices_offset;
-	int		dl_indices_howmany;
-	int		dl_indices_sizeof;
-	int		delta_light_offset;
-	int		delta_light_howmany;
-	int		delta_light_sizeof;
+	ushort  fileinfo_signature;
+	ushort  fileinfo_version;
+	int     fileinfo_sizeof;
+	char    mine_filename[15];
+	int     level;
+	int     player_offset;              // Player info
+	int     player_sizeof;
+	int     object_offset;              // Object info
+	int     object_howmany;
+	int     object_sizeof;
+	int     walls_offset;
+	int     walls_howmany;
+	int     walls_sizeof;
+	int     doors_offset;
+	int     doors_howmany;
+	int     doors_sizeof;
+	int     triggers_offset;
+	int     triggers_howmany;
+	int     triggers_sizeof;
+	int     links_offset;
+	int     links_howmany;
+	int     links_sizeof;
+	int     control_offset;
+	int     control_howmany;
+	int     control_sizeof;
+	int     matcen_offset;
+	int     matcen_howmany;
+	int     matcen_sizeof;
+	int     dl_indices_offset;
+	int     dl_indices_howmany;
+	int     dl_indices_sizeof;
+	int     delta_light_offset;
+	int     delta_light_howmany;
+	int     delta_light_sizeof;
 } game_fileinfo;
 
-//	LINT: adding function prototypes
+//  LINT: adding function prototypes
 void read_object(object *obj, CFILE *f, int version);
 void write_object(object *obj, FILE *f);
 void do_load_save_levels(int save);
@@ -150,11 +152,11 @@ int Gamesave_num_org_robots = 0;
 //--unused-- grs_bitmap * Gamesave_saved_bitmap = NULL;
 
 #ifdef EDITOR
-//	Return true if this level has a name of the form "level??"
-//	Note that a pathspec can appear at the beginning of the filename.
+// Return true if this level has a name of the form "level??"
+// Note that a pathspec can appear at the beginning of the filename.
 int is_real_level(char *filename)
 {
-	int	len = strlen(filename);
+	int len = strlen(filename);
 
 	if (len < 6)
 		return 0;
@@ -310,17 +312,21 @@ void verify_object( object * obj )	{
 		}
 	}
 
-	if ( obj->type == OBJ_CNTRLCEN )	{
+	if ( obj->type == OBJ_CNTRLCEN ) {
 
 		obj->render_type = RT_POLYOBJ;
 		obj->control_type = CT_CNTRLCEN;
 
-		//@@// Make model number is correct...	
-		//@@for (i=0; i<Num_total_object_types; i++ )	
-		//@@	if ( ObjType[i] == OL_CONTROL_CENTER )		{
+		if (Gamesave_current_version <= 1) { // descent 1 reactor
+			obj->id = 0;                         // used to be only one kind of reactor
+			obj->rtype.pobj_info.model_num = 97; // approximately descent 1 type
+		}
+		//@@// Make model number is correct...
+		//@@for (i=0; i<Num_total_object_types; i++ )
+		//@@	if ( ObjType[i] == OL_CONTROL_CENTER ) {
 		//@@		obj->rtype.pobj_info.model_num = ObjId[i];
 		//@@		obj->shields = ObjStrength[i];
-		//@@		break;		
+		//@@		break;
 		//@@	}
 
 		#ifdef EDITOR
@@ -435,32 +441,29 @@ extern int multi_powerup_is_4pack(int);
 //reads one object of the given version from the given file
 void read_object(object *obj,CFILE *f,int version)
 {
-	
-	obj->type				= cfile_read_byte(f);
-	obj->id					= cfile_read_byte(f);
 
-	if (obj->type == OBJ_CNTRLCEN && version<28)
-		obj->id = 0;		//used to be only one kind of reactor
+	obj->type           = cfile_read_byte(f);
+	obj->id             = cfile_read_byte(f);
 
-	obj->control_type		= cfile_read_byte(f);
-	obj->movement_type	= cfile_read_byte(f);
-	obj->render_type		= cfile_read_byte(f);
-	obj->flags				= cfile_read_byte(f);
+	obj->control_type   = cfile_read_byte(f);
+	obj->movement_type  = cfile_read_byte(f);
+	obj->render_type    = cfile_read_byte(f);
+	obj->flags          = cfile_read_byte(f);
 
-	obj->segnum				= cfile_read_short(f);
-	obj->attached_obj		= -1;
+	obj->segnum         = cfile_read_short(f);
+	obj->attached_obj   = -1;
 
 	cfile_read_vector(&obj->pos,f);
 	cfile_read_matrix(&obj->orient,f);
 
-	obj->size				= cfile_read_fix(f);
-	obj->shields			= cfile_read_fix(f);
+	obj->size           = cfile_read_fix(f);
+	obj->shields        = cfile_read_fix(f);
 
 	cfile_read_vector(&obj->last_pos,f);
 
-	obj->contains_type	= cfile_read_byte(f);
-	obj->contains_id		= cfile_read_byte(f);
-	obj->contains_count	= cfile_read_byte(f);
+	obj->contains_type  = cfile_read_byte(f);
+	obj->contains_id    = cfile_read_byte(f);
+	obj->contains_count = cfile_read_byte(f);
 
 	switch (obj->movement_type) {
 
@@ -950,12 +953,12 @@ int load_game_data(CFILE *LoadFile)
 	Gamesave_num_players = 0;
 
 	if (game_fileinfo.object_offset > -1) {
-		if (cfseek( LoadFile, game_fileinfo.object_offset, SEEK_SET )) 
+		if (cfseek( LoadFile, game_fileinfo.object_offset, SEEK_SET ))
 			Error( "Error seeking to object_offset in gamesave.c" );
-	
-		for (i=0;i<game_fileinfo.object_howmany;i++)	{
 
-			read_object(&Objects[i],LoadFile,game_top_fileinfo.fileinfo_version);
+		for (i=0;i<game_fileinfo.object_howmany;i++) {
+
+			read_object(&Objects[i], LoadFile, game_top_fileinfo.fileinfo_version);
 
 			Objects[i].signature = Object_next_signature++;
 			verify_object( &Objects[i] );
@@ -1377,7 +1380,7 @@ extern void ncache_flush();
 
 extern int HoardEquipped();
 
-extern	int	Slide_segs_computed;
+extern int Slide_segs_computed;
 
 int no_old_level_file_error=0;
 
@@ -1385,13 +1388,13 @@ int no_old_level_file_error=0;
 //returns 0 if success, else error code
 int load_level(char * filename_passed)
 {
-	#ifdef EDITOR
+#ifdef EDITOR
 	int use_compiled_level=1;
-	#endif
+#endif
 	CFILE * LoadFile;
 	char filename[128];
-	int sig,version,minedata_offset,gamedata_offset;
-	int mine_err,game_err;
+	int sig, minedata_offset, gamedata_offset;
+	int mine_err, game_err;
 #ifdef NETWORK
 	int i;
 #endif
@@ -1452,14 +1455,14 @@ int load_level(char * filename_passed)
 //		newdemo_record_start_demo();
 //	#endif
 
-	sig					= cfile_read_int(LoadFile);
-	version				= cfile_read_int(LoadFile);
-	minedata_offset		= cfile_read_int(LoadFile);
-	gamedata_offset		= cfile_read_int(LoadFile);
+	sig                      = cfile_read_int(LoadFile);
+	Gamesave_current_version = cfile_read_int(LoadFile);
+	minedata_offset          = cfile_read_int(LoadFile);
+	gamedata_offset          = cfile_read_int(LoadFile);
 
 	Assert(sig == MAKE_SIG('P','L','V','L'));
 
-	if (version >= 8) {			//read dummy data
+	if (Gamesave_current_version >= 8) {    //read dummy data
 #ifdef NETWORK
 		if (HoardEquipped())
 		{
@@ -1474,28 +1477,28 @@ int load_level(char * filename_passed)
 
 	}
 
-	if (version < 5)
-		cfile_read_int(LoadFile);		//was hostagetext_offset
+	if (Gamesave_current_version < 5)
+		cfile_read_int(LoadFile);       //was hostagetext_offset
 
-	if (version > 1) {
+	if (Gamesave_current_version > 1) {
 		cfgets(Current_level_palette,sizeof(Current_level_palette),LoadFile);
 		if (Current_level_palette[strlen(Current_level_palette)-1] == '\n')
 			Current_level_palette[strlen(Current_level_palette)-1] = 0;
 	}
-	if (version <= 1 || Current_level_palette[0]==0) // descent 1 level
+	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
 		strcpy(Current_level_palette,"groupa.256");
 
-	if (version >= 3)
+	if (Gamesave_current_version >= 3)
 		Base_control_center_explosion_time = cfile_read_int(LoadFile);
 	else
 		Base_control_center_explosion_time = DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
 
-	if (version >= 4)
+	if (Gamesave_current_version >= 4)
 		Reactor_strength = cfile_read_int(LoadFile);
 	else
-		Reactor_strength = -1;	//use old defaults
+		Reactor_strength = -1;  //use old defaults
 
-	if (version >= 7) {
+	if (Gamesave_current_version >= 7) {
 		int i;
 
 		Num_flickering_lights = cfile_read_int(LoadFile);
@@ -1506,11 +1509,17 @@ int load_level(char * filename_passed)
 	else
 		Num_flickering_lights = 0;
 
-	if (version < 6) {
+	if (Gamesave_current_version < 6) {
 		Secret_return_segment = 0;
-		Secret_return_orient.rvec.x = F1_0;	Secret_return_orient.rvec.y = 0;			Secret_return_orient.rvec.z = 0;
-		Secret_return_orient.fvec.x =    0;	Secret_return_orient.fvec.y = F1_0;		Secret_return_orient.fvec.z = 0;
-		Secret_return_orient.uvec.x =    0;	Secret_return_orient.uvec.y = 0;			Secret_return_orient.uvec.z = F1_0;
+		Secret_return_orient.rvec.x = F1_0;
+		Secret_return_orient.rvec.y = 0;
+		Secret_return_orient.rvec.z = 0;
+		Secret_return_orient.fvec.x = 0;
+		Secret_return_orient.fvec.y = F1_0;
+		Secret_return_orient.fvec.z = 0;
+		Secret_return_orient.uvec.x = 0;
+		Secret_return_orient.uvec.y = 0;
+		Secret_return_orient.uvec.z = F1_0;
 	} else {
 		Secret_return_segment = cfile_read_int(LoadFile);
 		Secret_return_orient.rvec.x = cfile_read_int(LoadFile);
@@ -1529,15 +1538,15 @@ int load_level(char * filename_passed)
 	if (!use_compiled_level) {
 		mine_err = load_mine_data(LoadFile);
 #if 0 //dunno - 3rd party stuff?
-		//	Compress all uv coordinates in mine, improves texmap precision. --MK, 02/19/96
+		// Compress all uv coordinates in mine, improves texmap precision. --MK, 02/19/96
 		compress_uv_coordinates_all();
 #endif
 	} else
 	#endif
 		//NOTE LINK TO ABOVE!!
-		mine_err = load_mine_data_compiled(LoadFile, version);
+		mine_err = load_mine_data_compiled(LoadFile);
 
-	if (mine_err == -1) {	//error!!
+	if (mine_err == -1) {   //error!!
 		cfclose(LoadFile);
 		return 2;
 	}
@@ -1545,7 +1554,7 @@ int load_level(char * filename_passed)
 	cfseek(LoadFile,gamedata_offset,SEEK_SET);
 	game_err = load_game_data(LoadFile);
 
-	if (game_err == -1) {	//error!!
+	if (game_err == -1) {   //error!!
 		cfclose(LoadFile);
 		return 3;
 	}
@@ -1574,10 +1583,10 @@ int load_level(char * filename_passed)
 
 	#ifdef EDITOR
 	//If an old version, ask the use if he wants to save as new version
-	if (!no_old_level_file_error && (Function_mode == FMODE_EDITOR) && (((LEVEL_FILE_VERSION>3) && version<LEVEL_FILE_VERSION) || mine_err==1 || game_err==1)) {
+	if (!no_old_level_file_error && (Function_mode == FMODE_EDITOR) && (((LEVEL_FILE_VERSION > 3) && Gamesave_current_version < LEVEL_FILE_VERSION) || mine_err == 1 || game_err == 1)) {
 		char  ErrorMessage[200];
 
-		sprintf( ErrorMessage, 
+		sprintf( ErrorMessage,
 					"You just loaded a old version\n"
 					"level.  Would you like to save\n"
 					"it as a current version level?");

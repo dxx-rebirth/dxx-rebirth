@@ -1,3 +1,4 @@
+/* $Id: gamemine.h,v 1.3 2002-08-02 23:28:40 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -58,12 +59,12 @@ struct mfi {
 	int		links_howmany;
 	int		links_sizeof;
 	int		object_offset;				// Object info
-	int	  	object_howmany;    	
-	int	  	object_sizeof;  
+	int	  	object_howmany;
+	int	  	object_sizeof;
 	int	  	unused_offset;			//was: doors_offset
 	int		unused_howmamy;		//was: doors_howmany
 	int		unused_sizeof;			//was: doors_sizeof
-	short		level_shake_frequency, level_shake_duration;	//	Shakes every level_shake_frequency seconds
+	short	level_shake_frequency, level_shake_duration;	//	Shakes every level_shake_frequency seconds
 																			// for level_shake_duration seconds (on average, random).  In 16ths second.
 	int		secret_return_segment;
 	vms_matrix	secret_return_orient;
@@ -88,17 +89,17 @@ struct mh {
 };
 
 struct me {
-	int     current_seg;
-	int     newsegment_offset;
-	int     newsegment_size;
-	int     Curside;
-	int     Markedsegp;
-	int     Markedside;
-	int	  Groupsegp[10];
-	int 	  Groupside[10];
-	int	  num_groups;
-	int 	  current_group;
-//	int	  num_objects;
+	int current_seg;
+	int newsegment_offset;
+	int newsegment_size;
+	int Curside;
+	int Markedsegp;
+	int Markedside;
+	int Groupsegp[10];
+	int Groupside[10];
+	int num_groups;
+	int current_group;
+//	int num_objects;
 };
 
 extern struct mtfi mine_top_fileinfo;    // Should be same as first two fields below...
@@ -112,7 +113,7 @@ int game_load_mine(char * filename);
 //loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
 int load_mine_data(CFILE *LoadFile);
-int load_mine_data_compiled(CFILE *LoadFile, int file_version);
+int load_mine_data_compiled(CFILE *LoadFile);
 
 extern short tmap_xlate_table[];
 extern fix Level_shake_frequency, Level_shake_duration;
