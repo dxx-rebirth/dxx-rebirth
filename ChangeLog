@@ -7,6 +7,9 @@
 
 	* cfile/cfile.c: correct warnings caused by change of 2004-09-30
 
+	* main/gamemine.c, main/piggy.c: fix bug 1675:
+	use better d2 textures if d1 hog is present but not loadable
+
 2004-09-30  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* cfile/cfile.c: simplify, reduce number of global vars
