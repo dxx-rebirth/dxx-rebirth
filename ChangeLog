@@ -4,7 +4,9 @@
 	ui/menubar.c, ui/message.c, ui/number.c, ui/popup.c: call
 	gr_update in event loops
 
-	* ui/file.c: use PhysicsFS
+	* include/ui.h, ui/file.c, ui/listbox.c: use PhysicsFS in
+	file.c, involves modifying the listbox so it can use
+	an array of string pointers
 
 2005-02-26  Chris Taylor  <chris@icculus.org>
 

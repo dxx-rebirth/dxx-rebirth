@@ -161,8 +161,7 @@ typedef struct  {
 typedef struct  {
 	BASE_GADGET
 	short           width, height;
-	char            * list;
-	int             text_width;
+	char            **list;
 	int             num_items;
 	int             num_items_displayed;
 	int             first_item;
@@ -275,7 +274,7 @@ extern void ui_button_do( UI_GADGET_BUTTON * button, int keypress );
 
 extern void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress );
 extern void ui_draw_listbox( UI_GADGET_LISTBOX * listbox );
-extern UI_GADGET_LISTBOX * ui_add_gadget_listbox( UI_WINDOW * wnd, short x, short y, short w, short h, short numitems, char * list, int text_width );
+extern UI_GADGET_LISTBOX *ui_add_gadget_listbox(UI_WINDOW *wnd, short x, short y, short w, short h, short numitems, char **list);
 
 extern void ui_mega_process();
 
@@ -301,7 +300,7 @@ extern UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget );
 extern UI_GADGET * ui_gadget_get_next( UI_GADGET * gadget );
 extern void ui_gadget_calc_keys( UI_WINDOW * wnd);
 
-extern void ui_listbox_change( UI_WINDOW * wnd, UI_GADGET_LISTBOX * listbox, short numitems, char * list, int text_width );
+extern void ui_listbox_change(UI_WINDOW *wnd, UI_GADGET_LISTBOX *listbox, short numitems, char **list);
 
 
 extern void ui_draw_inputbox( UI_GADGET_INPUTBOX * inputbox );
@@ -316,21 +315,8 @@ extern void ui_draw_userbox( UI_GADGET_USERBOX * userbox );
 
 extern int MenuX( int x, int y, int NumButtons, char * text[] );
 
-// Changes to a drive if valid.. 1=A, 2=B, etc
-// If flag, then changes to it.
-// Returns 0 if not-valid, 1 if valid.
-int file_chdrive( int DriveNum, int flag );
-
-// Changes to directory in dir.  Even drive is changed.
-// Returns 1 if failed.
-//  0 = Changed ok.
-//  1 = Invalid disk drive.
-//  2 = Invalid directory.
-
-int file_chdir( char * dir );
-
-int file_getdirlist( int MaxNum, char list[][13] );
-int file_getfilelist( int MaxNum, char list[][13], char * filespec );
+char **file_getdirlist(int *NumFiles, char *dir);
+char **file_getfilelist(int *NumDirs, char *filespec, char *dir);
 int ui_get_filename( char * filename, char * Filespec, char * message  );
 
 
@@ -393,9 +379,6 @@ void ui_barbox_close();
 
 void ui_reset_idle_seconds(void);
 int ui_get_idle_seconds(void);
-
-extern char filename_list[300][13];
-extern char directory_list[100][13];
 
 extern int ui_button_any_drawn;
 

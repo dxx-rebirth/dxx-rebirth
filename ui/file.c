@@ -1,4 +1,4 @@
-/* $Id: file.c,v 1.10 2005-03-05 09:18:46 chris Exp $ */
+/* $Id: file.c,v 1.11 2005-03-05 09:30:26 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,20 +13,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: file.c,v 1.10 2005-03-05 09:18:46 chris Exp $";
+static char rcsid[] = "$Id: file.c,v 1.11 2005-03-05 09:30:26 chris Exp $";
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <direct.h>
-#include <dos.h>
-#include <ctype.h>
-#include <conio.h>
-#include <fcntl.h>
-#include <io.h>
-#include <sys\types.h>
-#include <sys\stat.h>
+#include <physfs.h>
 
 #include "fix.h"
 #include "pstypes.h"
@@ -39,270 +31,153 @@ static char rcsid[] = "$Id: file.c,v 1.10 2005-03-05 09:18:46 chris Exp $";
 
 #include "u_mem.h"
 
-char filename_list[300][13];
-char directory_list[100][13];
-
-int file_sort_func(char *e0, char *e1)
+int file_sort_func(char **e0, char **e1)
 {
-	return stricmp(e0, e1);
+	return stricmp(*e0, *e1);
 }
 
 
-int SingleDrive()
+char **file_getdirlist(int *NumDirs, char *dir)
 {
-	int FloppyPresent, FloppyNumber;
-	unsigned char b;
+	char	path[PATH_MAX];
+	char	**list = PHYSFS_enumerateFiles(dir);
+	char	**i, **j = list;
+	char	*test_filename;
+	int		test_max;
 
-	b = *((unsigned char *)0x410);
+	if (!list)
+		return NULL;
 
-	FloppyPresent = b & 1;
-	FloppyNumber = ((b&0xC0)>>6)+1;
-	if (FloppyPresent && (FloppyNumber==1) )
-		return 1;
-	else
-		return 0;
+	strcpy(path, dir);
+	if (*path)
+		strncat(path, "/", PATH_MAX - strlen(dir));
+
+	test_filename = path + strlen(path);
+	test_max = PATH_MAX - (test_filename - path);
+
+	for (i = list; *i; i++)
+	{
+		if (strlen(*i) >= test_max)
+			continue;
+
+		strcpy(test_filename, *i);
+		if (PHYSFS_isDirectory(path))
+			*j++ = *i;
+		else
+			free(*i);
+	}
+	*j = NULL;
+
+	*NumDirs = j - list;
+	qsort(list, *NumDirs, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
+
+	if (*dir)
+	{
+		// Put the 'go to parent directory' sequence '..' first
+		(*NumDirs)++;
+		list = realloc(list, sizeof(char *)*(*NumDirs + 1));
+		list[*NumDirs] = NULL;	// terminate
+		for (i = list + *NumDirs - 1; i != list; i--)
+			*i = i[-1];
+		list[0] = strdup("..");
+	}
+
+	return list;
 }
 
-void SetFloppy(int d)
+char **file_getfilelist(int *NumFiles, char *filespec, char *dir)
 {
-	if (SingleDrive())
+	char **list = PHYSFS_enumerateFiles(dir);
+	char **i, **j = list, *ext;
+
+	if (!list)
+		return NULL;
+
+	if (*filespec == '*')
+		filespec++;
+
+	for (i = list; *i; i++)
 	{
-	if (d==1)
-		*((unsigned char *)0x504) = 0;
-	else if (d==2)
-		*((unsigned char *)0x504) = 1;
+		ext = strrchr(*i, '.');
+		if (ext && (!stricmp(ext, filespec)))
+			*j++ = *i;
+		else
+			free(*i);
 	}
+	*j = NULL;
+
+
+	*NumFiles = j - list;
+	qsort(list, *NumFiles, sizeof(char *), (int (*)( const void *, const void * ))file_sort_func);
+
+	return list;
 }
-
-
-void file_capitalize( char * s )
-{
-	while( *s++ = toupper(*s) );
-}
-
-
-// Changes to a drive if valid.. 1=A, 2=B, etc
-// If flag, then changes to it.
-// Returns 0 if not-valid, 1 if valid.
-int file_chdrive( int DriveNum, int flag )
-{
-	unsigned NumDrives, n, org;
-	int Valid = 0;
-
-	if (!flag)
-		_dos_getdrive( &org );
-
-	_dos_setdrive( DriveNum, &NumDrives );
-	_dos_getdrive( &n );
-
-	if (n == DriveNum )
-		Valid = 1;
-
-	if ( (!flag) && (n != org) )
-		_dos_setdrive( org, &NumDrives );
-
-	return Valid;
-}
-
-
-// Changes to directory in dir.  Even drive is changed.
-// Returns 1 if failed.
-//  0 = Changed ok.
-//  1 = Invalid disk drive.
-//  2 = Invalid directory.
-
-int file_chdir( char * dir )
-{
-	int e;
-	char OriginalDirectory[100];
-	char * Drive, * Path;
-	char NoDir[] = "\.";
-
-	getcwd( OriginalDirectory, 100 );
-
-	file_capitalize( dir );
-
-	Drive = strchr(dir, ':');
-
-	if (Drive)
-	{
-		if (!file_chdrive( *(Drive - 1) - 'A' + 1, 1))
-			return 1;
-
-		Path = Drive+1;
-
-		SetFloppy(*(Drive - 1) - 'A' + 1);
-	}
-	else
-	{
-		Path = dir;
-
-	}
-
-	if (!(*Path))
-	{
-		Path = NoDir;
-	}
-
-	// This chdir might get a critical error!
-	e = chdir( Path );
-	if (e)
-	{
-		file_chdrive( OriginalDirectory[0] - 'A'+1, 1 );
-		return 2;
-	}
-
-	return 0;
-
-}
-
-
-int file_getdirlist( int MaxNum, char list[][13] )
-{
-	struct find_t find;
-	int NumDirs = 0, i, CurDrive;
-	char cwd[129];
-	MaxNum = MaxNum;
-
-	getcwd(cwd, 128 );
-
-	if (strlen(cwd) >= 4)
-	{
-		sprintf( list[NumDirs++], ".." );
-	}
-
-	CurDrive = cwd[0] - 'A' + 1;
-
-	if( !_dos_findfirst( "*.", _A_SUBDIR, &find ) )
-	{
-		if ( find.attrib & _A_SUBDIR )	{
-			if (strcmp( "..", find.name) && strcmp( ".", find.name))
-				strncpy(list[NumDirs++], find.name, 13 );
-		}
-
-		while( !_dos_findnext( &find ) )
-		{
-			if ( find.attrib & _A_SUBDIR )	{
-				if (strcmp( "..", find.name) && strcmp( ".", find.name))
-				{
-					if (NumDirs==74)
-					{
-						MessageBox( -2,-2, 1, "Only the first 74 directories will be displayed.", "Ok" );
-						break;
-					} else {
-						strncpy(list[NumDirs++], find.name, 13 );
-					}
-				}
-			}
-		}
-	}
-
-	qsort(list, NumDirs, 13, (int (*)( const void *, const void * ))file_sort_func);
-
-	for (i=1; i<=26; i++ )
-	{
-		if (file_chdrive(i,0) && (i!=CurDrive))
-		{
-			if (!((i==2) && SingleDrive()))
-				sprintf( list[NumDirs++], "%c:", i+'A'-1 );
-		}
-	}
-
-	return NumDirs;
-}
-
-int file_getfilelist( int MaxNum, char list[][13], char * filespec )
-{
-	struct find_t find;
-	int NumFiles = 0;
-
-	MaxNum = MaxNum;
-
-	if( !_dos_findfirst( filespec, 0, &find ) )
-	{
-		//if ( !(find.attrib & _A_SUBDIR) )
-			strncpy(list[NumFiles++], find.name, 13 );
-
-		while( !_dos_findnext( &find ) )
-		{
-			//if ( !(find.attrib & _A_SUBDIR) )
-			//{
-				if (NumFiles==300)
-				{
-					MessageBox( -2,-2, 1, "Only the first 300 files will be displayed.", "Ok" );
-					break;
-				} else {
-					strncpy(list[NumFiles++], find.name, 13 );
-				}
-			//}
-
-		}
-	}
-
-	qsort(list, NumFiles, 13, (int (*)( const void *, const void * ))file_sort_func);
-
-	return NumFiles;
-}
-
-static int FirstTime = 1;
-static char CurDir[128];
 
 int ui_get_filename( char * filename, char * Filespec, char * message  )
 {
-	FILE * TempFile;
-	int NumFiles, NumDirs,i;
-	char InputText[100];
-	char Spaces[35];
-	UI_WINDOW * wnd;
-	UI_GADGET_BUTTON * Button1, * Button2, * HelpButton;
-	UI_GADGET_LISTBOX * ListBox1;
-	UI_GADGET_LISTBOX * ListBox2;
-	UI_GADGET_INPUTBOX * UserFile;
-	int new_listboxes;
+	char		ViewDir[PATH_MAX];
+	char		InputText[PATH_MAX];
+	char		*p;
+	PHYSFS_file	*TempFile;
+	int			NumFiles, NumDirs,i;
+	char		**filename_list;
+	char		**directory_list;
+	char		Spaces[35];
+	UI_WINDOW			*wnd;
+	UI_GADGET_BUTTON	*Button1, *Button2, *HelpButton;
+	UI_GADGET_LISTBOX	*ListBox1;
+	UI_GADGET_LISTBOX	*ListBox2;
+	UI_GADGET_INPUTBOX	*UserFile;
+	int 				new_listboxes;
 
-	char drive[ _MAX_DRIVE ];
-	char dir[ _MAX_DIR ];
-	char fname[ _MAX_FNAME ];
-	char ext[ _MAX_EXT ];
-	char fulldir[ _MAX_DIR + _MAX_DRIVE ];
-	char fullfname[ _MAX_FNAME + _MAX_EXT ];
+	if ((p = strrchr(filename, '/')))
+	{
+		*p++ = 0;
+		strcpy(ViewDir, filename);
+		strcpy(InputText, p);
+	}
+	else
+	{
+		strcpy(ViewDir, "");
+		strcpy(InputText, filename);
+	}
 
+	filename_list = file_getfilelist(&NumFiles, Filespec, ViewDir);
+	directory_list = file_getdirlist(&NumDirs, ViewDir);
 
-	char OrgDir[128];
+	// Running out of memory may become likely in the future
+	if (!filename_list && !directory_list)
+		return 0;
 
-	getcwd( OrgDir, 128 );
+	if (!filename_list)
+	{
+		PHYSFS_freeList(directory_list);
+		return 0;
+	}
 
-	if (FirstTime)
-		getcwd( CurDir, 128 );
-	FirstTime=0;
+	if (!directory_list)
+	{
+		PHYSFS_freeList(filename_list);
+		return 0;
+	}
 
-	file_chdir( CurDir );
-	
 	//MessageBox( -2,-2, 1,"DEBUG:0", "Ok" );
 	for (i=0; i<35; i++)
 		Spaces[i] = ' ';
 	Spaces[34] = 0;
 
-	NumFiles = file_getfilelist( 300, filename_list, Filespec );
-
-	NumDirs = file_getdirlist( 100, directory_list );
-
 	wnd = ui_open_window( 200, 100, 400, 370, WIN_DIALOG );
 
 	ui_wprintf_at( wnd, 10, 5, message );
 
-	_splitpath( filename, drive, dir, fname, ext );
-
-	sprintf( InputText, "%s%s", fname, ext );
-
 	ui_wprintf_at( wnd, 20, 32,"N&ame" );
-	UserFile  = ui_add_gadget_inputbox( wnd, 60, 30, 40, 40, InputText );
+	UserFile  = ui_add_gadget_inputbox( wnd, 60, 30, PATH_MAX, 40, InputText );
 
 	ui_wprintf_at( wnd, 20, 86,"&Files" );
 	ui_wprintf_at( wnd, 210, 86,"&Dirs" );
 
-	ListBox1 = ui_add_gadget_listbox( wnd,  20, 110, 125, 200, NumFiles, filename_list, 13 );
-	ListBox2 = ui_add_gadget_listbox( wnd, 210, 110, 100, 200, NumDirs, directory_list, 13 );
+	ListBox1 = ui_add_gadget_listbox(wnd,  20, 110, 125, 200, NumFiles, filename_list);
+	ListBox2 = ui_add_gadget_listbox(wnd, 210, 110, 100, 200, NumDirs, directory_list);
 
 	Button1 = ui_add_gadget_button( wnd,     20, 330, 60, 25, "Ok", NULL );
 	Button2 = ui_add_gadget_button( wnd,    100, 330, 60, 25, "Cancel", NULL );
@@ -320,7 +195,7 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 	ui_gadget_calc_keys(wnd);
 
 	ui_wprintf_at( wnd, 20, 60, "%s", Spaces );
-	ui_wprintf_at( wnd, 20, 60, "%s", CurDir );
+	ui_wprintf_at( wnd, 20, 60, "%s", ViewDir );
 
 	new_listboxes = 0;
 
@@ -331,7 +206,8 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 
 		if ( Button2->pressed )
 		{
-			file_chdir( OrgDir );
+			PHYSFS_freeList(filename_list);
+			PHYSFS_freeList(directory_list);
 			ui_close_window(wnd);
 			return 0;
 		}
@@ -355,10 +231,7 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 		{
 			if (ListBox2->current_item >= 0 )
 			{
-				if (strrchr( directory_list[ListBox2->current_item], ':' ))
-					sprintf( UserFile->text, "%s%s", directory_list[ListBox2->current_item], Filespec );
-				else
-					sprintf( UserFile->text, "%s\\%s", directory_list[ListBox2->current_item], Filespec );
+				strcpy(UserFile->text, directory_list[ListBox2->current_item]);
 				UserFile->position = strlen(UserFile->text);
 				UserFile->oldposition = UserFile->position;
 				UserFile->status=1;
@@ -371,74 +244,87 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 		{
 			ui_mouse_hide();
 
-			if (ListBox2->selected_item > -1 )	{
-				if (strrchr( directory_list[ListBox2->selected_item], ':' ))
-					sprintf( UserFile->text, "%s%s", directory_list[ListBox2->selected_item], Filespec );
+			if (ListBox2->selected_item > -1 )
+				strcpy(UserFile->text, directory_list[ListBox2->selected_item]);
+
+			strncpy(filename, ViewDir, PATH_MAX);
+
+			p = UserFile->text;
+			while (!strncmp(p, "..", 2))	// shorten the path manually
+			{
+				char *sep = strrchr(filename, '/');
+				if (sep)
+					*sep = 0;
 				else
-					sprintf( UserFile->text, "%s\\%s", directory_list[ListBox2->selected_item], Filespec );
+					*filename = 0;	// look directly in search paths
+
+				p += 2;
+				if (*p == '/')
+					p++;
 			}
 
-			TempFile = fopen( UserFile->text, "r" );
-			if (TempFile)
+			if (*filename && *p)
+				strncat(filename, "/", PATH_MAX - strlen(filename));
+			strncat(filename, p, PATH_MAX - strlen(filename));
+
+			if (!PHYSFS_isDirectory(filename))
 			{
-				// Looks like a valid filename that already exists!
-				fclose( TempFile );
-				break;
+				TempFile = PHYSFS_openRead(filename);
+				if (TempFile)
+				{
+					// Looks like a valid filename that already exists!
+					PHYSFS_close(TempFile);
+					break;
+				}
+	
+				// File doesn't exist, but can we create it?
+				TempFile = PHYSFS_openWrite(filename);
+				if (TempFile)
+				{
+					// Looks like a valid filename!
+					PHYSFS_close(TempFile);
+					PHYSFS_delete(filename);
+					break;
+				}
 			}
-
-			// File doesn't exist, but can we create it?
-			TempFile = fopen( UserFile->text, "w" );
-			if (TempFile)
+			else
 			{
-				// Looks like a valid filename!
-				fclose( TempFile );
-				remove( UserFile->text );
-				break;
-			}
+				if (filename[strlen(filename) - 1] == '/')	// user typed a separator on the end
+					filename[strlen(filename) - 1] = 0;
+	
+				strcpy(ViewDir, filename);
+	
+				//mprintf( 0, "----------------------------\n" );
+				//mprintf( 0, "Full dir: '%s'\n", ViewDir );
+	
+				PHYSFS_freeList(filename_list);
+				filename_list = file_getfilelist(&NumFiles, Filespec, ViewDir);
+				if (!filename_list)
+				{
+					PHYSFS_freeList(directory_list);
+					return 0;
+				}
 
-			_splitpath( UserFile->text, drive, dir, fname, ext );
-			sprintf( fullfname, "%s%s", fname, ext );
-
-			//mprintf( 0, "----------------------------\n" );
-			//mprintf( 0, "Full text: '%s'\n", UserFile->text );
-			//mprintf( 0, "Drive: '%s'\n", drive );
-			//mprintf( 0, "Dir: '%s'\n", dir );
-		  	//mprintf( 0, "Filename: '%s'\n", fname );
-			//mprintf( 0, "Extension: '%s'\n", ext );
-			//mprintf( 0, "Full dir: '%s'\n", fulldir );
-			//mprintf( 0, "Full fname: '%s'\n", fname );
-
-			if (strrchr( fullfname, '?' ) || strrchr( fullfname, '*' ) )	
-			{
-				sprintf( fulldir, "%s%s.", drive, dir );
-			} else {
-				sprintf( fullfname, "%s", Filespec );
-				sprintf( fulldir, "%s", UserFile->text );
-			}
-
-			//mprintf( 0, "----------------------------\n" );
-			//mprintf( 0, "Full dir: '%s'\n", fulldir );
-			//mprintf( 0, "Full fname: '%s'\n", fullfname );
-
-			if (file_chdir( fulldir )==0)
-			{
-				NumFiles = file_getfilelist( 300, filename_list, fullfname );
-
-				strcpy(UserFile->text, fullfname );
+				strcpy(UserFile->text, Filespec);
 				UserFile->position = strlen(UserFile->text);
 				UserFile->oldposition = UserFile->position;
 				UserFile->status=1;
 				UserFile->first_time = 1;
 
-				NumDirs = file_getdirlist( 100, directory_list );
+				PHYSFS_freeList(directory_list);
+				directory_list = file_getdirlist(&NumDirs, ViewDir);
+				if (!directory_list)
+				{
+					PHYSFS_freeList(filename_list);
+					return 0;
+				}
 
-				ui_listbox_change( wnd, ListBox1, NumFiles, filename_list, 13 );
-				ui_listbox_change( wnd, ListBox2, NumDirs, directory_list, 13 );
+				ui_listbox_change(wnd, ListBox1, NumFiles, filename_list);
+				ui_listbox_change(wnd, ListBox2, NumDirs, directory_list);
 				new_listboxes = 0;
 
-				getcwd( CurDir, 35 );
 				ui_wprintf_at( wnd, 20, 60, "%s", Spaces );
-				ui_wprintf_at( wnd, 20, 60, "%s", CurDir );
+				ui_wprintf_at( wnd, 20, 60, "%s", ViewDir );
 
 				//i = TICKER;
 				//while ( TICKER < i+2 );
@@ -454,27 +340,11 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 
 	//key_flush();
 
-	_splitpath( UserFile->text, drive, dir, fname, ext );
-	sprintf( fulldir, "%s%s.", drive, dir );
-	sprintf( fullfname, "%s%s", fname, ext );
-	
-	if ( strlen(fulldir) > 1 )
-		file_chdir( fulldir );
-	
-	getcwd( CurDir, 35 );
-		
-	if ( strlen(CurDir) > 0 )
-	{
-			if ( CurDir[strlen(CurDir)-1] == '\\' )
-				CurDir[strlen(CurDir)-1] = 0;
-	}
-		
-	sprintf( filename, "%s\\%s", CurDir, fullfname );
-	//MessageBox( -2, -2, 1, filename, "Ok" );
-	
-	file_chdir( OrgDir );
-		
 	ui_close_window(wnd);
+	if (filename_list)
+		PHYSFS_freeList(filename_list);
+	if (directory_list)
+		PHYSFS_freeList(directory_list);
 
 	return 1;
 }
@@ -483,31 +353,18 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 
 int ui_get_file( char * filename, char * Filespec  )
 {
-	int x, i, NumFiles;
-	char * text[200];
+	int x, NumFiles;
+	char **list = file_getfilelist(&NumFiles, Filespec, "");
 
-	NumFiles = file_getfilelist( 200, filename_list, Filespec );
+	if (!list) return 0;
 
-	for (i=0; i< NumFiles; i++ )
-	{
-		MALLOC( text[i], char, 15 );
-		strcpy(text[i], filename_list[i] );
-	}
+	x = MenuX(-1, -1, NumFiles, list);
 
-	x = MenuX( -1, -1, NumFiles, text );
+	if (x > 0)
+		strcpy(filename, list[x - 1]);
 
-	if ( x > 0 )
-		strcpy(filename, filename_list[x-1] );
+	PHYSFS_freeList(list);
 
-	for (i=0; i< NumFiles; i++ )
-	{
-		d_free( text[i] );
-	}
-
-	if ( x>0 )
-		return 1;
-	else
-		return 0;
-
+	return (x > 0);
 }
 

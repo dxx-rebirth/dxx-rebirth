@@ -1,4 +1,4 @@
-/* $Id: listbox.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $ */
+/* $Id: listbox.c,v 1.6 2005-03-05 09:30:26 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: listbox.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $";
+static char rcsid[] = "$Id: listbox.c,v 1.6 2005-03-05 09:30:26 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -71,15 +71,16 @@ void ui_draw_listbox( UI_GADGET_LISTBOX * listbox )
 			else
 				gr_set_fontcolor( CBLACK, CGREY );
 		}
-		gr_string( x+2, y, listbox->list+i*listbox->text_width );
-		gr_get_string_size(listbox->list+i*listbox->text_width, &w, &h,&aw );
+		gr_string(x + 2, y, listbox->list[i]);
+		gr_get_string_size(listbox->list[i], &w, &h, &aw);
 
 		if (i==listbox->current_item)
 			gr_setcolor( CGREY );
 		else
 			gr_setcolor( CBLACK );
 
-		gr_rect( x+w+2, y, listbox->width-1, y+h-1 );
+		if (x + w + 2 < listbox->width - 1)
+			gr_rect(x + w + 2, y, listbox->width - 1, y + h - 1);
 		gr_rect( x, y, x+1, y+h-1 );
 
 		y += h;
@@ -111,7 +112,7 @@ void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 }
 
 
-UI_GADGET_LISTBOX * ui_add_gadget_listbox( UI_WINDOW * wnd, short x, short y, short w, short h, short numitems, char * list, int text_width )
+UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_WINDOW *wnd, short x, short y, short w, short h, short numitems, char **list)
 {
 	int tw, th, taw, i;
 
@@ -125,7 +126,6 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox( UI_WINDOW * wnd, short x, short y, sh
 	listbox = (UI_GADGET_LISTBOX *)ui_gadget_add( wnd, 2, x, y, x+w-1, y+h-1 );
 
 	listbox->list = list;
-	listbox->text_width = text_width;
 	listbox->width = w;
 	listbox->height = h;
 	listbox->num_items = numitems;
@@ -359,7 +359,7 @@ void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress )
 
 }
 
-void ui_listbox_change( UI_WINDOW * wnd, UI_GADGET_LISTBOX * listbox, short numitems, char * list, int text_width )
+void ui_listbox_change(UI_WINDOW *wnd, UI_GADGET_LISTBOX *listbox, short numitems, char **list)
 {
 	int stop, start;
 	UI_GADGET_SCROLLBAR * scrollbar;
@@ -367,7 +367,6 @@ void ui_listbox_change( UI_WINDOW * wnd, UI_GADGET_LISTBOX * listbox, short numi
 	wnd = wnd;
 
 	listbox->list = list;
-	listbox->text_width = text_width;
 	listbox->num_items = numitems;
 	listbox->first_item = 0;
 	listbox->current_item = -1;
