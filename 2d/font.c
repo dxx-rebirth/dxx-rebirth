@@ -1531,7 +1531,7 @@ void gr_close_font( grs_font * font )
 
 		if ( font->ft_chars )
 			d_free( font->ft_chars );
-		d_free( font->oldfont );
+//		d_free( font->oldfont );
 #if 0 //def OGL
 		if (font->ft_bitmaps)
 			d_free( font->ft_bitmaps );
