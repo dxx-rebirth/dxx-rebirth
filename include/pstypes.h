@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.28 2004-06-01 05:59:36 btb Exp $ */
+/* $Id: pstypes.h,v 1.29 2004-06-01 06:09:39 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -108,12 +108,6 @@ typedef ubyte bool;
 
 #ifndef PACKAGE_STRING
 # define PACKAGE_STRING "d2x"
-#endif
-
-#ifndef WORDS_BIGENDIAN
-# ifdef __BIG_ENDIAN__
-#  define WORDS_BIGENDIAN
-# endif
 #endif
 
 #endif //_TYPES_H
