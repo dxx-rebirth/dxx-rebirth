@@ -1,12 +1,14 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/win32/winnet.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-10-19 00:23:56 $
+ * $Date: 2001-10-19 10:52:38 $
  *
  * Win32 net
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/10/19 00:23:56  bradleyb
+ * Moved win32_* to win32/ (a la d1x), starting to get net working.
  *
  */
 

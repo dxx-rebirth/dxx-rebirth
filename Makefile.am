@@ -26,7 +26,7 @@ d2x_ogl_SOURCES =
 d2x_svga_SOURCES =
 d2x_ggi_SOURCES =
 
-d2x_LDADD = main/libmain.a ${ARCH_LIBS} 3d/lib3d.a 2d/lib2d.a mem/libmem.a cfile/libcfile.a iff/libiff.a texmap/libtexmap.a misc/libmisc.a maths/libmaths.a video/libvideo.a sound/libsound.a input/libinput.a
+d2x_LDADD = main/libmain.a 3d/lib3d.a 2d/lib2d.a ${ARCH_LIBS} mem/libmem.a cfile/libcfile.a iff/libiff.a texmap/libtexmap.a misc/libmisc.a maths/libmaths.a video/libvideo.a sound/libsound.a input/libinput.a
 
 if MINGW32
 if USE_NETWORK
