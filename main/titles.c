@@ -15,6 +15,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
+#define ROBOT_MOVIES
+
 #ifdef WINDOWS
 #include "desw.h"
 #endif
@@ -54,14 +56,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "newmenu.h"
 #include "state.h"
+#ifdef ROBOT_MOVIES
 #include "movie.h"
+#endif
 #include "menu.h"
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
 #endif
 
+#ifdef ROBOT_MOVIES
 extern void RotateRobot();
+#endif
 
 void DoBriefingColorStuff ();
 int get_new_message_num(char **message);
@@ -76,7 +82,9 @@ int	New_pal_254_bash;
 
 char CurBriefScreenName[15]="brief03.pcx";
 char	* Briefing_text;
+#ifdef ROBOT_MOVIES
 char RobotPlaying=0;
+#endif
 
 #define	MAX_BRIEFING_COLORS	3
 
@@ -94,6 +102,18 @@ extern int check_button_press();
 extern void macintosh_quit(void);
 #endif
 
+#ifndef ROBOT_MOVIES
+static int rescale_x(int x)
+{
+	return x * GWIDTH / 320;
+}
+
+static int rescale_y(int y)
+{
+	return y * GHEIGHT / 200;
+}
+#endif
+
 #ifndef MACINTOSH
 int local_key_inkey(void)
 {
@@ -109,10 +129,12 @@ int local_key_inkey(void)
 
 	if (rval == KEY_PRINT_SCREEN) {
 		#ifdef POLY_ACC
+#ifdef ROBOT_MOVIES
 		if (RobotPlaying) {
 			gr_palette_read(gr_palette);
 			gr_copy_palette(gr_palette,gr_palette,0);	//reset color lookup cache
 		}
+#endif
 		#endif
 		save_screen_shot(0);
 		return 0;				//say no key pressed
@@ -421,7 +443,7 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 	d_free(bitmap_canv);
 }
 
-#ifndef WINDOWS
+#ifndef ROBOT_MOVIES //WINDOWS
 //	-----------------------------------------------------------------------------
 void show_spinning_robot_frame(int robot_num)
 {
@@ -440,11 +462,19 @@ void show_spinning_robot_frame(int robot_num)
 }
 
 //  -----------------------------------------------------------------------------
-void init_spinning_robot(int x,int y,int w,int h)
+void init_spinning_robot(void) //(int x,int y,int w,int h)
  {
+#if 0
 	Robot_angles.p += 0;
 	Robot_angles.b += 0;
 	Robot_angles.h += 0;
+
+#else
+	int x = rescale_x(138);
+	int y = rescale_y(55);
+	int w = rescale_x(166);
+	int h = rescale_y(138);
+#endif
 
         Robot_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
         // 138, 55, 166, 138
@@ -485,16 +515,19 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 		if (delay != 0)
 			show_bitmap_frame();
 
-      if (RobotPlaying && (delay != 0))
-         RotateRobot();
+#ifdef ROBOT_MOVIES
+		if (RobotPlaying && (delay != 0))
+			RotateRobot();
       
       
-		while (timer_get_fixed_seconds() < (start_time + delay))
-		 {
-        if (RobotPlaying && delay != 0)
-         RotateRobot();
-	  	 }	
-
+		while (timer_get_fixed_seconds() < (start_time + delay)) {
+			if (RobotPlaying && delay != 0)
+				RotateRobot();
+		}
+#else
+                if (robot_num != -1)
+			show_spinning_robot_frame(robot_num);
+#endif
 		start_time = timer_get_fixed_seconds();
 
 WIN(DDGRLOCK(dd_grd_curcanv));
@@ -643,7 +676,9 @@ int show_briefing_message(int screen_num, char *message)
 	static int tab_stop=0;
 	int	flashing_cursor=0;
 	int	new_page=0,GotZ=0;
+#ifdef ROBOT_MOVIES
 	char *spinRobotName="rba.mve",kludge;  // matt don't change this!  
+#endif
 	char fname[15];
    char DumbAdjust=0;
 	char chattering=0;
@@ -652,10 +687,12 @@ int show_briefing_message(int screen_num, char *message)
 	WIN(int wpage_done=0);
 
 	Bitmap_name[0] = 0;
-   Current_color = 0;
-   RobotPlaying=0;
+	Current_color = 0;
+#ifdef ROBOT_MOVIES
+	RobotPlaying=0;
 
 	InitMovieBriefing();
+#endif
 
 	#ifndef SHAREWARE
 	hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
@@ -703,30 +740,31 @@ int show_briefing_message(int screen_num, char *message)
 				tab_stop*=(1+MenuHires);
 				prev_ch = 10;							//	read to eoln
 			} else if (ch == 'R') {
-				if (Robot_canv != NULL)
-				{
+				if (Robot_canv != NULL) {
 					d_free(Robot_canv); 
 					Robot_canv=NULL;
 				}
- 			   if (RobotPlaying)
-				 {
-				  DeInitRobotMovie();
-				  RobotPlaying=0;
-				 }
-				
-          	kludge=*message++;
-            spinRobotName[2]=kludge; // ugly but proud
-
-            RobotPlaying=InitRobotMovie(spinRobotName);
-
-			// gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
-
-			   if (RobotPlaying)
-			  	{ 			
-              DoBriefingColorStuff ();
-		        mprintf ((0,"Robot playing is %d!!!",RobotPlaying));
+#ifdef ROBOT_MOVIES
+				if (RobotPlaying) {
+					DeInitRobotMovie();
+					RobotPlaying=0;
 				}
+				
+				kludge=*message++;
+				spinRobotName[2]=kludge; // ugly but proud
 
+				RobotPlaying=InitRobotMovie(spinRobotName);
+
+				// gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
+
+				if (RobotPlaying) { 			
+					DoBriefingColorStuff ();
+					mprintf ((0,"Robot playing is %d!!!",RobotPlaying));
+				}
+#else
+				init_spinning_robot();
+				robot_num = get_message_num(&message);
+#endif
             prev_ch = 10;							//	read to eoln
 			} else if (ch == 'N') {
 				//--grs_bitmap	*bitmap_ptr;
@@ -847,7 +885,11 @@ int show_briefing_message(int screen_num, char *message)
 						;
 					flash_cursor(flashing_cursor);
 
-               if (RobotPlaying)	RotateRobot ();
+#ifdef ROBOT_MOVIES
+					if (RobotPlaying)	RotateRobot ();
+#else
+					show_spinning_robot_frame(robot_num);
+#endif
 
 					show_bitmap_frame();
 					start_time += KEY_DELAY_DEFAULT/2;
@@ -894,7 +936,7 @@ int show_briefing_message(int screen_num, char *message)
 				if (DumbAdjust==0)
 					Briefing_text_y += (8*(MenuHires+1));
 				else
-	            DumbAdjust--;
+					DumbAdjust--;
 				Briefing_text_x = bsp->text_ulx;
 				if (Briefing_text_y > bsp->text_uly + bsp->text_height) {
 					load_briefing_screen(screen_num);
@@ -985,15 +1027,19 @@ int show_briefing_message(int screen_num, char *message)
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
 				flash_cursor(flashing_cursor);
-         
+#ifdef ROBOT_MOVIES
 				if (RobotPlaying) RotateRobot();
-			
+#else
+				show_spinning_robot_frame(robot_num);
+#endif
 				show_bitmap_frame();
 				start_time += KEY_DELAY_DEFAULT/2;
 			}
 
-  			if (RobotPlaying) DeInitRobotMovie();
-         RobotPlaying=0;
+#ifdef ROBOT_MOVIES
+			if (RobotPlaying) DeInitRobotMovie();
+			RobotPlaying=0;
+#endif
 			robot_num = -1;
 
 #ifndef NDEBUG
@@ -1014,12 +1060,12 @@ int show_briefing_message(int screen_num, char *message)
 		}
 	}
 
-
-  	if (RobotPlaying)
-   {
-   	DeInitRobotMovie();
-      RobotPlaying=0;
-   }
+#ifdef ROBOT_MOVIES
+  	if (RobotPlaying) {
+		DeInitRobotMovie();
+		RobotPlaying=0;
+	}
+#endif
 
 	if (Robot_canv != NULL)
 		{d_free(Robot_canv); Robot_canv=NULL;}
