@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.98 2005-02-25 07:19:33 btb Exp $ */
+/* $Id: inferno.c,v 1.99 2005-02-26 07:04:47 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -959,10 +959,9 @@ int main(int argc, char *argv[])
 
 	con_printf( CON_DEBUG , "\nDoing bm_init..." );
 	#ifdef EDITOR
-		bm_init_use_tbl();
-	#else
-		bm_init();
+	if (!bm_init_use_tbl())
 	#endif
+		bm_init();
 
 	#ifdef EDITOR
 	if (FindArg("-hoarddata") != 0) {

@@ -1,4 +1,4 @@
-/* $Id: bmread.c,v 1.13 2005-01-25 20:02:58 schaffner Exp $ */
+/* $Id: bmread.c,v 1.14 2005-02-26 07:04:47 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -413,6 +413,16 @@ int bm_init_use_tbl()
 	char	inputline[LINEBUF_SIZE];
 	int	i, have_bin_tbl;
 
+	// Open BITMAPS.TBL for reading.
+	have_bin_tbl = 0;
+	InfoFile = cfopen( "BITMAPS.TBL", "rb" );
+	if (InfoFile == NULL) {
+		InfoFile = cfopen("BITMAPS.BIN", "rb");
+		if (InfoFile == NULL)
+			return 0;	//missing BITMAPS.TBL and BITMAPS.BIN file
+		have_bin_tbl = 1;
+	}
+
 	gr_use_palette_table(DEFAULT_PIG_PALETTE);
 
 	load_palette(DEFAULT_PIG_PALETTE,-2,0);		//special: tell palette code which pig is loaded
@@ -473,16 +483,6 @@ int bm_init_use_tbl()
 //		piggy_read_sounds();
 //		return 0;
 //	}
-
-	// Open BITMAPS.TBL for reading.
-	have_bin_tbl = 0;
-	InfoFile = cfopen( "BITMAPS.TBL", "rb" );
-	if (InfoFile == NULL) {
-		InfoFile = cfopen("BITMAPS.BIN", "rb");
-		if (InfoFile == NULL)
-			Error("Missing BITMAPS.TBL and BITMAPS.BIN file\n");
-		have_bin_tbl = 1;
-	}
 	linenum = 0;
 	
 	cfseek( InfoFile, 0L, SEEK_SET);
