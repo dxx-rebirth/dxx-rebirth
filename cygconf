@@ -1,2 +1,1 @@
 export ACLOCAL_FLAGS="-I /usr/local/cross-tools/i386-mingw32msvc/share/aclocal"
-export PATH=$PATH:/usr/local/cross-tools/i386-mingw32msvc/bin
