@@ -1,5 +1,8 @@
 2003-02-26  Bradley Bell  <bradleyb@smeagol>
 
+	* main/titles.c: begin support for rendering spinning robots in
+	briefings
+
 	* main/mission.c, main/mission.h: load d1 oem mission, d1 v1.0
 	mission
 

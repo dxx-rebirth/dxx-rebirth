@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.22 2003-02-25 04:45:31 btb Exp $ */
+/* $Id: titles.c,v 1.23 2003-02-26 11:09:19 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,8 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
-
-#define ROBOT_MOVIES
 
 #ifdef WINDOWS
 #include "desw.h"
@@ -57,9 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "newmenu.h"
 #include "state.h"
-#ifdef ROBOT_MOVIES
 #include "movie.h"
-#endif
 #include "menu.h"
 
 #if defined(POLY_ACC)
@@ -78,9 +74,7 @@ int	New_pal_254_bash;
 
 char CurBriefScreenName[15]="brief03.pcx";
 char	* Briefing_text;
-#ifdef ROBOT_MOVIES
 char RobotPlaying=0;
-#endif
 
 //Begin D1X modification
 #define MAX_BRIEFING_COLORS     7
@@ -129,12 +123,10 @@ int local_key_inkey(void)
 
 	if (rval == KEY_PRINT_SCREEN) {
 		#ifdef POLY_ACC
-#ifdef ROBOT_MOVIES
 		if (RobotPlaying) {
 			gr_palette_read(gr_palette);
 			gr_copy_palette(gr_palette,gr_palette,0);	//reset color lookup cache
 		}
-#endif
 		#endif
 		save_screen_shot(0);
 		return 0;				//say no key pressed
@@ -557,7 +549,6 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	char message[2];
 	static fix	start_time=0;
 
-	robot_num=0;
 	message[0] = the_char;
 	message[1] = 0;
 
@@ -582,7 +573,6 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	if (delay != 0)
 		show_bitmap_frame();
 
-#ifdef ROBOT_MOVIES
 	if (RobotPlaying && (delay != 0))
 		RotateRobot();
 
@@ -590,10 +580,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 		if (RobotPlaying && delay != 0)
 			RotateRobot();
 	}
-#else
 	if (robot_num != -1)
 		show_spinning_robot_frame(robot_num);
-#endif
 
 	start_time = timer_get_fixed_seconds();
 
@@ -753,9 +741,7 @@ int show_briefing_message(int screen_num, char *message)
 	static int tab_stop=0;
 	int	flashing_cursor=0;
 	int	new_page=0,GotZ=0;
-#ifdef ROBOT_MOVIES
 	char spinRobotName[]="rba.mve",kludge;  // matt don't change this!
-#endif
 	char fname[15];
 	char DumbAdjust=0;
 	char chattering=0;
@@ -765,11 +751,9 @@ int show_briefing_message(int screen_num, char *message)
 
 	Bitmap_name[0] = 0;
 	Current_color = 0;
-#ifdef ROBOT_MOVIES
 	RobotPlaying=0;
 
 	InitMovieBriefing();
-#endif
 
 	#ifndef SHAREWARE
 	hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
@@ -822,12 +806,17 @@ int show_briefing_message(int screen_num, char *message)
 					d_free(Robot_canv);
 					Robot_canv=NULL;
 				}
-#ifdef ROBOT_MOVIES
 				if (RobotPlaying) {
 					DeInitRobotMovie();
 					RobotPlaying=0;
 				}
 
+			if (Mission_list[Current_mission_num].descent_version == 1) {
+#if 0
+				init_spinning_robot();
+				robot_num = get_message_num(&message);
+#endif
+			} else {
 				kludge=*message++;
 				spinRobotName[2]=kludge; // ugly but proud
 
@@ -840,10 +829,7 @@ int show_briefing_message(int screen_num, char *message)
 					DoBriefingColorStuff ();
 					mprintf ((0,"Robot playing is %d!!!",RobotPlaying));
 				}
-#else
-				init_spinning_robot();
-				robot_num = get_message_num(&message);
-#endif
+			}
 				prev_ch = 10;                           // read to eoln
 				while (*message++ != 10)
 					;
@@ -981,12 +967,10 @@ int show_briefing_message(int screen_num, char *message)
 						;
 					flash_cursor(flashing_cursor);
 
-#ifdef ROBOT_MOVIES
 					if (RobotPlaying)
 						RotateRobot ();
-#else
-					show_spinning_robot_frame(robot_num);
-#endif
+					if (robot_num != -1)
+						show_spinning_robot_frame(robot_num);
 
 					show_bitmap_frame();
 					start_time += KEY_DELAY_DEFAULT/2;
@@ -1131,21 +1115,17 @@ int show_briefing_message(int screen_num, char *message)
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
 				flash_cursor(flashing_cursor);
-#ifdef ROBOT_MOVIES
 				if (RobotPlaying)
 					RotateRobot();
-#else
-				show_spinning_robot_frame(robot_num);
-#endif
+				if (robot_num != -1)
+					show_spinning_robot_frame(robot_num);
 				show_bitmap_frame();
 				start_time += KEY_DELAY_DEFAULT/2;
 			}
 
-#ifdef ROBOT_MOVIES
 			if (RobotPlaying)
 				DeInitRobotMovie();
 			RobotPlaying=0;
-#endif
 			robot_num = -1;
 
 #ifndef NDEBUG
@@ -1166,12 +1146,10 @@ int show_briefing_message(int screen_num, char *message)
 		}
 	}
 
-#ifdef ROBOT_MOVIES
   	if (RobotPlaying) {
 		DeInitRobotMovie();
 		RobotPlaying=0;
 	}
-#endif
 
 	if (Robot_canv != NULL)
 		{d_free(Robot_canv); Robot_canv=NULL;}
@@ -1281,41 +1259,14 @@ int show_briefing_text(int screen_num)
 {
 	char	*message_ptr;
 
-	if (Mission_list[Current_mission_num].descent_version == 1) {
-        //green
-        Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 54, 0);
-        Briefing_background_colors[0] = gr_find_closest_color_current( 0, 19, 0);
-        //white
-		Briefing_foreground_colors[1] = gr_find_closest_color_current( 42, 38, 32);
-		Briefing_background_colors[1] = gr_find_closest_color_current( 14, 14, 14);
-		//Begin D1X addition
-        //red
-        Briefing_foreground_colors[2] = gr_find_closest_color_current( 63, 0, 0);
-        Briefing_background_colors[2] = gr_find_closest_color_current( 31, 0, 0);
-        //blue
-        Briefing_foreground_colors[3] = gr_find_closest_color_current( 0, 0, 54);
-        Briefing_background_colors[3] = gr_find_closest_color_current( 0, 0, 19);
-        //gray
-        Briefing_foreground_colors[4] = gr_find_closest_color_current( 14, 14, 14);
-        Briefing_background_colors[4] = gr_find_closest_color_current( 0, 0, 0);
-        //yellow
-        Briefing_foreground_colors[5] = gr_find_closest_color_current( 54, 54, 0);
-        Briefing_background_colors[5] = gr_find_closest_color_current( 19, 19, 0);
-        //purple
-        Briefing_foreground_colors[6] = gr_find_closest_color_current( 0, 54, 54);
-        Briefing_background_colors[6] = gr_find_closest_color_current( 0, 19, 19);
-		//End D1X addition
-
-        Erase_color = gr_find_closest_color_current(0, 0, 0);
-
+	if (Mission_list[Current_mission_num].descent_version == 1)
 		message_ptr = get_briefing_message(Briefing_screens[screen_num].message_num);
-	} else {
+	else
 		message_ptr = get_briefing_message(screen_num);
-		if (message_ptr==NULL)
-			return (0);
+	if (message_ptr==NULL)
+		return (0);
 
-		DoBriefingColorStuff();
-	}
+	DoBriefingColorStuff();
 
 	return show_briefing_message(screen_num, message_ptr);
 }
@@ -1330,6 +1281,33 @@ void DoBriefingColorStuff ()
 
 	Briefing_foreground_colors[2] = gr_find_closest_color_current( 8, 31, 54);
 	Briefing_background_colors[2] = gr_find_closest_color_current( 1, 4, 7);
+
+	if (Mission_list[Current_mission_num].descent_version == 1) {
+        //green
+        Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 54, 0);
+        Briefing_background_colors[0] = gr_find_closest_color_current( 0, 19, 0);
+        //white
+		Briefing_foreground_colors[1] = gr_find_closest_color_current( 42, 38, 32);
+		Briefing_background_colors[1] = gr_find_closest_color_current( 14, 14, 14);
+
+		//Begin D1X addition
+		//red
+		Briefing_foreground_colors[2] = gr_find_closest_color_current( 63, 0, 0);
+		Briefing_background_colors[2] = gr_find_closest_color_current( 31, 0, 0);
+	}
+	//blue
+	Briefing_foreground_colors[3] = gr_find_closest_color_current( 0, 0, 54);
+	Briefing_background_colors[3] = gr_find_closest_color_current( 0, 0, 19);
+	//gray
+	Briefing_foreground_colors[4] = gr_find_closest_color_current( 14, 14, 14);
+	Briefing_background_colors[4] = gr_find_closest_color_current( 0, 0, 0);
+	//yellow
+	Briefing_foreground_colors[5] = gr_find_closest_color_current( 54, 54, 0);
+	Briefing_background_colors[5] = gr_find_closest_color_current( 19, 19, 0);
+	//purple
+	Briefing_foreground_colors[6] = gr_find_closest_color_current( 0, 54, 54);
+	Briefing_background_colors[6] = gr_find_closest_color_current( 0, 19, 19);
+	//End D1X addition
 
 	Erase_color = gr_find_closest_color_current(0, 0, 0);
 }
