@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.6 2002-08-01 23:28:57 btb Exp $ */
+/* $Id: cfile.c,v 1.7 2002-08-23 01:52:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,6 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "pstypes.h"
 #include "u_mem.h"
@@ -28,9 +29,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 typedef struct hogfile {
-	char	name[13];
-	int	offset;
-	int 	length;
+	char    name[13];
+	int     offset;
+	int     length;
 } hogfile;
 
 #define MAX_HOGFILES 300
@@ -186,6 +187,19 @@ int cfile_init(char *hogname)
 		return 0;	//not loaded!
 }
 
+
+int cfile_size(char *hogname)
+{
+	CFILE *fp;
+	struct stat statbuf;
+
+	fp = cfopen(hogname, "rb");
+	if (fp == NULL)
+		return -1;
+	fstat(fileno(fp->file), &statbuf);
+	cfclose(fp);
+	return statbuf.st_size;
+}
 
 FILE * cfile_find_libfile(char * name, int * length)
 {

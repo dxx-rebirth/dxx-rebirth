@@ -29,6 +29,8 @@ typedef struct CFILE {
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
 int cfile_init(char *hogname);
 
+int cfile_size(char *hogname);
+
 CFILE * cfopen(char * filename, char * mode);
 int cfilelength( CFILE *fp );							// Returns actual size of file...
 size_t cfread( void * buf, size_t elsize, size_t nelem, CFILE * fp );
