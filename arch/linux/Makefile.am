@@ -19,4 +19,4 @@ ipx_bsd.c ipx_kali.c ipx_lin.c ipx_udp.c linuxnet.c ukali.c \
 joydefs.c joystick.c
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
-alsadigi.c hmistub.c hmiplay.c mono.c serial.c timer.c \
+alsadigi.c hmistub.c hmiplay.c mono.c serial.c timer.c
