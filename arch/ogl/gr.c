@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.37 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: gr.c,v 1.38 2005-01-06 05:21:28 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -568,7 +568,10 @@ void ogl_urect(int left,int top,int right,int bot){
 	yf = 1.0 - (bot + 1 + grd_curcanv->cv_bitmap.bm_y) / (float)last_height;
 
 	OGL_DISABLE(TEXTURE_2D);
-	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
+	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
+		glColor3f(CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c));
+	else
+		glColor4f(CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
 	glBegin(GL_QUADS);
 	glVertex2f(xo,yo);
 	glVertex2f(xo,yf);
