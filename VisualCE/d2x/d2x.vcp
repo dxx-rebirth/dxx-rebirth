@@ -45,13 +45,14 @@ CFG=d2x - Win32 (WCE emulator) Debug
 # PROP Intermediate_Dir "emulatorRel"
 # PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "NDEBUG" /d "$(CePlatform)" /d "_X86_" /d "x86" /d "_i386_" /r
 CPP=cl.exe
-# ADD BASE CPP /nologo /W3 /GX- /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /O2 /c
-# ADD CPP /nologo /W3 /GX- /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /O2 /c
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /O2 /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "_i386_" /D UNDER_CE=$(CEVersion) /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /D "NDEBUG" /YX /Gs8192 /GF /O2 /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -59,8 +60,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc)  aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc)  aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib  ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE emulator) Debug"
 
@@ -77,13 +78,14 @@ LINK32=link.exe
 # PROP Intermediate_Dir "emulatorDbg"
 # PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
 # ADD RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
 CPP=cl.exe
-# ADD BASE CPP /nologo /W3 /GX- /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /YX /Gs8192 /GF /c
-# ADD CPP /nologo /W3 /GX- /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /YX /Gs8192 /GF /c
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /YX /Gs8192 /GF /c
+# ADD CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "_i386_" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "i_386_" /D "UNICODE" /D "_UNICODE" /D "_X86_" /D "x86" /YX /Gs8192 /GF /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -91,8 +93,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc)  aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc)  aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib  ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Release"
 
@@ -109,13 +111,14 @@ LINK32=link.exe
 # PROP Intermediate_Dir "ARMV4Rel"
 # PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
-# ADD BASE CPP /nologo /W3 /GX- /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /O2 /M$(CECrtMT) /c
-# ADD CPP /nologo /W3 /GX- /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /O2 /M$(CECrtMT) /c
+# ADD BASE CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /O2 /M$(CECrtMT) /c
+# ADD CPP /nologo /W3 /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /YX /O2 /M$(CECrtMT) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o "NUL" /win32
@@ -123,8 +126,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib  aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib  aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib  ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
@@ -141,12 +144,13 @@ LINK32=link.exe
 # PROP Intermediate_Dir "ARMV4Dbg"
 # PROP CPU_ID "{ECBEA43D-CD7B-4852-AD55-D4227B5D624B}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 # ADD RSC /l 0x409 /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "DEBUG" /d "UNICODE" /d "_UNICODE" /d "$(CePlatform)" /d "ARM" /d "_ARM_" /d "ARMV4" /r
 CPP=clarm.exe
-# ADD BASE CPP /nologo /W3 /GX- /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /M$(CECrtMTDebug) /c
+# ADD BASE CPP /nologo /W3 /Zi /Od /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /M$(CECrtMTDebug) /c
 # ADD CPP /nologo /W3 /Zi /Od /I "..\..\include" /I "..\..\main" /I "..\..\arch\include" /I "..\..\..\..\sdl\SDL12\include" /D "SDL_INPUT" /D "SDL_VIDEO" /D "PIGGY_USE_PAGING" /D "NMONO" /D "NEWDEMO" /D "NO_ASM" /D "DEBUG" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=$(CEVersion) /D _WIN32_WCE=$(CEVersion) /D "$(CePlatform)" /D "UNICODE" /D "_UNICODE" /YX /M$(CECrtMTDebug) /c
 MTL=midl.exe
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o "NUL" /win32
@@ -155,8 +159,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 commctrl.lib coredll.lib  aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib  aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib  ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Dbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Dbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ENDIF 
 
@@ -792,14 +796,18 @@ NODEP_CPP_LINE_=\
 
 DEP_CPP_LINE_=\
 	"..\..\2d\clip.h"\
-	
-NODEP_CPP_LINE_=\
-	"..\..\2d\fix.h"\
-	"..\..\2d\gr.h"\
-	"..\..\2d\grdef.h"\
-	"..\..\2d\modex.h"\
-	"..\..\2d\ogl_init.h"\
-	"..\..\2d\u_mem.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\grdef.h"\
+	"..\..\include\loadgl.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\modex.h"\
+	"..\..\include\ogl_init.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	
 
 !ENDIF 
@@ -1178,6 +1186,40 @@ DEP_CPP_SCALE=\
 !ENDIF 
 
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\2d\tmerge.c
+
+!IF  "$(CFG)" == "d2x - Win32 (WCE emulator) Release"
+
+NODEP_CPP_TMERG=\
+	"..\..\2d\gr.h"\
+	
+
+!ELSEIF  "$(CFG)" == "d2x - Win32 (WCE emulator) Debug"
+
+NODEP_CPP_TMERG=\
+	"..\..\2d\gr.h"\
+	
+
+!ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Release"
+
+NODEP_CPP_TMERG=\
+	"..\..\2d\gr.h"\
+	
+
+!ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
+
+DEP_CPP_TMERG=\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	
+
+!ENDIF 
+
+# End Source File
 # End Group
 # Begin Group "3d"
 
@@ -1221,9 +1263,12 @@ NODEP_CPP_CLIPP=\
 DEP_CPP_CLIPP=\
 	"..\..\3d\clipper.h"\
 	"..\..\3d\globvars.h"\
-	
-NODEP_CPP_CLIPP=\
-	"..\..\3d\3d.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	
 
 !ENDIF 
@@ -1275,10 +1320,13 @@ NODEP_CPP_DRAW_=\
 DEP_CPP_DRAW_=\
 	"..\..\3d\clipper.h"\
 	"..\..\3d\globvars.h"\
-	
-NODEP_CPP_DRAW_=\
-	"..\..\3d\3d.h"\
-	"..\..\3d\texmap.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\vecmat.h"\
 	
 
 !ENDIF 
@@ -1319,9 +1367,12 @@ NODEP_CPP_GLOBV=\
 
 DEP_CPP_GLOBV=\
 	"..\..\3d\globvars.h"\
-	
-NODEP_CPP_GLOBV=\
-	"..\..\3d\3d.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	
 
 !ENDIF 
@@ -1366,9 +1417,12 @@ NODEP_CPP_INSTA=\
 
 DEP_CPP_INSTA=\
 	"..\..\3d\globvars.h"\
-	
-NODEP_CPP_INSTA=\
-	"..\..\3d\3d.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	
 
 !ENDIF 
@@ -1418,12 +1472,16 @@ NODEP_CPP_INTER=\
 
 DEP_CPP_INTER=\
 	"..\..\3d\globvars.h"\
-	
-NODEP_CPP_INTER=\
-	"..\..\3d\byteswap.h"\
-	"..\..\3d\gr.h"\
-	"..\..\3d\interp.h"\
-	"..\..\3d\u_mem.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\byteswap.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\interp.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	
 
 !ENDIF 
@@ -1464,9 +1522,12 @@ NODEP_CPP_MATRI=\
 
 DEP_CPP_MATRI=\
 	"..\..\3d\globvars.h"\
-	
-NODEP_CPP_MATRI=\
-	"..\..\3d\3d.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	
 
 !ENDIF 
@@ -1507,9 +1568,12 @@ NODEP_CPP_POINT=\
 
 DEP_CPP_POINT=\
 	"..\..\3d\globvars.h"\
-	
-NODEP_CPP_POINT=\
-	"..\..\3d\3d.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	
 
 !ENDIF 
@@ -1553,10 +1617,12 @@ NODEP_CPP_ROD_C=\
 
 DEP_CPP_ROD_C=\
 	"..\..\3d\globvars.h"\
-	
-NODEP_CPP_ROD_C=\
-	"..\..\3d\3d.h"\
-	"..\..\3d\fix.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	
 
 !ENDIF 
@@ -1607,11 +1673,16 @@ NODEP_CPP_SETUP=\
 DEP_CPP_SETUP=\
 	"..\..\3d\clipper.h"\
 	"..\..\3d\globvars.h"\
-	
-NODEP_CPP_SETUP=\
-	"..\..\3d\3d.h"\
-	"..\..\3d\ogl_init.h"\
-	"..\..\3d\texmap.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\loadgl.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\ogl_init.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\vecmat.h"\
 	
 
 !ENDIF 
@@ -1807,7 +1878,7 @@ SOURCE=..\..\arch\sdl\gr.c
 
 !IF  "$(CFG)" == "d2x - Win32 (WCE emulator) Release"
 
-NODEP_CPP_GR_C3c=\
+NODEP_CPP_GR_C3e=\
 	"..\..\arch\sdl\args.h"\
 	"..\..\arch\sdl\checker.h"\
 	"..\..\arch\sdl\descent.xpm"\
@@ -1820,7 +1891,7 @@ NODEP_CPP_GR_C3c=\
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE emulator) Debug"
 
-NODEP_CPP_GR_C3c=\
+NODEP_CPP_GR_C3e=\
 	"..\..\arch\sdl\args.h"\
 	"..\..\arch\sdl\checker.h"\
 	"..\..\arch\sdl\descent.xpm"\
@@ -1833,7 +1904,7 @@ NODEP_CPP_GR_C3c=\
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Release"
 
-NODEP_CPP_GR_C3c=\
+NODEP_CPP_GR_C3e=\
 	"..\..\arch\sdl\args.h"\
 	"..\..\arch\sdl\checker.h"\
 	"..\..\arch\sdl\descent.xpm"\
@@ -1846,7 +1917,7 @@ NODEP_CPP_GR_C3c=\
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_GR_C3c=\
+DEP_CPP_GR_C3e=\
 	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
 	"..\..\..\..\sdl\SDL12\include\close_code.h"\
 	"..\..\..\..\sdl\SDL12\include\SDL.h"\
@@ -2074,14 +2145,32 @@ NODEP_CPP_JOYDE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_JOYDE=\
-	{$(INCLUDE)}"newmenu.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
+	"..\..\main\aistruct.h"\
+	"..\..\main\config.h"\
+	"..\..\main\digi.h"\
+	"..\..\main\game.h"\
+	"..\..\main\gameseg.h"\
+	"..\..\main\gamestat.h"\
+	"..\..\main\inferno.h"\
+	"..\..\main\joydefs.h"\
+	"..\..\main\kconfig.h"\
+	"..\..\main\newmenu.h"\
+	"..\..\main\object.h"\
+	"..\..\main\piggy.h"\
+	"..\..\main\player.h"\
+	"..\..\main\segment.h"\
+	"..\..\main\sounds.h"\
+	"..\..\main\text.h"\
+	"..\..\main\weapon.h"\
 	
 NODEP_CPP_JOYDE=\
-	"..\..\arch\sdl\config.h"\
-	"..\..\arch\sdl\joydefs.h"\
-	"..\..\arch\sdl\kconfig.h"\
-	"..\..\arch\sdl\pstypes.h"\
-	"..\..\arch\sdl\text.h"\
+	"..\..\main\allg_snd.h"\
 	
 
 !ENDIF 
@@ -2503,6 +2592,7 @@ SOURCE=..\..\console\CON_console.c
 NODEP_CPP_CON_C=\
 	"..\..\console\CON_console.h"\
 	"..\..\console\gr.h"\
+	"..\..\console\strutil.h"\
 	"..\..\console\timer.h"\
 	"..\..\console\u_mem.h"\
 	
@@ -2512,6 +2602,7 @@ NODEP_CPP_CON_C=\
 NODEP_CPP_CON_C=\
 	"..\..\console\CON_console.h"\
 	"..\..\console\gr.h"\
+	"..\..\console\strutil.h"\
 	"..\..\console\timer.h"\
 	"..\..\console\u_mem.h"\
 	
@@ -2521,6 +2612,7 @@ NODEP_CPP_CON_C=\
 NODEP_CPP_CON_C=\
 	"..\..\console\CON_console.h"\
 	"..\..\console\gr.h"\
+	"..\..\console\strutil.h"\
 	"..\..\console\timer.h"\
 	"..\..\console\u_mem.h"\
 	
@@ -2534,6 +2626,7 @@ DEP_CPP_CON_C=\
 	"..\..\include\gr.h"\
 	"..\..\include\maths.h"\
 	"..\..\include\pstypes.h"\
+	"..\..\include\strutil.h"\
 	"..\..\include\timer.h"\
 	"..\..\include\u_mem.h"\
 	
@@ -2578,11 +2671,9 @@ NODEP_CPP_D_IO_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_D_IO_=\
+	"..\..\include\d_io.h"\
+	"..\..\include\u_mem.h"\
 	"..\..\misc\dos_disk.h"\
-	
-NODEP_CPP_D_IO_=\
-	"..\..\misc\d_io.h"\
-	"..\..\misc\u_mem.h"\
 	
 
 !ENDIF 
@@ -2829,7 +2920,7 @@ SOURCE=..\..\main\ai.c
 
 !IF  "$(CFG)" == "d2x - Win32 (WCE emulator) Release"
 
-DEP_CPP_AI_C62=\
+DEP_CPP_AI_C64=\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
@@ -2870,7 +2961,7 @@ DEP_CPP_AI_C62=\
 	"..\..\main\wall.h"\
 	"..\..\main\weapon.h"\
 	
-NODEP_CPP_AI_C62=\
+NODEP_CPP_AI_C64=\
 	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
 	"..\..\main\cfile.h"\
@@ -2890,7 +2981,7 @@ NODEP_CPP_AI_C62=\
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE emulator) Debug"
 
-DEP_CPP_AI_C62=\
+DEP_CPP_AI_C64=\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
@@ -2931,7 +3022,7 @@ DEP_CPP_AI_C62=\
 	"..\..\main\wall.h"\
 	"..\..\main\weapon.h"\
 	
-NODEP_CPP_AI_C62=\
+NODEP_CPP_AI_C64=\
 	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
 	"..\..\main\cfile.h"\
@@ -2951,7 +3042,7 @@ NODEP_CPP_AI_C62=\
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_AI_C62=\
+DEP_CPP_AI_C64=\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
@@ -2992,7 +3083,7 @@ DEP_CPP_AI_C62=\
 	"..\..\main\wall.h"\
 	"..\..\main\weapon.h"\
 	
-NODEP_CPP_AI_C62=\
+NODEP_CPP_AI_C64=\
 	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
 	"..\..\main\cfile.h"\
@@ -3012,7 +3103,19 @@ NODEP_CPP_AI_C62=\
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_AI_C62=\
+DEP_CPP_AI_C64=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
@@ -3053,22 +3156,10 @@ DEP_CPP_AI_C62=\
 	"..\..\main\wall.h"\
 	"..\..\main\weapon.h"\
 	
-NODEP_CPP_AI_C62=\
-	"..\..\main\3d.h"\
+NODEP_CPP_AI_C64=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -3255,6 +3346,19 @@ NODEP_CPP_AI2_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_AI2_C=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
@@ -3292,22 +3396,9 @@ DEP_CPP_AI2_C=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_AI2_C=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -3428,6 +3519,16 @@ NODEP_CPP_AIPAT=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_AIPAT=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\digi.h"\
@@ -3448,17 +3549,7 @@ DEP_CPP_AIPAT=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_AIPAT=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -3666,6 +3757,26 @@ NODEP_CPP_AUTOM=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_AUTOM=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\arch\include\mouse.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\loadgl.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\ogl_init.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pcx.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
 	"..\..\main\bm.h"\
@@ -3705,27 +3816,10 @@ DEP_CPP_AUTOM=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_AUTOM=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\mouse.h"\
-	"..\..\main\ogl_init.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pcx.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -3737,7 +3831,7 @@ SOURCE=..\..\main\bm.c
 
 !IF  "$(CFG)" == "d2x - Win32 (WCE emulator) Release"
 
-DEP_CPP_BM_C6a=\
+DEP_CPP_BM_C6c=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\cntrlcen.h"\
@@ -3764,7 +3858,7 @@ DEP_CPP_BM_C6a=\
 	"..\..\main\wall.h"\
 	"..\..\main\weapon.h"\
 	
-NODEP_CPP_BM_C6a=\
+NODEP_CPP_BM_C6c=\
 	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
 	"..\..\main\cfile.h"\
@@ -3783,7 +3877,7 @@ NODEP_CPP_BM_C6a=\
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE emulator) Debug"
 
-DEP_CPP_BM_C6a=\
+DEP_CPP_BM_C6c=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\cntrlcen.h"\
@@ -3810,7 +3904,7 @@ DEP_CPP_BM_C6a=\
 	"..\..\main\wall.h"\
 	"..\..\main\weapon.h"\
 	
-NODEP_CPP_BM_C6a=\
+NODEP_CPP_BM_C6c=\
 	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
 	"..\..\main\cfile.h"\
@@ -3829,7 +3923,7 @@ NODEP_CPP_BM_C6a=\
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Release"
 
-DEP_CPP_BM_C6a=\
+DEP_CPP_BM_C6c=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\cntrlcen.h"\
@@ -3856,7 +3950,7 @@ DEP_CPP_BM_C6a=\
 	"..\..\main\wall.h"\
 	"..\..\main\weapon.h"\
 	
-NODEP_CPP_BM_C6a=\
+NODEP_CPP_BM_C6c=\
 	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
 	"..\..\main\cfile.h"\
@@ -3875,7 +3969,20 @@ NODEP_CPP_BM_C6a=\
 
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
-DEP_CPP_BM_C6a=\
+DEP_CPP_BM_C6c=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\interp.h"\
+	"..\..\include\makesig.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\cntrlcen.h"\
@@ -3902,21 +4009,10 @@ DEP_CPP_BM_C6a=\
 	"..\..\main\wall.h"\
 	"..\..\main\weapon.h"\
 	
-NODEP_CPP_BM_C6a=\
-	"..\..\main\3d.h"\
+NODEP_CPP_BM_C6c=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\interp.h"\
-	"..\..\main\makesig.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -4088,6 +4184,14 @@ NODEP_CPP_CNTRL=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CNTRL=\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\cntrlcen.h"\
@@ -4115,12 +4219,6 @@ DEP_CPP_CNTRL=\
 	
 NODEP_CPP_CNTRL=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	
@@ -4342,6 +4440,20 @@ NODEP_CPP_COLLI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_COLLI=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\rle.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
@@ -4388,24 +4500,10 @@ DEP_CPP_COLLI=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_COLLI=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\rle.h"\
 	"..\..\main\tactile.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -4535,6 +4633,18 @@ NODEP_CPP_CONFI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CONFI=\
+	"..\..\arch\include\joy.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\config.h"\
 	"..\..\main\digi.h"\
@@ -4556,18 +4666,8 @@ DEP_CPP_CONFI=\
 	
 NODEP_CPP_CONFI=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
 	"..\..\main\poly_acc.h"\
 	"..\..\main\prefs.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\winapp.h"\
 	
 
@@ -4808,6 +4908,21 @@ NODEP_CPP_CONTR=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CONTR=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\arch\include\mouse.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\config.h"\
 	"..\..\main\controls.h"\
@@ -4833,20 +4948,7 @@ DEP_CPP_CONTR=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_CONTR=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\mouse.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -4988,6 +5090,23 @@ NODEP_CPP_CREDI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_CREDI=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\arch\include\mouse.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pcx.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\compbit.h"\
 	"..\..\main\desw.h"\
@@ -5008,22 +5127,7 @@ DEP_CPP_CREDI=\
 	
 NODEP_CPP_CREDI=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\mouse.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pcx.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	
@@ -5143,6 +5247,15 @@ NODEP_CPP_EFFEC=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_EFFEC=\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\cntrlcen.h"\
@@ -5161,13 +5274,6 @@ DEP_CPP_EFFEC=\
 	
 NODEP_CPP_EFFEC=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -5342,6 +5448,21 @@ NODEP_CPP_ENDLE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ENDLE=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\compbit.h"\
@@ -5375,22 +5496,9 @@ DEP_CPP_ENDLE=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_ENDLE=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -5571,6 +5679,19 @@ NODEP_CPP_ESCOR=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ESCOR=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
@@ -5606,22 +5727,9 @@ DEP_CPP_ESCOR=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_ESCOR=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -5787,6 +5895,16 @@ NODEP_CPP_FIREB=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FIREB=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
@@ -5822,17 +5940,9 @@ DEP_CPP_FIREB=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_FIREB=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -5992,6 +6102,15 @@ NODEP_CPP_FUELC=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FUELC=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
@@ -6026,16 +6145,9 @@ DEP_CPP_FUELC=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_FUELC=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -6153,6 +6265,16 @@ NODEP_CPP_FVI_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_FVI_C=\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\rle.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\digi.h"\
@@ -6175,14 +6297,6 @@ DEP_CPP_FVI_C=\
 	
 NODEP_CPP_FVI_C=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\rle.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -6477,6 +6591,30 @@ NODEP_CPP_GAME_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAME_=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\arch\include\mouse.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\ibitblt.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\loadgl.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\ogl_init.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pcx.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
@@ -6536,34 +6674,10 @@ DEP_CPP_GAME_=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_GAME_=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\console.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\ibitblt.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\mouse.h"\
-	"..\..\main\ogl_init.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pcx.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	
@@ -6848,6 +6962,51 @@ NODEP_CPP_GAMEC=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMEC=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\arch\include\mouse.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\ibitblt.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pcx.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\rbaudio.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
@@ -6904,35 +7063,11 @@ DEP_CPP_GAMEC=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_GAMEC=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\console.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\ibitblt.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\mouse.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pcx.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\rbaudio.h"\
 	"..\..\main\tactile.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -6978,12 +7113,12 @@ NODEP_CPP_GAMEF=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMEF=\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
 	"..\..\main\gamefont.h"\
 	"..\..\main\inferno.h"\
-	
-NODEP_CPP_GAMEF=\
-	"..\..\main\gr.h"\
-	"..\..\main\pstypes.h"\
 	
 
 !ENDIF 
@@ -7110,6 +7245,18 @@ NODEP_CPP_GAMEM=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMEM=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\byteswap.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\hash.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\digi.h"\
@@ -7131,18 +7278,6 @@ DEP_CPP_GAMEM=\
 	
 NODEP_CPP_GAMEM=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\byteswap.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\hash.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -7236,6 +7371,17 @@ NODEP_CPP_GAMEP=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMEP=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\rle.h"\
+	"..\..\include\strutil.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\gamepal.h"\
 	"..\..\main\inferno.h"\
@@ -7246,18 +7392,8 @@ DEP_CPP_GAMEP=\
 	"..\..\main\texmerge.h"\
 	
 NODEP_CPP_GAMEP=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\rle.h"\
-	"..\..\main\strutil.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -7447,6 +7583,20 @@ NODEP_CPP_GAMER=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMER=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\ibitblt.h"\
+	"..\..\include\loadgl.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\ogl_init.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
 	"..\..\main\bm.h"\
@@ -7482,22 +7632,10 @@ DEP_CPP_GAMER=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_GAMER=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\console.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\ibitblt.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\ogl_init.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	"..\..\main\winapp.h"\
@@ -7687,6 +7825,21 @@ NODEP_CPP_GAMES=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMES=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\byteswap.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\makesig.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\strutil.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
 	"..\..\main\bm.h"\
@@ -7724,22 +7877,7 @@ DEP_CPP_GAMES=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_GAMES=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\byteswap.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\key.h"\
-	"..\..\main\makesig.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\strutil.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -7839,6 +7977,16 @@ NODEP_CPP_GAMESE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMESE=\
+	"..\..\include\byteswap.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\digi.h"\
@@ -7855,14 +8003,6 @@ DEP_CPP_GAMESE=\
 	
 NODEP_CPP_GAMESE=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\byteswap.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -8178,6 +8318,31 @@ NODEP_CPP_GAMESEQ=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAMESEQ=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\ibitblt.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\loadgl.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\ogl_init.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pcx.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\rle.h"\
+	"..\..\include\strutil.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
@@ -8243,35 +8408,11 @@ DEP_CPP_GAMESEQ=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_GAMESEQ=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\ibitblt.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\ogl_init.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pcx.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\rle.h"\
-	"..\..\main\strutil.h"\
 	"..\..\main\tactile.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	
@@ -8457,6 +8598,20 @@ NODEP_CPP_GAUGE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_GAUGE=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\loadgl.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\ogl_init.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\cntrlcen.h"\
@@ -8493,20 +8648,10 @@ DEP_CPP_GAUGE=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_GAUGE=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\ogl_init.h"\
-	"..\..\main\pa_enabl.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	
@@ -8614,6 +8759,12 @@ NODEP_CPP_HOSTA=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_HOSTA=\
+	"..\..\include\cfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -8633,13 +8784,8 @@ DEP_CPP_HOSTA=\
 	
 NODEP_CPP_HOSTA=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -8784,6 +8930,18 @@ NODEP_CPP_HUD_C=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_HUD_C=\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\strutil.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\collide.h"\
 	"..\..\main\digi.h"\
@@ -8810,19 +8968,8 @@ DEP_CPP_HUD_C=\
 	
 NODEP_CPP_HUD_C=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\console.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\strutil.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -9069,6 +9216,51 @@ NODEP_CPP_INFER=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_INFER=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\arch\include\mouse.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\d_io.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pcx.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\strutil.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
 	"..\..\main\bm.h"\
@@ -9115,33 +9307,8 @@ DEP_CPP_INFER=\
 	"..\..\texmap\scanline.h"\
 	
 NODEP_CPP_INFER=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\console.h"\
-	"..\..\main\d_io.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\mouse.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pcx.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\strutil.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\ui.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -9355,6 +9522,24 @@ NODEP_CPP_KCONF=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_KCONF=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\arch\include\mouse.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
@@ -9393,28 +9578,12 @@ DEP_CPP_KCONF=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_KCONF=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\joy.h"\
 	"..\..\main\joystick.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\mouse.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
 	"..\..\main\tactile.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	
@@ -9620,6 +9789,19 @@ NODEP_CPP_LASER=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_LASER=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
@@ -9651,19 +9833,8 @@ DEP_CPP_LASER=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_LASER=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\tactile.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -9787,6 +9958,16 @@ NODEP_CPP_LIGHT=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_LIGHT=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\fvi.h"\
@@ -9810,15 +9991,7 @@ DEP_CPP_LIGHT=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_LIGHT=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -10077,6 +10250,27 @@ NODEP_CPP_MENU_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MENU_=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\ipx.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\strutil.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\config.h"\
@@ -10125,33 +10319,12 @@ DEP_CPP_MENU_=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_MENU_=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\ipx.h"\
 	"..\..\main\isp.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
 	"..\..\main\resource.h"\
-	"..\..\main\strutil.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	
@@ -10238,6 +10411,13 @@ NODEP_CPP_MGLOB=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MGLOB=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\digi.h"\
@@ -10250,13 +10430,7 @@ DEP_CPP_MGLOB=\
 	"..\..\main\sounds.h"\
 	
 NODEP_CPP_MGLOB=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -10362,6 +10536,16 @@ NODEP_CPP_MISSI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MISSI=\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\findfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\strutil.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -10380,14 +10564,6 @@ DEP_CPP_MISSI=\
 	
 NODEP_CPP_MISSI=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\findfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\strutil.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -10496,6 +10672,17 @@ NODEP_CPP_MORPH=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_MORPH=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\interp.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\digi.h"\
@@ -10513,16 +10700,7 @@ DEP_CPP_MORPH=\
 	"..\..\main\sounds.h"\
 	
 NODEP_CPP_MORPH=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\interp.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -11389,6 +11567,20 @@ NODEP_CPP_OBJEC=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_OBJEC=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
@@ -11434,25 +11626,11 @@ DEP_CPP_OBJEC=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_OBJEC=\
-	"..\..\main\3d.h"\
 	"..\..\main\3dfx_des.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
 	"..\..\main\tactile.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	
@@ -11611,6 +11789,17 @@ NODEP_CPP_PAGIN=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PAGIN=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\cntrlcen.h"\
@@ -11640,18 +11829,9 @@ DEP_CPP_PAGIN=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_PAGIN=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	
@@ -11780,6 +11960,17 @@ NODEP_CPP_PHYSI=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PHYSI=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
@@ -11803,16 +11994,7 @@ DEP_CPP_PHYSI=\
 	
 NODEP_CPP_PHYSI=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\tactile.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -11957,6 +12139,24 @@ NODEP_CPP_PIGGY=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PIGGY=\
+	"..\..\include\args.h"\
+	"..\..\include\byteswap.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\findfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\hash.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\makesig.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\rle.h"\
+	"..\..\include\strutil.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\bmread.h"\
@@ -11980,22 +12180,6 @@ DEP_CPP_PIGGY=\
 	
 NODEP_CPP_PIGGY=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\byteswap.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\findfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\hash.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\makesig.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\rle.h"\
-	"..\..\main\strutil.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -12080,6 +12264,12 @@ NODEP_CPP_PLAYE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_PLAYE=\
+	"..\..\include\cfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -12094,11 +12284,6 @@ DEP_CPP_PLAYE=\
 	
 NODEP_CPP_PLAYE=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -12448,6 +12633,21 @@ NODEP_CPP_POLYO=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_POLYO=\
+	"..\..\include\3d.h"\
+	"..\..\include\args.h"\
+	"..\..\include\byteswap.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\interp.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\digi.h"\
@@ -12464,21 +12664,8 @@ DEP_CPP_POLYO=\
 	"..\..\main\textures.h"\
 	
 NODEP_CPP_POLYO=\
-	"..\..\main\3d.h"\
 	"..\..\main\3dfx_des.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\byteswap.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\interp.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -12644,6 +12831,17 @@ NODEP_CPP_POWER=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_POWER=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\config.h"\
 	"..\..\main\controls.h"\
@@ -12676,20 +12874,9 @@ DEP_CPP_POWER=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_POWER=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -12861,6 +13048,23 @@ NODEP_CPP_RENDE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_RENDE=\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\loadgl.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\ogl_init.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
 	"..\..\main\bm.h"\
@@ -12892,23 +13096,8 @@ DEP_CPP_RENDE=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_RENDE=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\ogl_init.h"\
-	"..\..\main\pa_enabl.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -12999,6 +13188,15 @@ NODEP_CPP_ROBOT=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_ROBOT=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -13012,14 +13210,7 @@ DEP_CPP_ROBOT=\
 	"..\..\main\sounds.h"\
 	
 NODEP_CPP_ROBOT=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -13152,6 +13343,22 @@ NODEP_CPP_SCORE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SCORE=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\arch\include\mouse.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\d_io.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\strutil.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -13173,20 +13380,6 @@ DEP_CPP_SCORE=\
 	
 NODEP_CPP_SCORE=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\d_io.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\mouse.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\strutil.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -13235,13 +13428,12 @@ NODEP_CPP_SEGME=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SEGME=\
+	"..\..\include\cfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\segment.h"\
-	
-NODEP_CPP_SEGME=\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -13353,6 +13545,15 @@ NODEP_CPP_SLEW_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SLEW_=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\config.h"\
 	"..\..\main\digi.h"\
@@ -13373,14 +13574,6 @@ DEP_CPP_SLEW_=\
 	
 NODEP_CPP_SLEW_=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -13489,6 +13682,17 @@ NODEP_CPP_SONGS=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SONGS=\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\rbaudio.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\config.h"\
 	"..\..\main\digi.h"\
@@ -13507,15 +13711,6 @@ DEP_CPP_SONGS=\
 	
 NODEP_CPP_SONGS=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\rbaudio.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -13939,6 +14134,18 @@ NODEP_CPP_SWITC=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SWITC=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\cntrlcen.h"\
@@ -13967,19 +14174,8 @@ DEP_CPP_SWITC=\
 	
 NODEP_CPP_SWITC=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -14085,6 +14281,18 @@ NODEP_CPP_TERRA=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TERRA=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\digi.h"\
@@ -14100,17 +14308,7 @@ DEP_CPP_TERRA=\
 	"..\..\main\textures.h"\
 	
 NODEP_CPP_TERRA=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\texmap.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -14210,6 +14408,20 @@ NODEP_CPP_TEXME=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TEXME=\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\loadgl.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\ogl_init.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\rle.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\digi.h"\
@@ -14224,16 +14436,7 @@ DEP_CPP_TEXME=\
 	
 NODEP_CPP_TEXME=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\ogl_init.h"\
-	"..\..\main\pa_enabl.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\rle.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -14288,15 +14491,15 @@ NODEP_CPP_TEXT_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TEXT_=\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\compbit.h"\
 	"..\..\main\inferno.h"\
 	"..\..\main\text.h"\
-	
-NODEP_CPP_TEXT_=\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\u_mem.h"\
 	
 
 !ENDIF 
@@ -14474,6 +14677,23 @@ NODEP_CPP_TITLE=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TITLE=\
+	"..\..\arch\include\joy.h"\
+	"..\..\arch\include\key.h"\
+	"..\..\include\3d.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\iff.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pa_enabl.h"\
+	"..\..\include\palette.h"\
+	"..\..\include\pcx.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\timer.h"\
+	"..\..\include\u_mem.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\compbit.h"\
@@ -14505,23 +14725,8 @@ DEP_CPP_TITLE=\
 	"..\..\main\weapon.h"\
 	
 NODEP_CPP_TITLE=\
-	"..\..\main\3d.h"\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\iff.h"\
-	"..\..\main\joy.h"\
-	"..\..\main\key.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pa_enabl.h"\
-	"..\..\main\palette.h"\
-	"..\..\main\pcx.h"\
 	"..\..\main\poly_acc.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\timer.h"\
-	"..\..\main\u_mem.h"\
-	"..\..\main\vecmat.h"\
 	"..\..\main\win\dd.h"\
 	"..\..\main\win\winapp.h"\
 	
@@ -14611,6 +14816,12 @@ NODEP_CPP_VCLIP=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_VCLIP=\
+	"..\..\include\cfile.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -14626,11 +14837,6 @@ DEP_CPP_VCLIP=\
 	
 NODEP_CPP_VCLIP=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\pstypes.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -14781,6 +14987,15 @@ NODEP_CPP_WALL_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_WALL_=\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\ui.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
 	"..\..\main\collide.h"\
@@ -14811,17 +15026,8 @@ DEP_CPP_WALL_=\
 	
 NODEP_CPP_WALL_=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\editor\gr.h"\
-	"..\..\main\editor\ui.h"\
-	"..\..\main\editor\vecmat.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -14963,6 +15169,15 @@ NODEP_CPP_WEAPO=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_WEAPO=\
+	"..\..\include\args.h"\
+	"..\..\include\cfile.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\main\ai.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\digi.h"\
@@ -14991,16 +15206,9 @@ DEP_CPP_WEAPO=\
 	
 NODEP_CPP_WEAPO=\
 	"..\..\main\allg_snd.h"\
-	"..\..\main\args.h"\
-	"..\..\main\cfile.h"\
-	"..\..\main\fix.h"\
-	"..\..\main\gr.h"\
-	"..\..\main\mono.h"\
-	"..\..\main\pstypes.h"\
 	"..\..\main\QuickDraw.h"\
 	"..\..\main\RAVE.h"\
 	"..\..\main\tactile.h"\
-	"..\..\main\vecmat.h"\
 	
 
 !ENDIF 
@@ -15184,17 +15392,16 @@ NODEP_CPP_NTMAP=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_NTMAP=\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\rle.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\texmap\scanline.h"\
 	"..\..\texmap\texmapl.h"\
-	
-NODEP_CPP_NTMAP=\
-	"..\..\texmap\3d.h"\
-	"..\..\texmap\fix.h"\
-	"..\..\texmap\gr.h"\
-	"..\..\texmap\pstypes.h"\
-	"..\..\texmap\rle.h"\
-	"..\..\texmap\texmap.h"\
-	"..\..\texmap\vecmat.h"\
 	
 
 !ENDIF 
@@ -15252,16 +15459,19 @@ NODEP_CPP_SCANL=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_SCANL=\
+	"..\..\include\3d.h"\
+	"..\..\include\console.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\grdef.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\mono.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\strutil.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\texmap\scanline.h"\
 	"..\..\texmap\texmapl.h"\
-	
-NODEP_CPP_SCANL=\
-	"..\..\texmap\gr.h"\
-	"..\..\texmap\grdef.h"\
-	"..\..\texmap\maths.h"\
-	"..\..\texmap\mono.h"\
-	"..\..\texmap\strutil.h"\
-	"..\..\texmap\texmap.h"\
 	
 
 !ENDIF 
@@ -15319,16 +15529,16 @@ NODEP_CPP_TMAPF=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Debug"
 
 DEP_CPP_TMAPF=\
+	"..\..\include\3d.h"\
+	"..\..\include\fix.h"\
+	"..\..\include\gr.h"\
+	"..\..\include\grdef.h"\
+	"..\..\include\maths.h"\
+	"..\..\include\pstypes.h"\
+	"..\..\include\texmap.h"\
+	"..\..\include\vecmat.h"\
 	"..\..\texmap\scanline.h"\
 	"..\..\texmap\texmapl.h"\
-	
-NODEP_CPP_TMAPF=\
-	"..\..\texmap\3d.h"\
-	"..\..\texmap\fix.h"\
-	"..\..\texmap\gr.h"\
-	"..\..\texmap\grdef.h"\
-	"..\..\texmap\texmap.h"\
-	"..\..\texmap\vecmat.h"\
 	
 
 !ENDIF 
@@ -15346,6 +15556,14 @@ SOURCE=..\..\include\error.h
 # Begin Source File
 
 SOURCE=..\..\main\piggy.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\pstypes.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\strutil.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
