@@ -1,4 +1,4 @@
-/* $Id: text.h,v 1.2 2002-08-06 05:21:33 btb Exp $ */
+/* $Id: text.h,v 1.3 2003-03-28 07:54:44 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -497,9 +497,9 @@ extern char *Text_string[];
 #define TXT_BTN_4               Text_string[487]
 #define TXT_TRIG                Text_string[488]
 #define TXT_HAT_L               Text_string[489]
-#define TXT_HAT_R               Text_string[490]
-#define TXT_HAT_U               Text_string[491]
-#define TXT_HAT_D               Text_string[492]
+#define TXT_HAT_D               Text_string[490]
+#define TXT_HAT_R               Text_string[491]
+#define TXT_HAT_U               Text_string[492]
 #define TXT_LEFT                Text_string[493]
 #define TXT_RIGHT               Text_string[494]
 #define TXT_MID                 Text_string[495]
@@ -697,9 +697,9 @@ extern char *Text_string[];
 #define TNUM_BTN_4              (475+2+10)
 #define TNUM_TRIG               (476+2+10)
 #define TNUM_HAT_L              (477+2+10)
-#define TNUM_HAT_R              (478+2+10)
-#define TNUM_HAT_U              (479+2+10)
-#define TNUM_HAT_D              (480+2+10)
+#define TNUM_HAT_D              (478+2+10)
+#define TNUM_HAT_R              (479+2+10)
+#define TNUM_HAT_U              (480+2+10)
 #define TNUM_LEFT               (481+2+10)
 #define TNUM_RIGHT              (482+2+10)
 #define TNUM_MID                (483+2+10)
