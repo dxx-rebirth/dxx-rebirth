@@ -18,7 +18,7 @@ Includes        =  ¶
 
 Sym-PPC         = -sym on
 
-PPCCOptions     = {Includes} -includes unix {Sym-PPC} -d HAVE_CONFIG_H -enum int -noMapCR
+PPCCOptions     = {Includes} -includes unix {Sym-PPC} -d HAVE_CONFIG_H -enum int -noMapCR -d OGL
 
 ### Source Files ###
 

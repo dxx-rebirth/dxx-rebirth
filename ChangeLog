@@ -1,3 +1,9 @@
+2005-02-25  Chris Taylor  <chris@icculus.org>
+
+	* arch/carbon/conf.h, D2X.make: no defining OGL in conf.h, 
+	allowing Mac OS 9 and X to both use conf.h but one can build for
+	OpenGL while the other doesn't.
+
 2005-02-25  Bradley Bell  <btb@icculus.org>
 
 	* arch/dos/digi.c, arch/dos/digiallg.c, arch/dos/digimm.c,

@@ -58,7 +58,7 @@
 #define NO_ASM 
 
 /* Define if you want an OpenGL build */
-#define OGL
+//#define OGL
 
 /* Name of package */
 #define PACKAGE "d2x"
