@@ -1,4 +1,4 @@
-/* $Id: circle.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: circle.c,v 1.4 2002-10-10 18:55:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: circle.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $";
+static char rcsid[] = "$Id: circle.c,v 1.4 2002-10-10 18:55:32 btb Exp $";
 #endif
 
 #include "u_mem.h"
@@ -52,9 +52,9 @@ int gr_circle(fix xc1,fix yc1,fix r1)
 		gr_pixel( xc-y, yc+x );
 		gr_pixel( xc+y, yc+x );
 
-		if (p<0) 
+		if (p<0)
 			p=p+(x<<2)+6;
-		else	{
+		else {
 			// Draw the second octant
 			gr_pixel( xc-x, yc-y );
 			gr_pixel( xc+x, yc-y );
@@ -65,7 +65,7 @@ int gr_circle(fix xc1,fix yc1,fix r1)
 		}
 		x++;
 	}
-	if(x==y)	{
+	if(x==y) {
 		gr_pixel( xc-x, yc-y );
 		gr_pixel( xc+x, yc-y );
 		gr_pixel( xc-x, yc+y );
@@ -93,9 +93,9 @@ int gr_ucircle(fix xc1,fix yc1,fix r1)
 		gr_upixel( xc-y, yc+x );
 		gr_upixel( xc+y, yc+x );
 
-		if (p<0) 
+		if (p<0)
 			p=p+(x<<2)+6;
-		else	{
+		else {
 			// Draw the second octant
 			gr_upixel( xc-x, yc-y );
 			gr_upixel( xc+x, yc-y );
@@ -106,7 +106,7 @@ int gr_ucircle(fix xc1,fix yc1,fix r1)
 		}
 		x++;
 	}
-	if(x==y)	{
+	if(x==y) {
 		gr_upixel( xc-x, yc-y );
 		gr_upixel( xc+x, yc-y );
 		gr_upixel( xc-x, yc+y );

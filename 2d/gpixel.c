@@ -1,4 +1,4 @@
-/* $Id: gpixel.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: gpixel.c,v 1.5 2002-10-10 18:55:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -34,7 +34,7 @@ unsigned char gr_ugpixel( grs_bitmap * bitmap, int x, int y )
 #endif
 		return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
 #ifdef __DJGPP__
-        case BM_MODEX:
+	case BM_MODEX:
 		x += bitmap->bm_x;
 		y += bitmap->bm_y;
 		gr_modex_setplane( x & 3 );
@@ -61,7 +61,7 @@ unsigned char gr_gpixel( grs_bitmap * bitmap, int x, int y )
 #endif
 		return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
 #ifdef __DJGPP__
-        case BM_MODEX:
+	case BM_MODEX:
 		x += bitmap->bm_x;
 		y += bitmap->bm_y;
 		gr_modex_setplane( x & 3 );
@@ -77,4 +77,3 @@ unsigned char gr_gpixel( grs_bitmap * bitmap, int x, int y )
 	return 0;
 #endif
 }
-

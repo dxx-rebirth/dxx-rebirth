@@ -1,4 +1,4 @@
-/* $Id: poly.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: poly.c,v 1.4 2002-10-10 18:55:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
@@ -27,14 +27,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define USE_POLY_CODE 1
 
-#define  MAX_SCAN_LINES 1200
+#define MAX_SCAN_LINES 1200
 
-#ifdef USE_POLY_CODE 
+#ifdef USE_POLY_CODE
 
 int y_edge_list[MAX_SCAN_LINES];
 
 void gr_upoly(int nverts, int *vert )
-{           
+{
 	int temp;
 	int startx, stopx;  // X coordinates of both ends of current edge.
 	int firstx, firsty; // Saved copy of the first vertex to connect later.
@@ -112,7 +112,7 @@ void gr_upoly(int nverts, int *vert )
 				//gr_uscanline( x2, x1-1, stopy );
 				gr_uscanline( x2, x1, stopy );
 
-		} else  {
+		} else {
 
 			dx_dy = (stopx - startx) / (stopy - starty);
 
@@ -207,7 +207,7 @@ void gr_poly(int nverts, int *vert )
 		}
 
 
-		if (stopy < starty )    {
+		if (stopy < starty ) {
 			temp = stopy;
 			stopy = starty;
 			starty = temp;
@@ -223,7 +223,7 @@ void gr_poly(int nverts, int *vert )
 				x1 = startx>>16;
 				x2 = stopx>>16;
 
-				if (x1 > x2 )   {
+				if (x1 > x2 ) {
 					temp = x2;
 					x2 = x1;
 					x1 = temp;
@@ -237,7 +237,7 @@ void gr_poly(int nverts, int *vert )
 					gr_scanline( x1, x2, stopy );
 				}
 			}
-		} else  {
+		} else {
 
 			dx_dy = (stopx - startx) / (stopy - starty);
 
@@ -254,11 +254,11 @@ void gr_poly(int nverts, int *vert )
 			for (; starty < stopy; starty++ )
 			{   if (y_edge_list[starty]==-1)
 					y_edge_list[starty] = startx;
-				else    {
+				else {
 					x1 = y_edge_list[starty]>>16;
 					x2 = startx>>16;
 
-					if (x1 > x2 )   {
+					if (x1 > x2 ) {
 						temp = x2;
 						x2 = x1;
 						x1 = temp;
@@ -281,4 +281,3 @@ void gr_poly(int nverts, int *vert )
 }
 
 #endif
-

@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.5 2001-10-12 00:18:38 bradleyb Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.6 2002-10-10 18:55:32 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1767,20 +1767,20 @@ void update_cockpits(int force_redraw)
 		WINDOS ( dd_gr_clear_canvas( BM_XRGB(0,0,0) ),
 					gr_clear_canvas( BM_XRGB(0,0,0) ) );
 
-		//	In a modex mode, clear the other buffer.
+		// In a modex mode, clear the other buffer.
 		if (grd_curcanv->cv_bitmap.bm_type == BM_MODEX) {
 			gr_set_current_canvas(&VR_screen_pages[VR_current_page^1]);
 			gr_clear_canvas( BM_XRGB(0,0,0) );
 			gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 		}
 		break;
-	
+
 	}
 
 	WINDOS (	dd_gr_set_current_canvas(&dd_VR_screen_pages[VR_current_page]),
 				gr_set_current_canvas(&VR_screen_pages[VR_current_page])
 	);
-	
+
 	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
 		init_gauges();
 

@@ -1,4 +1,4 @@
-/* $Id: line.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: line.c,v 1.5 2002-10-10 18:55:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
@@ -46,14 +46,16 @@ from "Graphics Gems", Academic Press, 1990
 
 /* non-zero flag indicates the pixels needing EXCHG back. */
 void plot(int x,int y,int flag)
-{   if (flag)
+{
+	if (flag)
 		gr_upixel(y, x);
 	else
 		gr_upixel(x, y);
 }
 
 int gr_hline(int x1, int x2, int y)
-{   int i;
+{
+	int i;
 
 	if (x1 > x2) EXCHG(x1,x2);
 	for (i=x1; i<=x2; i++ )
@@ -62,7 +64,8 @@ int gr_hline(int x1, int x2, int y)
 }
 
 int gr_vline(int y1, int y2, int x)
-{   int i;
+{
+	int i;
 	if (y1 > y2) EXCHG(y1,y2);
 	for (i=y1; i<=y2; i++ )
 		gr_upixel( x, i );
@@ -129,7 +132,7 @@ void gr_universal_uline(int a1, int b1, int a2, int b2)
 	/* In fact (dx-1)/4 as 2 pixels are already plottted */
 	xend = (dx - 1) / 4;
 	pixels_left = (dx - 1) % 4;     /* number of pixels left over at the
-								 * end */
+	                                 * end */
 	plot(x, y, reverse);
 	plot(x1, y1, reverse);  /* plot first two points */
 	incr2 = 4 * dy - 2 * dx;
@@ -272,27 +275,27 @@ int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 	switch(TYPE)
 	{
 #ifdef OGL
-		case BM_OGL:
-			ogl_ulinec(a1,b1,a2,b2,COLOR);
-			return 0;
+	case BM_OGL:
+		ogl_ulinec(a1,b1,a2,b2,COLOR);
+		return 0;
 #endif
 	case BM_LINEAR:
-               #ifdef NO_ASM
-                gr_universal_uline( a1,b1,a2,b2);
-               #else
+#ifdef NO_ASM
+		gr_universal_uline( a1,b1,a2,b2);
+#else
 		gr_linear_line( a1, b1, a2, b2 );
-               #endif
+#endif
 		return 0;
 #ifdef __DJGPP__
-        case BM_MODEX:
-		modex_line_x1 = a1+XOFFSET;		
-		modex_line_y1 = b1+YOFFSET;		
-		modex_line_x2 = a2+XOFFSET;		
-		modex_line_y2 = b2+YOFFSET;		
+	case BM_MODEX:
+		modex_line_x1 = a1+XOFFSET;
+		modex_line_y1 = b1+YOFFSET;
+		modex_line_x2 = a2+XOFFSET;
+		modex_line_y2 = b2+YOFFSET;
 		modex_line_Color = grd_curcanv->cv_color;
 		gr_modex_line();
 		return 0;
-        default:
+	default:
 		gr_universal_uline( a1, b1, a2, b2 );
 		return 0;
 #endif

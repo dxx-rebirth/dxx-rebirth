@@ -1,4 +1,4 @@
-/* $Id: disc.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: disc.c,v 1.4 2002-10-10 18:55:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -44,9 +44,9 @@ int gr_disk(fix xc1,fix yc1,fix r1)
 		gr_scanline( xc-y, xc+y, yc-x );
 		gr_scanline( xc-y, xc+y, yc+x );
 
-		if (p<0) 
+		if (p<0)
 			p=p+(x<<2)+6;
-		else	{
+		else {
 			// Draw the second octant
 			gr_scanline( xc-x, xc+x, yc-y );
 			gr_scanline( xc-x, xc+x, yc+y );
@@ -55,7 +55,7 @@ int gr_disk(fix xc1,fix yc1,fix r1)
 		}
 		x++;
 	}
-	if(x==y)	{
+	if(x==y) {
 		gr_scanline( xc-x, xc+x, yc-y );
 		gr_scanline( xc-x, xc+x, yc+y );
 	}
@@ -79,9 +79,9 @@ int gr_udisk(fix xc1,fix yc1,fix r1)
 		gr_uscanline( xc-y, xc+y, yc-x );
 		gr_uscanline( xc-y, xc+y, yc+x );
 
-		if (p<0) 
+		if (p<0)
 			p=p+(x<<2)+6;
-		else	{
+		else {
 			// Draw the second octant
 			gr_uscanline( xc-x, xc+x, yc-y );
 			gr_uscanline( xc-x, xc+x, yc+y );
@@ -90,7 +90,7 @@ int gr_udisk(fix xc1,fix yc1,fix r1)
 		}
 		x++;
 	}
-	if(x==y)	{
+	if(x==y) {
 		gr_uscanline( xc-x, xc+x, yc-y );
 		gr_uscanline( xc-x, xc+x, yc+y );
 	}
