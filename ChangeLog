@@ -1,3 +1,9 @@
+2003-10-05  Bradley Bell  <btb@icculus.org>
+
+	* arch/win32/Makefile.am, arch/win32/include/ipx_udp.h,
+	arch/win32/ipx_udp.c, arch/win32/winnet.c, main/menu.c: added UDP
+	support for win32
+
 2003-10-04  Bradley Bell  <btb@icculus.org>
 
 	* cfile/cfile.c, main/config.c: oops, fgets does not return EOF
