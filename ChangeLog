@@ -36,6 +36,9 @@
 
 	* D2X.make: Don't compile cfile.c on Mac OS 9.
 
+	* README: add PhysicsFS to the required 'tools' in README, and
+	instructions for building in MPW.
+
 2004-12-01  Bradley Bell  <btb@icculus.org>
 
 	* include/physfsx.h, include/strio.h, main/cntrlcen.c,

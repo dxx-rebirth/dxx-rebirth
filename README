@@ -7,8 +7,9 @@ http://icculus.org/d2x
 
 Useful Links:
 =============
-Nasm: http://nasm.sourceforge.net
-SDL:  http://www.libsdl.org
+Nasm:		http://nasm.sourceforge.net
+SDL:		http://www.libsdl.org
+PhysicsFS:	http://icculus.org/physfs/
 
 
 Linux/Unix:
@@ -17,6 +18,7 @@ Linux/Unix:
 Required tools:
 * GCC 2.95 or higher
 * SDL 1.2
+* PhysicsFS
 * NASM 0.98 (OPTIONAL but RECOMMENDED for x86)
 * A thread safe X server.
 * GNU make is probably required as well.
@@ -56,6 +58,7 @@ Win32:
 Required tools:
 * Cygwin or MinGW + MSys
 * SDL 1.2
+* PhysicsFS
 * NASM 0.98 (OPTIONAL but RECOMMENDED)
 
 Note that SDL.dll needs to be in your executable PATH, since that is
@@ -120,6 +123,42 @@ Install the latest version of apple's developer tools.
 Compile and install SDL from source: d2x doesn't use Project Builder.
 
 configure and compile as with other unices.
+
+
+MAC OS 9
+========
+Required tools:
+* MPW-GM v3.6 or higher
+* SDL 1.2
+* PhysicsFS
+* OpenGL 1.2
+Recommended:
+* MacsBug 6.6.3
+* Power Mac Debugger 2.2
+
+CIncludes:
+The SDL headers go in here. Either a folder called "SDL" or the headers straight in CIncludes will work. The OpenGL and AGL headers go directly in CIncludes, but a folder needs to be made called "GL". Copies or aliases of glu.h and gl.h need to go in here. This is because the makefile is set up to use Unix include directive paths. physfs.h also goes in here.
+
+SharedLibraries:
+OpenGLLibraryStub and OpenGLUtilityStub go in here. Also, copies of the SDL and PhysicsFS libraries go in here.
+
+Build instructions:
+Install all of the components above. The OpenGL version of D2X is built by default, but with a bit of fiddling the non-OpenGL version can be built. The quickest way to build is to open D2X.make (which launches MPW), type Command-B, enter "D2X" (no quotes) and press return.
+
+Note: All the C files, headers and D2X.make have to be plain text files for it to work. This may mean using your favourite type code changer.
+
+Using Power Mac Debugger:
+All the source files must have classic Mac return characters before building. I'd recommend using DropTextConverter. Power Mac Debugger won't work properly if using a Voodoo 2 card, so just turn off the 3Dfx extensions when debugging.
+
+D2X could be made to build in CodeWarrior.
+
+see installation.txt for info on where to put your datafiles, etc.
+
+Known bugs/issues:
+
+* No network support
+* Textures can behave weird. Appears to be a problem on all platforms.
+* Some sound glitches
 
 
 Bugs/feedback:
