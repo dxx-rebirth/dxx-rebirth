@@ -45,6 +45,8 @@
 //104
 		1058C7A0FEA54F0111CA2CBB = {
 			children = (
+				6710AB68066B2E0400DB0F68,
+				6710AAFE066B2D6100DB0F68,
 				1058C7A1FEA54F0111CA2CBB,
 			);
 			isa = PBXGroup;
@@ -188,15 +190,11 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = "$(value) NMONO PIGGY_USE_PAGING NEWDEMO NO_ASM SDL_INPUT WORDS_BIGENDIAN";
-				HEADER_SEARCH_PATHS = "$(HOME)/Library/Frameworks/SDL.framework/Headers";
 				OPTIMIZATION_CFLAGS = "-O0";
-				OTHER_LDFLAGS = "$(value) -framework SDL";
 				ZERO_LINK = NO;
 			};
 			isa = PBXBuildStyle;
@@ -208,6 +206,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = "$(value) NDEBUG RELEASE";
 				ZERO_LINK = NO;
 			};
 			isa = PBXBuildStyle;
@@ -223,6 +222,40 @@
 //672
 //673
 //674
+		6710AAFE066B2D6100DB0F68 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = SDL.framework;
+			path = /Users/btb/Library/Frameworks/SDL.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		6710AAFF066B2D6100DB0F68 = {
+			fileRef = 6710AAFE066B2D6100DB0F68;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		6710AB00066B2D6100DB0F68 = {
+			fileRef = 6710AAFE066B2D6100DB0F68;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		6710AB68066B2E0400DB0F68 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = OpenGL.framework;
+			path = /System/Library/Frameworks/OpenGL.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		6710AB69066B2E0400DB0F68 = {
+			fileRef = 6710AB68066B2E0400DB0F68;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		675ED123066B196700E42AA7 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -233,6 +266,257 @@
 		};
 		675ED149066B198A00E42AA7 = {
 			fileRef = 675ED123066B196700E42AA7;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676032DC066B399A008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = multi.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		676032DD066B399A008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = multibot.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		676032DE066B399A008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = netmisc.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		676032DF066B399A008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = network.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		676032E0066B399A008A67A3 = {
+			fileRef = 676032DC066B399A008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676032E1066B399A008A67A3 = {
+			fileRef = 676032DD066B399A008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676032E2066B399A008A67A3 = {
+			fileRef = 676032DE066B399A008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676032E3066B399A008A67A3 = {
+			fileRef = 676032DF066B399A008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676032E4066B399A008A67A3 = {
+			fileRef = 676032DC066B399A008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676032E5066B399A008A67A3 = {
+			fileRef = 676032DD066B399A008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676032E6066B399A008A67A3 = {
+			fileRef = 676032DE066B399A008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676032E7066B399A008A67A3 = {
+			fileRef = 676032DF066B399A008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676032F9066B39CE008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = kmatrix.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		676032FA066B39CE008A67A3 = {
+			fileRef = 676032F9066B39CE008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676032FB066B39CE008A67A3 = {
+			fileRef = 676032F9066B39CE008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		67603303066B3A2C008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = ipx_mcast4.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		67603304066B3A2C008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = ipx_udp.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		67603305066B3A2C008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.c;
+			path = linuxnet.c;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		67603306066B3A2C008A67A3 = {
+			fileRef = 67603303066B3A2C008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		67603307066B3A2C008A67A3 = {
+			fileRef = 67603304066B3A2C008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		67603308066B3A2C008A67A3 = {
+			fileRef = 67603305066B3A2C008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		67603309066B3A2C008A67A3 = {
+			fileRef = 67603303066B3A2C008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		6760330A066B3A2C008A67A3 = {
+			fileRef = 67603304066B3A2C008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		6760330B066B3A2C008A67A3 = {
+			fileRef = 67603305066B3A2C008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		67603337066B3A85008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = ipx.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		67603338066B3A85008A67A3 = {
+			fileRef = 67603337066B3A85008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		67603339066B3A85008A67A3 = {
+			fileRef = 67603337066B3A85008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		67603357066B3AE0008A67A3 = {
+			children = (
+				676033A2066B3B28008A67A3,
+				6760335D066B3AE0008A67A3,
+				676033B0066B3B4A008A67A3,
+			);
+			isa = PBXGroup;
+			path = include;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		6760335D066B3AE0008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = ipx_mcast4.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		67603368066B3AE0008A67A3 = {
+			fileRef = 6760335D066B3AE0008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		67603373066B3AE0008A67A3 = {
+			fileRef = 6760335D066B3AE0008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676033A2066B3B28008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = ipx_drv.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		676033A3066B3B28008A67A3 = {
+			fileRef = 676033A2066B3B28008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676033A4066B3B28008A67A3 = {
+			fileRef = 676033A2066B3B28008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676033B0066B3B4A008A67A3 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = ipx_udp.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		676033B1066B3B4A008A67A3 = {
+			fileRef = 676033B0066B3B4A008A67A3;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		676033B2066B3B4A008A67A3 = {
+			fileRef = 676033B0066B3B4A008A67A3;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -297,17 +581,13 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
-				GCC_PREPROCESSOR_DEFINITIONS = SDL_VIDEO;
+				GCC_PREPROCESSOR_DEFINITIONS = "SDL_VIDEO NETWORK NMONO PIGGY_USE_PAGING NEWDEMO NO_ASM SDL_INPUT WORDS_BIGENDIAN";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				HEADER_SEARCH_PATHS = "$(HOME)/Library/Frameworks/SDL.framework/Headers";
-				INFOPLIST_FILE = "d2x-info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "";
+				INFOPLIST_FILE = "d2x-Info.plist";
+				INSTALL_PATH = "$(USER_APPS_DIR)";
 				PRODUCT_NAME = d2x;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
-				WRAPPER_EXTENSION = app;
+				WARNING_CFLAGS = "-Wall";
 			};
 			dependencies = (
 			);
@@ -360,6 +640,10 @@
 				676AC1E60668A938007173EB,
 				676AC1E70668A938007173EB,
 				67F6FED2066B13B400443922,
+				67603339066B3A85008A67A3,
+				67603373066B3AE0008A67A3,
+				676033A4066B3B28008A67A3,
+				676033B2066B3B4A008A67A3,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -738,6 +1022,14 @@
 				676AC2690668A938007173EB,
 				676AC26A0668A938007173EB,
 				67F6FED3066B13B400443922,
+				676032E4066B399A008A67A3,
+				676032E5066B399A008A67A3,
+				676032E6066B399A008A67A3,
+				676032E7066B399A008A67A3,
+				676032FB066B39CE008A67A3,
+				67603309066B3A2C008A67A3,
+				6760330A066B3A2C008A67A3,
+				6760330B066B3A2C008A67A3,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1508,6 +1800,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				676AC26C0668A938007173EB,
+				6710AB00066B2D6100DB0F68,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1536,19 +1829,13 @@
 			buildRules = (
 			);
 			buildSettings = {
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "";
-				GCC_PREPROCESSOR_DEFINITIONS = "OGL SDL_GL_VIDEO";
-				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
-				GCC_WARN_UNKNOWN_PRAGMAS = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = "OGL SDL_GL_VIDEO NETWORK NMONO PIGGY_USE_PAGING NEWDEMO NO_ASM SDL_INPUT WORDS_BIGENDIAN";
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				HEADER_SEARCH_PATHS = "$(HOME)/Library/Frameworks/SDL.framework/Headers";
 				INFOPLIST_FILE = "d2xgl-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "-framework OpenGL";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = d2xgl;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost";
+				WARNING_CFLAGS = "-Wall";
 			};
 			dependencies = (
 			);
@@ -1632,6 +1919,10 @@
 				676AC2980668A939007173EB,
 				676AC2990668A939007173EB,
 				67F6FED4066B13B400443922,
+				67603338066B3A85008A67A3,
+				67603368066B3AE0008A67A3,
+				676033A3066B3B28008A67A3,
+				676033B1066B3B4A008A67A3,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2010,6 +2301,14 @@
 				676AC31A0668A939007173EB,
 				676AC31B0668A939007173EB,
 				67F6FED5066B13B400443922,
+				676032E0066B399A008A67A3,
+				676032E1066B399A008A67A3,
+				676032E2066B399A008A67A3,
+				676032E3066B399A008A67A3,
+				676032FA066B39CE008A67A3,
+				67603306066B3A2C008A67A3,
+				67603307066B3A2C008A67A3,
+				67603308066B3A2C008A67A3,
 			);
 			isa = PBXSourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2786,6 +3085,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				6766BAC20668B3A000A6052D,
+				6710AAFF066B2D6100DB0F68,
+				6710AB69066B2E0400DB0F68,
 			);
 			isa = PBXFrameworksBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3355,8 +3656,12 @@
 		};
 		67B44193066879B000DF26D8 = {
 			children = (
+				67603357066B3AE0008A67A3,
 				67B44196066879B000DF26D8,
 				67B441A5066879B000DF26D8,
+				67603303066B3A2C008A67A3,
+				67603304066B3A2C008A67A3,
+				67603305066B3A2C008A67A3,
 			);
 			isa = PBXGroup;
 			name = linux;
@@ -3617,6 +3922,7 @@
 				67B4471B06687CF400DF26D8,
 				67B4472006687CF400DF26D8,
 				67B4472206687CF400DF26D8,
+				676032F9066B39CE008A67A3,
 				67B4472506687CF400DF26D8,
 				67B4472706687CF400DF26D8,
 				67B4472B06687CF400DF26D8,
@@ -3624,6 +3930,10 @@
 				67B4472E06687CF400DF26D8,
 				67B4473106687CF400DF26D8,
 				67B4473306687CF400DF26D8,
+				676032DC066B399A008A67A3,
+				676032DD066B399A008A67A3,
+				676032DE066B399A008A67A3,
+				676032DF066B399A008A67A3,
 				67B4473D06687CF400DF26D8,
 				6791D10006688BD900056A5A,
 				67B4473F06687CF400DF26D8,
@@ -4365,6 +4675,7 @@
 				6791CF35066887FE00056A5A,
 				6791D0BD06688AE800056A5A,
 				6791CFC50668893B00056A5A,
+				67603337066B3A85008A67A3,
 				6791D0D106688B1100056A5A,
 				6791CF2D066887E500056A5A,
 				6791D08F06688A9C00056A5A,

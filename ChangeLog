@@ -1,7 +1,7 @@
 2004-05-31  Bradley Bell  <btb@icculus.org>
 
 	* d2x-Info.plist, d2xgl-Info.plist, d2x.xcode/project.pbxproj:
-	XCode project simplifications
+	XCode project simplifications, network enabled
 
 	* 2d/pixel.c, arch/ogl/ogl.c, include/pstypes.h,
 	include/strutil.h, libmve/mveplay.c: XCode compilability fixes
