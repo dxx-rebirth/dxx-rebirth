@@ -6,6 +6,10 @@
 	main/movie.c, main/newmenu.c, main/playsave.c, main/songs.c,
 	main/state.c, main/text.c: add "#ifdef macintosh" for carbon target.
 
+	* D2X.make, arch/include/gui.h, arch/carbon/gui.c, arch/carbon/conf.h,
+	arch/carbon/findfile.c,	arch/carbon/SDL_main.c, arch/carbon/descent.r:
+	New files for supporting compilation with MPW for carbon (Mac OS 9).
+
 2004-06-26  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/gamemine.c, main/gamemine.h, main/gamesave.c: remove some
