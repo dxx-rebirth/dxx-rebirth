@@ -1,4 +1,4 @@
-/* $Id: grdef.h,v 1.5 2002-09-04 22:21:25 btb Exp $ */
+/* $Id: grdef.h,v 1.6 2002-09-04 23:13:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -78,7 +78,7 @@ extern unsigned int gr_var_color;
 extern unsigned int gr_var_bwidth;
 extern unsigned char * gr_var_bitmap;
 
-static void gr_linear_movsd( ubyte * source, ubyte * dest, int nbytes);
+void gr_linear_movsd( ubyte * source, ubyte * dest, int nbytes);
 
 #ifndef NO_ASM
 // This code aligns edi so that the destination is aligned to a dword boundry before rep movsd
@@ -105,7 +105,7 @@ static void gr_linear_movsd( ubyte * source, ubyte * dest, int nbytes);
 
 #elif defined __GNUC__
 
-static inline void gr_linear_movsd(ubyte *src, ubyte *dest, int num_pixels) {
+inline void gr_linear_movsd(ubyte *src, ubyte *dest, int num_pixels) {
 	int dummy[3];
  __asm__ __volatile__ (
 " cld;"
