@@ -1,4 +1,4 @@
-/* $Id: listbox.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: listbox.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: listbox.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: listbox.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -27,8 +27,7 @@ static char rcsid[] = "$Id: listbox.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
-
-#define TICKER (*(volatile int *)0x46C)
+#include "timer.h"
 
 void ui_draw_listbox( UI_GADGET_LISTBOX * listbox )
 {
@@ -290,18 +289,18 @@ void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress )
 			else
 				mitem = (Mouse.y - listbox->y1)/listbox->textheight;
 
-			if  ( (mitem < 0 ) && ( TICKER > listbox->last_scrolled+1) )
+			if ((mitem < 0) && (timer_get_fixed_seconds() > listbox->last_scrolled + 1))
 			{
 				listbox->current_item--;
-				listbox->last_scrolled = TICKER;
+				listbox->last_scrolled = timer_get_fixed_seconds();
 				listbox->moved = 1;
 			}
 
-			if ( ( mitem >= listbox->num_items_displayed ) &&
-				 ( TICKER > listbox->last_scrolled+1)         )
+			if ((mitem >= listbox->num_items_displayed) &&
+				 (timer_get_fixed_seconds() > listbox->last_scrolled + 1))
 			{
 				listbox->current_item++;
-				listbox->last_scrolled = TICKER;
+				listbox->last_scrolled = timer_get_fixed_seconds();
 				listbox->moved = 1;
 			}
 
@@ -372,7 +371,7 @@ void ui_listbox_change( UI_WINDOW * wnd, UI_GADGET_LISTBOX * listbox, short numi
 	listbox->num_items = numitems;
 	listbox->first_item = 0;
 	listbox->current_item = -1;
-	listbox->last_scrolled = TICKER;
+	listbox->last_scrolled = timer_get_fixed_seconds();
 	listbox->dragging = 0;
 	listbox->selected_item = -1;
 	listbox->status = 1;

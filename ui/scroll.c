@@ -1,4 +1,4 @@
-/* $Id: scroll.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: scroll.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: scroll.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: scroll.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -27,8 +27,7 @@ static char rcsid[] = "$Id: scroll.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
-
-#define TICKER (*(volatile int *)0x46C)
+#include "timer.h"
 
 void ui_draw_scrollbar( UI_GADGET_SCROLLBAR * scrollbar )
 {
@@ -131,9 +130,9 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 
 	if ( (scrollbar->up_button->position!=0) || (keyfocus && keyd_pressed[KEY_UP]) )
 	{
-		if (TICKER > scrollbar->last_scrolled+1)
+		if (timer_get_fixed_seconds() > scrollbar->last_scrolled + 1)
 		{
-			scrollbar->last_scrolled = TICKER;
+			scrollbar->last_scrolled = timer_get_fixed_seconds();
 			scrollbar->position--;
 			if (scrollbar->position < scrollbar->start )
 				scrollbar->position = scrollbar->start;
@@ -145,9 +144,9 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 
 	if ( (scrollbar->down_button->position!=0) || (keyfocus && keyd_pressed[KEY_DOWN]) )
 	{
-		if (TICKER > scrollbar->last_scrolled+1)
+		if (timer_get_fixed_seconds() > scrollbar->last_scrolled + 1)
 		{
-			scrollbar->last_scrolled = TICKER;
+			scrollbar->last_scrolled = timer_get_fixed_seconds();
 			scrollbar->position++;
 			if (scrollbar->position > scrollbar->stop )
 				scrollbar->position = scrollbar->stop;
@@ -181,9 +180,9 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 		scrollbar->drag_starting = scrollbar->fake_position;
 	}
 
-	if  ( B1_PRESSED && OnMe && !OnSlider && (TICKER > scrollbar->last_scrolled+4) )
+	if  (B1_PRESSED && OnMe && !OnSlider && (timer_get_fixed_seconds() > scrollbar->last_scrolled + 4))
 	{
-		scrollbar->last_scrolled = TICKER;
+		scrollbar->last_scrolled = timer_get_fixed_seconds();
 
 		if ( Mouse.y < scrollbar->fake_position+scrollbar->y1 )
 		{

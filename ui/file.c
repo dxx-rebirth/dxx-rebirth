@@ -1,4 +1,4 @@
-/* $Id: file.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: file.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: file.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: file.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -37,8 +37,6 @@ static char rcsid[] = "$Id: file.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
 #include "mono.h"
 
 #include "u_mem.h"
-
-#define TICKER (*(volatile int *)0x46C)
 
 char filename_list[300][13];
 char directory_list[100][13];
@@ -507,8 +505,8 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 				ui_wprintf_at( wnd, 20, 60, "%s", Spaces );
 				ui_wprintf_at( wnd, 20, 60, "%s", CurDir );
 
-				i = TICKER;
-				while ( TICKER < i+2 );
+				//i = TICKER;
+				//while ( TICKER < i+2 );
 
 			}else {
 				sprintf(ErrorMessage, "Error changing to directory '%s'", fulldir );

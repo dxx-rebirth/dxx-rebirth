@@ -1,4 +1,4 @@
-/* $Id: mouse.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: mouse.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: mouse.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: mouse.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -27,6 +27,7 @@ static char rcsid[] = "$Id: mouse.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
 #include "pstypes.h"
 #include "gr.h"
 #include "mouse.h"
+#include "timer.h"
 
 #include "ui.h"
 
@@ -79,8 +80,6 @@ static grs_bitmap * default_pointer;
 
 UI_MOUSE Mouse;
 
-
-#define TICKER (*(volatile int *)0x46C)
 
 /*
 int ui_mouse_find_gadget(short n)
@@ -199,11 +198,11 @@ void ui_mouse_process()
 
 	if ((Mouse.b1_status & BUTTON_PRESSED) && (Mouse.b1_last_status & BUTTON_RELEASED) )
 	{
-		if ( (TICKER <= Mouse.time_lastpressed+5)  )  //&& (Mouse.moved==0)
+		if ((timer_get_fixed_seconds() <= Mouse.time_lastpressed + F1_0/5))  //&& (Mouse.moved==0)
 			Mouse.b1_status |= BUTTON_DOUBLE_CLICKED;
 
 		Mouse.moved = 0;
-		Mouse.time_lastpressed = TICKER;
+		Mouse.time_lastpressed = timer_get_fixed_seconds();
 		Mouse.b1_status |= BUTTON_JUST_PRESSED;
 
 	}

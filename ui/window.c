@@ -1,4 +1,4 @@
-/* $Id: window.c,v 1.5 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: window.c,v 1.6 2005-01-25 19:44:27 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: window.c,v 1.5 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: window.c,v 1.6 2005-01-25 19:44:27 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -31,6 +31,7 @@ static char rcsid[] = "$Id: window.c,v 1.5 2005-01-24 22:19:10 schaffner Exp $";
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
+#include "timer.h"
 
 #include "mono.h"
 #include "mouse.h"
@@ -72,8 +73,6 @@ static unsigned char SavedState[256];
 static int PlaybackSpeed = 1;
 
 extern void ui_draw_frame( short x1, short y1, short x2, short y2 );
-
-#define TICKER (*(volatile int *)0x46C)
 
 // 1=1x faster, 2=2x faster, etc
 void ui_set_playback_speed( int speed )
@@ -336,12 +335,12 @@ int last_event = 0;
 
 void ui_reset_idle_seconds()
 {
-	last_event = TICKER;
+	last_event = timer_get_fixed_seconds();
 }
 
 int ui_get_idle_seconds()
 {
-	return (((TICKER - last_event)*10)/182);
+	return (timer_get_fixed_seconds() - last_event)/F1_0;
 }
 
 void ui_mega_process()
