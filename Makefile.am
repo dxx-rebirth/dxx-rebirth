@@ -2,7 +2,23 @@ SUBDIRS = 2d 3d maths mem cfile iff texmap misc input video sound arch main
 
 EXTRA_SUBDIRS = includes tools unused
 
-bin_PROGRAMS = @TARGETS@
+if ENV_DJGPP
+bin_PROGRAMS = d2x
+else
+if USE_GGI
+bin_PROGRAMS = d2x-ggi
+else
+if USE_SVGALIB
+bin_PROGRAMS = d2x-svga
+else
+if USE_OPENGL
+bin_PROGRAMS = d2x-ogl
+else
+bin_PROGRAMS = d2x-sdl
+endif
+endif
+endif
+endif
 
 EXTRA_PROGRAMS = d2x d2x-sdl d2x-ogl d2x-svga d2x-ggi
 

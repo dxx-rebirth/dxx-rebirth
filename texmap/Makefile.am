@@ -12,7 +12,7 @@ SUFFIXES = .asm
 	$(NASM) $(NASMFLAGS) $< -o $@
 
 if USE_ASM
-libtexmap_a_LIBADD += tmapppro.o tmap_ll.o tmap_flt.o tmap_lin.o tmapfade.o
+libtexmap_a_LIBADD = tmapppro.o tmap_ll.o tmap_flt.o tmap_lin.o tmapfade.o
 endif
 
 EXTRA_DIST = \

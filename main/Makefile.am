@@ -7,9 +7,15 @@ CFLAGS += -fwritable-strings
 INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/arch/include
 
 if USE_NETWORK
-NETWORK_SRCS = ipx_drv.c
+NETWORK_SRCS = ipx_drv.c multi.c multibot.c kmatrix.c
 else
 NETWORK_SRCS =
+endif
+
+if EDITOR
+EDITOR_SRCS = bmread.c
+else
+EDITOR_SRCS =
 endif
 
 libmain_a_SOURCES = ${NETWORK_SRCS} \
@@ -18,12 +24,12 @@ ai2.c	    effects.c	gamesave.c  menu.c	physics.c   texmerge.c \
 aipath.c    endlevel.c	gameseg.c   mglobal.c	piggy.c     text.c \
 automap.c   escort.c	gameseq.c   mission.c	playsave.c  titles.c \
 bm.c	    fireball.c	gauges.c    morph.c	polyobj.c   vclip.c \
-bmread.c    fuelcen.c	hostage.c   multi.c	powerup.c   wall.c \
-cntrlcen.c  fvi.c	hud.c	    multibot.c	render.c    weapon.c \
+fuelcen.c   hostage.c   powerup.c   wall.c \
+cntrlcen.c  fvi.c	hud.c	    render.c    weapon.c \
 collide.c   game.c	inferno.c   netmisc.c	robot.c \
 config.c    gamecntl.c	kconfig.c   network.c	scores.c \
 controls.c  gamefont.c	kludge.c    newdemo.c	slew.c \
-credits.c   gamemine.c	kmatrix.c   newmenu.c	songs.c \
+credits.c   gamemine.c	newmenu.c   songs.c \
 crypt.c     gamepal.c	laser.c     object.c	state.c \
 console.c   cmd.c
 

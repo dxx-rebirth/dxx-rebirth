@@ -12,7 +12,7 @@ SUFFIXES = .asm
 	$(NASM) $(NASMFLAGS) $< -o $@
 
 if USE_ASM
-libmaths_a_LIBADD += vecmata.o fix.o
+libmaths_a_LIBADD = vecmata.o fix.o
 endif
 
 EXTRA_DIST = \

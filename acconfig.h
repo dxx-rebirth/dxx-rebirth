@@ -4,6 +4,9 @@
 /* Define if you want a network build */
 #undef NETWORK
 
+/* Define if you want to build the editor */
+#undef EDITOR
+
 /* Define if you want an OpenGL build */
 #undef OGL
 
@@ -47,4 +50,9 @@
 #   endif
 #  endif
 # endif
+#endif
+
+#ifdef __MINGW32__
+#define SDL_VIDEO 1
+#define SDL_INPUT 1
 #endif

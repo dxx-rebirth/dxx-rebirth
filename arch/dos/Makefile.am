@@ -11,7 +11,7 @@ SUFFIXES = .asm
 	$(NASM) $(NASMFLAGS) $< -o $@
 
 if ENV_DJGPP
-libarch_dos_a_LIBADD += timer.o modex.o
+libarch_dos_a_LIBADD = timer.o modex.o
 endif
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
