@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.23 2003-11-27 00:36:14 btb Exp $ */
+/* $Id: pstypes.h,v 1.24 2003-11-27 04:05:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -46,7 +46,7 @@ typedef unsigned long ulong;
 typedef unsigned long ulong;
 #endif
 
-#ifndef __linux__
+#ifndef __unix__
 #include <SDL_types.h>
 typedef Sint16 int16_t;
 typedef Sint32 int32_t;

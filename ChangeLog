@@ -1,5 +1,7 @@
 2003-11-26  Bradley Bell  <btb@icculus.org>
 
+	* include/pstypes.h: OS X fixes
+
 	* cfile/cfile.c, include/pstypes.h, main/inferno.c,
 	main/newmenu.h: linux fixes
 
