@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/video/ogl_sdl.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:47:52 $
+ * $Date: 2001-10-09 02:58:20 $
  *
  * Graphics functions for SDL-GL.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 13:47:52  bradleyb
+ * Fixed build, some minor cleanups.
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -60,12 +63,15 @@ int ogl_init_window(int x, int y){
         SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, bpp );
         SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
+	SDL_WM_SetCaption("D2x", "Descent II");
+
         if ( SDL_SetVideoMode( x, y, bpp, video_flags ) == NULL ) {
                 fprintf(stderr, "Couldn't set GL mode: %s\n", SDL_GetError());
                 SDL_Quit();
                 exit(1);
         }
 
+	SDL_ShowCursor(0);
 
         printf( "Vendor     : %s\n", glGetString( GL_VENDOR ) );
         printf( "Renderer   : %s\n", glGetString( GL_RENDERER ) );
