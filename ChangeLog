@@ -1,5 +1,8 @@
 2003-03-26  Bradley Bell  <btb@icculus.org>
 
+	* main/gamecntl.c, main/kconfig.c, main/playsave.c: fix d2x keys,
+	read/write from plr file
+
 	* main/ai.h, main/collide.c, main/escort.c, main/escort.h,
 	main/fuelcen.c, main/gamecntl.c, main/playsave.c, main/powerup.c:
 	added escort.h header

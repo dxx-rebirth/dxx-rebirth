@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.18 2003-03-14 05:11:29 btb Exp $ */
+/* $Id: kconfig.c,v 1.19 2003-03-27 01:25:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.18 2003-03-14 05:11:29 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.19 2003-03-27 01:25:41 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -505,7 +505,9 @@ char * key_text[256] = {         \
 #endif /* OGL */
 #endif
 
-ubyte system_keys[] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN };
+//added/removed by Victor Rachels for adding rebindable keys for these
+// KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0
+ubyte system_keys[] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN };
 
 //extern void GameLoop(int, int );
 

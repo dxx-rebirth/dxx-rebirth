@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.9 2003-02-27 04:24:43 btb Exp $ */
+/* $Id: playsave.c,v 1.10 2003-03-27 01:25:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -289,6 +289,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "byteswap.h"
 #include "fileutil.h"
+#include "escort.h"
 
 #define SAVE_FILE_ID			MAKE_SIG('D','P','L','R')
 
@@ -315,7 +316,7 @@ int n_highest_levels;
 
 hli highest_levels[MAX_MISSIONS];
 
-#define PLAYER_FILE_VERSION	24			//increment this every time the player file changes
+#define PLAYER_FILE_VERSION	25			//increment this every time the player file changes
 
 //version 5  ->  6: added new highest level information
 //version 6  ->  7: stripped out the old saved_game array.
@@ -336,6 +337,7 @@ hli highest_levels[MAX_MISSIONS];
 //version 21 -> 22: save lifetime netstats 
 //version 22 -> 23: ??
 //version 23 -> 24: add name of joystick for windows version.
+//version 24 -> 25: add d2x keys array
 
 #define COMPATIBLE_PLAYER_FILE_VERSION          17
 
@@ -416,6 +418,10 @@ RetrySelection:
 	for (i=0;i<CONTROL_MAX_TYPES; i++ )
 		for (j=0;j<MAX_CONTROLS; j++ )
 			kconfig_settings[i][j] = default_kconfig_settings[i][j];
+	//added on 2/4/99 by Victor Rachels for new keys
+	for(i=0; i < MAX_D2X_CONTROLS; i++)
+		kconfig_d2x_settings[i] = default_kconfig_d2x_settings[i];
+	//end this section addition - VR
 	kc_set_controls();
 
 	Config_control_type = control_choice;
@@ -668,7 +674,13 @@ int read_player_file()
 			PrimaryOrder[i]=file_read_byte (file);
 			SecondaryOrder[i]=file_read_byte(file);
 		 }
-		
+
+		if (player_file_version >= 25)
+			fread(kconfig_d2x_settings, MAX_D2X_CONTROLS, 1, file);
+		else
+			for(i=0; i < MAX_D2X_CONTROLS; i++)
+				kconfig_d2x_settings[i] = default_kconfig_d2x_settings[i];
+
 		if (player_file_version>=16)
 		 {
 		  Cockpit_3d_view[0]=file_read_int(file);
@@ -926,6 +938,9 @@ int write_player_file()
         fwrite (&PrimaryOrder[i],sizeof(ubyte),1,file);
         fwrite (&SecondaryOrder[i],sizeof(ubyte),1,file);
        }
+
+		fwrite(kconfig_d2x_settings, MAX_D2X_CONTROLS, 1, file);
+
 		file_write_int (Cockpit_3d_view[0],file);
 		file_write_int (Cockpit_3d_view[1],file);
 

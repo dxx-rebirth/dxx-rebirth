@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.16 2003-03-15 00:20:37 btb Exp $ */
+/* $Id: gamecntl.c,v 1.17 2003-03-27 01:25:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -97,6 +97,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "rbaudio.h"
 #include "switch.h"
+#include "escort.h"
 
 #ifdef POLY_ACC
 	#include "poly_acc.h"
@@ -976,7 +977,6 @@ int select_next_window_function(int w)
 	return 1;	 //screen_changed
 }
 
-extern void do_escort_menu(void),change_guidebot_name(void);
 extern int Game_paused;
 
 void songs_goto_next_song();
@@ -1532,6 +1532,7 @@ void HandleGameKey(int key)
 		case KEY_COMMAND+KEY_F:	r_framerate.value = !r_framerate.value; break;
 		#endif
 
+#if 0 // weapon selection handled in controls_read_all, d1x-style
 // MWA  changed the weapon select cases to have each case call do_weapon_select
 // the macintosh keycodes aren't consecutive from 1 -- 0 on the keyboard -- boy is that STUPID!!!!
 		//	Select primary or secondary weapon.
@@ -1566,6 +1567,7 @@ void HandleGameKey(int key)
 		case KEY_0:
 			do_weapon_select(4 , 1);
 			break;
+#endif
 
 		case KEY_1 + KEY_SHIFTED:
 		case KEY_2 + KEY_SHIFTED:
@@ -2086,9 +2088,7 @@ extern char Monster_mode;
 void fill_background();
 void load_background_bitmap();
 
-extern int Buddy_dude_cheat,Robots_kill_robots_cheat;
-extern char guidebot_name[];
-extern char real_guidebot_name[];
+extern int Robots_kill_robots_cheat;
 
 void FinalCheats(int key)
 {
