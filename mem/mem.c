@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/mem/mem.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  * $Author: bradleyb $
- * $Date: 2001-11-08 10:17:40 $
+ * $Date: 2001-11-09 06:56:41 $
  *
  * Files for debugging memory allocator
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6  2001/11/08 10:17:40  bradleyb
+ * added d_realloc/mem_realloc functions
+ *
  * Revision 1.5  2001/10/19 08:06:20  bradleyb
  * Partial application of linux/alpha patch.  Courtesy of Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
  *
@@ -357,6 +360,32 @@ void mem_free( void * buffer )
 	free_list[ --num_blocks ] = id;
 }
 
+void *mem_realloc(void * buffer, unsigned int size, char * var, char * filename, int line)
+{
+	void *newbuffer;
+	int id;
+
+	if (Initialized==0)
+		mem_init();
+
+	if (size == 0) {
+		mem_free(buffer);
+		newbuffer = NULL;
+	} else if (buffer == NULL) {
+		newbuffer = mem_malloc(size, var, filename, line, 0);
+	} else {
+		newbuffer = mem_malloc(size, var, filename, line, 0);
+		if (newbuffer != NULL) {
+			id = mem_find_id(buffer);
+			if (MallocSize[id] < size)
+				size = MallocSize[id];
+			memcpy(newbuffer, buffer, size);
+			mem_free(buffer);
+		}
+	}
+	return newbuffer;
+}
+
 void mem_display_blocks()
 {
 	int i, numleft;
@@ -663,26 +692,3 @@ void PurgeTempMem()
 }
 
 #endif
-
-void *mem_realloc(void * buffer, unsigned int size, char * var, char * filename, int line)
-{
-	void *newbuffer;
-	int id;
-
-	if (size == 0) {
-		mem_free(buffer);
-		newbuffer = NULL;
-	} else if (buffer == NULL) {
-		newbuffer = mem_malloc(size, var, filename, line, 0);
-	} else {
-		newbuffer = mem_malloc(size, var, filename, line, 0);
-		if (newbuffer != NULL) {
-			id = mem_find_id(buffer);
-			if (MallocSize[id] < size)
-				size = MallocSize[id];
-			memcpy(newbuffer, buffer, size);
-			mem_free(buffer);
-		}
-	}
-	return newbuffer;
-}
