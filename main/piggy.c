@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.60 2005-01-10 17:47:27 schaffner Exp $ */
+/* $Id: piggy.c,v 1.61 2005-01-25 21:53:41 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.60 2005-01-10 17:47:27 schaffner Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.61 2005-01-25 21:53:41 schaffner Exp $";
 #endif
 
 
@@ -1053,7 +1053,7 @@ int read_hamfile()
 	if (Piggy_hamfile_version < 3) // hamfile contains sound info
 		sound_offset = cfile_read_int(ham_fp);
 
-	#ifndef EDITOR
+	#if 1 //ndef EDITOR
 	{
 		//int i;
 

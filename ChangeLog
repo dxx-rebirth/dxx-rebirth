@@ -21,6 +21,7 @@
 	mouse_set_limits and mouse_set_pos (we don't want to limit user)
 	* ui/menubar.c: specify int type for state2_alt_down
 	* main/editor/eglobal.c: remove variable New_segment (is now a macro)
+	* main/piggy.c: call bm_read_all even if EDITOR is defined
 	
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
