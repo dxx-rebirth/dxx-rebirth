@@ -1,3 +1,7 @@
+2003-03-11  Chris Arena <ccarena@cox.net>
+
+	* main/menu.c (do_options_menu): fixed brightness slider
+
 2003-03-01  Bradley Bell  <btb@icculus.org>
 
 	* main/piggy.c, main/titles.c: d1 briefing text fixed, spinning

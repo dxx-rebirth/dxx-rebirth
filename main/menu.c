@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: menu.c,v 1.19 2003-03-12 03:52:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1182,7 +1182,11 @@ void do_options_menu()
 		m[ 5].type = NM_TYPE_TEXT;   m[ 5].text="";
 	#endif
 #else
-		m[ 5].type = NM_TYPE_SLIDER; m[ 5].text=TXT_BRIGHTNESS; m[5].value=gr_palette_get_gamma();m[5].min_value=0; m[5].max_value=8; 
+		m[5].type = NM_TYPE_SLIDER;
+		m[5].text = TXT_BRIGHTNESS;
+		m[5].value = gr_palette_get_gamma();
+		m[5].min_value = 0;
+		m[5].max_value = 16; // CCA too dim, was 8;
 #endif
 
 
