@@ -1,3 +1,8 @@
+2003-03-15  Bradley Bell  <bradleyb@smeagol>
+
+	* arch/ogl/gr.c: fixed dark font bug by calling gr_set_mode from
+	gr_init.  don't really know why this works, though
+
 2003-03-14  Bradley Bell  <bradleyb@smeagol>
 
 	* main/gameseq.c: fix Bitmap_replacement_data mem leakage
