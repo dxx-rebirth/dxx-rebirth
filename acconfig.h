@@ -28,6 +28,9 @@
 /* Define to render endlevel flythrough sequences (instead of movies) */
 #undef NMOVIES
 
+/* Define to use SDL Joystick */
+#undef SDL_JOYSTICK
+
 @BOTTOM@
 
 /* General defines */
@@ -62,7 +65,6 @@
 # define __SDL__ 1
 # define SDL_AUDIO 1
 # define SDL_INPUT 1
-# define SDL_JOYSTICK 1
 # ifdef OGL
 #  define SDL_GL_VIDEO 1
 # else

@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/event.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-11-14 10:43:10 $
+ * $Date: 2001-12-03 02:43:02 $
  *
  * SDL Event related stuff
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/11/14 10:43:10  bradleyb
+ * remove cruft, fix formatting, begin joystick stuff
+ *
  * Revision 1.2  2001/10/31 07:41:54  bradleyb
  * Sync with d1x
  *
@@ -30,6 +33,8 @@
 extern void key_handler(SDL_KeyboardEvent *event);
 extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);
 extern void mouse_motion_handler(SDL_MouseMotionEvent *mme);
+extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
+extern void joy_axis_handler(SDL_JoyAxisEvent *jae);
 
 static int initialised=0;
 
@@ -50,13 +55,13 @@ void event_poll()
 		case SDL_MOUSEMOTION:
 			mouse_motion_handler((SDL_MouseMotionEvent *)&event);
 			break;
-#if 0
+#if SDL_JOYSTICK
 		case SDL_JOYBUTTONDOWN:
 		case SDL_JOYBUTTONUP:
 			joy_button_handler((SDL_JoyButtonEvent *)&event);
 			break;
 		case SDL_JOYAXISMOTION:
-			joy_motion_handler((SDL_JoyAxisEvent *)&event);
+			joy_axis_handler((SDL_JoyAxisEvent *)&event);
 			break;
 		case SDL_JOYBALLMOTION:
 		case SDL_JOYHATMOTION:

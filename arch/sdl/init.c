@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/init.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  * $Author: bradleyb $
- * $Date: 2001-11-14 03:56:16 $
+ * $Date: 2001-12-03 02:43:02 $
  *
  * SDL architecture support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6  2001/11/14 03:56:16  bradleyb
+ * SDL joystick stuff
+ *
  * Revision 1.5  2001/10/31 07:41:54  bradleyb
  * Sync with d1x
  *
@@ -43,7 +46,7 @@ void arch_sdl_init()
  // Initialise the library
 //edited on 01/03/99 by Matt Mueller - if we use SDL_INIT_EVERYTHING, cdrom is initialized even if -nocdaudio is used
  if (SDL_Init(
-#if 0 //def SDL_JOYSTICK
+#ifdef SDL_JOYSTICK
 	SDL_INIT_JOYSTICK |
 #endif
 #if defined(SDL_VIDEO) || defined(SDL_GL_VIDEO)

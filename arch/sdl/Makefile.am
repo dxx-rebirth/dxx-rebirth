@@ -4,16 +4,22 @@ noinst_LIBRARIES = libarch_sdl.a
 
 INCLUDES = -I$(top_srcdir)/arch/include -I$(top_srcdir)/includes -I$(top_srcdir)/main
 
-if USE_OPENGL
-if MINGW32
-libarch_sdl_a_SOURCES = cdrom.c digi.c event.c init.c joy.c joydefs.c key.c mouse.c timer.c
-else
-libarch_sdl_a_SOURCES = cdrom.c digi.c event.c init.c key.c mouse.c timer.c
+if SDL_JOYSTICK
+JOYSTICK_SRCS = joy.c joydefs.c
 endif
-else
-if MINGW32
-libarch_sdl_a_SOURCES = cdrom.c digi.c event.c gr.c init.c joy.c joydefs.c key.c mouse.c timer.c
-else
-libarch_sdl_a_SOURCES = cdrom.c digi.c event.c gr.c init.c key.c mouse.c timer.c
+
+if !USE_SVGALIB
+if !USE_GGI
+INPUT_SRCS = event.c key.c mouse.c
 endif
 endif
+
+if !USE_OPENGL
+VIDEO_SRCS = gr.c 
+endif
+
+libarch_sdl_a_SOURCES = ${JOYSTICK_SRCS} ${VIDEO_SRCS} ${INPUT_SRCS} \
+cdrom.c digi.c init.c timer.c
+
+EXTRA_libarch_sdl_a_SOURCES = \
+event.c gr.c joy.c joydefs.c key.c mouse.c

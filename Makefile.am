@@ -10,24 +10,10 @@ CCLD = ${CC}
 LDFLAGS = -export-dynamic
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 
-if DJGPP
-ARCH_LIBS = arch/dos/libarch_dos.a
-else
-if USE_OPENGL
+ARCH_LIBS = $(foreach subdir,${D2X_ARCH_SUBDIRS},arch/${subdir}/libarch_${subdir}.a)
+
 if MINGW32
-ARCH_LIBS = arch/win32/libarch_win32.a arch/sdl/libarch_sdl.a arch/ogl/libarch_ogl.a
 LD_KLUDGE = main/inferno.o
-else
-ARCH_LIBS = arch/linux/libarch_linux.a arch/sdl/libarch_sdl.a arch/ogl/libarch_ogl.a
-endif
-else
-if MINGW32
-ARCH_LIBS = arch/win32/libarch_win32.a arch/sdl/libarch_sdl.a
-LD_KLUDGE = main/inferno.o
-else
-ARCH_LIBS = arch/linux/libarch_linux.a arch/sdl/libarch_sdl.a
-endif
-endif
 endif
 
 if EDITOR

@@ -127,7 +127,7 @@ else
     done
     AC_DEFINE(OGL)
     TARGETS=d2x-ogl
-    D2X_ARCH_SUBDIRS="${D2X_ARCH_SUBDIRS} ogl"
+    D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
   fi
   AC_SUBST(OGL_LIBS)
   AM_CONDITIONAL(USE_OPENGL, test x$with_opengl = xyes)
@@ -144,7 +144,7 @@ else
       [AC_MSG_ERROR([GII not found, GGI version cannot be built]); ggi=false])
     AC_DEFINE(GGI)
     TARGETS=d2x-ggi
-    D2X_ARCH_SUBDIRS="${D2X_ARCH_SUBDIRS} ggi"
+    D2X_ARCH_SUBDIRS="ggi ${D2X_ARCH_SUBDIRS}"
   fi
   AC_SUBST(GGI_LIBS)
   AM_CONDITIONAL(USE_GGI, test x$with_ggi = xyes)
@@ -165,16 +165,25 @@ else
        -lvga)
     AC_DEFINE(SVGA)
     TARGETS=d2x-svga
-    D2X_ARCH_SUBDIRS="${D2X_ARCH_SUBDIRS} svgalib"
+    D2X_ARCH_SUBDIRS="svgalib ${D2X_ARCH_SUBDIRS}"
   fi
   AC_SUBST(SVGA_LIBS)
-  AM_CONDITIONAL(USE_SVGALIB, test x$with_svga = yes)
+  AM_CONDITIONAL(USE_SVGALIB, test x$with_svga = xyes)
 
   if test x$MINGW32 = xyes; then
-    D2X_ARCH_SUBDIRS="${D2X_ARCH_SUBDIRS} win32"
+    D2X_ARCH_SUBDIRS="win32 ${D2X_ARCH_SUBDIRS}"
+    AC_DEFINE(SDL_JOYSTICK)
   else
     CFLAGS="-I \$(top_srcdir)/arch/linux/include $CFLAGS"
-    D2X_ARCH_SUBDIRS="${D2X_ARCH_SUBDIRS} linux"
+    D2X_ARCH_SUBDIRS="linux ${D2X_ARCH_SUBDIRS}"
+
+    dnl Check for SDL joystick
+    AC_ARG_ENABLE(sdl-joystick,
+      [  --enable-sdl-joystick   Use SDL joystick (required for mingw) ],,)
+    if test x$enable_sdl_joystick = xyes; then
+        AC_DEFINE(SDL_JOYSTICK)
+    fi
+    AM_CONDITIONAL(SDL_JOYSTICK, test x$enable_sdl_joystick = xyes)
   fi
 fi
 
