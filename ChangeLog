@@ -1,5 +1,7 @@
 2003-08-02  Martin Schaffner  <martin.schaffner@epfl.ch>
 
+	* cfile/cfile.c: revert to always using custom fgets
+
 	* main/endlevel.c, main/mission.c: handle missing exit sequence
 	components gracefully
 
