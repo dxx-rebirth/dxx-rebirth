@@ -1,3 +1,7 @@
+2003-08-02  Bradley Bell  <btb@icculus.org>
+
+	* cfile/cfile.c: update raw_position in cfputc and cfputs
+
 2003-08-02  Martin Schaffner  <martin.schaffner@epfl.ch>
 
 	* arch/linux/linuxnet.c, main/multi.c, main/multibot.c: bigendian
