@@ -2,6 +2,7 @@
 Assembly under mingw32 now works.
 Invulnerable robots bug fixed!
 Build process much faster.
+network support now compiles on mingw, dunno if it works...
 
 --- Version 0.1.0 ---
 Builds with SDL/OpenGL, even on Windows (MingW32)
