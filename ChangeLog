@@ -1,5 +1,8 @@
 2003-03-23  Bradley Bell  <btb@icculus.org>
 
+	* include/ogl_init.h: increased OGL_TEXTURE_LIST_SIZE so the
+	texture list doesn't get full
+
 	* main/bm.c: fix mem leak when reading extra robots
 
 2003-03-21  Bradley Bell  <btb@icculus.org>

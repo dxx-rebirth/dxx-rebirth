@@ -37,8 +37,8 @@ int ogl_init_load_library(void);
 #include "palette.h"
 #include "pstypes.h"
 
-
-#define OGL_TEXTURE_LIST_SIZE 2000
+/* I assume this ought to be >= MAX_BITMAP_FILES in piggy.h? */
+#define OGL_TEXTURE_LIST_SIZE 3000
 
 typedef struct _ogl_texture {
 	GLuint handle;
