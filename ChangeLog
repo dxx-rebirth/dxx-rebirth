@@ -27,6 +27,28 @@
 
 	* ui/Makefile.am: added Makefile.am for ui
 
+	* main/editor/Makefile.am, main/editor/autosave.c,
+	main/editor/centers.c, main/editor/centers.h,
+	main/editor/curves.c, main/editor/eglobal.c,
+	main/editor/ehostage.c, main/editor/ehostage.h,
+	main/editor/elight.c, main/editor/eobject.c,
+	main/editor/eobject.h, main/editor/eswitch.c,
+	main/editor/eswitch.h, main/editor/fixseg.c, main/editor/func.c,
+	main/editor/group.c, main/editor/info.c, main/editor/info.h,
+	main/editor/kbuild.c, main/editor/kcurve.c, main/editor/kfuncs.c,
+	main/editor/kfuncs.h, main/editor/kgame.c, main/editor/kgroup.c,
+	main/editor/khelp.c, main/editor/kmine.c, main/editor/ksegmove.c,
+	main/editor/ksegsel.c, main/editor/ksegsize.c,
+	main/editor/ktmap.c, main/editor/kview.c, main/editor/macro.c,
+	main/editor/macro.h, main/editor/meddraw.c, main/editor/meddraw.h,
+	main/editor/medlisp.h, main/editor/medmisc.c,
+	main/editor/medmisc.h, main/editor/medrobot.c,
+	main/editor/medrobot.h, main/editor/medsel.c,
+	main/editor/medsel.h, main/editor/medwall.c, main/editor/mine.c,
+	main/editor/objpage.c, main/editor/objpage.h,
+	main/editor/seguvs.c, main/editor/texpage.c,
+	main/editor/texture.c: imported missing editor files from d1x
+
 2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/state.c: open autosave file for writing, not reading
