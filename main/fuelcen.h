@@ -1,4 +1,4 @@
-/* $Id: fuelcen.h,v 1.5 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: fuelcen.h,v 1.6 2004-05-15 17:16:34 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -154,9 +154,10 @@ void fuelcen_replentish_all();
 // Create a matcen robot
 extern object *create_morph_robot(segment *segp, vms_vector *object_pos, int object_id);
 
-// Returns the amount of fuel this segment can give up.
+// Returns the amount of fuel/shield this segment can give up.
 // Can be from 0 to 100.
 fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake );
+fix repaircent_give_shields(segment *segp, fix MaxAmountCanTake );
 
 // Call once per frame.
 void fuelcen_update_all();

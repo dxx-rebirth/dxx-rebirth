@@ -10,6 +10,9 @@
 
 	* main/laser.c: limit homing missile turn rate
 
+	* main/fuelcen.{c,h}, main/object.c: implement repair centers
+	(work like fuel centers but provide shield)
+
 2004-05-13  Bradley Bell  <btb@icculus.org>
 
 	* VisualC/d2/d2x/d2x.dsp, VisualC/d2xgl/d2xgl.dsp,

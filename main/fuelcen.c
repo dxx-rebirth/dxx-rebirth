@@ -1,4 +1,4 @@
-/* $Id: fuelcen.c,v 1.8 2003-10-04 03:30:27 btb Exp $ */
+/* $Id: fuelcen.c,v 1.9 2004-05-15 17:16:34 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -243,7 +243,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: fuelcen.c,v 1.8 2003-10-04 03:30:27 btb Exp $";
+static char rcsid[] = "$Id: fuelcen.c,v 1.9 2004-05-15 17:16:34 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -917,6 +917,59 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 		//HUD_init_message( "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
 		return amount;
 
+	} else {
+		return 0;
+	}
+}
+
+//-------------------------------------------------------------
+// DM/050904
+// Repair centers
+// use same values as fuel centers
+fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake )
+{
+	segment2        *seg2p = &Segment2s[segp-Segments];
+	static fix last_play_time=0;
+
+	Assert( segp != NULL );
+	PlayerSegment = segp;
+	if ( (segp) && (seg2p->special==SEGMENT_IS_REPAIRCEN) ) {
+		fix amount;
+//             detect_escort_goal_accomplished(-4);    //      UGLY! Hack! -4 means went through fuelcen.
+//             if (Station[segp->value].MaxCapacity<=0)        {
+//                     HUD_init_message( "Repaircenter %d is destroyed.", segp->value );
+//                     return 0;
+//             }
+//             if (Station[segp->value].Capacity<=0)   {
+//                     HUD_init_message( "Repaircenter %d is empty.", segp->value );
+//                     return 0;
+//             }
+		if (MaxAmountCanTake <= 0 ) {
+			//gauge_message( "Shields restored!");
+			return 0;
+		}
+		amount = fixmul(FrameTime,Fuelcen_give_amount);
+		if (amount > MaxAmountCanTake )
+			amount = MaxAmountCanTake;
+//        if (!(Game_mode & GM_MULTI))
+//                     if ( Station[segp->value].Capacity < amount  )  {
+//                             amount = Station[segp->value].Capacity;
+//                             Station[segp->value].Capacity = 0;
+//                     } else {
+//                             Station[segp->value].Capacity -= amount;
+//                     }
+		if (last_play_time > GameTime)
+			last_play_time = 0;
+		if (GameTime > last_play_time+FUELCEN_SOUND_DELAY) {
+			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
+#ifdef NETWORK
+			if (Game_mode & GM_MULTI)
+				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
+#endif
+			last_play_time = GameTime;
+		}
+//HUD_init_message( "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
+		return amount;
 	} else {
 		return 0;
 	}

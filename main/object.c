@@ -1,4 +1,4 @@
-/* $Id: object.c,v 1.9 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: object.c,v 1.10 2004-05-15 17:16:34 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2230,7 +2230,11 @@ void object_move_one( object * obj )
 		fuel=fuelcen_give_fuel( &Segments[obj->segnum], INITIAL_ENERGY-Players[Player_num].energy );
 		if (fuel > 0 )	{
 			Players[Player_num].energy += fuel;
+		}
 
+		shields = repaircen_give_shields( &Segments[obj->segnum], INITIAL_ENERGY-Players[Player_num].energy );
+		if (shields > 0) {
+			Players[Player_num].shields += shields;
 		}
 	}
 
@@ -2268,9 +2272,10 @@ void object_move_one( object * obj )
 		case CT_AI:
 			//NOTE LINK TO CT_MORPH ABOVE!!!
 			if (Game_suspended & SUSP_ROBOTS) return;
-			#if !defined(NDEBUG) && !defined(NMONO)
-			if (print_object_info>1) mprintf( (0, "AI: Moving robot object #%d\n",obj-Objects ));
-			#endif
+#if !defined(NDEBUG) && !defined(NMONO)
+			if (print_object_info>1)
+				mprintf( (0, "AI: Moving robot object #%d\n",obj-Objects ));
+#endif
 			do_ai_frame(obj);
 			break;
 
