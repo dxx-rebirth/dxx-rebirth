@@ -83,10 +83,5 @@ typedef ubyte bool;
 # define __pack__
 #endif
 
-#if defined(__sparc__) || defined(sparc)
-// this should be done by the configure script...
-#define WORDS_NEED_ALIGNMENT
-#endif
-
 #endif //_TYPES_H
 

@@ -37,6 +37,12 @@ AC_STDC_HEADERS
 AC_PATH_PROGS(NASM, nasm nasmw, no)
 AC_C_BIGENDIAN
 
+case $host_cpu in
+	sparc)
+		AC_DEFINE(WORDS_NEED_ALIGNMENT,,[Define if your processor needs data to be word-aligned])
+	;;
+esac
+
 case $host_os in
     cygwin)
         AC_MSG_WARN([Cygwin found, setting -mno-cygwin])
