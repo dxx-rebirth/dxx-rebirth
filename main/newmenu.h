@@ -130,6 +130,10 @@ extern int newmenu_listbox1( char * title, int nitems, char * items[], int allow
 
 extern int newmenu_filelist( char * title, char * filespace, char * filename );
 
+//added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
+int nm_messagebox_fixedfont( char *title, int nchoices, ... );
+//end this section addition
+
 //should be called whenever the palette changes
 extern void nm_remap_background(void);
 

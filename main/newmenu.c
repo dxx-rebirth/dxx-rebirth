@@ -11,12 +11,20 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/newmenu.c,v $
+ * $Revision: 1.7 $
+ * $Author: bradleyb $
+ * $Date: 2002-02-11 07:39:11 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef RCS
-static char rcsid[] = "$Id: newmenu.c,v 1.6 2001-11-08 10:30:28 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -657,6 +665,11 @@ int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item,
  {
   return newmenu_do4( title, subtitle, nitems, item, subfunction, citem, filename, width, height,0 );
  } 
+
+int newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height){
+	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
+	return newmenu_do3_real( title, subtitle, nitems, item, subfunction, citem, filename, width,height, GAME_FONT, GAME_FONT, GAME_FONT, GAME_FONT);
+}
 
 //returns 1 if a control device button has been pressed
 int check_button_press()
@@ -3238,6 +3251,35 @@ int newmenu_filelist( char * title, char * filespec, char * filename )
 	} 
 	return 0;
 }
+
+//added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
+int nm_messagebox_fixedfont( char *title, int nchoices, ... )
+{
+	int i;
+	char * format;
+	va_list args;
+	char *s;
+	char nm_text[MESSAGEBOX_TEXT_SIZE];
+	newmenu_item nm_message_items[5];
+
+	va_start(args, nchoices );
+
+	Assert( nchoices <= 5 );
+
+	for (i=0; i<nchoices; i++ )	{
+		s = va_arg( args, char * );
+		nm_message_items[i].type = NM_TYPE_MENU; nm_message_items[i].text = s;
+	}
+	format = va_arg( args, char * );
+	//sprintf(	  nm_text, "" ); // adb: ?
+	vsprintf(nm_text,format,args);
+	va_end(args);
+
+	Assert(strlen(nm_text) < MESSAGEBOX_TEXT_SIZE );
+
+        return newmenu_do_fixedfont( title, nm_text, nchoices, nm_message_items, NULL, 0, NULL, -1, -1 );
+}
+//end this section addition - Victor Rachels
 
 #ifdef NETWORK
 extern netgame_info Active_games[];
