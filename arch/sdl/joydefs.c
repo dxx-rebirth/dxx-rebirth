@@ -1,4 +1,4 @@
-/* $Id: joydefs.c,v 1.6 2003-03-14 05:11:29 btb Exp $ */
+/* $Id: joydefs.c,v 1.7 2003-10-08 19:18:46 btb Exp $ */
 /*
  *
  * SDL joystick support
@@ -70,26 +70,33 @@ void joydef_menuset_1(int nitems, newmenu_item * items, int *last_key, int citem
 void joydefs_config()
 {
 	newmenu_item m[13];
-	int i, i1 = 5, j, nitems = 10;
+	int i, i1 = 5, j;
+#ifdef D2X_KEYS
+	int nitems = 10;
+#else
+	int nitems = 9;
+#endif
 
-	m[0].type = NM_TYPE_RADIO; m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
-	m[1].type = NM_TYPE_RADIO; m[1].text = "JOYSTICK"; m[1].value = 0; m[1].group = 0;
-	m[2].type = NM_TYPE_RADIO; m[2].text = "MOUSE"; m[2].value = 0; m[2].group = 0;
-	m[3].type = NM_TYPE_TEXT; m[3].text="";
+	m[0].type = NM_TYPE_RADIO;  m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
+	m[1].type = NM_TYPE_RADIO;  m[1].text = "JOYSTICK"; m[1].value = 0; m[1].group = 0;
+	m[2].type = NM_TYPE_RADIO;  m[2].text = "MOUSE";    m[2].value = 0; m[2].group = 0;
+	m[3].type = NM_TYPE_TEXT;   m[3].text = "";
 	m[4].type = NM_TYPE_MENU;   m[4].text = TXT_CUST_ABOVE;
 	m[5].type = NM_TYPE_TEXT;   m[5].text = "";
-	m[6].type = NM_TYPE_SLIDER;	m[6].text = TXT_JOYS_SENSITIVITY; m[6].value = Config_joystick_sensitivity; m[6].min_value =0; m[6].max_value = 16;
+	m[6].type = NM_TYPE_SLIDER; m[6].text = TXT_JOYS_SENSITIVITY; m[6].value = Config_joystick_sensitivity; m[6].min_value = 0; m[6].max_value = 16;
 	m[7].type = NM_TYPE_TEXT;   m[7].text = "";
 	m[8].type = NM_TYPE_MENU;   m[8].text = TXT_CUST_KEYBOARD;
+#ifdef D2X_KEYS
 	m[9].type = NM_TYPE_MENU;   m[9].text = "CUSTOMIZE D2X KEYS";
+#endif
 
 	do {
 
 		i = Config_control_type;
-		if(i==CONTROL_MOUSE) i = 2;
-		m[i].value=1;
+		if (i == CONTROL_MOUSE) i = 2;
+		m[i].value = 1;
 
-		i1 = newmenu_do1( NULL, TXT_CONTROLS, nitems, m, joydef_menuset_1, i1 );
+		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, joydef_menuset_1, i1);
 
 		Config_joystick_sensitivity = m[6].value;
 
@@ -102,14 +109,16 @@ void joydefs_config()
 
 		switch (i1) {
 		case 4:
-			kconfig (i, m[i].text);
+			kconfig(i, m[i].text);
 			break;
 		case 8:
 			kconfig(0, "KEYBOARD");
 			break;
+#ifdef D2X_KEYS
 		case 9:
 			kconfig(4, "D2X KEYS");
 			break;
+#endif
 		}
 
 	} while (i1>-1);

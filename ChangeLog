@@ -1,4 +1,9 @@
-2003-10-08
+2003-10-08  Bradley Bell  <btb@icculus.org>
+
+	* arch/sdl/joydefs.c, main/gamecntl.c, main/kconfig.c,
+	main/menu.c: Disabled 'd2x keys' weapon selection
+
+2003-10-08  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/object.h, main/multi.h: get rid of most warnings issued by
 	cpp-precomp of gcc from Mac OS X dev tools

@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.23 2003-10-04 02:58:23 btb Exp $ */
+/* $Id: kconfig.c,v 1.24 2003-10-08 19:18:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.23 2003-10-04 02:58:23 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.24 2003-10-08 19:18:46 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -505,9 +505,13 @@ char * key_text[256] = {         \
 #endif /* OGL */
 #endif
 
+#ifdef D2X_KEYS
 //added/removed by Victor Rachels for adding rebindable keys for these
 // KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0
 ubyte system_keys[] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN };
+#else
+ubyte system_keys[] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN };
+#endif
 
 //extern void GameLoop(int, int );
 
@@ -752,6 +756,7 @@ kc_item kc_mouse[NUM_OTHER_CONTROLS] = {
 	{ 27, 25,117, 85, 26, 25, 13, 25, 13,"Afterburner", BT_MOUSE_BUTTON, 255 },
 };
 
+#ifdef D2X_KEYS
 //added on 2/4/99 by Victor Rachels to add d1x new keys
 kc_item kc_d2x[NUM_D2X_CONTROLS] = {
 //        id,x,y,w1,w2,u,d,l,r,text_num1,type,value
@@ -787,6 +792,7 @@ kc_item kc_d2x[NUM_D2X_CONTROLS] = {
 	//{ 27,  8,155,107, 26, 25,  0, 26,  0, "TOGGLE SEC AUTO", BT_JOY_BUTTON, 255},
 };
 //end this section addition - VR
+#endif
 
 #else		// ifndef MACINTOSH (following are macintosh controls)
 
@@ -1278,6 +1284,7 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_string( LHX(169), LHY(129), TXT_AXIS );
 		gr_string( LHX(199), LHY(129), TXT_INVERT );
 	}
+#ifdef D2X_KEYS
 	else if ( items == kc_d2x )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
@@ -1286,6 +1293,7 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_string(LHX( 94), LHY(40), "KB");
 		gr_string(LHX(121), LHY(40), "JOY");
 	}
+#endif
 
 WIN(DDGRUNLOCK(dd_grd_curcanv));	
 
@@ -1359,12 +1367,14 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 					items[i].value=default_kconfig_settings[0][i];
 					kc_drawitem( &items[i], 0 );
 				}
+#ifdef D2X_KEYS
 			} else if ( items==kc_d2x ) {
 				for(i=0;i<NUM_D2X_CONTROLS;i++)
 				{
 					items[i].value=default_kconfig_d2x_settings[i];
 					kc_drawitem( &items[i], 0 );
 				}
+#endif
 			} else {
 				#ifdef MACINTOSH
 			  // hack for firebire and mousestick default controls since I made
@@ -2138,9 +2148,11 @@ void kconfig(int n, char * title)
 	case 1:kconfig_sub( kc_joystick, NUM_OTHER_CONTROLS, title );break;
 	case 2:kconfig_sub( kc_mouse, NUM_OTHER_CONTROLS, title ); break;
 	case 3:kconfig_sub( kc_superjoy, NUM_OTHER_CONTROLS, title); break;
+#ifdef D2X_KEYS
 	//added on 2/4/99 by Victor Rachels for new keys menu
 	case 4:kconfig_sub( kc_d2x, NUM_D2X_CONTROLS, title ); break;
 	//end this section addition - VR
+#endif
  	default:
 		Int3();
 		return;
@@ -2173,8 +2185,10 @@ void kconfig(int n, char * title)
 			kconfig_settings[Config_control_type][i] = kc_superjoy[i].value;
 	}
 
+#ifdef D2X_KEYS
 	for (i=0; i<NUM_D2X_CONTROLS; i++)
 		kconfig_d2x_settings[i] = kc_d2x[i].value;
+#endif
 }
 
 
@@ -3080,9 +3094,11 @@ int allowed_to_toggle(int i)
 }
 
 
+#ifdef D2X_KEYS
 //added on 2/7/99 by Victor Rachels for jostick state setting
 int d2x_joystick_ostate[20]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 //end this section adition - VR
+#endif
 
 
 void controls_read_all()
@@ -3234,6 +3250,7 @@ void controls_read_all()
 		use_mouse=0;
 	}
 
+#ifdef D2X_KEYS
 	//added on 2/4/99 by Victor Rachels for d1x keys
 	//--------- Read primary weapon select -------------
 	//the following "if" added by WraithX to stop deadies from switchin weapons, 4/14/00
@@ -3313,6 +3330,7 @@ void controls_read_all()
 
 
 	}//end "if (!Player_is_dead)" - WraithX
+#endif
 
 
 //------------- Read slide_on -------------
@@ -3909,8 +3927,10 @@ void kc_set_controls()
 		}
 	}
 
+#ifdef D2X_KEYS
 	for (i=0; i<NUM_D2X_CONTROLS; i++ )
 		kc_d2x[i].value = kconfig_d2x_settings[i];
+#endif
 }
 
 #if 0 //ndef MACINTOSH	// no mac support for vr headset

@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.19 2003-06-06 19:04:27 btb Exp $ */
+/* $Id: gamecntl.c,v 1.20 2003-10-08 19:18:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1539,9 +1539,11 @@ void HandleGameKey(int key)
 		case KEY_COMMAND+KEY_F:	r_framerate.value = !r_framerate.value; break;
 		#endif
 
-#if 0 // weapon selection handled in controls_read_all, d1x-style
-// MWA  changed the weapon select cases to have each case call do_weapon_select
-// the macintosh keycodes aren't consecutive from 1 -- 0 on the keyboard -- boy is that STUPID!!!!
+#ifndef D2X_KEYS // weapon selection handled in controls_read_all, d1x-style
+// MWA changed the weapon select cases to have each case call
+// do_weapon_select the macintosh keycodes aren't consecutive from 1
+// -- 0 on the keyboard -- boy is that STUPID!!!!
+
 		//	Select primary or secondary weapon.
 		case KEY_1:
 			do_weapon_select(0 , 0);

@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.27 2003-10-05 22:27:01 btb Exp $ */
+/* $Id: menu.c,v 1.28 2003-10-08 19:18:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1191,9 +1191,11 @@ void d2x_options_menu()
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Secondary autoselect ordering..."; opt++;
 #endif
 
+#ifdef D2X_KEYS
 	//added on 2/4/99 by Victor Rachels for new key menu
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "D2X Keys"; opt++;
 	//end this section addition - VR
+#endif
 
 #if 0
 	//enabled 3/24/99 - Owen Evans
@@ -1232,7 +1234,7 @@ void d2x_options_menu()
 
 	for(;;)
 	{
-        i=newmenu_do1( NULL, "D2X options", opt, m, &d2x_options_menu_poll, i);
+		i=newmenu_do1( NULL, "D2X options", opt, m, &d2x_options_menu_poll, i);
 
 		if(i>-1)
 		{
@@ -1240,16 +1242,19 @@ void d2x_options_menu()
 			{
 				switch(i)
 				{
+					int n = 0;
 #if 0
-                case 0: reorder_primary(); break;
-                case 1: reorder_secondary(); break;
+				case n++: reorder_primary(); break;
+				case n++: reorder_secondary(); break;
 #endif
+#ifdef D2X_KEYS
 					//added on 2/4/99 by Victor Rachels for new key menu
-                case 0: kconfig(4,"D2X Keys"); break;
+				case n++: kconfig(4, "D2X Keys"); break;
 					//end this section addition - VR
+#endif
 #if 0
 					//enabled 3/24/99 - Owen Evans
-                case 3: change_res(); break;
+				case n++: change_res(); break;
 					//end enabled stuff - OE
 #endif
 				}
