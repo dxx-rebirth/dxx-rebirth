@@ -1,3 +1,7 @@
+2003-02-28  Bradley Bell  <bradleyb@smeagol>
+
+	* NEWS: Updated
+
 2003-02-28  Bradley Bell  <btb@icculus.org>
 
 	* 2d/pcx.c, arch/ogl/gr.c, libmve/mveplay.c, main/gameseq.c,
@@ -37,8 +41,8 @@
 
 	* main/playsave.c: fix swapping glitch
 
-	* NEWS, configure.ac, readme.txt: clean stuff up, getting ready
-	for 0.2.0 release
+	* configure.ac, readme.txt: clean stuff up, getting ready for
+	0.2.0 release
 
 	* main/titles.c: begin support for rendering spinning robots in
 	briefings

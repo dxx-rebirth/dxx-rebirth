@@ -1,14 +1,24 @@
---- Version 0.1.4 ---
-- mve support :-)
-- Lots of portability fixes
-- Bigendian linux/unix support, including OS X
-- Shareware data files support... Including the ability to play other
-  missions if you have only the mac demo datafiles.
-- Descent 1 level support! thanks to Martin Schaffner <maschaffner@gmx.ch>
-- Networking fuck-up fixed!
-- Re-enabled linux joystick. Thanks to Steffen Pohle <stpohle@gmx.net>
-- Re-enabled kali support. Thanks to Steffen Pohle <stpohle@gmx.net>
-- Sparc support mostly works. Thanks to Martin Schaffner <maschaffner@gmx.ch>
+--- Version 0.2.0 ---
+- Movie support :-)
+- Bigendian linux/unix support, including OS X and Sparc/Solaris
+- Menus now look right w/OpenGL
+- Loads just about every conceivable d1/d2 level, including:
+   Descent I Shareware
+   Descent I OEM (Destination Saturn)
+   Descent I Full Version
+   Descent II Shareware
+   Descent II OEM (Destination Quartzon)
+   Descent II Full Version
+   Descent II Vertigo
+   Descent I add-on levels
+   Descent II add-on levels
+- UDP, IPX, and Kali Networking
+- Re-enabled linux joystick
+- Added some standalone utilities:
+   mveplayer - Plays .mve movie files.
+   hogcreate, hogextract - create and extract .hog archives
+   mvlcreate, mvlextract - create and extract .mvl archives
+   tex2txb, txb2tex - encode and decode text for briefings, etc.
 
 --- Version 0.1.3 ---
 - deb and rpm support added
