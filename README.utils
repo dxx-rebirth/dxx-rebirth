@@ -10,7 +10,7 @@ version of Descent II are not really mve files.  They appear to be
 some sort of quicktime-related format.
 
 To build mveplayer, configure the source tree as normal, then execute
-"make mveplayer" from within the main subdirectory.
+"make mveplayer" from within the libmve subdirectory.
 
 
 hogcreate

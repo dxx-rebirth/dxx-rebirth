@@ -349,6 +349,7 @@ AC_OUTPUT(
     arch/win32/Makefile
     cfile/Makefile
     iff/Makefile
+    libmve/Makefile
     main/Makefile
     main/editor/Makefile
     maths/Makefile

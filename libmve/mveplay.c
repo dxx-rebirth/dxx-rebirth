@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.16 2003-02-18 07:05:14 btb Exp $ */
+/* $Id: mveplay.c,v 1.1 2003-02-18 07:37:19 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -25,7 +25,7 @@
 #include "mve_audio.h"
 
 #ifndef STANDALONE
-#include "mveplay.h"
+#include "libmve.h"
 #include "error.h"
 #include "u_mem.h"
 #include "gr.h"
