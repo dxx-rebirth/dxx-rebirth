@@ -1,8 +1,8 @@
 # -*- mode: shell-script -*-
 AC_INIT(main/inferno.c)
 
-AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
+AC_CANONICAL_HOST
 
 AM_CONFIG_HEADER(conf.h)
 AM_INIT_AUTOMAKE(d2x, 0.1.2)
@@ -89,7 +89,7 @@ else
 fi
 
 # Test for DJGPP
-AM_CONDITIONAL(ENV_DJGPP, test "$host_os" = "msdosdjgpp")
+AM_CONDITIONAL(DJGPP, test "$host_os" = "msdosdjgpp")
 if test "$host_os" = "msdosdjgpp"; then
 
   CFLAGS="-I \$(top_srcdir)/arch/dos/include $CFLAGS"

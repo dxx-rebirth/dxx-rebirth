@@ -10,7 +10,7 @@ CCLD = ${CC}
 LDFLAGS = -export-dynamic
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 
-if ENV_DJGPP
+if DJGPP
 ARCH_LIBS = arch/dos/libarch_dos.a
 else
 if USE_OPENGL
