@@ -48,10 +48,10 @@ dist-hook:
 	cp -a $(srcdir)/ChangeLog $(distdir)
 
 changelog::
-	rm -f $(srcdir)/ChangeLog
-	touch $(srcdir)/ChangeLog
-	cd $(srcdir) && tools/cvs2cl/cvs2cl.pl -b --utc
-	rm -f $(srcdir)/ChangeLog.bak
+#	rm -f $(srcdir)/ChangeLog
+#	touch $(srcdir)/ChangeLog
+	cd $(srcdir) && tools/cvs2cl/cvs2cl.pl -b --utc --accum
+#	rm -f $(srcdir)/ChangeLog.bak
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 ChangeLog \
