@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.20 2003-01-21 22:28:08 btb Exp $ */
+/* $Id: piggy.c,v 1.21 2003-03-01 12:50:45 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.20 2003-01-21 22:28:08 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.21 2003-03-01 12:50:45 btb Exp $";
 #endif
 
 
@@ -1156,9 +1156,9 @@ int piggy_init(void)
 		gr_printf( 0x8000, grd_curcanv->cv_h-20, "%s...", TXT_LOADING_DATA );
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-	#ifdef EDITOR
+#if 1 //def EDITOR //need for d1 mission briefings
 	piggy_init_pigfile(DEFAULT_PIGFILE);
-	#endif
+#endif
 
 	snd_ok = ham_ok = read_hamfile();
 

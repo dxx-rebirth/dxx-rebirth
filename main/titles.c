@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.23 2003-02-26 11:09:19 btb Exp $ */
+/* $Id: titles.c,v 1.24 2003-03-01 12:50:45 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -98,6 +98,7 @@ extern int check_button_press();
 extern void macintosh_quit(void);
 #endif
 
+// added by Jan Bobrowski for variable-size menu screen
 static int rescale_x(int x)
 {
 	return x * GWIDTH / 320;
@@ -383,15 +384,14 @@ void show_bitmap_frame(void)
 		}
 
 		switch (Animating_bitmap_type) {
-		case 0:
-			WINDOS(
-				bitmap_canv = dd_gr_create_sub_canvas(dd_grd_curcanv, 220, 45, 64, 64);	break,
-				bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220, 45, 64, 64);	break
+		case 0: WINDOS(
+				bitmap_canv = dd_gr_create_sub_canvas(dd_grd_curcanv, rescale_x(220), rescale_x(45), 64, 64);	break,
+				bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_x(45), 64, 64);	break
 			);
 		case 1:
 			WINDOS(
-				bitmap_canv = dd_gr_create_sub_canvas(dd_grd_curcanv, 220, 45, 94, 94);	break,
-				bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220, 45, 94, 94);	break
+				bitmap_canv = dd_gr_create_sub_canvas(dd_grd_curcanv, rescale_x(220), rescale_x(45), 94, 94);	break,
+				bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_x(45), 94, 94);	break
 			);
 
 			// Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
@@ -523,17 +523,14 @@ void show_spinning_robot_frame(int robot_num)
 //-----------------------------------------------------------------------------
 void init_spinning_robot(void) //(int x,int y,int w,int h)
 {
-#if 0
-	Robot_angles.p += 0;
-	Robot_angles.b += 0;
-	Robot_angles.h += 0;
+	//Robot_angles.p += 0;
+	//Robot_angles.b += 0;
+	//Robot_angles.h += 0;
 
-#else
 	int x = rescale_x(138);
 	int y = rescale_y(55);
 	int w = rescale_x(166);
 	int h = rescale_y(138);
-#endif
 
 	Robot_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
 	// 138, 55, 166, 138
@@ -565,12 +562,13 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 		gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
 		gr_printf(Briefing_text_x+1, Briefing_text_y, "_" );
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
+		gr_update();
 	}
 
 	if (delay)
 		delay=fixdiv (F1_0,i2f(15));
 
-	if (delay != 0)
+	if ((Bitmap_name[0] != 0) && (delay != 0))
 		show_bitmap_frame();
 
 	if (RobotPlaying && (delay != 0))
@@ -722,6 +720,7 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 
 	gr_printf(Briefing_text_x+1, Briefing_text_y, "_" );
 WIN(DDGRUNLOCK(dd_grd_curcanv));
+	gr_update(); 
 }
 
 extern int InitMovieBriefing();
@@ -733,7 +732,7 @@ int show_briefing_message(int screen_num, char *message)
 {
 	int	prev_ch=-1;
 	int	ch, done=0,i;
-	briefing_screen	*bsp = &Briefing_screens[screen_num];
+	briefing_screen	*bsp;
 	int	delay_count = KEY_DELAY_DEFAULT;
 	int	key_check;
 	int	robot_num=-1;
@@ -764,8 +763,13 @@ int show_briefing_message(int screen_num, char *message)
 
 	if (Mission_list[Current_mission_num].descent_version == 1) {
 		GotZ = 1;
-		bsp=&Briefing_screens[screen_num];
-		init_char_pos(bsp->text_ulx, bsp->text_uly-(8*MenuHires));
+		MALLOC(bsp, briefing_screen, 1);
+		memcpy(bsp, &Briefing_screens[screen_num], sizeof(briefing_screen));
+		bsp->text_ulx = rescale_x(bsp->text_ulx);
+		bsp->text_uly = rescale_y(bsp->text_uly);
+		bsp->text_width = rescale_x(bsp->text_width);
+		bsp->text_height = rescale_y(bsp->text_height);
+		init_char_pos(bsp->text_ulx, bsp->text_uly);
 	} else {
 		bsp=&Briefing_screens[0];
 		init_char_pos(bsp->text_ulx, bsp->text_uly-(8*(1+MenuHires)));
@@ -811,28 +815,26 @@ int show_briefing_message(int screen_num, char *message)
 					RobotPlaying=0;
 				}
 
-			if (Mission_list[Current_mission_num].descent_version == 1) {
-#if 0
-				init_spinning_robot();
-				robot_num = get_message_num(&message);
-#endif
-			} else {
-				kludge=*message++;
-				spinRobotName[2]=kludge; // ugly but proud
+				if (Mission_list[Current_mission_num].descent_version == 1) {
+					init_spinning_robot();
+					robot_num = get_message_num(&message);
+					while (*message++ != 10)
+						;
+				} else {
+					kludge=*message++;
+					spinRobotName[2]=kludge; // ugly but proud
 
-				RobotPlaying=InitRobotMovie(spinRobotName);
+					RobotPlaying=InitRobotMovie(spinRobotName);
 
-				// gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
+					// gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
 
-				if (RobotPlaying) {
-					RotateRobot();
-					DoBriefingColorStuff ();
-					mprintf ((0,"Robot playing is %d!!!",RobotPlaying));
+					if (RobotPlaying) {
+						RotateRobot();
+						DoBriefingColorStuff ();
+						mprintf ((0,"Robot playing is %d!!!",RobotPlaying));
+					}
 				}
-			}
 				prev_ch = 10;                           // read to eoln
-				while (*message++ != 10)
-					;
 			} else if (ch == 'N') {
 				//--grs_bitmap *bitmap_ptr;
 				if (Robot_canv != NULL) {
@@ -972,7 +974,8 @@ int show_briefing_message(int screen_num, char *message)
 					if (robot_num != -1)
 						show_spinning_robot_frame(robot_num);
 
-					show_bitmap_frame();
+					if (Bitmap_name[0] != 0)
+						show_bitmap_frame();
 					start_time += KEY_DELAY_DEFAULT/2;
 				}
 
@@ -1119,7 +1122,8 @@ int show_briefing_message(int screen_num, char *message)
 					RotateRobot();
 				if (robot_num != -1)
 					show_spinning_robot_frame(robot_num);
-				show_bitmap_frame();
+				if (Bitmap_name[0] != 0)
+					show_bitmap_frame();
 				start_time += KEY_DELAY_DEFAULT/2;
 			}
 
@@ -1158,6 +1162,9 @@ int show_briefing_message(int screen_num, char *message)
 		digi_stop_sound( hum_channel );
 	if (printing_channel>-1)
 		digi_stop_sound( printing_channel );
+
+	if (Mission_list[Current_mission_num].descent_version == 1)
+		d_free(bsp);
 
 	return rval;
 }
@@ -1494,12 +1501,10 @@ int DefineBriefingBox (char **buf)
 	Briefing_screens[n].text_width=get_new_message_num (buf);
 	Briefing_screens[n].text_height=get_message_num (buf);  // NOTICE!!!
 
-	if (MenuHires) {
-		Briefing_screens[n].text_ulx*=2;
-		Briefing_screens[n].text_uly*=2.4;
-		Briefing_screens[n].text_width*=2;
-		Briefing_screens[n].text_height*=2.4;
-	}
+	Briefing_screens[n].text_ulx = rescale_x(Briefing_screens[n].text_ulx);
+	Briefing_screens[n].text_uly = rescale_y(Briefing_screens[n].text_uly);
+	Briefing_screens[n].text_width = rescale_x(Briefing_screens[n].text_width);
+	Briefing_screens[n].text_height = rescale_y(Briefing_screens[n].text_height);
 
 	return (n);
 }

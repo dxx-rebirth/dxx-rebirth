@@ -1,3 +1,8 @@
+2003-03-01  Bradley Bell  <btb@icculus.org>
+
+	* main/piggy.c, main/titles.c: d1 briefing text fixed, spinning
+	robots and animated bitmaps work, but colors are messed up
+
 2003-02-28  Bradley Bell  <btb@icculus.org>
 
 	* main/player.h: whitespace
