@@ -1,3 +1,4 @@
+Merged in joystick support from Michael.Wagener@materna.de
 Mouse grabbed during gameplay in SDL/X11, press pause to ungrab.
 --- Version 0.0.8 ---
 Added -nocdrom option, fixed cdrom code.
