@@ -6,7 +6,7 @@
 #export DH_VERBOSE=1
 
 # This is the debhelper compatability version to use.
-export DH_COMPAT=3
+export DH_COMPAT=4
 
 configure: configure-stamp configure-gl-stamp
 configure-stamp:
@@ -34,6 +34,8 @@ build-stamp: configure-stamp
 
 	# Add here commands to compile the package.
 	cd build_d2x-sdl && $(MAKE)
+	cd build_d2x-sdl/libmve && $(MAKE) mveplayer
+	cd build_d2x-sdl/utilities && $(MAKE) utils
 
 	touch build-stamp
 
@@ -77,6 +79,7 @@ binary-arch: build install
 #	dh_installdebconf	
 	dh_installdocs -A NEWS
 	dh_installexamples
+	dh_install
 	dh_installmenu
 #	dh_installlogrotate
 #	dh_installemacsen

@@ -1,2 +1,2 @@
 ?package(d2x-gl):needs=X11 section=Games/Arcade\
-  title="d2x-gl" command="/usr/games/d2x-gl"
+  title="d2x-gl" command="xterm -e /usr/games/d2x-gl -fullscreen"

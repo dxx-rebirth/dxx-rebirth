@@ -1,0 +1,49 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH TXB2TEX 1 "July 10, 2003"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+txb2tex \- TXB to ASCII converter for Descent and Descent II HOG files.
+.SH SYNOPSIS
+.B txb2tex
+.RI filename.txb
+.RI filename.tex
+.br
+.SH DESCRIPTION
+This manual page documents briefly the
+.B txb2tex
+command.
+This manual page was written for the Debian distribution
+because the original program does not have a manual page.
+.PP
+.B txb2tex
+is a TXB to text converter for Descent and Descent II HOG files.
+It converts a TXB entry from an HOG file to an ASCII text file;
+that entry can then be modified and re\-included in an HOG file
+using the command
+.BR hogcreate (1).
+.SH SEE ALSO
+.BR tex2txb (1),
+.BR mvlextract (1),
+.BR mvlcreate (1),
+.BR hogextract (1),
+.BR hogcreate (1).
+.SH AUTHOR
+The command was first created by Bryan Aamot in 1995, then modified by
+Bradley Bell in 2002 for use with the D2X package.
+
+This manual page was written by Paolo Ulivi <pulivi@libero.it>,
+for the Debian GNU/Linux system (but may be used by others).

@@ -1,0 +1,60 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH HOGEXTRACT 1 "July 10, 2003"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.SH NAME
+hogextract \- Extracts files from the given HOG archive into the current
+directory.
+.SH SYNOPSIS
+.B hogextract
+.RI [ options ]
+.RI hogfile
+.RI [ filename ]
+.br
+.SH DESCRIPTION
+This manual page documents briefly the
+.B hogextract
+command.
+This manual page was written for the Debian distribution
+because the original program does not have a manual page.
+.PP
+.B hogextract
+is an utility to extract all the files contained in HOG archives, like that
+found in the DESCENT II videogame and played by the D2X package.
+It supports all HOG files around, so if you find one that doesn't work,
+please report this as a bug.
+
+HOG archives are files with a .hog extension, and contains all of the data
+which constitutes a DESCENT II's level.
+
+You'll find some HOG files as part of the Descent II datafiles.
+.SH OPTIONS
+A summary of options is included below.  These command-line options do
+not appear to be documented elsewhere, so the only authoritive source is
+the source code itself.
+.TP
+.B v
+Don't extract, print a listing of all files to stdout.
+.SH SEE ALSO
+.BR hogcreate (1),
+.BR mvlcreate (1),
+.BR mveplayer (1).
+.SH AUTHOR
+The command was first created by Josh Cogliati in 1999, then modified by
+Bradley Bell in 2002 for use with the D2X package.
+
+This manual page was written by Paolo Ulivi <pulivi@libero.it>,
+for the Debian GNU/Linux system (but may be used by others).

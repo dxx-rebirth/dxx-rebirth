@@ -1,4 +1,14 @@
-2003-08-02  Paolo Ulivi <pulivi@libero.it>
+2003-08-02  Paolo Ulivi <pulivi@libero.it> and Bradley Bell  <btb@icculus.org>
+
+	* Makefile.am, debian/changelog.in, debian/control,
+	debian/d2x-common.dirs, debian/d2x-common.install,
+	debian/d2x-common.manpages, debian/d2x-gl.files,
+	debian/d2x-gl.menu, debian/d2x-sdl.files, debian/d2x-sdl.menu,
+	debian/rules, libmve/Makefile.am, libmve/mveplayer.1,
+	utilities/Makefile.am, utilities/hogcreate.1,
+	utilities/hogextract.1, utilities/mvlcreate.1,
+	utilities/mvlextract.1, utilities/tex2txb.1, utilities/txb2tex.1:
+	add man pages, distribute utility programs in new d2x-common deb
 
 	* rpm/d2x.spec.in: updated rpm spec file
 

@@ -1,2 +1,2 @@
 ?package(d2x-sdl):needs=X11 section=Games/Arcade\
-  title="d2x-sdl" command="/usr/games/d2x-sdl"
+  title="d2x-sdl" command="xterm -e /usr/games/d2x-sdl -fullscreen"
