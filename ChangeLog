@@ -1,5 +1,9 @@
 2005-03-16  Bradley Bell  <btb@icculus.org>
 
+	* main/bm.c, main/bm.h: use hardcoded value instead of
+	sizeof(tmap_info), since size depends on whether editor is built
+	or not.
+
 	* ui/mouse.c: gcc doesn't like multi-line // comments
 
 	* main/dumpmine.c: get rid of compiler warnings

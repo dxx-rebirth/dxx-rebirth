@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.47 2004-12-19 12:15:34 btb Exp $ */
+/* $Id: bm.c,v 1.48 2005-03-16 23:06:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -96,7 +96,7 @@ bitmap_index    ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into ObjBitmaps, since some are used twice.
 
 #ifdef FAST_FILE_IO
-#define tmap_info_read_n(ti, n, fp) cfread(ti, sizeof(tmap_info), n, fp)
+#define tmap_info_read_n(ti, n, fp) cfread(ti, TMAP_INFO_SIZE, n, fp)
 #else
 /*
  * reads n tmap_info structs from a CFILE

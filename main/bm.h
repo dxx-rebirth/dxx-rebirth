@@ -1,4 +1,4 @@
-/* $Id: bm.h,v 1.13 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: bm.h,v 1.14 2005-03-16 23:06:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -47,6 +47,8 @@ typedef struct {
 	char    pad2[3];
 	#endif
 } __pack__ tmap_info;
+
+#define TMAP_INFO_SIZE 20   // how much space it takes up on disk
 
 extern int Num_object_types;
 
