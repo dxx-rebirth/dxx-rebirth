@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.37 2002-08-04 23:24:34 btb Exp $ */
+/* $Id: inferno.c,v 1.38 2002-08-06 05:21:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -492,7 +492,7 @@ int main(int argc,char **argv)
 
 		if (home) {
 			char buf[PATH_MAX + 5];
-			
+
 			strcpy(buf, home);
 			strcat(buf, "/.d2x");
 			if (chdir(buf)) {
@@ -1079,7 +1079,7 @@ void show_order_form()
 	gr_set_current_canvas( NULL );
 	gr_palette_clear();
 
-	key_flush();		
+	key_flush();
 
 	#ifdef D2_OEM
 		strcpy(exit_screen, MenuHires?"ordrd2ob.pcx":"ordrd2o.pcx");
@@ -1095,12 +1095,12 @@ void show_order_form()
 		//vfx_set_palette_sub( title_pal );
 		gr_palette_fade_in( title_pal, 32, 0 );
 		key_getch();
-		gr_palette_fade_out( title_pal, 32, 0 );		
+		gr_palette_fade_out( title_pal, 32, 0 );
 	}
 	else
 		Int3();		//can't load order screen
 
-	key_flush();		
+	key_flush();
 
 #endif
 }

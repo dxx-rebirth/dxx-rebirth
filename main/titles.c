@@ -260,8 +260,8 @@ typedef struct {
 #define BRIEFING_SECRET_NUM	31			//	This must correspond to the first secret level which must come at the end of the list.
 #define BRIEFING_OFFSET_NUM	4			// This must correspond to the first level screen (ie, past the bald guy briefing screens)
 
-#define	SHAREWARE_ENDING_LEVEL_NUM		0x7f
-#define	REGISTERED_ENDING_LEVEL_NUM	0x7e
+#define	SHAREWARE_ENDING_LEVEL_NUM  0x7f
+#define	REGISTERED_ENDING_LEVEL_NUM 0x7e
 
 #ifdef SHAREWARE
 #define ENDING_LEVEL_NUM 	SHAREWARE_ENDING_LEVEL_NUM

@@ -1,3 +1,4 @@
+/* $Id: ai.c,v 1.4 2002-08-06 05:21:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-char ai_rcsid[] = "$Id: ai.c,v 1.3 2001-10-25 02:15:55 bradleyb Exp $";
+char ai_rcsid[] = "$Id: ai.c,v 1.4 2002-08-06 05:21:33 btb Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -965,7 +966,7 @@ _exit_cheat:
 					Laser_create_new_easy( &fire_vec, &fire_pos, obj-Objects, PROXIMITY_ID, 1);
 
 				ailp->next_fire = (F1_0/2)*(NDL+5 - Difficulty_level);		//	Drop a proximity bomb every 5 seconds.
-				
+
 #ifdef NETWORK
 				#ifndef SHAREWARE
 				if (Game_mode & GM_MULTI)
@@ -974,9 +975,9 @@ _exit_cheat:
 				   if (aip->SUB_FLAGS & SUB_FLAGS_SPROX)
 					  multi_send_robot_fire(obj-Objects, -2, &fire_vec);
 				    else
-					  multi_send_robot_fire(obj-Objects, -1, &fire_vec);	
-				}				  
-				#endif	
+					  multi_send_robot_fire(obj-Objects, -1, &fire_vec);
+				}
+				#endif
 #endif
 			}
 			break;

@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.12 2002-08-06 01:31:55 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.13 2002-08-06 05:21:33 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -212,7 +212,7 @@ void verify_object( object * obj )	{
 		if ( obj->id >= N_robot_types )
 			obj->id = obj->id % N_robot_types;
 
-		// Make sure model number & size are correct...		
+		// Make sure model number & size are correct...
 		if ( obj->render_type == RT_POLYOBJ ) {
 			Assert(Robot_info[obj->id].model_num != -1);
 				//if you fail this assert, it means that a robot in this level
@@ -221,8 +221,8 @@ void verify_object( object * obj )	{
 
 			Assert(Robot_info[obj->id].always_0xabcd == 0xabcd);
 				//if you fail this assert, it means that the robot_ai for
-				//a robot in this level hasn't been loaded, possibly because 
-				//it's marked as non-shareware.  To see what robot number, 
+				//a robot in this level hasn't been loaded, possibly because
+				//it's marked as non-shareware.  To see what robot number,
 				//print obj->id.
 
 			obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
@@ -1849,7 +1849,7 @@ int save_level_sub(char * filename, int compiled_version)
 		// macs are using the regular hog/rl2 files for shareware
 		#if defined(SHAREWARE) && !defined(MACINTOSH)
 			change_filename_extension(temp_filename,filename,".SL2");
-		#else		
+		#else
 			change_filename_extension(temp_filename,filename,".RL2");
 		#endif
 	}
