@@ -1,4 +1,4 @@
-/* $Id: medsel.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: medsel.c,v 1.4 2005-02-26 09:54:05 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: medsel.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: medsel.c,v 1.4 2005-02-26 09:54:05 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -78,7 +78,7 @@ void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos)
 	int i;
 	sort_element *sortlist;
 
-	sortlist = calloc(n_segs,sizeof(*sortlist));
+	sortlist = d_calloc(n_segs, sizeof(*sortlist));
 
 	for (i=0;i<n_segs;i++) {
 		sortlist[i].segnum = segnumlist[i];
