@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.13 2002-10-03 03:46:34 btb Exp $ */
+/* $Id: gamecntl.c,v 1.14 2003-01-15 02:42:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -121,7 +121,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef SDL_INPUT
-#include <SDL/SDL.h>
+#include <SDL.h>
 #endif
 
 extern void full_palette_save(void);

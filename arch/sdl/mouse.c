@@ -1,6 +1,8 @@
+/* $Id: mouse.c,v 1.5 2003-01-15 02:42:41 btb Exp $ */
 /*
  *
  * SDL mouse driver.
+ *
  *
  */
 
@@ -9,7 +11,9 @@
 #endif
 
 #include <string.h>
-#include <SDL/SDL.h>
+
+#include <SDL.h>
+
 #include "fix.h"
 #include "timer.h"
 #include "event.h"

@@ -1,7 +1,8 @@
-/* $Id: rbaudio.c,v 1.2 2002-08-04 23:19:37 btb Exp $ */
+/* $Id: rbaudio.c,v 1.3 2003-01-15 02:42:41 btb Exp $ */
 /*
  *
  * SDL CD Audio functions
+ *
  *
  */
 
@@ -11,8 +12,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_cdrom.h>
+
+#include <SDL.h>
+
 #include "pstypes.h"
 #include "error.h"
 #include "args.h"

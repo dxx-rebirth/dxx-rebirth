@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.8 2002-10-11 03:37:58 btb Exp $ */
+/* $Id: gr.c,v 1.9 2003-01-15 02:42:41 btb Exp $ */
 /*
  *
  * SDL video functions.
@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "gr.h"
 #include "grdef.h"

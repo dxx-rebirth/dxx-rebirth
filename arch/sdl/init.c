@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: init.c,v 1.11 2003-01-15 02:42:41 btb Exp $ */
 /*
  *
  * SDL architecture support
@@ -12,7 +12,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <SDL/SDL.h>
+
+#include <SDL.h>
+
 #include "text.h"
 #include "event.h"
 #include "error.h"

@@ -1,17 +1,8 @@
+/* $Id: timer.c,v 1.5 2003-01-15 02:42:41 btb Exp $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/sdl/timer.c,v $
- * $Revision: 1.4 $
- * $Author: btb $
- * $Date: 2002-09-01 02:46:06 $
  *
  * SDL library timer functions
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.3  2001/10/19 09:45:02  bradleyb
- * Moved arch/sdl_* to arch/sdl
- *
- * Revision 1.2  2001/01/29 13:35:09  bradleyb
- * Fixed build system, minor fixes
  *
  */
 
@@ -19,7 +10,7 @@
 #include <conf.h>
 #endif
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "maths.h"
 #include "timer.h"

@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.52 2003-01-01 00:56:24 btb Exp $ */
+/* $Id: inferno.c,v 1.53 2003-01-15 02:42:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -803,7 +803,7 @@ extern int Current_display_mode;        //$$ there's got to be a better way than
 #endif
 
 #ifdef SDL_INPUT
-#include <SDL/SDL.h>
+#include <SDL.h>
 #endif
 
 #include "vers_id.h"

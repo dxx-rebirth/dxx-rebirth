@@ -1,14 +1,8 @@
+/* $Id: key.c,v 1.2 2003-01-15 02:42:41 btb Exp $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/sdl/key.c,v $
- * $Revision: 1.1 $
- * $Author: bradleyb $
- * $Date: 2001-10-24 09:25:05 $
  *
  * SDL keyboard input support
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.2  2001/01/29 14:03:57  bradleyb
- * Fixed build, minor fixes
  *
  */
 
@@ -19,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "event.h"
 #include "error.h"

@@ -1,29 +1,8 @@
+/* $Id: sdlgl.c,v 1.5 2003-01-15 02:42:41 btb Exp $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/ogl/sdlgl.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-11-08 10:19:52 $
  *
  * Graphics functions for SDL-GL.
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.3  2001/11/04 09:02:18  bradleyb
- * Hack to keep SDL from screwing up X when it crashes
- *
- * Revision 1.2  2001/10/31 07:35:48  bradleyb
- * Sync with d1x
- *
- * Revision 1.1  2001/10/25 08:25:34  bradleyb
- * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
- *
- * Revision 1.4  2001/10/09 08:17:07  bradleyb
- * changed window caption to include version info
- *
- * Revision 1.3  2001/10/09 02:58:20  bradleyb
- * Added window caption, hide mouse cursor
- *
- * Revision 1.2  2001/01/29 13:47:52  bradleyb
- * Fixed build, some minor cleanups.
  *
  */
 
@@ -31,7 +10,8 @@
 #include <conf.h>
 #endif
 
-#include <SDL/SDL.h>
+#include <SDL.h>
+
 #include "ogl_init.h"
 #include "vers_id.h"
 #include "error.h"

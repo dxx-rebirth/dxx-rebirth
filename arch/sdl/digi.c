@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.4 2002-08-02 11:05:25 btb Exp $ */
+/* $Id: digi.c,v 1.5 2003-01-15 02:42:41 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -14,8 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_audio.h>
+#include <SDL.h>
 
 #include "pstypes.h"
 #include "error.h"

@@ -1,8 +1,8 @@
-/* $Id: event.c,v 1.7 2003-01-01 00:55:03 btb Exp $ */
-
+/* $Id: event.c,v 1.8 2003-01-15 02:42:41 btb Exp $ */
 /*
  *
  * SDL Event related stuff
+ *
  *
  */
 
@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 extern void key_handler(SDL_KeyboardEvent *event);
 extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);
