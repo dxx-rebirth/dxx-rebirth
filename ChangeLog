@@ -1,5 +1,7 @@
 2003-03-26  Bradley Bell  <btb@icculus.org>
 
+	* main/piggy.c: fix crash when d1 data not present
+
 	* main/gamecntl.c, main/kconfig.c, main/playsave.c: fix d2x keys,
 	read/write from plr file
 

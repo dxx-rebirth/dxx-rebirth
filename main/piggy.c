@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.29 2003-03-25 10:17:05 btb Exp $ */
+/* $Id: piggy.c,v 1.30 2003-03-27 01:26:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.29 2003-03-25 10:17:05 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.30 2003-03-27 01:26:47 btb Exp $";
 #endif
 
 
@@ -436,6 +436,8 @@ static char rcsid[] = "$Id: piggy.c,v 1.29 2003-03-25 10:17:05 btb Exp $";
 #define DEFAULT_PIGFILE_SHAREWARE       "d2demo.pig"
 #define DEFAULT_HAMFILE_REGISTERED      "descent2.ham"
 #define DEFAULT_HAMFILE_SHAREWARE       "d2demo.ham"
+
+#define D1_PALETTE "palette.256"
 
 #define DEFAULT_PIGFILE (cfexist(DEFAULT_PIGFILE_REGISTERED)?DEFAULT_PIGFILE_REGISTERED:DEFAULT_PIGFILE_SHAREWARE)
 #define DEFAULT_HAMFILE (cfexist(DEFAULT_HAMFILE_REGISTERED)?DEFAULT_HAMFILE_REGISTERED:DEFAULT_HAMFILE_SHAREWARE)
@@ -2263,7 +2265,7 @@ void load_d1_bitmap_replacements()
 	{
 		int freq[256];
 		ubyte d1_palette[256*3];
-		CFILE * palette_file = cfopen( "palette.256", "rb" );
+		CFILE * palette_file = cfopen(D1_PALETTE, "rb" );
 		Assert( palette_file );
 		Assert( cfilelength( palette_file ) == 9472 );
 		cfread( d1_palette, 256, 3, palette_file);
@@ -2397,9 +2399,12 @@ bitmap_index read_extra_d1_bitmap(char *name)
 		{
 			int freq[256];
 			ubyte d1_palette[256*3];
-			CFILE * palette_file = cfopen( "palette.256", "rb" );
-			Assert( palette_file );
-			Assert( cfilelength( palette_file ) == 9472 );
+			CFILE * palette_file = cfopen(D1_PALETTE, "rb");
+			if (!palette_file || cfilelength(palette_file) != 9472)
+			{
+				con_printf(CON_DEBUG, "could not open %s\n", D1_PALETTE);
+				return bitmap_num;
+			}
 			cfread( d1_palette, 256, 3, palette_file);
 			cfclose( palette_file );
 			build_colormap_good( d1_palette, colormap, freq );
@@ -2440,7 +2445,11 @@ bitmap_index read_extra_d1_bitmap(char *name)
 				break;
 		}
 
-		Assert(!strnicmp(bmh.name, name, 8));
+		if (strnicmp(bmh.name, name, 8))
+		{
+			con_printf(CON_DEBUG, "could not find bitmap %s\n", name);
+			return bitmap_num;
+		}
 
 		memset( new, 0, sizeof(grs_bitmap) );
 
