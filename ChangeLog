@@ -1,6 +1,8 @@
 2004-08-06 Chris Taylor  <c.taylor@student.curtin.edu.au>
 
-	* main/gamesave.c: fix a bug introduced with change of 2004-06-26
+	* main/gamesave.c: fix a bug introduced with the change of 2004-06-26
+
+	* cfile/cfile.c: add mkdir for carbon, and support files ending in 0x0d
 
 2004-08-06 Chris Taylor  <c.taylor@student.curtin.edu.au>
 

@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.25 2004-08-06 20:36:02 schaffner Exp $ */
+/* $Id: cfile.c,v 1.26 2004-08-17 19:36:50 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -493,6 +493,14 @@ int cfile_mkdir(char *pathname)
 # else
 	return _mkdir(pathname);
 # endif
+#elif defined(macintosh)
+    char 	mac_path[256];
+    Str255	pascal_path;
+    long	dirID;	// Insists on returning this
+
+    macify_posix_path(pathname, mac_path);
+    CopyCStringToPascal(mac_path, pascal_path);
+    return DirCreate(0, 0, pascal_path, &dirID);
 #else
 	return mkdir(pathname, 0755);
 #endif
@@ -662,7 +670,8 @@ char * cfgets( char * buf, size_t n, CFILE * fp )
 				int c1;
 
 				c1 = cfgetc(fp);
-				cfseek(fp, -1, SEEK_CUR);
+				if (c1 != EOF)	// The file could end with a Mac line ending
+					cfseek(fp, -1, SEEK_CUR);
 				if ( c1 == 10 ) // DOS line ending
 					continue;
 				else            // Mac line ending
