@@ -1,4 +1,4 @@
-/* $Id: joyhh.c,v 1.3 2004-05-20 19:02:57 btb Exp $ */
+/* $Id: joyhh.c,v 1.4 2004-05-20 23:10:17 btb Exp $ */
 //JOYC.C for D1_3Dfx and D1OpenGL
 //D1_3Dfx is a Win32 executable using Glide and DirectX 3
 //D1OpenGL is a Win32 executable using OpenGL and DirectX 3
@@ -186,7 +186,7 @@ ubyte joystick_read_raw_axis( ubyte mask, int * axis )
 	if (!joy_installed) {
 		return 0;
 	}
-	
+
 	memset(&joy, 0, sizeof(joy));
 	joy.dwSize = sizeof(joy);
 	joy.dwFlags = JOY_RETURNALL | JOY_USEDEADZONE;
@@ -369,6 +369,9 @@ int joy_get_scaled_reading( int raw, int axn )
     return 0; //HH: had to increase to 128
    if ( joystick.axis_max[axn] - joystick.axis_center[axn] < 128 )
     return 0; //HH: had to increase to 128
+
+	if (!(joystick.present_mask & (1 << axn)))
+		return 0; // fixes joy config bug where it'll always set an axis you don't even have. - 2000/01/14 Matt Mueller
 
   raw -= joystick.axis_center[axn];
 
