@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.46 2002-10-10 19:16:52 btb Exp $ */
+/* $Id: inferno.c,v 1.47 2002-10-11 03:37:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -856,7 +856,6 @@ extern int VR_low_res;
 extern int Config_vr_type;
 extern int Config_vr_resolution;
 extern int Config_vr_tracking;
-int grd_fades_disabled=1;
 
 #define LINE_LEN	100
 
@@ -946,7 +945,9 @@ void print_commandline_help()
 #ifdef __DJGPP__
 	printf( "  -nocyberman     %s\n","FIXME: Undocumented");
 #endif
+#ifndef NDEBUG
 	printf( "  -nofade         %s\n","Disable fades");
+#endif
 #ifdef NETWORK
 	printf( "  -nomatrixcheat  %s\n","FIXME: Undocumented");
 	printf( "  -norankings     %s\n","Disable multiplayer ranking system");
@@ -1040,7 +1041,6 @@ void print_commandline_help()
 
 void do_joystick_init()
 {
-
 
 	if (!FindArg( "-nojoystick" ))	{
 		con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_6);
@@ -1351,7 +1351,7 @@ int main(int argc,char **argv)
 	con_printf(CON_VERBOSE, "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
 	if (FindArg("-nofade"))
 		grd_fades_disabled=1;
-	
+
 	//determine whether we're using high-res menus & movies
 #if !defined(POLY_ACC)
 	if (FindArg("-nohires") || FindArg("-nohighres") || (gr_check_mode(MENU_HIRES_MODE) != 0) || disable_high_res)

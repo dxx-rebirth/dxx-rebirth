@@ -1,4 +1,4 @@
-/* $Id: palette.h,v 1.2 2002-08-15 07:17:39 btb Exp $ */
+/* $Id: palette.h,v 1.3 2002-10-11 03:37:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -61,6 +61,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern void gr_palette_set_gamma( int gamma );
 extern int gr_palette_get_gamma();
 extern ubyte gr_palette_faded_out;
+extern int grd_fades_disabled;
 extern void gr_palette_clear();
 extern int gr_palette_fade_out(ubyte *pal, int nsteps, int allow_keys );
 extern int gr_palette_fade_in(ubyte *pal,int nsteps, int allow_keys );

@@ -1,4 +1,4 @@
-/* $Id: palette.c,v 1.6 2002-09-07 07:18:22 btb Exp $ */
+/* $Id: palette.c,v 1.7 2002-10-11 03:37:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -171,6 +171,8 @@ ubyte gr_fade_table[256*34];
 ubyte gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
 ubyte gr_palette_faded_out = 1;
+
+int grd_fades_disabled=0;   // Used to skip fading for development
 
 extern void gr_palette_load( ubyte * pal );
 
