@@ -383,7 +383,11 @@ static void _mvefile_free_filehandle(MVEFILE *movie)
  */
 static int _mvefile_open(MVEFILE *file, const char *filename)
 {
+#ifdef __WIN32
+    file->stream = open(filename, O_RDONLY | O_BINARY);
+#else
     file->stream = open(filename, O_RDONLY);
+#endif
     if (file->stream == -1)
         return 0;
 

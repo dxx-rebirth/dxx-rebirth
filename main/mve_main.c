@@ -1,8 +1,11 @@
+#include <string.h>
+
 #include <SDL.h>
 
 #include "mvelib.h"
 
 extern int g_spdFactorNum;
+extern int g_sdlVidFlags;
 
 void initializeMovie(MVESTREAM *mve);
 void playMovie(MVESTREAM *mve);
@@ -10,7 +13,8 @@ void shutdownMovie(MVESTREAM *mve);
 
 static void usage(void)
 {
-    fprintf(stderr, "usage: mveplay filename\n");
+    fprintf(stderr, "usage: mveplay [-f] filename\n"
+			"-f\tFullscreen mode\n");
     exit(1);
 }
 
@@ -34,8 +38,14 @@ static int doPlay(const char *filename)
 
 int main(int c, char *v[])
 {
-    if (c != 2  &&  c != 3)
+    if (c < 2)
         usage();
+
+	if (!strcmp(v[1], "-f")) {
+		g_sdlVidFlags |= SDL_FULLSCREEN;
+		c--;
+		v++;
+	}
 
     if (c == 3)
         g_spdFactorNum = atoi(v[2]);

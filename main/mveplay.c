@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.13 2003-02-13 20:34:49 btb Exp $ */
+/* $Id: mveplay.c,v 1.14 2003-02-14 03:48:16 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -63,6 +63,10 @@ int g_spdFactorNum=0;
 static int g_spdFactorDenom=10;
 static int playing = 1;
 
+#ifdef STANDALONE
+int g_sdlVidFlags = SDL_ANYFORMAT | SDL_DOUBLEBUF;
+#endif
+
 void initializeMovie(MVESTREAM *mve);
 void playMovie(MVESTREAM *mve);
 void shutdownMovie(MVESTREAM *mve);
@@ -115,6 +119,36 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
 static int micro_frame_delay=0;
 static int timer_started=0;
 static struct timeval timer_expire = {0, 0};
+
+#ifdef __WIN32
+#include <sys/timeb.h>
+
+struct timespec
+{
+	long int tv_sec;            /* Seconds.  */
+	long int tv_nsec;           /* Nanoseconds.  */
+};
+
+int gettimeofday(struct timeval *tv, void *tz)
+{
+	static int counter = 0;
+	struct timeb tm;
+
+	counter++; /* to avoid collisions */
+	ftime(&tm);
+	tv->tv_sec  = tm.time;
+	tv->tv_usec = (tm.millitm * 1000) + counter;
+
+	return 0;
+}
+
+int nanosleep(struct timespec *ts, void *rem)
+{
+	sleep(ts->tv_sec * 1000 + ts->tv_nsec / 1000000);
+
+	return 0;
+}
+#endif
 
 static int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
@@ -279,6 +313,11 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 
 	int format;
 
+#ifndef STANDALONE
+	if (FindArg("-nosound"))
+		return 1;
+#endif
+
 	flags = get_ushort(data + 2);
 	sample_rate = get_ushort(data + 4);
 	desired_buffer = get_int(data + 6);
@@ -436,7 +475,7 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 	g_height = h << 3;
 
 #ifndef STANDALONE
-	Assert((g_width == g_screen->bm_w) && (g_height == g_screen->bm_h));
+	Assert((g_width <= g_screen->bm_w) && (g_height <= g_screen->bm_h));
 #endif
 
 	/* TODO: * 4 causes crashes on some files */
@@ -464,12 +503,10 @@ static int do_sdl_events()
 	while (SDL_PollEvent(&event)) {
 		switch(event.type) {
 		case SDL_QUIT:
-			//exit(0);
 			playing=0;
 			break;
 		case SDL_KEYDOWN:
 			if (event.key.keysym.sym == SDLK_ESCAPE)
-				//exit(0);
 				playing=0;
 			break;
 		case SDL_KEYUP:
@@ -575,7 +612,24 @@ static int display_video_handler(unsigned char major, unsigned char minor, unsig
 		g_palette_changed = 0;
 	}
 
-	memcpy(g_screen->bm_data, g_vBackBuf1, g_width * g_height);
+	if (g_width == g_screen->bm_w && g_height >= g_screen->bm_h)
+		memcpy(g_screen->bm_data, g_vBackBuf1, g_width * g_height);
+	else {
+		int i, x = 0, y = 0;
+		char *pSrc, *pDest;
+
+		if (g_screen->bm_w > g_width)
+			x = (g_screen->bm_w - g_width) >> 1;
+		if (g_screen->bm_h > g_height)
+			y = (g_screen->bm_h - g_height) >> 1;
+		pSrc = g_vBackBuf1;
+		pDest = g_screen->bm_data + g_screen->bm_w * y + x;
+		for (i = 0; i < g_height; i++) {
+			memcpy(pDest, pSrc, g_width * (truecolor?2:1));
+			pSrc += g_width * (g_truecolor?2:1);
+			pDest += g_screen->bm_w * (g_truecolor?2:1);
+		}
+	}
 #endif
 
 	return 1;
@@ -587,7 +641,7 @@ static int init_video_handler(unsigned char major, unsigned char minor, unsigned
 	width = get_short(data);
 	height = get_short(data+2);
 #ifdef STANDALONE
-	g_screen = SDL_SetVideoMode(width, height, 16, SDL_ANYFORMAT|SDL_DOUBLEBUF);
+	g_screen = SDL_SetVideoMode(width, height, 16, g_sdlVidFlags);
 #endif
 	g_screenWidth = width;
 	g_screenHeight = height;
