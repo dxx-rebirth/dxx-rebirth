@@ -1,4 +1,4 @@
-/* $Id: 2dsline.c,v 1.6 2002-09-04 21:58:11 btb Exp $ */
+/* $Id: 2dsline.c,v 1.7 2002-09-05 07:52:36 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -71,10 +71,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 #include "grdef.h"
+#include "error.h"
 
 #ifdef __MSDOS__
 #include "modex.h"
 #include "vesa.h"
+#endif
+
+#if defined(POLY_ACC)
+#include "poly_acc.h"
 #endif
 
 int Gr_scanline_darkening_level = GR_FADE_LEVELS;
@@ -167,42 +172,119 @@ void gr_linear_stosd( ubyte * dest, unsigned char color, unsigned int nbytes) {
 #endif
 #endif
 
+#if defined(POLY_ACC)
+//$$ Note that this code WAS a virtual clone of the mac code and any changes to mac should be reflected here.
+void gr_linear15_darken( short * dest, int darkening_level, int count, ubyte * fade_table )
+{
+    //$$ this routine is a prime candidate for using the alpha blender.
+    int i;
+    unsigned short rt[32], gt[32], bt[32];
+    unsigned long level, int_level, dlevel;
+
+    dlevel = (darkening_level << 16) / GR_FADE_LEVELS;
+    level = int_level = 0;
+    for(i = 0; i != 32; ++i)
+    {
+        rt[i] = int_level << 10;
+        gt[i] = int_level << 5;
+        bt[i] = int_level;
+
+        level += dlevel;
+        int_level = level >> 16;
+    }
+
+    pa_flush();
+    for (i=0; i<count; i++ )    {
+        if(*dest & 0x8000)
+	        *dest =
+   	         rt[((*dest >> 10) & 0x1f)] |
+      	      gt[((*dest >> 5) & 0x1f)] |
+         	   bt[((*dest >> 0) & 0x1f)] |
+            	0x8000;
+	        dest++;
+	}
+}
+
+void gr_linear15_stosd( short * dest, ubyte color, unsigned short count )
+{
+    //$$ this routine is a prime candidate for using the alpha blender.
+    short c = pa_clut[color];
+    pa_flush();
+    while(count--)
+        *dest++ = c;
+}
+#endif
+
 void gr_uscanline( int x1, int x2, int y )
 {
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS ) {
-#ifdef __MSDOS__
 		switch(TYPE)
 		{
 		case BM_LINEAR:
-#endif
 			gr_linear_stosd( DATA + ROWSIZE*y + x1, (unsigned char)COLOR, x2-x1+1);
-#ifdef __MSDOS__
 			break;
+#ifdef __MSDOS__
 		case BM_MODEX:
 			gr_modex_uscanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
 			break;
 		case BM_SVGA:
 			gr_vesa_scanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
 			break;
-		}
 #endif
+#if defined(POLY_ACC)
+		case BM_LINEAR15:
+			gr_linear15_stosd( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), COLOR, x2-x1+1);
+			break;
+#endif
+		default:
+			Error("Bad BM_TYPE!\n");
+			break;
+		}
 	} else {
-#ifdef __MSDOS__
 		switch(TYPE)
 		{
 		case BM_LINEAR:
-#endif
 			gr_linear_darken( DATA + ROWSIZE*y + x1, Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
-#ifdef __MSDOS__
 			break;
+#ifdef __MSDOS__
 		case BM_MODEX:
 			gr_modex_uscanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
 			break;
 		case BM_SVGA:
+#if 1
+			{
+				ubyte * vram = (ubyte *)0xA0000;
+				int VideoLocation,page,offset1, offset2;
+
+				VideoLocation = (ROWSIZE * y) + x1;
+				page    = VideoLocation >> 16;
+				offset1  = VideoLocation & 0xFFFF;
+				offset2   = offset1 + (x2-x1+1);
+
+				gr_vesa_setpage( page );
+				if ( offset2 <= 0xFFFF ) {
+					gr_linear_darken( &vram[offset1], Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
+				} else {
+					gr_linear_darken( &vram[offset1], Gr_scanline_darkening_level, 0xFFFF-offset1+1, gr_fade_table);
+					page++;
+					gr_vesa_setpage(page);
+					gr_linear_darken( vram, Gr_scanline_darkening_level, offset2 - 0xFFFF, gr_fade_table);
+				}
+			}
+#else
 			gr_vesa_scanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
+#endif
+			break;
+#endif
+#if defined(POLY_ACC)
+		case BM_LINEAR15:
+			gr_linear15_darken( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
+			break;
+#endif
+		default:
+			Error("Bad BM_TYPE!\n");
 			break;
 		}
-#endif
 	}
 }
 
@@ -219,38 +301,72 @@ void gr_scanline( int x1, int x2, int y )
 	if (x2 > MAXX) x2 = MAXX;
 
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS ) {
-#ifdef __MSDOS__
 		switch(TYPE)
 		{
 		case BM_LINEAR:
-#endif
 			gr_linear_stosd( DATA + ROWSIZE*y + x1, (unsigned char)COLOR, x2-x1+1);
-#ifdef __MSDOS__
 			break;
+#ifdef __MSDOS__
 		case BM_MODEX:
 			gr_modex_uscanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
 			break;
 		case BM_SVGA:
 			gr_vesa_scanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
 			break;
-		}
 #endif
+#if defined(POLY_ACC)
+		case BM_LINEAR15:
+			gr_linear15_stosd( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), COLOR, x2-x1+1);
+			break;
+#endif
+		default:
+			Error("Bad BM_TYPE!\n");
+			break;
+		}
 	} else {
-#ifdef __MSDOS__
 		switch(TYPE)
 		{
 		case BM_LINEAR:
-#endif
 			gr_linear_darken( DATA + ROWSIZE*y + x1, Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
-#ifdef __MSDOS__
 			break;
+#ifdef __MSDOS__
 		case BM_MODEX:
 			gr_modex_uscanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
 			break;
 		case BM_SVGA:
+#if 1
+			{
+				ubyte * vram = (ubyte *)0xA0000;
+				int VideoLocation,page,offset1, offset2;
+
+				VideoLocation = (ROWSIZE * y) + x1;
+				page    = VideoLocation >> 16;
+				offset1  = VideoLocation & 0xFFFF;
+				offset2   = offset1 + (x2-x1+1);
+
+				gr_vesa_setpage( page );
+				if ( offset2 <= 0xFFFF )	{
+					gr_linear_darken( &vram[offset1], Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
+				} else {
+					gr_linear_darken( &vram[offset1], Gr_scanline_darkening_level, 0xFFFF-offset1+1, gr_fade_table);
+					page++;
+					gr_vesa_setpage(page);
+					gr_linear_darken( vram, Gr_scanline_darkening_level, offset2 - 0xFFFF, gr_fade_table);
+				}
+			}
+#else
 			gr_vesa_scanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
+#endif
+			break;
+#endif
+#if defined(POLY_ACC)
+		case BM_LINEAR15:
+			gr_linear15_darken( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
+			break;
+#endif
+		default:
+			Error("Bad BM_TYPE!\n");
 			break;
 		}
-#endif
 	}
 }
