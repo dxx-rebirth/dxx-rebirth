@@ -1,5 +1,6 @@
 # -*- mode: shell-script -*-
 AC_INIT(main/inferno.c)
+AC_PREREQ(2.52)
 
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
