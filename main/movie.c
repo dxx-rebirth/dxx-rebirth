@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.27 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: movie.c,v 1.28 2003-06-19 05:40:20 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.27 2003-06-16 06:57:34 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.28 2003-06-19 05:40:20 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -102,13 +102,14 @@ int robot_movies = 0; //0 means none, 1 means lowres, 2 means hires
 
 int MovieHires = 1;   //default is highres
 
-int RoboFile = 0, RoboFilePos = 0;
+CFILE *RoboFile = NULL;
+int RoboFilePos = 0;
 
 // Function Prototypes
 int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int dy);
 
-int open_movie_file(char *filename,int must_have);
-int reset_movie_file(int handle);
+CFILE *open_movie_file(char *filename, int must_have);
+int reset_movie_file(CFILE *handle);
 
 void change_filename_ext( char *dest, char *src, char *ext );
 void decode_text_line(char *p);
@@ -132,7 +133,7 @@ void MPlayFree(void *p)
 unsigned int FileRead(void *handle, void *buf, unsigned int count)
 {
     unsigned numread;
-    numread = read((int)handle, buf, count);
+    numread = cfread(buf, 1, count, (CFILE *)handle);
     return (numread == count);
 }
 
@@ -299,7 +300,7 @@ void clear_pause_message()
 //returns status.  see movie.h
 int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 {
-	int filehndl;
+	CFILE *filehndl;
 	int result=1,aborted=0;
 	int track = 0;
 	int frame_num;
@@ -314,7 +315,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	filehndl = open_movie_file(filename,must_have);
 
-	if (filehndl == -1) {
+	if (filehndl == NULL)
+	{
 		if (must_have)
 			Warning("movie: RunMovie: Cannot open movie <%s>\n",filename);
 		return MOVIE_NOT_PLAYED;
@@ -387,7 +389,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
     MVE_rmEndMovie();
 
-	close(filehndl);                           // Close Movie File
+	cfclose(filehndl);                           // Close Movie File
 
 	// Restore old graphic state
 
@@ -446,7 +448,7 @@ int RotateRobot()
 void DeInitRobotMovie(void)
 {
 	MVE_rmEndMovie();
-	close(RoboFile);                           // Close Movie File
+	cfclose(RoboFile);                           // Close Movie File
 }
 
 
@@ -461,7 +463,8 @@ int InitRobotMovie(char *filename)
 
 	RoboFile = open_movie_file(filename, 1);
 
-	if (RoboFile == -1) {
+	if (RoboFile == NULL)
+	{
 		Warning("movie: InitRobotMovie: Cannot open movie file <%s>",filename);
 		return MOVIE_NOT_PLAYED;
 	}
@@ -473,7 +476,7 @@ int InitRobotMovie(char *filename)
 		return 0;
 	}
 
-	RoboFilePos=lseek (RoboFile,0L,SEEK_CUR);
+	RoboFilePos = cfseek(RoboFile, 0L, SEEK_CUR);
 
 	con_printf(DEBUG_LEVEL, "RoboFilePos=%d!\n", RoboFilePos);
 
@@ -931,17 +934,18 @@ void init_extra_robot_movie(char *filename)
 }
 
 
-int movie_handle,movie_start;
+CFILE *movie_handle;
+int movie_start;
 
 //looks through a movie library for a movie file
 //returns filehandle, with fileposition at movie, or -1 if can't find
-int search_movie_lib(movielib *lib,char *filename,int must_have)
+CFILE *search_movie_lib(movielib *lib, char *filename, int must_have)
 {
 	int i;
-	int filehandle;
+	CFILE *filehandle;
 
 	if (lib == NULL)
-		return -1;
+		return NULL;
 
 	for (i=0;i<lib->n_movies;i++)
 		if (!stricmp(filename,lib->movies[i].name)) {	//found the movie in a library 
@@ -954,49 +958,47 @@ int search_movie_lib(movielib *lib,char *filename,int must_have)
 
 			do {		//keep trying until we get the file handle
 
-#ifdef O_BINARY
-				movie_handle = filehandle = open(lib->name, O_RDONLY | O_BINARY);
-#else
-				movie_handle = filehandle = open(lib->name, O_RDONLY);
-#endif
+				movie_handle = filehandle = cfopen(lib->name, "rb");
 
-				if (must_have && from_cd && filehandle == -1) {		//didn't get file!
+				if (must_have && from_cd && filehandle == NULL)
+				{   //didn't get file!
 
 					if (request_cd() == -1)		//ESC from requester
 						break;						//bail from here. will get error later
 				}
 
-			} while (must_have && from_cd && filehandle == -1);
+			} while (must_have && from_cd && filehandle == NULL);
 
-			if (filehandle != -1)
-				lseek(filehandle,(movie_start=lib->movies[i].offset),SEEK_SET);
+			if (filehandle)
+				cfseek(filehandle, (movie_start = lib->movies[i].offset), SEEK_SET);
 
 			return filehandle;
 		}
 
-	return -1;
+	return NULL;
 }
 
 
 //returns file handle
-int open_movie_file(char *filename,int must_have)
+CFILE *open_movie_file(char *filename, int must_have)
 {
-	int filehandle,i;
+	CFILE *filehandle;
+	int i;
 
 	for (i=0;i<N_MOVIE_LIBS;i++) {
-		if ((filehandle = search_movie_lib(movie_libs[i],filename,must_have)) != -1)
+		if ((filehandle = search_movie_lib(movie_libs[i], filename, must_have)) != NULL)
 			return filehandle;
 	}
 
-	return -1;		//couldn't find it
+	return NULL;    //couldn't find it
 }
 
 //sets the file position to the start of this already-open file
-int reset_movie_file(int handle)
+int reset_movie_file(CFILE *handle)
 {
 	Assert(handle == movie_handle);
 
-	lseek(handle,movie_start,SEEK_SET);
+	cfseek(handle, movie_start, SEEK_SET);
 
 	return 0;       //everything is cool
 }
