@@ -17,25 +17,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 #include "fileutil.h"
 #include "fix.h"
 #include "byteswap.h"
 #include "error.h"
-
-int filelength(int fd)
-{
-	int cur_pos, end_pos;
-
-	cur_pos = lseek(fd, 0, SEEK_CUR);
-	lseek(fd, 0, SEEK_END);
-	end_pos = lseek(fd, 0, SEEK_CUR);
-	lseek(fd, cur_pos, SEEK_SET);
-	return end_pos;
-}
 
 byte file_read_byte(FILE *fp)
 {
