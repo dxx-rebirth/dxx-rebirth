@@ -897,7 +897,12 @@ void do_screen_res_menu()
 
 void do_screen_res_menu()
 {
-	#define N_SCREENRES_ITEMS 9
+#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
+#define N_SCREENRES_ITEMS 10
+	int fullscreenc;
+#else
+        #define N_SCREENRES_ITEMS 9
+#endif
 	newmenu_item m[N_SCREENRES_ITEMS];
 	int citem;
 	int i;
@@ -939,6 +944,12 @@ void do_screen_res_menu()
 	}
 #endif
 
+#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
+	m[n_items].type = NM_TYPE_CHECK; m[n_items].text = "Fullscreen";
+	m[n_items].value = gr_check_fullscreen();
+	fullscreenc=n_items++;
+#endif
+
 	citem = Current_display_mode+1;
 	
 #ifdef WINDOWS
@@ -954,6 +965,12 @@ void do_screen_res_menu()
 	m[citem].value = 1;
 
 	newmenu_do1( NULL, "Select screen mode", n_items, m, NULL, citem);
+
+#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
+	if (m[fullscreenc].value != gr_check_fullscreen()){
+	    gr_toggle_fullscreen();
+	}
+#endif
 
 	for (i=0;i<n_items;i++)
 		if (m[i].value)

@@ -462,6 +462,24 @@ extern void gr_merge_textures_3( ubyte * lower, ubyte * upper, ubyte * dest );
 
 extern void gr_update(void);
 
+/*
+ * currently SDL and OGL are the only things that supports toggling
+ * fullscreen.  otherwise add other checks to the #if -MPM
+ */
+#if (defined(SDL_VIDEO) || defined(OGL))
+#define GR_SUPPORTS_FULLSCREEN_TOGGLE
+
+/*
+ * must return 0 if windowed, 1 if fullscreen
+ */
+int gr_check_fullscreen(void);
+
+/*
+ * returns state after toggling (ie, same as if you had called
+ * check_fullscreen immediatly after)
+ */
+int gr_toggle_fullscreen(void);
+
 #endif
 
-
+#endif
