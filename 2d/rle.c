@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.6 2002-08-15 08:53:11 btb Exp $ */
+/* $Id: rle.c,v 1.7 2002-08-17 11:19:56 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.6 2002-08-15 08:53:11 btb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.7 2002-08-17 11:19:56 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -442,26 +442,46 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 	int y, d1, d;
 	int doffset;
 	ubyte *rle_data;
+	int large_rle = 0;
 
-	rle_data=d_malloc( (bmp->bm_w+1)* bmp->bm_h );
-	if (rle_data==NULL) return 0;
-	doffset = 4 + bmp->bm_h;
+	// first must check to see if this is large bitmap.
+
 	for (y=0; y<bmp->bm_h; y++ )	{
 		d1= gr_rle_getsize( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y] );
-		if ( ((doffset+d1) > bmp->bm_w*bmp->bm_h) || (d1 > 255 ) )	{
+		if (d1 > 255) {
+			large_rle = 1;
+			break;
+		}
+	}
+
+	rle_data=d_malloc( (bmp->bm_w+1) * bmp->bm_h );
+	if (rle_data==NULL) return 0;
+	if (!large_rle)
+		doffset = 4 + bmp->bm_h;
+	else
+		doffset = 4 + (2 * bmp->bm_h);		// each row of rle'd bitmap has short instead of byte offset now
+
+	for (y=0; y<bmp->bm_h; y++ )	{
+		d1= gr_rle_getsize( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y] );
+		if ( ((doffset+d1) > bmp->bm_w*bmp->bm_h) || (d1 > (large_rle?32767:255) ) ) {
 			d_free(rle_data);
 			return 0;
 		}
 		d = gr_rle_encode( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y], &rle_data[doffset] );
 		Assert( d==d1 );
 		doffset	+= d;
-		rle_data[y+4] = d;
+		if (large_rle)
+			*((short *)&(rle_data[(y*2)+4])) = (short)d;
+		else
+			rle_data[y+4] = d;
 	}
 	//mprintf( 0, "Bitmap of size %dx%d, (%d bytes) went down to %d bytes\n", bmp->bm_w, bmp->bm_h, bmp->bm_h*bmp->bm_w, doffset );
 	memcpy( 	rle_data, &doffset, 4 );
 	memcpy( 	bmp->bm_data, rle_data, doffset );
 	d_free(rle_data);
 	bmp->bm_flags |= BM_FLAG_RLE;
+	if (large_rle)
+		bmp->bm_flags |= BM_FLAG_RLE_BIG;
 	return 1;
 }
 

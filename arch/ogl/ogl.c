@@ -43,6 +43,7 @@
 #include "powerup.h"
 #include "polyobj.h"
 #include "gamefont.h"
+#include "byteswap.h"
 
 //change to 1 for lots of spew.
 #if 0
@@ -1375,7 +1376,8 @@ void tex_set_size(ogl_texture *tex){
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex){
+void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex)
+{
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,int dyo, int *texid,float *u,float *v,char domipmap,float prio){
 //	int internalformat=GL_RGBA;
 //	int format=GL_RGBA;
@@ -1432,8 +1434,11 @@ void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex){
 	glmprintf((0,"ogl_loadtexture(%p,%i,%i,%ix%i,%p):%i u=%f v=%f b=%i bu=%i (%i)\n",data,tex->tw,tex->th,dxo,dyo,tex,tex->handle,tex->u,tex->v,tex->bytes,tex->bytesu,r_texcount));
 
 }
+
 unsigned char decodebuf[512*512];
-void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap){
+
+void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap)
+{
 	unsigned char *buf;
 	while (bm->bm_parent)
 		bm=bm->bm_parent;
@@ -1457,24 +1462,36 @@ void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap){
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;
 		unsigned char * sbits;
-		int i;
-		sbits = &bm->bm_data[4 + bm->bm_h];
+		int i, data_offset;
+
+		data_offset = 1;
+		if (bm->bm_flags & BM_FLAG_RLE_BIG)
+			data_offset = 2;
+
+		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
 		dbits = decodebuf;
 
 		for (i=0; i < bm->bm_h; i++ )    {
 			gr_rle_decode(sbits,dbits);
-			sbits += (int)bm->bm_data[4+i];
+			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
+				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
+			else
+				sbits += (int)bm->bm_data[4+i];
 			dbits += bm->bm_w;
 		}
 		buf=decodebuf;
 	}
 	ogl_loadtexture(buf,0,0,bm->gltexture);
 }
-void ogl_loadbmtexture(grs_bitmap *bm){
+
+void ogl_loadbmtexture(grs_bitmap *bm)
+{
 	ogl_loadbmtexture_m(bm,1);
 }
-void ogl_freetexture(ogl_texture *gltexture){
-	if (gltexture->handle>0){
+
+void ogl_freetexture(ogl_texture *gltexture)
+{
+	if (gltexture->handle>0) {
 		r_texcount--;
 		glmprintf((0,"ogl_freetexture(%p):%i (last rend %is) (%i left)\n",gltexture,gltexture->handle,(GameTime-gltexture->lastrend)/f1_0,r_texcount));
 		glDeleteTextures( 1, &gltexture->handle );
