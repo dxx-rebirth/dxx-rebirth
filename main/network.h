@@ -1,4 +1,4 @@
-/* $Id: network.h,v 1.8 2002-08-30 01:01:18 btb Exp $ */
+/* $Id: network.h,v 1.9 2002-08-31 03:21:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -48,10 +48,10 @@ extern int Network_game_type;
 #endif
 
 typedef struct sequence_packet {
-	ubyte				type;
-	int 				Security;
+	ubyte           type;
+	int             Security;
 	ubyte pad1[3];
-	netplayer_info		player;
+	netplayer_info  player;
 } sequence_packet;
 
 #define NET_XDATA_SIZE 454
@@ -60,24 +60,24 @@ typedef struct sequence_packet {
 // frame info is aligned -- 01/18/96 -- MWA
 // if you change this structure -- be sure to keep
 // alignment:
-//		bytes on byte boundries
-//		shorts on even byte boundries
-//		ints on even byte boundries
+//      bytes on byte boundries
+//      shorts on even byte boundries
+//      ints on even byte boundries
 
 typedef struct frame_info {
-	ubyte				type;						// What type of packet
-	ubyte				pad[3];					// Pad out length of frame_info packet
-	int				numpackets;			
-	vms_vector		obj_pos;
-	vms_matrix		obj_orient;
-	vms_vector		phys_velocity;
-	vms_vector		phys_rotvel;
-	short				obj_segnum;
-	ushort			data_size;		// Size of data appended to the net packet
-	ubyte				playernum;
-	ubyte				obj_render_type;
-	ubyte				level_num;
-	ubyte				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
+	ubyte       type;                   // What type of packet
+	ubyte       pad[3];                 // Pad out length of frame_info packet
+	int         numpackets;
+	vms_vector  obj_pos;
+	vms_matrix  obj_orient;
+	vms_vector  phys_velocity;
+	vms_vector  phys_rotvel;
+	short       obj_segnum;
+	ushort      data_size;          // Size of data appended to the net packet
+	ubyte       playernum;
+	ubyte       obj_render_type;
+	ubyte       level_num;
+	ubyte       data[NET_XDATA_SIZE];   // extra data to be tacked on the end
 } __pack__ frame_info;
 
 // short_frame_info is not aligned -- 01/18/96 -- MWA
@@ -85,15 +85,15 @@ typedef struct frame_info {
 // to stay in current form.
 
 typedef struct short_frame_info {
-	ubyte				type;						// What type of packet
-	ubyte				pad[3];					// Pad out length of frame_info packet
-	int				numpackets;			
-	shortpos			thepos;
-	ushort			data_size;		// Size of data appended to the net packet
-	ubyte				playernum;
-	ubyte				obj_render_type;
-	ubyte				level_num;
-	ubyte				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
+	ubyte       type;                   // What type of packet
+	ubyte       pad[3];                 // Pad out length of frame_info packet
+	int         numpackets;
+	shortpos    thepos;
+	ushort      data_size;      // Size of data appended to the net packet
+	ubyte       playernum;
+	ubyte       obj_render_type;
+	ubyte       level_num;
+	ubyte       data[NET_XDATA_SIZE];   // extra data to be tacked on the end
 } __pack__ short_frame_info;
 
 void network_start_game();

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: netmisc.c,v 1.3 2001-10-25 02:15:57 bradleyb Exp $";
+static char rcsid[] = "$Id: netmisc.c,v 1.4 2002-08-31 03:21:41 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -26,7 +26,7 @@ static char rcsid[] = "$Id: netmisc.c,v 1.3 2001-10-25 02:15:57 bradleyb Exp $";
 #include "pstypes.h"
 #include "mono.h"
 
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 
 #include "byteswap.h"
 #include "segment.h"
@@ -239,7 +239,7 @@ void receive_sequence_packet(ubyte *data, sequence_packet *seq)
 void send_netgame_packet(ubyte *server, ubyte *node, ubyte *net_address, int lite_flag)		// lite says shorter netgame packets
 {
 	uint tmpi;
-	ushort tmps, p;
+	ushort tmps; // p;
 	int i, j;
 	int loc = 0;
 	
@@ -361,7 +361,7 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int lite_flag)
 {
 	int i, j;
 	int loc = 0;
-	short bitfield, new_field;
+	short bitfield; // new_field;
 	
 	memcpy(&(netgame->type), &(data[loc]), 1);						loc++;
 	memcpy(&(netgame->Security), &(data[loc]), 4);					loc += 4;

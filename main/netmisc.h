@@ -28,7 +28,7 @@ extern int netmisc_find_diff( void *block1, void *block2, int block_size, void *
 //Applies diff_buffer to block1 to create a new block1.  Returns the final size of block1.
 extern int netmisc_apply_diff(void *block1, void *diff_buffer, int diff_size );
 
-#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 
 // some mac only routines to deal with incorrectly aligned network structures
 
