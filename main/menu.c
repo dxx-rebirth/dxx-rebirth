@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.39 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: menu.c,v 1.40 2005-01-07 21:58:42 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -432,7 +432,9 @@ void do_option ( int select)
 				}
 			}
 			break;
-		case MENU_LOAD_LEVEL: {
+	case MENU_LOAD_LEVEL:
+		if (Current_mission || select_mission(0, "Load Level\n\nSelect mission"))
+		{
 			newmenu_item m;
 			char text[10]="";
 			int new_level_num;
@@ -447,9 +449,9 @@ void do_option ( int select)
 				gr_palette_fade_out( gr_palette, 32, 0 );
 				StartNewGame(new_level_num);
 			}
-
-			break;
 		}
+		break;
+
 #endif //ifndef RELEASE
 
 
