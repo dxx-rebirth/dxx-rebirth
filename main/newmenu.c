@@ -163,20 +163,16 @@ void nm_draw_background1(char * filename)
 	int pcx_error;
 	grs_bitmap *bmp;
 	ubyte pal[256*3];
+	int width, height;
 
 	//@@//I think this only gets called to fill the whole screen
 	//@@Assert(grd_curcanv->cv_bitmap.bm_w == 320);
 	//@@Assert(grd_curcanv->cv_bitmap.bm_h == 200);
 
-	{
-		PCXHeader ph;
-		CFILE * fp;
+	pcx_error = pcx_get_dimensions(filename, &width, &height);
+	Assert(pcx_error == PCX_ERROR_NONE);
 
-		fp = cfopen(filename, "rb");
-		PCXHeader_read(&ph, fp);
-		bmp = gr_create_bitmap(ph.Xmax - ph.Xmin + 1, ph.Ymax - ph.Ymin + 1);
-		cfclose(fp);
-	}
+	bmp = gr_create_bitmap(width, height);
 
 	pcx_error = pcx_read_bitmap(filename,bmp,bmp->bm_type,pal);
 	Assert(pcx_error == PCX_ERROR_NONE);
