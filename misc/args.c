@@ -1,4 +1,4 @@
-/* $Id: args.c,v 1.11 2004-05-19 21:20:09 btb Exp $ */
+/* $Id: args.c,v 1.12 2004-05-19 22:28:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -57,7 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.11 2004-05-19 21:20:09 btb Exp $";
+static char rcsid[] = "$Id: args.c,v 1.12 2004-05-19 22:28:08 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -90,7 +90,7 @@ int FindResArg(char *prefix, int *sw, int *sh)
 	int prefixlen = strlen(prefix);
 
 	for (i = 0; i < Num_args; ++i)
-		if (Args[i][0] == '-' && !strncasecmp(Args[i] + 1, prefix, prefixlen))
+		if (Args[i][0] == '-' && !strnicmp(Args[i] + 1, prefix, prefixlen))
 		{
 			w = strtol(Args[i] + 1 + prefixlen, &endptr, 10);
 			if (w > 0 && endptr && endptr[0] == 'x')
