@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.29 2004-05-22 09:15:12 btb Exp $ */
+/* $Id: font.c,v 1.30 2004-08-01 13:01:39 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(macintosh)
 #include <fcntl.h>
 #include <unistd.h>
 #endif

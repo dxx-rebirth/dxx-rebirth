@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.26 2004-05-21 00:33:03 btb Exp $ */
+/* $Id: newmenu.c,v 1.27 2004-08-01 13:01:39 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -573,7 +573,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
 #endif
 #include <limits.h>

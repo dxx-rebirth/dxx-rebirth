@@ -6,7 +6,7 @@
 #ifndef _WIN32_WCE
 #ifdef _WIN32
 #include <io.h>
-#else
+#elif !defined(macintosh)
 #include <unistd.h>
 #endif
 #endif

@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.34 2004-05-15 16:25:35 schaffner Exp $ */
+/* $Id: gameseq.c,v 1.35 2004-08-01 13:01:39 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -292,7 +292,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.34 2004-05-15 16:25:35 schaffner Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.35 2004-08-01 13:01:39 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -303,7 +303,7 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.34 2004-05-15 16:25:35 schaffner Exp 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
 #endif
 #include <time.h>

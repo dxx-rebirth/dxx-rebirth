@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.33 2004-05-31 08:33:41 btb Exp $ */
+/* $Id: ogl.c,v 1.34 2004-08-01 13:01:39 schaffner Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -62,7 +62,7 @@
 #define M_PI 3.14159
 #endif
 
-#if defined(_WIN32) || (defined(__APPLE__) && defined(__MACH__)) || defined(__sun__)
+#if defined(_WIN32) || (defined(__APPLE__) && defined(__MACH__)) || defined(__sun__) || defined(macintosh)
 #define cosf(a) cos(a)
 #define sinf(a) sin(a)
 #endif

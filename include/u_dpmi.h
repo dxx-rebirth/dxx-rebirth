@@ -1,4 +1,4 @@
-/* $Id: u_dpmi.h,v 1.2 2003-11-26 12:26:28 btb Exp $ */
+/* $Id: u_dpmi.h,v 1.3 2004-08-01 13:01:39 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -110,7 +110,7 @@ extern int dpmi_modify_selector_base( ushort selector, void * address );
 extern int dpmi_modify_selector_limit( ushort selector, int size  );
 
 
-#if defined(__GNUC__) || defined(_MSC_VER)
+#if defined(__GNUC__) || defined(_MSC_VER) || defined(macintosh)
 # define _far
 #else
 # define _far far

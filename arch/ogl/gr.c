@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.31 2004-05-22 23:06:58 btb Exp $ */
+/* $Id: gr.c,v 1.32 2004-08-01 13:01:39 schaffner Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -17,17 +17,15 @@
 #include <windows.h>
 #endif
 
-#if defined(__APPLE__) && defined(__MACH__)
-//#include <OpenGL/gl.h>
-#else
-//#include <GL/gl.h>
-#endif
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
 #endif
+#if !defined(macintosh)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#endif
+
 #include <errno.h>
 
 #include "hudmsg.h"

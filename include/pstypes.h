@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.29 2004-06-01 06:09:39 btb Exp $ */
+/* $Id: pstypes.h,v 1.30 2004-08-01 13:01:39 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -37,22 +37,26 @@ typedef signed char sbyte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(macintosh)
 typedef unsigned short ushort;
 typedef unsigned int uint;
 #endif
 
-#if defined(_WIN32) || defined(__sun__) // platforms missing u_int??_t
-#include <SDL_types.h>
-#ifdef _WIN32 // platforms missing int??_t
-typedef Sint16 int16_t;
-typedef Sint32 int32_t;
-typedef Sint64 int64_t;
-#endif // !defined(__unix__)
-typedef Uint16 u_int16_t;
-typedef Uint32 u_int32_t;
-typedef Uint64 u_int64_t;
-#endif // defined(_WIN32) || defined(__sun__)
+#if defined(_WIN32) || defined(__sun__)
+# include <SDL_types.h>
+#elif defined(macintosh)
+# include <MacTypes.h>
+#endif
+#if defined(_WIN32) || defined(macintosh) // platforms missing int??_t
+ typedef Sint16 int16_t;
+ typedef Sint32 int32_t;
+ typedef Sint64 int64_t;
+#endif // defined(_WIN32) || defined(macintosh)
+#if defined(_WIN32) || defined(macintosh) || defined(__sun__) // platforms missing u_int??_t
+ typedef Uint16 u_int16_t;
+ typedef Uint32 u_int32_t;
+ typedef Uint64 u_int64_t;
+#endif // defined(_WIN32) || defined(macintosh) || defined(__sun__)
 
 #ifdef _MSC_VER
 # include <stdlib.h> // this is where min and max are defined
@@ -79,6 +83,10 @@ typedef Uint64 u_int64_t;
 # include <sys/types.h>
 # define _MAX_PATH 255
 # define _MAX_DIR 63
+#elif defined(macintosh)
+# define _MAX_PATH 255
+# define _MAX_DIR 63
+# define PATH_MAX _MAX_PATH
 #endif
 
 #ifndef __cplusplus
@@ -97,6 +105,9 @@ typedef ubyte bool;
 #elif defined(_MSC_VER)
 # pragma pack(push, packing)
 # pragma pack(1)
+# define __pack__
+#elif defined(macintosh)
+# pragma options align=packed
 # define __pack__
 #else
 # error d2x will not work without packed structures

@@ -1,4 +1,4 @@
-/* $Id: cntrlcen.c,v 1.14 2003-11-26 12:26:29 btb Exp $ */
+/* $Id: cntrlcen.c,v 1.15 2004-08-01 13:01:39 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -109,7 +109,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.14 2003-11-26 12:26:29 btb Exp $";
+static char rcsid[] = "$Id: cntrlcen.c,v 1.15 2004-08-01 13:01:39 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -118,7 +118,7 @@ static char rcsid[] = "$Id: cntrlcen.c,v 1.14 2003-11-26 12:26:29 btb Exp $";
 
 #include <stdlib.h>
 #include <stdio.h>
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(macintosh)
 #include <unistd.h>
 #endif
 

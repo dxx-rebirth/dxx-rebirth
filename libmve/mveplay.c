@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.18 2004-05-31 08:33:41 btb Exp $ */
+/* $Id: mveplay.c,v 1.19 2004-08-01 13:01:39 schaffner Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -9,17 +9,22 @@
 //#define DEBUG
 
 #include <string.h>
-#ifndef _WIN32
-#include <errno.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#else
+#ifdef _WIN32
 # include <windows.h>
-#endif
+#else
+# include <errno.h>
+# include <time.h>
+# include <fcntl.h>
+# ifdef macintosh
+#  include <types.h>
+#  include <OSUtils.h>
+# else
+#  include <sys/time.h>
+#  include <sys/types.h>
+#  include <sys/stat.h>
+#  include <unistd.h>
+# endif // macintosh
+#endif // _WIN32
 
 #if defined(AUDIO)
 #include <SDL.h>
@@ -102,7 +107,7 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
  * timer handlers
  *************************/
 
-#ifdef _WIN32_WCE
+#if defined(HAVE_STRUCT_TIMEVAL) && !HAVE_STRUCT_TIMEVAL // ifdef _WIN32_WCE
 struct timeval
 {
 	long tv_sec;
@@ -126,27 +131,29 @@ struct timespec
 };
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(macintosh)
 int gettimeofday(struct timeval *tv, void *tz)
 {
 	static int counter = 0;
-	DWORD now;
-
+#ifdef _WIN32
+	DWORD now = GetTickCount();
+#else
+	long now = TickCount();
+#endif
 	counter++;
-	now = GetTickCount();
 
 	tv->tv_sec = now / 1000;
 	tv->tv_usec = (now % 1000) * 1000 + counter;
 
 	return 0;
 }
-#endif
+#endif //  defined(_WIN32) || defined(macintosh)
 
 
 static int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
 
-#ifndef _WIN32 //FIXME
+#if !defined(_WIN32) && !defined(macintosh) // FIXME
 	__extension__ long long temp;
 #else
 	long temp;
@@ -213,6 +220,8 @@ static void do_timer_wait(void)
 	}
 #ifdef _WIN32
 	Sleep(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
+#elif defined(macintosh)
+	Delay(ts.tv_sec * 1000 + ts.tv_nsec / 1000000, NULL);
 #else
 	if (nanosleep(&ts, NULL) == -1  &&  errno == EINTR)
 		exit(1);
