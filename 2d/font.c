@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.34 2004-12-07 22:26:01 btb Exp $ */
+/* $Id: font.c,v 1.35 2004-12-17 13:42:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1044,7 +1044,7 @@ grs_bitmap char_bm = {
 int gr_internal_color_string(int x, int y, char *s )
 {
 	unsigned char * fp;
-	ubyte * text_ptr, * next_row, * text_ptr1;
+	char *text_ptr, *next_row, *text_ptr1;
 	int width, spacing,letter;
 	int xx,yy;
 

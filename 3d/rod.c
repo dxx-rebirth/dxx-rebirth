@@ -1,4 +1,4 @@
-/* $Id: rod.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: rod.c,v 1.6 2004-12-17 13:42:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rod.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: rod.c,v 1.6 2004-12-17 13:42:11 btb Exp $";
 #endif
 
 #include "3d.h"
@@ -193,7 +193,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 	blob_vertices[1].x = blob_vertices[2].x = pnt.p3_sx + w;
 	blob_vertices[2].y = pnt.p3_sy + h;
 
-	scale_bitmap(bm,blob_vertices);
+	scale_bitmap(bm, blob_vertices, 0);
 
 	return 0;
 #endif

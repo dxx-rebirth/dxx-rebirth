@@ -8,6 +8,8 @@
 	* main/gameseq.c, main/inferno.c: force gr_update() so screens
 	always show in OpenGL
 
+	* 2d/font.c, 3d/rod.c: fix compiler errors in MPW w/o OpenGL
+
 2004-12-07  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* 2d/font.c: Initialise the dataptr member correctly.
