@@ -1,5 +1,7 @@
 2003-10-02  Bradley Bell  <btb@icculus.org>
 
+	* arch/dos/bak/ipx.c, arch/dos/ipx.c: comments/whitespace
+
 	* main/netmisc.c: delete duplicate function
 
 2003-10-01  Bradley Bell  <btb@icculus.org>
