@@ -1,4 +1,4 @@
-/* $Id: grdef.h,v 1.7 2002-09-04 23:30:56 btb Exp $ */
+/* $Id: grdef.h,v 1.8 2002-09-05 01:30:00 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -79,86 +79,6 @@ extern unsigned int gr_var_bwidth;
 extern unsigned char * gr_var_bitmap;
 
 void gr_linear_movsd( ubyte * source, ubyte * dest, unsigned int nbytes);
-
-#ifndef NO_ASM
-// This code aligns edi so that the destination is aligned to a dword boundry before rep movsd
-
-#ifdef __WATCOMC__
-
-#pragma aux gr_linear_movsd parm [esi] [edi] [ecx] modify exact [ecx esi edi eax ebx] = \
-" cld "					\
-" mov		ebx, ecx	"	\
-" mov		eax, edi"	\
-" and		eax, 011b"	\
-" jz		d_aligned"	\
-" mov		ecx, 4"		\
-" sub		ecx, eax"	\
-" sub		ebx, ecx"	\
-" rep		movsb"		\
-" d_aligned: "			\
-" mov		ecx, ebx"	\
-" shr		ecx, 2"		\
-" rep 	movsd"		\
-" mov		ecx, ebx"	\
-" and 	ecx, 11b"	\
-" rep 	movsb";
-
-#elif defined __GNUC__
-
-inline void gr_linear_movsd(ubyte *src, ubyte *dest, unsigned int num_pixels) {
-	int dummy[3];
- __asm__ __volatile__ (
-" cld;"
-" movl      %%ecx, %%ebx;"
-" movl      %%edi, %%eax;"
-" andl      $3, %%eax;"
-" jz        0f;"
-" movl      $4, %%ecx;"
-" subl      %%eax,%%ecx;"
-" subl      %%ecx,%%ebx;"
-" rep;      movsb;"
-"0: ;"
-" movl      %%ebx, %%ecx;"
-" shrl      $2, %%ecx;"
-" rep;      movsl;"
-" movl      %%ebx, %%ecx;"
-" andl      $3, %%ecx;"
-" rep;      movsb"
- : "=S" (dummy[0]), "=D" (dummy[1]), "=c" (dummy[2])
- : "0" (src), "1" (dest), "2" (num_pixels)
- :	"%eax", "%ebx");
-}
-
-#elif defined _MSC_VER
-
-__inline void gr_linear_movsd(ubyte *src, ubyte *dest, unsigned int num_pixels)
-{
- __asm {
-   mov esi, [src]
-   mov edi, [dest]
-   mov ecx, [num_pixels]
-   cld
-   mov ebx, ecx
-   mov eax, edi
-   and eax, 011b
-   jz d_aligned
-   mov ecx, 4
-   sub ecx, eax
-   sub ebx, ecx
-   rep movsb
-d_aligned:
-   mov ecx, ebx
-   shr ecx, 2
-   rep movsd
-   mov ecx, ebx
-   and ecx, 11b
-   rep movsb
- }
-}
-
-#endif
-
-#endif 		// ifdef NO_ASM
 
 void gr_linear_line( int x0, int y0, int x1, int y1);
 
