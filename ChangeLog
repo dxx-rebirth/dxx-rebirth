@@ -1,3 +1,8 @@
+2005-01-23  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* main/collide: fix bug #2140, even ifndef NETWORK do last level hack
+	only on last level of built-in mission.
+
 2005-01-10  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/bmread.c, main/dumpmine.c, main/gameseq.c, main/piggy.c:
