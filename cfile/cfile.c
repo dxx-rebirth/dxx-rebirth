@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.28 2004-08-29 17:39:33 schaffner Exp $ */
+/* $Id: cfile.c,v 1.29 2004-08-29 17:57:23 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -532,7 +532,6 @@ int cfputs(char *str, CFILE *cfile)
 
 char * cfgets( char * buf, size_t n, CFILE * fp )
 {
-	char * t = buf;
 	int i;
 	int c;
 
@@ -568,11 +567,11 @@ char * cfgets( char * buf, size_t n, CFILE * fp )
 		} while ( c == 13 );
  		if ( c == 13 )  // because cr-lf is a bad thing on the mac
  			c = '\n';   // and anyway -- 0xod is CR on mac, not 0x0a
-		*buf++ = c;
 		if ( c=='\n' ) break;
+		*buf++ = c;
 	}
 	*buf++ = 0;
-	return  t;
+	return  buf;
 }
 
 size_t cfread( void * buf, size_t elsize, size_t nelem, CFILE * fp ) 

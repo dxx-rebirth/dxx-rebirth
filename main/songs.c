@@ -1,4 +1,4 @@
-/* $Id: songs.c,v 1.13 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: songs.c,v 1.14 2004-08-29 17:57:23 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -102,8 +102,6 @@ void songs_init()
 		i = 0;
 		while (cfgets(inputline, 80, fp ))
 		{
-			char *p = strchr(inputline,'\n');
-			if (p) *p = '\0';
 			if ( strlen( inputline ) )
 			{
 				Assert( i < MAX_NUM_SONGS );

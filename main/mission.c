@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.25 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: mission.c,v 1.26 2004-08-29 17:57:23 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -227,18 +227,6 @@ int load_mission_oem(int mission_num)
 }
 
 
-//strips damn newline from end of line
-char *mfgets(char *s,int n,CFILE *f)
-{
-	char *r;
-
-	r = cfgets(s,n,f);
-	if (r && s[strlen(s)-1] == '\n')
-		s[strlen(s)-1] = 0;
-
-	return r;
-}
-
 //compare a string for a token. returns true if match
 int istok(char *buf,char *tok)
 {
@@ -277,7 +265,7 @@ char *get_parm_value(char *parm,CFILE *f)
 {
 	static char buf[80];
 
-	if (!mfgets(buf,80,f))
+	if (!cfgets(buf,80,f))
 		return NULL;
 
 	if (istok(buf,parm))
@@ -675,7 +663,7 @@ int load_mission(int mission_num)
 	Briefing_text_filename[0] = 0;
 	Ending_text_filename[0] = 0;
 
-	while (mfgets(buf,80,mfile)) {
+	while (cfgets(buf,80,mfile)) {
 
 		if (istok(buf,"name"))
 			continue;						//already have name, go to next line
@@ -723,7 +711,7 @@ int load_mission(int mission_num)
 
 				n_levels = atoi(v);
 
-				for (i=0;i<n_levels && mfgets(buf,80,mfile);i++) {
+				for (i=0;i<n_levels && cfgets(buf,80,mfile);i++) {
 
 					add_term(buf);
 					if (strlen(buf) <= 12) {
@@ -744,7 +732,7 @@ int load_mission(int mission_num)
 
 				Assert(N_secret_levels <= MAX_SECRET_LEVELS_PER_MISSION);
 
-				for (i=0;i<N_secret_levels && mfgets(buf,80,mfile);i++) {
+				for (i=0;i<N_secret_levels && cfgets(buf,80,mfile);i++) {
 					char *t;
 
 					

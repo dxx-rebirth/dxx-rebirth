@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.24 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: gamesave.c,v 1.25 2004-08-29 17:57:23 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.24 2004-08-28 23:17:45 schaffner Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.25 2004-08-29 17:57:23 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -879,13 +879,9 @@ int load_game_data(CFILE *LoadFile)
 		num_delta_lights = 0;
 	}
 
-	if (game_top_fileinfo_version >= 31) { //load mine filename
+	if (game_top_fileinfo_version >= 31) //load mine filename
 		// read newline-terminated string, not sure what version this changed.
 		cfgets(Current_level_name,sizeof(Current_level_name),LoadFile);
-
-		if (Current_level_name[strlen(Current_level_name)-1] == '\n')
-			Current_level_name[strlen(Current_level_name)-1] = 0;
-	}
 	else if (game_top_fileinfo_version >= 14) { //load mine filename
 		// read null-terminated string
 		char *p=Current_level_name;
@@ -1383,11 +1379,8 @@ int load_level(char * filename_passed)
 	if (Gamesave_current_version < 5)
 		cfile_read_int(LoadFile);       //was hostagetext_offset
 
-	if (Gamesave_current_version > 1) {
+	if (Gamesave_current_version > 1)
 		cfgets(Current_level_palette,sizeof(Current_level_palette),LoadFile);
-		if (Current_level_palette[strlen(Current_level_palette)-1] == '\n')
-			Current_level_palette[strlen(Current_level_palette)-1] = 0;
-	}
 	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
 		strcpy(Current_level_palette, DEFAULT_LEVEL_PALETTE);
 

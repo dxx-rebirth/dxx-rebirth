@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.88 2004-08-28 23:37:35 schaffner Exp $ */
+/* $Id: inferno.c,v 1.89 2004-08-29 17:57:23 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -193,9 +193,12 @@ void print_commandline_help()
 
 	if (ifile)
 	{
+        char *end;
+        
+		while (end = cfgets(line,LINE_LEN,ifile)) {
 
-		while (cfgets(line,LINE_LEN,ifile)) {
-
+            // This is the only use of cfgets that needs the CR
+            *end++ = '\n';
 			if (have_binary) {
 				int i;
 				for (i = 0; i < strlen(line) - 1; i++) {

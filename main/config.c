@@ -1,4 +1,4 @@
-/* $Id: config.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: config.c,v 1.12 2004-08-29 17:57:23 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -56,7 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: config.c,v 1.12 2004-08-29 17:57:23 schaffner Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -249,8 +249,6 @@ int ReadConfigFile()
 		if (*ptr != '\0') {
 			token = strtok(ptr, "=");
 			value = strtok(NULL, "=");
-			if (value[strlen(value)-1] == '\n')
-				value[strlen(value)-1] = 0;
 /*			if (!strcmp(token, digi_dev8_str))
 				digi_driver_board = strtol(value, NULL, 16);
 			else if (!strcmp(token, digi_dev16_str))
@@ -422,8 +420,6 @@ int ReadConfigFile()
 			if (*ptr != '\0') {
 				token = strtok(ptr, "=");
 				value = strtok(NULL, "=");
-				if (value[strlen(value)-1] == '\n')
-					value[strlen(value)-1] = 0;
 				if (!strcmp(token, joystick_min_str))	{
 					sscanf( value, "%d,%d,%d,%d,%d,%d,%d", &joy_axis_min[0], &joy_axis_min[1], &joy_axis_min[2], &joy_axis_min[3], &joy_axis_min[4], &joy_axis_min[5], &joy_axis_min[6] );
 				}
@@ -588,7 +584,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: config.c,v 1.12 2004-08-29 17:57:23 schaffner Exp $";
 #endif
 
 #define MAX_CTB_LEN	512

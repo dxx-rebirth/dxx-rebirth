@@ -1,4 +1,4 @@
-/* $Id: endlevel.c,v 1.21 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: endlevel.c,v 1.22 2004-08-29 17:57:23 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.21 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.22 2004-08-29 17:57:23 schaffner Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -1516,7 +1516,7 @@ try_again:
 	while (cfgets(line,LINE_LEN,ifile)) {
 
 		if (have_binary) {
-			for (i = 0; i < strlen(line) - 1; i++) {
+			for (i = 0; i < strlen(line); i++) {
 				encode_rotate_left(&(line[i]));
 				line[i] = line[i] ^ BITMAP_TBL_XOR;
 				encode_rotate_left(&(line[i]));
@@ -1527,7 +1527,7 @@ try_again:
 		if ((p=strchr(line,';'))!=NULL)
 			*p = 0;		//cut off comment
 
-		for (p=line+strlen(line)-1;p>line && isspace(*p);*p--=0);
+		for (p=line+strlen(line);p>line && isspace(*p);*p--=0);
 		for (p=line;isspace(*p);p++);
 
 		if (!*p)		//empty line

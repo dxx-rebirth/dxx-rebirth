@@ -2,6 +2,11 @@
 
 	* cfile/cfile.c: change macify_dospath to macify_posix_path for carbon
 
+	* cfile/cfile.c, main/config.c, main/credits.c, main/endlevel.c,
+	main/gamesave.c, main/inferno.c, main/mission.c, main/songs.c:
+	cfgets now always copies the terminating character to the dest buffer.
+	This fixes a bug that occured when reading cmd line args from d2x.ini
+
 2004-08-29  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* ChangeLog-old, main/editor/med.c, main/editor/segment.c:
