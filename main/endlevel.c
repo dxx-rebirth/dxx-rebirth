@@ -1,3 +1,4 @@
+/* $ Id: $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.5 2001-11-09 06:54:23 bradleyb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.6 2002-07-23 21:24:11 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -226,7 +227,7 @@ int start_endlevel_movie()
 
 	memcpy(save_pal,gr_palette,768);
 
-	#if !defined(SHAREWARE) && !defined (NMOVIES)
+	#ifndef SHAREWARE
 		r=PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
 	#else
 		return	0;	// movie not played for shareware
@@ -352,7 +353,7 @@ void start_endlevel_sequence()
 		if (!(Game_mode & GM_MULTI))
 			movie_played = start_endlevel_movie();
 		
-		#if defined(SHAREWARE) || defined(NMOVIES)
+		#ifdef SHAREWARE
 		if (movie_played == MOVIE_NOT_PLAYED) {		//don't have movie.  Do rendered sequence
 		#ifndef WINDOWS
 			start_rendered_endlevel_sequence();
@@ -368,7 +369,7 @@ void start_endlevel_sequence()
 	PlayerFinishedLevel(0);		//done with level
 }
 
-#if !defined(SHAREWARE) && !defined(NMOVIES)
+#ifndef SHAREWARE
 
 void do_endlevel_frame() {Int3();}
 void stop_endlevel_sequence() {Int3();}
@@ -572,7 +573,7 @@ void get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
 
 void do_endlevel_frame()
 {
-	#if defined(SHAREWARE) || defined(NMOVIES)
+	#ifdef SHAREWARE
 	static fix timer;
 	static fix bank_rate;
 	#endif
@@ -713,7 +714,7 @@ void do_endlevel_frame()
 
 			if (ConsoleObject->segnum == transition_segnum) {
 
-				#if !defined(SHAREWARE) && !defined(NMOVIES)
+				#ifndef SHAREWARE
 					start_endlevel_movie();
 					stop_endlevel_sequence();
 				#else
@@ -754,7 +755,7 @@ void do_endlevel_frame()
 		}
 
 
-#if defined(SHAREWARE) || defined(NMOVIES)
+#ifdef SHAREWARE
 		case EL_LOOKBACK: {
 
 			do_endlevel_flythrough(0);

@@ -1,3 +1,4 @@
+/* $ Id: $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,8 +12,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
-
 #ifndef _OUTSIDE_H
 #define _OUTSIDE_H
 
@@ -24,7 +23,7 @@ void stop_endlevel_sequence();
 void start_endlevel_sequence();
 void render_endlevel_frame(fix eye_offset);
 
-#if defined(SHAREWARE) || defined(NMOVIES)
+#ifdef SHAREWARE
 
 void render_external_scene();
 void draw_exit_model();

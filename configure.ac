@@ -94,15 +94,6 @@ if test x$enable_shareware = xyes; then
 fi
 AM_CONDITIONAL(SHAREWARE, test x$enable_shareware = xyes)
 
-dnl Enable NMOVIES?
-AC_ARG_ENABLE(nmovies,
-  [  --enable-nmovies        Turn off movies (render extra sequences) (experimental)],,)
-if test x$enable_nmovies = xyes; then
-    AC_DEFINE(NMOVIES,,[Define to render some extra sequences (instead of movies)])
-    D2X_FEATURES="nmovies ${D2X_FEATURES}"
-fi
-AM_CONDITIONAL(NMOVIES, test x$enable_nmovies = xyes)
-
 dnl Build with NDEBUG?
 AC_ARG_ENABLE(debug,
   [  --disable-debug         Take out debug symbols, Asserts, Int3, etc ],,)

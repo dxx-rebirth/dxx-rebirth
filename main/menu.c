@@ -1,3 +1,4 @@
+/* $ Id: $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,16 +13,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/menu.c,v $
- * $Revision: 1.8 $
- * $Author: bradleyb $
- * $Date: 2002-07-16 08:14:35 $
  *
  * Inferno main menu.
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.7  2002/02/13 10:39:21  bradleyb
- * Lotsa networking stuff from d1x
  *
  *
  */
@@ -238,7 +231,7 @@ try_again:;
 
 			if ((d_rand() % (n_demos+1)) == 0)
 			{
-				#if !defined(SHAREWARE) && !defined(NMOVIES)
+				#ifndef SHAREWARE
 					#ifdef WINDOWS
 					mouse_set_mode(1);				//re-enable centering mode
 					HideCursorW();
