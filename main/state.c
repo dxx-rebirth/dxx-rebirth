@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.19 2004-12-17 13:17:46 btb Exp $ */
+/* $Id: state.c,v 1.20 2005-01-07 22:34:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -438,7 +438,7 @@ int copy_file(char *old_file, char *new_file)
 
 		Assert(bytes_read == CF_BUF_SIZE || PHYSFS_eof(in_file));
 
-		if (PHYSFS_write(out_file, buf, 1, bytes_read) < bytes_read);
+		if (PHYSFS_write(out_file, buf, 1, bytes_read) < bytes_read)
 			Error("Cannot write to file <%s>: %s", new_file, PHYSFS_getLastError());
 	}
 
@@ -545,15 +545,15 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 			if (PHYSFS_exists(temp_fname))
 			{
 				mprintf((0, "Deleting file %s\n", temp_fname));
-				rval = PHYSFS_delete(temp_fname);
-				Assert(rval == 0);	//	Oops, error deleting file in temp_fname.
+				if (!PHYSFS_delete(temp_fname))
+					Error("Cannot delete file <%s>: %s", temp_fname, PHYSFS_getLastError());
 			}
 
 			if (PHYSFS_exists(SECRETC_FILENAME))
 			{
 				mprintf((0, "Copying secret.sgc to %s.\n", temp_fname));
 				rval = copy_file(SECRETC_FILENAME, temp_fname);
-				Assert(rval == 0);	//	Oops, error copying temp_fname to secret.sgc!
+				Assert(rval == 0);	//	Oops, error copying secret.sgc to temp_fname!
 			}
 		}
 	}

@@ -1,3 +1,7 @@
+2005-01-07  Alexander Zielke  <vulture@vultures-nest.de>
+
+	* main/state.c: fix problems with copying/deleting save files
+
 2005-01-07  Bradley Bell  <btb@icculus.org>
 
 	* main/menu.c: In Load Level, if there is no current mission,
