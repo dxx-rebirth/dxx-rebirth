@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/arch/include/key.h,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-28 05:46:33 $
+ * $Date: 2001-01-28 16:21:54 $
  *
  * Header for keyboard functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/01/28 05:46:33  bradleyb
+ * Unified arch headers
+ *
  */
 
 #ifndef _KEY_H
@@ -27,9 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "pstypes.h"
 #include "fix.h"
-
-//to be called from arch-specific key event handlers.
-void generic_key_handler(int event_key,int key_state);
 
 //==========================================================================
 // This installs the int9 vector and initializes the keyboard in buffered
@@ -43,7 +43,6 @@ extern void key_close();
 // set it to 1 and it will buffer scancodes.
 extern unsigned char keyd_buffer_type;
 extern unsigned char keyd_repeat;     // 1=allow repeating, 0=dont allow repeat
-extern unsigned char keyd_fake_repeat; //0=arch generates own repeats 1=do it ourselves -MPM
 
 // keyd_editor_mode... 0=game mode, 1=editor mode.
 // Editor mode makes key_down_time always return 0 if modifiers are down.

@@ -1,6 +1,6 @@
 SUBDIRS = editor old
 
-INCLUDES = -I$(top_srcdir)/includes -fwritable-strings
+INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/arch/include -fwritable-strings
 
 bin_PROGRAMS = d2x
 

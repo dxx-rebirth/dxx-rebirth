@@ -1,7 +1,7 @@
-SUBDIRS = dos linux ogl sdl win32
+SUBDIRS = include dos linux ogl sdl win32
 
 noinst_LIBRARIES = libarch.a
-INCLUDES = -I $(top_srcdir)/includes -I $(top_srcdir)/main
+INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(top_srcdir)/arch/include
 
 libarch_a_SOURCES = \
 dos_init.c dos_vesa.c dos_findfile.c dos_dpmi.c dos_ipx.c \

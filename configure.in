@@ -66,12 +66,12 @@ else
       OGL_LIBS="-lGL", 
       [AC_MSG_ERROR([GL not found, OpenGL cannot be built])
        opengl=false],
-       -L/usr/X11R6/lib -lX11 -lXext -lm)
+       )
     AC_CHECK_LIB(GLU,main,
       OGL_LIBS="${OGL_LIBS} -lGLU",
       [AC_MSG_ERROR([GLU not found, OpenGL cannot be built])
        opengl=false],
-       -lGL -L/usr/X11R6/lib -lX11 -lXext -lm)
+       -lGL)
   fi
   AC_SUBST(OGL_LIBS)
   AM_CONDITIONAL(USE_OPENGL, test x$opengl = xtrue)
@@ -122,17 +122,12 @@ else
 
   if test x$opengl = xtrue; then
     AC_DEFINE(OGL)
-    CFLAGS="-I \$(top_srcdir)/input/ggi/include $CFLAGS"
   else
     if test x$svga = xtrue; then
       AC_DEFINE(SVGA)
-      CFLAGS="-I \$(top_srcdir)/input/svgalib/include $CFLAGS"
     else
       if test x$ggi = xtrue; then
         AC_DEFINE(GGI)
-        CFLAGS="-I \$(top_srcdir)/input/ggi/include $CFLAGS"
-      else
-        CFLAGS="-I \$(top_srcdir)/input/sdl/include $CFLAGS"
       fi
     fi
   fi
@@ -202,6 +197,7 @@ arch/dos/comm/include/Makefile
 arch/dos/include/Makefile
 arch/dos/mm_snd/Makefile
 arch/dos/mm_snd/include/Makefile
+arch/include/Makefile
 arch/ogl/Makefile
 arch/ogl/include/Makefile
 arch/linux/Makefile
@@ -217,14 +213,8 @@ iff/Makefile
 iff/archive/Makefile
 includes/Makefile
 input/Makefile
-input/ggi/Makefile
-input/ggi/include/Makefile
 input/linux/Makefile
 input/linux/include/Makefile
-input/sdl/Makefile
-input/sdl/include/Makefile
-input/svgalib/Makefile
-input/svgalib/include/Makefile
 main/Makefile
 main/editor/Makefile
 main/old/Makefile

@@ -50,9 +50,8 @@
 # define SDL_AUDIO 1
 
 # ifdef OGL
-#  define GLX_VIDEO 1
-#  define GII_INPUT 1
-#  define GII_XWIN 1
+#  define SDL_GL_VIDEO 1
+#  define SDL_INPUT 1
 # else
 #  ifdef GGI
 #   define GGI_VIDEO 1
