@@ -14,6 +14,8 @@
 	to mission.c, remove unnecessary load_mission calls in menu.c
 	* main/game.c: remove unnecessary build_mission_list call
 	* main/mission.c, main/mission.h: correct comments about anarchy-only
+	* main/mission.h, main/network.c, main/playsave.c, main/state.c:
+	remove explicit uses of mission list
 
 2004-10-21  Martin Schaffner  <maschaffner@gmx.ch>
 

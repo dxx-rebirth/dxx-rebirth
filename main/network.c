@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.25 2004-10-23 18:59:02 schaffner Exp $ */
+/* $Id: network.c,v 1.26 2004-10-23 19:39:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.25 2004-10-23 18:59:02 schaffner Exp $";
+static char rcsid[] = "$Id: network.c,v 1.26 2004-10-23 19:39:35 schaffner Exp $";
 #endif
 
 #define PATCH12
@@ -2995,9 +2995,6 @@ int network_get_game_params( char * game_name, int *mode, int *game_flags, int *
 	char level_text[32];
 	char srmaxnet[50];
 
-	int new_mission_num;
-	int anarchy_only;
-
 	*game_flags=*game_flags;
 
 	SetAllAllowablesTo (1);
@@ -3017,12 +3014,6 @@ int network_get_game_params( char * game_name, int *mode, int *game_flags, int *
     if (!select_mission(1, TXT_MULTI_MISSION))
         return -1;
 
-	new_mission_num = Current_mission_num;
-    anarchy_only = Mission_list[new_mission_num].anarchy_only_flag;
-
-	if (new_mission_num < 0)
-		return -1;
-
 	if (!(FindArg ("-packets") && FindArg ("-shortpackets")))
 		if (!network_choose_connect ())
 			return -1;
@@ -3032,8 +3023,8 @@ int network_get_game_params( char * game_name, int *mode, int *game_flags, int *
 		MaxNumNetPlayers = 3;
 #endif
 
-	strcpy(Netgame.mission_name, Mission_list[new_mission_num].filename);
-	strcpy(Netgame.mission_title, Mission_list[new_mission_num].mission_name);
+	strcpy(Netgame.mission_name, Current_mission_filename);
+	strcpy(Netgame.mission_title, Current_mission_longname);
 	Netgame.control_invul_time = control_invul_time;
 
 	sprintf( name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
@@ -3160,7 +3151,7 @@ menu:
 				*mode = NETGAME_HOARD;
 		else if (HoardEquipped() && m[opt_capture+2].value)
 				*mode = NETGAME_TEAM_HOARD;
-		else if (anarchy_only) {
+		else if (ANARCHY_ONLY_MISSION) {
 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
 			m[opt_mode+2].value = 0;
 			m[opt_mode+3].value = 0;

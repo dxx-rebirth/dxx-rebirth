@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.15 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: state.c,v 1.16 2004-10-23 19:39:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -749,8 +749,8 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	cfwrite(&between_levels, sizeof(int), 1, fp);
 
 // Save the mission info...
-        mprintf ((0,"HEY! Mission name is %s\n",Mission_list[Current_mission_num].filename));
-	cfwrite(&Mission_list[Current_mission_num], sizeof(char), 9, fp);
+        mprintf ((0, "HEY! Mission name is %s\n", Current_mission_filename));
+	cfwrite(Current_mission_filename, sizeof(char), 9, fp);
 
 //Save level info
 	cfwrite(&Current_level_num, sizeof(int), 1, fp);

@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.19 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: playsave.c,v 1.20 2004-10-23 19:39:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -564,7 +564,7 @@ int find_hli_entry()
 	int i;
 
 	for (i=0;i<n_highest_levels;i++)
-		if (!stricmp(highest_levels[i].shortname,Mission_list[Current_mission_num].filename))
+		if (!stricmp(highest_levels[i].shortname, Current_mission_filename))
 			break;
 
 	if (i==n_highest_levels) {		//not found.  create entry
@@ -574,7 +574,7 @@ int find_hli_entry()
 		else
 			n_highest_levels++;
 
-		strcpy(highest_levels[i].shortname,Mission_list[Current_mission_num].filename);
+		strcpy(highest_levels[i].shortname, Current_mission_filename);
 		highest_levels[i].level_num			= 0;
 	}
 
@@ -605,7 +605,7 @@ int get_highest_level(void)
 	int highest_saturn_level			= 0;
 	read_player_file();
 #ifndef SATURN
-	if (strlen(Mission_list[Current_mission_num].filename)==0 )	{
+	if (strlen(Current_mission_filename)==0 )	{
 		for (i=0;i<n_highest_levels;i++)
 			if (!stricmp(highest_levels[i].shortname, "DESTSAT")) 	//	Destination Saturn.
 		 		highest_saturn_level			= highest_levels[i].level_num; 

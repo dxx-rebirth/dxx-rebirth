@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.20 2004-10-23 19:15:46 schaffner Exp $ */
+/* $Id: mission.h,v 1.21 2004-10-23 19:39:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -89,6 +89,7 @@ extern int Builtin_mission_hogsize;
 
 #define PLAYING_BUILTIN_MISSION (Current_mission_num == Builtin_mission_num)
 #define EMULATING_D1 (Mission_list[Current_mission_num].descent_version == 1)
+#define ANARCHY_ONLY_MISSION (Mission_list[Current_mission_num].anarchy_only_flag == 1)
 
 //arrays of name of the level files
 extern char Level_names[MAX_LEVELS_PER_MISSION][FILENAME_LEN];
