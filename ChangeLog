@@ -1,5 +1,7 @@
 2003-06-07  Bradley Bell  <btb@icculus.org>
 
+	* main/gamesave.c: comments
+
 	* main/bm.c: remove redundant break
 
 2003-06-06  Bradley Bell  <btb@icculus.org>
