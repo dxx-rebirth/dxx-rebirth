@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ogl/gr.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-11-04 09:00:25 $
+ * $Date: 2001-11-08 10:19:52 $
  *
  * // OGL video functions. - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/11/04 09:00:25  bradleyb
+ * Enable d1x-style hud_message
+ *
  * Revision 1.2  2001/10/31 07:35:47  bradleyb
  * Sync with d1x
  *
@@ -276,7 +279,7 @@ return 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_OGL;
 	//grd_curscreen->sc_canvas.cv_bitmap.bm_data = (unsigned char *)screen->pixels;
 //	mprintf((0,"ogl/gr.c: reallocing %p to %i\n",grd_curscreen->sc_canvas.cv_bitmap.bm_data,w*h));
-	grd_curscreen->sc_canvas.cv_bitmap.bm_data = realloc(gr_bm_data,w*h);
+	grd_curscreen->sc_canvas.cv_bitmap.bm_data = d_realloc(gr_bm_data,w*h);
 	gr_set_current_canvas(NULL);
 	//gr_enable_default_palette_loading();
 	

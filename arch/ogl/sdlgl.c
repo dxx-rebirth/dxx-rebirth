@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ogl/sdlgl.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-11-04 09:02:18 $
+ * $Date: 2001-11-08 10:19:52 $
  *
  * Graphics functions for SDL-GL.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/11/04 09:02:18  bradleyb
+ * Hack to keep SDL from screwing up X when it crashes
+ *
  * Revision 1.2  2001/10/31 07:35:48  bradleyb
  * Sync with d1x
  *
@@ -103,7 +106,7 @@ void ogl_init(void){
 }
 
 void ogl_close(void){
-#if 1  // shouldn't really be necessary...
+#if 0  // shouldn't really be necessary...
 	if (ogl_fullscreen){
 		ogl_fullscreen=0;
 		ogl_do_fullscreen_internal();
