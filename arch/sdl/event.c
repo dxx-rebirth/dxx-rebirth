@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/event.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  * $Author: bradleyb $
- * $Date: 2002-02-16 02:08:30 $
+ * $Date: 2002-07-16 22:37:14 $
  *
  * SDL Event related stuff
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2002/02/16 02:08:30  bradleyb
+ * allow older sdl versions
+ *
  * Revision 1.4  2001/12/03 02:43:02  bradleyb
  * lots of makefile fixes, and sdl joystick stuff
  *
@@ -36,10 +39,8 @@
 extern void key_handler(SDL_KeyboardEvent *event);
 extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);
 extern void mouse_motion_handler(SDL_MouseMotionEvent *mme);
-#ifdef SDL_JOYSTICK
 extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
 extern void joy_axis_handler(SDL_JoyAxisEvent *jae);
-#endif
 
 static int initialised=0;
 
@@ -60,7 +61,6 @@ void event_poll()
 		case SDL_MOUSEMOTION:
 			mouse_motion_handler((SDL_MouseMotionEvent *)&event);
 			break;
-#if SDL_JOYSTICK
 		case SDL_JOYBUTTONDOWN:
 		case SDL_JOYBUTTONUP:
 			joy_button_handler((SDL_JoyButtonEvent *)&event);
@@ -71,7 +71,6 @@ void event_poll()
 		case SDL_JOYBALLMOTION:
 		case SDL_JOYHATMOTION:
 			break;
-#endif
 		case SDL_QUIT: {
 			void quit_request();
 			quit_request();

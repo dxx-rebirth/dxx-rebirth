@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/init.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  * $Author: bradleyb $
- * $Date: 2001-12-03 02:45:02 $
+ * $Date: 2002-07-16 22:37:14 $
  *
  * SDL architecture support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.8  2001/12/03 02:45:02  bradleyb
+ * fix formatting
+ *
  * Revision 1.7  2001/12/03 02:43:02  bradleyb
  * lots of makefile fixes, and sdl joystick stuff
  *
@@ -47,16 +50,11 @@ void sdl_close()
 void arch_sdl_init()
 {
 	// Initialise the library
-	if (SDL_Init(
-#ifdef SDL_JOYSTICK
-		SDL_INIT_JOYSTICK |
-#endif
+	if (SDL_Init(SDL_INIT_JOYSTICK
 #if defined(SDL_VIDEO) || defined(SDL_GL_VIDEO)
-		SDL_INIT_VIDEO
-#else
-		0
+				 | SDL_INIT_VIDEO
 #endif
-		)<0) {
+	) < 0) {
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
 	}
 #ifdef SDL_INPUT
