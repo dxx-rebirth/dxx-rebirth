@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.51 2004-01-08 19:02:53 schaffner Exp $ */
+/* $Id: piggy.c,v 1.52 2004-05-22 22:24:28 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.51 2004-01-08 19:02:53 schaffner Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.52 2004-05-22 22:24:28 btb Exp $";
 #endif
 
 
@@ -608,6 +608,17 @@ void swap_0_255(grs_bitmap *bmp)
 		else if (bmp->bm_data[i] == 255)
 			bmp->bm_data[i] = 0;
 	}
+}
+
+char* piggy_game_bitmap_name(grs_bitmap *bmp)
+{
+	if (bmp >= GameBitmaps && bmp < &GameBitmaps[MAX_BITMAP_FILES])
+	{
+		int i = bmp-GameBitmaps; // i = (bmp - GameBitmaps) / sizeof(grs_bitmap);
+		Assert (bmp == &GameBitmaps[i] && i >= 0 && i < MAX_BITMAP_FILES);
+		return AllBitmaps[i].name;
+	}
+	return NULL;
 }
 
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )

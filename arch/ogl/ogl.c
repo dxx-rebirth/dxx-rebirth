@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.29 2004-05-22 21:48:36 btb Exp $ */
+/* $Id: ogl.c,v 1.30 2004-05-22 22:24:24 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -25,6 +25,7 @@
 #endif
 #include <string.h>
 #include <math.h>
+#include <stdio.h>
 
 #include "3d.h"
 #include "piggy.h"
@@ -34,6 +35,7 @@
 #include "palette.h"
 #include "rle.h"
 #include "mono.h"
+#include "pngfile.h"
 
 #include "segment.h"
 #include "textures.h"
@@ -121,10 +123,10 @@ int ogl_texture_list_cur;
 #define OGLTEXBUFSIZE (2048*2048*4)
 extern GLubyte texbuf[OGLTEXBUFSIZE];
 //void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int width,int height,int  twidth,int theight);
-void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags);
+void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format);
 void ogl_loadbmtexture(grs_bitmap *bm);
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,intdyo , int *texid,float *u,float *v,char domipmap,float prio);
-void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags);
+void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format);
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_do_palfx(void);
 
@@ -1273,7 +1275,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	
 //	oldpal=ogl_pal;
 	ogl_pal=gr_current_pal;
-	ogl_loadtexture(src->bm_data, sx, sy, &tex, src->bm_flags);
+	ogl_loadtexture(src->bm_data, sx, sy, &tex, src->bm_flags, 0);
 //	ogl_pal=oldpal;
 	ogl_pal=gr_palette;
 	OGL_BINDTEXTURE(tex.handle);
@@ -1558,7 +1560,8 @@ int pow2ize(int x){
 
 //GLubyte texbuf[512*512*4];
 GLubyte texbuf[OGLTEXBUFSIZE];
-void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags)
+
+void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format)
 {
 //	GLushort *tex=(GLushort *)texp;
 	int x,y,c,i;
@@ -1570,7 +1573,17 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 		i=dxo+truewidth*(y+dyo);
 		for (x=0;x<twidth;x++){
 			if (x<width && y<height)
-				c=data[i++];
+				if (data_format)
+				{
+					int j;
+
+					for (j = 0; j < data_format; ++j)
+						(*(texp++)) = data[i * data_format + j];
+					i++;
+					continue;
+				}
+				else
+					c = data[i++];
 			else
 				c = 256; // fill the pad space with transparency (or blackness)
 			if (c == 254 && (bm_flags & BM_FLAG_SUPER_TRANSPARENT))
@@ -1751,7 +1764,7 @@ void tex_set_size(ogl_texture *tex){
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags)
+void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format)
 {
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,int dyo, int *texid,float *u,float *v,char domipmap,float prio){
 //	int internalformat=GL_RGBA;
@@ -1773,7 +1786,7 @@ void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 	tex->v=(float)tex->h/(float)tex->th;
 
 #ifdef GL_EXT_paletted_texture
-	if (ogl_shared_palette_ok && (tex->format == GL_RGBA || tex->format == GL_RGB) &&
+	if (ogl_shared_palette_ok && data_format == 0 && (tex->format == GL_RGBA || tex->format == GL_RGB) &&
 		!(tex->wantmip && GL_needmipmaps) // gluBuild2DMipmaps doesn't support paletted textures.. this could be worked around be generating our own mipmaps, but thats too much trouble at the moment.
 		)
 	{
@@ -1810,7 +1823,7 @@ void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 
 	//	if (width!=twidth || height!=theight)
 	//		glmprintf((0,"sizing %ix%i texture up to %ix%i\n",width,height,twidth,theight));
-	ogl_filltexbuf(data, texbuf, tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, tex->format, bm_flags);
+	ogl_filltexbuf(data, texbuf, tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, tex->format, bm_flags, data_format);
 
 	// Generate OpenGL texture IDs.
 	glGenTextures(1, &tex->handle);
@@ -1858,10 +1871,42 @@ unsigned char decodebuf[512*512];
 void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 {
 	unsigned char *buf;
+	char *bitmapname;
+
 	while (bm->bm_parent)
 		bm=bm->bm_parent;
+	if (bm->gltexture && bm->gltexture->handle > 0)
+		return;
 	buf=bm->bm_data;
-	if (bm->gltexture==NULL){
+	if ((bitmapname = piggy_game_bitmap_name(bm)))
+	{
+		char filename[64];
+		png_data pdata;
+
+		sprintf(filename, "textures/%s.png", bitmapname);
+		if (read_png(filename, &pdata))
+		{
+			printf("%s: %ux%ux%i p=%i(%i) c=%i a=%i chans=%i\n", filename, pdata.width, pdata.height, pdata.depth, pdata.paletted, pdata.num_palette, pdata.color, pdata.alpha, pdata.channels);
+			if (pdata.depth == 8 && pdata.color)
+			{
+				if (bm->gltexture == NULL)
+					ogl_init_texture(bm->gltexture = ogl_get_free_texture(), pdata.width, pdata.height, flags | ((pdata.alpha) ? OGL_FLAG_ALPHA : 0));
+				ogl_loadtexture(pdata.data, 0, 0, bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels);
+				free(pdata.data);
+				if (pdata.palette)
+					free(pdata.palette);
+				return;
+			}
+			else
+			{
+				printf("%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8\n", filename);
+				free(pdata.data);
+				if (pdata.palette)
+					free(pdata.palette);
+			}
+		}
+	}
+	if (bm->gltexture == NULL){
  		ogl_init_texture(bm->gltexture = ogl_get_free_texture(), bm->bm_w, bm->bm_h, flags | ((bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
 	}
 	else {
@@ -1895,7 +1940,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 		}
 		buf=decodebuf;
 	}
-	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags);
+	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0);
 }
 
 void ogl_loadbmtexture(grs_bitmap *bm)

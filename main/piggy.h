@@ -1,4 +1,4 @@
-/* $Id: piggy.h,v 1.25 2003-11-04 21:33:30 btb Exp $ */
+/* $Id: piggy.h,v 1.26 2004-05-22 22:24:30 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -114,6 +114,8 @@ void piggy_read_bitmap_data(grs_bitmap * bmp);
 void piggy_read_sound_data(digi_sound *snd);
 
 void piggy_load_level_data();
+
+char* piggy_game_bitmap_name(grs_bitmap *bmp);
 
 #define MAX_BITMAP_FILES    2620 // Upped for CD Enhanced
 #define MAX_SOUND_FILES     MAX_SOUNDS

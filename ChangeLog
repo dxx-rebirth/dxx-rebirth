@@ -1,5 +1,10 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/ogl.c, include/pngfile.h, main/piggy.c, main/piggy.h,
+	misc/Makefile.am, misc/pngfile.c: add opengl replacement texture
+	support (requires libpng and zlib) (d1x r1.42, r1.1, r1.10, r1.4,
+	r1.1)
+
 	* arch/ogl/gr.c, include/loadgl.h: fix win32
 	GL_NV_register_combiners build stuff (d1x r1.39, r1.7)
 

@@ -1,7 +1,11 @@
 noinst_LIBRARIES = libmisc.a
 INCLUDES = -I $(top_srcdir)/include
 
-libmisc_a_SOURCES = \
+if USE_OPENGL
+PNG_SRCS = pngfile.c
+endif
+
+libmisc_a_SOURCES = ${PNG_SRCS} \
 args.c      error.c    strio.c \
 d_io.c      hash.c     strutil.c
 
