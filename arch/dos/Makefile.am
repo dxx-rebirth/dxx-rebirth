@@ -1,20 +1,8 @@
-if ENV_DJGPP
+SUBDIRS = allg_snd bak comm include mm_snd
 
-noinst_LIBRARIES = libarchdos.a
-INCLUDES = -I $(top_srcdir)/includes -Iinclude -I $(top_srcdir)/main -I$(top_srcdir)/input/sdl/include
-
-libarchdos_a_SOURCES = init.c dpmi.c findfile.c vesa.c
-
-
-if USE_ASM
-  SUFFIXES = .asm
-  %.o: %.asm
-	$(NASM) $(NASMFLAGS) $< -o $@
-	
-  libarchdos_a_SOURCES += timer.asm modex.asm
-  libarchdos_a_LIBADD += timer.o modex.o
-  init.c: timer.o modex.o
-endif
-
-
-endif
+EXTRA_DIST = \
+joy2.asm modex.asm timer.asm \
+tweak.inc vgaregs.inc \
+ipx.h mono.h \
+bcd.c cdrom.c digi.c digiallg.c digimm.c disk.c dosgr.c dpmi.c findfile.c \
+init.c ipx.c joyc.c joydefs.c key.c midiallg.c mono.c mouse.c serial.c vesa.c

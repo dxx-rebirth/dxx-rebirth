@@ -1,5 +1,4 @@
-noinst_LIBRARIES = libinputggi.a
-INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/main -Iinclude
+SUBDIRS = include
 
-libinputggi_a_SOURCES = \
-event.c key.c mouse.c 
+EXTRA_DIST = \
+event.c init.c key.c mouse.c

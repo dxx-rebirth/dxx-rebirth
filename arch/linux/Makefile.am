@@ -1,10 +1,6 @@
-ifndef ENV_DJGPP
+SUBDIRS = svgalib include
 
-noinst_LIBRARIES = libarchlinux.a
-INCLUDES = -I $(top_srcdir)/includes -I../../input/sdl/include -I../../input/linux/include -I $(top_srcdir)/main -Iinclude
-
-libarchlinux_a_SOURCES = \
-init.c	ipx_lin.c \
-ipx_bsd.c ipx_udp.c  linuxnet.c  findfile.c
-
-endif
+EXTRA_DIST = \
+alsadigi.c findfile.c hmiplay.c hmistub.c init.c \
+ipx_bsd.c ipx_kali.c ipx_lin.c ipx_udp.c \
+linuxnet.c mono.c serial.c timer.c ukali.c

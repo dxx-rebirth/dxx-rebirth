@@ -14,3 +14,7 @@ if USE_ASM
 lib2d_a_LIBADD += linear.o tmerge_a.o
 endif
 
+EXTRA_DIST = \
+linear.asm scalea.asm tmerge_a.asm \
+bitmap.h clip.h linear.h scalea.h \
+scale.c

@@ -1,11 +1,3 @@
-/* conf.h.in.  Generated automatically from configure.in by autoheader.  */
-
-/* Define if you need to in order for stat and other things to work.  */
-#undef _POSIX_SOURCE
-
-/* Define if you have the ANSI C header files.  */
-#undef STDC_HEADERS
-
 /* Define if you want an assembler free build */
 #undef NO_ASM
 
@@ -30,15 +22,7 @@
 /* Define to disable asserts, int3, etc. */
 #undef NDEBUG
 
-/* Define if you have the <netipx/ipx.h> header file.  */
-#undef HAVE_NETIPX_IPX_H
-
-/* Name of package */
-#undef PACKAGE
-
-/* Version number of package */
-#undef VERSION
-
+@BOTTOM@
 
 /* General defines */
 #define NMONO 1

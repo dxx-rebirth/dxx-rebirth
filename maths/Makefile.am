@@ -10,3 +10,7 @@ SUFFIXES = .asm
 if USE_ASM
 libmaths_a_LIBADD += vecmata.o fix.o
 endif
+
+EXTRA_DIST = \
+fix.asm vecmata.asm \
+fixc.c rand.c tables.c vecmat.c

@@ -1,4 +1,4 @@
 SUBDIRS = include
 
 EXTRA_DIST = \
-joydefs.c joystick.c
+event.c gr.c init.c key.c mouse.c

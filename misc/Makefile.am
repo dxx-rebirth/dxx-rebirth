@@ -10,3 +10,6 @@ byteswap.c  d_io.c     hash.c     strutil.c
 #checker.o: checker.c
 #	gcc -c -g $< -o $@ $(INCLUDES) $(CFLAGS) -I/usr/lib/checker/i686-pc-linux-gnu/include -I.. -I.
 
+EXTRA_DIST = \
+byteswap.h dos_disk.h fileutil.h parsarg.h \
+d_glob.c errtest.c fileutil.c parsarg.c parstest.c

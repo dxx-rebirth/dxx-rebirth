@@ -1,3 +1,5 @@
+SUBDIRS = archive
+
 noinst_LIBRARIES = libiff.a
 INCLUDES = -I $(top_srcdir)/includes
 

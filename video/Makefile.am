@@ -1,4 +1,9 @@
 noinst_LIBRARIES = libvideo.a
 INCLUDES = -I $(top_srcdir) -I$(top_srcdir)/includes -I$(top_srcdir)/main
-libvideo_a_SOURCES = ogl.c ogl_glx.c ogl_gr.c \
+
+libvideo_a_SOURCES = \
+ogl.c ogl_glx.c ogl_gr.c \
 sdl_gr.c dos_gr.c svgalib_gr.c ggi_gr.c
+
+EXTRA_DIST = \
+ogl_wgl.c

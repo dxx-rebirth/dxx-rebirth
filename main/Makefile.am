@@ -1,3 +1,5 @@
+SUBDIRS = editor old
+
 INCLUDES = -I $(top_srcdir)/includes -fwritable-strings
 
 bin_PROGRAMS = d2x
@@ -39,3 +41,18 @@ if USE_GGI
 endif
 
 endif
+
+EXTRA_DIST = \
+descent.cfg inferno.ini \
+link.bat \
+ai.h aistruct.h automap.h bm.h bmread.h cdrom.h cntrlcen.h collide.h \
+compbit.h config.h controls.h credits.h desc_id.h desw.h digi.h effects.h \
+endlevel.h fireball.h fuelcen.h fvi.h fvi_a.h game.h gamefont.h gamemine.h \
+gamepal.h gamesave.h gameseg.h gameseq.h gamestat.h gauges.h hostage.h \
+inferno.h joydefs.h kconfig.h kmatrix.h laser.h lighting.h menu.h mission.h \
+modem.h morph.h movie.h multi.h multibot.h netmisc.h network.h newdemo.h \
+newmenu.h object.h paging.h physics.h piggy.h player.h playsave.h polyobj.h \
+powerup.h render.h robot.h scores.h screens.h segment.h segpoint.h slew.h \
+songs.h sounds.h state.h switch.h terrain.h texmerge.h text.h textures.h \
+titles.h vclip.h vers_id.h wall.h weapon.h \
+dumpmine.c

@@ -1,2 +1,2 @@
 EXTRA_DIST = \
-init.c timer.c
+ipx.c
