@@ -45,7 +45,6 @@ kmatrix.c multi.c multibot.c network.c \
 bmread.c
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
-Makefile.mveplay \
 descent.cfg inferno.ini \
 link.bat \
 ai.h aistruct.h automap.h bm.h bmread.h cntrlcen.h collide.h \
