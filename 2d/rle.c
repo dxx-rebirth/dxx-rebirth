@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.9 2002-09-04 22:25:29 btb Exp $ */
+/* $Id: rle.c,v 1.10 2002-09-05 07:57:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -125,7 +125,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.9 2002-09-04 22:25:29 btb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.10 2002-09-05 07:57:11 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -146,11 +146,10 @@ static char rcsid[] = "$Id: rle.c,v 1.9 2002-09-04 22:25:29 btb Exp $";
 #define RLE_CODE        0xE0
 #define NOT_RLE_CODE    31
 
-void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 );
+#if !defined(NO_ASM) && defined(__WATCOMC__)
+#define RLE_DECODE_ASM
 
-#ifndef NO_ASM
-#ifdef __WATCOMC__
-int gr_rle_decode_asm( ubyte * src, ubyte * dest );
+ubyte *gr_rle_decode_asm( ubyte * src, ubyte * dest );
 #pragma aux gr_rle_decode_asm parm [esi] [edi] value [edi] modify exact [eax ebx ecx edx esi edi] = \
 "  cld              " \
 "   xor ecx, ecx    " \
@@ -187,9 +186,9 @@ int gr_rle_decode_asm( ubyte * src, ubyte * dest );
 "                   " \
 "done:              ";
 
-void rle_stosb(char *dest, int len, int color);
-#pragma aux rle_stosb = "cld rep    stosb" parm [edi] [ecx] [eax] modify exact [edi ecx];
-#elif defined __GNUC__
+#elif !defined(NO_ASM) && defined(__GNUC__)
+#define RLE_DECODE_ASM
+
 static inline int gr_rle_decode_asm( ubyte * src, ubyte * dest ) {
    register int __ret;
    int dummy;
@@ -224,14 +223,9 @@ static inline int gr_rle_decode_asm( ubyte * src, ubyte * dest ) {
   return __ret;
 }
 
-static inline void rle_stosb(char *dest, int len, int color) {
-	int dummy[2];
-   __asm__ __volatile__ (
-    "cld; rep; stosb"
-    : "=D" (dummy[0]), "=c" (dummy[1])
-	: "0" (dest), "1" (len), "a" (color) );
-}
-#elif defined _MSC_VER
+#elif !defined(NO_ASM) && defined(_MSC_VER)
+#define RLE_DECODE_ASM
+
 __inline int gr_rle_decode_asm( ubyte * src, ubyte * dest )
 {
 	 int retval;
@@ -271,6 +265,61 @@ done:
 	return retval;
 }
 
+#endif
+
+#ifdef RLE_DECODE_ASM
+
+void gr_rle_decode( ubyte * src, ubyte * dest, int dest_len )
+{
+	ubyte *dest_end;
+
+	dest_end = (ubyte *)gr_rle_decode_asm( src, dest );
+
+	Assert(dest_end-src < dest_len);
+}
+
+#else // NO_ASM or unknown compiler
+
+void gr_rle_decode( ubyte * src, ubyte * dest )
+{
+	int i;
+	ubyte data, count = 0;
+
+	while(1) {
+		data = *src++;
+		if ( (data & RLE_CODE) != RLE_CODE ) {
+			*dest++ = data;
+		} else {
+			count = data & NOT_RLE_CODE;
+			if (count == 0)
+				return;
+			data = *src++;
+			for (i = 0; i < count; i++)
+				*dest++ = data;
+		}
+	}
+}
+
+#endif
+
+void rle_stosb(char *dest, int len, int color);
+
+#if !defined(NO_ASM) && defined(__WATCOMC__)
+
+#pragma aux rle_stosb = "cld rep    stosb" parm [edi] [ecx] [eax] modify exact [edi ecx];
+
+#elif !defined(NO_ASM) && defined(__GNUC__)
+
+inline void rle_stosb(char *dest, int len, int color) {
+	int dummy[2];
+   __asm__ __volatile__ (
+    "cld; rep; stosb"
+    : "=D" (dummy[0]), "=c" (dummy[1])
+	: "0" (dest), "1" (len), "a" (color) );
+}
+
+#elif !defined(NO_ASM) && defined(_MSC_VER)
+
 __inline void rle_stosb(char *dest, int len, int color)
 {
   __asm {
@@ -282,56 +331,28 @@ __inline void rle_stosb(char *dest, int len, int color)
   }
 }
 
-#else
-# undef NO_ASM
-# define NO_ASM 1
-/* Well, if inline assembler is not supported for this compiler, we don't
- **really** want ASM... */
-#endif
-#endif
+#else // NO_ASM or unknown compiler
 
-#ifdef NO_ASM
-void rle_stosb(ubyte *dest, int len, int color)
+void rle_stosb(char *dest, int len, int color)
 {
 	int i;
 	for (i=0; i<len; i++ )
 		*dest++ = color;
 }
-#endif
 
-void gr_rle_decode( ubyte * src, ubyte * dest )
-{
-#ifdef NO_ASM
-	int i;
-	ubyte data, count = 0;
-
-	while(1) {
-		data = *src++;
-		if ( (data & RLE_CODE) != RLE_CODE ) {
-			*dest++ = data;
-		} else {
-			count = data & NOT_RLE_CODE;
-			if (count==0) return;
-			data = *src++;
-			for (i=0; i<count; i++ )
-				*dest++ = data;
-		}
-	}
-#else
-    gr_rle_decode_asm( src, dest );
 #endif
-}
 
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
 void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 {
 	int i = 0;
-        ubyte count=0;
-        ubyte color=0;
+	ubyte count;
+	ubyte color=0;
 
 	if ( x2 < x1 ) return;
 
+	count = 0;
 	while ( i < x1 )	{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
@@ -386,11 +407,12 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )
 {
 	int i = 0;
-        ubyte count=0;
-        ubyte color=0;
+	ubyte count;
+	ubyte color=0;
 
 	if ( x2 < x1 ) return;
 
+	count = 0;
 	while ( i < x1 )	{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
@@ -438,7 +460,7 @@ void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )
 			i += count;
 			dest += count;
 		}
-	}	
+	}
 }
 
 
@@ -454,7 +476,7 @@ int gr_rle_encode( int org_size, ubyte *src, ubyte *dest )
 	count = 1;
 
 	for (i=1; i<org_size; i++ )	{
-		c = *src++;							
+		c = *src++;
 		if ( c!=oc )	{
 			if ( count )	{
 				if ( (count==1) && ((oc & RLE_CODE)!=RLE_CODE) )	{
@@ -504,7 +526,7 @@ int gr_rle_getsize( int org_size, ubyte *src )
 	count = 1;
 
 	for (i=1; i<org_size; i++ )	{
-		c = *src++;							
+		c = *src++;
 		if ( c!=oc )	{
 			if ( count )	{
 				if ( (count==1) && ((oc & RLE_CODE)!=RLE_CODE) )	{
@@ -590,7 +612,7 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 typedef struct rle_cache_element {
 	grs_bitmap * rle_bitmap;
 	ubyte * rle_data;
-	grs_bitmap * expanded_bitmap;			
+	grs_bitmap * expanded_bitmap;
 	int last_used;
 } rle_cache_element;
 
@@ -621,7 +643,7 @@ void rle_cache_init()
 		rle_cache[i].expanded_bitmap = gr_create_bitmap( 64, 64 );
 		rle_cache[i].last_used = 0;
 		Assert( rle_cache[i].expanded_bitmap != NULL );
-	}	
+	}
 	rle_cache_initialized = 1;
 	atexit( rle_cache_close );
 }
@@ -632,9 +654,57 @@ void rle_cache_flush()
 	for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
 		rle_cache[i].rle_bitmap = NULL;
 		rle_cache[i].last_used = 0;
-	}	
+	}
 }
 
+void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
+{
+	unsigned char * dbits;
+	unsigned char * sbits;
+	int i;
+#ifdef RLE_DECODE_ASM
+	unsigned char * dbits1;
+#endif
+
+#ifdef D1XD3D
+	Assert (bmp->iMagic == BM_MAGIC_NUMBER);
+#endif
+
+	sbits = &bmp->bm_data[4 + bmp->bm_h];
+	dbits = rle_temp_bitmap_1->bm_data;
+
+	rle_temp_bitmap_1->bm_flags = bmp->bm_flags & (~BM_FLAG_RLE);
+
+	for (i=0; i < bmp->bm_h; i++ )    {
+#ifdef RLE_DECODE_ASM
+		dbits1=(unsigned char *)gr_rle_decode_asm( sbits, dbits );
+#else
+		gr_rle_decode( sbits, dbits );
+#endif
+		sbits += (int)bmp->bm_data[4+i];
+		dbits += bmp->bm_w;
+#ifdef RLE_DECODE_ASM
+		Assert( dbits == dbits1 );		// Get John, bogus rle data!
+#endif
+	}
+#ifdef D1XD3D
+	gr_set_bitmap_data (rle_temp_bitmap_1, rle_temp_bitmap_1->bm_data);
+#endif
+}
+
+#if defined(POLY_ACC)
+grs_bitmap *rle_get_id_sub(grs_bitmap *bmp)
+{
+	int i;
+
+	for (i=0;i<MAX_CACHE_BITMAPS;i++) {
+		if (rle_cache[i].expanded_bitmap == bmp) {
+			return rle_cache[i].rle_bitmap;
+		}
+	}
+	return NULL;
+}
+#endif
 
 
 grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
@@ -664,7 +734,7 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 	rle_next++;
 	if ( rle_next >= MAX_CACHE_BITMAPS )
 		rle_next = 0;
-		
+
 	for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
 		if (rle_cache[i].rle_bitmap == bmp) 	{
 			rle_hits++;
@@ -686,49 +756,15 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 }
 
 
-void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
-{
-	unsigned char * dbits;
-	unsigned char * sbits;
-	int i;
-#ifndef NO_ASM
-	unsigned char * dbits1;
-#endif
-
-#ifdef D1XD3D
-	Assert (bmp->iMagic == BM_MAGIC_NUMBER);
-#endif
-
-	sbits = &bmp->bm_data[4 + bmp->bm_h];
-	dbits = rle_temp_bitmap_1->bm_data;
-
-	rle_temp_bitmap_1->bm_flags = bmp->bm_flags & (~BM_FLAG_RLE);
-
-	for (i=0; i < bmp->bm_h; i++ )    {
-#ifndef NO_ASM
-		dbits1=(unsigned char *)gr_rle_decode_asm( sbits, dbits );
-#else
-		gr_rle_decode( sbits, dbits );
-#endif
-		sbits += (int)bmp->bm_data[4+i];
-		dbits += bmp->bm_w;
-#ifndef NO_ASM
-		Assert( dbits == dbits1 );		// Get John, bogus rle data!
-#endif
-	}
-#ifdef D1XD3D
-	gr_set_bitmap_data (rle_temp_bitmap_1, rle_temp_bitmap_1->bm_data);
-#endif
-}
-
-void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *src, int x1, int x2, int masked  )
+void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *src, int x1, int x2 )
 {
 	int i = 0, j;
-	int count=0;
+	int count;
 	ubyte color=0;
 
 	if ( x2 < x1 ) return;
 
+	count = 0;
 	while ( i < x1 )	{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
@@ -744,18 +780,14 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 	count = i - x1;
 	i = x1;
 	// we know have '*count' pixels of 'color'.
-	
+
 	if ( x1+count > x2 )	{
 		count = x2-x1+1;
-		if (!masked || color != 255)
 		for ( j=0; j<count; j++ )
 			gr_bm_pixel( dest, dx++, dy, color );
 		return;
 	}
 
-	if (masked && color == 255)
-		dx += count;
-	else
 	for ( j=0; j<count; j++ )
 		gr_bm_pixel( dest, dx++, dy, color );
 	i += count;
@@ -772,17 +804,11 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 		}
 		// we know have '*count' pixels of 'color'.
 		if ( i+count <= x2 )	{
-			if (masked && color == 255)
-				dx += count;
-			else
 			for ( j=0; j<count; j++ )
 				gr_bm_pixel( dest, dx++, dy, color );
 			i += count;
 		} else {
 			count = x2-i+1;
-			if (masked && color == 255)
-				dx += count;
-			else
 			for ( j=0; j<count; j++ )
 				gr_bm_pixel( dest, dx++, dy, color );
 			i += count;
@@ -860,6 +886,137 @@ void gr_rle_expand_scanline_generic_masked( grs_bitmap * dest, int dx, int dy, u
 		}
 	}
 }
+
+
+#ifdef __MSDOS__
+void gr_rle_expand_scanline_svga_masked( grs_bitmap * dest, int dx, int dy, ubyte *src, int x1, int x2  )
+{
+	int i = 0, j;
+	int count;
+	ubyte color;
+	ubyte * vram = (ubyte *)0xA0000;
+	int VideoLocation,page,offset;
+
+	if ( x2 < x1 ) return;
+
+	VideoLocation = (unsigned int)dest->bm_data + (dest->bm_rowsize * dy) + dx;
+	page    = VideoLocation >> 16;
+	offset  = VideoLocation & 0xFFFF;
+
+	gr_vesa_setpage( page );
+
+	if ( (offset + (x2-x1+1)) < 65536 )	{
+		// We don't cross a svga page, so blit it fast!
+		gr_rle_expand_scanline_masked( &vram[offset], src, x1, x2 );
+		return;
+	}
+
+	count = 0;
+	while ( i < x1 )	{
+		color = *src++;
+		if ( color == RLE_CODE ) return;
+		if ( (color & RLE_CODE) == RLE_CODE )	{
+			count = color & NOT_RLE_CODE;
+			color = *src++;
+		} else {
+			// unique
+			count = 1;
+		}
+		i += count;
+	}
+	count = i - x1;
+	i = x1;
+	// we know have '*count' pixels of 'color'.
+
+	if ( x1+count > x2 )	{
+		count = x2-x1+1;
+		if (color != TRANSPARENCY_COLOR) {
+			for ( j=0; j<count; j++ )	{
+				vram[offset++] = color;
+				if ( offset >= 65536 ) {
+					offset -= 65536;
+					page++;
+					gr_vesa_setpage(page);
+				}
+			}
+		}
+		return;
+	}
+
+	if ( color != TRANSPARENCY_COLOR ) {
+		for ( j=0; j<count; j++ )	{
+			vram[offset++] = color;
+			if ( offset >= 65536 ) {
+				offset -= 65536;
+				page++;
+				gr_vesa_setpage(page);
+			}
+		}
+	} else	{
+		offset += count;
+		if ( offset >= 65536 ) {
+			offset -= 65536;
+			page++;
+			gr_vesa_setpage(page);
+		}
+	}
+	i += count;
+
+	while( i <= x2 )		{
+		color = *src++;
+		if ( color == RLE_CODE ) return;
+		if ( (color & RLE_CODE) == RLE_CODE )	{
+			count = color & NOT_RLE_CODE;
+			color = *src++;
+		} else {
+			// unique
+			count = 1;
+		}
+		// we know have '*count' pixels of 'color'.
+		if ( i+count <= x2 )	{
+			if ( color != TRANSPARENCY_COLOR ) {
+				for ( j=0; j<count; j++ )	{
+					vram[offset++] = color;
+					if ( offset >= 65536 ) {
+						offset -= 65536;
+						page++;
+						gr_vesa_setpage(page);
+					}
+				}
+			} else	{
+				offset += count;
+				if ( offset >= 65536 ) {
+					offset -= 65536;
+					page++;
+					gr_vesa_setpage(page);
+				}
+			}
+			i += count;
+		} else {
+			count = x2-i+1;
+			if ( color != TRANSPARENCY_COLOR ) {
+				for ( j=0; j<count; j++ )	{
+					vram[offset++] = color;
+					if ( offset >= 65536 ) {
+						offset -= 65536;
+						page++;
+						gr_vesa_setpage(page);
+					}
+				}
+			} else	{
+				offset += count;
+				if ( offset >= 65536 ) {
+					offset -= 65536;
+					page++;
+					gr_vesa_setpage(page);
+				}
+			}
+			i += count;
+		}
+	}
+}
+#endif // __MSDOS__
+
 
 /*
  * swaps entries 0 and 255 in an RLE bitmap without uncompressing it
