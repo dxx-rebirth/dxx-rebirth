@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.12 2003-11-07 06:30:06 btb Exp $ */
+/* $Id: automap.c,v 1.13 2003-11-14 23:24:54 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -400,6 +400,23 @@ int	MarkerObject[NUM_MARKERS];
 
 extern vms_vector Matrix_scale;		//how the matrix is currently scaled
 
+
+#if defined(MACINTOSH) && defined(POLY_ACC)
+// icky hack.  automap draw context is no longer valid when this is called.
+// so we can not use the pa_draw_line function for rave
+bool automap_draw_line(g3s_point *p0, g3s_point *p1)
+{
+	int savePAEnabledState = PAEnabled;
+
+	PAEnabled = 0;
+	g3_draw_line(&FromPoint, &ToPoint);
+	PAEnabled = savePAEnabledState;
+}
+#else
+# define automap_draw_line g3_draw_line
+#endif
+
+
 // -------------------------------------------------------------
 
 void DrawMarkerNumber (int num)
@@ -460,19 +477,7 @@ void DrawMarkerNumber (int num)
     g3_code_point (&ToPoint);
     g3_project_point (&ToPoint);
 
-    #if	defined(MACINTOSH) && defined(POLY_ACC)
-	{
-		int savePAEnabledState = PAEnabled;	// icky hack.  automap draw context is no longer valid when this is called.
-											// so we can not use the pa_draw_line function for rave
-
-		PAEnabled = 0;
-	    g3_draw_line( &FromPoint, &ToPoint );
-		PAEnabled = savePAEnabledState;
-	}
-	#else
-	    g3_draw_line( &FromPoint, &ToPoint );
-	#endif
-
+	automap_draw_line(&FromPoint, &ToPoint);
    }
  }
 
@@ -596,64 +601,24 @@ void draw_player( object * obj )
 	// Draw shaft of arrow
 	vm_vec_scale_add( &arrow_pos, &obj->pos, &obj->orient.fvec, obj->size*3 );
 	g3_rotate_point(&arrow_point,&arrow_pos);
-	#if defined(MACINTOSH) && defined(POLY_ACC)
-	{
-		int savePAEnabledState = PAEnabled;	// icky hack.  automap draw context is no longer valid when this is called.
-											// so we can not use the pa_draw_line function for rave
-		
-		PAEnabled = 0;
-	    g3_draw_line( &sphere_point, &arrow_point );
-		PAEnabled = savePAEnabledState;
-	}
-	#else
-		g3_draw_line( &sphere_point, &arrow_point );
-	#endif
-	
+	automap_draw_line(&sphere_point, &arrow_point);
+
 	// Draw right head of arrow
 	vm_vec_scale_add( &head_pos, &obj->pos, &obj->orient.fvec, obj->size*2 );
 	vm_vec_scale_add2( &head_pos, &obj->orient.rvec, obj->size*1 );
 	g3_rotate_point(&head_point,&head_pos);
-	#if	defined(MACINTOSH) && defined(POLY_ACC)
-	{
-		int savePAEnabledState = PAEnabled;			
-		PAEnabled = 0;
-	    g3_draw_line( &arrow_point, &head_point );
-		PAEnabled = savePAEnabledState;
-	}
-	#else
-		g3_draw_line( &arrow_point, &head_point );
-	#endif
+	automap_draw_line(&arrow_point, &head_point);
 
 	// Draw left head of arrow
 	vm_vec_scale_add( &head_pos, &obj->pos, &obj->orient.fvec, obj->size*2 );
 	vm_vec_scale_add2( &head_pos, &obj->orient.rvec, obj->size*(-1) );
 	g3_rotate_point(&head_point,&head_pos);
-	#if	defined(MACINTOSH) && defined(POLY_ACC)
-	{
-		int savePAEnabledState = PAEnabled;			
-		PAEnabled = 0;
-	    g3_draw_line( &arrow_point, &head_point );
-		PAEnabled = savePAEnabledState;
-	}
-	#else
-		g3_draw_line( &arrow_point, &head_point );
-	#endif
+	automap_draw_line(&arrow_point, &head_point);
 
 	// Draw player's up vector
 	vm_vec_scale_add( &arrow_pos, &obj->pos, &obj->orient.uvec, obj->size*2 );
 	g3_rotate_point(&arrow_point,&arrow_pos);
-	#if	defined(MACINTOSH) && defined(POLY_ACC)
-	{
-		int savePAEnabledState = PAEnabled;			
-		PAEnabled = 0;
-	    g3_draw_line( &sphere_point, &arrow_point );
-		PAEnabled = savePAEnabledState;
-	}
-	#else
-		g3_draw_line( &sphere_point, &arrow_point );
-	#endif
-
-
+	automap_draw_line(&sphere_point, &arrow_point);
 }
 
 int AutomapHires;

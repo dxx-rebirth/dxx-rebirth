@@ -1,5 +1,7 @@
 2003-11-14  Bradley Bell  <btb@icculus.org>
 
+	* main/automap.c: simplify g3_draw_line hack
+
 	* main/menu.c: stop pointless vid mode changes
 
 2003-11-07  Bradley Bell  <btb@icculus.org>
