@@ -66,7 +66,6 @@ SrcFiles        =  ¶
 				  :arch:sdl:mouse.c ¶
 				  :arch:sdl:rbaudio.c ¶
 				  :arch:sdl:timer.c ¶
-				  :cfile:cfile.c ¶
 				  :iff:iff.c ¶
 				  :libmve:decoder16.c ¶
 				  :libmve:decoder8.c ¶
@@ -208,7 +207,6 @@ ObjFiles-PPC    =  ¶
 				  "{ObjDir}mouse.c.x" ¶
 				  "{ObjDir}rbaudio.c.x" ¶
 				  "{ObjDir}timer.c.x" ¶
-				  "{ObjDir}cfile.c.x" ¶
 				  "{ObjDir}iff.c.x" ¶
 				  "{ObjDir}decoder16.c.x" ¶
 				  "{ObjDir}decoder8.c.x" ¶
@@ -390,7 +388,6 @@ directories Ä
 "{ObjDir}mouse.c.x"  Ä  :arch:sdl:mouse.c
 "{ObjDir}rbaudio.c.x"  Ä  :arch:sdl:rbaudio.c
 "{ObjDir}timer.c.x"  Ä  :arch:sdl:timer.c
-"{ObjDir}cfile.c.x"  Ä  :cfile:cfile.c
 "{ObjDir}iff.c.x"  Ä  :iff:iff.c
 "{ObjDir}decoder16.c.x"  Ä  :libmve:decoder16.c
 "{ObjDir}decoder8.c.x"  Ä  :libmve:decoder8.c

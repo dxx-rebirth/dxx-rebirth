@@ -34,6 +34,8 @@
 	PHYSFSX_readU8.  Write a dummy structure instead of seeking when
 	NETWORK isn't defined
 
+	* D2X.make: Don't compile cfile.c on Mac OS 9.
+
 2004-12-01  Bradley Bell  <btb@icculus.org>
 
 	* include/physfsx.h, include/strio.h, main/cntrlcen.c,
