@@ -1,3 +1,7 @@
+2003-10-04  Bradley Bell  <btb@icculus.org>
+
+	* main/netmisc.c: change byte to sbyte, comments/whitespace
+
 2003-10-03  Bradley Bell  <btb@icculus.org>
 
 	* cfile/cfile.c, main/config.c: fix win32 eof bug.
