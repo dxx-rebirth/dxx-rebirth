@@ -141,6 +141,8 @@
 #  define inline
 # endif
 
+#define OGL_RUNTIME_LOAD	// avoids corruption of OpenGL
+
 //#define TARGET_API_MAC_CARBON 1
 /* Define to 1 if the system has the type `struct timespec'. */
 #define HAVE_STRUCT_TIMESPEC 0

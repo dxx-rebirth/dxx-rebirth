@@ -1,4 +1,4 @@
-/* $Id: loadgl.h,v 1.11 2004-12-02 08:52:59 btb Exp $ */
+/* $Id: loadgl.h,v 1.12 2005-01-25 19:23:58 schaffner Exp $ */
 /*
  *
  * dynamic opengl loading - courtesy of Jeff Slutter
@@ -1273,6 +1273,23 @@ void *dll_GetSymbol(void *dllhandle,const char *symname)
 	if(!dllhandle)
 		return NULL;
 	return dlsym(dllhandle,symname);
+}
+#endif
+#ifdef macintosh
+#include <SDL.h>
+void *dll_LoadModule(const char *name)
+{
+	return SDL_GL_LoadLibrary(name) ? NULL : (void *) -1;	// return pointer is not dereferenced
+}
+void dll_UnloadModule(void *hdl)
+{
+	hdl = hdl;	// SDL_GL_UnloadLibrary not exported by SDL
+}
+void *dll_GetSymbol(void *dllhandle,const char *symname)
+{
+	if(!dllhandle)
+		return NULL;
+	return SDL_GL_GetProcAddress(symname);
 }
 #endif
 

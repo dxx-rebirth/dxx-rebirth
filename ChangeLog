@@ -1,5 +1,10 @@
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
+	* arch/carbon/conf.h, arch/ogl/gr.c, include/loadgl.h: on Carbon,
+	dynamically find and load the OpenGL library on carbon
+
+2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
 	* 2d/font.c: fix bug #2167: some characters would not display because
 	of signed/unsigned errors
 	* main/editor/editor.h: baptize the coefficients in vms_equation 'n'

@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.40 2005-01-23 14:38:04 schaffner Exp $ */
+/* $Id: gr.c,v 1.41 2005-01-25 19:23:58 schaffner Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -161,9 +161,9 @@ const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
 void ogl_get_verinfo(void)
 {
-	int t, arb_max_textures = -1, sgi_max_textures = -1;
+	long t, arb_max_textures = -1, sgi_max_textures = -1;
 #ifdef GL_NV_register_combiners
-	int nv_register_combiners = -1;
+	long nv_register_combiners = -1;
 #endif
 	float anisotropic_max = 0;
 
@@ -392,6 +392,9 @@ char *OglLibPath="opengl32.dll";
 #ifdef __unix__
 char *OglLibPath="libGL.so";
 #endif
+#ifdef macintosh
+char *OglLibPath = NULL;
+#endif
 
 int ogl_rt_loaded=0;
 int ogl_init_load_library(void)
@@ -412,7 +415,7 @@ int ogl_init_load_library(void)
 				Error("Opengl: Functions not imported\n");
 			}
 		}else{
-			Error("Opengl: error loading %s\n",OglLibPath);
+			Error("Opengl: error loading %s\n", OglLibPath? OglLibPath : SDL_GetError());
 		}
 		ogl_rt_loaded=1;
 	}
