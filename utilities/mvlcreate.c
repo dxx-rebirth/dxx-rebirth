@@ -36,12 +36,12 @@ main(int argc, char *argv[])
 	dp = opendir("./");
 	if (dp != NULL) {
 		while ((ep = readdir(dp))) {
-			strcpy(filename[i], ep->d_name);
-			stat(filename[i], &statbuf);
+			strcpy(filename[nfiles], ep->d_name);
+			stat(filename[nfiles], &statbuf);
 			if(! S_ISDIR(statbuf.st_mode)) {
+				len[nfiles] = (int)statbuf.st_size;
+				printf("Filename: %s \tLength: %i\n", filename[nfiles], len[nfiles]);
 				nfiles++;
-				len[i] = (int)statbuf.st_size;
-				printf("Filename: %s \tLength: %i\n", filename[i], len[i]);
 			}
 		}
 	}
@@ -67,8 +67,8 @@ main(int argc, char *argv[])
 		if (buf == NULL) {
 			printf("Unable to allocate memory\n");
 		} else {
-			fread(buf, statbuf.st_size, 1, readfile);
-			fwrite(buf, statbuf.st_size, 1, mvlfile);
+			fread(buf, len[i], 1, readfile);
+			fwrite(buf, len[i], 1, mvlfile);
 		}
 		fclose(readfile);
 	}
