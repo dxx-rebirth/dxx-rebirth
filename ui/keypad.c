@@ -1,4 +1,4 @@
-/* $Id: keypad.c,v 1.7 2005-02-26 11:12:14 chris Exp $ */
+/* $Id: keypad.c,v 1.8 2005-02-26 11:17:01 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -408,9 +408,9 @@ void ui_pad_read( int n, char * filename )
 			sprintf( KeyPad[n]->buttontext[7], "%s%s\n", KeyPad[n]->buttontext[7],text );
 			break;
 		case 10:
-			ptr = strrchr( buffer, 179 );
+			ptr = strrchr( buffer, (char) 179 );
 			*ptr = 0;
-			ptr = strrchr( buffer, 180 );	ptr++;
+			ptr = strrchr( buffer, (char) 180 );	ptr++;
 			sprintf( KeyPad[n]->buttontext[7], "%s%s\n", KeyPad[n]->buttontext[7],ptr );
 			break;
 		//======================= ROW 2 ==============================
@@ -476,9 +476,9 @@ void ui_pad_read( int n, char * filename )
 			sprintf( KeyPad[n]->buttontext[14], "%s%s\n", KeyPad[n]->buttontext[14],text );
 			break;
 		case 18:
-			ptr = strrchr( buffer, 179 );
+			ptr = strrchr( buffer, (char) 179 );
 			*ptr = 0;
-			ptr = strrchr( buffer, 180 ); ptr++;
+			ptr = strrchr( buffer, (char) 180 ); ptr++;
 			sprintf( KeyPad[n]->buttontext[14], "%s%s\n", KeyPad[n]->buttontext[14], ptr );
 			break;
 		//======================= ROW 4 =========================
