@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.15 2003-11-14 23:31:16 btb Exp $ */
+/* $Id: automap.c,v 1.16 2003-11-15 00:37:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1011,6 +1011,9 @@ int automap_width = 640;
 int automap_height = 480;
 int automap_use_game_res=0;
 
+#define RESCALE_X(x) ((x) * automap_width / 640)
+#define RESCALE_Y(y) ((y) * automap_height / 480)
+
 void do_automap( int key_code )	{
 	int done=0;
 	vms_matrix	tempm;
@@ -1101,19 +1104,20 @@ WIN(AutomapRedraw:)
 #endif
 
 		gr_init_bitmap_data (&Automap_background);
-//		pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME,&Automap_background,BM_LINEAR,pal);
-//		if ( pcx_error != PCX_ERROR_NONE )
-//			Error("File %s - PCX error: %s",MAP_BACKGROUND_FILENAME,pcx_errormsg(pcx_error));
-//		gr_remap_bitmap_good( &Automap_background, pal, -1, -1 );
+		pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, &Automap_background, BM_LINEAR, pal);
+		if (pcx_error != PCX_ERROR_NONE)
+			Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
+		gr_remap_bitmap_good(&Automap_background, pal, -1, -1);
 
 #ifndef AUTOMAP_DIRECT_RENDER
-		for (i=0; i<2; i++ )	{
+		for (i=0; i<2; i++)
+		{
 			gr_set_current_canvas(&Pages[i]);
-//			gr_bitmap( 0, 0, &Automap_background );
-//			modex_printf( 40, 22,TXT_AUTOMAP,HUGE_FONT,Font_color_20);
-//			modex_printf( 30,353,TXT_TURN_SHIP,SMALL_FONT,Font_color_20);
-//			modex_printf( 30,369,TXT_SLIDE_UPDOWN,SMALL_FONT,Font_color_20);
-//			modex_printf( 30,385,TXT_VIEWING_DISTANCE,SMALL_FONT,Font_color_20);
+			gr_bitmap(0, 0, &Automap_background );
+			modex_printf(40,  22, TXT_AUTOMAP, HUGE_FONT, Font_color_20);
+			modex_printf(30, 353, TXT_TURN_SHIP, SMALL_FONT, Font_color_20);
+			modex_printf(30, 369, TXT_SLIDE_UPDOWN, SMALL_FONT, Font_color_20);
+			modex_printf(30, 385, TXT_VIEWING_DISTANCE, SMALL_FONT, Font_color_20);
 		}
 		gr_free_bitmap_data(&Automap_background);	
 		gr_set_current_canvas(&DrawingPages[current_page]);
@@ -1153,9 +1157,9 @@ WIN(AutomapRedraw:)
 			must_free_canvas = 1;
 		}
 
-		WIN(dd_gr_init_sub_canvas(&ddDrawingPage, &ddPage, 0,0,automap_width,automap_height));
-		gr_init_sub_canvas(&DrawingPage,&Page, 0,0,automap_width,automap_height);
-	
+		WIN(dd_gr_init_sub_canvas(&ddDrawingPage, &ddPage, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334)));
+		gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
+
 		WINDOS(
 			dd_gr_set_current_canvas(&ddPage),
 			gr_set_current_canvas(&Page)
@@ -1191,7 +1195,7 @@ WIN(AutomapRedraw:)
 #else
 
 		WIN(DDGRLOCK(dd_grd_curcanv));
-			pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME,&(grd_curcanv->cv_bitmap),BM_LINEAR,pal);
+		pcx_error = pcx_read_fullscr(MAP_BACKGROUND_FILENAME, pal);
 			if ( pcx_error != PCX_ERROR_NONE )	{
 				//printf("File %s - PCX error: %s",MAP_BACKGROUND_FILENAME,pcx_errormsg(pcx_error));
 				Error("File %s - PCX error: %s",MAP_BACKGROUND_FILENAME,pcx_errormsg(pcx_error));
@@ -1203,12 +1207,12 @@ WIN(AutomapRedraw:)
 	
 			gr_set_curfont(HUGE_FONT);
 			gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-			gr_printf( 80, 36,TXT_AUTOMAP,HUGE_FONT);
+			gr_printf(RESCALE_X(80), RESCALE_Y(36), TXT_AUTOMAP, HUGE_FONT);
 			gr_set_curfont(SMALL_FONT);
 			gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-			gr_printf( 60, 426,TXT_TURN_SHIP);
-			gr_printf( 60, 443,TXT_SLIDE_UPDOWN);
-			gr_printf( 60, 460,TXT_VIEWING_DISTANCE);
+			gr_printf(RESCALE_X(60), RESCALE_Y(426), TXT_TURN_SHIP);
+			gr_printf(RESCALE_X(60), RESCALE_Y(443), TXT_SLIDE_UPDOWN);
+			gr_printf(RESCALE_X(60), RESCALE_Y(460), TXT_VIEWING_DISTANCE);
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 	
 #ifndef AUTOMAP_DIRECT_RENDER
