@@ -1,3 +1,7 @@
+2004-10-21  Martin Schaffner  <maschaffner@gmx.ch>
+
+	* configure.ac: make it compile on Cygwin
+
 2004-10-14  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/config.c: fix bug uncovered by having fgets cut off ending \n
