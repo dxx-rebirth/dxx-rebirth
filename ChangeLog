@@ -1,3 +1,7 @@
+2005-03-12  Bradley Bell  <btb@icculus.org>
+
+	* Makefile.am, configure.ac: enable editor in unix-style builds
+
 2005-03-12  Chris Taylor  <chris@icculus.org>
 
 	* main/gamesave.c: could check reactor model num, don't check

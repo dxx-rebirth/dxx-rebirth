@@ -87,12 +87,16 @@ default_sharepath="$datadir/games/$PACKAGE"
 
 CFLAGS="-Wall -Wno-char-subscripts $CFLAGS"
 
+D2X_SUBDIRS=""
+D2X_MAIN_SUBDIRS=""
+
 dnl Enable editor build?
 AC_ARG_ENABLE(editor,
     [  --enable-editor         Build editor? (not functional)],,)
 if test x$enable_editor = xyes; then
     AC_DEFINE(EDITOR,,[Define if you want to build the editor])
-    D2X_MAIN_SUBDIRS=editor
+    D2X_SUBDIRS="ui ${D2X_SUBDIRS}"
+    D2X_MAIN_SUBDIRS="editor ${D2X_MAIN_SUBDIRS}"
 fi
 AM_CONDITIONAL(EDITOR, test x$enable_editor = xyes)
 
@@ -152,7 +156,7 @@ AC_ARG_ENABLE(console,
     [  --enable-console        Enable console (experimental) ],,)
 if test x$enable_console = xyes; then
     AC_DEFINE(CONSOLE,,[Define to enable console])
-    D2X_SUBDIRS=console
+    D2X_SUBDIRS="console ${D2X_SUBDIRS}"
 fi
 AM_CONDITIONAL(CONSOLE, test x$enable_console = xyes)
 
@@ -430,6 +434,7 @@ AC_OUTPUT(
     mem/Makefile
     misc/Makefile
     texmap/Makefile
+    ui/Makefile
     utilities/Makefile
     debian/changelog
     rpm/d2x.spec
