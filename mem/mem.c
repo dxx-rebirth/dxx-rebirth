@@ -380,6 +380,16 @@ void *mem_realloc(void * buffer, unsigned int size, char * var, char * filename,
 	return newbuffer;
 }
 
+char *mem_strdup(char *str, char *var, char *filename, int line)
+{
+	char *newstr;
+
+	newstr = mem_malloc(strlen(str) + 1, var, filename, line, 0);
+	strcpy(newstr, str);
+
+	return newstr;
+}
+
 void mem_display_blocks()
 {
 	int i, numleft;

@@ -23,16 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "error.h"
 
-char *d_strdup(char *str)
-{
-	char *a;
-
-	a = d_malloc(strlen(str) + 1);
-	strcpy(a, str);
-
-	return a;
-}
-
 #if 0
 // string compare without regard to case
 
