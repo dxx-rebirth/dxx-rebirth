@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.11 2003-02-21 07:14:32 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.12 2003-03-25 08:19:12 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -257,8 +257,6 @@ free_endlevel_data()
 
 	if (satellite_bm_instance.bm_data)
 		d_free(satellite_bm_instance.bm_data);
-
-	free_exit_model_data();
 }
 
 void init_endlevel()

@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.26 2003-03-22 03:19:50 btb Exp $ */
+/* $Id: piggy.c,v 1.27 2003-03-25 08:19:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.26 2003-03-22 03:19:50 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.27 2003-03-25 08:19:12 btb Exp $";
 #endif
 
 
@@ -2363,6 +2363,117 @@ void load_d1_bitmap_replacements()
 	texmerge_flush();       //for re-merging with new textures
 
 	atexit(free_bitmap_replacements);
+}
+
+
+extern int extra_bitmap_num;
+
+/*
+ * Find and load the named bitmap from descent.pig
+ * similar to exitmodel_bm_load_sub
+ */
+bitmap_index read_extra_d1_bitmap(char *name)
+{
+	bitmap_index bitmap_num;
+	grs_bitmap * new = &GameBitmaps[extra_bitmap_num];
+
+	bitmap_num.index = 0;
+
+	{
+		CFILE *d1_Piggy_fp;
+		int i;
+		DiskBitmapHeader bmh;
+		int pig_data_start, bitmap_header_start, bitmap_data_start;
+		int N_bitmaps, zsize;
+		ubyte colormap[256];
+
+		d1_Piggy_fp = cfopen("descent.pig", "rb");
+		if (!d1_Piggy_fp)
+		{
+			con_printf(CON_DEBUG, "could not open descent.pig\n", name);
+			return bitmap_num;
+		}
+
+		// read d1 palette, build colormap
+		{
+			int freq[256];
+			ubyte d1_palette[256*3];
+			CFILE * palette_file = cfopen( "palette.256", "rb" );
+			Assert( palette_file );
+			Assert( cfilelength( palette_file ) == 9472 );
+			cfread( d1_palette, 256, 3, palette_file);
+			cfclose( palette_file );
+			build_colormap_good( d1_palette, colormap, freq );
+			// don't change transparencies:
+			colormap[254] = 254;
+			colormap[255] = 255;
+		}
+
+		pig_data_start = cfile_read_int(d1_Piggy_fp);
+		cfseek(d1_Piggy_fp, pig_data_start, SEEK_SET);
+		N_bitmaps = cfile_read_int(d1_Piggy_fp);
+		{
+			int N_sounds = cfile_read_int(d1_Piggy_fp);
+			int header_size = N_bitmaps * DISKBITMAPHEADER_D1_SIZE
+				+ N_sounds * DISKSOUNDHEADER_SIZE;
+			bitmap_header_start = pig_data_start + 2 * sizeof(int);
+			bitmap_data_start = bitmap_header_start + header_size;
+		}
+
+		for (i = 0; i < N_bitmaps; i++)
+		{
+			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
+			if (!strnicmp(bmh.name, name, 8))
+				break;
+		}
+
+		Assert(!strnicmp(bmh.name, name, 8));
+
+		memset( new, 0, sizeof(grs_bitmap) );
+
+		new->bm_w = new->bm_rowsize = bmh.width + ((short) (bmh.wh_extra&0x0f)<<8);
+		new->bm_h = bmh.height + ((short) (bmh.wh_extra&0xf0)<<4);
+		new->avg_color = bmh.avg_color;
+
+		if ( bmh.flags & BM_FLAG_TRANSPARENT )
+			new->bm_flags |= BM_FLAG_TRANSPARENT;
+		if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT )
+			new->bm_flags |= BM_FLAG_SUPER_TRANSPARENT;
+		if ( bmh.flags & BM_FLAG_NO_LIGHTING )
+			new->bm_flags |= BM_FLAG_NO_LIGHTING;
+		if ( bmh.flags & BM_FLAG_RLE )
+			new->bm_flags |= BM_FLAG_RLE;
+		if ( bmh.flags & BM_FLAG_RLE_BIG )
+			new->bm_flags |= BM_FLAG_RLE_BIG;
+
+		if ( bmh.flags & BM_FLAG_RLE )
+		{
+			cfseek(d1_Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
+			zsize = cfile_read_int(d1_Piggy_fp);
+		}
+		else
+			zsize = new->bm_w * new->bm_h;
+		new->bm_data = d_malloc(zsize);
+		cfseek(d1_Piggy_fp, bitmap_data_start + bmh.offset, SEEK_SET);
+		cfread(new->bm_data, 1, zsize, d1_Piggy_fp);
+
+		switch(cfilelength(d1_Piggy_fp)) {
+		case D1_MAC_PIGSIZE:
+		case D1_MAC_SHARE_PIGSIZE:
+			rle_swap_0_255(new);
+		}
+		rle_remap(new, colormap);
+
+		cfclose(d1_Piggy_fp);
+	}
+
+	new->avg_color = 0;	//compute_average_pixel(new);
+
+	bitmap_num.index = extra_bitmap_num;
+
+	GameBitmaps[extra_bitmap_num++] = *new;
+
+	return bitmap_num;
 }
 
 

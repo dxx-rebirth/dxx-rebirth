@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.26 2003-03-24 00:14:07 btb Exp $ */
+/* $Id: bm.c,v 1.27 2003-03-25 08:19:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,6 +16,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Bitmap and palette loading functions.
  *
+ * Old Log:
+ * Revision 1.1  1995/05/16  15:23:08  allender
+ * Initial revision
+ *
+ * Revision 2.3  1995/03/14  16:22:04  john
+ * Added cdrom alternate directory stuff.
+ *
+ * Revision 2.2  1995/03/07  16:51:48  john
+ * Fixed robots not moving without edtiro bug.
+ *
+ * Revision 2.1  1995/03/06  15:23:06  john
+ * New screen techniques.
+ *
+ * Revision 2.0  1995/02/27  11:27:05  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
  *
  */
 
@@ -25,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "pstypes.h"
 #include "inferno.h"
@@ -151,7 +168,8 @@ bitmap_index exitmodel_bm_load_sub( char * filename )
 	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
 	new->bm_handle=0;
 	if (iff_error != IFF_NO_ERROR)		{
-		Error("Error loading exit model bitmap <%s> - IFF error: %s",filename,iff_errormsg(iff_error));
+		con_printf(CON_DEBUG, "Error loading exit model bitmap <%s> - IFF error: %s\n", filename, iff_errormsg(iff_error));
+		return bitmap_num;
 	}
 
 	if ( iff_has_transparency )
@@ -175,6 +193,17 @@ grs_bitmap *load_exit_model_bitmap(char *name)
 
 	{
 		ObjBitmaps[N_ObjBitmaps] = exitmodel_bm_load_sub(name);
+
+		if (ObjBitmaps[N_ObjBitmaps].index == 0)
+		{
+			char *name2 = d_strdup(name);
+			*strrchr(name2, '.') = '\0';
+			ObjBitmaps[N_ObjBitmaps] = read_extra_d1_bitmap(name2);
+			d_free(name2);
+		}
+		if (ObjBitmaps[N_ObjBitmaps].index == 0)
+			return NULL;
+
 		if (GameBitmaps[ObjBitmaps[N_ObjBitmaps].index].bm_w!=64 || GameBitmaps[ObjBitmaps[N_ObjBitmaps].index].bm_h!=64)
 			Error("Bitmap <%s> is not 64x64",name);
 		ObjBitmapPtrs[N_ObjBitmaps] = N_ObjBitmaps;
@@ -185,7 +214,7 @@ grs_bitmap *load_exit_model_bitmap(char *name)
 }
 
 void
-free_exit_model_data()
+bm_free_extra_bitmaps()
 {
 	int i;
 
@@ -204,31 +233,25 @@ int load_exit_models()
 	CFILE *exit_hamfile;
 	int start_num;
 
-	if (!cfexist("steel1.bbm") ||
-	    !cfexist("rbot061.bbm") ||
-	    !cfexist("rbot062.bbm") ||
-	    !cfexist("rbot063.bbm")) {
+	start_num = N_ObjBitmaps;
+	extra_bitmap_num = Num_bitmap_files;
+	if (!load_exit_model_bitmap("steel1.bbm") ||
+		!load_exit_model_bitmap("rbot061.bbm") ||
+		!load_exit_model_bitmap("rbot062.bbm") ||
+		!load_exit_model_bitmap("steel1.bbm") ||
+		!load_exit_model_bitmap("rbot061.bbm") ||
+		!load_exit_model_bitmap("rbot063.bbm"))
+	{
 		Warning("Can't load exit models!\n");
 		return 0;
 	}
 
-	start_num = N_ObjBitmaps;
-	extra_bitmap_num = Num_bitmap_files;
-	load_exit_model_bitmap("steel1.bbm");
-	load_exit_model_bitmap("rbot061.bbm");
-	load_exit_model_bitmap("rbot062.bbm");
-
-	load_exit_model_bitmap("steel1.bbm");
-	load_exit_model_bitmap("rbot061.bbm");
-	load_exit_model_bitmap("rbot063.bbm");
-
-	if (cfexist("exit.ham")) {
 #ifndef MACINTOSH
-		exit_hamfile = cfopen("exit.ham","rb");
+	exit_hamfile = cfopen("exit.ham","rb");
 #else
-		exit_hamfile = cfopen(":Data:exit.ham","rb");
+	exit_hamfile = cfopen(":Data:exit.ham","rb");
 #endif
-
+	if (exit_hamfile) {
 		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
 		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 		Polygon_models[exit_modelnum].first_texture = start_num;
@@ -254,6 +277,8 @@ int load_exit_models()
 		Warning("Can't load exit models!\n");
 		return 0;
 	}
+
+	atexit(bm_free_extra_bitmaps);
 
 	return 1;
 }
