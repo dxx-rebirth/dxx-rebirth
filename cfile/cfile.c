@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.30 2004-09-29 22:40:28 schaffner Exp $ */
+/* $Id: cfile.c,v 1.31 2004-10-09 21:47:49 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -69,9 +69,9 @@ hog *builtin_hog = NULL;
 hog *alt_hog = NULL;
 hog *d1_hog = NULL;
 
-void free_builtin_hog() { d_free (builtin_hog); }
-void free_alt_hog() { d_free (alt_hog); }
-void free_d1_hog() { d_free (d1_hog); }
+void free_builtin_hog() { if (builtin_hog) d_free (builtin_hog); }
+void free_alt_hog() { if (alt_hog) d_free (alt_hog); }
+void free_d1_hog() { if (d1_hog) d_free (d1_hog); }
 
 char AltHogDir[64];
 char AltHogdir_initialized = 0;
@@ -287,6 +287,7 @@ int cfile_use_alternate_hogfile (char * name)
 	return 0;
 }
 
+/* we use the d1 hog for d1 textures... */
 int cfile_use_descent1_hogfile( char * name )
 {
 	if (d1_hog) {

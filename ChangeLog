@@ -5,6 +5,8 @@
 	use new macros PLAYING_BUILTIN_MISSION and EMULATING_D1 for accessing
 	information about the current mission, for easier code refactorisation.
 
+	* cfile/cfile.c: correct warnings caused by change of 2004-09-30
+
 2004-09-30  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* cfile/cfile.c: simplify, reduce number of global vars
