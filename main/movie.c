@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.8 2002-07-30 11:05:53 btb Exp $ */
+/* $Id: movie.c,v 1.9 2002-08-26 06:50:45 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.8 2002-07-30 11:05:53 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.9 2002-08-26 06:50:45 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -124,7 +124,7 @@ int PlayMovie(const char *filename, int must_have)
 #if 0
 	int save_sample_rate;
 #endif
-	
+
 #ifndef RELEASE
 	//if (FindArg("-nomovies"))
 	if (!FindArg("-movies"))
@@ -184,20 +184,19 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	int frame_num;
 	MVESTREAM *mve;
 
+	result=1;
+	con_printf(DEBUG_LEVEL, "movie: RunMovie: %s %d %d %d %d\n", filename, hires_flag, must_have, dx, dy);
+
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
 	filehndl = open_movie_file(filename,must_have);
 
 	if (filehndl == -1) {
 #ifndef EDITOR
-		if (must_have) {
-			strupr(filename);
-			Error("movie: RunMovie: Cannot open movie file <%s>",filename);
-		} else
-			return MOVIE_NOT_PLAYED;
-#else
-		return MOVIE_NOT_PLAYED;
+		if (must_have)
+			Warning("movie: RunMovie: Cannot open movie file <%s>\n",filename);
 #endif
+		return MOVIE_NOT_PLAYED;
 	}
 
 #if 0
@@ -218,6 +217,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
         return 1;
     }
 
+#if 1
     initializeMovie(mve);
 
 	while((result = mve_play_next_chunk(mve))) {
@@ -246,12 +246,14 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	}
 
 	Assert(aborted || !result);	 ///movie should be over
-		
+
     shutdownMovie(mve);
+#endif
+
     mve_close(mve);
 
 	close(filehndl);                           // Close Movie File
- 
+
 	// Restore old graphic state
 
 	Screen_mode=-1;  //force reset of screen mode
@@ -293,7 +295,8 @@ int InitRobotMovie(char *filename)
 
 	RobBufCount=0; PlayingBuf=0; RobBufLimit=0;
 
-	if (FindArg("-nomovies"))
+	//if (FindArg("-nomovies"))
+	if (!FindArg("-movies"))
 		return 0;
    
 //   digi_stop_all();
@@ -621,16 +624,25 @@ movielib *init_old_movie_lib(char *filename,FILE *fp)
 }
 
 
-//find the specified movie library, and read in list of movies in it   
+//find the specified movie library, and read in list of movies in it
 movielib *init_movie_lib(char *filename)
 {
 	//note: this based on cfile_init_hogfile()
 
 	char id[4];
 	FILE * fp;
- 
+
 	fp = fopen( filename, "rb" );
-	if ( fp == NULL ) 
+
+	if ((fp == NULL) && (AltHogdir_initialized)) {
+		char temp[128];
+		strcpy(temp, AltHogDir);
+		strcat(temp, "/");
+		strcat(temp, filename);
+		fp = fopen(temp, "rb");
+	}
+
+	if ( fp == NULL )
 		return NULL;
 
 	fread( id, 4, 1, fp );
@@ -692,7 +704,7 @@ try_again:;
 
 	if ((movie_libs[libnum] = init_movie_lib(filename)) == NULL) {
 		char name2[100];
-		
+
 		strcpy(name2,CDROM_dir);
 		strcat(name2,filename);
 		movie_libs[libnum] = init_movie_lib(name2);
@@ -706,7 +718,7 @@ try_again:;
 					Error("Cannot open movie file <%s>",filename);
 #endif
 			}
-#if defined(D2_OEM)		//if couldn't get higres, try low
+#if defined(D2_OEM)		//if couldn't get highres, try low
 			if (is_robots == 1) {	//first try, try again with lowres
 				strchr(filename,'.')[-1] = 'l';
 				high_res = 0;
@@ -776,6 +788,14 @@ int search_movie_lib(movielib *lib,char *filename,int must_have)
 			do {		//keep trying until we get the file handle
 
 				/* movie_handle = */ filehandle = open(lib->name, O_RDONLY);
+
+				if ((filehandle == -1) && (AltHogdir_initialized)) {
+					char temp[128];
+					strcpy(temp, AltHogDir);
+					strcat(temp, "/");
+					strcat(temp, lib->name);
+					filehandle = open(temp, O_RDONLY);
+				}
 
 				if (must_have && from_cd && filehandle == -1) {		//didn't get file!
 
