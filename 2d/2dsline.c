@@ -11,7 +11,22 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/2d/2dsline.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-18 22:45:58 $
+ *
+ * FIXME: add description
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
 #include <string.h>
 
 #include "u_mem.h"
