@@ -29,15 +29,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define JOY_2_Y_AXIS		8
 #define JOY_ALL_AXIS		(1+2+4+8)
 
-#define JOY_SLOW_READINGS 			1
-#define JOY_POLLED_READINGS 		2
-#define JOY_BIOS_READINGS 			4
+#define JOY_SLOW_READINGS 	1
+#define JOY_POLLED_READINGS 	2
+#define JOY_BIOS_READINGS 	4
 #define JOY_FRIENDLY_READINGS 	8
 
 #define MAX_AXES	32
 #define MAX_BUTTONS	64
 
-#define JOY_NUM_AXES 4
+#define JOY_NUM_AXES 5
 
 typedef struct joystick_device {
 	int		device_number;

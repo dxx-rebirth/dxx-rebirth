@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.3 2001-01-22 12:27:55 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -115,7 +115,8 @@ int invert_text[2] = { TNUM_N, TNUM_Y };
 	 TNUM_TRIG, TNUM_LEFT, TNUM_RIGHT, -1, 
 	 TNUM_UP, TNUM_DOWN, TNUM_LEFT, TNUM_RIGHT };
 
-	int joyaxis_text[4] = { TNUM_X1, TNUM_Y1, TNUM_X2, TNUM_Y2 };
+	int joyaxis_text[7] = { TNUM_X1, TNUM_Y1, TNUM_Z1, TNUM_UN, TNUM_P1,TNUM_R1,TNUM_YA1 };
+//	int joyaxis_text[4] = { TNUM_X1, TNUM_Y1, TNUM_X2, TNUM_Y2 };
 #endif
 	
 int mouseaxis_text[2] = { TNUM_L_R, TNUM_F_B };
@@ -966,7 +967,9 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 					kc_drawitem( &items[i], 0 );
 				}
 			} else {
-				#ifdef MACINTOSH		// hack for firebire and mousestick default controls since I made them the same control type -- dumb dumb dumb
+				#ifdef MACINTOSH
+			  // hack for firebire and mousestick default controls since I made
+			  // them the same control type -- dumb dumb dumb
 				if (joy_have_firebird())
 					for (i=0; i<NUM_OTHER_CONTROLS; i++ )	{
 						items[i].value = default_firebird_settings[i];
@@ -1022,12 +1025,12 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 		case KEY_ENTER:	
 		case KEY_PADENTER:	
 			switch( items[citem].type )	{
-			case BT_KEY:				kc_change_key( &items[citem] ); break;
+			case BT_KEY:		kc_change_key( &items[citem] ); break;
 			case BT_MOUSE_BUTTON:	kc_change_mousebutton( &items[citem] ); break;
-			case BT_MOUSE_AXIS: 		kc_change_mouseaxis( &items[citem] ); break;
-			case BT_JOY_BUTTON: 		kc_change_joybutton( &items[citem] ); break;
-			case BT_JOY_AXIS: 		kc_change_joyaxis( &items[citem] ); break;
-			case BT_INVERT: 			kc_change_invert( &items[citem] ); break;
+			case BT_MOUSE_AXIS: 	kc_change_mouseaxis( &items[citem] ); break;
+			case BT_JOY_BUTTON: 	kc_change_joybutton( &items[citem] ); break;
+			case BT_JOY_AXIS: 	kc_change_joyaxis( &items[citem] ); break;
+			case BT_INVERT: 	kc_change_invert( &items[citem] ); break;
 			}
 			break;
 		case -2:	
@@ -1435,7 +1438,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 				}
 			}
 		} else {
-			for (i=0; i<4; i++ )	{
+			for (i=0; i<MAX_BUTTONS; i++ )	{
 				if ( joy_get_button_state(i) )
 					code = i;
 			}
@@ -1445,7 +1448,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
 			n = item - All_items;
-			if ( (i!=n) && (All_items[i].type==BT_JOY_BUTTON) && (All_items[i].value==code) )		{
+			if ( (i!=n) && (All_items[i].type==BT_JOY_BUTTON) && (All_items[i].value==code) ) {
 				All_items[i].value = 255;
 				kc_drawitem( &All_items[i], 0 );
 			}
@@ -1521,13 +1524,13 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 void kc_change_joyaxis( kc_item * item )
 {
-	int axis[7];
-	int old_axis[7];
+	int axis[MAX_AXES];
+	int old_axis[MAX_AXES];
 	int n,i,k;
 	ubyte code;
    WINDOS (
 	 int numaxis=7,
-	 int numaxis=4
+	 int numaxis=6
 	);
 
 WIN(DDGRLOCK(dd_grd_curcanv));
@@ -1583,13 +1586,14 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
   			if ( abs(axis[i]-old_axis[i])>200 )	{
 #endif
 				code = i;
+				printf("Axis Movement detected: Axis %i\n", i);
 			}
 			//old_axis[i] = axis[i];
 		}
 		for (i=0; i<Num_items; i++ )	
 		 {
 			n = item - All_items;
-			if ( (i!=n) && (All_items[i].type==BT_JOY_AXIS) && (All_items[i].value==code) )		
+			if ( (i!=n) && (All_items[i].type==BT_JOY_AXIS) && (All_items[i].value==code) )	
 				code = 255;
 		 }
 	
@@ -1597,7 +1601,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
 			n = item - All_items;
-			if ( (i!=n) && (All_items[i].type==BT_JOY_AXIS) && (All_items[i].value==code) )		{
+			if ( (i!=n) && (All_items[i].type==BT_JOY_AXIS) && (All_items[i].value==code) )	{
 				All_items[i].value = 255;
 				kc_drawitem( &All_items[i], 0 );
 			}
@@ -2666,7 +2670,7 @@ void controls_read_all()
 	int idx, idy;
 	fix ctime;
 	fix mouse_axis[2];
-	int raw_joy_axis[4];
+	int raw_joy_axis[MAX_AXES];
 	int mouse_buttons;
 	fix k0, k1, k2, k3, kp;
 	fix k4, k5, k6, k7, kh;
@@ -2702,8 +2706,10 @@ void controls_read_all()
 		LastReadTime = ctime;
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 		
-		for (i=0; i<4; i++ )	{
+		for (i=0; i<6; i++ )	{
+#ifndef  __ENV_LINUX__
 			if (channel_masks&(1<<i))	{
+#endif
 				int joy_null_value = 10;
 
 				if ( (i==3) && (Config_control_type==CONTROL_THRUSTMASTER_FCS) )	{
@@ -2712,19 +2718,21 @@ void controls_read_all()
 					raw_joy_axis[i] = joy_get_scaled_reading( raw_joy_axis[i], i );
 	
 					if (kc_joystick[23].value==i)		// If this is the throttle
-						joy_null_value = 20;				// Then use a larger dead-zone
+						joy_null_value = 20;		// Then use a larger dead-zone
 	
 					if (raw_joy_axis[i] > joy_null_value) 
-						raw_joy_axis[i] = ((raw_joy_axis[i]-joy_null_value)*128)/(128-joy_null_value);
+					  raw_joy_axis[i] = ((raw_joy_axis[i]-joy_null_value)*128)/(128-joy_null_value);
 				  	else if (raw_joy_axis[i] < -joy_null_value)
-						raw_joy_axis[i] = ((raw_joy_axis[i]+joy_null_value)*128)/(128-joy_null_value);
+					  raw_joy_axis[i] = ((raw_joy_axis[i]+joy_null_value)*128)/(128-joy_null_value);
 					else
-						raw_joy_axis[i] = 0;
+					  raw_joy_axis[i] = 0;
 					joy_axis[i]	= (raw_joy_axis[i]*FrameTime)/128;	
 				}
+#ifndef  __ENV_LINUX__
 			} else {
 				joy_axis[i] = 0;
 			}
+#endif
 		}	
 		use_joystick=1;
 	} else {
@@ -2732,7 +2740,7 @@ void controls_read_all()
 			joy_axis[i] = 0;
 		use_joystick=0;
 	}
-#else
+#else   // MACINTOSH
 	//---------  Read Joystick -----------
 	if ((Config_control_type>0) && (Config_control_type<5) ) {
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
@@ -3307,8 +3315,8 @@ void controls_read_all()
 	//read_head_tracker();
 
 	// Read external controls
-	if (kc_use_external_control || CybermouseActive)
-		kconfig_read_external_controls();
+	// if (kc_use_external_control || CybermouseActive)
+	//	kconfig_read_external_controls();
 #endif
 
 //----------- Clamp values between -FrameTime and FrameTime
