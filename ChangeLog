@@ -1,3 +1,7 @@
+2003-03-27  Bradley Bell  <btb@icculus.org>
+
+	* arch/ogl/Makefile.am: oops, can't get rid of main INCLUDE yet...
+
 2003-03-26  Bradley Bell  <btb@icculus.org>
 
 	* main/playsave.c: make d2x keys backward compatible
