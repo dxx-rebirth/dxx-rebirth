@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.32 2004-10-23 19:09:58 schaffner Exp $ */
+/* $Id: game.c,v 1.33 2004-11-27 02:05:57 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.32 2004-10-23 19:09:58 schaffner Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.33 2004-11-27 02:05:57 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1221,12 +1221,12 @@ void calc_frame_time()
 	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
 
-	do {
-	    timer_value = timer_get_fixed_seconds();
-	    FrameTime = timer_value - last_timer_value;
-	    if (FrameTime < f1_0/maxfps);
-			timer_delay(1);
-	} while (FrameTime < f1_0/maxfps);
+	while (FrameTime < f1_0 / maxfps)
+	{
+		timer_delay(f1_0 / maxfps - FrameTime);
+		timer_value = timer_get_fixed_seconds();
+		FrameTime = timer_value - last_timer_value;
+	}
 
 	#if defined(TIMER_TEST) && !defined(NDEBUG)
 	_timer_value = timer_value;

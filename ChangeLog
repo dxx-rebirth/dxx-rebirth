@@ -1,5 +1,8 @@
 2004-11-26  Bradley Bell  <btb@icculus.org>
 
+	* main/game.c: free up cpu by not calling timer_delay so many
+	times (fixes Bug 2034)
+
 	* main/gameseq.c: enable briefing screens for mac shareware
 
 	* 2d/bitblt.c: disable Assert so the credits work in opengl (gl
