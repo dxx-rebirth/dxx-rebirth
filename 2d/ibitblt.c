@@ -1,4 +1,4 @@
-/* $Id: ibitblt.c,v 1.7 2003-10-25 01:44:23 btb Exp $ */
+/* $Id: ibitblt.c,v 1.8 2003-11-07 06:16:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * d2x uses the "Mac" version for everything except __MSDOS__
  *
- * Old Log: ibitblt.c
+ * Old Log:
  * Revision 1.3  1995/09/13  11:43:22  allender
  * start on optimizing cockpit copy code
  *
@@ -34,11 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Revision 1.1  1995/08/18  15:50:48  allender
  * Initial revision
  *
- * PC version:
- * Routines to copy a bitmap on top of another bitmap, but
- * only copying to pixels that are transparent.
- *
- * Old Log:
  * Revision 1.6  1994/11/28  17:07:29  john
  * Took out some unused functions in linear.asm, moved
  * gr_linear_movsd from linear.asm to bitblt.c, made sure that
@@ -67,7 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ibitblt.c,v 1.7 2003-10-25 01:44:23 btb Exp $";
+static char rcsid[] = "$Id: ibitblt.c,v 1.8 2003-11-07 06:16:15 btb Exp $";
 #endif
 
 #ifdef __MSDOS__ //ndef MACINTOSH

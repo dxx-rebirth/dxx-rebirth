@@ -1,5 +1,7 @@
 2003-11-06  Bradley Bell  <btb@icculus.org>
 
+	* 2d/ibitblt.c, main/mission.h: comments/formatting
+
 	* arch/ogl/sdlgl.c: smash textures, for non-linux, for real
 
 2003-11-06  Bradley Bell  <btb@icculus.org>
