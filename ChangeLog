@@ -1,3 +1,9 @@
+2003-11-25  Bradley Bell  <btb@icculus.org>
+
+	* VisualCE/.cvsignore, VisualCE/d2x/.cvsignore,
+	VisualCE/libmve/.cvsignore, VisualCE/mveplayer/.cvsignore: added
+	.cvsignore files
+
 2003-11-24  Bradley Bell  <btb@icculus.org>
 
 	* libmve/decoder8.c, libmve/mve_main.c, libmve/mvelib.c,
