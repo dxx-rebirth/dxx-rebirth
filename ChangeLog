@@ -1,5 +1,7 @@
 2003-02-25  Bradley Bell  <btb@icculus.org>
 
+	* TODO: update
+
 	* autogen.sh: add warning about old auto* versions, use
 	automake --copy
 

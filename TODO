@@ -1,7 +1,6 @@
-* Rearrange build system (one big makefile in a src/ directory)
+* Rearrange build system
 * Glitches with mission briefings
 * D1 mission briefings (render spinning robots, etc.)
-* Make networking compatible with official version
 * bigendian networking (joining)
 * use autoconf macros to replace junk in pstypes.h
 * use unarj (or code) to extract necessary files from the CD as needed.
