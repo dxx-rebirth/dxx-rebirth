@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/texmapl.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:16 $
+ * $Date: 2001-10-25 02:22:46 $
  *
  * Local include file for texture mapper library -- NOT to be included by users.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.1.1.1  1999/06/14 22:14:11  donut
  * Import of d1x 1.37 source.
  *
@@ -85,6 +88,8 @@ extern unsigned char *pixptr;
 
 // texture mapper scanline renderers
 extern	void asm_tmap_scanline_per(void);
+extern	void asm_pent_tmap_scanline_per(void);
+extern	void asm_ppro_tmap_scanline_per(void);
 //extern  void asm_tmap_scanline_per_doubled(void);
 extern	void asm_tmap_scanline_lin(void);
 //extern  void asm_tmap_scanline_lin_16(void);

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/scanline.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 15:18:04 $
+ * $Date: 2001-10-25 02:22:46 $
  * 
  * Routines to draw the texture mapped scanlines.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/31 15:18:04  bradleyb
+ * Makefile and conf.h fixes
+ *
  * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
  * Import of d2x-0.0.8
  *
@@ -48,7 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: scanline.c,v 1.2 2001-01-31 15:18:04 bradleyb Exp $";
+static char rcsid[] = "$Id: scanline.c,v 1.3 2001-10-25 02:22:46 bradleyb Exp $";
 #endif
 
 #include <math.h>
@@ -81,14 +84,15 @@ void c_tmap_scanline_flat()
 void c_tmap_scanline_shaded()
 {
 	int fade;
-	ubyte *dest;
+	ubyte *dest, tmp;
 	int x;
 
 	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	fade = tmap_flat_shade_value<<8;
 	for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
-		*dest++ = gr_fade_table[ fade |(*dest)];
+		tmp = *dest;
+		*dest++ = gr_fade_table[ fade |(tmp)];
 	}
 }
 
@@ -269,8 +273,8 @@ void c_tmap_scanline_lin()
 }
 #endif
 
-#ifdef FP_TMAP
-void		c_tmap_scanline_per_nolight()
+// Used for energy centers. See comments for c_tmap_scanline_per().
+void c_fp_tmap_scanline_per_nolight()
 {
 	ubyte	       *dest;
 	uint		c;
@@ -507,7 +511,7 @@ void		c_tmap_scanline_per_nolight()
 		}
 	}
 }
-#else
+
 void c_tmap_scanline_per_nolight()
 {
 	ubyte *dest;
@@ -543,10 +547,17 @@ void c_tmap_scanline_per_nolight()
 		}
 	}
 }
-#endif
 
-#ifdef FP_TMAP
-void c_tmap_scanline_per()
+// This texture mapper uses floating point extensively and writes 8 pixels at once, so it likely works
+// best on 64 bit RISC processors.
+// WARNING: it is not endian clean. For big endian, reverse the shift counts in the unrolled loops. I
+// have no means to test that, so I didn't try it. Please tell me if you get this to work on a big
+// endian machine.
+// If you're using an Alpha, use the Compaq compiler for this file for quite some fps more.
+// Unfortunately, it won't compile the whole source, so simply compile everything, change the
+// compiler to ccc, remove scanline.o and compile again.
+// Please send comments/suggestions to falk.hueffner@student.uni-tuebingen.de.
+void c_fp_tmap_scanline_per()
 {
 	ubyte          *dest;
 	uint            c;
@@ -803,7 +814,7 @@ void c_tmap_scanline_per()
 	}
 }
 
-#elif 1
+#if 1
 // note the unrolling loop is broken. It is never called, and uses big endian. -- FH
 void c_tmap_scanline_per()
 {
@@ -961,5 +972,69 @@ void c_tmap_scanline_per()
 	}
 }
 
-
 #endif
+
+void (*cur_tmap_scanline_per)(void);
+void (*cur_tmap_scanline_per_nolight)(void);
+void (*cur_tmap_scanline_lin)(void);
+void (*cur_tmap_scanline_lin_nolight)(void);
+void (*cur_tmap_scanline_flat)(void);
+void (*cur_tmap_scanline_shaded)(void);
+
+//runtime selection of optimized tmappers.  12/07/99  Matthew Mueller
+//the reason I did it this way rather than having a *tmap_funcs that then points to a c_tmap or fp_tmap struct thats already filled in, is to avoid a second pointer dereference.
+void select_tmap(char *type){
+	if (!type){
+#ifndef NO_ASM
+		select_tmap("i386");
+#else
+		select_tmap("c");
+#endif
+		return;
+	}
+#ifndef NO_ASM
+	if (stricmp(type,"i386")==0){
+		cur_tmap_scanline_per=asm_tmap_scanline_per;
+		cur_tmap_scanline_per_nolight=asm_tmap_scanline_per;
+		cur_tmap_scanline_lin=asm_tmap_scanline_lin_lighted;
+		cur_tmap_scanline_lin_nolight=asm_tmap_scanline_lin;
+		cur_tmap_scanline_flat=asm_tmap_scanline_flat;
+		cur_tmap_scanline_shaded=asm_tmap_scanline_shaded;
+	}
+	else if (stricmp(type,"pent")==0){
+		cur_tmap_scanline_per=asm_pent_tmap_scanline_per;
+		cur_tmap_scanline_per_nolight=asm_pent_tmap_scanline_per;
+		cur_tmap_scanline_lin=asm_tmap_scanline_lin_lighted;
+		cur_tmap_scanline_lin_nolight=asm_tmap_scanline_lin;
+		cur_tmap_scanline_flat=asm_tmap_scanline_flat;
+		cur_tmap_scanline_shaded=asm_tmap_scanline_shaded;
+	}
+	else if (stricmp(type,"ppro")==0){
+		cur_tmap_scanline_per=asm_ppro_tmap_scanline_per;
+		cur_tmap_scanline_per_nolight=asm_ppro_tmap_scanline_per;
+		cur_tmap_scanline_lin=asm_tmap_scanline_lin_lighted;
+		cur_tmap_scanline_lin_nolight=asm_tmap_scanline_lin;
+		cur_tmap_scanline_flat=asm_tmap_scanline_flat;
+		cur_tmap_scanline_shaded=asm_tmap_scanline_shaded;
+	}
+	else
+#endif
+	if (stricmp(type,"fp")==0){
+		cur_tmap_scanline_per=c_fp_tmap_scanline_per;
+		cur_tmap_scanline_per_nolight=c_fp_tmap_scanline_per_nolight;
+		cur_tmap_scanline_lin=c_tmap_scanline_lin;
+		cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
+		cur_tmap_scanline_flat=c_tmap_scanline_flat;
+		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
+	}
+	else {
+		if (stricmp(type,"c")!=0)
+			printf("unknown tmap requested, using c tmap\n");
+		cur_tmap_scanline_per=c_tmap_scanline_per;
+		cur_tmap_scanline_per_nolight=c_tmap_scanline_per_nolight;
+		cur_tmap_scanline_lin=c_tmap_scanline_lin;
+		cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
+		cur_tmap_scanline_flat=c_tmap_scanline_flat;
+		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
+	}
+}

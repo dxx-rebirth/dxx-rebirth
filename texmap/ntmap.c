@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/ntmap.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 15:18:04 $
+ * $Date: 2001-10-25 02:22:46 $
  * 
  * Start of conversion to new texture mapper.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/01/31 15:18:04  bradleyb
+ * Makefile and conf.h fixes
+ *
  * Revision 1.2  2001/01/31 14:04:46  bradleyb
  * Fix compiler warnings
  *
@@ -144,7 +147,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ntmap.c,v 1.3 2001-01-31 15:18:04 bradleyb Exp $";
+static char rcsid[] = "$Id: ntmap.c,v 1.4 2001-10-25 02:22:46 bradleyb Exp $";
 #endif
 
 #define VESA 0
@@ -161,13 +164,11 @@ static char rcsid[] = "$Id: ntmap.c,v 1.3 2001-01-31 15:18:04 bradleyb Exp $";
 #include "gr.h"
 #include "3d.h"
 #include "error.h"
-#include "rle.h"
 
 #include "texmap.h"
 #include "texmapl.h"
-#ifdef NO_ASM
+#include "rle.h"
 #include "scanline.h"
-#endif
 
 //#include "../main/textures.h"
 
@@ -521,11 +522,7 @@ void ntmap_scanline_lighted(grs_bitmap *srcb, int y, fix xleft, fix xright, fix 
 			if (fx_xright > Window_clip_right)
 				fx_xright = Window_clip_right;
 			
-			#if (defined(NO_ASM) && !defined(ASM_PER)) || defined(FP_TMAP)
-				c_tmap_scanline_per_nolight();
-			#else
-				asm_tmap_scanline_per();
-			#endif
+			cur_tmap_scanline_per();
 			break;
 		case 1: {
 			fix	mul_thing;
@@ -552,11 +549,7 @@ void ntmap_scanline_lighted(grs_bitmap *srcb, int y, fix xleft, fix xright, fix 
 			if (fx_xright > Window_clip_right)
 				fx_xright = Window_clip_right;
 
-			#if (defined(NO_ASM) && !defined(ASM_PER)) || defined(FP_TMAP)
-				c_tmap_scanline_per();
-			#else
-				asm_tmap_scanline_per();
-			#endif
+			cur_tmap_scanline_per();
 			break;
 		}
 		case 2:

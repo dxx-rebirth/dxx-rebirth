@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/scanline.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:16 $
+ * $Date: 2001-10-25 02:22:46 $
  * 
  * Prototypes for C versions of texture mapped scanlines.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.1.1.1  1999/06/14 22:14:10  donut
  * Import of d1x 1.37 source.
  *
@@ -42,6 +45,18 @@ extern void c_tmap_scanline_lin();
 extern void c_tmap_scanline_lin_nolight();
 extern void c_tmap_scanline_flat();
 extern void c_tmap_scanline_shaded();
+
+//typedef struct _tmap_scanline_funcs {
+extern void (*cur_tmap_scanline_per)(void);
+extern void (*cur_tmap_scanline_per_nolight)(void);
+extern void (*cur_tmap_scanline_lin)(void);
+extern void (*cur_tmap_scanline_lin_nolight)(void);
+extern void (*cur_tmap_scanline_flat)(void);
+extern void (*cur_tmap_scanline_shaded)(void);
+//} tmap_scanline_funcs;
+
+//extern tmap_scanline_funcs tmap_funcs;
+void select_tmap(char *type);
 
 #endif
 

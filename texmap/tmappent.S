@@ -170,9 +170,9 @@
 .equ _fx_dl_dx, fx_dl_dx
 .equ _Transparency_on, Transparency_on
 
-.globl asm_tmap_scanline_per
+.globl asm_pent_tmap_scanline_per
 #else
-.globl _asm_tmap_scanline_per
+.globl _asm_pent_tmap_scanline_per
 #endif
 
 .extern _pixptr, _gr_fade_table, _write_buffer
@@ -217,9 +217,9 @@ ctlwd:		.word	0		// the pre-tweaked FPU control word
 //
 
 #ifdef __linux__
-asm_tmap_scanline_per:
+asm_pent_tmap_scanline_per:
 #else
-_asm_tmap_scanline_per:
+_asm_pent_tmap_scanline_per:
 #endif
 
 // Save registers the compiler might be using.
