@@ -1,4 +1,4 @@
-/* $Id: func.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: func.c,v 1.4 2005-01-24 22:07:43 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: func.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: func.c,v 1.4 2005-01-24 22:07:43 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -30,6 +30,7 @@ static char rcsid[] = "$Id: func.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
 #include <string.h>
 
 #include "func.h"
+#include "strutil.h"
 
 #define MAX_PARAMS 10
 
