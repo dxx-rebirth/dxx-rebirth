@@ -1,3 +1,7 @@
+2003-04-24  Ingo van Lil  <inguin@gmx.de>
+
+	* main/render.c: fix misspellings of NDEBUG
+
 0.2.1:
 
 2003-04-14  Bradley Bell  <btb@icculus.org>

@@ -1,4 +1,4 @@
-/* $Id: render.c,v 1.15 2003-02-27 19:26:25 btb Exp $ */
+/* $Id: render.c,v 1.16 2003-04-24 18:15:36 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2373,7 +2373,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	render_start_frame();
 
 
-	#if defined(EDITOR) && !defined(NDEUBG)
+	#if defined(EDITOR) && !defined(NDEBUG)
 	if (Show_only_curside) {
 		rotate_list(8,Cursegp->verts);
 		render_side(Cursegp,Curside);
@@ -2552,7 +2552,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	// -- commented out by mk on 09/14/94...did i do a good thing??  object_render_targets();
 
 #ifdef EDITOR
-	#ifndef NDEUBG
+	#ifndef NDEBUG
 	//draw curedge stuff
 	if (Outline_mode) outline_seg_side(Cursegp,Curside,Curedge,Curvert);
 	#endif
