@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.10 2003-03-27 01:25:41 btb Exp $ */
+/* $Id: playsave.c,v 1.11 2003-03-27 03:21:20 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -675,12 +675,6 @@ int read_player_file()
 			SecondaryOrder[i]=file_read_byte(file);
 		 }
 
-		if (player_file_version >= 25)
-			fread(kconfig_d2x_settings, MAX_D2X_CONTROLS, 1, file);
-		else
-			for(i=0; i < MAX_D2X_CONTROLS; i++)
-				kconfig_d2x_settings[i] = default_kconfig_d2x_settings[i];
-
 		if (player_file_version>=16)
 		 {
 		  Cockpit_3d_view[0]=file_read_int(file);
@@ -765,6 +759,12 @@ int read_player_file()
 			file_read_string(buf, file);			// Just read it in fpr DPS.
 	#endif
 	}
+
+	if (player_file_version >= 25)
+		fread(kconfig_d2x_settings, MAX_D2X_CONTROLS, 1, file);
+	else
+		for(i=0; i < MAX_D2X_CONTROLS; i++)
+			kconfig_d2x_settings[i] = default_kconfig_d2x_settings[i];
 
 	if (fclose(file) && errno_ret==EZERO)
 		errno_ret			= errno;
@@ -939,8 +939,6 @@ int write_player_file()
         fwrite (&SecondaryOrder[i],sizeof(ubyte),1,file);
        }
 
-		fwrite(kconfig_d2x_settings, MAX_D2X_CONTROLS, 1, file);
-
 		file_write_int (Cockpit_3d_view[0],file);
 		file_write_int (Cockpit_3d_view[1],file);
 
@@ -969,6 +967,8 @@ int write_player_file()
 		#endif
 		file_write_string(buf, file);		// Write out current joystick for player.
 	}
+
+	fwrite(kconfig_d2x_settings, MAX_D2X_CONTROLS, 1, file);
 
 	if (fclose(file))
 		errno_ret			= errno;
