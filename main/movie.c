@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.3 2002-07-22 06:29:00 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.4 2002-07-23 01:05:31 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -86,9 +86,9 @@ typedef struct {
 } movielib;
 
 #ifdef D2_OEM
-char *movielib_files[] = {"intro-l.mvl","other-l.mvl","robots-l.mvl","oem-l.mvl"};
+char movielib_files[][FILENAME_LEN] = {"intro-l.mvl","other-l.mvl","robots-l.mvl","oem-l.mvl"};
 #else
-char *movielib_files[] = {"intro-l.mvl","other-l.mvl","robots-l.mvl"};
+char movielib_files[][FILENAME_LEN] = {"intro-l.mvl","other-l.mvl","robots-l.mvl"};
 #endif
 
 #define N_BUILTIN_MOVIE_LIBS (sizeof(movielib_files)/sizeof(*movielib_files))
