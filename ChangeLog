@@ -1,4 +1,8 @@
+0.2.4:
+
 2003-05-12  Bradley Bell  <btb@icculus.org>
+
+	* configure.ac: increment version number
 
 	* main/bm.c: use con_printf for exit model warnings
 
@@ -6,7 +10,7 @@
 
 	* main/inferno.c: added -nohogdir and -userdir options
 
-	* main/titles.c: use briefings with no extension
+	* NEWS, main/titles.c: use briefings with no extension
 
 0.2.3:
 
