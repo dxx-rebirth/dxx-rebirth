@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.25 2004-08-29 17:57:23 schaffner Exp $ */
+/* $Id: gamesave.c,v 1.26 2004-12-19 12:29:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.25 2004-08-29 17:57:23 schaffner Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.26 2004-12-19 12:29:11 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -411,7 +411,7 @@ static void gs_write_fixang(fixang f,FILE *file)
 
 }
 
-static void gs_write_byte(byte b,FILE *file)
+static void gs_write_byte(sbyte b,FILE *file)
 {
 	if (fwrite( &b, sizeof(b), 1, file) != 1)
 		Error( "Error reading byte in gamesave.c" );
