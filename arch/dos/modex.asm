@@ -10,13 +10,16 @@
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
 ; $Source: /cvs/cvsroot/d2x/arch/dos/modex.asm,v $
-; $Revision: 1.3 $
+; $Revision: 1.4 $
 ; $Author: bradleyb $
-; $Date: 2001-10-19 09:01:56 $
+; $Date: 2001-10-19 10:08:01 $
 ;
 ; Routines to access ModeX VGA memory
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.3  2001/10/19 09:01:56  bradleyb
+; Moved arch/sdl_* to arch/sdl
+;
 ; Revision 1.3  2001/01/31 14:04:44  bradleyb
 ; Fix compiler warnings
 ;
@@ -88,8 +91,8 @@
 [BITS 32]
 
 section .data
-%include "dos_vgaregs.inc"
-%include "dos_tweak.inc"
+%include "vgaregs.inc"
+%include "tweak.inc"
 
 extern _gr_var_bwidth
 extern _gr_video_memory
