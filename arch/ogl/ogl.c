@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.12 2004-05-11 01:53:34 btb Exp $ */
+/* $Id: ogl.c,v 1.13 2004-05-11 03:35:20 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -609,27 +609,14 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	c=grd_curcanv->cv_color;
 //	glColor3f((gr_palette[c*3]+gr_palette_gamma)/63.0,(gr_palette[c*3+1]+gr_palette_gamma)/63.0,(gr_palette[c*3+2]+gr_palette_gamma)/63.0);
 	OGL_DISABLE(TEXTURE_2D);
+	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
+		glColor3f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c));
+	else
+		glColor4f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / (float)GR_FADE_LEVELS);
 	glBegin(GL_TRIANGLE_FAN);
-	glColor3f(PAL2Tr(c),PAL2Tg(c),PAL2Tb(c));
 	for (c=0;c<nv;c++){
 	//	glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
 		glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
-	}
-	glEnd();
-	return 0;
-}
-
-bool g3_draw_transp_poly(int nv, g3s_point **pointlist)
-{
-	int c;
-
-	r_polyc++;
-	OGL_DISABLE(TEXTURE_2D);
-	glColor4f(0, 0, 0, (float)Gr_scanline_darkening_level / 31.0);
-	glBegin(GL_TRIANGLE_FAN);
-	for (c = 0; c < nv; c++)
-	{
-		glVertex3f(f2glf(pointlist[c]->p3_vec.x), f2glf(pointlist[c]->p3_vec.y), -f2glf(pointlist[c]->p3_vec.z));
 	}
 	glEnd();
 	return 0;

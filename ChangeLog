@@ -1,3 +1,10 @@
+2004-05-10  Bradley Bell  <btb@icculus.org>
+
+	* arch/ogl/ogl.c, include/3d.h, main/render.c: hmm,
+	g3_draw_transp_poly had the fade level backwards, decided to just
+	fix g3_draw_poly so it behaves correctly, transparency or not,
+	reverted changes to render_face
+
 2004-05-10  Dietfrid Mali  <dietfrid.mali@q-dial.de>
 
 	* arch/ogl/ogl.c, include/3d.h: added g3_draw_transp_poly() for

@@ -1,4 +1,4 @@
-/* $Id: 3d.h,v 1.10 2004-05-11 01:53:34 btb Exp $ */
+/* $Id: 3d.h,v 1.11 2004-05-11 03:35:20 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -290,13 +290,6 @@ ubyte g3_add_delta_vec(g3s_point *dest,g3s_point *src,vms_vector *deltav);
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
 bool g3_draw_poly(int nv,g3s_point **pointlist);
-
-#ifdef OGL
-// draw a transparent face.
-// returns 1 if off screen, 0 if drew
-// Currently implemented only for OpenGL, always returns 0.
-bool g3_draw_transp_poly(int nv, g3s_point **pointlist);
-#endif
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
