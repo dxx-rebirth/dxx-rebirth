@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/scanline.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 08:25:34 $
+ * $Date: 2001-11-14 20:13:19 $
  * 
  * Routines to draw the texture mapped scanlines.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/10/25 08:25:34  bradleyb
+ * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
+ *
  * Revision 1.3  2001/10/25 02:22:46  bradleyb
  * adding support for runtime selection of tmap funcs
  *
@@ -54,7 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: scanline.c,v 1.4 2001-10-25 08:25:34 bradleyb Exp $";
+static char rcsid[] = "$Id: scanline.c,v 1.5 2001-11-14 20:13:19 bradleyb Exp $";
 #endif
 
 #include <math.h>
@@ -990,7 +993,13 @@ void (*cur_tmap_scanline_shaded)(void);
 void select_tmap(char *type){
 	if (!type){
 #ifndef NO_ASM
+#if defined(__pentiumpro__)
+		select_tmap("ppro");
+#elif defined(__pentium__)
+		select_tmap("pent");
+#else
 		select_tmap("i386");
+#endif
 #else
 		select_tmap("c");
 #endif
