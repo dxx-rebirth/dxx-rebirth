@@ -36,6 +36,7 @@ AC_PROG_CXX
 AC_STDC_HEADERS
 AC_PATH_PROGS(NASM, nasm nasmw, no)
 AC_C_BIGENDIAN
+AC_CHECK_DECLS(nanosleep)
 
 case $host_cpu in
 	sparc)
@@ -298,6 +299,9 @@ AM_CONDITIONAL(USE_ASM, test x$enable_assembler != xno)
 
 AH_BOTTOM([
         /* General defines */
+#ifndef PACKAGE_STRING
+#define PACKAGE_STRING PACKAGE " " VERSION
+#endif
 #define VERSION_NAME PACKAGE_STRING
 #define NMONO 1
 #define PIGGY_USE_PAGING 1

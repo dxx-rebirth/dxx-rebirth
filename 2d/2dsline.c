@@ -1,4 +1,4 @@
-/* $Id: 2dsline.c,v 1.9 2002-10-12 03:09:23 btb Exp $ */
+/* $Id: 2dsline.c,v 1.10 2003-04-29 08:05:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -142,7 +142,10 @@ void gr_linear_darken(ubyte * dest, int darkening_level, int count, ubyte * fade
 	register int i;
 
 	for (i=0;i<count;i++)
-		*dest=fade_table[(*dest++)+(darkening_level*256)];
+	{
+		*dest = fade_table[(*dest)+(darkening_level*256)];
+		dest++;
+	}
 }
 
 #endif
