@@ -1,4 +1,4 @@
-/* $Id: object.h,v 1.3 2003-01-02 23:13:21 btb Exp $ */
+/* $Id: object.h,v 1.4 2003-01-11 01:11:37 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -207,7 +207,7 @@ typedef struct object {
 	ubyte			id;				// which form of object...which powerup, robot, etc.
 #ifdef WORDS_NEED_ALIGNMENT
 	short pad;
-#endif;
+#endif
 	short			next,prev;		// id of next and previous connected object in Objects, -1 = no connection
 	ubyte			control_type;  // how this object is controlled
 	ubyte			movement_type; // how this object moves
@@ -252,7 +252,7 @@ typedef struct object {
 
 #ifdef WORDS_NEED_ALIGNMENT
 	short pad2;
-#endif;
+#endif
 } __pack__ object;
 
 typedef struct obj_position {
