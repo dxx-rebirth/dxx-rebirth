@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.5 2002-07-16 20:47:27 bradleyb Exp $";
+static char rcsid[] = "$Id: text.c,v 1.6 2002-10-03 03:46:35 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -154,11 +154,11 @@ void load_text()
 			strcpy(p+1,p+2);
 			p++;
 		}
- 
+
 	}
 
-//	Assert(tptr==text+len || tptr==text+len-2);
-	
+	//Assert(tptr==text+len || tptr==text+len-2);
+
 }
 
 

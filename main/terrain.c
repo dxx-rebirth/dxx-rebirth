@@ -1,4 +1,4 @@
-/* $Id: terrain.c,v 1.2 2002-08-02 10:57:12 btb Exp $ */
+/* $Id: terrain.c,v 1.3 2002-10-03 03:46:35 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -78,7 +78,6 @@ int mine_tiles_drawn;    //flags to tell if all 4 tiles under mine have drawn
 // LINT: adding function prototypes
 void build_light_table(void);
 void free_light_table(void);
-
 
 // ------------------------------------------------------------------------
 void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *p3)
@@ -475,7 +474,7 @@ void build_light_table()
 			if (min_l == max_l) {
 				LIGHT(i,j) = l>>8;
 				continue;
-			}				
+			}
 
 			l2 = fixdiv((l-min_l),(max_l-min_l));
 

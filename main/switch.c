@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: switch.c,v 1.7 2002-08-06 01:31:07 btb Exp $";
+static char rcsid[] = "$Id: switch.c,v 1.8 2002-10-03 03:46:35 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -471,7 +471,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 				break;
 			#endif
-			
+
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
 
