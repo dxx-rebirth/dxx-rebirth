@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.9 2002-09-14 00:20:44 btb Exp $ */
+/* $Id: cfile.c,v 1.10 2002-10-04 07:19:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -206,6 +206,9 @@ int cfile_size(char *hogname)
 	return statbuf.st_size;
 }
 
+/*
+ * return handle for file called "name", embedded in one of the hogfiles
+ */
 FILE * cfile_find_libfile(char * name, int * length)
 {
 	FILE * fp;

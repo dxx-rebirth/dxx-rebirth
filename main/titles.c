@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.15 2002-09-14 00:32:52 btb Exp $ */
+/* $Id: titles.c,v 1.16 2002-10-04 07:19:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -581,7 +581,7 @@ int load_new_briefing_screen( char *fname )
 {
 	int pcx_error;
 
-	mprintf ((0,"Loading new briefing %s!\n",fname));
+	mprintf ((0,"Loading new briefing <%s>\n",fname));
 	strcpy (CurBriefScreenName,fname);
 
 	//WIN(DEFINE_SCREEN(CurBriefScreenName));
@@ -1558,7 +1558,7 @@ void do_briefing_screens(char *filename,int level_num)
 
 	#endif
 
-	mprintf ((0,"Trying briefing screen! %s\n",filename));
+	mprintf ((0,"Trying briefing screen <%s>\n",filename));
 
 	if (!filename)
 		return;
@@ -1579,7 +1579,7 @@ void do_briefing_screens(char *filename,int level_num)
 		gr_set_current_canvas(NULL)
 	);
 
-	mprintf ((0,"Playing briefing screen! %s %d\n",filename,level_num));
+	mprintf ((0,"Playing briefing screen <%s>, level %d\n",filename,level_num));
 
 	key_flush();
 
