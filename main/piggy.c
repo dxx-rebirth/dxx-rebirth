@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.61 2005-01-25 21:53:41 schaffner Exp $ */
+/* $Id: piggy.c,v 1.62 2005-03-06 04:26:37 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.61 2005-01-25 21:53:41 schaffner Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.62 2005-03-06 04:26:37 chris Exp $";
 #endif
 
 
@@ -2218,7 +2218,8 @@ void load_d1_bitmap_replacements()
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
-	Assert( get_d1_colormap( d1_palette, colormap ) == 0 );
+	if (get_d1_colormap( d1_palette, colormap ) != 0)
+		Warning("Could not load descent 1 color palette");
 
 	pigsize = cfilelength(d1_Piggy_fp);
 	switch (pigsize) {
@@ -2329,7 +2330,8 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 			return bitmap_num;
 		}
 
-		Assert( get_d1_colormap( d1_palette, colormap ) == 0 );
+		if (get_d1_colormap( d1_palette, colormap ) != 0)
+			Warning("Could not load descent 1 color palette");
 
 		pigsize = cfilelength(d1_Piggy_fp);
 		switch (pigsize) {

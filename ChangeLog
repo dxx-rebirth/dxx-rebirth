@@ -1,3 +1,8 @@
+2005-03-06  Chris Taylor  <chris@icculus.org>
+
+	* main/piggy.c: load the descent 1 color palette when NDEBUG is
+	defined
+
 2005-02-27  Chris Taylor  <chris@icculus.org>
 
 	* main/editor/med.c, ui/file.c, ui/keypress.c, ui/menu.c,
