@@ -22,6 +22,7 @@ AC_STDC_HEADERS
 NO_ASM=0
 NO_NETWORK=0
 GL_LIBS="GL GLU"
+NASM_PROG=nasm
 
 AC_CYGWIN
 if test x$CYGWIN = xyes; then
@@ -32,10 +33,10 @@ fi
 AC_MINGW32
 AM_CONDITIONAL(MINGW32, test x$MINGW32 = xyes)
 if test x$MINGW32 = xyes; then
-    GL_LIBS="opengl32 glu32"
-    AC_MSG_WARN([mingw32 found, disabling network and assembler])
-    NO_ASM=1
+    AC_MSG_WARN([mingw32 found, disabling network])
     NO_NETWORK=1
+    GL_LIBS="opengl32 glu32"
+    NASM_PROG=nasmw
 fi
 
 CFLAGS="$CFLAGS -g -O2 -Wall"
@@ -167,7 +168,7 @@ else
     fi
   fi
 
-  AC_PATH_PROG(NASM, nasm, no)
+  AC_PATH_PROG(NASM, $NASM_PROG, no)
   CFLAGS="-I\$(top_srcdir)/input/linux/include -I\$(top_srcdir)/arch/linux/include $CFLAGS"
 
 fi
@@ -189,11 +190,11 @@ if test "$NASM" = "no"; then
 fi
 if test "$NO_ASM" = 1; then
         AC_DEFINE(NO_ASM)
-        NASMFLAGS=""
+        NASMFLAGS="-i\$(srcdir)/ $NASMFLAGS"
 else
         case $host_os in
           cygwin)
-              NASMFLAGS="-f win32 -i\$(srcdir)/"
+              NASMFLAGS="-f win32 $NASMFLAGS"
               ;;
 	  msdosdjgpp)
 	      NASMFLAGS="-f coff -i\$(srcdir)/"
