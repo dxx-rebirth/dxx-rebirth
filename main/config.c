@@ -48,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.4 2001-10-12 00:18:38 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.5 2001-11-14 10:31:40 bradleyb Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -58,7 +58,7 @@ ubyte Config_control_type = 0;
 ubyte Config_channels_reversed = 0;
 ubyte Config_joystick_sensitivity = 8;
 
-#ifdef __ENV_MSDOS__
+#ifdef __MSDOS__
 static char *digi_dev8_str = "DigiDeviceID8";
 static char *digi_dev16_str = "DigiDeviceID16";
 static char *digi_port_str = "DigiPort";
@@ -578,7 +578,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.4 2001-10-12 00:18:38 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.5 2001-11-14 10:31:40 bradleyb Exp $";
 #endif
 
 #define MAX_CTB_LEN	512

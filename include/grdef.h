@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/grdef.h,v $
- * $Revision: 1.1.1.2 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:34:09 $
+ * $Date: 2001-11-14 10:31:40 $
  *
  * Internal definitions for graphics lib.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.2  2001/01/19 03:34:09  bradleyb
+ * Import of d2x-0.0.9-pre1
+ *
  * Revision 1.2  1999/11/20 10:05:16  donut
  * variable size menu patch from Jan Bobrowski.  Variable menu font size support and a bunch of fixes for menus that didn't work quite right, by me (MPM).
  *
@@ -100,7 +103,7 @@ void gr_linear_line( int x0, int y0, int x1, int y1);
 
 extern unsigned int Table8to32[256];
 
-#ifdef __ENV_DJGPP_
+#ifdef __DJGPP__
 extern unsigned char * gr_video_memory;
 #endif
 

@@ -15,7 +15,7 @@
 #include "u_mem.h"
 //end addition -MM
 
-#ifdef __ENV_WINDOWS__
+#ifdef __WINDOWS__
 #include <windows.h>
 #define lseek(a,b,c) _lseek(a,b,c)
 #endif
@@ -38,10 +38,10 @@ long ffilelength(FILE *fh)
 
 unsigned long d_getdiskfree()
 {
-#ifdef __ENV_MSDOS__
+#ifdef __MSDOS__
   return getdiskfree();
 #else
-#ifdef __ENV_WINDOWS__
+#ifdef __WINDOWS__
 	ULONG cbCluster = 0;
 	ULONG cClusters = 0;
 
