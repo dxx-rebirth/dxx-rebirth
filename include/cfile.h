@@ -1,4 +1,4 @@
-/* $Id: cfile.h,v 1.14 2004-12-02 09:48:57 btb Exp $ */
+/* $Id: cfile.h,v 1.15 2004-12-04 04:07:16 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -64,7 +64,7 @@ static inline PHYSFS_file *cfopen(char *filename, char *mode)
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
 static inline int cfile_init(char *hogname)
 {
-	char pathname[1024];
+	char pathname[PATH_MAX];
 
 	if (!PHYSFSX_getRealPath(hogname, pathname))
 		return 0;
@@ -74,7 +74,7 @@ static inline int cfile_init(char *hogname)
 
 static inline int cfile_close(char *hogname)
 {
-	char pathname[1024];
+	char pathname[PATH_MAX];
 
 	if (!PHYSFSX_getRealPath(hogname, pathname))
 		return 0;

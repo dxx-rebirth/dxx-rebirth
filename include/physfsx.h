@@ -1,4 +1,4 @@
-/* $Id: physfsx.h,v 1.5 2004-12-03 07:29:32 btb Exp $ */
+/* $Id: physfsx.h,v 1.6 2004-12-04 04:07:16 btb Exp $ */
 
 /*
  *
@@ -76,17 +76,42 @@ static inline int PHYSFSX_putc(PHYSFS_file *file, int c)
 		return (int)c;
 }
 
-static inline int PHYSFSX_getRealPath(char *stdPath, char *realPath)
+static inline int PHYSFSX_getRealPath(const char *stdPath, char *realPath)
 {
 	const char *realDir = PHYSFS_getRealDir(stdPath);
-	char sep = *PHYSFS_getDirSeparator();
+	const char *sep = PHYSFS_getDirSeparator();
+	char *p;
 
 	if (!realDir)
 		return 0;
-	
-	Assert(strlen(realDir) + 1 + strlen(stdPath) < PATH_MAX);
 
-	sprintf(realPath, "%s%c%s", realDir, sep, stdPath);
+	strncpy(realPath, realDir, PATH_MAX - 1);
+	if (strlen(realPath) >= strlen(sep))
+	{
+		p = realPath + strlen(realPath) - strlen(sep);
+		if (strcmp(p, sep)) // no sep at end of realPath
+			strncat(realPath, sep, PATH_MAX - 1 - strlen(realPath));
+	}
+
+	if (strlen(stdPath) >= 1)
+		if (*stdPath == '/')
+			stdPath++;
+
+	while (*stdPath)
+	{
+		if (*stdPath == '/')
+			strncat(realPath, sep, PATH_MAX - 1 - strlen(realPath));
+		else
+		{
+			if (strlen(realPath) < PATH_MAX - 2)
+			{
+				p = realPath + strlen(realPath);
+				p[0] = *stdPath;
+				p[1] = '\0';
+			}
+		}
+		stdPath++;
+	}
 
 	return 1;
 }
