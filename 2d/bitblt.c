@@ -1,4 +1,4 @@
-/* $Id: bitblt.c,v 1.7 2002-09-04 22:01:07 btb Exp $ */
+/* $Id: bitblt.c,v 1.8 2002-09-04 23:29:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -434,7 +434,7 @@ done:
 
 #else
 
-static void gr_linear_rep_movsd_2x(ubyte *src, ubyte *dest, int num_pixels)
+static void gr_linear_rep_movsd_2x(ubyte *src, ubyte *dest, unsigned int num_pixels)
 {
 	double  *d = (double *)dest;
 	uint    *s = (uint *)src;
@@ -468,6 +468,9 @@ static void gr_linear_rep_movsd_2x(ubyte *src, ubyte *dest, int num_pixels)
 }
 
 #endif
+
+
+#ifdef __MSDOS__
 
 static void modex_copy_column(ubyte * src, ubyte * dest, int num_pixels, int src_rowsize, int dest_rowsize );
 
@@ -511,6 +514,7 @@ static void modex_copy_column(ubyte * src, ubyte * dest, int num_pixels, int src
 }
 
 #endif
+
 
 static void modex_copy_column_m(ubyte * src, ubyte * dest, int num_pixels, int src_rowsize, int dest_rowsize );
 
@@ -562,6 +566,8 @@ static void modex_copy_column_m(ubyte * src, ubyte * dest, int num_pixels, int s
 }
 
 #endif
+
+#endif /* __MSDOS__ */
 
 void gr_ubitmap00( int x, int y, grs_bitmap *bm )
 {
@@ -631,6 +637,8 @@ void gr_ubitmap00m( int x, int y, grs_bitmap *bm )
 "       jne alignstart          "   \
 "aligned4:                      "
 #endif
+
+#ifdef __MSDOS__
 
 static void modex_copy_scanline( ubyte * src, ubyte * dest, int npixels );
 
@@ -799,8 +807,6 @@ static void modex_copy_scanline_2x( ubyte * src, ubyte * dest, int npixels )
 #endif
 
 
-#ifdef __MSDOS__
-
 // From Linear to ModeX
 void gr_bm_ubitblt01(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
 {
@@ -878,7 +884,7 @@ void gr_bm_ubitblt01m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *
 	}
 }
 
-#endif
+#endif /* __MSDOS__ */
 
 
 void gr_ubitmap012( int x, int y, grs_bitmap *bm )
