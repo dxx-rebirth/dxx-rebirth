@@ -1,5 +1,7 @@
 2003-03-19  Bradley Bell  <btb@icculus.org>
 
+	* arch/sdl/gr.c: removing dependencies on stuff in main/
+
 	* arch/linux/Makefile.am, arch/linux/init.c,
 	arch/linux/linuxnet.c, arch/linux/include/ukali.h,
 	arch/ogl/Makefile.am, main/inferno.c: moved joy_init back to main,
