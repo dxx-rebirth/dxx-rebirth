@@ -145,10 +145,8 @@ typedef struct _new_grs_font {
 	ubyte	**	ft_chars;		// Ptrs to data for each char (required for prop font)
 	short	*	ft_widths;		// Array of widths (required for prop font)
 	ubyte *  ft_kerndata;	// Array of kerning triplet data
-	
-
-#ifdef OGL
 	old_grs_font * oldfont;
+#ifdef OGL
 	grs_bitmap *ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;
 #endif

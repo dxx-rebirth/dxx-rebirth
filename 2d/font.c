@@ -117,7 +117,7 @@ void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
 
 			if (INFONT(letter2)) {
 
-				p = find_kern_entry(FONT,letter,letter2);
+				p = find_kern_entry(FONT,(ubyte)letter,letter2);
 
 				if (p)
 					*spacing = p[2];
@@ -131,6 +131,11 @@ int get_centered_x(char *s)
 	int w,w2,s2;
 
 	for (w=0;*s!=0 && *s!='\n';s++) {
+		if (*s<=0x06) {
+			if (*s<=0x03)
+				s++;
+			continue;//skip color codes.
+		}
 		get_char_width(s[0],s[1],&w2,&s2);
 		w += s2;
 	}
@@ -138,6 +143,24 @@ int get_centered_x(char *s)
 	return ((grd_curcanv->cv_bitmap.bm_w - w) / 2);
 }
 
+//hack to allow color codes to be embedded in strings -MPM
+//note we subtract one from color, since 255 is "transparent" so it'll never be used, and 0 would otherwise end the string.
+//function must already have orig_color var set (or they could be passed as args...)
+//perhaps some sort of recursive orig_color type thing would be better, but that would be way too much trouble for little gain
+int gr_message_color_level=1;
+#define CHECK_EMBEDDED_COLORS() if ((*text_ptr >= 0x01) && (*text_ptr <= 0x03)) { \
+		text_ptr++; \
+		if (*text_ptr){ \
+			if (gr_message_color_level >= *(text_ptr-1)) \
+				FG_COLOR = *text_ptr - 1; \
+			text_ptr++; \
+		} \
+	} \
+	else if ((*text_ptr >= 0x04) && (*text_ptr <= 0x06)){ \
+		if (gr_message_color_level >= *text_ptr - 3) \
+			FG_COLOR=orig_color; \
+		text_ptr++; \
+	}
 
 int gr_internal_string0(int x, int y, char *s )
 {
@@ -216,7 +239,7 @@ int gr_internal_string0(int x, int y, char *s )
 
 				if (underline)
 					for (i=0; i< width; i++ )
-						DATA[VideoOffset++] = FG_COLOR;
+						DATA[VideoOffset++] = (unsigned char) FG_COLOR;
 				else
 				{
 					fp += BITS_TO_BYTES(width)*r;
@@ -231,9 +254,9 @@ int gr_internal_string0(int x, int y, char *s )
 						}
 
 						if (bits & BitMask)
-							DATA[VideoOffset++] = FG_COLOR;
+							DATA[VideoOffset++] = (unsigned char) FG_COLOR;
 						else
-							DATA[VideoOffset++] = BG_COLOR;
+							DATA[VideoOffset++] = (unsigned char) BG_COLOR;
 						BitMask >>= 1;
 					}
 				}
@@ -261,6 +284,8 @@ int gr_internal_string0m(int x, int y, char *s )
 	int	skip_lines = 0;
 
 	unsigned int VideoOffset, VideoOffset1;
+
+	int orig_color=FG_COLOR;//to allow easy reseting to default string color with colored strings -MPM
 
         bits=0;
 
@@ -317,10 +342,12 @@ int gr_internal_string0m(int x, int y, char *s )
 
 				letter = *text_ptr-FMINCHAR;
 
-				if (!INFONT(letter)) {	//not in font, draw as space
+				if (!INFONT(letter) || *text_ptr<=0x06) {	//not in font, draw as space
+					CHECK_EMBEDDED_COLORS() else{
 					VideoOffset += spacing;
 					text_ptr++;
 					continue;
+					}
 				}
 
 				if (FFLAGS & FT_PROPORTIONAL)
@@ -330,7 +357,7 @@ int gr_internal_string0m(int x, int y, char *s )
 
 				if (underline)
 					for (i=0; i< width; i++ )
-						DATA[VideoOffset++] = FG_COLOR;
+						DATA[VideoOffset++] = (unsigned int) FG_COLOR;
 				else
 				{
 					fp += BITS_TO_BYTES(width)*r;
@@ -345,7 +372,7 @@ int gr_internal_string0m(int x, int y, char *s )
 						}
 
 						if (bits & BitMask)
-							DATA[VideoOffset++] = FG_COLOR;
+							DATA[VideoOffset++] = (unsigned int) FG_COLOR;
 						else
 							VideoOffset++;
 						BitMask >>= 1;
@@ -356,7 +383,8 @@ int gr_internal_string0m(int x, int y, char *s )
 				VideoOffset += spacing-width;
 			}
 
-			VideoOffset1 += ROWSIZE; y++;
+			VideoOffset1 += ROWSIZE;
+			y++;
 		}
 		y += skip_lines;
 		VideoOffset1 += ROWSIZE * skip_lines;
@@ -369,13 +397,15 @@ int gr_internal_string0m(int x, int y, char *s )
 int gr_internal_string2(int x, int y, char *s )
 {
 	unsigned char * fp;
-	char * text_ptr, * next_row, * text_ptr1;
+	ubyte * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int page_switched, skip_lines = 0;
 
 	unsigned int VideoOffset, VideoOffset1;
 
-	VideoOffset1 = (unsigned int)DATA + y * ROWSIZE + x;
+	VideoOffset1 = (size_t)DATA + y * ROWSIZE + x;
+
+	bits = 0;
 
 	gr_vesa_setpage(VideoOffset1 >> 16);
 
@@ -437,9 +467,11 @@ int gr_internal_string2(int x, int y, char *s )
 
 				letter = *text_ptr-FMINCHAR;
 
-				if (!INFONT(letter)) {	//not in font, draw as space
+				if (!INFONT(letter) || *text_ptr<=0x06) {	//not in font, draw as space
+					CHECK_EMBEDDED_COLORS() else{
 					VideoOffset += spacing;
 					text_ptr++;
+					}
 					continue;
 				}
 
@@ -595,7 +627,7 @@ int gr_internal_string2m(int x, int y, char *s )
 
 	unsigned int VideoOffset, VideoOffset1;
 
-	VideoOffset1 = (unsigned int)DATA + y * ROWSIZE + x;
+	VideoOffset1 = (size_t)DATA + y * ROWSIZE + x;
 
 	gr_vesa_setpage(VideoOffset1 >> 16);
 
@@ -984,6 +1016,7 @@ int gr_internal_string5m(int x, int y, char *s )
 }
 #endif
 
+#if 1 //ndef OGL
 //a bitmap for the character
 grs_bitmap char_bm = {
 				0,0,0,0,						//x,y,w,h
@@ -991,7 +1024,11 @@ grs_bitmap char_bm = {
 				BM_FLAG_TRANSPARENT,		//flags
 				0,								//rowsize
 				NULL,							//data
-				0								//selector
+#ifdef BITMAP_SELECTOR
+				0,				//selector
+#endif
+				0,     //avg_color
+				0      //unused
 };
 
 int gr_internal_color_string(int x, int y, char *s )
@@ -1044,9 +1081,7 @@ int gr_internal_color_string(int x, int y, char *s )
 			else
 				fp = FDATA + letter * BITS_TO_BYTES(width)*FHEIGHT;
 
-			char_bm.bm_w = char_bm.bm_rowsize = width;
-
-			char_bm.bm_data = fp;
+			gr_init_bitmap (&char_bm, BM_LINEAR, 0, 0, width, FHEIGHT, width, fp);
 			gr_bitmapm(xx,yy,&char_bm);
 
 			xx += spacing;
@@ -1057,6 +1092,267 @@ int gr_internal_color_string(int x, int y, char *s )
 	}
 	return 0;
 }
+
+#else //OGL
+#include "../main/inferno.h"
+#include "ogl_init.h"
+#include "args.h"
+//font handling routines for OpenGL - Added 9/25/99 Matthew Mueller - they are here instead of in arch/ogl because they use all these defines
+
+int pow2ize(int x);//from ogl.c
+
+int get_font_total_width(grs_font * font){
+	if (font->ft_flags & FT_PROPORTIONAL){
+		int i,w=0,c=font->ft_minchar;
+		for (i=0;c<=font->ft_maxchar;i++,c++){
+			if (font->ft_widths[i]<0)
+				Error("heh?\n");
+			w+=font->ft_widths[i];
+		}
+		return w;
+	}else{
+		return font->ft_w*(font->ft_maxchar-font->ft_minchar+1);
+	}
+}
+void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
+	int	nchars = font->ft_maxchar-font->ft_minchar+1;
+	int r,x,y,nc=0,smallest=999999,smallr=-1,tries;
+	int smallprop=10000;
+	int h,w;
+	for (h=32;h<=256;h*=2){
+//		h=pow2ize(font->ft_h*rows+gap*(rows-1));
+		if (font->ft_h>h)continue;
+		r=(h/(font->ft_h+gap));
+		w=pow2ize((get_font_total_width(font)+(nchars-r)*gap)/r);
+		tries=0;
+		do {
+			if (tries)
+				w=pow2ize(w+1);
+			if(tries>3){
+				mprintf((0,"failed to fit (%ix%i, %ic)\n",w,h,nc));
+				break;
+			}
+			nc=0;
+			y=0;
+			while(y+font->ft_h<=h){
+				x=0;
+				while (x<w){
+					if (nc==nchars)
+						break;
+					if (font->ft_flags & FT_PROPORTIONAL){
+						if (x+font->ft_widths[nc]+gap>w)break;
+						x+=font->ft_widths[nc++]+gap;
+					}else{
+						if (x+font->ft_w+gap>w)break;
+						x+=font->ft_w+gap;
+						nc++;
+					}
+				}
+				if (nc==nchars)
+					break;
+				y+=font->ft_h+gap;
+			}
+			
+			tries++;
+		}while(nc!=nchars);
+		if (nc!=nchars)
+			continue;
+		mprintf((0,"fit: %ix%i  %i tries\n",w,h,tries));
+
+		if (w*h==smallest){//this gives squarer sizes priority (ie, 128x128 would be better than 512*32)
+			if (w>=h){
+				if (w/h<smallprop){
+					smallprop=w/h;
+					smallest++;//hack
+				}
+			}else{
+				if (h/w<smallprop){
+					smallprop=h/w;
+					smallest++;//hack
+				}
+			}
+		}
+		if (w*h<smallest){
+			smallr=1;
+			smallest=w*h;
+			*rw=w;
+			*rh=h;
+		}
+	}
+	if (smallr<=0)
+		Error("couldn't fit font?\n");
+	mprintf((0,"using %ix%i\n",*rw,*rh));
+	
+}
+
+void ogl_init_font(grs_font * font){
+	int	nchars = font->ft_maxchar-font->ft_minchar+1;
+	int i,w,h,tw,th,x,y,curx=0,cury=0;
+	char *fp;
+	//	char data[32*32*4];
+	char *data;
+	int gap=0;//having a gap just wastes ram, since we don't filter text textures at all.
+	//	char s[2];
+	ogl_font_choose_size(font,gap,&tw,&th);
+	data=d_malloc(tw*th);
+	gr_init_bitmap(&font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
+
+	font->ft_parent_bitmap.gltexture=ogl_get_free_texture();
+
+	font->ft_bitmaps=(grs_bitmap*)d_malloc( nchars * sizeof(grs_bitmap));
+	mprintf((0,"ogl_init_font %s, %s, nchars=%i, (%ix%i tex)\n",(font->ft_flags & FT_PROPORTIONAL)?"proportional":"fixedwidth",(font->ft_flags & FT_COLOR)?"color":"mono",nchars,tw,th));
+	//	s[1]=0;
+	h=font->ft_h;
+	//	sleep(5);
+
+	for(i=0;i<nchars;i++){
+		//		s[0]=font->ft_minchar+i;
+		//		gr_get_string_size(s,&w,&h,&aw);
+		if (font->ft_flags & FT_PROPORTIONAL)
+			w=font->ft_widths[i];
+		else
+			w=font->ft_w;
+//		mprintf((0,"char %i(%ix%i): ",i,w,h));
+		if (w<1 || w>256){
+			mprintf((0,"grr\n"));continue;
+		}
+		if (curx+w+gap>tw){
+			cury+=h+gap;
+			curx=0;
+		}
+		if (cury+h>th)
+			Error("font doesn't really fit (%i/%i)?\n",i,nchars);
+		if (font->ft_flags & FT_COLOR) {
+			if (font->ft_flags & FT_PROPORTIONAL)
+				fp = font->ft_chars[i];
+			else
+				fp = font->ft_data + i * w*h;
+			for (y=0;y<h;y++)
+				for (x=0;x<w;x++){
+					font->ft_parent_bitmap.bm_data[curx+x+(cury+y)*tw]=fp[x+y*w];
+				}
+
+			//			gr_init_bitmap(&font->ft_bitmaps[i],BM_LINEAR,0,0,w,h,w,font->);
+		}else{
+			int BitMask,bits=0,white=gr_find_closest_color(63,63,63);
+			//			if (w*h>sizeof(data))
+			//				Error("ogl_init_font: toobig\n");
+			if (font->ft_flags & FT_PROPORTIONAL)
+				fp = font->ft_chars[i];
+			else
+				fp = font->ft_data + i * BITS_TO_BYTES(w)*h;
+			for (y=0;y<h;y++){
+				BitMask=0;
+				for (x=0; x< w; x++ )
+				{
+					if (BitMask==0) {
+						bits = *fp++;
+						BitMask = 0x80;
+					}
+
+					if (bits & BitMask)
+						font->ft_parent_bitmap.bm_data[curx+x+(cury+y)*tw]=white;
+					else
+						font->ft_parent_bitmap.bm_data[curx+x+(cury+y)*tw]=255;
+					BitMask >>= 1;
+				}
+			}
+		}
+		gr_init_sub_bitmap(&font->ft_bitmaps[i],&font->ft_parent_bitmap,curx,cury,w,h);
+
+		curx+=w+gap;
+	}
+	if (!(font->ft_flags & FT_COLOR)) {
+		//use GL_INTENSITY instead of GL_RGB
+		if (ogl_intensity4_ok){
+			font->ft_parent_bitmap.gltexture->internalformat=GL_INTENSITY4;
+			font->ft_parent_bitmap.gltexture->format=GL_LUMINANCE;
+		}else if (ogl_luminance4_alpha4_ok){
+			font->ft_parent_bitmap.gltexture->internalformat=GL_LUMINANCE4_ALPHA4;
+			font->ft_parent_bitmap.gltexture->format=GL_LUMINANCE_ALPHA;
+		}else if (ogl_rgba2_ok){
+			font->ft_parent_bitmap.gltexture->internalformat=GL_RGBA2;
+			font->ft_parent_bitmap.gltexture->format=GL_RGBA;
+		}else{
+			font->ft_parent_bitmap.gltexture->internalformat=ogl_rgba_format;
+			font->ft_parent_bitmap.gltexture->format=GL_RGBA;
+		}
+	}
+	ogl_loadbmtexture_m(&font->ft_parent_bitmap,0);
+}
+
+int ogl_internal_string(int x, int y, char *s )
+{
+	ubyte * text_ptr, * next_row, * text_ptr1;
+	int width, spacing,letter;
+	int xx,yy;
+	int orig_color=FG_COLOR;//to allow easy reseting to default string color with colored strings -MPM
+
+	next_row = s;
+
+	yy = y;
+
+	if (grd_curscreen->sc_canvas.cv_bitmap.bm_type != BM_OGL)
+		Error("carp.\n");
+	while (next_row != NULL)
+	{
+		text_ptr1 = next_row;
+		next_row = NULL;
+
+		text_ptr = text_ptr1;
+
+		xx = x;
+
+		if (xx==0x8000)			//centered
+			xx = get_centered_x(text_ptr);
+
+		while (*text_ptr)
+		{
+			if (*text_ptr == '\n' )
+			{
+				next_row = &text_ptr[1];
+				yy += FHEIGHT;
+				break;
+			}
+
+			letter = *text_ptr-FMINCHAR;
+
+			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
+
+			if (!INFONT(letter) || *text_ptr<=0x06) {	//not in font, draw as space
+				CHECK_EMBEDDED_COLORS() else{
+					xx += spacing;
+					text_ptr++;
+				}
+				continue;
+			}
+			
+//			ogl_ubitblt(FONT->ft_bitmaps[letter].bm_w,FONT->ft_bitmaps[letter].bm_h,xx,yy,0,0,&FONT->ft_bitmaps[letter],NULL);
+//			if (*text_ptr>='0' && *text_ptr<='9'){
+			if (FFLAGS&FT_COLOR)
+				gr_ubitmapm(xx,yy,&FONT->ft_bitmaps[letter]);
+			else{
+				if (grd_curcanv->cv_bitmap.bm_type==BM_OGL)
+					ogl_ubitmapm_c(xx,yy,&FONT->ft_bitmaps[letter],FG_COLOR);
+				else
+					Error("ogl_internal_string: non-color string to non-ogl dest\n");
+//					gr_ubitmapm(xx,yy,&FONT->ft_bitmaps[letter]);//ignores color..
+			}
+			//}
+
+			xx += spacing;
+
+			text_ptr++;
+		}
+
+	}
+	return 0;
+}
+
+int gr_internal_color_string(int x, int y, char *s ){
+	return ogl_internal_string(x,y,s);
+}
+#endif //OGL
 
 int gr_string(int x, int y, char *s )
 {
@@ -1102,6 +1398,10 @@ int gr_string(int x, int y, char *s )
 	}
 
 	// Partially clipped...
+#if 0 //def OGL
+	if (TYPE==BM_OGL)
+		return ogl_internal_string(x,y,s);
+#endif
 
 	if (FFLAGS & FT_COLOR)
 		return gr_internal_color_string( x, y, s);
@@ -1114,6 +1414,11 @@ int gr_string(int x, int y, char *s )
 
 int gr_ustring(int x, int y, char *s )
 {
+#if 0 //def OGL
+	if (TYPE==BM_OGL)
+		return ogl_internal_string(x,y,s);
+#endif
+	
 	if (FFLAGS & FT_COLOR) {
 
 		return gr_internal_color_string(x,y,s);
@@ -1226,6 +1531,13 @@ void gr_close_font( grs_font * font )
 
 		if ( font->ft_chars )
 			d_free( font->ft_chars );
+		d_free( font->oldfont );
+#if 0 //def OGL
+		if (font->ft_bitmaps)
+			d_free( font->ft_bitmaps );
+		gr_free_bitmap_data(&font->ft_parent_bitmap);
+//		ogl_freebmtexture(&font->ft_parent_bitmap);
+#endif
 		d_free( font );
 
 	}
@@ -1270,8 +1582,8 @@ grs_font * gr_init_font( char * fontname )
 	unsigned char * ptr;
 	int nchars;
 	CFILE *fontfile;
-	char file_id[4];
-	int datasize;		//size up to (but not including) palette
+	u_int32_t file_id;
+	int32_t datasize;	//size up to (but not including) palette
 
 	if (first_time) {
 		int i;
@@ -1291,14 +1603,10 @@ grs_font * gr_init_font( char * fontname )
 	if (!fontfile)
 		Error( "Can't open font file %s", fontname );
 
-	cfread( file_id, 1, 4, fontfile );
+	file_id = cfile_read_int(fontfile);
 	datasize = cfile_read_int(fontfile);
-	
 
-	if ((file_id[0] != 'P') ||
-	    (file_id[1] != 'S') ||
-	    (file_id[2] != 'F') ||
-	    (file_id[3] != 'N'))
+	if (file_id != 0x4e465350) /* 'NFSP' */
 		Error( "File %s is not a font file", fontname );
 
 	font = (grs_font *) d_malloc(datasize);
@@ -1405,6 +1713,10 @@ grs_font * gr_init_font( char * fontname )
 	FG_COLOR    = 0;
 	BG_COLOR    = 0;
 
+#if 0 //def OGL
+	ogl_init_font(font);
+#endif
+
 	return font;
 
 }
@@ -1415,8 +1727,8 @@ void gr_remap_font( grs_font *font, char * fontname )
 	int i;
 	int nchars;
 	CFILE *fontfile;
-	char file_id[4];
-	int datasize;		//size up to (but not including) palette
+	u_int32_t file_id;
+	int32_t datasize;        //size up to (but not including) palette
 	int data_ofs,data_len;
 
 	if (! (font->ft_flags & FT_COLOR))
@@ -1427,14 +1739,10 @@ void gr_remap_font( grs_font *font, char * fontname )
 	if (!fontfile)
 		Error( "Can't open font file %s", fontname );
 
-	cfread( file_id, 1, 4, fontfile );
+	file_id = cfile_read_int(fontfile);
 	datasize = cfile_read_int(fontfile);
 	
-
-	if ((file_id[0] != 'P') ||
-	    (file_id[1] != 'S') ||
-	    (file_id[2] != 'F') ||
-	    (file_id[3] != 'N'))
+	if (file_id != 0x4e465350) /* 'NFSP' */
 		Error( "File %s is not a font file", fontname );
 
 	nchars = font->ft_maxchar-font->ft_minchar+1;
