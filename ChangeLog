@@ -1,3 +1,9 @@
+2005-03-12  Chris Taylor  <chris@icculus.org>
+
+	* main/gamesave.c: could check reactor model num, don't check
+	reactor object shields (not used anyway, it's stored/calculated
+	elsewhere)
+
 2005-03-06  Chris Taylor  <chris@icculus.org>
 
 	* main/piggy.c: load the descent 1 color palette when NDEBUG is

@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.30 2005-01-25 21:58:23 schaffner Exp $ */
+/* $Id: gamesave.c,v 1.31 2005-03-12 07:50:53 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.30 2005-01-25 21:58:23 schaffner Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.31 2005-03-12 07:50:53 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -326,26 +326,9 @@ void verify_object( object * obj )	{
 			obj->id = 0;                         // used to be only one kind of reactor
 			obj->rtype.pobj_info.model_num = Reactors[0].model_num;// descent 1 reactor
 		}
-		//@@// Make model number is correct...
-		//@@for (i=0; i<Num_total_object_types; i++ )
-		//@@	if ( ObjType[i] == OL_CONTROL_CENTER ) {
-		//@@		obj->rtype.pobj_info.model_num = ObjId[i];
-		//@@		obj->shields = ObjStrength[i];
-		//@@		break;
-		//@@	}
 
-		#ifdef EDITOR
-		{
-		int i;
-		// Check, and set, strength of reactor
-		for (i=0; i<Num_total_object_types; i++ )	
-			if ( ObjType[i]==OL_CONTROL_CENTER && ObjId[i] == obj->id ) {
-				obj->shields = ObjStrength[i];
-				break;		
-			}
-		Assert(i < Num_total_object_types);		//make sure we found it
-		}
-		#endif
+		// Make sure model number is correct...
+		//obj->rtype.pobj_info.model_num = Reactors[obj->id].model_num;
 	}
 
 	if ( obj->type == OBJ_PLAYER )	{
