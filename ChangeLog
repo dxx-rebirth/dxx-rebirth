@@ -1,3 +1,8 @@
+2004-11-28  Bradley Bell  <btb@icculus.org>
+
+	* acinclude.m4, cygconf: put sdl.m4 in acinclude.m4, to make
+	autogen simpler
+
 2004-11-27  Bradley Bell  <btb@icculus.org>
 
 	* main/text.c, main/text.h, main/titles.c: added function to
