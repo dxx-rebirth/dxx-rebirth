@@ -23,8 +23,6 @@ void stop_endlevel_sequence();
 void start_endlevel_sequence();
 void render_endlevel_frame(fix eye_offset);
 
-#ifdef SHAREWARE
-
 void render_external_scene();
 void draw_exit_model();
 void init_endlevel();
@@ -40,7 +38,5 @@ extern int exit_segnum;
 void load_endlevel_data(int level_num);
 
 extern int exit_modelnum,destroyed_exit_modelnum;
-
-#endif
 
 #endif

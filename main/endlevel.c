@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.7 2002-08-02 10:57:12 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.8 2002-08-06 05:06:38 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -202,13 +202,13 @@ extern int Kmatrix_nomovie_message;
 int start_endlevel_movie()
 {
 	char movie_name[] = "esa.mve";
-   int r;
+	int r;
 	ubyte save_pal[768];
 
-	Assert(Current_mission_num == 0);		//only play movie for built-in mission
+	//Assert(Current_mission_num == 0);		//only play movie for built-in mission
 
-	Assert(N_MOVIES >= Last_level);
-	Assert(N_MOVIES_SECRET >= -Last_secret_level);
+	//Assert(N_MOVIES >= Last_level);
+	//Assert(N_MOVIES_SECRET >= -Last_secret_level);
 
 	#ifndef D2_OEM
 	if (Current_level_num == Last_level)
@@ -219,7 +219,7 @@ int start_endlevel_movie()
 		movie_name[2] = movie_table[Current_level_num-1];
 	else {
 		#ifndef SHAREWARE
-			return 0;		//no escapes for secret level 
+			return 0;       //no escapes for secret level
 		#else
 			Error("Invalid level number <%d>",Current_level_num);
 		#endif
@@ -244,12 +244,11 @@ int start_endlevel_movie()
 	else
  	  Kmatrix_nomovie_message=0;
 #endif
-	
+
 	return (r);
 
 }
 
-#ifdef SHAREWARE
 void
 free_endlevel_data()
 {
@@ -267,7 +266,7 @@ void init_endlevel()
 	//##
 	//##load_terrain("matt5b.bbm");		//load bitmap as height array
 	//##//load_terrain("ttest2.bbm");		//load bitmap as height array
-	
+
 	#ifdef STATION_ENABLED
 	station_bitmap = bm_load("steel3.bbm");
 	station_bitmap_list[0] = &station_bitmap;
@@ -287,7 +286,6 @@ void init_endlevel()
 
 	terrain_bm_instance.bm_data = satellite_bm_instance.bm_data = NULL;
 }
-#endif	//SHAREWARE
 
 object external_explosion;
 int ext_expl_playing,mine_destroyed;
@@ -307,7 +305,7 @@ void start_endlevel_sequence()
 	int movie_played = MOVIE_NOT_PLAYED;
 	#if defined(MACINTOSH) && defined(SHAREWARE)
 	static int inited = 0;
-	
+
 	if (!inited) {
 		load_exit_models();
 		inited = 1;
@@ -346,21 +344,19 @@ void start_endlevel_sequence()
 	}
 #endif
 
-	if (Current_mission_num == 0) {		//only play movie for built-in mission
+	if (1) { //Current_mission_num == 0) {		//only play movie for built-in mission
 
 		//try playing movie.  If it plays, great. if not, do rendered ending
-		
+
 		if (!(Game_mode & GM_MULTI))
 			movie_played = start_endlevel_movie();
-		
-		#ifdef SHAREWARE
+
 		if (movie_played == MOVIE_NOT_PLAYED) {		//don't have movie.  Do rendered sequence
 		#ifndef WINDOWS
 			start_rendered_endlevel_sequence();
 		#endif
 			return;
 		}
-		#endif
 
 	}
 	else
@@ -368,14 +364,6 @@ void start_endlevel_sequence()
 
 	PlayerFinishedLevel(0);		//done with level
 }
-
-#ifndef SHAREWARE
-
-void do_endlevel_frame() {Int3();}
-void stop_endlevel_sequence() {Int3();}
-void render_endlevel_frame(fix eye_offset) {Int3();}
-
-#else
 
 static int cockpit_mode_save;
 
@@ -573,10 +561,8 @@ void get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
 
 void do_endlevel_frame()
 {
-	#ifdef SHAREWARE
 	static fix timer;
 	static fix bank_rate;
-	#endif
 	vms_vector save_last_pos;
 	static fix explosion_wait1=0;
 	static fix explosion_wait2=0;
@@ -637,7 +623,7 @@ void do_endlevel_frame()
 
 					ext_expl_playing = 1;
 				}
-	
+
 				digi_link_sound_to_pos( SOUND_BIG_ENDLEVEL_EXPLOSION, exit_segnum, 0, &mine_side_exit_point, 0, i2f(3)/4 );
 			}
 		}
@@ -714,48 +700,45 @@ void do_endlevel_frame()
 
 			if (ConsoleObject->segnum == transition_segnum) {
 
-				#ifndef SHAREWARE
-					start_endlevel_movie();
+				if (start_endlevel_movie() != MOVIE_NOT_PLAYED)
 					stop_endlevel_sequence();
-				#else
+				else {
+					int objnum;
 
-				int objnum;
+					//songs_play_song( SONG_ENDLEVEL, 0 );
 
-				//songs_play_song( SONG_ENDLEVEL, 0 );
+					Endlevel_sequence = EL_LOOKBACK;
 
-				Endlevel_sequence = EL_LOOKBACK;
+					objnum = obj_create(OBJ_CAMERA, 0,
+					                    ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0,
+					                    CT_NONE,MT_NONE,RT_NONE);
 
-				objnum = obj_create(OBJ_CAMERA, 0, 
-					ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0,
-					CT_NONE,MT_NONE,RT_NONE);
+					if (objnum == -1) { //can't get object, so abort
+						mprintf((1, "Can't get object for endlevel sequence.  Aborting endlevel sequence.\n"));
+						stop_endlevel_sequence();
+						return;
+					}
 
-				if (objnum == -1) {				//can't get object, so abort
-					mprintf((1, "Can't get object for endlevel sequence.  Aborting endlevel sequence.\n"));
-					stop_endlevel_sequence();
-					return;
+					Viewer = endlevel_camera = &Objects[objnum];
+
+					select_cockpit(CM_LETTERBOX);
+
+					fly_objects[1] = fly_objects[0];
+					fly_objects[1].obj = endlevel_camera;
+					fly_objects[1].speed = (5*cur_fly_speed)/4;
+					fly_objects[1].offset_frac = 0x4000;
+
+					vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.fvec,i2f(7));
+
+					timer=0x20000;
+
 				}
-
-				Viewer = endlevel_camera = &Objects[objnum];
-
-				select_cockpit(CM_LETTERBOX);
-
-				fly_objects[1] = fly_objects[0];
-				fly_objects[1].obj = endlevel_camera;
-				fly_objects[1].speed = (5*cur_fly_speed)/4;
-				fly_objects[1].offset_frac = 0x4000;
-
-				vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.fvec,i2f(7));
-
-				timer=0x20000;
-
-				#endif
 			}
 
 			break;
 		}
 
 
-#ifdef SHAREWARE
 		case EL_LOOKBACK: {
 
 			do_endlevel_flythrough(0);
@@ -789,7 +772,7 @@ void do_endlevel_frame()
  slew_obj = endlevel_camera;
 #endif
 			}
-				
+
 			break;
 		}
 
@@ -940,7 +923,6 @@ void do_endlevel_frame()
 
 		}
 		#endif		//ifdef SHORT_SEQUENCE
-#endif
 
 	}
 }
@@ -1092,7 +1074,7 @@ void draw_stars()
 		if ((i&63) == 0) {
 			gr_setcolor(BM_XRGB(intensity,intensity,intensity));
 			intensity-=3;
-		}			
+		}
 
 		//g3_rotate_point(&p,&stars[i]);
 		g3_rotate_delta_vec(&p.p3_vec,&stars[i]);
@@ -1180,10 +1162,8 @@ void render_endlevel_frame(fix eye_offset)
 
 	if (Endlevel_sequence < EL_OUTSIDE)
 		endlevel_render_mine(eye_offset);
-	#ifdef SHAREWARE
 	else
 		render_external_scene(eye_offset);
-	#endif
 
 	g3_end_frame();
 
@@ -1344,7 +1324,7 @@ void do_endlevel_flythrough(int n)
 		compute_segment_center(&nextcenter,&Segments[pseg->children[exit_side]]);
 		vm_vec_sub(&flydata->headvec,&nextcenter,&curcenter);
 
-		#ifdef COMPACT_SEGS	
+		#ifdef COMPACT_SEGS
 		{
 			vms_vector _v1;
 			get_side_normal(pseg, up_side, 0, &_v1 );
@@ -1414,20 +1394,20 @@ int _do_slew_movement(object *obj, int check_keys, int check_joy )
 	if (check_joy && joy_present)	{
 		joy_get_pos(&joy_x,&joy_y);
 		btns=joy_get_btns();
-	
+
 		joyx_moved = (abs(joy_x - old_joy_x)>JOY_NULL);
 		joyy_moved = (abs(joy_y - old_joy_y)>JOY_NULL);
-	
+
 		if (abs(joy_x) < JOY_NULL) joy_x = 0;
 		if (abs(joy_y) < JOY_NULL) joy_y = 0;
-	
+
 		if (btns)
 			if (!rotang.pitch) rotang.pitch = fixmul(-joy_y * 512,FrameTime); else;
 		else
 			if (joyy_moved) obj->phys_info.velocity.z = -joy_y * 8192;
-	
+
 		if (!rotang.head) rotang.head = fixmul(joy_x * 512,FrameTime);
-	
+
 		if (joyx_moved) old_joy_x = joy_x;
 		if (joyy_moved) old_joy_y = joy_y;
 	}
@@ -1507,7 +1487,8 @@ try_again:
 
 		if (!ifile) {
 			if (level_num==1) {
-				Error("Cannot load file text of binary version of <%s>",filename);
+				con_printf(CON_DEBUG, "Cannot load file text of binary version of <%s>\n",filename);
+				return;
 			}
 			else {
 				level_num = 1;
@@ -1671,11 +1652,11 @@ try_again:
 		vm_vec_rotate(&tv,&station_pos,&tm);
 		vm_vec_scale_add(&station_pos,&mine_exit_point,&tv,STATION_DIST);
 
-vm_vec_rotate(&tv,&satellite_pos,&tm);
-vm_vec_scale_add(&satellite_pos,&mine_exit_point,&tv,SATELLITE_DIST);
+		vm_vec_rotate(&tv,&satellite_pos,&tm);
+		vm_vec_scale_add(&satellite_pos,&mine_exit_point,&tv,SATELLITE_DIST);
 
-vm_vector_2_matrix(&tm,&tv,&surface_orient.uvec,NULL);
-vm_vec_copy_scale(&satellite_upvec,&tm.uvec,SATELLITE_HEIGHT);
+		vm_vector_2_matrix(&tm,&tv,&surface_orient.uvec,NULL);
+		vm_vec_copy_scale(&satellite_upvec,&tm.uvec,SATELLITE_HEIGHT);
 
 
 	}
@@ -1685,6 +1666,3 @@ vm_vec_copy_scale(&satellite_upvec,&tm.uvec,SATELLITE_HEIGHT);
 	endlevel_data_loaded = 1;
 
 }
-
-#endif
-

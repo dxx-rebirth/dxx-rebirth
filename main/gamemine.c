@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.11 2002-08-06 01:31:55 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.12 2002-08-06 05:06:38 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1050,30 +1050,26 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
  		bit_mask = cfile_read_byte(LoadFile);
 
-#if defined(SHAREWARE) && !defined(MACINTOSH)
-		read_special(segnum,bit_mask,LoadFile);
-		read_verts(segnum,LoadFile);
-		read_children(segnum,bit_mask,LoadFile);
-#else
-		read_children(segnum,bit_mask,LoadFile);
-		read_verts(segnum,LoadFile);
-		if (Gamesave_current_version <= 1) { // descent 1 level
+		if (Gamesave_current_version == 5) { // d2 SHAREWARE level
 			read_special(segnum,bit_mask,LoadFile);
+			read_verts(segnum,LoadFile);
+			read_children(segnum,bit_mask,LoadFile);
+		} else {
+			read_children(segnum,bit_mask,LoadFile);
+			read_verts(segnum,LoadFile);
+			if (Gamesave_current_version <= 1) { // descent 1 level
+				read_special(segnum,bit_mask,LoadFile);
+			}
 		}
-#endif
 
 		Segments[segnum].objects = -1;
 
-#ifndef SHAREWARE
-		if (Gamesave_current_version <= 1) { // descent 1 level
-#endif
+		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
 			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
 			temp_ushort = cfile_read_short(LoadFile);
 			Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
 			//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
-#ifndef SHAREWARE
 		}
-#endif
 
 		// Read the walls as a 6 byte array
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
@@ -1172,10 +1168,8 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	validate_segment_all();			// Fill in side type and normals.
 
 	for (i=0; i<Num_segments; i++) {
-#ifndef SHAREWARE
-		if (Gamesave_current_version > 1)
+		if (Gamesave_current_version > 5)
 			segment2_read(&Segment2s[i], LoadFile);
-#endif
 		fuelcen_activate( &Segments[i], Segment2s[i].special );
 	}
 

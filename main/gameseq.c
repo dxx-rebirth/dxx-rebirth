@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.10 2002-08-02 10:57:12 btb Exp $ */
+/* $Id: gameseq.c,v 1.11 2002-08-06 05:06:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.10 2002-08-02 10:57:12 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.11 2002-08-06 05:06:38 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -148,7 +148,7 @@ void filter_objects_from_level();
 //-1,-2,-3 are secret levels
 //0 means not a real level loaded
 int	Current_level_num=0,Next_level_num;
-char	Current_level_name[LEVEL_NAME_LEN];		
+char	Current_level_name[LEVEL_NAME_LEN];
 
 #if !defined(SHAREWARE) && !defined(D2_OEM)
 int Last_level,Last_secret_level;
@@ -944,9 +944,7 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	load_palette(Current_level_palette,1,1);		//don't change screen
 
-	#ifdef SHAREWARE
 	load_endlevel_data(level_num);
-	#endif
 
 	if ( page_in_textures )
 		piggy_load_level_data();
@@ -1527,33 +1525,29 @@ void DoEndGame(void)
 
 	key_flush();
 
-   if (Current_mission_num == 0 && !(Game_mode & GM_MULTI))		//only built-in mission, & not multi
-   {  
+	if (/* Current_mission_num == 0 && */ !(Game_mode & GM_MULTI)) { //only built-in mission, & not multi
 #ifndef SHAREWARE
 		int played=MOVIE_NOT_PLAYED;	//default is not played
 #endif
 
-		#ifdef SHAREWARE
+		init_subtitles(ENDMOVIE ".tex");	//ingore errors
+		played = PlayMovie(ENDMOVIE,MOVIE_REQUIRED);
+		close_subtitles();
+		if (!played) {
+#ifdef D2_OEM
+			songs_play_song( SONG_TITLE, 0 );
+			do_briefing_screens("end2oem.tex",1);
+#else
 			songs_play_song( SONG_ENDGAME, 0 );
 			mprintf((0,"doing briefing\n"));
 			do_briefing_screens("ending2.tex",1);
 			mprintf((0,"briefing done\n"));
-		#else
-			init_subtitles(ENDMOVIE ".tex");	//ingore errors
-			played = PlayMovie(ENDMOVIE,MOVIE_REQUIRED);
-			close_subtitles();
-			#ifdef D2_OEM
-			if (!played) {
-				songs_play_song( SONG_TITLE, 0 );
-				do_briefing_screens("end2oem.tex",1);
-			}
-			#endif
-		#endif	
-   }
-	else if (!(Game_mode & GM_MULTI)) {		//not multi
+#endif
+		}
+   } else if (!(Game_mode & GM_MULTI)) {    //not multi
 		char tname[FILENAME_LEN];
 		sprintf(tname,"%s.tex",Current_mission_filename);
-		do_briefing_screens (tname,Last_level+1);		//level past last is endgame breifing
+		do_briefing_screens (tname,Last_level+1);   //level past last is endgame breifing
 
 		//try doing special credits
 		sprintf(tname,"%s.ctb",Current_mission_filename);
@@ -1562,9 +1556,9 @@ void DoEndGame(void)
 
 	key_flush();
 
-	#ifdef SHAREWARE
+#ifdef SHAREWARE
 		show_order_form();
-   #endif
+#endif
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
@@ -1572,7 +1566,7 @@ void DoEndGame(void)
 	else
 #endif
 		// NOTE LINK TO ABOVE
-		DoEndLevelScoreGlitz(0);	
+		DoEndLevelScoreGlitz(0);
 
 	if (Current_mission_num == 0 && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 		WINDOS(
@@ -2023,8 +2017,8 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	init_thief_for_level();
 	init_stuck_objects();
 	game_flush_inputs();		// clear out the keyboard
-   if (!(Game_mode & GM_MULTI))
-	   filter_objects_from_level();
+	if (!(Game_mode & GM_MULTI))
+		filter_objects_from_level();
 
 	turn_cheats_off();
 
@@ -2036,7 +2030,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	reset_special_effects();
 
 #ifdef OGL
-        ogl_cache_level_textures();
+	ogl_cache_level_textures();
 #endif
 
 
