@@ -1,4 +1,4 @@
-/* $Id: gadget.c,v 1.5 2005-02-26 09:50:36 chris Exp $ */
+/* $Id: gadget.c,v 1.6 2005-02-26 10:13:51 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: gadget.c,v 1.5 2005-02-26 09:50:36 chris Exp $";
+static char rcsid[] = "$Id: gadget.c,v 1.6 2005-02-26 10:13:51 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -100,29 +100,29 @@ void ui_gadget_delete_all( UI_WINDOW * wnd )
 		{
 			UI_GADGET_BUTTON * but1 = (UI_GADGET_BUTTON *)tmp;
 			if (but1->text)
-				free( but1->text );
+				d_free( but1->text );
 		}
 
 		if (tmp->kind == 6 )    // Inputbox
 		{
 			UI_GADGET_INPUTBOX * but1 = (UI_GADGET_INPUTBOX *)tmp;
-			free( but1->text );
+			d_free( but1->text );
 		}
 
 		if (tmp->kind == 5 )    // Checkbox
 		{
 			UI_GADGET_CHECKBOX * but1 = (UI_GADGET_CHECKBOX *)tmp;
-			free( but1->text );
+			d_free( but1->text );
 		}
 		
 		if (tmp->kind == 9 )    // Icon
 		{
 			UI_GADGET_ICON * but1 = (UI_GADGET_ICON *)tmp;
-			free( but1->text );
+			d_free( but1->text );
 		}
 
 
-		free( tmp );
+		d_free( tmp );
 	}
 }
 

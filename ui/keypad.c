@@ -1,4 +1,4 @@
-/* $Id: keypad.c,v 1.5 2005-02-26 00:47:08 chris Exp $ */
+/* $Id: keypad.c,v 1.6 2005-02-26 10:13:51 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -72,8 +72,8 @@ void ui_pad_close()
 		if (KeyPad[i])
 		{
 			for (j=0; j<17; j++ )
-				free(KeyPad[i]->buttontext[j]);
-			free( KeyPad[i] );
+				d_free(KeyPad[i]->buttontext[j]);
+			d_free( KeyPad[i] );
 			KeyPad[i] = NULL;	
 		}
 

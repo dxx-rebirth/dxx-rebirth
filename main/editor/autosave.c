@@ -1,4 +1,4 @@
-/* $Id: autosave.c,v 1.5 2005-01-25 20:46:55 schaffner Exp $ */
+/* $Id: autosave.c,v 1.6 2005-02-26 10:13:51 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -20,7 +20,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: autosave.c,v 1.5 2005-01-25 20:46:55 schaffner Exp $";
+static char rcsid[] = "$Id: autosave.c,v 1.6 2005-02-26 10:13:51 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -88,10 +88,10 @@ void close_autosave(void) {
         sprintf( ext, ".M%d", i );
 
         remove( delname );
-        free( delname );
+        d_free( delname );
     }
-    //for (i=0;i<10;i++) free( undo_status[i] );
-    //free( undo_status );
+    //for (i = 0; i < 10; i++) d_free( undo_status[i] );
+    //d_free( undo_status );
 
 }
 
@@ -120,7 +120,7 @@ void autosave_mine(char *name) {
 	    if (Autosave_total < 10)
 	        Autosave_total++;
 	
-	    free(savename);
+	    d_free(savename);
 
 	}
 
@@ -233,7 +233,7 @@ int undo( void ) {
 //@@        //mprintf( 0, "Loading: %s\n", loadname );
 //@@        med_load_mine( loadname );
 //@@
-//@@        free(loadname);
+//@@        d_free(loadname);
 //@@        return 0;
 //@@     }
 //@@     else return 1;

@@ -14,9 +14,10 @@
 	* main/inferno.c: determine properly if 800x600 resolution is
 	available (for editor)
 
-	* main/editor/medsel.c, ui/checkbox.c, ui/gadget.c, ui/inputbox.c,
-	ui/menu.c, ui/menubar.c, ui/radio.c, ui/window.c: use d_malloc,
-	d_calloc, d_strdup and d_free
+	* main/editor/autosave.c, main/editor/macro.c, main/editor/med.c,
+	main/editor/medsel.c, ui/checkbox.c, ui/file.c, ui/gadget.c,
+	ui/inputbox.c, ui/keypad.c, ui/menu.c, ui/menubar.c, ui/radio.c,
+	ui/window.c: use d_malloc, d_calloc, d_strdup and d_free
 
 2005-02-25  Chris Taylor  <chris@icculus.org>
 

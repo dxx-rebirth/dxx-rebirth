@@ -1,4 +1,4 @@
-/* $Id: window.c,v 1.9 2005-02-26 09:50:36 chris Exp $ */
+/* $Id: window.c,v 1.10 2005-02-26 10:13:51 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: window.c,v 1.9 2005-02-26 09:50:36 chris Exp $";
+static char rcsid[] = "$Id: window.c,v 1.10 2005-02-26 10:13:51 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -316,7 +316,7 @@ void ui_close_window( UI_WINDOW * wnd )
 	if (CurWindow==wnd)
 		CurWindow = NULL;
 
-	free( wnd );
+	d_free( wnd );
 
 	ui_mouse_show();
 }

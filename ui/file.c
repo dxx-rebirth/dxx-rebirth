@@ -1,4 +1,4 @@
-/* $Id: file.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $ */
+/* $Id: file.c,v 1.6 2005-02-26 10:13:51 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: file.c,v 1.5 2005-01-25 19:44:27 schaffner Exp $";
+static char rcsid[] = "$Id: file.c,v 1.6 2005-02-26 10:13:51 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -571,7 +571,7 @@ int ui_get_file( char * filename, char * Filespec  )
 
 	for (i=0; i< NumFiles; i++ )
 	{
-		free( text[i] );
+		d_free( text[i] );
 	}
 
 	if ( x>0 )

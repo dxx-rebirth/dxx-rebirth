@@ -1,4 +1,4 @@
-/* $Id: macro.c,v 1.7 2005-01-25 20:46:55 schaffner Exp $ */
+/* $Id: macro.c,v 1.8 2005-02-26 10:13:51 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: macro.c,v 1.7 2005-01-25 20:46:55 schaffner Exp $";
+static char rcsid[] = "$Id: macro.c,v 1.8 2005-02-26 10:13:51 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -64,7 +64,7 @@ int MacroRecordAll()
 {
 	if ( MacroStatus== UI_STATUS_NORMAL )
 	{
-		if (RecordBuffer) free( RecordBuffer );
+		if (RecordBuffer) d_free( RecordBuffer );
 		MALLOC( RecordBuffer, UI_EVENT, MAX_NUM_EVENTS );
 		ui_record_events( MAX_NUM_EVENTS, RecordBuffer, UI_RECORD_MOUSE | UI_RECORD_KEYS );
 		MacroStatus = UI_STATUS_RECORDING;
@@ -76,7 +76,7 @@ int MacroRecordKeys()
 {
 	if ( MacroStatus== UI_STATUS_NORMAL )
 	{
-		if (RecordBuffer) free( RecordBuffer );
+		if (RecordBuffer) d_free( RecordBuffer );
 		MALLOC( RecordBuffer, UI_EVENT, MAX_NUM_EVENTS );
 		ui_record_events( MAX_NUM_EVENTS, RecordBuffer, UI_RECORD_KEYS );
 		MacroStatus = UI_STATUS_RECORDING;
@@ -139,7 +139,7 @@ int MacroLoad()
 		if (!fp)
 			return 0;
 		if (RecordBuffer)
-			free( RecordBuffer );
+			d_free( RecordBuffer );
 		length = PHYSFS_fileLength(fp);
 		RecordBuffer = d_malloc(length);
 		if (!RecordBuffer)
@@ -155,7 +155,7 @@ int MacroLoad()
 void macro_free_buffer()
 {
 	if ( RecordBuffer ) 
-		free(RecordBuffer);
+		d_free(RecordBuffer);
 }
 
 int MacroMenu()

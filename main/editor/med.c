@@ -1,4 +1,4 @@
-/* $Id: med.c,v 1.6 2005-01-24 22:11:55 schaffner Exp $ */
+/* $Id: med.c,v 1.7 2005-02-26 10:13:51 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -374,7 +374,7 @@ void medkey_init()
 		}
 		fclose(keyfile);
 	}
-	free( LispCommand );
+	d_free( LispCommand );
 }
 
 void init_editor()

@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.5 2005-02-26 09:50:36 chris Exp $ */
+/* $Id: menu.c,v 1.6 2005-02-26 10:13:51 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: menu.c,v 1.5 2005-02-26 09:50:36 chris Exp $";
+static char rcsid[] = "$Id: menu.c,v 1.6 2005-02-26 10:13:51 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -121,8 +121,8 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 	}
 
 	ui_close_window(wnd);
-	free(Button);
-	free(ButtonG);
+	d_free(Button);
+	d_free(ButtonG);
 
 	return choice;
 
