@@ -1,4 +1,4 @@
-/* $Id: radio.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: radio.c,v 1.5 2005-02-26 10:00:40 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: radio.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: radio.c,v 1.5 2005-02-26 10:00:40 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -28,6 +28,7 @@ static char rcsid[] = "$Id: radio.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
+#include "u_mem.h"
 
 #include "mono.h"
 
@@ -75,7 +76,7 @@ UI_GADGET_RADIO * ui_add_gadget_radio( UI_WINDOW * wnd, short x, short y, short 
 
 	radio = (UI_GADGET_RADIO *)ui_gadget_add( wnd, 4, x, y, x+w-1, y+h-1 );
 
-	radio->text = strdup(text);
+	radio->text = d_strdup(text);
 	radio->width = w;
 	radio->height = h;
 	radio->position = 0;
