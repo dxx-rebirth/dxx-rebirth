@@ -4,6 +4,8 @@
 
 2003-06-07  Bradley Bell  <btb@icculus.org>
 
+	* main/console.c: fix non-console build
+
 	* main/gamesave.c: comments
 
 	* main/bm.c: remove redundant break

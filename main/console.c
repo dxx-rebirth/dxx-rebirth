@@ -1,4 +1,4 @@
-/* $Id: console.c,v 1.14 2003-06-06 19:04:27 btb Exp $ */
+/* $Id: console.c,v 1.15 2003-06-08 01:33:27 btb Exp $ */
 /*
  *
  * FIXME: put description here
@@ -58,7 +58,6 @@ static int con_initialized;
 ConsoleInformation *Console;
 
 void con_parse(ConsoleInformation *console, char *command);
-#endif
 
 
 /* ======
@@ -71,6 +70,8 @@ void con_free(void)
 		CON_Free(Console);
 	con_initialized = 0;
 }
+#endif
+
 
 /* ======
  * con_init - Initialise the console.
@@ -118,17 +119,20 @@ void con_init_real(void)
 
 	atexit(con_free);
 }
+#endif
+
 
 void con_resize(void)
 {
+#ifdef CONSOLE
 	if (!con_initialized)
 		con_init_real();
 
 	CON_Font(Console, SMALL_FONT, gr_getcolor(63, 63, 63), -1);
 	CON_Resize(Console, 0, 0, SWIDTH, SHEIGHT / 2);
 	con_background(CON_BG);
-}
 #endif
+}
 
 /* ======
  * con_printf - Print a message to the console.
@@ -178,9 +182,13 @@ void con_update(void)
 }
 
 
-int  con_events(int key)
+int con_events(int key)
 {
+#ifdef CONSOLE
 	return CON_Events(key);
+#else
+	return key;
+#endif
 }
 
 
