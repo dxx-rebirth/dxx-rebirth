@@ -25,6 +25,7 @@ int ogl_init_load_library(void);
 #undef GL_ARB_multitexture
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
 #else
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>

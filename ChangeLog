@@ -1,3 +1,7 @@
+2004-07-22  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* include/ogl_init.h: Include glu.h for Mac OS X, it is sometimes necessary
+
 2004-07-02  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* include/pstypes.h: This time, I correctly applied Chris Taylor's patch
