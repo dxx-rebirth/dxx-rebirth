@@ -1,4 +1,4 @@
-/* $Id: group.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: group.c,v 1.4 2004-12-24 05:17:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: group.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: group.c,v 1.4 2004-12-24 05:17:09 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -628,8 +628,8 @@ int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *gr
 
 	for (s=0; s<GroupList[new_current_group].num_segments; s++) {
 		Segments[GroupList[new_current_group].segments[s]].group = new_current_group;
-		Segments[GroupList[new_current_group].segments[s]].special = SEGMENT_IS_NOTHING;
-		Segments[GroupList[new_current_group].segments[s]].matcen_num = -1;
+		Segment2s[GroupList[new_current_group].segments[s]].special = SEGMENT_IS_NOTHING;
+		Segment2s[GroupList[new_current_group].segments[s]].matcen_num = -1;
 	}
 
 	// Breaking connections between segments in the current group and segments not in the group.
@@ -1361,7 +1361,7 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 			Segments[segment_ids[i]] = tseg; 
 			Segments[segment_ids[i]].objects = -1;
 
-			fuelcen_activate( &Segments[segment_ids[i]], Segments[segment_ids[i]].special );
+			fuelcen_activate(&Segments[segment_ids[i]], Segment2s[segment_ids[i]].special);
 			}
 
 		for (i=0;i<group_header.num_segments;i++) {

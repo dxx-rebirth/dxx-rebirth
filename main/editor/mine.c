@@ -1,4 +1,4 @@
-/* $Id: mine.c,v 1.4 2004-12-21 11:58:14 btb Exp $ */
+/* $Id: mine.c,v 1.5 2004-12-24 05:17:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: mine.c,v 1.4 2004-12-21 11:58:14 btb Exp $";
+static char rcsid[] = "$Id: mine.c,v 1.5 2004-12-24 05:17:09 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -314,15 +314,15 @@ int save_mine_data_compiled(FILE * SaveFile)
  		cfwrite( &Segments[segnum].children, sizeof(short), MAX_SIDES_PER_SEGMENT, SaveFile );
 		// Write short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
 		cfwrite( &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, SaveFile );
-		// Write ubyte	Segments[segnum].special
-		cfwrite( &Segments[segnum].special, sizeof(ubyte), 1, SaveFile );
-		// Write byte	Segments[segnum].matcen_num
-		cfwrite( &Segments[segnum].matcen_num, sizeof(ubyte), 1, SaveFile );
-		// Write short	Segments[segnum].value
-		cfwrite( &Segments[segnum].value, sizeof(short), 1, SaveFile );
-		// Write fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-		dump_fix_as_ushort( Segments[segnum].static_light, 4, SaveFile );
-		//cfwrite( &Segments[segnum].static_light , sizeof(fix), 1, SaveFile );
+		// Write ubyte Segment2s[segnum].special
+		cfwrite(&Segment2s[segnum].special, sizeof(ubyte), 1, SaveFile);
+		// Write byte Segment2s[segnum].matcen_num
+		cfwrite(&Segment2s[segnum].matcen_num, sizeof(ubyte), 1, SaveFile);
+		// Write short Segment2s[segnum].value
+		cfwrite(&Segment2s[segnum].value, sizeof(short), 1, SaveFile);
+		// Write fix Segment2s[segnum].static_light (shift down 5 bits, write as short)
+		dump_fix_as_ushort(Segment2s[segnum].static_light, 4, SaveFile);
+		//cfwrite(&Segment2s[segnum].static_light, sizeof(fix), 1, SaveFile);
 	
 		// Write the walls as a 6 byte array
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
@@ -397,7 +397,7 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 				bit_mask |= (1 << sidenum);
 		}
 
-		if ((Segments[segnum].special != 0) || (Segments[segnum].matcen_num != 0) || (Segments[segnum].value != 0))
+		if ((Segment2s[segnum].special != 0) || (Segment2s[segnum].matcen_num != 0) || (Segment2s[segnum].value != 0))
 			bit_mask |= (1 << MAX_SIDES_PER_SEGMENT);
 
  		cfwrite( &bit_mask, sizeof(ubyte), 1, SaveFile );
@@ -410,12 +410,12 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 		cfwrite( &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, SaveFile );
 
 		if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
-			cfwrite( &Segments[segnum].special, sizeof(ubyte), 1, SaveFile );
-			cfwrite( &Segments[segnum].matcen_num, sizeof(ubyte), 1, SaveFile );
-			cfwrite( &Segments[segnum].value, sizeof(short), 1, SaveFile );
+			cfwrite(&Segment2s[segnum].special, sizeof(ubyte), 1, SaveFile);
+			cfwrite(&Segment2s[segnum].matcen_num, sizeof(ubyte), 1, SaveFile);
+			cfwrite(&Segment2s[segnum].value, sizeof(short), 1, SaveFile);
 		}
 
-		dump_fix_as_ushort( Segments[segnum].static_light, 4, SaveFile );
+		dump_fix_as_ushort(Segment2s[segnum].static_light, 4, SaveFile);
 	
 		// Write the walls as a 6 byte array
 		bit_mask = 0;

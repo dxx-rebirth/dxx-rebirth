@@ -1,4 +1,4 @@
-/* $Id: meddraw.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: meddraw.c,v 1.4 2004-12-24 05:17:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: meddraw.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: meddraw.c,v 1.4 2004-12-24 05:17:09 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -693,7 +693,8 @@ void draw_special_segments(void)
 	// Highlight matcens, fuelcens, etc.
 	for (seg=0;seg<=Highest_segment_index;seg++)
 		if (Segments[seg].segnum != -1)
-			switch( Segments[seg].special )	{
+			switch(Segment2s[seg].special)
+			{
 			case SEGMENT_IS_FUELCEN:
 				color = BM_XRGB( 29, 27, 13 );
 				gr_setcolor(color);

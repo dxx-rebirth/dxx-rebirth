@@ -1,4 +1,4 @@
-/* $Id: centers.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: centers.c,v 1.4 2004-12-24 05:17:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: centers.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: centers.c,v 1.4 2004-12-24 05:17:09 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -145,15 +145,15 @@ void do_centers_window()
 			CenterFlag[i]->status = 1;		// Tells ui to redraw button
 		}
 
-		Assert(Cursegp->special < MAX_CENTER_TYPES);
-		CenterFlag[Cursegp->special]->flag = 1;
+		Assert(Curseg2p->special < MAX_CENTER_TYPES);
+		CenterFlag[Curseg2p->special]->flag = 1;
 
-		mprintf((0, "Cursegp->matcen_num = %i\n", Cursegp->matcen_num));
+		mprintf((0, "Curseg2p->matcen_num = %i\n", Curseg2p->matcen_num));
 
 		//	Read materialization center robot bit flags
 		for (	i=0; i < N_robot_types; i++ ) {
 			RobotMatFlag[i]->status = 1;		// Tells ui to redraw button
-			if (RobotCenters[Cursegp->matcen_num].robot_flags & (1 << i))
+			if (RobotCenters[Curseg2p->matcen_num].robot_flags[0] & (1 << i))
 				RobotMatFlag[i]->flag = 1;		// Tells ui that this button is checked
 			else
 				RobotMatFlag[i]->flag = 0;		// Tells ui that this button is not checked
@@ -172,7 +172,8 @@ void do_centers_window()
                  {
 			if ( i == 0)
 				fuelcen_delete(Cursegp);
-			else if ( Cursegp->special != i ) {
+			else if (Curseg2p->special != i)
+			{
 				fuelcen_delete(Cursegp);
 				redraw_window = 1;
 				fuelcen_activate( Cursegp, i );
@@ -182,13 +183,16 @@ void do_centers_window()
 
 	for (	i=0; i < N_robot_types; i++ )	{
 		if ( RobotMatFlag[i]->flag == 1 ) {
-			if (!(RobotCenters[Cursegp->matcen_num].robot_flags & (1<<i) )) {
-				RobotCenters[Cursegp->matcen_num].robot_flags |= (1<<i);
-				mprintf((0,"Segment %i, matcen = %i, Robot_flags %d\n", Cursegp-Segments, Cursegp->matcen_num, RobotCenters[Cursegp->matcen_num].robot_flags));
+			if (!(RobotCenters[Curseg2p->matcen_num].robot_flags[0] & (1 << i)))
+			{
+				RobotCenters[Curseg2p->matcen_num].robot_flags[0] |= (1 << i);
+				mprintf((0, "Segment %i, matcen = %i, Robot_flags %d\n", Cursegp - Segments, Curseg2p->matcen_num, RobotCenters[Curseg2p->matcen_num].robot_flags[0]));
 			} 
-		} else if (RobotCenters[Cursegp->matcen_num].robot_flags & 1<<i) {
-			RobotCenters[Cursegp->matcen_num].robot_flags &= ~(1<<i);
-			mprintf((0,"Segment %i, matcen = %i, Robot_flags %d\n", Cursegp-Segments, Cursegp->matcen_num, RobotCenters[Cursegp->matcen_num].robot_flags));
+		}
+		else if (RobotCenters[Curseg2p->matcen_num].robot_flags[0] & 1 << i)
+		{
+			RobotCenters[Curseg2p->matcen_num].robot_flags[0] &= ~(1 << i);
+			mprintf((0, "Segment %i, matcen = %i, Robot_flags %d\n", Cursegp - Segments, Curseg2p->matcen_num, RobotCenters[Curseg2p->matcen_num].robot_flags[0]));
 		}
 	}
 	
@@ -206,8 +210,8 @@ void do_centers_window()
 //			temp_text[i] = ' ';
 //		temp_text[i] = 0;
 
-//		Assert(Cursegp->special < MAX_CENTER_TYPES);
-//		strncpy(temp_text, Center_names[Cursegp->special], strlen(Center_names[Cursegp->special]));
+//		Assert(Curseg2p->special < MAX_CENTER_TYPES);
+//		strncpy(temp_text, Center_names[Curseg2p->special], strlen(Center_names[Curseg2p->special]));
 //		ui_wprintf_at( MainWindow, 12, 23, " Type: %s", temp_text );
 		Update_flags |= UF_WORLD_CHANGED;
 	}

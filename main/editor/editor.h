@@ -1,4 +1,4 @@
-/* $Id: editor.h,v 1.4 2004-12-19 14:52:48 btb Exp $ */
+/* $Id: editor.h,v 1.5 2004-12-24 05:17:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -163,6 +163,8 @@ extern int gamestate_not_restored;
 
 
 extern	segment  *Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
+#define Curseg2p s2s2(Cursegp)          // Pointer to segment2 for Cursegp
+
 extern	vms_vector Ed_view_target;		// what editor is looking at
 
 // -- extern	segment  New_segment;			// The segment which can be added to the mine.

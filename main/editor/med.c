@@ -1,4 +1,4 @@
-/* $Id: med.c,v 1.4 2004-12-21 11:58:14 btb Exp $ */
+/* $Id: med.c,v 1.5 2004-12-24 05:17:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -431,30 +431,30 @@ int SetPlayerFromCurseg()
 
 int fuelcen_create_from_curseg()
 {
-	Cursegp->special = SEGMENT_IS_FUELCEN;
-	fuelcen_activate( Cursegp, Cursegp->special);
+	Curseg2p->special = SEGMENT_IS_FUELCEN;
+	fuelcen_activate(Cursegp, Curseg2p->special);
 	return 1;
 }
 
 int repaircen_create_from_curseg()
 {
 	Int3();	//	-- no longer supported!
-//	Cursegp->special = SEGMENT_IS_REPAIRCEN;
-//	fuelcen_activate( Cursegp, Cursegp->special);
+//	Curseg2p->special = SEGMENT_IS_REPAIRCEN;
+//	fuelcen_activate(Cursegp, Curseg2p->special);
 	return 1;
 }
 
 int controlcen_create_from_curseg()
 {
-	Cursegp->special = SEGMENT_IS_CONTROLCEN;
-	fuelcen_activate( Cursegp, Cursegp->special);
+	Curseg2p->special = SEGMENT_IS_CONTROLCEN;
+	fuelcen_activate(Cursegp, Curseg2p->special);
 	return 1;
 }
 
 int robotmaker_create_from_curseg()
 {
-	Cursegp->special = SEGMENT_IS_ROBOTMAKER;
-	fuelcen_activate( Cursegp, Cursegp->special);
+	Curseg2p->special = SEGMENT_IS_ROBOTMAKER;
+	fuelcen_activate(Cursegp, Curseg2p->special);
 	return 1;
 }
 

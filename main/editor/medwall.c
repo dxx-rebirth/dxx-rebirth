@@ -1,4 +1,4 @@
-/* $Id: medwall.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: medwall.c,v 1.4 2004-12-24 05:17:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: medwall.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: medwall.c,v 1.4 2004-12-24 05:17:09 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -1027,11 +1027,11 @@ int check_walls()
 	for (seg=0;seg<=Highest_segment_index;seg++) 
 		if (Segments[seg].segnum != -1) {
 			// Check fuelcenters
-			matcen_num = Segments[seg].matcen_num;
+			matcen_num = Segment2s[seg].matcen_num;
 			if (matcen_num == 0)
 				if (RobotCenters[0].segnum != seg) {
 					mprintf((0,"Fixing Matcen 0\n"));
-				 	Segments[seg].matcen_num = -1;
+				 	Segment2s[seg].matcen_num = -1;
 				}
 	
 			if (matcen_num > -1)
@@ -1123,7 +1123,7 @@ int check_walls()
 				mprintf((0,"No valid links on Matcen Trigger %d\n", t));
 			else
 				for (l=0;l<Triggers[t].num_links;l++) {
-					if (!Segments[Triggers[t].seg[l]].special & SEGMENT_IS_ROBOTMAKER)
+					if (!Segment2s[Triggers[t].seg[l]].special & SEGMENT_IS_ROBOTMAKER)
 						mprintf((0,"Bogus Matcen trigger detected on Trigger %d, No matcen at seg %d\n", t, Triggers[t].seg[l]));
 				}
                  }

@@ -1,4 +1,4 @@
-/* $Id: seguvs.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: seguvs.c,v 1.4 2004-12-24 05:17:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: seguvs.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: seguvs.c,v 1.4 2004-12-24 05:17:09 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -1097,7 +1097,7 @@ void med_propagate_tmaps_to_segments(segment *base_seg,segment *con_seg, int uv_
 		if (base_seg->children[s] == con_seg-Segments)
 			propagate_tmaps_to_segment_sides(base_seg, s, con_seg, find_connect_side(base_seg, con_seg), uv_only_flag);
 
-	con_seg->static_light = base_seg->static_light;
+	s2s2(con_seg)->static_light = s2s2(base_seg)->static_light;
 
 	validate_uv_coordinates(con_seg);
 }
@@ -1116,7 +1116,7 @@ void copy_uvs_seg_to_seg(segment *destseg,segment *srcseg)
 		destseg->sides[s].tmap_num2 = srcseg->sides[s].tmap_num2;
 	}
 
-	destseg->static_light = srcseg->static_light;
+	s2s2(destseg)->static_light = s2s2(srcseg)->static_light;
 }
 
 //	_________________________________________________________________________________________________________________________
@@ -1328,7 +1328,7 @@ void calim_zero_light_values(void)
 			for (vertnum=0; vertnum<4; vertnum++)
 				sidep->uvls[vertnum].l = F1_0/64;	// Put a tiny bit of light here.
 		}
-		Segments[segnum].static_light = F1_0/64;
+		Segment2s[segnum].static_light = F1_0 / 64;
 	}
 }
 
@@ -1395,9 +1395,9 @@ void cast_light_from_side_to_center(segment *segp, int light_side, fix light_int
 							light_at_point = fixmul(light_at_point, light_intensity);
 							if (light_at_point >= F1_0)
 								light_at_point = F1_0-1;
-							rsegp->static_light += light_at_point;
-							if (segp->static_light < 0)	// if it went negative, saturate
-								segp->static_light = 0;
+							s2s2(rsegp)->static_light += light_at_point;
+							if (s2s2(segp)->static_light < 0)	// if it went negative, saturate
+								s2s2(segp)->static_light = 0;
 							break;
 						case HIT_WALL:
 							break;

@@ -1,4 +1,4 @@
-/* $Id: segment.h,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: segment.h,v 1.6 2004-12-24 05:17:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -173,6 +173,9 @@ extern segment      Segments[];
 extern segment2     Segment2s[];
 extern int          Num_segments;
 extern int          Num_vertices;
+
+// Get pointer to the segment2 for the given segment pointer
+#define s2s2(segp) (&Segment2s[(segp) - Segments])
 
 extern sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4];       // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern int  Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];    // Side_to_verts[my_side] is list of vertices forming side my_side.

@@ -1,3 +1,11 @@
+2004-12-23  Bradley Bell  <btb@icculus.org>
+
+	* main/editor/centers.c, main/editor/editor.h,
+	main/editor/eswitch.c, main/editor/group.c, main/editor/med.c,
+	main/editor/meddraw.h, main/editor/medwall.c, main/editor/mine.c,
+	main/editor/seguvs.c, main/segment.h: Use macros to use Segment2s
+	when necessary.
+
 2004-12-21  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/bmread.c: don't duplicate the period in the filename
