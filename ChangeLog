@@ -1,4 +1,5 @@
-2004-08-28  Martin Schaffner  <maschaffner@gmx.ch>
+2004-08-28  Chris Taylor  <c.taylor@student.curtin.edu.au>
+	    and Martin Schaffner  <maschaffner@gmx.ch>
 
 	* 2d/2dsline.c, 2d/bitblt.c, 2d/bitmap.c, 2d/clip.h, 2d/ibitblt.c
 	2d/linear.asm, 2d/palette.c, 2d/pcx.c, 2d/rle.c, 2d/scale.c
