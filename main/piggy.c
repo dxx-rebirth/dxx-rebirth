@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.15 2002-08-06 05:12:09 btb Exp $ */
+/* $Id: piggy.c,v 1.16 2002-08-15 05:49:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.15 2002-08-06 05:12:09 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.16 2002-08-15 05:49:23 btb Exp $";
 #endif
 
 
@@ -61,7 +61,7 @@ static char rcsid[] = "$Id: piggy.c,v 1.15 2002-08-06 05:12:09 btb Exp $";
 	#include <unistd.h>
 #endif
 
-//#define NO_DUMP_SOUNDS        1               //if set, dump bitmaps but not sounds
+//#define NO_DUMP_SOUNDS        1   //if set, dump bitmaps but not sounds
 
 #define DEFAULT_PIGFILE_REGISTERED      "groupa.pig"
 #define DEFAULT_PIGFILE_SHAREWARE       "d2demo.pig"
@@ -70,17 +70,19 @@ static char rcsid[] = "$Id: piggy.c,v 1.15 2002-08-06 05:12:09 btb Exp $";
 
 #define DEFAULT_PIGFILE (cfexist(DEFAULT_PIGFILE_REGISTERED)?DEFAULT_PIGFILE_REGISTERED:DEFAULT_PIGFILE_SHAREWARE)
 #define DEFAULT_HAMFILE (cfexist(DEFAULT_HAMFILE_REGISTERED)?DEFAULT_HAMFILE_REGISTERED:DEFAULT_HAMFILE_SHAREWARE)
-#define DEFAULT_SNDFILE	((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
+#define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
+
+int Gr_transparency_color = 255;
 
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
 
-typedef struct BitmapFile       {
-	char                    name[15];
+typedef struct BitmapFile {
+	char    name[15];
 } BitmapFile;
 
-typedef struct SoundFile        {
-	char                    name[15];
+typedef struct SoundFile {
+	char    name[15];
 } SoundFile;
 
 hashtable AllBitmapsNames;
@@ -146,6 +148,7 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name );
 #ifdef EDITOR
 void piggy_write_pigfile(char *filename);
 static void write_int(int i,FILE *file);
+#endif
 
 void swap_0_255(grs_bitmap *bmp)
 {
@@ -158,7 +161,6 @@ void swap_0_255(grs_bitmap *bmp)
 			bmp->bm_data[i] = 0;
 	}
 }
-#endif
 
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 {
@@ -524,7 +526,7 @@ void piggy_init_pigfile(char *filename)
 	piggy_close_file();             //close old pig if still open
 
 	//rename pigfile for shareware
-	if (stricmp(DEFAULT_PIGFILE, DEFAULT_PIGFILE_SHAREWARE) == 0 && stricmp(filename,DEFAULT_PIGFILE_REGISTERED) == 0)
+	if (stricmp(DEFAULT_PIGFILE, DEFAULT_PIGFILE_SHAREWARE) == 0 && !cfexist(filename))
 		filename = DEFAULT_PIGFILE_SHAREWARE;
 
 	#ifndef MACINTOSH
@@ -569,6 +571,9 @@ void piggy_init_pigfile(char *filename)
 			Error("Cannot load required file <%s>",filename);
 		#endif
 	}
+
+	if (cfilelength(Piggy_fp) == 4929684) // mac version of d2demo.pig
+		Gr_transparency_color = 0;
 
 	strncpy(Current_pigfile,filename,sizeof(Current_pigfile));
 
@@ -655,7 +660,7 @@ void piggy_new_pigfile(char *pigname)
 	strlwr(pigname);
 
 	//rename pigfile for shareware
-	if (stricmp(DEFAULT_PIGFILE, DEFAULT_PIGFILE_SHAREWARE) == 0 && stricmp(pigname,DEFAULT_PIGFILE_REGISTERED) == 0)
+	if (stricmp(DEFAULT_PIGFILE, DEFAULT_PIGFILE_SHAREWARE) == 0 && !cfexist(pigname))
 		pigname = DEFAULT_PIGFILE_SHAREWARE;
 
 	if (strnicmp(Current_pigfile,pigname,sizeof(Current_pigfile))==0)
@@ -706,6 +711,9 @@ void piggy_new_pigfile(char *pigname)
 	if (!Piggy_fp) Error ("Piggy_fp not defined in piggy_new_pigfile.");
 	#endif
 
+	if (cfilelength(Piggy_fp) == 4929684) // mac version of d2demo.pig
+		Gr_transparency_color = 0;
+
 	if (Piggy_fp) {
 
 		N_bitmaps = cfile_read_int(Piggy_fp);
@@ -741,9 +749,9 @@ void piggy_new_pigfile(char *pigname)
 			temp_bitmap.bm_flags = BM_FLAG_PAGED_OUT;
 			temp_bitmap.avg_color = bmh.avg_color;
 			temp_bitmap.bm_data = Piggy_bitmap_cache_data;
-	
+
 			GameBitmapFlags[i] = 0;
-	
+
 			if ( bmh.flags & BM_FLAG_TRANSPARENT ) GameBitmapFlags[i] |= BM_FLAG_TRANSPARENT;
 			if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT ) GameBitmapFlags[i] |= BM_FLAG_SUPER_TRANSPARENT;
 			if ( bmh.flags & BM_FLAG_NO_LIGHTING ) GameBitmapFlags[i] |= BM_FLAG_NO_LIGHTING;
@@ -788,7 +796,7 @@ void piggy_new_pigfile(char *pigname)
 				
 				sprintf( abmname, "%s.abm", basename );
 
-		      iff_error = iff_read_animbrush(abmname,bm,MAX_BITMAPS_PER_BRUSH,&nframes,newpal);
+				iff_error = iff_read_animbrush(abmname,bm,MAX_BITMAPS_PER_BRUSH,&nframes,newpal);
 
 				if (iff_error != IFF_NO_ERROR)  {
 					mprintf((1,"File %s - IFF error: %s",abmname,iff_errormsg(iff_error)));
@@ -809,7 +817,7 @@ void piggy_new_pigfile(char *pigname)
 						gr_remap_bitmap_good( bm[fnum], newpal, iff_transparent_color, SuperX );
 					else
 						gr_remap_bitmap_good( bm[fnum], newpal, -1, SuperX );
-			
+
 					bm[fnum]->avg_color = compute_average_pixel(bm[fnum]);
 
 #ifdef EDITOR
@@ -854,7 +862,7 @@ void piggy_new_pigfile(char *pigname)
 					mprintf((1, "File %s - IFF error: %s",bbmname,iff_errormsg(iff_error)));
 					Error("File %s - IFF error: %s",bbmname,iff_errormsg(iff_error));
 				}
-			
+
 				SuperX = (GameBitmapFlags[i]&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
 				//above makes assumption that supertransparent color is 254
 
@@ -862,12 +870,12 @@ void piggy_new_pigfile(char *pigname)
 					gr_remap_bitmap_good( new, newpal, iff_transparent_color, SuperX );
 				else
 					gr_remap_bitmap_good( new, newpal, -1, SuperX );
-			
+
 				new->avg_color = compute_average_pixel(new);
-			
+
 #ifdef EDITOR
-					if ( FindArg("-macdata") )
-						swap_0_255( new );
+				if ( FindArg("-macdata") )
+					swap_0_255( new );
 #endif
 				if ( !BigPig )  gr_bitmap_rle_compress( new );
 
@@ -1258,8 +1266,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 	grs_bitmap * bmp;
 	int i,org_i,temp;
 
-        org_i = 0;
-			
+	org_i = 0;
+
 	i = bitmap.index;
 	Assert( i >= 0 );
 	Assert( i < MAX_BITMAP_FILES );
@@ -1269,14 +1277,14 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 	if ( i < 1 ) return;
 	if ( i >= MAX_BITMAP_FILES ) return;
 	if ( i >= Num_bitmap_files ) return;
-	
-	if ( GameBitmapOffset[i] == 0 ) return;         // A read-from-disk bitmap!!!
+
+	if ( GameBitmapOffset[i] == 0 ) return;		// A read-from-disk bitmap!!!
 
 	if ( piggy_low_memory ) {
 		org_i = i;
 		i = GameBitmapXlat[i];          // Xlat for low-memory settings!
 	}
-	
+
 	bmp = &GameBitmaps[i];
 
 	if ( bmp->bm_flags & BM_FLAG_PAGED_OUT )        {
@@ -1289,10 +1297,10 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			piggy_critical_error();
 			goto ReDoIt;
 		}
-		
+
 		bmp->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
 		bmp->bm_flags = GameBitmapFlags[i];
-	
+
 		if ( bmp->bm_flags & BM_FLAG_RLE )      {
 			int zsize = 0;
 			descent_critical_error = 0;
@@ -1301,9 +1309,9 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				piggy_critical_error();
 				goto ReDoIt;
 			}
-	
+
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
-			//Assert( Piggy_bitmap_cache_next+zsize < Piggy_bitmap_cache_size );      
+			//Assert( Piggy_bitmap_cache_next+zsize < Piggy_bitmap_cache_size );
 			if ( Piggy_bitmap_cache_next+zsize >= Piggy_bitmap_cache_size ) {
 				Int3();
 				piggy_bitmap_page_out_all();
@@ -1318,9 +1326,13 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				goto ReDoIt;
 			}
 			Piggy_bitmap_cache_next += zsize-4;
+
+			if (Gr_transparency_color == 0)
+				rle_swap_0_255( bmp );
+
 		} else {
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
-			Assert( Piggy_bitmap_cache_next+(bmp->bm_h*bmp->bm_w) < Piggy_bitmap_cache_size );      
+			Assert( Piggy_bitmap_cache_next+(bmp->bm_h*bmp->bm_w) < Piggy_bitmap_cache_size );
 			if ( Piggy_bitmap_cache_next+(bmp->bm_h*bmp->bm_w) >= Piggy_bitmap_cache_size ) {
 				piggy_bitmap_page_out_all();
 				goto ReDoIt;
@@ -1332,8 +1344,14 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				goto ReDoIt;
 			}
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
+
+			if (Gr_transparency_color == 0)
+				swap_0_255( bmp );
+
 		}
-	
+
+
+
 		//@@if ( bmp->bm_selector ) {
 		//@@#if !defined(WINDOWS) && !defined(MACINTOSH)
 		//@@	if (!dpmi_modify_selector_base( bmp->bm_selector, bmp->bm_data ))
