@@ -1,3 +1,7 @@
+2003-09-11  Martin Schaffner <maschaffner@gmx.ch>
+
+	* main/piggy.h: fix size of d1 shareware descent.pig
+
 2003-08-03  Martin Schaffner  <martin.schaffner@epfl.ch>
 
 	* main/bm.c, main/bm.h, main/gamemine.c, main/gamemine.h,
