@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.32 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: pstypes.h,v 1.33 2005-01-25 21:20:29 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -70,21 +70,19 @@ typedef unsigned int uint;
 # ifndef __MINGW32__
 #  define PATH_MAX _MAX_PATH
 # endif
-# ifdef _WIN32_WCE
-#  define _MAX_DIR 256
-# endif
+# define FNAME_MAX 256
 #elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 # include <sys/types.h>
-# define _MAX_PATH 1024
-# define _MAX_DIR 256
+# ifndef PATH_MAX
+#  define PATH_MAX 1024
+# endif
+# define FNAME_MAX 256
 #elif defined __DJGPP__
 # include <sys/types.h>
-# define _MAX_PATH 255
-# define _MAX_DIR 63
+# define FNAME_MAX 9	// excluding extension
 #elif defined(macintosh)
-# define _MAX_PATH 255
-# define _MAX_DIR 63
-# define PATH_MAX _MAX_PATH
+# define PATH_MAX 256
+# define FNAME_MAX 32
 #endif
 
 #ifndef __cplusplus

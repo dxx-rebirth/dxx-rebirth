@@ -15,6 +15,7 @@
 	* main/editor/autosave.c, main/editor/editor.h, main/editor/group.c,
 	main/editor/kgame.c, main/editor/kmine.c, main/editor/macro.c,
 	main/gamesave.c: s/128/PATH_MAX
+	* include/pstypes.h, main/newmenu.c: clean up path/file length macros
 
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 

@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.29 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: newmenu.c,v 1.30 2005-01-25 21:20:29 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2353,7 +2353,7 @@ RePaintNewmenuFile:
  				if (x==0)	{
 					char * p;
 					int ret;
-					char name[_MAX_PATH];
+					char name[PATH_MAX];
 
 					p = &filenames[(citem*14)+strlen(&filenames[citem*14])];
 					if (player_mode)
