@@ -37,6 +37,7 @@ typedef unsigned long ulong;
 
 #if defined __MINGW32__
 #include <stdint.h>
+typedef uint64_t u_int64_t;
 typedef uint32_t u_int32_t;
 
 #elif defined __linux__
