@@ -18,7 +18,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include "console.h"
 
-#ifndef macintosh
 static inline void _do_mprintf(int n, char *fmt, ...)
 {
 	char buffer[1024];
@@ -32,9 +31,6 @@ static inline void _do_mprintf(int n, char *fmt, ...)
 }
 
 #define mprintf(args) _do_mprintf args
-#else
-#define mprintf(args) _mprintf args
-#endif
 
 #define minit()
 #define mclose(n)

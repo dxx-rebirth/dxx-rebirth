@@ -2,6 +2,9 @@
 
 	* 2d/font.c: Initialise the dataptr member correctly.
 
+	* include/mono.h: Print only mildly interesting messages to
+	stderr.txt. (revert earlier carbon changes)
+
 2004-12-05  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* include/physfsx.h: getRealPath uses the write directory if it
