@@ -1,3 +1,8 @@
+2004-06-26  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* main/gamemine.c, main/gamemine.h, main/gamesave.c: remove some
+	unnecessary globals
+
 2004-06-01  Bradley Bell  <btb@icculus.org>
 
 	* libmve/mve_main.c: cast malloc function pointer

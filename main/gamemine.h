@@ -1,4 +1,4 @@
-/* $Id: gamemine.h,v 1.6 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: gamemine.h,v 1.7 2004-06-26 16:27:17 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -80,6 +80,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MINE_VERSION        20  // Current version expected
 #define COMPATIBLE_VERSION  16  // Oldest version that can safely be loaded.
 
+#if 0
 struct mtfi {
 	ushort  fileinfo_signature;
 	ushort  fileinfo_version;
@@ -141,8 +142,8 @@ struct mfi {
 	int     segment2_offset;
 	int     segment2_howmany;
 	int     segment2_sizeof;
-
 };
+#endif // 0
 
 struct mh {
 	int num_vertices;
