@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.23 2003-03-22 02:26:10 btb Exp $ */
+/* $Id: bm.c,v 1.24 2003-03-23 22:39:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -513,6 +513,12 @@ void bm_read_all_d1(CFILE * fp)
 #define N_D2_OBJBITMAPPTRS		502
 #define N_D2_WEAPON_TYPES		62
 
+void bm_free_extra_robots()
+{
+	while (N_polygon_models > N_D2_POLYGON_MODELS)
+		free_model(&Polygon_models[--N_polygon_models]);
+}
+
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
 void bm_read_extra_robots(char *fname,int type)
 {
@@ -532,6 +538,8 @@ void bm_read_extra_robots(char *fname,int type)
 	}
 	else
 		version = 0;
+
+	bm_free_extra_robots();
 
 	//read extra weapons
 
@@ -562,9 +570,7 @@ void bm_read_extra_robots(char *fname,int type)
 	polymodel_read_n(&Polygon_models[N_D2_POLYGON_MODELS], t, fp);
 
 	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )
-	{
 		polygon_model_data_read(&Polygon_models[i], fp);
-	}
 
 	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
 		Dying_modelnums[i] = cfile_read_int(fp);
@@ -634,7 +640,7 @@ void load_robot_replacements(char *level_name)
 			Error("Polygon model (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_polygon_models-1);
 		polymodel_read(&Polygon_models[i], fp);
 
-		d_free(Polygon_models[i].model_data);
+		free_model(Polygon_models[i]);
 		polygon_model_data_read(&Polygon_models[i], fp);
 
 		Dying_modelnums[i] = cfile_read_int(fp);

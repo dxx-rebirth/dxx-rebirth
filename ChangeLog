@@ -1,3 +1,7 @@
+2003-03-23  Bradley Bell  <btb@icculus.org>
+
+	* main/bm.c: fix mem leak when reading extra robots
+
 2003-03-21  Bradley Bell  <btb@icculus.org>
 
 	* main/menu.c: Added option to set movie resolution (mostly works)
