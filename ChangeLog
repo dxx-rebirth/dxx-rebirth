@@ -7,6 +7,7 @@
 	previous users of compbit.h to use existing function in text.h
 	* main/inferno.c: remove warning created by the fix for the cfgets
 	issue of 2004-08-29
+	* main/bmread.c: add comment
 
 2004-10-23  Chris Taylor  <c.taylor@student.curtin.edu.au>
 

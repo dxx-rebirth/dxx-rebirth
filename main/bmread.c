@@ -1,4 +1,4 @@
-/* $Id: bmread.c,v 1.7 2004-10-23 17:42:13 schaffner Exp $ */
+/* $Id: bmread.c,v 1.8 2004-10-23 21:20:19 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,6 +15,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Routines to parse bitmaps.tbl
+ * Only used for editor, since the registered version of descent 1.
  *
  */
 
