@@ -18,7 +18,7 @@ Includes        =  ¶
 
 Sym-PPC         = -sym on
 
-PPCCOptions     = {Includes} -includes unix {Sym-PPC} -d HAVE_CONFIG_H -enum int -d TARGET_API_MAC_CARBON=1 -noMapCR
+PPCCOptions     = {Includes} -includes unix {Sym-PPC} -d HAVE_CONFIG_H -enum int -noMapCR
 
 ### Source Files ###
 
@@ -307,10 +307,13 @@ ObjFiles-PPC    =  ¶
 LibFiles-PPC    =	¶
 					"{SharedLibraries}PhysicsFS" ¶
 					"{SharedLibraries}SDL" ¶
-					"{SharedLibraries}CarbonLib" ¶
-					"{SharedLibraries}StdCLib" ¶
 					"{SharedLibraries}OpenGLLibraryStub" ¶
 					"{SharedLibraries}OpenGLUtilityStub" ¶
+					"{SharedLibraries}StdCLib" ¶
+#					"{SharedLibraries}CarbonLib" ¶
+					"{SharedLibraries}DialogsLib" ¶
+					"{SharedLibraries}InterfaceLib" ¶
+					"{SharedLibraries}MathLib" ¶
 					"{PPCLibraries}StdCRuntime.o" ¶
 					"{PPCLibraries}PPCCRuntime.o" ¶
 					"{PPCLibraries}PPCToolLibs.o"

@@ -12,6 +12,9 @@
 
 	* misc/strutil.c: Implement strdup for MPW
 
+	* D2X.make, arch/carbon/conf.h: compile as a classic powerpc app
+	in MPW
+
 2004-12-07  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* 2d/font.c: Initialise the dataptr member correctly.

@@ -141,7 +141,7 @@
 #  define inline
 # endif
 
-#define TARGET_API_MAC_CARBON 1
+//#define TARGET_API_MAC_CARBON 1
 /* Define to 1 if the system has the type `struct timespec'. */
 #define HAVE_STRUCT_TIMESPEC 0
 
