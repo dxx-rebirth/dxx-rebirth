@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.17 2003-01-07 03:10:20 btb Exp $ */
+/* $Id: mission.c,v 1.18 2003-01-11 02:58:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -192,9 +192,21 @@ int load_mission_d1(int mission_num)
 			sprintf(Level_names[i], "level%02d.sdl", i+1);
 
 		break;
+	case D1_MAC_SHARE_MISSION_HOGSIZE:
+		N_secret_levels = 0;
+
+		Last_level = 3;
+		Last_secret_level = 0;
+
+		//build level names
+		for (i=0;i<Last_level;i++)
+			sprintf(Level_names[i], "level%02d.sdl", i+1);
+
+		break;
 	default:
 		Int3(); // fall through
 	case D1_MISSION_HOGSIZE:
+	case D1_MAC_MISSION_HOGSIZE:
 		N_secret_levels = 3;
 
 		Last_level = BIM_LAST_LEVEL;
@@ -450,16 +462,18 @@ void add_d1_builtin_mission_to_list(int *count)
 	D1_Builtin_mission_hogsize = cfile_size("descent.hog");
 
 	switch (D1_Builtin_mission_hogsize) {
-	default:
-		Warning("Unknown D1 hogsize %d\n", D1_Builtin_mission_hogsize);
-		Int3();
-		// fall through
 	case D1_SHAREWARE_MISSION_HOGSIZE:
+	case D1_MAC_SHARE_MISSION_HOGSIZE:
 		strcpy(Mission_list[*count].filename, D1_MISSION_FILENAME);
 		strcpy(Mission_list[*count].mission_name, D1_SHAREWARE_MISSION_NAME);
 		Mission_list[*count].anarchy_only_flag = 0;
 		break;
+	default:
+		Warning("Unknown D1 hogsize %d\n", D1_Builtin_mission_hogsize);
+		Int3();
+		// fall through
 	case D1_MISSION_HOGSIZE:
+	case D1_MAC_MISSION_HOGSIZE:
 		strcpy(Mission_list[*count].filename, D1_MISSION_FILENAME);
 		strcpy(Mission_list[*count].mission_name, D1_MISSION_NAME);
 		Mission_list[*count].anarchy_only_flag = 0;
@@ -636,12 +650,14 @@ int load_mission(int mission_num)
 	if (mission_num == D1_Builtin_mission_num) {
 		cfile_use_descent1_hogfile("descent.hog");
 		switch (D1_Builtin_mission_hogsize) {
+		default:
+			Int3(); // fall through
 		case D1_MISSION_HOGSIZE:
+		case D1_MAC_MISSION_HOGSIZE:
 		case D1_SHAREWARE_MISSION_HOGSIZE:
+		case D1_MAC_SHARE_MISSION_HOGSIZE:
 			return load_mission_d1(mission_num);
 			break;
-		default:
-			// continue on...
 		}
 	}
 
@@ -654,9 +670,11 @@ int load_mission(int mission_num)
 		case OEM_MISSION_HOGSIZE:
 			return load_mission_oem(mission_num);
 			break;
-		case FULL_MISSION_HOGSIZE:
 		default:
-			// continue on...
+			Int3(); // fall through
+		case FULL_MISSION_HOGSIZE:
+			// continue on... (use d2.mn2 from hogfile)
+			break;
 		}
 	}
 
