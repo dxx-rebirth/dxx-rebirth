@@ -1,5 +1,8 @@
 2003-11-17  Bradley Bell  <btb@icculus.org>
 
+	* configure.ac, arch/linux/Makefile.am, arch/linux/linuxnet.c,
+	main/menu.c: added option to disable kalinix under unix
+
 	* main/game.c, main/newmenu.c: always set menu mode for GL popups
 
 2003-11-14  Bradley Bell  <btb@icculus.org>

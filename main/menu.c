@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.33 2003-11-14 23:14:02 btb Exp $ */
+/* $Id: menu.c,v 1.34 2003-11-18 01:08:07 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1732,10 +1732,10 @@ void do_multi_player_menu()
 		ADD_ITEM("Join UDP/IP Netgame\n", MENU_JOIN_UDP_NETGAME, -1);
 		ADD_ITEM("Start Multicast UDP/IP Netgame", MENU_START_MCAST4_NETGAME, -1);
 		ADD_ITEM("Join Multicast UDP/IP Netgame\n", MENU_JOIN_MCAST4_NETGAME, -1);
-#ifdef __unix__
+#ifdef KALINIX
 		ADD_ITEM("Start Kali Netgame", MENU_START_KALI_NETGAME, -1);
 		ADD_ITEM("Join Kali Netgame\n", MENU_JOIN_KALI_NETGAME, -1);
-#endif //__unix__
+#endif // KALINIX
 
 #ifdef MACINTOSH
 		ADD_ITEM("Start Appletalk Netgame", MENU_START_APPLETALK_NETGAME, -1 );

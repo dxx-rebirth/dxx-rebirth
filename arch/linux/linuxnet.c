@@ -1,4 +1,4 @@
-/* $Id: linuxnet.c,v 1.12 2003-10-12 09:17:47 btb Exp $ */
+/* $Id: linuxnet.c,v 1.13 2003-11-18 01:08:07 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -41,7 +41,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef NATIVE_IPX
 # include "ipx_bsd.h"
 #endif //NATIVE_IPX
+#ifdef KALINIX
 #include "ipx_kali.h"
+#endif
 #include "ipx_udp.h"
 #include "ipx_mcast4.h"
 #include "error.h"
@@ -108,7 +110,9 @@ void arch_ipx_set_driver(int ipx_driver)
 #ifdef NATIVE_IPX
 	case IPX_DRIVER_IPX: driver = &ipx_bsd; break;
 #endif //NATIVE_IPX
+#ifdef KALINIX
 	case IPX_DRIVER_KALI: driver = &ipx_kali; break;
+#endif
 	case IPX_DRIVER_UDP: driver = &ipx_udp; break;
 	case IPX_DRIVER_MCAST4: driver = &ipx_mcast4; break;
 	default: Int3();

@@ -277,7 +277,7 @@ if test x$enable_network != xno; then
             enable_native_ipx="yes";
            ;;
        *)
-            AC_MSG_WARN([d2x doesn't support native ipx on this host.  disabling native ipx])
+            AC_MSG_WARN([d2x does not support native ipx on this host.  disabling native ipx])
             enable_native_ipx="no";
             ;;
     esac
@@ -290,16 +290,23 @@ if test x$enable_network != xno; then
            ;;
     esac
 fi
+AC_ARG_ENABLE(kalinix,
+    [  --disable-kalinix       Disable the KaliNix driver (unix-only)],,)
 if test x$enable_network != xno; then
     if test x$enable_native_ipx != xno; then
         D2X_FEATURES="ipx ${D2X_FEATURES}"
         AC_DEFINE(NATIVE_IPX,,[Define to use the IPX support of the OS])
+    fi
+    if test x$enable_kalinix != xno; then
+        D2X_FEATURES="kalinix ${D2X_FEATURES}"
+        AC_DEFINE(KALINIX,,[Define to enable use of the KaliNix driver])
     fi
     AC_DEFINE(NETWORK,,[Define if you want a network build])
     D2X_FEATURES="network ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(USE_NETWORK, test x$enable_network != xno)
 AM_CONDITIONAL(USE_NATIVE_IPX, test x$enable_native_ipx != xno)
+AM_CONDITIONAL(USE_KALINIX, test x$enable_kalinix != xno)
 
 dnl Check for assembler
 AC_ARG_ENABLE(assembler,
