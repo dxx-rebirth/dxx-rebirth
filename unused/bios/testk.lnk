@@ -1,0 +1,4 @@
+system dos4g option quiet debug all 
+file .\obj\testk.obj
+library .\io.lib
+name testk

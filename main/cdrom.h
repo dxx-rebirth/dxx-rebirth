@@ -1,0 +1,13 @@
+void RBAExit();
+void RBAInit();
+int RBAEnabled();
+void RBARegisterCD();
+int RBAPlayTrack(int a);
+void RBAStop();
+void RBASetVolume(int a);
+void RBAPause();
+void RBAResume();
+int RBAGetNumberOfTracks();
+int RBAPlayTracks(int tracknum,int something);
+int RBAGetTrackNum();
+int RBAPeekPlayStatus();

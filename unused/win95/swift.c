@@ -1,0 +1,67 @@
+/*
+THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
+SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
+END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
+ROYALTY-FREE, PERPETUAL LICENSE TO SUCH END-USERS FOR USE BY SUCH END-USERS
+IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
+SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
+FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
+CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+*/
+
+
+#pragma off (unreferenced)
+static char rcsid[] = "$Id: swift.c,v 1.1.1.1 2001-01-19 03:30:15 bradleyb Exp $";
+#pragma on (unreferenced)
+
+
+#include "swift.h"
+
+int SWIFT_Initialize(void)
+{
+	return 0;
+}
+
+
+void SWIFT_Terminate(void)
+{
+
+}
+
+
+int SWIFT_GetAttachedDevice(void)
+{
+	return 0;
+}
+
+
+int SWIFT_GetStaticDeviceInfo(SWIFT_StaticData far *psd)
+{
+	return 0;
+}
+
+
+void SWIFT_SetMouseEventHandler(SWIFT_EVENTHANDLER f, unsigned m)
+{
+
+}
+
+
+void SWIFT_Get3DStatus(SWIFT_3DStatus far *status)
+{
+
+}
+
+
+void SWIFT_TactileFeedback(int d, int on, int off)
+{
+
+}
+
+
+unsigned SWIFT_GetDynamicDeviceData(void)
+{
+	return 0;
+}

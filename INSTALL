@@ -1,0 +1,17 @@
+Firstly, compile d2x.
+
+Then stick it in a directory with these files from a Descent 2 Registered installation (the version _does not_ matter). Shareware may work if you hack at the shareware build system, but I haven't even attempted it.
+
+I needed these files: (in addition to the d2x binary)
+alien1.pig
+alien2.pig
+descent2.ham
+descent2.hog
+descent2.s11
+descent2.s22
+fire.pig
+groupa.pig
+ice.pig
+water.pig
+
+Note the filenames must be in _lower case_. It's important.

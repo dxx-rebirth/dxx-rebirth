@@ -1,0 +1,115 @@
+AC_INIT(main/game.c)
+
+AM_CONFIG_HEADER(conf.h)
+AM_INIT_AUTOMAKE(d2x, 0.0.8)
+
+AM_MAINTAINER_MODE
+
+
+AC_ISC_POSIX
+AC_PROG_CC
+AC_PROG_RANLIB
+AC_STDC_HEADERS
+
+AC_CYGWIN
+AC_MINGW32
+
+CFLAGS="-D_REENTRANT -g -O2 -Wall -pipe"
+AC_SUBST(CFLAGS)
+
+AC_CHECK_LIB(SDL, SDL_Init, SDL_LIBS="-lSDL", AC_MSG_ERROR(The SDL, which is required, not found.),-ldl -lpthread)
+AC_CHECK_HEADERS(netipx/ipx.h)
+AC_SUBST(SDL_LIBS)
+
+# Check for NASM and network
+NO_ASM=0
+NO_NETWORK=0
+AC_ARG_WITH(assembler,
+  [  --without-assembler	  Do not use assembler optimization ],
+      if test x$withval = xno; then
+        NO_ASM=1
+      fi)
+AC_ARG_WITH(network,
+  [  --without-network            Do not build network/serial support ],
+      if test x$withval = xno; then
+	NO_NETWORK=1
+      fi)
+
+      
+AC_PATH_PROG(NASM, nasm, no)
+if test "$NASM" = "no"; then
+	NO_ASM=1	
+fi
+if test "$NO_ASM" = 1; then
+	AC_DEFINE(NO_ASM)
+	NASMFLAGS=""
+else
+	case $ARCH in
+	  win32)
+              NASMFLAGS="-f win32"
+              ;;
+          *)
+              NASMFLAGS="-f elf -d__ENV_LINUX__"
+              ;;
+        esac
+fi
+if test "$NO_NETWORK" = 0; then
+	AC_DEFINE(NETWORK)
+fi
+AM_CONDITIONAL(USE_ASM, test "$NO_ASM" != 1)
+AC_SUBST(NASMFLAGS)
+
+# Check for OpenGL
+AC_ARG_WITH(opengl,
+  [  --with-opengl		  Build OpenGL support ],
+  [case "${withval}" in
+    yes) opengl=true ;;
+    no)  opengl=false ;;
+    *) AC_MSG_ERROR(bad value ${withval} for --with-opengl) ;;
+  esac],[opengl=false])
+
+if test x$opengl = xtrue; then
+  AC_CHECK_LIB(MesaGL, main,
+    OGL_LIBS="-lMesaGL", 
+    [AC_MSG_ERROR(MesaGL not found, OpenGL cannot be built)
+     opengl=false],
+     -L/usr/X11R6/lib -lX11 -lXext -lm)
+  AC_CHECK_LIB(MesaGLU,main,
+    OGL_LIBS="${OGL_LIBS} -lMesaGLU",
+    [AC_MSG_ERROR(MesaGLU not found, OpenGL cannot be built)
+     opengl=false],
+     -lMesaGL -L/usr/X11R6/lib -lX11 -lXext -lm)
+fi
+
+if test x$opengl = xtrue; then
+  AC_DEFINE(OGL)
+fi
+AM_CONDITIONAL(USE_OPENGL, test x$opengl = xtrue)
+
+
+AC_ARG_PROGRAM
+
+#libdir='$(shell pwd)/${top_srcdir}/main'
+
+AC_OUTPUT(
+Makefile
+2d/Makefile
+3d/Makefile
+maths/Makefile
+mem/Makefile
+cfile/Makefile
+iff/Makefile
+texmap/Makefile
+misc/Makefile
+input/Makefile
+input/sdl/Makefile
+input/linux/Makefile
+input/ggi/Makefile
+video/Makefile
+sound/Makefile
+arch/Makefile
+arch/linux/Makefile
+arch/sdl/Makefile
+main/Makefile
+)
+

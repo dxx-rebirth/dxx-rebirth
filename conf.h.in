@@ -1,0 +1,35 @@
+/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+
+/* Define if you need to in order for stat and other things to work.  */
+#undef _POSIX_SOURCE
+
+/* Define if you have the ANSI C header files.  */
+#undef STDC_HEADERS
+
+/* Define if you have netipx/ipx.h */
+#undef HAVE_NETIPX_IPX_H
+
+/* Define if you want an assembler free build */
+#undef NO_ASM
+
+/* Define if you want a network build */
+#undef NETWORK
+
+/* Define if you want an OpenGL build */
+#undef OGL
+
+#define NMONO 1
+#define SDL_AUDIO 1
+#define PIGGY_USE_PAGING 1
+#define NEWDEMO 1
+
+#ifdef OGL
+# define GLX_VIDEO 1
+# define GII_INPUT 1
+# define GII_XWIN 1
+#else
+# define SDL_VIDEO 1
+# define SDL_INPUT 1
+#endif
+
+#define __ENV_LINUX__ 1

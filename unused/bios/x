@@ -1,0 +1,3 @@
+//the both return 0 if no error
+int GetFileTime(int filehandle, FILETIMESTRUCT *ftstruct);
+int SetFileTime(int filehandle, FILETIMESTRUCT *ftstruct);

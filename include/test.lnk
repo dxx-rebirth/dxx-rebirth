@@ -1,0 +1,5 @@
+system dos4g option quiet debug all 
+file .\obj\test.obj,
+ .\obj\mactest.obj
+library c:\project\miner\source\lib\io.lib
+name test
