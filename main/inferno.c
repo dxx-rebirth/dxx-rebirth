@@ -149,18 +149,18 @@ void do_joystick_init()
 {
  
 
-	if (!args_find( "-nojoystick" ))	{
+	if (!FindArg( "-nojoystick" ))	{
 		con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_6);
 		joy_init();
-		if ( args_find( "-joyslow" ))	{
+		if ( FindArg( "-joyslow" ))	{
 			con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_7);
 			joy_set_slow_reading(JOY_SLOW_READINGS);
 		}
-		if ( args_find( "-joypolled" ))	{
+		if ( FindArg( "-joypolled" ))	{
 			con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_8);
 			joy_set_slow_reading(JOY_POLLED_READINGS);
 		}
-		if ( args_find( "-joybios" ))	{
+		if ( FindArg( "-joybios" ))	{
 			con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_9);
 			joy_set_slow_reading(JOY_BIOS_READINGS);
 		}
@@ -198,14 +198,14 @@ void do_register_player(ubyte *title_pal)
 #ifdef NETWORK
 void do_network_init()
 {
-	if (!args_find( "-nonetwork" ))	{
+	if (!FindArg( "-nonetwork" ))	{
 		int socket=0, showaddress=0, t;
 		int ipx_error;
 
 		con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
-		if ((t=args_find("-socket")))
+		if ((t=FindArg("-socket")))
 			socket = atoi( Args[t+1] );
-		//@@if ( args_find("-showaddress") ) showaddress=1;
+		//@@if ( FindArg("-showaddress") ) showaddress=1;
 		if ((ipx_error=ipx_init(IPX_DEFAULT_SOCKET+socket,showaddress))==0)	{
   			con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, socket );
 			Network_active = 1;
@@ -222,7 +222,7 @@ void do_network_init()
 		}
 		ipx_read_user_file( "descent.usr" );
 		ipx_read_network_file( "descent.net" );
-		//@@if ( args_find( "-dynamicsockets" ))
+		//@@if ( FindArg( "-dynamicsockets" ))
 		//@@	Network_allow_socket_changes = 1;
 		//@@else
 		//@@	Network_allow_socket_changes = 0;
@@ -279,12 +279,12 @@ int main(int argc,char **argv)
 
 	args_init( argc,argv );
 
-	if ( args_find( "-debug") )
+	if ( FindArg( "-debug") )
 	{
 		con_threshold.value = (float)2;
 
 	} else
-		if ( args_find( "-verbose" ) ) 
+		if ( FindArg( "-verbose" ) ) 
 		{
 			con_threshold.value = (float)1;
 		}
@@ -316,7 +316,7 @@ int main(int argc,char **argv)
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2. Copyright (c) 1999 Peter Hawkins\n");
 
 
-	if (args_find( "-?" ) || args_find( "-help" ) || args_find( "?" ) ) {
+	if (FindArg( "-?" ) || FindArg( "-help" ) || FindArg( "?" ) ) {
 		//print_commandline_help();
 		set_exit_message("");
 		return(0);
@@ -328,10 +328,10 @@ int main(int argc,char **argv)
 
 	con_printf(CON_VERBOSE, "\n%s...", "Checking for Descent 2 CD-ROM");
 
-	if ( args_find( "-autodemo" ))
+	if ( FindArg( "-autodemo" ))
 		Auto_demo = 1;
 
-	if ( args_find( "-noscreens" ) )
+	if ( FindArg( "-noscreens" ) )
 		Skip_briefing_screens = 1;
 
 	Lighting_on = 1;
@@ -364,13 +364,13 @@ int main(int argc,char **argv)
 		set_display_mode(0);		//..then set default display mode
 #endif
 
-	i = args_find( "-xcontrol" );
+	i = FindArg( "-xcontrol" );
 	if ( i > 0 )	{
 		kconfig_init_external_controls( strtol(Args[i+1], NULL, 0), strtol(Args[i+2], NULL, 0) );
 	}
 
 	con_printf(CON_VERBOSE, "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
-	if (args_find("-nofade"))
+	if (FindArg("-nofade"))
 		grd_fades_disabled=1;
 	
 	if ((t=gr_init())!=0)				//doesn't do much
@@ -389,7 +389,7 @@ int main(int argc,char **argv)
 
 	//determine whether we're using high-res menus & movies
 #if !defined(POLY_ACC)
-	if (args_find("-nohires") || args_find("-nohighres") || (gr_check_mode(MENU_HIRES_MODE) != 0) || disable_high_res)
+	if (FindArg("-nohires") || FindArg("-nohighres") || (gr_check_mode(MENU_HIRES_MODE) != 0) || disable_high_res)
 		MovieHires = MenuHires = MenuHiresAvailable = 0;
 	else
 #endif
@@ -407,7 +407,7 @@ int main(int argc,char **argv)
 #endif
 
 	#ifndef RELEASE
-	if ( args_find( "-notitles" ) ) 
+	if ( FindArg( "-notitles" ) ) 
 		songs_play_song( SONG_TITLE, 1);
 	else
 	#endif
@@ -545,7 +545,7 @@ int main(int argc,char **argv)
 	#endif
 
 	#ifdef EDITOR
-	if (args_find("-hoarddata") != 0) {
+	if (FindArg("-hoarddata") != 0) {
 		#define MAX_BITMAPS_PER_BRUSH 30
 		grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
 		grs_bitmap icon;
@@ -613,7 +613,7 @@ int main(int argc,char **argv)
 	//the bitmap loading code changes gr_palette, so restore it
 	memcpy(gr_palette,title_pal,sizeof(gr_palette));
 
-	if ( args_find( "-norun" ) )
+	if ( FindArg( "-norun" ) )
 		return(0);
 
 	con_printf( CON_DEBUG, "\nInitializing 3d system..." );
@@ -631,7 +631,7 @@ int main(int argc,char **argv)
 	//	to write certain data.
 	#ifdef	EDITOR
 	{	int t;
-	if ( t = args_find( "-autoload" ) ) {
+	if ( t = FindArg( "-autoload" ) ) {
 		Auto_exit = 1;
 		strcpy(Auto_file, Args[t+1]);
 	}
@@ -696,14 +696,17 @@ int main(int argc,char **argv)
 
 #ifdef SDL_INPUT
 			/* keep the mouse from wandering in SDL/X11 */
-			SDL_WM_GrabInput(SDL_GRAB_ON);
+			if (FindArg("-grabmouse"))
+			    SDL_WM_GrabInput(SDL_GRAB_ON);
+
 #endif
 
 			game();
 
 #ifdef SDL_INPUT
 			/* give control back to the WM */
-			SDL_WM_GrabInput(SDL_GRAB_OFF);
+			if (FindArg("-grabmouse"))
+			    SDL_WM_GrabInput(SDL_GRAB_OFF);
 #endif
 
 			if ( Function_mode == FMODE_MENU )
@@ -730,12 +733,12 @@ int main(int argc,char **argv)
 
 #if 0 /* ????? */
 	#ifndef RELEASE
-	if (!args_find( "-notitles" ))
+	if (!FindArg( "-notitles" ))
 	#endif
 #endif
 
 	#ifndef NDEBUG
-	if ( args_find( "-showmeminfo" ) )
+	if ( FindArg( "-showmeminfo" ) )
 		show_mem_info = 1;		// Make memory statistics show
 	#endif
 

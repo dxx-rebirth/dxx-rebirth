@@ -496,7 +496,8 @@ int do_game_pause()
 
 #ifdef SDL_INPUT
 	/* give control back to the WM */
-	SDL_WM_GrabInput(SDL_GRAB_OFF);
+	if (FindArg("-grabmouse"))
+	    SDL_WM_GrabInput(SDL_GRAB_OFF);
 #endif
 
 	while (Game_paused) 
@@ -560,7 +561,8 @@ int do_game_pause()
 
 #ifdef SDL_INPUT
 	/* keep the mouse from wandering in SDL/X11 */
-	SDL_WM_GrabInput(SDL_GRAB_ON);
+	if (FindArg("-grabmouse"))
+	    SDL_WM_GrabInput(SDL_GRAB_ON);
 #endif
 
 	if (VR_screen_flags & VRF_COMPATIBLE_MENUS) {
@@ -635,7 +637,7 @@ void do_show_netgame_help()
    for (i=0;i<N_players;i++)
      if (Players[i].connected)
 	  {		  
-      if (!args_find ("-norankings"))
+      if (!FindArg ("-norankings"))
 		 {
 			if (i==Player_num)
 				sprintf (mtext[num],"%s%s (%d/%d)",RankStrings[NetPlayers.players[i].rank],Players[i].callsign,Netlife_kills,Netlife_killed); 
@@ -664,7 +666,7 @@ void do_show_netgame_help()
 		 sprintf (mtext[num],"%s has the record at %d points.",Players[PhallicMan].callsign,PhallicLimit); 
 	num++;
 	}
-  else if (!args_find ("-norankings"))
+  else if (!FindArg ("-norankings"))
 	{
 	  if (eff<60)
 	   {
