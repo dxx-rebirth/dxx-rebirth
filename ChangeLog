@@ -3,6 +3,9 @@
 	* 2d/font.c: get rid of clipping in ogl_internal_string, causes
 	garbage on windows for some reason.
 
+	* 2d/font.c: fixed opengl menu font bug, caused by doing
+	arithmetic on signed chars.
+
 2004-11-23  Bradley Bell  <btb@icculus.org>
 
 	* debian/control: depend on libsdl1.2-dev instead of libsdl-dev
