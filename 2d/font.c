@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.32 2004-11-25 09:52:53 btb Exp $ */
+/* $Id: font.c,v 1.33 2004-11-25 11:51:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1314,11 +1314,12 @@ int ogl_internal_string(int x, int y, char *s )
 				break;
 			}
 
-			letter = *text_ptr-FMINCHAR;
+			letter = (unsigned char)*text_ptr - FMINCHAR;
 
 			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-			if (!INFONT(letter) || *text_ptr<=0x06) {	//not in font, draw as space
+			if (!INFONT(letter) || (unsigned char)*text_ptr <= 0x06)
+			{   //not in font, draw as space
 				CHECK_EMBEDDED_COLORS() else{
 					xx += spacing;
 					text_ptr++;

@@ -1,4 +1,4 @@
-2004-11-25    <btb@icculus.org>
+2004-11-25  Bradley Bell  <btb@icculus.org>
 
 	* 2d/font.c: get rid of clipping in ogl_internal_string, causes
 	garbage on windows for some reason.
