@@ -1,6 +1,17 @@
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/input/ggi_init.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 14:03:57 $
+ *
+ * GGI Initialization
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
-#ifdef GII_INPUT
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,5 +23,3 @@
 void arch_ggi_init()
 {
 }
-
-#endif /* GII_INPUT */

@@ -1,3 +1,5 @@
+#define MAX_AXES 32
+
 typedef struct joystick_device {
 	int		device_number;
 	int		version;

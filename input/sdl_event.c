@@ -1,8 +1,18 @@
-// SDL Event related stuff
+/*
+ * $Source: /cvs/cvsroot/d2x/input/sdl_event.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 14:03:57 $
+ *
+ * SDL Event related stuff
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
 
-#ifdef SDL_INPUT
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -54,5 +64,3 @@ int event_init()
 
  return 0;
 }
-
-#endif

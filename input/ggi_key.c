@@ -1,6 +1,17 @@
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/input/ggi_key.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 14:03:57 $
+ *
+ * GGI keyboard input support
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
-#ifdef GII_INPUT
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -475,6 +486,3 @@ unsigned int key_up_count(int scancode)
 
 	return n;
 }
-
-
-#endif /* GII_INPUT */

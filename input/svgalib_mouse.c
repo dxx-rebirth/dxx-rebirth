@@ -1,17 +1,20 @@
 /*
  * $Source: /cvs/cvsroot/d2x/input/svgalib_mouse.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-28 16:09:39 $
+ * $Date: 2001-01-29 14:03:57 $
  *
  * SVGALib mouse support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/28 16:09:39  bradleyb
+ * Removed duplicate files, and unified input headers.
+ *
  */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-
-#ifdef SVGALIB_INPUT
+#endif
 
 #include <string.h>
 #include <vga.h>
@@ -220,5 +223,3 @@ int mouse_button_state(int button)
   event_poll();
   return Mouse.buttons[button].pressed;
 }
-
-#endif /* SVGALIB_INPUT */

@@ -1,6 +1,18 @@
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/input/linux_joystick.c,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 14:03:57 $
+ *
+ * Linux joystick support
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
-#ifdef __ENV_LINUX__
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <linux/joystick.h>
@@ -378,5 +390,3 @@ void joy_poll() {
 void joy_set_slow_reading(int flag) {
 
 }
-
-#endif // __ENV_LINUX__

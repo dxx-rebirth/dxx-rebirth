@@ -11,9 +11,272 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/input/dos_joydefs.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 14:03:57 $
+ * 
+ * .
+ * 
+ * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.2  2001/01/19 03:33:52  bradleyb
+ * Import of d2x-0.0.9-pre1
+ *
+ * Revision 1.1.1.1  1999/06/14 21:58:29  donut
+ * Import of d1x 1.37 source.
+ *
+ * Revision 2.2  1995/06/30  12:30:22  john
+ * Added -Xname command line.
+ * 
+ * Revision 2.1  1995/04/06  12:13:20  john
+ * Made so you can calibrate Gravis Gamepad.
+ * 
+ * Revision 2.0  1995/02/27  11:30:27  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ * 
+ * Revision 1.71  1995/02/12  02:06:10  john
+ * Fixed bug with joystick incorrectly asking for
+ * calibration.
+ * 
+ * Revision 1.70  1995/01/28  15:58:07  john
+ * Made joystick calibration be only when wrong detected in
+ * menu or joystick axis changed.
+ * 
+ * Revision 1.69  1995/01/25  14:37:55  john
+ * Made joystick only prompt for calibration once...
+ * 
+ * Revision 1.68  1995/01/24  16:34:29  john
+ * Made so that if you reconfigure joystick and
+ * add or subtract an axis, it asks for a recalibration
+ * upon leaving.
+ * 
+ * Revision 1.67  1994/12/29  11:08:51  john
+ * Fixed Thrustmaster and Logitech Wingman extreme
+ * Hat by reading the y2 axis during the center stage
+ * of the calibration, and using 75, 50, 27, and 3 %
+ * as values for the 4 positions.
+ * 
+ * Revision 1.66  1994/12/15  18:17:39  john
+ * Fixed warning with previous.
+ * 
+ * Revision 1.65  1994/12/15  18:15:48  john
+ * Made the joy cal only write the .cfg file, not
+ * the player file.
+ * 
+ * Revision 1.64  1994/12/13  14:43:35  john
+ * Took out the code in kconfig to build direction array.
+ * Called kc_set_controls after selecting a new control type.
+ * 
+ * Revision 1.63  1994/12/10  12:08:47  john
+ * Changed some delays to use TICKER instead of timer_get_fixed_seconds.
+ * 
+ * Revision 1.62  1994/12/09  11:01:07  mike
+ * force calibration of joystick on joystick selection from Controls... menu.
+ * 
+ * Revision 1.61  1994/12/07  21:50:27  john
+ * Put stop/start time around joystick delay.
+ * 
+ * Revision 1.60  1994/12/07  19:34:39  john
+ * Added delay.
+ * 
+ * Revision 1.59  1994/12/07  18:12:14  john
+ * NEatened up joy cal.,
+ * 
+ * Revision 1.58  1994/12/07  17:07:51  john
+ * Fixed up joy cal.
+ * 
+ * Revision 1.57  1994/12/07  16:48:53  yuan
+ * localization
+ * 
+ * Revision 1.56  1994/12/07  16:05:55  john
+ * Changed the way joystick calibration works.
+ * 
+ * Revision 1.55  1994/12/06  20:15:22  john
+ * Took out code that unpauses songs that were never paused.
+ * 
+ * Revision 1.54  1994/12/06  15:14:09  yuan
+ * Localization
+ * 
+ * Revision 1.53  1994/12/05  16:29:16  john
+ * Took out music pause around the cheat menu.
+ * 
+ * Revision 1.52  1994/12/04  12:39:10  john
+ * MAde so that FCS calibration doesn't ask for axis #2.
+ * 
+ * Revision 1.51  1994/12/03  15:14:59  john
+ * Took out the delay mentioned previosuly cause it would
+ * cause bigger problems than it helps, especially with netgames.
+ * 
+ * Revision 1.50  1994/12/03  14:16:14  john
+ * Put a delay between screens in joy cal to keep Yuan from
+ * double hitting.
+ * 
+ * Revision 1.49  1994/12/03  11:04:06  john
+ * Changed newmenu code a bit to fix bug with bogus
+ * backgrounds occcasionally.
+ * 
+ * Revision 1.48  1994/12/02  11:03:44  yuan
+ * Localization.
+ * 
+ * Revision 1.47  1994/12/02  10:50:33  yuan
+ * Localization
+ * 
+ * Revision 1.46  1994/12/01  12:21:59  john
+ * Added code to calibrate 2 joysticks separately.
+ * 
+ * Revision 1.45  1994/12/01  11:52:31  john
+ * Added message when you select FCS to say that if
+ * you have WCS, see manuel.
+ * 
+ * Revision 1.44  1994/11/29  02:26:28  john
+ * Made the prompts for upper-left, lower right for joy
+ * calibration more obvious.
+ * 
+ * Revision 1.43  1994/11/26  13:13:59  matt
+ * Changed "none" option to "keyboard only"
+ * 
+ * Revision 1.42  1994/11/21  19:35:13  john
+ * Replaced calls to joy_init with if (joy_present)
+ * 
+ * Revision 1.41  1994/11/21  19:28:34  john
+ * Changed warning for no joystick to use nm_messagebox..
+ * 
+ * Revision 1.40  1994/11/21  19:06:25  john
+ * Made it so that it only stops sound when your in game mode. 
+ * 
+ * Revision 1.39  1994/11/21  11:47:18  john
+ * Made sound pause during joystick calibration.
+ * 
+ * Revision 1.38  1994/11/10  20:34:18  rob
+ * Removed menu-specific network mode support in favor in new stuff
+ * in newmenu.c
+ * 
+ * Revision 1.37  1994/11/08  21:21:38  john
+ * Made Esc exit joystick calibration.
+ * 
+ * Revision 1.36  1994/11/08  15:14:42  john
+ * Added more calls so net doesn't die in net game.
+ * 
+ * Revision 1.35  1994/11/08  14:59:12  john
+ * Added code to respond to network while in menus.
+ * 
+ * Revision 1.34  1994/10/24  19:56:32  john
+ * Made the new user setup prompt for config options.
+ * 
+ * Revision 1.33  1994/10/22  14:11:52  mike
+ * Suppress compiler warning message.
+ * 
+ * Revision 1.32  1994/10/19  12:44:24  john
+ * Added hours field to player structure.
+ * 
+ * Revision 1.31  1994/10/17  13:07:13  john
+ * Moved the descent.cfg info into the player config file.
+ * 
+ * Revision 1.30  1994/10/13  21:41:12  john
+ * MAde Esc exit out of joystick calibration.
+ * 
+ * Revision 1.29  1994/10/13  19:22:27  john
+ * Added separate config saves for different devices.
+ * Made all the devices work together better, such as mice won't
+ * get read when you're playing with the joystick.
+ * 
+ * Revision 1.28  1994/10/13  11:40:18  john
+ * Took out warnings.
+ * 
+ * Revision 1.27  1994/10/13  11:35:23  john
+ * Made Thrustmaster FCS Hat work.  Put a background behind the
+ * keyboard configure.  Took out turn_sensitivity.  Changed sound/config
+ * menu to new menu. Made F6 be calibrate joystick.
+ * 
+ * Revision 1.26  1994/10/11  21:29:03  matt
+ * Made a bunch of menus have good initial selected values
+ * 
+ * Revision 1.25  1994/10/11  17:08:39  john
+ * Added sliders for volume controls.
+ * 
+ * Revision 1.24  1994/10/10  17:59:21  john
+ * Neatend previous.
+ * 
+ * Revision 1.23  1994/10/10  17:57:59  john
+ * Neatend previous.
+ * 
+ * Revision 1.22  1994/10/10  17:56:11  john
+ * Added messagebox that tells that config has been saved.
+ * 
+ * Revision 1.21  1994/09/30  12:37:26  john
+ * Added midi,digi volume to configuration.
+ * 
+ * Revision 1.20  1994/09/22  16:14:14  john
+ * Redid intro sequecing.
+ * 
+ * Revision 1.19  1994/09/19  18:50:15  john
+ * Added switch to disable joystick.
+ * 
+ * Revision 1.18  1994/09/12  11:47:36  john
+ * Made stupid cruise work better.  Make kconfig values get
+ * read/written to disk.
+ * 
+ * Revision 1.17  1994/09/10  15:46:47  john
+ * First version of new keyboard configuration.
+ * 
+ * Revision 1.16  1994/09/06  19:35:44  john
+ * Fixed bug that didn';t load new size .cal file.
+ * 
+ * Revision 1.15  1994/09/06  14:51:58  john
+ * Added sensitivity adjustment, fixed bug with joystick button not
+ * staying down.
+ * 
+ * Revision 1.14  1994/09/02  16:13:47  john
+ * Made keys fill in position.
+ * 
+ * Revision 1.13  1994/08/31  17:58:50  john
+ * Made a bit simpler.
+ * 
+ * Revision 1.12  1994/08/31  14:17:54  john
+ * *** empty log message ***
+ * 
+ * Revision 1.11  1994/08/31  14:10:56  john
+ * Made keys not work when KEY_DELETE pressed.
+ * 
+ * Revision 1.10  1994/08/31  13:40:47  mike
+ * Change constant
+ * 
+ * Revision 1.9  1994/08/31  12:56:27  john
+ * *** empty log message ***
+ * 
+ * Revision 1.8  1994/08/30  20:38:29  john
+ * Add more config stuff..
+ * 
+ * Revision 1.7  1994/08/30  16:37:25  john
+ * Added menu options to set controls.
+ * 
+ * Revision 1.6  1994/08/30  09:27:18  john
+ * *** empty log message ***
+ * 
+ * Revision 1.5  1994/08/30  09:12:01  john
+ * *** empty log message ***
+ * 
+ * Revision 1.4  1994/08/29  21:18:32  john
+ * First version of new keyboard/oystick remapping stuff.
+ * 
+ * Revision 1.3  1994/08/24  19:00:29  john
+ * Changed key_down_time to return fixed seconds instead of
+ * milliseconds.
+ * 
+ * Revision 1.2  1994/08/17  16:50:37  john
+ * Added damaging fireballs, missiles.
+ * 
+ * Revision 1.1  1994/08/17  10:07:12  john
+ * Initial revision
+ * 
+ * 
+ */
 
-#ifdef __ENV_DJGPP__
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -414,6 +677,3 @@ void joydefs_config()
 	}
 
 }
-
-
-#endif // __ENV_DJGPP__

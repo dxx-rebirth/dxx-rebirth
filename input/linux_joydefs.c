@@ -11,8 +11,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/input/linux_joydefs.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 14:03:57 $
+ *
+ * Linux joystick support
+ *
+ * $Log: not supported by cvs2svn $
+ */
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-#ifdef __ENV_LINUX__
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -238,5 +251,3 @@ void joydefs_config()
 	} while(i1>-1);
 
 }
-
-#endif //__ENV_LINUX__

@@ -1,8 +1,17 @@
-/* SVGALib keyboard input support */
+/*
+ * $Source: /cvs/cvsroot/d2x/input/svgalib_key.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 14:03:57 $
+ *
+ * SVGALib keyboard input support
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
-
-#ifdef SVGALIB_INPUT
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -364,5 +373,3 @@ unsigned int key_up_count(int scancode)
 
 	return n;
 }
-
-#endif /* SVGALIB_INPUT */

@@ -1,8 +1,18 @@
-// SDL mouse driver.
+/*
+ * $Source: /cvs/cvsroot/d2x/input/sdl_mouse.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 14:03:57 $
+ *
+ * SDL mouse driver.
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
 
-#ifdef SDL_INPUT
 #include <string.h>
 #include <SDL/SDL.h>
 #include "fix.h"
@@ -233,7 +243,3 @@ int mouse_button_state(int button)
   event_poll();
   return Mouse.buttons[button].pressed;
 }
-
-
-
-#endif // SDL_INPUT

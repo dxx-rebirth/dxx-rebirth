@@ -11,9 +11,67 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/input/dos_mouse.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 14:03:57 $
+ * 
+ * Functions to access Mouse and Cyberman...
+ * 
+ * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.2  2001/01/19 03:33:52  bradleyb
+ * Import of d2x-0.0.9-pre1
+ *
+ * Revision 1.1.1.1  1999/06/14 21:58:38  donut
+ * Import of d1x 1.37 source.
+ *
+ * Revision 1.11  1995/02/10  18:52:17  john
+ * Fixed bug with mouse not getting closed.
+ * 
+ * Revision 1.10  1995/02/02  11:10:33  john
+ * Changed a bunch of mouse stuff around to maybe get
+ * around PS/2 mouse hang.
+ * 
+ * Revision 1.9  1995/01/14  19:19:52  john
+ * Fixed signed short error cmp with -1 that caused mouse
+ * to break under Watcom 10.0
+ * 
+ * Revision 1.8  1994/12/27  12:38:23  john
+ * Made mouse use temporary dos buffer instead of
+ * 
+ * allocating its own.
+ * 
+ * 
+ * Revision 1.7  1994/12/05  23:54:53  john
+ * Fixed bug with mouse_get_delta only returning positive numbers..
+ * 
+ * Revision 1.6  1994/11/18  23:18:18  john
+ * Changed some shorts to ints.
+ * 
+ * Revision 1.5  1994/09/13  12:34:02  john
+ * Added functions to get down count and state.
+ * 
+ * Revision 1.4  1994/08/29  20:52:19  john
+ * Added better cyberman support; also, joystick calibration
+ * value return funcctiionn,
+ * 
+ * Revision 1.3  1994/08/24  18:54:32  john
+ * *** empty log message ***
+ * 
+ * Revision 1.2  1994/08/24  18:53:46  john
+ * Made Cyberman read like normal mouse; added dpmi module; moved
+ * mouse from assembly to c. Made mouse buttons return time_down.
+ * 
+ * Revision 1.1  1994/08/24  13:56:37  john
+ * Initial revision
+ * 
+ * 
+ */
 
-#ifdef __ENV_DJGPP__
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #ifdef __DJGPP__
 #include <dpmi.h>
@@ -600,5 +658,3 @@ void mouse_get_cyberman_pos( int *x, int *y )
 	*x = (((ei->x+8128)*256)/(8064+8128+1)) - 127;
 	*y = (((ei->y+8128)*256)/(8064+8128+1)) - 127;
 }
-
-#endif // __ENV_DJGPP__

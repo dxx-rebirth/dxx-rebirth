@@ -1,6 +1,17 @@
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/input/ggi_mouse.c,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2001-01-29 14:03:57 $
+ *
+ * GGI mouse support
+ *
+ * $Log: not supported by cvs2svn $
+ */
 
-#ifdef GII_INPUT
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -159,5 +170,3 @@ int mouse_button_state(int button)
 {
 	return Mouse.buttons[button].pressed;
 }
-
-#endif /* GII_INPUT */
