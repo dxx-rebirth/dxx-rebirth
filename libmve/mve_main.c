@@ -1,7 +1,15 @@
-/* $Id: mve_main.c,v 1.3 2003-06-10 04:46:16 btb Exp $ */
+/* $Id: mve_main.c,v 1.4 2003-11-25 04:36:25 btb Exp $ */
 
 #include <stdlib.h>
 #include <assert.h>
+
+#ifdef _WIN32_WCE
+# include <windows.h>
+#endif
+
+#ifdef _WIN32_WCE // should really be checking for "Pocket PC" somehow
+# define LANDSCAPE
+#endif
 
 #include <SDL.h>
 
@@ -9,6 +17,9 @@
 
 
 static SDL_Surface *g_screen;
+#ifdef LANDSCAPE
+static SDL_Surface *real_screen;
+#endif
 static unsigned char g_palette[768];
 static int g_truecolor;
 
@@ -34,6 +45,57 @@ int main(int c, char **v)
 
 	return doPlay(v[1]);
 }
+
+
+#ifdef LANDSCAPE
+/* Create a new rotated surface for drawing */
+SDL_Surface *CreateRotatedSurface(SDL_Surface *s)
+{
+    return(SDL_CreateRGBSurface(s->flags, s->h, s->w,
+    s->format->BitsPerPixel,
+    s->format->Rmask,
+    s->format->Gmask,
+    s->format->Bmask,
+    s->format->Amask));
+}
+
+/* Used to copy the rotated scratch surface to the screen */
+void BlitRotatedSurface(SDL_Surface *from, SDL_Surface *to)
+{
+
+    int bpp = from->format->BytesPerPixel;
+    int w=from->w, h=from->h, pitch=to->pitch;
+    int i,j;
+    Uint8 *pfrom, *pto, *to0;
+
+    SDL_LockSurface(from);
+    SDL_LockSurface(to);
+    pfrom=(Uint8 *)from->pixels;
+    to0=(Uint8 *) to->pixels+pitch*(w-1);
+    for (i=0; i<h; i++)
+    {
+        to0+=bpp;
+        pto=to0;
+        for (j=0; j<w; j++)
+        {
+            if (bpp==1) *pto=*pfrom;
+            else if (bpp==2) *(Uint16 *)pto=*(Uint16 *)pfrom;
+            else if (bpp==4) *(Uint32 *)pto=*(Uint32 *)pfrom;
+            else if (bpp==3)
+                {
+                    pto[0]=pfrom[0];
+                    pto[1]=pfrom[1];
+                    pto[2]=pfrom[2];
+                }
+            pfrom+=bpp;
+            pto-=pitch;
+        }
+    }
+    SDL_UnlockSurface(from);
+    SDL_UnlockSurface(to);
+}
+#endif
+
 
 static unsigned int fileRead(void *handle, void *buf, unsigned int count)
 {
@@ -81,10 +143,18 @@ static void showFrame(unsigned char *buf, unsigned int bufw, unsigned int bufh,
 	destRect.h = h;
 
 	SDL_BlitSurface(sprite, &srcRect, g_screen, &destRect);
+#ifdef LANDSCAPE
+	BlitRotatedSurface(g_screen, real_screen);
+	if ( (real_screen->flags & SDL_DOUBLEBUF) == SDL_DOUBLEBUF )
+		SDL_Flip(real_screen);
+	else
+		SDL_UpdateRect(real_screen, 0, 0, 0, 0);
+#else
 	if ( (g_screen->flags & SDL_DOUBLEBUF) == SDL_DOUBLEBUF )
 		SDL_Flip(g_screen);
 	else
 		SDL_UpdateRects(g_screen, 1, &destRect);
+#endif
 	SDL_FreeSurface(sprite);
 }
 
@@ -135,6 +205,7 @@ static int doPlay(const char *filename)
 {
 	int result;
 	int done = 0;
+	int bpp = 0;
 	FILE *mve;
 	MVE_videoSpec vSpec;
 
@@ -156,7 +227,16 @@ static int doPlay(const char *filename)
 
 	MVE_getVideoSpec(&vSpec);
 
-	g_screen = SDL_SetVideoMode(vSpec.screenWidth, vSpec.screenHeight, vSpec.truecolor?16:8, SDL_ANYFORMAT);
+#ifndef _WIN32_WCE // doesn't like to change bpp?
+	bpp = vSpec.truecolor?16:8;
+#endif
+
+#ifdef LANDSCAPE
+	real_screen = SDL_SetVideoMode(vSpec.screenHeight, vSpec.screenWidth, bpp, SDL_FULLSCREEN);
+	g_screen = CreateRotatedSurface(real_screen);
+#else
+	g_screen = SDL_SetVideoMode(vSpec.screenWidth, vSpec.screenHeight, bpp, SDL_ANYFORMAT);
+#endif
 
 	g_truecolor = vSpec.truecolor;
 

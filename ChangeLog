@@ -1,5 +1,8 @@
 2003-11-24  Bradley Bell  <btb@icculus.org>
 
+	* libmve/decoder8.c, libmve/mve_main.c, libmve/mvelib.c,
+	libmve/mveplay.c: stuff to play mve's in WinCE
+
 	* arch/win32/findfile.c: unused functions...
 
 	* README: stuff

@@ -225,7 +225,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, unsi
 	{
 	case 0x0:
 		/* block is copied from block in current frame */
-		copyFrame(*pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1));
+		copyFrame(*pFrame, *pFrame + ((unsigned char *)g_vBackBuf2 - (unsigned char *)g_vBackBuf1));
 	case 0x1:
 		/* block is unchanged from two frames ago */
 		*pFrame += 8;
@@ -283,7 +283,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, unsi
 		   y = -8 + BH
 		*/
 		relClose(*(*pData)++, &x, &y);
-		copyFrame(*pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*g_width);
+		copyFrame(*pFrame, *pFrame + ((unsigned char *)g_vBackBuf2 - (unsigned char *)g_vBackBuf1) + x + y*g_width);
 		*pFrame += 8;
 		--*pDataRemain;
 		break;
@@ -296,7 +296,7 @@ static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, unsi
 		*/
 		x = (signed char)*(*pData)++;
 		y = (signed char)*(*pData)++;
-		copyFrame(*pFrame, *pFrame + (g_vBackBuf2 - g_vBackBuf1) + x + y*g_width);
+		copyFrame(*pFrame, *pFrame + ((unsigned char *)g_vBackBuf2 - (unsigned char *)g_vBackBuf1) + x + y*g_width);
 		*pFrame += 8;
 		*pDataRemain -= 2;
 		break;
