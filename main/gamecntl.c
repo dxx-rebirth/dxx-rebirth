@@ -564,7 +564,7 @@ int do_game_pause()
 	}
 
 #ifdef SDL_INPUT
-	/* keep the mouse from wandering in SDL/X11 */
+	/* keep the mouse from wandering in SDL */
 	if (FindArg("-grabmouse"))
 	    SDL_WM_GrabInput(SDL_GRAB_ON);
 #endif

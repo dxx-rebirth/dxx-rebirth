@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.13 $
+ * $Revision: 1.14 $
  * $Author: bradleyb $
- * $Date: 2001-10-31 07:41:54 $
+ * $Date: 2001-11-04 09:01:41 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.13  2001/10/31 07:41:54  bradleyb
+ * Sync with d1x
+ *
  * Revision 1.12  2001/10/27 01:39:23  bradleyb
  * added some documentation
  *
@@ -891,7 +894,7 @@ int main(int argc,char **argv)
 			#endif
 
 #ifdef SDL_INPUT
-			/* keep the mouse from wandering in SDL/X11 */
+			/* keep the mouse from wandering in SDL */
 			if (FindArg("-grabmouse"))
 			    SDL_WM_GrabInput(SDL_GRAB_ON);
 
