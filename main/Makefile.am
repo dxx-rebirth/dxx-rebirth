@@ -10,10 +10,14 @@ EXTRA_PROGRAMS = d2x d2x-sdl d2x-ogl d2x-svga d2x-ggi
 
 LDFLAGS = -export-dynamic
 
+if ENV_DJGPP
+ARCH_LIBS =
+else
 if MINGW32
 ARCH_LIBS = ../arch/win32/libarch_win32.a
 else
-ARCH_LIBS =
+ARCH_LIBS = ../arch/linux/libarch_linux.a
+endif
 endif
 
 d2x_LDADD = ${ARCH_LIBS} ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
@@ -70,7 +74,7 @@ newmenu.h object.h paging.h physics.h piggy.h player.h playsave.h polyobj.h \
 powerup.h render.h robot.h scores.h screens.h segment.h segpoint.h slew.h \
 songs.h sounds.h state.h switch.h terrain.h texmerge.h text.h textures.h \
 titles.h vclip.h vers_id.h wall.h weapon.h \
-dumpmine.c ipx_drv.h
+dumpmine.c ipx_drv.c
 
 dist-hook:
 	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
