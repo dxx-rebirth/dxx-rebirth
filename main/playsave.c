@@ -11,8 +11,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/main/playsave.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-11-11 23:39:22 $
+ *
+ * Functions to load & save player games
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
 
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #ifdef WINDOWS
 #include "desw.h"
@@ -47,8 +60,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "screens.h"
 #include "powerup.h"
+#include "makesig.h"
 
-#define SAVE_FILE_ID			"DPLR"
+#define SAVE_FILE_ID			MAKE_SIG('D','P','L','R')
 
 #ifdef MACINTOSH
 	#include <Files.h>
@@ -353,9 +367,8 @@ int read_player_file()
 	#endif
 	FILE *file;
 	int errno_ret = EZERO;
-	int player_file_version,i;
+	int id,player_file_version,i;
 	int rewrite_it=0;
-	char id[4];
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
@@ -380,9 +393,9 @@ int read_player_file()
 		return errno;
 	}
 
-	fread( &id, 1, 4, file);
+	id = read_int(file);
 
-	if (memcmp(id, SAVE_FILE_ID, 4)) {
+	if (id!=SAVE_FILE_ID) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
 		fclose(file);
 		return -1;
@@ -669,7 +682,7 @@ int write_player_file()
 	errno_ret			= EZERO;
 
 	//Write out player's info
-	fwrite(SAVE_FILE_ID, 1, 4, file);
+	write_int(SAVE_FILE_ID,file);
 	write_short(PLAYER_FILE_VERSION,file);
 
 	write_short(Game_window_w,file);
