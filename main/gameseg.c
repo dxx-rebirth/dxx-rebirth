@@ -1,4 +1,4 @@
-/* $Id: gameseg.c,v 1.5 2004-04-14 08:54:35 btb Exp $ */
+/* $Id: gameseg.c,v 1.6 2004-05-15 18:07:12 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -249,7 +249,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.5 2004-04-14 08:54:35 btb Exp $";
+static char rcsid[] = "$Id: gameseg.c,v 1.6 2004-05-15 18:07:12 schaffner Exp $";
 #endif
 
 // How far a point can be from a plane, and still be "in" the plane
@@ -325,7 +325,7 @@ int get_num_faces(side *sidep)
 			Error("Illegal type = %i\n", sidep->type);
 			break;
 	}
-
+	return 0;
 }
 
 // Fill in array with four absolute point numbers for a given side
@@ -963,51 +963,51 @@ int trace_segs(vms_vector *p0,int oldsegnum)
 	int centermask;
 	segment *seg;
 	fix side_dists[6];
+	fix biggest_val;
+	int sidenum, bit, check, biggest_side;
+	static int trace_segs_callcount = 0; // how many times we called ourselves recursively
+	static ubyte visited [MAX_SEGMENTS];
 
 	Assert((oldsegnum <= Highest_segment_index) && (oldsegnum >= 0));
 
+	if (trace_segs_callcount >= Num_segments) {
+		con_printf (CON_DEBUG, "trace_segs: Segment not found\n");
+		mprintf ((0,"trace_segs (gameseg.c): Error: infinite loop\n"));
+		return -1;
+	}
+	if (trace_segs_callcount == 0)
+		memset (visited, 0, sizeof (visited));
+	if (visited [oldsegnum])
+		return -1;
+	visited [oldsegnum] = 1;
+	trace_segs_callcount++;
 
 	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
-
-	if (centermask == 0)		//we're in the old segment
-
+	if (centermask == 0) {		//we're in the old segment
+		trace_segs_callcount--;
 		return oldsegnum;		//..say so
-
-	else {						//not in old seg.  trace through to find seg
-		int biggest_side;
-
-		do {
-			int sidenum,bit;
-			fix biggest_val;
-
-			seg = &Segments[oldsegnum];
-
-			biggest_side = -1; biggest_val = 0;
-
-			for (sidenum=0,bit=1;sidenum<6;sidenum++,bit<<=1)
-				if ((centermask&bit) && (seg->children[sidenum]>-1))
-					if (side_dists[sidenum] < biggest_val) {
-						biggest_val = side_dists[sidenum];
-						biggest_side = sidenum;
-					}
-
-			if (biggest_side != -1) {
-				int check;
-
-				side_dists[biggest_side] = 0;
-
-				check = trace_segs(p0,seg->children[biggest_side]);	//trace into adjacent segment
-
-				if (check != -1)		//we've found a segment
-					return check;	
+	}
+	for (;;) {
+		seg = &Segments[oldsegnum];
+		biggest_side = -1;
+		biggest_val = 0;
+		for (sidenum = 0, bit = 1; sidenum < 6; sidenum++, bit <<= 1)
+			if ((centermask & bit) && (seg->children[sidenum] > -1)
+			    && side_dists[sidenum] < biggest_val) {
+				biggest_val = side_dists[sidenum];
+				biggest_side = sidenum;
 			}
 
+			if (biggest_side == -1)
+				break;
 
-		} while (biggest_side!=-1);
-
-		return -1;		//we haven't found a segment
+			side_dists[biggest_side] = 0;
+			check = trace_segs(p0,seg->children[biggest_side]);	//trace into adjacent segment
+			if (check >= 0)		//we've found a segment
+				return check;
 	}
-
+	trace_segs_callcount--;
+	return -1;		//we haven't found a segment
 }
 
 
