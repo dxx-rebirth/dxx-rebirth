@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.12 2002-08-31 03:21:41 btb Exp $ */
+/* $Id: network.c,v 1.13 2002-09-01 02:49:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.12 2002-08-31 03:21:41 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.13 2002-09-01 02:49:59 btb Exp $";
 #endif
 
 #define PATCH12
@@ -158,19 +158,19 @@ typedef struct lite_info {
 	ubyte                           version_major;
 	ubyte                           version_minor;
 	ubyte                           team_vector;
- } lite_info;
+} __pack__ lite_info;
 
 // IF YOU CHANGE THE SIZE OF ANY OF THE FOLLOWING STRUCTURES
 // MAKE THE MACINTOSH DEFINES BE THE SAME SIZE AS THE PC OR
 // I WILL HAVE TO HURT YOU VERY BADLY!!!  -- MWA
 
 #ifdef MACINTOSH
-#define NETGAME_INFO_SIZE		( Network_game_type == IPX_GAME?355:sizeof(netgame_info) )
-#define ALLNETPLAYERSINFO_SIZE	( Network_game_type == IPX_GAME?317:sizeof(AllNetPlayers_info) )
-#define LITE_INFO_SIZE			( Network_game_type == IPX_GAME?72:sizeof(lite_info) )
-#define SEQUENCE_PACKET_SIZE	( Network_game_type == IPX_GAME?34:sizeof(sequence_packet) )
-#define FRAME_INFO_SIZE			( Network_game_type == IPX_GAME?541:sizeof(frame_info) )
-#define IPX_SHORT_INFO_SIZE		( 490 )
+#define NETGAME_INFO_SIZE       ( Network_game_type == IPX_GAME?355:sizeof(netgame_info) )
+#define ALLNETPLAYERSINFO_SIZE  ( Network_game_type == IPX_GAME?317:sizeof(AllNetPlayers_info) )
+#define LITE_INFO_SIZE          ( Network_game_type == IPX_GAME?72:sizeof(lite_info) )
+#define SEQUENCE_PACKET_SIZE    ( Network_game_type == IPX_GAME?34:sizeof(sequence_packet) )
+#define FRAME_INFO_SIZE         ( Network_game_type == IPX_GAME?541:sizeof(frame_info) )
+#define IPX_SHORT_INFO_SIZE     ( 490 )
 #else
 #define NETGAME_INFO_SIZE       sizeof(netgame_info)
 #define ALLNETPLAYERSINFO_SIZE  sizeof(AllNetPlayers_info)
@@ -234,7 +234,7 @@ int num_active_games = 0;
 int PacketsPerSec=10;
 int MaxXDataSize=NET_XDATA_SIZE;
 
-int 	  Netlife_kills=0, Netlife_killed=0;
+int     Netlife_kills=0, Netlife_killed=0;
 
 int     Network_debug=0;
 int     Network_active=0;
@@ -247,9 +247,9 @@ int     Network_allow_socket_changes = 1;
 
 int     NetSecurityFlag=NETSECURITY_OFF;
 int     NetSecurityNum=0;
-int       Network_sending_extras=0;
-int   	 VerifyPlayerJoined=-1;
-int       Player_joining_extras=-1;  // This is so we know who to send 'latecomer' packets to.
+int     Network_sending_extras=0;
+int     VerifyPlayerJoined=-1;
+int     Player_joining_extras=-1;  // This is so we know who to send 'latecomer' packets to.
 											  // We could just send updates to everyone but that kills the sender!   
 
 // For rejoin object syncing
@@ -265,7 +265,7 @@ sequence_packet Network_player_rejoining; // Who is rejoining now?
 fix     LastPacketTime[MAX_PLAYERS]; // For timeouts of idle/crashed players
 
 int     PacketUrgent = 0;
-int   NetGameType=0;
+int     NetGameType=0;
 int     TotalMissedPackets=0,TotalPacketsGot=0;
 
 frame_info      MySyncPack,UrgentSyncPack;
