@@ -1,15 +1,19 @@
+2003-10-29  Martin Schaffner <maschaffner@gmx.ch>
+
+	* include/byteswap.h: fix stupid copy/paste error
+
 2003-10-24  Bradley Bell  <btb@icculus.org>
 
 	* 2d/bitblt.c, 2d/ibitblt.c, include/gr.h, include/grdef.h: use
 	gr_linear_rep_movsd_2x instead of almost identical
 	gr_linear_movsd_double. Better since we have assembly versions.
 
-2003-10-22 Martin Schaffner <maschaffner@gmx.ch>
+2003-10-22  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/gamemine.c, main/piggy.c: fix "psychedelic" walls
 	in d1 prisons
 
-2003-10-21  Martin Schaffner  <maschaffner@icculus.org>
+2003-10-21  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/gameseq.c, main/multi.c, main/multi.h: fix compilation
 	error with --disable-network, move reset_network_objects()

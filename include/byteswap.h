@@ -1,4 +1,4 @@
-/* $Id: byteswap.h,v 1.9 2003-10-03 07:58:14 btb Exp $ */
+/* $Id: byteswap.h,v 1.10 2003-10-29 14:18:49 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -67,9 +67,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
                                   memcpy((void *)&tmp, (void *)(s), 4); \
                                   (ushort)(d) = INTEL_SHORT(tmp); }
 #define PUT_INTEL_INT(d, s)     { uint tmp = INTEL_INT(s); \
-                                  memcpy((void *)d, (void *)&tmp, 4); }
+                                  memcpy((void *)d, (void *)&tmp, 2); }
 #define PUT_INTEL_SHORT(d, s)   { ushort tmp = INTEL_SHORT(s); \
-                                  memcpy((void *)d, (void *)&tmp, 4); }
+                                  memcpy((void *)d, (void *)&tmp, 2); }
 #endif // ! WORDS_NEED_ALIGNMENT
 
 #endif // ! _BYTESWAP_H
