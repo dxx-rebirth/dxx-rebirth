@@ -53,4 +53,4 @@ djgpp.bat djgpp.sh \
 autogen.sh cygconf \
 cvshowto.txt readme.txt installation.txt mingw32.txt compilerdefs.txt \
 d2x-sdl.sh d2x-gl.sh \
-descent.mn2 d2demo.mn2
+descent.msn d2demo.mn2
