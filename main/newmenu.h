@@ -1,4 +1,4 @@
-/* $Id: newmenu.h,v 1.4 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: newmenu.h,v 1.5 2003-11-25 04:13:05 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -239,5 +239,12 @@ int nm_messagebox_fixedfont(char *title, int nchoices, ...);
 
 //should be called whenever the palette changes
 extern void nm_remap_background(void);
+
+#if defined(MACINTOSH) || defined(WINDOWS) || defined(SDL_INPUT)
+# define NEWMENU_MOUSE
+void newmenu_show_cursor();
+void newmenu_hide_cursor();
+void draw_close_box(int x, int y);
+#endif
 
 #endif /* _NEWMENU_H */

@@ -1,5 +1,8 @@
 2003-11-24  Bradley Bell  <btb@icculus.org>
 
+	* arch/sdl/mouse.c, main/konfig.c, main/newmenu.c, main/newmenu.h:
+	enabled mouse control of menus
+
 	* main/mission.h: oops, didn't mean to change this.
 
 2003-11-21  Bradley Bell  <btb@icculus.org>

@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.24 2003-10-08 19:18:46 btb Exp $ */
+/* $Id: kconfig.c,v 1.25 2003-11-25 04:13:05 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.24 2003-10-08 19:18:46 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.25 2003-11-25 04:13:05 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1099,24 +1099,24 @@ int find_next_item_left( kc_item * items, int nitems, int citem )
 }
 #endif
 
-#if defined(MACINTOSH) || defined(WINDOWS)
+#ifdef NEWMENU_MOUSE
 int get_item_height(kc_item *item)
 {
 	int w, h, aw;
 	char btext[10];
 
 	if (item->value==255) {
-		sprintf( btext, "" );
+		strcpy(btext, "");
 	} else {
 		switch( item->type )	{
 			case BT_KEY:
 				strncpy( btext, key_text[item->value], 10 ); break;
 			case BT_MOUSE_BUTTON:
-			#ifdef WINDOWS
+#ifndef MACINTOSH
 				strncpy( btext, Text_string[mousebutton_text[item->value]], 10); break;
-			#else
+#else
 				strncpy( btext, mousebutton_text[item->value], 10 ); break;
-			#endif
+#endif
 			case BT_MOUSE_AXIS:
 				strncpy( btext, Text_string[mouseaxis_text[item->value]], 10 ); break;
 			case BT_JOY_BUTTON:
@@ -1145,10 +1145,10 @@ WINDOS(
 );
 	grs_font * save_font;
 	int old_keyd_repeat;
-	#if defined(MACINTOSH) || defined(WINDOWS) 
+#ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, mx, my, x1, x2, y1, y2;
 	int close_x, close_y, close_size;
-	#endif
+#endif
 
 	int i,k,ocitem,citem;
 	int time_stopped = 0;
@@ -1217,13 +1217,13 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 //		gr_string( 0x8000, 8, "Mouse" );
 //	}
 
-#if defined(MACINTOSH) || defined(WINDOWS)
-	close_x = close_y = 15;
-	close_size = 10;
+#ifdef NEWMENU_MOUSE
+	close_x = close_y = MenuHires?15:7;
+	close_size = MenuHires?10:5;
 	gr_setcolor( BM_XRGB(0, 0, 0) );
 	gr_rect(close_x, close_y, close_x + close_size, close_y + close_size);
 	gr_setcolor( BM_XRGB(21, 21, 21) );
-	gr_rect( close_x + 2, close_y + 2, close_x + close_size - 2, close_y + close_size -2 );
+	gr_rect(close_x + LHX(1), close_y + LHX(1), close_x + close_size - LHX(1), close_y + close_size - LHX(1));
 #endif
 
 	grd_curcanv->cv_font = GAME_FONT;
@@ -1303,11 +1303,10 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	citem = 0;
 	kc_drawitem( &items[citem], 1 );
-	
-	WIN(ShowCursorW());
-	MAC(show_cursor();)
 
-#if defined(MACINTOSH) || defined(WINDOWS) 
+	newmenu_show_cursor();
+
+#ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;
 #endif
 
@@ -1336,12 +1335,12 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 		songs_check_redbook_repeat();
 
 		k = key_inkey();
-		
-#if defined(MACINTOSH) || defined(WINDOWS)
+
+#ifdef NEWMENU_MOUSE
 		omouse_state = mouse_state;
 		mouse_state = mouse_button_state(0);
 #endif
-		
+
 		if ( !time_stopped ) {
 			#ifdef NETWORK
 			if (multi_menu_poll() == -1)
@@ -1454,8 +1453,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 		);			
 			keyd_repeat = old_keyd_repeat;
 			game_flush_inputs();
-			WIN( HideCursorW());
-			MAC( hide_cursor(); )
+			newmenu_hide_cursor();
 			if (time_stopped)
 				start_time();
 			return;
@@ -1532,7 +1530,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 #endif
 		}
 
-	#if defined (MACINTOSH) || defined(WINDOWS)
+#ifdef NEWMENU_MOUSE
 		if ( (mouse_state && !omouse_state) || (mouse_state && omouse_state) ) {
 			int item_height;
 			
@@ -1559,8 +1557,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 			y1 = grd_curcanv->cv_bitmap.bm_y + LHY(items[citem].y);
 			y2 = y1 + LHY(item_height);
 			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-				WIN(HideCursorW());
-				MAC(hide_cursor();)
+				newmenu_hide_cursor();
 				switch( items[citem].type )	{
 				case BT_KEY:				kc_change_key( &items[citem] ); break;
 				case BT_MOUSE_BUTTON:	kc_change_mousebutton( &items[citem] ); break;
@@ -1569,21 +1566,19 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 				case BT_JOY_AXIS: 		kc_change_joyaxis( &items[citem] ); break;
 				case BT_INVERT: 			kc_change_invert( &items[citem] ); break;
 				}
-				MAC(show_cursor();)
-				WIN(ShowCursorW());
+				newmenu_show_cursor();
 			} else {
-				x1 = grd_curcanv->cv_bitmap.bm_x + close_x + 2;
-				x2 = x1 + close_size - 2;
-				y1 = grd_curcanv->cv_bitmap.bm_y + close_y + 2;
-				y2 = y1 + close_size - 2;
+				x1 = grd_curcanv->cv_bitmap.bm_x + close_x + LHX(1);
+				x2 = x1 + close_size - LHX(1);
+				y1 = grd_curcanv->cv_bitmap.bm_y + close_y + LHX(1);
+				y2 = y1 + close_size - LHX(1);
 				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 					grd_curcanv->cv_font	= save_font;
 					WINDOS(dd_gr_set_current_canvas( save_canvas ),
 							gr_set_current_canvas( save_canvas ));
 					keyd_repeat = old_keyd_repeat;
 					game_flush_inputs();
-					WIN(HideCursorW());
-					MAC(hide_cursor();)
+					newmenu_hide_cursor();
 					if (time_stopped)
 						start_time();
 					return;
@@ -1591,15 +1586,13 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 			}
 
 		}
-		#endif		// MACINTOSH WINDOWS
-		
+#endif // NEWMENU_MOUSE
+
 		if (ocitem!=citem)	{
-			MAC(hide_cursor();)
-			WIN(HideCursorW());
+			newmenu_hide_cursor();
 			kc_drawitem( &items[ocitem], 0 );
 			kc_drawitem( &items[citem], 1 );
-			WIN(ShowCursorW());
-			MAC(show_cursor();)
+			newmenu_show_cursor();
 		}
 	}
 }
