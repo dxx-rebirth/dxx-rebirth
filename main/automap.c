@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.14 2003-11-14 23:29:57 btb Exp $ */
+/* $Id: automap.c,v 1.15 2003-11-14 23:31:16 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -587,7 +587,6 @@ void automap_clear_visited()
 }
 
 grs_canvas *name_canv_left,*name_canv_right;
-char name_level[128];
 
 void draw_player( object * obj )
 {
@@ -862,9 +861,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 
 	gr_bitmapm(AutomapHires?10:5, AutomapHires?10:5, &name_canv_left->cv_bitmap);
 	gr_bitmapm(grd_curcanv->cv_bitmap.bm_w-(AutomapHires?10:5)-name_canv_right->cv_bitmap.bm_w,AutomapHires?10:5,&name_canv_right->cv_bitmap);
-	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
-	gr_uprintf(5,5,name_level);
 }
 WIN(DDGRUNLOCK(dd_grd_curcanv));
 
@@ -993,32 +989,6 @@ void create_name_canv()
 
 }
 
-void modex_print_message(int x, int y, char *str)
-{
-	if (!AutomapHires) {
-#ifndef AUTOMAP_DIRECT_RENDER
-		int	i;
-
-		for (i=0; i<2; i++ )	{
-			gr_set_current_canvas(&Pages[i]);
-#endif
-
-			modex_printf(x, y, str, MEDIUM1_FONT,Font_color_20);
-#ifndef AUTOMAP_DIRECT_RENDER
-		}
-		gr_set_current_canvas(&DrawingPages[current_page]);
-#endif
-	}
-	else {
-#ifndef AUTOMAP_DIRECT_RENDER
-		gr_set_current_canvas(&Page);
-#endif
-		modex_printf(x, y, str, MEDIUM1_FONT,Font_color_20);
-#ifndef AUTOMAP_DIRECT_RENDER
-		gr_set_current_canvas(&DrawingPage);
-#endif
-	}
-}
 
 extern void GameLoop(int, int );
 extern int set_segment_depths(int start_seg, ubyte *segbuf);

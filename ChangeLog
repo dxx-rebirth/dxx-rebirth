@@ -1,5 +1,7 @@
 2003-11-14  Bradley Bell  <btb@icculus.org>
 
+	* main/automap.c: delete cruft
+
 	* main/automap.c: fix level number position
 
 	* main/automap.c: simplify g3_draw_line hack
