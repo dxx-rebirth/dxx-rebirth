@@ -1,4 +1,4 @@
-/* $Id: args.c,v 1.8 2003-02-18 20:35:35 btb Exp $ */
+/* $Id: args.c,v 1.9 2003-06-16 06:57:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -57,12 +57,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.8 2003-02-18 20:35:35 btb Exp $";
+static char rcsid[] = "$Id: args.c,v 1.9 2003-06-16 06:57:34 btb Exp $";
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "cfile.h"
 #include "u_mem.h"
 #include "strio.h"
 #include "strutil.h"
@@ -90,7 +91,7 @@ void args_exit(void)
 void InitArgs( int argc,char **argv )
 {
 	int i;
-	FILE *f;
+	CFILE *f;
 	char *line,*word;
 	
 	Num_args=0;
@@ -104,12 +105,13 @@ void InitArgs( int argc,char **argv )
 			strlwr( Args[i]  );  // Convert all args to lowercase
 	}
 	if((i=FindArg("-ini")))
-		f=fopen(Args[i+1],"rt");
+		f = cfopen(Args[i+1], "rt");
 	else
-		f=fopen("d2x.ini","rt");
+		f = cfopen("d2x.ini", "rt");
 	
 	if(f) {
-		while(!feof(f)) {
+		while(!cfeof(f))
+		{
 			line=fsplitword(f,'\n');
 			word=splitword(line,' ');
 			
@@ -120,7 +122,7 @@ void InitArgs( int argc,char **argv )
 			
 			d_free(line); d_free(word);
 		}
-		fclose(f);
+		cfclose(f);
 	}
 	
 	atexit(args_exit);

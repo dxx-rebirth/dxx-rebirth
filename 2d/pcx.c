@@ -1,4 +1,4 @@
-/* $Id: pcx.c,v 1.7 2003-02-28 09:56:10 btb Exp $ */
+/* $Id: pcx.c,v 1.8 2003-06-16 06:57:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -58,8 +58,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "poly_acc.h"
 #endif
 
-int pcx_encode_byte(ubyte byt, ubyte cnt, FILE * fid);
-int pcx_encode_line(ubyte *inBuff, int inLen, FILE * fp);
+int pcx_encode_byte(ubyte byt, ubyte cnt, CFILE *fid);
+int pcx_encode_line(ubyte *inBuff, int inLen, CFILE *fp);
 
 /* PCX Header data type */
 typedef struct {
@@ -354,7 +354,7 @@ int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 	int i;
 	ubyte data;
 	PCXHeader header;
-	FILE * PCXfile;
+	CFILE *PCXfile;
 
 	memset( &header, 0, PCXHEADER_SIZE );
 
@@ -367,26 +367,28 @@ int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 	header.Ymax = bmp->bm_h-1;
 	header.BytesPerLine = bmp->bm_w;
 
-	PCXfile = fopen( filename , "wb" );
+	PCXfile = cfopen(filename, "wb");
 	if ( !PCXfile )
 		return PCX_ERROR_OPENING;
 
-	if ( fwrite( &header, PCXHEADER_SIZE, 1, PCXfile ) != 1 )	{
-		fclose( PCXfile );
+	if (cfwrite(&header, PCXHEADER_SIZE, 1, PCXfile) != 1)
+	{
+		cfclose(PCXfile);
 		return PCX_ERROR_WRITING;
 	}
 
 	for (i=0; i<bmp->bm_h; i++ )	{
 		if (!pcx_encode_line( &bmp->bm_data[bmp->bm_rowsize*i], bmp->bm_w, PCXfile ))	{
-			fclose( PCXfile );
+			cfclose(PCXfile);
 			return PCX_ERROR_WRITING;
 		}
 	}
 
 	// Mark an extended palette
 	data = 12;
-	if (fwrite( &data, 1, 1, PCXfile )!=1)	{
-		fclose( PCXfile );
+	if (cfwrite(&data, 1, 1, PCXfile) != 1)
+	{
+		cfclose(PCXfile);
 		return PCX_ERROR_WRITING;
 	}
 
@@ -394,23 +396,23 @@ int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 	for (i=0; i<768; i++ )
 		palette[i] <<= 2;
 
-	retval = fwrite( palette, 768, 1, PCXfile );
+	retval = cfwrite(palette, 768, 1, PCXfile);
 
 	for (i=0; i<768; i++ )
 		palette[i] >>= 2;
 
 	if (retval !=1)	{
-		fclose( PCXfile );
+		cfclose(PCXfile);
 		return PCX_ERROR_WRITING;
 	}
 
-	fclose( PCXfile );
+	cfclose(PCXfile);
 	return PCX_ERROR_NONE;
 
 }
 
 // returns number of bytes written into outBuff, 0 if failed
-int pcx_encode_line(ubyte *inBuff, int inLen, FILE * fp)
+int pcx_encode_line(ubyte *inBuff, int inLen, CFILE *fp)
 {
 	ubyte this, last;
 	int srcIndex, i;
@@ -451,17 +453,17 @@ int pcx_encode_line(ubyte *inBuff, int inLen, FILE * fp)
 
 // subroutine for writing an encoded byte pair
 // returns count of bytes written, 0 if error
-int pcx_encode_byte(ubyte byt, ubyte cnt, FILE * fid)
+int pcx_encode_byte(ubyte byt, ubyte cnt, CFILE *fid)
 {
 	if (cnt) {
 		if ( (cnt==1) && (0xc0 != (0xc0 & byt)) )	{
-			if(EOF == putc((int)byt, fid))
+			if(EOF == cfputc((int)byt, fid))
 				return 0; 	// disk write error (probably full)
 			return 1;
 		} else {
-			if(EOF == putc((int)0xC0 | cnt, fid))
+			if(EOF == cfputc((int)0xC0 | cnt, fid))
 				return 0; 	// disk write error
-			if(EOF == putc((int)byt, fid))
+			if(EOF == cfputc((int)byt, fid))
 				return 0; 	// disk write error
 			return 2;
 		}

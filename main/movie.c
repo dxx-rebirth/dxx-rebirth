@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.26 2003-06-10 04:46:16 btb Exp $ */
+/* $Id: movie.c,v 1.27 2003-06-16 06:57:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.26 2003-06-10 04:46:16 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.27 2003-06-16 06:57:34 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -47,7 +47,6 @@ static char rcsid[] = "$Id: movie.c,v 1.26 2003-06-10 04:46:16 btb Exp $";
 #include "menu.h"
 #include "libmve.h"
 #include "text.h"
-#include "fileutil.h"
 #include "screens.h"
 
 extern int MenuHiresAvailable;
@@ -645,7 +644,7 @@ void draw_subtitles(int frame_num)
 }
 
 
-movielib *init_new_movie_lib(char *filename,FILE *fp)
+movielib *init_new_movie_lib(char *filename, CFILE *fp)
 {
 	int nfiles,offset;
 	int i,n;
@@ -653,7 +652,7 @@ movielib *init_new_movie_lib(char *filename,FILE *fp)
 
 	//read movie file header
 
-	nfiles = file_read_int(fp);		//get number of files
+	nfiles = cfile_read_int(fp);        //get number of files
 
 	//table = d_malloc(sizeof(*table) + sizeof(ml_entry)*nfiles);
 	MALLOC(table, movielib, 1);
@@ -667,11 +666,11 @@ movielib *init_new_movie_lib(char *filename,FILE *fp)
 	for (i=0;i<nfiles;i++) {
 		int len;
 
-		n = fread( table->movies[i].name, 13, 1, fp );
+		n = cfread(table->movies[i].name, 13, 1, fp);
 		if ( n != 1 )
 			break;		//end of file (probably)
 
-		len = file_read_int(fp);
+		len = cfile_read_int(fp);
 
 		table->movies[i].len = len;
 		table->movies[i].offset = offset;
@@ -680,7 +679,7 @@ movielib *init_new_movie_lib(char *filename,FILE *fp)
 
 	}
 
-	fclose(fp);
+	cfclose(fp);
 
 	table->flags = 0;
 
@@ -689,7 +688,7 @@ movielib *init_new_movie_lib(char *filename,FILE *fp)
 }
 
 
-movielib *init_old_movie_lib(char *filename,FILE *fp)
+movielib *init_old_movie_lib(char *filename, CFILE *fp)
 {
 	int nfiles,size;
 	int i;
@@ -703,18 +702,18 @@ movielib *init_old_movie_lib(char *filename,FILE *fp)
 	while( 1 ) {
 		int len;
 
-		i = fread( table->movies[nfiles].name, 13, 1, fp );
+		i = cfread(table->movies[nfiles].name, 13, 1, fp);
 		if ( i != 1 )
 			break;		//end of file (probably)
 
-		i = fread( &len, 4, 1, fp );
+		i = cfread(&len, 4, 1, fp);
 		if ( i != 1 )
 			Error("error reading movie library <%s>",filename);
 
 		table->movies[nfiles].len = INTEL_INT(len);
-		table->movies[nfiles].offset = ftell( fp );
+		table->movies[nfiles].offset = cftell(fp);
 
-		fseek( fp, INTEL_INT(len), SEEK_CUR );		//skip data
+		cfseek(fp, INTEL_INT(len), SEEK_CUR);       //skip data
 
 		nfiles++;
 	}
@@ -730,7 +729,7 @@ movielib *init_old_movie_lib(char *filename,FILE *fp)
 
 	table->n_movies = nfiles;
 
-	fclose(fp);
+	cfclose(fp);
 
 	table->flags = 0;
 
@@ -745,30 +744,22 @@ movielib *init_movie_lib(char *filename)
 	//note: this based on cfile_init_hogfile()
 
 	char id[4];
-	FILE * fp;
+	CFILE *fp;
 
-	fp = fopen( filename, "rb" );
-
-	if ((fp == NULL) && (AltHogdir_initialized)) {
-		char temp[128];
-		strcpy(temp, AltHogDir);
-		strcat(temp, "/");
-		strcat(temp, filename);
-		fp = fopen(temp, "rb");
-	}
+	fp = cfopen(filename, "rb");
 
 	if ( fp == NULL )
 		return NULL;
 
-	fread( id, 4, 1, fp );
+	cfread(id, 4, 1, fp);
 	if ( !strncmp( id, "DMVL", 4 ) )
 		return init_new_movie_lib(filename,fp);
 	else if ( !strncmp( id, "DHF", 3 ) ) {
-		fseek(fp,-1,SEEK_CUR);		//old file had 3 char id
+		cfseek(fp,-1,SEEK_CUR);		//old file had 3 char id
 		return init_old_movie_lib(filename,fp);
 	}
 	else {
-		fclose(fp);
+		cfclose(fp);
 		return NULL;
 	}
 }
@@ -968,18 +959,6 @@ int search_movie_lib(movielib *lib,char *filename,int must_have)
 #else
 				movie_handle = filehandle = open(lib->name, O_RDONLY);
 #endif
-
-				if ((filehandle == -1) && (AltHogdir_initialized)) {
-					char temp[128];
-					strcpy(temp, AltHogDir);
-					strcat(temp, "/");
-					strcat(temp, lib->name);
-#ifdef O_BINARY
-					movie_handle = filehandle = open(temp, O_RDONLY | O_BINARY);
-#else
-					movie_handle = filehandle = open(temp, O_RDONLY);
-#endif
-				}
 
 				if (must_have && from_cd && filehandle == -1) {		//didn't get file!
 

@@ -1,4 +1,4 @@
-/* $Id: ai.h,v 1.5 2003-03-27 01:23:18 btb Exp $ */
+/* $Id: ai.h,v 1.6 2003-06-16 06:57:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -448,8 +448,8 @@ extern void init_thief_for_level();
 
 extern int Escort_goal_object;
 
-extern int ai_save_state( FILE * fp );
-extern int ai_restore_state( FILE * fp, int version );
+extern int ai_save_state(CFILE *fp);
+extern int ai_restore_state(CFILE *fp, int version);
 
 extern int Buddy_objnum, Buddy_allowed_to_talk;
 

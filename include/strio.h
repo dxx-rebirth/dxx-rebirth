@@ -2,7 +2,7 @@
 #ifndef _STRIO_H
 #define _STRIO_H
 
-char *fsplitword(FILE *f, char splitchar);
+char *fsplitword(CFILE *f, char splitchar);
 char *splitword(char *s, char splitchar);
 
 #endif

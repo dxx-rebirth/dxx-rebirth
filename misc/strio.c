@@ -1,4 +1,4 @@
-/* $Id: strio.c,v 1.3 2003-02-18 20:35:35 btb Exp $ */
+/* $Id: strio.c,v 1.4 2003-06-16 06:57:34 btb Exp $ */
 /*
  * strio.c: string/file manipulation functions by Victor Rachels
  */
@@ -7,14 +7,15 @@
 #include <conf.h>
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
+
+#include "cfile.h"
 #include "strio.h"
 //added on 9/16/98 by adb to add memory tracking for this module
 #include "u_mem.h"
 //end additions - adb
 
-char* fsplitword(FILE *f, char splitchar)
+char* fsplitword(CFILE *f, char splitchar)
 {
  int x,y,mem,memx;
  char *word,*buf;
@@ -22,9 +23,9 @@ char* fsplitword(FILE *f, char splitchar)
   mem=memx*256;
   word=(char *) d_malloc(sizeof(char) * mem);
   x=0;
-  word[x]=fgetc(f);
-   while(word[x]!=splitchar && !feof(f))
-    {
+  word[x] = cfgetc(f);
+  while(word[x] != splitchar && !cfeof(f))
+  {
      x++;
       if(x==mem)
        {
@@ -36,8 +37,8 @@ char* fsplitword(FILE *f, char splitchar)
 	  word[y]=buf[y];
 	d_free(buf);
        }
-     word[x]=fgetc(f);
-    }
+     word[x] = cfgetc(f);
+  }
   word[x]=0;
   return word;
 }

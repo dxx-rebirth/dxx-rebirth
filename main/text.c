@@ -1,4 +1,4 @@
-/* $Id: text.c,v 1.8 2003-04-07 23:36:34 btb Exp $ */
+/* $Id: text.c,v 1.9 2003-06-16 06:57:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -65,10 +65,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.8 2003-04-07 23:36:34 btb Exp $";
+static char rcsid[] = "$Id: text.c,v 1.9 2003-06-16 06:57:34 btb Exp $";
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

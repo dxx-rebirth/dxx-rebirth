@@ -1,4 +1,4 @@
-/* $Id: polyobj.c,v 1.14 2003-03-29 22:35:00 btb Exp $ */
+/* $Id: polyobj.c,v 1.15 2003-06-16 06:57:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.14 2003-03-29 22:35:00 btb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.15 2003-06-16 06:57:34 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -294,7 +294,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	if ((ifile=cfopen(filename,"rb"))==NULL) 
 		Error("Can't open file <%s>",filename);
 
-	Assert(ifile->size <= MODEL_BUF_SIZE);
+	Assert(cfilelength(ifile) <= MODEL_BUF_SIZE);
 
 	Pof_addr = 0;
 	Pof_file_end = cfread(model_buf, 1, cfilelength(ifile), ifile);
@@ -521,10 +521,10 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 	if ((ifile=cfopen(filename,"rb"))==NULL) 
 		Error("Can't open file <%s>",filename);
 
-	Assert(ifile->size <= MODEL_BUF_SIZE);
+	Assert(cfilelength(ifile) <= MODEL_BUF_SIZE);
 
 	Pof_addr = 0;
-	Pof_file_end = cfread(model_buf, 1, ifile->size, ifile);
+	Pof_file_end = cfread(model_buf, 1, cfilelength(ifile), ifile);
 	cfclose(ifile);
 
 	id = pof_read_int(model_buf);

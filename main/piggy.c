@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.31 2003-03-29 22:35:00 btb Exp $ */
+/* $Id: piggy.c,v 1.32 2003-06-16 06:57:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.31 2003-03-29 22:35:00 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.32 2003-06-16 06:57:34 btb Exp $";
 #endif
 
 
@@ -847,7 +847,7 @@ CFILE *copy_pigfile_from_cd(char *filename)
 
 	if( !FileFindFirst( "*.pig", &find ) ) {
 		do      {
-			remove(find.name);
+			cfile_delete(find.name);
 		} while( !FileFindNext( &find ) );
 		FileFindClose();
 	}
@@ -869,7 +869,7 @@ CFILE *copy_pigfile_from_cd(char *filename)
 		if (ret != EXIT_SUCCESS) {
 
 			//delete file, so we don't leave partial file
-			remove(filename);
+			cfile_delete(filename);
 
 			#ifndef MACINTOSH
 			if (request_cd() == -1)

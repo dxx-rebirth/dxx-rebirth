@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.20 2003-06-06 19:04:27 btb Exp $ */
+/* $Id: newmenu.c,v 1.21 2003-06-16 06:57:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2578,13 +2578,16 @@ void delete_player_saved_games(char * name)
 #else
 		sprintf( filename, ":Players:%s.sg%d", name, i );
 #endif
-		unlink( filename );
+		cfile_delete(filename);
 	}
 }
 
 #define MAX_FILES 300
 
 int MakeNewPlayerFile(int allow_abort);
+
+extern char AltHogDir[64];
+extern char AltHogdir_initialized;
 
 int newmenu_get_filename( char * title, char * filespec, char * filename, int allow_abort_flag )
 {
@@ -2935,7 +2938,7 @@ RePaintNewmenuFile:
 					}
 					#endif
 				
-					ret = unlink( name );
+					ret = cfile_delete(name);
 					if (player_mode)
 						*p = 0;
 
@@ -3289,7 +3292,7 @@ ExitFileMenu:
 // 
 // 	if ( *keypress = KEY_CTRLED+KEY_D )	{
 // 		if ( *nitems > 1 )	{
-// 			unlink( items[*citem] );		// Delete the file
+// 			cfile_delete(items[*citem]);    // Delete the file
 // 			for (i=*citem; i<*nitems-1; i++ )	{
 // 				items[i] = items[i+1];
 // 			}
