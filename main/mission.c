@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.12 2002-08-27 08:02:51 btb Exp $ */
+/* $Id: mission.c,v 1.13 2002-08-30 00:57:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -41,6 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mono.h"
 #include "error.h"
 #include "findfile.h"
+#include "hoard.h"
 
 mle Mission_list[MAX_MISSIONS];
 
@@ -199,7 +200,6 @@ int ml_sort_func(mle *e0,mle *e1)
 }
 
 extern char CDROM_dir[];
-extern int HoardEquipped();
 
 //returns 1 if file read ok, else 0
 int read_mission_file(char *filename,int count,int location)
@@ -252,7 +252,6 @@ int read_mission_file(char *filename,int count,int location)
 			p = get_parm_value("xname",mfile);
 		}
 
-#ifdef NETWORK
 		if (HoardEquipped())
 		{
 			if (!p) {		//try super-enhanced mission!
@@ -260,7 +259,6 @@ int read_mission_file(char *filename,int count,int location)
 				p = get_parm_value("zname",mfile);
 			}
 		}
-#endif
 
 		if (p) {
 			char *t;

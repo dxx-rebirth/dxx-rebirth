@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.15 2002-08-15 07:17:39 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.16 2002-08-30 00:57:06 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -71,6 +71,7 @@ char gamesave_rcsid[] = "$Id: gamesave.c,v 1.15 2002-08-15 07:17:39 btb Exp $";
 #include "byteswap.h"
 #include "multi.h"
 #include "makesig.h"
+#include "hoard.h"
 
 char Gamesave_current_filename[128];
 
@@ -1380,8 +1381,6 @@ char *Level_being_loaded=NULL;
 extern void ncache_flush();
 #endif
 
-extern int HoardEquipped();
-
 extern int Slide_segs_computed;
 
 int no_old_level_file_error=0;
@@ -1465,7 +1464,6 @@ int load_level(char * filename_passed)
 	Assert(sig == MAKE_SIG('P','L','V','L'));
 
 	if (Gamesave_current_version >= 8) {    //read dummy data
-#ifdef NETWORK
 		if (HoardEquipped())
 		{
 			cfile_read_int(LoadFile);
@@ -1473,9 +1471,7 @@ int load_level(char * filename_passed)
 			cfile_read_byte(LoadFile);
 		}
 		else
-#endif
-			// NOTE LINK TO ABOVE!
-		      	Error("This level requires the Vertigo Enhanced version of D2.");
+			Error("This level requires the Vertigo Enhanced version of D2.");
 
 	}
 
