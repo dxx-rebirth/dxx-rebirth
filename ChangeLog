@@ -1,5 +1,8 @@
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 
+	* main/game.c: add alt+enter to toggle fullscreen (in addition to
+	previous key combos (d1x r1.29)
+
 	* arch/ogl/wgl.c: minor cleanup, use same for loop for filling r,
 	g, and b values (d1x r1.15)
 

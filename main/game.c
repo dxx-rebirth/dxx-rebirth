@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.27 2004-05-20 07:42:38 btb Exp $ */
+/* $Id: game.c,v 1.28 2004-05-20 07:54:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -407,7 +407,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.27 2004-05-20 07:42:38 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.28 2004-05-20 07:54:47 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1488,6 +1488,7 @@ int gr_toggle_fullscreen_game(void){
 	//added 2000/06/19 Matthew Mueller - hack to fix "infinite toggle" problem
 	//it seems to be that the screen mode change takes long enough that the key has already sent repeat codes, or that its unpress event gets dropped, etc.  This is a somewhat ugly fix, but it works.
 //	generic_key_handler(KEY_PADENTER,0);
+//	generic_key_handler(KEY_ENTER, 0);
 	key_flush();
 	//end addition -MM
 	return i;
@@ -1505,6 +1506,7 @@ int gr_toggle_fullscreen_menu(void){
 	i=arch_toggle_fullscreen_menu();
 
 //	generic_key_handler(KEY_PADENTER,0);
+//	generic_key_handler(KEY_ENTER, 0);
 	key_flush();
 
 	return i;
