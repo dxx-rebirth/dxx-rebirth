@@ -1,4 +1,4 @@
-/* $Id: menubar.c,v 1.7 2005-02-26 11:27:42 chris Exp $ */
+/* $Id: menubar.c,v 1.8 2005-02-27 03:55:46 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: menubar.c,v 1.7 2005-02-26 11:27:42 chris Exp $";
+static char rcsid[] = "$Id: menubar.c,v 1.8 2005-02-27 03:55:46 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -608,6 +608,8 @@ void menubar_do( int keypress )
 			state = 0;
 		}
 		last_keypress  = 0;
+
+		gr_update();
 	}
 }
 

@@ -1,4 +1,4 @@
-/* $Id: message.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+/* $Id: message.c,v 1.5 2005-02-27 03:55:46 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: message.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: message.c,v 1.5 2005-02-27 03:55:46 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -166,6 +166,7 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 			}
 		}
 
+		gr_update();
 	}
 
 	ui_close_window(wnd);

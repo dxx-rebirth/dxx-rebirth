@@ -1,4 +1,4 @@
-/* $Id: file.c,v 1.6 2005-02-26 10:13:51 chris Exp $ */
+/* $Id: file.c,v 1.7 2005-02-27 03:55:46 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: file.c,v 1.6 2005-02-26 10:13:51 chris Exp $";
+static char rcsid[] = "$Id: file.c,v 1.7 2005-02-27 03:55:46 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -520,6 +520,8 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 			ui_mouse_show();
 
 		}
+
+		gr_update();
 	}
 
 	//key_flush();

@@ -1,4 +1,4 @@
-/* $Id: med.c,v 1.7 2005-02-26 10:13:51 chris Exp $ */
+/* $Id: med.c,v 1.8 2005-02-27 03:55:46 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1371,6 +1371,8 @@ void editor(void)
 			ui_mouse_show();
 		}
 
+		gr_update();
+		
 	}
 
 //	_MARK_("end of editor");//Nuked to compile -KRB
