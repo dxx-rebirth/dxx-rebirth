@@ -3,7 +3,7 @@ INCLUDES = -I $(top_srcdir)/includes
 
 libmisc_a_SOURCES = \
 args.c	    d_delay.c  error.c	  strio.c \
-byteswap.c  d_io.c     hash.c     strutil.c
+d_io.c      hash.c     strutil.c
 
 # checker.c
 
@@ -12,4 +12,4 @@ byteswap.c  d_io.c     hash.c     strutil.c
 
 EXTRA_DIST = \
 byteswap.h dos_disk.h fileutil.h parsarg.h \
-d_glob.c errtest.c fileutil.c parsarg.c parstest.c
+byteswap.c d_glob.c errtest.c fileutil.c parsarg.c parstest.c
