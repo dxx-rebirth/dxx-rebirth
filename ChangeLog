@@ -1,3 +1,7 @@
+2004-10-23  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* cfile/cfile.c: declare variable on top of block
+
 2004-10-21  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* libmve/mveplay.c: make it compile on Cygwin

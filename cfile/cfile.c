@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.31 2004-10-09 21:47:49 schaffner Exp $ */
+/* $Id: cfile.c,v 1.32 2004-10-23 16:28:32 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -164,6 +164,7 @@ hog * cfile_init_hogfile (char *fname)
 	char id[4];
 	FILE * fp;
 	int i, len;
+	hog *new_hog;
 
 	fp = cfile_get_filehandle (fname, "rb");
 	if (fp == NULL)
@@ -176,7 +177,7 @@ hog * cfile_init_hogfile (char *fname)
 		return NULL;
 	}
 
-	hog *new_hog = (hog *) d_malloc (sizeof (hog));
+	new_hog = (hog *) d_malloc (sizeof (hog));
 
 	new_hog->num_files = 0;
 	strcpy (new_hog->filename, fname);
