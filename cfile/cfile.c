@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.20 2003-10-04 20:03:11 btb Exp $ */
+/* $Id: cfile.c,v 1.21 2003-10-05 22:35:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -531,7 +531,7 @@ CFILE * cfopen(char * filename, char * mode )
 			return NULL;
 		}
 		cfile->file = fp;
-		cfile->size = filelength( fileno(fp) );
+		cfile->size = ffilelength(fp);
 		cfile->lib_offset = 0;
 		cfile->raw_position = 0;
 		return cfile;
@@ -596,9 +596,7 @@ int cfgetc( CFILE * fp )
 
 	c = getc( fp->file );
 	if (c!=EOF)
-		fp->raw_position++;
-
-//	Assert( fp->raw_position==(ftell(fp->file)-fp->lib_offset) );
+		fp->raw_position = ftell(fp->file)-fp->lib_offset;
 
 	return c;
 }
@@ -646,17 +644,14 @@ char * cfgets( char * buf, size_t n, CFILE * fp )
 				*buf = 0;
 				return NULL;
 			}
-			c = fgetc( fp->file );
-			if (c == EOF)
-				break;
-			fp->raw_position++;
+			c = cfgetc(fp);
 			if (c == 0 || c == 10)        // Unix line ending
 				break;
 			if (c == 13) {      // Mac or DOS line ending
 				int c1;
 
-				c1 = fgetc( fp->file );
-				fseek( fp->file, -1, SEEK_CUR);
+				c1 = cfgetc(fp);
+				cfseek(fp, -1, SEEK_CUR);
 				if ( c1 == 10 ) // DOS line ending
 					continue;
 				else            // Mac line ending

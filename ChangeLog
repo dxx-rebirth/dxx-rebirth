@@ -1,5 +1,8 @@
 2003-10-05  Bradley Bell  <btb@icculus.org>
 
+	* cfile/cfile.c: better handling of CRLF text files (when that is
+	the native format)
+
 	* utilities/hogcreate.c, utilities/hogextract.c,
 	utilities/mvlcreate.c, utilities/mvlextract.c: use binary mode for
 	reading/writing files
