@@ -204,6 +204,16 @@ else
 		LIBS="-lSDL_image $LIBS"
 		AC_DEFINE(SDL_IMAGE,,[Define if you have the SDL_image library]))
 
+  # Check for libpng
+	have_libpng=no
+	PKG_CHECK_MODULES(LIBPNG, libpng,
+		AC_DEFINE(HAVE_LIBPNG,,[Define if you have libpng])
+		have_libpng=yes
+		LIBS="$LIBPNG_LIBS $LIBS",
+		AC_MSG_WARN([libpng not found. disabling png replacement texture support])
+)
+	AM_CONDITIONAL(USE_LIBPNG, test x$have_libpng = xyes)
+
   # Check for OpenGL
     AC_ARG_WITH(opengl,
         [  --with-opengl           Build OpenGL support ],,)

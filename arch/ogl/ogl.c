@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.31 2004-05-22 22:29:20 btb Exp $ */
+/* $Id: ogl.c,v 1.32 2004-05-23 00:21:03 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -35,7 +35,9 @@
 #include "palette.h"
 #include "rle.h"
 #include "mono.h"
+#ifdef HAVE_LIBPNG
 #include "pngfile.h"
+#endif
 
 #include "segment.h"
 #include "textures.h"
@@ -1872,13 +1874,16 @@ unsigned char decodebuf[512*512];
 void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 {
 	unsigned char *buf;
+#ifdef HAVE_LIBPNG
 	char *bitmapname;
+#endif
 
 	while (bm->bm_parent)
 		bm=bm->bm_parent;
 	if (bm->gltexture && bm->gltexture->handle > 0)
 		return;
 	buf=bm->bm_data;
+#ifdef HAVE_LIBPNG
 	if ((bitmapname = piggy_game_bitmap_name(bm)))
 	{
 		char filename[64];
@@ -1907,6 +1912,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 			}
 		}
 	}
+#endif
 	if (bm->gltexture == NULL){
  		ogl_init_texture(bm->gltexture = ogl_get_free_texture(), bm->bm_w, bm->bm_h, flags | ((bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
 	}

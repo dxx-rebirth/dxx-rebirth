@@ -1,5 +1,8 @@
 2004-05-22  Bradley Bell  <btb@icculus.org>
 
+	* configure.ac, arch/ogl/ogl.c, misc/Makefile.am: make libpng
+	optional
+
 	* rpm/d2x.spec.in: Changed descriptions
 
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
