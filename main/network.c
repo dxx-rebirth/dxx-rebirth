@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.21 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: network.c,v 1.22 2003-10-11 09:28:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.21 2003-10-04 03:14:47 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.22 2003-10-11 09:28:38 btb Exp $";
 #endif
 
 #define PATCH12
@@ -398,10 +398,9 @@ network_init(void)
 	My_Seq.type = PID_REQUEST;
 	memcpy(My_Seq.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
 
-   #if defined (D2_OEM)
+	if (is_D2_OEM)
 	   Version_minor|=NETWORK_OEM;
-	#endif
- 
+
 	My_Seq.player.version_major=Version_major;
 	My_Seq.player.version_minor=Version_minor;
    My_Seq.player.rank=GetMyNetRanking();	
@@ -4452,7 +4451,7 @@ remenu:
 	}
 #endif
 
-#if defined (D2_OEM)
+	if (is_D2_OEM)
 	{
 		if (Active_games[choice].levelnum>8)
 		 {
@@ -4460,7 +4459,6 @@ remenu:
 				goto remenu;
 		 }
 	}
-#endif                  
 
      if (!network_wait_for_all_info (choice))
 		{

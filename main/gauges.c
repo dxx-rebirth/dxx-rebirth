@@ -1,4 +1,4 @@
-/* $Id: gauges.c,v 1.9 2003-10-04 02:58:23 btb Exp $ */
+/* $Id: gauges.c,v 1.10 2003-10-11 09:28:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2631,18 +2631,16 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
    PA_DFX (pa_set_backbuffer_current());
 	gr_rect(box->left,box->top,box->right,box->bot);
 
-#ifndef SHAREWARE
-	if (Current_display_mode) {
+	if (Piggy_hamfile_version >= 3 // !SHAREWARE
+		&& Current_display_mode)
+	{
 		bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
 		PIGGY_PAGE_IN( Weapon_info[info_index].hires_picture );
 	} else {
-#endif
 		bm=&GameBitmaps[Weapon_info[info_index].picture.index];
 		PIGGY_PAGE_IN( Weapon_info[info_index].picture );
-#ifndef SHAREWARE
 	}
-#endif
-	
+
 	Assert(bm != NULL);
 
 //   PA_DFX (pa_set_frontbuffer_current());

@@ -1,4 +1,4 @@
-/* $Id: weapon.h,v 1.5 2003-10-04 03:14:48 btb Exp $ */
+/* $Id: weapon.h,v 1.6 2003-10-11 09:28:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -144,60 +144,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // weapon info flags
 #define WIF_PLACABLE        1   // can be placed by level designer
-
-typedef struct v2_weapon_info {
-	sbyte   render_type;        // How to draw 0=laser, 1=blob, 2=object
-	sbyte   persistent;         // 0 = dies when it hits something, 1 = continues (eg, fusion cannon)
-	short   model_num;          // Model num if rendertype==2.
-	short   model_num_inner;    // Model num of inner part if rendertype==2.
-
-	sbyte   flash_vclip;        // What vclip to use for muzzle flash
-	sbyte   robot_hit_vclip;    // What vclip for impact with robot
-	short   flash_sound;        // What sound to play when fired
-
-	sbyte   wall_hit_vclip;     // What vclip for impact with wall
-	sbyte   fire_count;         // Number of bursts fired from EACH GUN per firing.  For weapons which fire from both sides, 3*fire_count shots will be fired.
-	short   robot_hit_sound;    // What sound for impact with robot
-
-	sbyte   ammo_usage;         // How many units of ammunition it uses.
-	sbyte   weapon_vclip;       // Vclip to render for the weapon, itself.
-	short   wall_hit_sound;     // What sound for impact with wall
-
-	sbyte   destroyable;        // If !0, this weapon can be destroyed by another weapon.
-	sbyte   matter;             // Flag: set if this object is matter (as opposed to energy)
-	sbyte   bounce;             // 1==always bounces, 2=bounces twice
-	sbyte   homing_flag;        // Set if this weapon can home in on a target.
-
-	ubyte   speedvar;           // allowed variance in speed below average, /128: 64 = 50% meaning if speed = 100, can be 50..100
-
-	ubyte   flags;              // see values above
-
-	sbyte   flash;              // Flash effect
-	sbyte   afterburner_size;   // Size of blobs in F1_0/16 units, specify in bitmaps.tbl as floating point.  Player afterburner size = 2.5.
-
-	fix energy_usage;           // How much fuel is consumed to fire this weapon.
-	fix fire_wait;              // Time until this weapon can be fired again.
-
-	bitmap_index bitmap;        // Pointer to bitmap if rendertype==0 or 1.
-
-	fix blob_size;              // Size of blob if blob type
-	fix flash_size;             // How big to draw the flash
-	fix impact_size;            // How big of an impact
-	fix strength[NDL];          // How much damage it can inflict
-	fix speed[NDL];             // How fast it can move, difficulty level based.
-	fix mass;                   // How much mass it has
-	fix drag;                   // How much drag it has
-	fix thrust;                 // How much thrust it has
-	fix po_len_to_width_ratio;  // For polyobjects, the ratio of len/width. (10 maybe?)
-	fix light;                  // Amount of light this weapon casts.
-	fix lifetime;               // Lifetime in seconds of this weapon.
-	fix damage_radius;          // Radius of damage caused by weapon, used for missiles (not lasers) to apply to damage to things it did not hit
-	//-- unused-- fix damage_force;           // Force of damage caused by weapon, used for missiles (not lasers) to apply to damage to things it did not hit
-// damage_force was a real mess.  Wasn't Difficulty_level based, and
-// was being applied instead of weapon's actual strength.  Now use
-// 2*strength instead. --MK, 01/19/95
-	bitmap_index    picture;    // a picture of the weapon for the cockpit
-} v2_weapon_info;
 
 typedef struct weapon_info {
 	sbyte   render_type;        // How to draw 0=laser, 1=blob, 2=object

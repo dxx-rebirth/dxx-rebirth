@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.30 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: menu.c,v 1.31 2003-10-11 09:28:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -297,9 +297,8 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_CHANGE_PILOTS,MENU_NEW_PLAYER,unused);
 	ADD_ITEM(TXT_VIEW_DEMO,MENU_DEMO_PLAY,0);
 	ADD_ITEM(TXT_VIEW_SCORES,MENU_VIEW_SCORES,KEY_V);
-	#ifdef SHAREWARE
-	ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
-	#endif
+	if (cfexist("orderd2.pcx")) /* SHAREWARE */
+		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
 	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
 	#endif
 	ADD_ITEM(TXT_QUIT,MENU_QUIT,KEY_Q);
@@ -396,11 +395,11 @@ void do_option ( int select)
 			gr_palette_fade_out( gr_palette,32,0 );
 			scores_view(-1);
 			break;
-		#ifdef SHAREWARE
+#if 1 //def SHAREWARE
 		case MENU_ORDER_INFO:
 			show_order_form();
 			break;
-		#endif
+#endif
 		case MENU_QUIT:
 			#ifdef EDITOR
 			if (! SafetyCheck()) break;
@@ -901,7 +900,7 @@ void do_screen_res_menu()
 	if (i >= 3)
 		i++;
 
-#ifdef SHAREWARE
+#if 0 //def SHAREWARE
 	if (i > 1)
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, 
 			"High resolution modes are\n"

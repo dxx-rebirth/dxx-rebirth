@@ -1,4 +1,4 @@
-/* $Id: kmatrix.c,v 1.5 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: kmatrix.c,v 1.6 2003-10-11 09:28:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -723,8 +723,9 @@ void kmatrix_view(int network)
       kmatrix_kills_changed = 0;
       for (i=0; i<4; i++ )
           if (joy_get_button_down_cnt(i)>0)
-			  { 
-				  #if defined (D2_OEM)
+			  {
+				  if (is_D2_OEM)
+				  {
 					 if (Current_level_num==8)
 						{
 	                Players[Player_num].connected=0;
@@ -739,8 +740,8 @@ void kmatrix_view(int network)
 				       longjmp(LeaveGame, 0);
 	                return;
 						}
-				  #endif
-		
+				  }
+
             Players[Player_num].connected=7;
 				if (network)
    	         network_send_endlevel_packet();
@@ -749,7 +750,8 @@ void kmatrix_view(int network)
     	for (i=0; i<3; i++ )	
           if (mouse_button_down_count(i)>0)
 				{
-				  #if defined (D2_OEM)
+				  if (is_D2_OEM)
+				  {
 					 if (Current_level_num==8)
 						{
 	                Players[Player_num].connected=0;
@@ -764,7 +766,7 @@ void kmatrix_view(int network)
 				       longjmp(LeaveGame, 0);
 	                return;
 						}
-				  #endif
+				  }
 					Players[Player_num].connected=7;
 				   if (network)
 	               network_send_endlevel_packet();
@@ -783,8 +785,9 @@ void kmatrix_view(int network)
 						done=1;
 						break;
 					}
-					
-				  #if defined (D2_OEM)
+
+				  if (is_D2_OEM)
+				  {
 					 if (Current_level_num==8)
 						{
 	                Players[Player_num].connected=0;
@@ -799,8 +802,8 @@ void kmatrix_view(int network)
 				       longjmp(LeaveGame, 0);
 	                return;
 						}
-				  #endif
-		
+				  }
+
               Players[Player_num].connected=7;
 				  if (network)	
                network_send_endlevel_packet();
@@ -843,7 +846,8 @@ void kmatrix_view(int network)
 		}
 		if (timer_get_approx_seconds() >= (entry_time+MAX_VIEW_TIME) && Players[Player_num].connected!=7)
 			{
-				  #if defined (D2_OEM)
+				  if (is_D2_OEM)
+				  {
 					 if (Current_level_num==8)
 						{
 	                Players[Player_num].connected=0;
@@ -858,8 +862,8 @@ void kmatrix_view(int network)
 				       longjmp(LeaveGame, 0);
 	                return;
 						}
-				  #endif
-		
+				  }
+
 			 if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))		
 				{
 					done=1;

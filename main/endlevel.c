@@ -1,4 +1,4 @@
-/* $Id: endlevel.c,v 1.17 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: endlevel.c,v 1.18 2003-10-11 09:28:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -241,7 +241,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.17 2003-10-10 09:36:35 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.18 2003-10-11 09:28:38 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -434,10 +434,9 @@ int start_endlevel_movie()
 	//Assert(N_MOVIES >= Last_level);
 	//Assert(N_MOVIES_SECRET >= -Last_secret_level);
 
-	#ifndef D2_OEM
-	if (Current_level_num == Last_level)
-		return 1;	//don't play movie
-	#endif
+	if (!is_D2_OEM)
+		if (Current_level_num == Last_level)
+			return 1;   //don't play movie
 
 	if (Current_level_num > 0)
 		movie_name[2] = movie_table[Current_level_num-1];

@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.21 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: gamecntl.c,v 1.22 2003-10-11 09:28:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2245,13 +2245,16 @@ void FinalCheats(int key)
 				HUD_init_message(TXT_WOWIE_ZOWIE);
 		do_cheat_penalty();
 
-			#ifdef SHAREWARE
+			if (Piggy_hamfile_version < 3) // SHAREWARE
+			{
 				Players[Player_num].primary_weapon_flags = ~((1<<PHOENIX_INDEX) | (1<<OMEGA_INDEX) | (1<<FUSION_INDEX) | HAS_FLAG(SUPER_LASER_INDEX));
 				Players[Player_num].secondary_weapon_flags = ~((1<<SMISSILE4_INDEX) | (1<<MEGA_INDEX) | (1<<SMISSILE5_INDEX));
-			#else
+			}
+			else
+			{
 				Players[Player_num].primary_weapon_flags = 0xffff ^ HAS_FLAG(SUPER_LASER_INDEX);		//no super laser
 				Players[Player_num].secondary_weapon_flags = 0xffff;
-			#endif
+			}
 
 			for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
 					Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
@@ -2259,12 +2262,13 @@ void FinalCheats(int key)
 				for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
 					Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
 
-			#ifdef SHAREWARE
+				if (Piggy_hamfile_version < 3) // SHAREWARE
+				{
 					Players[Player_num].secondary_ammo[SMISSILE4_INDEX] = 0;
 					Players[Player_num].secondary_ammo[SMISSILE5_INDEX] = 0;
 					Players[Player_num].secondary_ammo[MEGA_INDEX] = 0;
-			#endif
-						
+				}
+
 				if (Game_mode & GM_HOARD)
 					Players[Player_num].secondary_ammo[PROXIMITY_INDEX] = 12;
 

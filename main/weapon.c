@@ -1,4 +1,4 @@
-/* $Id: weapon.c,v 1.8 2003-10-10 00:24:38 btb Exp $ */
+/* $Id: weapon.c,v 1.9 2003-10-11 09:28:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -200,7 +200,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: weapon.c,v 1.8 2003-10-10 00:24:38 btb Exp $";
+static char rcsid[] = "$Id: weapon.c,v 1.9 2003-10-11 09:28:38 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -1552,7 +1552,7 @@ extern int weapon_info_read_n(weapon_info *wi, int n, CFILE *fp, int file_versio
 
 		if (file_version >= 3)
 			wi[i].multi_damage_scale = cfile_read_fix(fp);
-		else
+		else /* FIXME: hack this to set the real values */
 			wi[i].multi_damage_scale = F1_0;
 
 		bitmap_index_read(&wi[i].bitmap, fp);

@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.11 2003-03-14 09:17:08 btb Exp $ */
+/* $Id: mission.h,v 1.12 2003-10-11 09:28:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -108,6 +108,9 @@ extern int Current_mission_num, Builtin_mission_num;
 extern char *Current_mission_filename,*Current_mission_longname;
 extern char Builtin_mission_filename[9];
 extern int Builtin_mission_hogsize;
+
+#define is_SHAREWARE (Builtin_mission_hogsize == SHAREWARE_MISSION_HOGSIZE)
+#define is_D2_OEM (Builtin_mission_hogsize == OEM_MISSION_HOGSIZE)
 
 //arrays of name of the level files
 extern char Level_names[MAX_LEVELS_PER_MISSION][FILENAME_LEN];

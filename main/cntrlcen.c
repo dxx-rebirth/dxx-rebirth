@@ -1,4 +1,4 @@
-/* $Id: cntrlcen.c,v 1.11 2003-10-10 09:36:34 btb Exp $ */
+/* $Id: cntrlcen.c,v 1.12 2003-10-11 09:28:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -109,7 +109,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.11 2003-10-10 09:36:34 btb Exp $";
+static char rcsid[] = "$Id: cntrlcen.c,v 1.12 2003-10-11 09:28:38 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -251,16 +251,17 @@ void do_countdown_frame()
 
 	if (!Control_center_destroyed)	return;
 
-	#if !defined(D2_OEM) && !defined(SHAREWARE)	// get countdown in OEM and SHAREWARE only
-	//	On last level, we don't want a countdown.
-	if ((Current_mission_num == Builtin_mission_num) && (Current_level_num == Last_level))
-    {
-     if (!(Game_mode & GM_MULTI))
-	   return;
-	  if (Game_mode & GM_MULTI_ROBOTS)
-		return;
-    }
-	#endif
+	if (!is_D2_OEM && !is_SHAREWARE)   // get countdown in OEM and SHAREWARE only
+	{
+		// On last level, we don't want a countdown.
+		if ((Current_mission_num == Builtin_mission_num) && (Current_level_num == Last_level))
+		{
+			if (!(Game_mode & GM_MULTI))
+				return;
+			if (Game_mode & GM_MULTI_ROBOTS)
+				return;
+		}
+	}
 
 	//	Control center destroyed, rock the player's ship.
 	fc = Countdown_seconds_left;
