@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.48 2003-12-28 00:35:16 schaffner Exp $ */
+/* $Id: piggy.c,v 1.49 2003-12-28 12:32:09 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.48 2003-12-28 00:35:16 schaffner Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.49 2003-12-28 12:32:09 schaffner Exp $";
 #endif
 
 
@@ -2340,11 +2340,11 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	} else
 		zsize = bitmap->bm_h * bitmap->bm_w;
 
-	if (next_bitmap)
-		bitmap->bm_data = d_malloc(zsize + JUST_IN_CASE);
-	else {
+	if (next_bitmap) {
 		bitmap->bm_data = *next_bitmap;
 		*next_bitmap += zsize;
+	} else {
+		bitmap->bm_data = d_malloc(zsize + JUST_IN_CASE);
 	}
 	cfread(bitmap->bm_data, 1, zsize, d1_Piggy_fp);
 	switch(cfilelength(d1_Piggy_fp)) {
@@ -2362,11 +2362,12 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	if (bmh->flags & BM_FLAG_RLE) { // size of bitmap could have changed!
 		int new_size = *(int*)bitmap->bm_data;
 		if (next_bitmap) {
+			*next_bitmap += new_size - zsize;
+		} else {
 			Assert( zsize + JUST_IN_CASE >= new_size );
 			bitmap->bm_data = d_realloc(bitmap->bm_data, new_size);
 			Assert(bitmap->bm_data);
-		} else
-			*next_bitmap += new_size - zsize;
+		}
 	}
 }
 

@@ -2,6 +2,8 @@
 
 	* main/piggy.c: fix bug 1067
 
+	* main/piggy.c: fix bugfix for 1067
+	
 2003-12-18  Bradley Bell  <btb@icculus.org>
 
 	* main/kconfig.c: fixes for linux-native joystick
