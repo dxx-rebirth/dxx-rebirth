@@ -6,7 +6,7 @@ EXTRA_SUBDIRS = old
 
 noinst_LIBRARIES = libmain.a
 
-INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/arch/include
+INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/arch/include
 
 CFLAGS += -fwritable-strings
 

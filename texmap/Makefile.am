@@ -1,5 +1,5 @@
 noinst_LIBRARIES = libtexmap.a
-INCLUDES = -I $(top_srcdir)/includes -DFL1_WITH_FLAT
+INCLUDES = -I $(top_srcdir)/include -DFL1_WITH_FLAT
 
 if USE_ASM
 libtexmap_a_SOURCES = ntmap.c scanline.c tmapflat.c tmappent.S tmapppro.S

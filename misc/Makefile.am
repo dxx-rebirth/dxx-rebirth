@@ -1,5 +1,5 @@
 noinst_LIBRARIES = libmisc.a
-INCLUDES = -I $(top_srcdir)/includes
+INCLUDES = -I $(top_srcdir)/include
 
 libmisc_a_SOURCES = \
 args.c	    d_delay.c  error.c	  strio.c \

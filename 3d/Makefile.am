@@ -1,5 +1,5 @@
 noinst_LIBRARIES = lib3d.a
-INCLUDES = -I $(top_srcdir)/includes
+INCLUDES = -I $(top_srcdir)/include
 
 lib3d_a_SOURCES = \
 clipper.c  globvars.c  interp.c  points.c  setup.c \

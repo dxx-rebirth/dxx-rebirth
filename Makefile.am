@@ -2,7 +2,7 @@ AUTOMAKE_OPTIONS=1.5
 
 SUBDIRS = 2d 3d maths mem cfile iff texmap misc arch main
 
-EXTRA_SUBDIRS = includes tools unused debian rpm
+EXTRA_SUBDIRS = include tools unused debian rpm
 
 bin_PROGRAMS = @TARGETS@
 

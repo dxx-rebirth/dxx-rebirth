@@ -1,5 +1,5 @@
 noinst_LIBRARIES = libmaths.a
-INCLUDES = -I $(top_srcdir)/includes 
+INCLUDES = -I $(top_srcdir)/include
 
 if USE_ASM
 libmaths_a_SOURCES = vecmat.c rand.c tables.c
