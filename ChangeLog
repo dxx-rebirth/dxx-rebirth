@@ -1,3 +1,8 @@
+2004-12-05  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* include/physfsx.h: getRealPath uses the write directory if it
+	can't get the real directory
+
 2004-12-03  Bradley Bell  <btb@icculus.org>
 
 	* include/cfile.h, include/physfsx.h: use PATH_MAX for hog

@@ -1,4 +1,4 @@
-/* $Id: physfsx.h,v 1.6 2004-12-04 04:07:16 btb Exp $ */
+/* $Id: physfsx.h,v 1.7 2004-12-05 10:56:32 btb Exp $ */
 
 /*
  *
@@ -83,7 +83,11 @@ static inline int PHYSFSX_getRealPath(const char *stdPath, char *realPath)
 	char *p;
 
 	if (!realDir)
-		return 0;
+	{
+		realDir = PHYSFS_getWriteDir();
+		if (!realDir)
+			return 0;
+	}
 
 	strncpy(realPath, realDir, PATH_MAX - 1);
 	if (strlen(realPath) >= strlen(sep))
