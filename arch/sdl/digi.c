@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.12 2003-11-27 09:10:52 btb Exp $ */
+/* $Id: digi.c,v 1.13 2004-05-08 18:56:04 schaffner Exp $ */
 /*
  *
  * SDL digital audio support
@@ -199,7 +199,9 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 {
  Uint8 *streamend = stream + len;
  struct sound_slot *sl;
-  
+
+ memset(stream, 0x80, len); // fix "static" sound bug on Mac OS X
+
  for (sl = SoundSlots; sl < SoundSlots + MAX_SOUND_SLOTS; sl++)
  {
   if (sl->playing)

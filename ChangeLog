@@ -1,3 +1,8 @@
+2004-05-08  Martin Schaffner  <maschaffner@gmx.ch>
+
+        * arch/sdl/digi.c: fix bug on Mac OS X where all sound, including
+	that from other apps, had "static" distortions.
+
 2004-04-22  Bradley Bell  <btb@icculus.org>
 
 	* main/multi.c, main/multibot.c: use new GET_INTEL_* macros
