@@ -1,4 +1,4 @@
-/* $Id: physfsx.h,v 1.8 2005-02-25 02:02:22 chris Exp $ */
+/* $Id: physfsx.h,v 1.9 2005-02-25 04:25:58 chris Exp $ */
 
 /*
  *
@@ -21,6 +21,7 @@
 
 #include <physfs.h>
 
+#include "pstypes.h"
 #include "error.h"
 
 static inline int PHYSFSX_readString(PHYSFS_file *file, char *s)
