@@ -18,7 +18,7 @@ else
 EDITOR_SRCS =
 endif
 
-libmain_a_SOURCES = ${NETWORK_SRCS} \
+libmain_a_SOURCES = ${EDITOR_SRCS} ${NETWORK_SRCS} \
 ai.c	    gamerend.c  lighting.c  paging.c    switch.c \
 ai2.c	    effects.c	gamesave.c  menu.c	physics.c   texmerge.c \
 aipath.c    endlevel.c	gameseg.c   mglobal.c	piggy.c     text.c \
