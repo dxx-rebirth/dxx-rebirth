@@ -1,5 +1,9 @@
 2003-10-08  Bradley Bell  <btb@icculus.org>
 
+	* arch/win32/ipx_udp.c: use closesocket() instead of close()
+
+2003-10-08  Bradley Bell  <btb@icculus.org>
+
 	* arch/sdl/joydefs.c, main/gamecntl.c, main/kconfig.c,
 	main/menu.c: Disabled 'd2x keys' weapon selection
 

@@ -1,4 +1,4 @@
-/* $Id: ipx_udp.c,v 1.1 2003-10-05 22:27:01 btb Exp $ */
+/* $Id: ipx_udp.c,v 1.2 2003-10-08 19:24:17 btb Exp $ */
 /*
  *
  * IPX driver for native Linux TCP/IP networking (UDP implementation)
@@ -230,14 +230,14 @@ static int addiflist(void)
 	broadsize=cnt;
 	for (i=j=0;i<cnt;i++) {
 		if (ioctl(sock,SIOCGIFFLAGS,ifconf.ifc_req+i)) {
-			close(sock);
+			closesocket(sock);
 			FAIL("ioctl(udp,\"%s\",SIOCGIFFLAGS) error: %m",ifconf.ifc_req[i].ifr_name);
 			}
 		if (((ifconf.ifc_req[i].ifr_flags&IF_REQFLAGS)!=IF_REQFLAGS)||
 				 (ifconf.ifc_req[i].ifr_flags&IF_NOTFLAGS))
 			continue;
 		if (ioctl(sock,(ifconf.ifc_req[i].ifr_flags&IFF_BROADCAST?SIOCGIFBRDADDR:SIOCGIFDSTADDR),ifconf.ifc_req+i)) {
-			close(sock);
+			closesocket(sock);
 			FAIL("ioctl(udp,\"%s\",SIOCGIF{DST/BRD}ADDR) error: %m",ifconf.ifc_req[i].ifr_name);
 			}
 
@@ -246,7 +246,7 @@ static int addiflist(void)
 		sinmp = (struct sockaddr_in *)&ifconf.ifc_req[i].ifr_netmask;
 #else // portable code
 		if (ioctl(sock, SIOCGIFNETMASK, ifconf.ifc_req+i)) {
-			close(sock);
+			closesocket(sock);
 			FAIL("ioctl(udp,\"%s\",SIOCGIFNETMASK) error: %m", ifconf.ifc_req[i].ifr_name);
 		}
 		sinmp = (struct sockaddr_in *)&ifconf.ifc_req[i].ifr_addr;
@@ -427,7 +427,7 @@ struct sockaddr_in *sin;
  */
 
 static int ipx_udp_OpenSocket(ipx_socket_t *sk, int port) {
-struct sockaddr_in sin;
+	struct sockaddr_in sin;
 
 	if (!open_sockets)
 		if (have_empty_address())
@@ -443,7 +443,7 @@ struct sockaddr_in sin;
 		FAIL("socket() creation failed on port %d: %m",port);
 		}
 	if (setsockopt(sk->fd, SOL_SOCKET, SO_BROADCAST, (char *)&val_one, sizeof(val_one))) {
-		if (close(sk->fd)) msg("close() failed during error recovery: %m");
+		if (closesocket(sk->fd)) msg("closesocket() failed during error recovery: %m");
 		sk->fd=-1;
 		FAIL("setsockopt(SO_BROADCAST) failed: %m");
 		}
@@ -451,7 +451,7 @@ struct sockaddr_in sin;
 	sin.sin_addr.s_addr=htonl(INADDR_ANY);
 	sin.sin_port=htons(baseport);
 	if (bind(sk->fd,(struct sockaddr *)&sin,sizeof(sin))) {
-		if (close(sk->fd)) msg("close() failed during error recovery: %m");
+		if (closesocket(sk->fd)) msg("closesocket() failed during error recovery: %m");
 		sk->fd=-1;
 		FAIL("bind() to UDP port %d failed: %m",baseport);
 		}
@@ -470,8 +470,8 @@ static void ipx_udp_CloseSocket(ipx_socket_t *mysock) {
 		return;
 	}
 	msg("CloseSocket on D1X socket port %d",mysock->socket);
-	if (close(mysock->fd))
-		msg("close() failed on CloseSocket D1X socket port %d: %m",mysock->socket);
+	if (closesocket(mysock->fd))
+		msg("closesocket() failed on CloseSocket D1X socket port %d: %m",mysock->socket);
 	mysock->fd=-1;
 	if (--open_sockets) {
 		msg("(closesocket) %d sockets left", open_sockets);
