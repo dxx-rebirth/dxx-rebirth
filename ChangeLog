@@ -1,3 +1,13 @@
+2004-11-30  Bradley Bell  <btb@icculus.org>
+
+	* .cvsignore, 2d/.cvsignore, 3d/.cvsignore, arch/.cvsignore,
+	arch/dos/.cvsignore, arch/ggi/.cvsignore, arch/linux/.cvsignore,
+	arch/ogl/.cvsignore, arch/sdl/.cvsignore, arch/svgalib/.cvsignore,
+	arch/win32/.cvsignore, debian/.cvsignore, iff/.cvsignore,
+	libmve/.cvsignore, main/.cvsignore, main/editor/.cvsignore,
+	maths/.cvsignore, mem/.cvsignore, misc/.cvsignore,
+	texmap/.cvsignore, utilities/.cvsignore: added stuff to .cvsignore
+
 2004-11-28  Bradley Bell  <btb@icculus.org>
 
 	* arch/sdl/digi.c: kludge to keep from hanging on MinGW

@@ -1,1 +1,9 @@
+.deps
+Makefile
 Makefile.in
+hogcreate
+hogextract
+mvlcreate
+mvlextract
+tex2txb
+txb2tex
