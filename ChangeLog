@@ -25,6 +25,8 @@
 	unused/ui/uidraw.c, unused/ui/userbox.c, unused/ui/window.c: moved
 	unused/ui to ui
 
+	* ui/Makefile.am: added Makefile.am for ui
+
 2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/state.c: open autosave file for writing, not reading
