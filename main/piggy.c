@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.23 2003-03-19 22:44:15 btb Exp $ */
+/* $Id: piggy.c,v 1.24 2003-03-20 23:14:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,12 +12,381 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Functions for managing the pig files.
+ *
+ * Old Log:
+ * Revision 1.16  1995/11/09  17:27:47  allender
+ * put in missing quote on new gauge name
+ *
+ * Revision 1.15  1995/11/08  17:28:03  allender
+ * add PC gauges to gauge list of non-substitutatble bitmaps
+ *
+ * Revision 1.14  1995/11/08  15:14:49  allender
+ * fixed horrible bug where the piggy cache size was incorrect
+ * for mac shareware
+ *
+ * Revision 1.13  1995/11/03  12:53:37  allender
+ * shareware changes
+ *
+ * Revision 1.12  1995/10/21  22:25:14  allender
+ * added bald guy cheat
+ *
+ * Revision 1.11  1995/10/20  22:42:15  allender
+ * changed load path of descent.pig to :data:descent.pig
+ *
+ * Revision 1.10  1995/10/20  00:08:01  allender
+ * put in event loop calls when loading data (hides it nicely
+ * from user) so TM can get it's strokes stuff
+ *
+ * Revision 1.9  1995/09/13  08:48:01  allender
+ * added lower memory requirement to load alternate bitmaps
+ *
+ * Revision 1.8  1995/08/16  09:39:13  allender
+ * moved "loading" text up a little
+ *
+ * Revision 1.7  1995/08/08  13:54:26  allender
+ * added macsys header file
+ *
+ * Revision 1.6  1995/07/12  12:49:56  allender
+ * total hack for bitmaps > 512 bytes wide -- check these by name
+ *
+ * Revision 1.5  1995/07/05  16:47:05  allender
+ * kitchen stuff
+ *
+ * Revision 1.4  1995/06/23  08:55:28  allender
+ * make "loading data" text y loc based off of curcanv
+ *
+ * Revision 1.3  1995/06/08  14:08:52  allender
+ * PPC aligned data sets
+ *
+ * Revision 1.2  1995/05/26  06:54:27  allender
+ * removed refences to sound data at end of pig file (since they will
+ * now be Macintosh snd resources for effects
+ *
+ * Revision 1.1  1995/05/16  15:29:51  allender
+ * Initial revision
+ *
+ * Revision 2.10  1995/10/07  13:17:26  john
+ * Made all bitmaps paged out by default.
+ *
+ * Revision 2.9  1995/04/14  14:05:24  john
+ * *** empty log message ***
+ *
+ * Revision 2.8  1995/04/12  13:39:37  john
+ * Fixed bug with -lowmem not working.
+ *
+ * Revision 2.7  1995/03/29  23:23:17  john
+ * Fixed major bug with sounds not building into pig right.
+ *
+ * Revision 2.6  1995/03/28  18:05:00  john
+ * Fixed it so you don't have to delete pig after changing bitmaps.tbl
+ *
+ * Revision 2.5  1995/03/16  23:13:06  john
+ * Fixed bug with piggy paging in bitmap not checking for disk
+ * error, hence bogifying textures if you pull the CD out.
+ *
+ * Revision 2.4  1995/03/14  16:22:27  john
+ * Added cdrom alternate directory stuff.
+ *
+ * Revision 2.3  1995/03/06  15:23:20  john
+ * New screen techniques.
+ *
+ * Revision 2.2  1995/02/27  13:13:40  john
+ * Removed floating point.
+ *
+ * Revision 2.1  1995/02/27  12:31:25  john
+ * Made work without editor.
+ *
+ * Revision 2.0  1995/02/27  11:28:02  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.85  1995/02/09  12:54:24  john
+ * Made paged out bitmaps have bm_data be a valid pointer
+ * instead of NULL, in case anyone accesses it.
+ *
+ * Revision 1.84  1995/02/09  12:50:59  john
+ * Bullet-proofed the piggy loading code.
+ *
+ * Revision 1.83  1995/02/07  17:08:51  john
+ * Added some error handling stuff instead of asserts.
+ *
+ * Revision 1.82  1995/02/03  17:06:48  john
+ * Changed sound stuff to allow low memory usage.
+ * Also, changed so that Sounds isn't an array of digi_sounds, it
+ * is a ubyte pointing into GameSounds, this way the digi.c code that
+ * locks sounds won't accidentally unlock a sound that is already playing, but
+ * since it's Sounds[soundno] is different, it would erroneously be unlocked.
+ *
+ * Revision 1.81  1995/02/02  21:56:39  matt
+ * Added data for new gauge bitmaps
+ *
+ * Revision 1.80  1995/02/01  23:31:57  john
+ * Took out loading bar.
+ *
+ * Revision 1.79  1995/01/28  15:13:18  allender
+ * bumped up Piggy_bitmap_cache_size
+ *
+ * Revision 1.78  1995/01/26  12:30:43  john
+ * Took out prev.
+ *
+ * Revision 1.77  1995/01/26  12:12:17  john
+ * Made buffer be big for bitmaps.
+ *
+ * Revision 1.76  1995/01/25  20:15:38  john
+ * Made editor allocate all mem.
+ *
+ * Revision 1.75  1995/01/25  14:52:56  john
+ * Made bitmap buffer be 1.5 MB.
+ *
+ * Revision 1.74  1995/01/22  16:03:19  mike
+ * localization.
+ *
+ * Revision 1.73  1995/01/22  15:58:36  mike
+ * localization
+ *
+ * Revision 1.72  1995/01/18  20:51:20  john
+ * Took out warnings.
+ *
+ * Revision 1.71  1995/01/18  20:47:21  john
+ * Added code to allocate sounds & bitmaps into diff
+ * buffers, also made sounds not be compressed for registered.
+ *
+ * Revision 1.70  1995/01/18  15:08:41  john
+ * Added start/stop time around paging.
+ * Made paging clear screen around globe.
+ *
+ * Revision 1.69  1995/01/18  10:07:51  john
+ *
+ * Took out debugging mprintfs.
+ *
+ * Revision 1.68  1995/01/17  14:27:42  john
+ * y
+ *
+ * Revision 1.67  1995/01/17  12:14:39  john
+ * Made walls, object explosion vclips load at level start.
+ *
+ * Revision 1.66  1995/01/15  13:15:44  john
+ * Made so that paging always happens, lowmem just loads less.
+ * Also, make KB load print to hud.
+ *
+ * Revision 1.65  1995/01/15  11:56:28  john
+ * Working version of paging.
+ *
+ * Revision 1.64  1995/01/14  19:17:07  john
+ * First version of new bitmap paging code.
+ *
+ * Revision 1.63  1994/12/15  12:26:44  john
+ * Added -nolowmem function.
+ *
+ * Revision 1.62  1994/12/14  21:12:26  john
+ * Fixed bug with page fault when exiting and using
+ * -nosound.
+ *
+ * Revision 1.61  1994/12/14  11:35:31  john
+ * Evened out thermometer for pig read.
+ *
+ * Revision 1.60  1994/12/14  10:51:00  john
+ * Sped up sound loading.
+ *
+ * Revision 1.59  1994/12/14  10:12:08  john
+ * Sped up pig loading.
+ *
+ * Revision 1.58  1994/12/13  09:14:47  john
+ * *** empty log message ***
+ *
+ * Revision 1.57  1994/12/13  09:12:57  john
+ * Made the bar always fill up.
+ *
+ * Revision 1.56  1994/12/13  03:49:08  john
+ * Made -lowmem not load the unnecessary bitmaps.
+ *
+ * Revision 1.55  1994/12/06  16:06:35  john
+ * Took out piggy sorting.
+ *
+ * Revision 1.54  1994/12/06  15:11:14  john
+ * Fixed bug with reading pigs.
+ *
+ * Revision 1.53  1994/12/06  14:14:47  john
+ * Added code to set low mem based on memory.
+ *
+ * Revision 1.52  1994/12/06  14:01:10  john
+ * Fixed bug that was causing -lowmem all the time..
+ *
+ * Revision 1.51  1994/12/06  13:33:48  john
+ * Added lowmem option.
+ *
+ * Revision 1.50  1994/12/05  19:40:10  john
+ * If -nosound or no sound card selected, don't load sounds from pig.
+ *
+ * Revision 1.49  1994/12/05  12:17:44  john
+ * Added code that locks/unlocks digital sounds on demand.
+ *
+ * Revision 1.48  1994/12/05  11:39:03  matt
+ * Fixed little mistake
+ *
+ * Revision 1.47  1994/12/05  09:29:22  john
+ * Added clength to the sound field.
+ *
+ * Revision 1.46  1994/12/04  15:27:15  john
+ * Fixed my stupid bug that looked at -nosound instead of digi_driver_card
+ * to see whether or not to lock down sound memory.
+ *
+ * Revision 1.45  1994/12/03  14:17:00  john
+ * Took out my debug mprintf.
+ *
+ * Revision 1.44  1994/12/03  13:32:37  john
+ * Fixed bug with offscreen bitmap.
+ *
+ * Revision 1.43  1994/12/03  13:07:13  john
+ * Made the pig read/write compressed sounds.
+ *
+ * Revision 1.42  1994/12/03  11:48:51  matt
+ * Added option to not dump sounds to pigfile
+ *
+ * Revision 1.41  1994/12/02  20:02:20  matt
+ * Made sound files constant match constant for table
+ *
+ * Revision 1.40  1994/11/29  11:03:09  adam
+ * upped # of sounds
+ *
+ * Revision 1.39  1994/11/27  23:13:51  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.38  1994/11/20  18:40:34  john
+ * MAde the piggy.lst and piggy.all not dump for release.
+ *
+ * Revision 1.37  1994/11/19  23:54:45  mike
+ * up number of bitmaps for shareware version.
+ *
+ * Revision 1.36  1994/11/19  19:53:05  mike
+ * change MAX_BITMAP_FILES
+ *
+ * Revision 1.35  1994/11/19  10:42:56  matt
+ * Increased number of bitmaps for non-shareware version
+ *
+ * Revision 1.34  1994/11/19  09:11:52  john
+ * Added avg_color to bitmaps saved in pig.
+ *
+ * Revision 1.33  1994/11/19  00:07:05  john
+ * Fixed bug with 8 char sound filenames not getting read from pig.
+ *
+ * Revision 1.32  1994/11/18  22:24:54  john
+ * Added -bigpig command line that doesn't rle your pig.
+ *
+ * Revision 1.31  1994/11/18  21:56:53  john
+ * Added a better, leaner pig format.
+ *
+ * Revision 1.30  1994/11/16  12:06:16  john
+ * Fixed bug with calling .bbms abms.
+ *
+ * Revision 1.29  1994/11/16  12:00:56  john
+ * Added piggy.all dump.
+ *
+ * Revision 1.28  1994/11/10  21:16:02  adam
+ * nothing important
+ *
+ * Revision 1.27  1994/11/10  13:42:00  john
+ * Made sounds not lock down if using -nosound.
+ *
+ * Revision 1.26  1994/11/09  19:55:40  john
+ * Added full rle support with texture rle caching.
+ *
+ * Revision 1.25  1994/11/09  16:36:42  john
+ * First version with RLE bitmaps in Pig.
+ *
+ * Revision 1.24  1994/10/27  19:42:59  john
+ * Disable the piglet option.
+ *
+ * Revision 1.23  1994/10/27  18:51:40  john
+ * Added -piglet option that only loads needed textures for a
+ * mine.  Only saved ~1MB, and code still doesn't free textures
+ * before you load a new mine.
+ *
+ * Revision 1.22  1994/10/25  13:11:42  john
+ * Made the sounds sort. Dumped piggy.lst.
+ *
+ * Revision 1.21  1994/10/06  17:06:23  john
+ * Took out rle stuff.
+ *
+ * Revision 1.20  1994/10/06  15:45:36  adam
+ * bumped MAX_BITMAP_FILES again!
+ *
+ * Revision 1.19  1994/10/06  11:01:17  yuan
+ * Upped MAX_BITMAP_FILES
+ *
+ * Revision 1.18  1994/10/06  10:44:45  john
+ * Added diagnostic message and psuedo run-length-encoder
+ * to see how much memory we would save by storing bitmaps
+ * in a RLE method.  Also, I commented out the code that
+ * stores 4K bitmaps on a 4K boundry to reduce pig size
+ * a bit.
+ *
+ * Revision 1.17  1994/10/04  20:03:13  matt
+ * Upped maximum number of bitmaps
+ *
+ * Revision 1.16  1994/10/03  18:04:20  john
+ * Fixed bug with data_offset not set right for bitmaps
+ * that are 64x64 and not aligned on a 4k boundry.
+ *
+ * Revision 1.15  1994/09/28  11:30:55  john
+ * changed inferno.pig to descent.pig, changed the way it
+ * is read.
+ *
+ * Revision 1.14  1994/09/22  16:14:17  john
+ * Redid intro sequecing.
+ *
+ * Revision 1.13  1994/09/19  14:42:47  john
+ * Locked down sounds with Virtual memory.
+ *
+ * Revision 1.12  1994/09/10  17:31:52  mike
+ * Increase number of loadable bitmaps.
+ *
+ * Revision 1.11  1994/09/01  19:32:49  mike
+ * Boost texture map allocation.
+ *
+ * Revision 1.10  1994/08/16  11:51:02  john
+ * Added grwased pigs.
+ *
+ * Revision 1.9  1994/07/06  09:18:03  adam
+ * upped bitmap #s
+ *
+ * Revision 1.8  1994/06/20  22:02:15  matt
+ * Fixed bug from last change
+ *
+ * Revision 1.7  1994/06/20  21:33:18  matt
+ * Made bm.h not include sounds.h, to reduce dependencies
+ *
+ * Revision 1.6  1994/06/20  16:52:19  john
+ * cleaned up init output a bit.
+ *
+ * Revision 1.5  1994/06/08  14:20:57  john
+ * Made piggy dump before going into game.
+ *
+ * Revision 1.4  1994/06/02  18:59:22  matt
+ * Clear selector field of bitmap loaded from pig file
+ *
+ * Revision 1.3  1994/05/06  15:31:41  john
+ * Made name field a bit longer.
+ *
+ * Revision 1.2  1994/05/06  13:02:44  john
+ * Added piggy stuff; worked on supertransparency
+ *
+ * Revision 1.1  1994/05/06  11:47:26  john
+ * Initial revision
+ *
+ *
+ */
+
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.23 2003-03-19 22:44:15 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.24 2003-03-20 23:14:14 btb Exp $";
 #endif
 
 
@@ -72,10 +441,10 @@ static char rcsid[] = "$Id: piggy.c,v 1.23 2003-03-19 22:44:15 btb Exp $";
 #define DEFAULT_HAMFILE (cfexist(DEFAULT_HAMFILE_REGISTERED)?DEFAULT_HAMFILE_REGISTERED:DEFAULT_HAMFILE_SHAREWARE)
 #define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
 
-#define D1_SHAREWARE_PIGSIZE    2509799
-#define D1_SHAREWARE_10_PIGSIZE 2529454
+#define D1_SHAREWARE_10_PIGSIZE 2529454 // v1.0 - 1.2
+#define D1_SHAREWARE_PIGSIZE    2509799 // v1.4
 #define D1_PIGSIZE              4920305
-#define D1_OEM_PIGSIZE          5039735
+#define D1_OEM_PIGSIZE          5039735 // Destination: Saturn
 #define D1_MAC_PIGSIZE          3975533
 #define D1_MAC_SHARE_PIGSIZE    2714487
 #define MAC_ALIEN1_PIGSIZE      5013035

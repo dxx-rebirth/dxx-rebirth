@@ -1,3 +1,7 @@
+2003-03-20  Bradley Bell  <btb@icculus.org>
+
+	* main/piggy.c: comments
+
 2003-03-20  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/gameseq.c: delete duplicate function
