@@ -4,6 +4,8 @@
 	ui/menubar.c, ui/message.c, ui/number.c, ui/popup.c: call
 	gr_update in event loops
 
+	* ui/file.c: use PhysicsFS
+
 2005-02-26  Chris Taylor  <chris@icculus.org>
 
 	* ui/keypad.c, ui/ui.c: no unnecessarily including MS DOS

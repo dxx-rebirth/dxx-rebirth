@@ -1,4 +1,4 @@
-/* $Id: file.c,v 1.7 2005-02-27 03:55:46 chris Exp $ */
+/* $Id: file.c,v 1.8 2005-02-27 05:33:27 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: file.c,v 1.7 2005-02-27 03:55:46 chris Exp $";
+static char rcsid[] = "$Id: file.c,v 1.8 2005-02-27 05:33:27 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -40,46 +40,6 @@ static char rcsid[] = "$Id: file.c,v 1.7 2005-02-27 03:55:46 chris Exp $";
 
 char filename_list[300][13];
 char directory_list[100][13];
-
-static char *Message[] = {
-	"Disk is write protected",
-	"Unknown unit",
-	"Drive not ready",
-	"Unknown command",
-	"CRC error in data",
-	"Bad drive-request stuct length",
-	"Seek error",
-	"Unknown media type",
-	"Sector not found",
-	"Printer out of paper",
-	"Write fault",
-	"Read fault",
-	"General Failure" };
-
-static int error_mode = 0;
-
-int __far critical_error_handler( unsigned deverr, unsigned errcode, unsigned far * devhdr )
-{
-	int x;
-
-	devhdr = devhdr; deverr = deverr; 
-
-	if (error_mode==1) return _HARDERR_FAIL;
-
-	x = MessageBox( -2, -2, 2, Message[errcode], "Retry", "Fail" );
-
-	switch (x)
-	{
-	case 1: return _HARDERR_RETRY;
-	case 2: return _HARDERR_FAIL;
-	default: return _HARDERR_FAIL;
-	}
-}
-
-void InstallErrorHandler()
-{
-	_harderr( critical_error_handler );
-}
 
 void file_sort( int n, char list[][13] )
 {
@@ -441,8 +401,6 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 					sprintf( UserFile->text, "%s\\%s", directory_list[ListBox2->selected_item], Filespec );
 			}
 
-			error_mode = 1; // Critical error handler automatically fails.
-
 			TempFile = fopen( UserFile->text, "r" );
 			if (TempFile)
 			{
@@ -514,8 +472,6 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 				UserFile->first_time = 1;
 
 			}
-
-			error_mode = 0;
 
 			ui_mouse_show();
 
