@@ -3,7 +3,7 @@
 #ifdef __ENV_LINUX__
 #include <stdlib.h>
 #include <stdio.h>
-//#include "joystick.h"
+#include "joystick.h"
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -51,7 +51,7 @@ int j_Get_joydev_button_number (int all_button_number) {
 
 
 int j_Update_state () {
-/*	int num_processed = 0, i;
+	int num_processed = 0, i;
 	struct js_event current_event;
 	struct JS_DATA_TYPE joy_data;
 
@@ -91,8 +91,7 @@ int j_Update_state () {
 		}
 	}
 
-	return num_processed;*/
-		return 0;
+	return num_processed;
 }
 
 
@@ -168,7 +167,7 @@ ubyte joystick_read_raw_axis (ubyte mask, int *axes) {
 	
 	j_Update_state();
 
-	for (i = 0; i <= j_num_axes; i++) {
+	for (i = 0; i < j_num_axes; i++) {
 		axes[i] = j_axis[i].value;
 	}
 
@@ -187,7 +186,7 @@ int joy_init () {
 
 	if (!joy_installed)	{
 
-//		printf ("Initializing joystick... ");
+		printf ("Initializing joystick... ");
 
 		j_joystick[0].buffer = open ("/dev/js0", O_NONBLOCK);
 		j_joystick[1].buffer = open ("/dev/js1", O_NONBLOCK);
@@ -195,21 +194,23 @@ int joy_init () {
 		j_joystick[3].buffer = open ("/dev/js3", O_NONBLOCK);
 		
 		if (j_joystick[0].buffer >= 0 || j_joystick[1].buffer >= 0 || j_joystick[2].buffer >= 0 || j_joystick[3].buffer >= 0) {
-//			printf ("found: ");
+			printf ("found: ");
 
 			for (i = 0; i < 4; i++) {
 				if (j_joystick[i].buffer >= 0) {
-					/*
 					ioctl (j_joystick[i].buffer, JSIOCGAXES, &j_joystick[i].num_axes);
 					ioctl (j_joystick[i].buffer, JSIOCGBUTTONS, &j_joystick[i].num_buttons);
 					ioctl (j_joystick[i].buffer, JSIOCGVERSION, &j_joystick[i].version);
-*/
 					if (!j_joystick[i].version) {
 						j_joystick[i].num_axes = 2;
 						j_joystick[i].num_buttons = 2;
-//						printf ("js%d (v0.x)  " , i);
+						printf ("js%d (v0.x)  " , i);
 					} else {
-//						printf ("js%d (v%d.%d.%d)  ", i, (j_joystick[i].version & 0xff0000) >> 16, (j_joystick[i].version & 0xff00) >> 8, j_joystick[i].version & 0xff);
+						printf ("js%d (v%d.%d.%d)  ",
+							i, 
+							(j_joystick[i].version & 0xff0000) >> 16,
+							(j_joystick[i].version & 0xff00) >> 8,
+							j_joystick[i].version & 0xff);
 					}						
 
 					for (j = j_num_axes; j < (j_num_axes + j_joystick[i].num_axes); j++) {
@@ -238,11 +239,11 @@ int joy_init () {
 				}
 			}
 		} else {
-//			printf ("no joysticks found\n");
+			printf ("no joysticks found\n");
 			return 0;
 		}		
 
-//		printf ("\n");
+		printf ("\n");
 
 		if (j_num_axes > MAX_AXES)
 			j_num_axes = MAX_AXES;
