@@ -1,3 +1,9 @@
+2003-03-28  Bradley Bell  <btb@icculus.org>
+
+	* configure.ac, include/d1x.xpm, include/descent.xpm,
+	arch/ogl/sdlgl.c, arch/sdl/gr.c: enabled setting icon with
+	SDL_image
+
 2003-03-27  Bradley Bell  <btb@icculus.org>
 
 	* main/text.h: fixed text references for hat directions

@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.10 2003-03-20 02:01:38 btb Exp $ */
+/* $Id: gr.c,v 1.11 2003-03-28 09:27:07 btb Exp $ */
 /*
  *
  * SDL video functions.
@@ -13,6 +13,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL.h>
+#ifdef SDL_IMAGE
+#include <SDL_image.h>
+#endif
 
 #include "gr.h"
 #include "grdef.h"
@@ -98,6 +101,13 @@ int gr_set_mode(u_int32_t mode)
 //getting the window centered correctly (if you use SmartPlacement)
 	SDL_WM_SetCaption(PACKAGE_STRING, "Descent II");
 //end addition -MM
+
+#ifdef SDL_IMAGE
+	{
+#include "descent.xpm"
+		SDL_WM_SetIcon(IMG_ReadXPMFromArray(pixmap), NULL);
+	}
+#endif
 
 //edited 10/05/98 by Matt Mueller - make fullscreen mode optional
 	  // changed by adb on 980913: added SDL_HWPALETTE (should be option?)

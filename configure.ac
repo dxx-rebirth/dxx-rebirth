@@ -182,6 +182,11 @@ else
 
     AC_CHECK_HEADERS(netipx/ipx.h)
 
+  # Check for SDL_image
+	AC_CHECK_LIB(SDL_image, IMG_ReadXPMFromArray,
+		LIBS="-lSDL_image $LIBS"
+		AC_DEFINE(SDL_IMAGE,,[Define if you have the SDL_image library]))
+
   # Check for OpenGL
     AC_ARG_WITH(opengl,
         [  --with-opengl           Build OpenGL support ],,)

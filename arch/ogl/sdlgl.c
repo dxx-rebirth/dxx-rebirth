@@ -1,4 +1,4 @@
-/* $Id: sdlgl.c,v 1.5 2003-01-15 02:42:41 btb Exp $ */
+/* $Id: sdlgl.c,v 1.6 2003-03-28 09:27:07 btb Exp $ */
 /*
  *
  * Graphics functions for SDL-GL.
@@ -11,6 +11,9 @@
 #endif
 
 #include <SDL.h>
+#ifdef SDL_IMAGE
+#include <SDL_image.h>
+#endif
 
 #include "ogl_init.h"
 #include "vers_id.h"
@@ -36,6 +39,14 @@ int ogl_init_window(int x, int y){
 			ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
 	SDL_WM_SetCaption(DESCENT_VERSION, "Descent II");
+
+#ifdef SDL_IMAGE
+	{
+#include "descent.xpm"
+		SDL_WM_SetIcon(IMG_ReadXPMFromArray(pixmap), NULL);
+	}
+#endif
+
         if (!SDL_SetVideoMode(x,y, 16, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0))) {
            Error("Could not set %dx%dx16 opengl video mode\n",x,y);
         }
