@@ -1,9 +1,13 @@
-bin_PROGRAMS = hogcreate hogextract txb2txt txt2txb
+bin_PROGRAMS = hogcreate hogextract mvlcreate mvlextract txb2tex tex2txb
 
 hogcreate_SOURCES = hogcreate.c
 
 hogextract_SOURCES = hogextract.c
 
-txb2txt_SOURCES = txb2txt.c
+mvlcreate_SOURCES = mvlcreate.c
 
-txt2txb_SOURCES = txt2txb.c
+mvlextract_SOURCES = mvlextract.c
+
+txb2tex_SOURCES = txb2tex.c
+
+tex2txb_SOURCES = tex2txb.c
