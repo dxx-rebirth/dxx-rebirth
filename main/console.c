@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/main/console.c,v $
- * $Revision: 1.5 $
- * $Author: bradleyb $
- * $Date: 2001-10-19 09:47:34 $
+ * $Revision: 1.6 $
+ * $Author: btb $
+ * $Date: 2002-07-22 02:17:10 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/10/19 09:47:34  bradleyb
+ * RCS headers added
+ *
  *
  */
 
@@ -25,7 +28,7 @@
 #include "console.h"
 #include "cmd.h"
 
-#if defined(__linux__) || defined(__MINGW32__)
+#ifndef __MSDOS__
 int text_console_enabled = 1;
 #else
 int isvga();

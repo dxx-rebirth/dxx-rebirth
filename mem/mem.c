@@ -1,3 +1,4 @@
+/* $ Id: $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,19 +13,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/mem/mem.c,v $
- * $Revision: 1.7 $
- * $Author: bradleyb $
- * $Date: 2001-11-09 06:56:41 $
  *
  * Files for debugging memory allocator
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.6  2001/11/08 10:17:40  bradleyb
- * added d_realloc/mem_realloc functions
- *
- * Revision 1.5  2001/10/19 08:06:20  bradleyb
- * Partial application of linux/alpha patch.  Courtesy of Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
  *
  */
 
@@ -43,8 +34,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __MACOSX__
+#include <sys/malloc.h>
+#else
 #include <malloc.h>
-
+#endif
 #include "pstypes.h"
 #include "mono.h"
 #include "error.h"

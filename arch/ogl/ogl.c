@@ -1,29 +1,8 @@
+/* $ Id: $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/ogl/ogl.c,v $
- * $Revision: 1.2 $
- * $Author: bradleyb $
- * $Date: 2001-10-31 07:35:47 $
  *
  * Graphics support functions for OpenGL.
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.1  2001/10/25 08:25:34  bradleyb
- * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
- *
- * Revision 1.7  2001/10/12 00:18:40  bradleyb
- * Switched from Cygwin to mingw32 on MS boxes.  Vastly improved compilability.
- *
- * Revision 1.6  2001/10/09 03:00:08  bradleyb
- * opengl improvments (following d1x changes)
- *
- * Revision 1.5  2001/10/09 02:38:52  bradleyb
- * re-imported d1x version of this file
- *
- * Revision 1.4  2001/01/31 16:31:14  bradleyb
- * OpenGL support under Cygwin/SDL
- *
- * Revision 1.3  2001/01/29 13:47:52  bradleyb
- * Fixed build, some minor cleanups.
  *
  */
 
@@ -36,8 +15,13 @@
 #include <windows.h>
 #include <stddef.h>
 #endif
+#ifdef __MACOSX__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
 #include <string.h>
 #include <math.h>
 

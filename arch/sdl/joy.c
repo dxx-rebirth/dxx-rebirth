@@ -1,26 +1,7 @@
+/* $ Id: $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/sdl/joy.c,v $
- * $Revision: 1.5 $
- * $Author: bradleyb $
- * $Date: 2002-07-16 22:03:45 $
  *
  * SDL joystick support
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.4  2002/03/23 09:13:00  bradleyb
- * SDL Joystick works\!
- *
- * Revision 1.3  2002/03/05 12:13:33  bradleyb
- * SDL joystick stuff mostly done
- *
- * Revision 1.2  2001/12/03 02:43:02  bradleyb
- * lots of makefile fixes, and sdl joystick stuff
- *
- * Revision 1.1  2001/10/24 09:25:05  bradleyb
- * Moved input stuff to arch subdirs, as in d1x.
- *
- * Revision 1.1  2001/10/10 03:01:29  bradleyb
- * Replacing win32 joystick (broken) with SDL joystick (stubs)
  *
  *
  */
@@ -112,6 +93,11 @@ void joy_axis_handler(SDL_JoyAxisEvent *jae)
 int joy_init()
 {
 	int i,j,n;
+
+	if (SDL_Init(SDL_INIT_JOYSTICK) < 0) {
+		con_printf(CON_VERBOSE, "sdl-joystick: initialisation failed: %s.",SDL_GetError());
+		return 0;
+	}
 
 	memset(&Joystick,0,sizeof(Joystick));
 

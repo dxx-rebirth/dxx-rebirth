@@ -1,3 +1,4 @@
+/* $ Id: $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,8 +12,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
-
 #ifndef _BYTESWAP_H
 #define _BYTESWAP_H
 
@@ -24,7 +23,7 @@ extern uint swapint(uint i);
 #endif
 
 #define SWAPSHORT(x) (((ubyte)x << 8) | (((ushort)x) >> 8))
-#define SWAPINT(x)   ((x<<24) | (((ulong)x) >> 24) | ((x &0x0000ff00) << 8) | ((x & 0x00ff00000) >> 8))
+#define SWAPINT(x)   ((x<<24) | (((uint)x) >> 24) | ((x &0x0000ff00) << 8) | ((x & 0x00ff0000) >> 8))
 
 #ifndef WORDS_BIGENDIAN //MACINTOSH
 #define INTEL_INT(x)	x

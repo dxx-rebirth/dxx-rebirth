@@ -1,29 +1,8 @@
+/* $ Id: $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/sdl/init.c,v $
- * $Revision: 1.9 $
- * $Author: bradleyb $
- * $Date: 2002-07-16 22:37:14 $
  *
  * SDL architecture support
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.8  2001/12/03 02:45:02  bradleyb
- * fix formatting
- *
- * Revision 1.7  2001/12/03 02:43:02  bradleyb
- * lots of makefile fixes, and sdl joystick stuff
- *
- * Revision 1.6  2001/11/14 03:56:16  bradleyb
- * SDL joystick stuff
- *
- * Revision 1.5  2001/10/31 07:41:54  bradleyb
- * Sync with d1x
- *
- * Revision 1.4  2001/10/19 09:45:02  bradleyb
- * Moved arch/sdl_* to arch/sdl
- *
- * Revision 1.4  2001/01/29 13:35:09  bradleyb
- * Fixed build system, minor fixes
  *
  */
 
@@ -49,14 +28,12 @@ void sdl_close()
 
 void arch_sdl_init()
 {
-	// Initialise the library
-	if (SDL_Init(SDL_INIT_JOYSTICK
 #if defined(SDL_VIDEO) || defined(SDL_GL_VIDEO)
-				 | SDL_INIT_VIDEO
-#endif
-	) < 0) {
-		Error("SDL library initialisation failed: %s.",SDL_GetError());
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		Error("SDL library video initialisation failed: %s.",SDL_GetError());
 	}
+#endif
 #ifdef SDL_INPUT
 	if (!FindArg("-nomouse"))
 		d_mouse_init();

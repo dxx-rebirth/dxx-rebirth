@@ -1,35 +1,8 @@
+/* $ Id: $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/ogl/gr.c,v $
- * $Revision: 1.5 $
- * $Author: bradleyb $
- * $Date: 2001-11-09 06:53:37 $
  *
- * // OGL video functions. - Added 9/15/99 Matthew Mueller
+ * OGL video functions. - Added 9/15/99 Matthew Mueller
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.4  2001/11/08 10:19:52  bradleyb
- * use new d_realloc function, so mem manager doesn't die
- *
- * Revision 1.3  2001/11/04 09:00:25  bradleyb
- * Enable d1x-style hud_message
- *
- * Revision 1.2  2001/10/31 07:35:47  bradleyb
- * Sync with d1x
- *
- * Revision 1.1  2001/10/25 08:25:34  bradleyb
- * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
- *
- * Revision 1.7  2001/10/25 02:23:48  bradleyb
- * formatting fix
- *
- * Revision 1.6  2001/10/18 23:59:23  bradleyb
- * Changed __ENV_LINUX__ to __linux__
- *
- * Revision 1.5  2001/10/12 00:18:40  bradleyb
- * Switched from Cygwin to mingw32 on MS boxes.  Vastly improved compilability.
- *
- * Revision 1.4  2001/01/29 13:47:52  bradleyb
- * Fixed build, some minor cleanups.
  *
  */
 
@@ -44,7 +17,11 @@
 #include <windows.h>
 #endif
 
+#ifdef __MACOSX__
+//#include <OpenGL/gl.h>
+#else
 //#include <GL/gl.h>
+#endif
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -71,7 +48,11 @@
 
 #define DECLARE_VARS
 #include "ogl_init.h"
+#ifdef __MACOSX__
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
 
 int ogl_voodoohack=0;
 

@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/state.c,v $
- * $Revision: 1.5 $
- * $Author: bradleyb $
- * $Date: 2001-11-09 11:40:25 $
+ * $Revision: 1.6 $
+ * $Author: btb $
+ * $Date: 2002-07-22 02:17:10 $
  *
  * Game save/restore functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/11/09 11:40:25  bradleyb
+ * Enabled savegame thumbnails under OpenGL
+ *
  *
  */
 
@@ -43,7 +46,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef OGL
+#ifdef __MACOSX__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #endif
 
 #include "pstypes.h"

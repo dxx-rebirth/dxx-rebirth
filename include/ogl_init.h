@@ -15,7 +15,11 @@
 #include "loadgl.h"
 int ogl_init_load_library(void);
 #else
+#ifdef __MACOSX__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 //######hack, since multi texture support is not working
 #undef GL_ARB_multitexture
 #undef GL_SGIS_multitexture
