@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.15 2002-08-08 09:09:43 btb Exp $ */
+/* $Id: bm.c,v 1.16 2002-08-22 20:49:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -75,7 +75,7 @@ int Dead_modelnums[MAX_POLYGON_MODELS];
 //the polygon model number to use for the marker
 int	Marker_model_num = -1;
 
-//right now there's only one player ship, but we can have another by 
+//right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.
 player_ship only_player_ship,*Player_ship=&only_player_ship;
 
@@ -180,7 +180,7 @@ free_exit_model_data()
 	extra_bitmap_num = Num_bitmap_files;
 }
 
-#define EXIT_POF
+//#define EXIT_POF
 
 #ifdef OGL
 void ogl_cache_polymodel_textures(int model_num);
@@ -229,10 +229,8 @@ void load_exit_models()
 	destroyed_exit_modelnum = N_polygon_models++;
 	polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
 	polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-#ifdef MACINTOSH //not sure why this is #ifdef'd
 	Polygon_models[exit_modelnum].first_texture = start_num;
 	Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
-#endif
 
 	Polygon_models[exit_modelnum].model_data = d_malloc(Polygon_models[exit_modelnum].model_data_size);
 	Assert( Polygon_models[exit_modelnum].model_data != NULL );
@@ -410,7 +408,7 @@ void bm_read_extra_robots(char *fname,int type)
 	N_weapon_types = N_D2_WEAPON_TYPES+t;
 	if (N_weapon_types >= MAX_WEAPON_TYPES)
 		Error("Too many weapons (%d) in <%s>.  Max is %d.",t,fname,MAX_WEAPON_TYPES-N_D2_WEAPON_TYPES);
-	weapon_info_read_n(&Weapon_info[N_D2_WEAPON_TYPES], t, fp, version);
+	weapon_info_read_n(&Weapon_info[N_D2_WEAPON_TYPES], t, fp, 3);
 
 	//now read robot info
 
