@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.13 2003-02-13 22:07:58 btb Exp $ */
+/* $Id: interp.c,v 1.14 2003-03-19 19:21:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.13 2003-02-13 22:07:58 btb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.14 2003-03-19 19:21:34 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -508,8 +508,6 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 		}
 	return 1;
 }
-
-extern int gr_find_closest_color_15bpp( int rgb );
 
 #ifndef NDEBUG
 int nest_count;

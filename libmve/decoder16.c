@@ -1,11 +1,10 @@
+/* 16 bit decoding routines */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-extern int g_width, g_height;
-extern void *g_vBackBuf1, *g_vBackBuf2;
-
-/* 16 bit decoding routines */
+#include "decoders.h"
 
 static unsigned short *backBuf1, *backBuf2;
 static int lookup_initialized;

@@ -1,10 +1,9 @@
+/* 8 bit decoding routines */
+
 #include <stdio.h>
 #include <string.h>
 
-extern int g_width, g_height;
-extern void *g_vBackBuf1, *g_vBackBuf2;
-
-/* 8 bit decoding routines */
+#include "decoders.h"
 
 static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 

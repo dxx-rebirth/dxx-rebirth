@@ -1,5 +1,11 @@
 2003-03-19  Bradley Bell  <btb@icculus.org>
 
+	* 2d/font.c, 2d/palette.c, 3d/interp.c, 3d/setup.c,
+	arch/sdl/rbaudio.c, include/texmap.h, libmve/decoder16.c,
+	libmve/decoder8.c, libmve/decoders.h, libmve/mveplay.c,
+	texmap/ntmap.c, texmap/texmapl.h: header/extern declaration
+	housekeeping
+
 	* README: added some OS X info
 
 2003-03-17  Bradley Bell  <btb@icculus.org>

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/texmap.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:16 $
+ * $Revision: 1.2 $
+ * $Author: btb $
+ * $Date: 2003-03-19 19:21:34 $
  *
  * Include file for entities using texture mapper library.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.2  1999/07/07 21:21:56  donut
  * increased recip table size to better accommodate 640 res
  *
@@ -176,6 +179,8 @@ extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top
 
 #define FIX_XLIMIT	(639 * F1_0)
 #define FIX_YLIMIT	(479 * F1_0)
+
+extern void init_interface_vars_to_assembler(void);
 
 #endif
 

@@ -1,4 +1,4 @@
-/* $Id: ntmap.c,v 1.7 2003-02-18 20:15:48 btb Exp $ */
+/* $Id: ntmap.c,v 1.8 2003-03-19 19:21:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -123,7 +123,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ntmap.c,v 1.7 2003-02-18 20:15:48 btb Exp $";
+static char rcsid[] = "$Id: ntmap.c,v 1.8 2003-03-19 19:21:34 btb Exp $";
 #endif
 
 #define VESA 0
@@ -145,8 +145,6 @@ static char rcsid[] = "$Id: ntmap.c,v 1.7 2003-02-18 20:15:48 btb Exp $";
 #include "texmapl.h"
 #include "rle.h"
 #include "scanline.h"
-
-//#include "../main/textures.h"
 
 #ifdef EDITOR
 #define EDITOR_TMAP 1       //if in, include extra stuff

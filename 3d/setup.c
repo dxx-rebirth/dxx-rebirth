@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: setup.c,v 1.5 2003-03-19 19:21:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: setup.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $";
+static char rcsid[] = "$Id: setup.c,v 1.5 2003-03-19 19:21:34 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -54,6 +54,8 @@ static char rcsid[] = "$Id: setup.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $";
 
 #ifdef OGL
 #include "ogl_init.h"
+#else
+#include "texmap.h"  // for init_interface_vars_to_assembler()
 #endif
 
 //initialize the 3d system
@@ -65,8 +67,6 @@ void g3_init(void)
 
 //close down the 3d system
 void g3_close(void) {}
-
-extern void init_interface_vars_to_assembler(void);
 
 //start the frame
 void g3_start_frame(void)

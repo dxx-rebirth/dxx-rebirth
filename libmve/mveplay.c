@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.6 2003-02-28 11:27:05 btb Exp $ */
+/* $Id: mveplay.c,v 1.7 2003-03-19 19:21:34 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -24,9 +24,10 @@
 #include "mvelib.h"
 #include "mve_audio.h"
 
+#include "decoders.h"
+
 #ifndef STANDALONE
 #include "libmve.h"
-#include "error.h"
 #include "u_mem.h"
 #include "gr.h"
 #include "palette.h"
@@ -697,9 +698,6 @@ static int video_codemap_handler(unsigned char major, unsigned char minor, unsig
 	g_nMapLength = len;
 	return 1;
 }
-
-void decodeFrame16(unsigned char *pFrame, unsigned char *pMap, int mapRemain, unsigned char *pData, int dataRemain);
-void decodeFrame8(unsigned char *pFrame, unsigned char *pMap, int mapRemain, unsigned char *pData, int dataRemain);
 
 static int video_data_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {

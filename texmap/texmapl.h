@@ -1,4 +1,4 @@
-/* $Id: texmapl.h,v 1.3 2003-02-18 20:15:48 btb Exp $ */
+/* $Id: texmapl.h,v 1.4 2003-03-19 19:21:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -131,6 +131,5 @@ extern ubyte tmap_flat_shade_value;
 
 extern fix fix_recip[];
 
-extern void init_interface_vars_to_assembler(void);
 extern int prevmod(int val,int modulus);
 

@@ -1,4 +1,4 @@
-/* $Id: rbaudio.c,v 1.5 2003-03-15 13:12:07 btb Exp $ */
+/* $Id: rbaudio.c,v 1.6 2003-03-19 19:21:34 btb Exp $ */
 /*
  *
  * SDL CD Audio functions
@@ -26,7 +26,6 @@
 #include "rbaudio.h"
 
 static SDL_CD *s_cd = NULL;
-extern int Redbook_playing;
 static int initialised = 0;
 
 void RBAExit()
