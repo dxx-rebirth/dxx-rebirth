@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.43 2004-12-17 13:32:50 btb Exp $ */
+/* $Id: gameseq.c,v 1.44 2005-01-06 03:59:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.43 2004-12-17 13:32:50 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.44 2005-01-06 03:59:32 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -806,6 +806,7 @@ do_menu_again:
 }
 
 
+void free_polygon_models();
 void load_robot_replacements(char *level_name);
 int read_hamfile();
 extern int Robot_replacements_loaded;
@@ -870,6 +871,7 @@ void LoadLevel(int level_num,int page_in_textures)
 		load_bitmap_replacements(level_name);
 
 	if (Robot_replacements_loaded) {
+		free_polygon_models();
 		read_hamfile();		//load original data
 		if (Current_mission->enhanced) {
 			// load extra data

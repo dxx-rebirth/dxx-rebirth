@@ -1,3 +1,7 @@
+2005-01-05  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* main/gameseq.c: Free polymodel data before reloading ham file.
+
 2004-12-23  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/editor/centers.c: Use both ints with the robot producer
