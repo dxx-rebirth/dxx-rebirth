@@ -75,7 +75,7 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 #	dh_installdebconf	
-	dh_installdocs NEWS README readme.txt license.txt
+	dh_installdocs -A NEWS README readme.txt license.txt
 	dh_installexamples
 	dh_installmenu
 #	dh_installlogrotate
