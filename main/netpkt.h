@@ -10,15 +10,15 @@
 
 byte out_buffer[IPX_MAX_DATA_SIZE];		// used for tmp netgame packets as well as sending object data
 extern frame_info 	MySyncPack;
-void send_dxx_netgame_packet(ubyte *server, ubyte *node);
-void receive_dxx_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_info *netplayers);
+void send_d2x_netgame_packet(ubyte *server, ubyte *node);
+void receive_d2x_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_info *netplayers);
 //end change
 
-void receive_netplayer_info(ubyte *data, netplayer_info *info, int dxx);
+void receive_netplayer_info(ubyte *data, netplayer_info *info, int d2x);
 void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte *net_address);
 void receive_sequence_packet(ubyte *data, sequence_packet *seq);
 void send_netgame_packet(ubyte *server, ubyte *node);
-void receive_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_info *netplayers, int dxx);
+void receive_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_info *netplayers, int d2x);
 void send_frameinfo_packet(ubyte *server, ubyte *node, ubyte *address, int short_packet);
 void receive_frameinfo_packet(ubyte *data, frame_info *info, int short_packet);
 void send_endlevel_packet(endlevel_info *info, ubyte *server, ubyte *node, ubyte *address);

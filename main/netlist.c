@@ -1,13 +1,16 @@
 /*
  * $Source: /cvs/cvsroot/d2x/main/netlist.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2002-02-14 09:05:33 $
+ * $Date: 2002-02-14 09:24:19 $
  *
  * Descent II-a-like network game join menu
  * Arne de Bruijn, 1998
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2002/02/14 09:05:33  bradleyb
+ * Lotsa networking stuff from d1x
+ *
  *
  */
 
@@ -84,8 +87,8 @@ char *network_mode_text(const netgame_info *game) {
 #ifndef SHAREWARE
 	if (game->gamemode >= 4 ||
 	    (game->protocol_version != MULTI_PROTO_VERSION &&
-	     (game->protocol_version != MULTI_PROTO_DXX_VER ||
-	      game->required_subprotocol > MULTI_PROTO_DXX_MINOR)))
+	     (game->protocol_version != MULTI_PROTO_D2X_VER ||
+	      game->required_subprotocol > MULTI_PROTO_D2X_MINOR)))
 	    return "UNSUP";
 #endif
 	return names[game->gamemode];
@@ -113,7 +116,7 @@ static void network_update_item(const netgame_info *game, const AllNetPlayers_in
 	for (i = 0; i < game->numplayers; i++)
 		if (players->players[i].connected)
 			activeplayers++;
-	strcpy(li[1].value, game->protocol_version == MULTI_PROTO_DXX_VER ? "+" : "");
+	strcpy(li[1].value, game->protocol_version == MULTI_PROTO_D2X_VER ? "+" : "");
 	strcpy(li[2].value, game->game_name);
 	strcpy(li[3].value, network_mode_text(game));
 
@@ -283,15 +286,15 @@ int show_game_stats(netgame_info game, AllNetPlayers_info players, int awesomefl
     {
      case 1 : info+=sprintf(info,"\nPrtcl: Shareware"); break;
      case 2 : info+=sprintf(info,"\nPrtcl: Normal"); break;
-     case 3 : info+=sprintf(info,"\nPrtcl: DXX only"); break;
-     case 0 : info+=sprintf(info,"\nPrtcl: DXX hybrid"); break;
+     case 3 : info+=sprintf(info,"\nPrtcl: D2X only"); break;
+     case 0 : info+=sprintf(info,"\nPrtcl: D2X hybrid"); break;
      default: info+=sprintf(info,"\nPrtcl: Unknown"); break;
     }
 
    if(game.game_flags & NETGAME_FLAG_SHOW_MAP)
 	   info+=sprintf(info,"\n Players on Map");
    //edited 04/19/99 Matt Mueller - check protocol_ver too.
-   if (game.protocol_version==MULTI_PROTO_DXX_VER 
+   if (game.protocol_version==MULTI_PROTO_D2X_VER 
 #ifndef SHAREWARE
 && game.subprotocol>=1
 #endif
@@ -441,7 +444,7 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
 			memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 			memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
 			memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
-			me.type = PID_DXX_GAME_INFO_REQ;//get full info.
+			me.type = PID_D2X_GAME_INFO_REQ;//get full info.
 
 			send_sequence_packet( me, server,node,net_address);
 		}

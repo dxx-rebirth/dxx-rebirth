@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/network.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  * $Author: bradleyb $
- * $Date: 2002-02-13 10:39:21 $
+ * $Date: 2002-02-14 09:24:19 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2002/02/13 10:39:21  bradleyb
+ * Lotsa networking stuff from d1x
+ *
  * Revision 1.6  2001/10/23 22:03:03  bradleyb
  * No longer #ifdef'ing out the whole file.  RCS header added
  *
@@ -4346,14 +4349,14 @@ int network_do_join_game(netgame_info *jgame, AllNetPlayers_info *jplayers){
 	}
 
 	if ((jgame->protocol_version != MULTI_PROTO_VERSION) &&
-	    (jgame->protocol_version != MULTI_PROTO_DXX_VER))
+	    (jgame->protocol_version != MULTI_PROTO_D2X_VER))
 	{
                 nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
 		return 0;
 	}
 #ifndef SHAREWARE
-	if (jgame->protocol_version == MULTI_PROTO_DXX_VER &&
-	    jgame->required_subprotocol > MULTI_PROTO_DXX_MINOR)
+	if (jgame->protocol_version == MULTI_PROTO_D2X_VER &&
+	    jgame->required_subprotocol > MULTI_PROTO_D2X_MINOR)
 	{
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, "This game uses features\nnot present in this version.");
 		return 0;

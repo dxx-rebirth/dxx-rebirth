@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/network.h,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  * $Author: bradleyb $
- * $Date: 2002-02-13 10:39:22 $
+ * $Date: 2002-02-14 09:24:19 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2002/02/13 10:39:22  bradleyb
+ * Lotsa networking stuff from d1x
+ *
  * Revision 1.4  2001/10/25 02:15:57  bradleyb
  * conditionalize including multi.h and network.h, fix backslashes
  *
@@ -187,8 +190,8 @@ int HoardEquipped();
 #define PID_NAMES_RETURN                        64
 
 #define PID_SHORTPDATA                          42
-#define PID_DXX_GAME_INFO_REQ                   65
-#define PID_DXX_GAME_LITE                       68
+#define PID_D2X_GAME_INFO_REQ                   65
+#define PID_D2X_GAME_LITE                       68
 #define PID_PDATA_SHORT2                        70
 
 #define NETGAME_ANARCHY                         0

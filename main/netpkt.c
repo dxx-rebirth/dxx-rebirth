@@ -13,14 +13,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/netpkt.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2002-02-14 09:05:33 $
+ * $Date: 2002-02-14 09:24:19 $
  *
  * Network packet conversions
  * Based on macnet.c from MAC version of Descent 1
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2002/02/14 09:05:33  bradleyb
+ * Lotsa networking stuff from d1x
+ *
  *
  */
 
@@ -38,21 +41,21 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ipx.h"
 #include "netpkt.h"
 
-void receive_netplayer_info(ubyte *data, netplayer_info *info, int dxx)
+void receive_netplayer_info(ubyte *data, netplayer_info *info, int d2x)
 {
 	int loc = 0;
 	
 	memcpy(info->callsign, &(data[loc]), CALLSIGN_LEN);	      loc += CALLSIGN_LEN;
 	info->callsign[CALLSIGN_LEN] = 0;
-	if (!dxx) loc++;
+	if (!d2x) loc++;
 	memcpy(&(info->network.ipx.server), &(data[loc]), 4);				  loc += 4;
 	memcpy(&(info->network.ipx.node), &(data[loc]), 6); 					  loc += 6;
 	memcpy(&(info->socket), &(data[loc]), 2);				  loc += 2;
 //MWA  don't think we need to swap this because we need it in high order	info->socket = swapshort(info->socket);
 	info->connected = data[loc]; loc++;
 	#ifndef SHAREWARE
- //edited 03/04/99 Matt Mueller - sub_protocol was being set wrong in non-dxx games.. I still think its screwed somewhere else too though
-	if (dxx){     
+ //edited 03/04/99 Matt Mueller - sub_protocol was being set wrong in non-d2x games.. I still think its screwed somewhere else too though
+	if (d2x){     
 		info->sub_protocol = data[loc]; loc++;
 //		printf ("%i "__FUNCTION__ " name=%s sub_protocol=%i\n",Player_num,info->callsign,info->sub_protocol);
 	}else
@@ -75,7 +78,7 @@ void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte
 	tmps = swapshort(seq.player.socket);
 	memcpy(&(out_buffer[loc]), &tmps, 2);		loc += 2;
 	out_buffer[loc] = seq.player.connected;	loc++;
-	out_buffer[loc] = MULTI_PROTO_DXX_MINOR; loc++;
+	out_buffer[loc] = MULTI_PROTO_D2X_MINOR; loc++;
 
 	if (net_address != NULL)	
 		ipx_send_packet_data( out_buffer, loc, server, node, net_address);
@@ -102,8 +105,8 @@ void send_netgame_packet(ubyte *server, ubyte *node)
 	int loc = 0;
 	
 #ifndef SHAREWARE
-	if (Netgame.protocol_version == MULTI_PROTO_DXX_VER) {
-		send_dxx_netgame_packet(server, node);
+	if (Netgame.protocol_version == MULTI_PROTO_D2X_VER) {
+		send_d2x_netgame_packet(server, node);
 		return;
 	}
 #endif
@@ -124,7 +127,7 @@ void send_netgame_packet(ubyte *server, ubyte *node)
 		memcpy(&(out_buffer[loc]), &(NetPlayers.players[i].socket), 2);				  loc += 2;
 		memcpy(&(out_buffer[loc]), &(NetPlayers.players[i].connected), 1);				loc++;
 	}
-	if (Netgame.protocol_version == MULTI_PROTO_DXX_VER) {
+	if (Netgame.protocol_version == MULTI_PROTO_D2X_VER) {
 		for (i = 0; i < MAX_PLAYERS; i++) {
 			out_buffer[loc] = Netgame.locations[i]; loc++;
 		}
@@ -177,7 +180,7 @@ void send_netgame_packet(ubyte *server, ubyte *node)
 	}
 	memcpy(&(out_buffer[loc]), Netgame.mission_name, 9); loc += 9;
 	memcpy(&(out_buffer[loc]), Netgame.mission_title, MISSION_NAME_LEN+1); loc += (MISSION_NAME_LEN+1);
-	if (Netgame.protocol_version == MULTI_PROTO_DXX_VER) {
+	if (Netgame.protocol_version == MULTI_PROTO_D2X_VER) {
 	    out_buffer[loc] = Netgame.PacketsPerSec; loc++;
 	    tmpi = swapint(Netgame.flags);
 	    memcpy(&out_buffer[loc], &tmpi, 4); loc += 4;
@@ -190,13 +193,13 @@ void send_netgame_packet(ubyte *server, ubyte *node)
 		ipx_send_internetwork_packet_data( out_buffer, loc, server, node );
 }
 
-void receive_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_info *netplayers, int dxx)
+void receive_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_info *netplayers, int d2x)
 {
 	int i, j;
 	int loc = 0;
 #ifndef SHAREWARE
-	if (dxx) {
-		receive_dxx_netgame_packet(data, netgame, netplayers);
+	if (d2x) {
+		receive_d2x_netgame_packet(data, netgame, netplayers);
 		return;
 	}
 #endif
@@ -215,7 +218,7 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_in
 		loc += sizeof(netplayer_info);//NETPLAYER_ORIG_SIZE;
 	}
 #if 0
-	if (dxx) {
+	if (d2x) {
 		for (i = 0; i < MAX_PLAYERS; i++) {
 			netgame->locations[i] = data[loc]; loc++;
 		}
@@ -275,7 +278,7 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_in
 	memcpy(netgame->mission_name, &(data[loc]), 9); loc += 9;
 	memcpy(netgame->mission_title, &(data[loc]), MISSION_NAME_LEN+1); loc += (MISSION_NAME_LEN+1);
 #if 0
-	if (dxx && netgame->protocol_version == MULTI_PROTO_DXX_VER) {
+	if (d2x && netgame->protocol_version == MULTI_PROTO_D2X_VER) {
 	    netgame->packets_per_sec = data[loc]; loc++;
 	    memcpy(&netgame->flags, &data[loc], 4); loc += 4;
 	    netgame->flags = swapint(netgame->flags);
@@ -285,21 +288,21 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_in
 }
 
 #ifndef SHAREWARE
-void store_netplayer_info(ubyte *data, netplayer_info *player, int dxx)
+void store_netplayer_info(ubyte *data, netplayer_info *player, int d2x)
 {
 	memcpy(data, player->callsign, CALLSIGN_LEN);	   data += CALLSIGN_LEN;
-	if (!dxx) *(data++) = 0;
+	if (!d2x) *(data++) = 0;
 	memcpy(data, player->network.ipx.server, 4);		   data += 4;
 	memcpy(data, player->network.ipx.node, 6);			   data += 6;
 	memcpy(data, &player->socket, 2);		 data += 2;
 	*data = player->connected;     data++;
-	if (dxx) {
+	if (d2x) {
 		*data = player->sub_protocol;  data++;
 //	    printf ("%i "__FUNCTION__ " name=%s sub_protocol=%i\n",Player_num,player->callsign,player->sub_protocol);
 	}
 }
 
-void send_dxx_netgame_packet(ubyte *server, ubyte *node)
+void send_d2x_netgame_packet(ubyte *server, ubyte *node)
 {
 	uint tmpi;
 	ushort tmps;
@@ -308,7 +311,7 @@ void send_dxx_netgame_packet(ubyte *server, ubyte *node)
 	
 	memset(out_buffer, 0, IPX_MAX_DATA_SIZE);
 	out_buffer[loc] = Netgame.type; loc++;
-	out_buffer[loc] = MULTI_PROTO_DXX_VER; loc++;
+	out_buffer[loc] = MULTI_PROTO_D2X_VER; loc++;
 	out_buffer[loc] = Netgame.subprotocol; loc++;
 	out_buffer[loc] = Netgame.required_subprotocol; loc++;
 	memcpy(&(out_buffer[loc]), Netgame.game_name, NETGAME_NAME_LEN); loc += NETGAME_NAME_LEN;
@@ -321,7 +324,7 @@ void send_dxx_netgame_packet(ubyte *server, ubyte *node)
 	out_buffer[loc] = Netgame.game_flags; loc++;
 	out_buffer[loc] = Netgame.max_numplayers; loc++;
 	out_buffer[loc] = Netgame.team_vector; loc++;
-	if (Netgame.type == PID_DXX_GAME_LITE) {
+	if (Netgame.type == PID_D2X_GAME_LITE) {
 		int master = -1;
 		j = 0;
 		for (i = 0; i < Netgame.numplayers; i++)
@@ -333,18 +336,18 @@ void send_dxx_netgame_packet(ubyte *server, ubyte *node)
 		out_buffer[loc] = j; loc++; /* numconnected */
 		if (master == -1)   /* should not happen, but... */
 			master = Player_num; 
-		store_netplayer_info(&(out_buffer[loc]), &NetPlayers.players[master], 1); loc += sizeof(netplayer_info); //NETPLAYER_DXX_SIZE;
+		store_netplayer_info(&(out_buffer[loc]), &NetPlayers.players[master], 1); loc += sizeof(netplayer_info); //NETPLAYER_D2X_SIZE;
 		//added 4/18/99 Matt Mueller - send .flags as well, so 'I' can show them
 		tmpi = swapint(Netgame.flags);
 		memcpy(&out_buffer[loc], &tmpi, 4); loc += 4;
 		//end addition -MM
 	} else {
 		out_buffer[loc] = Netgame.numplayers; loc++;
-		out_buffer[loc] = sizeof(netplayer_info); //NETPLAYER_DXX_SIZE; // sizeof netplayer struct
+		out_buffer[loc] = sizeof(netplayer_info); //NETPLAYER_D2X_SIZE; // sizeof netplayer struct
 		loc++;
 		for (i = 0; i < MAX_PLAYERS; i++) {
 			store_netplayer_info(&(out_buffer[loc]), &NetPlayers.players[i], 1);
-			loc += sizeof(netplayer_info); //NETPLAYER_DXX_SIZE;
+			loc += sizeof(netplayer_info); //NETPLAYER_D2X_SIZE;
 		}
 		memcpy(&(out_buffer[loc]), Netgame.team_name[0], CALLSIGN_LEN); loc += CALLSIGN_LEN;
 		memcpy(&(out_buffer[loc]), Netgame.team_name[1], CALLSIGN_LEN); loc += CALLSIGN_LEN;
@@ -393,14 +396,14 @@ void send_dxx_netgame_packet(ubyte *server, ubyte *node)
 		ipx_send_internetwork_packet_data(out_buffer, loc, server, node);
 }
 
-void receive_dxx_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_info *netplayers) {
+void receive_d2x_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayers_info *netplayers) {
 	int i, j;
 	int loc = 0;
 	
 	netgame->type = data[loc];	loc++;
-	if (netgame->type == PID_DXX_GAME_LITE) {
+	if (netgame->type == PID_D2X_GAME_LITE) {
 		memset(netgame, 0, sizeof(netgame_info));
-		netgame->type = PID_DXX_GAME_LITE;
+		netgame->type = PID_D2X_GAME_LITE;
 	}
 	netgame->protocol_version = data[loc]; loc++;
 	netgame->subprotocol = data[loc]; loc++;
@@ -418,11 +421,11 @@ void receive_dxx_netgame_packet(ubyte *data, netgame_info *netgame, AllNetPlayer
 	netgame->game_flags = data[loc]; loc++;
 	netgame->max_numplayers = data[loc]; loc++;
 	netgame->team_vector = data[loc]; loc++;
-	if (netgame->type == PID_DXX_GAME_LITE) {
+	if (netgame->type == PID_D2X_GAME_LITE) {
 		j = netgame->numplayers = data[loc]; loc++;
 		for (i = 0; i < j; i++)
 			netplayers->players[i].connected = 1;
-		receive_netplayer_info(&(data[loc]), &(netplayers->players[0]), 1);loc += sizeof(netplayer_info); //NETPLAYER_DXX_SIZE;
+		receive_netplayer_info(&(data[loc]), &(netplayers->players[0]), 1);loc += sizeof(netplayer_info); //NETPLAYER_D2X_SIZE;
 		//added 4/18/99 Matt Mueller - send .flags as well, so 'I' can show them
 		if (netgame->subprotocol>=1){
 			memcpy(&netgame->flags, &data[loc], 4); loc += 4;

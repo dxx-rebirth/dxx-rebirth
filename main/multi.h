@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/multi.h,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2002-02-13 10:39:21 $
+ * $Date: 2002-02-14 09:24:19 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2002/02/13 10:39:21  bradleyb
+ * Lotsa networking stuff from d1x
+ *
  * Revision 1.2  2001/10/25 02:15:56  bradleyb
  * conditionalize including multi.h and network.h, fix backslashes
  *
@@ -48,11 +51,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //   3 Descent II Shareware
 //   4 Descent II Commercial
 
-#define MULTI_PROTO_DXX_VER 5
+#define MULTI_PROTO_D2X_VER 5
 
 //edit 4/18/99 Matt Mueller - Needed to add data onto netgame_lite packet for flags.
 //Incrementing this seems the only way possible.  Still stays backwards compitible.
-#define MULTI_PROTO_DXX_MINOR 1
+#define MULTI_PROTO_D2X_MINOR 1
 //end edit -MM
 
 // Save multiplayer games?
@@ -302,7 +305,7 @@ typedef struct netplayer_info {
    ubyte rank;
 
 #ifndef SHAREWARE
-	/* following DXX only */
+	/* following D2X only */
 	ubyte		sub_protocol;
 #endif
 } netplayer_info;

@@ -1,13 +1,16 @@
 /*
  * $Source: /cvs/cvsroot/d2x/main/ipclient.cpp,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2002-02-06 09:22:42 $
+ * $Date: 2002-02-14 09:27:09 $
  *
  * ipclient.cpp - udp/ip client code
  * added 2000/02/07 Matt Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2002/02/06 09:22:42  bradleyb
+ * Adding d1x network code
+ *
  *
  */
 
@@ -131,7 +134,7 @@ static int ipx_ip_SendPacket(IPXPacket_t *IPXHeader,
 		return -1;
 	}
 	chk(buf=(char*)alloca(2+dataLen));
-	memcpy(buf+0,D1Xid ,2);
+	memcpy(buf+0,D2Xid ,2);
 	memcpy(buf+2,data,dataLen);
 
 #ifdef UDPDEBUG
@@ -192,8 +195,8 @@ static int ipx_ip_ReceivePacket(char *outbuf, int outbufsize,
 
 	memcpy(&fromaddr,rd->src_node,sizeof(ip_addr*));
 
-	if (memcmp(outbuf+0,D1Xid,2)) {
-		if (memcmp(outbuf+0,D1Xcfgid,4)) {
+	if (memcmp(outbuf+0,D2Xid,2)) {
+		if (memcmp(outbuf+0,D2Xcfgid,4)) {
 			mprintf((0,MSGHDR"no valid header\n"));
 			return -1;
 		}
