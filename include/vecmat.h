@@ -1,4 +1,4 @@
-
+/* $ Id: $ */
 /*
    THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
    SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,22 +12,10 @@
    COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */  
 /*
- * $Source: /cvs/cvsroot/d2x/include/vecmat.h,v $
- * $Revision: 1.3 $
- * $Author: bradleyb $
- * $Date: 2001-10-18 23:59:22 $
  *
  * Header file for vector/matrix library
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.2  2001/10/12 06:40:49  bradleyb
- * fix some gcc 3.0 warnings, courtesy of paoloulivi@tin.it
- *
- * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
- * Import of d2x-0.0.8
- *
- * Revision 1.1.1.1  1999/06/14 22:02:28  donut
- * Import of d1x 1.37 source.
+ * Old Log:
  *
  * Revision 1.1  1995/04/17  16:18:05  allender
  * Initial revision
@@ -233,7 +221,7 @@ __pack__ vms_matrix;
 // DPH (18/9/98): Begin mod to fix linefeed problem under linux. Uses an
 // inline function instead of a multi-line macro to fix CR/LF problems.
 
-#ifdef __linux__
+#ifdef __unix__
 static inline void vm_set_identity(vms_matrix *m)
 {
   m->rvec.x = m->uvec.y = m->fvec.z = f1_0;

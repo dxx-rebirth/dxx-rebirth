@@ -1,3 +1,4 @@
+/* $ Id: $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,7 +23,7 @@ typedef signed char byte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
-#ifndef __linux__
+#ifndef __unix__
 typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;

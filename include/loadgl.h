@@ -1,12 +1,8 @@
+/* $ Id: $ */
 /*
- * $Source: /cvs/cvsroot/d2x/include/loadgl.h,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-10-31 07:41:54 $
  *
  * dynamic opengl loading - curtousy (sp) of Jeff Slutter
  *
- * $Log: not supported by cvs2svn $
  *
  */
 
@@ -1181,7 +1177,7 @@ void *dll_GetSymbol(void *dllhandle,const char *symname)
 	return (void *)GetProcAddress((HINSTANCE)dllhandle,symname);
 }
 #endif
-#ifdef __linux__
+#ifdef __unix__
 #include <dlfcn.h>
 void *dll_LoadModule(const char *name)
 {

@@ -1,3 +1,4 @@
+/* $ Id: $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.12 2002-03-23 09:13:00 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.13 2002-07-22 22:59:24 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -71,7 +72,7 @@ static char rcsid[] = "$Id: kconfig.c,v 1.12 2002-03-23 09:13:00 bradleyb Exp $"
 #include "d_delay.h"
 #include "collide.h"
 
-#ifdef __linux__
+#ifdef __unix__
 #include "joystick.h"
 #endif
 
@@ -1529,7 +1530,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 void kc_change_joyaxis( kc_item * item )
 {
-#ifdef __linux__
+#ifdef __unix__
 	int axis[MAX_AXES];
 	int old_axis[MAX_AXES];
 #else
@@ -2693,7 +2694,7 @@ void controls_read_all()
 	int idx, idy;
 	fix ctime;
 	fix mouse_axis[3] = {0,0,0};
-#ifdef __linux__
+#ifdef __unix__
 	int raw_joy_axis[MAX_AXES];
 #else
 	int raw_joy_axis[JOY_NUM_AXES];
@@ -2734,7 +2735,7 @@ void controls_read_all()
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 		
 		for (i=0; i<6; i++ )	{
-#ifndef __linux__
+#ifndef __unix__
 			if (channel_masks&(1<<i))	{
 #endif
 				int joy_null_value = 10;
@@ -2755,7 +2756,7 @@ void controls_read_all()
 					  raw_joy_axis[i] = 0;
 					joy_axis[i]	= (raw_joy_axis[i]*FrameTime)/128;	
 				}
-#ifndef __linux__
+#ifndef __unix__
 			} else {
 				joy_axis[i] = 0;
 			}

@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.32 2002-07-22 02:20:05 btb Exp $ */
+/* $Id: inferno.c,v 1.33 2002-07-22 22:59:24 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -345,7 +345,7 @@ void print_commandline_help()
 	printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
 	printf( "  -hwsurface      %s\n","FIXME: Undocumented");
 #endif
-#ifdef __linux__
+#ifdef __unix__
 	printf( "  -serialdevice <s> %s\n", "Set serial/modem device to <s>");
 	printf( "  -serialread <r> %s\n", "Set serial/modem to read from <r>");
 #endif

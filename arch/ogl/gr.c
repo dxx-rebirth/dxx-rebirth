@@ -311,7 +311,7 @@ int ogl_testneedmipmaps(int i){
 #if defined(__WINDOWS__) || defined(__MINGW32__)
 char *OglLibPath="opengl32.dll";
 #endif
-#ifdef __linux__
+#ifdef __unix__
 char *OglLibPath="libGL.so";
 #endif
 
