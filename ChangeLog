@@ -1,5 +1,7 @@
 2005-02-11  Bradley Bell  <btb@icculus.org>
 
+	* debian/control: build-dep on libphysfs-dev
+
 	* arch/ogl/gr.c: use GLint for arb_max_textures
 
 	* arch/ogl/Makefile.am: added internal.h to dist
