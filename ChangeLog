@@ -1,3 +1,7 @@
+2003-04-14  Bradley Bell  <btb@icculus.org>
+
+	* cfile/cfile.c: prefer files from d2 hog over d1 hog
+
 2003-04-11  Bradley Bell  <btb@icculus.org>
 
 	* main/automap.c, main/gamemine.c, main/menu.c: fix compiler

@@ -1,3 +1,6 @@
+--- Version 0.2.1 ---
+- D1 Mac versions should now work.
+
 --- Version 0.2.0 ---
 - Movie support :-)
 - Bigendian linux/unix support, including OS X and Sparc/Solaris
