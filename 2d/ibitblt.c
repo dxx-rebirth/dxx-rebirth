@@ -177,11 +177,11 @@ void gr_ibitblt_find_hole_size(grs_bitmap *mask_bmp, int *minx, int *miny, int *
 		atexit(free_scanline);
 	}
 	//end changes - adb
-		
+
 	for (y = 0; y < mask_bmp->bm_h; y++) {
 		for (x = 0; x < mask_bmp->bm_w; x++) {
 			c = mask_bmp->bm_data[mask_bmp->bm_rowsize*y+x];
-			if (c == TRANSPARENCY_COLOR) {				// don't look for transparancy color here.
+			if (c == TRANSPARENCY_COLOR) { // don't look for transparency color here.
 				count++;
 				if (x < *minx) *minx = x;
 				if (y < *miny) *miny = y;
@@ -190,5 +190,5 @@ void gr_ibitblt_find_hole_size(grs_bitmap *mask_bmp, int *minx, int *miny, int *
 			}
 		}
 	}
-        Assert (count);
+	Assert (count);
 }
