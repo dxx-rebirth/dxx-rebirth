@@ -1,4 +1,4 @@
-/* $Id: window.c,v 1.7 2005-01-25 21:31:45 schaffner Exp $ */
+/* $Id: window.c,v 1.8 2005-02-26 01:03:37 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: window.c,v 1.7 2005-01-25 21:31:45 schaffner Exp $";
+static char rcsid[] = "$Id: window.c,v 1.8 2005-02-26 01:03:37 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -23,7 +23,12 @@ static char rcsid[] = "$Id: window.c,v 1.7 2005-01-25 21:31:45 schaffner Exp $";
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <dos.h>
+#ifdef __MSDOS__
+ #include <dos.h>
+#else
+ #define _disable()
+ #define _enable()
+#endif
 
 #include "u_mem.h"
 #include "fix.h"
