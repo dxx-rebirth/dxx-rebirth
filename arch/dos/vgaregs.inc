@@ -9,14 +9,17 @@
 ;AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
-; $Source: /cvs/cvsroot/d2x/arch/dos_vgaregs.inc,v $
-; $Revision: 1.2 $
+; $Source: /cvs/cvsroot/d2x/arch/dos/vgaregs.inc,v $
+; $Revision: 1.3 $
 ; $Author: bradleyb $
-; $Date: 2001-01-29 13:35:08 $
+; $Date: 2001-10-19 09:01:56 $
 ;
 ; Readable descriptions of VGA ports.
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.2  2001/01/29 13:35:08  bradleyb
+; Fixed build system, minor fixes
+;
 ; Revision 1.1.1.1  2001/01/19 03:30:15  bradleyb
 ; Import of d2x-0.0.8
 ;

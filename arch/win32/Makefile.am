@@ -5,9 +5,9 @@ noinst_LIBRARIES = libarch_win32.a
 INCLUDES = -I$(top_srcdir)/includes -I$(srcdir)/include
 
 if USE_NETWORK
-libarch_win32_a_SOURCES = findfile.c winnet.c ipx_win.c
+libarch_win32_a_SOURCES = findfile.c mingw_init.c winnet.c ipx_win.c
 else
-libarch_win32_a_SOURCES = findfile.c
+libarch_win32_a_SOURCES = findfile.c mingw_init.c
 endif
 
 EXTRA_DIST = \

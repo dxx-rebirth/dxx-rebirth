@@ -1,12 +1,13 @@
 /*
- * $Source: /cvs/cvsroot/d2x/arch/linux_init.c,v $
- * $Revision: 1.4 $
+ * $Source: /cvs/cvsroot/d2x/arch/win32/mingw_init.c,v $
+ * $Revision: 1.1 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:35:08 $
+ * $Date: 2001-10-19 09:01:56 $
  *
- * linux init.c - added Matt Mueller 9/6/98
+ * mingw_init.c - Basically same as linux init.c
  *
  * $Log: not supported by cvs2svn $
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -24,7 +25,6 @@
 #include "args.h"
 
 extern void arch_sdl_init();
-extern void arch_svgalib_init();
 extern void key_init();
 extern int com_init();
 extern void timer_init();
@@ -38,9 +38,6 @@ void arch_init()
 {
  // Initialise the library
 	arch_sdl_init();
-#ifdef SVGALIB_INPUT
-	arch_svgalib_init();
-#endif
 	if (!FindArg( "-nojoystick" ))  {
 		con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_6);
 		joy_init();

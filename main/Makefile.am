@@ -11,16 +11,16 @@ EXTRA_PROGRAMS = d2x d2x-sdl d2x-ogl d2x-svga d2x-ggi
 LDFLAGS = -export-dynamic
 
 if ENV_DJGPP
-ARCH_LIBS =
+ARCH_LIBS = ../arch/dos/libarch_dos.a
 else
 if MINGW32
-ARCH_LIBS = ../arch/win32/libarch_win32.a
+ARCH_LIBS = ../arch/win32/libarch_win32.a ../arch/sdl/libarch_sdl.a
 else
-ARCH_LIBS = ../arch/linux/libarch_linux.a
+ARCH_LIBS = ../arch/linux/libarch_linux.a ../arch/sdl/libarch_sdl.a
 endif
 endif
 
-d2x_LDADD = ${ARCH_LIBS} ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
+d2x_LDADD = ${ARCH_LIBS} ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a
 
 if MINGW32
 if USE_NETWORK

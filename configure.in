@@ -67,14 +67,16 @@ if test "$host_os" = "msdosdjgpp"; then
   CFLAGS="-I \$(top_srcdir)/arch/dos/include $CFLAGS"
   AC_PATH_PROG(NASM, nasm, no)
   TARGETS=d2x
+  D2X_ARCH_SUBDIRS=dos
 
 else
   CFLAGS="-pipe $CFLAGS"
 
+  D2X_ARCH_SUBDIRS=sdl
   if test x$MINGW32 = xyes; then
-    D2X_ARCH_SUBDIRS=win32
+    D2X_ARCH_SUBDIRS="win32 ${D2X_ARCH_SUBDIRS}"
   else
-    D2X_ARCH_SUBDIRS=linux
+    D2X_ARCH_SUBDIRS="linux ${D2X_ARCH_SUBDIRS}"
   fi
 
   dnl Check for SDL
@@ -227,7 +229,9 @@ Makefile
 2d/Makefile
 3d/Makefile
 arch/Makefile
+arch/dos/Makefile
 arch/linux/Makefile
+arch/sdl/Makefile
 arch/win32/Makefile
 cfile/Makefile
 iff/Makefile

@@ -9,14 +9,17 @@
 ;AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
-; $Source: /cvs/cvsroot/d2x/arch/dos_modex.asm,v $
+; $Source: /cvs/cvsroot/d2x/arch/dos/modex.asm,v $
 ; $Revision: 1.3 $
 ; $Author: bradleyb $
-; $Date: 2001-01-31 14:04:44 $
+; $Date: 2001-10-19 09:01:56 $
 ;
 ; Routines to access ModeX VGA memory
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.3  2001/01/31 14:04:44  bradleyb
+; Fix compiler warnings
+;
 ; Revision 1.2  2001/01/29 13:35:08  bradleyb
 ; Fixed build system, minor fixes
 ;
