@@ -1,5 +1,3 @@
-AUTOMAKE_OPTIONS=1.5
-
 SUBDIRS = 2d 3d maths mem cfile iff texmap misc arch main
 
 EXTRA_SUBDIRS = include tools unused debian rpm
