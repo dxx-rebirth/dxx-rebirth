@@ -146,7 +146,7 @@ else
   CFLAGS="-pipe $CFLAGS"
 
   dnl Check for SDL
-  AM_PATH_SDL(1.1.7,
+  AM_PATH_SDL(1.0.1,
     :,
     AC_MSG_ERROR(SDL not found. Make sure sdl-config is in your PATH, or specify with --with-sdl-prefix)
   )

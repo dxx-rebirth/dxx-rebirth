@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.26 $
+ * $Revision: 1.27 $
  * $Author: bradleyb $
- * $Date: 2002-02-15 12:24:53 $
+ * $Date: 2002-02-16 02:08:31 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.26  2002/02/15 12:24:53  bradleyb
+ * automap resolution now selectable
+ *
  * Revision 1.25  2002/02/14 11:29:31  bradleyb
  * allow gr_init lowres
  *
@@ -178,6 +181,10 @@ extern int Current_display_mode;        //$$ there's got to be a better way than
 #include <SDL/SDL.h>
 #endif
 
+#ifndef SDL_VERSION_ATLEAST
+#include "oldsdl.h"
+#endif
+
 #include "vers_id.h"
 
 void mem_init(void);
@@ -302,7 +309,9 @@ void print_commandline_help()
 //	printf( "  -dynamicsockets %s\n","FIXME: Undocumented");
 //	printf( "  -forcegfx       %s\n","FIXME: Undocumented");
 #ifdef SDL_INPUT
+#if SDL_VERSION_ATLEAST(1,0,2)
 	printf( "  -grabmouse      %s\n","Keeps the mouse from wandering out of the window");
+#endif
 #endif
 //	printf( "  -hw_3dacc       %s\n","FIXME: Undocumented");
 #ifndef RELEASE
@@ -1062,18 +1071,21 @@ int main(int argc,char **argv)
 			#endif
 
 #ifdef SDL_INPUT
+#if SDL_VERSION_ATLEAST(1,0,2)
 			/* keep the mouse from wandering in SDL */
 			if (FindArg("-grabmouse"))
 			    SDL_WM_GrabInput(SDL_GRAB_ON);
-
+#endif
 #endif
 
 			game();
 
 #ifdef SDL_INPUT
+#if SDL_VERSION_ATLEAST(1,0,2)
 			/* give control back to the WM */
 			if (FindArg("-grabmouse"))
 			    SDL_WM_GrabInput(SDL_GRAB_OFF);
+#endif
 #endif
 
 			if ( Function_mode == FMODE_MENU )

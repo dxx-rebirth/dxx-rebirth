@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/error.h,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2002-01-18 07:00:59 $
+ * $Date: 2002-02-16 02:08:31 $
  *
  * Header for error handling/printing/exiting code
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2002/01/18 07:00:59  bradleyb
+ * don't die on int3, unless -debug given
+ *
  * Revision 1.3  2001/11/14 10:51:04  bradleyb
  * kludge to ungrab mouse when we hit an int3
  *
@@ -110,13 +113,18 @@ void Int3();
 #else
 #ifdef SDL_INPUT
 #include <SDL/SDL.h>
+#ifndef SDL_VERSION_ATLEAST
+#include "oldsdl.h"
+#endif
 #endif
 #include "args.h"
 static inline void _Int3()
 {
 	if (FindArg("-debug")) {
 #ifdef SDL_INPUT
+#if SDL_VERSION_ATLEAST(1,0,2)
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
+#endif
 #endif
 		asm("int $3");
 	}

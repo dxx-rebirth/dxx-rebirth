@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/digi.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-11-14 10:42:15 $
+ * $Date: 2002-02-16 02:08:30 $
  *
  * SDL digital audio support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/11/14 10:42:15  bradleyb
+ * implemented digi_set_volume
+ *
  * Revision 1.1  2001/10/25 08:25:34  bradleyb
  * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
  *
@@ -28,6 +31,10 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_audio.h>
+
+#ifndef SDL_VERSION_ATLEAST
+#include "oldsdl.h"
+#endif
 
 #include "pstypes.h"
 #include "error.h"
@@ -252,9 +259,11 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 /* Initialise audio devices. */
 int digi_init()
 {
+#if SDL_VERSION_ATLEAST(1,1,0)
  if (SDL_InitSubSystem(SDL_INIT_AUDIO)<0){
     Error("SDL audio initialisation failed: %s.",SDL_GetError());
  }
+#endif
  //added on 980905 by adb to init sound kill system
  memset(SampleHandles, 255, sizeof(SampleHandles));
  //end edit by adb
