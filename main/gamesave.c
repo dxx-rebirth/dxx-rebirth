@@ -11,12 +11,27 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/gamesave.c,v $
+ * $Revision: 1.6 $
+ * $Author: bradleyb $
+ * $Date: 2001-11-14 09:34:32 $
+ *
+ * Save game information
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.5 2001-10-25 02:19:31 bradleyb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.6 2001-11-14 09:34:32 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -62,6 +77,7 @@ char gamesave_rcsid[] = "$Id: gamesave.c,v 1.5 2001-10-25 02:19:31 bradleyb Exp 
 #include "laser.h"
 #include "byteswap.h"
 #include "multi.h"
+#include "makesig.h"
 
 char Gamesave_current_filename[128];
 
@@ -1650,12 +1666,11 @@ int load_level(char * filename_passed)
 	#endif
 	CFILE * LoadFile;
 	char filename[128];
-	int version,minedata_offset,gamedata_offset;
+	int sig,version,minedata_offset,gamedata_offset;
 	int mine_err,game_err;
 #ifdef NETWORK
 	int i;
 #endif
-	char sig[4];
 
 	Slide_segs_computed = 0;
 
@@ -1713,12 +1728,12 @@ int load_level(char * filename_passed)
 //		newdemo_record_start_demo();
 //	#endif
 
-	cfread(sig, 1, 4, LoadFile);
+	sig					= read_int(LoadFile);
 	version				= read_int(LoadFile);
 	minedata_offset		= read_int(LoadFile);
 	gamedata_offset		= read_int(LoadFile);
 
-	Assert((sig[0] == 'L') && (sig[1] == 'V') && (sig[2]=='L') && (sig[3] == 'P'));
+	Assert(sig == MAKE_SIG('P','L','V','L'));
 
 	if (version >= 8) {			//read dummy data
 #ifdef NETWORK
@@ -2078,8 +2093,7 @@ int save_level_sub(char * filename, int compiled_version)
 {
 	FILE * SaveFile;
 	char temp_filename[128];
-	u_int32_t sig = 0x504c564c; /* 'PLVL' */
-	int version=LEVEL_FILE_VERSION;
+	int sig = MAKE_SIG('P','L','V','L'),version=LEVEL_FILE_VERSION;
 	int minedata_offset=0,gamedata_offset=0;
 
 	if ( !compiled_version )	{

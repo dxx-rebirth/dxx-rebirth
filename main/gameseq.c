@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.6 2001-11-08 10:30:27 bradleyb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.7 2001-11-14 09:34:32 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -120,7 +120,7 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.6 2001-11-08 10:30:27 bradleyb Exp $"
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
-
+#include "makesig.h"
 
 void StartNewLevelSecret(int level_num, int page_in_textures);
 void InitPlayerPosition(int random_flag);
@@ -846,15 +846,14 @@ void load_bitmap_replacements(char *level_name)
 	ifile = cfopen(ifile_name,"rb");
 
 	if (ifile) {
-		int version,n_bitmaps;
+		int id,version,n_bitmaps;
 		int bitmap_data_size;
 		ushort *indices;
-		char id[4];
  
-		cfread(&id, 1, 4, ifile);
+		id = cfile_read_int(ifile);
 		version = cfile_read_int(ifile);
 
-		if (memcmp(id, "GOPD",4) || version != 1) {
+		if (id != MAKE_SIG('G','O','P','D') || version != 1) {
 			cfclose(ifile);
 			return;
 		}

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.6 2001-11-08 10:30:28 bradleyb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.7 2001-11-14 09:34:32 bradleyb Exp $";
 #endif
 
 
@@ -50,6 +50,7 @@ static char rcsid[] = "$Id: piggy.c,v 1.6 2001-11-08 10:30:28 bradleyb Exp $";
 #include "newmenu.h"
 #include "byteswap.h"
 #include "findfile.h"
+#include "makesig.h"
 
 #ifndef MACINTOSH
 //	#include "unarj.h"
@@ -295,7 +296,7 @@ void piggy_close_file()
 
 int Pigfile_initialized=0;
 
-#define PIGFILE_ID              "PPIG"          //PPIG
+#define PIGFILE_ID              MAKE_SIG('G','I','P','P') //PPIG
 #define PIGFILE_VERSION         2
 
 extern char CDROM_dir[];
@@ -571,12 +572,11 @@ void piggy_init_pigfile(char *filename)
 	}
 
 	if (Piggy_fp) {                         //make sure pig is valid type file & is up-to-date
-		int pig_version;
-		char pig_id[4];
+		int pig_id,pig_version;
 
-		cfread(&pig_id, 1, 4, Piggy_fp);
+		pig_id = cfile_read_int(Piggy_fp);
 		pig_version = cfile_read_int(Piggy_fp);
-		if (memcmp(pig_id, PIGFILE_ID, 4) || pig_version != PIGFILE_VERSION) {
+		if (pig_id != PIGFILE_ID || pig_version != PIGFILE_VERSION) {
 			cfclose(Piggy_fp);              //out of date pig
 			Piggy_fp = NULL;                        //..so pretend it's not here
 		}
@@ -725,12 +725,11 @@ void piggy_new_pigfile(char *pigname)
 	#endif
 
 	if (Piggy_fp) {                         //make sure pig is valid type file & is up-to-date
-		int pig_version;
-		char pig_id[4];
+		int pig_id,pig_version;
 
-		cfread(&pig_id, 1, 4, Piggy_fp);
+		pig_id = cfile_read_int(Piggy_fp);
 		pig_version = cfile_read_int(Piggy_fp);
-		if (memcmp(pig_id, PIGFILE_ID, 4) || pig_version != PIGFILE_VERSION) {
+		if (pig_id != PIGFILE_ID || pig_version != PIGFILE_VERSION) {
 			cfclose(Piggy_fp);              //out of date pig
 			Piggy_fp = NULL;                        //..so pretend it's not here
 		}
@@ -962,7 +961,7 @@ digi_sound bogus_sound;
 
 extern void bm_read_all(CFILE * fp);
 
-#define HAMFILE_ID              "HAM!"          //HAM!
+#define HAMFILE_ID              MAKE_SIG('!','M','A','H') //HAM!
 #ifdef SHAREWARE
 #define HAMFILE_VERSION 2
 #else
@@ -971,14 +970,13 @@ extern void bm_read_all(CFILE * fp);
 //version 1 -> 2:  save marker_model_num
 //version 2 -> 3:  removed sound files
 
-#define SNDFILE_ID              "DSND"          //DSND
+#define SNDFILE_ID              MAKE_SIG('D','N','S','D') //DSND
 #define SNDFILE_VERSION 1
 
 int read_hamfile()
 {
 	CFILE * ham_fp = NULL;
-	int ham_version;
-	char ham_id[4];
+	int ham_id,ham_version;
 	#ifdef MACINTOSH
 	char name[255];
 	#endif
@@ -996,9 +994,9 @@ int read_hamfile()
 	}
 
 	//make sure ham is valid type file & is up-to-date
-	cfread( &ham_id, 1, 4, ham_fp );
+	ham_id = cfile_read_int(ham_fp);
 	ham_version = cfile_read_int(ham_fp);
-	if (memcmp(ham_id, HAMFILE_ID, 4) || ham_version != HAMFILE_VERSION) {
+	if (ham_id != HAMFILE_ID || ham_version != HAMFILE_VERSION) {
 		Must_write_hamfile = 1;
 		cfclose(ham_fp);						//out of date ham
 		return 0;
@@ -1031,8 +1029,7 @@ int read_hamfile()
 int read_sndfile()
 {
 	CFILE * snd_fp = NULL;
-	int snd_version;
-	char snd_id[4];
+	int snd_id,snd_version;
 	int N_sounds;
 	int sound_start;
 	int header_size;
@@ -1056,9 +1053,9 @@ int read_sndfile()
 		return 0;
 
 	//make sure soundfile is valid type file & is up-to-date
-	cfread( &snd_id, 1, 4, snd_fp );
+	snd_id = cfile_read_int(snd_fp);
 	snd_version = cfile_read_int(snd_fp);
-	if (memcmp(snd_id, SNDFILE_ID, 4) || snd_version != SNDFILE_VERSION) {
+	if (snd_id != SNDFILE_ID || snd_version != SNDFILE_VERSION) {
 		cfclose(snd_fp);						//out of date sound file
 		return 0;
 	}
@@ -1424,7 +1421,7 @@ void piggy_write_pigfile(char *filename)
 	pig_fp = fopen( filename, "wb" );       //open PIG file
 	Assert( pig_fp!=NULL );
 
-	write_int((int)PIGFILE_ID,pig_fp);
+	write_int(PIGFILE_ID,pig_fp);
 	write_int(PIGFILE_VERSION,pig_fp);
 
 	Num_bitmap_files--;
@@ -1553,7 +1550,7 @@ void piggy_dump_all()
 		ham_fp = fopen( DEFAULT_HAMFILE, "wb" );                       //open HAM file
 		Assert( ham_fp!=NULL );
 	
-		write_int((int)HAMFILE_ID,ham_fp);
+		write_int(HAMFILE_ID,ham_fp);
 		write_int(HAMFILE_VERSION,ham_fp);
 	
 		bm_write_all(ham_fp);
@@ -1583,7 +1580,7 @@ void piggy_dump_all()
 		ham_fp = fopen( DEFAULT_SNDFILE, "wb" );
 		Assert( ham_fp!=NULL );
 	
-		write_int((int)SNDFILE_ID,ham_fp);
+		write_int(SNDFILE_ID,ham_fp);
 		write_int(SNDFILE_VERSION,ham_fp);
 
 		fwrite( &Num_sound_files, sizeof(int), 1, ham_fp );

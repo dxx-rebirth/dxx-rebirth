@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/bm.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  * $Author: bradleyb $
- * $Date: 2001-11-02 02:22:25 $
+ * $Date: 2001-11-14 09:34:32 $
  *
  * Bitmap and palette loading functions.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6  2001/11/02 02:22:25  bradleyb
+ * formatting
+ *
  * Revision 1.5  2001/10/25 02:15:55  bradleyb
  * conditionalize including multi.h and network.h, fix backslashes
  *
@@ -66,6 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "cntrlcen.h"
 #include "byteswap.h"
+#include "makesig.h"
 
 ubyte Sounds[MAX_SOUNDS];
 ubyte AltSounds[MAX_SOUNDS];
@@ -765,7 +769,7 @@ void bm_read_extra_robots(char *fname,int type)
 		int sig;
 
 		sig = cfile_read_int(fp);
-		if (sig != 0x5848414d) /* 'XHAM' */
+		if (sig != MAKE_SIG('X','H','A','M'))
 			return;
 		version = cfile_read_int(fp);
 	}

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /* $Source: /cvs/cvsroot/d2x/2d/font.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  * $Author: bradleyb $
- * $Date: 2001-11-08 10:37:25 $
+ * $Date: 2001-11-14 09:34:32 $
  *
  * Graphical routines for drawing fonts.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.9  2001/11/08 10:37:25  bradleyb
+ * free OGL font data when rereading
+ *
  * Revision 1.8  2001/11/04 03:58:25  bradleyb
  * re-init ogl fonts after remapping colors.
  *
@@ -58,6 +61,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(POLY_ACC)
 #include "poly_acc.h"
 #endif
+
+#include "makesig.h"
 
 #define MAX_OPEN_FONTS	50
 #define FILENAME_LEN		13
@@ -413,7 +418,7 @@ int gr_internal_string0m(int x, int y, char *s )
 	return 0;
 }
 
-#ifdef __ENV_MSDOS__
+#ifdef __MSDOS__
 int gr_internal_string2(int x, int y, char *s )
 {
 	unsigned char * fp;
@@ -806,7 +811,7 @@ int gr_internal_string2m(int x, int y, char *s )
 	return 0;
 }
 
-#endif // __ENV_MSDOS__
+#endif // __MSDOS__
 
 #if defined(POLY_ACC)
 int gr_internal_string5(int x, int y, char *s )
@@ -1450,13 +1455,13 @@ int gr_ustring(int x, int y, char *s )
 				return gr_internal_string0m(x,y,s);
 			else
 				return gr_internal_string0(x,y,s);
-#ifdef __ENV_MSDOS__
+#ifdef __MSDOS__
 		case BM_SVGA:
 			if ( BG_COLOR == -1)
 				return gr_internal_string2m(x,y,s);
 			else
 				return gr_internal_string2(x,y,s);
-#endif // __ENV_MSDOS__
+#endif // __MSDOS__
 #if defined(POLY_ACC)
         case BM_LINEAR15:
 			if ( BG_COLOR == -1)
@@ -1629,7 +1634,7 @@ grs_font * gr_init_font( char * fontname )
 	cfread(&datasize,sizeof(datasize),1,fontfile);
 	datasize=swapint(datasize);
 
-	if (file_id != 0x4e465350) /* 'NFSP' */
+	if (file_id != MAKE_SIG('N','F','S','P'))
 		Error( "File %s is not a font file", fontname );
 
 	font = (old_grs_font *) d_malloc(datasize);
@@ -1763,7 +1768,7 @@ void gr_remap_font( grs_font *font, char * fontname )
 	file_id = cfile_read_int(fontfile);
 	datasize = cfile_read_int(fontfile);
 
-	if (file_id != 0x4e465350) /* 'NFSP' */
+	if (file_id != MAKE_SIG('N','F','S','P'))
 		Error( "File %s is not a font file", fontname );
 
 	nchars = font->ft_maxchar-font->ft_minchar+1;
