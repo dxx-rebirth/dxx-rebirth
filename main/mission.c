@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.38 2004-12-17 14:31:18 btb Exp $ */
+/* $Id: mission.c,v 1.39 2005-01-26 03:53:43 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -341,8 +341,11 @@ int read_mission_file(mle *mission, char *filename, int location)
 			if ((t=strchr(p,';'))!=NULL)
 				*t=0;
 			t = p + strlen(p)-1;
-			while (isspace(*t)) t--;
-			strncpy(mission->mission_name,p,MISSION_NAME_LEN);
+			while (isspace(*t))
+				*t-- = 0; // remove trailing whitespace
+			if (strlen(p) > MISSION_NAME_LEN)
+				p[MISSION_NAME_LEN] = 0;
+			strncpy(mission->mission_name, p, MISSION_NAME_LEN + 1);
 		}
 		else {
 			cfclose(mfile);

@@ -1,55 +1,89 @@
-2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
+2005-01-25  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* arch/carbon/conf.h, arch/ogl/gr.c, include/loadgl.h: on Carbon,
 	dynamically find and load the OpenGL library on carbon
+
 	* main/editor/macro.c: use physfs instead of non-existing cflib.h
+
 	* main/editor/medwall.c: use wall_close_door_num, not wall_close_door
+
 	* main/editor/medwall.c: include cntrlcen.h
+
 	* ui/barbox.c, ui/number.c: pass int*, not short* to gr_get_string_size
+
 	* include/ui.h, ui/barbox.c: make ui_barbox_update return void
+
 	* patching file ui/file.c, ui/listbox.c, file ui/mouse.c, ui/scroll.c,
 	ui/window.c: use timer_get_fixed_seconds instead of TICKER macro
+
 	* ui/number.c: s/inputbox/Inputbox/
+
 	* ui/ui.c: InstallErrorHandler() no longer exists, don't use it anymore
+
 	* main/bmread.c: externalize N_ObjBitmaps & remove_char, solve conflict
+
 	* main/editor/autosave.c, main/editor/editor.h, main/editor/group.c,
 	main/editor/kgame.c, main/editor/kmine.c, main/editor/macro.c,
 	main/gamesave.c: s/128/PATH_MAX
+
 	* include/pstypes.h, main/newmenu.c: clean up path/file length macros
+
 	* ui/inputbox.c, ui/keypad.c: use unsigned char when comparing to > 127
+
 	* ui/mouse.c, file ui/popup.c, ui/window.c: comment out uses of
 	mouse_set_limits and mouse_set_pos (we don't want to limit user)
+
 	* ui/menubar.c: specify int type for state2_alt_down
+
 	* main/editor/eglobal.c: remove variable New_segment (is now a macro)
+
 	* main/piggy.c: call bm_read_all even if EDITOR is defined
+
 	* main/gamesave.c: if LVL can't be found, try filename that was passed
+
+	* main/mission.c: ensure mission name is properly terminated
 
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* 2d/font.c: fix bug #2167: some characters would not display because
 	of signed/unsigned errors
+
 	* main/editor/editor.h: baptize the coefficients in vms_equation 'n'
+
 	* main/gamerend.c, main/gauges.c: fix bug #1893: fade ship and weapon
 	gauge when appropriate
+
 	* main/editor/kdefs.h, main/gamesave.c, main/gamesave.h: change
 	all functions in kfuncs.c to return int instead of void
+
 	* main/editor/ehostage.c, main/editor/eobject.c, main/editor/segment.c:
 	disable old hostage system in editor (d2 is simpler in this regard)
+
 	* main/wall.c, main/wall.h: move consts for WALL_IS_DOORWAY to header
+
 	* main/editor/info.c: only include i86.h and malloc.h ifdef DO_MEMINFO
+
 	* main/editor/centers.c: change curseg2p to Curseg2p
+
 	* main/editor/func.c: Include strutil.h in func.c (for stricmp)
+
 	* main/editor/macro.c: remove unused variable "length"
+
 	* main/editor/med.c: don't set screen mode to SM_ORIGINAL
+
 	* main/editor/medmisc.c: Pass both arguments to render_frame
+
 	* ui/barbox.c, ui/button.c, ui/checkbox.c, ui/file.c, ui/gadget.c,
 	ui/icon.c, ui/inputbox.c, ui/keypad.c, ui/keypress.c, ui/keytrap.c,
 	ui/listbox.c, ui/menu.c, ui/menubar.c, ui/message.c, ui/mouse.c,
 	ui/number.c, ui/popup.c, ui/radio.c, ui/scroll.c, ui/ui.c,
 	ui/uidraw.c, ui/userbox.c, ui/window.c: include u_mem.h and pstypes.h
 	instead of d1-style mem.h and types.h
+
 	* main/editor/texpage.c: do texture replacement for any mission
+
 	* main/editor/medwall.c: add prototype for create_removable_wall
+
 	* main/editor/medrobot.c: don't try to set the removed follow_path
 
 2005-01-23  Jason Owen  <shannara256@yahoo.com>
@@ -61,12 +95,15 @@
 
 	* main/collide.c: fix bug #2140: even ifndef NETWORK do last level hack
 	only on last level of built-in mission.
+
 	* main/gauges.c: fix bug #2110: redraw energy/afterburner gauges
 	whenever necessary
+
 	* arch/ogl/gr.c, include/cfile.h, main/config.c, main/newdemo.c,
 	main/playsave.c, main/state.c, misc/args.c: change cfopen to use
 	buffers (speeding it up), and use cfopen instead of
 	PHYSFS_openRead/PHYSFS_openWrite where appropriate
+
 	* include/nocfile.h, main/editor/kmine.c, main/editor/mine.c: make
 	sure nocfile.h and cfile.h are never both included
 
