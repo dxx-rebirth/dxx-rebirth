@@ -5,10 +5,11 @@ noinst_LIBRARIES = libarch_win32.a
 INCLUDES = -I$(top_srcdir)/arch/include -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(srcdir)/include
 
 if USE_NETWORK
-libarch_win32_a_SOURCES = findfile.c mingw_init.c winnet.c ipx_win.c
-else
-libarch_win32_a_SOURCES = findfile.c mingw_init.c
+NETWORK_SRCS = winnet.c ipx_win.c \
+               arch_ip.cpp
 endif
+
+libarch_win32_a_SOURCES = ${NETWORK_SRCS} findfile.c mingw_init.c
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 d1x.ico d1x.rc d3d.ico debug.cpp descent.ico digi.c findfile.c glinit.c gr.c \
