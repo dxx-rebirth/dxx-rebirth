@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/3d.h,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-20 13:49:14 $
+ * $Date: 2001-10-25 02:06:58 $
  *
  * Header file for 3d library
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/20 13:49:14  bradleyb
+ * Got rid of all compiler warnings, for non-OpenGL on linux, anyway...
+ *
  * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
  * Import of d2x-0.0.8
  *
@@ -247,6 +250,8 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 
 //init code for bitmap models
 void g3_init_polygon_model(void *model_ptr);
+//maps the colors back to RGB15
+void g3_uninit_polygon_model(void *model_ptr);
 
 //alternate interpreter for morphing object
 bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,fix light,vms_vector *new_points);
