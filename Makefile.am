@@ -43,20 +43,18 @@ d2x_svga_LDADD = ${d2x_sdl_LDADD} ${SVGA_LIBS}
 d2x_ggi_LDADD = ${d2x_sdl_LDADD} ${GGI_LIBS}
 
 dist-hook:
-	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
-	 ( cd $(srcdir) && tar --exclude=CVS/ -cf - $$subdir ) \
-	  | ( cd $(distdir) && tar xf - ) \
-	done
+	rm -rf `find $(distdir) -name CVS`
+#	rm -f `find $(distdir) -name Makefile`
 	$(MAKE) changelog
-	cp -a ChangeLog $(distdir)
+	cp -a $(srcdir)/ChangeLog $(distdir)
 
 changelog::
 	rm -f $(srcdir)/ChangeLog
 	touch $(srcdir)/ChangeLog
-	$(srcdir)/tools/cvs2cl/cvs2cl.pl -b --utc
-	rm -f ChangeLog.bak
+	cd $(srcdir) && tools/cvs2cl/cvs2cl.pl -b --utc
+	rm -f $(srcdir)/ChangeLog.bak
 
-EXTRA_DIST = \
+EXTRA_DIST = ${EXTRA_SUBDIRS} \
 ChangeLog \
 djgpp.bat djgpp.sh \
 autogen.sh cygconf \

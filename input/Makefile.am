@@ -40,12 +40,6 @@ if ENV_DJGPP
 libinput_a_LIBADD = dos_joy2.o
 endif
 
-EXTRA_DIST = \
+EXTRA_DIST = ${EXTRA_SUBDIRS} \
 dos_joy2.asm \
 ggi_init.c
-
-dist-hook:
-	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
-	 ( cd $(srcdir) && tar --exclude=CVS -cf - $$subdir ) \
-	  | ( cd $(distdir) && tar xf - ) \
-	done

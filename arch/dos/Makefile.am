@@ -14,14 +14,8 @@ if ENV_DJGPP
 libarch_dos_a_LIBADD += timer.o modex.o
 endif
 
-EXTRA_DIST = \
+EXTRA_DIST = ${EXTRA_SUBDIRS} \
 tweak.inc vgaregs.inc \
 modex.asm timer.asm \
-digiallg.c digimm.c disk.c midiallg.c mono.c serial.c \
+bcd.c digiallg.c digimm.c disk.c midiallg.c mono.c serial.c \
 ipx.h mono.h
-
-dist-hook:
-	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
-	 ( cd $(srcdir) && tar --exclude=CVS -cf - $$subdir ) \
-	  | ( cd $(distdir) && tar xf - ) \
-	done

@@ -27,7 +27,7 @@ credits.c   gamemine.c	kmatrix.c   newmenu.c	songs.c \
 crypt.c     gamepal.c	laser.c     object.c	state.c \
 console.c   cmd.c
 
-EXTRA_DIST = \
+EXTRA_DIST = ${EXTRA_SUBDIRS} \
 descent.cfg inferno.ini \
 link.bat \
 ai.h aistruct.h automap.h bm.h bmread.h cdrom.h cntrlcen.h collide.h \
@@ -41,9 +41,3 @@ powerup.h render.h robot.h scores.h screens.h segment.h segpoint.h slew.h \
 songs.h sounds.h state.h switch.h terrain.h texmerge.h text.h textures.h \
 titles.h vclip.h vers_id.h wall.h weapon.h \
 dumpmine.c ipx_drv.c
-
-dist-hook:
-	list='$(EXTRA_SUBDIRS)'; for subdir in $$list; do \
-	 ( cd $(srcdir) && tar --exclude=CVS -cf - $$subdir ) \
-	  | ( cd $(distdir) && tar xf - ) \
-	done
