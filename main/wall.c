@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.4 2001-10-25 02:15:57 bradleyb Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.5 2002-07-26 09:22:05 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1544,3 +1544,20 @@ void blast_nearby_glass(object *objp, fix damage)
 
 }
 
+/*
+ * reads a wclip structure from a CFILE
+ */
+void wclip_read(wclip *wc, CFILE *fp)
+{
+	int i;
+	
+	wc->play_time = cfile_read_fix(fp);;
+	wc->num_frames = cfile_read_short(fp);;
+	for (i = 0; i < MAX_CLIP_FRAMES; i++)
+		wc->frames[i] = cfile_read_short(fp);
+	wc->open_sound = cfile_read_short(fp);
+	wc->close_sound = cfile_read_short(fp);
+	wc->flags = cfile_read_short(fp);
+	cfread(wc->filename, 13, 1, fp);
+	wc->pad = cfile_read_byte(fp);
+}

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.7 2001-11-14 09:34:32 bradleyb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.8 2002-07-26 09:22:05 btb Exp $";
 #endif
 
 
@@ -1730,7 +1730,12 @@ void piggy_bitmap_page_out_all_w()
 {
 }
 
-
 #endif
 
-
+/*
+ * reads a bitmap_index structure from a CFILE
+ */
+void bitmap_index_read(bitmap_index *bi, CFILE *fp)
+{
+	bi->index = cfile_read_short(fp);
+}

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.3 2001-10-25 02:15:55 bradleyb Exp $";
+static char rcsid[] = "$Id: cntrlcen.c,v 1.4 2002-07-26 09:22:05 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -507,3 +507,17 @@ void special_reactor_stuff(void)
 	}
 }
 
+/*
+ * reads a reactor structure from a CFILE
+ */
+extern void reactor_read(reactor *r, CFILE *fp)
+{
+	int i;
+	
+	r->model_num = cfile_read_int(fp);
+	r->n_guns = cfile_read_int(fp);
+	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
+		cfile_read_vector(&(r->gun_points[i]), fp);
+	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
+		cfile_read_vector(&(r->gun_dirs[i]), fp);
+}

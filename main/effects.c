@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: effects.c,v 1.2 2001-01-31 15:17:50 bradleyb Exp $";
+static char rcsid[] = "$Id: effects.c,v 1.3 2002-07-26 09:22:05 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -169,3 +169,23 @@ void restart_effect(int effect_num)
 	//Assert(Effects[effect_num].bm_ptr != -1);
 }
 
+/*
+ * reads an eclip structure from a CFILE
+ */
+void eclip_read(eclip *ec, CFILE *fp)
+{
+	vclip_read(&ec->vc, fp);
+	ec->time_left = cfile_read_fix(fp);
+	ec->frame_count = cfile_read_int(fp);
+	ec->changing_wall_texture = cfile_read_short(fp);
+	ec->changing_object_texture = cfile_read_short(fp);
+	ec->flags = cfile_read_int(fp);
+	ec->crit_clip = cfile_read_int(fp);
+	ec->dest_bm_num = cfile_read_int(fp);
+	ec->dest_vclip = cfile_read_int(fp);
+	ec->dest_eclip = cfile_read_int(fp);
+	ec->dest_size = cfile_read_fix(fp);
+	ec->sound_num = cfile_read_int(fp);
+	ec->segnum = cfile_read_int(fp);
+	ec->sidenum = cfile_read_int(fp);
+}

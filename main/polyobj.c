@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.5 2001-01-31 15:34:40 bradleyb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.6 2002-07-26 09:22:05 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -758,3 +758,35 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	gr_free_canvas(temp_canv);
 }
 
+/*
+ * reads a polymodel structure from a CFILE
+ */
+extern void polymodel_read(polymodel *pm, CFILE *fp)
+{
+	int i;
+
+	pm->n_models = cfile_read_int(fp);
+	pm->model_data_size = cfile_read_int(fp);
+	pm->model_data = (ubyte *) cfile_read_int(fp);
+	for (i = 0; i < MAX_SUBMODELS; i++)
+		pm->submodel_ptrs[i] = cfile_read_int(fp);
+	for (i = 0; i < MAX_SUBMODELS; i++)
+		cfile_read_vector(&(pm->submodel_offsets[i]), fp);
+	for (i = 0; i < MAX_SUBMODELS; i++)
+		cfile_read_vector(&(pm->submodel_norms[i]), fp);
+	for (i = 0; i < MAX_SUBMODELS; i++)
+		cfile_read_vector(&(pm->submodel_pnts[i]), fp);
+	for (i = 0; i < MAX_SUBMODELS; i++)
+		pm->submodel_rads[i] = cfile_read_fix(fp);
+	cfread(pm->submodel_parents, MAX_SUBMODELS, 1, fp);
+	for (i = 0; i < MAX_SUBMODELS; i++)
+		cfile_read_vector(&(pm->submodel_mins[i]), fp);
+	for (i = 0; i < MAX_SUBMODELS; i++)
+		cfile_read_vector(&(pm->submodel_maxs[i]), fp);
+	cfile_read_vector(&(pm->mins), fp);
+	cfile_read_vector(&(pm->maxs), fp);
+	pm->rad = cfile_read_fix(fp);		
+	pm->n_textures = cfile_read_byte(fp);
+	pm->first_texture = cfile_read_short(fp);
+	pm->simpler_model = cfile_read_byte(fp);
+}

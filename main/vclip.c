@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: vclip.c,v 1.2 2001-01-31 15:17:59 bradleyb Exp $";
+static char rcsid[] = "$Id: vclip.c,v 1.3 2002-07-26 09:22:05 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -101,3 +101,19 @@ void draw_weapon_vclip(object *obj)
 
 }
 
+/*
+ * reads a vclip structure from a CFILE
+ */
+void vclip_read(vclip *vc, CFILE *fp)
+{
+	int i;
+
+	vc->play_time = cfile_read_fix(fp);
+	vc->num_frames = cfile_read_int(fp);
+	vc->frame_time = cfile_read_fix(fp);
+	vc->flags = cfile_read_int(fp);
+	vc->sound_num = cfile_read_short(fp);
+	for (i = 0; i < VCLIP_MAX_FRAMES; i++)
+		vc->frames[i].index = cfile_read_short(fp);
+	vc->light_value = cfile_read_fix(fp);
+}

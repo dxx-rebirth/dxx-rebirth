@@ -40,7 +40,7 @@ typedef struct eclip {
 	fix			dest_size;		//3d size of explosion
 	int			sound_num;		//what sound this makes
 	int			segnum,sidenum;	//what seg & side, for one-shot clips
-} __pack__ eclip;
+} eclip;
 
 extern int Num_effects;
 extern eclip Effects[MAX_EFFECTS];
@@ -62,5 +62,10 @@ void stop_effect(int effect_num);
 
 //restart a stopped effect
 void restart_effect(int effect_num);
+
+/*
+ * reads an eclip structure from a CFILE
+ */
+extern void eclip_read(eclip *ec, CFILE *fp);
 
 #endif

@@ -238,4 +238,108 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 
 }
 
+/*
+ * reads a jointlist structure from a CFILE
+ */
+static void jointlist_read(jointlist *jl, CFILE *fp)
+{
+	jl->n_joints = cfile_read_short(fp);
+	jl->offset = cfile_read_short(fp);
+}
+
+/*
+ * reads a robot_info structure from a CFILE
+ */
+void robot_info_read(robot_info *ri, CFILE *fp)
+{
+	int i, j;
+	
+	ri->model_num = cfile_read_int(fp);
+	for (i = 0; i < MAX_GUNS; i++)
+		cfile_read_vector(&(ri->gun_points[i]), fp);
+	cfread(ri->gun_submodels, MAX_GUNS, 1, fp);
+
+	ri->exp1_vclip_num = cfile_read_short(fp);
+	ri->exp1_sound_num = cfile_read_short(fp);
+
+	ri->exp2_vclip_num = cfile_read_short(fp);
+	ri->exp2_sound_num = cfile_read_short(fp);
+
+	ri->weapon_type = cfile_read_byte(fp);
+	ri->weapon_type2 = cfile_read_byte(fp);
+	ri->n_guns = cfile_read_byte(fp);
+	ri->contains_id = cfile_read_byte(fp);
+
+	ri->contains_count = cfile_read_byte(fp);
+	ri->contains_prob = cfile_read_byte(fp);
+	ri->contains_type = cfile_read_byte(fp);
+	ri->kamikaze = cfile_read_byte(fp);
+
+	ri->score_value = cfile_read_short(fp);
+	ri->badass = cfile_read_byte(fp);
+	ri->energy_drain = cfile_read_byte(fp);
+
+	ri->lighting = cfile_read_fix(fp);
+	ri->strength = cfile_read_fix(fp);
+
+	ri->mass = cfile_read_fix(fp);
+	ri->drag = cfile_read_fix(fp);
+
+	for (i = 0; i < NDL; i++)
+		ri->field_of_view[i] = cfile_read_fix(fp);
+	for (i = 0; i < NDL; i++)
+		ri->firing_wait[i] = cfile_read_fix(fp);
+	for (i = 0; i < NDL; i++)
+		ri->firing_wait2[i] = cfile_read_fix(fp);
+	for (i = 0; i < NDL; i++)
+		ri->turn_time[i] = cfile_read_fix(fp);
+	for (i = 0; i < NDL; i++)
+		ri->max_speed[i] = cfile_read_fix(fp);
+	for (i = 0; i < NDL; i++)
+		ri->circle_distance[i] = cfile_read_fix(fp);
+	cfread(ri->rapidfire_count, NDL, 1, fp);
+
+	cfread(ri->evade_speed, NDL, 1, fp);
+
+	ri->cloak_type = cfile_read_byte(fp);
+	ri->attack_type = cfile_read_byte(fp);
+
+	ri->see_sound = cfile_read_byte(fp);
+	ri->attack_sound = cfile_read_byte(fp);
+	ri->claw_sound = cfile_read_byte(fp);
+	ri->taunt_sound = cfile_read_byte(fp);
+
+	ri->boss_flag = cfile_read_byte(fp);
+	ri->companion = cfile_read_byte(fp);
+	ri->smart_blobs = cfile_read_byte(fp);
+	ri->energy_blobs = cfile_read_byte(fp);
+
+	ri->thief = cfile_read_byte(fp);
+	ri->pursuit = cfile_read_byte(fp);
+	ri->lightcast = cfile_read_byte(fp);
+	ri->death_roll = cfile_read_byte(fp);
+
+	ri->flags = cfile_read_byte(fp);
+	cfread(ri->pad, 3, 1, fp);
+
+	ri->deathroll_sound = cfile_read_byte(fp);
+	ri->glow = cfile_read_byte(fp);
+	ri->behavior = cfile_read_byte(fp);
+	ri->aim = cfile_read_byte(fp);
+
+	for (i = 0; i < MAX_GUNS + 1; i++)
+		for (j = 0; j < N_ANIM_STATES; j++)
+			jointlist_read(&ri->anim_states[i][j], fp);
+
+	ri->always_0xabcd = cfile_read_int(fp);
+}
+
+/*
+ * reads a jointpos structure from a CFILE
+ */
+void jointpos_read(jointpos *jp, CFILE *fp)
+{
+	jp->jointnum = cfile_read_short(fp);
+	cfile_read_angvec(&jp->angles, fp);
+}
 

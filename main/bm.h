@@ -39,7 +39,7 @@ typedef struct {
 	char		filename[13];		//used by editor to remap textures
 	char		pad2[3];
 	#endif
-} __pack__ tmap_info;
+} tmap_info;
 
 extern int Num_object_types;
 

@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 #include "object.h"
+#include "cfile.h"
 
 //#include "vclip.h"
 
@@ -136,7 +137,7 @@ typedef struct {
 	short				flags;
 	char				filename[13];
 	char				pad;
-} __pack__ wclip;
+} wclip;
 
 extern char	Wall_names[7][10];
 
@@ -221,5 +222,10 @@ void kill_stuck_objects(int wallnum);
 //start wall open <-> closed transitions
 void start_wall_cloak(segment *seg, int side);
 void start_wall_decloak(segment *seg, int side);
+
+/*
+ * reads a wclip structure from a CFILE
+ */
+extern void wclip_read(wclip *wc, CFILE *fp);
 
 #endif

@@ -19,6 +19,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "sounds.h"
 #include "inferno.h"
+#include "cfile.h"
 
 #define MAX_ALIASES 20
 
@@ -32,7 +33,7 @@ extern int Num_aliases;
 
 typedef struct bitmap_index {
 	ushort	index;
-} __pack__ bitmap_index;
+} bitmap_index;
 
 int piggy_init();
 void piggy_close();
@@ -89,5 +90,10 @@ void piggy_read_sounds();
 //reads in a new pigfile (for new palette)
 //returns the size of all the bitmap data
 void piggy_new_pigfile(char *pigname);
+
+/*
+ * reads a bitmap_index structure from a CFILE
+ */
+void bitmap_index_read(bitmap_index *bi, CFILE *fp);
 
 #endif

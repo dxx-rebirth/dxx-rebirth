@@ -19,26 +19,27 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "object.h"
 #include "game.h"
+#include "cfile.h"
 
 #define MAX_GUNS 8		//should be multiple of 4 for ubyte array
 
 //Animation states
-#define AS_REST			0
-#define AS_ALERT			1
-#define AS_FIRE			2
-#define AS_RECOIL			3
-#define AS_FLINCH			4
-#define N_ANIM_STATES	5
+#define AS_REST	        0
+#define AS_ALERT        1
+#define AS_FIRE	        2
+#define AS_RECOIL       3
+#define AS_FLINCH       4
+#define N_ANIM_STATES   5
 
-#define	RI_CLOAKED_NEVER					0
-#define	RI_CLOAKED_ALWAYS					1
-#define	RI_CLOAKED_EXCEPT_FIRING		2
+#define	RI_CLOAKED_NEVER            0
+#define	RI_CLOAKED_ALWAYS           1
+#define	RI_CLOAKED_EXCEPT_FIRING    2
 
 //describes the position of a certain joint
 typedef struct jointpos {
 	short jointnum;
 	vms_angvec angles;
-} __pack__ jointpos;
+} jointpos;
 
 //describes a list of joint positions
 typedef struct jointlist {
@@ -125,7 +126,7 @@ typedef struct robot_info {
 
 	int		always_0xabcd;							// debugging
 
-} __pack__ robot_info;
+} robot_info;
 
 
 #define	MAX_ROBOT_TYPES	85			// maximum number of robot types
@@ -169,5 +170,15 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num);
 //		Returns number of joints in list.
 //		jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
 extern int robot_get_anim_state(jointpos **jp_list_ptr,int robot_type,int gun_num,int state);
+
+/*
+ * reads a robot_info structure from a CFILE
+ */
+extern void robot_info_read(robot_info *ri, CFILE *fp);
+
+/*
+ * reads a jointpos structure from a CFILE
+ */
+extern void jointpos_read(jointpos *jp, CFILE *fp);
 
 #endif

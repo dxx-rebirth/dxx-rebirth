@@ -129,7 +129,7 @@ typedef struct player_ship {
 	fix		wiggle;
 	fix		max_rotthrust;
 	vms_vector gun_points[N_PLAYER_GUNS];
-} __pack__ player_ship;
+} player_ship;
 
 extern int N_players;								// Number of players ( >1 means a net game, eh?)
 extern int Player_num;								// The player number who is on the console.
@@ -189,5 +189,10 @@ typedef struct player16 {
 	byte		hours_level;					// Hours played (since time_total can only go up to 9 hours)
 	byte		hours_total;					// Hours played (since time_total can only go up to 9 hours)
 } __pack__ player16;
+
+/*
+ * reads a player_ship structure from a CFILE
+ */
+void player_ship_read(player_ship *ps, CFILE *fp);
 
 #endif

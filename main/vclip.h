@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "object.h"
 #include "piggy.h"
+#include "cfile.h"
 
 #define VCLIP_SMALL_EXPLOSION		2
 #define VCLIP_PLAYER_HIT			1
@@ -42,7 +43,7 @@ typedef struct {
 	short				sound_num;
 	bitmap_index	frames[VCLIP_MAX_FRAMES];
 	fix				light_value;
-} __pack__ vclip;
+} vclip;
 
 extern int Num_vclips;
 extern vclip Vclip[VCLIP_MAXNUM];
@@ -50,5 +51,10 @@ extern vclip Vclip[VCLIP_MAXNUM];
 //draw an object which renders as a vclip.
 void draw_vclip_object(object *obj,fix timeleft,int lighted, int vclip_num);
 extern void draw_weapon_vclip(object *obj);
+
+/*
+ * reads a vclip structure from a CFILE
+ */
+extern void vclip_read(vclip *vc, CFILE *fp);
 
 #endif

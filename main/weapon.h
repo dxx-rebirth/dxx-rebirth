@@ -18,6 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "game.h"
 #include "piggy.h"
+#include "cfile.h"
 
 //weapon info flags
 #define WIF_PLACABLE		1		//can be placed by level designer
@@ -83,7 +84,7 @@ typedef struct weapon_info {
 #ifndef SHAREWARE
 	bitmap_index	hires_picture;		// a hires picture of the above
 #endif
-} __pack__ weapon_info;
+} weapon_info;
 
 #define	REARM_TIME					(F1_0)
 
@@ -222,5 +223,10 @@ extern void rock_the_mine_frame(void);
 extern void smega_rock_stuff(void);
 extern void init_smega_detonates(void);
 extern void tactile_set_button_jolt (void);
+
+/*
+ * reads a weapon_info structure from a CFILE
+ */
+extern void weapon_info_read(weapon_info *wi, CFILE *fp);
 
 #endif

@@ -700,3 +700,14 @@ int do_powerup(object *obj)
 	return used;
 
 }
+
+/*
+ * reads a powerup_type_info structure from a CFILE
+ */
+extern void powerup_type_info_read(powerup_type_info *pti, CFILE *fp)
+{
+	pti->vclip_num = cfile_read_int(fp);
+	pti->hit_sound = cfile_read_int(fp);
+	pti->size = cfile_read_fix(fp);
+	pti->light = cfile_read_fix(fp);
+}

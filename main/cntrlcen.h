@@ -38,7 +38,7 @@ typedef struct reactor {
 	int	n_guns;
 	vms_vector gun_points[MAX_CONTROLCEN_GUNS];
 	vms_vector gun_dirs[MAX_CONTROLCEN_GUNS];
-} __pack__ reactor;
+} reactor;
 
 #define MAX_REACTORS 7
 
@@ -73,5 +73,10 @@ extern fix Countdown_timer;
 extern int Control_center_destroyed,Countdown_seconds_left;
 extern int Base_control_center_explosion_time;		//how long to blow up on insane
 extern int Reactor_strength;
+
+/*
+ * reads a reactor structure from a CFILE
+ */
+extern void reactor_read(reactor *r, CFILE *fp);
 
 #endif

@@ -11,16 +11,16 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
-
 #ifndef _CFILE_H
 #define _CFILE_H
+
+#include <stdio.h>
 
 #include "maths.h"
 #include "vecmat.h"
 
 typedef struct CFILE {
-	FILE 				*file;
+	FILE 			*file;
 	int				size;
 	int				lib_offset;
 	int				raw_position;

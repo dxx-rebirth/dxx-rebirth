@@ -95,7 +95,7 @@ typedef struct powerup_type_info {
 	int	hit_sound;
 	fix	size;			//3d size of longest dimension
 	fix	light;		//	amount of light cast by this powerup, set in bitmaps.tbl
-} __pack__ powerup_type_info;
+} powerup_type_info;
 
 extern int N_powerup_types;
 extern powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
@@ -114,5 +114,10 @@ extern void diminish_towards_max(void);
 extern void do_megawow_powerup(int quantity);
 
 extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *format, ...);
+
+/*
+ * reads a powerup_type_info structure from a CFILE
+ */
+extern void powerup_type_info_read(powerup_type_info *pti, CFILE *fp);
 
 #endif

@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.5 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: interp.c,v 1.6 2002-07-26 09:22:39 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.5 2002-07-17 21:55:19 bradleyb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.6 2002-07-26 09:22:39 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -49,6 +49,7 @@ static char rcsid[] = "$Id: interp.c,v 1.5 2002-07-17 21:55:19 bradleyb Exp $";
 #include "3d.h"
 #include "globvars.h"
 #include "gr.h"
+#include "byteswap.h"
 
 #define OP_EOF				0	//eof
 #define OP_DEFPOINTS		1	//defpoints
@@ -97,6 +98,121 @@ vms_angvec zero_angles = {0,0,0};
 g3s_point *point_list[MAX_POINTS_PER_POLY];
 
 int glow_num = -1;
+
+#ifdef WORDS_BIGENDIAN
+void short_swap(short *s)
+{
+	*s = swapshort(*s);
+}
+
+void vms_vector_swap(vms_vector *v)
+{
+	v->x = (fix)swapint((int)v->x);
+	v->y = (fix)swapint((int)v->y);
+	v->z = (fix)swapint((int)v->z);
+}
+
+void swap_polygon_model_data(ubyte *data)
+{
+	int i;
+	short n;
+	g3s_uvl *uvl_val;
+	ubyte *p = data;
+
+	short_swap(wp(p));
+
+	while (w(p) != OP_EOF) {
+		switch (w(p)) {
+			case OP_DEFPOINTS:
+				short_swap(wp(p + 2));
+				n = w(p+2);
+				for (i = 0; i < n; i++)
+					vms_vector_swap(vp((p + 4) + (i * sizeof(vms_vector))));
+				p += n*sizeof(struct vms_vector) + 4;
+				break;
+
+			case OP_DEFP_START:
+				short_swap(wp(p + 2));
+				short_swap(wp(p + 4));
+				n = w(p+2);
+				for (i = 0; i < n; i++)
+					vms_vector_swap(vp((p + 8) + (i * sizeof(vms_vector))));
+				p += n*sizeof(struct vms_vector) + 8;
+				break;
+
+			case OP_FLATPOLY:
+				short_swap(wp(p+2));
+				n = w(p+2);
+				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(vp(p + 16));
+				short_swap(wp(p+28));
+#ifdef MACINTOSH
+				// swap the colors 0 and 255 here!!!!
+				if (w(p+28) == 0)
+					w(p+28) = 255;
+				else if (w(p+28) == 255)
+					w(p+28) = 0;
+#endif
+				for (i=0; i < n; i++)
+					short_swap(wp(p + 30 + (i * 2)));
+				p += 30 + ((n&~1)+1)*2;
+				break;
+
+			case OP_TMAPPOLY:
+				short_swap(wp(p+2));
+				n = w(p+2);
+				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(vp(p + 16));
+				for (i=0;i<n;i++) {
+					uvl_val = (g3s_uvl *)((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
+					uvl_val->u = (fix)swapint((int)uvl_val->u);
+					uvl_val->v = (fix)swapint((int)uvl_val->v);
+				}
+				short_swap(wp(p+28));
+				for (i=0;i<n;i++)
+					short_swap(wp(p + 30 + (i * 2)));
+				p += 30 + ((n&~1)+1)*2 + n*12;
+				break;
+
+			case OP_SORTNORM:
+				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(vp(p + 16));
+				short_swap(wp(p + 28));
+				short_swap(wp(p + 30));
+				swap_polygon_model_data(p + w(p+28));
+				swap_polygon_model_data(p + w(p+30));
+				p += 32;
+				break;
+
+			case OP_RODBM:
+				vms_vector_swap(vp(p + 20));
+				vms_vector_swap(vp(p + 4));
+				short_swap(wp(p+2));
+				*((int *)(p + 16)) = swapint(*((int *)(p + 16)));
+				*((int *)(p + 32)) = swapint(*((int *)(p + 32)));
+				p+=36;
+				break;
+
+			case OP_SUBCALL:
+				short_swap(wp(p+2));
+				vms_vector_swap(vp(p+4));
+				short_swap(wp(p+16));
+				swap_polygon_model_data(p + w(p+16));
+				p += 20;
+				break;
+
+			case OP_GLOW:
+				short_swap(wp(p + 2));
+				p += 4;
+				break;
+				
+			default:
+				Int3();
+		}
+		short_swap(wp(p));
+	}
+}
+#endif
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew

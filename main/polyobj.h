@@ -46,7 +46,7 @@ typedef struct polymodel {
 	ushort	first_texture;
 	ubyte		simpler_model;		//alternate model with less detail (0 if none, model_num+1 else)
 //	vms_vector min,max;
-} __pack__ polymodel;
+} polymodel;
 
 //array of pointers to polygon objects
 extern polymodel Polygon_models[];
@@ -86,6 +86,11 @@ void draw_model_picture(int mn,vms_angvec *orient_angles);
 extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 extern g3s_point robot_points[];
+
+/*
+ * reads a polymodel structure from a CFILE
+ */
+extern void polymodel_read(polymodel *pm, CFILE *fp);
 
 #endif
 

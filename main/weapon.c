@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: weapon.c,v 1.2 2001-01-31 15:17:59 bradleyb Exp $";
+static char rcsid[] = "$Id: weapon.c,v 1.3 2002-07-26 09:22:05 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -1299,3 +1299,64 @@ void tactile_set_button_jolt ()
    }
   #endif
  }
+
+/*
+ * reads a weapon_info structure from a CFILE
+ */
+extern void weapon_info_read(weapon_info *wi, CFILE *fp)
+{
+	int i;
+	
+	wi->render_type = cfile_read_byte(fp);
+	wi->persistent = cfile_read_byte(fp);
+	wi->model_num = cfile_read_short(fp);
+	wi->model_num_inner = cfile_read_short(fp);
+
+	wi->flash_vclip = cfile_read_byte(fp);
+	wi->robot_hit_vclip = cfile_read_byte(fp);
+	wi->flash_sound = cfile_read_short(fp);		
+
+	wi->wall_hit_vclip = cfile_read_byte(fp);
+	wi->fire_count = cfile_read_byte(fp);
+	wi->robot_hit_sound = cfile_read_short(fp);
+		
+	wi->ammo_usage = cfile_read_byte(fp);
+	wi->weapon_vclip = cfile_read_byte(fp);
+	wi->wall_hit_sound = cfile_read_short(fp);		
+
+	wi->destroyable = cfile_read_byte(fp);
+	wi->matter = cfile_read_byte(fp);
+	wi->bounce = cfile_read_byte(fp);
+	wi->homing_flag = cfile_read_byte(fp);
+
+	wi->speedvar = cfile_read_byte(fp);
+	wi->flags = cfile_read_byte(fp);
+	wi->flash = cfile_read_byte(fp);
+	wi->afterburner_size = cfile_read_byte(fp);
+		
+	wi->children = cfile_read_byte(fp);
+
+	wi->energy_usage = cfile_read_fix(fp);
+	wi->fire_wait = cfile_read_fix(fp);
+		
+	wi->multi_damage_scale = cfile_read_fix(fp);
+		
+	wi->bitmap.index = cfile_read_short(fp);	// bitmap_index = short
+
+	wi->blob_size = cfile_read_fix(fp);
+	wi->flash_size = cfile_read_fix(fp);
+	wi->impact_size = cfile_read_fix(fp);
+	for (i = 0; i < NDL; i++)
+		wi->strength[i] = cfile_read_fix(fp);
+	for (i = 0; i < NDL; i++)
+		wi->speed[i] = cfile_read_fix(fp);
+	wi->mass = cfile_read_fix(fp);
+	wi->drag = cfile_read_fix(fp);
+	wi->thrust = cfile_read_fix(fp);
+	wi->po_len_to_width_ratio = cfile_read_fix(fp);
+	wi->light = cfile_read_fix(fp);
+	wi->lifetime = cfile_read_fix(fp);
+	wi->damage_radius = cfile_read_fix(fp);
+	wi->picture.index = cfile_read_short(fp);		// bitmap_index is a short
+	wi->hires_picture.index = cfile_read_short(fp);		// bitmap_index is a short
+}
