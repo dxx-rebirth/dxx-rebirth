@@ -1,4 +1,4 @@
-SUBDIRS = svgalib include
+SUBDIRS = include
 
 EXTRA_DIST = \
 alsadigi.c findfile.c hmiplay.c hmistub.c init.c \

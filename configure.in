@@ -202,8 +202,6 @@ arch/ogl/Makefile
 arch/ogl/include/Makefile
 arch/linux/Makefile
 arch/linux/include/Makefile
-arch/linux/svgalib/Makefile
-arch/linux/svgalib/include/Makefile
 arch/sdl/Makefile
 arch/win32/Makefile
 arch/win32/d3dframe/Makefile
