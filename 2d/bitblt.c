@@ -946,6 +946,12 @@ void show_fullscr(grs_bitmap *bm)
 {
 	grs_bitmap * const scr = &grd_curcanv->cv_bitmap;
 
+#ifdef OGL
+	if(bm->bm_type == BM_LINEAR && scr->bm_type == BM_OGL) {
+		ogl_ubitblt_i(scr->bm_w,scr->bm_h,0,0,bm->bm_w,bm->bm_h,0,0,bm,scr);//use opengl to scale, faster and saves ram. -MPM
+		return;
+	}
+#endif
 	if(scr->bm_type != BM_LINEAR) {
 		grs_bitmap *tmp = gr_create_bitmap(scr->bm_w, scr->bm_h);
 		gr_bitmap_scale_to(bm, tmp);

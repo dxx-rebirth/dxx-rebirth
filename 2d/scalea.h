@@ -55,10 +55,12 @@ void rep_movsb( ubyte * sbits, ubyte * dbits, int width );
 
 #else
 static inline void rep_stosb(char *ScreenPtr, int RunLength, int Color) {
+   int dummy[2];
    __asm__ __volatile__ ("cld; rep; stosb"
-    : : "D" (ScreenPtr), "c" (RunLength), "a" (Color) : "%ecx", "%edi");
+    : "=c" (dummy[0]), "=D" (dummy[1]) : "1" (ScreenPtr), "0" (RunLength), "a" (Color) );
 }
 static inline void scale_row_asm_transparent( ubyte * sbits, ubyte * dbits, int width, fix u, fix du ) {
+   int dummy[3];
    __asm__ __volatile__ (
 "0:           movl %%ebx, %%eax;"
 "             shrl $16, %%eax;"
@@ -70,8 +72,9 @@ static inline void scale_row_asm_transparent( ubyte * sbits, ubyte * dbits, int 
 "             incl %%edi;"
 "             decl %%ecx;"
 "             jne 0b"
- : : "S" (sbits), "D" (dbits), "c" (width), "b" (u), "d" (du)
- : "%eax", "%ebx", "%ecx", "%edi");
+ : "=c" (dummy[0]), "=b" (dummy[1]), "=D" (dummy[2])
+ : "S" (sbits), "2" (dbits), "0" (width), "1" (u), "d" (du)
+ : "%eax");
 }
 
 static inline void scale_row_asm( ubyte * sbits, ubyte * dbits, int width, fix u, fix du ) {

@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include <stdlib.h>
-//#include <d_malloc.h>
 #include <stdio.h>
 
 #include "u_mem.h"

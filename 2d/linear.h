@@ -280,6 +280,7 @@ static inline void modex_copy_column(ubyte * src, ubyte * dest, int num_pixels, 
 
 static inline void modex_copy_column_m(ubyte * src, ubyte * dest, int num_pixels, int src_rowsize, int dest_rowsize ) {
 /* #pragma aux modex_copy_column_m parm [esi] [edi] [ecx] [ebx] [edx] modify exact [ecx esi edi] = */
+ int dummy[3];
  __asm__ __volatile__ (
 "0: ;"
     "movb    (%%esi), %%al;"
@@ -291,12 +292,14 @@ static inline void modex_copy_column_m(ubyte * src, ubyte * dest, int num_pixels
     "addl   %%edx, %%edi;"
     "decl   %%ecx;"
     "jne    0b"
- : "=c" (num_pixels), "=S" (src), "=D" (dest) : "S" (src), "D" (dest), "c" (num_pixels), "b" (src_rowsize), "d" (dest_rowsize)
- :      "%eax");
+ : "=c" (dummy[0]), "=S" (dummy[1]), "=D" (dummy[2])
+ : "1" (src), "2" (dest), "0" (num_pixels), "b" (src_rowsize), "d" (dest_rowsize)
+ :      "%eax" );
 }
 
 static inline void modex_copy_scanline( ubyte * src, ubyte * dest, int npixels ) {
 /* #pragma aux modex_copy_scanline parm [esi] [edi] [ecx] modify exact [ecx esi edi eax ebx edx] */
+int dummy[3];
  __asm__ __volatile__ (
 "       movl %%ecx, %%ebx;"
 "       andl $3, %%ebx;"
@@ -325,12 +328,14 @@ static inline void modex_copy_scanline( ubyte * src, ubyte * dest, int npixels )
 "       decl %%ebx;"
 "       jne 2b;"
 "3:"
- : "=c" (npixels), "=S" (src), "=D" (dest): "S" (src), "D" (dest), "c" (npixels)
- :      "%eax", "%ebx", "%edx");
+ : "=c" (dummy[0]), "=S" (dummy[1]), "=D" (dummy[2])
+ : "1" (src), "2" (dest), "0" (npixels)
+ :      "%eax", "%ebx", "%edx" );
 }
 
 static inline void modex_copy_scanline_2x( ubyte * src, ubyte * dest, int npixels ) {
 /* #pragma aux modex_copy_scanline_2x parm [esi] [edi] [ecx] modify exact [ecx esi edi eax ebx edx] = */
+int dummy[3];
  __asm__ __volatile__ (
 "       movl %%ecx, %%ebx;"
 "       andl $3, %%ebx;"
@@ -359,8 +364,9 @@ static inline void modex_copy_scanline_2x( ubyte * src, ubyte * dest, int npixel
 "       decl %%ebx;"
 "       jne 2b;"
 "3:"
- : "=c" (npixels), "=S" (src), "=D" (dest): "S" (src), "D" (dest), "c" (npixels)
- :      "%eax", "%ebx", "%edx");
+ : "=c" (dummy[0]), "=S" (dummy[1]), "=D" (dummy[2])
+ : "1" (src), "2" (dest), "0" (npixels)
+ :      "%eax", "%ebx", "%edx" );
 }
 #elif defined _MSC_VER
 
