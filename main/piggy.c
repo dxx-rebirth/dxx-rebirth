@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.40 2003-10-11 20:14:44 btb Exp $ */
+/* $Id: piggy.c,v 1.41 2003-10-22 15:00:37 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.40 2003-10-11 20:14:44 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.41 2003-10-22 15:00:37 schaffner Exp $";
 #endif
 
 
@@ -2235,10 +2235,9 @@ void load_bitmap_replacements(char *level_name)
 /* calculate table to translate d1 bitmaps to current palette,
  * return -1 on error
  */
-int get_d1_colormap( ubyte *colormap )
+int get_d1_colormap( ubyte *d1_palette, ubyte *colormap )
 {
 	int freq[256];
-	ubyte d1_palette[256*3];
 	CFILE * palette_file = cfopen(D1_PALETTE, "rb");
 	if (!palette_file || cfilelength(palette_file) != 9472)
 		return -1;
@@ -2256,6 +2255,7 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
                      int bitmap_data_start, /* specific to file */
                      DiskBitmapHeader *bmh, /* header info for bitmap */
                      ubyte *(*get_mem)(int), /* function to find out where to store data */
+		     ubyte *d1_palette, /* what palette the bitmap has */
                      ubyte *colormap) /* how to translate bitmap's colors */
 {
 	int zsize;
@@ -2286,9 +2286,10 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	if (bmh->flags & BM_FLAG_RLE)
 		rle_remap(bitmap, colormap);
 	else
-		gr_remap_bitmap_good(bitmap, colormap, TRANSPARENCY_COLOR, -1);
+		gr_remap_bitmap_good(bitmap, d1_palette, TRANSPARENCY_COLOR, -1);
 	if (bmh->flags & BM_FLAG_RLE)
-		memcpy(&zsize, bitmap->bm_data, 4);
+		if (memcmp(&zsize, bitmap->bm_data, 4))
+			Warning("Swapping and remapping changed the size of this bitmap. Too bad!");
 }
 
 #define D1_MAX_TEXTURES 800
@@ -2362,6 +2363,7 @@ void load_d1_bitmap_replacements()
 	int N_bitmaps;
 	short d1_index, d2_index;
 	ubyte colormap[256];
+	ubyte d1_palette[256*3];
 	char *p;
 
 	d1_Piggy_fp = cfopen( D1_PIGFILE, "rb" );
@@ -2375,7 +2377,7 @@ void load_d1_bitmap_replacements()
 	//first, free up data allocated for old bitmaps
 	free_bitmap_replacements();
 
-	Assert( get_d1_colormap( colormap ) == 0 );
+	Assert( get_d1_colormap( d1_palette, colormap ) == 0 );
 
 	switch (cfilelength(d1_Piggy_fp)) {
 	case D1_SHAREWARE_10_PIGSIZE:
@@ -2424,7 +2426,7 @@ void load_d1_bitmap_replacements()
 			cfseek(d1_Piggy_fp, bitmap_header_start + (d1_index-1) * DISKBITMAPHEADER_D1_SIZE, SEEK_SET);
 			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
 
-			bitmap_read_d1( &GameBitmaps[d2_index], d1_Piggy_fp, bitmap_data_start, &bmh, &get_next_bitmap, colormap );
+			bitmap_read_d1( &GameBitmaps[d2_index], d1_Piggy_fp, bitmap_data_start, &bmh, &get_next_bitmap, d1_palette, colormap );
 			GameBitmapOffset[d2_index] = 0; // don't try to read bitmap from current d2 pigfile
 			GameBitmapFlags[d2_index] = bmh.flags;
 
@@ -2468,6 +2470,7 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 		int pig_data_start, bitmap_header_start, bitmap_data_start;
 		int i, N_bitmaps;
 		ubyte colormap[256];
+		ubyte d1_palette[256*3];
 
 		d1_Piggy_fp = cfopen(D1_PIGFILE, "rb");
 
@@ -2477,7 +2480,7 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 			return bitmap_num;
 		}
 
-		Assert( get_d1_colormap( colormap ) == 0 );
+		Assert( get_d1_colormap( d1_palette, colormap ) == 0 );
 
 		switch (cfilelength(d1_Piggy_fp)) {
 		case D1_SHAREWARE_10_PIGSIZE:
@@ -2520,7 +2523,7 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 			return bitmap_num;
 		}
 
-		bitmap_read_d1( new, d1_Piggy_fp, bitmap_data_start, &bmh, &my_d_malloc, colormap );
+		bitmap_read_d1( new, d1_Piggy_fp, bitmap_data_start, &bmh, &my_d_malloc, d1_palette, colormap );
 
 		cfclose(d1_Piggy_fp);
 	}

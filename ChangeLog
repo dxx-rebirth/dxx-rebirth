@@ -1,3 +1,8 @@
+2003-10-22 Martin Schaffner <maschaffner@gmx.ch>
+
+	* main/gamemine.c, main/piggy.c: fix "psychedelic" walls
+	in d1 prisons
+
 2003-10-21  Martin Schaffner  <maschaffner@icculus.org>
 
 	* main/gameseq.c, main/multi.c, main/multi.h: fix compilation

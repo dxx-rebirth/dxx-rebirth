@@ -1,4 +1,4 @@
-/* $Id: gamemine.c,v 1.25 2003-10-04 02:58:23 btb Exp $ */
+/* $Id: gamemine.c,v 1.26 2003-10-22 15:00:37 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -142,7 +142,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.25 2003-10-04 02:58:23 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.26 2003-10-22 15:00:37 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -306,10 +306,10 @@ int d1_tmap_num_unique(short d1_tmap_num) {
  */
 short convert_d1_tmap_num(short d1_tmap_num) {
 	switch (d1_tmap_num) {
-	case 0: case 2: case 4: case 5: // all refer to the same bitmap (exception to bijectivity rule)
+	case 0: case 2: case 4: case 5: // all refer to rock001 (exception to bijectivity rule)
 		return  d1_pig_present ? 137 : 43;  // grey (devil:95)
 	case   1: return 0;
-	case   3: return 1;
+	case   3: return 1; // rock021
 	case   6:  return  270; // blue
 	case   7:  return  271; // yellow
 	case   8: return 2;
@@ -440,10 +440,10 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 254: return 263;
 	case 255: return 264;
 	case 256: return 265;
-	case 257:  return  d1_pig_present ? 182 : 249;//246;
-	case 258:  return  d1_pig_present ? 183 : 251;//246;
-	case 259:  return  d1_pig_present ? 184 : 252;//246;
-	case 260:  return  d1_pig_present ? 185 : 256;//246;
+	case 257:  return  d1_pig_present ? 182 : 249;//246; brig001
+	case 258:  return  d1_pig_present ? 183 : 251;//246; brig002
+	case 259:  return  d1_pig_present ? 184 : 252;//246; brig003
+	case 260:  return  d1_pig_present ? 185 : 256;//246; brig004
 	case 261: return 273;
 	case 262: return 274;
 	case 263:  return  d1_pig_present ? 187 : 281;
