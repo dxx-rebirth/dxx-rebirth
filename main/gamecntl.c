@@ -115,6 +115,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #endif
 
+#ifdef SDL_INPUT
+#include <SDL/SDL.h>
+#endif
 
 extern void full_palette_save(void);
 extern void object_goto_prev_viewer(void);
@@ -491,6 +494,11 @@ int do_game_pause()
 	show_boxed_message(Pause_msg=msg);		  //TXT_PAUSE);
 	gr_update();
 
+#ifdef SDL_INPUT
+	/* give control back to the WM */
+	SDL_WM_GrabInput(SDL_GRAB_OFF);
+#endif
+
 	while (Game_paused) 
 	{
 		int screen_changed;
@@ -549,6 +557,11 @@ int do_game_pause()
 				render_gauges();
 		}
 	}
+
+#ifdef SDL_INPUT
+	/* keep the mouse from wandering in SDL/X11 */
+	SDL_WM_GrabInput(SDL_GRAB_ON);
+#endif
 
 	if (VR_screen_flags & VRF_COMPATIBLE_MENUS) {
 		clear_boxed_message();

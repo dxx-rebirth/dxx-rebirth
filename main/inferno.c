@@ -86,6 +86,10 @@ extern int Current_display_mode;        //$$ there's got to be a better way than
 #include "ui.h"
 #endif
 
+#ifdef SDL_INPUT
+#include <SDL/SDL.h>
+#endif
+
 #include "vers_id.h"
 
 void mem_init(void);
@@ -689,7 +693,19 @@ int main(int argc,char **argv)
 			#ifdef EDITOR
 				keyd_editor_mode = 0;
 			#endif
+
+#ifdef SDL_INPUT
+			/* keep the mouse from wandering in SDL/X11 */
+			SDL_WM_GrabInput(SDL_GRAB_ON);
+#endif
+
 			game();
+
+#ifdef SDL_INPUT
+			/* give control back to the WM */
+			SDL_WM_GrabInput(SDL_GRAB_OFF);
+#endif
+
 			if ( Function_mode == FMODE_MENU )
 				songs_play_song( SONG_TITLE, 1 );
 			break;
