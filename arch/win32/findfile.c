@@ -62,6 +62,7 @@ int	FileFindClose(void)
 }
 
 
+#if 0
 int GetFileDateTime(int filehandle, FILETIMESTRUCT *ftstruct)
 {
 	FILETIME filetime;
@@ -87,3 +88,4 @@ int SetFileDateTime(int filehandle, FILETIMESTRUCT *ftstruct)
 	if (retval) return 0;
 	else return 1;
 }
+#endif
