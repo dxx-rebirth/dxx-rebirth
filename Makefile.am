@@ -13,5 +13,6 @@ changelog::
 #@MAINT@ cd macros && $(MAKE) macros.dep
 
 EXTRA_DIST = \
+ChangeLog
 djgpp.bat djgpp.sh \
 cvshowto.txt readme.txt
