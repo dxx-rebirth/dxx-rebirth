@@ -1,5 +1,9 @@
 2003-11-06  Bradley Bell  <btb@icculus.org>
 
+	* arch/ogl/sdlgl.c: smash textures, for non-linux, for real
+
+2003-11-06  Bradley Bell  <btb@icculus.org>
+
 	* arch/ogl/gr.c, arch/ogl/sdlgl.c: smash textures on every
 	resolution change, use kludge to avoid repetitive res changes
 

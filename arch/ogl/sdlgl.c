@@ -1,4 +1,4 @@
-/* $Id: sdlgl.c,v 1.7 2003-11-06 08:58:53 btb Exp $ */
+/* $Id: sdlgl.c,v 1.8 2003-11-06 23:28:47 btb Exp $ */
 /*
  *
  * Graphics functions for SDL-GL.
@@ -35,7 +35,7 @@ int ogl_init_window(int x, int y){
 	if (gl_initialized){
 		if (x==curx && y==cury && curfull==ogl_fullscreen)
 			return 0;
-#ifndef __linux__ // Windows, at least, seems to need to reload every time.
+#ifdef __linux__ // Windows, at least, seems to need to reload every time.
 		if (ogl_fullscreen || curfull)
 #endif
 			ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
