@@ -327,6 +327,8 @@ int gr_uaaline(fix x0,fix y0,fix x1,fix y1);
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(int x,int y,grs_bitmap *bm);
 void gr_ubitmap(int x,int y,grs_bitmap *bm);
+void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst);
+
 // bitmap function with transparency
 void gr_bitmapm( int x, int y, grs_bitmap *bm );
 void gr_ubitmapm( int x, int y, grs_bitmap *bm );
@@ -481,5 +483,10 @@ int gr_check_fullscreen(void);
 int gr_toggle_fullscreen(void);
 
 #endif
+
+int gr_toggle_fullscreen_menu(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)
+
+//make this a define, since its used in several places
+#define KEYS_GR_TOGGLE_FULLSCREEN KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER: case KEY_ALTED+KEY_CTRLED+KEY_PADENTER: case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER
 
 #endif

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.8 2001-10-25 02:19:31 bradleyb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.9 2002-02-13 10:45:05 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1078,6 +1078,22 @@ WIN(static int saved_window_h);
 #endif
 
 	return 1;
+}
+
+int arch_toggle_fullscreen_menu(void);
+
+int gr_toggle_fullscreen_menu(void){
+#ifdef GR_SUPPORTS_FULLSCREEN_MENU_TOGGLE
+	int i;
+	i=arch_toggle_fullscreen_menu();
+
+	generic_key_handler(KEY_PADENTER,0);
+	key_flush();
+
+	return i;
+#else
+	return -1;
+#endif
 }
 
 static int timer_paused=0;
