@@ -1,4 +1,4 @@
-/* $Id: multi.h,v 1.14 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: multi.h,v 1.15 2004-10-23 18:59:02 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -180,7 +180,6 @@ void multi_send_macro(int key);
 int multi_get_kill_list(int *plist);
 void multi_new_game(void);
 void multi_sort_kill_list(void);
-int multi_choose_mission(int *anarchy_only);
 void multi_reset_stuff(void);
 
 void multi_send_data(char *buf, int len, int repeat);

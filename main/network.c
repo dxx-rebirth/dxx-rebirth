@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.24 2003-10-12 09:38:48 btb Exp $ */
+/* $Id: network.c,v 1.25 2004-10-23 18:59:02 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.24 2003-10-12 09:38:48 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.25 2004-10-23 18:59:02 schaffner Exp $";
 #endif
 
 #define PATCH12
@@ -3013,7 +3013,12 @@ int network_get_game_params( char * game_name, int *mode, int *game_flags, int *
 	Netgame.Allow_marker_view=1;
 	netgame_difficulty=Player_default_difficulty;
 
-	new_mission_num = multi_choose_mission(&anarchy_only);
+    ExtGameStatus=GAMESTAT_START_MULTIPLAYER_MISSION;
+    if (!select_mission(1, TXT_MULTI_MISSION))
+        return -1;
+
+	new_mission_num = Current_mission_num;
+    anarchy_only = Mission_list[new_mission_num].anarchy_only_flag;
 
 	if (new_mission_num < 0)
 		return -1;

@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.26 2004-08-29 17:57:23 schaffner Exp $ */
+/* $Id: mission.c,v 1.27 2004-10-23 18:59:02 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,6 +40,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mono.h"
 #include "error.h"
 #include "findfile.h"
+#include "config.h"
+#include "newmenu.h"
+#include "text.h"
 
 mle Mission_list[MAX_MISSIONS];
 
@@ -793,4 +796,39 @@ int load_mission_by_name(char *mission_name)
 			return load_mission(i);
 
 	return 0;		//couldn't find mission
+}
+
+int select_mission(int anarchy_mode, char *message)
+{
+    int n_missions;
+    
+    n_missions = build_mission_list(anarchy_mode);
+
+    if (n_missions <= 1) {
+        load_mission(0);
+    } else {
+        int new_mission_num,i, default_mission;
+        char * m[MAX_MISSIONS];
+
+        default_mission = 0;
+        for (i=0;i<n_missions;i++) {
+            m[i] = Mission_list[i].mission_name;
+            if ( !stricmp( m[i], config_last_mission ) )
+                default_mission = i;
+        }
+
+        new_mission_num = newmenu_listbox1( message, n_missions, m, 1, default_mission, NULL );
+
+        if (new_mission_num == -1)
+            return 0;         //abort!
+
+        strcpy(config_last_mission, m[new_mission_num]  );
+
+        if (!load_mission(new_mission_num)) {
+            nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
+            return 0;
+        }
+    }
+
+    return 1;
 }

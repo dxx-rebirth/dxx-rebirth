@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.37 2004-05-20 23:38:20 btb Exp $ */
+/* $Id: menu.c,v 1.38 2004-10-23 18:59:02 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -464,7 +464,7 @@ void do_option ( int select)
 		case MENU_JOIN_KALI_NETGAME:
 		case MENU_START_MCAST4_NETGAME:
 		case MENU_JOIN_MCAST4_NETGAME:
-			load_mission(Builtin_mission_num);
+//			load_mission(Builtin_mission_num);
 #ifdef MACINTOSH
 			Network_game_type = IPX_GAME;
 #endif
@@ -485,7 +485,7 @@ void do_option ( int select)
 
 #ifdef MACINTOSH
 		case MENU_START_APPLETALK_NETGAME:
-			load_mission(Builtin_mission_num);
+//			load_mission(Builtin_mission_num);
 			#ifdef MACINTOSH
 			Network_game_type = APPLETALK_GAME;
 			#endif
@@ -493,7 +493,7 @@ void do_option ( int select)
 			break;
 
 		case MENU_JOIN_APPLETALK_NETGAME:
-			load_mission(Builtin_mission_num);
+//			load_mission(Builtin_mission_num);
 			#ifdef MACINTOSH
 			Network_game_type = APPLETALK_GAME;
 			#endif
@@ -1060,36 +1060,10 @@ void do_screen_res_menu()
 void do_new_game_menu()
 {
 	int new_level_num,player_highest_level;
-	int n_missions;
 
-	n_missions = build_mission_list(0);
-
-	if (n_missions <= 1) {
-		load_mission(0);
-	} else {
-		int new_mission_num,i, default_mission;
-		char * m[MAX_MISSIONS];
-
-		default_mission = 0;
-		for (i=0;i<n_missions;i++) {
-			m[i] = Mission_list[i].mission_name;
-			if ( !stricmp( m[i], config_last_mission ) )
-				default_mission = i;
-		}
-
-		new_mission_num = newmenu_listbox1( "New Game\n\nSelect mission", n_missions, m, 1, default_mission, NULL );
-
-		if (new_mission_num == -1)
-			return;         //abort!
-
-		strcpy(config_last_mission, m[new_mission_num]  );
-
-		if (!load_mission(new_mission_num)) {
-			nm_messagebox( NULL, 1, TXT_OK, "Error in Mission file"); 
-			return;
-		}
-	}
-
+    if (!select_mission(0, "New Game\n\nSelect mission"))
+        return;
+    
 	new_level_num = 1;
 
 	player_highest_level = get_highest_level();

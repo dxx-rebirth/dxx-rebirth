@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.18 2004-10-09 15:59:28 schaffner Exp $ */
+/* $Id: mission.h,v 1.19 2004-10-23 18:59:02 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -99,13 +99,12 @@ extern char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
 //if there is only one mission, this function will call load_mission on it.
 int build_mission_list(int anarchy_mode);
 
-//loads the specfied mission from the mission list.  build_mission_list()
-//must have been called.  If build_mission_list() returns 0, this function
-//does not need to be called.  Returns true if mission loaded ok, else false.
-int load_mission(int mission_num);
-
 //loads the named mission if exists.
 //Returns true if mission loaded ok, else false.
 int load_mission_by_name(char *mission_name);
+
+//Handles creating and selecting from the mission list.
+//Returns 1 if a mission was loaded.
+int select_mission(int anarchy_mode, char *message);
 
 #endif

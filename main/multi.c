@@ -1,4 +1,4 @@
-/* $Id: multi.c,v 1.16 2004-08-01 16:28:33 schaffner Exp $ */
+/* $Id: multi.c,v 1.17 2004-10-23 18:59:02 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -459,45 +459,6 @@ get_team(int pnum)
 		return 1;
 	else
 		return 0;
-}
-
-int
-multi_choose_mission(int *anarchy_only)
-{
-	int i, n_missions;
-	int default_mission;
-	char *m[MAX_MISSIONS];
-	int new_mission_num = 0;
-
-	*anarchy_only = 0;
-
-	n_missions = build_mission_list(1);
-
-	if (n_missions > 1) {
-
-		default_mission = 0;
-		for (i=0;i<n_missions;i++) {
-			m[i] = Mission_list[i].mission_name;
-			if ( !stricmp( m[i], config_last_mission ) )
-				default_mission = i;
-		}
-
-      ExtGameStatus=GAMESTAT_START_MULTIPLAYER_MISSION;
-		new_mission_num = newmenu_listbox1(TXT_MULTI_MISSION, n_missions, m, 1, default_mission, NULL );
-
-		if (new_mission_num == -1)
-			return -1;      //abort!
-
-		strcpy(config_last_mission, m[new_mission_num]  );
-
-		if (!load_mission(new_mission_num)) {
-			nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
-			return -1;
-		}
-
-		*anarchy_only = Mission_list[new_mission_num].anarchy_only_flag;
-	}
-	return(new_mission_num);
 }
 
 extern void game_disable_cheats();
