@@ -1,5 +1,11 @@
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/win32/joyhh.c: remove joySetCapture in win32 joystick code,
+	apparently it was somehow causing some joysticks (Sidewinder
+	Precision 2) to only turn when the stick was moving, but not when
+	at turned but held stationary.  And it was completely unused
+	anyway.  Thanks to Stefan Ring for (somehow) finding this
+
 	* main/game.c: add alt+enter to toggle fullscreen (in addition to
 	previous key combos (d1x r1.29)
 

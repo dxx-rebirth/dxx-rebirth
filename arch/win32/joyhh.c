@@ -130,76 +130,6 @@ void joy_flush()	{
 }
 
 
-//Repalces joy_handler
-//Since Windows calls us directly, we have to get our time difference since last time ourselves
-//while in DOS we got it with the paramter ticks_this_time
-LRESULT joy_handler32(HWND hWnd, UINT joymsg, UINT wParam, LPARAM lParam)
-{
-	DWORD time_diff, time_now;
-	static DWORD time_last = 0xffffffff;
-	
-	Button_info *button;
-	int i;
-	int state=0;
-	DWORD value=0;
-
-	if (!joy_installed) return 1;
-	if (time_last == 0xffffffff) {
-		time_last = timer_get_fixed_seconds();
-		return 0;
-	}
-
-	if (joymsg==MM_JOY1MOVE)
-	{
-		JOYINFOEX	joy;
-
-		memset(&joy, 0, sizeof(joy));
-		joy.dwSize = sizeof(joy);
-		joy.dwFlags = JOY_RETURNBUTTONS | JOY_RETURNPOV;
-		if (joyGetPosEx(joystick.joyid, &joy)!=JOYERR_NOERROR) {
-			return 1;
-		}
-		value = joy.dwButtons;
-	}
-
-	time_now = timer_get_fixed_seconds();
-	if (time_now < time_last) {
-		time_last = abs(time_now-time_last);
-	}
-	time_diff = time_now - time_last;
-
-	for (i = 0; i < MAX_BUTTONS; i++)
-	{
-		button = &joystick.buttons[i];
-		
-		if (!button->ignore) {
-			if ( i < (MAX_BUTTONS-4) )
-				state = (value >> i) & 1;
-			else
-				state = 0;
-
-			if ( button->last_state == state )	{
-				if (state) {
-					button->timedown += time_diff;	//ticks_this_time;
-				}
-			} else {
-				if (state)	{
-					button->downcount += state;
-					button->state = 1;
-				} else {	
-					button->upcount += button->state;
-					button->state = 0;
-				}
-				button->last_state = state;
-			}
-		}
-	}
-
-	time_last = time_now;
-	return 0;
-}		
-
-
 //Begin section modified 3/7/99 - Owen Evans
 
 ubyte joy_read_raw_buttons()
@@ -329,10 +259,6 @@ int joy_init(int joyid) //HH: added joyid parameter
 	if (joySetThreshold(joyid, pjc.wXmax/256)!=JOYERR_NOERROR) {
 		return 0;
 	}
-	
-	if (joySetCapture(my_hwnd, joyid, JOY_POLL_RATE, FALSE)!=JOYERR_NOERROR) {
-		return 0;
-	}
 
         joystick.max_timer      = pjc.wPeriodMax;
 	joystick.axis_min[0]	= pjc.wXmin;
@@ -388,7 +314,6 @@ int joy_init(int joyid) //HH: added joyid parameter
 void joy_close()
 {
 	if (!joy_installed) return;
-	joyReleaseCapture(joystick.joyid); //HH: added to release joystick from the application. We ignore errors here
 	joy_installed = 0;
 }
 
