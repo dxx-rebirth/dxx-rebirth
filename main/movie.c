@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.4 2002-07-23 01:05:31 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.5 2002-07-23 08:22:12 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -479,6 +479,8 @@ movielib *init_new_movie_lib(char *filename,FILE *fp)
 
 	fread(&nfiles,4,1,fp);		//get number of files
 
+	con_printf(DEBUG_LEVEL, "movie: init_new_movie_lib: -> %d files\n", nfiles);
+
 	//table = d_malloc(sizeof(*table) + sizeof(ml_entry)*nfiles);
 	MALLOC(table, movielib, 1);
 	MALLOC(table->movies, ml_entry, nfiles);
@@ -495,9 +497,13 @@ movielib *init_new_movie_lib(char *filename,FILE *fp)
 		if ( n != 1 )
 			break;		//end of file (probably)
 
+		con_printf(DEBUG_LEVEL, "movie: init_new_movie_lib: -> %s\n", table->movies[i].name);
+
 		n = fread( &len, 4, 1, fp );
 		if ( n != 1 )
 			Error("error reading movie library <%s>",filename);
+
+		con_printf(DEBUG_LEVEL, "movie: init_new_movie_lib: --> %d\n", len);
 
 		table->movies[i].len = INTEL_INT(len);
 		table->movies[i].offset = offset;
