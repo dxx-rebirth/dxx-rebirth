@@ -1,4 +1,4 @@
-/* $Id: eswitch.c,v 1.4 2004-12-24 05:17:09 btb Exp $ */
+/* $Id: eswitch.c,v 1.5 2005-02-26 06:25:37 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: eswitch.c,v 1.4 2004-12-24 05:17:09 btb Exp $";
+static char rcsid[] = "$Id: eswitch.c,v 1.5 2005-02-26 06:25:37 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -269,37 +269,40 @@ int bind_wall_to_trigger() {
 	return 1;
 }
 
-int remove_trigger(segment *seg, short side)
-{    	
-	int trigger_num, t, w;
-
-	if (seg->sides[side].wall_num == -1) {
-		mprintf((0, "Can't remove trigger from wall_num -1\n"));	
-		return 0;
-	}
-
-	trigger_num = Walls[seg->sides[side].wall_num].trigger;
-
-	if (trigger_num != -1) {
-		Walls[seg->sides[side].wall_num].trigger = -1;
-		for (t=trigger_num;t<Num_triggers-1;t++)
-			Triggers[t] = Triggers[t+1];
+int remove_trigger_num(int trigger_num)
+{
+	if (trigger_num != -1)
+	{
+		int t, w;
 	
-		for (w=0; w<Num_walls; w++) {
-			if (Walls[w].trigger > trigger_num) 
+		Num_triggers--;
+		for (t = trigger_num; t < Num_triggers; t++)
+			Triggers[t] = Triggers[t + 1];
+	
+		for (w = 0; w < Num_walls; w++)
+		{
+			if (Walls[w].trigger == trigger_num)
+				Walls[w].trigger = -1;	// a trigger can be shared by multiple walls
+			else if (Walls[w].trigger > trigger_num) 
 				Walls[w].trigger--;
 		}
 
-		Num_triggers--;
-		for (t=0;t<Num_walls;t++)
-			if (Walls[seg->sides[side].wall_num].trigger > trigger_num)
-				Walls[seg->sides[side].wall_num].trigger--;
-		
 		return 1;
 	}
 
 	editor_status("No trigger to remove");
 	return 0;
+}
+
+int remove_trigger(segment *seg, short side)
+{    	
+	if (seg->sides[side].wall_num == -1)
+	{
+		mprintf((0, "Can't remove trigger from wall_num -1\n"));	
+		return 0;
+	}
+
+	return remove_trigger_num(Walls[seg->sides[side].wall_num].trigger);
 }
 
 

@@ -5,6 +5,9 @@
 
 	* ui/window.c: only disable the keyboard for MS DOS
 
+	* main/editor/eswitch.c: add remove_trigger_num
+	(used by gamesave.c)
+
 2005-02-25  Chris Taylor  <chris@icculus.org>
 
 	* arch/carbon/conf.h, D2X.make: no defining OGL in conf.h,
