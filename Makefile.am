@@ -52,4 +52,5 @@ ChangeLog \
 djgpp.bat djgpp.sh \
 autogen.sh cygconf \
 cvshowto.txt readme.txt installation.txt mingw32.txt compilerdefs.txt \
-d2x-sdl.sh d2x-gl.sh
+d2x-sdl.sh d2x-gl.sh \
+descent.mn2
