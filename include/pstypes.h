@@ -39,6 +39,7 @@ typedef unsigned long ulong;
 #include <stdint.h>
 typedef uint64_t u_int64_t;
 typedef uint32_t u_int32_t;
+typedef uint16_t u_int16_t;
 
 #elif defined __linux__
 # include <sys/types.h>
