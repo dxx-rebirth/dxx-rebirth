@@ -28,8 +28,8 @@ main(int argc, char *argv[])
 		argv++;
 	}
 
-	if (argc != 2) {
-		printf("Usage: hogextract [v] hogfile\n"
+	if (argc < 2) {
+		printf("Usage: hogextract [v] hogfile [filename]\n"
 		       "extracts all the files in hogfile into the current directory\n"
 			   "Options:\n"
 			   "  v    View files, don't extract\n");
@@ -45,19 +45,23 @@ main(int argc, char *argv[])
 	while(ftell(hogfile)<statbuf.st_size) {
 		fread(filename, 13, 1, hogfile);
 		fread(&len, sizeof(int), 1, hogfile);
-		printf("Filename: %s \tLength: %i\n", filename, len);
-		if (v)
+		if (argc > 2 && strcmp(argv[2], filename))
 			fseek(hogfile, len, SEEK_CUR);
 		else {
-			buf = (char *)malloc(len);
-			if (buf == NULL) {
-				printf("Unable to allocate memory\n");
-			} else {
-				fread(buf, len, 1, hogfile);
-				writefile = fopen(filename, "w");
-				fwrite(buf, len, 1, writefile);
-				fclose(writefile);
-				free(buf);
+			printf("Filename: %s \tLength: %i\n", filename, len);
+			if (v)
+				fseek(hogfile, len, SEEK_CUR);
+			else {
+				buf = (char *)malloc(len);
+				if (buf == NULL) {
+					printf("Unable to allocate memory\n");
+				} else {
+					fread(buf, len, 1, hogfile);
+					writefile = fopen(filename, "w");
+					fwrite(buf, len, 1, writefile);
+					fclose(writefile);
+					free(buf);
+				}
 			}
 		}
 	}
