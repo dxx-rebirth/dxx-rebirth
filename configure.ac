@@ -162,12 +162,12 @@ else
     [  --with-opengl           Build OpenGL support ],,)
   if test x$with_opengl = xyes; then
     for lib in $GL_LIBS; do
-	AC_CHECK_LIB($lib, main,
-	    OGL_LIBS="${OGL_LIBS} -l$lib",
-	    [AC_MSG_ERROR([$lib not found, --with-opengl cannot be used])
-	    opengl=false],
-	    ${OGL_LIBS}
-	)
+    AC_CHECK_LIB($lib, main,
+        OGL_LIBS="${OGL_LIBS} -l$lib",
+        [AC_MSG_ERROR([$lib not found, --with-opengl cannot be used])
+        opengl=false],
+        ${OGL_LIBS}
+    )
     done
     AC_DEFINE(OGL,,[Define if you want an OpenGL build])
     TARGETS=d2x-ogl
@@ -239,21 +239,21 @@ if test x$enable_assembler = xno; then
     D2X_FEATURES="no_asm ${D2X_FEATURES}"
 else
     if test x$NASM = xno; then
-	AC_MSG_ERROR([nasm not found. Install it or use --disable-assembler])
+    AC_MSG_ERROR([nasm not found. Install it or use --disable-assembler])
     else
         NASMFLAGS="-i\$(srcdir)/ $NASMFLAGS"
         case $host_os in
           cygwin)
               NASMFLAGS="-f win32 $NASMFLAGS"
               ;;
-	  msdosdjgpp)
-	      NASMFLAGS="-f coff $NASMFLAGS"
-	      ;;
+          msdosdjgpp)
+              NASMFLAGS="-f coff $NASMFLAGS"
+              ;;
           linux*)
               NASMFLAGS="-f elf -d__linux__ $NASMFLAGS"
               ;;
-	  *)
-	      AC_MSG_ERROR([Assembler not supported for this OS])
+          *)
+              AC_MSG_ERROR([Assembler not supported for this OS])
         esac
     fi
 fi
