@@ -1,5 +1,7 @@
 2004-05-19  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/wgl.c: implement SetGammaRamp on WGL (d1x r1.14)
+
 	* arch/ogl/gr.c, arch/ogl/internal.h, arch/ogl/sdlgl.c,
 	arch/ogl/wgl.c, include/ogl_init.h: implement brightness/palette
 	effects in OGL using SetGammaRamp, much faster than the hack that

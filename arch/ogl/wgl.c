@@ -1,4 +1,4 @@
-/* $Id: wgl.c,v 1.6 2004-05-20 02:04:29 btb Exp $ */
+/* $Id: wgl.c,v 1.7 2004-05-20 02:13:13 btb Exp $ */
 /*
  *
  * opengl platform specific functions for WGL - added by Peter Hawkins
@@ -53,7 +53,8 @@ static int GLSTATE_width,GLSTATE_height;
 static bool GLPREF_windowed;
 
 static HGLRC GL_ResourceContext=NULL;
-//static WORD Saved_gamma_values[256*3];
+static WORD Saved_gamma_values[256 * 3];
+static WORD gammaramp[256 * 3];
 bool OpenGL_Initialize(void);
 void OpenGL_Shutdown(void);
 
@@ -159,7 +160,16 @@ long PASCAL DescentWndProc(HWND hWnd,UINT message,
 
 int ogl_setbrightness_internal(void)
 {
-	return -1; // TODO: not yet implemented
+	int i;
+
+	for (i = 0; i < 256; ++i)
+		gammaramp[i] = min((i + ogl_brightness_r * 4) * 256, 0xffff);
+	for (i = 0; i < 256; ++i)
+		gammaramp[i + 256] = min((i + ogl_brightness_g * 4) * 256, 0xffff);
+	for (i = 0; i < 256; ++i)
+		gammaramp[i + 512] = min((i + ogl_brightness_b * 4) * 256, 0xffff);
+
+	return SetDeviceGammaRamp(hDC, (LPVOID)gammaramp) ? 0 : -1;
 }
 
 void ogl_swap_buffers_internal(void){
@@ -488,7 +498,7 @@ bool OpenGL_Initialize(void)
 	// Save our gamma values because we'll probably be changing them,
 	// this way we can restore them on exit
 
-//	GetDeviceGammaRamp(hDC,(LPVOID)Saved_gamma_values);
+	GetDeviceGammaRamp(hDC, (LPVOID)Saved_gamma_values);
 
 	return true;
 
@@ -517,7 +527,7 @@ void OpenGL_Shutdown(void)
 
 	// Restore gamma values
 
-//	SetDeviceGammaRamp(hDC,(LPVOID)Saved_gamma_values);
-	
+	SetDeviceGammaRamp(hDC, (LPVOID)Saved_gamma_values);
+
 	ReleaseDC(g_hWnd,hDC);
 }
