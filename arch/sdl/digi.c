@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.19 2004-11-29 06:09:06 btb Exp $ */
+/* $Id: digi.c,v 1.20 2004-11-29 07:34:27 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -131,18 +131,15 @@ struct sound_slot {
 	//end changes by adb
 	unsigned int length; // Length of the sample
 	unsigned int position; // Position we are at at the moment.
+	int soundobj;   // Which soundobject is on this channel
+	int persistent; // This can't be pre-empted
 } SoundSlots[MAX_SOUND_SLOTS];
 
 static SDL_AudioSpec WaveSpec;
 
-//added on 980905 by adb to add rotating/volume based sound kill system
 static int digi_max_channels = 16;
-static int next_handle = 0;
-int SampleHandles[32];
-void reset_sounds_on_channel(int channel);
-//end edit by adb
 
-void digi_reset_digi_sounds(void);
+static int next_channel = 0;
 
 /* Audio mixing callback */
 //changed on 980905 by adb to cleanup, add pan support and optimize mixer
@@ -199,9 +196,6 @@ int digi_init()
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO)<0) {
 		Error("SDL audio initialisation failed: %s.",SDL_GetError());
 	}
-	//added on 980905 by adb to init sound kill system
-	memset(SampleHandles, 255, sizeof(SampleHandles));
-	//end edit by adb
 	
 	WaveSpec.freq = digi_sample_rate;
 	//added/changed by Sam Lantinga on 12/01/98 for new SDL version
@@ -244,65 +238,76 @@ void digi_stop_all_channels()
 		digi_stop_sound(i);
 }
 
-static int get_free_slot()
-{
-	int i;
-	for (i=0; i<MAX_SOUND_SLOTS; i++) {
-		if (!SoundSlots[i].playing) return i;
-	}
-	return -1;
-}
 
+extern void digi_end_soundobj(int channel);	
+extern int SoundQ_channel;
+extern void SoundQ_end();
+int verify_sound_channel_free(int channel);
+
+// Volume 0-F1_0
 int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj)
 {
-	int ntries;
-	int slot;
+	int i, starting_channel;
 
 	if (!digi_initialised) return -1;
 
 	if (soundnum < 0) return -1;
 
-	//added on 980905 by adb from original source to add sound kill system
-	// play at most digi_max_channel samples, if possible kill sample with low volume
-	ntries = 0;
+	Assert(GameSounds[soundnum].data != (void *)-1);
 
-TryNextChannel:
-	if ( (SampleHandles[next_handle] >= 0) && (SoundSlots[SampleHandles[next_handle]].playing)  ) {
-		if ( (SoundSlots[SampleHandles[next_handle]].volume > digi_volume) && (ntries<digi_max_channels) ) {
-			//mprintf(( 0, "Not stopping loud sound %d.\n", next_handle ));
-			next_handle++;
-			if ( next_handle >= digi_max_channels )
-				next_handle = 0;
-			ntries++;
-			goto TryNextChannel;
+	starting_channel = next_channel;
+
+	while(1)
+	{
+		if (!SoundSlots[next_channel].playing)
+			break;
+
+		if (!SoundSlots[next_channel].persistent)
+			break;	// use this channel!	
+
+		next_channel++;
+		if (next_channel >= digi_max_channels)
+			next_channel = 0;
+		if (next_channel == starting_channel)
+		{
+			mprintf((1, "OUT OF SOUND CHANNELS!!!\n"));
+			return -1;
 		}
-		//mprintf(( 0, "[SS:%d]", next_handle ));
-		SoundSlots[SampleHandles[next_handle]].playing = 0;
-		SampleHandles[next_handle] = -1;
 	}
-	//end edit by adb
+	if (SoundSlots[next_channel].playing)
+	{
+		SoundSlots[next_channel].playing = 0;
+		if (SoundSlots[next_channel].soundobj > -1)
+		{
+			digi_end_soundobj(SoundSlots[next_channel].soundobj);
+		}
+		if (SoundQ_channel == next_channel)
+			SoundQ_end();
+	}
 
-	slot = get_free_slot();
-	if (slot<0) return -1;
+#ifndef NDEBUG
+	verify_sound_channel_free(next_channel);
+#endif
 
-	SoundSlots[slot].soundno = soundnum;
-	SoundSlots[slot].samples = GameSounds[soundnum].data;
-	SoundSlots[slot].length = GameSounds[soundnum].length;
-	SoundSlots[slot].volume = fixmul(digi_volume, volume);
-	SoundSlots[slot].pan = pan;
-	SoundSlots[slot].position = 0;
-	SoundSlots[slot].looped = looping;
-	SoundSlots[slot].playing = 1;
+	SoundSlots[next_channel].soundno = soundnum;
+	SoundSlots[next_channel].samples = GameSounds[soundnum].data;
+	SoundSlots[next_channel].length = GameSounds[soundnum].length;
+	SoundSlots[next_channel].volume = fixmul(digi_volume, volume);
+	SoundSlots[next_channel].pan = pan;
+	SoundSlots[next_channel].position = 0;
+	SoundSlots[next_channel].looped = looping;
+	SoundSlots[next_channel].playing = 1;
+	SoundSlots[next_channel].soundobj = soundobj;
+	SoundSlots[next_channel].persistent = 0;
+	if ((soundobj > -1) || (looping) || (volume > F1_0))
+		SoundSlots[next_channel].persistent = 1;
 
-	//added on 980905 by adb to add sound kill system from original sos digi.c
-	reset_sounds_on_channel(slot);
-	SampleHandles[next_handle] = slot;
-	next_handle++;
-	if ( next_handle >= digi_max_channels )
-		next_handle = 0;
-	//end edit by adb
+	i = next_channel;
+	next_channel++;
+	if (next_channel >= digi_max_channels)
+		next_channel = 0;
 
-	return slot;
+	return i;
 }
 
 // Returns the channel a sound number is playing on, or
@@ -324,17 +329,6 @@ int digi_find_channel(int soundno)
 	//FIXME: not implemented
 	return -1;
 }
-
- //added on 980905 by adb to add sound kill system from original sos digi.c
-void reset_sounds_on_channel( int channel )
-{
-	int i;
-
-	for (i=0; i<digi_max_channels; i++)
-		if (SampleHandles[i] == channel)
-			SampleHandles[i] = -1;
-}
-//end edit by adb
 
 
 //added on 980905 by adb from original source to make sfx volume work
@@ -387,7 +381,7 @@ void digi_set_max_channels(int n) {
 
 	if ( !digi_initialised ) return;
 
-	digi_reset_digi_sounds();
+	digi_stop_all_channels();
 }
 
 int digi_get_max_channels() { 
@@ -428,6 +422,8 @@ void digi_set_channel_pan(int channel, int pan)
 void digi_stop_sound(int channel)
 {
 	SoundSlots[channel].playing=0;
+	SoundSlots[channel].soundobj = -1;
+	SoundSlots[channel].persistent = 0;
 }
 
 void digi_end_sound(int channel)
@@ -437,18 +433,9 @@ void digi_end_sound(int channel)
 
 	if (!SoundSlots[channel].playing)
 		return;
-}
 
-void digi_reset_digi_sounds() {
-	int i;
-
-	for (i=0; i< MAX_SOUND_SLOTS; i++)
-		SoundSlots[i].playing=0;
- 
-	//added on 980905 by adb to reset sound kill system
-	memset(SampleHandles, 255, sizeof(SampleHandles));
-	next_handle = 0;
-	//end edit by adb
+	SoundSlots[channel].soundobj = -1;
+	SoundSlots[channel].persistent = 0;
 }
 
 

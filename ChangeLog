@@ -1,5 +1,7 @@
 2004-11-28  Bradley Bell  <btb@icculus.org>
 
+	* arch/sdl/digi.c: use d2src system for persistent sounds
+
 	* arch/sdl/digi.c, main/digi.h: original prototype in d2src is
 	wrong, I guess
 
