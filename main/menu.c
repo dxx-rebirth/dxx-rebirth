@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.32 2003-10-12 09:17:47 btb Exp $ */
+/* $Id: menu.c,v 1.33 2003-11-14 23:14:02 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -341,16 +341,15 @@ int DoMenu()
 		return 0;
 	}
 
-	create_main_menu(m, menu_choice, &num_options);
-
 	do {
+		create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
+
 		keyd_time_when_last_pressed = timer_get_fixed_seconds();                // .. 20 seconds from now!
 		if (main_menu_choice < 0 )
 			main_menu_choice = 0;
 		Menu_draw_copyright = 1;
 		main_menu_choice = newmenu_do2( "", NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
 		if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
-		create_main_menu(m, menu_choice, &num_options); //      may have to change, eg, maybe selected pilot and no save games.
 	} while( Function_mode==FMODE_MENU );
 
 //      if (main_menu_choice != -2)
