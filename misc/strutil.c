@@ -1,4 +1,4 @@
-/* $Id: strutil.c,v 1.11 2004-08-06 20:28:57 schaffner Exp $ */
+/* $Id: strutil.c,v 1.12 2004-12-03 18:39:20 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -29,24 +29,32 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int stricmp( const char *s1, const char *s2 )
 {
-	while( *s1 && *s2 )	{
-		if ( tolower(*s1) != tolower(*s2) )	return 1;
+	do {
+		int u1 = toupper((int) *s1);
+		int u2 = toupper((int) *s2);
+		if (u1 != u2)
+			return (u1 > u2) ? 1 : -1;
+
 		s1++;
 		s2++;
-	}
-	if ( *s1 || *s2 ) return 1;
+	} while (u1 && u2)
+
 	return 0;
 }
 
 int strnicmp( const char *s1, const char *s2, int n )
 {
-	while( *s1 && *s2 && n)	{
-		if ( tolower(*s1) != tolower(*s2) )	return 1;
+	do {
+		int u1 = toupper((int) *s1);
+		int u2 = toupper((int) *s2);
+		if (u1 != u2)
+			return (u1 > u2) ? 1 : -1;
+
 		s1++;
 		s2++;
 		n--;
-	}
-	if (n) return 1;
+	} while (u1 && u2 && n)
+
 	return 0;
 }
 #endif

@@ -1,3 +1,7 @@
+2004-12-03  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* misc/strutil.c: fix stricmp and strnicmp
+
 2004-12-02  Bradley Bell  <btb@icculus.org>
 
 	* include/physfsx.h: use sprintf in PHYSFSX_getRealPath() because
