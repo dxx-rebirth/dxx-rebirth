@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/hud.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: btb $
- * $Date: 2002-10-10 19:08:15 $
+ * $Date: 2002-10-11 05:14:59 $
  *
  * Routines for displaying HUD messages...
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2002/10/10 19:08:15  btb
+ * whitespace
+ *
  * Revision 1.3  2001/11/04 09:00:25  bradleyb
  * Enable d1x-style hud_message
  *
@@ -332,11 +335,11 @@ void HUD_render_message_frame()
 
 int PlayerMessage=1;
 
+
 // Call to flash a message on the HUD.  Returns true if message drawn.
 //  (message might not be drawn if previous message was same)
-int HUD_init_message(char * format, ... )
+int HUD_init_message_va(char * format, va_list args)
 {
-	va_list args;
 	int temp, temp2;
 	char *message = NULL;
 	char *last_message=NULL;
@@ -348,11 +351,9 @@ int HUD_init_message(char * format, ... )
 		Int3(); // Get Rob!!
 
 	// -- mprintf((0, "message timer: %7.3f\n", f2fl(HUD_message_timer)));
-	va_start(args, format );
 	message = &HUD_messages[hud_last][0];
 	vsprintf(message,format,args);
-	va_end(args);
-	
+
 	/* Produce a sanitised version and send it to the console */
 	cleanmessage = d_strdup(message);
 	for (temp=0,temp2=0; message[temp]!=0; temp++)
@@ -405,6 +406,19 @@ int HUD_init_message(char * format, ... )
 	HUD_nmessages++;
 
 	return 1;
+}
+
+
+int HUD_init_message(char * format, ... )
+{
+	int ret;
+	va_list args;
+
+	va_start(args, format);
+	ret = HUD_init_message_va(format, args);
+	va_end(args);
+
+	return ret;
 }
 
 
@@ -469,12 +483,13 @@ void player_dead_message(void)
 
 void hud_message(int class, char *format, ...)
 {
- va_list vp;
- va_start(vp, format);
-  if ((!MSG_Noredundancy || (class & MSGC_NOREDUNDANCY)) &&
-      (!MSG_Playermessages || !(Game_mode & GM_MULTI) ||
-      (class & MSGC_PLAYERMESSAGES)))
-   HUD_init_message(format, vp);
- va_end(vp);
+	va_list vp;
+
+	va_start(vp, format);
+	if ((!MSG_Noredundancy || (class & MSGC_NOREDUNDANCY)) &&
+	    (!MSG_Playermessages || !(Game_mode & GM_MULTI) ||
+	     (class & MSGC_PLAYERMESSAGES)))
+		HUD_init_message_va(format, vp);
+	va_end(vp);
 }
 
