@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.25 2004-05-20 23:38:18 btb Exp $ */
+/* $Id: gr.c,v 1.26 2004-05-22 07:55:34 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -713,7 +713,8 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){
 			}
 		}
 		x=0;y=w*h*3;
-		while (x<y){
+		while (y > 0)
+		{
 			r=write(f,buf+x,y);
 			if (r<=0){
 				mprintf((0,"screenshot error, couldn't write to %s (err %i)\n",savename,errno));
