@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.35 2004-11-28 07:32:12 btb Exp $ */
+/* $Id: titles.c,v 1.36 2005-02-25 09:53:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1420,7 +1420,7 @@ void do_briefing_screens(char *filename,int level_num)
 
 	mprintf ((0,"Trying briefing screen <%s>\n",filename));
 
-	if (!filename)
+	if (!filename || !*filename)
 		return;
 
 	if (!load_screen_text(filename, &Briefing_text))
