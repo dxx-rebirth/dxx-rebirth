@@ -681,7 +681,7 @@ void DrawCommandLine() {
 	}
 
 	if(Blink) {
-		int prompt_width, command_width, h, w;
+		int prompt_width, cmd_width, h, w;
 
 		gr_get_string_size(Topmost->Prompt, &prompt_width, &h, &w);
 		gr_get_string_size(Topmost->LCommand + Topmost->Offset, &cmd_width, &h, &w);
