@@ -1,4 +1,4 @@
-/* $Id: bitblt.c,v 1.9 2002-09-05 01:30:00 btb Exp $ */
+/* $Id: bitblt.c,v 1.10 2002-09-07 07:15:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -267,7 +267,7 @@ static void gr_linear_rep_movsdm(ubyte * src, ubyte * dest, unsigned int num_pix
 "nextpixel:"                \
     "mov    al,[esi]"       \
     "inc    esi"            \
-    "cmp    al, 255"        \
+    "cmp    al, " TRANSPARENCY_COLOR_STR   \
     "je skip_it"            \
     "mov    [edi], al"      \
 "skip_it:"                  \
@@ -283,7 +283,7 @@ static inline void gr_linear_rep_movsdm(ubyte * src, ubyte * dest, unsigned int 
 "0: ;"
 " movb  (%%esi), %%al;"
 " incl  %%esi;"
-" cmpb  $255, %%al;"
+" cmpb  $" TRANSPARENCY_COLOR_STR ", %%al;"
 " je    1f;"
 " movb  %%al,(%%edi);"
 "1: ;"
@@ -306,7 +306,7 @@ __inline void gr_linear_rep_movsdm(ubyte * src, ubyte * dest, unsigned int num_p
   mov ecx, [num_pixels]
   mov al,  [esi]
   inc esi
-  cmp al,  255
+  cmp al,  TRANSPARENCY_COLOR
   je skip_it
   mov [edi], al
   skip_it:
@@ -341,7 +341,7 @@ static void gr_linear_rep_movsdm_faded(ubyte * src, ubyte * dest, unsigned int n
 "nextpixel:"                        \
     "mov    al,[esi]"               \
     "inc    esi"                    \
-    "cmp    al, 255"                \
+    "cmp    al, " TRANSPARENCY_COLOR_STR     \
     "je skip_it"                    \
     "mov  al, gr_fade_table[eax]"   \
     "mov    [edi], al"              \
@@ -361,7 +361,7 @@ static inline void gr_linear_rep_movsdm_faded(ubyte * src, ubyte * dest, unsigne
 "0:;"
 "  movb   (%%esi), %%al;"
 "  incl   %%esi;"
-"  cmpb   $255, %%al;"
+"  cmpb   $" TRANSPARENCY_COLOR_STR ", %%al;"
 "  je 1f;"
 #ifdef __linux__
 "  movb   gr_fade_table(%%eax), %%al;"
@@ -392,7 +392,7 @@ __inline void gr_linear_rep_movsdm_faded(void * src, void * dest, unsigned int n
   nextpixel:
   mov al, [esi]
   inc esi
-  cmp al, 255
+  cmp al, TRANSPARENCY_COLOR
   je skip_it
   mov al, gr_fade_table[eax]
   mov [edi], al
@@ -600,7 +600,7 @@ static void modex_copy_column_m(ubyte * src, ubyte * dest, int num_pixels, int s
 "nextpixel:"            \
     "mov    al,[esi]"   \
     "add    esi, ebx"   \
-    "cmp    al, 255"    \
+    "cmp    al, " TRANSPARENCY_COLOR_STR   \
     "je skip_itx"       \
     "mov    [edi], al"  \
 "skip_itx:"             \
@@ -617,7 +617,7 @@ static inline void modex_copy_column_m(ubyte * src, ubyte * dest, int num_pixels
 "0: ;"
     "movb    (%%esi), %%al;"
     "addl    %%ebx, %%esi;"
-    "cmpb    $255, %%al;"
+    "cmpb    $" TRANSPARENCY_COLOR_STR ", %%al;"
     "je 1f;"
     "movb   %%al, (%%edi);"
 "1: ;"
@@ -1947,6 +1947,25 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 			else
 				gr_ubitmap00m( x, y, bm );
 			return;
+#ifdef OGL
+		case BM_OGL:
+			ogl_ubitmapm(x,y,bm);
+			return;
+#endif
+#ifdef D1XD3D
+		case BM_DIRECTX:
+			if (bm->bm_w < 35 && bm->bm_h < 35) {
+				// ugly hack needed for reticle
+				if ( bm->bm_flags & BM_FLAG_RLE )
+					gr_bm_ubitblt0x_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap, 1 );
+				else
+					gr_ubitmapGENERICm(x, y, bm);
+				return;
+			}
+			Assert ((int)grd_curcanv->cv_bitmap.bm_data == BM_D3D_RENDER || (int)grd_curcanv->cv_bitmap.bm_data == BM_D3D_DISPLAY);
+			Win32_BlitLinearToDirectX_bm(bm, 0, 0, bm->bm_w, bm->bm_h, x, y, 1);
+			return;
+#endif
 #ifdef __MSDOS__
 		case BM_SVGA:
 			if (bm->bm_flags & BM_FLAG_RLE)
