@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.43 2005-02-25 05:20:36 chris Exp $ */
+/* $Id: gr.c,v 1.44 2005-02-25 06:31:53 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -531,6 +531,8 @@ int gr_init()
 void gr_close()
 {
 //	mprintf((0,"ogl init: %s %s %s - %s\n",glGetString(GL_VENDOR),glGetString(GL_RENDERER),glGetString(GL_VERSION),glGetString,(GL_EXTENSIONS)));
+	ogl_brightness_r = ogl_brightness_g = ogl_brightness_b = 0;
+	ogl_setbrightness_internal();
 
 	ogl_close();//platform specific code
 	if (grd_curscreen){

@@ -1,3 +1,9 @@
+2005-02-24  Matthew Mueller  <donut@dakotacom.net>
+
+	* arch/ogl/gr.c: restore gamma ramp on exit since some drivers
+	don't do it automatically (eg, ati's fglrx linux driver) (d1x
+	r1.41)
+
 2005-02-24  Bradley Bell  <btb@icculus.org>
 
 	* main/movie.c: change movie Warnings to con_printf, simplify
