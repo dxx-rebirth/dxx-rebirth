@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.29 2005-01-25 20:46:55 schaffner Exp $ */
+/* $Id: gamesave.c,v 1.30 2005-01-25 21:58:23 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.29 2005-01-25 20:46:55 schaffner Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.30 2005-01-25 21:58:23 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -1332,14 +1332,20 @@ int load_level(char * filename_passed)
 
 	#ifdef EDITOR
 		//if we have the editor, try the LVL first, no matter what was passed.
-		//if we don't have an LVL, try RDL  
+		//if we don't have an LVL, try what was passed or RL2  
 		//if we don't have the editor, we just use what was passed
 	
 		change_filename_extension(filename,filename_passed,".lvl");
 		use_compiled_level = 0;
 	
-		if (!cfexist(filename))	{
-			change_filename_extension(filename,filename,".rl2");
+		if (!cfexist(filename))
+		{
+			char *p = strrchr(filename_passed, '.');
+
+			if (stricmp(p, ".lvl"))
+				strcpy(filename, filename_passed);	// set to what was passed
+			else
+				change_filename_extension(filename, filename, ".rl2");
 			use_compiled_level = 1;
 		}		
 	#endif

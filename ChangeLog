@@ -22,7 +22,8 @@
 	* ui/menubar.c: specify int type for state2_alt_down
 	* main/editor/eglobal.c: remove variable New_segment (is now a macro)
 	* main/piggy.c: call bm_read_all even if EDITOR is defined
-	
+	* main/gamesave.c: if LVL can't be found, try filename that was passed
+
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* 2d/font.c: fix bug #2167: some characters would not display because
