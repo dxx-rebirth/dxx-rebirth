@@ -1,4 +1,4 @@
-/* $Id: rbaudio.c,v 1.6 2003-03-19 19:21:34 btb Exp $ */
+/* $Id: rbaudio.c,v 1.7 2003-03-20 04:05:12 btb Exp $ */
 /*
  *
  * SDL CD Audio functions
@@ -160,4 +160,44 @@ int RBAPeekPlayStatus()
 int CD_blast_mixer()
 {
 	return 0;
+}
+
+
+static int cddb_sum(int n)
+{
+	int ret;
+
+	/* For backward compatibility this algorithm must not change */
+
+	ret = 0;
+
+	while (n > 0) {
+		ret = ret + (n % 10);
+		n = n / 10;
+	}
+
+	return (ret);
+}
+
+
+unsigned long RBAGetDiscID()
+{
+	int i, t = 0, n = 0;
+
+	if (!initialised)
+		return 0;
+
+	/* For backward compatibility this algorithm must not change */
+
+	i = 0;
+
+	while (i < s_cd->numtracks) {
+		n = n + cddb_sum(s_cd->track[i].length / CD_FPS);
+		i++;
+	}
+
+	t = (s_cd->track[s_cd->numtracks].length / CD_FPS) -
+	    (s_cd->track[0].length / CD_FPS);
+
+	return ((n % 0xff) << 24 | t << 8 | s_cd->numtracks);
 }

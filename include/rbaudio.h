@@ -54,4 +54,7 @@ extern int	RBAResume();
 //is called.  Returns 0 if no track playing, else track number
 int RBAGetTrackNum();
 
+// get the cddb discid for the current cd.
+unsigned long RBAGetDiscID();
+
 #endif
