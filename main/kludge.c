@@ -2,7 +2,7 @@
 #include <conf.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+
 #include "gr.h"
 #include "pstypes.h"
 #include "maths.h"

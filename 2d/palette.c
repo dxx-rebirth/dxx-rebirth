@@ -1,4 +1,4 @@
-/* $Id: palette.c,v 1.9 2003-06-10 07:31:38 btb Exp $ */
+/* $Id: palette.c,v 1.10 2003-06-10 17:50:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -147,6 +147,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "pstypes.h"
 #include "u_mem.h"
@@ -163,6 +164,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 
 extern int gr_installed;
+
+#define SQUARE(x) ((x)*(x))
+
+#define	MAX_COMPUTED_COLORS	32
+
+int	Num_computed_colors=0;
+
+typedef struct {
+	ubyte	r,g,b,color_num;
+} color_record;
+
+color_record Computed_colors[MAX_COMPUTED_COLORS];
 
 ubyte gr_palette[256*3];
 ubyte gr_current_pal[256*3];
@@ -237,6 +250,11 @@ void gr_use_palette_table( char * filename )
 		gr_fade_table[i*256+255] = 255;
 	}
 
+	Num_computed_colors = 0;	//	Flush palette cache.
+#if defined(POLY_ACC)
+	pa_update_clut(gr_palette, 0, 256, 0);
+#endif
+
 // swap colors 0 and 255 of the palette along with fade table entries
 
 #ifdef SWAP_0_255
@@ -254,18 +272,6 @@ void gr_use_palette_table( char * filename )
 		gr_fade_table[i*256] = TRANSPARENCY_COLOR;
 #endif
 }
-
-#define SQUARE(x) ((x)*(x))
-
-#define	MAX_COMPUTED_COLORS	32
-
-int	Num_computed_colors=0;
-
-typedef struct {
-	ubyte	r,g,b,color_num;
-} color_record;
-
-color_record Computed_colors[MAX_COMPUTED_COLORS];
 
 //	Add a computed color (by gr_find_closest_color) to list of computed colors in Computed_colors.
 //	If list wasn't full already, increment Num_computed_colors.
