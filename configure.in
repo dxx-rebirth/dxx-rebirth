@@ -44,11 +44,17 @@ if test "$OSTYPE" = "MSDOS"; then
 
 else
   CFLAGS="-D_REENTRANT -pipe $CFLAGS"
+  AM_CONDITIONAL(ENV_CYGWIN, test "$CYGWIN" = "yes")
+
   AM_CONDITIONAL(ENV_LINUX, test "$OSTYPE" != "MSDOS")
   AC_DEFINE(__ENV_LINUX__)
 
 
-  AC_CHECK_LIB(SDL, SDL_Init, SDL_LIBS="-lSDL", AC_MSG_ERROR(The SDL which is required not found.),-ldl -lpthread)
+  if test "$CYGWIN" = "yes"; then
+    AC_CHECK_LIB(SDL, SDL_Init, SDL_LIBS="-lSDL", AC_MSG_ERROR(The SDL which is required not found.))
+  else
+    AC_CHECK_LIB(SDL, SDL_Init, SDL_LIBS="-lSDL", AC_MSG_ERROR(The SDL which is required not found.),-ldl -lpthread)
+  fi
   AC_CHECK_HEADERS(netipx/ipx.h)
   AC_SUBST(SDL_LIBS)
 
@@ -211,7 +217,6 @@ arch/ogl/Makefile
 arch/ogl/include/Makefile
 arch/linux/Makefile
 arch/linux/include/Makefile
-arch/sdl/Makefile
 arch/win32/Makefile
 arch/win32/d3dframe/Makefile
 arch/win32/include/Makefile

@@ -22,7 +22,9 @@ typedef signed char byte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
-#ifdef __ENV_LINUX__
+#if defined __CYGWIN__
+typedef unsigned long ulong;
+#elif defined __ENV_LINUX__
 # include <sys/types.h>
 # define _MAX_PATH 1024
 # define _MAX_DIR 256

@@ -10,7 +10,11 @@ if USE_NETWORK
 libarch_a_SOURCES = linux_init.c linux_findfile.c sdl_init.c sdl_timer.c \
 	linux_ipx_bsd.c linux_ipx_lin.c linux_ipx_udp.c linux_net.c
 else
+if ENV_CYGWIN
+libarch_a_SOURCES = linux_init.c win32_findfile.c sdl_init.c sdl_timer.c
+else
 libarch_a_SOURCES = linux_init.c linux_findfile.c sdl_init.c sdl_timer.c
+endif
 endif
 endif
 
@@ -18,7 +22,8 @@ EXTRA_libarch_a_SOURCES = \
 	dos_init.c dos_vesa.c dos_findfile.c dos_dpmi.c dos_ipx.c \
 	linux_init.c linux_findfile.c \
 	linux_net.c linux_ipx_bsd.c linux_ipx_lin.c linux_ipx_udp.c \
-	sdl_init.c sdl_timer.c
+	sdl_init.c sdl_timer.c \
+	win32_findfile.c
 
 SUFFIXES = .asm
 %.o: %.asm

@@ -16,7 +16,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 char *d_strdup(char *str);
 
-#ifdef __ENV_LINUX__
+#if defined __CYGWIN__
+/* nothing needed */
+
+#elif defined __ENV_LINUX__
 #define stricmp(a,b) strcasecmp(a,b)
 #define strnicmp(a,b,c) strncasecmp(a,b,c)
 

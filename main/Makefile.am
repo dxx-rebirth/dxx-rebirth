@@ -12,7 +12,11 @@ LDFLAGS = -export-dynamic
 
 d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
 
+if ENV_CYGWIN
+d2x_sdl_LDADD = ${d2x_LDADD} -lm ${SDL_LIBS}
+else
 d2x_sdl_LDADD = ${d2x_LDADD} -lm -ldl -lpthread ${SDL_LIBS}
+endif
 d2x_ogl_LDADD = ${d2x_sdl_LDADD} ${OGL_LIBS}
 d2x_svga_LDADD = ${d2x_sdl_LDADD} ${SVGA_LIBS}
 d2x_ggi_LDADD = ${d2x_sdl_LDADD} ${GGI_LIBS}

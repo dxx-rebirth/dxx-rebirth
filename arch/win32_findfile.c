@@ -11,12 +11,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: findfile.c,v 1.1.1.1 2001-01-19 03:30:15 bradleyb Exp $";
-#pragma on (unreferenced)
-
-#define _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "findfile.h"

@@ -59,7 +59,7 @@ int strnicmp( char *s1, char *s2, int n )
 
 #endif
 
-#ifndef __ENV_DJGPP__
+#if !defined __ENV_DJGPP__ && !defined __CYGWIN__
 
 void strlwr( char *s1 )
 {

@@ -15,8 +15,13 @@ if USE_SVGALIB
 libinput_a_SOURCES = linux_joydefs.c linux_joystick.c \
 svgalib_event.c svgalib_key.c svgalib_mouse.c svgalib_init.c
 else
+if ENV_CYGWIN
+libinput_a_SOURCES = sdl_event.c sdl_key.c sdl_mouse.c \
+win32_joydefs.c win32_joyhh.c
+else
 libinput_a_SOURCES = linux_joydefs.c linux_joystick.c \
 sdl_event.c sdl_key.c sdl_mouse.c
+endif
 endif
 endif
 endif
@@ -26,7 +31,8 @@ dos_key.c dos_joyc.c dos_joydefs.c dos_mouse.c \
 ggi_event.c ggi_key.c ggi_mouse.c \
 linux_joydefs.c linux_joystick.c \
 sdl_event.c sdl_key.c sdl_mouse.c \
-svgalib_event.c svgalib_key.c svgalib_mouse.c svgalib_init.c
+svgalib_event.c svgalib_key.c svgalib_mouse.c svgalib_init.c \
+win32_joydefs.c win32_joyhh.c
 
 SUFFIXES = .asm
 %.o: %.asm
