@@ -1,3 +1,7 @@
+2003-02-26  Bradley Bell  <btb@icculus.org>
+
+	* main/gamemine.c: texture conversion for d1 shareware
+
 2003-02-26  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/gamemine.c: better texture conversion for d1 levels

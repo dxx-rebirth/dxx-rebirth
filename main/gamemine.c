@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.18 2003-02-27 04:31:04 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.19 2003-02-27 04:34:51 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -140,6 +140,8 @@ struct mfi_v19 {
 };
 
 int CreateDefaultNewSegment();
+
+int	New_file_format_load = 1;
 
 #define TMAP_NUM_MASK 0x3FFF
 
@@ -416,8 +418,27 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 		if (d1_tmap_num >= 316 && d1_tmap_num <= 326)
 			return d1_tmap_num + 11;
 		// wall01 and door frames:
-		if (d1_tmap_num > 370 && d1_tmap_num < 584)
-			return d1_tmap_num + 64;
+		if (New_file_format_load) {
+			if (d1_tmap_num > 370 && d1_tmap_num < 584)
+				return d1_tmap_num + 64;
+		} else {
+			if (d1_tmap_num > 370 && d1_tmap_num <= 409)
+				return d1_tmap_num + 68;
+			if (d1_tmap_num >= 410 && d1_tmap_num <= 416)
+				return d1_tmap_num + 73;
+			if (d1_tmap_num >= 417 && d1_tmap_num <= 445)
+				return d1_tmap_num + 91;
+			if (d1_tmap_num >= 446 && d1_tmap_num <= 452)
+				return d1_tmap_num + 104;
+			if (d1_tmap_num >= 453 && d1_tmap_num <= 461)
+				return d1_tmap_num + 111;
+			if (d1_tmap_num >= 462 && d1_tmap_num <= 485)
+				return d1_tmap_num + 117;
+			if (d1_tmap_num >= 486 && d1_tmap_num <= 493)
+				return d1_tmap_num + 141;
+			if (d1_tmap_num >= 494 && d1_tmap_num < 584)
+				return d1_tmap_num + 147;
+		}
 		{ // handle rare case where orientation != 0
 			short tmap_num = d1_tmap_num &  TMAP_NUM_MASK;
 			short orient = d1_tmap_num & ~TMAP_NUM_MASK;
@@ -882,8 +903,6 @@ int load_mine_data(CFILE *LoadFile)
 
 #define COMPILED_MINE_VERSION 0
 
-int	New_file_format_load = 1;
-
 void read_children(int segnum,ubyte bit_mask,CFILE *LoadFile)
 {
 	int bit;
@@ -930,6 +949,8 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
 		New_file_format_load = 0; // descent 1 shareware
+	else
+		New_file_format_load = 1;
 
 	//	For compiled levels, textures map to themselves, prevent tmap_override always being gray,
 	//	bug which Matt and John refused to acknowledge, so here is Mike, fixing it.
@@ -1028,15 +1049,15 @@ int load_mine_data_compiled(CFILE *LoadFile)
 					Segments[segnum].sides[sidenum].tmap_num = cfile_read_short(LoadFile);
 
 				if (Gamesave_current_version <= 1)
-				  Segments[segnum].sides[sidenum].tmap_num = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num);
+					Segments[segnum].sides[sidenum].tmap_num = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num);
 
 				if (New_file_format_load && !(temp_ushort & 0x8000))
 					Segments[segnum].sides[sidenum].tmap_num2 = 0;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
 					Segments[segnum].sides[sidenum].tmap_num2 = cfile_read_short(LoadFile);
-					if (Gamesave_current_version <= 1)
-					  Segments[segnum].sides[sidenum].tmap_num2 = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num2);
+					if (Gamesave_current_version <= 1 && Segments[segnum].sides[sidenum].tmap_num2 != 0)
+						Segments[segnum].sides[sidenum].tmap_num2 = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num2);
 				}
 
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
