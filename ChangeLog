@@ -1,5 +1,7 @@
 2003-03-23  Bradley Bell  <btb@icculus.org>
 
+	* main/bm.c: stop extra robots from overwriting exit models
+
 	* include/ogl_init.h: increased OGL_TEXTURE_LIST_SIZE so the
 	texture list doesn't get full
 

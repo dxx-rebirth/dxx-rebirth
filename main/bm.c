@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.24 2003-03-23 22:39:58 btb Exp $ */
+/* $Id: bm.c,v 1.25 2003-03-23 23:34:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -229,8 +229,6 @@ int load_exit_models()
 		exit_hamfile = cfopen(":Data:exit.ham","rb");
 #endif
 
-		exit_modelnum = N_polygon_models++;
-		destroyed_exit_modelnum = N_polygon_models++;
 		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
 		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 		Polygon_models[exit_modelnum].first_texture = start_num;
@@ -355,8 +353,12 @@ void bm_read_all(CFILE * fp)
 	if (Piggy_hamfile_version < 3) {
 		exit_modelnum = cfile_read_int(fp);
 		destroyed_exit_modelnum = cfile_read_int(fp);
+	} else {
+		exit_modelnum = N_polygon_models++;
+		destroyed_exit_modelnum = N_polygon_models++;
+		Polygon_models[exit_modelnum].model_data = NULL;
+		Polygon_models[destroyed_exit_modelnum].model_data = NULL;
 	}
-
 }
 
 #define D1_MAX_TEXTURES 800
@@ -508,7 +510,7 @@ void bm_read_all_d1(CFILE * fp)
 //extra items added after the release get written in an additional hamfile
 #define N_D2_ROBOT_TYPES		66
 #define N_D2_ROBOT_JOINTS		1145
-#define N_D2_POLYGON_MODELS		166
+#define N_D2_POLYGON_MODELS     166 + 2 // add 2 for exit models
 #define N_D2_OBJBITMAPS			422
 #define N_D2_OBJBITMAPPTRS		502
 #define N_D2_WEAPON_TYPES		62
