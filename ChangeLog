@@ -1,3 +1,7 @@
+2004-05-20  Bradley Bell  <btb@icculus.org>
+
+	* main/inferno.c: document -ihaveabrokenmouse
+
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 
 	* arch/dos/vesa.c: dos gcc 2.95 asm fixes (d1x r1.2)

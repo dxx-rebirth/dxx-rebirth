@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.79 2004-05-20 23:36:16 btb Exp $ */
+/* $Id: inferno.c,v 1.80 2004-05-21 01:54:39 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1024,6 +1024,7 @@ void print_commandline_help()
 
 	printf( "D2X System Options:\n\n");
 #ifdef __MSDOS__
+	printf("  -ihaveabrokenmouse %s\n", "try to make mouse work if it is not currently");
 	printf( "  -joy209         %s\n", "Use alternate port 209 for joystick");
 #endif
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
