@@ -1,5 +1,8 @@
 2003-04-02  Bradley Bell  <btb@icculus.org>
 
+	* main/wall.c: don't die when trying to toggle nonexistent
+	segment... vertigo level 10 is buggy!
+
 	* main/gamemine.c: comments/formatting
 
 2003-03-31  Micah J. Lieske  <MicahJon@compuserve.com>

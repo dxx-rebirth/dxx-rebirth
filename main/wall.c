@@ -1,4 +1,4 @@
-/* $Id: wall.c,v 1.8 2003-03-19 23:20:59 btb Exp $ */
+/* $Id: wall.c,v 1.9 2003-04-03 07:12:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.8 2003-03-19 23:20:59 btb Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.9 2003-04-03 07:12:46 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1123,9 +1123,13 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 // Opens doors/destroys wall/shuts off triggers.
 void wall_toggle(segment *seg, int side)
 {
-	int wall_num; 
+	int wall_num;
 
-	Assert( seg-Segments <= Highest_segment_index);
+	if (seg - Segments > Highest_segment_index)
+	{
+		Warning("Can't toggle side %d of segment %d - nonexistent segment!\n", side, seg-Segments);
+		return;
+	}
 	Assert( side < MAX_SIDES_PER_SEGMENT );
 
 	wall_num = seg->sides[side].wall_num;
