@@ -1,4 +1,4 @@
-/* $Id: mve_main.c,v 1.7 2003-11-27 04:52:18 btb Exp $ */
+/* $Id: mve_main.c,v 1.8 2004-06-01 07:49:07 btb Exp $ */
 
 #include <stdlib.h>
 #include <string.h>
@@ -221,7 +221,7 @@ static int doPlay(const char *filename)
 	memset(g_palette, 0, 768);
 
 	MVE_sndInit(1);
-	MVE_memCallbacks(malloc, free);
+	MVE_memCallbacks((mve_cb_Alloc)malloc, free);
 	MVE_ioCallbacks(fileRead);
 	MVE_sfCallbacks(showFrame);
 	MVE_palCallbacks(setPalette);

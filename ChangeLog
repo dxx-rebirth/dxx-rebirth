@@ -1,5 +1,7 @@
 2004-06-01  Bradley Bell  <btb@icculus.org>
 
+	* libmve/mve_main.c: cast malloc function pointer
+
 	* MVEPlayer-Info.plist, d2x.xcode/project.pbxproj: added MVEPlayer
 	target to XCode project
 
