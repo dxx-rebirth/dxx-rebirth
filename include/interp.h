@@ -1,4 +1,4 @@
-/* $Id: interp.h,v 1.1 2003-01-02 23:13:21 btb Exp $ */
+/* $Id: interp.h,v 1.2 2003-01-02 23:31:50 btb Exp $ */
 /*
  *
  * took out functions declarations from include/3d.h
@@ -13,7 +13,7 @@
 //#include "vecmat.h" //the vector/matrix library
 #include "gr.h"
 #include "cfile.h"
-#include "main/polyobj.h"
+#include "3d.h"
 
 //Object functions:
 
@@ -36,8 +36,5 @@ bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angve
 //this remaps the 15bpp colors for the models into a new palette.  It should
 //be called whenever the palette changes
 void g3_remap_interp_colors(void);
-
-// routine which allocates, reads, and inits a polymodel's model_data
-void polygon_model_data_read(polymodel *pm, CFILE *fp);
 
 #endif //_INTERP_H

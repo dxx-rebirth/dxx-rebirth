@@ -1,4 +1,4 @@
-/* $Id: polyobj.h,v 1.4 2002-08-26 06:52:47 btb Exp $ */
+/* $Id: polyobj.h,v 1.5 2003-01-02 23:31:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -102,5 +102,10 @@ extern void polymodel_read(polymodel *pm, CFILE *fp);
  */
 extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp);
 #endif
+
+/*
+ * routine which allocates, reads, and inits a polymodel's model_data
+ */
+void polygon_model_data_read(polymodel *pm, CFILE *fp);
 
 #endif

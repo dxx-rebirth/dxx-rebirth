@@ -1,3 +1,4 @@
+/* $Id: morph.c,v 1.3 2003-01-02 23:31:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,16 +8,138 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Morphing code
+ *
+ * Old Log:
+ * Revision 1.5  1995/08/23  21:36:10  allender
+ * mcc compiler warnings fixed
+ *
+ * Revision 1.4  1995/08/12  11:34:19  allender
+ * removed #ifdef NEWDEMO -- always in
+ *
+ * Revision 1.3  1995/07/28  15:39:51  allender
+ * removed fixdiv thing
+ *
+ * Revision 1.2  1995/07/28  15:21:23  allender
+ * inverse magnitude fixup thing
+ *
+ * Revision 1.1  1995/05/16  15:28:05  allender
+ * Initial revision
+ *
+ * Revision 2.1  1995/02/27  18:26:33  john
+ * Fixed bug that was caused by externing Polygon_models, and I had
+ * changed the type of it in polyobj.c, thus causing page faults.
+ *
+ * Revision 2.0  1995/02/27  11:27:44  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.35  1995/02/22  14:45:37  allender
+ * remove anonymous unions from object structure
+ *
+ * Revision 1.34  1995/01/14  19:16:52  john
+ * First version of new bitmap paging code.
+ *
+ * Revision 1.33  1995/01/03  20:38:36  john
+ * Externed MAX_MORPH_OBJECTS
+ *
+ * Revision 1.32  1994/11/17  15:34:04  matt
+ * Attempt #4 to fix morph bug
+ *
+ * Revision 1.31  1994/11/15  10:57:14  matt
+ * Tried again to fix morph
+ *
+ * Revision 1.30  1994/11/14  14:06:45  matt
+ * Fixed stupid bug
+ *
+ * Revision 1.29  1994/11/14  11:55:13  matt
+ * Added divide overflow check
+ *
+ * Revision 1.28  1994/09/26  17:28:14  matt
+ * Made new multiple-object morph code work with the demo system
+ *
+ * Revision 1.27  1994/09/26  15:39:56  matt
+ * Allow multiple simultaneous morphing objects
+ *
+ * Revision 1.26  1994/09/11  22:44:59  mike
+ * quick on vecmat function.
+ *
+ * Revision 1.25  1994/08/26  15:36:00  matt
+ * Made eclips usable on more than one object at a time
+ *
+ * Revision 1.24  1994/07/25  00:02:46  matt
+ * Various changes to accomodate new 3d, which no longer takes point numbers
+ * as parms, and now only takes pointers to points.
+ *
+ * Revision 1.23  1994/07/12  12:39:58  matt
+ * Revamped physics system
+ *
+ * Revision 1.22  1994/06/28  11:54:51  john
+ * Made newdemo system record/play directly to/from disk, so
+ * we don't need the 4 MB buffer anymore.
+ *
+ * Revision 1.21  1994/06/27  15:53:01  john
+ * #define'd out the newdemo stuff
+ *
+ *
+ * Revision 1.20  1994/06/16  14:30:19  matt
+ * Moved morph record data call to reder routine
+ *
+ * Revision 1.19  1994/06/16  13:57:23  matt
+ * Added support for morphing objects in demos
+ *
+ * Revision 1.18  1994/06/16  12:24:23  matt
+ * Made robot lighting not mess with Lighting_on so robots now night
+ * according to this variable.
+ *
+ * Revision 1.17  1994/06/14  16:55:01  matt
+ * Got rid of physics_object speed field
+ *
+ * Revision 1.16  1994/06/08  21:16:29  matt
+ * Made objects spin while morphing
+ *
+ * Revision 1.15  1994/06/08  18:21:53  matt
+ * Made morphing objects light correctly
+ *
+ * Revision 1.14  1994/06/07  16:50:49  matt
+ * Made object lighting work correctly; changed name of Ambient_light to
+ * Dynamic_light; cleaned up polygobj object rendering a little.
+ *
+ * Revision 1.13  1994/06/01  16:33:59  yuan
+ * Fixed bug.
+ *
+ *
+ * Revision 1.12  1994/06/01  16:29:08  matt
+ * If morph_frame called on object this isn't the morph object, kill it.
+ *
+ * Revision 1.11  1994/06/01  12:46:34  matt
+ * Added needed include
+ *
+ * Revision 1.10  1994/05/31  22:12:41  matt
+ * Set lighting for morph objects
+ * Don't let another object start morph while one is morphing, unless
+ * that one dies.
+ *
+ * Revision 1.9  1994/05/31  18:49:53  john
+ * Took out debugging printf's that Matt left in.
+ *
+ * Revision 1.8  1994/05/30  22:50:22  matt
+ * Added morph effect for robots
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: morph.c,v 1.2 2001-01-31 15:17:54 bradleyb Exp $";
+static char rcsid[] = "$Id: morph.c,v 1.3 2003-01-02 23:31:50 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -39,6 +162,7 @@ static char rcsid[] = "$Id: morph.c,v 1.2 2001-01-31 15:17:54 bradleyb Exp $";
 
 #include "mono.h"
 #include "bm.h"
+#include "interp.h"
 
 morph_data morph_objects[MAX_MORPH_OBJECTS];
 

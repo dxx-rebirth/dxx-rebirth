@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.9 2003-01-02 23:13:21 btb Exp $ */
+/* $Id: interp.c,v 1.10 2003-01-02 23:31:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.9 2003-01-02 23:13:21 btb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.10 2003-01-02 23:31:50 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -858,20 +858,4 @@ void g3_init_polygon_model(void *model_ptr)
 	highest_texture_num = -1;
 
 	init_model_sub((ubyte *) model_ptr);
-}
-
-// routine which allocates, reads, and inits a polymodel's model_data
-void polygon_model_data_read(polymodel *pm, CFILE *fp)
-{
-	pm->model_data = d_malloc(pm->model_data_size);
-	Assert(pm->model_data != NULL);
-	cfread(pm->model_data, sizeof(ubyte), pm->model_data_size, fp );
-#ifdef WORDS_NEED_ALIGNMENT
-	align_polygon_model_data(pm);
-#endif
-#ifdef WORDS_BIGENDIAN
-	swap_polygon_model_data(pm->model_data);
-#endif
-	//verify(pm->model_data);
-	g3_init_polygon_model(pm->model_data);
 }

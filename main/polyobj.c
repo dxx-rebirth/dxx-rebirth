@@ -1,4 +1,4 @@
-/* $Id: polyobj.c,v 1.8 2002-08-08 09:09:43 btb Exp $ */
+/* $Id: polyobj.c,v 1.9 2003-01-02 23:31:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.8 2002-08-08 09:09:43 btb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.9 2003-01-02 23:31:50 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -33,7 +33,7 @@ static char rcsid[] = "$Id: polyobj.c,v 1.8 2002-08-08 09:09:43 btb Exp $";
 #include "polyobj.h"
 
 #include "vecmat.h"
-#include "3d.h"
+#include "interp.h"
 #include "error.h"
 #include "mono.h"
 #include "u_mem.h"
@@ -834,3 +834,22 @@ extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp)
 	return i;
 }
 #endif
+
+
+/*
+ * routine which allocates, reads, and inits a polymodel's model_data
+ */
+void polygon_model_data_read(polymodel *pm, CFILE *fp)
+{
+	pm->model_data = d_malloc(pm->model_data_size);
+	Assert(pm->model_data != NULL);
+	cfread(pm->model_data, sizeof(ubyte), pm->model_data_size, fp );
+#ifdef WORDS_NEED_ALIGNMENT
+	align_polygon_model_data(pm);
+#endif
+#ifdef WORDS_BIGENDIAN
+	swap_polygon_model_data(pm->model_data);
+#endif
+	//verify(pm->model_data);
+	g3_init_polygon_model(pm->model_data);
+}
