@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.32 2004-08-01 13:01:39 schaffner Exp $ */
+/* $Id: gr.c,v 1.33 2004-08-01 14:22:54 schaffner Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -719,12 +719,10 @@ void gr_palette_read(ubyte * pal)
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
 void write_bmp(char *savename,int w,int h,unsigned char *buf){
-	int f;
-#ifdef _WIN32
-	f=open(savename,O_CREAT|O_EXCL|O_WRONLY,S_IREAD|S_IWRITE);
-#else
-	f=open(savename,O_CREAT|O_EXCL|O_WRONLY,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
-#endif
+	CFILE *f;
+
+	f = cfopen(savename, "wb");
+		
 	if (f>=0){
 		GLubyte    targaMagic[12] = { 0, //no identification field
 			 0,//no colormap
@@ -736,13 +734,11 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){
 		int x,y;
 		
 		//write .TGA header.
-		write (f,targaMagic,sizeof(targaMagic));
-		blah=w%256;write (f,&blah,1);//w, low
-		blah=w/256;write (f,&blah,1);//w, high
-		blah=h%256;write (f,&blah,1);//h, low
-		blah=h/256;write (f,&blah,1);//h, high
-		blah=24;write (f,&blah,1);//24 bpp
-		blah=0;write (f,&blah,1);//no attribute bits, origin is lowerleft, no interleave
+		cfwrite (targaMagic,sizeof(targaMagic),1,f);
+		cfile_write_short (w,f);
+        cfile_write_short (h,f);
+		cfile_write_byte (24,f);//24 bpp
+		cfile_write_byte (0,f);//no attribute bits, origin is lowerleft, no interleave
 		
 		s=buf;
 		for (y=0;y<h;y++){//TGAs use BGR ordering of data.
@@ -756,14 +752,14 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){
 		x=0;y=w*h*3;
 		while (y > 0)
 		{
-			r=write(f,buf+x,y);
+			r=cfwrite(buf+x,1,y,f);
 			if (r<=0){
 				mprintf((0,"screenshot error, couldn't write to %s (err %i)\n",savename,errno));
 				break;
 			}
 			x+=r;y-=r;
 		}
-		close(f);
+		cfclose(f);
 	}else{
 		mprintf((0,"screenshot error, couldn't open %s (err %i)\n",savename,errno));
 	}

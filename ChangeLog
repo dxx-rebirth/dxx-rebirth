@@ -14,6 +14,8 @@
 
 	* main/playsave.c: do not seek while writing, carbon does not like it
 
+	* arch/ogl/gr.c: use portable CFILE instead of POSIX file in write_bmp
+
 2004-06-26  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/gamemine.c, main/gamemine.h, main/gamesave.c: remove some
