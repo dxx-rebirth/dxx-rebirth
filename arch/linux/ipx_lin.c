@@ -1,12 +1,15 @@
 /*
- * $Source: /cvs/cvsroot/d2x/arch/linux_ipx_lin.c,v $
- * $Revision: 1.2 $
+ * $Source: /cvs/cvsroot/d2x/arch/linux/ipx_lin.c,v $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:35:08 $
+ * $Date: 2001-10-19 07:29:37 $
  *
  * Linux IPX
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 13:35:08  bradleyb
+ * Fixed build system, minor fixes
+ *
  */
 
 #ifdef HAVE_CONFIG_H

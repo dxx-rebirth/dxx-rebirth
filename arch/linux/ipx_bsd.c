@@ -1,20 +1,22 @@
 /*
- * $Source: /cvs/cvsroot/d2x/arch/linux_ipx_bsd.c,v $
- * $Revision: 1.2 $
+ * $Source: /cvs/cvsroot/d2x/arch/linux/ipx_bsd.c,v $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:35:08 $
+ * $Date: 2001-10-19 07:29:36 $
  *
  * IPX driver using BSD style sockets
  * Mostly taken from dosemu
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 13:35:08  bradleyb
+ * Fixed build system, minor fixes
+ *
  */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
-#include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <string.h>
@@ -32,7 +34,6 @@
 #include <unistd.h>
 #include <errno.h>
 
-#include "pstypes.h"
 #include "ipx_drv.h"
 #include "ipx_bsd.h"
 
@@ -42,6 +43,8 @@
 #define enter_priv_on()
 #define leave_priv_setting()
 #endif
+
+static ipx_socket_t mysock;
 
 static int ipx_bsd_GetMyAddress( void )
 {
@@ -89,7 +92,7 @@ static int ipx_bsd_GetMyAddress( void )
   return(0);
 }
 
-static int ipx_bsd_OpenSocket(ipx_socket_t *sk, int port)
+static int ipx_bsd_OpenSocket(int port)
 {
   int sock;			/* sock here means Linux socket handle */
   int opt;
@@ -179,18 +182,21 @@ static int ipx_bsd_OpenSocket(ipx_socket_t *sk, int port)
     }
   }
   leave_priv_setting();
-  sk->fd = sock;
-  sk->socket = port;
+  mysock.fd = sock;
+  mysock.socket = port;
+
+  ipx_bsd_GetMyAddress();
+
   return 0;
 }
 
-static void ipx_bsd_CloseSocket(ipx_socket_t *mysock) {
+static void ipx_bsd_CloseSocket(void) {
   /* now close the file descriptor for the socket, and free it */
-  n_printf("IPX: closing file descriptor on socket %x\n", mysock->socket);
-  close(mysock->fd);
+  n_printf("IPX: closing file descriptor on socket %x\n", mysock.socket);
+  close(mysock.fd);
 }
 
-static int ipx_bsd_SendPacket(ipx_socket_t *mysock, IPXPacket_t *IPXHeader,
+static int ipx_bsd_SendPacket(IPXPacket_t *IPXHeader,
  u_char *data, int dataLen) {
   struct sockaddr_ipx ipxs;
  
@@ -203,36 +209,46 @@ static int ipx_bsd_SendPacket(ipx_socket_t *mysock, IPXPacket_t *IPXHeader,
 /*  ipxs.sipx_network = htonl(MyNetwork); */
   }
   memcpy(&ipxs.sipx_node, IPXHeader->Destination.Node, 6);
-  memcpy(&ipxs.sipx_port, IPXHeader->Destination.Socket, 2);
+  //memcpy(&ipxs.sipx_port, IPXHeader->Destination.Socket, 2);
+  ipxs.sipx_port=htons(mysock.socket);
   ipxs.sipx_type = IPXHeader->PacketType;
   /*	ipxs.sipx_port=htons(0x452); */
-  return sendto(mysock->fd, data, dataLen, 0,
+  return sendto(mysock.fd, data, dataLen, 0,
 	     (struct sockaddr *) &ipxs, sizeof(ipxs));
 }
 
-static int ipx_bsd_ReceivePacket(ipx_socket_t *s, char *buffer, int bufsize, 
+static int ipx_bsd_ReceivePacket(char *buffer, int bufsize, 
  struct ipx_recv_data *rd) {
 	int sz, size;
 	struct sockaddr_ipx ipxs;
  
 	sz = sizeof(ipxs);
-	if ((size = recvfrom(s->fd, buffer, bufsize, 0,
+	if ((size = recvfrom(mysock.fd, buffer, bufsize, 0,
 	     (struct sockaddr *) &ipxs, &sz)) <= 0)
 	     return size;
 	memcpy(rd->src_network, &ipxs.sipx_network, 4);
 	memcpy(rd->src_node, ipxs.sipx_node, 6);
 	rd->src_socket = ipxs.sipx_port;
-	rd->dst_socket = s->socket;
+	rd->dst_socket = mysock.socket;
 	rd->pkt_type = ipxs.sipx_type;
   
 	return size;
 }
 
+static int ipx_bsd_general_PacketReady(void) {
+	return ipx_general_PacketReady(mysock.fd);
+}
+
 struct ipx_driver ipx_bsd = {
-	ipx_bsd_GetMyAddress,
+//	ipx_bsd_GetMyAddress,
 	ipx_bsd_OpenSocket,
 	ipx_bsd_CloseSocket,
 	ipx_bsd_SendPacket,
 	ipx_bsd_ReceivePacket,
-	ipx_general_PacketReady
+	ipx_bsd_general_PacketReady,
+	NULL,
+	1,
+	NULL,
+	NULL,
+	NULL
 };

@@ -1,3 +1,19 @@
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/linux/ukali.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-19 07:29:37 $
+ *
+ * FIXME: add description
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <string.h>
@@ -11,7 +27,7 @@
 #include <fcntl.h>
 #include "ukali.h"
 //added 05/17/99 Matt Mueller - needed to redefine FD_* so that no asm is used
-//#include "checker.h"
+#include "checker.h"
 //end addition -MM
 int g_sockfd = -1;
 struct sockaddr_in kalinix_addr;

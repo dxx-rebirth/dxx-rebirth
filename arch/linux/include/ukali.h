@@ -1,3 +1,15 @@
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/linux/include/ukali.h,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-19 07:29:37 $
+ *
+ * FIXME: add description
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifndef __UKALI_H__
 #define __UKALI_H__
 
@@ -50,7 +62,7 @@ typedef struct kaliaddr_ipx_tag {
 // Process name that shows up in /whois and /games list.
 // Maximum of 8 characters.
 //edited on 10/04/98 by Matt Mueller to show correct ver in kali
-#define KALI_PROCESS_NAME "D1X" D1XMAJOR D1XMINOR
+#define KALI_PROCESS_NAME "D2X" VERSION
 //end edit -MM
 #define MAX_PACKET_SIZE 1500
 
@@ -69,4 +81,4 @@ int KaliCloseSocket(int hand);
 int KaliSendPacket(int hand, char *data, int len, kaliaddr_ipx *to);
 int KaliReceivePacket(int hand, char *data, int len, kaliaddr_ipx *from);
 
-#endif  __UKALI_H__
+#endif // __UKALI_H__

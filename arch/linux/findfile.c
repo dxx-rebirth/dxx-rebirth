@@ -1,12 +1,15 @@
 /*
- * $Source: /cvs/cvsroot/d2x/arch/linux_findfile.c,v $
- * $Revision: 1.2 $
+ * $Source: /cvs/cvsroot/d2x/arch/linux/findfile.c,v $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:35:08 $
+ * $Date: 2001-10-19 07:29:36 $
  *
  * Linux findfile functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 13:35:08  bradleyb
+ * Fixed build system, minor fixes
+ *
  */
 
 #ifdef HAVE_CONFIG_H

@@ -1,15 +1,30 @@
-/* IPX driver for KaliNix interface */
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/linux/ipx_kali.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-19 07:29:36 $
+ *
+ * IPX driver for KaliNix interface
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <netinet/in.h> /* for htons & co. */
 #include "ipx_drv.h"
 #include "ukali.h"
 
-extern unsigned char ipx_MyAddress[10];
+static ipx_socket_t mysock;
 
 static int open_sockets = 0;
 static int dynamic_socket = 0x401;
-static int last_socket = 0;
+//static int last_socket = 0;
 
 int have_empty_address() {
 	int i;
@@ -33,7 +48,7 @@ int ipx_kali_GetMyAddress(void) {
 	return 0;
 }
 
-int ipx_kali_OpenSocket(ipx_socket_t *sk, int port) {
+int ipx_kali_OpenSocket(int port) {
 	printf("IPX_kali: OpenSocket on port(%d)\n", port);
 
 	if (!open_sockets) {
@@ -47,53 +62,54 @@ int ipx_kali_OpenSocket(ipx_socket_t *sk, int port) {
 	if (!port)
 		port = dynamic_socket++;
 
-	if ((sk->fd = KaliOpenSocket(htons(port))) < 0) {
+	if ((mysock.fd = KaliOpenSocket(htons(port))) < 0) {
 		printf("IPX_kali: OpenSocket Failed on port(%d)\n", port);
-		sk->fd = -1;
+		mysock.fd = -1;
 		return -1;
 	}
 	open_sockets++;
-	last_socket = port;
-	sk->socket = port;
+//	last_socket = port;
+	mysock.socket = port;
 	return 0;
 }
 
-void ipx_kali_CloseSocket(ipx_socket_t *mysock) {
+void ipx_kali_CloseSocket(void) {
 	if (!open_sockets) {
 		printf("IPX_kali: close w/o open\n");
 		return;
 	}
-	printf("IPX_kali: CloseSocket on port(%d)\n", mysock->socket);
-	KaliCloseSocket(mysock->fd);
+	printf("IPX_kali: CloseSocket on port(%d)\n", mysock.socket);
+	KaliCloseSocket(mysock.fd);
 	if (--open_sockets) {
 		printf("IPX_kali: (closesocket) %d sockets left\n", open_sockets);
 		return;
 	}
 }
 
-int ipx_kali_SendPacket(ipx_socket_t *mysock, IPXPacket_t *IPXHeader,
+int ipx_kali_SendPacket(IPXPacket_t *IPXHeader,
  u_char *data, int dataLen) {
 	kaliaddr_ipx toaddr;
 	int i;
  
 	memcpy(toaddr.sa_nodenum, IPXHeader->Destination.Node, sizeof(toaddr.sa_nodenum));
-	memcpy(&toaddr.sa_socket, IPXHeader->Destination.Socket, sizeof(toaddr.sa_socket));
+//	memcpy(&toaddr.sa_socket, IPXHeader->Destination.Socket, sizeof(toaddr.sa_socket));
+	toaddr.sa_socket=htons(mysock.socket);
 
-	if ((i = KaliSendPacket(mysock->fd, (char *)data, dataLen, &toaddr)) < 0)
+	if ((i = KaliSendPacket(mysock.fd, (char *)data, dataLen, &toaddr)) < 0)
 		return -1;
 
 	return i;
 }
 
-int ipx_kali_ReceivePacket(ipx_socket_t *s, char *outbuf, int outbufsize, 
+int ipx_kali_ReceivePacket(char *outbuf, int outbufsize, 
  struct ipx_recv_data *rd) {
 	int size;
 	kaliaddr_ipx fromaddr;
 
-	if ((size = KaliReceivePacket(s->fd, outbuf, outbufsize, &fromaddr)) < 0)
+	if ((size = KaliReceivePacket(mysock.fd, outbuf, outbufsize, &fromaddr)) < 0)
 		return -1;
 
-	rd->dst_socket = s->socket;
+	rd->dst_socket = mysock.socket;
 	rd->src_socket = ntohs(fromaddr.sa_socket);
 	memcpy(rd->src_node, fromaddr.sa_nodenum, sizeof(fromaddr.sa_nodenum));
 	memset(rd->src_network, 0, 4);
@@ -102,11 +118,20 @@ int ipx_kali_ReceivePacket(ipx_socket_t *s, char *outbuf, int outbufsize,
 	return size;
 }
 
+static int ipx_kali_general_PacketReady(void) {
+	return ipx_general_PacketReady(mysock.fd);
+}
+
 struct ipx_driver ipx_kali = {
-	ipx_kali_GetMyAddress,
+//	ipx_kali_GetMyAddress,
 	ipx_kali_OpenSocket,
 	ipx_kali_CloseSocket,
 	ipx_kali_SendPacket,
 	ipx_kali_ReceivePacket,
-	ipx_general_PacketReady
+	ipx_kali_general_PacketReady,
+	NULL,
+	1,
+	NULL,
+	NULL,
+	NULL
 };

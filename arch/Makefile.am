@@ -1,6 +1,6 @@
 SUBDIRS = @D2X_ARCH_SUBDIRS@
-DIST_SUBDIRS = win32
-EXTRA_SUBDIRS = dos include linux
+DIST_SUBDIRS = win32 linux
+EXTRA_SUBDIRS = dos include
 
 noinst_LIBRARIES = libarch.a
 INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(top_srcdir)/arch/include
@@ -8,26 +8,12 @@ INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/main -I$(top_srcdir)/arch/in
 if ENV_DJGPP
 libarch_a_SOURCES = dos_init.c dos_vesa.c dos_findfile.c dos_dpmi.c dos_ipx.c
 else
-if USE_NETWORK
-if MINGW32
 libarch_a_SOURCES = linux_init.c sdl_init.c sdl_timer.c
-else
-libarch_a_SOURCES = linux_init.c linux_findfile.c sdl_init.c sdl_timer.c \
-	linux_ipx_bsd.c linux_ipx_lin.c linux_ipx_udp.c linux_net.c
-endif
-else
-if MINGW32
-libarch_a_SOURCES = linux_init.c sdl_init.c sdl_timer.c
-else
-libarch_a_SOURCES = linux_init.c linux_findfile.c sdl_init.c sdl_timer.c
-endif
-endif
 endif
 
 EXTRA_libarch_a_SOURCES = \
 	dos_init.c dos_vesa.c dos_findfile.c dos_dpmi.c dos_ipx.c \
-	linux_init.c linux_findfile.c \
-	linux_net.c linux_ipx_bsd.c linux_ipx_lin.c linux_ipx_udp.c \
+	linux_init.c \
 	sdl_init.c sdl_timer.c
 
 SUFFIXES = .asm

@@ -1,7 +1,15 @@
-/* 
+/*
+ * $Source: /cvs/cvsroot/d2x/arch/linux/include/ipx_ld.h,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-19 07:29:37 $
+ *
  * parts from:
  * ipx.h header file for IPX for the DOS emulator
  * 		Tim Bird, tbird@novell.com
+ *
+ * $Log: not supported by cvs2svn $
+ *
  */
 
 #ifndef _IPX_DOSEMU
