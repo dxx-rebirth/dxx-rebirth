@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.21 2002-08-31 05:24:35 btb Exp $ */
+/* $Id: font.c,v 1.22 2002-09-05 07:56:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1572,22 +1572,6 @@ void gr_remap_color_fonts()
 			gr_remap_font(font, open_font[fontnum].filename, open_font[fontnum].dataptr);
 	}
 }
-
-void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq );
-void decode_data_asm(ubyte *data, int num_pixels, ubyte * colormap, int * count );
-#ifdef __WATCOMC__
-#pragma aux decode_data_asm parm [esi] [ecx] [edi] [ebx] modify exact [esi edi eax ebx ecx] = \
-"again_ddn:"							\
-	"xor	eax,eax"				\
-	"mov	al,[esi]"			\
-	"inc	dword ptr [ebx+eax*4]"		\
-	"mov	al,[edi+eax]"		\
-	"mov	[esi],al"			\
-	"inc	esi"					\
-	"dec	ecx"					\
-	"jne	again_ddn"
-
-#endif
 
 #ifdef FAST_FILE_IO
 #define grs_font_read(gf, fp) cfread(gf, GRS_FONT_SIZE, 1, fp)
