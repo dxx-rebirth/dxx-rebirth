@@ -1,3 +1,19 @@
+/*
+ * $Source: /cvs/cvsroot/d2x/main/multipow.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2002-02-15 03:18:02 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #include "powerup.h"
 #include "multipow.h"
 #include "text.h"
