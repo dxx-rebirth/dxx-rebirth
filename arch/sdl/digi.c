@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.20 2004-11-29 07:34:27 btb Exp $ */
+/* $Id: digi.c,v 1.21 2004-11-29 08:01:47 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -227,6 +227,9 @@ void digi_close()
 {
 	if (!digi_initialised) return;
 	digi_initialised = 0;
+#ifdef __MINGW32__
+	SDL_Delay(500); // CloseAudio hangs if it's called too soon after opening?
+#endif
 	SDL_CloseAudio();
 }
 
