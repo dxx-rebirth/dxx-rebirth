@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.55 2004-10-30 18:34:28 schaffner Exp $ */
+/* $Id: piggy.c,v 1.56 2004-11-19 18:02:32 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.55 2004-10-30 18:34:28 schaffner Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.56 2004-11-19 18:02:32 schaffner Exp $";
 #endif
 
 
@@ -2114,6 +2114,8 @@ void read_d1_tmap_nums_from_hog(CFILE *d1_pig)
 	atexit(free_d1_tmap_nums);
 
 	while (cfgets (inputline, LINEBUF_SIZE, bitmaps)) {
+		char *arg;
+
 		if (bitmaps_tbl_is_binary)
 			decode_text_line((inputline));
 		else
@@ -2125,7 +2127,7 @@ void read_d1_tmap_nums_from_hog(CFILE *d1_pig)
 			Warning("Possible line truncation in BITMAPS.TBL");
 			return;
 		}
-		char *arg = strtok( inputline, space );
+		arg = strtok( inputline, space );
                 if (arg && arg[0] == '@') {
 			arg++;
 			//Registered_only = 1;

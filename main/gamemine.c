@@ -1,4 +1,4 @@
-/* $Id: gamemine.c,v 1.30 2004-10-30 18:34:28 schaffner Exp $ */
+/* $Id: gamemine.c,v 1.31 2004-11-19 18:02:32 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.30 2004-10-30 18:34:28 schaffner Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.31 2004-11-19 18:02:32 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -942,6 +942,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	ubyte   bit_mask;
 
 	d1_pig_present = cfexist(D1_PIGFILE);
+#if 0 // the following will be deleted once reading old pigfiles works reliably
 	if (d1_pig_present) {
 		CFILE * d1_Piggy_fp = cfopen( D1_PIGFILE, "rb" );
 		switch (cfilelength(d1_Piggy_fp)) {
@@ -954,6 +955,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		}
 		cfclose (d1_Piggy_fp);
 	}
+#endif
 
 	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
 		New_file_format_load = 0; // descent 1 shareware

@@ -1,3 +1,7 @@
+2004-11-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* main/gamemine.c, main/piggy.c: compile again on older C compilers
+
 2004-11-16  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* arch/carbon/findfile.c: fix Mac OS 9 bug with missions > 12 chars
