@@ -11,6 +11,18 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/automap.c,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-31 11:16:08 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -19,11 +31,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef OGL
+#include "ogl_init.h"
+#endif
+
 #include "pa_enabl.h"                   //$$POLY_ACC
 #include "error.h"
-#include "fix.h"
-#include "vecmat.h"
-#include "gr.h"
 #include "3d.h"
 #include "inferno.h"
 #include "u_mem.h"
@@ -718,7 +731,11 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 		dd_gr_blt_screen(&ddPage, 0,0,0,0,0,0,0,0);
 	#endif
 	}
+#ifdef OGL
+	ogl_swap_buffers();
+#else
 	gr_update();
+#endif
 	
 }
 
