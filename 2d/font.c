@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.22 2002-09-05 07:56:08 btb Exp $ */
+/* $Id: font.c,v 1.23 2002-09-07 07:17:18 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1689,7 +1689,7 @@ grs_font * gr_init_font( char * fontname )
 
 		cfread(palette,3,256,fontfile);		//read the palette
 
-#ifdef MACINTOSH			// swap the first and last palette entries (black and white)
+#ifdef SWAP_0_255			// swap the first and last palette entries (black and white)
 		{
 			int i;
 			ubyte c;
@@ -1702,11 +1702,11 @@ grs_font * gr_init_font( char * fontname )
 
 //  we also need to swap the data entries as well.  black is white and white is black
 
-			for (i = 0; i < ptr-newfont->ft_data; i++) {
-				if (newfont->ft_data[i] == 0)
-					newfont->ft_data[i] = 255;
-				else if (newfont->ft_data[i] == 255)
-					newfont->ft_data[i] = 0;
+			for (i = 0; i < ptr-font->ft_data; i++) {
+				if (font->ft_data[i] == 0)
+					font->ft_data[i] = 255;
+				else if (font->ft_data[i] == 255)
+					font->ft_data[i] = 0;
 			}
 
 		}
@@ -1816,7 +1816,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 
 		cfread(palette,3,256,fontfile);		//read the palette
 
-#ifdef MACINTOSH			// swap the first and last palette entries (black and white)
+#ifdef SWAP_0_255			// swap the first and last palette entries (black and white)
 		{
 			int i;
 			ubyte c;
@@ -1829,11 +1829,11 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 
 //  we also need to swap the data entries as well.  black is white and white is black
 
-			for (i = 0; i < ptr-newfont->ft_data; i++) {
-				if (newfont->ft_data[i] == 0)
-					newfont->ft_data[i] = 255;
-				else if (newfont->ft_data[i] == 255)
-					newfont->ft_data[i] = 0;
+			for (i = 0; i < ptr-font->ft_data; i++) {
+				if (font->ft_data[i] == 0)
+					font->ft_data[i] = 255;
+				else if (font->ft_data[i] == 255)
+					font->ft_data[i] = 0;
 			}
 
 		}
