@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.42 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: bm.c,v 1.43 2004-11-19 18:56:32 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -566,6 +566,7 @@ void load_robot_replacements(char *level_name)
 	}
 
 	cfclose(fp);
+	Robot_replacements_loaded = 1;
 }
 
 
