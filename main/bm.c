@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.27 2003-03-25 08:19:12 btb Exp $ */
+/* $Id: bm.c,v 1.28 2003-03-25 09:54:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -272,7 +272,40 @@ int load_exit_models()
 		ogl_cache_polymodel_textures(exit_modelnum);
 		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
 #endif
+	}
+	else if (cfexist("descent.pig"))
+	{
+		int offset, offset2;
 
+		exit_hamfile = cfopen("descent.pig", "rb");
+		switch (cfilelength(exit_hamfile)) { //total hack for loading models
+		case D1_PIGSIZE:
+			offset = 91848;     /* and 92582  */
+			offset2 = 383390;   /* and 394022 */
+			break;
+		default:
+			Int3();
+		case D1_SHAREWARE_10_PIGSIZE:
+		case D1_SHAREWARE_PIGSIZE:
+			Int3();             /* exit models should be in .pofs */
+		case D1_OEM_PIGSIZE:
+		case D1_MAC_PIGSIZE:
+		case D1_MAC_SHARE_PIGSIZE:
+			Warning("Can't load exit models!\n");
+			return 0;
+			break;
+		}
+		cfseek(exit_hamfile, offset, SEEK_SET);
+		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
+		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+		Polygon_models[exit_modelnum].first_texture = start_num;
+		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
+
+		cfseek(exit_hamfile, offset2, SEEK_SET);
+		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
+		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+
+		cfclose(exit_hamfile);
 	} else {
 		Warning("Can't load exit models!\n");
 		return 0;

@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.27 2003-03-25 08:19:12 btb Exp $ */
+/* $Id: piggy.c,v 1.28 2003-03-25 09:54:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.27 2003-03-25 08:19:12 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.28 2003-03-25 09:54:12 btb Exp $";
 #endif
 
 
@@ -440,19 +440,6 @@ static char rcsid[] = "$Id: piggy.c,v 1.27 2003-03-25 08:19:12 btb Exp $";
 #define DEFAULT_PIGFILE (cfexist(DEFAULT_PIGFILE_REGISTERED)?DEFAULT_PIGFILE_REGISTERED:DEFAULT_PIGFILE_SHAREWARE)
 #define DEFAULT_HAMFILE (cfexist(DEFAULT_HAMFILE_REGISTERED)?DEFAULT_HAMFILE_REGISTERED:DEFAULT_HAMFILE_SHAREWARE)
 #define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
-
-#define D1_SHAREWARE_10_PIGSIZE 2529454 // v1.0 - 1.2
-#define D1_SHAREWARE_PIGSIZE    2509799 // v1.4
-#define D1_PIGSIZE              4920305
-#define D1_OEM_PIGSIZE          5039735 // Destination: Saturn
-#define D1_MAC_PIGSIZE          3975533
-#define D1_MAC_SHARE_PIGSIZE    2714487
-#define MAC_ALIEN1_PIGSIZE      5013035
-#define MAC_ALIEN2_PIGSIZE      4909916
-#define MAC_FIRE_PIGSIZE        4969035
-#define MAC_GROUPA_PIGSIZE      4929684 // also used for mac shareware
-#define MAC_ICE_PIGSIZE         4923425
-#define MAC_WATER_PIGSIZE       4832403
 
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
@@ -2284,15 +2271,24 @@ void load_d1_bitmap_replacements()
 		colormap[255] = 255;
 	}
 
-
-	if (0) //TODO: put here cfilelength(d1_Piggy_fp) == D1_PIG_SHARE
+	switch (cfilelength(d1_Piggy_fp)) {
+	case D1_SHAREWARE_10_PIGSIZE:
+	case D1_SHAREWARE_PIGSIZE:
 		pig_data_start = 0;
-	else {
+		break;
+	default:
+		Int3();
+	case D1_PIGSIZE:
+	case D1_OEM_PIGSIZE:
+	case D1_MAC_PIGSIZE:
+	case D1_MAC_SHARE_PIGSIZE:
 		//int i;
 		pig_data_start = cfile_read_int(d1_Piggy_fp );
 		bm_read_all_d1( d1_Piggy_fp );
 		//for (i = 0; i < 1800; i++) GameBitmapXlat[i] = cfile_read_short(d1_Piggy_fp);
+		break;
 	}
+
 	cfseek( d1_Piggy_fp, pig_data_start, SEEK_SET );
 	N_bitmaps = cfile_read_int(d1_Piggy_fp);
 	{
@@ -2409,7 +2405,21 @@ bitmap_index read_extra_d1_bitmap(char *name)
 			colormap[255] = 255;
 		}
 
-		pig_data_start = cfile_read_int(d1_Piggy_fp);
+		switch (cfilelength(d1_Piggy_fp)) {
+		case D1_SHAREWARE_10_PIGSIZE:
+		case D1_SHAREWARE_PIGSIZE:
+			pig_data_start = 0;
+			break;
+		default:
+			Int3();
+		case D1_PIGSIZE:
+		case D1_OEM_PIGSIZE:
+		case D1_MAC_PIGSIZE:
+		case D1_MAC_SHARE_PIGSIZE:
+			pig_data_start = cfile_read_int(d1_Piggy_fp);
+			break;
+		}
+
 		cfseek(d1_Piggy_fp, pig_data_start, SEEK_SET);
 		N_bitmaps = cfile_read_int(d1_Piggy_fp);
 		{

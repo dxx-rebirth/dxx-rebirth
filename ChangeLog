@@ -1,5 +1,8 @@
 2003-03-25  Bradley Bell  <btb@icculus.org>
 
+	* main/bm.c, main/piggy.c, main/piggy.h: ability to load exit
+	models from d1 pig file
+
 	* main/bm.c, main/bm.h, main/endlevel.c, main/piggy.c,
 	main/piggy.h: ability to load exit model bitmaps (or any bitmap,
 	really) from d1 pig file
