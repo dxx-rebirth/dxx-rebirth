@@ -1,3 +1,8 @@
+2003-03-31  Micah J. Lieske  <MicahJon@compuserve.com>
+
+	* arch/dos/digimm.c, arch/sdl/digi.c, arch/win32/digi.c,
+	main/inferno.c: Allow use of 22K sound samples
+
 2003-03-29  Bradley Bell  <btb@icculus.org>
 
 	* arch/ogl/gr.c: default to bitmapped reticle
