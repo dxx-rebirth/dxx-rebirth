@@ -1,3 +1,8 @@
+2003-10-01  Bradley Bell  <btb@icculus.org>
+
+	* main/bm.c: make sure d1_texture_indices gets freed between
+	levels
+
 2003-09-11  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/piggy.h: fix size of d1 shareware descent.pig

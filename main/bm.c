@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.34 2003-08-03 22:00:14 btb Exp $ */
+/* $Id: bm.c,v 1.35 2003-10-02 04:05:19 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -268,11 +268,13 @@ void free_d1_texture_indices() {
 void bm_read_d1_texture_indices(CFILE *d1pig)
 {
 	int i;
-	atexit(free_d1_texture_indices);
+
+	free_d1_texture_indices();
 	cfseek(d1pig, 8, SEEK_SET);
 	MALLOC(d1_Texture_indices, short, D1_MAX_TEXTURES);
 	for (i = 0; i < D1_MAX_TEXTURES; i++)
 		d1_Texture_indices[i] = cfile_read_short(d1pig);
+	atexit(free_d1_texture_indices);
 }
 
 // the following is old code for reading descent 1 textures.
