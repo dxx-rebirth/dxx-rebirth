@@ -1,4 +1,4 @@
-/* $Id: hmiplay.c,v 1.8 2004-05-19 19:14:52 btb Exp $ */
+/* $Id: hmiplay.c,v 1.9 2004-05-19 19:20:16 btb Exp $ */
 /*
  * HMI midi playing routines by Jani Frilander
  *
@@ -23,6 +23,7 @@
 #include <sys/msg.h>
 #include "music.h"
 #include "cfile.h"
+#include "args.h"
 
 #include <SDL/SDL_thread.h>
 
