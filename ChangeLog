@@ -1,3 +1,7 @@
+2003-02-26  Micah J. Lieske  <MicahJon@compuserve.com>
+
+	* main/kconfig.c: fix joystick support under MinGW
+
 2003-02-26  Bradley Bell  <btb@icculus.org>
 
 	* main/playsave.c: fix swapping glitch

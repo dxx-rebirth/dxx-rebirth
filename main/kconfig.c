@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.15 2002-09-19 05:43:15 btb Exp $ */
+/* $Id: kconfig.c,v 1.16 2003-02-27 04:28:18 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.15 2002-09-19 05:43:15 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.16 2003-02-27 04:28:18 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -3066,7 +3066,7 @@ void controls_read_all()
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 		
 		for (i=0; i<6; i++ )	{
-#ifndef __unix__
+#ifndef SDL_INPUT
 			if (channel_masks&(1<<i))	{
 #endif
 				int joy_null_value = 10;
@@ -3087,7 +3087,7 @@ void controls_read_all()
 					  raw_joy_axis[i] = 0;
 					joy_axis[i]	= (raw_joy_axis[i]*FrameTime)/128;	
 				}
-#ifndef __unix__
+#ifndef SDL_INPUT
 			} else {
 				joy_axis[i] = 0;
 			}
