@@ -8,7 +8,7 @@
 	arch/win32/ipx_mcast4.c, arch/win32/ipx_udp.c,
 	arch/win32/ipx_win.c, arch/win32/winnet.c,
 	arch/win32/include/ipx_mcast4.h, include/ipx.h, main/menu.c,
-	main/multi.h: add IPv4 multicasting support
+	main/multi.h, main/network.c: add IPv4 multicasting support
 
 2003-10-11  Bradley Bell  <btb@icculus.org>
 

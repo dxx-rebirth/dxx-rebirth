@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.22 2003-10-11 09:28:38 btb Exp $ */
+/* $Id: network.c,v 1.23 2003-10-12 09:30:02 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.22 2003-10-11 09:28:38 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.23 2003-10-12 09:30:02 btb Exp $";
 #endif
 
 #define PATCH12
@@ -1108,8 +1108,8 @@ void network_send_markers()
 
   
   int i;
-  
-  for (i=0;i<8;i++)
+
+  for (i = 0; i < N_players; i++)
    {
     if (MarkerObject[(i*2)]!=-1)
      multi_send_drop_marker (i,MarkerPoint[(i*2)],0,MarkerMessage[i*2]);
@@ -3007,7 +3007,7 @@ int network_get_game_params( char * game_name, int *mode, int *game_flags, int *
 		if (i!=Player_num)
 			Players[i].callsign[0]=0;
 
-	MaxNumNetPlayers=8;
+	MaxNumNetPlayers = MAX_NUM_NET_PLAYERS;
 	Netgame.KillGoal=0;
 	Netgame.PlayTimeAllowed=0;
 	Netgame.Allow_marker_view=1;
@@ -3457,7 +3457,8 @@ network_send_sync(void)
 		#endif
 		}
 
-	}       
+	}
+
 	network_read_sync_packet(&Netgame,1); // Read it myself, as if I had sent it
 }
 
@@ -3589,6 +3590,7 @@ abort:
 
 		Netgame.numplayers = 0;
 		network_send_game_info(0); // Tell everyone we're bailing
+		ipx_handle_leave_game(); // Tell the network driver we're bailing too
 
 		Network_status = NETSTAT_MENU;
 		return(0);
@@ -3767,6 +3769,12 @@ network_start_game()
 	strcpy(Netgame.game_name, game_name);
 	
 	Network_status = NETSTAT_STARTING;
+	// Have the network driver initialize whatever data it wants to
+	// store for this netgame.
+	// For mcast4, this randomly chooses a multicast session and port.
+	// Clients subscribe to this address when they call
+	// ipx_handle_netgame_aux_data.
+	ipx_init_netgame_aux_data(Netgame.AuxData);
 
 	#ifdef MACINTOSH
 	if (Network_game_type == APPLETALK_GAME) {
@@ -4487,6 +4495,15 @@ remenu:
 	MaxNumNetPlayers = Netgame.max_numplayers;
 	change_playernum_to(1);
 
+	// Handle the extra data for the network driver
+	// For the mcast4 driver, this is the game's multicast address, to
+	// which the driver subscribes.
+	if(ipx_handle_netgame_aux_data(Netgame.AuxData) < 0)
+	{
+		Network_status = NETSTAT_BROWSING;
+		goto remenu;
+	}
+
 	#ifdef MACINTOSH
 
 // register the joining player with NBP.  This will have the nice effect of a player wanting to
@@ -4715,6 +4732,11 @@ void network_leave_game()
    write_player_file();
 
 //	WIN(ipx_destroy_read_thread());
+
+	// Tell the network driver we're done with the game.
+	// This is used by ipx_mcast4.c to unsubscribe from the game's
+	// multicast session
+	ipx_handle_leave_game();
 
 	network_flush();
 }
@@ -5059,6 +5081,10 @@ void network_do_frame(int force, int listen)
 				ShortSyncPack.data_size                         = MySyncPack.data_size;
 				memcpy (&ShortSyncPack.data[0],&MySyncPack.data[0],MySyncPack.data_size);
 
+// -- killed -- 2003-10-11 by Aaron
+// Use ipx_send_game_packet instead to send packets to everyone in the game.
+// Define in arch/*/*net.c
+#if 0
 				for (i=0; i<N_players; i++ )    {
 					if ( (Players[i].connected) && (i!=Player_num ) )       {
 						MySyncPack.numpackets = Players[i].n_packets_sent++;
@@ -5077,6 +5103,17 @@ void network_do_frame(int force, int listen)
 						}
 					}
 				}
+#else
+				MySyncPack.numpackets = INTEL_INT(Players[0].n_packets_sent++);
+				ShortSyncPack.numpackets = MySyncPack.numpackets;
+#ifndef WORDS_BIGENDIAN
+				ipx_send_game_packet((ubyte*)&ShortSyncPack, sizeof(short_frame_info) - MaxXDataSize + MySyncPack.data_size);
+#else
+				squish_short_frame_info(ShortSyncPack, send_data);
+				ipx_send_game_packet((ubyte*)send_data, IPX_SHORT_INFO_SIZE-MaxXDataSize+MySyncPack.data_size);
+#endif
+
+#endif
 			}
 			else  // If long packets
 			{
@@ -5123,6 +5160,7 @@ void network_do_frame(int force, int listen)
 				}
 #endif
 
+#if 0
 				for (i=0; i<N_players; i++ )    {
 					if ( (Players[i].connected) && (i!=Player_num ) )       {
 						if (Network_game_type == IPX_GAME)
@@ -5139,8 +5177,12 @@ void network_do_frame(int force, int listen)
 						#endif
 					}
 				}
+#else
+				MySyncPack.numpackets = INTEL_INT(Players[0].n_packets_sent++);
+				ipx_send_game_packet((ubyte*)&MySyncPack, sizeof(frame_info) - MaxXDataSize + send_data_size);
+#endif
 			}
-				
+
 			MySyncPack.data_size = 0;               // Start data over at 0 length.
 			if (Control_center_destroyed)
 			{
