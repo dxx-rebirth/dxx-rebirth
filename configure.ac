@@ -3,6 +3,7 @@ AC_INIT(main/inferno.c)
 
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
+AC_CANONICAL_TARGET
 
 AM_CONFIG_HEADER(conf.h)
 AM_INIT_AUTOMAKE(d2x, 0.1.2)
@@ -62,6 +63,7 @@ AC_ARG_ENABLE(shareware,
   [  --enable-shareware      Build for demo datafiles (not functional)],,)
 if test x$enable_shareware = xyes; then
     AC_DEFINE(SHAREWARE)
+    D2X_FEATURES="shareware ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(SHAREWARE, test x$enable_shareware = xyes)
 
@@ -70,6 +72,7 @@ AC_ARG_ENABLE(movies,
   [  --enable-movie-trick    Enable trick to show movies],,)
 if test x$enable_movie_trick = xyes; then
     AC_DEFINE(MOVIE_TRICK)
+    D2X_FEATURES="movie_trick ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(MOVIE_TRICK, test x$enable_movie_trick = xyes)
 
@@ -78,6 +81,7 @@ AC_ARG_ENABLE(nmovies,
   [  --enable-nmovies        Turn off movies (render endlevel flythrough)],,)
 if test x$enable_nmovies = xyes; then
     AC_DEFINE(NMOVIES)
+    D2X_FEATURES="nmovies ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(NMOVIES, test x$enable_nmovies = xyes)
 
@@ -86,6 +90,7 @@ AC_ARG_ENABLE(xploader,
   [  --enable-xploader       Enable cross-platform bitmap/palette loader ],,)
 if test x$enable_xploader = xyes; then
     AC_DEFINE(PORTABLE_LOADER)
+    D2X_FEATURES="xploader ${D2X_FEATURES}"
 fi
 
 dnl Count warnings as errors?
@@ -93,6 +98,7 @@ AC_ARG_ENABLE(werror,
   [  --enable-werror         Count compiler warning as errors ],,)
 if test x$enable_werror = xyes; then
     CFLAGS="-Werror $CFLAGS"
+    D2X_FEATURES="werror ${D2X_FEATURES}"
 fi
 
 dnl Build with NDEBUG?
@@ -103,6 +109,7 @@ if test x$enable_debug = xno; then
     CFLAGS="-O2 $CFLAGS"
 else
     CFLAGS="-g $CFLAGS"
+    D2X_FEATURES="debug ${D2X_FEATURES}"
 fi
 
 AC_ARG_WITH(sharepath,
@@ -206,6 +213,7 @@ else
       [  --enable-sdl-joystick   Use SDL joystick (required for mingw) ],,)
     if test x$enable_sdl_joystick = xyes; then
         AC_DEFINE(SDL_JOYSTICK)
+        D2X_FEATURES="sdl_joystick ${D2X_FEATURES}"
     fi
     AM_CONDITIONAL(SDL_JOYSTICK, test x$enable_sdl_joystick = xyes)
   fi
@@ -216,6 +224,7 @@ AC_ARG_ENABLE(network,
   [  --disable-network       Do not build network/serial support ],,)
 if test x$enable_network != xno; then
     AC_DEFINE(NETWORK)
+    D2X_FEATURES="network ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(USE_NETWORK, test x$enable_network != xno)
 
@@ -224,6 +233,7 @@ AC_ARG_ENABLE(assembler,
   [  --disable-assembler     Do not use assembler optimization ],,)
 if test x$enable_assembler = xno; then
     AC_DEFINE(NO_ASM)
+    D2X_FEATURES="no_asm ${D2X_FEATURES}"
 else
     if test x$NASM = xno; then
 	AC_MSG_ERROR([nasm not found. Install it or use --disable-assembler])
@@ -279,3 +289,12 @@ mem/Makefile
 misc/Makefile
 texmap/Makefile
 )
+
+AC_MSG_RESULT([
+    d2x has been configured successfully.
+
+    Platform(s): $D2X_ARCH_SUBDIRS
+    Features   : $D2X_FEATURES $D2X_MAIN_SUBDIRS
+
+    Shared game data directory: $sharepath
+])
