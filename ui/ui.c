@@ -1,4 +1,4 @@
- /* $Id: ui.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $ */
+ /* $Id: ui.c,v 1.5 2005-01-25 19:57:40 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: ui.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
+static char rcsid[] = "$Id: ui.c,v 1.5 2005-01-25 19:57:40 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -35,8 +35,6 @@ static char rcsid[] = "$Id: ui.c,v 1.4 2005-01-24 22:19:10 schaffner Exp $";
 #include "mouse.h"
 
 #include "mono.h"
-
-extern void InstallErrorHandler();
 
 static int Initialized = 0;
 
@@ -70,8 +68,6 @@ void ui_init()
 
 	CurWindow = NULL;
 
-	InstallErrorHandler();
-
 	ui_pad_init();
 	
 	atexit(ui_close );
@@ -90,8 +86,6 @@ void ui_close()
 
 //		mouse_close();
 // 	key_close();
-
-		_harderr( NULL );
 
 		gr_close_font( ui_small_font );
 

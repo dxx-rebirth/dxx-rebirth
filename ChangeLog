@@ -10,6 +10,7 @@
 	* patching file ui/file.c, ui/listbox.c, file ui/mouse.c, ui/scroll.c,
 	ui/window.c: use timer_get_fixed_seconds instead of TICKER macro
 	* ui/number.c: s/inputbox/Inputbox/
+	* ui/ui.c: InstallErrorHandler() no longer exists, don't use it anymore
 
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
