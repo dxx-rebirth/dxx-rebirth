@@ -1,24 +1,23 @@
 # -*- mode: shell-script -*-
-AC_INIT(main/inferno.c)
+
+define([D2X_MAJOR],0)
+define([D2X_MINOR],1)
+define([D2X_MICRO],3)
+
+AC_INIT(d2x,[D2X_MAJOR.D2X_MINOR.D2X_MICRO],[descent-source@warpcore.org])
 AC_PREREQ(2.52)
 
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
+AM_INIT_AUTOMAKE
+
 AM_CONFIG_HEADER(conf.h)
 
-D2XMAJOR=0
-D2XMINOR=1
-D2XMICRO=3
-
-AC_DEFINE_UNQUOTED(D2XMAJOR,,[d2x major version])
-AC_DEFINE_UNQUOTED(D2XMINOR,,[d2x minor version])
-AC_DEFINE_UNQUOTED(D2XMICRO,,[d2x micro version])
-
-VERSION=$D2XMAJOR.$D2XMINOR.$D2XMICRO
-
-AM_INIT_AUTOMAKE(d2x, $VERSION)
+AC_DEFINE_UNQUOTED(D2XMAJOR,D2X_MAJOR,[d2x major version])
+AC_DEFINE_UNQUOTED(D2XMINOR,D2X_MINOR,[d2x minor version])
+AC_DEFINE_UNQUOTED(D2XMICRO,D2X_MICRO,[d2x micro version])
 
 AM_MAINTAINER_MODE
 
@@ -127,7 +126,7 @@ if test x$enable_release = xyes; then
 fi
 
 AC_ARG_WITH(sharepath,
-  [[  --with-sharepath=DIR    Use DIR for shared game data [DATADIR/games/d2x]]],
+  [[  --with-sharepath=DIR    Use DIR for shared game data (unix only) [DATADIR/games/d2x]]],
   sharepath=$withval, sharepath="auto")
 if test "x$sharepath" = "xauto" -o "x$sharepath" = "xyes" -o "x$sharepath" = "x"; then
     sharepath="$default_sharepath"
@@ -345,5 +344,5 @@ AC_MSG_RESULT([
     Platform(s): $D2X_ARCH_SUBDIRS
     Features   : $D2X_FEATURES $D2X_MAIN_SUBDIRS
 
-    Shared game data directory: $sharepath
+    Shared game data directory (unix only): $sharepath
 ])
