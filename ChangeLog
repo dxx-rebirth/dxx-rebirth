@@ -1,3 +1,10 @@
+2004-05-20  Matthew Mueller  <donut@dakotacom.net>
+
+	* arch/ogl/ogl.c: add caching of weapon inner models, screen
+	shatter effects, robot explosions and weapons, and some more
+	always present stuff.  Also clean up ogl_cache_weapon_textures
+	calling. (d1x r1.37)
+
 2004-05-20  Bradley Bell  <btb@icculus.org>
 
 	* main/kludge.c, main/game.c: move gr_renderstats and

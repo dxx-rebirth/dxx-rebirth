@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.24 2004-05-20 07:25:11 btb Exp $ */
+/* $Id: ogl.c,v 1.25 2004-05-20 07:43:57 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -41,6 +41,8 @@
 #include "effects.h"
 #include "weapon.h"
 #include "powerup.h"
+#include "laser.h"
+#include "player.h"
 #include "polyobj.h"
 #include "gamefont.h"
 #include "byteswap.h"
@@ -288,9 +290,14 @@ void ogl_texwrap(ogl_texture *gltexture,int state)
 //similarly, with the objects(esp weapons), we could just go through and cache em all instead, but that would get ones that might not even be on the level
 //TODO: doors
 
-void ogl_cache_polymodel_textures(int model_num){
-	polymodel *po=&Polygon_models[model_num];
+void ogl_cache_polymodel_textures(int model_num)
+{
+	polymodel *po;
 	int i;
+
+	if (model_num < 0)
+		return;
+	po = &Polygon_models[model_num];
 	for (i=0;i<po->n_textures;i++)  {
 //		texture_list_index[i] = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]];
 		ogl_loadbmtexture(&GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index]);
@@ -303,15 +310,30 @@ void ogl_cache_vclip_textures(vclip *vc){
 		ogl_loadbmtexture(&GameBitmaps[vc->frames[i].index]);
 	}
 }
-#define ogl_cache_vclipn_textures(i) ogl_cache_vclip_textures(&Vclip[i])
-void ogl_cache_weapon_textures(weapon_info *w){
+
+void ogl_cache_vclipn_textures(int i)
+{
+	if (i >= 0 && i < VCLIP_MAXNUM)
+		ogl_cache_vclip_textures(&Vclip[i]);
+}
+
+void ogl_cache_weapon_textures(int weapon_type)
+{
+	weapon_info *w;
+
+	if (weapon_type < 0)
+		return;
+	w = &Weapon_info[weapon_type];
 	ogl_cache_vclipn_textures(w->flash_vclip);
 	ogl_cache_vclipn_textures(w->robot_hit_vclip);
 	ogl_cache_vclipn_textures(w->wall_hit_vclip);
 	if (w->render_type==WEAPON_RENDER_VCLIP)
 		ogl_cache_vclipn_textures(w->weapon_vclip);
-	else if (w->render_type==WEAPON_RENDER_POLYMODEL)
+	else if (w->render_type == WEAPON_RENDER_POLYMODEL)
+	{
 		ogl_cache_polymodel_textures(w->model_num);
+		ogl_cache_polymodel_textures(w->model_num_inner);
+	}
 }
 
 void ogl_cache_level_textures(void)
@@ -326,6 +348,7 @@ void ogl_cache_level_textures(void)
 	ogl_reset_texture_stats_internal();//loading a new lev should reset textures
 	
 	for (i=0,ec=Effects;i<Num_effects;i++,ec++) {
+		ogl_cache_vclipn_textures(Effects[i].dest_vclip);
 		if ((Effects[i].changing_wall_texture == -1) && (Effects[i].changing_object_texture==-1) )
 			continue;
 		if (ec->vc.num_frames>max_efx)
@@ -373,50 +396,61 @@ void ogl_cache_level_textures(void)
 	init_special_effects();
 	{
 //		int laserlev=1;
-		//always have lasers and concs
-		ogl_cache_weapon_textures(&Weapon_info[Primary_weapon_to_weapon_info[LASER_INDEX]]);
-		ogl_cache_weapon_textures(&Weapon_info[Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]]);
+
+		// always have lasers, concs, flares.  Always shows player appearance, and at least concs are always available to disappear.
+		ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[LASER_INDEX]);
+		ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]);
+		ogl_cache_weapon_textures(FLARE_ID);
+		ogl_cache_vclipn_textures(VCLIP_PLAYER_APPEARANCE);
+		ogl_cache_vclipn_textures(VCLIP_POWERUP_DISAPPEARANCE);
+		ogl_cache_polymodel_textures(Player_ship->model_num);
+		ogl_cache_vclipn_textures(Player_ship->expl_vclip_num);
+
 		for (i=0;i<Highest_object_index;i++){
 			if(Objects[i].render_type==RT_POWERUP){
 				ogl_cache_vclipn_textures(Objects[i].rtype.vclip_info.vclip_num);
 				switch (Objects[i].id){
 /*					case POW_LASER:
-						ogl_cache_weapon_textures(&Weapon_info[Primary_weapon_to_weapon_info[LASER_INDEX]]);
+						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[LASER_INDEX]);
 //						if (laserlev<4)
 //							laserlev++;
 						break;*/
 					case POW_VULCAN_WEAPON:
-						ogl_cache_weapon_textures(&Weapon_info[Primary_weapon_to_weapon_info[VULCAN_INDEX]]);
+						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[VULCAN_INDEX]);
 						break;
 					case POW_SPREADFIRE_WEAPON:
-						ogl_cache_weapon_textures(&Weapon_info[Primary_weapon_to_weapon_info[SPREADFIRE_INDEX]]);
+						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[SPREADFIRE_INDEX]);
 						break;
 					case POW_PLASMA_WEAPON:
-						ogl_cache_weapon_textures(&Weapon_info[Primary_weapon_to_weapon_info[PLASMA_INDEX]]);
+						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[PLASMA_INDEX]);
 						break;
 					case POW_FUSION_WEAPON:
-						ogl_cache_weapon_textures(&Weapon_info[Primary_weapon_to_weapon_info[FUSION_INDEX]]);
+						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[FUSION_INDEX]);
 						break;
 /*					case POW_MISSILE_1:
 					case POW_MISSILE_4:
-						ogl_cache_weapon_textures(&Weapon_info[Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]]);
+						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]);
 						break;*/
 					case POW_PROXIMITY_WEAPON:
-						ogl_cache_weapon_textures(&Weapon_info[Secondary_weapon_to_weapon_info[PROXIMITY_INDEX]]);
+						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[PROXIMITY_INDEX]);
 						break;
 					case POW_HOMING_AMMO_1:
 					case POW_HOMING_AMMO_4:
-						ogl_cache_weapon_textures(&Weapon_info[Primary_weapon_to_weapon_info[HOMING_INDEX]]);
+						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[HOMING_INDEX]);
 						break;
 					case POW_SMARTBOMB_WEAPON:
-						ogl_cache_weapon_textures(&Weapon_info[Secondary_weapon_to_weapon_info[SMART_INDEX]]);
+						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[SMART_INDEX]);
 						break;
 					case POW_MEGA_WEAPON:
-						ogl_cache_weapon_textures(&Weapon_info[Secondary_weapon_to_weapon_info[MEGA_INDEX]]);
+						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[MEGA_INDEX]);
 						break;
 				}
 			}
 			else if(Objects[i].render_type==RT_POLYOBJ){
+				//printf("robot %i model %i rmodel %i\n", Objects[i].id, Objects[i].rtype.pobj_info.model_num, Robot_info[Objects[i].id].model_num);
+				ogl_cache_vclipn_textures(Robot_info[Objects[i].id].exp1_vclip_num);
+				ogl_cache_vclipn_textures(Robot_info[Objects[i].id].exp2_vclip_num);
+				ogl_cache_weapon_textures(Robot_info[Objects[i].id].weapon_type);
 				ogl_cache_polymodel_textures(Objects[i].rtype.pobj_info.model_num);
 			}
 		}
