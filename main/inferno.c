@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.24 $
+ * $Revision: 1.25 $
  * $Author: bradleyb $
- * $Date: 2002-02-13 10:39:21 $
+ * $Date: 2002-02-14 11:29:31 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.24  2002/02/13 10:39:21  bradleyb
+ * Lotsa networking stuff from d1x
+ *
  * Revision 1.23  2002/02/02 23:30:26  bradleyb
  * Enabled RELEASE option
  *
@@ -660,6 +663,15 @@ int main(int argc,char **argv)
 	if (FindArg("-nofade"))
 		grd_fades_disabled=1;
 	
+	//determine whether we're using high-res menus & movies
+#if !defined(POLY_ACC)
+	if (FindArg("-nohires") || FindArg("-nohighres") || (gr_check_mode(MENU_HIRES_MODE) != 0) || disable_high_res)
+		MovieHires = MenuHires = MenuHiresAvailable = 0;
+	else
+#endif
+		//NOTE LINK TO ABOVE!
+		MenuHires = MenuHiresAvailable = 1;
+
 	if ((t=gr_init())!=0)				//doesn't do much
 		Error(TXT_CANT_INIT_GFX,t);
 
@@ -673,15 +685,6 @@ int main(int argc,char **argv)
 
 	con_printf(CON_DEBUG, "\nInitializing font system..." );
 	gamefont_init();	// must load after palette data loaded.
-
-	//determine whether we're using high-res menus & movies
-#if !defined(POLY_ACC)
-	if (FindArg("-nohires") || FindArg("-nohighres") || (gr_check_mode(MENU_HIRES_MODE) != 0) || disable_high_res)
-		MovieHires = MenuHires = MenuHiresAvailable = 0;
-	else
-#endif
-		//NOTE LINK TO ABOVE!
-		MenuHires = MenuHiresAvailable = 1;
 
 	con_printf( CON_DEBUG, "\nInitializing movie libraries..." );
 	init_movies();		//init movie libraries

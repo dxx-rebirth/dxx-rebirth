@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/gr.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-10-31 07:41:54 $
+ * $Date: 2002-02-14 11:29:31 $
  *
  * SDL video functions.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/10/31 07:41:54  bradleyb
+ * Sync with d1x
+ *
  * Revision 1.1  2001/10/25 08:25:34  bradleyb
  * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
  *
@@ -33,6 +36,8 @@
 #include "palette.h"
 #include "u_mem.h"
 #include "error.h"
+#include "menu.h"
+
 //added on 9/30/98 by Matt Mueller to set the title bar.  Woohoo!
 #include "vers_id.h"
 //end addition -MM
@@ -172,7 +177,7 @@ int gr_toggle_fullscreen(void){
 int gr_init(void)
 {
  int retcode;
- int mode = SM(640,480);
+ int mode = MenuHires?SM(640,480):SM(320,200);
  	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
