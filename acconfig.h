@@ -57,6 +57,7 @@
 #endif
 
 #ifdef __MINGW32__
+#define __SDL__ 1
 #define SDL_VIDEO 1
 #define SDL_INPUT 1
 #endif
