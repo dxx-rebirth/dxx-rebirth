@@ -1,39 +1,10 @@
 EXTRA_SUBDIRS = editor old
 
+noinst_LIBRARIES = libmain.a
+
 CFLAGS += -fwritable-strings
 
 INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/arch/include
-
-bin_PROGRAMS = @TARGETS@
-
-EXTRA_PROGRAMS = d2x d2x-sdl d2x-ogl d2x-svga d2x-ggi
-
-LDFLAGS = -export-dynamic
-
-if ENV_DJGPP
-ARCH_LIBS = ../arch/dos/libarch_dos.a
-else
-if MINGW32
-ARCH_LIBS = ../arch/win32/libarch_win32.a ../arch/sdl/libarch_sdl.a
-else
-ARCH_LIBS = ../arch/linux/libarch_linux.a ../arch/sdl/libarch_sdl.a
-endif
-endif
-
-d2x_LDADD = ${ARCH_LIBS} ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a
-
-if MINGW32
-if USE_NETWORK
-d2x_sdl_LDADD = ${d2x_LDADD} ${SDL_LIBS} -lwsock32
-else
-d2x_sdl_LDADD = ${d2x_LDADD} ${SDL_LIBS}
-endif
-else
-d2x_sdl_LDADD = ${d2x_LDADD} -lm -ldl -lpthread ${SDL_LIBS}
-endif
-d2x_ogl_LDADD = ${d2x_sdl_LDADD} ${OGL_LIBS}
-d2x_svga_LDADD = ${d2x_sdl_LDADD} ${SVGA_LIBS}
-d2x_ggi_LDADD = ${d2x_sdl_LDADD} ${GGI_LIBS}
 
 if USE_NETWORK
 NETWORK_SRCS = ipx_drv.c
@@ -41,7 +12,7 @@ else
 NETWORK_SRCS =
 endif
 
-d2x_SOURCES = ${NETWORK_SRCS} \
+libmain_a_SOURCES = ${NETWORK_SRCS} \
 ai.c	    gamerend.c  lighting.c  paging.c    switch.c \
 ai2.c	    effects.c	gamesave.c  menu.c	physics.c   texmerge.c \
 aipath.c    endlevel.c	gameseg.c   mglobal.c	piggy.c     text.c \
@@ -55,11 +26,6 @@ controls.c  gamefont.c	kludge.c    newdemo.c	slew.c \
 credits.c   gamemine.c	kmatrix.c   newmenu.c	songs.c \
 crypt.c     gamepal.c	laser.c     object.c	state.c \
 console.c   cmd.c
-
-d2x_sdl_SOURCES = ${d2x_SOURCES}
-d2x_ogl_SOURCES = ${d2x_SOURCES}
-d2x_svga_SOURCES = ${d2x_SOURCES}
-d2x_ggi_SOURCES = ${d2x_SOURCES}
 
 EXTRA_DIST = \
 descent.cfg inferno.ini \
