@@ -1,4 +1,4 @@
-/* $Id: vecmat.c,v 1.5 2003-02-18 20:23:22 btb Exp $ */
+/* $Id: vecmat.c,v 1.6 2004-05-12 07:31:37 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -46,11 +46,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: vecmat.c,v 1.5 2003-02-18 20:23:22 btb Exp $";
+static char rcsid[] = "$Id: vecmat.c,v 1.6 2004-05-12 07:31:37 btb Exp $";
 #endif
 
 #include <stdlib.h>
-#include <math.h>			// for sqrt
+#include <math.h>           // for sqrt
 
 #include "maths.h"
 #include "vecmat.h"
@@ -59,10 +59,10 @@ static char rcsid[] = "$Id: vecmat.c,v 1.5 2003-02-18 20:23:22 btb Exp $";
 //#define USE_ISQRT 1
 
 #ifndef ASM_VECMAT
-vms_vector vmd_zero_vector = {0,0,0};
-vms_matrix vmd_identity_matrix = {	{ f1_0,0,0 },
-												{ 0,f1_0,0 },
-												{0,0,f1_0} };
+vms_vector vmd_zero_vector = {0, 0, 0};
+vms_matrix vmd_identity_matrix = { { f1_0, 0, 0 },
+                                   { 0, f1_0, 0 },
+                                   { 0, 0, f1_0 } };
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
@@ -916,9 +916,8 @@ fix vm_dist_to_plane(vms_vector *checkp,vms_vector *norm,vms_vector *planep)
 
 }
 
-vms_vector *vm_vec_make(vms_vector *v,fix x,fix y,fix z) {
+vms_vector *vm_vec_make(vms_vector *v,fix x,fix y,fix z)
+{
 	v->x=x; v->y=y; v->z=z;
 	return v;
 }
-
-
