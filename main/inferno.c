@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.28 $
+ * $Revision: 1.29 $
  * $Author: bradleyb $
- * $Date: 2002-07-16 19:05:13 $
+ * $Date: 2002-07-16 20:47:27 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.28  2002/07/16 19:05:13  bradleyb
+ * need limits.h on mingw also
+ *
  * Revision 1.27  2002/02/16 02:08:31  bradleyb
  * allow older sdl versions
  *
@@ -595,8 +598,10 @@ int main(int argc,char **argv)
 
 	arch_init();
 
+#ifdef __unix__
 	//tell cfile where hogdir is
 	cfile_use_alternate_hogdir(SHAREPATH);
+#endif
 
 	//tell cfile about our counter
 	cfile_set_critical_error_counter_ptr(&descent_critical_error);
