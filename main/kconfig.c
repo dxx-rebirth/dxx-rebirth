@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.36 2005-04-04 09:18:08 btb Exp $ */
+/* $Id: kconfig.c,v 1.37 2005-04-04 09:48:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.36 2005-04-04 09:18:08 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.37 2005-04-04 09:48:50 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -341,37 +341,37 @@ kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
    { 56,158,179,83,  26, 54,  0, 0,  0, "Toggle Bomb",  BT_KEY,255},
 };
 kc_item kc_joystick[NUM_OTHER_CONTROLS] = {
-	{  0, 25, 46, 85, 26, 15,  1, 24,  5,"Fire primary", BT_JOY_BUTTON, 255 },
-	{  1, 25, 54, 85, 26,  0,  4,  5,  6,"Fire secondary", BT_JOY_BUTTON, 255 },
-	{  2, 25, 85, 85, 26, 26,  3,  9, 10,"Accelerate", BT_JOY_BUTTON, 255 },
-	{  3, 25, 93, 85, 26,  2, 25, 10, 11,"reverse", BT_JOY_BUTTON, 255 },
-	{  4, 25, 62, 85, 26,  1, 26,  6,  7,"Fire flare", BT_JOY_BUTTON, 255 },
-	{  5,180, 46, 79, 26, 23,  6,  0,  1,"Slide on", BT_JOY_BUTTON, 255 },
-	{  6,180, 54, 79, 26,  5,  7,  1,  4,"Slide left", BT_JOY_BUTTON, 255 },
-	{  7,180, 62, 79, 26,  6,  8,  4, 26,"Slide right", BT_JOY_BUTTON, 255 },
-	{  8,180, 70, 79, 26,  7,  9, 26,  9,"Slide up", BT_JOY_BUTTON, 255 },
-	{  9,180, 78, 79, 26,  8, 10,  8,  2,"Slide down", BT_JOY_BUTTON, 255 },
-	{ 10,180, 90, 79, 26,  9, 11,  2,  3,"Bank on", BT_JOY_BUTTON, 255 },
-	{ 11,180, 98, 79, 26, 10, 12,  3, 12,"Bank left", BT_JOY_BUTTON, 255 },
-	{ 12,180,106, 79, 26, 11, 28, 11, 25,"Bank right", BT_JOY_BUTTON, 255 },
-	{ 13, 22,154, 51, 26, 24, 15, 30, 14,"Pitch U/D", BT_JOY_AXIS, 255 },
+	{  0, 25, 46, 85, 40, 15,  1, 24,  5,"Fire primary", BT_JOY_BUTTON, 255 },
+	{  1, 25, 54, 85, 40,  0,  4,  5,  6,"Fire secondary", BT_JOY_BUTTON, 255 },
+	{  2, 25, 85, 85, 40, 26,  3,  9, 10,"Accelerate", BT_JOY_BUTTON, 255 },
+	{  3, 25, 93, 85, 40,  2, 25, 10, 11,"reverse", BT_JOY_BUTTON, 255 },
+	{  4, 25, 62, 85, 40,  1, 26,  6,  7,"Fire flare", BT_JOY_BUTTON, 255 },
+	{  5,180, 46, 79, 40, 23,  6,  0,  1,"Slide on", BT_JOY_BUTTON, 255 },
+	{  6,180, 54, 79, 40,  5,  7,  1,  4,"Slide left", BT_JOY_BUTTON, 255 },
+	{  7,180, 62, 79, 40,  6,  8,  4, 26,"Slide right", BT_JOY_BUTTON, 255 },
+	{  8,180, 70, 79, 40,  7,  9, 26,  9,"Slide up", BT_JOY_BUTTON, 255 },
+	{  9,180, 78, 79, 40,  8, 10,  8,  2,"Slide down", BT_JOY_BUTTON, 255 },
+	{ 10,180, 90, 79, 40,  9, 11,  2,  3,"Bank on", BT_JOY_BUTTON, 255 },
+	{ 11,180, 98, 79, 40, 10, 12,  3, 12,"Bank left", BT_JOY_BUTTON, 255 },
+	{ 12,180,106, 79, 40, 11, 28, 11, 25,"Bank right", BT_JOY_BUTTON, 255 },
+	{ 13, 22,154, 51, 40, 24, 15, 30, 14,"Pitch U/D", BT_JOY_AXIS, 255 },
 	{ 14, 22,154, 99,  8, 30, 16, 13, 17,"Pitch U/D", BT_INVERT, 255 },
-	{ 15, 22,162, 51, 26, 13,  0, 18, 16,"Turn L/R", BT_JOY_AXIS, 255 },
+	{ 15, 22,162, 51, 40, 13,  0, 18, 16,"Turn L/R", BT_JOY_AXIS, 255 },
 	{ 16, 22,162, 99,  8, 14, 17, 15, 19,"Turn L/R", BT_INVERT, 255 },
-	{ 17,164,154, 58, 26, 16, 19, 14, 18,"Slide L/R", BT_JOY_AXIS, 255 },
+	{ 17,164,154, 58, 40, 16, 19, 14, 18,"Slide L/R", BT_JOY_AXIS, 255 },
 	{ 18,164,154,106,  8, 29, 20, 17, 15,"Slide L/R", BT_INVERT, 255 },
-	{ 19,164,162, 58, 26, 17, 21, 16, 20,"Slide U/D", BT_JOY_AXIS, 255 },
+	{ 19,164,162, 58, 40, 17, 21, 16, 20,"Slide U/D", BT_JOY_AXIS, 255 },
 	{ 20,164,162,106,  8, 18, 22, 19, 21,"Slide U/D", BT_INVERT, 255 },
-	{ 21,164,172, 58, 26, 19, 23, 20, 22,"Bank L/R", BT_JOY_AXIS, 255 },
+	{ 21,164,172, 58, 40, 19, 23, 20, 22,"Bank L/R", BT_JOY_AXIS, 255 },
 	{ 22,164,172,106,  8, 20, 24, 21, 23,"Bank L/R", BT_INVERT, 255 },
-	{ 23,164,180, 58, 26, 21,  5, 22, 24,"throttle", BT_JOY_AXIS, 255 },
+	{ 23,164,180, 58, 40, 21,  5, 22, 24,"throttle", BT_JOY_AXIS, 255 },
 	{ 24,164,180,106,  8, 22, 13, 23,  0,"throttle", BT_INVERT, 255 },
-	{ 25, 25,109, 85, 26,  3, 27, 12, 28,"REAR VIEW", BT_JOY_BUTTON, 255 },
-	{ 26, 25, 70, 85, 26,  4,  2,  7,  8,"Drop Bomb", BT_JOY_BUTTON, 255 },
-	{ 27, 25,117, 85, 26, 25, 30, 28, 29,"Afterburner", BT_JOY_BUTTON, 255 },
-	{ 28,180,114, 79, 26, 12, 29, 25, 27,"Cycle Primary", BT_JOY_BUTTON, 255 },
-	{ 29,180,122, 79, 26, 28, 18, 27, 30,"Cycle Secondary", BT_JOY_BUTTON, 255 },
-	{ 30, 25,125, 85, 26, 27, 14, 29, 13,"Headlight", BT_JOY_BUTTON, 255 },
+	{ 25, 25,109, 85, 40,  3, 27, 12, 28,"REAR VIEW", BT_JOY_BUTTON, 255 },
+	{ 26, 25, 70, 85, 40,  4,  2,  7,  8,"Drop Bomb", BT_JOY_BUTTON, 255 },
+	{ 27, 25,117, 85, 40, 25, 30, 28, 29,"Afterburner", BT_JOY_BUTTON, 255 },
+	{ 28,180,114, 79, 40, 12, 29, 25, 27,"Cycle Primary", BT_JOY_BUTTON, 255 },
+	{ 29,180,122, 79, 40, 28, 18, 27, 30,"Cycle Secondary", BT_JOY_BUTTON, 255 },
+	{ 30, 25,125, 85, 40, 27, 14, 29, 13,"Headlight", BT_JOY_BUTTON, 255 },
 };
 kc_item kc_superjoy[NUM_OTHER_CONTROLS] = {
 	{  0, 25, 46, 85, 26, 15,  1, 24,  5,"Fire primary", BT_JOY_BUTTON, 255 },
@@ -1013,8 +1013,8 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 		gr_string( LHX(81), LHY(137+8), TXT_AXIS );
 		gr_string( LHX(111), LHY(137+8), TXT_INVERT );
-		gr_string( LHX(222), LHY(137+8), TXT_AXIS );
-		gr_string( LHX(252), LHY(137+8), TXT_INVERT );
+		gr_string( LHX(230), LHY(137+8), TXT_AXIS );
+		gr_string( LHX(260), LHY(137+8), TXT_INVERT );
 	} else if ( items == kc_mouse )	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );

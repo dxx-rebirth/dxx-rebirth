@@ -1,5 +1,7 @@
 2005-04-04  Bradley Bell  <btb@icculus.org>
 
+	* main/kconfig.c: cosmetic fixes to joystick config screen
+
 	* arch/dos/joyc.c, arch/include/joy.h, arch/linux/joydefs.c,
 	arch/linux/joystick.c, arch/linux/include/joystick.h,
 	arch/sdl/joy.c, arch/win32/joyhh.c, arch/win32/include/joy.h,
