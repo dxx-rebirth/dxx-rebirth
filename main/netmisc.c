@@ -1,4 +1,4 @@
-/* $Id: netmisc.c,v 1.9 2003-10-04 19:13:32 btb Exp $ */
+/* $Id: netmisc.c,v 1.10 2004-08-01 16:28:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -41,7 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: netmisc.c,v 1.9 2003-10-04 19:13:32 btb Exp $";
+static char rcsid[] = "$Id: netmisc.c,v 1.10 2004-08-01 16:28:33 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -80,7 +80,7 @@ ushort mac_calc_segment_checksum()
 	sum1 = sum2 = 0;
 	for (i = 0; i < Highest_segment_index + 1; i++) {
 		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
-			mac_do_checksum_calc(&(Segments[i].sides[j].type), 1, &sum1, &sum2);
+			mac_do_checksum_calc((unsigned char *)&(Segments[i].sides[j].type), 1, &sum1, &sum2);
 			mac_do_checksum_calc(&(Segments[i].sides[j].pad), 1, &sum1, &sum2);
 			s = INTEL_SHORT(Segments[i].sides[j].wall_num);
 			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
@@ -186,9 +186,9 @@ void send_netplayers_packet(ubyte *server, ubyte *node)
 	}
 
 	if ((server == NULL) && (node == NULL))
-		ipx_send_broadcast_packet_data(out_buffer, loc);
+		ipx_send_broadcast_packet_data((unsigned char *)out_buffer, loc);
 	else
-		ipx_send_internetwork_packet_data(out_buffer, loc, server, node);
+		ipx_send_internetwork_packet_data((unsigned char *)out_buffer, loc, server, node);
 
 }
 
@@ -226,11 +226,11 @@ void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte
 	memcpy(&(out_buffer[loc]), &tmps, 2);                           loc += 2;
 	out_buffer[loc]=seq.player.rank;                                loc++;      // for pad byte
 	if (net_address != NULL)
-		ipx_send_packet_data(out_buffer, loc, server, node, net_address);
+		ipx_send_packet_data((unsigned char *)out_buffer, loc, server, node, net_address);
 	else if ((server == NULL) && (node == NULL))
-		ipx_send_broadcast_packet_data(out_buffer, loc);
+		ipx_send_broadcast_packet_data((unsigned char *)out_buffer, loc);
 	else
-		ipx_send_internetwork_packet_data(out_buffer, loc, server, node);
+		ipx_send_internetwork_packet_data((unsigned char *)out_buffer, loc, server, node);
 }
 
 void receive_sequence_packet(ubyte *data, sequence_packet *seq)
@@ -358,11 +358,11 @@ void send_netgame_packet(ubyte *server, ubyte *node, ubyte *net_address, int lit
 
 do_send:
 	if (net_address != NULL)
-		ipx_send_packet_data(out_buffer, loc, server, node, net_address);
+		ipx_send_packet_data((unsigned char *)out_buffer, loc, server, node, net_address);
 	else if ((server == NULL) && (node == NULL))
-		ipx_send_broadcast_packet_data(out_buffer, loc);
+		ipx_send_broadcast_packet_data((unsigned char *)out_buffer, loc);
 	else
-		ipx_send_internetwork_packet_data(out_buffer, loc, server, node);
+		ipx_send_internetwork_packet_data((unsigned char *)out_buffer, loc, server, node);
 }
 
 void receive_netgame_packet(ubyte *data, netgame_info *netgame, int lite_flag)

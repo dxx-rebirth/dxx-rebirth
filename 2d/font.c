@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.30 2004-08-01 13:01:39 schaffner Exp $ */
+/* $Id: font.c,v 1.31 2004-08-01 16:28:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -177,7 +177,7 @@ int gr_message_color_level=1;
 int gr_internal_string0(int x, int y, char *s )
 {
 	unsigned char * fp;
-	ubyte * text_ptr, * next_row, * text_ptr1;
+	char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int	skip_lines = 0;
 
@@ -291,7 +291,7 @@ int gr_internal_string0(int x, int y, char *s )
 int gr_internal_string0m(int x, int y, char *s )
 {
 	unsigned char * fp;
-	ubyte * text_ptr, * next_row, * text_ptr1;
+	char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int	skip_lines = 0;
 
@@ -1199,9 +1199,9 @@ void ogl_init_font(grs_font * font){
 	int oglflags = OGL_FLAG_ALPHA;
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int i,w,h,tw,th,x,y,curx=0,cury=0;
-	char *fp;
+	unsigned char *fp;
 	//	char data[32*32*4];
-	char *data;
+	ubyte *data;
 	int gap=0;//having a gap just wastes ram, since we don't filter text textures at all.
 	//	char s[2];
 	ogl_font_choose_size(font,gap,&tw,&th);
@@ -1282,7 +1282,7 @@ void ogl_init_font(grs_font * font){
 
 int ogl_internal_string(int x, int y, char *s )
 {
-	ubyte * text_ptr, * next_row, * text_ptr1;
+	char * text_ptr, * next_row, * text_ptr1;
 	int width, spacing,letter;
 	int xx,yy;
 	int orig_color=FG_COLOR;//to allow easy reseting to default string color with colored strings -MPM
@@ -1660,7 +1660,7 @@ grs_font * gr_init_font( char * fontname )
 	if (font->ft_flags & FT_PROPORTIONAL) {
 
 		font->ft_widths = (short *) &font_data[(int)font->ft_widths];
-		font->ft_data = &font_data[(int)font->ft_data];
+		font->ft_data = (unsigned char *) &font_data[(int)font->ft_data];
 		font->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
 
 		ptr = font->ft_data;
@@ -1676,7 +1676,7 @@ grs_font * gr_init_font( char * fontname )
 
 	} else  {
 
-		font->ft_data   = font_data;
+		font->ft_data   = (unsigned char *) font_data;
 		font->ft_chars  = NULL;
 		font->ft_widths = NULL;
 
@@ -1684,7 +1684,7 @@ grs_font * gr_init_font( char * fontname )
 	}
 
 	if (font->ft_flags & FT_KERNED)
-		font->ft_kerndata = &font_data[(int)font->ft_kerndata];
+		font->ft_kerndata = (unsigned char *) &font_data[(int)font->ft_kerndata];
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];
@@ -1787,7 +1787,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 	if (font->ft_flags & FT_PROPORTIONAL) {
 
 		font->ft_widths = (short *) &font_data[(int)font->ft_widths];
-		font->ft_data = &font_data[(int)font->ft_data];
+		font->ft_data = (unsigned char *) &font_data[(int)font->ft_data];
 		font->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
 
 		ptr = font->ft_data;
@@ -1803,7 +1803,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 
 	} else  {
 
-		font->ft_data   = font_data;
+		font->ft_data   = (unsigned char *) font_data;
 		font->ft_chars  = NULL;
 		font->ft_widths = NULL;
 
@@ -1811,7 +1811,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 	}
 
 	if (font->ft_flags & FT_KERNED)
-		font->ft_kerndata = &font_data[(int)font->ft_kerndata];
+		font->ft_kerndata = (unsigned char *) &font_data[(int)font->ft_kerndata];
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];

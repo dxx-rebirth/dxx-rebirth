@@ -1,4 +1,4 @@
-/* $Id: multi.c,v 1.15 2004-04-22 21:07:32 btb Exp $ */
+/* $Id: multi.c,v 1.16 2004-08-01 16:28:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -952,7 +952,7 @@ multi_send_data(char *buf, int len, int repeat)
 	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
 		com_send_data(buf, len, repeat);
 	else if (Game_mode & GM_NETWORK)
-		network_send_data(buf, len, repeat);
+		network_send_data((unsigned char *)buf, len, repeat);
 }
 
 void
@@ -2325,7 +2325,7 @@ void multi_do_req_player(char *buf)
 		extract_netplayer_stats( &ps, &Players[Player_num] );
 		ps.Player_num = Player_num;
 		ps.message_type = MULTI_SEND_PLAYER;            // SET
-		multi_send_data((ubyte*)&ps, sizeof(netplayer_stats), 0);
+		multi_send_data((char*)&ps, sizeof(netplayer_stats), 0);
 	}
 }
 

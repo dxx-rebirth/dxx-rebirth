@@ -18,6 +18,11 @@
 
 	* cfile/cfile.c: use portable ffilelength in cfile_size
 
+	* 2d/bitblt.c, 2d/font.c, 2d/rle.c, arch/ogl/gr.c, iff/iff.c,
+	main/inferno.c, main/kconfig.c, main/multi.c, main/multibot.c,
+	main/netmisc.c, main/newdemo.c, mem/mem.c: avoid assigments between
+	unsigned and signed char, MPW does not like these
+
 2004-06-26  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/gamemine.c, main/gamemine.h, main/gamesave.c: remove some

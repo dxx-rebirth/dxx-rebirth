@@ -1,4 +1,4 @@
-/* $Id: multibot.c,v 1.6 2004-04-22 21:07:32 btb Exp $ */
+/* $Id: multibot.c,v 1.7 2004-08-01 16:28:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -433,7 +433,7 @@ multi_send_robot_frame(int sent)
 			if (robot_fired[sending])
 			{
 				robot_fired[sending] = 0;
-				multi_send_data(robot_fire_buf[sending], 18, 1);
+				multi_send_data((char *)robot_fire_buf[sending], 18, 1);
 			}
 
 			if (!(Game_mode & GM_NETWORK))

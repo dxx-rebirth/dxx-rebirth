@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.30 2004-05-22 07:27:29 btb Exp $ */
+/* $Id: kconfig.c,v 1.31 2004-08-01 16:28:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.30 2004-05-22 07:27:29 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.31 2004-08-01 16:28:33 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2434,11 +2434,11 @@ fix	joy_axis[JOY_NUM_AXES];
 #endif
 
 ubyte 			kc_use_external_control = 0;
-ubyte				kc_enable_external_control = 0;
+ubyte			kc_enable_external_control = 0;
 ubyte 			kc_external_intno = 0;
 ext_control_info	*kc_external_control = NULL;
-ubyte				*kc_external_name = NULL;
-ubyte				kc_external_version = 0;
+char			*kc_external_name = NULL;
+ubyte			kc_external_version = 0;
 extern int Automap_active;
 
 void kconfig_init_external_controls(int intno, int address)

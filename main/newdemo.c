@@ -1,4 +1,4 @@
-/* $Id: newdemo.c,v 1.15 2003-11-26 12:26:31 btb Exp $ */
+/* $Id: newdemo.c,v 1.16 2004-08-01 16:28:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1171,13 +1171,13 @@ void nd_read_object(object *obj)
 	 * Do render type first, since with render_type == RT_NONE, we
 	 * blow by all other object information
 	 */
-	nd_read_byte(&(obj->render_type));
-	nd_read_byte(&(obj->type));
+	nd_read_byte((sbyte *) &(obj->render_type));
+	nd_read_byte((sbyte *) &(obj->type));
 	if ((obj->render_type == RT_NONE) && (obj->type != OBJ_CAMERA))
 		return;
 
-	nd_read_byte(&(obj->id));
-	nd_read_byte(&(obj->flags));
+	nd_read_byte((sbyte *) &(obj->id));
+	nd_read_byte((sbyte *) &(obj->flags));
 	nd_read_short((short *)&(obj->signature));
 	nd_read_shortpos(obj);
 
@@ -1210,7 +1210,7 @@ void nd_read_object(object *obj)
 
 	case OBJ_POWERUP:
 		obj->control_type = CT_POWERUP;
-		nd_read_byte(&(obj->movement_type));        // might have physics movement
+		nd_read_byte((sbyte *) &(obj->movement_type));        // might have physics movement
 		obj->size = Powerup_info[obj->id].size;
 		break;
 
@@ -1231,8 +1231,8 @@ void nd_read_object(object *obj)
 		break;
 
 	default:
-		nd_read_byte(&(obj->control_type));
-		nd_read_byte(&(obj->movement_type));
+		nd_read_byte((sbyte *) &(obj->control_type));
+		nd_read_byte((sbyte *) &(obj->movement_type));
 		nd_read_fix(&(obj->size));
 		break;
 	}
@@ -1242,7 +1242,7 @@ void nd_read_object(object *obj)
 	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
 		nd_read_fix(&(obj->lifeleft));
 	else {
-		ubyte b;
+		sbyte b;
 
 		nd_read_byte(&b);
 		obj->lifeleft = (fix)b;
@@ -2135,7 +2135,7 @@ void newdemo_set_new_level(int level_num)
 int newdemo_read_demo_start(int rnd_demo)
 {
 	sbyte i, version, game_type, laser_level;
-	char c, energy, shield;
+	sbyte c, energy, shield;
 	char text[128], current_mission[9];
 
 	nd_read_byte(&c);
@@ -2302,7 +2302,7 @@ int newdemo_read_frame_information()
 {
 	int done, segnum, side, objnum, soundno, angle, volume, i,shot;
 	object *obj;
-	ubyte c,WhichWindow;
+	sbyte c,WhichWindow;
 	static sbyte saved_letter_cockpit;
 	static sbyte saved_rearview_cockpit;
 	object extraobj;
@@ -2601,8 +2601,8 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_PLAYER_ENERGY: {
-			ubyte energy;
-			ubyte old_energy;
+			sbyte energy;
+			sbyte old_energy;
 
 			nd_read_byte(&old_energy);
 			nd_read_byte(&energy);
@@ -2610,15 +2610,15 @@ int newdemo_read_frame_information()
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[Player_num].energy = i2f(energy);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				if (old_energy != 255)
+				if (old_energy != -128)
 					Players[Player_num].energy = i2f(old_energy);
 			}
 			break;
 		}
 
 		case ND_EVENT_PLAYER_AFTERBURNER: {
-			ubyte afterburner;
-			ubyte old_afterburner;
+			sbyte afterburner;
+			sbyte old_afterburner;
 
 			nd_read_byte(&old_afterburner);
 			nd_read_byte(&afterburner);
@@ -2626,15 +2626,15 @@ int newdemo_read_frame_information()
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Afterburner_charge = afterburner<<9;
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				if (old_afterburner != 255)
+				if (old_afterburner != -128)
 					Afterburner_charge = old_afterburner<<9;
 			}
 			break;
 		}
 
 		case ND_EVENT_PLAYER_SHIELD: {
-			ubyte shield;
-			ubyte old_shield;
+			sbyte shield;
+			sbyte old_shield;
 
 			nd_read_byte(&old_shield);
 			nd_read_byte(&shield);
@@ -2642,7 +2642,7 @@ int newdemo_read_frame_information()
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[Player_num].shields = i2f(shield);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				if (old_shield != 255)
+				if (old_shield != -128)
 					Players[Player_num].shields = i2f(old_shield);
 			}
 			break;
@@ -2793,7 +2793,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_WALL_SET_TMAP_NUM1: {
 			short seg, cseg, tmap;
-			ubyte side,cside;
+			sbyte side,cside;
 
 			nd_read_short(&seg);
 			nd_read_byte(&side);
@@ -2807,7 +2807,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_WALL_SET_TMAP_NUM2: {
 			short seg, cseg, tmap;
-			ubyte side,cside;
+			sbyte side,cside;
 
 			nd_read_short(&seg);
 			nd_read_byte(&side);
@@ -3037,7 +3037,7 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_CLOAKING_WALL: {
-			ubyte back_wall_num,front_wall_num,type,state,cloak_value;
+			sbyte back_wall_num,front_wall_num,type,state,cloak_value;
 			short l0,l1,l2,l3;
 			segment *segp;
 			int sidenum;
@@ -3111,9 +3111,9 @@ int newdemo_read_frame_information()
 				nd_read_int (&Num_walls);
 				for (i=0;i<Num_walls;i++)    // restore the walls
 				{
-					nd_read_byte (&Walls[i].type);
-					nd_read_byte (&Walls[i].flags);
-					nd_read_byte (&Walls[i].state);
+					nd_read_byte ((signed char *)&Walls[i].type);
+					nd_read_byte ((signed char *)&Walls[i].flags);
+					nd_read_byte ((signed char *)&Walls[i].state);
 
 					seg = &Segments[Walls[i].segnum];
 					side = Walls[i].sidenum;
@@ -3197,7 +3197,7 @@ void newdemo_goto_end()
 {
 	short frame_length, byte_count, bshort;
 	sbyte level, bbyte, laser_level;
-	ubyte energy, shield, c;
+	sbyte energy, shield, c;
 	int i, loc, bint;
 
 	cfseek(infile, -2, SEEK_END);
@@ -3349,7 +3349,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 	for (i = 0; i <= num_cur_objs; i++) {
 		for (j = 0; j <= Highest_object_index; j++) {
 			if (cur_objs[i].signature == Objects[j].signature) {
-				ubyte render_type = cur_objs[i].render_type;
+				sbyte render_type = cur_objs[i].render_type;
 				//fix delta_p, delta_h, delta_b;
 				fix delta_x, delta_y, delta_z;
 				//vms_angvec cur_angles, dest_angles;
@@ -3697,8 +3697,8 @@ void newdemo_stop_recording()
 	newmenu_item m[6];
 	int l, exit;
 	static char filename[15] = "", *s;
-	static ubyte tmpcnt = 0;
-	ubyte cloaked = 0;
+	static sbyte tmpcnt = 0;
+	sbyte cloaked = 0;
 	char fullname[15+FILENAME_LEN] = DEMO_DIR;
 	unsigned short byte_count = 0;
 

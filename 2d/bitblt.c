@@ -1,4 +1,4 @@
-/* $Id: bitblt.c,v 1.13 2003-12-08 21:21:16 btb Exp $ */
+/* $Id: bitblt.c,v 1.14 2004-08-01 16:28:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2112,11 +2112,11 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 
 // rescalling bitmaps, 10/14/99 Jan Bobrowski jb@wizard.ae.krakow.pl
 
-inline void scale_line(sbyte *in, sbyte *out, int ilen, int olen)
+inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen)
 {
 	int a = olen/ilen, b = olen%ilen;
 	int c = 0, i;
-	sbyte *end = out + olen;
+	unsigned char *end = out + olen;
 	while(out<end) {
 		i = a;
 		c += b;
@@ -2134,8 +2134,8 @@ inline void scale_line(sbyte *in, sbyte *out, int ilen, int olen)
 
 void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst)
 {
-	sbyte *s = src->bm_data;
-	sbyte *d = dst->bm_data;
+	unsigned char *s = src->bm_data;
+	unsigned char *d = dst->bm_data;
 	int h = src->bm_h;
 	int a = dst->bm_h/h, b = dst->bm_h%h;
 	int c = 0, i, y;

@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.17 2004-01-08 20:31:35 schaffner Exp $ */
+/* $Id: rle.c,v 1.18 2004-08-01 16:28:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -125,7 +125,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.17 2004-01-08 20:31:35 schaffner Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.18 2004-08-01 16:28:33 schaffner Exp $";
 #endif
 
 #include <stdlib.h>
@@ -312,7 +312,7 @@ void gr_rle_decode( ubyte * src, ubyte * dest )
 
 #endif
 
-void rle_stosb(char *dest, int len, int color);
+void rle_stosb (unsigned char *dest, int len, int color);
 
 #if !defined(NO_ASM) && defined(__WATCOMC__)
 
@@ -320,7 +320,7 @@ void rle_stosb(char *dest, int len, int color);
 
 #elif !defined(NO_ASM) && defined(__GNUC__)
 
-inline void rle_stosb(char *dest, int len, int color) {
+inline void rle_stosb (unsigned char *dest, int len, int color) {
 	int dummy[2];
    __asm__ __volatile__ (
     "cld; rep; stosb"
@@ -330,7 +330,7 @@ inline void rle_stosb(char *dest, int len, int color) {
 
 #elif !defined(NO_ASM) && defined(_MSC_VER)
 
-__inline void rle_stosb(char *dest, int len, int color)
+__inline void rle_stosb (unsigned char *dest, int len, int color)
 {
   __asm {
 	mov edi,[dest]
@@ -343,7 +343,7 @@ __inline void rle_stosb(char *dest, int len, int color)
 
 #else // NO_ASM or unknown compiler
 
-void rle_stosb(char *dest, int len, int color)
+void rle_stosb (unsigned char *dest, int len, int color)
 {
 	int i;
 	for (i=0; i<len; i++ )

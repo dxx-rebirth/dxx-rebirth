@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.34 2004-08-01 13:01:39 schaffner Exp $ */
+/* $Id: movie.c,v 1.35 2004-08-01 16:28:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.34 2004-08-01 13:01:39 schaffner Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.35 2004-08-01 16:28:33 schaffner Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -318,7 +318,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	int frame_num;
 	int key;
 #ifdef OGL
-	char pal_save[768];
+	ubyte pal_save[768];
 #endif
 
 	result=1;
@@ -499,11 +499,11 @@ int InitRobotMovie(char *filename)
  *		Subtitle system code
  */
 
-ubyte *subtitle_raw_data;
+char *subtitle_raw_data;
 
 
 //search for next field following whitespace 
-ubyte *next_field(ubyte *p)
+char *next_field (char *p)
 {
 	while (*p && !isspace(*p))
 		p++;
@@ -525,7 +525,7 @@ int init_subtitles(char *filename)
 {
 	CFILE *ifile;
 	int size,read_count;
-	ubyte *p;
+	char *p;
 	int have_binary = 0;
 
 	Num_subtitles = 0;

@@ -1,4 +1,4 @@
-/* $Id: mem.c,v 1.13 2004-08-01 13:01:39 schaffner Exp $ */
+/* $Id: mem.c,v 1.14 2004-08-01 16:28:33 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -278,7 +278,7 @@ int mem_check_integrity( int block_number )
 	int i, ErrorCount;
 	ubyte * CheckData;
 
-	CheckData = (char *)((char *)MallocBase[block_number] + MallocSize[block_number]);
+	CheckData = (ubyte *)((char *)MallocBase[block_number] + MallocSize[block_number]);
 
 	ErrorCount = 0;
 			

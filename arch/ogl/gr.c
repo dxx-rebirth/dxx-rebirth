@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.33 2004-08-01 14:22:54 schaffner Exp $ */
+/* $Id: gr.c,v 1.34 2004-08-01 16:28:33 schaffner Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -156,7 +156,7 @@ void gr_update()
 	}
 }
 
-const char *gl_vendor,*gl_renderer,*gl_version,*gl_extensions;
+const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
 void ogl_get_verinfo(void)
 {
@@ -166,10 +166,10 @@ void ogl_get_verinfo(void)
 #endif
 	float anisotropic_max = 0;
 
-	gl_vendor=glGetString(GL_VENDOR);
-	gl_renderer=glGetString(GL_RENDERER);
-	gl_version=glGetString(GL_VERSION);
-	gl_extensions=glGetString(GL_EXTENSIONS);
+	gl_vendor = (const char *) glGetString (GL_VENDOR);
+	gl_renderer = (const char *) glGetString (GL_RENDERER);
+	gl_version = (const char *) glGetString (GL_VERSION);
+	gl_extensions = (const char *) glGetString (GL_EXTENSIONS);
 
 	con_printf(CON_VERBOSE, "gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
 
