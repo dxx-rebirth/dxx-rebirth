@@ -1,3 +1,8 @@
+2003-03-29  Bradley Bell  <btb@icculus.org>
+
+	* arch/sdl/joy.c: fixed text seen for hats in control config
+	screen
+
 2003-03-28  Bradley Bell  <btb@icculus.org>
 
 	* main/bm.c: heh, model nums in vertigo are hardcoded,

@@ -1,4 +1,4 @@
-/* $Id: joy.c,v 1.10 2003-03-27 02:26:02 btb Exp $ */
+/* $Id: joy.c,v 1.11 2003-03-29 20:57:32 btb Exp $ */
 /*
  *
  * SDL joystick support
@@ -18,6 +18,7 @@
 #include "timer.h"
 #include "console.h"
 #include "event.h"
+#include "text.h"
 
 #define MAX_JOYSTICKS 16
 #define MAX_AXES 32
@@ -26,6 +27,7 @@
 #define MAX_BUTTONS_PER_JOYSTICK 16
 #define MAX_HATS_PER_JOYSTICK 4
 
+extern int joybutton_text[]; //from kconfig.c
 
 char joy_present = 0;
 int num_joysticks = 0;
@@ -51,7 +53,7 @@ static struct joyinfo {
 	int n_axes;
 	int n_buttons;
 	struct joyaxis axes[MAX_AXES];
-	struct joybutton buttons[MAX_BUTTONS+(MAX_HATS_PER_JOYSTICK*4)];
+	struct joybutton buttons[MAX_BUTTONS];
 } Joystick;
 
 static struct {
@@ -184,17 +186,22 @@ int joy_init()
 			for (j=0; j < SDL_Joysticks[num_joysticks].n_hats; j++)
 			{
 				SDL_Joysticks[num_joysticks].hat_map[j] = Joystick.n_buttons;
-				Joystick.n_buttons += 4; //a hat counts as four buttons
+				//a hat counts as four buttons
+				joybutton_text[Joystick.n_buttons++] = j?TNUM_HAT2_U:TNUM_HAT_U;
+				joybutton_text[Joystick.n_buttons++] = j?TNUM_HAT2_R:TNUM_HAT_R;
+				joybutton_text[Joystick.n_buttons++] = j?TNUM_HAT2_D:TNUM_HAT_D;
+				joybutton_text[Joystick.n_buttons++] = j?TNUM_HAT2_L:TNUM_HAT_L;
 			}
 
 			num_joysticks++;
 		}
 		else
 			con_printf(CON_VERBOSE, "sdl-joystick: initialization failed!\n");
+
 		con_printf(CON_VERBOSE, "sdl-joystick: %d axes (total)\n", Joystick.n_axes);
 		con_printf(CON_VERBOSE, "sdl-joystick: %d buttons (total)\n", Joystick.n_buttons);
 	}
-		
+
 	return joy_present;
 }
 
