@@ -1,3 +1,7 @@
+2004-08-28 Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* arch/carbon/descent.r: swap min and max size to correct places
+
 2004-08-06 Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/gamesave.c: fix a bug introduced with the change of 2004-06-26

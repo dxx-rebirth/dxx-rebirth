@@ -18,8 +18,8 @@ resource 'SIZE' (-1) {
 	reserved,
 	reserved,
 	reserved,
-	30000*1024,		// 30 megs minimum
-	50000*1024			// 50 megs maximum
+	50000*1024,			// 50 megs maximum
+	30000*1024		// 30 megs minimum
 };
 
 data 'carb' (0) {};
