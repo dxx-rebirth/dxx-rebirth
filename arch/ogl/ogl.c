@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.32 2004-05-23 00:21:03 btb Exp $ */
+/* $Id: ogl.c,v 1.33 2004-05-31 08:33:41 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -282,7 +282,8 @@ int ogl_texture_stats(void){
 	}
 	if (gr_renderstats)
 	{
-		int idx, r, g, b, a, dbl, depth, res, colorsize, depthsize;
+		GLint idx, r, g, b, a, dbl, depth;
+		int res, colorsize, depthsize;
 
 		res = SWIDTH * SHEIGHT;
 		glGetIntegerv(GL_INDEX_BITS, &idx);

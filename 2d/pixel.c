@@ -1,4 +1,4 @@
-/* $Id: pixel.c,v 1.5 2002-10-10 18:55:32 btb Exp $ */
+/* $Id: pixel.c,v 1.6 2004-05-31 08:33:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -25,8 +25,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 #include "grdef.h"
+#ifdef __MSDOS__
 #include "vesa.h"
 #include "modex.h"
+#endif
 #ifdef OGL
 #include "ogl_init.h"
 #endif

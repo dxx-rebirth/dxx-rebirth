@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.17 2003-11-26 12:26:28 btb Exp $ */
+/* $Id: mveplay.c,v 1.18 2004-05-31 08:33:41 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -118,7 +118,7 @@ static int micro_frame_delay=0;
 static int timer_started=0;
 static struct timeval timer_expire = {0, 0};
 
-#if !HAVE_STRUCT_TIMESPEC
+#if defined(HAVE_STRUCT_TIMESPEC) && !HAVE_STRUCT_TIMESPEC
 struct timespec
 {
 	long int tv_sec;            /* Seconds.  */

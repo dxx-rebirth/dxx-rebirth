@@ -1,4 +1,4 @@
-/* $Id: strutil.h,v 1.9 2003-11-26 12:26:28 btb Exp $ */
+/* $Id: strutil.h,v 1.10 2004-05-31 08:33:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,7 +15,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _STRUTILS_H
 #define _STRUTILS_H
 
-#ifdef __unix__
+#ifndef _WIN32
 #include <string.h>
 #define stricmp(a,b) strcasecmp(a,b)
 #define strnicmp(a,b,c) strncasecmp(a,b,c)

@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.26 2004-01-06 17:59:27 schaffner Exp $ */
+/* $Id: pstypes.h,v 1.27 2004-05-31 08:33:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -37,12 +37,12 @@ typedef signed char sbyte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
-#ifndef __unix__
+#if defined(_WIN32) || defined(__sun__)
 typedef unsigned short ushort;
 typedef unsigned int uint;
 #endif
 
-#if ! defined(__unix__) || defined(__sun__) // platforms missing u_int??_t
+#if defined(_WIN32) || defined(__sun__) // platforms missing u_int??_t
 #include <SDL_types.h>
 #ifndef __unix__ // platforms missing int??_t
 typedef Sint16 int16_t;
@@ -52,7 +52,7 @@ typedef Sint64 int64_t;
 typedef Uint16 u_int16_t;
 typedef Uint32 u_int32_t;
 typedef Uint64 u_int64_t;
-#endif // ! defined(__unix__) || defined(__sun__)
+#endif // defined(_WIN32) || defined(__sun__)
 
 #ifdef _MSC_VER
 # include <stdlib.h> // this is where min and max are defined
@@ -71,7 +71,7 @@ typedef Uint64 u_int64_t;
 # ifdef _WIN32_WCE
 #  define _MAX_DIR 256
 # endif
-#elif defined(__unix__)
+#elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 # include <sys/types.h>
 # define _MAX_PATH 1024
 # define _MAX_DIR 256
