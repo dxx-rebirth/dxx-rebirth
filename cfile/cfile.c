@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.23 2003-11-27 00:36:14 btb Exp $ */
+/* $Id: cfile.c,v 1.24 2004-08-01 14:32:07 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -313,27 +313,15 @@ int cfile_init(char *hogname)
 
 int cfile_size(char *hogname)
 {
-#ifndef _WIN32_WCE
 	CFILE *fp;
-	struct stat statbuf;
+	int size;
 
 	fp = cfopen(hogname, "rb");
 	if (fp == NULL)
 		return -1;
-	fstat(fileno(fp->file), &statbuf);
-	cfclose(fp);
-	return statbuf.st_size;
-#else
-	CFILE *fp;
-	DWORD size;
-
-	fp = cfopen(hogname, "rb");
-	if (fp == NULL)
-		return -1;
-	size = GetFileSize(fileno(fp->file), NULL);
+	size = ffilelength(fp->file);
 	cfclose(fp);
 	return size;
-#endif
 }
 
 /*
