@@ -1,4 +1,4 @@
-/* $Id: piggy.h,v 1.15 2003-03-25 10:17:05 btb Exp $ */
+/* $Id: piggy.h,v 1.16 2003-03-29 22:35:00 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -165,6 +165,6 @@ void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, CFILE *fp);
 /*
  * Find and load the named bitmap from descent.pig
  */
-bitmap_index read_extra_d1_bitmap(char *name);
+bitmap_index read_extra_bitmap_d1_pig(char *name);
 
 #endif //_PIGGY_H

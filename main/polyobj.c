@@ -1,4 +1,4 @@
-/* $Id: polyobj.c,v 1.13 2003-03-23 23:34:38 btb Exp $ */
+/* $Id: polyobj.c,v 1.14 2003-03-29 22:35:00 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.13 2003-03-23 23:34:38 btb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.14 2003-03-29 22:35:00 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -580,8 +580,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 //free up a model, getting rid of all its memory
 void free_model(polymodel *po)
 {
-	if (po->model_data)
-		d_free(po->model_data);
+	d_free(po->model_data);
 }
 
 grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];

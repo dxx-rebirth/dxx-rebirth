@@ -1,5 +1,9 @@
 2003-03-29  Bradley Bell  <btb@icculus.org>
 
+	* main/bm.c, main/endlevel.c, main/piggy.c, main/piggy.h,
+	main/polyobj.c: rewrote endlevel stuff to reread exit model info
+	every time
+
 	* arch/sdl/joy.c: fixed text seen for hats in control config
 	screen
 

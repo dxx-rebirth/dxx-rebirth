@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.12 2003-03-25 08:19:12 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.13 2003-03-29 22:34:59 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -303,7 +303,7 @@ void start_endlevel_sequence()
 {
 	int	i;
 	int movie_played = MOVIE_NOT_PLAYED;
-	static int inited = 0;
+	int inited = 0;
 
 	if (!inited) {
 		if (Piggy_hamfile_version >= 3)

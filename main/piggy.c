@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.30 2003-03-27 01:26:47 btb Exp $ */
+/* $Id: piggy.c,v 1.31 2003-03-29 22:35:00 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.30 2003-03-27 01:26:47 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.31 2003-03-29 22:35:00 btb Exp $";
 #endif
 
 
@@ -2371,9 +2371,9 @@ extern int extra_bitmap_num;
 
 /*
  * Find and load the named bitmap from descent.pig
- * similar to exitmodel_bm_load_sub
+ * similar to read_extra_bitmap_iff
  */
-bitmap_index read_extra_d1_bitmap(char *name)
+bitmap_index read_extra_bitmap_d1_pig(char *name)
 {
 	bitmap_index bitmap_num;
 	grs_bitmap * new = &GameBitmaps[extra_bitmap_num];

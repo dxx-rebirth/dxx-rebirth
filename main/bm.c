@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.30 2003-03-29 02:37:17 btb Exp $ */
+/* $Id: bm.c,v 1.31 2003-03-29 22:34:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -152,170 +152,6 @@ int tmap_info_read_n_d1(tmap_info *ti, int n, CFILE *fp)
 	return i;
 }
 
-extern int Num_bitmap_files;
-int extra_bitmap_num;
-
-bitmap_index exitmodel_bm_load_sub( char * filename )
-{
-	bitmap_index bitmap_num;
-	grs_bitmap * new = &GameBitmaps[extra_bitmap_num];
-	ubyte newpal[256*3];
-	int iff_error;		//reference parm to avoid warning message
-
-	bitmap_num.index = 0;
-
-	//MALLOC( new, grs_bitmap, 1 );
-	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
-	new->bm_handle=0;
-	if (iff_error != IFF_NO_ERROR)		{
-		con_printf(CON_DEBUG, "Error loading exit model bitmap <%s> - IFF error: %s\n", filename, iff_errormsg(iff_error));
-		return bitmap_num;
-	}
-
-	if ( iff_has_transparency )
-		gr_remap_bitmap_good( new, newpal, iff_transparent_color, 254 );
-	else
-		gr_remap_bitmap_good( new, newpal, -1, 254 );
-
-	new->avg_color = 0;	//compute_average_pixel(new);
-
-	bitmap_num.index = extra_bitmap_num;
-
-	GameBitmaps[extra_bitmap_num++] = *new;
-
-	//d_free( new );
-	return bitmap_num;
-}
-
-grs_bitmap *load_exit_model_bitmap(char *name)
-{
-	Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
-
-	{
-		ObjBitmaps[N_ObjBitmaps] = exitmodel_bm_load_sub(name);
-
-		if (ObjBitmaps[N_ObjBitmaps].index == 0)
-		{
-			char *name2 = d_strdup(name);
-			*strrchr(name2, '.') = '\0';
-			ObjBitmaps[N_ObjBitmaps] = read_extra_d1_bitmap(name2);
-			d_free(name2);
-		}
-		if (ObjBitmaps[N_ObjBitmaps].index == 0)
-			return NULL;
-
-		if (GameBitmaps[ObjBitmaps[N_ObjBitmaps].index].bm_w!=64 || GameBitmaps[ObjBitmaps[N_ObjBitmaps].index].bm_h!=64)
-			Error("Bitmap <%s> is not 64x64",name);
-		ObjBitmapPtrs[N_ObjBitmaps] = N_ObjBitmaps;
-		N_ObjBitmaps++;
-		Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
-		return &GameBitmaps[ObjBitmaps[N_ObjBitmaps-1].index];
-	}
-}
-
-void
-bm_free_extra_bitmaps()
-{
-	int i;
-
-	for (i = Num_bitmap_files; i < extra_bitmap_num; i++)
-		d_free(GameBitmaps[i].bm_data);
-	extra_bitmap_num = Num_bitmap_files;
-}
-
-
-#ifdef OGL
-void ogl_cache_polymodel_textures(int model_num);
-#endif
-
-int load_exit_models()
-{
-	CFILE *exit_hamfile;
-	int start_num;
-
-	start_num = N_ObjBitmaps;
-	extra_bitmap_num = Num_bitmap_files;
-	if (!load_exit_model_bitmap("steel1.bbm") ||
-		!load_exit_model_bitmap("rbot061.bbm") ||
-		!load_exit_model_bitmap("rbot062.bbm") ||
-		!load_exit_model_bitmap("steel1.bbm") ||
-		!load_exit_model_bitmap("rbot061.bbm") ||
-		!load_exit_model_bitmap("rbot063.bbm"))
-	{
-		Warning("Can't load exit models!\n");
-		return 0;
-	}
-
-#ifndef MACINTOSH
-	exit_hamfile = cfopen("exit.ham","rb");
-#else
-	exit_hamfile = cfopen(":Data:exit.ham","rb");
-#endif
-	if (exit_hamfile) {
-		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
-		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-		Polygon_models[exit_modelnum].first_texture = start_num;
-		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
-
-		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
-
-		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-
-		cfclose(exit_hamfile);
-
-	} else if (cfexist("exit01.pof") && cfexist("exit01d.pof")) {
-
-		exit_modelnum = load_polygon_model("exit01.pof", 3, start_num, NULL);
-		destroyed_exit_modelnum = load_polygon_model("exit01d.pof", 3, start_num + 3, NULL);
-
-#ifdef OGL
-		ogl_cache_polymodel_textures(exit_modelnum);
-		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
-#endif
-	}
-	else if (cfexist(D1_PIGFILE))
-	{
-		int offset, offset2;
-
-		exit_hamfile = cfopen(D1_PIGFILE, "rb");
-		switch (cfilelength(exit_hamfile)) { //total hack for loading models
-		case D1_PIGSIZE:
-			offset = 91848;     /* and 92582  */
-			offset2 = 383390;   /* and 394022 */
-			break;
-		default:
-			Int3();
-		case D1_SHAREWARE_10_PIGSIZE:
-		case D1_SHAREWARE_PIGSIZE:
-			Int3();             /* exit models should be in .pofs */
-		case D1_OEM_PIGSIZE:
-		case D1_MAC_PIGSIZE:
-		case D1_MAC_SHARE_PIGSIZE:
-			Warning("Can't load exit models!\n");
-			return 0;
-			break;
-		}
-		cfseek(exit_hamfile, offset, SEEK_SET);
-		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
-		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-		Polygon_models[exit_modelnum].first_texture = start_num;
-		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
-
-		cfseek(exit_hamfile, offset2, SEEK_SET);
-		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
-		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-
-		cfclose(exit_hamfile);
-	} else {
-		Warning("Can't load exit models!\n");
-		return 0;
-	}
-
-	atexit(bm_free_extra_bitmaps);
-
-	return 1;
-}
-
 
 //-----------------------------------------------------------------
 // Read data from piggy.
@@ -411,12 +247,9 @@ void bm_read_all(CFILE * fp)
 	if (Piggy_hamfile_version < 3) {
 		exit_modelnum = cfile_read_int(fp);
 		destroyed_exit_modelnum = cfile_read_int(fp);
-	} else {
-		exit_modelnum = N_polygon_models++;
-		destroyed_exit_modelnum = N_polygon_models++;
-		Polygon_models[exit_modelnum].model_data = NULL;
-		Polygon_models[destroyed_exit_modelnum].model_data = NULL;
 	}
+	else
+		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
 }
 
 #define D1_MAX_TEXTURES 800
@@ -573,9 +406,29 @@ void bm_read_all_d1(CFILE * fp)
 #define N_D2_OBJBITMAPPTRS		502
 #define N_D2_WEAPON_TYPES		62
 
-void bm_free_extra_robots()
+extern int Num_bitmap_files;
+int extra_bitmap_num = 0;
+
+void bm_free_extra_objbitmaps()
+{
+	int i;
+
+	if (!extra_bitmap_num)
+		extra_bitmap_num = Num_bitmap_files;
+
+	for (i = Num_bitmap_files; i < extra_bitmap_num; i++)
+	{
+		N_ObjBitmaps--;
+		d_free(GameBitmaps[i].bm_data);
+	}
+	extra_bitmap_num = Num_bitmap_files;
+}
+
+void bm_free_extra_models()
 {
 	while (N_polygon_models > N_D2_POLYGON_MODELS)
+		free_model(&Polygon_models[--N_polygon_models]);
+	while (N_polygon_models > exit_modelnum)
 		free_model(&Polygon_models[--N_polygon_models]);
 }
 
@@ -599,7 +452,8 @@ void bm_read_extra_robots(char *fname,int type)
 	else
 		version = 0;
 
-	bm_free_extra_robots();
+	bm_free_extra_models();
+	bm_free_extra_objbitmaps();
 
 	//read extra weapons
 
@@ -724,4 +578,170 @@ void load_robot_replacements(char *level_name)
 	}
 
 	cfclose(fp);
+}
+
+
+/*
+ * Routines for loading exit models
+ *
+ * Used by d1 levels (including some add-ons), and by d2 shareware.
+ * Could potentially be used by d2 add-on levels, but only if they
+ * don't use "extra" robots...
+ */
+
+// formerly exitmodel_bm_load_sub
+bitmap_index read_extra_bitmap_iff( char * filename )
+{
+	bitmap_index bitmap_num;
+	grs_bitmap * new = &GameBitmaps[extra_bitmap_num];
+	ubyte newpal[256*3];
+	int iff_error;		//reference parm to avoid warning message
+
+	bitmap_num.index = 0;
+
+	//MALLOC( new, grs_bitmap, 1 );
+	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
+	new->bm_handle=0;
+	if (iff_error != IFF_NO_ERROR)		{
+		con_printf(CON_DEBUG, "Error loading exit model bitmap <%s> - IFF error: %s\n", filename, iff_errormsg(iff_error));
+		return bitmap_num;
+	}
+
+	if ( iff_has_transparency )
+		gr_remap_bitmap_good( new, newpal, iff_transparent_color, 254 );
+	else
+		gr_remap_bitmap_good( new, newpal, -1, 254 );
+
+	new->avg_color = 0;	//compute_average_pixel(new);
+
+	bitmap_num.index = extra_bitmap_num;
+
+	GameBitmaps[extra_bitmap_num++] = *new;
+
+	//d_free( new );
+	return bitmap_num;
+}
+
+// formerly load_exit_model_bitmap
+grs_bitmap *bm_load_extra_objbitmap(char *name)
+{
+	Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
+
+	{
+		ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_iff(name);
+
+		if (ObjBitmaps[N_ObjBitmaps].index == 0)
+		{
+			char *name2 = d_strdup(name);
+			*strrchr(name2, '.') = '\0';
+			ObjBitmaps[N_ObjBitmaps] = read_extra_bitmap_d1_pig(name2);
+			d_free(name2);
+		}
+		if (ObjBitmaps[N_ObjBitmaps].index == 0)
+			return NULL;
+
+		if (GameBitmaps[ObjBitmaps[N_ObjBitmaps].index].bm_w!=64 || GameBitmaps[ObjBitmaps[N_ObjBitmaps].index].bm_h!=64)
+			Error("Bitmap <%s> is not 64x64",name);
+		ObjBitmapPtrs[N_ObjBitmaps] = N_ObjBitmaps;
+		N_ObjBitmaps++;
+		Assert(N_ObjBitmaps < MAX_OBJ_BITMAPS);
+		return &GameBitmaps[ObjBitmaps[N_ObjBitmaps-1].index];
+	}
+}
+
+#ifdef OGL
+void ogl_cache_polymodel_textures(int model_num);
+#endif
+
+int load_exit_models()
+{
+	CFILE *exit_hamfile;
+	int start_num;
+
+	bm_free_extra_models();
+	bm_free_extra_objbitmaps();
+
+	start_num = N_ObjBitmaps;
+	if (!bm_load_extra_objbitmap("steel1.bbm") ||
+		!bm_load_extra_objbitmap("rbot061.bbm") ||
+		!bm_load_extra_objbitmap("rbot062.bbm") ||
+		!bm_load_extra_objbitmap("steel1.bbm") ||
+		!bm_load_extra_objbitmap("rbot061.bbm") ||
+		!bm_load_extra_objbitmap("rbot063.bbm"))
+	{
+		Warning("Can't load exit models!\n");
+		return 0;
+	}
+
+#ifndef MACINTOSH
+	exit_hamfile = cfopen("exit.ham","rb");
+#else
+	exit_hamfile = cfopen(":Data:exit.ham","rb");
+#endif
+	if (exit_hamfile) {
+		exit_modelnum = N_polygon_models++;
+		destroyed_exit_modelnum = N_polygon_models++;
+		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
+		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+		Polygon_models[exit_modelnum].first_texture = start_num;
+		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
+
+		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
+
+		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+
+		cfclose(exit_hamfile);
+
+	} else if (cfexist("exit01.pof") && cfexist("exit01d.pof")) {
+
+		exit_modelnum = load_polygon_model("exit01.pof", 3, start_num, NULL);
+		destroyed_exit_modelnum = load_polygon_model("exit01d.pof", 3, start_num + 3, NULL);
+
+#ifdef OGL
+		ogl_cache_polymodel_textures(exit_modelnum);
+		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
+#endif
+	}
+	else if (cfexist(D1_PIGFILE))
+	{
+		int offset, offset2;
+
+		exit_hamfile = cfopen(D1_PIGFILE, "rb");
+		switch (cfilelength(exit_hamfile)) { //total hack for loading models
+		case D1_PIGSIZE:
+			offset = 91848;     /* and 92582  */
+			offset2 = 383390;   /* and 394022 */
+			break;
+		default:
+		case D1_SHAREWARE_10_PIGSIZE:
+		case D1_SHAREWARE_PIGSIZE:
+			Int3();             /* exit models should be in .pofs */
+		case D1_OEM_PIGSIZE:
+		case D1_MAC_PIGSIZE:
+		case D1_MAC_SHARE_PIGSIZE:
+			Warning("Can't load exit models!\n");
+			return 0;
+			break;
+		}
+		cfseek(exit_hamfile, offset, SEEK_SET);
+		exit_modelnum = N_polygon_models++;
+		destroyed_exit_modelnum = N_polygon_models++;
+		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
+		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+		Polygon_models[exit_modelnum].first_texture = start_num;
+		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
+
+		cfseek(exit_hamfile, offset2, SEEK_SET);
+		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
+		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+
+		cfclose(exit_hamfile);
+	} else {
+		Warning("Can't load exit models!\n");
+		return 0;
+	}
+
+	atexit(bm_free_extra_objbitmaps);
+
+	return 1;
 }
