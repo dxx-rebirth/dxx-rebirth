@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.28 2003-06-19 05:40:20 btb Exp $ */
+/* $Id: movie.c,v 1.29 2003-06-22 23:04:54 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.28 2003-06-19 05:40:20 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.29 2003-06-22 23:04:54 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -318,7 +318,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	if (filehndl == NULL)
 	{
 		if (must_have)
-			Warning("movie: RunMovie: Cannot open movie <%s>\n",filename);
+			con_printf(CON_NORMAL, "movie: RunMovie: Cannot open movie <%s>\n",filename);
 		return MOVIE_NOT_PLAYED;
 	}
 
