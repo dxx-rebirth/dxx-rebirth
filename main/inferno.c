@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.65 2003-10-08 22:01:39 btb Exp $ */
+/* $Id: inferno.c,v 1.66 2003-10-08 22:05:19 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1777,7 +1777,7 @@ void check_joystick_calibration()	{
 
 void show_order_form()
 {
-#if !defined(EDITOR) && (defined(SHAREWARE) || defined(D2_OEM))
+#ifndef EDITOR
 
 	int pcx_error;
 	char title_pal[768];
@@ -1795,6 +1795,8 @@ void show_order_form()
 		strcpy(exit_screen, MenuHires?"orderd2.pcx":"orderd2b.pcx"); // SHAREWARE, have to rescale
 	if (! cfexist(exit_screen))
 		strcpy(exit_screen, MenuHires?"warningb.pcx":"warning.pcx"); // D1
+	if (! cfexist(exit_screen))
+		return; // D2 registered
 
 	if ((pcx_error=pcx_read_fullscr( exit_screen, title_pal ))==PCX_ERROR_NONE) {
 		//vfx_set_palette_sub( title_pal );
