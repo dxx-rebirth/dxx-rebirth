@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/error.h,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-11-14 10:51:04 $
+ * $Date: 2002-01-18 07:00:59 $
  *
  * Header for error handling/printing/exiting code
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/11/14 10:51:04  bradleyb
+ * kludge to ungrab mouse when we hit an int3
+ *
  * Revision 1.2  2001/01/22 15:49:14  bradleyb
  * fix compiler warnings w/opengl
  *
@@ -100,7 +103,6 @@ void Int3();
 #ifndef NDEBUG		//macros for debugging
 
 #ifdef __GNUC__
-//edited 05/17/99 Matt Mueller - I dunno if there is a non-asm way to do a "breakpoint" so this'll have to do.
 #ifdef NO_ASM
 //#define Int3() Error("int 3 %s:%i\n",__FILE__,__LINE__);
 //#define Int3() {volatile int a=0,b=1/a;}
@@ -108,18 +110,19 @@ void Int3();
 #else
 #ifdef SDL_INPUT
 #include <SDL/SDL.h>
+#endif
 #include "args.h"
 static inline void _Int3()
 {
-	SDL_WM_GrabInput(SDL_GRAB_OFF);
-	asm("int $3");
+	if (FindArg("-debug")) {
+#ifdef SDL_INPUT
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
+#endif
+		asm("int $3");
+	}
 }
 #define Int3() _Int3()
-#else
-#define Int3() asm("int $3")
 #endif
-#endif
-//end edit -MM
 
 #elif defined __WATCOMC__
 void Int3(void);								      //generate int3
