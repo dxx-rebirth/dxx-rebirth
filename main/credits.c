@@ -1,4 +1,4 @@
-/* $Id: credits.c,v 1.11 2004-10-23 17:42:13 schaffner Exp $ */
+/* $Id: credits.c,v 1.12 2004-11-26 10:08:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: credits.c,v 1.11 2004-10-23 17:42:13 schaffner Exp $";
+static char rcsid[] = "$Id: credits.c,v 1.12 2004-11-26 10:08:34 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -392,7 +392,7 @@ PA_DFX (for (i=0; i<ROW_SPACING; i += (MenuHires?2:1) )	{)
                 pa_flush();
 #endif
 
-#if !defined(POLY_ACC) || defined(MACINTOSH)
+#if (!defined(POLY_ACC) || defined(MACINTOSH)) && !defined(OGL)
 				MAC( if(!PAEnabled) )			// POLY_ACC always on for the macintosh
 				for (j=0; j<NUM_LINES; j++ )
 				{

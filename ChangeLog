@@ -5,6 +5,8 @@
 	* 2d/bitblt.c: disable Assert so the credits work in opengl (gl
 	doesn't care if it draws offscreen, I guess)
 
+	* main/credits.c: reduce flickering in credits w/opengl
+
 2004-11-25  Bradley Bell  <btb@icculus.org>
 
 	* 2d/font.c: get rid of clipping in ogl_internal_string, causes
