@@ -5,6 +5,7 @@
 	* main/gameseq.c, main/mission.c, main/mission.h: for enhanced (like
 	Vertigo) missions, load add-on ham file at every load, not only the 1st
 	* main/bm.ch: fix bug where loading a hxm would affect other levels too
+	* main/fireball.c: don't Int3() every time explosions don't look best
 
 2004-11-16  Chris Taylor  <c.taylor@student.curtin.edu.au>
 

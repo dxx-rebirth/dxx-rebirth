@@ -1,4 +1,4 @@
-/* $Id: fireball.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: fireball.c,v 1.6 2004-11-19 19:18:42 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -349,7 +349,7 @@ object *object_create_debris(object *parent, int subobj_num)
 
 	if ((objnum < 0 ) && (Highest_object_index >= MAX_OBJECTS-1)) {
 		mprintf((1, "Can't create object in object_create_debris.\n"));
-		Int3();
+//		Int3(); // this happens often and is normal :-)
 		return NULL;
 	}
 	if ( objnum < 0 )
