@@ -12,9 +12,9 @@ D2XMAJOR=0
 D2XMINOR=1
 D2XMICRO=3
 
-AC_DEFINE_UNQUOTED(D2XMAJOR)
-AC_DEFINE_UNQUOTED(D2XMINOR)
-AC_DEFINE_UNQUOTED(D2XMICRO)
+AC_DEFINE_UNQUOTED(D2XMAJOR,,[d2x major version])
+AC_DEFINE_UNQUOTED(D2XMINOR,,[d2x minor version])
+AC_DEFINE_UNQUOTED(D2XMICRO,,[d2x micro version])
 
 VERSION=$D2XMAJOR.$D2XMINOR.$D2XMICRO
 
@@ -67,7 +67,7 @@ dnl Enable editor build?
 AC_ARG_ENABLE(editor,
   [  --enable-editor         Build editor? (not functional)],,)
 if test x$enable_editor = xyes; then
-    AC_DEFINE(EDITOR)
+    AC_DEFINE(EDITOR,,[Define if you want to build the editor])
     D2X_MAIN_SUBDIRS=editor
 fi
 AM_CONDITIONAL(EDITOR, test x$enable_editor = xyes)
@@ -76,7 +76,7 @@ dnl Enable shareware build?
 AC_ARG_ENABLE(shareware,
   [  --enable-shareware      Build for demo datafiles (not functional)],,)
 if test x$enable_shareware = xyes; then
-    AC_DEFINE(SHAREWARE)
+    AC_DEFINE(SHAREWARE,,[Define if you want to build the demo version])
     D2X_FEATURES="shareware ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(SHAREWARE, test x$enable_shareware = xyes)
@@ -85,7 +85,7 @@ dnl Enable movie trick?
 AC_ARG_ENABLE(movies,
   [  --enable-movie-trick    Enable trick to show movies],,)
 if test x$enable_movie_trick = xyes; then
-    AC_DEFINE(MOVIE_TRICK)
+    AC_DEFINE(MOVIE_TRICK,,[Define to enable trick to show movies])
     D2X_FEATURES="movie_trick ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(MOVIE_TRICK, test x$enable_movie_trick = xyes)
@@ -94,7 +94,7 @@ dnl Enable NMOVIES?
 AC_ARG_ENABLE(nmovies,
   [  --enable-nmovies        Turn off movies (render endlevel flythrough)],,)
 if test x$enable_nmovies = xyes; then
-    AC_DEFINE(NMOVIES)
+    AC_DEFINE(NMOVIES,,[Define to render endlevel flythrough sequences (instead of movies)])
     D2X_FEATURES="nmovies ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(NMOVIES, test x$enable_nmovies = xyes)
@@ -111,7 +111,7 @@ dnl Build with NDEBUG?
 AC_ARG_ENABLE(debug,
   [  --disable-debug         Take out debug symbols, Asserts, Int3, etc ],,)
 if test x$enable_debug = xno; then
-    AC_DEFINE(NDEBUG)
+    AC_DEFINE(NDEBUG,,[Define to disable asserts, int3, etc.])
     CFLAGS="-O2 $CFLAGS"
 else
     CFLAGS="-g $CFLAGS"
@@ -122,7 +122,7 @@ dnl Build with RELEASE?
 AC_ARG_ENABLE(release,
   [  --enable-release        Release build.  Removes debug/editor things ],,)
 if test x$enable_release = xyes; then
-    AC_DEFINE(RELEASE)
+    AC_DEFINE(RELEASE,,[Define for a "release" build])
     D2X_FEATURES="release ${D2X_FEATURES}"
 fi
 
@@ -132,7 +132,7 @@ AC_ARG_WITH(sharepath,
 if test "x$sharepath" = "xauto" -o "x$sharepath" = "xyes" -o "x$sharepath" = "x"; then
     sharepath="$default_sharepath"
 fi
-AC_DEFINE_UNQUOTED(SHAREPATH, "$sharepath")
+AC_DEFINE_UNQUOTED(SHAREPATH, "$sharepath",[Define this to be the shared game directory root])
 
 # Test for DJGPP
 AM_CONDITIONAL(DJGPP, test "$host_os" = "msdosdjgpp")
@@ -170,7 +170,7 @@ else
 	    ${OGL_LIBS}
 	)
     done
-    AC_DEFINE(OGL)
+    AC_DEFINE(OGL,,[Define if you want an OpenGL build])
     TARGETS=d2x-ogl
     D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
   fi
@@ -187,7 +187,7 @@ else
     AC_CHECK_LIB(gii, giiInit,
       GGI_LIBS="${GGI_LIBS} -lgii",
       [AC_MSG_ERROR([GII not found, GGI version cannot be built]); ggi=false])
-    AC_DEFINE(GGI)
+    AC_DEFINE(GGI,,[Define if you want a GGI build])
     TARGETS=d2x-ggi
     D2X_ARCH_SUBDIRS="ggi ${D2X_ARCH_SUBDIRS}"
   fi
@@ -208,7 +208,7 @@ else
       [AC_MSG_ERROR([vgagl not found, SVGALib cannot be built])
        svga=false],
        -lvga)
-    AC_DEFINE(SVGA)
+    AC_DEFINE(SVGA,,[Define if you want an SVGALib build])
     TARGETS=d2x-svga
     D2X_ARCH_SUBDIRS="svgalib ${D2X_ARCH_SUBDIRS}"
   fi
@@ -227,7 +227,7 @@ dnl Check for network
 AC_ARG_ENABLE(network,
   [  --disable-network       Do not build network/serial support ],,)
 if test x$enable_network != xno; then
-    AC_DEFINE(NETWORK)
+    AC_DEFINE(NETWORK,,[Define if you want a network build])
     D2X_FEATURES="network ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(USE_NETWORK, test x$enable_network != xno)
@@ -236,7 +236,7 @@ dnl Check for assembler
 AC_ARG_ENABLE(assembler,
   [  --disable-assembler     Do not use assembler optimization ],,)
 if test x$enable_assembler = xno; then
-    AC_DEFINE(NO_ASM)
+    AC_DEFINE(NO_ASM,,[Define if you want an assembler free build])
     D2X_FEATURES="no_asm ${D2X_FEATURES}"
 else
     if test x$NASM = xno; then
@@ -259,6 +259,49 @@ else
     fi
 fi
 AM_CONDITIONAL(USE_ASM, test x$enable_assembler != xno)
+
+AH_BOTTOM([
+/* General defines */
+#define NMONO 1
+#define PIGGY_USE_PAGING 1
+#define NEWDEMO 1
+
+#ifdef __linux__
+# define __SDL__ 1
+# define SDL_AUDIO 1
+# define SDL_JOYSTICK 1
+
+# ifdef OGL
+#  define SDL_GL_VIDEO 1
+#  define SDL_INPUT 1
+# else
+#  ifdef GGI
+#   define GGI_VIDEO 1
+#   define GII_INPUT 1
+#  else
+#   ifdef SVGA
+#    define SVGALIB_VIDEO 1
+#    define SVGALIB_INPUT 1
+#   else
+#    define SDL_VIDEO 1
+#    define SDL_INPUT 1
+#   endif
+#  endif
+# endif
+#endif
+
+#ifdef __MINGW32__
+# define __SDL__ 1
+# define SDL_AUDIO 1
+# define SDL_INPUT 1
+# define SDL_JOYSTICK 1
+# ifdef OGL
+#  define SDL_GL_VIDEO 1
+# else
+#  define SDL_VIDEO 1
+# endif
+#endif
+])
 
 AM_PROG_AS
 
