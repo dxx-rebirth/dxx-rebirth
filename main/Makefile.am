@@ -37,7 +37,7 @@ config.c    gamecntl.c	kconfig.c   scores.c \
 controls.c  gamefont.c	kludge.c    newdemo.c	slew.c \
 credits.c   gamemine.c	newmenu.c   songs.c \
 crypt.c     gamepal.c	laser.c     object.c	state.c \
-console.c   cmd.c       player.c
+console.c   cmd.c       player.c    segment.c
 
 EXTRA_libmain_a_SOURCES = \
 ipx_drv.c kmatrix.c multi.c multibot.c network.c netpkt.c \

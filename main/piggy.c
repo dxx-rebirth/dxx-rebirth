@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.8 2002-07-26 09:22:05 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.9 2002-07-27 22:39:57 btb Exp $";
 #endif
 
 
@@ -133,17 +133,6 @@ ushort GameBitmapXlat[MAX_BITMAP_FILES];
 int piggy_page_flushed = 0;
 
 #define DBM_FLAG_ABM            64
-
-typedef struct DiskBitmapHeader {
-	char name[8];
-	ubyte dflags;                   //bits 0-5 anim frame num, bit 6 abm flag
-	ubyte width;                    //low 8 bits here, 4 more bits in wh_extra
-	ubyte height;                   //low 8 bits here, 4 more bits in wh_extra
-	ubyte   wh_extra;               //bits 0-3 width, bits 4-7 height
-	ubyte flags;
-	ubyte avg_color;
-	int offset;
-} __pack__ DiskBitmapHeader;
 
 typedef struct DiskSoundHeader {
 	char name[8];
@@ -604,18 +593,7 @@ void piggy_init_pigfile(char *filename)
 	Num_bitmap_files = 1;
 
 	for (i=0; i<N_bitmaps; i++ )    {
-#ifndef MACINTOSH
-		cfread( &bmh, sizeof(DiskBitmapHeader), 1, Piggy_fp );
-#else
-		cfread(bmh.name, 8, 1, Piggy_fp);
-		bmh.dflags = cfile_read_byte(Piggy_fp);
-		bmh.width = cfile_read_byte(Piggy_fp);
-		bmh.height = cfile_read_byte(Piggy_fp);
-		bmh.wh_extra = cfile_read_byte(Piggy_fp);
-		bmh.flags = cfile_read_byte(Piggy_fp);
-		bmh.avg_color = cfile_read_byte(Piggy_fp);
-		bmh.offset = cfile_read_int(Piggy_fp);
-#endif
+		DiskBitmapHeader_read(&bmh, Piggy_fp);
 		memcpy( temp_name_read, bmh.name, 8 );
 		temp_name_read[8] = 0;
 		if ( bmh.dflags & DBM_FLAG_ABM )        
@@ -750,18 +728,7 @@ void piggy_new_pigfile(char *pigname)
 		data_size = cfilelength(Piggy_fp) - data_start;
 	
 		for (i=1; i<=N_bitmaps; i++ )   {
-#ifndef MACINTOSH       
-			cfread( &bmh, sizeof(DiskBitmapHeader), 1, Piggy_fp );
-#else
-			cfread(bmh.name, 8, 1, Piggy_fp);
-			bmh.dflags = cfile_read_byte(Piggy_fp);
-			bmh.width = cfile_read_byte(Piggy_fp);
-			bmh.height = cfile_read_byte(Piggy_fp);
-			bmh.wh_extra = cfile_read_byte(Piggy_fp);
-			bmh.flags = cfile_read_byte(Piggy_fp);
-			bmh.avg_color = cfile_read_byte(Piggy_fp);
-			bmh.offset = cfile_read_int(Piggy_fp);
-#endif
+			DiskBitmapHeader_read(&bmh, Piggy_fp);
 			memcpy( temp_name_read, bmh.name, 8 );
 			temp_name_read[8] = 0;
 	
@@ -1004,19 +971,18 @@ int read_hamfile()
 
 	if (ham_version < 3) //mystery value
 		cfseek(ham_fp, 4, SEEK_CUR);
-
+	
 	#ifndef EDITOR
 	{
+		int i;
+
 		bm_read_all( ham_fp );  // Note connection to above if!!!
+		printf("position: %d\n", cftell(ham_fp));
 		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
-		#ifdef MACINTOSH
-		{
-			int i;
-			
-			for (i = 0; i < MAX_BITMAP_FILES; i++)
-				GameBitmapXlat[i] = SWAPSHORT(GameBitmapXlat[i]);
+		for (i = 0; i < MAX_BITMAP_FILES; i++) {
+			//GameBitmapXlat[i] = INTEL_SHORT(GameBitmapXlat[i]);
+			//printf("GameBitmapXlat[%d] = %d\n", i, GameBitmapXlat[i]);
 		}
-		#endif
 	}
 	#endif
 
@@ -1738,4 +1704,19 @@ void piggy_bitmap_page_out_all_w()
 void bitmap_index_read(bitmap_index *bi, CFILE *fp)
 {
 	bi->index = cfile_read_short(fp);
+}
+
+/*
+ * reads a DiskBitmapHeader structure from a CFILE
+ */
+void DiskBitmapHeader_read(DiskBitmapHeader *dbh, CFILE *fp)
+{
+	cfread(dbh->name, 8, 1, fp);
+	dbh->dflags = cfile_read_byte(fp);
+	dbh->width = cfile_read_byte(fp);
+	dbh->height = cfile_read_byte(fp);
+	dbh->wh_extra = cfile_read_byte(fp);
+	dbh->flags = cfile_read_byte(fp);
+	dbh->avg_color = cfile_read_byte(fp);
+	dbh->offset = cfile_read_int(fp);
 }

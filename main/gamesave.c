@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.7 2002-07-27 04:39:23 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.8 2002-07-27 22:39:57 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -807,14 +807,6 @@ void write_object(object *obj,FILE *f)
 }
 #endif
 
-typedef struct  {
-	int			robot_flags;		// Up to 32 different robots
-	fix			hit_points;			// How hard it is to destroy this particular matcen
-	fix			interval;			// Interval between materialogrifizations
-	short			segnum;				// Segment this is attached to.
-	short			fuelcen_num;		// Index in fuelcen array.
-} old_matcen_info;
-
 extern int remove_trigger_num(int trigger_num);
 
 // -----------------------------------------------------------------------------
@@ -1152,9 +1144,9 @@ int load_game_data(CFILE *LoadFile)
 			for (i=0;i<game_fileinfo.matcen_howmany;i++) {
 				if (game_top_fileinfo.fileinfo_version < 27) {
 					old_matcen_info m;
-					Assert(game_fileinfo.matcen_sizeof == sizeof(m));
-					if (cfread(&m, game_fileinfo.matcen_sizeof,1,LoadFile)!=1)
-						Error( "Error reading RobotCenters in gamesave.c");
+
+					old_matcen_info_read(&m, LoadFile);
+
 					RobotCenters[i].robot_flags[0] = m.robot_flags;
 					RobotCenters[i].robot_flags[1] = 0;
 					RobotCenters[i].hit_points = m.hit_points;
@@ -1162,20 +1154,8 @@ int load_game_data(CFILE *LoadFile)
 					RobotCenters[i].segnum = m.segnum;
 					RobotCenters[i].fuelcen_num = m.fuelcen_num;
 				}
-				else {
-					Assert(game_fileinfo.matcen_sizeof == sizeof(RobotCenters[i]));
-#ifndef MACINTOSH
-					if (cfread(&RobotCenters[i], game_fileinfo.matcen_sizeof,1,LoadFile)!=1)
-						Error( "Error reading RobotCenters in gamesave.c");
-#else
-					RobotCenters[i].robot_flags[0] = cfile_read_int(LoadFile);
-					RobotCenters[i].robot_flags[1] = cfile_read_int(LoadFile);
-					RobotCenters[i].hit_points = cfile_read_fix(LoadFile);
-					RobotCenters[i].interval = cfile_read_fix(LoadFile);
-					RobotCenters[i].segnum = cfile_read_short(LoadFile);
-					RobotCenters[i].fuelcen_num = cfile_read_short(LoadFile);
-#endif
-				}
+				else
+					matcen_info_read(&RobotCenters[i], LoadFile);
 
 				//	Set links in RobotCenters to Station array
 
@@ -1203,18 +1183,8 @@ int load_game_data(CFILE *LoadFile)
 				if (game_top_fileinfo.fileinfo_version < 29) {
 					mprintf((0, "Warning: Old mine version.  Not reading Dl_indices info.\n"));
 					Int3();	//shouldn't be here!!!
-				} else {
-#ifndef MACINTOSH
-					if (cfread(&Dl_indices[i], game_fileinfo.dl_indices_sizeof, 1, LoadFile) != 1)
-						Error( "Error reading Dl_indices in gamesave.c");
-#else
-					Dl_indices[i].segnum = cfile_read_short(LoadFile);					
-					Dl_indices[i].sidenum = cfile_read_byte(LoadFile);
-					Dl_indices[i].count = cfile_read_byte(LoadFile);
-					Dl_indices[i].index = cfile_read_short(LoadFile);
-#endif
-				}
-
+				} else
+					dl_index_read(&Dl_indices[i], LoadFile);
 			}
 		}
 	}
@@ -1231,21 +1201,8 @@ int load_game_data(CFILE *LoadFile)
 			for (i=0; i<game_fileinfo.delta_light_howmany; i++) {
 				if (game_top_fileinfo.fileinfo_version < 29) {
 					mprintf((0, "Warning: Old mine version.  Not reading delta light info.\n"));
-				} else {
-#ifndef MACINTOSH
-					if (cfread(&Delta_lights[i], game_fileinfo.delta_light_sizeof, 1, LoadFile) != 1)
-						Error( "Error reading Delta Lights in gamesave.c");
-#else
-					Delta_lights[i].segnum = cfile_read_short(LoadFile);
-					Delta_lights[i].sidenum = cfile_read_byte(LoadFile);
-					Delta_lights[i].dummy = cfile_read_byte(LoadFile);
-					Delta_lights[i].vert_light[0] = cfile_read_byte(LoadFile);
-					Delta_lights[i].vert_light[1] = cfile_read_byte(LoadFile);
-					Delta_lights[i].vert_light[2] = cfile_read_byte(LoadFile);
-					Delta_lights[i].vert_light[3] = cfile_read_byte(LoadFile);
-#endif
-				}
-
+				} else
+					delta_light_read(&Delta_lights[i], LoadFile);
 			}
 		}
 	}
@@ -1541,20 +1498,12 @@ int load_level(char * filename_passed)
 		Reactor_strength = -1;	//use old defaults
 
 	if (version >= 7) {
+		int i;
+
 		Num_flickering_lights = cfile_read_int(LoadFile);
-		#ifdef MACINTOSH
-			Assert((Num_flickering_lights >= 0) && (Num_flickering_lights < MAX_FLICKERING_LIGHTS));
-			for (i = 0; i < Num_flickering_lights; i++)
-			{
-				Flickering_lights[i].segnum 	= cfile_read_short(LoadFile);
-				Flickering_lights[i].sidenum 	= cfile_read_short(LoadFile);
-				Flickering_lights[i].mask		= cfile_read_int(LoadFile);
-				Flickering_lights[i].timer		= cfile_read_fix(LoadFile);
-				Flickering_lights[i].delay		= cfile_read_fix(LoadFile);
-			}
-		#else
-			cfread(Flickering_lights,sizeof(*Flickering_lights),Num_flickering_lights,LoadFile);
-		#endif
+		Assert((Num_flickering_lights >= 0) && (Num_flickering_lights < MAX_FLICKERING_LIGHTS));
+		for (i = 0; i < Num_flickering_lights; i++)
+			flickering_light_read(&Flickering_lights[i], LoadFile);
 	}
 	else
 		Num_flickering_lights = 0;
@@ -2106,4 +2055,3 @@ void do_load_save_levels(int save)
 }
 
 #endif
-

@@ -257,4 +257,9 @@ int add_flicker(int segnum,int sidenum,fix delay,ulong mask);
 
 int gr_toggle_fullscreen_game(void);
 
+/*
+ * reads a flickering_light structure from a CFILE
+ */
+void flickering_light_read(flickering_light *fl, CFILE *fp);
+
 #endif

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.7 2001-11-14 09:34:32 bradleyb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.8 2002-07-27 22:39:57 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -818,17 +818,6 @@ extern char last_palette_loaded_pig[];
 
 ubyte *Bitmap_replacement_data=NULL;
 
-typedef struct DiskBitmapHeader {
-	char name[8];
-	ubyte dflags;                   //bits 0-5 anim frame num, bit 6 abm flag
-	ubyte width;                    //low 8 bits here, 4 more bits in wh_extra
-	ubyte height;                   //low 8 bits here, 4 more bits in wh_extra
-	ubyte   wh_extra;               //bits 0-3 width, bits 4-7 height
-	ubyte flags;
-	ubyte avg_color;
-	int offset;
-} DiskBitmapHeader;
-
 void load_bitmap_replacements(char *level_name)
 {
 	char ifile_name[FILENAME_LEN];
@@ -862,14 +851,8 @@ void load_bitmap_replacements(char *level_name)
 
 		MALLOC( indices, ushort, n_bitmaps );
 		
-		#ifndef MACINTOSH	// silly, silly, must swap shorts on the mac.
-			cfread(indices,sizeof(*indices),n_bitmaps,ifile);
-		#else
-			for (i = 0; i < n_bitmaps; i++)
-			{
-				indices[i] = cfile_read_short(ifile);
-			}
-		#endif
+		for (i = 0; i < n_bitmaps; i++)
+			indices[i] = cfile_read_short(ifile);
 
 		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - (sizeof(DiskBitmapHeader) * n_bitmaps);
 		MALLOC( Bitmap_replacement_data, ubyte, bitmap_data_size );
@@ -878,15 +861,7 @@ void load_bitmap_replacements(char *level_name)
 			DiskBitmapHeader bmh;
 			grs_bitmap temp_bitmap;
 
-			//note the groovy mac-compatible code!
-			cfread(bmh.name, 8, 1, ifile);
-			bmh.dflags = cfile_read_byte(ifile);
-			bmh.width = cfile_read_byte(ifile);
-			bmh.height = cfile_read_byte(ifile);
-			bmh.wh_extra = cfile_read_byte(ifile);
-			bmh.flags = cfile_read_byte(ifile);
-			bmh.avg_color = cfile_read_byte(ifile);
-			bmh.offset = cfile_read_int(ifile);
+			DiskBitmapHeader_read(&bmh, ifile);
 
 			memset( &temp_bitmap, 0, sizeof(grs_bitmap) );
 	

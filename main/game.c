@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.11 2002-02-23 21:25:01 bradleyb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.12 2002-07-27 22:39:57 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -3356,3 +3356,15 @@ void game_win_init_cockpit_mask(int sram)
 //@@}
 
 #endif
+
+/*
+ * reads a flickering_light structure from a CFILE
+ */
+void flickering_light_read(flickering_light *fl, CFILE *fp)
+{
+	fl->segnum = cfile_read_short(fp);
+	fl->sidenum = cfile_read_short(fp);
+	fl->mask = cfile_read_int(fp);
+	fl->timer = cfile_read_fix(fp);
+	fl->delay = cfile_read_fix(fp);
+}

@@ -35,6 +35,17 @@ typedef struct bitmap_index {
 	ushort	index;
 } bitmap_index;
 
+typedef struct DiskBitmapHeader {
+	char name[8];
+	ubyte dflags;                   //bits 0-5 anim frame num, bit 6 abm flag
+	ubyte width;                    //low 8 bits here, 4 more bits in wh_extra
+	ubyte height;                   //low 8 bits here, 4 more bits in wh_extra
+	ubyte   wh_extra;               //bits 0-3 width, bits 4-7 height
+	ubyte flags;
+	ubyte avg_color;
+	int offset;
+} DiskBitmapHeader;
+
 int piggy_init();
 void piggy_close();
 void piggy_dump_all();
@@ -95,5 +106,10 @@ void piggy_new_pigfile(char *pigname);
  * reads a bitmap_index structure from a CFILE
  */
 void bitmap_index_read(bitmap_index *bi, CFILE *fp);
+
+/*
+ * reads a DiskBitmapHeader structure from a CFILE
+ */
+void DiskBitmapHeader_read(DiskBitmapHeader *dbh, CFILE *fp);
 
 #endif
