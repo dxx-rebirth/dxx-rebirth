@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/linux/ipx_lin.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-10-19 07:29:37 $
+ * $Date: 2001-10-19 07:39:26 $
  *
  * Linux IPX
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/19 07:29:37  bradleyb
+ * Brought linux networking in line with d1x, moved some arch/linux_* stuff to arch/linux/
+ *
  * Revision 1.2  2001/01/29 13:35:08  bradleyb
  * Fixed build system, minor fixes
  *

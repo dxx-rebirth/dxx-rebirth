@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/linux/include/ipx_hlpr.h,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-10-19 07:29:37 $
+ * $Date: 2001-10-19 07:39:26 $
  *
  * FIXME: add description
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/10/19 07:29:37  bradleyb
+ * Brought linux networking in line with d1x, moved some arch/linux_* stuff to arch/linux/
+ *
  *
  */
 
