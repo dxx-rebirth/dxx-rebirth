@@ -1,3 +1,8 @@
+2003-10-31  Martin Schaffner <maschaffner@gmx.ch>
+
+	* main/movie.c: when no movies are found, divide by six the
+	number of warning lines sent to stdout
+
 2003-10-29  Martin Schaffner <maschaffner@gmx.ch>
 
 	* include/byteswap.h: fix stupid copy/paste error

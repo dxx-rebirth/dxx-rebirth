@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.30 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: movie.c,v 1.31 2003-10-31 16:48:10 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.30 2003-10-10 09:36:35 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.31 2003-10-31 16:48:10 schaffner Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -851,10 +851,10 @@ int request_cd(void)
 }
 
 
-void init_movie(char *filename,int libnum,int is_robots,int required)
+void init_movie(char *filename, int libnum, int is_robots, int required)
 {
-	int high_res;
-	int try = 0;
+	int high_res, try;
+	char *res = strchr(filename, '.') - 1; // 'h' == high resolution, 'l' == low
 
 #ifndef RELEASE
 	if (FindArg("-nomovies")) {
@@ -870,38 +870,37 @@ void init_movie(char *filename,int libnum,int is_robots,int required)
 		high_res = MovieHires;
 
 	if (high_res)
-		strchr(filename,'.')[-1] = 'h';
+		*res = 'h';
 
-try_again:;
-
-	if ((movie_libs[libnum] = init_movie_lib(filename)) == NULL) {
+	for (try = 0; (movie_libs[libnum] = init_movie_lib(filename)) == NULL; try++) {
 		char name2[100];
 
 		strcpy(name2,CDROM_dir);
 		strcat(name2,filename);
 		movie_libs[libnum] = init_movie_lib(name2);
 
-		if (movie_libs[libnum] != NULL)
+		if (movie_libs[libnum] != NULL) {
 			movie_libs[libnum]->flags |= MLF_ON_CD;
-		else {
-			if (required) {
-				Warning("Cannot open movie file <%s>\n",filename);
-			}
-
-			if (!try) {                                         // first try
-				if (strchr(filename, '.')[-1] == 'h') {         // try again with lowres
-					strchr(filename, '.')[-1] = 'l';
+			break; // we found our movie on the CD
+		} else {
+			if (try == 0) { // first try
+				if (*res == 'h') { // try low res instead
+					*res = 'l';
 					high_res = 0;
-					Warning("Trying to open movie file <%s> instead\n", filename);
-					try++;
-					goto try_again;
-				} else if (strchr(filename, '.')[-1] == 'l') {  // try again with highres
-					strchr(filename, '.')[-1] = 'h';
+				} else if (*res == 'l') { // try high
+					*res = 'h';
 					high_res = 1;
-					Warning("Trying to open movie file <%s> instead\n", filename);
-					try++;
-					goto try_again;
+				} else {
+					if (required)
+						Warning("Cannot open movie file <%s>",filename);
+					break;
 				}
+			} else { // try == 1
+				if (required) {
+					*res = '*';
+					Warning("Cannot open any movie file <%s>", filename);
+				}
+				break;
 			}
 		}
 	}
