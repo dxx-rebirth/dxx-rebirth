@@ -1,4 +1,4 @@
-/* $Id: render.c,v 1.20 2004-05-11 03:35:20 btb Exp $ */
+/* $Id: render.c,v 1.21 2004-05-22 01:06:27 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1842,7 +1842,7 @@ void build_object_lists(int n_segs)
 
 					did_migrate = 0;
 	
-					m = get_seg_masks(&obj->pos,new_segnum,obj->size);
+					m = get_seg_masks(&obj->pos, new_segnum, obj->size, __FILE__, __LINE__);
 	
 					if (m.sidemask) {
 						int sn,sf;

@@ -1,4 +1,4 @@
-/* $Id: object.c,v 1.12 2004-05-21 02:46:24 btb Exp $ */
+/* $Id: object.c,v 1.13 2004-05-22 01:06:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1617,7 +1617,7 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects)
 		return -1;
 
-	if (get_seg_masks(pos,segnum,0).centermask!=0)
+	if (get_seg_masks(pos, segnum, 0, __FILE__, __LINE__).centermask != 0)
 		if ((segnum=find_point_seg(pos,segnum))==-1) {
 			#ifndef NDEBUG
 			mprintf((0,"Bad segnum in obj_create (type=%d)\n",type));
@@ -2187,7 +2187,7 @@ void obj_relink(int objnum,int newsegnum)
 	obj_link(objnum,newsegnum);
 	
 #ifndef NDEBUG
-	if (get_seg_masks(&Objects[objnum].pos,Objects[objnum].segnum,0).centermask!=0)
+	if (get_seg_masks(&Objects[objnum].pos, Objects[objnum].segnum, 0, __FILE__, __LINE__).centermask != 0)
 		mprintf((1, "obj_relink violates seg masks.\n"));
 #endif
 }
@@ -2395,7 +2395,7 @@ void object_move_one( object * obj )
 			int sidemask,under_lavafall=0;
 			static int lavafall_hiss_playing[MAX_PLAYERS]={0};
 
-			sidemask = get_seg_masks(&obj->pos,obj->segnum,obj->size).sidemask;
+			sidemask = get_seg_masks(&obj->pos, obj->segnum, obj->size).sidemask;
 			if (sidemask) {
 				int sidenum,bit,wall_num;
 	

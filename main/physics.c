@@ -1,4 +1,4 @@
-/* $Id: physics.c,v 1.5 2004-05-21 00:02:38 btb Exp $ */
+/* $Id: physics.c,v 1.6 2004-05-22 01:06:25 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -258,7 +258,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: physics.c,v 1.5 2004-05-21 00:02:38 btb Exp $";
+static char rcsid[] = "$Id: physics.c,v 1.6 2004-05-22 01:06:25 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -636,7 +636,8 @@ if (Dont_move_ai_objects)
 	}
 
 	//check for correct object segment
-	if(!get_seg_masks(&obj->pos,obj->segnum,0).centermask==0) {
+	if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
+	{
 		#ifndef NDEBUG
 		mprintf((0,"Warning: object %d not in given seg!\n",objnum));
 		#endif
@@ -767,7 +768,7 @@ if (Dont_move_ai_objects)
 		if (obj->type == OBJ_PLAYER)
 			fq.flags |= FQ_GET_SEGLIST;
 
-//@@			if (get_seg_masks(&obj->pos,obj->segnum,0).centermask!=0)
+//@@			if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
 //@@				Int3();
 
 save_p0 = *fq.p0;
@@ -844,7 +845,8 @@ save_p1 = *fq.p1;
 			obj_relink(objnum, iseg );
 
 		//if start point not in segment, move object to center of segment
-		if (get_seg_masks(&obj->pos,obj->segnum,0).centermask!=0) {
+		if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask !=0 )
+		{
 			int n;
 
 			if ((n=find_object_seg(obj))==-1) {
@@ -1181,7 +1183,8 @@ save_p1 = *fq.p1;
 
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#ifndef NDEBUG
 	//if end point not in segment, move object to last pos, or segment center
-	if (get_seg_masks(&obj->pos,obj->segnum,0).centermask!=0) {
+	if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
+	{
 		if (find_object_seg(obj)==-1) {
 			int n;
 

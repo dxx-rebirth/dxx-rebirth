@@ -1,4 +1,4 @@
-/* $Id: gameseg.h,v 1.3 2004-05-21 00:02:37 btb Exp $ */
+/* $Id: gameseg.h,v 1.4 2004-05-22 01:06:21 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -158,7 +158,7 @@ extern int get_num_faces(side *sidep);
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields
-segmasks get_seg_masks(vms_vector *checkp,int segnum,fix rad);
+segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_file, int calling_linenum);
 
 //this macro returns true if the segnum for an object is correct
 #define check_obj_seg(obj) (get_seg_masks(&(obj)->pos,(obj)->segnum,0).centermask == 0)

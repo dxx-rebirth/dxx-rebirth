@@ -1,5 +1,9 @@
 2004-05-21  Victor Rachels  <sekmu@tisiphone.dhs.org>
 
+	* main/fvi.c, main/gameseg.c, main/gameseg.h, main/object.c,
+	main/physics.c, main/render.c, main/wall.c: file-line for segfault
+	info (d1x r1.3, r1.5, r1.3, r1.4, r1.3, r1.5, r1.2)
+
 	* arch/win32/digi.c: digisound fixes (d1x r1.7)
 
 2004-05-21  Bradley Bell  <btb@icculus.org>

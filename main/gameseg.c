@@ -1,4 +1,4 @@
-/* $Id: gameseg.c,v 1.7 2004-05-21 00:02:35 btb Exp $ */
+/* $Id: gameseg.c,v 1.8 2004-05-22 01:06:19 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -249,7 +249,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.7 2004-05-21 00:02:35 btb Exp $";
+static char rcsid[] = "$Id: gameseg.c,v 1.8 2004-05-22 01:06:19 btb Exp $";
 #endif
 
 // How far a point can be from a plane, and still be "in" the plane
@@ -521,7 +521,7 @@ void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(vms_vector *checkp,int segnum,fix rad)
+segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_file, int calling_linenum)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks;
@@ -550,7 +550,7 @@ segmasks get_seg_masks(vms_vector *checkp,int segnum,fix rad)
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn, __FILE__, __LINE__);
+		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn, calling_file, calling_linenum);
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -1042,7 +1042,7 @@ int find_point_seg(vms_vector *p,int segnum)
 		mprintf((1,"Warning: doing exhaustive search to find point segment (%i times)\n", ++Exhaustive_count));
 
 		for (newseg=0;newseg <= Highest_segment_index;newseg++)
-			if (get_seg_masks(p,newseg,0).centermask == 0)
+			if (get_seg_masks(p, newseg, 0, __FILE__, __LINE__).centermask == 0)
 				return newseg;
 
 		mprintf((1,"Warning: could not find point segment (%i times)\n", ++Exhaustive_failed_count));

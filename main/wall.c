@@ -1,4 +1,4 @@
-/* $Id: wall.c,v 1.11 2004-05-16 11:04:32 schaffner Exp $ */
+/* $Id: wall.c,v 1.12 2004-05-22 01:06:29 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -109,7 +109,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.11 2004-05-16 11:04:32 schaffner Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.12 2004-05-22 01:06:29 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -790,7 +790,7 @@ int check_poke(int objnum,int segnum,int side)
 
 	//note: don't let objects with zero size block door
 
-	if (obj->size && get_seg_masks(&obj->pos,segnum,obj->size).sidemask & (1<<side))
+	if (obj->size && get_seg_masks(&obj->pos, segnum, obj->size, __FILE__, __LINE__).sidemask & (1 << side))
 		return 1;		//pokes through side!
 	else
 		return 0;		//does not!
