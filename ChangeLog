@@ -1,3 +1,7 @@
+2003-06-07  Taylor Richards  <taylor@icculus.org>
+
+	* libmve/mvelib.c, libmve/mveplay.c: stop memory leaks in libmve
+
 2003-06-07  Bradley Bell  <btb@icculus.org>
 
 	* main/gamesave.c: comments

@@ -577,6 +577,9 @@ static void _mvestream_free(MVESTREAM *movie)
     /* clear context and handlers */
     movie->context = NULL;
     memset(movie->handlers, 0, sizeof(movie->handlers));
+	
+    /* free the struct */
+    free(movie);
 }
 
 static void _mvestream_free_filehandle(MVESTREAM *movie)
@@ -589,6 +592,9 @@ static void _mvestream_free_filehandle(MVESTREAM *movie)
     /* clear context and handlers */
     movie->context = NULL;
     memset(movie->handlers, 0, sizeof(movie->handlers));
+	
+    /* free the struct */
+    free(movie);
 }
 
 /*

@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.12 2003-06-02 01:58:10 btb Exp $ */
+/* $Id: mveplay.c,v 1.13 2003-06-07 20:53:38 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -519,7 +519,9 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 	g_height = h << 3;
 
 	/* TODO: * 4 causes crashes on some files */
-	g_vBackBuf1 = g_vBuffers = d_malloc(g_width * g_height * 8);
+	/* only malloc once */
+	if (g_vBuffers == NULL)
+		g_vBackBuf1 = g_vBuffers = d_malloc(g_width * g_height * 8);
 	if (truecolor) {
 		g_vBackBuf2 = (unsigned short *)g_vBackBuf1 + (g_width * g_height);
 	} else {
@@ -809,6 +811,8 @@ void shutdownMovie(MVESTREAM *mve)
 #endif
 
 	timer_stop();
+
+	d_free(g_vBuffers);
 
 #ifdef DEBUG
 	for (i = 0; i < 32*256; i++) {
