@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.17 $
+ * $Revision: 1.18 $
  * $Author: bradleyb $
- * $Date: 2001-11-09 06:55:08 $
+ * $Date: 2001-12-28 09:26:41 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.17  2001/11/09 06:55:08  bradleyb
+ * added documentation
+ *
  * Revision 1.16  2001/11/08 10:30:28  bradleyb
  * Enabled shareware build, endlevel flythrough sequence
  *
@@ -296,7 +299,9 @@ void print_commandline_help()
 	printf( "  -superhires     %s\n","Allow higher-resolution modes");
 #endif
 //	printf( "  -nomodex        %s\n","FIXME: Undocumented");
-//	printf( "  -nomovies       %s\n","FIXME: Undocumented");
+#ifndef RELEASE
+	printf( "  -nomovies       %s\n","Don't play movies");
+#endif
 #if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
 	printf( "  -noredbook      %s\n","Disable redbook audio");
 #endif
