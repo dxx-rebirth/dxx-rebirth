@@ -13,13 +13,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/joyc.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-10-24 09:25:05 $
+ * $Revision: 1.5 $
+ * $Author: btb $
+ * $Date: 2004-05-22 01:40:12 $
  * 
  * Routines for joystick reading.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/10/24 09:25:05  bradleyb
+ * Moved input stuff to arch subdirs, as in d1x.
+ *
  * Revision 1.3  2001/01/29 14:03:56  bradleyb
  * Fixed build, minor fixes
  *
@@ -234,7 +237,8 @@ void joy_get_cal_vals(int *axis_min, int *axis_center, int *axis_max)
 {
 	int i;
 
-	for (i=0; i<4; i++)		{
+	for (i = 0; i < JOY_NUM_AXES; i++)
+	{
 		axis_min[i] = joystick.axis_min[i];
 		axis_center[i] = joystick.axis_center[i];
 		axis_max[i] = joystick.axis_max[i];
@@ -245,7 +249,8 @@ void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max)
 {
 	int i;
 
-	for (i=0; i<4; i++)		{
+	for (i = 0; i < JOY_NUM_AXES; i++)
+	{
 		joystick.axis_min[i] = axis_min[i];
 		joystick.axis_center[i] = axis_center[i];
 		joystick.axis_max[i] = axis_max[i];

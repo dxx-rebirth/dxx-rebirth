@@ -1,3 +1,8 @@
+2004-05-21  Matthew Mueller  <donut@dakotacom.net>
+
+	* arch/dos/joyc.c, arch/linux/joystick.c: use JOY_NUM_AXES instead
+	of 4 in joy_(get|set)_cal_vals (d1x r1.3, r1.4)
+
 2004-05-21  Steven Mueller  <diffusor@ugcs.caltech.edu>
 
 	* arch/include/joy.h, arch/linux/joydefs.c, arch/linux/joystick.c,

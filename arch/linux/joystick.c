@@ -1,4 +1,4 @@
-/* $Id: joystick.c,v 1.3 2004-05-22 01:32:12 btb Exp $ */
+/* $Id: joystick.c,v 1.4 2004-05-22 01:40:14 btb Exp $ */
 /*
  *
  * Linux joystick support
@@ -111,7 +111,8 @@ void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max)
 /* stpohle - this is already done in the "joy_init" function, so we don't need it in here.
 	int i;
 
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < JOY_NUM_AXES; i++)
+	{
 		j_axis[i].center_val = axis_center[i];
 		j_axis[i].min_val = axis_min[i];
 		j_axis[i].max_val = axis_max[i];
@@ -125,7 +126,8 @@ void joy_get_cal_vals(int *axis_min, int *axis_center, int *axis_max) {
 	int i;
 
 	//edited 05/18/99 Matt Mueller - we should return all axes instead of j_num_axes, since they are all given to us in joy_set_cal_vals ( and because checker complains :)
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < JOY_NUM_AXES; i++)
+	{
 	//end edit -MM
 		axis_center[i] = j_axis[i].center_val;
 		axis_min[i] = j_axis[i].min_val;
