@@ -1,5 +1,8 @@
 2004-05-12  Bradley Bell  <btb@icculus.org>
 
+	* unused/vga/new/palette.c, unused/vga/new/vga.c: removed unused,
+	redundant files
+
 	* 2d/palette.c, include/palette.h: added function to create blend
 	tables
 
