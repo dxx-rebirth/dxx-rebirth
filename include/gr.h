@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.22 2003-10-25 01:44:23 btb Exp $ */
+/* $Id: gr.h,v 1.23 2004-01-08 20:31:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -184,15 +184,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix.h"
 
 #if defined(MACINTOSH) || defined(MACDATA)
-#error foo
+#error native mac data currently not supported
 #define SWAP_0_255              // swap black and white
 #define TRANSPARENCY_COLOR  0   // palette entry of transparency color -- 0 on the mac
 #define TRANSPARENCY_COLOR_STR  "0"
-#else
+#else /* defined(MACINTOSH) || defined(MACDATA) */
 /* #undef  SWAP_0_255 */        // no swapping for PC people
 #define TRANSPARENCY_COLOR  255 // palette entry of transparency color -- 255 on the PC
 #define TRANSPARENCY_COLOR_STR  "255"
-#endif
+#endif /* defined(MACINTOSH) || defined(MACDATA) */
 
 #define GR_FADE_LEVELS 34
 #define GR_ACTUAL_FADE_LEVELS 32
@@ -202,6 +202,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SWIDTH  (grd_curscreen->sc_w)
 #define SHEIGHT (grd_curscreen->sc_h)
 
+#define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 
 extern int Gr_scanline_darkening_level;
 
@@ -228,7 +229,7 @@ typedef struct _grs_point {
 #define BM_SVGA15   4
 #ifdef OGL
 #define BM_OGL      5
-#endif
+#endif /* def OGL */
 
 //@@// Define these modes for Gameplay too, since the game was developed under
 //@@// DOS, we will adapt these modes to other systems thru rendering.
@@ -283,7 +284,7 @@ typedef struct _grs_bitmap {
 #ifdef OGL
 	struct _ogl_texture *gltexture;
 	struct _grs_bitmap  *bm_parent;
-#endif
+#endif /* def OGL */
 } grs_bitmap;
 
 //font structure
@@ -303,7 +304,7 @@ typedef struct _grs_font {
 	// These fields do not participate in disk i/o!
 	grs_bitmap *ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;
-#endif
+#endif /* def OGL */
 } __pack__ grs_font;
 
 #define GRS_FONT_SIZE 28    // how much space it takes up on disk
@@ -369,7 +370,7 @@ void gr_close(void);
 grs_canvas *gr_create_canvas(int w, int h);
 #if defined(POLY_ACC)
 grs_canvas *gr_create_canvas2(int w, int h, int type);
-#endif
+#endif /* def POLY_ACC */
 
 // Creates a canvas that is part of another canvas.  this can be used to make
 // a window on the screen.  the canvas structure is malloc'd; the address of
@@ -410,7 +411,7 @@ grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data );
 #if defined(POLY_ACC)
 // Allocates a bitmap of a specific type. data is either NULL or raw data.
 grs_bitmap *gr_create_bitmap2(int w, int h, int type, void *data );
-#endif
+#endif /* def POLY_ACC */
 
 // Creates a bitmap which is part of another bitmap
 grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm,int x,int y,int w, int h);
@@ -434,7 +435,7 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 #ifdef MACINTOSH
 void gr_bm_ubitblt_double(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_bitmap *dest);
 void gr_linear_movsd_double(ubyte *src, ubyte *dest, int num_pixels);
-#endif
+#endif /* def MACINTOSH */
 
 void gr_update_buffer( void * sbuf1, void * sbuf2, void * dbuf, int size );
 
@@ -644,8 +645,8 @@ int gr_check_fullscreen(void);
  */
 int gr_toggle_fullscreen(void);
 
-#endif
+#endif /* defined(SDL_VIDEO) || defined(OGL)) */
 
 int gr_toggle_fullscreen_menu(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)
 
-#endif
+#endif /* def _GR_H */

@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.16 2003-03-20 22:48:36 btb Exp $ */
+/* $Id: rle.c,v 1.17 2004-01-08 20:31:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -125,7 +125,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.16 2003-03-20 22:48:36 btb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.17 2004-01-08 20:31:35 schaffner Exp $";
 #endif
 
 #include <stdlib.h>
@@ -586,7 +586,7 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 		}
 	}
 
-	rle_data=d_malloc( (bmp->bm_w+1) * bmp->bm_h );
+	rle_data=d_malloc( MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) );
 	if (rle_data==NULL) return 0;
 	if (!large_rle)
 		doffset = 4 + bmp->bm_h;
@@ -1039,7 +1039,7 @@ void rle_swap_0_255(grs_bitmap *bmp)
 
 	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
 
-	temp = d_malloc(4 + bmp->bm_h + (bmp->bm_w + 1) * bmp->bm_h);
+	temp = d_malloc( MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) );
 
 	if (rle_big) {                  // set ptrs to first lines
 		ptr = bmp->bm_data + 4 + 2 * bmp->bm_h;
@@ -1097,7 +1097,7 @@ void rle_remap(grs_bitmap *bmp, ubyte *colormap)
 
 	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
 
-	temp = d_malloc(4 + bmp->bm_h + (bmp->bm_w + 1) * bmp->bm_h + 30000);
+	temp = d_malloc( MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) + 30000 );
 
 	if (rle_big) {                  // set ptrs to first lines
 		ptr = bmp->bm_data + 4 + 2 * bmp->bm_h;

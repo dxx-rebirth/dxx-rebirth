@@ -1,4 +1,4 @@
-/* $Id: bitmap.c,v 1.5 2002-10-10 19:11:23 btb Exp $ */
+/* $Id: bitmap.c,v 1.6 2004-01-08 20:31:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -144,7 +144,7 @@ void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data)
 
 grs_bitmap *gr_create_bitmap(int w, int h )
 {
-	return gr_create_bitmap_raw (w, h, d_malloc(w * h));
+	return gr_create_bitmap_raw (w, h, d_malloc( MAX_BMP_SIZE(w, h) ));
 }
 
 grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
@@ -226,7 +226,7 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 		gr_set_bitmap_data (bm, data);
 /*
 	else
-		gr_set_bitmap_data (bm, d_malloc (w * h));
+		gr_set_bitmap_data (bm, d_malloc( MAX_BMP_SIZE(w, h) ));
 */
 
 #ifdef BITMAP_SELECTOR
@@ -237,7 +237,7 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline)
 {
 	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, 0);
-	gr_set_bitmap_data(bm, d_malloc(w * h));
+	gr_set_bitmap_data(bm, d_malloc( MAX_BMP_SIZE(w, h) ));
 }
 
 void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize

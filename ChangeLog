@@ -5,6 +5,9 @@
 
 	* main/piggy.c: fix (really) wierd SunOS bug
 
+	* 2d/bitmap.c, 2d/rle.c, include/gr.h: fix MEM_OVERWRITE
+	caused by not allocating enough mem for rle bitmaps
+
 2004-01-06  Martin Schaffner <maschaffner@gmx.ch>
 
         * include/pstypes.h: sun OS typedef fixes
