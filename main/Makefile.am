@@ -37,6 +37,11 @@ credits.c   gamemine.c	newmenu.c   songs.c \
 crypt.c     gamepal.c	laser.c     object.c	state.c \
 console.c   cmd.c
 
+EXTRA_libmain_a_SOURCES = \
+ipx_drv.c kmatrix.c multi.c multibot.c network.c \
+bmread.c \
+terrain.c
+
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 descent.cfg inferno.ini \
 link.bat \
