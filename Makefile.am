@@ -1,5 +1,5 @@
 SUBDIRS = 2d 3d maths mem cfile iff texmap misc input video sound arch main \
-includes tools unused
+includes tools unused macros
 
 changelog::
 	-touch ChangeLog
