@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.49 2002-10-30 22:02:52 btb Exp $ */
+/* $Id: inferno.c,v 1.50 2002-10-30 22:04:22 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -911,6 +911,7 @@ void print_commandline_help()
 	printf( "  -noredundancy   %s\n", "Do not send messages when picking up redundant items in multi");
 	printf( "  -shortpackets   %s\n", "Set shortpackets to default as on");
 	printf( "  -notitles       %s\n", "Do not show titlescreens on startup");
+	printf( "  -hogdir <dir>   %s\n", "set shared data directory to <dir>");
 	printf( "  -ini <file>     %s\n", "option file (alternate to command line), defaults to d2x.ini");
 	printf( "  -autodemo       %s\n", "Start in demo mode");
 	printf( "  -bigpig         %s\n","FIXME: Undocumented");
