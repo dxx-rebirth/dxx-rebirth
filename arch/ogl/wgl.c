@@ -1,4 +1,4 @@
-/* $Id: wgl.c,v 1.5 2004-05-19 02:14:17 btb Exp $ */
+/* $Id: wgl.c,v 1.6 2004-05-20 02:04:29 btb Exp $ */
 /*
  *
  * opengl platform specific functions for WGL - added by Peter Hawkins
@@ -157,6 +157,10 @@ long PASCAL DescentWndProc(HWND hWnd,UINT message,
 }
 
 
+int ogl_setbrightness_internal(void)
+{
+	return -1; // TODO: not yet implemented
+}
 
 void ogl_swap_buffers_internal(void){
 	SwapBuffers( hDC );

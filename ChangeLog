@@ -1,7 +1,15 @@
-2004-05-19  Bradley Bell  <btb@icculus.org>
+2004-05-19  Matthew Mueller  <donut@dakotacom.net>
+
+	* arch/ogl/gr.c, arch/ogl/internal.h, arch/ogl/sdlgl.c,
+	arch/ogl/wgl.c, include/ogl_init.h: implement brightness/palette
+	effects in OGL using SetGammaRamp, much faster than the hack that
+	was being used.  currently SDL only (though not too hard to add to
+	WGL, not as easy as sdl) (d1x r1.31, r1.3, r1.13, r1.21)
 
 	* main/menu.c: allow arbitrary (custom) resolution entry in
 	change_res menu (d1x r1.14)
+
+2004-05-19  Bradley Bell  <btb@icculus.org>
 
 	* main/game.c, main/game.h, main/inferno.c, main/menu.c: inserted
 	d1x-style res change menu (mostly works)

@@ -1,4 +1,4 @@
-/* $Id: sdlgl.c,v 1.10 2004-05-16 00:45:25 schaffner Exp $ */
+/* $Id: sdlgl.c,v 1.11 2004-05-20 02:04:28 btb Exp $ */
 /*
  *
  * Graphics functions for SDL-GL.
@@ -27,7 +27,37 @@ void ogl_do_fullscreen_internal(void){
 	ogl_init_window(curx,cury);
 }
 
-void ogl_swap_buffers_internal(void){
+static Uint16 gammaramp[512];
+
+static void init_gammaramp(void)
+{
+	int i;
+
+	for (i = 0; i < 256; ++i)
+		gammaramp[i] = i * 256;
+	for (i = 256; i < 512; ++i)
+		gammaramp[i] = 0xffff;
+}
+
+int ogl_setbrightness_internal(void)
+{
+	return SDL_SetGammaRamp(gammaramp + ogl_brightness_r * 4,
+	                        gammaramp + ogl_brightness_g * 4,
+	                        gammaramp + ogl_brightness_b * 4
+							);
+}
+
+// maybe we might add a real gamma setting (as opposed to brightness setting)
+// however, SDL_SetGamma seems to call SetGammaRamp internally, so we would need
+// to modify our own gamma ramp instead.
+//int ogl_setgamma_internal(void)
+//{
+//	float gamma = 1 + gr_palette_realgamma / 8.0;
+//	return SDL_SetGamma(gamma, gamma, gamma);
+//}
+
+void ogl_swap_buffers_internal(void)
+{
 	SDL_GL_SwapBuffers();
 }
 
@@ -103,6 +133,7 @@ void ogl_init(void){
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
 
+	init_gammaramp();
 }
 
 void ogl_close(void){

@@ -62,6 +62,7 @@ extern ogl_texture* ogl_get_free_texture();
 
 extern int ogl_alttexmerge;//merge textures by just printing the seperate textures?
 extern int ogl_rgba_format;
+extern int ogl_setgammaramp_ok;
 extern int ogl_intensity4_ok;
 extern int ogl_luminance4_alpha4_ok;
 extern int ogl_rgba2_ok;

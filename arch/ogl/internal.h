@@ -17,6 +17,9 @@ void ogl_init_texture_list_internal(void);
 void ogl_smash_texture_list_internal(void);
 void ogl_vivify_texture_list_internal(void);
 
+extern int ogl_brightness_ok;
+extern int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
+int ogl_setbrightness_internal(void);
 extern int ogl_fullscreen;
 void ogl_do_fullscreen_internal(void);
 
