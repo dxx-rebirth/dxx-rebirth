@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/bmread.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-10-23 21:53:18 $
+ * $Date: 2001-10-25 02:19:31 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/23 21:53:18  bradleyb
+ * No longer #ifdef'ing out the whole file.  RCS header added
+ *
  *
  */
 
@@ -38,7 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "bm.h"
 #include "gamepal.h"
-#include "mem.h"
+#include "u_mem.h"
 #include "mono.h"
 #include "error.h"
 #include "object.h"
@@ -48,7 +51,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "textures.h"
 #include "game.h"
+#ifdef NETWORK
 #include "multi.h"
+#endif
 
 #include "iff.h"
 #include "cfile.h"
@@ -69,7 +74,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 
 
-#include "editor\texpage.h"
+#include "editor/texpage.h"
 
 #define BM_NONE			-1
 #define BM_COCKPIT		 0
@@ -140,6 +145,8 @@ char *equal_space = { " \t=" };
 
 
 //	For the sake of LINT, defining prototypes to module's functions
+void bm_read_alias(void);
+void bm_read_marker(void);
 void bm_read_robot_ai(void);
 void bm_read_powerup(int unused_flag);
 void bm_read_hostage(void);
@@ -150,6 +157,8 @@ void bm_read_exitmodel(void);
 void bm_read_player_ship(void);
 void bm_read_some_file(void);
 void bm_read_sound(void);
+void bm_write_extra_robots(void);
+void clear_to_end_of_line(void);
 void verify_textures(void);
 
 
@@ -721,7 +730,7 @@ void verify_textures()
 
 }
 
-bm_read_alias()
+void bm_read_alias()
 {
 	char *t;
 
@@ -777,7 +786,7 @@ void set_texture_name(char *name)
 void bm_read_eclip()
 {
 	bitmap_index bitmap;
-	int dest_bm_num;
+	int dest_bm_num = 0;
 
 	Assert(clip_num < MAX_EFFECTS);
 
@@ -1417,7 +1426,7 @@ void bm_read_robot()
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-		int model_num,last_model_num;
+		int model_num,last_model_num=0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
@@ -1497,7 +1506,7 @@ void bm_read_robot()
 void bm_read_reactor()
 {
 	char *model_name, *model_name_dead=NULL;
-	int first_bitmap_num, first_bitmap_num_dead, n_normal_bitmaps;
+	int first_bitmap_num, first_bitmap_num_dead=0, n_normal_bitmaps;
 	char *equal_ptr;
 	short model_num;
 	short explosion_vclip_num = -1;
@@ -1787,11 +1796,13 @@ void bm_read_player_ship()
 	if (First_multi_bitmap_num==-1)
 		first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
+#ifdef NETWORK
 	Assert(last_multi_bitmap_num-First_multi_bitmap_num == (MAX_NUM_NET_PLAYERS-1)*2);
+#endif
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-		int model_num,last_model_num;
+		int model_num,last_model_num=0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
@@ -2137,7 +2148,7 @@ void bm_read_weapon(int unused_flag)
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-		int model_num,last_model_num;
+		int model_num,last_model_num=0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
@@ -2418,14 +2429,15 @@ fclose(tfile);
 	bm_write_extra_robots();
 }
 
-bm_write_extra_robots()
+void bm_write_extra_robots()
 {
 	FILE *fp;
-	int t,i;
+	u_int32_t t;
+	int i;
 
 	fp = fopen("robots.ham","wb");
 
-	t = 'XHAM';
+	t = 0x5848414d; /* 'XHAM' */
 	fwrite( &t, sizeof(int), 1, fp );
 	t = 1;	//version
 	fwrite( &t, sizeof(int), 1, fp );

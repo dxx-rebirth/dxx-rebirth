@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.9 $
+ * $Revision: 1.10 $
  * $Author: bradleyb $
- * $Date: 2001-10-19 08:08:50 $
+ * $Date: 2001-10-25 02:19:31 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.9  2001/10/19 08:08:50  bradleyb
+ * conditionalize conf.h
+ *
  * Revision 1.8  2001/10/19 00:31:51  bradleyb
  * Trying to get network working on win32
  *
@@ -75,7 +78,9 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "text.h"
 #include "ipx.h"
 #include "newdemo.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "modem.h"
 #include "gamefont.h"
 #include "kconfig.h"
@@ -102,9 +107,10 @@ extern int Current_display_mode;        //$$ there's got to be a better way than
 #endif
 
 #ifdef EDITOR
-#include "editor\editor.h"
-#include "editor\kdefs.h"
+#include "editor/editor.h"
+#include "editor/kdefs.h"
 #include "ui.h"
+#include "d_io.h"
 #endif
 
 #ifdef SDL_INPUT
@@ -192,8 +198,8 @@ void print_commandline_help()
 			}
 		}
 
-//		if (line[0] == ';')
-//			continue;		//don't show comments
+		if (line[0] == ';')
+			continue;		//don't show comments
 
 		printf("%s",line);
 
@@ -508,7 +514,7 @@ int main(int argc,char **argv)
 
 	#ifdef EDITOR
 	if (!Inferno_is_800x600_available)	{
-		con_printf(CON_NORMAL "The editor will not be available, press any key to start game...\n" );
+		con_printf(CON_NORMAL, "The editor will not be available, press any key to start game...\n" );
 		Function_mode = FMODE_MENU;
 	}
 	#endif
@@ -763,7 +769,7 @@ int main(int argc,char **argv)
 			ubyte *buf;
 			ifile = fopen(sounds[i],"rb");
 			Assert(ifile != NULL);
-			size = filelength(ifile->_handle);
+			size = ffilelength(ifile);
 			buf = d_malloc(size);
 			fread(buf,1,size,ifile);
 			fwrite(&size,sizeof(size),1,ofile);
@@ -799,7 +805,7 @@ int main(int argc,char **argv)
 	//	to write certain data.
 	#ifdef	EDITOR
 	{	int t;
-	if ( t = FindArg( "-autoload" ) ) {
+	if ( (t = FindArg( "-autoload" )) ) {
 		Auto_exit = 1;
 		strcpy(Auto_file, Args[t+1]);
 	}
@@ -838,7 +844,7 @@ int main(int argc,char **argv)
 			} else {
 				#ifdef EDITOR
 				if (Auto_exit) {
-					strcpy(&Level_names[0], Auto_file);
+					strcpy((char *)&Level_names[0], Auto_file);
 					LoadLevel(1, 1);
 					Function_mode = FMODE_EXIT;
 					break;
@@ -884,7 +890,9 @@ int main(int argc,char **argv)
 		case FMODE_EDITOR:
 			keyd_editor_mode = 1;
 			editor();
+#ifdef __WATCOMC__
 			_harderr( (void*)descent_critical_error_handler );		// Reinstall game error handler
+#endif
 			if ( Function_mode == FMODE_GAME ) {
 				Game_mode = GM_EDITOR;
 				editor_reset_stuff_on_level();

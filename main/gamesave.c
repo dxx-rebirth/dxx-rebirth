@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.4 2001-01-31 15:17:53 bradleyb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.5 2001-10-25 02:19:31 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -32,7 +32,7 @@ char gamesave_rcsid[] = "$Id: gamesave.c,v 1.4 2001-01-31 15:17:53 bradleyb Exp 
 
 #include "inferno.h"
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 #include "error.h"
 #include "object.h"
@@ -195,6 +195,7 @@ struct {
 //	LINT: adding function prototypes
 void read_object(object *obj, CFILE *f, int version);
 void write_object(object *obj, FILE *f);
+void do_load_save_levels(int save);
 void dump_mine_info(void);
 
 extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
@@ -1797,8 +1798,10 @@ int load_level(char * filename_passed)
 	#ifdef EDITOR
 	if (!use_compiled_level) {
 		mine_err = load_mine_data(LoadFile);
+#if 0 //dunno - 3rd party stuff?
 		//	Compress all uv coordinates in mine, improves texmap precision. --MK, 02/19/96
 		compress_uv_coordinates_all();
+#endif
 	} else
 	#endif
 		//NOTE LINK TO ABOVE!!
@@ -2075,8 +2078,9 @@ int save_level_sub(char * filename, int compiled_version)
 {
 	FILE * SaveFile;
 	char temp_filename[128];
-	int sig = 'PLVL',version=LEVEL_FILE_VERSION;
-	int minedata_offset,gamedata_offset;
+	u_int32_t sig = 0x504c564c; /* 'PLVL' */
+	int version=LEVEL_FILE_VERSION;
+	int minedata_offset=0,gamedata_offset=0;
 
 	if ( !compiled_version )	{
 		write_game_text_file(filename);
@@ -2203,7 +2207,9 @@ int save_level_sub(char * filename, int compiled_version)
 
 }
 
+#if 0 //dunno - 3rd party stuff?
 extern void compress_uv_coordinates_all(void);
+#endif
 
 int save_level(char * filename)
 {

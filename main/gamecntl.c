@@ -64,7 +64,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "powerup.h"
 #include "newmenu.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "gamefont.h"
 #include "endlevel.h"
 #include "joydefs.h"
@@ -107,7 +109,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 //#define _MARK_ON 1
@@ -1788,7 +1790,9 @@ void HandleTestKey(int key)
 		#ifdef EDITOR		//editor-specific functions
 
 		case KEY_E + KEY_DEBUGGED:
+#ifdef NETWORK
 			network_leave_game();
+#endif
 			Function_mode = FMODE_EDITOR;
 			break;
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:

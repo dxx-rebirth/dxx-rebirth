@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/render.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  * $Author: bradleyb $
- * $Date: 2001-10-18 00:01:01 $
+ * $Date: 2001-10-25 02:19:31 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6  2001/10/18 00:01:01  bradleyb
+ * RCS headers added/changed
+ *
  *
  */
 
@@ -68,7 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	INITIAL_LOCAL_LIGHT	(F1_0/4)		// local light value in segment of occurence (of light emission)
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 #if defined(POLY_ACC)
@@ -681,7 +684,7 @@ extern ubyte DemoDoingRight,DemoDoingLeft;
 void do_render_object(int objnum, int window_num)
 {
 	#ifdef EDITOR
-	int save_3d_outline;
+	int save_3d_outline=0;
 	#endif
 	object *obj = &Objects[objnum];
 	int count = 0;

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.4 2001-01-31 15:17:57 bradleyb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.5 2001-10-25 02:19:31 bradleyb Exp $";
 #endif
 
 
@@ -160,7 +160,12 @@ ubyte BigPig = 0;
 	extern int		ConvertCToPStr(char* inCStr, StringPtr outPStrBuf);
 #endif
 
+int piggy_is_substitutable_bitmap( char * name, char * subst_name );
+
 #ifdef EDITOR
+void piggy_write_pigfile(char *filename);
+static void write_int(int i,FILE *file);
+
 void swap_0_255(grs_bitmap *bmp)
 {
 	int i;
@@ -1412,7 +1417,7 @@ void piggy_write_pigfile(char *filename)
 	pig_fp = fopen( filename, "wb" );       //open PIG file
 	Assert( pig_fp!=NULL );
 
-	write_int(PIGFILE_ID,pig_fp);
+	write_int((int)PIGFILE_ID,pig_fp);
 	write_int(PIGFILE_VERSION,pig_fp);
 
 	Num_bitmap_files--;
@@ -1518,9 +1523,9 @@ void piggy_dump_all()
 {
 	int i, xlat_offset;
 	FILE * ham_fp;
-	int org_offset,data_offset;
+	int org_offset,data_offset=0;
 	DiskSoundHeader sndh;
-	int sound_data_start;
+	int sound_data_start=0;
 	FILE *fp1,*fp2;
 
 	#ifdef NO_DUMP_SOUNDS
@@ -1541,7 +1546,7 @@ void piggy_dump_all()
 		ham_fp = fopen( DEFAULT_HAMFILE, "wb" );                       //open HAM file
 		Assert( ham_fp!=NULL );
 	
-		write_int(HAMFILE_ID,ham_fp);
+		write_int((int)HAMFILE_ID,ham_fp);
 		write_int(HAMFILE_VERSION,ham_fp);
 	
 		bm_write_all(ham_fp);
@@ -1571,7 +1576,7 @@ void piggy_dump_all()
 		ham_fp = fopen( DEFAULT_SNDFILE, "wb" );
 		Assert( ham_fp!=NULL );
 	
-		write_int(SNDFILE_ID,ham_fp);
+		write_int((int)SNDFILE_ID,ham_fp);
 		write_int(SNDFILE_VERSION,ham_fp);
 
 		fwrite( &Num_sound_files, sizeof(int), 1, ham_fp );

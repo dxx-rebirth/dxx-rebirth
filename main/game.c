@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.7 2001-01-31 16:31:13 bradleyb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.8 2001-10-25 02:19:31 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -88,7 +88,9 @@ char game_rcsid[] = "$Id: game.c,v 1.7 2001-01-31 16:31:13 bradleyb Exp $";
 #include "powerup.h"
 #include "fireball.h"
 #include "newmenu.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "gamefont.h"
 #include "endlevel.h"
 #include "joydefs.h"
@@ -127,7 +129,7 @@ int VGA_current_mode;
 #define	SHOW_EXIT_PATH	1
 
 #ifdef EDITOR
-#include "editor\editor.h"
+#include "editor/editor.h"
 #endif
 
 //#define _MARK_ON 1
@@ -1037,9 +1039,9 @@ WIN(static int saved_window_h);
 		break;
 	#ifdef EDITOR
 	case SCREEN_EDITOR:
-		if (VGA_current_mode != SM_800x600V)	{
+		if (grd_curscreen->sc_mode != SM(800,600))	{
 			int gr_error;
-			if ((gr_error=gr_set_mode(SM_800x600V))!=0) { //force into game scrren
+			if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
 				Warning("Cannot init editor screen (error=%d)",gr_error);
 				return 0;
 			}
@@ -3014,11 +3016,12 @@ int add_flicker(int segnum,int sidenum,fix delay,ulong mask)
 		}
 	}
 
-	if (l == Num_flickering_lights)
+	if (l == Num_flickering_lights) {
 		if (Num_flickering_lights == MAX_FLICKERING_LIGHTS)
 			return 0;
 		else
 			Num_flickering_lights++;
+	}
 
 	f->segnum = segnum;
 	f->sidenum = sidenum;

@@ -37,6 +37,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  **	Constants
  **/
 
+//	How close two points must be in all dimensions to be considered the same point.
+#define	FIX_EPSILON	10
+
 //the maximum length of a filename
 #define FILENAME_LEN 13
 
