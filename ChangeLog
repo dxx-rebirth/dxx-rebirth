@@ -1,3 +1,8 @@
+2004-05-20  Matthew Mueller  <donut@dakotacom.net>
+
+	* arch/win32/win32.c: fixed win32 gr_*_mode funcs that I forgot to
+	change the arg type for (d1x r1.5)
+
 2004-05-20  Victor Rachels  <sekmu@tisiphone.dhs.org>
 
 	* arch/win32/digi.c: altsounds (d1x r1.6)
