@@ -1,4 +1,4 @@
-/* $Id: mem.c,v 1.14 2004-08-01 16:28:33 schaffner Exp $ */
+/* $Id: mem.c,v 1.15 2005-03-29 20:45:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -34,13 +34,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if defined(__APPLE__) && defined(__MACH__)
-#include <sys/malloc.h>
-#elif defined(macintosh)
-#include <stdlib.h>
-#else
+#if 0 // deprecated
 #include <malloc.h>
 #endif
+
 #include "pstypes.h"
 #include "mono.h"
 #include "error.h"

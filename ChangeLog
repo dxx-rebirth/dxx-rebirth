@@ -1,3 +1,7 @@
+2005-03-29  Bradley Bell  <btb@icculus.org>
+
+	* mem/mem.c: remove obsolete malloc.h
+
 2005-03-20  Bradley Bell  <btb@icculus.org>
 
 	* Makefile.am: add some stuff to dist
