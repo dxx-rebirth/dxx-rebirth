@@ -116,11 +116,6 @@ int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix
 	return digi_link_sound_to_object2(org_soundnum, objnum, forever, max_volume, max_distance);
 }
 
-void digi_stop_sound(int channel)
-{
-
-}
-
 void digi_stop_digi_sounds(void)
 {
 

@@ -1,5 +1,6 @@
 2003-02-20  Bradley Bell <btb@icculus.org>
 
+	* arch/sdl/digi.c, main/kludge.c: rest of solution to bug #344
 	* arch/sdl/timer.c, include/timer.h: revert to more accurate
 	timers
 	* main/kludge.c: partial solution to bug #344

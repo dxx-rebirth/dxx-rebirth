@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.5 2003-01-15 02:42:41 btb Exp $ */
+/* $Id: digi.c,v 1.6 2003-02-21 05:05:41 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -301,7 +301,7 @@ static int get_free_slot()
  return -1;
 }
 
-int digi_start_sound(int soundnum, fix volume, fix pan, int unknown1, int unknown2, int unknown3, int unknown4)
+int digi_start_sound(int soundnum, fix volume, fix pan, int looping, int loop_start, int loop_end, int soundobj)
 {
  int ntries;
  int slot;
@@ -339,7 +339,7 @@ TryNextChannel:
  SoundSlots[slot].volume = fixmul(digi_volume, volume);
  SoundSlots[slot].pan = pan;
  SoundSlots[slot].position = 0;
- SoundSlots[slot].looped = 0;
+ SoundSlots[slot].looped = looping;
  SoundSlots[slot].playing = 1;
 
  //added on 980905 by adb to add sound kill system from original sos digi.c
@@ -835,6 +835,12 @@ int digi_get_max_channels() {
 	return digi_max_channels; 
 }
 // end edit by adb
+
+void digi_stop_sound(int channel)
+{
+	//FIXME: Is this correct?  I dunno, it works.
+	SoundSlots[channel].playing=0;
+}
 
 void digi_reset_digi_sounds() {
  int i;
