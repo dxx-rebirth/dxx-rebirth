@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.9 2003-04-11 23:51:48 btb Exp $ */
+/* $Id: ogl.c,v 1.10 2003-11-07 18:09:48 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -1387,9 +1387,12 @@ void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex)
 	
 	if(gr_badtexture>0) return;
 
+#if !(defined(__APPLE__) && defined(__MACH__))
+	// always fails on OS X, but textures work fine!
 	if (tex_format_verify(tex))
 		return;
-	
+#endif
+
 	//calculate u/v values that would make the resulting texture correctly sized
 	tex->u=(float)tex->w/(float)tex->tw;
 	tex->v=(float)tex->h/(float)tex->th;
