@@ -1,4 +1,4 @@
-/* $Id: file.c,v 1.9 2005-03-05 09:14:59 chris Exp $ */
+/* $Id: file.c,v 1.10 2005-03-05 09:18:46 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: file.c,v 1.9 2005-03-05 09:14:59 chris Exp $";
+static char rcsid[] = "$Id: file.c,v 1.10 2005-03-05 09:18:46 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -253,7 +253,6 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 	int NumFiles, NumDirs,i;
 	char InputText[100];
 	char Spaces[35];
-	char ErrorMessage[100];
 	UI_WINDOW * wnd;
 	UI_GADGET_BUTTON * Button1, * Button2, * HelpButton;
 	UI_GADGET_LISTBOX * ListBox1;
@@ -443,11 +442,6 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 
 				//i = TICKER;
 				//while ( TICKER < i+2 );
-
-			}else {
-				sprintf(ErrorMessage, "Error changing to directory '%s'", fulldir );
-				MessageBox( -2, -2, 1, ErrorMessage, "Ok" );
-				UserFile->first_time = 1;
 
 			}
 
