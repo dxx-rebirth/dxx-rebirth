@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.25 2003-03-21 23:13:25 btb Exp $ */
+/* $Id: movie.c,v 1.26 2003-06-10 04:46:16 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.25 2003-03-21 23:13:25 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.26 2003-06-10 04:46:16 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -70,7 +70,6 @@ typedef struct {
 subtitle Subtitles[MAX_SUBTITLES];
 int Num_subtitles;
 
-
 // Movielib data
 typedef struct {
 	char name[FILENAME_LEN];
@@ -115,6 +114,28 @@ int reset_movie_file(int handle);
 void change_filename_ext( char *dest, char *src, char *ext );
 void decode_text_line(char *p);
 void draw_subtitles(int frame_num);
+
+
+// ----------------------------------------------------------------------
+void* MPlayAlloc(unsigned size)
+{
+    return d_malloc(size);
+}
+
+void MPlayFree(void *p)
+{
+    d_free(p);
+}
+
+
+//-----------------------------------------------------------------------
+
+unsigned int FileRead(void *handle, void *buf, unsigned int count)
+{
+    unsigned numread;
+    numread = read((int)handle, buf, count);
+    return (numread == count);
+}
 
 
 //-----------------------------------------------------------------------
@@ -164,6 +185,52 @@ int PlayMovie(const char *filename, int must_have)
 	Screen_mode = -1;		//force screen reset
 
 	return ret;
+}
+
+
+void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy,
+					uint w, uint h, uint dstx, uint dsty)
+{
+	grs_bitmap source_bm;
+
+	//mprintf((0,"MovieShowFrame %d,%d  %d,%d  %d,%d  %d,%d\n",bufw,bufh,sx,sy,w,h,dstx,dsty));
+
+	Assert(bufw == w && bufh == h);
+
+	source_bm.bm_x = source_bm.bm_y = 0;
+	source_bm.bm_w = source_bm.bm_rowsize = bufw;
+	source_bm.bm_h = bufh;
+	source_bm.bm_type = BM_LINEAR;
+	source_bm.bm_flags = 0;
+	source_bm.bm_data = buf;
+
+	gr_bm_ubitblt(bufw,bufh,dstx,dsty,sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
+}
+
+//our routine to set the pallete, called from the movie code
+void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
+{
+	if (count == 0)
+		return;
+
+	//mprintf((0,"SetPalette p=%x, start=%d, count=%d\n",p,start,count));
+
+	//Color 0 should be black, and we get color 255
+	Assert(start>=1 && start+count-1<=254);
+
+	//Set color 0 to be black
+	gr_palette[0] = gr_palette[1] = gr_palette[2] = 0;
+
+	//Set color 255 to be our subtitle color
+	gr_palette[765] = gr_palette[766] = gr_palette[767] = 50;
+
+	//movie libs palette into our array
+	memcpy(gr_palette+start*3,p+start*3,count*3);
+
+	//finally set the palette in the hardware
+	//gr_palette_load(gr_palette);
+
+	//MVE_SetPalette(p, start, count);
 }
 
 
@@ -254,6 +321,9 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		return MOVIE_NOT_PLAYED;
 	}
 
+	MVE_memCallbacks(MPlayAlloc, MPlayFree);
+	MVE_ioCallbacks(FileRead);
+
 	if (hires_flag) {
 		gr_set_mode(SM(640,480));
 	} else {
@@ -266,7 +336,12 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	gr_palette_load(gr_palette);
 #endif
 
-	if (MVE_rmPrepMovie(filehndl, dx, dy, track)) {
+#if !defined(POLY_ACC)
+	MVE_sfCallbacks(MovieShowFrame);
+	MVE_palCallbacks(MovieSetPalette);
+#endif
+
+	if (MVE_rmPrepMovie((void *)filehndl, dx, dy, track)) {
 		Int3();
 		return MOVIE_NOT_PLAYED;
 	}
@@ -278,6 +353,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	while((result = MVE_rmStepMovie()) == 0) {
 
 		draw_subtitles(frame_num);
+
+		gr_palette_load(gr_palette); // moved this here because of flashing
 
 		gr_update();
 
@@ -348,10 +425,12 @@ int RotateRobot()
 
 	err = MVE_rmStepMovie();
 
+	gr_palette_load(gr_palette);
+
 	if (err == MVE_ERR_EOF)     //end of movie, so reset
 	{
 		reset_movie_file(RoboFile);
-		if (MVE_rmPrepMovie(RoboFile, MenuHires?280:140, MenuHires?200:80, 0)) {
+		if (MVE_rmPrepMovie((void *)RoboFile, MenuHires?280:140, MenuHires?200:80, 0)) {
 			Int3();
 			return 0;
 		}
@@ -390,7 +469,7 @@ int InitRobotMovie(char *filename)
 
 	Vid_State = VID_PLAY;
 
-	if (MVE_rmPrepMovie(RoboFile, MenuHires?280:140, MenuHires?200:80, 0)) {
+	if (MVE_rmPrepMovie((void *)RoboFile, MenuHires?280:140, MenuHires?200:80, 0)) {
 		Int3();
 		return 0;
 	}

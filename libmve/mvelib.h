@@ -4,12 +4,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "libmve.h"
+
+extern mve_cb_Read mve_read;
+extern mve_cb_Alloc mve_alloc;
+extern mve_cb_Free mve_free;
+extern mve_cb_ShowFrame mve_showframe;
+extern mve_cb_SetPalette mve_setpalette;
+
 /*
  * structure for maintaining info on a MVEFILE stream
  */
 typedef struct MVEFILE
 {
-    int             stream;
+    void           *stream;
     unsigned char  *cur_chunk;
     int             buf_size;
     int             cur_fill;
@@ -19,14 +27,12 @@ typedef struct MVEFILE
 /*
  * open a .MVE file
  */
-MVEFILE *mvefile_open(const char *filename);
-MVEFILE *mvefile_open_filehandle(int filehandle);
+MVEFILE *mvefile_open(void *stream);
 
 /*
  * close a .MVE file
  */
 void mvefile_close(MVEFILE *movie);
-void mvefile_close_filehandle(MVEFILE *movie);
 
 /*
  * get size of next segment in chunk (-1 if no more segments in chunk)
@@ -77,14 +83,12 @@ typedef struct MVESTREAM
 /*
  * open an MVE stream
  */
-MVESTREAM *mve_open(const char *filename);
-MVESTREAM *mve_open_filehandle(int filehandle);
+MVESTREAM *mve_open(void *stream);
 
 /*
  * close an MVE stream
  */
 void mve_close(MVESTREAM *movie);
-void mve_close_filehandle(MVESTREAM *movie);
 
 /*
  * reset an MVE stream
