@@ -1,3 +1,7 @@
+2004-05-22  Bradley Bell  <btb@icculus.org>
+
+	* main/game.c: typo
+
 2004-05-21  Matthew Mueller  <donut@dakotacom.net>
 
 	* main/game.c, main/game.h, main/inferno.c: make rear view
