@@ -46,8 +46,11 @@ main(int argc, char *argv[])
 	fread(buf, 4, 1, mvlfile);
 	fread(&nfiles, 4, 1, mvlfile);
 	printf("%d files\n", nfiles);
-	if (nfiles > MAX_FILES) // must be a bigendian mvl
+	if (nfiles > MAX_FILES) { // must be a bigendian mvl
+		fprintf(stderr, "warning: nfiles>%d, trying reverse byte order...",
+				MAX_FILES);
 		bigendian = 1;
+	}
 	if (bigendian)
 		nfiles = SWAPINT(nfiles);
 	printf("Extracting from: %s\n", argv[1]);
