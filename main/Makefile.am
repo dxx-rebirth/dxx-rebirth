@@ -17,31 +17,26 @@ if EDITOR
 EDITOR_SRCS = bmread.c
 endif
 
-if SHAREWARE
-SHAREWARE_SRCS = terrain.c
-endif
-
-MOVIE_SRCS = movie.c mvelib.c mve_audio.c mveplay.c
-
 libmain_a_SOURCES = \
-${EDITOR_SRCS} ${NETWORK_SRCS} ${SHAREWARE_SRCS} ${MOVIE_SRCS} \
-ai.c	    gamerend.c  lighting.c  paging.c    switch.c \
-ai2.c	    effects.c	gamesave.c  menu.c	physics.c   texmerge.c \
-aipath.c    endlevel.c	gameseg.c   mglobal.c	piggy.c     text.c \
-automap.c   escort.c	gameseq.c   mission.c	playsave.c  titles.c \
-bm.c	    fireball.c	gauges.c    morph.c	polyobj.c   vclip.c \
-fuelcen.c   hostage.c   powerup.c   wall.c \
-cntrlcen.c  fvi.c	hud.c	    render.c    weapon.c \
-collide.c   game.c	inferno.c   netmisc.c	robot.c \
-config.c    gamecntl.c	kconfig.c   scores.c \
-controls.c  gamefont.c	kludge.c    newdemo.c	slew.c \
-credits.c   gamemine.c	newmenu.c   songs.c \
-crypt.c     gamepal.c	laser.c     object.c	state.c \
-console.c   cmd.c       player.c    segment.c
+${EDITOR_SRCS} ${NETWORK_SRCS} \
+ai.c        ai2.c       aipath.c    automap.c   bm.c        \
+cmd.c       cntrlcen.c  collide.c   config.c    console.c   \
+controls.c  credits.c   crypt.c     effects.c   endlevel.c  \
+escort.c    fireball.c  fuelcen.c   fvi.c       game.c      \
+gamecntl.c  gamefont.c  gamemine.c  gamepal.c   gamerend.c  \
+gamesave.c  gameseg.c   gameseq.c   gauges.c    hostage.c   \
+hud.c       inferno.c   kconfig.c   kludge.c    laser.c     \
+lighting.c  menu.c      mglobal.c   mission.c   morph.c     \
+movie.c     mvelib.c    mve_audio.c mveplay.c   netmisc.c   \
+newdemo.c   newmenu.c   object.c    paging.c    physics.c   \
+piggy.c     player.c    playsave.c  polyobj.c   powerup.c   \
+render.c    robot.c     scores.c    segment.c   slew.c      \
+songs.c     state.c     switch.c    terrain.c   texmerge.c  \
+text.c      titles.c    vclip.c     wall.c      weapon.c
 
 EXTRA_libmain_a_SOURCES = \
 ipx_drv.c kmatrix.c multi.c multibot.c network.c netpkt.c \
-bmread.c terrain.c movie.c ipclienc.c netlist.c multipow.c \
+bmread.c ipclienc.c netlist.c multipow.c \
 ip_base.cpp ipclient.cpp
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
