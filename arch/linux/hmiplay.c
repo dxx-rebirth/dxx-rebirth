@@ -1,4 +1,4 @@
-/* $Id: hmiplay.c,v 1.3 2004-05-19 01:59:14 btb Exp $ */
+/* $Id: hmiplay.c,v 1.4 2004-05-19 02:02:42 btb Exp $ */
 /*
  * HMI midi playing routines by Jani Frilander
  *
@@ -19,6 +19,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
+#define __USE_GNU //in recent glibc versions msgbuf is only defined if you have __USE_GNU defined
 #include <sys/msg.h>
 #include "music.h"
 #include "cfile.h"
