@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/maths/vecmat.c,v $
- * $Revision: 1.3 $
- * $Author: bradleyb $
- * $Date: 2001-10-31 07:41:54 $
+ * $Revision: 1.4 $
+ * $Author: btb $
+ * $Date: 2002-10-28 19:49:15 $
  * 
  * C version of vecmat library
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/31 07:41:54  bradleyb
+ * Sync with d1x
+ *
  * Revision 1.2  2001/01/31 15:18:04  bradleyb
  * Makefile and conf.h fixes
  *
@@ -57,7 +60,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: vecmat.c,v 1.3 2001-10-31 07:41:54 bradleyb Exp $";
+static char rcsid[] = "$Id: vecmat.c,v 1.4 2002-10-28 19:49:15 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -208,7 +211,7 @@ vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
 
 fix vm_vec_dotprod(vms_vector *v0,vms_vector *v1)
 {
-	quad q;
+	quadint q;
 
 	q.low = q.high = 0;
 
@@ -221,7 +224,7 @@ fix vm_vec_dotprod(vms_vector *v0,vms_vector *v1)
 
 fix vm_vec_dot3(fix x,fix y,fix z,vms_vector *v)
 {
-	quad q;
+	quadint q;
 
 	q.low = q.high = 0;
 
@@ -235,7 +238,7 @@ fix vm_vec_dot3(fix x,fix y,fix z,vms_vector *v)
 //returns magnitude of a vector
 fix vm_vec_mag(vms_vector *v)
 {
-	quad q;
+	quadint q;
 
 	q.low = q.high = 0;
 
@@ -341,7 +344,7 @@ fix vm_vec_copy_normalize_quick(vms_vector *dest,vms_vector *src)
 //returns approximation of 1/magnitude of a vector
 fix vm_vec_imag(vms_vector *v)
 {
-	quad q;
+	quadint q;
 
 	q.low = q.high = 0;
 
@@ -497,7 +500,7 @@ vms_vector *vm_vec_crossprod(vms_vector *dest,vms_vector *src0,vms_vector *src1)
 
 vms_vector *vm_vec_crossprod(vms_vector *dest,vms_vector *src0,vms_vector *src1)
 {
-	quad q;
+	quadint q;
 
 	Assert(dest!=src0 && dest!=src1);
 

@@ -1,4 +1,4 @@
-/* $Id: points.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: points.c,v 1.5 2002-10-28 19:49:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -37,7 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: points.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $";
+static char rcsid[] = "$Id: points.c,v 1.5 2002-10-28 19:49:15 btb Exp $";
 #endif
 
 #include "3d.h"
@@ -91,7 +91,7 @@ ubyte g3_rotate_point(g3s_point *dest,vms_vector *src)
 //returns true if div is ok, else false
 int checkmuldiv(fix *r,fix a,fix b,fix c)
 {
-	quad q,qt;
+	quadint q,qt;
 
 	q.low=q.high=0;
 	fixmulaccum(&q,a,b);
@@ -211,7 +211,7 @@ ubyte g3_add_delta_vec(g3s_point *dest,g3s_point *src,vms_vector *deltav)
 //calculate the depth of a point - returns the z coord of the rotated point
 fix g3_calc_point_depth(vms_vector *pnt)
 {
-	quad q;
+	quadint q;
 
 	q.low=q.high=0;
 	fixmulaccum(&q,(pnt->x - View_position.x),View_matrix.fvec.x);

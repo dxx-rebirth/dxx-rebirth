@@ -21,12 +21,12 @@ int d_rand ();			// Random number function which returns in the range 0-0x7FFF
 typedef int32_t fix;		//16 bits int, 16 bits frac
 typedef int16_t fixang;		//angles
 
-typedef struct quad
+typedef struct quadint // integer 64 bit, previously called "quad"
   {
     u_int32_t low;
     int32_t high;
   }
-quad;
+quadint;
 
 
 //Convert an int to a fix
@@ -162,22 +162,22 @@ fixmuldiv (fix a, fix b, fix c)
 
 #endif
 
-//multiply two fixes, and add 64-bit product to a quad
-void fixmulaccum (quad * q, fix a, fix b);
+//multiply two fixes, and add 64-bit product to a quadint
+void fixmulaccum (quadint * q, fix a, fix b);
 
-//extract a fix from a quad product
-fix fixquadadjust (quad * q);
+//extract a fix from a quadint product
+fix fixquadadjust (quadint * q);
 
-//divide a quad by a long
+//divide a quadint by a long
 int32_t fixdivquadlong (u_int32_t qlow, u_int32_t qhigh, u_int32_t d);
 
-//negate a quad
-void fixquadnegate (quad * q);
+//negate a quadint
+void fixquadnegate (quadint * q);
 
 //computes the square root of a long, returning a short
 ushort long_sqrt (int32_t a);
 
-//computes the square root of a quad, returning a long
+//computes the square root of a quadint, returning a long
 u_int32_t quad_sqrt (u_int32_t low, int32_t high);
 //ulong quad_sqrt (long low, long high);
 

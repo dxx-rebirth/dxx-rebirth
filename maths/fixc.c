@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/maths/fixc.c,v $
- * $Revision: 1.3 $
- * $Author: bradleyb $
- * $Date: 2001-10-31 07:41:54 $
+ * $Revision: 1.4 $
+ * $Author: btb $
+ * $Date: 2002-10-28 19:49:15 $
  * 
  * C version of fixed point library
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/31 07:41:54  bradleyb
+ * Sync with d1x
+ *
  * Revision 1.2  2001/01/31 15:18:04  bradleyb
  * Makefile and conf.h fixes
  *
@@ -69,7 +72,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: fixc.c,v 1.3 2001-10-31 07:41:54 bradleyb Exp $";
+static char rcsid[] = "$Id: fixc.c,v 1.4 2002-10-28 19:49:15 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -93,14 +96,14 @@ extern ushort acos_table[];
 extern fix isqrt_guess_table[];
 
 //negate a quad
-void fixquadnegate(quad *q)
+void fixquadnegate(quadint *q)
 {
 	q->low  = 0 - q->low;
 	q->high = 0 - q->high - (q->low != 0);
 }
 
 //multiply two ints & add 64-bit result to 64-bit sum
-void fixmulaccum(quad *q,fix a,fix b)
+void fixmulaccum(quadint *q,fix a,fix b)
 {
 	u_int32_t aa,bb;
 	u_int32_t ah,al,bh,bl;
@@ -135,7 +138,7 @@ void fixmulaccum(quad *q,fix a,fix b)
 }
 
 //extract a fix from a quad product
-fix fixquadadjust(quad *q)
+fix fixquadadjust(quadint *q)
 {
 	return (q->high<<16) + (q->low>>16);
 }
@@ -219,7 +222,7 @@ fixang fix_atan2(fix cos,fix sin)
 }
 
 #ifdef NO_FIX_INLINE
-//divide a quad by a fix, returning a fix
+//divide a quadint by a fix, returning a fix
 int32_t fixdivquadlong(u_int32_t nl,u_int32_t nh,u_int32_t d)
 {
 	int i;
@@ -347,7 +350,7 @@ u_int32_t quad_sqrt(u_int32_t low,int32_t high)
 {
 	int i, cnt;
 	u_int32_t r,old_r,t;
-	quad tq;
+	quadint tq;
 
 	if (high<0)
 		return 0;
