@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.23 2002-09-07 07:17:18 btb Exp $ */
+/* $Id: font.c,v 1.24 2003-03-15 14:17:52 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1338,7 +1338,8 @@ int ogl_internal_string(int x, int y, char *s )
 //			ogl_ubitblt(FONT->ft_bitmaps[letter].bm_w,FONT->ft_bitmaps[letter].bm_h,xx,yy,0,0,&FONT->ft_bitmaps[letter],NULL);
 //			if (*text_ptr>='0' && *text_ptr<='9'){
 			if (FFLAGS&FT_COLOR)
-				gr_ubitmapm(xx,yy,&FONT->ft_bitmaps[letter]);
+				//gr_ubitmapm(xx,yy,&FONT->ft_bitmaps[letter]);
+				gr_bitmapm(xx,yy,&FONT->ft_bitmaps[letter]); // credits need clipping
 			else{
 				if (grd_curcanv->cv_bitmap.bm_type==BM_OGL)
 					ogl_ubitmapm_c(xx,yy,&FONT->ft_bitmaps[letter],FG_COLOR);

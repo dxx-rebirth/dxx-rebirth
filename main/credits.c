@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: credits.c,v 1.5 2002-09-04 22:29:49 btb Exp $";
+static char rcsid[] = "$Id: credits.c,v 1.6 2003-03-15 14:17:52 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -190,6 +190,9 @@ WIN(int credinit = 0;)
 CreditsPaint:
 #endif
 	gr_use_palette_table( "credits.256" );
+#ifdef OGL
+	gr_palette_load(gr_palette);
+#endif
 #if defined(POLY_ACC)
 	pa_update_clut(gr_palette, 0, 256, 0);
 #endif
