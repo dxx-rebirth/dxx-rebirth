@@ -1,5 +1,4 @@
-/* $Id: ukali.h,v 1.5 2003-01-01 00:56:24 btb Exp $ */
-
+/* $Id: ukali.h,v 1.6 2003-03-13 00:20:21 btb Exp $ */
 /*
  *
  * Header for kali support functions

@@ -1,9 +1,12 @@
-/* HMI midi playing routines by Jani Frilander
- * 
+/* $Id: hmiplay.c,v 1.2 2003-03-13 00:20:21 btb Exp $ */
+/*
+ * HMI midi playing routines by Jani Frilander
+ *
  * External device support by Patrick McCarthy
  *
  * Ported to d1x/sdl_threads by Matthew Mueller
-*/
+ *
+ */
 
 #include <errno.h>
 #include <stdio.h>

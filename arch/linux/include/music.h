@@ -1,3 +1,5 @@
+/* $Id: music.h,v 1.2 2003-03-13 00:20:21 btb Exp $ */
+
 #include <unistd.h>
 
 #define SEQ_DEV "/dev/sequencer"

@@ -1,5 +1,4 @@
-/* $Id: ipx_kali.c,v 1.4 2002-08-29 08:59:43 btb Exp $ */
-
+/* $Id: ipx_kali.c,v 1.5 2003-03-13 00:20:21 btb Exp $ */
 /*
  *
  * IPX driver for KaliNix interface

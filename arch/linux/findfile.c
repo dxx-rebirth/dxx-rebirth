@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: findfile.c,v 1.7 2003-03-13 00:20:21 btb Exp $ */
 /*
  *
  * Linux findfile functions

@@ -1,5 +1,4 @@
-/* $Id: */
-
+/* $Id: ipx_udp.c,v 1.6 2003-03-13 00:20:21 btb Exp $ */
 /*
  *
  * IPX driver for native Linux TCP/IP networking (UDP implementation)

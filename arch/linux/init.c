@@ -1,14 +1,7 @@
+/* $Id: init.c,v 1.5 2003-03-13 00:20:21 btb Exp $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/linux/init.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-10-19 09:01:56 $
  *
  * linux init.c - added Matt Mueller 9/6/98
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.4  2001/01/29 13:35:08  bradleyb
- * Fixed build system, minor fixes
  *
  */
 

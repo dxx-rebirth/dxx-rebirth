@@ -1,3 +1,16 @@
+2003-03-12  Bradley Bell  <btb@icculus.org>
+
+	* arch/linux/alsadigi.c, arch/linux/findfile.c,
+	arch/linux/hmiplay.c, arch/linux/init.c, arch/linux/ipx_bsd.c,
+	arch/linux/ipx_kali.c, arch/linux/ipx_lin.c, arch/linux/ipx_udp.c,
+	arch/linux/joydefs.c, arch/linux/ukali.c, arch/linux/include,
+	arch/linux/include/ipx_bsd.h, arch/linux/include/ipx_drv.h,
+	arch/linux/include/ipx_hlpr.h, arch/linux/include/ipx_kali.h,
+	arch/linux/include/ipx_ld.h, arch/linux/include/ipx_lin.h,
+	arch/linux/include/ipx_udp.h, arch/linux/include/joystick.h,
+	arch/linux/include/music.h, arch/linux/include/serial.h,
+	arch/linux/include/ukali.h: formatting
+
 2003-03-11  Chris Arena <ccarena@cox.net>
 
 	* main/menu.c (do_options_menu): fixed brightness slider

@@ -1,9 +1,15 @@
-// Name: Serial port support for Linux D1X
-// Author: dph
-// Date: Sun Oct 18, 1998
+/* $Id: serial.h,v 1.2 2003-03-13 00:20:21 btb Exp $ */
+/*
+ *
+ * Name: Serial port support for Linux D1X
+ * Author: dph
+ * Date: Sun Oct 18, 1998
+ *
+ */
 
 #ifndef _SERIAL_H
 #define _SERIAL_H
+
 void com_done(void);
 int com_init(void);
 int com_read(char *buffer, int len, int timeout_value);
@@ -15,4 +21,5 @@ void com_setbaudrate(int rate);
 int com_readline(int timeout, char *input_buffer,int len);
 
 extern int commlib_initialised;
+
 #endif

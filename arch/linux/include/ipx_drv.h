@@ -1,5 +1,4 @@
-/* $Id: ipx_drv.h,v 1.3 2002-08-29 19:02:34 btb Exp $ */
-
+/* $Id: ipx_drv.h,v 1.4 2003-03-13 00:20:21 btb Exp $ */
 /*
  *
  * IPX driver interface
