@@ -1,17 +1,19 @@
 #
 # Spec file for package d2x.
 #
+# Tested with RPM <= 4.0.4 and GCC 2.95.3/3.3
+#
 Name:          d2x
 Version:       @VERSION@
 Release:       1
 Copyright:     Freely Redistributable
-Packager:      bradleyb@u.washington.edu
+Packager:      btb@icculus.org
 
 Group:         Contrib/Games
 Summary:       The port of Descent 2 Version 1.2 for Linux.
 Provides:      d2x, descent2
 
-URL:           http://shelob.classrooms.washington.edu/d2x/
+URL:           http://icculus.org/d2x/
 Source:        d2x-%{version}.tar.gz
 BuildRoot:     /var/tmp/%name-buildroot
 
@@ -61,43 +63,68 @@ rendering.
 
 %prep
 %setup -q -n d2x*
-#./autogen.sh
 
 %build
+CFLAGS="${RPM_OPT_FLAGS} -ffast-math -fno-strict-aliasing"
+export CFLAGS
 # d2x-sdl
-%configure --with-sharepath=/usr/share/games/descent2 --disable-debug
+%configure --with-sharepath=/usr/share/games/descent2 --disable-debug \
+	--enable-release --prefix=/usr --bindir=/usr/games
 make
 mv d2x-sdl d2x-sdl.real
 # d2x-gl
 make clean
 rm -f config.cache
 # Tell configure where to find libGLU (nonstandard location).
-export LDFLAGS="${LDFLAGS} -L/usr/X11R6/lib"
+LDFLAGS="${LDFLAGS} -L/usr/X11R6/lib"
+export LDFLAGS
 %configure --with-sharepath=/usr/share/games/descent2 --with-opengl \
-	--disable-debug
+	--disable-debug --enable-release --prefix=/usr --bindir=/usr/games
 # Tell make where to link libGLU (nonstandard location).
 make LDFLAGS="${LDFLAGS} -L /usr/X11R6/lib"
 mv d2x-gl d2x-gl.real
+cd libmve && make mveplayer
+cd ../utilities && make utils
 
 %install
 rm -rf $RPM_BUILD_ROOT
+mkdir -p $RPM_BUILD_ROOT/usr/bin/
 mkdir -p $RPM_BUILD_ROOT/usr/games/
+mkdir -p $RPM_BUILD_ROOT/usr/share/man/man1/
 mkdir -p $RPM_BUILD_ROOT/usr/share/games/descent2/missions/
 install -m 755 d2x-sdl.sh $RPM_BUILD_ROOT/usr/games/d2x-sdl
 install -m 755 d2x-gl.sh $RPM_BUILD_ROOT/usr/games/d2x-gl
 install d2x-sdl.real $RPM_BUILD_ROOT/usr/games/
 install d2x-gl.real $RPM_BUILD_ROOT/usr/games/
+install -s libmve/mveplayer $RPM_BUILD_ROOT/usr/bin/
+cd utilities && install -s hogcreate hogextract mvlcreate mvlextract \
+    tex2txb txb2tex $RPM_BUILD_ROOT/usr/bin/
+cd ..
+install -m 644 debian/*.1 $RPM_BUILD_ROOT/usr/share/man/man1/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc README NEWS INSTALL COPYING AUTHORS
-%doc readme.txt cvshowto.txt license.txt compilerdefs.txt
-%doc installation.txt mingw32.txt
+%doc README README.utils NEWS INSTALL COPYING AUTHORS
+%doc readme.txt cvshowto.txt compilerdefs.txt installation.txt
 %dir /usr/share/games/descent2
 %dir /usr/share/games/descent2/missions
+/usr/bin/txb2tex
+/usr/bin/tex2txb
+/usr/bin/mveplayer
+/usr/bin/hogcreate
+/usr/bin/hogextract
+/usr/bin/mvlcreate
+/usr/bin/mvlextract
+/usr/share/man/man1/txb2tex.1*
+/usr/share/man/man1/tex2txb.1*
+/usr/share/man/man1/mveplayer.1*
+/usr/share/man/man1/hogcreate.1*
+/usr/share/man/man1/hogextract.1*
+/usr/share/man/man1/mvlcreate.1*
+/usr/share/man/man1/mvlextract.1*
 
 %files -n d2x-sdl
 %defattr(-,root,root)
@@ -110,6 +137,11 @@ rm -rf $RPM_BUILD_ROOT
 /usr/games/d2x-gl.real
 
 %changelog
+* Sun Jul 13 2003 - Paolo Ulivi <pulivi@libero.it>
+- Build correctly with gcc3.
+- Build all of the utilities and install manpages.
+- Added --prefix and --bindir switches to %configure.
+- Removed obsolete license.txt from docs, added README.utils
 * Tue Feb  7 2002 - Paolo Ulivi <pulivi@libero.it>
 - New SPEC version for inclusion in d2x/rpm (CVS)
 * Wed Nov 14 2001 - Paolo Ulivi <paoloulivi@tin.it>

@@ -1,3 +1,7 @@
+2003-08-02  Paolo Ulivi <pulivi@libero.it>
+
+	* rpm/d2x.spec.in: updated rpm spec file
+
 2003-08-02  Bradley Bell  <btb@icculus.org>
 
 	* cfile/cfile.c: update raw_position in cfputc and cfputs
