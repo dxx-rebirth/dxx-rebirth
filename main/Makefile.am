@@ -23,9 +23,7 @@ if SHAREWARE
 SHAREWARE_SRCS = terrain.c
 endif
 
-if MOVIE_TRICK
-MOVIE_SRCS = movie.c
-endif
+MOVIE_SRCS = movie.c mvelib.c mve_audio.c mveplay.c
 
 libmain_a_SOURCES = \
 ${EDITOR_SRCS} ${NETWORK_SRCS} ${SHAREWARE_SRCS} ${MOVIE_SRCS} \

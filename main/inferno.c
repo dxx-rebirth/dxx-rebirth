@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.31 2002-07-18 08:35:58 bradleyb Exp $ */
+/* $Id: inferno.c,v 1.32 2002-07-22 02:20:05 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -293,7 +293,7 @@ void print_commandline_help()
 	printf( "  -stickmag       %s\n","FIXME: Undocumented");
 #endif
 //	printf( "  -stopwatch      %s\n","FIXME: Undocumented");
-//	printf( "  -subtitles      %s\n","Turn on movie subtitles (English-only)");
+	printf( "  -subtitles      %s\n","Turn on movie subtitles (English-only)");
 //	printf( "  -sysram         %s\n","FIXME: Undocumented");
 	printf( "  -text <file>    %s\n","Specify alternate .tex file");
 //	printf( "  -tsengdebug1    %s\n","FIXME: Undocumented");
