@@ -30,8 +30,8 @@ main(int argc, char *argv[])
 		argv++;
 	}
 
-	if (argc != 2) {
-		printf("Usage: mvlextract [v] mvlfile\n"
+	if (argc < 2) {
+		printf("Usage: mvlextract [v] mvlfile [filename]\n"
 		       "extracts all the files in mvlfile into the current directory\n"
 			   "Options:\n"
 			   "  v    View files, don't extract\n");
@@ -48,24 +48,29 @@ main(int argc, char *argv[])
 	for (i = 0; i < nfiles; i++) {
 		fread(filename[i], 13, 1, mvlfile);
 		fread(&len[i], 4, 1, mvlfile);
-		printf("Filename: %s \tLength: %i\n", filename[i], len[i]);
+		if (argc == 2 || !strcmp(argv[2], filename[i]))
+			printf("Filename: %s \tLength: %i\n", filename[i], len[i]);
 	}
 
 	if (!v) {
 		for (i = 0; i < nfiles; i++) {
-			if (ftell(mvlfile) > statbuf.st_size) {
-				printf("Error, end of file\n");
-				exit(1);
-			}
-			buf = (char *)malloc(len[i]);
-			if (buf == NULL) {
-				printf("Unable to allocate memory\n");
-			} else {
-				fread(buf, len[i], 1, mvlfile);
-				writefile = fopen(filename[i], "w");
-				fwrite(buf, len[i], 1, writefile);
-				fclose(writefile);
-				free(buf);
+			if (argc > 2 && strcmp(argv[2], filename[i]))
+				fseek(mvlfile, len[i], SEEK_CUR);
+			else {
+				if (ftell(mvlfile) > statbuf.st_size) {
+					printf("Error, end of file\n");
+					exit(1);
+				}
+				buf = (char *)malloc(len[i]);
+				if (buf == NULL) {
+					printf("Unable to allocate memory\n");
+				} else {
+					fread(buf, len[i], 1, mvlfile);
+					writefile = fopen(filename[i], "w");
+					fwrite(buf, len[i], 1, writefile);
+					fclose(writefile);
+					free(buf);
+				}
 			}
 		}
 	}
