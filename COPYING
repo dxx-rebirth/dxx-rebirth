@@ -19,3 +19,7 @@ MUST be open source. By using this source, you are agreeing to this
 term, in the interest of the descent and descent programming
 communities. The only exception is if the writer of the original
 source gives explicit permission for the code to be used otherwise.
+
+Portions of d2x code are taken from the d1x project.  This code is
+covered by the d1x license, in the file license.txt
+
