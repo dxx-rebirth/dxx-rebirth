@@ -1,5 +1,8 @@
 2003-03-21  Martin Schaffner <maschaffner@gmx.ch>
 
+	* main/gameseq.c, main/piggy.c, main/piggy.h: move bitmap
+	replacement functions to piggy.c
+
 	* main/gameseq.c: attempt to support mac d1 descent.pig
 
 	* main/bm.c: fix mem leak
