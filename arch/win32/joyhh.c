@@ -1,3 +1,4 @@
+/* $Id: joyhh.c,v 1.3 2004-05-20 19:02:57 btb Exp $ */
 //JOYC.C for D1_3Dfx and D1OpenGL
 //D1_3Dfx is a Win32 executable using Glide and DirectX 3
 //D1OpenGL is a Win32 executable using OpenGL and DirectX 3
@@ -46,6 +47,7 @@ Later modified by Owen Evans to work with D1X (3/7/99)
 #include "types.h"
 #include "joy.h"
 #include "timer.h"
+#include "args.h"
 
 #define my_hwnd g_hWnd // D1X compatibility
 extern HWND g_hWnd;
@@ -223,6 +225,9 @@ int joy_init(int joyid) //HH: added joyid parameter
 	int i;
         int temp_axis[JOY_NUM_AXES];       //changed - orulz
 	JOYCAPS pjc;
+
+	if (FindArg("-nojoystick"))
+		return 0;
 
 	atexit(joy_close);	//HH: we are a bit lazy :). Errors are ignored, so we are even double-lazy :)
 
