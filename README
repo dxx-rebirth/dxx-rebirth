@@ -9,11 +9,11 @@ Linux/Unix:
 ===========
 
 Required tools:
-* GCC 2.95
+* GCC 2.95 or higher
 * SDL 1.1.0 or higher
 * NASM 0.98 (OPTIONAL but RECOMMENDED for x86)
 * A thread safe X server.
-* Make, sed, etc...
+* GNU make is probably required as well.
 
 Build instructions:
 Install all of the components above. Next, from the d2x directory:
@@ -31,6 +31,8 @@ cd d2x-build
 
 make
 make install
+
+on systems where `make' isn't GNU make, use `gmake' instead.
 
 see installation.txt for info on where to put your datafiles, etc.
 

@@ -10,9 +10,13 @@ A quick howto on accessing the d2x source with CVS.
 
 1) cd <your source dir>
 
-2) cvs -d :pserver:anonymous@cvs.icculus.org:/cvs/cvsroot" login
-   (password is "anonymous")
-   cvs -z3 -d :pserver:anonymous@cvs.icculus.org:/cvs/cvsroot" co d2x
+2) Log in to the cvs server:
+   cvs -d :pserver:anonymous@cvs.icculus.org:/cvs/cvsroot login
+   (password is "anonymous").  You can also try it this way:
+   cvs -d :pserver:anonymous:anonymous@cvs.icculus.org:/cvs/cvsroot login
+
+   Download the source code:
+   cvs -z3 -d :pserver:anonymous@cvs.icculus.org:/cvs/cvsroot co d2x
 
   This will retrieve the source into <current dir>/d2x
   (note that this should only be done once.  After you already have the code,

@@ -8,8 +8,7 @@ Base Installation
 
 The base install depends on which version of the datafiles you have.
 d2x currently supports the full version, the OEM version (Destination:
-Quartzon), and the PC shareware version (Mac shareware version coming
-soon)
+Quartzon), the PC shareware version, and the Mac shareware version.
 Place these files into your shared data dir:
 
 Full Version:
@@ -53,6 +52,10 @@ Mission Installation
 d2x should be able to play any missions for Descent 1 or Descent 2,
 including the original Descent 1 mission (Descent: First Strike)
 
+In order to play any add-on missions, you need to have a full set of
+textures.  That is, your base installation above must be the "Full
+Version", the "OEM Version", or the "Mac Shareware" version.
+
 To install an additional mission, just place the .hog and the .msn or
 .mn2 file into your missions directory.  The missions directory can be
 inside the system-wide data dir, or your $HOME/.d2x dir.  d2x will
@@ -77,5 +80,10 @@ Notes
 -----
 
 In unix, the filenames must be in _lower case_. It's important.
-Also, you don't have to run the D2 setup program to extract the files,
-just unarj descent2.sow from the cd.
+
+It is not necessary to run the D2 setup program to extract the files
+you need, just use unarj to extract the files from descent2.sow on the
+cd.
+
+If you use the mac data files, and they are not auto-detected (colors
+come out wrong), use the -macdata switch.

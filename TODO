@@ -4,3 +4,4 @@
 * Make networking compatible with official version
 * bigendian networking (joining)
 * use autoconf macros to replace junk in pstypes.h
+* use unarj (or code) to extract necessary files from the CD as needed.
