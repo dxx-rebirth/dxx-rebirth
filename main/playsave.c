@@ -529,7 +529,7 @@ int read_player_file()
 	int errno_ret = EZERO;
 	int id,player_file_version,i;
 	int rewrite_it=0;
-	int swap;
+	int swap = 0;
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
