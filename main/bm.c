@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/bm.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  * $Author: bradleyb $
- * $Date: 2001-11-14 09:34:32 $
+ * $Date: 2002-02-11 07:44:44 $
  *
  * Bitmap and palette loading functions.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2001/11/14 09:34:32  bradleyb
+ * use MAKE_SIG
+ *
  * Revision 1.6  2001/11/02 02:22:25  bradleyb
  * formatting
  *
@@ -34,6 +37,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
+#ifdef WORDS_BIGENDIAN
+#define PORTABLE_LOADER
 #endif
 
 #include <stdio.h>
