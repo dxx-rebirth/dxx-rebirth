@@ -1,3 +1,9 @@
+--- Version 0.2.6 ---
+- Added optional console (not really useful, yet)
+- Improved movie player
+- Improved networking (especially Windows and bigendian unix)
+- Improved loading of Descent 1 textures
+
 --- Version 0.2.5 ---
 - Fixes crash on controls config
 - "status bar" works in GL version

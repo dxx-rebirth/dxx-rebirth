@@ -1,5 +1,7 @@
 2003-10-05  Bradley Bell  <btb@icculus.org>
 
+	* NEWS, configure.ac: increment version number
+
 	* cfile/cfile.c: better handling of CRLF text files (when that is
 	the native format)
 
