@@ -1,4 +1,4 @@
-/* $Id: joy.h,v 1.8 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: joy.h,v 1.9 2004-11-22 23:32:54 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -38,6 +38,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define JOY_1_R_AXIS        16
 #define JOY_1_U_AXIS        32
 #define JOY_1_V_AXIS        64
+
+#define JOY_MAX_AXES        32
 
 #if defined WINDOWS
 #define JOY_NUM_AXES        7
@@ -88,6 +90,13 @@ extern void joy_close();
 
 extern char joy_installed;
 extern char joy_present;
+
+
+//==========================================================================
+// The actual number of available axes.  If the arch can't set this
+// properly, it should set joy_num_axes=JOY_NUM_AXES;
+extern int joy_num_axes;
+
 
 //==========================================================================
 // The following 3 routines can be used to zero in on better joy

@@ -129,6 +129,7 @@ AC_ARG_ENABLE(linuxjoy,
     [  --enable-linuxjoy       do not use the SDL Joystick. (eg for MS Sidewinder)],,)
 if test x$enable_linuxjoy = xyes; then
     AC_DEFINE(USE_LINUX_JOY,,[define to not use the SDL_Joystick routines.])
+    D2X_FEATURES="linuxjoy ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(USE_LINUX_JOY, test x$enable_linuxjoy = xyes)
 

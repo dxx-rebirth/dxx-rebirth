@@ -1,4 +1,4 @@
-/* $Id: joydefs.c,v 1.3 2004-05-22 01:32:11 btb Exp $ */
+/* $Id: joydefs.c,v 1.4 2004-11-22 23:32:54 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -83,14 +83,14 @@ int joycal_message( char * title, char * text )
 extern int WriteConfigFile();	
 
 extern joystick_device j_joystick[MAX_JOY_DEVS];
-extern joystick_axis j_axis[MAX_AXES];
+extern joystick_axis j_axis[JOY_MAX_AXES];
 extern joystick_button j_button[MAX_BUTTONS];
 
 void joydefs_calibrate()
 {
 
 	int i;
-	int temp_values[MAX_AXES];
+	int temp_values[JOY_MAX_AXES];
 	char title[50];
 	char text[256];
 //added/killed on 10/17/98 by Hans de Goede for joystick/mouse # fix
@@ -108,8 +108,9 @@ void joydefs_calibrate()
 		joycal_message ("No Calibration", "calibration not required for\njoystick v1.x");
 		return;
 	}
-	
-	for (i = 0; i < j_num_axes; i += 2) {
+
+	for (i = 0; i < joy_num_axes; i += 2)
+	{
 		sprintf (title, "js%d Calibration", j_axis[i].joydev);
 
 		sprintf (text, "center joystick %d", j_axis[i].joydev);

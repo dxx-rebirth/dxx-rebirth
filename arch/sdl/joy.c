@@ -1,4 +1,4 @@
-/* $Id: joy.c,v 1.13 2004-05-15 16:25:35 schaffner Exp $ */
+/* $Id: joy.c,v 1.14 2004-11-22 23:32:54 btb Exp $ */
 /*
  *
  * SDL joystick support
@@ -21,7 +21,6 @@
 #include "text.h"
 
 #define MAX_JOYSTICKS 16
-#define MAX_AXES 32
 
 #define MAX_AXES_PER_JOYSTICK 8
 #define MAX_BUTTONS_PER_JOYSTICK 16
@@ -33,6 +32,8 @@ char joy_present = 0;
 int num_joysticks = 0;
 
 int joy_deadzone = 0;
+
+int joy_num_axes = 0;
 
 struct joybutton {
 	int state;
@@ -49,13 +50,19 @@ struct joyaxis {
 	int		max_val;
 };
 
+/* This struct is a "virtual" joystick, which includes all the axes
+ * and buttons of every joystick found.
+ */
 static struct joyinfo {
 	int n_axes;
 	int n_buttons;
-	struct joyaxis axes[MAX_AXES];
+	struct joyaxis axes[JOY_MAX_AXES];
 	struct joybutton buttons[MAX_BUTTONS];
 } Joystick;
 
+/* This struct is an array, with one entry for each physical joystick
+ * found.
+ */
 static struct {
 	SDL_Joystick *handle;
 	int n_axes;
@@ -202,6 +209,8 @@ int joy_init()
 		con_printf(CON_VERBOSE, "sdl-joystick: %d buttons (total)\n", Joystick.n_buttons);
 	}
 
+	joy_num_axes = Joystick.n_axes;
+
 	return joy_present;
 }
 
@@ -213,7 +222,7 @@ void joy_close()
 
 void joy_get_pos(int *x, int *y)
 {
-	int axis[MAX_AXES];
+	int axis[JOY_MAX_AXES];
 
 	if (!num_joysticks) {
 		*x=*y=0;
@@ -292,7 +301,7 @@ ubyte joystick_read_raw_axis( ubyte mask, int * axis )
 
 	event_poll();
 
-	for (i = 0; i < JOY_NUM_AXES; i++) {
+	for (i = 0; i < Joystick.n_axes; i++) {
 		if ((axis[i] = Joystick.axes[i].value))
 			channel_masks |= 1 << i;
 	}
@@ -331,7 +340,7 @@ void joy_get_cal_vals(int *axis_min, int *axis_center, int *axis_max)
 {
 	int i;
 
-	for (i = 0; i < JOY_NUM_AXES; i++) {
+	for (i = 0; i < Joystick.n_axes; i++) {
 		axis_center[i] = Joystick.axes[i].center_val;
 		axis_min[i] = Joystick.axes[i].min_val;
 		axis_max[i] = Joystick.axes[i].max_val;
@@ -342,7 +351,7 @@ void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max)
 {
 	int i;
 
-	for (i = 0; i < JOY_NUM_AXES; i++) {
+	for (i = 0; i < Joystick.n_axes; i++) {
 		Joystick.axes[i].center_val = axis_center[i];
 		Joystick.axes[i].min_val = axis_min[i];
 		Joystick.axes[i].max_val = axis_max[i];

@@ -1,4 +1,4 @@
-/* $Id: joystick.c,v 1.5 2004-05-22 07:31:38 btb Exp $ */
+/* $Id: joystick.c,v 1.6 2004-11-22 23:32:54 btb Exp $ */
 /*
  *
  * Linux joystick support
@@ -27,10 +27,10 @@ char joy_installed = 0;
 char joy_present = 0;
 
 joystick_device j_joystick[MAX_JOY_DEVS];
-joystick_axis j_axis[MAX_AXES];
+joystick_axis j_axis[JOY_MAX_AXES];
 joystick_button j_button[MAX_BUTTONS];
 
-int j_num_axes = 0, j_num_buttons = 0;
+int joy_num_axes = 0, j_num_buttons = 0;
 int timer_rate;
 
 int j_axes_in_sticks[MAX_JOY_DEVS];     /* number of axes in the first [x] sticks */
@@ -125,7 +125,7 @@ void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max)
 void joy_get_cal_vals(int *axis_min, int *axis_center, int *axis_max) {
 	int i;
 
-	//edited 05/18/99 Matt Mueller - we should return all axes instead of j_num_axes, since they are all given to us in joy_set_cal_vals ( and because checker complains :)
+	//edited 05/18/99 Matt Mueller - we should return all axes instead of joy_num_axes, since they are all given to us in joy_set_cal_vals ( and because checker complains :)
 	for (i = 0; i < JOY_NUM_AXES; i++)
 	{
 	//end edit -MM
@@ -186,7 +186,8 @@ ubyte joystick_read_raw_axis (ubyte mask, int *axes) {
 		return 0;
 	j_Update_state();
 
-	for (i = 0; i < j_num_axes; i++) {
+	for (i = 0; i < joy_num_axes; i++)
+	{
 		axes[i] = j_axis[i].value;
 	}
 
@@ -249,7 +250,8 @@ int joy_init () {
 							j_joystick[i].version & 0xff);
 					}						
 
-					for (j = j_num_axes; j < (j_num_axes + j_joystick[i].num_axes); j++) {
+					for (j = joy_num_axes; j < (joy_num_axes + j_joystick[i].num_axes); j++)
+					{
 						j_axis[j].joydev = i;
 						if (j_joystick[i].version) {
 							j_axis[j].center_val = 0;
@@ -261,7 +263,7 @@ int joy_init () {
 						j_button[j].joydev = i;
 					}
 
-					j_num_axes += j_joystick[i].num_axes;
+					joy_num_axes += j_joystick[i].num_axes;
 					j_num_buttons += j_joystick[i].num_buttons;
 					
 				} else {
@@ -281,8 +283,8 @@ int joy_init () {
 
 		printf ("\n");
 
-		if (j_num_axes > MAX_AXES)
-			j_num_axes = MAX_AXES;
+		if (joy_num_axes > JOY_MAX_AXES)
+			joy_num_axes = JOY_MAX_AXES;
 		if (j_num_buttons > MAX_BUTTONS)
 			j_num_buttons = MAX_BUTTONS;
 
@@ -351,8 +353,9 @@ int joy_get_scaled_reading(int raw, int axis_num)
 }
 
 
-void joy_get_pos(int *x, int *y) {
-	int axis[MAX_AXES];
+void joy_get_pos(int *x, int *y)
+{
+	int axis[JOY_MAX_AXES];
 
 	if ((!joy_installed)||(!joy_present)) { *x=*y=0; return; }
 

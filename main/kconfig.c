@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.32 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: kconfig.c,v 1.33 2004-11-22 23:32:54 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.32 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.33 2004-11-22 23:32:54 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1694,11 +1694,7 @@ void kc_next_joyaxis(kc_item *item)
 
 	// I modelled this ifdef after the code in the kc_change_joyaxis method.
 	// So, if somethin's not workin here, it might not be workin there either.
-#ifdef USE_LINUX_JOY
-	max = 32;
-#else
-	max = JOY_NUM_AXES;
-#endif
+	max = JOY_MAX_AXES;
 	tries = 1;
 	code = (item->value + 1) % max;
 
@@ -1729,15 +1725,9 @@ void kc_next_joyaxis(kc_item *item)
 
 void kc_change_joyaxis( kc_item * item )
 {
-#ifdef USE_LINUX_JOY
-	int axis[MAX_AXES];
-	int old_axis[MAX_AXES];
-	int numaxis = j_num_axes;
-#else
-	int axis[JOY_NUM_AXES];
-	int old_axis[JOY_NUM_AXES];
-	int numaxis = JOY_NUM_AXES;
-#endif
+	int axis[JOY_MAX_AXES];
+	int old_axis[JOY_MAX_AXES];
+	int numaxis = joy_num_axes;
 	int n,i,k;
 	ubyte code;
 
@@ -2104,11 +2094,7 @@ read_head_tracker()
 
 fix	LastReadTime = 0;
 
-#ifdef USE_LINUX_JOY
-fix	joy_axis[MAX_AXES];
-#else
-fix	joy_axis[JOY_NUM_AXES];
-#endif
+fix	joy_axis[JOY_MAX_AXES];
 
 ubyte 			kc_use_external_control = 0;
 ubyte			kc_enable_external_control = 0;
@@ -2909,11 +2895,7 @@ void controls_read_all()
 	int idx, idy;
 	fix ctime;
 	fix mouse_axis[3] = {0,0,0};
-#ifdef USE_LINUX_JOY
-	int raw_joy_axis[MAX_AXES];
-#else
-	int raw_joy_axis[JOY_NUM_AXES];
-#endif
+	int raw_joy_axis[JOY_MAX_AXES];
 	int mouse_buttons;
 	fix k0, k1, k2, k3, kp;
 	fix k4, k5, k6, k7, kh;
@@ -2952,12 +2934,8 @@ void controls_read_all()
 	} else if ((Config_control_type>0) && (Config_control_type<5) ) {
 		LastReadTime = ctime;
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
-		
-# ifdef USE_LINUX_JOY
-		for (i = 0; i < j_num_axes; i++)
-# else
-		for (i = 0; i < JOY_NUM_AXES; i++)
-# endif
+
+		for (i = 0; i < joy_num_axes; i++)
 		{
 #ifndef SDL_INPUT
 			if (channel_masks&(1<<i))	{
@@ -2988,11 +2966,7 @@ void controls_read_all()
 		}	
 		use_joystick=1;
 	} else {
-#ifdef USE_LINUX_JOY
-		for (i = 0; i < j_num_axes; i++)
-#else
-		for (i = 0; i < JOY_NUM_AXES; i++)
-#endif
+		for (i = 0; i < joy_num_axes; i++)
 			joy_axis[i] = 0;
 		use_joystick=0;
 	}

@@ -1,3 +1,10 @@
+2004-11-22  Bradley Bell  <btb@icculus.org>
+
+	* configure.ac, arch/include/joy.h, arch/linux/joydefs.c,
+	arch/linux/joystick.c, arch/linux/include/joystick.h,
+	arch/sdl/joy.c, main/kconfig.c: Fix sdl joystick axis problem, all
+	arch use global variable joy_num_axes
+
 2004-11-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/gamemine.c, main/piggy.c: compile again on older C compilers
