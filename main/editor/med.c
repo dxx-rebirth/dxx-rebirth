@@ -1,4 +1,4 @@
-/* $Id: med.c,v 1.5 2004-12-24 05:17:09 btb Exp $ */
+/* $Id: med.c,v 1.6 2005-01-24 22:11:55 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -637,7 +637,7 @@ int DosShell()
 	save_bitmap = gr_create_bitmap( w, h );
 	gr_bm_ubitblt(w, h, 0, 0, 0, 0, &(grd_curscreen->sc_canvas.cv_bitmap), save_bitmap );
 
-	gr_set_mode( SM_ORIGINAL );
+	// gr_set_mode( SM_ORIGINAL );
 
 	printf( "\n\nType EXIT to return to Inferno" );
 	fflush(stdout);

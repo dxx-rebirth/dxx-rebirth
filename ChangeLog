@@ -14,6 +14,7 @@
 	* main/editor/centers.c: change curseg2p to Curseg2p
 	* main/editor/func.c: Include strutil.h in func.c (for stricmp)
 	* main/editor/macro.c: remove unused variable "length"
+	* main/editor/med.c: don't set screen mode to SM_ORIGINAL
 
 2005-01-23  Jason Owen  <shannara256@yahoo.com>
 
