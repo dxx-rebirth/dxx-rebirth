@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.37 2003-10-10 21:56:21 btb Exp $ */
+/* $Id: piggy.c,v 1.38 2003-10-10 21:57:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.37 2003-10-10 21:56:21 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.38 2003-10-10 21:57:38 btb Exp $";
 #endif
 
 
@@ -2464,10 +2464,8 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 
 	{
 		CFILE *d1_Piggy_fp;
-		int i;
 		DiskBitmapHeader bmh;
-		int pig_data_start, bitmap_header_start, bitmap_data_start;
-		int N_bitmaps;
+		int bitmap_data_start;
 		ubyte colormap[256];
 
 		d1_Piggy_fp = cfopen(D1_PIGFILE, "rb");
