@@ -1,3 +1,4 @@
+/* $Id: scalea.h,v 1.3 2002-07-17 21:34:56 bradleyb Exp $ */
 extern char scale_trans_color;
 extern int scale_error_term;
 extern int scale_initial_pixel_count;
