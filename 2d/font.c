@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.35 2004-12-17 13:42:11 btb Exp $ */
+/* $Id: font.c,v 1.36 2005-01-24 19:12:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -236,7 +236,7 @@ int gr_internal_string0(int x, int y, char *s )
 
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = *text_ptr-FMINCHAR;
+				letter = (unsigned char)*text_ptr - FMINCHAR;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					VideoOffset += spacing;
@@ -352,7 +352,7 @@ int gr_internal_string0m(int x, int y, char *s )
 
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = *text_ptr-FMINCHAR;
+				letter = (unsigned char)*text_ptr-FMINCHAR;
 
 				if (!INFONT(letter) || *text_ptr<=0x06) {	//not in font, draw as space
 					CHECK_EMBEDDED_COLORS() else{
@@ -631,7 +631,7 @@ int gr_internal_string2(int x, int y, char *s )
 int gr_internal_string2m(int x, int y, char *s )
 {
 	unsigned char * fp;
-	char * text_ptr, * next_row, * text_ptr1;
+	unsigned char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int page_switched, skip_lines = 0;
 
@@ -1076,7 +1076,7 @@ int gr_internal_color_string(int x, int y, char *s )
 				break;
 			}
 
-			letter = *text_ptr-FMINCHAR;
+			letter = (unsigned char)*text_ptr - FMINCHAR;
 
 			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 

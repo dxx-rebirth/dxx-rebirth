@@ -1,3 +1,8 @@
+2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* 2d/font.c: fix bug #2167: some characters would not display because
+	of signed/unsigned errors
+
 2005-01-23  Jason Owen  <shannara256@yahoo.com>
 
 	* arch/ogl/gr.c: fix bug #2085: don't print OGL extensions, since this
