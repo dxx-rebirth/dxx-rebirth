@@ -1,4 +1,4 @@
-/* $Id: piggy.h,v 1.9 2002-08-06 05:12:09 btb Exp $ */
+/* $Id: piggy.h,v 1.10 2002-08-27 04:14:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -33,7 +33,7 @@ extern int Num_aliases;
 extern int Piggy_hamfile_version;
 
 typedef struct bitmap_index {
-	ushort	index;
+	ushort index;
 } __pack__ bitmap_index;
 
 typedef struct DiskBitmapHeader {
@@ -41,7 +41,7 @@ typedef struct DiskBitmapHeader {
 	ubyte dflags;                   //bits 0-5 anim frame num, bit 6 abm flag
 	ubyte width;                    //low 8 bits here, 4 more bits in wh_extra
 	ubyte height;                   //low 8 bits here, 4 more bits in wh_extra
-	ubyte   wh_extra;               //bits 0-3 width, bits 4-7 height
+	ubyte wh_extra;                 //bits 0-3 width, bits 4-7 height
 	ubyte flags;
 	ubyte avg_color;
 	int offset;
@@ -69,12 +69,12 @@ int piggy_find_sound( char * name );
 extern int Pigfile_initialized;
 
 void piggy_read_bitmap_data(grs_bitmap * bmp);
-void piggy_read_sound_data(digi_sound	*snd);
+void piggy_read_sound_data(digi_sound *snd);
 
 void piggy_load_level_data();
 
-#define MAX_BITMAP_FILES	2620 // Upped for CD Enhanced
-#define MAX_SOUND_FILES		MAX_SOUNDS
+#define MAX_BITMAP_FILES    2620 // Upped for CD Enhanced
+#define MAX_SOUND_FILES     MAX_SOUNDS
 
 extern digi_sound GameSounds[MAX_SOUND_FILES];
 extern grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
@@ -105,7 +105,7 @@ do {					\
 /*		mprintf(( 0, "Paging in '%s' from file '%s', line %d\n", #bmp, __FILE__,__LINE__ ));	\ */
 # endif /* __GNUC__ */
 #else
-	#define PIGGY_PAGE_IN(bmp)
+# define PIGGY_PAGE_IN(bmp)
 #endif
 
 void piggy_read_sounds();
