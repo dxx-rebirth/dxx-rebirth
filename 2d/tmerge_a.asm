@@ -1,4 +1,4 @@
-; $Id: tmerge_a.asm,v 1.2 2002-07-17 21:55:19 bradleyb Exp $
+; $Id: tmerge_a.asm,v 1.3 2002-10-10 18:39:45 btb Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -7,7 +7,7 @@
 ;SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 ;FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 ;CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-;AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+;AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 [BITS 32]
@@ -29,7 +29,7 @@ global gr_merge_textures, gr_merge_textures_1, gr_merge_textures_2, gr_merge_tex
 ;    for (y=0; y<64; y++ )
 ;       for (x=0; x<64; x++ )   {
 ;          c = top_data[ 64*x+(63-y) ];      
-;          if (c==255)
+;          if (c==TRANSPARENCY_COLOR)
 ;             c = bottom_data[ 64*y+x ];
 ;          *dest_data++ = c;
 ;       }
@@ -39,7 +39,7 @@ global gr_merge_textures, gr_merge_textures_1, gr_merge_textures_2, gr_merge_tex
 ;    for (y=0; y<64; y++ )
 ;       for (x=0; x<64; x++ )   {
 ;          c = top_data[ 64*(63-y)+(63-x) ];
-;          if (c==255)
+;          if (c==TRANSPARENCY_COLOR)
 ;             c = bottom_data[ 64*y+x ];
 ;          *dest_data++ = c;
 ;       }
@@ -49,7 +49,7 @@ global gr_merge_textures, gr_merge_textures_1, gr_merge_textures_2, gr_merge_tex
 ;    for (y=0; y<64; y++ )
 ;       for (x=0; x<64; x++ )   {
 ;          c = top_data[ 64*(63-x)+y  ];
-;          if (c==255)
+;          if (c==TRANSPARENCY_COLOR)
 ;             c = bottom_data[ 64*y+x ];
 ;          *dest_data++ = c;
 ;       }
@@ -72,7 +72,7 @@ gr_merge_textures:
 
 	mov	ebp, edx
 	mov	edi, ebx
-	mov	bl, 255
+	mov	bl, TRANSPARENCY_COLOR
 	mov	bh, bl
 	and	ebx, 0ffffh
 	and	edx, 0ffffh
@@ -141,7 +141,7 @@ gr_merge_textures_1:
 	mov	edx, [esp+24]
         mov     ebx, [esp+28]
 
-	mov	ch, 255 ; transparent color, stick in a register, is this faster?
+	mov	ch, TRANSPARENCY_COLOR ; transparent color, stick in a register, is this faster?
 
 	mov	esi, 63	; esi will be the offset to the current pixel
 	mov	[row_count], esi
@@ -193,7 +193,7 @@ gr_merge_textures_2:
 	mov	edx, [esp+24]
         mov     ebx, [esp+28]
 
-	mov	ch, 255	; transparent color, stick in a register, is this faster?
+	mov	ch, TRANSPARENCY_COLOR	; transparent color, stick in a register, is this faster?
 
 	mov	esi, 63 + 64*63	; esi will be the offset to the current pixel
 
@@ -235,7 +235,7 @@ gr_merge_textures_3:
 	mov	edx, [esp+24]
         mov     ebx, [esp+28]
 
-	mov	ch, 255	; transparent color, stick in a register, is this faster?
+	mov	ch, TRANSPARENCY_COLOR	; transparent color, stick in a register, is this faster?
 
 	mov	esi, 64*63	; esi will be the offset to the current pixel
 	mov	dword [row_count], 64
