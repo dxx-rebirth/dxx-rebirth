@@ -1,4 +1,4 @@
-/* $Id: barbox.c,v 1.5 2005-01-25 19:37:59 schaffner Exp $ */
+/* $Id: barbox.c,v 1.6 2005-01-25 19:40:04 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: barbox.c,v 1.5 2005-01-25 19:37:59 schaffner Exp $";
+static char rcsid[] = "$Id: barbox.c,v 1.6 2005-01-25 19:40:04 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -92,7 +92,7 @@ void ui_barbox_open( char * text, int length )
 		
 }
 
-int ui_barbox_update( int position )
+void ui_barbox_update( int position )
 {
 	int spos;
 
