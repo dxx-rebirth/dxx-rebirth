@@ -1,3 +1,10 @@
+2004-11-30  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* D2X.make: Don't use D2XFolder, because the userdir can now be
+	specified in Mac OS 9.  Putting it in the source code folder is
+	more convenient.  Turn debugging on.  Don't compile old files,
+	compile new ones.  Add the PhysicsFS library.
+
 2004-11-30  Bradley Bell  <btb@icculus.org>
 
 	* .cvsignore, 2d/.cvsignore, 3d/.cvsignore, arch/.cvsignore,

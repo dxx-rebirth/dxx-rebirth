@@ -7,7 +7,6 @@
 MAKEFILE        = D2X.make
 ¥MondoBuild¥    = #{MAKEFILE}   Make blank to avoid rebuilds when makefile is modified
 
-D2XFolder		= 'G3 Hard Disk:Games:D2X (Descent 2) Ä:'
 ObjDir          = ":obj:"
 Includes        =  ¶
 				  -i :include: ¶
@@ -17,7 +16,7 @@ Includes        =  ¶
 				  -i "{CIncludes}" ¶
 				  -i :main:
 
-Sym-PPC         = #-sym on
+Sym-PPC         = -sym on
 
 PPCCOptions     = {Includes} -includes unix {Sym-PPC} -d HAVE_CONFIG_H -enum int -d TARGET_API_MAC_CARBON=1 -noMapCR
 
@@ -52,8 +51,6 @@ SrcFiles        =  ¶
 				  :3d:points.c ¶
 				  :3d:rod.c ¶
 				  :3d:setup.c ¶
-				  :arch:carbon:findfile.c ¶
-				  :arch:carbon:gui.c ¶
 				  :arch:carbon:SDL_main.c ¶
 				  :arch:linux:init.c ¶
 				  :arch:linux:mono.c ¶
@@ -156,6 +153,8 @@ SrcFiles        =  ¶
 				  :misc:d_io.c ¶
 				  :misc:error.c ¶
 				  :misc:hash.c ¶
+				  :misc:ignorecase.c ¶
+				  :misc:physfsrwops.c ¶
 				  :misc:strio.c ¶
 				  :misc:strutil.c ¶
 				  :texmap:ntmap.c ¶
@@ -194,8 +193,6 @@ ObjFiles-PPC    =  ¶
 				  "{ObjDir}points.c.x" ¶
 				  "{ObjDir}rod.c.x" ¶
 				  "{ObjDir}setup.c.x" ¶
-				  "{ObjDir}findfile.c.x" ¶
-				  "{ObjDir}gui.c.x" ¶
 				  "{ObjDir}SDL_main.c.x" ¶
 				  "{ObjDir}init.c.x" ¶
 				  "{ObjDir}mono.c.x" ¶
@@ -298,6 +295,8 @@ ObjFiles-PPC    =  ¶
 				  "{ObjDir}d_io.c.x" ¶
 				  "{ObjDir}error.c.x" ¶
 				  "{ObjDir}hash.c.x" ¶
+				  "{ObjDir}ignorecase.c.x" ¶
+				  "{ObjDir}physfsrwops.c.x" ¶
 				  "{ObjDir}strio.c.x" ¶
 				  "{ObjDir}strutil.c.x" ¶
 				  "{ObjDir}ntmap.c.x" ¶
@@ -308,6 +307,7 @@ ObjFiles-PPC    =  ¶
 ### Libraries ###
 
 LibFiles-PPC    =	¶
+					"{SharedLibraries}PhysicsFS" ¶
 					"{SharedLibraries}SDL" ¶
 					"{SharedLibraries}CarbonLib" ¶
 					"{SharedLibraries}StdCLib" ¶
@@ -328,7 +328,7 @@ LibFiles-PPC    =	¶
 
 D2X  ÄÄ  directories {ObjFiles-PPC} {LibFiles-PPC} {¥MondoBuild¥}
 	PPCLink ¶
-		-o {D2XFolder}{Targ} ¶
+		-o {Targ} ¶
 		{ObjFiles-PPC} ¶
 		{LibFiles-PPC} ¶
 		{Sym-PPC} ¶
@@ -336,7 +336,7 @@ D2X  ÄÄ  directories {ObjFiles-PPC} {LibFiles-PPC} {¥MondoBuild¥}
 		-m __appstart ¶
 		-t 'APPL' ¶
 		-c 'DCT2'
-	Rez -a -o {D2XFolder}{Targ} ":arch:carbon:descent.r"
+	Rez -a -o {Targ} ":arch:carbon:descent.r"
 
 
 # This is used to create the directories needed for build
@@ -375,8 +375,6 @@ directories Ä
 "{ObjDir}points.c.x"  Ä  :3d:points.c
 "{ObjDir}rod.c.x"  Ä  :3d:rod.c
 "{ObjDir}setup.c.x"  Ä  :3d:setup.c
-"{ObjDir}findfile.c.x"  Ä  :arch:carbon:findfile.c
-"{ObjDir}gui.c.x"  Ä  :arch:carbon:gui.c
 "{ObjDir}SDL_main.c.x"  Ä  :arch:carbon:SDL_main.c
 "{ObjDir}init.c.x"  Ä  :arch:linux:init.c
 "{ObjDir}mono.c.x"  Ä  :arch:linux:mono.c
@@ -479,6 +477,8 @@ directories Ä
 "{ObjDir}d_io.c.x"  Ä  :misc:d_io.c
 "{ObjDir}error.c.x"  Ä  :misc:error.c
 "{ObjDir}hash.c.x"  Ä  :misc:hash.c
+"{ObjDir}ignorecase.c.x"  Ä  :misc:ignorecase.c
+"{ObjDir}physfsrwops.c.x"  Ä  :misc:physfsrwops.c
 "{ObjDir}strio.c.x"  Ä  :misc:strio.c
 "{ObjDir}strutil.c.x"  Ä  :misc:strutil.c
 "{ObjDir}ntmap.c.x"  Ä  :texmap:ntmap.c
