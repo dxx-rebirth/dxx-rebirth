@@ -86,14 +86,14 @@ if test x$enable_editor = xyes; then
 fi
 AM_CONDITIONAL(EDITOR, test x$enable_editor = xyes)
 
-dnl Enable shareware build?
-AC_ARG_ENABLE(shareware,
-    [  --enable-shareware      Build for demo datafiles (not functional)],,)
-if test x$enable_shareware = xyes; then
-    AC_DEFINE(SHAREWARE,,[Define if you want to build the demo version])
-    D2X_FEATURES="shareware ${D2X_FEATURES}"
+dnl Enable macdata build?
+AC_ARG_ENABLE(macdata,
+    [  --enable-macdata        Build for mac datafiles],,)
+if test x$enable_macdata = xyes; then
+    AC_DEFINE(MACDATA,,[Define if you want to build for mac datafiles])
+    D2X_FEATURES="macdata ${D2X_FEATURES}"
 fi
-AM_CONDITIONAL(SHAREWARE, test x$enable_shareware = xyes)
+AM_CONDITIONAL(MACDATA, test x$enable_macdata = xyes)
 
 dnl Build with NDEBUG?
 AC_ARG_ENABLE(debug,
