@@ -1,3 +1,7 @@
+2003-11-07  Steffen Pohle  <stpohle@gmx.net>
+
+	* configure.ac: fix .exe extension problems
+
 2003-11-07  Bradley Bell  <btb@icculus.org>
 
 	* arch/ogl/ogl.c: disable texture format verification for OS X -
