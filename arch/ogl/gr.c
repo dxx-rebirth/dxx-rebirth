@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ogl/gr.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2001-11-08 10:19:52 $
+ * $Date: 2001-11-09 06:53:37 $
  *
  * // OGL video functions. - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/11/08 10:19:52  bradleyb
+ * use new d_realloc function, so mem manager doesn't die
+ *
  * Revision 1.3  2001/11/04 09:00:25  bradleyb
  * Enable d1x-style hud_message
  *
@@ -180,7 +183,7 @@ void ogl_get_verinfo(void){
 	gl_version=glGetString(GL_VERSION);
 	gl_extensions=glGetString(GL_EXTENSIONS);
 
-	printf("gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
+	con_printf(CON_VERBOSE, "gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
 
 	ogl_intensity4_ok=1;ogl_luminance4_alpha4_ok=1;ogl_rgba2_ok=1;ogl_gettexlevelparam_ok=1;
 
@@ -241,8 +244,8 @@ void ogl_get_verinfo(void){
 		ogl_gettexlevelparam_ok=atoi(Args[t+1]);
 	}
 
-	printf("gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
-	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok);
+	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
+	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok);
 }
 
 int gr_set_mode(u_int32_t mode)
