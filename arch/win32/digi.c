@@ -1,3 +1,4 @@
+/* $Id: digi.c,v 1.8 2004-05-22 07:42:18 btb Exp $ */
 #define DIGI_SOUND
 #define MIDI_SOUND
 
@@ -188,13 +189,10 @@ static int DS_release_slot(int slot, int kill)
 				return 0;
 		}
 		IDirectSoundBuffer_Release(SoundSlots[slot].lpsb);
-		SoundSlots[slot].playing = 0;
 		SoundSlots[slot].lpsb = NULL;
-
-		return 1;
 	}
-
-	return 0;
+	SoundSlots[slot].playing = 0;
+	return 1;
 }
 
 static int get_free_slot()
@@ -203,7 +201,6 @@ static int get_free_slot()
 
  for (i=0; i<MAX_SOUND_SLOTS; i++)
  {
-  if (!SoundSlots[i].playing) return i;
 		if (DS_release_slot(i, 0))
 			return i;
  }
@@ -248,7 +245,6 @@ TryNextChannel:
 			goto TryNextChannel;
 		}
 		//mprintf((0, "[SS:%d]", next_handle));
-		SoundSlots[SampleHandles[next_handle]].playing = 0;
 		SampleHandles[next_handle] = -1;
 	}
 	// end edit by adb
@@ -429,7 +425,6 @@ void digi_play_sample_once( int soundno, fix max_volume )
 	for (i = 0; i < MAX_SOUND_SLOTS; i++)
 		if (SoundSlots[i].soundno == soundno)
 		{
-			SoundSlots[i].playing = 0;
 			DS_release_slot(i, 1);
 		}
 
@@ -640,7 +635,6 @@ void digi_kill_sound_linked_to_segment( int segnum, int sidenum, int soundnum )
 		{
 			if (SoundObjects[i].flags & SOF_PLAYING)
 			{
-				SoundSlots[SoundObjects[i].handle].playing = 0;
 				DS_release_slot(SoundObjects[i].handle, 1);
 			}
 			SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
@@ -667,7 +661,6 @@ void digi_kill_sound_linked_to_object( int objnum )
 		if ( (SoundObjects[i].flags & SOF_USED) && (SoundObjects[i].flags & SOF_LINK_TO_OBJ ) )	{
 			if (SoundObjects[i].lo_objnum == objnum)   {
 				if ( SoundObjects[i].flags & SOF_PLAYING )	{
-					SoundSlots[SoundObjects[i].handle].playing = 0;
 					DS_release_slot(SoundObjects[i].handle, 1);
 				}
 				SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
@@ -718,7 +711,6 @@ void digi_sync_sounds()
 				if ((objp->type==OBJ_NONE) || (objp->signature!=SoundObjects[i].lo_objsignature))  {
 					// The object that this is linked to is dead, so just end this sound if it is looping.
 					if ( (SoundObjects[i].flags & SOF_PLAYING)  && (SoundObjects[i].flags & SOF_PLAY_FOREVER))	{
-					     SoundSlots[SoundObjects[i].handle].playing = 0;
 						DS_release_slot(SoundObjects[i].handle, 1);
 					}
 					SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
@@ -734,7 +726,6 @@ void digi_sync_sounds()
 				if ( SoundObjects[i].volume < MIN_VOLUME )	 {
 					// Sound is too far away, so stop it from playing.
 					if ((SoundObjects[i].flags & SOF_PLAYING)&&(SoundObjects[i].flags & SOF_PLAY_FOREVER))	{
-						SoundSlots[SoundObjects[i].handle].playing = 0;
 						DS_release_slot(SoundObjects[i].handle, 1);
 						SoundObjects[i].flags &= ~SOF_PLAYING;		// Mark sound as not playing
 					}
@@ -766,7 +757,6 @@ void digi_init_sounds()
 	for (i=0; i<MAX_SOUND_OBJECTS; i++ )	{
 		if (digi_sounds_initialized) {
 			if ( SoundObjects[i].flags & SOF_PLAYING )	{
-			        SoundSlots[SoundObjects[i].handle].playing=0;
 				DS_release_slot(SoundObjects[i].handle, 1);
 			}
 		}
@@ -840,7 +830,6 @@ void digi_reset_digi_sounds() {
  int i;
 
  for (i=0; i< MAX_SOUND_SLOTS; i++) {
-  SoundSlots[i].playing=0;
 		DS_release_slot(i, 1);
  }
  

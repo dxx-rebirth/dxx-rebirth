@@ -1,5 +1,11 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/win32/digi.c: remove some redundancy by not needing to do
+	SoundSlots[i].playing = 0; in addition to DS_release_slot.  Also
+	clean up some indenting of DS_release_slot calls. And make
+	DS_release_slot return 1 when a sound is already not playing, in
+	addition to when a sound was killed. (d1x r1.10)
+
 	* arch/linux/joystick.c: fix crash/hang when using -nojoystick in
 	linux version (d1x r1.5)
 
