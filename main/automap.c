@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.16 2003-11-15 00:37:48 btb Exp $ */
+/* $Id: automap.c,v 1.17 2004-05-20 23:36:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1010,6 +1010,7 @@ u_int32_t automap_mode = SM(640,480);
 int automap_width = 640;
 int automap_height = 480;
 int automap_use_game_res=0;
+int nice_automap = 0;
 
 #define RESCALE_X(x) ((x) * automap_width / 640)
 #define RESCALE_Y(y) ((y) * automap_height / 480)
@@ -1505,6 +1506,13 @@ WIN(if (redraw_screen) redraw_screen = 0);
 		}
 
 		t2 = timer_get_fixed_seconds();
+		while (t2 - t1 < F1_0 / 100) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
+		{
+			if (nice_automap)
+				timer_delay(1);
+
+			t2 = timer_get_fixed_seconds();
+		}
 		if (pause_game)
 			FrameTime=t2-t1;
 		t1 = t2;

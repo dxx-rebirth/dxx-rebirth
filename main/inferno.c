@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.78 2004-05-20 19:10:25 btb Exp $ */
+/* $Id: inferno.c,v 1.79 2004-05-20 23:36:16 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1015,6 +1015,7 @@ void print_commandline_help()
 #else
 	printf( "  -<X>x<Y>        %s\n", "Change screen resolution to <X> by <Y>");
 #endif
+	printf("  -niceautomap    %s\n", "Free cpu while doing automap");
 	printf( "  -automap<X>x<Y> %s\n","Set automap resolution to <X> by <Y>");
 	printf( "  -automap_gameres %s\n","Set automap to use the same resolution as in game");
 //	printf( "  -menu<X>x<Y>    %s\n","Set menu resolution to <X> by <Y>");
@@ -1265,6 +1266,13 @@ int main(int argc, char *argv[])
 			maxfps=t;
 	}
 	//end addition - Victor Rachels
+
+#ifdef SUPPORTS_NICEFPS
+	if (FindArg("-nicefps"))
+		use_nice_fps = 1;
+	if (FindArg("-niceautomap"))
+		nice_automap = 1;
+#endif
 
 	if (FindArg("-renderstats"))
 		gr_renderstats = 1;

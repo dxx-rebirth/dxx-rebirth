@@ -1,4 +1,4 @@
-/* $Id: automap.h,v 1.4 2003-11-15 00:36:54 btb Exp $ */
+/* $Id: automap.h,v 1.5 2004-05-20 23:36:15 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -71,5 +71,6 @@ extern u_int32_t automap_mode;
 //extern int automap_height;
 //end addition -MM
 extern int automap_use_game_res;
+extern int nice_automap;
 
 #endif

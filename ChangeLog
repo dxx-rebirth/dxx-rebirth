@@ -1,3 +1,7 @@
+2004-05-20  Bradley Bell  <btb@icculus.org>
+
+	* main/inferno.c: integrated some niceautomap stuff from d1x
+
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 
 	* arch/win32/joyhh.c: fixed the config bug where it'd always put
