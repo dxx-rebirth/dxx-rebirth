@@ -1,10 +1,15 @@
-2003-06-01    <btb@icculus.org>
+2003-06-01  Bradley Bell  <btb@icculus.org>
 
 	* Makefile.am, arch/sdl/event.c, configure.ac,
 	console/CON_console.c, console/DT_drawtext.c, console/Makefile.am,
 	console/internal.c, include/CON_console.h, include/DT_drawtext.h,
 	include/console.h, main/console.c, main/game.c, main/gamecntl.c,
 	main/gamerend.c: added console code (from SDL_console)
+
+2003-05-28  Bradley Bell  <btb@icculus.org>
+
+	* Info.plist.in, Makefile.am, configure.ac: add support for MacOS
+	X bundle
 
 0.2.4:
 
