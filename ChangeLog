@@ -1,6 +1,7 @@
 2003-04-07  Bradley Bell  <btb@icculus.org>
 
 	* main/text.c: don't die on text not found
+	formatting
 
 	* main/inferno.c: print some useful info if hog not found, allow
 	-help to work if no text available
