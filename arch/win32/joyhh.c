@@ -1,4 +1,4 @@
-/* $Id: joyhh.c,v 1.4 2004-05-20 23:10:17 btb Exp $ */
+/* $Id: joyhh.c,v 1.5 2004-05-22 08:00:04 btb Exp $ */
 //JOYC.C for D1_3Dfx and D1OpenGL
 //D1_3Dfx is a Win32 executable using Glide and DirectX 3
 //D1OpenGL is a Win32 executable using OpenGL and DirectX 3
@@ -67,6 +67,7 @@ typedef struct Button_info {
 typedef struct Joy_info {
 	int			joyid;
 	ubyte			present_mask;
+	ubyte       hat_present;
 	ubyte			slow_read;
 	int			max_timer;
 	int			read_count;
@@ -160,7 +161,7 @@ ubyte joy_read_raw_buttons()
 
         /* Hat stuff */
 
-        if (joy.dwPOV != JOY_POVCENTERED)
+        if (joystick.hat_present && joy.dwPOV != JOY_POVCENTERED)
          {
            joystick.buttons[19].state = (joy.dwPOV < JOY_POVRIGHT || joy.dwPOV > JOY_POVLEFT);
            joystick.buttons[15].state = (joy.dwPOV < JOY_POVBACKWARD && joy.dwPOV > JOY_POVFORWARD);
@@ -307,7 +308,7 @@ int joy_init(int joyid) //HH: added joyid parameter
 
 	joystick.present_mask = JOY_1_X_AXIS | JOY_1_Y_AXIS;
 	if (pjc.wCaps & JOYCAPS_HASZ)	joystick.present_mask |= JOY_1_Z_AXIS;
-//        if (pjc.wCaps & JOYCAPS_HASPOV) joystick.present_mask |= JOY_1_POV;
+	joystick.hat_present = (pjc.wCaps & JOYCAPS_HASPOV) > 0;
 	if (pjc.wCaps & JOYCAPS_HASR)	joystick.present_mask |= JOY_1_R_AXIS;
 	if (pjc.wCaps & JOYCAPS_HASU)	joystick.present_mask |= JOY_1_U_AXIS;
 	if (pjc.wCaps & JOYCAPS_HASV)	joystick.present_mask |= JOY_1_V_AXIS;
