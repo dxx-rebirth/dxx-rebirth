@@ -3,6 +3,8 @@
 	* main/piggy.c: load the descent 1 color palette when NDEBUG is
 	defined
 
+	* main/editor/seguvs.c: check the uvs after they're assigned
+
 2005-02-27  Chris Taylor  <chris@icculus.org>
 
 	* main/editor/med.c, ui/file.c, ui/keypress.c, ui/menu.c,

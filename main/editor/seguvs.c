@@ -1,4 +1,4 @@
-/* $Id: seguvs.c,v 1.4 2004-12-24 05:17:09 btb Exp $ */
+/* $Id: seguvs.c,v 1.5 2005-03-06 08:25:52 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: seguvs.c,v 1.4 2004-12-24 05:17:09 btb Exp $";
+static char rcsid[] = "$Id: seguvs.c,v 1.5 2005-03-06 08:25:52 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -820,7 +820,6 @@ void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base
 	//	     cv1, cv2 are segment relative vertices in conn segment which are the same as absolute vertices abs_id1, abs_id2
 
 	Assert((bv1 != -1) && (bv2 != -1) && (cv1 != -1) && (cv2 != -1));
-	Assert((uv1.u != uv2.u) || (uv1.v != uv2.v));
 
 	//	Now, scan 4 vertices in base side and 4 vertices in connected side.
 	//	Set uv1, uv2 to uv coordinates from base side which correspond to vertices bv1, bv2.
@@ -840,6 +839,7 @@ void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base
 			vv2 = v;
 	}
 
+	Assert((uv1.u != uv2.u) || (uv1.v != uv2.v));
 	Assert( (vv1 != -1) && (vv2 != -1) );
 	assign_uvs_to_side(con_seg, con_common_side, &uv1, &uv2, vv1, vv2);
 }
