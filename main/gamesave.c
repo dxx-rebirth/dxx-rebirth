@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.11 2002-08-04 23:37:34 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.12 2002-08-06 01:31:55 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -939,9 +939,11 @@ int load_game_data(CFILE *LoadFile)
 		Current_level_name[0]=0;
 
 	if (game_top_fileinfo.fileinfo_version >= 19) {	//load pof names
-//		cfread(&N_save_pof_names,2,1,LoadFile);
 		N_save_pof_names = cfile_read_short(LoadFile);
-		cfread(Save_pof_names,N_save_pof_names,FILENAME_LEN,LoadFile);
+		if (N_save_pof_names != 0x614d && N_save_pof_names != 0x5547) { // "Ma"de w/DMB beta/"GU"ILE
+			Assert(N_save_pof_names < MAX_POLYGON_MODELS);
+			cfread(Save_pof_names,N_save_pof_names,FILENAME_LEN,LoadFile);
+		}
 	}
 
 	//===================== READ PLAYER INFO ==========================
@@ -1132,10 +1134,10 @@ int load_game_data(CFILE *LoadFile)
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
 
 	if (game_fileinfo.control_offset > -1)
-		if (!cfseek( LoadFile, game_fileinfo.control_offset,SEEK_SET ))
-			for (i=0;i<game_fileinfo.control_howmany;i++)
-				control_center_triggers_read(&ControlCenterTriggers, LoadFile);
-
+		if (!cfseek( LoadFile, game_fileinfo.control_offset,SEEK_SET )) {
+			Assert(game_fileinfo.control_howmany == 1);
+			control_center_triggers_read(&ControlCenterTriggers, LoadFile);
+		}
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
 
@@ -1457,6 +1459,7 @@ int load_level(char * filename_passed)
 
 	sig                      = cfile_read_int(LoadFile);
 	Gamesave_current_version = cfile_read_int(LoadFile);
+	mprintf((0, "Gamesave_current_version = %d\n", Gamesave_current_version));
 	minedata_offset          = cfile_read_int(LoadFile);
 	gamedata_offset          = cfile_read_int(LoadFile);
 

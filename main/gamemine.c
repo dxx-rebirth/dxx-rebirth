@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.10 2002-08-04 23:37:34 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.11 2002-08-06 01:31:55 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1028,7 +1028,9 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 	//=============================== Reading part ==============================
 	compiled_version = cfile_read_byte(LoadFile);
-	Assert( compiled_version==COMPILED_MINE_VERSION );
+	//Assert( compiled_version==COMPILED_MINE_VERSION );
+ 	if (compiled_version!=COMPILED_MINE_VERSION)
+		mprintf((0,"compiled mine version=%i\n", compiled_version)); //many levels have "wrong" versions.  Theres no point in aborting because of it, I think.
 
 	Num_vertices = cfile_read_short(LoadFile);
 	Assert( Num_vertices <= MAX_VERTICES );
