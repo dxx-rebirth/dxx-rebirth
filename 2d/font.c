@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.16 2002-07-30 11:05:53 btb Exp $ */
+/* $Id: font.c,v 1.17 2002-08-06 09:28:00 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1764,8 +1764,8 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 	int nchars;
 	CFILE *fontfile;
 	char file_id[4];
-	int32_t datasize;        //size up to (but not including) palette
-	int data_len;
+	int datasize;        //size up to (but not including) palette
+	unsigned char *ptr;
 
 	if (! (font->ft_flags & FT_COLOR))
 		return;
@@ -1782,35 +1782,51 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 	datasize = cfile_read_int(fontfile);
 	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
 
-	nchars = font->ft_maxchar-font->ft_minchar+1;
-
-	//compute data length
-	data_len = 0;
-	if (font->ft_flags & FT_PROPORTIONAL) {
-
-		for (i=0; i< nchars; i++ ) {
-			if (font->ft_flags & FT_COLOR)
-				data_len += font->ft_widths[i] * font->ft_h;
-			else
-				data_len += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
-		}
-
-	} else
-		data_len = nchars * font->ft_w * font->ft_h;
-
-	cfseek(fontfile, GRS_FONT_SIZE, SEEK_CUR); // skip past header
+	d_free(font->ft_chars);
+	grs_font_read(font, fontfile); // have to reread in case mission hogfile overrides font.
 
 	cfread(font_data, 1, datasize, fontfile);  //read raw data
 
-	for (i=0; i< nchars; i++ )
-		font->ft_widths[i] = INTEL_SHORT(font->ft_widths[i]);
+	// make these offsets relative to font_data
+	font->ft_data = (ubyte *)((int)font->ft_data - GRS_FONT_SIZE);
+	font->ft_widths = (short *)((int)font->ft_widths - GRS_FONT_SIZE);
+	font->ft_kerndata = (ubyte *)((int)font->ft_kerndata - GRS_FONT_SIZE);
+
+	nchars = font->ft_maxchar - font->ft_minchar + 1;
+
+	if (font->ft_flags & FT_PROPORTIONAL) {
+
+		font->ft_widths = (short *) &font_data[(int)font->ft_widths];
+		font->ft_data = &font_data[(int)font->ft_data];
+		font->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
+
+		ptr = font->ft_data;
+
+		for (i=0; i< nchars; i++ ) {
+			font->ft_widths[i] = INTEL_SHORT(font->ft_widths[i]);
+			font->ft_chars[i] = ptr;
+			if (font->ft_flags & FT_COLOR)
+				ptr += font->ft_widths[i] * font->ft_h;
+			else
+				ptr += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
+		}
+
+	} else  {
+
+		font->ft_data   = font_data;
+		font->ft_chars  = NULL;
+		font->ft_widths = NULL;
+
+		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
+	}
+
+	if (font->ft_flags & FT_KERNED)
+		font->ft_kerndata = &font_data[(int)font->ft_kerndata];
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];
 		ubyte colormap[256];
 		int freq[256];
-
-		cfseek(fontfile,-sizeof(palette),SEEK_END);
 
 		cfread(palette,3,256,fontfile);		//read the palette
 
@@ -1827,11 +1843,11 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 
 //  we also need to swap the data entries as well.  black is white and white is black
 
-			for (i = 0; i < data_len; i++) {
-				if (font->ft_data[i] == 0)
-					font->ft_data[i] = 255;
-				else if (font->ft_data[i] == 255)
-					font->ft_data[i] = 0;
+			for (i = 0; i < ptr-newfont->ft_data; i++) {
+				if (newfont->ft_data[i] == 0)
+					newfont->ft_data[i] = 255;
+				else if (newfont->ft_data[i] == 255)
+					newfont->ft_data[i] = 0;
 			}
 
 		}
@@ -1839,11 +1855,11 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
 
-		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;	// changed from		colormap[255] = 255;
+		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;		// chaged from colormap[255] = 255 to this for macintosh
 
-		decode_data_asm(font->ft_data, data_len, colormap, freq );
-
+		decode_data_asm(font->ft_data, ptr - font->ft_data, colormap, freq );
 	}
+
 
 	cfclose(fontfile);
 
