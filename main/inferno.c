@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.64 2003-10-03 07:58:15 btb Exp $ */
+/* $Id: inferno.c,v 1.65 2003-10-08 22:01:39 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -836,6 +836,7 @@ int __far descent_critical_error_handler( unsigned deverr, unsigned errcode, uns
 
 void check_joystick_calibration(void);
 
+void show_order_form(void);
 
 //--------------------------------------------------------------------------
 
@@ -1730,12 +1731,10 @@ int main(int argc, char *argv[])
 
 	WriteConfigFile();
 
-#if 0
 	#ifndef RELEASE
 	if (!FindArg( "-notitles" ))
 	#endif
 		show_order_form();
-#endif
 
 	#ifndef NDEBUG
 	if ( FindArg( "-showmeminfo" ) )
@@ -1789,19 +1788,18 @@ void show_order_form()
 
 	key_flush();
 
-	#ifdef D2_OEM
-		strcpy(exit_screen, MenuHires?"ordrd2ob.pcx":"ordrd2o.pcx");
-	#else
-	#if defined(SHAREWARE)
-		strcpy(exit_screen, "orderd2.pcx");
-	#else
-		strcpy(exit_screen, MenuHires?"warningb.pcx":"warning.pcx");
-	#endif
-	#endif
+	strcpy(exit_screen, MenuHires?"ordrd2ob.pcx":"ordrd2o.pcx"); // OEM
+	if (! cfexist(exit_screen))
+		strcpy(exit_screen, MenuHires?"orderd2b.pcx":"orderd2.pcx"); // SHAREWARE, prefer mac if hires
+	if (! cfexist(exit_screen))
+		strcpy(exit_screen, MenuHires?"orderd2.pcx":"orderd2b.pcx"); // SHAREWARE, have to rescale
+	if (! cfexist(exit_screen))
+		strcpy(exit_screen, MenuHires?"warningb.pcx":"warning.pcx"); // D1
 
 	if ((pcx_error=pcx_read_fullscr( exit_screen, title_pal ))==PCX_ERROR_NONE) {
 		//vfx_set_palette_sub( title_pal );
 		gr_palette_fade_in( title_pal, 32, 0 );
+		gr_update();
 		key_getch();
 		gr_palette_fade_out( title_pal, 32, 0 );
 	}

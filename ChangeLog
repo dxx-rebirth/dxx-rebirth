@@ -1,6 +1,6 @@
 2003-10-08  Bradley Bell  <btb@icculus.org>
 
-	* main/gameseq.c, main/menu.c: SHAREWARE fixes
+	* main/gameseq.c, main/inferno.c, main/menu.c: SHAREWARE fixes
 
 	* arch/win32/ipx_udp.c: use closesocket() instead of close()
 
