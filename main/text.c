@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.3 2001-01-31 15:17:59 bradleyb Exp $";
+static char rcsid[] = "$Id: text.c,v 1.4 2002-04-19 21:26:30 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -66,6 +66,7 @@ void decode_text_line(char *p)
 	}
 }
 
+#include <unistd.h>
 //load all the text strings for Descent
 void load_text()
 {
@@ -80,8 +81,11 @@ void load_text()
 
 	if ((tfile = cfopen(filename,"rb")) == NULL) {
 		filename="descent.txb";
-		if ((ifile = cfopen(filename, "rb")) == NULL)
-			Error("Cannot open file DESCENT.TEX or DESCENT.TXB\nIs descent2.hog in your current directory?");
+		if ((ifile = cfopen(filename, "rb")) == NULL) {
+			char cwd[_MAX_PATH];
+			getcwd(cwd, _MAX_PATH);
+			Error("Cannot open file DESCENT.TEX or DESCENT.TXB\nIs descent2.hog in %s?", AltHogdir_initialized?AltHogDir:cwd);
+		}
 		have_binary = 1;
 
 		len = cfilelength(ifile);
