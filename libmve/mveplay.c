@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.3 2003-02-19 00:42:40 btb Exp $ */
+/* $Id: mveplay.c,v 1.4 2003-02-19 03:09:38 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -30,7 +30,6 @@
 #include "u_mem.h"
 #include "gr.h"
 #include "palette.h"
-#include "args.h"
 #endif
 
 #ifdef STANDALONE
@@ -256,6 +255,7 @@ static int mve_audio_buftail=0;
 static int mve_audio_playing=0;
 static int mve_audio_canplay=0;
 static int mve_audio_compressed=0;
+static int mve_audio_enabled = 1;
 static SDL_AudioSpec *mve_audio_spec=NULL;
 
 static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
@@ -330,15 +330,13 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 
 	int format;
 
+	if (!mve_audio_enabled)
+		return 1;
+
 	if (audiobuf_created)
 		return 1;
 	else
 		audiobuf_created = 1;
-
-#ifndef STANDALONE
-	if (FindArg("-nosound"))
-		return 1;
-#endif
 
 	flags = get_ushort(data + 2);
 	sample_rate = get_ushort(data + 4);
@@ -772,6 +770,9 @@ void playMovie(MVESTREAM *mve)
 {
 	int init_timer=0;
 	int cont=1;
+
+	mve_audio_enabled = 1;
+
 	while (cont && playing)
 	{
 		cont = mve_play_next_chunk(mve);
@@ -887,9 +888,9 @@ void MVE_rmEndMovie()
 	timer_created = 0;
 
 #ifdef AUDIO
-	SDL_CloseAudio();
 	if (mve_audio_canplay) {
 		// only close audio if we opened it
+		SDL_CloseAudio();
 		mve_audio_canplay = 0;
 	}
 	for (i = 0; i < TOTAL_AUDIO_BUFFERS; i++)
@@ -925,4 +926,16 @@ void MVE_rmHoldMovie()
 {
 	timer_started = 0;
 }
+
+
+void MVE_sndInit(int x)
+{
+#ifdef AUDIO
+	if (x == -1)
+		mve_audio_enabled = 0;
+	else
+		mve_audio_enabled = 1;
+#endif
+}
+
 #endif

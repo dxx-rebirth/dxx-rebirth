@@ -8,4 +8,6 @@ int  MVE_rmStepMovie();
 void MVE_rmHoldMovie();
 void MVE_rmEndMovie();
 
+void MVE_sndInit(int x);
+
 #endif /* _LIBMVE_H */

@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.18 2003-02-18 07:37:19 btb Exp $ */
+/* $Id: movie.c,v 1.19 2003-02-19 03:09:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.18 2003-02-18 07:37:19 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.19 2003-02-19 03:09:38 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -148,6 +148,12 @@ int PlayMovie(const char *filename, int must_have)
 	songs_stop_all();
 
 	digi_close();
+
+	// Start sound
+	if (!FindArg("-nosound"))
+		MVE_sndInit(1);
+	else
+		MVE_sndInit(-1);
 
 	ret = RunMovie(name,MovieHires,must_have,-1,-1);
 
@@ -353,6 +359,8 @@ int InitRobotMovie(char *filename)
 		return 0;
 
 	con_printf(DEBUG_LEVEL, "RoboFile=%s\n", filename);
+
+	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
 	RoboFile = open_movie_file(filename, 1);
 
