@@ -1,4 +1,4 @@
-/* $Id: u_mem.h,v 1.7 2003-11-27 00:21:04 btb Exp $ */
+/* $Id: u_mem.h,v 1.8 2004-12-19 09:39:01 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -41,6 +41,10 @@ extern char * mem_strdup(char * str, char * var, char * file, int line );
 void mem_validate_heap();
 
 #else
+
+#ifdef macintosh
+extern char *strdup(const char *str);
+#endif
 
 #define d_malloc(size)      malloc(size)
 #define d_calloc(n, size)   calloc(n, size)
