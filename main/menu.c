@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.23 2003-03-22 04:04:47 btb Exp $ */
+/* $Id: menu.c,v 1.24 2003-04-12 02:52:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1186,8 +1186,10 @@ void d2x_options_menu()
 	//enabled 3/24/99 - Owen Evans
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Change Screen Resolution";         opt++;
 	//end enabled stuff - OE
+#endif
 
 	commands=opt;
+#if 0
 	//added on 2/2/99 by Victor Rachels for bans
 #ifdef NETWORK
 	m[opt].type = NM_TYPE_MENU; m[opt].text = "Save bans now"; opt++;

@@ -1,4 +1,4 @@
-/* $Id: gamemine.c,v 1.22 2003-04-03 06:07:35 btb Exp $ */
+/* $Id: gamemine.c,v 1.23 2003-04-12 02:52:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -142,7 +142,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.22 2003-04-03 06:07:35 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.23 2003-04-12 02:52:38 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1064,7 +1064,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	int     i, segnum, sidenum;
 	ubyte   compiled_version;
 	short   temp_short;
-	ushort  temp_ushort;
+	ushort  temp_ushort = 0;
 	ubyte   bit_mask;
 
 	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))

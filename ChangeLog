@@ -1,5 +1,12 @@
 2003-04-11  Bradley Bell  <btb@icculus.org>
 
+	* main/automap.c, main/gamemine.c, main/menu.c: fix compiler
+	warnings
+
+0.2.0:
+
+2003-04-11  Bradley Bell  <btb@icculus.org>
+
 	* libmve/mveplay.c: use _sleep instead of sleep on win32
 
 	* Makefile.am, README, README.utils, arch/sdl/digi.c,
