@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.32 2004-10-23 17:42:13 schaffner Exp $ */
+/* $Id: titles.c,v 1.33 2004-10-24 12:46:49 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -85,10 +85,6 @@ char RobotPlaying=0;
 //Begin D1X modification
 #define MAX_BRIEFING_COLORS     7
 //End D1X modification
-
-// Descent 1 briefings
-char Ending_text_filename[13] = "endreg.txt";
-char Briefing_text_filename[13] = "briefing.txt";
 
 #define	SHAREWARE_ENDING_FILENAME	"ending.tex"
 

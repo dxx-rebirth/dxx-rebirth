@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.37 2004-10-09 15:59:28 schaffner Exp $ */
+/* $Id: gameseq.c,v 1.38 2004-10-24 12:46:49 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.37 2004-10-09 15:59:28 schaffner Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.38 2004-10-24 12:46:49 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -159,8 +159,6 @@ void filter_objects_from_level();
 //0 means not a real level loaded
 int	Current_level_num=0,Next_level_num;
 char	Current_level_name[LEVEL_NAME_LEN];
-
-int Last_level, Last_secret_level;
 
 // Global variables describing the player
 int	N_players=1;	// Number of players ( >1 means a net game, eh?)
@@ -992,8 +990,6 @@ void StartNewGame(int start_level)
 extern int network_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem ); // network.c
 #endif
 
-extern int N_secret_levels;
-
 #define STARS_BACKGROUND ((MenuHires && cfexist("starsb.pcx"))?"starsb.pcx":cfexist("stars.pcx")?"stars.pcx":"starsb.pcx")
 
 //	-----------------------------------------------------------------------------
@@ -1531,9 +1527,6 @@ void DoEndGame(void)
 
 	longjmp( LeaveGame, 0 );		// Exit out of game loop
 }
-
-//from which level each do you get to each secret level
-int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
 
 //called to go to the next level (if there is one)
 //if secret_flag is true, advance to secret level, else next normal one

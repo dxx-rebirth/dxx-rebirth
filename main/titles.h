@@ -1,4 +1,4 @@
-/* $Id: titles.h,v 1.4 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: titles.h,v 1.5 2004-10-24 12:46:49 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -26,10 +26,6 @@ extern int	Skip_briefing_screens;
 #else
 #define Skip_briefing_screens 0
 #endif
-
-// Descent 1 briefings
-extern char Briefing_text_filename[13];
-extern char Ending_text_filename[13];
 
 extern int show_title_screen( char * filename, int allow_keys, int from_hog_only );
 extern int show_briefing_screen( char * filename, int allow_keys );

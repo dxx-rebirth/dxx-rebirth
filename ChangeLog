@@ -1,3 +1,9 @@
+2004-10-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* main/gameseq.c, main/gameseq.h, main/mission.c, main/mission.h,
+	main/titles.c, main/titles.h: move all mission stuff to mission.{c,h},
+	make mission structre memory allocated
+
 2004-10-23  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* main/Makefile.am, main/inferno.c, main/credits.c, main/endlevel.c,

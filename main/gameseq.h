@@ -1,4 +1,4 @@
-/* $Id: gameseq.h,v 1.4 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: gameseq.h,v 1.5 2004-10-24 12:46:49 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -29,10 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SUPER_SEEKER        1
 #define SUPER_SMARTBOMB     2
 #define SUPER_SHOCKWAVE     3
-
-extern int Last_level, Last_secret_level;   //set by mission code
-
-extern int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
 
 #define LEVEL_NAME_LEN 36       //make sure this is multiple of 4!
 

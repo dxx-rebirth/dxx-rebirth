@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.28 2004-10-23 19:15:46 schaffner Exp $ */
+/* $Id: mission.c,v 1.29 2004-10-24 12:46:49 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -43,25 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 #include "newmenu.h"
 #include "text.h"
-
-mle Mission_list[MAX_MISSIONS];
-
-int Current_mission_num;
-int N_secret_levels;    // Made a global by MK for scoring purposes.  August 1, 1995.
-char *Current_mission_filename,*Current_mission_longname;
-
-int Builtin_mission_num;
-char Builtin_mission_filename[9];
-int Builtin_mission_hogsize;
-
-int D1_Builtin_mission_num;
-char D1_Builtin_mission_filename[9];
-int D1_Builtin_mission_hogsize;
-
-//this stuff should get defined elsewhere
-
-char Level_names[MAX_LEVELS_PER_MISSION][FILENAME_LEN];
-char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
+#include "u_mem.h"
 
 //values for d1 built-in mission
 #define BIM_LAST_LEVEL          27
@@ -69,21 +51,36 @@ char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
 #define BIM_BRIEFING_FILE       "briefing.tex"
 #define BIM_ENDING_FILE         "endreg.tex"
 
+//mission list entry
+typedef struct mle {
+    char    mission_name[MISSION_NAME_LEN+1];
+    char    filename[9];                // filename without extension
+    ubyte   descent_version;            // descent 1 or descent 2?
+    bool	anarchy_only_flag;          // if true, mission is anarchy only
+    int		builtin_hogsize;	// This is used to determine the version. Only for the built in mission.
+    ubyte   location;                   // see defines below
+} mle;
+
+//values that describe where a mission is located
+#define ML_CURDIR       0
+#define ML_MISSIONDIR   1
+#define ML_CDROM        2
+
+mle Mission_list[MAX_MISSIONS];
+
+int num_missions = -1;
+
+Mission *Current_mission = NULL; // currently loaded mission
+
 //
 //  Special versions of mission routines for d1 builtins
 //
 
-int load_mission_d1(int mission_num)
+int load_mission_d1(void)
 {
 	int i;
 
-	cfile_use_descent1_hogfile("descent.hog");
-
-	Current_mission_num = mission_num;
-	Current_mission_filename = Mission_list[mission_num].filename;
-	Current_mission_longname = Mission_list[mission_num].mission_name;
-
-	switch (D1_Builtin_mission_hogsize) {
+	switch (cfile_size("descent.hog")) {
 	case D1_SHAREWARE_MISSION_HOGSIZE:
 	case D1_SHAREWARE_10_MISSION_HOGSIZE:
 		N_secret_levels = 0;
@@ -157,13 +154,13 @@ int load_mission_d1(int mission_num)
 //  Special versions of mission routines for shareware
 //
 
-int load_mission_shareware(int mission_num)
+int load_mission_shareware(void)
 {
-	Current_mission_num = mission_num;
-	Current_mission_filename = Mission_list[mission_num].filename;
-	Current_mission_longname = Mission_list[mission_num].mission_name;
-
-	switch (Builtin_mission_hogsize) {
+    strcpy(Current_mission->mission_name, SHAREWARE_MISSION_NAME);
+    Current_mission->descent_version = 2;
+    Current_mission->anarchy_only_flag = 0;
+    
+    switch (Current_mission->builtin_hogsize) {
 	case MAC_SHARE_MISSION_HOGSIZE:
 		N_secret_levels = 1;
 
@@ -198,12 +195,12 @@ int load_mission_shareware(int mission_num)
 //  Special versions of mission routines for Diamond/S3 version
 //
 
-int load_mission_oem(int mission_num)
+int load_mission_oem(void)
 {
-	Current_mission_num = mission_num;
-	Current_mission_filename = Mission_list[mission_num].filename;
-	Current_mission_longname = Mission_list[mission_num].mission_name;
-
+    strcpy(Current_mission->mission_name, OEM_MISSION_NAME);
+    Current_mission->descent_version = 2;
+    Current_mission->anarchy_only_flag = 0;
+    
 	N_secret_levels = 2;
 
 	Last_level = 8;
@@ -370,12 +367,14 @@ int read_mission_file(char *filename,int count,int location)
 
 void add_d1_builtin_mission_to_list(int *count)
 {
+    int size;
+    
 	if (!cfexist("descent.hog"))
 		return;
 
-	D1_Builtin_mission_hogsize = cfile_size("descent.hog");
+	size = cfile_size("descent.hog");
 
-	switch (D1_Builtin_mission_hogsize) {
+	switch (size) {
 	case D1_SHAREWARE_MISSION_HOGSIZE:
 	case D1_SHAREWARE_10_MISSION_HOGSIZE:
 	case D1_MAC_SHARE_MISSION_HOGSIZE:
@@ -390,7 +389,7 @@ void add_d1_builtin_mission_to_list(int *count)
 		Mission_list[*count].anarchy_only_flag = 0;
 		break;
 	default:
-		Warning("Unknown D1 hogsize %d\n", D1_Builtin_mission_hogsize);
+		Warning("Unknown D1 hogsize %d\n", size);
 		Int3();
 		// fall through
 	case D1_MISSION_HOGSIZE:
@@ -402,20 +401,20 @@ void add_d1_builtin_mission_to_list(int *count)
 		break;
 	}
 
-	strcpy(D1_Builtin_mission_filename, Mission_list[*count].filename);
 	Mission_list[*count].descent_version = 1;
 	Mission_list[*count].anarchy_only_flag = 0;
 	++(*count);
 }
 
 
-void add_builtin_mission_to_list(int *count)
+void add_builtin_mission_to_list(int *count, char *name)
 {
-	Builtin_mission_hogsize = cfile_size("descent2.hog");
-	if (Builtin_mission_hogsize == -1)
-		Builtin_mission_hogsize = cfile_size("d2demo.hog");
+    int size = cfile_size("descent2.hog");
+    
+	if (size == -1)
+		size = cfile_size("d2demo.hog");
 
-	switch (Builtin_mission_hogsize) {
+	switch (size) {
 	case SHAREWARE_MISSION_HOGSIZE:
 	case MAC_SHARE_MISSION_HOGSIZE:
 		strcpy(Mission_list[*count].filename,SHAREWARE_MISSION_FILENAME);
@@ -428,7 +427,7 @@ void add_builtin_mission_to_list(int *count)
 		Mission_list[*count].anarchy_only_flag = 0;
 		break;
 	default:
-		Warning("Unknown hogsize %d, trying %s\n", Builtin_mission_hogsize, FULL_MISSION_FILENAME ".mn2");
+		Warning("Unknown hogsize %d, trying %s\n", size, FULL_MISSION_FILENAME ".mn2");
 		Int3(); //fall through
 	case FULL_MISSION_HOGSIZE:
 	case FULL_10_MISSION_HOGSIZE:
@@ -437,7 +436,8 @@ void add_builtin_mission_to_list(int *count)
 			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
 	}
 
-	strcpy(Builtin_mission_filename, Mission_list[*count].filename);
+	strcpy(name, Mission_list[*count].filename);
+    Mission_list[*count].builtin_hogsize = size;
 	Mission_list[*count].descent_version = 2;
 	Mission_list[*count].anarchy_only_flag = 0;
 	++(*count);
@@ -484,6 +484,14 @@ void promote (char * mission_name, int * top_place, int num_missions)
 		}
 }
 
+void free_mission(void)
+{
+    // May become more complex with the editor
+    if (Current_mission) {
+        d_free(Current_mission);
+    }
+}
+
 
 
 //fills in the global list of missions.  Returns the number of missions
@@ -498,6 +506,7 @@ int build_mission_list(int anarchy_mode)
 	static int num_missions=-1;
 	int count = 0;
 	int top_place;
+    char	builtin_mission_filename[FILENAME_LEN];
 
 	//now search for levels on disk
 
@@ -513,7 +522,7 @@ int build_mission_list(int anarchy_mode)
 //@@		return num_missions;
 //@@	}
 
-	add_builtin_mission_to_list(&count);  //read built-in first
+	add_builtin_mission_to_list(&count, builtin_mission_filename);  //read built-in first
 	add_d1_builtin_mission_to_list(&count);
 	add_missions_to_list(MISSION_DIR "*.mn2", &count, anarchy_mode);
 	add_missions_to_list(MISSION_DIR "*.msn", &count, anarchy_mode);
@@ -532,9 +541,7 @@ int build_mission_list(int anarchy_mode)
 	// to top of mission list
 	top_place = 0;
 	promote("descent", &top_place, count); // original descent 1 mission
-	D1_Builtin_mission_num = top_place - 1;
-	promote(Builtin_mission_filename, &top_place, count); // d2 or d2demo
-	Builtin_mission_num = top_place - 1;
+	promote(builtin_mission_filename, &top_place, count); // d2 or d2demo
 	promote("d2x", &top_place, count); // vertigo
 
 	if (count > top_place)
@@ -554,6 +561,8 @@ int build_mission_list(int anarchy_mode)
 
 	num_missions = count;
 
+    atexit(free_mission);
+
 	return count;
 }
 
@@ -568,35 +577,31 @@ int load_mission(int mission_num)
 {
 	CFILE *mfile;
 	char buf[80], *v;
-	int found_hogfile;
+    int found_hogfile;
 	int enhanced_mission = 0;
 
-	if (mission_num == D1_Builtin_mission_num) {
-		cfile_use_descent1_hogfile("descent.hog");
-		switch (D1_Builtin_mission_hogsize) {
-		default:
-			Int3(); // fall through
-		case D1_MISSION_HOGSIZE:
-		case D1_10_MISSION_HOGSIZE:
-		case D1_MAC_MISSION_HOGSIZE:
-		case D1_OEM_MISSION_HOGSIZE:
-		case D1_OEM_10_MISSION_HOGSIZE:
-		case D1_SHAREWARE_MISSION_HOGSIZE:
-		case D1_SHAREWARE_10_MISSION_HOGSIZE:
-		case D1_MAC_SHARE_MISSION_HOGSIZE:
-			return load_mission_d1(mission_num);
-			break;
-		}
-	}
+    if (Current_mission)
+        free_mission();
+    Current_mission = d_malloc(sizeof(Mission));
+    if (!Current_mission) return 0;
+    *(mle *) Current_mission = Mission_list[mission_num];
 
-	if (mission_num == Builtin_mission_num) {
-		switch (Builtin_mission_hogsize) {
+    // for Descent 1 missions, load descent.hog
+    if (EMULATING_D1) {
+        if (!cfile_use_descent1_hogfile("descent.hog"))
+            Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
+        if (!stricmp(Current_mission_filename, D1_MISSION_FILENAME))
+            return load_mission_d1();
+    }
+
+    if (PLAYING_BUILTIN_MISSION) {
+		switch (Current_mission->builtin_hogsize) {
 		case SHAREWARE_MISSION_HOGSIZE:
 		case MAC_SHARE_MISSION_HOGSIZE:
-			return load_mission_shareware(mission_num);
+			return load_mission_shareware();
 			break;
 		case OEM_MISSION_HOGSIZE:
-			return load_mission_oem(mission_num);
+			return load_mission_oem();
 			break;
 		default:
 			Int3(); // fall through
@@ -606,11 +611,9 @@ int load_mission(int mission_num)
 			// continue on... (use d2.mn2 from hogfile)
 			break;
 		}
-	}
+    }
 
-	Current_mission_num = mission_num;
-
-	mprintf(( 0, "Loading mission %d\n", mission_num ));
+	mprintf(( 0, "Loading mission %s\n", Current_mission_filename ));
 
 	//read mission from file
 
@@ -635,32 +638,27 @@ int load_mission(int mission_num)
 
 	mfile = cfopen(buf,"rb");
 	if (mfile == NULL) {
-		Current_mission_num = -1;
+        free_mission();
 		return 0;		//error!
 	}
 
-	//for non-builtin missions, load HOG
-	if (strcmp(Mission_list[mission_num].filename, Builtin_mission_filename)) {
+    //for non-builtin missions, load HOG
+    if (!PLAYING_BUILTIN_MISSION) {
 
-		strcpy(buf+strlen(buf)-4,".hog");		//change extension
+        strcpy(buf+strlen(buf)-4,".hog");		//change extension
 
-		found_hogfile = cfile_use_alternate_hogfile(buf);
+        found_hogfile = cfile_use_alternate_hogfile(buf);
 
-		#ifdef RELEASE				//for release, require mission to be in hogfile
-		if (! found_hogfile) {
-			cfclose(mfile);
-			Current_mission_num = -1;
-			return 0;
-		}
-		#endif
+#ifdef RELEASE				//for release, require mission to be in hogfile
+        if (! found_hogfile) {
+            cfclose(mfile);
+            free_mission();
+            return 0;
+        }
+#endif
+    }
 
-		// for Descent 1 missions, load descent.hog
-		if (Mission_list[mission_num].descent_version == 1 && strcmp(buf, "descent.hog"))
-			if (!cfile_use_descent1_hogfile("descent.hog"))
-				Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
-	}
-
-	//init vars
+    //init vars
 	Last_level = 0;
 	Last_secret_level = 0;
 	Briefing_text_filename[0] = 0;
@@ -763,12 +761,9 @@ int load_mission(int mission_num)
 	cfclose(mfile);
 
 	if (Last_level <= 0) {
-		Current_mission_num = -1;		//no valid mission loaded
+		free_mission();		//no valid mission loaded
 		return 0;
 	}
-
-	Current_mission_filename = Mission_list[Current_mission_num].filename;
-	Current_mission_longname = Mission_list[Current_mission_num].mission_name;
 
 	if (enhanced_mission) {
 		char t[50];
