@@ -1,3 +1,7 @@
+2004-05-11  Bradley Bell  <btb@icculus.org>
+
+	* arch/ogl/ogl.c: fix alpha calculation in g3_draw_poly, again
+
 2004-05-10  Bradley Bell  <btb@icculus.org>
 
 	* arch/ogl/ogl.c, include/3d.h, main/render.c: hmm,

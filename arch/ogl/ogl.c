@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.13 2004-05-11 03:35:20 btb Exp $ */
+/* $Id: ogl.c,v 1.14 2004-05-11 23:15:55 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -612,7 +612,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
 		glColor3f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c));
 	else
-		glColor4f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / (float)GR_FADE_LEVELS);
+		glColor4f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
 	glBegin(GL_TRIANGLE_FAN);
 	for (c=0;c<nv;c++){
 	//	glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
