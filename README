@@ -16,7 +16,7 @@ Linux/Unix:
 
 Required tools:
 * GCC 2.95 or higher
-* SDL 1.1.0 or higher
+* SDL 1.2
 * NASM 0.98 (OPTIONAL but RECOMMENDED for x86)
 * A thread safe X server.
 * GNU make is probably required as well.
@@ -55,7 +55,7 @@ Win32:
 
 Required tools:
 * Cygwin or MinGW + MSys
-* SDL 1.1.0 or higher
+* SDL 1.2
 * NASM 0.98 (OPTIONAL but RECOMMENDED)
 
 Note that SDL.dll needs to be in your executable PATH, since that is
@@ -73,13 +73,6 @@ Now you can configure d2x as normal.  i.e.
 ./configure
 or
 ./configure --with-opengl
-
-For some reason, the Makefiles have a problem with not always putting the
-.exe extentions where they need to be.  So you may have to run make
-twice, like so:
-make && make d2x-sdl.exe
-or
-make && make d2x-gl.exe
 
 Then just copy your executable and SDL.dll into the descent2 directory.
 
@@ -128,10 +121,6 @@ Compile and install SDL from source: d2x doesn't use Project Builder.
 
 configure and compile as with other unices.
 
-Known bugs/issues:
-* Serial and network support missing
-* GL version very buggy
-
 
 Bugs/feedback:
 ==============
@@ -146,6 +135,7 @@ project for descent 1, are discussed on. Patches and questions can be
 posted there, as well.
 
 Use Bugzilla. https://bugzilla.icculus.org/
+This is the most reliable way to make sure your issue gets attention!
 
 Contact me directly, btb@icculus.org.  I'll try to get back to you
 ASAP, depending on real-life concerns =)

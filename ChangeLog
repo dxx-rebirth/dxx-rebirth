@@ -1,5 +1,7 @@
 2003-11-24  Bradley Bell  <btb@icculus.org>
 
+	* README: stuff
+
 	* arch/sdl/mouse.c, main/konfig.c, main/newmenu.c, main/newmenu.h:
 	enabled mouse control of menus
 
