@@ -2,6 +2,8 @@
 
 	* main/config.c: fix bug uncovered by having fgets cut off ending \n
 
+	* main/text.c: fix crash on Mac OS X, probably fix bug 738
+
 2004-10-09  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* main/automap.c, main/cntrlcen.c, main/collide.c, main/endlevel.c,

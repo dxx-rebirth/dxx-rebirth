@@ -1,4 +1,4 @@
-/* $Id: text.c,v 1.13 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: text.c,v 1.14 2004-10-14 16:43:23 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.13 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: text.c,v 1.14 2004-10-14 16:43:23 schaffner Exp $";
 #endif
 
 #include <stdlib.h>
@@ -178,9 +178,9 @@ void load_text()
 
 		Text_string[644] = "Z1";
 		Text_string[645] = "UN";
-		Text_string[647] = "P1";
-		Text_string[648] = "R1";
-		Text_string[649] = "Y1";
+		Text_string[646] = "P1";
+		Text_string[647] = "R1";
+		Text_string[648] = "Y1";
 	}
 
 	//Assert(tptr==text+len || tptr==text+len-2);
