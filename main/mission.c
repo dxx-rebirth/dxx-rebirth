@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.18 2003-01-11 02:58:33 btb Exp $ */
+/* $Id: mission.c,v 1.19 2003-02-26 11:03:27 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -182,6 +182,7 @@ int load_mission_d1(int mission_num)
 
 	switch (D1_Builtin_mission_hogsize) {
 	case D1_SHAREWARE_MISSION_HOGSIZE:
+	case D1_SHAREWARE_10_MISSION_HOGSIZE:
 		N_secret_levels = 0;
 
 		Last_level = 7;
@@ -203,9 +204,26 @@ int load_mission_d1(int mission_num)
 			sprintf(Level_names[i], "level%02d.sdl", i+1);
 
 		break;
+	case D1_OEM_MISSION_HOGSIZE:
+		N_secret_levels = 1;
+
+		Last_level = 15;
+		Last_secret_level = -1;
+
+		//build level names
+		for (i=0; i < Last_level - 1; i++)
+			sprintf(Level_names[i], "level%02d.rdl", i+1);
+		sprintf(Level_names[i], "saturn%02d.rdl", i+1);
+		for (i=0; i < -Last_secret_level; i++)
+			sprintf(Secret_level_names[i], "levels%1d.rdl", i+1);
+
+		Secret_level_table[0] = 10;
+
+		break;
 	default:
 		Int3(); // fall through
 	case D1_MISSION_HOGSIZE:
+	case D1_10_MISSION_HOGSIZE:
 	case D1_MAC_MISSION_HOGSIZE:
 		N_secret_levels = 3;
 
@@ -463,9 +481,15 @@ void add_d1_builtin_mission_to_list(int *count)
 
 	switch (D1_Builtin_mission_hogsize) {
 	case D1_SHAREWARE_MISSION_HOGSIZE:
+	case D1_SHAREWARE_10_MISSION_HOGSIZE:
 	case D1_MAC_SHARE_MISSION_HOGSIZE:
 		strcpy(Mission_list[*count].filename, D1_MISSION_FILENAME);
 		strcpy(Mission_list[*count].mission_name, D1_SHAREWARE_MISSION_NAME);
+		Mission_list[*count].anarchy_only_flag = 0;
+		break;
+	case D1_OEM_MISSION_HOGSIZE:
+		strcpy(Mission_list[*count].filename, D1_MISSION_FILENAME);
+		strcpy(Mission_list[*count].mission_name, D1_OEM_MISSION_NAME);
 		Mission_list[*count].anarchy_only_flag = 0;
 		break;
 	default:
@@ -473,6 +497,7 @@ void add_d1_builtin_mission_to_list(int *count)
 		Int3();
 		// fall through
 	case D1_MISSION_HOGSIZE:
+	case D1_10_MISSION_HOGSIZE:
 	case D1_MAC_MISSION_HOGSIZE:
 		strcpy(Mission_list[*count].filename, D1_MISSION_FILENAME);
 		strcpy(Mission_list[*count].mission_name, D1_MISSION_NAME);
@@ -653,8 +678,11 @@ int load_mission(int mission_num)
 		default:
 			Int3(); // fall through
 		case D1_MISSION_HOGSIZE:
+		case D1_10_MISSION_HOGSIZE:
 		case D1_MAC_MISSION_HOGSIZE:
+		case D1_OEM_MISSION_HOGSIZE:
 		case D1_SHAREWARE_MISSION_HOGSIZE:
+		case D1_SHAREWARE_10_MISSION_HOGSIZE:
 		case D1_MAC_SHARE_MISSION_HOGSIZE:
 			return load_mission_d1(mission_num);
 			break;

@@ -1,5 +1,8 @@
 2003-02-26  Bradley Bell  <bradleyb@smeagol>
 
+	* main/mission.c, main/mission.h: load d1 oem mission, d1 v1.0
+	mission
+
 	* main/gamemine.c: load d1 shareware levels!
 
 2003-02-25  Bradley Bell  <btb@icculus.org>
@@ -217,9 +220,12 @@
 	* NEWS: news
 	* 2d/rle.c: make rle_swap handle RLE_BIG
 
-2003-01-01  Bradley Bell <btb@icculus.org>
+2003-01-01  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/render.c: workaround solaris qsort bug
+
+2003-01-01  Steffen Pohle <stpohle@gmx.net>
+
 	* arch/linux/linuxnet.c, arch/linux/ukali.c,
 	arch/linux/include/ukali.h, main/inferno.c: enabled kali
 	* arch/linux/Makefile.am: enabled linux joystick, kali
@@ -611,11 +617,14 @@
 	* arch/sdl/rbaudio.c: gracefully handle redbook non-availability
 	* arch/sdl/gr.c: don't need to set mode in gr_init
 
-2002-08-02  Bradley Bell <btb@icculus.org>
+2002-08-02  Martin Schaffner <maschaffner@gmx.ch>
 
 	* main/: gamemine.c, gamemine.h, gamesave.c, gamesave.h: more d1
 	level loading stuff
 	* Makefile.am, descent.mn2: added mission file for descent 1
+
+2002-08-02  Bradley Bell <btb@icculus.org>
+
 	* arch/sdl/digi.c, arch/sdl/gr.c, include/error.h,
 	include/oldsdl.h, main/gamecntl.c, main/inferno.c, main/laser.c,
 	main/piggy.h, misc/error.c: junk
@@ -627,7 +636,7 @@
 	main/vclip.c, main/vclip.h, main/wall.c, main/wall.h,
 	main/weapon.c, main/weapon.h: fast i/o macros
 
-2002-08-01  Bradley Bell <btb@icculus.org>
+2002-08-01  Martin Schaffner <maschaffner@gmx.ch>
 
 	* NEWS, cfile/cfile.c, main/console.c, main/gamemine.c,
 	main/gamemine.h, main/gamesave.c: load d1 levels
@@ -906,9 +915,14 @@
 
 2002-01-28  Bradley Bell <btb@icculus.org>
 
-	* NEWS, acconfig.h, configure.ac, cfile/cfile.c, main/inferno.c,
-	main/newdemo.c: Data files now go in DATADIR/games/d2x, user files
-	now go in ~/.d2x
+	* NEWS, acconfig.h, configure.ac, cfile/cfile.c, main/newdemo.c:
+	Data files now go in DATADIR/games/d2x, user files now go in
+	~/.d2x
+
+2002-01-28  Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+
+	* main/inferno.c: Data files now go in DATADIR/games/d2x, user
+	files now go in ~/.d2x
 
 2002-01-24  Bradley Bell <btb@icculus.org>
 
@@ -1515,8 +1529,11 @@
 	* iff/iff.c, include/u_mem.h: NDEBUG fixes
 	* main/: ai.h, inferno.c, lighting.c, object.c, render.c: fix
 	warnings and enable NDEBUG
-	* ChangeLog, main/kconfig.c: joystick support
 	* arch/svgalib_init.c: svgalib support
+
+2001-01-22  Michael Wagener <Michael.Wagener@materna.de>
+
+	* main/kconfig.c: joystick support
 
 2001-01-21  Bradley Bell <btb@icculus.org>
 
