@@ -1,5 +1,10 @@
 2004-05-19  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/gr.c, arch/ogl/ogl.c, include/loadgl.c,
+	include/ogl_init.h: utilize hardware multitexturing support if
+	possible (requires GL_NV_texture_env_combine4 extension) (d1x
+	r1.32, r1.30, r1.4, 1.22)
+
 	* arch/ogl/glx.c: add ogl_setbrightness_internal stub for glx (d1x
 	r1.17)
 

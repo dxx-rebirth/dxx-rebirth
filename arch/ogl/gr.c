@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.21 2004-05-20 02:04:26 btb Exp $ */
+/* $Id: gr.c,v 1.22 2004-05-20 03:31:31 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -160,8 +160,9 @@ void gr_update()
 
 const char *gl_vendor,*gl_renderer,*gl_version,*gl_extensions;
 
-void ogl_get_verinfo(void){
-	int t;
+void ogl_get_verinfo(void)
+{
+	int t, arb_max_textures = -1, sgi_max_textures = -1;
 	gl_vendor=glGetString(GL_VENDOR);
 	gl_renderer=glGetString(GL_RENDERER);
 	gl_version=glGetString(GL_VERSION);
@@ -182,15 +183,15 @@ void ogl_get_verinfo(void){
 	dglSelectTextureSGIS = (glSelectTextureSGIS_fp)wglGetProcAddress("glSelectTextureSGIS");
 #endif
 
-	//multitexturing doesn't work yet.
 #ifdef GL_ARB_multitexture
-	ogl_arb_multitexture_ok=0;//(strstr(gl_extensions,"GL_ARB_multitexture")!=0 && glActiveTextureARB!=0 && 0);
+	ogl_arb_multitexture_ok = (strstr(gl_extensions, "GL_ARB_multitexture") != 0 && glActiveTextureARB != 0);
 	mprintf((0,"c:%p d:%p e:%p\n",strstr(gl_extensions,"GL_ARB_multitexture"),glActiveTextureARB,glBegin));
 #endif
 #ifdef GL_SGIS_multitexture
-	ogl_sgis_multitexture_ok=0;//(strstr(gl_extensions,"GL_SGIS_multitexture")!=0 && glSelectTextureSGIS!=0 && 0);
+	ogl_sgis_multitexture_ok = (strstr(gl_extensions, "GL_SGIS_multitexture") != 0 && glSelectTextureSGIS != 0);
 	mprintf((0,"a:%p b:%p\n",strstr(gl_extensions,"GL_SGIS_multitexture"),glSelectTextureSGIS));
 #endif
+	ogl_nv_texture_env_combine4_ok = (strstr(gl_extensions, "GL_NV_texture_env_combine4") != 0);
 
 	//add driver specific hacks here.  whee.
 	if ((stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && stricmp(gl_version,"1.2 Mesa 3.0")==0){
@@ -210,11 +211,15 @@ void ogl_get_verinfo(void){
 	if ((t=FindArg("-gl_arb_multitexture_ok"))){
 		ogl_arb_multitexture_ok=atoi(Args[t+1]);
 	}
+	if (ogl_arb_multitexture_ok)
+		glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &arb_max_textures);
 #endif
 #ifdef GL_SGIS_multitexture
 	if ((t=FindArg("-gl_sgis_multitexture_ok"))){
 		ogl_sgis_multitexture_ok=atoi(Args[t+1]);
 	}
+	if (ogl_sgis_multitexture_ok)
+		glGetIntegerv(GL_MAX_TEXTURES_SGIS, &sgi_max_textures);
 #endif
 	if ((t=FindArg("-gl_intensity4_ok"))){
 		ogl_intensity4_ok=atoi(Args[t+1]);
@@ -236,7 +241,7 @@ void ogl_get_verinfo(void){
 		ogl_setgammaramp_ok = atoi(Args[t + 1]);
 	}
 
-	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
+	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i(%i units) gl_sgis_multitexture:%i(%i units) gl_nv_texture_env_combine4:%i\n", ogl_arb_multitexture_ok, arb_max_textures, ogl_sgis_multitexture_ok, sgi_max_textures, ogl_nv_texture_env_combine4_ok);
 	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok, ogl_setgammaramp_ok);
 }
 

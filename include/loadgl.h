@@ -1,7 +1,7 @@
-/* $ Id: $ */
+/* $Id: loadgl.h,v 1.7 2004-05-20 03:31:34 btb Exp $ */
 /*
  *
- * dynamic opengl loading - curtousy (sp) of Jeff Slutter
+ * dynamic opengl loading - courtesy of Jeff Slutter
  *
  *
  */
@@ -24,12 +24,14 @@
 #define GL_ARB_multitexture 1
 #define GL_TEXTURE0_ARB 0x84C0
 #define GL_TEXTURE1_ARB 0x84C1
+#define GL_MAX_TEXTURE_UNITS_ARB 0x84E2
 #endif
 
 #ifndef GL_SGIS_multitexture
 #define GL_SGIS_multitexture 1
 #define GL_TEXTURE0_SGIS 0x835F
 #define GL_TEXTURE1_SGIS 0x8360
+#define GL_MAX_TEXTURES_SGIS 0x835D
 #endif
 
 #ifdef _cplusplus

@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.17 2004-05-19 03:41:58 btb Exp $ */
+/* $Id: ogl.c,v 1.18 2004-05-20 03:31:32 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -15,6 +15,7 @@
 #include <windows.h>
 #include <stddef.h>
 #endif
+#include "internal.h"
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -25,7 +26,6 @@
 #include <string.h>
 #include <math.h>
 
-#include "internal.h"
 #include "3d.h"
 #include "piggy.h"
 #include "../../3d/globvars.h"
@@ -86,6 +86,7 @@ int ogl_arb_multitexture_ok=0;
 #ifdef GL_SGIS_multitexture
 int ogl_sgis_multitexture_ok=0;
 #endif
+int ogl_nv_texture_env_combine4_ok = 0;
 
 int sphereh=0;
 int cross_lh[2]={0,0};
@@ -124,7 +125,8 @@ void ogl_init_texture(ogl_texture* t){
 	t->handle=0;
 	t->internalformat=ogl_rgba_format;
 	t->format=GL_RGBA;
-	t->wrapstate=-1;
+	t->wrapstate[0] = -1;
+	t->wrapstate[1] = -1;
 	t->w=t->h=0;
 	ogl_init_texture_stats(t);
 }
@@ -152,7 +154,8 @@ void ogl_smash_texture_list_internal(void){
 			glDeleteTextures( 1, &ogl_texture_list[i].handle );
 			ogl_texture_list[i].handle=0;
 		}
-		ogl_texture_list[i].wrapstate=-1;
+		ogl_texture_list[i].wrapstate[0] = -1;
+		ogl_texture_list[i].wrapstate[1] = -1;
 	}
 }
 void ogl_vivify_texture_list_internal(void){
@@ -251,11 +254,13 @@ void ogl_bindbmtex(grs_bitmap *bm){
 //	}
 }
 //gltexture MUST be bound first
-void ogl_texwrap(ogl_texture *gltexture,int state){
-	if (gltexture->wrapstate!=state || gltexture->numrend<1){
+void ogl_texwrap(ogl_texture *gltexture,int state)
+{
+	if (gltexture->wrapstate[active_texture_unit] != state || gltexture->numrend < 1)
+	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, state);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, state);
-		gltexture->wrapstate=state;
+		gltexture->wrapstate[active_texture_unit] = state;
 	}
 }
 
@@ -674,50 +679,132 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 	}
 	return 0;
 }
-bool g3_draw_tmap_2(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bmbot,grs_bitmap *bm,int orient)
+
+int active_texture_unit = 0;
+
+void ogl_setActiveTexture(int t)
 {
-#if (defined(GL_ARB_multitexture) || defined(GL_SGIS_multitexture))
-	if (ogl_arb_multitexture_ok || ogl_sgis_multitexture_ok){
-		int c;
-		float l,u1,v1;
-
-		r_tpolyc+=2;
-		/*	if (bm->bm_w !=64||bm->bm_h!=64)
-			printf("g3_draw_tmap w %i h %i\n",bm->bm_w,bm->bm_h);*/
-		if (ogl_arb_multitexture_ok){
+	if (ogl_arb_multitexture_ok)
+	{
 #ifdef GL_ARB_multitexture
+		if (t == 0)
 			glActiveTextureARB(GL_TEXTURE0_ARB);
-#endif
-		}else if (ogl_sgis_multitexture_ok){
-#ifdef GL_SGIS_multitexture
-			glSelectTextureSGIS(GL_TEXTURE0_SGIS);
-#endif
-		}
-		ogl_bindbmtex(bmbot);
-		OGL_ENABLE(TEXTURE_2D);
-		glEnable(GL_TEXTURE_2D);
-		ogl_texwrap(bmbot->gltexture,GL_REPEAT);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		if (ogl_arb_multitexture_ok){
-#ifdef GL_ARB_multitexture
+		else
 			glActiveTextureARB(GL_TEXTURE1_ARB);
 #endif
-		}else if (ogl_sgis_multitexture_ok){
+	}
+	else if (ogl_sgis_multitexture_ok)
+	{
 #ifdef GL_SGIS_multitexture
+		if (t == 0)
+			glSelectTextureSGIS(GL_TEXTURE0_SGIS);
+		else
 			glSelectTextureSGIS(GL_TEXTURE1_SGIS);
 #endif
-		}
-		ogl_bindbmtex(bm);
-//		OGL_ENABLE(TEXTURE_2D);
+	}
+	active_texture_unit = t;
+}
+
+void ogl_MultiTexCoord2f(int t, float u, float v)
+{
+	if (ogl_arb_multitexture_ok)
+	{
+#ifdef GL_ARB_multitexture
+		if (t == 0)
+			glMultiTexCoord2fARB(GL_TEXTURE0_ARB, u, v);
+		else
+			glMultiTexCoord2fARB(GL_TEXTURE1_ARB, u, v);
+#endif
+	}
+	else if (ogl_sgis_multitexture_ok)
+	{
+#ifdef GL_SGIS_multitexture
+		if (t == 0)
+			glMultiTexCoord2fSGIS(GL_TEXTURE0_SGIS, u, v);
+		else
+			glMultiTexCoord2fSGIS(GL_TEXTURE1_SGIS, u, v);
+#endif
+	}
+}
+
+bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
+{
+#if (defined(GL_NV_texture_env_combine4) && (defined(GL_ARB_multitexture) || defined(GL_SGIS_multitexture)))
+	if (ogl_nv_texture_env_combine4_ok && (ogl_arb_multitexture_ok || ogl_sgis_multitexture_ok))
+	{
+		int c;
+		float l, u1, v1;
+
+		if (tmap_drawer_ptr != draw_tmap)
+			Error("WTFF\n");
+
+		r_tpolyc+=2;
+
+		//ogl_setActiveTexture(0);
+		OGL_ENABLE(TEXTURE_2D);
+		ogl_bindbmtex(bmbot);
+		ogl_texwrap(bmbot->gltexture, GL_REPEAT);
+		// GL_MODULATE is fine for texture 0
+
+		ogl_setActiveTexture(1);
 		glEnable(GL_TEXTURE_2D);
+		ogl_bindbmtex(bm);
 		ogl_texwrap(bm->gltexture,GL_REPEAT);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// GL_DECAL works sorta ok but the top texture is fullbright.
+		//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+		// http://oss.sgi.com/projects/ogl-sample/registry/NV/texture_env_combine4.txt
+		// only GL_NV_texture_env_combine4 lets us do what we need:
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE4_NV);
+
+		// multiply top texture by color(vertex lighting) and add bottom texture(where alpha says to)
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_ADD);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_PRIMARY_COLOR_EXT);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE3_RGB_NV, GL_PREVIOUS_EXT);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_ONE_MINUS_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND3_RGB_NV, GL_SRC_COLOR);
+
+		// add up alpha channels
+		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_ADD);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_EXT, GL_ZERO);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_PREVIOUS_EXT);
+		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE3_ALPHA_NV, GL_ZERO);
+
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_ONE_MINUS_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_EXT, GL_SRC_ALPHA);
+		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND3_ALPHA_NV, GL_ONE_MINUS_SRC_ALPHA);
+
+		// GL_ARB_texture_env_combine comes close, but doesn't quite make it.
+		//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+
+		//// this gives effect like GL_DECAL:
+		//glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_INTERPOLATE);
+		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
+		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PREVIOUS_ARB);
+		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_TEXTURE);
+
+
+		// this properly shades the top texture, but the bottom texture doesn't get through.
+		//glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
+		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PRIMARY_COLOR_ARB);
+		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
+
+
+		// add up alpha
+		//glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_ADD);
+		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
+		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_PREVIOUS_ARB);
+
 
 		glBegin(GL_TRIANGLE_FAN);
 		for (c=0;c<nv;c++){
@@ -742,55 +829,22 @@ bool g3_draw_tmap_2(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *b
 			if (bm->bm_flags&BM_FLAG_NO_LIGHTING){
 				l=1.0;
 			}else{
-				//l=f2fl(uvl_list[c].l)+gr_palette_gamma/63.0;
 				l=f2fl(uvl_list[c].l);
 			}
 			glColor3f(l,l,l);
-//			glTexCoord2f(f2glf(uvl_list[c].u),f2glf(uvl_list[c].v));
-			if (ogl_arb_multitexture_ok){
-#ifdef GL_ARB_multitexture
-				glMultiTexCoord2fARB(GL_TEXTURE0_ARB,f2glf(uvl_list[c].u),f2glf(uvl_list[c].v));
-#endif
-			}else if (ogl_sgis_multitexture_ok){
-#ifdef GL_SGIS_multitexture
-				glMultiTexCoord2fSGIS(GL_TEXTURE0_SGIS,f2glf(uvl_list[c].u),f2glf(uvl_list[c].v));
-#endif
-			}
-			if (ogl_arb_multitexture_ok){
-#ifdef GL_ARB_multitexture
-				glMultiTexCoord2fARB(GL_TEXTURE1_ARB,u1,v1);
-#endif
-			}else if (ogl_sgis_multitexture_ok){
-#ifdef GL_SGIS_multitexture
-				glMultiTexCoord2fSGIS(GL_TEXTURE1_SGIS,u1,v1);
-#endif
-			}
+			ogl_MultiTexCoord2f(0, f2glf(uvl_list[c].u), f2glf(uvl_list[c].v));
+			ogl_MultiTexCoord2f(1, u1, v1);
 			//glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
 			//glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
 			glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 		}
 		glEnd();
-/*		if (ogl_arb_multitexture_ok){
-#ifdef GL_ARB_multitexture
-			glActiveTextureARB(GL_TEXTURE1_ARB);
-#endif
-		}else if (ogl_sgis_multitexture_ok){
-#ifdef GL_SGIS_multitexture
-			glSelectTextureSGIS(GL_TEXTURE1_SGIS);
-#endif
-		}
-//		OGL_ENABLE(TEXTURE_2D);*/
+		//ogl_setActiveTexture(1); // still the active texture
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		glDisable(GL_TEXTURE_2D);
-		if (ogl_arb_multitexture_ok){
-#ifdef GL_ARB_multitexture
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-#endif
-		}else if (ogl_sgis_multitexture_ok){
-#ifdef GL_SGIS_multitexture
-			glSelectTextureSGIS(GL_TEXTURE0_SGIS);
-#endif
-		}
-	}else
+		ogl_setActiveTexture(0);
+	}
+	else
 #endif
 	{
 		int c;
