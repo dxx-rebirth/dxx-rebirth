@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.8 2004-05-22 07:42:18 btb Exp $ */
+/* $Id: digi.c,v 1.9 2004-05-22 07:51:33 btb Exp $ */
 #define DIGI_SOUND
 #define MIDI_SOUND
 
@@ -734,13 +734,17 @@ void digi_sync_sounds()
 						digi_start_sound_object(i);
 					} else {
 					        SoundSlots[SoundObjects[i].handle].volume = fixmuldiv(SoundObjects[i].volume,digi_volume,F1_0);
+							IDirectSoundBuffer_SetVolume(SoundSlots[SoundObjects[i].handle].lpsb, D1vol2DSvol(SoundSlots[SoundObjects[i].handle].volume));
 					}
 				}
 			}
 				
 			if (oldpan != SoundObjects[i].pan) 	{
 				if (SoundObjects[i].flags & SOF_PLAYING)
-                                        SoundSlots[SoundObjects[i].handle].pan = SoundObjects[i].pan;
+				{
+					SoundSlots[SoundObjects[i].handle].pan = SoundObjects[i].pan;
+					IDirectSoundBuffer_SetPan(SoundSlots[SoundObjects[i].handle].lpsb, ((int)(f2fl(SoundObjects[i].pan) * 20000.0)) - 10000);
+				}
 			}
 		}
 	}
