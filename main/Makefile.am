@@ -1,8 +1,21 @@
 SUBDIRS = editor old
 
-INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/arch/include -fwritable-strings
+CFLAGS += -fwritable-strings
 
-bin_PROGRAMS = d2x
+INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/arch/include
+
+bin_PROGRAMS = @TARGETS@
+
+EXTRA_PROGRAMS = d2x d2x-sdl d2x-ogl d2x-svga d2x-ggi
+
+LDFLAGS = -export-dynamic
+
+d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
+
+d2x_sdl_LDADD = ${d2x_LDADD} -lm -ldl -lpthread ${SDL_LIBS}
+d2x_ogl_LDADD = ${d2x_sdl_LDADD} ${OGL_LIBS}
+d2x_svga_LDADD = ${d2x_sdl_LDADD} ${SVGA_LIBS}
+d2x_ggi_LDADD = ${d2x_sdl_LDADD} ${GGI_LIBS}
 
 d2x_SOURCES = \
 ai.c	    gamerend.c  lighting.c	paging.c    switch.c \
@@ -19,28 +32,10 @@ credits.c   gamemine.c	kmatrix.c   newmenu.c	songs.c \
 crypt.c     gamepal.c	laser.c     object.c	state.c \
 console.c   cmd.c
 
-
-d2x_LDFLAGS = -export-dynamic
-
-if ENV_DJGPP
- d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a  ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
-
-else
- d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -ldl -lpthread ${SDL_LIBS}
-
-if USE_OPENGL
- d2x_LDADD += ${OGL_LIBS}
-endif
-
-if USE_SVGALIB
- d2x_LDADD += ${SVGA_LIBS}
-endif
-
-if USE_GGI
- d2x_LDADD += ${GGI_LIBS}
-endif
-
-endif
+d2x_sdl_SOURCES = ${d2x_SOURCES}
+d2x_ogl_SOURCES = ${d2x_SOURCES}
+d2x_svga_SOURCES = ${d2x_SOURCES}
+d2x_ggi_SOURCES = ${d2x_SOURCES}
 
 EXTRA_DIST = \
 descent.cfg inferno.ini \

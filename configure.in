@@ -1,4 +1,4 @@
-AC_INIT(main/game.c)
+AC_INIT(main/inferno.c)
 
 AM_CONFIG_HEADER(conf.h)
 AM_INIT_AUTOMAKE(d2x, 0.0.9)
@@ -34,13 +34,13 @@ AC_ARG_ENABLE(ndebug,
   esac],)
 
 # Test for DJGPP
+AM_CONDITIONAL(ENV_DJGPP, test "$OSTYPE" = "MSDOS")
 if test "$OSTYPE" = "MSDOS"; then
 
   CFLAGS="-I \$(top_srcdir)/arch/dos/include $CFLAGS"
-  AM_CONDITIONAL(ENV_DJGPP, test "$OSTYPE" = "MSDOS")
   AC_DEFINE(__ENV_DJGPP__)
   AC_PATH_PROG(NASM, nasmw, no)
-
+  TARGETS=d2x
 
 else
   CFLAGS="-D_REENTRANT -pipe $CFLAGS"
@@ -122,18 +122,23 @@ else
 
   if test x$opengl = xtrue; then
     AC_DEFINE(OGL)
+    TARGETS=d2x-ogl
   else
     if test x$svga = xtrue; then
       AC_DEFINE(SVGA)
+      TARGETS=d2x-svga
     else
       if test x$ggi = xtrue; then
         AC_DEFINE(GGI)
+        TARGETS=d2x-ggi
+      else
+        TARGETS=d2x-sdl
       fi
     fi
   fi
 
   AC_PATH_PROG(NASM, nasm, no)
-  CFLAGS="-I \$(top_srcdir)/input/linux/include -I \$(top_srcdir)/arch/linux/include $CFLAGS"
+  CFLAGS="-I\$(top_srcdir)/input/linux/include -I\$(top_srcdir)/arch/linux/include $CFLAGS"
 
 fi
 
@@ -175,9 +180,13 @@ if test "$NO_NETWORK" = 0; then
         AC_DEFINE(NETWORK)
 fi
 AM_CONDITIONAL(USE_ASM, test "$NO_ASM" != 1)
+AM_CONDITIONAL(USE_NETWORK, test "$NO_NETWORK" != 1)
+
 AC_SUBST(NASMFLAGS)
 
 AC_SUBST(CFLAGS)
+
+AC_SUBST(TARGETS)
 
 AC_ARG_PROGRAM
 
