@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.14 2002-08-30 08:04:44 btb Exp $ */
+/* $Id: titles.c,v 1.15 2002-09-14 00:32:52 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1065,7 +1065,7 @@ int show_briefing_message(int screen_num, char *message)
 				}
 				fname[i]=0;
 
-				if (MenuHires) {
+				{
 					char fname2[15];
 
 					i=0;
@@ -1080,9 +1080,11 @@ int show_briefing_message(int screen_num, char *message)
 					fname2[i++]='x';
 					fname2[i++]=0;
 
-					load_new_briefing_screen (cfexist(fname2)?fname2:fname);
-				} else
-					load_new_briefing_screen (fname);
+					if ((MenuHires && cfexist(fname2)) || !cfexist(fname))
+						load_new_briefing_screen (fname2);
+					else
+						load_new_briefing_screen (fname);
+				}
 
 				//load_new_briefing_screen (MenuHires?"end01b.pcx":"end01.pcx");
 
