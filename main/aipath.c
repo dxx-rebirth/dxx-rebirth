@@ -11,19 +11,28 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/aipath.c,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2001-11-13 21:17:49 $
+ *
+ * AI path forming stuff.
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #include <stdio.h>		//	for printf()
-#include <stdlib.h>		// for rand() and qsort()
+#include <stdlib.h>		// for d_rand() and qsort()
 #include <string.h>		// for memset()
 
 #include "inferno.h"
 #include "mono.h"
-#include "fix.h"
-#include "vecmat.h"
-#include "gr.h"
 #include "3d.h"
 
 #include "object.h"
@@ -33,29 +42,31 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fvi.h"
 #include "physics.h"
 #include "wall.h"
-#include "player.h"
-#include "fireball.h"
-#include "game.h"
-#include "maths.h"
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
+#include "player.h"
+#include "fireball.h"
+#include "game.h"
 
 #define	PARALLAX	0		//	If !0, then special debugging for Parallax eyes enabled.
 
 //	Length in segments of avoidance path
 #define	AVOID_SEG_LENGTH	7
 
+#ifdef NDEBUG
 #define	PATH_VALIDATION	0
+#else
+#define	PATH_VALIDATION	1
+#endif
 
-//	LINT:  Function prototypes
-int validate_path(int debug_flag, point_seg* psegs, int num_points);
 void validate_all_paths(void);
 void ai_path_set_orient_and_vel(object *objp, vms_vector* goal_point, int player_visibility, vms_vector *vec_to_player);
 void maybe_ai_path_garbage_collect(void);
-
 void ai_path_garbage_collect(void);
+#if PATH_VALIDATION
+int validate_path(int debug_flag, point_seg* psegs, int num_points);
+#endif
 
 //	------------------------------------------------------------------------
 void create_random_xlate(byte *xt)
@@ -66,7 +77,7 @@ void create_random_xlate(byte *xt)
 		xt[i] = i;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		int	j = (d_rand()*MAX_SIDES_PER_SEGMENT)/(RAND_MAX);
+		int	j = (d_rand()*MAX_SIDES_PER_SEGMENT)/(D_RAND_MAX+1);
 		byte	temp_byte;
 		Assert((j >= 0) && (j < MAX_SIDES_PER_SEGMENT));
 
@@ -1554,8 +1565,8 @@ void test_create_path_many(void)
 	int			i;
 
 	for (i=0; i<Test_size; i++) {
-		Cursegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / RAND_MAX];
-		Markedsegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / RAND_MAX];
+		Cursegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
+		Markedsegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
 		create_path_points(&Objects[0], Cursegp-Segments, Markedsegp-Segments, point_segs, &num_points, -1, 0, 0, -1);
 	}
 
