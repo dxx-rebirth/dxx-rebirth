@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.4 2001-01-24 04:42:21 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.5 2001-01-29 14:08:24 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -69,6 +69,10 @@ static char rcsid[] = "$Id: kconfig.c,v 1.4 2001-01-24 04:42:21 bradleyb Exp $";
 
 #include "d_delay.h"
 #include "collide.h"
+
+#ifdef __ENV_LINUX__
+#include "linux_joystick.h"
+#endif
 
 ubyte ExtGameStatus=1;
 
@@ -1524,8 +1528,13 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 void kc_change_joyaxis( kc_item * item )
 {
+#ifdef __ENV_LINUX
 	int axis[MAX_AXES];
 	int old_axis[MAX_AXES];
+#else
+	int axis[JOY_NUM_AXES];
+	int old_axis[JOY_NUM_AXES];
+#endif
 	int n,i,k;
 	ubyte code;
    WINDOS (
@@ -2670,7 +2679,11 @@ void controls_read_all()
 	int idx, idy;
 	fix ctime;
 	fix mouse_axis[2];
+#ifdef __ENV_LINUX__
 	int raw_joy_axis[MAX_AXES];
+#else
+	int raw_joy_axis[JOY_NUM_AXES];
+#endif
 	int mouse_buttons;
 	fix k0, k1, k2, k3, kp;
 	fix k4, k5, k6, k7, kh;
