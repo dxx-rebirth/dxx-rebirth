@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.14 2003-02-14 03:48:16 btb Exp $ */
+/* $Id: mveplay.c,v 1.15 2003-02-14 19:13:25 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -625,7 +625,7 @@ static int display_video_handler(unsigned char major, unsigned char minor, unsig
 		pSrc = g_vBackBuf1;
 		pDest = g_screen->bm_data + g_screen->bm_w * y + x;
 		for (i = 0; i < g_height; i++) {
-			memcpy(pDest, pSrc, g_width * (truecolor?2:1));
+			memcpy(pDest, pSrc, g_width * (g_truecolor?2:1));
 			pSrc += g_width * (g_truecolor?2:1);
 			pDest += g_screen->bm_w * (g_truecolor?2:1);
 		}
