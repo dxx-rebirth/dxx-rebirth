@@ -76,7 +76,7 @@ extern int Reactor_strength;
 
 #ifdef FAST_FILE_IO
 #define reactor_read_n(r, n, fp) cfread(r, sizeof(reactor), n, fp)
-#define control_center_triggers_read(cct, fp) cfread(cct, sizeof(control_center_triggers), 1, fp)
+#define control_center_triggers_read_n(cct, n, fp) cfread(cct, sizeof(control_center_triggers), n, fp)
 #else
 /*
  * reads n reactor structs from a CFILE
@@ -84,9 +84,9 @@ extern int Reactor_strength;
 extern int reactor_read_n(reactor *r, int n, CFILE *fp);
 
 /*
- * reads a control_center_triggers structure from a CFILE
+ * reads n control_center_triggers structs from a CFILE
  */
-extern void control_center_triggers_read(control_center_triggers *cct, CFILE *fp);
+extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp);
 #endif
 
 #endif

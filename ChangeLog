@@ -1,5 +1,8 @@
 2003-04-02  Bradley Bell  <btb@icculus.org>
 
+	* main/cntrlcen.c, main/cntrlcen.h, main/gamesave.c: modified
+	trigger reader
+
 	* main/wall.c: don't die when trying to toggle nonexistent
 	segment... vertigo level 10 is buggy!
 

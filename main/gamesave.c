@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.18 2003-02-28 03:54:55 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.19 2003-04-03 07:15:43 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1137,9 +1137,10 @@ int load_game_data(CFILE *LoadFile)
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
 
 	if (game_fileinfo.control_offset > -1)
-		if (!cfseek( LoadFile, game_fileinfo.control_offset,SEEK_SET )) {
-			Assert(game_fileinfo.control_howmany == 1);
-			control_center_triggers_read(&ControlCenterTriggers, LoadFile);
+		if (!cfseek(LoadFile, game_fileinfo.control_offset, SEEK_SET))
+		{
+			Assert(game_fileinfo.control_sizeof == sizeof(control_center_triggers));
+			control_center_triggers_read_n(&ControlCenterTriggers, game_fileinfo.control_howmany, LoadFile);
 		}
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============

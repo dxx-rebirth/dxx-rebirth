@@ -1,4 +1,4 @@
-/* $Id: cntrlcen.c,v 1.8 2003-03-01 01:51:15 btb Exp $ */
+/* $Id: cntrlcen.c,v 1.9 2003-04-03 07:15:43 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.8 2003-03-01 01:51:15 btb Exp $";
+static char rcsid[] = "$Id: cntrlcen.c,v 1.9 2003-04-03 07:15:43 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -530,14 +530,18 @@ extern int reactor_read_n(reactor *r, int n, CFILE *fp)
 /*
  * reads a control_center_triggers structure from a CFILE
  */
-extern void control_center_triggers_read(control_center_triggers *cct, CFILE *fp)
+extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp)
 {
-	int i;
+	int i, j;
 
-	cct->num_links = cfile_read_short(fp);
-	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
-		cct->seg[i] = cfile_read_short(fp);
-	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
-		cct->side[i] = cfile_read_short(fp);
+	for (i = 0; i < n; i++)
+	{
+		cct->num_links = cfile_read_short(fp);
+		for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
+			cct->seg[j] = cfile_read_short(fp);
+		for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
+			cct->side[j] = cfile_read_short(fp);
+	}
+	return i;
 }
 #endif
