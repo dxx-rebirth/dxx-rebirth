@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.23 2004-05-20 05:15:55 btb Exp $ */
+/* $Id: gr.c,v 1.24 2004-05-20 07:47:28 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -601,9 +601,9 @@ void gr_palette_step_up(int r, int g, int b)
 	old_b_g = ogl_brightness_g;
 	old_b_b = ogl_brightness_b;
 
-	ogl_brightness_r = r + gr_palette_gamma;
-	ogl_brightness_g = g + gr_palette_gamma;
-	ogl_brightness_b = b + gr_palette_gamma;
+	ogl_brightness_r = max(r + gr_palette_gamma, 0);
+	ogl_brightness_g = max(g + gr_palette_gamma, 0);
+	ogl_brightness_b = max(b + gr_palette_gamma, 0);
 
 	if (ogl_setgammaramp_ok &&
 	    (old_b_r != ogl_brightness_r ||
