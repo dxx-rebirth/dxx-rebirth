@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/joydefs.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-11-14 03:29:39 $
+ * $Date: 2001-11-14 03:56:53 $
  *
  * SDL joystick support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/11/14 03:29:39  bradleyb
+ * copied joydefs_config from linux/joydefs.c - controls menu now works
+ *
  * Revision 1.1  2001/10/24 09:25:05  bradleyb
  * Moved input stuff to arch subdirs, as in d1x.
  *
@@ -21,6 +24,7 @@
 #endif
 
 #include "joydefs.h"
+#include "pstypes.h"
 #include "newmenu.h"
 #include "config.h"
 #include "text.h"
