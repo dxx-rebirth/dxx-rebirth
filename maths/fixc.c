@@ -1,4 +1,4 @@
-/* $Id: fixc.c,v 1.5 2002-10-28 20:12:48 btb Exp $ */
+/* $Id: fixc.c,v 1.6 2004-01-08 16:48:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -51,7 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: fixc.c,v 1.5 2002-10-28 20:12:48 btb Exp $";
+static char rcsid[] = "$Id: fixc.c,v 1.6 2004-01-08 16:48:35 schaffner Exp $";
 #endif
 
 #include <stdlib.h>
@@ -64,7 +64,7 @@ static char rcsid[] = "$Id: fixc.c,v 1.5 2002-10-28 20:12:48 btb Exp $";
 #ifdef _MSC_VER
 #pragma message ("warning: FIX NOT INLINED")
 #else
-#warning "FIX NOT INLINED"
+// #warning "FIX NOT INLINED"        fixc is now stable
 #endif
 #endif
 

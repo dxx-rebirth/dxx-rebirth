@@ -96,7 +96,7 @@ test "x$exec_prefix" = "xNONE" && exec_prefix="${prefix}"
 dnl Set default locations to find data files.
 default_sharepath="$datadir/games/$PACKAGE"
 
-CFLAGS="-Wall $CFLAGS"
+CFLAGS="-Wall -Wno-char-subscripts $CFLAGS"
 
 dnl Enable editor build?
 AC_ARG_ENABLE(editor,
