@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.12 2002-08-06 05:06:38 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.13 2002-08-07 22:38:58 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -57,9 +57,9 @@ static char rcsid[] = "$Id: gamemine.c,v 1.12 2002-08-06 05:06:38 btb Exp $";
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
-fix	Level_shake_frequency = 0, Level_shake_duration = 0;
-int	Secret_return_segment = 0;
-vms_matrix	Secret_return_orient;
+fix Level_shake_frequency = 0, Level_shake_duration = 0;
+int Secret_return_segment = 0;
+vms_matrix Secret_return_orient;
 
 struct mtfi mine_top_fileinfo;    // Should be same as first two fields below...
 struct mfi mine_fileinfo;
@@ -67,79 +67,81 @@ struct mh mine_header;
 struct me mine_editor;
 
 typedef struct v16_segment {
-	#ifdef	EDITOR
-	short		segnum;								// segment number, not sure what it means
+	#ifdef EDITOR
+	short   segnum;             // segment number, not sure what it means
 	#endif
-	side		sides[MAX_SIDES_PER_SEGMENT];	// 6 sides
-	short		children[MAX_SIDES_PER_SEGMENT];	// indices of 6 children segments, front, left, top, right, bottom, back
-	short		verts[MAX_VERTICES_PER_SEGMENT];	// vertex ids of 4 front and 4 back vertices
-	#ifdef	EDITOR
-	short		group;								// group number to which the segment belongs.
+	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
+	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
+	short   verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
+	#ifdef  EDITOR
+	short   group;              // group number to which the segment belongs.
 	#endif
-	short		objects;								// pointer to objects in this segment
-	ubyte		special;								// what type of center this is 
-	byte		matcen_num;							//	which center segment is associated with.
-	short		value;
-	fix		static_light;						//average static light in segment
-	#ifndef	EDITOR
-	short		pad;			//make structure longword aligned
+	short   objects;            // pointer to objects in this segment
+	ubyte   special;            // what type of center this is
+	byte    matcen_num;         // which center segment is associated with.
+	short   value;
+	fix     static_light;       // average static light in segment
+	#ifndef EDITOR
+	short   pad;                // make structure longword aligned
 	#endif
 } v16_segment;
 
 struct mfi_v19 {
-	ushort	fileinfo_signature;
-	ushort	fileinfo_version;
-	int		fileinfo_sizeof;
-	int		header_offset;		// Stuff common to game & editor
-	int		header_size;
-	int		editor_offset;   // Editor specific stuff
-	int		editor_size;
-	int		segment_offset;
-	int		segment_howmany;
-	int		segment_sizeof;
-	int		newseg_verts_offset;
-	int		newseg_verts_howmany;
-	int		newseg_verts_sizeof;
-	int		group_offset;
-	int		group_howmany;
-	int		group_sizeof;
-	int		vertex_offset;
-	int		vertex_howmany;
-	int		vertex_sizeof;
-	int		texture_offset;
-	int		texture_howmany;
-	int		texture_sizeof;
-	int		walls_offset;
-	int		walls_howmany;
-	int		walls_sizeof;
-	int		triggers_offset;
-	int		triggers_howmany;
-	int		triggers_sizeof;
-	int		links_offset;
-	int		links_howmany;
-	int		links_sizeof;
-	int		object_offset;				// Object info
-	int	  	object_howmany;    	
-	int	  	object_sizeof;  
-	int	  	unused_offset;			//was: doors_offset
-	int		unused_howmamy;		//was: doors_howmany
-	int		unused_sizeof;			//was: doors_sizeof
-	short		level_shake_frequency, level_shake_duration;	//	Shakes every level_shake_frequency seconds
-																			// for level_shake_duration seconds (on average, random).  In 16ths second.
-	int		secret_return_segment;
-	vms_matrix	secret_return_orient;
+	ushort  fileinfo_signature;
+	ushort  fileinfo_version;
+	int     fileinfo_sizeof;
+	int     header_offset;      // Stuff common to game & editor
+	int     header_size;
+	int     editor_offset;      // Editor specific stuff
+	int     editor_size;
+	int     segment_offset;
+	int     segment_howmany;
+	int     segment_sizeof;
+	int     newseg_verts_offset;
+	int     newseg_verts_howmany;
+	int     newseg_verts_sizeof;
+	int     group_offset;
+	int     group_howmany;
+	int     group_sizeof;
+	int     vertex_offset;
+	int     vertex_howmany;
+	int     vertex_sizeof;
+	int     texture_offset;
+	int     texture_howmany;
+	int     texture_sizeof;
+	int     walls_offset;
+	int     walls_howmany;
+	int     walls_sizeof;
+	int     triggers_offset;
+	int     triggers_howmany;
+	int     triggers_sizeof;
+	int     links_offset;
+	int     links_howmany;
+	int     links_sizeof;
+	int     object_offset;      // Object info
+	int     object_howmany;
+	int     object_sizeof;
+	int     unused_offset;      // was: doors_offset
+	int     unused_howmamy;     // was: doors_howmany
+	int     unused_sizeof;      // was: doors_sizeof
+	short   level_shake_frequency;  // Shakes every level_shake_frequency seconds
+	short   level_shake_duration;   // for level_shake_duration seconds (on average, random).  In 16ths second.
+	int     secret_return_segment;
+	vms_matrix  secret_return_orient;
 
-	int		dl_indices_offset;
-	int		dl_indices_howmany;
-	int		dl_indices_sizeof;
+	int     dl_indices_offset;
+	int     dl_indices_howmany;
+	int     dl_indices_sizeof;
 
-	int		delta_light_offset;
-	int		delta_light_howmany;
-	int		delta_light_sizeof;
+	int     delta_light_offset;
+	int     delta_light_howmany;
+	int     delta_light_sizeof;
 
 };
 
 int CreateDefaultNewSegment();
+
+#define TMAP_NUM_MASK 0x3FFF
 
 /* converts descent 1 texture numbers to descent 2 texture numbers
  * textures whose names don't match between versions have extra spaces around "return"
@@ -157,7 +159,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case   8: return 2;
 	case   9:  return  62; // purple
 	case  10:  return  272; // red
-	case  11:  return  117; 
+	case  11:  return  117;
 	case  12:  return  12;
 	case  13: return 3;
 	case  14: return 4;
@@ -492,10 +494,10 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 343: return 366;
 	case 344: return 365;
 	case 345: return 368;
-	//case 346:  return  ;
+	case 346: return 376;
 	case 347: return 370;
 	case 348: return 367;
-	case 349: return 395;
+	case 349:  return  370;
 	case 350: return 369;
 	case 351: return 429;
 	case 352: return 387;
@@ -508,7 +510,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 359: return 386;
 	case 360: return 386;
 	case 361: return 387;
-	case 362:  return  388;
+	case 362:  return  388; // mntr04a
 	case 363: return 388;
 	case 364: return 391;
 	case 365: return 392;
@@ -516,8 +518,20 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 367: return 394;
 	case 368: return 395;
 	case 369: return 396;
-	case 370:  return  392;
-	default: return d1_tmap_num;
+	case 370:  return  392; // mntr04b
+	default:
+		if (d1_tmap_num > 370 && d1_tmap_num < 584) // wall01 and door frames
+			return d1_tmap_num + 64;
+		{ // the following case (orientation != 0) occurs rarely
+			short tmap_num = d1_tmap_num &  TMAP_NUM_MASK;
+			short orient = d1_tmap_num & ~TMAP_NUM_MASK;
+			if (orient == 0) {
+				mprintf((0, "Warning: convert_d1_tmap_num doesn't know tmap #%d.", tmap_num));
+				return d1_tmap_num;
+			} else {
+				return orient | convert_d1_tmap_num(tmap_num);
+			}
+		}
 	}
 }
 
@@ -848,8 +862,8 @@ int load_mine_data(CFILE *LoadFile)
 							Int3();
 							Segments[i].sides[j].tmap_num = NumTextures-1;
 						}
-					tmap_xlate = Segments[i].sides[j].tmap_num2 & 0x3FFF;
-					orient = Segments[i].sides[j].tmap_num2 & (~0x3FFF);
+					tmap_xlate = Segments[i].sides[j].tmap_num2 & TMAP_NUM_MASK;
+					orient = Segments[i].sides[j].tmap_num2 & (~TMAP_NUM_MASK);
 					if (tmap_xlate != 0) {
 						int xlated_tmap = tmap_xlate_table[tmap_xlate];
 
