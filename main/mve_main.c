@@ -1,4 +1,4 @@
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "mvelib.h"
 
@@ -32,7 +32,7 @@ static int doPlay(const char *filename)
     return 0;
 }
 
-int main(int c, char **v)
+int main(int c, char *v[])
 {
     if (c != 2  &&  c != 3)
         usage();

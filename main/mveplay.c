@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.11 2003-02-12 09:14:24 btb Exp $ */
+/* $Id: mveplay.c,v 1.12 2003-02-13 19:44:55 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -17,7 +17,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#if defined(STANDALONE) || defined(AUDIO)
 #include <SDL.h>
+#endif
 
 #include "mvelib.h"
 #include "mve_audio.h"
@@ -396,7 +398,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
  * video handlers
  *************************/
 int g_width, g_height;
-void *g_vBackBuf1, *g_vBackBuf2 = NULL;
+void *g_vBuffers, *g_vBackBuf1, *g_vBackBuf2;
 
 #ifdef STANDALONE
 static SDL_Surface *g_screen;
@@ -438,7 +440,7 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 #endif
 
 	/* TODO: * 4 causes crashes on some files */
-	g_vBackBuf1 = malloc(g_width * g_height * 8);
+	g_vBackBuf1 = g_vBuffers = malloc(g_width * g_height * 8);
 	if (truecolor) {
 		g_vBackBuf2 = (unsigned short *)g_vBackBuf1 + (g_width * g_height);
 	} else {
@@ -792,10 +794,8 @@ void mveplay_shutdownMovie(MVESTREAM *mve)
 		free(mve_audio_spec);
 	mve_audio_spec=NULL;
 
-	free(g_vBackBuf1);
-	g_vBackBuf1 = NULL;
-	free(g_vBackBuf2);
-	g_vBackBuf2 = NULL;
+	free(g_vBuffers);
+	g_vBuffers = NULL;
 	g_pCurMap=NULL;
 	g_nMapLength=0;
 }
