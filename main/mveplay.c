@@ -1,10 +1,12 @@
-/* $Id: mveplay.c,v 1.10 2003-02-12 08:58:38 btb Exp $ */
-#define AUDIO
-//#define DEBUG
-
+/* $Id: mveplay.c,v 1.11 2003-02-12 09:14:24 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
+
+#ifndef __MSDOS__
+#define AUDIO
+#endif
+//#define DEBUG
 
 #include <string.h>
 #include <errno.h>
@@ -117,12 +119,12 @@ static int create_timer_handler(unsigned char major, unsigned char minor, unsign
 	__extension__ long long temp;
 	micro_frame_delay = get_int(data) * (int)get_short(data+4);
 	if (g_spdFactorNum != 0)
-		{
-			temp = micro_frame_delay;
-			temp *= g_spdFactorNum;
-			temp /= g_spdFactorDenom;
-			micro_frame_delay = (int)temp;
-		}
+	{
+		temp = micro_frame_delay;
+		temp *= g_spdFactorNum;
+		temp /= g_spdFactorDenom;
+		micro_frame_delay = (int)temp;
+	}
 
 	return 1;
 }
@@ -140,11 +142,11 @@ static void timer_start(void)
 	gettimeofday(&timer_expire, NULL);
 	timer_expire.tv_usec += micro_frame_delay;
 	if (timer_expire.tv_usec > 1000000)
-		{
-			nsec = timer_expire.tv_usec / 1000000;
-			timer_expire.tv_sec += nsec;
-			timer_expire.tv_usec -= nsec*1000000;
-		}
+	{
+		nsec = timer_expire.tv_usec / 1000000;
+		timer_expire.tv_sec += nsec;
+		timer_expire.tv_usec -= nsec*1000000;
+	}
 	timer_started=1;
 }
 
@@ -165,10 +167,10 @@ static void do_timer_wait(void)
 	ts.tv_sec = timer_expire.tv_sec - tv.tv_sec;
 	ts.tv_nsec = 1000 * (timer_expire.tv_usec - tv.tv_usec);
 	if (ts.tv_nsec < 0)
-		{
-			ts.tv_nsec += 1000000000UL;
-			--ts.tv_sec;
-		}
+	{
+		ts.tv_nsec += 1000000000UL;
+		--ts.tv_sec;
+	}
 #ifdef __CYGWIN__
 	usleep(ts.tv_sec * 1000000 + ts.tv_nsec / 1000);
 #else
@@ -179,11 +181,11 @@ static void do_timer_wait(void)
  end:
 	timer_expire.tv_usec += micro_frame_delay;
 	if (timer_expire.tv_usec > 1000000)
-		{
-			nsec = timer_expire.tv_usec / 1000000;
-			timer_expire.tv_sec += nsec;
-			timer_expire.tv_usec -= nsec*1000000;
-		}
+	{
+		nsec = timer_expire.tv_usec / 1000000;
+		timer_expire.tv_sec += nsec;
+		timer_expire.tv_usec -= nsec*1000000;
+	}
 }
 
 /*************************
@@ -214,49 +216,49 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
 
 	while (mve_audio_bufhead != mve_audio_buftail                                           /* while we have more buffers  */
 		   &&  len > (mve_audio_buflens[mve_audio_bufhead]-mve_audio_curbuf_curpos))        /* and while we need more data */
-		{
-			length = mve_audio_buflens[mve_audio_bufhead]-mve_audio_curbuf_curpos;
-			memcpy(stream,                                                                  /* cur output position */
-				   ((unsigned char *)mve_audio_buffers[mve_audio_bufhead])+mve_audio_curbuf_curpos,           /* cur input position  */
-				   length);                                                                 /* cur input length    */
+	{
+		length = mve_audio_buflens[mve_audio_bufhead]-mve_audio_curbuf_curpos;
+		memcpy(stream,                                                                  /* cur output position */
+			   ((unsigned char *)mve_audio_buffers[mve_audio_bufhead])+mve_audio_curbuf_curpos,           /* cur input position  */
+			   length);                                                                 /* cur input length    */
 
-			total += length;
-			stream += length;                                                               /* advance output */
-			len -= length;                                                                  /* decrement avail ospace */
-			free(mve_audio_buffers[mve_audio_bufhead]);                                     /* free the buffer */
-			mve_audio_buffers[mve_audio_bufhead]=NULL;                                      /* free the buffer */
-			mve_audio_buflens[mve_audio_bufhead]=0;                                         /* free the buffer */
+		total += length;
+		stream += length;                                                               /* advance output */
+		len -= length;                                                                  /* decrement avail ospace */
+		free(mve_audio_buffers[mve_audio_bufhead]);                                     /* free the buffer */
+		mve_audio_buffers[mve_audio_bufhead]=NULL;                                      /* free the buffer */
+		mve_audio_buflens[mve_audio_bufhead]=0;                                         /* free the buffer */
 
-			if (++mve_audio_bufhead == TOTAL_AUDIO_BUFFERS)                                 /* next buffer */
-				mve_audio_bufhead = 0;
-			mve_audio_curbuf_curpos = 0;
-		}
+		if (++mve_audio_bufhead == TOTAL_AUDIO_BUFFERS)                                 /* next buffer */
+			mve_audio_bufhead = 0;
+		mve_audio_curbuf_curpos = 0;
+	}
 
 	//fprintf(stderr, "= <%d (%d), %d, %d>: %d\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len, total);
 	/*    return total; */
 
 	if (len != 0                                                                            /* ospace remaining  */
 		&&  mve_audio_bufhead != mve_audio_buftail)                                         /* buffers remaining */
+	{
+		memcpy(stream,                                                                  /* dest */
+			   ((unsigned char *)mve_audio_buffers[mve_audio_bufhead]) + mve_audio_curbuf_curpos,         /* src */
+			   len);                                                                    /* length */
+
+		mve_audio_curbuf_curpos += len;                                                 /* advance input */
+		stream += len;                                                                  /* advance output (unnecessary) */
+		len -= len;                                                                     /* advance output (unnecessary) */
+
+		if (mve_audio_curbuf_curpos >= mve_audio_buflens[mve_audio_bufhead])            /* if this ends the current chunk */
 		{
-			memcpy(stream,                                                                  /* dest */
-				   ((unsigned char *)mve_audio_buffers[mve_audio_bufhead]) + mve_audio_curbuf_curpos,         /* src */
-				   len);                                                                    /* length */
+			free(mve_audio_buffers[mve_audio_bufhead]);                             /* free buffer */
+			mve_audio_buffers[mve_audio_bufhead]=NULL;
+			mve_audio_buflens[mve_audio_bufhead]=0;
 
-			mve_audio_curbuf_curpos += len;                                                 /* advance input */
-			stream += len;                                                                  /* advance output (unnecessary) */
-			len -= len;                                                                     /* advance output (unnecessary) */
-
-			if (mve_audio_curbuf_curpos >= mve_audio_buflens[mve_audio_bufhead])            /* if this ends the current chunk */
-				{
-					free(mve_audio_buffers[mve_audio_bufhead]);                             /* free buffer */
-					mve_audio_buffers[mve_audio_bufhead]=NULL;
-					mve_audio_buflens[mve_audio_bufhead]=0;
-
-					if (++mve_audio_bufhead == TOTAL_AUDIO_BUFFERS)                         /* next buffer */
-						mve_audio_bufhead = 0;
-					mve_audio_curbuf_curpos = 0;
-				}
+			if (++mve_audio_bufhead == TOTAL_AUDIO_BUFFERS)                         /* next buffer */
+				mve_audio_bufhead = 0;
+			mve_audio_curbuf_curpos = 0;
 		}
+	}
 
 	//fprintf(stderr, "- <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 }
@@ -308,15 +310,15 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 	mve_audio_spec->callback = mve_audio_callback;
 	mve_audio_spec->userdata = NULL;
 	if (SDL_OpenAudio(mve_audio_spec, NULL) >= 0)
-		{
-			fprintf(stderr, "   success\n");
-			mve_audio_canplay = 1;
-		}
+	{
+		fprintf(stderr, "   success\n");
+		mve_audio_canplay = 1;
+	}
 	else
-		{
-			fprintf(stderr, "   failure : %s\n", SDL_GetError());
-			mve_audio_canplay = 0;
-		}
+	{
+		fprintf(stderr, "   failure : %s\n", SDL_GetError());
+		mve_audio_canplay = 0;
+	}
 
 	memset(mve_audio_buffers, 0, sizeof(mve_audio_buffers));
 	memset(mve_audio_buflens, 0, sizeof(mve_audio_buflens));
@@ -329,10 +331,10 @@ static int play_audio_handler(unsigned char major, unsigned char minor, unsigned
 {
 #ifdef AUDIO
 	if (mve_audio_canplay  &&  !mve_audio_playing  &&  mve_audio_bufhead != mve_audio_buftail)
-		{
-			SDL_PauseAudio(0);
-			mve_audio_playing = 1;
-		}
+	{
+		SDL_PauseAudio(0);
+		mve_audio_playing = 1;
+	}
 #endif
 	return 1;
 }
@@ -344,47 +346,47 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 	int chan;
 	int nsamp;
 	if (mve_audio_canplay)
+	{
+		if (mve_audio_playing)
+			SDL_LockAudio();
+
+		chan = get_ushort(data + 2);
+		nsamp = get_ushort(data + 4);
+		if (chan & selected_chan)
 		{
-			if (mve_audio_playing)
-				SDL_LockAudio();
+			/* HACK: +4 mveaudio_uncompress adds 4 more bytes */
+			if (major == MVE_OPCODE_AUDIOFRAMEDATA) {
+				if (mve_audio_compressed) {
+					nsamp += 4;
 
-			chan = get_ushort(data + 2);
-			nsamp = get_ushort(data + 4);
-			if (chan & selected_chan)
-				{
-					/* HACK: +4 mveaudio_uncompress adds 4 more bytes */
-					if (major == MVE_OPCODE_AUDIOFRAMEDATA) {
-						if (mve_audio_compressed) {
-							nsamp += 4;
+					mve_audio_buflens[mve_audio_buftail] = nsamp;
+					mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
+					mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail], data, -1); /* XXX */
+				} else {
+					nsamp -= 8;
+					data += 8;
 
-							mve_audio_buflens[mve_audio_buftail] = nsamp;
-							mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
-							mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail], data, -1); /* XXX */
-						} else {
-							nsamp -= 8;
-							data += 8;
-
-							mve_audio_buflens[mve_audio_buftail] = nsamp;
-							mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
-							memcpy(mve_audio_buffers[mve_audio_buftail], data, nsamp);
-						}
-					} else {
-						mve_audio_buflens[mve_audio_buftail] = nsamp;
-						mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
-
-						memset(mve_audio_buffers[mve_audio_buftail], 0, nsamp); /* XXX */
-					}
-
-					if (++mve_audio_buftail == TOTAL_AUDIO_BUFFERS)
-						mve_audio_buftail = 0;
-
-					if (mve_audio_buftail == mve_audio_bufhead)
-						fprintf(stderr, "d'oh!  buffer ring overrun (%d)\n", mve_audio_bufhead);
+					mve_audio_buflens[mve_audio_buftail] = nsamp;
+					mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
+					memcpy(mve_audio_buffers[mve_audio_buftail], data, nsamp);
 				}
+			} else {
+				mve_audio_buflens[mve_audio_buftail] = nsamp;
+				mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
 
-			if (mve_audio_playing)
-				SDL_UnlockAudio();
+				memset(mve_audio_buffers[mve_audio_buftail], 0, nsamp); /* XXX */
+			}
+
+			if (++mve_audio_buftail == TOTAL_AUDIO_BUFFERS)
+				mve_audio_buftail = 0;
+
+			if (mve_audio_buftail == mve_audio_bufhead)
+				fprintf(stderr, "d'oh!  buffer ring overrun (%d)\n", mve_audio_bufhead);
 		}
+
+		if (mve_audio_playing)
+			SDL_UnlockAudio();
+	}
 #endif
 
 	return 1;
@@ -566,10 +568,10 @@ static int display_video_handler(unsigned char major, unsigned char minor, unsig
 	do_sdl_events();
 #else
 	if (g_palette_changed)
-		{
-			gr_palette_load(g_palette);
-			g_palette_changed = 0;
-		}
+	{
+		gr_palette_load(g_palette);
+		g_palette_changed = 0;
+	}
 
 	memcpy(g_screen->bm_data, g_vBackBuf1, g_width * g_height);
 #endif
@@ -631,11 +633,11 @@ static int video_data_handler(unsigned char major, unsigned char minor, unsigned
 	nFlags     = get_ushort(data+12);
 
 	if (nFlags & 1)
-		{
-			temp = (unsigned char *)g_vBackBuf1;
-			g_vBackBuf1 = g_vBackBuf2;
-			g_vBackBuf2 = temp;
-		}
+	{
+		temp = (unsigned char *)g_vBackBuf1;
+		g_vBackBuf1 = g_vBackBuf2;
+		g_vBackBuf2 = temp;
+	}
 
 	/* convert the frame */
 	if (g_truecolor) {
