@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.14 2003-11-27 04:50:22 btb Exp $ */
+/* $Id: gr.c,v 1.15 2003-11-27 09:10:52 btb Exp $ */
 /*
  *
  * SDL video functions.
@@ -36,7 +36,7 @@ int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE;
 
 SDL_Surface *screen;
 #ifdef LANDSCAPE
-static SDL_Surface *real_screen;
+static SDL_Surface *real_screen, *screen2;
 #endif
 
 int gr_installed = 0;
@@ -72,12 +72,16 @@ inline void gr_dounlock(void) {
 /* Create a new rotated surface for drawing */
 SDL_Surface *CreateRotatedSurface(SDL_Surface *s)
 {
+#if 0
     return(SDL_CreateRGBSurface(s->flags, s->h, s->w,
     s->format->BitsPerPixel,
     s->format->Rmask,
     s->format->Gmask,
     s->format->Bmask,
     s->format->Amask));
+#else
+    return(SDL_CreateRGBSurface(s->flags, s->h, s->w, 8, 0, 0, 0, 0));
+#endif
 }
 
 /* Used to copy the rotated scratch surface to the screen */
@@ -126,9 +130,11 @@ void gr_update()
 //	gr_testunlock();
 	//end addition -MM
 #ifdef LANDSCAPE
-	BlitRotatedSurface(screen, real_screen);
-	SDL_SetColors(real_screen, screen->format->palette->colors, 0, 256);
+	screen2 = SDL_DisplayFormat(screen);
+	BlitRotatedSurface(screen2, real_screen);
+	//SDL_SetColors(real_screen, screen->format->palette->colors, 0, 256);
 	SDL_UpdateRect(real_screen, 0, 0, 0, 0);
+	SDL_FreeSurface(screen2);
 #else
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 #endif
@@ -187,7 +193,7 @@ int gr_set_mode(u_int32_t mode)
         // changed by someone on 980923 to add SDL_FULLSCREEN
 
 #ifdef LANDSCAPE
-	real_screen = SDL_SetVideoMode(h, w, 8, sdl_video_flags);
+	real_screen = SDL_SetVideoMode(h, w, 0, sdl_video_flags);
 	screen = CreateRotatedSurface(real_screen);
 #else
 	screen = SDL_SetVideoMode(w, h, 8, sdl_video_flags);

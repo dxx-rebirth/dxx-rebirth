@@ -1,3 +1,9 @@
+2003-11-27  Bradley Bell  <btb@icculus.org>
+
+	* arch/sdl/digi.c, arch/sdl/gr.c, arch/sdl/mouse.c,
+	arch/win32/findfile.c, main/inferno.c, main/titles.c: Pocket PC
+	fixes
+
 2003-11-26  Bradley Bell  <btb@icculus.org>
 
 	* libmve/decoder16.c, libmve/mve_main.c, main/newmenu.c: fix gcc

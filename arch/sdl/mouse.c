@@ -1,4 +1,4 @@
-/* $Id: mouse.c,v 1.6 2003-11-25 04:13:04 btb Exp $ */
+/* $Id: mouse.c,v 1.7 2003-11-27 09:10:52 btb Exp $ */
 /*
  *
  * SDL mouse driver.
@@ -18,6 +18,10 @@
 #include "timer.h"
 #include "event.h"
 #include "mouse.h"
+
+#ifdef _WIN32_WCE
+# define LANDSCAPE
+#endif
 
 #define MOUSE_MAX_BUTTONS       8
 
@@ -83,10 +87,17 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 
 void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 {
+#ifdef LANDSCAPE
+	Mouse.delta_y += mme->xrel;
+	Mouse.delta_x += mme->yrel;
+	Mouse.y += mme->xrel;
+	Mouse.x += mme->yrel;
+#else
 	Mouse.delta_x += mme->xrel;
 	Mouse.delta_y += mme->yrel;
 	Mouse.x += mme->xrel;
 	Mouse.y += mme->yrel;
+#endif
 }
 
 void mouse_flush()	// clears all mice events...
@@ -110,13 +121,19 @@ void mouse_flush()	// clears all mice events...
 	Mouse.x = 0;
 	Mouse.y = 0;
 	Mouse.z = 0;
-	SDL_GetMouseState(&Mouse.x, &Mouse.y); // necessary because polling only gives us the delta.
 }
 
 //========================================================================
 void mouse_get_pos( int *x, int *y )
 {
 	event_poll();
+#ifdef _WIN32_WCE // needed here only for touchpens?
+# ifdef LANDSCAPE
+	SDL_GetMouseState(&Mouse.y, &Mouse.x);
+# else
+	SDL_GetMouseState(&Mouse.x, &Mouse.y);
+# endif
+#endif
 	*x=Mouse.x;
 	*y=Mouse.y;
 }

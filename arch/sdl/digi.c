@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.11 2003-04-12 00:11:46 btb Exp $ */
+/* $Id: digi.c,v 1.12 2003-11-27 09:10:52 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -121,12 +121,18 @@ static const Uint8 mix8[] =
 typedef struct sound_object {
 	short		signature;		// A unique signature to this sound
 	ubyte		flags;			// Used to tell if this slot is used and/or currently playing, and how long.
+#ifdef _MSC_VER
+	ubyte   pad;            // needed for alignment
+#endif
 	fix		max_volume;		// Max volume that this sound is playing at
 	fix		max_distance;	        // The max distance that this sound can be heard at...
 	int		volume;			// Volume that this sound is playing at
 	int 		pan;			// Pan value that this sound is playing at
 	int		handle; 		// What handle this sound is playing on.  Valid only if SOF_PLAYING is set.
 	short		soundnum;		// The sound number that is playing
+#ifdef _MSC_VER
+	short   pad2;           // needed for alignment
+#endif
 	int     loop_start;     // The start point of the loop. -1 means no loop
 	int     loop_end;       // The end point of the loop
 	union {	

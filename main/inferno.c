@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.69 2003-11-27 00:36:14 btb Exp $ */
+/* $Id: inferno.c,v 1.70 2003-11-27 09:10:52 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1802,7 +1802,7 @@ void show_order_form()
 		//vfx_set_palette_sub( title_pal );
 		gr_palette_fade_in( title_pal, 32, 0 );
 		gr_update();
-		key_getch();
+		while (!key_inkey() && !mouse_button_state(0)) {} //key_getch();
 		gr_palette_fade_out( title_pal, 32, 0 );
 	}
 	else

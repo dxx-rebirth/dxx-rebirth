@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.27 2003-11-07 06:30:06 btb Exp $ */
+/* $Id: titles.c,v 1.28 2003-11-27 09:10:52 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -321,6 +321,8 @@ int local_key_inkey(void)
 	}
 
 	if (check_button_press())		//joystick or mouse button pressed?
+		rval = KEY_SPACEBAR;
+	else if (mouse_button_state(0))
 		rval = KEY_SPACEBAR;
 
 	#ifdef MACINTOSH
