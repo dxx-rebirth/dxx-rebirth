@@ -1,5 +1,6 @@
 2003-02-20  Bradley Bell <btb@icculus.org>
 
+	* main/bm.c, main/bm.h, main/endlevel.c: fixed up endlevel stuff
 	* arch/sdl/digi.c, main/kludge.c: oops, meant to say: fixed bug
 	#343, not "rest of solution to bug #344"
 	* arch/sdl/timer.c, include/timer.h: revert to more accurate

@@ -95,7 +95,7 @@ int bm_init_use_tbl(void);
 
 extern void bm_read_all(CFILE * fp);
 
-void load_exit_models();
+int load_exit_models();
 void free_exit_model_data();
 
 #endif

@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.10 2002-09-14 00:20:44 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.11 2003-02-21 07:14:32 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -205,7 +205,7 @@ int start_endlevel_movie()
 	int r;
 	ubyte save_pal[768];
 
-	//Assert(Current_mission_num == 0);		//only play movie for built-in mission
+	//Assert(Current_mission_num == Builtin_mission_num);   //only play movie for built-in mission
 
 	//Assert(N_MOVIES >= Last_level);
 	//Assert(N_MOVIES_SECRET >= -Last_secret_level);
@@ -307,16 +307,18 @@ void start_endlevel_sequence()
 	int movie_played = MOVIE_NOT_PLAYED;
 	static int inited = 0;
 
-	if (!inited && Piggy_hamfile_version >= 3) {
-		load_exit_models();
-		inited = 1;
+	if (!inited) {
+		if (Piggy_hamfile_version >= 3)
+			inited = load_exit_models();
+		else
+			inited = 1;
 	}
 
 	if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 		Newdemo_state = ND_STATE_PAUSED;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK) {		// don't do this if in playback mode
-		if (Current_mission_num == 0)		//only play movie for built-in mission
+		if (Current_mission_num == Builtin_mission_num) //only play movie for built-in mission
 			start_endlevel_movie();
 		strcpy(last_palette_loaded,"");		//force palette load next time
 		return;
@@ -344,23 +346,22 @@ void start_endlevel_sequence()
 	}
 #endif
 
-	if (1) { //Current_mission_num == 0) {		//only play movie for built-in mission
-
-		//try playing movie.  If it plays, great. if not, do rendered ending
-
+	if (Current_mission_num == Builtin_mission_num) {
+		// only play movie for built-in mission
 		if (!(Game_mode & GM_MULTI))
 			movie_played = start_endlevel_movie();
-
-		if (movie_played == MOVIE_NOT_PLAYED) {		//don't have movie.  Do rendered sequence
-		#ifndef WINDOWS
-			start_rendered_endlevel_sequence();
-		#endif
-			return;
-		}
-
 	}
-	else
-		gr_palette_fade_out(gr_palette, 32, 0);
+
+	if (inited && endlevel_data_loaded && (movie_played == MOVIE_NOT_PLAYED)) {
+		//don't have movie.  Do rendered sequence, if available
+#ifndef WINDOWS
+		start_rendered_endlevel_sequence();
+#endif
+		return;
+	}
+
+	//don't have movie or rendered sequence, fade out
+	gr_palette_fade_out(gr_palette, 32, 0);
 
 	PlayerFinishedLevel(0);		//done with level
 }
@@ -700,7 +701,8 @@ void do_endlevel_frame()
 
 			if (ConsoleObject->segnum == transition_segnum) {
 
-				if (start_endlevel_movie() != MOVIE_NOT_PLAYED)
+				if ((Current_mission_num == Builtin_mission_num) &&
+					(start_endlevel_movie() != MOVIE_NOT_PLAYED))
 					stop_endlevel_sequence();
 				else {
 					int objnum;
@@ -1488,6 +1490,7 @@ try_again:
 		if (!ifile) {
 			if (level_num==1) {
 				con_printf(CON_DEBUG, "Cannot load file text of binary version of <%s>\n",filename);
+				endlevel_data_loaded = 0;
 				return;
 			}
 			else {

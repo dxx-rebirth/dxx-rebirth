@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.20 2003-01-02 23:13:21 btb Exp $ */
+/* $Id: bm.c,v 1.21 2003-02-21 07:14:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -185,7 +185,7 @@ free_exit_model_data()
 void ogl_cache_polymodel_textures(int model_num);
 #endif
 
-void load_exit_models()
+int load_exit_models()
 {
 	CFILE *exit_hamfile;
 	int start_num;
@@ -195,7 +195,7 @@ void load_exit_models()
 	    !cfexist("rbot062.bbm") ||
 	    !cfexist("rbot063.bbm")) {
 		Warning("Can't load exit models!\n");
-		return;
+		return 0;
 	}
 
 	start_num = N_ObjBitmaps;
@@ -238,8 +238,12 @@ void load_exit_models()
 		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
 #endif
 
-	} else
+	} else {
 		Warning("Can't load exit models!\n");
+		return 0;
+	}
+
+	return 1;
 }
 
 
