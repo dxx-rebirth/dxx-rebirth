@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: switch.c,v 1.5 2001-11-08 10:30:28 bradleyb Exp $";
+static char rcsid[] = "$Id: switch.c,v 1.6 2002-07-27 04:39:23 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -635,7 +635,7 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 #endif
 	}
 }
-  
+
 void triggers_frame_process()
 {
 	int i;
@@ -645,3 +645,58 @@ void triggers_frame_process()
 			Triggers[i].time -= FrameTime;
 }
 
+/*
+ * reads a v29_trigger structure from a CFILE
+ */
+extern void v29_trigger_read(v29_trigger *t, CFILE *fp)
+{
+	int i;
+
+	t->type = cfile_read_byte(fp);
+	t->flags = cfile_read_short(fp);
+	t->value = cfile_read_fix(fp);
+	t->time = cfile_read_fix(fp);
+	t->link_num = cfile_read_byte(fp);
+	t->num_links = cfile_read_short(fp);
+	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+		t->seg[i] = cfile_read_short(fp);
+	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+		t->side[i] = cfile_read_short(fp);
+}
+
+/*
+ * reads a v30_trigger structure from a CFILE
+ */
+extern void v30_trigger_read(v30_trigger *t, CFILE *fp)
+{
+	int i;
+
+	t->flags = cfile_read_short(fp);
+	t->num_links = cfile_read_byte(fp);
+	t->pad = cfile_read_byte(fp);
+	t->value = cfile_read_fix(fp);
+	t->time = cfile_read_fix(fp);
+	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+		t->seg[i] = cfile_read_short(fp);
+	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+		t->side[i] = cfile_read_short(fp);
+}
+
+/*
+ * reads a trigger structure from a CFILE
+ */
+extern void trigger_read(trigger *t, CFILE *fp)
+{
+	int i;
+
+	t->type = cfile_read_byte(fp);
+	t->flags = cfile_read_byte(fp);
+	t->num_links = cfile_read_byte(fp);
+	t->pad = cfile_read_byte(fp);
+	t->value = cfile_read_fix(fp);
+	t->time = cfile_read_fix(fp);
+	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+		t->seg[i] = cfile_read_short(fp);
+	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+		t->side[i] = cfile_read_short(fp);
+}

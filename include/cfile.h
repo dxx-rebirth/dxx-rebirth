@@ -58,8 +58,10 @@ int cfile_read_int(CFILE *file);
 short cfile_read_short(CFILE *file);
 byte cfile_read_byte(CFILE *file);
 fix cfile_read_fix(CFILE *file);
+fixang cfile_read_fixang(CFILE *file);
 void cfile_read_vector(vms_vector *v, CFILE *file);
 void cfile_read_angvec(vms_angvec *v, CFILE *file);
+void cfile_read_matrix(vms_matrix *v, CFILE *file);
 
 extern char AltHogDir[];
 extern char AltHogdir_initialized;

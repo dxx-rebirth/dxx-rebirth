@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.4 2002-07-26 09:22:05 btb Exp $";
+static char rcsid[] = "$Id: cntrlcen.c,v 1.5 2002-07-27 04:39:23 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -513,11 +513,25 @@ void special_reactor_stuff(void)
 extern void reactor_read(reactor *r, CFILE *fp)
 {
 	int i;
-	
+
 	r->model_num = cfile_read_int(fp);
 	r->n_guns = cfile_read_int(fp);
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
 		cfile_read_vector(&(r->gun_points[i]), fp);
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
 		cfile_read_vector(&(r->gun_dirs[i]), fp);
+}
+
+/*
+ * reads a control_center_triggers structure from a CFILE
+ */
+extern void control_center_triggers_read(control_center_triggers *cct, CFILE *fp)
+{
+	int i;
+
+	cct->num_links = cfile_read_short(fp);
+	for (i=0; i<MAX_CONTROLCEN_LINKS; i++ )
+		cct->seg[i] = cfile_read_short( fp );
+	for (i=0; i<MAX_CONTROLCEN_LINKS; i++ )
+		cct->side[i] = cfile_read_short( fp );
 }

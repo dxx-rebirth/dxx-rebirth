@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.5 2002-07-26 09:22:05 btb Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.6 2002-07-27 04:39:23 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1550,9 +1550,9 @@ void blast_nearby_glass(object *objp, fix damage)
 void wclip_read(wclip *wc, CFILE *fp)
 {
 	int i;
-	
-	wc->play_time = cfile_read_fix(fp);;
-	wc->num_frames = cfile_read_short(fp);;
+
+	wc->play_time = cfile_read_fix(fp);
+	wc->num_frames = cfile_read_short(fp);
 	for (i = 0; i < MAX_CLIP_FRAMES; i++)
 		wc->frames[i] = cfile_read_short(fp);
 	wc->open_sound = cfile_read_short(fp);
@@ -1560,4 +1560,80 @@ void wclip_read(wclip *wc, CFILE *fp)
 	wc->flags = cfile_read_short(fp);
 	cfread(wc->filename, 13, 1, fp);
 	wc->pad = cfile_read_byte(fp);
+}
+
+/*
+ * reads a v16_wall structure from a CFILE
+ */
+extern void v16_wall_read(v16_wall *w, CFILE *fp)
+{
+	w->type = cfile_read_byte(fp);
+	w->flags = cfile_read_byte(fp);
+	w->hps = cfile_read_fix(fp);
+	w->trigger = cfile_read_byte(fp);
+	w->clip_num = cfile_read_byte(fp);
+	w->keys = cfile_read_byte(fp);
+}
+
+/*
+ * reads a v19_wall structure from a CFILE
+ */
+extern void v19_wall_read(v19_wall *w, CFILE *fp)
+{
+	w->segnum = cfile_read_int(fp);
+	w->sidenum = cfile_read_int(fp);
+	w->type = cfile_read_byte(fp);
+	w->flags = cfile_read_byte(fp);
+	w->hps = cfile_read_fix(fp);
+	w->trigger = cfile_read_byte(fp);
+	w->clip_num = cfile_read_byte(fp);
+	w->keys = cfile_read_byte(fp);
+	w->linked_wall = cfile_read_int(fp);
+}
+
+/*
+ * reads a wall structure from a CFILE
+ */
+extern void wall_read(wall *w, CFILE *fp)
+{
+	w->segnum = cfile_read_int(fp);
+	w->sidenum = cfile_read_int(fp);
+	w->hps = cfile_read_fix(fp);
+	w->linked_wall = cfile_read_int(fp);
+	w->type = cfile_read_byte(fp);
+	w->flags = cfile_read_byte(fp);
+	w->state = cfile_read_byte(fp);
+	w->trigger = cfile_read_byte(fp);
+	w->clip_num = cfile_read_byte(fp);
+	w->keys = cfile_read_byte(fp);
+	w->controlling_trigger = cfile_read_byte(fp);
+	w->cloak_value = cfile_read_byte(fp);
+}
+
+/*
+ * reads a v19_door structure from a CFILE
+ */
+extern void v19_door_read(v19_door *d, CFILE *fp)
+{
+	d->n_parts = cfile_read_int(fp);
+	d->seg[0] = cfile_read_short(fp);
+	d->seg[1] = cfile_read_short(fp);
+	d->side[0] = cfile_read_short(fp);
+	d->side[1] = cfile_read_short(fp);
+	d->type[0] = cfile_read_short(fp);
+	d->type[1] = cfile_read_short(fp);
+	d->open = cfile_read_fix(fp);
+}
+
+/*
+ * reads an active_door structure from a CFILE
+ */
+extern void active_door_read(active_door *ad, CFILE *fp)
+{
+	ad->n_parts = cfile_read_int(fp);
+	ad->front_wallnum[0] = cfile_read_short(fp);
+	ad->front_wallnum[1] = cfile_read_short(fp);
+	ad->back_wallnum[0] = cfile_read_short(fp);
+	ad->back_wallnum[1] = cfile_read_short(fp);
+	ad->time = cfile_read_fix(fp);
 }

@@ -26,10 +26,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	MAX_CONTROLCEN_LINKS		10
 
 typedef struct control_center_triggers {
-	short		num_links;
-	short 	seg[MAX_CONTROLCEN_LINKS];
-	short		side[MAX_CONTROLCEN_LINKS];
-} __pack__ control_center_triggers;
+	short   num_links;
+	short   seg[MAX_CONTROLCEN_LINKS];
+	short   side[MAX_CONTROLCEN_LINKS];
+} control_center_triggers;
 
 extern control_center_triggers ControlCenterTriggers;
 
@@ -78,5 +78,10 @@ extern int Reactor_strength;
  * reads a reactor structure from a CFILE
  */
 extern void reactor_read(reactor *r, CFILE *fp);
+
+/*
+ * reads a control_center_triggers structure from a CFILE
+ */
+extern void control_center_triggers_read(control_center_triggers *cct, CFILE *fp);
 
 #endif

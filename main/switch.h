@@ -46,6 +46,44 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TF_ONE_SHOT				2		// Only trigger once
 #define TF_DISABLED				4		// Set after one-shot fires
 
+//old trigger structs
+
+typedef struct v29_trigger {
+	byte    type;
+	short   flags;
+	fix     value;
+	fix     time;
+	byte    link_num;
+	short   num_links;
+	short   seg[MAX_WALLS_PER_LINK];
+	short   side[MAX_WALLS_PER_LINK];
+} v29_trigger;
+
+typedef struct v30_trigger {
+	short   flags;
+	byte    num_links;
+	byte    pad;                        //keep alignment
+	fix     value;
+	fix     time;
+	short   seg[MAX_WALLS_PER_LINK];
+	short   side[MAX_WALLS_PER_LINK];
+} v30_trigger;
+
+//flags for V30 & below triggers
+#define TRIGGER_CONTROL_DOORS      1    // Control Trigger
+#define TRIGGER_SHIELD_DAMAGE      2    // Shield Damage Trigger
+#define TRIGGER_ENERGY_DRAIN       4    // Energy Drain Trigger
+#define TRIGGER_EXIT               8    // End of level Trigger
+#define TRIGGER_ON                16    // Whether Trigger is active
+#define TRIGGER_ONE_SHOT          32    // If Trigger can only be triggered once
+#define TRIGGER_MATCEN            64    // Trigger for materialization centers
+#define TRIGGER_ILLUSION_OFF     128    // Switch Illusion OFF trigger
+#define TRIGGER_SECRET_EXIT      256    // Exit to secret level
+#define TRIGGER_ILLUSION_ON      512    // Switch Illusion ON trigger
+#define TRIGGER_UNLOCK_DOORS    1024    // Unlocks a door
+#define TRIGGER_OPEN_WALL       2048    // Makes a wall open
+#define TRIGGER_CLOSE_WALL      4096    // Makes a wall closed
+#define TRIGGER_ILLUSORY_WALL   8192    // Makes a wall illusory
 
 //the trigger really should have both a type & a flags, since most of the
 //flags bits are exclusive of the others.
@@ -58,7 +96,7 @@ typedef struct trigger {
 	fix		time;
 	short 	seg[MAX_WALLS_PER_LINK];
 	short		side[MAX_WALLS_PER_LINK];
-	} __pack__ trigger;
+} trigger;
 
 extern trigger Triggers[MAX_TRIGGERS];
 
@@ -68,5 +106,20 @@ extern void trigger_init();
 extern void check_trigger(segment *seg, short side, short objnum,int shot);
 extern int check_trigger_sub(int trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
+
+/*
+ * reads a v29_trigger structure from a CFILE
+ */
+extern void v29_trigger_read(v29_trigger *t, CFILE *fp);
+
+/*
+ * reads a v30_trigger structure from a CFILE
+ */
+extern void v30_trigger_read(v30_trigger *t, CFILE *fp);
+
+/*
+ * reads a trigger structure from a CFILE
+ */
+extern void trigger_read(trigger *t, CFILE *fp);
 
 #endif

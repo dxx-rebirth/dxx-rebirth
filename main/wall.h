@@ -78,7 +78,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WID_CLOAKED_FLAG			16
 
 //@@//	WALL_IS_DOORWAY return values			F/R/RP
-//@@#define WID_WALL						2	// 0/1/0		wall	
+//@@#define WID_WALL						2	// 0/1/0		wall
 //@@#define WID_TRANSPARENT_WALL		6	//	0/1/1		transparent wall
 //@@#define WID_ILLUSORY_WALL			3	//	1/1/0		illusory wall
 //@@#define WID_TRANSILLUSORY_WALL	7	//	1/1/1		transparent illusory wall
@@ -88,55 +88,87 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	MAX_STUCK_OBJECTS	32
 
 typedef struct stuckobj {
-	short	objnum, wallnum;
-	int	signature;
+    short   objnum, wallnum;
+    int     signature;
 } stuckobj;
 
+//Start old wall structures
+
+typedef struct v16_wall {
+	byte    type;               // What kind of special wall.
+	byte    flags;              // Flags for the wall.
+	fix     hps;                // "Hit points" of the wall.
+	byte    trigger;            // Which trigger is associated with the wall.
+	byte    clip_num;           // Which animation associated with the wall.
+	byte    keys;
+} v16_wall;
+
+typedef struct v19_wall {
+	int     segnum,sidenum;     // Seg & side for this wall
+	byte    type;               // What kind of special wall.
+	byte    flags;              // Flags for the wall.
+	fix     hps;                // "Hit points" of the wall.
+	byte    trigger;            // Which trigger is associated with the wall.
+	byte    clip_num;           // Which animation associated with the wall.
+	byte    keys;
+	int linked_wall;            // number of linked wall
+} v19_wall;
+
+typedef struct v19_door {
+	int     n_parts;            // for linked walls
+	short   seg[2];             // Segment pointer of door.
+	short   side[2];            // Side number of door.
+	short   type[2];            // What kind of door animation.
+	fix     open;               // How long it has been open.
+} v19_door;
+
+//End old wall structures
+
 typedef struct wall {
-	int	segnum,sidenum;	// Seg & side for this wall
-	fix   hps;				  	// "Hit points" of the wall. 
-	int	linked_wall;		// number of linked wall
-	ubyte	type; 			  	// What kind of special wall.
-	ubyte	flags;				// Flags for the wall.		
-	ubyte	state;				// Opening, closing, etc.
-	byte	trigger;				// Which trigger is associated with the wall.
-	byte	clip_num;			// Which	animation associated with the wall. 
-	ubyte	keys;					// which keys are required
-	byte	controlling_trigger;	// which trigger causes something to happen here.  Not like "trigger" above, which is the trigger on this wall.
-									//	Note: This gets stuffed at load time in gamemine.c.  Don't try to use it in the editor.  You will be sorry!
-	byte	cloak_value;		// if this wall is cloaked, the fade value
-	} __pack__ wall;
+	int     segnum,sidenum;     // Seg & side for this wall
+	fix     hps;                // "Hit points" of the wall.
+	int     linked_wall;        // number of linked wall
+	ubyte   type;               // What kind of special wall.
+	ubyte   flags;              // Flags for the wall.
+	ubyte   state;              // Opening, closing, etc.
+	byte    trigger;            // Which trigger is associated with the wall.
+	byte    clip_num;           // Which animation associated with the wall.
+	ubyte   keys;               // which keys are required
+	byte    controlling_trigger;// which trigger causes something to happen here.  Not like "trigger" above, which is the trigger on this wall.
+                                //  Note: This gets stuffed at load time in gamemine.c.  Don't try to use it in the editor.  You will be sorry!
+	byte    cloak_value;        // if this wall is cloaked, the fade value
+} wall;
 
 typedef struct active_door {
-	int		n_parts;					// for linked walls
-	short		front_wallnum[2];		// front wall numbers for this door
-	short		back_wallnum[2]; 		// back wall numbers for this door
-	fix		time;						// how long been opening, closing, waiting
-} __pack__ active_door;
+	int     n_parts;            // for linked walls
+	short   front_wallnum[2];   // front wall numbers for this door
+	short   back_wallnum[2];    // back wall numbers for this door
+	fix     time;               // how long been opening, closing, waiting
+} active_door;
 
 typedef struct cloaking_wall {
-	short		front_wallnum;		// front wall numbers for this door
-	short		back_wallnum; 		// back wall numbers for this door
-	fix		front_ls[4]; 		// front wall saved light values
-	fix		back_ls[4];	 		// back wall saved light values
-	fix		time;			 		// how long been cloaking or decloaking
+	short       front_wallnum;  // front wall numbers for this door
+	short       back_wallnum;   // back wall numbers for this door
+	fix     front_ls[4];        // front wall saved light values
+	fix     back_ls[4];         // back wall saved light values
+	fix     time;               // how long been cloaking or decloaking
 } __pack__ cloaking_wall;
 
 //wall clip flags
-#define WCF_EXPLODES		1		//door explodes when opening
-#define WCF_BLASTABLE	2		//this is a blastable wall
-#define WCF_TMAP1			4		//this uses primary tmap, not tmap2
-#define WCF_HIDDEN		8		//this uses primary tmap, not tmap2
+#define WCF_EXPLODES    1       //door explodes when opening
+#define WCF_BLASTABLE   2       //this is a blastable wall
+#define WCF_TMAP1       4       //this uses primary tmap, not tmap2
+#define WCF_HIDDEN      8       //this uses primary tmap, not tmap2
 
 typedef struct {
-	fix				play_time;
-	short				num_frames;
-	short				frames[MAX_CLIP_FRAMES];
-	short				open_sound;
-	short				close_sound;
-	short				flags;
-	char				filename[13];
-	char				pad;
+	fix     play_time;
+	short   num_frames;
+	short   frames[MAX_CLIP_FRAMES];
+	short   open_sound;
+	short   close_sound;
+	short   flags;
+	char    filename[13];
+	char    pad;
 } wclip;
 
 extern char	Wall_names[7][10];
@@ -227,5 +259,30 @@ void start_wall_decloak(segment *seg, int side);
  * reads a wclip structure from a CFILE
  */
 extern void wclip_read(wclip *wc, CFILE *fp);
+
+/*
+ * reads a v16_wall structure from a CFILE
+ */
+extern void v16_wall_read(v16_wall *w, CFILE *fp);
+
+/*
+ * reads a v19_wall structure from a CFILE
+ */
+extern void v19_wall_read(v19_wall *w, CFILE *fp);
+
+/*
+ * reads a wall structure from a CFILE
+ */
+extern void wall_read(wall *w, CFILE *fp);
+
+/*
+ * reads a v19_door structure from a CFILE
+ */
+extern void v19_door_read(v19_door *d, CFILE *fp);
+
+/*
+ * reads an active_door structure from a CFILE
+ */
+extern void active_door_read(active_door *ad, CFILE *fp);
 
 #endif

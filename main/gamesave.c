@@ -1,3 +1,4 @@
+/* $Id $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,26 +13,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/gamesave.c,v $
- * $Revision: 1.6 $
- * $Author: bradleyb $
- * $Date: 2001-11-14 09:34:32 $
  *
  * Save game information
  *
- * $Log: not supported by cvs2svn $
  *
  */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.6 2001-11-14 09:34:32 bradleyb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.7 2002-07-27 04:39:23 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -93,77 +86,6 @@ char Gamesave_current_filename[128];
 
 #define MENU_CURSOR_X_MIN			MENU_X
 #define MENU_CURSOR_X_MAX			MENU_X+6
-
-//Start old wall structures
-
-typedef struct v16_wall {
-	byte  type; 			  	// What kind of special wall.
-	byte	flags;				// Flags for the wall.		
-	fix   hps;				  	// "Hit points" of the wall. 
-	byte	trigger;				// Which trigger is associated with the wall.
-	byte	clip_num;			// Which	animation associated with the wall. 
-	byte	keys;
-	} v16_wall;
-
-typedef struct v19_wall {
-	int	segnum,sidenum;	// Seg & side for this wall
-	byte	type; 			  	// What kind of special wall.
-	byte	flags;				// Flags for the wall.		
-	fix   hps;				  	// "Hit points" of the wall. 
-	byte	trigger;				// Which trigger is associated with the wall.
-	byte	clip_num;			// Which	animation associated with the wall. 
-	byte	keys;
-	int	linked_wall;		// number of linked wall
-	} v19_wall;
-
-typedef struct v19_door {
-	int		n_parts;					// for linked walls
-	short 	seg[2]; 					// Segment pointer of door.
-	short 	side[2];					// Side number of door.
-	short 	type[2];					// What kind of door animation.
-	fix 		open;						//	How long it has been open.
-} v19_door;
-
-//End old wall structures
-
-//old trigger structs
-
-typedef struct v29_trigger {
-	byte		type;
-	short		flags;
-	fix		value;
-	fix		time;
-	byte		link_num;
-	short 	num_links;
-	short 	seg[MAX_WALLS_PER_LINK];
-	short		side[MAX_WALLS_PER_LINK];
-	} v29_trigger;
-
-typedef struct v30_trigger {
-	short		flags;
-	byte	 	num_links;
-	byte		pad;			//keep alignment
-	fix		value;
-	fix		time;
-	short 	seg[MAX_WALLS_PER_LINK];
-	short		side[MAX_WALLS_PER_LINK];
-	} v30_trigger;
-
-//flags for V30 & below triggers
-#define	TRIGGER_CONTROL_DOORS		1	// Control Trigger
-#define	TRIGGER_SHIELD_DAMAGE		2	// Shield Damage Trigger
-#define	TRIGGER_ENERGY_DRAIN	   	4	// Energy Drain Trigger
-#define	TRIGGER_EXIT					8	// End of level Trigger
-#define	TRIGGER_ON					  16	// Whether Trigger is active
-#define	TRIGGER_ONE_SHOT			  32	// If Trigger can only be triggered once
-#define	TRIGGER_MATCEN				  64	// Trigger for materialization centers
-#define	TRIGGER_ILLUSION_OFF		 128	// Switch Illusion OFF trigger
-#define	TRIGGER_SECRET_EXIT		 256	// Exit to secret level
-#define	TRIGGER_ILLUSION_ON		 512	// Switch Illusion ON trigger
-#define	TRIGGER_UNLOCK_DOORS		1024	// Unlocks a door
-#define	TRIGGER_OPEN_WALL			2048	// Makes a wall open
-#define	TRIGGER_CLOSE_WALL		4096	// Makes a wall closed
-#define	TRIGGER_ILLUSORY_WALL	8192	// Makes a wall illusory
 
 struct {
 	ushort 	fileinfo_signature;
@@ -443,81 +365,6 @@ void verify_object( object * obj )	{
 
 }
 
-static int read_int(CFILE *file)
-{
-	int i;
-
-	if (cfread( &i, sizeof(i), 1, file) != 1)
-		Error( "Error reading int in gamesave.c" );
-
-	i = INTEL_INT(i);
-	return i;
-}
-
-static fix read_fix(CFILE *file)
-{
-	fix f;
-
-	if (cfread( &f, sizeof(f), 1, file) != 1)
-		Error( "Error reading fix in gamesave.c" );
-
-	f = (fix)INTEL_INT((int)f);
-	return f;
-}
-
-static short read_short(CFILE *file)
-{
-	short s;
-
-	if (cfread( &s, sizeof(s), 1, file) != 1)
-		Error( "Error reading short in gamesave.c" );
-
-	s = INTEL_SHORT(s);
-	return s;
-}
-
-static short read_fixang(CFILE *file)
-{
-	fixang f;
-
-	if (cfread( &f, sizeof(f), 1, file) != 1)
-		Error( "Error reading fixang in gamesave.c" );
-
-	f = (fixang)INTEL_SHORT((short)f);
-	return f;
-}
-
-static byte read_byte(CFILE *file)
-{
-	byte b;
-
-	if (cfread( &b, sizeof(b), 1, file) != 1)
-		Error( "Error reading byte in gamesave.c" );
-
-	return b;
-}
-
-static void read_vector(vms_vector *v,CFILE *file)
-{
-	v->x = read_fix(file);
-	v->y = read_fix(file);
-	v->z = read_fix(file);
-}
-
-static void read_matrix(vms_matrix *m,CFILE *file)
-{
-	read_vector(&m->rvec,file);
-	read_vector(&m->uvec,file);
-	read_vector(&m->fvec,file);
-}
-
-static void read_angvec(vms_angvec *v,CFILE *file)
-{
-	v->p = read_fixang(file);
-	v->b = read_fixang(file);
-	v->h = read_fixang(file);
-}
-
 //static gs_skip(int len,CFILE *file)
 //{
 //
@@ -589,54 +436,54 @@ extern int multi_powerup_is_4pack(int);
 void read_object(object *obj,CFILE *f,int version)
 {
 	
-	obj->type				= read_byte(f);
-	obj->id					= read_byte(f);
+	obj->type				= cfile_read_byte(f);
+	obj->id					= cfile_read_byte(f);
 
 	if (obj->type == OBJ_CNTRLCEN && version<28)
 		obj->id = 0;		//used to be only one kind of reactor
 
-	obj->control_type		= read_byte(f);
-	obj->movement_type	= read_byte(f);
-	obj->render_type		= read_byte(f);
-	obj->flags				= read_byte(f);
+	obj->control_type		= cfile_read_byte(f);
+	obj->movement_type	= cfile_read_byte(f);
+	obj->render_type		= cfile_read_byte(f);
+	obj->flags				= cfile_read_byte(f);
 
-	obj->segnum				= read_short(f);
+	obj->segnum				= cfile_read_short(f);
 	obj->attached_obj		= -1;
 
-	read_vector(&obj->pos,f);
-	read_matrix(&obj->orient,f);
+	cfile_read_vector(&obj->pos,f);
+	cfile_read_matrix(&obj->orient,f);
 
-	obj->size				= read_fix(f);
-	obj->shields			= read_fix(f);
+	obj->size				= cfile_read_fix(f);
+	obj->shields			= cfile_read_fix(f);
 
-	read_vector(&obj->last_pos,f);
+	cfile_read_vector(&obj->last_pos,f);
 
-	obj->contains_type	= read_byte(f);
-	obj->contains_id		= read_byte(f);
-	obj->contains_count	= read_byte(f);
+	obj->contains_type	= cfile_read_byte(f);
+	obj->contains_id		= cfile_read_byte(f);
+	obj->contains_count	= cfile_read_byte(f);
 
 	switch (obj->movement_type) {
 
 		case MT_PHYSICS:
 
-			read_vector(&obj->mtype.phys_info.velocity,f);
-			read_vector(&obj->mtype.phys_info.thrust,f);
+			cfile_read_vector(&obj->mtype.phys_info.velocity,f);
+			cfile_read_vector(&obj->mtype.phys_info.thrust,f);
 
-			obj->mtype.phys_info.mass		= read_fix(f);
-			obj->mtype.phys_info.drag		= read_fix(f);
-			obj->mtype.phys_info.brakes	= read_fix(f);
+			obj->mtype.phys_info.mass		= cfile_read_fix(f);
+			obj->mtype.phys_info.drag		= cfile_read_fix(f);
+			obj->mtype.phys_info.brakes	= cfile_read_fix(f);
 
-			read_vector(&obj->mtype.phys_info.rotvel,f);
-			read_vector(&obj->mtype.phys_info.rotthrust,f);
+			cfile_read_vector(&obj->mtype.phys_info.rotvel,f);
+			cfile_read_vector(&obj->mtype.phys_info.rotthrust,f);
 
-			obj->mtype.phys_info.turnroll	= read_fixang(f);
-			obj->mtype.phys_info.flags		= read_short(f);
+			obj->mtype.phys_info.turnroll	= cfile_read_fixang(f);
+			obj->mtype.phys_info.flags		= cfile_read_short(f);
 
 			break;
 
 		case MT_SPINNING:
 
-			read_vector(&obj->mtype.spin_rate,f);
+			cfile_read_vector(&obj->mtype.spin_rate,f);
 			break;
 
 		case MT_NONE:
@@ -651,19 +498,19 @@ void read_object(object *obj,CFILE *f,int version)
 		case CT_AI: {
 			int i;
 
-			obj->ctype.ai_info.behavior				= read_byte(f);
+			obj->ctype.ai_info.behavior				= cfile_read_byte(f);
 
 			for (i=0;i<MAX_AI_FLAGS;i++)
-				obj->ctype.ai_info.flags[i]			= read_byte(f);
+				obj->ctype.ai_info.flags[i]			= cfile_read_byte(f);
 
-			obj->ctype.ai_info.hide_segment			= read_short(f);
-			obj->ctype.ai_info.hide_index			= read_short(f);
-			obj->ctype.ai_info.path_length			= read_short(f);
-			obj->ctype.ai_info.cur_path_index		= read_short(f);
+			obj->ctype.ai_info.hide_segment			= cfile_read_short(f);
+			obj->ctype.ai_info.hide_index			= cfile_read_short(f);
+			obj->ctype.ai_info.path_length			= cfile_read_short(f);
+			obj->ctype.ai_info.cur_path_index		= cfile_read_short(f);
 
 			if (version <= 25) {
-				read_short(f);	//				obj->ctype.ai_info.follow_path_start_seg	= 
-				read_short(f);	//				obj->ctype.ai_info.follow_path_end_seg		= 
+				cfile_read_short(f);	//				obj->ctype.ai_info.follow_path_start_seg	= 
+				cfile_read_short(f);	//				obj->ctype.ai_info.follow_path_end_seg		= 
 			}
 
 			break;
@@ -671,9 +518,9 @@ void read_object(object *obj,CFILE *f,int version)
 
 		case CT_EXPLOSION:
 
-			obj->ctype.expl_info.spawn_time		= read_fix(f);
-			obj->ctype.expl_info.delete_time		= read_fix(f);
-			obj->ctype.expl_info.delete_objnum	= read_short(f);
+			obj->ctype.expl_info.spawn_time		= cfile_read_fix(f);
+			obj->ctype.expl_info.delete_time		= cfile_read_fix(f);
+			obj->ctype.expl_info.delete_objnum	= cfile_read_short(f);
 			obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
 
 			break;
@@ -682,21 +529,21 @@ void read_object(object *obj,CFILE *f,int version)
 
 			//do I really need to read these?  Are they even saved to disk?
 
-			obj->ctype.laser_info.parent_type		= read_short(f);
-			obj->ctype.laser_info.parent_num		= read_short(f);
-			obj->ctype.laser_info.parent_signature	= read_int(f);
+			obj->ctype.laser_info.parent_type		= cfile_read_short(f);
+			obj->ctype.laser_info.parent_num		= cfile_read_short(f);
+			obj->ctype.laser_info.parent_signature	= cfile_read_int(f);
 
 			break;
 
 		case CT_LIGHT:
 
-			obj->ctype.light_info.intensity = read_fix(f);
+			obj->ctype.light_info.intensity = cfile_read_fix(f);
 			break;
 
 		case CT_POWERUP:
 
 			if (version >= 25)
-				obj->ctype.powerup_info.count = read_int(f);
+				obj->ctype.powerup_info.count = cfile_read_int(f);
 			else
 				obj->ctype.powerup_info.count = 1;
 
@@ -740,14 +587,14 @@ void read_object(object *obj,CFILE *f,int version)
 		case RT_POLYOBJ: {
 			int i,tmo;
 
-			obj->rtype.pobj_info.model_num		= read_int(f);
+			obj->rtype.pobj_info.model_num		= cfile_read_int(f);
 
 			for (i=0;i<MAX_SUBMODELS;i++)
-				read_angvec(&obj->rtype.pobj_info.anim_angles[i],f);
+				cfile_read_angvec(&obj->rtype.pobj_info.anim_angles[i],f);
 
-			obj->rtype.pobj_info.subobj_flags	= read_int(f);
+			obj->rtype.pobj_info.subobj_flags	= cfile_read_int(f);
 
-			tmo = read_int(f);
+			tmo = cfile_read_int(f);
 
 			#ifndef EDITOR
 			obj->rtype.pobj_info.tmap_override	= tmo;
@@ -775,9 +622,9 @@ void read_object(object *obj,CFILE *f,int version)
 		case RT_POWERUP:
 		case RT_FIREBALL:
 
-			obj->rtype.vclip_info.vclip_num	= read_int(f);
-			obj->rtype.vclip_info.frametime	= read_fix(f);
-			obj->rtype.vclip_info.framenum	= read_byte(f);
+			obj->rtype.vclip_info.vclip_num	= cfile_read_int(f);
+			obj->rtype.vclip_info.frametime	= cfile_read_fix(f);
+			obj->rtype.vclip_info.framenum	= cfile_read_byte(f);
 
 			break;
 
@@ -1024,9 +871,9 @@ int load_game_data(CFILE *LoadFile)
 //	if (cfread( &game_top_fileinfo, sizeof(game_top_fileinfo), 1, LoadFile) != 1)
 //		Error( "Error reading game_top_fileinfo in gamesave.c" );
 
-	game_top_fileinfo.fileinfo_signature = read_short(LoadFile);
-	game_top_fileinfo.fileinfo_version = read_short(LoadFile);
-	game_top_fileinfo.fileinfo_sizeof = read_int(LoadFile);
+	game_top_fileinfo.fileinfo_signature = cfile_read_short(LoadFile);
+	game_top_fileinfo.fileinfo_version = cfile_read_short(LoadFile);
+	game_top_fileinfo.fileinfo_sizeof = cfile_read_int(LoadFile);
 
 	// Check signature
 	if (game_top_fileinfo.fileinfo_signature != 0x6705)
@@ -1043,44 +890,44 @@ int load_game_data(CFILE *LoadFile)
 //	if (cfread( &game_fileinfo, game_top_fileinfo.fileinfo_sizeof, 1, LoadFile )!=1)
 //		Error( "Error reading game_fileinfo in gamesave.c" );
 
-	game_fileinfo.fileinfo_signature = read_short(LoadFile);
-	game_fileinfo.fileinfo_version = read_short(LoadFile);
-	game_fileinfo.fileinfo_sizeof = read_int(LoadFile);
+	game_fileinfo.fileinfo_signature = cfile_read_short(LoadFile);
+	game_fileinfo.fileinfo_version = cfile_read_short(LoadFile);
+	game_fileinfo.fileinfo_sizeof = cfile_read_int(LoadFile);
 	for(i=0; i<15; i++)
-		game_fileinfo.mine_filename[i] = read_byte(LoadFile);
-	game_fileinfo.level = read_int(LoadFile);
-	game_fileinfo.player_offset = read_int(LoadFile);				// Player info
-	game_fileinfo.player_sizeof = read_int(LoadFile);
-	game_fileinfo.object_offset = read_int(LoadFile);				// Object info
-	game_fileinfo.object_howmany = read_int(LoadFile);    	
-	game_fileinfo.object_sizeof = read_int(LoadFile);  
-	game_fileinfo.walls_offset = read_int(LoadFile);
-	game_fileinfo.walls_howmany = read_int(LoadFile);
-	game_fileinfo.walls_sizeof = read_int(LoadFile);
-	game_fileinfo.doors_offset = read_int(LoadFile);
-	game_fileinfo.doors_howmany = read_int(LoadFile);
-	game_fileinfo.doors_sizeof = read_int(LoadFile);
-	game_fileinfo.triggers_offset = read_int(LoadFile);
-	game_fileinfo.triggers_howmany = read_int(LoadFile);
-	game_fileinfo.triggers_sizeof = read_int(LoadFile);
-	game_fileinfo.links_offset = read_int(LoadFile);
-	game_fileinfo.links_howmany = read_int(LoadFile);
-	game_fileinfo.links_sizeof = read_int(LoadFile);
-	game_fileinfo.control_offset = read_int(LoadFile);
-	game_fileinfo.control_howmany = read_int(LoadFile);
-	game_fileinfo.control_sizeof = read_int(LoadFile);
-	game_fileinfo.matcen_offset = read_int(LoadFile);
-	game_fileinfo.matcen_howmany = read_int(LoadFile);
-	game_fileinfo.matcen_sizeof = read_int(LoadFile);
+		game_fileinfo.mine_filename[i] = cfile_read_byte(LoadFile);
+	game_fileinfo.level = cfile_read_int(LoadFile);
+	game_fileinfo.player_offset = cfile_read_int(LoadFile);				// Player info
+	game_fileinfo.player_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.object_offset = cfile_read_int(LoadFile);				// Object info
+	game_fileinfo.object_howmany = cfile_read_int(LoadFile);    	
+	game_fileinfo.object_sizeof = cfile_read_int(LoadFile);  
+	game_fileinfo.walls_offset = cfile_read_int(LoadFile);
+	game_fileinfo.walls_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.walls_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.doors_offset = cfile_read_int(LoadFile);
+	game_fileinfo.doors_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.doors_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.triggers_offset = cfile_read_int(LoadFile);
+	game_fileinfo.triggers_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.triggers_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.links_offset = cfile_read_int(LoadFile);
+	game_fileinfo.links_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.links_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.control_offset = cfile_read_int(LoadFile);
+	game_fileinfo.control_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.control_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.matcen_offset = cfile_read_int(LoadFile);
+	game_fileinfo.matcen_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.matcen_sizeof = cfile_read_int(LoadFile);
 
 	if (game_top_fileinfo.fileinfo_version >= 29) {
-		game_fileinfo.dl_indices_offset = read_int(LoadFile);
-		game_fileinfo.dl_indices_howmany = read_int(LoadFile);
-		game_fileinfo.dl_indices_sizeof = read_int(LoadFile);
+		game_fileinfo.dl_indices_offset = cfile_read_int(LoadFile);
+		game_fileinfo.dl_indices_howmany = cfile_read_int(LoadFile);
+		game_fileinfo.dl_indices_sizeof = cfile_read_int(LoadFile);
 
-		game_fileinfo.delta_light_offset = read_int(LoadFile);
-		game_fileinfo.delta_light_howmany = read_int(LoadFile);
-		game_fileinfo.delta_light_sizeof = read_int(LoadFile);
+		game_fileinfo.delta_light_offset = cfile_read_int(LoadFile);
+		game_fileinfo.delta_light_howmany = cfile_read_int(LoadFile);
+		game_fileinfo.delta_light_sizeof = cfile_read_int(LoadFile);
 	}
 
 	if (game_top_fileinfo.fileinfo_version >= 14) {	//load mine filename
@@ -1098,7 +945,7 @@ int load_game_data(CFILE *LoadFile)
 
 	if (game_top_fileinfo.fileinfo_version >= 19) {	//load pof names
 //		cfread(&N_save_pof_names,2,1,LoadFile);
-		N_save_pof_names = read_short(LoadFile);
+		N_save_pof_names = cfile_read_short(LoadFile);
 		cfread(Save_pof_names,N_save_pof_names,FILENAME_LEN,LoadFile);
 	}
 
@@ -1132,39 +979,14 @@ int load_game_data(CFILE *LoadFile)
 		if (!cfseek( LoadFile, game_fileinfo.walls_offset,SEEK_SET ))	{
 			for (i=0;i<game_fileinfo.walls_howmany;i++) {
 
-				if (game_top_fileinfo.fileinfo_version >= 20) {
-
-					Assert(sizeof(Walls[i]) == game_fileinfo.walls_sizeof);
-
-// code to correctly read wall structure on mac.  I'm assuming only v20 walls
-// and up.
-#ifndef MACINTOSH
-					if (cfread(&Walls[i], game_fileinfo.walls_sizeof, 1,LoadFile)!=1)
-						Error( "Error reading Walls[%d] in gamesave.c", i);
-#else
-					Walls[i].segnum = read_int(LoadFile);
-					Walls[i].sidenum = read_int(LoadFile);
-					Walls[i].hps = read_fix(LoadFile);
-					Walls[i].linked_wall = read_int(LoadFile);
-					Walls[i].type = read_byte(LoadFile);
-					Walls[i].flags = read_byte(LoadFile);
-					Walls[i].state = read_byte(LoadFile);
-					Walls[i].trigger = read_byte(LoadFile);
-					Walls[i].clip_num = read_byte(LoadFile);
-					Walls[i].keys = read_byte(LoadFile);
-					Walls[i].controlling_trigger = read_byte(LoadFile);
-					Walls[i].cloak_value = read_byte(LoadFile);
-#endif
-				}
+				if (game_top_fileinfo.fileinfo_version >= 20)
+					wall_read(&Walls[i], LoadFile); // v20 walls and up.
 				else if (game_top_fileinfo.fileinfo_version >= 17) {
 					v19_wall w;
 
-					Assert(sizeof(w) == game_fileinfo.walls_sizeof);
+					v19_wall_read(&w, LoadFile);
 
-					if (cfread(&w, game_fileinfo.walls_sizeof, 1,LoadFile)!=1)
-						Error( "Error reading Walls[%d] in gamesave.c", i);
-
-					Walls[i].segnum		= w.segnum;
+					Walls[i].segnum	        = w.segnum;
 					Walls[i].sidenum		= w.sidenum;
 					Walls[i].linked_wall	= w.linked_wall;
 
@@ -1176,14 +998,10 @@ int load_game_data(CFILE *LoadFile)
 					Walls[i].keys			= w.keys;
 
 					Walls[i].state			= WALL_DOOR_CLOSED;
-				}
-				else {
+				} else {
 					v16_wall w;
 
-					Assert(sizeof(w) == game_fileinfo.walls_sizeof);
-
-					if (cfread(&w, game_fileinfo.walls_sizeof, 1,LoadFile)!=1)
-						Error( "Error reading Walls[%d] in gamesave.c", i);
+					v16_wall_read(&w, LoadFile);
 
 					Walls[i].segnum = Walls[i].sidenum = Walls[i].linked_wall = -1;
 
@@ -1207,31 +1025,13 @@ int load_game_data(CFILE *LoadFile)
 
 			for (i=0;i<game_fileinfo.doors_howmany;i++) {
 
-				if (game_top_fileinfo.fileinfo_version >= 20) {
-
-					Assert(sizeof(ActiveDoors[i]) == game_fileinfo.doors_sizeof);
-
-// code to read doors for mac -- assume version 20 and greater for doors
-#ifndef MACINTOSH
-					if (cfread(&ActiveDoors[i], game_fileinfo.doors_sizeof,1,LoadFile)!=1)
-						Error( "Error reading ActiveDoors[%d] in gamesave.c", i);
-#else
-					ActiveDoors[i].n_parts = read_int(LoadFile);
-					ActiveDoors[i].front_wallnum[0] = read_short(LoadFile);
-					ActiveDoors[i].front_wallnum[1] = read_short(LoadFile);
-					ActiveDoors[i].back_wallnum[0] = read_short(LoadFile);
-					ActiveDoors[i].back_wallnum[1] = read_short(LoadFile);
-					ActiveDoors[i].time = read_fix(LoadFile);
-#endif
-				}
+				if (game_top_fileinfo.fileinfo_version >= 20)
+					active_door_read(&ActiveDoors[i], LoadFile); // version 20 and up
 				else {
 					v19_door d;
 					int p;
 
-					Assert(sizeof(d) == game_fileinfo.doors_sizeof);
-
-					if (cfread(&d, game_fileinfo.doors_sizeof, 1,LoadFile)!=1)
-						Error( "Error reading Doors[%d] in gamesave.c", i);
+					v19_door_read(&d, LoadFile);
 
 					ActiveDoors[i].n_parts = d.n_parts;
 
@@ -1268,24 +1068,22 @@ int load_game_data(CFILE *LoadFile)
 					if (game_top_fileinfo.fileinfo_version < 30) {
 						v29_trigger trig29;
 						int t;
-	
-						if (cfread(&trig29, game_fileinfo.triggers_sizeof,1,LoadFile)!=1)
-							Error( "Error reading Triggers[%d] in gamesave.c", i);
-	
+
+						v29_trigger_read(&trig29, LoadFile);
+
 						trig.flags		= trig29.flags;
 						trig.num_links	= trig29.num_links;
 						trig.num_links	= trig29.num_links;
 						trig.value		= trig29.value;
 						trig.time		= trig29.time;
-	
+
 						for (t=0;t<trig.num_links;t++) {
 							trig.seg[t]  = trig29.seg[t];
 							trig.side[t] = trig29.side[t];
 						}
 					}
 					else
-						if (cfread(&trig, game_fileinfo.triggers_sizeof,1,LoadFile)!=1)
-							Error( "Error reading Triggers[%d] in gamesave.c", i);
+						v30_trigger_read(&trig, LoadFile);
 
 					//Assert(trig.flags & TRIGGER_ON);
 					trig.flags &= ~TRIGGER_ON;
@@ -1319,56 +1117,29 @@ int load_game_data(CFILE *LoadFile)
 					else
 						Int3();
 
-					Triggers[i].type			= type;
-					Triggers[i].flags			= 0;
-					Triggers[i].num_links	= trig.num_links;
-					Triggers[i].num_links	= trig.num_links;
-					Triggers[i].value			= trig.value;
-					Triggers[i].time			= trig.time;
+					Triggers[i].type        = type;
+					Triggers[i].flags       = 0;
+					Triggers[i].num_links   = trig.num_links;
+					Triggers[i].num_links   = trig.num_links;
+					Triggers[i].value       = trig.value;
+					Triggers[i].time        = trig.time;
 
 					for (t=0;t<trig.num_links;t++) {
 						Triggers[i].seg[t] = trig.seg[t];
 						Triggers[i].side[t] = trig.side[t];
 					}
 				}
-				else {
-#ifndef MACINTOSH
-					if (cfread(&Triggers[i], game_fileinfo.triggers_sizeof,1,LoadFile)!=1)
-						Error( "Error reading Triggers[%d] in gamesave.c", i);
-#else
-					Triggers[i].type = read_byte(LoadFile);
-					Triggers[i].flags = read_byte(LoadFile);
-					Triggers[i].num_links = read_byte(LoadFile);
-					Triggers[i].pad = read_byte(LoadFile);
-					Triggers[i].value = read_fix(LoadFile);
-					Triggers[i].time = read_fix(LoadFile);
-					for (j=0; j<MAX_WALLS_PER_LINK; j++ )	
-						Triggers[i].seg[j] = read_short(LoadFile);
-					for (j=0; j<MAX_WALLS_PER_LINK; j++ )
-						Triggers[i].side[j] = read_short(LoadFile);
-#endif
-				}
+				else
+					trigger_read(&Triggers[i], LoadFile);
 		}
 	}
 
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
 
 	if (game_fileinfo.control_offset > -1)
-	{
-		if (!cfseek( LoadFile, game_fileinfo.control_offset,SEEK_SET ))	{
+		if (!cfseek( LoadFile, game_fileinfo.control_offset,SEEK_SET ))
 			for (i=0;i<game_fileinfo.control_howmany;i++)
-#ifndef MACINTOSH
-				if (cfread(&ControlCenterTriggers, game_fileinfo.control_sizeof,1,LoadFile)!=1)
-					Error( "Error reading ControlCenterTriggers in gamesave.c");
-#else
-				ControlCenterTriggers.num_links = read_short(LoadFile);
-				for (j=0; j<MAX_CONTROLCEN_LINKS; j++ )
-					ControlCenterTriggers.seg[j] = read_short( LoadFile );
-				for (j=0; j<MAX_CONTROLCEN_LINKS; j++ )
-					ControlCenterTriggers.side[j] = read_short( LoadFile );
-#endif
-		}
-	}
+				control_center_triggers_read(&ControlCenterTriggers, LoadFile);
 
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
@@ -1397,12 +1168,12 @@ int load_game_data(CFILE *LoadFile)
 					if (cfread(&RobotCenters[i], game_fileinfo.matcen_sizeof,1,LoadFile)!=1)
 						Error( "Error reading RobotCenters in gamesave.c");
 #else
-					RobotCenters[i].robot_flags[0] = read_int(LoadFile);
-					RobotCenters[i].robot_flags[1] = read_int(LoadFile);
-					RobotCenters[i].hit_points = read_fix(LoadFile);
-					RobotCenters[i].interval = read_fix(LoadFile);
-					RobotCenters[i].segnum = read_short(LoadFile);
-					RobotCenters[i].fuelcen_num = read_short(LoadFile);
+					RobotCenters[i].robot_flags[0] = cfile_read_int(LoadFile);
+					RobotCenters[i].robot_flags[1] = cfile_read_int(LoadFile);
+					RobotCenters[i].hit_points = cfile_read_fix(LoadFile);
+					RobotCenters[i].interval = cfile_read_fix(LoadFile);
+					RobotCenters[i].segnum = cfile_read_short(LoadFile);
+					RobotCenters[i].fuelcen_num = cfile_read_short(LoadFile);
 #endif
 				}
 
@@ -1437,10 +1208,10 @@ int load_game_data(CFILE *LoadFile)
 					if (cfread(&Dl_indices[i], game_fileinfo.dl_indices_sizeof, 1, LoadFile) != 1)
 						Error( "Error reading Dl_indices in gamesave.c");
 #else
-					Dl_indices[i].segnum = read_short(LoadFile);					
-					Dl_indices[i].sidenum = read_byte(LoadFile);
-					Dl_indices[i].count = read_byte(LoadFile);
-					Dl_indices[i].index = read_short(LoadFile);
+					Dl_indices[i].segnum = cfile_read_short(LoadFile);					
+					Dl_indices[i].sidenum = cfile_read_byte(LoadFile);
+					Dl_indices[i].count = cfile_read_byte(LoadFile);
+					Dl_indices[i].index = cfile_read_short(LoadFile);
 #endif
 				}
 
@@ -1465,13 +1236,13 @@ int load_game_data(CFILE *LoadFile)
 					if (cfread(&Delta_lights[i], game_fileinfo.delta_light_sizeof, 1, LoadFile) != 1)
 						Error( "Error reading Delta Lights in gamesave.c");
 #else
-					Delta_lights[i].segnum = read_short(LoadFile);
-					Delta_lights[i].sidenum = read_byte(LoadFile);
-					Delta_lights[i].dummy = read_byte(LoadFile);
-					Delta_lights[i].vert_light[0] = read_byte(LoadFile);
-					Delta_lights[i].vert_light[1] = read_byte(LoadFile);
-					Delta_lights[i].vert_light[2] = read_byte(LoadFile);
-					Delta_lights[i].vert_light[3] = read_byte(LoadFile);
+					Delta_lights[i].segnum = cfile_read_short(LoadFile);
+					Delta_lights[i].sidenum = cfile_read_byte(LoadFile);
+					Delta_lights[i].dummy = cfile_read_byte(LoadFile);
+					Delta_lights[i].vert_light[0] = cfile_read_byte(LoadFile);
+					Delta_lights[i].vert_light[1] = cfile_read_byte(LoadFile);
+					Delta_lights[i].vert_light[2] = cfile_read_byte(LoadFile);
+					Delta_lights[i].vert_light[3] = cfile_read_byte(LoadFile);
 #endif
 				}
 
@@ -1728,10 +1499,10 @@ int load_level(char * filename_passed)
 //		newdemo_record_start_demo();
 //	#endif
 
-	sig					= read_int(LoadFile);
-	version				= read_int(LoadFile);
-	minedata_offset		= read_int(LoadFile);
-	gamedata_offset		= read_int(LoadFile);
+	sig					= cfile_read_int(LoadFile);
+	version				= cfile_read_int(LoadFile);
+	minedata_offset		= cfile_read_int(LoadFile);
+	gamedata_offset		= cfile_read_int(LoadFile);
 
 	Assert(sig == MAKE_SIG('P','L','V','L'));
 
@@ -1739,9 +1510,9 @@ int load_level(char * filename_passed)
 #ifdef NETWORK
 		if (HoardEquipped())
 		{
-			read_int(LoadFile);
-			read_short(LoadFile);
-			read_byte(LoadFile);
+			cfile_read_int(LoadFile);
+			cfile_read_short(LoadFile);
+			cfile_read_byte(LoadFile);
 		}
 		else
 #endif
@@ -1751,7 +1522,7 @@ int load_level(char * filename_passed)
 	}
 
 	if (version < 5)
-		read_int(LoadFile);		//was hostagetext_offset
+		cfile_read_int(LoadFile);		//was hostagetext_offset
 
 	if (version > 1) {
 		cfgets(Current_level_palette,sizeof(Current_level_palette),LoadFile);
@@ -1760,26 +1531,26 @@ int load_level(char * filename_passed)
 	}
 
 	if (version >= 3)
-		Base_control_center_explosion_time = read_int(LoadFile);
+		Base_control_center_explosion_time = cfile_read_int(LoadFile);
 	else
 		Base_control_center_explosion_time = DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
 		
 	if (version >= 4)
-		Reactor_strength = read_int(LoadFile);
+		Reactor_strength = cfile_read_int(LoadFile);
 	else
 		Reactor_strength = -1;	//use old defaults
 
 	if (version >= 7) {
-		Num_flickering_lights = read_int(LoadFile);
+		Num_flickering_lights = cfile_read_int(LoadFile);
 		#ifdef MACINTOSH
 			Assert((Num_flickering_lights >= 0) && (Num_flickering_lights < MAX_FLICKERING_LIGHTS));
 			for (i = 0; i < Num_flickering_lights; i++)
 			{
-				Flickering_lights[i].segnum 	= read_short(LoadFile);
-				Flickering_lights[i].sidenum 	= read_short(LoadFile);
-				Flickering_lights[i].mask		= read_int(LoadFile);
-				Flickering_lights[i].timer		= read_fix(LoadFile);
-				Flickering_lights[i].delay		= read_fix(LoadFile);
+				Flickering_lights[i].segnum 	= cfile_read_short(LoadFile);
+				Flickering_lights[i].sidenum 	= cfile_read_short(LoadFile);
+				Flickering_lights[i].mask		= cfile_read_int(LoadFile);
+				Flickering_lights[i].timer		= cfile_read_fix(LoadFile);
+				Flickering_lights[i].delay		= cfile_read_fix(LoadFile);
 			}
 		#else
 			cfread(Flickering_lights,sizeof(*Flickering_lights),Num_flickering_lights,LoadFile);
@@ -1797,16 +1568,16 @@ int load_level(char * filename_passed)
 		Secret_return_orient.fvec.x =    0;	Secret_return_orient.fvec.y = F1_0;		Secret_return_orient.fvec.z = 0;
 		Secret_return_orient.uvec.x =    0;	Secret_return_orient.uvec.y = 0;			Secret_return_orient.uvec.z = F1_0;
 	} else {
-		Secret_return_segment = read_int(LoadFile);
-		Secret_return_orient.rvec.x = read_int(LoadFile);
-		Secret_return_orient.rvec.y = read_int(LoadFile);
-		Secret_return_orient.rvec.z = read_int(LoadFile);
-		Secret_return_orient.fvec.x = read_int(LoadFile);
-		Secret_return_orient.fvec.y = read_int(LoadFile);
-		Secret_return_orient.fvec.z = read_int(LoadFile);
-		Secret_return_orient.uvec.x = read_int(LoadFile);
-		Secret_return_orient.uvec.y = read_int(LoadFile);
-		Secret_return_orient.uvec.z = read_int(LoadFile);
+		Secret_return_segment = cfile_read_int(LoadFile);
+		Secret_return_orient.rvec.x = cfile_read_int(LoadFile);
+		Secret_return_orient.rvec.y = cfile_read_int(LoadFile);
+		Secret_return_orient.rvec.z = cfile_read_int(LoadFile);
+		Secret_return_orient.fvec.x = cfile_read_int(LoadFile);
+		Secret_return_orient.fvec.y = cfile_read_int(LoadFile);
+		Secret_return_orient.fvec.z = cfile_read_int(LoadFile);
+		Secret_return_orient.uvec.x = cfile_read_int(LoadFile);
+		Secret_return_orient.uvec.y = cfile_read_int(LoadFile);
+		Secret_return_orient.uvec.z = cfile_read_int(LoadFile);
 	}
 
 	cfseek(LoadFile,minedata_offset,SEEK_SET);

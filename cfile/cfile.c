@@ -497,3 +497,11 @@ void cfile_read_angvec(vms_angvec *v, CFILE *file)
 	v->b = cfile_read_fixang(file);
 	v->h = cfile_read_fixang(file);
 }
+
+void cfile_read_matrix(vms_matrix *m,CFILE *file)
+{
+	cfile_read_vector(&m->rvec,file);
+	cfile_read_vector(&m->uvec,file);
+	cfile_read_vector(&m->fvec,file);
+}
+
