@@ -1,3 +1,8 @@
+2003-11-04  Bradley Bell  <btb@icculus.org>
+
+	* main/mission.c, main/mission.h, main/piggy.h: added hogsize for
+	oem d1 v1.0 and registered d2 v1.0, comments
+
 2003-11-03  Bradley Bell  <btb@icculus.org>
 
 	* main/bm.h, main/piggy.c, main/piggy.h: big pigsize is same for

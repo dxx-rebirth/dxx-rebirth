@@ -1,4 +1,4 @@
-/* $Id: piggy.h,v 1.23 2003-11-03 12:03:44 btb Exp $ */
+/* $Id: piggy.h,v 1.24 2003-11-04 08:03:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -78,8 +78,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define D1_SHARE_PIGSIZE        2509799 // v1.4
 #define D1_10_BIG_PIGSIZE       7640220 // v1.0 before RLE compression
 #define D1_10_PIGSIZE           4520145 // v1.0
-#define D1_PIGSIZE              4920305 // v1.4 - 1.5
-#define D1_OEM_PIGSIZE          5039735 // Destination: Saturn
+#define D1_PIGSIZE              4920305 // v1.4 - 1.5 (Incl. OEM v1.4a)
+#define D1_OEM_PIGSIZE          5039735 // v1.0
 #define D1_MAC_PIGSIZE          3975533
 #define D1_MAC_SHARE_PIGSIZE    2714487
 

@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.23 2003-10-12 09:38:48 btb Exp $ */
+/* $Id: mission.c,v 1.24 2003-11-04 08:03:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -197,6 +197,7 @@ int load_mission_d1(int mission_num)
 
 		break;
 	case D1_OEM_MISSION_HOGSIZE:
+	case D1_OEM_10_MISSION_HOGSIZE:
 		N_secret_levels = 1;
 
 		Last_level = 15;
@@ -484,6 +485,7 @@ void add_d1_builtin_mission_to_list(int *count)
 		Mission_list[*count].anarchy_only_flag = 0;
 		break;
 	case D1_OEM_MISSION_HOGSIZE:
+	case D1_OEM_10_MISSION_HOGSIZE:
 		strcpy(Mission_list[*count].filename, D1_MISSION_FILENAME);
 		strcpy(Mission_list[*count].mission_name, D1_OEM_MISSION_NAME);
 		Mission_list[*count].anarchy_only_flag = 0;
@@ -530,6 +532,7 @@ void add_builtin_mission_to_list(int *count)
 		Warning("Unknown hogsize %d, trying %s\n", Builtin_mission_hogsize, FULL_MISSION_FILENAME ".mn2");
 		Int3(); //fall through
 	case FULL_MISSION_HOGSIZE:
+	case FULL_10_MISSION_HOGSIZE:
 	case MAC_FULL_MISSION_HOGSIZE:
 		if (!read_mission_file(FULL_MISSION_FILENAME ".mn2", 0, ML_CURDIR))
 			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
@@ -678,6 +681,7 @@ int load_mission(int mission_num)
 		case D1_10_MISSION_HOGSIZE:
 		case D1_MAC_MISSION_HOGSIZE:
 		case D1_OEM_MISSION_HOGSIZE:
+		case D1_OEM_10_MISSION_HOGSIZE:
 		case D1_SHAREWARE_MISSION_HOGSIZE:
 		case D1_SHAREWARE_10_MISSION_HOGSIZE:
 		case D1_MAC_SHARE_MISSION_HOGSIZE:
@@ -698,6 +702,7 @@ int load_mission(int mission_num)
 		default:
 			Int3(); // fall through
 		case FULL_MISSION_HOGSIZE:
+		case FULL_10_MISSION_HOGSIZE:
 		case MAC_FULL_MISSION_HOGSIZE:
 			// continue on... (use d2.mn2 from hogfile)
 			break;
