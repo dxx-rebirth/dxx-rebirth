@@ -1,4 +1,4 @@
-/* $Id: 3d.h,v 1.7 2002-10-28 20:57:11 btb Exp $ */
+/* $Id: 3d.h,v 1.8 2002-10-28 21:13:17 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -356,7 +356,7 @@ void g3_remap_interp_colors(void);
 #ifdef WORDS_BIGENDIAN
 void swap_polygon_model_data(ubyte *data);
 #else
-#define swap_polygon_model_date(data)
+#define swap_polygon_model_data(data)
 #endif
 
 #endif
