@@ -1,4 +1,4 @@
-/* $Id: segment.c,v 1.6 2005-01-24 21:33:28 schaffner Exp $ */
+/* $Id: segment.c,v 1.7 2005-04-01 12:41:47 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1816,8 +1816,11 @@ int create_new_mine(void)
 	num_groups = 0;
 	current_group = -1;
 
+
 	Num_vertices = 0;		// Number of vertices in global array.
+	Highest_vertex_index = 0;
 	Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
+	Highest_segment_index = 0;
 	Cursegp = Segments;	// Say current segment is the only segment.
 	Curside = WBACK;		// The active side is the back side
 	Markedsegp = 0;		// Say there is no marked segment.
