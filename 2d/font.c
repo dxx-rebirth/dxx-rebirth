@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.26 2003-11-26 12:26:23 btb Exp $ */
+/* $Id: font.c,v 1.27 2004-05-15 16:25:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1572,6 +1572,18 @@ void gr_remap_color_fonts()
 		font = open_font[fontnum].ptr;
 
 		if (font && (font->ft_flags & FT_COLOR))
+			gr_remap_font(font, open_font[fontnum].filename, open_font[fontnum].dataptr);
+	}
+}
+
+void gr_remap_mono_fonts()
+{
+	int fontnum;
+	con_printf (CON_DEBUG, "gr_remap_mono_fonts ()\n");
+	for (fontnum=0;fontnum<MAX_OPEN_FONTS;fontnum++) {
+		grs_font *font;
+		font = open_font[fontnum].ptr;
+		if (font && !(font->ft_flags & FT_COLOR))
 			gr_remap_font(font, open_font[fontnum].filename, open_font[fontnum].dataptr);
 	}
 }

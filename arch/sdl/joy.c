@@ -1,4 +1,4 @@
-/* $Id: joy.c,v 1.12 2003-04-12 00:11:46 btb Exp $ */
+/* $Id: joy.c,v 1.13 2004-05-15 16:25:35 schaffner Exp $ */
 /*
  *
  * SDL joystick support
@@ -285,17 +285,19 @@ fix joy_get_button_down_time(int btn)
 ubyte joystick_read_raw_axis( ubyte mask, int * axis )
 {
 	int i;
+	ubyte channel_masks = 0;
 	
 	if (!num_joysticks)
 		return 0;
 
 	event_poll();
 
-	for (i = 0; i <= JOY_NUM_AXES; i++) {
-		axis[i] = Joystick.axes[i].value;
+	for (i = 0; i < JOY_NUM_AXES; i++) {
+		if ((axis[i] = Joystick.axes[i].value))
+			channel_masks |= 1 << i;
 	}
 
-	return 0;
+	return channel_masks;
 }
 
 void joy_flush()

@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.33 2003-11-26 12:26:30 btb Exp $ */
+/* $Id: gameseq.c,v 1.34 2004-05-15 16:25:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -292,7 +292,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.33 2003-11-26 12:26:30 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.34 2004-05-15 16:25:35 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2234,6 +2234,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	reset_special_effects();
 
 #ifdef OGL
+	gr_remap_mono_fonts();
 	ogl_cache_level_textures();
 #endif
 

@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.23 2004-01-08 20:31:35 schaffner Exp $ */
+/* $Id: gr.h,v 1.24 2004-05-15 16:25:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -523,6 +523,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data );
 
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts();
+void gr_remap_mono_fonts();
 
 // Writes a string using current font. Returns the next column after last char.
 void gr_set_fontcolor( int fg, int bg );

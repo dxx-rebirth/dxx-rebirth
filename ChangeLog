@@ -1,3 +1,15 @@
+2004-05-15  Dietfrid Mali  <dietfrid.mali@q-dial.de>
+
+        * arch/sdl/joy.c: joystick_read_raw_axis() will return a proper
+	bitmask for each joystick axis that has sent input data,
+	and will not crash Windows anymore during joystick setup because
+	of for() loop over axis being executed once too often.
+
+	* main/gameseq.c, include/gr.h, 2d/font.c: define new function
+	gr_remap_mono_font() and call it after loading saved level.
+
+	* main/laser.c: limit homing missile turn rate
+
 2004-05-13  Bradley Bell  <btb@icculus.org>
 
 	* VisualC/d2/d2x/d2x.dsp, VisualC/d2xgl/d2xgl.dsp,

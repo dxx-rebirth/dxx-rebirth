@@ -1,4 +1,4 @@
-/* $Id: laser.c,v 1.10 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: laser.c,v 1.11 2004-05-15 16:25:35 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -28,11 +28,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char laser_rcsid[] = "$Id: laser.c,v 1.10 2003-10-10 09:36:35 btb Exp $";
+char laser_rcsid[] = "$Id: laser.c,v 1.11 2004-05-15 16:25:35 schaffner Exp $";
 #endif
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #include "inferno.h"
 #include "game.h"
@@ -1423,15 +1424,46 @@ void Flare_create(object *obj)
 
 #define	HOMING_MISSILE_SCALE	16
 
-//-------------------------------------------------------------------------------------------
+#define LIMIT_HOMERS	1
+#define HOMER_MAX_FPS	30
+#define HOMER_MIN_DELAY (1000 / HOMER_MAX_FPS)
+
+//--------------------------------------------------------------------
 //	Set object *objp's orientation to (or towards if I'm ambitious) its velocity.
 void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_vel)
 {
 	vms_vector	new_fvec;
 
+#ifdef LIMIT_HOMERS
+	static time_t   last_time = -1;
+	static int nFrames = 1;
+	time_t this_time, delta_time;
+	fix frame_time;
+	int fps;
+	if (last_time == -1) {
+		last_time = clock ();
+		frame_time = FrameTime;
+	} else {
+		nFrames++;
+		this_time = clock ();
+		delta_time = this_time - last_time;
+		if (delta_time < HOMER_MIN_DELAY) {
+			return;
+		} else {
+			fps = (1000 + delta_time / 2) / delta_time;
+			frame_time = fps ? (f1_0 + fps / 2) / fps : f1_0;
+			//                     frame_time /= nFrames;
+			nFrames = 0;
+			last_time = this_time;
+		}
+	}
+#else
+	fix frame_time = FrameTime;
+#endif
+
 	new_fvec = *norm_vel;
 
-	vm_vec_scale(&new_fvec, FrameTime*HOMING_MISSILE_SCALE);
+	vm_vec_scale(&new_fvec, frame_time * HOMING_MISSILE_SCALE);
 	vm_vec_add2(&new_fvec, &objp->orient.fvec);
 	vm_vec_normalize_quick(&new_fvec);
 
