@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.89 2004-08-29 17:57:23 schaffner Exp $ */
+/* $Id: inferno.c,v 1.90 2004-10-23 17:42:13 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -95,7 +95,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "gamepal.h"
 #include "mission.h"
 #include "movie.h"
-#include "compbit.h"
 #include "d_io.h"
 
 // #  include "3dfx_des.h"
@@ -199,14 +198,8 @@ void print_commandline_help()
 
             // This is the only use of cfgets that needs the CR
             *end++ = '\n';
-			if (have_binary) {
-				int i;
-				for (i = 0; i < strlen(line) - 1; i++) {
-					encode_rotate_left(&(line[i]));
-					line[i] = line[i] ^ BITMAP_TBL_XOR;
-					encode_rotate_left(&(line[i]));
-				}
-			}
+			if (have_binary)
+				decode_text_line (line);
 
 			if (line[0] == ';')
 				continue;		//don't show comments

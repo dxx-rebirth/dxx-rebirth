@@ -1,4 +1,4 @@
-/* $Id: text.h,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: text.h,v 1.6 2004-10-23 17:42:13 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -748,8 +748,7 @@ extern char *Text_string[];
 #define MENU_DIFFICULTY_TEXT(difficulty) (*(&TXT_DIFFICULTY_1 + (difficulty)))
 #define MENU_DETAIL_TEXT(detail) (*(&TXT_DETAIL_1 + (detail)))
 
-//Load function
-
+void decode_text_line(char *text_line); // decryption for bitmaps.tbl
 void load_text(void);
 
 #endif /* _TEXT_H */

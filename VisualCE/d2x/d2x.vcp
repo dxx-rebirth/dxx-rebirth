@@ -5068,7 +5068,6 @@ SOURCE=..\..\main\credits.c
 
 DEP_CPP_CREDI=\
 	"..\..\main\aistruct.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\desw.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -5111,7 +5110,6 @@ NODEP_CPP_CREDI=\
 
 DEP_CPP_CREDI=\
 	"..\..\main\aistruct.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\desw.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -5154,7 +5152,6 @@ NODEP_CPP_CREDI=\
 
 DEP_CPP_CREDI=\
 	"..\..\main\aistruct.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\desw.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -5236,7 +5233,6 @@ DEP_CPP_CREDI=\
 	"..\..\include\u_mem.h"\
 	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\desw.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -5417,7 +5413,6 @@ SOURCE=..\..\main\endlevel.c
 DEP_CPP_ENDLE=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\endlevel.h"\
 	"..\..\main\fireball.h"\
@@ -5471,7 +5466,6 @@ NODEP_CPP_ENDLE=\
 DEP_CPP_ENDLE=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\endlevel.h"\
 	"..\..\main\fireball.h"\
@@ -5525,7 +5519,6 @@ NODEP_CPP_ENDLE=\
 DEP_CPP_ENDLE=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\endlevel.h"\
 	"..\..\main\fireball.h"\
@@ -5595,7 +5588,6 @@ DEP_CPP_ENDLE=\
 	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\endlevel.h"\
 	"..\..\main\fireball.h"\
@@ -9298,7 +9290,6 @@ DEP_CPP_INFER=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\config.h"\
 	"..\..\main\desc_id.h"\
 	"..\..\main\digi.h"\
@@ -9376,7 +9367,6 @@ DEP_CPP_INFER=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\config.h"\
 	"..\..\main\desc_id.h"\
 	"..\..\main\digi.h"\
@@ -9454,7 +9444,6 @@ DEP_CPP_INFER=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\config.h"\
 	"..\..\main\desc_id.h"\
 	"..\..\main\digi.h"\
@@ -9577,7 +9566,6 @@ DEP_CPP_INFER=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\automap.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\config.h"\
 	"..\..\main\desc_id.h"\
 	"..\..\main\digi.h"\
@@ -15022,7 +15010,6 @@ SOURCE=..\..\main\text.c
 !IF  "$(CFG)" == "d2x - Win32 (WCE emulator) Release"
 
 DEP_CPP_TEXT_=\
-	"..\..\main\compbit.h"\
 	"..\..\main\inferno.h"\
 	"..\..\main\text.h"\
 	
@@ -15036,7 +15023,6 @@ NODEP_CPP_TEXT_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE emulator) Debug"
 
 DEP_CPP_TEXT_=\
-	"..\..\main\compbit.h"\
 	"..\..\main\inferno.h"\
 	"..\..\main\text.h"\
 	
@@ -15050,7 +15036,6 @@ NODEP_CPP_TEXT_=\
 !ELSEIF  "$(CFG)" == "d2x - Win32 (WCE ARMV4) Release"
 
 DEP_CPP_TEXT_=\
-	"..\..\main\compbit.h"\
 	"..\..\main\inferno.h"\
 	"..\..\main\text.h"\
 	
@@ -15071,7 +15056,6 @@ DEP_CPP_TEXT_=\
 	"..\..\include\pstypes.h"\
 	"..\..\include\u_mem.h"\
 	"..\..\include\vecmat.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\inferno.h"\
 	"..\..\main\text.h"\
 	
@@ -15088,7 +15072,6 @@ SOURCE=..\..\main\titles.c
 DEP_CPP_TITLE=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\desw.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -15143,7 +15126,6 @@ NODEP_CPP_TITLE=\
 DEP_CPP_TITLE=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\desw.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -15198,7 +15180,6 @@ NODEP_CPP_TITLE=\
 DEP_CPP_TITLE=\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\desw.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\
@@ -15292,7 +15273,6 @@ DEP_CPP_TITLE=\
 	"..\..\include\vecmat.h"\
 	"..\..\main\aistruct.h"\
 	"..\..\main\bm.h"\
-	"..\..\main\compbit.h"\
 	"..\..\main\desw.h"\
 	"..\..\main\digi.h"\
 	"..\..\main\game.h"\

@@ -1,3 +1,11 @@
+2004-10-23  Martin Schaffner  <maschaffner@gmx.ch>
+
+	* main/Makefile.am, main/inferno.c, main/credits.c, main/endlevel.c,
+	main/bmread.c, main/titles.c, main/compbit.h, main/text.c,main/text.h,
+	VisualC/d2x/d2x.dsp, VisualC/d2xgl/d2xgl.dsp, VisualCE/d2x/d2x.vcp:
+	delete file compbit.h, move functionality to text.c, modify all
+	previous users of compbit.h to use existing function in text.h
+
 2004-10-23  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* cfile/cfile.c: declare variable on top of block

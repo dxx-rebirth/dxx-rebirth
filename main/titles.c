@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.31 2004-10-09 15:59:28 schaffner Exp $ */
+/* $Id: titles.c,v 1.32 2004-10-23 17:42:13 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -54,7 +54,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "player.h"
 #include "digi.h"
-#include "compbit.h"
 #include "text.h"
 #include "kmatrix.h"
 #include "piggy.h"
@@ -1254,15 +1253,15 @@ int load_screen_text(char *filename, char **buf)
 	}
 
 	if (have_binary) {
-		char *ptr;
-
-		for (i = 0, ptr = *buf; i < len; i++, ptr++) {
-			if (*ptr != '\n') {
-				encode_rotate_left(ptr);
-				*ptr = *ptr ^ BITMAP_TBL_XOR;
-				encode_rotate_left(ptr);
-			}
+		char *ptr = *buf;
+		char *endline;
+		while ((endline = strchr (ptr, '\n')) != NULL) {
+			*endline = '\0';
+			decode_text_line (ptr);
+			*endline = '\n';
+			ptr = endline + 1;
 		}
+		decode_text_line (ptr);
 	}
 
 	return (1);

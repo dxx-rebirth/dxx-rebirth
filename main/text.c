@@ -1,4 +1,4 @@
-/* $Id: text.c,v 1.14 2004-10-14 16:43:23 schaffner Exp $ */
+/* $Id: text.c,v 1.15 2004-10-23 17:42:13 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.14 2004-10-14 16:43:23 schaffner Exp $";
+static char rcsid[] = "$Id: text.c,v 1.15 2004-10-23 17:42:13 schaffner Exp $";
 #endif
 
 #include <stdlib.h>
@@ -37,7 +37,6 @@ static char rcsid[] = "$Id: text.c,v 1.14 2004-10-14 16:43:23 schaffner Exp $";
 #include "inferno.h"
 #include "text.h"
 #include "args.h"
-#include "compbit.h"
 
 #define SHAREWARE_TEXTSIZE  14677
 
@@ -64,7 +63,9 @@ encode_rotate_left(char *c)
 		*c |= 0x01;
 }
 
-//decode and encoded line of text
+#define BITMAP_TBL_XOR 0xD3
+
+//decode an encoded line of text of bitmaps.tbl
 void decode_text_line(char *p)
 {
 	for (;*p;p++) {

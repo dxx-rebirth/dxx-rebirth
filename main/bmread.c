@@ -1,4 +1,4 @@
-/* $Id: bmread.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: bmread.c,v 1.7 2004-10-23 17:42:13 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -62,7 +62,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "endlevel.h"
 #include "cntrlcen.h"
-#include "compbit.h"
 #include "args.h"
 
 
@@ -509,11 +508,7 @@ int bm_init_use_tbl()
 		}
 
 		if (have_bin_tbl) {				// is this a binary tbl file
-			for (i = 0; i < strlen(inputline) - 1; i++) {
-				encode_rotate_left(&(inputline[i]));
-				inputline[i] = inputline[i] ^ BITMAP_TBL_XOR;
-				encode_rotate_left(&(inputline[i]));
-			}
+			decode_text_line (inputline);
 		} else {
 			while (inputline[(l=strlen(inputline))-2]=='\\') {
 				if (!isspace(inputline[l-3])) {		//if not space before backslash...

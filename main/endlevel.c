@@ -1,4 +1,4 @@
-/* $Id: endlevel.c,v 1.23 2004-10-09 15:59:28 schaffner Exp $ */
+/* $Id: endlevel.c,v 1.24 2004-10-23 17:42:13 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.23 2004-10-09 15:59:28 schaffner Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.24 2004-10-23 17:42:13 schaffner Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -71,7 +71,6 @@ static char rcsid[] = "$Id: endlevel.c,v 1.23 2004-10-09 15:59:28 schaffner Exp 
 #include "text.h"
 #include "digi.h"
 #include "cfile.h"
-#include "compbit.h"
 #include "songs.h"
 #include "movie.h"
 #include "render.h"
@@ -1466,7 +1465,7 @@ void load_endlevel_data(int level_num)
 	char line[LINE_LEN],*p;
 	CFILE *ifile;
 	int var,segnum,sidenum;
-	int exit_side=0, i;
+	int exit_side = 0;
 	int have_binary = 0;
 
 	endlevel_data_loaded = 0;		//not loaded yet
@@ -1512,14 +1511,8 @@ try_again:
 
 	while (cfgets(line,LINE_LEN,ifile)) {
 
-		if (have_binary) {
-			for (i = 0; i < strlen(line); i++) {
-				encode_rotate_left(&(line[i]));
-				line[i] = line[i] ^ BITMAP_TBL_XOR;
-				encode_rotate_left(&(line[i]));
-			}
-			p = line;
-		}
+		if (have_binary)
+			decode_text_line (line);
 
 		if ((p=strchr(line,';'))!=NULL)
 			*p = 0;		//cut off comment

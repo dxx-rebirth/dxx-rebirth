@@ -716,10 +716,6 @@ SOURCE=..\..\main\collide.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\main\compbit.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\CON_console.h
 # End Source File
 # Begin Source File

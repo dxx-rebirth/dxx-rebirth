@@ -1,4 +1,4 @@
-/* $Id: credits.c,v 1.10 2004-08-29 17:57:23 schaffner Exp $ */
+/* $Id: credits.c,v 1.11 2004-10-23 17:42:13 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: credits.c,v 1.10 2004-08-29 17:57:23 schaffner Exp $";
+static char rcsid[] = "$Id: credits.c,v 1.11 2004-10-23 17:42:13 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -61,9 +61,9 @@ static char rcsid[] = "$Id: credits.c,v 1.10 2004-08-29 17:57:23 schaffner Exp $
 #include "digi.h"
 
 #include "cfile.h"
-#include "compbit.h"
+#include "text.h"
 #include "songs.h"
-#include "menu.h"			// for MenuHires
+#include "menu.h"  // for MenuHires
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
@@ -278,13 +278,8 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 get_line:;
 			if (cfgets( buffer[buffer_line], 80, file ))	{
 				char *p;
-				if (have_bin_file) {				// is this a binary tbl file
-					for (i = 0; i < strlen(buffer[buffer_line]); i++) {
-						encode_rotate_left(&(buffer[buffer_line][i]));
-						buffer[buffer_line][i] ^= BITMAP_TBL_XOR;
-						encode_rotate_left(&(buffer[buffer_line][i]));
-					}
-				}
+				if (have_bin_file) // is this a binary tbl file
+					decode_text_line (buffer[buffer_line]);
 				p = buffer[buffer_line];
 				if (p[0] == ';')
 					goto get_line;
