@@ -1,5 +1,7 @@
 2003-04-11  Bradley Bell  <btb@icculus.org>
 
+	* libmve/mveplay.c: use _sleep instead of sleep on win32
+
 	* README, arch/sdl/digi.c, arch/sdl/joy.c, arch/win32/Makefile.am,
 	include/byteswap.h, include/cfile.h, include/error.h,
 	libmve/Makefile.am, libmve/decoders.h, main/Makefile.am,

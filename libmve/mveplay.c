@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.8 2003-04-12 00:02:16 btb Exp $ */
+/* $Id: mveplay.c,v 1.9 2003-04-12 00:45:03 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -158,7 +158,7 @@ int gettimeofday(struct timeval *tv, void *tz)
 
 int nanosleep(struct timespec *ts, void *rem)
 {
-	sleep(ts->tv_sec * 1000 + ts->tv_nsec / 1000000);
+	_sleep(ts->tv_sec * 1000 + ts->tv_nsec / 1000000);
 
 	return 0;
 }
