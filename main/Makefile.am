@@ -13,7 +13,7 @@ NETWORK_SRCS = kmatrix.c multi.c multibot.c network.c netmisc.c
 endif
 
 if EDITOR
-EDITOR_SRCS = bmread.c
+EDITOR_SRCS = bmread.c dumpmine.c
 endif
 
 libmain_a_SOURCES = ${EDITOR_SRCS} ${NETWORK_SRCS} \
@@ -34,7 +34,7 @@ text.c      titles.c    vclip.c     wall.c      weapon.c
 
 EXTRA_libmain_a_SOURCES = \
 kmatrix.c multi.c multibot.c network.c netmisc.c \
-bmread.c
+bmread.c dumpmine.c
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 descent.cfg inferno.ini \
@@ -51,4 +51,4 @@ object.h paging.h physics.h piggy.h player.h playsave.h polyobj.h powerup.h \
 render.h reorder.h robot.h scores.h screens.h segment.h segpoint.h slew.h \
 songs.h sounds.h state.h switch.h terrain.h texmerge.h text.h textures.h \
 titles.h vclip.h vers_id.h wall.h weapon.h \
-dumpmine.c joydefs.c
+joydefs.c

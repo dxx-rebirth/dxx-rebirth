@@ -49,6 +49,8 @@
 	main/editor/seguvs.c, main/editor/texpage.c,
 	main/editor/texture.c: imported missing editor files from d1x
 
+	* main/Makefile.am: build dumpmine.c for editor
+
 2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/state.c: open autosave file for writing, not reading
