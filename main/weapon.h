@@ -52,12 +52,16 @@ typedef struct weapon_info {
 	byte	flash;						//	Flash effect
 	byte	afterburner_size;			//	Size of blobs in F1_0/16 units, specify in bitmaps.tbl as floating point.  Player afterburner size = 2.5.
 
+#ifndef SHAREWARE
 	byte	children;					//	ID of weapon to drop if this contains children.  -1 means no children.
+#endif
 
 	fix	energy_usage;				//	How much fuel is consumed to fire this weapon.
 	fix	fire_wait;					//	Time until this weapon can be fired again.
 
+#ifndef SHAREWARE
 	fix	multi_damage_scale;		//	Scale damage by this amount when applying to player in multiplayer.  F1_0 means no change.
+#endif
 
 	bitmap_index bitmap;				// Pointer to bitmap if rendertype==0 or 1.
 
@@ -76,7 +80,9 @@ typedef struct weapon_info {
 //-- unused--	fix	damage_force;				//	Force of damage caused by weapon, used for missiles (not lasers) to apply to damage to things it did not hit
 // damage_force was a real mess.  Wasn't Difficulty_level based, and was being applied instead of weapon's actual strength.  Now use 2*strength instead. --MK, 01/19/95
 	bitmap_index	picture;				// a picture of the weapon for the cockpit
+#ifndef SHAREWARE
 	bitmap_index	hires_picture;		// a hires picture of the above
+#endif
 } __pack__ weapon_info;
 
 #define	REARM_TIME					(F1_0)

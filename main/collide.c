@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/collide.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 02:15:55 $
+ * $Date: 2001-11-08 10:30:27 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.8  2001/10/25 02:15:55  bradleyb
+ * conditionalize including multi.h and network.h, fix backslashes
+ *
  * Revision 1.7  2001/10/18 00:01:00  bradleyb
  * RCS headers added/changed
  *
@@ -2200,8 +2203,10 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 		smega_rock_stuff();
 
 	damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
+#ifndef SHAREWARE
 	if (Game_mode & GM_MULTI)
 		damage = fixmul(damage, Weapon_info[weapon->id].multi_damage_scale);
+#endif
 
 	if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 	{

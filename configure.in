@@ -51,6 +51,14 @@ if test x$enable_editor = xyes; then
 fi
 AM_CONDITIONAL(EDITOR, test x$enable_editor = xyes)
 
+dnl Enable shareware build?
+AC_ARG_ENABLE(shareware,
+  [  --enable-shareware      Build for demo datafile (not functional)],,)
+if test x$enable_shareware = xyes; then
+    AC_DEFINE(SHAREWARE)
+fi
+AM_CONDITIONAL(SHAREWARE, test x$enable_shareware = xyes)
+
 dnl Enable cross-platform bitmap/palette loader?
 AC_ARG_ENABLE(xploader,
   [  --enable-xploader       Enable cross-platform bitmap/palette loader ],,)

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: newmenu.c,v 1.5 2001-10-31 09:59:34 bradleyb Exp $";
+static char rcsid[] = "$Id: newmenu.c,v 1.6 2001-11-08 10:30:28 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -202,10 +202,14 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 }
 
+#ifdef SHAREWARE
+#define MENU_BACKGROUND_BITMAP "scores.pcx"
+#else
 #ifdef RELEASE
 #define MENU_BACKGROUND_BITMAP (MenuHires?"\x01scoresb.pcx":"\x01scores.pcx")		//read only from hog file
 #else
 #define MENU_BACKGROUND_BITMAP (MenuHires?"scoresb.pcx":"scores.pcx")
+#endif
 #endif
 
 int Background_hires;

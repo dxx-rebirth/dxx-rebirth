@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.3 2001-10-25 02:15:56 bradleyb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.4 2001-11-08 10:30:27 bradleyb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -28,6 +28,7 @@ static char rcsid[] = "$Id: endlevel.c,v 1.3 2001-10-25 02:15:56 bradleyb Exp $"
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h> // for isspace
 
 #include "fix.h"
 #include "vecmat.h"
@@ -103,7 +104,12 @@ object *endlevel_camera;
 
 #define FLY_SPEED i2f(50)
 
+void do_endlevel_flythrough(int n);
+void draw_stars();
+int find_exit_side(object *obj);
+void generate_starfield();
 void start_endlevel_flythrough(int n,object *obj,fix speed);
+void start_rendered_endlevel_sequence();
 
 #ifdef D2_OEM
 char movie_table[] =	{	'a','a','a','a','d','d','d','d' };
@@ -159,8 +165,6 @@ vms_vector mine_side_exit_point;
 vms_matrix mine_exit_orient;
 
 int outside_mine;
-
-void start_endlevel_flythrough(int n,object *obj,fix speed);
 
 grs_bitmap terrain_bm_instance;
 grs_bitmap satellite_bm_instance;
@@ -222,7 +226,7 @@ int start_endlevel_movie()
 
 	memcpy(save_pal,gr_palette,768);
 
-	#ifndef SHAREWARE
+	#if !defined(SHAREWARE) && !defined (NMOVIES)
 		r=PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
 	#else
 		return	0;	// movie not played for shareware
@@ -255,7 +259,7 @@ free_endlevel_data()
 		d_free(satellite_bm_instance.bm_data);
 }
 
-init_endlevel()
+void init_endlevel()
 {
 	//##satellite_bitmap = bm_load("earth.bbm");
 	//##terrain_bitmap = bm_load("moon.bbm");
@@ -348,7 +352,7 @@ void start_endlevel_sequence()
 		if (!(Game_mode & GM_MULTI))
 			movie_played = start_endlevel_movie();
 		
-		#ifdef SHAREWARE
+		#if defined(SHAREWARE) || defined(NMOVIES)
 		if (movie_played == MOVIE_NOT_PLAYED) {		//don't have movie.  Do rendered sequence
 		#ifndef WINDOWS
 			start_rendered_endlevel_sequence();
@@ -364,7 +368,7 @@ void start_endlevel_sequence()
 	PlayerFinishedLevel(0);		//done with level
 }
 
-#ifndef SHAREWARE
+#if !defined(SHAREWARE) && !defined(NMOVIES)
 
 void do_endlevel_frame() {Int3();}
 void stop_endlevel_sequence() {Int3();}
@@ -374,7 +378,7 @@ void render_endlevel_frame(fix eye_offset) {Int3();}
 
 static int cockpit_mode_save;
 
-start_rendered_endlevel_sequence()
+void start_rendered_endlevel_sequence()
 {
 	int last_segnum,exit_side,tunnel_length;
 
@@ -538,7 +542,7 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 	return mask;
 }
 
-stop_endlevel_sequence()
+void stop_endlevel_sequence()
 {
 	Interpolation_method = 0;
 
@@ -557,7 +561,7 @@ stop_endlevel_sequence()
 //--unused-- vms_vector upvec = {0,f1_0,0};
 
 //find the angle between the player's heading & the station
-get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
+void get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
 {
 	vms_vector tv;
 
@@ -566,9 +570,9 @@ get_angs_to_object(vms_angvec *av,vms_vector *targ_pos,vms_vector *cur_pos)
 	vm_extract_angles_vector(av,&tv);
 }
 
-do_endlevel_frame()
+void do_endlevel_frame()
 {
-	#ifdef SHAREWARE
+	#if defined(SHAREWARE) || defined(NMOVIES)
 	static fix timer;
 	static fix bank_rate;
 	#endif
@@ -709,7 +713,7 @@ do_endlevel_frame()
 
 			if (ConsoleObject->segnum == transition_segnum) {
 
-				#ifndef SHAREWARE
+				#if !defined(SHAREWARE) && !defined(NMOVIES)
 					start_endlevel_movie();
 					stop_endlevel_sequence();
 				#else
@@ -750,7 +754,7 @@ do_endlevel_frame()
 		}
 
 
-#ifdef SHAREWARE
+#if defined(SHAREWARE) || defined(NMOVIES)
 		case EL_LOOKBACK: {
 
 			do_endlevel_flythrough(0);
@@ -944,7 +948,7 @@ do_endlevel_frame()
 #define MIN_D 0x100
 
 //find which side to fly out of
-find_exit_side(object *obj)
+int find_exit_side(object *obj)
 {
 	int i;
 	vms_vector prefvec,segcenter,sidevec;
@@ -984,7 +988,7 @@ extern fix Render_zoom;							//the player's zoom factor
 
 extern vms_vector Viewer_eye;	//valid during render
 
-draw_exit_model()
+void draw_exit_model()
 {
 	vms_vector model_pos;
 	int f=15,u=0;	//21;
@@ -1004,7 +1008,7 @@ fix satellite_size = i2f(400);
 #define SATELLITE_WIDTH		satellite_size
 #define SATELLITE_HEIGHT	((satellite_size*9)/4)		//((satellite_size*5)/2)
 
-render_external_scene(fix eye_offset)
+void render_external_scene(fix eye_offset)
 {
 
 	Viewer_eye = Viewer->pos;
@@ -1063,7 +1067,7 @@ render_external_scene(fix eye_offset)
 
 vms_vector stars[MAX_STARS];
 
-generate_starfield()
+void generate_starfield()
 {
 	int i;
 
@@ -1076,7 +1080,7 @@ generate_starfield()
 	}
 }
 
-draw_stars()
+void draw_stars()
 {
 	int i;
 	int intensity=31;
@@ -1126,7 +1130,7 @@ draw_stars()
 
 }
 
-endlevel_render_mine(fix eye_offset)
+void endlevel_render_mine(fix eye_offset)
 {
 	int start_seg_num;
 
@@ -1206,7 +1210,7 @@ fixang interp_angle(fixang dest,fixang src,fixang step);
 #define MIN_D 0x100
 
 //if speed is zero, use default speed
-start_endlevel_flythrough(int n,object *obj,fix speed)
+void start_endlevel_flythrough(int n,object *obj,fix speed)
 {
 	flydata = &fly_objects[n];
 
@@ -1232,7 +1236,7 @@ static vms_angvec *angvec_add2_scale(vms_angvec *dest,vms_vector *src,fix s)
 
 #define MAX_SLIDE_PER_SEGMENT 0x10000
 
-do_endlevel_flythrough(int n)
+void do_endlevel_flythrough(int n)
 {
 	object *obj;
 	segment *pseg;
@@ -1308,11 +1312,12 @@ do_endlevel_flythrough(int n)
 			fix dist;
 
 			for (i=0;i<6;i++)
-				if (i!=entry_side && i!=exit_side && i!=up_side && i!=Side_opposite[up_side])
+				if (i!=entry_side && i!=exit_side && i!=up_side && i!=Side_opposite[up_side]) {
 					if (s0==-1)
 						s0 = i;
 					else
 						s1 = i;
+				}
 
 			compute_center_point_on_side(&s0p,pseg,s0);
 			compute_center_point_on_side(&s1p,pseg,s1);
@@ -1466,7 +1471,7 @@ int convert_ext( char *dest, char *ext )
 }
 
 //called for each level to load & setup the exit sequence
-load_endlevel_data(int level_num)
+void load_endlevel_data(int level_num)
 {
 	char filename[13];
 	char line[LINE_LEN],*p;
@@ -1492,11 +1497,11 @@ try_again:
 
 	if (!ifile) {
 
-		convert_ext(filename,"TXB");
+		convert_ext(filename,"txb");
 
 		ifile = cfopen(filename,"rb");
 
-		if (!ifile)
+		if (!ifile) {
 			if (level_num==1) {
 				Error("Cannot load file text of binary version of <%s>",filename);
 			}
@@ -1504,6 +1509,7 @@ try_again:
 				level_num = 1;
 				goto try_again;
 			}
+		}
 
 		have_binary = 1;
 	}
@@ -1536,7 +1542,7 @@ try_again:
 		switch (var) {
 
 			case 0: {						//ground terrain
-				int iff_error, i;
+				int iff_error;
 				ubyte pal[768];
 
 				if (terrain_bm_instance.bm_data)

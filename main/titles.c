@@ -771,12 +771,14 @@ int show_briefing_message(int screen_num, char *message)
 				   i=0; 
 				   while (fname[i]!='.')
 				   	i++;
-				   fname[i]='b'; 			
-				   fname[i+1]='.';	
-				   fname[i+2]='p';	
-				   fname[i+3]='c';	
-				   fname[i+4]='x';	
-				   fname[i+5]=0;	
+#ifndef SHAREWARE
+				   fname[i++]='b';
+#endif
+				   fname[i++]='.';	
+				   fname[i++]='p';	
+				   fname[i++]='c';	
+				   fname[i++]='x';	
+				   fname[i++]=0;	
 
 				   load_new_briefing_screen (fname);
 				 }

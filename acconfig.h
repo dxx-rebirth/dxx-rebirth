@@ -7,6 +7,9 @@
 /* Define if you want to build the editor */
 #undef EDITOR
 
+/* Define if you want to build the demo version */
+#undef SHAREWARE
+
 /* Define if you want an OpenGL build */
 #undef OGL
 
@@ -28,6 +31,7 @@
 #define NMONO 1
 #define PIGGY_USE_PAGING 1
 #define NEWDEMO 1
+#define NMOVIES 1
 
 #ifdef __linux__
 # define __SDL__ 1

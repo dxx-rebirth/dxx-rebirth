@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.5 2001-10-25 02:19:31 bradleyb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.6 2001-11-08 10:30:28 bradleyb Exp $";
 #endif
 
 
@@ -963,7 +963,11 @@ digi_sound bogus_sound;
 extern void bm_read_all(CFILE * fp);
 
 #define HAMFILE_ID              "HAM!"          //HAM!
+#ifdef SHAREWARE
+#define HAMFILE_VERSION 2
+#else
 #define HAMFILE_VERSION 3
+#endif
 //version 1 -> 2:  save marker_model_num
 //version 2 -> 3:  removed sound files
 
@@ -999,6 +1003,9 @@ int read_hamfile()
 		cfclose(ham_fp);						//out of date ham
 		return 0;
 	}
+
+	if (ham_version < 3) //mystery value
+		cfseek(ham_fp, 4, SEEK_CUR);
 
 	#ifndef EDITOR
 	{

@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.15 $
+ * $Revision: 1.16 $
  * $Author: bradleyb $
- * $Date: 2001-11-05 07:39:08 $
+ * $Date: 2001-11-08 10:30:28 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.15  2001/11/05 07:39:08  bradleyb
+ * Change args_init back to InitArgs
+ *
  * Revision 1.14  2001/11/04 09:01:41  bradleyb
  * SDL applies to more than X11...
  *
@@ -426,7 +429,7 @@ void do_network_init()
 }
 #endif
 
-#ifdef SHAREARE
+#ifdef SHAREWARE
 #define PROGNAME "d2demo"
 #else
 #define PROGNAME "d2"
@@ -614,7 +617,9 @@ int main(int argc,char **argv)
 	else
 	#endif
 	{	//NOTE LINK TO ABOVE!
+#ifndef SHAREWARE
 		int played=MOVIE_NOT_PLAYED;	//default is not played
+#endif
 		int song_playing = 0;
 
 		#ifdef D2_OEM
@@ -978,6 +983,43 @@ void check_joystick_calibration()	{
 		}
 	}
 
+}
+
+void show_order_form()
+{
+#if !defined(EDITOR) && (defined(SHAREWARE) || defined(D2_OEM))
+
+	int pcx_error;
+	char title_pal[768];
+	char	exit_screen[16];
+
+	gr_set_current_canvas( NULL );
+	gr_palette_clear();
+
+	key_flush();		
+
+	#ifdef D2_OEM
+		strcpy(exit_screen, MenuHires?"ordrd2ob.pcx":"ordrd2o.pcx");
+	#else
+	#if defined(SHAREWARE)
+		strcpy(exit_screen, "orderd2.pcx");
+	#else
+		strcpy(exit_screen, MenuHires?"warningb.pcx":"warning.pcx");
+	#endif
+	#endif
+
+	if ((pcx_error=pcx_read_bitmap( exit_screen, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, title_pal ))==PCX_ERROR_NONE) {
+		//vfx_set_palette_sub( title_pal );
+		gr_palette_fade_in( title_pal, 32, 0 );
+		key_getch();
+		gr_palette_fade_out( title_pal, 32, 0 );		
+	}
+	else
+		Int3();		//can't load order screen
+
+	key_flush();		
+
+#endif
 }
 
 void quit_request()

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.5 2001-10-25 02:15:56 bradleyb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.6 2001-11-08 10:30:27 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1558,7 +1558,9 @@ void DoEndGame(void)
 
    if (Current_mission_num == 0 && !(Game_mode & GM_MULTI))		//only built-in mission, & not multi
    {  
+#ifndef SHAREWARE
 		int played=MOVIE_NOT_PLAYED;	//default is not played
+#endif
 
 		#ifdef SHAREWARE
 			songs_play_song( SONG_ENDGAME, 0 );
@@ -2145,7 +2147,9 @@ void ShowLevelIntro(int level_num)
 	//if shareware, show a briefing?
 
 	if (!(Game_mode & GM_MULTI)) {
+#ifndef SHAREWARE
 		int i;
+#endif
 		ubyte save_pal[sizeof(gr_palette)];
 
 		memcpy(save_pal,gr_palette,sizeof(gr_palette));
@@ -2157,7 +2161,9 @@ void ShowLevelIntro(int level_num)
 
 		if (Current_mission_num==0)
 		{
+#ifndef SHAREWARE
 			int movie=0;
+#endif
 			#ifdef SHAREWARE
 				if (level_num==1)
 				{

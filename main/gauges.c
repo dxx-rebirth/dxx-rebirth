@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/gauges.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  * $Author: bradleyb $
- * $Date: 2001-11-04 09:00:25 $
+ * $Date: 2001-11-08 10:30:27 $
  *
  * Inferno gauge drivers
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/11/04 09:00:25  bradleyb
+ * Enable d1x-style hud_message
+ *
  *
  */
 
@@ -2369,13 +2372,17 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
    PA_DFX (pa_set_backbuffer_current());
 	gr_rect(box->left,box->top,box->right,box->bot);
 
+#ifndef SHAREWARE
 	if (Current_display_mode) {
 		bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
 		PIGGY_PAGE_IN( Weapon_info[info_index].hires_picture );
 	} else {
+#endif
 		bm=&GameBitmaps[Weapon_info[info_index].picture.index];
 		PIGGY_PAGE_IN( Weapon_info[info_index].picture );
+#ifndef SHAREWARE
 	}
+#endif
 	
 	Assert(bm != NULL);
 

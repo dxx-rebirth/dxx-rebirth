@@ -222,7 +222,7 @@ try_again:;
 
 			if ((d_rand() % (n_demos+1)) == 0)
 			{
-				#ifndef SHAREWARE
+				#if !defined(SHAREWARE) && !defined(NMOVIES)
 					#ifdef WINDOWS
 					mouse_set_mode(1);				//re-enable centering mode
 					HideCursorW();

@@ -29,7 +29,8 @@ extern int MenuHires;
 			#define Menu_pcx_name "\x01menud.pcx"	//read only from hog file
 		#endif
 	#else
-		#define Menu_pcx_name (MenuHires?"menub.pcx":"menud.pcx")	//name of background bitmap
+//		#define Menu_pcx_name (MenuHires?"menub.pcx":"menud.pcx")	//name of background bitmap
+		#define Menu_pcx_name "menud.pcx"
 	#endif
 #else
 	#ifdef D2_OEM

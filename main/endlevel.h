@@ -24,11 +24,11 @@ void stop_endlevel_sequence();
 void start_endlevel_sequence();
 void render_endlevel_frame(fix eye_offset);
 
-#ifdef SHAREWARE
+#if defined(SHAREWARE) || defined(NMOVIES)
 
-render_external_scene();
-draw_exit_model();
-init_endlevel();
+void render_external_scene();
+void draw_exit_model();
+void init_endlevel();
 
 extern grs_bitmap *terrain_bitmap;	//*satellite_bitmap,*station_bitmap,
 extern int exit_segnum;
@@ -38,7 +38,7 @@ extern int exit_segnum;
 //@@extern int ext_expl_playing;
 
 //called for each level to load & setup the exit sequence
-load_endlevel_data(int level_num);
+void load_endlevel_data(int level_num);
 
 extern int exit_modelnum,destroyed_exit_modelnum;
 

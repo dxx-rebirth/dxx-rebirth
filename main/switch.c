@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: switch.c,v 1.4 2001-10-25 02:15:57 bradleyb Exp $";
+static char rcsid[] = "$Id: switch.c,v 1.5 2001-11-08 10:30:28 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -437,7 +437,9 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			break;
 
 		case TT_SECRET_EXIT: {
+#ifndef SHAREWARE
 			int	truth;
+#endif
  
 			if (pnum!=Player_num)
 				break;
