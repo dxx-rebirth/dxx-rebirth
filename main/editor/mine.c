@@ -1,4 +1,4 @@
-/* $Id: mine.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: mine.c,v 1.4 2004-12-21 11:58:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: mine.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: mine.c,v 1.4 2004-12-21 11:58:14 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -79,7 +79,7 @@ int med_save_mine(char * filename)
 	SaveFile = cfopen( filename, CF_WRITE_MODE );
 	if (!SaveFile)
 	{
-#ifndef __LINUX__
+#if 0 //ndef __linux__
 		char fname[20];
 		_splitpath( filename, NULL, NULL, fname, NULL );
 

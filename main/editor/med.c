@@ -1,4 +1,4 @@
-/* $Id: med.c,v 1.3 2004-12-19 14:52:48 btb Exp $ */
+/* $Id: med.c,v 1.4 2004-12-21 11:58:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -627,6 +627,8 @@ int DosShell()
 	int ok, w, h;
 	grs_bitmap * save_bitmap;
 
+	ok = 1;
+
 	// Save the current graphics state.
 
 	w = grd_curscreen->sc_canvas.cv_bitmap.bm_w;
@@ -641,9 +643,9 @@ int DosShell()
 	fflush(stdout);
 
 	key_close();
-#ifndef __LINUX__
+#ifdef __MSDOS__
 	ok = spawnl(P_WAIT,getenv("COMSPEC"), NULL );
-#else
+#elif defined(__linux__)
         system("");
 #endif
 	key_init();
@@ -654,7 +656,7 @@ int DosShell()
 	//gr_pal_setblock( 0, 256, grd_curscreen->pal );
 	//gr_use_palette_table();
 
-	return 1;
+	return ok;
 
 }
 

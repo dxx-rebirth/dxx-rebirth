@@ -7,6 +7,11 @@
 	* main/dumpmine.c, ui/window.c: Specify that two functions return
 	void.
 
+	* main/editor/autosave.c, main/editor/curves.c,
+	main/editor/ehostage.c, main/editor/kmine.c, main/editor/med.c,
+	main/editor/medrobot.c, main/editor/mine.c: fix occurences of
+	#ifdef __LINUX__
+
 2004-12-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/editor/eobject.c, main/editor/kgame.c,

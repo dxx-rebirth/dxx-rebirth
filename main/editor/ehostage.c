@@ -1,4 +1,4 @@
-/* $Id: ehostage.c,v 1.3 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: ehostage.c,v 1.4 2004-12-21 11:58:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: ehostage.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: ehostage.c,v 1.4 2004-12-21 11:58:14 btb Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -28,7 +28,7 @@ static char rcsid[] = "$Id: ehostage.c,v 1.3 2004-12-19 15:21:11 btb Exp $";
 
 #include <stdlib.h>
 #include <stdio.h>
-#ifndef __LINUX__
+#ifdef __MSDOS__
 #include <conio.h>
 #include <dos.h>
 #include <direct.h>
