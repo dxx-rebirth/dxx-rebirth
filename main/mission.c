@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.37 2004-12-17 14:28:41 btb Exp $ */
+/* $Id: mission.c,v 1.38 2004-12-17 14:31:18 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -455,6 +455,7 @@ void add_missions_to_list(mle *mission, int anarchy_mode)
 		ext = strrchr(*i, '.');
 		if (ext && (!strnicmp(ext, ".msn", 4) || !strnicmp(ext, ".mn2", 4)))
 			if (read_mission_file(mission, *i, ML_MISSIONDIR))
+			{
 				if (anarchy_mode || !mission->anarchy_only_flag) {
 					mission++;
 					num_missions++;
@@ -462,6 +463,7 @@ void add_missions_to_list(mle *mission, int anarchy_mode)
 				}
 				else
 					d_free(mission->filename);
+			}
 		if (num_missions >= MAX_MISSIONS)
 		{
 			mprintf((0, "Warning: more missions than d2x can handle\n"));

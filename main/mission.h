@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.23 2004-11-19 18:42:48 schaffner Exp $ */
+/* $Id: mission.h,v 1.24 2004-12-17 14:28:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -63,12 +63,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 typedef struct {
+	char    *filename;          // filename
+	int     builtin_hogsize;    // the size of the hogfile for a builtin mission, and 0 for an add-on mission
 	char	mission_name[MISSION_NAME_LEN+1];
-	char	filename[9];	// filename
 	ubyte	descent_version;	// descent 1 or descent 2?
-	bool	anarchy_only_flag;	// if true, mission is only for anarchy
+	ubyte   anarchy_only_flag;  // if true, mission is only for anarchy
 	ubyte	enhanced;	// 0: mission has "name", 1:"xname", 2:"zname"
-	int	builtin_hogsize;	// the size of the hogfile for a builtin mission, and 0 for an add-on mission
 	char	briefing_text_filename[FILENAME_LEN]; // name of briefing file
 	char	ending_text_filename[FILENAME_LEN]; // name of ending file
 	ubyte	last_level;
