@@ -6,10 +6,6 @@ bin_PROGRAMS = @TARGETS@
 
 EXTRA_PROGRAMS = d2x d2x-sdl d2x-gl d2x-svga d2x-ggi
 
-CCLD = ${CC}
-LDFLAGS = -export-dynamic
-LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
-
 ARCH_LIBS = $(foreach subdir,${D2X_ARCH_SUBDIRS},arch/${subdir}/libarch_${subdir}.a)
 
 if MINGW32
