@@ -603,7 +603,10 @@ void do_show_netgame_help()
  {
 	newmenu_item m[30];
    char mtext[30][50];
-	int i,num=0,pl,eff;
+	int i,num=0,eff;
+#ifndef RELEASE
+	int pl;
+#endif
 	char *eff_strings[]={"trashing","really hurting","seriously effecting","hurting",
 								"effecting","tarnishing"};
 
@@ -623,12 +626,12 @@ void do_show_netgame_help()
    sprintf (mtext[num],"Packets per second: %d",Netgame.PacketsPerSec); num++;
    sprintf (mtext[num],"Short Packets: %s",Netgame.ShortPackets?"Yes":"No"); num++;
 
-   #ifndef RELEASE
+#ifndef RELEASE
 		pl=(int)(((float)TotalMissedPackets/(float)TotalPacketsGot)*100.0);
 		if (pl<0)
 		  pl=0;
 		sprintf (mtext[num],"Packets lost: %d (%d%%)",TotalMissedPackets,pl); num++;
-	#endif
+#endif
 
    if (Netgame.KillGoal)
      { sprintf (mtext[num],"Kill goal: %d",Netgame.KillGoal*5); num++; }

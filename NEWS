@@ -16,6 +16,7 @@
   <falk.hueffner@student.uni-tuebingen.de>, and added code to load
   hogfiles from a central location, so it now doesn't matter what dir
   you start d2x from.
+- Enabled option for RELEASE build
 
 --- Version 0.1.1 ---
 Assembly under mingw32 now works.

@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.22 $
+ * $Revision: 1.23 $
  * $Author: bradleyb $
- * $Date: 2002-01-29 10:11:56 $
+ * $Date: 2002-02-02 23:30:26 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.22  2002/01/29 10:11:56  bradleyb
+ * update copyright date
+ *
  * Revision 1.21  2002/01/29 00:08:13  bradleyb
  * Added d_mkdir macro
  *
@@ -320,12 +323,12 @@ void print_commandline_help()
 //	printf( "  -nomodex        %s\n","FIXME: Undocumented");
 #ifndef RELEASE
 	printf( "  -nomovies       %s\n","Don't play movies");
+	printf( "  -noscreens      %s\n","Skip briefing screens");
 #endif
 #if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
 	printf( "  -noredbook      %s\n","Disable redbook audio");
 #endif
 	printf( "  -norun          %s\n","Bail out after initialization");
-	printf( "  -noscreens      %s\n","Skip briefing screens");
 //	printf( "  -ordinaljoy     %s\n","FIXME: Undocumented");
 //	printf( "  -rtscts         %s\n","Same as -ctsrts");
 //	printf( "  -semiwin        %s\n","Use non-fullscreen mode");
@@ -599,8 +602,10 @@ int main(int argc,char **argv)
 	if ( FindArg( "-autodemo" ))
 		Auto_demo = 1;
 
+#ifndef RELEASE
 	if ( FindArg( "-noscreens" ) )
 		Skip_briefing_screens = 1;
+#endif
 
 	if ((t=FindArg("-tmap"))){
 		select_tmap(Args[t+1]);

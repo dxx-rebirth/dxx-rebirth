@@ -113,6 +113,14 @@ else
     D2X_FEATURES="debug ${D2X_FEATURES}"
 fi
 
+dnl Build with RELEASE?
+AC_ARG_ENABLE(release,
+  [  --enable-release        Release build.  Removes debug/editor things ],,)
+if test x$enable_release = xyes; then
+    AC_DEFINE(RELEASE)
+    D2X_FEATURES="release ${D2X_FEATURES}"
+fi
+
 AC_ARG_WITH(sharepath,
   [[  --with-sharepath=DIR    Use DIR for shared game data [DATADIR/games/d2x]]],
   sharepath=$withval, sharepath="auto")
