@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/mouse.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-11-14 10:44:21 $
+ * $Date: 2001-11-14 11:02:55 $
  *
  * SDL mouse driver.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/11/14 10:44:21  bradleyb
+ * remove cruft, fix formatting, use mouse wheel to emulate 3rd axis
+ *
  * Revision 1.1  2001/10/24 09:25:05  bradleyb
  * Moved input stuff to arch subdirs, as in d1x.
  *
@@ -127,12 +130,6 @@ void mouse_get_pos( int *x, int *y )
 	*y=Mouse.y;
 }
 
-void mouse_get_pos_z( int *z )
-{
-	event_poll();
-	*z=Mouse.z;
-}
-
 void mouse_get_delta( int *dx, int *dy )
 {
 	event_poll();
@@ -142,10 +139,22 @@ void mouse_get_delta( int *dx, int *dy )
 	Mouse.delta_y = 0;
 }
 
-void mouse_get_delta_z( int *dz )
+void mouse_get_pos_z( int *x, int *y, int *z )
 {
 	event_poll();
+	*x=Mouse.x;
+	*y=Mouse.y;
+	*z=Mouse.z;
+}
+
+void mouse_get_delta_z( int *dx, int *dy, int *dz )
+{
+	event_poll();
+	*dx = Mouse.delta_x;
+	*dy = Mouse.delta_y;
 	*dz = Mouse.delta_z;
+	Mouse.delta_x = 0;
+	Mouse.delta_y = 0;
 	Mouse.delta_z = 0;
 }
 

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.10 2001-10-24 09:30:02 bradleyb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.11 2001-11-14 11:02:55 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -124,7 +124,7 @@ int invert_text[2] = { TNUM_N, TNUM_Y };
 //	int joyaxis_text[4] = { TNUM_X1, TNUM_Y1, TNUM_X2, TNUM_Y2 };
 #endif
 	
-int mouseaxis_text[2] = { TNUM_L_R, TNUM_F_B };
+int mouseaxis_text[3] = { TNUM_L_R, TNUM_F_B, TNUM_Z1 };
 #ifndef MACINTOSH
 int mousebutton_text[3] = { TNUM_LEFT, TNUM_RIGHT, TNUM_MID };
 #else
@@ -1529,7 +1529,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 void kc_change_joyaxis( kc_item * item )
 {
-#ifdef __ENV_LINUX
+#ifdef __linux__
 	int axis[MAX_AXES];
 	int old_axis[MAX_AXES];
 #else
@@ -1630,6 +1630,9 @@ void kc_change_mouseaxis( kc_item * item )
 	int i,n,k;
 	ubyte code;
 	int dx,dy;
+#ifdef SDL_INPUT
+	int dz;
+#endif
 
 WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
@@ -1667,9 +1670,16 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 		kc_drawquestion( item );
 
+#ifdef SDL_INPUT
+		mouse_get_delta_z( &dx, &dy, &dz );
+#else
 		mouse_get_delta( &dx, &dy );
+#endif
 		if ( abs(dx)>20 ) code = 0;
-		if ( abs(dy)>20 )	code = 1;
+		if ( abs(dy)>20 ) code = 1;
+#ifdef SDL_INPUT
+		if ( abs(dz)>20 ) code = 2;
+#endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -2677,9 +2687,12 @@ void controls_read_all()
 	int i;
 	int slide_on, bank_on;
 	int dx, dy;
+#ifdef SDL_INPUT
+	int dz;
+#endif
 	int idx, idy;
 	fix ctime;
-	fix mouse_axis[2];
+	fix mouse_axis[3] = {0,0,0};
 #ifdef __linux__
 	int raw_joy_axis[MAX_AXES];
 #else
@@ -2788,9 +2801,16 @@ void controls_read_all()
 
 	if (Config_control_type==5 && !CybermouseActive) {
 		//---------  Read Mouse -----------
+#ifdef SDL_INPUT
+		mouse_get_delta_z( &dx, &dy, &dz );
+#else
 		mouse_get_delta( &dx, &dy );
+#endif
 		mouse_axis[0] = (dx*FrameTime)/35;
 		mouse_axis[1] = (dy*FrameTime)/25;
+#ifdef SDL_INPUT
+		mouse_axis[2] = (dz*FrameTime);
+#endif
 		mouse_buttons = mouse_get_btns();
 		//mprintf(( 0, "Mouse %d,%d b:%d, 0x%x\n", mouse_axis[0], mouse_axis[1], mouse_buttons, FrameTime ));
 		use_mouse=1;
