@@ -1,4 +1,6 @@
 --- Version 0.1.2 ---
+SDL uses mouse wheel to emulate 3rd axis.
+Player files created with descent 2 should now work with d2x.
 Savegame thumbnails work in OpenGL
 Menus now work in OpenGL!
 Automap works in OpenGL!
