@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.33 2004-11-25 11:51:15 btb Exp $ */
+/* $Id: font.c,v 1.34 2004-12-07 22:26:01 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1614,8 +1614,10 @@ grs_font * gr_init_font( char * fontname )
 	if (first_time) {
 		int i;
 		for (i=0;i<MAX_OPEN_FONTS;i++)
+		{
 			open_font[i].ptr = NULL;
 			open_font[i].dataptr = NULL;
+		}
 		first_time=0;
 	}
 

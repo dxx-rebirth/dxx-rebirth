@@ -1,3 +1,7 @@
+2004-12-07  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* 2d/font.c: Initialise the dataptr member correctly.
+
 2004-12-05  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* include/physfsx.h: getRealPath uses the write directory if it
