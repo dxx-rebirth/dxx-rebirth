@@ -1,4 +1,4 @@
-/* $Id: wall.c,v 1.10 2003-10-04 03:14:48 btb Exp $ */
+/* $Id: wall.c,v 1.11 2004-05-16 11:04:32 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -109,7 +109,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.10 2003-10-04 03:14:48 btb Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.11 2004-05-16 11:04:32 schaffner Exp $";
 #endif
 
 #include <stdio.h>
@@ -366,7 +366,7 @@ void blast_blastable_wall(segment *seg, int side)
 {
 	int Connectside;
 	segment *csegp;
-	int a, n;
+	int a, n, cwall_num;
 
 	Assert(seg->sides[side].wall_num != -1);
 
@@ -375,9 +375,10 @@ void blast_blastable_wall(segment *seg, int side)
 	csegp = &Segments[seg->children[side]];
 	Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
-
+	cwall_num = csegp->sides[Connectside].wall_num;
 	kill_stuck_objects(seg->sides[side].wall_num);
-	kill_stuck_objects(csegp->sides[Connectside].wall_num);
+	if (cwall_num > -1)
+		kill_stuck_objects(cwall_num);
 
 	//if this is an exploding wall, explode it
 	if (WallAnims[Walls[seg->sides[side].wall_num].clip_num].flags & WCF_EXPLODES)
@@ -388,7 +389,8 @@ void blast_blastable_wall(segment *seg, int side)
 		n = WallAnims[a].num_frames;
 		wall_set_tmap_num(seg,side,csegp,Connectside,a,n-1);
 		Walls[seg->sides[side].wall_num].flags |= WALL_BLASTED;
-		Walls[csegp->sides[Connectside].wall_num].flags |= WALL_BLASTED;
+		if (cwall_num > -1)
+			Walls[cwall_num].flags |= WALL_BLASTED;
 	}
 
 }
@@ -411,7 +413,7 @@ void wall_destroy(segment *seg, int side)
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 void wall_damage(segment *seg, int side, fix damage)
 {
-	int a, i, n;
+	int a, i, n, cwall_num;
 
 	if (seg->sides[side].wall_num == -1) {
 		mprintf((0, "Damaging illegal wall\n"));
@@ -429,9 +431,10 @@ void wall_damage(segment *seg, int side, fix damage)
 		csegp = &Segments[seg->children[side]];
 		Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
-		
+		cwall_num = csegp->sides[Connectside].wall_num;
 		Walls[seg->sides[side].wall_num].hps -= damage;
-		Walls[csegp->sides[Connectside].wall_num].hps -= damage;
+		if (cwall_num > -1)
+			Walls[cwall_num].hps -= damage;
 			
 		a = Walls[seg->sides[side].wall_num].clip_num;
 		n = WallAnims[a].num_frames;
@@ -458,13 +461,13 @@ void wall_open_door(segment *seg, int side)
 {
 	wall *w;
 	active_door *d;
-	int Connectside;
+	int Connectside, wall_num, cwall_num;
 	segment *csegp;
 
 	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
 
 	w = &Walls[seg->sides[side].wall_num];
-
+	wall_num = w - Walls;
 	//kill_stuck_objects(seg->sides[side].wall_num);
 
 	if ((w->state == WALL_DOOR_OPENING) ||		//already opening
@@ -482,7 +485,8 @@ void wall_open_door(segment *seg, int side)
 
 			d = &ActiveDoors[i];
 	
-			if (d->front_wallnum[0]==w-Walls || d->back_wallnum[0]==w-Walls || (d->n_parts==2 && (d->front_wallnum[1]==w-Walls || d->back_wallnum[1]==w-Walls)))
+			if (d->front_wallnum[0]==w-Walls || d->back_wallnum[0]==wall_num ||
+				 (d->n_parts==2 && (d->front_wallnum[1]==wall_num || d->back_wallnum[1]==wall_num)))
 				break;
 		}
 
@@ -514,13 +518,14 @@ void wall_open_door(segment *seg, int side)
 	csegp = &Segments[seg->children[side]];
 	Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
-
-	Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_OPENING;
+	cwall_num = csegp->sides[Connectside].wall_num;
+	if (cwall_num > -1)
+		Walls[cwall_num].state = WALL_DOOR_OPENING;
 
 	//kill_stuck_objects(csegp->sides[Connectside].wall_num);
 
 	d->front_wallnum[0] = seg->sides[side].wall_num;
-	d->back_wallnum[0] = csegp->sides[Connectside].wall_num;
+	d->back_wallnum[0] = cwall_num;
 
 	Assert( seg-Segments != -1);
 
@@ -543,11 +548,12 @@ void wall_open_door(segment *seg, int side)
 		csegp = &Segments[seg2->children[w2->sidenum]];
 		Connectside = find_connect_side(seg2, csegp);
 		Assert(Connectside != -1);
-		Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_OPENING;
+		if (cwall_num > -1)
+			Walls[cwall_num].state = WALL_DOOR_OPENING;
 
 		d->n_parts = 2;
 		d->front_wallnum[1] = w->linked_wall;
-		d->back_wallnum[1] = csegp->sides[Connectside].wall_num;
+		d->back_wallnum[1] = cwall_num;
 	}
 	else
 		d->n_parts = 1;
@@ -572,7 +578,7 @@ void start_wall_cloak(segment *seg, int side)
 	cloaking_wall *d;
 	int Connectside;
 	segment *csegp;
-	int i;
+	int i, cwall_num;
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
@@ -586,6 +592,7 @@ void start_wall_cloak(segment *seg, int side)
 	csegp = &Segments[seg->children[side]];
 	Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
+	cwall_num = csegp->sides[Connectside].wall_num;
 
 	if (w->state == WALL_DOOR_DECLOAKING) {	//decloaking, so reuse door
 
@@ -613,7 +620,8 @@ void start_wall_cloak(segment *seg, int side)
 		if (Num_cloaking_walls >= MAX_CLOAKING_WALLS) {		//no more!
 			Int3();		//ran out of cloaking wall slots
 			w->type = WALL_OPEN;
-			Walls[csegp->sides[Connectside].wall_num].type = WALL_OPEN;
+			if (cwall_num > -1)
+				Walls[cwall_num].type = WALL_OPEN;
 			return;
 		}
 		Num_cloaking_walls++;
@@ -624,10 +632,11 @@ void start_wall_cloak(segment *seg, int side)
 	}
 
 	w->state = WALL_DOOR_CLOAKING;
-	Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_CLOAKING;
+	if (cwall_num > -1)
+		Walls[cwall_num].state = WALL_DOOR_CLOAKING;
 
 	d->front_wallnum = seg->sides[side].wall_num;
-	d->back_wallnum = csegp->sides[Connectside].wall_num;
+	d->back_wallnum = cwall_num;
 
 	Assert( seg-Segments != -1);
 
@@ -641,7 +650,8 @@ void start_wall_cloak(segment *seg, int side)
 
 	for (i=0;i<4;i++) {
 		d->front_ls[i] = seg->sides[side].uvls[i].l;
-		d->back_ls[i] = csegp->sides[Connectside].uvls[i].l;
+		if (cwall_num > -1)
+			d->back_ls[i] = csegp->sides[Connectside].uvls[i].l;
 	}
 }
 
@@ -653,7 +663,7 @@ void start_wall_decloak(segment *seg, int side)
 	cloaking_wall *d;
 	int Connectside;
 	segment *csegp;
-	int i;
+	int i, cwall_num;
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
@@ -708,8 +718,9 @@ void start_wall_decloak(segment *seg, int side)
 	csegp = &Segments[seg->children[side]];
 	Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
-
-	Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_DECLOAKING;
+	cwall_num = csegp->sides[Connectside].wall_num;
+	if (cwall_num > -1)
+		Walls[cwall_num].state = WALL_DOOR_DECLOAKING;
 
 	d->front_wallnum = seg->sides[side].wall_num;
 	d->back_wallnum = csegp->sides[Connectside].wall_num;
@@ -726,7 +737,8 @@ void start_wall_decloak(segment *seg, int side)
 
 	for (i=0;i<4;i++) {
 		d->front_ls[i] = seg->sides[side].uvls[i].l;
-		d->back_ls[i] = csegp->sides[Connectside].uvls[i].l;
+		if (cwall_num > -1)
+			d->back_ls[i] = csegp->sides[Connectside].uvls[i].l;
 	}
 }
 
@@ -737,7 +749,7 @@ void wall_close_door_num(int door_num)
 {
 	int p;
 	active_door *d;
-	int i;
+	int i, cwall_num;
 
 	d = &ActiveDoors[door_num];
 
@@ -756,9 +768,10 @@ void wall_close_door_num(int door_num)
 		csegp = &Segments[seg->children[side]];
 		Connectside = find_connect_side(seg, csegp);
 		Assert(Connectside != -1);
-	
+		cwall_num = csegp->sides[Connectside].wall_num;
 		Walls[seg->sides[side].wall_num].state = WALL_DOOR_CLOSED;
-		Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_CLOSED;
+		if (cwall_num > -1)
+			Walls[cwall_num].state = WALL_DOOR_CLOSED;
 	
 		wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,0);
 
@@ -817,13 +830,13 @@ void wall_close_door(segment *seg, int side)
 {
 	wall *w;
 	active_door *d;
-	int Connectside;
+	int Connectside, wall_num, cwall_num;
 	segment *csegp;
 
 	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
 
 	w = &Walls[seg->sides[side].wall_num];
-
+	wall_num = w - Walls;
 	if ((w->state == WALL_DOOR_CLOSING) ||		//already closing
 		 (w->state == WALL_DOOR_WAITING)	||		//open, waiting to close
 		 (w->state == WALL_DOOR_CLOSED))			//closed
@@ -842,7 +855,8 @@ void wall_close_door(segment *seg, int side)
 
 			d = &ActiveDoors[i];
 	
-			if (d->front_wallnum[0]==w-Walls || d->back_wallnum[0]==w-Walls || (d->n_parts==2 && (d->front_wallnum[1]==w-Walls || d->back_wallnum[1]==w-Walls)))
+			if (d->front_wallnum[0]==wall_num || d->back_wallnum[0]==wall_num ||
+				 (d->n_parts==2 && (d->front_wallnum[1]==wall_num || d->back_wallnum[1]==wall_num)))
 				break;
 		}
 
@@ -869,11 +883,12 @@ void wall_close_door(segment *seg, int side)
 	csegp = &Segments[seg->children[side]];
 	Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
-
-	Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_CLOSING;
+	cwall_num = csegp->sides[Connectside].wall_num;
+	if (cwall_num > -1)
+		Walls[cwall_num].state = WALL_DOOR_CLOSING;
 
 	d->front_wallnum[0] = seg->sides[side].wall_num;
-	d->back_wallnum[0] = csegp->sides[Connectside].wall_num;
+	d->back_wallnum[0] = cwall_num;
 
 	Assert( seg-Segments != -1);
 
@@ -1272,15 +1287,19 @@ void do_cloaking_wall_frame(int cloaking_wall_num)
 
 	d = &CloakingWalls[cloaking_wall_num];
 	wfront = &Walls[d->front_wallnum];
-	wback = &Walls[d->back_wallnum];
+	wback = (d->back_wallnum > -1) ? Walls + d->back_wallnum : NULL;
 
 	d->time += FrameTime;
 
 	if (d->time > CLOAKING_WALL_TIME) {
 		int i;
 
-		wfront->type = wback->type = WALL_OPEN;
-		wfront->state = wback->state = WALL_DOOR_CLOSED;		//why closed? why not?
+		wfront->type = WALL_OPEN;
+		wfront->state = WALL_DOOR_CLOSED;		//why closed? why not?
+		if (wback) {
+			wback->type = WALL_OPEN;
+			wback->state = WALL_DOOR_CLOSED;		//why closed? why not?
+		}
 
 		for (i=cloaking_wall_num;i<Num_cloaking_walls;i++)
 			CloakingWalls[i] = CloakingWalls[i+1];
@@ -1290,16 +1309,21 @@ void do_cloaking_wall_frame(int cloaking_wall_num)
 	else if (d->time > CLOAKING_WALL_TIME/2) {
 		int old_type=wfront->type;
 
-		wfront->cloak_value = wback->cloak_value = ((d->time - CLOAKING_WALL_TIME/2) * (GR_FADE_LEVELS-2)) / (CLOAKING_WALL_TIME/2);
+		wfront->cloak_value = ((d->time - CLOAKING_WALL_TIME/2) * (GR_FADE_LEVELS-2)) / (CLOAKING_WALL_TIME/2);
+		if (wback)
+			wback->cloak_value = wfront->cloak_value;
 
 		if (old_type != WALL_CLOAKED) {		//just switched
 			int i;
 
-			wfront->type = wback->type = WALL_CLOAKED;
+			wfront->type = WALL_CLOAKED;
+			if (wback)
+				wback->type = WALL_CLOAKED;
 
 			for (i=0;i<4;i++) {
 				Segments[wfront->segnum].sides[wfront->sidenum].uvls[i].l = d->front_ls[i];
-				Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = d->back_ls[i];
+				if (wback)
+					Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = d->back_ls[i];
 			}
 		}
 	}
@@ -1311,7 +1335,8 @@ void do_cloaking_wall_frame(int cloaking_wall_num)
 
 		for (i=0;i<4;i++) {
 			Segments[wfront->segnum].sides[wfront->sidenum].uvls[i].l = fixmul(d->front_ls[i],light_scale);
-			Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = fixmul(d->back_ls[i],light_scale);
+			if (wback)
+				Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = fixmul(d->back_ls[i],light_scale);
 		}
 	}
 
@@ -1329,18 +1354,21 @@ void do_decloaking_wall_frame(int cloaking_wall_num)
 
 	d = &CloakingWalls[cloaking_wall_num];
 	wfront = &Walls[d->front_wallnum];
-	wback = &Walls[d->back_wallnum];
+	wback = (d->back_wallnum > -1) ? Walls + d->back_wallnum : NULL;
 
 	d->time += FrameTime;
 
 	if (d->time > CLOAKING_WALL_TIME) {
 		int i;
 
-		wfront->state = wback->state = WALL_DOOR_CLOSED;
+		wfront->state = WALL_DOOR_CLOSED;
+		if (wback)
+			wback->state = WALL_DOOR_CLOSED;
 
 		for (i=0;i<4;i++) {
 			Segments[wfront->segnum].sides[wfront->sidenum].uvls[i].l = d->front_ls[i];
-			Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = d->back_ls[i];
+			if (wback)
+				Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = d->back_ls[i];
 		}
 
 		for (i=cloaking_wall_num;i<Num_cloaking_walls;i++)
@@ -1358,12 +1386,17 @@ void do_decloaking_wall_frame(int cloaking_wall_num)
 
 		for (i=0;i<4;i++) {
 			Segments[wfront->segnum].sides[wfront->sidenum].uvls[i].l = fixmul(d->front_ls[i],light_scale);
+			if (wback)
 			Segments[wback->segnum].sides[wback->sidenum].uvls[i].l = fixmul(d->back_ls[i],light_scale);
 		}
 	}
 	else {		//cloaking in
-		wfront->cloak_value = wback->cloak_value = ((CLOAKING_WALL_TIME/2 - d->time) * (GR_FADE_LEVELS-2)) / (CLOAKING_WALL_TIME/2);
-		wfront->type = wback->type = WALL_CLOAKED;
+		wfront->cloak_value = ((CLOAKING_WALL_TIME/2 - d->time) * (GR_FADE_LEVELS-2)) / (CLOAKING_WALL_TIME/2);
+		wfront->type = WALL_CLOAKED;
+		if (wback) {
+			wback->cloak_value = wfront->cloak_value;
+			wback->type = WALL_CLOAKED;
+		}
 	}
 
 	if ( Newdemo_state == ND_STATE_RECORDING )
@@ -1393,7 +1426,8 @@ void wall_frame_process()
 			//waiting to close but open flag isn't set
 			Assert(d->n_parts == 1);
 			w->flags |= WALL_DOOR_OPENED;
-			Walls[d->back_wallnum[0]].flags |= WALL_DOOR_OPENED;
+			if (d->back_wallnum[0] > -1)
+				Walls[d->back_wallnum[0]].flags |= WALL_DOOR_OPENED;
 
 			if (d->time > DOOR_WAIT_TIME && is_door_free(&Segments[w->segnum],w->sidenum)) {
 				w->state = WALL_DOOR_CLOSING;
@@ -1423,8 +1457,10 @@ void wall_frame_process()
 			do_cloaking_wall_frame(i);
 		else if (w->state == WALL_DOOR_DECLOAKING)
 			do_decloaking_wall_frame(i);
+#ifdef _DEBUG
 		else
 			Int3();	//unexpected wall state
+#endif
 	}
 }
 
@@ -1493,7 +1529,7 @@ void kill_stuck_objects(int wallnum)
 {
 	int	i;
 
-	if (Num_stuck_objects == 0) {
+	if (wallnum < 0 || Num_stuck_objects == 0) {
 		return;
 	}
 
