@@ -1,5 +1,7 @@
 2003-10-09  Bradley Bell  <btb@icculus.org>
 
+	* main/laser.h: comments/whitespace
+
 	* main/laser.c, main/weapon.c: fixed smart missiles and smart
 	mines w/shareware data
 
