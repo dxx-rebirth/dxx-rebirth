@@ -70,12 +70,8 @@ typedef ubyte bool;
 #define NULL 0
 #endif
 
-#ifdef FAST_FILE_IO
-# ifdef __GNUC__
-#  define __pack__ __attribute__((packed))
-# else
-#  define __pack__
-# endif
+#ifdef __GNUC__
+# define __pack__ __attribute__((packed))
 #else
 # define __pack__
 #endif
