@@ -1,5 +1,9 @@
 //added on 9/2/98 by Matt Mueller
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
 #include "d_delay.h"
 
 #ifndef d_delay

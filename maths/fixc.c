@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/maths/fixc.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:29:58 $
+ * $Date: 2001-01-31 15:18:04 $
  * 
  * C version of fixed point library
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:29:58  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.3  1999/10/18 00:31:01  donut
  * more alpha fixes from Falk Hueffner
  *
@@ -58,26 +61,27 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: fixc.c,v 1.1.1.1 2001-01-19 03:29:58 bradleyb Exp $";
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
 #endif
 
-#include <conf.h>
-#include "maths.h"
+#ifdef RCS
+static char rcsid[] = "$Id: fixc.c,v 1.2 2001-01-31 15:18:04 bradleyb Exp $";
+#endif
 
-#ifdef NO_ASM
 #include <stdlib.h>
 #include <math.h>
 
 #include "error.h"
 #include "maths.h"
 
+#ifndef NO_ASM
 #ifdef NO_FIX_INLINE
 #ifdef _MSC_VER
 #pragma message ("warning: FIX NOT INLINED")
 #else
 #warning "FIX NOT INLINED"
+#endif
 #endif
 #endif
 
@@ -555,4 +559,3 @@ fix fix_isqrt( fix a )
 
 	return r;	
 }
-#endif // NO_ASM

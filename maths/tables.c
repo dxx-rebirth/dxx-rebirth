@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/maths/tables.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:29:58 $
+ * $Date: 2001-01-31 15:18:04 $
  * 
  * C version of fixed point library
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:29:58  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.1.1.1  1999/06/14 22:13:38  donut
  * Import of d1x 1.37 source.
  *
@@ -30,7 +33,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
 */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
 #include "maths.h"
 
 ubyte guess_table[] = {

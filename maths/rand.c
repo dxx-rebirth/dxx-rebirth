@@ -1,7 +1,10 @@
 // Descent random number stuff...
 // rand has different ranges on different machines...
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
 #include <stdlib.h>
 
 #ifdef NO_WATCOM_RAND

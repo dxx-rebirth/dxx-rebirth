@@ -1,7 +1,11 @@
 noinst_LIBRARIES = libmaths.a
 INCLUDES = -I $(top_srcdir)/includes 
 
+if USE_ASM
+libmaths_a_SOURCES = vecmat.c rand.c tables.c
+else
 libmaths_a_SOURCES = vecmat.c rand.c tables.c fixc.c
+endif
 
 SUFFIXES = .asm
 %.o: %.asm

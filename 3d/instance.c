@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/3d/instance.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:29:58 $
+ * $Date: 2001-01-31 15:17:48 $
  * 
  * Instancing routines
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:29:58  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.1.1.1  1999/06/14 21:57:45  donut
  * Import of d1x 1.37 source.
  *
@@ -34,11 +37,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: instance.c,v 1.1.1.1 2001-01-19 03:29:58 bradleyb Exp $";
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
 #endif
 
-#include <conf.h>
+#ifdef RCS
+static char rcsid[] = "$Id: instance.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
+#endif
+
 #include <stdlib.h>
 #include "error.h"
 

@@ -12,9 +12,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 
-char ai_rcsid[] = "$Id: ai.c,v 1.1.1.1 2001-01-19 03:30:02 bradleyb Exp $";
-
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
+char ai_rcsid[] = "$Id: ai.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>

@@ -11,7 +11,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
 #include <string.h>
 #include "u_mem.h"
 #include "gr.h"

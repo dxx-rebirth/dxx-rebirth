@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/scanline.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:16 $
+ * $Date: 2001-01-31 15:18:04 $
  * 
  * Routines to draw the texture mapped scanlines.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.4  1999/10/18 00:31:01  donut
  * more alpha fixes from Falk Hueffner
  *
@@ -40,12 +43,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: scanline.c,v 1.1.1.1 2001-01-19 03:30:16 bradleyb Exp $";
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
 #endif
 
-#include <conf.h>
+#ifdef RCS
+static char rcsid[] = "$Id: scanline.c,v 1.2 2001-01-31 15:18:04 bradleyb Exp $";
+#endif
+
 #include <math.h>
 #include <limits.h>
 #include <stdio.h>

@@ -11,11 +11,13 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: mem.c,v 1.2 2001-01-31 14:04:45 bradleyb Exp $";
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
 #endif
 
+#ifdef RCS
+static char rcsid[] = "$Id: mem.c,v 1.3 2001-01-31 15:18:04 bradleyb Exp $";
+#endif
 
 // Warning( "MEM: Too many malloc's!" );
 // Warning( "MEM: Malloc returnd an already alloced block!" );

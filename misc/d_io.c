@@ -1,6 +1,10 @@
 // some misc. file/disk routines
 // Arne de Bruijn, 1998
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include "d_io.h"

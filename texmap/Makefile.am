@@ -1,7 +1,11 @@
 noinst_LIBRARIES = libtexmap.a
 INCLUDES = -I $(top_srcdir)/includes -DFL1_WITH_FLAT
 
+if USE_ASM
 libtexmap_a_SOURCES = ntmap.c tmapflat.c
+else
+libtexmap_a_SOURCES = ntmap.c tmapflat.c scanline.c
+endif
 
 SUFFIXES = .asm
 %.o: %.asm
@@ -9,8 +13,6 @@ SUFFIXES = .asm
 
 if USE_ASM
 libtexmap_a_LIBADD += tmapppro.o tmap_ll.o tmap_flt.o tmap_lin.o tmapfade.o
-else
-libtexmap_a_LIBADD += scanline.o
 endif
 
 EXTRA_DIST = \

@@ -11,8 +11,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>	//	for memset()
@@ -31,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $";
+static char rcsid[] = "$Id: gameseg.c,v 1.3 2001-01-31 15:17:53 bradleyb Exp $";
 #endif
 
 // How far a point can be from a plane, and still be "in" the plane

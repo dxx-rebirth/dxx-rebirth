@@ -13,12 +13,13 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: paging.c,v 1.1.1.1 2001-01-19 03:29:59 bradleyb Exp $";
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
 #endif
 
-#include <conf.h>
+#ifdef RCS
+static char rcsid[] = "$Id: paging.c,v 1.2 2001-01-31 15:17:57 bradleyb Exp $";
+#endif
 
 #ifdef WINDOWS
 #include "desw.h"

@@ -1,5 +1,9 @@
 /* Globbing functions for descent. Calls the relevant system handlers... */
 
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #include "d_glob.h"
 #include "error.h"
 #include <string.h>

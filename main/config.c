@@ -11,7 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
 
 #ifndef MACINTOSH			// I'm going to totally seperate these routines -- yeeech!!!!
 							// see end of file for macintosh equivs
@@ -46,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.2 2001-01-24 04:29:45 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.3 2001-01-31 15:17:49 bradleyb Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -576,7 +578,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.2 2001-01-24 04:29:45 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.3 2001-01-31 15:17:49 bradleyb Exp $";
 #endif
 
 #define MAX_CTB_LEN	512

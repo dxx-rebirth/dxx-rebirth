@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/misc/args.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-24 04:29:48 $
+ * $Date: 2001-01-31 15:18:04 $
  * 
  * Functions for accessing arguments.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/24 04:29:48  bradleyb
+ * changed args_find to FindArg
+ *
  * Revision 1.1.1.1  2001/01/19 03:30:14  bradleyb
  * Import of d2x-0.0.8
  *
@@ -67,12 +70,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.2 2001-01-24 04:29:48 bradleyb Exp $";
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
 #endif
 
-#include <conf.h>
+#ifdef RCS
+static char rcsid[] = "$Id: args.c,v 1.3 2001-01-31 15:18:04 bradleyb Exp $";
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/tmapflat.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 14:04:46 $
+ * $Date: 2001-01-31 15:18:05 $
  *
  * Flat shader derived from texture mapper (a little slow)
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/31 14:04:46  bradleyb
+ * Fix compiler warnings
+ *
  * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
  * Import of d2x-0.0.8
  *
@@ -73,7 +76,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
 
 #include "fix.h"
 #include "vecmat.h"

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/3d/rod.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:29:58 $
+ * $Date: 2001-01-31 15:17:48 $
  * 
  * Rod routines
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:29:58  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.2  1999/09/21 04:05:55  donut
  * mostly complete OGL implementation (still needs bitmap handling (reticle), and door/fan textures are corrupt)
  *
@@ -37,11 +40,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: rod.c,v 1.1.1.1 2001-01-19 03:29:58 bradleyb Exp $";
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
 #endif
 
-#include <conf.h>
+#ifdef RCS
+static char rcsid[] = "$Id: rod.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
+#endif
+
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h"

@@ -11,11 +11,13 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef RCS
-static char rcsid[] = "$Id: iff.c,v 1.3 2001-01-22 13:37:46 bradleyb Exp $";
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
 #endif
 
-#include <conf.h>
+#ifdef RCS
+static char rcsid[] = "$Id: iff.c,v 1.4 2001-01-31 15:17:48 bradleyb Exp $";
+#endif
 
 #define COMPRESS		1	//do the RLE or not? (for debugging mostly)
 #define WRITE_TINY	0	//should we write a TINY chunk?

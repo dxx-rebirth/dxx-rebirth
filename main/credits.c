@@ -11,16 +11,18 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: credits.c,v 1.2 2001-01-20 13:49:14 bradleyb Exp $";
+static char rcsid[] = "$Id: credits.c,v 1.3 2001-01-31 15:17:50 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
 #include "desw.h"
 #endif
 
-#include <conf.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

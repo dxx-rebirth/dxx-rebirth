@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/ntmap.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 14:04:46 $
+ * $Date: 2001-01-31 15:18:04 $
  * 
  * Start of conversion to new texture mapper.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/31 14:04:46  bradleyb
+ * Fix compiler warnings
+ *
  * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
  * Import of d2x-0.0.8
  *
@@ -136,11 +139,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: ntmap.c,v 1.2 2001-01-31 14:04:46 bradleyb Exp $";
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
 #endif
 
-#include <conf.h>
+#ifdef RCS
+static char rcsid[] = "$Id: ntmap.c,v 1.3 2001-01-31 15:18:04 bradleyb Exp $";
+#endif
 
 #define VESA 0
 #define NUM_TMAPS 16

@@ -11,7 +11,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
 #include "u_mem.h"
 
 
@@ -122,4 +125,3 @@ void gr_box(int left,int top,int right,int bot)
 	else
 		gr_ubox12( left, top, right, bot );
 }
-

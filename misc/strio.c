@@ -1,5 +1,9 @@
 /**strio.c: string/file manipulation functions by Victor Rachels **/
+
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "strio.h"
