@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.36 2004-11-14 09:34:23 schaffner Exp $ */
+/* $Id: gr.c,v 1.37 2004-12-01 12:48:13 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -45,6 +45,7 @@
 #include "mono.h"
 #include "args.h"
 #include "key.h"
+#include "physfsx.h"
 
 #define DECLARE_VARS
 #include "internal.h"
@@ -724,9 +725,9 @@ void gr_palette_read(ubyte * pal)
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
 void write_bmp(char *savename,int w,int h,unsigned char *buf){
-	CFILE *f;
+	PHYSFS_file *f;
 
-	f = cfopen(savename, "wb");
+	f = PHYSFS_openWrite(savename);
 		
 	if (f>=0){
 		GLubyte    targaMagic[12] = { 0, //no identification field
@@ -739,11 +740,11 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){
 		int x,y;
 		
 		//write .TGA header.
-		cfwrite (targaMagic,sizeof(targaMagic),1,f);
-		cfile_write_short (w,f);
-        cfile_write_short (h,f);
-		cfile_write_byte (24,f);//24 bpp
-		cfile_write_byte (0,f);//no attribute bits, origin is lowerleft, no interleave
+		PHYSFS_write(f, targaMagic, sizeof(targaMagic), 1);
+		PHYSFS_writeSLE32(f, w);
+		PHYSFS_writeSLE32(f, h);
+		PHYSFSX_writeU8(f, 24); // 24 bpp
+		PHYSFSX_writeU8(f, 0);  // no attribute bits, origin is lowerleft, no interleave
 		
 		s=buf;
 		for (y=0;y<h;y++){//TGAs use BGR ordering of data.
@@ -757,14 +758,14 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){
 		x=0;y=w*h*3;
 		while (y > 0)
 		{
-			r=cfwrite(buf+x,1,y,f);
+			r = PHYSFS_write(f, buf + x, 1, y);
 			if (r<=0){
 				mprintf((0,"screenshot error, couldn't write to %s (err %i)\n",savename,errno));
 				break;
 			}
 			x+=r;y-=r;
 		}
-		cfclose(f);
+		PHYSFS_close(f);
 	}else{
 		mprintf((0,"screenshot error, couldn't open %s (err %i)\n",savename,errno));
 	}

@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.92 2004-11-27 11:55:10 btb Exp $ */
+/* $Id: inferno.c,v 1.93 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,6 +40,8 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
+
+#include <physfs.h>
 
 #include "pstypes.h"
 #include "strutil.h"
@@ -95,7 +97,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "gamepal.h"
 #include "mission.h"
 #include "movie.h"
-#include "d_io.h"
 
 // #  include "3dfx_des.h"
 
@@ -148,7 +149,9 @@ int Inferno_is_800x600_available = 0;
 //--unused-- int Cyberman_installed=0;			// SWIFT device present
 ubyte CybermouseActive=0;
 
+#ifdef __WATCOMC__
 int __far descent_critical_error_handler( unsigned deverr, unsigned errcode, unsigned __far * devhdr );
+#endif
 
 void check_joystick_calibration(void);
 
@@ -459,8 +462,6 @@ int start_net_immediately = 0;
 //char *start_with_mission_name;
 //end this section addition
 
-int open_movie_file(char *filename,int must_have);
-
 #if defined(POLY_ACC)
 #define MENU_HIRES_MODE SM_640x480x15xPA
 #else
@@ -482,34 +483,67 @@ int main(int argc, char *argv[])
 	int i, t;
 	ubyte title_pal[768];
 
+	PHYSFS_init(argv[0]);
+	PHYSFS_permitSymbolicLinks(1);
+
 	con_init();  // Initialise the console
 	mem_init();
 
 	error_init(NULL, NULL);
 
+	PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
 	InitArgs( argc,argv );
 
+	if ((t = FindArg("-userdir"))
 #ifdef __unix__
-	{
-		char *home = getenv("HOME");
-
-		if ((t = FindArg("-userdir")))
-			chdir(Args[t+1]);
-
-		else if (home) {
-			char buf[PATH_MAX + 5];
-
-			strcpy(buf, home);
-			strcat(buf, "/.d2x");
-			if (chdir(buf)) {
-				mkdir(buf, 0755);
-				if (chdir(buf))
-					fprintf(stderr, "Cannot change to $HOME/.d2x\n");
-			}
-		}
-	}
+	 || 1	// or if it's a unix platform
 #endif
+	 )
+	{
+		// This stuff below seems overly complicated - brad
 
+		char *path = Args[t+1];
+		char fullPath[PATH_MAX + 5];
+
+#ifdef __unix__
+		if (!t)
+			path = "~/.d2x";
+#endif
+		PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
+		
+		if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
+		{
+			const char *home = PHYSFS_getUserDir();
+			
+			strcpy(fullPath, home);	// prepend home to the path
+			path++;
+			if (*path == *PHYSFS_getDirSeparator())
+				path++;
+			strncat(fullPath, path, PATH_MAX + 5 - strlen(home));
+		}
+		else
+			strncpy(fullPath, path, PATH_MAX + 5);
+		
+		PHYSFS_setWriteDir(fullPath);
+		if (!PHYSFS_getWriteDir())  // need to make it
+		{
+			PHYSFS_mkdir(fullPath);
+			PHYSFS_setWriteDir(fullPath);
+		}
+			
+		PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 1);
+		AppendArgs();
+	}
+
+	if (!PHYSFS_getWriteDir())
+	{
+		PHYSFS_setWriteDir(PHYSFS_getBaseDir());
+		if (!PHYSFS_getWriteDir())
+			Error("can't set write dir\n");
+		else
+			PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 0);
+	}
+	
 	if (FindArg("-debug"))
 		con_threshold.value = (float)2;
 	else if (FindArg("-verbose"))
@@ -517,14 +551,11 @@ int main(int argc, char *argv[])
 
 	//tell cfile where hogdir is
 	if ((t=FindArg("-hogdir")))
-		cfile_use_alternate_hogdir(Args[t+1]);
+		PHYSFS_addToSearchPath(Args[t + 1], 1);
 #ifdef __unix__
 	else if (!FindArg("-nohogdir"))
-		cfile_use_alternate_hogdir(SHAREPATH);
+		PHYSFS_addToSearchPath(SHAREPATH, 1);
 #endif
-
-	//tell cfile about our counter
-	cfile_set_critical_error_counter_ptr(&descent_critical_error);
 
 	if (! cfile_init("descent2.hog"))
 		if (! cfile_init("d2demo.hog"))
@@ -564,6 +595,23 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL, "\n");
 	con_printf(CON_NORMAL, TXT_HELP, PROGNAME);		//help message has %s for program name
 	con_printf(CON_NORMAL, "\n");
+
+	{
+		char **i, **list;
+
+		for (i = PHYSFS_getSearchPath(); *i != NULL; i++)
+			con_printf(CON_VERBOSE, "PHYSFS: [%s] is in the search path.\n", *i);
+
+		list = PHYSFS_getCdRomDirs();
+		for (i = list; *i != NULL; i++)
+			con_printf(CON_VERBOSE, "PHYSFS: cdrom dir [%s] is available.\n", *i);
+		PHYSFS_freeList(list);
+
+		list = PHYSFS_enumerateFiles("");
+		for (i = list; *i != NULL; i++)
+			con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
+		PHYSFS_freeList(list);
+	}
 
 	//(re)added Mar 30, 2003 Micah Lieske - Allow use of 22K sound samples again.
 	if(FindArg("-sound22k"))
@@ -788,7 +836,7 @@ int main(int argc, char *argv[])
 			if (!played) {
                 strcpy(filename,MenuHires?"pre_i1b.pcx":"pre_i1.pcx");
 
-				while (cfexist(filename))
+				while (PHYSFS_exists(filename))
 				{
 					show_title_screen( filename, 1, 0 );
                     filename[5]++;
@@ -844,14 +892,15 @@ int main(int argc, char *argv[])
 		{	//show bundler movie or screens
 
 			char filename[FILENAME_LEN];
-			int movie_handle;
+			PHYSFS_file *movie_handle;
 
 			played=MOVIE_NOT_PLAYED;	//default is not played
 
 			//check if OEM movie exists, so we don't stop the music if it doesn't
-			movie_handle = open_movie_file("oem.mve",0);
-			if (movie_handle != -1) {
-				close(movie_handle);
+			movie_handle = PHYSFS_openRead("oem.mve");
+			if (movie_handle)
+			{
+				PHYSFS_close(movie_handle);
 				played = PlayMovie("oem.mve",0);
 				song_playing = 0;		//movie will kill sound
 			}
@@ -859,7 +908,7 @@ int main(int argc, char *argv[])
 			if (!played) {
 				strcpy(filename,MenuHires?"oem1b.pcx":"oem1.pcx");
 
-				while (cfexist(filename))
+				while (PHYSFS_exists(filename))
 				{
 					show_title_screen( filename, 1, 0 );
 					filename[3]++;

@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.31 2004-11-27 05:10:33 btb Exp $ */
+/* $Id: mission.c,v 1.32 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -39,11 +39,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "mono.h"
 #include "error.h"
-#include "findfile.h"
 #include "config.h"
 #include "newmenu.h"
 #include "text.h"
 #include "u_mem.h"
+#include "ignorecase.h"
 
 //values for d1 built-in mission
 #define BIM_LAST_LEVEL          27
@@ -445,22 +445,27 @@ void add_builtin_mission_to_list(int *count, char *name)
 }
 
 
-void add_missions_to_list(char *search_name, int *count, int anarchy_mode)
+void add_missions_to_list(int *count, int anarchy_mode)
 {
-	FILEFINDSTRUCT find;
-	if( !FileFindFirst( search_name, &find ) ) {
-		do	{
-			if (read_mission_file( find.name, *count, ML_MISSIONDIR )) {
+	char **find, **i, *ext;
 
+	find = PHYSFS_enumerateFiles(MISSION_DIR);
+
+	for (i = find; *i != NULL; i++)
+	{
+		ext = strrchr(*i, '.');
+		if (ext && (!strnicmp(ext, ".msn", 4) || !strnicmp(ext, ".mn2", 4)))
+			if (read_mission_file(*i, *count, ML_MISSIONDIR))
 				if (anarchy_mode || !Mission_list[*count].anarchy_only_flag)
 					++(*count);
-			}
-
-		} while( !FileFindNext( &find ) && *count < MAX_MISSIONS);
-		FileFindClose();
 		if (*count >= MAX_MISSIONS)
+		{
 			mprintf((0, "Warning: more missions than d2x can handle\n"));
+			break;
+		}
 	}
+
+	PHYSFS_freeList(find);
 }
 
 /* move <mission_name> to <place> on mission list, increment <place> */
@@ -499,8 +504,10 @@ void free_mission(void)
 //in the list.  If anarchy_mode is set, then also add anarchy-only missions.
 
 extern char CDROM_dir[];
+#if 0
 extern char AltHogDir[];
 extern char AltHogdir_initialized;
+#endif
 
 int build_mission_list(int anarchy_mode)
 {
@@ -525,19 +532,8 @@ int build_mission_list(int anarchy_mode)
 
 	add_builtin_mission_to_list(&count, builtin_mission_filename);  //read built-in first
 	add_d1_builtin_mission_to_list(&count);
-	add_missions_to_list(MISSION_DIR "*.mn2", &count, anarchy_mode);
-	add_missions_to_list(MISSION_DIR "*.msn", &count, anarchy_mode);
-
-	if (AltHogdir_initialized) {
-		char search_name[PATH_MAX + 5];
-		strcpy(search_name, AltHogDir);
-		strcat(search_name, "/" MISSION_DIR "*.mn2");
-		add_missions_to_list(search_name, &count, anarchy_mode);
-		strcpy(search_name, AltHogDir);
-		strcat(search_name, "/" MISSION_DIR "*.msn");
-		add_missions_to_list(search_name, &count, anarchy_mode);
-	}
-
+	add_missions_to_list(&count, anarchy_mode);
+	
 	// move original missions (in story-chronological order)
 	// to top of mission list
 	top_place = 0;
@@ -588,7 +584,7 @@ int load_mission(int mission_num)
 
     // for Descent 1 missions, load descent.hog
     if (EMULATING_D1) {
-        if (!cfile_use_descent1_hogfile("descent.hog"))
+        if (!cfile_init("descent.hog"))
             Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
         if (!stricmp(Current_mission_filename, D1_MISSION_FILENAME))
             return load_mission_d1();
@@ -636,6 +632,8 @@ int load_mission(int mission_num)
 	else
 		strcat(buf,".msn");
 
+	PHYSFSEXT_locateCorrectCase(buf);
+
 	mfile = cfopen(buf,"rb");
 	if (mfile == NULL) {
         free_mission();
@@ -647,7 +645,9 @@ int load_mission(int mission_num)
 
         strcpy(buf+strlen(buf)-4,".hog");		//change extension
 
-        found_hogfile = cfile_use_alternate_hogfile(buf);
+		PHYSFSEXT_locateCorrectCase(buf);
+
+		found_hogfile = cfile_init(buf);
 
 #ifdef RELEASE				//for release, require mission to be in hogfile
         if (! found_hogfile) {
@@ -690,7 +690,7 @@ int load_mission(int mission_num)
 				while (*(++bufp) == ' ')
 					;
 
-			cfile_use_alternate_hogfile(bufp);
+			cfile_init(bufp);
 			mprintf((0, "Hog file override = [%s]\n", bufp));
 		}
 		else if (istok(buf,"briefing")) {
@@ -773,7 +773,6 @@ int load_mission(int mission_num)
 		sprintf(t,"%s.ham",Current_mission_filename);
 		bm_read_extra_robots(t, Current_mission->enhanced);
 		strncpy(t,Current_mission_filename,6);
-		strcat(t,"-l.mvl");
 		init_extra_robot_movie(t);
 	}
 

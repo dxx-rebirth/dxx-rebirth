@@ -2,7 +2,7 @@
 #ifndef _STRIO_H
 #define _STRIO_H
 
-char* fgets_unlimited(CFILE *f);
+char* fgets_unlimited(PHYSFS_file *f);
 char *splitword(char *s, char splitchar);
 
 #endif

@@ -1,4 +1,4 @@
-/* $Id: kludge.c,v 1.17 2004-11-29 05:25:58 btb Exp $ */
+/* $Id: kludge.c,v 1.18 2004-12-01 12:48:13 btb Exp $ */
 
 /*
  *
@@ -17,7 +17,6 @@
 #include "gr.h"
 #include "pstypes.h"
 #include "maths.h"
-#include "findfile.h"
 
 extern int VGA_current_mode;
 

@@ -1,4 +1,4 @@
-/* $Id: newdemo.c,v 1.17 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: newdemo.c,v 1.18 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -36,6 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
+
+#include <physfs.h>
 
 #include "u_mem.h"
 #include "inferno.h"
@@ -94,11 +96,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "piggy.h"
 #include "controls.h"
-#include "d_io.h"
 #include "timer.h"
-
-#include "findfile.h"
-
+#include "physfsx.h"
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -209,15 +208,15 @@ sbyte First_time_playback=1;
 fix JasonPlaybackTotal=0;
 
 
-CFILE *infile;
-CFILE *outfile = NULL;
+PHYSFS_file *infile;
+PHYSFS_file *outfile = NULL;
 
 int newdemo_get_percent_done() {
 	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
-		return (cftell(infile) * 100) / Newdemo_size;
+		return (PHYSFS_tell(infile) * 100) / Newdemo_size;
 	}
 	if ( Newdemo_state == ND_STATE_RECORDING ) {
-		return cftell(outfile);
+		return PHYSFS_tell(outfile);
 	}
 	return 0;
 }
@@ -257,8 +256,8 @@ void my_extract_shortpos(object *objp, shortpos *spp)
 int newdemo_read( void *buffer, int elsize, int nelem )
 {
 	int num_read;
-	num_read = cfread(buffer, elsize, nelem, infile);
-	if (cferror(infile) || cfeof(infile))
+	num_read = PHYSFS_read(infile, buffer, elsize, nelem);
+	if (num_read < nelem || PHYSFS_eof(infile))
 		nd_bad_read = -1;
 
 	return num_read;
@@ -284,7 +283,7 @@ int newdemo_write( void *buffer, int elsize, int nelem )
 	frame_bytes_written += total_size;
 	Newdemo_num_written += total_size;
 	Assert(outfile != NULL);
-	num_written = cfwrite(buffer, elsize, nelem, outfile);
+	num_written = PHYSFS_write(outfile, buffer, elsize, nelem);
 	//if ((Newdemo_num_written > Newdemo_size) && !Newdemo_no_space) {
 	//	Newdemo_no_space=1;
 	//	newdemo_stop_recording();
@@ -2446,7 +2445,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_EOF: {
 			done=-1;
-			cfseek(infile, -1, SEEK_CUR);        // get back to the EOF marker
+			PHYSFS_seek(infile, PHYSFS_tell(infile) - 1);        // get back to the EOF marker
 			Newdemo_at_eof = 1;
 			NewdemoFrameCount++;
 			break;
@@ -2474,7 +2473,7 @@ void newdemo_goto_beginning()
 {
 	//if (NewdemoFrameCount == 0)
 	//	return;
-	cfseek(infile, 0, SEEK_SET);
+	PHYSFS_seek(infile, 0);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	if (newdemo_read_demo_start(0))
 		newdemo_stop_playback();
@@ -2493,7 +2492,7 @@ void newdemo_goto_end()
 	sbyte energy, shield, c;
 	int i, loc, bint;
 
-	cfseek(infile, -2, SEEK_END);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) - 2);
 	nd_read_byte(&level);
 
 	if ((level < Last_secret_level) || (level > Last_level)) {
@@ -2509,12 +2508,12 @@ void newdemo_goto_end()
 	if (level != Current_level_num)
 		LoadLevel(level,1);
 
-	cfseek(infile, -4, SEEK_END);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) - 4);
 	nd_read_short(&byte_count);
-	cfseek(infile, -2 - byte_count, SEEK_CUR);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) - 2 - byte_count);
 
 	nd_read_short(&frame_length);
-	loc = cftell(infile);
+	loc = PHYSFS_tell(infile);
 	if (Newdemo_game_mode & GM_MULTI)
 		nd_read_byte(&Newdemo_players_cloaked);
 	else
@@ -2566,11 +2565,11 @@ void newdemo_goto_end()
 		nd_read_int(&(Players[Player_num].score));
 	}
 
-	cfseek(infile, loc, SEEK_SET);
-	cfseek(infile, -frame_length, SEEK_CUR);
+	PHYSFS_seek(infile, loc);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) - frame_length);
 	nd_read_int(&NewdemoFrameCount);            // get the frame count
 	NewdemoFrameCount--;
-	cfseek(infile, 4, SEEK_CUR);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) + 4);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	newdemo_read_frame_information();           // then the frame information
 	Newdemo_vcr_state = ND_STATE_PAUSED;
@@ -2584,9 +2583,9 @@ void newdemo_back_frames(int frames)
 
 	for (i = 0; i < frames; i++)
 	{
-		cfseek(infile, -10, SEEK_CUR);
+		PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
 		nd_read_short(&last_frame_length);
-		cfseek(infile, 8 - last_frame_length, SEEK_CUR);
+		PHYSFS_seek(infile, PHYSFS_tell(infile) + 8 - last_frame_length);
 
 		if (!Newdemo_at_eof && newdemo_read_frame_information() == -1) {
 			newdemo_stop_playback();
@@ -2595,9 +2594,9 @@ void newdemo_back_frames(int frames)
 		if (Newdemo_at_eof)
 			Newdemo_at_eof = 0;
 
-		cfseek(infile, -10, SEEK_CUR);
+		PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
 		nd_read_short(&last_frame_length);
-		cfseek(infile, 8 - last_frame_length, SEEK_CUR);
+		PHYSFS_seek(infile, PHYSFS_tell(infile) + 8 - last_frame_length);
 	}
 
 }
@@ -2792,7 +2791,7 @@ void newdemo_playback_one_frame()
 		else
 			frames_back = 1;
 		if (Newdemo_at_eof) {
-			cfseek(infile, 11, SEEK_CUR);
+			PHYSFS_seek(infile, PHYSFS_tell(infile) + 11);
 		}
 		newdemo_back_frames(frames_back);
 
@@ -2940,12 +2939,8 @@ void newdemo_playback_one_frame()
 
 void newdemo_start_recording()
 {
-#ifdef WINDOWS
-	Newdemo_size=GetFreeDiskSpace();
-	mprintf((0, "Free space = %d\n", Newdemo_size));
-#else
-	Newdemo_size = GetDiskFree();
-#endif
+	Newdemo_size = PHYSFSX_getFreeDiskSpace();
+	con_printf(CON_VERBOSE, "Free space = %d\n", Newdemo_size);
 
 	Newdemo_size -= 100000;
 
@@ -2963,15 +2958,15 @@ void newdemo_start_recording()
 	Newdemo_num_written = 0;
 	Newdemo_no_space=0;
 	Newdemo_state = ND_STATE_RECORDING;
-	outfile = cfopen(DEMO_FILENAME, "wb");
+	outfile = PHYSFS_openWrite(DEMO_FILENAME);
 
 #if !defined(MACINTOSH) && !defined(_WIN32_WCE)
 	if (outfile == NULL && errno == ENOENT) {   //dir doesn't exist?
 #else
 	if (outfile == NULL) {                      //dir doesn't exist and no errno on mac!
 #endif
-		cfile_mkdir(DEMO_DIR); //try making directory
-		outfile = cfopen(DEMO_FILENAME, "wb");
+		PHYSFS_mkdir(DEMO_DIR); //try making directory
+		outfile = PHYSFS_openWrite(DEMO_FILENAME);
 	}
 
 	if (outfile == NULL)
@@ -3056,8 +3051,8 @@ void newdemo_stop_recording()
 	nd_write_byte(Current_level_num);
 	nd_write_byte(ND_EVENT_EOF);
 
-	l = cftell(outfile);
-	cfclose(outfile);
+	l = PHYSFS_tell(outfile);
+	PHYSFS_close(outfile);
 	outfile = NULL;
 	Newdemo_state = ND_STATE_NORMAL;
 	gr_palette_load( gr_palette );
@@ -3107,12 +3102,12 @@ try_again:
 			strcat(save_file, ".dem");
 		} else
 			sprintf (save_file, "%stmp%d.dem", DEMO_DIR, tmpcnt++);
-		cfile_delete(save_file);
-		cfile_rename(DEMO_FILENAME, save_file);
+		remove(save_file);
+		PHYSFSX_rename(DEMO_FILENAME, save_file);
 		return;
 	}
 	if (exit == -1) {               // pressed ESC
-		cfile_delete(DEMO_FILENAME);      // might as well remove the file
+		PHYSFS_delete(DEMO_FILENAME);   // might as well remove the file
 		return;                     // return without doing anything
 	}
 
@@ -3131,8 +3126,8 @@ try_again:
 	else
 		strcat(fullname, m[0].text);
 	strcat(fullname, ".dem");
-	cfile_delete(fullname);
-	cfile_rename(DEMO_FILENAME, fullname);
+	PHYSFS_delete(fullname);
+	PHYSFSX_rename(DEMO_FILENAME, fullname);
 }
 
 
@@ -3142,34 +3137,22 @@ extern char AltHogdir_initialized;
 //returns the number of demo files on the disk
 int newdemo_count_demos()
 {
-	FILEFINDSTRUCT find;
+	char **find, **i;
 	int NumFiles=0;
 
-	if( !FileFindFirst( DEMO_DIR "*.dem", &find ) ) {
-		do {
-			NumFiles++;
-		} while( !FileFindNext( &find ) );
-		FileFindClose();
-	}
+	find = PHYSFS_enumerateFiles(DEMO_DIR);
 
-	if ( AltHogdir_initialized ) {
-		char search_name[PATH_MAX + 5];
-		strcpy(search_name, AltHogDir);
-		strcat(search_name, "/" DEMO_DIR "*.dem");
-		if( !FileFindFirst( search_name, &find ) ) {
-			do {
-				NumFiles++;
-			} while( !FileFindNext( &find ) );
-			FileFindClose();
-		}
-	}
+	for (i = find; *i != NULL; i++)
+		NumFiles++;
+
+	PHYSFS_freeList(find);
 
 	return NumFiles;
 }
 
 void newdemo_start_playback(char * filename)
 {
-	FILEFINDSTRUCT find;
+	char **find = NULL, **i;
 	int rnd_demo = 0;
 	char filename2[PATH_MAX+FILENAME_LEN] = DEMO_DIR;
 
@@ -3179,7 +3162,10 @@ void newdemo_start_playback(char * filename)
 	First_time_playback=1;
 	JasonPlaybackTotal=0;
 
-	if (filename==NULL) {
+	if (filename)
+		strcat(filename2, filename);
+	else
+	{
 		// Randomly pick a filename
 		int NumFiles = 0, RandFileNum;
 		rnd_demo = 1;
@@ -3191,42 +3177,26 @@ void newdemo_start_playback(char * filename)
 		}
 		RandFileNum = d_rand() % NumFiles;
 		NumFiles = 0;
-		if( !FileFindFirst( DEMO_DIR "*.dem", &find ) ) {
-			do {
-				if ( NumFiles==RandFileNum ) {
-					filename = (char *)&find.name;
-					break;
-				}
-				NumFiles++;
-			} while( !FileFindNext( &find ) );
-			FileFindClose();
-		}
 
-		if ( filename == NULL && AltHogdir_initialized ) {
-			char search_name[PATH_MAX + 5];
-			strcpy(search_name, AltHogDir);
-			strcat(search_name, "/" DEMO_DIR "*.dem");
-			if( !FileFindFirst( search_name, &find ) ) {
-				do {
-					if ( NumFiles==RandFileNum ) {
-						filename = (char *)&find.name;
-						break;
-					}
-					NumFiles++;
-				} while( !FileFindNext( &find ) );
-				FileFindClose();
+		find = PHYSFS_enumerateFiles(DEMO_DIR);
+
+		for (i = find; *i != NULL; i++)
+		{
+			if (NumFiles == RandFileNum)
+			{
+				strcat(filename2, *i);
+
+				break;
 			}
+			NumFiles++;
 		}
+		PHYSFS_freeList(find);
 
-		if ( filename==NULL) return;
+		if (NumFiles > RandFileNum)
+			return;
 	}
 
-	if (!filename)
-		return;
-
-	strcat(filename2,filename);
-
-	infile = cfopen(filename2, "rb");
+	infile = PHYSFS_openRead(filename2);
 
 	if (infile==NULL) {
 		mprintf( (0, "Error reading '%s'\n", filename ));
@@ -3240,7 +3210,7 @@ void newdemo_start_playback(char * filename)
 	strncpy(nd_save_callsign, Players[Player_num].callsign, CALLSIGN_LEN);
 	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
 	if (newdemo_read_demo_start(rnd_demo)) {
-		cfclose(infile);
+		PHYSFS_close(infile);
 		return;
 	}
 
@@ -3248,7 +3218,7 @@ void newdemo_start_playback(char * filename)
 	Newdemo_state = ND_STATE_PLAYBACK;
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	Newdemo_old_cockpit = Cockpit_mode;
-	Newdemo_size = cfilelength(infile);
+	Newdemo_size = PHYSFS_fileLength(infile);
 	nd_bad_read = 0;
 	Newdemo_at_eof = 0;
 	NewdemoFrameCount = 0;
@@ -3263,7 +3233,7 @@ void newdemo_start_playback(char * filename)
 
 void newdemo_stop_playback()
 {
-	cfclose(infile);
+	PHYSFS_close(infile);
 	Newdemo_state = ND_STATE_NORMAL;
 #ifdef NETWORK
 	change_playernum_to(0);             //this is reality
@@ -3282,15 +3252,15 @@ void newdemo_stop_playback()
 
 void newdemo_strip_frames(char *outname, int bytes_to_strip)
 {
-	CFILE *outfile;
+	PHYSFS_file *outfile;
 	char *buf;
 	int total_size, bytes_done, read_elems, bytes_back;
 	int trailer_start, loc1, loc2, stop_loc, bytes_to_read;
 	short last_frame_length;
 
 	bytes_done = 0;
-	total_size = cfilelength(infile);
-	outfile = cfopen(outname, "wb");
+	total_size = PHYSFS_fileLength(infile);
+	outfile = PHYSFS_openWrite(outname);
 	if (outfile == NULL) {
 		newmenu_item m[1];
 
@@ -3305,45 +3275,45 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "Can't malloc output buffer";
 		newmenu_do( NULL, NULL, 1, m, NULL );
-		cfclose(outfile);
+		PHYSFS_close(outfile);
 		newdemo_stop_playback();
 		return;
 	}
 	newdemo_goto_end();
-	trailer_start = cftell(infile);
-	cfseek(infile, 11, SEEK_CUR);
+	trailer_start = PHYSFS_tell(infile);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) + 11);
 	bytes_back = 0;
 	while (bytes_back < bytes_to_strip) {
-		loc1 = cftell(infile);
-		//cfseek(infile, -10, SEEK_CUR);
+		loc1 = PHYSFS_tell(infile);
+		//PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
 		//nd_read_short(&last_frame_length);
-		//cfseek(infile, 8 - last_frame_length, SEEK_CUR);
+		//PHYSFS_seek(infile, PHYSFS_tell(infile) + 8 - last_frame_length);
 		newdemo_back_frames(1);
-		loc2 = cftell(infile);
+		loc2 = PHYSFS_tell(infile);
 		bytes_back += (loc1 - loc2);
 	}
-	cfseek(infile, -10, SEEK_CUR);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
 	nd_read_short(&last_frame_length);
-	cfseek(infile, -3, SEEK_CUR);
-	stop_loc = cftell(infile);
-	cfseek(infile, 0, SEEK_SET);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) - 3);
+	stop_loc = PHYSFS_tell(infile);
+	PHYSFS_seek(infile, 0);
 	while (stop_loc > 0) {
 		if (stop_loc < BUF_SIZE)
 			bytes_to_read = stop_loc;
 		else
 			bytes_to_read = BUF_SIZE;
-		read_elems = cfread(buf, 1, bytes_to_read, infile);
-		cfwrite(buf, 1, read_elems, outfile);
+		read_elems = PHYSFS_read(infile, buf, 1, bytes_to_read);
+		PHYSFS_write(outfile, buf, 1, read_elems);
 		stop_loc -= read_elems;
 	}
-	stop_loc = cftell(outfile);
-	cfseek(infile, trailer_start, SEEK_SET);
-	while ((read_elems = cfread(buf, 1, BUF_SIZE, infile)) != 0)
-		cfwrite(buf, 1, read_elems, outfile);
-	cfseek(outfile, stop_loc, SEEK_SET);
-	cfseek(outfile, 1, SEEK_CUR);
-	cfwrite(&last_frame_length, 2, 1, outfile);
-	cfclose(outfile);
+	stop_loc = PHYSFS_tell(outfile);
+	PHYSFS_seek(infile, trailer_start);
+	while ((read_elems = PHYSFS_read(infile, buf, 1, BUF_SIZE)) != 0)
+		PHYSFS_write(outfile, buf, 1, read_elems);
+	PHYSFS_seek(outfile, stop_loc);
+	PHYSFS_seek(outfile, PHYSFS_tell(infile) + 1);
+	PHYSFS_write(outfile, &last_frame_length, 2, 1);
+	PHYSFS_close(outfile);
 	newdemo_stop_playback();
 
 }

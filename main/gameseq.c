@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.40 2004-11-26 09:45:29 btb Exp $ */
+/* $Id: gameseq.c,v 1.41 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.40 2004-11-26 09:45:29 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.41 2004-12-01 12:48:13 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -703,9 +703,6 @@ int MakeNewPlayerFile(int allow_abort)
 	char filename[14];
 	newmenu_item m;
 	char text[CALLSIGN_LEN+1]="";
-#if 0
-	FILE *fp;
-#endif
 
 	strncpy(text, Players[Player_num].callsign,CALLSIGN_LEN);
 
@@ -725,30 +722,11 @@ try_again:
 		goto try_again;
 	sprintf( filename, "%s.plr", text );
 
-#if 0
-	fp = fopen( filename, "rb" );
-
-#ifndef MACINTOSH
-	//if the callsign is the name of a tty device, prepend a char
-	if (fp && isatty(fileno(fp))) {
-		fclose(fp);
-		sprintf(filename,"$%.7s.plr",text);
-		fp = fopen(filename,"rb");
-	}
-#endif
-	
-	if ( fp )	{
-		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS );
-		fclose(fp);
-		goto try_again;
-	}
-#else
-	if (cfexist(filename))
+	if (PHYSFS_exists(filename))
 	{
 		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS );
 		goto try_again;
 	}
-#endif
 
 	if ( !new_player_config() )
 		goto try_again;			// They hit Esc during New player config
@@ -795,9 +773,8 @@ do_menu_again:
 	;
 
 #ifndef MACINTOSH
-	if (!newmenu_get_filename( TXT_SELECT_PILOT, "*.plr", filename, allow_abort_flag ))	{
+	if (!newmenu_get_filename(TXT_SELECT_PILOT, "plr", filename, allow_abort_flag))
 		goto do_menu_again; //return 0;		// They hit Esc in file selector
-	}
 #else
 	#ifndef APPLE_DEMO
 	if (!newmenu_get_filename( TXT_SELECT_PILOT, ".\\Players\\*.plr", filename, allow_abort_flag ))	{
@@ -807,7 +784,6 @@ do_menu_again:
 	newmenu_get_filename( "Select Pilot", ".\\Players\\*.plr", filename, 0 );		// no abort allowed ever -- and change title of menubox
 	#endif
 #endif
-
 	if ( filename[0] == '<' )	{
 		// They selected 'create new pilot'
 		if (!MakeNewPlayerFile(allow_abort_flag))
@@ -1169,7 +1145,7 @@ int p_secret_level_destroyed(void)
 	if (First_secret_visit) {
 		return 0;		//	Never been there, can't have been destroyed.
 	} else {
-		if (cfexist(SECRETC_FILENAME))
+		if (PHYSFS_exists(SECRETC_FILENAME))
 		{
 			return 0;
 		} else {
@@ -1235,7 +1211,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		if (First_secret_visit) {
 			do_secret_message(TXT_SECRET_EXIT);
 		} else {
-			if (cfexist(SECRETC_FILENAME))
+			if (PHYSFS_exists(SECRETC_FILENAME))
 			{
 				do_secret_message(TXT_SECRET_EXIT);
 			} else {
@@ -1282,7 +1258,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		reset_special_effects();
 		StartSecretLevel();
 	} else {
-		if (cfexist(SECRETC_FILENAME))
+		if (PHYSFS_exists(SECRETC_FILENAME))
 		{
 			int	pw_save, sw_save;
 
@@ -1336,7 +1312,7 @@ void ExitSecretLevel(void)
 		state_save_all(0, 2, SECRETC_FILENAME);
 	}
 
-	if (cfexist(SECRETB_FILENAME))
+	if (PHYSFS_exists(SECRETB_FILENAME))
 	{
 		int	pw_save, sw_save;
 
@@ -1812,7 +1788,7 @@ void DoPlayerDead()
 		died_in_mine_message(); // Give them some indication of what happened
 
 		if (Current_level_num < 0) {
-			if (cfexist(SECRETB_FILENAME))
+			if (PHYSFS_exists(SECRETB_FILENAME))
 			{
 				returning_to_level_message();
 				state_restore_all(1, 2, SECRETB_FILENAME);			//	2 means you died
@@ -1833,7 +1809,7 @@ void DoPlayerDead()
 		}
 
 	} else if (Current_level_num < 0) {
-		if (cfexist(SECRETB_FILENAME))
+		if (PHYSFS_exists(SECRETB_FILENAME))
 		{
 			returning_to_level_message();
 			if (!Control_center_destroyed)
@@ -2089,6 +2065,7 @@ void ShowLevelIntro(int level_num)
 				}
 #endif
 
+#if 0
 				if (robot_movies)
 				{
 					int hires_save=MenuHiresAvailable;
@@ -2101,9 +2078,12 @@ void ShowLevelIntro(int level_num)
 							Screen_mode = -1;		//force reset
 
 					}
+#endif
 					do_briefing_screens ("robot.tex",level_num);
+#if 0
 					MenuHiresAvailable = hires_save;
 				}
+#endif
 
 			}
 		}

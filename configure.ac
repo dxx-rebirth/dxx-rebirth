@@ -203,6 +203,9 @@ else
 #)
 	AM_CONDITIONAL(USE_LIBPNG, test x$have_libpng = xyes)
 
+  # Check for PhysicsFS
+	AC_CHECK_LIB(physfs, PHYSFS_init, LIBS="-lphysfs $LIBS")
+
   # Check for OpenGL
     AC_ARG_WITH(opengl,
         [  --with-opengl           Build OpenGL support ],,)
@@ -416,7 +419,6 @@ AC_OUTPUT(
     arch/sdl/Makefile
     arch/svgalib/Makefile
     arch/win32/Makefile
-    cfile/Makefile
     console/Makefile
     iff/Makefile
     libmve/Makefile

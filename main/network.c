@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.27 2004-10-30 10:30:57 schaffner Exp $ */
+/* $Id: network.c,v 1.28 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.27 2004-10-30 10:30:57 schaffner Exp $";
+static char rcsid[] = "$Id: network.c,v 1.28 2004-12-01 12:48:13 btb Exp $";
 #endif
 
 #define PATCH12
@@ -2530,11 +2530,11 @@ void network_process_packet(ubyte *data, int length )
 #ifndef NDEBUG
 void dump_segments()
 {
-	FILE * fp;
+	PHYSFS_file *fp;
 
-	fp = fopen( "TEST.DMP", "wb" );
-	fwrite( Segments, sizeof(segment)*(Highest_segment_index+1),1, fp );    
-	fclose(fp);
+	fp = PHYSFS_openWrite("test.dmp");
+	PHYSFS_write(fp, Segments, sizeof(segment), Highest_segment_index + 1);
+	PHYSFS_close(fp);
 	mprintf( (0, "SS=%d\n", sizeof(segment) ));
 }
 #endif

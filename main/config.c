@@ -1,4 +1,4 @@
-/* $Id: config.c,v 1.13 2004-10-14 16:30:56 schaffner Exp $ */
+/* $Id: config.c,v 1.14 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -38,6 +38,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
+#include <physfs.h>
+
 #include "pstypes.h"
 #include "game.h"
 #include "menu.h"
@@ -53,10 +55,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mono.h"
 #include "pa_enabl.h"
 
+#include "physfsx.h"
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.13 2004-10-14 16:30:56 schaffner Exp $";
+static char rcsid[] = "$Id: config.c,v 1.14 2004-12-01 12:48:13 btb Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -193,7 +196,7 @@ void CheckMovieAttributes()
 
 int ReadConfigFile()
 {
-	CFILE *infile;
+	PHYSFS_file *infile;
 	char line[80], *token, *value, *ptr;
 	ubyte gamma;
 	int joy_axis_min[7];
@@ -234,15 +237,15 @@ int ReadConfigFile()
 	SaveMovieHires = MovieHires;
 	save_redbook_enabled = Redbook_enabled;
 
-	infile = cfopen("descent.cfg", "rt");
+	infile = PHYSFS_openRead("descent.cfg");
 	if (infile == NULL) {
 		WIN(CheckMovieAttributes());
 		return 1;
 	}
-	while (!cfeof(infile))
+	while (!PHYSFS_eof(infile))
 	{
 		memset(line, 0, 80);
-		cfgets(line, 80, infile);
+		PHYSFSX_gets(infile, line);
 		ptr = &(line[0]);
 		while (isspace(*ptr))
 			ptr++;
@@ -337,7 +340,7 @@ int ReadConfigFile()
 		}
 	}
 
-	cfclose(infile);
+	PHYSFS_close(infile);
 
 #ifdef WINDOWS
 	for (i=0;i<4;i++)
@@ -410,12 +413,12 @@ int ReadConfigFile()
 	} else
 		digi_driver_board		= digi_driver_board;
 #else
-	infile = cfopen("descentw.cfg", "rt");
+	infile = PHYSFS_openRead("descentw.cfg");
 	if (infile) {
-		while (!cfeof(infile))
+		while (!PHYSFS_eof(infile))
 		{
 			memset(line, 0, 80);
-			cfgets(line, 80, infile);
+			PHYSFSX_gets(infile, line);
 			ptr = &(line[0]);
 			while (isspace(*ptr))
 				ptr++;
@@ -433,7 +436,7 @@ int ReadConfigFile()
 				}
 			}
 		}
-		cfclose(infile);
+		PHYSFS_close(infile);
 	}
 #endif
 
@@ -442,7 +445,7 @@ int ReadConfigFile()
 
 int WriteConfigFile()
 {
-	CFILE *infile;
+	PHYSFS_file *infile;
 	char str[256];
 	int joy_axis_min[7];
 	int joy_axis_center[7];
@@ -460,66 +463,66 @@ int WriteConfigFile()
    }
 #endif
 
-	infile = cfopen("descent.cfg", "wt");
+	infile = PHYSFS_openWrite("descent.cfg");
 	if (infile == NULL) {
 		return 1;
 	}
 	/*sprintf (str, "%s=0x%x\n", digi_dev8_str, Config_digi_type);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=0x%x\n", digi_dev16_str, digi_driver_board_16);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=0x%x\n", digi_port_str, digi_driver_port);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", digi_irq_str, digi_driver_irq);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", digi_dma8_str, Config_digi_dma);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", digi_dma16_str, digi_driver_dma_16);
-	cfputs(str, infile);*/
+	PHYSFSX_puts(infile, str);*/
 	sprintf (str, "%s=%d\n", digi_volume_str, Config_digi_volume);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	/*sprintf (str, "%s=0x%x\n", midi_dev_str, Config_midi_type);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=0x%x\n", midi_port_str, digi_midi_port);
-	cfputs(str, infile);*/
+	PHYSFSX_puts(infile, str);*/
 	sprintf (str, "%s=%d\n", midi_volume_str, Config_midi_volume);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", redbook_enabled_str, FindArg("-noredbook")?save_redbook_enabled:Redbook_enabled);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", redbook_volume_str, Config_redbook_volume);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", stereo_rev_str, Config_channels_reversed);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", gamma_level_str, gamma);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	if (Detail_level == NUM_DETAIL_LEVELS-1)
 		sprintf (str, "%s=%d,%d,%d,%d,%d,%d,%d\n", detail_level_str, Detail_level,
 				Object_complexity,Object_detail,Wall_detail,Wall_render_depth,Debris_amount,SoundChannels);
 	else
 		sprintf (str, "%s=%d\n", detail_level_str, Detail_level);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 
 	sprintf (str, "%s=%d,%d,%d,%d\n", joystick_min_str, joy_axis_min[0], joy_axis_min[1], joy_axis_min[2], joy_axis_min[3] );
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d,%d,%d,%d\n", joystick_cen_str, joy_axis_center[0], joy_axis_center[1], joy_axis_center[2], joy_axis_center[3] );
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d,%d,%d,%d\n", joystick_max_str, joy_axis_max[0], joy_axis_max[1], joy_axis_max[2], joy_axis_max[3] );
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 
 	sprintf (str, "%s=%s\n", last_player_str, Players[Player_num].callsign );
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%s\n", last_mission_str, config_last_mission );
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", config_vr_type_str, Config_vr_type );
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", config_vr_resolution_str, Config_vr_resolution );
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", config_vr_tracking_str, Config_vr_tracking );
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", movie_hires_str, (FindArg("-nohires") || FindArg("-nohighres") || FindArg("-lowresmovies"))?SaveMovieHires:MovieHires);
-	cfputs(str, infile);
+	PHYSFSX_puts(infile, str);
 
-	cfclose(infile);
+	PHYSFS_close(infile);
 
 #ifdef WINDOWS
 {
@@ -586,7 +589,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.13 2004-10-14 16:30:56 schaffner Exp $";
+static char rcsid[] = "$Id: config.c,v 1.14 2004-12-01 12:48:13 btb Exp $";
 #endif
 
 #define MAX_CTB_LEN	512

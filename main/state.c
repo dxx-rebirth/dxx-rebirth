@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.16 2004-10-23 19:39:35 schaffner Exp $ */
+/* $Id: state.c,v 1.17 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -107,6 +107,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "gr.h"
 #endif
+#include "physfsx.h"
 
 #define STATE_VERSION 22
 #define STATE_COMPATIBLE_VERSION 20
@@ -232,7 +233,7 @@ void rpad_string( char * string, int max_chars )
 
 int state_get_save_file(char * fname, char * dsc, int multi )
 {
-	CFILE *fp;
+	PHYSFS_file *fp;
 	int i, choice, version;
 	newmenu_item m[NUM_SAVES+2];
 	char filename[NUM_SAVES+1][30];
@@ -255,24 +256,25 @@ int state_get_save_file(char * fname, char * dsc, int multi )
 			sprintf( filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i );
 			#endif
 		valid = 0;
-		fp = cfopen(filename[i], "rb");
+		fp = PHYSFS_openRead(filename[i]);
 		if ( fp ) {
 			//Read id
-			cfread(id, sizeof(char)*4, 1, fp);
+			//FIXME: check for swapped file, react accordingly...
+			PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 			if ( !memcmp( id, dgss_id, 4 )) {
 				//Read version
-				cfread(&version, sizeof(int), 1, fp);
+				PHYSFS_read(fp, &version, sizeof(int), 1);
 				if (version >= STATE_COMPATIBLE_VERSION)	{
 					// Read description
-					cfread(desc[i], sizeof(char)*DESC_LENGTH, 1, fp);
+					PHYSFS_read(fp, desc[i], sizeof(char) * DESC_LENGTH, 1);
 					//rpad_string( desc[i], DESC_LENGTH-1 );
 					// Read thumbnail
 					//sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
-					//cfread(sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1, fp);
+					//PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 					valid = 1;
 				}
-			}
-			cfclose(fp);
+			} 
+			PHYSFS_close(fp);
 		}
 		if (!valid) {
 			strcpy( desc[i], TXT_EMPTY );
@@ -303,7 +305,7 @@ extern int Current_display_mode;
 
 int state_get_restore_file(char * fname, int multi)
 {
-	CFILE *fp;
+	PHYSFS_file *fp;
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES+2];
 	char filename[NUM_SAVES+1][30];
@@ -328,31 +330,32 @@ int state_get_restore_file(char * fname, int multi)
 			sprintf( filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i );
 			#endif
 		valid = 0;
-		fp = cfopen(filename[i], "rb");
+		fp = PHYSFS_openRead(filename[i]);
 		if ( fp ) {
 			//Read id
-			cfread(id, sizeof(char)*4, 1, fp);
+			//FIXME: check for swapped file, react accordingly...
+			PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 			if ( !memcmp( id, dgss_id, 4 )) {
 				//Read version
-				cfread(&version, sizeof(int), 1, fp);
+				PHYSFS_read(fp, &version, sizeof(int), 1);
 				if (version >= STATE_COMPATIBLE_VERSION)	{
 					// Read description
-					cfread(desc[i], sizeof(char)*DESC_LENGTH, 1, fp);
+					PHYSFS_read(fp, desc[i], sizeof(char) * DESC_LENGTH, 1);
 					//rpad_string( desc[i], DESC_LENGTH-1 );
 					m[i+1].type = NM_TYPE_MENU; m[i+1].text = desc[i];
 					// Read thumbnail
 					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
-					cfread(sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1, fp);
+					PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 					if (version >= 9) {
 						ubyte pal[256*3];
-						cfread(pal, 3, 256, fp);
+						PHYSFS_read(fp, pal, 3, 256);
 						gr_remap_bitmap_good( sc_bmp[i], pal, -1, -1 );
 					}
 					nsaves++;
 					valid = 1;
 				}
 			}
-			cfclose(fp);
+			PHYSFS_close(fp);
 		}
 		if (!valid) {
 			strcpy( desc[i], TXT_EMPTY );
@@ -405,51 +408,44 @@ int state_get_restore_file(char * fname, int multi)
 
 #define	CF_BUF_SIZE	1024
 
-#ifdef _WIN32_WCE
-# define errno -1
-# define strerror(x) "Unknown Error"
-#endif
-
-
 //	-----------------------------------------------------------------------------------
 //	Imagine if C had a function to copy a file...
 int copy_file(char *old_file, char *new_file)
 {
-	sbyte   buf[CF_BUF_SIZE];
-	CFILE   *in_file, *out_file;
+	sbyte	buf[CF_BUF_SIZE];
+	PHYSFS_file *in_file, *out_file;
 
-	out_file = cfopen(new_file, "wb");
+	out_file = PHYSFS_openWrite(new_file);
 
 	if (out_file == NULL)
 		return -1;
 
-	in_file = cfopen(old_file, "rb");
+	in_file = PHYSFS_openRead(old_file);
 
 	if (in_file == NULL)
 		return -2;
 
-	while (!cfeof(in_file))
+	while (!PHYSFS_eof(in_file))
 	{
 		int bytes_read;
 
-		bytes_read = cfread(buf, 1, CF_BUF_SIZE, in_file);
-		if (cferror(in_file))
-			Error("Cannot read from file <%s>: %s", old_file, strerror(errno));
+		bytes_read = PHYSFS_read(in_file, buf, 1, CF_BUF_SIZE);
+		if (bytes_read < 0)
+			Error("Cannot read from file <%s>: %s", old_file, PHYSFS_getLastError());
 
-		Assert(bytes_read == CF_BUF_SIZE || cfeof(in_file));
+		Assert(bytes_read == CF_BUF_SIZE || PHYSFS_eof(in_file));
 
-		cfwrite(buf, 1, bytes_read, out_file);
-
-		if (cferror(out_file))
-			Error("Cannot write to file <%s>: %s", new_file, strerror(errno));
+		if (PHYSFS_write(out_file, buf, 1, bytes_read) < bytes_read);
+			Error("Cannot write to file <%s>: %s", new_file, PHYSFS_getLastError());
 	}
 
-	if (cfclose(in_file)) {
-		cfclose(out_file);
+	if (!PHYSFS_close(in_file))
+	{
+		PHYSFS_close(out_file);
 		return -3;
 	}
 
-	if (cfclose(out_file))
+	if (!PHYSFS_close(out_file))
 		return -4;
 
 	return 0;
@@ -496,7 +492,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 	//	return to the base level.
 	if (secret_save && (Control_center_destroyed)) {
 		mprintf((0, "Deleting secret.sgb so player can't return to base level.\n"));
-		cfile_delete(SECRETB_FILENAME);
+		PHYSFS_delete(SECRETB_FILENAME);
 		return 0;
 	}
 
@@ -541,14 +537,14 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 
 			mprintf((0, "Trying to copy secret.sgc to %s.\n", temp_fname));
 
-			if (cfexist(temp_fname))
+			if (PHYSFS_exists(temp_fname))
 			{
 				mprintf((0, "Deleting file %s\n", temp_fname));
-				rval = cfile_delete(temp_fname);
+				rval = PHYSFS_delete(temp_fname);
 				Assert(rval == 0);	//	Oops, error deleting file in temp_fname.
 			}
 
-			if (cfexist(SECRETC_FILENAME))
+			if (PHYSFS_exists(SECRETC_FILENAME))
 			{
 				mprintf((0, "Copying secret.sgc to %s.\n", temp_fname));
 				rval = copy_file(SECRETC_FILENAME, temp_fname);
@@ -559,9 +555,9 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 
 	//	Save file we're going to save over in last slot and call "[autosave backup]"
 	if (!filename_override) {
-		CFILE *tfp;
-	
-		tfp = cfopen(filename, "rb");
+		PHYSFS_file *tfp;
+
+		tfp = PHYSFS_openRead(filename);
 
 		if ( tfp ) {
 			char	newname[128];
@@ -569,14 +565,14 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 			#ifndef MACINTOSH
 			sprintf( newname, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES );
 			#else
-			sprintf( newname, ":Players:%s.sg%x", Players[Player_num].callsign, NUM_SAVES );
+			sprintf(newname, "Players/%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
 			#endif
-			
-			cfseek(tfp, DESC_OFFSET, SEEK_SET);
-			cfwrite("[autosave backup]", sizeof(char)*DESC_LENGTH, 1, tfp);
-			cfclose(tfp);
-			cfile_delete(newname);
-			cfile_rename(filename, newname);
+
+			PHYSFS_seek(tfp, DESC_OFFSET);
+			PHYSFS_write(tfp, "[autosave backup]", sizeof(char) * DESC_LENGTH, 1);
+			PHYSFS_close(tfp);
+			PHYSFS_delete(newname);
+			PHYSFSX_rename(filename, newname);
 		}
 	}
 	
@@ -591,7 +587,7 @@ extern	fix	Flash_effect, Time_flash_last_played;
 int state_save_all_sub(char *filename, char *desc, int between_levels)
 {
 	int i,j;
-	CFILE *fp;
+	PHYSFS_file *fp;
 	grs_canvas * cnv;
 	#ifdef POLY_ACC
 	grs_canvas cnv2,*save_cnv2;
@@ -612,7 +608,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		Int3();
 	#endif
 
-	fp = cfopen(filename, "wb");
+	fp = PHYSFS_openWrite(filename);
 	if ( !fp ) {
 		if ( !(Game_mode & GM_MULTI) )
 			nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
@@ -621,14 +617,14 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	}
 
 //Save id
-	cfwrite(dgss_id, sizeof(char)*4, 1, fp);
+	PHYSFS_write(fp, dgss_id, sizeof(char) * 4, 1);
 
 //Save version
 	i = STATE_VERSION;
-	cfwrite(&i, sizeof(int), 1, fp);
+	PHYSFS_write(fp, &i, sizeof(int), 1);
 
 //Save description
-	cfwrite(desc, sizeof(char) * DESC_LENGTH, 1, fp);
+	PHYSFS_write(fp, desc, sizeof(char) * DESC_LENGTH, 1);
 	
 // Save the current screen shot...
 
@@ -699,7 +695,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 					pal = gr_palette;
 
-					cfwrite(cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1, fp);
+					PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 
 			#if defined(POLY_ACC)
 					PA_DFX (pa_alpha_always());	
@@ -722,7 +718,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 			gr_set_current_canvas( cnv );
 			render_frame(0, 0);
 			pal = gr_palette;
-			cfwrite(cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1, fp);
+			PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 			
 			#if defined(POLY_ACC)
 				PAEnabled = savePAEnabled;
@@ -736,68 +732,68 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 			gr_set_current_canvas(cnv_save)
 		);
 		gr_free_canvas( cnv );
-		cfwrite(pal, 3, 256, fp);
+		PHYSFS_write(fp, pal, 3, 256);
 	}
 	else
 	{
 	 	ubyte color = 0;
 	 	for ( i=0; i<THUMBNAIL_W*THUMBNAIL_H; i++ )
-			cfwrite(&color, sizeof(ubyte), 1, fp);
-	}
+			PHYSFS_write(fp, &color, sizeof(ubyte), 1);		
+	} 
 
 // Save the Between levels flag...
-	cfwrite(&between_levels, sizeof(int), 1, fp);
+	PHYSFS_write(fp, &between_levels, sizeof(int), 1);
 
 // Save the mission info...
         mprintf ((0, "HEY! Mission name is %s\n", Current_mission_filename));
-	cfwrite(Current_mission_filename, sizeof(char), 9, fp);
+	PHYSFS_write(fp, Current_mission_filename, 9 * sizeof(char), 1);
 
 //Save level info
-	cfwrite(&Current_level_num, sizeof(int), 1, fp);
-	cfwrite(&Next_level_num, sizeof(int), 1, fp);
+	PHYSFS_write(fp, &Current_level_num, sizeof(int), 1);
+	PHYSFS_write(fp, &Next_level_num, sizeof(int), 1);
 
 //Save GameTime
-	cfwrite(&GameTime, sizeof(fix), 1, fp);
+	PHYSFS_write(fp, &GameTime, sizeof(fix), 1);
 
 // If coop save, save all
 #ifdef NETWORK
    if (Game_mode & GM_MULTI_COOP)
 	 {
-		cfwrite(&state_game_id, sizeof(int), 1, fp);
-		cfwrite(&Netgame, sizeof(netgame_info), 1, fp);
-		cfwrite(&NetPlayers, sizeof(AllNetPlayers_info), 1, fp);
-		cfwrite(&N_players, sizeof(int), 1, fp);
-		cfwrite(&Player_num, sizeof(int), 1, fp);
+		PHYSFS_write(fp, &state_game_id,sizeof(int), 1);
+		PHYSFS_write(fp, &Netgame,sizeof(netgame_info), 1);
+		PHYSFS_write(fp, &NetPlayers,sizeof(AllNetPlayers_info), 1);
+		PHYSFS_write(fp, &N_players,sizeof(int), 1);
+		PHYSFS_write(fp, &Player_num,sizeof(int), 1);
 		for (i=0;i<N_players;i++)
-			cfwrite(&Players[i], sizeof(player), 1, fp);
+			PHYSFS_write(fp, &Players[i], sizeof(player), 1);
 
 #ifdef RISKY_PROPOSITION
-		cfwrite(&robot_controlled[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfwrite(&robot_agitation[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfwrite(&robot_controlled_time[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfwrite(&robot_last_send_time[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfwrite(&robot_last_message_time[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfwrite(&robot_send_pending[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfwrite(&robot_fired[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-
+		PHYSFS_write(fp, &robot_controlled[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_write(fp, &robot_agitation[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_write(fp, &robot_controlled_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_write(fp, &robot_last_send_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_write(fp, &robot_last_message_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_write(fp, &robot_send_pending[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_write(fp, &robot_fired[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+ 
       for (i=0;i<MAX_ROBOTS_CONTROLLED;i++)
-			cfwrite(robot_fire_buf[i][0], 18 + 3, 1, fp);
+			PHYSFS_write(fp, robot_fire_buf[i][0], 18 + 3, 1);
 #endif
 
 	 }
 #endif
 
 //Save player info
-	cfwrite(&Players[Player_num], sizeof(player), 1, fp);
+	PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
 
 // Save the current weapon info
-	cfwrite(&Primary_weapon, sizeof(sbyte), 1, fp);
-	cfwrite(&Secondary_weapon, sizeof(sbyte), 1, fp);
+	PHYSFS_write(fp, &Primary_weapon, sizeof(sbyte), 1);
+	PHYSFS_write(fp, &Secondary_weapon, sizeof(sbyte), 1);
 
 // Save the difficulty level
-	cfwrite(&Difficulty_level, sizeof(int), 1, fp);
+	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
 // Save cheats enabled
-	cfwrite(&Cheats_enabled, sizeof(int), 1, fp);
+	PHYSFS_write(fp, &Cheats_enabled,sizeof(int), 1);
 
 	if ( !between_levels )	{
 
@@ -823,104 +819,104 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	
 	//Save object info
 		i = Highest_object_index+1;
-		cfwrite(&i, sizeof(int), 1, fp);
-		cfwrite(Objects, sizeof(object), i, fp);
+		PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFS_write(fp, Objects, sizeof(object), i);
 		
 	//Save wall info
 		i = Num_walls;
-		cfwrite(&i, sizeof(int), 1, fp);
-		cfwrite(Walls, sizeof(wall), i, fp);
+		PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFS_write(fp, Walls, sizeof(wall), i);
 
 	//Save exploding wall info
 		i = MAX_EXPLODING_WALLS;
-		cfwrite(&i, sizeof(int), 1, fp);
-		cfwrite(expl_wall_list, sizeof(*expl_wall_list), i, fp);
+		PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFS_write(fp, expl_wall_list, sizeof(*expl_wall_list), i);
 	
 	//Save door info
 		i = Num_open_doors;
-		cfwrite(&i, sizeof(int), 1, fp );
-		cfwrite(ActiveDoors, sizeof(active_door), i, fp);
+		PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFS_write(fp, ActiveDoors, sizeof(active_door), i);
 	
 	//Save cloaking wall info
 		i = Num_cloaking_walls;
-		cfwrite(&i, sizeof(int), 1, fp );
-		cfwrite(CloakingWalls, sizeof(cloaking_wall), i, fp);
+		PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFS_write(fp, CloakingWalls, sizeof(cloaking_wall), i);
 	
 	//Save trigger info
-		cfwrite(&Num_triggers, sizeof(int), 1, fp);
-		cfwrite(Triggers, sizeof(trigger), Num_triggers, fp);
+		PHYSFS_write(fp, &Num_triggers, sizeof(int), 1);
+		PHYSFS_write(fp, Triggers, sizeof(trigger), Num_triggers);
 	
 	//Save tmap info
-		for (i=0; i<=Highest_segment_index; i++ )	{
-			for (j=0; j<6; j++ )	{
-				cfwrite(&Segments[i].sides[j].wall_num, sizeof(short), 1, fp);
-				cfwrite(&Segments[i].sides[j].tmap_num, sizeof(short), 1, fp);
-				cfwrite(&Segments[i].sides[j].tmap_num2, sizeof(short), 1, fp);
+		for (i = 0; i <= Highest_segment_index; i++)
+		{
+			for (j = 0; j < 6; j++)
+			{
+				PHYSFS_write(fp, &Segments[i].sides[j].wall_num, sizeof(short), 1);
+				PHYSFS_write(fp, &Segments[i].sides[j].tmap_num, sizeof(short), 1);
+				PHYSFS_write(fp, &Segments[i].sides[j].tmap_num2, sizeof(short), 1);
 			}
 		}
 	
 	// Save the fuelcen info
-		cfwrite(&Control_center_destroyed, sizeof(int), 1, fp);
-		cfwrite(&Countdown_timer, sizeof(int), 1, fp);
-		cfwrite(&Num_robot_centers, sizeof(int), 1, fp);
-		cfwrite(RobotCenters, sizeof(matcen_info), Num_robot_centers, fp);
-		cfwrite(&ControlCenterTriggers, sizeof(control_center_triggers), 1, fp);
-		cfwrite(&Num_fuelcenters, sizeof(int), 1, fp);
-		cfwrite(Station, sizeof(FuelCenter), Num_fuelcenters, fp);
+		PHYSFS_write(fp, &Control_center_destroyed, sizeof(int), 1);
+		PHYSFS_write(fp, &Countdown_timer, sizeof(int), 1);
+		PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
+		PHYSFS_write(fp, RobotCenters, sizeof(matcen_info), Num_robot_centers);
+		PHYSFS_write(fp, &ControlCenterTriggers, sizeof(control_center_triggers), 1);
+		PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
+		PHYSFS_write(fp, Station, sizeof(FuelCenter), Num_fuelcenters);
 	
 	// Save the control cen info
-		cfwrite(&Control_center_been_hit, sizeof(int), 1, fp);
-		cfwrite(&Control_center_player_been_seen, sizeof(int), 1, fp);
-		cfwrite(&Control_center_next_fire_time, sizeof(int), 1, fp);
-		cfwrite(&Control_center_present, sizeof(int), 1, fp);
-		cfwrite(&Dead_controlcen_object_num, sizeof(int), 1, fp);
+		PHYSFS_write(fp, &Control_center_been_hit, sizeof(int), 1);
+		PHYSFS_write(fp, &Control_center_player_been_seen, sizeof(int), 1);
+		PHYSFS_write(fp, &Control_center_next_fire_time, sizeof(int), 1);
+		PHYSFS_write(fp, &Control_center_present, sizeof(int), 1);
+		PHYSFS_write(fp, &Dead_controlcen_object_num, sizeof(int), 1);
 	
 	// Save the AI state
 		ai_save_state( fp );
 	
 	// Save the automap visited info
-		cfwrite(Automap_visited, sizeof(ubyte) * MAX_SEGMENTS, 1, fp);
+		PHYSFS_write(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
 
 	}
-	cfwrite(&state_game_id, sizeof(uint), 1, fp);
-	cfwrite(&Laser_rapid_fire, sizeof(int), 1, fp);
-	cfwrite(&Lunacy, sizeof(int), 1, fp);		//	Yes, writing this twice.  Removed the Ugly robot system, but didn't want to change savegame format.
-	cfwrite(&Lunacy, sizeof(int), 1, fp);
+	PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
+	PHYSFS_write(fp, &Laser_rapid_fire, sizeof(int), 1);
+	PHYSFS_write(fp, &Lunacy, sizeof(int), 1);  //  Yes, writing this twice.  Removed the Ugly robot system, but didn't want to change savegame format.
+	PHYSFS_write(fp, &Lunacy, sizeof(int), 1);
 
 	// Save automap marker info
 
-	cfwrite(MarkerObject, sizeof(MarkerObject), 1, fp);
-	cfwrite(MarkerOwner, sizeof(MarkerOwner), 1, fp);
-	cfwrite(MarkerMessage, sizeof(MarkerMessage), 1, fp);
+	PHYSFS_write(fp, MarkerObject, sizeof(MarkerObject) ,1);
+	PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1);
+	PHYSFS_write(fp, MarkerMessage, sizeof(MarkerMessage), 1);
 
-	cfwrite(&Afterburner_charge, sizeof(fix), 1, fp);
+	PHYSFS_write(fp, &Afterburner_charge, sizeof(fix), 1);
 
 	//save last was super information
-	cfwrite(&Primary_last_was_super, sizeof(Primary_last_was_super), 1, fp);
-	cfwrite(&Secondary_last_was_super, sizeof(Secondary_last_was_super), 1, fp);
+	PHYSFS_write(fp, &Primary_last_was_super, sizeof(Primary_last_was_super), 1);
+	PHYSFS_write(fp, &Secondary_last_was_super, sizeof(Secondary_last_was_super), 1);
 
 	//	Save flash effect stuff
-	cfwrite(&Flash_effect, sizeof(int), 1, fp);
-	cfwrite(&Time_flash_last_played, sizeof(int), 1, fp);
-	cfwrite(&PaletteRedAdd, sizeof(int), 1, fp);
-	cfwrite(&PaletteGreenAdd, sizeof(int), 1, fp);
-	cfwrite(&PaletteBlueAdd, sizeof(int), 1, fp);
+	PHYSFS_write(fp, &Flash_effect, sizeof(int), 1);
+	PHYSFS_write(fp, &Time_flash_last_played, sizeof(int), 1);
+	PHYSFS_write(fp, &PaletteRedAdd, sizeof(int), 1);
+	PHYSFS_write(fp, &PaletteGreenAdd, sizeof(int), 1);
+	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
 
-	cfwrite(Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS, fp);
+	PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS);
 
-	cfwrite(&First_secret_visit, sizeof(First_secret_visit), 1, fp);
+	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
 
-	cfwrite(&Omega_charge, sizeof(Omega_charge), 1, fp);
-	
-	if (cferror(fp))
+	if (PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1) < 1)
 	{
 		if ( !(Game_mode & GM_MULTI) ) {
 			nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
-			cfclose(fp);
-			cfile_delete(filename);
+			PHYSFS_close(fp);
+			PHYSFS_delete(filename);
 		}
 	} else  {
-		cfclose(fp);
+		PHYSFS_close(fp);
 
 		#ifdef MACINTOSH		// set the type and creator of the saved game file
 		{
@@ -1008,18 +1004,18 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 			#ifndef MACINTOSH
 			sprintf(temp_fname, "%csecret.sgc", fc);
 			#else
-			sprintf(temp_fname, ":Players:%csecret.sgc", fc);
+			sprintf(temp_fname, "Players/%csecret.sgc", fc);
 			#endif
 
 			mprintf((0, "Trying to copy %s to secret.sgc.\n", temp_fname));
 
-			if (cfexist(temp_fname))
+			if (PHYSFS_exists(temp_fname))
 			{
 				mprintf((0, "Copying %s to secret.sgc\n", temp_fname));
 				rval = copy_file(temp_fname, SECRETC_FILENAME);
 				Assert(rval == 0);	//	Oops, error copying temp_fname to secret.sgc!
 			} else
-				cfile_delete(SECRETC_FILENAME);
+				PHYSFS_delete(SECRETC_FILENAME);
 		}
 	}
 
@@ -1030,8 +1026,8 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 		#ifndef MACINTOSH
 		sprintf( temp_filename, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES );
 		#else
-		sprintf( temp_filename, ":Players:%s.sg%x", Players[Player_num].callsign, NUM_SAVES );
-		#endif		
+		sprintf(temp_filename, "Players/%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
+		#endif
 		state_save_all(!in_game, secret_restore, temp_filename);
 	}
 
@@ -1061,7 +1057,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	int ObjectStartLocation;
 	int version,i, j, segnum;
 	object * obj;
-	CFILE *fp;
+	PHYSFS_file *fp;
 	int current_level, next_level;
 	int between_levels;
 	char mission[16];
@@ -1076,57 +1072,58 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	fix	old_gametime = GameTime;
 
 	#if defined(MACINTOSH) && !defined(NDEBUG)
-	if ( strncmp(filename, ":Players:", 9) )
+	if (strncmp(filename, "Players/", 9))
 		Int3();
 	#endif
 
-	fp = cfopen(filename, "rb");
+	fp = PHYSFS_openRead(filename);
 	if ( !fp ) return 0;
 
 //Read id
-	cfread(id, sizeof(char)*4, 1, fp);
+	//FIXME: check for swapped file, react accordingly...
+	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 	if ( memcmp( id, dgss_id, 4 )) {
-		cfclose(fp);
+		PHYSFS_close(fp);
 		return 0;
 	}
 
 //Read version
-	cfread(&version, sizeof(int), 1, fp);
+	PHYSFS_read(fp, &version, sizeof(int), 1);
 	if (version < STATE_COMPATIBLE_VERSION)	{
-		cfclose(fp);
+		PHYSFS_close(fp);
 		return 0;
 	}
 
 // Read description
-	cfread(desc, sizeof(char) * DESC_LENGTH, 1, fp);
+	PHYSFS_read(fp, desc, sizeof(char) * DESC_LENGTH, 1);
 
 // Skip the current screen shot...
-	cfseek(fp, THUMBNAIL_W*THUMBNAIL_H, SEEK_CUR);
+	PHYSFS_seek(fp, PHYSFS_tell(fp) + THUMBNAIL_W * THUMBNAIL_H);
 
 // And now...skip the goddamn palette stuff that somebody forgot to add
-	cfseek(fp, 768, SEEK_CUR);
+	PHYSFS_seek(fp, PHYSFS_tell(fp) + 768);
 
 // Read the Between levels flag...
-	cfread(&between_levels, sizeof(int), 1, fp);
+	PHYSFS_read(fp, &between_levels, sizeof(int), 1);
 
 	Assert(between_levels == 0);	//between levels save ripped out
 
 // Read the mission info...
-	cfread(mission, sizeof(char), 9, fp);
+	PHYSFS_read(fp, mission, sizeof(char) * 9, 1);
         mprintf ((0,"Missionname to load = %s\n",mission));
 
 	if (!load_mission_by_name( mission ))	{
 		nm_messagebox( NULL, 1, "Ok", "Error!\nUnable to load mission\n'%s'\n", mission );
-		cfclose(fp);
+		PHYSFS_close(fp);
 		return 0;
 	}
 
 //Read level info
-	cfread(&current_level, sizeof(int), 1, fp);
-	cfread(&next_level, sizeof(int), 1, fp);
+	PHYSFS_read(fp, &current_level, sizeof(int), 1);
+	PHYSFS_read(fp, &next_level, sizeof(int), 1);
 
 //Restore GameTime
-	cfread(&GameTime, sizeof(fix), 1, fp);
+	PHYSFS_read(fp, &GameTime, sizeof(fix), 1);
 
 // Start new game....
 	if (!multi)	{
@@ -1148,24 +1145,24 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 #ifdef NETWORK
    if (Game_mode & GM_MULTI)
 	 {
-		cfread(&state_game_id,sizeof(int), 1, fp);
-		cfread(&Netgame,sizeof(netgame_info), 1, fp);
-		cfread(&NetPlayers,sizeof(AllNetPlayers_info), 1, fp);
-		cfread(&nplayers,sizeof(N_players), 1, fp);
-		cfread(&Player_num,sizeof(Player_num), 1, fp);
+		PHYSFS_read(fp, &state_game_id, sizeof(int), 1);
+		PHYSFS_read(fp, &Netgame, sizeof(netgame_info), 1);
+		PHYSFS_read(fp, &NetPlayers, sizeof(AllNetPlayers_info), 1);
+		PHYSFS_read(fp, &nplayers, sizeof(N_players), 1);
+		PHYSFS_read(fp, &Player_num, sizeof(Player_num), 1);
 		for (i=0;i<nplayers;i++)
-			cfread(&restore_players[i], sizeof(player), 1, fp);
+			PHYSFS_read(fp, &restore_players[i], sizeof(player), 1);
 #ifdef RISKY_PROPOSITION
-		cfread(&robot_controlled[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfread(&robot_agitation[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfread(&robot_controlled_time[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfread(&robot_last_send_time[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfread(&robot_last_message_time[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfread(&robot_send_pending[0], 4, MAX_ROBOTS_CONTROLLED, fp);
-		cfread(&robot_fired[0], 4, MAX_ROBOTS_CONTROLLED, fp);
+		PHYSFS_read(fp, &robot_controlled[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_read(fp, &robot_agitation[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_read(fp, &robot_controlled_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_read(fp, &robot_last_send_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_read(fp, &robot_last_message_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_read(fp, &robot_send_pending[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
+		PHYSFS_read(fp, &robot_fired[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
 
       for (i=0;i<MAX_ROBOTS_CONTROLLED;i++)
-			cfread(&robot_fire_buf[i][0], 21, 1, fp);
+			PHYSFS_read(fp, &robot_fire_buf[i][0],21,1);
 #endif
 
 	   for (i=0;i<nplayers;i++)
@@ -1204,7 +1201,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 		if (secret_restore) {
 			player	dummy_player;
 
-			cfread(&dummy_player, sizeof(player), 1, fp);
+			PHYSFS_read(fp, &dummy_player, sizeof(player), 1);
 			if (secret_restore == 1) {		//	This means he didn't die, so he keeps what he got in the secret level.
 				Players[Player_num].level = dummy_player.level;
 				Players[Player_num].last_score = dummy_player.last_score;
@@ -1224,7 +1221,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 				Players[Player_num] = dummy_player;
 			}
 		} else {
-			cfread(&Players[Player_num], sizeof(player), 1, fp);
+			PHYSFS_read(fp, &Players[Player_num], sizeof(player), 1);
 		}
 	}
 	strcpy( Players[Player_num].callsign, org_callsign );
@@ -1234,32 +1231,32 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 		Players[Player_num].level = next_level;
 
 // Restore the weapon states
-	cfread(&Primary_weapon, sizeof(sbyte), 1, fp);
-	cfread(&Secondary_weapon, sizeof(sbyte), 1, fp);
+	PHYSFS_read(fp, &Primary_weapon, sizeof(sbyte), 1);
+	PHYSFS_read(fp, &Secondary_weapon, sizeof(sbyte), 1);
 
 	select_weapon(Primary_weapon, 0, 0, 0);
 	select_weapon(Secondary_weapon, 1, 0, 0);
 
 // Restore the difficulty level
-	cfread(&Difficulty_level, sizeof(int), 1, fp);
+	PHYSFS_read(fp, &Difficulty_level, sizeof(int), 1);
 
 // Restore the cheats enabled flag
 
-	cfread(&Cheats_enabled, sizeof(int), 1, fp);
+	PHYSFS_read(fp, &Cheats_enabled, sizeof(int),1);
 
 	if ( !between_levels )	{
 		Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
-		ObjectStartLocation = cftell(fp);
+		ObjectStartLocation = PHYSFS_tell(fp);
 		//Clear out all the objects from the lvl file
 		for (segnum=0; segnum <= Highest_segment_index; segnum++)
 			Segments[segnum].objects = -1;
 		reset_objects(1);
 	
 		//Read objects, and pop 'em into their respective segments.
-		cfread(&i, sizeof(int), 1, fp);
+		PHYSFS_read(fp, &i, sizeof(int), 1);
 		Highest_object_index = i-1;
-		cfread(Objects, sizeof(object), i, fp);
+		PHYSFS_read(fp, Objects, sizeof(object) * i, 1);
 	
 		Object_next_signature = 0;
 		for (i=0; i<=Highest_object_index; i++ )	{
@@ -1299,9 +1296,9 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 		}
 
 		//Restore wall info
-		cfread(&i, sizeof(int), 1, fp);
+		PHYSFS_read(fp, &i, sizeof(int), 1);
 		Num_walls = i;
-		cfread(Walls, sizeof(wall), Num_walls, fp);
+		PHYSFS_read(fp, Walls, sizeof(wall) * Num_walls, 1);
 
 		//now that we have the walls, check if any sounds are linked to
 		//walls that are now open
@@ -1312,55 +1309,55 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 
 		//Restore exploding wall info
 		if (version >= 10) {
-			cfread(&i, sizeof(int), 1, fp);
-			cfread(expl_wall_list, sizeof(*expl_wall_list), i, fp);
+			PHYSFS_read(fp, &i, sizeof(int), 1);
+			PHYSFS_read(fp, expl_wall_list, sizeof(*expl_wall_list), i);
 		}
 
 		//Restore door info
-		cfread(&i, sizeof(int), 1, fp);
+		PHYSFS_read(fp, &i, sizeof(int), 1);
 		Num_open_doors = i;
-		cfread(ActiveDoors, sizeof(active_door), Num_open_doors, fp);
+		PHYSFS_read(fp, ActiveDoors, sizeof(active_door), Num_open_doors);
 	
 		if (version >= 14) {		//Restore cloaking wall info
-			cfread(&i, sizeof(int), 1, fp);
+			PHYSFS_read(fp, &i, sizeof(int), 1);
 			Num_cloaking_walls = i;
-			cfread(CloakingWalls, sizeof(cloaking_wall), Num_cloaking_walls, fp);
+			PHYSFS_read(fp, CloakingWalls, sizeof(cloaking_wall), Num_cloaking_walls);
 		}
 	
 		//Restore trigger info
-		cfread(&Num_triggers, sizeof(int), 1, fp);
-		cfread(Triggers, sizeof(trigger), Num_triggers, fp);
+		PHYSFS_read(fp, &Num_triggers, sizeof(int), 1);
+		PHYSFS_read(fp, Triggers, sizeof(trigger), Num_triggers);
 	
 		//Restore tmap info
 		for (i=0; i<=Highest_segment_index; i++ )	{
 			for (j=0; j<6; j++ )	{
-				cfread(&Segments[i].sides[j].wall_num, sizeof(short), 1, fp);
-				cfread(&Segments[i].sides[j].tmap_num, sizeof(short), 1, fp);
-				cfread(&Segments[i].sides[j].tmap_num2, sizeof(short), 1, fp);
+				PHYSFS_read(fp, &Segments[i].sides[j].wall_num, sizeof(short), 1);
+				PHYSFS_read(fp, &Segments[i].sides[j].tmap_num, sizeof(short), 1);
+				PHYSFS_read(fp, &Segments[i].sides[j].tmap_num2, sizeof(short), 1);
 			}
 		}
 	
 		//Restore the fuelcen info
-		cfread(&Control_center_destroyed, sizeof(int), 1, fp);
-		cfread(&Countdown_timer, sizeof(int), 1, fp);
-		cfread(&Num_robot_centers, sizeof(int), 1, fp);
-		cfread(RobotCenters, sizeof(matcen_info), Num_robot_centers, fp);
-		cfread(&ControlCenterTriggers, sizeof(control_center_triggers), 1, fp);
-		cfread(&Num_fuelcenters, sizeof(int), 1, fp);
-		cfread(Station, sizeof(FuelCenter), Num_fuelcenters, fp);
+		PHYSFS_read(fp, &Control_center_destroyed, sizeof(int), 1);
+		PHYSFS_read(fp, &Countdown_timer, sizeof(int), 1);
+		PHYSFS_read(fp, &Num_robot_centers, sizeof(int), 1);
+		PHYSFS_read(fp, RobotCenters, sizeof(matcen_info), Num_robot_centers);
+		PHYSFS_read(fp, &ControlCenterTriggers, sizeof(control_center_triggers), 1);
+		PHYSFS_read(fp, &Num_fuelcenters, sizeof(int), 1);
+		PHYSFS_read(fp, Station, sizeof(FuelCenter), Num_fuelcenters);
 	
 		// Restore the control cen info
-		cfread(&Control_center_been_hit, sizeof(int), 1, fp);
-		cfread(&Control_center_player_been_seen, sizeof(int), 1, fp);
-		cfread(&Control_center_next_fire_time, sizeof(int), 1, fp);
-		cfread(&Control_center_present, sizeof(int), 1, fp);
-		cfread(&Dead_controlcen_object_num, sizeof(int), 1, fp);
+		PHYSFS_read(fp, &Control_center_been_hit, sizeof(int), 1);
+		PHYSFS_read(fp, &Control_center_player_been_seen, sizeof(int), 1);
+		PHYSFS_read(fp, &Control_center_next_fire_time, sizeof(int), 1);
+		PHYSFS_read(fp, &Control_center_present, sizeof(int), 1);
+		PHYSFS_read(fp, &Dead_controlcen_object_num, sizeof(int), 1);
 	
 		// Restore the AI state
 		ai_restore_state( fp, version );
 	
 		// Restore the automap visited info
-		cfread( Automap_visited, sizeof(ubyte), MAX_SEGMENTS, fp);
+		PHYSFS_read(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
 
 		//	Restore hacked up weapon system stuff.
 		Fusion_next_sound_time = GameTime;
@@ -1373,28 +1370,28 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	state_game_id = 0;
 
 	if ( version >= 7 )	{
-		cfread(&state_game_id, sizeof(uint), 1, fp);
-		cfread(&Laser_rapid_fire, sizeof(int), 1, fp);
-		cfread(&Lunacy, sizeof(int), 1, fp);		//	Yes, writing this twice.  Removed the Ugly robot system, but didn't want to change savegame format.
-		cfread(&Lunacy, sizeof(int), 1, fp);
+		PHYSFS_read(fp, &state_game_id, sizeof(uint), 1);
+		PHYSFS_read(fp, &Laser_rapid_fire, sizeof(int), 1);
+		PHYSFS_read(fp, &Lunacy, sizeof(int), 1);		//	Yes, writing this twice.  Removed the Ugly robot system, but didn't want to change savegame format.
+		PHYSFS_read(fp, &Lunacy, sizeof(int), 1);
 		if ( Lunacy )
 			do_lunacy_on();
 	}
 
 	if (version >= 17) {
-		cfread(MarkerObject, sizeof(MarkerObject), 1, fp);
-		cfread(MarkerOwner, sizeof(MarkerOwner), 1, fp);
-		cfread(MarkerMessage, sizeof(MarkerMessage), 1, fp);
+		PHYSFS_read(fp, MarkerObject, sizeof(MarkerObject), 1);
+		PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1);
+		PHYSFS_read(fp, MarkerMessage, sizeof(MarkerMessage), 1);
 	}
 	else {
 		int num,dummy;
 
 		// skip dummy info
 
-		cfread(&num, sizeof(int), 1, fp);       //was NumOfMarkers
-		cfread(&dummy, sizeof(int), 1, fp);     //was CurMarker
+		PHYSFS_read(fp, &num,sizeof(int), 1);           // was NumOfMarkers
+		PHYSFS_read(fp, &dummy,sizeof(int), 1);         // was CurMarker
 
-		cfseek(fp, num * (sizeof(vms_vector) + 40), SEEK_CUR);
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + num * (sizeof(vms_vector) + 40));
 
 		for (num=0;num<NUM_MARKERS;num++)
 			MarkerObject[num] = -1;
@@ -1402,24 +1399,24 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 
 	if (version>=11) {
 		if (secret_restore != 1)
-			cfread(&Afterburner_charge, sizeof(fix), 1, fp);
+			PHYSFS_read(fp, &Afterburner_charge, sizeof(fix), 1);
 		else {
 			fix	dummy_fix;
-			cfread(&dummy_fix,sizeof(fix), 1, fp);
+			PHYSFS_read(fp, &dummy_fix, sizeof(fix), 1);
 		}
 	}
 	if (version>=12) {
 		//read last was super information
-		cfread(&Primary_last_was_super, sizeof(Primary_last_was_super), 1, fp);
-		cfread(&Secondary_last_was_super, sizeof(Secondary_last_was_super), 1, fp);
+		PHYSFS_read(fp, &Primary_last_was_super, sizeof(Primary_last_was_super), 1);
+		PHYSFS_read(fp, &Secondary_last_was_super, sizeof(Secondary_last_was_super), 1);
 	}
 
 	if (version >= 12) {
-		cfread(&Flash_effect, sizeof(int), 1, fp);
-		cfread(&Time_flash_last_played, sizeof(int), 1, fp);
-		cfread(&PaletteRedAdd, sizeof(int), 1, fp);
-		cfread(&PaletteGreenAdd, sizeof(int), 1, fp);
-		cfread(&PaletteBlueAdd, sizeof(int), 1, fp);
+		PHYSFS_read(fp, &Flash_effect, sizeof(int), 1);
+		PHYSFS_read(fp, &Time_flash_last_played, sizeof(int), 1);
+		PHYSFS_read(fp, &PaletteRedAdd, sizeof(int), 1);
+		PHYSFS_read(fp, &PaletteGreenAdd, sizeof(int), 1);
+		PHYSFS_read(fp, &PaletteBlueAdd, sizeof(int), 1);
 	} else {
 		Flash_effect = 0;
 		Time_flash_last_played = 0;
@@ -1430,7 +1427,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 
 	//	Load Light_subtracted
 	if (version >= 16) {
-		cfread(Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS, fp);
+		PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS);
 		apply_all_changed_light();
 		compute_all_static_light();	//	set static_light field in segment struct.  See note at that function.
 	} else {
@@ -1441,7 +1438,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 
 	if (!secret_restore) {
 		if (version >= 20) {
-			cfread(&First_secret_visit, sizeof(First_secret_visit), 1, fp);
+			PHYSFS_read(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
 			mprintf((0, "File: [%s] Read First_secret_visit: New value = %i\n", filename, First_secret_visit));
 		} else
 			First_secret_visit = 1;
@@ -1451,14 +1448,14 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	if (version >= 22)
 	{
 		if (secret_restore != 1)
-			cfread(&Omega_charge,sizeof(fix), 1, fp);
+			PHYSFS_read(fp, &Omega_charge, sizeof(fix), 1);
 		else {
 			fix	dummy_fix;
-			cfread(&dummy_fix,sizeof(fix), 1, fp);
+			PHYSFS_read(fp, &dummy_fix, sizeof(fix), 1);
 		}
 	}
 
-	cfclose(fp);
+	PHYSFS_close(fp);
 
 #ifdef NETWORK
    if (Game_mode & GM_MULTI)   // Get rid of ships that aren't
@@ -1517,7 +1514,7 @@ void compute_all_static_light(void)
 int state_get_game_id(char *filename)
 {
 	int version;
-	CFILE *fp;
+	PHYSFS_file *fp;
 	int between_levels;
 	char mission[16];
 	char desc[DESC_LENGTH+1];
@@ -1526,47 +1523,48 @@ int state_get_game_id(char *filename)
 
 mprintf((0, "Restoring multigame from [%s]\n", filename));
 
-	fp = cfopen(filename, "rb");
-	if ( !fp ) return 0;
+	fp = PHYSFS_openRead(filename);
+	if (!fp) return 0;
 
 //Read id
-	cfread(id, sizeof(char)*4, 1, fp);
+	//FIXME: check for swapped file, react accordingly...
+	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 	if ( memcmp( id, dgss_id, 4 )) {
-		cfclose(fp);
+		PHYSFS_close(fp);
 		return 0;
 	}
 
 //Read version
-	cfread(&version, sizeof(int), 1, fp);
+	PHYSFS_read(fp, &version, sizeof(int), 1);
 	if (version < STATE_COMPATIBLE_VERSION)	{
-		cfclose(fp);
+		PHYSFS_close(fp);
 		return 0;
 	}
 
 // Read description
-	cfread(desc, sizeof(char)*DESC_LENGTH, 1, fp);
+	PHYSFS_read(fp, desc, sizeof(char) * DESC_LENGTH, 1);
 
 // Skip the current screen shot...
-	cfseek(fp, THUMBNAIL_W*THUMBNAIL_H, SEEK_CUR);
+	PHYSFS_seek(fp, PHYSFS_tell(fp) + THUMBNAIL_W * THUMBNAIL_H);
 
 // And now...skip the palette stuff that somebody forgot to add
-	cfseek(fp, 768, SEEK_CUR);
+	PHYSFS_seek(fp, PHYSFS_tell(fp) + 768);
 
 // Read the Between levels flag...
-	cfread(&between_levels, sizeof(int), 1, fp);
+	PHYSFS_read(fp, &between_levels, sizeof(int), 1);
 
 	Assert(between_levels == 0);	//between levels save ripped out
 
 // Read the mission info...
-	cfread(mission, sizeof(char), 9, fp);
+	PHYSFS_read(fp, mission, sizeof(char) * 9, 1);
 //Read level info
-	cfread(&dumbint, sizeof(int), 1, fp);
-	cfread(&dumbint, sizeof(int), 1, fp);
+	PHYSFS_read(fp, &dumbint, sizeof(int), 1);
+	PHYSFS_read(fp, &dumbint, sizeof(int), 1);
 
 //Restore GameTime
-	cfread(&dumbint, sizeof(fix), 1, fp);
+	PHYSFS_read(fp, &dumbint, sizeof(fix), 1);
 
-	cfread(&state_game_id, sizeof(int), 1, fp);
+	PHYSFS_read(fp, &state_game_id, sizeof(int), 1);
 
 	return (state_game_id);
  }

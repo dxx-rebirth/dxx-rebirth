@@ -1,4 +1,4 @@
-/* $Id: args.c,v 1.14 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: args.c,v 1.15 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,19 +23,23 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.14 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: args.c,v 1.15 2004-12-01 12:48:13 btb Exp $";
 #endif
 
 #include <stdlib.h>
 #include <string.h>
 
-#include "cfile.h"
+#include <physfs.h>
+
+#include "args.h"
 #include "u_mem.h"
 #include "strio.h"
 #include "strutil.h"
 
+#define MAX_ARGS 100
+
 int Num_args=0;
-char * Args[100];
+char * Args[MAX_ARGS];
 
 int FindArg(char *s)
 {
@@ -85,8 +89,6 @@ void args_exit(void)
 void InitArgs( int argc,char **argv )
 {
 	int i;
-	CFILE *f;
-	char *line,*word;
 	
 	Num_args=0;
 	
@@ -98,13 +100,24 @@ void InitArgs( int argc,char **argv )
 		if ( Args[i][0] == '-' )
 			strlwr( Args[i]  );  // Convert all args to lowercase
 	}
+	AppendArgs();
+
+	atexit(args_exit);
+}
+
+void AppendArgs(void)
+{
+	PHYSFS_file *f;
+	char *line,*word;
+	int i;
+	
 	if((i=FindArg("-ini")))
-		f = cfopen(Args[i+1], "rt");
+		f = PHYSFS_openRead(Args[i+1]);
 	else
-		f = cfopen("d2x.ini", "rt");
+		f = PHYSFS_openRead("d2x.ini");
 	
 	if(f) {
-		while(!cfeof(f))
+		while(!PHYSFS_eof(f) && Num_args < MAX_ARGS)
 		{
 			line=fgets_unlimited(f);
 			word=splitword(line,' ');
@@ -116,8 +129,6 @@ void InitArgs( int argc,char **argv )
 			
 			d_free(line); d_free(word);
 		}
-		cfclose(f);
+		PHYSFS_close(f);
 	}
-	
-	atexit(args_exit);
 }

@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.57 2004-12-01 08:24:55 btb Exp $ */
+/* $Id: piggy.c,v 1.58 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.57 2004-12-01 08:24:55 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.58 2004-12-01 12:48:13 btb Exp $";
 #endif
 
 
@@ -59,7 +59,6 @@ static char rcsid[] = "$Id: piggy.c,v 1.57 2004-12-01 08:24:55 btb Exp $";
 #include "cfile.h"
 #include "newmenu.h"
 #include "byteswap.h"
-#include "findfile.h"
 #include "makesig.h"
 
 #ifndef MACINTOSH
@@ -556,11 +555,11 @@ CFILE *copy_pigfile_from_cd(char *filename)		// MACINTOSH VERSION
 //retuns file handle of new pig
 CFILE *copy_pigfile_from_cd(char *filename)
 {
+#if 0
 	char name[80];
 	FILEFINDSTRUCT find;
 	int ret;
 
-	return cfopen(filename, "rb");
 	show_boxed_message("Copying bitmap data from CD...");
 	gr_palette_load(gr_palette);    //I don't think this line is really needed
 
@@ -600,6 +599,7 @@ CFILE *copy_pigfile_from_cd(char *filename)
 		}
 
 	} while (ret != EXIT_SUCCESS);
+#endif
 
 	return cfopen(filename, "rb");
 }

@@ -8,7 +8,7 @@ if USE_NETWORK
 NETWORK_SRCS = ipx_mcast4.c ipx_win.c ipx_udp.c winnet.c
 endif
 
-libarch_win32_a_SOURCES = ${NETWORK_SRCS} findfile.c hmpfile.c midi.c mingw_init.c
+libarch_win32_a_SOURCES = ${NETWORK_SRCS} hmpfile.c midi.c mingw_init.c
 
 EXTRA_libarch_win32_a_SOURCES = ipx_mcast4.c ipx_win.c ipx_udp.c winnet.c
 

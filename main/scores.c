@@ -1,4 +1,4 @@
-/* $Id: scores.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: scores.c,v 1.7 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -47,7 +47,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "joy.h"
 #include "timer.h"
 #include "text.h"
-#include "d_io.h"
 #include "strutil.h"
 
 #define VERSION_NUMBER 		1
@@ -114,13 +113,13 @@ char * get_scores_filename()
 
 void scores_read()
 {
-	CFILE *fp;
+	PHYSFS_file *fp;
 	int fsize;
 
 	// clear score array...
 	memset( &Scores, 0, sizeof(all_scores) );
 
-	fp = cfopen(get_scores_filename(), "rb");
+	fp = PHYSFS_openRead(get_scores_filename());
 	if (fp==NULL) {
 		int i;
 
@@ -141,16 +140,16 @@ void scores_read()
 			Scores.stats[i].score = (10-i)*1000;
 		return;
 	}
-		
-	fsize = cfilelength(fp);
+
+	fsize = PHYSFS_fileLength(fp);
 
 	if ( fsize != sizeof(all_scores) )	{
-		cfclose(fp);
+		PHYSFS_close(fp);
 		return;
 	}
 	// Read 'em in...
-	cfread(&Scores, sizeof(all_scores), 1, fp);
-	cfclose(fp);
+	PHYSFS_read(fp, &Scores, sizeof(all_scores), 1);
+	PHYSFS_close(fp);
 
 	if ( (Scores.version!=VERSION_NUMBER)||(Scores.signature[0]!='D')||(Scores.signature[1]!='H')||(Scores.signature[2]!='S') )	{
 		memset( &Scores, 0, sizeof(all_scores) );
@@ -160,9 +159,9 @@ void scores_read()
 
 void scores_write()
 {
-	CFILE *fp;
+	PHYSFS_file *fp;
 
-	fp = cfopen(get_scores_filename(), "wb");
+	fp = PHYSFS_openWrite(get_scores_filename());
 	if (fp==NULL) {
 		nm_messagebox( TXT_WARNING, 1, TXT_OK, "%s\n'%s'", TXT_UNABLE_TO_OPEN, get_scores_filename()  );
 		return;
@@ -172,8 +171,8 @@ void scores_write()
 	Scores.signature[1]='H';
 	Scores.signature[2]='S';
 	Scores.version = VERSION_NUMBER;
-	cfwrite(&Scores,sizeof(all_scores),1, fp);
-	cfclose(fp);
+	PHYSFS_write(fp, &Scores,sizeof(all_scores), 1);
+	PHYSFS_close(fp);
 }
 
 void int_to_string( int number, char *dest )
@@ -465,7 +464,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 			if ( citem < 0 )		{
 				// Reset scores...
 				if ( nm_messagebox( NULL, 2,  TXT_NO, TXT_YES, TXT_RESET_HIGH_SCORES )==1 )	{
-					cfile_delete(get_scores_filename());
+					PHYSFS_delete(get_scores_filename());
 					gr_palette_fade_out( gr_palette, 32, 0 );
 					goto ReshowScores;
 				}

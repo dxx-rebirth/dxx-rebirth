@@ -1,4 +1,4 @@
-/* $Id: args.h,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: args.h,v 1.7 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -25,6 +25,7 @@ extern int Num_args;
 extern char *Args[];
 extern int FindArg(char *s);
 extern int FindResArg(char *prefix, int *sw, int *sh);
+extern void AppendArgs(void);
 extern void InitArgs(int argc, char **argv);
 extern int Inferno_verbose;
 

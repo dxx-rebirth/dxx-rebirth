@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.28 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: newmenu.c,v 1.29 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -36,6 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include <limits.h>
 
+#include <physfs.h>
+
 #include "pa_enabl.h"                   //$$POLY_ACC
 #include "error.h"
 #include "pstypes.h"
@@ -46,8 +48,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "game.h"
 #include "text.h"
-#include "findfile.h"
-
 #include "menu.h"
 #include "newmenu.h"
 #include "gamefont.h"
@@ -2022,28 +2022,26 @@ void delete_player_saved_games(char * name)
 {
 	int i;
 	char filename[16];
-	
+
 	for (i=0;i<10; i++)	{
 #ifndef MACINTOSH
 		sprintf( filename, "%s.sg%d", name, i );
 #else
-		sprintf( filename, ":Players:%s.sg%d", name, i );
+		sprintf(filename, "Players/%s.sg%d", name, i);
 #endif
-		cfile_delete(filename);
+		PHYSFS_delete(filename);
 	}
 }
 
 #define MAX_FILES 300
 
-int MakeNewPlayerFile(int allow_abort);
-
-extern char AltHogDir[64];
-extern char AltHogdir_initialized;
-
-int newmenu_get_filename( char * title, char * filespec, char * filename, int allow_abort_flag )
+//FIXME: should maybe put globbing ability back?
+int newmenu_get_filename(char *title, char *type, char *filename, int allow_abort_flag)
 {
 	int i;
-	FILEFINDSTRUCT find;
+	char **find;
+	char **f;
+	char *ext;
 	int NumFiles=0, key,done, citem, ocitem;
 	char * filenames = NULL;
 	int NumFiles_displayed = 8;
@@ -2063,7 +2061,7 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 	int dblclick_flag=0;
 # ifdef WINDOWS
 	int simukey=0;
-	int show_up_arrow=0,show_down_arrow=0;
+	int show_up_arrow=0, show_down_arrow=0;
 # endif
 #endif
 WIN(int win_redraw=0);
@@ -2079,9 +2077,9 @@ WIN(int win_redraw=0);
 
 	WIN(mouse_set_mode(0));				//disable centering mode
 
-	if (strstr( filespec, "*.plr" ))
+	if (!stricmp(type, "plr"))
 		player_mode = 1;
-	else if (strstr( filespec, "*.dem" ))
+	else if (!stricmp(type, "dem"))
 		demo_mode = 1;
 
 ReadFileNames:
@@ -2095,40 +2093,33 @@ ReadFileNames:
 	}
 #endif
 
-	if( !FileFindFirst( filespec, &find ) )	{
-		do	{
-			if (NumFiles<MAX_FILES)	{
-                                strncpy( &filenames[NumFiles*14], find.name, FILENAME_LEN );
-				if ( player_mode )	{
-					char * p;
-					p = strchr(&filenames[NumFiles*14],'.');
-					if (p) *p = '\0';
-				}
-				NumFiles++;
-			} else {
-				break;
+	find = PHYSFS_enumerateFiles(demo_mode?DEMO_DIR:"");
+	for (f = find; *f != NULL; f++)
+	{
+		if (player_mode)
+		{
+			ext = strrchr(*f, '.');
+			if (!ext || strnicmp(ext, ".plr", 4))
+				continue;
+		}
+		if (NumFiles < MAX_FILES)
+		{
+			strncpy(&filenames[NumFiles*14], *f, FILENAME_LEN);
+			if (player_mode)
+			{
+				char *p;
+
+				p = strchr(&filenames[NumFiles*14], '.');
+				if (p)
+					*p = '\0';
 			}
-		} while( !FileFindNext( &find ) );
-		FileFindClose();
+			NumFiles++;
+		}
+		else
+			break;
 	}
 
-	if (demo_mode && AltHogdir_initialized) {
-		char filespec2[PATH_MAX + FILENAME_LEN];
-		strcpy(filespec2, AltHogDir);
-		strcat(filespec2, "/");
-		strcat(filespec2, filespec);
-		if ( !FileFindFirst( filespec2, &find ) ) {
-			do {
-				if (NumFiles<MAX_FILES)	{
-					strncpy( &filenames[NumFiles*14], find.name, FILENAME_LEN );
-					NumFiles++;
-				} else {
-					break;
-				}
-			} while( !FileFindNext( &find ) );
-			FileFindClose();
-		}
-	}
+	PHYSFS_freeList(find);
 
 	if ( (NumFiles < 1) && demos_deleted )	{
 		exit_value = 0;
@@ -2150,7 +2141,7 @@ ReadFileNames:
 
 	if ( NumFiles<1 )	{
 		#ifndef APPLE_DEMO
-			nm_messagebox( NULL, 1, "Ok", "%s\n '%s' %s", TXT_NO_FILES_MATCHING, filespec, TXT_WERE_FOUND);
+			nm_messagebox(NULL, 1, "Ok", "%s\n '%s' %s", TXT_NO_FILES_MATCHING, type, TXT_WERE_FOUND);
 		#endif
 		exit_value = 0;
 		goto ExitFileMenu;
@@ -2362,14 +2353,13 @@ RePaintNewmenuFile:
  				if (x==0)	{
 					char * p;
 					int ret;
-					char name[_MAX_PATH],dir[_MAX_DIR];
+					char name[_MAX_PATH];
 
 					p = &filenames[(citem*14)+strlen(&filenames[citem*14])];
 					if (player_mode)
 						*p = '.';
 
-					_splitpath(filespec,name,dir,NULL,NULL);
-					strcat(name,dir);
+					strcpy(name, demo_mode?DEMO_DIR:"");
 					strcat(name,&filenames[citem*14]);
 					
 					#ifdef MACINTOSH
@@ -2385,7 +2375,7 @@ RePaintNewmenuFile:
 					}
 					#endif
 				
-					ret = cfile_delete(name);
+					ret = !PHYSFS_delete(name);
 					if (player_mode)
 						*p = 0;
 
@@ -2735,7 +2725,7 @@ ExitFileMenu:
 // 
 // 	if ( *keypress = KEY_CTRLED+KEY_D )	{
 // 		if ( *nitems > 1 )	{
-// 			cfile_delete(items[*citem]);    // Delete the file
+// 			PHYSFS_delete(items[*citem]);     // Delete the file
 // 			for (i=*citem; i<*nitems-1; i++ )	{
 // 				items[i] = items[i+1];
 // 			}
@@ -3230,6 +3220,7 @@ RePaintNewmenuListbox:
 	return citem;
 }
 
+#if 0
 int newmenu_filelist( char * title, char * filespec, char * filename )
 {
 	int i, NumFiles;
@@ -3258,6 +3249,7 @@ int newmenu_filelist( char * title, char * filespec, char * filename )
 	} 
 	return 0;
 }
+#endif
 
 //added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
 int nm_messagebox_fixedfont( char *title, int nchoices, ... )

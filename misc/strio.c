@@ -1,4 +1,4 @@
-/* $Id: strio.c,v 1.5 2004-08-06 20:28:57 schaffner Exp $ */
+/* $Id: strio.c,v 1.6 2004-12-01 12:48:13 btb Exp $ */
 /*
  * strio.c: string/file manipulation functions by Victor Rachels
  */
@@ -8,7 +8,7 @@
 #endif
 
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
 #include "cfile.h"
 #include "strio.h"
@@ -16,7 +16,7 @@
 #include "u_mem.h"
 //end additions - adb
 
-char *fgets_unlimited(CFILE *f)
+char *fgets_unlimited(PHYSFS_file *f)
 {
     int		mem = 256;
     char	*word, *buf, *p;

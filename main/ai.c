@@ -1,4 +1,4 @@
-/* $Id: ai.c,v 1.8 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: ai.c,v 1.9 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-char ai_rcsid[] = "$Id: ai.c,v 1.8 2004-08-28 23:17:45 schaffner Exp $";
+char ai_rcsid[] = "$Id: ai.c,v 1.9 2004-12-01 12:48:13 btb Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1579,79 +1579,80 @@ void init_robots_for_level(void)
 	Boss_dying_start_time = 0;
 }
 
-int ai_save_state(CFILE *fp)
+int ai_save_state(PHYSFS_file *fp)
 {
-	cfwrite(&Ai_initialized, sizeof(int), 1, fp);
-	cfwrite(&Overall_agitation, sizeof(int), 1, fp);
-	cfwrite(Ai_local_info, sizeof(ai_local), MAX_OBJECTS, fp);
-	cfwrite(Point_segs, sizeof(point_seg), MAX_POINT_SEGS, fp);
-	cfwrite(Ai_cloak_info, sizeof(ai_cloak_info), MAX_AI_CLOAK_INFO, fp);
-	cfwrite(&Boss_cloak_start_time, sizeof(fix), 1, fp);
-	cfwrite(&Boss_cloak_end_time , sizeof(fix), 1, fp);
-	cfwrite(&Last_teleport_time , sizeof(fix), 1, fp);
-	cfwrite(&Boss_teleport_interval, sizeof(fix), 1, fp);
-	cfwrite(&Boss_cloak_interval, sizeof(fix), 1, fp);
-	cfwrite(&Boss_cloak_duration, sizeof(fix), 1, fp);
-	cfwrite(&Last_gate_time, sizeof(fix), 1, fp);
-	cfwrite(&Gate_interval, sizeof(fix), 1, fp);
-	cfwrite(&Boss_dying_start_time, sizeof(fix), 1, fp);
-	cfwrite(&Boss_dying, sizeof(int), 1, fp);
-	cfwrite(&Boss_dying_sound_playing, sizeof(int), 1, fp);
-	cfwrite(&Boss_hit_time, sizeof(fix), 1, fp);
-	// -- MK, 10/21/95, unused! -- cfwrite( &Boss_been_hit, sizeof(int), 1, fp);
+	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
+	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
+	PHYSFS_write(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
+	PHYSFS_write(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
+	PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
+	PHYSFS_write(fp, &Boss_cloak_start_time, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_cloak_end_time, sizeof(fix), 1);
+	PHYSFS_write(fp, &Last_teleport_time, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_cloak_duration, sizeof(fix), 1);
+	PHYSFS_write(fp, &Last_gate_time, sizeof(fix), 1);
+	PHYSFS_write(fp, &Gate_interval, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_dying_start_time, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
+	PHYSFS_write(fp, &Boss_dying_sound_playing, sizeof(int), 1);
+	PHYSFS_write(fp, &Boss_hit_time, sizeof(fix), 1);
+	// -- MK, 10/21/95, unused! -- PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
 
-	cfwrite(&Escort_kill_object, sizeof(Escort_kill_object), 1, fp);
-	cfwrite(&Escort_last_path_created, sizeof(Escort_last_path_created), 1, fp);
-	cfwrite(&Escort_goal_object, sizeof(Escort_goal_object), 1, fp);
-	cfwrite(&Escort_special_goal, sizeof(Escort_special_goal), 1, fp);
-	cfwrite(&Escort_goal_index, sizeof(Escort_goal_index), 1, fp);
-	cfwrite(&Stolen_items, sizeof(Stolen_items[0]), MAX_STOLEN_ITEMS, fp);
+	PHYSFS_write(fp, &Escort_kill_object, sizeof(Escort_kill_object), 1);
+	PHYSFS_write(fp, &Escort_last_path_created, sizeof(Escort_last_path_created), 1);
+	PHYSFS_write(fp, &Escort_goal_object, sizeof(Escort_goal_object), 1);
+	PHYSFS_write(fp, &Escort_special_goal, sizeof(Escort_special_goal), 1);
+	PHYSFS_write(fp, &Escort_goal_index, sizeof(Escort_goal_index), 1);
+	PHYSFS_write(fp, &Stolen_items, sizeof(Stolen_items[0])*MAX_STOLEN_ITEMS, 1);
 
-	{ int temp;
-	temp = Point_segs_free_ptr - Point_segs;
-	cfwrite(&temp, sizeof(int), 1, fp);
+	{
+		int temp;
+		temp = Point_segs_free_ptr - Point_segs;
+		PHYSFS_write(fp, &temp, sizeof(int), 1);
 	}
 
-	cfwrite(&Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1, fp);
-	cfwrite(&Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1, fp);
+	PHYSFS_write(fp, &Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1);
+	PHYSFS_write(fp, &Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1);
 
 	if (Num_boss_gate_segs)
-		cfwrite(Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs, fp);
+		PHYSFS_write(fp, Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs);
 
 	if (Num_boss_teleport_segs)
-		cfwrite(Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs, fp);
+		PHYSFS_write(fp, Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs);
 
 	return 1;
 }
 
-int ai_restore_state(CFILE *fp, int version)
+int ai_restore_state(PHYSFS_file *fp, int version)
 {
-	cfread(&Ai_initialized, sizeof(int), 1, fp);
-	cfread(&Overall_agitation, sizeof(int), 1, fp);
-	cfread(Ai_local_info, sizeof(ai_local), MAX_OBJECTS, fp);
-	cfread(Point_segs, sizeof(point_seg), MAX_POINT_SEGS, fp);
-	cfread(Ai_cloak_info, sizeof(ai_cloak_info), MAX_AI_CLOAK_INFO, fp);
-	cfread(&Boss_cloak_start_time, sizeof(fix), 1, fp);
-	cfread(&Boss_cloak_end_time , sizeof(fix), 1, fp);
-	cfread(&Last_teleport_time , sizeof(fix), 1, fp);
-	cfread(&Boss_teleport_interval, sizeof(fix), 1, fp);
-	cfread(&Boss_cloak_interval, sizeof(fix), 1, fp);
-	cfread(&Boss_cloak_duration, sizeof(fix), 1, fp);
-	cfread(&Last_gate_time, sizeof(fix), 1, fp);
-	cfread(&Gate_interval, sizeof(fix), 1, fp);
-	cfread(&Boss_dying_start_time, sizeof(fix), 1, fp);
-	cfread(&Boss_dying, sizeof(int), 1, fp);
-	cfread(&Boss_dying_sound_playing, sizeof(int), 1, fp);
-	cfread(&Boss_hit_time, sizeof(fix), 1, fp);
-	// -- MK, 10/21/95, unused! -- cfread(&Boss_been_hit, sizeof(int), 1, fp);
+	PHYSFS_read(fp, &Ai_initialized, sizeof(int), 1);
+	PHYSFS_read(fp, &Overall_agitation, sizeof(int), 1);
+	PHYSFS_read(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
+	PHYSFS_read(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
+	PHYSFS_read(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
+	PHYSFS_read(fp, &Boss_cloak_start_time, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_cloak_end_time, sizeof(fix), 1);
+	PHYSFS_read(fp, &Last_teleport_time, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_teleport_interval, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_cloak_interval, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_cloak_duration, sizeof(fix), 1);
+	PHYSFS_read(fp, &Last_gate_time, sizeof(fix), 1);
+	PHYSFS_read(fp, &Gate_interval, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_dying_start_time, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_dying, sizeof(int), 1);
+	PHYSFS_read(fp, &Boss_dying_sound_playing, sizeof(int), 1);
+	PHYSFS_read(fp, &Boss_hit_time, sizeof(fix), 1);
+	// -- MK, 10/21/95, unused! -- PHYSFS_read(fp, &Boss_been_hit, sizeof(int), 1);
 
 	if (version >= 8) {
-		cfread(&Escort_kill_object, sizeof(Escort_kill_object), 1, fp);
-		cfread(&Escort_last_path_created, sizeof(Escort_last_path_created), 1, fp);
-		cfread(&Escort_goal_object, sizeof(Escort_goal_object), 1, fp);
-		cfread(&Escort_special_goal, sizeof(Escort_special_goal), 1, fp);
-		cfread(&Escort_goal_index, sizeof(Escort_goal_index), 1, fp);
-		cfread(&Stolen_items, sizeof(Stolen_items[0]), MAX_STOLEN_ITEMS, fp);
+		PHYSFS_read(fp, &Escort_kill_object, sizeof(Escort_kill_object), 1);
+		PHYSFS_read(fp, &Escort_last_path_created, sizeof(Escort_last_path_created), 1);
+		PHYSFS_read(fp, &Escort_goal_object, sizeof(Escort_goal_object), 1);
+		PHYSFS_read(fp, &Escort_special_goal, sizeof(Escort_special_goal), 1);
+		PHYSFS_read(fp, &Escort_goal_index, sizeof(Escort_goal_index), 1);
+		PHYSFS_read(fp, &Stolen_items, sizeof(Stolen_items[0]) * MAX_STOLEN_ITEMS, 1);
 	} else {
 		int i;
 
@@ -1669,20 +1670,20 @@ int ai_restore_state(CFILE *fp, int version)
 
 	if (version >= 15) {
 		int temp;
-		cfread(&temp, sizeof(int), 1, fp);
+		PHYSFS_read(fp, &temp, sizeof(int), 1);
 		Point_segs_free_ptr = &Point_segs[temp];
 	} else
 		ai_reset_all_paths();
 
 	if (version >= 21) {
-		cfread(&Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1, fp);
-		cfread(&Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1, fp);
+		PHYSFS_read(fp, &Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1);
+		PHYSFS_read(fp, &Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1);
 
 		if (Num_boss_gate_segs)
-			cfread(Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs, fp);
+			PHYSFS_read(fp, Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs);
 
 		if (Num_boss_teleport_segs)
-			cfread(Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs, fp);
+			PHYSFS_read(fp, Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs);
 	} else {
 		// -- Num_boss_teleport_segs = 1;
 		// -- Num_boss_gate_segs = 1;

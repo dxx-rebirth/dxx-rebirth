@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.20 2004-10-23 19:39:35 schaffner Exp $ */
+/* $Id: playsave.c,v 1.21 2004-12-01 12:48:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -36,6 +36,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <errno.h>
 #endif
 
+#include <physfs.h>
+
 #include "error.h"
 
 #include "pa_enabl.h"
@@ -62,6 +64,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "byteswap.h"
 #include "escort.h"
+
+#include "physfsx.h"
 
 #define SAVE_FILE_ID			MAKE_SIG('D','P','L','R')
 
@@ -299,6 +303,7 @@ WIN(extern char win95_current_joyname[]);
 
 ubyte control_type_dos,control_type_win;
 
+
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
 {
@@ -307,8 +312,7 @@ int read_player_file()
 	#else
 	char filename[FILENAME_LEN];
 	#endif
-	CFILE *file;
-	int errno_ret = EZERO;
+	PHYSFS_file *file;
 	int id, i;
 	short player_file_version;
 	int rewrite_it=0;
@@ -319,31 +323,36 @@ int read_player_file()
 #ifndef MACINTOSH
 	sprintf(filename,"%.8s.plr",Players[Player_num].callsign);
 #else
-	sprintf(filename, ":Players:%.8s.plr",Players[Player_num].callsign);
+	sprintf(filename, "Players/%.8s.plr",Players[Player_num].callsign);
 #endif
-	file = cfopen(filename, "rb");
 
-#if 0 //ndef MACINTOSH
+	if (!PHYSFS_exists(filename))
+		return ENOENT;
+
+	file = PHYSFS_openRead(filename);
+
+#if 0
+#ifndef MACINTOSH
 	//check filename
 	if (file && isatty(fileno(file))) {
 		//if the callsign is the name of a tty device, prepend a char
-		fclose(file);
+		PHYSFS_close(file);
 		sprintf(filename,"$%.7s.plr",Players[Player_num].callsign);
-		file = fopen(filename,"rb");
+		file = PHYSFS_openRead(filename);
 	}
 #endif
+#endif
 
-	if (!file) {
-		return errno;
-	}
+	if (!file)
+		goto read_player_file_failed;
 
-	id = cfile_read_int(file);
+	PHYSFS_readSLE32(file, &id);
 
         // SWAPINT added here because old versions of d2x
         // used the wrong byte order.
 	if (id!=SAVE_FILE_ID && id!=SWAPINT(SAVE_FILE_ID)) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
-		cfclose(file);
+		PHYSFS_close(file);
 		return -1;
 	}
 
@@ -357,7 +366,7 @@ int read_player_file()
 
 	if (player_file_version<COMPATIBLE_PLAYER_FILE_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
-		cfclose(file);
+		PHYSFS_close(file);
 		return -1;
 	}
 
@@ -383,15 +392,15 @@ int read_player_file()
 		}
 	 #endif
 	#endif
- 
+
 	Default_display_mode     = cfile_read_byte(file);
 	Missile_view_enabled     = cfile_read_byte(file);
 	Headlight_active_default = cfile_read_byte(file);
 	Guided_in_big_window     = cfile_read_byte(file);
-
+		
 	if (player_file_version >= 19)
 		Automap_always_hires = cfile_read_byte(file);
-          
+
 	Auto_leveling_on = Default_leveling_on;
 
 	//read new highest level info
@@ -401,23 +410,19 @@ int read_player_file()
 		n_highest_levels = SWAPSHORT(n_highest_levels);
 	Assert(n_highest_levels <= MAX_MISSIONS);
 
-	if (cfread(highest_levels, sizeof(hli), n_highest_levels, file) != n_highest_levels)
-	{
-		errno_ret			= errno;
-		cfclose(file);
-		return errno_ret;
-	}
+	if (PHYSFS_read(file, highest_levels, sizeof(hli), n_highest_levels) != n_highest_levels)
+		goto read_player_file_failed;
 
 	//read taunt macros
 	{
 #ifdef NETWORK
 		int i,len;
 
-		len			= MAX_MESSAGE_LEN;
+		len = MAX_MESSAGE_LEN;
 
-		for (i			= 0; i < 4; i++)
-			if (cfread(Network_message_macro[i], len, 1, file) != 1)
-				{errno_ret			= errno; break;}
+		for (i = 0; i < 4; i++)
+			if (PHYSFS_read(file, Network_message_macro[i], len, 1) != 1)
+				goto read_player_file_failed;
 #else
 		char dummy[4][MAX_MESSAGE_LEN];
 
@@ -429,14 +434,14 @@ int read_player_file()
 	{
 		int n_control_types = (player_file_version<20)?7:CONTROL_MAX_TYPES;
 
-		if (cfread( kconfig_settings, MAX_CONTROLS*n_control_types, 1, file ) != 1)
-			errno_ret=errno;
-		else if (cfread((ubyte *)&control_type_dos, sizeof(ubyte), 1, file ) != 1)
-			errno_ret=errno;
-		else if (player_file_version >= 21 && cfread((ubyte *)&control_type_win, sizeof(ubyte), 1, file ) != 1)
-			errno_ret=errno;
-		else if (cfread(&Config_joystick_sensitivity, sizeof(ubyte), 1, file ) != 1)
-			errno_ret=errno;
+		if (PHYSFS_read(file, kconfig_settings, MAX_CONTROLS*n_control_types, 1) != 1)
+			goto read_player_file_failed;
+		else if (PHYSFS_read(file, (ubyte *)&control_type_dos, sizeof(ubyte), 1) != 1)
+			goto read_player_file_failed;
+		else if (player_file_version >= 21 && PHYSFS_read(file, (ubyte *)&control_type_win, sizeof(ubyte), 1) != 1)
+			goto read_player_file_failed;
+		else if (PHYSFS_read(file, &Config_joystick_sensitivity, sizeof(ubyte), 1) !=1 )
+			goto read_player_file_failed;
 
 		#ifdef WINDOWS
 		Config_control_type = control_type_win;
@@ -450,67 +455,68 @@ int read_player_file()
 
 		for (i=0;i<11;i++)
 		{
-			PrimaryOrder[i]   = cfile_read_byte(file);
+			PrimaryOrder[i] = cfile_read_byte(file);
 			SecondaryOrder[i] = cfile_read_byte(file);
 		}
 
 		if (player_file_version>=16)
 		{
-			Cockpit_3d_view[0] = cfile_read_int(file);
-			Cockpit_3d_view[1] = cfile_read_int(file);
-			if (swap) {
+			PHYSFS_readSLE32(file, &Cockpit_3d_view[0]);
+			PHYSFS_readSLE32(file, &Cockpit_3d_view[1]);
+			if (swap)
+			{
 				Cockpit_3d_view[0] = SWAPINT(Cockpit_3d_view[0]);
 				Cockpit_3d_view[1] = SWAPINT(Cockpit_3d_view[1]);
 			}
 		}
-		
-                  
-		if (errno_ret==EZERO)	{
-			kc_set_controls();
-		}
+
+		kc_set_controls();
 
 	}
 
-   if (player_file_version>=22)
-	 {
+	if (player_file_version>=22)
+	{
 #ifdef NETWORK
-		Netlife_kills = cfile_read_int(file);
-		Netlife_killed = cfile_read_int(file);
+		PHYSFS_readSLE32(file, &Netlife_kills);
+		PHYSFS_readSLE32(file, &Netlife_killed);
 		if (swap) {
 			Netlife_kills = SWAPINT(Netlife_kills);
 			Netlife_killed = SWAPINT(Netlife_killed);
 		}
 #else
-		cfile_read_int(file);
-		cfile_read_int(file);
+		{
+			int dummy;
+			PHYSFS_readSLE32(file, &dummy);
+			PHYSFS_readSLE32(file, &dummy);
+		}
 #endif
-	 }
+	}
 #ifdef NETWORK
-   else
-	 {
-		 Netlife_kills=0; Netlife_killed=0;
-	 }
+	else
+	{
+		Netlife_kills=0; Netlife_killed=0;
+	}
 #endif
 
 	if (player_file_version>=23)
-	 {
-	  i = cfile_read_int(file);
-	  if (swap)
-		  i = SWAPINT(i);
+	{
+		PHYSFS_readSLE32(file, &i);
+		if (swap)
+			i = SWAPINT(i);
 #ifdef NETWORK
-	  mprintf ((0,"Reading: lifetime checksum is %d\n",i));
-	  if (i!=get_lifetime_checksum (Netlife_kills,Netlife_killed))
+		mprintf ((0,"Reading: lifetime checksum is %d\n",i));
+		if (i!=get_lifetime_checksum (Netlife_kills,Netlife_killed))
 		{
-		 Netlife_kills=0; Netlife_killed=0;
- 		 nm_messagebox(NULL, 1, "Shame on me", "Trying to cheat eh?");
-		 rewrite_it=1;
+			Netlife_kills=0; Netlife_killed=0;
+			nm_messagebox(NULL, 1, "Shame on me", "Trying to cheat eh?");
+			rewrite_it=1;
 		}
 #endif
-	 }
+	}
 
 	//read guidebot name
 	if (player_file_version >= 18)
-		cfile_read_string(guidebot_name, GUIDEBOT_NAME_LEN, file);
+		PHYSFSX_readString(file, guidebot_name);
 	else
 		strcpy(guidebot_name,"GUIDE-BOT");
 
@@ -522,7 +528,7 @@ int read_player_file()
 	#ifdef WINDOWS
 		joy95_get_name(JOYSTICKID1, buf, 127);
 		if (player_file_version >= 24) 
-			cfile_read_string(win95_current_joyname, file);
+			PHYSFSX_readString(file, win95_current_joyname);
 		else
 			strcpy(win95_current_joyname, "Old Player File");
 		
@@ -536,24 +542,30 @@ int read_player_file()
 		}	 
 	#else
 		if (player_file_version >= 24) 
-			cfile_read_string(buf, 127, file);      // Just read it in fpr DPS.
+			PHYSFSX_readString(file, buf);			// Just read it in fpr DPS.
 	#endif
 	}
 
 	if (player_file_version >= 25)
-		cfread(kconfig_d2x_settings, MAX_D2X_CONTROLS, 1, file);
+		PHYSFS_read(file, kconfig_d2x_settings, MAX_D2X_CONTROLS, 1);
 	else
 		for(i=0; i < MAX_D2X_CONTROLS; i++)
 			kconfig_d2x_settings[i] = default_kconfig_d2x_settings[i];
 
-	if (cfclose(file) && errno_ret == EZERO)
-		errno_ret			= errno;
+	if (!PHYSFS_close(file))
+		goto read_player_file_failed;
 
 	if (rewrite_it)
-	 write_player_file();
+		write_player_file();
 
-	return errno_ret;
+	return EZERO;
 
+ read_player_file_failed:
+	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", "Error reading PLR file", PHYSFS_getLastError());
+	if (file)
+		PHYSFS_close(file);
+
+	return -1;
 }
 
 
@@ -619,6 +631,7 @@ int get_highest_level(void)
 
 extern int Cockpit_mode_save;
 
+
 //write out player's saved games.  returns errno (0 == no error)
 int write_player_file()
 {
@@ -627,21 +640,21 @@ int write_player_file()
 	#else
 	char filename[FILENAME_LEN];		// because of ":Players:" path
 	#endif
-	CFILE *file;
-	int errno_ret,i;
+	PHYSFS_file *file;
+	int i;
 
 //	#ifdef APPLE_DEMO		// no saving of player files in Apple OEM version
 //	return 0;
 //	#endif
 
-	errno_ret			= WriteConfigFile();
+	WriteConfigFile();
 
 #ifndef MACINTOSH
 	sprintf(filename,"%s.plr",Players[Player_num].callsign);
 #else
 	sprintf(filename, ":Players:%.8s.plr",Players[Player_num].callsign);
 #endif
-	file = cfopen(filename, "wb");
+	file = PHYSFS_openWrite(filename);
 
 #if 0 //ndef MACINTOSH
 	//check filename
@@ -649,56 +662,46 @@ int write_player_file()
 
 		//if the callsign is the name of a tty device, prepend a char
 
-		fclose(file);
+		PHYSFS_close(file);
 		sprintf(filename,"$%.7s.plr",Players[Player_num].callsign);
-		file			= fopen(filename,"wb");
+		file = PHYSFS_openWrite(filename);
 	}
 #endif
 
 	if (!file)
-              return errno;
-
-	errno_ret			= EZERO;
+		return -1;
 
 	//Write out player's info
-	cfile_write_int(SAVE_FILE_ID, file);
-	cfile_write_short(PLAYER_FILE_VERSION, file);
+	PHYSFS_writeULE32(file, SAVE_FILE_ID);
+	PHYSFS_writeULE16(file, PLAYER_FILE_VERSION);
 
-	cfile_write_short(Game_window_w, file);
-	cfile_write_short(Game_window_h, file);
+	PHYSFS_writeULE16(file, Game_window_w);
+	PHYSFS_writeULE16(file, Game_window_h);
 
-	cfile_write_byte(Player_default_difficulty, file);
-	cfile_write_byte(Auto_leveling_on, file);
-	cfile_write_byte(Reticle_on, file);
-	cfile_write_byte((Cockpit_mode_save != -1)?Cockpit_mode_save:Cockpit_mode, file);   //if have saved mode, write it instead of letterbox/rear view
-	cfile_write_byte(Default_display_mode, file);
-	cfile_write_byte(Missile_view_enabled, file);
-	cfile_write_byte(Headlight_active_default, file);
-	cfile_write_byte(Guided_in_big_window, file);
-	cfile_write_byte(Automap_always_hires, file);
+	PHYSFSX_writeU8(file, Player_default_difficulty);
+	PHYSFSX_writeU8(file, Auto_leveling_on);
+	PHYSFSX_writeU8(file, Reticle_on);
+	PHYSFSX_writeU8(file, (Cockpit_mode_save!=-1)?Cockpit_mode_save:Cockpit_mode);	//if have saved mode, write it instead of letterbox/rear view
+	PHYSFSX_writeU8(file, Default_display_mode);
+	PHYSFSX_writeU8(file, Missile_view_enabled);
+	PHYSFSX_writeU8(file, Headlight_active_default);
+	PHYSFSX_writeU8(file, Guided_in_big_window);
+	PHYSFSX_writeU8(file, Automap_always_hires);
 
 	//write higest level info
-	Assert(n_highest_levels <= MAX_MISSIONS);
-	cfile_write_short(n_highest_levels, file);
-	if ((cfwrite(highest_levels, sizeof(hli), n_highest_levels, file) != n_highest_levels))
-	{
-		errno_ret			= errno;
-		cfclose(file);
-		return errno_ret;
-	}
+	PHYSFS_writeULE16(file, n_highest_levels);
+	if ((PHYSFS_write(file, highest_levels, sizeof(hli), n_highest_levels) != n_highest_levels))
+		goto write_player_file_failed;
 
 #ifdef NETWORK
-	if ((cfwrite(Network_message_macro, MAX_MESSAGE_LEN, 4, file) != 4))
-	{
-		errno_ret			= errno;
-		cfclose(file);
-		return errno_ret;
-	}
+	if ((PHYSFS_write(file, Network_message_macro, MAX_MESSAGE_LEN, 4) != 4))
+		goto write_player_file_failed;
 #else
 	{
 		char dummy[4][MAX_MESSAGE_LEN];	// Pull the messages from a hat! ;-)
-		
-		cfwrite(dummy, MAX_MESSAGE_LEN, 4, file);
+
+		if ((PHYSFS_write(file, dummy, MAX_MESSAGE_LEN, 4) != 4))
+			goto write_player_file_failed;
 	}
 #endif
 
@@ -711,39 +714,40 @@ int write_player_file()
 		control_type_dos = Config_control_type;
 		#endif
 
-		if (cfwrite(kconfig_settings, MAX_CONTROLS * CONTROL_MAX_TYPES, 1, file ) != 1)
-			errno_ret=errno;
-		else if (cfwrite(&control_type_dos, sizeof(ubyte), 1, file) != 1)
-			errno_ret=errno;
-		else if (cfwrite(&control_type_win, sizeof(ubyte), 1, file ) != 1)
-			errno_ret=errno;
-		else if (cfwrite(&Config_joystick_sensitivity, sizeof(ubyte), 1, file) != 1)
-			errno_ret=errno;
+		if (PHYSFS_write(file, kconfig_settings, MAX_CONTROLS*CONTROL_MAX_TYPES, 1) != 1)
+			goto write_player_file_failed;
+		else if (PHYSFS_write(file, &control_type_dos, sizeof(ubyte), 1) != 1)
+			goto write_player_file_failed;
+		else if (PHYSFS_write(file, &control_type_win, sizeof(ubyte), 1) != 1)
+			goto write_player_file_failed;
+		else if (PHYSFS_write(file, &Config_joystick_sensitivity, sizeof(ubyte), 1) != 1)
+			goto write_player_file_failed;
 
-		for (i=0;i<11;i++)
+		for (i = 0; i < 11; i++)
 		{
-			cfwrite(&PrimaryOrder[i], sizeof(ubyte), 1, file);
-			cfwrite(&SecondaryOrder[i], sizeof(ubyte), 1, file);
+			PHYSFS_write(file, &PrimaryOrder[i], sizeof(ubyte), 1);
+			PHYSFS_write(file, &SecondaryOrder[i], sizeof(ubyte), 1);
 		}
 
-		cfile_write_int(Cockpit_3d_view[0], file);
-		cfile_write_int(Cockpit_3d_view[1], file);
+		PHYSFS_writeULE32(file, Cockpit_3d_view[0]);
+		PHYSFS_writeULE32(file, Cockpit_3d_view[1]);
 
 #ifdef NETWORK
-		cfile_write_int(Netlife_kills, file);
-		cfile_write_int(Netlife_killed, file);
+		PHYSFS_writeULE32(file, Netlife_kills);
+		PHYSFS_writeULE32(file, Netlife_killed);
 		i=get_lifetime_checksum (Netlife_kills,Netlife_killed);
 		mprintf ((0,"Writing: Lifetime checksum is %d\n",i));
 #else
-		cfile_write_int(0, file);
-		cfile_write_int(0, file);
-		i = get_lifetime_checksum(0, 0);
+		PHYSFS_writeULE32(file, 0);
+		PHYSFS_writeULE32(file, 0);
+		i = get_lifetime_checksum (0, 0);
 #endif
-		cfile_write_int(i,file);
+		PHYSFS_writeULE32(file, i);
 	}
 
 	//write guidebot name
-	cfile_write_string(real_guidebot_name, file);
+	PHYSFSX_writeString(file, real_guidebot_name);
+
 	{
 		char buf[128];
 		#ifdef WINDOWS
@@ -751,18 +755,13 @@ int write_player_file()
 		#else
 		strcpy(buf, "DOS joystick");
 		#endif
-		cfile_write_string(buf, file);  // Write out current joystick for player.
+		PHYSFSX_writeString(file, buf);		// Write out current joystick for player.
 	}
 
-	cfwrite(kconfig_d2x_settings, MAX_D2X_CONTROLS, 1, file);
+	PHYSFS_write(file, kconfig_d2x_settings, MAX_D2X_CONTROLS, 1);
 
-	if (cfclose(file))
-		errno_ret			= errno;
-
-	if (errno_ret != EZERO) {
-		cfile_delete(filename);         //delete bogus file
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s",TXT_ERROR_WRITING_PLR, strerror(errno_ret));
-	}
+	if (!PHYSFS_close(file))
+		goto write_player_file_failed;
 
 	#ifdef MACINTOSH		// set filetype and creator for playerfile
 	{
@@ -779,8 +778,17 @@ int write_player_file()
 	}
 	#endif
 
-	return errno_ret;
+	return EZERO;
 
+ write_player_file_failed:
+	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", TXT_ERROR_WRITING_PLR, PHYSFS_getLastError());
+	if (file)
+	{
+		PHYSFS_close(file);
+		PHYSFS_delete(filename);        //delete bogus file
+	}
+
+	return -1;
 }
 
 //update the player's highest level.  returns errno (0 == no error)

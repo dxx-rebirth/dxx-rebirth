@@ -1,3 +1,123 @@
+2004-12-01  Chris Taylor  <c.taylor@student.curtin.edu.au>
+
+	* arch/ogl/gr.c: make write_bmp use PhysicsFS
+
+	* include/args.h, misc/args.c: new AppendArgs function. This
+	separates the copying of the arguments passed to main() from the
+	reading of the arguments file
+
+	* include/cfile.h: Use portable PHYSFSX_getRealPath function, Use
+	the flexible cfgets, Fix compiling issues in MPW.
+
+	* include/physfsx.h: PHYSFSX_readU8 isn't endian friendly when
+	reading into an int, so it's removed completely.  PHYSFSX_getc was
+	removed, because it's only use in misc/strio.c was removed.  Put
+	in PHYSFSX_getRealPath, which recognises platform-specific
+	separators and doesn't use snprintf (MPW doesn't have it).  MPW
+	doesn't have statfs.
+
+	* main/inferno.c: Remove use of open_movie_file.  Read the
+	arguments file from the base directory, if there is one.  Set up
+	D2X's write directory, including replacing any tilde at the start
+	of the path (if there is one) with the string returned by
+	PHYSFS_getUserDir(). This applies to all platforms. On Unix the
+	default is still ~/.d2x.  Check if the write directory has to be
+	created.  Read the arguments file in this write directory if there
+	is one.  If there's still no write directory, set it to the base
+	directory. Won't set it to the current directory if this fails,
+	because of the issue of which character to use for which platform.
+
+	* main/playsave.c: Use PHYSFS_readSLE32 instead of
+	PHYSFS_readULE32 due to compiling issues in MPW.  Use
+	cfile_read_short instead of PHYSFS_readULE16 because of both
+	compiling and endian issues.  cfile_read_byte instead of
+	PHYSFSX_readU8.  Write a dummy structure instead of seeking when
+	NETWORK isn't defined
+
+2004-12-01  Bradley Bell  <btb@icculus.org>
+
+	* include/physfsx.h, include/strio.h, main/cntrlcen.c,
+	main/inferno.c, main/newmenu.c, misc/args.c, misc/strio.c: more
+	physfs additions
+
+	* main/newmenu.c: fix player file deletion
+
+	* include/physfsx.h: fix statfs includes for OS X
+
+	* main/inferno.c, main/network.c: misc physfs conversions
+
+	* arch/linux/Makefile.am, arch/linux/findfile.c,
+	arch/win32/Makefile.am, arch/win32/findfile.c,
+	include/findfile.h, main/kludge.c, main/mission.c,
+	main/newmenu.c, main/piggy.c: get rid of findfile stuff
+
+	* main/gameseq.c, main/menu.c, main/newmenu.c: improved demo/plr
+	loading
+
+	* main/state.c: improve savegame load/save
+
+	* main/movie.c: make -nomovies friendlier
+
+	* 2d/pcx.c, include/physfsx.h: use physfs for writing pcx files
+
+	* include/d_io.h, include/physfsx.h, main/inferno.c,
+	main/newdemo.c, main/scores.c, misc/Makefile.am, misc/d_io.c: get
+	rid of d_io stuff.
+
+	* main/scores.c: use physfs for scores file
+
+	* main/playsave.c: improve player loading
+
+	* main/movie.c: improve movie loading
+
+	* main/mission.c: improve mission loading
+
+	* main/ai.c, main/ai.h, main/gameseq.c, main/newmenu.c,
+	main/state.c: use physfs for savegames
+
+	* README: minor update
+
+	* main/newdemo.c: use physfs for demos
+
+	* include/physfsx.h: added PHYSFSX_rename function
+
+	* main/gameseq.c, main/mission.c, main/movie.c: make movies use
+	physfs/rwops, add libmve callbacks
+
+	* include/physfsrwops.h, misc/Makefile.am, misc/physfsrwops.c:
+	added physfsrwops stuff
+
+	* include/cfile.h: added cfile_close wrapper
+
+	* main/mission.c, main/newmenu.c: use PHYSFS to load missions,
+	player files
+
+	* include/ignorecase.h, misc/Makefile.am, misc/ignorecase.c: added
+	ignorecase stuff
+
+	* main/config.c: use physfs to read config file
+
+	* include/physfsx.h: added gets and puts functions
+
+	* include/cfile.h: correct seek return value
+
+	* main/config.c, main/playsave.c: use physfs to write
+	config/player files
+
+	* include/physfsx.h: added my physfs extensions
+
+	* main/inferno.c: physfs initialization stuff
+
+	* configure.ac: add check for physfs lib
+
+	* include/cfile.h: made cfile into a wrapper for physfs
+
+	* main/mission.c, main/movie.c, main/newdemo.c, main/newmenu.c:
+	disabled althogdir stuff (shouldn't be needed w/physfs)
+
+	* Makefile.am, cfile/.cvsignore, cfile/Makefile.am, cfile/cfile.c,
+	configure.ac: drop cfile stuff
+
 2004-11-30  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* D2X.make: Don't use D2XFolder, because the userdir can now be
