@@ -31,7 +31,7 @@ else
 d2x_sdl_LDADD = ${d2x_LDADD}
 endif
 else
-d2x_sdl_LDADD = ${d2x_LDADD} -lm -ldl -lpthread
+d2x_sdl_LDADD = ${d2x_LDADD} -lm
 endif
 d2x_gl_LDADD = ${d2x_sdl_LDADD} ${OGL_LIBS}
 d2x_svga_LDADD = ${d2x_sdl_LDADD} ${SVGA_LIBS}
