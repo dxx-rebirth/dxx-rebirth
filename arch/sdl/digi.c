@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/digi.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 08:25:34 $
+ * $Date: 2001-11-14 10:42:15 $
  *
  * SDL digital audio support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/25 08:25:34  bradleyb
+ * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
+ *
  * Revision 1.3  2001/10/12 06:36:55  bradleyb
  * Fix a gcc 3.0 warning, couple updates from d1x
  *
@@ -790,7 +793,12 @@ void digi_set_digi_volume( int dvolume )
 }
 //end edit by adb
 
-void digi_set_volume( int dvolume, int mvolume ) { }
+void digi_set_volume( int dvolume, int mvolume )
+{
+	digi_set_digi_volume(dvolume);
+	digi_set_midi_volume(mvolume);
+//      mprintf(( 1, "Volume: 0x%x and 0x%x\n", digi_volume, midi_volume ));
+}
 
 int digi_is_sound_playing(int soundno)
 {
