@@ -3,6 +3,8 @@
 #ifndef _CONSOLE_H_
 #define _CONSOLE_H_ 1
 
+#include "pstypes.h"
+
 /* Priority levels */
 #define CON_CRITICAL -2
 #define CON_URGENT   -1

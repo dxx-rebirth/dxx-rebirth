@@ -1,5 +1,7 @@
 #include <conf.h>
-#ifdef GGI_INPUT
+
+#ifdef GII_INPUT
+
 #include <stdio.h>
 #include <string.h>
 #include <ggi/gii.h>
@@ -158,4 +160,4 @@ int mouse_button_state(int button)
 	return Mouse.buttons[button].pressed;
 }
 
-#endif //GGI_INPUT
+#endif /* GII_INPUT */

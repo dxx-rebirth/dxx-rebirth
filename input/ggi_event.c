@@ -1,6 +1,7 @@
 #include <conf.h>
 
-#ifdef GGI_INPUT
+#ifdef GII_INPUT
+
 #include <stdio.h>
 #include <sys/time.h>
 #include <ggi/gii.h>
@@ -59,10 +60,10 @@ void event_poll()
                 	        mouse_handler_relative(event.pmove.x, event.pmove.y);
 				break;
 			case evPtrButtonPress:
-				mouse_handler_button(event.pbutton.button, 1);
+				mouse_handler_button(event.pbutton.button - 1, 1);
 				break;
 		        case evPtrButtonRelease:
-				mouse_handler_button(event.pbutton.button, 0);
+				mouse_handler_button(event.pbutton.button - 1, 0);
 				break;
 		}
 	}
@@ -70,8 +71,10 @@ void event_poll()
 
 void event_close()
 {
+#ifndef GGI_VIDEO
 	if (inputs)
 		giiClose(inputs);
+#endif
 	giiExit();
 }
 
@@ -128,4 +131,4 @@ int event_init()
 	return 0;
 }
 
-#endif //GGI_INPUT
+#endif /* GII_INPUT */

@@ -1,3 +1,7 @@
+#include <conf.h>
+
+#ifdef GGI_VIDEO
+
 #include <ggi/ggi.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,6 +11,7 @@
 #include "palette.h"
 #include "u_mem.h"
 #include "error.h"
+#include "console.h"
 
 #include "gamefont.h"
 
@@ -15,6 +20,7 @@ void *screenbuffer;
 
 ggi_visual_t *screenvis;
 const ggi_directbuffer *dbuffer;
+ggi_mode init_mode;
 
 ubyte use_directbuffer;
 
@@ -28,7 +34,7 @@ void gr_update()
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;
-	ggi_mode other_mode;	
+	ggi_mode other_mode;
 
 #ifdef NOGRAPH
 	return 0;
@@ -87,14 +93,15 @@ int gr_set_mode(u_int32_t mode)
 
 	gr_set_current_canvas(NULL);
 	
-	gamefont_choose_game_font(w,h);
+	//gamefont_choose_game_font(w,h);
 	
 	return 0;
 }
 
-int gr_init(int mode)
+int gr_init(void)
 {
 	int retcode;
+	int mode = SM(648,480);
  	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
@@ -103,6 +110,7 @@ int gr_init(int mode)
 	
 	ggiInit();
 	screenvis = ggiOpen(NULL);
+	ggiGetMode(screenvis, &init_mode);
 
 	if ((retcode=gr_set_mode(mode)))
 		return retcode;
@@ -123,6 +131,7 @@ void gr_close ()
 {
 	if (gr_installed==1)
 	{
+	        ggiSetMode(screenvis, &init_mode);
 		ggiClose(screenvis);
 		ggiExit();
 		gr_installed = 0;
@@ -326,3 +335,4 @@ void gr_palette_read (ubyte *pal)
 	}
 }
 
+#endif /* GGI_VIDEO */

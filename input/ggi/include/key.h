@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/input/ggi/include/key.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:29:59 $
+ * $Date: 2001-01-22 15:42:15 $
  *
  * Header for keyboard functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:29:59  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.2  1999/07/10 02:59:06  donut
  * more from orulz
  *
@@ -114,6 +117,7 @@ extern volatile int keyd_time_when_last_pressed;
 // These are the "buffered" keypress routines.  Use them by setting the
 // "keyd_buffer_type" variable.
 
+extern void key_putkey (unsigned short); // simulates a keystroke
 extern void key_flush();    // Clears the 256 char buffer
 extern int key_checkch();   // Returns 1 if a char is waiting
 extern int key_getch();     // Gets key if one waiting other waits for one.

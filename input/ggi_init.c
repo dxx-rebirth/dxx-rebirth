@@ -1,4 +1,7 @@
 #include <conf.h>
+
+#ifdef GII_INPUT
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "text.h"
@@ -9,3 +12,5 @@
 void arch_ggi_init()
 {
 }
+
+#endif /* GII_INPUT */
