@@ -1,3 +1,7 @@
+2003-10-21  Martin Schaffner  <maschaffner@icculus.org>
+
+	* main/gameseq.c, main/multi.c, main/multi.h: fix compilation error with --disable-network, move reset_network_objects() from gameseq.c to multi.c
+
 2003-10-14  Bradley Bell  <btb@icculus.org>
 
 	* AUTHORS, NEWS: stuff

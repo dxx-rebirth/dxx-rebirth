@@ -1,4 +1,4 @@
-/* $Id: multi.h,v 1.12 2003-10-12 09:17:47 btb Exp $ */
+/* $Id: multi.h,v 1.13 2003-10-21 09:50:56 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -376,6 +376,7 @@ int objnum_remote_to_local(int remote_obj, int owner);
 int objnum_local_to_remote(int local_obj, sbyte *owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(int objnum);
+void reset_network_objects();
 
 void multi_init_objects(void);
 void multi_show_player_list(void);
@@ -469,11 +470,8 @@ extern char Network_message[MAX_MESSAGE_LEN];
 extern char Network_message_macro[4][MAX_MESSAGE_LEN];
 extern int Network_message_reciever;
 
-// Used to map network to local object numbers
-
-extern short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Network object num for each 
-extern short local_to_remote[MAX_OBJECTS];   // Local object num for each network objnum
-extern sbyte object_owner[MAX_OBJECTS]; // Who 'owns' each local object for network purposes
+// Which player 'owns' each local object for network purposes
+extern sbyte object_owner[MAX_OBJECTS];
 
 extern int multi_in_menu; // Flag to tell if we're executing GameLoop from within a newmenu.
 extern int multi_leave_menu;

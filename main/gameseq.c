@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.31 2003-10-12 09:38:48 btb Exp $ */
+/* $Id: gameseq.c,v 1.32 2003-10-21 09:50:56 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -292,7 +292,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.31 2003-10-12 09:38:48 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.32 2003-10-21 09:50:56 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -357,11 +357,13 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.31 2003-10-12 09:38:48 btb Exp $";
 #include "newmenu.h"
 #include "endlevel.h"
 #ifdef NETWORK
-#include "network.h"
+#  include "multi.h"
+#  include "network.h"
+#  include "netmisc.h"
+#  include "modem.h"
 #endif
 #include "playsave.h"
 #include "ctype.h"
-#include "multi.h"
 #include "fireball.h"
 #include "kconfig.h"
 #include "config.h"
@@ -369,9 +371,6 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.31 2003-10-12 09:38:48 btb Exp $";
 #include "automap.h"
 #include "cntrlcen.h"
 #include "powerup.h"
-#ifdef NETWORK
-#include "modem.h"
-#endif
 #include "text.h"
 #include "cfile.h"
 #include "piggy.h"
@@ -380,9 +379,6 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.31 2003-10-12 09:38:48 btb Exp $";
 #include "mission.h"
 #include "state.h"
 #include "songs.h"
-#ifdef NETWORK
-#include "netmisc.h"
-#endif
 #include "gamepal.h"
 #include "movie.h"
 #include "controls.h"
@@ -554,7 +550,7 @@ gameseq_init_network_players()
 		//Int3(); // Not enough positions!!
 	}
 #endif
-
+#ifdef NETWORK
  	if (is_D2_OEM && (Game_mode & GM_MULTI) && Current_mission_num == Builtin_mission_num && Current_level_num==8)
 	 {
 	  for (i=0;i<N_players;i++)
@@ -574,6 +570,7 @@ gameseq_init_network_players()
 				return;
 			}
 	}
+#endif // NETWORK
 }
 
 void gameseq_remove_unused_players()
@@ -808,15 +805,6 @@ void init_player_stats_new_ship()
 
 	init_ai_for_ship();
 }
-
-#ifdef NETWORK
-void reset_network_objects()
-{
-	memset(local_to_remote, -1, MAX_OBJECTS*sizeof(short));
-	memset(remote_to_local, -1, MAX_NUM_NET_PLAYERS*MAX_OBJECTS*sizeof(short));
-	memset(object_owner, -1, MAX_OBJECTS);
-}
-#endif
 
 extern void init_stuck_objects(void);
 

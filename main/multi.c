@@ -1,4 +1,4 @@
-/* $Id: multi.c,v 1.13 2003-10-04 02:58:23 btb Exp $ */
+/* $Id: multi.c,v 1.14 2003-10-21 09:50:56 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -348,11 +348,11 @@ map_objnum_local_to_remote(int local_objnum, int remote_objnum, int owner)
 	// Add a mapping from a network remote object number to a local one
 
 	Assert(local_objnum > -1);
+	Assert(local_objnum < MAX_OBJECTS);
 	Assert(remote_objnum > -1);
+	Assert(remote_objnum < MAX_OBJECTS);
 	Assert(owner > -1);
 	Assert(owner != Player_num);
-	Assert(local_objnum < MAX_OBJECTS);
-	Assert(remote_objnum < MAX_OBJECTS);
 
 	object_owner[local_objnum] = owner;
 
@@ -375,6 +375,13 @@ map_objnum_local_to_local(int local_objnum)
 	local_to_remote[local_objnum] = local_objnum;
 
 	return;
+}
+
+void reset_network_objects()
+{
+	memset(local_to_remote, -1, MAX_OBJECTS*sizeof(short));
+	memset(remote_to_local, -1, MAX_NUM_NET_PLAYERS*MAX_OBJECTS*sizeof(short));
+	memset(object_owner, -1, MAX_OBJECTS);
 }
 
 //
