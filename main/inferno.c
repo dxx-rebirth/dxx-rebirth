@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.36 2002-08-02 11:05:26 btb Exp $ */
+/* $Id: inferno.c,v 1.37 2002-08-04 23:24:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -475,11 +475,11 @@ char	Auto_file[128] = "";
 
 int main(int argc,char **argv)
 {
-	int i,t;
+	int i, t;
 	ubyte title_pal[768];
 	int screen_width = 640;
 	int screen_height = 480;
-	u_int32_t screen_mode = SM(640,480);
+	u_int32_t screen_mode = SM(screen_width,screen_height);
 
 	con_init();  // Initialise the console
 	mem_init();
@@ -506,15 +506,10 @@ int main(int argc,char **argv)
 
 	InitArgs( argc,argv );
 
-	if ( FindArg( "-debug") )
-	{
+	if (FindArg("-debug"))
 		con_threshold.value = (float)2;
-
-	} else
-		if ( FindArg( "-verbose" ) ) 
-		{
-			con_threshold.value = (float)1;
-		}
+	else if (FindArg("-verbose"))
+		con_threshold.value = (float)1;
 
 	arch_init_start();
 
@@ -528,17 +523,9 @@ int main(int argc,char **argv)
 	//tell cfile about our counter
 	cfile_set_critical_error_counter_ptr(&descent_critical_error);
 
-	#ifdef SHAREWARE
-		cfile_init("d2demo.hog");			//specify name of hogfile
-	#else
-	#define HOGNAME "descent2.hog"
-	if (! cfile_init(HOGNAME)) {		//didn't find HOG.  Check on CD
-		#ifdef RELEASE
-			Error("Could not find required file <%s>",HOGNAME);
-		#endif
-	}
-	#endif
-	
+	if (! cfile_init("descent2.hog"))
+		if (! cfile_init("d2demo.hog"))
+			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)");
 	load_text();
 
 	//print out the banner title
@@ -562,7 +549,7 @@ int main(int argc,char **argv)
 	con_printf(CON_NORMAL, TXT_HELP, PROGNAME);		//help message has %s for program name
 	con_printf(CON_NORMAL, "\n");
 
-	con_printf(CON_VERBOSE, "\n%s...", "Checking for Descent 2 CD-ROM");
+	//con_printf(CON_VERBOSE, "\n%s...", "Checking for Descent 2 CD-ROM");
 
 	if ( FindArg( "-autodemo" ))
 		Auto_demo = 1;
@@ -695,7 +682,7 @@ int main(int argc,char **argv)
 
 	// Load the palette stuff. Returns non-zero if error.
 	con_printf(CON_DEBUG, "\nInitializing palette system..." );
-   gr_use_palette_table(DEFAULT_PALETTE );
+	gr_use_palette_table(DEFAULT_PALETTE );
 
 	con_printf(CON_DEBUG, "\nInitializing font system..." );
 	gamefont_init();	// must load after palette data loaded.
@@ -703,11 +690,13 @@ int main(int argc,char **argv)
 	con_printf( CON_DEBUG, "\nInitializing movie libraries..." );
 	init_movies();		//init movie libraries
 
+#if 0
 	con_printf(CON_VERBOSE, "\nGoing into graphics mode...\n");
 #if defined(POLY_ACC)
 	gr_set_mode(SM_640x480x15xPA);
 #else
 	gr_set_mode(MovieHires?SM(640,480):SM(320,200));
+#endif
 #endif
 
 	#ifndef RELEASE
@@ -809,7 +798,7 @@ int main(int argc,char **argv)
 			
 	}
 
-   PA_DFX (pa_splash());
+	PA_DFX (pa_splash());
 
 	con_printf( CON_DEBUG, "\nShowing loading screen..." );
 	{
@@ -817,15 +806,11 @@ int main(int argc,char **argv)
 		int pcx_error;
 		char filename[14];
 
-		#ifdef SHAREWARE
-		strcpy(filename, "descentd.pcx");
-		#else
-		#ifdef D2_OEM
-		strcpy(filename, MenuHires?"descntob.pcx":"descento.pcx");
-		#else
 		strcpy(filename, MenuHires?"descentb.pcx":"descent.pcx");
-		#endif
-		#endif
+		if (! cfexist(filename))
+			strcpy(filename, MenuHires?"descntob.pcx":"descento.pcx"); // OEM
+		if (! cfexist(filename))
+			strcpy(filename, "descentd.pcx"); // SHAREWARE
 
 #if defined(POLY_ACC)
 		gr_set_mode(SM_640x480x15xPA);
@@ -877,7 +862,7 @@ int main(int argc,char **argv)
 		for (i=0;i<nframes;i++)
 			fwrite(bm[i]->bm_data,1,bm[i]->bm_w*bm[i]->bm_h,ofile);
 
-	   iff_error = iff_read_animbrush("orbgoal.abm",bm,MAX_BITMAPS_PER_BRUSH,&nframes,palette);
+		iff_error = iff_read_animbrush("orbgoal.abm",bm,MAX_BITMAPS_PER_BRUSH,&nframes,palette);
 		Assert(iff_error == IFF_NO_ERROR);
 		Assert(bm[0]->bm_w == 64 && bm[0]->bm_h == 64);
 		nframes_short = nframes;
