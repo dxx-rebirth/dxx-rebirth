@@ -1,3 +1,7 @@
+2005-02-11  Bradley Bell  <btb@icculus.org>
+
+	* Makefile.am, arch/win32/Makefile.am: remove old files from dist
+
 2005-01-25  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* arch/carbon/conf.h, arch/ogl/gr.c, include/loadgl.h: on Carbon,

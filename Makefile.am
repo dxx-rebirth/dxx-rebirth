@@ -60,6 +60,6 @@ EXTRA_DIST = ${EXTRA_SUBDIRS} \
 ChangeLog \
 README.utils \
 djgpp.bat djgpp.sh \
-autogen.sh cygconf \
+autogen.sh \
 cvshowto.txt readme.txt installation.txt compilerdefs.txt \
 d2x-sdl.sh d2x-gl.sh
