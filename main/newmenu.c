@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: newmenu.c,v 1.4 2001-10-25 02:15:57 bradleyb Exp $";
+static char rcsid[] = "$Id: newmenu.c,v 1.5 2001-10-31 09:59:34 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -757,7 +757,9 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
         MaxDisplayable=nitems;
 
-//	set_screen_mode(SCREEN_MENU);
+#ifdef OGL
+	set_screen_mode(SCREEN_MENU);
+#endif
 	set_popup_screen();
 
 	if ( Function_mode == FMODE_GAME && !(Game_mode & GM_MULTI)) {
