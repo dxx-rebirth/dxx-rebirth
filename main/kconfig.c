@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.13 2002-07-22 22:59:24 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.14 2002-09-19 03:45:14 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -128,6 +128,7 @@ int invert_text[2] = { TNUM_N, TNUM_Y };
 int mouseaxis_text[3] = { TNUM_L_R, TNUM_F_B, TNUM_Z1 };
 #ifndef MACINTOSH
 int mousebutton_text[3] = { TNUM_LEFT, TNUM_RIGHT, TNUM_MID };
+char * mousebutton_textra[13] = { "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };//text for buttons above 3. -MPM
 #else
 char *mousebutton_text[3] = { "Btn", "", "" };		// only one silly mouse button on the mac
 #endif
@@ -1225,6 +1226,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 			case BT_MOUSE_BUTTON:
 				#ifndef MACINTOSH
 				strncpy( btext, Text_string[mousebutton_text[item->value]], 10 ); break;
+				strncpy( btext, (item->value <= 3)?Text_string[mousebutton_text[item->value]]:mousebutton_textra[item->value-3], 10 ); break;
 				#else
 				strncpy( btext, mousebutton_text[item->value], 10 ); break;
 				#endif
@@ -1507,7 +1509,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 		kc_drawquestion( item );
 
 		b = mouse_get_btns();
-		for (i=0; i<3; i++ )	{
+		for (i = 0; i < 16; i++ ) {
 			if ( b & (1<<i) )	
 				code = i;
 		}
