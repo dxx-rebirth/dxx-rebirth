@@ -20,7 +20,7 @@ main(int argc, char *argv[])
 		       "TXB to Text converter for Descent HOG files.\n"
 		       "Converts a *.txb descent hog file to an ascii file.\n"
 		       "Usage: TXB2TEX <txb file name> <text file name>\n"
-		       "Example: TEX2TXB briefing.txb briefing.tex\n");
+		       "Example: TXB2TEX briefing.txb briefing.tex\n");
 		exit(1);
 	}
 	file = fopen(argv[1], "rb");
