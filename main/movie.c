@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.6 2002-07-26 09:25:10 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.7 2002-07-26 20:59:41 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -47,6 +47,7 @@ static char rcsid[] = "$Id: movie.c,v 1.6 2002-07-26 09:25:10 btb Exp $";
 #include "menu.h"
 #include "mvelib.h"
 #include "text.h"
+#include "fileutil.h"
 
 extern int MenuHiresAvailable;
 extern char CDROM_dir[];
@@ -551,7 +552,7 @@ movielib *init_new_movie_lib(char *filename,FILE *fp)
 
 	//read movie file header
 
-	fread(&nfiles,4,1,fp);		//get number of files
+	nfiles = file_read_int(fp);		//get number of files
 
 	con_printf(DEBUG_LEVEL, "movie: init_new_movie_lib: -> %d files\n", nfiles);
 
@@ -573,13 +574,11 @@ movielib *init_new_movie_lib(char *filename,FILE *fp)
 
 		con_printf(DEBUG_LEVEL, "movie: init_new_movie_lib: -> %s\n", table->movies[i].name);
 
-		n = fread( &len, 4, 1, fp );
-		if ( n != 1 )
-			Error("error reading movie library <%s>",filename);
+		len = file_read_int(fp);
 
 		con_printf(DEBUG_LEVEL, "movie: init_new_movie_lib: --> %d\n", len);
 
-		table->movies[i].len = INTEL_INT(len);
+		table->movies[i].len = len;
 		table->movies[i].offset = offset;
 
 		offset += table->movies[i].len;
