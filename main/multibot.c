@@ -11,9 +11,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/main/multibot.c,v $
+ * $Revision: 1.2 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-23 21:53:19 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
 
-#ifdef NETWORK
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <string.h>
 #include <stdio.h>
@@ -1295,5 +1307,3 @@ void multi_robot_request_change(object *robot, int player_num)
 		robot->ctype.ai_info.REMOTE_SLOT_NUM = 5;  // Hands-off period
 	}
 }
-
-#endif // NETWORK

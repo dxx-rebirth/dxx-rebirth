@@ -11,16 +11,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/bmread.c,v $
+ * $Revision: 1.3 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-23 21:53:18 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
-
-#ifdef RCS
-char bmread_rcsid[] = "$Id: bmread.c,v 1.2 2001-01-31 15:17:49 bradleyb Exp $";
-#endif
-
-#ifdef EDITOR
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2465,5 +2470,3 @@ bm_write_extra_robots()
 
 	fclose(fp);
 }
-
-#endif

@@ -11,15 +11,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/kmatrix.c,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-23 21:53:18 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
-
-#ifdef RCS
-static char rcsid[] = "$Id: kmatrix.c,v 1.3 2001-01-31 15:17:54 bradleyb Exp $";
-#endif
-
-#ifdef NETWORK
 
 #ifdef WINDOWS
 #include "desw.h"
@@ -848,6 +854,3 @@ void kmatrix_view(int network)
    Kmatrix_nomovie_message=0;
 
 }
-
-#endif
-

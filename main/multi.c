@@ -11,9 +11,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#include <conf.h>
+/*
+ * $Source: /cvs/cvsroot/d2x/main/multi.c,v $
+ * $Revision: 1.5 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-23 21:53:19 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
 
-#ifdef NETWORK
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -5406,7 +5418,3 @@ multi_process_data(char *buf, int len)
 			Int3();
 	}
 }
-
-
-#endif
-
