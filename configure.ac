@@ -37,13 +37,22 @@ AC_STDC_HEADERS
 AC_PATH_PROGS(NASM, nasm nasmw, no)
 AC_C_BIGENDIAN
 
-AC_CYGWIN
-AC_MINGW32
-if test x$CYGWIN = xyes; then
-    AC_MSG_WARN([Cygwin found, setting -mno-cygwin])
-    CFLAGS="-mno-cygwin $CFLAGS"
-    MINGW32=yes
-fi
+case $host_os in
+    cygwin)
+        AC_MSG_WARN([Cygwin found, setting -mno-cygwin])
+        CFLAGS="-mno-cygwin $CFLAGS"
+        MINGW32=yes
+    ;;
+    mingw*)
+        MINGW32=yes
+    ;;
+    darwin*)
+        MACOSX=yes
+    ;;
+    msdos*)
+        MSDOS=yes
+    ;;
+esac
 
 AM_CONDITIONAL(MINGW32, test x$MINGW32 = xyes)
 if test x$MINGW32 = xyes; then
@@ -51,6 +60,11 @@ if test x$MINGW32 = xyes; then
 else
     GL_LIBS="GL GLU"
 fi
+
+if test x$MACOSX = xyes; then
+    AC_DEFINE(__MACOSX__,,[Define if building on MAC OS X])
+fi
+AM_CONDITIONAL(MACOSX, test x$MACOSX = xyes)
 
 dnl Set $prefix and $exec_prefix to $ac_default_prefix if they are not set
 test "x$prefix" = "xNONE" && prefix=$ac_default_prefix
@@ -80,15 +94,6 @@ if test x$enable_shareware = xyes; then
 fi
 AM_CONDITIONAL(SHAREWARE, test x$enable_shareware = xyes)
 
-dnl Enable movie trick?
-AC_ARG_ENABLE(movies,
-  [  --enable-movie-trick    Enable trick to show movies (experimental)],,)
-if test x$enable_movie_trick = xyes; then
-    AC_DEFINE(MOVIE_TRICK,,[Define to enable trick to show movies])
-    D2X_FEATURES="movie_trick ${D2X_FEATURES}"
-fi
-AM_CONDITIONAL(MOVIE_TRICK, test x$enable_movie_trick = xyes)
-
 dnl Enable NMOVIES?
 AC_ARG_ENABLE(nmovies,
   [  --enable-nmovies        Turn off movies (render extra sequences) (experimental)],,)
@@ -97,14 +102,6 @@ if test x$enable_nmovies = xyes; then
     D2X_FEATURES="nmovies ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(NMOVIES, test x$enable_nmovies = xyes)
-
-dnl Count warnings as errors?
-AC_ARG_ENABLE(werror,
-  [  --enable-werror         Count compiler warning as errors ],,)
-if test x$enable_werror = xyes; then
-    CFLAGS="-Werror $CFLAGS"
-    D2X_FEATURES="werror ${D2X_FEATURES}"
-fi
 
 dnl Build with NDEBUG?
 AC_ARG_ENABLE(debug,
@@ -133,10 +130,8 @@ if test "x$sharepath" = "xauto" -o "x$sharepath" = "xyes" -o "x$sharepath" = "x"
 fi
 AC_DEFINE_UNQUOTED(SHAREPATH, "$sharepath",[Define this to be the shared game directory root])
 
-# Test for DJGPP
-AM_CONDITIONAL(DJGPP, test "$host_os" = "msdosdjgpp")
-if test "$host_os" = "msdosdjgpp"; then
-
+# Test for MSDOS
+if test x$MSDOS = xyes; then
   CFLAGS="-I \$(top_srcdir)/arch/dos/include $CFLAGS"
   TARGETS=d2x
   D2X_ARCH_SUBDIRS=dos
@@ -160,21 +155,21 @@ else
   # Check for OpenGL
   AC_ARG_WITH(opengl,
     [  --with-opengl           Build OpenGL support ],,)
-  if test x$with_opengl = xyes; then
+    if test x$with_opengl = xyes -a x$MACOSX != xyes; then
     for lib in $GL_LIBS; do
-    AC_CHECK_LIB($lib, main,
+      AC_CHECK_LIB($lib, main,
         OGL_LIBS="${OGL_LIBS} -l$lib",
         [AC_MSG_ERROR([$lib not found, --with-opengl cannot be used])
         opengl=false],
         ${OGL_LIBS}
-    )
-    done
-    AC_DEFINE(OGL,,[Define if you want an OpenGL build])
-    TARGETS=d2x-gl
-    D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
-  fi
-  AC_SUBST(OGL_LIBS)
-  AM_CONDITIONAL(USE_OPENGL, test x$with_opengl = xyes)
+      )
+      done
+      AC_DEFINE(OGL,,[Define if you want an OpenGL build])
+      TARGETS=d2x-gl
+      D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
+    fi
+    AC_SUBST(OGL_LIBS)
+    AM_CONDITIONAL(USE_OPENGL, test x$with_opengl = xyes)
 
   # Check for GGI
   AC_ARG_WITH(ggi,
@@ -234,28 +229,31 @@ AM_CONDITIONAL(USE_NETWORK, test x$enable_network != xno)
 dnl Check for assembler
 AC_ARG_ENABLE(assembler,
   [  --disable-assembler     Do not use assembler optimization ],,)
-if test x$enable_assembler = xno; then
-    AC_DEFINE(NO_ASM,,[Define if you want an assembler free build])
-    D2X_FEATURES="no_asm ${D2X_FEATURES}"
-else
+if test x$enable_assembler != xno; then
     if test x$NASM = xno; then
-    AC_MSG_ERROR([nasm not found. Install it or use --disable-assembler])
+	AC_MSG_WARN([nasm not found. disabling assembler])
+	enable_assembler="no"
     else
         NASMFLAGS="-i\$(srcdir)/ $NASMFLAGS"
         case $host_os in
-          cygwin)
+          cygwin*)
               NASMFLAGS="-f win32 $NASMFLAGS"
               ;;
-          msdosdjgpp)
+          msdos*)
               NASMFLAGS="-f coff $NASMFLAGS"
               ;;
           linux*)
               NASMFLAGS="-f elf -d__linux__ $NASMFLAGS"
               ;;
           *)
-              AC_MSG_ERROR([Assembler not supported for this OS])
+              AC_MSG_WARN([nasm not supported for this OS. disabling assembler])
+	      enable_assembler="no"
         esac
     fi
+fi
+if test x$enable_assembler = xno; then
+    AC_DEFINE(NO_ASM,,[Define if you want an assembler free build])
+    D2X_FEATURES="no_asm ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(USE_ASM, test x$enable_assembler != xno)
 
@@ -264,6 +262,10 @@ AH_BOTTOM([
 #define NMONO 1
 #define PIGGY_USE_PAGING 1
 #define NEWDEMO 1
+
+#ifdef __MACOSX__
+#define __unix__
+#endif
 
 #ifdef __unix__
 # ifdef GGI
