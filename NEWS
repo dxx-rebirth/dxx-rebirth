@@ -17,6 +17,7 @@
   hogfiles from a central location, so it now doesn't matter what dir
   you start d2x from.
 - Enabled option for RELEASE build
+- ggi builds again (still broken, though)
 
 --- Version 0.1.1 ---
 Assembly under mingw32 now works.
