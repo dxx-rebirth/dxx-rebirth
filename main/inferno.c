@@ -145,6 +145,152 @@ int grd_fades_disabled=1;
 
 #define LINE_LEN	100
 
+//read help from a file & print to screen
+void print_commandline_help()
+{
+	CFILE *ifile;
+	int have_binary=0;
+	char line[LINE_LEN];
+
+	ifile = cfopen("help.tex","rb");
+	if (!ifile) {
+		ifile = cfopen("help.txb","rb");
+		if (!ifile)
+			Error("Cannot load help text file.");
+		have_binary = 1;
+	}
+
+	while (cfgets(line,LINE_LEN,ifile)) {
+
+		if (have_binary) {
+			int i;
+			for (i = 0; i < strlen(line) - 1; i++) {
+				encode_rotate_left(&(line[i]));
+				line[i] = line[i] ^ BITMAP_TBL_XOR;
+				encode_rotate_left(&(line[i]));
+			}
+		}
+
+//		if (line[0] == ';')
+//			continue;		//don't show comments
+
+		printf("%s",line);
+
+	}
+
+	cfclose(ifile);
+
+// D2X-specific options:
+        printf( " D2X Options:\n\n");
+	printf( "  -noredundancy   %s\n", "Do not send messages when picking up redundant items in multi");
+        printf( "  -shortpackets   %s\n", "Set shortpackets to default as on");
+        printf( "  -notitles       %s\n", "Do not show titlescreens on startup");
+        printf( "  -ini <file>     %s\n", "option file (alternate to command line)");
+        printf( "  -autodemo       %s\n","FIXME: Undocumented");
+        printf( "  -autoload       %s\n","FIXME: Undocumented");
+        printf( "  -bigpig         %s\n","FIXME: Undocumented");
+        printf( "  -bspgen         %s\n","FIXME: Undocumented");
+        printf( "  -cdproxy        %s\n","FIXME: Undocumented");
+        printf( "  -checktime      %s\n","FIXME: Undocumented");
+        printf( "  -codereadonly   %s\n","FIXME: Undocumented");
+        printf( "  -cyberimpact    %s\n","FIXME: Undocumented");
+        printf( "  -ddemul         %s\n","FIXME: Undocumented");
+        printf( "  -debug          %s\n","FIXME: Undocumented");
+        printf( "  -debugmode      %s\n","FIXME: Undocumented");
+        printf( "  -disallowgfx    %s\n","FIXME: Undocumented");
+        printf( "  -disallowreboot %s\n","FIXME: Undocumented");
+        printf( "  -dynamicsockets %s\n","FIXME: Undocumented");
+        printf( "  -emul           %s\n","FIXME: Undocumented");
+        printf( "  -forcegfx       %s\n","FIXME: Undocumented");
+        printf( "  -grabmouse      %s\n","FIXME: Undocumented");
+        printf( "  -hoarddata      %s\n","FIXME: Undocumented");
+        printf( "  -hw_3dacc       %s\n","FIXME: Undocumented");
+        printf( "  -hwsurface      %s\n","FIXME: Undocumented");
+        printf( "  -invulnerability %s\n","FIXME: Undocumented");
+        printf( "  -ipxnetwork     %s\n","FIXME: Undocumented");
+        printf( "  -jasen          %s\n","FIXME: Undocumented");
+        printf( "  -joyslow        %s\n","FIXME: Undocumented");
+        printf( "  -kali           %s\n","FIXME: Undocumented");
+        printf( "  -logfile        %s\n","FIXME: Undocumented");
+        printf( "  -lowresmovies   %s\n","FIXME: Undocumented");
+        printf( "  -macdata        %s\n","FIXME: Undocumented");
+        printf( "  -memdbg         %s\n","FIXME: Undocumented");
+        printf( "  -monodebug      %s\n","FIXME: Undocumented");
+        printf( "  -nobm           %s\n","FIXME: Undocumented");
+        printf( "  -nocdrom        %s\n","FIXME: Undocumented");
+        printf( "  -nocyberman     %s\n","FIXME: Undocumented");
+        printf( "  -nofade         %s\n","FIXME: Undocumented");
+        printf( "  -nomatrixcheat  %s\n","FIXME: Undocumented");
+        printf( "  -nomixer        %s\n","FIXME: Undocumented");
+        printf( "  -nomodex        %s\n","FIXME: Undocumented");
+        printf( "  -nomovies       %s\n","FIXME: Undocumented");
+        printf( "  -norankings     %s\n","FIXME: Undocumented");
+        printf( "  -noredbook      %s\n","FIXME: Undocumented");
+        printf( "  -norun          %s\n","FIXME: Undocumented");
+        printf( "  -noscreens      %s\n","FIXME: Undocumented");
+        printf( "  -ordinaljoy     %s\n","FIXME: Undocumented");
+        printf( "  -packets        %s\n","FIXME: Undocumented");
+        printf( "  -rtscts         %s\n","FIXME: Undocumented");
+        printf( "  -semiwin        %s\n","FIXME: Undocumented");
+        printf( "  -showaddress    %s\n","FIXME: Undocumented");
+        printf( "  -showmeminfo    %s\n","FIXME: Undocumented");
+        printf( "  -socket         %s\n","FIXME: Undocumented");
+        printf( "  -specialdevice  %s\n","FIXME: Undocumented");
+        printf( "  -stickmag       %s\n","FIXME: Undocumented");
+        printf( "  -stopwatch      %s\n","FIXME: Undocumented");
+        printf( "  -superhires     %s\n","FIXME: Undocumented");
+        printf( "  -sysram         %s\n","FIXME: Undocumented");
+        printf( "  -text           %s\n","FIXME: Undocumented");
+        printf( "  -tsengdebug1    %s\n","FIXME: Undocumented");
+        printf( "  -tsengdebug2    %s\n","FIXME: Undocumented");
+        printf( "  -tsengdebug3    %s\n","FIXME: Undocumented");
+        printf( "  -udp            %s\n","FIXME: Undocumented");
+        printf( "  -vidram         %s\n","FIXME: Undocumented");
+        printf( "  -xcontrol       %s\n","FIXME: Undocumented");
+        printf( "  -xname          %s\n","FIXME: Undocumented");
+        printf( "  -xver           %s\n","FIXME: Undocumented");
+
+        printf( "\n D2X System Options:\n\n");
+
+#ifdef __MSDOS__
+        printf( "  -joy209         %s\n", "Use alternate port 209 for joystick");
+#endif
+#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE 
+        printf( "  -fullscreen     %s\n", "Use fullscreen mode if available");
+#endif
+#ifdef OGL
+        printf( "  -gl_texmagfilt <f> %s\n","set GL_TEXTURE_MAG_FILTER (see readme.d1x)");
+        printf( "  -gl_texminfilt <f> %s\n","set GL_TEXTURE_MIN_FILTER (see readme.d1x)");
+        printf( "  -gl_mipmap      %s\n","set gl texture filters to \"standard\" options for mipmapping");
+        printf( "  -gl_simple      %s\n","set gl texture filters to gl_nearest for \"original\" look. (default)");
+        printf( "  -gl_alttexmerge %s\n","use new texmerge, usually uses less ram (default)");
+        printf( "  -gl_stdtexmerge %s\n","use old texmerge, uses more ram, but _might_ be a bit faster");
+        printf( "  -gl_voodoo      %s\n","force fullscreen mode only");
+        printf( "  -gl_16bittextures %s\n","attempt to use 16bit textures");
+        printf( "  -gl_reticle <r> %s\n","use OGL reticle 0=never 1=above 320x* 2=always");
+        printf( "  -gl_intensity4_ok %s\n","FIXME: Undocumented");
+        printf( "  -gl_luminance4_alpha4_ok %s\n","FIXME: Undocumented");
+        printf( "  -gl_readpixels_ok %s\n","FIXME: Undocumented");
+        printf( "  -gl_rgba2_ok    %s\n","FIXME: Undocumented");
+        printf( "  -gl_test1       %s\n","FIXME: Undocumented");
+        printf( "  -gl_test2       %s\n","FIXME: Undocumented");
+        printf( "  -gl_vidmem      %s\n","FIXME: Undocumented");
+#ifdef OGL_RUNTIME_LOAD
+        printf( "  -gl_library <l> %s\n","use alternate opengl library");
+#endif
+#endif
+#ifdef SDL_VIDEO
+        printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
+#endif
+#ifdef __ENV_LINUX__
+        printf( "  -serialdevice <s> %s\n", "Set serial/modem device to <s>");
+        printf( "  -serialread <r> %s\n", "Set serial/modem to read from <r>");
+#endif
+	printf( "Help:\n");
+        printf( "  -help, -?, ?    %s\n", "View this help screen");
+        printf( "\n");
+}
+
 void do_joystick_init()
 {
  
@@ -317,7 +463,7 @@ int main(int argc,char **argv)
 
 
 	if (FindArg( "-?" ) || FindArg( "-help" ) || FindArg( "?" ) ) {
-		//print_commandline_help();
+		print_commandline_help();
 		set_exit_message("");
 		return(0);
 	}
