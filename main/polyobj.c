@@ -9,14 +9,14 @@ FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
-/*
+*/
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.4 2001-01-31 15:17:57 bradleyb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.5 2001-01-31 15:34:40 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
