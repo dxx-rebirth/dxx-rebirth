@@ -1,3 +1,8 @@
+2005-02-24  Bradley Bell  <btb@icculus.org>
+
+	* main/movie.c: change movie Warnings to con_printf, simplify
+	other debug info.
+
 2005-02-24  Chris Taylor  <chris@icculus.org>
 
 	* include/physfsx.h: use PHYSFSX_openReadBuffered and 

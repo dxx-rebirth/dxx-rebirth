@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.37 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: movie.c,v 1.38 2005-02-25 03:35:42 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,10 +23,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.37 2004-12-01 12:48:13 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.38 2005-02-25 03:35:42 btb Exp $";
 #endif
-
-#define DEBUG_LEVEL CON_NORMAL
 
 #include <string.h>
 #ifndef macintosh
@@ -306,7 +304,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	if (!filehndl)
 	{
 		if (must_have)
-			Warning("movie: RunMovie: Cannot open movie <%s>: %s\n", filename, PHYSFS_getLastError());
+			con_printf(CON_URGENT, "Can't open movie <%s>: %s\n", filename, PHYSFS_getLastError());
 		return MOVIE_NOT_PLAYED;
 	}
 
@@ -450,7 +448,7 @@ int InitRobotMovie(char *filename)
 	if (FindArg("-nomovies"))
 		return 0;
 
-	con_printf(DEBUG_LEVEL, "RoboFile=%s\n", filename);
+	con_printf(CON_DEBUG, "RoboFile=%s\n", filename);
 
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
@@ -458,7 +456,7 @@ int InitRobotMovie(char *filename)
 
 	if (!RoboFile)
 	{
-		Warning("movie: InitRobotMovie: Cannot open movie file <%s>: %s\n", filename, PHYSFS_getLastError());
+		con_printf(CON_URGENT, "Can't open movie <%s>: %s\n", filename, PHYSFS_getLastError());
 		return MOVIE_NOT_PLAYED;
 	}
 
@@ -650,11 +648,11 @@ void close_movie(char *movielib, int is_robots)
 
 	if (!cfile_close(filename))
 	{
-		Warning("Couldn't remove movielib <%s>: %s\n", filename, PHYSFS_getLastError());
+		con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
 		sprintf(filename, "%s-%s.mvl", movielib, high_res?"l":"h");
 
 		if (!cfile_close(filename))
-			Warning("Couldn't remove movielib <%s>: %s\n", filename, PHYSFS_getLastError());
+			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
 	}
 }
 
@@ -727,7 +725,7 @@ int request_cd(void)
 
 	return ret;
 #else
-	con_printf(DEBUG_LEVEL, "STUB: movie: request_cd\n");
+	con_printf(CON_DEBUG, "STUB: movie: request_cd\n");
 	return 0;
 #endif
 }
@@ -749,13 +747,13 @@ void init_movie(char *movielib, int is_robots, int required)
 	if (!cfile_init(filename))
 	{
 		if (required)
-			Warning("Cannot open movie file <%s>: %s\n", filename, PHYSFS_getLastError());
+			con_printf(CON_URGENT, "Can't open movielib <%s>: %s\n", filename, PHYSFS_getLastError());
 
 		sprintf(filename, "%s-%s.mvl", movielib, high_res?"l":"h");
 
 		if (!cfile_init(filename))
 			if (required)
-				Warning("Cannot open movie file <%s>: %s\n", filename, PHYSFS_getLastError());
+				con_printf(CON_URGENT, "Can't open movielib <%s>: %s\n", filename, PHYSFS_getLastError());
 	}
 }
 
@@ -787,7 +785,7 @@ void close_extra_robot_movie(void)
 {
 	if (strlen(movielib_files[EXTRA_ROBOT_LIB]))
 		if (!cfile_close(movielib_files[EXTRA_ROBOT_LIB]))
-			Warning("Couldn't remove robot lib: %s\n", PHYSFS_getLastError());
+			con_printf(CON_URGENT, "Can't close robot movielib: %s\n", PHYSFS_getLastError());
 }
 
 void init_extra_robot_movie(char *movielib)
