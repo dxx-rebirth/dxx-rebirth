@@ -36,7 +36,7 @@ AC_PROG_CXX
 AC_STDC_HEADERS
 AC_PATH_PROGS(NASM, nasm nasmw, no)
 AC_C_BIGENDIAN
-AC_CHECK_DECLS(nanosleep)
+AC_CHECK_DECLS(nanosleep,,,[#include <time.h>])
 AC_CHECK_TYPES(struct timespec)
 
 case $host_cpu in

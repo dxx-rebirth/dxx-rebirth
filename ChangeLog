@@ -2,6 +2,8 @@
 
 2003-04-30  Bradley Bell  <btb@icculus.org>
 
+	* configure.ac: have to include time.h when checking for nanosleep
+
 	* configure.ac, libmve/mveplay.c: use autoconf to check for struct
 	timespec
 
