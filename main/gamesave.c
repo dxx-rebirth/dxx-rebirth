@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.26 2004-12-19 12:29:11 btb Exp $ */
+/* $Id: gamesave.c,v 1.27 2004-12-20 06:34:42 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.26 2004-12-19 12:29:11 btb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.27 2004-12-20 06:34:42 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -88,7 +88,7 @@ int Gamesave_current_version;
 #define MENU_CURSOR_X_MIN       MENU_X
 #define MENU_CURSOR_X_MAX       MENU_X+6
 
-#if 0
+#ifdef EDITOR
 struct {
 	ushort  fileinfo_signature;
 	ushort  fileinfo_version;
@@ -131,7 +131,7 @@ struct {
 	int     delta_light_howmany;
 	int     delta_light_sizeof;
 } game_fileinfo;
-#endif // 0
+#endif // EDITOR
 
 //  LINT: adding function prototypes
 void read_object(object *obj, CFILE *f, int version);

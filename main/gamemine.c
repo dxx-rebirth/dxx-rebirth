@@ -1,4 +1,4 @@
-/* $Id: gamemine.c,v 1.31 2004-11-19 18:02:32 schaffner Exp $ */
+/* $Id: gamemine.c,v 1.32 2004-12-20 06:34:42 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.31 2004-11-19 18:02:32 schaffner Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.32 2004-12-20 06:34:42 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -67,12 +67,12 @@ fix Level_shake_frequency = 0, Level_shake_duration = 0;
 int Secret_return_segment = 0;
 vms_matrix Secret_return_orient;
 
-#if 0
+#ifdef EDITOR
 struct mtfi mine_top_fileinfo; // Should be same as first two fields below...
 struct mfi mine_fileinfo;
 struct mh mine_header;
 struct me mine_editor;
-#endif // 0
+#endif // EDITOR
 
 typedef struct v16_segment {
 	#ifdef EDITOR

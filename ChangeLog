@@ -4,6 +4,9 @@
 	main/editor/segment.c, main/gameseg.h, main/physics.c: Pass the
 	extra two parameters to get_seg_masks.
 
+	* main/gamemine.c, main/gamemine.h, main/gamesave.c: Enable global
+	structs for mine saving functions
+
 2004-12-19  Bradley Bell  <btb@icculus.org>
 
 	* ui/Makefile.am: fix ui Makefile.am
