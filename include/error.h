@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/error.h,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-22 15:49:14 $
+ * $Date: 2001-11-14 10:51:04 $
  *
  * Header for error handling/printing/exiting code
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/22 15:49:14  bradleyb
+ * fix compiler warnings w/opengl
+ *
  * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
  * Import of d2x-0.0.8
  *
@@ -103,7 +106,18 @@ void Int3();
 //#define Int3() {volatile int a=0,b=1/a;}
 #define Int3() ((void)0)
 #else
+#ifdef SDL_INPUT
+#include <SDL/SDL.h>
+#include "args.h"
+static inline void _Int3()
+{
+	SDL_WM_GrabInput(SDL_GRAB_OFF);
+	asm("int $3");
+}
+#define Int3() _Int3()
+#else
 #define Int3() asm("int $3")
+#endif
 #endif
 //end edit -MM
 
