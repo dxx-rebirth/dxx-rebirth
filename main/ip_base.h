@@ -1,13 +1,16 @@
 /*
  * $Source: /cvs/cvsroot/d2x/main/ip_base.h,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2002-02-06 09:22:41 $
+ * $Date: 2002-02-13 10:45:49 $
  *
  * ip_base.h - base for NAT-compatible udp/ip code.
  * added 2000/02/07 Matt Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2002/02/06 09:22:41  bradleyb
+ * Adding d1x network code
+ *
  *
  */
 
@@ -48,9 +51,9 @@ unsigned short ip_portshift(unsigned short baseport, const char *cs);
 #define MAX_PACKETSIZE 8192
 
 // Length HAS TO BE 2!
-#define D1Xid "\xd1x"
+#define DXXid "\xdxx"
 // Length HAS TO BE 4!
-#define D1Xcfgid "\xcfg\xd1x"
+#define DXXcfgid "\xcfg\xdxx"
 
 
 //cfg packet types

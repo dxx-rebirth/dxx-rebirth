@@ -6,7 +6,8 @@ INCLUDES = -I$(top_srcdir)/arch/include -I$(top_srcdir)/includes -I$(top_srcdir)
 
 
 if USE_NETWORK
-NETWORK_SRCS = ipx_bsd.c ipx_kali.c ipx_lin.c linuxnet.c ukali.c
+NETWORK_SRCS = ipx_bsd.c ipx_kali.c ipx_lin.c linuxnet.c ukali.c \
+               arch_ip.cpp
 endif
 
 if !SDL_JOYSTICK

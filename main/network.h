@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/network.h,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 02:15:57 $
+ * $Date: 2002-02-13 10:39:22 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/10/25 02:15:57  bradleyb
+ * conditionalize including multi.h and network.h, fix backslashes
+ *
  *
  */
 
@@ -45,6 +48,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CONNECT_ESCAPE_TUNNEL		5
 #define CONNECT_END_MENU			6
 
+#define MAX_ACTIVE_NETGAMES                     12
+
 #define NETGAMEIPX                              1
 #define NETGAMETCP                              2
 
@@ -63,7 +68,7 @@ typedef struct sequence_packet {
 	int 					Security;
    ubyte pad1[3];
 	netplayer_info		player;
-} sequence_packet;
+} __pack__ sequence_packet;
 
 #define NET_XDATA_SIZE 454
 
@@ -159,5 +164,49 @@ void network_send_game_info(sequence_packet *their);
 
 int GetMyNetRanking();
 int HoardEquipped();
+
+#define PID_LITE_INFO                           43
+#define PID_SEND_ALL_GAMEINFO                   44
+#define PID_PLAYERSINFO                         45
+#define PID_REQUEST                             46
+#define PID_SYNC                                47
+#define PID_PDATA                               48
+#define PID_ADDPLAYER                           49
+#define PID_DUMP                                51
+#define PID_ENDLEVEL                            52
+#define PID_QUIT_JOINING                        54
+#define PID_OBJECT_DATA                         55
+#define PID_GAME_LIST                           56
+#define PID_GAME_INFO                           57
+#define PID_PING_SEND                           58
+#define PID_PING_RETURN                         59
+#define PID_GAME_UPDATE                         60
+#define PID_ENDLEVEL_SHORT                      61
+#define PID_NAKED_PDATA                         62
+#define PID_GAME_PLAYERS                        63
+#define PID_NAMES_RETURN                        64
+
+#define PID_SHORTPDATA                          42
+#define PID_DXX_GAME_INFO_REQ                   65
+#define PID_DXX_GAME_LITE                       68
+#define PID_PDATA_SHORT2                        70
+
+#define NETGAME_ANARCHY                         0
+#define NETGAME_TEAM_ANARCHY                    1
+#define NETGAME_ROBOT_ANARCHY                   2
+#define NETGAME_COOPERATIVE                     3
+#define NETGAME_CAPTURE_FLAG                    4
+#define NETGAME_HOARD                           5
+#define NETGAME_TEAM_HOARD                      6
+
+typedef struct endlevel_info {
+	ubyte                                   type;
+	ubyte                                   player_num;
+	byte                                    connected;
+	ubyte                                   seconds_left;
+	short                                   kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
+	short                                   kills;
+	short                                   killed;
+} __pack__ endlevel_info;
 
 #endif

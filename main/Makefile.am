@@ -11,7 +11,8 @@ INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/arch/include
 CFLAGS += -fwritable-strings
 
 if USE_NETWORK
-NETWORK_SRCS = ipx_drv.c kmatrix.c multi.c multibot.c network.c
+NETWORK_SRCS = ipx_drv.c kmatrix.c multi.c multibot.c network.c ipclienc.c \
+               ip_base.cpp ipclient.cpp netlist.c netpkt.c multipow.c
 endif
 
 if EDITOR
@@ -43,10 +44,9 @@ crypt.c     gamepal.c	laser.c     object.c	state.c \
 console.c   cmd.c
 
 EXTRA_libmain_a_SOURCES = \
-ipx_drv.c kmatrix.c multi.c multibot.c network.c \
-bmread.c \
-terrain.c \
-movie.c
+ipx_drv.c kmatrix.c multi.c multibot.c network.c netpkt.c \
+bmread.c terrain.c movie.c ipclienc.c netlist.c multipow.c \
+ip_base.cpp ipclient.cpp
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 descent.cfg inferno.ini \
@@ -55,11 +55,13 @@ ai.h aistruct.h automap.h bm.h bmread.h cdrom.h cntrlcen.h collide.h \
 compbit.h config.h controls.h credits.h desc_id.h desw.h digi.h effects.h \
 endlevel.h fireball.h fuelcen.h fvi.h fvi_a.h game.h gamefont.h gamemine.h \
 gamepal.h gamesave.h gameseg.h gameseq.h gamestat.h gauges.h hostage.h \
-hudmsg.h \
-inferno.h joydefs.h kconfig.h kmatrix.h laser.h lighting.h menu.h mission.h \
-modem.h morph.h movie.h multi.h multibot.h netmisc.h network.h newdemo.h \
-newmenu.h object.h paging.h physics.h piggy.h player.h playsave.h polyobj.h \
-powerup.h render.h robot.h scores.h screens.h segment.h segpoint.h slew.h \
+hudmsg.h inferno.h ip_base.h ip_basec.h ipclient.h joydefs.h kconfig.h \
+kmatrix.h laser.h lighting.h menu.h mission.h modem.h morph.h movie.h multi.h \
+multibot.h multipow.h netmisc.h netpkt.h network.h newdemo.h newmenu.h \
+object.h paging.h physics.h piggy.h player.h playsave.h polyobj.h powerup.h \
+render.h reorder.h robot.h scores.h screens.h segment.h segpoint.h slew.h \
 songs.h sounds.h state.h switch.h terrain.h texmerge.h text.h textures.h \
 titles.h vclip.h vers_id.h wall.h weapon.h \
-dumpmine.c ipx_drv.c
+dumpmine.c \
+ipserver.cpp
+

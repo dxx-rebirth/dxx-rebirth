@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/ipx.h,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-10-19 00:31:51 $
+ * $Date: 2002-02-13 10:42:22 $
  * 
  * Prototype for IPX communications.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/10/19 00:31:51  bradleyb
+ * Trying to get network working on win32
+ *
  * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
  * Import of d2x-0.0.8
  *
@@ -123,6 +126,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //				-4 if couldn't allocate low dos memory
 //				-5 if error with getting internetwork address
 extern int ipx_init( int socket_number);
+
+//select which "ipx" driver to use.
+extern int ipx_set_driver(char *name);
 
 extern int ipx_change_default_socket( ushort socket_number );
 

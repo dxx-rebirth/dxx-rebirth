@@ -1,13 +1,16 @@
 /*
  * $Source: /cvs/cvsroot/d2x/main/ip_base.cpp,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2002-02-06 09:22:41 $
+ * $Date: 2002-02-13 10:39:21 $
  *
  * ip_base.cpp - base for NAT-compatible udp/ip code.
  * added 2000/02/07 Matt Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2002/02/06 09:22:41  bradleyb
+ * Adding d1x network code
+ *
  *
  */
 
@@ -144,7 +147,7 @@ ip_handshake_relay::ip_handshake_relay(ip_peer *torelay):ip_handshake_base(1){
 void ip_peer::send_handshake(ip_handshake_base*hsb){
 	ubyte buf[256];
 	int s=0;
-	memcpy(buf+s,D1Xcfgid,4);s+=4;
+	memcpy(buf+s,DXXcfgid,4);s+=4;
 	s+=hsb->fillbuf(buf+s);
 	assert(s<256);
 	if (addr.goodaddr==NULL){

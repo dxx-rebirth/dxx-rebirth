@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.23 $
+ * $Revision: 1.24 $
  * $Author: bradleyb $
- * $Date: 2002-02-02 23:30:26 $
+ * $Date: 2002-02-13 10:39:21 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.23  2002/02/02 23:30:26  bradleyb
+ * Enabled RELEASE option
+ *
  * Revision 1.22  2002/01/29 10:11:56  bradleyb
  * update copyright date
  *
@@ -494,6 +497,12 @@ int intro_played = 0;
 #endif
 
 int Inferno_verbose = 0;
+
+//added on 11/18/98 by Victor Rachels to add -mission and -startgame
+int start_net_immediately = 0;
+//int start_with_mission = 0;
+//char *start_with_mission_name;
+//end this section addition
 
 int open_movie_file(char *filename,int must_have);
 

@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/network.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  * $Author: bradleyb $
- * $Date: 2001-10-23 22:03:03 $
+ * $Date: 2002-02-13 10:39:21 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6  2001/10/23 22:03:03  bradleyb
+ * No longer #ifdef'ing out the whole file.  RCS header added
+ *
  *
  */
 
@@ -116,35 +119,6 @@ int GetNewPlayerNumber (sequence_packet *their);
 #define LHX(x)          ((x)*(MenuHires?2:1))
 #define LHY(y)          ((y)*(MenuHires?2.4:1))
 
-#define PID_LITE_INFO                           43
-#define PID_SEND_ALL_GAMEINFO      44
-#define PID_PLAYERSINFO                         45
-#define PID_REQUEST                                     46
-#define PID_SYNC                                                47
-#define PID_PDATA                                               48
-#define PID_ADDPLAYER                           49
-#define PID_DUMP                                                51
-#define PID_ENDLEVEL                                    52
-#define PID_QUIT_JOINING                        54
-#define PID_OBJECT_DATA                         55
-#define PID_GAME_LIST                           56
-#define PID_GAME_INFO                           57
-#define PID_PING_SEND                           58
-#define PID_PING_RETURN                         59
-#define PID_GAME_UPDATE                         60
-#define PID_ENDLEVEL_SHORT                      61
-#define PID_NAKED_PDATA                         62
-#define PID_GAME_PLAYERS								63
-#define PID_NAMES_RETURN								64
-
-#define NETGAME_ANARCHY                         0
-#define NETGAME_TEAM_ANARCHY            1
-#define NETGAME_ROBOT_ANARCHY           2
-#define NETGAME_COOPERATIVE             3
-#define NETGAME_CAPTURE_FLAG            4
-#define NETGAME_HOARD            	 	 5
-#define NETGAME_TEAM_HOARD					 6
-
 #define NETSECURITY_OFF 0
 #define NETSECURITY_WAIT_FOR_PLAYERS 1
 #define NETSECURITY_WAIT_FOR_GAMEINFO 2
@@ -153,16 +127,6 @@ int GetNewPlayerNumber (sequence_packet *their);
 // MWA -- these structures are aligned -- please save me sanity and
 // headaches by keeping alignment if these are changed!!!!  Contact
 // me for info.
-
-typedef struct endlevel_info {
-	ubyte                                   type;
-	ubyte                                   player_num;
-	byte                                    connected;
-	ubyte                                   seconds_left;
-	short                                   kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
-	short                                   kills;
-	short                                   killed;
-} endlevel_info;
 
 typedef struct endlevel_info_short {
 	ubyte                                   type;
@@ -4372,6 +4336,65 @@ zone_done:
 #endif
 
 void nm_draw_background1(char * filename);
+
+//moved 2000/02/07 Matt Mueller - clipped stuff from network_join_game into new network_do_join_game to allow easy joining from other funcs too.
+int network_do_join_game(netgame_info *jgame, AllNetPlayers_info *jplayers){
+	if (jgame->game_status == NETSTAT_ENDLEVEL)
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
+		return 0;
+	}
+
+	if ((jgame->protocol_version != MULTI_PROTO_VERSION) &&
+	    (jgame->protocol_version != MULTI_PROTO_DXX_VER))
+	{
+                nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
+		return 0;
+	}
+#ifndef SHAREWARE
+	if (jgame->protocol_version == MULTI_PROTO_DXX_VER &&
+	    jgame->required_subprotocol > MULTI_PROTO_DXX_MINOR)
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, "This game uses features\nnot present in this version.");
+		return 0;
+	}
+	{	
+		// Check for valid mission name
+			mprintf((0, "Loading mission:%s.\n", jgame->mission_name));
+			if (!load_mission_by_name(jgame->mission_name))
+			{
+				nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
+
+                                //add getlevel functionality here - Victor Rachels
+
+				return 0;
+			}
+	}
+#endif
+
+	if (!can_join_netgame(jgame, jplayers))
+	{
+		if (jgame->numplayers == jgame->max_numplayers)
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
+		else
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
+		return 0;
+	}
+
+	// Choice is valid, prepare to join in
+
+	memcpy(&Netgame, jgame, sizeof(netgame_info));
+
+	Difficulty_level = Netgame.difficulty;
+	MaxNumNetPlayers = Netgame.max_numplayers;
+	change_playernum_to(1);
+
+	network_set_game_mode(Netgame.gamemode);
+
+	StartNewLevel(Netgame.levelnum, 0);
+
+	return 1;     // look ma, we're in a game!!!
+}
 
 void network_join_game()
 {

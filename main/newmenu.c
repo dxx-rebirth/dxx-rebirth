@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/newmenu.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  * $Author: bradleyb $
- * $Date: 2002-02-11 07:39:11 $
+ * $Date: 2002-02-13 10:39:22 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2002/02/11 07:39:11  bradleyb
+ * added fixedfont menu functions
+ *
  *
  */
 
@@ -668,7 +671,8 @@ int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 int newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height){
 	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
-	return newmenu_do3_real( title, subtitle, nitems, item, subfunction, citem, filename, width,height, GAME_FONT, GAME_FONT, GAME_FONT, GAME_FONT);
+//	return newmenu_do3_real( title, subtitle, nitems, item, subfunction, citem, filename, width,height, GAME_FONT, GAME_FONT, GAME_FONT, GAME_FONT);
+	return newmenu_do4( title, subtitle, nitems, item, subfunction, citem, filename, width,height, 0);
 }
 
 //returns 1 if a control device button has been pressed
