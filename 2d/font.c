@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.14 2002-07-27 02:20:20 btb Exp $ */
+/* $Id: font.c,v 1.15 2002-07-27 03:10:52 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1796,6 +1796,9 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 	cfseek(fontfile, GRS_FONT_SIZE, SEEK_CUR); // skip past header
 
 	cfread(font_data, 1, datasize, fontfile);  //read raw data
+
+	for (i=0; i< nchars; i++ )
+		font->ft_widths[i] = INTEL_SHORT(font->ft_widths[i]);
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];
