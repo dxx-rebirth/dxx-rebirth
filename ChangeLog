@@ -1,5 +1,9 @@
 2004-05-18  Bradley Bell  <btb@icculus.org>
 
+	* arch/win32/init.c, arch/win32/win32.c: move win32 window
+	creation code from arch_init_start into arch_init to fix weirdness
+	with --help (d1x r1.5, r1.6)
+
 	* arch/linux/hmiplay.c: apply patch from bluecow to fix hmiplay
 	sync issues and lack of midi reset (d1x r1.5)
 

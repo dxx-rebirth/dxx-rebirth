@@ -1,3 +1,4 @@
+/* $Id: init.c,v 1.2 2004-05-19 02:39:21 btb Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -106,8 +107,6 @@ long PASCAL DescentWndProc(HWND hWnd,UINT message,
 
 void arch_init_start()
 {
-	WNDCLASS wcDescentClass;
-
 	#ifndef NDEBUG
 	#ifdef _MSC_VER
 	if (FindArg("-memdbg"))
@@ -116,6 +115,18 @@ void arch_init_start()
 			_CRTDBG_DELAY_FREE_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	#endif
 	#endif
+}
+
+extern void key_init(void);
+extern void mouse_init(void);
+//added/changed 3/7/99 Owen Evans (next line)
+extern void joy_init(int joyid);
+
+void arch_init()
+{
+	HRESULT             ddrval;
+
+	WNDCLASS wcDescentClass;
 
         wcDescentClass.lpszClassName = "WinD1X";
 	wcDescentClass.hInstance     = hInst;
@@ -146,16 +157,6 @@ void arch_init_start()
 	if (!g_hWnd) return; // CRAP!
 	ShowWindow(g_hWnd,SW_SHOWNORMAL);
 	UpdateWindow(g_hWnd);
-}
-
-extern void key_init(void);
-extern void mouse_init(void);
-//added/changed 3/7/99 Owen Evans (next line)
-extern void joy_init(int joyid);
-
-void arch_init()
-{
-	HRESULT             ddrval;
 
 
 	ddrval=DirectDrawCreate(NULL,&lpDD,NULL);

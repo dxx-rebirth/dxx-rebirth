@@ -54,13 +54,12 @@ void arch_init_start()
 			_CRTDBG_DELAY_FREE_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	#endif
 	#endif
-
-	InitMain ();
 }
 
 void arch_init()
 {
 	//SetPriorityClass (GetCurrentProcess(),HIGH_PRIORITY_CLASS);
+	InitMain ();
 
 	timer_init ();
 	key_init();
