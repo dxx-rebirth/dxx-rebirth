@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.23 2004-05-20 07:16:53 btb Exp $ */
+/* $Id: ogl.c,v 1.24 2004-05-20 07:25:11 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -72,7 +72,6 @@ int last_width=-1,last_height=-1;
 int GL_TEXTURE_2D_enabled=-1;
 int GL_texclamp_enabled=-1;
 
-extern int gr_renderstats;
 extern int gr_badtexture;
 int r_texcount = 0, r_cachedtexcount = 0;
 int ogl_alttexmerge=1;//merge textures by just printing the seperate textures?

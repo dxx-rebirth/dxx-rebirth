@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.24 2004-05-15 16:25:35 schaffner Exp $ */
+/* $Id: gr.h,v 1.25 2004-05-20 07:25:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -549,6 +549,8 @@ extern unsigned char Test_bitmap_data[64*64];
 
 //shortcut to look at current font
 #define grd_curfont grd_curcanv->cv_font
+
+extern int gr_renderstats;
 
 extern unsigned int FixDivide( unsigned int x, unsigned int y );
 

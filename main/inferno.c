@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.76 2004-05-20 05:16:21 btb Exp $ */
+/* $Id: inferno.c,v 1.77 2004-05-20 07:25:22 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -913,6 +913,9 @@ void print_commandline_help()
 	printf( " D2X Options:\n\n");
 	printf( "  -noredundancy   %s\n", "Do not send messages when picking up redundant items in multi");
 	printf( "  -shortpackets   %s\n", "Set shortpackets to default as on");
+#ifdef OGL // currently only does anything on ogl build, so don't advertise othewise.
+	printf("  -renderstats    %s\n", "Enable renderstats info by default");
+#endif
 	printf( "  -maxfps <n>     %s\n", "Set maximum framerate (1-100)");
 	printf( "  -notitles       %s\n", "Do not show titlescreens on startup");
 	printf( "  -hogdir <dir>   %s\n", "set shared data directory to <dir>");
@@ -1259,6 +1262,9 @@ int main(int argc, char *argv[])
 			maxfps=t;
 	}
 	//end addition - Victor Rachels
+
+	if (FindArg("-renderstats"))
+		gr_renderstats = 1;
 
 	if ( FindArg( "-autodemo" ))
 		Auto_demo = 1;
