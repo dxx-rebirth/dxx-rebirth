@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.20 2003-03-20 22:50:50 btb Exp $ */
+/* $Id: gameseq.c,v 1.21 2003-03-22 01:38:54 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.20 2003-03-20 22:50:50 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.21 2003-03-22 01:38:54 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2244,27 +2244,21 @@ void ShowLevelIntro(int level_num)
 	//if shareware, show a briefing?
 
 	if (!(Game_mode & GM_MULTI)) {
-#ifndef SHAREWARE
 		int i;
-#endif
+
 		ubyte save_pal[sizeof(gr_palette)];
 
 		memcpy(save_pal,gr_palette,sizeof(gr_palette));
 
-		if (level_num == 1 && !intro_played) {
-			// try to play d2 oem briefing
-			do_briefing_screens("brief2o.tex", 1);
-		}
-
 		if (Current_mission_num == Builtin_mission_num) {
-#ifndef SHAREWARE
 			int movie=0;
-#endif
-			if (cfexist("brief2.txb") || cfexist("brief2.tex")) { // #ifdef SHAREWARE
+
+			if (cfexist("brief2.txb") || cfexist("brief2.tex")) { // SHAREWARE
 				if (level_num==1)
-				{
-					do_briefing_screens ("brief2.tex",1);
-				}
+					do_briefing_screens ("brief2.tex", 1);
+			} else if (cfexist("brief2o.txb") || cfexist("brief2o.tex")) { // OEM
+				if (level_num == 1 && !intro_played)
+					do_briefing_screens("brief2o.tex", 1);
 			} else { // full version
 				for (i=0;i<NUM_INTRO_MOVIES;i++)
 				{
