@@ -1,4 +1,4 @@
-/* $Id: sdlgl.c,v 1.8 2003-11-06 23:28:47 btb Exp $ */
+/* $Id: sdlgl.c,v 1.9 2003-11-27 04:59:49 btb Exp $ */
 /*
  *
  * Graphics functions for SDL-GL.
@@ -30,6 +30,13 @@ void ogl_do_fullscreen_internal(void){
 void ogl_swap_buffers_internal(void){
 	SDL_GL_SwapBuffers();
 }
+
+
+int ogl_check_mode(int x, int y)
+{
+	return !SDL_VideoModeOK(x, y, 16, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0));
+}
+
 
 int ogl_init_window(int x, int y){
 	if (gl_initialized){

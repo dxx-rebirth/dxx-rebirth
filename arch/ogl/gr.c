@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.15 2003-11-27 00:21:04 btb Exp $ */
+/* $Id: gr.c,v 1.16 2003-11-27 04:59:49 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -231,6 +231,17 @@ void ogl_get_verinfo(void){
 	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
 	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok);
 }
+
+
+int gr_check_mode(u_int32_t mode)
+{
+	int w, h;
+
+	w = SM_W(mode);
+	h = SM_H(mode);
+	return ogl_check_mode(w, h); // platform specific code
+}
+
 
 extern int VGA_current_mode; // DPH: kludge - remove at all costs
 
