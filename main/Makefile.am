@@ -7,7 +7,7 @@ CFLAGS += -fwritable-strings
 INCLUDES = -I$(top_srcdir)/includes -I$(top_srcdir)/arch/include
 
 if USE_NETWORK
-NETWORK_SRCS = ipx_drv.c multi.c multibot.c kmatrix.c
+NETWORK_SRCS = ipx_drv.c kmatrix.c multi.c multibot.c network.c
 else
 NETWORK_SRCS =
 endif
@@ -27,7 +27,7 @@ bm.c	    fireball.c	gauges.c    morph.c	polyobj.c   vclip.c \
 fuelcen.c   hostage.c   powerup.c   wall.c \
 cntrlcen.c  fvi.c	hud.c	    render.c    weapon.c \
 collide.c   game.c	inferno.c   netmisc.c	robot.c \
-config.c    gamecntl.c	kconfig.c   network.c	scores.c \
+config.c    gamecntl.c	kconfig.c   scores.c \
 controls.c  gamefont.c	kludge.c    newdemo.c	slew.c \
 credits.c   gamemine.c	newmenu.c   songs.c \
 crypt.c     gamepal.c	laser.c     object.c	state.c \

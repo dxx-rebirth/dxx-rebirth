@@ -11,15 +11,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/network.c,v $
+ * $Revision: 1.6 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-23 22:03:03 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
-
-#ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.5 2001-10-19 00:31:51 bradleyb Exp $";
-#endif
-
-#ifdef NETWORK
 
 #define PATCH12
 
@@ -6507,13 +6513,3 @@ int HoardEquipped ()
 	}
 	return (checked);
 }
-	
-#endif
-
-
-
-
-
-
-
-
