@@ -1,4 +1,4 @@
-/* $Id: render.c,v 1.11 2002-12-24 05:49:33 btb Exp $ */
+/* $Id: render.c,v 1.12 2003-01-01 01:02:51 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1682,6 +1682,9 @@ void add_obj_to_seglist(int objnum,int listnum)
 typedef struct sort_item {
 	int objnum;
 	fix dist;
+#ifdef __SUN__
+	int FLY_TRAP; // padding is a workaround for the solaris qsort bug
+#endif
 } sort_item;
 
 sort_item sort_list[SORT_LIST_SIZE];
