@@ -27,7 +27,7 @@ void arch_init()
 {
  // Initialise the library
 	arch_sdl_init();
-#ifdef __SVGALIB__
+#ifdef SVGALIB_INPUT
 	arch_svgalib_init();
 #endif
 	if (!args_find( "-nojoystick" ))  {

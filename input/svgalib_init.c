@@ -2,7 +2,7 @@
 
 #include <conf.h>
 
-#ifdef __SVGALIB__
+#ifdef SVGALIB_INPUT
 
 #include "args.h"
 
@@ -14,4 +14,4 @@ void arch_svgalib_init()
 	d_mouse_init();
 }
 
-#endif /* __SVGALIB__ */
+#endif /* SVGALIB_INPUT */
