@@ -2,7 +2,7 @@ Firstly, compile d2x.
 
 Then stick it in a directory with these files from Descent 2
 Registered (the version _does not_ matter).  Shareware may work 
-eventually, but the datafiles are of a differnt format.
+eventually, but the datafiles are of a different format.
 
 I needed these files: (in addition to the d2x binary)
 alien1.pig
