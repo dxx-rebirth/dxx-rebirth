@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/gr.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2002-02-16 02:08:31 $
+ * $Date: 2002-02-23 21:38:15 $
  *
  * SDL video functions.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2002/02/16 02:08:31  bradleyb
+ * allow older sdl versions
+ *
  * Revision 1.3  2002/02/14 11:29:31  bradleyb
  * allow gr_init lowres
  *
@@ -176,10 +179,10 @@ int gr_check_fullscreen(void){
 
 int gr_toggle_fullscreen(void){
 	sdl_video_flags^=SDL_FULLSCREEN;
-#if (SDL_COMPILEDVERSION < SDL_VERSIONNUM(1,0,5))
-	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
-#else
+#if SDL_VERSION_ATLEAST(1,0,5)
 	SDL_WM_ToggleFullScreen(screen);
+#else
+	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
 #endif
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
