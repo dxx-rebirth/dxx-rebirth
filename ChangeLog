@@ -7,6 +7,8 @@
 	* main/gamemine.c, main/gamemine.h, main/gamesave.c: Enable global
 	structs for mine saving functions
 
+	* main/inferno.c: Use PhysicsFS for making the hoard ham.
+
 2004-12-19  Bradley Bell  <btb@icculus.org>
 
 	* ui/Makefile.am: fix ui Makefile.am

@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.95 2004-12-17 13:32:50 btb Exp $ */
+/* $Id: inferno.c,v 1.96 2004-12-20 06:48:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -222,7 +222,7 @@ void print_commandline_help()
 #ifdef EDITOR
 	printf( " Editor Options:\n\n");
 	printf( "  -autoload <file>%s\n", "Autoload a level in the editor");
-	printf( "  -hoarddata      %s\n","FIXME: Undocumented");
+	printf( "  -hoarddata      %s\n","Make the hoard ham file from some files, then exit");
 //	printf( "  -nobm           %s\n","FIXME: Undocumented");
 	printf( "\n");
 #endif
@@ -972,61 +972,59 @@ int main(int argc, char *argv[])
 		grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
 		grs_bitmap icon;
 		int nframes;
-		short nframes_short;
 		ubyte palette[256*3];
-		FILE *ofile;
+		PHYSFS_file *ofile;
 		int iff_error,i;
 		char *sounds[] = {"selforb.raw","selforb.r22",		//SOUND_YOU_GOT_ORB			
 								"teamorb.raw","teamorb.r22",		//SOUND_FRIEND_GOT_ORB			
 								"enemyorb.raw","enemyorb.r22",	//SOUND_OPPONENT_GOT_ORB	
 								"OPSCORE1.raw","OPSCORE1.r22"};	//SOUND_OPPONENT_HAS_SCORED
 
-		ofile = fopen("hoard.ham","wb");
+		ofile = PHYSFS_openWrite("hoard.ham");
 
 	   iff_error = iff_read_animbrush("orb.abm",bm,MAX_BITMAPS_PER_BRUSH,&nframes,palette);
 		Assert(iff_error == IFF_NO_ERROR);
-		nframes_short = nframes;
-		fwrite(&nframes_short,sizeof(nframes_short),1,ofile);
-		fwrite(&bm[0]->bm_w,sizeof(short),1,ofile);
-		fwrite(&bm[0]->bm_h,sizeof(short),1,ofile);
-		fwrite(palette,3,256,ofile);
+		PHYSFS_writeULE16(ofile, nframes);
+		PHYSFS_writeULE16(ofile, bm[0]->bm_w);
+		PHYSFS_writeULE16(ofile, bm[0]->bm_h);
+		PHYSFS_write(ofile, palette, 3, 256);
 		for (i=0;i<nframes;i++)
-			fwrite(bm[i]->bm_data,1,bm[i]->bm_w*bm[i]->bm_h,ofile);
+			PHYSFS_write(ofile, bm[i]->bm_data, bm[i]->bm_w*bm[i]->bm_h, 1);
 
 		iff_error = iff_read_animbrush("orbgoal.abm",bm,MAX_BITMAPS_PER_BRUSH,&nframes,palette);
 		Assert(iff_error == IFF_NO_ERROR);
 		Assert(bm[0]->bm_w == 64 && bm[0]->bm_h == 64);
-		nframes_short = nframes;
-		fwrite(&nframes_short,sizeof(nframes_short),1,ofile);
-		fwrite(palette,3,256,ofile);
+		PHYSFS_writeULE16(ofile, nframes);
+		PHYSFS_write(ofile, palette, 3, 256);
 		for (i=0;i<nframes;i++)
-			fwrite(bm[i]->bm_data,1,bm[i]->bm_w*bm[i]->bm_h,ofile);
+			PHYSFS_write(ofile, bm[i]->bm_data, bm[i]->bm_w*bm[i]->bm_h, 1);
 
 		for (i=0;i<2;i++) {
 			iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",&icon,BM_LINEAR,palette);
 			Assert(iff_error == IFF_NO_ERROR);
-			fwrite(&icon.bm_w,sizeof(short),1,ofile);
-			fwrite(&icon.bm_h,sizeof(short),1,ofile);
-			fwrite(palette,3,256,ofile);
-			fwrite(icon.bm_data,1,icon.bm_w*icon.bm_h,ofile);
+			PHYSFS_writeULE16(ofile, icon.bm_w);
+			PHYSFS_writeULE16(ofile, icon.bm_h);
+			PHYSFS_write(ofile, palette, 3, 256);
+			PHYSFS_write(ofile, icon.bm_data, icon.bm_w*icon.bm_h, 1);
 		}
 
 		for (i=0;i<sizeof(sounds)/sizeof(*sounds);i++) {
-			FILE *ifile;
+			PHYSFS_file *ifile;
 			int size;
 			ubyte *buf;
-			ifile = fopen(sounds[i],"rb");
+
+			ifile = PHYSFS_openRead(sounds[i]);
 			Assert(ifile != NULL);
-			size = ffilelength(ifile);
+			size = PHYSFS_fileLength(ifile);
 			buf = d_malloc(size);
-			fread(buf,1,size,ifile);
-			fwrite(&size,sizeof(size),1,ofile);
-			fwrite(buf,1,size,ofile);
+			PHYSFS_read(ifile, buf, size, 1);
+			PHYSFS_writeULE32(ofile, size);
+			PHYSFS_write(ofile, buf, size, 1);
 			d_free(buf);
-			fclose(ifile);
+			PHYSFS_close(ifile);
 		}
 
-		fclose(ofile);
+		PHYSFS_close(ofile);
 
 		exit(1);
 	}
