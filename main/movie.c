@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.15 2003-02-12 08:58:38 btb Exp $ */
+/* $Id: movie.c,v 1.16 2003-02-14 03:45:31 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.15 2003-02-12 08:58:38 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.16 2003-02-14 03:45:31 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -170,7 +170,8 @@ int PlayMovie(const char *filename, int must_have)
 	digi_sample_rate = save_sample_rate;		//restore rate for game
 	digi_reset(); digi_reset();
 #else
-	digi_init();
+	if (!FindArg("-nosound"))
+		digi_init();
 #endif
 
 	Screen_mode = -1;		//force screen reset
@@ -763,11 +764,13 @@ try_again:;
 			if (!try) {                                         // first try
 				if (strchr(filename, '.')[-1] == 'h') {         // try again with lowres
 					strchr(filename, '.')[-1] = 'l';
+					high_res = 0;
 					Warning("Trying to open movie file <%s> instead\n", filename);
 					try++;
 					goto try_again;
 				} else if (strchr(filename, '.')[-1] == 'l') {  // try again with highres
 					strchr(filename, '.')[-1] = 'h';
+					high_res = 1;
 					Warning("Trying to open movie file <%s> instead\n", filename);
 					try++;
 					goto try_again;
@@ -831,14 +834,22 @@ int search_movie_lib(movielib *lib,char *filename,int must_have)
 
 			do {		//keep trying until we get the file handle
 
+#ifdef __WIN32
+				/* movie_handle = */ filehandle = open(lib->name, O_RDONLY | O_BINARY);
+#else
 				/* movie_handle = */ filehandle = open(lib->name, O_RDONLY);
+#endif
 
 				if ((filehandle == -1) && (AltHogdir_initialized)) {
 					char temp[128];
 					strcpy(temp, AltHogDir);
 					strcat(temp, "/");
 					strcat(temp, lib->name);
+#ifdef __WIN32
+					filehandle = open(temp, O_RDONLY | O_BINARY);
+#else
 					filehandle = open(temp, O_RDONLY);
+#endif
 				}
 
 				if (must_have && from_cd && filehandle == -1) {		//didn't get file!
