@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.27 2004-05-15 16:25:35 schaffner Exp $ */
+/* $Id: font.c,v 1.28 2004-05-22 08:10:26 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1205,6 +1205,7 @@ void ogl_init_font(grs_font * font){
 	//	char s[2];
 	ogl_font_choose_size(font,gap,&tw,&th);
 	data=d_malloc(tw*th);
+	memset(data, 0, tw * th);
 	gr_init_bitmap(&font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
 
 	font->ft_parent_bitmap.gltexture=ogl_get_free_texture();

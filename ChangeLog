@@ -1,5 +1,9 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* 2d/font.c: memset ogl font bitmap data since the copy function
+	leaves some (unused) parts uninitialized, which aggravates
+	valgrind (d1x r1.14)
+
 	* arch/win32/joyhh.c: fix phantom hat when used with a joystick
 	without one, since the code ignored the JOYCAPS_HASPOV flag (d1x
 	r1.5)
