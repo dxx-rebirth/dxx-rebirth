@@ -1,5 +1,7 @@
 2003-03-14  Bradley Bell  <btb@icculus.org>
 
+	* main/piggy.c: must swap all mac version pigfiles
+
 	* main/ai.c, main/ai.h, main/bm.h, main/crypt.c, main/joydefs.h,
 	main/multi.c: formatting, minor cleanups
 

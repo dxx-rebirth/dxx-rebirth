@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.21 2003-03-01 12:50:45 btb Exp $ */
+/* $Id: piggy.c,v 1.22 2003-03-14 21:59:19 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.21 2003-03-01 12:50:45 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.22 2003-03-14 21:59:19 btb Exp $";
 #endif
 
 
@@ -72,7 +72,18 @@ static char rcsid[] = "$Id: piggy.c,v 1.21 2003-03-01 12:50:45 btb Exp $";
 #define DEFAULT_HAMFILE (cfexist(DEFAULT_HAMFILE_REGISTERED)?DEFAULT_HAMFILE_REGISTERED:DEFAULT_HAMFILE_SHAREWARE)
 #define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
 
-#define MAC_D2DEMO_PIG_SIZE 4929684
+#define D1_SHAREWARE_PIGSIZE    2509799
+#define D1_SHAREWARE_10_PIGSIZE 2529454
+#define D1_PIGSIZE              4920305
+#define D1_OEM_PIGSIZE          5039735
+#define D1_MAC_PIGSIZE          3975533
+#define D1_MAC_SHARE_PIGSIZE    2714487
+#define MAC_ALIEN1_PIGSIZE      5013035
+#define MAC_ALIEN2_PIGSIZE      4909916
+#define MAC_FIRE_PIGSIZE        4969035
+#define MAC_GROUPA_PIGSIZE      4929684 // also used for mac shareware
+#define MAC_ICE_PIGSIZE         4923425
+#define MAC_WATER_PIGSIZE       4832403
 
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
@@ -693,7 +704,7 @@ void piggy_new_pigfile(char *pigname)
 		Piggy_fp = copy_pigfile_from_cd(pigname);
 	#endif
 
-	if (Piggy_fp) {                         //make sure pig is valid type file & is up-to-date
+	if (Piggy_fp) {  //make sure pig is valid type file & is up-to-date
 		int pig_id,pig_version;
 
 		pig_id = cfile_read_int(Piggy_fp);
@@ -711,13 +722,13 @@ void piggy_new_pigfile(char *pigname)
 	if (Piggy_fp) {
 
 		N_bitmaps = cfile_read_int(Piggy_fp);
-	
+
 		header_size = N_bitmaps*DISKBITMAPHEADER_SIZE;
-	
+
 		data_start = header_size + cftell(Piggy_fp);
 
 		data_size = cfilelength(Piggy_fp) - data_start;
-	
+
 		for (i=1; i<=N_bitmaps; i++ )   {
 			DiskBitmapHeader_read(&bmh, Piggy_fp);
 			memcpy( temp_name_read, bmh.name, 8 );
@@ -1319,9 +1330,20 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 
 #ifndef MACDATA
-			if (FindArg("-macdata") || cfilelength(Piggy_fp) == MAC_D2DEMO_PIG_SIZE) {
+			switch (cfilelength(Piggy_fp)) {
+			default:
+				if (!FindArg("-macdata"))
+					break;
+				// otherwise, fall through...
+			case MAC_ALIEN1_PIGSIZE:
+			case MAC_ALIEN2_PIGSIZE:
+			case MAC_FIRE_PIGSIZE:
+			case MAC_GROUPA_PIGSIZE:
+			case MAC_ICE_PIGSIZE:
+			case MAC_WATER_PIGSIZE:
 				rle_swap_0_255( bmp );
 				memcpy(&zsize, bmp->bm_data, 4);
+				break;
 			}
 #endif
 
@@ -1349,12 +1371,22 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 
 #ifndef MACDATA
-			if (FindArg("-macdata") || cfilelength(Piggy_fp) == MAC_D2DEMO_PIG_SIZE)
+			switch (cfilelength(Piggy_fp)) {
+			default:
+				if (!FindArg("-macdata"))
+					break;
+				// otherwise, fall through...
+			case MAC_ALIEN1_PIGSIZE:
+			case MAC_ALIEN2_PIGSIZE:
+			case MAC_FIRE_PIGSIZE:
+			case MAC_GROUPA_PIGSIZE:
+			case MAC_ICE_PIGSIZE:
+			case MAC_WATER_PIGSIZE:
 				swap_0_255( bmp );
+				break;
+			}
 #endif
 		}
-
-
 
 		//@@if ( bmp->bm_selector ) {
 		//@@#if !defined(WINDOWS) && !defined(MACINTOSH)
@@ -1795,4 +1827,4 @@ void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
 	dsh->data_length = cfile_read_int(fp);
 	dsh->offset = cfile_read_int(fp);
 }
-#endif
+#endif // FAST_FILE_IO
