@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.21 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: newmenu.c,v 1.22 2003-11-18 00:29:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1324,9 +1324,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
         MaxDisplayable=nitems;
 
-#ifdef OGL
-	set_screen_mode(SCREEN_MENU);
-#endif
+	//set_screen_mode(SCREEN_MENU);
 	set_popup_screen();
 
 	if ( Function_mode == FMODE_GAME && !(Game_mode & GM_MULTI)) {

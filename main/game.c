@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.23 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: game.c,v 1.24 2003-11-18 00:29:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -407,7 +407,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.23 2003-10-10 09:36:35 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.24 2003-11-18 00:29:53 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1219,8 +1219,12 @@ void set_popup_screen(void)
 {
 	//WIN(LoadCursorWin(MOUSE_DEFAULT_CURSOR));
 
+#ifndef OGL // always have to switch to menu mode
 	if (! (VR_screen_flags & VRF_COMPATIBLE_MENUS))
+#endif
+	{
 		set_screen_mode(SCREEN_MENU);		//must switch to menu mode
+	}
 }
 
 

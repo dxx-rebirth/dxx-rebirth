@@ -1,3 +1,7 @@
+2003-11-17  Bradley Bell  <btb@icculus.org>
+
+	* main/game.c, main/newmenu.c: always set menu mode for GL popups
+
 2003-11-14  Bradley Bell  <btb@icculus.org>
 
 	* main/automap.c: fix automap background image
