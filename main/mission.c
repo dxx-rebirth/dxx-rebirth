@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.16 2003-01-06 23:06:18 btb Exp $ */
+/* $Id: mission.c,v 1.17 2003-01-07 03:10:20 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -136,12 +136,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 mle Mission_list[MAX_MISSIONS];
 
-int Current_mission_num, Builtin_mission_num;
-int	N_secret_levels;		//	Made a global by MK for scoring purposes.  August 1, 1995.
+int Current_mission_num;
+int N_secret_levels;    // Made a global by MK for scoring purposes.  August 1, 1995.
 char *Current_mission_filename,*Current_mission_longname;
 
+int Builtin_mission_num;
 char Builtin_mission_filename[9];
 int Builtin_mission_hogsize;
+
+int D1_Builtin_mission_num;
+char D1_Builtin_mission_filename[9];
+int D1_Builtin_mission_hogsize;
 
 //this stuff should get defined elsewhere
 
@@ -154,6 +159,65 @@ char Secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
 #else
 #define MISSION_DIR "./"
 #endif
+
+//values for d1 built-in mission
+#define BIM_LAST_LEVEL          27
+#define BIM_LAST_SECRET_LEVEL   -3
+#define BIM_BRIEFING_FILE       "briefing.tex"
+#define BIM_ENDING_FILE         "endreg.tex"
+
+//
+//  Special versions of mission routines for d1 builtins
+//
+
+int load_mission_d1(int mission_num)
+{
+	int i;
+
+	cfile_use_descent1_hogfile("descent.hog");
+
+	Current_mission_num = mission_num;
+	Current_mission_filename = Mission_list[mission_num].filename;
+	Current_mission_longname = Mission_list[mission_num].mission_name;
+
+	switch (D1_Builtin_mission_hogsize) {
+	case D1_SHAREWARE_MISSION_HOGSIZE:
+		N_secret_levels = 0;
+
+		Last_level = 7;
+		Last_secret_level = 0;
+
+		//build level names
+		for (i=0;i<Last_level;i++)
+			sprintf(Level_names[i], "level%02d.sdl", i+1);
+
+		break;
+	default:
+		Int3(); // fall through
+	case D1_MISSION_HOGSIZE:
+		N_secret_levels = 3;
+
+		Last_level = BIM_LAST_LEVEL;
+		Last_secret_level = BIM_LAST_SECRET_LEVEL;
+
+		//build level names
+		for (i=0;i<Last_level;i++)
+			sprintf(Level_names[i], "level%02d.rdl", i+1);
+		for (i=0;i<-Last_secret_level;i++)
+			sprintf(Secret_level_names[i], "levels%1d.rdl", i+1);
+
+		Secret_level_table[0] = 10;
+		Secret_level_table[1] = 21;
+		Secret_level_table[2] = 24;
+
+		break;
+	}
+	strcpy(Briefing_text_filename,BIM_BRIEFING_FILE);
+	strcpy(Ending_text_filename,BIM_ENDING_FILE);
+
+	return 1;
+}
+
 
 //
 //  Special versions of mission routines for shareware
@@ -378,6 +442,37 @@ int read_mission_file(char *filename,int count,int location)
 	return 0;
 }
 
+void add_d1_builtin_mission_to_list(int *count)
+{
+	if (!cfexist("descent.hog"))
+		return;
+
+	D1_Builtin_mission_hogsize = cfile_size("descent.hog");
+
+	switch (D1_Builtin_mission_hogsize) {
+	default:
+		Warning("Unknown D1 hogsize %d\n", D1_Builtin_mission_hogsize);
+		Int3();
+		// fall through
+	case D1_SHAREWARE_MISSION_HOGSIZE:
+		strcpy(Mission_list[*count].filename, D1_MISSION_FILENAME);
+		strcpy(Mission_list[*count].mission_name, D1_SHAREWARE_MISSION_NAME);
+		Mission_list[*count].anarchy_only_flag = 0;
+		break;
+	case D1_MISSION_HOGSIZE:
+		strcpy(Mission_list[*count].filename, D1_MISSION_FILENAME);
+		strcpy(Mission_list[*count].mission_name, D1_MISSION_NAME);
+		Mission_list[*count].anarchy_only_flag = 0;
+		break;
+	}
+
+	strcpy(D1_Builtin_mission_filename, Mission_list[*count].filename);
+	Mission_list[*count].descent_version = 1;
+	Mission_list[*count].anarchy_only_flag = 0;
+	++(*count);
+}
+
+
 void add_builtin_mission_to_list(int *count)
 {
 	Builtin_mission_hogsize = cfile_size("descent2.hog");
@@ -481,6 +576,7 @@ int build_mission_list(int anarchy_mode)
 //@@	}
 
 	add_builtin_mission_to_list(&count);  //read built-in first
+	add_d1_builtin_mission_to_list(&count);
 	add_missions_to_list(MISSION_DIR "*.mn2", &count, anarchy_mode);
 	add_missions_to_list(MISSION_DIR "*.msn", &count, anarchy_mode);
 
@@ -498,6 +594,7 @@ int build_mission_list(int anarchy_mode)
 	// to top of mission list
 	top_place = 0;
 	promote("descent", &top_place, count); // original descent 1 mission
+	D1_Builtin_mission_num = top_place - 1;
 	promote(Builtin_mission_filename, &top_place, count); // d2 or d2demo
 	Builtin_mission_num = top_place - 1;
 	promote("d2x", &top_place, count); // vertigo
@@ -535,6 +632,18 @@ int load_mission(int mission_num)
 	char buf[80], *v;
 	int found_hogfile;
 	int enhanced_mission = 0;
+
+	if (mission_num == D1_Builtin_mission_num) {
+		cfile_use_descent1_hogfile("descent.hog");
+		switch (D1_Builtin_mission_hogsize) {
+		case D1_MISSION_HOGSIZE:
+		case D1_SHAREWARE_MISSION_HOGSIZE:
+			return load_mission_d1(mission_num);
+			break;
+		default:
+			// continue on...
+		}
+	}
 
 	if (mission_num == Builtin_mission_num) {
 		switch (Builtin_mission_hogsize) {

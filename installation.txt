@@ -61,10 +61,8 @@ To install an additional mission, just place the .hog and the .msn or
 inside the system-wide data dir, or your $HOME/.d2x dir.  d2x will
 look in both places.
 
-To install the mission from Descent 1:
-Place these files into your missions directory:
-descent.hog
-descent.msn (distributed with d2x)
+To install the original Descent 1 mission:
+Place descent.hog into your data dir.
 
 
 Vertigo Installation

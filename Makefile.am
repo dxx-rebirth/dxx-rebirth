@@ -50,8 +50,6 @@ changelog::
 pkgdatadir = @sharepath@
 missiondir = ${pkgdatadir}/missions
 
-dist_mission_DATA = descent.msn
-
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 ChangeLog \
 djgpp.bat djgpp.sh \
