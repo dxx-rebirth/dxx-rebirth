@@ -3,7 +3,7 @@ INCLUDES = -I $(top_srcdir)/include
 
 libmisc_a_SOURCES = \
 args.c      error.c    strio.c \
-d_io.c      hash.c     strutil.c  fileutil.c
+d_io.c      hash.c     strutil.c
 
 # checker.c
 
