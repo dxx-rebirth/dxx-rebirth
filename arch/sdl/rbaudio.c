@@ -1,4 +1,4 @@
-/* $Id: rbaudio.c,v 1.8 2003-03-21 01:57:58 btb Exp $ */
+/* $Id: rbaudio.c,v 1.9 2004-04-14 08:32:49 btb Exp $ */
 /*
  *
  * SDL CD Audio functions
@@ -136,20 +136,30 @@ int RBAGetNumberOfTracks()
 	return s_cd->numtracks;
 }
 
-int RBAPlayTracks(int tracknum,int something)
+// plays tracks first through last, inclusive
+int RBAPlayTracks(int first, int last)
 {
-	if (!initialised) return -1;
-	if (CD_INDRIVE(SDL_CDStatus(s_cd)) ) {
-		SDL_CDPlayTracks(s_cd, tracknum-1, 0, 0, 0);
+	if (!initialised)
+		return 0;
+
+	if (CD_INDRIVE(SDL_CDStatus(s_cd)))
+	{
+		SDL_CDPlayTracks(s_cd, first - 1, 0, last - first + 1, 0);
 	}
-	return tracknum;
+	return 1;
 }
 
+// return the track number currently playing.  Useful if RBAPlayTracks()
+// is called.  Returns 0 if no track playing, else track number
 int RBAGetTrackNum()
 {
-	if (!initialised) return -1;
-	SDL_CDStatus(s_cd);
-	return s_cd->cur_track;
+	if (!initialised)
+		return 0;
+
+	if (SDL_CDStatus(s_cd) != CD_PLAYING)
+		return 0;
+
+	return s_cd->cur_track + 1;
 }
 
 int RBAPeekPlayStatus()

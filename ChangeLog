@@ -1,3 +1,7 @@
+2004-04-14  Bradley Bell  <btb@icculus.org>
+
+	* arch/sdl/rbaudio.c: fix redbook tracking problems (fixes #1028)
+
 2004-04-14  Sean Taylor <sscthunderbird@yahoo.com>
 
 	* main/songs.c: uncomment calls to RBAStop (fixes #473)
