@@ -1,5 +1,7 @@
 2003-06-06  Bradley Bell  <btb@icculus.org>
 
+	* main/kconfig.c: fix crash in control menus
+
 	* console/.cvsignore: added .cvsignore
 
 	* main/gauges.c: force cockpit redraw in opengl

@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.20 2003-06-06 19:04:27 btb Exp $ */
+/* $Id: kconfig.c,v 1.21 2003-06-06 21:55:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.20 2003-06-06 19:04:27 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.21 2003-06-06 21:55:08 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1188,7 +1188,7 @@ KConfigPaint:
 
 	//gr_clear_canvas( BM_XRGB(0,0,0) );
 
-	nm_draw_background(0,0,grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
+	nm_draw_background(0, 0, grd_curcanv->cv_bitmap.bm_w - 1, grd_curcanv->cv_bitmap.bm_h - 1);
    gr_palette_load (gr_palette);
 
 	grd_curcanv->cv_font = MEDIUM3_FONT;
