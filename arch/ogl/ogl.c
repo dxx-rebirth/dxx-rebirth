@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ogl/ogl.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 08:25:34 $
+ * $Date: 2001-10-31 07:35:47 $
  *
  * Graphics support functions for OpenGL.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/25 08:25:34  bradleyb
+ * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
+ *
  * Revision 1.7  2001/10/12 00:18:40  bradleyb
  * Switched from Cygwin to mingw32 on MS boxes.  Vastly improved compilability.
  *
@@ -41,7 +44,7 @@
 #include "ogl_init.h"
 #include "3d.h"
 #include "piggy.h"
-#include "../3d/globvars.h"
+#include "../../3d/globvars.h"
 #include "error.h"
 #include "texmap.h"
 #include "palette.h"
@@ -56,7 +59,6 @@
 #include "powerup.h"
 #include "polyobj.h"
 #include "gamefont.h"
-#include "grdef.h"
 
 //change to 1 for lots of spew.
 #if 0

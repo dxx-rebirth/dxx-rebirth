@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ogl/gr.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 08:25:34 $
+ * $Date: 2001-10-31 07:35:47 $
  *
  * // OGL video functions. - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/25 08:25:34  bradleyb
+ * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
+ *
  * Revision 1.7  2001/10/25 02:23:48  bradleyb
  * formatting fix
  *
@@ -55,8 +58,7 @@
 #include "mono.h"
 #include "args.h"
 #include "key.h"
-
-#include "gamefont.h"
+#include "u_mem.h"
 
 #define DECLARE_VARS
 #include "ogl_init.h"
@@ -72,9 +74,11 @@ int gl_initialized=0;
 int gl_reticle=1;
 
 int ogl_fullscreen=0;
+
 int gr_check_fullscreen(void){
 	return ogl_fullscreen;
 }
+
 void gr_do_fullscreen(int f){
 	if (ogl_voodoohack)
 		ogl_fullscreen=1;//force fullscreen mode on voodoos.
@@ -84,12 +88,34 @@ void gr_do_fullscreen(int f){
 		ogl_do_fullscreen_internal();
 	}
 }
+
 int gr_toggle_fullscreen(void){
 	gr_do_fullscreen(!ogl_fullscreen);
 	//	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
 	return ogl_fullscreen;
 }
 
+int arch_toggle_fullscreen_menu(void){
+	unsigned char *buf=NULL;
+
+	if (ogl_readpixels_ok){
+		MALLOC(buf,unsigned char,grd_curscreen->sc_w*grd_curscreen->sc_h*3);
+		glReadBuffer(GL_FRONT);
+		glReadPixels(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
+	}
+
+	gr_do_fullscreen(!ogl_fullscreen);
+
+	if (ogl_readpixels_ok){
+//		glWritePixels(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
+		glRasterPos2f(0,0);
+		glDrawPixels(grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
+		free(buf);
+	}
+	//	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
+
+	return ogl_fullscreen;
+}
 
 void ogl_init_state(void){
 	/* select clearing (background) color   */
@@ -106,6 +132,7 @@ void ogl_init_state(void){
 }
 
 int last_screen_mode=-1;
+
 void ogl_set_screen_mode(void){
 	if (last_screen_mode==Screen_mode)
 		return;
@@ -127,6 +154,7 @@ void ogl_set_screen_mode(void){
 	}
 	last_screen_mode=Screen_mode;
 }
+
 void gr_update()
 {
 	if (gl_initialized){
@@ -138,24 +166,59 @@ void gr_update()
 }
 
 const char *gl_vendor,*gl_renderer,*gl_version,*gl_extensions;
+
 void ogl_get_verinfo(void){
 	int t;
 	gl_vendor=glGetString(GL_VENDOR);
 	gl_renderer=glGetString(GL_RENDERER);
 	gl_version=glGetString(GL_VERSION);
 	gl_extensions=glGetString(GL_EXTENSIONS);
-	
+
 	printf("gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
 
-	ogl_intensity4_ok=1;ogl_luminance4_alpha4_ok=1;ogl_rgba2_ok=1;
-	
+	ogl_intensity4_ok=1;ogl_luminance4_alpha4_ok=1;ogl_rgba2_ok=1;ogl_gettexlevelparam_ok=1;
+
+#ifdef __WINDOWS__
+	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
+	dglActiveTextureARB = (glActiveTextureARB_fp)wglGetProcAddress("glActiveTextureARB");
+	dglMultiTexCoord2fSGIS = (glMultiTexCoord2fSGIS_fp)wglGetProcAddress("glMultiTexCoord2fSGIS");
+	dglSelectTextureSGIS = (glSelectTextureSGIS_fp)wglGetProcAddress("glSelectTextureSGIS");
+#endif
+
+	//multitexturing doesn't work yet.
+#ifdef GL_ARB_multitexture
+	ogl_arb_multitexture_ok=0;//(strstr(gl_extensions,"GL_ARB_multitexture")!=0 && glActiveTextureARB!=0 && 0);
+	mprintf((0,"c:%p d:%p e:%p\n",strstr(gl_extensions,"GL_ARB_multitexture"),glActiveTextureARB,glBegin));
+#endif
+#ifdef GL_SGIS_multitexture
+	ogl_sgis_multitexture_ok=0;//(strstr(gl_extensions,"GL_SGIS_multitexture")!=0 && glSelectTextureSGIS!=0 && 0);
+	mprintf((0,"a:%p b:%p\n",strstr(gl_extensions,"GL_SGIS_multitexture"),glSelectTextureSGIS));
+#endif
+
 	//add driver specific hacks here.  whee.
-	if (stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 && stricmp(gl_version,"1.2 Mesa 3.0")==0){
+	if ((stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && stricmp(gl_version,"1.2 Mesa 3.0")==0){
 		ogl_intensity4_ok=0;//ignores alpha, always black background instead of transparent.
 		ogl_readpixels_ok=0;//either just returns all black, or kills the X server entirely
+		ogl_gettexlevelparam_ok=0;//returns random data..
+	}
+	if (stricmp(gl_vendor,"Matrox Graphics Inc.")==0){
+		//displays garbage. reported by
+		//  redomen@crcwnet.com (render="Matrox G400" version="1.1.3 5.52.015")
+		//  orulz (Matrox G200)
+		ogl_intensity4_ok=0;
 	}
 
 	//allow overriding of stuff.
+#ifdef GL_ARB_multitexture
+	if ((t=FindArg("-gl_arb_multitexture_ok"))){
+		ogl_arb_multitexture_ok=atoi(Args[t+1]);
+	}
+#endif
+#ifdef GL_SGIS_multitexture
+	if ((t=FindArg("-gl_sgis_multitexture_ok"))){
+		ogl_sgis_multitexture_ok=atoi(Args[t+1]);
+	}
+#endif
 	if ((t=FindArg("-gl_intensity4_ok"))){
 		ogl_intensity4_ok=atoi(Args[t+1]);
 	}
@@ -168,13 +231,18 @@ void ogl_get_verinfo(void){
 	if ((t=FindArg("-gl_readpixels_ok"))){
 		ogl_readpixels_ok=atoi(Args[t+1]);
 	}
+	if ((t=FindArg("-gl_gettexlevelparam_ok"))){
+		ogl_gettexlevelparam_ok=atoi(Args[t+1]);
+	}
 
-	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok);
+	printf("gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
+	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok);
 }
 
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w,h;
+	char *gr_bm_data;
 
 #ifdef NOGRAPH
 return 0;
@@ -190,6 +258,7 @@ return 0;
 
 //	ogl_init_state();
 	
+	gr_bm_data=grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
@@ -203,7 +272,8 @@ return 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = w;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_OGL;
 	//grd_curscreen->sc_canvas.cv_bitmap.bm_data = (unsigned char *)screen->pixels;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_data = realloc(grd_curscreen->sc_canvas.cv_bitmap.bm_data,w*h);
+//	mprintf((0,"ogl/gr.c: reallocing %p to %i\n",grd_curscreen->sc_canvas.cv_bitmap.bm_data,w*h));
+	grd_curscreen->sc_canvas.cv_bitmap.bm_data = realloc(gr_bm_data,w*h);
 	gr_set_current_canvas(NULL);
 	//gr_enable_default_palette_loading();
 	
@@ -215,7 +285,7 @@ return 0;
 
 	ogl_set_screen_mode();
 
-	//gamefont_choose_game_font(w,h);
+//	gamefont_choose_game_font(w,h);
 	
 	return 0;
 }
@@ -250,7 +320,8 @@ int ogl_testneedmipmaps(int i){
 #ifdef OGL_RUNTIME_LOAD
 #if defined(__WINDOWS__) || defined(__MINGW32__)
 char *OglLibPath="opengl32.dll";
-#else
+#endif
+#ifdef __linux__
 char *OglLibPath="libGL.so";
 #endif
 
@@ -601,7 +672,7 @@ void save_screen_shot(int automap_flag)
 	static int savenum=0;
 	char savename[13];
 	unsigned char *buf;
-
+	
 	if (!ogl_readpixels_ok){
 		if (!automap_flag)
 //			hud_message(MSGC_GAME_FEEDBACK,"glReadPixels not supported on your configuration");

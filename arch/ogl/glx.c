@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/ogl/glx.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 08:25:34 $
+ * $Date: 2001-10-31 07:35:47 $
  *
  * opengl platform specific functions for GLX - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/25 08:25:34  bradleyb
+ * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
+ *
  * Revision 1.3  2001/01/29 13:47:52  bradleyb
  * Fixed build, some minor cleanups.
  *
@@ -19,12 +22,12 @@
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 #include <string.h>
-#include "u_mem.h"
 #include "ogl_init.h"
 #include "vers_id.h"
 #include "error.h"
 #include "event.h"
 #include "mono.h"
+#include "u_mem.h"
 #ifdef XFREE86_DGA
 #include <X11/extensions/xf86dga.h>
 #include <X11/extensions/xf86vmode.h>
@@ -188,7 +191,7 @@ int ogl_init_window(int x, int y){
 		//win = XCreateWindow(dpy,RootWindow(dpy,visinfo->screen),0,0,x,y,0,visinfo->depth,InputOutput,visinfo->visual,CWBorderPixel|CWColormap|CWEventMask,&swa);
 		win = XCreateWindow(dpy,RootWindow(dpy,visinfo->screen),0,0,x,y,0,visinfo->depth,InputOutput,visinfo->visual,CWColormap|CWEventMask,&swa);
 	
-		XStoreName(dpy,win,"D2X");
+		XStoreName(dpy,win,DESCENT_VERSION);
 //		XStoreName(dpy,win,"agry");
 		
 		XMapWindow(dpy,win);
