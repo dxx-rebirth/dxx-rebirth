@@ -1,4 +1,4 @@
-/* $Id: u_mem.h,v 1.5 2002-08-06 05:21:33 btb Exp $ */
+/* $Id: u_mem.h,v 1.6 2003-06-18 08:00:31 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -43,7 +43,7 @@ void mem_validate_heap();
 #else
 
 #define d_malloc(size)      malloc(size)
-#define d_calloc(size)      calloc(n*size)
+#define d_calloc(n, size)   calloc(n, size)
 #define d_realloc(ptr,size) realloc(ptr,size)
 #define d_free(ptr)         do{ free(ptr); ptr=NULL; } while(0)
 #define d_strdup(str)       strdup(str)

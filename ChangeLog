@@ -1,3 +1,7 @@
+2003-06-18  Bradley Bell  <btb@icculus.org>
+
+	* include/u_mem.h: fix NDEBUG calloc macro
+
 2003-06-15  Bradley Bell  <btb@icculus.org>
 
 	* include/fileutil.h, misc/Makefile.am, misc/fileutil.c: removed
