@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.20 $
+ * $Revision: 1.21 $
  * $Author: bradleyb $
- * $Date: 2002-01-28 00:03:47 $
+ * $Date: 2002-01-29 00:08:13 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.20  2002/01/28 00:03:47  bradleyb
+ * Data files now go in DATADIR/games/d2x, user files now go in ~/.d2x
+ *
  * Revision 1.19  2002/01/18 07:01:37  bradleyb
  * allow -h for help
  *
@@ -135,6 +138,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "mission.h"
 #include "movie.h"
 #include "compbit.h"
+#include "d_io.h"
 
 // #  include "3dfx_des.h"
 
@@ -149,7 +153,6 @@ extern int Current_display_mode;        //$$ there's got to be a better way than
 #include "editor/editor.h"
 #include "editor/kdefs.h"
 #include "ui.h"
-#include "d_io.h"
 #endif
 
 #ifdef SDL_INPUT
@@ -524,9 +527,9 @@ int main(int argc,char **argv)
 			strcpy(buf, home);
 			strcat(buf, "/.d2x");
 			if (chdir(buf)) {
-				mkdir(buf, 0755);
+				d_mkdir(buf);
 				if (chdir(buf))
-					fprintf(stderr, "Cannot change to ~/.d2x\n");
+					fprintf(stderr, "Cannot change to $HOME/.d2x\n");
 			}
 		}
 	}

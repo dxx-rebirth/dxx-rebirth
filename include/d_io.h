@@ -17,4 +17,10 @@ void removeext(const char *filename, char *out);
 
 unsigned long GetDiskFree();
 
+#if defined(__WINDOWS__) || defined(__MINGW32__)
+#define d_mkdir(path) mkdir(path)
+#else
+#define d_mkdir(path) mkdir(path, 0755)
+#endif
+
 #endif

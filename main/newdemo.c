@@ -2960,7 +2960,7 @@ void newdemo_start_recording()
 	#else
 	if (outfile == NULL) {							//dir doesn't exist and no errno on mac!
 	#endif	
-		mkdir(DEMO_DIR, 0755); //try making directory
+		d_mkdir(DEMO_DIR); //try making directory
 		outfile = fopen( DEMO_FILENAME, "wb" );
 	}
 
