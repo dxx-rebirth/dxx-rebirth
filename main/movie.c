@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.20 2003-02-24 07:03:47 btb Exp $ */
+/* $Id: movie.c,v 1.21 2003-02-24 12:03:16 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.20 2003-02-24 07:03:47 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.21 2003-02-24 12:03:16 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -48,6 +48,7 @@ static char rcsid[] = "$Id: movie.c,v 1.20 2003-02-24 07:03:47 btb Exp $";
 #include "libmve.h"
 #include "text.h"
 #include "fileutil.h"
+#include "screens.h"
 
 extern int MenuHiresAvailable;
 extern char CDROM_dir[];
@@ -313,13 +314,13 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 int InitMovieBriefing()
 {
-	if (!robot_movies)
-		return 0;
-
 	if (MenuHires)
 		gr_set_mode(SM(640,480));
 	else
 		gr_set_mode(SM(320,200));
+
+	gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
+	gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 
 	return 1;
 }

@@ -1,3 +1,7 @@
+2003-02-24  Bradley Bell <btb@icculus.org>
+
+	* main/movie.c, main/titles.c: fixed some more briefing glitches
+
 2003-02-23  Bradley Bell <btb@icculus.org>
 
 	* main/movie.c: fixed crash when using shareware data files

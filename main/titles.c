@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.20 2003-02-23 06:10:59 btb Exp $ */
+/* $Id: titles.c,v 1.21 2003-02-24 12:03:16 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -971,7 +971,7 @@ int show_briefing_message(int screen_num, char *message)
 
 				bsp = &Briefing_screens[screen_num];
 				init_char_pos(bsp->text_ulx, bsp->text_uly);
-				//LineAdjustment=0;
+				LineAdjustment=0;
 				prev_ch = 10;                                   // read to eoln
 			} else if (ch=='U') {
 				screen_num=get_message_num(&message);
@@ -1045,7 +1045,7 @@ int show_briefing_message(int screen_num, char *message)
 			} else if (ch=='Z') {
 				//mprintf ((0,"Got a Z!\n"));
 				GotZ=1;
-#if defined (D2_OEM) || defined(COMPILATION) || (defined(MACINTOSH) && defined(SHAREWARE))
+#if 1 //defined (D2_OEM) || defined(COMPILATION) || (defined(MACINTOSH) && defined(SHAREWARE))
 				DumbAdjust=1;
 #else
 				if (LineAdjustment==1)
@@ -1060,6 +1060,9 @@ int show_briefing_message(int screen_num, char *message)
 					message++;
 				}
 				fname[i]=0;
+				if (*message != 10)
+					while (*message++ != 10)    //  Get and drop eoln
+						;
 
 				{
 					char fname2[15];
@@ -1135,6 +1138,8 @@ int show_briefing_message(int screen_num, char *message)
 				}
 #endif
 
+				gr_update();
+
 				start_time = timer_get_fixed_seconds();
 				while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
 #ifdef WINDOWS
@@ -1198,7 +1203,7 @@ int show_briefing_message(int screen_num, char *message)
 		} else if (ch == 10) {
 			if (prev_ch != '\\') {
 				prev_ch = ch;
-				if (1) //DumbAdjust==0)
+				if (DumbAdjust==0)
 					Briefing_text_y += (8*(MenuHires+1));
 				else
 					DumbAdjust--;
