@@ -2,7 +2,7 @@ DIST_SUBDIRS = 2d 3d maths mem cfile console iff texmap misc arch main libmve ut
 
 SUBDIRS = ${DIST_SUBDIRS} @D2X_SUBDIRS@
 
-EXTRA_SUBDIRS = include unused debian rpm
+EXTRA_SUBDIRS = include unused debian rpm VisualC VisualCE
 
 if BUILD_MACOSX_BUNDLE
 bundle_contents = @PACKAGE@.app/Contents
