@@ -1,3 +1,4 @@
+/* $Id: robot.c,v 1.4 2002-08-02 04:57:19 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -40,49 +41,48 @@ robot_info Robot_info[MAX_ROBOT_TYPES];
 jointpos Robot_joints[MAX_ROBOT_JOINTS] = {
 
 //gun 0
-					{2,{deg(-30),0,0}},		//rest (2 joints)
-					{3,{deg(-40),0,0}},
+	{2,{deg(-30),0,0}},         //rest (2 joints)
+	{3,{deg(-40),0,0}},
 
-					{2,{deg(0),0,0}},			//alert
-					{3,{deg(0),0,0}},
-		
-					{2,{deg(0),0,0}},			//fire
-					{3,{deg(0),0,0}},
-		
-					{2,{deg(50),0,0}},		//recoil
-					{3,{deg(-50),0,0}},
-		
-					{2,{deg(10),0,deg(70)}},		//flinch
-					{3,{deg(0),deg(20),0}},
-		
+	{2,{deg(0),0,0}},           //alert
+	{3,{deg(0),0,0}},
+
+	{2,{deg(0),0,0}},           //fire
+	{3,{deg(0),0,0}},
+
+	{2,{deg(50),0,0}},          //recoil
+	{3,{deg(-50),0,0}},
+
+	{2,{deg(10),0,deg(70)}},    //flinch
+	{3,{deg(0),deg(20),0}},
+
 //gun 1
-					{4,{deg(-30),0,0}},		//rest (2 joints)
-					{5,{deg(-40),0,0}},
+	{4,{deg(-30),0,0}},         //rest (2 joints)
+	{5,{deg(-40),0,0}},
 
-					{4,{deg(0),0,0}},			//alert
-					{5,{deg(0),0,0}},
-		
-					{4,{deg(0),0,0}},			//fire
-					{5,{deg(0),0,0}},
-		
-					{4,{deg(50),0,0}},		//recoil
-					{5,{deg(-50),0,0}},
-		
-					{4,{deg(20),0,deg(-50)}},	//flinch
-					{5,{deg(0),0,deg(20)}},
-		
+	{4,{deg(0),0,0}},           //alert
+	{5,{deg(0),0,0}},
+
+	{4,{deg(0),0,0}},           //fire
+	{5,{deg(0),0,0}},
+
+	{4,{deg(50),0,0}},          //recoil
+	{5,{deg(-50),0,0}},
+
+	{4,{deg(20),0,deg(-50)}},   //flinch
+	{5,{deg(0),0,deg(20)}},
+
 //rest of body (the head)
 
-					{1,{deg(70),0,0}},		//rest (1 joint, head)
+	{1,{deg(70),0,0}},          //rest (1 joint, head)
 
-					{1,{deg(0),0,0}},			//alert
-		
-					{1,{deg(0),0,0}},			//fire
-		
-					{1,{deg(0),0,0}},			//recoil
+	{1,{deg(0),0,0}},           //alert
 
-					{1,{deg(-20),deg(15),0}},			//flinch
+	{1,{deg(0),0,0}},           //fire
 
+	{1,{deg(0),0,0}},           //recoil
+
+	{1,{deg(-20),deg(15),0}},   //flinch
 
 };
 
@@ -132,7 +132,7 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 	vm_copy_transpose_matrix(&m,&obj->orient);
 	vm_vec_rotate(gun_point,&pnt,&m);
 	vm_vec_add2(gun_point,&obj->pos);
-	
+
 }
 
 //fills in ptr to list of joints, and returns the number of joints in list
@@ -184,11 +184,11 @@ void set_robot_state(object *obj,int state)
 //--unused-- test_anim_states()
 //--unused-- {
 //--unused-- 	set_robot_state(&Objects[1],cur_state);
-//--unused-- 
+//--unused--
 //--unused-- 	mprintf(0,"Robot in state %d\n",cur_state);
-//--unused-- 
+//--unused--
 //--unused-- 	cur_state = (cur_state+1)%N_ANIM_STATES;
-//--unused-- 
+//--unused--
 //--unused-- }
 
 //set the animation angles for this robot.  Gun fields of robot info must
@@ -238,108 +238,121 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 
 }
 
+#ifndef FAST_FILE_IO
 /*
- * reads a jointlist structure from a CFILE
+ * reads n jointlist structs from a CFILE
  */
-static void jointlist_read(jointlist *jl, CFILE *fp)
+static int jointlist_read_n(jointlist *jl, int n, CFILE *fp)
 {
-	jl->n_joints = cfile_read_short(fp);
-	jl->offset = cfile_read_short(fp);
+	int i;
+
+	for (i = 0; i < n; i++) {
+		jl[i].n_joints = cfile_read_short(fp);
+		jl[i].offset = cfile_read_short(fp);
+	}
+	return i;
 }
 
 /*
- * reads a robot_info structure from a CFILE
+ * reads n robot_info structs from a CFILE
  */
-void robot_info_read(robot_info *ri, CFILE *fp)
+int robot_info_read_n(robot_info *ri, int n, CFILE *fp)
 {
 	int i, j;
-	
-	ri->model_num = cfile_read_int(fp);
-	for (i = 0; i < MAX_GUNS; i++)
-		cfile_read_vector(&(ri->gun_points[i]), fp);
-	cfread(ri->gun_submodels, MAX_GUNS, 1, fp);
 
-	ri->exp1_vclip_num = cfile_read_short(fp);
-	ri->exp1_sound_num = cfile_read_short(fp);
+	for (i = 0; i < n; i++) {
+		ri[i].model_num = cfile_read_int(fp);
+		for (j = 0; j < MAX_GUNS; j++)
+			cfile_read_vector(&(ri[i].gun_points[j]), fp);
+		cfread(ri[i].gun_submodels, MAX_GUNS, 1, fp);
 
-	ri->exp2_vclip_num = cfile_read_short(fp);
-	ri->exp2_sound_num = cfile_read_short(fp);
+		ri[i].exp1_vclip_num = cfile_read_short(fp);
+		ri[i].exp1_sound_num = cfile_read_short(fp);
 
-	ri->weapon_type = cfile_read_byte(fp);
-	ri->weapon_type2 = cfile_read_byte(fp);
-	ri->n_guns = cfile_read_byte(fp);
-	ri->contains_id = cfile_read_byte(fp);
+		ri[i].exp2_vclip_num = cfile_read_short(fp);
+		ri[i].exp2_sound_num = cfile_read_short(fp);
 
-	ri->contains_count = cfile_read_byte(fp);
-	ri->contains_prob = cfile_read_byte(fp);
-	ri->contains_type = cfile_read_byte(fp);
-	ri->kamikaze = cfile_read_byte(fp);
+		ri[i].weapon_type = cfile_read_byte(fp);
+		ri[i].weapon_type2 = cfile_read_byte(fp);
+		ri[i].n_guns = cfile_read_byte(fp);
+		ri[i].contains_id = cfile_read_byte(fp);
 
-	ri->score_value = cfile_read_short(fp);
-	ri->badass = cfile_read_byte(fp);
-	ri->energy_drain = cfile_read_byte(fp);
+		ri[i].contains_count = cfile_read_byte(fp);
+		ri[i].contains_prob = cfile_read_byte(fp);
+		ri[i].contains_type = cfile_read_byte(fp);
+		ri[i].kamikaze = cfile_read_byte(fp);
 
-	ri->lighting = cfile_read_fix(fp);
-	ri->strength = cfile_read_fix(fp);
+		ri[i].score_value = cfile_read_short(fp);
+		ri[i].badass = cfile_read_byte(fp);
+		ri[i].energy_drain = cfile_read_byte(fp);
 
-	ri->mass = cfile_read_fix(fp);
-	ri->drag = cfile_read_fix(fp);
+		ri[i].lighting = cfile_read_fix(fp);
+		ri[i].strength = cfile_read_fix(fp);
 
-	for (i = 0; i < NDL; i++)
-		ri->field_of_view[i] = cfile_read_fix(fp);
-	for (i = 0; i < NDL; i++)
-		ri->firing_wait[i] = cfile_read_fix(fp);
-	for (i = 0; i < NDL; i++)
-		ri->firing_wait2[i] = cfile_read_fix(fp);
-	for (i = 0; i < NDL; i++)
-		ri->turn_time[i] = cfile_read_fix(fp);
-	for (i = 0; i < NDL; i++)
-		ri->max_speed[i] = cfile_read_fix(fp);
-	for (i = 0; i < NDL; i++)
-		ri->circle_distance[i] = cfile_read_fix(fp);
-	cfread(ri->rapidfire_count, NDL, 1, fp);
+		ri[i].mass = cfile_read_fix(fp);
+		ri[i].drag = cfile_read_fix(fp);
 
-	cfread(ri->evade_speed, NDL, 1, fp);
+		for (j = 0; j < NDL; j++)
+			ri[i].field_of_view[j] = cfile_read_fix(fp);
+		for (j = 0; j < NDL; j++)
+			ri[i].firing_wait[j] = cfile_read_fix(fp);
+		for (j = 0; j < NDL; j++)
+			ri[i].firing_wait2[j] = cfile_read_fix(fp);
+		for (j = 0; j < NDL; j++)
+			ri[i].turn_time[j] = cfile_read_fix(fp);
+		for (j = 0; j < NDL; j++)
+			ri[i].max_speed[j] = cfile_read_fix(fp);
+		for (j = 0; j < NDL; j++)
+			ri[i].circle_distance[i] = cfile_read_fix(fp);
+		cfread(ri[i].rapidfire_count, NDL, 1, fp);
 
-	ri->cloak_type = cfile_read_byte(fp);
-	ri->attack_type = cfile_read_byte(fp);
+		cfread(ri[i].evade_speed, NDL, 1, fp);
 
-	ri->see_sound = cfile_read_byte(fp);
-	ri->attack_sound = cfile_read_byte(fp);
-	ri->claw_sound = cfile_read_byte(fp);
-	ri->taunt_sound = cfile_read_byte(fp);
+		ri[i].cloak_type = cfile_read_byte(fp);
+		ri[i].attack_type = cfile_read_byte(fp);
 
-	ri->boss_flag = cfile_read_byte(fp);
-	ri->companion = cfile_read_byte(fp);
-	ri->smart_blobs = cfile_read_byte(fp);
-	ri->energy_blobs = cfile_read_byte(fp);
+		ri[i].see_sound = cfile_read_byte(fp);
+		ri[i].attack_sound = cfile_read_byte(fp);
+		ri[i].claw_sound = cfile_read_byte(fp);
+		ri[i].taunt_sound = cfile_read_byte(fp);
 
-	ri->thief = cfile_read_byte(fp);
-	ri->pursuit = cfile_read_byte(fp);
-	ri->lightcast = cfile_read_byte(fp);
-	ri->death_roll = cfile_read_byte(fp);
+		ri[i].boss_flag = cfile_read_byte(fp);
+		ri[i].companion = cfile_read_byte(fp);
+		ri[i].smart_blobs = cfile_read_byte(fp);
+		ri[i].energy_blobs = cfile_read_byte(fp);
 
-	ri->flags = cfile_read_byte(fp);
-	cfread(ri->pad, 3, 1, fp);
+		ri[i].thief = cfile_read_byte(fp);
+		ri[i].pursuit = cfile_read_byte(fp);
+		ri[i].lightcast = cfile_read_byte(fp);
+		ri[i].death_roll = cfile_read_byte(fp);
 
-	ri->deathroll_sound = cfile_read_byte(fp);
-	ri->glow = cfile_read_byte(fp);
-	ri->behavior = cfile_read_byte(fp);
-	ri->aim = cfile_read_byte(fp);
+		ri[i].flags = cfile_read_byte(fp);
+		cfread(ri[i].pad, 3, 1, fp);
 
-	for (i = 0; i < MAX_GUNS + 1; i++)
-		for (j = 0; j < N_ANIM_STATES; j++)
-			jointlist_read(&ri->anim_states[i][j], fp);
+		ri[i].deathroll_sound = cfile_read_byte(fp);
+		ri[i].glow = cfile_read_byte(fp);
+		ri[i].behavior = cfile_read_byte(fp);
+		ri[i].aim = cfile_read_byte(fp);
 
-	ri->always_0xabcd = cfile_read_int(fp);
+		for (j = 0; j < MAX_GUNS + 1; j++)
+			jointlist_read_n(ri[i].anim_states[j], N_ANIM_STATES, fp);
+
+		ri[i].always_0xabcd = cfile_read_int(fp);
+	}
+	return i;
 }
 
 /*
- * reads a jointpos structure from a CFILE
+ * reads n jointpos structs from a CFILE
  */
-void jointpos_read(jointpos *jp, CFILE *fp)
+int jointpos_read_n(jointpos *jp, int n, CFILE *fp)
 {
-	jp->jointnum = cfile_read_short(fp);
-	cfile_read_angvec(&jp->angles, fp);
-}
+	int i;
 
+	for (i = 0; i < n; i++) {
+		jp[i].jointnum = cfile_read_short(fp);
+		cfile_read_angvec(&jp[i].angles, fp);
+	}
+	return i;
+}
+#endif

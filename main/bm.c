@@ -1,4 +1,4 @@
-/* $ Id: $ */
+/* $Id: bm.c,v 1.12 2002-08-02 04:57:19 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -94,22 +94,31 @@ int					First_multi_bitmap_num=-1;
 bitmap_index		ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, since some are used twice.
 
+#ifdef FAST_FILE_IO
+#define tmap_info_read_n(ti, n, fp) cfread(ti, sizeof(tmap_info), n, fp)
+#else
 /*
- * reads a tmap_info structure from a CFILE
+ * reads n tmap_info structs from a CFILE
  */
-void tmap_info_read(tmap_info *ti, CFILE *fp)
+int tmap_info_read_n(tmap_info *ti, int n, CFILE *fp)
 {
-	ti->flags = cfile_read_byte(fp);
-	ti->pad[0] = cfile_read_byte(fp);
-	ti->pad[1] = cfile_read_byte(fp);
-	ti->pad[2] = cfile_read_byte(fp);
-	ti->lighting = cfile_read_fix(fp);
-	ti->damage = cfile_read_fix(fp);
-	ti->eclip_num = cfile_read_short(fp);
-	ti->destroyed = cfile_read_short(fp);
-	ti->slide_u = cfile_read_short(fp);
-	ti->slide_v = cfile_read_short(fp);
+	int i;
+
+	for (i = 0; i < n; i++) {
+		ti[i].flags = cfile_read_byte(fp);
+		ti[i].pad[0] = cfile_read_byte(fp);
+		ti[i].pad[1] = cfile_read_byte(fp);
+		ti[i].pad[2] = cfile_read_byte(fp);
+		ti[i].lighting = cfile_read_fix(fp);
+		ti[i].damage = cfile_read_fix(fp);
+		ti[i].eclip_num = cfile_read_short(fp);
+		ti[i].destroyed = cfile_read_short(fp);
+		ti[i].slide_u = cfile_read_short(fp);
+		ti[i].slide_v = cfile_read_short(fp);
+	}
+	return i;
 }
+#endif
 
 //#ifdef MACINTOSH
 
@@ -232,48 +241,39 @@ int bm_init()
 	return 0;
 }
 
-void bm_read_all(CFILE * fp)
+void bm_read_all(CFILE * fp, int hamfile_version)
 {
 	int i,t;
 
 	NumTextures = cfile_read_int(fp);
-	for (i = 0; i < NumTextures; i++)
-		bitmap_index_read(&Textures[i], fp);
-	for (i = 0; i < NumTextures; i++)
-		tmap_info_read(&TmapInfo[i], fp);
+	bitmap_index_read_n(Textures, NumTextures, fp );
+	tmap_info_read_n(TmapInfo, NumTextures, fp);
 
-	t = cfile_read_int(fp);	
+	t = cfile_read_int(fp);
 	cfread( Sounds, sizeof(ubyte), t, fp );
 	cfread( AltSounds, sizeof(ubyte), t, fp );
 
 	Num_vclips = cfile_read_int(fp);
-	for (i = 0; i < Num_vclips; i++)
-		vclip_read(&Vclip[i], fp);
+	vclip_read_n(Vclip, Num_vclips, fp);
 
 	Num_effects = cfile_read_int(fp);
-	for (i = 0; i < Num_effects; i++)
-		eclip_read(&Effects[i], fp);
+	eclip_read_n(Effects, Num_effects, fp);
 
 	Num_wall_anims = cfile_read_int(fp);
-	for (i = 0; i < Num_wall_anims; i++)
-		wclip_read(&WallAnims[i], fp);
+	wclip_read_n(WallAnims, Num_wall_anims, fp);
 
 	N_robot_types = cfile_read_int(fp);
-	for (i = 0; i < N_robot_types; i++)
-		robot_info_read(&Robot_info[i], fp);
+	robot_info_read_n(Robot_info, N_robot_types, fp);
 
 	N_robot_joints = cfile_read_int(fp);
-	for (i = 0; i < N_robot_joints; i++)
-		jointpos_read(&Robot_joints[i], fp);
+	jointpos_read_n(Robot_joints, N_robot_joints, fp);
 
 	N_weapon_types = cfile_read_int(fp);
-	for (i = 0; i < N_weapon_types; i++)
-		weapon_info_read(&Weapon_info[i], fp);
+	weapon_info_read_n(Weapon_info, N_weapon_types, fp, hamfile_version);
 
 	N_powerup_types = cfile_read_int(fp);
-	for (i = 0; i < N_powerup_types; i++)
-		powerup_type_info_read(&Powerup_info[i], fp);
-	
+	powerup_type_info_read_n(Powerup_info, N_powerup_types, fp);
+
 	N_polygon_models = cfile_read_int(fp);
 	for (i = 0; i < N_polygon_models; i++)
 		polymodel_read(&Polygon_models[i], fp);
@@ -355,7 +355,7 @@ void bm_read_extra_robots(char *fname,int type)
 	CFILE *fp;
 	int t,i;
 	int version;
-	
+
 	#ifdef MACINTOSH
 		ulong varSave = 0;
 	#endif
@@ -379,8 +379,7 @@ void bm_read_extra_robots(char *fname,int type)
 	N_weapon_types = N_D2_WEAPON_TYPES+t;
 	if (N_weapon_types >= MAX_WEAPON_TYPES)
 		Error("Too many weapons (%d) in <%s>.  Max is %d.",t,fname,MAX_WEAPON_TYPES-N_D2_WEAPON_TYPES);
-	for (i = N_D2_WEAPON_TYPES; i < t + N_D2_WEAPON_TYPES; i++)
-		weapon_info_read(&Weapon_info[i], fp);
+	weapon_info_read_n(&Weapon_info[N_D2_WEAPON_TYPES], t, fp, version);
 
 	//now read robot info
 
@@ -388,16 +387,14 @@ void bm_read_extra_robots(char *fname,int type)
 	N_robot_types = N_D2_ROBOT_TYPES+t;
 	if (N_robot_types >= MAX_ROBOT_TYPES)
 		Error("Too many robots (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_TYPES-N_D2_ROBOT_TYPES);
-	for (i = N_D2_ROBOT_TYPES; i < t + N_D2_ROBOT_TYPES; i++)
-		robot_info_read(&Robot_info[i], fp);
-	
+	robot_info_read_n(&Robot_info[N_D2_ROBOT_TYPES], t, fp);
+
 	t = cfile_read_int(fp);
 	N_robot_joints = N_D2_ROBOT_JOINTS+t;
 	if (N_robot_joints >= MAX_ROBOT_JOINTS)
 		Error("Too many robot joints (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_JOINTS-N_D2_ROBOT_JOINTS);
-	for (i = N_D2_ROBOT_JOINTS; i < t + N_D2_ROBOT_JOINTS; i++)
-		jointpos_read(&Robot_joints[i], fp);
-	
+	jointpos_read_n(&Robot_joints[N_D2_ROBOT_JOINTS], t, fp);
+
 	t = cfile_read_int(fp);
 	N_polygon_models = N_D2_POLYGON_MODELS+t;
 	if (N_polygon_models >= MAX_POLYGON_MODELS)
@@ -410,11 +407,9 @@ void bm_read_extra_robots(char *fname,int type)
 		Polygon_models[i].model_data = d_malloc(Polygon_models[i].model_data_size);
 		Assert( Polygon_models[i].model_data != NULL );
 		cfread( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
-		
 #ifdef WORDS_BIGENDIAN
 		swap_polygon_model_data(Polygon_models[i].model_data);
 #endif
-		
 		g3_init_polygon_model(Polygon_models[i].model_data);
 	}
 
@@ -449,26 +444,26 @@ void load_robot_replacements(char *level_name)
 	char ifile_name[FILENAME_LEN];
 
 	change_filename_extension(ifile_name, level_name, ".HXM" );
-	
+
 	fp = cfopen(ifile_name,"rb");
 
 	if (!fp)		//no robot replacement file
 		return;
 
 	t = cfile_read_int(fp);			//read id "HXM!"
-	if (t!= 0x21584d48) 
+	if (t!= 0x21584d48)
 		Error("ID of HXM! file incorrect");
 
 	t = cfile_read_int(fp);			//read version
 	if (t<1)
-		Error("HXM! version too old (%d)",t); 
+		Error("HXM! version too old (%d)",t);
 
 	t = cfile_read_int(fp);			//read number of robots
 	for (j=0;j<t;j++) {
 		i = cfile_read_int(fp);		//read robot number
 		if (i<0 || i>=N_robot_types)
 			Error("Robots number (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_robot_types-1);
-		robot_info_read(&Robot_info[i], fp);
+		robot_info_read_n(&Robot_info[i], 1, fp);
 	}
 
 	t = cfile_read_int(fp);			//read number of joints
@@ -476,7 +471,7 @@ void load_robot_replacements(char *level_name)
 		i = cfile_read_int(fp);		//read joint number
 		if (i<0 || i>=N_robot_joints)
 			Error("Robots joint (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_robot_joints-1);
-		jointpos_read(&Robot_joints[i], fp);
+		jointpos_read_n(&Robot_joints[i], 1, fp);
 	}
 
 	t = cfile_read_int(fp);			//read number of polygon models

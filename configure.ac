@@ -115,6 +115,14 @@ if test x$enable_release = xyes; then
     D2X_FEATURES="release ${D2X_FEATURES}"
 fi
 
+dnl Build with FAST_FILE_IO?
+AC_ARG_ENABLE(fastfileio,
+  [  --enable-fastfileio     Fast file i/o build.  little-endian only ],,)
+if test x$enable_fastfileio = xyes; then
+    AC_DEFINE(FAST_FILE_IO,,[Define for a faster file i/o on little-endian machines])
+    D2X_FEATURES="fastfileio ${D2X_FEATURES}"
+fi
+
 AC_ARG_WITH(sharepath,
   [[  --with-sharepath=DIR    Use DIR for shared game data (unix only) [DATADIR/games/d2x]]],
   sharepath=$withval, sharepath="auto")

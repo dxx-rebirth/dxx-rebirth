@@ -701,13 +701,20 @@ int do_powerup(object *obj)
 
 }
 
+#ifndef FAST_FILE_IO
 /*
- * reads a powerup_type_info structure from a CFILE
+ * reads n powerup_type_info structs from a CFILE
  */
-extern void powerup_type_info_read(powerup_type_info *pti, CFILE *fp)
+extern int powerup_type_info_read_n(powerup_type_info *pti, int n, CFILE *fp)
 {
-	pti->vclip_num = cfile_read_int(fp);
-	pti->hit_sound = cfile_read_int(fp);
-	pti->size = cfile_read_fix(fp);
-	pti->light = cfile_read_fix(fp);
+	int i;
+
+	for (i = 0; i < n; i++) {
+		pti[i].vclip_num = cfile_read_int(fp);
+		pti[i].hit_sound = cfile_read_int(fp);
+		pti[i].size = cfile_read_fix(fp);
+		pti[i].light = cfile_read_fix(fp);
+	}
+	return i;
 }
+#endif

@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.13 2002-07-30 11:05:53 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.14 2002-08-02 04:57:19 btb Exp $";
 #endif
 
 
@@ -905,7 +905,7 @@ void piggy_new_pigfile(char *pigname)
 		piggy_write_pigfile(pigname);
 
 		Current_pigfile[0] = 0;                 //say no pig, to force reload
-		
+
 		piggy_new_pigfile(pigname);             //read in just-generated pig
 
 
@@ -918,8 +918,6 @@ ubyte bogus_data[64*64];
 grs_bitmap bogus_bitmap;
 ubyte bogus_bitmap_initialized=0;
 digi_sound bogus_sound;
-
-extern void bm_read_all(CFILE * fp);
 
 #define HAMFILE_ID              MAKE_SIG('!','M','A','H') //HAM!
 #ifdef SHAREWARE
@@ -941,14 +939,14 @@ int read_hamfile()
 	#ifdef MACINTOSH
 	char name[255];
 	#endif
-	
+
 	#ifndef MACINTOSH
 	ham_fp = cfopen( DEFAULT_HAMFILE, "rb" );
 	#else
 	sprintf(name, ":Data:%s", DEFAULT_HAMFILE );
 	ham_fp = cfopen( name, "rb" );
 	#endif
-	
+
 	if (ham_fp == NULL) {
 		Must_write_hamfile = 1;
 		return 0;
@@ -965,12 +963,12 @@ int read_hamfile()
 
 	if (ham_version < 3) // hamfile contains sound info
 		sound_offset = cfile_read_int(ham_fp);
-	
+
 	#ifndef EDITOR
 	{
 		//int i;
 
-		bm_read_all( ham_fp );  // Note connection to above if!!!
+		bm_read_all(ham_fp, ham_version);
 		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
 		// no swap here?
 		//for (i = 0; i < MAX_BITMAP_FILES; i++) {
@@ -1159,7 +1157,7 @@ int piggy_init(void)
 		gr_set_fontcolor(gr_find_closest_color_current( 20, 20, 20 ),-1 );
 		gr_printf( 0x8000, grd_curcanv->cv_h-20, "%s...", TXT_LOADING_DATA );
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
-		
+
 	#ifdef EDITOR
 	piggy_init_pigfile(DEFAULT_PIGFILE);
 	#endif
@@ -1735,12 +1733,25 @@ void piggy_bitmap_page_out_all_w()
 
 #endif
 
+#ifndef FAST_FILE_IO
 /*
  * reads a bitmap_index structure from a CFILE
  */
 void bitmap_index_read(bitmap_index *bi, CFILE *fp)
 {
 	bi->index = cfile_read_short(fp);
+}
+
+/*
+ * reads n bitmap_index structs from a CFILE
+ */
+int bitmap_index_read_n(bitmap_index *bi, int n, CFILE *fp)
+{
+	int i;
+
+	for (i = 0; i < n; i++)
+		bi[i].index = cfile_read_short(fp);
+	return i;
 }
 
 /*
@@ -1768,3 +1779,4 @@ void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
 	dsh->data_length = cfile_read_int(fp);
 	dsh->offset = cfile_read_int(fp);
 }
+#endif

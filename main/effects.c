@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: effects.c,v 1.3 2002-07-26 09:22:05 btb Exp $";
+static char rcsid[] = "$Id: effects.c,v 1.4 2002-08-02 04:57:19 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -169,23 +169,30 @@ void restart_effect(int effect_num)
 	//Assert(Effects[effect_num].bm_ptr != -1);
 }
 
+#ifndef FAST_FILE_IO
 /*
- * reads an eclip structure from a CFILE
+ * reads n eclip structs from a CFILE
  */
-void eclip_read(eclip *ec, CFILE *fp)
+int eclip_read_n(eclip *ec, int n, CFILE *fp)
 {
-	vclip_read(&ec->vc, fp);
-	ec->time_left = cfile_read_fix(fp);
-	ec->frame_count = cfile_read_int(fp);
-	ec->changing_wall_texture = cfile_read_short(fp);
-	ec->changing_object_texture = cfile_read_short(fp);
-	ec->flags = cfile_read_int(fp);
-	ec->crit_clip = cfile_read_int(fp);
-	ec->dest_bm_num = cfile_read_int(fp);
-	ec->dest_vclip = cfile_read_int(fp);
-	ec->dest_eclip = cfile_read_int(fp);
-	ec->dest_size = cfile_read_fix(fp);
-	ec->sound_num = cfile_read_int(fp);
-	ec->segnum = cfile_read_int(fp);
-	ec->sidenum = cfile_read_int(fp);
+	int i;
+
+	for (i = 0; i < n; i++) {
+		vclip_read_n(&ec[i].vc, 1, fp);
+		ec[i].time_left = cfile_read_fix(fp);
+		ec[i].frame_count = cfile_read_int(fp);
+		ec[i].changing_wall_texture = cfile_read_short(fp);
+		ec[i].changing_object_texture = cfile_read_short(fp);
+		ec[i].flags = cfile_read_int(fp);
+		ec[i].crit_clip = cfile_read_int(fp);
+		ec[i].dest_bm_num = cfile_read_int(fp);
+		ec[i].dest_vclip = cfile_read_int(fp);
+		ec[i].dest_eclip = cfile_read_int(fp);
+		ec[i].dest_size = cfile_read_fix(fp);
+		ec[i].sound_num = cfile_read_int(fp);
+		ec[i].segnum = cfile_read_int(fp);
+		ec[i].sidenum = cfile_read_int(fp);
+	}
+	return i;
 }
+#endif

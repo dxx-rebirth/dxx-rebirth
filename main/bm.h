@@ -39,7 +39,7 @@ typedef struct {
 	char		filename[13];		//used by editor to remap textures
 	char		pad2[3];
 	#endif
-} tmap_info;
+} __pack__ tmap_info;
 
 extern int Num_object_types;
 
@@ -95,6 +95,8 @@ extern int First_multi_bitmap_num;
 
 // Initializes all bitmaps from BITMAPS.TBL file.
 int bm_init_use_tbl(void);
+
+extern void bm_read_all(CFILE * fp, int hamfile_version);
 
 #endif
 

@@ -1,3 +1,4 @@
+/* $Id: wall.c,v 1.7 2002-08-02 04:57:19 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.6 2002-07-27 04:39:23 btb Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.7 2002-08-02 04:57:19 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -102,7 +103,7 @@ void kill_stuck_objects(int wallnum);
 //		1 = YES
 //		0 = NO
 int check_transparency( segment * seg, int side )
-{	  
+{
 	if ( (seg->sides[side].tmap_num2 & 0x3FFF) == 0) {
 		if (GameBitmaps[Textures[seg->sides[side].tmap_num].index].bm_flags & BM_FLAG_TRANSPARENT )
 			return 1;
@@ -1544,22 +1545,26 @@ void blast_nearby_glass(object *objp, fix damage)
 
 }
 
+#ifndef FAST_FILE_IO
 /*
  * reads a wclip structure from a CFILE
  */
-void wclip_read(wclip *wc, CFILE *fp)
+int wclip_read_n(wclip *wc, int n, CFILE *fp)
 {
-	int i;
+	int i, j;
 
-	wc->play_time = cfile_read_fix(fp);
-	wc->num_frames = cfile_read_short(fp);
-	for (i = 0; i < MAX_CLIP_FRAMES; i++)
-		wc->frames[i] = cfile_read_short(fp);
-	wc->open_sound = cfile_read_short(fp);
-	wc->close_sound = cfile_read_short(fp);
-	wc->flags = cfile_read_short(fp);
-	cfread(wc->filename, 13, 1, fp);
-	wc->pad = cfile_read_byte(fp);
+	for (i = 0; i < n; i++) {
+		wc[i].play_time = cfile_read_fix(fp);
+		wc[i].num_frames = cfile_read_short(fp);
+		for (j = 0; j < MAX_CLIP_FRAMES; j++)
+			wc[i].frames[j] = cfile_read_short(fp);
+		wc[i].open_sound = cfile_read_short(fp);
+		wc[i].close_sound = cfile_read_short(fp);
+		wc[i].flags = cfile_read_short(fp);
+		cfread(wc[i].filename, 13, 1, fp);
+		wc[i].pad = cfile_read_byte(fp);
+	}
+	return i;
 }
 
 /*
@@ -1637,3 +1642,4 @@ extern void active_door_read(active_door *ad, CFILE *fp)
 	ad->back_wallnum[1] = cfile_read_short(fp);
 	ad->time = cfile_read_fix(fp);
 }
+#endif

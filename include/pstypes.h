@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -18,7 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // define a dboolean
 typedef int dboolean;
 
-//define a byte 
+//define a byte
 typedef signed char byte;
 
 //define unsigned types;
@@ -70,10 +70,14 @@ typedef ubyte bool;
 #define NULL 0
 #endif
 
-#ifdef __GNUC__
-#define __pack__ __attribute__((packed))
+#ifdef FAST_FILE_IO
+# ifdef __GNUC__
+#  define __pack__ __attribute__((packed))
+# else
+#  define __pack__
+# endif
 #else
-#define __pack__
+# define __pack__
 #endif
 
 #endif

@@ -1,3 +1,4 @@
+/* $Id: effects.h,v 1.3 2002-08-02 04:57:19 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -27,26 +28,26 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_STOPPED		4		//this has been stopped
 
 typedef struct eclip {
-	vclip 		vc;				//imbedded vclip
-	fix			time_left;		//for sequencing
-	int			frame_count;	//for sequencing
-	short			changing_wall_texture;			//Which element of Textures array to replace.
-	short			changing_object_texture;		//Which element of ObjBitmapPtrs array to replace.
-	int			flags;			//see above
-	int			crit_clip;		//use this clip instead of above one when mine critical
-	int			dest_bm_num;	//use this bitmap when monitor destroyed
-	int			dest_vclip;		//what vclip to play when exploding
-	int			dest_eclip;		//what eclip to play when exploding
-	fix			dest_size;		//3d size of explosion
-	int			sound_num;		//what sound this makes
-	int			segnum,sidenum;	//what seg & side, for one-shot clips
-} eclip;
+	vclip   vc;             //imbedded vclip
+	fix     time_left;      //for sequencing
+	int     frame_count;    //for sequencing
+	short   changing_wall_texture;      //Which element of Textures array to replace.
+	short   changing_object_texture;    //Which element of ObjBitmapPtrs array to replace.
+	int     flags;          //see above
+	int     crit_clip;      //use this clip instead of above one when mine critical
+	int     dest_bm_num;    //use this bitmap when monitor destroyed
+	int     dest_vclip;     //what vclip to play when exploding
+	int     dest_eclip;     //what eclip to play when exploding
+	fix     dest_size;      //3d size of explosion
+	int     sound_num;      //what sound this makes
+	int     segnum,sidenum; //what seg & side, for one-shot clips
+} __pack__ eclip;
 
 extern int Num_effects;
 extern eclip Effects[MAX_EFFECTS];
 
 // Set up special effects.
-extern void init_special_effects(); 
+extern void init_special_effects();
 
 // Clear any active one-shots
 void reset_special_effects();
@@ -63,9 +64,13 @@ void stop_effect(int effect_num);
 //restart a stopped effect
 void restart_effect(int effect_num);
 
+#ifdef FAST_FILE_IO
+#define eclip_read_n(ec, n, fp) cfread(ec, sizeof(eclip), n, fp)
+#else
 /*
- * reads an eclip structure from a CFILE
+ * reads n eclip structs from a CFILE
  */
-extern void eclip_read(eclip *ec, CFILE *fp);
+extern int eclip_read_n(eclip *ec, int n, CFILE *fp);
+#endif
 
 #endif

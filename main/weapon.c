@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: weapon.c,v 1.4 2002-07-30 04:52:01 btb Exp $";
+static char rcsid[] = "$Id: weapon.c,v 1.5 2002-08-02 04:57:19 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -1301,68 +1301,74 @@ void tactile_set_button_jolt ()
  }
 
 /*
- * reads a weapon_info structure from a CFILE
+ * reads n weapon_info structs from a CFILE
  */
-extern void weapon_info_read(weapon_info *wi, CFILE *fp)
+extern int weapon_info_read_n(weapon_info *wi, int n, CFILE *fp, int file_version)
 {
-	int i;
-	
-	wi->render_type = cfile_read_byte(fp);
-	wi->persistent = cfile_read_byte(fp);
-	wi->model_num = cfile_read_short(fp);
-	wi->model_num_inner = cfile_read_short(fp);
+	int i, j;
 
-	wi->flash_vclip = cfile_read_byte(fp);
-	wi->robot_hit_vclip = cfile_read_byte(fp);
-	wi->flash_sound = cfile_read_short(fp);		
+	for (i = 0; i < n; i++) {
+		wi[i].render_type = cfile_read_byte(fp);
+		wi[i].persistent = cfile_read_byte(fp);
+		wi[i].model_num = cfile_read_short(fp);
+		wi[i].model_num_inner = cfile_read_short(fp);
 
-	wi->wall_hit_vclip = cfile_read_byte(fp);
-	wi->fire_count = cfile_read_byte(fp);
-	wi->robot_hit_sound = cfile_read_short(fp);
-		
-	wi->ammo_usage = cfile_read_byte(fp);
-	wi->weapon_vclip = cfile_read_byte(fp);
-	wi->wall_hit_sound = cfile_read_short(fp);		
+		wi[i].flash_vclip = cfile_read_byte(fp);
+		wi[i].robot_hit_vclip = cfile_read_byte(fp);
+		wi[i].flash_sound = cfile_read_short(fp);
 
-	wi->destroyable = cfile_read_byte(fp);
-	wi->matter = cfile_read_byte(fp);
-	wi->bounce = cfile_read_byte(fp);
-	wi->homing_flag = cfile_read_byte(fp);
+		wi[i].wall_hit_vclip = cfile_read_byte(fp);
+		wi[i].fire_count = cfile_read_byte(fp);
+		wi[i].robot_hit_sound = cfile_read_short(fp);
 
-	wi->speedvar = cfile_read_byte(fp);
-	wi->flags = cfile_read_byte(fp);
-	wi->flash = cfile_read_byte(fp);
-	wi->afterburner_size = cfile_read_byte(fp);
-		
-#ifndef SHAREWARE
-	wi->children = cfile_read_byte(fp);
-#endif
+		wi[i].ammo_usage = cfile_read_byte(fp);
+		wi[i].weapon_vclip = cfile_read_byte(fp);
+		wi[i].wall_hit_sound = cfile_read_short(fp);
 
-	wi->energy_usage = cfile_read_fix(fp);
-	wi->fire_wait = cfile_read_fix(fp);
-		
-#ifndef SHAREWARE
-	wi->multi_damage_scale = cfile_read_fix(fp);
-#endif
-		
-	wi->bitmap.index = cfile_read_short(fp);	// bitmap_index = short
+		wi[i].destroyable = cfile_read_byte(fp);
+		wi[i].matter = cfile_read_byte(fp);
+		wi[i].bounce = cfile_read_byte(fp);
+		wi[i].homing_flag = cfile_read_byte(fp);
 
-	wi->blob_size = cfile_read_fix(fp);
-	wi->flash_size = cfile_read_fix(fp);
-	wi->impact_size = cfile_read_fix(fp);
-	for (i = 0; i < NDL; i++)
-		wi->strength[i] = cfile_read_fix(fp);
-	for (i = 0; i < NDL; i++)
-		wi->speed[i] = cfile_read_fix(fp);
-	wi->mass = cfile_read_fix(fp);
-	wi->drag = cfile_read_fix(fp);
-	wi->thrust = cfile_read_fix(fp);
-	wi->po_len_to_width_ratio = cfile_read_fix(fp);
-	wi->light = cfile_read_fix(fp);
-	wi->lifetime = cfile_read_fix(fp);
-	wi->damage_radius = cfile_read_fix(fp);
-	wi->picture.index = cfile_read_short(fp);		// bitmap_index is a short
-#ifndef SHAREWARE
-	wi->hires_picture.index = cfile_read_short(fp);		// bitmap_index is a short
-#endif
+		wi[i].speedvar = cfile_read_byte(fp);
+		wi[i].flags = cfile_read_byte(fp);
+		wi[i].flash = cfile_read_byte(fp);
+		wi[i].afterburner_size = cfile_read_byte(fp);
+
+		if (file_version >= 3)
+			wi[i].children = cfile_read_byte(fp);
+		else
+			wi[i].children = -1;
+
+		wi[i].energy_usage = cfile_read_fix(fp);
+		wi[i].fire_wait = cfile_read_fix(fp);
+
+		if (file_version >= 3)
+			wi[i].multi_damage_scale = cfile_read_fix(fp);
+		else
+			wi[i].multi_damage_scale = F1_0;
+
+		bitmap_index_read(&wi[i].bitmap, fp);
+
+		wi[i].blob_size = cfile_read_fix(fp);
+		wi[i].flash_size = cfile_read_fix(fp);
+		wi[i].impact_size = cfile_read_fix(fp);
+		for (j = 0; j < NDL; j++)
+			wi[i].strength[j] = cfile_read_fix(fp);
+		for (j = 0; j < NDL; j++)
+			wi[i].speed[j] = cfile_read_fix(fp);
+		wi[i].mass = cfile_read_fix(fp);
+		wi[i].drag = cfile_read_fix(fp);
+		wi[i].thrust = cfile_read_fix(fp);
+		wi[i].po_len_to_width_ratio = cfile_read_fix(fp);
+		wi[i].light = cfile_read_fix(fp);
+		wi[i].lifetime = cfile_read_fix(fp);
+		wi[i].damage_radius = cfile_read_fix(fp);
+		bitmap_index_read(&wi[i].picture, fp);
+		if (file_version >= 3)
+			bitmap_index_read(&wi[i].hires_picture, fp);
+		else
+			wi[i].hires_picture.index = wi[i].picture.index;
+	}
+	return i;
 }
