@@ -11,9 +11,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: terrain.c,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $";
-#pragma on (unreferenced)
+/*
+ * $Source: /cvs/cvsroot/d2x/main/terrain.c,v $
+ * $Revision: 1.1 $
+ * $Author: bradleyb $
+ * $Date: 2001-11-08 10:21:36 $
+ *
+ * FIXME: put description here
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,9 +70,6 @@ g3s_point save_row[GRID_MAX_SIZE];
 vms_vector start_point;
 
 grs_bitmap *terrain_bm;
-
-extern fix g3_get_surface_dotprod(g3s_point **list);
-#pragma aux g3_get_surface_dotprod "*" parm [esi] value [eax] modify exact [eax];
 
 int terrain_outline=0;
 
@@ -335,7 +344,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 
 void free_height_array()
 {
-	free(height_array);
+	d_free(height_array);
 }
 
 void load_terrain(char *filename)
@@ -352,7 +361,7 @@ void load_terrain(char *filename)
 	}
 
 	if (height_array)
-		free(height_array);
+		d_free(height_array);
 	else
 		atexit(free_height_array);		//first time
 
@@ -382,7 +391,7 @@ void load_terrain(char *filename)
 			HEIGHT(i,j) -= min_h;
 	
 
-//	free(height_bitmap.bm_data);
+//	d_free(height_bitmap.bm_data);
 
 	terrain_bm = terrain_bitmap;
 
@@ -433,7 +442,7 @@ fix get_avg_light(int i,int j)
 void free_light_table()
 {
 	if (light_array)
-		free(light_array);
+		d_free(light_array);
 
 }
 
@@ -444,7 +453,7 @@ void build_light_table()
 
 
 	if (light_array)
-		free(light_array);
+		d_free(light_array);
 	else
 		atexit(free_light_table);		//first time
 
@@ -484,4 +493,3 @@ void build_light_table()
 
 		}
 }
-

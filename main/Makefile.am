@@ -35,7 +35,7 @@ config.c    gamecntl.c	kconfig.c   scores.c \
 controls.c  gamefont.c	kludge.c    newdemo.c	slew.c \
 credits.c   gamemine.c	newmenu.c   songs.c \
 crypt.c     gamepal.c	laser.c     object.c	state.c \
-console.c   cmd.c
+console.c   cmd.c       terrain.c
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 descent.cfg inferno.ini \
