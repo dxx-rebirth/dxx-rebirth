@@ -143,7 +143,7 @@ SunOS/Sparc:
 #define __sparc__ 1
 #define unix 1
 
-Linux/Mips
+Linux/Mips:
 #define __LANGUAGE_C 1
 #define R3000 1
 #define __linux__ 1
@@ -179,4 +179,17 @@ Linux/Mips
 #define _mips 1
 #define _MIPS_SIM _MIPS_SIM_ABI32
 #define __MIPSEB__ 1
+#define unix 1
+
+FreeBSD/x86:
+#define __FreeBSD__ 4
+#define __FreeBSD_cc_version 460001
+#define __i386__ 1
+#define __i386 1
+#define __GNUC_MINOR__ 95
+#define i386 1
+#define __unix 1
+#define __unix__ 1
+#define __GNUC__ 2
+#define __ELF__ 1
 #define unix 1
