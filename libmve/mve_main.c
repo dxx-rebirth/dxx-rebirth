@@ -1,6 +1,7 @@
-/* $Id: mve_main.c,v 1.6 2003-11-26 12:26:28 btb Exp $ */
+/* $Id: mve_main.c,v 1.7 2003-11-27 04:52:18 btb Exp $ */
 
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include <string.h>
 

@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.24 2003-11-26 12:26:31 btb Exp $ */
+/* $Id: newmenu.c,v 1.25 2003-11-27 04:52:18 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1307,7 +1307,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	WINDOS(dd_grs_canvas *save_canvas, grs_canvas *save_canvas );	
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, dblclick_flag=0;
-	int mx=0, my=0, x1, x2, y1, y2;
+	int mx=0, my=0, x1 = 0, x2, y1, y2;
 	int close_box=0;
 #endif
 #ifdef MACINTOSH

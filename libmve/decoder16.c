@@ -17,6 +17,7 @@ void decodeFrame16(unsigned char *pFrame, unsigned char *pMap, int mapRemain, un
     unsigned char *pOrig;
     unsigned char *pOffData, *pEnd;
     unsigned short offset;
+    unsigned short *FramePtr = (unsigned short *)pFrame;
     int length;
     int op;
     int i, j;
@@ -47,22 +48,22 @@ void decodeFrame16(unsigned char *pFrame, unsigned char *pMap, int mapRemain, un
         for (i=0; i<xb/2; i++)
         {
             op = (*pMap) & 0xf;
-            dispatchDecoder16((unsigned short **)&pFrame, op, &pData, &pOffData, &dataRemain, &i, &j);
+            dispatchDecoder16(&FramePtr, op, &pData, &pOffData, &dataRemain, &i, &j);
 
 			/*
-			  if ((unsigned short *)pFrame < backBuf1)
+			  if (FramePtr < backBuf1)
 			  fprintf(stderr, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
-			  else if ((unsigned short *)pFrame >= backBuf1 + g_width*g_height)
+			  else if (FramePtr >= backBuf1 + g_width*g_height)
 			  fprintf(stderr, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
 			*/
 
 			op = ((*pMap) >> 4) & 0xf;
-            dispatchDecoder16((unsigned short **)&pFrame, op, &pData, &pOffData, &dataRemain, &i, &j);
+            dispatchDecoder16(&FramePtr, op, &pData, &pOffData, &dataRemain, &i, &j);
 
 			/*
-			  if ((unsigned short *)pFrame < backBuf1)
+			  if (FramePtr < backBuf1)
 			  fprintf(stderr, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
-			  else if ((unsigned short *)pFrame >= backBuf1 + g_width*g_height)
+			  else if (FramePtr >= backBuf1 + g_width*g_height)
 			  fprintf(stderr, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
 			*/
 
@@ -70,7 +71,7 @@ void decodeFrame16(unsigned char *pFrame, unsigned char *pMap, int mapRemain, un
             --mapRemain;
         }
 
-        pFrame += 7*g_width*2;
+        FramePtr += 7*g_width;
     }
 
     if ((length-(pData-pOrig)) != 0) {

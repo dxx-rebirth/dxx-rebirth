@@ -1,5 +1,8 @@
 2003-11-26  Bradley Bell  <btb@icculus.org>
 
+	* libmve/decoder16.c, libmve/mve_main.c, main/newmenu.c: fix gcc
+	3.3 compiler warnings
+
 	* arch/sdl/gr.c, main/kludge.c: landscape fixes, implemented
 	gr_check_mode
 
