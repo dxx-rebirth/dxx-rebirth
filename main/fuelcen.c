@@ -1,4 +1,4 @@
-/* $Id: fuelcen.c,v 1.7 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: fuelcen.c,v 1.8 2003-10-04 03:30:27 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Functions for refueling centers.
  *
  * Old Log:
- * $Log: not supported by cvs2svn $
  * Revision 1.2  1995/10/31  10:23:40  allender
  * shareware stuff
  *
@@ -244,7 +243,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: fuelcen.c,v 1.7 2003-10-04 03:14:47 btb Exp $";
+static char rcsid[] = "$Id: fuelcen.c,v 1.8 2003-10-04 03:30:27 btb Exp $";
 #endif
 
 #include <stdio.h>
