@@ -13,13 +13,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/input/dos_key.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 14:03:57 $
+ * $Date: 2001-01-31 14:04:44 $
  * 
  * Functions for keyboard handler.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 14:03:57  bradleyb
+ * Fixed build, minor fixes
+ *
  * Revision 1.1.1.2  2001/01/19 03:33:52  bradleyb
  * Import of d2x-0.0.9-pre1
  *
@@ -151,6 +154,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <dos.h>
+#include <conio.h> /* for getch */
 
 //#define WATCOM_10
 #ifdef __DJGPP__

@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.3 2001-01-31 14:04:44 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -1647,7 +1647,10 @@ int load_level(char * filename_passed)
 	CFILE * LoadFile;
 	char filename[128];
 	int version,minedata_offset,gamedata_offset;
-	int mine_err,game_err,i;
+	int mine_err,game_err;
+#ifdef NETWORK
+	int i;
+#endif
 	char sig[4];
 
 	Slide_segs_computed = 0;

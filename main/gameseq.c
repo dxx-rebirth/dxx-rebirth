@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.3 2001-01-31 14:04:44 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -1628,7 +1628,9 @@ int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
 //	Return true if game over.
 void AdvanceLevel(int secret_flag)
 {
+#ifdef NETWORK
 	int result;
+#endif
 
 	mprintf((0,"AdvanceLevel\n"));
 
@@ -2084,7 +2086,9 @@ extern char PowerupsInMine[MAX_POWERUP_TYPES], MaxPowerupsAllowed[MAX_POWERUP_TY
 #endif
 void bash_to_shield (int i,char *s)
 {
+#ifdef NETWORK
 	int type=Objects[i].id;
+#endif
 
 	mprintf((0, "Bashing %s object #%i to shield.\n",s, i));
 
@@ -2302,7 +2306,9 @@ void InitPlayerPosition(int random_flag)
 
  	obj_relink(ConsoleObject-Objects,Player_init[NewPlayer].segnum);
 
+#ifdef NETWORK
 done:
+#endif
 	reset_player_object();
 	reset_cruise();
 }

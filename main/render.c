@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: render.c,v 1.2 2001-01-22 13:22:40 bradleyb Exp $";
+static char rcsid[] = "$Id: render.c,v 1.3 2001-01-31 14:04:45 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -626,7 +626,11 @@ im_so_ashamed: ;
 				}
 
 			} else
+#ifdef __ENV_DJGPP__
+				Error("Illegal side type in render_side, type = %i, segment # = %li, side # = %i\n", sidep->type, segp-Segments, sidenum);
+#else
 				Error("Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type, segp-Segments, sidenum);
+#endif
 		}
 	}
 

@@ -435,8 +435,9 @@ int read_player_file()
 
 	//read taunt macros
 	{
-		int i,len;
 #ifdef NETWORK
+		int i,len;
+
 		len			= MAX_MESSAGE_LEN;
 
 		for (i			= 0; i < 4; i++)

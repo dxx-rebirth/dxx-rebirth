@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: collide.c,v 1.2 2001-01-20 13:49:14 bradleyb Exp $";
+static char rcsid[] = "$Id: collide.c,v 1.3 2001-01-31 14:04:44 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -1347,8 +1347,10 @@ void multi_send_finish_game ();
 //	Return 1 if robot died, else return 0
 int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 {
+#ifdef NETWORK
    char isthief;
 	char i,temp_stolen[MAX_STOLEN_ITEMS];	
+#endif
 	
 	if ( robot->flags&OF_EXPLODING) return 0;
 

@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: mem.c,v 1.1.1.1 2001-01-19 03:29:58 bradleyb Exp $";
+static char rcsid[] = "$Id: mem.c,v 1.2 2001-01-31 14:04:45 bradleyb Exp $";
 #endif
 
 
@@ -244,7 +244,7 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 	if ( (base+size) > LargestAddress ) LargestAddress = base+size;
 
 	MallocBase[id] = (unsigned int)ptr;
-	data = (ssize_t *)((ssize_t)MallocBase[id]-4);
+	data = (int *)((ssize_t)MallocBase[id]-4);
 	MallocRealSize[id] = *data;
 	MallocSize[id] = size;
 	Varname[id] = var;

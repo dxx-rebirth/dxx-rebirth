@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-char state_rcsid[] = "$Id: state.c,v 1.2 2001-01-20 13:49:17 bradleyb Exp $";
+char state_rcsid[] = "$Id: state.c,v 1.3 2001-01-31 14:04:45 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -1018,7 +1018,7 @@ extern void copy_defaults_to_robot(object *objp);
 int state_restore_all_sub(char *filename, int multi, int secret_restore)
 {
 	int ObjectStartLocation;
-	int version,i, j, segnum,found;
+	int version,i, j, segnum;
 	object * obj;
 	FILE *fp;
 	int current_level, next_level;
@@ -1027,8 +1027,11 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	char desc[DESC_LENGTH+1];
 	char id[5];
 	char org_callsign[CALLSIGN_LEN+16];
+#ifdef NETWORK
+	int found;
 	int nplayers;	//,playid[12],mynum;
 	player restore_players[MAX_PLAYERS];
+#endif
 	fix	old_gametime = GameTime;
 	
 	#if defined(MACINTOSH) && !defined(NDEBUG) 

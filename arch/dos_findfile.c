@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos_findfile.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:35:08 $
+ * $Date: 2001-01-31 14:04:44 $
  *
  * Dos findfile functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 13:35:08  bradleyb
+ * Fixed build system, minor fixes
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -87,6 +90,7 @@ int	FileFindClose(void)
 	}
 }
 
+/*
 
 //returns 0 if no error
 int GetFileDateTime(int filehandle, FILETIMESTRUCT *ftstruct)
@@ -101,3 +105,5 @@ int SetFileDateTime(int filehandle, FILETIMESTRUCT *ftstruct)
 {
 	return _dos_setftime(filehandle, ftstruct->date, ftstruct->time);
 }
+
+*/

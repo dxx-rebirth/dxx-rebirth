@@ -983,9 +983,11 @@ void hud_show_score()
 
 void hud_show_timer_count()
  {
+#ifdef NETWORK
 	char	score_str[20];
 	int	w, h, aw,i;
 	fix timevar=0;
+#endif
 
 	if ((HUD_nmessages > 0) && (strlen(HUD_messages[hud_first]) > 38))
 		return;
@@ -2142,7 +2144,7 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 	static fix cloak_fade_timer=0;
 	static int cloak_fade_value=GR_FADE_LEVELS-1;
 	static int refade = 0;
-	grs_bitmap *bm;
+	grs_bitmap *bm = NULL;
 
 	if (Game_mode & GM_TEAM)	{
 		#ifdef NETWORK

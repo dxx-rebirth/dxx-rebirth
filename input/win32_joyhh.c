@@ -41,11 +41,14 @@ Later modified by Owen Evans to work with D1X (3/7/99)
 
 #define _WIN32_OS		//HH
 
+
 #include <windows.h>	//HH
 #include <mmsystem.h>	//HH
 #include <stdlib.h>
 #include <stdio.h>
 
+#undef min /* kludge */
+#undef max /* kludge */
 #include "pstypes.h"
 #include "joy.h"
 #include "timer.h"
@@ -243,6 +246,8 @@ ubyte joy_read_raw_buttons()
          }
 
         return (ubyte)joy.dwButtons;
+#else
+	return 0;
 #endif
 }
 
@@ -390,6 +395,8 @@ int joy_init(int joyid) //HH: added joyid parameter
 	if (pjc.wCaps & JOYCAPS_HASV)	joystick.present_mask |= JOY_1_V_AXIS;
 
 	return joy_present;
+#else
+	return 0;
 #endif
 }
 
@@ -652,9 +659,9 @@ void joy_poll()
 }
 
 void joy_set_slow_reading(int flag) {
-
 }
 
 int joy_init(void)
 {
+    return 0;
 }

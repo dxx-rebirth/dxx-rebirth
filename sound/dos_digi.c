@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/sound/dos_digi.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:53:28 $
+ * $Date: 2001-01-31 14:04:45 $
  *
  * DOS digital audio support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 13:53:28  bradleyb
+ * Fixed build, minor fixes
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -238,6 +241,10 @@ static void audio_mixcallback(void *userdata, unsigned char *stream, int len)
 /* Initialise audio devices. */
 int digi_init()
 {
+    /* this is just here now to stop gcc from complaining about 
+     * audio_mixcallback being declared static and not used...
+     */
+    if (0) audio_mixcallback(NULL,NULL,0);
 
  return 1;
 }

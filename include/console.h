@@ -42,7 +42,7 @@ float cvar(char *cvar_name);
 
 /* Console CVars */
 /* How discriminating we are about which messages are displayed */
-cvar_t con_threshold;
+extern cvar_t con_threshold;
 
 #endif /* _CONSOLE_H_ */
 

@@ -13,13 +13,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/input/dos_mouse.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 14:03:57 $
+ * $Date: 2001-01-31 14:04:44 $
  * 
  * Functions to access Mouse and Cyberman...
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 14:03:57  bradleyb
+ * Fixed build, minor fixes
+ *
  * Revision 1.1.1.2  2001/01/19 03:33:52  bradleyb
  * Import of d2x-0.0.9-pre1
  *
@@ -325,7 +328,9 @@ void _loadds far mouse_handler (int m_ax, int mbx, int mcx, int mdx, int msi, in
 void mouse_handler_end (void)  // dummy functions
 {
 }
+#ifndef __DJGPP__
 #pragma on (check_stack)
+#endif
 
 //--------------------------------------------------------
 // returns 0 if no mouse

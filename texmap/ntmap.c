@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/ntmap.c,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:16 $
+ * $Date: 2001-01-31 14:04:46 $
  * 
  * Start of conversion to new texture mapper.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.4  1999/10/18 00:31:55  donut
  * allow FP_TMAP to be used without NO_ASM
  *
@@ -134,7 +137,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: ntmap.c,v 1.1.1.1 2001-01-19 03:30:16 bradleyb Exp $";
+static char rcsid[] = "$Id: ntmap.c,v 1.2 2001-01-31 14:04:46 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -157,6 +160,9 @@ static char rcsid[] = "$Id: ntmap.c,v 1.1.1.1 2001-01-19 03:30:16 bradleyb Exp $
 
 #include "texmap.h"
 #include "texmapl.h"
+#ifdef NO_ASM
+#include "scanline.h"
+#endif
 
 //#include "../main/textures.h"
 

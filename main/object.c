@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: object.c,v 1.3 2001-01-22 13:22:39 bradleyb Exp $";
+static char rcsid[] = "$Id: object.c,v 1.4 2001-01-31 14:04:45 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -75,6 +75,7 @@ static char rcsid[] = "$Id: object.c,v 1.3 2001-01-22 13:22:39 bradleyb Exp $";
 #include "text.h"
 #include "piggy.h"
 #include "switch.h"
+#include "gameseq.h"
 
 #ifdef TACTILE
 #include "tactile.h"
@@ -1990,7 +1991,11 @@ void object_move_one( object * obj )
 
 		default:
 
+#ifdef __ENV_DJGPP__
+			Error("Unknown control type %d in object %li, sig/type/id = %i/%i/%i",obj->control_type, obj-Objects, obj->signature, obj->type, obj->id);
+#else
 			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, obj-Objects, obj->signature, obj->type, obj->id);
+#endif
 
 			break;
 

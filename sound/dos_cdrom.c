@@ -1,13 +1,16 @@
 /*
  * $Source: /cvs/cvsroot/d2x/sound/dos_cdrom.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:53:28 $
+ * $Date: 2001-01-31 14:04:45 $
  *
  * DPH: This is the file where all the stub functions go.
  * The aim is to have nothing in here, eventually
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 13:53:28  bradleyb
+ * Fixed build, minor fixes
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -26,10 +29,17 @@ static int initialised = 0;
 
 void RBAExit()
 {
+    if (initialised) {
+	/* FIXME: Close cdrom device */
+    }
 }
 
 void RBAInit()
 {
+    if (initialised) return;
+    if (FindArg("-nocdrom")) return; 
+
+    /* FIXME: Initialize cdrom device */
 
 }
 
