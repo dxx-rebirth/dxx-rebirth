@@ -142,3 +142,41 @@ SunOS/Sparc:
 #define __GNUC__ 2
 #define __sparc__ 1
 #define unix 1
+
+Linux/Mips
+#define __LANGUAGE_C 1
+#define R3000 1
+#define __linux__ 1
+#define __MIPSEB 1
+#define _LANGUAGE_C 1
+#define _MIPS_SZLONG 32
+#define linux 1
+#define __mips__ 1
+#define __mips 1
+#define __SIZE_TYPE__ unsigned int
+#define _R3000 1
+#define __GNUC_MINOR__ 95
+#define MIPSEB 1
+#define __pic__ 1
+#define __R3000__ 1
+#define _MIPS_SZINT 32
+#define __PTRDIFF_TYPE__ int
+#define mips 1
+#define _MIPS_SZPTR 32
+#define ___mips 1
+#define __unix 1
+#define __R3000 1
+#define __unix__ 1
+#define _MIPSEB 1
+#define __PIC__ 1
+#define _MIPS_FPSET 32
+#define __GNUC__ 2
+#define ___mips__ 1
+#define __linux 1
+#define _MIPS_ISA _MIPS_ISA_MIPS1
+#define LANGUAGE_C 1
+#define __ELF__ 1
+#define _mips 1
+#define _MIPS_SIM _MIPS_SIM_ABI32
+#define __MIPSEB__ 1
+#define unix 1
