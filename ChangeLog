@@ -1,5 +1,7 @@
 2003-06-06  Bradley Bell  <btb@icculus.org>
 
+	* main/gauges.c, main/kconfig.c: comments/formatting
+
 	* console/.cvsignore: added .cvsignore
 
 	* main/console.c: can't write to console after it's closed
