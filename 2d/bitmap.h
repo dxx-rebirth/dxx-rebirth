@@ -1,3 +1,4 @@
+/* $Id: bitmap.h,v 1.3 2002-07-17 21:55:19 bradleyb Exp $ */
 #ifndef _BITMAP_H
 #define _BITMAP_H
 

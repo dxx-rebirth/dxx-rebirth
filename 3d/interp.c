@@ -1,3 +1,4 @@
+/* $Id: interp.c,v 1.5 2002-07-17 21:55:19 bradleyb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,25 +12,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvs/cvsroot/d2x/3d/interp.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-10-31 03:54:50 $
  * 
  * Polygon object interpreter
  * 
- * $Log: not supported by cvs2svn $
- * Revision 1.3  2001/10/19 08:06:20  bradleyb
- * Partial application of linux/alpha patch.  Courtesy of Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
- *
- * Revision 1.2  2001/01/31 15:17:48  bradleyb
- * Makefile and conf.h fixes
- *
- * Revision 1.1.1.1  2001/01/19 03:29:58  bradleyb
- * Import of d2x-0.0.8
- *
- * Revision 1.1.1.1  1999/06/14 21:57:47  donut
- * Import of d1x 1.37 source.
+ * Old Log:
  *
  * Revision 1.4  1995/10/10  22:20:09  allender
  * new morphing code from Matt
@@ -54,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.4 2001-10-31 03:54:50 bradleyb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.5 2002-07-17 21:55:19 bradleyb Exp $";
 #endif
 
 #include <stdlib.h>

@@ -1,3 +1,4 @@
+/* $Id: linear.h,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
 #ifndef _LINEAR_H
 #define _LINEAR_H
 

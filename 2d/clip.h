@@ -1,3 +1,4 @@
+/* $Id: clip.h,v 1.2 2002-07-17 21:55:19 bradleyb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,16 +12,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvs/cvsroot/d2x/2d/clip.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: bradleyb $
- * $Date: 2001-01-19 03:29:57 $
  *
  * Macros used for clipping
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 21:57:39  donut
- * Import of d1x 1.37 source.
+ * Old Log:
  *
  * Revision 1.3  1993/10/15  16:22:28  john
  * *** empty log message ***

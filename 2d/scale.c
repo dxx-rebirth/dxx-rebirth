@@ -1,3 +1,4 @@
+/* $Id: scale.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,19 +12,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvs/cvsroot/d2x/2d/scale.c,v $
- * $Revision: 1.2 $
- * $Author: bradleyb $
- * $Date: 2001-01-31 15:17:48 $
  * 
  * Routines for scaling a bitmap.
  * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  2001/01/19 03:29:57  bradleyb
- * Import of d2x-0.0.8
- *
- * Revision 1.1.1.1  1999/06/14 21:57:36  donut
- * Import of d1x 1.37 source.
+ * Old Log:
  *
  * Revision 1.12  1995/03/14  15:14:11  john
  * Increased max scanline length to 640.
@@ -72,7 +64,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: scale.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
+static char rcsid[] = "$Id: scale.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $";
 #endif
 
 #include <math.h>

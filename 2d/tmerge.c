@@ -1,5 +1,9 @@
-// tmerge.c - C Texture merge routines for use with D1X
-// Ripped from ldescent by <dph-man@iname.com>
+/* $Id: tmerge.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $ */
+/*
+ * tmerge.c - C Texture merge routines for use with D1X
+ * Ripped from ldescent by <dph-man@iname.com>
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>

@@ -1,3 +1,4 @@
+/* $Id: draw.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -21,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: draw.c,v 1.3 2001-10-31 03:54:50 bradleyb Exp $";
+static char rcsid[] = "$Id: draw.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $";
 #endif
 
 #include "error.h"

@@ -1,3 +1,4 @@
+/* $Id: globvars.h,v 1.2 2002-07-17 21:55:19 bradleyb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,16 +12,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvs/cvsroot/d2x/3d/globvars.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: bradleyb $
- * $Date: 2001-01-19 03:29:58 $
  * 
  * Private (internal) header for 3d library
  * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 21:57:51  donut
- * Import of d1x 1.37 source.
+ * Old Log:
  *
  * Revision 1.2  1995/09/13  11:31:19  allender
  * added fCanv_w2 and vCanv_h2 for PPC implementation
@@ -33,8 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  * 
  */
-
-
 
 #ifndef _GLOBVARS_H
 #define _GLOBVARS_H

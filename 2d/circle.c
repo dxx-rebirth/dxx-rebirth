@@ -1,3 +1,4 @@
+/* $Id: circle.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,7 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: circle.c,v 1.2 2001-01-31 15:17:47 bradleyb Exp $";
+static char rcsid[] = "$Id: circle.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $";
 #endif
 
 #include "u_mem.h"

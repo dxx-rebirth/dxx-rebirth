@@ -1,3 +1,4 @@
+; $Id: interp.asm,v 1.2 2002-07-17 21:55:19 bradleyb Exp $
 ; THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ; SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ; END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -24,7 +25,7 @@
 
 _DATA	segment	dword public USE32 'DATA'
 
-rcsid	db	"$Id: interp.asm,v 1.1.1.1 2001-01-19 03:29:58 bradleyb Exp $"
+rcsid	db	"$Id: interp.asm,v 1.2 2002-07-17 21:55:19 bradleyb Exp $"
 	align	4
 
 ;table with address for each opcode

@@ -1,3 +1,4 @@
+/* $Id: font.c,v 1.11 2002-07-17 21:55:19 bradleyb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,26 +12,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-/* $Source: /cvs/cvsroot/d2x/2d/font.c,v $
- * $Revision: 1.10 $
- * $Author: bradleyb $
- * $Date: 2001-11-14 09:34:32 $
- *
+/* 
  * Graphical routines for drawing fonts.
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.9  2001/11/08 10:37:25  bradleyb
- * free OGL font data when rereading
- *
- * Revision 1.8  2001/11/04 03:58:25  bradleyb
- * re-init ogl fonts after remapping colors.
- *
- * Revision 1.7  2001/11/02 10:46:23  bradleyb
- * fixed gr_remap_font, minor stuff
- *
- * Revision 1.6  2001/11/02 02:03:35  bradleyb
- * Enable OpenGL fonts\!
- *
  *
  */
 

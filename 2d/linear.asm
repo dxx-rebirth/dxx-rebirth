@@ -1,3 +1,4 @@
+; $Id: linear.asm,v 1.3 2002-07-17 21:55:19 bradleyb Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -9,19 +10,10 @@
 ;AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
-; $Source: /cvs/cvsroot/d2x/2d/linear.asm,v $
-; $Revision: 1.2 $
-; $Author: bradleyb $
-; $Date: 2001-10-19 09:34:02 $
 ;
 ; Routines to access linear VGA memory
 ;
-; $Log: not supported by cvs2svn $
-; Revision 1.1.1.1  2001/01/19 03:29:57  bradleyb
-; Import of d2x-0.0.8
-;
-; Revision 1.1.1.1  1999/06/14 21:57:07  donut
-; Import of d1x 1.37 source.
+; Old Log:
 ;
 ; Revision 1.20  1994/11/28  17:08:30  john
 ; Took out some unused functions in linear.asm, moved

@@ -1,3 +1,4 @@
+; $ Id: $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -9,16 +10,10 @@
 ;AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
-; $Source: /cvs/cvsroot/d2x/2d/scalea.asm,v $
-; $Revision: 1.1.1.1 $
-; $Author: bradleyb $
-; $Date: 2001-01-19 03:29:57 $
 ; 
 ; Asm inner loop for scaler.
 ; 
-; $Log: not supported by cvs2svn $
-; Revision 1.1.1.1  1999/06/14 21:57:07  donut
-; Import of d1x 1.37 source.
+; Old Log:
 ;
 ; Revision 1.2  1994/01/12  18:02:52  john
 ; Asm code for the scaler... first iteration here
