@@ -1,4 +1,4 @@
-/* $Id: text.c,v 1.9 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: text.c,v 1.10 2003-10-10 01:42:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -65,7 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.9 2003-06-16 06:57:34 btb Exp $";
+static char rcsid[] = "$Id: text.c,v 1.10 2003-10-10 01:42:59 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -80,6 +80,8 @@ static char rcsid[] = "$Id: text.c,v 1.9 2003-06-16 06:57:34 btb Exp $";
 #include "text.h"
 #include "args.h"
 #include "compbit.h"
+
+#define SHAREWARE_TEXTSIZE  14677
 
 char *text;
 
@@ -173,16 +175,12 @@ void load_text()
 
 		tptr = strchr(tptr,'\n');
 
-#ifdef MACINTOSH    // total hack for mac patch since they don't want to patch data.
-		if (!tptr && (i == 644) )
-			break;
-#else
 		if (!tptr)
 		{
-			Warning("Not enough strings in text file - expecting %d, found %d\nThis probably means you have the wrong version of the descent 2 datafiles. You need version 1.2\n",N_TEXT_STRINGS,i);
-			if (i == 644) break;
+			if (i == 644) break;    /* older datafiles */
+
+			Error("Not enough strings in text file - expecting %d, found %d\n", N_TEXT_STRINGS, i);
 		}
-#endif
 
 		if ( tptr ) *tptr++ = 0;
 
@@ -204,6 +202,25 @@ void load_text()
 			p++;
 		}
 
+	}
+
+
+	if (i == 644)
+	{
+		if (len == SHAREWARE_TEXTSIZE)
+		{
+			Text_string[173] = Text_string[172];
+			Text_string[172] = Text_string[171];
+			Text_string[171] = Text_string[170];
+			Text_string[170] = Text_string[169];
+			Text_string[169] = "Windows Joystick";
+		}
+
+		Text_string[644] = "Z1";
+		Text_string[645] = "UN";
+		Text_string[647] = "P1";
+		Text_string[648] = "R1";
+		Text_string[649] = "Y1";
 	}
 
 	//Assert(tptr==text+len || tptr==text+len-2);
