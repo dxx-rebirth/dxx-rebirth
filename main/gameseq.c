@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.24 2003-03-22 03:15:24 btb Exp $ */
+/* $Id: gameseq.c,v 1.25 2003-03-25 10:17:05 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.24 2003-03-22 03:15:24 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.25 2003-03-25 10:17:05 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -839,7 +839,7 @@ void LoadLevel(int level_num,int page_in_textures)
 		level_name = Level_names[level_num-1];
 
 	undo_bm_read_all_d1();
-	d1_pig_loaded = cfexist("descent.pig");
+	d1_pig_loaded = cfexist(D1_PIGFILE);
 
 	#ifdef WINDOWS
 		dd_gr_set_current_canvas(NULL);

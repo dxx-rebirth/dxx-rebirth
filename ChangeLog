@@ -1,5 +1,8 @@
 2003-03-25  Bradley Bell  <btb@icculus.org>
 
+	* main/bm.c, main/piggy.c, main/piggy.h, main/gameseq.c: added
+	D1_PIGFILE ("descent.pig") macro
+
 	* main/bm.c, main/piggy.c, main/piggy.h: ability to load exit
 	models from d1 pig file
 

@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.28 2003-03-25 09:54:12 btb Exp $ */
+/* $Id: piggy.c,v 1.29 2003-03-25 10:17:05 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.28 2003-03-25 09:54:12 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.29 2003-03-25 10:17:05 btb Exp $";
 #endif
 
 
@@ -440,6 +440,13 @@ static char rcsid[] = "$Id: piggy.c,v 1.28 2003-03-25 09:54:12 btb Exp $";
 #define DEFAULT_PIGFILE (cfexist(DEFAULT_PIGFILE_REGISTERED)?DEFAULT_PIGFILE_REGISTERED:DEFAULT_PIGFILE_SHAREWARE)
 #define DEFAULT_HAMFILE (cfexist(DEFAULT_HAMFILE_REGISTERED)?DEFAULT_HAMFILE_REGISTERED:DEFAULT_HAMFILE_SHAREWARE)
 #define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
+
+#define MAC_ALIEN1_PIGSIZE      5013035
+#define MAC_ALIEN2_PIGSIZE      4909916
+#define MAC_FIRE_PIGSIZE        4969035
+#define MAC_GROUPA_PIGSIZE      4929684 // also used for mac shareware
+#define MAC_ICE_PIGSIZE         4923425
+#define MAC_WATER_PIGSIZE       4832403
 
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
@@ -2244,11 +2251,7 @@ void load_d1_bitmap_replacements()
 	ubyte colormap[256];
 	ubyte *next_bitmap; // to which address we write the next bitmap
 
-#ifndef MACINTOSH
-	d1_Piggy_fp = cfopen( "descent.pig", "rb" );
-#else
-	d1_Piggy_fp = cfopen( "Data:Descent.pig", "rb" );
-#endif  // end of ifndef/else MACINTOSH
+	d1_Piggy_fp = cfopen( D1_PIGFILE, "rb" );
 
 	if (!d1_Piggy_fp)
 		return; // use d2 bitmaps instead...
@@ -2383,10 +2386,10 @@ bitmap_index read_extra_d1_bitmap(char *name)
 		int N_bitmaps, zsize;
 		ubyte colormap[256];
 
-		d1_Piggy_fp = cfopen("descent.pig", "rb");
+		d1_Piggy_fp = cfopen(D1_PIGFILE, "rb");
 		if (!d1_Piggy_fp)
 		{
-			con_printf(CON_DEBUG, "could not open descent.pig\n", name);
+			con_printf(CON_DEBUG, "could not open %s\n", D1_PIGFILE);
 			return bitmap_num;
 		}
 

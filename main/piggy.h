@@ -1,4 +1,4 @@
-/* $Id: piggy.h,v 1.14 2003-03-25 09:54:12 btb Exp $ */
+/* $Id: piggy.h,v 1.15 2003-03-25 10:17:05 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -20,18 +20,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "cfile.h"
 
+#define D1_PIGFILE              "descent.pig"
+
 #define D1_SHAREWARE_10_PIGSIZE 2529454 // v1.0 - 1.2
 #define D1_SHAREWARE_PIGSIZE    2509799 // v1.4
 #define D1_PIGSIZE              4920305
 #define D1_OEM_PIGSIZE          5039735 // Destination: Saturn
 #define D1_MAC_PIGSIZE          3975533
 #define D1_MAC_SHARE_PIGSIZE    2714487
-#define MAC_ALIEN1_PIGSIZE      5013035
-#define MAC_ALIEN2_PIGSIZE      4909916
-#define MAC_FIRE_PIGSIZE        4969035
-#define MAC_GROUPA_PIGSIZE      4929684 // also used for mac shareware
-#define MAC_ICE_PIGSIZE         4923425
-#define MAC_WATER_PIGSIZE       4832403
 
 #define MAX_ALIASES 20
 
