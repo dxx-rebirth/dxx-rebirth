@@ -1,4 +1,4 @@
-/* $Id: wall.c,v 1.12 2004-05-22 01:06:29 btb Exp $ */
+/* $Id: wall.c,v 1.13 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,92 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Destroyable wall stuff
  *
- * Old Log:
- * Revision 1.1  1995/05/16  15:32:08  allender
- * Initial revision
- *
- * Revision 2.1  1995/03/21  14:39:04  john
- * Ifdef'd out the NETWORK code.
- *
- * Revision 2.0  1995/02/27  11:28:32  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.112  1995/02/22  13:53:07  allender
- * remove anonymous unions from object structure
- *
- * Revision 1.111  1995/02/01  17:32:17  adam
- * Took out a bogus int3.
- *
- * Revision 1.110  1995/02/01  17:20:24  john
- * Lintized.
- *
- * Revision 1.109  1995/01/21  17:39:50  matt
- * Cleaned up laser/player hit wall confusions
- *
- * Revision 1.108  1995/01/21  17:14:17  rob
- * Fixed bug in multiplayer door-butting.
- *
- * Revision 1.107  1995/01/18  18:57:11  rob
- * Added new hostage door hooks.
- *
- * Revision 1.106  1995/01/18  18:48:18  allender
- * removed #ifdef newdemo's.  Added function call to record a door that
- * starts to open. This fixes the rewind problem
- *
- * Revision 1.105  1995/01/16  11:55:39  mike
- * make control center (and robots whose id == your playernum) not able to open doors.
- *
- * Revision 1.104  1994/12/11  23:07:21  matt
- * Fixed stuck objects & blastable walls
- *
- * Revision 1.103  1994/12/10  16:44:34  matt
- * Added debugging code to track down door that turns into rock
- *
- * Revision 1.102  1994/12/06  16:27:05  matt
- * Added debugging
- *
- * Revision 1.101  1994/12/02  10:50:27  yuan
- * Localization
- *
- * Revision 1.100  1994/11/30  19:41:22  rob
- * Put in a fix so that door opening sounds travel through the door.
- *
- * Revision 1.99  1994/11/28  11:59:50  yuan
- * *** empty log message ***
- *
- * Revision 1.98  1994/11/28  11:25:45  matt
- * Cleaned up key hud messages
- *
- * Revision 1.97  1994/11/27  23:15:11  matt
- * Made changes for new mprintf calling convention
- *
- * Revision 1.96  1994/11/19  15:18:29  mike
- * rip out unused code and data.
- *
- * Revision 1.95  1994/11/17  14:57:12  mike
- * moved segment validation functions from editor to main.
- *
- * Revision 1.94  1994/11/07  08:47:30  john
- * Made wall state record.
- *
- * Revision 1.93  1994/11/04  16:06:37  rob
- * Fixed network damage of blastable walls.
- *
- * Revision 1.92  1994/11/02  21:54:01  matt
- * Don't let objects with zero size keep door from shutting
- *
- * Revision 1.91  1994/10/31  13:48:42  rob
- * Fixed bug in opening doors over network/modem.  Added a new message
- * type to multi.c that communicates door openings across the net.
- * Changed includes in multi.c and wall.c to accomplish this.
- *
- * Revision 1.90  1994/10/28  14:42:41  john
- * Added sound volumes to all sound calls.
- *
- * Revision 1.89  1994/10/23  19:16:55  matt
- * Fixed bug with "no key" messages
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -109,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.12 2004-05-22 01:06:29 btb Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.13 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdio.h>

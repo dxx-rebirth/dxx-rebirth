@@ -12,34 +12,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/mono.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:15 $
+ * $Revision: 1.2 $
+ * $Author: schaffner $
+ * $Date: 2004-08-28 23:17:45 $
  *
  * Header for monochrome/mprintf functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:15  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.1.1.1  1999/06/14 21:58:40  donut
  * Import of d1x 1.37 source.
- *
- * Revision 1.6  1994/12/03  17:07:37  matt
- * Made mono code turn off with either NDEBUG or NMONO
- * 
- * Revision 1.5  1994/11/27  23:07:28  matt
- * Made changes needed to be able to compile out monochrome debugging code
- * 
- * Revision 1.4  1993/12/07  12:33:28  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/09/14  20:54:50  matt
- * Made minit() check for mono card, return -1 if present, 0 if not
- * 
- * Revision 1.2  1993/07/22  13:05:40  john
- * added macros to print variables
- * 
- * Revision 1.1  1993/07/10  13:10:40  matt
- * Initial revision
- * 
  *
  */
 

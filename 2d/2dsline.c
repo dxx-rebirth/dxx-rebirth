@@ -1,4 +1,4 @@
-/* $Id: 2dsline.c,v 1.10 2003-04-29 08:05:41 btb Exp $ */
+/* $Id: 2dsline.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,49 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Graphical routines for drawing solid scanlines.
- *
- * Old Log:
- * Revision 1.6  1995/09/14  14:24:03  allender
- * fixed MW compile error
- *
- * Revision 1.5  1995/09/14  13:45:17  allender
- * quick optimization for scanline
- *
- * Revision 1.4  1995/04/27  07:36:05  allender
- * remove some memsets since all old is here now
- *
- * Revision 1.3  1995/04/19  14:35:33  allender
- * *** empty log message ***
- *
- * Revision 1.2  1995/04/18  12:03:40  allender
- * *** empty log message ***
- *
- * Revision 1.1  1995/03/09  09:24:06  allender
- * Initial revision
- *
- *
- * --- PC RCS information ---
- * Revision 1.7  1994/11/18  22:50:48  john
- * Changed a bunch of shorts to ints in calls.
- *
- * Revision 1.6  1994/09/02  11:40:32  john
- * fixed bug with urect scanline drakening still
- * only using 16 levels of fade.
- *
- * Revision 1.5  1994/04/08  16:59:12  john
- * Add fading poly's; Made palette fade 32 instead of 16.
- *
- * Revision 1.4  1994/03/22  18:36:27  john
- * Added darkening scanlines
- *
- * Revision 1.3  1993/10/15  16:22:52  john
- * y
- *
- * Revision 1.2  1993/09/08  11:56:29  john
- * neatened
- *
- * Revision 1.1  1993/09/08  11:44:27  john
- * Initial revision
  *
  */
 

@@ -1,4 +1,4 @@
-/* $Id: text.c,v 1.12 2004-08-01 13:01:39 schaffner Exp $ */
+/* $Id: text.c,v 1.13 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,48 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Code for localizable text
  *
- * Old Log:
- * Revision 1.1  1995/05/16  15:31:44  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:33:09  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.11  1994/12/14  12:53:23  matt
- * Improved error handling
- *
- * Revision 1.10  1994/12/09  18:36:44  john
- * Added code to make text read from hogfile.
- *
- * Revision 1.9  1994/12/08  20:56:34  john
- * More cfile stuff.
- *
- * Revision 1.8  1994/12/08  17:20:06  yuan
- * Cfiling stuff.
- *
- * Revision 1.7  1994/12/05  15:10:36  allender
- * support encoded descent.tex file (descent.txb)
- *
- * Revision 1.6  1994/12/01  14:18:34  matt
- * Now support backslash chars in descent.tex file
- *
- * Revision 1.5  1994/10/27  00:13:10  john
- * Took out cfile.
- *
- * Revision 1.4  1994/07/11  15:33:49  matt
- * Put in command-line switch to load different text files
- *
- * Revision 1.3  1994/07/10  09:56:25  yuan
- * #include <stdio.h> added for FILE type.
- *
- * Revision 1.2  1994/07/09  22:48:14  matt
- * Added localizable text
- *
- * Revision 1.1  1994/07/09  21:30:46  matt
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -65,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.12 2004-08-01 13:01:39 schaffner Exp $";
+static char rcsid[] = "$Id: text.c,v 1.13 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdlib.h>

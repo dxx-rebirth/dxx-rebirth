@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.24 2003-11-04 08:03:08 btb Exp $ */
+/* $Id: mission.c,v 1.25 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,98 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Code to handle multiple missions
- *
- * Old Log:
- * Revision 1.4  1995/10/31  10:21:40  allender
- * no mission support in shareware
- *
- * Revision 1.3  1995/10/21  22:53:04  allender
- * moved missions to data folder
- *
- * Revision 1.2  1995/09/13  08:47:29  allender
- * made to work with Chris' direct stuff
- *
- * Revision 1.1  1995/05/16  15:27:48  allender
- * Initial revision
- *
- * Revision 2.9  1995/05/26  16:16:32  john
- * Split SATURN into define's for requiring cd, using cd, etc.
- * Also started adding all the Rockwell stuff.
- *
- * Revision 2.8  1995/03/20  15:49:31  mike
- * Remove eof char from comment which confused make depend, causing
- * no mission.obj: line in makefile.  Pretty stupid tool, huh?
- *
- * Revision 2.7  1995/03/20  12:12:11  john
- * Added ifdef SATURN.
- *
- * Revision 2.6  1995/03/15  14:32:49  john
- * Added code to force the Descent CD-rom in the drive.
- *
- * Revision 2.5  1995/03/15  11:41:15  john
- * Better Saturn CD-ROM support.
- *
- * Revision 2.4  1995/03/14  18:24:14  john
- * Force Destination Saturn to use CD-ROM drive.
- *
- * Revision 2.3  1995/03/07  14:19:41  mike
- * More destination saturn stuff.
- *
- * Revision 2.2  1995/03/06  23:09:03  mike
- * more saturn stuff: make briefings work for saturn mission.
- *
- * Revision 2.1  1995/03/06  16:47:48  mike
- * destination saturn
- *
- * Revision 2.0  1995/02/27  11:27:49  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.14  1995/02/15  11:30:37  john
- * Fixed bug with potential mem overwrite on line 160.
- *
- * Revision 1.13  1995/02/10  17:53:20  matt
- * Changed mission name again
- *
- * Revision 1.12  1995/02/10  17:35:38  matt
- * Changed name of built-in mission
- *
- * Revision 1.11  1995/02/07  17:13:51  allender
- * removed return statement in load_mission so that built in mission will
- * actually set the Current_mission_name and _filename
- *
- * Revision 1.10  1995/01/31  01:19:45  matt
- * Made build_mission_list() sort missions by name
- *
- * Revision 1.9  1995/01/30  13:49:58  allender
- * changed build_mission_list in load_mission_by_name to include
- * anarchy levels.
- *
- * Revision 1.8  1995/01/30  13:03:51  matt
- * Fixed dumb mistake
- *
- * Revision 1.7  1995/01/30  12:55:22  matt
- * Added vars to point to mission names
- *
- * Revision 1.6  1995/01/22  18:57:28  matt
- * Made player highest level work with missions
- *
- * Revision 1.5  1995/01/22  14:13:08  matt
- * Added flag in mission list for anarchy-only missions
- *
- * Revision 1.4  1995/01/21  23:13:12  matt
- * Made high scores with (not work, really) with loaded missions
- * Don't give player high score when quit game
- *
- * Revision 1.3  1995/01/21  16:27:12  matt
- * Made endlevel briefing work with missions
- *
- * Revision 1.2  1995/01/20  22:47:50  matt
- * Mission system implemented, though imcompletely
- *
- * Revision 1.1  1995/01/20  13:42:19  matt
- * Initial revision
- *
  *
  */
 

@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.31 2004-08-03 20:27:32 schaffner Exp $ */
+/* $Id: pstypes.h,v 1.32 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,14 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Common types for use in Miner
- *
- * Old Log:
- * Revision 1.2  1993/09/14  12:12:30  matt
- * Added #define for NULL
- *
- * Revision 1.1  1993/08/24  12:50:40  matt
- * Initial revision
- *
  *
  */
 

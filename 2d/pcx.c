@@ -1,4 +1,4 @@
-/* $Id: pcx.c,v 1.8 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: pcx.c,v 1.9 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,25 +14,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Routines to read/write pcx images.
- *
- * Old Log:
- * Revision 1.6  1995/03/01  15:38:12  john
- * Better ModeX support.
- *
- * Revision 1.5  1995/01/21  17:54:17  john
- * Added pcx reader for modes other than modex.
- *
- * Revision 1.4  1994/12/08  19:03:56  john
- * Made functions use cfile.
- *
- * Revision 1.3  1994/11/29  02:53:24  john
- * Added error messages; made call be more similiar to iff.
- *
- * Revision 1.2  1994/11/28  20:03:50  john
- * Added PCX functions.
- *
- * Revision 1.1  1994/11/28  19:57:56  john
- * Initial revision
  *
  */
 

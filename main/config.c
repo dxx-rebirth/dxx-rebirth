@@ -1,4 +1,4 @@
-/* $Id: config.c,v 1.10 2003-10-04 20:03:11 btb Exp $ */
+/* $Id: config.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,88 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * contains routine(s) to read in the configuration file which contains
  * game configuration stuff like detail level, sound card, etc
- *
- * Old Log:
- * Revision 1.8  1995/10/27  10:52:20  allender
- * call digi_set_master_volume when prefs are read in to
- * set the master volume of the mac
- *
- * Revision 1.7  1995/10/24  17:08:39  allender
- * Config_master_volume added for saving sound manager volume
- * across games
- *
- * Revision 1.6  1995/10/20  00:49:31  allender
- * use default values when no prefs file
- *
- * Revision 1.5  1995/09/21  10:06:58  allender
- * set digi and midi volume appropriately
- *
- * Revision 1.4  1995/09/13  08:49:38  allender
- * prefs file stuff
- *
- * Revision 1.3  1995/09/05  08:47:37  allender
- * prefs file working
- *
- * Revision 1.2  1995/05/26  06:54:14  allender
- * removed midi and digi references from config file
- *
- * Revision 1.1  1995/05/16  15:23:45  allender
- * Initial revision
- *
- * Revision 2.2  1995/03/27  09:42:59  john
- * Added VR Settings in config file.
- *
- * Revision 2.1  1995/03/16  11:20:40  john
- * Put in support for Crystal Lake soundcard.
- *
- * Revision 2.0  1995/02/27  11:30:13  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.14  1995/02/11  16:19:36  john
- * Added code to make the default mission be the one last played.
- *
- * Revision 1.13  1995/01/18  13:23:24  matt
- * Made curtom detail level vars initialize properly at load
- *
- * Revision 1.12  1995/01/04  22:15:36  matt
- * Fixed stupid bug using scanf() to read bytes
- *
- * Revision 1.11  1995/01/04  13:14:21  matt
- * Made custom detail level settings save in config file
- *
- * Revision 1.10  1994/12/12  21:35:09  john
- * *** empty log message ***
- *
- * Revision 1.9  1994/12/12  21:31:51  john
- * Made volume work better by making sure volumes are valid
- * and set correctly at program startup.
- *
- * Revision 1.8  1994/12/12  13:58:01  john
- * MAde -nomusic work.
- * Fixed GUS hang at exit by deinitializing digi before midi.
- *
- * Revision 1.7  1994/12/08  10:01:33  john
- * Changed the way the player callsign stuff works.
- *
- * Revision 1.6  1994/12/01  11:24:07  john
- * Made volume/gamma/joystick sliders all be the same length.  0-->8.
- *
- * Revision 1.5  1994/11/29  02:01:07  john
- * Added code to look at -volume command line arg.
- *
- * Revision 1.4  1994/11/14  20:14:11  john
- * Fixed some warnings.
- *
- * Revision 1.3  1994/11/14  19:51:01  john
- * Added joystick cal values to descent.cfg.
- *
- * Revision 1.2  1994/11/14  17:53:09  allender
- * read and write descent.cfg file
- *
- * Revision 1.1  1994/11/14  16:28:08  allender
- * Initial revision
- *
  *
  */
 
@@ -138,7 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.10 2003-10-04 20:03:11 btb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -670,7 +588,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.10 2003-10-04 20:03:11 btb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #define MAX_CTB_LEN	512

@@ -1,4 +1,4 @@
-/* $Id: points.c,v 1.5 2002-10-28 19:49:15 btb Exp $ */
+/* $Id: points.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,21 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  * Routines for point definition, rotation, etc.
  * 
- * Old Log:
- *
- * Revision 1.3  1995/09/21  17:29:40  allender
- * changed project_point to overflow if z <= 0
- *
- * Revision 1.2  1995/09/13  11:31:28  allender
- * removed checkmuldiv from g3_project_point
- *
- * Revision 1.1  1995/05/05  08:52:35  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  04:32:25  matt
- * Initial revision
- * 
- * 
  */
 
 #ifdef HAVE_CONFIG_H
@@ -37,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: points.c,v 1.5 2002-10-28 19:49:15 btb Exp $";
+static char rcsid[] = "$Id: points.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include "3d.h"

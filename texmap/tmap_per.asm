@@ -1,4 +1,4 @@
-; $Id: tmap_per.asm,v 1.4 2003-12-08 21:21:16 btb Exp $
+; $Id: tmap_per.asm,v 1.5 2004-08-28 23:17:46 schaffner Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -12,100 +12,6 @@
 ;
 ;
 ; Perspective texture mapper inner loop.
-;
-; Old Log:
-; Revision 1.26  1995/02/20  18:22:55  john
-; Put all the externs in the assembly modules into tmap_inc.asm.
-; Also, moved all the C versions of the inner loops into a new module,
-; scanline.c.
-;
-; Revision 1.25  1995/02/20  17:09:08  john
-; Added code so that you can build the tmapper with no assembly!
-;
-; Revision 1.24  1995/01/10  09:32:07  mike
-; mostly fix garbage at end of scanline, but slow down by 1-4%.
-;
-; Revision 1.23  1994/12/02  23:29:57  mike
-; optimizations.
-;
-; Revision 1.22  1994/11/30  00:57:00  mike
-; optimization.
-;
-; Revision 1.21  1994/11/21  13:57:42  mike
-; fix right side shear bug
-;
-; Revision 1.20  1994/11/12  16:41:09  mike
-; jae -> ja.
-;
-; Revision 1.19  1994/10/27  19:40:00  john
-; Made lighting table lookup be _gr_fade_table[eax] instead
-; of fs:[eax], which gets rig of a segment override that
-; supposedly costs 1 clock on a 486.  Mainly, I wanted to verify
-; that the only reason we need selectors is for the source texture
-; data .
-;
-; Revision 1.18  1994/05/03  11:08:32  mike
-; Trap divide overflows.
-;
-; Revision 1.17  1994/04/21  15:03:41  mike
-; make faster.
-;
-; Revision 1.16  1994/04/08  16:46:57  john
-; Made 32 fade levels. Hacked.
-;
-; Revision 1.15  1994/03/31  08:35:18  mike
-; Fix quantized-by-4 bug in inner loop.
-;
-; Revision 1.14  1994/03/14  17:41:14  mike
-; Fix bug in unlighted version.
-;
-; Revision 1.13  1994/03/14  15:45:14  mike
-; streamline code.
-;
-; Revision 1.12  1994/01/14  14:01:58  mike
-; *** empty log message ***
-;
-; Revision 1.11  1993/12/18  14:43:44  john
-; Messed around with doing 1/z, the u*(1/z) and v*(1/z)
-; (Went from 23 fps to 21 fps... not good! )
-;
-; Revision 1.10  1993/12/17  16:14:17  john
-; Split lighted/nonlighted, so there is no cmp lighting
-; in the inner loop.
-;
-; Revision 1.9  1993/12/17  12:34:29  john
-; Made leftover bytes use linear approx instead of correct...
-; should save about 8 divides per scanline on average.
-; Also, took out anti-aliasing code and rearranged to
-; order of some instructions to help on 486 pipelining.
-; (The anti-aliasing code did *not* look good, so I
-; figure there was no reason to keep it in. )
-;
-; Revision 1.8  1993/12/16  18:37:52  mike
-; Align some stuff on 4 byte boundaries.
-;
-; Revision 1.7  1993/11/30  08:44:18  john
-; Made selector set check for < 64*64 bitmaps.
-;
-; Revision 1.6  1993/11/23  17:25:26  john
-; Added safety "and eax, 0fffh" in lighting lookup.
-;
-; Revision 1.5  1993/11/23  15:08:52  mike
-; Fixed lighting bug.
-;
-; Revision 1.4  1993/11/23  14:38:50  john
-; optimized NORMAL code by switching EBX and ESI, so BH can be used in
-; the lighting process.
-;
-; Revision 1.3  1993/11/23  14:30:53  john
-; Made the perspective tmapper do 1/8 divides; added lighting.
-;
-; Revision 1.2  1993/11/22  10:24:59  mike
-; *** empty log message ***
-;
-; Revision 1.1  1993/09/08  17:29:53  mike
-; Initial revision
-;
 ;
 ;
 

@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.14 2003-03-19 19:21:34 btb Exp $ */
+/* $Id: interp.c,v 1.15 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,23 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Polygon object interpreter
  *
- * Old Log:
- * Revision 1.4  1995/10/10  22:20:09  allender
- * new morphing code from Matt
- *
- * Revision 1.3  1995/08/31  15:40:24  allender
- * swap color data correctly
- *
- * Revision 1.2  1995/05/11  13:06:38  allender
- * fix int --> short problem
- *
- * Revision 1.1  1995/05/05  08:51:41  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  06:44:33  matt
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -40,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.14 2003-03-19 19:21:34 btb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.15 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdlib.h>

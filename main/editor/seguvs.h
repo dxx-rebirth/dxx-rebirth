@@ -12,29 +12,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/main/editor/seguvs.h,v $
- * $Revision: 1.1 $
- * $Author: bradleyb $
- * $Date: 2001-10-25 02:27:17 $
+ * $Revision: 1.2 $
+ * $Author: schaffner $
+ * $Date: 2004-08-28 23:17:45 $
  * 
  * Header for seguvs.c
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/25 02:27:17  bradleyb
+ * attempt at support for editor, makefile changes, etc
+ *
  * Revision 1.1.1.1  1999/06/14 22:02:40  donut
  * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:34:58  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.3  1994/08/03  10:32:28  mike
- * Add stretch_uvs_from_curedge.
- * 
- * Revision 1.2  1994/05/14  18:00:58  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.1  1994/05/14  17:27:26  matt
- * Initial revision
- * 
  * 
  */
 

@@ -1,4 +1,4 @@
-/* $Id: mouse.c,v 1.3 2004-05-20 19:02:58 btb Exp $ */
+/* $Id: mouse.c,v 1.4 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,65 +14,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Functions to access Mouse and Cyberman...
- *
- * Old Log:
- * Revision 1.8  1996/02/21  13:57:36  allender
- * cursor device manager stuff added here so as not to
- * rely on InterfaceLib anymore
- *
- * Revision 1.7  1995/10/17  15:42:21  allender
- * new mouse function to determine single button press
- *
- * Revision 1.6  1995/10/03  11:27:31  allender
- * fixed up hotspot problems with the mouse on multiple monitors
- *
- * Revision 1.5  1995/07/13  11:27:08  allender
- * trap button checks at MAX_MOUSE_BUTTONS
- *
- * Revision 1.4  1995/06/25  21:56:53  allender
- * added events include
- *
- * Revision 1.3  1995/05/11  17:06:38  allender
- * fixed up mouse routines
- *
- * Revision 1.2  1995/05/11  13:05:53  allender
- * of mouse handler code
- *
- * Revision 1.1  1995/05/05  09:54:45  allender
- * Initial revision
- *
- * Revision 1.9  1995/01/14  19:19:52  john
- * Fixed signed short error cmp with -1 that caused mouse
- * to break under Watcom 10.0
- *
- * Revision 1.8  1994/12/27  12:38:23  john
- * Made mouse use temporary dos buffer instead of
- *
- * allocating its own.
- *
- * Revision 1.7  1994/12/05  23:54:53  john
- * Fixed bug with mouse_get_delta only returning positive numbers..
- *
- * Revision 1.6  1994/11/18  23:18:18  john
- * Changed some shorts to ints.
- *
- * Revision 1.5  1994/09/13  12:34:02  john
- * Added functions to get down count and state.
- *
- * Revision 1.4  1994/08/29  20:52:19  john
- * Added better cyberman support; also, joystick calibration
- * value return funcctiionn,
- *
- * Revision 1.3  1994/08/24  18:54:32  john
- * *** empty log message ***
- *
- * Revision 1.2  1994/08/24  18:53:46  john
- * Made Cyberman read like normal mouse; added dpmi module; moved
- * mouse from assembly to c. Made mouse buttons return time_down.
- *
- * Revision 1.1  1994/08/24  13:56:37  john
- * Initial revision
- *
  *
  */
 

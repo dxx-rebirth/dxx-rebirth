@@ -1,4 +1,4 @@
-/* $Id: vecmat.c,v 1.6 2004-05-12 07:31:37 btb Exp $ */
+/* $Id: vecmat.c,v 1.7 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,29 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * C version of vecmat library
  *
- * Old Log:
- * Revision 1.5  1995/10/30  11:08:16  allender
- * fix check_vec to return if vector is the NULL vector
- *
- * Revision 1.4  1995/09/23  09:38:14  allender
- * removed calls for PPC that are now handled in asm
- *
- * Revision 1.3  1995/08/31  15:50:24  allender
- * fixing up of functions for PPC
- *
- * Revision 1.2  1995/07/05  16:40:21  allender
- * some vecmat stuff might be using isqrt -- commented out
- * for now
- *
- * Revision 1.1  1995/04/17  16:18:02  allender
- * Initial revision
- *
- *
- * --- PC RCS Information ---
- * Revision 1.1  1995/03/08  15:56:50  matt
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -46,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: vecmat.c,v 1.6 2004-05-12 07:31:37 btb Exp $";
+static char rcsid[] = "$Id: vecmat.c,v 1.7 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdlib.h>

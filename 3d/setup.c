@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.5 2003-03-19 19:21:34 btb Exp $ */
+/* $Id: setup.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,24 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  * Setup for 3d library
  * 
- * Old Log:
- *
- * Revision 1.4  1995/10/11  00:27:04  allender
- * bash free_num_points to 0
- *
- * Revision 1.3  1995/09/13  11:31:58  allender
- * calc for fCanv_w2 and fCanv_h2
- *
- * Revision 1.2  1995/06/25  21:57:57  allender
- * *** empty log message ***
- *
- * Revision 1.1  1995/05/05  08:52:54  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  03:59:01  matt
- * Initial revision
- * 
- * 
  */
 
 #ifdef HAVE_CONFIG_H
@@ -40,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: setup.c,v 1.5 2003-03-19 19:21:34 btb Exp $";
+static char rcsid[] = "$Id: setup.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdlib.h>

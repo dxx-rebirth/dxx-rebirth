@@ -12,50 +12,21 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/arch/win32/include/mouse.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:15 $
+ * $Revision: 1.2 $
+ * $Author: schaffner $
+ * $Date: 2004-08-28 23:17:45 $
  *
  * Header for mouse functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:15  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.2  1999/10/09 05:04:34  donut
  * added mouse_init and mouse_close declarations
  *
  * Revision 1.1.1.1  1999/06/14 22:01:24  donut
  * Import of d1x 1.37 source.
- *
- * Revision 1.10  1995/02/02  10:22:29  john
- * Added cyberman init parameter.
- * 
- * Revision 1.9  1994/11/18  23:18:09  john
- * Changed some shorts to ints.
- * 
- * Revision 1.8  1994/09/13  12:33:49  john
- * Added functions to get down count and state.
- * 
- * Revision 1.7  1994/08/29  20:52:20  john
- * Added better cyberman support; also, joystick calibration
- * value return funcctiionn,
- * 
- * Revision 1.6  1994/08/24  17:54:35  john
- * *** empty log message ***
- * 
- * Revision 1.5  1994/08/24  17:51:43  john
- * Added transparent cyberman support
- * 
- * Revision 1.4  1993/07/27  09:32:22  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/07/26  10:46:44  john
- * added definition for mouse_set_pos
- * 
- * Revision 1.2  1993/07/22  13:07:59  john
- * added header for mousesetlimts
- * 
- * Revision 1.1  1993/07/10  13:10:40  matt
- * Initial revision
- * 
  *
  */
 

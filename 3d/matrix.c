@@ -1,4 +1,4 @@
-/* $Id: matrix.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: matrix.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,15 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  * Matrix setup & manipulation routines
  * 
- * Old Log:
- *
- * Revision 1.1  1995/05/05  08:52:11  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  04:14:34  matt
- * Initial revision
- * 
- * 
  */
  
 #ifdef HAVE_CONFIG_H
@@ -31,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: matrix.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $";
+static char rcsid[] = "$Id: matrix.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include "3d.h"

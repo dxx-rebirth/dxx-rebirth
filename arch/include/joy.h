@@ -1,4 +1,4 @@
-/* $Id: joy.h,v 1.7 2004-05-22 01:32:09 btb Exp $ */
+/* $Id: joy.h,v 1.8 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,66 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Header for joystick functions
- *
- * Old Log:
- * Revision 1.17  1995/10/07  13:22:30  john
- * Added new method of reading joystick that allows higher-priority
- * interrupts to go off.
- *
- * Revision 1.16  1995/02/14  11:17:13  john
- * Added BIOS readings for stick.
- *
- * Revision 1.15  1995/02/14  10:09:58  john
- * Added OS2 switch.
- *
- * Revision 1.14  1994/12/28  13:49:20  john
- * Added function to set joystick for slow reading
- *
- * Revision 1.13  1994/10/13  11:36:06  john
- * Made joy_down_time be kept track of in fixed seconds,
- * not ticks.
- *
- * Revision 1.12  1994/10/12  17:03:16  john
- * Added prototype for joy_get_scaled_reading.
- *
- * Revision 1.11  1994/10/12  16:57:55  john
- * Added function to set a joystick button's state.
- *
- * Revision 1.10  1994/09/22  16:09:00  john
- * Fixed some virtual memory lockdown problems with timer and
- * joystick.
- *
- * Revision 1.9  1994/08/31  09:54:57  john
- * *** empty log message ***
- *
- * Revision 1.8  1994/08/29  21:02:24  john
- * Added joy_set_cal_values...
- *
- * Revision 1.7  1994/08/29  20:51:52  john
- * Added better cyberman support; also, joystick calibration
- * value return funcctiionn,
- *
- * Revision 1.6  1994/07/01  10:55:44  john
- * Fixed some bugs... added support for 4 axis.
- *
- * Revision 1.5  1994/06/30  20:36:51  john
- * Revamped joystick code.
- *
- * Revision 1.4  1994/04/22  12:52:10  john
- * *** empty log message ***
- *
- * Revision 1.3  1994/01/18  13:53:39  john
- * Made all joystick functions return int's instead of
- * shorts.  Also made the stick reading be CPU speed
- * independant by using the timer_get_Stamp_64
- * function.
- *
- * Revision 1.2  1994/01/18  10:58:42  john
- * *** empty log message ***
- *
- * Revision 1.1  1993/07/10  13:10:39  matt
- * Initial revision
- *
  *
  */
 

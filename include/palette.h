@@ -1,4 +1,4 @@
-/* $Id: palette.h,v 1.4 2004-05-12 22:06:02 btb Exp $ */
+/* $Id: palette.h,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,41 +14,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Protoypes for palette functions
- *
- * Old Log:
- * Revision 1.11  1994/11/15  17:55:10  john
- * Made text palette fade in when game over.
- *
- * Revision 1.10  1994/11/07  13:53:42  john
- * Added better gamma stufff.
- *
- * Revision 1.9  1994/11/07  13:38:03  john
- * Added gamma correction stuff.
- *
- * Revision 1.8  1994/11/05  13:05:59  john
- * Added back in code to allow keys during fade.
- *
- * Revision 1.7  1994/11/05  12:46:37  john
- * Changed palette stuff a bit.
- *
- * Revision 1.6  1994/09/22  16:08:37  john
- * Fixed some palette stuff.
- *
- * Revision 1.5  1994/08/09  11:27:04  john
- * Add cthru stuff.
- *
- * Revision 1.4  1994/06/09  10:39:33  john
- * In fade out.in functions, returned 1 if key was pressed...
- *
- * Revision 1.3  1994/05/31  19:04:24  john
- * Added key to stop fade if desired.
- *
- * Revision 1.2  1994/05/06  12:50:42  john
- * Added supertransparency; neatend things up; took out warnings.
- *
- * Revision 1.1  1994/05/04  14:59:57  john
- * Initial revision
- *
  *
  */
 

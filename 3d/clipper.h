@@ -1,4 +1,4 @@
-/* $Id: clipper.h,v 1.2 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: clipper.h,v 1.3 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,15 +14,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  * 
  * Header for clipper.c
- * 
- * Old Log:
- *
- * Revision 1.1  1995/05/05  08:50:13  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  19:56:58  matt
- * Initial revision
- * 
  * 
  */
 

@@ -1,4 +1,4 @@
-/* $Id: switch.c,v 1.10 2004-05-17 21:16:28 btb Exp $ */
+/* $Id: switch.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,146 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * New Triggers and Switches.
  *
- * Old Log:
- * Revision 1.2  1995/10/31  10:18:10  allender
- * shareware stuff
- *
- * Revision 1.1  1995/05/16  15:31:21  allender
- * Initial revision
- *
- * Revision 2.1  1995/03/21  14:39:08  john
- * Ifdef'd out the NETWORK code.
- *
- * Revision 2.0  1995/02/27  11:28:41  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.51  1995/01/31  15:26:23  rob
- * Don't trigger matcens in anarchy games.
- *
- * Revision 1.50  1995/01/26  12:18:26  rob
- * Changed network_do_frame call.
- *
- * Revision 1.49  1995/01/18  18:50:35  allender
- * don't process triggers if in demo playback mode.  Fix for Rob to only do
- * multi_send_endlevel_start if in multi player game
- *
- * Revision 1.48  1995/01/13  11:59:40  rob
- * Added palette fade after secret level exit.
- *
- * Revision 1.47  1995/01/12  17:00:41  rob
- * Fixed a problem with switches and secret levels.
- *
- * Revision 1.46  1995/01/12  13:35:11  rob
- * Added data flush after secret level exit.
- *
- * Revision 1.45  1995/01/03  15:25:11  rob
- * Fixed a compile error.
- *
- * Revision 1.44  1995/01/03  15:12:02  rob
- * Adding multiplayer switching.
- *
- * Revision 1.43  1994/11/29  16:52:12  yuan
- * Removed some obsolete commented out code.
- *
- * Revision 1.42  1994/11/27  23:15:07  matt
- * Made changes for new mprintf calling convention
- *
- * Revision 1.41  1994/11/22  18:36:45  rob
- * Added new hook for endlevel for secret doors.
- *
- * Revision 1.40  1994/11/21  17:29:43  matt
- * Cleaned up sequencing & game saving for secret levels
- *
- * Revision 1.39  1994/11/19  15:20:32  mike
- * rip out unused code and data
- *
- * Revision 1.38  1994/10/25  16:09:52  yuan
- * Fixed byte bug.
- *
- * Revision 1.37  1994/10/24  16:05:28  matt
- * Removed clear of fuelcen_control_center_destroyed
- *
- * Revision 1.36  1994/10/08  14:21:13  matt
- * Added include
- *
- * Revision 1.35  1994/10/07  12:34:09  matt
- * Added code fot going to/from secret levels
- *
- * Revision 1.34  1994/10/05  15:16:10  rob
- * Used to be that only player #0 could trigger switches, now only the
- * LOCAL player can do it (and he's expected to tell the other guy with
- * a com message if its important!)
- *
- * Revision 1.33  1994/09/24  17:42:03  mike
- * Kill temporary version of function written by Yuan, replaced by MK.
- *
- * Revision 1.32  1994/09/24  17:10:00  yuan
- * Added Matcen triggers.
- *
- * Revision 1.31  1994/09/23  18:02:21  yuan
- * Completed wall checking.
- *
- * Revision 1.30  1994/08/19  20:09:41  matt
- * Added end-of-level cut scene with external scene
- *
- * Revision 1.29  1994/08/18  10:47:36  john
- * Cleaned up game sequencing and player death stuff
- * in preparation for making the player explode into
- * pieces when dead.
- *
- * Revision 1.28  1994/08/12  22:42:11  john
- * Took away Player_stats; added Players array.
- *
- * Revision 1.27  1994/07/02  13:50:44  matt
- * Cleaned up includes
- *
- * Revision 1.26  1994/06/27  16:32:25  yuan
- * Commented out incomplete code...
- *
- * Revision 1.25  1994/06/27  15:53:27  john
- * #define'd out the newdemo stuff
- *
- *
- * Revision 1.24  1994/06/27  15:10:04  yuan
- * Might mess up triggers.
- *
- * Revision 1.23  1994/06/24  17:01:43  john
- * Add VFX support; Took Game Sequencing, like EndGame and stuff and
- * took it out of game.c and into gameseq.c
- *
- * Revision 1.22  1994/06/16  16:20:15  john
- * Made player start out in physics mode; Neatend up game loop a bit.
- *
- * Revision 1.21  1994/06/15  14:57:22  john
- * Added triggers to demo recording.
- *
- * Revision 1.20  1994/06/10  17:44:25  mike
- * Assert on result of find_connect_side == -1
- *
- * Revision 1.19  1994/06/08  10:20:15  yuan
- * Removed unused testing.
- *
- *
- * Revision 1.18  1994/06/07  13:10:48  yuan
- * Fixed bug in check trigger... Still working on other bugs.
- *
- * Revision 1.17  1994/05/30  20:22:04  yuan
- * New triggers.
- *
- * Revision 1.16  1994/05/27  10:32:46  yuan
- * New dialog boxes (Walls and Triggers) added.
- *
- *
- * Revision 1.15  1994/05/25  18:06:46  yuan
- * Making new dialog box controls for walls and triggers.
- *
- * Revision 1.14  1994/05/10  19:05:32  yuan
- * Made end of level flag rather than menu popping up
- *
- * Revision 1.13  1994/04/29  15:05:25  yuan
- * Added menu pop-up at exit trigger.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -163,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: switch.c,v 1.10 2004-05-17 21:16:28 btb Exp $";
+static char rcsid[] = "$Id: switch.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdio.h>

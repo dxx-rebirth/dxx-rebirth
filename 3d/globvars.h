@@ -1,4 +1,4 @@
-/* $Id: globvars.h,v 1.2 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: globvars.h,v 1.3 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,18 +14,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  * 
  * Private (internal) header for 3d library
- * 
- * Old Log:
- *
- * Revision 1.2  1995/09/13  11:31:19  allender
- * added fCanv_w2 and vCanv_h2 for PPC implementation
- *
- * Revision 1.1  1995/05/05  08:51:02  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  04:07:58  matt
- * Initial revision
- * 
  * 
  */
 

@@ -1,4 +1,4 @@
-/* $Id: texmapl.h,v 1.4 2003-03-19 19:21:34 btb Exp $ */
+/* $Id: texmapl.h,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,52 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Local include file for texture mapper library -- NOT to be included by users.
- *
- * Old Log:
- * Revision 1.14  1995/02/20  18:23:02  john
- * Put all the externs in the assembly modules into tmap_inc.asm.
- * Also, moved all the C versions of the inner loops into a new module,
- * scanline.c.
- *
- * Revision 1.13  1995/02/20  17:09:16  john
- * Added code so that you can build the tmapper with no assembly!
- *
- * Revision 1.12  1994/11/28  13:34:34  mike
- * optimizations.
- *
- * Revision 1.11  1994/11/12  16:41:27  mike
- * function prototype.
- *
- * Revision 1.10  1994/05/24  17:30:00  mike
- * Prototype fix_recip, asm_tmap_scanline_lin_v.
- *
- * Revision 1.9  1994/04/21  15:04:26  mike
- * Add prototype for texmapl.h
- *
- * Revision 1.8  1994/03/31  08:34:53  mike
- * *** empty log message ***
- *
- * Revision 1.7  1994/03/22  20:37:04  mike
- * *** empty log message ***
- *
- * Revision 1.6  1994/03/14  15:43:03  mike
- * streamline code.
- *
- * Revision 1.5  1994/01/31  15:43:18  mike
- * window_height, asm_tmap_scanline_lin_sky_v
- *
- * Revision 1.4  1994/01/21  21:12:27  mike
- * Prototype asm_tmap_scanline_lin_sky
- *
- * Revision 1.3  1994/01/14  14:01:45  mike
- * Add a bunch of variables.
- *
- * Revision 1.2  1993/11/22  10:25:11  mike
- * *** empty log message ***
- *
- * Revision 1.1  1993/09/08  17:29:13  mike
- * Initial revision
- *
  *
  */
 

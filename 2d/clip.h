@@ -1,4 +1,4 @@
-/* $Id: clip.h,v 1.3 2002-10-10 18:55:32 btb Exp $ */
+/* $Id: clip.h,v 1.4 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,18 +14,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Macros used for clipping
- *
- * Old Log:
- *
- * Revision 1.3  1993/10/15  16:22:28  john
- * *** empty log message ***
- *
- * Revision 1.2  1993/09/29  16:14:31  john
- * made work with fix point
- *
- * Revision 1.1  1993/09/08  11:40:53  john
- * Initial revision
- *
  *
  */
 

@@ -1,4 +1,4 @@
-/* $Id: songs.h,v 1.2 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: songs.h,v 1.3 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,30 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Header for songs.c
- *
- * Old Log:
- * Revision 2.0  1995/02/27  11:30:52  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.6  1995/02/11  22:21:44  adam
- * *** empty log message ***
- *
- * Revision 1.5  1995/02/11  19:10:49  adam
- * *** empty log message ***
- *
- * Revision 1.4  1995/02/11  18:34:40  adam
- * *** empty log message ***
- *
- * Revision 1.3  1995/02/11  18:04:51  adam
- * upped songs
- *
- * Revision 1.2  1995/02/11  12:42:12  john
- * Added new song method, with FM bank switching..
- *
- * Revision 1.1  1995/02/11  10:20:18  john
- * Initial revision
- *
  *
  */
 

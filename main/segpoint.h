@@ -1,4 +1,4 @@
-/* $Id: segpoint.h,v 1.2 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: segpoint.h,v 1.3 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,21 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Hopefully temporary file to hold external definition of Segment_points[]
- *
- * Old Log:
- * Revision 1.1  1995/05/16  16:02:38  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:26:54  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.2  1994/02/16  17:14:40  matt
- * Added include of 3d.h
- *
- * Revision 1.1  1993/12/06  09:51:37  matt
- * Initial revision
- *
  *
  */
 

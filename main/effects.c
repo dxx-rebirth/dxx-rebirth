@@ -1,4 +1,4 @@
-/* $Id: effects.c,v 1.5 2003-10-10 09:36:34 btb Exp $ */
+/* $Id: effects.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,81 +17,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Special effects, such as rotating fans, electrical walls, and
  * other cool animations.
  *
- * Old Log:
- * Revision 1.1  1995/05/16  15:24:25  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:32:49  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.21  1995/02/13  20:35:06  john
- * Lintized
- *
- * Revision 1.20  1994/12/10  16:44:50  matt
- * Added debugging code to track down door that turns into rock
- *
- * Revision 1.19  1994/12/06  16:27:14  matt
- * Fixed horrible bug that was referencing segment -1
- *
- * Revision 1.18  1994/12/02  23:20:51  matt
- * Reset bitmaps possibly changed by crit clips
- *
- * Revision 1.17  1994/11/14  14:00:19  matt
- * Fixed stupid bug
- *
- * Revision 1.16  1994/11/14  12:42:43  matt
- * Allow holes in effects list
- *
- * Revision 1.15  1994/11/08  21:11:52  matt
- * Added functions to stop & start effects
- *
- * Revision 1.14  1994/10/04  18:59:08  matt
- * Exploding eclips now play eclip while exploding, then switch to static bm
- *
- * Revision 1.13  1994/10/04  15:17:42  matt
- * Took out references to unused constant
- *
- * Revision 1.12  1994/09/29  11:00:01  matt
- * Made eclips (wall animations) not frame-rate dependent (for now)
- *
- * Revision 1.11  1994/09/25  00:40:24  matt
- * Added the ability to make eclips (monitors, fans) which can be blown up
- *
- * Revision 1.10  1994/08/14  23:15:14  matt
- * Added animating bitmap hostages, and cleaned up vclips a bit
- *
- * Revision 1.9  1994/08/05  15:56:04  matt
- * Cleaned up effects system, and added alternate effects for after mine
- * destruction.
- *
- * Revision 1.8  1994/08/01  23:17:21  matt
- * Add support for animating textures on robots
- *
- * Revision 1.7  1994/05/23  15:10:46  yuan
- * Make Eclips read directly...
- * No more need for $EFFECTS list.
- *
- * Revision 1.6  1994/04/06  14:42:44  yuan
- * Adding new powerups.
- *
- * Revision 1.5  1994/03/15  16:31:54  yuan
- * Cleaned up bm-loading code.
- * (And structures)
- *
- * Revision 1.4  1994/03/04  17:09:09  yuan
- * New door stuff.
- *
- * Revision 1.3  1994/01/11  11:18:50  yuan
- * Fixed frame_count
- *
- * Revision 1.2  1994/01/11  10:38:55  yuan
- * Special effects new implementation
- *
- * Revision 1.1  1994/01/10  09:45:29  yuan
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -99,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: effects.c,v 1.5 2003-10-10 09:36:34 btb Exp $";
+static char rcsid[] = "$Id: effects.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdio.h>

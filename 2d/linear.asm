@@ -1,4 +1,4 @@
-; $Id: linear.asm,v 1.4 2003-12-08 21:21:16 btb Exp $
+; $Id: linear.asm,v 1.5 2004-08-28 23:17:45 schaffner Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -13,73 +13,7 @@
 ;
 ; Routines to access linear VGA memory
 ;
-; Old Log:
 ;
-; Revision 1.20  1994/11/28  17:08:30  john
-; Took out some unused functions in linear.asm, moved
-; gr_linear_movsd from linear.asm to bitblt.c, made sure that
-; the code in ibiblt.c sets the direction flags before rep movsing.
-; 
-; Revision 1.19  1994/11/27  22:57:56  john
-; Took out some code that was never called.
-; 
-; Revision 1.18  1994/09/12  14:40:16  john
-; Neatend.
-; 
-; Revision 1.17  1994/07/27  18:30:30  john
-; Took away the blending table.
-; 
-; Revision 1.16  1994/04/08  16:59:28  john
-; Add fading poly's; Made palette fade 32 instead of 16.
-; 
-; Revision 1.15  1993/12/21  20:10:03  john
-; *** empty log message ***
-; 
-; Revision 1.14  1993/12/21  19:58:31  john
-; added selector stuff
-; 
-; Revision 1.13  1993/12/21  11:40:51  john
-; *** empty log message ***
-; 
-; Revision 1.12  1993/12/09  15:01:52  john
-; Changed palette stuff majorly
-; 
-; Revision 1.11  1993/12/08  16:41:02  john
-; *** empty log message ***
-; 
-; Revision 1.10  1993/12/08  11:50:17  john
-; Fixed bug with gr_init
-; 
-; Revision 1.9  1993/12/07  12:32:12  john
-; moved bmd_palette to gr_palette
-; 
-; Revision 1.8  1993/12/03  12:11:25  john
-; *** empty log message ***
-; 
-; Revision 1.7  1993/11/16  11:29:08  john
-; *** empty log message ***
-; 
-; Revision 1.6  1993/10/15  16:22:13  john
-; *** empty log message ***
-; 
-; Revision 1.5  1993/09/29  16:15:28  john
-; added assembler linear_line
-; 
-; Revision 1.4  1993/09/26  18:59:27  john
-; fade stuff
-; 
-; Revision 1.3  1993/09/21  14:00:59  john
-; added code to save 43/50 line text modes.
-; 
-; Revision 1.2  1993/09/16  17:28:06  john
-; added code to save/restore video mode
-; 
-; Revision 1.1  1993/09/08  11:41:30  john
-; Initial revision
-; 
-;
-;
-
 
 [BITS 32]
 

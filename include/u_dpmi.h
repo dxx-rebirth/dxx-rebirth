@@ -1,4 +1,4 @@
-/* $Id: u_dpmi.h,v 1.3 2004-08-01 13:01:39 schaffner Exp $ */
+/* $Id: u_dpmi.h,v 1.4 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,37 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Prototypes for DPMI services.
- *
- * Old Log:
- * Revision 1.9  1995/01/14  19:20:14  john
- * Added function to set a selector's base address.
- *
- * Revision 1.8  1994/11/28  20:22:03  john
- * Added some variables that return the amount of available
- * memory.
- *
- * Revision 1.7  1994/11/15  18:26:38  john
- * Added verbose flag.
- *
- * Revision 1.6  1994/11/07  11:35:05  john
- * Added prototype for real_free
- *
- * Revision 1.5  1994/10/27  19:54:48  john
- * Added unlock region function,.
- *
- * Revision 1.4  1994/09/27  18:27:56  john
- * Added pragma to make inp,outp,enable,disable intrinsic
- *
- * Revision 1.3  1994/09/27  11:54:45  john
- * Added DPMI init function.
- *
- * Revision 1.2  1994/08/24  18:53:51  john
- * Made Cyberman read like normal mouse; added dpmi module; moved
- * mouse from assembly to c. Made mouse buttons return time_down.
- *
- * Revision 1.1  1994/08/24  10:22:48  john
- * Initial revision
- *
  *
  */
 

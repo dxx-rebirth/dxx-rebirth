@@ -1,3 +1,58 @@
+2004-08-28  Martin Schaffner  <maschaffner@gmx.ch>
+
+	* 2d/2dsline.c, 2d/bitblt.c, 2d/bitmap.c, 2d/clip.h, 2d/ibitblt.c
+	2d/linear.asm, 2d/palette.c, 2d/pcx.c, 2d/rle.c, 2d/scale.c
+	2d/scalea.asm, 3d/clipper.h, 3d/globvars.c, 3d/globvars.h
+	3d/instance.c, 3d/interp.c, 3d/matrix.c, 3d/points.c, 3d/rod.c
+	3d/setup.c, ChangeLog, arch/dos/bak/ipx.c, arch/dos/ipx.c
+	arch/dos/ipx.h, arch/dos/joyc.c, arch/dos/joydefs.c, arch/dos/key.c
+	arch/dos/mono.c, arch/dos/mono.h, arch/dos/mouse.c
+	arch/include/joy.h, arch/win32/include/key.h
+	arch/win32/include/mouse.h, arch/win32/mouse.c, cfile/cfile.c
+	iff/iff.c, include/3d.h, include/args.h, include/byteswap.h
+	include/cfile.h, include/error.h, include/gr.h, include/grdef.h
+	include/ibitblt.h, include/iff.h, include/ipx.h, include/palette.h
+	include/pcx.h, include/pstypes.h, include/rle.h, include/texmap.h
+	include/timer.h, include/u_dpmi.h, include/vecmat.h, main/ai.c
+	main/ai.h, main/ai2.c, main/aipath.c, main/aistruct.h, main/automap.c
+	main/automap.h, main/bm.c, main/bm.h, main/bmread.c, main/cntrlcen.c
+	main/cntrlcen.h, main/collide.c, main/collide.h, main/compbit.h
+	main/config.c, main/config.h, main/controls.c, main/controls.h
+	main/credits.c, main/credits.h, main/desc_id.h, main/digi.h
+	main/dumpmine.c, main/editor/medwall.h, main/editor/seguvs.h
+	main/effects.c, main/effects.h, main/endlevel.c, main/endlevel.h
+	main/escort.c, main/fireball.c, main/fireball.h, main/fuelcen.c
+	main/fuelcen.h, main/fvi.c, main/fvi.h, main/game.c, main/game.h
+	main/gamefont.c, main/gamefont.h, main/gamemine.c, main/gamemine.h
+	main/gamesave.c, main/gamesave.h, main/gameseg.c, main/gameseg.h
+	main/gameseq.c, main/gameseq.h, main/gauges.c, main/gauges.h
+	main/hostage.c, main/hostage.h, main/hud.c, main/inferno.c
+	main/joydefs.c, main/joydefs.h, main/kconfig.c, main/kconfig.h
+	main/kmatrix.c, main/kmatrix.h, main/laser.c, main/laser.h
+	main/lighting.c, main/lighting.h, main/menu.h, main/mglobal.c
+	main/mission.c, main/mission.h, main/modem.h, main/morph.c
+	main/morph.h, main/multi.h, main/multibot.h, main/netmisc.c
+	main/netmisc.h, main/network.h, main/newdemo.c, main/newdemo.h
+	main/newmenu.c, main/newmenu.h, main/object.c, main/object.h
+	main/paging.c, main/paging.h, main/physics.c, main/physics.h
+	main/piggy.c, main/piggy.h, main/player.h, main/playsave.c
+	main/playsave.h, main/polyobj.c, main/polyobj.h, main/powerup.c
+	main/powerup.h, main/render.c, main/render.h, main/robot.c
+	main/robot.h, main/scores.c, main/scores.h, main/screens.h
+	main/segment.h, main/segpoint.h, main/slew.c, main/slew.h
+	main/songs.c, main/songs.h, main/sounds.h, main/state.c
+	main/state.h, main/switch.c, main/switch.h, main/terrain.c
+	main/terrain.h, main/texmerge.c, main/texmerge.h, main/text.c
+	main/text.h, main/textures.h, main/titles.c, main/titles.h
+	main/vclip.c, main/vclip.h, main/wall.c, main/wall.h, main/weapon.c
+	main/weapon.h, maths/fixc.c, maths/tables.c, maths/vecmat.c
+	maths/vecmata.asm, misc/args.c, misc/error.c, texmap/ntmap.c
+	texmap/scanline.c, texmap/scanline.h, texmap/texmapl.h
+	texmap/tmap_flt.asm, texmap/tmap_inc.asm, texmap/tmap_lin.asm
+	texmap/tmap_ll.asm, texmap/tmap_per.asm, texmap/tmapfade.asm
+	texmap/tmapflat.c:
+	move old per-file change logs into new file ChangeLog-old
+
 2004-08-28  ~HJ  <kasxavulpo-dev@yahoo.com>
 
 	* arch/ogl/ogl.c: enable -gl_mipmap switch

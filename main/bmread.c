@@ -1,4 +1,4 @@
-/* $Id: bmread.c,v 1.5 2003-10-10 09:36:34 btb Exp $ */
+/* $Id: bmread.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,27 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Routines to parse bitmaps.tbl
- *
- * Old Log:
- * Revision 2.4  1995/03/28  18:05:29  john
- * Fixed it so you don't have to delete pig after changing bitmaps.tbl
- *
- * Revision 2.3  1995/03/07  16:52:03  john
- * Fixed robots not moving without edtiro bug.
- *
- * Revision 2.2  1995/03/06  16:10:20  mike
- * Fix compile errors if building without editor.
- *
- * Revision 2.1  1995/03/02  14:55:40  john
- * Fixed bug with EDITOR never defined.
- *
- * Revision 2.0  1995/02/27  11:33:10  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.1  1995/02/25  14:02:36  john
- * Initial revision
- *
  *
  */
 

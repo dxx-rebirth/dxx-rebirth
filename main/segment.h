@@ -1,4 +1,4 @@
-/* $Id: segment.h,v 1.4 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: segment.h,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,94 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Include file for functions which need to access segment data structure.
- *
- * Old Log:
- * Revision 1.4  1995/11/03  12:53:11  allender
- * shareware changes
- *
- * Revision 1.3  1995/07/26  16:53:45  allender
- * put sides and segment structure back the PC way for checksumming reasons
- *
- * Revision 1.2  1995/06/19  07:55:22  allender
- * rearranged structure members for possible better alignment
- *
- * Revision 1.1  1995/05/16  16:02:22  allender
- * Initial revision
- *
- * Revision 2.1  1995/03/20  18:15:22  john
- * Added code to not store the normals in the segment structure.
- *
- * Revision 2.0  1995/02/27  11:26:49  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.89  1995/01/24  15:07:55  yuan
- * *** empty log message ***
- *
- * Revision 1.88  1994/12/12  01:04:06  yuan
- * Boosted MAX_GAME_VERTS.
- *
- * Revision 1.87  1994/12/11  16:18:14  mike
- * add constants so we can detect too-large mines for game while in editor.
- *
- * Revision 1.86  1994/12/08  15:07:29  yuan
- * *** empty log message ***
- *
- * Revision 1.85  1994/12/01  21:06:39  matt
- * Moved plane tolerance constant to gameseg.c, the only file that used it.
- *
- * Revision 1.84  1994/11/27  14:01:41  matt
- * Fixed segment structure so LVLs work
- *
- * Revision 1.83  1994/11/26  22:50:20  matt
- * Removed editor-only fields from segment structure when editor is compiled
- * out, and padded segment structure to even multiple of 4 bytes.
- *
- * Revision 1.82  1994/11/21  11:43:36  mike
- * smaller segment and vertex buffers.
- *
- * Revision 1.81  1994/11/17  11:39:35  matt
- * Ripped out code to load old mines
- *
- * Revision 1.80  1994/10/30  14:12:05  mike
- * rip out local segments stuff.
- *
- * Revision 1.79  1994/10/27  11:33:58  mike
- * lower number of segments by 100, saving 116K.
- *
- * Revision 1.78  1994/08/25  21:54:50  mike
- * Add macro IS_CHILD to make checking for the presence of a child centralized.
- *
- * Revision 1.77  1994/08/11  18:58:16  mike
- * Add prototype for Side_to_verts_int.
- *
- * Revision 1.76  1994/08/01  11:04:13  yuan
- * New materialization centers.
- *
- * Revision 1.75  1994/07/25  00:04:19  matt
- * Various changes to accomodate new 3d, which no longer takes point numbers
- * as parms, and now only takes pointers to points.
- *
- * Revision 1.74  1994/07/21  19:01:30  mike
- * new lsegment structure.
- *
- * Revision 1.73  1994/06/08  14:30:48  matt
- * Added static_light field to segment structure, and padded side struct
- * to be longword aligned.
- *
- * Revision 1.72  1994/05/19  23:25:17  mike
- * Change MINE_VERSION to 15, DEFAULT_LIGHTING to 0
- *
- * Revision 1.71  1994/05/12  14:45:54  mike
- * New segment data structure (!!), group, special, object, value = short.
- *
- * Revision 1.70  1994/05/03  11:06:46  mike
- * Remove constants VMAG and UMAG which are editor specific..
- *
- * Revision 1.69  1994/04/18  10:40:28  yuan
- * Increased segment limit to 1000
- * (From 500)
- *
  *
  */
 

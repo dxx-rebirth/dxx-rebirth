@@ -1,4 +1,4 @@
-/* $Id: bitblt.c,v 1.14 2004-08-01 16:28:33 schaffner Exp $ */
+/* $Id: bitblt.c,v 1.15 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,95 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Routines for bitblt's.
- *
- * Old Log:
- * Revision 1.29  1995/03/14  12:14:28  john
- * Added code to double horz/vert bitblts.
- *
- * Revision 1.28  1995/03/13  09:01:48  john
- * Fixed bug with VFX1 screen not tall enough.
- *
- * Revision 1.27  1995/03/01  15:38:10  john
- * Better ModeX support.
- *
- * Revision 1.26  1994/12/15  12:19:00  john
- * Added gr_bm_bitblt (clipped!) function.
- *
- * Revision 1.25  1994/12/09  18:58:42  matt
- * Took out include of 3d.h
- *
- * Revision 1.24  1994/11/28  17:08:32  john
- * Took out some unused functions in linear.asm, moved
- * gr_linear_movsd from linear.asm to bitblt.c, made sure that
- * the code in ibiblt.c sets the direction flags before rep movsing.
- *
- * Revision 1.22  1994/11/23  16:04:00  john
- * Fixed generic rle'ing to use new bit method.
- *
- * Revision 1.21  1994/11/18  22:51:03  john
- * Changed a bunch of shorts to ints in calls.
- *
- * Revision 1.20  1994/11/10  15:59:48  john
- * Fixed bugs with canvas's being created with bogus bm_flags.
- *
- * Revision 1.19  1994/11/09  21:03:35  john
- * Added RLE for svga gr_ubitmap.
- *
- * Revision 1.18  1994/11/09  17:41:29  john
- * Made a slow version of rle bitblt to svga, modex.
- *
- * Revision 1.17  1994/11/09  16:35:15  john
- * First version with working RLE bitmaps.
- *
- * Revision 1.16  1994/11/04  10:06:58  john
- * Added fade table for fading fonts. Made font that partially clips
- * not print a warning message.
- *
- * Revision 1.15  1994/09/22  16:08:38  john
- * Fixed some palette stuff.
- *
- * Revision 1.14  1994/09/19  11:44:27  john
- * Changed call to allocate selector to the dpmi module.
- *
- * Revision 1.13  1994/08/08  13:03:00  john
- * Fixed bug in gr_bitmap in modex
- *
- * Revision 1.12  1994/07/13  19:47:23  john
- * Fixed bug with modex bitblt to page 2 not working.
- *
- * Revision 1.11  1994/05/31  11:10:52  john
- * *** empty log message ***
- *
- * Revision 1.10  1994/03/18  15:24:34  matt
- * Removed interlace stuff
- *
- * Revision 1.9  1994/02/18  15:32:20  john
- * *** empty log message ***
- *
- * Revision 1.8  1994/02/01  13:22:54  john
- * *** empty log message ***
- *
- * Revision 1.7  1994/01/13  08:28:25  mike
- * Modify rect copy to copy alternate scanlines when in interlaced mode.
- *
- * Revision 1.6  1993/12/28  12:09:46  john
- * added lbitblt.asm
- *
- * Revision 1.5  1993/10/26  13:18:09  john
- * *** empty log message ***
- *
- * Revision 1.4  1993/10/15  16:23:30  john
- * y
- *
- * Revision 1.3  1993/09/13  17:52:58  john
- * Fixed bug in BitBlt linear to SVGA
- *
- * Revision 1.2  1993/09/08  14:47:00  john
- * Made bitmap00 add rowsize instead of bitmap width.
- * Other routines might have this problem too.
- *
- * Revision 1.1  1993/09/08  11:43:01  john
- * Initial revision
  *
  */
 

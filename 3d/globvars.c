@@ -1,4 +1,4 @@
-/* $Id: globvars.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: globvars.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,18 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  * Global variables for 3d
  * 
- * Old Log:
- *
- * Revision 1.2  1995/09/13  11:30:47  allender
- * added fCanv_w2 and vCanv_h2 for PPC implementation
- *
- * Revision 1.1  1995/05/05  08:50:48  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  04:24:57  matt
- * Initial revision
- * 
- * 
  */
 
 #ifdef HAVE_CONFIG_H
@@ -34,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: globvars.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $";
+static char rcsid[] = "$Id: globvars.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include "3d.h"

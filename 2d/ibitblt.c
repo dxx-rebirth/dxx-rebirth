@@ -1,4 +1,4 @@
-/* $Id: ibitblt.c,v 1.9 2003-12-08 22:32:56 btb Exp $ */
+/* $Id: ibitblt.c,v 1.10 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,37 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * d2x uses the "Mac" version for everything except __MSDOS__
  *
- * Old Log:
- * Revision 1.3  1995/09/13  11:43:22  allender
- * start on optimizing cockpit copy code
- *
- * Revision 1.2  1995/09/07  10:16:57  allender
- * fixed up cockpit and rearview hole blitting
- *
- * Revision 1.1  1995/08/18  15:50:48  allender
- * Initial revision
- *
- * Revision 1.6  1994/11/28  17:07:29  john
- * Took out some unused functions in linear.asm, moved
- * gr_linear_movsd from linear.asm to bitblt.c, made sure that
- * the code in ibiblt.c sets the direction flags before rep movsing.
- *
- * Revision 1.5  1994/11/18  22:50:22  john
- * Changed shorts to ints in parameters.
- *
- * Revision 1.4  1994/11/09  16:35:16  john
- * First version with working RLE bitmaps.
- *
- * Revision 1.3  1994/10/03  17:18:05  john
- * Fixed bug with edi not getting intialized to zero
- * in create_mask.
- *
- * Revision 1.2  1994/05/31  11:10:55  john
- * *** empty log message ***
- *
- * Revision 1.1  1994/05/30  16:08:27  john
- * Initial revision
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -62,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ibitblt.c,v 1.9 2003-12-08 22:32:56 btb Exp $";
+static char rcsid[] = "$Id: ibitblt.c,v 1.10 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #ifdef __MSDOS__ //ndef MACINTOSH

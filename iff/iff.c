@@ -1,4 +1,4 @@
-/* $Id: iff.c,v 1.8 2004-08-01 16:28:33 schaffner Exp $ */
+/* $Id: iff.c,v 1.9 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,151 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Routines for reading and writing IFF files
  *
- * Old Log:
- * Revision 1.2  1995/05/12  11:54:43  allender
- * changed memory stuff again
- *
- * Revision 1.1  1995/05/05  08:59:41  allender
- * Initial revision
- *
- * Revision 1.43  1994/12/08  19:03:17  john
- * Added code to use cfile.
- *
- * Revision 1.42  1994/12/08  17:45:32  john
- * Put back in cfile stuff.
- *
- * Revision 1.41  1994/11/19  16:41:06  matt
- * Took out unused code
- *
- * Revision 1.40  1994/11/07  21:26:39  matt
- * Added new function iff_read_into_bitmap()
- *
- * Revision 1.39  1994/10/27  00:12:03  john
- * Used nocfile
- *
- * Revision 1.38  1994/08/10  19:49:58  matt
- * Fixed bitmaps in ILBM format with masking (stencil) on.
- *
- * Revision 1.37  1994/06/02  18:53:17  matt
- * Clear flags & selector in new bitmap structure
- *
- * Revision 1.36  1994/05/17  14:00:33  matt
- * Fixed bug with odd-width deltas & odd-length body chunks
- *
- * Revision 1.35  1994/05/16  20:38:55  matt
- * Made anim brushes work when odd width
- *
- * Revision 1.34  1994/05/06  19:37:26  matt
- * Improved error handling and checking
- *
- * Revision 1.33  1994/04/27  20:57:07  matt
- * Fixed problem with RLE decompression and odd-width bitmap
- * Added more error checking
- *
- * Revision 1.32  1994/04/16  21:44:19  matt
- * Fixed bug introduced last version
- *
- * Revision 1.31  1994/04/16  20:12:40  matt
- * Made masked (stenciled) bitmaps work
- *
- * Revision 1.30  1994/04/13  23:46:16  matt
- * Added function, iff_errormsg(), which returns ptr to error message.
- *
- * Revision 1.29  1994/04/13  23:27:25  matt
- * Put in support for anim brushes (.abm files)
- *
- * Revision 1.28  1994/04/13  16:33:31  matt
- * Cleaned up file read code, adding fake_file structure (FFILE), which
- * cleanly implements reading the entire file into a buffer and then reading
- * out of that buffer.
- *
- * Revision 1.27  1994/04/06  23:07:43  matt
- * Cleaned up code; added prototype (but no new code) for anim brush read
- *
- * Revision 1.26  1994/03/19  02:51:52  matt
- * Really did what I said I did last revision.
- *
- * Revision 1.25  1994/03/19  02:16:07  matt
- * Made work ILBMs which didn't have 8 planes
- *
- * Revision 1.24  1994/03/15  14:45:26  matt
- * When error, only free memory if has been allocated
- *
- * Revision 1.23  1994/02/18  12:39:05  john
- * Made code read from buffer.
- *
- * Revision 1.22  1994/02/15  18:15:26  john
- * Took out cfile attempt (too slow)
- *
- * Revision 1.21  1994/02/15  13:17:48  john
- * added assert to cfseek.
- *
- * Revision 1.20  1994/02/15  13:13:11  john
- * Made iff code work normally.
- *
- * Revision 1.19  1994/02/15  12:51:07  john
- * crappy inbetween version.
- *
- * Revision 1.18  1994/02/10  18:31:32  matt
- * Changed 'if DEBUG_ON' to 'ifndef NDEBUG'
- *
- * Revision 1.17  1994/01/24  11:51:26  john
- * Made write routine write transparency info.
- *
- * Revision 1.16  1994/01/22  14:41:11  john
- * Fixed bug with declareations.
- *
- * Revision 1.15  1994/01/22  14:23:00  john
- * Added global vars to check transparency
- *
- * Revision 1.14  1993/12/08  19:00:42  matt
- * Changed while loop to memset
- *
- * Revision 1.13  1993/12/08  17:23:51  mike
- * Speedup by converting while...getc to fread.
- *
- * Revision 1.12  1993/12/08  12:37:35  mike
- * Optimize parse_body.
- *
- * Revision 1.11  1993/12/05  17:30:14  matt
- * Made bitmaps with width <= 64 not compress
- *
- * Revision 1.10  1993/12/03  12:24:51  matt
- * Fixed TINY chunk when bitmap was part of a larger bitmap
- *
- * Revision 1.9  1993/11/22  17:26:43  matt
- * iff write now writes out a tiny chunk
- *
- * Revision 1.8  1993/11/21  22:04:13  matt
- * Fixed error with non-compressed bitmaps
- * Added Yuan's code to free raw data if we get an error parsing the body
- *
- * Revision 1.7  1993/11/11  12:12:12  yuan
- * Changed mallocs to MALLOCs.
- *
- * Revision 1.6  1993/11/01  19:02:23  matt
- * Fixed a couple bugs in rle compression
- *
- * Revision 1.5  1993/10/27  12:47:39  john
- * *** empty log message ***
- *
- * Revision 1.4  1993/10/27  12:37:31  yuan
- * Added mem.h
- *
- * Revision 1.3  1993/09/22  19:16:57  matt
- * Added new error type, IFF_CORRUPT, for internally bad IFF files.
- *
- * Revision 1.2  1993/09/08  19:24:16  matt
- * Fixed bug in RLE compression
- * Changed a bunch of unimportant values like aspect and page size when writing
- * Added new error condition, IFF_BAD_BM_TYPE
- * Make sub-bitmaps work correctly
- * Added compile flag to turn compression off (COMPRESS)
- *
- * Revision 1.1  1993/09/08  14:24:15  matt
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -168,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: iff.c,v 1.8 2004-08-01 16:28:33 schaffner Exp $";
+static char rcsid[] = "$Id: iff.c,v 1.9 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #define COMPRESS		1	//do the RLE or not? (for debugging mostly)

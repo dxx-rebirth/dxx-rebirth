@@ -1,4 +1,4 @@
-/* $Id: terrain.c,v 1.4 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: terrain.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,54 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Code to render cool external-scene terrain
- *
- * Old Log:
- * Revision 1.1  1995/05/16  15:31:29  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:31:27  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.12  1994/12/03  00:18:00  matt
- * Made endlevel sequence cut off early
- * Made exit model and bit explosion always plot last (after all terrain)
- *
- * Revision 1.11  1994/11/27  23:13:46  matt
- * Made changes for new mprintf calling convention
- *
- * Revision 1.10  1994/11/21  18:04:36  matt
- * Fixed alloc/free problem with height array
- *
- * Revision 1.9  1994/11/21  17:30:42  matt
- * Properly free light array
- *
- * Revision 1.8  1994/11/19  12:40:55  matt
- * Added system to read endlevel data from file, and to make it work
- * with any exit tunnel.
- *
- * Revision 1.7  1994/11/16  11:49:44  matt
- * Added code to rotate terrain to match mine
- *
- * Revision 1.6  1994/11/02  16:22:59  matt
- * Killed mprintf
- *
- * Revision 1.5  1994/10/30  20:09:19  matt
- * For endlevel: added big explosion at tunnel exit; made lights in tunnel
- * go out; made more explosions on walls.
- *
- * Revision 1.4  1994/10/27  21:15:07  matt
- * Added better error handling
- *
- * Revision 1.3  1994/10/27  01:03:17  matt
- * Made terrain renderer use aribtary point in height array as origin
- *
- * Revision 1.2  1994/08/19  20:09:44  matt
- * Added end-of-level cut scene with external scene
- *
- * Revision 1.1  1994/08/17  20:20:49  matt
- * Initial revision
- *
  *
  */
 

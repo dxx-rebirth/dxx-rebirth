@@ -1,4 +1,4 @@
-; $Id: tmap_inc.asm,v 1.4 2003-12-08 21:21:16 btb Exp $
+; $Id: tmap_inc.asm,v 1.5 2004-08-28 23:17:46 schaffner Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -12,40 +12,6 @@
 ;
 ;
 ; Mike's include file for the texture mapper library.
-;
-; Old Log:
-; Revision 1.10  1995/02/20  18:22:52  john
-; Put all the externs in the assembly modules into tmap_inc.asm.
-; Also, moved all the C versions of the inner loops into a new module,
-; scanline.c.
-;
-; Revision 1.9  1994/12/02  23:29:45  mike
-; Add y_pointers.
-;
-; Revision 1.8  1994/11/12  16:39:36  mike
-; jae to ja.
-;
-; Revision 1.7  1994/10/26  23:27:39  john
-; Took out references to gr_inverse_table.
-;
-; Revision 1.6  1994/10/26  23:21:55  mike
-; kill unused stuff.
-;
-; Revision 1.5  1994/07/27  18:39:20  john
-; Took out references to blend table
-;
-; Revision 1.4  1994/01/31  15:40:17  mike
-; Add window_height.
-;
-; Revision 1.3  1993/12/07  12:27:48  john
-; Moved bmd_palette to gr_palette
-;
-; Revision 1.2  1993/11/22  10:24:10  mike
-; *** empty log message ***
-;
-; Revision 1.1  1993/09/08  17:29:47  mike
-; Initial revision
-;
 ;
 ;
 

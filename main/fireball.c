@@ -1,4 +1,4 @@
-/* $Id: fireball.c,v 1.4 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: fireball.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,94 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Code for rendering & otherwise dealing with explosions
- *
- * Old Log:
- * Revision 1.2  1995/10/31  10:23:56  allender
- * shareware stuff
- *
- * Revision 1.1  1995/05/16  15:24:41  allender
- * Initial revision
- *
- * Revision 2.2  1995/03/21  14:39:57  john
- * Ifdef'd out the NETWORK code.
- *
- * Revision 2.1  1995/03/20  18:15:47  john
- * Added code to not store the normals in the segment structure.
- *
- * Revision 2.0  1995/02/27  11:30:34  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.200  1995/02/22  13:18:41  allender
- * remove anonymous unions from object structure
- *
- * Revision 1.199  1995/02/14  19:58:32  mike
- * comment out "something bad has happened" int3.
- *
- * Revision 1.198  1995/02/09  13:11:01  mike
- * remove an annoying mprintf and Int3().
- *
- * Revision 1.197  1995/02/08  17:10:14  mike
- * don't drop cloaks if one nearby.
- *
- * Revision 1.196  1995/02/08  13:27:14  rob
- * Give keys dropped by robots 0 velocity in coop game.
- *
- * Revision 1.195  1995/02/08  11:57:40  mike
- * determine whether debris object failed to create because buffer was
- * exhausted or because limit was hit.
- *
- * Revision 1.194  1995/02/08  11:37:58  mike
- * Check for failures in call to obj_create.
- *
- * Revision 1.193  1995/02/07  21:09:41  mike
- * only replace weapon with energy 1/2 time.
- *
- * Revision 1.192  1995/01/30  18:21:52  rob
- * Replace extra life powerups in multiplayer to invul when
- * dropped by robots.
- *
- * Revision 1.191  1995/01/28  17:40:59  mike
- * fix stupidity in converting quad lasers to energy.
- *
- * Revision 1.190  1995/01/27  15:05:59  rob
- * Trying to fix a bug with damaging robots with player badass explosions.
- *
- * Revision 1.189  1995/01/26  18:59:04  rob
- * Powerups were flying too far in robot-cooperative games.
- *
- * Revision 1.188  1995/01/25  10:53:35  mike
- * make badass damage go through grates.
- *
- * Revision 1.187  1995/01/25  09:37:23  mike
- * fix objects containing robots, worked for powerups, bad {} placement.
- *
- * Revision 1.186  1995/01/23  22:51:20  mike
- * drop energy instead of primary weapon if you already have primary weapon.
- *
- * Revision 1.185  1995/01/20  16:56:37  mike
- * Cut damage done by badass weapons.
- *
- * Revision 1.184  1995/01/19  17:44:57  mike
- * damage_force removed, that information coming from strength field.
- *
- * Revision 1.183  1995/01/16  21:06:54  mike
- * Move function pick_random_point_in_segment from fireball.c to gameseg.c.
- *
- * Revision 1.182  1995/01/16  19:24:04  mike
- * If a gated-in robot and going to drop energy powerup, don't!
- *
- * Revision 1.181  1995/01/15  20:48:03  mike
- * drop energy in place of quad lasers if player already has quad lasers.
- *
- * Revision 1.180  1995/01/14  19:32:19  rob
- * Fixed an error.
- *
- * Revision 1.179  1995/01/14  18:50:55  rob
- * Make robot egg creation suitable for mutliplayer situations.
- *
- * Revision 1.178  1995/01/14  14:55:07  rob
- * Make weapons/keys/etc never disappear in network mode.
  *
  */
 

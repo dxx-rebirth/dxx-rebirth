@@ -1,4 +1,4 @@
-/* $Id: grdef.h,v 1.9 2003-10-25 01:44:23 btb Exp $ */
+/* $Id: grdef.h,v 1.10 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,48 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Internal definitions for graphics lib.
- *
- * Old Log:
- * Revision 1.5  1995/09/14  15:36:33  allender
- * added stuff for 68k version
- *
- * Revision 1.4  1995/07/05  16:10:57  allender
- * gr_linear_movsd prototype changes
- *
- * Revision 1.3  1995/04/19  14:39:28  allender
- * changed function prototype
- *
- * Revision 1.2  1995/04/18  09:49:53  allender
- * *** empty log message ***
- *
- * Revision 1.1  1995/03/09  09:04:56  allender
- * Initial revision
- *
- *
- * --- PC RCS information ---
- * Revision 1.8  1994/05/06  12:50:09  john
- * Added supertransparency; neatend things up; took out warnings.
- *
- * Revision 1.7  1994/01/25  11:40:29  john
- * Added gr_check_mode function.
- *
- * Revision 1.6  1993/10/15  16:22:53  john
- * y
- *
- * Revision 1.5  1993/09/29  17:31:00  john
- * added gr_vesa_pixel
- *
- * Revision 1.4  1993/09/29  16:14:43  john
- * added global canvas descriptors.
- *
- * Revision 1.3  1993/09/08  17:38:02  john
- * Looking for errors
- *
- * Revision 1.2  1993/09/08  15:54:29  john
- * *** empty log message ***
- *
- * Revision 1.1  1993/09/08  11:37:57  john
- * Initial revision
  *
  */
 

@@ -1,4 +1,4 @@
-/* $Id: scanline.h,v 1.3 2003-02-18 20:15:48 btb Exp $ */
+/* $Id: scanline.h,v 1.4 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,14 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Prototypes for C versions of texture mapped scanlines.
- *
- * Old Log:
- * Revision 1.2  1995/02/20  18:23:40  john
- * Added new module for C versions of inner loops.
- *
- * Revision 1.1  1995/02/20  17:44:16  john
- * Initial revision
- *
  *
  */
 

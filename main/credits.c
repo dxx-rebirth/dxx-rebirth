@@ -1,4 +1,4 @@
-/* $Id: credits.c,v 1.8 2003-10-10 09:36:34 btb Exp $ */
+/* $Id: credits.c,v 1.9 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,145 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Routines to display the credits.
  *
- * Old Log:
- * Revision 1.8  1995/11/07  13:54:56  allender
- * loop shareware song since it is too short
- *
- * Revision 1.7  1995/10/31  10:24:25  allender
- * shareware stuff
- *
- * Revision 1.6  1995/10/27  15:17:57  allender
- * minor fix to get them to look right at top and bottom
- * of screens
- *
- * Revision 1.5  1995/10/21  22:50:49  allender
- * credits is way cool!!!!
- *
- * Revision 1.3  1995/08/08  13:45:26  allender
- * added macsys header file
- *
- * Revision 1.2  1995/07/17  08:49:48  allender
- * make work in 640x480 -- still needs major work!!
- *
- * Revision 1.1  1995/05/16  15:24:01  allender
- * Initial revision
- *
- * Revision 2.2  1995/06/14  17:26:08  john
- * Fixed bug with VFX palette not getting loaded for credits, titles.
- *
- * Revision 2.1  1995/03/06  15:23:30  john
- * New screen techniques.
- *
- * Revision 2.0  1995/02/27  11:29:25  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.33  1995/02/11  12:41:56  john
- * Added new song method, with FM bank switching..
- *
- * Revision 1.32  1995/02/03  14:18:06  john
- * Added columns.
- *
- * Revision 1.31  1994/12/28  10:43:00  john
- * More VFX tweaking.
- *
- * Revision 1.30  1994/12/20  18:22:31  john
- * Added code to support non-looping songs, and put
- * it in for endlevel and credits.
- *
- * Revision 1.29  1994/12/15  14:23:00  adam
- * fixed timing.
- *
- * Revision 1.28  1994/12/14  16:56:33  adam
- * *** empty log message ***
- *
- * Revision 1.27  1994/12/14  12:18:11  adam
- * messed w/timing
- *
- * Revision 1.26  1994/12/12  22:52:59  matt
- * Fixed little bug
- *
- * Revision 1.25  1994/12/12  22:49:35  adam
- * *** empty log message ***
- *
- * Revision 1.24  1994/12/09  23:16:50  john
- * Make credits.txb load.
- *
- * Revision 1.23  1994/12/09  00:41:54  mike
- * fix hang in automap print screen.
- *
- * Revision 1.22  1994/12/09  00:34:22  matt
- * Added support for half-height lines
- *
- * Revision 1.21  1994/12/08  18:36:03  yuan
- * More HOGfile support.
- *
- * Revision 1.20  1994/12/04  14:48:17  john
- * Made credits restore playing descent.hmp.
- *
- * Revision 1.19  1994/12/04  14:30:20  john
- * Added hooks for music..
- *
- * Revision 1.18  1994/12/04  12:06:46  matt
- * Put in support for large font
- *
- * Revision 1.17  1994/12/01  10:47:27  john
- * Took out code that allows keypresses to change scroll rate.
- *
- * Revision 1.16  1994/11/30  12:10:52  adam
- * added support for PCX titles/brief screens
- *
- * Revision 1.15  1994/11/27  23:12:17  matt
- * Made changes for new mprintf calling convention
- *
- * Revision 1.14  1994/11/27  19:51:46  matt
- * Made screen shots work in a few more places
- *
- * Revision 1.13  1994/11/18  16:41:51  adam
- * trimmed some more meat for shareware
- *
- * Revision 1.12  1994/11/10  20:38:29  john
- * Made credits not loop.
- *
- * Revision 1.11  1994/11/05  15:04:06  john
- * Added non-popup menu for the main menu, so that scores and credits don't have to save
- * the background.
- *
- * Revision 1.10  1994/11/05  14:05:52  john
- * Fixed fade transitions between all screens by making gr_palette_fade_in and out keep
- * track of whether the palette is faded in or not.  Then, wherever the code needs to fade out,
- * it just calls gr_palette_fade_out and it will fade out if it isn't already.  The same with fade_in.
- * This eliminates the need for all the flags like Menu_fade_out, game_fade_in palette, etc.
- *
- * Revision 1.9  1994/11/04  12:02:32  john
- * Fixed fading transitions a bit more.
- *
- * Revision 1.8  1994/11/04  11:30:44  john
- * Fixed fade transitions between game/menu/credits.
- *
- * Revision 1.7  1994/11/04  11:06:32  john
- * Added code to support credit fade table.
- *
- * Revision 1.6  1994/11/04  10:16:13  john
- * Made the credits fade in/out smoothly on top of a bitmap background.
- *
- * Revision 1.5  1994/11/03  21:24:12  john
- * Made credits exit the instant a key is pressed.
- * Made it scroll a bit slower.
- *
- * Revision 1.4  1994/11/03  21:20:28  john
- * Working.
- *
- * Revision 1.3  1994/11/03  21:01:24  john
- * First version of credits that works.
- *
- * Revision 1.2  1994/11/03  20:17:39  john
- * Added initial code for showing credits.
- *
- * Revision 1.1  1994/11/03  20:09:05  john
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -162,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: credits.c,v 1.8 2003-10-10 09:36:34 btb Exp $";
+static char rcsid[] = "$Id: credits.c,v 1.9 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #ifdef WINDOWS

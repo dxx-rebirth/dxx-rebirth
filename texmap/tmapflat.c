@@ -1,4 +1,4 @@
-/* $Id: tmapflat.c,v 1.5 2003-02-18 20:15:48 btb Exp $ */
+/* $Id: tmapflat.c,v 1.6 2004-08-28 23:17:46 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,50 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Flat shader derived from texture mapper (a little slow)
- *
- * Old Log:
- * Revision 1.13  1995/02/20  18:23:24  john
- * Added new module for C versions of inner loops.
- *
- * Revision 1.12  1995/02/20  17:09:17  john
- * Added code so that you can build the tmapper with no assembly!
- *
- * Revision 1.11  1994/11/30  00:58:01  mike
- * optimizations.
- *
- * Revision 1.10  1994/11/28  13:34:32  mike
- * optimizations.
- *
- * Revision 1.9  1994/11/19  15:21:46  mike
- * rip out unused code.
- *
- * Revision 1.8  1994/11/12  16:41:41  mike
- * *** empty log message ***
- *
- * Revision 1.7  1994/11/09  23:05:12  mike
- * do lighting on texture maps which get flat shaded instead.
- *
- * Revision 1.6  1994/10/06  19:53:07  matt
- * Added function that takes same parms as draw_tmap(), but renders flat
- *
- * Revision 1.5  1994/10/06  18:38:12  john
- * Added the ability to fade a scanline by calling gr_upoly_tmap
- * with Gr_scanline_darkening_level with a value < MAX_FADE_LEVELS.
- *
- * Revision 1.4  1994/05/25  18:46:32  matt
- * Added gr_upoly_tmap_ylr(), which generates ylr's for a polygon
- *
- * Revision 1.3  1994/04/08  16:25:58  mike
- * Comment out some includes (of header files)
- * call init_interface_vars_to_assembler.
- *
- * Revision 1.2  1994/03/31  08:33:44  mike
- * Fixup flat shading version of texture mapper (get it?)
- * (Or maybe not, I admit to not testing my code...hahahah!)
- *
- * Revision 1.1  1993/09/08  17:29:10  mike
- * Initial revision
- *
  *
  */
 

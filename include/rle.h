@@ -14,23 +14,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Protypes for rle functions.
  *
- * Old Log:
- * Revision 1.5  1995/01/14  11:32:20  john
- * Added rle_cache_flush function.
- *
- * Revision 1.4  1994/11/10  13:16:01  matt
- * Added includes
- *
- * Revision 1.3  1994/11/09  19:53:51  john
- * Added texture rle caching.
- *
- * Revision 1.2  1994/11/09  16:35:18  john
- * First version with working RLE bitmaps.
- *
- * Revision 1.1  1994/11/09  12:40:17  john
- * Initial revision
- *
- *
  */
 
 #ifndef _RLE_H

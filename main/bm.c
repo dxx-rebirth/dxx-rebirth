@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.41 2003-11-03 12:03:43 btb Exp $ */
+/* $Id: bm.c,v 1.42 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,23 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Bitmap and palette loading functions.
- *
- * Old Log:
- * Revision 1.1  1995/05/16  15:23:08  allender
- * Initial revision
- *
- * Revision 2.3  1995/03/14  16:22:04  john
- * Added cdrom alternate directory stuff.
- *
- * Revision 2.2  1995/03/07  16:51:48  john
- * Fixed robots not moving without edtiro bug.
- *
- * Revision 2.1  1995/03/06  15:23:06  john
- * New screen techniques.
- *
- * Revision 2.0  1995/02/27  11:27:05  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
  *
  */
 

@@ -1,4 +1,4 @@
-/* $Id: fuelcen.h,v 1.7 2004-05-15 17:24:17 schaffner Exp $ */
+/* $Id: fuelcen.h,v 1.8 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,94 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Definitions for fueling centers.
- *
- * Old Log:
- * Revision 1.1  1995/05/16  15:56:31  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:28:43  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.26  1995/01/26  12:19:16  rob
- * Added externs of things needed for multiplayer.
- *
- * Revision 1.25  1994/10/30  14:11:10  mike
- * rip out repair center stuff.
- *
- * Revision 1.24  1994/10/03  23:36:36  mike
- * Add segnum and fuelcen_num (renaming dest_seg and *path) in matcen_info struct.
- *
- * Revision 1.23  1994/09/30  00:37:44  mike
- * Change FuelCenter struct.
- *
- * Revision 1.22  1994/09/27  15:42:49  mike
- * Kill some obsolete matcen constants, Prototype Special_names.
- *
- * Revision 1.21  1994/09/27  00:04:30  mike
- * Moved FuelCenter struct here from fuelcen.c
- *
- * Revision 1.20  1994/09/25  15:55:37  mike
- * Prototype function disable_matcens.
- *
- * Revision 1.19  1994/09/24  17:41:34  mike
- * Prototype trigger_matcen.
- *
- * Revision 1.18  1994/08/03  17:52:19  matt
- * Tidied up repair centers a bit
- *
- * Revision 1.17  1994/08/02  12:16:01  mike
- * *** empty log message ***
- *
- * Revision 1.16  1994/08/01  11:04:03  yuan
- * New materialization centers.
- *
- * Revision 1.15  1994/07/21  19:02:15  mike
- * break repair centers.
- *
- * Revision 1.14  1994/07/14  11:25:22  john
- * Made control centers destroy better; made automap use Tab key.
- *
- * Revision 1.13  1994/07/13  10:45:33  john
- * Made control center object switch when dead.
- *
- * Revision 1.12  1994/07/09  17:36:44  mike
- * Add extern for find_connected_repair_seg.
- *
- * Revision 1.11  1994/06/15  19:00:32  john
- * Show timer in on top of 3d with mine destroyed...
- *
- * Revision 1.10  1994/05/31  16:49:46  john
- * Begin to add robot materialization centers.
- *
- * Revision 1.9  1994/05/30  20:22:03  yuan
- * New triggers.
- *
- * Revision 1.8  1994/05/05  16:41:14  matt
- * Cleaned up repair center code, and moved some from object.c to fuelcen.c
- *
- * Revision 1.7  1994/04/21  20:41:21  yuan
- * Added extern.
- *
- * Revision 1.6  1994/04/21  20:28:32  john
- * Added flag for Yuan to tell when a fuel center is destroyed.
- *
- * Revision 1.5  1994/04/14  17:00:59  john
- * Made repair cen's work properly; added reset_all_fuelcens.
- *
- * Revision 1.4  1994/04/12  20:28:04  john
- * Added control center.
- *
- * Revision 1.3  1994/04/08  15:37:10  john
- * Added repair centers.
- *
- * Revision 1.2  1994/04/06  19:10:38  john
- * NEw version.
- *
- *
- * Revision 1.1  1994/04/06  12:39:02  john
- * Initial revision
- *
  *
  */
 

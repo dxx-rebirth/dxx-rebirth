@@ -12,59 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/mono.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:15 $
+ * $Revision: 1.2 $
+ * $Author: schaffner $
+ * $Date: 2004-08-28 23:17:45 $
  *
  * Library functions for printing to mono card.
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  1999/06/14 21:58:35  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.12  1995/02/23  11:59:57  john
- * Made the windows smaller so they don't overwrite the debug file menus.
- * 
- * Revision 1.11  1994/11/27  23:07:50  matt
- * Made changes needed to be able to compile out monochrome debugging code
- * 
- * Revision 1.10  1994/10/26  22:23:43  john
- * Limited windows to 2.  Took away saving what was under
- * a window.
- * 
- * Revision 1.9  1994/07/14  23:25:44  matt
- * Allow window 0 to be opened; don't allow mono to be initialized twice
- * 
- * Revision 1.8  1994/03/09  10:45:38  john
- * Sped up scroll.
- * 
- * Revision 1.7  1994/01/26  08:56:55  mike
- * Comment out int3 in mputc.
- * 
- * Revision 1.6  1994/01/12  15:56:34  john
- * made backspace do an int3 during mono stuff.
- * .,
- * 
- * Revision 1.5  1993/12/07  12:33:23  john
- * *** empty log message ***
- * 
- * Revision 1.4  1993/10/15  10:10:25  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/09/14  20:55:13  matt
- * Made minit() and mopen() check for presence of mono card in machine.
- * 
- * Revision 1.2  1993/07/22  13:10:21  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/07/10  13:10:38  matt
- * Initial revision
- *
  *
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: mono.c,v 1.1.1.1 2001-01-19 03:30:15 bradleyb Exp $";
+static char rcsid[] = "$Id: mono.c,v 1.2 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 // Library functions for printing to mono card.

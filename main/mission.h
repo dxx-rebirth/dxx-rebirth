@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.16 2003-11-24 23:11:26 btb Exp $ */
+/* $Id: mission.h,v 1.17 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,34 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Header for mission.h
- *
- * Old Log:
- * Revision 1.1  1995/05/16  15:59:22  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:31:35  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.6  1995/01/30  12:55:41  matt
- * Added vars to point to mission names
- *
- * Revision 1.5  1995/01/22  18:57:21  matt
- * Made player highest level work with missions
- *
- * Revision 1.4  1995/01/22  14:13:21  matt
- * Added flag in mission list for anarchy-only missions
- *
- * Revision 1.3  1995/01/21  23:13:12  matt
- * Made high scores with (not work, really) with loaded missions
- * Don't give player high score when quit game
- *
- * Revision 1.2  1995/01/20  22:47:53  matt
- * Mission system implemented, though imcompletely
- *
- * Revision 1.1  1995/01/20  13:42:26  matt
- * Initial revision
- *
  *
  */
 

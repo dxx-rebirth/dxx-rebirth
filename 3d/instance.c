@@ -1,4 +1,4 @@
-/* $Id: instance.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: instance.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,18 +14,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  * 
  * Instancing routines
- * 
- * Old Log:
- *
- * Revision 1.2  1995/06/12  12:36:57  allender
- * fixed bug where g3_start_instance_angles recursively called itself
- *
- * Revision 1.1  1995/05/05  08:51:27  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  06:43:29  matt
- * Initial revision
- * 
  * 
  */
 

@@ -1,4 +1,4 @@
-/* $Id: netmisc.c,v 1.10 2004-08-01 16:28:33 schaffner Exp $ */
+/* $Id: netmisc.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,24 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Misc routines for network.
  *
- * Old Log:
- * Revision 1.1  1995/05/16  15:28:41  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:27:24  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.3  1994/11/19  15:19:34  mike
- * rip out unused code and data.
- *
- * Revision 1.2  1994/08/09  19:31:53  john
- * Networking changes.
- *
- * Revision 1.1  1994/08/08  11:06:07  john
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -41,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: netmisc.c,v 1.10 2004-08-01 16:28:33 schaffner Exp $";
+static char rcsid[] = "$Id: netmisc.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdio.h>

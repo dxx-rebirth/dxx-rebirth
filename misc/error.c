@@ -1,4 +1,4 @@
-/* $Id: error.c,v 1.6 2003-04-08 00:59:17 btb Exp $ */
+/* $Id: error.c,v 1.7 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,45 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Error handling/printing/exiting code
  *
- * Old Log:
- * Revision 1.12  1994/12/07  18:49:39  matt
- * error_init() can now take NULL as parm
- *
- * Revision 1.11  1994/11/29  15:42:07  matt
- * Added newline before error message
- *
- * Revision 1.10  1994/11/27  23:20:39  matt
- * Made changes for new mprintf calling convention
- *
- * Revision 1.9  1994/06/20  21:20:56  matt
- * Allow NULL for warn func, to kill warnings
- *
- * Revision 1.8  1994/05/20  15:11:35  mike
- * mprintf Warning message so you can actually see it.
- *
- * Revision 1.7  1994/02/10  18:02:38  matt
- * Changed 'if DEBUG_ON' to 'ifndef NDEBUG'
- *
- * Revision 1.6  1993/10/17  18:19:10  matt
- * If error_init() not called, Error() now prints the error message before
- * calling exit()
- *
- * Revision 1.5  1993/10/14  15:29:11  matt
- * Added new function clear_warn_func()
- *
- * Revision 1.4  1993/10/08  16:17:19  matt
- * Made Assert() call function _Assert(), rather to do 'if...' inline.
- *
- * Revision 1.3  1993/09/28  12:45:25  matt
- * Fixed wrong print call, and made Warning() not append a CR to string
- *
- * Revision 1.2  1993/09/27  11:46:35  matt
- * Added function set_warn_func()
- *
- * Revision 1.1  1993/09/23  20:17:33  matt
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -61,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: error.c,v 1.6 2003-04-08 00:59:17 btb Exp $";
+static char rcsid[] = "$Id: error.c,v 1.7 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdio.h>

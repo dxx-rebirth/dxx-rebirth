@@ -1,4 +1,4 @@
-/* $Id: laser.c,v 1.11 2004-05-15 16:25:35 schaffner Exp $ */
+/* $Id: laser.c,v 1.12 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,11 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * This will contain the laser code
  *
- * Old Log:
- * Revision 1.1  1993/11/29  17:19:02  john
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -28,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char laser_rcsid[] = "$Id: laser.c,v 1.11 2004-05-15 16:25:35 schaffner Exp $";
+char laser_rcsid[] = "$Id: laser.c,v 1.12 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdlib.h>

@@ -1,4 +1,4 @@
-/* $Id: kconfig.h,v 1.4 2004-05-21 02:46:07 btb Exp $ */
+/* $Id: kconfig.h,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,97 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Prototypes for reading controls
- *
- * Old Log:
- * Revision 1.1  1995/05/16  15:58:27  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:29:38  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.23  1995/01/12  11:41:44  john
- * Added external control reading.
- *
- * Revision 1.22  1994/12/07  16:15:30  john
- * Added command to check to see if a joystick axes has been used.
- *
- * Revision 1.21  1994/11/29  03:46:29  john
- * Added joystick sensitivity; Added sound channels to detail menu.  Removed -maxchannels
- * command line arg.
- *
- * Revision 1.20  1994/11/22  16:54:45  mike
- * autorepeat on missiles.
- *
- * Revision 1.19  1994/11/07  14:01:27  john
- * Changed the gamma correction sequencing.
- *
- * Revision 1.18  1994/11/01  16:40:02  john
- * Added Gamma correction.
- *
- * Revision 1.17  1994/10/25  23:09:24  john
- * Made the automap key configurable.
- *
- * Revision 1.16  1994/10/24  19:56:51  john
- * Made the new user setup prompt for config options.
- *
- * Revision 1.15  1994/10/24  17:44:18  john
- * Added stereo channel reversing.
- *
- * Revision 1.14  1994/10/22  13:19:33  john
- * Took out toggle primary/secondary weapons.  Fixed black
- * background for 'axes' and 'buttons' text.
- *
- * Revision 1.13  1994/10/17  13:06:51  john
- * Moved the descent.cfg info into the player config file.
- *
- * Revision 1.12  1994/10/14  12:14:47  john
- * Changed code so that by doing DEL+F12 saves the current kconfig
- * values as default. Added support for drop_bomb key.  Took out
- * unused slots for keyboard.  Made keyboard use control_type of 0
- * save slots.
- *
- * Revision 1.11  1994/10/13  19:21:33  john
- * Added separate config saves for different devices.
- * Made all the devices work together better, such as mice won't
- * get read when you're playing with the joystick.
- *
- * Revision 1.10  1994/10/13  15:18:41  john
- * Started ripping out old afterburner, show message, show automap
- * keys in the keyboard config stuff.
- *
- * Revision 1.9  1994/10/13  11:35:27  john
- * Made Thrustmaster FCS Hat work.  Put a background behind the
- * keyboard configure.  Took out turn_sensitivity.  Changed sound/config
- * menu to new menu. Made F6 be calibrate joystick.
- *
- * Revision 1.8  1994/10/06  14:10:50  matt
- * New function reset_cruise()
- *
- * Revision 1.7  1994/10/03  14:58:25  john
- * Added rear_view_down_state so that the rear view can
- * work like the automap.
- *
- * Revision 1.6  1994/09/30  12:37:25  john
- * Added midi,digi volume to configuration.
- *
- * Revision 1.5  1994/09/19  18:49:59  john
- * Added switch to disable joystick.
- *
- * Revision 1.4  1994/09/15  16:11:21  john
- * Added support for VFX1 head tracking. Fixed bug with memory over-
- * write when using stereo mode.
- *
- * Revision 1.3  1994/09/12  11:47:38  john
- * Made stupid cruise work better.  Make kconfig values get
- * read/written to disk.
- *
- * Revision 1.2  1994/09/10  15:46:55  john
- * First version of new keyboard configuration.
- *
- * Revision 1.1  1994/09/10  13:51:40  john
- * Initial revision
- *
  *
  */
 

@@ -1,4 +1,4 @@
-/* $Id: ai2.c,v 1.4 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: ai2.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,11 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Split ai.c into two files: ai.c, ai2.c.
  *
- * Old Log:
- * Revision 1.1  1995/05/25  12:00:31  mike
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -28,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ai2.c,v 1.4 2003-10-04 03:14:47 btb Exp $";
+static char rcsid[] = "$Id: ai2.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdio.h>

@@ -1,4 +1,4 @@
-/* $Id: texmerge.c,v 1.3 2002-09-04 22:47:25 btb Exp $ */
+/* $Id: texmerge.c,v 1.4 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,104 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Routines to cache merged textures.
- *
- * Old Log:
- * Revision 1.1  1995/05/16  15:31:36  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:31:08  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.28  1995/01/14  19:16:56  john
- * First version of new bitmap paging code.
- *
- * Revision 1.27  1994/12/14  18:21:58  yuan
- * *** empty log message ***
- *
- * Revision 1.26  1994/12/13  09:50:08  john
- * Added Asserts to stop if wall looks like door.
- *
- * Revision 1.25  1994/12/07  00:35:24  mike
- * change how flat shading average color is computed for paste-ons.
- *
- * Revision 1.24  1994/11/19  15:20:29  mike
- * rip out unused code and data
- *
- * Revision 1.23  1994/11/12  16:38:51  mike
- * deal with avg_color in texture merging.
- *
- * Revision 1.22  1994/11/09  19:55:39  john
- * Added full rle support with texture rle caching.
- *
- * Revision 1.21  1994/10/20  15:21:16  john
- * Took out the texmerge caching.
- *
- * Revision 1.20  1994/10/10  19:00:57  john
- * Made caching info print every 1000 frames.
- *
- * Revision 1.19  1994/10/10  18:41:21  john
- * Printed out texture caching info.
- *
- * Revision 1.18  1994/08/11  18:59:02  mike
- * Use new assembler version of merge functions.
- *
- * Revision 1.17  1994/06/09  12:13:14  john
- * Changed selectors so that all bitmaps have a selector of
- * 0, but inside the texture mapper they get a selector set.
- *
- * Revision 1.16  1994/05/14  17:15:15  matt
- * Got rid of externs in source (non-header) files
- *
- * Revision 1.15  1994/05/09  17:21:09  john
- * Took out mprintf with cache hits/misses.
- *
- * Revision 1.14  1994/05/05  12:55:07  john
- * Made SuperTransparency work.
- *
- * Revision 1.13  1994/05/04  11:15:37  john
- * Added Super Transparency
- *
- * Revision 1.12  1994/04/28  23:36:04  john
- * Took out a debugging mprintf.
- *
- * Revision 1.11  1994/04/22  17:44:48  john
- * Made top 2 bits of paste-ons pick the
- * orientation of the bitmap.
- *
- * Revision 1.10  1994/03/31  12:05:51  matt
- * Cleaned up includes
- *
- * Revision 1.9  1994/03/15  16:31:52  yuan
- * Cleaned up bm-loading code.
- * (And structures)
- *
- * Revision 1.8  1994/01/24  13:15:19  john
- * Made caching work with pointers, not texture numbers,
- * that way, the animated textures cache.
- *
- * Revision 1.7  1994/01/21  16:38:10  john
- * Took out debug info.
- *
- * Revision 1.6  1994/01/21  16:28:43  john
- * added warning to print cache hit/miss.
- *
- * Revision 1.5  1994/01/21  16:22:30  john
- * Put in caching/
- *
- * Revision 1.4  1994/01/21  15:34:49  john
- * *** empty log message ***
- *
- * Revision 1.3  1994/01/21  15:33:08  john
- * *** empty log message ***
- *
- * Revision 1.2  1994/01/21  15:15:35  john
- * Created new module texmerge, that merges textures together and
- * caches the results.
- *
- * Revision 1.1  1994/01/21  14:55:29  john
- * Initial revision
- *
  *
  */
 

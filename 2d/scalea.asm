@@ -13,15 +13,6 @@
 ; 
 ; Asm inner loop for scaler.
 ; 
-; Old Log:
-;
-; Revision 1.2  1994/01/12  18:02:52  john
-; Asm code for the scaler... first iteration here
-; has compiled code that works!!
-; 
-; Revision 1.1  1994/01/12  12:20:11  john
-; Initial revision
-; 
 ; 
 
 

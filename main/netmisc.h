@@ -1,4 +1,4 @@
-/* $Id: netmisc.h,v 1.5 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: netmisc.h,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,21 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Header for netmisc.c
- *
- * Old Log:
- * Revision 1.1  1995/05/16  16:00:08  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:30:18  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.2  1994/08/09  19:31:54  john
- * Networking changes.
- *
- * Revision 1.1  1994/08/08  11:18:40  john
- * Initial revision
- *
  *
  */
 

@@ -1,4 +1,4 @@
-/* $Id: cntrlcen.h,v 1.6 2003-10-10 09:36:34 btb Exp $ */
+/* $Id: cntrlcen.h,v 1.7 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,33 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Header for cntrlcen.c
- *
- * Old Log:
- * Revision 2.0  1995/02/27  11:30:40  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.7  1995/02/01  16:34:14  john
- * Linted.
- *
- * Revision 1.6  1995/01/03  20:19:14  john
- * Pretty good working version of game save.
- *
- * Revision 1.5  1994/11/08  12:18:28  mike
- * small explosions on control center.
- *
- * Revision 1.4  1994/11/02  18:00:12  rob
- * Added extern for Gun_pos array for network hooks.
- *
- * Revision 1.3  1994/10/20  09:47:37  mike
- * *** empty log message ***
- *
- * Revision 1.2  1994/10/17  21:35:10  matt
- * Added support for new Control Center/Main Reactor
- *
- * Revision 1.1  1994/10/17  20:24:28  matt
- * Initial revision
- *
  *
  */
 

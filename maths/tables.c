@@ -1,4 +1,4 @@
-/* $Id: tables.c,v 1.4 2004-05-12 07:31:37 btb Exp $ */
+/* $Id: tables.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,13 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * C version of fixed point library
- *
- * Old Log:
- * Revision 1.2  1995/08/31  15:44:36  allender
- * ..
- *
- * Revision 1.1  1995/04/17  11:38:04  allender
- * Initial revision
  *
  */
 

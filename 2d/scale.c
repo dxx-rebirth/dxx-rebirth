@@ -1,4 +1,4 @@
-/* $Id: scale.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: scale.c,v 1.4 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,48 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  * Routines for scaling a bitmap.
  * 
- * Old Log:
- *
- * Revision 1.12  1995/03/14  15:14:11  john
- * Increased max scanline length to 640.
- * ..
- * 
- * Revision 1.11  1994/11/27  12:56:39  matt
- * Took out unneeded include of 3d.h
- * 
- * Revision 1.10  1994/11/18  22:50:25  john
- * Changed shorts to ints in parameters.
- * 
- * Revision 1.9  1994/11/09  16:35:02  john
- * First version with working RLE bitmaps.
- * 
- * Revision 1.8  1994/06/09  13:15:17  john
- * *** empty log message ***
- * 
- * Revision 1.7  1994/06/07  11:47:02  john
- * Added back in the fast code for scaling up bitmaps.
- * 
- * Revision 1.6  1994/02/18  15:32:36  john
- * *** empty log message ***
- * 
- * Revision 1.5  1994/01/22  14:35:01  john
- * Added transparency as color index 255.
- * 
- * Revision 1.4  1994/01/17  16:59:12  john
- * once again...
- * 
- * Revision 1.3  1994/01/17  16:51:17  john
- * Added check so we don't draw outsibe
- * the source bitmap's v coordinate... kind
- * of a hack, but works.
- * 
- * Revision 1.2  1994/01/12  18:03:26  john
- * The first iteration of fast scaler..
- * 
- * Revision 1.1  1994/01/11  14:48:42  john
- * Initial revision
- * 
- * 
  */
 
 #ifdef HAVE_CONFIG_H
@@ -64,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: scale.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $";
+static char rcsid[] = "$Id: scale.c,v 1.4 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <math.h>

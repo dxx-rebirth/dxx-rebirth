@@ -1,4 +1,4 @@
-/* $Id: escort.c,v 1.7 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: escort.c,v 1.8 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,11 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Escort robot behavior.
- *
- * Old Log:
- * Revision 1.1  1995/05/06  23:32:19  mike
- * Initial revision
- *
  *
  */
 

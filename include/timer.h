@@ -1,4 +1,4 @@
-/* $Id: timer.h,v 1.5 2003-02-21 04:08:48 btb Exp $ */
+/* $Id: timer.h,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,34 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Header for timer functions
- *
- * Old Log:
- * Revision 1.8  1994/12/10  12:27:23  john
- * Added timer_get_approx_seconds.
- *
- * Revision 1.7  1994/12/10  12:10:25  john
- * Added types.h.
- *
- * Revision 1.6  1994/12/10  12:07:06  john
- * Added tick counter variable.
- *
- * Revision 1.5  1994/11/15  12:04:15  john
- * Cleaned up timer code a bit... took out unused functions
- * like timer_get_milliseconds, etc.
- *
- * Revision 1.4  1994/04/28  23:50:08  john
- * Changed calling for init_timer.  Made the function that the
- * timer calls be a far function. All of this was done to make
- * our timer system compatible with the HMI sound stuff.
- *
- * Revision 1.3  1994/02/17  15:57:12  john
- * Changed key libary to C.
- *
- * Revision 1.2  1994/01/18  10:58:34  john
- * Added timer_get_fixed_seconds
- *
- * Revision 1.1  1993/07/10  13:10:41  matt
- * Initial revision
  *
  */
 

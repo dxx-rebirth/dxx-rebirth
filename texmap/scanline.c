@@ -1,4 +1,4 @@
-/* $Id: scanline.c,v 1.7 2004-05-20 22:31:03 btb Exp $ */
+/* $Id: scanline.c,v 1.8 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,14 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Routines to draw the texture mapped scanlines.
  *
- * Old Log:
- * Revision 1.2  1995/02/20  18:23:39  john
- * Added new module for C versions of inner loops.
- *
- * Revision 1.1  1995/02/20  17:42:27  john
- * Initial revision
- *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -31,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: scanline.c,v 1.7 2004-05-20 22:31:03 btb Exp $";
+static char rcsid[] = "$Id: scanline.c,v 1.8 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <math.h>

@@ -1,4 +1,4 @@
-/* $Id: lighting.c,v 1.4 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: lighting.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,116 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Lighting functions.
  *
- * Old Log:
- * Revision 1.4  1995/09/20  14:26:12  allender
- * more optimizations(?) ala MK
- *
- * Revision 1.2  1995/07/05  21:27:31  allender
- * new and improved lighting code by MK!
- *
- * Revision 2.1  1995/07/24  13:21:56  john
- * Added new lighting calculation code to speed things up.
- *
- * Revision 2.0  1995/02/27  11:27:33  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.43  1995/02/22  13:57:10  allender
- * remove anonymous union from object structure
- *
- * Revision 1.42  1995/02/13  20:35:07  john
- * Lintized
- *
- * Revision 1.41  1995/02/04  21:43:40  matt
- * Changed an assert() to an int3() and deal with the bad case
- *
- * Revision 1.40  1995/01/15  20:48:27  mike
- * support light field for powerups.
- *
- * Revision 1.39  1994/12/15  13:04:19  mike
- * Replace Players[Player_num].time_total references with GameTime.
- *
- * Revision 1.38  1994/11/28  21:50:41  mike
- * optimizations.
- *
- * Revision 1.37  1994/11/28  01:32:33  mike
- * lighting optimization.
- *
- * Revision 1.36  1994/11/15  12:01:00  john
- * Changed a bunch of code that uses timer_get_milliseconds to
- * timer_get_fixed_Seconds.
- *
- * Revision 1.35  1994/10/31  21:56:07  matt
- * Fixed bug & added error checking
- *
- * Revision 1.34  1994/10/21  11:24:57  mike
- * Trap divide overflows in lighting.
- *
- * Revision 1.33  1994/10/08  14:49:11  matt
- * If viewer changed, don't do smooth lighting hack
- *
- * Revision 1.32  1994/09/25  23:41:07  matt
- * Changed the object load & save code to read/write the structure fields one
- * at a time (rather than the whole structure at once).  This mean that the
- * object structure can be changed without breaking the load/save functions.
- * As a result of this change, the local_object data can be and has been
- * incorporated into the object array.  Also, timeleft is now a property
- * of all objects, and the object structure has been otherwise cleaned up.
- *
- * Revision 1.31  1994/09/25  15:45:15  matt
- * Added OBJ_LIGHT, a type of object that casts light
- * Added generalized lifeleft, and moved it to local_object
- *
- * Revision 1.30  1994/09/11  15:48:27  mike
- * Use vm_vec_mag_quick in place of vm_vec_mag in point_dist computation.
- *
- * Revision 1.29  1994/09/08  21:44:49  matt
- * Made lighting ramp 4x as fast; made only static (ambient) light ramp
- * up, but not headlight & dynamic light
- *
- * Revision 1.28  1994/09/02  14:00:07  matt
- * Simplified explode_object() & mutliple-stage explosions
- *
- * Revision 1.27  1994/08/29  19:06:44  mike
- * Make lighting proportional to square of distance, not linear.
- *
- * Revision 1.26  1994/08/25  18:08:38  matt
- * Made muzzle flash cast 3x as much light
- *
- * Revision 1.25  1994/08/23  16:38:31  mike
- * Key weapon light off bitmaps.tbl.
- *
- * Revision 1.24  1994/08/13  12:20:44  john
- * Made the networking uise the Players array.
- *
- * Revision 1.23  1994/08/12  22:42:18  john
- * Took away Player_stats; added Players array.
- *
- * Revision 1.22  1994/07/06  10:19:22  matt
- * Changed include
- *
- * Revision 1.21  1994/06/28  13:20:22  mike
- * Oops, fixed a dumb typo.
- *
- * Revision 1.20  1994/06/28  12:53:25  mike
- * Change lighting function for flares, make brighter and asynchronously flicker.
- *
- * Revision 1.19  1994/06/27  18:31:15  mike
- * Add flares.
- *
- * Revision 1.18  1994/06/20  13:41:17  matt
- * Added time-based gradual lighting hack for objects
- * Took out strobing robots
- *
- * Revision 1.17  1994/06/19  16:25:54  mike
- * Optimize lighting.
- *
- * Revision 1.16  1994/06/17  18:08:08  mike
- * Make robots cast more and variable light.
- *
- * Revision 1.15  1994/06/13  15:15:55  mike
- * Fix phantom light, every 64K milliseconds, muzzle flash would flash again.
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -133,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: lighting.c,v 1.4 2003-10-04 03:14:47 btb Exp $";
+static char rcsid[] = "$Id: lighting.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $";
 #endif
 
 #include <stdio.h>

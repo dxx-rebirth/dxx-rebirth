@@ -1,4 +1,4 @@
-/* $Id: paging.h,v 1.2 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: paging.h,v 1.3 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,21 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Prototypes for paging.
- *
- * Old Log:
- * Revision 1.1  1995/05/16  16:00:48  allender
- * Initial revision
- *
- * Revision 2.0  1995/02/27  11:30:12  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.2  1995/01/15  11:56:39  john
- * Working version of paging.
- *
- * Revision 1.1  1995/01/15  11:33:52  john
- * Initial revision
- *
  *
  */
 

@@ -1,4 +1,4 @@
-; $Id: tmapfade.asm,v 1.2 2003-02-18 20:15:48 btb Exp $
+; $Id: tmapfade.asm,v 1.3 2004-08-28 23:17:46 schaffner Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -12,28 +12,6 @@
 ;
 ;
 ; .
-;
-; Old Log:
-; Revision 1.6  1995/02/20  18:23:01  john
-; Put all the externs in the assembly modules into tmap_inc.asm.
-; Also, moved all the C versions of the inner loops into a new module,
-; scanline.c.
-;
-; Revision 1.5  1995/02/20  17:09:15  john
-; Added code so that you can build the tmapper with no assembly!
-;
-; Revision 1.4  1994/12/02  23:29:36  mike
-; change jb/ja to jl/jg.
-;
-; Revision 1.3  1994/11/30  00:57:36  mike
-; *** empty log message ***
-;
-; Revision 1.2  1994/10/06  18:38:49  john
-; Added the ability to fade a scanline by calling gr_upoly_tmap
-; with Gr_scanline_darkening_level with a value < MAX_FADE_LEVELS.
-;
-; Revision 1.1  1994/10/06  18:04:42  john
-; Initial revision
 ;
 ;
 [BITS 32]

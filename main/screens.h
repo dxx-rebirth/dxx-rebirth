@@ -1,4 +1,4 @@
-/* $Id: screens.h,v 1.2 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: screens.h,v 1.3 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,69 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Info on canvases, screens, etc.
- *
- * Old Log:
- * Revision 1.1  1995/05/16  16:02:15  allender
- * Initial revision
- *
- * Revision 2.2  1995/03/14  12:14:00  john
- * Made VR helmets have 4 resolutions to choose from.
- *
- * Revision 2.1  1995/03/06  15:24:09  john
- * New screen techniques.
- *
- * Revision 2.0  1995/02/27  11:31:40  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.15  1994/08/10  19:56:45  john
- * Changed font stuff; Took out old menu; messed up lots of
- * other stuff like game sequencing messages, etc.
- *
- * Revision 1.14  1994/07/20  21:04:26  john
- * Add VictorMax VR helment support.
- *
- * Revision 1.13  1994/06/24  17:01:28  john
- * Add VFX support; Took Game Sequencing, like EndGame and stuff and
- * took it out of game.c and into gameseq.c
- *
- * Revision 1.12  1994/04/20  20:30:03  john
- * *** empty log message ***
- *
- * Revision 1.11  1994/03/30  21:12:05  yuan
- * Use only 119 lines (saves 3 scanlines)
- *
- * Revision 1.10  1994/03/17  16:49:37  john
- * *** empty log message ***
- *
- * Revision 1.9  1994/02/11  15:07:44  matt
- * Added extern of Canv_game_offscrn
- *
- * Revision 1.8  1994/01/31  16:52:43  john
- * redid cockpit bounds.
- *
- * Revision 1.7  1994/01/26  18:13:53  john
- * Changed 3d constants..
- *
- * Revision 1.6  1994/01/25  17:11:46  john
- * *** empty log message ***
- *
- * Revision 1.5  1994/01/25  11:43:25  john
- * Changed game window size.
- *
- * Revision 1.4  1993/12/13  16:32:39  yuan
- * Fixed menu system memory errors, and other bugs.
- *
- * Revision 1.3  1993/12/10  16:07:23  yuan
- * Working on menu system.  Updated the title screen.
- *
- * Revision 1.2  1993/12/09  21:27:46  matt
- * Added 3d window sizing constants
- *
- * Revision 1.1  1993/12/06  09:50:33  matt
- * Initial revision
- *
- *
  *
  */
 

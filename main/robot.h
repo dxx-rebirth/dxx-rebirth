@@ -1,4 +1,4 @@
-/* $Id: robot.h,v 1.4 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: robot.h,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,98 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Header for robot.c
- *
- * Old Log:
- * Revision 1.1  1995/05/16  16:01:59  allender
- * Initial revision
- *
- * Revision 2.1  1995/03/07  16:52:00  john
- * Fixed robots not moving without edtiro bug.
- *
- * Revision 2.0  1995/02/27  11:30:59  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.25  1994/11/30  14:02:44  mike
- * fields for see/attack/claw sounds.
- *
- * Revision 1.24  1994/10/27  15:55:41  adam
- * *** empty log message ***
- *
- * Revision 1.23  1994/10/20  15:17:03  mike
- * Add boss flag.
- *
- * Revision 1.22  1994/10/20  09:51:00  adam
- * *** empty log message ***
- *
- * Revision 1.21  1994/10/18  10:52:54  mike
- * Support robots lunging as an attack_type.
- *
- * Revision 1.20  1994/10/17  21:19:02  mike
- * robot cloaking.
- *
- * Revision 1.19  1994/09/27  00:03:39  mike
- * Add score_value to robot_info struct.
- *
- * Revision 1.18  1994/09/22  19:01:12  mike
- * Move NDL from here to game.h
- *
- * Revision 1.17  1994/09/22  15:46:55  mike
- * Add default contained objects for robots.
- *
- * Revision 1.16  1994/09/22  10:46:57  mike
- * Add difficulty levels.
- *
- * Revision 1.15  1994/09/15  16:34:16  mike
- * Change rapidfire_count to a byte, add evade_speed, dum1, dum2.
- *
- * Revision 1.14  1994/09/09  14:21:58  matt
- * Increased maximum number of games
- *
- * Revision 1.13  1994/08/25  18:12:13  matt
- * Made player's weapons and flares fire from the positions on the 3d model.
- * Also added support for quad lasers.
- *
- * Revision 1.12  1994/08/23  16:37:24  mike
- * Add rapidfire_count to robot_info.
- *
- * Revision 1.11  1994/07/27  19:45:01  mike
- * Objects containing objects.
- *
- * Revision 1.10  1994/07/12  12:40:01  matt
- * Revamped physics system
- *
- * Revision 1.9  1994/06/21  12:17:12  mike
- * Add circle_distance to robot_info.
- *
- * Revision 1.8  1994/06/09  16:22:28  matt
- * Moved header for calc_gun_point() here, where it belongs
- *
- * Revision 1.7  1994/06/08  18:16:23  john
- * Bunch of new stuff that basically takes constants out of the code
- * and puts them into bitmaps.tbl.
- *
- * Revision 1.6  1994/06/03  11:38:09  john
- * Made robots get their strength for RobotInfo->strength, which
- * is read in from bitmaps.tbl
- *
- * Revision 1.5  1994/05/30  19:43:31  mike
- * Add voluminous comment for robot_get_anim_state.
- *
- * Revision 1.4  1994/05/30  00:03:18  matt
- * Got rid of robot render type, and generally cleaned up polygon model
- * render objects.
- *
- * Revision 1.3  1994/05/29  18:46:37  matt
- * Added stuff for getting robot animation info for different states
- *
- * Revision 1.2  1994/05/26  21:09:18  matt
- * Moved robot stuff out of polygon model and into robot_info struct
- * Made new file, robot.c, to deal with robots
- *
- * Revision 1.1  1994/05/26  18:02:12  matt
- * Initial revision
- *
  *
  */
 

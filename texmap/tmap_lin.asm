@@ -1,4 +1,4 @@
-; $Id: tmap_lin.asm,v 1.2 2003-02-18 20:15:48 btb Exp $
+; $Id: tmap_lin.asm,v 1.3 2004-08-28 23:17:46 schaffner Exp $
 ;THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 ;SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
 ;END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
@@ -12,37 +12,6 @@
 ;
 ;
 ; Linearly interpolating texture mapper inner loop
-;
-; Old Log:
-; Revision 1.3  1995/02/20  18:22:57  john
-; Put all the externs in the assembly modules into tmap_inc.asm.
-; Also, moved all the C versions of the inner loops into a new module,
-; scanline.c.
-;
-; Revision 1.2  1995/02/20  17:09:10  john
-; Added code so that you can build the tmapper with no assembly!
-;
-; Revision 1.1  1994/11/30  12:24:04  mike
-; Initial revision
-;
-; Revision 1.6  1994/11/12  16:39:40  mike
-; jae to ja.
-;
-; Revision 1.5  1994/02/10  21:24:43  matt
-; Got rid of debug_on set
-;
-; Revision 1.4  1994/01/31  15:39:53  mike
-; Write additional inner loop for transparency.
-;
-; Revision 1.3  1994/01/26  11:50:04  john
-; Added transparency to linear unlighted texture mapper.
-;
-; Revision 1.2  1993/11/22  10:24:36  mike
-; *** empty log message ***
-;
-; Revision 1.1  1993/09/08  17:29:50  mike
-; Initial revision
-;
 ;
 ;
 

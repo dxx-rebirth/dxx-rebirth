@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.26 2004-08-17 19:36:50 schaffner Exp $ */
+/* $Id: cfile.c,v 1.27 2004-08-28 23:17:45 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,107 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Functions for accessing compressed files.
- *
- * Old Log:
- * Revision 1.7  1995/10/27  15:18:20  allender
- * get back to descent directory before trying to read a hog file
- *
- * Revision 1.6  1995/10/21  23:48:24  allender
- * hogfile(s) are now in :Data: folder
- *
- * Revision 1.5  1995/08/14  09:27:31  allender
- * added byteswap header
- *
- * Revision 1.4  1995/05/12  11:54:33  allender
- * changed memory stuff again
- *
- * Revision 1.3  1995/05/04  20:03:38  allender
- * added code that was missing...use NewPtr instead of malloc
- *
- * Revision 1.2  1995/04/03  09:59:49  allender
- * *** empty log message ***
- *
- * Revision 1.1  1995/03/30  10:25:02  allender
- * Initial revision
- *
- *
- * --- PC RCS Information ---
- * Revision 1.24  1995/03/15  14:20:27  john
- * Added critical error checker.
- *
- * Revision 1.23  1995/03/13  15:16:53  john
- * Added alternate directory stuff.
- *
- * Revision 1.22  1995/02/09  23:08:47  matt
- * Increased the max number of files in hogfile to 250
- *
- * Revision 1.21  1995/02/01  20:56:47  john
- * Added cfexist function
- *
- * Revision 1.20  1995/01/21  17:53:48  john
- * Added alternate pig file thing.
- *
- * Revision 1.19  1994/12/29  15:10:02  john
- * Increased hogfile max files to 200.
- *
- * Revision 1.18  1994/12/12  13:20:57  john
- * Made cfile work with fiellentth.
- *
- * Revision 1.17  1994/12/12  13:14:25  john
- * Made cfiles prefer non-hog files.
- *
- * Revision 1.16  1994/12/09  18:53:26  john
- * *** empty log message ***
- *
- * Revision 1.15  1994/12/09  18:52:56  john
- * Took out mem, error checking.
- *
- * Revision 1.14  1994/12/09  18:10:31  john
- * Speed up cfgets, which was slowing down the reading of
- * bitmaps.tbl, which was making POF loading look slow.
- *
- * Revision 1.13  1994/12/09  17:53:51  john
- * Added error checking to number of hogfiles..
- *
- * Revision 1.12  1994/12/08  19:02:55  john
- * Added cfgets.
- *
- * Revision 1.11  1994/12/07  21:57:48  john
- * Took out data dir.
- *
- * Revision 1.10  1994/12/07  21:38:02  john
- * Made cfile not return error..
- *
- * Revision 1.9  1994/12/07  21:35:34  john
- * Made it read from data directory.
- *
- * Revision 1.8  1994/12/07  21:33:55  john
- * Stripped out compression stuff...
- *
- * Revision 1.7  1994/04/13  23:44:59  matt
- * When file cannot be opened, free up the buffer for that file.
- *
- * Revision 1.6  1994/02/18  12:38:20  john
- * Optimized a bit
- *
- * Revision 1.5  1994/02/15  18:13:20  john
- * Fixed more bugs.
- *
- * Revision 1.4  1994/02/15  13:27:58  john
- * Works ok...
- *
- * Revision 1.3  1994/02/15  12:51:57  john
- * Crappy inbetween version
- *
- * Revision 1.2  1994/02/14  20:12:29  john
- * First version working with new cfile stuff.
- *
- * Revision 1.1  1994/02/14  15:51:33  john
- * Initial revision
- *
- * Revision 1.1  1994/02/10  15:45:12  john
- * Initial revision
- *
  *
  */
 
