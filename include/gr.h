@@ -264,6 +264,10 @@ grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm,int x,int y,int w, int h);
 // Free the bitmap and its pixel data
 void gr_free_bitmap(grs_bitmap *bm);
 
+// Free the bitmap's data
+void gr_free_bitmap_data (grs_bitmap *bm);
+void gr_init_bitmap_data (grs_bitmap *bm);
+
 // Free the bitmap, but not the pixel data buffer
 void gr_free_sub_bitmap(grs_bitmap *bm);
 

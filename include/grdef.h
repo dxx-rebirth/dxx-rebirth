@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/grdef.h,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-11-14 10:31:40 $
+ * $Date: 2002-02-15 12:21:45 $
  *
  * Internal definitions for graphics lib.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/11/14 10:31:40  bradleyb
+ * change __ENV_WINDOWS__ to __WINDOWS__, __ENV_MSDOS__ to __MSDOS__
+ *
  * Revision 1.1.1.2  2001/01/19 03:34:09  bradleyb
  * Import of d2x-0.0.9-pre1
  *
@@ -75,8 +78,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  
 void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline);
 void show_fullscr(grs_bitmap *bm);
-void gr_init_bitmap_data (grs_bitmap *bm);
-void gr_free_bitmap_data (grs_bitmap *bm);
 void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int w, int h );
 void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data );
 
