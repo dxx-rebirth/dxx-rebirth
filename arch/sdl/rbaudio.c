@@ -1,4 +1,4 @@
-/* $Id: rbaudio.c,v 1.3 2003-01-15 02:42:41 btb Exp $ */
+/* $Id: rbaudio.c,v 1.4 2003-03-15 01:28:19 btb Exp $ */
 /*
  *
  * SDL CD Audio functions
@@ -26,10 +26,11 @@ static int initialised = 0;
 
 void RBAExit()
 {
-  if (initialised)
-  {
-  	SDL_CDClose(s_cd);
-  }
+	if (initialised)
+	{
+		SDL_CDStop(s_cd);
+		SDL_CDClose(s_cd);
+	}
 }
 
 void RBAInit()

@@ -1,3 +1,7 @@
+2003-03-14  Christopher Thielen  <chris@luethy.net>
+
+	* arch/sdl/rbaudio.c (RBAExit): stop cd audio when exiting
+
 2003-03-14  Micah J. Lieske  <MicahJon@compuserve.com>
 
 	* main/gamecntl.c: add comments to the "only matt knows" cheats
