@@ -1,4 +1,4 @@
-/* $Id: bmread.c,v 1.12 2005-01-10 17:47:27 schaffner Exp $ */
+/* $Id: bmread.c,v 1.13 2005-01-25 20:02:58 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -90,7 +90,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern player_ship only_player_ship;		// In bm.c
 
-short		N_ObjBitmaps=0;
+extern short		N_ObjBitmaps;			// in bm.c
 short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;
 int	TmapList[MAX_TEXTURES];
@@ -128,14 +128,15 @@ static int			num_sounds=0;
 int	linenum;		//line int table currently being parsed
 
 //------------------- Useful macros and variables ---------------
+extern void remove_char( char * s, char c );	// in piggy.c
 #define REMOVE_EOL(s)		remove_char((s),'\n')
 #define REMOVE_COMMENTS(s)	remove_char((s),';')
 #define REMOVE_DOTS(s)  	remove_char((s),'.')
 
 #define IFTOK(str) if (!strcmp(arg, str))
-char *space = { " \t" };	
+extern char *space;			// in piggy.c
 //--unused-- char *equal = { "=" };
-char *equal_space = { " \t=" };
+extern char *equal_space;	// in piggy.c
 
 
 //	For the sake of LINT, defining prototypes to module's functions
@@ -155,14 +156,6 @@ void bm_write_extra_robots(void);
 void clear_to_end_of_line(void);
 void verify_textures(void);
 
-
-//----------------------------------------------------------------------
-void remove_char( char * s, char c )
-{
-	char *p;
-	p = strchr(s,c);
-	if (p) *p = '\0';
-}
 
 //---------------------------------------------------------------
 int compute_average_pixel(grs_bitmap *new)
