@@ -205,7 +205,7 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 		//say this is hoard version
 		if (HoardEquipped()) {
 			gr_set_curfont(MEDIUM2_FONT);
-			gr_printf(MenuHires?495:00,MenuHires?88:44,"Vertigo");
+			gr_printf(MenuHires?495:248, MenuHires?88:37, "Vertigo");
 		}
 
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
