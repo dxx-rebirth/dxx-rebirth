@@ -1,3 +1,8 @@
+2003-04-07  Steffen Pohle <stpohle@gmx.net>
+
+	* arch/linux/Makefile.am: revert to previous version, so linux
+	joystick works
+
 2003-04-03  Bradley Bell  <btb@icculus.org>
 
 	* main/endlevel.c: fixed exit model scheme yet again
