@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.29 2004-08-29 17:57:23 schaffner Exp $ */
+/* $Id: cfile.c,v 1.30 2004-09-29 22:40:28 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,6 +15,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Functions for accessing compressed files.
+ * (Actually, the files are not compressed, but concatenated within hogfiles)
  *
  */
 
@@ -41,35 +42,36 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile.h"
 #include "byteswap.h"
 
+/* a file (if offset == 0) or a part of a hog file */
 struct CFILE {
-	FILE    *file;
-	int     size;
-	int     lib_offset;
-	int     raw_position;
+	FILE	*file;
+	int	size;
+	int	offset;
+	int	raw_position;
 };
 
-typedef struct hogfile {
-	char    name[13];
-	int     offset;
-	int     length;
-} hogfile;
+struct file_in_hog {
+	char	name[13];
+	int	offset;
+	int	length;
+};
 
-#define MAX_HOGFILES 300
+#define MAX_FILES_IN_HOG 300
 
-hogfile HogFiles[MAX_HOGFILES];
-char Hogfile_initialized = 0;
-int Num_hogfiles = 0;
-char HogFilename[64];
+/* a hog file is an archive, like a tar file */
+typedef struct {
+	char filename[64];
+	int num_files;
+	struct file_in_hog files[MAX_FILES_IN_HOG];
+} hog;
 
-hogfile D1HogFiles[MAX_HOGFILES];
-char D1Hogfile_initialized = 0;
-int D1Num_hogfiles = 0;
-char D1HogFilename[64];
+hog *builtin_hog = NULL;
+hog *alt_hog = NULL;
+hog *d1_hog = NULL;
 
-hogfile AltHogFiles[MAX_HOGFILES];
-char AltHogfile_initialized = 0;
-int AltNum_hogfiles = 0;
-char AltHogFilename[64];
+void free_builtin_hog() { d_free (builtin_hog); }
+void free_alt_hog() { d_free (alt_hog); }
+void free_d1_hog() { d_free (d1_hog); }
 
 char AltHogDir[64];
 char AltHogdir_initialized = 0;
@@ -157,61 +159,61 @@ FILE * cfile_get_filehandle( char * filename, char * mode )
     return fp;
 }
 
-//returns 1 if file loaded with no errors
-int cfile_init_hogfile(char *fname, hogfile * hog_files, int * nfiles )
+hog * cfile_init_hogfile (char *fname)
 {
 	char id[4];
 	FILE * fp;
 	int i, len;
 
-	*nfiles = 0;
+	fp = cfile_get_filehandle (fname, "rb");
+	if (fp == NULL)
+		return 0;
 
-	fp = cfile_get_filehandle( fname, "rb" );
-	if ( fp == NULL ) return 0;
-
+	// verify that it is really a Descent Hog File
 	fread( id, 3, 1, fp );
 	if ( strncmp( id, "DHF", 3 ) )	{
 		fclose(fp);
-		return 0;
+		return NULL;
 	}
 
-	while( 1 )
-	{
-		if ( *nfiles >= MAX_HOGFILES ) {
-			fclose(fp);
-			Error( "HOGFILE is limited to %d files.\n",  MAX_HOGFILES );
+	hog *new_hog = (hog *) d_malloc (sizeof (hog));
+
+	new_hog->num_files = 0;
+	strcpy (new_hog->filename, fname);
+
+	// read file name or reach EOF
+	while (! feof (fp)) {
+		if (new_hog->num_files >= MAX_FILES_IN_HOG) {
+			fclose (fp);
+			d_free (new_hog);
+			Error ("Exceeded max. number of files in hog (%d).\n",
+			       MAX_FILES_IN_HOG);
 		}
-		i = fread( hog_files[*nfiles].name, 13, 1, fp );
-		if ( i != 1 )	{		//eof here is ok
-			fclose(fp);
-			return 1;
-		}
+		i = fread (new_hog->files[new_hog->num_files].name, 13, 1, fp);
+		if (i != 1)
+			break; // we assume it is EOF, so it is OK
+		
 		i = fread( &len, 4, 1, fp );
-		if ( i != 1 )	{
-			fclose(fp);
-			return 0;
-		}
-		hog_files[*nfiles].length = INTEL_INT(len);
-		hog_files[*nfiles].offset = ftell( fp );
-		*nfiles = (*nfiles) + 1;
-		// Skip over
-		i = fseek( fp, INTEL_INT(len), SEEK_CUR );
+		if (i != 1)
+			break;
+		new_hog->files[new_hog->num_files].length = INTEL_INT (len);
+		new_hog->files[new_hog->num_files].offset = ftell (fp);
+		// skip over embedded file:
+		i = fseek (fp, INTEL_INT (len), SEEK_CUR);
+		new_hog->num_files++;
 	}
+	fclose (fp);
+	return new_hog;
 }
 
-//Specify the name of the hogfile.  Returns 1 if hogfile found & had files
+// Opens builtin hog given its filename. Returns 1 on success.
 int cfile_init(char *hogname)
 {
+	Assert (builtin_hog == NULL);
 
-	Assert(Hogfile_initialized == 0);
-
-	if (cfile_init_hogfile(hogname, HogFiles, &Num_hogfiles )) {
-		strcpy( HogFilename, hogname );
-		Hogfile_initialized = 1;
-		return 1;
-	}
-	else
-		return 0;	//not loaded!
+	builtin_hog = cfile_init_hogfile (hogname);
+	atexit (free_builtin_hog);
+	return builtin_hog != NULL ? 1 : 0;
 }
 
 
@@ -228,84 +230,77 @@ int cfile_size(char *hogname)
 	return size;
 }
 
+FILE * cfile_find_in_hog (char * name, int * length, hog *my_hog) {
+	FILE * fp;
+	int i;
+	for (i = 0; i < my_hog->num_files; i++ )
+		if (! stricmp (my_hog->files[i].name, name)) {
+			fp = cfile_get_filehandle (my_hog->filename, "rb");
+			if (fp == NULL)
+				return NULL;
+			fseek (fp,  my_hog->files[i].offset, SEEK_SET);
+			*length = my_hog->files[i].length;
+			return fp;
+		}
+	return NULL;
+}
+
 /*
  * return handle for file called "name", embedded in one of the hogfiles
  */
-FILE * cfile_find_libfile(char * name, int * length)
+FILE * cfile_find_embedded_file (char * name, int * length)
 {
 	FILE * fp;
-	int i;
-
-	if ( AltHogfile_initialized )	{
-		for (i=0; i<AltNum_hogfiles; i++ )	{
-			if ( !stricmp( AltHogFiles[i].name, name ))	{
-				fp = cfile_get_filehandle( AltHogFilename, "rb" );
-				if ( fp == NULL ) return NULL;
-				fseek( fp,  AltHogFiles[i].offset, SEEK_SET );
-				*length = AltHogFiles[i].length;
-				return fp;
-			}
-		}
-	}
-
-	if ( !Hogfile_initialized ) 	{
-		//@@cfile_init_hogfile( "DESCENT2.HOG", HogFiles, &Num_hogfiles );
-		//@@Hogfile_initialized = 1;
-
-		//Int3();	//hogfile ought to be initialized
-	}
-
-	for (i=0; i<Num_hogfiles; i++ )	{
-		if ( !stricmp( HogFiles[i].name, name ))	{
-			fp = cfile_get_filehandle( HogFilename, "rb" );
-			if ( fp == NULL ) return NULL;
-			fseek( fp,  HogFiles[i].offset, SEEK_SET );
-			*length = HogFiles[i].length;
+	if (alt_hog) {
+		fp = cfile_find_in_hog (name, length, alt_hog);
+		if (fp)
 			return fp;
-		}
 	}
 
-	if (D1Hogfile_initialized)	{
-		for (i = 0; i < D1Num_hogfiles; i++) {
-			if (!stricmp(D1HogFiles[i].name, name)) {
-				fp = cfile_get_filehandle(D1HogFilename, "rb");
-				if (fp == NULL) return NULL;
-				fseek(fp,  D1HogFiles[i].offset, SEEK_SET);
-				*length = D1HogFiles[i].length;
-				return fp;
-			}
-		}
+	if (builtin_hog) {
+		fp = cfile_find_in_hog (name, length, builtin_hog);
+		if (fp)
+			return fp;
+	}
+
+	if (d1_hog) {
+		fp = cfile_find_in_hog (name, length, d1_hog);
+		if (fp)
+			return fp;
 	}
 
 	return NULL;
 }
 
-int cfile_use_alternate_hogfile( char * name )
+int cfile_use_alternate_hogfile (char * name)
 {
-	if ( name )	{
-		strcpy( AltHogFilename, name );
-		cfile_init_hogfile( AltHogFilename, AltHogFiles, &AltNum_hogfiles );
-		AltHogfile_initialized = 1;
-		return (AltNum_hogfiles > 0);
-	} else {
-		AltHogfile_initialized = 0;
-		return 1;
+	if (alt_hog) {
+		d_free (alt_hog);
+		alt_hog = NULL;
 	}
+	if (name) {
+		alt_hog = cfile_init_hogfile (name);
+		atexit (free_alt_hog);
+		if (alt_hog)
+			return 1; // success
+	}
+	return 0;
 }
 
 int cfile_use_descent1_hogfile( char * name )
 {
-	if (name)	{
-		strcpy(D1HogFilename, name);
-		cfile_init_hogfile(D1HogFilename, D1HogFiles, &D1Num_hogfiles);
-		D1Hogfile_initialized = 1;
-		return (D1Num_hogfiles > 0);
-	} else {
-		D1Hogfile_initialized = 0;
-		return 1;
+	if (d1_hog) {
+		d_free (d1_hog);
+		d1_hog = NULL;
 	}
+	if (name) {
+		d1_hog = cfile_init_hogfile (name);
+		atexit (free_d1_hog);
+		if (d1_hog)
+			return 1; // success
+	}
+	return 0;
 }
-
 
 // cfeof() Tests for end-of-file on a stream
 //
@@ -347,7 +342,7 @@ int cfexist( char * filename )
 		return 1;
 	}
 
-	fp = cfile_find_libfile(filename, &length );
+	fp = cfile_find_embedded_file (filename, &length);
 	if ( fp )	{
 		fclose(fp);
 		return 2;		// file found in hog
@@ -416,7 +411,7 @@ CFILE * cfopen(char * filename, char * mode )
 	}
 
 	if ( !fp ) {
-		fp = cfile_find_libfile(filename, &length );
+		fp = cfile_find_embedded_file (filename, &length);
 		if ( !fp )
 			return NULL;		// No file found
 		if (stricmp(mode, "rb"))
@@ -428,7 +423,7 @@ CFILE * cfopen(char * filename, char * mode )
 		}
 		cfile->file = fp;
 		cfile->size = length;
-		cfile->lib_offset = ftell( fp );
+		cfile->offset = ftell( fp );
 		cfile->raw_position = 0;
 		return cfile;
 	} else {
@@ -439,7 +434,7 @@ CFILE * cfopen(char * filename, char * mode )
 		}
 		cfile->file = fp;
 		cfile->size = ffilelength(fp);
-		cfile->lib_offset = 0;
+		cfile->offset = 0;
 		cfile->raw_position = 0;
 		return cfile;
 	}
@@ -465,7 +460,7 @@ int cfwrite(void *buf, int elsize, int nelem, CFILE *cfile)
 	Assert(elsize > 0);
 
 	Assert(cfile->file != NULL);
-	Assert(cfile->lib_offset == 0);
+	Assert(cfile->offset == 0);
 
 	items_written = fwrite(buf, elsize, nelem, cfile->file);
 	cfile->raw_position = ftell(cfile->file);
@@ -486,7 +481,7 @@ int cfputc(int c, CFILE *cfile)
 	Assert(cfile != NULL);
 
 	Assert(cfile->file != NULL);
-	Assert(cfile->lib_offset == 0);
+	Assert(cfile->offset == 0);
 
 	char_written = fputc(c, cfile->file);
 	cfile->raw_position = ftell(cfile->file);
@@ -503,7 +498,7 @@ int cfgetc( CFILE * fp )
 
 	c = getc( fp->file );
 	if (c!=EOF)
-		fp->raw_position = ftell(fp->file)-fp->lib_offset;
+		fp->raw_position = ftell(fp->file)-fp->offset;
 
 	return c;
 }
@@ -536,7 +531,7 @@ char * cfgets( char * buf, size_t n, CFILE * fp )
 	int c;
 
 #if 0 // don't use the standard fgets, because it will only handle the native line-ending style
-	if (fp->lib_offset == 0) // This is not an archived file
+	if (fp->offset == 0) // This is not an archived file
 	{
 		t = fgets(buf, n, fp->file);
 		fp->raw_position = ftell(fp->file);
@@ -609,8 +604,8 @@ int cfseek( CFILE *fp, long int offset, int where )
 	default:
 		return 1;
 	}	
-	c = fseek( fp->file, fp->lib_offset + goal_position, SEEK_SET );
-	fp->raw_position = ftell(fp->file)-fp->lib_offset;
+	c = fseek( fp->file, fp->offset + goal_position, SEEK_SET );
+	fp->raw_position = ftell(fp->file)-fp->offset;
 	return c;
 }
 
