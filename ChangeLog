@@ -4,6 +4,9 @@
 
 	* main/dumpmine.c: Add function prototypes to remove warnings
 
+	* main/dumpmine.c, ui/window.c: Specify that two functions return
+	void.
+
 2004-12-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/editor/eobject.c, main/editor/kgame.c,

@@ -1,4 +1,4 @@
-/* $Id: dumpmine.c,v 1.8 2004-12-21 11:14:47 btb Exp $ */
+/* $Id: dumpmine.c,v 1.9 2004-12-21 11:24:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: dumpmine.c,v 1.8 2004-12-21 11:14:47 btb Exp $";
+static char rcsid[] = "$Id: dumpmine.c,v 1.9 2004-12-21 11:24:23 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -948,7 +948,7 @@ void say_unused_walls(FILE *my_file, int *tb)
 }
 
 // ----------------------------------------------------------------------------
-say_totals(FILE *my_file, char *level_name)
+void say_totals(FILE *my_file, char *level_name)
 {
 	int	i;		//, objnum;
 	int	total_robots = 0;
