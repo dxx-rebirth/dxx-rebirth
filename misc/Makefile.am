@@ -12,4 +12,4 @@ d_io.c      hash.c     strutil.c
 
 EXTRA_DIST = \
 dos_disk.h fileutil.h parsarg.h \
-byteswap.c d_glob.c errtest.c fileutil.c parsarg.c parstest.c
+byteswap.c errtest.c fileutil.c parsarg.c parstest.c
