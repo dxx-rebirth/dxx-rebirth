@@ -27,6 +27,10 @@ else
 if USE_OPENGL
   d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread -lGL -lGLU -lgii -L/usr/X11R6/lib -lXext
 else
-  d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread
+if USE_SVGALIB
+    d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread ${SVGA_LIBS}
+else
+    d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread
+endif
 endif
 endif

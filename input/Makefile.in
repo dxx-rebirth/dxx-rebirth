@@ -59,20 +59,27 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CC = @CC@
 CFLAGS = @CFLAGS@
+GGI_LIBS = @GGI_LIBS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 NASM = @NASM@
 NASMFLAGS = @NASMFLAGS@
+OGL_LIBS = @OGL_LIBS@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 SDL_LIBS = @SDL_LIBS@
+SVGA_LIBS = @SVGA_LIBS@
 VERSION = @VERSION@
 
 noinst_LIBRARIES = libinput.a
 INCLUDES = -I $(top_srcdir)/includes -I $(top_srcdir)/main
 
-libinput_a_SOURCES = sdl_event.c sdl_key.c sdl_mouse.c ggi_event.c ggi_key.c ggi_mouse.c dos_key.c dos_joyc.c dos_joydefs.c dos_mouse.c linux_joydefs.c linux_joystick.c
+libinput_a_SOURCES = sdl_event.c sdl_key.c sdl_mouse.c ggi_event.c ggi_key.c ggi_mouse.c dos_key.c dos_joyc.c dos_joydefs.c dos_mouse.c linux_joydefs.c linux_joystick.c svgalib_event.c svgalib_key.c svgalib_mouse.c svgalib_init.c
 
+
+SUFFIXES = .asm
+
+@ENV_DJGPP_TRUE@libinput_a_LIBADD =  dos_joy2.o
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../conf.h
 CONFIG_CLEAN_FILES = 
@@ -83,10 +90,11 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-libinput_a_LIBADD = 
+@ENV_DJGPP_TRUE@libinput_a_DEPENDENCIES =  dos_joy2.o
 libinput_a_OBJECTS =  sdl_event.o sdl_key.o sdl_mouse.o ggi_event.o \
 ggi_key.o ggi_mouse.o dos_key.o dos_joyc.o dos_joydefs.o dos_mouse.o \
-linux_joydefs.o linux_joystick.o
+linux_joydefs.o linux_joystick.o svgalib_event.o svgalib_key.o \
+svgalib_mouse.o svgalib_init.o
 AR = ar
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -101,13 +109,14 @@ GZIP_ENV = --best
 DEP_FILES =  .deps/dos_joyc.P .deps/dos_joydefs.P .deps/dos_key.P \
 .deps/dos_mouse.P .deps/ggi_event.P .deps/ggi_key.P .deps/ggi_mouse.P \
 .deps/linux_joydefs.P .deps/linux_joystick.P .deps/sdl_event.P \
-.deps/sdl_key.P .deps/sdl_mouse.P
+.deps/sdl_key.P .deps/sdl_mouse.P .deps/svgalib_event.P \
+.deps/svgalib_init.P .deps/svgalib_key.P .deps/svgalib_mouse.P
 SOURCES = $(libinput_a_SOURCES)
 OBJECTS = $(libinput_a_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .o .s
+.SUFFIXES: .S .asm .c .o .s
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu input/Makefile
 
@@ -299,14 +308,8 @@ uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
-
-@ENV_DJGPP_TRUE@  SUFFIXES = .asm
-@ENV_DJGPP_TRUE@  %.o: %.asm
-@ENV_DJGPP_TRUE@	$(NASM) $(NASMFLAGS) $< -o $@
-
-@ENV_DJGPP_TRUE@  libinput_a_SOURCES += dos_joy2.asm
-@ENV_DJGPP_TRUE@  libinput_a_LIBADD += dos_joy2.o
-@ENV_DJGPP_TRUE@  dos_joyc.c: dos_joy2.o
+%.o: %.asm
+	$(NASM) $(NASMFLAGS) $< -o $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -59,19 +59,26 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CC = @CC@
 CFLAGS = @CFLAGS@
+GGI_LIBS = @GGI_LIBS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 NASM = @NASM@
 NASMFLAGS = @NASMFLAGS@
+OGL_LIBS = @OGL_LIBS@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 SDL_LIBS = @SDL_LIBS@
+SVGA_LIBS = @SVGA_LIBS@
 VERSION = @VERSION@
 
 noinst_LIBRARIES = libmaths.a
 INCLUDES = -I $(top_srcdir)/includes 
 
 libmaths_a_SOURCES = vecmat.c rand.c tables.c fixc.c
+
+SUFFIXES = .asm
+
+@USE_ASM_TRUE@libmaths_a_LIBADD =  vecmata.o fix.o
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../conf.h
 CONFIG_CLEAN_FILES = 
@@ -82,7 +89,7 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-libmaths_a_LIBADD = 
+@USE_ASM_TRUE@libmaths_a_DEPENDENCIES =  vecmata.o fix.o
 libmaths_a_OBJECTS =  vecmat.o rand.o tables.o fixc.o
 AR = ar
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -101,7 +108,7 @@ OBJECTS = $(libmaths_a_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .o .s
+.SUFFIXES: .S .asm .c .o .s
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu maths/Makefile
 
@@ -293,14 +300,8 @@ uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
-
-@USE_ASM_TRUE@  SUFFIXES = .asm
-@USE_ASM_TRUE@  %.o: %.asm
-@USE_ASM_TRUE@	$(NASM) $(NASMFLAGS) $< -o $@
-
-@USE_ASM_TRUE@  libmaths_a_SOURCE += vecmata.asm fix.asm
-@USE_ASM_TRUE@  libmaths_a_LIBADD += vecmata.o fix.o
-@USE_ASM_TRUE@  vecmat.c rand.c tables.c: fix.o vecmata.o
+%.o: %.asm
+	$(NASM) $(NASMFLAGS) $< -o $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

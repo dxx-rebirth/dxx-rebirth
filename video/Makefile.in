@@ -59,18 +59,21 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CC = @CC@
 CFLAGS = @CFLAGS@
+GGI_LIBS = @GGI_LIBS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 NASM = @NASM@
 NASMFLAGS = @NASMFLAGS@
+OGL_LIBS = @OGL_LIBS@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 SDL_LIBS = @SDL_LIBS@
+SVGA_LIBS = @SVGA_LIBS@
 VERSION = @VERSION@
 
 noinst_LIBRARIES = libvideo.a
 INCLUDES = -I $(top_srcdir) -I$(top_srcdir)/includes -I$(top_srcdir)/main -I../input/ggi/include
-libvideo_a_SOURCES = ogl.c ogl_glx.c ogl_gr.c sdl_gr.c dos_gr.c
+libvideo_a_SOURCES = ogl.c ogl_glx.c ogl_gr.c sdl_gr.c dos_gr.c svgalib_gr.c
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../conf.h
@@ -83,7 +86,8 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 libvideo_a_LIBADD = 
-libvideo_a_OBJECTS =  ogl.o ogl_glx.o ogl_gr.o sdl_gr.o dos_gr.o
+libvideo_a_OBJECTS =  ogl.o ogl_glx.o ogl_gr.o sdl_gr.o dos_gr.o \
+svgalib_gr.o
 AR = ar
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -96,7 +100,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/dos_gr.P .deps/ogl.P .deps/ogl_glx.P .deps/ogl_gr.P \
-.deps/sdl_gr.P
+.deps/sdl_gr.P .deps/svgalib_gr.P
 SOURCES = $(libvideo_a_SOURCES)
 OBJECTS = $(libvideo_a_OBJECTS)
 

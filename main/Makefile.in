@@ -59,13 +59,16 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CC = @CC@
 CFLAGS = @CFLAGS@
+GGI_LIBS = @GGI_LIBS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 NASM = @NASM@
 NASMFLAGS = @NASMFLAGS@
+OGL_LIBS = @OGL_LIBS@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 SDL_LIBS = @SDL_LIBS@
+SVGA_LIBS = @SVGA_LIBS@
 VERSION = @VERSION@
 
 INCLUDES = -I $(top_srcdir)/includes -fwritable-strings
@@ -341,7 +344,8 @@ maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 @ENV_DJGPP_TRUE@ d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a  ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
 
 @ENV_DJGPP_FALSE@@USE_OPENGL_TRUE@  d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread -lGL -lGLU -lgii -L/usr/X11R6/lib -lXext
-@ENV_DJGPP_FALSE@@USE_OPENGL_FALSE@  d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread
+@ENV_DJGPP_FALSE@@USE_OPENGL_FALSE@@USE_SVGALIB_TRUE@    d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread ${SVGA_LIBS}
+@ENV_DJGPP_FALSE@@USE_OPENGL_FALSE@@USE_SVGALIB_FALSE@    d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -lSDL -ldl -lpthread
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

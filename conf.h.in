@@ -18,6 +18,12 @@
 /* Define if you want an OpenGL build */
 #undef OGL
 
+/* Define if you want an SVGALib build */
+#undef SVGA
+
+/* Define if you want a GGI build */
+#undef GGI
+
 /* Define if building under linux */
 #undef __ENV_LINUX__
 
@@ -38,7 +44,17 @@
 #  define GII_INPUT 1
 #  define GII_XWIN 1
 # else
-#  define SDL_VIDEO 1
-#  define SDL_INPUT 1
+#  ifdef SVGA
+#   define SVGALIB_VIDEO 1
+#   define SVGALIB_INPUT 1
+#  else
+#   ifdef GGI
+#    define GGI_VIDEO 1
+#    define GII_INPUT 1
+#   else
+#    define SDL_VIDEO 1
+#    define SDL_INPUT 1
+#   endif
+#  endif
 # endif
 #endif

@@ -59,20 +59,27 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 CC = @CC@
 CFLAGS = @CFLAGS@
+GGI_LIBS = @GGI_LIBS@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 NASM = @NASM@
 NASMFLAGS = @NASMFLAGS@
+OGL_LIBS = @OGL_LIBS@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 SDL_LIBS = @SDL_LIBS@
+SVGA_LIBS = @SVGA_LIBS@
 VERSION = @VERSION@
 
 noinst_LIBRARIES = lib2d.a
 INCLUDES = -I $(top_srcdir)/includes
 
-lib2d_a_SOURCES =  2dsline.c  box.c     disc.c    ibitblt.c  pcx.c    rect.c   scalec.c bitblt.c   canvas.c  font.c    line.c	  pixel.c  rle.c    tmerge.c bitmap.c   circle.c  gpixel.c  palette.c  poly.c 
+lib2d_a_SOURCES =  2dsline.c  box.c     disc.c    ibitblt.c  pcx.c    rect.c   scalec.c bitblt.c   canvas.c  font.c    line.c	  pixel.c  rle.c    tmerge.c bitmap.c   circle.c  gpixel.c  palette.c  poly.c
 
+
+SUFFIXES = .asm
+
+@USE_ASM_TRUE@lib2d_a_LIBADD =  linear.o tmerge_a.o
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../conf.h
 CONFIG_CLEAN_FILES = 
@@ -83,7 +90,7 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-lib2d_a_LIBADD = 
+@USE_ASM_TRUE@lib2d_a_DEPENDENCIES =  linear.o tmerge_a.o
 lib2d_a_OBJECTS =  2dsline.o box.o disc.o ibitblt.o pcx.o rect.o \
 scalec.o bitblt.o canvas.o font.o line.o pixel.o rle.o tmerge.o \
 bitmap.o circle.o gpixel.o palette.o poly.o
@@ -107,7 +114,7 @@ OBJECTS = $(lib2d_a_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .c .o .s
+.SUFFIXES: .S .asm .c .o .s
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu 2d/Makefile
 
@@ -299,14 +306,8 @@ uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
-
-@USE_ASM_TRUE@  SUFFIXES = .asm
-@USE_ASM_TRUE@  %.o: %.asm
-@USE_ASM_TRUE@	$(NASM) $(NASMFLAGS) $< -o $@
-
-@USE_ASM_TRUE@  lib2d_a_SOURCES += linear.asm tmerge_a.asm
-@USE_ASM_TRUE@  lib2d_a_LIBADD += linear.o tmerge_a.o
-@USE_ASM_TRUE@  2dsline.c: linear.o tmerge_a.o
+%.o: %.asm
+	$(NASM) $(NASMFLAGS) $< -o $@
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
