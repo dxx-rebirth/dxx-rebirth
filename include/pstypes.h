@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.30 2004-08-01 13:01:39 schaffner Exp $ */
+/* $Id: pstypes.h,v 1.31 2004-08-03 20:27:32 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -42,21 +42,27 @@ typedef unsigned short ushort;
 typedef unsigned int uint;
 #endif
 
-#if defined(_WIN32) || defined(__sun__)
+#if defined(_WIN32) || defined(__sun__) // platforms missing (u_)int??_t
 # include <SDL_types.h>
-#elif defined(macintosh)
+#elif defined(macintosh) // misses (u_)int??_t and does not like SDL_types.h
 # include <MacTypes.h>
-#endif
-#if defined(_WIN32) || defined(macintosh) // platforms missing int??_t
+ typedef SInt16 int16_t;
+ typedef SInt32 int32_t;
+ typedef SInt64 int64_t;
+ typedef UInt16 u_int16_t;
+ typedef UInt32 u_int32_t;
+ typedef UInt64 u_int64_t;
+#endif // macintosh
+#if defined(_WIN32) // platforms missing int??_t
  typedef Sint16 int16_t;
  typedef Sint32 int32_t;
  typedef Sint64 int64_t;
-#endif // defined(_WIN32) || defined(macintosh)
-#if defined(_WIN32) || defined(macintosh) || defined(__sun__) // platforms missing u_int??_t
+#endif // defined(_WIN32)
+#if defined(_WIN32) || defined(__sun__) // platforms missing u_int??_t
  typedef Uint16 u_int16_t;
  typedef Uint32 u_int32_t;
  typedef Uint64 u_int64_t;
-#endif // defined(_WIN32) || defined(macintosh) || defined(__sun__)
+#endif // defined(_WIN32) || defined(__sun__)
 
 #ifdef _MSC_VER
 # include <stdlib.h> // this is where min and max are defined
