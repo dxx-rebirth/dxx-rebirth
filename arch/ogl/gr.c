@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.41 2005-01-25 19:23:58 schaffner Exp $ */
+/* $Id: gr.c,v 1.42 2005-02-11 22:15:58 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -161,7 +161,8 @@ const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
 void ogl_get_verinfo(void)
 {
-	long t, arb_max_textures = -1, sgi_max_textures = -1;
+	long t, sgi_max_textures = -1;
+	GLint arb_max_textures = -1;
 #ifdef GL_NV_register_combiners
 	long nv_register_combiners = -1;
 #endif
