@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.12 2002-07-26 23:03:56 btb Exp $ */
+/* $Id: font.c,v 1.13 2002-07-26 23:13:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1656,10 +1656,10 @@ grs_font * gr_init_font( char * fontname )
 	newfont->ft_maxchar = font->ft_maxchar;
 	newfont->ft_minchar = font->ft_minchar;
 	newfont->ft_bytewidth = font->ft_bytewidth = INTEL_SHORT(font->ft_bytewidth);
-	newfont->ft_data = font->ft_data = INTEL_INT(font->ft_data);
-	newfont->ft_chars = font->ft_chars = INTEL_INT(font->ft_chars);
-	newfont->ft_widths = font->ft_widths = INTEL_INT(font->ft_widths);
-	newfont->ft_kerndata = font->ft_kerndata = INTEL_INT(font->ft_kerndata);
+	newfont->ft_data = font->ft_data = (ubyte *)INTEL_INT((int)font->ft_data);
+	newfont->ft_chars = font->ft_chars = (ubyte **)INTEL_INT((int)font->ft_chars);
+	newfont->ft_widths = font->ft_widths = (short *)INTEL_INT((int)font->ft_widths);
+	newfont->ft_kerndata = font->ft_kerndata = (ubyte *)INTEL_INT((int)font->ft_kerndata);
 
 	nchars = newfont->ft_maxchar-newfont->ft_minchar+1;
 
