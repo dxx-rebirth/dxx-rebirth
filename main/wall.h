@@ -256,6 +256,7 @@ void kill_stuck_objects(int wallnum);
 void start_wall_cloak(segment *seg, int side);
 void start_wall_decloak(segment *seg, int side);
 
+extern int wclip_read_n_d1(wclip *wc, int n, CFILE *fp);
 #ifdef FAST_FILE_IO
 #define wclip_read_n(wc, n, fp) cfread(wc, sizeof(wclip), n, fp)
 #define v16_wall_read(w, fp) cfread(w, sizeof(v16_wall), 1, fp)

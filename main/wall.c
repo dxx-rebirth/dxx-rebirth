@@ -1,4 +1,4 @@
-/* $Id: wall.c,v 1.7 2002-08-02 04:57:19 btb Exp $ */
+/* $Id: wall.c,v 1.8 2003-03-19 23:20:59 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.7 2002-08-02 04:57:19 btb Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.8 2003-03-19 23:20:59 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -1543,6 +1543,29 @@ void blast_nearby_glass(object *objp, fix damage)
 	bng_process_segment(objp, damage, cursegp, 0, visited);
 
 
+}
+
+#define MAX_CLIP_FRAMES_D1 20
+
+/*
+ * reads a wclip structure from a CFILE
+ */
+int wclip_read_n_d1(wclip *wc, int n, CFILE *fp)
+{
+	int i, j;
+
+	for (i = 0; i < n; i++) {
+		wc[i].play_time = cfile_read_fix(fp);
+		wc[i].num_frames = cfile_read_short(fp);
+		for (j = 0; j < MAX_CLIP_FRAMES_D1; j++)
+			wc[i].frames[j] = cfile_read_short(fp);
+		wc[i].open_sound = cfile_read_short(fp);
+		wc[i].close_sound = cfile_read_short(fp);
+		wc[i].flags = cfile_read_short(fp);
+		cfread(wc[i].filename, 13, 1, fp);
+		wc[i].pad = cfile_read_byte(fp);
+	}
+	return i;
 }
 
 #ifndef FAST_FILE_IO

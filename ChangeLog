@@ -11,8 +11,8 @@
 
 	* 2d/rle.c, include/gr.h, include/rle.h, main/bm.c, main/bm.h,
 	main/gamemine.c, main/gamemine.h, main/gameseq.c, main/piggy.c,
-	main/piggy.h: if descent.pig available, load d1 textures for d1
-	levels
+	main/piggy.h, main/wall.c, main/wall.h: if descent.pig available,
+	load d1 textures for d1 levels
 
 2003-03-19  Bradley Bell  <btb@icculus.org>
 
