@@ -1,4 +1,4 @@
-/* $Id: wgl.c,v 1.7 2004-05-20 02:13:13 btb Exp $ */
+/* $Id: wgl.c,v 1.8 2004-05-20 07:49:21 btb Exp $ */
 /*
  *
  * opengl platform specific functions for WGL - added by Peter Hawkins
@@ -163,11 +163,11 @@ int ogl_setbrightness_internal(void)
 	int i;
 
 	for (i = 0; i < 256; ++i)
+	{
 		gammaramp[i] = min((i + ogl_brightness_r * 4) * 256, 0xffff);
-	for (i = 0; i < 256; ++i)
 		gammaramp[i + 256] = min((i + ogl_brightness_g * 4) * 256, 0xffff);
-	for (i = 0; i < 256; ++i)
 		gammaramp[i + 512] = min((i + ogl_brightness_b * 4) * 256, 0xffff);
+	}
 
 	return SetDeviceGammaRamp(hDC, (LPVOID)gammaramp) ? 0 : -1;
 }

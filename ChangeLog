@@ -1,5 +1,8 @@
 2004-05-20  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/wgl.c: minor cleanup, use same for loop for filling r,
+	g, and b values (d1x r1.15)
+
 	* arch/ogl/gr.c: fix funky ogl gammaramp palette when getting hit
 	sometimes (didn't handle negative palette steps) (d1x r1.34)
 
