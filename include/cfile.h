@@ -61,4 +61,7 @@ fix cfile_read_fix(CFILE *file);
 void cfile_read_vector(vms_vector *v, CFILE *file);
 void cfile_read_angvec(vms_angvec *v, CFILE *file);
 
+extern char AltHogDir[];
+extern char AltHogdir_initialized;
+
 #endif
