@@ -1,4 +1,4 @@
-/* $Id: text.c,v 1.16 2004-11-28 07:32:12 btb Exp $ */
+/* $Id: text.c,v 1.17 2005-03-20 04:05:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.16 2004-11-28 07:32:12 btb Exp $";
+static char rcsid[] = "$Id: text.c,v 1.17 2005-03-20 04:05:32 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -111,7 +111,7 @@ void load_text()
 	if ((tfile = cfopen(filename,"rb")) == NULL) {
 		filename="descent.txb";
 		if ((ifile = cfopen(filename, "rb")) == NULL) {
-			Warning("Cannot open file DESCENT.TEX or DESCENT.TXB");
+			Error("Cannot open file DESCENT.TEX or DESCENT.TXB");
 			return;
 		}
 		have_binary = 1;

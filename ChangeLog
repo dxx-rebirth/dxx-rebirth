@@ -2,6 +2,10 @@
 
 	* ui/.cvsignore: New file
 
+2005-03-19  Bradley Bell  <btb@icculus.org>
+
+	* main/text.c: revert to Error if text file not found.
+
 2005-03-17  Bradley Bell  <btb@icculus.org>
 
 	* arch/win32/midi.c: Add RCS ID tag
