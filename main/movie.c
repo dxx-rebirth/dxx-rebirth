@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.11 2002-08-31 12:14:01 btb Exp $ */
+/* $Id: movie.c,v 1.12 2002-09-01 02:49:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.11 2002-08-31 12:14:01 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.12 2002-09-01 02:49:06 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -48,6 +48,7 @@ static char rcsid[] = "$Id: movie.c,v 1.11 2002-08-31 12:14:01 btb Exp $";
 #include "mvelib.h"
 #include "text.h"
 #include "fileutil.h"
+#include "mveplay.h"
 
 extern int MenuHiresAvailable;
 extern char CDROM_dir[];
@@ -105,7 +106,7 @@ int robot_movies = 0; //0 means none, 1 means lowres, 2 means hires
 int MovieHires = 0;   //default for now is lores
 
 int RoboFile = 0;
-char Robo_filename[FILENAME_LEN];
+off_t Robo_filepos;
 MVESTREAM *Robo_mve;
 grs_bitmap *Robo_bitmap;
 
@@ -177,8 +178,66 @@ int PlayMovie(const char *filename, int must_have)
 	return ret;
 }
 
-void initializeMovie(MVESTREAM *mve, grs_bitmap *mve_bitmap);
-void shutdownMovie(MVESTREAM *mve);
+#if 0
+typedef struct bkg {
+	short x, y, w, h;           // The location of the menu.
+	grs_bitmap * bmp;       	// The background under the menu.
+} bkg;
+
+bkg movie_bg = {0,0,0,0,NULL};
+#endif
+
+#define BOX_BORDER (MenuHires?40:20)
+
+void show_pause_message(char *msg)
+{
+	int w,h,aw;
+	int x,y;
+
+	gr_set_current_canvas(NULL);
+	gr_set_curfont( SMALL_FONT );
+
+	gr_get_string_size(msg,&w,&h,&aw);
+
+	x = (grd_curscreen->sc_w-w)/2;
+	y = (grd_curscreen->sc_h-h)/2;
+
+#if 0
+	if (movie_bg.bmp) {
+		gr_free_bitmap(movie_bg.bmp);
+		movie_bg.bmp = NULL;
+	}
+
+	// Save the background of the display
+	movie_bg.x=x; movie_bg.y=y; movie_bg.w=w; movie_bg.h=h;
+
+	movie_bg.bmp = gr_create_bitmap( w+BOX_BORDER, h+BOX_BORDER );
+
+	gr_bm_ubitblt(w+BOX_BORDER, h+BOX_BORDER, 0, 0, x-BOX_BORDER/2, y-BOX_BORDER/2, &(grd_curcanv->cv_bitmap), movie_bg.bmp );
+#endif
+
+	gr_setcolor(0);
+	gr_rect(x-BOX_BORDER/2,y-BOX_BORDER/2,x+w+BOX_BORDER/2-1,y+h+BOX_BORDER/2-1);
+
+	gr_set_fontcolor( 255, -1 );
+
+	gr_ustring( 0x8000, y, msg );
+
+	gr_update();
+}
+
+void clear_pause_message()
+{
+#if 0
+	if (movie_bg.bmp) {
+
+		gr_bitmap(movie_bg.x-BOX_BORDER/2, movie_bg.y-BOX_BORDER/2, movie_bg.bmp);
+
+		gr_free_bitmap(movie_bg.bmp);
+		movie_bg.bmp = NULL;
+	}
+#endif
+}
 
 //returns status.  see movie.h
 int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
@@ -188,9 +247,10 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	int frame_num;
 	MVESTREAM *mve;
 	grs_bitmap *mve_bitmap;
+	int key;
+	int x, y, w, h;
 
 	result=1;
-	con_printf(DEBUG_LEVEL, "movie: RunMovie: %s %d %d %d %d\n", filename, hires_flag, must_have, dx, dy);
 
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
@@ -204,34 +264,35 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		return MOVIE_NOT_PLAYED;
 	}
 
-	if (hires_flag)
+	if (hires_flag) {
 		gr_set_mode(SM(640,480));
-	else
+		x = 24;
+		y = 84;
+		w = 592;
+		h = 312;
+	} else {
 		gr_set_mode(SM(320,200));
+		x = 0;
+		y = 32;
+		w = 320;
+		h = 136;
+	}
 
 	frame_num = 0;
 
 	FontHires = FontHiresAvailable && hires_flag;
 
     mve = mve_open(filehndl);
-    if (mve == NULL)
-    {
-        fprintf(stderr, "can't open MVE file '%s'\n", filename);
-        return 1;
-    }
 
-	mve_bitmap = gr_create_bitmap(hires_flag?592:320, hires_flag?312:200);
+	mve_bitmap = gr_create_bitmap(w, h); // w, h must match the mve exactly!
 
-    initializeMovie(mve, mve_bitmap);
+	mveplay_initializeMovie(mve, mve_bitmap);
 
-	while((result = mve_play_next_chunk(mve))) {
-		int key;
+	while((result = mveplay_stepMovie(mve))) {
 
-		gr_bitmap(hires_flag?24:12, hires_flag?84:42, mve_bitmap);
+		gr_bitmap(x, y, mve_bitmap);
 
 		draw_subtitles(frame_num);
-
-		gr_update();
 
 		key = key_inkey();
 
@@ -244,10 +305,10 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 		// If PAUSE pressed, then pause movie
 		if (key == KEY_PAUSE) {
-			//MVE_rmHoldMovie();
-			//show_pause_message(TXT_PAUSE);
+			show_pause_message(TXT_PAUSE);
 			while (!key_inkey()) ;
-			//clear_pause_message();
+			mveplay_restartTimer(mve);
+			clear_pause_message();
 		}
 
 		frame_num++;
@@ -255,7 +316,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	Assert(aborted || !result);	 ///movie should be over
 
-    shutdownMovie(mve);
+    mveplay_shutdownMovie(mve);
 
 	gr_free_bitmap(mve_bitmap);
 
@@ -287,12 +348,15 @@ int RotateRobot()
 {
 	int ret;
 
-	ret = mve_play_next_chunk(Robo_mve);
-	gr_bitmap(MenuHires?280:200, MenuHires?140:80, Robo_bitmap);
+	ret = mveplay_stepMovie(Robo_mve);
+	gr_bitmap(MenuHires?280:140, MenuHires?200:80, Robo_bitmap);
 
 	if (!ret) {
-		DeInitRobotMovie();
-		InitRobotMovie(Robo_filename);
+		mveplay_shutdownMovie(Robo_mve);
+		mve_close(Robo_mve);
+		lseek(RoboFile, Robo_filepos, SEEK_SET);
+		Robo_mve = mve_open(RoboFile);
+		mveplay_initializeMovie(Robo_mve, Robo_bitmap);
 	}
 
 	return 1;
@@ -301,9 +365,8 @@ int RotateRobot()
 
 void DeInitRobotMovie(void)
 {
-	con_printf(DEBUG_LEVEL, "movie: DeInitRobotMovie\n");
-
-	shutdownMovie(Robo_mve);
+	mveplay_shutdownMovie(Robo_mve);
+	mve_close(Robo_mve);
 
 	gr_free_bitmap(Robo_bitmap);
 
@@ -313,8 +376,6 @@ void DeInitRobotMovie(void)
 
 int InitRobotMovie(char *filename)
 {
-	con_printf(DEBUG_LEVEL, "movie: InitRobotMovie: %s\n", filename);
-
 	RoboFile = open_movie_file(filename, 1);
 
 	if (RoboFile == -1) {
@@ -322,18 +383,13 @@ int InitRobotMovie(char *filename)
 		return MOVIE_NOT_PLAYED;
 	}
 
-	strcpy(Robo_filename, filename);
+	Robo_filepos = lseek(RoboFile, 0, SEEK_CUR);
 
 	Robo_mve = mve_open(RoboFile);
-    if (Robo_mve == NULL)
-    {
-        fprintf(stderr, "can't open MVE file '%s'\n", filename);
-        return 0;
-    }
 
-	Robo_bitmap = gr_create_bitmap(MenuHires?320:160, MenuHires?200:100);
+	Robo_bitmap = gr_create_bitmap(MenuHires?320:160, MenuHires?200:88);
 
-	initializeMovie(Robo_mve, Robo_bitmap);
+	mveplay_initializeMovie(Robo_mve, Robo_bitmap);
 
 	return 1;
 }
@@ -499,6 +555,8 @@ void draw_subtitles(int frame_num)
 			gr_string(0x8000,y,Subtitles[active_subtitles[t]].msg);
 			y += line_spacing+1;
 		}
+
+	gr_update();
 }
 
 
@@ -738,8 +796,6 @@ void init_movies()
 
 void init_extra_robot_movie(char *filename)
 {
-	con_printf(DEBUG_LEVEL, "movie: init_extra_robot_movie: %s\n", filename);
-
 	close_movie(EXTRA_ROBOT_LIB);
 	init_movie(filename,EXTRA_ROBOT_LIB,1,0);
 }

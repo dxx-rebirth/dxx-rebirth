@@ -13,22 +13,24 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
 
+#include "mveplay.h"
 #include "error.h"
 #include "u_mem.h"
 #include "mvelib.h"
 #include "mve_audio.h"
 #include "gr.h"
 #include "palette.h"
+#include "fix.h"
+#include "timer.h"
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 
+//#define DEBUG
+
 static int g_spdFactorNum=0;
 static int g_spdFactorDenom=10;
-
-void initializeMovie(MVESTREAM *mve, grs_bitmap *mve_bitmap);
-void shutdownMovie(MVESTREAM *mve);
 
 static short get_short(unsigned char *data)
 {
@@ -46,7 +48,7 @@ static int get_int(unsigned char *data)
 
 static int default_seg_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-    fprintf(stderr, "unknown chunk type %02x/%02x\n", major, minor);
+    Warning("mveplay: unknown chunk type %02x/%02x\n", major, minor);
     return 1;
 }
 
@@ -65,12 +67,15 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
 /*
  * timer variables
  */
-static int micro_frame_delay=0;
+static fix fix_frame_delay = F0_0;
+static int timer_started   = 0;
+static fix timer_expire    = F0_0;
 
 static int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
     long long temp;
-    micro_frame_delay = get_int(data) * (int)get_short(data+4);
+    int micro_frame_delay = get_int(data) * (int)get_short(data+4);
+
     if (g_spdFactorNum != 0)
     {
         temp = micro_frame_delay;
@@ -78,10 +83,45 @@ static int create_timer_handler(unsigned char major, unsigned char minor, unsign
         temp /= g_spdFactorDenom;
         micro_frame_delay = (int)temp;
     }
+	fix_frame_delay = approx_usec_to_fsec(micro_frame_delay);
 
     return 1;
 }
 
+static void timer_stop(void)
+{
+	timer_expire = F0_0;
+	timer_started = 0;
+}
+
+static void timer_start(void)
+{
+	timer_expire = timer_get_fixed_seconds();
+
+	timer_expire += fix_frame_delay;
+
+    timer_started=1;
+}
+
+static void do_timer_wait(void)
+{
+	fix ts, tv;
+
+    if (! timer_started)
+        return;
+
+	tv = timer_get_fixed_seconds();
+
+	if (tv > timer_expire)
+		goto end;
+
+	ts = timer_expire - tv;
+
+	timer_delay(ts);
+
+end:
+	timer_expire += fix_frame_delay;
+}
 
 /*************************
  * audio handlers
@@ -105,7 +145,9 @@ static void mve_audio_callback(void *userdata, Uint8 *stream, int len)
     if (mve_audio_bufhead == mve_audio_buftail)
         return /* 0 */;
 
-fprintf(stderr, "+ <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
+#ifdef DEBUG
+	fprintf(stderr, "+ <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
+#endif
 
     SDL_mutexP(mve_audio_mutex);
 
@@ -129,7 +171,9 @@ fprintf(stderr, "+ <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_cur
         mve_audio_curbuf_curpos = 0;
     }
 
-fprintf(stderr, "= <%d (%d), %d, %d>: %d\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len, total);
+#ifdef DEBUG
+	fprintf(stderr, "= <%d (%d), %d, %d>: %d\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len, total);
+#endif
 /*    return total; */
 
     if (len != 0                                                                        /* ospace remaining  */
@@ -155,7 +199,9 @@ fprintf(stderr, "= <%d (%d), %d, %d>: %d\n", mve_audio_bufhead, mve_audio_curbuf
         }
     }
 
-fprintf(stderr, "- <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
+#ifdef DEBUG
+	fprintf(stderr, "- <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
+#endif
     SDL_mutexV(mve_audio_mutex);
 }
 
@@ -165,7 +211,9 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
     int sample_rate;
     int desired_buffer;
 
-fprintf(stderr, "creating audio buffers\n");
+#ifdef DEBUG
+	fprintf(stderr, "creating audio buffers\n");
+#endif
 
     mve_audio_mutex = SDL_CreateMutex();
 
@@ -173,8 +221,10 @@ fprintf(stderr, "creating audio buffers\n");
     sample_rate = get_short(data + 4);
     desired_buffer = get_int(data + 6);
 
-fprintf(stderr, "stereo=%d 16bit=%d compressed=%d sample_rate=%d desired_buffer=%d\n",
+#ifdef DEBUG
+	fprintf(stderr, "stereo=%d 16bit=%d compressed=%d sample_rate=%d desired_buffer=%d\n",
         flags & 1, (flags >> 1) & 1, (flags >> 2) & 1, sample_rate, desired_buffer);
+#endif
 
     mve_audio_compressed = flags & MVE_AUDIO_FLAGS_COMPRESSED;
     mve_audio_spec = (SDL_AudioSpec *)d_malloc(sizeof(SDL_AudioSpec));
@@ -190,12 +240,17 @@ fprintf(stderr, "stereo=%d 16bit=%d compressed=%d sample_rate=%d desired_buffer=
     mve_audio_spec->userdata = NULL;
     if (SDL_OpenAudio(mve_audio_spec, NULL) >= 0)
     {
-fprintf(stderr, "   success\n");
+#ifdef DEBUG
+		fprintf(stderr, "   success\n");
+#endif
         mve_audio_canplay = 1;
     }
     else
     {
-fprintf(stderr, "   failure : %s\n", SDL_GetError());
+#ifdef DEBUG
+		fprintf(stderr, "   failure : %s\n", SDL_GetError());
+#endif
+		Warning("mveplay: failed to create audio buffers\n");
         mve_audio_canplay = 0;
     }
 
@@ -245,7 +300,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
                 mve_audio_buftail = 0;
 
             if (mve_audio_buftail == mve_audio_bufhead)
-                fprintf(stderr, "d'oh!  buffer ring overrun (%d)\n", mve_audio_bufhead);
+                Warning("mveplay: d'oh!  buffer ring overrun (%d)\n", mve_audio_bufhead);
             SDL_mutexV(mve_audio_mutex);
         }
 
@@ -274,7 +329,9 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
     h = get_short(data+2);
     g_width = w << 3;
     g_height = h << 3;
-    printf("mve width, height: %d, %d\n", g_width, g_height);
+#ifdef DEBUG
+	fprintf(stderr, "g_width, g_height: %d, %d\n", g_width, g_height);
+#endif
     Assert((g_width == g_screen->bm_w) && (g_height == g_screen->bm_h));
     g_vBackBuf1 = d_malloc(g_width * g_height);
     g_vBackBuf2 = d_malloc(g_width * g_height);
@@ -299,7 +356,9 @@ static int init_video_handler(unsigned char major, unsigned char minor, unsigned
     height = get_short(data+2);
     g_screenWidth = width;
     g_screenHeight = height;
-    memset(g_palette, 0, 768);
+    memset(g_palette, 0, 765);
+	memset(g_palette + 765, 63, 3); // 255 should be white
+
     return 1;
 }
 
@@ -356,7 +415,11 @@ static int end_chunk_handler(unsigned char major, unsigned char minor, unsigned 
     return 1;
 }
 
-void initializeMovie(MVESTREAM *mve, grs_bitmap *mve_bitmap)
+/************************************************************
+ * public mveplay functions
+ ************************************************************/
+
+void mveplay_initializeMovie(MVESTREAM *mve, grs_bitmap *mve_bitmap)
 {
     g_screen = mve_bitmap;
 
@@ -384,21 +447,64 @@ void initializeMovie(MVESTREAM *mve, grs_bitmap *mve_bitmap)
     //mve_set_handler(mve, 0x15, default_seg_handler);
 }
 
-void shutdownMovie(MVESTREAM *mve)
+int mveplay_stepMovie(MVESTREAM *mve)
+{
+    static int init_timer=0;
+    int cont=1;
+
+	if (!timer_started)
+		timer_start();
+
+	cont = mve_play_next_chunk(mve);
+	if (fix_frame_delay  && !init_timer) {
+		timer_start();
+		init_timer = 1;
+	}
+
+	do_timer_wait();
+
+	return cont;
+}
+
+void mveplay_restartTimer(MVESTREAM *mve)
+{
+	timer_start();
+}
+
+void mveplay_shutdownMovie(MVESTREAM *mve)
 {
     int i;
 
+	timer_stop();
     SDL_CloseAudio();
     for (i = 0; i < 64; i++)
-        if (mve_audio_buffers[i] != NULL) {
+        if (mve_audio_buffers[i] != NULL)
             d_free(mve_audio_buffers[i]);
-            mve_audio_buffers[i] = NULL;
-        }
+    memset(mve_audio_buffers, 0, sizeof(mve_audio_buffers));
+    memset(mve_audio_buflens, 0, sizeof(mve_audio_buflens));
+	mve_audio_curbuf_curpos=0;
+	mve_audio_bufhead=0;
+	mve_audio_buftail=0;
+	mve_audio_playing=0;
+	mve_audio_canplay=0;
+	mve_audio_compressed=0;
+	mve_audio_mutex = NULL;
+	if (mve_audio_spec)
+		d_free(mve_audio_spec);
+	mve_audio_spec=NULL;
 
-    d_free(mve_audio_spec);
     d_free(g_vBackBuf1);
+	g_vBackBuf1 = NULL;
     d_free(g_vBackBuf2);
+	g_vBackBuf2 = NULL;
+	g_pCurMap=NULL;
+	g_nMapLength=0;
 }
+
+
+/************************************************************
+ * internal decoding functions
+ ************************************************************/
 
 static void dispatchDecoder(unsigned char **pFrame, unsigned char codeType, unsigned char **pData, int *pDataRemain, int *curXb, int *curYb);
 
@@ -415,14 +521,14 @@ static void decodeFrame(unsigned char *pFrame, unsigned char *pMap, int mapRemai
         {
             dispatchDecoder(&pFrame, (*pMap) & 0xf, &pData, &dataRemain, &i, &j);
             if (pFrame < g_vBackBuf1)
-                fprintf(stderr, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
+                Warning("mveplay: danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
             else if (pFrame >= g_vBackBuf1 + g_width*g_height)
-                fprintf(stderr, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
+                Warning("mveplay: danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
             dispatchDecoder(&pFrame, (*pMap) >> 4, &pData, &dataRemain, &i, &j);
             if (pFrame < g_vBackBuf1)
-                fprintf(stderr, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
+                Warning("mveplay: danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
             else if (pFrame >= g_vBackBuf1 + g_width*g_height)
-                fprintf(stderr, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
+                Warning("mveplay: danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
 
             ++pMap;
             --mapRemain;
