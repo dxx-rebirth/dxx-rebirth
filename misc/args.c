@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/misc/args.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  * $Author: bradleyb $
- * $Date: 2001-11-09 06:57:27 $
+ * $Date: 2002-01-18 07:02:23 $
  * 
  * Functions for accessing arguments.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/11/09 06:57:27  bradleyb
+ * use d2x.ini for option file
+ *
  * Revision 1.4  2001/11/05 07:39:26  bradleyb
  * Change args_init back to InitArgs
  *
@@ -81,7 +84,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.5 2001-11-09 06:57:27 bradleyb Exp $";
+static char rcsid[] = "$Id: args.c,v 1.6 2002-01-18 07:02:23 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
@@ -89,9 +92,7 @@ static char rcsid[] = "$Id: args.c,v 1.5 2001-11-09 06:57:27 bradleyb Exp $";
 #include <string.h>
 #include "u_mem.h"
 #include "strio.h"
-//added 6/15/99 - Owen Evans
 #include "strutil.h"
-//end added - OE
 
 int Num_args=0;
 char * Args[100];
@@ -106,60 +107,51 @@ int FindArg( char * s )	{
 	return 0;
 }
 
-//added 7/11/99 by adb to free arguments (prevent memleak msg)
 void args_exit(void)
 {
-   int i;
-   for (i=0; i< Num_args; i++ )
-    d_free(Args[i]);
+	int i;
+	for (i=0; i< Num_args; i++ )
+		d_free(Args[i]);
 }
-//end additions - adb
 
 void InitArgs( int argc,char **argv )
 {
- int i;
- FILE *f;
- char *line,*word;
-
-  Num_args=0;
-
-   for (i=0; i<argc; i++ )
-    Args[Num_args++] = d_strdup( argv[i] );
+	int i;
+	FILE *f;
+	char *line,*word;
+	
+	Num_args=0;
+	
+	for (i=0; i<argc; i++ )
+		Args[Num_args++] = d_strdup( argv[i] );
         
-
-   for (i=0; i< Num_args; i++ )
-    {
-//killed 02/06/99 Matthew Mueller - interferes with filename args which might start with /
-//     if ( Args[i][0] == '/' )  
-//      Args[i][0] = '-';
-//end kill -MM
-     if ( Args[i][0] == '-' )
-      strlwr( Args[i]  );             // Convert all args to lowercase
-    }
-  if((i=FindArg("-ini")))
-   f=fopen(Args[i+1],"rt");
-  else {
-   f=fopen("d2x.ini","rt");
-   if (!f)
-    f=fopen("d1x.ini","rt");
-  }
-
-     if(f)
-      {
-       while(!feof(f))
-        {
-         line=fsplitword(f,'\n');
-         word=splitword(line,' ');
-
-         Args[Num_args++] = d_strdup(word);
-
-          if(line)
-           Args[Num_args++] = d_strdup(line);
-
-         d_free(line); d_free(word);
-        }
-       fclose(f);
-      }
-   
+	
+	for (i=0; i< Num_args; i++ ) {
+		if ( Args[i][0] == '-' )
+			strlwr( Args[i]  );  // Convert all args to lowercase
+	}
+	if((i=FindArg("-ini")))
+		f=fopen(Args[i+1],"rt");
+	else {
+		f=fopen("d2x.ini","rt");
+		if (!f)
+			f=fopen("d1x.ini","rt");
+	}
+	
+	if(f) {
+		while(!feof(f)) {
+			line=fsplitword(f,'\n');
+			word=splitword(line,' ');
+			
+			Args[Num_args++] = d_strdup(word);
+			
+			if(line)
+				Args[Num_args++] = d_strdup(line);
+			
+			d_free(line); d_free(word);
+		}
+		fclose(f);
+	}
+	
 	atexit(args_exit);
 }
