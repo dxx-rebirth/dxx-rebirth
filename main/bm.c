@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.13 2002-08-06 01:31:06 btb Exp $ */
+/* $Id: bm.c,v 1.14 2002-08-06 04:53:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -122,7 +122,6 @@ int tmap_info_read_n(tmap_info *ti, int n, CFILE *fp)
 
 //#ifdef MACINTOSH
 
-#ifdef SHAREWARE
 extern int exit_modelnum,destroyed_exit_modelnum, Num_bitmap_files;
 int N_ObjBitmaps, extra_bitmap_num;
 
@@ -141,7 +140,7 @@ bitmap_index exitmodel_bm_load_sub( char * filename )
 	if (iff_error != IFF_NO_ERROR)		{
 		Error("Error loading exit model bitmap <%s> - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
-	
+
 	if ( iff_has_transparency )
 		gr_remap_bitmap_good( new, newpal, iff_transparent_color, 254 );
 	else
@@ -152,7 +151,7 @@ bitmap_index exitmodel_bm_load_sub( char * filename )
 	bitmap_num.index = extra_bitmap_num;
 
 	GameBitmaps[extra_bitmap_num++] = *new;
-	
+
 	d_free( new );
 	return bitmap_num;
 }
@@ -218,13 +217,12 @@ void load_exit_models()
 	cfclose(exit_hamfile);
 
 }
-#endif		// SHAREWARE
 
 //#endif		// MACINTOSH
 
 //-----------------------------------------------------------------
 // Read data from piggy.
-// This is called when the editor is OUT.  
+// This is called when the editor is OUT.
 // If editor is in, bm_init_use_table() is called.
 int bm_init()
 {
@@ -234,14 +232,12 @@ int bm_init()
 
 	piggy_read_sounds();
 
-	#ifdef SHAREWARE
 	init_endlevel();		//this is in bm_init_use_tbl(), so I gues it goes here
-	#endif
 
 	return 0;
 }
 
-void bm_read_all(CFILE * fp, int hamfile_version)
+void bm_read_all(CFILE * fp)
 {
 	int i,t;
 
@@ -269,14 +265,13 @@ void bm_read_all(CFILE * fp, int hamfile_version)
 	jointpos_read_n(Robot_joints, N_robot_joints, fp);
 
 	N_weapon_types = cfile_read_int(fp);
-	weapon_info_read_n(Weapon_info, N_weapon_types, fp, hamfile_version);
+	weapon_info_read_n(Weapon_info, N_weapon_types, fp, Piggy_hamfile_version);
 
 	N_powerup_types = cfile_read_int(fp);
 	powerup_type_info_read_n(Powerup_info, N_powerup_types, fp);
 
 	N_polygon_models = cfile_read_int(fp);
-	for (i = 0; i < N_polygon_models; i++)
-		polymodel_read(&Polygon_models[i], fp);
+	polymodel_read_n(Polygon_models, N_polygon_models, fp);
 
 	for (i=0; i<N_polygon_models; i++ )	{
 		Polygon_models[i].model_data = d_malloc(Polygon_models[i].model_data_size);
@@ -294,26 +289,18 @@ void bm_read_all(CFILE * fp, int hamfile_version)
 		Dead_modelnums[i] = cfile_read_int(fp);
 
 	t = cfile_read_int(fp);
-	for (i = 0; i < t; i++)
-		bitmap_index_read(&Gauges[i], fp);
-	for (i = 0; i < t; i++)
-		bitmap_index_read(&Gauges_hires[i], fp);
+	bitmap_index_read_n(Gauges, t, fp);
+	bitmap_index_read_n(Gauges_hires, t, fp);
 
-	t = cfile_read_int(fp);
-	for (i = 0; i < t; i++)
-		bitmap_index_read(&ObjBitmaps[i], fp);
-	for (i = 0; i < t; i++)
+	N_ObjBitmaps = cfile_read_int(fp);
+	bitmap_index_read_n(ObjBitmaps, N_ObjBitmaps, fp);
+	for (i = 0; i < N_ObjBitmaps; i++)
 		ObjBitmapPtrs[i] = cfile_read_short(fp);
-
-#ifdef SHAREWARE
-	N_ObjBitmaps = t;
-#endif
 
 	player_ship_read(&only_player_ship, fp);
 
 	Num_cockpits = cfile_read_int(fp);
-	for (i = 0; i < Num_cockpits; i++)
-		bitmap_index_read(&cockpit_bitmap[i], fp);
+	bitmap_index_read_n(cockpit_bitmap, Num_cockpits, fp);
 
 //@@	cfread( &Num_total_object_types, sizeof(int), 1, fp );
 //@@	cfread( ObjType, sizeof(byte), Num_total_object_types, fp );
@@ -331,10 +318,10 @@ void bm_read_all(CFILE * fp, int hamfile_version)
 	//@@cfread( controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns, fp );
 	//@@cfread( controlcen_gun_dirs, sizeof(vms_vector), N_controlcen_guns, fp );
 
-	#ifdef SHAREWARE
-	exit_modelnum = cfile_read_int(fp);
-	destroyed_exit_modelnum = cfile_read_int(fp);
-	#endif
+	if (Piggy_hamfile_version < 3) {
+		exit_modelnum = cfile_read_int(fp);
+		destroyed_exit_modelnum = cfile_read_int(fp);
+	}
 
 }
 
@@ -398,8 +385,7 @@ void bm_read_extra_robots(char *fname,int type)
 	N_polygon_models = N_D2_POLYGON_MODELS+t;
 	if (N_polygon_models >= MAX_POLYGON_MODELS)
 		Error("Too many polygon models (%d) in <%s>.  Max is %d.",t,fname,MAX_POLYGON_MODELS-N_D2_POLYGON_MODELS);
-	for (i = N_D2_POLYGON_MODELS; i < t + N_D2_POLYGON_MODELS; i++)
-		polymodel_read(&Polygon_models[i], fp);
+	polymodel_read_n(&Polygon_models[N_D2_POLYGON_MODELS], t, fp);
 
 	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )
 	{
@@ -420,8 +406,7 @@ void bm_read_extra_robots(char *fname,int type)
 	t = cfile_read_int(fp);
 	if (N_D2_OBJBITMAPS+t >= MAX_OBJ_BITMAPS)
 		Error("Too many object bitmaps (%d) in <%s>.  Max is %d.",t,fname,MAX_OBJ_BITMAPS-N_D2_OBJBITMAPS);
-	for (i = N_D2_OBJBITMAPS; i < (N_D2_OBJBITMAPS + t); i++)
-		bitmap_index_read(&ObjBitmaps[i], fp);
+	bitmap_index_read_n(&ObjBitmaps[N_D2_OBJBITMAPS], t, fp);
 
 	t = cfile_read_int(fp);
 	if (N_D2_OBJBITMAPPTRS+t >= MAX_OBJ_BITMAPS)
