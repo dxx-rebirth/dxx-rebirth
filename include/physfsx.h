@@ -1,4 +1,4 @@
-/* $Id: physfsx.h,v 1.3 2004-12-02 08:52:59 btb Exp $ */
+/* $Id: physfsx.h,v 1.4 2004-12-02 09:48:57 btb Exp $ */
 
 /*
  *
@@ -85,6 +85,8 @@ static inline int PHYSFSX_getRealPath(char *stdPath, char *realPath)
 	
 	strncpy(realPath, realDir, PATH_MAX);   // some compilers (like MPW) don't have snprintf
 	p = realPath + strlen(realPath);
+	*p++ = sep;
+	*p = '\0';
 	strncat(realPath, stdPath, PATH_MAX - strlen(realPath));
 	while ((p = strchr(p, '/')))
 		*p++ = sep;

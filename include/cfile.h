@@ -1,4 +1,4 @@
-/* $Id: cfile.h,v 1.13 2004-12-01 13:01:00 btb Exp $ */
+/* $Id: cfile.h,v 1.14 2004-12-02 09:48:57 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -44,6 +44,12 @@ static inline PHYSFS_file *cfopen(char *filename, char *mode)
 	PHYSFS_uint64 bufSize;
 	
 	mode = mode;	// no warning
+
+	if (filename[0] == '\x01')
+	{
+		//FIXME: don't look in dir, only in hogfile
+		filename++;
+	}
 	fp = PHYSFS_openRead(filename);
 	if (!fp)
 		return NULL;

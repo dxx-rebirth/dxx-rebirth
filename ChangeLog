@@ -1,3 +1,8 @@
+2004-12-02  Bradley Bell  <btb@icculus.org>
+
+	* include/cfile.h, include/physfsx.h: fix RELEASE build, make sure
+	path separator gets added to hogdir
+
 2004-12-01  Bradley Bell  <btb@icculus.org>
 
 	* README, configure.ac, VisualC/d2x/d2x.dsp,
