@@ -1,4 +1,4 @@
-/* $Id: timer.h,v 1.4 2002-09-04 08:12:37 btb Exp $ */
+/* $Id: timer.h,v 1.5 2003-02-21 04:08:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -86,7 +86,8 @@ extern fix timer_get_approx_seconds();		// Returns time since program started...
 extern void timer_set_joyhandler( void (*joy_handler)() );
 #else
 #define timer_get_fixed_secondsX timer_get_fixed_seconds
-#define timer_get_approx_seconds timer_get_fixed_seconds
+//#define timer_get_approx_seconds timer_get_fixed_seconds
+extern fix timer_get_approx_seconds();
 #endif
 
 //NOT_USED extern unsigned int timer_get_microseconds();

@@ -1,5 +1,7 @@
 2003-02-20  Bradley Bell <btb@icculus.org>
 
+	* arch/sdl/timer.c, include/timer.h: revert to more accurate
+	timers
 	* main/kludge.c: partial solution to bug #344
 	* Makefile.am, tools/cvs2cl/cvs2cl.pl: get rid of cvs2cl.pl
 	* compilerdefs.txt: added linux/mips info
