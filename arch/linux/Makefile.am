@@ -10,11 +10,7 @@ NETWORK_SRCS = ipx_bsd.c ipx_kali.c ipx_lin.c linuxnet.c ukali.c \
                arch_ip.cpp
 endif
 
-if !SDL_JOYSTICK
-JOYSTICK_SRCS = joydefs.c joystick.c
-endif
-
-libarch_linux_a_SOURCES = ${NETWORK_SRCS} ${JOYSTICK_SRCS} findfile.c init.c
+libarch_linux_a_SOURCES = ${NETWORK_SRCS} findfile.c init.c
 
 EXTRA_libarch_linux_a_SOURCES = \
 ipx_bsd.c ipx_kali.c ipx_lin.c joydefs.c joystick.c linuxnet.c ukali.c

@@ -55,6 +55,7 @@
 #ifdef __linux__
 # define __SDL__ 1
 # define SDL_AUDIO 1
+# define SDL_JOYSTICK 1
 
 # ifdef OGL
 #  define SDL_GL_VIDEO 1
@@ -79,6 +80,7 @@
 # define __SDL__ 1
 # define SDL_AUDIO 1
 # define SDL_INPUT 1
+# define SDL_JOYSTICK 1
 # ifdef OGL
 #  define SDL_GL_VIDEO 1
 # else

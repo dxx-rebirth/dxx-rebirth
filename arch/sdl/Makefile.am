@@ -4,9 +4,7 @@ noinst_LIBRARIES = libarch_sdl.a
 
 INCLUDES = -I$(top_srcdir)/arch/include -I$(top_srcdir)/include -I$(top_srcdir)/main
 
-if SDL_JOYSTICK
 JOYSTICK_SRCS = joy.c joydefs.c
-endif
 
 if !USE_SVGALIB
 if !USE_GGI

@@ -217,19 +217,9 @@ else
 
   if test x$MINGW32 = xyes; then
     D2X_ARCH_SUBDIRS="win32 ${D2X_ARCH_SUBDIRS}"
-    AC_DEFINE(SDL_JOYSTICK)
   else
     CFLAGS="-I \$(top_srcdir)/arch/linux/include $CFLAGS"
     D2X_ARCH_SUBDIRS="linux ${D2X_ARCH_SUBDIRS}"
-
-    dnl Check for SDL joystick
-    AC_ARG_ENABLE(sdl-joystick,
-      [  --enable-sdl-joystick   Use SDL joystick (required for mingw) ],,)
-    if test x$enable_sdl_joystick = xyes; then
-        AC_DEFINE(SDL_JOYSTICK)
-        D2X_FEATURES="sdl_joystick ${D2X_FEATURES}"
-    fi
-    AM_CONDITIONAL(SDL_JOYSTICK, test x$enable_sdl_joystick = xyes)
   fi
 fi
 
