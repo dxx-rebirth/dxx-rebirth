@@ -681,7 +681,11 @@ void DrawCommandLine() {
 	}
 
 	if(Blink) {
-		x = CON_CHAR_BORDER + Topmost->ConsoleSurface->cv_font->ft_w * (Topmost->CursorPos - Topmost->Offset + strlen(Topmost->Prompt));
+		int prompt_width, command_width, h, w;
+
+		gr_get_string_size(Topmost->Prompt, &prompt_width, &h, &w);
+		gr_get_string_size(Topmost->LCommand + Topmost->Offset, &cmd_width, &h, &w);
+		x = CON_CHAR_BORDER + prompt_width + cmd_width;
 		orig_color = FG_COLOR;
 		if(Topmost->InsMode)
 			gr_string(x, Topmost->ConsoleSurface->cv_h - Topmost->ConsoleSurface->cv_font->ft_h, CON_INS_CURSOR);

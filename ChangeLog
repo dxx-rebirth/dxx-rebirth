@@ -1,5 +1,7 @@
 2005-03-20  Bradley Bell  <btb@icculus.org>
 
+	* console/CON_console.c: Fixed console cursor positioning.
+
 	* main/text.c: revert to Error if text file not found.
 
 2005-03-20  Martin Schaffner  <schaffnerb@gmx.ch>
