@@ -1,3 +1,7 @@
+2003-12-18  Bradley Bell  <btb@icculus.org>
+
+	* arch/include/joy.h: comments/formatting
+
 2003-12-10  Alexander Y. Yeikovich <demon@mci.net.ua>
 
 	* compilerdefs.txt: added FreeBSD defs
