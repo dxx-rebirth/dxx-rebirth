@@ -1,4 +1,4 @@
-/* $Id: dumpmine.c,v 1.10 2005-01-10 17:47:27 schaffner Exp $ */
+/* $Id: dumpmine.c,v 1.11 2005-03-16 20:47:20 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: dumpmine.c,v 1.10 2005-01-10 17:47:27 schaffner Exp $";
+static char rcsid[] = "$Id: dumpmine.c,v 1.11 2005-03-16 20:47:20 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -475,10 +475,12 @@ void write_wall_text(FILE *my_file)
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			side	*sidep = &segp->sides[j];
 			if (sidep->wall_num != -1)
+			{
 				if (wall_flags[sidep->wall_num])
 					err_printf(my_file, "Error: Wall %i appears in two or more segments, including segment %i, side %i.\n", sidep->wall_num, i, j);
 				else
 					wall_flags[sidep->wall_num] = 1;
+			}
 		}
 	}
 
@@ -828,6 +830,7 @@ void determine_used_textures_level(int load_level_flag, int shareware_flag, int 
 			} else if (segp->children[sidenum] == -1) {
 
 				if (sidep->tmap_num >= 0)
+				{
 					if (sidep->tmap_num < MAX_BITMAP_FILES) {
 						Assert(Textures[sidep->tmap_num].index < MAX_BITMAP_FILES);
 						tmap_buf[Textures[sidep->tmap_num].index]++;
@@ -835,8 +838,10 @@ void determine_used_textures_level(int load_level_flag, int shareware_flag, int 
 							level_tmap_buf[Textures[sidep->tmap_num].index] = level_num;
 					} else
 						Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
+				}
 
 				if ((sidep->tmap_num2 & 0x3fff) != 0)
+				{
 					if ((sidep->tmap_num2 & 0x3fff) < MAX_BITMAP_FILES) {
 						Assert(Textures[sidep->tmap_num2 & 0x3fff].index < MAX_BITMAP_FILES);
 						tmap_buf[Textures[sidep->tmap_num2 & 0x3fff].index]++;
@@ -848,6 +853,7 @@ void determine_used_textures_level(int load_level_flag, int shareware_flag, int 
 						Ignore_tmap_num2_error = 1;
 						sidep->tmap_num2 = 0;
 					}
+				}
 			}
 		}
 	}
