@@ -1,3 +1,8 @@
+2004-12-19  Bradley Bell  <btb@icculus.org>
+
+	* include/strutil.h, misc/strutil.c, main/bmread.c: implement
+	removeext, use it in ds_load instead of splitpath
+
 2004-12-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/editor/eobject.c, main/editor/kgame.c,

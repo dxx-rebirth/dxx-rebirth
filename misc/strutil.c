@@ -1,4 +1,4 @@
-/* $Id: strutil.c,v 1.14 2004-12-17 14:17:03 btb Exp $ */
+/* $Id: strutil.c,v 1.15 2004-12-20 07:12:25 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -110,6 +110,22 @@ void strrev( char *s1 )
 	}
 }
 #endif
+
+
+// remove extension from filename, doesn't work with paths.
+void removeext(const char *filename, char *out)
+{
+	char *p;
+
+	if ((p = strrchr(filename, '.')))
+	{
+		strncpy(out, filename, p - filename);
+		out[p - filename] = 0;
+	}
+	else
+		strcpy(out, filename);
+}
+
 
 #if !defined(__MSDOS__) && !(defined(_WIN32) && !defined(_WIN32_WCE))
 void _splitpath(char *name, char *drive, char *path, char *base, char *ext)

@@ -1,4 +1,4 @@
-/* $Id: bmread.c,v 1.8 2004-10-23 21:20:19 schaffner Exp $ */
+/* $Id: bmread.c,v 1.9 2004-12-20 07:12:25 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -326,8 +326,8 @@ int ds_load( char * filename )	{
 	}
 #endif
 
-	_splitpath(  filename, NULL, NULL, fname, NULL );
-	_makepath( rawname, NULL, NULL,fname, (digi_sample_rate==SAMPLE_RATE_22K)?".R22":".RAW" );
+	removeext(filename, fname);
+	sprintf(rawname, "%s.%s", fname, (digi_sample_rate==SAMPLE_RATE_22K) ? ".r22" : ".raw");
 
 	i=piggy_find_sound( fname );
 	if (i!=255)	{
