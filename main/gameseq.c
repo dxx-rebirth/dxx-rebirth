@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.15 2002-08-27 08:02:09 btb Exp $ */
+/* $Id: gameseq.c,v 1.16 2003-02-25 04:45:31 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.15 2002-08-27 08:02:09 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.16 2003-02-25 04:45:31 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -2121,14 +2121,8 @@ void ShowLevelIntro(int level_num)
 		memcpy(save_pal,gr_palette,sizeof(gr_palette));
 
 		if (level_num == 1 && !intro_played) {
-			if (Mission_list[Current_mission_num].descent_version == 1) {
-				// try to play d1 mission briefing
-				char tname[FILENAME_LEN];
-				sprintf(tname, "%s.tex", Briefing_text_filename);
-				do_briefing_screens(tname, 1);
-			} else
-				// try to play d2 oem briefing
-				do_briefing_screens("brief2o.tex", 1);
+			// try to play d2 oem briefing
+			do_briefing_screens("brief2o.tex", 1);
 		}
 
 		if (Current_mission_num == Builtin_mission_num) {
@@ -2178,7 +2172,7 @@ void ShowLevelIntro(int level_num)
 		}
 		else {	//not the built-in mission.  check for add-on briefing
 			if (Mission_list[Current_mission_num].descent_version == 1)
-				; //do_briefing_screens(Briefing_text_filename, level_num);
+				do_briefing_screens(Briefing_text_filename, level_num);
 			else {
 				char tname[FILENAME_LEN];
 				sprintf(tname, "%s.tex", Current_mission_filename);

@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.21 2003-02-24 12:03:16 btb Exp $ */
+/* $Id: movie.c,v 1.22 2003-02-25 04:45:31 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.21 2003-02-24 12:03:16 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.22 2003-02-25 04:45:31 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -314,6 +314,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 int InitMovieBriefing()
 {
+#if 0
 	if (MenuHires)
 		gr_set_mode(SM(640,480));
 	else
@@ -321,6 +322,7 @@ int InitMovieBriefing()
 
 	gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 	gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
+#endif
 
 	return 1;
 }

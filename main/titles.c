@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.21 2003-02-24 12:03:16 btb Exp $ */
+/* $Id: titles.c,v 1.22 2003-02-25 04:45:31 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -82,11 +82,13 @@ char	* Briefing_text;
 char RobotPlaying=0;
 #endif
 
-#define	MAX_BRIEFING_COLORS	3
+//Begin D1X modification
+#define MAX_BRIEFING_COLORS     7
+//End D1X modification
 
 // Descent 1 briefings
-char Ending_text_filename[13] = "\0";
-char Briefing_text_filename[13] = "\0";
+char Ending_text_filename[13] = "endreg.txt";
+char Briefing_text_filename[13] = "briefing.txt";
 
 #define	SHAREWARE_ENDING_FILENAME	"ending.tex"
 
@@ -269,8 +271,74 @@ typedef struct {
 
 #define MAX_BRIEFING_SCREENS 60
 
+#if 0
 briefing_screen Briefing_screens[MAX_BRIEFING_SCREENS]=
  {{"brief03.pcx",0,3,8,8,257,177}}; // default=0!!!
+#else
+briefing_screen Briefing_screens[] = {
+	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
+	{ "brief02.pcx",   0,  2,  27,  34, 257, 177 },
+	{ "brief03.pcx",   0,  3,  20,  22, 257, 177 },
+	{ "brief02.pcx",   0,  4,  27,  34, 257, 177 },
+
+	{ "moon01.pcx",    1,  5,  10,  10, 300, 170 }, // level 1
+	{ "moon01.pcx",    2,  6,  10,  10, 300, 170 }, // level 2
+	{ "moon01.pcx",    3,  7,  10,  10, 300, 170 }, // level 3
+
+	{ "venus01.pcx",   4,  8,  15, 15, 300,  200 }, // level 4
+	{ "venus01.pcx",   5,  9,  15, 15, 300,  200 }, // level 5
+
+	{ "brief03.pcx",   6, 10,  20,  22, 257, 177 },
+	{ "merc01.pcx",    6, 11,  10, 15, 300, 200 },  // level 6
+	{ "merc01.pcx",    7, 12,  10, 15, 300, 200 },  // level 7
+
+#ifndef SHAREWARE
+	{ "brief03.pcx",   8, 13,  20,  22, 257, 177 },
+	{ "mars01.pcx",    8, 14,  10, 100, 300,  200 }, // level 8
+	{ "mars01.pcx",    9, 15,  10, 100, 300,  200 }, // level 9
+	{ "brief03.pcx",  10, 16,  20,  22, 257, 177 },
+	{ "mars01.pcx",   10, 17,  10, 100, 300,  200 }, // level 10
+
+	{ "jup01.pcx",    11, 18,  10, 40, 300,  200 }, // level 11
+	{ "jup01.pcx",    12, 19,  10, 40, 300,  200 }, // level 12
+	{ "brief03.pcx",  13, 20,  20,  22, 257, 177 },
+	{ "jup01.pcx",    13, 21,  10, 40, 300,  200 }, // level 13
+	{ "jup01.pcx",    14, 22,  10, 40, 300,  200 }, // level 14
+
+	{ "saturn01.pcx", 15, 23,  10, 40, 300,  200 }, // level 15
+	{ "brief03.pcx",  16, 24,  20,  22, 257, 177 },
+	{ "saturn01.pcx", 16, 25,  10, 40, 300,  200 }, // level 16
+	{ "brief03.pcx",  17, 26,  20,  22, 257, 177 },
+	{ "saturn01.pcx", 17, 27,  10, 40, 300,  200 }, // level 17
+
+	{ "uranus01.pcx", 18, 28,  100, 100, 300,  200 }, // level 18
+	{ "uranus01.pcx", 19, 29,  100, 100, 300,  200 }, // level 19
+	{ "uranus01.pcx", 20, 30,  100, 100, 300,  200 }, // level 20
+	{ "uranus01.pcx", 21, 31,  100, 100, 300,  200 }, // level 21
+
+	{ "neptun01.pcx", 22, 32,  10, 20, 300,  200 }, // level 22
+	{ "neptun01.pcx", 23, 33,  10, 20, 300,  200 }, // level 23
+	{ "neptun01.pcx", 24, 34,  10, 20, 300,  200 }, // level 24
+
+	{ "pluto01.pcx",  25, 35,  10, 20, 300,  200 }, // level 25
+	{ "pluto01.pcx",  26, 36,  10, 20, 300,  200 }, // level 26
+	{ "pluto01.pcx",  27, 37,  10, 20, 300,  200 }, // level 27
+
+	{ "aster01.pcx",  -1, 38,  10, 90, 300,  200 }, // secret level -1
+	{ "aster01.pcx",  -2, 39,  10, 90, 300,  200 }, // secret level -2
+	{ "aster01.pcx",  -3, 40,  10, 90, 300,  200 }, // secret level -3
+#endif
+
+	{ "end01.pcx",   SHAREWARE_ENDING_LEVEL_NUM,  1,  23, 40, 320, 200 },   // shareware end
+#ifndef SHAREWARE
+	{ "end02.pcx",   REGISTERED_ENDING_LEVEL_NUM,  1,  5, 5, 300, 200 },    // registered end
+	{ "end01.pcx",   REGISTERED_ENDING_LEVEL_NUM,  2,  23, 40, 320, 200 },  // registered end
+	{ "end03.pcx",   REGISTERED_ENDING_LEVEL_NUM,  3,  5, 5, 300, 200 },    // registered end
+#endif
+
+};
+
+#endif
 
 int	Briefing_text_x, Briefing_text_y;
 
@@ -557,13 +625,19 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 int load_briefing_screen( int screen_num )
 {
 	int	pcx_error;
+	char *fname;
+
+	if (Mission_list[Current_mission_num].descent_version == 1)
+		fname = Briefing_screens[screen_num].bs_name;
+	else
+		fname = CurBriefScreenName;
 
 	WIN(DDGRLOCK(dd_grd_curcanv));
-	if ((pcx_error=pcx_read_fullscr( CurBriefScreenName, New_pal ))!=PCX_ERROR_NONE) {
-		printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens[screen_num].bs_name, pcx_errormsg(pcx_error));
-		printf( "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens[screen_num].bs_name, pcx_errormsg(pcx_error), pcx_error);
+	if ((pcx_error = pcx_read_fullscr(fname, New_pal)) != PCX_ERROR_NONE) {
+		printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n", fname, pcx_errormsg(pcx_error));
+		printf( "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n", fname, pcx_errormsg(pcx_error), pcx_error);
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
-		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",CurBriefScreenName, pcx_errormsg(pcx_error), pcx_error);
+		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n", fname, pcx_errormsg(pcx_error), pcx_error);
 	}
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
@@ -664,260 +738,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 extern int InitMovieBriefing();
 
-//-----------------------------------------------------------------------------
-// Return true if message got aborted by user (pressed ESC), else return false.
-int show_d1_briefing_message(int screen_num, char *message)
-{
-	int	prev_ch=-1;
-	int	ch, done=0;
-	briefing_screen	*bsp = &Briefing_screens[screen_num];
-	int	delay_count = KEY_DELAY_DEFAULT;
-	int	key_check;
-	int	robot_num=-1;
-	int	rval=0;
-	int	tab_stop=0;
-	int	flashing_cursor=0;
-	int	new_page=0;
-	int text_ulx = rescale_x(bsp->text_ulx);
-	int text_uly = rescale_y(bsp->text_uly);
-
-	Bitmap_name[0] = 0;
-
-	Current_color = 0;
-
-	// mprintf((0, "Going to print message [%s] at x=%i, y=%i\n", message, x, y));
-	gr_set_curfont( GAME_FONT );
-
-	init_char_pos(text_ulx, text_uly);
-
-	while (!done) {
-		ch = *message++;
-		if (ch == '$') {
-			ch = *message++;
-			if (ch == 'C') {
-				Current_color = get_message_num(&message)-1;
-				Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
-				prev_ch = 10;
-			} else if (ch == 'F') {		//	toggle flashing cursor
-				flashing_cursor = !flashing_cursor;
-				prev_ch = 10;
-				while (*message++ != 10)
-					;
-			} else if (ch == 'T') {
-				tab_stop = get_message_num(&message);
-				prev_ch = 10;							//	read to eoln
-			} else if (ch == 'R') {
-				if (Robot_canv != NULL)
-					{free(Robot_canv); Robot_canv=NULL;}
-
-				init_spinning_robot();
-				robot_num = get_message_num(&message);
-				prev_ch = 10;							//	read to eoln
-			} else if (ch == 'N') {
-				//--grs_bitmap	*bitmap_ptr;
-				if (Robot_canv != NULL)
-					{free(Robot_canv); Robot_canv=NULL;}
-
-				get_message_name(&message, Bitmap_name);
-				strcat(Bitmap_name, "#0");
-				Animating_bitmap_type = 0;
-				prev_ch = 10;
-			} else if (ch == 'O') {
-				if (Robot_canv != NULL)
-					{free(Robot_canv); Robot_canv=NULL;}
-
-				get_message_name(&message, Bitmap_name);
-				strcat(Bitmap_name, "#0");
-				Animating_bitmap_type = 1;
-				prev_ch = 10;
-			} else if (ch == 'B') {
-				char			bitmap_name[32];
-				grs_bitmap	guy_bitmap;
-				ubyte			temp_palette[768];
-				int			iff_error;
-
-				if (Robot_canv != NULL)
-					{free(Robot_canv); Robot_canv=NULL;}
-
-				get_message_name(&message, bitmap_name);
-				strcat(bitmap_name, ".bbm");
-				gr_init_bitmap_data (&guy_bitmap);
-				iff_error = iff_read_bitmap(bitmap_name, &guy_bitmap, BM_LINEAR, temp_palette);
-				Assert(iff_error == IFF_NO_ERROR);
-
-				show_briefing_bitmap(&guy_bitmap);
-				gr_free_bitmap_data (&guy_bitmap);
-				prev_ch = 10;
-//			} else if (ch == 'B') {
-//				if (Robot_canv != NULL)
-//					{free(Robot_canv); Robot_canv=NULL;}
-//
-//				bitmap_num = get_message_num(&message);
-//				if (bitmap_num != -1)
-//					show_briefing_bitmap(Textures[bitmap_num]);
-//				prev_ch = 10;							//	read to eoln
-			} else if (ch == 'S') {
-				int	keypress;
-				fix	start_time;
-				fix time_out_value;
-
-				start_time = timer_get_fixed_seconds();
-				start_time = timer_get_approx_seconds();
-				time_out_value = start_time + i2f(60*5);	// Wait 1 minute...
-
-				//added on 9/13/98 by adb to make arch's requiring updates work
-				gr_update();
-				//end changes by adb
-
-				while ( (keypress = local_key_inkey()) == 0 ) {	//	Wait for a key
-					if ( timer_get_approx_seconds() > time_out_value ) {
-						keypress = 0;
-						break;					// Time out after 1 minute..
-					}
-					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
-						;
-					flash_cursor(flashing_cursor);
-					show_spinning_robot_frame(robot_num);
-					show_bitmap_frame();
-
-					//added on 9/13/98 by adb to make arch's requiring updates work
-					gr_update();
-					//end changes by adb
-
-					start_time += KEY_DELAY_DEFAULT/2;
-				}
-
-#ifndef NDEBUG
-				if (keypress == KEY_BACKSP)
-					Int3();
-#endif
-				if (keypress == KEY_ESC)
-					rval = 1;
-
-				flashing_cursor = 0;
-				done = 1;
-			} else if (ch == 'P') {		//	New page.
-				new_page = 1;
-				while (*message != 10) {
-					message++;	//	drop carriage return after special escape sequence
-				}
-				message++;
-				prev_ch = 10;
-//Begin D1X addition
-			} else if (ch == '$' || ch == ';') {         // Print a $/;
-                                prev_ch = ch;
-                                Briefing_text_x += show_char_delay(ch, delay_count, robot_num, flashing_cursor);
-
-//End D1X addition
-			}
-		} else if (ch == '\t') {		//	Tab
-			if (Briefing_text_x - text_ulx < tab_stop)
-				Briefing_text_x = text_ulx + tab_stop;
-		} else if ((ch == ';') && (prev_ch == 10)) {
-			while (*message++ != 10)
-				;
-			prev_ch = 10;
-		} else if (ch == '\\') {
-			prev_ch = ch;
-		} else if (ch == 10) {
-			if (prev_ch != '\\') {
-				prev_ch = ch;
-				Briefing_text_y += GAME_FONT->ft_h+GAME_FONT->ft_h*3/5;
-				Briefing_text_x = text_ulx;
-				if (Briefing_text_y > text_uly + rescale_y(bsp->text_height)) {
-					load_briefing_screen(screen_num);
-					Briefing_text_x = text_ulx;
-					Briefing_text_y = text_uly;
-				}
-			} else {
-				if (ch == 13)
-					Int3();
-				prev_ch = ch;
-			}
-		} else {
-			prev_ch = ch;
-			Briefing_text_x += show_char_delay(ch, delay_count, robot_num, flashing_cursor);
-		}
-
-		//added/changed on 9/13/98 by adb to speed up briefings after pressing a key with SDL
-		//	Check for Esc -> abort.
-		if(delay_count)
-			key_check=local_key_inkey();
-		else
-			key_check=0;
-		//end change - adb
-		if ( key_check == KEY_ESC ) {
-			rval = 1;
-			done = 1;
-		}
-
-#if 0
-		if ( key_check == KEY_ALTED+KEY_F2 )
-			title_save_game();
-#endif
-
-		if ((key_check == KEY_SPACEBAR) || (key_check == KEY_ENTER))
-			delay_count = 0;
-
-		if (Briefing_text_x > text_ulx + rescale_x(bsp->text_width)) {
-			Briefing_text_x = text_ulx;
-			Briefing_text_y += GAME_FONT->ft_h+GAME_FONT->ft_h*3/5;
-		}
-
-		if ((new_page) || (Briefing_text_y > text_uly + rescale_y(bsp->text_height))) {
-			fix	start_time = 0;
-			fix	time_out_value = 0;
-			int	keypress;
-
-			new_page = 0;
-			start_time = timer_get_approx_seconds();
-			time_out_value = start_time + i2f(60*5);		// Wait 1 minute...
-
-                        //added on 9/13/98 by adb to make arch's requiring updates work
-                        gr_update();
-                        //end changes by adb
-
-			while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
-				if ( timer_get_approx_seconds() > time_out_value ) {
-					keypress = 0;
-					break;					// Time out after 1 minute..
-				}
-				while (timer_get_approx_seconds() < start_time + KEY_DELAY_DEFAULT/2)
-					;
-				flash_cursor(flashing_cursor);
-				show_spinning_robot_frame(robot_num);
-				show_bitmap_frame();
-
-                                //added on 9/13/98 by adb to make arch's requiring updates work
-                                gr_update();
-                                //end changes by adb
-
-				start_time += KEY_DELAY_DEFAULT/2;
-			}
-
-			robot_num = -1;
-
-#ifndef NDEBUG
-			if (keypress == KEY_BACKSP)
-				Int3();
-#endif
-			if (keypress == KEY_ESC) {
-				rval = 1;
-				done = 1;
-			}
-
-			load_briefing_screen(screen_num);
-			Briefing_text_x = text_ulx;
-			Briefing_text_y = text_uly;
-			delay_count = KEY_DELAY_DEFAULT;
-		}
-	}
-
-	if (Robot_canv != NULL)
-		{free(Robot_canv); Robot_canv=NULL;}
-
-	return rval;
-}
 
 //-----------------------------------------------------------------------------
 // Return true if message got aborted by user (pressed ESC), else return false.
@@ -958,8 +778,14 @@ int show_briefing_message(int screen_num, char *message)
 	// mprintf((0, "Going to print message [%s] at x=%i, y=%i\n", message, x, y));
 	gr_set_curfont( GAME_FONT );
 
-	bsp=&Briefing_screens[0];
-	init_char_pos(bsp->text_ulx, bsp->text_uly-(8*(1+MenuHires)));
+	if (Mission_list[Current_mission_num].descent_version == 1) {
+		GotZ = 1;
+		bsp=&Briefing_screens[screen_num];
+		init_char_pos(bsp->text_ulx, bsp->text_uly-(8*MenuHires));
+	} else {
+		bsp=&Briefing_screens[0];
+		init_char_pos(bsp->text_ulx, bsp->text_uly-(8*(1+MenuHires)));
+	}
 
 	while (!done) {
 		ch = *message++;
@@ -1019,6 +845,8 @@ int show_briefing_message(int screen_num, char *message)
 				robot_num = get_message_num(&message);
 #endif
 				prev_ch = 10;                           // read to eoln
+				while (*message++ != 10)
+					;
 			} else if (ch == 'N') {
 				//--grs_bitmap *bitmap_ptr;
 				if (Robot_canv != NULL) {
@@ -1072,9 +900,7 @@ int show_briefing_message(int screen_num, char *message)
 						fname2[i] = fname[i];
 						i++;
 					}
-#ifndef SHAREWARE
 					fname2[i++]='b';
-#endif
 					fname2[i++]='.';
 					fname2[i++]='p';
 					fname2[i++]='c';
@@ -1455,16 +1281,43 @@ int show_briefing_text(int screen_num)
 {
 	char	*message_ptr;
 
-	message_ptr = get_briefing_message(screen_num);
-	if (message_ptr==NULL)
-		return (0);
+	if (Mission_list[Current_mission_num].descent_version == 1) {
+        //green
+        Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 54, 0);
+        Briefing_background_colors[0] = gr_find_closest_color_current( 0, 19, 0);
+        //white
+		Briefing_foreground_colors[1] = gr_find_closest_color_current( 42, 38, 32);
+		Briefing_background_colors[1] = gr_find_closest_color_current( 14, 14, 14);
+		//Begin D1X addition
+        //red
+        Briefing_foreground_colors[2] = gr_find_closest_color_current( 63, 0, 0);
+        Briefing_background_colors[2] = gr_find_closest_color_current( 31, 0, 0);
+        //blue
+        Briefing_foreground_colors[3] = gr_find_closest_color_current( 0, 0, 54);
+        Briefing_background_colors[3] = gr_find_closest_color_current( 0, 0, 19);
+        //gray
+        Briefing_foreground_colors[4] = gr_find_closest_color_current( 14, 14, 14);
+        Briefing_background_colors[4] = gr_find_closest_color_current( 0, 0, 0);
+        //yellow
+        Briefing_foreground_colors[5] = gr_find_closest_color_current( 54, 54, 0);
+        Briefing_background_colors[5] = gr_find_closest_color_current( 19, 19, 0);
+        //purple
+        Briefing_foreground_colors[6] = gr_find_closest_color_current( 0, 54, 54);
+        Briefing_background_colors[6] = gr_find_closest_color_current( 0, 19, 19);
+		//End D1X addition
 
-	DoBriefingColorStuff();
+        Erase_color = gr_find_closest_color_current(0, 0, 0);
 
-	if (Mission_list[Current_mission_num].descent_version == 1)
-		return show_d1_briefing_message(screen_num, message_ptr);
-	else
-		return show_briefing_message(screen_num, message_ptr);
+		message_ptr = get_briefing_message(Briefing_screens[screen_num].message_num);
+	} else {
+		message_ptr = get_briefing_message(screen_num);
+		if (message_ptr==NULL)
+			return (0);
+
+		DoBriefingColorStuff();
+	}
+
+	return show_briefing_message(screen_num, message_ptr);
 }
 
 void DoBriefingColorStuff ()
@@ -1486,36 +1339,59 @@ void DoBriefingColorStuff ()
 int show_briefing_screen( int screen_num, int allow_keys)
 {
 	int     rval=0;
-	ubyte   palette_save[768];
+	//ubyte   palette_save[768];
 
 	New_pal_254_bash = 0;
 
 	if (Skip_briefing_screens) {
-		mprintf((0, "Skipping briefing screen [brief03.pcx]\n"));
+		mprintf((0, "Skipping briefing screen [%s]\n", &Briefing_screens[screen_num].bs_name));
 		return 0;
 	}
 
-//	briefing_bm.bm_data=NULL;
-//   if ((pcx_error=pcx_read_bitmap( "brief03.pcx", &briefing_bm, BM_LINEAR, New_pal ))!=PCX_ERROR_NONE)     {
-//        mprintf((0, "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n","Brief03.pcx", pcx_errormsg(pcx_error), pcx_error));
-//		Int3();
-//		return 0;
-//	}
+	if (Mission_list[Current_mission_num].descent_version == 1) {
+		int pcx_error;
+#if 1
+		grs_bitmap briefing_bm;
 
-	memcpy(palette_save,gr_palette,sizeof(palette_save));
-	memcpy(New_pal,gr_palette,sizeof(gr_palette));
+		gr_init_bitmap_data(&briefing_bm);
+		if ((pcx_error=pcx_read_bitmap(Briefing_screens[screen_num].bs_name, &briefing_bm, BM_LINEAR, New_pal))!=PCX_ERROR_NONE) {
+#else
+		if ((pcx_error=pcx_read_fullscr(Briefing_screens[screen_num].bs_name, New_pal))!=PCX_ERROR_NONE) {
+#endif
+			printf("PCX load error: %s.  File '%s'\n\n", pcx_errormsg(pcx_error), Briefing_screens[screen_num].bs_name);
+			mprintf((0, "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n", Briefing_screens[screen_num].bs_name, pcx_errormsg(pcx_error), pcx_error));
+			Int3();
+			return 0;
+		}
 
+#if 1
+		//memcpy(palette_save, gr_palette, sizeof(palette_save));
+		//memcpy(New_pal, gr_palette, sizeof(gr_palette));
 
-//	vfx_set_palette_sub( New_pal );
-//	gr_palette_clear();
-//	gr_bitmap( 0, 0, &briefing_bm );
+		//vfx_set_palette_sub( New_pal );
 #ifdef OGL
-	gr_palette_load(New_pal);
+		gr_palette_load(New_pal);
+#else
+		gr_palette_clear();
+#endif
+		gr_set_current_canvas( NULL );
+		show_fullscr(&briefing_bm);
 #endif
 
-//	if (gr_palette_fade_in( New_pal, 32, allow_keys ))
-//		return 1;
-//	memcpy(gr_palette,New_pal,sizeof(gr_palette));
+		//added on 9/13/98 by adb to make arch's requiring updates work
+		gr_update();
+		//end changes by adb
+
+#if 1
+		gr_free_bitmap_data (&briefing_bm);
+#endif
+
+		if (gr_palette_fade_in( New_pal, 32, allow_keys ))
+			return 1;
+
+		//memcpy(gr_palette,New_pal,sizeof(gr_palette));
+
+	}
 
 	#ifdef MACINTOSH
 	key_close();		// kill the keyboard handler during briefing screens for movies
@@ -1542,9 +1418,9 @@ int show_briefing_screen( int screen_num, int allow_keys)
 			return 1;
 #endif
 
-	gr_copy_palette(gr_palette, palette_save, sizeof(palette_save));
+	//gr_copy_palette(gr_palette, palette_save, sizeof(palette_save));
 
-//	d_free(briefing_bm.bm_data);
+	//d_free(briefing_bm.bm_data);
 
 	return rval;
 }
