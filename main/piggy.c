@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.18 2002-10-10 19:17:37 btb Exp $ */
+/* $Id: piggy.c,v 1.19 2002-12-31 21:51:37 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.18 2002-10-10 19:17:37 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.19 2002-12-31 21:51:37 btb Exp $";
 #endif
 
 
@@ -71,6 +71,8 @@ static char rcsid[] = "$Id: piggy.c,v 1.18 2002-10-10 19:17:37 btb Exp $";
 #define DEFAULT_PIGFILE (cfexist(DEFAULT_PIGFILE_REGISTERED)?DEFAULT_PIGFILE_REGISTERED:DEFAULT_PIGFILE_SHAREWARE)
 #define DEFAULT_HAMFILE (cfexist(DEFAULT_HAMFILE_REGISTERED)?DEFAULT_HAMFILE_REGISTERED:DEFAULT_HAMFILE_SHAREWARE)
 #define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
+
+#define MAC_D2DEMO_PIG_SIZE 4929684
 
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
@@ -1309,20 +1311,28 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				piggy_bitmap_page_out_all();
 				goto ReDoIt;
 			}
-			memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], &zsize, sizeof(int) );
-			Piggy_bitmap_cache_next += sizeof(int);
 			descent_critical_error = 0;
-			temp = cfread( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, zsize-4, Piggy_fp );
+			temp = cfread( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next+4], 1, zsize-4, Piggy_fp );
 			if ( descent_critical_error )   {
 				piggy_critical_error();
 				goto ReDoIt;
 			}
-			Piggy_bitmap_cache_next += zsize-4;
 
-#if 0
-			if (cfilelength(Piggy_fp) == 4929684) // mac version of d2demo.pig
+#ifndef MACDATA
+			if (FindArg("-macdata") || cfilelength(Piggy_fp) == MAC_D2DEMO_PIG_SIZE) {
 				rle_swap_0_255( bmp );
+				zsize = *((int *)bmp->bm_data);
+			}
 #endif
+
+			memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], &zsize, sizeof(int) );
+			Piggy_bitmap_cache_next += zsize;
+			if ( Piggy_bitmap_cache_next+zsize >= Piggy_bitmap_cache_size ) {
+				Int3();
+				piggy_bitmap_page_out_all();
+				goto ReDoIt;
+			}
+
 		} else {
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
 			Assert( Piggy_bitmap_cache_next+(bmp->bm_h*bmp->bm_w) < Piggy_bitmap_cache_size );
@@ -1338,8 +1348,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 
-#if 0
-			if (cfilelength(Piggy_fp) == 4929684) // mac version of d2demo.pig
+#ifndef MACDATA
+			if (FindArg("-macdata") || cfilelength(Piggy_fp) == MAC_D2DEMO_PIG_SIZE)
 				swap_0_255( bmp );
 #endif
 		}

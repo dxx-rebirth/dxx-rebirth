@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.50 2002-10-30 22:04:22 btb Exp $ */
+/* $Id: inferno.c,v 1.51 2002-12-31 21:51:37 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -903,7 +903,6 @@ void print_commandline_help()
 	printf( " Editor Options:\n\n");
 	printf( "  -autoload <file>%s\n", "Autoload a level in the editor");
 	printf( "  -hoarddata      %s\n","FIXME: Undocumented");
-	printf( "  -macdata        %s\n","FIXME: Undocumented");
 //	printf( "  -nobm           %s\n","FIXME: Undocumented");
 	printf( "\n");
 #endif
@@ -941,6 +940,9 @@ void print_commandline_help()
 	printf( "  -joyslow        %s\n","FIXME: Undocumented");
 //	printf( "  -logfile        %s\n","FIXME: Undocumented");
 //	printf( "  -lowresmovies   %s\n","FIXME: Undocumented");
+#if defined(EDITOR) || !defined(MACDATA)
+	printf( "  -macdata        %s\n","Read (and, for editor, write) mac data files (swap colors)");
+#endif
 //	printf( "  -memdbg         %s\n","FIXME: Undocumented");
 //	printf( "  -monodebug      %s\n","FIXME: Undocumented");
 	printf( "  -nocdrom        %s\n","FIXME: Undocumented");
