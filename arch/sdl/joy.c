@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/joy.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2002-03-23 09:13:00 $
+ * $Date: 2002-07-16 22:03:45 $
  *
  * SDL joystick support
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2002/03/23 09:13:00  bradleyb
+ * SDL Joystick works\!
+ *
  * Revision 1.3  2002/03/05 12:13:33  bradleyb
  * SDL joystick stuff mostly done
  *
@@ -21,8 +24,6 @@
  *
  *
  */
-
-#define JOYSTICK_DEBUG
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
