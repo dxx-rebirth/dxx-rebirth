@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.14 2004-05-11 23:15:55 btb Exp $ */
+/* $Id: ogl.c,v 1.15 2004-05-16 00:45:25 schaffner Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -25,7 +25,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "ogl_init.h"
+#include "internal.h"
 #include "3d.h"
 #include "piggy.h"
 #include "../../3d/globvars.h"
@@ -103,6 +103,19 @@ int secondary_lh[5]={0,0,0,0,0};
 
 ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
 int ogl_texture_list_cur;
+
+/* some function prototypes */
+
+//#define OGLTEXBUFSIZE (1024*1024*4)
+#define OGLTEXBUFSIZE (2048*2048*4)
+extern GLubyte texbuf[OGLTEXBUFSIZE];
+//void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int width,int height,int  twidth,int theight);
+void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type);
+void ogl_loadbmtexture(grs_bitmap *bm);
+//void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,intdyo , int *texid,float *u,float *v,char domipmap,float prio);
+void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex);
+void ogl_freetexture(ogl_texture *gltexture);
+void ogl_do_palfx(void);
 
 void ogl_init_texture_stats(ogl_texture* t){
 	t->prio=0.3;//default prio

@@ -1,4 +1,4 @@
-/* $Id: sdlgl.c,v 1.9 2003-11-27 04:59:49 btb Exp $ */
+/* $Id: sdlgl.c,v 1.10 2004-05-16 00:45:25 schaffner Exp $ */
 /*
  *
  * Graphics functions for SDL-GL.
@@ -15,7 +15,7 @@
 #include <SDL_image.h>
 #endif
 
-#include "ogl_init.h"
+#include "internal.h"
 #include "vers_id.h"
 #include "error.h"
 #include "u_mem.h"

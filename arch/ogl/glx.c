@@ -1,4 +1,4 @@
-/* $Id: glx.c,v 1.4 2003-01-15 02:40:54 btb Exp $ */
+/* $Id: glx.c,v 1.5 2004-05-16 00:45:25 schaffner Exp $ */
 /*
  *
  * opengl platform specific functions for GLX - Added 9/15/99 Matthew Mueller
@@ -13,7 +13,7 @@
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 #include <string.h>
-#include "ogl_init.h"
+#include "internal.h"
 #include "vers_id.h"
 #include "error.h"
 #include "event.h"

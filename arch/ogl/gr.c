@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.16 2003-11-27 04:59:49 btb Exp $ */
+/* $Id: gr.c,v 1.17 2004-05-16 00:45:25 schaffner Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -49,7 +49,7 @@
 #include "key.h"
 
 #define DECLARE_VARS
-#include "ogl_init.h"
+#include "internal.h"
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
 #undef GL_ARB_multitexture // hack!

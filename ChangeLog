@@ -1,3 +1,9 @@
+2004-05-16  Martin Schaffner  <maschaffner@gmx.ch>
+
+	* include/ogl_init.h, arch/ogl/*.c, arch/ogl/internal.h:
+	move most ogl-internal stuff from the ogl interface header to
+	new header file internal.h
+
 2004-05-15  Dietfrid Mali  <dietfrid.mali@q-dial.de>
 
         * arch/sdl/joy.c: joystick_read_raw_axis() will return a proper

@@ -1,4 +1,4 @@
-/* $Id: wgl.c,v 1.3 2003-01-15 02:40:54 btb Exp $ */
+/* $Id: wgl.c,v 1.4 2004-05-16 00:45:25 schaffner Exp $ */
 /*
  *
  * opengl platform specific functions for WGL - added by Peter Hawkins
@@ -16,7 +16,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 
-#include "ogl_init.h"
+#include "internal.h"
 #include "vers_id.h"
 #include "error.h"
 #include "key.h"
