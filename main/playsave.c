@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/playsave.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-11-11 23:39:22 $
+ * $Date: 2001-11-12 00:59:07 $
  *
  * Functions to load & save player games
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/11/11 23:39:22  bradleyb
+ * Created header for MAKE_SIG macro
+ *
  *
  */
 
@@ -61,6 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "powerup.h"
 #include "makesig.h"
+#include "byteswap.h"
 
 #define SAVE_FILE_ID			MAKE_SIG('D','P','L','R')
 
@@ -395,7 +399,9 @@ int read_player_file()
 
 	id = read_int(file);
 
-	if (id!=SAVE_FILE_ID) {
+        // SWAPINT added here because old versions of d2x
+        // used the wrong byte order.
+	if (id!=SAVE_FILE_ID && id!=SWAPINT(SAVE_FILE_ID)) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
 		fclose(file);
 		return -1;
