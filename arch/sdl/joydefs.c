@@ -1,23 +1,7 @@
+/* $Id: joydefs.c,v 1.5 2003-01-15 02:40:54 btb Exp $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/sdl/joydefs.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2002-03-05 12:38:08 $
  *
  * SDL joystick support
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.3  2001/11/14 03:56:53  bradleyb
- * #include pstypes.h
- *
- * Revision 1.2  2001/11/14 03:29:39  bradleyb
- * copied joydefs_config from linux/joydefs.c - controls menu now works
- *
- * Revision 1.1  2001/10/24 09:25:05  bradleyb
- * Moved input stuff to arch subdirs, as in d1x.
- *
- * Revision 1.1  2001/10/10 03:01:29  bradleyb
- * Replacing win32 joystick (broken) with SDL joystick (stubs)
  *
  *
  */

@@ -1,20 +1,11 @@
+/* $Id: wgl.c,v 1.3 2003-01-15 02:40:54 btb Exp $ */
 /*
- * $Source: /cvs/cvsroot/d2x/arch/ogl/wgl.c,v $
- * $Revision: 1.2 $
- * $Author: bradleyb $
- * $Date: 2001-11-04 08:49:57 $
  *
  * opengl platform specific functions for WGL - added by Peter Hawkins
  * fullscreen example code courtesy of Jeff Slutter
  * everything merged together and cleaned up by Matt Mueller
  *         (with some win32 help from Nirvana)
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.1  2001/10/25 08:25:34  bradleyb
- * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
- *
- * Revision 1.2  2001/01/29 13:47:52  bradleyb
- * Fixed build, some minor cleanups.
  *
  */
 
@@ -24,6 +15,7 @@
 
 #include <windows.h>
 #include <mmsystem.h>
+
 #include "ogl_init.h"
 #include "vers_id.h"
 #include "error.h"
