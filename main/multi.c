@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/multi.c,v $
- * $Revision: 1.5 $
- * $Author: bradleyb $
- * $Date: 2001-10-23 21:53:19 $
+ * $Revision: 1.6 $
+ * $Author: btb $
+ * $Date: 2002-08-30 01:01:18 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/10/23 21:53:19  bradleyb
+ * No longer #ifdef'ing out the whole file.  RCS header added
+ *
  *
  */
 
@@ -1219,9 +1222,7 @@ extern fix StartingShields;
 fix PingLaunchTime,PingReturnTime;
 
 extern void network_send_ping (ubyte);
-extern void network_dump_player(ubyte * server, ubyte *node, int why);
 extern int network_who_is_master();
-extern void network_send_netgame_update();
 extern char NameReturning;
 extern int force_cockpit_redraw;
 
@@ -4938,7 +4939,6 @@ void multi_do_start_trigger (char *buf)
   Triggers[(int)buf[1]].flags |=TF_DISABLED;
  }
 
-extern int GetMyNetRanking();
 extern char *RankStrings[];
 
 void multi_add_lifetime_kills ()

@@ -1,3 +1,4 @@
+/* $Id: network.c,v 1.11 2002-08-30 01:01:18 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,36 +8,16 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-/*
- * $Source: /cvs/cvsroot/d2x/main/network.c,v $
- * $Revision: 1.10 $
- * $Author: bradleyb $
- * $Date: 2002-07-16 08:14:35 $
- *
- * FIXME: put description here
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.9  2002/04/19 21:27:00  bradleyb
- * let hoard.ham be a cfile
- *
- * Revision 1.8  2002/02/14 09:24:19  bradleyb
- * d1x->d2x
- *
- * Revision 1.7  2002/02/13 10:39:21  bradleyb
- * Lotsa networking stuff from d1x
- *
- * Revision 1.6  2001/10/23 22:03:03  bradleyb
- * No longer #ifdef'ing out the whole file.  RCS header added
- *
- *
- */
-
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
+
+#ifdef RCS
+static char rcsid[] = "$Id: network.c,v 1.11 2002-08-30 01:01:18 btb Exp $";
 #endif
 
 #define PATCH12
@@ -85,6 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "netmisc.h"
 #include "kconfig.h"
 #include "playsave.h"
+#include "hoard.h"
 
 #ifdef MACINTOSH
 #include <Events.h>
@@ -92,41 +74,37 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "appltalk.h"
 #endif
 
-void network_send_rejoin_sync(int player_num);
-void network_update_netgame(void);
-void network_read_endlevel_packet( ubyte *data );
-void network_read_object_packet( ubyte *data );
-void network_read_sync_packet( netgame_info * sp, int d1x );
-void network_flush();
-void network_listen();
-void network_read_pdata_packet(frame_info *pd );
-
-void network_check_for_old_version (char pnum);
-void network_send_endlevel_short_sub(int from_player_num,int to_player);
-int network_wait_for_playerinfo();
-void network_process_pdata (char *data);
-void network_read_endlevel_short_packet( ubyte *data );
-void network_ping (ubyte flag,int pnum);
-void network_handle_ping_return (ubyte pnum);
-void network_process_names_return (char *data);
-void network_send_player_names (sequence_packet *their);
-int network_choose_connect ();
-void network_more_game_options ();
-void network_count_powerups_in_mine(void);
-int network_wait_for_all_info (int choice);
-void network_do_big_wait(int choice);
-void network_send_extras ();
-void network_read_pdata_short_packet(short_frame_info *pd );
-
-void network_AdjustMaxDataSize ();
-
-void ClipRank (signed char *rank);
-void DoRefuseStuff (sequence_packet *their);
-void SetAllAllowablesTo (int on);
-int GetNewPlayerNumber (sequence_packet *their);
-
 #define LHX(x)          ((x)*(MenuHires?2:1))
 #define LHY(y)          ((y)*(MenuHires?2.4:1))
+
+#define PID_LITE_INFO                           43
+#define PID_SEND_ALL_GAMEINFO      44
+#define PID_PLAYERSINFO                         45
+#define PID_REQUEST                                     46
+#define PID_SYNC                                                47
+#define PID_PDATA                                               48
+#define PID_ADDPLAYER                           49
+#define PID_DUMP                                                51
+#define PID_ENDLEVEL                                    52
+#define PID_QUIT_JOINING                        54
+#define PID_OBJECT_DATA                         55
+#define PID_GAME_LIST                           56
+#define PID_GAME_INFO                           57
+#define PID_PING_SEND                           58
+#define PID_PING_RETURN                         59
+#define PID_GAME_UPDATE                         60
+#define PID_ENDLEVEL_SHORT                      61
+#define PID_NAKED_PDATA                         62
+#define PID_GAME_PLAYERS								63
+#define PID_NAMES_RETURN								64
+
+#define NETGAME_ANARCHY                         0
+#define NETGAME_TEAM_ANARCHY            1
+#define NETGAME_ROBOT_ANARCHY           2
+#define NETGAME_COOPERATIVE             3
+#define NETGAME_CAPTURE_FLAG            4
+#define NETGAME_HOARD            	 	 5
+#define NETGAME_TEAM_HOARD					 6
 
 #define NETSECURITY_OFF 0
 #define NETSECURITY_WAIT_FOR_PLAYERS 1
@@ -136,6 +114,16 @@ int GetNewPlayerNumber (sequence_packet *their);
 // MWA -- these structures are aligned -- please save me sanity and
 // headaches by keeping alignment if these are changed!!!!  Contact
 // me for info.
+
+typedef struct endlevel_info {
+	ubyte                                   type;
+	ubyte                                   player_num;
+	byte                                    connected;
+	ubyte                                   seconds_left;
+	short                                   kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
+	short                                   kills;
+	short                                   killed;
+} endlevel_info;
 
 typedef struct endlevel_info_short {
 	ubyte                                   type;
@@ -208,6 +196,39 @@ extern int newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_it
 void network_process_naked_pdata (char *,int);
 extern void multi_send_robot_controls(char);
 
+void network_flush();
+void network_listen();
+void network_update_netgame();
+void network_check_for_old_version(char pnum);
+void network_send_objects();
+void network_send_rejoin_sync(int player_num);
+void network_send_game_info(sequence_packet *their);
+void network_send_endlevel_short_sub(int from_player_num, int to_player);
+void network_read_sync_packet(netgame_info * sp, int rsinit);
+int  network_wait_for_playerinfo();
+void network_process_pdata(char *data);
+void network_read_object_packet(ubyte *data );
+void network_read_endlevel_packet(ubyte *data );
+void network_read_endlevel_short_packet(ubyte *data );
+void network_ping(ubyte flat, int pnum);
+void network_handle_ping_return(ubyte pnum);
+void network_process_names_return(char *data);
+void network_send_player_names(sequence_packet *their);
+int  network_choose_connect();
+void network_more_game_options();
+void network_count_powerups_in_mine();
+int  network_wait_for_all_info(int choice);
+void network_AdjustMaxDataSize();
+void network_do_big_wait(int choice);
+void network_send_extras();
+void network_read_pdata_packet(frame_info *pd);
+void network_read_pdata_short_packet(short_frame_info *pd);
+
+void ClipRank(signed char *rank);
+void DoRefuseStuff(sequence_packet *their);
+int  GetNewPlayerNumber(sequence_packet *their);
+void SetAllAllowablesTo(int on);
+
 int num_active_games = 0;
 int PacketsPerSec=10;
 int MaxXDataSize=NET_XDATA_SIZE;
@@ -222,9 +243,6 @@ int     Network_games_changed = 0;
 
 int     Network_socket = 0;
 int     Network_allow_socket_changes = 1;
-
-int	Network_initial_pps = 10;
-int	Network_initial_shortpackets = 0;
 
 int     NetSecurityFlag=NETSECURITY_OFF;
 int     NetSecurityNum=0;
@@ -827,7 +845,7 @@ void network_welcome_player(sequence_packet *their)
 
 	if (FindArg("-NoMatrixCheat"))
 	{
-		if (their->player.version_minor & (0x0F<3))
+		if ((their->player.version_minor & 0x0F) < 3)
 		{
 					network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_DORK);
 					return;
@@ -2222,9 +2240,9 @@ void network_process_dump(sequence_packet *their)
 {
 	// Our request for join was denied.  Tell the user why.
 
-   char temp[40];
-   int i;
- 
+	char temp[40];
+	int i;
+
 	mprintf((0, "Dumped by player %s, type %d.\n", their->player.callsign, their->player.connected));
 
    if (their->player.connected!=7)
@@ -4421,7 +4439,7 @@ void network_join_game()
 		if (Network_allow_socket_changes)
 			sprintf( m[0].text, "\tCurrent IPX Socket is default %+d (PgUp/PgDn to change)", Network_socket );
 		else
-			strcpy( m[0].text, "" );
+			strcpy( m[0].text, "" ); //sprintf( m[0].text, "" );
 	#ifdef MACINTOSH
 	} else {
 		p2cstr(Network_zone_name);
@@ -6465,21 +6483,3 @@ void network_send_player_names (sequence_packet *their)
 	   ipx_send_internetwork_packet_data((ubyte *)buf, count, their->player.network.ipx.server, their->player.network.ipx.node);
 	#endif
  }
-
-#include "cfile.h"
-int HoardEquipped ()
-{
-	static int checked=-1;
-	
-#ifdef WINDOWS
-	return 0;
-#endif
-
-	if (checked==-1) {
-		if (cfexist("hoard.ham"))
-			checked=1;
-		else
-			checked=0;
-	}
-	return (checked);
-}
