@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.40 2005-01-07 21:58:42 btb Exp $ */
+/* $Id: menu.c,v 1.41 2005-03-20 12:53:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1365,10 +1365,10 @@ void d2x_options_menu()
             if(i == inputs+0)
 			{
 				maxfps = atoi(smaxfps);
-                if(maxfps < 1 || maxfps>80)
+				if(maxfps < 1 || maxfps > MAX_FPS)
 				{
 					nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for maximum framerate");
-					maxfps = 80;
+					maxfps = MAX_FPS;
 					i = (inputs+0);
 				}
 			}

@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.100 2005-02-26 09:30:04 chris Exp $ */
+/* $Id: inferno.c,v 1.101 2005-03-20 12:53:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -636,7 +636,7 @@ int main(int argc, char *argv[])
 	//added/edited 8/18/98 by Victor Rachels to set maximum fps <= 100
 	if ((t = FindArg( "-maxfps" ))) {
 		t=atoi(Args[t+1]);
-		if (t>0&&t<=80)
+		if (t > 0 && t <= MAX_FPS)
 			maxfps=t;
 	}
 	//end addition - Victor Rachels

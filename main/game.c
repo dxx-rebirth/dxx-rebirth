@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.34 2004-12-17 13:17:46 btb Exp $ */
+/* $Id: game.c,v 1.35 2005-03-20 12:53:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.34 2004-12-17 13:17:46 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.35 2005-03-20 12:53:33 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1207,7 +1207,7 @@ int Movie_fixed_frametime;
 #endif
 
 //added on 8/18/98 by Victor Rachels to add maximum framerate
-int maxfps = 80;
+int maxfps = MAX_FPS;
 //end this section
 
 void calc_frame_time()

@@ -1,5 +1,8 @@
 2005-03-20  Bradley Bell  <btb@icculus.org>
 
+	* main/game.c, main/game.h, main/inferno.c, main/menu.c: added
+	MAX_FPS constant
+
 	* console/CON_console.c: Fixed console cursor positioning.
 
 	* main/text.c: revert to Error if text file not found.
