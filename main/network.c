@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/network.c,v $
- * $Revision: 1.8 $
+ * $Revision: 1.9 $
  * $Author: bradleyb $
- * $Date: 2002-02-14 09:24:19 $
+ * $Date: 2002-04-19 21:27:00 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.8  2002/02/14 09:24:19  bradleyb
+ * d1x->d2x
+ *
  * Revision 1.7  2002/02/13 10:39:21  bradleyb
  * Lotsa networking stuff from d1x
  *
@@ -6518,21 +6521,18 @@ void network_send_player_names (sequence_packet *their)
 	   ipx_send_internetwork_packet_data((ubyte *)buf, count, their->player.network.ipx.server, their->player.network.ipx.node);
 	#endif
  }
- 
 
-extern int file_exists (char *);
-
+#include "cfile.h"
 int HoardEquipped ()
 {
 	static int checked=-1;
 	
-	#ifdef WINDOWS
-		return 0;
-	#endif
+#ifdef WINDOWS
+	return 0;
+#endif
 
-	if (checked==-1)
-	{
-		if (file_exists ("hoard.ham"))
+	if (checked==-1) {
+		if (cfexist("hoard.ham"))
 			checked=1;
 		else
 			checked=0;
