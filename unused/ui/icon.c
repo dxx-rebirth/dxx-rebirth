@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #pragma off (unreferenced)
-static char rcsid[] = "$Id: icon.c,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $";
+static char rcsid[] = "$Id: icon.c,v 1.2 2004-12-19 12:55:44 btb Exp $";
 #pragma on (unreferenced)
 
 
@@ -105,8 +105,8 @@ UI_GADGET_ICON * ui_add_gadget_icon( UI_WINDOW * wnd, char * text, short x, shor
 	// Call twice to get original;
 	if (f)
 	{
-		icon->flag = (byte)f();
-		icon->flag = (byte)f();
+		icon->flag = (sbyte)f();
+		icon->flag = (sbyte)f();
 	} else {
 		icon->flag = 0;
 	}
@@ -139,7 +139,7 @@ void ui_icon_do( UI_GADGET_ICON * icon, int keypress )
 	if (icon->pressed == 1 || keypress==icon->trap_key )
 	{
 		icon->status = 1;
-		icon->flag = (byte)icon->user_function();
+		icon->flag = (sbyte)icon->user_function();
 		if (keypress==icon->trap_key) last_keypress = 0;
 	}
 

@@ -1,14 +1,12 @@
-2004-12-19  Bradley Bell  <btb@icculus.org>
-
-	* include/ui.h, main/bm.c, main/dumpmine.c, main/editor/editor.h,
-	main/editor/medwall.h, main/editor/segment.c, main/gamesave.c:
-	replace byte with sbyte
-
 2004-12-19  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* include/u_mem.h: prototype for strdup with MPW
 
 	* main/laser.c: abort weapon fire if unable to create object
+
+	* include/ui.h, main/bm.c, main/dumpmine.c, main/editor/editor.h,
+	main/editor/medwall.h, main/editor/segment.c, main/gamesave.c,
+	unused/ui/icon.c: replace byte with sbyte
 
 2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
