@@ -4,13 +4,15 @@
 	include/d_io.h, include/pstypes.h, include/u_dpmi.h,
 	libmve/mvelib.c, libmve/mveplay.c, main/cntrlcen.c, main/gameseq.c,
 	main/movie.c, main/newmenu.c, main/playsave.c, main/songs.c,
-	main/state.c, main/text.c: add "#ifdef macintosh" for carbon target.
+	main/state.c, main/text.c: add "#ifdef macintosh" for carbon target
 
 	* D2X.make, arch/include/gui.h, arch/carbon/gui.c, arch/carbon/conf.h,
 	arch/carbon/findfile.c,	arch/carbon/SDL_main.c, arch/carbon/descent.r:
-	New files for supporting compilation with MPW for carbon (Mac OS 9).
+	new files for supporting compilation with MPW for carbon (Mac OS 9)
 
 	* include/strutil.h, misc/strutil.c: add str(n)icmp for carbon
+
+	* main/playsave.c: do not seek while writing, carbon does not like it
 
 2004-06-26  Chris Taylor  <c.taylor@student.curtin.edu.au>
 

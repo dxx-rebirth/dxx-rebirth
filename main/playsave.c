@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.17 2004-08-01 13:01:39 schaffner Exp $ */
+/* $Id: playsave.c,v 1.18 2004-08-01 14:17:10 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -926,7 +926,11 @@ int write_player_file()
 		return errno_ret;
 	}
 #else
-	cfseek(file, MAX_MESSAGE_LEN * 4, SEEK_CUR);
+	{
+		char dummy[4][MAX_MESSAGE_LEN];	// Pull the messages from a hat! ;-)
+		
+		cfwrite(dummy, MAX_MESSAGE_LEN, 4, file);
+	}
 #endif
 
 	//write kconfig info
