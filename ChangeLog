@@ -5,6 +5,8 @@
 	VisualC/d2x/d2x.dsp, VisualC/d2xgl/d2xgl.dsp, VisualCE/d2x/d2x.vcp:
 	delete file compbit.h, move functionality to text.c, modify all
 	previous users of compbit.h to use existing function in text.h
+	* main/inferno.c: remove warning created by the fix for the cfgets
+	issue of 2004-08-29
 
 2004-10-23  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
