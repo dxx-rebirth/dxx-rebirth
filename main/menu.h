@@ -1,4 +1,4 @@
-/* $Id: menu.h,v 1.3 2002-08-06 05:12:09 btb Exp $ */
+/* $Id: menu.h,v 1.4 2002-08-22 19:18:13 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,36 +22,18 @@ extern void do_options_menu();
 
 extern int MenuHires;
 
-#if 0
-#ifdef SHAREWARE
-	#ifdef RELEASE
-		#ifdef MACINTOSH
-			#define Menu_pcx_name "\x01menub.pcx"	//read only from hog file
-		#else
-			#define Menu_pcx_name "\x01menud.pcx"	//read only from hog file
-		#endif
-	#else
-//		#define Menu_pcx_name (MenuHires?"menub.pcx":"menud.pcx")	//name of background bitmap
-		#define Menu_pcx_name "menud.pcx"
-	#endif
+#ifdef RELEASE  //read only from hog file
+#define MENU_PCX_SHAREWARE ("\x01menud.pcx")
+#define MENU_PCX_OEM (MenuHires?"\x01menuob.pcx":"\x01menuo.pcx")
+#define MENU_PCX_FULL (MenuHires?"\x01menub.pcx":"\x01menu.pcx")
 #else
-	#ifdef D2_OEM
-		#ifdef RELEASE
-			#define Menu_pcx_name (MenuHires?"\x01menuob.pcx":"\x01menuo.pcx")	//read only from hog file
-		#else
-			#define Menu_pcx_name (MenuHires?"menuob.pcx":"menuo.pcx")		//name of background bitmap
-		#endif
-	#else	//Full version
-		#ifdef RELEASE
-			#define Menu_pcx_name (MenuHires?"\x01menub.pcx":"\x01menu.pcx")	//read only from hog file
-		#else
-			#define Menu_pcx_name (MenuHires?"menub.pcx":"menu.pcx")		//name of background bitmap
-		#endif
-	#endif
+#define MENU_PCX_SHAREWARE ("menud.pcx")
+#define MENU_PCX_OEM (MenuHires?"menuob.pcx":"menuo.pcx")
+#define MENU_PCX_FULL (MenuHires?"menub.pcx":"menu.pcx")
 #endif
-#else
-#define Menu_pcx_name (MenuHires && cfexist("menub.pcx")?"menub.pcx":(cfexist("menu.pcx")?"menu.pcx":"menud.pcx"))
-#endif
+
+//name of background bitmap
+#define Menu_pcx_name (cfexist(MENU_PCX_FULL)?MENU_PCX_FULL:(cfexist(MENU_PCX_OEM)?MENU_PCX_OEM:MENU_PCX_SHAREWARE))
 
 extern void set_detail_level_parameters(int detail_level);
 
