@@ -11,12 +11,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ * $Source: /cvs/cvsroot/d2x/main/state.c,v $
+ * $Revision: 1.5 $
+ * $Author: bradleyb $
+ * $Date: 2001-11-09 11:40:25 $
+ *
+ * Game save/restore functions
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
 
-#ifdef RCS
-char state_rcsid[] = "$Id: state.c,v 1.4 2001-10-25 02:15:57 bradleyb Exp $";
-#endif
-
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
 
 #ifdef WINDOWS
 #include "desw.h"
@@ -31,6 +40,10 @@ char state_rcsid[] = "$Id: state.c,v 1.4 2001-10-25 02:15:57 bradleyb Exp $";
 #include <errno.h>
 #ifdef MACINTOSH
 #include <Files.h>
+#endif
+
+#ifdef OGL
+#include <GL/gl.h>
 #endif
 
 #include "pstypes.h"
@@ -84,6 +97,10 @@ char state_rcsid[] = "$Id: state.c,v 1.4 2001-10-25 02:15:57 bradleyb Exp $";
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
+#endif
+
+#ifdef OGL
+#include "gr.h"
 #endif
 
 #define STATE_VERSION 22
@@ -618,6 +635,10 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
 	if ( cnv )
 	{
+#ifdef OGL
+		ubyte *buf;
+		int k;
+#endif
 		#ifdef WINDOWS
 			dd_grs_canvas *cnv_save;
 			cnv_save = dd_grd_curcanv;
@@ -651,19 +672,31 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 					render_frame(0, 0);
 					PA_DFX (pa_alpha_always());  
 			
-			#if defined(POLY_ACC)
+#if defined(POLY_ACC)
 					#ifndef MACINTOSH
 					screen_shot_pa(cnv,&cnv2);
 					#else
 					if ( PAEnabled )
 						screen_shot_pa(cnv,&cnv2);
 					#endif
-			#endif
-			
+#elif defined(OGL)
+		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
+		glReadBuffer(GL_FRONT);
+		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGB, GL_UNSIGNED_BYTE, buf);
+		k = THUMBNAIL_H;
+		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {
+			if (!(j = i % THUMBNAIL_W))
+				k--;
+			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
+				gr_find_closest_color(buf[3*i]/4, buf[3*i+1]/4, buf[3*i+2]/4);
+		}
+		d_free(buf);
+#endif
+
 					pal = gr_palette;
-			
+
 					fwrite( cnv->cv_bitmap.bm_data, THUMBNAIL_W*THUMBNAIL_H, 1, fp );
-			
+
 			#if defined(POLY_ACC)
 					PA_DFX (pa_alpha_always());	
 					PA_DFX (pa_set_frontbuffer_current());
