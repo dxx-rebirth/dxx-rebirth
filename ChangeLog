@@ -1,5 +1,8 @@
 2004-05-31  Bradley Bell  <btb@icculus.org>
 
+	* Info.plist.in, Makefile.am, configure.ac: remove old OSX bundle
+	stuff
+
 	* English.lproj/InfoPlist.strings, d2x-Info.plist,
 	d2xgl-Info.plist, arch/cocoa/SDLMain.h, arch/cocoa/SDLMain.m,
 	d2x.xcode/project.pbxproj: added XCode project files
