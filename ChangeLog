@@ -1,3 +1,7 @@
+2003-02-22  Bradley Bell <btb@icculus.org>
+
+	* main/titles.c: fixed fullscreen toggle in briefings
+
 2003-02-21  Bradley Bell <btb@icculus.org>
 
 	* configure.ac: check for mingw when enabling nasm
