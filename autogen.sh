@@ -1,7 +1,8 @@
 #!/bin/sh
 set -e
-aclocal
+aclocal -I macros
 autoheader
 automake --add-missing
 autoconf
-./configure "$@"
+#./configure "$@"
+echo "Now you are ready to run ./configure"
