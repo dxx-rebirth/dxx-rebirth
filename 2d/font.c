@@ -12,13 +12,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /* $Source: /cvs/cvsroot/d2x/2d/font.c,v $
- * $Revision: 1.7 $
+ * $Revision: 1.8 $
  * $Author: bradleyb $
- * $Date: 2001-11-02 10:46:23 $
+ * $Date: 2001-11-04 03:58:25 $
  *
  * Graphical routines for drawing fonts.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.7  2001/11/02 10:46:23  bradleyb
+ * fixed gr_remap_font, minor stuff
+ *
  * Revision 1.6  2001/11/02 02:03:35  bradleyb
  * Enable OpenGL fonts\!
  *
@@ -1819,6 +1822,10 @@ void gr_remap_font( grs_font *font, char * fontname )
 	}
 
 	cfclose(fontfile);
+
+#ifdef OGL
+	ogl_init_font(font);
+#endif
 }
 
 
