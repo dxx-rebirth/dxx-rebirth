@@ -1,6 +1,10 @@
 SUBDIRS = 2d 3d maths mem cfile iff texmap misc input video sound arch main \
 includes tools unused
 
+dist-hook:
+	$(MAKE) changelog
+	cp -a ChangeLog $(distdir)
+
 changelog::
 	-touch ChangeLog
 	-tools/cvs2cl/cvs2cl.pl -b --utc

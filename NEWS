@@ -1,9 +1,16 @@
+Assembly under mingw32 now works.
+
+--- Version 0.1.0 ---
+Builds with SDL/OpenGL, even on Windows (MingW32)
+Lots of minor changes and cleanups of the build system.
+
 --- Version 0.0.9 ---
 Improved automake setup, 'make dist' and VPATH builds now work.
 svgalib, ggi support (alpha)
 Merged in joystick support from Michael.Wagener@materna.de
 Added -grabmouse option to keep the mouse from wandering away in
 windowed SDL.  Pressing pause ungrabs it.
+
 --- Version 0.0.8 ---
 Added -nocdrom option, fixed cdrom code.
 Made various error messages more helpful.
@@ -13,6 +20,7 @@ Workaround for odd gcc bug (possible).
 Fixed mission and demo loading.
 Fixed nonetwork build.
 Removed libtool dependancy. (Thanks to Falk Hueffner for pointing this out)
+
 --- Version 0.0.7 ---
 Added beginnings of console. (main/console.c main/cmd.c)
 Added -debug command line option to show debug information.
@@ -23,6 +31,7 @@ Fixed palette problems with flat shaded polygons.
 
 Issues currently under investigation:
 * Weird crash reported by Robert Linden - as yet unreproducable
+
 --- Version 0.0.6 ---
 Initial ChangeLog entry
 No change from v0.0.5 except Makefile/config system cleanup.
