@@ -227,7 +227,8 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 #endif
 
     mve_audio_compressed = flags & MVE_AUDIO_FLAGS_COMPRESSED;
-    mve_audio_spec = (SDL_AudioSpec *)d_malloc(sizeof(SDL_AudioSpec));
+	if (!mve_audio_spec)
+		mve_audio_spec = (SDL_AudioSpec *)d_malloc(sizeof(SDL_AudioSpec));
     mve_audio_spec->freq = sample_rate;
 #ifdef WORDS_BIGENDIAN
     mve_audio_spec->format = (flags & MVE_AUDIO_FLAGS_16BIT)?AUDIO_S16MSB:AUDIO_U8;
@@ -287,6 +288,8 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
         {
             SDL_mutexP(mve_audio_mutex);
             mve_audio_buflens[mve_audio_buftail] = nsamp;
+			if (mve_audio_buffers[mve_audio_buftail])
+				d_free(mve_audio_buffers[mve_audio_buftail]);
             mve_audio_buffers[mve_audio_buftail] = (short *)d_malloc(nsamp+4);
             if (major == 8)
                 if (mve_audio_compressed)
@@ -318,7 +321,7 @@ static grs_bitmap *g_screen;
 static int g_screenWidth, g_screenHeight;
 static int g_width, g_height;
 static unsigned char g_palette[768];
-static unsigned char *g_vBackBuf1, *g_vBackBuf2;
+static unsigned char *g_vBackBuf1, *g_vBackBuf2 = NULL;
 static unsigned char *g_pCurMap=NULL;
 static int g_nMapLength=0;
 
@@ -333,8 +336,10 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 	fprintf(stderr, "g_width, g_height: %d, %d\n", g_width, g_height);
 #endif
     Assert((g_width == g_screen->bm_w) && (g_height == g_screen->bm_h));
-    g_vBackBuf1 = d_malloc(g_width * g_height);
-    g_vBackBuf2 = d_malloc(g_width * g_height);
+	if (!g_vBackBuf1)
+		g_vBackBuf1 = d_malloc(g_width * g_height);
+	if (!g_vBackBuf2)
+		g_vBackBuf2 = d_malloc(g_width * g_height);
     memset(g_vBackBuf1, 0, g_width * g_height);
     memset(g_vBackBuf2, 0, g_width * g_height);
     return 1;
@@ -342,8 +347,6 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 
 static int display_video_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-    gr_palette_load(g_palette);
-
     memcpy(g_screen->bm_data, g_vBackBuf1, g_width * g_height);
 
     return 1;
@@ -357,8 +360,8 @@ static int init_video_handler(unsigned char major, unsigned char minor, unsigned
     g_screenWidth = width;
     g_screenHeight = height;
     memset(g_palette, 0, 765);
-	memset(g_palette + 765, 63, 3); // 255 should be white
-
+	// 255 needs to default to white, for subtitles, etc
+	memset(g_palette + 765, 63, 3);
     return 1;
 }
 
@@ -368,6 +371,8 @@ static int video_palette_handler(unsigned char major, unsigned char minor, unsig
     start = get_short(data);
     count = get_short(data+2);
     memcpy(g_palette + 3*start, data+4, 3*count);
+    gr_palette_load(g_palette);
+
     return 1;
 }
 
