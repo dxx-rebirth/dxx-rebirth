@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.50 2003-12-28 14:05:12 schaffner Exp $ */
+/* $Id: piggy.c,v 1.51 2004-01-08 19:02:53 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.50 2003-12-28 14:05:12 schaffner Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.51 2004-01-08 19:02:53 schaffner Exp $";
 #endif
 
 
@@ -2360,7 +2360,8 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 	else
 		gr_remap_bitmap_good(bitmap, d1_palette, TRANSPARENCY_COLOR, -1);
 	if (bmh->flags & BM_FLAG_RLE) { // size of bitmap could have changed!
-		int new_size = *(int*)bitmap->bm_data;
+		int new_size;
+		memcpy(&new_size, bitmap->bm_data, 4);
 		if (next_bitmap) {
 			*next_bitmap += new_size - zsize;
 		} else {

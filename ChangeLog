@@ -3,6 +3,8 @@
         * configure.ac, arch/linux/ipx_udp.c, maths/fixc.c:
 	get rid of warnings (now compiles with -Werror on SunOS)
 
+	* main/piggy.c: fix (really) wierd SunOS bug
+
 2004-01-06  Martin Schaffner <maschaffner@gmx.ch>
 
         * include/pstypes.h: sun OS typedef fixes
