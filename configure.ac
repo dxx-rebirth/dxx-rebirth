@@ -148,17 +148,19 @@ else
   # Check for OpenGL
   AC_ARG_WITH(opengl,
     [  --with-opengl           Build OpenGL support ],,)
-    for lib in $GL_LIBS; do
-      AC_CHECK_LIB($lib, main,
-        OGL_LIBS="${OGL_LIBS} -l$lib",
-        [AC_MSG_ERROR([$lib not found, --with-opengl cannot be used])
-        opengl=false],
-        ${OGL_LIBS}
-      )
-    done
-    AC_DEFINE(OGL,,[Define if you want an OpenGL build])
-    TARGETS=d2x-gl
-    D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
+	if test x$with_opengl = xyes; then
+      for lib in $GL_LIBS; do
+        AC_CHECK_LIB($lib, main,
+          OGL_LIBS="${OGL_LIBS} -l$lib",
+          [AC_MSG_ERROR([$lib not found, --with-opengl cannot be used])
+          opengl=false],
+          ${OGL_LIBS}
+        )
+      done
+      AC_DEFINE(OGL,,[Define if you want an OpenGL build])
+      TARGETS=d2x-gl
+      D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
+	fi
     AC_SUBST(OGL_LIBS)
     AM_CONDITIONAL(USE_OPENGL, test x$with_opengl = xyes)
 
