@@ -1,4 +1,4 @@
-/* $Id: rbaudio.c,v 1.7 2003-03-20 04:05:12 btb Exp $ */
+/* $Id: rbaudio.c,v 1.8 2003-03-21 01:57:58 btb Exp $ */
 /*
  *
  * SDL CD Audio functions
@@ -192,12 +192,12 @@ unsigned long RBAGetDiscID()
 	i = 0;
 
 	while (i < s_cd->numtracks) {
-		n = n + cddb_sum(s_cd->track[i].length / CD_FPS);
+		n += cddb_sum(s_cd->track[i].offset / CD_FPS);
 		i++;
 	}
 
-	t = (s_cd->track[s_cd->numtracks].length / CD_FPS) -
-	    (s_cd->track[0].length / CD_FPS);
+	t = (s_cd->track[s_cd->numtracks].offset / CD_FPS) -
+	    (s_cd->track[0].offset / CD_FPS);
 
 	return ((n % 0xff) << 24 | t << 8 | s_cd->numtracks);
 }

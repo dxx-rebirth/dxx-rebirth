@@ -1,5 +1,7 @@
 2003-03-20  Bradley Bell  <btb@icculus.org>
 
+	* arch/sdl/rbaudio.c, main/songs.c: cd detection works now
+
 	* main/piggy.c: comments
 
 2003-03-20  Martin Schaffner <maschaffner@gmx.ch>

@@ -221,13 +221,59 @@ int play_redbook_track(int tracknum,int keep_playing)
 	return (Redbook_playing != 0);
 }
 
-#define REDBOOK_TITLE_TRACK			2
-#define REDBOOK_CREDITS_TRACK			3
-#define REDBOOK_FIRST_LEVEL_TRACK	(songs_haved2_cd()?4:1)
+/*
+ * Some of these have different Track listings!
+ * Which one is the "correct" order?
+ */
+#define D2_1_DISCID         0x7d0ff809 // Descent II
+#define D2_2_DISCID         0xe010a30e // Descent II
+#define D2_3_DISCID         0xd410070d // Descent II
+#define D2_4_DISCID         0xc610080d // Descent II
+#define D2_DEF_DISCID       0x87102209 // Definitive collection Disc 2
+#define D2_OEM_DISCID       0xac0bc30d // Destination: Quartzon
+#define D2_OEM2_DISCID      0xc40c0a0d // Destination: Quartzon
+#define D2_VERTIGO_DISCID   0x53078208 // Vertigo
+#define D2_VERTIGO2_DISCID  0x64071408 // Vertigo + DMB
+#define D2_MAC_DISCID       0xb70ee40e // Macintosh
+#define D2_IPLAY_DISCID     0x22115710 // iPlay for Macintosh
+
+#define REDBOOK_TITLE_TRACK         2
+#define REDBOOK_CREDITS_TRACK       3
+#define REDBOOK_FIRST_LEVEL_TRACK   (songs_haved2_cd()?4:1)
 
 // songs_haved2_cd returns 1 if the descent 2 CD is in the drive and
 // 0 otherwise
 
+#if 1
+int songs_haved2_cd()
+{
+	int discid;
+
+	if (!Redbook_enabled)
+		return 0;
+
+	discid = RBAGetDiscID();
+
+	switch (discid) {
+	case D2_1_DISCID:
+	case D2_2_DISCID:
+	case D2_3_DISCID:
+	case D2_4_DISCID:
+	case D2_DEF_DISCID:
+	case D2_OEM_DISCID:
+	case D2_OEM2_DISCID:
+	case D2_VERTIGO_DISCID:
+	case D2_VERTIGO2_DISCID:
+	case D2_MAC_DISCID:
+	case D2_IPLAY_DISCID:
+		printf("Found D2 CD! discid: %x\n", discid);
+		return 1;
+	default:
+		printf("Unknown CD! discid: %x\n", discid);
+		return 0;
+	}
+}
+#else
 int songs_haved2_cd()
 {
 	char temp[128],cwd[128];
@@ -248,7 +294,8 @@ int songs_haved2_cd()
 	
 	return 0;
 }
-	
+#endif
+
 
 void songs_play_song( int songnum, int repeat )
 {
