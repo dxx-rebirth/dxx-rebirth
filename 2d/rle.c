@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.2 2001-01-31 15:17:48 bradleyb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.3 2001-12-23 09:10:31 bradleyb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -121,7 +121,7 @@ static inline int gr_rle_decode_asm( ubyte * src, ubyte * dest ) {
 }
 
 static inline void rle_stosb(char *dest, int len, int color) {
-	int dummy[1];
+	int dummy[2];
    __asm__ __volatile__ (
     "cld; rep; stosb"
     : "=D" (dummy[0]), "=c" (dummy[1])
