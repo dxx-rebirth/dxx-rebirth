@@ -12,13 +12,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /* $Source: /cvs/cvsroot/d2x/2d/font.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  * $Author: bradleyb $
- * $Date: 2001-11-02 02:03:35 $
+ * $Date: 2001-11-02 10:46:23 $
  *
  * Graphical routines for drawing fonts.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6  2001/11/02 02:03:35  bradleyb
+ * Enable OpenGL fonts\!
+ *
  *
  */
 
@@ -355,10 +358,10 @@ int gr_internal_string0m(int x, int y, char *s )
 
 				if (!INFONT(letter) || *text_ptr<=0x06) {	//not in font, draw as space
 					CHECK_EMBEDDED_COLORS() else{
-					VideoOffset += spacing;
-					text_ptr++;
-					continue;
+						VideoOffset += spacing;
+						text_ptr++;
 					}
+					continue;
 				}
 
 				if (FFLAGS & FT_PROPORTIONAL)
@@ -478,11 +481,9 @@ int gr_internal_string2(int x, int y, char *s )
 
 				letter = *text_ptr-FMINCHAR;
 
-				if (!INFONT(letter) || *text_ptr<=0x06) {	//not in font, draw as space
-					CHECK_EMBEDDED_COLORS() else{
+				if (!INFONT(letter)) {	//not in font, draw as space
 					VideoOffset += spacing;
 					text_ptr++;
-					}
 					continue;
 				}
 
@@ -1453,12 +1454,11 @@ int gr_ustring(int x, int y, char *s )
 #if defined(POLY_ACC)
         case BM_LINEAR15:
 			if ( BG_COLOR == -1)
-                return gr_internal_string5m(x,y,s);
+				return gr_internal_string5m(x,y,s);
 			else
-                return gr_internal_string5(x,y,s);
+				return gr_internal_string5(x,y,s);
 #endif
-        }
-
+		}
 	return 0;
 }
 
@@ -1496,9 +1496,12 @@ void gr_get_string_size(char *s, int *string_width, int *string_height, int *ave
 				s += 2;
 			} else {
 				get_char_width(s[0],s[1],&width,&spacing);
+
 				*string_width += spacing;
+
 				if (*string_width > longest_width)
 					longest_width = *string_width;
+
 				i++;
 				s++;
 			}
@@ -1565,16 +1568,7 @@ void gr_remap_color_fonts()
 		font = open_font[fontnum].ptr;
 		
 		if (font && (font->ft_flags & FT_COLOR))
-			// Unless gr_remap_font is fixed, we gotta just
-			// reload the whole font
-			{
-				char fontname[FILENAME_LEN];
-
-				strncpy(fontname,open_font[fontnum].filename,FILENAME_LEN);
-				gr_close_font(font);
-				font = gr_init_font(fontname);
-			}
-//			gr_remap_font(font,open_font[fontnum].filename);
+			gr_remap_font(font,open_font[fontnum].filename);
 	}
 }
 
@@ -1750,7 +1744,7 @@ void gr_remap_font( grs_font *font, char * fontname )
 	CFILE *fontfile;
 	u_int32_t file_id;
 	int32_t datasize;        //size up to (but not including) palette
-	int data_ofs,data_len;
+	int data_len;
 
 	if (! (font->ft_flags & FT_COLOR))
 		return;
@@ -1762,7 +1756,7 @@ void gr_remap_font( grs_font *font, char * fontname )
 
 	file_id = cfile_read_int(fontfile);
 	datasize = cfile_read_int(fontfile);
-	
+
 	if (file_id != 0x4e465350) /* 'NFSP' */
 		Error( "File %s is not a font file", fontname );
 
@@ -1782,10 +1776,7 @@ void gr_remap_font( grs_font *font, char * fontname )
 	} else
 		data_len = nchars * font->ft_w * font->ft_h;
 
-	data_ofs = font->ft_data - ((ubyte *) font);
-
-	cfseek(fontfile,data_ofs,SEEK_CUR);
-	cfread(font->ft_data,1,data_len,fontfile);		//read raw data
+	cfread(font->oldfont, 1, datasize, fontfile);   //read raw data
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];
@@ -1824,7 +1815,6 @@ void gr_remap_font( grs_font *font, char * fontname )
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;	// changed from		colormap[255] = 255;
 
 		decode_data_asm(font->ft_data, data_len, colormap, freq );
-
 
 	}
 
