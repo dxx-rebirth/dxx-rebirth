@@ -1,4 +1,4 @@
-/* $Id: network.h,v 1.9 2002-08-31 03:21:41 btb Exp $ */
+/* $Id: network.h,v 1.10 2002-09-14 00:23:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -52,7 +52,7 @@ typedef struct sequence_packet {
 	int             Security;
 	ubyte pad1[3];
 	netplayer_info  player;
-} sequence_packet;
+} __pack__ sequence_packet;
 
 #define NET_XDATA_SIZE 454
 
