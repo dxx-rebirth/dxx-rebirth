@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.6 2002-10-03 03:46:35 btb Exp $";
+static char rcsid[] = "$Id: text.c,v 1.7 2003-04-07 23:30:46 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -82,7 +82,8 @@ void load_text()
 	if ((tfile = cfopen(filename,"rb")) == NULL) {
 		filename="descent.txb";
 		if ((ifile = cfopen(filename, "rb")) == NULL) {
-			Error("Cannot open file DESCENT.TEX or DESCENT.TXB\nIs descent2.hog in %s?", AltHogdir_initialized?AltHogDir:"current directory");
+			Warning("Cannot open file DESCENT.TEX or DESCENT.TXB");
+			return;
 		}
 		have_binary = 1;
 
