@@ -1,4 +1,4 @@
-/* $Id: */
+/* $Id: ipx_drv.h,v 1.6 2003-10-04 03:18:02 btb Exp $ */
 
 /*
  *
@@ -17,15 +17,7 @@
 
 #include <winsock.h>
 
-typedef unsigned char ubyte;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-
-#ifdef __GNUC__
-# define __pack__ __attribute__((packed))
-#else
-# define __pack__
-#endif
+#include "pstypes.h"
 
 #define MAX_PACKET_DATA 1500
 

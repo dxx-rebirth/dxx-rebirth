@@ -1,5 +1,8 @@
 2003-10-03  Bradley Bell  <btb@icculus.org>
 
+	* arch/win32/ipx_drv.h, arch/win32/winnet.c, include/ipx.h: win32
+	networking fixes
+
 	* iff/iff.c, include/gr.h, include/iff.h, include/pstypes.h,
 	main/ai2.c, main/aipath.c, main/aistruct.h, main/bm.h,
 	main/config.c, main/escort.c, main/fireball.c, main/fuelcen.c,
