@@ -25,6 +25,7 @@ static void _mvefile_free(MVEFILE *movie);
 static void _mvefile_free_filehandle(MVEFILE *movie);
 static int _mvefile_open(MVEFILE *movie, const char *filename);
 static int _mvefile_open_filehandle(MVEFILE *movie, int filehandle);
+static void _mvefile_reset(MVEFILE *movie);
 static int  _mvefile_read_header(MVEFILE *movie);
 static void _mvefile_set_buffer_size(MVEFILE *movie, int buf_size);
 static int _mvefile_fetch_next_chunk(MVEFILE *movie);
@@ -37,6 +38,7 @@ static void _mvestream_free(MVESTREAM *movie);
 static void _mvestream_free_filehandle(MVESTREAM *movie);
 static int _mvestream_open(MVESTREAM *movie, const char *filename);
 static int _mvestream_open_filehandle(MVESTREAM *movie, int filehandle);
+static void _mvestream_reset(MVESTREAM *movie);
 
 /************************************************************
  * public MVEFILE functions
@@ -112,6 +114,27 @@ void mvefile_close(MVEFILE *movie)
 void mvefile_close_filehandle(MVEFILE *movie)
 {
     _mvefile_free_filehandle(movie);
+}
+
+/*
+ * reset a MVE file
+ */
+void mvefile_reset(MVEFILE *file)
+{
+	_mvefile_reset(file);
+
+    /* initialize the file */
+    _mvefile_set_buffer_size(file, 1024);
+
+    /* verify the file's header */
+    if (! _mvefile_read_header(file))
+    {
+        _mvefile_free_filehandle(file);
+		//return NULL;
+    }
+
+    /* now, prefetch the next chunk */
+    _mvefile_fetch_next_chunk(file);
 }
 
 /*
@@ -264,6 +287,14 @@ void mve_close_filehandle(MVESTREAM *movie)
 }
 
 /*
+ * reset an MVE stream
+ */
+void mve_reset(MVESTREAM *movie)
+{
+	_mvestream_reset(movie);
+}
+
+/*
  * set segment type handler
  */
 void mve_set_handler(MVESTREAM *movie, unsigned char major, MVESEGMENTHANDLER handler)
@@ -383,7 +414,7 @@ static void _mvefile_free_filehandle(MVEFILE *movie)
  */
 static int _mvefile_open(MVEFILE *file, const char *filename)
 {
-#ifdef __WIN32
+#ifdef O_BINARY
     file->stream = open(filename, O_RDONLY | O_BINARY);
 #else
     file->stream = open(filename, O_RDONLY);
@@ -401,6 +432,19 @@ static int _mvefile_open_filehandle(MVEFILE *file, int filehandle)
         return 0;
 
     return 1;
+}
+
+/*
+ * allocate an MVEFILE
+ */
+static void _mvefile_reset(MVEFILE *file)
+{
+#if 0
+    file->cur_chunk = NULL;
+    file->buf_size = 0;
+    file->cur_fill = 0;
+    file->next_segment = 0;
+#endif
 }
 
 /*
@@ -562,4 +606,12 @@ static int _mvestream_open_filehandle(MVESTREAM *movie, int filehandle)
     movie->movie = mvefile_open_filehandle(filehandle);
 
     return (movie->movie == NULL) ? 0 : 1;
+}
+
+/*
+ * reset an MVESTREAM
+ */
+static void _mvestream_reset(MVESTREAM *movie)
+{
+	mvefile_reset(movie->movie);
 }

@@ -1,12 +1,11 @@
 #ifndef _MVEPLAY_H
 #define _MVEPLAY_H
 
-#include "gr.h"
-#include "mvelib.h"
+#define MVE_ERR_EOF 1
 
-void mveplay_initializeMovie(MVESTREAM *mve, grs_bitmap *mve_bitmap);
-int  mveplay_stepMovie(MVESTREAM *mve);
-void mveplay_restartTimer(MVESTREAM *mve);
-void mveplay_shutdownMovie(MVESTREAM *mve);
+int  MVE_rmPrepMovie(int filehandle, int x, int y, int track);
+int  MVE_rmStepMovie();
+void MVE_rmHoldMovie();
+void MVE_rmEndMovie();
 
 #endif /* _MVEPLAY_H */

@@ -87,6 +87,11 @@ void mve_close(MVESTREAM *movie);
 void mve_close_filehandle(MVESTREAM *movie);
 
 /*
+ * reset an MVE stream
+ */
+void mve_reset(MVESTREAM *movie);
+
+/*
  * set segment type handler
  */
 void mve_set_handler(MVESTREAM *movie, unsigned char major, MVESEGMENTHANDLER handler);

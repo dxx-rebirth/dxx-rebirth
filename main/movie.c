@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.16 2003-02-14 03:45:31 btb Exp $ */
+/* $Id: movie.c,v 1.17 2003-02-18 07:05:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.16 2003-02-14 03:45:31 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.17 2003-02-18 07:05:14 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -45,10 +45,9 @@ static char rcsid[] = "$Id: movie.c,v 1.16 2003-02-14 03:45:31 btb Exp $";
 #include "gamefont.h"
 #include "cfile.h"
 #include "menu.h"
-#include "mvelib.h"
+#include "mveplay.h"
 #include "text.h"
 #include "fileutil.h"
-#include "mveplay.h"
 
 extern int MenuHiresAvailable;
 extern char CDROM_dir[];
@@ -71,6 +70,7 @@ subtitle Subtitles[MAX_SUBTITLES];
 int Num_subtitles;
 
 
+// Movielib data
 typedef struct {
 	char name[FILENAME_LEN];
 	int offset,len;
@@ -78,7 +78,6 @@ typedef struct {
 
 #define MLF_ON_CD    1
 #define MAX_MOVIES_PER_LIB    50    //determines size of malloc
-
 
 typedef struct {
 	char     name[100]; //[FILENAME_LEN];
@@ -98,27 +97,26 @@ char movielib_files[][FILENAME_LEN] = {"intro-l.mvl","other-l.mvl","robots-l.mvl
 #define EXTRA_ROBOT_LIB N_BUILTIN_MOVIE_LIBS
 movielib *movie_libs[N_MOVIE_LIBS];
 
-int MVEPaletteCalls = 0;
 
 //do we have the robot movies available
 int robot_movies = 0; //0 means none, 1 means lowres, 2 means hires
 
 int MovieHires = 0;   //default for now is lores
 
-int RoboFile = 0;
-off_t Robo_filepos;
-MVESTREAM *Robo_mve;
-grs_bitmap *Robo_bitmap;
+int RoboFile = 0, RoboFilePos = 0;
 
-
-//      Function Prototypes
+// Function Prototypes
 int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int dy);
 
 int open_movie_file(char *filename,int must_have);
+int reset_movie_file(int handle);
 
 void change_filename_ext( char *dest, char *src, char *ext );
 void decode_text_line(char *p);
 void draw_subtitles(int frame_num);
+
+
+//-----------------------------------------------------------------------
 
 
 //filename will actually get modified to be either low-res or high-res
@@ -127,9 +125,6 @@ int PlayMovie(const char *filename, int must_have)
 {
 	char name[FILENAME_LEN],*p;
 	int c, ret;
-#if 0
-	int save_sample_rate;
-#endif
 
 #ifndef RELEASE
 	if (FindArg("-nomovies"))
@@ -152,32 +147,18 @@ int PlayMovie(const char *filename, int must_have)
 	// Stop all songs
 	songs_stop_all();
 
-#if 0
-	save_sample_rate = digi_sample_rate;
-	digi_sample_rate = SAMPLE_RATE_22K;		//always 22K for movies
-	digi_reset(); digi_reset();
-#else
 	digi_close();
-#endif
 
 	ret = RunMovie(name,MovieHires,must_have,-1,-1);
 
-#if 0
-	gr_palette_clear();		//clear out palette in case movie aborted
-#endif
-
-#if 0
-	digi_sample_rate = save_sample_rate;		//restore rate for game
-	digi_reset(); digi_reset();
-#else
 	if (!FindArg("-nosound"))
 		digi_init();
-#endif
 
 	Screen_mode = -1;		//force screen reset
 
 	return ret;
 }
+
 
 #if 0
 typedef struct bkg {
@@ -189,6 +170,7 @@ bkg movie_bg = {0,0,0,0,NULL};
 #endif
 
 #define BOX_BORDER (MenuHires?40:20)
+
 
 void show_pause_message(char *msg)
 {
@@ -240,16 +222,15 @@ void clear_pause_message()
 #endif
 }
 
+
 //returns status.  see movie.h
 int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 {
 	int filehndl;
 	int result=1,aborted=0;
+	int track = 0;
 	int frame_num;
-	MVESTREAM *mve;
-	grs_bitmap *mve_bitmap;
 	int key;
-	int x, y, w, h;
 
 	result=1;
 
@@ -258,79 +239,61 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	filehndl = open_movie_file(filename,must_have);
 
 	if (filehndl == -1) {
-#ifndef EDITOR
 		if (must_have)
 			Warning("movie: RunMovie: Cannot open movie <%s>\n",filename);
-#endif
 		return MOVIE_NOT_PLAYED;
 	}
 
 	if (hires_flag) {
 		gr_set_mode(SM(640,480));
-		x = 24;
-		y = 84;
-		w = 592;
-		h = 312;
 	} else {
 		gr_set_mode(SM(320,200));
-		x = 0;
-		y = 32;
-		w = 320;
-		h = 136;
+	}
+
+	if (MVE_rmPrepMovie(filehndl, dx, dy, track)) {
+		Int3();
+		return MOVIE_NOT_PLAYED;
 	}
 
 	frame_num = 0;
 
 	FontHires = FontHiresAvailable && hires_flag;
 
-    mve = mve_open_filehandle(filehndl);
-
-	mve_bitmap = gr_create_bitmap(w, h); // w, h must match the mve exactly!
-
-	mveplay_initializeMovie(mve, mve_bitmap);
-
-	while(result) {
-
-		result = mveplay_stepMovie(mve);
-
-		gr_bitmap(x, y, mve_bitmap);
+	while((result = MVE_rmStepMovie()) == 0) {
 
 		draw_subtitles(frame_num);
 
+		gr_update();
+
 		key = key_inkey();
 
-		switch (key) {
-		case KEY_ESC:
-			// If ESCAPE pressed, then quit movie.
-			result = 0;
-			aborted = 1;
+		// If ESCAPE pressed, then quit movie.
+		if (key == KEY_ESC) {
+			result = aborted = 1;
 			break;
-		case KEY_PAUSE:
-			// If PAUSE pressed, then pause movie
+		}
+
+		// If PAUSE pressed, then pause movie
+		if (key == KEY_PAUSE) {
+			MVE_rmHoldMovie();
 			show_pause_message(TXT_PAUSE);
 			while (!key_inkey()) ;
-			mveplay_restartTimer(mve);
 			clear_pause_message();
-			break;
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
-		case KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER:
-		case KEY_ALTED+KEY_CTRLED+KEY_PADENTER:
-		case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER:
-			gr_toggle_fullscreen();
-			break;
-#endif
 		}
+
+#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
+		if ((key == KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER) ||
+			(key == KEY_ALTED+KEY_CTRLED+KEY_PADENTER) ||
+			(key == KEY_ALTED+KEY_SHIFTED+KEY_PADENTER))
+			gr_toggle_fullscreen();
+#endif
 
 		frame_num++;
 	}
 
-	Assert(aborted || !result);	 ///movie should be over
+	Assert(aborted || result == MVE_ERR_EOF);	 ///movie should be over
 
-    mveplay_shutdownMovie(mve);
-
-	gr_free_bitmap(mve_bitmap);
-
-    mve_close(mve);
+    MVE_rmEndMovie();
 
 	close(filehndl);                           // Close Movie File
 
@@ -356,17 +319,21 @@ int InitMovieBriefing()
 //returns 1 if frame updated ok
 int RotateRobot()
 {
-	int ret;
+	int err;
 
-	ret = mveplay_stepMovie(Robo_mve);
-	gr_bitmap(MenuHires?280:140, MenuHires?200:80, Robo_bitmap);
+	err = MVE_rmStepMovie();
 
-	if (!ret) {
-		mveplay_shutdownMovie(Robo_mve);
-		mve_close(Robo_mve);
-		lseek(RoboFile, Robo_filepos, SEEK_SET);
-		Robo_mve = mve_open_filehandle(RoboFile);
-		mveplay_initializeMovie(Robo_mve, Robo_bitmap);
+	if (err == MVE_ERR_EOF)     //end of movie, so reset
+	{
+		reset_movie_file(RoboFile);
+		if (MVE_rmPrepMovie(RoboFile, MenuHires?280:140, MenuHires?200:80, 0)) {
+			Int3();
+			return 0;
+		}
+	}
+	else if (err) {
+		Int3();
+		return 0;
 	}
 
 	return 1;
@@ -375,17 +342,18 @@ int RotateRobot()
 
 void DeInitRobotMovie(void)
 {
-	mveplay_shutdownMovie(Robo_mve);
-	mve_close(Robo_mve);
-
-	gr_free_bitmap(Robo_bitmap);
-
-	close(RoboFile);
+	MVE_rmEndMovie();
+	close(RoboFile);                           // Close Movie File
 }
 
 
 int InitRobotMovie(char *filename)
 {
+	if (FindArg("-nomovies"))
+		return 0;
+
+	con_printf(DEBUG_LEVEL, "RoboFile=%s\n", filename);
+
 	RoboFile = open_movie_file(filename, 1);
 
 	if (RoboFile == -1) {
@@ -393,13 +361,16 @@ int InitRobotMovie(char *filename)
 		return MOVIE_NOT_PLAYED;
 	}
 
-	Robo_filepos = lseek(RoboFile, 0, SEEK_CUR);
+	Vid_State = VID_PLAY;
 
-	Robo_mve = mve_open_filehandle(RoboFile);
+	if (MVE_rmPrepMovie(RoboFile, MenuHires?280:140, MenuHires?200:80, 0)) {
+		Int3();
+		return 0;
+	}
 
-	Robo_bitmap = gr_create_bitmap(MenuHires?320:160, MenuHires?200:88);
+	RoboFilePos=lseek (RoboFile,0L,SEEK_CUR);
 
-	mveplay_initializeMovie(Robo_mve, Robo_bitmap);
+	con_printf(DEBUG_LEVEL, "RoboFilePos=%d!\n", RoboFilePos);
 
 	return 1;
 }
@@ -455,7 +426,7 @@ int init_subtitles(char *filename)
 	}
 
 	size = cfilelength(ifile);
-   
+
 	MALLOC (subtitle_raw_data, ubyte, size+1);
 
 	read_count = cfread(subtitle_raw_data, 1, size, ifile);
@@ -565,15 +536,6 @@ void draw_subtitles(int frame_num)
 			gr_string(0x8000,y,Subtitles[active_subtitles[t]].msg);
 			y += line_spacing+1;
 		}
-
-	gr_update();
-}
-
-
-int request_cd(void)
-{
-	con_printf(DEBUG_LEVEL, "STUB: movie: request_cd\n");
-	return 0;
 }
 
 
@@ -724,6 +686,65 @@ void close_movies()
 }
 
 
+//ask user to put the D2 CD in.
+//returns -1 if ESC pressed, 0 if OK chosen
+//CD may not have been inserted
+int request_cd(void)
+{
+#if 0
+	ubyte save_pal[256*3];
+	grs_canvas *save_canv,*tcanv;
+	int ret,was_faded=gr_palette_faded_out;
+
+	gr_palette_clear();
+
+	save_canv = grd_curcanv;
+	tcanv = gr_create_canvas(grd_curcanv->cv_w,grd_curcanv->cv_h);
+
+	gr_set_current_canvas(tcanv);
+	gr_ubitmap(0,0,&save_canv->cv_bitmap);
+	gr_set_current_canvas(save_canv);
+
+	gr_clear_canvas(BM_XRGB(0,0,0));
+
+	memcpy(save_pal,gr_palette,sizeof(save_pal));
+
+	memcpy(gr_palette,last_palette_for_color_fonts,sizeof(gr_palette));
+
+ try_again:;
+
+	ret = nm_messagebox( "CD ERROR", 1, "Ok", "Please insert your Descent II CD");
+
+	if (ret == -1) {
+		int ret2;
+
+		ret2 = nm_messagebox( "CD ERROR", 2, "Try Again", "Leave Game", "You must insert your\nDescent II CD to Continue");
+
+		if (ret2 == -1 || ret2 == 0)
+			goto try_again;
+	}
+
+	force_rb_register = 1;  //disc has changed; force register new CD
+
+	gr_palette_clear();
+
+	memcpy(gr_palette,save_pal,sizeof(save_pal));
+
+	gr_ubitmap(0,0,&tcanv->cv_bitmap);
+
+	if (!was_faded)
+		gr_palette_load(gr_palette);
+
+	gr_free_canvas(tcanv);
+
+	return ret;
+#else
+	con_printf(DEBUG_LEVEL, "STUB: movie: request_cd\n");
+	return 0;
+#endif
+}
+
+
 void init_movie(char *filename,int libnum,int is_robots,int required)
 {
 	int high_res;
@@ -813,6 +834,8 @@ void init_extra_robot_movie(char *filename)
 }
 
 
+int movie_handle,movie_start;
+
 //looks through a movie library for a movie file
 //returns filehandle, with fileposition at movie, or -1 if can't find
 int search_movie_lib(movielib *lib,char *filename,int must_have)
@@ -834,10 +857,10 @@ int search_movie_lib(movielib *lib,char *filename,int must_have)
 
 			do {		//keep trying until we get the file handle
 
-#ifdef __WIN32
-				/* movie_handle = */ filehandle = open(lib->name, O_RDONLY | O_BINARY);
+#ifdef O_BINARY
+				movie_handle = filehandle = open(lib->name, O_RDONLY | O_BINARY);
 #else
-				/* movie_handle = */ filehandle = open(lib->name, O_RDONLY);
+				movie_handle = filehandle = open(lib->name, O_RDONLY);
 #endif
 
 				if ((filehandle == -1) && (AltHogdir_initialized)) {
@@ -845,10 +868,10 @@ int search_movie_lib(movielib *lib,char *filename,int must_have)
 					strcpy(temp, AltHogDir);
 					strcat(temp, "/");
 					strcat(temp, lib->name);
-#ifdef __WIN32
-					filehandle = open(temp, O_RDONLY | O_BINARY);
+#ifdef O_BINARY
+					movie_handle = filehandle = open(temp, O_RDONLY | O_BINARY);
 #else
-					filehandle = open(temp, O_RDONLY);
+					movie_handle = filehandle = open(temp, O_RDONLY);
 #endif
 				}
 
@@ -861,7 +884,7 @@ int search_movie_lib(movielib *lib,char *filename,int must_have)
 			} while (must_have && from_cd && filehandle == -1);
 
 			if (filehandle != -1)
-				lseek(filehandle,(/* movie_start = */ lib->movies[i].offset),SEEK_SET);
+				lseek(filehandle,(movie_start=lib->movies[i].offset),SEEK_SET);
 
 			return filehandle;
 		}
@@ -883,4 +906,12 @@ int open_movie_file(char *filename,int must_have)
 	return -1;		//couldn't find it
 }
 
+//sets the file position to the start of this already-open file
+int reset_movie_file(int handle)
+{
+	Assert(handle == movie_handle);
 
+	lseek(handle,movie_start,SEEK_SET);
+
+	return 0;       //everything is cool
+}

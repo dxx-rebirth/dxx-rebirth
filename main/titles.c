@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.17 2003-01-11 02:57:39 btb Exp $ */
+/* $Id: titles.c,v 1.18 2003-02-18 07:05:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -75,8 +75,6 @@ int get_new_message_num(char **message);
 int DefineBriefingBox (char **buf);
 
 extern unsigned RobSX,RobSY,RobDX,RobDY; // Robot movie coords
-
-extern int MVEPaletteCalls;
 
 ubyte New_pal[768];
 int	New_pal_254_bash;
@@ -1259,6 +1257,13 @@ int show_briefing_message(int screen_num, char *message)
 		if ((key_check == KEY_SPACEBAR) || (key_check == KEY_ENTER))
 			delay_count = 0;
 
+#ifdef GR_SUPPORTS_FULLSCREEN
+		if ((key_check == KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER) ||
+			(key_check == KEY_ALTED+KEY_CTRLED+KEY_PADENTER) ||
+			(key_check == KEY_ALTED+KEY_SHIFTED+KEY_PADENTER))
+			gr_toggle_fullscreen();
+#endif
+
 		if (Briefing_text_x > bsp->text_ulx + bsp->text_width) {
 			Briefing_text_x = bsp->text_ulx;
 			Briefing_text_y += bsp->text_uly;
@@ -1547,8 +1552,6 @@ void do_briefing_screens(char *filename,int level_num)
 {
 	int	abort_briefing_screens = 0;
 	int	cur_briefing_screen = 0;
-
-	MVEPaletteCalls=0;
 
 	if (Skip_briefing_screens) {
 		mprintf((0, "Skipping all briefing screens.\n"));
