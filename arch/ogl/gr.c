@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.38 2005-01-06 05:21:28 btb Exp $ */
+/* $Id: gr.c,v 1.39 2005-01-23 13:48:35 schaffner Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -172,7 +172,7 @@ void ogl_get_verinfo(void)
 	gl_version = (const char *) glGetString (GL_VERSION);
 	gl_extensions = (const char *) glGetString (GL_EXTENSIONS);
 
-	con_printf(CON_VERBOSE, "gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
+	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s\n",gl_vendor,gl_renderer,gl_version);
 
 	ogl_intensity4_ok = 1;
 	ogl_luminance4_alpha4_ok = 1;
