@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.28 2003-11-27 09:10:52 btb Exp $ */
+/* $Id: titles.c,v 1.29 2003-11-27 09:16:58 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -244,6 +244,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "movie.h"
 #include "menu.h"
+#include "mouse.h"
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
