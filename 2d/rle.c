@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.10 2002-09-05 07:57:11 btb Exp $ */
+/* $Id: rle.c,v 1.11 2002-09-05 08:20:03 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -125,7 +125,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.10 2002-09-05 07:57:11 btb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.11 2002-09-05 08:20:03 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -269,6 +269,7 @@ done:
 
 #ifdef RLE_DECODE_ASM
 
+#if 0
 void gr_rle_decode( ubyte * src, ubyte * dest, int dest_len )
 {
 	ubyte *dest_end;
@@ -277,6 +278,12 @@ void gr_rle_decode( ubyte * src, ubyte * dest, int dest_len )
 
 	Assert(dest_end-src < dest_len);
 }
+#else
+void gr_rle_decode( ubyte * src, ubyte * dest )
+{
+    gr_rle_decode_asm( src, dest );
+}
+#endif
 
 #else // NO_ASM or unknown compiler
 

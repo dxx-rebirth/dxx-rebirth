@@ -1,4 +1,4 @@
-/* $Id: scalec.c,v 1.4 2002-09-05 08:02:27 btb Exp $ */
+/* $Id: scalec.c,v 1.5 2002-09-05 08:20:03 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -48,7 +48,7 @@ void decode_row( grs_bitmap * bmp, int y )
 
 	for (i=0; i<y; i++ )
 		offset += bmp->bm_data[4+i];
-	gr_rle_decode( &bmp->bm_data[offset], scale_rle_data, sizeof(scale_rle_data));
+	gr_rle_decode( &bmp->bm_data[offset], scale_rle_data );
 }
 
 void scale_up_bitmap(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
