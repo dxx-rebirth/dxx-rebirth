@@ -54,9 +54,7 @@ Win32:
 ======
 
 Required tools:
-* Cygwin
-  d2x doesn't use Cygwin, but it makes building it easier (to me).
-  You can probably build it with just MinGW, but I haven't tried yet.
+* Cygwin or MinGW + MSys
 * SDL 1.1.0 or higher
 * NASM 0.98 (OPTIONAL but RECOMMENDED)
 
@@ -76,7 +74,7 @@ Now you can configure d2x as normal.  i.e.
 or
 ./configure --with-opengl
 
-automake/autoconf in cygwin has a problem with not always putting the
+For some reason, the Makefiles have a problem with not always putting the
 .exe extentions where they need to be.  So you may have to run make
 twice, like so:
 make && make d2x-sdl.exe

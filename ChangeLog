@@ -43,6 +43,10 @@
 	include/console.h, main/console.c, main/game.c, main/gamecntl.c,
 	main/gamerend.c: added console code (from SDL_console)
 
+2003-05-30  Bradley Bell  <btb@icculus.org>
+
+	* README: minor update
+
 2003-05-28  Bradley Bell  <btb@icculus.org>
 
 	* Info.plist.in, Makefile.am, configure.ac: add support for MacOS
