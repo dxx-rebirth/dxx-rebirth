@@ -1,10 +1,17 @@
-Firstly, compile d2x.
+In addition to d2x, you need some data files to play.  On un*x, these
+files need to go into a shared data directory
+(/usr/local/share/games/d2x by default).  On Windows or DOS, they go
+in the same directory as the d2x binary.
 
-Then stick it in a directory with these files from Descent 2
-Registered (the version _does not_ matter).  Shareware may work 
-eventually, but the datafiles are of a different format.
+To Play the Descent 2 demo:
+Place these files into your shared data dir:
+d2demo.ham
+d2demo.hog
+d2demo.pig
+d2demo.mn2 (distributed with d2x)
 
-I needed these files: (in addition to the d2x binary)
+To Play Descent 2 registered:
+Place these files into your shared data dir:
 alien1.pig
 alien2.pig
 descent2.ham
@@ -16,8 +23,14 @@ groupa.pig
 ice.pig
 water.pig
 
+To play Descent 1 registered:
+All the files from Descent 2 registered, plus:
+Place these files into the missions subdir of your shared data dir:
+descent.hog
+descent.msn (distributed with d2x)
+
 Note the filenames must be in _lower case_. It's important.
 
-Note that you don't have to run the D2 setup program to extract the
-files, just unarj descent2.sow from the cd.
+Note also that you don't have to run the D2 setup program to extract
+the files, just unarj descent2.sow from the cd.
 
