@@ -19,6 +19,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>	// for memset
 #include <errno.h>
+#include <ctype.h>      /* for isdigit */
 
 #include "u_mem.h"
 #include "inferno.h"
