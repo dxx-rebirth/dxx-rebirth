@@ -1,4 +1,4 @@
-/* $Id: pcx.c,v 1.3 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: pcx.c,v 1.4 2002-07-26 21:10:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,13 +8,13 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * 
+ *
  * Routines to read/write pcx images.
- * 
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -53,6 +53,27 @@ typedef struct	{
 	ubyte		filler[60];
 } PCXHeader;
 
+/*
+ * reads a PCXHeader structure from a CFILE
+ */
+static void PCXHeader_read(PCXHeader *ph, CFILE *fp)
+{
+	ph->Manufacturer = cfile_read_byte(fp);
+	ph->Version = cfile_read_byte(fp);
+	ph->Encoding = cfile_read_byte(fp);
+	ph->BitsPerPixel = cfile_read_byte(fp);
+	ph->Xmin = cfile_read_short(fp);
+	ph->Ymin = cfile_read_short(fp);
+	ph->Xmax = cfile_read_short(fp);
+	ph->Ymax = cfile_read_short(fp);
+	ph->Hdpi = cfile_read_short(fp);
+	ph->Vdpi = cfile_read_short(fp);
+	cfread(&ph->ColorMap, 16*3, 1, fp);
+	ph->Reserved = cfile_read_byte(fp);
+	ph->Nplanes = cfile_read_byte(fp);
+	ph->BytesPerLine = cfile_read_short(fp);
+	cfread(&ph->filler, 60, 1, fp);
+}
 
 int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
 {
@@ -66,10 +87,13 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 		return PCX_ERROR_OPENING;
 
 	// read 128 char PCX header
+	PCXHeader_read(&header, PCXfile);
+#if 0
 	if (cfread( &header, sizeof(PCXHeader), 1, PCXfile )!=1)	{
 		cfclose( PCXfile );
 		return PCX_ERROR_NO_HEADER;
 	}
+#endif
 
 	// Is it a 256 color PCX file?
 	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
