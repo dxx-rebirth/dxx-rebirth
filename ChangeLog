@@ -6,8 +6,8 @@
 2005-02-24  Chris Taylor  <chris@icculus.org>
 
 	* 2d/pcx.c, arch/ogl/gr.c, main/config.c, main/inferno.c, 
-	main/newdemo.c, include/physfsx.h, main/playsave.c, main/state.c, 
-	misc/args.c: use PHYSFSX_openReadBuffered and 
+	main/newdemo.c, include/physfsx.h, include/cfile.h, main/playsave.c, 
+	main/state.c, misc/args.c: use PHYSFSX_openReadBuffered and 
 	PHYSFSX_openWriteBuffered, where appropriate
 
 2005-02-11  Bradley Bell  <btb@icculus.org>

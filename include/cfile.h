@@ -1,4 +1,4 @@
-/* $Id: cfile.h,v 1.16 2005-01-23 14:38:04 schaffner Exp $ */
+/* $Id: cfile.h,v 1.17 2005-02-25 05:29:09 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -32,43 +32,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 
 #define CFILE            PHYSFS_file
+#define cfopen(f,m)      PHYSFSX_openReadBuffered(f)
 #define cfread(p,s,n,fp) PHYSFS_read(fp,p,s,n)
 #define cfclose          PHYSFS_close
 #define cftell           PHYSFS_tell
 #define cfexist          PHYSFS_exists
 #define cfilelength      PHYSFS_fileLength
-
-//Open a file, set up a buffer
-static inline PHYSFS_file *cfopen(char *filename, char *mode)
-{
-	PHYSFS_file *fp;
-	PHYSFS_uint64 bufSize = 1024*1024;
-	
-	if (filename[0] == '\x01')
-	{
-		//FIXME: don't look in dir, only in hogfile
-		filename++;
-	}
-
-	if (!stricmp(mode, "rb"))
-	{
-		fp = PHYSFS_openRead(filename);
-		if (!fp)
-			return NULL;
-		bufSize = PHYSFS_fileLength(fp);
-	}
-	else if (!stricmp(mode, "wb"))
-	{
-		fp = PHYSFS_openWrite(filename);
-		if (!fp)
-			return NULL;
-	}
-		
-	while (!PHYSFS_setBuffer(fp, bufSize) && bufSize)
-		bufSize /= 2;	// even if the error isn't memory full, for a 20MB file it'll only do this 8 times
-
-	return fp;
-}
 
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
 static inline int cfile_init(char *hogname)
