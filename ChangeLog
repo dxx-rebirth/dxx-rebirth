@@ -13,6 +13,8 @@
 	arch/linux/alsadigi, arch/win32/digi.c: rip out digiobj stuff, use
 	d2src system for persistent sounds. Untested, of course.
 
+	* ChangeLog-old: clean up old changelog a little
+
 2005-02-24  Tim Massey  <tmassey@obscorp.com>
 
 	* main/inferno.c: allow -notitles to work in shareware [and
