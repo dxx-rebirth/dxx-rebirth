@@ -8,6 +8,22 @@
 	main/editor/medwall.h, main/editor/segment.c, main/gamesave.c,
 	unused/ui/icon.c: replace byte with sbyte
 
+	* ui/barbox.c, ui/button.c, ui/checkbox.c, ui/file.c, ui/func.c,
+	ui/gadget.c, ui/harderr.c, ui/icon.c, ui/inputbox.c, ui/keypad.c,
+	ui/keypress.c, ui/keytrap.c, ui/listbox.c, ui/medfunc.c,
+	ui/menu.c, ui/menubar.c, ui/message.c, ui/mouse.c, ui/number.c,
+	ui/popup.c, ui/radio.c, ui/scroll.c, ui/ui.c, ui/uidraw.c,
+	ui/userbox.c, ui/window.c, unused/ui/barbox.c, unused/ui/button.c,
+	unused/ui/checkbox.c, unused/ui/file.c, unused/ui/func.c,
+	unused/ui/gadget.c, unused/ui/harderr.c, unused/ui/icon.c,
+	unused/ui/inputbox.c, unused/ui/keypad.c, unused/ui/keypress.c,
+	unused/ui/keytrap.c, unused/ui/listbox.c, unused/ui/medfunc.c,
+	unused/ui/menu.c, unused/ui/menubar.c, unused/ui/message.c,
+	unused/ui/mouse.c, unused/ui/number.c, unused/ui/popup.c,
+	unused/ui/radio.c, unused/ui/scroll.c, unused/ui/ui.c,
+	unused/ui/uidraw.c, unused/ui/userbox.c, unused/ui/window.c: moved
+	unused/ui to ui
+
 2004-12-17  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/state.c: open autosave file for writing, not reading

@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #pragma off (unreferenced)
-static char rcsid[] = "$Id: inputbox.c,v 1.1.1.1 2001-01-19 03:30:15 bradleyb Exp $";
+static char rcsid[] = "$Id: inputbox.c,v 1.1 2004-12-19 13:08:49 btb Exp $";
 #pragma on (unreferenced)
 
 #include <stdlib.h>

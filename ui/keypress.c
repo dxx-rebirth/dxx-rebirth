@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #pragma off (unreferenced)
-static char rcsid[] = "$Id: keypress.c,v 1.1.1.1 2001-01-19 03:30:14 bradleyb Exp $";
+static char rcsid[] = "$Id: keypress.c,v 1.1 2004-12-19 13:08:49 btb Exp $";
 #pragma on (unreferenced)
 
 #include <stdio.h>
