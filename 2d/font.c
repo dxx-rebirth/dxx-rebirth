@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.18 2002-08-15 05:42:33 btb Exp $ */
+/* $Id: font.c,v 1.19 2002-08-15 08:53:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,6 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
+ *
  * Graphical routines for drawing fonts.
  *
  */
@@ -1725,11 +1726,7 @@ grs_font * gr_init_font( char * fontname )
 
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
 
-#ifdef MACINTOSH
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
-#else
-		colormap[255] = 255;
-#endif
 
 		decode_data_asm(font->ft_data, ptr - font->ft_data, colormap, freq );
 
@@ -1856,11 +1853,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
 
-#ifdef MACINTOSH
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
-#else
-		colormap[255] = 255;
-#endif
 
 		decode_data_asm(font->ft_data, ptr - font->ft_data, colormap, freq );
 

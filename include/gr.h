@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.12 2002-08-15 05:42:33 btb Exp $ */
+/* $Id: gr.h,v 1.13 2002-08-15 08:53:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,9 +18,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
-extern int Gr_transparency_color;
-
-#define TRANSPARENCY_COLOR  Gr_transparency_color   // palette entry of transparency color -- 255 on pc, 0 on the mac
+#ifdef MACINTOSH
+#define SWAP_0_255          1   // swap black and white
+#define TRANSPARENCY_COLOR  0   // palette entry of transparency color -- 0 on the mac
+#else
+#define SWAP_0_255          0   // no swapping for PC people
+#define TRANSPARENCY_COLOR  255 // palette entry of transparency color -- 255 on the PC
+#endif
 
 #define GR_FADE_LEVELS 34
 #define GR_ACTUAL_FADE_LEVELS 32

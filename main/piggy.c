@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.16 2002-08-15 05:49:23 btb Exp $ */
+/* $Id: piggy.c,v 1.17 2002-08-15 08:53:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.16 2002-08-15 05:49:23 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.17 2002-08-15 08:53:11 btb Exp $";
 #endif
 
 
@@ -71,8 +71,6 @@ static char rcsid[] = "$Id: piggy.c,v 1.16 2002-08-15 05:49:23 btb Exp $";
 #define DEFAULT_PIGFILE (cfexist(DEFAULT_PIGFILE_REGISTERED)?DEFAULT_PIGFILE_REGISTERED:DEFAULT_PIGFILE_SHAREWARE)
 #define DEFAULT_HAMFILE (cfexist(DEFAULT_HAMFILE_REGISTERED)?DEFAULT_HAMFILE_REGISTERED:DEFAULT_HAMFILE_SHAREWARE)
 #define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
-
-int Gr_transparency_color = 255;
 
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
@@ -572,9 +570,6 @@ void piggy_init_pigfile(char *filename)
 		#endif
 	}
 
-	if (cfilelength(Piggy_fp) == 4929684) // mac version of d2demo.pig
-		Gr_transparency_color = 0;
-
 	strncpy(Current_pigfile,filename,sizeof(Current_pigfile));
 
 	N_bitmaps = cfile_read_int(Piggy_fp);
@@ -710,9 +705,6 @@ void piggy_new_pigfile(char *pigname)
 	#ifndef EDITOR
 	if (!Piggy_fp) Error ("Piggy_fp not defined in piggy_new_pigfile.");
 	#endif
-
-	if (cfilelength(Piggy_fp) == 4929684) // mac version of d2demo.pig
-		Gr_transparency_color = 0;
 
 	if (Piggy_fp) {
 
@@ -1327,7 +1319,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 			Piggy_bitmap_cache_next += zsize-4;
 
-			if (Gr_transparency_color == 0)
+			if (cfilelength(Piggy_fp) == 4929684) // mac version of d2demo.pig
 				rle_swap_0_255( bmp );
 
 		} else {
@@ -1345,7 +1337,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 
-			if (Gr_transparency_color == 0)
+			if (cfilelength(Piggy_fp) == 4929684) // mac version of d2demo.pig
 				swap_0_255( bmp );
 
 		}

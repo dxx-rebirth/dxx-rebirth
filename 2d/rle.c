@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.5 2002-08-15 05:42:33 btb Exp $ */
+/* $Id: rle.c,v 1.6 2002-08-15 08:53:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,12 +8,14 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
+ *
  * Changed shorts to ints in parameters.
- * 
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -21,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.5 2002-08-15 05:42:33 btb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.6 2002-08-15 08:53:11 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -581,7 +583,7 @@ void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 
 	for (i=0; i < 64; i++ )    {
 #ifdef NO_ASM
-                gr_rle_decode(sbits,dbits);
+		gr_rle_decode(sbits,dbits);
 #else
 		dbits1=(unsigned char *)gr_rle_decode_asm( sbits, dbits );
 #endif
@@ -667,34 +669,50 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 	}
 }
 
+/*
+ * swaps entries 0 and 255 in an RLE bitmap without uncompressing it
+ *
+ * doesn't handle RLE_BIG yet, but neither does anything else...
+ * LEAKS LOTS OF MEMORY!
+ */
 void rle_swap_0_255(grs_bitmap *bmp)
 {
 	int i, j;
-
-	if (!bmp->bm_data)
-		return;
+	unsigned char *ptr, *ptr2, *temp, *start;
 
 	if (bmp->bm_flags & BM_FLAG_RLE_BIG)
-		j = 4 + 2 * bmp->bm_h;
-	else
-		j = 4 + bmp->bm_h;
+		return;
 
+	temp = d_malloc(4 + bmp->bm_h + (bmp->bm_w + 1) * bmp->bm_h);
+
+	*((int *)temp) = 4;
+	ptr = bmp->bm_data + 4 + bmp->bm_h;
+	ptr2 = temp + 4 + bmp->bm_h;
 	for (i = 0; i < bmp->bm_h; i++) {
-		if ((bmp->bm_data[j] & RLE_CODE) != RLE_CODE) {
-			if (bmp->bm_data[j] == 0)
-				bmp->bm_data[j] = 255;
-			else if (bmp->bm_data[j] == 255)
-				bmp->bm_data[j] = 0;
-			j++;
-		} else {
-			if ((bmp->bm_data[j] & NOT_RLE_CODE) == 0)
-				continue;
-			j++;
-			if (bmp->bm_data[j] == 0)
-				bmp->bm_data[j] = 255;
-			else if (bmp->bm_data[j] == 255)
-				bmp->bm_data[j] = 0;
-			j++;
+		start = ptr2;
+		for (j = 0; j < bmp->bm_data[4 + i]; j++) {
+			if ((ptr[j] & RLE_CODE) != RLE_CODE) {
+				if (ptr[j] == 0) {
+					*ptr2++ = RLE_CODE | 1;
+					*ptr2++ = 255;
+				} else
+					*ptr2++ = ptr[j];
+			} else {
+				*ptr2++ = ptr[j];
+				if ((ptr[j] & NOT_RLE_CODE) == 0)
+					break;
+				j++;
+				if (ptr[j] == 0)
+					*ptr2++ = 255;
+				else if (ptr[j] == 255)
+					*ptr2++ = 0;
+				else
+					*ptr2++ = ptr[j];
+			}
 		}
+		temp[4 + i] = ptr2 - start;
+		*((int *)temp) += ptr2 - start;
+		ptr += bmp->bm_data[4 + i];
 	}
+	bmp->bm_data = temp;
 }

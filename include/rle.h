@@ -7,40 +7,30 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvs/cvsroot/d2x/include/rle.h,v $
- * $Revision: 1.2 $
- * $Author: btb $
- * $Date: 2002-08-15 05:42:33 $
- * 
+ *
  * Protypes for rle functions.
- * 
- * $Log: not supported by cvs2svn $
- * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
- * Import of d2x-0.0.8
  *
- * Revision 1.1.1.1  1999/06/14 22:02:19  donut
- * Import of d1x 1.37 source.
- *
+ * Old Log:
  * Revision 1.5  1995/01/14  11:32:20  john
  * Added rle_cache_flush function.
- * 
+ *
  * Revision 1.4  1994/11/10  13:16:01  matt
  * Added includes
- * 
+ *
  * Revision 1.3  1994/11/09  19:53:51  john
  * Added texture rle caching.
- * 
+ *
  * Revision 1.2  1994/11/09  16:35:18  john
  * First version with working RLE bitmaps.
- * 
+ *
  * Revision 1.1  1994/11/09  12:40:17  john
  * Initial revision
- * 
- * 
+ *
+ *
  */
 
 
@@ -66,4 +56,3 @@ void rle_cache_flush();
 void rle_swap_0_255(grs_bitmap *bmp);
 
 #endif
- 
