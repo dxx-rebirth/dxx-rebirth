@@ -1,4 +1,4 @@
-/* $Id: keypad.c,v 1.6 2005-02-26 10:13:51 chris Exp $ */
+/* $Id: keypad.c,v 1.7 2005-02-26 11:12:14 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <math.h>
 #include <string.h>
 
@@ -26,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"
+#include "cfile.h"
 
 #include "mono.h"
 
@@ -310,12 +310,13 @@ void ui_pad_read( int n, char * filename )
 	char * ptr;
 	char buffer[100];
 	char text[100];
-	FILE * infile;
+	char line_buffer[200];
+	CFILE * infile;
 	int linenumber = 0;
 	int i;
 	int keycode, functionnumber;
 
-	infile = fopen( filename, "rt" );
+	infile = cfopen( filename, "rt" );
 	if (!infile) {
 		Warning( "Couldn't find %s", filename );
 		return;
@@ -337,8 +338,7 @@ void ui_pad_read( int n, char * filename )
 
 	while ( linenumber < 22)
 	{
-		fgets( buffer, 100, infile );
-		REMOVE_EOL( buffer );
+		cfgets( buffer, 100, infile );
 
 		switch( linenumber+1 )
 		{
@@ -513,8 +513,9 @@ void ui_pad_read( int n, char * filename )
 
 	// Get the keycodes...
 
-	while (fscanf( infile, " %s %s ", text, buffer )!=EOF)
-	{	
+	while (cfgets(line_buffer, 200, infile))
+	{
+		sscanf(line_buffer, " %s %s ", text, buffer);
 		keycode = DecodeKeyText(text);
 		functionnumber = func_get_index(buffer);
 		if (functionnumber==-1)
@@ -532,6 +533,6 @@ void ui_pad_read( int n, char * filename )
 		}
 	}
 	
-	fclose(infile);
+	cfclose(infile);
 
 }

@@ -19,6 +19,8 @@
 	ui/inputbox.c, ui/keypad.c, ui/menu.c, ui/menubar.c, ui/radio.c,
 	ui/window.c: use d_malloc, d_calloc, d_strdup and d_free
 
+	* ui/keypad.c: fix the reading of keypad (.pad) files 
+
 2005-02-25  Chris Taylor  <chris@icculus.org>
 
 	* arch/carbon/conf.h, D2X.make: no defining OGL in conf.h,
