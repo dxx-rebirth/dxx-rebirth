@@ -16,13 +16,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: mission.c,v 1.2 2001-01-31 15:17:54 bradleyb Exp $";
+static char rcsid[] = "$Id: mission.c,v 1.3 2002-01-29 10:11:31 bradleyb Exp $";
 #endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 
 #include "pstypes.h"
 #include "cfile.h"
@@ -336,13 +337,15 @@ int read_mission_file(char *filename,int count,int location)
 //if there is only one mission, this function will call load_mission on it.
 
 extern char CDROM_dir[];
+extern char AltHogDir[];
+extern char AltHogdir_initialized;
 
 int build_mission_list(int anarchy_mode)
 {
 	static int num_missions=-1;
 	int count=0,special_count=0;
 	FILEFINDSTRUCT find;
-	char search_name[100] = MISSION_DIR "*.mn2";
+	char search_name[PATH_MAX + 5] = MISSION_DIR "*.mn2";
 
 	//now search for levels on disk
 
@@ -376,6 +379,25 @@ int build_mission_list(int anarchy_mode)
 
 		} while( !FileFindNext( &find ) && count<MAX_MISSIONS);
 		FileFindClose();
+	}
+
+	if (AltHogdir_initialized) {
+		strcpy(search_name, AltHogDir);
+		strcat(search_name, "/" MISSION_DIR "*.mn2");
+		if( !FileFindFirst( search_name, &find ) ) {
+			do	{
+				if (stricmp(find.name,BUILTIN_MISSION)==0)
+					continue;		//skip the built-in
+
+				if (read_mission_file(find.name,count,ML_MISSIONDIR)) {
+
+					if (anarchy_mode || !Mission_list[count].anarchy_only_flag)
+						count++;
+				}
+
+			} while( !FileFindNext( &find ) && count<MAX_MISSIONS);
+			FileFindClose();
+		}
 	}
 
 	//move vertigo to top of mission list
