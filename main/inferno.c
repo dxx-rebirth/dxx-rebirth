@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.61 2003-04-24 18:19:05 btb Exp $ */
+/* $Id: inferno.c,v 1.62 2003-05-12 22:46:01 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -916,6 +916,10 @@ void print_commandline_help()
 	printf( "  -maxfps <n>     %s\n", "Set maximum framerate (1-100)");
 	printf( "  -notitles       %s\n", "Do not show titlescreens on startup");
 	printf( "  -hogdir <dir>   %s\n", "set shared data directory to <dir>");
+#ifdef __unix__
+	printf( "  -nohogdir       %s\n", "don't try to use shared data directory");
+	printf( "  -userdir <dir>  %s\n", "set user dir to <dir> instead of $HOME/.d2x");
+#endif
 	printf( "  -ini <file>     %s\n", "option file (alternate to command line), defaults to d2x.ini");
 	printf( "  -autodemo       %s\n", "Start in demo mode");
 	printf( "  -bigpig         %s\n","FIXME: Undocumented");
@@ -1186,11 +1190,16 @@ int main(int argc, char *argv[])
 
 	error_init(NULL, NULL);
 
+	InitArgs( argc,argv );
+
 #ifdef __unix__
 	{
 		char *home = getenv("HOME");
 
-		if (home) {
+		if ((t = FindArg("-userdir")))
+			chdir(Args[t+1]);
+
+		else if (home) {
 			char buf[PATH_MAX + 5];
 
 			strcpy(buf, home);
@@ -1204,8 +1213,6 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-	InitArgs( argc,argv );
-
 	if (FindArg("-debug"))
 		con_threshold.value = (float)2;
 	else if (FindArg("-verbose"))
@@ -1215,7 +1222,7 @@ int main(int argc, char *argv[])
 	if ((t=FindArg("-hogdir")))
 		cfile_use_alternate_hogdir(Args[t+1]);
 #ifdef __unix__
-	else
+	else if (!FindArg("-nohogdir"))
 		cfile_use_alternate_hogdir(SHAREPATH);
 #endif
 
