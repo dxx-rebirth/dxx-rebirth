@@ -1,5 +1,8 @@
 2003-11-26  Bradley Bell  <btb@icculus.org>
 
+	* arch/sdl/gr.c, main/kludge.c: landscape fixes, implemented
+	gr_check_mode
+
 	* include/pstypes.h: OS X fixes
 
 	* cfile/cfile.c, include/pstypes.h, main/inferno.c,

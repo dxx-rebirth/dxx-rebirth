@@ -1,4 +1,4 @@
-/* $Id: kludge.c,v 1.13 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: kludge.c,v 1.14 2003-11-27 04:50:22 btb Exp $ */
 
 /*
  *
@@ -29,12 +29,6 @@ int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 char CDROM_dir[40] = ".";
 
 #ifndef __DJGPP__
-int gr_check_mode(u_int32_t a)
-{
-	return 0;
-}
-
-
 void joy_set_btn_values( int btn, int state, int time_down, int downcount, int upcount )
 {
 

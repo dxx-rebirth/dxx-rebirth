@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.13 2003-11-26 21:08:59 btb Exp $ */
+/* $Id: gr.c,v 1.14 2003-11-27 04:50:22 btb Exp $ */
 /*
  *
  * SDL video functions.
@@ -32,7 +32,6 @@
 #endif
 
 int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE;
-char checkvidmodeok=0;
 //end addition -MM
 
 SDL_Surface *screen;
@@ -128,11 +127,24 @@ void gr_update()
 	//end addition -MM
 #ifdef LANDSCAPE
 	BlitRotatedSurface(screen, real_screen);
+	SDL_SetColors(real_screen, screen->format->palette->colors, 0, 256);
 	SDL_UpdateRect(real_screen, 0, 0, 0, 0);
 #else
 	SDL_UpdateRect(screen, 0, 0, 0, 0);
 #endif
 }
+
+
+int gr_check_mode(u_int32_t mode)
+{
+	int w, h;
+
+	w = SM_W(mode);
+	h = SM_H(mode);
+
+	return !SDL_VideoModeOK(w, h, 8, sdl_video_flags);
+}
+
 
 extern int VGA_current_mode; // DPH: kludge - remove at all costs
 
@@ -173,23 +185,12 @@ int gr_set_mode(u_int32_t mode)
 //edited 10/05/98 by Matt Mueller - make fullscreen mode optional
 	  // changed by adb on 980913: added SDL_HWPALETTE (should be option?)
         // changed by someone on 980923 to add SDL_FULLSCREEN
-#ifdef _WIN32_WCE
-	if(!checkvidmodeok || SDL_VideoModeOK(w,h,0,sdl_video_flags)){
+
 #ifdef LANDSCAPE
-		real_screen = SDL_SetVideoMode(h, w, 0, sdl_video_flags);
-		screen = CreateRotatedSurface(real_screen);
+	real_screen = SDL_SetVideoMode(h, w, 8, sdl_video_flags);
+	screen = CreateRotatedSurface(real_screen);
 #else
-		screen = SDL_SetVideoMode(w, h, 0, sdl_video_flags);
-#endif
-	} else {
-	  screen=NULL;
-	}
-#else
-	if(!checkvidmodeok || SDL_VideoModeOK(w,h,8,sdl_video_flags)){
-	  screen = SDL_SetVideoMode(w, h, 8, sdl_video_flags);
-	} else {
-	  screen=NULL;
-	}
+	screen = SDL_SetVideoMode(w, h, 8, sdl_video_flags);
 #endif
 		// end changes by someone
         // end changes by adb
@@ -255,9 +256,7 @@ int gr_init(void)
 	if (FindArg("-hwsurface"))
 	     sdl_video_flags|=SDL_HWSURFACE;
 	//end addition -MM
-	if (FindArg("-nosdlvidmodecheck"))
-		checkvidmodeok=0;
-	
+
 	grd_curscreen->sc_canvas.cv_color = 0;
 	grd_curscreen->sc_canvas.cv_drawmode = 0;
 	grd_curscreen->sc_canvas.cv_font = NULL;
