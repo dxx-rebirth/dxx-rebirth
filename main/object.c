@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: object.c,v 1.2 2001-01-20 13:49:17 bradleyb Exp $";
+static char rcsid[] = "$Id: object.c,v 1.3 2001-01-22 13:22:39 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -500,7 +500,9 @@ void draw_polygon_object(object *obj)
 	}
 
 	if (obj->rtype.pobj_info.tmap_override != -1) {
+#ifndef NDEBUG
 		polymodel *pm = &Polygon_models[obj->rtype.pobj_info.model_num];
+#endif
 		bitmap_index bm_ptrs[12];
 
 		int i;

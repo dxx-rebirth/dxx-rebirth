@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: lighting.c,v 1.1.1.1 2001-01-19 03:30:00 bradleyb Exp $";
+static char rcsid[] = "$Id: lighting.c,v 1.2 2001-01-22 13:22:39 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -75,6 +75,8 @@ Cache_lookups++;
 		fvi_query	fq;
 		fvi_info		hit_data;
 		int			segnum, hit_type;
+
+		segnum = -1;
 
 		#ifndef NDEBUG
 		segnum = find_point_seg(obj_pos, obj_seg);

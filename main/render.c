@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: render.c,v 1.1.1.1 2001-01-19 03:30:01 bradleyb Exp $";
+static char rcsid[] = "$Id: render.c,v 1.2 2001-01-22 13:22:40 bradleyb Exp $";
 #endif
 
 #include <conf.h>
@@ -1959,7 +1959,9 @@ done_list:
 //renders onto current canvas
 void render_mine(int start_seg_num,fix eye_offset, int window_num)
 {
+#ifndef NDEBUG
 	int		i;
+#endif
 	int		nn;
 
 	//	Initialize number of objects (actually, robots!) rendered this frame.

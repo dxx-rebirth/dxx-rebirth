@@ -728,9 +728,11 @@ int main(int argc,char **argv)
 
 	WriteConfigFile();
 
+#if 0 /* ????? */
 	#ifndef RELEASE
 	if (!args_find( "-notitles" ))
 	#endif
+#endif
 
 	#ifndef NDEBUG
 	if ( args_find( "-showmeminfo" ) )

@@ -214,9 +214,7 @@ extern ubyte Stolen_items[MAX_STOLEN_ITEMS];
 extern fix	Escort_last_path_created;
 extern int	Escort_goal_object, Escort_special_goal, Escort_goal_index;
 
-#ifndef NDEBUG
 extern void create_buddy_bot(void);
-#endif
 
 extern int	Max_escort_length;
 
