@@ -33,7 +33,6 @@ char *d_strdup(char *str)
 	return a;
 }
 
-
 #if 0
 // string compare without regard to case
 
@@ -83,15 +82,15 @@ void strupr( char *s1 )
 
 void strrev( char *s1 )
 {
-	int i,l;
-	char *s2;
-	
-	s2 = (char *)d_malloc(strlen(s1) + 1);
-	strcpy(s2, s1);
-	l = strlen(s2);
-	for (i = 0; i < l; i++)
-		s1[l-1-i] = s2[i];
-	d_free(s2);
+	char *h, *t;
+	h = s1;
+	t = s1 + strlen(s1) - 1;
+	while (h < t) {
+		char c;
+		c = *h;
+		*h++ = *t;
+		*t-- = c;
+	}
 }
 
 void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
