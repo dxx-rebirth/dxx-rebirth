@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: netmisc.c,v 1.4 2002-08-31 03:21:41 btb Exp $";
+static char rcsid[] = "$Id: netmisc.c,v 1.5 2002-10-10 19:12:00 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -369,7 +369,7 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int lite_flag)
 	memcpy(netgame->game_name, &(data[loc]), NETGAME_NAME_LEN+1);	loc += (NETGAME_NAME_LEN+1);
 	memcpy(netgame->mission_title, &(data[loc]), MISSION_NAME_LEN+1); loc += (MISSION_NAME_LEN+1);
 	memcpy(netgame->mission_name, &(data[loc]), 9);					loc += 9;
-	memcpy(&(netgame->levelnum), &(data[loc]), 4);						loc += 4;
+	memcpy(&(netgame->levelnum), &(data[loc]), 4);					loc += 4;
 	netgame->levelnum = INTEL_INT(netgame->levelnum);
 	memcpy(&(netgame->gamemode), &(data[loc]), 1);					loc++;
 	memcpy(&(netgame->RefusePlayers), &(data[loc]), 1);				loc++;

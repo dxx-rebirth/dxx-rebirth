@@ -7,19 +7,22 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/hud.c,v $
- * $Revision: 1.3 $
- * $Author: bradleyb $
- * $Date: 2001-11-04 09:00:25 $
+ * $Revision: 1.4 $
+ * $Author: btb $
+ * $Date: 2002-10-10 19:08:15 $
  *
  * Routines for displaying HUD messages...
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/11/04 09:00:25  bradleyb
+ * Enable d1x-style hud_message
+ *
  *
  */
 
@@ -244,7 +247,7 @@ void HUD_render_message_frame()
 
 
 				if (grd_curcanv->cv_bitmap.bm_type == BM_MODEX) {
-					WIN(Int3());					// No no no no ....
+					WIN(Int3());    // No no no no ....
 					ycrd -= h;
 					h *= 2;
 					modex_hud_message((grd_curcanv->cv_bitmap.bm_w-w)/2, ycrd, message, SMALL_FONT, HUD_color);
@@ -312,7 +315,7 @@ void HUD_render_message_frame()
 			}
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		}
-	} 
+	}
 	#ifndef WINDOWS
 	else if (get_current_game_screen()->cv_bitmap.bm_type == BM_MODEX) {
 		if (Modex_hud_msg_count) {
@@ -324,7 +327,7 @@ void HUD_render_message_frame()
 	}
 	#endif
 
-	gr_set_curfont( GAME_FONT );    
+	gr_set_curfont( GAME_FONT );
 }
 
 int PlayerMessage=1;
