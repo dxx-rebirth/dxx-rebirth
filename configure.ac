@@ -266,7 +266,6 @@ AH_BOTTOM([
 #define NEWDEMO 1
 
 #ifdef __linux__
-# define __SDL__ 1
 # define SDL_AUDIO 1
 # define SDL_JOYSTICK 1
 
@@ -290,7 +289,6 @@ AH_BOTTOM([
 #endif
 
 #ifdef __MINGW32__
-# define __SDL__ 1
 # define SDL_AUDIO 1
 # define SDL_INPUT 1
 # define SDL_JOYSTICK 1

@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.29 $
+ * $Revision: 1.30 $
  * $Author: bradleyb $
- * $Date: 2002-07-16 20:47:27 $
+ * $Date: 2002-07-16 22:29:24 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.29  2002/07/16 20:47:27  bradleyb
+ * don't use althogdir on non-unix
+ *
  * Revision 1.28  2002/07/16 19:05:13  bradleyb
  * need limits.h on mingw also
  *
@@ -330,9 +333,7 @@ void print_commandline_help()
 //	printf( "  -lowresmovies   %s\n","FIXME: Undocumented");
 //	printf( "  -memdbg         %s\n","FIXME: Undocumented");
 //	printf( "  -monodebug      %s\n","FIXME: Undocumented");
-#if defined(__DJGPP__) || defined(__SDL__)
 	printf( "  -nocdrom        %s\n","FIXME: Undocumented");
-#endif
 #ifdef __DJGPP__
 	printf( "  -nocyberman     %s\n","FIXME: Undocumented");
 #endif
