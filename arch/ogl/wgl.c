@@ -1,4 +1,4 @@
-/* $Id: wgl.c,v 1.4 2004-05-16 00:45:25 schaffner Exp $ */
+/* $Id: wgl.c,v 1.5 2004-05-19 02:14:17 btb Exp $ */
 /*
  *
  * opengl platform specific functions for WGL - added by Peter Hawkins
@@ -349,7 +349,7 @@ bool OpenGL_Initialize(void)
 				devmode.dmDisplayFrequency=atoi(Args[retval+1]);
 				if (devmode.dmDisplayFrequency>=60)//uhh, I hope no one actually wants a refresh lower than 60.. gag.
 					devmode.dmFields|=DM_DISPLAYFREQUENCY;
-				printf("trying refresh %i hz\n",devmode.dmDisplayFrequency);
+				printf("trying refresh %li hz\n", devmode.dmDisplayFrequency);
 			}
 
 			retval=ChangeDisplaySettings(&devmode,CDS_FULLSCREEN);
