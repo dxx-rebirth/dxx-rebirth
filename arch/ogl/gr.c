@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.19 2004-05-19 03:47:03 btb Exp $ */
+/* $Id: gr.c,v 1.20 2004-05-19 22:16:12 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -393,6 +393,11 @@ int gr_init()
 	if ((glt=FindArg("-gl_mipmap"))){
 		GL_texmagfilt=GL_LINEAR;
 		GL_texminfilt=GL_LINEAR_MIPMAP_NEAREST;
+	}
+	if ((glt=FindArg("-gl_trilinear")))
+	{
+		GL_texmagfilt = GL_LINEAR;
+		GL_texminfilt = GL_LINEAR_MIPMAP_LINEAR;
 	}
 	if ((t=FindArg("-gl_simple"))){
 		if (t>=glt){//allow overriding of earlier args

@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.73 2004-05-19 21:47:50 btb Exp $ */
+/* $Id: inferno.c,v 1.74 2004-05-19 22:16:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1028,7 +1028,8 @@ void print_commandline_help()
 #ifdef OGL
 	printf( "  -gl_texmagfilt <f> %s\n","set GL_TEXTURE_MAG_FILTER (see readme.d1x)");
 	printf( "  -gl_texminfilt <f> %s\n","set GL_TEXTURE_MIN_FILTER (see readme.d1x)");
-	printf( "  -gl_mipmap      %s\n","set gl texture filters to \"standard\" options for mipmapping");
+	printf("  -gl_mipmap      %s\n", "set gl texture filters to \"standard\" (bilinear) mipmapping");
+	printf("  -gl_trilinear   %s\n", "set gl texture filters to trilinear mipmapping");
 	printf( "  -gl_simple      %s\n","set gl texture filters to gl_nearest for \"original\" look. (default)");
 	printf( "  -gl_alttexmerge %s\n","use new texmerge, usually uses less ram (default)");
 	printf( "  -gl_stdtexmerge %s\n","use old texmerge, uses more ram, but _might_ be a bit faster");
