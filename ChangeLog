@@ -1,3 +1,10 @@
+2003-11-20  Bradley Bell  <btb@icculus.org>
+
+	* VisualCE, VisualCE/d2x, VisualCE/d2x/d2x.vcp, VisualCE/d2x.vcw,
+	VisualCE/libmve, VisualCE/libmve/libmve.vcp, VisualCE/mveplayer,
+	VisualCE/mveplayer/mveplayer.vcp: added project files for eMbedded
+	Visual C++
+
 2003-11-17  Bradley Bell  <btb@icculus.org>
 
 	* configure.ac, arch/linux/Makefile.am, arch/linux/linuxnet.c,
