@@ -11,6 +11,13 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
 
+#if 1
+#include "u_mem.h"
+#else
+#define d_malloc(a) malloc(a)
+#define d_free(a) free(a)
+#endif
+
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
@@ -61,9 +68,9 @@ void shutdownMovie(MVESTREAM *mve);
 static int doPlay(const char *filename)
 {
     MVESTREAM *mve;
-	int filehandle;
+    int filehandle;
 
-	filehandle = open(filename, O_RDONLY);
+    filehandle = open(filename, O_RDONLY);
 
     if (filehandle == -1)
     {
@@ -71,7 +78,7 @@ static int doPlay(const char *filename)
         return 1;
     }
 
-	mve = mve_open(filehandle);
+    mve = mve_open(filehandle);
 
     initializeMovie(mve);
     playMovie(mve);
@@ -176,6 +183,7 @@ static int mve_audio_bufhead=0;
 static int mve_audio_buftail=0;
 static int mve_audio_playing=0;
 static int mve_audio_canplay=0;
+static int mve_audio_compressed=0;
 static SDL_AudioSpec *mve_audio_spec=NULL;
 static SDL_mutex *mve_audio_mutex = NULL;
 
@@ -188,10 +196,6 @@ static void mve_audio_callback(void *userdata, Uint8 *stream, int len)
 
 fprintf(stderr, "+ <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 
-    if (!mve_audio_mutex) {
-        fprintf(stderr, "mve_audio_callback: creating mutex");
-        mve_audio_mutex = SDL_CreateMutex();
-    }
     SDL_mutexP(mve_audio_mutex);
 
     while (mve_audio_bufhead != mve_audio_buftail                                       /* while we have more buffers  */
@@ -205,7 +209,7 @@ fprintf(stderr, "+ <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_cur
         total += length;
         stream += length;                                                               /* advance output */
         len -= length;                                                                  /* decrement avail ospace */
-        free(mve_audio_buffers[mve_audio_bufhead]);                                     /* free the buffer */
+        d_free(mve_audio_buffers[mve_audio_bufhead]);                                   /* free the buffer */
         mve_audio_buffers[mve_audio_bufhead]=NULL;                                      /* free the buffer */
         mve_audio_buflens[mve_audio_bufhead]=0;                                         /* free the buffer */
 
@@ -230,7 +234,7 @@ fprintf(stderr, "= <%d (%d), %d, %d>: %d\n", mve_audio_bufhead, mve_audio_curbuf
 
         if (mve_audio_curbuf_curpos >= mve_audio_buflens[mve_audio_bufhead])            /* if this ends the current chunk */
         {
-            free(mve_audio_buffers[mve_audio_bufhead]);                                 /* free buffer */
+            d_free(mve_audio_buffers[mve_audio_bufhead]);                               /* free buffer */
             mve_audio_buffers[mve_audio_bufhead]=NULL;
             mve_audio_buflens[mve_audio_bufhead]=0;
 
@@ -246,17 +250,26 @@ fprintf(stderr, "- <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_cur
 
 static int create_audiobuf_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
+    int flags;
     int sample_rate;
     int desired_buffer;
 
 fprintf(stderr, "creating audio buffers\n");
 
+    mve_audio_mutex = SDL_CreateMutex();
+
+    flags = get_short(data + 2);
     sample_rate = get_short(data + 4);
     desired_buffer = get_int(data + 6);
-    mve_audio_spec = (SDL_AudioSpec *)malloc(sizeof(SDL_AudioSpec));
+
+fprintf(stderr, "stereo=%d 16bit=%d compressed=%d sample_rate=%d desired_buffer=%d\n",
+        flags & 1, (flags >> 1) & 1, (flags >> 2) & 1, sample_rate, desired_buffer);
+
+    mve_audio_compressed = (flags >> 2) & 1;
+    mve_audio_spec = (SDL_AudioSpec *)d_malloc(sizeof(SDL_AudioSpec));
     mve_audio_spec->freq = sample_rate;
-    mve_audio_spec->format = AUDIO_S16LSB;
-    mve_audio_spec->channels = 2;
+    mve_audio_spec->format = ((flags >> 1) & 1)?AUDIO_S16LSB:AUDIO_U8;
+    mve_audio_spec->channels = (flags &1 )?2:1;
     mve_audio_spec->samples = 32768;
     mve_audio_spec->callback = mve_audio_callback;
     mve_audio_spec->userdata = NULL;
@@ -302,15 +315,14 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
         nsamp = get_short(data + 4);
         if (chan & selected_chan)
         {
-            if (!mve_audio_mutex) {
-                fprintf(stderr, "audio_data_handler: creating mutex");
-                mve_audio_mutex = SDL_CreateMutex();
-            }
             SDL_mutexP(mve_audio_mutex);
             mve_audio_buflens[mve_audio_buftail] = nsamp;
-            mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
+            mve_audio_buffers[mve_audio_buftail] = (short *)d_malloc(nsamp);
             if (major == 8)
-                mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail], data, -1); /* XXX */
+                if (mve_audio_compressed)
+                    mveaudio_uncompress(mve_audio_buffers[mve_audio_buftail], data, -1); /* XXX */
+                else
+                    memcpy(mve_audio_buffers[mve_audio_buftail], data + 6, nsamp);
             else
                 memset(mve_audio_buffers[mve_audio_buftail], 0, nsamp); /* XXX */
 
@@ -347,8 +359,8 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
     h = get_short(data+2);
     g_width = w << 3;
     g_height = h << 3;
-    g_vBackBuf1 = malloc(g_width * g_height);
-    g_vBackBuf2 = malloc(g_width * g_height);
+    g_vBackBuf1 = d_malloc(g_width * g_height);
+    g_vBackBuf2 = d_malloc(g_width * g_height);
     memset(g_vBackBuf1, 0, g_width * g_height);
     memset(g_vBackBuf2, 0, g_width * g_height);
     return 1;
@@ -475,13 +487,22 @@ void initializeMovie(MVESTREAM *mve)
     mve_set_handler(mve, 0x03, create_audiobuf_handler);
     mve_set_handler(mve, 0x04, play_audio_handler);
     mve_set_handler(mve, 0x05, create_videobuf_handler);
+    mve_set_handler(mve, 0x06, default_seg_handler);
     mve_set_handler(mve, 0x07, display_video_handler);
     mve_set_handler(mve, 0x08, audio_data_handler);
     mve_set_handler(mve, 0x09, audio_data_handler);
     mve_set_handler(mve, 0x0a, init_video_handler);
+    mve_set_handler(mve, 0x0b, default_seg_handler);
     mve_set_handler(mve, 0x0c, video_palette_handler);
+    mve_set_handler(mve, 0x0d, default_seg_handler);
+    mve_set_handler(mve, 0x0e, default_seg_handler);
     mve_set_handler(mve, 0x0f, video_codemap_handler);
+    mve_set_handler(mve, 0x10, default_seg_handler);
     mve_set_handler(mve, 0x11, video_data_handler);
+    mve_set_handler(mve, 0x12, default_seg_handler);
+    //mve_set_handler(mve, 0x13, default_seg_handler);
+    mve_set_handler(mve, 0x14, default_seg_handler);
+    //mve_set_handler(mve, 0x15, default_seg_handler);
 }
 
 #ifdef STANDALONE
