@@ -86,7 +86,8 @@ binary-arch: build install
 	dh_installcron
 	dh_installman
 	dh_installinfo
-	dh_undocumented d2x-sdl.6 d2x-gl.6
+	dh_undocumented -pd2x-sdl d2x-sdl.6
+	dh_undocumented -pd2x-gl d2x-gl.6
 	dh_installchangelogs
 	dh_link
 	dh_strip
