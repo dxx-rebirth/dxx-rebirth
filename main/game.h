@@ -262,4 +262,6 @@ int gr_toggle_fullscreen_game(void);
  */
 void flickering_light_read(flickering_light *fl, CFILE *fp);
 
+extern int maxfps;
+
 #endif

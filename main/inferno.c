@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.55 2003-02-28 09:56:10 btb Exp $ */
+/* $Id: inferno.c,v 1.56 2003-03-13 07:16:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -908,6 +908,7 @@ void print_commandline_help()
 	printf( " D2X Options:\n\n");
 	printf( "  -noredundancy   %s\n", "Do not send messages when picking up redundant items in multi");
 	printf( "  -shortpackets   %s\n", "Set shortpackets to default as on");
+	printf( "  -maxfps <n>     %s\n", "Set maximum framerate (1-100)");
 	printf( "  -notitles       %s\n", "Do not show titlescreens on startup");
 	printf( "  -hogdir <dir>   %s\n", "set shared data directory to <dir>");
 	printf( "  -ini <file>     %s\n", "option file (alternate to command line), defaults to d2x.ini");
@@ -1253,6 +1254,14 @@ int main(int argc,char **argv)
 	arch_init();
 
 	//con_printf(CON_VERBOSE, "\n%s...", "Checking for Descent 2 CD-ROM");
+
+	//added/edited 8/18/98 by Victor Rachels to set maximum fps <= 100
+	if ((t = FindArg( "-maxfps" ))) {
+		t=atoi(Args[t+1]);
+		if (t>0&&t<=80)
+			maxfps=t;
+	}
+	//end addition - Victor Rachels
 
 	if ( FindArg( "-autodemo" ))
 		Auto_demo = 1;

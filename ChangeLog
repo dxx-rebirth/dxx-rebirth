@@ -1,3 +1,7 @@
+2003-03-12  Bradley Bell  <bradleyb@smeagol>
+
+	* main/game.c, main/game.h, main/inferno.c: added -maxfps option
+
 2003-03-12  Bradley Bell  <btb@icculus.org>
 
 	* arch/linux/alsadigi.c, arch/linux/findfile.c,

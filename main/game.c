@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.18 2003-02-28 12:08:34 btb Exp $ */
+/* $Id: game.c,v 1.19 2003-03-13 07:16:46 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.18 2003-02-28 12:08:34 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.19 2003-03-13 07:16:46 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1193,7 +1193,9 @@ int Movie_fixed_frametime;
 #define Movie_fixed_frametime	0
 #endif
 
-static const int max_fps = 80;
+//added on 8/18/98 by Victor Rachels to add maximum framerate
+int maxfps = 80;
+//end this section
 
 void calc_frame_time()
 {
@@ -1209,9 +1211,9 @@ void calc_frame_time()
 	do {
 	    timer_value = timer_get_fixed_seconds();
 	    FrameTime = timer_value - last_timer_value;
-	    if (FrameTime < f1_0/max_fps);
+	    if (FrameTime < f1_0/maxfps);
 			timer_delay(1);
-	} while (FrameTime < f1_0/max_fps);
+	} while (FrameTime < f1_0/maxfps);
 
 	#if defined(TIMER_TEST) && !defined(NDEBUG)
 	_timer_value = timer_value;
