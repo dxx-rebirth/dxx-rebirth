@@ -1,7 +1,8 @@
 2003-02-28  Bradley Bell  <btb@icculus.org>
 
-	* 2d/pcx.c, arch/ogl/gr.c, main/inferno.c, main/movie.c,
-	main/newmenu.c: Fixed many opengl glitches
+	* 2d/pcx.c, arch/ogl/gr.c, libmve/mveplay.c, main/gameseq.c,
+	main/inferno.c, main/menu.c, main/movie.c, main/newmenu.c: Fixed
+	many opengl glitches
 
 2003-02-27  Bradley Bell  <btb@icculus.org>
 

@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.5 2003-02-19 20:52:57 btb Exp $ */
+/* $Id: mveplay.c,v 1.6 2003-02-28 11:27:05 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -647,11 +647,11 @@ static int display_video_handler(unsigned char major, unsigned char minor, unsig
 	if (g_destY == -1) // center it
 		g_destY = (g_screenHeight - g_height) >> 1;
 
+	gr_palette_load(g_palette);
+
 	gr_bitmap(g_destX, g_destY, bitmap);
 
 	gr_free_sub_bitmap(bitmap);
-
-	gr_palette_load(g_palette);
 #endif
 	g_frameUpdated = 1;
 

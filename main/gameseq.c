@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.16 2003-02-25 04:45:31 btb Exp $ */
+/* $Id: gameseq.c,v 1.17 2003-02-28 11:27:05 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.16 2003-02-25 04:45:31 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.17 2003-02-28 11:27:05 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -926,7 +926,7 @@ void LoadLevel(int level_num,int page_in_textures)
 //	WIN(LoadCursorWin(MOUSE_WAIT_CURSOR));
 //	WIN(ShowCursorW());
 
-#if defined(POLY_ACC)
+#if 1 //defined(POLY_ACC) || defined(OGL)
     gr_palette_load(gr_palette);
     show_boxed_message(TXT_LOADING);
 #else
@@ -2139,6 +2139,7 @@ void ShowLevelIntro(int level_num)
 				{
 					if (intro_movie[i].level_num == level_num)
 					{
+						Screen_mode = -1;
 						PlayMovie(intro_movie[i].movie_name,MOVIE_REQUIRED);
 						movie=1;
 						break;

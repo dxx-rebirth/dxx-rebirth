@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.23 2003-02-28 09:56:10 btb Exp $ */
+/* $Id: movie.c,v 1.24 2003-02-28 11:27:05 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.23 2003-02-28 09:56:10 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.24 2003-02-28 11:27:05 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
@@ -238,6 +238,9 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	int track = 0;
 	int frame_num;
 	int key;
+#ifdef OGL
+	char pal_save[768];
+#endif
 
 	result=1;
 
@@ -258,6 +261,9 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	}
 #ifdef OGL
 	set_screen_mode(SCREEN_MENU);
+	gr_copy_palette(pal_save, gr_palette, 768);
+	memset(gr_palette, 0, 768);
+	gr_palette_load(gr_palette);
 #endif
 
 	if (MVE_rmPrepMovie(filehndl, dx, dy, track)) {
@@ -310,6 +316,10 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	// Restore old graphic state
 
 	Screen_mode=-1;  //force reset of screen mode
+#ifdef OGL
+	gr_copy_palette(gr_palette, pal_save, 768);
+	gr_palette_load(pal_save);
+#endif
 
 	return (aborted?MOVIE_ABORTED:MOVIE_PLAYED_FULL);
 }
