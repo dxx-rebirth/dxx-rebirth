@@ -21,6 +21,8 @@
 
 	* ui/keypad.c: fix the reading of keypad (.pad) files 
 
+	* ui/menubar.c: use cfile to read the menubar file MED.MNU
+
 2005-02-25  Chris Taylor  <chris@icculus.org>
 
 	* arch/carbon/conf.h, D2X.make: no defining OGL in conf.h,

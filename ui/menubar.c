@@ -1,4 +1,4 @@
-/* $Id: menubar.c,v 1.6 2005-02-26 10:00:40 chris Exp $ */
+/* $Id: menubar.c,v 1.7 2005-02-26 11:27:42 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,14 +13,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: menubar.c,v 1.6 2005-02-26 10:00:40 chris Exp $";
+static char rcsid[] = "$Id: menubar.c,v 1.7 2005-02-26 11:27:42 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -31,6 +30,7 @@ static char rcsid[] = "$Id: menubar.c,v 1.6 2005-02-26 10:00:40 chris Exp $";
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
+#include "cfile.h"
 
 #include "mono.h"
 
@@ -646,7 +646,7 @@ void menubar_init( char * file )
 {
 	int i,j, np;
 	int aw, w, h;
-	FILE * infile;
+	CFILE * infile;
 	char buffer[200];
 	char buf1[200];
 	char buf2[200];
@@ -671,11 +671,11 @@ void menubar_init( char * file )
 		}
 	}
 		
-	infile = fopen( file, "rt" );
+	infile = cfopen( file, "rt" );
 
 	if (!infile) return;
 		
-	while ( fgets( buffer, 200, infile) != NULL )
+	while ( cfgets( buffer, 200, infile) != NULL )
 	{
 		if ( buffer[0] == ';' ) continue;
 		
@@ -793,7 +793,7 @@ void menubar_init( char * file )
 
 	Menu[0].w = 700;
 			
-	fclose( infile );
+	cfclose( infile );
 
 	
 	for (i=0; i<num_menus; i++ )
