@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.22 2003-11-27 00:21:04 btb Exp $ */
+/* $Id: pstypes.h,v 1.23 2003-11-27 00:36:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -46,6 +46,7 @@ typedef unsigned long ulong;
 typedef unsigned long ulong;
 #endif
 
+#ifndef __linux__
 #include <SDL_types.h>
 typedef Sint16 int16_t;
 typedef Sint32 int32_t;
@@ -53,6 +54,7 @@ typedef Sint64 int64_t;
 typedef Uint16 u_int16_t;
 typedef Uint32 u_int32_t;
 typedef Uint64 u_int64_t;
+#endif
 
 #ifdef _MSC_VER
 # include <stdlib.h> // this is where min and max are defined

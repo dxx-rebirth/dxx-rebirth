@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.22 2003-11-26 12:26:25 btb Exp $ */
+/* $Id: cfile.c,v 1.23 2003-11-27 00:36:14 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -511,7 +511,7 @@ int cfile_mkdir(char *pathname)
 	return _mkdir(pathname);
 # endif
 #else
-	return mkdir(pathname, 0755)
+	return mkdir(pathname, 0755);
 #endif
 }
 

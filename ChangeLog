@@ -1,5 +1,8 @@
 2003-11-26  Bradley Bell  <btb@icculus.org>
 
+	* cfile/cfile.c, include/pstypes.h, main/inferno.c,
+	main/newmenu.h: linux fixes
+
 	* configure.ac cygconf VisualC/d2x.dsw VisualC/d2x/d2x.dsp
 	VisualC/d2xgl/.cvsignore VisualC/d2xgl/d2xgl.dsp arch/ogl/gr.c
 	arch/ogl/ogl.c include/d_io.h include/loadgl.h include/ogl_init.h
