@@ -16,6 +16,9 @@
 int ogl_init_load_library(void);
 #else
 #include <GL/gl.h>
+//######hack, since multi texture support is not working
+#undef GL_ARB_multitexture
+#undef GL_SGIS_multitexture
 #endif
 
 #ifndef GL_VERSION_1_1
@@ -68,6 +71,17 @@ extern int ogl_intensity4_ok;
 extern int ogl_luminance4_alpha4_ok;
 extern int ogl_rgba2_ok;
 extern int ogl_readpixels_ok;
+extern int ogl_gettexlevelparam_ok;
+#ifdef GL_ARB_multitexture
+extern int ogl_arb_multitexture_ok;
+#else
+#define ogl_arb_multitexture_ok 0
+#endif
+#ifdef GL_SGIS_multitexture
+extern int ogl_sgis_multitexture_ok;
+#else
+#define ogl_sgis_multitexture_ok 0
+#endif
 
 extern int gl_initialized;
 extern int GL_texmagfilt,GL_texminfilt,GL_needmipmaps;
@@ -107,7 +121,8 @@ void ogl_init(void);//one time initialization
 void ogl_close(void);//one time shutdown
 
 //generic funcs
-#define OGLTEXBUFSIZE (1024*1024*4)
+//#define OGLTEXBUFSIZE (1024*1024*4)
+#define OGLTEXBUFSIZE (2048*2048*4)
 extern GLubyte texbuf[OGLTEXBUFSIZE];
 //void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int width,int height,int twidth,int theight);
 void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type);
@@ -127,6 +142,7 @@ void ogl_cache_level_textures(void);
 void ogl_urect(int left,int top,int right,int bot);
 bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c);
 bool ogl_ubitmapm(int x, int y,grs_bitmap *bm);
+bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 bool ogl_ubitblt_tolinear(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 bool ogl_ubitblt_copy(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);

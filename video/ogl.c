@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/video/ogl.c,v $
- * $Revision: 1.5 $
+ * $Revision: 1.6 $
  * $Author: bradleyb $
- * $Date: 2001-10-09 02:38:52 $
+ * $Date: 2001-10-09 03:00:08 $
  *
  * Graphics support functions for OpenGL.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.5  2001/10/09 02:38:52  bradleyb
+ * re-imported d1x version of this file
+ *
  * Revision 1.4  2001/01/31 16:31:14  bradleyb
  * OpenGL support under Cygwin/SDL
  *
@@ -47,6 +50,7 @@
 #include "powerup.h"
 #include "polyobj.h"
 #include "gamefont.h"
+#include "grdef.h"
 
 //change to 1 for lots of spew.
 #if 0
@@ -842,7 +846,7 @@ bool g3_draw_tmap_2(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *b
 	return 0;
 }
 
-bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
+bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int orientation)
 {
 	//float l=1.0;
 	vms_vector pv,v1;//,v2;
