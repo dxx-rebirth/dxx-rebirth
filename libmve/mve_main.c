@@ -1,7 +1,8 @@
-/* $Id: mve_main.c,v 1.5 2003-11-26 03:07:45 btb Exp $ */
+/* $Id: mve_main.c,v 1.6 2003-11-26 12:26:28 btb Exp $ */
 
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 
 #ifdef _WIN32
 # include <windows.h>
@@ -14,7 +15,6 @@
 #include <SDL.h>
 
 #include "libmve.h"
-
 
 static SDL_Surface *g_screen;
 #ifdef LANDSCAPE
@@ -179,6 +179,8 @@ static int pollEvents()
 		switch(event.type)
 		{
 		case SDL_QUIT:
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
 			return 1;
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym)

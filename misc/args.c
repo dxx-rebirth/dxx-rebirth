@@ -1,4 +1,4 @@
-/* $Id: args.c,v 1.9 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: args.c,v 1.10 2003-11-26 12:26:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -57,7 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.9 2003-06-16 06:57:34 btb Exp $";
+static char rcsid[] = "$Id: args.c,v 1.10 2003-11-26 12:26:33 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -75,7 +75,7 @@ int FindArg( char * s )	{
 	int i;
 
 	for (i=0; i<Num_args; i++ )
-		if (! strcasecmp( Args[i], s))
+		if (! stricmp( Args[i], s))
 			return i;
 
 	return 0;

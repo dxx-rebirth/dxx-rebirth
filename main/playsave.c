@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.15 2003-08-02 06:45:42 btb Exp $ */
+/* $Id: playsave.c,v 1.16 2003-11-26 12:26:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -260,8 +260,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
+#ifndef _WIN32_WCE
 #include <errno.h>
+#endif
 
 #include "error.h"
 
@@ -302,6 +306,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 		#include "poly_acc.h"
 	#endif
 	#include "isp.h"
+#elif defined(_WIN32_WCE)
+# define errno -1
+# define ENOENT -1
+# define strerror(x) "Unknown Error"
 #endif
 
 int get_lifetime_checksum (int a,int b);

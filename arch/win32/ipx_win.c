@@ -1,4 +1,4 @@
-/* $Id: ipx_win.c,v 1.7 2003-10-12 09:17:47 btb Exp $ */
+/* $Id: ipx_win.c,v 1.8 2003-11-26 12:26:25 btb Exp $ */
 
 /*
  *
@@ -20,8 +20,12 @@
 
 #include "ipx_drv.h"
 
+#ifdef __GNUC__
 #define _do_mprintf(n, format, args...) printf(format, ## args)
 #define mprintf(args) _do_mprintf args
+#else
+#define mprintf()
+#endif
 
 //#define n_printf(format, args...) mprintf((1, format, ## args))
 

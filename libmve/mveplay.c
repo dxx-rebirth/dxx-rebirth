@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.16 2003-11-26 03:07:45 btb Exp $ */
+/* $Id: mveplay.c,v 1.17 2003-11-26 12:26:28 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -102,6 +102,14 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
  * timer handlers
  *************************/
 
+#ifdef _WIN32_WCE
+struct timeval
+{
+	long tv_sec;
+	long tv_usec;
+};
+#endif
+
 /*
  * timer variables
  */
@@ -116,10 +124,6 @@ struct timespec
 	long int tv_sec;            /* Seconds.  */
 	long int tv_nsec;           /* Nanoseconds.  */
 };
-#endif
-
-#if defined(HAVE_DECL_NANOSLEEP) && !HAVE_DECL_NANOSLEEP
-int nanosleep(struct timespec *ts, void *rem);
 #endif
 
 #ifdef _WIN32
@@ -137,6 +141,7 @@ int gettimeofday(struct timeval *tv, void *tz)
 	return 0;
 }
 #endif
+
 
 static int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
@@ -525,7 +530,7 @@ static int init_video_handler(unsigned char major, unsigned char minor, unsigned
 	short width, height;
 
 	if (video_initialized)
-		return 1;
+		return 1; /* maybe we actually need to change width/height here? */
 	else
 		video_initialized = 1;
 

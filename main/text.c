@@ -1,4 +1,4 @@
-/* $Id: text.c,v 1.10 2003-10-10 01:42:59 btb Exp $ */
+/* $Id: text.c,v 1.11 2003-11-26 12:26:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -65,7 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: text.c,v 1.10 2003-10-10 01:42:59 btb Exp $";
+static char rcsid[] = "$Id: text.c,v 1.11 2003-11-26 12:26:33 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -116,7 +116,9 @@ void decode_text_line(char *p)
 	}
 }
 
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 //load all the text strings for Descent
 void load_text()
 {

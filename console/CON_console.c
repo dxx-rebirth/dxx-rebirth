@@ -700,6 +700,10 @@ void DrawCommandLine() {
 #endif
 }
 
+#ifdef _MSC_VER
+# define vsnprintf _vsnprintf
+#endif
+
 /* Outputs text to the console (in game), up to CON_CHARS_PER_LINE chars can be entered */
 void CON_Out(ConsoleInformation *console, const char *str, ...) {
 	va_list marker;
@@ -907,7 +911,7 @@ void CON_SetPrompt(ConsoleInformation *console, char* newprompt) {
 
 	//check length so we can still see at least 1 char :-)
 	if(strlen(newprompt) < console->VChars)
-		console->Prompt = strdup(newprompt);
+		console->Prompt = d_strdup(newprompt);
 	else
 		CON_Out(console, "prompt too long. (max. %i chars)", console->VChars - 1);
 }
@@ -948,7 +952,7 @@ void CON_TabCompletion(ConsoleInformation *console) {
 	if(!console)
 		return;
 
-	command = strdup(console->LCommand);
+	command = d_strdup(console->LCommand);
 	command = console->TabFunction(command);
 
 	if(!command)

@@ -1,4 +1,4 @@
-/* $Id: newmenu.h,v 1.5 2003-11-25 04:13:05 btb Exp $ */
+/* $Id: newmenu.h,v 1.6 2003-11-26 12:26:32 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -242,9 +242,23 @@ extern void nm_remap_background(void);
 
 #if defined(MACINTOSH) || defined(WINDOWS) || defined(SDL_INPUT)
 # define NEWMENU_MOUSE
-void newmenu_show_cursor();
-void newmenu_hide_cursor();
-void draw_close_box(int x, int y);
+#endif
+
+#ifdef NEWMENU_MOUSE
+# if defined(MACINTOSH)
+#  define newmenu_show_cursor() show_cursor()
+#  define newmenu_hide_cursor() hide_cursor()
+# elif defined(WINDOWS)
+#  define newmenu_show_cursor() ShowCursorW()
+#  define newmenu_hide_cursor() HideCursorW()
+# elif defined(SDL_INPUT)
+#  include <SDL.H>
+#  define newmenu_show_cursor() SDL_ShowCursor(SDL_ENABLE)
+#  define newmenu_hide_cursor() SDL_ShowCursor(SDL_DISABLE)
+# else
+#  define newmenu_show_cursor()
+#  define newmenu_hide_cursor()
+# endif
 #endif
 
 #endif /* _NEWMENU_H */

@@ -1,4 +1,4 @@
-/* $Id: ipx_mcast4.c,v 1.2 2003-10-14 20:48:15 btb Exp $ */
+/* $Id: ipx_mcast4.c,v 1.3 2003-11-26 12:26:25 btb Exp $ */
 
 /*
  *
@@ -14,7 +14,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -43,6 +45,7 @@ static struct in_addr game_addr;    // The game's multicast address
 
 #define MSGHDR "IPX_mcast4: "
 
+#ifdef __GNUC__
 #ifdef IPX_MCAST4_DEBUG
 static void msg(const char *fmt, ...)
 {
@@ -57,8 +60,19 @@ static void msg(const char *fmt, ...)
 #else
 #define msg(m...)
 #endif
+#else
+# ifdef IPX_MCAST4_DEBUG
+#  define msg printf
+# else
+#  define msg
+# endif
+#endif
 
+#ifdef __GNUC__
 #define FAIL(m...) do{ nm_messagebox("Error", 1, "Ok", ##m); return -1; } while (0)
+#else
+# define FAIL() do{ nm_messagebox("Error", 1, "Ok", "IPX_mcast4 failure"); return -1; } while (0)
+#endif
 
 #ifdef IPX_MCAST4_DEBUG
 /* Dump raw form of IP address/port by fancy output to user

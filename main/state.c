@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.10 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: state.c,v 1.11 2003-11-26 12:26:33 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -242,8 +242,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
+#ifndef _WIN32_WCE
 #include <errno.h>
+#endif
 #ifdef MACINTOSH
 #include <Files.h>
 #endif
@@ -609,6 +613,12 @@ int state_get_restore_file(char * fname, int multi)
 #define	DESC_OFFSET	8
 
 #define	CF_BUF_SIZE	1024
+
+#ifdef _WIN32_WCE
+# define errno -1
+# define strerror(x) "Unknown Error"
+#endif
+
 
 //	-----------------------------------------------------------------------------------
 //	Imagine if C had a function to copy a file...

@@ -1,4 +1,4 @@
-/* $Id: d_io.c,v 1.5 2003-02-18 20:35:35 btb Exp $ */
+/* $Id: d_io.c,v 1.6 2003-11-26 12:26:36 btb Exp $ */
 /*
  * some misc. file/disk routines
  * Arne de Bruijn, 1998
@@ -18,11 +18,12 @@
 #include "u_mem.h"
 //end addition -MM
 
-#ifdef __WINDOWS__
+#if defined(_WIN32) && !defined(_WIN32_WCE)
 #include <windows.h>
 #define lseek(a,b,c) _lseek(a,b,c)
 #endif
 
+#if 0
 long filelength(int fd) {
 	long old_pos, size;
 
@@ -32,10 +33,18 @@ long filelength(int fd) {
 		return -1L;
 	return size;
 }
+#endif
 
-long ffilelength(FILE *fh)
+long ffilelength(FILE *file)
 {
- return filelength(fileno(fh));
+	long old_pos, size;
+
+	if ((old_pos = ftell(file)) == -1 ||
+	    fseek(file, 0, SEEK_END) == -1 ||
+	    (size = ftell(file)) == -1 ||
+	    fseek(file, old_pos, SEEK_SET) == -1)
+		return -1L;
+	return size;
 }
 
 

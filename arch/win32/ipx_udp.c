@@ -1,4 +1,4 @@
-/* $Id: ipx_udp.c,v 1.3 2003-10-12 09:17:47 btb Exp $ */
+/* $Id: ipx_udp.c,v 1.4 2003-11-26 12:26:25 btb Exp $ */
 /*
  *
  * IPX driver for native Linux TCP/IP networking (UDP implementation)
@@ -73,7 +73,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -156,7 +158,11 @@ static void chk(void *p)
 	exit(EXIT_FAILURE);
 }
 
+#ifdef _MSC_VER
+#define FAIL Warning
+#else
 #define FAIL(m...) do { msg(#m); return -1; } while (0)
+#endif
 
 /* Find as much as MAX_BRDINTERFACES during local iface autoconfiguration.
  * Note that more interfaces can be added during manual configuration

@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.32 2003-11-07 06:30:06 btb Exp $ */
+/* $Id: movie.c,v 1.33 2003-11-26 12:26:30 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,16 +23,20 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.32 2003-11-07 06:30:06 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.33 2003-11-26 12:26:30 btb Exp $";
 #endif
 
 #define DEBUG_LEVEL CON_NORMAL
 
 #include <string.h>
+#ifndef _WIN32_WCE
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#endif
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <ctype.h>
 
 #include "movie.h"

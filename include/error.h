@@ -1,4 +1,4 @@
-/* $Id: error.h,v 1.9 2003-04-12 00:11:46 btb Exp $ */
+/* $Id: error.h,v 1.10 2003-11-26 12:26:28 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -81,12 +81,14 @@ void Assert(int expr);
 void Int3();
 #ifndef NDEBUG		//macros for debugging
 
-#ifdef __GNUC__
 #ifdef NO_ASM
-//#define Int3() Error("int 3 %s:%i\n",__FILE__,__LINE__);
-//#define Int3() {volatile int a=0,b=1/a;}
-#define Int3() ((void)0)
-#else
+//# define Int3() Error("int 3 %s:%i\n",__FILE__,__LINE__);
+//# define Int3() {volatile int a=0,b=1/a;}
+# define Int3() ((void)0)
+
+#else // NO_ASM
+
+#ifdef __GNUC__
 #ifdef SDL_INPUT
 #include <SDL.h>
 #endif
@@ -101,16 +103,23 @@ static inline void _Int3()
 	}
 }
 #define Int3() _Int3()
-#endif
 
 #elif defined __WATCOMC__
 void Int3(void);								      //generate int3
 #pragma aux Int3 = "int 3h";
+
 #elif defined _MSC_VER
-#define Int3() __asm { int 3 }
+static __inline void _Int3()
+{
+	__asm { int 3 }
+}
+#define Int3() _Int3()
+
 #else
 #error Unknown Compiler!
 #endif
+
+#endif // NO_ASM
 
 #define Assert(expr) ((expr)?(void)0:(void)_Assert(0,#expr,__FILE__,__LINE__))
 

@@ -1,4 +1,4 @@
-/* $Id: strutil.c,v 1.8 2003-02-18 20:35:35 btb Exp $ */
+/* $Id: strutil.c,v 1.9 2003-11-26 12:26:36 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -51,7 +51,7 @@ int strnicmp( char *s1, char *s2, int n )
 }
 #endif
 
-#ifndef __MINGW32__
+#ifndef _WIN32
 #ifndef __DJGPP__
 void strlwr( char *s1 )
 {
@@ -83,7 +83,9 @@ void strrev( char *s1 )
 		*t-- = c;
 	}
 }
+#endif
 
+#if !defined(__MSDOS__) && !(defined(_WIN32) && !defined(_WIN32_WCE))
 void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
 {
 	char *s, *p;

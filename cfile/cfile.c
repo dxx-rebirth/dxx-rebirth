@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.21 2003-10-05 22:35:47 btb Exp $ */
+/* $Id: cfile.c,v 1.22 2003-11-26 12:26:25 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -125,7 +125,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <string.h>
+#ifndef _WIN32_WCE
 #include <sys/stat.h>
+#else
+# include <windows.h>
+#endif
 
 #include "pstypes.h"
 #include "u_mem.h"
@@ -309,6 +313,7 @@ int cfile_init(char *hogname)
 
 int cfile_size(char *hogname)
 {
+#ifndef _WIN32_WCE
 	CFILE *fp;
 	struct stat statbuf;
 
@@ -318,6 +323,17 @@ int cfile_size(char *hogname)
 	fstat(fileno(fp->file), &statbuf);
 	cfclose(fp);
 	return statbuf.st_size;
+#else
+	CFILE *fp;
+	DWORD size;
+
+	fp = cfopen(hogname, "rb");
+	if (fp == NULL)
+		return -1;
+	size = GetFileSize(fileno(fp->file), NULL);
+	cfclose(fp);
+	return size;
+#endif
 }
 
 /*
@@ -466,24 +482,36 @@ int cfexist( char * filename )
 // Deletes a file.
 int cfile_delete(char *filename)
 {
+#ifndef _WIN32_WCE
 	return remove(filename);
+#else
+	return !DeleteFile(filename);
+#endif
 }
 
 
 // Rename a file.
 int cfile_rename(char *oldname, char *newname)
 {
+#ifndef _WIN32_WCE
 	return rename(oldname, newname);
+#else
+	return !MoveFile(oldname, newname);
+#endif
 }
 
 
 // Make a directory.
 int cfile_mkdir(char *pathname)
 {
-#if defined(__WINDOWS__) || defined(__MINGW32__)
-	return mkdir(pathname);
+#ifdef _WIN32
+# ifdef _WIN32_WCE
+	return !CreateDirectory(pathname, NULL);
+# else
+	return _mkdir(pathname);
+# endif
 #else
-	return mkdir(pathname, 0755);
+	return mkdir(pathname, 0755)
 #endif
 }
 

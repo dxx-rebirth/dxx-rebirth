@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.23 2003-11-25 04:13:05 btb Exp $ */
+/* $Id: newmenu.c,v 1.24 2003-11-26 12:26:31 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -573,7 +573,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <limits.h>
 
 #include "pa_enabl.h"                   //$$POLY_ACC
@@ -3890,28 +3892,3 @@ void nm_wrap_text(char *dbuf, char *sbuf, int line_length)
 
 	d_free(tbuf);
 }
-
-
-#ifdef NEWMENU_MOUSE
-void newmenu_show_cursor()
-{
-#if defined(MACINTOSH)
-	show_cursor();
-#elif defined(WINDOWS)
-	ShowCursorW();
-#elif defined(SDL_INPUT)
-	SDL_ShowCursor(SDL_ENABLE);
-#endif
-}
-
-void newmenu_hide_cursor()
-{
-#if defined(MACINTOSH)
-	hide_cursor();
-#elif defined(WINDOWS)
-	HideCursorW();
-#elif defined(SDL_INPUT)
-	SDL_ShowCursor(SDL_DISABLE);
-#endif
-}
-#endif

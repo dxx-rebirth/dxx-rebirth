@@ -3,24 +3,22 @@
 #ifndef _D_IO_H
 #define _D_IO_H
 
-#ifdef __WINDOWS__
+#ifndef _WIN32_WCE
+#if _WIN32
 #include <io.h>
 #else
 #include <unistd.h>
 #endif
+#endif
 
 extern long ffilelength(FILE *fh);
+#if 0
 extern long filelength(int fd);
+#endif
 unsigned long d_getdiskfree();
 // remove extension from filename, doesn't work with paths.
 void removeext(const char *filename, char *out);
 
 unsigned long GetDiskFree();
-
-#if defined(__WINDOWS__) || defined(__MINGW32__)
-#define d_mkdir(path) mkdir(path)
-#else
-#define d_mkdir(path) mkdir(path, 0755)
-#endif
 
 #endif

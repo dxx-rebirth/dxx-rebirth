@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.20 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: pstypes.h,v 1.21 2003-11-26 12:26:28 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -42,7 +42,21 @@ typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef unsigned long ulong;
 #endif
+#if defined(__APPLE__) && defined(__MACH__)
+typedef unsigned long ulong;
+#endif
 
+#include <SDL_types.h>
+typedef Sint16 int16_t;
+typedef Sint32 int32_t;
+typedef Sint64 int64_t;
+typedef Uint16 u_int16_t;
+typedef Uint32 u_int32_t;
+typedef Uint64 u_int64_t;
+
+#ifdef _MSC_VER
+# include <stdlib.h> // this is where min and max are defined
+#endif
 #ifndef min
 #define min(a,b) (((a)>(b))?(b):(a))
 #endif
@@ -50,34 +64,22 @@ typedef unsigned long ulong;
 #define max(a,b) (((a)<(b))?(b):(a))
 #endif
 
-#if defined __MINGW32__
-#include <stdint.h>
-typedef uint64_t u_int64_t;
-typedef uint32_t u_int32_t;
-typedef uint16_t u_int16_t;
+#ifdef _MSC_VER
+# define PATH_MAX _MAX_PATH
+#endif
 
-#elif defined __unix__
+#ifdef _WIN32_WCE
+# define _MAX_DIR 256
+#endif
+
+#ifdef __unix__
 # include <sys/types.h>
 # define _MAX_PATH 1024
 # define _MAX_DIR 256
-# if defined(__APPLE__) && defined(__MACH__)
-typedef unsigned long ulong;
-# endif
-# ifdef __sun__
-typedef uint64_t u_int64_t;
-typedef uint32_t u_int32_t;
-typedef uint16_t u_int16_t;
-# endif
-
 #elif defined __DJGPP__
 # include <sys/types.h>
 # define _MAX_PATH 255
 # define _MAX_DIR 63
-typedef signed int int32_t;
-typedef unsigned int u_int32_t;
-typedef signed short int16_t;
-typedef unsigned short u_int16_t;
-
 #endif
 
 #ifndef __cplusplus
@@ -93,8 +95,20 @@ typedef ubyte bool;
 // and since this file is included everywhere, it's here.
 #ifdef __GNUC__
 # define __pack__ __attribute__((packed))
-#else
+#elif defined(_MSC_VER)
+# pragma pack(push, packing)
+# pragma pack(1)
 # define __pack__
+#else
+# error d2x will not work without packed structures
+#endif
+
+#ifdef _MSC_VER
+# define inline __inline
+#endif
+
+#ifndef PACKAGE_STRING
+# define PACKAGE_STRING "d2x"
 #endif
 
 #endif //_TYPES_H

@@ -1,4 +1,4 @@
-/* $Id: newdemo.c,v 1.14 2003-10-04 03:14:47 btb Exp $ */
+/* $Id: newdemo.c,v 1.15 2003-11-26 12:26:31 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -734,7 +734,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h> // for memset
+#ifndef _WIN32_WCE
 #include <errno.h>
+#endif
 #include <ctype.h>      /* for isdigit */
 #include <limits.h>
 #ifdef __unix__
@@ -3670,7 +3672,7 @@ void newdemo_start_recording()
 	Newdemo_state = ND_STATE_RECORDING;
 	outfile = cfopen(DEMO_FILENAME, "wb");
 
-#ifndef MACINTOSH
+#if !defined(MACINTOSH) && !defined(_WIN32_WCE)
 	if (outfile == NULL && errno == ENOENT) {   //dir doesn't exist?
 #else
 	if (outfile == NULL) {                      //dir doesn't exist and no errno on mac!

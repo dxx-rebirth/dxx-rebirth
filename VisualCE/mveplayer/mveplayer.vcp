@@ -77,6 +77,7 @@ LINK32=link.exe
 # PROP Intermediate_Dir "emulatorDbg"
 # PROP CPU_ID "{32E52003-403E-442D-BE48-DE10F8C6131D}"
 # PROP Platform_ID "{8A9A2F80-6887-11D3-842E-005004848CBA}"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 RSC=rc.exe
 # ADD BASE RSC /l 0x409 /d "$(CePlatform)" /d UNDER_CE=$(CEVersion) /d _WIN32_WCE=$(CEVersion) /d "UNICODE" /d "_UNICODE" /d "DEBUG" /d "_X86_" /d "x86" /d "_i386_" /r
@@ -92,7 +93,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
-# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
+# ADD LINK32 commctrl.lib coredll.lib $(CEx86Corelibc) ..\..\..\..\sdl\SDL12\VisualCE\SDL\emulatorDbg\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\emulatorDbg\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /debug /nodefaultlib:"OLDNAMES.lib" /nodefaultlib:$(CENoDefaultLib) /subsystem:$(CESubsystem) /MACHINE:IX86
 
 !ELSEIF  "$(CFG)" == "mveplayer - Win32 (WCE ARMV4) Release"
 
@@ -125,7 +126,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
-# ADD LINK32 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
+# ADD LINK32 commctrl.lib coredll.lib aygshell.lib ..\..\..\..\sdl\SDL12\VisualCE\SDL\ARMV4Rel\SDL.lib ..\..\..\..\sdl\SDL12\VisualCE\SDLmain\ARMV4Rel\SDLmain.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /nodefaultlib:"$(CENoDefaultLib)" /subsystem:$(CESubsystem) /align:"4096" /MACHINE:ARM
 
 !ELSEIF  "$(CFG)" == "mveplayer - Win32 (WCE ARMV4) Debug"
 
@@ -208,61 +209,57 @@ NODEP_CPP_MVE_M=\
 !ELSEIF  "$(CFG)" == "mveplayer - Win32 (WCE emulator) Debug"
 
 DEP_CPP_MVE_M=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\include\libmve.h"\
-	
-NODEP_CPP_MVE_M=\
-	"..\..\include\begin_code.h"\
-	"..\..\include\close_code.h"\
-	"..\..\include\SDL.h"\
-	"..\..\include\SDL_active.h"\
-	"..\..\include\SDL_audio.h"\
-	"..\..\include\SDL_byteorder.h"\
-	"..\..\include\SDL_cdrom.h"\
-	"..\..\include\SDL_error.h"\
-	"..\..\include\SDL_events.h"\
-	"..\..\include\SDL_getenv.h"\
-	"..\..\include\SDL_joystick.h"\
-	"..\..\include\SDL_keyboard.h"\
-	"..\..\include\SDL_keysym.h"\
-	"..\..\include\SDL_main.h"\
-	"..\..\include\SDL_mouse.h"\
-	"..\..\include\SDL_mutex.h"\
-	"..\..\include\SDL_quit.h"\
-	"..\..\include\SDL_rwops.h"\
-	"..\..\include\SDL_timer.h"\
-	"..\..\include\SDL_types.h"\
-	"..\..\include\SDL_version.h"\
-	"..\..\include\SDL_video.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mveplayer - Win32 (WCE ARMV4) Release"
 
 DEP_CPP_MVE_M=\
+	"..\..\..\..\sdl\SDL12\include\begin_code.h"\
+	"..\..\..\..\sdl\SDL12\include\close_code.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_active.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_audio.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_byteorder.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_cdrom.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_error.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_events.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_getenv.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_joystick.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keyboard.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_keysym.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_main.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mouse.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_mutex.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_quit.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_rwops.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_timer.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_types.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_version.h"\
+	"..\..\..\..\sdl\SDL12\include\SDL_video.h"\
 	"..\..\include\libmve.h"\
-	
-NODEP_CPP_MVE_M=\
-	"..\..\include\begin_code.h"\
-	"..\..\include\close_code.h"\
-	"..\..\include\SDL.h"\
-	"..\..\include\SDL_active.h"\
-	"..\..\include\SDL_audio.h"\
-	"..\..\include\SDL_byteorder.h"\
-	"..\..\include\SDL_cdrom.h"\
-	"..\..\include\SDL_error.h"\
-	"..\..\include\SDL_events.h"\
-	"..\..\include\SDL_getenv.h"\
-	"..\..\include\SDL_joystick.h"\
-	"..\..\include\SDL_keyboard.h"\
-	"..\..\include\SDL_keysym.h"\
-	"..\..\include\SDL_main.h"\
-	"..\..\include\SDL_mouse.h"\
-	"..\..\include\SDL_mutex.h"\
-	"..\..\include\SDL_quit.h"\
-	"..\..\include\SDL_rwops.h"\
-	"..\..\include\SDL_timer.h"\
-	"..\..\include\SDL_types.h"\
-	"..\..\include\SDL_version.h"\
-	"..\..\include\SDL_video.h"\
 	
 
 !ELSEIF  "$(CFG)" == "mveplayer - Win32 (WCE ARMV4) Debug"
