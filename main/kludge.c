@@ -12,13 +12,19 @@ int gr_renderstats = 0;
 int gr_badtexture = 0;
 
 extern int VGA_current_mode;
+#ifndef MOVIE_TRICK
 int MovieHires = 1;
 int MVEPaletteCalls = 0;
 int robot_movies = 0;
+#endif
 int Dont_start_sound_objects = 1;
 
 int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
+#ifndef MOVIE_TRICK
 char CDROM_dir[40] = ".";
+#else
+char CDROM_dir[40] = "/cdrom/d2data/";
+#endif
 
 #ifndef __DJGPP__
 int gr_check_mode(u_int32_t a)
@@ -42,10 +48,12 @@ void joy_set_btn_values( int btn, int state, int time_down, int downcount, int u
 }
 #endif
 
+#ifndef MOVIE_TRICK
 int request_cd(void)
 {
-        return 0;
+	return 0;
 }
+#endif
 
 void key_putkey(char i)
 {
@@ -72,6 +80,7 @@ void g3_remap_interp_colors()
 }
 */
 
+#ifndef MOVIE_TRICK
 void init_movies()
 {
 
@@ -79,7 +88,7 @@ void init_movies()
 
 int InitMovieBriefing()
 {
-        return  0;
+	return 0;
 }
 
 void RotateRobot()
@@ -89,7 +98,7 @@ void RotateRobot()
 
 int InitRobotMovie(char *a)
 {
-        return 0;
+	return 0;
 }
 
 void DeInitRobotMovie(void)
@@ -101,7 +110,7 @@ void init_extra_robot_movie(char *f)
 {
 
 }
-
+#endif
 
 int com_init(void)
 {
@@ -174,14 +183,12 @@ void digi_play_midi_song(void)
 
 }
 
-
-
+#ifndef MOVIE_TRICK
 int PlayMovie(const char *a, int b)
 {
 	return 0;
-
 }
-
+#endif
 
 void digi_pause_digi_sounds()
 {
@@ -211,7 +218,7 @@ void digi_start_sound_queued( short soundnum, fix volume )
 
 }
 
-
+#ifndef MOVIE_TRICK
 void init_subtitles()
 {
 
@@ -221,3 +228,4 @@ void close_subtitles()
 {
 
 }
+#endif

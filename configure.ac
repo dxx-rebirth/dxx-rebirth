@@ -57,9 +57,17 @@ if test x$enable_shareware = xyes; then
 fi
 AM_CONDITIONAL(SHAREWARE, test x$enable_shareware = xyes)
 
+dnl Enable movie trick?
+AC_ARG_ENABLE(movies,
+  [  --enable-movie-trick    Enable trick to show movies],,)
+if test x$enable_movie_trick = xyes; then
+    AC_DEFINE(MOVIE_TRICK)
+fi
+AM_CONDITIONAL(MOVIE_TRICK, test x$enable_movie_trick = xyes)
+
 dnl Enable NMOVIES?
 AC_ARG_ENABLE(nmovies,
-  [  --enable-nmovies        Enable rendering of endlevel flythrough],,)
+  [  --enable-nmovies        Turn off movies (render endlevel flythrough)],,)
 if test x$enable_nmovies = xyes; then
     AC_DEFINE(NMOVIES)
 fi

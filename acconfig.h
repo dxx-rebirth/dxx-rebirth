@@ -25,6 +25,9 @@
 /* Define to enable cross-platform bitmap/palette loading functions */
 #undef PORTABLE_LOADER
 
+/* Define to enable trick to show movies */
+#undef MOVIE_TRICK
+
 /* Define to render endlevel flythrough sequences (instead of movies) */
 #undef NMOVIES
 

@@ -22,7 +22,12 @@ if SHAREWARE
 SHAREWARE_SRCS = terrain.c
 endif
 
-libmain_a_SOURCES = ${EDITOR_SRCS} ${NETWORK_SRCS} ${SHAREWARE_SRCS} \
+if MOVIE_TRICK
+MOVIE_SRCS = movie.c
+endif
+
+libmain_a_SOURCES = \
+${EDITOR_SRCS} ${NETWORK_SRCS} ${SHAREWARE_SRCS} ${MOVIE_SRCS} \
 ai.c	    gamerend.c  lighting.c  paging.c    switch.c \
 ai2.c	    effects.c	gamesave.c  menu.c	physics.c   texmerge.c \
 aipath.c    endlevel.c	gameseg.c   mglobal.c	piggy.c     text.c \
@@ -40,7 +45,8 @@ console.c   cmd.c
 EXTRA_libmain_a_SOURCES = \
 ipx_drv.c kmatrix.c multi.c multibot.c network.c \
 bmread.c \
-terrain.c
+terrain.c \
+movie.c
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 descent.cfg inferno.ini \
