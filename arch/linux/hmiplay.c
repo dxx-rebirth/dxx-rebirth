@@ -1,4 +1,4 @@
-/* $Id: hmiplay.c,v 1.5 2004-05-19 02:30:05 btb Exp $ */
+/* $Id: hmiplay.c,v 1.6 2004-05-19 07:00:57 btb Exp $ */
 /*
  * HMI midi playing routines by Jani Frilander
  *
@@ -653,9 +653,7 @@ void play_hmi (void * arg)
 	
 	rcv->mtype=1;
 	rcv->mtext[0]='0';
-	
-	sleep(2);
-	
+
 	qid=msgget ((key_t) ('l'<<24) | ('d'<<16) | ('e'<<8) | 's', 0660);
 	if(qid == -1)
 	{	
