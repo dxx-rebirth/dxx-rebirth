@@ -1,4 +1,4 @@
-/* $Id: mveplay.c,v 1.4 2003-02-19 03:09:38 btb Exp $ */
+/* $Id: mveplay.c,v 1.5 2003-02-19 20:52:57 btb Exp $ */
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -128,6 +128,10 @@ static int timer_created = 0;
 static int micro_frame_delay=0;
 static int timer_started=0;
 static struct timeval timer_expire = {0, 0};
+
+#ifdef __MACOSX__
+int nanosleep(struct timespec *ts, void *rem);
+#endif
 
 #ifdef __WIN32
 #include <sys/timeb.h>
