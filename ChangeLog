@@ -1,3 +1,7 @@
+2003-08-02  Matthew Mueller <donut@dakotacom.net>
+
+	* main/controls.c: use fixed 20fps wiggle
+
 2003-08-02  Paolo Ulivi <pulivi@libero.it> and Bradley Bell  <btb@icculus.org>
 
 	* Makefile.am, debian/changelog.in, debian/control,
