@@ -105,7 +105,7 @@
 /// is set to pixptr, and %edi points to our current position in
 /// write_buffer.
 
-#include <conf.h>
+
 
 // This is used to abbreviate an annoying external variable name.
 
