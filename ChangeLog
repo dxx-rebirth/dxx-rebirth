@@ -3,6 +3,8 @@
 	* 2d/font.c: fix bug #2167: some characters would not display because
 	of signed/unsigned errors
 	* main/editor/editor.h: baptize the coefficients in vms_equation 'n'
+	* main/gamerend.c, main/gauges.c: fix bug #1893: fade ship and weapon
+	gauge when appropriate
 
 2005-01-23  Jason Owen  <shannara256@yahoo.com>
 
