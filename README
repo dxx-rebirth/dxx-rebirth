@@ -2,13 +2,16 @@
 D2X
 ===========
 
+http://shelob.classrooms.washington.edu/d2x
+(anybody with a cooler domain want to host? or CNAME it?)
 
 Linux:
 ======
 
 Required tools:
 * GCC 2.95
-* SDL 1.0 (get it from http://www.devolution.com/~slouken/projects/SDL/)
+* SDL 1.0 or higher
+  (get it from http://www.devolution.com/~slouken/projects/SDL/)
 * NASM 0.98 (OPTIONAL but RECOMMENDED, not sure, try your linux distribution)
 * A thread safe X server.
 * Make, sed, etc...

@@ -1,6 +1,9 @@
 Firstly, compile d2x.
 
-Then stick it in a directory with these files from a Descent 2 Registered installation (the version _does not_ matter). Shareware may work if you hack at the shareware build system, but I haven't even attempted it.
+Then stick it in a directory with these files from a Descent 2
+Registered Installation (the version _does not_ matter). Shareware may
+work if you hack at the shareware build system, but I haven't even
+attempted it.
 
 I needed these files: (in addition to the d2x binary)
 alien1.pig

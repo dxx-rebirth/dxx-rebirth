@@ -1,5 +1,9 @@
+--- Version 0.0.9 ---
+Improved automake setup, 'make dist' and VPATH builds now work.
+svgalib, ggi support (alpha)
 Merged in joystick support from Michael.Wagener@materna.de
-Mouse grabbed during gameplay in SDL/X11, press pause to ungrab.
+Added -grabmouse option to keep the mouse from wandering away in
+windowed SDL.  Pressing pause ungrabs it.
 --- Version 0.0.8 ---
 Added -nocdrom option, fixed cdrom code.
 Made various error messages more helpful.

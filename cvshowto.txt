@@ -59,9 +59,6 @@ Notes:
 It is highly recommend that all developers subscribe to the descent-source
 mailing list.  To signup, send an email to majordomo@warpcore.org with
 "subscribe descent-source your@email.address" in the body.
-  
-To those with full cvs access: only Vic and I (Matt) will handle the commiting
-of patches posted to the list, in order to avoid any problems.
 
 If some of your changes are too close to other peoples, update or commit may
 cause a "conflict".  You should probably talk with whoevers code it conflicts
@@ -70,5 +67,8 @@ with, unless the solution is obvious.
 Of course, this is only a brief overview.  It is recommended you browse the CVS
 documention as well. (info cvs, or equivilant).  If you have questions, or
 think this howto could use some clarification, feel free to ask.
+
+      A great book on cvs is available online:
+      http://cvsbook.red-bean.com/cvsbook.html
 
 Where to download CVS: http://www.cyclic.com/cyclic-pages/howget.html
