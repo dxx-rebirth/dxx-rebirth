@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.35 2004-05-20 01:29:19 btb Exp $ */
+/* $Id: menu.c,v 1.36 2004-05-20 01:44:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1168,9 +1168,10 @@ void change_res_poll()
 void change_res()
 {
 	// edited 05/27/99 Matt Mueller - ingame fullscreen changing
-	newmenu_item m[8];
-	u_int32_t modes[8];
-	int i = 0, mc = 0;
+	newmenu_item m[11];
+	u_int32_t modes[11];
+	int i = 0, mc = 0, num_presets = 0;
+	char customres[16];
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	int fullscreenc;
 #endif
@@ -1189,6 +1190,15 @@ void change_res()
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1024x768"; m[mc].value = (Game_screen_mode == SM(1024, 768)); m[mc].group = 0; modes[mc] = SM(1024, 768); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x1024"; m[mc].value = (Game_screen_mode == SM(1280, 1024)); m[mc].group = 0; modes[mc] = SM(1280, 1024); mc++;
 
+	num_presets = mc;
+	for (i = 0; i < mc; i++)
+		if (m[mc].value)
+			break;
+
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "custom:"; m[mc].value = (i == mc); m[mc].group = 0; modes[mc] = 0; mc++;
+	sprintf(customres, "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
+	m[mc].type = NM_TYPE_INPUT; m[mc].text = customres; m[mc].text_len = 11; modes[mc] = 0; mc++;
+
 	//m[mc].type = NM_TYPE_CHECK; m[mc].text = "No Doublebuffer"; m[mc].value = use_double_buffer;
 
 	// added 05/27/99 Matt Mueller - ingame fullscreen changing
@@ -1198,7 +1208,7 @@ void change_res()
 	// end addition -MM
 
 
-	i = newmenu_do1(NULL, "Screen Resolution", mc, m, &change_res_poll, i);
+	i = newmenu_do1(NULL, "Screen Resolution", mc, m, &change_res_poll, 0);
 
 	// added 05/27/99 Matt Mueller - ingame fullscreen changing
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
@@ -1210,46 +1220,38 @@ void change_res()
 #endif
 	// end addition -MM
 
-	for (i = 0; (m[i].value == 0) && (i < 6); i++);
+	for (i = 0; (m[i].value == 0) && (i < num_presets); i++);
 
-	switch (screen_mode = modes[i])
+	for(i = 0; (m[i].value == 0) && (i < num_presets); i++);
+
+	if (modes[i]==0)
+	{
+		char *h = strchr(customres, 'x');
+		if (!h)
+			return;
+		screen_mode = SM(atoi(customres), atoi(h+1));
+	}
+	else
+	{
+		screen_mode = modes[i];
+	}
+
+	screen_width = SM_W(screen_mode);
+	screen_height = SM_H(screen_mode);
+	if (screen_height <= 0 || screen_width <= 0)
+		return;
+
+	switch (screen_mode)
 	{
 	case SM(320, 200):
-		screen_width = 320;
-		screen_height = 200;
-		screen_flags = VRF_ALLOW_COCKPIT + VRF_COMPATIBLE_MENUS;
-		break;
 	case SM(640, 480):
-		screen_width = 640;
-		screen_height = 480;
 		screen_flags = VRF_ALLOW_COCKPIT + VRF_COMPATIBLE_MENUS;
 		break;
-	case SM(320, 400):
-		screen_width = 320;
-		screen_height = 400;
-		screen_flags = VRF_USE_PAGING;
-		break;
-	case SM(640, 400):
-		screen_width = 640;
-		screen_height = 400;
-		screen_flags = VRF_COMPATIBLE_MENUS;
-		break;
-	case SM(800, 600):
-		screen_width = 800;
-		screen_height = 600;
-		screen_flags = VRF_COMPATIBLE_MENUS;
-		break;
-	case SM(1024, 768):
-		screen_width = 1024;
-		screen_height = 768;
-		screen_flags = VRF_COMPATIBLE_MENUS;
-		break;
-	case SM(1280, 1024):
-		screen_width = 1280;
-		screen_height = 1024;
+	default:
 		screen_flags = VRF_COMPATIBLE_MENUS;
 		break;
 	}
+
 #ifdef __MSDOS__
 	if (FindArg("-nodoublebuffer"))
 #endif
