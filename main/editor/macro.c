@@ -1,4 +1,4 @@
-/* $Id: macro.c,v 1.4 2004-12-19 15:21:11 btb Exp $ */
+/* $Id: macro.c,v 1.5 2005-01-24 22:09:54 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: macro.c,v 1.4 2004-12-19 15:21:11 btb Exp $";
+static char rcsid[] = "$Id: macro.c,v 1.5 2005-01-24 22:09:54 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -127,8 +127,6 @@ int MacroSave()
 
 int MacroLoad()
 {
-	int length;
-
 	if (ui_get_filename( filename, "*.MAC", "LOAD MACRO" ))   {
 		if (RecordBuffer) free( RecordBuffer );
 		RecordBuffer = (UI_EVENT *)ReadFile( filename, &length );
