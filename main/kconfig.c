@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.33 2004-11-22 23:32:54 btb Exp $ */
+/* $Id: kconfig.c,v 1.34 2004-12-03 10:06:22 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.33 2004-11-22 23:32:54 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.34 2004-12-03 10:06:22 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1949,7 +1949,9 @@ void kconfig(int n, char * title)
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
 	gr_free_bitmap(save_bm);
 
+#if 0 // set_screen_mode always calls this later... right?
 	reset_cockpit();		//force cockpit redraw next time
+#endif
 
 	// Update save values...
 	

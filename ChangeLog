@@ -4,6 +4,9 @@
 	I couldn't figure out why the previous code kept segfaulting under
 	linux.
 
+	* main/kconfig.c: disable call to reset_cockpit() which was
+	causing the "letterbox" bug
+
 2004-12-02  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* configure.ac: require PhysicsFS header and library
