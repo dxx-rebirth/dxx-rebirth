@@ -134,7 +134,7 @@ int digi_init()
 	 waveformat.wFormatTag=WAVE_FORMAT_PCM;
 	 waveformat.wBitsPerSample=8;
 	 waveformat.nChannels = 1;
-	 waveformat.nSamplesPerSec = 11025;
+	 waveformat.nSamplesPerSec = digi_sample_rate; //11025;
 	 waveformat.nBlockAlign =
 	 waveformat.nChannels * (waveformat.wBitsPerSample/8);
 	 waveformat.nAvgBytesPerSec =
@@ -255,7 +255,7 @@ TryNextChannel:
  waveformat.wFormatTag=WAVE_FORMAT_PCM;
  waveformat.wBitsPerSample=8;
  waveformat.nChannels = 1;
- waveformat.nSamplesPerSec = 11025;
+ waveformat.nSamplesPerSec = digi_sample_rate; //11025;
  waveformat.nBlockAlign =
    waveformat.nChannels * (waveformat.wBitsPerSample/8);
  waveformat.nAvgBytesPerSec =
@@ -333,7 +333,7 @@ int digi_start_sound_object(int obj)
  waveformat.wFormatTag=WAVE_FORMAT_PCM;
  waveformat.wBitsPerSample=8;
  waveformat.nChannels = 1;
- waveformat.nSamplesPerSec = 11025;
+ waveformat.nSamplesPerSec = digi_sample_rate; // 11025;
  waveformat.nBlockAlign =
  waveformat.nChannels * (waveformat.wBitsPerSample/8);
  waveformat.nAvgBytesPerSec =

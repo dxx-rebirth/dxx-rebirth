@@ -268,7 +268,7 @@ MDRIVER *drv = &drv_sb;
 char allegro_error[128];
 
 int md_mode = DMODE_STEREO;
-int md_mixfreq = 11025;
+int md_mixfreq = digi_sample_rate; //11025;
 int md_dmabufsize = 1024;
 
 void install_int_ex(void (*)(), long speed);
@@ -288,7 +288,7 @@ int digi_init()
  //end edit by adb
 
  #if 0
- WaveSpec.freq = 11025;
+ WaveSpec.freq = digi_sample_rate; //11025;
  WaveSpec.format = AUDIO_U8 | AUDIO_STEREO;
  WaveSpec.samples = SOUND_BUFFER_SIZE;
  WaveSpec.callback = audio_mixcallback;

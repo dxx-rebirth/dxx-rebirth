@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.9 2003-03-20 03:57:29 btb Exp $ */
+/* $Id: digi.c,v 1.10 2003-03-31 19:52:02 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -29,7 +29,7 @@
 #include "newdemo.h"
 #include "kconfig.h"
 
-int digi_sample_rate=11025;
+int digi_sample_rate=SAMPLE_RATE_11K;
 
 //edited 05/17/99 Matt Mueller - added ifndef NO_ASM
 //added on 980905 by adb to add inline fixmul for mixer on i386
@@ -249,7 +249,7 @@ int digi_init()
  memset(SampleHandles, 255, sizeof(SampleHandles));
  //end edit by adb
 
- WaveSpec.freq = 11025;
+ WaveSpec.freq = digi_sample_rate; 
 //added/changed by Sam Lantinga on 12/01/98 for new SDL version
  WaveSpec.format = AUDIO_U8;
  WaveSpec.channels = 2;

@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.58 2003-03-21 23:13:25 btb Exp $ */
+/* $Id: inferno.c,v 1.59 2003-03-31 19:52:02 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1249,6 +1249,17 @@ int main(int argc,char **argv)
 	con_printf(CON_NORMAL, TXT_HELP, PROGNAME);		//help message has %s for program name
 	con_printf(CON_NORMAL, "\n");
 
+	//(re)added Mar 30, 2003 Micah Lieske - Allow use of 22K sound samples again.
+	if(FindArg("-sound22k"))
+	{
+		digi_sample_rate = SAMPLE_RATE_22K;
+	}
+
+	if(FindArg("-sound11k"))
+	{
+		digi_sample_rate = SAMPLE_RATE_11K;
+	}
+
 	arch_init_start();
 
 	arch_init();
@@ -1745,10 +1756,11 @@ int main(int argc,char **argv)
 
 	WriteConfigFile();
 
-#if 0 /* ????? */
+#if 0
 	#ifndef RELEASE
 	if (!FindArg( "-notitles" ))
 	#endif
+		show_order_form();
 #endif
 
 	#ifndef NDEBUG
