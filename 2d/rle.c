@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.12 2002-12-31 21:51:37 btb Exp $ */
+/* $Id: rle.c,v 1.13 2003-01-02 21:32:18 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -125,7 +125,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.12 2002-12-31 21:51:37 btb Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.13 2003-01-02 21:32:18 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -1027,25 +1027,31 @@ void gr_rle_expand_scanline_svga_masked( grs_bitmap * dest, int dx, int dy, ubyt
 
 /*
  * swaps entries 0 and 255 in an RLE bitmap without uncompressing it
- *
- * doesn't handle RLE_BIG yet, but neither does anything else...
- *
- * returns the size of the new bmp->bm_data
  */
 void rle_swap_0_255(grs_bitmap *bmp)
 {
-	int i, j, len;
+	int i, j, len, rle_big;
 	unsigned char *ptr, *ptr2, *temp, *start;
+	unsigned short line_size;
 
-	Assert(!(bmp->bm_flags & BM_FLAG_RLE_BIG));
+	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
 
 	temp = d_malloc(4 + bmp->bm_h + (bmp->bm_w + 1) * bmp->bm_h);
 
-	ptr = bmp->bm_data + 4 + bmp->bm_h; // go to first line
-	ptr2 = temp + 4 + bmp->bm_h;        // go to first line
+	if (rle_big) {                  // set ptrs to first lines
+		ptr = bmp->bm_data + 4 + 2 * bmp->bm_h;
+		ptr2 = temp + 4 + 2 * bmp->bm_h;
+	} else {
+		ptr = bmp->bm_data + 4 + bmp->bm_h;
+		ptr2 = temp + 4 + bmp->bm_h;
+	}
 	for (i = 0; i < bmp->bm_h; i++) {
 		start = ptr2;
-		for (j = 0; j < bmp->bm_data[4 + i]; j++) {
+		if (rle_big)
+			line_size = *((unsigned short *)&bmp->bm_data[4 + 2 * i]);
+		else
+			line_size = bmp->bm_data[4 + i];
+		for (j = 0; j < line_size; j++) {
 			if ((ptr[j] & RLE_CODE) != RLE_CODE) {
 				if (ptr[j] == 0) {
 					*ptr2++ = RLE_CODE | 1;
@@ -1065,8 +1071,11 @@ void rle_swap_0_255(grs_bitmap *bmp)
 					*ptr2++ = ptr[j];
 			}
 		}
-		temp[4 + i] = ptr2 - start; // set line size
-		ptr += bmp->bm_data[4 + i]; // go to next line
+		if (rle_big)                // set line size
+			*((unsigned short *)&temp[4 + 2 * i]) = ptr2 - start;
+		else
+			temp[4 + i] = ptr2 - start;
+		ptr += line_size;           // go to next line
 	}
 	len = ptr2 - temp;
 	*((int *)temp) = len;           // set total size
