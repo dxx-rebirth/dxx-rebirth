@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.32 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: piggy.c,v 1.33 2003-08-02 18:14:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.32 2003-06-16 06:57:34 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.33 2003-08-02 18:14:08 btb Exp $";
 #endif
 
 
@@ -509,6 +509,9 @@ ushort GameBitmapXlat[MAX_BITMAP_FILES];
 int piggy_page_flushed = 0;
 
 #define DBM_FLAG_ABM            64
+
+#define BM_FLAGS_TO_COPY (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT \
+                         | BM_FLAG_NO_LIGHTING | BM_FLAG_RLE | BM_FLAG_RLE_BIG)
 
 ubyte BigPig = 0;
 
@@ -975,12 +978,7 @@ void piggy_init_pigfile(char *filename)
 		temp_bitmap.avg_color = bmh.avg_color;
 		temp_bitmap.bm_data = Piggy_bitmap_cache_data;
 
-		GameBitmapFlags[i+1] = 0;
-		if ( bmh.flags & BM_FLAG_TRANSPARENT ) GameBitmapFlags[i+1] |= BM_FLAG_TRANSPARENT;
-		if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT ) GameBitmapFlags[i+1] |= BM_FLAG_SUPER_TRANSPARENT;
-		if ( bmh.flags & BM_FLAG_NO_LIGHTING ) GameBitmapFlags[i+1] |= BM_FLAG_NO_LIGHTING;
-		if ( bmh.flags & BM_FLAG_RLE ) GameBitmapFlags[i+1] |= BM_FLAG_RLE;
-		if ( bmh.flags & BM_FLAG_RLE_BIG ) GameBitmapFlags[i+1] |= BM_FLAG_RLE_BIG;
+		GameBitmapFlags[i+1] = bmh.flags & BM_FLAGS_TO_COPY;
 
 		GameBitmapOffset[i+1] = bmh.offset + data_start;
 		Assert( (i+1) == Num_bitmap_files );
@@ -1120,13 +1118,7 @@ void piggy_new_pigfile(char *pigname)
 			temp_bitmap.avg_color = bmh.avg_color;
 			temp_bitmap.bm_data = Piggy_bitmap_cache_data;
 
-			GameBitmapFlags[i] = 0;
-
-			if ( bmh.flags & BM_FLAG_TRANSPARENT ) GameBitmapFlags[i] |= BM_FLAG_TRANSPARENT;
-			if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT ) GameBitmapFlags[i] |= BM_FLAG_SUPER_TRANSPARENT;
-			if ( bmh.flags & BM_FLAG_NO_LIGHTING ) GameBitmapFlags[i] |= BM_FLAG_NO_LIGHTING;
-			if ( bmh.flags & BM_FLAG_RLE ) GameBitmapFlags[i] |= BM_FLAG_RLE;
-			if ( bmh.flags & BM_FLAG_RLE_BIG ) GameBitmapFlags[i] |= BM_FLAG_RLE_BIG;
+			GameBitmapFlags[i] = bmh.flags & BM_FLAGS_TO_COPY;
 	
 			GameBitmapOffset[i] = bmh.offset + data_start;
 	
@@ -2215,11 +2207,7 @@ void load_bitmap_replacements(char *level_name)
 			temp_bitmap.avg_color = bmh.avg_color;
 			temp_bitmap.bm_data = Bitmap_replacement_data + bmh.offset;
 
-			if ( bmh.flags & BM_FLAG_TRANSPARENT ) temp_bitmap.bm_flags |= BM_FLAG_TRANSPARENT;
-			if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT ) temp_bitmap.bm_flags |= BM_FLAG_SUPER_TRANSPARENT;
-			if ( bmh.flags & BM_FLAG_NO_LIGHTING ) temp_bitmap.bm_flags |= BM_FLAG_NO_LIGHTING;
-			if ( bmh.flags & BM_FLAG_RLE ) temp_bitmap.bm_flags |= BM_FLAG_RLE;
-			if ( bmh.flags & BM_FLAG_RLE_BIG ) temp_bitmap.bm_flags |= BM_FLAG_RLE_BIG;
+			temp_bitmap.bm_flags |= bmh.flags & BM_FLAGS_TO_COPY;
 
 			GameBitmaps[indices[i]] = temp_bitmap;
 		}
@@ -2325,16 +2313,7 @@ void load_d1_bitmap_replacements()
 
 			//GameBitmapFlags[convert_d1_bitmap_num(d1_index)] = 0;
 
-			if ( bmh.flags & BM_FLAG_TRANSPARENT )
-				temp_bitmap.bm_flags |= BM_FLAG_TRANSPARENT;
-			if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT )
-				temp_bitmap.bm_flags |= BM_FLAG_SUPER_TRANSPARENT;
-			if ( bmh.flags & BM_FLAG_NO_LIGHTING )
-				temp_bitmap.bm_flags |= BM_FLAG_NO_LIGHTING;
-			if ( bmh.flags & BM_FLAG_RLE )
-				temp_bitmap.bm_flags |= BM_FLAG_RLE;
-			if ( bmh.flags & BM_FLAG_RLE_BIG )
-				temp_bitmap.bm_flags |= BM_FLAG_RLE_BIG;
+			temp_bitmap.bm_flags |= bmh.flags & BM_FLAGS_TO_COPY;
 
 			temp_bitmap.bm_data = next_bitmap;
 
@@ -2457,16 +2436,7 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 		new->bm_h = bmh.height + ((short) (bmh.wh_extra&0xf0)<<4);
 		new->avg_color = bmh.avg_color;
 
-		if ( bmh.flags & BM_FLAG_TRANSPARENT )
-			new->bm_flags |= BM_FLAG_TRANSPARENT;
-		if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT )
-			new->bm_flags |= BM_FLAG_SUPER_TRANSPARENT;
-		if ( bmh.flags & BM_FLAG_NO_LIGHTING )
-			new->bm_flags |= BM_FLAG_NO_LIGHTING;
-		if ( bmh.flags & BM_FLAG_RLE )
-			new->bm_flags |= BM_FLAG_RLE;
-		if ( bmh.flags & BM_FLAG_RLE_BIG )
-			new->bm_flags |= BM_FLAG_RLE_BIG;
+		new->bm_flags |= bmh.flags & BM_FLAGS_TO_COPY;
 
 		if ( bmh.flags & BM_FLAG_RLE )
 		{

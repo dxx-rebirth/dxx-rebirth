@@ -4,6 +4,8 @@
 
 2003-08-02  Martin Schaffner  <martin.schaffner@epfl.ch>
 
+	* main/piggy.c: simplify copying of bitmap flags
+
 	* arch/linux/linuxnet.c, main/multi.c, main/multibot.c: bigendian
 	networking fixes
 
