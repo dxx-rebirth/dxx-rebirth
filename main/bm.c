@@ -185,37 +185,9 @@ void load_exit_models()
 	exit_modelnum = N_polygon_models++;
 	destroyed_exit_modelnum = N_polygon_models++;
 
-#ifndef MACINTOSH
-	cfread( &Polygon_models[exit_modelnum], sizeof(polymodel), 1, exit_hamfile );
-	cfread( &Polygon_models[destroyed_exit_modelnum], sizeof(polymodel), 1, exit_hamfile );
-#else
-	for (i = exit_modelnum; i <= destroyed_exit_modelnum; i++) {
-		Polygon_models[i].n_models = cfile_read_int(exit_hamfile);
-		Polygon_models[i].model_data_size = cfile_read_int(exit_hamfile);
-		Polygon_models[i].model_data = (ubyte *)read_int_swap(exit_hamfile);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			Polygon_models[i].submodel_ptrs[j] = cfile_read_int(exit_hamfile);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(Polygon_models[i].submodel_offsets), exit_hamfile);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(Polygon_models[i].submodel_norms), exit_hamfile);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(Polygon_models[i].submodel_pnts), exit_hamfile);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			Polygon_models[i].submodel_rads[j] = cfile_read_fix(exit_hamfile);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			Polygon_models[i].submodel_parents[j] = cfile_read_byte(exit_hamfile);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(Polygon_models[i].submodel_mins), exit_hamfile);
-		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(Polygon_models[i].submodel_maxs), exit_hamfile);
-		cfile_read_vector(&(Polygon_models[i].mins), exit_hamfile);
-		cfile_read_vector(&(Polygon_models[i].maxs), exit_hamfile);
-		Polygon_models[i].rad = cfile_read_fix(exit_hamfile);		
-		Polygon_models[i].n_textures = cfile_read_byte(exit_hamfile);
-		Polygon_models[i].first_texture = cfile_read_short(exit_hamfile);
-		Polygon_models[i].simpler_model = cfile_read_byte(exit_hamfile);
-	}
+	polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
+	polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+#ifdef MACINTOSH //not sure what these are for
 	Polygon_models[exit_modelnum].first_texture = start_num;
 	Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
 #endif
@@ -223,17 +195,17 @@ void load_exit_models()
 	Polygon_models[exit_modelnum].model_data = d_malloc(Polygon_models[exit_modelnum].model_data_size);
 	Assert( Polygon_models[exit_modelnum].model_data != NULL );
 	cfread( Polygon_models[exit_modelnum].model_data, sizeof(ubyte), Polygon_models[exit_modelnum].model_data_size, exit_hamfile );
-	#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	swap_polygon_model_data(Polygon_models[exit_modelnum].model_data);
-	#endif
+#endif
 	g3_init_polygon_model(Polygon_models[exit_modelnum].model_data);
 
 	Polygon_models[destroyed_exit_modelnum].model_data = d_malloc(Polygon_models[destroyed_exit_modelnum].model_data_size);
 	Assert( Polygon_models[destroyed_exit_modelnum].model_data != NULL );
 	cfread( Polygon_models[destroyed_exit_modelnum].model_data, sizeof(ubyte), Polygon_models[destroyed_exit_modelnum].model_data_size, exit_hamfile );
-	#ifdef MACINTOSH
+#ifdef WORDS_BIGENDIAN
 	swap_polygon_model_data(Polygon_models[destroyed_exit_modelnum].model_data);
-	#endif
+#endif
 	g3_init_polygon_model(Polygon_models[destroyed_exit_modelnum].model_data);
 
 	cfclose(exit_hamfile);

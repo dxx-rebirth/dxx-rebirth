@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/playsave.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-11-12 00:59:07 $
+ * $Revision: 1.5 $
+ * $Author: btb $
+ * $Date: 2002-07-29 02:32:32 $
  *
  * Functions to load & save player games
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/11/12 00:59:07  bradleyb
+ * load player files regardless of byte order of sig
+ *
  * Revision 1.3  2001/11/11 23:39:22  bradleyb
  * Created header for MAKE_SIG macro
  *
@@ -65,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "makesig.h"
 #include "byteswap.h"
+#include "fileutil.h"
 
 #define SAVE_FILE_ID			MAKE_SIG('D','P','L','R')
 
@@ -282,57 +286,6 @@ RetrySelection:
 	return 1;
 }
 
-static int read_int(FILE *file)
-{
-	int i;
-
-	if (fread( &i, sizeof(i), 1, file) != 1)
-		Error( "Error reading int in gamesave.c" );
-
-	return i;
-}
-
-static short read_short(FILE *file)
-{
-	short s;
-
-	if (fread( &s, sizeof(s), 1, file) != 1)
-		Error( "Error reading short in gamesave.c" );
-
-	return s;
-}
-
-static byte read_byte(FILE *file)
-{
-	byte s;
-
-	if (fread( &s, sizeof(s), 1, file) != 1)
-		Error( "Error reading byte in gamesave.c" );
-
-	return s;
-}
-
-static void write_int(int i,FILE *file)
-{
-	if (fwrite( &i, sizeof(i), 1, file) != 1)
-		Error( "Error writing int in gamesave.c" );
-
-}
-
-static void write_short(short s,FILE *file)
-{
-	if (fwrite( &s, sizeof(s), 1, file) != 1)
-		Error( "Error writing short in gamesave.c" );
-
-}
-
-static void write_byte(byte i,FILE *file)
-{
-	if (fwrite( &i, sizeof(i), 1, file) != 1)
-		Error( "Error writing byte in gamesave.c" );
-
-}
-
 extern int Guided_in_big_window,Automap_always_hires;
 
 //this length must match the value in escort.c
@@ -341,23 +294,6 @@ extern char guidebot_name[];
 extern char real_guidebot_name[];
 
 WIN(extern char win95_current_joyname[]);
-
-void read_string(char *s, FILE *f)
-{
-	if (feof(f))
-		*s = 0;
-	else
-		do
-			*s = fgetc(f);
-		while (!feof(f) && *s++!=0);
-}
-
-void write_string(char *s, FILE *f)
-{
-	do
-		fputc(*s,f);
-	while (*s++!=0);
-}
 
 ubyte control_type_dos,control_type_win;
 
@@ -397,7 +333,7 @@ int read_player_file()
 		return errno;
 	}
 
-	id = read_int(file);
+	id = file_read_int(file);
 
         // SWAPINT added here because old versions of d2x
         // used the wrong byte order.
@@ -407,7 +343,7 @@ int read_player_file()
 		return -1;
 	}
 
-	player_file_version = read_short(file);
+	player_file_version = file_read_short(file);
 
 	if (player_file_version<COMPATIBLE_PLAYER_FILE_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
@@ -415,13 +351,13 @@ int read_player_file()
 		return -1;
 	}
 
-	Game_window_w					= read_short(file);
-	Game_window_h					= read_short(file);
+	Game_window_w					= file_read_short(file);
+	Game_window_h					= file_read_short(file);
 
-	Player_default_difficulty	= read_byte(file);
-	Default_leveling_on			= read_byte(file);
-	Reticle_on						= read_byte(file);
-	Cockpit_mode					= read_byte(file);
+	Player_default_difficulty	= file_read_byte(file);
+	Default_leveling_on			= file_read_byte(file);
+	Reticle_on						= file_read_byte(file);
+	Cockpit_mode					= file_read_byte(file);
 	#ifdef POLY_ACC
 	 #ifdef PA_3DFX_VOODOO
 		if (Cockpit_mode<2)
@@ -433,19 +369,19 @@ int read_player_file()
 	 #endif
 	#endif
  
-	Default_display_mode			= read_byte(file);
-	Missile_view_enabled			= read_byte(file);
-	Headlight_active_default	= read_byte(file);
-	Guided_in_big_window			= read_byte(file);
+	Default_display_mode			= file_read_byte(file);
+	Missile_view_enabled			= file_read_byte(file);
+	Headlight_active_default	= file_read_byte(file);
+	Guided_in_big_window			= file_read_byte(file);
 
 	if (player_file_version >= 19)
-		Automap_always_hires			= read_byte(file);
+		Automap_always_hires			= file_read_byte(file);
           
 	Auto_leveling_on = Default_leveling_on;
 
 	//read new highest level info
 
-	n_highest_levels = read_short(file);
+	n_highest_levels = file_read_short(file);
 	if (fread(highest_levels,sizeof(hli),n_highest_levels,file) != n_highest_levels) {
 		errno_ret			= errno;
 		fclose(file);
@@ -494,14 +430,14 @@ int read_player_file()
 
 		for (i=0;i<11;i++)
 		 {
-			PrimaryOrder[i]=read_byte (file);
-			SecondaryOrder[i]=read_byte(file);
+			PrimaryOrder[i]=file_read_byte (file);
+			SecondaryOrder[i]=file_read_byte(file);
 		 }
 		
 		if (player_file_version>=16)
 		 {
-		  Cockpit_3d_view[0]=read_int(file);
-		  Cockpit_3d_view[1]=read_int(file);
+		  Cockpit_3d_view[0]=file_read_int(file);
+		  Cockpit_3d_view[1]=file_read_int(file);
 		 }	
 		
                   
@@ -514,10 +450,10 @@ int read_player_file()
    if (player_file_version>=22)
 	 {
 #ifdef NETWORK
-		Netlife_kills=read_int (file);
-		Netlife_killed=read_int (file);
+		Netlife_kills=file_read_int (file);
+		Netlife_killed=file_read_int (file);
 #else
-		read_int(file); read_int(file);
+		file_read_int(file); file_read_int(file);
 #endif
 	 }
 #ifdef NETWORK
@@ -529,7 +465,7 @@ int read_player_file()
 
 	if (player_file_version>=23)
 	 {
-	  i=read_int (file);	
+	  i=file_read_int (file);	
 #ifdef NETWORK
 	  mprintf ((0,"Reading: lifetime checksum is %d\n",i));
 	  if (i!=get_lifetime_checksum (Netlife_kills,Netlife_killed))
@@ -543,7 +479,7 @@ int read_player_file()
 
 	//read guidebot name
 	if (player_file_version >= 18)
-		read_string(guidebot_name,file);
+		file_read_string(guidebot_name,file);
 	else
 		strcpy(guidebot_name,"GUIDE-BOT");
 
@@ -555,7 +491,7 @@ int read_player_file()
 	#ifdef WINDOWS
 		joy95_get_name(JOYSTICKID1, buf, 127);
 		if (player_file_version >= 24) 
-			read_string(win95_current_joyname, file);
+			file_read_string(win95_current_joyname, file);
 		else
 			strcpy(win95_current_joyname, "Old Player File");
 		
@@ -569,7 +505,7 @@ int read_player_file()
 		}	 
 	#else
 		if (player_file_version >= 24) 
-			read_string(buf, file);			// Just read it in fpr DPS.
+			file_read_string(buf, file);			// Just read it in fpr DPS.
 	#endif
 	}
 
@@ -688,24 +624,24 @@ int write_player_file()
 	errno_ret			= EZERO;
 
 	//Write out player's info
-	write_int(SAVE_FILE_ID,file);
-	write_short(PLAYER_FILE_VERSION,file);
+	file_write_int(SAVE_FILE_ID,file);
+	file_write_short(PLAYER_FILE_VERSION,file);
 
-	write_short(Game_window_w,file);
-	write_short(Game_window_h,file);
+	file_write_short(Game_window_w,file);
+	file_write_short(Game_window_h,file);
 
-	write_byte(Player_default_difficulty,file);
-	write_byte(Auto_leveling_on,file);
-	write_byte(Reticle_on,file);
-	write_byte((Cockpit_mode_save!=-1)?Cockpit_mode_save:Cockpit_mode,file);	//if have saved mode, write it instead of letterbox/rear view
-	write_byte(Default_display_mode,file);
-	write_byte(Missile_view_enabled,file);
-	write_byte(Headlight_active_default,file);
-	write_byte(Guided_in_big_window,file);
-	write_byte(Automap_always_hires,file);
+	file_write_byte(Player_default_difficulty,file);
+	file_write_byte(Auto_leveling_on,file);
+	file_write_byte(Reticle_on,file);
+	file_write_byte((Cockpit_mode_save!=-1)?Cockpit_mode_save:Cockpit_mode,file);	//if have saved mode, write it instead of letterbox/rear view
+	file_write_byte(Default_display_mode,file);
+	file_write_byte(Missile_view_enabled,file);
+	file_write_byte(Headlight_active_default,file);
+	file_write_byte(Guided_in_big_window,file);
+	file_write_byte(Automap_always_hires,file);
 
 	//write higest level info
-	write_short(n_highest_levels,file);
+	file_write_short(n_highest_levels,file);
 	if ((fwrite(highest_levels, sizeof(hli), n_highest_levels, file) != n_highest_levels)) {
 		errno_ret			= errno;
 		fclose(file);
@@ -745,24 +681,24 @@ int write_player_file()
         fwrite (&PrimaryOrder[i],sizeof(ubyte),1,file);
         fwrite (&SecondaryOrder[i],sizeof(ubyte),1,file);
        }
-		write_int (Cockpit_3d_view[0],file);
-		write_int (Cockpit_3d_view[1],file);
+		file_write_int (Cockpit_3d_view[0],file);
+		file_write_int (Cockpit_3d_view[1],file);
 
 #ifdef NETWORK
-		write_int (Netlife_kills,file);
-	   write_int (Netlife_killed,file);
+		file_write_int (Netlife_kills,file);
+		file_write_int (Netlife_killed,file);
 		i=get_lifetime_checksum (Netlife_kills,Netlife_killed);
 		mprintf ((0,"Writing: Lifetime checksum is %d\n",i));
 #else
-	   write_int(0, file);
-	   write_int(0, file);
+	   file_write_int(0, file);
+	   file_write_int(0, file);
 	   i = get_lifetime_checksum (0, 0);
 #endif
-	   write_int (i,file);
+	   file_write_int (i,file);
 	}
 
 	//write guidebot name
-	write_string(real_guidebot_name,file);
+	file_write_string(real_guidebot_name,file);
 
 	{
 		char buf[128];
@@ -771,7 +707,7 @@ int write_player_file()
 		#else
 		strcpy(buf, "DOS joystick");
 		#endif
-		write_string(buf, file);		// Write out current joystick for player.
+		file_write_string(buf, file);		// Write out current joystick for player.
 	}
 
 	if (fclose(file))

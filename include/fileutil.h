@@ -23,11 +23,13 @@ extern byte file_read_byte(FILE *fp);
 extern short file_read_short(FILE *fp);
 extern int file_read_int(FILE *fp);
 extern fix file_read_fix(FILE *fp);
+extern void file_read_string(char *s, FILE *f);
 
 // routines which write basic data types
-extern int file_write_byte(FILE *fp, byte b);
-extern int file_write_short(FILE *fp, short s);
-extern int file_write_int(FILE *fp, int i);
-extern int file_write_fix(FILE *fp, fix f);
+extern int file_write_byte(byte b, FILE *fp);
+extern int file_write_short(short s, FILE *fp);
+extern int file_write_int(int i, FILE *fp);
+extern int file_write_fix(fix f, FILE *fp);
+extern void file_write_string(char *s, FILE *f);
 
 #endif

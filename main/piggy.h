@@ -46,6 +46,8 @@ typedef struct DiskBitmapHeader {
 	int offset;
 } DiskBitmapHeader;
 
+#define DISKBITMAPHEADER_SIZE 18 // for disk i/o
+
 int piggy_init();
 void piggy_close();
 void piggy_dump_all();

@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #include "mvelib.h"                                             /* next buffer */
 #include "mve_audio.h"
 
@@ -268,7 +272,11 @@ fprintf(stderr, "stereo=%d 16bit=%d compressed=%d sample_rate=%d desired_buffer=
     mve_audio_compressed = (flags >> 2) & 1;
     mve_audio_spec = (SDL_AudioSpec *)d_malloc(sizeof(SDL_AudioSpec));
     mve_audio_spec->freq = sample_rate;
+#ifdef WORDS_BIGENDIAN
+    mve_audio_spec->format = ((flags >> 1) & 1)?AUDIO_S16MSB:AUDIO_U8;
+#else
     mve_audio_spec->format = ((flags >> 1) & 1)?AUDIO_S16LSB:AUDIO_U8;
+#endif
     mve_audio_spec->channels = (flags &1 )?2:1;
     mve_audio_spec->samples = 32768;
     mve_audio_spec->callback = mve_audio_callback;

@@ -59,25 +59,42 @@ fix file_read_fix(FILE *fp)
 	return INTEL_INT(f);
 }
 
-int file_write_byte(FILE *fp, byte b)
+void file_read_string(char *s, FILE *f)
+{
+	if (feof(f))
+		*s = 0;
+	else
+		do
+			*s = fgetc(f);
+		while (!feof(f) && *s++!=0);
+}
+
+int file_write_byte(byte b, FILE *fp)
 {
 	return (fwrite(&b, 1, 1, fp));
 }
 
-int file_write_short(FILE *fp, short s)
+int file_write_short(short s, FILE *fp)
 {
 	s = INTEL_SHORT(s);
 	return (fwrite(&s, 2, 1, fp));
 }
 
-int file_write_int(FILE *fp, int i)
+int file_write_int(int i, FILE *fp)
 {
 	i = INTEL_INT(i);
 	return (fwrite(&i, 4, 1, fp));
 }
 
-int write_fix_swap(FILE *fp, fix f)
+int file_write_fix(fix f, FILE *fp)
 {
 	f = (fix)INTEL_INT((int)f);
 	return (fwrite(&f, 4, 1, fp));
+}
+
+void file_write_string(char *s, FILE *f)
+{
+	do
+		fputc(*s,f);
+	while (*s++!=0);
 }

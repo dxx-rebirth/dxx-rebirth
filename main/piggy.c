@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.9 2002-07-27 22:39:57 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.10 2002-07-29 02:32:32 btb Exp $";
 #endif
 
 
@@ -584,7 +584,7 @@ void piggy_init_pigfile(char *filename)
 
 	N_bitmaps = cfile_read_int(Piggy_fp);
 
-	header_size = N_bitmaps*sizeof(DiskBitmapHeader);
+	header_size = N_bitmaps*DISKBITMAPHEADER_SIZE;
 
 	data_start = header_size + cftell(Piggy_fp);
 
@@ -721,7 +721,7 @@ void piggy_new_pigfile(char *pigname)
 
 		N_bitmaps = cfile_read_int(Piggy_fp);
 	
-		header_size = N_bitmaps*sizeof(DiskBitmapHeader);
+		header_size = N_bitmaps*DISKBITMAPHEADER_SIZE;
 	
 		data_start = header_size + cftell(Piggy_fp);
 
@@ -1395,7 +1395,7 @@ void piggy_write_pigfile(char *filename)
 	Num_bitmap_files++;
 
 	bitmap_data_start = ftell(pig_fp);
-	bitmap_data_start += (Num_bitmap_files-1)*sizeof(DiskBitmapHeader); 
+	bitmap_data_start += (Num_bitmap_files-1)*DISKBITMAPHEADER_SIZE; 
 	data_offset = bitmap_data_start;
 
 	change_filename_ext(tname,filename,"lst");
@@ -1469,7 +1469,7 @@ void piggy_write_pigfile(char *filename)
 			bmh.flags &= ~BM_FLAG_PAGED_OUT;
 		}
 		bmh.avg_color=GameBitmaps[i].avg_color;
-		fwrite( &bmh, sizeof(DiskBitmapHeader), 1, pig_fp );                    // Mark as a bitmap
+		fwrite( &bmh, DISKBITMAPHEADER_SIZE, 1, pig_fp );                    // Mark as a bitmap
 	}
 
 	fclose(pig_fp);

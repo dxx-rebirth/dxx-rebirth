@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.8 2002-07-27 22:39:57 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.9 2002-07-29 02:32:32 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -854,7 +854,7 @@ void load_bitmap_replacements(char *level_name)
 		for (i = 0; i < n_bitmaps; i++)
 			indices[i] = cfile_read_short(ifile);
 
-		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - (sizeof(DiskBitmapHeader) * n_bitmaps);
+		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - DISKBITMAPHEADER_SIZE * n_bitmaps;
 		MALLOC( Bitmap_replacement_data, ubyte, bitmap_data_size );
 
 		for (i=0;i<n_bitmaps;i++) {
