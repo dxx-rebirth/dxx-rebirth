@@ -1,4 +1,4 @@
-/* $Id: ukali.h,v 1.6 2003-03-13 00:20:21 btb Exp $ */
+/* $Id: ukali.h,v 1.7 2003-03-19 23:20:09 btb Exp $ */
 /*
  *
  * Header for kali support functions
@@ -7,10 +7,6 @@
 
 #ifndef __UKALI_H__
 #define __UKALI_H__
-
-//added on 10/04/98 by Matt Mueller to show correct ver in kali
-#include "vers_id.h"
-//end addition -MM
 
 // 4213 is the port that KaliNix is listening on
 //

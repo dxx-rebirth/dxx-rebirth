@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.56 2003-03-13 07:16:46 btb Exp $ */
+/* $Id: inferno.c,v 1.57 2003-03-19 23:20:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1292,6 +1292,8 @@ int main(int argc,char **argv)
 
 	con_printf (CON_VERBOSE, "%s", TXT_VERBOSE_1);
 	ReadConfigFile();
+
+	do_joystick_init();
 
 #ifdef NETWORK
 	do_network_init();

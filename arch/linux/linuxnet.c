@@ -1,4 +1,4 @@
-/* $Id: linuxnet.c,v 1.7 2003-01-01 00:56:24 btb Exp $ */
+/* $Id: linuxnet.c,v 1.8 2003-03-19 23:20:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,7 +31,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <netinet/in.h> /* for htons & co. */
 
 #include "pstypes.h"
-#include "config.h"
 #include "args.h"
 
 #include "ipx_drv.h"

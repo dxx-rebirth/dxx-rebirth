@@ -1,4 +1,4 @@
-/* $Id: init.c,v 1.5 2003-03-13 00:20:21 btb Exp $ */
+/* $Id: init.c,v 1.6 2003-03-19 23:20:09 btb Exp $ */
 /*
  *
  * linux init.c - added Matt Mueller 9/6/98
@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include "pstypes.h"
 #include "console.h"
-#include "text.h"
 #include "event.h"
 #include "error.h"
 #include "joy.h"
@@ -37,10 +36,6 @@ void arch_init()
 #ifdef SVGALIB_INPUT
 	arch_svgalib_init();
 #endif
-	if (!FindArg( "-nojoystick" ))  {
-		con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_6);
-		joy_init();
-	}
 	//added 06/09/99 Matt Mueller - fix nonetwork compile
 #ifdef NETWORK
 	//end addition -MM

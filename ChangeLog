@@ -1,5 +1,10 @@
 2003-03-19  Bradley Bell  <btb@icculus.org>
 
+	* arch/linux/Makefile.am, arch/linux/init.c,
+	arch/linux/linuxnet.c, arch/linux/include/ukali.h,
+	arch/ogl/Makefile.am, main/inferno.c: moved joy_init back to main,
+	other header cleanups
+
 	* arch/win32/ipx_win.c, configure.ac: ipx on win32 fixed!
 
 2003-03-19  Martin Schaffner <maschaffner@gmx.ch>
