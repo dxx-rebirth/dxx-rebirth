@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.12 $
+ * $Revision: 1.13 $
  * $Author: bradleyb $
- * $Date: 2001-10-27 01:39:23 $
+ * $Date: 2001-10-31 07:41:54 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.12  2001/10/27 01:39:23  bradleyb
+ * added some documentation
+ *
  * Revision 1.11  2001/10/25 09:12:16  bradleyb
  * Completed tmap selection code.
  *
@@ -969,4 +972,14 @@ void check_joystick_calibration()	{
 		}
 	}
 
+}
+
+void quit_request()
+{
+#ifdef NETWORK
+//	void network_abort_game();
+//	if(Network_status)
+//		network_abort_game();
+#endif
+	exit(0);
 }

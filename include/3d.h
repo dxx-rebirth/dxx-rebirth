@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/3d.h,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 02:06:58 $
+ * $Date: 2001-10-31 07:41:54 $
  *
  * Header file for 3d library
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/25 02:06:58  bradleyb
+ * added prototype for g3_uninit_polygon_model
+ *
  * Revision 1.2  2001/01/20 13:49:14  bradleyb
  * Got rid of all compiler warnings, for non-OpenGL on linux, anyway...
  *
@@ -41,7 +44,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _3D_H
 #define _3D_H
 
+#include "fix.h"
 #include "vecmat.h"
+#include "gr.h"
 
 extern int g3d_interp_outline;		//if on, polygon models outlined in white
 extern vms_vector Matrix_scale;

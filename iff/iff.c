@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: iff.c,v 1.4 2001-01-31 15:17:48 bradleyb Exp $";
+static char rcsid[] = "$Id: iff.c,v 1.5 2001-10-31 07:41:54 bradleyb Exp $";
 #endif
 
 #define COMPRESS		1	//do the RLE or not? (for debugging mostly)
@@ -144,7 +144,7 @@ int put_sig(long sig,FILE *f)
 	return fputc(s[0],f);
 
 }
-
+	
 char get_byte(FFILE *f)
 {
 	//return cfgetc(f);
@@ -155,8 +155,6 @@ int put_byte(unsigned char c,FILE *f)
 {
 	return fputc(c,f);
 }
-
-	
 
 int get_word(FFILE *f)
 {
@@ -994,8 +992,8 @@ int write_body(FILE *ofile,iff_bitmap_header *bitmap_header,int compression_on)
 	put_long(len,ofile);
 
     //if (! (new_span = d_malloc(bitmap_header->w+(bitmap_header->w/128+2)*2))) return IFF_NO_MEM;
-    MALLOC( new_span, ubyte, bitmap_header->w + (bitmap_header->w/128+2)*2);
-    if (new_span == NULL) return IFF_NO_MEM;
+	MALLOC( new_span, ubyte, bitmap_header->w + (bitmap_header->w/128+2)*2);
+	if (new_span == NULL) return IFF_NO_MEM;
 
 	for (y=bitmap_header->h;y--;) {
 
@@ -1204,8 +1202,7 @@ int iff_read_animbrush(char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int 
 
 			prev_bm = *n_bitmaps>0?bm_list[*n_bitmaps-1]:NULL;
 
-		   MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );
-
+			MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );
 			bm_list[*n_bitmaps]->bm_data = NULL;
 
 			ret = iff_parse_bitmap(&ifile,bm_list[*n_bitmaps],form_type,*n_bitmaps>0?NULL:palette,prev_bm);

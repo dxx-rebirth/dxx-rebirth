@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/maths/fixc.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 15:18:04 $
+ * $Date: 2001-10-31 07:41:54 $
  * 
  * C version of fixed point library
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/31 15:18:04  bradleyb
+ * Makefile and conf.h fixes
+ *
  * Revision 1.1.1.1  2001/01/19 03:29:58  bradleyb
  * Import of d2x-0.0.8
  *
@@ -66,7 +69,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: fixc.c,v 1.2 2001-01-31 15:18:04 bradleyb Exp $";
+static char rcsid[] = "$Id: fixc.c,v 1.3 2001-10-31 07:41:54 bradleyb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -75,13 +78,11 @@ static char rcsid[] = "$Id: fixc.c,v 1.2 2001-01-31 15:18:04 bradleyb Exp $";
 #include "error.h"
 #include "maths.h"
 
-#ifndef NO_ASM
 #ifdef NO_FIX_INLINE
 #ifdef _MSC_VER
 #pragma message ("warning: FIX NOT INLINED")
 #else
 #warning "FIX NOT INLINED"
-#endif
 #endif
 #endif
 

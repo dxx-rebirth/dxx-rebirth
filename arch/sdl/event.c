@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/event.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-10-24 09:25:05 $
+ * $Date: 2001-10-31 07:41:54 $
  *
  * SDL Event related stuff
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/24 09:25:05  bradleyb
+ * Moved input stuff to arch subdirs, as in d1x.
+ *
  * Revision 1.2  2001/01/29 14:03:57  bradleyb
  * Fixed build, minor fixes
  *
@@ -53,8 +56,8 @@ void event_poll()
 //-killed-     return;
 //end this section addition/change - Hans
     case SDL_QUIT: {
-//    	void quit_request();
-//	quit_request();
+    	void quit_request();
+	quit_request();
     } break;
    }
  }

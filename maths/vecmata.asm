@@ -10,13 +10,16 @@
 ;COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ;
 ; $Source: /cvs/cvsroot/d2x/maths/vecmata.asm,v $
-; $Revision: 1.2 $
+; $Revision: 1.3 $
 ; $Author: bradleyb $
-; $Date: 2001-10-19 09:34:02 $
+; $Date: 2001-10-31 07:41:54 $
 ;
 ; Source for vector/matrix library
 ;
 ; $Log: not supported by cvs2svn $
+; Revision 1.2  2001/10/19 09:34:02  bradleyb
+; Changed __ENV_LINUX__ to __linux__
+;
 ; Revision 1.1.1.1  2001/01/19 03:29:58  bradleyb
 ; Import of d2x-0.0.8
 ;
@@ -536,27 +539,27 @@ _vm_vec_scale_add2:
 ; vec *vm_vec_scale2(vec *dest, fix n, fix d);
 ; returns dest
 ; dest*=n/d
-;_vm_vec_scale2:
-;	push ebx
-;	push edi
-;	mov edi,[esp+12]
-;	mov ebx,[esp+16]
-;	mov ecx,[esp+20]
-;	or ecx,ecx
-;	je no_scale2
-;%assign i 0
-;%rep 3
-;	mov eax,[edi+i]
-;	imul ebx
-;	idiv ecx
-;	mov [edi+i],eax
-;%assign i i+4
-;%endrep
-;no_scale2:
-;	mov eax,edi
-;	pop edi
-;	pop ebx
-;        ret
+_vm_vec_scale2:
+	push ebx
+	push edi
+	mov edi,[esp+12]
+	mov ebx,[esp+16]
+	mov ecx,[esp+20]
+	or ecx,ecx
+	je no_scale2
+%assign i 0
+%rep 3
+	mov eax,[edi+i]
+	imul ebx
+	idiv ecx
+	mov [edi+i],eax
+%assign i i+4
+%endrep
+no_scale2:
+	mov eax,edi
+	pop edi
+	pop ebx
+        ret
 
 ;compute magnitude of vector. takes esi=vector, returns eax=mag
 _vm_vec_mag:

@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/maths/vecmat.c,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 15:18:04 $
+ * $Date: 2001-10-31 07:41:54 $
  * 
  * C version of vecmat library
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/31 15:18:04  bradleyb
+ * Makefile and conf.h fixes
+ *
  * Revision 1.1.1.2  2001/01/19 03:33:42  bradleyb
  * Import of d2x-0.0.9-pre1
  *
@@ -54,7 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: vecmat.c,v 1.2 2001-01-31 15:18:04 bradleyb Exp $";
+static char rcsid[] = "$Id: vecmat.c,v 1.3 2001-10-31 07:41:54 bradleyb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -66,26 +69,7 @@ static char rcsid[] = "$Id: vecmat.c,v 1.2 2001-01-31 15:18:04 bradleyb Exp $";
 
 //#define USE_ISQRT 1
 
-
-// DPH: Kludge: this was overflowing a lot, so I made it use the FPU.
-//scales a vector in place, taking n/d for scale.  returns ptr to vector
-//dest *= n/d
-vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
-{
-	float nd;
-//	printf("scale n=%d d=%d\n",n,d);
-	nd = f2fl(n) / f2fl(d);
-	dest->x = fl2f( f2fl(dest->x) * nd);
-	dest->y = fl2f( f2fl(dest->y) * nd);
-	dest->z = fl2f( f2fl(dest->z) * nd);
-/*	dest->x = fixmuldiv(dest->x,n,d);
-	dest->y = fixmuldiv(dest->y,n,d);
-	dest->z = fixmuldiv(dest->z,n,d);*/
-
-	return dest;
-}
-
-#ifdef NO_ASM
+#ifndef ASM_VECMAT
 vms_vector vmd_zero_vector = {0,0,0};
 vms_matrix vmd_identity_matrix = {	{ f1_0,0,0 },
 												{ 0,f1_0,0 },
@@ -204,14 +188,23 @@ vms_vector *vm_vec_scale_add2(vms_vector *dest,vms_vector *src,fix k)
 
 //scales a vector in place, taking n/d for scale.  returns ptr to vector
 //dest *= n/d
-/*vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
+vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
 {
+#if 1 // DPH: Kludge: this was overflowing a lot, so I made it use the FPU.
+	float nd;
+//	printf("scale n=%d d=%d\n",n,d);
+	nd = f2fl(n) / f2fl(d);
+	dest->x = fl2f( f2fl(dest->x) * nd);
+	dest->y = fl2f( f2fl(dest->y) * nd);
+	dest->z = fl2f( f2fl(dest->z) * nd);
+#else
 	dest->x = fixmuldiv(dest->x,n,d);
 	dest->y = fixmuldiv(dest->y,n,d);
 	dest->z = fixmuldiv(dest->z,n,d);
+#endif
 
 	return dest;
-}*/
+}
 
 fix vm_vec_dotprod(vms_vector *v0,vms_vector *v1)
 {

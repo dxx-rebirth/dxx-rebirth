@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/sdl/gr.c,v $
- * $Revision: 1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 08:25:34 $
+ * $Date: 2001-10-31 07:41:54 $
  *
  * SDL video functions.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1  2001/10/25 08:25:34  bradleyb
+ * Finished moving stuff to arch/blah.  I know, it's ugly, but It'll be easier to sync with d1x.
+ *
  * Revision 1.5  2001/10/09 08:17:07  bradleyb
  * changed window caption to include version info
  *
@@ -80,8 +83,7 @@ void gr_palette_clear(); // Function prototype for gr_init;
 void gr_update()
 {
 	//added 05/19/99 Matt Mueller - locking stuff
-//
-//gr_testunlock();
+//	gr_testunlock();
 	//end addition -MM
  SDL_UpdateRect(screen,0,0,0,0);
 }
@@ -91,6 +93,7 @@ extern int VGA_current_mode; // DPH: kludge - remove at all costs
 int gr_set_mode(u_int32_t mode)
 {
 	int w,h;
+
 #ifdef NOGRAPH
 	return 0;
 #endif
@@ -161,9 +164,7 @@ int gr_check_fullscreen(void){
 
 int gr_toggle_fullscreen(void){
 	sdl_video_flags^=SDL_FULLSCREEN;
-/*
-	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
-*/
+//	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
         SDL_WM_ToggleFullScreen(screen);
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }

@@ -1,4 +1,14 @@
-//loadgl.h - dynamic opengl loading - curtousy (sp) of Jeff Slutter
+/*
+ * $Source: /cvs/cvsroot/d2x/include/loadgl.h,v $
+ * $Revision: 1.4 $
+ * $Author: bradleyb $
+ * $Date: 2001-10-31 07:41:54 $
+ *
+ * dynamic opengl loading - curtousy (sp) of Jeff Slutter
+ *
+ * $Log: not supported by cvs2svn $
+ *
+ */
 
 #ifndef __LOADGL_H__
 #define __LOADGL_H__
@@ -17,7 +27,20 @@
 #endif
 
 #include <GL/gl.h>
-#include "types.h"
+#include "pstypes.h"
+
+//gl extensions.
+#ifndef GL_ARB_multitexture
+#define GL_ARB_multitexture 1
+#define GL_TEXTURE0_ARB 0x84C0
+#define GL_TEXTURE1_ARB 0x84C1
+#endif
+
+#ifndef GL_SGIS_multitexture
+#define GL_SGIS_multitexture 1
+#define GL_TEXTURE0_SGIS 0x835F
+#define GL_TEXTURE1_SGIS 0x8360
+#endif
 
 #ifdef _cplusplus
 #define OEXTERN	extern "C"
@@ -370,6 +393,10 @@
 #define glVertexPointer dglVertexPointer
 #define glViewport dglViewport
 
+#define glMultiTexCoord2fARB dglMultiTexCoord2fARB
+#define glActiveTextureARB dglActiveTextureARB
+#define glMultiTexCoord2fSGIS dglMultiTexCoord2fSGIS
+#define glSelectTextureSGIS dglSelectTextureSGIS
 
 #ifdef WIN32
 #define wglCopyContext dwglCopyContext
@@ -732,6 +759,11 @@ typedef void (OGLFUNCCALL *glVertex4sv_fp)(const GLshort *v);
 typedef void (OGLFUNCCALL *glVertexPointer_fp)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 typedef void (OGLFUNCCALL *glViewport_fp)(GLint x, GLint y, GLsizei width, GLsizei height);
 
+typedef void (OGLFUNCCALL *glMultiTexCoord2fARB_fp)(GLenum target, GLfloat s, GLfloat t);
+typedef void (OGLFUNCCALL *glActiveTextureARB_fp)(GLenum target);
+typedef void (OGLFUNCCALL *glMultiTexCoord2fSGIS_fp)(GLenum target, GLfloat s, GLfloat t);
+typedef void (OGLFUNCCALL *glSelectTextureSGIS_fp)(GLenum target);
+
 #ifdef WIN32
 typedef BOOL  (OGLFUNCCALL *wglCopyContext_fp)(HGLRC, HGLRC, UINT);
 typedef HGLRC (OGLFUNCCALL *wglCreateContext_fp)(HDC);
@@ -1092,6 +1124,11 @@ DEFVAR glVertex4s_fp dglVertex4s;
 DEFVAR glVertex4sv_fp dglVertex4sv;
 DEFVAR glVertexPointer_fp dglVertexPointer;
 DEFVAR glViewport_fp dglViewport;
+
+DEFVAR glMultiTexCoord2fARB_fp dglMultiTexCoord2fARB;
+DEFVAR glActiveTextureARB_fp dglActiveTextureARB;
+DEFVAR glMultiTexCoord2fSGIS_fp dglMultiTexCoord2fSGIS;
+DEFVAR glSelectTextureSGIS_fp dglSelectTextureSGIS;
 
 #ifdef WIN32
 DEFVAR wglCopyContext_fp dwglCopyContext;
@@ -1903,6 +1940,11 @@ void OpenGL_SetFuncsToNull(void)
 	dglVertex4sv = NULL;
 	dglVertexPointer = NULL;
 	dglViewport = NULL;
+
+	dglMultiTexCoord2fARB = NULL;
+	dglActiveTextureARB = NULL;
+	dglMultiTexCoord2fSGIS = NULL;
+	dglSelectTextureSGIS = NULL;
 
 #ifdef WIN32
 	dwglCopyContext = NULL;
