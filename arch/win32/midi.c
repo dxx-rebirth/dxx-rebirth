@@ -1,3 +1,4 @@
+/* $Id: midi.c,v 1.3 2005-03-18 03:42:43 btb Exp $ */
 // MIDI stuff follows.
 #include <stdio.h>
 
