@@ -1,4 +1,4 @@
-/* $Id: config.c,v 1.9 2003-10-04 03:28:47 btb Exp $ */
+/* $Id: config.c,v 1.10 2003-10-04 20:03:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -138,7 +138,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.9 2003-10-04 03:28:47 btb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.10 2003-10-04 20:03:11 btb Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -324,8 +324,7 @@ int ReadConfigFile()
 	while (!cfeof(infile))
 	{
 		memset(line, 0, 80);
-		if (cfgets(line, 80, infile) == EOF)
-			break;
+		cfgets(line, 80, infile);
 		ptr = &(line[0]);
 		while (isspace(*ptr))
 			ptr++;
@@ -498,8 +497,7 @@ int ReadConfigFile()
 		while (!cfeof(infile))
 		{
 			memset(line, 0, 80);
-			if (cfgets(line, 80, infile) == EOF)
-				break;
+			cfgets(line, 80, infile);
 			ptr = &(line[0]);
 			while (isspace(*ptr))
 				ptr++;
@@ -672,7 +670,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.9 2003-10-04 03:28:47 btb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.10 2003-10-04 20:03:11 btb Exp $";
 #endif
 
 #define MAX_CTB_LEN	512

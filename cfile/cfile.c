@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.19 2003-10-04 03:28:47 btb Exp $ */
+/* $Id: cfile.c,v 1.20 2003-10-04 20:03:11 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -648,7 +648,7 @@ char * cfgets( char * buf, size_t n, CFILE * fp )
 			}
 			c = fgetc( fp->file );
 			if (c == EOF)
-				return EOF;
+				break;
 			fp->raw_position++;
 			if (c == 0 || c == 10)        // Unix line ending
 				break;
