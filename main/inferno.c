@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.43 2002-08-31 12:14:01 btb Exp $ */
+/* $Id: inferno.c,v 1.44 2002-09-04 08:13:26 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -271,7 +271,7 @@ void print_commandline_help()
 #endif
 #if !defined(MACINTOSH) && !defined(WINDOWS)
 	printf( "  -nomixer        %s\n","Don't crank music volume");
-	printf( "  -superhires     %s\n","Allow higher-resolution modes");
+//	printf( "  -superhires     %s\n","Allow higher-resolution modes");
 #endif
 //	printf( "  -nomodex        %s\n","FIXME: Undocumented");
 #ifndef RELEASE
