@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.16 2002-08-22 20:49:15 btb Exp $ */
+/* $Id: bm.c,v 1.17 2002-09-04 22:28:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -180,7 +180,6 @@ free_exit_model_data()
 	extra_bitmap_num = Num_bitmap_files;
 }
 
-//#define EXIT_POF
 
 #ifdef OGL
 void ogl_cache_polymodel_textures(int model_num);
@@ -188,21 +187,13 @@ void ogl_cache_polymodel_textures(int model_num);
 
 void load_exit_models()
 {
-#ifndef EXIT_POF
 	CFILE *exit_hamfile;
-#endif
 	int start_num;
 
 	if (!cfexist("steel1.bbm") ||
 	    !cfexist("rbot061.bbm") ||
 	    !cfexist("rbot062.bbm") ||
-	    !cfexist("rbot063.bbm") ||
-#ifdef EXIT_POF
-	    !cfexist("exit01.pof") ||
-	    !cfexist("exit01d.pof")) {
-#else
-	    !cfexist("exit.ham")) {
-#endif
+	    !cfexist("rbot063.bbm")) {
 		Warning("Can't load exit models!\n");
 		return;
 	}
@@ -217,49 +208,49 @@ void load_exit_models()
 	load_exit_model_bitmap("rbot061.bbm");
 	load_exit_model_bitmap("rbot063.bbm");
 
-#ifndef EXIT_POF
-
+	if (cfexist("exit.ham")) {
 #ifndef MACINTOSH
-	exit_hamfile = cfopen("exit.ham","rb");
+		exit_hamfile = cfopen("exit.ham","rb");
 #else
-	exit_hamfile = cfopen(":Data:exit.ham","rb");
+		exit_hamfile = cfopen(":Data:exit.ham","rb");
 #endif
 
-	exit_modelnum = N_polygon_models++;
-	destroyed_exit_modelnum = N_polygon_models++;
-	polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
-	polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-	Polygon_models[exit_modelnum].first_texture = start_num;
-	Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
+		exit_modelnum = N_polygon_models++;
+		destroyed_exit_modelnum = N_polygon_models++;
+		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
+		polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
+		Polygon_models[exit_modelnum].first_texture = start_num;
+		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
 
-	Polygon_models[exit_modelnum].model_data = d_malloc(Polygon_models[exit_modelnum].model_data_size);
-	Assert( Polygon_models[exit_modelnum].model_data != NULL );
-	cfread( Polygon_models[exit_modelnum].model_data, sizeof(ubyte), Polygon_models[exit_modelnum].model_data_size, exit_hamfile );
+		Polygon_models[exit_modelnum].model_data = d_malloc(Polygon_models[exit_modelnum].model_data_size);
+		Assert( Polygon_models[exit_modelnum].model_data != NULL );
+		cfread( Polygon_models[exit_modelnum].model_data, sizeof(ubyte), Polygon_models[exit_modelnum].model_data_size, exit_hamfile );
 #ifdef WORDS_BIGENDIAN
-	swap_polygon_model_data(Polygon_models[exit_modelnum].model_data);
+		swap_polygon_model_data(Polygon_models[exit_modelnum].model_data);
 #endif
-	g3_init_polygon_model(Polygon_models[exit_modelnum].model_data);
+		g3_init_polygon_model(Polygon_models[exit_modelnum].model_data);
 
-	Polygon_models[destroyed_exit_modelnum].model_data = d_malloc(Polygon_models[destroyed_exit_modelnum].model_data_size);
-	Assert( Polygon_models[destroyed_exit_modelnum].model_data != NULL );
-	cfread( Polygon_models[destroyed_exit_modelnum].model_data, sizeof(ubyte), Polygon_models[destroyed_exit_modelnum].model_data_size, exit_hamfile );
+		Polygon_models[destroyed_exit_modelnum].model_data = d_malloc(Polygon_models[destroyed_exit_modelnum].model_data_size);
+		Assert( Polygon_models[destroyed_exit_modelnum].model_data != NULL );
+		cfread( Polygon_models[destroyed_exit_modelnum].model_data, sizeof(ubyte), Polygon_models[destroyed_exit_modelnum].model_data_size, exit_hamfile );
 #ifdef WORDS_BIGENDIAN
-	swap_polygon_model_data(Polygon_models[destroyed_exit_modelnum].model_data);
+		swap_polygon_model_data(Polygon_models[destroyed_exit_modelnum].model_data);
 #endif
-	g3_init_polygon_model(Polygon_models[destroyed_exit_modelnum].model_data);
-	cfclose(exit_hamfile);
+		g3_init_polygon_model(Polygon_models[destroyed_exit_modelnum].model_data);
+		cfclose(exit_hamfile);
 
-#else // EXIT_POF
+	} else if (cfexist("exit01.pof") && cfexist("exit01d.pof")) {
 
-	exit_modelnum = load_polygon_model("exit01.pof", 3, start_num, NULL);
-	destroyed_exit_modelnum = load_polygon_model("exit01d.pof", 3, start_num + 3, NULL);
+		exit_modelnum = load_polygon_model("exit01.pof", 3, start_num, NULL);
+		destroyed_exit_modelnum = load_polygon_model("exit01d.pof", 3, start_num + 3, NULL);
 
 #ifdef OGL
-	ogl_cache_polymodel_textures(exit_modelnum);
-	ogl_cache_polymodel_textures(destroyed_exit_modelnum);
+		ogl_cache_polymodel_textures(exit_modelnum);
+		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
 #endif
 
-#endif
+	} else
+		Warning("Can't load exit models!\n");
 }
 
 
@@ -384,10 +375,6 @@ void bm_read_extra_robots(char *fname,int type)
 	CFILE *fp;
 	int t,i;
 	int version;
-
-	#ifdef MACINTOSH
-		ulong varSave = 0;
-	#endif
 
 	fp = cfopen(fname,"rb");
 
