@@ -1,3 +1,7 @@
+2005-03-20  Martin Schaffner  <schaffnerb@gmx.ch>
+
+	* ui/.cvsignore: New file
+
 2005-03-17  Bradley Bell  <btb@icculus.org>
 
 	* arch/win32/midi.c: Add RCS ID tag
