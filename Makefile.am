@@ -36,9 +36,9 @@ d2x_LDADD = ${LD_KLUDGE} main/libmain.a ${EDITOR_LIBS} 3d/lib3d.a 2d/lib2d.a ${A
 
 if MINGW32
 if USE_NETWORK
-d2x_sdl_LDADD = ${d2x_LDADD} -lwsock32
+d2x_sdl_LDADD = ${d2x_LDADD} -lwinmm -lwsock32
 else
-d2x_sdl_LDADD = ${d2x_LDADD}
+d2x_sdl_LDADD = ${d2x_LDADD} -lwinmm
 endif
 else
 d2x_sdl_LDADD = ${d2x_LDADD} -lm

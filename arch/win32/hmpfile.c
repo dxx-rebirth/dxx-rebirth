@@ -94,11 +94,11 @@ void hmp_stop(hmp_file *hmp) {
 	MIDIHDR *mhdr;
 	if (!hmp->stop) {
 		hmp->stop = 1;
-                PumpMessages();
+		//PumpMessages();
 		midiStreamStop(hmp->hmidi);
                 while (hmp->bufs_in_mm)
                  {
-                        PumpMessages();
+			//PumpMessages();
 			Sleep(0);
                  }
 	}

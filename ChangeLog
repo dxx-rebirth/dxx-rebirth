@@ -1,5 +1,9 @@
 2004-11-27  Bradley Bell  <btb@icculus.org>
 
+	* Makefile.am, arch/sdl/digi.c, arch/win32/Makefile.am,
+	arch/win32/hmpfile.c, arch/win32/midi.c, main/kludge.c: enabled
+	midi on win32
+
 	* main/bm.c, main/polyobj.c: better fix for model data freeing bug
 
 	* main/inferno.c: enable logo screens for shareware/oem

@@ -1,4 +1,4 @@
-/* $Id: kludge.c,v 1.15 2004-05-20 07:42:41 btb Exp $ */
+/* $Id: kludge.c,v 1.16 2004-11-28 05:16:38 btb Exp $ */
 
 /*
  *
@@ -98,22 +98,6 @@ void network_dump_appletalk_player(ubyte node, ushort net, ubyte socket, int why
 }
 
 void digi_stop_digi_sounds(void)
-{
-
-}
-
-void digi_stop_current_song(void)
-{
-
-
-}
-
-void digi_set_midi_volume(int a)
-{
-
-}
-
-void digi_play_midi_song(void)
 {
 
 }

@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.16 2004-05-19 03:13:44 btb Exp $ */
+/* $Id: digi.c,v 1.17 2004-11-28 05:16:38 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -915,7 +915,7 @@ void digi_reset_digi_sounds() {
 }
 
 
-#if 0 //added/killed on 11/25/98 by Matthew Mueller
+#ifndef _WIN32
 // MIDI stuff follows.
 void digi_set_midi_volume( int mvolume ) { }
 void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {}
@@ -928,4 +928,4 @@ void digi_stop_current_song()
         send_ipc(buf);
 #endif
 }
-#endif // end this section kill - MM
+#endif
