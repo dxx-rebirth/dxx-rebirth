@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.70 2003-11-27 09:10:52 btb Exp $ */
+/* $Id: inferno.c,v 1.71 2004-04-15 07:34:28 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -815,7 +815,7 @@ void arch_init_start(void);
 ubyte Version_major = 1;		//FULL VERSION
 ubyte Version_minor = 2;
 
-static const char desc_id_checksum_str[] = DESC_ID_CHKSUM_TAG "0000";	//4-byte checksum
+//static const char desc_id_checksum_str[] = DESC_ID_CHKSUM_TAG "0000"; // 4-byte checksum
 char desc_id_exit_num = 0;
 
 int Function_mode=FMODE_MENU;		//game or editor?

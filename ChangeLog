@@ -1,3 +1,7 @@
+2004-04-15  Bradley Bell  <btb@icculus.org>
+
+	* main/inferno.c: comment out unused checksum variable
+
 2004-04-14  Bradley Bell  <btb@icculus.org>
 
 	* arch/sdl/rbaudio.c: fix redbook tracking problems (fixes #1028)
