@@ -7,6 +7,9 @@
 	OL_ constants; use "object" instead of "robot" in some places;
 	draw and place reactors with correct modelnum
 
+	* main/editor/texpage.c: no using TmapList, initialise texture
+	category globals, no CurrentTmap (just use CurrentTexture)
+
 2005-03-29  Bradley Bell  <btb@icculus.org>
 
 	* mem/mem.c: remove obsolete malloc.h

@@ -1,4 +1,4 @@
-/* $Id: texpage.c,v 1.4 2005-01-24 22:22:37 schaffner Exp $ */
+/* $Id: texpage.c,v 1.5 2005-03-31 13:21:47 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 
 #ifdef RCS
-static char rcsid[] = "$Id: texpage.c,v 1.4 2005-01-24 22:22:37 schaffner Exp $";
+static char rcsid[] = "$Id: texpage.c,v 1.5 2005-03-31 13:21:47 chris Exp $";
 #endif
 
 #include "inferno.h"
@@ -52,12 +52,11 @@ static char rcsid[] = "$Id: texpage.c,v 1.4 2005-01-24 22:22:37 schaffner Exp $"
 static UI_GADGET_USERBOX * TmapBox[TMAPS_PER_PAGE];
 static UI_GADGET_USERBOX * TmapCurrent;
 
-int CurrentTmap = 0;		// Used globally
 int CurrentTexture = 0;		// Used globally
 
-int TextureLights;
-int TextureEffects;
-int TextureMetals;
+int TextureLights = 275;
+int TextureEffects = 308;
+int TextureMetals = 202;
 
 static int TexturePage = 0;
 
@@ -94,15 +93,16 @@ void texpage_redraw()
 {
 	int i;
 
-	for (i=0;  i<TMAPS_PER_PAGE; i++ )
-		{
+	for (i = 0;  i < TMAPS_PER_PAGE; i++)
+	{
 		gr_set_current_canvas(TmapBox[i]->canvas);
-		if (i+TexturePage*TMAPS_PER_PAGE < Num_tmaps )	{
-			PIGGY_PAGE_IN( Textures[TmapList[i+TexturePage*TMAPS_PER_PAGE]]);
-			gr_ubitmap(0,0, &GameBitmaps[Textures[TmapList[i+TexturePage*TMAPS_PER_PAGE]].index]);
+		if (i + TexturePage*TMAPS_PER_PAGE < NumTextures)
+		{
+			PIGGY_PAGE_IN(Textures[i + TexturePage*TMAPS_PER_PAGE]);
+			gr_ubitmap(0, 0, &GameBitmaps[Textures[i + TexturePage*TMAPS_PER_PAGE].index]);
 		} else 
 			gr_clear_canvas( CGREY );
-		}
+	}
 }
 
 //shows the current texture, updating the window and printing the name, base
@@ -157,7 +157,8 @@ static int texpage_goto_prev()
 
 static int texpage_goto_next()
 {
-	if ((TexturePage+1)*TMAPS_PER_PAGE < Num_tmaps ) {
+	if ((TexturePage + 1)*TMAPS_PER_PAGE < NumTextures)
+	{
 		TexturePage++;
 		texpage_redraw();
 	}
@@ -169,22 +170,13 @@ static int texpage_goto_next()
 //the list
 int texpage_grab_current(int n)
 {
-	int i;
-
-	if ( (n<0) || ( n>= Num_tmaps) ) return 0;
+	if ((n < 0) || (n >= NumTextures)) return 0;
 
 	CurrentTexture = n;
 
-	for (i=0;i<Num_tmaps;i++)
-		if (TmapList[i] == n) {
-			CurrentTmap = i;
-			break;
-		}
-	Assert(i!=Num_tmaps);
+	TexturePage = CurrentTexture / TMAPS_PER_PAGE;
 	
-	TexturePage = CurrentTmap / TMAPS_PER_PAGE;
-	
-	if (TexturePage*TMAPS_PER_PAGE < Num_tmaps )
+	if (TexturePage*TMAPS_PER_PAGE < NumTextures)
 		texpage_redraw();
 
 	texpage_show_current();
@@ -221,8 +213,7 @@ void texpage_init( UI_WINDOW * win )
 	texpage_redraw();
 
 // Don't reset the current tmap every time we go back to the editor.
-//	CurrentTmap = TexturePage*TMAPS_PER_PAGE;
-//	CurrentTexture = TmapList[CurrentTmap];
+//	CurrentTexture = TexturePage*TMAPS_PER_PAGE;
 	texpage_show_current();
 
 }
@@ -249,9 +240,9 @@ void texpage_do()
 	int i;
 
 	for (i=0; i<TMAPS_PER_PAGE; i++ ) {
-		if (TmapBox[i]->b1_clicked && (i+TexturePage*TMAPS_PER_PAGE < Num_tmaps)) {
-			CurrentTmap = i+TexturePage*TMAPS_PER_PAGE;
-			CurrentTexture = TmapList[CurrentTmap];
+		if (TmapBox[i]->b1_clicked && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
+		{
+			CurrentTexture = i + TexturePage*TMAPS_PER_PAGE;
 			texpage_show_current();
 
 			if (keyd_pressed[KEY_LSHIFT]) {
