@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.20 2003-02-28 03:54:55 btb Exp $ */
+/* $Id: mission.c,v 1.21 2003-03-14 09:17:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -523,6 +523,7 @@ void add_builtin_mission_to_list(int *count)
 		Warning("Unknown hogsize %d, trying %s\n", Builtin_mission_hogsize, FULL_MISSION_FILENAME ".mn2");
 		Int3(); //fall through
 	case FULL_MISSION_HOGSIZE:
+	case MAC_FULL_MISSION_HOGSIZE:
 		if (!read_mission_file(FULL_MISSION_FILENAME ".mn2", 0, ML_CURDIR))
 			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
 	}
@@ -690,6 +691,7 @@ int load_mission(int mission_num)
 		default:
 			Int3(); // fall through
 		case FULL_MISSION_HOGSIZE:
+		case MAC_FULL_MISSION_HOGSIZE:
 			// continue on... (use d2.mn2 from hogfile)
 			break;
 		}

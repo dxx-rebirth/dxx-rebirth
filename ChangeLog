@@ -1,3 +1,7 @@
+2003-03-14  Bradley Bell  <btb@icculus.org>
+
+	* main/mission.c, main/mission.h: detect mac full version hogfile
+
 2003-03-13  Bradley Bell  <btb@icculus.org>
 
 	* arch/sdl/joydefs.c, main/kconfig.c, main/kconfig.h, main/menu.c:
