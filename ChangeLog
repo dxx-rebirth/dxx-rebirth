@@ -1,5 +1,8 @@
 2005-04-04  Bradley Bell  <btb@icculus.org>
 
+	* arch/sdl/joy.c, main/kconfig.c: don't use hardcoded descriptions
+	of joystick buttons/axes
+
 	* arch/win32/midi.c: don't play midi if -nosound
 
 	* arch/win32/mingw_init.c: remove redundant joy_init()

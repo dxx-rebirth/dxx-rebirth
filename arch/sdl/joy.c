@@ -1,4 +1,4 @@
-/* $Id: joy.c,v 1.15 2004-11-23 00:16:10 btb Exp $ */
+/* $Id: joy.c,v 1.16 2005-04-04 08:56:34 btb Exp $ */
 /*
  *
  * SDL joystick support
@@ -19,6 +19,7 @@
 #include "console.h"
 #include "event.h"
 #include "text.h"
+#include "u_mem.h"
 
 #define MAX_JOYSTICKS 16
 
@@ -26,7 +27,8 @@
 #define MAX_BUTTONS_PER_JOYSTICK 16
 #define MAX_HATS_PER_JOYSTICK 4
 
-extern int joybutton_text[]; //from kconfig.c
+extern char *joybutton_text[]; //from kconfig.c
+extern char *joyaxis_text[]; //from kconfig.c
 
 char joy_present = 0;
 int num_joysticks = 0;
@@ -141,6 +143,7 @@ void joy_axis_handler(SDL_JoyAxisEvent *jae)
 int joy_init()
 {
 	int i,j,n;
+	char temp[10];
 
 	if (SDL_Init(SDL_INIT_JOYSTICK) < 0) {
 		con_printf(CON_VERBOSE, "sdl-joystick: initialisation failed: %s.",SDL_GetError());
@@ -187,17 +190,29 @@ int joy_init()
 			con_printf(CON_VERBOSE, "sdl-joystick: %d hats\n", SDL_Joysticks[num_joysticks].n_hats);
 
 			for (j=0; j < SDL_Joysticks[num_joysticks].n_axes; j++)
+			{
+				sprintf(temp, "J%d A%d", i + 1, j + 1);
+				joyaxis_text[Joystick.n_axes] = d_strdup(temp);
 				SDL_Joysticks[num_joysticks].axis_map[j] = Joystick.n_axes++;
+			}
 			for (j=0; j < SDL_Joysticks[num_joysticks].n_buttons; j++)
+			{
+				sprintf(temp, "J%d B%d", i + 1, j + 1);
+				joybutton_text[Joystick.n_buttons] = d_strdup(temp);
 				SDL_Joysticks[num_joysticks].button_map[j] = Joystick.n_buttons++;
+			}
 			for (j=0; j < SDL_Joysticks[num_joysticks].n_hats; j++)
 			{
 				SDL_Joysticks[num_joysticks].hat_map[j] = Joystick.n_buttons;
 				//a hat counts as four buttons
-				joybutton_text[Joystick.n_buttons++] = j?TNUM_HAT2_U:TNUM_HAT_U;
-				joybutton_text[Joystick.n_buttons++] = j?TNUM_HAT2_R:TNUM_HAT_R;
-				joybutton_text[Joystick.n_buttons++] = j?TNUM_HAT2_D:TNUM_HAT_D;
-				joybutton_text[Joystick.n_buttons++] = j?TNUM_HAT2_L:TNUM_HAT_L;
+				sprintf(temp, "J%d H%d%c", i + 1, j + 1, 0202);
+				joybutton_text[Joystick.n_buttons++] = d_strdup(temp);
+				sprintf(temp, "J%d H%d%c", i + 1, j + 1, 0177);
+				joybutton_text[Joystick.n_buttons++] = d_strdup(temp);
+				sprintf(temp, "J%d H%d%c", i + 1, j + 1, 0200);
+				joybutton_text[Joystick.n_buttons++] = d_strdup(temp);
+				sprintf(temp, "J%d H%d%c", i + 1, j + 1, 0201);
+				joybutton_text[Joystick.n_buttons++] = d_strdup(temp);
 			}
 
 			num_joysticks++;
@@ -210,6 +225,7 @@ int joy_init()
 	}
 
 	joy_num_axes = Joystick.n_axes;
+	atexit(joy_close);
 
 	return joy_present;
 }
@@ -218,6 +234,10 @@ void joy_close()
 {
 	while (num_joysticks)
 		SDL_JoystickClose(SDL_Joysticks[--num_joysticks].handle);
+	while (Joystick.n_axes--)
+		d_free(joyaxis_text[Joystick.n_axes]);
+	while (Joystick.n_buttons--)
+		d_free(joybutton_text[Joystick.n_buttons]);
 }
 
 void joy_get_pos(int *x, int *y)
