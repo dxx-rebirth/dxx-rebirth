@@ -1,5 +1,8 @@
 2004-05-19  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/ogl/ogl.c: make RENDERSTATS show size of color/depth buffer
+	too (d1x r1.31)
+
 	* arch/ogl/gr.c, arch/ogl/ogl.c, include/loadgl.c,
 	include/ogl_init.h: utilize hardware multitexturing support if
 	possible (requires GL_NV_texture_env_combine4 extension) (d1x

@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.18 2004-05-20 03:31:32 btb Exp $ */
+/* $Id: ogl.c,v 1.19 2004-05-20 05:02:53 btb Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -203,8 +203,22 @@ int ogl_texture_stats(void){
 //		else if(t->w!=0)
 //			grabbed++;
 	}
-	if (gr_renderstats){
-		gr_printf(5,GAME_FONT->ft_h*14+3*14,"%i(%i,%i) %iK(%iK wasted)",used,usedrgba,usedl4a4,truebytes/1024,(truebytes-databytes)/1024);
+	if (gr_renderstats)
+	{
+		int r, g, b, a, dbl, depth, res, colorsize, depthsize;
+		res = SWIDTH * SHEIGHT;
+		glGetIntegerv(GL_RED_BITS, &r);
+		glGetIntegerv(GL_GREEN_BITS, &g);
+		glGetIntegerv(GL_BLUE_BITS, &b);
+		glGetIntegerv(GL_ALPHA_BITS, &a);
+		glGetIntegerv(GL_DOUBLEBUFFER, &dbl);
+		dbl += 1;
+		glGetIntegerv(GL_DEPTH_BITS, &depth);
+		colorsize = ((r + g + b + a) * res * dbl) / 8;
+		depthsize = res * depth / 8;
+		gr_printf(5, GAME_FONT->ft_h * 14 + 3 * 14, "%i(%i,%i) %iK(%iK wasted)", used, usedrgba, usedl4a4, truebytes / 1024, (truebytes - databytes) / 1024);
+		gr_printf(5, GAME_FONT->ft_h * 15 + 3 * 15, "r%i,g%i,b%i,a%ix%i=%iK depth%i=%iK", r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
+		gr_printf(5, GAME_FONT->ft_h * 16 + 3 * 16, "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 	}
 //	glmprintf((0,"ogl tex stats: %i(%i,%i|%i,%i,%i,%i,%i) %i(%i)b (%i(%i)wasted)\n",used,usedrgba,usedl4a4,prio0,prio1,prio2,prio3,prioh,truebytes,truetexel,truebytes-databytes,truetexel-datatexel));
 	return truebytes;
