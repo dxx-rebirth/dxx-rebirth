@@ -18,6 +18,8 @@
 
 	* 3d/interp.c: add g3_uninit_polygon_model (doesn't do anything)
 
+	* main/dumpmine.c: Fix type mismatches
+
 2004-12-19  Bradley Bell  <btb@icculus.org>
 
 	* ui/Makefile.am: fix ui Makefile.am

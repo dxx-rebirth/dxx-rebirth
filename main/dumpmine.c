@@ -1,4 +1,4 @@
-/* $Id: dumpmine.c,v 1.6 2004-12-19 11:06:38 btb Exp $ */
+/* $Id: dumpmine.c,v 1.7 2004-12-20 09:34:07 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: dumpmine.c,v 1.6 2004-12-19 11:06:38 btb Exp $";
+static char rcsid[] = "$Id: dumpmine.c,v 1.7 2004-12-20 09:34:07 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -73,7 +73,7 @@ char	*object_types(int objnum)
 	int	type = Objects[objnum].type;
 
 	Assert((type >= 0) && (type < MAX_OBJECT_TYPES));
-	return	&Object_type_names[type];
+	return Object_type_names[type];
 }
 
 // ----------------------------------------------------------------------------
@@ -84,10 +84,10 @@ char	*object_ids(int objnum)
 
 	switch (type) {
 		case OBJ_ROBOT:
-			return &Robot_names[id];
+			return Robot_names[id];
 			break;
 		case OBJ_POWERUP:
-			return &Powerup_names[id];
+			return Powerup_names[id];
 			break;
 	}
 
@@ -569,7 +569,7 @@ void write_game_text_file(char *filename)
 	if (!my_file)	{
 		char  ErrorMessage[200];
 
-		sprintf( ErrorMessage, "ERROR: Unable to open %s\nErrno = %i", my_file, errno );
+		sprintf(ErrorMessage, "ERROR: Unable to open %s\nErrno = %i", my_filename, errno);
 		stop_time();
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
@@ -921,7 +921,7 @@ void say_unused_tmaps(FILE *my_file, int *tb)
 
 	for (i=0; i<MAX_BITMAP_FILES; i++)
 		if (!tb[i]) {
-			if (GameBitmaps[Textures[i].index].bm_data == &bogus_data)
+			if (GameBitmaps[Textures[i].index].bm_data == bogus_data)
 				fprintf(my_file, "U");
 			else
 				fprintf(my_file, " ");
