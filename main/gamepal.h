@@ -16,9 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "inferno.h"
 
-#ifdef __CYGWIN__
-#undef DEFAULT_PALETTE /* KLUDGE */
-#endif
 #define DEFAULT_PALETTE "default.256"
 #define MENU_PALETTE		"default.256"
 

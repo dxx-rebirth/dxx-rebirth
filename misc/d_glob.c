@@ -11,7 +11,7 @@
 #include "u_mem.h"
 //end addition -MM
 
-#if defined(__DJGPP__) || defined(__LINUX__)
+#if defined(__ENV_DJGPP__) || defined(__ENV_LINUX__)
 #include <glob.h>
 
 int d_glob(const char *pattern, d_glob_t *g)
@@ -31,7 +31,7 @@ int d_glob(const char *pattern, d_glob_t *g)
 
 void d_globfree(d_glob_t *g)
 {
-#ifndef __LINUX__ // Linux doesn't believe in freeing glob structures... :-)
+#ifndef __ENV_LINUX__ // Linux doesn't believe in freeing glob structures... :-)
  glob_t a;
 
  Assert (g!=NULL);

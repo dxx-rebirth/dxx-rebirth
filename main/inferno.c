@@ -417,7 +417,6 @@ int main(int argc,char **argv)
 	int i,t;
 	ubyte title_pal[768];
 
-	
 	con_init();  // Initialise the console
 	mem_init();
 

@@ -19,10 +19,26 @@ AC_CHECK_TOOL(RANLIB, ranlib, :)
 AC_CHECK_TOOL(AR, ar, :)
 AC_STDC_HEADERS
 
-AC_CYGWIN
-AC_MINGW32
+NO_ASM=0
+NO_NETWORK=0
+GL_LIBS="GL GLU"
 
-CFLAGS="-g -O2 -Wall"
+AC_CYGWIN
+if test x$CYGWIN = xyes; then
+    AC_MSG_WARN([Cygwin found, setting -mno-cygwin])
+    CFLAGS="$CFLAGS -mno-cygwin"
+fi
+
+AC_MINGW32
+AM_CONDITIONAL(MINGW32, test x$MINGW32 = xyes)
+if test x$MINGW32 = xyes; then
+    GL_LIBS="opengl32 glu32"
+    AC_MSG_WARN([mingw32 found, disabling network and assembler])
+    NO_ASM=1
+    NO_NETWORK=1
+fi
+
+CFLAGS="$CFLAGS -g -O2 -Wall"
 
 dnl Count warnings as errors?
 AC_ARG_WITH(werror,
@@ -53,21 +69,16 @@ if test "$host_os" = "msdosdjgpp"; then
 
 else
   CFLAGS="-pipe $CFLAGS"
-  AM_CONDITIONAL(ENV_CYGWIN, test "$host_os" = "cygwin")
 
-  AC_DEFINE(__ENV_LINUX__)
+  case "$host_os" in
+    *linux*) AC_DEFINE(__ENV_LINUX__) ;;
+  esac
 
+  dnl Check for SDL
   AM_PATH_SDL(1.1.7,
-    AC_MSG_RESULT([SDL_CFLAGS=$SDL_CFLAGS SDL_LIBS=$SDL_LIBS]),
+    :,
     AC_MSG_ERROR(SDL not found. Make sure sdl-config is in your PATH, or specify with --with-sdl-prefix)
   )
-  if test "$host_os" = "cygwin"; then
-    # mingw32-specific stuff, I guess...?
-    SDL_CFLAGS=`echo $SDL_CFLAGS | sed 's/-Dmain=SDL_main//'`
-    SDL_LIBS=`echo $SDL_LIBS | sed 's/-lmingw32//' | sed 's/-mwindows//' | sed 's/-lSDLmain//'`
-    AC_MSG_RESULT([Using SDL_CFLAGS=$SDL_CFLAGS SDL_LIBS=$SDL_LIBS])
-  fi
-
   AC_SUBST(SDL_LIBS)
 
   AC_CHECK_HEADERS(netipx/ipx.h)
@@ -80,31 +91,15 @@ else
       no)  opengl=false ;;
       *) AC_MSG_ERROR(bad value ${withval} for --with-opengl) ;;
     esac],[opengl=false])
-  
+
   if test x$opengl = xtrue; then
-   if test "$host_os" = "cygwin"; then
-    AC_CHECK_LIB(opengl32, main,
-      OGL_LIBS="-lopengl32", 
-      [AC_MSG_ERROR([opengl32 not found, OpenGL cannot be built])
-       opengl=false],
-       )
-    AC_CHECK_LIB(glu32,main,
-      OGL_LIBS="${OGL_LIBS} -lglu32",
-      [AC_MSG_ERROR([glu32 not found, OpenGL cannot be built])
-       opengl=false],
-       -lopengl32)
-   else
-    AC_CHECK_LIB(GL, main,
-      OGL_LIBS="-lGL", 
-      [AC_MSG_ERROR([GL not found, OpenGL cannot be built])
-       opengl=false],
-       )
-    AC_CHECK_LIB(GLU,main,
-      OGL_LIBS="${OGL_LIBS} -lGLU",
-      [AC_MSG_ERROR([GLU not found, OpenGL cannot be built])
-       opengl=false],
-       -lGL)
-   fi
+    for lib in $GL_LIBS; do
+	AC_CHECK_LIB($lib, main,
+	    OGL_LIBS="$OGL_LIBS -l$lib",
+	    [AC_MSG_ERROR([$lib not found, --with-opengl cannot be used])
+	    opengl=false],
+	)
+    done
   fi
   AC_SUBST(OGL_LIBS)
   AM_CONDITIONAL(USE_OPENGL, test x$opengl = xtrue)
@@ -178,8 +173,6 @@ else
 fi
 
 # Check for NASM and network
-NO_ASM=0
-NO_NETWORK=0
 AC_ARG_WITH(assembler,
   [  --without-assembler          Do not use assembler optimization ],
       if test x$withval = xno; then

@@ -34,7 +34,7 @@ char *d_strdup(char *str)
 }
 
 
-#if !defined  __ENV_LINUX__ && !defined __ENV_DJGPP__
+#if 0
 // string compare without regard to case
 
 int stricmp( char *s1, char *s2 )
@@ -59,11 +59,10 @@ int strnicmp( char *s1, char *s2, int n )
 	if (n) return 1;
 	return 0;
 }
-
 #endif
 
-#if !defined __ENV_DJGPP__ && !defined __CYGWIN__
-
+#ifndef __MINGW32__
+#ifndef __ENV_DJGPP__
 void strlwr( char *s1 )
 {
 	while( *s1 )	{
@@ -145,6 +144,7 @@ void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
 	if (ext)
 		strcpy(ext, p);		
 }
+#endif
 
 #if 0
 void main()

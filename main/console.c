@@ -13,7 +13,7 @@
 #include "console.h"
 #include "cmd.h"
 
-#ifdef __ENV_LINUX__
+#if defined(__ENV_LINUX__) || defined(__MINGW32__)
 int text_console_enabled = 1;
 #else
 int isvga();

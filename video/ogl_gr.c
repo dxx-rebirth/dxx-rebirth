@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/video/ogl_gr.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:47:52 $
+ * $Date: 2001-10-12 00:18:40 $
  *
  * // OGL video functions. - Added 9/15/99 Matthew Mueller
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/01/29 13:47:52  bradleyb
+ * Fixed build, some minor cleanups.
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -236,10 +239,9 @@ int ogl_testneedmipmaps(int i){
 //	return -1;
 }
 #ifdef OGL_RUNTIME_LOAD
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) || defined(__MINGW32__)
 char *OglLibPath="opengl32.dll";
-#endif
-#ifdef __LINUX__
+#elif defined(__ENV_LINUX__)
 char *OglLibPath="libGL.so";
 #endif
 
@@ -536,7 +538,7 @@ void gr_palette_read(ubyte * pal)
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
 void write_bmp(char *savename,int w,int h,unsigned char *buf){
 	int f;
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) || defined (__MINGW32__)
 	f=open(savename,O_CREAT|O_EXCL|O_WRONLY,S_IRUSR|S_IWUSR);
 #else
 	f=open(savename,O_CREAT|O_EXCL|O_WRONLY,S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);

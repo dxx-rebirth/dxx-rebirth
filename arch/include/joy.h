@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/arch/include/joy.h,v $
- * $Revision: 1.2 $
+ * $Revision: 1.3 $
  * $Author: bradleyb $
- * $Date: 2001-01-29 13:36:14 $
+ * $Date: 2001-10-12 00:18:37 $
  *
  * Header for joystick functions
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.2  2001/01/29 13:36:14  bradleyb
+ * Removed duplicate files
+ *
  * Revision 1.1  2001/01/28 16:10:57  bradleyb
  * unified input headers.
  *
@@ -52,7 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define JOY_NUM_AXES		4
 #endif
 
-#ifdef  _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
 #define JOY_1_POV			8
 #define JOY_ALL_AXIS		(1+2+4+8)
 #define JOY_EXT_AXIS		(16+32+64)
@@ -150,7 +153,7 @@ extern void joy_set_btn_values( int btn, int state, fix timedown, int downcount,
 extern int joy_get_scaled_reading( int raw, int axn );
 extern void joy_set_slow_reading( int flag );
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
 extern int joy95_init_stick(int joy, int spjoy);
 #endif
 

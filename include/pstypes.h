@@ -22,38 +22,33 @@ typedef signed char byte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
-#if defined __CYGWIN__
-# define _MAX_PATH 260
-# define _MAX_DIR 256
-# undef min
-# define min(a,b) (((a)>(b))?(b):(a))
-# undef max
-# define max(a,b) (((a)<(b))?(b):(a))
+#ifndef __ENV_LINUX__
+typedef unsigned short ushort;
+typedef unsigned int uint;
 typedef unsigned long ulong;
+#endif
+
+# define min(a,b) (((a)>(b))?(b):(a))
+# define max(a,b) (((a)<(b))?(b):(a))
+
+#if defined __MINGW32__
+#include <stdint.h>
+typedef uint32_t u_int32_t;
+
 #elif defined __ENV_LINUX__
 # include <sys/types.h>
 # define _MAX_PATH 1024
 # define _MAX_DIR 256
-# define min(a,b) (((a)>(b))?(b):(a))
-# define max(a,b) (((a)<(b))?(b):(a))
+
 #elif defined __ENV_DJGPP__
 # include <sys/types.h>
-# define min(a,b) (((a)>(b))?(b):(a))
-# define max(a,b) (((a)<(b))?(b):(a))
 # define _MAX_PATH 255
 # define _MAX_DIR 63
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
 typedef signed int int32_t;
 typedef unsigned int u_int32_t;
 typedef signed short int16_t;
 typedef unsigned short u_int16_t;
 
-#else
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
 #endif
 
 //define a boolean

@@ -92,7 +92,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void DoJasonInterpolate (fix recorded_time);
 
+#ifndef __MINGW32__
 void mkdir (char*); /* no idea */
+#endif
 
 //#include "nocfile.h"
 

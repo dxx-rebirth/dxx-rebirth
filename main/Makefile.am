@@ -12,8 +12,8 @@ LDFLAGS = -export-dynamic
 
 d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../video/libvideo.a ../arch/libarch.a ../sound/libsound.a ../input/libinput.a
 
-if ENV_CYGWIN
-d2x_sdl_LDADD = ${d2x_LDADD} -lm ${SDL_LIBS}
+if MINGW32
+d2x_sdl_LDADD = ${d2x_LDADD} ${SDL_LIBS}
 else
 d2x_sdl_LDADD = ${d2x_LDADD} -lm -ldl -lpthread ${SDL_LIBS}
 endif
@@ -22,7 +22,7 @@ d2x_svga_LDADD = ${d2x_sdl_LDADD} ${SVGA_LIBS}
 d2x_ggi_LDADD = ${d2x_sdl_LDADD} ${GGI_LIBS}
 
 d2x_SOURCES = \
-ai.c	    gamerend.c  lighting.c	paging.c    switch.c \
+ai.c	    gamerend.c  lighting.c  paging.c    switch.c \
 ai2.c	    effects.c	gamesave.c  menu.c	physics.c   texmerge.c \
 aipath.c    endlevel.c	gameseg.c   mglobal.c	piggy.c     text.c \
 automap.c   escort.c	gameseq.c   mission.c	playsave.c  titles.c \

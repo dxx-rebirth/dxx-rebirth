@@ -48,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.3 2001-01-31 15:17:49 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.4 2001-10-12 00:18:38 bradleyb Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -371,7 +371,7 @@ int ReadConfigFile()
 	Config_digi_type = digi_driver_board;
 	Config_digi_dma = digi_driver_dma;*/
 
-#if !defined WINDOWS && !defined __ENV_LINUX__ && !defined __ENV_DJGPP__
+#if 0
 	if (digi_driver_board_16 > 0 && !FindArg("-no16bit") && digi_driver_board_16 != _GUS_16_ST) {
 		digi_driver_board = digi_driver_board_16;
 		digi_driver_dma = digi_driver_dma_16;
@@ -578,7 +578,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.3 2001-01-31 15:17:49 bradleyb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.4 2001-10-12 00:18:38 bradleyb Exp $";
 #endif
 
 #define MAX_CTB_LEN	512

@@ -8,7 +8,7 @@
 
 #ifndef d_delay
 
-#ifdef __WINDOWS__
+#if defined __WINDOWS__ || defined __MINGW32__
 
 #include <windows.h>
 

@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/video/ogl.c,v $
- * $Revision: 1.6 $
+ * $Revision: 1.7 $
  * $Author: bradleyb $
- * $Date: 2001-10-09 03:00:08 $
+ * $Date: 2001-10-12 00:18:40 $
  *
  * Graphics support functions for OpenGL.
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.6  2001/10/09 03:00:08  bradleyb
+ * opengl improvments (following d1x changes)
+ *
  * Revision 1.5  2001/10/09 02:38:52  bradleyb
  * re-imported d1x version of this file
  *
@@ -63,7 +66,7 @@
 #define M_PI 3.14159
 #endif
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) || defined(__MINGW32__)
 #define cosf(a) cos(a)
 #define sinf(a) sin(a)
 #endif

@@ -11,33 +11,27 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
  
-#ifndef _STRUTILS_
-#define _STRUTILS_
+#ifndef _STRUTILS_H
+#define _STRUTILS_H
 
 char *d_strdup(char *str);
 
-#if defined __CYGWIN__
-/* nothing needed */
-
-#elif defined __ENV_LINUX__
+#if defined(__ENV_LINUX__)
 #define stricmp(a,b) strcasecmp(a,b)
 #define strnicmp(a,b,c) strncasecmp(a,b,c)
-
-void strupr( char *s1 );
-void strlwr( char *s1 );
-#elif defined __ENV_DJGPP__
-// Nothing needed
-
-#else
+#elif 0
 extern int stricmp(char *str1, char *str2);
 extern int strnicmp(char *str1, char *str2, int n);
+#endif
 
+#ifndef __MINGW32__
+#ifndef __ENV_DJGPP__
 void strupr( char *s1 );
 void strlwr( char *s1 );
 #endif
 
 void strrev( char *s1 );
-
 void _splitpath(char *name, char *drive, char *path, char *base, char *ext);
-
 #endif
+
+#endif /* _STRUTILS_H */

@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-aclocal -I macros
+aclocal $ACLOCAL_FLAGS
 autoheader
 automake --add-missing
 autoconf

@@ -1059,7 +1059,7 @@ multi_menu_poll(void)
 		return(-1);
 	}
 
-#if !defined(WINDOWS) && !defined(MACINTOSH) && (!defined(__ENV_LINUX__) && (!defined (__ENV_DJGPP__)))
+#if 0
 	if ((Game_mode & GM_MODEM) && (!GetCd(com_port)))
 	{
 		multi_leave_menu = 1;
