@@ -189,22 +189,24 @@ else
     AC_CHECK_HEADERS(netipx/ipx.h)
 
   # Check for SDL_image
-	AC_CHECK_LIB(SDL_image, IMG_ReadXPMFromArray,
-		LIBS="-lSDL_image $LIBS"
-		AC_DEFINE(SDL_IMAGE,,[Define if you have the SDL_image library]))
+    AC_CHECK_LIB(SDL_image, IMG_ReadXPMFromArray,
+        LIBS="-lSDL_image $LIBS"
+        AC_DEFINE(SDL_IMAGE,,[Define if you have the SDL_image library]))
 
   # Check for libpng
-	have_libpng=no
-	#PKG_CHECK_MODULES(LIBPNG, libpng,
-	#	AC_DEFINE(HAVE_LIBPNG,,[Define if you have libpng])
-	#	have_libpng=yes
-	#	LIBS="$LIBPNG_LIBS $LIBS",
-	#	AC_MSG_WARN([libpng not found. disabling png replacement texture support])
+    have_libpng=no
+    #PKG_CHECK_MODULES(LIBPNG, libpng,
+    #	AC_DEFINE(HAVE_LIBPNG,,[Define if you have libpng])
+    #	have_libpng=yes
+    #	LIBS="$LIBPNG_LIBS $LIBS",
+    #	AC_MSG_WARN([libpng not found. disabling png replacement texture support])
 #)
-	AM_CONDITIONAL(USE_LIBPNG, test x$have_libpng = xyes)
+    AM_CONDITIONAL(USE_LIBPNG, test x$have_libpng = xyes)
 
   # Check for PhysicsFS
-	AC_CHECK_LIB(physfs, PHYSFS_init, LIBS="-lphysfs $LIBS")
+    AC_CHECK_HEADERS(physfs.h, , [AC_MSG_ERROR([physfs.h required])])
+    AC_CHECK_LIB(physfs, PHYSFS_init, LIBS="-lphysfs $LIBS",
+                 [AC_MSG_ERROR([physfs library required])])
 
   # Check for OpenGL
     AC_ARG_WITH(opengl,

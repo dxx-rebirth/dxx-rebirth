@@ -1,3 +1,7 @@
+2004-12-02  Martin Schaffner  <maschaffner@gmx.ch>
+
+	* configure.ac: require PhysicsFS header and library
+
 2004-12-02  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/bm.c, main/piggy.c: fix cfile bugs from recent changes
