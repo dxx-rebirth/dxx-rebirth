@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.12 2003-11-27 00:21:04 btb Exp $ */
+/* $Id: state.c,v 1.13 2004-05-19 02:47:49 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -892,6 +892,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 						screen_shot_pa(cnv,&cnv2);
 					#endif
 #elif defined(OGL)
+# if 1
 		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
 		glReadBuffer(GL_FRONT);
 		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGB, GL_UNSIGNED_BYTE, buf);
@@ -903,6 +904,9 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 				gr_find_closest_color(buf[3*i]/4, buf[3*i+1]/4, buf[3*i+2]/4);
 		}
 		d_free(buf);
+# else // simpler d1x method, not tested yet
+		ogl_ubitblt_tolinear(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curscreen->sc_canvas.cv_bitmap, &grd_curcanv->cv_bitmap);
+# endif
 #endif
 
 					pal = gr_palette;
