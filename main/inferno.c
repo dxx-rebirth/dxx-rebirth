@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.27 $
+ * $Revision: 1.28 $
  * $Author: bradleyb $
- * $Date: 2002-02-16 02:08:31 $
+ * $Date: 2002-07-16 19:05:13 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.27  2002/02/16 02:08:31  bradleyb
+ * allow older sdl versions
+ *
  * Revision 1.26  2002/02/15 12:24:53  bradleyb
  * automap resolution now selectable
  *
@@ -92,10 +95,10 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #ifdef __unix__
 #include <unistd.h>
-#include <limits.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif
