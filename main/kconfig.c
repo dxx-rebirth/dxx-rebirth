@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.27 2003-12-18 11:24:04 btb Exp $ */
+/* $Id: kconfig.c,v 1.28 2004-05-21 02:45:51 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.27 2003-12-18 11:24:04 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.28 2004-05-21 02:45:51 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -989,6 +989,54 @@ void kc_change_invert( kc_item * item );
 void kconfig_read_fcs( int raw_axis );
 void kconfig_set_fcs_button( int btn, int button );
 void kconfig_read_external_controls( void );
+
+// the following methods added by WraithX, 4/17/00
+int isJoyRotationKey(int test_key)
+{
+	if (test_key == kc_joystick[11].value ||
+	    test_key == kc_joystick[12].value)
+	{
+		return 1;
+	}// end if
+
+	// else...
+	return 0;
+}// method isJoyRotationKey
+
+int isMouseRotationKey(int test_key)
+{
+	if (test_key == kc_mouse[11].value ||
+	    test_key == kc_mouse[12].value)
+	{
+		return 1;
+	}// end if
+
+	// else...
+	return 0;
+}// method isMouseRotationKey
+
+int isKeyboardRotationKey(int test_key)
+{
+	if (test_key == kc_keyboard[0].value ||
+	    test_key == kc_keyboard[1].value ||
+	    test_key == kc_keyboard[2].value ||
+	    test_key == kc_keyboard[3].value ||
+	    test_key == kc_keyboard[4].value ||
+	    test_key == kc_keyboard[5].value ||
+	    test_key == kc_keyboard[6].value ||
+	    test_key == kc_keyboard[7].value ||
+	    test_key == kc_keyboard[20].value ||
+	    test_key == kc_keyboard[21].value ||
+	    test_key == kc_keyboard[22].value ||
+	    test_key == kc_keyboard[23].value)
+	{
+		return 1;
+	}// end if
+
+	// else...
+	return 0;
+}// method isKeyboardRotationKey
+// end addition - WraithX
 
 int kconfig_is_axes_used(int axis)
 {
@@ -3433,6 +3481,10 @@ void controls_read_all()
 	}
 
 
+// the following "if" added by WraithX, 4/14/00
+// done so that dead players can't move
+if (!Player_is_dead)
+{
 //----------- Read vertical_thrust_time -----------------
 
 	if ( slide_on )	{
@@ -3505,6 +3557,7 @@ void controls_read_all()
 		Controls.vertical_thrust_time += mouse_button_down_time(MB_Z_UP)/2;
 		Controls.vertical_thrust_time -= mouse_button_down_time(MB_Z_DOWN)/2;
 	}
+}// end "if" added by WraithX
 
 //---------- Read heading_time -----------
 
@@ -3557,6 +3610,10 @@ void controls_read_all()
 		Controls.heading_time = 0;
 	}
 
+// the following "if" added by WraithX, 4/14/00
+// done so that dead players can't move
+if (!Player_is_dead)
+{
 //----------- Read sideways_thrust_time -----------------
 
 	if ( slide_on )	{
@@ -3623,6 +3680,7 @@ void controls_read_all()
 		else
 			Controls.sideways_thrust_time -= mouse_axis[kc_mouse[17].value];
 	}
+}// end "if" added by WraithX
 
 //----------- Read bank_time -----------------
 
@@ -3697,6 +3755,10 @@ void controls_read_all()
 		Controls.bank_time -= mouse_button_down_time(MB_BANK_RIGHT);
 	}
 
+// the following "if" added by WraithX, 4/14/00
+// done so that dead players can't move
+if (!Player_is_dead)
+{
 //----------- Read forward_thrust_time -------------
 
 	// From keyboard...
@@ -3848,6 +3910,8 @@ void controls_read_all()
 	if (kc_keyboard[37].value < 255 ) Controls.rear_view_down_state |= keyd_pressed[kc_keyboard[37].value];
 	if ((use_joystick)&&(kc_joystick[25].value < 255 )) Controls.rear_view_down_state |= joy_get_button_state(kc_joystick[25].value);
 	if ((use_mouse)&&(kc_mouse[25].value < 255 )) Controls.rear_view_down_state |= mouse_button_state(kc_mouse[25].value);
+
+}//end "if" added by WraithX
 
 //----------- Read automap_down_count
 	if (kc_keyboard[44].value < 255 ) Controls.automap_down_count += key_down_count(kc_keyboard[44].value);

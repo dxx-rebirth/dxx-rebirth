@@ -1,4 +1,4 @@
-/* $Id $ */
+/* $Id: kconfig.h,v 1.4 2004-05-21 02:46:07 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -306,5 +306,11 @@ extern void reset_cruise(void);
 extern int kconfig_is_axes_used(int axis);
 
 extern void kconfig_init_external_controls(int intno, int address);
+
+// the following methods added by WraithX, 4/17/00
+extern int isJoyRotationKey(int test_key);       //tells if "test_key" is setup for rotation on the joy
+extern int isMouseRotationKey(int test_key);     //tells if "test_key" is setup for rotation on the mouse
+extern int isKeyboardRotationKey(int test_key);  //tells if "test_key" is setup for rotation on the keyboard
+// end addition - WraithX
 
 #endif /* _KCONFIG_H */

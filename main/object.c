@@ -1,4 +1,4 @@
-/* $Id: object.c,v 1.11 2004-05-15 17:24:17 schaffner Exp $ */
+/* $Id: object.c,v 1.12 2004-05-21 02:46:24 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1917,7 +1917,8 @@ void dead_player_frame(void)
 			int		objnum;
 			object	*player = &Objects[Players[Player_num].objnum];
 
-			objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
+			// this next line was changed by WraithX, instead of CT_FLYING, it was CT_NONE: instead of MT_PHYSICS, it was MT_NONE.
+			objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_FLYING, MT_PHYSICS, RT_NONE);
 
 			mprintf((0, "Creating new dead player camera.\n"));
 			if (objnum != -1)
@@ -1936,13 +1937,29 @@ void dead_player_frame(void)
 
 		set_camera_pos(&Dead_player_camera->pos, ConsoleObject);
 
-//		if (time_dead < DEATH_SEQUENCE_EXPLODE_TIME+F1_0*2) {
+		// the following line uncommented by WraithX, 4-12-00
+		if (time_dead < DEATH_SEQUENCE_EXPLODE_TIME + F1_0 * 2)
+		{
 			vm_vec_sub(&fvec, &ConsoleObject->pos, &Dead_player_camera->pos);
 			vm_vector_2_matrix(&Dead_player_camera->orient, &fvec, NULL, NULL);
-//		} else {
-//			Dead_player_camera->movement_type = MT_PHYSICS;
-//			Dead_player_camera->mtype.phys_info.rotvel.y = F1_0/8;
-//		}
+			Dead_player_camera->mtype.phys_info = ConsoleObject->mtype.phys_info;
+
+			// the following "if" added by WraithX to get rid of camera "wiggle"
+			if (Dead_player_camera->mtype.phys_info.flags & PF_WIGGLE)
+			{
+				Dead_player_camera->mtype.phys_info.flags = (Dead_player_camera->mtype.phys_info.flags & ~PF_WIGGLE);
+			}// end "if" added by WraithX, 4/13/00
+
+		// the following line uncommented by WraithX, 4-12-00
+		}
+		else
+		{
+			// the following line uncommented by WraithX, 4-11-00
+			Dead_player_camera->movement_type = MT_PHYSICS;
+			//Dead_player_camera->mtype.phys_info.rotvel.y = F1_0/8;
+		// the following line uncommented by WraithX, 4-12-00
+		}
+		// end addition by WX
 
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
 			if (!Player_exploded) {
@@ -2097,7 +2114,8 @@ void start_player_death_sequence(object *player)
 
 	Player_time_of_death = GameTime;
 
-	objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
+	// this next line was changed by WraithX, instead of CT_FLYING, it was CT_NONE: instead of MT_PHYSICS, it was MT_NONE.
+	objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_FLYING, MT_PHYSICS, RT_NONE);
 	Viewer_save = Viewer;
 	if (objnum != -1)
 		Viewer = Dead_player_camera = &Objects[objnum];
@@ -2119,7 +2137,7 @@ void start_player_death_sequence(object *player)
 
 	player->flags &= ~OF_SHOULD_BE_DEAD;
 //	Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-	player->control_type = CT_NONE;
+	player->control_type = CT_FLYING;  // change from CT_NONE to CT_FLYING by WraithX
 	player->shields = F1_0*1000;
 
 	PALETTE_FLASH_SET(0,0,0);
@@ -2328,8 +2346,12 @@ void object_move_one( object * obj )
 			explode_object(obj,0);
 	}
 
+	// the following ( if !dead) statement added by WraithX
+	if (!Player_is_dead)
+	{
 	if (obj->type == OBJ_NONE || obj->flags&OF_SHOULD_BE_DEAD)
 		return;			//object has been deleted
+	}// end addition by WraithX
 
 	switch (obj->movement_type) {
 

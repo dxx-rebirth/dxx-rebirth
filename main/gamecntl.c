@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.23 2003-11-07 06:30:06 btb Exp $ */
+/* $Id: gamecntl.c,v 1.24 2004-05-21 02:45:34 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2531,7 +2531,8 @@ void ReadControls()
 
 	Player_fired_laser_this_frame=-1;
 
-	if (!Endlevel_sequence && !Player_is_dead) {
+	if (!Endlevel_sequence) // && !Player_is_dead  //this was taken out of the if statement by WraithX
+	{
 
 			if ( (Newdemo_state == ND_STATE_PLAYBACK) || (DefiningMarkerMessage)
 				#ifdef NETWORK
@@ -2568,17 +2569,33 @@ void ReadControls()
 			//if (key_down_count(KEY_PRINT_SCREEN))
 			//	save_screen_shot(0);
 
-			#ifndef MACINTOSH
-			for (i=0; i<4; i++ )
-				if (joy_get_button_down_cnt(i)>0) Death_sequence_aborted = 1;
-			#else
-				if ( joy_get_any_button_down_cnt()>0 ) Death_sequence_aborted = 1;
-			#endif
-			for (i=0; i<3; i++ )
-				if (mouse_button_down_count(i)>0) Death_sequence_aborted = 1;
+#ifndef MACINTOSH
+			for (i = 0; i < 4; i++)
+				// the following "if" added by WraithX, 4/17/00
+				if (isJoyRotationKey(i) != 1)
+				{
+					if (joy_get_button_down_cnt(i) > 0)
+						Death_sequence_aborted = 1;
+				}// end "if" added by WraithX
+#else
+			if (joy_get_any_button_down_cnt() > 0)
+				Death_sequence_aborted = 1;
+#endif
+			for (i = 0; i < 3; i++)
+				// the following "if" added by WraithX, 4/17/00
+				if (isMouseRotationKey(i) != 1)
+				{
+					if (mouse_button_down_count(i) > 0)
+						Death_sequence_aborted = 1;
+				}// end "if" added by WraithX
 
-			//for (i=0; i<256; i++ )
-			//	if (!key_isfunc(i) && !key_ismod(i) && key_down_count(i)>0) Death_sequence_aborted = 1;
+			//for (i = 0; i < 256; i++)
+			//	// the following "if" added by WraithX, 4/17/00
+			//	if (isKeyboardRotationKey(i) != 1)
+			//	{
+			//		if (!key_isfunc(i) && !key_ismod(i) && key_down_count(i) > 0)
+			//			Death_sequence_aborted = 1;
+			//	}// end "if" added by WraithX
 
 			if (Death_sequence_aborted)
 				game_flush_inputs();

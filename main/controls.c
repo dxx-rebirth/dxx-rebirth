@@ -1,4 +1,4 @@
-/* $Id: controls.c,v 1.5 2003-08-02 20:36:12 btb Exp $ */
+/* $Id: controls.c,v 1.6 2004-05-21 02:45:17 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -198,7 +198,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: controls.c,v 1.5 2003-08-02 20:36:12 btb Exp $";
+static char rcsid[] = "$Id: controls.c,v 1.6 2004-05-21 02:45:17 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -248,11 +248,13 @@ void read_flying_controls( object * obj )
 
 	Assert(FrameTime > 0); 		//Get MATT if hit this!
 
-	if (Player_is_dead) {
-		vm_vec_zero(&obj->mtype.phys_info.rotthrust);
-		vm_vec_zero(&obj->mtype.phys_info.thrust);
-		return;
-	}
+// this section commented and moved to the bottom by WraithX
+//	if (Player_is_dead) {
+//		vm_vec_zero(&obj->mtype.phys_info.rotthrust);
+//		vm_vec_zero(&obj->mtype.phys_info.thrust);
+//		return;
+//	}
+// end of section to be moved.
 
 	if ((obj->type!=OBJ_PLAYER) || (obj->id!=Player_num)) return;	//references to player_ship require that this obj be the player
 
@@ -382,5 +384,13 @@ void read_flying_controls( object * obj )
 
 		vm_vec_scale( &obj->mtype.phys_info.rotthrust, fixdiv(Player_ship->max_rotthrust,ft) );
 	}
+
+	// moved here by WraithX
+	if (Player_is_dead)
+	{
+		//vm_vec_zero(&obj->mtype.phys_info.rotthrust); // let dead players rotate, changed by WraithX
+		vm_vec_zero(&obj->mtype.phys_info.thrust);  // don't let dead players move, changed by WraithX
+		return;
+	}// end if
 
 }
