@@ -1,3 +1,7 @@
+2004-05-20  Matthew Mueller  <donut@dakotacom.net>
+
+	* arch/dos/vesa.c: dos gcc 2.95 asm fixes (d1x r1.2)
+
 2004-05-20  Victor Rachels  <sekmu@tisiphone.dhs.org>
 
 	* arch/dos/init.c, arch/dos/mouse.c: added new arg and printfs for

@@ -1,12 +1,15 @@
 /*
  * $Source: /cvs/cvsroot/d2x/arch/dos/vesa.c,v $
- * $Revision: 1.3 $
- * $Author: bradleyb $
- * $Date: 2001-10-19 09:01:56 $
+ * $Revision: 1.4 $
+ * $Author: btb $
+ * $Date: 2004-05-21 01:31:49 $
  *
  * Dos VESA
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/10/19 09:01:56  bradleyb
+ * Moved arch/sdl_* to arch/sdl
+ *
  * Revision 1.2  2001/01/29 13:35:08  bradleyb
  * Fixed build system, minor fixes
  *
@@ -105,25 +108,35 @@ int gr_vesa_setmode(int mode) {
     return (ret == 0x4f) ? 0 : 4;
 }
 
-inline void gr_vesa_setpage(int bank) {
+inline void gr_vesa_setpage(int bank)
+{
+	int dummy[1];
+
     if (bank != lastbank)
-	asm volatile("int $0x10"
-	 : : "a" (0x4f05), "b" (0), "d" ((lastbank = bank) << bankshift));
+		asm volatile("int $0x10"
+		 : "a" (dummy[0])
+		 : "0" (0x4f05), "b" (0), "d" ((lastbank = bank) << bankshift));
 }
 
 void gr_vesa_incpage() {
     gr_vesa_setpage(lastbank + 1);
 }
 
-void gr_vesa_setstart(int col, int row) {
+void gr_vesa_setstart(int col, int row)
+{
+	int dummy;
+
     asm volatile("int $0x10"
-     : : "a" (0x4f07), "b" (0), "c" (col), "d" (row));
+     : "=a" (dummy) : "0" (0x4f07), "b" (0), "c" (col), "d" (row));
 }
 
-int gr_vesa_setlogical(int line_width) {
+int gr_vesa_setlogical(int line_width)
+{
     int ret;
+	int dummy;
+
     asm volatile("int $0x10"
-     : "=c" (ret) : "a" (0x4f07), "b" (0), "c" (line_width));
+     : "=c" (ret), "=a" (dummy) : "1" (0x4f07), "b" (0), "c" (line_width));
     return ret;
 }
 
