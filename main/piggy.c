@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.19 2002-12-31 21:51:37 btb Exp $ */
+/* $Id: piggy.c,v 1.20 2003-01-21 22:28:08 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.19 2002-12-31 21:51:37 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.20 2003-01-21 22:28:08 btb Exp $";
 #endif
 
 
@@ -1321,7 +1321,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 #ifndef MACDATA
 			if (FindArg("-macdata") || cfilelength(Piggy_fp) == MAC_D2DEMO_PIG_SIZE) {
 				rle_swap_0_255( bmp );
-				zsize = *((int *)bmp->bm_data);
+				memcpy(&zsize, bmp->bm_data, 4);
 			}
 #endif
 
