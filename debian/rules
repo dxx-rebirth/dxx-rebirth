@@ -1,0 +1,104 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This is the debhelper compatability version to use.
+export DH_COMPAT=3
+
+configure: configure-stamp configure-gl-stamp
+configure-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+	mkdir -p d2x-sdl
+	cd d2x-sdl && ../configure --disable-debug --enable-release \
+		--prefix=/usr --bindir=\$${prefix}/games
+
+	touch configure-stamp
+
+configure-gl-stamp:
+	dh_testdir
+	# Add here commands to configure the package.
+	mkdir -p d2x-ogl
+	cd d2x-ogl && ../configure --disable-debug --enable-release --with-opengl \
+		--prefix=/usr --bindir=\$${prefix}/games
+
+	touch configure-gl-stamp
+
+build: build-stamp build-gl-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+
+	# Add here commands to compile the package.
+	cd d2x-sdl && $(MAKE)
+
+	touch build-stamp
+
+build-gl-stamp: configure-gl-stamp 
+	dh_testdir
+
+	# Add here commands to compile the package.
+	cd d2x-ogl && $(MAKE)
+
+	touch build-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	rm -rf d2x-sdl d2x-ogl
+
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the package into debian/d2x.
+	cd d2x-sdl && $(MAKE) install DESTDIR=$(CURDIR)/debian/d2x
+	cd d2x-ogl && $(MAKE) install DESTDIR=$(CURDIR)/debian/d2x-ogl
+
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+#	dh_installdebconf	
+	dh_installdocs
+	dh_installexamples
+	dh_installmenu
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_installinit
+	dh_installcron
+	dh_installman
+	dh_installinfo
+#	dh_undocumented
+	dh_installchangelogs
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_makeshlibs
+	dh_installdeb
+#	dh_perl
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure
