@@ -19,7 +19,8 @@ endif
 libmain_a_SOURCES = ${EDITOR_SRCS} ${NETWORK_SRCS} \
 ai.c        ai2.c       aipath.c    automap.c   bm.c        \
 cmd.c       cntrlcen.c  collide.c   config.c    console.c   \
-controls.c  credits.c   crypt.c     effects.c   endlevel.c  \
+controls.c  credits.c   crypt.c     decoder16.c decoder8.c  \
+effects.c   endlevel.c  \
 escort.c    fireball.c  fuelcen.c   fvi.c       game.c      \
 gamecntl.c  gamefont.c  gamemine.c  gamepal.c   gamerend.c  \
 gamesave.c  gameseg.c   gameseq.c   gauges.c    hoard.c     \
