@@ -1,5 +1,7 @@
 2003-10-03  Bradley Bell  <btb@icculus.org>
 
+	* cfile/cfile.c, main/config.c: fix win32 eof bug.
+
 	* arch/win32/ipx_drv.h, arch/win32/winnet.c, include/ipx.h: win32
 	networking fixes
 
