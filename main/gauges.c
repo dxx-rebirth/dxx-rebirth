@@ -1,4 +1,4 @@
-/* $Id: gauges.c,v 1.14 2005-01-24 21:11:58 schaffner Exp $ */
+/* $Id: gauges.c,v 1.15 2005-02-25 06:16:57 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2800,20 +2800,20 @@ void sb_draw_shield_num(int shield)
 	gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
 
 	//erase old one
-	PIGGY_PAGE_IN( cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)] );
+//	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode + (Current_display_mode ? (Num_cockpits/2) : 0)]);
 
 WIN(DDGRLOCK(dd_grd_curcanv));
-   PA_DFX (pa_set_back_to_read());
-	gr_setcolor(gr_gpixel(&grd_curcanv->cv_bitmap,SB_SHIELD_NUM_X-1,SB_SHIELD_NUM_Y-1));
-   PA_DFX (pa_set_front_to_read());
+//	PA_DFX (pa_set_back_to_read());
+//	gr_setcolor(gr_gpixel(&grd_curcanv->cv_bitmap, SB_SHIELD_NUM_X - 1, SB_SHIELD_NUM_Y - 1));
+//	PA_DFX (pa_set_front_to_read());
 
 	PA_DFX (pa_set_frontbuffer_current());
 
-	gr_rect(SB_SHIELD_NUM_X,SB_SHIELD_NUM_Y,SB_SHIELD_NUM_X+(Current_display_mode?27:13),SB_SHIELD_NUM_Y+GAME_FONT->ft_h);
+//	gr_rect(SB_SHIELD_NUM_X, SB_SHIELD_NUM_Y, SB_SHIELD_NUM_X + (Current_display_mode ? 27 : 13), SB_SHIELD_NUM_Y + GAME_FONT->ft_h);
 	gr_printf((shield>99)?SB_SHIELD_NUM_X:((shield>9)?SB_SHIELD_NUM_X+2:SB_SHIELD_NUM_X+4),SB_SHIELD_NUM_Y,"%d",shield);
 
   	PA_DFX (pa_set_backbuffer_current());
-	PA_DFX (gr_rect(SB_SHIELD_NUM_X,SB_SHIELD_NUM_Y,SB_SHIELD_NUM_X+(Current_display_mode?27:13),SB_SHIELD_NUM_Y+GAME_FONT->ft_h));
+//	PA_DFX(gr_rect(SB_SHIELD_NUM_X, SB_SHIELD_NUM_Y, SB_SHIELD_NUM_X + (Current_display_mode ? 27 : 13), SB_SHIELD_NUM_Y + GAME_FONT->ft_h));
 	PA_DFX (gr_printf((shield>99)?SB_SHIELD_NUM_X:((shield>9)?SB_SHIELD_NUM_X+2:SB_SHIELD_NUM_X+4),SB_SHIELD_NUM_Y,"%d",shield));
 
 WIN(DDGRUNLOCK(dd_grd_curcanv));

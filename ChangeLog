@@ -10,6 +10,8 @@
 	main/state.c, misc/args.c: use PHYSFSX_openReadBuffered and 
 	PHYSFSX_openWriteBuffered, where appropriate
 
+	* main/gauges.c: draw behind the shield number properly with OpenGL
+
 2005-02-11  Bradley Bell  <btb@icculus.org>
 
 	* debian/control: build-dep on libphysfs-dev
