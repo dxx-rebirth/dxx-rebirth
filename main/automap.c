@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.19 2004-10-09 15:59:28 schaffner Exp $ */
+/* $Id: automap.c,v 1.20 2005-01-08 03:37:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -747,6 +747,7 @@ WINDOS(
 
 	gr_set_current_canvas(temp_canv);
 	gr_set_curfont(font);
+	temp_canv->cv_bitmap.bm_flags |= BM_FLAG_TRANSPARENT;
 	gr_clear_canvas(TRANSPARENCY_COLOR);						//trans color
 	gr_set_fontcolor(fc,bc);
 	gr_printf(0,0,s);

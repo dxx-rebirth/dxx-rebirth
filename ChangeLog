@@ -2,6 +2,8 @@
 
 	* main/state.c: fix problems with copying/deleting save files
 
+	* main/automap.c: make automap fonts transparent.
+
 2005-01-07  Bradley Bell  <btb@icculus.org>
 
 	* main/menu.c: In Load Level, if there is no current mission,
