@@ -1,4 +1,4 @@
-/* $Id: gameseg.c,v 1.9 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: gameseg.c,v 1.10 2004-09-05 12:07:01 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.9 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: gameseg.c,v 1.10 2004-09-05 12:07:01 schaffner Exp $";
 #endif
 
 // How far a point can be from a plane, and still be "in" the plane
@@ -742,42 +742,39 @@ int check_segment_connections(void)
 #endif
 #endif
 
-//	Used to become a constant based on editor, but I wanted to be able to set
-//	this for omega blob find_point_seg calls.  Would be better to pass a paremeter
-//	to the routine...--MK, 01/17/96
+// Used to become a constant based on editor, but I wanted to be able to set
+// this for omega blob find_point_seg calls.
+// Would be better to pass a paremeter to the routine...--MK, 01/17/96
 int	Doing_lighting_hack_flag=0;
 
-//figure out what seg the given point is in, tracing through segments
-//returns segment number, or -1 if can't find segment
-int trace_segs(vms_vector *p0,int oldsegnum)
+// figure out what seg the given point is in, tracing through segments
+// returns segment number, or -1 if can't find segment
+int trace_segs(vms_vector *p0, int oldsegnum, int recursion_count)
 {
 	int centermask;
 	segment *seg;
 	fix side_dists[6];
 	fix biggest_val;
 	int sidenum, bit, check, biggest_side;
-	static int trace_segs_callcount = 0; // how many times we called ourselves recursively
 	static ubyte visited [MAX_SEGMENTS];
 
 	Assert((oldsegnum <= Highest_segment_index) && (oldsegnum >= 0));
 
-	if (trace_segs_callcount >= Num_segments) {
+	if (recursion_count >= Num_segments) {
 		con_printf (CON_DEBUG, "trace_segs: Segment not found\n");
 		mprintf ((0,"trace_segs (gameseg.c): Error: infinite loop\n"));
 		return -1;
 	}
-	if (trace_segs_callcount == 0)
+	if (recursion_count == 0)
 		memset (visited, 0, sizeof (visited));
 	if (visited [oldsegnum])
 		return -1;
 	visited [oldsegnum] = 1;
-	trace_segs_callcount++;
 
 	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
-	if (centermask == 0) {		//we're in the old segment
-		trace_segs_callcount--;
-		return oldsegnum;		//..say so
-	}
+	if (centermask == 0) // we are in the old segment
+		return oldsegnum; //..say so
+
 	for (;;) {
 		seg = &Segments[oldsegnum];
 		biggest_side = -1;
@@ -793,11 +790,11 @@ int trace_segs(vms_vector *p0,int oldsegnum)
 				break;
 
 			side_dists[biggest_side] = 0;
-			check = trace_segs(p0,seg->children[biggest_side]);	//trace into adjacent segment
+			// trace into adjacent segment:
+			check = trace_segs(p0, seg->children[biggest_side], recursion_count + 1);
 			if (check >= 0)		//we've found a segment
 				return check;
 	}
-	trace_segs_callcount--;
 	return -1;		//we haven't found a segment
 }
 
@@ -817,7 +814,7 @@ int find_point_seg(vms_vector *p,int segnum)
 	Assert((segnum <= Highest_segment_index) && (segnum >= -1));
 
 	if (segnum != -1) {
-		newseg = trace_segs(p,segnum);
+		newseg = trace_segs(p, segnum, 0);
 
 		if (newseg != -1)			//we found a segment!
 			return newseg;
