@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.16 2004-12-20 09:25:44 btb Exp $ */
+/* $Id: interp.c,v 1.17 2005-03-16 01:56:24 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.16 2004-12-20 09:25:44 btb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.17 2005-03-16 01:56:24 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -360,13 +360,18 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
 					int i;
+#ifdef FADE_FLATPOLY
 					short c;
 					unsigned char cc;
 					int l;
+#endif
 
 //					DPH: Now we treat this color as 15bpp
 //					gr_setcolor(w(p+28));
 					
+#ifndef FADE_FLATPOLY
+					gr_setcolor(gr_find_closest_color_15bpp(w(p + 28)));
+#else
 					//l = (32 * model_light) >> 16;
 					l = f2i(fixmul(i2f(32), model_light));
 					if (l<0) l = 0;
@@ -374,6 +379,7 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 					cc = gr_find_closest_color_15bpp(w(p+28));
 					c = gr_fade_table[(l<<8)|cc];
 					gr_setcolor(c);
+#endif
 
 					for (i=0;i<nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];

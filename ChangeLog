@@ -1,5 +1,9 @@
 2005-03-15  Bradley Bell  <btb@icculus.org>
 
+	* 3d/interp.c: Disabled shading of flat (non-textured) polygons.
+	Fixes laser and plasma lighting bug, hopefully doesn't break
+	anything else.
+
 	* main/state.c: Fix crash if Num_walls=0
 
 2005-03-12  Bradley Bell  <btb@icculus.org>
