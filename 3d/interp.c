@@ -1,4 +1,4 @@
-/* $Id: interp.c,v 1.10 2003-01-02 23:31:50 btb Exp $ */
+/* $Id: interp.c,v 1.11 2003-01-03 00:57:00 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.10 2003-01-02 23:31:50 btb Exp $";
+static char rcsid[] = "$Id: interp.c,v 1.11 2003-01-03 00:57:00 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -106,6 +106,7 @@ void short_swap(short *s)
 {
 	*s = SWAPSHORT(*s);
 }
+
 void fix_swap(fix *f)
 {
 	*f = (fix)SWAPINT((int)*f);

@@ -17,10 +17,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "pstypes.h"
 
-#define SWAPSHORT(x) (((ubyte)x << 8) | (((ushort)x) >> 8))
-#define SWAPINT(x)   ((x<<24) | (((uint)x) >> 24) | ((x &0x0000ff00) << 8) | ((x & 0x00ff0000) >> 8))
+#define SWAPSHORT(x) (((ubyte)(x) << 8) | (((ushort)(x)) >> 8))
+#define SWAPINT(x)   (((x)<<24) | (((uint)(x)) >> 24) | (((x) &0x0000ff00) << 8) | (((x) & 0x00ff0000) >> 8))
 
-#ifndef WORDS_BIGENDIAN //MACINTOSH
+#ifndef WORDS_BIGENDIAN
 #define INTEL_INT(x)	x
 #define INTEL_SHORT(x)	x
 #else

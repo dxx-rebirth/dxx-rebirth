@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.14 2002-12-31 23:20:09 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.15 2003-01-03 00:57:00 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -526,7 +526,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 			short tmap_num = d1_tmap_num &  TMAP_NUM_MASK;
 			short orient = d1_tmap_num & ~TMAP_NUM_MASK;
 			if (orient == 0) {
-				Warning("convert_d1_tmap_num doesn't know tmap #%d.", tmap_num);
+				Warning("convert_d1_tmap_num doesn't know tmap #%d.\n", tmap_num);
 				return d1_tmap_num;
 			} else {
 				return orient | convert_d1_tmap_num(tmap_num);
