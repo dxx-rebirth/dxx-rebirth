@@ -8,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.8 2002-08-06 05:06:38 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.9 2002-08-08 09:09:43 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -257,6 +257,8 @@ free_endlevel_data()
 
 	if (satellite_bm_instance.bm_data)
 		d_free(satellite_bm_instance.bm_data);
+
+	free_exit_model_data();
 }
 
 void init_endlevel()
@@ -303,14 +305,12 @@ void start_endlevel_sequence()
 {
 	int	i;
 	int movie_played = MOVIE_NOT_PLAYED;
-	#if defined(MACINTOSH) && defined(SHAREWARE)
 	static int inited = 0;
 
-	if (!inited) {
+	if (!inited && Piggy_hamfile_version >= 3) {
 		load_exit_models();
 		inited = 1;
 	}
-	#endif
 
 	if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 		Newdemo_state = ND_STATE_PAUSED;

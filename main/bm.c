@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.14 2002-08-06 04:53:48 btb Exp $ */
+/* $Id: bm.c,v 1.15 2002-08-08 09:09:43 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -80,19 +80,20 @@ int	Marker_model_num = -1;
 player_ship only_player_ship,*Player_ship=&only_player_ship;
 
 //----------------- Miscellaneous bitmap pointers ---------------
-int					Num_cockpits = 0;
-bitmap_index		cockpit_bitmap[N_COCKPIT_BITMAPS];
+int             Num_cockpits = 0;
+bitmap_index    cockpit_bitmap[N_COCKPIT_BITMAPS];
 
 //---------------- Variables for wall textures ------------------
-int 					Num_tmaps;
-tmap_info 			TmapInfo[MAX_TEXTURES];
+int             Num_tmaps;
+tmap_info       TmapInfo[MAX_TEXTURES];
 
 //---------------- Variables for object textures ----------------
 
-int					First_multi_bitmap_num=-1;
+int             First_multi_bitmap_num=-1;
 
-bitmap_index		ObjBitmaps[MAX_OBJ_BITMAPS];
-ushort				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, since some are used twice.
+int             N_ObjBitmaps;
+bitmap_index    ObjBitmaps[MAX_OBJ_BITMAPS];
+ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into ObjBitmaps, since some are used twice.
 
 #ifdef FAST_FILE_IO
 #define tmap_info_read_n(ti, n, fp) cfread(ti, sizeof(tmap_info), n, fp)
@@ -120,21 +121,19 @@ int tmap_info_read_n(tmap_info *ti, int n, CFILE *fp)
 }
 #endif
 
-//#ifdef MACINTOSH
-
-extern int exit_modelnum,destroyed_exit_modelnum, Num_bitmap_files;
-int N_ObjBitmaps, extra_bitmap_num;
+extern int Num_bitmap_files;
+int extra_bitmap_num;
 
 bitmap_index exitmodel_bm_load_sub( char * filename )
 {
 	bitmap_index bitmap_num;
-	grs_bitmap * new;
+	grs_bitmap * new = &GameBitmaps[extra_bitmap_num];
 	ubyte newpal[256*3];
 	int iff_error;		//reference parm to avoid warning message
 
 	bitmap_num.index = 0;
 
-	MALLOC( new, grs_bitmap, 1 );
+	//MALLOC( new, grs_bitmap, 1 );
 	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
 	new->bm_handle=0;
 	if (iff_error != IFF_NO_ERROR)		{
@@ -152,7 +151,7 @@ bitmap_index exitmodel_bm_load_sub( char * filename )
 
 	GameBitmaps[extra_bitmap_num++] = *new;
 
-	d_free( new );
+	//d_free( new );
 	return bitmap_num;
 }
 
@@ -171,10 +170,42 @@ grs_bitmap *load_exit_model_bitmap(char *name)
 	}
 }
 
+void
+free_exit_model_data()
+{
+	int i;
+
+	for (i = Num_bitmap_files; i < extra_bitmap_num; i++)
+		d_free(GameBitmaps[i].bm_data);
+	extra_bitmap_num = Num_bitmap_files;
+}
+
+#define EXIT_POF
+
+#ifdef OGL
+void ogl_cache_polymodel_textures(int model_num);
+#endif
+
 void load_exit_models()
 {
+#ifndef EXIT_POF
 	CFILE *exit_hamfile;
+#endif
 	int start_num;
+
+	if (!cfexist("steel1.bbm") ||
+	    !cfexist("rbot061.bbm") ||
+	    !cfexist("rbot062.bbm") ||
+	    !cfexist("rbot063.bbm") ||
+#ifdef EXIT_POF
+	    !cfexist("exit01.pof") ||
+	    !cfexist("exit01d.pof")) {
+#else
+	    !cfexist("exit.ham")) {
+#endif
+		Warning("Can't load exit models!\n");
+		return;
+	}
 
 	start_num = N_ObjBitmaps;
 	extra_bitmap_num = Num_bitmap_files;
@@ -186,14 +217,19 @@ void load_exit_models()
 	load_exit_model_bitmap("rbot061.bbm");
 	load_exit_model_bitmap("rbot063.bbm");
 
+#ifndef EXIT_POF
+
+#ifndef MACINTOSH
+	exit_hamfile = cfopen("exit.ham","rb");
+#else
 	exit_hamfile = cfopen(":Data:exit.ham","rb");
+#endif
 
 	exit_modelnum = N_polygon_models++;
 	destroyed_exit_modelnum = N_polygon_models++;
-
 	polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
 	polymodel_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
-#ifdef MACINTOSH //not sure what these are for
+#ifdef MACINTOSH //not sure why this is #ifdef'd
 	Polygon_models[exit_modelnum].first_texture = start_num;
 	Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
 #endif
@@ -213,12 +249,21 @@ void load_exit_models()
 	swap_polygon_model_data(Polygon_models[destroyed_exit_modelnum].model_data);
 #endif
 	g3_init_polygon_model(Polygon_models[destroyed_exit_modelnum].model_data);
-
 	cfclose(exit_hamfile);
 
+#else // EXIT_POF
+
+	exit_modelnum = load_polygon_model("exit01.pof", 3, start_num, NULL);
+	destroyed_exit_modelnum = load_polygon_model("exit01d.pof", 3, start_num + 3, NULL);
+
+#ifdef OGL
+	ogl_cache_polymodel_textures(exit_modelnum);
+	ogl_cache_polymodel_textures(destroyed_exit_modelnum);
+#endif
+
+#endif
 }
 
-//#endif		// MACINTOSH
 
 //-----------------------------------------------------------------
 // Read data from piggy.
@@ -335,7 +380,7 @@ void bm_read_all(CFILE * fp)
 #define N_D2_OBJBITMAPPTRS		502
 #define N_D2_WEAPON_TYPES		62
 
-//type==1 means 1.1, type==2 means 1.2 (with weaons)
+//type==1 means 1.1, type==2 means 1.2 (with weapons)
 void bm_read_extra_robots(char *fname,int type)
 {
 	CFILE *fp;

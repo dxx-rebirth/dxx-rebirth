@@ -84,11 +84,8 @@ extern byte	ObjType[MAX_OBJTYPE];		// Type of an object, such as Robot, eg if Ob
 extern byte	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
 extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
-#if defined(MACINTOSH) && defined(SHAREWARE)
 #define MAX_OBJ_BITMAPS				610
-#else
-#define MAX_OBJ_BITMAPS				600
-#endif
+
 extern bitmap_index ObjBitmaps[MAX_OBJ_BITMAPS];
 extern ushort ObjBitmapPtrs[MAX_OBJ_BITMAPS];
 extern int First_multi_bitmap_num;
@@ -97,6 +94,9 @@ extern int First_multi_bitmap_num;
 int bm_init_use_tbl(void);
 
 extern void bm_read_all(CFILE * fp);
+
+void load_exit_models();
+void free_exit_model_data();
 
 #endif
 

@@ -1,4 +1,4 @@
-/* $Id: polyobj.c,v 1.7 2002-08-06 05:13:58 btb Exp $ */
+/* $Id: polyobj.c,v 1.8 2002-08-08 09:09:43 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.7 2002-08-06 05:13:58 btb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.8 2002-08-08 09:09:43 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -173,6 +173,8 @@ vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS]);
 #endif
 
+#define DEBUG_LEVEL CON_NORMAL
+
 //reads a binary file containing a 3d model
 polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 {
@@ -181,7 +183,10 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	int id,len, next_chunk;
 	int anim_flag = 0;
 	ubyte *model_buf;
-	
+
+#ifdef WORDS_BIGENDIAN
+	Error("read_model_file(): This function is not bigendian-friendly!\n");
+#endif
 	model_buf = (ubyte *)d_malloc( MODEL_BUF_SIZE * sizeof(ubyte) );
 	if (!model_buf)
 		Error("Can't allocate space to read model %s\n", filename);
@@ -219,7 +224,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 			case ID_OHDR: {		//Object header
 				vms_vector pmmin,pmmax;
 
-				//mprintf(0,"Got chunk OHDR, len=%d\n",len);
+				//con_printf(DEBUG_LEVEL, "Got chunk OHDR, len=%d\n",len);
 
 				pm->n_models = pof_read_int(model_buf);
 				pm->rad = pof_read_int(model_buf);
@@ -249,7 +254,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 
 				anim_flag++;
 
-				//mprintf(0,"Got chunk SOBJ, len=%d\n",len);
+				//con_printf(DEBUG_LEVEL, "Got chunk SOBJ, len=%d\n",len);
 
 				n = pof_read_short(model_buf);
 
@@ -272,7 +277,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 			#ifndef DRIVE
 			case ID_GUNS: {		//List of guns on this object
 
-				//mprintf(0,"Got chunk GUNS, len=%d\n",len);
+				//con_printf(DEBUG_LEVEL, "Got chunk GUNS, len=%d\n",len);
 
 				if (r) {
 					int i;
@@ -311,7 +316,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 			}
 			
 			case ID_ANIM:		//Animation data
-				//mprintf(0,"Got chunk ANIM, len=%d\n",len);
+				//con_printf(DEBUG_LEVEL, "Got chunk ANIM, len=%d\n",len);
 
 				anim_flag++;
 
@@ -339,30 +344,30 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 				int n;
 				char name_buf[128];
 
-				//mprintf(0,"Got chunk TXTR, len=%d\n",len);
+				//con_printf(DEBUG_LEVEL, "Got chunk TXTR, len=%d\n",len);
 
 				n = pof_read_short(model_buf);
-				//mprintf(0,"  num textures = %d\n",n);
+				//con_printf(DEBUG_LEVEL, "  num textures = %d\n",n);
 				while (n--) {
 					pof_read_string(name_buf,128,model_buf);
-					//mprintf(0,"<%s>\n",name_buf);
+					//con_printf(DEBUG_LEVEL, "<%s>\n",name_buf);
 				}
 
 				break;
 			}
 			
 			case ID_IDTA:		//Interpreter data
-				//mprintf(0,"Got chunk IDTA, len=%d\n",len);
+				//con_printf(DEBUG_LEVEL, "Got chunk IDTA, len=%d\n",len);
 
 				pm->model_data = d_malloc(len);
 				pm->model_data_size = len;
-			
+
 				pof_cfread(pm->model_data,1,len,model_buf);
-			
+
 				break;
 
 			default:
-				//mprintf(0,"Unknown chunk <%c%c%c%c>, len = %d\n",id,id>>8,id>>16,id>>24,len);
+				//con_printf(DEBUG_LEVEL, "Unknown chunk <%c%c%c%c>, len = %d\n",id,id>>8,id>>16,id>>24,len);
 				pof_cfseek(model_buf,len,SEEK_CUR);
 				break;
 
@@ -432,7 +437,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 
 		if (id == ID_GUNS) {		//List of guns on this object
 
-			//mprintf(0,"Got chunk GUNS, len=%d\n",len);
+			//con_printf(DEBUG_LEVEL, "Got chunk GUNS, len=%d\n",len);
 
 			int i;
 
