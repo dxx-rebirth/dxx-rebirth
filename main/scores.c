@@ -1,4 +1,4 @@
-/* $Id: scores.c,v 1.4 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: scores.c,v 1.5 2003-10-04 02:58:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -283,9 +283,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct stats_info {
   	char	name[CALLSIGN_LEN+1];
 	int		score;
-	byte	starting_level;
-	byte	ending_level;
-	byte  	diff_level;
+	sbyte   starting_level;
+	sbyte   ending_level;
+	sbyte   diff_level;
 	short 	kill_ratio;		// 0-100
 	short	hostage_ratio;  // 
 	int		seconds;		// How long it took in seconds...
@@ -293,7 +293,7 @@ typedef struct stats_info {
 
 typedef struct all_scores {
 	char			signature[3];			// DHS
-	byte			version;				// version
+	sbyte           version;				// version
 	char			cool_saying[COOL_MESSAGE_LEN];
 	stats_info	stats[MAX_HIGH_SCORES];
 } all_scores;
@@ -585,7 +585,7 @@ void scores_view(int citem)
 	fix t1;
 	int i,done,looper;
 	int k;
-	byte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
+	sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
 ReshowScores:
 	scores_read();

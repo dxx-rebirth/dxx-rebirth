@@ -1,5 +1,10 @@
 2003-10-03  Bradley Bell  <btb@icculus.org>
 
+	* 2d/bitblt.c, cfile/cfile.c, include/cfile.h, main/ai.c,
+	main/ai.h, main/gamemine.c, main/gauges.c, main/kconfig.c,
+	main/menu.c, main/multi.c, main/multi.h, main/multibot.c,
+	main/newdemo.h, main/render.c, main/scores.c: change byte to sbyte
+
 	* configure.ac: better checking for timeval
 
 2003-10-03  Martin Schaffner <maschaffner@gmx.ch>

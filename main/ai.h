@@ -1,4 +1,4 @@
-/* $Id: ai.h,v 1.6 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: ai.h,v 1.7 2003-10-04 02:58:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -357,7 +357,7 @@ extern void  ai_multi_send_robot_position(int objnum, int force);
 
 extern int   Flinch_scale;
 extern int   Attack_scale;
-extern byte  Mike_to_matt_xlate[];
+extern sbyte Mike_to_matt_xlate[];
 
 // Amount of time since the current robot was last processed for things such as movement.
 // It is not valid to use FrameTime because robots do not get moved every frame.
@@ -384,14 +384,14 @@ extern fix              Boss_cloak_duration;
 extern fix              Last_gate_time;
 extern fix              Gate_interval;
 extern fix              Boss_dying_start_time;
-extern byte             Boss_dying, Boss_dying_sound_playing;
+extern sbyte            Boss_dying, Boss_dying_sound_playing;
 extern fix              Boss_hit_time;
 // -- extern int              Boss_been_hit;
 // ------ John: End of variables which must be saved as part of gamesave. -----
 
 extern int  ai_evaded;
 
-extern byte Super_boss_gate_list[];
+extern sbyte Super_boss_gate_list[];
 #define MAX_GATE_INDEX  25
 
 extern int  Ai_info_enabled;

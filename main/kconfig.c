@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.22 2003-06-06 23:51:21 btb Exp $ */
+/* $Id: kconfig.c,v 1.23 2003-10-04 02:58:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.22 2003-06-06 23:51:21 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.23 2003-10-04 02:58:23 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -418,7 +418,7 @@ ubyte ExtYVibrateClear=0;
 #define TABLE_CREATION 1
 
 // Array used to 'blink' the cursor while waiting for a keypress.
-byte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
+sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
 //char * invert_text[2] = { "N", "Y" };
 //char * joybutton_text[28] = { "BTN 1", "BTN 2", "BTN 3", "BTN 4", "", "TRIG", "LEFT", "HAT Å", "RIGHT", "", "", "HAT Ä", "MID", "", "", "HAT ", "", "", "", "HAT Ç", "TRIG", "LEFT", "RIGHT", "", "UP","DOWN","LEFT", "RIGHT" };

@@ -1,4 +1,4 @@
-/* $Id: cfile.h,v 1.9 2003-06-15 04:14:53 btb Exp $ */
+/* $Id: cfile.h,v 1.10 2003-10-04 02:58:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -127,7 +127,7 @@ void cfile_set_critical_error_counter_ptr(int *ptr);
 // prototypes for reading basic types from cfile
 int cfile_read_int(CFILE *file);
 short cfile_read_short(CFILE *file);
-byte cfile_read_byte(CFILE *file);
+sbyte cfile_read_byte(CFILE *file);
 fix cfile_read_fix(CFILE *file);
 fixang cfile_read_fixang(CFILE *file);
 void cfile_read_vector(vms_vector *v, CFILE *file);
@@ -141,7 +141,7 @@ void cfile_read_string(char *buf, int n, CFILE *file);
 // functions for writing cfiles
 int cfile_write_int(int i, CFILE *file);
 int cfile_write_short(short s, CFILE *file);
-int cfile_write_byte(byte u, CFILE *file);
+int cfile_write_byte(sbyte u, CFILE *file);
 
 // writes variable length, null-termined string.
 int cfile_write_string(char *buf, CFILE *file);

@@ -1,4 +1,4 @@
-/* $Id: render.c,v 1.16 2003-04-24 18:15:36 btb Exp $ */
+/* $Id: render.c,v 1.17 2003-10-04 02:58:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2185,7 +2185,7 @@ void build_segment_list(int start_seg_num, int window_num)
 
 				if ( (window_check || !visited[ch]) && (wid & WID_RENDPAST_FLAG) ) {
 					if (behind_check) {
-						byte *sv = Side_to_verts[c];
+						sbyte *sv = Side_to_verts[c];
 						ubyte codes_and=0xff;
 						int i;
 

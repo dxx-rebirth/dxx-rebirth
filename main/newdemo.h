@@ -1,4 +1,4 @@
-/* $Id: newdemo.h,v 1.3 2003-03-17 07:59:11 btb Exp $ */
+/* $Id: newdemo.h,v 1.4 2003-10-04 02:58:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -191,7 +191,7 @@ extern int NewdemoFrameCount;
 extern int Newdemo_game_mode;
 
 extern int Newdemo_vcr_state;
-extern byte Newdemo_do_interpolate;
+extern sbyte Newdemo_do_interpolate;
 
 //Does demo start automatically?
 extern int Auto_demo;
@@ -232,7 +232,7 @@ extern void newdemo_set_new_level(int level_num);
 extern void newdemo_record_restore_rearview(void);
 
 extern void newdemo_record_multi_death(int pnum);
-extern void newdemo_record_multi_kill(int pnum, byte kill);
+extern void newdemo_record_multi_kill(int pnum, sbyte kill);
 extern void newdemo_record_multi_connect(int pnum, int new_player, char *new_callsign);
 extern void newdemo_record_multi_reconnect(int pnum);
 extern void newdemo_record_multi_disconnect(int pnum);
@@ -241,7 +241,7 @@ extern void newdemo_record_multi_score(int pnum, int score);
 extern void newdemo_record_primary_ammo(int old_ammo, int new_ammo);
 extern void newdemo_record_secondary_ammo(int old_ammo, int new_ammo);
 extern void newdemo_record_door_opening(int segnum, int side);
-extern void newdemo_record_laser_level(byte old_level, byte new_level);
+extern void newdemo_record_laser_level(sbyte old_level, sbyte new_level);
 extern void newdemo_record_cloaking_wall(int front_wall_num, int back_wall_num, ubyte type, ubyte state, fix cloak_value, fix l0, fix l1, fix l2, fix l3);
 extern void newdemo_record_secret_exit_blown(int truth);
 

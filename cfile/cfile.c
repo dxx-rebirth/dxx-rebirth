@@ -1,4 +1,4 @@
-/* $Id: cfile.c,v 1.17 2003-08-02 07:39:32 btb Exp $ */
+/* $Id: cfile.c,v 1.18 2003-10-04 02:58:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -745,9 +745,9 @@ short cfile_read_short(CFILE *file)
 	return s;
 }
 
-byte cfile_read_byte(CFILE *file)
+sbyte cfile_read_byte(CFILE *file)
 {
-	byte b;
+	sbyte b;
 
 	if (cfread( &b, sizeof(b), 1, file) != 1)
 		Error( "Error reading byte in cfile_read_byte()" );
@@ -830,7 +830,7 @@ int cfile_write_short(short s, CFILE *file)
 }
 
 
-int cfile_write_byte(byte b, CFILE *file)
+int cfile_write_byte(sbyte b, CFILE *file)
 {
 	return cfwrite(&b, sizeof(b), 1, file);
 }

@@ -1,4 +1,4 @@
-/* $Id: gamemine.c,v 1.24 2003-08-03 22:00:14 btb Exp $ */
+/* $Id: gamemine.c,v 1.25 2003-10-04 02:58:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -142,7 +142,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.24 2003-08-03 22:00:14 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.25 2003-10-04 02:58:23 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -203,7 +203,7 @@ typedef struct v16_segment {
 	#endif
 	short   objects;            // pointer to objects in this segment
 	ubyte   special;            // what type of center this is
-	byte    matcen_num;         // which center segment is associated with.
+	sbyte   matcen_num;         // which center segment is associated with.
 	short   value;
 	fix     static_light;       // average static light in segment
 	#ifndef EDITOR
@@ -1206,7 +1206,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 			int		objects;								// pointer to objects in this segment
 
 			for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
-				byte	type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
+				sbyte   type;                           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
 				ubyte	pad;									//keep us longword alligned
 				short	wall_num;
 				short	tmap_num;

@@ -1,4 +1,4 @@
-/* $Id: multi.h,v 1.9 2003-10-03 06:44:11 btb Exp $ */
+/* $Id: multi.h,v 1.10 2003-10-04 02:58:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -373,7 +373,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Exported functions
 
 int objnum_remote_to_local(int remote_obj, int owner);
-int objnum_local_to_remote(int local_obj, byte *owner);
+int objnum_local_to_remote(int local_obj, sbyte *owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(int objnum);
 
@@ -473,7 +473,7 @@ extern int Network_message_reciever;
 
 extern short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Network object num for each 
 extern short local_to_remote[MAX_OBJECTS];   // Local object num for each network objnum
-extern byte object_owner[MAX_OBJECTS]; // Who 'owns' each local object for network purposes
+extern sbyte object_owner[MAX_OBJECTS]; // Who 'owns' each local object for network purposes
 
 extern int multi_in_menu; // Flag to tell if we're executing GameLoop from within a newmenu.
 extern int multi_leave_menu;
@@ -529,7 +529,7 @@ typedef struct netplayer_info {
 	ubyte   version_major;
 	ubyte   version_minor;
 	enum comp_type computer_type;
-	byte    connected;
+	sbyte    connected;
 
 	ushort  socket;
 

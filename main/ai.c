@@ -1,4 +1,4 @@
-/* $Id: ai.c,v 1.6 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: ai.c,v 1.7 2003-10-04 02:58:23 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -268,7 +268,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-char ai_rcsid[] = "$Id: ai.c,v 1.6 2003-06-16 06:57:34 btb Exp $";
+char ai_rcsid[] = "$Id: ai.c,v 1.7 2003-10-04 02:58:23 btb Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -340,7 +340,7 @@ fix             Last_gate_time = 0;
 fix             Gate_interval = F1_0*6;
 fix             Boss_dying_start_time;
 fix             Boss_hit_time;
-byte            Boss_dying, Boss_dying_sound_playing, unused123, unused234;
+sbyte           Boss_dying, Boss_dying_sound_playing, unused123, unused234;
 
 // -- MK, 10/21/95, unused! -- int             Boss_been_hit=0;
 
@@ -360,7 +360,7 @@ ubyte Boss_invulnerable_spot[NUM_D2_BOSSES]   = {0,0,0,0,0,1, 0,1}; // Set byte 
 
 int ai_evaded=0;
 
-// -- byte Super_boss_gate_list[MAX_GATE_INDEX] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
+// -- sbyte Super_boss_gate_list[MAX_GATE_INDEX] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
 
 int Robot_firing_enabled = 1;
 int Animation_enabled = 1;
@@ -437,7 +437,7 @@ char state_text[8][5] = {
 // Third dimension is goal state.
 // Result is new goal state.
 // ERR_ means something impossible has happened.
-byte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
+sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
 	{
 		// Event = AIE_FIRE, a nearby object fired
 		// none     rest      srch      lock      flin      fire      reco        // CURRENT is rows, GOAL is columns
@@ -1675,7 +1675,7 @@ void create_awareness_event(object *objp, int type)
 	}
 }
 
-byte New_awareness[MAX_SEGMENTS];
+sbyte New_awareness[MAX_SEGMENTS];
 
 // ----------------------------------------------------------------------------------
 void pae_aux(int segnum, int type, int level)
