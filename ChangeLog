@@ -1,3 +1,7 @@
+2003-03-16  Bradley Bell  <bradleyb@smeagol>
+
+	* main/newdemo.c, main/newdemo.h: comments/formatting
+
 2003-03-15  Christopher Thielen  <chris@luethy.net>
 
 	* main/kludge.c: set CDROM_dir back to "." - tricks game into
