@@ -1,4 +1,4 @@
-/* $Id: robot.h,v 1.3 2002-08-02 04:57:19 btb Exp $ */
+/* $Id: robot.h,v 1.4 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,7 +12,103 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
+/*
+ *
+ * Header for robot.c
+ *
+ * Old Log:
+ * Revision 1.1  1995/05/16  16:01:59  allender
+ * Initial revision
+ *
+ * Revision 2.1  1995/03/07  16:52:00  john
+ * Fixed robots not moving without edtiro bug.
+ *
+ * Revision 2.0  1995/02/27  11:30:59  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.25  1994/11/30  14:02:44  mike
+ * fields for see/attack/claw sounds.
+ *
+ * Revision 1.24  1994/10/27  15:55:41  adam
+ * *** empty log message ***
+ *
+ * Revision 1.23  1994/10/20  15:17:03  mike
+ * Add boss flag.
+ *
+ * Revision 1.22  1994/10/20  09:51:00  adam
+ * *** empty log message ***
+ *
+ * Revision 1.21  1994/10/18  10:52:54  mike
+ * Support robots lunging as an attack_type.
+ *
+ * Revision 1.20  1994/10/17  21:19:02  mike
+ * robot cloaking.
+ *
+ * Revision 1.19  1994/09/27  00:03:39  mike
+ * Add score_value to robot_info struct.
+ *
+ * Revision 1.18  1994/09/22  19:01:12  mike
+ * Move NDL from here to game.h
+ *
+ * Revision 1.17  1994/09/22  15:46:55  mike
+ * Add default contained objects for robots.
+ *
+ * Revision 1.16  1994/09/22  10:46:57  mike
+ * Add difficulty levels.
+ *
+ * Revision 1.15  1994/09/15  16:34:16  mike
+ * Change rapidfire_count to a byte, add evade_speed, dum1, dum2.
+ *
+ * Revision 1.14  1994/09/09  14:21:58  matt
+ * Increased maximum number of games
+ *
+ * Revision 1.13  1994/08/25  18:12:13  matt
+ * Made player's weapons and flares fire from the positions on the 3d model.
+ * Also added support for quad lasers.
+ *
+ * Revision 1.12  1994/08/23  16:37:24  mike
+ * Add rapidfire_count to robot_info.
+ *
+ * Revision 1.11  1994/07/27  19:45:01  mike
+ * Objects containing objects.
+ *
+ * Revision 1.10  1994/07/12  12:40:01  matt
+ * Revamped physics system
+ *
+ * Revision 1.9  1994/06/21  12:17:12  mike
+ * Add circle_distance to robot_info.
+ *
+ * Revision 1.8  1994/06/09  16:22:28  matt
+ * Moved header for calc_gun_point() here, where it belongs
+ *
+ * Revision 1.7  1994/06/08  18:16:23  john
+ * Bunch of new stuff that basically takes constants out of the code
+ * and puts them into bitmaps.tbl.
+ *
+ * Revision 1.6  1994/06/03  11:38:09  john
+ * Made robots get their strength for RobotInfo->strength, which
+ * is read in from bitmaps.tbl
+ *
+ * Revision 1.5  1994/05/30  19:43:31  mike
+ * Add voluminous comment for robot_get_anim_state.
+ *
+ * Revision 1.4  1994/05/30  00:03:18  matt
+ * Got rid of robot render type, and generally cleaned up polygon model
+ * render objects.
+ *
+ * Revision 1.3  1994/05/29  18:46:37  matt
+ * Added stuff for getting robot animation info for different states
+ *
+ * Revision 1.2  1994/05/26  21:09:18  matt
+ * Moved robot stuff out of polygon model and into robot_info struct
+ * Made new file, robot.c, to deal with robots
+ *
+ * Revision 1.1  1994/05/26  18:02:12  matt
+ * Initial revision
+ *
+ *
+ */
 
 #ifndef _ROBOT_H
 #define _ROBOT_H
@@ -64,19 +160,19 @@ typedef struct robot_info {
 	short   exp2_vclip_num;
 	short   exp2_sound_num;
 
-	byte    weapon_type;
-	byte    weapon_type2;   //  Secondary weapon number, -1 means none, otherwise gun #0 fires this weapon.
-	byte    n_guns;         // how many different gun positions
-	byte    contains_id;    //  ID of powerup this robot can contain.
+	sbyte   weapon_type;
+	sbyte   weapon_type2;   //  Secondary weapon number, -1 means none, otherwise gun #0 fires this weapon.
+	sbyte   n_guns;         // how many different gun positions
+	sbyte   contains_id;    //  ID of powerup this robot can contain.
 
-	byte    contains_count; //  Max number of things this instance can contain.
-	byte    contains_prob;  //  Probability that this instance will contain something in N/16
-	byte    contains_type;  //  Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
-	byte    kamikaze;       //  !0 means commits suicide when hits you, strength thereof. 0 means no.
+	sbyte   contains_count; //  Max number of things this instance can contain.
+	sbyte   contains_prob;  //  Probability that this instance will contain something in N/16
+	sbyte   contains_type;  //  Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
+	sbyte   kamikaze;       //  !0 means commits suicide when hits you, strength thereof. 0 means no.
 
 	short   score_value;    //  Score from this robot.
-	byte    badass;         //  Dies with badass explosion, and strength thereof, 0 means NO.
-	byte    energy_drain;   //  Points of energy drained at each collision.
+	sbyte   badass;         //  Dies with badass explosion, and strength thereof, 0 means NO.
+	sbyte   energy_drain;   //  Points of energy drained at each collision.
 
 	fix     lighting;       // should this be here or with polygon model?
 	fix     strength;       // Initial shields of robot
@@ -93,25 +189,25 @@ typedef struct robot_info {
 	fix     max_speed[NDL];         //  maximum speed attainable by this robot
 	fix     circle_distance[NDL];   //  distance at which robot circles player
 
-	byte    rapidfire_count[NDL];   //  number of shots fired rapidly
-	byte    evade_speed[NDL];       //  rate at which robot can evade shots, 0=none, 4=very fast
-	byte    cloak_type;     //  0=never, 1=always, 2=except-when-firing
-	byte    attack_type;    //  0=firing, 1=charge (like green guy)
+	sbyte   rapidfire_count[NDL];   //  number of shots fired rapidly
+	sbyte   evade_speed[NDL];       //  rate at which robot can evade shots, 0=none, 4=very fast
+	sbyte   cloak_type;     //  0=never, 1=always, 2=except-when-firing
+	sbyte   attack_type;    //  0=firing, 1=charge (like green guy)
 
 	ubyte   see_sound;      //  sound robot makes when it first sees the player
 	ubyte   attack_sound;   //  sound robot makes when it attacks the player
 	ubyte   claw_sound;     //  sound robot makes as it claws you (attack_type should be 1)
 	ubyte   taunt_sound;    //  sound robot makes after you die
 
-	byte    boss_flag;      //  0 = not boss, 1 = boss.  Is that surprising?
-	byte    companion;      //  Companion robot, leads you to things.
-	byte    smart_blobs;    //  how many smart blobs are emitted when this guy dies!
-	byte    energy_blobs;   //  how many smart blobs are emitted when this guy gets hit by energy weapon!
+	sbyte   boss_flag;      //  0 = not boss, 1 = boss.  Is that surprising?
+	sbyte   companion;      //  Companion robot, leads you to things.
+	sbyte   smart_blobs;    //  how many smart blobs are emitted when this guy dies!
+	sbyte   energy_blobs;   //  how many smart blobs are emitted when this guy gets hit by energy weapon!
 
-	byte    thief;          //  !0 means this guy can steal when he collides with you!
-	byte    pursuit;        //  !0 means pursues player after he goes around a corner.  4 = 4/2 pursue up to 4/2 seconds after becoming invisible if up to 4 segments away
-	byte    lightcast;      //  Amount of light cast. 1 is default.  10 is very large.
-	byte    death_roll;     //  0 = dies without death roll. !0 means does death roll, larger = faster and louder
+	sbyte   thief;          //  !0 means this guy can steal when he collides with you!
+	sbyte   pursuit;        //  !0 means pursues player after he goes around a corner.  4 = 4/2 pursue up to 4/2 seconds after becoming invisible if up to 4 segments away
+	sbyte   lightcast;      //  Amount of light cast. 1 is default.  10 is very large.
+	sbyte   death_roll;     //  0 = dies without death roll. !0 means does death roll, larger = faster and louder
 
 	//boss_flag, companion, thief, & pursuit probably should also be bits in the flags byte.
 	ubyte   flags;          // misc properties

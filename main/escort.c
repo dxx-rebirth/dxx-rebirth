@@ -1,4 +1,4 @@
-/* $Id: escort.c,v 1.5 2003-03-27 01:23:18 btb Exp $ */
+/* $Id: escort.c,v 1.6 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,9 +8,20 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Escort robot behavior.
+ *
+ * Old Log:
+ * Revision 1.1  1995/05/06  23:32:19  mike
+ * Initial revision
+ *
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
@@ -193,7 +204,7 @@ int segment_is_reachable(int curseg, int sidenum)
 void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs)
 {
 	int	i, head, tail;
-	byte	visited[MAX_SEGMENTS];
+	sbyte   visited[MAX_SEGMENTS];
 
 	for (i=0; i<MAX_SEGMENTS; i++)
 		visited[i] = 0;

@@ -1,3 +1,4 @@
+/* $Id: ai2.c,v 1.4 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,16 +8,27 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Split ai.c into two files: ai.c, ai2.c.
+ *
+ * Old Log:
+ * Revision 1.1  1995/05/25  12:00:31  mike
+ * Initial revision
+ *
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ai2.c,v 1.3 2001-10-25 02:15:55 bradleyb Exp $";
+static char rcsid[] = "$Id: ai2.c,v 1.4 2003-10-04 03:14:47 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -75,9 +87,9 @@ void teleport_boss(object *objp);
 int boss_fits_in_seg(object *boss_objp, int segnum);
 
 
-int	Flinch_scale = 4;
-int	Attack_scale = 24;
-byte	Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
+int     Flinch_scale = 4;
+int     Attack_scale = 24;
+sbyte   Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
 
 //	Amount of time since the current robot was last processed for things such as movement.
 //	It is not valid to use FrameTime because robots do not get moved every frame.
@@ -279,7 +291,7 @@ if (size_check)
 		object		*boss_objp = &Objects[boss_objnum];
 		int			head, tail;
 		int			seg_queue[QUEUE_SIZE];
-//ALREADY IN RENDER.H		byte			visited[MAX_SEGMENTS];
+		//ALREADY IN RENDER.H sbyte   visited[MAX_SEGMENTS];
 		fix			boss_size_save;
 
 		boss_size_save = boss_objp->size;
@@ -397,9 +409,9 @@ void init_ai_objects(void)
 int	Lunacy = 0;
 int	Diff_save = 1;
 
-fix	Firing_wait_copy[MAX_ROBOT_TYPES];
-fix	Firing_wait2_copy[MAX_ROBOT_TYPES];
-byte	Rapidfire_count_copy[MAX_ROBOT_TYPES];
+fix     Firing_wait_copy[MAX_ROBOT_TYPES];
+fix     Firing_wait2_copy[MAX_ROBOT_TYPES];
+sbyte   Rapidfire_count_copy[MAX_ROBOT_TYPES];
 
 void do_lunacy_on(void)
 {
@@ -2179,7 +2191,7 @@ void start_boss_death_sequence(object *objp)
 //	General purpose robot-dies-with-death-roll-and-groan code.
 //	Return true if object just died.
 //	scale: F1_0*4 for boss, much smaller for much smaller guys
-int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, byte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
+int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
 {
 	fix	roll_val, temp;
 	fix	sound_duration;

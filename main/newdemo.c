@@ -1,4 +1,4 @@
-/* $Id: newdemo.c,v 1.13 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: newdemo.c,v 1.14 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,16 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Code to make a complete demo playback system.
  *
- * $Log: not supported by cvs2svn $
- * Revision 1.12  2003/03/18 02:31:16  btb
- * simplify DEMO_FILENAME macro
- *
- * Revision 1.11  2003/03/17 07:59:11  btb
- * also look in shared data dir for demos
- *
- * Revision 1.10  2003/03/17 07:10:21  btb
- * comments/formatting
- *
+ * Old Log:
  * Revision 1.12  1995/10/31  10:19:43  allender
  * shareware stuff
  *
@@ -828,9 +819,9 @@ void DoJasonInterpolate (fix recorded_time);
 //Does demo start automatically?
 int Auto_demo = 0;
 
-byte WasRecorded [MAX_OBJECTS];
-byte ViewWasRecorded[MAX_OBJECTS];
-byte RenderingWasRecorded[32];
+sbyte WasRecorded [MAX_OBJECTS];
+sbyte ViewWasRecorded[MAX_OBJECTS];
+sbyte RenderingWasRecorded[32];
 
 #define ND_EVENT_EOF                0   // EOF
 #define ND_EVENT_START_DEMO         1   // Followed by 16 character, NULL terminated filename of .SAV file to use
@@ -906,20 +897,20 @@ unsigned int Newdemo_size;
 int Newdemo_num_written;
 int Newdemo_game_mode;
 int Newdemo_old_cockpit;
-byte Newdemo_no_space;
-byte Newdemo_at_eof;
-byte Newdemo_do_interpolate = 0; // 1
-byte Newdemo_players_cloaked;
-byte Newdemo_warning_given = 0;
-byte Newdemo_cntrlcen_destroyed = 0;
-static byte nd_bad_read;
+sbyte Newdemo_no_space;
+sbyte Newdemo_at_eof;
+sbyte Newdemo_do_interpolate = 0; // 1
+sbyte Newdemo_players_cloaked;
+sbyte Newdemo_warning_given = 0;
+sbyte Newdemo_cntrlcen_destroyed = 0;
+static sbyte nd_bad_read;
 int NewdemoFrameCount;
 short frame_bytes_written = 0;
 fix nd_playback_total;
 fix nd_recorded_total;
 fix nd_recorded_time;
-byte playback_style;
-byte First_time_playback=1;
+sbyte playback_style;
+sbyte First_time_playback=1;
 fix JasonPlaybackTotal=0;
 
 
@@ -941,7 +932,7 @@ int newdemo_get_percent_done() {
 void my_extract_shortpos(object *objp, shortpos *spp)
 {
 	int segnum;
-	byte *sp;
+	sbyte *sp;
 
 	sp = spp->bytemat;
 	objp->orient.rvec.x = *sp++ << MATRIX_PRECISION;
@@ -1020,7 +1011,7 @@ int newdemo_write( void *buffer, int elsize, int nelem )
  *  just a gamesave
 */
 
-static void nd_write_byte(byte b)
+static void nd_write_byte(sbyte b)
 {
 	newdemo_write(&b, 1, 1);
 }
@@ -1095,7 +1086,7 @@ void nd_write_shortpos(object *obj)
 	nd_write_short(sp.velz);
 }
 
-static void nd_read_byte(byte *b)
+static void nd_read_byte(sbyte *b)
 {
 	newdemo_read(b, 1, 1);
 }
@@ -1112,7 +1103,7 @@ static void nd_read_int(int *i)
 
 static void nd_read_string(char *str)
 {
-	byte len;
+	sbyte len;
 
 	nd_read_byte(&len);
 	newdemo_read(str, len, 1);
@@ -1259,7 +1250,7 @@ void nd_read_object(object *obj)
 
 	if (obj->type == OBJ_ROBOT) {
 		if (Robot_info[obj->id].boss_flag) {
-			byte cloaked;
+			sbyte cloaked;
 
 			nd_read_byte(&cloaked);
 			obj->ctype.ai_info.CLOAKED = cloaked;
@@ -1572,7 +1563,7 @@ void newdemo_record_start_demo()
 	}
 
 	if (Game_mode & GM_MULTI) {
-		nd_write_byte((byte)N_players);
+		nd_write_byte((sbyte)N_players);
 		for (i = 0; i < N_players; i++) {
 			nd_write_string(Players[i].callsign);
 			nd_write_byte(Players[i].connected);
@@ -1595,17 +1586,17 @@ void newdemo_record_start_demo()
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 		nd_write_short((short)Players[Player_num].secondary_ammo[i]);
 
-	nd_write_byte((byte)Players[Player_num].laser_level);
+	nd_write_byte((sbyte)Players[Player_num].laser_level);
 
 //  Support for missions added here
 
 	nd_write_string(Current_mission_filename);
 
-	nd_write_byte((byte)(f2ir(Players[Player_num].energy)));
-	nd_write_byte((byte)(f2ir(Players[Player_num].shields)));
+	nd_write_byte((sbyte)(f2ir(Players[Player_num].energy)));
+	nd_write_byte((sbyte)(f2ir(Players[Player_num].shields)));
 	nd_write_int(Players[Player_num].flags);        // be sure players flags are set
-	nd_write_byte((byte)Primary_weapon);
-	nd_write_byte((byte)Secondary_weapon);
+	nd_write_byte((sbyte)Primary_weapon);
+	nd_write_byte((sbyte)Secondary_weapon);
 	Newdemo_start_frame = FrameCount;
 	JustStartedRecording=1;
 
@@ -1853,8 +1844,8 @@ void newdemo_record_player_energy(int old_energy, int energy)
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_PLAYER_ENERGY );
-	nd_write_byte((byte) old_energy);
-	nd_write_byte((byte) energy);
+	nd_write_byte((sbyte) old_energy);
+	nd_write_byte((sbyte) energy);
 	start_time();
 }
 
@@ -1862,8 +1853,8 @@ void newdemo_record_player_afterburner(fix old_afterburner, fix afterburner)
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_PLAYER_AFTERBURNER );
-	nd_write_byte((byte) (old_afterburner>>9));
-	nd_write_byte((byte) (afterburner>>9));
+	nd_write_byte((sbyte) (old_afterburner>>9));
+	nd_write_byte((sbyte) (afterburner>>9));
 	start_time();
 }
 
@@ -1871,8 +1862,8 @@ void newdemo_record_player_shields(int old_shield, int shield)
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_PLAYER_SHIELD );
-	nd_write_byte((byte)old_shield);
-	nd_write_byte((byte)shield);
+	nd_write_byte((sbyte)old_shield);
+	nd_write_byte((sbyte)shield);
 	start_time();
 }
 
@@ -1888,12 +1879,12 @@ void newdemo_record_player_weapon(int weapon_type, int weapon_num)
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_PLAYER_WEAPON );
-	nd_write_byte((byte)weapon_type);
-	nd_write_byte((byte)weapon_num);
+	nd_write_byte((sbyte)weapon_type);
+	nd_write_byte((sbyte)weapon_num);
 	if (weapon_type)
-		nd_write_byte((byte)Secondary_weapon);
+		nd_write_byte((sbyte)Secondary_weapon);
 	else
-		nd_write_byte((byte)Primary_weapon);
+		nd_write_byte((sbyte)Primary_weapon);
 	start_time();
 }
 
@@ -1902,7 +1893,7 @@ void newdemo_record_effect_blowup(short segment, int side, vms_vector *pnt)
 	stop_time();
 	nd_write_byte (ND_EVENT_EFFECT_BLOWUP);
 	nd_write_short(segment);
-	nd_write_byte((byte)side);
+	nd_write_byte((sbyte)side);
 	nd_write_vector(pnt);
 	start_time();
 }
@@ -1971,7 +1962,7 @@ void newdemo_record_multi_cloak(int pnum)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_MULTI_CLOAK);
-	nd_write_byte((byte)pnum);
+	nd_write_byte((sbyte)pnum);
 	start_time();
 }
 
@@ -1979,7 +1970,7 @@ void newdemo_record_multi_decloak(int pnum)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_MULTI_DECLOAK);
-	nd_write_byte((byte)pnum);
+	nd_write_byte((sbyte)pnum);
 	start_time();
 }
 
@@ -1987,15 +1978,15 @@ void newdemo_record_multi_death(int pnum)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_MULTI_DEATH);
-	nd_write_byte((byte)pnum);
+	nd_write_byte((sbyte)pnum);
 	start_time();
 }
 
-void newdemo_record_multi_kill(int pnum, byte kill)
+void newdemo_record_multi_kill(int pnum, sbyte kill)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_MULTI_KILL);
-	nd_write_byte((byte)pnum);
+	nd_write_byte((sbyte)pnum);
 	nd_write_byte(kill);
 	start_time();
 }
@@ -2004,8 +1995,8 @@ void newdemo_record_multi_connect(int pnum, int new_player, char *new_callsign)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_MULTI_CONNECT);
-	nd_write_byte((byte)pnum);
-	nd_write_byte((byte)new_player);
+	nd_write_byte((sbyte)pnum);
+	nd_write_byte((sbyte)new_player);
 	if (!new_player) {
 		nd_write_string(Players[pnum].callsign);
 		nd_write_int(Players[pnum].net_killed_total);
@@ -2019,7 +2010,7 @@ void newdemo_record_multi_reconnect(int pnum)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_MULTI_RECONNECT);
-	nd_write_byte((byte)pnum);
+	nd_write_byte((sbyte)pnum);
 	start_time();
 }
 
@@ -2027,7 +2018,7 @@ void newdemo_record_multi_disconnect(int pnum)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_MULTI_DISCONNECT);
-	nd_write_byte((byte)pnum);
+	nd_write_byte((sbyte)pnum);
 	start_time();
 }
 
@@ -2043,7 +2034,7 @@ void newdemo_record_multi_score(int pnum, int score)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_MULTI_SCORE);
-	nd_write_byte((byte)pnum);
+	nd_write_byte((sbyte)pnum);
 	nd_write_int(score - Players[pnum].score);      // called before score is changed!!!!
 	start_time();
 }
@@ -2077,11 +2068,11 @@ void newdemo_record_door_opening(int segnum, int side)
 	stop_time();
 	nd_write_byte(ND_EVENT_DOOR_OPENING);
 	nd_write_short((short)segnum);
-	nd_write_byte((byte)side);
+	nd_write_byte((sbyte)side);
 	start_time();
 }
 
-void newdemo_record_laser_level(byte old_level, byte new_level)
+void newdemo_record_laser_level(sbyte old_level, sbyte new_level)
 {
 	stop_time();
 	nd_write_byte(ND_EVENT_LASER_LEVEL);
@@ -2116,8 +2107,8 @@ void newdemo_set_new_level(int level_num)
 
 	stop_time();
 	nd_write_byte(ND_EVENT_NEW_LEVEL);
-	nd_write_byte((byte)level_num);
-	nd_write_byte((byte)Current_level_num);
+	nd_write_byte((sbyte)level_num);
+	nd_write_byte((sbyte)Current_level_num);
 
 	if (JustStartedRecording==1)
 	{
@@ -2141,7 +2132,7 @@ void newdemo_set_new_level(int level_num)
 
 int newdemo_read_demo_start(int rnd_demo)
 {
-	byte i, version, game_type, laser_level;
+	sbyte i, version, game_type, laser_level;
 	char c, energy, shield;
 	char text[128], current_mission[9];
 
@@ -2205,7 +2196,7 @@ int newdemo_read_demo_start(int rnd_demo)
 		N_players = (int)c;
 		// changed this to above two lines -- breaks on the mac because of
 		// endian issues
-		//		nd_read_byte((byte *)&N_players);
+		//		nd_read_byte((sbyte *)&N_players);
 		for (i = 0 ; i < N_players; i++) {
 			Players[i].cloak_time = 0;
 			Players[i].invulnerable_time = 0;
@@ -2265,8 +2256,8 @@ int newdemo_read_demo_start(int rnd_demo)
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 		Players[Player_num].invulnerable_time = GameTime - (INVULNERABLE_TIME_MAX / 2);
 
-	nd_read_byte((byte *)&Primary_weapon);
-	nd_read_byte((byte *)&Secondary_weapon);
+	nd_read_byte((sbyte *)&Primary_weapon);
+	nd_read_byte((sbyte *)&Secondary_weapon);
 
 	// Next bit of code to fix problem that I introduced between 1.0 and 1.1
 	// check the next byte -- it _will_ be a load_new_level event.  If it is
@@ -2310,8 +2301,8 @@ int newdemo_read_frame_information()
 	int done, segnum, side, objnum, soundno, angle, volume, i,shot;
 	object *obj;
 	ubyte c,WhichWindow;
-	static byte saved_letter_cockpit;
-	static byte saved_rearview_cockpit;
+	static sbyte saved_letter_cockpit;
+	static sbyte saved_rearview_cockpit;
 	object extraobj;
 	static char LastReadValue=101;
 	segment *seg;
@@ -2697,8 +2688,8 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_PLAYER_WEAPON: {
-			byte weapon_type, weapon_num;
-			byte old_weapon;
+			sbyte weapon_type, weapon_num;
+			sbyte old_weapon;
 
 			nd_read_byte(&weapon_type);
 			nd_read_byte(&weapon_num);
@@ -2719,7 +2710,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_EFFECT_BLOWUP: {
 			short segnum;
-			byte side;
+			sbyte side;
 			vms_vector pnt;
 			object dummy;
 
@@ -2829,7 +2820,7 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_MULTI_CLOAK: {
-			byte pnum;
+			sbyte pnum;
 
 			nd_read_byte(&pnum);
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
@@ -2845,7 +2836,7 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_MULTI_DECLOAK: {
-			byte pnum;
+			sbyte pnum;
 
 			nd_read_byte(&pnum);
 
@@ -2862,7 +2853,7 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_MULTI_DEATH: {
-			byte pnum;
+			sbyte pnum;
 
 			nd_read_byte(&pnum);
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
@@ -2874,7 +2865,7 @@ int newdemo_read_frame_information()
 
 #ifdef NETWORK
 		case ND_EVENT_MULTI_KILL: {
-			byte pnum, kill;
+			sbyte pnum, kill;
 
 			nd_read_byte(&pnum);
 			nd_read_byte(&kill);
@@ -2894,7 +2885,7 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_MULTI_CONNECT: {
-			byte pnum, new_player;
+			sbyte pnum, new_player;
 			int killed_total, kills_total;
 			char new_callsign[CALLSIGN_LEN+1], old_callsign[CALLSIGN_LEN+1];
 
@@ -2927,7 +2918,7 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_MULTI_RECONNECT: {
-			byte pnum;
+			sbyte pnum;
 
 			nd_read_byte(&pnum);
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
@@ -2938,7 +2929,7 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_MULTI_DISCONNECT: {
-			byte pnum;
+			sbyte pnum;
 
 			nd_read_byte(&pnum);
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
@@ -2950,7 +2941,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_MULTI_SCORE: {
 			int score;
-			byte pnum;
+			sbyte pnum;
 
 			nd_read_byte(&pnum);
 			nd_read_int(&score);
@@ -3005,7 +2996,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_DOOR_OPENING: {
 			short segnum;
-			byte side;
+			sbyte side;
 
 			nd_read_short(&segnum);
 			nd_read_byte(&side);
@@ -3029,7 +3020,7 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_LASER_LEVEL: {
-			byte old_level, new_level;
+			sbyte old_level, new_level;
 
 			nd_read_byte(&old_level);
 			nd_read_byte(&new_level);
@@ -3083,7 +3074,7 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_NEW_LEVEL: {
-			byte new_level, old_level, loaded_level;
+			sbyte new_level, old_level, loaded_level;
 
 			nd_read_byte (&new_level);
 			nd_read_byte (&old_level);
@@ -3203,7 +3194,7 @@ void newdemo_goto_beginning()
 void newdemo_goto_end()
 {
 	short frame_length, byte_count, bshort;
-	byte level, bbyte, laser_level;
+	sbyte level, bbyte, laser_level;
 	ubyte energy, shield, c;
 	int i, loc, bint;
 
@@ -3248,8 +3239,8 @@ void newdemo_goto_end()
 	}
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 		Players[Player_num].invulnerable_time = GameTime - (INVULNERABLE_TIME_MAX / 2);
-	nd_read_byte((byte *)&Primary_weapon);
-	nd_read_byte((byte *)&Secondary_weapon);
+	nd_read_byte((sbyte *)&Primary_weapon);
+	nd_read_byte((sbyte *)&Secondary_weapon);
 	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_read_short((short *)&(Players[Player_num].primary_ammo[i]));
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
@@ -3265,7 +3256,7 @@ void newdemo_goto_end()
 		N_players = (int)c;
 		// see newdemo_read_start_demo for explanation of
 		// why this is commented out
-		//		nd_read_byte((byte *)&N_players);
+		//		nd_read_byte((sbyte *)&N_players);
 		for (i = 0; i < N_players; i++) {
 			nd_read_string(Players[i].callsign);
 			nd_read_byte(&(Players[i].connected));
@@ -3728,11 +3719,11 @@ void newdemo_stop_recording()
 
 	byte_count += 10;       // from frame_bytes_written
 
-	nd_write_byte((byte)(f2ir(Players[Player_num].energy)));
-	nd_write_byte((byte)(f2ir(Players[Player_num].shields)));
+	nd_write_byte((sbyte)(f2ir(Players[Player_num].energy)));
+	nd_write_byte((sbyte)(f2ir(Players[Player_num].shields)));
 	nd_write_int(Players[Player_num].flags);        // be sure players flags are set
-	nd_write_byte((byte)Primary_weapon);
-	nd_write_byte((byte)Secondary_weapon);
+	nd_write_byte((sbyte)Primary_weapon);
+	nd_write_byte((sbyte)Secondary_weapon);
 	byte_count += 8;
 
 	for (l = 0; l < MAX_PRIMARY_WEAPONS; l++)
@@ -3746,7 +3737,7 @@ void newdemo_stop_recording()
 	byte_count++;
 
 	if (Game_mode & GM_MULTI) {
-		nd_write_byte((byte)N_players);
+		nd_write_byte((sbyte)N_players);
 		byte_count++;
 		for (l = 0; l < N_players; l++) {
 			nd_write_string(Players[l].callsign);

@@ -1,4 +1,4 @@
-/* $Id: wall.c,v 1.9 2003-04-03 07:12:46 btb Exp $ */
+/* $Id: wall.c,v 1.10 2003-10-04 03:14:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,12 +12,104 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Destroyable wall stuff
+ *
+ * Old Log:
+ * Revision 1.1  1995/05/16  15:32:08  allender
+ * Initial revision
+ *
+ * Revision 2.1  1995/03/21  14:39:04  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.0  1995/02/27  11:28:32  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.112  1995/02/22  13:53:07  allender
+ * remove anonymous unions from object structure
+ *
+ * Revision 1.111  1995/02/01  17:32:17  adam
+ * Took out a bogus int3.
+ *
+ * Revision 1.110  1995/02/01  17:20:24  john
+ * Lintized.
+ *
+ * Revision 1.109  1995/01/21  17:39:50  matt
+ * Cleaned up laser/player hit wall confusions
+ *
+ * Revision 1.108  1995/01/21  17:14:17  rob
+ * Fixed bug in multiplayer door-butting.
+ *
+ * Revision 1.107  1995/01/18  18:57:11  rob
+ * Added new hostage door hooks.
+ *
+ * Revision 1.106  1995/01/18  18:48:18  allender
+ * removed #ifdef newdemo's.  Added function call to record a door that
+ * starts to open. This fixes the rewind problem
+ *
+ * Revision 1.105  1995/01/16  11:55:39  mike
+ * make control center (and robots whose id == your playernum) not able to open doors.
+ *
+ * Revision 1.104  1994/12/11  23:07:21  matt
+ * Fixed stuck objects & blastable walls
+ *
+ * Revision 1.103  1994/12/10  16:44:34  matt
+ * Added debugging code to track down door that turns into rock
+ *
+ * Revision 1.102  1994/12/06  16:27:05  matt
+ * Added debugging
+ *
+ * Revision 1.101  1994/12/02  10:50:27  yuan
+ * Localization
+ *
+ * Revision 1.100  1994/11/30  19:41:22  rob
+ * Put in a fix so that door opening sounds travel through the door.
+ *
+ * Revision 1.99  1994/11/28  11:59:50  yuan
+ * *** empty log message ***
+ *
+ * Revision 1.98  1994/11/28  11:25:45  matt
+ * Cleaned up key hud messages
+ *
+ * Revision 1.97  1994/11/27  23:15:11  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.96  1994/11/19  15:18:29  mike
+ * rip out unused code and data.
+ *
+ * Revision 1.95  1994/11/17  14:57:12  mike
+ * moved segment validation functions from editor to main.
+ *
+ * Revision 1.94  1994/11/07  08:47:30  john
+ * Made wall state record.
+ *
+ * Revision 1.93  1994/11/04  16:06:37  rob
+ * Fixed network damage of blastable walls.
+ *
+ * Revision 1.92  1994/11/02  21:54:01  matt
+ * Don't let objects with zero size keep door from shutting
+ *
+ * Revision 1.91  1994/10/31  13:48:42  rob
+ * Fixed bug in opening doors over network/modem.  Added a new message
+ * type to multi.c that communicates door openings across the net.
+ * Changed includes in multi.c and wall.c to accomplish this.
+ *
+ * Revision 1.90  1994/10/28  14:42:41  john
+ * Added sound volumes to all sound calls.
+ *
+ * Revision 1.89  1994/10/23  19:16:55  matt
+ * Fixed bug with "no key" messages
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.9 2003-04-03 07:12:46 btb Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.10 2003-10-04 03:14:48 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -107,7 +199,7 @@ int check_transparency( segment * seg, int side )
 	if ( (seg->sides[side].tmap_num2 & 0x3FFF) == 0) {
 		if (GameBitmaps[Textures[seg->sides[side].tmap_num].index].bm_flags & BM_FLAG_TRANSPARENT )
 			return 1;
-		else 
+		else
 			return 0;
 		}
 
@@ -316,7 +408,7 @@ void wall_destroy(segment *seg, int side)
 }
 
 //-----------------------------------------------------------------
-// Deteriorate appearance of wall. (Changes bitmap (paste-ons)) 
+// Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 void wall_damage(segment *seg, int side, fix damage)
 {
 	int a, i, n;
@@ -361,7 +453,7 @@ void wall_damage(segment *seg, int side, fix damage)
 
 
 //-----------------------------------------------------------------
-// Opens a door 
+// Opens a door
 void wall_open_door(segment *seg, int side)
 {
 	wall *w;
@@ -392,10 +484,10 @@ void wall_open_door(segment *seg, int side)
 	
 			if (d->front_wallnum[0]==w-Walls || d->back_wallnum[0]==w-Walls || (d->n_parts==2 && (d->front_wallnum[1]==w-Walls || d->back_wallnum[1]==w-Walls)))
 				break;
-		} 
+		}
 
 		if (i>=Num_open_doors && (Game_mode & GM_MULTI))	
-				goto FastFix; 
+				goto FastFix;
 		
 		Assert(i<Num_open_doors);				//didn't find door!
 		Assert( d!=NULL ); // Get John!
@@ -507,7 +599,7 @@ void start_wall_cloak(segment *seg, int side)
 	
 			if (d->front_wallnum==w-Walls || d->back_wallnum==w-Walls )
 				break;
-		} 
+		}
 
 		Assert(i<Num_cloaking_walls);				//didn't find door!
 		Assert( d!=NULL ); // Get John!
@@ -584,7 +676,7 @@ void start_wall_decloak(segment *seg, int side)
 	
 			if (d->front_wallnum==w-Walls || d->back_wallnum==w-Walls )
 				break;
-		} 
+		}
 
 		Assert(i<Num_cloaking_walls);				//didn't find door!
 		Assert( d!=NULL ); // Get John!
@@ -720,7 +812,7 @@ int is_door_free(segment *seg,int side)
 
 
 //-----------------------------------------------------------------
-// Closes a door 
+// Closes a door
 void wall_close_door(segment *seg, int side)
 {
 	wall *w;
@@ -752,7 +844,7 @@ void wall_close_door(segment *seg, int side)
 	
 			if (d->front_wallnum[0]==w-Walls || d->back_wallnum[0]==w-Walls || (d->n_parts==2 && (d->front_wallnum[1]==w-Walls || d->back_wallnum[1]==w-Walls)))
 				break;
-		} 
+		}
 
 		Assert(i<Num_open_doors);				//didn't find door!
 		Assert( d!=NULL ); // Get John!
@@ -965,7 +1057,7 @@ void do_door_close(int door_num)
 
 			ActiveDoors[Num_open_doors].time = 0;		//counts up
 
-		} else 
+		} else
 			wall_close_door_num(door_num);
 	}
 }
@@ -1307,9 +1399,9 @@ void wall_frame_process()
 				w->state = WALL_DOOR_CLOSING;
 				d->time = 0;
 			}
-		} 
+		}
 		else if (w->state == WALL_DOOR_CLOSED || w->state == WALL_DOOR_OPEN) {
-			//this shouldn't happen.  if the wall is in one of these states, 
+			//this shouldn't happen.  if the wall is in one of these states,
 			//there shouldn't be an activedoor entry for it.  So we'll kill
 			//the activedoor entry.  Tres simple.
 			int t;
@@ -1317,8 +1409,8 @@ void wall_frame_process()
 			for (t=i;t<Num_open_doors;t++)
 				ActiveDoors[t] = ActiveDoors[t+1];
 			Num_open_doors--;
-		} 
-	} 
+		}
+	}
 
 	for (i=0;i<Num_cloaking_walls;i++) {
 		cloaking_wall *d;
@@ -1333,7 +1425,7 @@ void wall_frame_process()
 			do_decloaking_wall_frame(i);
 		else
 			Int3();	//unexpected wall state
-	} 
+	}
 }
 
 int	Num_stuck_objects=0;
@@ -1351,7 +1443,7 @@ void add_stuck_object(object *objp, int segnum, int sidenum)
 
 	if (wallnum != -1) {
 		if (Walls[wallnum].flags & WALL_BLASTED)
-			objp->flags |= OF_SHOULD_BE_DEAD;  
+			objp->flags |= OF_SHOULD_BE_DEAD;
 
 		for (i=0; i<MAX_STUCK_OBJECTS; i++) {
 			if (Stuck_objects[i].wallnum == -1) {
@@ -1430,17 +1522,17 @@ void kill_stuck_objects(int wallnum)
 // -- unused -- int contains_flare(segment *segp, int sidenum)
 // -- unused -- {
 // -- unused -- 	int	i;
-// -- unused -- 
+// -- unused --
 // -- unused -- 	for (i=0; i<Num_stuck_objects; i++) {
 // -- unused -- 		object	*objp = &Objects[Stuck_objects[i].objnum];
-// -- unused -- 
+// -- unused --
 // -- unused -- 		if ((objp->type == OBJ_WEAPON) && (objp->id == FLARE_ID)) {
 // -- unused -- 			if (Walls[Stuck_objects[i].wallnum].segnum == segp-Segments)
 // -- unused -- 				if (Walls[Stuck_objects[i].wallnum].sidenum == sidenum)
 // -- unused -- 					return objp-Objects;
 // -- unused -- 		}
 // -- unused -- 	}
-// -- unused -- 
+// -- unused --
 // -- unused -- 	return -1;
 // -- unused -- }
 
@@ -1484,7 +1576,7 @@ void clear_stuck_objects(void)
 // -----------------------------------------------------------------------------------
 #define	MAX_BLAST_GLASS_DEPTH	5
 
-void bng_process_segment(object *objp, fix damage, segment *segp, int depth, byte *visited)
+void bng_process_segment(object *objp, fix damage, segment *segp, int depth, sbyte *visited)
 {
 	int	i, sidenum;
 
@@ -1536,7 +1628,7 @@ void bng_process_segment(object *objp, fix damage, segment *segp, int depth, byt
 void blast_nearby_glass(object *objp, fix damage)
 {
 	int		i;
-	byte		visited[MAX_SEGMENTS];
+	sbyte   visited[MAX_SEGMENTS];
 	segment	*cursegp;
 
 	cursegp = &Segments[objp->segnum];

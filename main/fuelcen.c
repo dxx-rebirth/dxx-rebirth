@@ -1,3 +1,4 @@
+/* $Id: fuelcen.c,v 1.7 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,16 +8,243 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Functions for refueling centers.
+ *
+ * Old Log:
+ * $Log: not supported by cvs2svn $
+ * Revision 1.2  1995/10/31  10:23:40  allender
+ * shareware stuff
+ *
+ * Revision 1.1  1995/05/16  15:24:50  allender
+ * Initial revision
+ *
+ * Revision 2.3  1995/03/21  14:38:40  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.2  1995/03/06  15:23:09  john
+ * New screen techniques.
+ *
+ * Revision 2.1  1995/02/27  13:13:26  john
+ * Removed floating point.
+ *
+ * Revision 2.0  1995/02/27  11:27:20  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.159  1995/02/22  13:48:10  allender
+ * remove anonymous unions in object structure
+ *
+ * Revision 1.158  1995/02/08  11:37:48  mike
+ * Check for failures in call to obj_create.
+ *
+ * Revision 1.157  1995/02/07  20:39:39  mike
+ * fix toasters in multiplayer
+ *
+ *
+ * Revision 1.156  1995/02/02  18:40:10  john
+ * Fixed bug with full screen cockpit flashing non-white.
+ *
+ * Revision 1.155  1995/01/28  15:27:22  yuan
+ * Make sure fuelcen nums are valid.
+ *
+ * Revision 1.154  1995/01/03  14:26:23  rob
+ * Better ifdef for robot centers.
+ *
+ * Revision 1.153  1995/01/03  11:27:49  rob
+ * Added include of fuelcen.c
+ *
+ * Revision 1.152  1995/01/03  09:47:22  john
+ * Some ifdef SHAREWARE lines.
+ *
+ * Revision 1.151  1995/01/02  21:02:07  rob
+ * added matcen support for coop/multirobot.
+ *
+ * Revision 1.150  1994/12/15  18:31:22  mike
+ * fix confusing precedence problems.
+ *
+ * Revision 1.149  1994/12/15  13:04:22  mike
+ * Replace Players[Player_num].time_total references with GameTime.
+ *
+ * Revision 1.148  1994/12/15  03:05:18  matt
+ * Added error checking for NULL return from object_create_explosion()
+ *
+ * Revision 1.147  1994/12/13  19:49:12  rob
+ * Made the fuelcen noise quieter.
+ *
+ * Revision 1.146  1994/12/13  12:03:18  john
+ * Made the warning sirens not start until after "desccruction
+ * secquence activated voice".
+ *
+ * Revision 1.145  1994/12/12  17:18:30  mike
+ * make warning siren louder.
+ *
+ * Revision 1.144  1994/12/11  23:18:04  john
+ * Added -nomusic.
+ * Added RealFrameTime.
+ * Put in a pause when sound initialization error.
+ * Made controlcen countdown and framerate use RealFrameTime.
+ *
+ * Revision 1.143  1994/12/11  14:10:16  mike
+ * louder sounds.
+ *
+ * Revision 1.142  1994/12/06  11:33:19  yuan
+ * Fixed bug with fueling when above 100.
+ *
+ * Revision 1.141  1994/12/05  23:37:14  matt
+ * Took out calls to warning() function
+ *
+ * Revision 1.140  1994/12/05  23:19:18  yuan
+ * Fixed fuel center refuelers..
+ *
+ * Revision 1.139  1994/12/03  12:48:12  mike
+ * diminish rocking due to control center destruction.
+ *
+ * Revision 1.138  1994/12/02  23:30:32  mike
+ * fix bumpiness after toasting control center.
+ *
+ * Revision 1.137  1994/12/02  22:48:14  mike
+ * rock the ship after toasting the control center!
+ *
+ * Revision 1.136  1994/12/02  17:12:11  rob
+ * Fixed countdown sounds.
+ *
+ * Revision 1.135  1994/11/29  20:59:43  rob
+ * Don't run out of fuel in net games (don't want to sync it between machines)
+ *
+ * Revision 1.134  1994/11/29  19:10:57  john
+ * Took out debugging mprintf.
+ *
+ * Revision 1.133  1994/11/29  13:19:40  john
+ * Made voice for "destruction actived in t-"
+ * be at 12.75 secs.
+ *
+ * Revision 1.132  1994/11/29  12:19:46  john
+ * MAde the "Mine desctruction will commence"
+ * voice play at 12.5 secs.
+ *
+ * Revision 1.131  1994/11/29  12:12:54  adam
+ * *** empty log message ***
+ *
+ * Revision 1.130  1994/11/28  21:04:26  rob
+ * Added code to cast noise when player refuels.
+ *
+ * Revision 1.129  1994/11/27  23:15:04  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.128  1994/11/21  16:27:51  mike
+ * debug code for morphing.
+ *
+ * Revision 1.127  1994/11/21  12:33:50  matt
+ * For control center explosions, use small fireball, not pseudo-random vclip
+ *
+ * Revision 1.126  1994/11/20  22:12:15  mike
+ * Fix bug in initializing materialization centers.
+ *
+ * Revision 1.125  1994/11/19  15:18:22  mike
+ * rip out unused code and data.
+ *
+ * Revision 1.124  1994/11/08  12:18:59  mike
+ * Initialize Fuelcen_seconds_left.
+ *
+ * Revision 1.123  1994/10/30  14:12:33  mike
+ * rip out repair center stuff
+ *
+ * Revision 1.122  1994/10/28  14:42:45  john
+ * Added sound volumes to all sound calls.
+ *
+ * Revision 1.121  1994/10/16  12:44:02  mike
+ * Make time to exit mine after control center destruction diff level dependent.
+ *
+ * Revision 1.120  1994/10/09  22:03:26  mike
+ * Adapt to new create_n_segment_path parameters.
+ *
+ * Revision 1.119  1994/10/06  14:52:42  mike
+ * Remove last of ability to damage fuel centers.
+ *
+ * Revision 1.118  1994/10/06  14:08:45  matt
+ * Made morph flash effect get orientation from segment
+ *
+ * Revision 1.117  1994/10/05  16:09:03  mike
+ * Put debugging code into matcen/fuelcen synchronization problem.
+ *
+ * Revision 1.116  1994/10/04  15:32:41  john
+ * Took out the old PLAY_SOUND??? code and replaced it
+ * with direct calls into digi_link_??? so that all sounds
+ * can be made 3d.
+ *
+ * Revision 1.115  1994/10/03  23:37:57  mike
+ * Clean up this mess of confusion to the point where maybe matcens actually work.
+ *
+ * Revision 1.114  1994/10/03  13:34:40  matt
+ * Added new (and hopefully better) game sequencing functions
+ *
+ * Revision 1.113  1994/09/30  14:41:57  matt
+ * Fixed bug as per Mike's instructions
+ *
+ * Revision 1.112  1994/09/30  00:37:33  mike
+ * Balance materialization centers.
+ *
+ * Revision 1.111  1994/09/28  23:12:52  matt
+ * Macroized palette flash system
+ *
+ * Revision 1.110  1994/09/27  15:42:31  mike
+ * Add names of Specials.
+ *
+ * Revision 1.109  1994/09/27  00:02:23  mike
+ * Yet more materialization center stuff.
+ *
+ * Revision 1.108  1994/09/26  11:26:23  mike
+ * Balance materialization centers.
+ *
+ * Revision 1.107  1994/09/25  23:40:47  matt
+ * Changed the object load & save code to read/write the structure fields one
+ * at a time (rather than the whole structure at once).  This mean that the
+ * object structure can be changed without breaking the load/save functions.
+ * As a result of this change, the local_object data can be and has been
+ * incorporated into the object array.  Also, timeleft is now a property
+ * of all objects, and the object structure has been otherwise cleaned up.
+ *
+ * Revision 1.106  1994/09/25  15:55:58  mike
+ * Balance materialization centers, make them emit light, make them re-triggerable after awhile.
+ *
+ * Revision 1.105  1994/09/24  17:42:33  mike
+ * Making materialization centers be activated by triggers and balancing them.
+ *
+ * Revision 1.104  1994/09/24  14:16:06  mike
+ * Support new network constants.
+ *
+ * Revision 1.103  1994/09/20  19:14:40  john
+ * Massaged the sound system; used a better formula for determining
+ * which l/r balance, also, put in Mike's stuff that searches for a connection
+ * between the 2 sounds' segments, stopping for closed doors, etc.
+ *
+ * Revision 1.102  1994/09/17  01:40:51  matt
+ * Added status bar/sizable window mode, and in the process revamped the
+ * whole cockpit mode system.
+ *
+ * Revision 1.101  1994/08/31  20:57:25  matt
+ * Cleaned up endlevel/death code
+ *
+ * Revision 1.100  1994/08/30  17:54:20  mike
+ * Slow down rate of creation of objects by materialization centers.
+ *
+ * Revision 1.99  1994/08/29  11:47:01  john
+ * Added warning if no control centers in mine.
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: fuelcen.c,v 1.6 2003-03-27 01:23:18 btb Exp $";
+static char rcsid[] = "$Id: fuelcen.c,v 1.7 2003-10-04 03:14:47 btb Exp $";
 #endif
 
 #include <stdio.h>
@@ -104,7 +332,7 @@ void fuelcen_reset()
 }
 
 #ifndef NDEBUG		//this is sometimes called by people from the debugger
-void reset_all_robot_centers() 
+void reset_all_robot_centers()
 {
 	int i;
 
@@ -347,7 +575,7 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 
 	obj = &Objects[objnum];
 
-	//Set polygon-object-specific data 
+	//Set polygon-object-specific data
 
 	obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
 	obj->rtype.pobj_info.subobj_flags = 0;
@@ -446,11 +674,11 @@ void robotmaker_proc( FuelCenter * robotcen )
 
 	switch( robotcen->Flag )	{
 	case 0:		// Wait until next robot can generate
-		if (Game_mode & GM_MULTI) 
+		if (Game_mode & GM_MULTI)
 		{
 			top_time = ROBOT_GEN_TIME;	
 		}
-		else 
+		else
 		{
 			dist_to_player = vm_vec_dist_quick( &ConsoleObject->pos, &robotcen->Center );
 			top_time = dist_to_player/64 + d_rand() * 2 + F1_0*2;
@@ -527,7 +755,7 @@ void robotmaker_proc( FuelCenter * robotcen )
 			if (RobotCenters[matcen_num].robot_flags[0] != 0 || RobotCenters[matcen_num].robot_flags[1] != 0) {
 				int	type;
 				uint	flags;
-				byte	legal_types[64];		//	64 bits, the width of robot_flags[].
+				sbyte   legal_types[64];   // 64 bits, the width of robot_flags[].
 				int	num_types, robot_index, i;
 
 				num_types = 0;
@@ -574,7 +802,7 @@ void robotmaker_proc( FuelCenter * robotcen )
 					mprintf((0, "Warning: create_morph_robot returned NULL (no objects left?)\n"));
 
 			}
-  
+ 
 		}
 		break;
 	default:
@@ -618,12 +846,12 @@ void fuelcen_update_all()
 //--unused-- void fuelcen_replenish_all()
 //--unused-- {
 //--unused-- 	int i;
-//--unused-- 
+//--unused--
 //--unused-- 	for (i=0; i<Num_fuelcenters; i++ )	{
 //--unused-- 		Station[i].Capacity = Station[i].MaxCapacity;
 //--unused-- 	}
 //--unused-- 	//mprintf( (0, "All fuel centers are replenished\n" ));
-//--unused-- 
+//--unused--
 //--unused-- }
 
 #define FUELCEN_SOUND_DELAY (f1_0/4)		//play every half second
@@ -701,10 +929,10 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--unused-- {
 //--unused-- 	//int i;
 //--unused-- 	// int	station_num = segp->value;
-//--unused-- 
+//--unused--
 //--unused-- 	Assert( segp != NULL );
 //--unused-- 	if ( segp == NULL ) return;
-//--unused-- 
+//--unused--
 //--unused-- 	mprintf((0, "Obsolete function fuelcen_damage() called with seg=%i, damage=%7.3f\n", segp-Segments, f2fl(damage)));
 //--unused-- 	switch( segp->special )	{
 //--unused-- 	case SEGMENT_IS_NOTHING:
@@ -756,9 +984,9 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--unused-- fixang my_delta_ang(fixang a,fixang b)
 //--unused-- {
 //--unused-- 	fixang delta0,delta1;
-//--unused-- 
+//--unused--
 //--unused-- 	return (abs(delta0 = a - b) < abs(delta1 = b - a)) ? delta0 : delta1;
-//--unused-- 
+//--unused--
 //--unused-- }
 
 //--unused-- //	----------------------------------------------------------------------------------------------------------
@@ -767,9 +995,9 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--unused-- {
 //--unused-- 	segment *Seg=&Segments[seg0];
 //--unused-- 	int i;
-//--unused-- 
+//--unused--
 //--unused-- 	for (i=MAX_SIDES_PER_SEGMENT;i--;) if (Seg->children[i]==seg1) return i;
-//--unused-- 
+//--unused--
 //--unused-- 	return -1;
 //--unused-- }
 
@@ -804,7 +1032,7 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--repair-- {
 //--repair-- 	vms_vector nextcenter, headfvec, *headuvec;
 //--repair-- 	vms_matrix goal_orient;
-//--repair-- 
+//--repair--
 //--repair-- 	// Find time for this movement
 //--repair-- 	delta_time = F1_0;		// one second...
 //--repair-- 		
@@ -823,12 +1051,12 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--repair-- 	med_compute_center_point_on_side(&nextcenter,&Segments[repair_seg],next_side);
 //--repair-- 	vm_vec_sub(&headfvec,&nextcenter,&goal_pos);
 //--repair-- 	//mprintf( (0, "Next_side = %d, Head fvec = %d,%d,%d\n", next_side, headfvec.x, headfvec.y, headfvec.z ));
-//--repair-- 
+//--repair--
 //--repair-- 	if (next_side == 5)						//last side
 //--repair-- 		headuvec = &repair_save_uvec;
 //--repair-- 	else
 //--repair-- 		headuvec = &Segments[repair_seg].sides[SideUpVector[next_side]].normals[0];
-//--repair-- 
+//--repair--
 //--repair-- 	vm_vector_2_matrix(&goal_orient,&headfvec,headuvec,NULL);
 //--repair-- 	vm_extract_angles_matrix(&goal_angles,&goal_orient);
 //--repair-- 	delta_angles.p = my_delta_ang(start_angles.p,goal_angles.p);
@@ -837,42 +1065,42 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--repair-- 	current_time = 0;
 //--repair-- 	Repairing = 0;
 //--repair-- }
-//--repair-- 
+//--repair--
 //--repair-- //	----------------------------------------------------------------------------------------------------------
 //--repair-- //if repairing, cut it short
 //--repair-- abort_repair_center()
 //--repair-- {
 //--repair-- 	if (!RepairObj || side_index==5)
 //--repair-- 		return;
-//--repair-- 
+//--repair--
 //--repair-- 	current_time = 0;
 //--repair-- 	side_index = 5;
 //--repair-- 	next_side = sidelist[side_index];
 //--repair-- 	refuel_calc_deltas(RepairObj, next_side, FuelStationSeg);
 //--repair-- }
-//--repair-- 
+//--repair--
 //--repair-- //	----------------------------------------------------------------------------------------------------------
 //--repair-- void repair_ship_damage()
 //--repair-- {
 //--repair--  	//mprintf((0,"Repairing ship damage\n"));
 //--repair-- }
-//--repair-- 
+//--repair--
 //--repair-- //	----------------------------------------------------------------------------------------------------------
 //--repair-- int refuel_do_repair_effect( object * obj, int first_time, int repair_seg )	{
-//--repair-- 
+//--repair--
 //--repair-- 	obj->mtype.phys_info.velocity.x = 0;				
 //--repair-- 	obj->mtype.phys_info.velocity.y = 0;				
 //--repair-- 	obj->mtype.phys_info.velocity.z = 0;				
-//--repair-- 
+//--repair--
 //--repair-- 	if (first_time)	{
 //--repair-- 		int entry_side;
 //--repair-- 		current_time = 0;
-//--repair-- 
+//--repair--
 //--repair-- 		digi_play_sample( SOUND_REPAIR_STATION_PLAYER_ENTERING, F1_0 );
-//--repair-- 
+//--repair--
 //--repair-- 		entry_side = john_find_connect_side(repair_seg,obj->segnum );
 //--repair-- 		Assert( entry_side > -1 );
-//--repair-- 
+//--repair--
 //--repair-- 		switch( entry_side )	{
 //--repair-- 		case WBACK: sidelist = SideOrderBack; break;
 //--repair-- 		case WFRONT: sidelist = SideOrderFront; break;
@@ -883,35 +1111,35 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--repair-- 		}
 //--repair-- 		side_index = 0;
 //--repair-- 		next_side = sidelist[side_index];
-//--repair-- 
+//--repair--
 //--repair-- 		refuel_calc_deltas(obj,next_side, repair_seg);
-//--repair-- 	} 
-//--repair-- 
+//--repair-- 	}
+//--repair--
 //--repair-- 	//update shields
 //--repair-- 	if (Players[Player_num].shields < MAX_SHIELDS) {	//if above max, don't mess with it
-//--repair-- 
+//--repair--
 //--repair-- 		Players[Player_num].shields += fixmul(FrameTime,repair_rate);
-//--repair-- 
+//--repair--
 //--repair-- 		if (Players[Player_num].shields > MAX_SHIELDS)
 //--repair-- 			Players[Player_num].shields = MAX_SHIELDS;
 //--repair-- 	}
-//--repair-- 
+//--repair--
 //--repair-- 	current_time += FrameTime;
-//--repair-- 
+//--repair--
 //--repair-- 	if (current_time >= delta_time )	{
 //--repair-- 		vms_angvec av;
 //--repair-- 		obj->pos = goal_pos;
 //--repair-- 		av	= goal_angles;
 //--repair-- 		vm_angles_2_matrix(&obj->orient,&av);
-//--repair-- 
+//--repair--
 //--repair-- 		if (side_index >= 5 )	
 //--repair-- 			return 1;		// Done being repaired...
-//--repair-- 
+//--repair--
 //--repair-- 		if (Repairing==0)		{
 //--repair-- 			//mprintf( (0, "<MACHINE EFFECT ON SIDE %d>\n", next_side ));
 //--repair-- 			//digi_play_sample( SOUND_REPAIR_STATION_FIXING );
 //--repair-- 			Repairing=1;
-//--repair-- 
+//--repair--
 //--repair-- 			switch( next_side )	{
 //--repair-- 			case 0:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_1,F1_0 ); break;
 //--repair-- 			case 1:	digi_play_sample( SOUND_REPAIR_STATION_FIXING_2,F1_0 ); break;
@@ -922,9 +1150,9 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--repair-- 			}
 //--repair-- 		
 //--repair-- 			repair_ship_damage();
-//--repair-- 
+//--repair--
 //--repair-- 		}
-//--repair-- 
+//--repair--
 //--repair-- 		if (current_time >= (delta_time+(F1_0/2)) )	{
 //--repair-- 			current_time = 0;
 //--repair-- 			// Find next side...
@@ -934,13 +1162,13 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--repair-- 	
 //--repair-- 			refuel_calc_deltas(obj, next_side, repair_seg);
 //--repair-- 		}
-//--repair-- 
+//--repair--
 //--repair-- 	} else {
 //--repair-- 		fix factor, p,b,h;	
 //--repair-- 		vms_angvec av;
-//--repair-- 
+//--repair--
 //--repair-- 		factor = fixdiv( current_time,delta_time );
-//--repair-- 
+//--repair--
 //--repair-- 		// Find object's current position
 //--repair-- 		obj->pos = delta_pos;
 //--repair-- 		vm_vec_scale( &obj->pos, factor );
@@ -954,20 +1182,20 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--repair-- 		av.b = (fixang)b + start_angles.b;
 //--repair-- 		av.h = (fixang)h + start_angles.h;
 //--repair-- 		vm_angles_2_matrix(&obj->orient,&av);
-//--repair-- 
+//--repair--
 //--repair-- 	}
-//--repair-- 
+//--repair--
 //--repair-- 	update_object_seg(obj);		//update segment
-//--repair-- 
+//--repair--
 //--repair-- 	return 0;
 //--repair-- }
-//--repair-- 
+//--repair--
 //--repair-- //	----------------------------------------------------------------------------------------------------------
 //--repair-- //do the repair center for this frame
 //--repair-- void do_repair_sequence(object *obj)
 //--repair-- {
 //--repair-- 	Assert(obj == RepairObj);
-//--repair-- 
+//--repair--
 //--repair-- 	if (refuel_do_repair_effect( obj, 0, FuelStationSeg )) {
 //--repair-- 		if (Players[Player_num].shields < MAX_SHIELDS)
 //--repair-- 			Players[Player_num].shields = MAX_SHIELDS;
@@ -975,41 +1203,41 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--repair-- 		obj->movement_type = save_movement_type;
 //--repair-- 		disable_repair_center=1;
 //--repair-- 		RepairObj = NULL;
-//--repair-- 
-//--repair-- 
+//--repair--
+//--repair--
 //--repair-- 		//the two lines below will spit the player out of the rapair center,
 //--repair-- 		//but what happen is that the ship just bangs into the door
 //--repair-- 		//if (obj->movement_type == MT_PHYSICS)
 //--repair-- 		//	vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&obj->orient.fvec,i2f(200));
 //--repair-- 	}
-//--repair-- 
+//--repair--
 //--repair-- }
-//--repair-- 
+//--repair--
 //--repair-- //	----------------------------------------------------------------------------------------------------------
 //--repair-- //see if we should start the repair center
 //--repair-- void check_start_repair_center(object *obj)
 //--repair-- {
 //--repair-- 	if (RepairObj != NULL) return;		//already in repair center
-//--repair-- 
+//--repair--
 //--repair-- 	if (Lsegments[obj->segnum].special_type & SS_REPAIR_CENTER) {
-//--repair-- 
+//--repair--
 //--repair-- 		if (!disable_repair_center) {
 //--repair-- 			//have just entered repair center
-//--repair-- 
+//--repair--
 //--repair-- 			RepairObj = obj;
 //--repair-- 			repair_save_uvec = obj->orient.uvec;
-//--repair-- 
+//--repair--
 //--repair-- 			repair_rate = fixmuldiv(FULL_REPAIR_RATE,(MAX_SHIELDS - Players[Player_num].shields),MAX_SHIELDS);
-//--repair-- 
+//--repair--
 //--repair-- 			save_control_type = obj->control_type;
 //--repair-- 			save_movement_type = obj->movement_type;
-//--repair-- 
+//--repair--
 //--repair-- 			obj->control_type = CT_REPAIRCEN;
 //--repair-- 			obj->movement_type = MT_NONE;
-//--repair-- 
+//--repair--
 //--repair-- 			FuelStationSeg	= Lsegments[obj->segnum].special_segment;
 //--repair-- 			Assert(FuelStationSeg != -1);
-//--repair-- 
+//--repair--
 //--repair-- 			if (refuel_do_repair_effect( obj, 1, FuelStationSeg )) {
 //--repair-- 				Int3();		//can this happen?
 //--repair-- 				obj->control_type = CT_FLYING;
@@ -1019,7 +1247,7 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //--repair-- 	}
 //--repair-- 	else
 //--repair-- 		disable_repair_center=0;
-//--repair-- 
+//--repair--
 //--repair-- }
 
 //	--------------------------------------------------------------------------------------------
@@ -1102,7 +1330,7 @@ void fuelcen_check_for_goal(segment *segp)
 				maybe_drop_net_powerup (POW_FLAG_BLUE);
 			 }
 	  	 }
-  } 
+  }
 
 void fuelcen_check_for_hoard_goal(segment *segp)
 {
@@ -1125,7 +1353,7 @@ void fuelcen_check_for_hoard_goal(segment *segp)
       }
 	}
 
-} 
+}
 
 #endif
 

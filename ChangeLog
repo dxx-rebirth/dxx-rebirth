@@ -1,5 +1,16 @@
 2003-10-03  Bradley Bell  <btb@icculus.org>
 
+	* iff/iff.c, include/gr.h, include/iff.h, include/pstypes.h,
+	main/ai2.c, main/aipath.c, main/aistruct.h, main/bm.h,
+	main/config.c, main/escort.c, main/fireball.c, main/fuelcen.c,
+	main/fuelcen.h, main/gameseg.c, main/gameseg.h, main/laser.c,
+	main/lighting.c, main/mglobal.c, main/network.c, main/newdemo.c,
+	main/object.c, main/object.h, main/paging.c, main/player.h,
+	main/robot.h, main/segment.h, main/state.c, main/switch.c,
+	main/switch.h, main/titles.c, main/wall.c, main/wall.h,
+	main/weapon.c, main/weapon.h: change byte to sbyte,
+	comments/whitespace
+
 	* 2d/bitblt.c, cfile/cfile.c, include/cfile.h, main/ai.c,
 	main/ai.h, main/gamemine.c, main/gauges.c, main/kconfig.c,
 	main/menu.c, main/multi.c, main/multi.h, main/multibot.c,

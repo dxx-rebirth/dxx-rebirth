@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.9 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: state.c,v 1.10 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,7 +14,219 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * Game save/restore functions
+ * Functions to save/restore game state.
+ *
+ * Old Log:
+ * Revision 1.7  1995/10/31  10:18:25  allender
+ * shareware stuff
+ *
+ * Revision 1.6  1995/10/21  22:25:45  allender
+ * put in creator code and file type for saved games.
+ * put save games in players folder
+ *
+ * Revision 1.5  1995/10/20  00:51:21  allender
+ * close boxes and proper mouse support on save game stuff
+ *
+ * Revision 1.4  1995/10/17  13:19:02  allender
+ * close boxes for load and save game
+ *
+ * Revision 1.3  1995/09/18  08:09:15  allender
+ * made larger thumbnail and handled NULL gr_bitmap pointers
+ * better
+ *
+ * Revision 1.2  1995/08/14  14:36:12  allender
+ * change transparency to 0
+ *
+ * Revision 1.1  1995/05/16  15:31:12  allender
+ * Initial revision
+ *
+ * Revision 2.14  1995/05/26  16:16:10  john
+ * Split SATURN into define's for requiring cd, using cd, etc.
+ * Also started adding all the Rockwell stuff.
+ *
+ * Revision 2.13  1995/04/06  15:12:20  john
+ * Fixed bug with lunacy not working.
+ *
+ * Revision 2.12  1995/04/04  13:33:05  john
+ * Removed multiplayer save.
+ *
+ * Revision 2.11  1995/03/31  13:42:10  john
+ * Made saved games from the bogus saturn version read in
+ * correctly.
+ *
+ * Revision 2.10  1995/03/31  12:45:28  john
+ * Fixed bug with previous.
+ *
+ * Revision 2.9  1995/03/31  12:24:40  john
+ * I had changed alt_textures from a pointer to a byte. This hosed old
+ * saved games, so I restored it to an int.
+ *
+ * Revision 2.8  1995/03/28  11:22:47  john
+ * Added cheats to save file. Changed lunacy text.
+ *
+ * Revision 2.7  1995/03/27  21:41:03  john
+ * Added code to verify that the proper multi save file
+ * is used when restoring a network game.
+ *
+ * Revision 2.6  1995/03/27  18:04:18  john
+ * Made multi save/restore require the -multisave command line arg.
+ *
+ * Revision 2.5  1995/03/27  17:01:52  john
+ * Made deafult choice work better.
+ *
+ * Revision 2.4  1995/03/27  15:49:44  john
+ * Added slots to save games.
+ *
+ * Revision 2.3  1995/03/27  12:59:19  john
+ * Initial version of multiplayer save games.
+ *
+ * Revision 2.2  1995/03/24  13:11:35  john
+ * Added save game during briefing screens.
+ *
+ * Revision 2.1  1995/03/21  14:38:36  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.0  1995/02/27  11:27:00  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.43  1995/02/22  14:32:41  allender
+ * remove anonymous unions from object structure
+ *
+ * Revision 1.42  1995/02/13  20:34:33  john
+ * Lintized
+ *
+ * Revision 1.41  1995/02/13  10:37:30  john
+ * Saved Buggin' cheat mode to save file.
+ *
+ * Revision 1.40  1995/02/09  10:24:25  john
+ * *** empty log message ***
+ *
+ * Revision 1.39  1995/02/09  10:22:20  john
+ * Fixed bug with callsign getting trashed if you copy somebody else
+ * 's save game file into your directory.
+ *
+ * Revision 1.38  1995/02/08  21:01:27  john
+ * Closed state file around the code that shows briefing screens so that the
+ * code works on machines with clean boot with only 5 file handles.
+ *
+ * Revision 1.37  1995/02/07  14:02:33  john
+ * Added code to verify game restore.
+ *
+ * Revision 1.36  1995/02/07  11:07:43  john
+ * Added hooks for confirm on game state restore.
+ *
+ * Revision 1.35  1995/02/03  11:27:36  john
+ * Made inbetween level save's thumbnail's have correct aspect.
+ *
+ * Revision 1.34  1995/02/03  10:58:43  john
+ * Added code to save shareware style saved games into new format...
+ * Also, made new player file format not have the saved game array in it.
+ *
+ * Revision 1.33  1995/02/02  19:40:52  john
+ * Added 10 save game slots.
+ *
+ * Revision 1.32  1995/02/02  12:23:20  john
+ * Made between level saves have picture.
+ *
+ * Revision 1.31  1995/01/31  11:21:43  john
+ * Added code for fixed with menus.
+ *
+ * Revision 1.30  1995/01/29  21:37:29  mike
+ * initialize variables on game load so you don't drain your energy when you fire.
+ *
+ * Revision 1.29  1995/01/29  13:47:58  mike
+ * Restore some variables on game load (in game).
+ *
+ * Revision 1.28  1995/01/26  10:46:57  john
+ * Fixed bug with state names getting hosed.
+ *
+ * Revision 1.27  1995/01/26  09:51:23  john
+ * Fixed bug with game descriptions getting hosed.
+ *
+ * Revision 1.26  1995/01/25  16:35:49  john
+ * Made so that when you hit enter during
+ * game save, -empty- goes away.
+ *
+ * Revision 1.25  1995/01/25  15:01:39  john
+ * Upped the save file version.
+ *
+ * Revision 1.24  1995/01/24  20:35:35  john
+ * *** empty log message ***
+ *
+ * Revision 1.23  1995/01/24  20:34:24  john
+ * Fixed bug with player stats not being set right for in
+ * between level saves.
+ *
+ * Revision 1.22  1995/01/23  10:39:03  john
+ * Added mission stuff to game saves.
+ *
+ * Revision 1.21  1995/01/22  16:07:12  mike
+ * localization.
+ *
+ * Revision 1.20  1995/01/22  15:58:32  mike
+ * localization
+ *
+ * Revision 1.19  1995/01/20  11:04:40  john
+ * Upped state save version.
+ *
+ * Revision 1.18  1995/01/19  17:00:44  john
+ * Made save game work between levels.
+ *
+ * Revision 1.17  1995/01/17  14:27:33  john
+ * *** empty log message ***
+ *
+ * Revision 1.16  1995/01/17  13:36:37  john
+ * Moved pig loading into StartNewLevelSub.
+ *
+ * Revision 1.15  1995/01/16  16:53:38  john
+ * Added code to save cheat state during save game.
+ *
+ * Revision 1.14  1995/01/15  16:55:22  john
+ * Improved mine texture parsing.
+ *
+ * Revision 1.13  1995/01/12  10:45:15  john
+ * Added difficulty level to save/restore game.
+ *
+ * Revision 1.12  1995/01/05  15:46:55  john
+ * Made weapons not rearm when starting a saved game.
+ *
+ * Revision 1.11  1995/01/05  11:51:45  john
+ * Added better Abort game menu.
+ * Made save state return success or nopt.
+ *
+ * Revision 1.10  1995/01/05  11:34:51  john
+ * Took out endlevel save stuff for registered.
+ *
+ * Revision 1.9  1995/01/04  18:19:52  john
+ * Added automap visited list saving.
+ *
+ * Revision 1.8  1995/01/04  17:29:56  john
+ * Made save/restore ALT+F?. Also made them not work
+ * in network mode, and if recording a demo, will
+ * quit recording.
+ *
+ * Revision 1.7  1995/01/04  13:18:31  john
+ * Added cool 6 game save.
+ *
+ * Revision 1.6  1995/01/03  20:38:46  john
+ * Saved morph objects.
+ *
+ * Revision 1.5  1995/01/03  20:19:29  john
+ * Pretty good working version of game save.
+ *
+ * Revision 1.4  1995/01/03  14:18:18  matt
+ * ifdefs added to compile code add.  Added by Mike, I think.
+ *
+ * Revision 1.3  1994/12/29  18:40:19  john
+ * Initial version.
+ *
+ * Revision 1.2  1994/12/29  15:26:40  john
+ * Put in hooks for saving/restoring game state.
+ *
+ * Revision 1.1  1994/12/29  15:16:02  john
+ * Initial revision
+ *
  *
  */
 
@@ -159,7 +371,7 @@ extern fix robot_last_send_time[MAX_ROBOTS_CONTROLLED];
 extern fix robot_last_message_time[MAX_ROBOTS_CONTROLLED];
 extern int robot_send_pending[MAX_ROBOTS_CONTROLLED];
 extern int robot_fired[MAX_ROBOTS_CONTROLLED];
-extern byte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
+extern sbyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 
 
 #if defined(WINDOWS) || defined(MACINTOSH)
@@ -264,7 +476,7 @@ int state_get_save_file(char * fname, char * dsc, int multi )
 					//cfread(sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1, fp);
 					valid = 1;
 				}
-			} 
+			}
 			cfclose(fp);
 		}
 		if (!valid) {
@@ -343,10 +555,10 @@ int state_get_restore_file(char * fname, int multi)
 					}
 					nsaves++;
 					valid = 1;
-				} 
+				}
 			}
 			cfclose(fp);
-		} 
+		}
 		if (!valid) {
 			strcpy( desc[i], TXT_EMPTY );
 			//rpad_string( desc[i], DESC_LENGTH-1 );
@@ -402,7 +614,7 @@ int state_get_restore_file(char * fname, int multi)
 //	Imagine if C had a function to copy a file...
 int copy_file(char *old_file, char *new_file)
 {
-	byte	buf[CF_BUF_SIZE];
+	sbyte   buf[CF_BUF_SIZE];
 	CFILE   *in_file, *out_file;
 
 	out_file = cfopen(new_file, "wb");
@@ -594,7 +806,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		}
 	}*/
 
-	#if defined(MACINTOSH) && !defined(NDEBUG) 
+	#if defined(MACINTOSH) && !defined(NDEBUG)
 	if ( strncmp(filename, ":Players:", 9) )
 		Int3();
 	#endif
@@ -657,7 +869,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 			
 					PA_DFX (pa_set_backbuffer_current());
 					render_frame(0, 0);
-					PA_DFX (pa_alpha_always());  
+					PA_DFX (pa_alpha_always());
 			
 #if defined(POLY_ACC)
 					#ifndef MACINTOSH
@@ -726,7 +938,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	 	ubyte color = 0;
 	 	for ( i=0; i<THUMBNAIL_W*THUMBNAIL_H; i++ )
 			cfwrite(&color, sizeof(ubyte), 1, fp);
-	} 
+	}
 
 // Save the Between levels flag...
 	cfwrite(&between_levels, sizeof(int), 1, fp);
@@ -762,7 +974,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		cfwrite(&robot_last_message_time[0], 4, MAX_ROBOTS_CONTROLLED, fp);
 		cfwrite(&robot_send_pending[0], 4, MAX_ROBOTS_CONTROLLED, fp);
 		cfwrite(&robot_fired[0], 4, MAX_ROBOTS_CONTROLLED, fp);
- 
+
       for (i=0;i<MAX_ROBOTS_CONTROLLED;i++)
 			cfwrite(robot_fire_buf[i][0], 18 + 3, 1, fp);
 #endif
@@ -774,8 +986,8 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	cfwrite(&Players[Player_num], sizeof(player), 1, fp);
 
 // Save the current weapon info
-	cfwrite(&Primary_weapon, sizeof(byte), 1, fp);
-	cfwrite(&Secondary_weapon, sizeof(byte), 1, fp);
+	cfwrite(&Primary_weapon, sizeof(sbyte), 1, fp);
+	cfwrite(&Secondary_weapon, sizeof(sbyte), 1, fp);
 
 // Save the difficulty level
 	cfwrite(&Difficulty_level, sizeof(int), 1, fp);
@@ -1058,7 +1270,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 #endif
 	fix	old_gametime = GameTime;
 
-	#if defined(MACINTOSH) && !defined(NDEBUG) 
+	#if defined(MACINTOSH) && !defined(NDEBUG)
 	if ( strncmp(filename, ":Players:", 9) )
 		Int3();
 	#endif
@@ -1146,7 +1358,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 		cfread(&robot_last_message_time[0], 4, MAX_ROBOTS_CONTROLLED, fp);
 		cfread(&robot_send_pending[0], 4, MAX_ROBOTS_CONTROLLED, fp);
 		cfread(&robot_fired[0], 4, MAX_ROBOTS_CONTROLLED, fp);
- 
+
       for (i=0;i<MAX_ROBOTS_CONTROLLED;i++)
 			cfread(&robot_fire_buf[i][0], 21, 1, fp);
 #endif
@@ -1163,17 +1375,17 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	    }
 		memcpy (&Players,&restore_players,sizeof(player)*nplayers);
 		N_players=nplayers;
-	       
+
       if (network_i_am_master())
 		 {
 		  for (i=0;i<N_players;i++)
 			{
 			 if (i==Player_num)
 				continue;
-   		 Players[i].connected=0;	
+   		 Players[i].connected=0;
 			}
 	 	 }
-		 
+
 	  	//Viewer = ConsoleObject = &Objects[Players[Player_num].objnum];
 	 }
 
@@ -1217,8 +1429,8 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 		Players[Player_num].level = next_level;
 
 // Restore the weapon states
-	cfread(&Primary_weapon, sizeof(byte), 1, fp);
-	cfread(&Secondary_weapon, sizeof(byte), 1, fp);
+	cfread(&Primary_weapon, sizeof(sbyte), 1, fp);
+	cfread(&Secondary_weapon, sizeof(sbyte), 1, fp);
 
 	select_weapon(Primary_weapon, 0, 0, 0);
 	select_weapon(Secondary_weapon, 1, 0, 0);
@@ -1227,7 +1439,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	cfread(&Difficulty_level, sizeof(int), 1, fp);
 
 // Restore the cheats enabled flag
- 
+
 	cfread(&Cheats_enabled, sizeof(int), 1, fp);
 
 	if ( !between_levels )	{
@@ -1421,7 +1633,7 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 		for (i=0; i<=Highest_segment_index; i++)
 			Light_subtracted[i] = 0;
 	}
-   
+
 	if (!secret_restore) {
 		if (version >= 20) {
 			cfread(&First_secret_visit, sizeof(First_secret_visit), 1, fp);
@@ -1442,9 +1654,9 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	}
 
 	cfclose(fp);
- 
+
 #ifdef NETWORK
-   if (Game_mode & GM_MULTI)   // Get rid of ships that aren't 
+   if (Game_mode & GM_MULTI)   // Get rid of ships that aren't
 	 {									 // connected in the restored game
 		for (i=0;i<nplayers;i++)
 		 {

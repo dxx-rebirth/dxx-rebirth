@@ -1,3 +1,4 @@
+/* $Id: config.c,v 1.8 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,9 +8,98 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * contains routine(s) to read in the configuration file which contains
+ * game configuration stuff like detail level, sound card, etc
+ *
+ * Old Log:
+ * Revision 1.8  1995/10/27  10:52:20  allender
+ * call digi_set_master_volume when prefs are read in to
+ * set the master volume of the mac
+ *
+ * Revision 1.7  1995/10/24  17:08:39  allender
+ * Config_master_volume added for saving sound manager volume
+ * across games
+ *
+ * Revision 1.6  1995/10/20  00:49:31  allender
+ * use default values when no prefs file
+ *
+ * Revision 1.5  1995/09/21  10:06:58  allender
+ * set digi and midi volume appropriately
+ *
+ * Revision 1.4  1995/09/13  08:49:38  allender
+ * prefs file stuff
+ *
+ * Revision 1.3  1995/09/05  08:47:37  allender
+ * prefs file working
+ *
+ * Revision 1.2  1995/05/26  06:54:14  allender
+ * removed midi and digi references from config file
+ *
+ * Revision 1.1  1995/05/16  15:23:45  allender
+ * Initial revision
+ *
+ * Revision 2.2  1995/03/27  09:42:59  john
+ * Added VR Settings in config file.
+ *
+ * Revision 2.1  1995/03/16  11:20:40  john
+ * Put in support for Crystal Lake soundcard.
+ *
+ * Revision 2.0  1995/02/27  11:30:13  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.14  1995/02/11  16:19:36  john
+ * Added code to make the default mission be the one last played.
+ *
+ * Revision 1.13  1995/01/18  13:23:24  matt
+ * Made curtom detail level vars initialize properly at load
+ *
+ * Revision 1.12  1995/01/04  22:15:36  matt
+ * Fixed stupid bug using scanf() to read bytes
+ *
+ * Revision 1.11  1995/01/04  13:14:21  matt
+ * Made custom detail level settings save in config file
+ *
+ * Revision 1.10  1994/12/12  21:35:09  john
+ * *** empty log message ***
+ *
+ * Revision 1.9  1994/12/12  21:31:51  john
+ * Made volume work better by making sure volumes are valid
+ * and set correctly at program startup.
+ *
+ * Revision 1.8  1994/12/12  13:58:01  john
+ * MAde -nomusic work.
+ * Fixed GUS hang at exit by deinitializing digi before midi.
+ *
+ * Revision 1.7  1994/12/08  10:01:33  john
+ * Changed the way the player callsign stuff works.
+ *
+ * Revision 1.6  1994/12/01  11:24:07  john
+ * Made volume/gamma/joystick sliders all be the same length.  0-->8.
+ *
+ * Revision 1.5  1994/11/29  02:01:07  john
+ * Added code to look at -volume command line arg.
+ *
+ * Revision 1.4  1994/11/14  20:14:11  john
+ * Fixed some warnings.
+ *
+ * Revision 1.3  1994/11/14  19:51:01  john
+ * Added joystick cal values to descent.cfg.
+ *
+ * Revision 1.2  1994/11/14  17:53:09  allender
+ * read and write descent.cfg file
+ *
+ * Revision 1.1  1994/11/14  16:28:08  allender
+ * Initial revision
+ *
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
@@ -48,7 +138,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.7 2003-06-16 06:57:34 btb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.8 2003-10-04 03:14:47 btb Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -114,7 +204,7 @@ int Config_vr_tracking = 0;
 int digi_driver_board_16;
 int digi_driver_dma_16;
 
-extern byte	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
+extern sbyte Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
 
 void set_custom_detail_vars(void);
 
@@ -166,7 +256,7 @@ void CheckMovieAttributes()
 		HKEY hKey;
 		DWORD len, type, val;
 		long lres;
-  
+ 
 		lres = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Parallax\\Descent II\\1.1\\INSTALL",
 							0, KEY_READ, &hKey);
 		if (lres == ERROR_SUCCESS) {
@@ -299,7 +389,7 @@ int ReadConfigFile()
 			}
 			else if (!strcmp(token, joystick_min_str))	{
 				sscanf( value, "%d,%d,%d,%d", &joy_axis_min[0], &joy_axis_min[1], &joy_axis_min[2], &joy_axis_min[3] );
-			} 
+			}
 			else if (!strcmp(token, joystick_max_str))	{
 				sscanf( value, "%d,%d,%d,%d", &joy_axis_max[0], &joy_axis_max[1], &joy_axis_max[2], &joy_axis_max[3] );
 			}
@@ -418,7 +508,7 @@ int ReadConfigFile()
 					value[strlen(value)-1] = 0;
 				if (!strcmp(token, joystick_min_str))	{
 					sscanf( value, "%d,%d,%d,%d,%d,%d,%d", &joy_axis_min[0], &joy_axis_min[1], &joy_axis_min[2], &joy_axis_min[3], &joy_axis_min[4], &joy_axis_min[5], &joy_axis_min[6] );
-				} 
+				}
 				else if (!strcmp(token, joystick_max_str))	{
 					sscanf( value, "%d,%d,%d,%d,%d,%d,%d", &joy_axis_max[0], &joy_axis_max[1], &joy_axis_max[2], &joy_axis_max[3], &joy_axis_max[4], &joy_axis_max[5], &joy_axis_max[6] );
 				}
@@ -526,15 +616,15 @@ int WriteConfigFile()
 	infile = cfopen("descentw.cfg", "wt");
 	if (infile == NULL) return 1;
 
-	sprintf(str, "%s=%d,%d,%d,%d,%d,%d,%d\n", joystick_min_str, 
+	sprintf(str, "%s=%d,%d,%d,%d,%d,%d,%d\n", joystick_min_str,
 			joy_axis_min[0], joy_axis_min[1], joy_axis_min[2], joy_axis_min[3],
 			joy_axis_min[4], joy_axis_min[5], joy_axis_min[6]);
 	cfputs(str, infile);
-	sprintf(str, "%s=%d,%d,%d,%d,%d,%d,%d\n", joystick_cen_str, 
+	sprintf(str, "%s=%d,%d,%d,%d,%d,%d,%d\n", joystick_cen_str,
 			joy_axis_center[0], joy_axis_center[1], joy_axis_center[2], joy_axis_center[3],
 			joy_axis_center[4], joy_axis_center[5], joy_axis_center[6]);
 	cfputs(str, infile);
-	sprintf(str, "%s=%d,%d,%d,%d,%d,%d,%d\n", joystick_max_str, 
+	sprintf(str, "%s=%d,%d,%d,%d,%d,%d,%d\n", joystick_max_str,
 			joy_axis_max[0], joy_axis_max[1], joy_axis_max[2], joy_axis_max[3],
 			joy_axis_max[4], joy_axis_max[5], joy_axis_max[6]);
 	cfputs(str, infile);
@@ -580,7 +670,7 @@ int WriteConfigFile()
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.7 2003-06-16 06:57:34 btb Exp $";
+static char rcsid[] = "$Id: config.c,v 1.8 2003-10-04 03:14:47 btb Exp $";
 #endif
 
 #define MAX_CTB_LEN	512
@@ -634,7 +724,7 @@ int Config_vr_type = 0;
 int Config_vr_resolution = 0;
 int Config_vr_tracking = 0;
 
-extern byte	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
+extern sbyte Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
 extern void digi_set_master_volume( int volume );
 
 void set_custom_detail_vars(void);
@@ -936,7 +1026,7 @@ OSErr	theErr = noErr;
 	The PRFI 0 resource allows you to specify overrides for each of the above
 	values.  This is useful for development, since the application name might
 	go through changes, but the preferences file name is held constant.
- 
+
 	 	OSErr LoadPrefsFile(Handle prefsHndl)
 
 	This function will attempt to copy the data stored in the preferences

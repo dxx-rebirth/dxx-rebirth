@@ -1,4 +1,4 @@
-/* $Id: pstypes.h,v 1.19 2003-04-11 23:51:48 btb Exp $ */
+/* $Id: pstypes.h,v 1.20 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,14 +12,28 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Common types for use in Miner
+ *
+ * Old Log:
+ * Revision 1.2  1993/09/14  12:12:30  matt
+ * Added #define for NULL
+ *
+ * Revision 1.1  1993/08/24  12:50:40  matt
+ * Initial revision
+ *
+ *
+ */
+
 #ifndef _TYPES_H
 #define _TYPES_H
 
 // define a dboolean
 typedef int dboolean;
 
-//define a byte
-typedef signed char byte;
+//define a signed byte
+typedef signed char sbyte;
 
 //define unsigned types;
 typedef unsigned char ubyte;

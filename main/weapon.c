@@ -1,4 +1,4 @@
-/* $Id: weapon.c,v 1.6 2002-08-06 05:21:33 btb Exp $ */
+/* $Id: weapon.c,v 1.7 2003-10-04 03:14:48 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,12 +12,195 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Functions for weapons...
+ *
+ * Old Log:
+ * Revision 1.2  1995/10/31  10:17:39  allender
+ * new shareware stuff
+ *
+ * Revision 1.1  1995/05/16  15:32:16  allender
+ * Initial revision
+ *
+ * Revision 2.1  1995/03/21  14:38:43  john
+ * Ifdef'd out the NETWORK code.
+ *
+ * Revision 2.0  1995/02/27  11:27:25  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.54  1995/02/15  15:21:48  mike
+ * make smart missile select if mega missiles used up.
+ *
+ *
+ * Revision 1.53  1995/02/12  02:12:30  john
+ * Fixed bug with state restore making weapon beeps.
+ *
+ * Revision 1.52  1995/02/09  20:42:15  mike
+ * change weapon autoselect, always autoselect smart, mega.
+ *
+ * Revision 1.51  1995/02/07  20:44:26  mike
+ * autoselect mega, smart when you pick them up.
+ *
+ * Revision 1.50  1995/02/07  13:32:25  rob
+ * Added include of multi.h
+ *
+ * Revision 1.49  1995/02/07  13:21:33  yuan
+ * Fixed 2nd typo
+ *
+ * Revision 1.48  1995/02/07  13:16:39  yuan
+ * Fixed typo.
+ *
+ * Revision 1.47  1995/02/07  12:53:12  rob
+ * Added network sound prop. to weapon switch.
+ *
+ * Revision 1.46  1995/02/06  15:53:17  mike
+ * don't autoselect smart or mega missile when you pick it up.
+ *
+ * Revision 1.45  1995/02/02  21:43:34  mike
+ * make autoselection better.
+ *
+ * Revision 1.44  1995/02/02  16:27:21  mike
+ * make concussion missiles trade up.
+ *
+ * Revision 1.43  1995/02/01  23:34:57  adam
+ * messed with weapon change sounds
+ *
+ * Revision 1.42  1995/02/01  17:12:47  mike
+ * Make smart missile, mega missile not auto-select.
+ *
+ * Revision 1.41  1995/02/01  15:50:54  mike
+ * fix bogus weapon selection sound code.
+ *
+ * Revision 1.40  1995/01/31  16:16:31  mike
+ * Separate smart blobs for robot and player.
+ *
+ * Revision 1.39  1995/01/30  21:12:11  mike
+ * Use new weapon selection sounds, different for primary and secondary.
+ *
+ * Revision 1.38  1995/01/29  13:46:52  mike
+ * Don't auto-select fusion cannon when you run out of energy.
+ *
+ * Revision 1.37  1995/01/20  11:11:13  allender
+ * record weapon changes again.  (John somehow lost my 1.35 changes).
+ *
+ * Revision 1.36  1995/01/19  17:00:46  john
+ * Made save game work between levels.
+ *
+ * Revision 1.34  1995/01/09  17:03:48  mike
+ * fix autoselection of weapons.
+ *
+ * Revision 1.33  1995/01/05  15:46:31  john
+ * Made weapons not rearm when starting a saved game.
+ *
+ * Revision 1.32  1995/01/03  12:34:23  mike
+ * autoselect next lower weapon if run out of smart or mega missile.
+ *
+ * Revision 1.31  1994/12/12  21:39:37  matt
+ * Changed vulcan ammo: 10K max, 5K w/weapon, 1250 per powerup
+ *
+ * Revision 1.30  1994/12/09  19:55:04  matt
+ * Added weapon name in "not available in shareware" message
+ *
+ * Revision 1.29  1994/12/06  13:50:24  adam
+ * added shareware msg. when choosing 4 top weapons
+ *
+ * Revision 1.28  1994/12/02  22:07:13  mike
+ * if you gots 19 concussion missiles and you runs over 4, say you picks up 1, not 4, we do the math, see?
+ *
+ * Revision 1.27  1994/12/02  20:06:24  matt
+ * Made vulcan ammo print at approx 25 times actual
+ *
+ * Revision 1.26  1994/12/02  15:05:03  matt
+ * Fixed bogus weapon constants and arrays
+ *
+ * Revision 1.25  1994/12/02  10:50:34  yuan
+ * Localization
+ *
+ * Revision 1.24  1994/11/29  15:48:28  matt
+ * selecting weapon now makes sound
+ *
+ * Revision 1.23  1994/11/28  11:26:58  matt
+ * Cleaned up hud message printing for picking up weapons
+ *
+ * Revision 1.22  1994/11/27  23:13:39  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.21  1994/11/12  16:38:34  mike
+ * clean up default ammo stuff.
+ *
+ * Revision 1.20  1994/11/07  17:41:18  mike
+ * messages for when you try to fire a weapon you don't have or don't have ammo for.
+ *
+ * Revision 1.19  1994/10/21  20:40:05  mike
+ * fix double vulcan ammo.
+ *
+ * Revision 1.18  1994/10/20  09:49:05  mike
+ * kill messages no one liked...*sniff* *sniff*
+ *
+ * Revision 1.17  1994/10/19  11:17:07  mike
+ * Limit amount of player ammo.
+ *
+ * Revision 1.16  1994/10/12  08:04:18  mike
+ * Fix proximity/homing confusion.
+ *
+ * Revision 1.15  1994/10/11  18:27:58  matt
+ * Changed auto selection of secondary weapons
+ *
+ * Revision 1.14  1994/10/08  23:37:54  matt
+ * Don't pick up weapons you already have; also fixed auto_select bug
+ * for seconary weapons
+ *
+ * Revision 1.13  1994/10/08  14:55:47  matt
+ * Fixed bug that selected vulcan cannon when picked up ammo, even though
+ * you didn't have the weapon.
+ *
+ * Revision 1.12  1994/10/08  12:50:32  matt
+ * Fixed bug that let you select weapons you don't have
+ *
+ * Revision 1.11  1994/10/07  23:37:56  matt
+ * Made weapons select when pick up better one
+ *
+ * Revision 1.10  1994/10/07  16:02:08  matt
+ * Fixed problem with weapon auto-select
+ *
+ * Revision 1.9  1994/10/05  17:00:20  matt
+ * Made player_has_weapon() public and moved constants to header file
+ *
+ * Revision 1.8  1994/09/26  11:27:13  mike
+ * Fix auto selection of weapon when you run out of ammo.
+ *
+ * Revision 1.7  1994/09/13  16:40:45  mike
+ * Add rearm delay and missile firing delay.
+ *
+ * Revision 1.6  1994/09/13  14:43:12  matt
+ * Added cockpit weapon displays
+ *
+ * Revision 1.5  1994/09/03  15:23:06  mike
+ * Auto select next weaker weapon when one runs out, clean up code.
+ *
+ * Revision 1.4  1994/09/02  16:38:19  mike
+ * Eliminate a pile of arrays, associate weapon data with Weapon_info.
+ *
+ * Revision 1.3  1994/09/02  11:57:10  mike
+ * Add a bunch of stuff, I forget what.
+ *
+ * Revision 1.2  1994/06/03  16:26:32  john
+ * Initial version.
+ *
+ * Revision 1.1  1994/06/03  14:40:43  john
+ * Initial revision
+ *
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: weapon.c,v 1.6 2002-08-06 05:21:33 btb Exp $";
+static char rcsid[] = "$Id: weapon.c,v 1.7 2003-10-04 03:14:48 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -70,7 +253,7 @@ ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS] = {POW_MISSILE_1,POW_HO
 
 weapon_info Weapon_info[MAX_WEAPON_TYPES];
 int	N_weapon_types=0;
-byte	Primary_weapon, Secondary_weapon;
+sbyte   Primary_weapon, Secondary_weapon;
 
 // autoselect ordering
 
@@ -119,7 +302,7 @@ extern ubyte MenuReordering;
 //	"Mega\nMissile"
 //};
 
-byte	Weapon_is_energy[MAX_WEAPON_TYPES] = {
+sbyte   Weapon_is_energy[MAX_WEAPON_TYPES] = {
 	1, 1, 1, 1, 1,
 	1, 1, 1, 0, 1,
 	1, 0, 1, 1, 1,
@@ -274,7 +457,7 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			Global_laser_firing_count = 0;
 		} else 	{
 			// Select super version if available.
-			if (wait_for_rearm) 
+			if (wait_for_rearm)
 			{
 			 if (!Cycling)
 				; // -- MK, only plays when can't fire weapon anyway, fixes bug -- digi_play_sample_once( SOUND_ALREADY_SELECTED, F1_0 );
@@ -307,7 +490,7 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 				Next_missile_fire_time = 0;
 			Global_missile_firing_count = 0;
 		} else	{
-			if (wait_for_rearm) 
+			if (wait_for_rearm)
 			{
 			 if (!Cycling)
 				digi_play_sample_once( SOUND_ALREADY_SELECTED, F1_0 );
@@ -389,7 +572,7 @@ void do_weapon_select(int weapon_num, int secondary_flag)
 				return; 		//no such thing as super laser, so no error
 			HUD_init_message("%s %s!", TXT_DONT_HAVE, PRIMARY_WEAPON_NAMES(weapon_num));
 		}
-		else 
+		else
 			HUD_init_message("%s %s%s",TXT_HAVE_NO, SECONDARY_WEAPON_NAMES(weapon_num), TXT_SX);
 		digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 		return;
@@ -709,7 +892,7 @@ int pick_up_primary(int weapon_index)
 	}
 
 	Players[Player_num].primary_weapon_flags |= flag;
- 
+
 	cutpoint=POrderList (255);
 
 	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)	
@@ -778,9 +961,9 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 
 	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)	
 		supposed_weapon=SUPER_LASER_INDEX;  // allotment for stupid way of doing super laser
-  
 
-	if (Players[Player_num].primary_weapon_flags&(1<<weapon_index) && weapon_index>Primary_weapon && old_ammo==0 && 
+
+	if (Players[Player_num].primary_weapon_flags&(1<<weapon_index) && weapon_index>Primary_weapon && old_ammo==0 &&
 		POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
 		select_weapon(weapon_index,0,0,1);
 
@@ -1133,7 +1316,7 @@ void DropCurrentWeapon ()
 {
 	int objnum,ammo=0,seed;
 
-	if (Primary_weapon==0) 
+	if (Primary_weapon==0)
 	{
 		HUD_init_message("You cannot drop your base weapon!");
 		return;
@@ -1192,7 +1375,7 @@ void DropSecondaryWeapon ()
 		return;
 	}
 
-	if ((Secondary_weapon_to_powerup[Secondary_weapon]==POW_PROXIMITY_WEAPON || 
+	if ((Secondary_weapon_to_powerup[Secondary_weapon]==POW_PROXIMITY_WEAPON ||
 		Secondary_weapon_to_powerup[Secondary_weapon]==POW_SMART_MINE) &&
 		Players[Player_num].secondary_ammo[Secondary_weapon]<4)
 	{
@@ -1206,10 +1389,10 @@ void DropSecondaryWeapon ()
 	seed = d_rand();
 
 	objnum = spit_powerup(ConsoleObject,Secondary_weapon_to_powerup[Secondary_weapon],seed);
-	 
+
    if (objnum<0)
 		return;
-   
+
 
 #ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && objnum>-1)
@@ -1267,7 +1450,7 @@ int tactile_fire_repeat[]={260,90,160,160,160,210,110,191,291,111};
 void tactile_set_button_jolt ()
  {
   #ifdef TACTILE
-    
+
   FILE *infile;
   int t,i;
   static int stickmag=-1;
@@ -1275,7 +1458,7 @@ void tactile_set_button_jolt ()
 
   dur=tactile_fire_duration[Primary_weapon];
   rep=tactile_fire_repeat[Primary_weapon];
-  
+
   if (TactileStick)
    {
   	 if (stickmag==-1)
@@ -1293,9 +1476,9 @@ void tactile_set_button_jolt ()
 			  fscanf (infile,"%d %d\n",&tactile_fire_duration[i],&tactile_fire_repeat[i]);
 			  mprintf ((0,"scan value[%d]=%d\n",i,tactile_fire_duration[i]));
 			 }
-	 		fclose (infile);  
+	 		fclose (infile);
 		 }
-	  }							 
+	  }
     ButtonReflexJolt (0,stickmag,0,dur,rep);
    }
   #endif

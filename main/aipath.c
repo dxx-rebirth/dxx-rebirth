@@ -1,3 +1,4 @@
+/* $Id: aipath.c,v 1.5 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,19 +8,139 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/aipath.c,v $
- * $Revision: 1.4 $
- * $Author: bradleyb $
- * $Date: 2001-11-13 21:17:49 $
  *
  * AI path forming stuff.
  *
- * $Log: not supported by cvs2svn $
+ * Old Log:
+ * Revision 1.5  1995/10/26  14:12:03  allender
+ * prototype functions for mcc compiler
+ *
+ * Revision 1.4  1995/10/25  09:38:22  allender
+ * prototype some functions causing mcc grief
+ *
+ * Revision 1.3  1995/10/10  11:48:43  allender
+ * PC ai code
+ *
+ * Revision 2.0  1995/02/27  11:30:48  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.101  1995/02/22  13:42:44  allender
+ * remove anonymous unions for object structure
+ *
+ * Revision 1.100  1995/02/10  16:20:04  mike
+ * fix bogosity in create_path_points, assumed all objects were robots.
+ *
+ * Revision 1.99  1995/02/07  21:09:30  mike
+ * make run_from guys have diff level based speed.
+ *
+ * Revision 1.98  1995/02/04  17:28:29  mike
+ * make station guys return better.
+ *
+ * Revision 1.97  1995/02/04  10:28:39  mike
+ * fix compile error!
+ *
+ * Revision 1.96  1995/02/04  10:03:37  mike
+ * Fly to exit cheat.
+ *
+ * Revision 1.95  1995/02/01  21:10:36  mike
+ * Array name was dereferenced.  Not a bug, but unclean.
+ *
+ * Revision 1.94  1995/02/01  17:14:12  mike
+ * comment out some common mprintfs which didn't matter.
+ *
+ * Revision 1.93  1995/01/30  13:01:23  mike
+ * Make robots fire at player other than one they are controlled by sometimes.
+ *
+ * Revision 1.92  1995/01/29  22:29:32  mike
+ * add more debug info for guys that get lost.
+ *
+ * Revision 1.91  1995/01/20  16:56:05  mike
+ * station stuff.
+ *
+ * Revision 1.90  1995/01/18  10:59:45  mike
+ * comment out some mprintfs.
+ *
+ * Revision 1.89  1995/01/17  16:58:34  mike
+ * make path following work for multiplayer.
+ *
+ * Revision 1.88  1995/01/17  14:21:44  mike
+ * make run_from guys run better.
+ *
+ * Revision 1.87  1995/01/14  17:09:04  mike
+ * playing with crazy josh, he's kinda slow and dumb now.
+ *
+ * Revision 1.86  1995/01/13  18:52:28  mike
+ * comment out int3.
+ *
+ * Revision 1.85  1995/01/05  09:42:11  mike
+ * compile out code based on SHAREWARE.
+ *
+ * Revision 1.84  1995/01/02  12:38:32  mike
+ * make crazy josh turn faster, therefore evade player better.
+ *
+ * Revision 1.83  1994/12/27  15:59:40  mike
+ * tweak ai_multiplayer_awareness constants.
+ *
+ * Revision 1.82  1994/12/19  17:07:10  mike
+ * deal with new ai_multiplayer_awareness which returns a value saying whether this object can be moved by this player.
+ *
+ * Revision 1.81  1994/12/15  13:04:30  mike
+ * Replace Players[Player_num].time_total references with GameTime.
+ *
+ * Revision 1.80  1994/12/09  16:13:23  mike
+ * remove debug code.
+ *
+ * Revision 1.79  1994/12/07  00:36:54  mike
+ * make robots get out of matcens better and be aware of player.
+ *
+ * Revision 1.78  1994/11/30  00:59:05  mike
+ * optimizations.
+ *
+ * Revision 1.77  1994/11/27  23:13:39  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.76  1994/11/23  21:59:34  mike
+ * comment out some mprintfs.
+ *
+ * Revision 1.75  1994/11/21  16:07:14  mike
+ * flip PARALLAX flag, prevent annoying debug information.
+ *
+ * Revision 1.74  1994/11/19  15:13:28  mike
+ * remove unused code and data.
+ *
+ * Revision 1.73  1994/11/17  14:53:15  mike
+ * segment validation functions moved from editor to main.
+ *
+ * Revision 1.72  1994/11/16  23:38:42  mike
+ * new improved boss teleportation behavior.
+ *
+ * Revision 1.71  1994/11/13  17:18:30  mike
+ * debug code, then comment it out.
+ *
+ * Revision 1.70  1994/11/11  16:41:43  mike
+ * flip the PARALLAX flag.
+ *
+ * Revision 1.69  1994/11/11  16:33:45  mike
+ * twiddle the PARALLAX flag.
+ *
+ *
+ * Revision 1.68  1994/11/10  21:32:29  mike
+ * debug code.
+ *
+ * Revision 1.67  1994/11/10  20:15:07  mike
+ * fix stupid bug: uninitialized pointer.
+ *
+ * Revision 1.66  1994/11/10  17:45:15  mike
+ * debugging.
+ *
+ * Revision 1.65  1994/11/10  17:28:10  mike
+ * debugging.
  *
  */
 
@@ -69,7 +190,7 @@ int validate_path(int debug_flag, point_seg* psegs, int num_points);
 #endif
 
 //	------------------------------------------------------------------------
-void create_random_xlate(byte *xt)
+void create_random_xlate(sbyte *xt)
 {
 	int	i;
 
@@ -78,7 +199,7 @@ void create_random_xlate(byte *xt)
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		int	j = (d_rand()*MAX_SIDES_PER_SEGMENT)/(D_RAND_MAX+1);
-		byte	temp_byte;
+		sbyte temp_byte;
 		Assert((j >= 0) && (j < MAX_SIDES_PER_SEGMENT));
 
 		temp_byte = xt[j];
@@ -291,11 +412,11 @@ int create_path_points(object *objp, int start_seg, int end_seg, point_seg *pseg
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
-	byte		visited[MAX_SEGMENTS];
+	sbyte   visited[MAX_SEGMENTS];
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
-	byte		random_xlate[MAX_SIDES_PER_SEGMENT];
+	sbyte   random_xlate[MAX_SIDES_PER_SEGMENT];
 	point_seg	*original_psegs = psegs;
 	int		l_num_points;
 
@@ -663,13 +784,13 @@ void validate_all_paths(void)
 // -- 	ai_static	*aip = &objp->ctype.ai_info;
 // -- 	ai_local		*ailp = &Ai_local_info[objp-Objects];
 // -- 	int			start_seg, end_seg;
-// -- 
+// --
 // -- 	start_seg = objp->segnum;
 // -- 	end_seg = ailp->goal_segment;
-// -- 
+// --
 // -- 	if (end_seg == -1)
 // -- 		create_n_segment_path(objp, 3, -1);
-// -- 
+// --
 // -- 	if (end_seg == -1) {
 // -- 		; //mprintf((0, "Object %i, hide_segment = -1, not creating path.\n", objp-Objects));
 // -- 	} else {
@@ -688,9 +809,9 @@ void validate_all_paths(void)
 // -- 		aip->PATH_DIR = 1;		//	Initialize to moving forward.
 // -- 		aip->SUBMODE = AISM_HIDING;		//	Pretend we are hiding, so we sit here until bothered.
 // -- 	}
-// -- 
+// --
 // -- 	maybe_ai_path_garbage_collect();
-// -- 
+// --
 // -- }
 
 //	-------------------------------------------------------------------------------------------------------
@@ -965,12 +1086,12 @@ void move_object_to_goal(object *objp, vms_vector *goal_point, int goal_seg)
 // -- too much work -- 	fvi_info		hit_data;
 // -- too much work -- 	int			fate;
 // -- too much work -- 	fvi_query	fq;
-// -- too much work -- 
+// -- too much work --
 // -- too much work -- 	if (Escort_kill_object == -1)
 // -- too much work -- 		return 0;
-// -- too much work -- 
+// -- too much work --
 // -- too much work -- 	kill_objp = &Objects[Escort_kill_object];
-// -- too much work -- 
+// -- too much work --
 // -- too much work -- 	fq.p0						= &objp->pos;
 // -- too much work -- 	fq.startseg				= objp->segnum;
 // -- too much work -- 	fq.p1						= &kill_objp->pos;
@@ -978,9 +1099,9 @@ void move_object_to_goal(object *objp, vms_vector *goal_point, int goal_seg)
 // -- too much work -- 	fq.thisobjnum			= objp-Objects;
 // -- too much work -- 	fq.ignore_obj_list	= NULL;
 // -- too much work -- 	fq.flags					= 0;
-// -- too much work -- 
+// -- too much work --
 // -- too much work -- 	fate = find_vector_intersection(&fq,&hit_data);
-// -- too much work -- 
+// -- too much work --
 // -- too much work -- 	if (fate == HIT_NONE)
 // -- too much work -- 		return 1;
 // -- too much work -- 	else
@@ -1030,7 +1151,7 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 	if (aip->path_length < 2) {
 		if ((aip->behavior == AIB_SNIPE) || (ailp->mode == AIM_RUN_FROM_OBJECT)) {
 			if (ConsoleObject->segnum == objp->segnum) {
-				create_n_segment_path(objp, AVOID_SEG_LENGTH, -1);			//	Can't avoid segment player is in, robot is already in it! (That's what the -1 is for) 
+				create_n_segment_path(objp, AVOID_SEG_LENGTH, -1);			//	Can't avoid segment player is in, robot is already in it! (That's what the -1 is for)
 				//--Int3_if((aip->path_length != 0));
 			} else {
 				create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum);
@@ -1420,7 +1541,7 @@ void ai_path_garbage_collect(void)
 		}
 	}
 
-	qsort(object_list, num_path_objects, sizeof(object_list[0]), 
+	qsort(object_list, num_path_objects, sizeof(object_list[0]),
 			(int (*)(void const *,void const *))path_index_compare);
 
 	for (objind=0; objind < num_path_objects; objind++) {

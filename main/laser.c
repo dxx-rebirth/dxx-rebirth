@@ -1,4 +1,4 @@
-/* $Id: laser.c,v 1.7 2002-08-06 09:30:24 btb Exp $ */
+/* $Id: laser.c,v 1.8 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -8,16 +8,27 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * This will contain the laser code
+ *
+ * Old Log:
+ * Revision 1.1  1993/11/29  17:19:02  john
+ * Initial revision
+ *
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-char laser_rcsid[] = "$Id: laser.c,v 1.7 2002-08-06 09:30:24 btb Exp $";
+char laser_rcsid[] = "$Id: laser.c,v 1.8 2003-10-04 03:14:47 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -1900,7 +1911,7 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 			Laser_player_fire( objp, FUSION_ID, 0, 1, 0);
 			Laser_player_fire( objp, FUSION_ID, 1, 1, 0);
 
-			flags = (byte)(Fusion_charge >> 12);
+			flags = (sbyte)(Fusion_charge >> 12);
 
 			Fusion_charge = 0;
 

@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.20 2003-10-03 08:21:28 btb Exp $ */
+/* $Id: network.c,v 1.21 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,12 +12,18 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Routines for managing network play.
+ *
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.20 2003-10-03 08:21:28 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.21 2003-10-04 03:14:47 btb Exp $";
 #endif
 
 #define PATCH12
@@ -131,7 +137,7 @@ static char rcsid[] = "$Id: network.c,v 1.20 2003-10-03 08:21:28 btb Exp $";
 typedef struct endlevel_info {
 	ubyte                               type;
 	ubyte                               player_num;
-	byte                                connected;
+	sbyte                               connected;
 	ubyte                               seconds_left;
 	short                              kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 	short                               kills;
@@ -141,7 +147,7 @@ typedef struct endlevel_info {
 typedef struct endlevel_info_short {
 	ubyte                               type;
 	ubyte                               player_num;
-	byte                                connected;
+	sbyte                               connected;
 	ubyte                               seconds_left;
 } endlevel_info_short;
 
@@ -1234,12 +1240,12 @@ void network_stop_resync(sequence_packet *their)
 	}
 }
 
-byte object_buffer[IPX_MAX_DATA_SIZE];
+sbyte object_buffer[IPX_MAX_DATA_SIZE];
 
 void network_send_objects(void)
 {
 	short remote_objnum;
-	byte owner;
+	sbyte owner;
 	int loc, i, h;
 
 	static int obj_count = 0;
@@ -2659,7 +2665,7 @@ network_read_object_packet( ubyte *data )
 	// Object from another net player we need to sync with
 
 	short objnum, remote_objnum;
-	byte obj_owner;
+	sbyte obj_owner;
 	int segnum, i;
 	object *obj;
 
@@ -5303,7 +5309,7 @@ void network_read_pdata_packet(frame_info *pd )
 	}
 //      mprintf((0, "Gametime = %d, Frametime = %d.\n", GameTime, FrameTime));
 
-	if ((byte)pd->level_num != Current_level_num)
+	if ((sbyte)pd->level_num != Current_level_num)
 	{
 		mprintf((0, "Got frame packet from player %d wrong level %d!\n", pd->playernum, pd->level_num));
 		return;
@@ -5488,7 +5494,7 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 	}
 //      mprintf((0, "Gametime = %d, Frametime = %d.\n", GameTime, FrameTime));
 
-	if ((byte)new_pd.level_num != Current_level_num)
+	if ((sbyte)new_pd.level_num != Current_level_num)
 	{
 		mprintf((0, "Got frame packet from player %d wrong level %d!\n", new_pd.playernum, new_pd.level_num));
 		return;

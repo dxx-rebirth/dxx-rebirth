@@ -1,3 +1,4 @@
+/* $Id: gameseg.c,v 1.4 2003-10-04 03:14:47 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,9 +8,224 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Functions moved from segment.c to make editor separable from game.
+ *
+ * Old Log:
+ * Revision 1.9  1995/11/08  16:26:04  allender
+ * minor bug fix in find_connected_distance
+ *
+ * Revision 1.8  1995/10/12  17:36:55  allender
+ * made trace_segs only recurse 100 times max
+ *
+ * Revision 1.7  1995/10/11  18:29:01  allender
+ * removed Int3 from trace_segs
+ *
+ * Revision 1.6  1995/10/11  14:13:54  allender
+ * put in stack check code into trace-segs
+ *
+ * Revision 1.5  1995/09/23  09:40:25  allender
+ * put in casts in extract_shortpos to try and solve shortpos problem
+ * with appletalk
+ *
+ * Revision 1.4  1995/09/20  14:26:50  allender
+ * added flag to swap bytes on extract shortpot
+ *
+ * Revision 1.3  1995/08/12  12:01:27  allender
+ * added flag to create_shortpos to swap bytes
+ *
+ * Revision 1.2  1995/06/06  10:42:07  allender
+ * made shortpos routines swap bytes when extracting and making shortpos structures
+ *
+ * Revision 1.1  1995/05/16  15:25:46  allender
+ * Initial revision
+ *
+ * Revision 2.2  1995/03/20  18:15:39  john
+ * Added code to not store the normals in the segment structure.
+ *
+ * Revision 2.1  1995/03/08  12:11:39  allender
+ * fix shortpos reading/writing
+ *
+ * Revision 2.0  1995/02/27  11:29:21  john
+ * New version 2.0, which has no anonymous unions, builds with
+ * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
+ *
+ * Revision 1.78  1995/02/22  13:52:22  allender
+ * remove anonymous unions from object structure
+ *
+ * Revision 1.77  1995/02/22  13:24:47  john
+ * Removed the vecmat anonymous unions.
+ *
+ * Revision 1.76  1995/02/13  20:35:01  john
+ * Lintized
+ *
+ * Revision 1.75  1995/02/09  13:10:51  mike
+ * remove an annoying mprintf.
+ *
+ * Revision 1.74  1995/02/05  17:49:28  rob
+ * Added assert to gameseg.c.
+ *
+ * Revision 1.73  1995/02/02  00:49:26  mike
+ * new automap segment-depth functionality.
+ *
+ * Revision 1.72  1995/01/16  21:06:51  mike
+ * Move function pick_random_point_in_segment from fireball.c to gameseg.c.
+ *
+ * Revision 1.71  1994/12/21  19:54:32  matt
+ * Added error checking
+ *
+ * Revision 1.70  1994/12/11  21:34:09  matt
+ * Changed assert() to int3()
+ *
+ * Revision 1.69  1994/12/01  21:04:37  matt
+ * Several important changes:
+ *  (1) Checking against triangulated sides has been standardized a bit
+ *  (2) Code has been added to de-triangulate some sides
+ *  (3) BIG ONE: the tolerance for checking a point against a plane has
+ *      been drastically relaxed
+ *
+ *
+ * Revision 1.67  1994/11/27  23:12:21  matt
+ * Made changes for new mprintf calling convention
+ *
+ * Revision 1.66  1994/11/26  22:51:40  matt
+ * Removed editor-only fields from segment structure when editor is compiled
+ * out, and padded segment structure to even multiple of 4 bytes.
+ *
+ * Revision 1.65  1994/11/22  16:55:38  mike
+ * use memset in place of loop to clear array.
+ *
+ * Revision 1.64  1994/11/19  15:20:37  mike
+ * rip out unused code and data
+ *
+ * Revision 1.63  1994/11/18  18:31:48  matt
+ * Fixed code again (and maybe for real)
+ *
+ * Revision 1.62  1994/11/18  16:54:24  matt
+ * Fixed extract_orient_from_segment()
+ *
+ * Revision 1.61  1994/11/17  14:56:50  mike
+ * moved segment validation functions from editor to main.
+ *
+ * Revision 1.60  1994/11/16  23:38:53  mike
+ * new improved boss teleportation behavior.
+ *
+ * Revision 1.59  1994/10/30  14:12:46  mike
+ * rip out local segments stuff.
+ *
+ * Revision 1.58  1994/10/27  10:53:39  matt
+ * Made connectivity error checking put up warning if errors found
+ *
+ * Revision 1.57  1994/10/25  21:19:26  mike
+ * debugging code.
+ *
+ * Revision 1.56  1994/10/25  11:26:09  mike
+ * *** empty log message ***
+ *
+ * Revision 1.55  1994/10/22  22:36:08  matt
+ * Improved error finding routine
+ *
+ * Revision 1.54  1994/10/22  18:56:51  matt
+ * Fixed obscure bug in segment trace code
+ * Added error find routine, check_segment_connections()
+ *
+ * Revision 1.53  1994/10/17  14:05:19  matt
+ * Don't give recursion assert if doing lighting
+ *
+ * Revision 1.52  1994/10/15  19:03:48  mike
+ * Don't do exhaustive search in smooth lighting.
+ *
+ * Revision 1.51  1994/10/12  09:46:44  mike
+ * Add debug code for trapping exhaustive searches.
+ *
+ * Revision 1.50  1994/10/11  20:50:41  matt
+ * Made find_point_seg() take -1 as segnum, meaning to search all segments
+ *
+ * Revision 1.49  1994/10/11  17:40:31  matt
+ * Fixed bug that caused segment trace to only go through sides you can fly through
+ *
+ * Revision 1.48  1994/10/10  14:48:16  matt
+ * Fixed mistake that caused odd pauses and occasional int3's
+ *
+ * Revision 1.47  1994/10/09  23:50:41  matt
+ * Made find_hitpoint_uv() work with triangulated sides
+ *
+ * Revision 1.46  1994/10/08  23:06:52  matt
+ * trace_segs() didn't know about external walls
+ *
+ * Revision 1.45  1994/10/07  22:18:57  mike
+ * Put in asserts to trap bad segnums.
+ *
+ * Revision 1.44  1994/10/06  14:08:07  matt
+ * Added new function, extract_orient_from_segment()
+ *
+ * Revision 1.43  1994/10/04  16:24:11  mike
+ * Set global Connected_segment_distance for debug reasons for aipath.c.
+ *
+ * Revision 1.42  1994/10/04  09:18:42  mike
+ * Comment out a variable definition, preventing a warning message.
+ *
+ * Revision 1.41  1994/10/03  23:43:42  mike
+ * Put in a warning for overrunning point_segs buffer.
+ *
+ * Revision 1.40  1994/10/03  20:55:43  rob
+ * Added velocity to shortpos.
+ *
+ * Revision 1.39  1994/09/27  11:46:06  rob
+ * re-fixed that same bug (ugh).
+ *
+ * Revision 1.38  1994/09/27  10:10:51  rob
+ * Fixed bug in extract_shortpos (obj_relink added).
+ *
+ * Revision 1.37  1994/09/25  23:41:02  matt
+ * Changed the object load & save code to read/write the structure fields one
+ * at a time (rather than the whole structure at once).  This mean that the
+ * object structure can be changed without breaking the load/save functions.
+ * As a result of this change, the local_object data can be and has been
+ * incorporated into the object array.  Also, timeleft is now a property
+ * of all objects, and the object structure has been otherwise cleaned up.
+ *
+ * Revision 1.36  1994/09/22  19:03:05  mike
+ * Add shortpos manipulation functions create_shortpos and extract_shortpos.
+ *
+ * Revision 1.35  1994/09/19  21:21:16  mike
+ * Minor optimization to find_connected_distance.
+ *
+ * Revision 1.34  1994/09/19  21:05:25  mike
+ * Write function find_connected_distance,
+ * returns distance between two points as travellable through the mine.
+ *
+ * Revision 1.33  1994/08/30  15:07:15  matt
+ * Changed find_point_seg() to deal with some infinite recursion problems.
+ *
+ * Revision 1.32  1994/08/11  18:58:32  mike
+ * Use ints in place of shorts for optimization.
+ *
+ * Revision 1.31  1994/08/04  00:20:09  matt
+ * Cleaned up fvi & physics error handling; put in code to make sure objects
+ * are in correct segment; simplified segment finding for objects and points
+ *
+ * Revision 1.30  1994/08/03  16:46:12  mike
+ * not much...
+ *
+ * Revision 1.29  1994/08/02  20:41:31  matt
+ * Fixed bug in get_side_verts()
+ *
+ * Revision 1.28  1994/08/02  19:04:25  matt
+ * Cleaned up vertex list functions
+ *
+ * Revision 1.27  1994/08/01  10:39:44  matt
+ * find_new_seg() now will look through any kind of wall but a totally solid one
+ *
+ * Revision 1.26  1994/07/28  19:15:59  matt
+ * Fixed yet another bug in get_seg_masks()
+ *
+ */
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
@@ -33,7 +249,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.3 2001-01-31 15:17:53 bradleyb Exp $";
+static char rcsid[] = "$Id: gameseg.c,v 1.4 2003-10-04 03:14:47 btb Exp $";
 #endif
 
 // How far a point can be from a plane, and still be "in" the plane
@@ -116,7 +332,7 @@ int get_num_faces(side *sidep)
 void get_side_verts(short *vertlist,int segnum,int sidenum)
 {
 	int	i;
-	byte  *sv = Side_to_verts[sidenum];
+	sbyte   *sv = Side_to_verts[sidenum];
 	short	*vp = Segments[segnum].verts;
 
 	for (i=4; i--;)
@@ -192,7 +408,7 @@ void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to
-// the side) for each of the faces that make up the side.  
+// the side) for each of the faces that make up the side. 
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
@@ -304,7 +520,7 @@ void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 
 
 //returns 3 different bitmasks with info telling if this sphere is in
-//this segment.  See segmasks structure for info on fields   
+//this segment.  See segmasks structure for info on fields  
 segmasks get_seg_masks(vms_vector *checkp,int segnum,fix rad)
 {
 	int			sn,facebit,sidebit;
@@ -450,7 +666,7 @@ segmasks get_seg_masks(vms_vector *checkp,int segnum,fix rad)
 
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
-//only gets centermask, and assumes zero rad 
+//only gets centermask, and assumes zero rad
 ubyte get_side_dists(vms_vector *checkp,int segnum,fix *side_dists)
 {
 	int			sn,facebit,sidebit;
@@ -592,7 +808,7 @@ ubyte get_side_dists(vms_vector *checkp,int segnum,fix *side_dists)
 
 }
 
-#ifndef NDEBUG 
+#ifndef NDEBUG
 #ifndef COMPACT_SEGS
 //returns true if errors detected
 int check_norms(int segnum,int sidenum,int facenum,int csegnum,int csidenum,int cfacenum)
@@ -841,17 +1057,17 @@ int find_point_seg(vms_vector *p,int segnum)
 //--repair-- void clsd_repair_center(int segnum)
 //--repair-- {
 //--repair-- 	int	sidenum;
-//--repair-- 
+//--repair--
 //--repair-- 	//	--- Set repair center bit for all repair center segments.
 //--repair-- 	if (Segments[segnum].special == SEGMENT_IS_REPAIRCEN) {
 //--repair-- 		Lsegments[segnum].special_type |= SS_REPAIR_CENTER;
 //--repair-- 		Lsegments[segnum].special_segment = segnum;
 //--repair-- 	}
-//--repair-- 
+//--repair--
 //--repair-- 	//	--- Set repair center bit for all segments adjacent to a repair center.
 //--repair-- 	for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 //--repair-- 		int	s = Segments[segnum].children[sidenum];
-//--repair-- 
+//--repair--
 //--repair-- 		if ( (s != -1) && (Segments[s].special==SEGMENT_IS_REPAIRCEN) ) {
 //--repair-- 			Lsegments[segnum].special_type |= SS_REPAIR_CENTER;
 //--repair-- 			Lsegments[segnum].special_segment = s;
@@ -864,12 +1080,12 @@ int find_point_seg(vms_vector *p,int segnum)
 //--repair-- void clsd_materialization_center(int segnum)
 //--repair-- {
 //--repair-- 	if (Segments[segnum].special == SEGMENT_IS_ROBOTMAKER) {
-//--repair-- 
+//--repair--
 //--repair-- 	}
 //--repair-- }
-//--repair-- 
+//--repair--
 //--repair-- int	Lsegment_highest_segment_index, Lsegment_highest_vertex_index;
-//--repair-- 
+//--repair--
 //--repair-- //	------------------------------------------------------------------------------
 //--repair-- //	Create data specific to mine which doesn't get written to disk.
 //--repair-- //	Highest_segment_index and Highest_object_index must be valid.
@@ -877,26 +1093,26 @@ int find_point_seg(vms_vector *p,int segnum)
 //--repair-- void create_local_segment_data(void)
 //--repair-- {
 //--repair-- 	int	segnum;
-//--repair-- 
+//--repair--
 //--repair-- 	//	--- Initialize all Lsegments.
 //--repair-- 	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
 //--repair-- 		Lsegments[segnum].special_type = 0;
 //--repair-- 		Lsegments[segnum].special_segment = -1;
 //--repair-- 	}
-//--repair-- 
+//--repair--
 //--repair-- 	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
-//--repair-- 
+//--repair--
 //--repair-- 		clsd_repair_center(segnum);
 //--repair-- 		clsd_materialization_center(segnum);
 //--repair-- 	
 //--repair-- 	}
-//--repair-- 
+//--repair--
 //--repair-- 	//	Set check variables.
 //--repair-- 	//	In main game loop, make sure these are valid, else Lsegments is not valid.
 //--repair-- 	Lsegment_highest_segment_index = Highest_segment_index;
 //--repair-- 	Lsegment_highest_vertex_index = Highest_vertex_index;
 //--repair-- }
-//--repair-- 
+//--repair--
 //--repair-- //	------------------------------------------------------------------------------------------
 //--repair-- //	Sort of makes sure create_local_segment_data has been called for the currently executing mine.
 //--repair-- //	It is not failsafe, as you will see if you look at the code.
@@ -972,7 +1188,7 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
-	byte		visited[MAX_SEGMENTS];
+	sbyte   visited[MAX_SEGMENTS];
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
@@ -1119,7 +1335,7 @@ fcd_done1: ;
 
 }
 
-byte convert_to_byte(fix f)
+sbyte convert_to_byte(fix f)
 {
 	if (f >= 0x00010000)
 		return MATRIX_MAX;
@@ -1138,7 +1354,7 @@ byte convert_to_byte(fix f)
 void create_shortpos(shortpos *spp, object *objp, int swap_bytes)
 {
 	// int	segnum;
-	byte	*sp;
+	sbyte   *sp;
 
 	sp = spp->bytemat;
 
@@ -1193,7 +1409,7 @@ void create_shortpos(shortpos *spp, object *objp, int swap_bytes)
 void extract_shortpos(object *objp, shortpos *spp, int swap_bytes)
 {
 	int	segnum;
-	byte	*sp;
+	sbyte   *sp;
 
 	sp = spp->bytemat;
 
@@ -1249,10 +1465,10 @@ void extract_shortpos(object *objp, shortpos *spp, int swap_bytes)
 //--unused-- void test_shortpos(void)
 //--unused-- {
 //--unused-- 	shortpos	spp;
-//--unused-- 
+//--unused--
 //--unused-- 	create_shortpos(&spp, &Objects[0]);
 //--unused-- 	extract_shortpos(&Objects[0], &spp);
-//--unused-- 
+//--unused--
 //--unused-- }
 
 //	-----------------------------------------------------------------------------
@@ -1390,7 +1606,7 @@ void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v1, int 
 void add_side_as_2_triangles(segment *sp, int sidenum)
 {
 	vms_vector	norm;
-	byte			*vs = Side_to_verts[sidenum];
+	sbyte       *vs = Side_to_verts[sidenum];
 	fix			dot;
 	vms_vector	vec_13;		//	vector from vertex 1 to vertex 3
 
@@ -2130,7 +2346,7 @@ fix find_connected_distance_segments( int seg0, int seg1, int depth, int wid_fla
 
 //	-----------------------------------------------------------------------------
 //	Do a bfs from segnum, marking slots in marked_segs if the segment is reachable.
-void ambient_mark_bfs(int segnum, byte *marked_segs, int depth)
+void ambient_mark_bfs(int segnum, sbyte *marked_segs, int depth)
 {
 	int	i;
 
@@ -2154,7 +2370,7 @@ void ambient_mark_bfs(int segnum, byte *marked_segs, int depth)
 void set_ambient_sound_flags_common(int tmi_bit, int s2f_bit)
 {
 	int	i, j;
-	byte	marked_segs[MAX_SEGMENTS];
+	sbyte   marked_segs[MAX_SEGMENTS];
 
 	//	Now, all segments containing ambient lava or water sound makers are flagged.
 	//	Additionally flag all segments which are within range of them.
