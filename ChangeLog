@@ -1,3 +1,7 @@
+2003-04-02  Bradley Bell  <btb@icculus.org>
+
+	* main/gamemine.c: comments/formatting
+
 2003-03-31  Micah J. Lieske  <MicahJon@compuserve.com>
 
 	* arch/dos/digimm.c, arch/sdl/digi.c, arch/win32/digi.c,
