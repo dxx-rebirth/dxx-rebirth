@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.36 2004-12-04 04:03:10 btb Exp $ */
+/* $Id: mission.c,v 1.37 2004-12-17 14:28:41 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -53,12 +53,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //mission list entry
 typedef struct mle {
-    char    mission_name[MISSION_NAME_LEN+1];
-    char    filename[9];                // filename without extension
-    ubyte   descent_version;            // descent 1 or descent 2?
-    bool	anarchy_only_flag;          // if true, mission is anarchy only
-    int		builtin_hogsize;	// This is used to determine the version. Only for the built in mission.
-    ubyte   location;                   // see defines below
+	char    *filename;          // filename without extension
+	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
+	char    mission_name[MISSION_NAME_LEN+1];
+	ubyte   descent_version;    // descent 1 or descent 2?
+	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
+	ubyte   location;           // see defines below
 } mle;
 
 //values that describe where a mission is located
@@ -320,7 +320,7 @@ int read_mission_file(mle *mission, char *filename, int location)
 		mission->descent_version = (t[3] == '2') ? 2 : 1;
 		*t = 0;			//kill extension
 
-		strncpy( mission->filename, temp, 9 );
+		mission->filename = d_strdup(temp);
 		mission->anarchy_only_flag = 0;
 		mission->location = location;
 
@@ -346,6 +346,7 @@ int read_mission_file(mle *mission, char *filename, int location)
 		}
 		else {
 			cfclose(mfile);
+			d_free(mission->filename);
 			return 0;
 		}
 
@@ -376,13 +377,13 @@ void add_d1_builtin_mission_to_list(mle *mission)
 	case D1_SHAREWARE_MISSION_HOGSIZE:
 	case D1_SHAREWARE_10_MISSION_HOGSIZE:
 	case D1_MAC_SHARE_MISSION_HOGSIZE:
-		strcpy(mission->filename, D1_MISSION_FILENAME);
+		mission->filename = d_strdup(D1_MISSION_FILENAME);
 		strcpy(mission->mission_name, D1_SHAREWARE_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	case D1_OEM_MISSION_HOGSIZE:
 	case D1_OEM_10_MISSION_HOGSIZE:
-		strcpy(mission->filename, D1_MISSION_FILENAME);
+		mission->filename = d_strdup(D1_MISSION_FILENAME);
 		strcpy(mission->mission_name, D1_OEM_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
@@ -393,7 +394,7 @@ void add_d1_builtin_mission_to_list(mle *mission)
 	case D1_MISSION_HOGSIZE:
 	case D1_10_MISSION_HOGSIZE:
 	case D1_MAC_MISSION_HOGSIZE:
-		strcpy(mission->filename, D1_MISSION_FILENAME);
+		mission->filename = d_strdup(D1_MISSION_FILENAME);
 		strcpy(mission->mission_name, D1_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
@@ -416,12 +417,12 @@ void add_builtin_mission_to_list(mle *mission, char *name)
 	switch (size) {
 	case SHAREWARE_MISSION_HOGSIZE:
 	case MAC_SHARE_MISSION_HOGSIZE:
-		strcpy(mission->filename,SHAREWARE_MISSION_FILENAME);
+		mission->filename = d_strdup(SHAREWARE_MISSION_FILENAME);
 		strcpy(mission->mission_name,SHAREWARE_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
 	case OEM_MISSION_HOGSIZE:
-		strcpy(mission->filename,OEM_MISSION_FILENAME);
+		mission->filename = d_strdup(OEM_MISSION_FILENAME);
 		strcpy(mission->mission_name,OEM_MISSION_NAME);
 		mission->anarchy_only_flag = 0;
 		break;
@@ -459,6 +460,8 @@ void add_missions_to_list(mle *mission, int anarchy_mode)
 					num_missions++;
 					mission->builtin_hogsize = 0;
 				}
+				else
+					d_free(mission->filename);
 		if (num_missions >= MAX_MISSIONS)
 		{
 			mprintf((0, "Warning: more missions than d2x can handle\n"));
@@ -495,6 +498,7 @@ void free_mission(void)
 {
     // May become more complex with the editor
     if (Current_mission) {
+		d_free(Current_mission->filename);
         d_free(Current_mission);
     }
 }
@@ -566,6 +570,11 @@ mle *build_mission_list(int anarchy_mode)
 
 void free_mission_list(mle *mission_list)
 {
+	int i;
+
+	for (i = 0; i < num_missions; i++)
+		d_free(mission_list[i].filename);
+	
 	d_free(mission_list);
 	num_missions = 0;
 }
@@ -588,6 +597,7 @@ int load_mission(mle *mission)
     Current_mission = d_malloc(sizeof(Mission));
     if (!Current_mission) return 0;
     *(mle *) Current_mission = *mission;
+	Current_mission->filename = d_strdup(mission->filename); // don't want to lose it
 
     // for Descent 1 missions, load descent.hog
     if (EMULATING_D1) {

@@ -17,6 +17,9 @@
 
 	* misc/strutil.c: fix MPW compiler errors
 
+	* main/mission.c, main/mission.h: allocate mission filenames
+	dynamically
+
 2004-12-07  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* 2d/font.c: Initialise the dataptr member correctly.
