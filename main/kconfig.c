@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.25 2003-11-25 04:13:05 btb Exp $ */
+/* $Id: kconfig.c,v 1.26 2003-12-18 10:32:57 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -346,7 +346,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.25 2003-11-25 04:13:05 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.26 2003-12-18 10:32:57 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -400,7 +400,7 @@ static char rcsid[] = "$Id: kconfig.c,v 1.25 2003-11-25 04:13:05 btb Exp $";
 
 #include "collide.h"
 
-#ifdef __unix__
+#ifdef USE_LINUX_JOY
 #include "joystick.h"
 #endif
 
@@ -1927,19 +1927,17 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 void kc_change_joyaxis( kc_item * item )
 {
-#ifdef __unix__
+#ifdef USE_LINUX_JOY
 	int axis[MAX_AXES];
 	int old_axis[MAX_AXES];
+	int numaxis = MAX_AXES;
 #else
 	int axis[JOY_NUM_AXES];
 	int old_axis[JOY_NUM_AXES];
+	int numaxis = JOY_NUM_AXES;
 #endif
 	int n,i,k;
 	ubyte code;
-   WINDOS (
-	 int numaxis=7,
-	 int numaxis=6
-	);
 
 WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
@@ -2296,7 +2294,7 @@ read_head_tracker()
 
 #define	PH_SCALE	8
 
-#ifdef WINDOWS
+#ifndef __MSDOS__ // WINDOWS
 #define	JOYSTICK_READ_TIME	(F1_0/40)		//	Read joystick at 40 Hz.
 #else
 #define	JOYSTICK_READ_TIME	(F1_0/10)		//	Read joystick at 10 Hz.
@@ -2304,7 +2302,11 @@ read_head_tracker()
 
 fix	LastReadTime = 0;
 
-fix	joy_axis[7];
+#ifdef USE_LINUX_JOY
+fix	joy_axis[MAX_AXES];
+#else
+fix	joy_axis[JOY_NUM_AXES];
+#endif
 
 ubyte 			kc_use_external_control = 0;
 ubyte				kc_enable_external_control = 0;
@@ -3105,7 +3107,7 @@ void controls_read_all()
 	int idx, idy;
 	fix ctime;
 	fix mouse_axis[3] = {0,0,0};
-#ifdef __unix__
+#ifdef USE_LINUX_JOY
 	int raw_joy_axis[MAX_AXES];
 #else
 	int raw_joy_axis[JOY_NUM_AXES];
@@ -3138,14 +3140,23 @@ void controls_read_all()
 	//---------  Read Joystick -----------
 #ifndef MACINTOSH
 	if ( (LastReadTime + JOYSTICK_READ_TIME > ctime) && (Config_control_type!=CONTROL_THRUSTMASTER_FCS) ) {
+# ifndef __MSDOS__
+		if ((ctime < 0) && (LastReadTime >= 0))
+# else
 		if ((ctime < 0) && (LastReadTime > 0))
+# endif
 			LastReadTime = ctime;
 		use_joystick=1;
 	} else if ((Config_control_type>0) && (Config_control_type<5) ) {
 		LastReadTime = ctime;
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 		
-		for (i=0; i<6; i++ )	{
+# ifdef USE_LINUX_JOY
+		for (i = 0; i < j_num_axes; i++)
+# else
+		for (i = 0; i < JOY_NUM_AXES; i++)
+# endif
+		{
 #ifndef SDL_INPUT
 			if (channel_masks&(1<<i))	{
 #endif
@@ -3175,7 +3186,11 @@ void controls_read_all()
 		}	
 		use_joystick=1;
 	} else {
-		for (i=0; i<4; i++ )
+#ifdef USE_LINUX_JOY
+		for (i = 0; i < j_num_axes; i++)
+#else
+		for (i = 0; i < JOY_NUM_AXES; i++)
+#endif
 			joy_axis[i] = 0;
 		use_joystick=0;
 	}

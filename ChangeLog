@@ -1,5 +1,8 @@
 2003-12-18  Bradley Bell  <btb@icculus.org>
 
+	* main/kconfig.c: bunch of fixes (esp. for non linux-native
+	joystick)
+
 	* arch/include/joy.h: comments/formatting
 
 2003-12-10  Alexander Y. Yeikovich <demon@mci.net.ua>
