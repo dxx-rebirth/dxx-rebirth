@@ -12,17 +12,17 @@ CFLAGS += -fwritable-strings ${SDL_CFLAGS}
 
 if USE_NETWORK
 NETWORK_SRCS = ipx_drv.c kmatrix.c multi.c multibot.c network.c
-else
-NETWORK_SRCS =
 endif
 
 if EDITOR
 EDITOR_SRCS = bmread.c
-else
-EDITOR_SRCS =
 endif
 
-libmain_a_SOURCES = ${EDITOR_SRCS} ${NETWORK_SRCS} \
+if SHAREWARE
+SHAREWARE_SRCS = terrain.c
+endif
+
+libmain_a_SOURCES = ${EDITOR_SRCS} ${NETWORK_SRCS} ${SHAREWARE_SRCS} \
 ai.c	    gamerend.c  lighting.c  paging.c    switch.c \
 ai2.c	    effects.c	gamesave.c  menu.c	physics.c   texmerge.c \
 aipath.c    endlevel.c	gameseg.c   mglobal.c	piggy.c     text.c \
@@ -35,7 +35,7 @@ config.c    gamecntl.c	kconfig.c   scores.c \
 controls.c  gamefont.c	kludge.c    newdemo.c	slew.c \
 credits.c   gamemine.c	newmenu.c   songs.c \
 crypt.c     gamepal.c	laser.c     object.c	state.c \
-console.c   cmd.c       terrain.c
+console.c   cmd.c
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 descent.cfg inferno.ini \
