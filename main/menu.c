@@ -1044,7 +1044,9 @@ void do_new_game_menu()
 
 	n_missions = build_mission_list(0);
 
-	if (n_missions > 1) {
+	if (n_missions <= 1) {
+		load_mission(0);
+	} else {
 		int new_mission_num,i, default_mission;
 		char * m[MAX_MISSIONS];
 

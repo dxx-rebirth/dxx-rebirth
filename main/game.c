@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.13 2002-07-30 11:05:53 btb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.14 2002-08-15 18:31:05 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -327,7 +327,7 @@ void init_game()
 
 	set_detail_level_parameters(Detail_level);
 
-	build_mission_list(0);		// This also loads mission 0.
+	build_mission_list(0);
 
 	/* Register cvars */
 	cvar_registervariable(&r_framerate);

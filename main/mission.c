@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.6 2002-08-07 07:34:09 btb Exp $ */
+/* $Id: mission.c,v 1.7 2002-08-15 18:31:06 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -116,7 +116,7 @@ int load_mission_by_name(char *mission_name)
 
 
 
-#else
+#else // else of ifdef SHAREWARE
 
 #if defined(D2_OEM)
 
@@ -179,7 +179,7 @@ int load_mission_by_name(char *mission_name)
 
 }
 
-#else
+#else // else of ifdef D2_OEM, ifdef SHAREWARE
 
 //strips damn newline from end of line
 char *mfgets(char *s,int n,CFILE *f)
@@ -355,10 +355,30 @@ void add_missions_to_list(char * search_name, int * count, int anarchy_mode) {
 	}
 }
 
+/* move <mission_name> to <place> on mission list, increment <place> */
+void promote (char * mission_name, int * top_place, int num_missions) {
+	int i;
+	char name[FILENAME_LEN], * t;
+	strcpy(name, mission_name);
+		if ((t = strchr(name,'.')) != NULL)
+			*t = 0; //kill extension
+	printf("mission_name:%s\n", name);
+	for (i = *top_place; i < num_missions; i++)
+		if (!stricmp(Mission_list[i].filename, name)) {
+			//swap mission positions
+			mle temp;
+			temp = Mission_list[*top_place];
+			Mission_list[*top_place] = Mission_list[i];
+			Mission_list[i] = temp;
+			++(*top_place);
+			break;
+		}
+}
+
+
 
 //fills in the global list of missions.  Returns the number of missions
 //in the list.  If anarchy_mode set, don't include non-anarchy levels.
-//if there is only one mission, this function will call load_mission on it.
 
 extern char CDROM_dir[];
 extern char AltHogDir[];
@@ -367,7 +387,8 @@ extern char AltHogdir_initialized;
 int build_mission_list(int anarchy_mode)
 {
 	static int num_missions=-1;
-	int count=0,special_count=0;
+	int count = 0;
+	int top_place;
 
 	//now search for levels on disk
 
@@ -386,7 +407,7 @@ int build_mission_list(int anarchy_mode)
 	if (!read_mission_file(BUILTIN_MISSION,0,ML_CURDIR))		//read built-in first
 		Error("Could not find required mission file <%s>",BUILTIN_MISSION);
 
-	special_count = count=1;
+	count = 1;
 
 	add_missions_to_list(MISSION_DIR "*.mn2", &count, anarchy_mode);
 	add_missions_to_list(MISSION_DIR "*.msn", &count, anarchy_mode);
@@ -401,30 +422,27 @@ int build_mission_list(int anarchy_mode)
 		add_missions_to_list(search_name, &count, anarchy_mode);
 	}
 
-	//move vertigo to top of mission list
-	{
-		int i;
+	// move original missions (in stroy-chronological order)
+	// to top of mission list
+	top_place = 0;
+	promote("descent", &top_place, count); // original descent 1 mission
+	promote(BUILTIN_MISSION, &top_place, count); // descent 2 (demo?)
+	promote("d2x", &top_place, count); // vertigo
 
-		for (i=special_count;i<count;i++)
-			if (!stricmp(Mission_list[i].filename,"D2X")) {		//swap!
-				mle temp;
-
-				temp = Mission_list[special_count];
-				Mission_list[special_count] = Mission_list[i];
-				Mission_list[i] = temp;
-
-				special_count++;
-
-				break;
-			}
-	}
+	if (count > top_place)
+		qsort(&Mission_list[top_place],
+		      count - top_place,
+		      sizeof(*Mission_list),
+ 				(int (*)( const void *, const void * ))ml_sort_func);
 
 
-	if (count>special_count)
-		qsort(&Mission_list[special_count],count-special_count,sizeof(*Mission_list),
-				(int (*)( const void *, const void * ))ml_sort_func);
+	if (count > top_place)
+		qsort(&Mission_list[top_place],
+		      count - top_place,
+		      sizeof(*Mission_list),
+		      (int (*)( const void *, const void * ))ml_sort_func);
 
-	load_mission(0);			//set built-in mission as default
+	//load_mission(0);   //set built-in mission as default
 
 	num_missions = count;
 
@@ -435,9 +453,9 @@ void init_extra_robot_movie(char *filename);
 
 //values for built-in mission
 
-//loads the specfied mission from the mission list.  build_mission_list()
-//must have been called.  If build_mission_list() returns 0, this function
-//does not need to be called.  Returns true if mission loaded ok, else false.
+//loads the specfied mission from the mission list.
+//build_mission_list() must have been called.
+//Returns true if mission loaded ok, else false.
 int load_mission(int mission_num)
 {
 	CFILE *mfile;
@@ -476,7 +494,8 @@ int load_mission(int mission_num)
 		return 0;		//error!
 	}
 
-	if (mission_num != 0) {		//for non-builtin missions, load HOG
+	//for non-builtin missions, load HOG
+	if (strcmp(Mission_list[mission_num].filename, BUILTIN_MISSION)) {
 
 		strcpy(buf+strlen(buf)-4,".hog");		//change extension
 
@@ -613,6 +632,6 @@ int load_mission_by_name(char *mission_name)
 	return 0;		//couldn't find mission
 }
 
-#endif
-#endif
+#endif // ifdef, else D2_OEM
+#endif // ifdef, else SHAREWARE
 
