@@ -183,20 +183,40 @@ int digi_xlat_sound(int soundno)
 	return Sounds[soundno];
 }
 
+// added 2000/01/15 Matt Mueller -- remove some duplication (and fix a big memory leak, in the kill=0 one case)
+static int DS_release_slot(int slot, int kill)
+{
+	if (SoundSlots[slot].lpsb)
+	{
+		unsigned int s;
+
+		IDirectSoundBuffer_GetStatus(SoundSlots[slot].lpsb, &s);
+		if (s & DSBSTATUS_PLAYING)
+		{
+			if (kill)
+				IDirectSoundBuffer_Stop(SoundSlots[slot].lpsb);
+			else
+				return 0;
+		}
+		IDirectSoundBuffer_Release(SoundSlots[slot].lpsb);
+		SoundSlots[slot].playing = 0;
+		SoundSlots[slot].lpsb = NULL;
+
+		return 1;
+	}
+
+	return 0;
+}
+
 static int get_free_slot()
 {
  int i;
- unsigned int s;
+
  for (i=0; i<MAX_SOUND_SLOTS; i++)
  {
   if (!SoundSlots[i].playing) return i;
-  if (SoundSlots[i].lpsb) {
-   IDirectSoundBuffer_GetStatus(SoundSlots[i].lpsb, &s);
-   if (!(s & DSBSTATUS_PLAYING)) IDirectSoundBuffer_Release(SoundSlots[i].lpsb);
-   SoundSlots[i].playing = 0;
-   SoundSlots[i].lpsb = NULL;
-   return i;
-  }
+		if (DS_release_slot(i, 0))
+			return i;
  }
  return -1;
 }
@@ -416,14 +436,7 @@ void digi_play_sample_once( int soundno, fix max_volume )
         for (i=0; i < MAX_SOUND_SLOTS; i++)
           if (SoundSlots[i].soundno == soundno) {
              SoundSlots[i].playing = 0;
-              if (SoundSlots[i].lpsb) {
-                unsigned int s;
-                IDirectSoundBuffer_GetStatus(SoundSlots[i].lpsb, &s);
-                if (s & DSBSTATUS_PLAYING) IDirectSoundBuffer_Stop(SoundSlots[i].lpsb);
-                IDirectSoundBuffer_Release(SoundSlots[i].lpsb);
-                SoundSlots[i].playing = 0;
-                SoundSlots[i].lpsb = NULL;
-              }
+				DS_release_slot(i, 1);
           }
 	digi_start_sound(soundno, max_volume, F0_5);
 
@@ -628,14 +641,7 @@ void digi_kill_sound_linked_to_segment( int segnum, int sidenum, int soundnum )
 			if ((SoundObjects[i].lp_segnum == segnum) && (SoundObjects[i].soundnum==soundnum ) && (SoundObjects[i].lp_sidenum==sidenum) ) {
 				if ( SoundObjects[i].flags & SOF_PLAYING )	{
 				        SoundSlots[SoundObjects[i].handle].playing = 0;
-                                         if (SoundSlots[SoundObjects[i].handle].lpsb) {
-                                           unsigned int s;
-                                           IDirectSoundBuffer_GetStatus(SoundSlots[SoundObjects[i].handle].lpsb, &s);
-                                           if (s & DSBSTATUS_PLAYING) IDirectSoundBuffer_Stop(SoundSlots[SoundObjects[i].handle].lpsb);
-                                           IDirectSoundBuffer_Release(SoundSlots[SoundObjects[i].handle].lpsb);
-                                           SoundSlots[SoundObjects[i].handle].playing = 0;
-                                           SoundSlots[SoundObjects[i].handle].lpsb = NULL;
-                                         }
+					DS_release_slot(SoundObjects[i].handle, 1);
 				}
 				SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
 				killed++;
@@ -661,15 +667,8 @@ void digi_kill_sound_linked_to_object( int objnum )
 		if ( (SoundObjects[i].flags & SOF_USED) && (SoundObjects[i].flags & SOF_LINK_TO_OBJ ) )	{
 			if (SoundObjects[i].lo_objnum == objnum)   {
 				if ( SoundObjects[i].flags & SOF_PLAYING )	{
-                                     SoundSlots[SoundObjects[i].handle].playing = 0;
-                                         if (SoundSlots[SoundObjects[i].handle].lpsb) {
-                                           unsigned int s;
-                                           IDirectSoundBuffer_GetStatus(SoundSlots[SoundObjects[i].handle].lpsb, &s);
-                                           if (s & DSBSTATUS_PLAYING) IDirectSoundBuffer_Stop(SoundSlots[SoundObjects[i].handle].lpsb);
-                                           IDirectSoundBuffer_Release(SoundSlots[SoundObjects[i].handle].lpsb);
-                                           SoundSlots[SoundObjects[i].handle].playing = 0;
-                                           SoundSlots[SoundObjects[i].handle].lpsb = NULL;
-                                         }
+					SoundSlots[SoundObjects[i].handle].playing = 0;
+					DS_release_slot(SoundObjects[i].handle, 1);
 				}
 				SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
 				killed++;
@@ -720,14 +719,7 @@ void digi_sync_sounds()
 					// The object that this is linked to is dead, so just end this sound if it is looping.
 					if ( (SoundObjects[i].flags & SOF_PLAYING)  && (SoundObjects[i].flags & SOF_PLAY_FOREVER))	{
 					     SoundSlots[SoundObjects[i].handle].playing = 0;
-                                             if (SoundSlots[SoundObjects[i].handle].lpsb) {
-                                               unsigned int s;
-                                               IDirectSoundBuffer_GetStatus(SoundSlots[SoundObjects[i].handle].lpsb, &s);
-                                               if (s & DSBSTATUS_PLAYING) IDirectSoundBuffer_Stop(SoundSlots[SoundObjects[i].handle].lpsb);
-                                               IDirectSoundBuffer_Release(SoundSlots[SoundObjects[i].handle].lpsb);
-                                               SoundSlots[SoundObjects[i].handle].playing = 0;
-                                               SoundSlots[SoundObjects[i].handle].lpsb = NULL;
-                                             }
+						DS_release_slot(SoundObjects[i].handle, 1);
 					}
 					SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
 					continue;		// Go on to next sound...
@@ -742,15 +734,8 @@ void digi_sync_sounds()
 				if ( SoundObjects[i].volume < MIN_VOLUME )	 {
 					// Sound is too far away, so stop it from playing.
 					if ((SoundObjects[i].flags & SOF_PLAYING)&&(SoundObjects[i].flags & SOF_PLAY_FOREVER))	{
-                                        	SoundSlots[SoundObjects[i].handle].playing = 0;
-                                                if (SoundSlots[SoundObjects[i].handle].lpsb) {
-                                                  unsigned int s;
-                                                  IDirectSoundBuffer_GetStatus(SoundSlots[SoundObjects[i].handle].lpsb, &s);
-                                                  if (s & DSBSTATUS_PLAYING) IDirectSoundBuffer_Stop(SoundSlots[SoundObjects[i].handle].lpsb);
-                                                  IDirectSoundBuffer_Release(SoundSlots[SoundObjects[i].handle].lpsb);
-                                                  SoundSlots[SoundObjects[i].handle].playing = 0;
-                                                  SoundSlots[SoundObjects[i].handle].lpsb = NULL;
-                                                }
+						SoundSlots[SoundObjects[i].handle].playing = 0;
+						DS_release_slot(SoundObjects[i].handle, 1);
 						SoundObjects[i].flags &= ~SOF_PLAYING;		// Mark sound as not playing
 					}
 				} else {
@@ -782,14 +767,7 @@ void digi_init_sounds()
 		if (digi_sounds_initialized) {
 			if ( SoundObjects[i].flags & SOF_PLAYING )	{
 			        SoundSlots[SoundObjects[i].handle].playing=0;
-                                    if (SoundSlots[SoundObjects[i].handle].lpsb) {
-                                           unsigned int s;
-                                           IDirectSoundBuffer_GetStatus(SoundSlots[SoundObjects[i].handle].lpsb, &s);
-                                           if (s & DSBSTATUS_PLAYING) IDirectSoundBuffer_Stop(SoundSlots[SoundObjects[i].handle].lpsb);
-                                           IDirectSoundBuffer_Release(SoundSlots[SoundObjects[i].handle].lpsb);
-                                           SoundSlots[SoundObjects[i].handle].playing = 0;
-                                           SoundSlots[SoundObjects[i].handle].lpsb = NULL;
-                                    }
+				DS_release_slot(SoundObjects[i].handle, 1);
 			}
 		}
 		SoundObjects[i].flags = 0;	// Mark as dead, so some other sound can use this sound
@@ -860,18 +838,10 @@ int digi_get_max_channels() {
 
 void digi_reset_digi_sounds() {
  int i;
- unsigned int s;
 
  for (i=0; i< MAX_SOUND_SLOTS; i++) {
   SoundSlots[i].playing=0;
-  if (SoundSlots[i].lpsb) {
-   IDirectSoundBuffer_GetStatus(SoundSlots[i].lpsb, &s);
-   if (s & DSBSTATUS_PLAYING) IDirectSoundBuffer_Stop(SoundSlots[i].lpsb);
-   IDirectSoundBuffer_Release(SoundSlots[i].lpsb);
-   SoundSlots[i].playing = 0;
-   SoundSlots[i].lpsb = NULL;
-  }
-
+		DS_release_slot(i, 1);
  }
  
  //added on 980905 by adb to reset sound kill system
