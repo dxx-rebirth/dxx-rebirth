@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.60 2003-04-07 23:29:28 btb Exp $ */
+/* $Id: inferno.c,v 1.61 2003-04-24 18:19:05 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -801,7 +801,7 @@ extern int Current_display_mode;        //$$ there's got to be a better way than
 #include "ui.h"
 #endif
 
-#ifdef SDL_INPUT
+#ifndef __MSDOS__
 #include <SDL.h>
 #endif
 
@@ -1173,7 +1173,7 @@ int	Auto_exit = 0;
 char	Auto_file[128] = "";
 #endif
 
-int main(int argc,char **argv)
+int main(int argc, char *argv[])
 {
 	int i, t;
 	ubyte title_pal[768];
