@@ -1,3 +1,4 @@
+/* $Id: mission.h,v 1.2 2002-08-07 07:34:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,23 +17,24 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <pstypes.h>
 
-#define MAX_MISSIONS 						300
-#define MAX_LEVELS_PER_MISSION			30
-#define MAX_SECRET_LEVELS_PER_MISSION	6
-#define MISSION_NAME_LEN 					25
+#define MAX_MISSIONS                    300
+#define MAX_LEVELS_PER_MISSION          30
+#define MAX_SECRET_LEVELS_PER_MISSION   6
+#define MISSION_NAME_LEN                25
 
 //mission list entry
 typedef struct mle {
-	char	filename[9];                    //path and filename without extension
-	char	mission_name[MISSION_NAME_LEN+1];
-	ubyte	anarchy_only_flag;					//if true, mission is anarchy only
-	ubyte	location;								//see defines below
+	char    filename[9];                // path and filename without extension
+	char    mission_name[MISSION_NAME_LEN+1];
+	ubyte   anarchy_only_flag;          // if true, mission is anarchy only
+	ubyte   location;                   // see defines below
+	ubyte   descent_version;            // descent 1 or descent 2?
 } mle;
 
 //values that describe where a mission is located
-#define ML_CURDIR			0
-#define ML_MISSIONDIR	1
-#define ML_CDROM			2
+#define ML_CURDIR       0
+#define ML_MISSIONDIR   1
+#define ML_CDROM        2
 
 extern mle Mission_list[MAX_MISSIONS];
 

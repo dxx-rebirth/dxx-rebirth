@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.5 2002-08-06 05:12:09 btb Exp $ */
+/* $Id: mission.c,v 1.6 2002-08-07 07:34:09 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -285,6 +285,8 @@ int read_mission_file(char *filename,int count,int location)
 		strcpy(temp,filename);
 		if ((t = strchr(temp,'.')) == NULL)
 			return 0;	//missing extension
+		// look if it's .mn2 or .msn
+		Mission_list[count].descent_version = (t[3] == '2') ? 2 : 1;
 		*t = 0;			//kill extension
 
 		strncpy( Mission_list[count].filename, temp, 9 );
@@ -336,6 +338,24 @@ int read_mission_file(char *filename,int count,int location)
 }
 
 
+void add_missions_to_list(char * search_name, int * count, int anarchy_mode) {
+	FILEFINDSTRUCT find;
+	if( !FileFindFirst( search_name, &find ) ) {
+		do	{
+			if (read_mission_file( find.name, *count, ML_MISSIONDIR )) {
+
+				if (anarchy_mode || !Mission_list[*count].anarchy_only_flag)
+					++(*count);
+			}
+
+		} while( !FileFindNext( &find ) && *count < MAX_MISSIONS);
+		FileFindClose();
+		if (*count >= MAX_MISSIONS)
+			mprintf((0, "Warning: more missions than d2x can handle\n"));
+	}
+}
+
+
 //fills in the global list of missions.  Returns the number of missions
 //in the list.  If anarchy_mode set, don't include non-anarchy levels.
 //if there is only one mission, this function will call load_mission on it.
@@ -348,8 +368,6 @@ int build_mission_list(int anarchy_mode)
 {
 	static int num_missions=-1;
 	int count=0,special_count=0;
-	FILEFINDSTRUCT find;
-	char search_name[PATH_MAX + 5] = MISSION_DIR "*.mn2";
 
 	//now search for levels on disk
 
@@ -370,38 +388,17 @@ int build_mission_list(int anarchy_mode)
 
 	special_count = count=1;
 
-	if( !FileFindFirst( search_name, &find ) ) {
-		do	{
-			if (stricmp(find.name,BUILTIN_MISSION)==0)
-				continue;		//skip the built-in
-
-			if (read_mission_file(find.name,count,ML_MISSIONDIR)) {
-
-				if (anarchy_mode || !Mission_list[count].anarchy_only_flag)
-					count++;
-			}
-
-		} while( !FileFindNext( &find ) && count<MAX_MISSIONS);
-		FileFindClose();
-	}
+	add_missions_to_list(MISSION_DIR "*.mn2", &count, anarchy_mode);
+	add_missions_to_list(MISSION_DIR "*.msn", &count, anarchy_mode);
 
 	if (AltHogdir_initialized) {
+		char search_name[PATH_MAX + 5];
 		strcpy(search_name, AltHogDir);
 		strcat(search_name, "/" MISSION_DIR "*.mn2");
-		if( !FileFindFirst( search_name, &find ) ) {
-			do	{
-				if (stricmp(find.name,BUILTIN_MISSION)==0)
-					continue;		//skip the built-in
-
-				if (read_mission_file(find.name,count,ML_MISSIONDIR)) {
-
-					if (anarchy_mode || !Mission_list[count].anarchy_only_flag)
-						count++;
-				}
-
-			} while( !FileFindNext( &find ) && count<MAX_MISSIONS);
-			FileFindClose();
-		}
+		add_missions_to_list(search_name, &count, anarchy_mode);
+		strcpy(search_name, AltHogDir);
+		strcat(search_name, "/" MISSION_DIR "*.msn");
+		add_missions_to_list(search_name, &count, anarchy_mode);
 	}
 
 	//move vertigo to top of mission list
@@ -455,13 +452,23 @@ int load_mission(int mission_num)
 	//read mission from file 
 
 	switch (Mission_list[mission_num].location) {
-		case ML_MISSIONDIR:	strcpy(buf,MISSION_DIR);	break;
-		case ML_CDROM:			strcpy(buf,CDROM_dir);		break;
-		default:					Int3();							//fall through
-		case ML_CURDIR:		strcpy(buf,"");				break;
+	case ML_MISSIONDIR:
+		strcpy(buf,MISSION_DIR);
+		break;
+	case ML_CDROM:
+		strcpy(buf,CDROM_dir);
+		break;
+	default:
+		Int3();							//fall through
+	case ML_CURDIR:
+		strcpy(buf,"");
+		break;
 	}
 	strcat(buf,Mission_list[mission_num].filename);
-	strcat(buf,".mn2");
+	if (Mission_list[mission_num].descent_version == 2)
+		strcat(buf,".mn2");
+	else
+		strcat(buf,".msn");
 
 	mfile = cfopen(buf,"rb");
 	if (mfile == NULL) {
