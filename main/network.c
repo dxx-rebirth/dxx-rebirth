@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.19 2003-07-25 05:08:08 btb Exp $ */
+/* $Id: network.c,v 1.20 2003-10-03 08:21:28 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.19 2003-07-25 05:08:08 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.20 2003-10-03 08:21:28 btb Exp $";
 #endif
 
 #define PATCH12
@@ -3329,8 +3329,15 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 		memcpy( Players[i].callsign, TempPlayersInfo->players[i].callsign, CALLSIGN_LEN+1 );
 
 		if (Network_game_type == IPX_GAME) {
-			if ( (*(uint *)TempPlayersInfo->players[i].network.ipx.server) != 0 )
-				ipx_get_local_target( TempPlayersInfo->players[i].network.ipx.server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address );
+#ifdef WORDS_NEED_ALIGNMENT
+			uint server;
+			memcpy(&server, TempPlayersInfo->players[i].network.ipx.server, 4);
+			if (server != 0)
+				ipx_get_local_target((ubyte *)&server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
+#else // WORDS_NEED_ALIGNMENT
+			if ((*(uint *)TempPlayersInfo->players[i].network.ipx.server) != 0)
+				ipx_get_local_target(TempPlayersInfo->players[i].network.ipx.server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
+#endif // WORDS_NEED_ALIGNMENT
 			else
 				memcpy( Players[i].net_address, TempPlayersInfo->players[i].network.ipx.node, 6 );
 		}

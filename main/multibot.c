@@ -1,4 +1,4 @@
-/* $Id: multibot.c,v 1.3 2003-08-02 07:32:59 btb Exp $ */
+/* $Id: multibot.c,v 1.4 2003-10-03 08:21:28 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -372,7 +372,7 @@ multi_send_claim_robot(int objnum)
 	multibuf[0] = (char)MULTI_ROBOT_CLAIM;
 	multibuf[1] = Player_num;
 	s = objnum_local_to_remote(objnum, (byte *)&multibuf[4]);
-	*(short *)(multibuf+2) = INTEL_SHORT(s);
+	PUT_INTEL_SHORT(multibuf+2, s);
 
 	multi_send_data(multibuf, 5, 2);
 	multi_send_data(multibuf, 5, 2);
@@ -402,7 +402,7 @@ multi_send_release_robot(int objnum)
 	multibuf[0] = (char)MULTI_ROBOT_RELEASE;
 	multibuf[1] = Player_num;
 	s = objnum_local_to_remote(objnum, (byte *)&multibuf[4]);
-	*(short *)(multibuf+2) = INTEL_SHORT(s);
+	PUT_INTEL_SHORT(multibuf+2, s);
 
 	multi_send_data(multibuf, 5, 2);
 	multi_send_data(multibuf, 5, 2);
@@ -461,7 +461,7 @@ multi_send_robot_position_sub(int objnum)
 	multibuf[loc] = MULTI_ROBOT_POSITION;  								loc += 1;
 	multibuf[loc] = Player_num;											loc += 1;
 	s = objnum_local_to_remote(objnum, (byte *)&multibuf[loc+2]);
-	*(short *)(multibuf+loc) = INTEL_SHORT(s);						
+	PUT_INTEL_SHORT(multibuf+loc, s);
 
 																		loc += 3;
 #ifndef WORDS_BIGENDIAN
@@ -524,18 +524,18 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 	multibuf[loc] = MULTI_ROBOT_FIRE;						loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	s = objnum_local_to_remote(objnum, (byte *)&multibuf[loc+2]);
-	*(short *)(multibuf+loc) = INTEL_SHORT(s);
+	PUT_INTEL_SHORT(multibuf+loc, s);
 																		loc += 3;
 	multibuf[loc] = gun_num;									loc += 1;
 #ifndef WORDS_BIGENDIAN
-	*(vms_vector *)(multibuf+loc) = *fire;					loc += sizeof(vms_vector); // 12
-	// 																--------------------------
-	//																 	Total = 18
+	memcpy(multibuf+loc, fire, sizeof(vms_vector));         loc += sizeof(vms_vector); // 12
+	// --------------------------
+	//      Total = 18
 #else
 	swapped_vec.x = (fix)INTEL_INT((int)fire->x);
 	swapped_vec.y = (fix)INTEL_INT((int)fire->y);
 	swapped_vec.z = (fix)INTEL_INT((int)fire->z);
-	*(vms_vector *)(multibuf+loc) = swapped_vec;			loc += sizeof(vms_vector);
+	memcpy(multibuf+loc, &swapped_vec, sizeof(vms_vector)); loc += sizeof(vms_vector);
 #endif
 
 	if (Objects[objnum].ctype.ai_info.REMOTE_OWNER == Player_num)
@@ -572,10 +572,10 @@ multi_send_robot_explode(int objnum, int killer,char isthief)
 	multibuf[loc] = MULTI_ROBOT_EXPLODE;					loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	s = (short)objnum_local_to_remote(killer, (byte *)&multibuf[loc+2]);
-	*(short *)(multibuf+loc) = INTEL_SHORT(s);
-																		loc += 3;
+	PUT_INTEL_SHORT(multibuf+loc, s);                       loc += 3;
+
 	s = (short)objnum_local_to_remote(objnum, (byte *)&multibuf[loc+2]);
-	*(short *)(multibuf+loc) = INTEL_SHORT(s);	loc += 3;
+	PUT_INTEL_SHORT(multibuf+loc, s);                       loc += 3;
 	
 	multibuf[loc]=isthief;   loc++;
 		
@@ -594,7 +594,7 @@ multi_send_create_robot(int station, int objnum, int type)
 	multibuf[loc] = MULTI_CREATE_ROBOT;						loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	multibuf[loc] = (byte)station;							loc += 1;
-	*(short *)(multibuf+loc) = INTEL_SHORT((short)objnum);	loc += 2;
+	PUT_INTEL_SHORT(multibuf+loc, objnum);                  loc += 2;
 	multibuf[loc] = type;									loc += 1;
 
 	map_objnum_local_to_local((short)objnum);
@@ -611,12 +611,12 @@ multi_send_boss_actions(int bossobjnum, int action, int secondary, int objnum)
 	
 	multibuf[loc] = MULTI_BOSS_ACTIONS;						loc += 1;
 	multibuf[loc] = Player_num;								loc += 1; // Which player is controlling the boss
-	*(short *)(multibuf+loc) = INTEL_SHORT(bossobjnum);		loc += 2; // We won't network map this objnum since its the boss
+	PUT_INTEL_SHORT(multibuf+loc, bossobjnum);              loc += 2; // We won't network map this objnum since it's the boss
 	multibuf[loc] = (byte)action;							loc += 1; // What is the boss doing?
 	multibuf[loc] = (byte)secondary;						loc += 1; // More info for what he is doing
-	*(short *)(multibuf+loc) = INTEL_SHORT(objnum);			loc += 2; // Objnum of object created by gate-in action
+	PUT_INTEL_SHORT(multibuf+loc, objnum);                  loc += 2; // Objnum of object created by gate-in action
 	if (action == 3) {
-		*(short *)(multibuf+loc) = INTEL_SHORT(Objects[objnum].segnum); loc += 2; // Segment number object created in (for gate only)
+		PUT_INTEL_SHORT(multibuf+loc, Objects[objnum].segnum); loc += 2; // Segment number object created in (for gate only)
 	}
 	else
 																		loc += 2; // Dummy
@@ -654,14 +654,14 @@ multi_send_create_robot_powerups(object *del_obj)
 	multibuf[loc] = del_obj->contains_count;					loc += 1;
 	multibuf[loc] = del_obj->contains_type; 					loc += 1;
 	multibuf[loc] = del_obj->contains_id;						loc += 1;
-	*(short *)(multibuf+loc) = INTEL_SHORT(del_obj->segnum);	loc += 2;
+	PUT_INTEL_SHORT(multibuf+loc, del_obj->segnum);		        loc += 2;
 #ifndef WORDS_BIGENDIAN
-	*(vms_vector *)(multibuf+loc) = del_obj->pos;				loc += 12;
+	memcpy(multibuf+loc, &del_obj->pos, sizeof(vms_vector));	loc += 12;
 #else
 	swapped_vec.x = (fix)INTEL_INT((int)del_obj->pos.x);
 	swapped_vec.y = (fix)INTEL_INT((int)del_obj->pos.y);
 	swapped_vec.z = (fix)INTEL_INT((int)del_obj->pos.z);
-	*(vms_vector *)(multibuf+loc) = swapped_vec;				loc += 12;
+	memcpy(multibuf+loc, &swapped_vec, sizeof(vms_vector));     loc += 12;
 #endif
 
 	memset(multibuf+loc, -1, MAX_ROBOT_POWERUPS*sizeof(short));
@@ -675,7 +675,7 @@ multi_send_create_robot_powerups(object *del_obj)
 	}
 	for (i = 0; i < Net_create_loc; i++)
 	{
-		*(short *)(multibuf+loc) = INTEL_SHORT(Net_create_objnums[i]);
+		PUT_INTEL_SHORT(multibuf+loc, Net_create_objnums[i]);
 		loc += 2;
 		map_objnum_local_to_local(Net_create_objnums[i]);
 	}
@@ -688,13 +688,12 @@ multi_send_create_robot_powerups(object *del_obj)
 void
 multi_do_claim_robot(char *buf)
 {
-	short botnum;
-	short remote_botnum;
+	short botnum, remote_botnum;
 	char pnum;
 
 	pnum = buf[1];
 
-	remote_botnum = INTEL_SHORT(*(short *)(buf+2));
+	GET_INTEL_SHORT(remote_botnum, buf+2);
 	botnum = objnum_remote_to_local(remote_botnum, (byte)buf[4]);
 
 	if ((botnum > Highest_object_index) || (botnum < 0)) {
@@ -731,12 +730,13 @@ multi_do_claim_robot(char *buf)
 void
 multi_do_release_robot(char *buf)
 {
-	short botnum;
+	short botnum, remote_botnum;
 	char pnum;
 
 	pnum = buf[1];
 
-	botnum = objnum_remote_to_local( INTEL_SHORT( *(short *)(buf+2) ), (byte)buf[4] );
+	GET_INTEL_SHORT(remote_botnum, buf+2);
+	botnum = objnum_remote_to_local(remote_botnum, (byte)buf[4]);
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
 		mprintf((1, "Ignoring release message for object I don't have.\n"));
@@ -757,7 +757,7 @@ multi_do_release_robot(char *buf)
 	
 	// Perform the requested change
 
-	mprintf((0, "Player %d releasing control of robot %d (%d).\n", pnum, botnum, *(short *)(buf+2)));
+	mprintf((0, "Player %d releasing control of robot %d (%d).\n", pnum, botnum, remote_botnum));
 
 	Objects[botnum].ctype.ai_info.REMOTE_OWNER = -1;
 	Objects[botnum].ctype.ai_info.REMOTE_SLOT_NUM = 0;
@@ -768,7 +768,7 @@ multi_do_robot_position(char *buf)
 {
 	// Process robot movement sent by another player
 
-	short botnum;
+	short botnum, remote_botnum;
 	char pnum;
 	int loc = 1;
 #ifdef WORDS_BIGENDIAN
@@ -777,8 +777,8 @@ multi_do_robot_position(char *buf)
 
 	pnum = buf[loc];										loc += 1;
 
-	botnum = objnum_remote_to_local( INTEL_SHORT( *(short *)(buf+loc) ), (byte)buf[loc+2] );
-																loc += 3;
+	GET_INTEL_SHORT(remote_botnum, buf+loc);
+	botnum = objnum_remote_to_local(remote_botnum, (byte)buf[loc+2]); loc += 3;
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
 		mprintf((1, "Got robot position for object I don't have.\n"));
@@ -828,15 +828,17 @@ multi_do_robot_fire(char *buf)
 {
 	// Send robot fire event
 	int loc = 1;
-	int botnum, pnum, gun_num;
+	int botnum;
+	short remote_botnum;
+	int pnum, gun_num;
 	vms_vector fire, gun_point;
 	robot_info *robptr;
 
 	pnum = buf[loc];												loc += 1;
-	botnum = objnum_remote_to_local( INTEL_SHORT( *(short *)(buf+loc) ), (byte)buf[loc+2]);
-																		loc += 3;
+	GET_INTEL_SHORT(remote_botnum, buf+loc);
+	botnum = objnum_remote_to_local(remote_botnum, (byte)buf[loc+2]); loc += 3;
 	gun_num = (byte)buf[loc];											loc += 1;
-	fire = *(vms_vector *)(buf+loc);							
+	memcpy(&fire, buf+loc, sizeof(vms_vector));
 	fire.x = (fix)INTEL_INT((int)fire.x);
 	fire.y = (fix)INTEL_INT((int)fire.y);
 	fire.z = (fix)INTEL_INT((int)fire.z);
@@ -949,17 +951,18 @@ multi_do_robot_explode(char *buf)
 	// Explode robot controlled by other player
 
 	int botnum;
+	short remote_botnum;
 	int loc = 1;
-	short killer;
+	short killer, remote_killer;
 	int pnum;
 	int rval;
 	char thief;
 
 	pnum = buf[loc]; 					loc += 1;
-	killer = objnum_remote_to_local( INTEL_SHORT( *(short *)(buf+loc) ), (byte)buf[loc+2]);
-											loc += 3;
-	botnum = objnum_remote_to_local( INTEL_SHORT( *(short *)(buf+loc) ), (byte)buf[loc+2]);
-											loc += 3;
+	GET_INTEL_SHORT(remote_killer, buf+loc);
+	killer = objnum_remote_to_local(remote_killer, (byte)buf[loc+2]); loc += 3;
+	GET_INTEL_SHORT(remote_botnum, buf+loc);
+	botnum = objnum_remote_to_local(remote_botnum, (byte)buf[loc+2]); loc += 3;
    thief=buf[loc];
 
 	if ((botnum < 0) || (botnum > Highest_object_index)) {
@@ -983,12 +986,14 @@ multi_do_create_robot(char *buf)
 	
 	int fuelcen_num = buf[2];
 	int pnum = buf[1];
-	short objnum = INTEL_SHORT( *(short *)(buf+3) );
+	short objnum;
 	int type = buf[5];
 
 	FuelCenter *robotcen;
 	vms_vector cur_object_loc, direction;
 	object *obj;
+
+	GET_INTEL_SHORT(objnum, buf+3);
 
 	if ((pnum < 0) || (objnum < 0) || (fuelcen_num < 0) || (fuelcen_num >= Num_fuelcenters) || (pnum >= N_players))
 	{
@@ -1044,11 +1049,11 @@ multi_do_boss_actions(char *buf)
 	short remote_objnum, segnum;
 
 	pnum = buf[loc]; 									loc += 1;
-	boss_objnum = INTEL_SHORT( *(short *)(buf+loc) );	loc += 2;
+	GET_INTEL_SHORT(boss_objnum, buf+loc);              loc += 2;
 	action = buf[loc];									loc += 1;
 	secondary = buf[loc];								loc += 1;
-	remote_objnum = INTEL_SHORT( *(short *)(buf+loc) );	loc += 2;
-	segnum = INTEL_SHORT( *(short *)(buf+loc) );		loc += 2;
+	GET_INTEL_SHORT(remote_objnum, buf+loc);            loc += 2;
+	GET_INTEL_SHORT(segnum, buf+loc);                   loc += 2;
 	
 	if ((boss_objnum < 0) || (boss_objnum > Highest_object_index))
 	{
@@ -1153,8 +1158,8 @@ multi_do_create_robot_powerups(char *buf)
 	del_obj.contains_count = buf[loc];						loc += 1;	
 	del_obj.contains_type = buf[loc];						loc += 1;
 	del_obj.contains_id = buf[loc]; 						loc += 1;
-	del_obj.segnum = INTEL_SHORT( *(short *)(buf+loc) );	loc += 2;
-	del_obj.pos = *(vms_vector *)(buf+loc);					loc += 12;
+	GET_INTEL_SHORT(del_obj.segnum, buf+loc);               loc += 2;
+	memcpy(&del_obj.pos, buf+loc, sizeof(vms_vector));      loc += 12;
 	
 	vm_vec_zero(&del_obj.mtype.phys_info.velocity);
 
@@ -1180,7 +1185,7 @@ multi_do_create_robot_powerups(char *buf)
 	{
 		short s;
 		
-		s = INTEL_SHORT( *(short *)(buf+loc) );
+		GET_INTEL_SHORT(s, buf+loc);
 		if ( s != -1)
 			map_objnum_local_to_remote((short)Net_create_objnums[i], s, pnum);
 		else
