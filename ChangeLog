@@ -3,6 +3,7 @@
 	* arch/carbon/conf.h, arch/ogl/gr.c, include/loadgl.h: on Carbon,
 	dynamically find and load the OpenGL library on carbon
 	* main/editor/macro.c: use physfs instead of non-existing cflib.h
+	* main/editor/medwall.c: use wall_close_door_num, not wall_close_door
 
 2005-01-24  Chris Taylor  <c.taylor@student.curtin.edu.au>
 

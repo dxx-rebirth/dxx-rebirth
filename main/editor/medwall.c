@@ -1,4 +1,4 @@
-/* $Id: medwall.c,v 1.5 2005-01-24 22:24:10 schaffner Exp $ */
+/* $Id: medwall.c,v 1.6 2005-01-25 19:34:50 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: medwall.c,v 1.5 2005-01-24 22:24:10 schaffner Exp $";
+static char rcsid[] = "$Id: medwall.c,v 1.6 2005-01-25 19:34:50 schaffner Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -602,6 +602,8 @@ void do_wall_window()
 
 
 //---------------------------------------------------------------------
+extern void wall_close_door_num(int door_num);
+
 // Restore all walls to original status (closed doors, repaired walls)
 int wall_restore_all()
 {
@@ -620,7 +622,7 @@ int wall_restore_all()
 	}
 
 	for (i=0;i<Num_open_doors;i++)
-		wall_close_door(i);
+		wall_close_door_num(i);
 
 	for (i=0;i<Num_segments;i++)
 		for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
