@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.33 2003-08-02 18:14:08 btb Exp $ */
+/* $Id: piggy.c,v 1.34 2003-08-02 18:17:50 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -386,7 +386,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.33 2003-08-02 18:14:08 btb Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.34 2003-08-02 18:17:50 btb Exp $";
 #endif
 
 
@@ -1078,9 +1078,10 @@ void piggy_new_pigfile(char *pigname)
 		}
 	}
 
-	#ifndef EDITOR
-	if (!Piggy_fp) Error ("Piggy_fp not defined in piggy_new_pigfile.");
-	#endif
+#ifndef EDITOR
+	if (!Piggy_fp)
+		Error("Cannot open correct version of <%s>", pigname);
+#endif
 
 	if (Piggy_fp) {
 
