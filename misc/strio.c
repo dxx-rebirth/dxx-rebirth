@@ -1,4 +1,4 @@
-/* $Id: strio.c,v 1.4 2003-06-16 06:57:34 btb Exp $ */
+/* $Id: strio.c,v 1.5 2004-08-06 20:28:57 schaffner Exp $ */
 /*
  * strio.c: string/file manipulation functions by Victor Rachels
  */
@@ -8,6 +8,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "cfile.h"
 #include "strio.h"
@@ -15,32 +16,27 @@
 #include "u_mem.h"
 //end additions - adb
 
-char* fsplitword(CFILE *f, char splitchar)
+char *fgets_unlimited(CFILE *f)
 {
- int x,y,mem,memx;
- char *word,*buf;
-  memx=1;
-  mem=memx*256;
-  word=(char *) d_malloc(sizeof(char) * mem);
-  x=0;
-  word[x] = cfgetc(f);
-  while(word[x] != splitchar && !cfeof(f))
-  {
-     x++;
-      if(x==mem)
-       {
-	buf=word;
-	memx*=2;
-	mem=memx*256;
-	word=(char *) d_malloc(sizeof(char) * mem);
-	 for(y=0;y<x;y++)
-	  word[y]=buf[y];
-	d_free(buf);
-       }
-     word[x] = cfgetc(f);
-  }
-  word[x]=0;
-  return word;
+    int		mem = 256;
+    char	*word, *buf, *p;
+
+    MALLOC(word, char, mem);
+    p = word;
+
+    while (word && cfgets(p, mem, f) == word + mem) {
+        int i;
+        
+        // Make a bigger buffer, because it read to the end of the buffer.
+        buf = word;
+        mem *= 2;
+        MALLOC(word, char, mem);
+        for (i = 0; i < mem/2; i++)
+            word[i] = buf[i];
+        d_free(buf);
+        p = word + mem/2;
+    }
+    return word;
 }
 
 char* splitword(char *s, char splitchar)

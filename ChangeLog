@@ -1,12 +1,17 @@
-2004-07-22  Chris Taylor  <c.taylor@student.curtin.edu.au>
+2004-08-06 Chris Taylor  <c.taylor@student.curtin.edu.au>
 
-	* include/ogl_init.h: Include glu.h for Mac OS X, it is sometimes necessary
+	* include/strio.h, include/strutil.h, misc/args.c, misc/strio.c,
+	misc/strutil.c: d2x can now handle any line ending when reading d2x.ini
 
-2004-07-02  Martin Schaffner  <maschaffner@gmx.ch>
+2004-08-04 Chris Taylor  <c.taylor@student.curtin.edu.au>
 
-	* include/pstypes.h: This time, I correctly applied Chris Taylor's patch
+	* include/ogl_init.h: Include glu.h on OS X, it is sometimes necessary
 
-2004-07-01  Chris Taylor  <c.taylor@student.curtin.edu.au>
+2004-08-02  Martin Schaffner  <maschaffner@gmx.ch>
+
+	* include/pstypes.h: Now, I correctly applied Chris Taylor's patch
+
+2004-08-01  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* 2d/font.c, arch/ogl/gr.c, arch/ogl/ogl.c, mem/mem.c,
 	include/d_io.h, include/pstypes.h, include/u_dpmi.h,

@@ -1,4 +1,4 @@
-/* $Id: strutil.h,v 1.12 2004-08-01 14:01:23 schaffner Exp $ */
+/* $Id: strutil.h,v 1.13 2004-08-06 20:28:57 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,8 +16,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _STRUTILS_H
 
 #if defined(macintosh)
- extern int stricmp(char *str1, char *str2);
- extern int strnicmp(char *str1, char *str2, int n);
+ extern int stricmp(const char *str1, const char *str2);
+ extern int strnicmp(const char *str1, const char *str2, int n);
 #elif !defined(_WIN32)
 # include <string.h>
 # define stricmp(a,b) strcasecmp(a,b)

@@ -1,4 +1,4 @@
-/* $Id: strutil.c,v 1.10 2004-08-01 13:28:32 schaffner Exp $ */
+/* $Id: strutil.c,v 1.11 2004-08-06 20:28:57 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef macintosh
 // string compare without regard to case
 
-int stricmp( char *s1, char *s2 )
+int stricmp( const char *s1, const char *s2 )
 {
 	while( *s1 && *s2 )	{
 		if ( tolower(*s1) != tolower(*s2) )	return 1;
@@ -38,7 +38,7 @@ int stricmp( char *s1, char *s2 )
 	return 0;
 }
 
-int strnicmp( char *s1, char *s2, int n )
+int strnicmp( const char *s1, const char *s2, int n )
 {
 	while( *s1 && *s2 && n)	{
 		if ( tolower(*s1) != tolower(*s2) )	return 1;

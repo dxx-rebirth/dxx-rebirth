@@ -1,4 +1,4 @@
-/* $Id: args.c,v 1.12 2004-05-19 22:28:08 btb Exp $ */
+/* $Id: args.c,v 1.13 2004-08-06 20:28:57 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -57,7 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.12 2004-05-19 22:28:08 btb Exp $";
+static char rcsid[] = "$Id: args.c,v 1.13 2004-08-06 20:28:57 schaffner Exp $";
 #endif
 
 #include <stdlib.h>
@@ -140,7 +140,7 @@ void InitArgs( int argc,char **argv )
 	if(f) {
 		while(!cfeof(f))
 		{
-			line=fsplitword(f,'\n');
+			line=fgets_unlimited(f);
 			word=splitword(line,' ');
 			
 			Args[Num_args++] = d_strdup(word);
