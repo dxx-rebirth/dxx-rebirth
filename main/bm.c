@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.29 2003-03-25 10:17:05 btb Exp $ */
+/* $Id: bm.c,v 1.30 2003-03-29 02:37:17 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -568,7 +568,7 @@ void bm_read_all_d1(CFILE * fp)
 //extra items added after the release get written in an additional hamfile
 #define N_D2_ROBOT_TYPES		66
 #define N_D2_ROBOT_JOINTS		1145
-#define N_D2_POLYGON_MODELS     166 + 2 // add 2 for exit models
+#define N_D2_POLYGON_MODELS     166
 #define N_D2_OBJBITMAPS			422
 #define N_D2_OBJBITMAPPTRS		502
 #define N_D2_WEAPON_TYPES		62

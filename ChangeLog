@@ -1,5 +1,8 @@
 2003-03-28  Bradley Bell  <btb@icculus.org>
 
+	* main/bm.c: heh, model nums in vertigo are hardcoded,
+	N_D2_POLYGON_MODELS can't change
+
 	* configure.ac, include/d1x.xpm, include/descent.xpm,
 	arch/ogl/sdlgl.c, arch/sdl/gr.c: enabled setting icon with
 	SDL_image
