@@ -1,6 +1,7 @@
 2004-05-18  Martin Schaffner  <maschaffner@gmx.ch>
 
-	* include/*.bat, include/test.*: remove unnecessary files
+	* include/d.bat, include/lst.bat, include/m.bat, include/test.c,
+	include/test.lnk: remove unnecessary files
 
 2004-05-17  Dietfrid Mali  <dietfrid.mali@q-dial.de>
 
