@@ -15,7 +15,7 @@ endif
 endif
 
 if !USE_OPENGL
-VIDEO_SRCS = gr.c 
+VIDEO_SRCS = gr.c
 endif
 
 libarch_sdl_a_SOURCES = ${JOYSTICK_SRCS} ${VIDEO_SRCS} ${INPUT_SRCS} \
