@@ -1,5 +1,8 @@
 2003-10-09  Bradley Bell  <btb@icculus.org>
 
+	* main/laser.c, main/weapon.c: fixed smart missiles and smart
+	mines w/shareware data
+
 	* include/DT_drawtext.h: deleted unused file
 
 2003-10-08  Bradley Bell  <btb@icculus.org>

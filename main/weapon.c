@@ -1,4 +1,4 @@
-/* $Id: weapon.c,v 1.7 2003-10-04 03:14:48 btb Exp $ */
+/* $Id: weapon.c,v 1.8 2003-10-10 00:24:38 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -200,7 +200,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: weapon.c,v 1.7 2003-10-04 03:14:48 btb Exp $";
+static char rcsid[] = "$Id: weapon.c,v 1.8 2003-10-10 00:24:38 btb Exp $";
 #endif
 
 #include <stdlib.h>
@@ -1522,7 +1522,30 @@ extern int weapon_info_read_n(weapon_info *wi, int n, CFILE *fp, int file_versio
 		if (file_version >= 3)
 			wi[i].children = cfile_read_byte(fp);
 		else
-			wi[i].children = -1;
+			/* Set the type of children correctly when using old
+			 * datafiles.  In earlier descent versions this was simply
+			 * hard-coded in create_smart_children().
+			 */
+			switch (i)
+			{
+			case SMART_ID:
+				wi[i].children = PLAYER_SMART_HOMING_ID;
+				break;
+			case SUPERPROX_ID:
+				wi[i].children = SMART_MINE_HOMING_ID;
+				break;
+#if 0 /* not present in shareware */
+			case ROBOT_SUPERPROX_ID:
+				wi[i].children = ROBOT_SMART_MINE_HOMING_ID;
+				break;
+			case EARTHSHAKER_ID:
+				wi[i].children = EARTHSHAKER_MEGA_ID;
+				break;
+#endif
+			default:
+				wi[i].children = -1;
+				break;
+			}
 
 		wi[i].energy_usage = cfile_read_fix(fp);
 		wi[i].fire_wait = cfile_read_fix(fp);
