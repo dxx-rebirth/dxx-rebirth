@@ -1,4 +1,4 @@
-/* $Id: mission.h,v 1.12 2003-10-11 09:28:38 btb Exp $ */
+/* $Id: mission.h,v 1.13 2003-10-12 09:51:53 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -68,7 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define D1_SHAREWARE_10_MISSION_HOGSIZE 2365676
 #define D1_MAC_SHARE_MISSION_HOGSIZE    3370339
 
-#define SHAREWARE_MISSION_FILENAME  "d2demo"
+#define SHAREWARE_MISSION_FILENAME  "d2" //"d2demo"
 #define SHAREWARE_MISSION_NAME      "Descent 2 Demo"
 #define SHAREWARE_MISSION_HOGSIZE   2292566
 #define MAC_SHARE_MISSION_HOGSIZE   4292746
@@ -110,6 +110,7 @@ extern char Builtin_mission_filename[9];
 extern int Builtin_mission_hogsize;
 
 #define is_SHAREWARE (Builtin_mission_hogsize == SHAREWARE_MISSION_HOGSIZE)
+#define is_MAC_SHARE (Builtin_mission_hogsize == MAC_SHARE_MISSION_HOGSIZE)
 #define is_D2_OEM (Builtin_mission_hogsize == OEM_MISSION_HOGSIZE)
 
 //arrays of name of the level files
