@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.8 2003-03-20 03:21:11 btb Exp $ */
+/* $Id: digi.c,v 1.9 2003-03-20 03:57:29 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -380,6 +380,11 @@ int digi_start_sound_object(int obj)
 
  if (slot<0) return -1;
 
+#if 0
+ // only use up to half the sound channels for "permanant" sounts
+ if ((SoundObjects[i].flags & SOF_PERMANANT) && (N_active_sound_objects >= max(1,digi_get_max_channels()/4)) )
+	 return -1;
+#endif
 
  SoundSlots[slot].soundno = SoundObjects[obj].soundnum;
  SoundSlots[slot].samples = GameSounds[SoundObjects[obj].soundnum].data;
@@ -642,13 +647,31 @@ int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_
 	SoundObjects[i].max_distance = max_distance;
 	SoundObjects[i].volume = 0;
 	SoundObjects[i].pan = 0;
-	digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, 
+	SoundObjects[i].loop_start = SoundObjects[i].loop_end = -1;
+
+	if (Dont_start_sound_objects) {		//started at level start
+
+		SoundObjects[i].flags |= SOF_PERMANANT;
+
+		SoundObjects[i].handle =  -1;
+	}
+	else {
+
+		digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, 
 					   &SoundObjects[i].lp_position, SoundObjects[i].lp_segnum,
 					   SoundObjects[i].max_volume,
                        &SoundObjects[i].volume, &SoundObjects[i].pan, SoundObjects[i].max_distance );
 	
 	if (!forever || SoundObjects[i].volume >= MIN_VOLUME)
 		digi_start_sound_object(i);
+
+		// If it's a one-shot sound effect, and it can't start right away, then
+		// just cancel it and be done with it.
+		if ( (SoundObjects[i].handle < 0) && (!(SoundObjects[i].flags & SOF_PLAY_FOREVER)) )    {
+			SoundObjects[i].flags = 0;
+			return -1;
+		}
+	}
 
 	return SoundObjects[i].signature;
 }
