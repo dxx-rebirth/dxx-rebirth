@@ -1,4 +1,4 @@
-/* $Id: object.c,v 1.13 2004-05-22 01:06:23 btb Exp $ */
+/* $Id: object.c,v 1.14 2004-05-22 02:05:51 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2395,7 +2395,7 @@ void object_move_one( object * obj )
 			int sidemask,under_lavafall=0;
 			static int lavafall_hiss_playing[MAX_PLAYERS]={0};
 
-			sidemask = get_seg_masks(&obj->pos, obj->segnum, obj->size).sidemask;
+			sidemask = get_seg_masks(&obj->pos, obj->segnum, obj->size, __FILE__, __LINE__).sidemask;
 			if (sidemask) {
 				int sidenum,bit,wall_num;
 	
