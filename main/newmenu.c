@@ -210,15 +210,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 }
 
-#ifdef SHAREWARE
-#define MENU_BACKGROUND_BITMAP "scores.pcx"
-#else
-#ifdef RELEASE
-#define MENU_BACKGROUND_BITMAP (MenuHires?"\x01scoresb.pcx":"\x01scores.pcx")		//read only from hog file
-#else
-#define MENU_BACKGROUND_BITMAP (MenuHires?"scoresb.pcx":"scores.pcx")
-#endif
-#endif
+#define MENU_BACKGROUND_BITMAP ((MenuHires && cfexist("scoresb.pcx"))?"scoresb.pcx":"scores.pcx")
 
 int Background_hires;
 int No_darkening=0;
@@ -258,40 +250,44 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	w = x2-x1+1;
 	h = y2-y1+1;
 
-	if ( w > nm_background.bm_w ) w = nm_background.bm_w;
-	if ( h > nm_background.bm_h ) h = nm_background.bm_h;
+	//if ( w > nm_background.bm_w ) w = nm_background.bm_w;
+	//if ( h > nm_background.bm_h ) h = nm_background.bm_h;
 	
 	x2 = x1 + w - 1;
 	y2 = y1 + h - 1;
 
-WIN(DDGRLOCK(dd_grd_curcanv));
-	if (No_darkening)
-		gr_bm_bitblt(w, h, x1, y1, LHX(10), LHY(10), &nm_background, &(grd_curcanv->cv_bitmap) );
-	else
-		gr_bm_bitblt(w, h, x1, y1, 0, 0, &nm_background, &(grd_curcanv->cv_bitmap) );
+	{
+		grs_bitmap *tmp = gr_create_bitmap(w, h);
 
+		gr_bitmap_scale_to(&nm_background, tmp);
 
-if (!No_darkening)
- {
-	Gr_scanline_darkening_level = 2*7;
+		WIN(DDGRLOCK(dd_grd_curcanv));
+		if (No_darkening)
+			gr_bm_bitblt(w, h, x1, y1, LHX(10), LHY(10), tmp, &(grd_curcanv->cv_bitmap) );
+		else
+			gr_bm_bitblt(w, h, x1, y1, 0, 0, tmp, &(grd_curcanv->cv_bitmap) );
+		gr_free_bitmap(tmp);
+	}
 
+	if (!No_darkening) {
+		Gr_scanline_darkening_level = 2*7;
 
-	gr_setcolor( BM_XRGB(0,0,0) );
-	gr_urect( x2-5, y1+5, x2-5, y2-5 );
-	gr_urect( x2-4, y1+4, x2-4, y2-5 );
-	gr_urect( x2-3, y1+3, x2-3, y2-5 );
-	gr_urect( x2-2, y1+2, x2-2, y2-5 );
-	gr_urect( x2-1, y1+1, x2-1, y2-5 );
-	gr_urect( x2+0, y1+0, x2-0, y2-5 );
+		gr_setcolor( BM_XRGB(0,0,0) );
+		gr_urect( x2-5, y1+5, x2-5, y2-5 );
+		gr_urect( x2-4, y1+4, x2-4, y2-5 );
+		gr_urect( x2-3, y1+3, x2-3, y2-5 );
+		gr_urect( x2-2, y1+2, x2-2, y2-5 );
+		gr_urect( x2-1, y1+1, x2-1, y2-5 );
+		gr_urect( x2+0, y1+0, x2-0, y2-5 );
 
-	gr_urect( x1+5, y2-5, x2, y2-5 );
-	gr_urect( x1+4, y2-4, x2, y2-4 );
-	gr_urect( x1+3, y2-3, x2, y2-3 );
-	gr_urect( x1+2, y2-2, x2, y2-2 );
-	gr_urect( x1+1, y2-1, x2, y2-1 );
-	gr_urect( x1+0, y2, x2, y2-0 );
- }
-WIN(DDGRUNLOCK(dd_grd_curcanv));
+		gr_urect( x1+5, y2-5, x2, y2-5 );
+		gr_urect( x1+4, y2-4, x2, y2-4 );
+		gr_urect( x1+3, y2-3, x2, y2-3 );
+		gr_urect( x1+2, y2-2, x2, y2-2 );
+		gr_urect( x1+1, y2-1, x2, y2-1 );
+		gr_urect( x1+0, y2, x2, y2-0 );
+	}
+	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 }

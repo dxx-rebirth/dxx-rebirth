@@ -1,3 +1,4 @@
+/* $Id: scores.h,v 1.2 2002-08-02 10:57:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,23 +23,23 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	ENERGY_SCORE			0
 #define	SHIELD_SCORE			0
 #define	LASER_SCORE				0
-#define	DEBRIS_SCORE			0
-#define	CLUTTER_SCORE			0
-#define	MISSILE1_SCORE			0
-#define	MISSILE4_SCORE			0
-#define	KEY_SCORE				0
-#define	QUAD_FIRE_SCORE		0
+#define DEBRIS_SCORE            0
+#define CLUTTER_SCORE           0
+#define MISSILE1_SCORE          0
+#define MISSILE4_SCORE          0
+#define KEY_SCORE               0
+#define QUAD_FIRE_SCORE         0
 
-#define	VULCAN_AMMO_SCORE				0
-#define	CLOAK_SCORE						0
-#define	TURBO_SCORE						0
-#define	INVULNERABILITY_SCORE		0
-#define	HEADLIGHT_SCORE				0
+#define VULCAN_AMMO_SCORE       0
+#define CLOAK_SCORE             0
+#define TURBO_SCORE             0
+#define INVULNERABILITY_SCORE   0
+#define HEADLIGHT_SCORE         0
 
 extern void scores_view(int citem);
 
 // If player has a high score, adds you to file and returns.
-//	If abort_flag set, only show if player has gotten a high score.
+//  If abort_flag set, only show if player has gotten a high score.
 extern void scores_maybe_add_player(int abort_flag);
 
 #endif

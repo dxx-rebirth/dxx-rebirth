@@ -1,3 +1,4 @@
+/* $Id: scores.c,v 1.2 2002-08-02 10:57:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,13 +12,16 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef HAVE_CONFIG_H
 #include <conf.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
+#include "scores.h"
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
@@ -46,19 +50,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_HIGH_SCORES 	10
 
 typedef struct stats_info {
-  	char		name[CALLSIGN_LEN+1];
+  	char	name[CALLSIGN_LEN+1];
 	int		score;
-	byte		starting_level;
-	byte		ending_level;
+	byte	starting_level;
+	byte	ending_level;
 	byte  	diff_level;
-	short 	kill_ratio;	// 0-100
-	short		hostage_ratio;   // 
-	int		seconds;			// How long it took in seconds...
+	short 	kill_ratio;		// 0-100
+	short	hostage_ratio;  // 
+	int		seconds;		// How long it took in seconds...
 } stats_info;
 
 typedef struct all_scores {
 	char			signature[3];			// DHS
-	byte			version;					// version
+	byte			version;				// version
 	char			cool_saying[COOL_MESSAGE_LEN];
 	stats_info	stats[MAX_HIGH_SCORES];
 } all_scores;
@@ -74,8 +78,6 @@ char scores_filename[128];
 
 #define LHX(x)		((x)*(MenuHires?2:1))
 #define LHY(y)		((y)*(MenuHires?2.4:1))
-
-void scores_view(int citem);
 
 
 char * get_scores_filename()

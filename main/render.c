@@ -1,3 +1,4 @@
+/* $Id: render.c,v 1.8 2002-08-02 10:57:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,16 +13,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvs/cvsroot/d2x/main/render.c,v $
- * $Revision: 1.7 $
- * $Author: bradleyb $
- * $Date: 2001-10-25 02:19:31 $
  *
  * FIXME: put description here
- *
- * $Log: not supported by cvs2svn $
- * Revision 1.6  2001/10/18 00:01:01  bradleyb
- * RCS headers added/changed
  *
  *
  */
@@ -55,7 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "vclip.h"
 #include "lighting.h"
-#include	"cntrlcen.h"
+#include "cntrlcen.h"
 #include "newdemo.h"
 #include "automap.h"
 #include "endlevel.h"
@@ -68,7 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-#define	INITIAL_LOCAL_LIGHT	(F1_0/4)		// local light value in segment of occurence (of light emission)
+#define INITIAL_LOCAL_LIGHT (F1_0/4)    // local light value in segment of occurence (of light emission)
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -80,7 +73,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //used for checking if points have been rotated
 int	Clear_window_color=-1;
-int	Clear_window=2;			//	1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
+int	Clear_window=2;	// 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
 int RL_framecount=-1;
 short Rotated_last[MAX_VERTICES];
@@ -89,12 +82,12 @@ short Rotated_last[MAX_VERTICES];
 // access Viewer members.
 object * Viewer = NULL;
 
-vms_vector Viewer_eye;	//valid during render
+vms_vector Viewer_eye;  //valid during render
 
 int	N_render_segs;
 
 #ifndef MACINTOSH
-fix Render_zoom = 0x9000;							//the player's zoom factor
+fix Render_zoom = 0x9000;					//the player's zoom factor
 #else
 fix Render_zoom = 0xB000;
 #endif
@@ -104,7 +97,7 @@ ubyte object_rendered[MAX_OBJECTS];
 #endif
 
 #define DEFAULT_RENDER_DEPTH 16
-int Render_depth=DEFAULT_RENDER_DEPTH;			//how many segments deep to render
+int Render_depth=DEFAULT_RENDER_DEPTH;		//how many segments deep to render
 
 int	Detriangulation_on = 1;					// 1 = allow rendering of triangulated side as a quad, 0 = don't allow
 
@@ -1710,7 +1703,7 @@ void render_frame(fix eye_offset, int window_num)
 		gr_clear_canvas(Clear_window_color);
 	#endif
 
-	render_mine(start_seg_num,eye_offset, window_num);
+	render_mine(start_seg_num, eye_offset, window_num);
 
 	if (Use_player_head_angles ) 
 		draw_3d_reticle(eye_offset);

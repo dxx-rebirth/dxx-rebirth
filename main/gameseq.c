@@ -1,3 +1,4 @@
+/* $Id: gameseq.c,v 1.10 2002-08-02 10:57:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -16,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.9 2002-07-29 02:32:32 btb Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.10 2002-08-02 10:57:12 btb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -1052,11 +1053,7 @@ extern int network_endlevel_poll2( int nitems, newmenu_item * menus, int * key, 
 
 extern int N_secret_levels;
 
-#ifdef RELEASE
-#define STARS_BACKGROUND (MenuHires?"\x01starsb.pcx":"\x01stars.pcx")
-#else
-#define STARS_BACKGROUND (MenuHires?"starsb.pcx":"stars.pcx")
-#endif
+#define STARS_BACKGROUND ((MenuHires && cfexist("starsb.pcx"))?"starsb.pcx":"stars.pcx")
 
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.

@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.6 2002-07-23 21:24:11 btb Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.7 2002-08-02 10:57:12 btb Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -1526,7 +1526,7 @@ try_again:
 	while (cfgets(line,LINE_LEN,ifile)) {
 
 		if (have_binary) {
-			for (i = 0; i < strlen(line) - 1; i++) {
+			for (i = 0; i < strlen(line); i++) {
 				encode_rotate_left(&(line[i]));
 				line[i] = line[i] ^ BITMAP_TBL_XOR;
 				encode_rotate_left(&(line[i]));

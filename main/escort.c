@@ -1,3 +1,4 @@
+/* $Id: escort.c,v 1.4 2002-08-02 10:57:12 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -15,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#include <stdio.h>		//	for printf()
+#include <stdio.h>		// for printf()
 #include <stdlib.h>		// for rand() and qsort()
 #include <string.h>		// for memset()
 
@@ -980,6 +981,12 @@ int maybe_buddy_fire_mega(int objnum)
 	if (!object_to_object_visibility(buddy_objp, objp, FQ_TRANSWALL))
 		return 0;
 
+	if (Weapon_info[MEGA_ID].render_type == 0) {
+		con_printf(CON_VERBOSE, "Buddy can't fire mega (shareware)\n");
+		buddy_message("CLICK!");
+		return 0;
+	}
+
 	mprintf((0, "Buddy firing mega in frame %i\n", FrameCount));
 
 	buddy_message("GAHOOGA!");
@@ -992,7 +999,7 @@ int maybe_buddy_fire_mega(int objnum)
 	return 1;
 }
 
-//	-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 int maybe_buddy_fire_smart(int objnum)
 {
 	object	*objp = &Objects[objnum];
