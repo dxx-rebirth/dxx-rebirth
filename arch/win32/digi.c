@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.10 2004-05-22 22:58:07 btb Exp $ */
+/* $Id: digi.c,v 1.11 2004-05-22 23:01:20 btb Exp $ */
 #define DIGI_SOUND
 #define MIDI_SOUND
 
@@ -285,11 +285,11 @@ TryNextChannel:
 	}
 
 	{
-		char *ptr1, *ptr2;
+		void *ptr1, *ptr2;
 		DWORD len1, len2;
 
 		IDirectSoundBuffer_Lock(SoundSlots[slot].lpsb, 0, Sounddat(soundnum)->length,
-		                        (void **)&ptr1, &len1, (void **)&ptr2, &len2, 0);
+		                        &ptr1, &len1, &ptr2, &len2, 0);
 		memcpy(ptr1, Sounddat(soundnum)->data, MIN(len1, Sounddat(soundnum)->length));
 		IDirectSoundBuffer_Unlock(SoundSlots[slot].lpsb, ptr1, len1, ptr2, len2);
 	}
@@ -365,13 +365,13 @@ int digi_start_sound_object(int obj)
 	}
 
 	{
-		char *ptr1, *ptr2;
+		void *ptr1, *ptr2;
 		DWORD len1, len2;
 
 		IDirectSoundBuffer_Lock(SoundSlots[slot].lpsb, 0, SoundSlots[slot].length,
-		                        (void **)&ptr1, &len1, (void **)&ptr2, &len2, 0);
+		                        &ptr1, &len1, &ptr2, &len2, 0);
 		memcpy(ptr1, SoundSlots[slot].samples, MIN(len1, (int)SoundSlots[slot].length));
-		IDirectSoundBuffer_Unlock(SoundSlots[slot].lpsb, (void *)ptr1, len1, (void *)ptr2, len2);
+		IDirectSoundBuffer_Unlock(SoundSlots[slot].lpsb, ptr1, len1, ptr2, len2);
 	}
 	IDirectSoundBuffer_SetPan(SoundSlots[slot].lpsb, ((int)(f2fl(SoundSlots[slot].pan) * 20000)) - 10000);
 	IDirectSoundBuffer_SetVolume(SoundSlots[slot].lpsb, D1vol2DSvol(SoundSlots[slot].volume));

@@ -1,5 +1,7 @@
 2004-05-22  Matthew Mueller  <donut@dakotacom.net>
 
+	* arch/win32/digi.c: fix strict-aliasing errors (d1x r1.13)
+
 	* arch/win32/digi.c, arch/win32/key.c: Fix mismatched arg types in
 	the win32 code (d1x r1.8, key_arch.c r1.2)
 
