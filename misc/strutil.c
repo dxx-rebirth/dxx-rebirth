@@ -1,4 +1,4 @@
-/* $Id: strutil.c,v 1.9 2003-11-26 12:26:36 btb Exp $ */
+/* $Id: strutil.c,v 1.10 2004-08-01 13:28:32 schaffner Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "error.h"
 
-#if 0
+#ifdef macintosh
 // string compare without regard to case
 
 int stricmp( char *s1, char *s2 )

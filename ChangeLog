@@ -10,6 +10,8 @@
 	arch/carbon/findfile.c,	arch/carbon/SDL_main.c, arch/carbon/descent.r:
 	New files for supporting compilation with MPW for carbon (Mac OS 9).
 
+	* include/strutil.h, misc/strutil.c: add str(n)icmp for carbon
+
 2004-06-26  Chris Taylor  <c.taylor@student.curtin.edu.au>
 
 	* main/gamemine.c, main/gamemine.h, main/gamesave.c: remove some
