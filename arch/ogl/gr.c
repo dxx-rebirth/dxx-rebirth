@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.24 2004-05-20 07:47:28 btb Exp $ */
+/* $Id: gr.c,v 1.25 2004-05-20 23:38:18 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -178,7 +178,7 @@ void ogl_get_verinfo(void)
 	ogl_gettexlevelparam_ok = 1;
 	ogl_setgammaramp_ok = 1;
 
-#if 0 //WGL only, I think
+#ifdef WGL_VIDEO
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
 	dglActiveTextureARB = (glActiveTextureARB_fp)wglGetProcAddress("glActiveTextureARB");
 	dglMultiTexCoord2fSGIS = (glMultiTexCoord2fSGIS_fp)wglGetProcAddress("glMultiTexCoord2fSGIS");

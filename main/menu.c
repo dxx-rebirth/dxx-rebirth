@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.36 2004-05-20 01:44:09 btb Exp $ */
+/* $Id: menu.c,v 1.37 2004-05-20 23:38:20 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1430,7 +1430,7 @@ void d2x_options_menu()
 #ifdef __MSDOS__
 	Joy_is_Sidewinder=m[(checks+0)].value;
 #endif
-#ifdef __LINUX__
+#ifdef __linux__
 	Joy_is_Sidewinder=0;
 #endif
 #ifdef SUPPORTS_NICEFPS
