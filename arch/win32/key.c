@@ -1,4 +1,4 @@
-/* $Id: key.c,v 1.2 2004-05-20 22:53:53 btb Exp $ */
+/* $Id: key.c,v 1.3 2004-05-22 22:58:09 btb Exp $ */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
@@ -212,7 +212,7 @@ void key_close(void)
 
 HRESULT ReadKey (DIDEVICEOBJECTDATA *pdidod)
 {
-	ULONG cElements = 1;
+	DWORD cElements = 1;
 	HRESULT hr;
 	if (g_lpdidKeybd == NULL)
 		return E_FAIL;
@@ -223,7 +223,7 @@ HRESULT ReadKey (DIDEVICEOBJECTDATA *pdidod)
 			g_lpdidKeybd,
 			sizeof (*pdidod),
 			pdidod,
-                        (int *) &cElements,
+			&cElements,
 			0);
 		if (SUCCEEDED (hr) && cElements != 1)
 			hr = E_FAIL;
@@ -280,14 +280,14 @@ void key_flush()
 {
 	if (EnsureInit ())
 	{
-		ULONG cElements = INFINITE;
+		DWORD cElements = INFINITE;
 		ULONG kcKey;
 //                HRESULT hr =
-                               IDirectInputDevice_GetDeviceData (
-                        g_lpdidKeybd,
+		IDirectInputDevice_GetDeviceData(
+			g_lpdidKeybd,
 			sizeof (DIDEVICEOBJECTDATA),
 			NULL,
-                        (int *) &cElements,
+			&cElements,
 			0);
 
 		for (kcKey = 0; kcKey < 256; kcKey ++)

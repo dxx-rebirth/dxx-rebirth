@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.9 2004-05-22 07:51:33 btb Exp $ */
+/* $Id: digi.c,v 1.10 2004-05-22 22:58:07 btb Exp $ */
 #define DIGI_SOUND
 #define MIDI_SOUND
 
@@ -178,7 +178,7 @@ static int DS_release_slot(int slot, int kill)
 {
 	if (SoundSlots[slot].lpsb)
 	{
-		unsigned int s;
+		DWORD s;
 
 		IDirectSoundBuffer_GetStatus(SoundSlots[slot].lpsb, &s);
 		if (s & DSBSTATUS_PLAYING)
@@ -286,7 +286,7 @@ TryNextChannel:
 
 	{
 		char *ptr1, *ptr2;
-		int len1, len2;
+		DWORD len1, len2;
 
 		IDirectSoundBuffer_Lock(SoundSlots[slot].lpsb, 0, Sounddat(soundnum)->length,
 		                        (void **)&ptr1, &len1, (void **)&ptr2, &len2, 0);
@@ -366,7 +366,7 @@ int digi_start_sound_object(int obj)
 
 	{
 		char *ptr1, *ptr2;
-		int len1, len2;
+		DWORD len1, len2;
 
 		IDirectSoundBuffer_Lock(SoundSlots[slot].lpsb, 0, SoundSlots[slot].length,
 		                        (void **)&ptr1, &len1, (void **)&ptr2, &len2, 0);
