@@ -39,6 +39,7 @@ kmatrix.c multi.c multibot.c network.c \
 bmread.c
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
+Makefile.mveplay \
 descent.cfg inferno.ini \
 link.bat \
 ai.h aistruct.h automap.h bm.h bmread.h cntrlcen.h collide.h \
@@ -47,11 +48,9 @@ endlevel.h fireball.h fuelcen.h fvi.h fvi_a.h game.h gamefont.h gamemine.h \
 gamepal.h gamesave.h gameseg.h gameseq.h gamestat.h gauges.h hoard.h \
 hostage.h hudmsg.h inferno.h joydefs.h kconfig.h \
 kmatrix.h laser.h lighting.h menu.h mission.h modem.h morph.h movie.h multi.h \
-multibot.h netmisc.h network.h newdemo.h newmenu.h \
+multibot.h mveplay.h netmisc.h network.h newdemo.h newmenu.h \
 object.h paging.h physics.h piggy.h player.h playsave.h polyobj.h powerup.h \
 render.h reorder.h robot.h scores.h screens.h segment.h segpoint.h slew.h \
 songs.h sounds.h state.h switch.h terrain.h texmerge.h text.h textures.h \
 titles.h vclip.h vers_id.h wall.h weapon.h \
-dumpmine.c \
-ipserver.cpp
-
+dumpmine.c mve_main.c

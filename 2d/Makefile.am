@@ -28,5 +28,5 @@ endif
 
 EXTRA_DIST = \
 linear.asm scalea.asm tmerge_a.asm \
-bitmap.h clip.h linear.h scalea.h \
+bitmap.h clip.h scalea.h \
 scale.c tmerge.c
