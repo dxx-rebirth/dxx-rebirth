@@ -32,6 +32,9 @@
 
 	* main/titles.c: check properly whether there's a briefing
 
+	* main/mission.c: recursively search directories in "missions" 
+	for missions
+
 2005-02-11  Bradley Bell  <btb@icculus.org>
 
 	* debian/control: build-dep on libphysfs-dev

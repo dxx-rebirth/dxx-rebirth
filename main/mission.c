@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.39 2005-01-26 03:53:43 btb Exp $ */
+/* $Id: mission.c,v 1.40 2005-02-25 10:28:42 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -460,9 +460,9 @@ void add_missions_to_list(mle *mission, int anarchy_mode)
 			if (read_mission_file(mission, *i, ML_MISSIONDIR))
 			{
 				if (anarchy_mode || !mission->anarchy_only_flag) {
+					mission->builtin_hogsize = 0;
 					mission++;
 					num_missions++;
-					mission->builtin_hogsize = 0;
 				}
 				else
 					d_free(mission->filename);
