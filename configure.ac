@@ -73,8 +73,7 @@ test "x$prefix" = "xNONE" && prefix=$ac_default_prefix
 test "x$exec_prefix" = "xNONE" && exec_prefix="${prefix}"
 
 dnl Set default locations to find data files.
-eval foo="$datadir"
-default_sharepath="$foo/games/$PACKAGE"
+default_sharepath="$datadir/games/$PACKAGE"
 
 CFLAGS="-Wall $CFLAGS"
 
@@ -135,6 +134,8 @@ AC_ARG_WITH(sharepath,
 if test "x$sharepath" = "xauto" -o "x$sharepath" = "xyes" -o "x$sharepath" = "x"; then
     sharepath="$default_sharepath"
 fi
+AC_SUBST(sharepath)
+eval sharepath=$sharepath
 AC_DEFINE_UNQUOTED(SHAREPATH, "$sharepath",[Define this to be the shared game directory root])
 
 # Test for MSDOS

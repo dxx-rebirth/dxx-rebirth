@@ -47,10 +47,14 @@ changelog::
 	cd $(srcdir) && tools/cvs2cl/cvs2cl.pl -b --utc --accum
 #	rm -f $(srcdir)/ChangeLog.bak
 
+pkgdatadir = @sharepath@
+missiondir = ${pkgdatadir}/missions
+
+dist_mission_DATA = descent.msn d2demo.mn2
+
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
 ChangeLog \
 djgpp.bat djgpp.sh \
 autogen.sh cygconf \
 cvshowto.txt readme.txt installation.txt mingw32.txt compilerdefs.txt \
-d2x-sdl.sh d2x-gl.sh \
-descent.msn d2demo.mn2
+d2x-sdl.sh d2x-gl.sh
