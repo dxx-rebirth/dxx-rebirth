@@ -3,7 +3,7 @@
 #ifndef _D_IO_H
 #define _D_IO_H
 
-#ifdef __ENV_WINDOWS__
+#ifdef __WINDOWS__
 #include <io.h>
 #else
 #include <unistd.h>
