@@ -1,4 +1,4 @@
-/* $Id: hmiplay.c,v 1.6 2004-05-19 07:00:57 btb Exp $ */
+/* $Id: hmiplay.c,v 1.7 2004-05-19 19:04:41 btb Exp $ */
 /*
  * HMI midi playing routines by Jani Frilander
  *
@@ -76,6 +76,7 @@ SDL_Thread *player_thread=NULL;
 
 Voice_info *voices;
 unsigned char *data=NULL;
+char digi_last_midi_song[16] = "";
 
 struct synth_info card_info;
 
@@ -569,7 +570,8 @@ void kill_ipc()
 int do_ipc(int qid, struct msgbuf *buf, int flags)
 {
 	int ipc_read;
-	CFILE *fptr;
+	CFILE *fptr = NULL;
+	float last_volume = volume;
 	int l=0;
 	
 	ipc_read = msgrcv(qid,buf,16,0,flags | MSG_NOERROR);
@@ -587,11 +589,30 @@ int do_ipc(int qid, struct msgbuf *buf, int flags)
 		printf ("do_ipc %s\n", buf->mtext);//##########3
 		switch (buf->mtext[0])
 		{
-		 case 'v':
-			volume=(double) ((double) buf->mtext[0]/127.0);
-			break;
-		 case 'p':
-			fptr=cfopen((buf->mtext+1),"rb");		
+		case 'v':
+			volume = (double)(atof(buf->mtext + 1) / 128.0);
+			printf("vol %f->%f\n", last_volume, volume);
+			if (last_volume <= 0 && volume > 0)
+			{
+				buf->mtext[0] = 'p'; // start playing again if volume raised above 0
+				strcpy(buf->mtext + 1, digi_last_midi_song);
+				// fall through to case 'p'
+			}
+			else if (last_volume > 0 && volume <= 0)
+			{
+				strcpy(buf->mtext, "s"); // stop playing if volume reduced to 0
+				stop = 2;
+				break;
+			}
+			else
+				break;
+		case 'p':
+			if (buf->mtext[1])
+			{
+				strcpy(digi_last_midi_song, buf->mtext + 1);
+				if (volume > 0)
+					fptr = cfopen((buf->mtext + 1), "rb");
+			}
 			if(fptr != NULL)
 			{
 				l = cfilelength(fptr);
@@ -599,8 +620,13 @@ int do_ipc(int qid, struct msgbuf *buf, int flags)
 				cfread(data, l, 1, fptr);
 				cfclose(fptr);
 				printf ("good. fpr=%p l=%i data=%p\n", fptr, l, data);//##########3
+				stop = 0;
 			}
-			stop = 0;
+			else
+			{
+				strcpy(buf->mtext, "s"); // not playing, thus "stop".
+				stop = 2;
+			}
 			break;
 		 case 's':
 			stop = 2;
@@ -609,6 +635,7 @@ int do_ipc(int qid, struct msgbuf *buf, int flags)
 //			SDL_KillThread(player_thread);
 			break;  
 		}
+		//printf("do_ipc %s ret %i\n", buf->mtext, ipc_read); // ##########3
 	}
 	
 	return ipc_read;
@@ -783,12 +810,18 @@ void play_hmi (void * arg)
 	
 }
 
-void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {
-        char buf[128];
-    
-        sprintf(buf,"p%s",filename);
-        send_ipc(buf);
+void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, int loop)
+{
+	if (!filename)
+		send_ipc("p");
+	else
+	{
+		char buf[128];
+		sprintf(buf, "p%s", filename);
+		send_ipc(buf);
+	}
 }
+
 void digi_set_midi_volume( int mvolume ) { 
         char buf[128];
     
