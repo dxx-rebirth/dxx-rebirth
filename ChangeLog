@@ -1,3 +1,9 @@
+2004-12-02  Bradley Bell  <btb@icculus.org>
+
+	* include/physfsx.h: use sprintf in PHYSFSX_getRealPath() because
+	I couldn't figure out why the previous code kept segfaulting under
+	linux.
+
 2004-12-02  Martin Schaffner  <maschaffner@gmx.ch>
 
 	* configure.ac: require PhysicsFS header and library

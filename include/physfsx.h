@@ -1,4 +1,4 @@
-/* $Id: physfsx.h,v 1.4 2004-12-02 09:48:57 btb Exp $ */
+/* $Id: physfsx.h,v 1.5 2004-12-03 07:29:32 btb Exp $ */
 
 /*
  *
@@ -20,6 +20,8 @@
 #include <string.h>
 
 #include <physfs.h>
+
+#include "error.h"
 
 static inline int PHYSFSX_readString(PHYSFS_file *file, char *s)
 {
@@ -77,19 +79,14 @@ static inline int PHYSFSX_putc(PHYSFS_file *file, int c)
 static inline int PHYSFSX_getRealPath(char *stdPath, char *realPath)
 {
 	const char *realDir = PHYSFS_getRealDir(stdPath);
-	char *p;
 	char sep = *PHYSFS_getDirSeparator();
 
 	if (!realDir)
 		return 0;
 	
-	strncpy(realPath, realDir, PATH_MAX);   // some compilers (like MPW) don't have snprintf
-	p = realPath + strlen(realPath);
-	*p++ = sep;
-	*p = '\0';
-	strncat(realPath, stdPath, PATH_MAX - strlen(realPath));
-	while ((p = strchr(p, '/')))
-		*p++ = sep;
+	Assert(strlen(realDir) + 1 + strlen(stdPath) < PATH_MAX);
+
+	sprintf(realPath, "%s%c%s", realDir, sep, stdPath);
 
 	return 1;
 }
