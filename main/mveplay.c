@@ -6,7 +6,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <SDL/SDL.h>
-#include <pthread.h>
+#include <SDL/SDL_thread.h>
 
 #ifndef MIN
 #define MIN(a,b) ((a)<(b)?(a):(b))
@@ -64,7 +64,7 @@ int end_movie_handler(unsigned char major, unsigned char minor, unsigned char *d
  */
 int micro_frame_delay=0;
 int timer_started=0;
-struct timeval timer_expire = {0, 0};
+Uint32 timer_expire = 0;
 
 int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
@@ -83,50 +83,26 @@ int create_timer_handler(unsigned char major, unsigned char minor, unsigned char
 
 void timer_start(void)
 {
-    int nsec=0;
-    gettimeofday(&timer_expire, NULL);
-    timer_expire.tv_usec += micro_frame_delay;
-    if (timer_expire.tv_usec > 1000000)
-    {
-        nsec = timer_expire.tv_usec / 1000000;
-        timer_expire.tv_sec += nsec;
-        timer_expire.tv_usec -= nsec*1000000;
-    }
+    timer_expire = SDL_GetTicks();
+    timer_expire += micro_frame_delay / 1000;
     timer_started=1;
 }
 
 void do_timer_wait(void)
 {
-    int nsec=0;
-    struct timespec ts, tsRem;
-    struct timeval tv;
+    Uint32 ts, tv;
     if (! timer_started)
         return;
 
-    gettimeofday(&tv, NULL);
-    if (tv.tv_sec > timer_expire.tv_sec)
-        goto end;
-    else if (tv.tv_sec == timer_expire.tv_sec  &&  tv.tv_usec >= timer_expire.tv_usec)
+    tv = SDL_GetTicks();
+    if (tv > timer_expire)
         goto end;
 
-    ts.tv_sec = timer_expire.tv_sec - tv.tv_sec;
-    ts.tv_nsec = 1000 * (timer_expire.tv_usec - tv.tv_usec);
-    if (ts.tv_nsec < 0)
-    {
-        ts.tv_nsec += 1000000000UL;
-        --ts.tv_sec;
-    }
-    if (nanosleep(&ts, &tsRem) == -1  &&  errno == EINTR)
-        exit(1);
+    ts = timer_expire - tv;
+    SDL_Delay(ts);
 
 end:
-    timer_expire.tv_usec += micro_frame_delay;
-    if (timer_expire.tv_usec > 1000000)
-    {
-        nsec = timer_expire.tv_usec / 1000000;
-        timer_expire.tv_sec += nsec;
-        timer_expire.tv_usec -= nsec*1000000;
-    }
+    timer_expire += micro_frame_delay / 1000;
 }
 
 /*************************
@@ -141,7 +117,7 @@ int mve_audio_buftail=0;
 int mve_audio_playing=0;
 int mve_audio_canplay=0;
 SDL_AudioSpec *mve_audio_spec=NULL;
-pthread_mutex_t mve_audio_mutex = PTHREAD_MUTEX_INITIALIZER;
+SDL_mutex *mve_audio_mutex=NULL;
 
 void mve_audio_callback(void *userdata, Uint8 *stream, int len)
 {
@@ -152,7 +128,11 @@ void mve_audio_callback(void *userdata, Uint8 *stream, int len)
 
 fprintf(stderr, "+ <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 
-    pthread_mutex_lock(&mve_audio_mutex);
+    if (!mve_audio_mutex) {
+        fprintf(stderr, "mve_audio_callback: creating mutex");
+        mve_audio_mutex = SDL_CreateMutex();
+    }
+    SDL_mutexP(mve_audio_mutex);
 
     while (mve_audio_bufhead != mve_audio_buftail                                       /* while we have more buffers  */
             &&  len > (mve_audio_buflens[mve_audio_bufhead]-mve_audio_curbuf_curpos))   /* and while we need more data */
@@ -201,7 +181,7 @@ fprintf(stderr, "= <%d (%d), %d, %d>: %d\n", mve_audio_bufhead, mve_audio_curbuf
     }
 
 fprintf(stderr, "- <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
-    pthread_mutex_unlock(&mve_audio_mutex);
+    SDL_mutexV(mve_audio_mutex);
 }
 
 int create_audiobuf_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
@@ -262,7 +242,11 @@ int audio_data_handler(unsigned char major, unsigned char minor, unsigned char *
         nsamp = get_short(data + 4);
         if (chan & selected_chan)
         {
-            pthread_mutex_lock(&mve_audio_mutex);
+            if (!mve_audio_mutex) {
+                fprintf(stderr, "audio_data_handler: creating mutex");
+                mve_audio_mutex = SDL_CreateMutex();
+            }
+            SDL_mutexP(mve_audio_mutex);
             mve_audio_buflens[mve_audio_buftail] = nsamp;
             mve_audio_buffers[mve_audio_buftail] = (short *)malloc(nsamp);
             if (major == 8)
@@ -275,7 +259,7 @@ int audio_data_handler(unsigned char major, unsigned char minor, unsigned char *
 
             if (mve_audio_buftail == mve_audio_bufhead)
                 fprintf(stderr, "d'oh!  buffer ring overrun (%d)\n", mve_audio_bufhead);
-            pthread_mutex_unlock(&mve_audio_mutex);
+            SDL_mutexV(mve_audio_mutex);
         }
 
         if (mve_audio_playing)
