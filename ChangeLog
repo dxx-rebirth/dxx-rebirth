@@ -1,5 +1,8 @@
 2003-03-19  Bradley Bell  <btb@icculus.org>
 
+	* arch/sdl/digi.c, main/kludge.c: implemented
+	digi_link_sound_to_object3 for looping sounds
+
 	* arch/sdl/gr.c: removing dependencies on stuff in main/
 
 	* arch/linux/Makefile.am, arch/linux/init.c,

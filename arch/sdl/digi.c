@@ -1,4 +1,4 @@
-/* $Id: digi.c,v 1.7 2003-02-24 06:16:17 btb Exp $ */
+/* $Id: digi.c,v 1.8 2003-03-20 03:21:11 btb Exp $ */
 /*
  *
  * SDL digital audio support
@@ -116,6 +116,7 @@ static const Uint8 mix8[] =
 #define SOF_LINK_TO_OBJ		4		// Sound is linked to a moving object. If object dies, then finishes play and quits.
 #define SOF_LINK_TO_POS		8		// Sound is linked to segment, pos
 #define SOF_PLAY_FOREVER	16		// Play forever (or until level is stopped), otherwise plays once
+#define SOF_PERMANANT       32  // Part of the level, like a waterfall or fan
 
 typedef struct sound_object {
 	short		signature;		// A unique signature to this sound
@@ -126,6 +127,8 @@ typedef struct sound_object {
 	int 		pan;			// Pan value that this sound is playing at
 	int		handle; 		// What handle this sound is playing on.  Valid only if SOF_PLAYING is set.
 	short		soundnum;		// The sound number that is playing
+	int     loop_start;     // The start point of the loop. -1 means no loop
+	int     loop_end;       // The end point of the loop
 	union {	
 		struct {
 			short		segnum; 			// Used if SOF_LINK_TO_POS field is used
@@ -496,7 +499,10 @@ void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int l
 	}																					  
 }
 
-int digi_link_sound_to_object2( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance )
+//hack to not start object when loading level
+int Dont_start_sound_objects = 0;
+
+int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end )
 {
 	int i,volume,pan;
 	object * objp;
@@ -523,6 +529,12 @@ int digi_link_sound_to_object2( int org_soundnum, short objnum, int forever, fix
 		return -1;
 	}
 
+#ifdef NEWDEMO
+	if ( Newdemo_state == ND_STATE_RECORDING )		{
+		newdemo_record_link_sound_to_object3( org_soundnum, objnum, max_volume, max_distance, loop_start, loop_end );
+	}
+#endif
+
        	for (i=0; i<MAX_SOUND_OBJECTS; i++ )
         	if (SoundObjects[i].flags==0)
 	           break;
@@ -543,17 +555,40 @@ int digi_link_sound_to_object2( int org_soundnum, short objnum, int forever, fix
 	SoundObjects[i].volume = 0;
 	SoundObjects[i].pan = 0;
 	SoundObjects[i].soundnum = soundnum;
+	SoundObjects[i].loop_start = loop_start;
+	SoundObjects[i].loop_end = loop_end;
 
-	objp = &Objects[SoundObjects[i].lo_objnum];
-	digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, 
+	if (Dont_start_sound_objects) { 		//started at level start
+
+		SoundObjects[i].flags |= SOF_PERMANANT;
+		SoundObjects[i].handle =  -1;
+	}
+	else {
+		objp = &Objects[SoundObjects[i].lo_objnum];
+		digi_get_sound_loc( &Viewer->orient, &Viewer->pos, Viewer->segnum, 
                        &objp->pos, objp->segnum, SoundObjects[i].max_volume,
                        &SoundObjects[i].volume, &SoundObjects[i].pan, SoundObjects[i].max_distance );
 
-	if (!forever || SoundObjects[i].volume >= MIN_VOLUME)
+		//if (!forever || SoundObjects[i].volume >= MIN_VOLUME)
 	       digi_start_sound_object(i);
+
+		// If it's a one-shot sound effect, and it can't start right away, then
+		// just cancel it and be done with it.
+		if ( (SoundObjects[i].handle < 0) && (!(SoundObjects[i].flags & SOF_PLAY_FOREVER)) )    {
+			SoundObjects[i].flags = 0;
+			return -1;
+		}
+	}
 
 	return SoundObjects[i].signature;
 }
+
+
+int digi_link_sound_to_object2( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance )
+{
+	return digi_link_sound_to_object3( org_soundnum, objnum, forever, max_volume, max_distance, -1, -1 );
+}
+
 
 int digi_link_sound_to_object( int soundnum, short objnum, int forever, fix max_volume )
 { return digi_link_sound_to_object2( soundnum, objnum, forever, max_volume, 256*F1_0); }
