@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/include/error.h,v $
- * $Revision: 1.1.1.1 $
+ * $Revision: 1.2 $
  * $Author: bradleyb $
- * $Date: 2001-01-19 03:30:16 $
+ * $Date: 2001-01-22 15:49:14 $
  *
  * Header for error handling/printing/exiting code
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.1.1.1  2001/01/19 03:30:16  bradleyb
+ * Import of d2x-0.0.8
+ *
  * Revision 1.3  1999/10/14 04:48:21  donut
  * alpha fixes, and gl_font args
  *
@@ -68,6 +71,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  *
  */
+
+#ifndef _ERROR_H
+#define _ERROR_H
+
+#include <stdio.h>
 
 #ifdef __GNUC__
 #define __noreturn __attribute__ ((noreturn))
@@ -144,3 +152,5 @@ void Int3(void);								      //generate int3
 #define Int3() ((void)0)
 //void Int3();
 #endif
+
+#endif /* _ERROR_H */

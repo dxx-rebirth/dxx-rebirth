@@ -14,6 +14,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MONO_H
 #define _MONO_H
 
+#include <stdio.h>
 #include <stdarg.h>
 #include "console.h"
 

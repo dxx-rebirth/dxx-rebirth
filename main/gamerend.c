@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.3 2001-01-22 15:49:15 bradleyb Exp $";
 #endif
 
 
@@ -61,6 +61,10 @@ static char rcsid[] = "$Id: gamerend.c,v 1.2 2001-01-20 13:49:15 bradleyb Exp $"
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
+#endif
+
+#ifdef OGL
+#include "ogl_init.h"
 #endif
 
 extern fix Cruise_speed;

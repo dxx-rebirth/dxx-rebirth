@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.2 2001-01-20 13:49:14 bradleyb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.3 2001-01-22 15:49:14 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -107,6 +107,10 @@ char game_rcsid[] = "$Id: game.c,v 1.2 2001-01-20 13:49:14 bradleyb Exp $";
 #include "robot.h"
 #include "playsave.h"
 #include "fix.h"
+
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 int VGA_current_mode;
 

@@ -28,7 +28,7 @@
 #include "powerup.h"
 #include "polyobj.h"
 #include "gamefont.h"
-
+#include "grdef.h"
 
 #ifndef M_PI
 #define M_PI 3.14159
