@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/tmapflat.c,v $
- * $Revision: 1.3 $
+ * $Revision: 1.4 $
  * $Author: bradleyb $
- * $Date: 2001-01-31 15:18:05 $
+ * $Date: 2001-10-25 09:12:16 $
  *
  * Flat shader derived from texture mapper (a little slow)
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.3  2001/01/31 15:18:05  bradleyb
+ * Makefile and conf.h fixes
+ *
  * Revision 1.2  2001/01/31 14:04:46  bradleyb
  * Fix compiler warnings
  *
@@ -86,9 +89,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "texmap.h"
 #include "texmapl.h"
-#ifdef NO_ASM
 #include "scanline.h"
-#endif
 
 //#include "tmapext.h"
 
@@ -112,18 +113,10 @@ void tmap_scanline_flat(int y, fix xleft, fix xright)
 	fx_xright = f2i(xright);
 
 	if ( Gr_scanline_darkening_level >= GR_FADE_LEVELS )
-                #ifdef NO_ASM
-			c_tmap_scanline_flat();
-		#else
-			asm_tmap_scanline_flat();
-		#endif
+		cur_tmap_scanline_flat();
 	else	{
 		tmap_flat_shade_value = Gr_scanline_darkening_level;
-                #ifdef NO_ASM
-			c_tmap_scanline_shaded();
-		#else
-			asm_tmap_scanline_shaded();
-		#endif
+		cur_tmap_scanline_shaded();
 	}	
 }
 

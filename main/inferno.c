@@ -13,13 +13,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  * $Source: /cvs/cvsroot/d2x/main/inferno.c,v $
- * $Revision: 1.10 $
+ * $Revision: 1.11 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 02:19:31 $
+ * $Date: 2001-10-25 09:12:16 $
  *
  * FIXME: put description here
  *
  * $Log: not supported by cvs2svn $
+ * Revision 1.10  2001/10/25 02:19:31  bradleyb
+ * conditionalize including multi.h and network.h, fix backslashes, fix compiler errors with EDITOR
+ *
  * Revision 1.9  2001/10/19 08:08:50  bradleyb
  * conditionalize conf.h
  *
@@ -100,6 +103,8 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "compbit.h"
 
 // #  include "3dfx_des.h"
+
+#include "../texmap/scanline.h" //for select_tmap -MM
 
 #if defined(POLY_ACC)
 #include "poly_acc.h"
@@ -276,6 +281,7 @@ void print_commandline_help()
         printf( "  -xcontrol       %s\n","FIXME: Undocumented");
         printf( "  -xname          %s\n","FIXME: Undocumented");
         printf( "  -xver           %s\n","FIXME: Undocumented");
+        printf( "  -tmap <t>       %s\n","select texmapper to use (c,fp,i386,pent,ppro)");
 
         printf( "\n D2X System Options:\n\n");
 
@@ -507,6 +513,11 @@ int main(int argc,char **argv)
 
 	if ( FindArg( "-noscreens" ) )
 		Skip_briefing_screens = 1;
+
+	if ((t=FindArg("-tmap"))){
+		select_tmap(Args[t+1]);
+	}else
+		select_tmap(NULL);
 
 	Lighting_on = 1;
 

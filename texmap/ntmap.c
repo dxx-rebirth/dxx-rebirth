@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  * $Source: /cvs/cvsroot/d2x/texmap/ntmap.c,v $
- * $Revision: 1.4 $
+ * $Revision: 1.5 $
  * $Author: bradleyb $
- * $Date: 2001-10-25 02:22:46 $
+ * $Date: 2001-10-25 09:12:16 $
  * 
  * Start of conversion to new texture mapper.
  * 
  * $Log: not supported by cvs2svn $
+ * Revision 1.4  2001/10/25 02:22:46  bradleyb
+ * adding support for runtime selection of tmap funcs
+ *
  * Revision 1.3  2001/01/31 15:18:04  bradleyb
  * Makefile and conf.h fixes
  *
@@ -147,7 +150,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ntmap.c,v 1.4 2001-10-25 02:22:46 bradleyb Exp $";
+static char rcsid[] = "$Id: ntmap.c,v 1.5 2001-10-25 09:12:16 bradleyb Exp $";
 #endif
 
 #define VESA 0
@@ -557,16 +560,8 @@ void ntmap_scanline_lighted(grs_bitmap *srcb, int y, fix xleft, fix xright, fix 
 			fx_xright = f2i(xright);
 			fx_xleft = f2i(xleft);
 
-#if defined(FL1_WITH_FLAT) || defined(NO_ASM)
 			tmap_flat_color = 1;
-                        #ifdef NO_ASM
-			c_tmap_scanline_flat();
-			#else
-			asm_tmap_scanline_flat();
-			#endif
-#else
-			asm_tmap_scanline_matt();
-#endif
+			cur_tmap_scanline_flat();
 #else
 			Int3();	//	Illegal, called an editor only routine!
 #endif
@@ -815,15 +810,7 @@ void ntmap_scanline_lighted_linear(grs_bitmap *srcb, int y, fix xleft, fix xrigh
 					fx_xleft = 0;
 				//end addition -adb
 				
-				#ifdef NO_ASM
-					c_tmap_scanline_lin_nolight();
-				#else
-					#ifdef NO_ASM_NOLIGHT
-					asm_tmap_scanline_lin_lighted();
-					#else
-                                        asm_tmap_scanline_lin();
-					#endif
-				#endif
+				cur_tmap_scanline_lin_nolight();
 				break;
 			case 1:
 				if (lleft < F1_0/2)
@@ -858,26 +845,14 @@ void ntmap_scanline_lighted_linear(grs_bitmap *srcb, int y, fix xleft, fix xrigh
 				fx_l = lleft;
 				dl_dx = fixmul(lright - lleft,recip_dx);
 				fx_dl_dx = dl_dx;
-                                #ifdef NO_ASM
-					c_tmap_scanline_lin();
-				#else
-					asm_tmap_scanline_lin_lighted();
-				#endif
+				cur_tmap_scanline_lin();
 				break;
 			case 2:
 #ifdef EDITOR_TMAP
 				fx_xright = f2i(xright);
 				fx_xleft = f2i(xleft);
-#if defined(FL1_WITH_FLAT) || defined(NO_ASM)
 				tmap_flat_color = 1;
-                                #ifdef NO_ASM
-				c_tmap_scanline_flat();
-				#else
-				asm_tmap_scanline_flat();
-				#endif
-#else
-				asm_tmap_scanline_matt();
-#endif
+				cur_tmap_scanline_flat();
 #else
 				Int3();	//	Illegal, called an editor only routine!
 #endif
