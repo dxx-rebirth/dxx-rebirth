@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.40 2003-11-03 11:08:35 btb Exp $ */
+/* $Id: bm.c,v 1.41 2003-11-03 12:03:43 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -718,8 +718,8 @@ int load_exit_models()
 			offset2 = 383390;   /* and 394022 */
 			break;
 		default:
-		case D1_SHAREWARE_10_PIGSIZE:
 		case D1_SHARE_BIG_PIGSIZE:
+		case D1_SHARE_10_PIGSIZE:
 		case D1_SHARE_PIGSIZE:
 		case D1_10_BIG_PIGSIZE:
 		case D1_10_PIGSIZE:

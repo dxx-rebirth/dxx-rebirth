@@ -1,5 +1,8 @@
 2003-11-03  Bradley Bell  <btb@icculus.org>
 
+	* main/bm.h, main/piggy.c, main/piggy.h: big pigsize is same for
+	all d1 shareware - even though files are different!
+
 	* main/bm.h, main/piggy.c, main/piggy.h: added big pigsize for
 	shareware d1 v1.4
 
