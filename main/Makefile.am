@@ -1,6 +1,6 @@
 SUBDIRS = editor old
 
-INCLUDES = -I $(top_srcdir)/includes -fwritable-strings
+INCLUDES = -I$(top_srcdir)/includes -fwritable-strings
 
 bin_PROGRAMS = d2x
 
@@ -29,7 +29,7 @@ else
  d2x_LDADD = ../3d/lib3d.a ../2d/lib2d.a ../mem/libmem.a ../cfile/libcfile.a ../iff/libiff.a ../texmap/libtexmap.a ../misc/libmisc.a ../maths/libmaths.a ../arch/libarch.a ../video/libvideo.a ../sound/libsound.a ../input/libinput.a -lm -ldl -lpthread ${SDL_LIBS}
 
 if USE_OPENGL
- d2x_LDADD += ${OGL_LIBS} -lgii -L/usr/X11R6/lib -lXext
+ d2x_LDADD += ${OGL_LIBS}
 endif
 
 if USE_SVGALIB

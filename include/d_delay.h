@@ -3,11 +3,6 @@
 #ifndef _D_DELAY
 #define _D_DELAY
 
-//#ifdef __LINUX__
-  void d_delay (int ms);
-/*#else
-#include <dos.h>
-#define d_delay delay
-#endif
-  */
+void d_delay (int ms);
+
 #endif

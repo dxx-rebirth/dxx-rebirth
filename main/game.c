@@ -12,7 +12,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.4 2001-01-24 04:42:20 bradleyb Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.5 2001-01-28 05:53:04 bradleyb Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -107,6 +107,7 @@ char game_rcsid[] = "$Id: game.c,v 1.4 2001-01-24 04:42:20 bradleyb Exp $";
 #include "robot.h"
 #include "playsave.h"
 #include "fix.h"
+#include "d_delay.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -1151,6 +1152,8 @@ int Movie_fixed_frametime;
 #define Movie_fixed_frametime	0
 #endif
 
+static const int max_fps = 80;
+
 void calc_frame_time()
 {
 	fix timer_value,last_frametime = FrameTime;
@@ -1162,18 +1165,14 @@ void calc_frame_time()
 	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
 
-	#ifndef RELEASE
-	if (Saving_movie_frames || Movie_fixed_frametime) {
-		if (FrameTime > f1_0/15)
-			mprintf((0,"slow frame: %x\n",FrameTime));
-		else
-			do {
-				timer_value = timer_get_fixed_seconds();
-				FrameTime = timer_value - last_timer_value;
-			} while (FrameTime < f1_0/15);
-		FrameTime = f1_0/15;
-	}
-	#endif
+	do {
+	    timer_value = timer_get_fixed_seconds();
+	    FrameTime = timer_value - last_timer_value;
+	    if (FrameTime < f1_0/max_fps);
+	    {
+		d_delay(1);
+	    }
+	} while (FrameTime < f1_0/max_fps);
 
 	#if defined(TIMER_TEST) && !defined(NDEBUG)
 	_timer_value = timer_value;

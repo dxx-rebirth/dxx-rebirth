@@ -1,6 +1,6 @@
 //opengl platform specific functions for GLX - Added 9/15/99 Matthew Mueller
 #include <conf.h>
-#ifdef OGL
+#ifdef GLX_GL_VIDEO
 
 #include <X11/Xlib.h>
 #include <GL/glx.h>
