@@ -1,4 +1,4 @@
-/* $Id: gr.c,v 1.11 2003-03-15 12:07:43 btb Exp $ */
+/* $Id: gr.c,v 1.12 2003-03-30 04:06:40 btb Exp $ */
 /*
  *
  * OGL video functions. - Added 9/15/99 Matthew Mueller
@@ -62,7 +62,7 @@ int gr_installed = 0;
 
 void gr_palette_clear(); // Function prototype for gr_init;
 int gl_initialized=0;
-int gl_reticle=1;
+int gl_reticle = 0;
 
 int ogl_fullscreen=0;
 

@@ -1,5 +1,7 @@
 2003-03-29  Bradley Bell  <btb@icculus.org>
 
+	* arch/ogl/gr.c: default to bitmapped reticle
+
 	* main/bm.c, main/endlevel.c, main/piggy.c, main/piggy.h,
 	main/polyobj.c: rewrote endlevel stuff to reread exit model info
 	every time
