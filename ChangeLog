@@ -5,6 +5,8 @@
 	more convenient.  Turn debugging on.  Don't compile old files,
 	compile new ones.  Add the PhysicsFS library.
 
+	* iff/iff.c: Get rid of MIN redefinition.
+
 2004-11-30  Bradley Bell  <btb@icculus.org>
 
 	* .cvsignore, 2d/.cvsignore, 3d/.cvsignore, arch/.cvsignore,

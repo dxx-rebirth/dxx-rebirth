@@ -1,4 +1,4 @@
-/* $Id: iff.c,v 1.9 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: iff.c,v 1.10 2004-12-01 06:57:28 btb Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: iff.c,v 1.9 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: iff.c,v 1.10 2004-12-01 06:57:28 btb Exp $";
 #endif
 
 #define COMPRESS		1	//do the RLE or not? (for debugging mostly)
@@ -85,8 +85,6 @@ typedef struct fake_file {
 	int position;
 	int length;
 } FFILE;
-
-#define MIN(a,b) ((a<b)?a:b)
 
 #define MAKE_SIG(a,b,c,d) (((long)(a)<<24)+((long)(b)<<16)+((c)<<8)+(d))
 
