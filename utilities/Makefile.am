@@ -1,3 +1,5 @@
+EXTRA_SUBDIRS = texview
+
 bin_PROGRAMS = hogcreate hogextract txb2txt txt2txb
 
 hogcreate_SOURCES = hogcreate.c
