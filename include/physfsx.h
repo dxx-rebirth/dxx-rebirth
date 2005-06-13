@@ -1,4 +1,4 @@
-/* $Id: physfsx.h,v 1.10 2005-06-13 09:36:45 chris Exp $ */
+/* $Id: physfsx.h,v 1.11 2005-06-13 11:22:02 chris Exp $ */
 
 /*
  *
@@ -18,6 +18,7 @@
 #include <sys/mount.h>
 #endif
 #include <string.h>
+#include <stdarg.h>
 
 #include <physfs.h>
 
@@ -76,6 +77,17 @@ static inline int PHYSFSX_putc(PHYSFS_file *file, int c)
 		return -1;
 	else
 		return (int)c;
+}
+
+static inline int PHYSFSX_printf(PHYSFS_file *file, char *format, ...)
+{
+	char buffer[1024];
+	va_list args;
+
+	va_start(args, format);
+	vsprintf(buffer, format, args);
+
+	return PHYSFSX_puts(file, buffer);
 }
 
 #define PHYSFSX_writeFix	PHYSFS_writeSLE32

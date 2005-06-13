@@ -6,7 +6,7 @@
 	132)
 
 	* include/physfsx.h: added PHYSFSX_writeVector,
-	PHYSFSX_writeAngleVec and PHYSFSX_writeMatrix
+	PHYSFSX_writeAngleVec, PHYSFSX_writeMatrix and PHYSFSX_printf
 
 2005-04-05  Bradley Bell  <btb@icculus.org>
 
