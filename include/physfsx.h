@@ -1,4 +1,4 @@
-/* $Id: physfsx.h,v 1.9 2005-02-25 04:25:58 chris Exp $ */
+/* $Id: physfsx.h,v 1.10 2005-06-13 09:36:45 chris Exp $ */
 
 /*
  *
@@ -23,6 +23,7 @@
 
 #include "pstypes.h"
 #include "error.h"
+#include "vecmat.h"
 
 static inline int PHYSFSX_readString(PHYSFS_file *file, char *s)
 {
@@ -75,6 +76,39 @@ static inline int PHYSFSX_putc(PHYSFS_file *file, int c)
 		return -1;
 	else
 		return (int)c;
+}
+
+#define PHYSFSX_writeFix	PHYSFS_writeSLE32
+#define PHYSFSX_writeFixAng	PHYSFS_writeSLE16
+
+static inline int PHYSFSX_writeVector(PHYSFS_file *file, vms_vector *v)
+{
+	if (PHYSFSX_writeFix(file, v->x) < 1 ||
+	 PHYSFSX_writeFix(file, v->y) < 1 ||
+	 PHYSFSX_writeFix(file, v->z) < 1)
+		return 0;
+
+	return 1;
+}
+
+static inline int PHYSFSX_writeAngleVec(PHYSFS_file *file, vms_angvec *v)
+{
+	if (PHYSFSX_writeFixAng(file, v->p) < 1 ||
+	 PHYSFSX_writeFixAng(file, v->b) < 1 ||
+	 PHYSFSX_writeFixAng(file, v->h) < 1)
+		return 0;
+
+	return 1;
+}
+
+static inline int PHYSFSX_writeMatrix(PHYSFS_file *file, vms_matrix *m)
+{
+	if (PHYSFSX_writeVector(file, &m->rvec) < 1 ||
+	 PHYSFSX_writeVector(file, &m->uvec) < 1 ||
+	 PHYSFSX_writeVector(file, &m->fvec) < 1)
+		return 0;
+
+	return 1;
 }
 
 static inline int PHYSFSX_getRealPath(const char *stdPath, char *realPath)
