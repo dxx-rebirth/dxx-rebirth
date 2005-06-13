@@ -1,4 +1,4 @@
-/* $Id: gamemine.c,v 1.32 2004-12-20 06:34:42 btb Exp $ */
+/* $Id: gamemine.c,v 1.33 2005-06-13 03:05:45 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.32 2004-12-20 06:34:42 btb Exp $";
+static char rcsid[] = "$Id: gamemine.c,v 1.33 2005-06-13 03:05:45 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -288,7 +288,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 	case 195:  return  d1_pig_present ? 166 : 234;
 	case 196: return 225;
 	case 197: return 226;
-	case 198:  return  d1_pig_present ? 167 : 225;
+	case 198:  return  d1_pig_present ? 193 : 225;
 	case 199:  return  d1_pig_present ? 168 : 206; //devil:204
 	case 200:  return  d1_pig_present ? 169 : 206; //devil:204
 	case 201: return 227;

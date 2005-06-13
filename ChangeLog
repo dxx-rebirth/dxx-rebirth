@@ -1,3 +1,10 @@
+2005-06-13  Chris Taylor  <chris@icculus.org>
+
+	* main/gamemine.c: convert_d1_tmap_num now returns 193 for texture
+	number 198 to maintain bijectivity, when descent.pig is available
+	(used to return 167, which is also returned for Descent 1 texture
+	132)
+
 2005-04-05  Bradley Bell  <btb@icculus.org>
 
 	* arch/linux/joystick.c, arch/sdl/joy.c, main/kconfig.c: fix some
