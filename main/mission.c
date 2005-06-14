@@ -1,4 +1,4 @@
-/* $Id: mission.c,v 1.42 2005-02-25 12:46:24 chris Exp $ */
+/* $Id: mission.c,v 1.43 2005-06-14 07:58:26 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -447,6 +447,7 @@ void add_builtin_mission_to_list(mle *mission, char *name)
 			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
 	}
 
+	mission->path = mission->filename;
 	strcpy(name, mission->filename);
     mission->builtin_hogsize = size;
 	mission->descent_version = 2;

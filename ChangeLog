@@ -1,3 +1,7 @@
+2005-06-14  Chris Taylor  <chris@icculus.org>
+
+	* main/mission.c: make sure there is a path to free for D2 Demo/OEM
+
 2005-06-13  Chris Taylor  <chris@icculus.org>
 
 	* main/gamemine.c: convert_d1_tmap_num now returns 193 for texture
