@@ -1,4 +1,4 @@
-/* $Id: kgame.c,v 1.5 2005-01-25 20:46:55 schaffner Exp $ */
+/* $Id: kgame.c,v 1.6 2005-06-22 08:58:11 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kgame.c,v 1.5 2005-01-25 20:46:55 schaffner Exp $";
+static char rcsid[] = "$Id: kgame.c,v 1.6 2005-06-22 08:58:11 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -36,7 +36,7 @@ static char rcsid[] = "$Id: kgame.c,v 1.5 2005-01-25 20:46:55 schaffner Exp $";
 #include "gamesave.h"
 #include "gameseq.h"
 
-char game_filename[PATH_MAX] = "*.LVL";
+char game_filename[PATH_MAX] = "*.RL2";
 
 extern void checkforext( char * f, char *ext );
 
@@ -100,7 +100,7 @@ int SaveGameData()
 			return 0;
 		}
 		
-   if (ui_get_filename( game_filename, "*.LVL", "SAVE GAME" )) {
+   if (ui_get_filename( game_filename, "*.RL2", "SAVE GAME" )) {
 		int saved_flag;
 		vms_vector save_pos = ConsoleObject->pos;
 		vms_matrix save_orient = ConsoleObject->orient;
@@ -150,7 +150,7 @@ int SaveGameData()
 int LoadGameData()
 {
 if (SafetyCheck())  {
-	if (ui_get_filename( game_filename, "*.LVL", "LOAD GAME" ))
+	if (ui_get_filename( game_filename, "*.RL2", "LOAD GAME" ))
 		{
 		checkforgamext(game_filename);
 		if (load_level(game_filename))
