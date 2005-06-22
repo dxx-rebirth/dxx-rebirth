@@ -1,4 +1,4 @@
-/* $Id: mine.c,v 1.8 2005-06-22 09:21:52 chris Exp $ */
+/* $Id: mine.c,v 1.9 2005-06-22 09:42:04 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: mine.c,v 1.8 2005-06-22 09:21:52 chris Exp $";
+static char rcsid[] = "$Id: mine.c,v 1.9 2005-06-22 09:42:04 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -31,6 +31,7 @@ static char rcsid[] = "$Id: mine.c,v 1.8 2005-06-22 09:21:52 chris Exp $";
 #include <math.h>
 #include <string.h>
 
+#include "physfsx.h"
 #include "nocfile.h"
 #include "mono.h"
 #include "key.h"
@@ -46,6 +47,7 @@ static char rcsid[] = "$Id: mine.c,v 1.8 2005-06-22 09:21:52 chris Exp $";
 #include "object.h"
 
 #include "gamemine.h"
+#include "gamesave.h"
 #include "gameseg.h"
 
 #include "ui.h"			// Because texpage.h need UI_WINDOW type
@@ -60,7 +62,6 @@ static char rcsid[] = "$Id: mine.c,v 1.8 2005-06-22 09:21:52 chris Exp $";
 
 int CreateDefaultNewSegment();
 int save_mine_data(CFILE * SaveFile);
-int save_mine_data_compiled_new(FILE * SaveFile);
 
 static char	 current_tmap_list[MAX_TEXTURES][13];
 
@@ -493,7 +494,7 @@ int save_mine_data(CFILE * SaveFile)
 
 #define COMPILED_MINE_VERSION 0
 
-void dump_fix_as_short( fix value, int nbits, CFILE * SaveFile )
+void dump_fix_as_short( fix value, int nbits, PHYSFS_file *SaveFile )
 {
         int int_value=0; 
 	short short_value;
@@ -510,11 +511,11 @@ void dump_fix_as_short( fix value, int nbits, CFILE * SaveFile )
 	else
 		short_value = (short)int_value;
 
-	cfwrite( &short_value, sizeof(short_value), 1, SaveFile );
+	PHYSFS_writeSLE16(SaveFile, short_value);
 }
 
 //version of dump for unsigned values
-void dump_fix_as_ushort( fix value, int nbits, CFILE * SaveFile )
+void dump_fix_as_ushort( fix value, int nbits, PHYSFS_file *SaveFile )
 {
         uint int_value=0;
 	ushort short_value;
@@ -534,97 +535,42 @@ void dump_fix_as_ushort( fix value, int nbits, CFILE * SaveFile )
 	else
 		short_value = int_value;
 
-	cfwrite( &short_value, sizeof(short_value), 1, SaveFile );
+	PHYSFS_writeULE16(SaveFile, short_value);
 }
 
-// -----------------------------------------------------------------------------
-// saves compiled mine data to an already-open file...
-int save_mine_data_compiled(FILE * SaveFile)
+void write_children(segment *seg, ubyte bit_mask, PHYSFS_file *SaveFile)
 {
-	short i,segnum,sidenum;
-	ubyte version = COMPILED_MINE_VERSION;
+	int bit;
 
-#ifndef SHAREWARE
-	if (New_file_format_save)
-		return save_mine_data_compiled_new(SaveFile);
-#endif
-
-	med_compress_mine();
-	warn_if_concave_segments();
-
-	if (Highest_segment_index >= MAX_SEGMENTS) {
-		char	message[128];
-		sprintf(message, "Error: Too many segments (%i > %i) for game (not editor)", Highest_segment_index+1, MAX_SEGMENTS);
-		MessageBox( -2, -2, 1, message, "Ok" );
+	for (bit = 0; bit < MAX_SIDES_PER_SEGMENT; bit++)
+	{
+		if (bit_mask & (1 << bit))
+			PHYSFS_writeSLE16(SaveFile, seg->children[bit]);
 	}
-
-	if (Highest_vertex_index >= MAX_VERTICES) {
-		char	message[128];
-		sprintf(message, "Error: Too many vertices (%i > %i) for game (not editor)", Highest_vertex_index+1, MAX_VERTICES);
-		MessageBox( -2, -2, 1, message, "Ok" );
-	}
-
-	//=============================== Writing part ==============================
-	cfwrite( &version, sizeof(ubyte), 1, SaveFile );						// 1 byte = compiled version
-	cfwrite( &Num_vertices, sizeof(int), 1, SaveFile );					// 4 bytes = Num_vertices
-	cfwrite( &Num_segments, sizeof(int), 1, SaveFile );						// 4 bytes = Num_segments
-	cfwrite( Vertices, sizeof(vms_vector), Num_vertices, SaveFile );
-
-	for (segnum=0; segnum<Num_segments; segnum++ )	{
-		// Write short Segments[segnum].children[MAX_SIDES_PER_SEGMENT]
- 		cfwrite( &Segments[segnum].children, sizeof(short), MAX_SIDES_PER_SEGMENT, SaveFile );
-		// Write short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
-		cfwrite( &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, SaveFile );
-		// Write ubyte Segment2s[segnum].special
-		cfwrite(&Segment2s[segnum].special, sizeof(ubyte), 1, SaveFile);
-		// Write byte Segment2s[segnum].matcen_num
-		cfwrite(&Segment2s[segnum].matcen_num, sizeof(ubyte), 1, SaveFile);
-		// Write short Segment2s[segnum].value
-		cfwrite(&Segment2s[segnum].value, sizeof(short), 1, SaveFile);
-		// Write fix Segment2s[segnum].static_light (shift down 5 bits, write as short)
-		dump_fix_as_ushort(Segment2s[segnum].static_light, 4, SaveFile);
-		//cfwrite(&Segment2s[segnum].static_light, sizeof(fix), 1, SaveFile);
-	
-		// Write the walls as a 6 byte array
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
-			uint wallnum;
-			ubyte byte_wallnum;
-			if (Segments[segnum].sides[sidenum].wall_num<0)
-				wallnum = 255;		// Use 255 to mark no walls
-			else {
-				wallnum = Segments[segnum].sides[sidenum].wall_num;
-				Assert( wallnum < 255 );		// Get John or Mike.. can only store up to 255 walls!!! 
-			}
-			byte_wallnum = (ubyte)wallnum;
-			cfwrite( &byte_wallnum, sizeof(ubyte), 1, SaveFile );
-		}
-
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
-			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
-				// Write short Segments[segnum].sides[sidenum].tmap_num;
-				cfwrite( &Segments[segnum].sides[sidenum].tmap_num, sizeof(short), 1, SaveFile );
-				// Write short Segments[segnum].sides[sidenum].tmap_num2;
-				cfwrite( &Segments[segnum].sides[sidenum].tmap_num2, sizeof(short), 1, SaveFile );
-				// Write uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
-				for (i=0; i<4; i++ )	{
-					dump_fix_as_short( Segments[segnum].sides[sidenum].uvls[i].u, 5, SaveFile );
-					dump_fix_as_short( Segments[segnum].sides[sidenum].uvls[i].v, 5, SaveFile );
-					dump_fix_as_ushort( Segments[segnum].sides[sidenum].uvls[i].l, 1, SaveFile );
-					//cfwrite( &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1, SaveFile );
-				}	
-			}
-		}
-
-	}
-
-	return 0;
 }
 
+void write_verts(segment *seg, PHYSFS_file *SaveFile)
+{
+	int i;
+
+	for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
+		PHYSFS_writeSLE16(SaveFile, seg->verts[i]);
+}
+
+void write_special(segment2 *seg2, ubyte bit_mask, PHYSFS_file *SaveFile)
+{
+	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT))
+	{
+		PHYSFSX_writeU8(SaveFile, seg2->special);
+		PHYSFSX_writeU8(SaveFile, seg2->matcen_num);
+		PHYSFS_writeSLE16(SaveFile, seg2->value);
+	}
+}
 // -----------------------------------------------------------------------------
 // saves compiled mine data to an already-open file...
-int save_mine_data_compiled_new(FILE * SaveFile)
+int save_mine_data_compiled(PHYSFS_file *SaveFile)
 {
-	short		i, segnum, sidenum, temp_short;
+	short		i, segnum, sidenum;
 	ubyte 	version = COMPILED_MINE_VERSION;
 	ubyte		bit_mask = 0;
 
@@ -644,79 +590,118 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 	}
 
 	//=============================== Writing part ==============================
-	cfwrite( &version, sizeof(ubyte), 1, SaveFile );						// 1 byte = compiled version
-	temp_short = Num_vertices;
-	cfwrite( &temp_short, sizeof(short), 1, SaveFile );					// 2 bytes = Num_vertices
-	temp_short = Num_segments;
-	cfwrite( &temp_short, sizeof(short), 1, SaveFile );					// 2 bytes = Num_segments
-	cfwrite( Vertices, sizeof(vms_vector), Num_vertices, SaveFile );
+	PHYSFSX_writeU8(SaveFile, version);						// 1 byte = compiled version
+	if (New_file_format_save)
+	{
+		PHYSFS_writeSLE16(SaveFile, Num_vertices);					// 2 bytes = Num_vertices
+		PHYSFS_writeSLE16(SaveFile, Num_segments);					// 2 bytes = Num_segments
+	}
+	else
+	{
+		PHYSFS_writeSLE32(SaveFile, Num_vertices);					// 4 bytes = Num_vertices
+		PHYSFS_writeSLE32(SaveFile, Num_segments);					// 4 bytes = Num_segments
+	}
 
-	for (segnum=0; segnum<Num_segments; segnum++ )	{
+	for (i = 0; i < Num_vertices; i++)
+		PHYSFSX_writeVector(SaveFile, &(Vertices[i]));
+	
+	for (segnum = 0; segnum < Num_segments; segnum++)
+	{
+		segment *seg = &Segments[segnum];
+		segment2 *seg2 = &Segment2s[segnum];
 
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
- 			if (Segments[segnum].children[sidenum] != -1)
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
+ 			if (seg->children[sidenum] != -1)
 				bit_mask |= (1 << sidenum);
 		}
 
-		if ((Segment2s[segnum].special != 0) || (Segment2s[segnum].matcen_num != 0) || (Segment2s[segnum].value != 0))
+		if ((seg2->special != 0) || (seg2->matcen_num != 0) || (seg2->value != 0))
 			bit_mask |= (1 << MAX_SIDES_PER_SEGMENT);
 
- 		cfwrite( &bit_mask, sizeof(ubyte), 1, SaveFile );
+		if (New_file_format_save)
+			PHYSFSX_writeU8(SaveFile, bit_mask);
+		else
+			bit_mask = 0x7F;
 
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
- 			if (bit_mask & (1 << sidenum))
-		 		cfwrite( &Segments[segnum].children[sidenum], sizeof(short), 1, SaveFile );
+		if (Gamesave_current_version == 5)	// d2 SHAREWARE level
+		{
+			write_special(seg2, bit_mask, SaveFile);
+			write_verts(seg, SaveFile);
+			write_children(seg, bit_mask, SaveFile);
+		}
+		else
+		{
+			write_children(seg, bit_mask, SaveFile);
+			write_verts(seg, SaveFile);
+			if (Gamesave_current_version <= 1) // descent 1 level
+				write_special(seg2, bit_mask, SaveFile);
 		}
 
-		cfwrite( &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, SaveFile );
-
-		if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
-			cfwrite(&Segment2s[segnum].special, sizeof(ubyte), 1, SaveFile);
-			cfwrite(&Segment2s[segnum].matcen_num, sizeof(ubyte), 1, SaveFile);
-			cfwrite(&Segment2s[segnum].value, sizeof(short), 1, SaveFile);
-		}
-
-		dump_fix_as_ushort(Segment2s[segnum].static_light, 4, SaveFile);
+		if (Gamesave_current_version <= 5) // descent 1 thru d2 SHAREWARE level
+			dump_fix_as_ushort(seg2->static_light, 4, SaveFile);
 	
 		// Write the walls as a 6 byte array
 		bit_mask = 0;
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
 			uint wallnum;
-			if (Segments[segnum].sides[sidenum].wall_num >= 0) {
+
+			if (seg->sides[sidenum].wall_num >= 0)
+			{
 				bit_mask |= (1 << sidenum);
-				wallnum = Segments[segnum].sides[sidenum].wall_num;
+				wallnum = seg->sides[sidenum].wall_num;
 				Assert( wallnum < 255 );		// Get John or Mike.. can only store up to 255 walls!!! 
 			}
 		}
-		cfwrite( &bit_mask, sizeof(ubyte), 1, SaveFile );
+		if (New_file_format_save)
+			PHYSFSX_writeU8(SaveFile, bit_mask);
+		else
+			bit_mask = 0x3F;
 
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
 			if (bit_mask & (1 << sidenum))
-				cfwrite( &Segments[segnum].sides[sidenum].wall_num, sizeof(ubyte), 1, SaveFile );
+				PHYSFSX_writeU8(SaveFile, seg->sides[sidenum].wall_num);
 		}
 
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
-			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
+		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++)
+		{
+			if ((seg->children[sidenum] == -1) || (seg->sides[sidenum].wall_num != -1))
+			{
 				ushort	tmap_num, tmap_num2;
 
-				tmap_num = Segments[segnum].sides[sidenum].tmap_num;
-				tmap_num2 = Segments[segnum].sides[sidenum].tmap_num2;
-				if (tmap_num2 != 0)
+				tmap_num = seg->sides[sidenum].tmap_num;
+				tmap_num2 = seg->sides[sidenum].tmap_num2;
+
+				if (Gamesave_current_version <= 3)	// convert texture numbers back to d1
+				{
+					tmap_num = convert_to_d1_tmap_num(tmap_num);
+					if (tmap_num2)
+						tmap_num2 = convert_to_d1_tmap_num(tmap_num2);
+				}
+
+				if (tmap_num2 != 0 && New_file_format_save)
 					tmap_num |= 0x8000;
 
-				cfwrite( &tmap_num, sizeof(ushort), 1, SaveFile );
-				if (tmap_num2 != 0)
-					cfwrite( &tmap_num2, sizeof(ushort), 1, SaveFile );
+				PHYSFS_writeSLE16(SaveFile, tmap_num);
+				if (tmap_num2 != 0 || !New_file_format_save)
+					PHYSFS_writeSLE16(SaveFile, tmap_num2);
 
-				for (i=0; i<4; i++ )	{
-					dump_fix_as_short( Segments[segnum].sides[sidenum].uvls[i].u, 5, SaveFile );
-					dump_fix_as_short( Segments[segnum].sides[sidenum].uvls[i].v, 5, SaveFile );
-					dump_fix_as_ushort( Segments[segnum].sides[sidenum].uvls[i].l, 1, SaveFile );
+				for (i = 0; i < 4; i++)
+				{
+					dump_fix_as_short(seg->sides[sidenum].uvls[i].u, 5, SaveFile);
+					dump_fix_as_short(seg->sides[sidenum].uvls[i].v, 5, SaveFile);
+					dump_fix_as_ushort(seg->sides[sidenum].uvls[i].l, 1, SaveFile);
 				}	
 			}
 		}
 
 	}
+
+	if (Gamesave_current_version > 5)
+		for (i = 0; i < Num_segments; i++)
+			segment2_write(&Segment2s[i], SaveFile);
 
 	return 0;
 }

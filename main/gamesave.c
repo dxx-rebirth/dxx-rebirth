@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.31 2005-03-12 07:50:53 chris Exp $ */
+/* $Id: gamesave.c,v 1.32 2005-06-22 09:42:04 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.31 2005-03-12 07:50:53 chris Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.32 2005-06-22 09:42:04 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -136,7 +136,7 @@ struct {
 //  LINT: adding function prototypes
 void read_object(object *obj, CFILE *f, int version);
 #ifdef EDITOR
-void write_object(object *obj, FILE *f);
+void write_object(object *obj, short version, PHYSFS_file *f);
 void do_load_save_levels(int save);
 #endif
 #ifndef NDEBUG
@@ -148,7 +148,7 @@ extern char PowerupsInMine[MAX_POWERUP_TYPES];
 
 #ifdef EDITOR
 extern char mine_filename[];
-extern int save_mine_data_compiled(FILE * SaveFile);
+extern int save_mine_data_compiled(PHYSFS_file *SaveFile);
 //--unused-- #else
 //--unused-- char mine_filename[128];
 #endif
@@ -365,65 +365,6 @@ void verify_object( object * obj )	{
 //	cfseek(file,len,SEEK_CUR);
 //}
 
-#ifdef EDITOR
-static void gs_write_int(int i,FILE *file)
-{
-	if (fwrite( &i, sizeof(i), 1, file) != 1)
-		Error( "Error reading int in gamesave.c" );
-
-}
-
-static void gs_write_fix(fix f,FILE *file)
-{
-	if (fwrite( &f, sizeof(f), 1, file) != 1)
-		Error( "Error reading fix in gamesave.c" );
-
-}
-
-static void gs_write_short(short s,FILE *file)
-{
-	if (fwrite( &s, sizeof(s), 1, file) != 1)
-		Error( "Error reading short in gamesave.c" );
-
-}
-
-static void gs_write_fixang(fixang f,FILE *file)
-{
-	if (fwrite( &f, sizeof(f), 1, file) != 1)
-		Error( "Error reading fixang in gamesave.c" );
-
-}
-
-static void gs_write_byte(sbyte b,FILE *file)
-{
-	if (fwrite( &b, sizeof(b), 1, file) != 1)
-		Error( "Error reading byte in gamesave.c" );
-
-}
-
-static void gr_write_vector(vms_vector *v,FILE *file)
-{
-	gs_write_fix(v->x,file);
-	gs_write_fix(v->y,file);
-	gs_write_fix(v->z,file);
-}
-
-static void gs_write_matrix(vms_matrix *m,FILE *file)
-{
-	gr_write_vector(&m->rvec,file);
-	gr_write_vector(&m->uvec,file);
-	gr_write_vector(&m->fvec,file);
-}
-
-static void gs_write_angvec(vms_angvec *v,FILE *file)
-{
-	gs_write_fixang(v->p,file);
-	gs_write_fixang(v->b,file);
-	gs_write_fixang(v->h,file);
-}
-
-#endif
-
 
 extern int multi_powerup_is_4pack(int);
 //reads one object of the given version from the given file
@@ -632,52 +573,52 @@ void read_object(object *obj,CFILE *f,int version)
 #ifdef EDITOR
 
 //writes one object to the given file
-void write_object(object *obj,FILE *f)
+void write_object(object *obj, short version, PHYSFS_file *f)
 {
-	gs_write_byte(obj->type,f);
-	gs_write_byte(obj->id,f);
+	PHYSFSX_writeU8(f, obj->type);
+	PHYSFSX_writeU8(f, obj->id);
 
-	gs_write_byte(obj->control_type,f);
-	gs_write_byte(obj->movement_type,f);
-	gs_write_byte(obj->render_type,f);
-	gs_write_byte(obj->flags,f);
+	PHYSFSX_writeU8(f, obj->control_type);
+	PHYSFSX_writeU8(f, obj->movement_type);
+	PHYSFSX_writeU8(f, obj->render_type);
+	PHYSFSX_writeU8(f, obj->flags);
 
-	gs_write_short(obj->segnum,f);
+	PHYSFS_writeSLE16(f, obj->segnum);
 
-	gr_write_vector(&obj->pos,f);
-	gs_write_matrix(&obj->orient,f);
+	PHYSFSX_writeVector(f, &obj->pos);
+	PHYSFSX_writeMatrix(f, &obj->orient);
 
-	gs_write_fix(obj->size,f);
-	gs_write_fix(obj->shields,f);
+	PHYSFSX_writeFix(f, obj->size);
+	PHYSFSX_writeFix(f, obj->shields);
 
-	gr_write_vector(&obj->last_pos,f);
+	PHYSFSX_writeVector(f, &obj->last_pos);
 
-	gs_write_byte(obj->contains_type,f);
-	gs_write_byte(obj->contains_id,f);
-	gs_write_byte(obj->contains_count,f);
+	PHYSFSX_writeU8(f, obj->contains_type);
+	PHYSFSX_writeU8(f, obj->contains_id);
+	PHYSFSX_writeU8(f, obj->contains_count);
 
 	switch (obj->movement_type) {
 
 		case MT_PHYSICS:
 
-	 		gr_write_vector(&obj->mtype.phys_info.velocity,f);
-			gr_write_vector(&obj->mtype.phys_info.thrust,f);
+	 		PHYSFSX_writeVector(f, &obj->mtype.phys_info.velocity);
+			PHYSFSX_writeVector(f, &obj->mtype.phys_info.thrust);
 
-			gs_write_fix(obj->mtype.phys_info.mass,f);
-			gs_write_fix(obj->mtype.phys_info.drag,f);
-			gs_write_fix(obj->mtype.phys_info.brakes,f);
+			PHYSFSX_writeFix(f, obj->mtype.phys_info.mass);
+			PHYSFSX_writeFix(f, obj->mtype.phys_info.drag);
+			PHYSFSX_writeFix(f, obj->mtype.phys_info.brakes);
 
-			gr_write_vector(&obj->mtype.phys_info.rotvel,f);
-			gr_write_vector(&obj->mtype.phys_info.rotthrust,f);
+			PHYSFSX_writeVector(f, &obj->mtype.phys_info.rotvel);
+			PHYSFSX_writeVector(f, &obj->mtype.phys_info.rotthrust);
 
-			gs_write_fixang(obj->mtype.phys_info.turnroll,f);
-			gs_write_short(obj->mtype.phys_info.flags,f);
+			PHYSFSX_writeFixAng(f, obj->mtype.phys_info.turnroll);
+			PHYSFS_writeSLE16(f, obj->mtype.phys_info.flags);
 
 			break;
 
 		case MT_SPINNING:
 
-			gr_write_vector(&obj->mtype.spin_rate,f);
+			PHYSFSX_writeVector(f, &obj->mtype.spin_rate);
 			break;
 
 		case MT_NONE:
@@ -692,27 +633,30 @@ void write_object(object *obj,FILE *f)
 		case CT_AI: {
 			int i;
 
-			gs_write_byte(obj->ctype.ai_info.behavior,f);
+			PHYSFSX_writeU8(f, obj->ctype.ai_info.behavior);
 
-			for (i=0;i<MAX_AI_FLAGS;i++)
-				gs_write_byte(obj->ctype.ai_info.flags[i],f);
+			for (i = 0; i < MAX_AI_FLAGS; i++)
+				PHYSFSX_writeU8(f, obj->ctype.ai_info.flags[i]);
 
-			gs_write_short(obj->ctype.ai_info.hide_segment,f);
-			gs_write_short(obj->ctype.ai_info.hide_index,f);
-			gs_write_short(obj->ctype.ai_info.path_length,f);
-			gs_write_short(obj->ctype.ai_info.cur_path_index,f);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.hide_segment);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.hide_index);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.path_length);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.cur_path_index);
 
-			// -- unused! mk, 08/13/95 -- gs_write_short(obj->ctype.ai_info.follow_path_start_seg,f);
-			// -- unused! mk, 08/13/95 -- gs_write_short(obj->ctype.ai_info.follow_path_end_seg,f);
+			if (version <= 25)
+			{
+				PHYSFS_writeSLE16(f, -1);	//obj->ctype.ai_info.follow_path_start_seg
+				PHYSFS_writeSLE16(f, -1);	//obj->ctype.ai_info.follow_path_end_seg
+			}
 
 			break;
 		}
 
 		case CT_EXPLOSION:
 
-			gs_write_fix(obj->ctype.expl_info.spawn_time,f);
-			gs_write_fix(obj->ctype.expl_info.delete_time,f);
-			gs_write_short(obj->ctype.expl_info.delete_objnum,f);
+			PHYSFSX_writeFix(f, obj->ctype.expl_info.spawn_time);
+			PHYSFSX_writeFix(f, obj->ctype.expl_info.delete_time);
+			PHYSFS_writeSLE16(f, obj->ctype.expl_info.delete_objnum);
 
 			break;
 
@@ -720,20 +664,21 @@ void write_object(object *obj,FILE *f)
 
 			//do I really need to write these objects?
 
-			gs_write_short(obj->ctype.laser_info.parent_type,f);
-			gs_write_short(obj->ctype.laser_info.parent_num,f);
-			gs_write_int(obj->ctype.laser_info.parent_signature,f);
+			PHYSFS_writeSLE16(f, obj->ctype.laser_info.parent_type);
+			PHYSFS_writeSLE16(f, obj->ctype.laser_info.parent_num);
+			PHYSFS_writeSLE32(f, obj->ctype.laser_info.parent_signature);
 
 			break;
 
 		case CT_LIGHT:
 
-			gs_write_fix(obj->ctype.light_info.intensity,f);
+			PHYSFSX_writeFix(f, obj->ctype.light_info.intensity);
 			break;
 
 		case CT_POWERUP:
 
-			gs_write_int(obj->ctype.powerup_info.count,f);
+			if (version >= 25)
+				PHYSFS_writeSLE32(f, obj->ctype.powerup_info.count);
 			break;
 
 		case CT_NONE:
@@ -764,14 +709,14 @@ void write_object(object *obj,FILE *f)
 		case RT_POLYOBJ: {
 			int i;
 
-			gs_write_int(obj->rtype.pobj_info.model_num,f);
+			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.model_num);
 
-			for (i=0;i<MAX_SUBMODELS;i++)
-				gs_write_angvec(&obj->rtype.pobj_info.anim_angles[i],f);
+			for (i = 0; i < MAX_SUBMODELS; i++)
+				PHYSFSX_writeAngleVec(f, &obj->rtype.pobj_info.anim_angles[i]);
 
-			gs_write_int(obj->rtype.pobj_info.subobj_flags,f);
+			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.subobj_flags);
 
-			gs_write_int(obj->rtype.pobj_info.tmap_override,f);
+			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.tmap_override);
 
 			break;
 		}
@@ -781,9 +726,9 @@ void write_object(object *obj,FILE *f)
 		case RT_POWERUP:
 		case RT_FIREBALL:
 
-			gs_write_int(obj->rtype.vclip_info.vclip_num,f);
-			gs_write_fix(obj->rtype.vclip_info.frametime,f);
-			gs_write_byte(obj->rtype.vclip_info.framenum,f);
+			PHYSFS_writeSLE32(f, obj->rtype.vclip_info.vclip_num);
+			PHYSFSX_writeFix(f, obj->rtype.vclip_info.frametime);
+			PHYSFSX_writeU8(f, obj->rtype.vclip_info.framenum);
 
 			break;
 
@@ -1272,6 +1217,7 @@ extern void ncache_flush();
 #endif
 
 extern int Slide_segs_computed;
+extern int d1_pig_present;
 
 int no_old_level_file_error=0;
 
@@ -1467,20 +1413,16 @@ int load_level(char * filename_passed)
 	#endif
 
 	#ifdef EDITOR
-	//If an old version, ask the use if he wants to save as new version
-	if (!no_old_level_file_error && (Function_mode == FMODE_EDITOR) && (((LEVEL_FILE_VERSION > 3) && Gamesave_current_version < LEVEL_FILE_VERSION) || mine_err == 1 || game_err == 1)) {
-		char  ErrorMessage[200];
+	//If a Descent 1 level and the Descent 1 pig isn't present, pretend it's a Descent 2 level.
+	if ((Function_mode == FMODE_EDITOR) && (Gamesave_current_version <= 3) && !d1_pig_present)
+	{
+		if (!no_old_level_file_error)
+			Warning("A Descent 1 level was loaded,\n"
+					"and there is no Descent 1 texture\n"
+					"set available. Saving it will\n"
+					"convert it to a Descent 2 level.");
 
-		sprintf( ErrorMessage,
-					"You just loaded a old version\n"
-					"level.  Would you like to save\n"
-					"it as a current version level?");
-
-		stop_time();
-		gr_palette_load(gr_palette);
-		if (nm_messagebox( NULL, 2, "Don't Save", "Save", ErrorMessage )==1)
-			save_level(filename);
-		start_time();
+		Gamesave_current_version = LEVEL_FILE_VERSION;
 	}
 	#endif
 
@@ -1563,133 +1505,140 @@ int compute_num_delta_light_records(void)
 
 // -----------------------------------------------------------------------------
 // Save game
-int save_game_data(FILE * SaveFile)
+int save_game_data(PHYSFS_file *SaveFile)
 {
+	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : 25;
 	int  player_offset, object_offset, walls_offset, doors_offset, triggers_offset, control_offset, matcen_offset; //, links_offset;
 	int	dl_indices_offset, delta_light_offset;
-	int start_offset,end_offset;
-
-	start_offset = ftell(SaveFile);
+	int offset_offset, end_offset;
+	int num_delta_lights;
+	int i;
 
 	//===================== SAVE FILE INFO ========================
 
-	game_fileinfo.fileinfo_signature =	0x6705;
-	game_fileinfo.fileinfo_version	=	GAME_VERSION;
-	game_fileinfo.level					=  Current_level_num;
-	game_fileinfo.fileinfo_sizeof		=	sizeof(game_fileinfo);
-	game_fileinfo.player_offset		=	-1;
-	game_fileinfo.player_sizeof		=	sizeof(player);
-	game_fileinfo.object_offset		=	-1;
-	game_fileinfo.object_howmany		=	Highest_object_index+1;
-	game_fileinfo.object_sizeof		=	sizeof(object);
-	game_fileinfo.walls_offset			=	-1;
-	game_fileinfo.walls_howmany		=	Num_walls;
-	game_fileinfo.walls_sizeof			=	sizeof(wall);
-	game_fileinfo.doors_offset			=	-1;
-	game_fileinfo.doors_howmany		=	Num_open_doors;
-	game_fileinfo.doors_sizeof			=	sizeof(active_door);
-	game_fileinfo.triggers_offset		=	-1;
-	game_fileinfo.triggers_howmany	=	Num_triggers;
-	game_fileinfo.triggers_sizeof		=	sizeof(trigger);
-	game_fileinfo.control_offset		=	-1;
-	game_fileinfo.control_howmany		=  1;
-	game_fileinfo.control_sizeof		=  sizeof(control_center_triggers);
- 	game_fileinfo.matcen_offset		=	-1;
-	game_fileinfo.matcen_howmany		=	Num_robot_centers;
-	game_fileinfo.matcen_sizeof		=	sizeof(matcen_info);
+	PHYSFS_writeSLE16(SaveFile, 0x6705);	// signature
+	PHYSFS_writeSLE16(SaveFile, game_top_fileinfo_version);
+	PHYSFS_writeSLE32(SaveFile, sizeof(game_fileinfo));
+	PHYSFS_write(SaveFile, Current_level_name, 15, 1);
+	PHYSFS_writeSLE32(SaveFile, Current_level_num);
+	offset_offset = PHYSFS_tell(SaveFile);	// write the offsets later
+	PHYSFS_writeSLE32(SaveFile, -1);
+	PHYSFS_writeSLE32(SaveFile, sizeof(player));
 
- 	game_fileinfo.dl_indices_offset		=	-1;
-	game_fileinfo.dl_indices_howmany		=	Num_static_lights;
-	game_fileinfo.dl_indices_sizeof		=	sizeof(dl_index);
+#define WRITE_HEADER_ENTRY(t, n) do { PHYSFS_writeSLE32(SaveFile, -1); PHYSFS_writeSLE32(SaveFile, n); PHYSFS_writeSLE32(SaveFile, sizeof(t)); } while(0)
 
- 	game_fileinfo.delta_light_offset		=	-1;
-	game_fileinfo.delta_light_howmany	=	compute_num_delta_light_records();
-	game_fileinfo.delta_light_sizeof		=	sizeof(delta_light);
+	WRITE_HEADER_ENTRY(object, Highest_object_index + 1);
+	WRITE_HEADER_ENTRY(wall, Num_walls);
+	WRITE_HEADER_ENTRY(active_door, Num_open_doors);
+	WRITE_HEADER_ENTRY(trigger, Num_triggers);
+	WRITE_HEADER_ENTRY(0, 0);		// links (removed by Parallax)
+	WRITE_HEADER_ENTRY(control_center_triggers, 1);
+	WRITE_HEADER_ENTRY(matcen_info, Num_robot_centers);
 
-	// Write the fileinfo
-	fwrite( &game_fileinfo, sizeof(game_fileinfo), 1, SaveFile );
+	if (game_top_fileinfo_version >= 29)
+	{
+		WRITE_HEADER_ENTRY(dl_index, Num_static_lights);
+		WRITE_HEADER_ENTRY(delta_light, num_delta_lights = compute_num_delta_light_records());
+	}
 
 	// Write the mine name
-	fprintf(SaveFile,"%s\n",Current_level_name);
+	if (game_top_fileinfo_version >= 31)
+		PHYSFSX_printf(SaveFile, "%s\n", Current_level_name);
+	else if (game_top_fileinfo_version >= 14)
+		PHYSFSX_writeString(SaveFile, Current_level_name);
 
-	fwrite(&N_polygon_models,2,1,SaveFile);
-	fwrite(Pof_names,N_polygon_models,sizeof(*Pof_names),SaveFile);
+	if (game_top_fileinfo_version >= 19)
+	{
+		PHYSFS_writeSLE16(SaveFile, N_polygon_models);
+		PHYSFS_write(SaveFile, Pof_names, sizeof(*Pof_names), N_polygon_models);
+	}
 
 	//==================== SAVE PLAYER INFO ===========================
 
-	player_offset = ftell(SaveFile);
-	fwrite( &Players[Player_num], sizeof(player), 1, SaveFile );
+	player_offset = PHYSFS_tell(SaveFile);
+	PHYSFS_write(SaveFile, &Players[Player_num], sizeof(player), 1);	// not endian friendly, but not used either
 
 	//==================== SAVE OBJECT INFO ===========================
 
-	object_offset = ftell(SaveFile);
+	object_offset = PHYSFS_tell(SaveFile);
 	//fwrite( &Objects, sizeof(object), game_fileinfo.object_howmany, SaveFile );
 	{
-		int i;
-		for (i=0;i<game_fileinfo.object_howmany;i++)
-			write_object(&Objects[i],SaveFile);
+		for (i = 0; i <= Highest_object_index; i++)
+			write_object(&Objects[i], game_top_fileinfo_version, SaveFile);
 	}
 
 	//==================== SAVE WALL INFO =============================
 
-	walls_offset = ftell(SaveFile);
-	fwrite( Walls, sizeof(wall), game_fileinfo.walls_howmany, SaveFile );
+	walls_offset = PHYSFS_tell(SaveFile);
+	for (i = 0; i < Num_walls; i++)
+		wall_write(&Walls[i], game_top_fileinfo_version, SaveFile);
 
 	//==================== SAVE DOOR INFO =============================
 
-	doors_offset = ftell(SaveFile);
-	fwrite( ActiveDoors, sizeof(active_door), game_fileinfo.doors_howmany, SaveFile );
+#if 0
+	doors_offset = PHYSFS_tell(SaveFile);
+	for (i = 0; i < Num_open_doors; i++)
+		door_write(&ActiveDoors[i], game_top_fileinfo_version, SaveFile);
+#endif
 
 	//==================== SAVE TRIGGER INFO =============================
 
-	triggers_offset = ftell(SaveFile);
-	fwrite( Triggers, sizeof(trigger), game_fileinfo.triggers_howmany, SaveFile );
+	triggers_offset = PHYSFS_tell(SaveFile);
+	for (i = 0; i < Num_triggers; i++)
+		trigger_write(&Triggers[i], game_top_fileinfo_version, SaveFile);
 
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 
-	control_offset = ftell(SaveFile);
-	fwrite( &ControlCenterTriggers, sizeof(control_center_triggers), 1, SaveFile );
+	control_offset = PHYSFS_tell(SaveFile);
+	control_center_triggers_write(&ControlCenterTriggers, SaveFile);
 
 
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============
 
-	matcen_offset = ftell(SaveFile);
+	matcen_offset = PHYSFS_tell(SaveFile);
 	// mprintf((0, "Writing %i materialization centers\n", game_fileinfo.matcen_howmany));
 	// { int i;
 	// for (i=0; i<game_fileinfo.matcen_howmany; i++)
 	// 	mprintf((0, "   %i: robot_flags = %08x\n", i, RobotCenters[i].robot_flags));
 	// }
-	fwrite( RobotCenters, sizeof(matcen_info), game_fileinfo.matcen_howmany, SaveFile );
+	for (i = 0; i < Num_robot_centers; i++)
+		matcen_info_write(&RobotCenters[i], game_top_fileinfo_version, SaveFile);
 
 	//================ SAVE DELTA LIGHT INFO ===============
-	dl_indices_offset = ftell(SaveFile);
-	fwrite( Dl_indices, sizeof(dl_index), game_fileinfo.dl_indices_howmany, SaveFile );
+	if (game_top_fileinfo_version >= 29)
+	{
+		dl_indices_offset = PHYSFS_tell(SaveFile);
+		for (i = 0; i < Num_static_lights; i++)
+			dl_index_write(&Dl_indices[i], SaveFile);
 
-	delta_light_offset = ftell(SaveFile);
-	fwrite( Delta_lights, sizeof(delta_light), game_fileinfo.delta_light_howmany, SaveFile );
+		delta_light_offset = PHYSFS_tell(SaveFile);
+		for (i = 0; i < num_delta_lights; i++)
+			delta_light_write(&Delta_lights[i], SaveFile);
+	}
 
-	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
+	//============= SAVE OFFSETS ===============
+
+	end_offset = PHYSFS_tell(SaveFile);
 
 	// Update the offset fields
-	game_fileinfo.player_offset		=	player_offset;
-	game_fileinfo.object_offset		=	object_offset;
-	game_fileinfo.walls_offset			=	walls_offset;
-	game_fileinfo.doors_offset			=	doors_offset;
-	game_fileinfo.triggers_offset		=	triggers_offset;
-	game_fileinfo.control_offset		=	control_offset;
-	game_fileinfo.matcen_offset		=	matcen_offset;
-	game_fileinfo.dl_indices_offset	=	dl_indices_offset;
-	game_fileinfo.delta_light_offset	=	delta_light_offset;
 
+#define WRITE_OFFSET(o, n) do { PHYSFS_seek(SaveFile, offset_offset); PHYSFS_writeSLE32(SaveFile, o ## _offset); offset_offset += sizeof(int)*n; } while (0)
 
-	end_offset = ftell(SaveFile);
-
-	// Write the fileinfo
-	fseek(  SaveFile, start_offset, SEEK_SET );  // Move to TOF
-	fwrite( &game_fileinfo, sizeof(game_fileinfo), 1, SaveFile );
+	WRITE_OFFSET(player, 2);
+	WRITE_OFFSET(object, 3);
+	WRITE_OFFSET(walls, 3);
+	WRITE_OFFSET(doors, 3);
+	WRITE_OFFSET(triggers, 6);
+	WRITE_OFFSET(control, 3);
+	WRITE_OFFSET(matcen, 3);
+	if (game_top_fileinfo_version >= 29)
+	{
+		WRITE_OFFSET(dl_indices, 3);
+		WRITE_OFFSET(delta_light, 0);
+	}
 
 	// Go back to end of data
-	fseek(SaveFile,end_offset,SEEK_SET);
+	PHYSFS_seek(SaveFile, end_offset);
 
 	return 0;
 }
@@ -1700,12 +1649,12 @@ int save_mine_data(FILE * SaveFile);
 // Save game
 int save_level_sub(char * filename, int compiled_version)
 {
-	FILE * SaveFile;
+	PHYSFS_file * SaveFile;
 	char temp_filename[PATH_MAX];
-	int sig = MAKE_SIG('P','L','V','L'),version=LEVEL_FILE_VERSION;
 	int minedata_offset=0,gamedata_offset=0;
 
-	if ( !compiled_version )	{
+//	if ( !compiled_version )
+	{
 		write_game_text_file(filename);
 
 		if (Errors_in_mine) {
@@ -1724,19 +1673,17 @@ int save_level_sub(char * filename, int compiled_version)
 			} else
 				mprintf((1, "Error: %i errors in this mine.  See the 'txm' file.\n", Errors_in_mine));
 		}
-		change_filename_extension(temp_filename,filename,".LVL");
+//		change_filename_extension(temp_filename,filename,".LVL");
 	}
-	else
+//	else
 	{
-		// macs are using the regular hog/rl2 files for shareware
-		#if defined(SHAREWARE) && !defined(MACINTOSH)
-			change_filename_extension(temp_filename,filename,".SL2");
-		#else
-			change_filename_extension(temp_filename,filename,".RL2");
-		#endif
+		if (Gamesave_current_version <= 3)
+			change_filename_extension(temp_filename, filename, ".RDL");
+		else
+			change_filename_extension(temp_filename, filename, ".RL2");
 	}
 
-	SaveFile = fopen( temp_filename, "wb" );
+	SaveFile = PHYSFSX_openWriteBuffered(temp_filename);
 	if (!SaveFile)
 	{
 		char ErrorMessage[256];
@@ -1772,56 +1719,74 @@ int save_level_sub(char * filename, int compiled_version)
 
 	//Write the header
 
-	gs_write_int(sig,SaveFile);
-	gs_write_int(version,SaveFile);
+	PHYSFS_writeSLE32(SaveFile, MAKE_SIG('P','L','V','L'));
+	PHYSFS_writeSLE32(SaveFile, Gamesave_current_version);
 
 	//save placeholders
-	gs_write_int(minedata_offset,SaveFile);
-	gs_write_int(gamedata_offset,SaveFile);
+	PHYSFS_writeSLE32(SaveFile, minedata_offset);
+	PHYSFS_writeSLE32(SaveFile, gamedata_offset);
 
 	//Now write the damn data
 
-	//write the version 8 data (to make file unreadable by 1.0 & 1.1)
-	gs_write_int(GameTime,SaveFile);
-	gs_write_short(FrameCount,SaveFile);
-	gs_write_byte(FrameTime,SaveFile);
+	if (Gamesave_current_version >= 8)
+	{
+		//write the version 8 data (to make file unreadable by 1.0 & 1.1)
+		PHYSFS_writeSLE32(SaveFile, GameTime);
+		PHYSFS_writeSLE16(SaveFile, FrameCount);
+		PHYSFSX_writeU8(SaveFile, FrameTime);
+	}
+
+	if (Gamesave_current_version < 5)
+		PHYSFS_writeSLE32(SaveFile, -1);       //was hostagetext_offset
 
 	// Write the palette file name
-	fprintf(SaveFile,"%s\n",Current_level_palette);
+	if (Gamesave_current_version > 1)
+		PHYSFSX_printf(SaveFile, "%s\n", Current_level_palette);
 
-	gs_write_int(Base_control_center_explosion_time,SaveFile);
-	gs_write_int(Reactor_strength,SaveFile);
+	if (Gamesave_current_version >= 3)
+		PHYSFS_writeSLE32(SaveFile, Base_control_center_explosion_time);
+	if (Gamesave_current_version >= 4)
+		PHYSFS_writeSLE32(SaveFile, Reactor_strength);
 
-	gs_write_int(Num_flickering_lights,SaveFile);
-	fwrite(Flickering_lights,sizeof(*Flickering_lights),Num_flickering_lights,SaveFile);
-	
-	gs_write_int(Secret_return_segment, SaveFile);
-	gs_write_int(Secret_return_orient.rvec.x, SaveFile);
-	gs_write_int(Secret_return_orient.rvec.y, SaveFile);
-	gs_write_int(Secret_return_orient.rvec.z, SaveFile);
-	gs_write_int(Secret_return_orient.fvec.x, SaveFile);
-	gs_write_int(Secret_return_orient.fvec.y, SaveFile);
-	gs_write_int(Secret_return_orient.fvec.z, SaveFile);
-	gs_write_int(Secret_return_orient.uvec.x, SaveFile);
-	gs_write_int(Secret_return_orient.uvec.y, SaveFile);
-	gs_write_int(Secret_return_orient.uvec.z, SaveFile);
+	if (Gamesave_current_version >= 7)
+	{
+		int i;
 
-	minedata_offset = ftell(SaveFile);
+		PHYSFS_writeSLE32(SaveFile, Num_flickering_lights);
+		for (i = 0; i < Num_flickering_lights; i++)
+			flickering_light_write(&Flickering_lights[i], SaveFile);
+	}
+
+	if (Gamesave_current_version >= 6)
+	{
+		PHYSFS_writeSLE32(SaveFile, Secret_return_segment);
+		PHYSFSX_writeVector(SaveFile, &Secret_return_orient.rvec);
+		PHYSFSX_writeVector(SaveFile, &Secret_return_orient.fvec);
+		PHYSFSX_writeVector(SaveFile, &Secret_return_orient.uvec);
+	}
+
+	minedata_offset = PHYSFS_tell(SaveFile);
+#if 0	// only save compiled mine data
 	if ( !compiled_version )	
 		save_mine_data(SaveFile);
 	else
+#endif
 		save_mine_data_compiled(SaveFile);
-	gamedata_offset = ftell(SaveFile);
+	gamedata_offset = PHYSFS_tell(SaveFile);
 	save_game_data(SaveFile);
 
-	fseek(SaveFile,sizeof(sig)+sizeof(version),SEEK_SET);
-	gs_write_int(minedata_offset,SaveFile);
-	gs_write_int(gamedata_offset,SaveFile);
+	PHYSFS_seek(SaveFile, sizeof(int) + sizeof(Gamesave_current_version));
+	PHYSFS_writeSLE32(SaveFile, minedata_offset);
+	PHYSFS_writeSLE32(SaveFile, gamedata_offset);
+
+	if (Gamesave_current_version < 5)
+		PHYSFS_writeSLE32(SaveFile, PHYSFS_fileLength(SaveFile));
 
 	//==================== CLOSE THE FILE =============================
-	fclose(SaveFile);
+	PHYSFS_close(SaveFile);
 
-	if ( !compiled_version )	{
+//	if ( !compiled_version )
+	{
 		if (Function_mode == FMODE_EDITOR)
 			editor_status("Saved mine %s, \"%s\"",filename,Current_level_name);
 	}
@@ -1839,10 +1804,10 @@ int save_level(char * filename)
 	int r1;
 
 	// Save normal version...
-	r1 = save_level_sub(filename, 0);
+	//save_level_sub(filename, 0);	// just save compiled one
 
 	// Save compiled version...
-	save_level_sub(filename, 1);
+	r1 = save_level_sub(filename, 1);
 
 	return r1;
 }

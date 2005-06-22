@@ -13,6 +13,10 @@
 	add function for converting descent 2 texture numbers back to
 	descent 1 texture numbers
 
+	* main/editor/mine.c, main/gamesave.c: use PhysicsFS for saving
+	levels. Entirely endian friendly and allows saving of .rdl and .rl2
+	files.
+
 2005-06-14  Chris Taylor  <chris@icculus.org>
 
 	* main/mission.c: make sure there is a path to free for D2 Demo/OEM
