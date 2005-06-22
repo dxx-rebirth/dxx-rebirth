@@ -9,6 +9,10 @@
 	main/wall.c, main/wall.h: add level component saving functions,
 	which use PhysicsFS and are endian friendly
 
+	* main/editor/mine.c, main/gamemine.c, main/gamemine.h:
+	add function for converting descent 2 texture numbers back to
+	descent 1 texture numbers
+
 2005-06-14  Chris Taylor  <chris@icculus.org>
 
 	* main/mission.c: make sure there is a path to free for D2 Demo/OEM
