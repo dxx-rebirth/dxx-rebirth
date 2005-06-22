@@ -1,4 +1,4 @@
-/* $Id: segment.h,v 1.6 2004-12-24 05:17:09 btb Exp $ */
+/* $Id: segment.h,v 1.7 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -268,5 +268,9 @@ void delta_light_read(delta_light *dl, CFILE *fp);
  */
 void dl_index_read(dl_index *di, CFILE *fp);
 #endif
+
+void segment2_write(segment2 *s2, PHYSFS_file *fp);
+void delta_light_write(delta_light *dl, PHYSFS_file *fp);
+void dl_index_write(dl_index *di, PHYSFS_file *fp);
 
 #endif

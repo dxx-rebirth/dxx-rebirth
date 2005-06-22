@@ -1,4 +1,4 @@
-/* $Id: cntrlcen.h,v 1.7 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: cntrlcen.h,v 1.8 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -95,5 +95,7 @@ extern int reactor_read_n(reactor *r, int n, CFILE *fp);
  */
 extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp);
 #endif
+
+extern int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp);
 
 #endif /* _CNTRLCEN_H */

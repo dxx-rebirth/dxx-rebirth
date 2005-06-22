@@ -1,4 +1,4 @@
-/* $Id: wall.c,v 1.14 2005-01-24 21:41:35 schaffner Exp $ */
+/* $Id: wall.c,v 1.15 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.14 2005-01-24 21:41:35 schaffner Exp $";
+static char rcsid[] = "$Id: wall.c,v 1.15 2005-06-22 09:08:21 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -1703,3 +1703,38 @@ extern void active_door_read(active_door *ad, CFILE *fp)
 	ad->time = cfile_read_fix(fp);
 }
 #endif
+
+void wall_write(wall *w, short version, CFILE *fp)
+{
+	if (version >= 17)
+	{
+		PHYSFS_writeSLE32(fp, w->segnum);
+		PHYSFS_writeSLE32(fp, w->sidenum);
+	}
+
+	if (version >= 20)
+	{
+		PHYSFSX_writeFix(fp, w->hps);
+		PHYSFS_writeSLE32(fp, w->linked_wall);
+	}
+	
+	PHYSFSX_writeU8(fp, w->type);
+	PHYSFSX_writeU8(fp, w->flags);
+	
+	if (version < 20)
+		PHYSFSX_writeFix(fp, w->hps);
+	else
+		PHYSFSX_writeU8(fp, w->state);
+	
+	PHYSFSX_writeU8(fp, w->trigger);
+	PHYSFSX_writeU8(fp, w->clip_num);
+	PHYSFSX_writeU8(fp, w->keys);
+	
+	if (version >= 20)
+	{
+		PHYSFSX_writeU8(fp, w->controlling_trigger);
+		PHYSFSX_writeU8(fp, w->cloak_value);
+	}
+	else if (version >= 17)
+		PHYSFS_writeSLE32(fp, w->linked_wall);
+}

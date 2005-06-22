@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.36 2005-04-01 03:21:32 chris Exp $ */
+/* $Id: game.c,v 1.37 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.36 2005-04-01 03:21:32 chris Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.37 2005-06-22 09:08:21 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -3389,4 +3389,13 @@ void flickering_light_read(flickering_light *fl, CFILE *fp)
 	fl->mask = cfile_read_int(fp);
 	fl->timer = cfile_read_fix(fp);
 	fl->delay = cfile_read_fix(fp);
+}
+
+void flickering_light_write(flickering_light *fl, PHYSFS_file *fp)
+{
+	PHYSFS_writeSLE16(fp, fl->segnum);
+	PHYSFS_writeSLE16(fp, fl->sidenum);
+	PHYSFS_writeULE32(fp, fl->mask);
+	PHYSFSX_writeFix(fp, fl->timer);
+	PHYSFSX_writeFix(fp, fl->delay);
 }

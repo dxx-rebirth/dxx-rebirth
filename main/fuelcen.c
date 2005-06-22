@@ -1,4 +1,4 @@
-/* $Id: fuelcen.c,v 1.10 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: fuelcen.c,v 1.11 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: fuelcen.c,v 1.10 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: fuelcen.c,v 1.11 2005-06-22 09:08:21 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -1215,3 +1215,14 @@ void matcen_info_read(matcen_info *mi, CFILE *fp)
 	mi->fuelcen_num = cfile_read_short(fp);
 }
 #endif
+
+void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp)
+{
+	PHYSFS_writeSLE32(fp, mi->robot_flags[0]);
+	if (version >= 27)
+		PHYSFS_writeSLE32(fp, mi->robot_flags[1]);
+	PHYSFSX_writeFix(fp, mi->hit_points);
+	PHYSFSX_writeFix(fp, mi->interval);
+	PHYSFS_writeSLE16(fp, mi->segnum);
+	PHYSFS_writeSLE16(fp, mi->fuelcen_num);
+}

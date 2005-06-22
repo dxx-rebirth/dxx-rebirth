@@ -1,4 +1,4 @@
-/* $Id: game.h,v 1.10 2005-03-20 12:53:33 btb Exp $ */
+/* $Id: game.h,v 1.11 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -270,6 +270,8 @@ int gr_toggle_fullscreen_game(void);
  * reads a flickering_light structure from a CFILE
  */
 void flickering_light_read(flickering_light *fl, CFILE *fp);
+
+void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
 
 #define MAX_FPS 80
 extern int maxfps;

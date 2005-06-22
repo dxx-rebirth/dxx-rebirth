@@ -1,4 +1,4 @@
-/* $Id: switch.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: switch.c,v 1.12 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: switch.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: switch.c,v 1.12 2005-06-22 09:08:21 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -725,3 +725,82 @@ extern void trigger_read(trigger *t, CFILE *fp)
 		t->side[i] = cfile_read_short(fp);
 }
 #endif
+
+void trigger_write(trigger *t, short version, PHYSFS_file *fp)
+{
+	int i;
+
+	if (version != 30)
+		PHYSFSX_writeU8(fp, t->type);
+
+	if (version <= 29)
+		switch (t->type)
+		{
+			case TT_OPEN_DOOR:
+				PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS);
+				break;
+
+			case TT_EXIT:
+				PHYSFS_writeSLE16(fp, TRIGGER_EXIT);
+				break;
+
+			case TT_MATCEN:
+				PHYSFS_writeSLE16(fp, TRIGGER_MATCEN);
+				break;
+				
+			case TT_ILLUSION_OFF:
+				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF);
+				break;
+				
+			case TT_SECRET_EXIT:
+				PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT);
+				break;
+				
+			case TT_ILLUSION_ON:
+				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON);
+				break;
+				
+			case TT_UNLOCK_DOOR:
+				PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS);
+				break;
+				
+			case TT_OPEN_WALL:
+				PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL);
+				break;
+				
+			case TT_CLOSE_WALL:
+				PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL);
+				break;
+				
+			case TT_ILLUSORY_WALL:
+				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL);
+				break;
+				
+			default:
+				Int3();
+				PHYSFS_writeSLE16(fp, 0);
+				break;
+		}
+	else
+		PHYSFSX_writeU8(fp, t->flags);
+
+	if (version >= 30)
+	{
+		PHYSFSX_writeU8(fp, t->num_links);
+		PHYSFSX_writeU8(fp, t->pad);
+	}
+
+	PHYSFSX_writeFix(fp, t->value);
+	PHYSFSX_writeFix(fp, t->time);
+
+	if (version <= 29)
+	{
+		PHYSFSX_writeU8(fp, -1);	//t->link_num
+		PHYSFS_writeSLE16(fp, t->num_links);
+	}
+
+	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
+		PHYSFS_writeSLE16(fp, t->seg[i]);
+	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
+		PHYSFS_writeSLE16(fp, t->side[i]);
+}

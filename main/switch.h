@@ -1,4 +1,4 @@
-/* $Id: switch.h,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: switch.h,v 1.6 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -134,5 +134,7 @@ extern void v30_trigger_read(v30_trigger *t, CFILE *fp);
  */
 extern void trigger_read(trigger *t, CFILE *fp);
 #endif
+
+extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
 
 #endif

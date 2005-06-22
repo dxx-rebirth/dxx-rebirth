@@ -3,6 +3,12 @@
 	* main/editor/kgame.c: load .rl2 files instead of .lvl files
 	(some editor info could be stored in .rdl / .rl2 files)
 
+	* include/nocfile.h, main/cntrlcen.c, main/cntrlcen.h,
+	main/fuelcen.c, main/fuelcen.h, main/game.c, main/game.h,
+	main/segment.c, main/segment.h, main/switch.c, main/switch.h,
+	main/wall.c, main/wall.h: add level component saving functions,
+	which use PhysicsFS and are endian friendly
+
 2005-06-14  Chris Taylor  <chris@icculus.org>
 
 	* main/mission.c: make sure there is a path to free for D2 Demo/OEM

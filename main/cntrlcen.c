@@ -1,4 +1,4 @@
-/* $Id: cntrlcen.c,v 1.18 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: cntrlcen.c,v 1.19 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.18 2004-12-01 12:48:13 btb Exp $";
+static char rcsid[] = "$Id: cntrlcen.c,v 1.19 2005-06-22 09:08:21 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -554,3 +554,16 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, C
 	return i;
 }
 #endif
+
+int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp)
+{
+	int j;
+
+	PHYSFS_writeSLE16(fp, cct->num_links);
+	for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
+		PHYSFS_writeSLE16(fp, cct->seg[j]);
+	for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
+		PHYSFS_writeSLE16(fp, cct->side[j]);
+
+	return 1;
+}

@@ -1,4 +1,4 @@
-/* $Id: wall.h,v 1.9 2005-01-24 21:41:35 schaffner Exp $ */
+/* $Id: wall.h,v 1.10 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -301,5 +301,7 @@ extern void v19_door_read(v19_door *d, CFILE *fp);
  */
 extern void active_door_read(active_door *ad, CFILE *fp);
 #endif
+
+extern void wall_write(wall *w, short version, PHYSFS_file *fp);
 
 #endif

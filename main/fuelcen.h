@@ -1,4 +1,4 @@
-/* $Id: fuelcen.h,v 1.8 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: fuelcen.h,v 1.9 2005-06-22 09:08:21 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -164,5 +164,7 @@ void old_matcen_info_read(old_matcen_info *mi, CFILE *fp);
  */
 void matcen_info_read(matcen_info *ps, CFILE *fp);
 #endif
+
+void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp);
 
 #endif
