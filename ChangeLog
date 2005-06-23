@@ -1,3 +1,8 @@
+2005-06-23  Chris Taylor  <chris@icculus.org>
+
+	* installation.txt: describe new directory system
+	and mention recursive mission searching
+
 2005-06-22  Chris Taylor  <chris@icculus.org>
 
 	* main/editor/kgame.c: load .rl2 files instead of .lvl files

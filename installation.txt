@@ -27,12 +27,25 @@ Base Data Installation
 
 In addition to d2x, you need some data files to play.
 In Windows or DOS, they go in the same directory as the d2x binary
-(C:\GAMES\DESCENT2 by default).
+(C:\GAMES\DESCENT2 by default).  Similarly for Mac OS 9.
+This can be overridden (see below).
 
 On unix, these files usually go into a shared data directory
 (/usr/local/share/games/d2x by default).
-They can also go in $HOME/.d2x, or in an arbitrary directory specified
-with the -hogdir option on the d2x command line.
+They can also go in $HOME/.d2x.
+
+Files created by D2X (eg. saved games) can go in an arbitrary user
+directory, set with the -userdir option on the command line or in a
+settings file (d2x.ini by default).  Data files are searched for in this
+directory first.  For Unix, the user directory defaults to $HOME/.d2x.
+
+The settings file goes in the same directory as the binary, but an
+additional one with more options can go in the user directory.  An
+additional settings file cannot override settings in the first, however
+this settings file only complements the original Descent preferences file.
+
+Data files can go in an arbitrary directory specified with the -hogdir
+option.
 
 The base install depends on which version of the datafiles you have.
 d2x currently supports just about any version of Descent II, and can
@@ -99,9 +112,10 @@ textures.  That is, your base installation above must be the "Full
 Version", the "OEM Version", or the "Mac Shareware" version.
 
 To install an additional mission, just place the .hog and the .msn or
-.mn2 file into your missions directory.  The missions directory can be
-inside the system-wide data dir, or your $HOME/.d2x dir.  d2x will
-look in both places.
+.mn2 file into your missions directory.  d2x will search recursively for
+missions (i.e. there can be folders within folders, containing missions).
+The missions directory can be inside the system-wide data dir, or your user 
+dir.  d2x will look in both places.
 
 To install the original Descent I mission:
 Place descent.hog into your data dir.
