@@ -19,6 +19,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 //#include <io.h>
 
+#include "physfsx.h"	// cfile.h includes this, so nocfile.h does too
+
 #define CFILE FILE
 
 #define cfopen(file,mode) fopen(file,mode)
