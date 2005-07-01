@@ -1,4 +1,4 @@
-/* $Id: centers.c,v 1.6 2005-01-24 22:05:14 schaffner Exp $ */
+/* $Id: centers.c,v 1.7 2005-07-01 09:52:29 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: centers.c,v 1.6 2005-01-24 22:05:14 schaffner Exp $";
+static char rcsid[] = "$Id: centers.c,v 1.7 2005-07-01 09:52:29 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -158,11 +158,7 @@ void do_centers_window()
 			robot_flags = RobotCenters[Curseg2p->matcen_num].robot_flags[i];
 			while (robot_flags)
 			{
-				RobotMatFlag[i]->status = 1;    // Tells ui to redraw button
-				if (robot_flags & 1)
-					RobotMatFlag[i]->flag = 1;  // Tells ui that this button is checked
-				else
-					RobotMatFlag[i]->flag = 0;  // Tells ui that this button is not checked
+				ui_checkbox_check(RobotMatFlag[i], robot_flags & 1);
 				robot_flags >>= 1;
 				robot_index++;
 			}

@@ -1,4 +1,4 @@
-/* $Id: eswitch.c,v 1.5 2005-02-26 06:25:37 chris Exp $ */
+/* $Id: eswitch.c,v 1.6 2005-07-01 09:52:29 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: eswitch.c,v 1.5 2005-02-26 06:25:37 chris Exp $";
+static char rcsid[] = "$Id: eswitch.c,v 1.6 2005-07-01 09:52:29 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -418,33 +418,22 @@ void do_trigger_window()
 		trigger_num = Walls[Markedwall].trigger;
 	else trigger_num = -1;
 
-	if (old_trigger_num != trigger_num ) {
-		for (	i=0; i < NUM_TRIGGER_FLAGS; i++ )	{
-			TriggerFlag[i]->flag = 0;				// Tells ui that this button isn't checked
-			TriggerFlag[i]->status = 1;				// Tells ui to redraw button
-		}
+	if (old_trigger_num != trigger_num)
+	{
+		if (trigger_num != -1)
+		{
+			trigger *trig = &Triggers[trigger_num];
 
-		if (trigger_num != -1) {
-  			if (Triggers[trigger_num].flags & TRIGGER_CONTROL_DOORS)
-				TriggerFlag[0]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_SHIELD_DAMAGE)
-				TriggerFlag[1]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ENERGY_DRAIN)
-				TriggerFlag[2]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_EXIT)
-				TriggerFlag[3]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ONE_SHOT)
-				TriggerFlag[4]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ILLUSION_ON)
-				TriggerFlag[5]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ILLUSION_OFF)
-				TriggerFlag[6]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ON)
-				TriggerFlag[7]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_MATCEN)
-				TriggerFlag[8]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_SECRET_EXIT)
-				TriggerFlag[9]->flag = 1;
+  			ui_checkbox_check(TriggerFlag[0], trig->flags & TRIGGER_CONTROL_DOORS);
+ 			ui_checkbox_check(TriggerFlag[1], trig->flags & TRIGGER_SHIELD_DAMAGE);
+ 			ui_checkbox_check(TriggerFlag[2], trig->flags & TRIGGER_ENERGY_DRAIN);
+ 			ui_checkbox_check(TriggerFlag[3], trig->flags & TRIGGER_EXIT);
+ 			ui_checkbox_check(TriggerFlag[4], trig->flags & TRIGGER_ONE_SHOT);
+ 			ui_checkbox_check(TriggerFlag[5], trig->flags & TRIGGER_ILLUSION_ON);
+ 			ui_checkbox_check(TriggerFlag[6], trig->flags & TRIGGER_ILLUSION_OFF);
+ 			ui_checkbox_check(TriggerFlag[7], trig->flags & TRIGGER_ON);
+ 			ui_checkbox_check(TriggerFlag[8], trig->flags & TRIGGER_MATCEN);
+ 			ui_checkbox_check(TriggerFlag[9], trig->flags & TRIGGER_SECRET_EXIT);
 		}
 	}
 	
@@ -497,12 +486,9 @@ void do_trigger_window()
 			trigger_remove_flag_from_Markedside(TRIGGER_SECRET_EXIT);
 
 	} else
-		for (	i=0; i < NUM_TRIGGER_FLAGS; i++ )
-			if (TriggerFlag[i]->flag == 1) { 
-				TriggerFlag[i]->flag = 0;					// Tells ui that this button isn't checked
-				TriggerFlag[i]->status = 1;				// Tells ui to redraw button
-			}
-	
+		for (i = 0; i < NUM_TRIGGER_FLAGS; i++ )
+			ui_checkbox_check(TriggerFlag[i], 0);
+
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box
 	//------------------------------------------------------------

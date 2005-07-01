@@ -295,6 +295,7 @@ extern void ui_radio_do( UI_GADGET_RADIO * radio, int keypress );
 extern void ui_draw_checkbox( UI_GADGET_CHECKBOX * checkbox );
 extern UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_WINDOW * wnd, short x, short y, short w, short h, short group, char * text );
 extern void ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, int keypress );
+extern void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, sbyte check);
 
 extern UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget );
 extern UI_GADGET * ui_gadget_get_next( UI_GADGET * gadget );

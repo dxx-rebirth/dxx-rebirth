@@ -1,4 +1,4 @@
-/* $Id: checkbox.c,v 1.5 2005-02-26 09:50:36 chris Exp $ */
+/* $Id: checkbox.c,v 1.6 2005-07-01 09:52:29 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: checkbox.c,v 1.5 2005-02-26 09:50:36 chris Exp $";
+static char rcsid[] = "$Id: checkbox.c,v 1.6 2005-07-01 09:52:29 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -128,4 +128,14 @@ void ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, int keypress )
 
 	ui_draw_checkbox( checkbox );
 
+}
+
+void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, sbyte check)
+{
+	check = check != 0;
+	if (checkbox->flag == check)
+		return;
+	
+	checkbox->flag = check;
+	checkbox->status = 1;	// redraw
 }

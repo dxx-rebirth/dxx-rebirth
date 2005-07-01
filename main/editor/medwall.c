@@ -1,4 +1,4 @@
-/* $Id: medwall.c,v 1.7 2005-01-25 19:36:27 schaffner Exp $ */
+/* $Id: medwall.c,v 1.8 2005-07-01 09:52:29 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: medwall.c,v 1.7 2005-01-25 19:36:27 schaffner Exp $";
+static char rcsid[] = "$Id: medwall.c,v 1.8 2005-07-01 09:52:29 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -432,7 +432,8 @@ void do_wall_window()
 	// If we change walls, we need to reset the ui code for all
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
-	if (old_wall_num != Cursegp->sides[Curside].wall_num) {
+	if (old_wall_num != Cursegp->sides[Curside].wall_num)
+	{
 		for (	i=0; i < 3; i++ )	{
 			DoorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
 			DoorFlag[i]->status = 1;	// Tells ui to redraw button
@@ -442,13 +443,13 @@ void do_wall_window()
 			KeyFlag[i]->status = 1;		// Tells ui to redraw button
 		}
 
-		if ( Cursegp->sides[Curside].wall_num != -1) {
-			if (Walls[Cursegp->sides[Curside].wall_num].flags & WALL_DOOR_LOCKED)			
-				DoorFlag[0]->flag = 1;	// Mark this button as checked
-			if (Walls[Cursegp->sides[Curside].wall_num].flags & WALL_DOOR_AUTO)
-				DoorFlag[1]->flag = 1;	// Mark this button as checked
-			if (Walls[Cursegp->sides[Curside].wall_num].flags & WALL_ILLUSION_OFF)
-				DoorFlag[2]->flag = 1;	// Mark this button as checked
+		if ( Cursegp->sides[Curside].wall_num != -1)
+		{
+			wall *w = &Walls[Cursegp->sides[Curside].wall_num];
+
+			ui_checkbox_check(DoorFlag[0], w->flags & WALL_DOOR_LOCKED);
+			ui_checkbox_check(DoorFlag[1], w->flags & WALL_DOOR_AUTO);
+			ui_checkbox_check(DoorFlag[2], w->flags & WALL_ILLUSION_OFF);
 
 			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_NONE)
 				KeyFlag[0]->flag = 1;
@@ -487,11 +488,8 @@ void do_wall_window()
 			}
 		}
 	} else {
-		for (	i=0; i < 2; i++ )	
-			if (DoorFlag[i]->flag == 1) { 
-				DoorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-				DoorFlag[i]->status = 1;	// Tells ui to redraw button
-			}
+		for (i = 0; i < 2; i++)
+			ui_checkbox_check(DoorFlag[i], 0);
 		for (	i=0; i < 4; i++ )	{
 			if ( KeyFlag[i]->flag == 1 ) {
 				KeyFlag[i]->flag = 0;		

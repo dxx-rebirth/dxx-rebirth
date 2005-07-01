@@ -1,3 +1,8 @@
+2005-07-01  Chris Taylor  <chris@icculus.org>
+
+	* include/ui.h, main/editor/centers.c, main/editor/eswitch.c,
+	main/editor/medwall.c, ui/checkbox.c: add ui_checkbox_check
+
 2005-06-23  Chris Taylor  <chris@icculus.org>
 
 	* installation.txt: describe new directory system
