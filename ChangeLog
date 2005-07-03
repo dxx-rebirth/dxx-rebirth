@@ -2,6 +2,10 @@
 
 	* include/ui.h, ui/file.c, ui/inputbox.c: add ui_inputbox_set_text
 
+	* include/ui.h, main/editor/centers.c, main/editor/medrobot.c,
+	main/editor/medwall.c, ui/radio.c: add ui_radio_set_value,
+	draw an "O" in the current radio button
+
 2005-07-01  Chris Taylor  <chris@icculus.org>
 
 	* include/ui.h, main/editor/centers.c, main/editor/eswitch.c,

@@ -1,4 +1,4 @@
-/* $Id: medwall.c,v 1.8 2005-07-01 09:52:29 chris Exp $ */
+/* $Id: medwall.c,v 1.9 2005-07-03 13:12:47 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: medwall.c,v 1.8 2005-07-01 09:52:29 chris Exp $";
+static char rcsid[] = "$Id: medwall.c,v 1.9 2005-07-03 13:12:47 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -434,15 +434,6 @@ void do_wall_window()
 	//------------------------------------------------------------
 	if (old_wall_num != Cursegp->sides[Curside].wall_num)
 	{
-		for (	i=0; i < 3; i++ )	{
-			DoorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-			DoorFlag[i]->status = 1;	// Tells ui to redraw button
-		}
-		for (	i=0; i < 4; i++ )	{
-			KeyFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-			KeyFlag[i]->status = 1;		// Tells ui to redraw button
-		}
-
 		if ( Cursegp->sides[Curside].wall_num != -1)
 		{
 			wall *w = &Walls[Cursegp->sides[Curside].wall_num];
@@ -452,13 +443,13 @@ void do_wall_window()
 			ui_checkbox_check(DoorFlag[2], w->flags & WALL_ILLUSION_OFF);
 
 			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_NONE)
-				KeyFlag[0]->flag = 1;
+				ui_radio_set_value(KeyFlag[0], 1);
 			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_BLUE)
-				KeyFlag[1]->flag = 1;
+				ui_radio_set_value(KeyFlag[1], 1);
 			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_RED)
-				KeyFlag[2]->flag = 1;
+				ui_radio_set_value(KeyFlag[2], 1);
 			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_GOLD)
-				KeyFlag[3]->flag = 1;
+				ui_radio_set_value(KeyFlag[3], 1);
 		}
 	}
 	

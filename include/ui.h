@@ -291,6 +291,7 @@ extern void ui_wprintf_at( UI_WINDOW * wnd, short x, short y, char * format, ...
 extern void ui_draw_radio( UI_GADGET_RADIO * radio );
 extern UI_GADGET_RADIO * ui_add_gadget_radio( UI_WINDOW * wnd, short x, short y, short w, short h, short group, char * text );
 extern void ui_radio_do( UI_GADGET_RADIO * radio, int keypress );
+extern void ui_radio_set_value(UI_GADGET_RADIO *radio, sbyte value);
 
 extern void ui_draw_checkbox( UI_GADGET_CHECKBOX * checkbox );
 extern UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_WINDOW * wnd, short x, short y, short w, short h, short group, char * text );

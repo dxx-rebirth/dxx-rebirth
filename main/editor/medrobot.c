@@ -1,4 +1,4 @@
-/* $Id: medrobot.c,v 1.6 2005-03-31 09:38:53 chris Exp $ */
+/* $Id: medrobot.c,v 1.7 2005-07-03 13:12:47 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: medrobot.c,v 1.6 2005-03-31 09:38:53 chris Exp $";
+static char rcsid[] = "$Id: medrobot.c,v 1.7 2005-07-03 13:12:47 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -573,10 +573,6 @@ void do_robot_window()
 	// the current AI mode button be flagged as pressed down.
 	//------------------------------------------------------------
 	if (old_object != Cur_object_index )	{
-		for (	i=0; i < NUM_BOXES; i++ )	{
-			InitialMode[i]->flag = 0;		// Tells ui that this button isn't checked
-			InitialMode[i]->status = 1;	// Tells ui to redraw button
-		}
 		if ( Cur_object_index > -1 ) {
 			int	behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
 			if ( !((behavior >= MIN_BEHAVIOR) && (behavior <= MAX_BEHAVIOR))) {
@@ -584,7 +580,7 @@ void do_robot_window()
 				Objects[Cur_object_index].ctype.ai_info.behavior = AIB_NORMAL;
 				behavior = AIB_NORMAL;
 			}
-			InitialMode[behavior - MIN_BEHAVIOR]->flag = 1;	// Mark this button as checked
+			ui_radio_set_value(InitialMode[behavior - MIN_BEHAVIOR], 1);
 		}
 	}
 

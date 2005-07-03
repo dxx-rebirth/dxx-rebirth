@@ -1,4 +1,4 @@
-/* $Id: centers.c,v 1.7 2005-07-01 09:52:29 chris Exp $ */
+/* $Id: centers.c,v 1.8 2005-07-03 13:12:47 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: centers.c,v 1.7 2005-07-01 09:52:29 chris Exp $";
+static char rcsid[] = "$Id: centers.c,v 1.8 2005-07-03 13:12:47 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -141,13 +141,8 @@ void do_centers_window()
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
 	if (old_seg_num != Cursegp-Segments) {
-		for (	i=0; i < MAX_CENTER_TYPES; i++ ) {
-			CenterFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-			CenterFlag[i]->status = 1;		// Tells ui to redraw button
-		}
-
 		Assert(Curseg2p->special < MAX_CENTER_TYPES);
-		CenterFlag[Curseg2p->special]->flag = 1;
+		ui_radio_set_value(CenterFlag[Curseg2p->special], 1);
 
 		mprintf((0, "Curseg2p->matcen_num = %i\n", Curseg2p->matcen_num));
 
