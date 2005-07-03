@@ -1,4 +1,4 @@
-/* $Id: file.c,v 1.11 2005-03-05 09:30:26 chris Exp $ */
+/* $Id: file.c,v 1.12 2005-07-03 03:08:25 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: file.c,v 1.11 2005-03-05 09:30:26 chris Exp $";
+static char rcsid[] = "$Id: file.c,v 1.12 2005-07-03 03:08:25 chris Exp $";
 #endif
 
 #include <stdlib.h>
@@ -218,25 +218,13 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 		if (ListBox1->moved || new_listboxes)
 		{
 			if (ListBox1->current_item >= 0 )
-			{
-				strcpy(UserFile->text, filename_list[ListBox1->current_item] );
-				UserFile->position = strlen(UserFile->text);
-				UserFile->oldposition = UserFile->position;
-				UserFile->status=1;
-				UserFile->first_time = 1;
-			}
+				ui_inputbox_set_text(UserFile, filename_list[ListBox1->current_item]);
 		}
 
 		if (ListBox2->moved || new_listboxes)
 		{
 			if (ListBox2->current_item >= 0 )
-			{
-				strcpy(UserFile->text, directory_list[ListBox2->current_item]);
-				UserFile->position = strlen(UserFile->text);
-				UserFile->oldposition = UserFile->position;
-				UserFile->status=1;
-				UserFile->first_time = 1;
-			}
+				ui_inputbox_set_text(UserFile, directory_list[ListBox2->current_item]);
 		}
 		new_listboxes = 0;
 
@@ -305,11 +293,7 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 					return 0;
 				}
 
-				strcpy(UserFile->text, Filespec);
-				UserFile->position = strlen(UserFile->text);
-				UserFile->oldposition = UserFile->position;
-				UserFile->status=1;
-				UserFile->first_time = 1;
+				ui_inputbox_set_text(UserFile, Filespec);
 
 				PHYSFS_freeList(directory_list);
 				directory_list = file_getdirlist(&NumDirs, ViewDir);

@@ -1,3 +1,7 @@
+2005-07-03  Chris Taylor  <chris@icculus.org>
+
+	* include/ui.h, ui/file.c, ui/inputbox.c: add ui_inputbox_set_text
+
 2005-07-01  Chris Taylor  <chris@icculus.org>
 
 	* include/ui.h, main/editor/centers.c, main/editor/eswitch.c,

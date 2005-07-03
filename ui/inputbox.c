@@ -1,4 +1,4 @@
-/* $Id: inputbox.c,v 1.6 2005-02-26 09:50:36 chris Exp $ */
+/* $Id: inputbox.c,v 1.7 2005-07-03 03:08:25 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #ifdef RCS
-static char rcsid[] = "$Id: inputbox.c,v 1.6 2005-02-26 09:50:36 chris Exp $";
+static char rcsid[] = "$Id: inputbox.c,v 1.7 2005-07-03 03:08:25 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -165,3 +165,13 @@ void ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, int keypress )
 	ui_draw_inputbox( inputbox );
 
 }
+
+void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, char *text)
+{
+	strncpy(inputbox->text, text, inputbox->length + 1);
+	inputbox->position = strlen(text);
+	inputbox->oldposition = inputbox->position;
+	inputbox->status = 1;		// redraw
+	inputbox->first_time = 1;	// select all
+}
+

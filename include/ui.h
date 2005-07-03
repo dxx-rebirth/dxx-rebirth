@@ -307,6 +307,7 @@ extern void ui_listbox_change(UI_WINDOW *wnd, UI_GADGET_LISTBOX *listbox, short 
 extern void ui_draw_inputbox( UI_GADGET_INPUTBOX * inputbox );
 extern UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_WINDOW * wnd, short x, short y, short w, short h, char * text );
 extern void ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, int keypress );
+extern void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, char *text);
 
 
 extern void ui_userbox_do( UI_GADGET_USERBOX * userbox, int keypress );
