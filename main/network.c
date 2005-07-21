@@ -1,4 +1,4 @@
-/* $Id: network.c,v 1.28 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: network.c,v 1.29 2005-07-21 09:35:50 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.28 2004-12-01 12:48:13 btb Exp $";
+static char rcsid[] = "$Id: network.c,v 1.29 2005-07-21 09:35:50 chris Exp $";
 #endif
 
 #define PATCH12
@@ -232,7 +232,7 @@ void network_read_endlevel_packet(ubyte *data );
 void network_read_endlevel_short_packet(ubyte *data );
 void network_ping(ubyte flat, int pnum);
 void network_handle_ping_return(ubyte pnum);
-void network_process_names_return(char *data);
+void network_process_names_return(ubyte *data);
 void network_send_player_names(sequence_packet *their);
 int  network_choose_connect();
 void network_more_game_options();
@@ -244,7 +244,7 @@ void network_send_extras();
 void network_read_pdata_packet(frame_info *pd);
 void network_read_pdata_short_packet(short_frame_info *pd);
 
-void ClipRank(signed char *rank);
+void ClipRank(ubyte *rank);
 void DoRefuseStuff(sequence_packet *their);
 int  GetNewPlayerNumber(sequence_packet *their);
 void SetAllAllowablesTo(int on);
@@ -1236,7 +1236,7 @@ void network_stop_resync(sequence_packet *their)
 	}
 }
 
-sbyte object_buffer[IPX_MAX_DATA_SIZE];
+ubyte object_buffer[IPX_MAX_DATA_SIZE];
 
 void network_send_objects(void)
 {
@@ -2503,7 +2503,7 @@ void network_process_packet(ubyte *data, int length )
 		break;
    case PID_NAMES_RETURN:
 		if (Network_status==NETSTAT_BROWSING && NamesInfoSecurity!=-1)
-		  network_process_names_return (data);
+		  network_process_names_return ((ubyte *) data);
 		break;
 	case PID_GAME_PLAYERS:
 		// Someone wants a list of players in this game
@@ -6311,13 +6311,13 @@ int GetMyNetRanking ()
   return (rank+1);
  }
 
-void ClipRank (signed char *rank)
+void ClipRank (ubyte *rank)
  {
   // This function insures no crashes when dealing with D2 1.0
 
  
-  if (*rank<0 || *rank>9)
-	*rank=0;
+  if (*rank > 9)
+	*rank = 0;
  }
 void network_check_for_old_version (char pnum)
  {  
@@ -6334,7 +6334,7 @@ void network_request_player_names (int n)
 extern char already_showing_info;
 extern int newmenu_dotiny2( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem));
 
-void network_process_names_return (char *data)
+void network_process_names_return (ubyte *data)
  {
 	newmenu_item m[15];
    char mtext[15][50],temp[50];

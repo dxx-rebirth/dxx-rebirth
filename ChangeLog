@@ -4,6 +4,10 @@
 	add some files (so it builds), warnings are not errors
 	(ubyte *, sbyte * mismatches found when using gcc 4.0)
 
+	* arch/linux/ipx_mcast4.c, arch/linux/ipx_udp.c,
+	d2x.xcode/project.pbxproj, main/network.c, main/network.h,
+	main/newdemo.c: fix pointer mismatches, warnings are errors again
+
 2005-07-03  Chris Taylor  <chris@icculus.org>
 
 	* include/ui.h, ui/file.c, ui/inputbox.c: add ui_inputbox_set_text

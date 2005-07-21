@@ -778,7 +778,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
 				GCC_PREPROCESSOR_DEFINITIONS = HAVE_CONFIG_H;
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				HEADER_SEARCH_PATHS = "$(HOME)/Library/Frameworks/SDL.framework/Headers $(HOME)/Library/Frameworks/physfs.framework/Headers";
 				INFOPLIST_FILE = "d2x-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
@@ -2000,7 +2000,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
 				GCC_PREPROCESSOR_DEFINITIONS = "HAVE_CONFIG_H OGL";
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				HEADER_SEARCH_PATHS = "$(HOME)/Library/Frameworks/SDL.framework/Headers $(HOME)/Library/Frameworks/physfs.framework/Headers";
 				INFOPLIST_FILE = "d2xgl-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";

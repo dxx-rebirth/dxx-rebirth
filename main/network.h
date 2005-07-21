@@ -1,4 +1,4 @@
-/* $Id: network.h,v 1.13 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: network.h,v 1.14 2005-07-21 09:36:08 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -84,7 +84,7 @@ typedef struct frame_info {
 	ubyte       playernum;
 	ubyte       obj_render_type;
 	ubyte       level_num;
-	ubyte       data[NET_XDATA_SIZE];   // extra data to be tacked on the end
+	char        data[NET_XDATA_SIZE];   // extra data to be tacked on the end
 } __pack__ frame_info;
 
 // short_frame_info is not aligned -- 01/18/96 -- MWA
@@ -100,7 +100,7 @@ typedef struct short_frame_info {
 	ubyte       playernum;
 	ubyte       obj_render_type;
 	ubyte       level_num;
-	ubyte       data[NET_XDATA_SIZE];   // extra data to be tacked on the end
+	char        data[NET_XDATA_SIZE];   // extra data to be tacked on the end
 } __pack__ short_frame_info;
 
 void network_start_game();

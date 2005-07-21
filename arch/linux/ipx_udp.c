@@ -1,4 +1,4 @@
-/* $Id: ipx_udp.c,v 1.10 2004-01-08 16:48:34 schaffner Exp $ */
+/* $Id: ipx_udp.c,v 1.11 2005-07-21 09:34:22 chris Exp $ */
 /*
  *
  * IPX driver for native Linux TCP/IP networking (UDP implementation)
@@ -535,7 +535,7 @@ static int ipx_udp_ReceivePacket(ipx_socket_t *s, char *outbuf, int outbufsize,
  struct ipx_recv_data *rd) {
 	int size;
 	struct sockaddr_in fromaddr;
-	int fromaddrsize=sizeof(fromaddr);
+	uint fromaddrsize=sizeof(fromaddr);
 	unsigned short ports;
 	size_t offs;
 	int i;

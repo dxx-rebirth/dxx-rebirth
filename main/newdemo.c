@@ -1,4 +1,4 @@
-/* $Id: newdemo.c,v 1.20 2005-02-25 05:20:36 chris Exp $ */
+/* $Id: newdemo.c,v 1.21 2005-07-21 09:36:24 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1479,7 +1479,7 @@ int newdemo_read_demo_start(int rnd_demo)
 #ifdef NETWORK
 	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);
 	if (Newdemo_game_mode & GM_TEAM) {
-		nd_read_byte(&(Netgame.team_vector));
+		nd_read_byte((sbyte *) &(Netgame.team_vector));
 		nd_read_string(Netgame.team_name[0]);
 		nd_read_string(Netgame.team_name[1]);
 	}
