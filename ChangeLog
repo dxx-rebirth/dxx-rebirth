@@ -1,3 +1,9 @@
+2005-07-21  Chris Taylor  <chris@icculus.org>
+
+	* d2x.xcode/project.pbxproj: make file paths relative to project,
+	add some files (so it builds), warnings are not errors
+	(ubyte *, sbyte * mismatches found when using gcc 4.0)
+
 2005-07-03  Chris Taylor  <chris@icculus.org>
 
 	* include/ui.h, ui/file.c, ui/inputbox.c: add ui_inputbox_set_text
