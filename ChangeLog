@@ -1,3 +1,7 @@
+2005-07-22  Chris Taylor  <chris@icculus.org>
+
+	* main/editor/group.c: remove duplicate tmap_xlate_table
+
 2005-07-21  Chris Taylor  <chris@icculus.org>
 
 	* d2x.xcode/project.pbxproj: make file paths relative to project,
