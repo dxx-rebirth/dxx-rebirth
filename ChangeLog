@@ -1,3 +1,9 @@
+2005-07-24  Chris Taylor  <chris@icculus.org>
+
+	* main/bmread.c: call file static var 'time' 'play_time' instead,
+	because of conflict with function 'time' in /usr/include/time.h
+	(Mac OS X 10.4)
+
 2005-07-22  Chris Taylor  <chris@icculus.org>
 
 	* main/editor/group.c: remove duplicate tmap_xlate_table

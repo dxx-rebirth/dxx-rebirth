@@ -1,4 +1,4 @@
-/* $Id: bmread.c,v 1.15 2005-03-31 09:38:53 chris Exp $ */
+/* $Id: bmread.c,v 1.16 2005-07-24 09:22:03 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -108,7 +108,7 @@ static short 		clip_count = 0;
 static short 		clip_num;
 static short 		sound_num;
 static short 		frames;
-static float 		time;
+static float 		play_time;
 static int			hit_sound = -1;
 static sbyte 		bm_flag = BM_NONE;
 static int 			abm_flag = 0;
@@ -580,7 +580,7 @@ int bm_init_use_tbl()
 			else IFTOK("crit_flag")			crit_flag = get_int();
 			else IFTOK("sound_num") 		sound_num = get_int();
 			else IFTOK("frames") 			frames = get_int();
-			else IFTOK("time") 				time = get_float();
+			else IFTOK("time") 				play_time = get_float();
 			else IFTOK("obj_eclip")			obj_eclip = get_int();
 			else IFTOK("hit_sound") 		hit_sound = get_int();
 			else IFTOK("abm_flag")			abm_flag = get_int();
@@ -799,9 +799,9 @@ void bm_read_eclip()
 	if (!abm_flag)	{
 		bitmap = bm_load_sub(arg);
 
-		Effects[clip_num].vc.play_time = fl2f(time);
+		Effects[clip_num].vc.play_time = fl2f(play_time);
 		Effects[clip_num].vc.num_frames = frames;
-		Effects[clip_num].vc.frame_time = fl2f(time)/frames;
+		Effects[clip_num].vc.frame_time = fl2f(play_time)/frames;
 
 		Assert(clip_count < frames);
 		Effects[clip_num].vc.frames[clip_count] = bitmap;
@@ -831,7 +831,7 @@ void bm_read_eclip()
 		ab_load( arg, bm, &Effects[clip_num].vc.num_frames );
 
 		//printf("EC%d.", clip_num);
-		Effects[clip_num].vc.play_time = fl2f(time);
+		Effects[clip_num].vc.play_time = fl2f(play_time);
 		Effects[clip_num].vc.frame_time = Effects[clip_num].vc.play_time/Effects[clip_num].vc.num_frames;
 
 		clip_count = 0;	
@@ -956,9 +956,9 @@ void bm_read_wclip()
 		bitmap = bm_load_sub(arg);
 		if ( (WallAnims[clip_num].num_frames>-1) && (clip_count==0) )
 			Error( "Wall Clip %d is already used!", clip_num );
-		WallAnims[clip_num].play_time = fl2f(time);
+		WallAnims[clip_num].play_time = fl2f(play_time);
 		WallAnims[clip_num].num_frames = frames;
-		//WallAnims[clip_num].frame_time = fl2f(time)/frames;
+		//WallAnims[clip_num].frame_time = fl2f(play_time)/frames;
 		Assert(clip_count < frames);
 		WallAnims[clip_num].frames[clip_count++] = texture_count;
 		WallAnims[clip_num].open_sound = wall_open_sound;
@@ -979,8 +979,8 @@ void bm_read_wclip()
 		ab_load( arg, bm, &nframes );
 		WallAnims[clip_num].num_frames = nframes;
 		//printf("WC");
-		WallAnims[clip_num].play_time = fl2f(time);
-		//WallAnims[clip_num].frame_time = fl2f(time)/nframes;
+		WallAnims[clip_num].play_time = fl2f(play_time);
+		//WallAnims[clip_num].frame_time = fl2f(play_time)/nframes;
 		WallAnims[clip_num].open_sound = wall_open_sound;
 		WallAnims[clip_num].close_sound = wall_close_sound;
 
@@ -1018,9 +1018,9 @@ void bm_read_vclip()
 		if ( (Vclip[clip_num].num_frames>-1) && (clip_count==0)  )
 			Error( "Vclip %d is already used!", clip_num );
 		bi = bm_load_sub(arg);
-		Vclip[clip_num].play_time = fl2f(time);
+		Vclip[clip_num].play_time = fl2f(play_time);
 		Vclip[clip_num].num_frames = frames;
-		Vclip[clip_num].frame_time = fl2f(time)/frames;
+		Vclip[clip_num].frame_time = fl2f(play_time)/frames;
 		Vclip[clip_num].light_value = fl2f(vlighting);
 		Vclip[clip_num].sound_num = sound_num;
 		set_lighting_flag(&GameBitmaps[bi.index].bm_flags);
@@ -1044,8 +1044,8 @@ void bm_read_vclip()
 			Vclip[clip_num].flags |= VF_ROD;
 		}			
 		//printf("VC");
-		Vclip[clip_num].play_time = fl2f(time);
-		Vclip[clip_num].frame_time = fl2f(time)/Vclip[clip_num].num_frames;
+		Vclip[clip_num].play_time = fl2f(play_time);
+		Vclip[clip_num].frame_time = fl2f(play_time)/Vclip[clip_num].num_frames;
 		Vclip[clip_num].light_value = fl2f(vlighting);
 		Vclip[clip_num].sound_num = sound_num;
 		set_lighting_flag(&GameBitmaps[bm[clip_count].index].bm_flags);
