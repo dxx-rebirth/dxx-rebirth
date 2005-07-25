@@ -1,4 +1,4 @@
-/* $Id: bmread.c,v 1.16 2005-07-24 09:22:03 chris Exp $ */
+/* $Id: bmread.c,v 1.17 2005-07-25 03:34:53 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -2229,109 +2229,93 @@ void bm_write_all(FILE *fp)
 	FILE *tfile;
 	int s=0;
 
-tfile = fopen("hamfile.lst","wt");
+	tfile = fopen("hamfile.lst","wt");
 
 	t = NumTextures-1;	//don't save bogus texture
 	fwrite( &t, sizeof(int), 1, fp );
 	fwrite( Textures, sizeof(bitmap_index), t, fp );
 	for (i=0;i<t;i++)
 		fwrite( &TmapInfo[i], sizeof(*TmapInfo)-sizeof(TmapInfo->filename)-sizeof(TmapInfo->pad2), 1, fp );
-
-fprintf(tfile,"NumTextures = %d, Textures array = %d, TmapInfo array = %d\n",NumTextures,sizeof(bitmap_index)*NumTextures,sizeof(tmap_info)*NumTextures);
+	fprintf(tfile, "NumTextures = %d, Textures array = %d, TmapInfo array = %d\n", NumTextures, (int) sizeof(bitmap_index)*NumTextures, (int) sizeof(tmap_info)*NumTextures);
 
 	t = MAX_SOUNDS;
 	fwrite( &t, sizeof(int), 1, fp );
 	fwrite( Sounds, sizeof(ubyte), t, fp );
 	fwrite( AltSounds, sizeof(ubyte), t, fp );
-
-fprintf(tfile,"Num Sounds = %d, Sounds array = %d, AltSounds array = %d\n",t,t,t);
+	fprintf(tfile,"Num Sounds = %d, Sounds array = %d, AltSounds array = %d\n",t,t,t);
 
 	fwrite( &Num_vclips, sizeof(int), 1, fp );
 	fwrite( Vclip, sizeof(vclip), Num_vclips, fp );
-
-fprintf(tfile,"Num_vclips = %d, Vclip array = %d\n",Num_vclips,sizeof(vclip)*Num_vclips);
+	fprintf(tfile, "Num_vclips = %d, Vclip array = %d\n", Num_vclips, (int) sizeof(vclip)*Num_vclips);
 
 	fwrite( &Num_effects, sizeof(int), 1, fp );
 	fwrite( Effects, sizeof(eclip), Num_effects, fp );
-
-fprintf(tfile,"Num_effects = %d, Effects array = %d\n",Num_effects,sizeof(eclip)*Num_effects);
+	fprintf(tfile, "Num_effects = %d, Effects array = %d\n", Num_effects, (int) sizeof(eclip)*Num_effects);
 
 	fwrite( &Num_wall_anims, sizeof(int), 1, fp );
 	fwrite( WallAnims, sizeof(wclip), Num_wall_anims, fp );
-
-fprintf(tfile,"Num_wall_anims = %d, WallAnims array = %d\n",Num_wall_anims,sizeof(wclip)*Num_wall_anims);
+	fprintf(tfile, "Num_wall_anims = %d, WallAnims array = %d\n", Num_wall_anims, (int) sizeof(wclip)*Num_wall_anims);
 
 	t = N_D2_ROBOT_TYPES;
 	fwrite( &t, sizeof(int), 1, fp );
 	fwrite( Robot_info, sizeof(robot_info), t, fp );
-
-fprintf(tfile,"N_robot_types = %d, Robot_info array = %d\n",t,sizeof(robot_info)*N_robot_types);
+	fprintf(tfile, "N_robot_types = %d, Robot_info array = %d\n", t, (int) sizeof(robot_info)*N_robot_types);
 
 	t = N_D2_ROBOT_JOINTS;
 	fwrite( &t, sizeof(int), 1, fp );
 	fwrite( Robot_joints, sizeof(jointpos), t, fp );
-
-fprintf(tfile,"N_robot_joints = %d, Robot_joints array = %d\n",t,sizeof(jointpos)*N_robot_joints);
+	fprintf(tfile, "N_robot_joints = %d, Robot_joints array = %d\n", t, (int) sizeof(jointpos)*N_robot_joints);
 
 	t = N_D2_WEAPON_TYPES;
 	fwrite( &t, sizeof(int), 1, fp );
 	fwrite( Weapon_info, sizeof(weapon_info), t, fp );
-
-fprintf(tfile,"N_weapon_types = %d, Weapon_info array = %d\n",N_weapon_types,sizeof(weapon_info)*N_weapon_types);
+	fprintf(tfile, "N_weapon_types = %d, Weapon_info array = %d\n", N_weapon_types, (int) sizeof(weapon_info)*N_weapon_types);
 
 	fwrite( &N_powerup_types, sizeof(int), 1, fp );
 	fwrite( Powerup_info, sizeof(powerup_type_info), N_powerup_types, fp );
-	
-fprintf(tfile,"N_powerup_types = %d, Powerup_info array = %d\n",N_powerup_types,sizeof(powerup_info)*N_powerup_types);
+	fprintf(tfile, "N_powerup_types = %d, Powerup_info array = %d\n", N_powerup_types, (int) sizeof(powerup_info)*N_powerup_types);
 
 	t = N_D2_POLYGON_MODELS;
 	fwrite( &t, sizeof(int), 1, fp );
 	fwrite( Polygon_models, sizeof(polymodel), t, fp );
-
-fprintf(tfile,"N_polygon_models = %d, Polygon_models array = %d\n",t,sizeof(polymodel)*t);
+	fprintf(tfile, "N_polygon_models = %d, Polygon_models array = %d\n", t, (int) sizeof(polymodel)*t);
 
 	for (i=0; i<t; i++ )	{
 		g3_uninit_polygon_model(Polygon_models[i].model_data);	//get RGB colors
 		fwrite( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
-fprintf(tfile,"  Model %d, data size = %d\n",i,Polygon_models[i].model_data_size); s+=Polygon_models[i].model_data_size;
+		fprintf(tfile, "  Model %d, data size = %d\n", i, Polygon_models[i].model_data_size); s += Polygon_models[i].model_data_size;
 		g3_init_polygon_model(Polygon_models[i].model_data);	//map colors again
 	}
-fprintf(tfile,"Total model size = %d\n",s);
+	fprintf(tfile,"Total model size = %d\n",s);
 
 	fwrite( Dying_modelnums, sizeof(int), t, fp );
 	fwrite( Dead_modelnums, sizeof(int), t, fp );
-
-fprintf(tfile,"Dying_modelnums array = %d, Dead_modelnums array = %d\n",sizeof(int)*t,sizeof(int)*t);
+	fprintf(tfile, "Dying_modelnums array = %d, Dead_modelnums array = %d\n", (int) sizeof(int)*t, (int) sizeof(int)*t);
 
 	t = MAX_GAUGE_BMS;
 	fwrite( &t, sizeof(int), 1, fp );
 	fwrite( Gauges, sizeof(bitmap_index), t, fp );
 	fwrite( Gauges_hires, sizeof(bitmap_index), t, fp );
-
-fprintf(tfile,"Num gauge bitmaps = %d, Gauges array = %d, Gauges_hires array = %d\n",t,sizeof(bitmap_index)*t,sizeof(bitmap_index)*t);
+	fprintf(tfile, "Num gauge bitmaps = %d, Gauges array = %d, Gauges_hires array = %d\n", t, (int) sizeof(bitmap_index)*t, (int) sizeof(bitmap_index)*t);
 
 	t = MAX_OBJ_BITMAPS;
 	fwrite( &t, sizeof(int), 1, fp );
 	fwrite( ObjBitmaps, sizeof(bitmap_index), t, fp );
 	fwrite( ObjBitmapPtrs, sizeof(ushort), t, fp );
-
-fprintf(tfile,"Num obj bitmaps = %d, ObjBitmaps array = %d, ObjBitmapPtrs array = %d\n",t,sizeof(bitmap_index)*t,sizeof(ushort)*t);
+	fprintf(tfile, "Num obj bitmaps = %d, ObjBitmaps array = %d, ObjBitmapPtrs array = %d\n", t, (int) sizeof(bitmap_index)*t, (int) sizeof(ushort)*t);
 
 	fwrite( &only_player_ship, sizeof(player_ship), 1, fp );
-
-fprintf(tfile,"player_ship size = %d\n",sizeof(player_ship));
+	fprintf(tfile, "player_ship size = %d\n", (int) sizeof(player_ship));
 
 	fwrite( &Num_cockpits, sizeof(int), 1, fp );
 	fwrite( cockpit_bitmap, sizeof(bitmap_index), Num_cockpits, fp );
-
-fprintf(tfile,"Num_cockpits = %d, cockpit_bitmaps array = %d\n",Num_cockpits,sizeof(bitmap_index)*Num_cockpits);
+	fprintf(tfile, "Num_cockpits = %d, cockpit_bitmaps array = %d\n", Num_cockpits, (int) sizeof(bitmap_index)*Num_cockpits);
 
 	fwrite( &First_multi_bitmap_num, sizeof(int), 1, fp );
 
 	fwrite( &Num_reactors, sizeof(Num_reactors), 1, fp );
 	fwrite( Reactors, sizeof(*Reactors), Num_reactors, fp);
-
-fprintf(tfile,"Num_reactors = %d, Reactors array = %d\n",Num_reactors,sizeof(*Reactors)*Num_reactors);
+	fprintf(tfile, "Num_reactors = %d, Reactors array = %d\n", Num_reactors, (int) sizeof(*Reactors)*Num_reactors);
 
 	fwrite( &Marker_model_num, sizeof(Marker_model_num), 1, fp);
 
@@ -2344,7 +2328,7 @@ fprintf(tfile,"Num_reactors = %d, Reactors array = %d\n",Num_reactors,sizeof(*Re
 	fwrite( &destroyed_exit_modelnum, sizeof(int), 1, fp );
 	#endif
 
-fclose(tfile);
+	fclose(tfile);
 
 	bm_write_extra_robots();
 }

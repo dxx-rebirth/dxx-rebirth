@@ -1,3 +1,8 @@
+2005-07-25  Chris Taylor  <chris@icculus.org>
+
+	* main/bmread.c: cast some fprintf arguments to int, to fix
+	warnings
+
 2005-07-24  Chris Taylor  <chris@icculus.org>
 
 	* main/bmread.c: call file static var 'time' 'play_time' instead,
