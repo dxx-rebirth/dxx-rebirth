@@ -3,6 +3,9 @@
 	* main/bmread.c: cast some fprintf arguments to int, to fix
 	warnings
 
+	* main/editor/medrobot.c: no checking if obj->id > -1
+	(it's unsigned)
+
 2005-07-24  Chris Taylor  <chris@icculus.org>
 
 	* main/bmread.c: call file static var 'time' 'play_time' instead,
