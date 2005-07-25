@@ -6,6 +6,10 @@
 	* main/editor/medrobot.c: no checking if obj->id > -1
 	(it's unsigned)
 
+	* main/editor/ksegsize.c, main/editor/segment.c,
+	main/editor/seguvs.c, ui/mouse.c: avoid assignments between
+	sbyte * and char *, ubyte * and char * to fix warnings with gcc 4.0
+
 2005-07-24  Chris Taylor  <chris@icculus.org>
 
 	* main/bmread.c: call file static var 'time' 'play_time' instead,

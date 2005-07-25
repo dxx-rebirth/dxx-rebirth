@@ -1,4 +1,4 @@
-/* $Id: segment.c,v 1.7 2005-04-01 12:41:47 chris Exp $ */
+/* $Id: segment.c,v 1.8 2005-07-25 04:09:40 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -333,7 +333,7 @@ void med_move_vertex(segment *sp, int pi, vms_vector *vofs)
 //	Wall indices: 0/1/2/3/4/5 = left/top/right/bottom/back/front
 void med_move_wall(segment *sp,int wi, vms_vector *vofs)
 {
-	char *vp;
+	sbyte *vp;
 	int	i;
 
 	Assert( (wi >= 0) && (wi <= 5) );
@@ -494,7 +494,7 @@ int med_set_vertex(int vnum,vms_vector *vp)
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
 int check_for_degenerate_side(segment *sp, int sidenum)
 {
-	char			*vp = Side_to_verts[sidenum];
+	sbyte		*vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2, cross, vec_to_center;
 	vms_vector	segc, sidec;
 	fix			dot;
@@ -951,7 +951,7 @@ void copy_tmap_ids(segment *dseg, segment *sseg)
 //	 4 = already a face attached on destseg:destside
 int med_attach_segment_rotated(segment *destseg, segment *newseg, int destside, int newside,vms_matrix *attmat)
 {
-	char			*dvp;
+	sbyte		*dvp;
 	segment		*nsp;
 	segment2	*nsp2;
 	int			side,v;
@@ -1059,7 +1059,7 @@ int med_attach_segment_rotated(segment *destseg, segment *newseg, int destside, 
 void scale_free_vertices(segment *sp,vms_vector *vp,fix scale_factor,int min_side,int max_side)
 {
 	int	i;
-	char	*verts;
+	sbyte	*verts;
 
 	verts = Side_to_verts[min_side];
 
@@ -1474,7 +1474,7 @@ void assign_default_uvs_to_curseg(void)
 //		2			unable to form joint because side1 is already used
 int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 {
-	char		*vp1,*vp2;
+	sbyte	*vp1,*vp2;
 	int		bfi,v,s,sv,s1,nv;
 	int		lost_vertices[4],remap_vertices[4];
 	int		validation_list[MAX_VALIDATIONS];
@@ -1573,7 +1573,7 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 {
 	segment		*bs;
-	char			*sv;
+	sbyte		*sv;
 	int			v,bfi,i;
 
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))

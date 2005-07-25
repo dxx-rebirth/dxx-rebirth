@@ -1,4 +1,4 @@
-/* $Id: seguvs.c,v 1.5 2005-03-06 08:25:52 chris Exp $ */
+/* $Id: seguvs.c,v 1.6 2005-07-25 04:09:40 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: seguvs.c,v 1.5 2005-03-06 08:25:52 chris Exp $";
+static char rcsid[] = "$Id: seguvs.c,v 1.6 2005-07-25 04:09:40 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -854,7 +854,7 @@ void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base
 //	great confusion.
 void get_side_ids(segment *base_seg, segment *con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
 {
-	char		*base_vp,*con_vp;
+	sbyte	*base_vp,*con_vp;
 	int		v0,side;
 
 	*base_common_side = -1;
@@ -1066,7 +1066,7 @@ found1: ;
 //	segment to get the wall in the connected segment which shares the edge, and get tmap_num from there.
 void propagate_tmaps_to_segment_sides(segment *base_seg, int base_side, segment *con_seg, int con_side, int uv_only_flag)
 {
-	char		*base_vp,*con_vp;
+	sbyte		*base_vp,*con_vp;
 	short		abs_id1,abs_id2;
 	int		v;
 
