@@ -1,3 +1,7 @@
+2005-07-27  Chris Taylor  <chris@icculus.org>
+
+	* d2x.xcode/project.pbxproj: build the editor by default
+
 2005-07-25  Chris Taylor  <chris@icculus.org>
 
 	* main/bmread.c: cast some fprintf arguments to int, to fix
