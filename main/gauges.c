@@ -1,4 +1,4 @@
-/* $Id: gauges.c,v 1.16 2005-02-25 06:24:52 chris Exp $ */
+/* $Id: gauges.c,v 1.17 2005-07-28 01:40:41 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -3453,110 +3453,101 @@ void render_gauges()
 		if (Players[Player_num].homing_object_dist >= 0)
 			newdemo_record_homing_distance(Players[Player_num].homing_object_dist);
 
-	{
-		if (Cockpit_mode == CM_FULL_COCKPIT)
-			draw_player_ship(cloak, old_cloak[VR_current_page], SHIP_GAUGE_X, SHIP_GAUGE_Y);
-		else
-			draw_player_ship(cloak, old_cloak[VR_current_page], SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
+	if (Cockpit_mode == CM_FULL_COCKPIT)
+		draw_player_ship(cloak, old_cloak[VR_current_page], SHIP_GAUGE_X, SHIP_GAUGE_Y);
+	else
+		draw_player_ship(cloak, old_cloak[VR_current_page], SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 
-		old_cloak[VR_current_page] = cloak;
-	}
+	old_cloak[VR_current_page] = cloak;
 
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
-		if (energy != old_energy[VR_current_page]) {
-			if (Newdemo_state==ND_STATE_RECORDING ) {
-				newdemo_record_player_energy(old_energy[VR_current_page], energy);
-			}
-			draw_energy_bar(energy);
-			draw_numerical_display(shields, energy);
+		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy[VR_current_page]))
+		{
+			newdemo_record_player_energy(old_energy[VR_current_page], energy);
 			old_energy[VR_current_page] = energy;
 		}
+		draw_energy_bar(energy);
+		draw_numerical_display(shields, energy);
 
-		if (Afterburner_charge != old_afterburner[VR_current_page]) {
-			if (Newdemo_state==ND_STATE_RECORDING ) {
-				newdemo_record_player_afterburner(old_afterburner[VR_current_page], Afterburner_charge);
-			}
-			draw_afterburner_bar(Afterburner_charge);
+		if (Newdemo_state == ND_STATE_RECORDING && (Afterburner_charge != old_afterburner[VR_current_page]))
+		{
+			newdemo_record_player_afterburner(old_afterburner[VR_current_page], Afterburner_charge);
 			old_afterburner[VR_current_page] = Afterburner_charge;
 		}
+		draw_afterburner_bar(Afterburner_charge);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-			draw_numerical_display(shields, energy);
 			draw_invulnerable_ship();
 			old_shields[VR_current_page] = shields ^ 1;
-		} else if (shields != old_shields[VR_current_page]) {		// Draw the shield gauge
-			if (Newdemo_state==ND_STATE_RECORDING ) {
+		} else {		// Draw the shield gauge
+			if (Newdemo_state == ND_STATE_RECORDING && (shields != old_shields[VR_current_page]))
+			{
 				newdemo_record_player_shields(old_shields[VR_current_page], shields);
+				old_shields[VR_current_page] = shields;
 			}
 			draw_shield_bar(shields);
-			draw_numerical_display(shields, energy);
-			old_shields[VR_current_page] = shields;
 		}
+		draw_numerical_display(shields, energy);
 	
-		if (Players[Player_num].flags != old_flags[VR_current_page]) {
-			if (Newdemo_state==ND_STATE_RECORDING )
-				newdemo_record_player_flags(old_flags[VR_current_page], Players[Player_num].flags);
-			draw_keys();
+		if (Newdemo_state == ND_STATE_RECORDING && (Players[Player_num].flags != old_flags[VR_current_page]))
+		{
+			newdemo_record_player_flags(old_flags[VR_current_page], Players[Player_num].flags);
 			old_flags[VR_current_page] = Players[Player_num].flags;
 		}
+		draw_keys();
 
 		show_homing_warning();
 
 	} else if (Cockpit_mode == CM_STATUS_BAR) {
 
+		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy[VR_current_page]))
 		{
-			if (Newdemo_state==ND_STATE_RECORDING && (energy != old_energy[VR_current_page]))
-				newdemo_record_player_energy(old_energy[VR_current_page], energy);
-			sb_draw_energy_bar(energy);
+			newdemo_record_player_energy(old_energy[VR_current_page], energy);
 			old_energy[VR_current_page] = energy;
 		}
+		sb_draw_energy_bar(energy);
 
+		if (Newdemo_state == ND_STATE_RECORDING && (Afterburner_charge != old_afterburner[VR_current_page]))
 		{
-			if (Newdemo_state==ND_STATE_RECORDING &&
-	   Afterburner_charge != old_afterburner[VR_current_page])
-				newdemo_record_player_afterburner(old_afterburner[VR_current_page], Afterburner_charge);
-			sb_draw_afterburner();
+			newdemo_record_player_afterburner(old_afterburner[VR_current_page], Afterburner_charge);
 			old_afterburner[VR_current_page] = Afterburner_charge;
 		}
-	
-		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
+		sb_draw_afterburner();
+
+		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
+		{
 			draw_invulnerable_ship();
 			old_shields[VR_current_page] = shields ^ 1;
-			sb_draw_shield_num(shields);
 		} 
 		else
-			{		// Draw the shield gauge
-				if (Newdemo_state == ND_STATE_RECORDING &&
-		shields != old_shields[VR_current_page])
-					newdemo_record_player_shields(old_shields[VR_current_page], shields);
-				sb_draw_shield_bar(shields);
+		{		// Draw the shield gauge
+			if (Newdemo_state == ND_STATE_RECORDING && (shields != old_shields[VR_current_page]))
+			{
+				newdemo_record_player_shields(old_shields[VR_current_page], shields);
 				old_shields[VR_current_page] = shields;
-				sb_draw_shield_num(shields);
 			}
+			sb_draw_shield_bar(shields);
+		}
+		sb_draw_shield_num(shields);
 
+		if (Newdemo_state == ND_STATE_RECORDING && (Players[Player_num].flags != old_flags[VR_current_page]))
 		{
-			if (Newdemo_state == ND_STATE_RECORDING &&
-	   Players[Player_num].flags != old_flags[VR_current_page])
-				newdemo_record_player_flags(old_flags[VR_current_page], Players[Player_num].flags);
-			sb_draw_keys();
+			newdemo_record_player_flags(old_flags[VR_current_page], Players[Player_num].flags);
 			old_flags[VR_current_page] = Players[Player_num].flags;
 		}
+		sb_draw_keys();
 	
 
 		// May want to record this in a demo...
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
-			{
-				sb_show_lives();
-				old_lives[VR_current_page] = Players[Player_num].net_killed_total;
-			}
+			sb_show_lives();
+			old_lives[VR_current_page] = Players[Player_num].net_killed_total;
 		}
 		else
 		{
-			{
-				sb_show_lives();
-				old_lives[VR_current_page] = Players[Player_num].lives;
-			}
+			sb_show_lives();
+			old_lives[VR_current_page] = Players[Player_num].lives;
 		}
 
 		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
