@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.36 2005-01-24 19:12:28 schaffner Exp $ */
+/* $Id: font.c,v 1.37 2005-07-29 03:51:28 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -354,7 +354,8 @@ int gr_internal_string0m(int x, int y, char *s )
 
 				letter = (unsigned char)*text_ptr-FMINCHAR;
 
-				if (!INFONT(letter) || *text_ptr<=0x06) {	//not in font, draw as space
+				if (!INFONT(letter) || (unsigned char) *text_ptr <= 0x06)	//not in font, draw as space
+				{
 					CHECK_EMBEDDED_COLORS() else{
 						VideoOffset += spacing;
 						text_ptr++;

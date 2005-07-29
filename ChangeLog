@@ -1,3 +1,7 @@
+2005-07-29  Chris Taylor  <chris@icculus.org>
+
+	* 2d/font.c: show some missing wide 1's (bug #2269)
+
 2005-07-28  Chris Taylor  <chris@icculus.org>
 
 	* main/gauges.c: show gauges in SDL (help fix bug #2267)
