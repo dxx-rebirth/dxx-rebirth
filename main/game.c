@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.37 2005-06-22 09:08:21 chris Exp $ */
+/* $Id: game.c,v 1.38 2005-07-29 07:51:16 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.37 2005-06-22 09:08:21 chris Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.38 2005-07-29 07:51:16 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -3097,7 +3097,7 @@ int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask)
 void FireLaser()
 {
 
-	Global_laser_firing_count += Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
+	Global_laser_firing_count = Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
 
 	if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count)) {
 		if ((Players[Player_num].energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
