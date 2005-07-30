@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.103 2005-07-30 07:46:03 chris Exp $ */
+/* $Id: inferno.c,v 1.104 2005-07-30 08:16:13 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -676,7 +676,6 @@ int main(int argc, char *argv[])
 
 	if (!VR_offscreen_buffer)	//if hasn't been initialied (by headset init)
 		set_display_mode(0);		//..then set default display mode
-#endif
 
 	{
 		int screen_width = 640;

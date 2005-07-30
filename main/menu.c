@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.42 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: menu.c,v 1.43 2005-07-30 08:16:13 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1651,7 +1651,7 @@ void do_toggles_menu()
 		ADD_CHECK(5, "Escort robot hot keys",EscortHotKeys);
 		//when adding more options, change N_TOGGLE_ITEMS above
 
-		i = newmenu_do1( NULL, "Toggles", N_TOGGLE_ITEMS, m, NULL, i );
+		i = newmenu_do1( NULL, "Toggles", 7, m, NULL, i );
 			
 		Auto_leveling_on			= m[0].value;
 		Reticle_on					= m[1].value;
