@@ -1,4 +1,4 @@
-/* $Id: texmerge.c,v 1.4 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: texmerge.c,v 1.5 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "gr.h"
 #include "error.h"
 #include "game.h"
@@ -32,10 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mono.h"
 #include "rle.h"
 #include "piggy.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -66,36 +61,6 @@ void merge_textures_super_xparent(int type, grs_bitmap *bottom_bmp, grs_bitmap *
 											 ubyte *dest_data);
 void merge_textures_new(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp,
 								ubyte *dest_data);
-
-#if defined(POLY_ACC)       // useful to all of D2 I think.
-extern grs_bitmap * rle_get_id_sub( grs_bitmap * bmp );
-
-//----------------------------------------------------------------------
-// Given pointer to a bitmap returns a unique value that describes the bitmap.
-// Returns 0xFFFFFFFF if this bitmap isn't a texmerge'd bitmap.
-uint texmerge_get_unique_id( grs_bitmap * bmp )
-{
-    int i,n;
-    uint tmp;
-    grs_bitmap * tmpbmp;
-    // Check in texmerge cache
-    for (i=0; i<num_cache_entries; i++ )    {
-        if ( (Cache[i].last_frame_used > -1) && (Cache[i].bitmap == bmp) )  {
-            tmp = (uint)Cache[i].orient<<30;
-            tmp |= ((uint)(Cache[i].top_bmp - GameBitmaps))<<16;
-            tmp |= (uint)(Cache[i].bottom_bmp - GameBitmaps);
-            return tmp;
-        }
-    }
-    // Check in rle cache
-    tmpbmp = rle_get_id_sub( bmp );
-    if ( tmpbmp )   {
-        return (uint)(tmpbmp-GameBitmaps);
-    }
-    // Must be a normal bitmap
-     return (uint)(bmp-GameBitmaps);
-}
-#endif
 
 //----------------------------------------------------------------------
 

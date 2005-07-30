@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.23 2005-02-25 05:20:36 chris Exp $ */
+/* $Id: playsave.c,v 1.24 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,7 +40,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "error.h"
 
-#include "pa_enabl.h"
 #include "strutil.h"
 #include "game.h"
 #include "gameseq.h"
@@ -74,9 +73,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	#include <Errors.h>			// mac doesn't have "normal" error numbers -- must use mac equivs
 	#ifndef ENOENT
 		#define ENOENT fnfErr
-	#endif
-	#ifdef POLY_ACC
-		#include "poly_acc.h"
 	#endif
 	#include "isp.h"
 #elif defined(_WIN32_WCE)
@@ -274,21 +270,6 @@ RetrySelection:
 	Netlife_kills=0; Netlife_killed=0;	
 	#endif
 	
-	#ifdef MACINTOSH
-		#ifdef POLY_ACC
-			if (PAEnabled)
-			{
-				Scanline_double = 0;		// no pixel doubling for poly_acc
-			}
-			else
-			{
-				Scanline_double = 1;		// should be default for new player
-			}
-		#else
-			Scanline_double = 1;			// should be default for new player
-		#endif
-	#endif
-
 	return 1;
 }
 
@@ -382,21 +363,10 @@ int read_player_file()
 	Default_leveling_on       = cfile_read_byte(file);
 	Reticle_on                = cfile_read_byte(file);
 	Cockpit_mode              = cfile_read_byte(file);
-	#ifdef POLY_ACC
-	 #ifdef PA_3DFX_VOODOO
-		if (Cockpit_mode<2)
-		{
-	   	Cockpit_mode=2;
-			Game_window_w  = 640;
-			Game_window_h	= 480;
-		}
-	 #endif
-	#endif
-
-	Default_display_mode     = cfile_read_byte(file);
-	Missile_view_enabled     = cfile_read_byte(file);
-	Headlight_active_default = cfile_read_byte(file);
-	Guided_in_big_window     = cfile_read_byte(file);
+	Default_display_mode      = cfile_read_byte(file);
+	Missile_view_enabled      = cfile_read_byte(file);
+	Headlight_active_default  = cfile_read_byte(file);
+	Guided_in_big_window      = cfile_read_byte(file);
 		
 	if (player_file_version >= 19)
 		Automap_always_hires = cfile_read_byte(file);

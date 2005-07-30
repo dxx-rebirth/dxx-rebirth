@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.38 2005-07-29 07:51:16 chris Exp $ */
+/* $Id: game.c,v 1.39 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.38 2005-07-29 07:51:16 chris Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.39 2005-07-30 01:50:17 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -51,7 +51,6 @@ char game_rcsid[] = "$Id: game.c,v 1.38 2005-07-29 07:51:16 chris Exp $";
 
 #include "pstypes.h"
 #include "console.h"
-#include "pa_enabl.h"       //$$POLY_ACC
 #include "gr.h"
 #include "inferno.h"
 #include "game.h"
@@ -107,10 +106,6 @@ char game_rcsid[] = "$Id: game.c,v 1.38 2005-07-29 07:51:16 chris Exp $";
 #include "controls.h"
 #include "songs.h"
 #include "gamepal.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 #include "multi.h"
 #include "desc_id.h"
@@ -464,11 +459,6 @@ void init_cockpit()
 {
 	int minx, maxx, miny, maxy;
 
-#if defined(POLY_ACC)
-    pa_flush();                 // get rid of undrawn polys.
-    pa_clear_buffer(1, 0);
-#endif
-
 	//Initialize the on-screen canvases
 
 	if (Newdemo_state==ND_STATE_RECORDING) {
@@ -543,12 +533,7 @@ void init_cockpit()
 		gr_ibitblt_create_mask( bm, minx, miny, maxx-minx+1, maxy-miny+1, VR_offscreen_buffer->cv_bitmap.bm_rowsize);
 #else
 		if ( Current_display_mode ) {
-#if defined(POLY_ACC)
-			Game_cockpit_copy_code  = gr_ibitblt_create_mask_pa( bm, minx, miny, maxx-minx+1, maxy-miny+1, VR_offscreen_buffer->cv_bitmap.bm_rowsize );
-			pa_clear_buffer(1, 0);      // clear offscreen to reduce white flash.
-#else
 			Game_cockpit_copy_code  = gr_ibitblt_create_mask_svga( bm, minx, miny, maxx-minx+1, maxy-miny+1, VR_offscreen_buffer->cv_bitmap.bm_rowsize );
-#endif
 		} else
 			Game_cockpit_copy_code  = gr_ibitblt_create_mask( bm, minx, miny, maxx-minx+1, maxy-miny+1, VR_offscreen_buffer->cv_bitmap.bm_rowsize );
 #endif
@@ -669,22 +654,6 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 		gr_init_sub_canvas( &VR_render_sub_buffer[1], &VR_render_buffer[1], x, y, w, h );
 	}
 
-	#ifdef MACINTOSH
-		#ifdef POLY_ACC
-			if ( PAEnabled )
-			{
-				TQARect	newBounds;
-				
-				newBounds.left = x;
-				newBounds.right = x + w;
-				newBounds.top = y;
-				newBounds.bottom = y + h;
-				
-				pa_set_context(kGamePlayDrawContextID, &newBounds);		// must resize/create new context
-			}
-		#endif
-	#endif
-
 #ifdef WINDOWS
 	VR_render_sub_buffer[0].cv_bitmap.bm_x = 0;
 	VR_render_sub_buffer[0].cv_bitmap.bm_y = 0;
@@ -801,21 +770,7 @@ void game_init_render_buffers(int screen_mode, int render_w, int render_h, int r
 			VR_offscreen_buffer = gr_create_canvas( render_w, 200 );
 		}
 		else {
-#if defined(POLY_ACC)
-			#ifndef MACINTOSH
             VR_offscreen_buffer = gr_create_canvas( render_w, render_h );
-            d_free(VR_offscreen_buffer->cv_bitmap.bm_data);
-            gr_init_canvas(VR_offscreen_buffer, pa_get_buffer_address(1), BM_LINEAR15, render_w, render_h);
-			#else
-				if ( PAEnabled || gConfigInfo.mAcceleration ) {
-					Cockpit_mode=CM_FULL_SCREEN;		// HACK HACK HACK HACK HACK!!!!
-					VR_offscreen_buffer = gr_create_canvas2(render_w, render_h, BM_LINEAR15);
-				} else
-	            VR_offscreen_buffer = gr_create_canvas( render_w, render_h );
-			#endif
-#else
-            VR_offscreen_buffer = gr_create_canvas( render_w, render_h );
-#endif
         }
 
 #ifdef OGL
@@ -924,15 +879,7 @@ WIN(static int saved_window_h);
 
 			MenuHires = MenuHiresAvailable;		//do highres if we can
 
-#if defined(POLY_ACC)
-				#ifndef MACINTOSH
-	            menu_mode = MenuHires?SM(640,480):SM(320,200);
-				#else
-					menu_mode = PAEnabled?SM_640x480x15xPA:SM_640x480V;
-				#endif
-#else
             menu_mode = MenuHires?SM(640,480):SM(320,200);
-#endif
 
 			if (VGA_current_mode != menu_mode) {
 				if (gr_set_mode(menu_mode))

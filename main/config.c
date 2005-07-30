@@ -1,4 +1,4 @@
-/* $Id: config.c,v 1.16 2005-02-25 05:20:36 chris Exp $ */
+/* $Id: config.c,v 1.17 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -53,13 +53,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "mission.h"
 #include "mono.h"
-#include "pa_enabl.h"
 
 #include "physfsx.h"
 
 
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.16 2005-02-25 05:20:36 chris Exp $";
+static char rcsid[] = "$Id: config.c,v 1.17 2005-07-30 01:50:17 chris Exp $";
 #endif
 
 ubyte Config_digi_volume = 8;
@@ -300,12 +299,6 @@ int ReadConfigFile()
 						SoundChannels = sc;
 						set_custom_detail_vars();
 					}
-				  #ifdef PA_3DFX_VOODOO   // Set to highest detail because you can't change em	
-					   Object_complexity=Object_detail=Wall_detail=
-						Wall_render_depth=Debris_amount=SoundChannels = NUM_DETAIL_LEVELS-1;
-						Detail_level=NUM_DETAIL_LEVELS-1;
-						set_custom_detail_vars();
-					#endif
 				}
 			}
 			else if (!strcmp(token, joystick_min_str))	{
@@ -571,7 +564,6 @@ int WriteConfigFile()
 #include <Resources.h>
 #include <LowMem.h>
 
-#include "pa_enabl.h"		// because some prefs rely on this fact
 #include "error.h"
 #include "pstypes.h"
 #include "game.h"
@@ -584,12 +576,8 @@ int WriteConfigFile()
 #include "mission.h"
 #include "prefs.h"			// prefs file for configuration stuff -- from DeSalvo
 
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
-
 #ifdef RCS
-static char rcsid[] = "$Id: config.c,v 1.16 2005-02-25 05:20:36 chris Exp $";
+static char rcsid[] = "$Id: config.c,v 1.17 2005-07-30 01:50:17 chris Exp $";
 #endif
 
 #define MAX_CTB_LEN	512
@@ -1023,12 +1011,6 @@ int ReadConfigFile()
 		SoundChannels = prefs->sc;
 		set_custom_detail_vars();
 	}
-  #ifdef PA_3DFX_VOODOO   // Set to highest detail because you can't change em	
-		   Object_complexity=Object_detail=Wall_detail=
-			Wall_render_depth=Debris_amount=SoundChannels = NUM_DETAIL_LEVELS-1;
-			Detail_level=NUM_DETAIL_LEVELS-1;
-			set_custom_detail_vars();
-  #endif
 
 	strncpy( config_last_player, prefs->lastplayer, CALLSIGN_LEN );
 	p = strchr(config_last_player, '\n' );

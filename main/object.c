@@ -1,4 +1,4 @@
-/* $Id: object.c,v 1.16 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: object.c,v 1.17 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -54,7 +54,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "laser.h"
 #include "error.h"
-#include "pa_enabl.h"
 #include "ai.h"
 #include "hostage.h"
 #include "morph.h"
@@ -309,10 +308,6 @@ void draw_object_tmap_rod(object *obj,bitmap_index bitmapi,int lighted)
    #ifdef _3DFX
    _3dfx_rendering_poly_obj = 1;
    #endif
-
-	#ifdef PA_3DFX_VOODOO
-	light = f1_0;
-	#endif
 
 	g3_draw_rod_tmap(bitmap,&bot_p,obj->size,&top_p,obj->size,light);
 

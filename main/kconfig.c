@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.38 2005-04-05 07:35:09 btb Exp $ */
+/* $Id: kconfig.c,v 1.39 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.38 2005-04-05 07:35:09 btb Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.39 2005-07-30 01:50:17 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -36,7 +36,6 @@ static char rcsid[] = "$Id: kconfig.c,v 1.38 2005-04-05 07:35:09 btb Exp $";
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
@@ -69,10 +68,6 @@ static char rcsid[] = "$Id: kconfig.c,v 1.38 2005-04-05 07:35:09 btb Exp $";
 #include "cntrlcen.h"
 #if defined (TACTILE)
  #include "tactile.h"
-#endif
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
 #endif
 
 #include "collide.h"
@@ -1362,7 +1357,7 @@ void kc_drawitem( kc_item *item, int is_current )
 {
 	int x, w, h, aw;
 	char btext[16];
-//	PA_DFX (pa_set_frontbuffer_current());
+
 WIN(DDGRLOCK(dd_grd_curcanv));
 
 	if (is_current)
@@ -1446,7 +1441,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 		x = LHX(item->w1+item->x)+((LHX(item->w2)-w)/2);
 	
 		gr_string( x, LHY(item->y), btext );
-//		PA_DFX (pa_set_backbuffer_current());
 
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
@@ -1460,7 +1454,6 @@ void kc_drawquestion( kc_item *item )
 	int c, x, w, h, aw;
 
 WIN(DDGRLOCK(dd_grd_curcanv));	
-  // PA_DFX (pa_set_frontbuffer_current());
 
 	gr_get_string_size("?", &w, &h, &aw  );
 
@@ -1478,7 +1471,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	x = LHX(item->w1+item->x)+((LHX(item->w2)-w)/2);
    
 	gr_string( x, LHY(item->y), "?" );
-//	PA_DFX (pa_set_backbuffer_current());
 WIN(DDGRUNLOCK(dd_grd_curcanv));
 gr_update();
 }
@@ -1938,11 +1930,7 @@ void kconfig(int n, char * title)
 	WIN(mouse_set_mode(0));
 	WIN(dd_gr_set_current_canvas(NULL));
 	
-#if defined(POLY_ACC)
-	save_bm = gr_create_bitmap2( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, grd_curcanv->cv_bitmap.bm_type, NULL );
-#else
 	save_bm = gr_create_bitmap( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
-#endif
 	Assert( save_bm != NULL );
 	
 	WIN(DDGRLOCK(dd_grd_curcanv));

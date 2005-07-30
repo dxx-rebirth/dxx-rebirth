@@ -1,4 +1,4 @@
-/* $Id: gauges.c,v 1.17 2005-07-28 01:40:41 chris Exp $ */
+/* $Id: gauges.c,v 1.18 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -33,7 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "hudmsg.h"
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "inferno.h"
 #include "game.h"
 #include "screens.h"
@@ -67,10 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef OGL
 #include "ogl_init.h"
-#endif
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
 #endif
 
 void draw_ammo_info(int x,int y,int ammo_count,int primary);
@@ -871,28 +866,17 @@ void copy_gauge_box(gauge_box *box,grs_bitmap *bm)
 //gr_setcolor(BM_XRGB(31,0,0));
 
 		for (cnt=0,y=box->top;cnt<n_spans;cnt++,y++) {
-			PA_DFX (pa_set_frontbuffer_current());
-			PA_DFX (pa_set_back_to_read());
-
 			gr_bm_ubitblt(box->spanlist[cnt].r-box->spanlist[cnt].l+1,1,
 						box->left+box->spanlist[cnt].l,y,box->left+box->spanlist[cnt].l,y,bm,&grd_curcanv->cv_bitmap);
 
 			//gr_scanline(box->left+box->spanlist[cnt].l,box->left+box->spanlist[cnt].r,y);
-			PA_DFX (pa_set_backbuffer_current());
-			PA_DFX (pa_set_front_to_read());
-
 	 	}
  	}
 	else
 	 {
-		PA_DFX (pa_set_frontbuffer_current());
-		PA_DFX (pa_set_back_to_read());
-	
 		gr_bm_ubitblt(box->right-box->left+1,box->bot-box->top+1,
 						box->left,box->top,box->left,box->top,
 						bm,&grd_curcanv->cv_bitmap);
-		PA_DFX (pa_set_backbuffer_current());
-		PA_DFX (pa_set_front_to_read());
 	 }
 }
 #endif
@@ -1087,16 +1071,10 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 
 		if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ) 
 			{
-			 PA_DFX(pa_set_frontbuffer_current()); 
-          PA_DFX(gr_printf(SB_SCORE_LABEL_X,SB_SCORE_Y,"%s:", TXT_KILLS)); 
-          PA_DFX(pa_set_backbuffer_current()); 
 			 gr_printf(SB_SCORE_LABEL_X,SB_SCORE_Y,"%s:", TXT_KILLS);
 			}
 		else
 		  {
-		   PA_DFX (pa_set_frontbuffer_current() );
-			PA_DFX (gr_printf(SB_SCORE_LABEL_X,SB_SCORE_Y,"%s:", TXT_SCORE) );
-         PA_DFX(pa_set_backbuffer_current()); 
 			gr_printf(SB_SCORE_LABEL_X,SB_SCORE_Y,"%s:", TXT_SCORE);
 		  }
 	}
@@ -1113,9 +1091,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	
 	//erase old score
 	gr_setcolor(BM_XRGB(0,0,0));
-   PA_DFX (pa_set_frontbuffer_current());
-	PA_DFX (gr_rect(last_x[(Current_display_mode?2:0)+VR_current_page],y,SB_SCORE_RIGHT,y+GAME_FONT->ft_h));
-   PA_DFX(pa_set_backbuffer_current()); 
 	gr_rect(last_x[(Current_display_mode?2:0)+VR_current_page],y,SB_SCORE_RIGHT,y+GAME_FONT->ft_h);
 
 	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ) 
@@ -1123,9 +1098,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	else
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );	
  
-   PA_DFX (pa_set_frontbuffer_current());
-	PA_DFX (gr_printf(x,y,score_str));
-   PA_DFX(pa_set_backbuffer_current()); 
  	gr_printf(x,y,score_str);
 
 	last_x[(Current_display_mode?2:0)+VR_current_page] = x;
@@ -1155,9 +1127,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 		if (score_display[VR_current_page] != last_score_display[VR_current_page])
 		{
 			gr_setcolor(BM_XRGB(0,0,0));
-			PA_DFX (pa_set_frontbuffer_current());
-			PA_DFX (gr_rect(last_x[(Current_display_mode?2:0)+VR_current_page],SB_SCORE_ADDED_Y,SB_SCORE_ADDED_RIGHT,SB_SCORE_ADDED_Y+GAME_FONT->ft_h));
-		   PA_DFX(pa_set_backbuffer_current()); 
 			gr_rect(last_x[(Current_display_mode?2:0)+VR_current_page],SB_SCORE_ADDED_Y,SB_SCORE_ADDED_RIGHT,SB_SCORE_ADDED_Y+GAME_FONT->ft_h);
 
 			last_score_display[VR_current_page] = score_display[VR_current_page];
@@ -1179,9 +1148,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 
 		gr_set_fontcolor(gr_getcolor(0, color, 0),-1 );
 
-		PA_DFX (pa_set_frontbuffer_current());
-		PA_DFX (gr_printf(x, SB_SCORE_ADDED_Y, score_str));
-      PA_DFX(pa_set_backbuffer_current()); 
 		gr_printf(x, SB_SCORE_ADDED_Y, score_str);
 
 
@@ -1190,9 +1156,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	} else {
 		//erase old score
 		gr_setcolor(BM_XRGB(0,0,0));
-		PA_DFX (pa_set_frontbuffer_current());
-		PA_DFX (gr_rect(last_x[(Current_display_mode?2:0)+VR_current_page],SB_SCORE_ADDED_Y,SB_SCORE_ADDED_RIGHT,SB_SCORE_ADDED_Y+GAME_FONT->ft_h));
-	   PA_DFX(pa_set_backbuffer_current()); 
 		gr_rect(last_x[(Current_display_mode?2:0)+VR_current_page],SB_SCORE_ADDED_Y,SB_SCORE_ADDED_RIGHT,SB_SCORE_ADDED_Y+GAME_FONT->ft_h);
 
 		score_time = 0;
@@ -1481,15 +1444,9 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 			gr_setcolor(gr_find_closest_color(10,10,10));
 			gr_scanline(168,189,189);
 		} else {
-			PA_DFX (pa_set_frontbuffer_current());
-			PA_DFX (gr_rect(338,453,378,470));
-         PA_DFX(pa_set_backbuffer_current()); 
 			gr_rect(338,453,378,470);
 
 			gr_setcolor(gr_find_closest_color(10,10,10));
-			PA_DFX (pa_set_frontbuffer_current());
-			PA_DFX (gr_scanline(336,378,453));
-         PA_DFX(pa_set_backbuffer_current()); 
 			gr_scanline(336,378,453);
 		}
 	}
@@ -1504,9 +1461,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	while ((t=strchr(txt,'1')) != NULL)
 		*t = '\x84';	//convert to wide '1'
 
-	PA_DFX (pa_set_frontbuffer_current());
-	PA_DFX (gr_string(x,y,txt));
-   PA_DFX(pa_set_backbuffer_current()); 
 	gr_string(x,y,txt);
 
 WIN(DDGRUNLOCK(dd_grd_curcanv));
@@ -1702,20 +1656,9 @@ void sb_show_lives()
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,20,0),-1 );
 		if (Game_mode & GM_MULTI)
-		 {
-		   PA_DFX (pa_set_frontbuffer_current());
-			PA_DFX (gr_printf(SB_LIVES_LABEL_X,SB_LIVES_LABEL_Y,"%s:", TXT_DEATHS));
-		   PA_DFX (pa_set_backbuffer_current());
 			gr_printf(SB_LIVES_LABEL_X,SB_LIVES_LABEL_Y,"%s:", TXT_DEATHS);
-
-		 }
 		else
-		  {
-		   PA_DFX (pa_set_frontbuffer_current());
-			PA_DFX (gr_printf(SB_LIVES_LABEL_X,SB_LIVES_LABEL_Y,"%s:", TXT_LIVES));
-		   PA_DFX (pa_set_backbuffer_current());
 			gr_printf(SB_LIVES_LABEL_X,SB_LIVES_LABEL_Y,"%s:", TXT_LIVES);
-		 }
 
 	}
 WIN(DDGRUNLOCK(dd_grd_curcanv));
@@ -1748,22 +1691,13 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 		gr_setcolor(BM_XRGB(0,0,0));
       
-      PA_DFX (pa_set_frontbuffer_current());
-	   gr_rect(x, y, SB_SCORE_RIGHT, y+bm->bm_h);
-      PA_DFX (pa_set_backbuffer_current());
 	   gr_rect(x, y, SB_SCORE_RIGHT, y+bm->bm_h);
 
 		if (Players[Player_num].lives-1 > 0) {
 			gr_set_curfont( GAME_FONT );
 			gr_set_fontcolor(gr_getcolor(0,20,0),-1 );
 			PAGE_IN_GAUGE( GAUGE_LIVES );
-			#ifdef PA_3DFX_VOODOO
-		      PA_DFX (pa_set_frontbuffer_current());
-				gr_ubitmapm(x, y,bm);
-				gr_printf(x+bm->bm_w+GAME_FONT->ft_w, y, "x %d", Players[Player_num].lives-1);
-			#endif
 
-	      PA_DFX (pa_set_backbuffer_current());
 			gr_ubitmapm(x, y,bm);
 			gr_printf(x+bm->bm_w+GAME_FONT->ft_w, y, "x %d", Players[Player_num].lives-1);
 
@@ -2139,9 +2073,6 @@ void draw_shield_bar(int shield)
 
 	PAGE_IN_GAUGE( GAUGE_SHIELDS+9-bm_num	);
 	WIN(DDGRLOCK(dd_grd_curcanv));
-	PA_DFX (pa_set_frontbuffer_current());
-   PA_DFX (gr_ubitmapm( SHIELD_GAUGE_X, SHIELD_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIELDS+9-bm_num) ] ));
-	PA_DFX (pa_set_backbuffer_current());
 	gr_ubitmapm( SHIELD_GAUGE_X, SHIELD_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIELDS+9-bm_num) ] );
 
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
@@ -2218,29 +2149,6 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 		cloak_fade_state = -1;
 		refade = 1;
 	}
-
-#if defined(POLY_ACC)
-	#ifdef MACINTOSH
-	if ( PAEnabled ) {
-	#endif
-	    Gr_scanline_darkening_level = cloak_fade_value;
-	    gr_set_current_canvas( get_current_game_screen() );
-	    PA_DFX (pa_set_frontbuffer_current());	
-	    PA_DFX (pa_blit_lit(&grd_curcanv->cv_bitmap, x, y, bm, 0, 0, bm->bm_w, bm->bm_h));
-		 PA_DFX (pa_set_backbuffer_current());	
-	    pa_blit_lit(&grd_curcanv->cv_bitmap, x, y, bm, 0, 0, bm->bm_w, bm->bm_h);
-
-	    Gr_scanline_darkening_level = GR_FADE_LEVELS;
-	    return;
-//	    }
-//	    else
-//		    Gr_scanline_darkening_level = GR_FADE_LEVELS;
-//		 mprintf ((1,"HEY! HIT THIS!\n"));	
-//		 Int3();
-	#ifdef MACINTOSH
-	}
-	#endif
-#endif
 
 	WINDOS( 		
 		dd_gr_set_current_canvas(&dd_VR_render_buffer[0]),
@@ -2358,9 +2266,6 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	//clear the window
 	gr_setcolor(BM_XRGB(0,0,0));
 	
-  // PA_DFX (pa_set_frontbuffer_current());
-//	PA_DFX (gr_rect(box->left,box->top,box->right,box->bot));
-   PA_DFX (pa_set_backbuffer_current());
    gr_rect(box->left,box->top,box->right,box->bot);
 
 	if (Piggy_hamfile_version >= 3 // !SHAREWARE
@@ -2375,31 +2280,17 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 
 	Assert(bm != NULL);
 
-//   PA_DFX (pa_set_frontbuffer_current());
-//	PA_DFX (gr_ubitmapm(pic_x,pic_y,bm));
-   PA_DFX (pa_set_backbuffer_current());
 	gr_ubitmapm(pic_x,pic_y,bm);
 	
 	gr_set_fontcolor(gr_getcolor(0,20,0),-1 );
 
 	if ((p=strchr(name,'\n'))!=NULL) {
 		*p=0;
-	   #ifdef PA_3DFX_VOODOO
-  //			pa_set_frontbuffer_current();
-//			gr_printf(text_x,text_y,name);
-//			gr_printf(text_x,text_y+grd_curcanv->cv_font->ft_h+1,p+1);
-		#endif
-		PA_DFX (pa_set_backbuffer_current());
 		gr_printf(text_x,text_y,name);
 		gr_printf(text_x,text_y+grd_curcanv->cv_font->ft_h+1,p+1);
 		*p='\n';
 	} else
-	 {
-  //		PA_DFX(pa_set_frontbuffer_current());
-//		PA_DFX (gr_printf(text_x,text_y,name));
-		PA_DFX(pa_set_backbuffer_current());
 		gr_printf(text_x,text_y,name);
-	 }	
 
 	//	For laser, show level and quadness
 	if (info_index == LASER_ID || info_index == SUPER_LASER_ID) {
@@ -2409,17 +2300,10 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 
 		temp_str[5] = Players[Player_num].laser_level+1 + '0';
 
-//		PA_DFX(pa_set_frontbuffer_current());
-//		PA_DFX (gr_printf(text_x,text_y+Line_spacing, temp_str));
-		PA_DFX(pa_set_backbuffer_current());
-		NO_DFX (gr_printf(text_x,text_y+Line_spacing, temp_str));
-		PA_DFX (gr_printf(text_x,text_y+12, temp_str));
+		gr_printf(text_x,text_y+Line_spacing, temp_str);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS) {
 			strcpy(temp_str, TXT_QUAD);
-//			PA_DFX(pa_set_frontbuffer_current());
-//			PA_DFX (gr_printf(text_x,text_y+2*Line_spacing, temp_str));
-			PA_DFX(pa_set_backbuffer_current());
 			gr_printf(text_x,text_y+2*Line_spacing, temp_str);
 
 		}
@@ -2482,18 +2366,11 @@ void draw_ammo_info(int x,int y,int ammo_count,int primary)
 
 WIN(DDGRLOCK(dd_grd_curcanv));
 {
-
-	PA_DFX (pa_set_frontbuffer_current());
-
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(x,y,x+w,y+grd_curcanv->cv_font->ft_h);
 	gr_set_fontcolor(gr_getcolor(20,0,0),-1 );
 	sprintf(str,"%03d",ammo_count);
 	convert_1s(str);
-	gr_printf(x,y,str);
-
-	PA_DFX (pa_set_backbuffer_current());
-	gr_rect(x,y,x+w,y+grd_curcanv->cv_font->ft_h);
 	gr_printf(x,y,str);
 }
 
@@ -2519,8 +2396,6 @@ WINDOS(
 	gr_set_current_canvas(&VR_render_buffer[0])
 );
 
-   PA_DFX (pa_set_backbuffer_current());
- 
 WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_curfont( GAME_FONT );
 
@@ -2583,9 +2458,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 		int boxofs = (Cockpit_mode==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 		
 		Gr_scanline_darkening_level = fade_value;
-//	   PA_DFX (pa_set_frontbuffer_current());
-//		PA_DFX (gr_rect(gauge_boxes[boxofs+weapon_type].left,gauge_boxes[boxofs+weapon_type].top,gauge_boxes[boxofs+weapon_type].right,gauge_boxes[boxofs+weapon_type].bot));
-	   PA_DFX (pa_set_backbuffer_current());
 		gr_rect(gauge_boxes[boxofs+weapon_type].left,gauge_boxes[boxofs+weapon_type].top,gauge_boxes[boxofs+weapon_type].right,gauge_boxes[boxofs+weapon_type].bot);
 
 		Gr_scanline_darkening_level = GR_FADE_LEVELS;
@@ -2626,17 +2498,10 @@ void draw_static(int win)
 	gr_set_current_canvas(&VR_render_buffer[0])
 	);
 	WIN(DDGRLOCK(dd_grd_curcanv));
-   PA_DFX (pa_set_backbuffer_current());
- 	PA_DFX (pa_bypass_mode (0));
-	PA_DFX (pa_clip_window (gauge_boxes[boxofs+win].left,gauge_boxes[boxofs+win].top,
-									gauge_boxes[boxofs+win].right,gauge_boxes[boxofs+win].bot));
    
 	for (x=gauge_boxes[boxofs+win].left;x<gauge_boxes[boxofs+win].right;x+=bmp->bm_w)
 		for (y=gauge_boxes[boxofs+win].top;y<gauge_boxes[boxofs+win].bot;y+=bmp->bm_h)
 			gr_bitmap(x,y,bmp);
-
- 	PA_DFX (pa_bypass_mode(1));
-	PA_DFX (pa_clip_window (0,0,640,480));
 
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
@@ -2645,8 +2510,6 @@ void draw_static(int win)
 	gr_set_current_canvas(get_current_game_screen())
 	);
 
-//   PA_DFX (return);
-  
 	WINDOS(
 	copy_gauge_box(&gauge_boxes[boxofs+win],&dd_VR_render_buffer[0]),
 	copy_gauge_box(&gauge_boxes[boxofs+win],&VR_render_buffer[0].cv_bitmap)
@@ -2743,18 +2606,12 @@ void sb_draw_energy_bar(energy)
 		gr_rect(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_ENERGY_GAUGE_X + SB_ENERGY_GAUGE_W - 1, SB_ENERGY_GAUGE_Y + erase_height - 1);
 	}
 
-   PA_DFX (pa_set_frontbuffer_current());
-   PA_DFX (gr_ubitmapm( SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &Canv_SBEnergyGauge->cv_bitmap));
-   PA_DFX (pa_set_backbuffer_current());
 	//gr_ubitmapm( SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &Canv_SBEnergyGauge->cv_bitmap );
 
 	//draw numbers
 	sprintf(energy_str, "%d", energy);
 	gr_get_string_size(energy_str, &w, &h, &aw );
 	gr_set_fontcolor(gr_getcolor(25,18,6),-1 );
-   PA_DFX (pa_set_frontbuffer_current());
-	PA_DFX (gr_printf(SB_ENERGY_GAUGE_X + ((SB_ENERGY_GAUGE_W - w)/2), SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4), "%d", energy));
-   PA_DFX (pa_set_backbuffer_current());
 	gr_printf(SB_ENERGY_GAUGE_X + ((SB_ENERGY_GAUGE_W - w)/2), SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4), "%d", energy);
 	WIN(DDGRUNLOCK(dd_grd_curcanv));					  
 }
@@ -2780,10 +2637,7 @@ void sb_draw_afterburner()
 		gr_rect(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_AFTERBURNER_GAUGE_X + SB_AFTERBURNER_GAUGE_W - 1, SB_AFTERBURNER_GAUGE_Y + erase_height - 1);
 	}
 
-   PA_DFX (pa_set_frontbuffer_current());
 	//gr_ubitmapm( SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, &Canv_SBAfterburnerGauge->cv_bitmap );
-   PA_DFX (pa_set_backbuffer_current());
-	PA_DFX (gr_ubitmapm( SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, &Canv_SBAfterburnerGauge->cv_bitmap ));
 
 	//draw legend
 	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
@@ -2792,9 +2646,6 @@ void sb_draw_afterburner()
 		gr_set_fontcolor(gr_getcolor(12,12,12),-1 );
 
 	gr_get_string_size(ab_str, &w, &h, &aw );
-   PA_DFX (pa_set_frontbuffer_current());
-	PA_DFX (gr_printf(SB_AFTERBURNER_GAUGE_X + ((SB_AFTERBURNER_GAUGE_W - w)/2),SB_AFTERBURNER_GAUGE_Y+SB_AFTERBURNER_GAUGE_H-GAME_FONT->ft_h - (GAME_FONT->ft_h / 4),"AB"));
-   PA_DFX (pa_set_backbuffer_current());
 	gr_printf(SB_AFTERBURNER_GAUGE_X + ((SB_AFTERBURNER_GAUGE_W - w)/2),SB_AFTERBURNER_GAUGE_Y+SB_AFTERBURNER_GAUGE_H-GAME_FONT->ft_h - (GAME_FONT->ft_h / 4),"AB");
 
 WIN(DDGRUNLOCK(dd_grd_curcanv));					  
@@ -2811,18 +2662,11 @@ void sb_draw_shield_num(int shield)
 //	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode + (Current_display_mode ? (Num_cockpits/2) : 0)]);
 
 WIN(DDGRLOCK(dd_grd_curcanv));
-//	PA_DFX (pa_set_back_to_read());
-//	gr_setcolor(gr_gpixel(&grd_curcanv->cv_bitmap, SB_SHIELD_NUM_X - 1, SB_SHIELD_NUM_Y - 1));
-//	PA_DFX (pa_set_front_to_read());
 
-	PA_DFX (pa_set_frontbuffer_current());
+//	gr_setcolor(gr_gpixel(&grd_curcanv->cv_bitmap, SB_SHIELD_NUM_X - 1, SB_SHIELD_NUM_Y - 1));
 
 //	gr_rect(SB_SHIELD_NUM_X, SB_SHIELD_NUM_Y, SB_SHIELD_NUM_X + (Current_display_mode ? 27 : 13), SB_SHIELD_NUM_Y + GAME_FONT->ft_h);
 	gr_printf((shield>99)?SB_SHIELD_NUM_X:((shield>9)?SB_SHIELD_NUM_X+2:SB_SHIELD_NUM_X+4),SB_SHIELD_NUM_Y,"%d",shield);
-
-  	PA_DFX (pa_set_backbuffer_current());
-//	PA_DFX(gr_rect(SB_SHIELD_NUM_X, SB_SHIELD_NUM_Y, SB_SHIELD_NUM_X + (Current_display_mode ? 27 : 13), SB_SHIELD_NUM_Y + GAME_FONT->ft_h));
-	PA_DFX (gr_printf((shield>99)?SB_SHIELD_NUM_X:((shield>9)?SB_SHIELD_NUM_X+2:SB_SHIELD_NUM_X+4),SB_SHIELD_NUM_Y,"%d",shield));
 
 WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
@@ -2837,10 +2681,7 @@ WINDOS(
 );
 WIN(DDGRLOCK(dd_grd_curcanv));
 	PAGE_IN_GAUGE( GAUGE_SHIELDS+9-bm_num );
-   PA_DFX (pa_set_frontbuffer_current());		
 	gr_ubitmapm( SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIELDS+9-bm_num) ] );
-   PA_DFX (pa_set_backbuffer_current());		
-	PA_DFX (gr_ubitmapm( SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIELDS+9-bm_num) ] ));
 	
 WIN(DDGRUNLOCK(dd_grd_curcanv));					  
 }
@@ -2855,7 +2696,6 @@ WINDOS(
 	gr_set_current_canvas(get_current_game_screen())
 );
 WIN(DDGRLOCK(dd_grd_curcanv));
-   PA_DFX (pa_set_frontbuffer_current());
 	bm = &GameBitmaps[ GET_GAUGE_INDEX((flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF) ];
 	PAGE_IN_GAUGE( (flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF );
 	gr_ubitmapm( SB_GAUGE_KEYS_X, SB_GAUGE_BLUE_KEY_Y, bm );
@@ -2865,18 +2705,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	bm = &GameBitmaps[ GET_GAUGE_INDEX((flags&PLAYER_FLAGS_RED_KEY)?SB_GAUGE_RED_KEY:SB_GAUGE_RED_KEY_OFF) ];
 	PAGE_IN_GAUGE( (flags&PLAYER_FLAGS_RED_KEY)?SB_GAUGE_RED_KEY:SB_GAUGE_RED_KEY_OFF );
 	gr_ubitmapm( SB_GAUGE_KEYS_X, SB_GAUGE_RED_KEY_Y, bm  );
-	#ifdef PA_3DFX_VOODOO
-	   PA_DFX (pa_set_backbuffer_current());
-		bm = &GameBitmaps[ GET_GAUGE_INDEX((flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF) ];
-		PAGE_IN_GAUGE( (flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF );
-		gr_ubitmapm( SB_GAUGE_KEYS_X, SB_GAUGE_BLUE_KEY_Y, bm );
-		bm = &GameBitmaps[ GET_GAUGE_INDEX((flags&PLAYER_FLAGS_GOLD_KEY)?SB_GAUGE_GOLD_KEY:SB_GAUGE_GOLD_KEY_OFF) ];
-		PAGE_IN_GAUGE( (flags&PLAYER_FLAGS_GOLD_KEY)?SB_GAUGE_GOLD_KEY:SB_GAUGE_GOLD_KEY_OFF );
-		gr_ubitmapm( SB_GAUGE_KEYS_X, SB_GAUGE_GOLD_KEY_Y, bm );
-		bm = &GameBitmaps[ GET_GAUGE_INDEX((flags&PLAYER_FLAGS_RED_KEY)?SB_GAUGE_RED_KEY:SB_GAUGE_RED_KEY_OFF) ];
-		PAGE_IN_GAUGE( (flags&PLAYER_FLAGS_RED_KEY)?SB_GAUGE_RED_KEY:SB_GAUGE_RED_KEY_OFF );
-		gr_ubitmapm( SB_GAUGE_KEYS_X, SB_GAUGE_RED_KEY_Y, bm  );
-	#endif
 
 WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
@@ -2896,15 +2724,9 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 
 		if (Cockpit_mode == CM_STATUS_BAR)	{
 			PAGE_IN_GAUGE( GAUGE_INVULNERABLE+invulnerable_frame );
-			PA_DFX (pa_set_frontbuffer_current());
 			gr_ubitmapm( SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_INVULNERABLE+invulnerable_frame) ] );
-			PA_DFX (pa_set_backbuffer_current());
-			PA_DFX (gr_ubitmapm( SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_INVULNERABLE+invulnerable_frame) ] ));
 		} else {
 			PAGE_IN_GAUGE( GAUGE_INVULNERABLE+invulnerable_frame );
-			PA_DFX (pa_set_frontbuffer_current());
-			PA_DFX (gr_ubitmapm( SHIELD_GAUGE_X, SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_INVULNERABLE+invulnerable_frame)] ));
-			PA_DFX (pa_set_backbuffer_current());
 			gr_ubitmapm( SHIELD_GAUGE_X, SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_INVULNERABLE+invulnerable_frame)] );
 		}
 
@@ -3427,8 +3249,6 @@ void render_gauges()
 	int shields = f2ir(Players[Player_num].shields);
 	int cloak = ((Players[Player_num].flags&PLAYER_FLAGS_CLOAKED) != 0);
  
-   PA_DFX (pa_set_backbuffer_current());
-
 	Assert(Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR);
 
 // check to see if our display mode has changed since last render time --
@@ -3712,62 +3532,10 @@ WINDOS(
 	gr_set_current_canvas(&window_canv)
 );
 	
-	#if defined(MACINTOSH) && defined(POLY_ACC)
-	if ( PAEnabled )
-	{
-		switch (Cockpit_mode)
-		{
-		// copy these vars so stereo code can get at them
-		// SW_drawn[win]=1; SW_x[win] = window_x; SW_y[win] = window_y; SW_w[win] = w; SW_h[win] = h; 
-			case CM_FULL_SCREEN:
-				;	// do not switch contexts
-				pa_set_3d_window_offsets(window_x, window_y);
-				break;
-			case CM_FULL_COCKPIT:
-			case CM_STATUS_BAR:
-				if (win == 0)
-				{
-					pa_set_context(kSubViewZeroDrawContextID, NULL);
-				}
-				else
-				{
-					pa_set_context(kSubViewOneDrawContextID, NULL);
-				}
-				break;
-			default:
-				Int3();	// invalid cockpit mode
-		};
-	}
-	#endif
-
 	WIN(DDGRLOCK(dd_grd_curcanv));
 	
-		#ifdef MACINTOSH
-			#ifdef POLY_ACC
-				if (PAEnabled)
-				{
-					if (Cockpit_mode != CM_FULL_SCREEN)
-					{
-						pa_render_start();
-					}
-				}
-			#endif
-		#endif 
-		
 		render_frame(0, win+1);
 		
-		#ifdef MACINTOSH
-			#ifdef POLY_ACC
-				if (PAEnabled)
-				{
-					if (Cockpit_mode != CM_FULL_SCREEN)
-					{
-						pa_render_end();
-					}
-				}
-			#endif
-		#endif 
-
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	//	HACK! If guided missile, wake up robots as necessary.
@@ -3914,37 +3682,16 @@ WINDOS(
 		}
 	}
 	else {
-	PA_DFX (goto skip_this_junk);
 	
 	WINDOS(
 		dd_gr_set_current_canvas(get_current_game_screen()),
 		gr_set_current_canvas(get_current_game_screen())
 	);
-	#ifndef MACINTOSH
 	WINDOS(
 		copy_gauge_box(box,&dd_VR_render_buffer[0]),
 		copy_gauge_box(box,&VR_render_buffer[0].cv_bitmap)
 	);
-	#else
-	if (Scanline_double)
-		copy_gauge_box_double(box,&VR_render_buffer[0].cv_bitmap);		// pixel double the external view
-	else
-		// Only do this if we are not running under RAVE, otherwise we erase all of the rendering RAVE has done.
-		if (!PAEnabled)
-		{
-			copy_gauge_box(box,&VR_render_buffer[0].cv_bitmap);
-		}
-	#endif
 	}
-
-  PA_DFX(skip_this_junk:)
-  
-	#if defined(MACINTOSH) && defined(POLY_ACC)
-	if ( PAEnabled )
-	{
-		pa_set_context(kGamePlayDrawContextID, NULL);
-	}
-	#endif
 
 	//force redraw when done
 	old_weapon[win][VR_current_page] = old_ammo_count[win][VR_current_page] = -1;

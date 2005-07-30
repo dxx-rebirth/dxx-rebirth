@@ -1,4 +1,4 @@
-/* $Id: pcx.c,v 1.11 2005-02-25 05:20:36 chris Exp $ */
+/* $Id: pcx.c,v 1.12 2005-07-30 01:51:42 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -35,9 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #endif
 
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 #include "physfsx.h"
 
 int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
@@ -164,11 +161,6 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 	CFILE * PCXfile;
 	int i, row, col, count, xsize, ysize;
 	ubyte data, *pixdata;
-#if defined(POLY_ACC)
-    unsigned char local_pal[768];
-
-    pa_flush();
-#endif
 
 	PCXfile = cfopen( filename , "rb" );
 	if ( !PCXfile )
@@ -189,20 +181,6 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 	// Find the size of the image
 	xsize = header.Xmax - header.Xmin + 1;
 	ysize = header.Ymax - header.Ymin + 1;
-
-#if defined(POLY_ACC)
-    // Read the extended palette at the end of PCX file
-    if(bitmap_type == BM_LINEAR15)      // need palette for conversion from 8bit pcx to 15bit.
-    {
-        cfseek( PCXfile, -768, SEEK_END );
-        cfread( local_pal, 3, 256, PCXfile );
-        cfseek( PCXfile, PCXHEADER_SIZE, SEEK_SET );
-        for (i=0; i<768; i++ )
-            local_pal[i] >>= 2;
-        pa_save_clut();
-        pa_update_clut(local_pal, 0, 256, 0);
-    }
-#endif
 
 	if ( bitmap_type == BM_LINEAR )	{
 		if ( bmp->bm_data == NULL )	{
@@ -245,39 +223,6 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 				}
 			}
 		}
-#if defined(POLY_ACC)
-    } else if( bmp->bm_type == BM_LINEAR15 )    {
-        ushort *pixdata2, pix15;
-        PA_DFX (pa_set_backbuffer_current());
-		  PA_DFX (pa_set_write_mode(0));
-		for (row=0; row< ysize ; row++)      {
-            pixdata2 = (ushort *)&bmp->bm_data[bmp->bm_rowsize*row];
-			for (col=0; col< xsize ; )      {
-				if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-					cfclose( PCXfile );
-					return PCX_ERROR_READING;
-				}
-				if ((data & 0xC0) == 0xC0)     {
-					count =  data & 0x3F;
-					if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-						cfclose( PCXfile );
-						return PCX_ERROR_READING;
-					}
-                    pix15 = pa_clut[data];
-                    for(i = 0; i != count; ++i) pixdata2[i] = pix15;
-                    pixdata2 += count;
-					col += count;
-				} else {
-                    *pixdata2++ = pa_clut[data];
-					col++;
-				}
-			}
-        }
-        pa_restore_clut();
-		  PA_DFX (pa_swap_buffer());
-        PA_DFX (pa_set_frontbuffer_current());
-
-#endif
 	} else {
 		for (row=0; row< ysize ; row++)      {
 			for (col=0; col< xsize ; )      {

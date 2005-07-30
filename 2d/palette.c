@@ -1,4 +1,4 @@
-/* $Id: palette.c,v 1.12 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: palette.c,v 1.13 2005-07-30 01:51:42 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -127,10 +127,6 @@ void gr_use_palette_table( char * filename )
 	}
 
 	Num_computed_colors = 0;	//	Flush palette cache.
-#if defined(POLY_ACC)
-	pa_update_clut(gr_palette, 0, 256, 0);
-#endif
-
 // swap colors 0 and 255 of the palette along with fade table entries
 
 #ifdef SWAP_0_255

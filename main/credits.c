@@ -1,4 +1,4 @@
-/* $Id: credits.c,v 1.12 2004-11-26 10:08:34 btb Exp $ */
+/* $Id: credits.c,v 1.13 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: credits.c,v 1.12 2004-11-26 10:08:34 btb Exp $";
+static char rcsid[] = "$Id: credits.c,v 1.13 2005-07-30 01:50:17 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -36,7 +36,6 @@ static char rcsid[] = "$Id: credits.c,v 1.12 2004-11-26 10:08:34 btb Exp $";
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
@@ -64,10 +63,6 @@ static char rcsid[] = "$Id: credits.c,v 1.12 2004-11-26 10:08:34 btb Exp $";
 #include "text.h"
 #include "songs.h"
 #include "menu.h"  // for MenuHires
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 #define ROW_SPACING (MenuHires?26:11)
 #define NUM_LINES_HIRES 21
@@ -199,9 +194,6 @@ CreditsPaint:
 #ifdef OGL
 	gr_palette_load(gr_palette);
 #endif
-#if defined(POLY_ACC)
-	pa_update_clut(gr_palette, 0, 256, 0);
-#endif
 	header_font = gr_init_font( MenuHires?"font1-1h.fnt":"font1-1.fnt" );
 	title_font = gr_init_font( MenuHires?"font2-3h.fnt":"font2-3.fnt" );
 	names_font = gr_init_font( MenuHires?"font2-2h.fnt":"font2-2.fnt" );
@@ -235,7 +227,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 //MWA  for size to determine if we can use that buffer.  If the game size
 //MWA  matches what we need, then lets save memory.
 
-#ifndef PA_3DFX_VOODOO
 #ifndef WINDOWS
 	if (MenuHires && VR_offscreen_buffer->cv_w == 640)	{
 		CreditsOffscreenBuf = VR_offscreen_buffer;
@@ -249,9 +240,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 #else
 	CreditsOffscreenBuf = gr_create_canvas(640,480);
 #endif				
-#else
-	CreditsOffscreenBuf = gr_create_canvas(640,480);
-#endif
 
 	if (!CreditsOffscreenBuf)
 		Error("Not enough memory to allocate Credits Buffer.");
@@ -300,8 +288,7 @@ get_line:;
 		} while (extra_inc--);
 		extra_inc = 0;
 
-NO_DFX (for (i=0; i<ROW_SPACING; i += (MenuHires?2:1) )	{)
-PA_DFX (for (i=0; i<ROW_SPACING; i += (MenuHires?2:1) )	{)
+		for (i=0; i<ROW_SPACING; i += (MenuHires?2:1) )	{
 			int y;
 
 			y = first_line_offset - i;
@@ -379,21 +366,13 @@ PA_DFX (for (i=0; i<ROW_SPACING; i += (MenuHires?2:1) )	{)
 					tempbmp = &(CreditsOffscreenBuf->cv_bitmap);
 
 				WIN(DDGRSCREENLOCK);
-#if defined(POLY_ACC)
-					if(new_box->width != 0)
-#endif
-						gr_bm_bitblt( new_box->width + 1, new_box->height +4,
-									new_box->left, new_box->top, new_box->left, new_box->top,
-									tempbmp, &(grd_curscreen->sc_canvas.cv_bitmap) );
+					gr_bm_bitblt( new_box->width + 1, new_box->height +4,
+								new_box->left, new_box->top, new_box->left, new_box->top,
+								tempbmp, &(grd_curscreen->sc_canvas.cv_bitmap) );
 				WIN(DDGRSCREENUNLOCK);
 				}
 
-#if defined(POLY_ACC)
-                pa_flush();
-#endif
-
-#if (!defined(POLY_ACC) || defined(MACINTOSH)) && !defined(OGL)
-				MAC( if(!PAEnabled) )			// POLY_ACC always on for the macintosh
+#ifndef OGL
 				for (j=0; j<NUM_LINES; j++ )
 				{
 					new_box = &dirty_box[j];

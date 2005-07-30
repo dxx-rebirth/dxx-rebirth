@@ -1,4 +1,4 @@
-/* $Id: rle.c,v 1.19 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: rle.c,v 1.20 2005-07-30 01:51:42 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rle.c,v 1.19 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: rle.c,v 1.20 2005-07-30 01:51:42 chris Exp $";
 #endif
 
 #include <stdlib.h>
@@ -601,20 +601,6 @@ void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 	gr_set_bitmap_data (rle_temp_bitmap_1, rle_temp_bitmap_1->bm_data);
 #endif
 }
-
-#if defined(POLY_ACC)
-grs_bitmap *rle_get_id_sub(grs_bitmap *bmp)
-{
-	int i;
-
-	for (i=0;i<MAX_CACHE_BITMAPS;i++) {
-		if (rle_cache[i].expanded_bitmap == bmp) {
-			return rle_cache[i].rle_bitmap;
-		}
-	}
-	return NULL;
-}
-#endif
 
 
 grs_bitmap * rle_expand_texture( grs_bitmap * bmp )

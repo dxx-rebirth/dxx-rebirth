@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.25 2004-12-17 13:17:46 btb Exp $ */
+/* $Id: gamecntl.c,v 1.26 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -92,7 +92,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "tactile.h"
 #endif
 
-#include "pa_enabl.h"
 #include "multi.h"
 #include "desc_id.h"
 #include "cntrlcen.h"
@@ -104,10 +103,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rbaudio.h"
 #include "switch.h"
 #include "escort.h"
-
-#ifdef POLY_ACC
-# include "poly_acc.h"
-#endif
 
 //#define TEST_TIMER    1		//if this is set, do checking on timer
 
@@ -802,18 +797,6 @@ void HandleDemoKey(int key)
 
 		case KEY_F3:
 				
-			#ifdef MACINTOSH
-				#ifdef POLY_ACC
-					if (PAEnabled)
-					{
-						HUD_init_message("Cockpit not available while using QuickDraw 3D.");
-						return;
-					}
-				#endif
-			#endif
-				
-			 PA_DFX (HUD_init_message ("Cockpit not available in 3dfx version."));
-			 PA_DFX (break);
 			 if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window))
 				toggle_cockpit();
 			 break;
@@ -1154,7 +1137,6 @@ int HandleSystemKey(int key)
 				do_options_menu();
 				if (!(Game_mode&GM_MULTI)) palette_restore();
 				if (scanline_save != Scanline_double)   init_cockpit();	// reset the cockpit after changing...
-	         PA_DFX (init_cockpit());
 				break;
 			}
 
@@ -1170,19 +1152,6 @@ int HandleSystemKey(int key)
 				}
 			#endif
 	
-			#ifdef MACINTOSH
-				#ifdef POLY_ACC
-					if (PAEnabled)
-					{
-						HUD_init_message("Cockpit not available while using QuickDraw 3D.");
-						return;
-					}
-				#endif
-			#endif
-
-			PA_DFX (HUD_init_message ("Cockpit not available in 3dfx version."));
-			PA_DFX (break);
-
 			if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window))
 			{
 				toggle_cockpit();	screen_changed=1;
@@ -1316,16 +1285,6 @@ int HandleSystemKey(int key)
 		case KEY_2 + KEY_SHIFTED + KEY_COMMAND + KEY_CTRLED:
 			multi_define_macro(KEY_F12);
 			break;
-		#endif
-
-		#if defined(MACINTOSH) && defined(POLY_ACC)
-			case KEY_COMMAND+KEY_ALTED+KEY_1:
-				if (PAEnabled)
-				{	// hackish, to enable RAVE filtering hotkey,
-					// not widely publicized
-					pa_toggle_filtering();
-				}
-				break;
 		#endif
 
 

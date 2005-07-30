@@ -1,4 +1,4 @@
-/* $Id: ibitblt.c,v 1.10 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: ibitblt.c,v 1.11 2005-07-30 01:51:42 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ibitblt.c,v 1.10 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: ibitblt.c,v 1.11 2005-07-30 01:51:42 chris Exp $";
 #endif
 
 #ifdef __MSDOS__ //ndef MACINTOSH
@@ -42,17 +42,12 @@ static char rcsid[] = "$Id: ibitblt.c,v 1.10 2004-08-28 23:17:45 schaffner Exp $
 #include <stdlib.h>
 #include <string.h>
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "types.h"
 #include "gr.h"
 #include "mem.h"
 #include "error.h"
 #include "ibitblt.h"
 #include "grdef.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 #define MODE_NONE           0
 #define MODE_SKIP           1
@@ -497,65 +492,10 @@ ubyte   *gr_ibitblt_create_mask( grs_bitmap * mask_bmp, int sx, int sy, int sw, 
 	return gr_ibitblt_create_mask_sub( mask_bmp, sx, sy, sw, sh, srowsize, BM_LINEAR );
 }
 
-#if defined(POLY_ACC)
-unsigned long *pa_emit_blit(int gencode, unsigned long *buf, int w, int h, int sx, int sy, int dx, int dy)
-{
-	if(w == 0 || h == 0)
-		return buf;
-
-	if(gencode)
-	{
-		buf[0] = (w << 16)  | h;
-		buf[1] = (sx << 16) | sy;
-		buf[2] = (dx << 16) | dy;
-	}
-	return buf + 3;
-}
-
-ubyte   *gr_ibitblt_create_mask_pa( grs_bitmap * mask_bmp, int sx, int sy, int sw, int sh, int srowsize )
-{
-	unsigned long *ret, *code = 0;
-	int pass, x, y, n;
-	ushort *s;
-
-	Assert(mask_bmp->bm_type == BM_LINEAR15);
-
-	srowsize /= PA_BPP;
-
-	pa_flush();
-
-	// make two passes, first pass gets size of output block, second actually creates data.
-	for(pass = 0; pass != 2; ++pass)
-	{
-		for (y = sy; y < sy + sh; y++ )
-		{
-			// first byte of interest in mask
-			s = (ushort *)(mask_bmp->bm_data + y * mask_bmp->bm_rowsize + sx * PA_BPP);
-			for ( x=0; x < sw; )
-			{
-				for(; x != sw && (s[x] & 0x8000); ++x)              // while opaque...
-					;
-				for(n = 0; x != sw && !(s[x] & 0x8000); ++n, ++x)   // while transparent...
-					;
-				code = pa_emit_blit(pass, code, n, 1, x - n, y - sy, x + sx - n, y);
-			}
-		}
-		if(pass == 0)
-		{
-			ret = malloc((int)code + sizeof(unsigned long));
-			ret[0] = (int)code / sizeof(unsigned long);        // store num unsigned longs in list.
-			code = ret + 1;
-		}
-	}
-	return (ubyte *)ret;
-}
-
-#else
 ubyte   *gr_ibitblt_create_mask_svga( grs_bitmap * mask_bmp, int sx, int sy, int sw, int sh, int srowsize )
 {
 	return gr_ibitblt_create_mask_sub( mask_bmp, sx, sy, sw, sh, srowsize, BM_SVGA );
 }
-#endif
 
 
 void gr_ibitblt_do_asm(char *start_si, char *start_di, ubyte * code);
@@ -568,31 +508,17 @@ void gr_ibitblt_do_asm(char *start_si, char *start_di, ubyte * code);
 
 void gr_ibitblt(grs_bitmap * source_bmp, grs_bitmap * dest_bmp, ubyte * mask )
 {
-#if defined(POLY_ACC)
-    Assert(source_bmp->bm_type == BM_LINEAR15);
-    pa_ibitblt(source_bmp->bm_data, dest_bmp->bm_data, mask);
-#else
 	if (mask != NULL )
 		gr_ibitblt_do_asm( source_bmp->bm_data, dest_bmp->bm_data, mask );
-#endif
 }
 
 
 void    gr_ibitblt_find_hole_size( grs_bitmap * mask_bmp, int *minx, int *miny, int *maxx, int *maxy )
 {
 	int x, y, count=0;
-#if defined(POLY_ACC)
-	short c;
-#else
 	ubyte c;
-#endif
 
 	Assert( (!(mask_bmp->bm_flags&BM_FLAG_RLE)) );
-
-#if defined(POLY_ACC)
-	Assert(mask_bmp->bm_type == BM_LINEAR15);
-	pa_flush();
-#endif
 
 	*minx = mask_bmp->bm_w-1;
 	*maxx = 0;
@@ -601,13 +527,8 @@ void    gr_ibitblt_find_hole_size( grs_bitmap * mask_bmp, int *minx, int *miny, 
 
 	for ( y=0; y<mask_bmp->bm_h; y++ )
 		for ( x=0; x<mask_bmp->bm_w; x++ ) {
-#if defined(POLY_ACC)
-			c = *(short *)(mask_bmp->bm_data + mask_bmp->bm_rowsize * y + x * PA_BPP);
-			if (c >= 0)  {      // hi true means opaque.
-#else
 			c = mask_bmp->bm_data[mask_bmp->bm_rowsize*y+x];
 			if (c == 255 ) {
-#endif
 				if ( x < *minx ) *minx = x;
 				if ( y < *miny ) *miny = y;
 				if ( x > *maxx ) *maxx = x;
@@ -623,17 +544,12 @@ void    gr_ibitblt_find_hole_size( grs_bitmap * mask_bmp, int *minx, int *miny, 
 
 #else /* __MSDOS__ */ // was: /* !MACINTOSH */
 
-#include "pa_enabl.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "ibitblt.h"
 #include "error.h"
 #include "u_mem.h"
 #include "grdef.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 #define FIND_START      1
 #define FIND_STOP       2
@@ -653,11 +569,6 @@ void gr_ibitblt(grs_bitmap *src_bmp, grs_bitmap *dest_bmp, ubyte pixel_double)
 	short *current_hole, *current_hole_length;
 
 // variable setup
-
-#if defined(POLY_ACC)
-	if ( PAEnabled )
-		return;
-#endif
 
 	sw = src_bmp->bm_w;
 	sh = src_bmp->bm_h;
@@ -720,61 +631,6 @@ void gr_ibitblt(grs_bitmap *src_bmp, grs_bitmap *dest_bmp, ubyte pixel_double)
 	}
 }
 
-#if defined(POLY_ACC)
-
-unsigned long *pa_emit_blit(int gencode, unsigned long *buf, int w, int h, int sx, int sy, int dx, int dy)
-{
-	if(w == 0 || h == 0)
-		return buf;
-
-	if(gencode)
-	{
-		buf[0] = (w << 16)  | h;
-		buf[1] = (sx << 16) | sy;
-		buf[2] = (dx << 16) | dy;
-	}
-	return buf + 3;
-}
-
-void gr_ibitblt_create_mask_pa( grs_bitmap * mask_bmp, int sx, int sy, int sw, int sh, int srowsize )
-{
-	unsigned long *ret, *code = 0;
-	int pass, x, y, n;
-	ushort *s;
-
-	Assert(mask_bmp->bm_type == BM_LINEAR15);
-
-	srowsize /= PA_BPP;
-
-	pa_flush();
-
-	// make two passes, first pass gets size of output block, second actually creates data.
-	for(pass = 0; pass != 2; ++pass)
-	{
-		for (y = sy; y < sy + sh; y++ )
-		{
-			// first byte of interest in mask
-			s = (ushort *)(mask_bmp->bm_data + y * mask_bmp->bm_rowsize + sx * PA_BPP);
-			for ( x=0; x < sw; )
-			{
-				for(; x != sw && (s[x] & 0x8000); ++x)              // while opaque...
-					;
-				for(n = 0; x != sw && !(s[x] & 0x8000); ++n, ++x)   // while transparent...
-					;
-				code = pa_emit_blit(pass, code, n, 1, x - n, y - sy, x + sx - n, y);
-			}
-		}
-
-		if(pass == 0) {
-			ret = malloc((int)code + sizeof(unsigned long));
-			ret[0] = (int)code / sizeof(unsigned long);        // store num unsigned longs in list.
-			code = ret + 1;
-		}
-	}
-//	return (ubyte *)ret;
-}
-#endif
-
 void gr_ibitblt_create_mask(grs_bitmap *mask_bmp, int sx, int sy, int sw, int sh, int srowsize)
 {
 	int x, y;
@@ -811,52 +667,10 @@ void gr_ibitblt_create_mask(grs_bitmap *mask_bmp, int sx, int sy, int sw, int sh
 	}
 }
 
-#if defined(POLY_ACC)
-
-void gr_ibitblt_find_hole_size_pa( grs_bitmap * mask_bmp, int *minx, int *miny, int *maxx, int *maxy )
-{
-	int x, y, count=0;
-	short c;
-
-	Assert( (!(mask_bmp->bm_flags&BM_FLAG_RLE)) );
-
-	Assert(mask_bmp->bm_type == BM_LINEAR15);
-	while(!pa_idle());
-
-	*minx = mask_bmp->bm_w-1;
-	*maxx = 0;
-	*miny = mask_bmp->bm_h-1;
-	*maxy = 0;
-
-	for ( y=0; y<mask_bmp->bm_h; y++ )
-		for ( x=0; x<mask_bmp->bm_w; x++ ) {
-			c = *(short *)(mask_bmp->bm_data + mask_bmp->bm_rowsize * y + x * PA_BPP);
-			if (c >= 0)  {  // hi true means opaque.
-				if ( x < *minx ) *minx = x;
-				if ( y < *miny ) *miny = y;
-				if ( x > *maxx ) *maxx = x;
-				if ( y > *maxy ) *maxy = y;
-				count++;
-			}
-		}
-
-	if ( count == 0 ) {
-		Error( "Bitmap for ibitblt doesn't have transparency!\n" );
-	}
-}
-#endif
-
 void gr_ibitblt_find_hole_size(grs_bitmap *mask_bmp, int *minx, int *miny, int *maxx, int *maxy)
 {
 	ubyte c;
 	int x, y, count = 0;
-
-#if defined(POLY_ACC)
-	if ( PAEnabled ) {
-		gr_ibitblt_find_hole_size_pa( mask_bmp, minx, miny, maxx, maxy );
-		return;
-	}
-#endif
 
 	Assert( (!(mask_bmp->bm_flags&BM_FLAG_RLE)) );
 	Assert( mask_bmp->bm_flags&BM_FLAG_TRANSPARENT );

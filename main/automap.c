@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.20 2005-01-08 03:37:38 btb Exp $ */
+/* $Id: automap.c,v 1.21 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -30,7 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "error.h"
 #include "3d.h"
 #include "inferno.h"
@@ -74,10 +73,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "automap.h"
 #include "cntrlcen.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 #ifdef OGL
 #define AUTOMAP_DIRECT_RENDER
@@ -186,13 +181,8 @@ static dd_grs_canvas ddDrawingPages[2];
 
 #endif
 
-#if defined(MACINTOSH) && defined(POLY_ACC)
-	grs_canvas Pages[2];			// non static under rave so the backbuffer callback function can get at them
-	grs_canvas DrawingPages[2];		// non static under rave so the backbuffer callback function can get at them
-#else
 	static grs_canvas Pages[2];
 	static grs_canvas DrawingPages[2];
-#endif
 #endif /* AUTOMAP_DIRECT_RENDER */
 
 #define Page Pages[0]
@@ -226,20 +216,7 @@ int	MarkerObject[NUM_MARKERS];
 extern vms_vector Matrix_scale;		//how the matrix is currently scaled
 
 
-#if defined(MACINTOSH) && defined(POLY_ACC)
-// icky hack.  automap draw context is no longer valid when this is called.
-// so we can not use the pa_draw_line function for rave
-bool automap_draw_line(g3s_point *p0, g3s_point *p1)
-{
-	int savePAEnabledState = PAEnabled;
-
-	PAEnabled = 0;
-	g3_draw_line(&FromPoint, &ToPoint);
-	PAEnabled = savePAEnabledState;
-}
-#else
 # define automap_draw_line g3_draw_line
-#endif
 
 
 // -------------------------------------------------------------
@@ -446,118 +423,6 @@ void draw_player( object * obj )
 }
 
 int AutomapHires;
-#if defined(MACINTOSH) && defined(POLY_ACC)
-
-	void pa_mac_draw_automap_extras(void)
-	{
-		int i;
-		int color;
-		object * objp;
-		g3s_point sphere_point;
-		
-		AutomapHires = 1;	// always on the mac
-	
-		// Draw player...
-		#ifdef NETWORK
-			if (Game_mode & GM_TEAM)
-				color = get_team(Player_num);
-			else
-		#endif	
-			color = Player_num;	// Note link to above if!
-	
-		gr_setcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
-		draw_player(&Objects[Players[Player_num].objnum]);
-	
-		DrawMarkers();
-		
-		if (HighlightMarker>-1 && MarkerMessage[HighlightMarker][0]!=0)
-		 {
-			char msg[10+MARKER_MESSAGE_LEN+1];
-	
-			sprintf(msg,"Marker %d: %s",HighlightMarker+1,MarkerMessage[(Player_num*2)+HighlightMarker]);
-	
-			gr_setcolor (Red_48);
-			
-			modex_printf(5,20,msg,SMALL_FONT,Font_color_20);
-		 }
-					
-		// Draw player(s)...
-		#ifdef NETWORK
-			if ( (Game_mode & (GM_TEAM | GM_MULTI_COOP)) || (Netgame.game_flags & NETGAME_FLAG_SHOW_MAP) )
-			{
-				for (i=0; i<N_players; i++)	
-				{
-					if ((i != Player_num) &&
-						((Game_mode & GM_MULTI_COOP) || (get_team(Player_num) == get_team(i)) || (Netgame.game_flags & NETGAME_FLAG_SHOW_MAP)) )	
-					{
-						if ( Objects[Players[i].objnum].type == OBJ_PLAYER )
-						{
-							if (Game_mode & GM_TEAM)
-								color = get_team(i);
-							else
-								color = i;
-							gr_setcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
-							draw_player(&Objects[Players[i].objnum]);
-						}
-					}
-				}
-			}
-		#endif
-	
-		objp = &Objects[0];
-		for (i=0;i<=Highest_object_index;i++,objp++)
-		{
-			switch( objp->type )
-			{
-				case OBJ_HOSTAGE:
-					gr_setcolor(Hostage_color);
-					g3_rotate_point(&sphere_point,&objp->pos);
-					g3_draw_sphere(&sphere_point,objp->size);	
-					break;
-				case OBJ_POWERUP:
-					if ( Automap_visited[objp->segnum] )
-					{
-						if ( (objp->id==POW_KEY_RED) || (objp->id==POW_KEY_BLUE) || (objp->id==POW_KEY_GOLD) )
-						{
-							switch (objp->id)
-							{
-								case POW_KEY_RED:	gr_setcolor(gr_getcolor(63, 5, 5));	break;
-								case POW_KEY_BLUE:	gr_setcolor(gr_getcolor(5, 5, 63)); break;
-								case POW_KEY_GOLD:	gr_setcolor(gr_getcolor(63, 63, 10)); break;
-								default:
-									Error("Illegal key type: %i", objp->id);
-							}
-							g3_rotate_point(&sphere_point,&objp->pos);
-							g3_draw_sphere(&sphere_point,objp->size*4);	
-						}
-					}
-					break;
-			}
-		}
-
-		gr_bitmapm(AutomapHires?10:5, AutomapHires?10:5, &name_canv_left->cv_bitmap);
-		gr_bitmapm(grd_curcanv->cv_bitmap.bm_w-(AutomapHires?10:5)-name_canv_right->cv_bitmap.bm_w,AutomapHires?10:5,&name_canv_right->cv_bitmap);
-	}
-
-	void pa_mac_draw_automap(void)
-	{
-		vms_vector viewer_position;
-	
-		g3_start_frame();
-		render_start_frame();
-		pa_set_context(kAutoMapDrawContextID, NULL);
-		pa_render_start();
-		
-			vm_vec_scale_add(&viewer_position,&view_target,&ViewMatrix.fvec,-ViewDist );
-			g3_set_view_matrix(&viewer_position,&ViewMatrix,Automap_zoom);
-		
-			draw_all_edges();
-	
-		g3_end_frame();
-		pa_render_end();
-	}
-#endif
-
 void draw_automap()
 {
 	int i;
@@ -566,16 +431,6 @@ void draw_automap()
 	vms_vector viewer_position;
 	g3s_point sphere_point;
 
-	#ifdef MACINTOSH
-		#ifdef POLY_ACC
-			if (PAEnabled)
-			{
-				pa_mac_draw_automap();
-				return;
-			}
-		#endif
-	#endif
-	
 #ifndef AUTOMAP_DIRECT_RENDER
 	if (!AutomapHires) {
 		WIN(mprintf((1, "Can't do lores automap in Windows!\n")));
@@ -589,10 +444,6 @@ void draw_automap()
 			gr_set_current_canvas(&DrawingPage)
 		);
 	}
-#endif
-
-#if defined(POLY_ACC)
-    pa_flush();
 #endif
 
 	WINDOS(
@@ -887,7 +738,6 @@ void do_automap( int key_code )	{
 
 	#if !defined (WINDOWS) && !defined(MACINTOSH)
 	if ((Current_display_mode!=0 && Current_display_mode!=2) || (Automap_always_hires && MenuHiresAvailable)) {
-#if !defined(POLY_ACC)
 		//edit 4/23/99 Matt Mueller - don't switch res unless we need to
 		if (grd_curscreen->sc_mode != AUTOMAP_MODE)
 			gr_set_mode( AUTOMAP_MODE );
@@ -896,8 +746,6 @@ void do_automap( int key_code )	{
 		//end edit -MM
 		automap_width=grd_curscreen->sc_canvas.cv_bitmap.bm_w;
 		automap_height=grd_curscreen->sc_canvas.cv_bitmap.bm_h;
-#endif
-		PA_DFX (pa_set_frontbuffer_current());
 		AutomapHires = 1;
 	}
 	else {
@@ -957,19 +805,7 @@ WIN(AutomapRedraw:)
 		{
 			WIN(dd_gr_init_sub_canvas(&ddPage, &dd_VR_render_buffer[0], 0, 0, automap_width,automap_height));
 
-			#if defined(MACINTOSH) && defined(POLY_ACC)
-				if (PAEnabled)
-				{
-					// we want all the automap border stuff to be drawn straight to the screen
-					gr_init_sub_canvas(&Page,&(grd_curscreen->sc_canvas),0, 0, automap_width, automap_height);
-				}
-				else
-				{
-					gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
-				}
-			#else
-				gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
-			#endif
+			gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
 			
 		}
 		else {
@@ -993,33 +829,6 @@ WIN(AutomapRedraw:)
 		);
 #endif
 
-#if defined(POLY_ACC)
-
-		#ifndef MACINTOSH
-        	pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME,&(grd_curcanv->cv_bitmap),BM_LINEAR15,pal);
-        #else
-	        if ( PAEnabled )
-	        {
-		        pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME,&(grd_curcanv->cv_bitmap),BM_LINEAR15,pal);
-				if ( pcx_error != PCX_ERROR_NONE )
-				{
-					Error("File %s - PCX error: %s",MAP_BACKGROUND_FILENAME,pcx_errormsg(pcx_error));
-					return;
-				}
-		    }
-		    else
-		    {
-				pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME,&(grd_curcanv->cv_bitmap),BM_LINEAR,pal);
-				if ( pcx_error != PCX_ERROR_NONE )
-				{
-					Error("File %s - PCX error: %s",MAP_BACKGROUND_FILENAME,pcx_errormsg(pcx_error));
-					return;
-				}
-	
-				gr_remap_bitmap_good( &(grd_curcanv->cv_bitmap), pal, -1, -1 );
-		    }
-	    #endif
-#else
 
 		WIN(DDGRLOCK(dd_grd_curcanv));
 		pcx_error = pcx_read_fullscr(MAP_BACKGROUND_FILENAME, pal);
@@ -1030,7 +839,6 @@ WIN(AutomapRedraw:)
 			}
 
 			gr_remap_bitmap_good( &(grd_curcanv->cv_bitmap), pal, -1, -1 );
-#endif
 	
 			gr_set_curfont(HUGE_FONT);
 			gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
@@ -1363,13 +1171,6 @@ WIN(if (redraw_screen) redraw_screen = 0);
 
 	game_flush_inputs();
 	
-	#if defined(POLY_ACC) && defined(MACINTOSH)
-		if (PAEnabled)
-		{
-			pa_set_context(kGamePlayDrawContextID, NULL);
-		}
-	#endif
-
 	if (pause_game)
 	{
 		start_time();

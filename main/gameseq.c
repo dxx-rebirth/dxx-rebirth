@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.45 2005-01-10 17:47:27 schaffner Exp $ */
+/* $Id: gameseq.c,v 1.46 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.45 2005-01-10 17:47:27 schaffner Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.46 2005-07-30 01:50:17 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -44,7 +44,6 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.45 2005-01-10 17:47:27 schaffner Exp 
 #include "ogl_init.h"
 #endif
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "inferno.h"
 #include "game.h"
 #include "player.h"
@@ -119,9 +118,6 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.45 2005-01-10 17:47:27 schaffner Exp 
 #include "credits.h"
 #include "gamemine.h"
 
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 #if defined (TACTILE)
  #include "tactile.h"
 #endif
@@ -840,7 +836,7 @@ void LoadLevel(int level_num,int page_in_textures)
 //	WIN(LoadCursorWin(MOUSE_WAIT_CURSOR));
 //	WIN(ShowCursorW());
 
-#if 1 //defined(POLY_ACC) || defined(OGL)
+#if 1 //def OGL
     gr_palette_load(gr_palette);
     show_boxed_message(TXT_LOADING);
 	gr_update();
@@ -1095,8 +1091,6 @@ void DoEndLevelScoreGlitz(int network)
 
 	mprintf((0,"doing menu\n"));
 
-   PA_DFX (pa_alpha_always());
-
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
 		newmenu_do2(NULL, title, c, m, (void (*))network_endlevel_poll2, 0, STARS_BACKGROUND);
@@ -1167,20 +1161,11 @@ void do_secret_message(char *msg)
 
 	load_stars();
 
-#if defined(POLY_ACC)
-	pa_save_clut();
-	pa_update_clut(gr_palette, 0, 256, 0);
-#endif
-
 	old_fmode = Function_mode;
 	Function_mode = FMODE_MENU;
 	nm_messagebox(NULL, 1, TXT_OK, msg);
 	Function_mode = old_fmode;
 
-#if defined(POLY_ACC)
-	pa_restore_clut();
-#endif
-	
 	WIN(DEFINE_SCREEN(NULL));
 }
 
@@ -1650,19 +1635,10 @@ died_in_mine_message(void)
 
 	load_stars();
 
-#if defined(POLY_ACC)
-	pa_save_clut();
-	pa_update_clut(gr_palette, 0, 256, 0);
-#endif
-
 	old_fmode = Function_mode;
 	Function_mode = FMODE_MENU;
 	nm_messagebox(NULL, 1, TXT_OK, TXT_DIED_IN_MINE);
 	Function_mode = old_fmode;
-
-#if defined(POLY_ACC)
-	pa_restore_clut();
-#endif
 
 	WIN(DEFINE_SCREEN(NULL));
 }
@@ -1685,20 +1661,11 @@ void returning_to_level_message(void)
 
 	load_stars();
 
-#if defined(POLY_ACC)
-	pa_save_clut();
-	pa_update_clut(gr_palette, 0, 256, 0);
-#endif
-
 	old_fmode = Function_mode;
 	Function_mode = FMODE_MENU;
 	sprintf(msg, "Returning to level %i", Entered_from_level);
 	nm_messagebox(NULL, 1, TXT_OK, msg);
 	Function_mode = old_fmode;
-
-#if defined(POLY_ACC)
-	pa_restore_clut();
-#endif
 
 	WIN(DEFINE_SCREEN(NULL));
 }
@@ -1724,20 +1691,11 @@ void advancing_to_level_message(void)
 	
 	load_stars();
 
-#if defined(POLY_ACC)
-	pa_save_clut();
-	pa_update_clut(gr_palette, 0, 256, 0);
-#endif
-
 	old_fmode = Function_mode;
 	Function_mode = FMODE_MENU;
 	sprintf(msg, "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1);
 	nm_messagebox(NULL, 1, TXT_OK, msg);
 	Function_mode = old_fmode;
-
-#if defined(POLY_ACC)
-	pa_restore_clut();
-#endif
 
 	WIN(DEFINE_SCREEN(NULL));
 }

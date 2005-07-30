@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.101 2005-03-20 12:53:33 btb Exp $ */
+/* $Id: inferno.c,v 1.102 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -46,7 +46,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "pstypes.h"
 #include "strutil.h"
 #include "console.h"
-#include "pa_enabl.h"       //$$POLY_ACC
 #include "gr.h"
 #include "fix.h"
 #include "vecmat.h"
@@ -105,11 +104,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 //end addition -MM
 
 #include "../texmap/scanline.h" //for select_tmap -MM
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-extern int Current_display_mode;        //$$ there's got to be a better way than hacking this.
-#endif
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -458,11 +452,7 @@ int start_net_immediately = 0;
 //char *start_with_mission_name;
 //end this section addition
 
-#if defined(POLY_ACC)
-#define MENU_HIRES_MODE SM_640x480x15xPA
-#else
 #define MENU_HIRES_MODE SM(640,480)
-#endif
 
 //	DESCENT II by Parallax Software
 //		Descent Main
@@ -684,11 +674,6 @@ int main(int argc, char *argv[])
 
 	do_joystick_init();
 
-#if defined(POLY_ACC)
-    Current_display_mode = -1;
-    game_init_render_buffers(SM_640x480x15xPA, 640, 480, VR_NONE, VRF_COMPATIBLE_MENUS+VRF_ALLOW_COCKPIT );
-#else
-
 	if (!VR_offscreen_buffer)	//if hasn't been initialied (by headset init)
 		set_display_mode(0);		//..then set default display mode
 #endif
@@ -769,11 +754,9 @@ int main(int argc, char *argv[])
 		grd_fades_disabled=1;
 
 	//determine whether we're using high-res menus & movies
-#if !defined(POLY_ACC)
 	if (FindArg("-nohires") || FindArg("-nohighres") || (gr_check_mode(MENU_HIRES_MODE) != 0) || disable_high_res)
 		MovieHires = MenuHires = MenuHiresAvailable = 0;
 	else
-#endif
 		//NOTE LINK TO ABOVE!
 		MenuHires = MenuHiresAvailable = 1;
 
@@ -799,11 +782,7 @@ int main(int argc, char *argv[])
 
 #if 0
 	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
-#if defined(POLY_ACC)
-	gr_set_mode(SM_640x480x15xPA);
-#else
 	gr_set_mode(MovieHires?SM(640,480):SM(320,200));
-#endif
 #endif
 
 	if ( FindArg( "-notitles" ) )
@@ -855,11 +834,7 @@ int main(int argc, char *argv[])
 			{
 				char filename[FILENAME_LEN];
 
-#if defined(POLY_ACC)
-				gr_set_mode(SM_640x480x15xPA);
-#else
 				gr_set_mode(MenuHires?SM(640,480):SM(320,200));
-#endif
 #ifdef OGL
 				set_screen_mode(SCREEN_MENU);
 #endif
@@ -918,8 +893,6 @@ int main(int argc, char *argv[])
 			
 	}
 
-	PA_DFX (pa_splash());
-
 	con_printf( CON_DEBUG, "\nShowing loading screen..." );
 	{
 		//grs_bitmap title_bm;
@@ -934,11 +907,7 @@ int main(int argc, char *argv[])
 		if (! cfexist(filename))
 			strcpy(filename, "descentb.pcx"); // MAC SHAREWARE
 
-#if defined(POLY_ACC)
-		gr_set_mode(SM_640x480x15xPA);
-#else
 		gr_set_mode(MenuHires?SM(640,480):SM(320,200));
-#endif
 #ifdef OGL
 		set_screen_mode(SCREEN_MENU);
 #endif

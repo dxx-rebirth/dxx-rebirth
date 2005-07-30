@@ -1,4 +1,4 @@
-/* $Id: hud.c,v 1.9 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: hud.c,v 1.10 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -52,7 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "laser.h"
 #include "args.h"
-#include "pa_enabl.h"
 
 int hud_first = 0;
 int hud_last = 0;
@@ -99,9 +98,6 @@ void clear_background_messages(void)
 				gr_set_current_canvas(get_current_game_screen())
 		);
 
-		PA_DFX (pa_set_frontbuffer_current());
-		PA_DFX (copy_background_rect(0, Last_msg_ycrd, grd_curcanv->cv_bitmap.bm_w, Last_msg_ycrd+Last_msg_height-1));
-		PA_DFX (pa_set_backbuffer_current());
 		copy_background_rect(0, Last_msg_ycrd, grd_curcanv->cv_bitmap.bm_w, Last_msg_ycrd+Last_msg_height-1);
 
 		WINDOS(
@@ -251,9 +247,6 @@ void HUD_render_message_frame()
 				} else {
 				WIN(DDGRLOCK(dd_grd_curcanv));
 					gr_set_fontcolor( HUD_color, -1);
-					PA_DFX (pa_set_frontbuffer_current());
-					PA_DFX (gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, ycrd, message ));
-					PA_DFX (pa_set_backbuffer_current());
 					gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, ycrd, message );
 					strcpy(Displayed_background_message[VR_current_page], message);
 				WIN(DDGRUNLOCK(dd_grd_curcanv));
@@ -299,9 +292,6 @@ void HUD_render_message_frame()
 				gr_get_string_size(&HUD_messages[n][0], &w, &h, &aw );
 				gr_set_fontcolor( HUD_color, -1);
 
-				PA_DFX (pa_set_frontbuffer_current());
-				PA_DFX(gr_string((grd_curcanv->cv_bitmap.bm_w-w)/2,y, &HUD_messages[n][0] ));
-				PA_DFX (pa_set_backbuffer_current());
 				gr_string((grd_curcanv->cv_bitmap.bm_w-w)/2,y, &HUD_messages[n][0] );
 				y += h+1;
 			}
@@ -440,9 +430,9 @@ void player_dead_message(void)
             x = (grd_curcanv->cv_w - w ) / 2;
             y = (grd_curcanv->cv_h - h ) / 2;
 
-            NO_DFX (Gr_scanline_darkening_level = 2*7);
-            NO_DFX (gr_setcolor( BM_XRGB(0,0,0) ));
-            NO_DFX (gr_rect( x, y, x+w, y+h ));
+            Gr_scanline_darkening_level = 2*7;
+            gr_setcolor( BM_XRGB(0,0,0) );
+            gr_rect( x, y, x+w, y+h );
             Gr_scanline_darkening_level = GR_FADE_LEVELS;
 
             gr_string(0x8000, (grd_curcanv->cv_h - grd_curcanv->cv_font->ft_h)/2 + h/8, TXT_GAME_OVER );

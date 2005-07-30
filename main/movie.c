@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.38 2005-02-25 03:35:42 btb Exp $ */
+/* $Id: movie.c,v 1.39 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.38 2005-02-25 03:35:42 btb Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.39 2005-07-30 01:50:17 chris Exp $";
 #endif
 
 #include <string.h>
@@ -323,20 +323,16 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	gr_palette_load(gr_palette);
 #endif
 
-#if !defined(POLY_ACC)
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
-#endif
 
 	if (MVE_rmPrepMovie((void *)filehndl, dx, dy, track)) {
 		Int3();
 		return MOVIE_NOT_PLAYED;
 	}
 
-#if !defined(POLY_ACC)
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
-#endif
 
 	frame_num = 0;
 

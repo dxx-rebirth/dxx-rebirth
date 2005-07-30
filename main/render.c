@@ -1,4 +1,4 @@
-/* $Id: render.c,v 1.23 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: render.c,v 1.24 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -26,7 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "inferno.h"
 #include "segment.h"
 #include "error.h"
@@ -64,10 +63,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef EDITOR
 #include "editor/editor.h"
-#endif
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
 #endif
 
 //used for checking if points have been rotated
@@ -1693,10 +1688,6 @@ fix Zoom_factor=F1_0;
 void render_frame(fix eye_offset, int window_num)
 {
 	int start_seg_num;
-
-#if defined(POLY_ACC)
-//$$ not needed for Verite, probably optional for ViRGE.    pa_flush();
-#endif
 
 //Total_num_tmaps_drawn += Num_tmaps_drawn;
 //if ((FrameCount > 0) && (Total_num_tmaps_drawn))

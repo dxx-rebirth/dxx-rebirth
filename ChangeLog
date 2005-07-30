@@ -1,3 +1,17 @@
+2005-07-30  Chris Taylor  <chris@icculus.org>
+
+	* 2d/2dsline.c, 2d/bitblt.c, 2d/bitmap.c, 2d/font.c, 2d/ibitblt.c,
+	2d/palette.c, 2d/pcx.c, 2d/rle.c,
+	include/gr.h,
+	main/automap.c, main/config.c, main/credits.c, main/escort.c,
+	main/game.c, main/gamecntl.c, main/gamepal.c, main/gamerend.c,
+	main/gameseq.c, main/gauges.c, main/hud.c, main/inferno.c,
+	main/kconfig.c, main/kmatrix.c, main/menu.c, main/movie.c,
+	main/newmenu.c, main/object.c, main/playsave.c, main/polyobj.c,
+	main/render.c, main/state.c, main/texmerge.c, main/titles.c:
+	remove all the redundant Polygon Acceleration stuff
+	(include/pa_enabl.h)
+
 2005-07-29  Chris Taylor  <chris@icculus.org>
 
 	* 2d/font.c: show some missing wide 1's (bug #2269)

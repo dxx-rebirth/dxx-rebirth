@@ -1,4 +1,4 @@
-/* $Id: polyobj.c,v 1.20 2004-11-27 12:28:10 btb Exp $ */
+/* $Id: polyobj.c,v 1.21 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.20 2004-11-27 12:28:10 btb Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.21 2005-07-30 01:50:17 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -56,8 +56,6 @@ static char rcsid[] = "$Id: polyobj.c,v 1.20 2004-11-27 12:28:10 btb Exp $";
 #include "cfile.h"
 #include "piggy.h"
 #endif
-
-#include "pa_enabl.h"
 
 #ifdef _3DFX
 #include "3dfx_des.h"
@@ -606,7 +604,6 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 {
 	polymodel *po;
 	int i;
-	PA_DFX (int save_light);
 
 	Assert(model_num < N_polygon_models);
 
@@ -674,8 +671,6 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 #ifdef _3DFX
    _3dfx_rendering_poly_obj = 1;
 #endif
-	PA_DFX(save_light = Lighting_on);
-	PA_DFX(Lighting_on = 0);
 
 	if (flags == 0)		//draw entire object
 
@@ -707,10 +702,6 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 #ifdef _3DFX
    _3dfx_rendering_poly_obj = 0;
 #endif
-
-	PA_DFX (Lighting_on = save_light);
-
-
 }
 
 void free_polygon_models()
@@ -878,10 +869,7 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 
 	vm_angles_2_matrix(&temp_orient, orient_angles);
 
-	PA_DFX(save_light = Lighting_on);
-	PA_DFX(Lighting_on = 0);
 	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,f1_0,NULL,NULL);
-	PA_DFX (Lighting_on = save_light);
 
 	g3_end_frame();
 

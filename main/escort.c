@@ -1,4 +1,4 @@
-/* $Id: escort.c,v 1.8 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: escort.c,v 1.9 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -58,7 +58,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "automap.h"
 #include "laser.h"
-#include "pa_enabl.h"
 #include "escort.h"
 
 #ifdef EDITOR
@@ -1972,15 +1971,9 @@ void show_escort_menu(char *msg)
 
 	gr_set_fontcolor( gr_getcolor(0, 28, 0), -1 );
    
-   PA_DFX (pa_set_frontbuffer_current());
-	PA_DFX (nm_draw_background(x-15,y-15,x+w+15-1,y+h+15-1));
-   PA_DFX (pa_set_backbuffer_current());
    nm_draw_background(x-15,y-15,x+w+15-1,y+h+15-1);
 
 WIN(DDGRLOCK(dd_grd_curcanv));\
-	PA_DFX (pa_set_frontbuffer_current());
-  	PA_DFX (gr_ustring( x, y, msg ));
-	PA_DFX (pa_set_backbuffer_current());
   	gr_ustring( x, y, msg );
 WIN(DDGRUNLOCK(dd_grd_curcanv));
 	gr_update();

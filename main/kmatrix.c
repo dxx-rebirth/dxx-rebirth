@@ -1,4 +1,4 @@
-/* $Id: kmatrix.c,v 1.7 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: kmatrix.c,v 1.8 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -32,7 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #include <stdarg.h>
 
-#include "pa_enabl.h"       //$$POLY_ACC
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
@@ -58,10 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "pcx.h"
 #include "network.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 #define CENTERING_OFFSET(x) ((300 - (70 + (x)*25 ))/2)
 #define CENTERSCREEN (MenuHires?320:160)
@@ -453,23 +448,10 @@ WINDOS(
 	gr_set_current_canvas(NULL)
 );
 
-#if defined(POLY_ACC)
-    pa_save_clut();
-    pa_update_clut(gr_palette, 0, 256, 0);
-#endif
-
-PA_DFX (pa_set_frontbuffer_current());
-
 WINDOS(
 	dd_gr_blt_notrans(tempcanvas, 0,0,0,0, dd_grd_curcanv, 0,0,0,0),
   	gr_bitmap (0,0,&tempcanvas->cv_bitmap)
 );
-
-PA_DFX (pa_set_backbuffer_current());
-
-#if defined(POLY_ACC)
-    pa_restore_clut();
-#endif
 
 	gr_palette_load(gr_palette);
 WINDOS(
@@ -536,23 +518,10 @@ WINDOS(
 	gr_set_current_canvas(NULL)
 );
 
-#if defined(POLY_ACC)
-    pa_save_clut();
-    pa_update_clut(gr_palette, 0, 256, 0);
-#endif
-
-PA_DFX (pa_set_frontbuffer_current());
-
 WINDOS(
 	dd_gr_blt_notrans(tempcanvas, 0,0,0,0, dd_grd_curcanv, 0,0,0,0),
   	gr_bitmap (0,0,&tempcanvas->cv_bitmap)
 );
-
-PA_DFX (pa_set_backbuffer_current());
-
-#if defined(POLY_ACC)
-    pa_restore_clut();
-#endif
 
 	gr_palette_load(gr_palette);
 WINDOS(

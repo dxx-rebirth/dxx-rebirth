@@ -1,4 +1,4 @@
-/* $Id: gamerend.c,v 1.15 2005-01-24 21:11:58 schaffner Exp $ */
+/* $Id: gamerend.c,v 1.16 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.15 2005-01-24 21:11:58 schaffner Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.16 2005-07-30 01:50:17 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -37,7 +37,6 @@ static char rcsid[] = "$Id: gamerend.c,v 1.15 2005-01-24 21:11:58 schaffner Exp 
 
 #include "pstypes.h"
 #include "console.h"
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "inferno.h"
 #include "error.h"
 #include "mono.h"
@@ -66,10 +65,6 @@ static char rcsid[] = "$Id: gamerend.c,v 1.15 2005-01-24 21:11:58 schaffner Exp 
 #include "automap.h"
 #include "mission.h"
 #include "gameseq.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -577,9 +572,6 @@ void game_render_frame_stereo()
   			#endif
 			update_rendered_data(0, Viewer, 0, 0);
 			render_frame(0, 0);
-#if defined(POLY_ACC) && !defined(MACINTOSH)	// dma stuff not support on mac via RAVE
-			pa_dma_poll();
-#endif
   
 			wake_up_rendered_objects(Viewer, 0);
 			Viewer = viewer_save;
@@ -961,147 +953,6 @@ extern ubyte Game_cockpit_copy_code;
 
 void draw_guided_crosshair(void);
 
-#ifdef MACINTOSH
-// special code to render a frame w/hw acceleration
-
-// next routine is called as a callback from the current hardware engine being used.  The
-// routine is called once all of the accelerated drawing is done.  We now overlay the
-// backbuffer with hud stuff.
-
-void pa_mac_render_extras( void )
-{
-	grs_canvas Screen_3d_window;
-
-	gr_init_sub_canvas( &Screen_3d_window, &VR_screen_pages[0], 
-		VR_render_sub_buffer[0].cv_bitmap.bm_x, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_y, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_w, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_h);
-
-	gr_set_current_canvas( &Screen_3d_window );		// set to current screen
-	
-	if (Guided_missile[Player_num] &&
-		Guided_missile[Player_num]->type==OBJ_WEAPON &&
-		Guided_missile[Player_num]->id==GUIDEDMISS_ID &&
-		Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] &&
-		Guided_in_big_window)
-	{
-		char *msg = "Guided Missile View";
-		int w,h,aw;
-
-		gr_set_curfont( GAME_FONT );    //GAME_FONT );
-		gr_set_fontcolor(gr_getcolor(27,0,0), -1 );
-		gr_get_string_size(msg, &w, &h, &aw );
-
-		gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, 3, msg );
-
-		draw_guided_crosshair();
-
-		HUD_render_message_frame();
-	} 
-	else
-	{
-		game_draw_hud_stuff();		// draw hud stuff when not doing missle view in big window
-	}
-
-	if (Game_paused) {		//render pause message over off-screen 3d (to minimize flicker)
-		extern char *Pause_msg;
-		ubyte *save_data = VR_screen_pages[VR_current_page].cv_bitmap.bm_data;
-
-		WIN(Int3());			// Not supported yet.
-		VR_screen_pages[VR_current_page].cv_bitmap.bm_data=VR_render_buffer[VR_current_page].cv_bitmap.bm_data;
-		show_boxed_message(Pause_msg);
-		VR_screen_pages[VR_current_page].cv_bitmap.bm_data=save_data;
-	}
-
-
-}
-
-void pa_mac_game_render_frame( void )
-{	
-	Assert ( !Scanline_double );
-	Assert ( PAEnabled );
-	
-	gr_set_current_canvas(&VR_render_sub_buffer[0]);	// set up the right canvas so rendering is done to correct size
-
-	pa_render_start();
-	
-	if (Guided_missile[Player_num] &&
-		Guided_missile[Player_num]->type==OBJ_WEAPON &&
-		Guided_missile[Player_num]->id==GUIDEDMISS_ID &&
-		Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] &&
-		Guided_in_big_window)
-	{
-		char *msg = "Guided Missile View";
-		object *viewer_save = Viewer;
-		int w,h,aw;
-
-		if (Cockpit_mode==CM_FULL_COCKPIT) {
-			BigWindowSwitch=1;
-			force_cockpit_redraw=1;
-			Cockpit_mode=CM_STATUS_BAR;
-			pa_render_end();
-			return;
-		}
-  
-		Viewer = Guided_missile[Player_num];
-		update_rendered_data(0, Viewer, 0, 0);
-		render_frame(0, 0);
-		wake_up_rendered_objects(Viewer, 0);
-		Viewer = viewer_save;
-	}
-	else
-	{	
-		if (BigWindowSwitch)
-		{
-			force_cockpit_redraw=1;
-			Cockpit_mode=CM_FULL_COCKPIT;
-			BigWindowSwitch=0;
-			pa_render_end();
-			return;
-		}
-
-		update_rendered_data(0, Viewer, Rear_view, 0);
-		render_frame(0, 0);
-	 }
-
-	if (Cockpit_mode == CM_FULL_SCREEN)
-	{
-		show_extra_views();
-	}
-
-
-	pa_render_end();
-
-	// NOTE:  Hud stuff is drawn using a RAVE call back which draws onto the back buffer
-	// after rendering finishes but before the page flip
-
-	if (Cockpit_mode != CM_FULL_SCREEN)
-	{
-		show_extra_views();		//missile view, buddy bot, etc.
-	}
-	
-	// Draw Gauges straight to screen
-	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
-	{
-
-		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-		{
-			Game_mode = Newdemo_game_mode;
-		}
-		
-		Current_display_mode = 1;
-			render_gauges();
-		Current_display_mode = -1;
-
-		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-		{
-			Game_mode = GM_NORMAL;
-		}
-	}
-}
-#endif // MACINTOSH
-
 
 //render a frame for the game
 //		WINDOWS:
@@ -1114,13 +965,6 @@ void game_render_frame_mono(void)
 		grs_canvas Screen_3d_window
 	);
 	int no_draw_hud=0;
-
-	#if defined(MACINTOSH)
-	if ( PAEnabled ) {
-		pa_mac_game_render_frame();
-		return;
-	}
-	#endif
 	
 
 	WINDOS (
@@ -1149,87 +993,6 @@ void game_render_frame_mono(void)
 		);
 	}
 	
-#if defined(POLY_ACC) && !defined(MACINTOSH)  // begin s3 relocation of cockpit drawing.
-
-    pa_flush();
-
-    if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window)
-        no_draw_hud = 1;
-
-    if (!no_draw_hud)   {
-		WIN(DDGRLOCK(dd_grd_curcanv));
-		game_draw_hud_stuff();
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
-	}
-
-	show_extra_views();		//missile view, buddy bot, etc.
-	pa_dma_poll();
-
-	if (Game_paused) {		//render pause message over off-screen 3d (to minimize flicker)
-		extern char *Pause_msg;
-		ubyte *save_data = VR_screen_pages[VR_current_page].cv_bitmap.bm_data;
-
-		WIN(Int3());			// Not supported yet.
-		VR_screen_pages[VR_current_page].cv_bitmap.bm_data=VR_render_buffer[VR_current_page].cv_bitmap.bm_data;
-		show_boxed_message(Pause_msg);
-		VR_screen_pages[VR_current_page].cv_bitmap.bm_data=save_data;
-	}
-
-	if ( Game_double_buffer ) {		//copy to visible screen
-		if ( !Game_cockpit_copy_code )	{
-			if ( VR_screen_flags&VRF_USE_PAGING )	{
-				VR_current_page = !VR_current_page;
-                    gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
-					gr_bm_ubitblt( VR_render_sub_buffer[0].cv_w, VR_render_sub_buffer[0].cv_h, VR_render_sub_buffer[0].cv_bitmap.bm_x, VR_render_sub_buffer[0].cv_bitmap.bm_y, 0, 0, &VR_render_sub_buffer[0].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap );
-					gr_wait_for_retrace = 0;
-					gr_show_canvas( &VR_screen_pages[VR_current_page] );
-					gr_wait_for_retrace = 1;
-            } else {
-#ifdef  POLY_ACC        //$$
-					pa_about_to_flip();
-#endif
-                gr_bm_ubitblt(
-                    VR_render_sub_buffer[0].cv_w, VR_render_sub_buffer[0].cv_h,
-                    VR_render_sub_buffer[0].cv_bitmap.bm_x, VR_render_sub_buffer[0].cv_bitmap.bm_y,
-                    VR_render_sub_buffer[0].cv_bitmap.bm_x, VR_render_sub_buffer[0].cv_bitmap.bm_y,
-                    &VR_render_sub_buffer[0].cv_bitmap,  &VR_screen_pages[0].cv_bitmap
-                );
-            }
-		} else	{
-#ifdef  POLY_ACC        //$$
-        pa_about_to_flip();
-#endif
-                gr_ibitblt( &VR_render_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap, Game_cockpit_copy_code );
-        }
-	}
-
-	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR) {
-
-		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-			Game_mode = Newdemo_game_mode;
-
-		render_gauges();
-
-		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-			Game_mode = GM_NORMAL;
-	}
-
-    // restore current canvas.
-    if ( Game_double_buffer ) {
-		WINDOS(
-			dd_gr_set_current_canvas(&dd_VR_render_sub_buffer[0]),
-			gr_set_current_canvas(&VR_render_sub_buffer[0])
-		);
-	}
-	else	{
-		WINDOS(
-			dd_gr_set_current_canvas(&Screen_3d_window),
-			gr_set_current_canvas(&Screen_3d_window)
-		);
-	}
-	
-#endif      // end s3 relocation of cockpit drawing.
-
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window) {
 		char *msg = "Guided Missile View";
 		object *viewer_save = Viewer;
@@ -1287,9 +1050,6 @@ void game_render_frame_mono(void)
 		WIN(DDGRLOCK(dd_grd_curcanv)); 	// Must lock DD canvas!!!
 		update_rendered_data(0, Viewer, Rear_view, 0);
 		render_frame(0, 0);
-#if defined(POLY_ACC) && !defined(MACINTOSH)	// dma stuff not supported on mac via RAVE
-		pa_dma_poll();
-#endif
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 	 }
 
@@ -1305,8 +1065,6 @@ void game_render_frame_mono(void)
 			gr_set_current_canvas(&Screen_3d_window)
 		);
 	}
-
-#if !defined(POLY_ACC) || defined(MACINTOSH)
 
 	if (!no_draw_hud)	{
 		WIN(DDGRLOCK(dd_grd_curcanv));
@@ -1426,8 +1184,6 @@ void game_render_frame_mono(void)
 		VR_current_page = !VR_current_page;
 		dd_gr_flip();
 	}
-#endif
-
 #endif
 
 	con_update();
@@ -1886,11 +1642,7 @@ void show_boxed_message(char *msg)
 	// Save the background of the display
 	bg.x=x; bg.y=y; bg.w=w; bg.h=h;
 
-#if defined(POLY_ACC)
-    bg.bmp = gr_create_bitmap2( w+BOX_BORDER, h+BOX_BORDER, grd_curcanv->cv_bitmap.bm_type, NULL );
-#else
 	bg.bmp = gr_create_bitmap( w+BOX_BORDER, h+BOX_BORDER );
-#endif
 
 	WIN( DDGRLOCK(dd_grd_curcanv));
 		gr_bm_ubitblt(w+BOX_BORDER, h+BOX_BORDER, 0, 0, x-BOX_BORDER/2, y-BOX_BORDER/2, &(grd_curcanv->cv_bitmap), bg.bmp );

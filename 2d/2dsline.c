@@ -1,4 +1,4 @@
-/* $Id: 2dsline.c,v 1.11 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: 2dsline.c,v 1.12 2005-07-30 01:51:42 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -33,10 +33,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __MSDOS__
 #include "modex.h"
 #include "vesa.h"
-#endif
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
 #endif
 
 int Gr_scanline_darkening_level = GR_FADE_LEVELS;
@@ -132,49 +128,6 @@ void gr_linear_stosd( ubyte * dest, unsigned char color, unsigned int nbytes) {
 #endif
 #endif
 
-#if defined(POLY_ACC)
-//$$ Note that this code WAS a virtual clone of the mac code and any changes to mac should be reflected here.
-void gr_linear15_darken( short * dest, int darkening_level, int count, ubyte * fade_table )
-{
-    //$$ this routine is a prime candidate for using the alpha blender.
-    int i;
-    unsigned short rt[32], gt[32], bt[32];
-    unsigned long level, int_level, dlevel;
-
-    dlevel = (darkening_level << 16) / GR_FADE_LEVELS;
-    level = int_level = 0;
-    for(i = 0; i != 32; ++i)
-    {
-        rt[i] = int_level << 10;
-        gt[i] = int_level << 5;
-        bt[i] = int_level;
-
-        level += dlevel;
-        int_level = level >> 16;
-    }
-
-    pa_flush();
-    for (i=0; i<count; i++ )    {
-        if(*dest & 0x8000)
-	        *dest =
-   	         rt[((*dest >> 10) & 0x1f)] |
-      	      gt[((*dest >> 5) & 0x1f)] |
-         	   bt[((*dest >> 0) & 0x1f)] |
-            	0x8000;
-	        dest++;
-	}
-}
-
-void gr_linear15_stosd( short * dest, ubyte color, unsigned short count )
-{
-    //$$ this routine is a prime candidate for using the alpha blender.
-    short c = pa_clut[color];
-    pa_flush();
-    while(count--)
-        *dest++ = c;
-}
-#endif
-
 void gr_uscanline( int x1, int x2, int y )
 {
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS ) {
@@ -192,11 +145,6 @@ void gr_uscanline( int x1, int x2, int y )
 			break;
 		case BM_SVGA:
 			gr_vesa_scanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
-			break;
-#endif
-#if defined(POLY_ACC)
-		case BM_LINEAR15:
-			gr_linear15_stosd( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), COLOR, x2-x1+1);
 			break;
 #endif
 		}
@@ -239,11 +187,6 @@ void gr_uscanline( int x1, int x2, int y )
 #endif
 			break;
 #endif
-#if defined(POLY_ACC)
-		case BM_LINEAR15:
-			gr_linear15_darken( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
-			break;
-#endif
 		}
 	}
 }
@@ -275,11 +218,6 @@ void gr_scanline( int x1, int x2, int y )
 			break;
 		case BM_SVGA:
 			gr_vesa_scanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
-			break;
-#endif
-#if defined(POLY_ACC)
-		case BM_LINEAR15:
-			gr_linear15_stosd( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), COLOR, x2-x1+1);
 			break;
 #endif
 		}
@@ -320,11 +258,6 @@ void gr_scanline( int x1, int x2, int y )
 #else
 			gr_vesa_scanline( x1+XOFFSET, x2+XOFFSET, y+YOFFSET, COLOR );
 #endif
-			break;
-#endif
-#if defined(POLY_ACC)
-		case BM_LINEAR15:
-			gr_linear15_darken( (short *)(DATA + ROWSIZE*y + x1 * PA_BPP), Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
 			break;
 #endif
 		}

@@ -1,4 +1,4 @@
-/* $Id: gamepal.c,v 1.5 2003-10-10 09:36:35 btb Exp $ */
+/* $Id: gamepal.c,v 1.6 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -26,7 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h"
@@ -41,10 +40,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmerge.h"
 #include "piggy.h"
 #include "strutil.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 extern void g3_remap_interp_colors();
 
@@ -151,11 +146,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 		if (Function_mode == FMODE_GAME && !no_change_screen)
 			gr_remap_bitmap_good( &grd_curscreen->sc_canvas.cv_bitmap, old_pal, -1, -1 );
 
-#if defined(POLY_ACC)
-        if (bg.bmp && bg.bmp->bm_type == BM_LINEAR)
-#else
         if (bg.bmp)
-#endif
             gr_remap_bitmap_good( bg.bmp, old_pal, -1, -1 );
 
 		if (!gr_palette_faded_out && !no_change_screen)

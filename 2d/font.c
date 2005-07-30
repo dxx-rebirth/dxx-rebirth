@@ -1,4 +1,4 @@
-/* $Id: font.c,v 1.37 2005-07-29 03:51:28 chris Exp $ */
+/* $Id: font.c,v 1.38 2005-07-30 01:51:42 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -32,7 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <unistd.h>
 #endif
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "u_mem.h"
 
 #include "gr.h"
@@ -43,10 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mono.h"
 #include "byteswap.h"
 #include "bitmap.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 #include "makesig.h"
 
@@ -801,232 +796,6 @@ int gr_internal_string2m(int x, int y, char *s )
 
 #endif // __MSDOS__
 
-#if defined(POLY_ACC)
-int gr_internal_string5(int x, int y, char *s )
-{
-	unsigned char * fp;
-	ubyte * text_ptr, * next_row, * text_ptr1;
-	int r, BitMask, i, bits, width, spacing, letter, underline;
-	int	skip_lines = 0;
-
-	unsigned int VideoOffset, VideoOffset1;
-
-    pa_flush();
-    VideoOffset1 = y * ROWSIZE + x * PA_BPP;
-
-	next_row = s;
-
-	while (next_row != NULL )
-	{
-		text_ptr1 = next_row;
-		next_row = NULL;
-
-		if (x==0x8000) {			//centered
-			int xx = get_centered_x(text_ptr1);
-            VideoOffset1 = y * ROWSIZE + xx * PA_BPP;
-		}
-
-		for (r=0; r<FHEIGHT; r++)
-		{
-
-			text_ptr = text_ptr1;
-
-			VideoOffset = VideoOffset1;
-
-			while (*text_ptr)
-			{
-				if (*text_ptr == '\n' )
-				{
-					next_row = &text_ptr[1];
-					break;
-				}
-
-				if (*text_ptr == CC_COLOR) {
-					FG_COLOR = *(text_ptr+1);
-					text_ptr += 2;
-					continue;
-				}
-
-				if (*text_ptr == CC_LSPACING) {
-					skip_lines = *(text_ptr+1) - '0';
-					text_ptr += 2;
-					continue;
-				}
-
-				underline = 0;
-				if (*text_ptr == CC_UNDERLINE )
-				{
-					if ((r==FBASELINE+2) || (r==FBASELINE+3))
-						underline = 1;
-					text_ptr++;
-				}
-
-				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
-
-				letter = *text_ptr-FMINCHAR;
-
-				if (!INFONT(letter)) {	//not in font, draw as space
-                    VideoOffset += spacing * PA_BPP;
-					text_ptr++;
-					continue;
-				}
-
-				if (FFLAGS & FT_PROPORTIONAL)
-					fp = FCHARS[letter];
-				else
-					fp = FDATA + letter * BITS_TO_BYTES(width)*FHEIGHT;
-
-				if (underline)
-					for (i=0; i< width; i++ )
-                    {    *(short *)(DATA + VideoOffset) = pa_clut[FG_COLOR]; VideoOffset += PA_BPP; }
-				else
-				{
-					fp += BITS_TO_BYTES(width)*r;
-
-					BitMask = 0;
-
-					for (i=0; i< width; i++ )
-					{
-						if (BitMask==0) {
-							bits = *fp++;
-							BitMask = 0x80;
-						}
-
-						if (bits & BitMask)
-                        {    *(short *)(DATA + VideoOffset) = pa_clut[FG_COLOR]; VideoOffset += PA_BPP; }
-                        else
-                        {    *(short *)(DATA + VideoOffset) = pa_clut[BG_COLOR]; VideoOffset += PA_BPP; }
-                        BitMask >>= 1;
-					}
-				}
-
-                VideoOffset += PA_BPP * (spacing-width);       //for kerning
-
-				text_ptr++;
-			}
-
-			VideoOffset1 += ROWSIZE; y++;
-		}
-
-		y += skip_lines;
-		VideoOffset1 += ROWSIZE * skip_lines;
-		skip_lines = 0;
-	}
-	return 0;
-}
-
-int gr_internal_string5m(int x, int y, char *s )
-{
-	unsigned char * fp;
-	ubyte * text_ptr, * next_row, * text_ptr1;
-	int r, BitMask, i, bits, width, spacing, letter, underline;
-	int	skip_lines = 0;
-
-	unsigned int VideoOffset, VideoOffset1;
-
-    pa_flush();
-    VideoOffset1 = y * ROWSIZE + x * PA_BPP;
-
-	next_row = s;
-
-	while (next_row != NULL )
-	{
-		text_ptr1 = next_row;
-		next_row = NULL;
-
-		if (x==0x8000) {			//centered
-			int xx = get_centered_x(text_ptr1);
-            VideoOffset1 = y * ROWSIZE + xx * PA_BPP;
-		}
-
-		for (r=0; r<FHEIGHT; r++)
-		{
-
-			text_ptr = text_ptr1;
-
-			VideoOffset = VideoOffset1;
-
-			while (*text_ptr)
-			{
-				if (*text_ptr == '\n' )
-				{
-					next_row = &text_ptr[1];
-					break;
-				}
-
-				if (*text_ptr == CC_COLOR) {
-					FG_COLOR = *(text_ptr+1);
-					text_ptr += 2;
-					continue;
-				}
-
-				if (*text_ptr == CC_LSPACING) {
-					skip_lines = *(text_ptr+1) - '0';
-					text_ptr += 2;
-					continue;
-				}
-
-				underline = 0;
-				if (*text_ptr == CC_UNDERLINE )
-				{
-					if ((r==FBASELINE+2) || (r==FBASELINE+3))
-						underline = 1;
-					text_ptr++;
-				}
-
-				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
-
-				letter = *text_ptr-FMINCHAR;
-
-				if (!INFONT(letter)) {	//not in font, draw as space
-                    VideoOffset += spacing * PA_BPP;
-					text_ptr++;
-					continue;
-				}
-
-				if (FFLAGS & FT_PROPORTIONAL)
-					fp = FCHARS[letter];
-				else
-					fp = FDATA + letter * BITS_TO_BYTES(width)*FHEIGHT;
-
-				if (underline)
-					for (i=0; i< width; i++ )
-                    {    *(short *)(DATA + VideoOffset) = pa_clut[FG_COLOR]; VideoOffset += PA_BPP; }
-                else
-				{
-					fp += BITS_TO_BYTES(width)*r;
-
-					BitMask = 0;
-
-					for (i=0; i< width; i++ )
-					{
-						if (BitMask==0) {
-							bits = *fp++;
-							BitMask = 0x80;
-						}
-
-						if (bits & BitMask)
-                        {    *(short *)(DATA + VideoOffset) = pa_clut[FG_COLOR]; VideoOffset += PA_BPP; }
-                        else
-                            VideoOffset += PA_BPP;
-						BitMask >>= 1;
-					}
-				}
-				text_ptr++;
-
-                VideoOffset += PA_BPP * (spacing-width);
-			}
-
-			VideoOffset1 += ROWSIZE; y++;
-		}
-		y += skip_lines;
-		VideoOffset1 += ROWSIZE * skip_lines;
-		skip_lines = 0;
-	}
-	return 0;
-}
-#endif
-
 #ifndef OGL
 //a bitmap for the character
 grs_bitmap char_bm = {
@@ -1440,13 +1209,6 @@ int gr_ustring(int x, int y, char *s )
 			else
 				return gr_internal_string2(x,y,s);
 #endif // __MSDOS__
-#if defined(POLY_ACC)
-        case BM_LINEAR15:
-			if ( BG_COLOR == -1)
-				return gr_internal_string5m(x,y,s);
-			else
-				return gr_internal_string5(x,y,s);
-#endif
 		}
 	return 0;
 }

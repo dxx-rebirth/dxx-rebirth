@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.24 2005-03-15 21:16:32 btb Exp $ */
+/* $Id: state.c,v 1.25 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -52,7 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "pstypes.h"
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "mono.h"
 #include "inferno.h"
 #include "segment.h"
@@ -99,10 +98,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 #include "multibot.h"
 #include "state.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 #ifdef OGL
 #include "gr.h"
@@ -603,9 +598,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	int i,j;
 	PHYSFS_file *fp;
 	grs_canvas * cnv;
-	#ifdef POLY_ACC
-	grs_canvas cnv2,*save_cnv2;
-	#endif
 	ubyte *pal;
 
 	Assert(between_levels == 0);	//between levels save ripped out
@@ -657,39 +649,11 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 			cnv_save = grd_curcanv;
 		#endif
 
-		#ifndef MACINTOSH
-		
-			#if defined(POLY_ACC)
-			
-			 		PA_DFX (pa_fool_to_backbuffer());
-			
-					//for poly_acc, we render the frame to the normal render buffer
-					//so that this doesn't show, we create yet another canvas to save
-					//and restore what's on the render buffer
-					PA_DFX (pa_alpha_always());	
-					PA_DFX (pa_set_front_to_read());
-					gr_init_sub_canvas( &cnv2, &VR_render_buffer[0], 0, 0, THUMBNAIL_W, THUMBNAIL_H );
-					save_cnv2 = gr_create_canvas2(THUMBNAIL_W, THUMBNAIL_H, cnv2.cv_bitmap.bm_type);
-					gr_set_current_canvas( save_cnv2 );
-					PA_DFX (pa_set_front_to_read());
-					gr_bitmap(0,0,&cnv2.cv_bitmap);
-					gr_set_current_canvas( &cnv2 );
-			#else
-					gr_set_current_canvas( cnv );
-			#endif
-			
-					PA_DFX (pa_set_backbuffer_current());
-					render_frame(0, 0);
-					PA_DFX (pa_alpha_always());
-			
-#if defined(POLY_ACC)
-					#ifndef MACINTOSH
-					screen_shot_pa(cnv,&cnv2);
-					#else
-					if ( PAEnabled )
-						screen_shot_pa(cnv,&cnv2);
-					#endif
-#elif defined(OGL)
+		gr_set_current_canvas( cnv );
+
+		render_frame(0, 0);
+
+#if defined(OGL)
 # if 1
 		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
 		glReadBuffer(GL_FRONT);
@@ -711,35 +675,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 					PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 
-			#if defined(POLY_ACC)
-					PA_DFX (pa_alpha_always());	
-					PA_DFX (pa_set_frontbuffer_current());
-					PA_DFX(gr_bitmap(0,0,&save_cnv2->cv_bitmap));
-					PA_DFX (pa_set_backbuffer_current());
-					gr_bitmap(0,0,&save_cnv2->cv_bitmap);
-					gr_free_canvas(save_cnv2);
-			 		PA_DFX (pa_fool_to_offscreen());
-			
-			#endif
-		
-		#else 	// macintosh stuff below
-		{
-			#if defined(POLY_ACC)
-				int	savePAEnabled = PAEnabled;
-				PAEnabled = false;
-			#endif
-
-			gr_set_current_canvas( cnv );
-			render_frame(0, 0);
-			pal = gr_palette;
-			PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
-			
-			#if defined(POLY_ACC)
-				PAEnabled = savePAEnabled;
-			#endif
-		}	
-		#endif	// end of ifndef macintosh
-		
 		
 		WINDOS(
 			dd_gr_set_current_canvas(cnv_save),
@@ -1582,68 +1517,3 @@ mprintf((0, "Restoring multigame from [%s]\n", filename));
 
 	return (state_game_id);
  }
-
-#if defined(POLY_ACC)
-//void screen_shot_pa(ubyte *dst,ushort *src)
-//{
-//    //ushort *src = pa_get_buffer_address(0),
-//    ushort *s;
-//    fix u, v, du, dv;
-//    int ui, w, h;
-//
-//    pa_flush();
-//
-//    du = (640.0 / (float)THUMBNAIL_W) * 65536.0;
-//    dv = (480.0 / (float)THUMBNAIL_H) * 65536.0;
-//
-//    for(v = h = 0; h != THUMBNAIL_H; ++h)
-//    {
-//        s = src + f2i(v) * 640;
-//        v += dv;
-//        for(u = w = 0; w != THUMBNAIL_W; ++w)
-//        {
-//            ui = f2i(u);
-//            *dst++ = gr_find_closest_color((s[ui] >> 9) & 0x3e, (s[ui] >> 4) & 0x3e, (s[ui] << 1) & 0x3e);
-//            u += du;
-//        }
-//    }
-//}
-
-void screen_shot_pa(grs_canvas *dcanv,grs_canvas *scanv)
-{
-#if !defined(MACINTOSH)
-	ubyte *dst;
-	ushort *src;
-	int x,y;
-
-	Assert(scanv->cv_w == dcanv->cv_w && scanv->cv_h == dcanv->cv_h);
-
-	pa_flush();
-
-	src = (ushort *) scanv->cv_bitmap.bm_data;
-	dst = dcanv->cv_bitmap.bm_data;
-
-	#ifdef PA_3DFX_VOODOO
-   src=(ushort *)pa_set_back_to_read();
-	#endif
-
-	for (y=0; y<scanv->cv_h; y++) {
-		for (x=0; x<scanv->cv_w; x++) {
-			#ifdef PA_3DFX_VOODOO
-			*dst++ = gr_find_closest_color((*src >> 10) & 0x3e, (*src >> 5) & 0x3f, (*src << 1) & 0x3e);
-			#else
-			*dst++ = gr_find_closest_color((*src >> 9) & 0x3e, (*src >> 4) & 0x3e, (*src << 1) & 0x3e);
-			#endif
-
-			src++;
-		}
-		src = (ushort *) (((ubyte *) src) + (scanv->cv_bitmap.bm_rowsize - (scanv->cv_bitmap.bm_w*PA_BPP)));
-		dst += dcanv->cv_bitmap.bm_rowsize - dcanv->cv_bitmap.bm_w;
-	}
-	#ifdef PA_3DFX_VOODOO
-	pa_set_front_to_read();
-	#endif
-#endif
-}
-#endif
-

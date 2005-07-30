@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.36 2005-02-25 09:53:17 chris Exp $ */
+/* $Id: titles.c,v 1.37 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -34,7 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <Events.h>
 #endif
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "pstypes.h"
 #include "timer.h"
 #include "key.h"
@@ -63,10 +62,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #include "menu.h"
 #include "mouse.h"
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
 
 
 void DoBriefingColorStuff ();
@@ -125,12 +120,6 @@ int local_key_inkey(void)
 	rval = key_inkey();
 
 	if (rval == KEY_PRINT_SCREEN) {
-		#ifdef POLY_ACC
-		if (RobotPlaying) {
-			gr_palette_read(gr_palette);
-			gr_copy_palette(gr_palette,gr_palette,0);	//reset color lookup cache
-		}
-		#endif
 		save_screen_shot(0);
 		return 0;				//say no key pressed
 	}
@@ -203,11 +192,6 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 
 	memcpy(palette_save,gr_palette,sizeof(palette_save));
 
-#if defined(POLY_ACC)
-    pa_save_clut();
-    pa_update_clut(New_pal, 0, 256, 0);
-#endif
-
 	//vfx_set_palette_sub( New_pal );
 #ifdef OGL
 	gr_palette_load( New_pal );
@@ -224,10 +208,6 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	WIN(DDGRRESTORE);
-
-#if defined(POLY_ACC)
-    pa_restore_clut();
-#endif
 
 	if (gr_palette_fade_in( New_pal, 32, allow_keys ))
 		return 1;

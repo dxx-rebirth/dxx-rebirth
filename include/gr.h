@@ -1,4 +1,4 @@
-/* $Id: gr.h,v 1.28 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: gr.h,v 1.29 2005-07-30 01:51:11 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -209,9 +209,6 @@ void gr_close(void);
 // including the raw pixel buffer.
 
 grs_canvas *gr_create_canvas(int w, int h);
-#if defined(POLY_ACC)
-grs_canvas *gr_create_canvas2(int w, int h, int type);
-#endif /* def POLY_ACC */
 
 // Creates a canvas that is part of another canvas.  this can be used to make
 // a window on the screen.  the canvas structure is malloc'd; the address of
@@ -248,11 +245,6 @@ grs_bitmap *gr_create_bitmap(int w,int h);
 
 // Allocated a bitmap and makes its data be raw_data that is already somewhere.
 grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data );
-
-#if defined(POLY_ACC)
-// Allocates a bitmap of a specific type. data is either NULL or raw data.
-grs_bitmap *gr_create_bitmap2(int w, int h, int type, void *data );
-#endif /* def POLY_ACC */
 
 // Creates a bitmap which is part of another bitmap
 grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm,int x,int y,int w, int h);

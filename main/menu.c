@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.41 2005-03-20 12:53:33 btb Exp $ */
+/* $Id: menu.c,v 1.42 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -28,8 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <string.h>
-
-#include "pa_enabl.h"                   //$$POLY_ACC
 
 #include "menu.h"
 #include "inferno.h"
@@ -92,10 +90,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef EDITOR
 #include "editor/editor.h"
-#endif
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
 #endif
 
 //char *menu_difficulty_text[] = { "Trainee", "Rookie", "Fighter", "Hotshot", "Insane" };
@@ -599,27 +593,6 @@ void set_detail_level_parameters(int detail_level)
 		Wall_detail = detail_level;
 		Debris_amount = detail_level;
 		SoundChannels = detail_level;
-
-#if defined(POLY_ACC)
-
-		#ifdef MACINTOSH
-			if (detail_level < 2)
-			{
-				pa_set_filtering(0);
-			}
-			else if (detail_level < 4)
-			{
-				pa_set_filtering(1);
-			}
-			else if (detail_level == 4)
-			{
-				pa_set_filtering(2);
-			}
-		#else
-			pa_filter_mode = detail_level;
-		#endif
-#endif
-
 	}
 }
 
@@ -673,10 +646,6 @@ void do_detail_level_menu_custom_menuset(int nitems, newmenu_item * items, int *
 	Wall_render_depth = items[3].value;
 	Debris_amount = items[4].value;
 	SoundChannels = items[5].value;
-#if defined(POLY_ACC)
-	pa_filter_mode = items[6].value;
-#endif
-
 }
 
 void set_custom_detail_vars(void)
@@ -705,9 +674,6 @@ void do_detail_level_menu_custom(void)
 	int	count;
 	int	s=0;
 	newmenu_item m[DL_MAX];
-	#if defined(POLY_ACC)
-	int filtering_id;
-	#endif
 
 	do {
 		count = 0;
@@ -747,21 +713,6 @@ void do_detail_level_menu_custom(void)
 		m[count].min_value = 0;
 		m[count++].max_value = NDL-1;
 
-		#if defined(POLY_ACC)
-		MAC( if(PAEnabled){ )
-			filtering_id = count;
-			m[count].type = NM_TYPE_SLIDER;
-			m[count].text= "FILTERING";
-			m[count].value = pa_filter_mode;
-			m[count].min_value = 0;
-			#ifdef MACINTOSH
-			m[count++].max_value = 2;
-			#else
-			m[count++].max_value = NDL-1;
-			#endif
-		MAC(})
-		#endif
-
 		m[count].type = NM_TYPE_TEXT;
 		m[count++].text= TXT_LO_HI;
 
@@ -771,11 +722,6 @@ void do_detail_level_menu_custom(void)
 	} while (s > -1);
 
 	set_custom_detail_vars();
-
-	#if defined(MACINTOSH) && defined(POLY_ACC)
-	if ( PAEnabled )
-		pa_set_filtering( m[filtering_id].value );
-	#endif
 }
 
 #ifndef MACINTOSH
@@ -1441,57 +1387,15 @@ void do_options_menu()
 	#endif
 		m[ 4].type = NM_TYPE_TEXT;   m[ 4].text="";
 
-#if defined(POLY_ACC)
-	#ifdef MACINTOSH
-
-		if ( !PAEnabled )
-		{
-			m[5].type 		= NM_TYPE_SLIDER;
-			m[5].text 		= TXT_BRIGHTNESS;
-			m[5].value 		= gr_palette_get_gamma();
-			m[5].min_value	= 0;
-			m[5].max_value	= 8; 
-		}
-		else
-		{
-			m[ 5].type = NM_TYPE_TEXT;   m[ 5].text="";
-		}
-	
-	#else
-		m[ 5].type = NM_TYPE_TEXT;   m[ 5].text="";
-	#endif
-#else
 		m[5].type = NM_TYPE_SLIDER;
 		m[5].text = TXT_BRIGHTNESS;
 		m[5].value = gr_palette_get_gamma();
 		m[5].min_value = 0;
 		m[5].max_value = 16; // CCA too dim, was 8;
-#endif
 
 
-#ifdef PA_3DFX_VOODOO
-		m[ 6].type = NM_TYPE_TEXT;   m[ 6].text="";
-#else
 		m[ 6].type = NM_TYPE_MENU;   m[ 6].text=TXT_DETAIL_LEVELS;
-#endif
-
-#if defined(POLY_ACC)
-		m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
-#else
-		#ifdef MACINTOSH
-			if ( gConfigInfo.mChangeResolution && !PAEnabled )
-			{
-				m[ 7].type = NM_TYPE_MENU;   m[ 7].text="Screen resolution...";
-			}
-			else	// for when we are on a mac and no resolution switching allowed
-			{
-				m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
-			}
-		#else	// for PC's
-			m[ 7].type = NM_TYPE_MENU;   m[ 7].text="Screen resolution...";
-		#endif	// end of #ifdef macintosh
-
-#endif
+		m[ 7].type = NM_TYPE_MENU;   m[ 7].text="Screen resolution...";
 
 		m[ 8].type = NM_TYPE_TEXT;   m[ 8].text="";
 		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Primary autoselect ordering...";
@@ -1724,16 +1628,7 @@ extern int Automap_always_hires;
 
 void do_toggles_menu()
 {
-#ifndef MACINTOSH
-#if defined(POLY_ACC)
-	#define N_TOGGLE_ITEMS 6        // get rid of automap hi-res.
-#else
-	#define N_TOGGLE_ITEMS 7
-#endif
-#else
-	#define N_TOGGLE_ITEMS 7
-#endif
-	newmenu_item m[N_TOGGLE_ITEMS];
+	newmenu_item m[7];
 	int i = 0;
 
 	do {
@@ -1754,23 +1649,9 @@ void do_toggles_menu()
 		ADD_CHECK(3, "Headlight on when picked up", Headlight_active_default );
 		ADD_CHECK(4, "Show guided missile in main display", Guided_in_big_window );
 		ADD_CHECK(5, "Escort robot hot keys",EscortHotKeys);
-		#ifdef MACINTOSH
-			if ( !PAEnabled ) {
-				ADD_CHECK(6, "Pixel Double", Scanline_double);
-			}
-		#else
-#if !defined(POLY_ACC)
-			ADD_CHECK(6, "Always show HighRes Automap", min(MenuHiresAvailable,Automap_always_hires));
-#endif
-		#endif
 		//when adding more options, change N_TOGGLE_ITEMS above
 
-		#ifdef MACINTOSH
-		if ( PAEnabled )		// when doing RAVE, no pixel doubling
-			i = newmenu_do1( NULL, "Toggles", N_TOGGLE_ITEMS-1, m, NULL, i );
-		else
-		#endif		// note link to if
-			i = newmenu_do1( NULL, "Toggles", N_TOGGLE_ITEMS, m, NULL, i );
+		i = newmenu_do1( NULL, "Toggles", N_TOGGLE_ITEMS, m, NULL, i );
 			
 		Auto_leveling_on			= m[0].value;
 		Reticle_on					= m[1].value;
@@ -1780,18 +1661,10 @@ void do_toggles_menu()
 		EscortHotKeys				= m[5].value;
 
 
-		#ifdef MACINTOSH
-			if ( !PAEnabled )
-				Scanline_double = m[6].value;
-		#else
-#if !defined(POLY_ACC)
-			if (MenuHiresAvailable)
-				Automap_always_hires = m[6].value;
-			else if (m[6].value)
-				nm_messagebox(TXT_SORRY,1,"OK","High Resolution modes are\nnot available on this video card");
-#endif
-		#endif
-
+		if (MenuHiresAvailable)
+			Automap_always_hires = m[6].value;
+		else if (m[6].value)
+			nm_messagebox(TXT_SORRY,1,"OK","High Resolution modes are\nnot available on this video card");
 	} while( i>-1 );
 
 }

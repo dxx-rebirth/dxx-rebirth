@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.30 2005-01-25 21:20:29 schaffner Exp $ */
+/* $Id: newmenu.c,v 1.31 2005-07-30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -38,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <physfs.h>
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
@@ -77,10 +76,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #if defined (TACTILE)
  #include "tactile.h"
-#endif
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
 #endif
 
 #define MAXDISPLAYABLEITEMS 15
@@ -198,14 +193,7 @@ void nm_draw_background1(char * filename)
 	}
 
 WIN(DDGRLOCK(dd_grd_curcanv));
-#if defined(POLY_ACC)
-    pa_save_clut();
-    pa_update_clut(gr_palette, 0, 256, 0);
-#endif
 	show_fullscr(bmp);
-#if defined(POLY_ACC)
-    pa_restore_clut();
-#endif
 WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	gr_free_bitmap(bmp);
@@ -772,9 +760,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	EventRecord event;		// looking for disk inserted events for CD mounts
 #endif
 
-	PA_DFX (pa_set_frontbuffer_current());
-	PA_DFX (pa_set_front_to_read());
-
 	WIN(if (!_AppActive) return -1);		// Don't draw message if minimized!
 	newmenu_hide_cursor();
 
@@ -1016,11 +1001,7 @@ RePaintNewmenu4:
 				DisableForces();
 		#endif
 		
-#if defined(POLY_ACC)
-		bg.saved = gr_create_bitmap2( w, h, grd_curcanv->cv_bitmap.bm_type, NULL );
-#else
 		bg.saved = gr_create_bitmap( w, h );
-#endif
 		Assert( bg.saved != NULL );
 
 		WIN (DDGRLOCK(dd_grd_curcanv));
@@ -1041,11 +1022,7 @@ RePaintNewmenu4:
 
 	} else {
 		bg.saved = NULL;
-#if defined(POLY_ACC)
-		bg.background = gr_create_bitmap2( w, h, grd_curcanv->cv_bitmap.bm_type, NULL );
-#else
 		bg.background = gr_create_bitmap( w, h );
-#endif
 		Assert( bg.background != NULL );
 		
 		WIN (DDGRLOCK(dd_grd_curcanv));
@@ -1442,8 +1419,6 @@ RePaintNewmenu4:
 		case KEY_PRINT_SCREEN:
 			MAC(newmenu_hide_cursor());
 			save_screen_shot(0);
-			PA_DFX (pa_set_frontbuffer_current());
-			PA_DFX (pa_set_front_to_read());
 			for (i=0;i<nitems;i++)
 				item[i].redraw=1;
 			
@@ -2209,11 +2184,7 @@ RePaintNewmenuFile:
 			bg.background = &VR_offscreen_buffer->cv_bitmap;
 		else
 	#endif
-#if defined(POLY_ACC)
-			bg.background = gr_create_bitmap2( w_w, w_h, grd_curcanv->cv_bitmap.bm_type, NULL );
-#else
 			bg.background = gr_create_bitmap( w_w, w_h );
-#endif
 
 		Assert( bg.background != NULL );
 
@@ -2324,8 +2295,6 @@ RePaintNewmenuFile:
 		case KEY_PRINT_SCREEN:
 			MAC(newmenu_hide_cursor());
 			save_screen_shot(0);
-			PA_DFX (pa_set_frontbuffer_current());
-			PA_DFX (pa_set_front_to_read());
 			
 			MAC(newmenu_show_cursor());
 			MAC(key_flush());
@@ -2765,8 +2734,6 @@ WIN(int win_redraw=0);
 
 	keyd_repeat = 1;
 
-   PA_DFX (pa_set_frontbuffer_current());
-	PA_DFX (pa_set_front_to_read());
 	WIN(mouse_set_mode(0));				//disable centering mode
 
 //	set_screen_mode(SCREEN_MENU);
@@ -2822,11 +2789,7 @@ RePaintNewmenuListbox:
 	else
 #endif
 		//bg.background = gr_create_bitmap( width, (height + title_height) );
-#if defined(POLY_ACC)
-		bg.background = gr_create_bitmap2(total_width, total_height, grd_curcanv->cv_bitmap.bm_type, NULL);
-#else
 		bg.background = gr_create_bitmap(total_width,total_height);
-#endif
 	Assert( bg.background != NULL );
 		
 	WIN (DDGRLOCK(dd_grd_curcanv));
@@ -2928,8 +2891,6 @@ RePaintNewmenuListbox:
 		case KEY_PRINT_SCREEN: 		
 			MAC(newmenu_hide_cursor());
 			save_screen_shot(0); 
-			PA_DFX (pa_set_frontbuffer_current());
-			PA_DFX (pa_set_front_to_read());
 			
 			MAC(newmenu_show_cursor());
 			MAC(key_flush());

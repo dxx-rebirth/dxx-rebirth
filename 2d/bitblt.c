@@ -1,4 +1,4 @@
-/* $Id: bitblt.c,v 1.17 2004-11-26 09:50:32 btb Exp $ */
+/* $Id: bitblt.c,v 1.18 2005-07-30 01:51:42 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,7 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#include "pa_enabl.h"                   //$$POLY_ACC
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
@@ -33,10 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef OGL
 #include "ogl_init.h"
-#endif
-
-#if defined(POLY_ACC)
-#include "poly_acc.h"
 #endif
 
 int gr_bitblt_dest_step_shift = 0;
@@ -908,116 +903,6 @@ void gr_ubitmap012m( int x, int y, grs_bitmap *bm )
 	}
 }
 
-#if defined(POLY_ACC)
-void gr_ubitmap05( int x, int y, grs_bitmap *bm )
-{
-	register int x1, y1;
-	unsigned char *src;
-	short *dst;
-	int mod;
-
-	pa_flush();
-	src = bm->bm_data;
-	dst = (short *)(DATA + y * ROWSIZE + x * PA_BPP);
-	mod = ROWSIZE / 2 - bm->bm_w;
-
-	for (y1=y; y1 < (y+bm->bm_h); y1++ )    {
-		for (x1=x; x1 < (x+bm->bm_w); x1++ )    {
-			*dst++ = pa_clut[*src++];
-		}
-		dst += mod;
-	}
-}
-
-void gr_ubitmap05m( int x, int y, grs_bitmap *bm )
-{
-	register int x1, y1;
-	unsigned char *src;
-	short *dst;
-	int mod;
-
-	pa_flush();
-	src = bm->bm_data;
-	dst = (short *)(DATA + y * ROWSIZE + x * PA_BPP);
-	mod = ROWSIZE / 2 - bm->bm_w;
-
-	for (y1=y; y1 < (y+bm->bm_h); y1++ )    {
-		for (x1=x; x1 < (x+bm->bm_w); x1++ )    {
-			if ( *src != TRANSPARENCY_COLOR )   {
-				*dst = pa_clut[*src];
-			}
-			src++;
-			++dst;
-		}
-		dst += mod;
-	}
-}
-
-void gr_bm_ubitblt05_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-{
-	unsigned short * dbits;
-	unsigned char * sbits, scanline[640];
-	int i, data_offset, j, nextrow;
-
-	pa_flush();
-	nextrow=dest->bm_rowsize/PA_BPP;
-
-	data_offset = 1;
-	if (src->bm_flags & BM_FLAG_RLE_BIG)
-		data_offset = 2;
-
-	sbits = &src->bm_data[4 + (src->bm_h*data_offset)];
-	for (i=0; i<sy; i++ )
-		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
-
-	dbits = (unsigned short *)(dest->bm_data + (dest->bm_rowsize * dy) + dx*PA_BPP);
-
-	// No interlacing, copy the whole buffer.
-	for (i=0; i < h; i++ )    {
-		gr_rle_expand_scanline( scanline, sbits, sx, sx+w-1 );
-		for(j = 0; j != w; ++j)
-			dbits[j] = pa_clut[scanline[j]];
-		if ( src->bm_flags & BM_FLAG_RLE_BIG )
-			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((i+sy)*data_offset)])));
-		else
-			sbits += (int)(src->bm_data[4+i+sy]);
-		dbits += nextrow;
-	}
-}
-
-void gr_bm_ubitblt05m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-{
-	unsigned short * dbits;
-	unsigned char * sbits, scanline[640];
-	int i, data_offset, j, nextrow;
-
-	pa_flush();
-	nextrow=dest->bm_rowsize/PA_BPP;
-	data_offset = 1;
-	if (src->bm_flags & BM_FLAG_RLE_BIG)
-		data_offset = 2;
-
-	sbits = &src->bm_data[4 + (src->bm_h*data_offset)];
-	for (i=0; i<sy; i++ )
-		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
-
-	dbits = (unsigned short *)(dest->bm_data + (dest->bm_rowsize * dy) + dx*PA_BPP);
-
-	// No interlacing, copy the whole buffer.
-	for (i=0; i < h; i++ )    {
-		gr_rle_expand_scanline( scanline, sbits, sx, sx+w-1 );
-		for(j = 0; j != w; ++j)
-			if(scanline[j] != TRANSPARENCY_COLOR)
-				dbits[j] = pa_clut[scanline[j]];
-		if ( src->bm_flags & BM_FLAG_RLE_BIG )
-			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((i+sy)*data_offset)])));
-		else
-			sbits += (int)(src->bm_data[4+i+sy]);
-		dbits += nextrow;
-	}
-}
-#endif
-
 void gr_ubitmapGENERIC(int x, int y, grs_bitmap * bm)
 {
 	register int x1, y1;
@@ -1709,30 +1594,6 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 	}
 #endif
 
-#if defined(POLY_ACC)
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_LINEAR15 ))
-	{
-		ubyte *s = src->bm_data + sy * src->bm_rowsize + sx;
-		ushort *t = (ushort *)(dest->bm_data + dy * dest->bm_rowsize + dx * PA_BPP);
-		int x;
-		pa_flush();
-		for(;h--;)
-		{
-			for(x = 0; x < w; x++)
-				t[x] = pa_clut[s[x]];
-			s += src->bm_rowsize;
-			t += dest->bm_rowsize / PA_BPP;
-		}
-		return;
-	}
-
-	if ( (src->bm_type == BM_LINEAR15) && (dest->bm_type == BM_LINEAR15 ))
-	{
-		pa_blit(dest, dx, dy, src, sx, sy, w, h);
-		return;
-	}
-#endif
-
 	for (y1=0; y1 < h; y1++ )    {
 		for (x1=0; x1 < w; x1++ )    {
 			gr_bm_pixel( dest, dx+x1, dy+y1, gr_gpixel(src,sx+x1,sy+y1) );
@@ -1813,15 +1674,6 @@ void gr_ubitmap( int x, int y, grs_bitmap *bm )
 			gr_bm_ubitblt01(bm->bm_w, bm->bm_h, x+XOFFSET, y+YOFFSET, 0, 0, bm, &grd_curcanv->cv_bitmap);
 			return;
 #endif
-#if defined(POLY_ACC)
-		case BM_LINEAR15:
-			if ( bm->bm_flags & BM_FLAG_RLE )
-				gr_bm_ubitblt05_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap );
-			else
-				gr_ubitmap05( x, y, bm);
-			return;
-
-#endif
 		default:
 			gr_ubitmap012( x, y, bm );
 			return;
@@ -1889,14 +1741,6 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 			return;
 		case BM_MODEX:
 			gr_bm_ubitblt01m(bm->bm_w, bm->bm_h, x+XOFFSET, y+YOFFSET, 0, 0, bm, &grd_curcanv->cv_bitmap);
-			return;
-#endif
-#if defined(POLY_ACC)
-		case BM_LINEAR15:
-			if ( bm->bm_flags & BM_FLAG_RLE )
-				gr_bm_ubitblt05m_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap );
-			else
-				gr_ubitmap05m( x, y, bm );
 			return;
 #endif
 
@@ -1978,38 +1822,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 	{
 		Assert ((int)src->bm_data == BM_D3D_RENDER || (int)src->bm_data == BM_D3D_DISPLAY);
 		//Win32_BlitDirectXToDirectX (w, h, dx, dy, sx, sy, src->bm_data, dest->bm_data, 0);
-		return;
-	}
-#endif
-#if defined(POLY_ACC)
-	if(src->bm_type == BM_LINEAR && dest->bm_type == BM_LINEAR15)
-	{
-		ubyte *s;
-		ushort *d;
-		ushort u;
-		int smod, dmod;
-
-		pa_flush();
-		s = (ubyte *)(src->bm_data + src->bm_rowsize * sy + sx);
-		smod = src->bm_rowsize - w;
-		d = (ushort *)(dest->bm_data + dest->bm_rowsize * dy + dx * PA_BPP);
-		dmod = dest->bm_rowsize / PA_BPP - w;
-		for (; h--;) {
-			for (x1=w; x1--; ) {
-				if ((u = *s) != TRANSPARENCY_COLOR)
-					*d = pa_clut[u];
-				++s;
-				++d;
-			}
-			s += smod;
-			d += dmod;
-		}
-	}
-
-	if(src->bm_type == BM_LINEAR15)
-	{
-		Assert(src->bm_type == dest->bm_type);         // I don't support 15 to 8 yet.
-		pa_blit_transparent(dest, dx, dy, src, sx, sy, w, h);
 		return;
 	}
 #endif

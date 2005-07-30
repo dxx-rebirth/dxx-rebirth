@@ -1,4 +1,4 @@
-/* $Id: bitmap.c,v 1.7 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: bitmap.c,v 1.8 2005-07-30 01:51:42 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -33,10 +33,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_dpmi.h"
 #include "error.h"
 
-#if defined(POLY_ACC)
-#include "poly_acc.h"
-#endif
-
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -69,43 +65,6 @@ grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
     return new;
 }
 
-
-#if defined(POLY_ACC)
-//
-//  Creates a bitmap of the requested size and type.
-//    w, and h are in pixels.
-//    type is a BM_... and is used to set the rowsize.
-//    if data is NULL, memory is allocated, otherwise data is used for bm_data.
-//
-//  This function is used only by the polygon accelerator code to handle the mixture of 15bit and
-//  8bit bitmaps.
-//
-grs_bitmap *gr_create_bitmap2(int w, int h, int type, void *data )
-{
-	grs_bitmap *new;
-
-	new = (grs_bitmap *)malloc( sizeof(grs_bitmap) );
-	new->bm_x = 0;
-	new->bm_y = 0;
-	new->bm_w = w;
-	new->bm_h = h;
-	new->bm_flags = 0;
-    new->bm_type = type;
-    switch(type)
-    {
-        case BM_LINEAR:     new->bm_rowsize = w;            break;
-        case BM_LINEAR15:   new->bm_rowsize = w*PA_BPP;     break;
-        default: Int3();    // unsupported type.
-    }
-    if(data)
-        new->bm_data = data;
-    else
-        new->bm_data = malloc(new->bm_rowsize * new->bm_h);
-	new->bm_handle = 0;
-
-	return new;
-}
-#endif
 
 void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data ) // TODO: virtualize
 {
