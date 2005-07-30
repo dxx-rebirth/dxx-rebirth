@@ -1,4 +1,4 @@
-/* $Id: object.c,v 1.17 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: object.c,v 1.18 2005-07-30 07:46:03 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -88,10 +88,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef EDITOR
 #include "editor/editor.h"
-#endif
-
-#ifdef _3DFX
-#include "3dfx_des.h"
 #endif
 
 void obj_detach_all(object *parent);
@@ -305,16 +301,7 @@ void draw_object_tmap_rod(object *obj,bitmap_index bitmapi,int lighted)
 	else
 		light = f1_0;
 
-   #ifdef _3DFX
-   _3dfx_rendering_poly_obj = 1;
-   #endif
-
 	g3_draw_rod_tmap(bitmap,&bot_p,obj->size,&top_p,obj->size,light);
-
-   #ifdef _3DFX
-   _3dfx_rendering_poly_obj = 0;
-   #endif
-
 }
 
 int	Linear_tmap_polygon_objects = 1;

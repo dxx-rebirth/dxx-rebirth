@@ -1,4 +1,4 @@
-/* $Id: polyobj.c,v 1.21 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: polyobj.c,v 1.22 2005-07-30 07:46:03 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.21 2005-07-30 01:50:17 chris Exp $";
+static char rcsid[] = "$Id: polyobj.c,v 1.22 2005-07-30 07:46:03 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -55,10 +55,6 @@ static char rcsid[] = "$Id: polyobj.c,v 1.21 2005-07-30 01:50:17 chris Exp $";
 #include "lighting.h"
 #include "cfile.h"
 #include "piggy.h"
-#endif
-
-#ifdef _3DFX
-#include "3dfx_des.h"
 #endif
 
 #ifdef OGL
@@ -630,10 +626,6 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 		for (i=0;i<po->n_textures;i++)	{
 			texture_list_index[i] = alt_textures[i];
 			texture_list[i] = &GameBitmaps[alt_textures[i].index];
-
-         #ifdef _3DFX
-         texture_list[i]->bm_handle = texture_list_index[i].index;
-         #endif
 		}
    }
 	else
@@ -641,10 +633,6 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 		for (i=0;i<po->n_textures;i++)	{
 			texture_list_index[i] = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]];
 			texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index];
-
-         #ifdef _3DFX
-         texture_list[i]->bm_handle = texture_list_index[i].index;
-         #endif
 		}
    }
 
@@ -667,10 +655,6 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 	g3_start_instance_matrix(pos,orient);
 
 	g3_set_interp_points(robot_points);
-
-#ifdef _3DFX
-   _3dfx_rendering_poly_obj = 1;
-#endif
 
 	if (flags == 0)		//draw entire object
 
@@ -698,10 +682,6 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 	}
 
 	g3_done_instance();
-
-#ifdef _3DFX
-   _3dfx_rendering_poly_obj = 0;
-#endif
 }
 
 void free_polygon_models()

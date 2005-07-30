@@ -1,4 +1,4 @@
-/* $Id: inferno.c,v 1.102 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: inferno.c,v 1.103 2005-07-30 07:46:03 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -765,10 +765,6 @@ int main(int argc, char *argv[])
 
 	if ((t=gr_init())!=0)				//doesn't do much
 		Error(TXT_CANT_INIT_GFX,t);
-
-   #ifdef _3DFX
-   _3dfx_Init();
-   #endif
 
 	// Load the palette stuff. Returns non-zero if error.
 	con_printf(CON_DEBUG, "Initializing palette system...\n" );

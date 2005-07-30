@@ -1,4 +1,4 @@
-/* $Id: bitblt.c,v 1.18 2005-07-30 01:51:42 chris Exp $ */
+/* $Id: bitblt.c,v 1.19 2005-07-30 07:48:24 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1694,12 +1694,6 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 	Assert(x+bm->bm_w <= grd_curcanv->cv_w);
 #ifndef OGL
 	Assert(y+bm->bm_h <= grd_curcanv->cv_h);
-#endif
-
-#ifdef _3DFX
-	_3dfx_Blit( x, y, bm );
-	if ( _3dfx_skip_ddraw )
-		return;
 #endif
 
 	if (source==BM_LINEAR) {

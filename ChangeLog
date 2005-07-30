@@ -12,6 +12,9 @@
 	remove all the redundant Polygon Acceleration stuff
 	(include/pa_enabl.h)
 
+	* 2d/bitblt.c, main/gamerend.c, main/inferno.c, main/object.c,
+	main/polyobj.c: remove old _3DFX code
+
 2005-07-29  Chris Taylor  <chris@icculus.org>
 
 	* 2d/font.c: show some missing wide 1's (bug #2269)
