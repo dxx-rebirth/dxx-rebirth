@@ -1,4 +1,4 @@
-/* $Id: gamerend.c,v 1.17 2005-07-30 07:46:03 chris Exp $ */
+/* $Id: gamerend.c,v 1.18 2005-07-30 09:16:25 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.17 2005-07-30 07:46:03 chris Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.18 2005-07-30 09:16:25 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -309,15 +309,6 @@ void render_countdown_gauge()
 
 void game_draw_hud_stuff()
 {
-#ifdef MACINTOSH
-	int odisplay_mode = Current_display_mode;
-	if (Scanline_double) {
-		FontHires = 0;
-		Current_display_mode = 0;
-	}
-#endif
-
-
 	//mprintf ((0,"Linear is %d!\n",LinearSVGABuffer));
 	
 	#ifndef NDEBUG
@@ -361,10 +352,6 @@ void game_draw_hud_stuff()
 		gr_set_fontcolor(gr_getcolor(27,0,0), -1 );
 
 		gr_get_string_size(message, &w, &h, &aw );
-		#ifdef MACINTOSH
-		if (Scanline_double)		// double height if scanline doubling since we have the correct
-			h += h;					// font for printing, but the wrong height.
-		#endif
 		if (Cockpit_mode == CM_FULL_COCKPIT) {
 			if (grd_curcanv->cv_bitmap.bm_h > 240)
 				h += 40;
@@ -421,13 +408,6 @@ mprintf((0,"line_spacing=%d ",line_spacing));
 
 	if ( Player_is_dead )
 		player_dead_message();
-
-#ifdef MACINTOSH
-	if (Scanline_double) {
-		FontHires = 1;
-		Current_display_mode = odisplay_mode;
-	}
-#endif
 }
 
 extern int gr_bitblt_dest_step_shift;
@@ -566,10 +546,6 @@ void game_render_frame_stereo()
 
 		WIN(DDGRLOCK(dd_grd_curcanv)); 	// Must lock DD canvas!!!
   		{
-  			#ifdef MACINTOSH
-  			if (Scanline_double)
-  				FontHires = 0;
-  			#endif
 			update_rendered_data(0, Viewer, 0, 0);
 			render_frame(0, 0);
   
@@ -587,10 +563,6 @@ void game_render_frame_stereo()
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 			HUD_render_message_frame();
-  			#ifdef MACINTOSH
-  			if (Scanline_double)
-  				FontHires = 1;
-  			#endif
 
 		no_draw_hud=1;
 	}
@@ -1010,10 +982,6 @@ void game_render_frame_mono(void)
 
 		WIN(DDGRLOCK(dd_grd_curcanv)); 	// Must lock DD canvas!!!
   		{
-  			#ifdef MACINTOSH
-  			if (Scanline_double)
-  				FontHires = 0;
-  			#endif
 			update_rendered_data(0, Viewer, 0, 0);
 			render_frame(0, 0);
   
@@ -1031,10 +999,6 @@ void game_render_frame_mono(void)
 		WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 			HUD_render_message_frame();
-  			#ifdef MACINTOSH
-  			if (Scanline_double)
-  				FontHires = 1;
-  			#endif
 
 		no_draw_hud=1;
 	}
@@ -1109,11 +1073,6 @@ void game_render_frame_mono(void)
 					gr_wait_for_retrace = 1;
 				#endif
 			} else {
-			#ifdef MACINTOSH
-				if (Scanline_double)
-					gr_bm_ubitblt_double( VR_render_sub_buffer[0].cv_w, VR_render_sub_buffer[0].cv_h, VR_render_sub_buffer[0].cv_bitmap.bm_x, VR_render_sub_buffer[0].cv_bitmap.bm_y, 0, 0, &VR_render_sub_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap );
-				else
-			#endif // NOTE LINK TO ABOVE IF
 			#ifdef WINDOWS	  
 				if (GRMODEINFO(emul) || GRMODEINFO(modex) || GRMODEINFO(dbuf))
 					// From render buffer to screen buffer.
@@ -1145,12 +1104,7 @@ void game_render_frame_mono(void)
 			#endif
 			}
 		} else	{
-			#if 1 //def MACINTOSH
-				gr_ibitblt( &VR_render_sub_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap, Scanline_double );
-			#else
-			#ifndef WINDOWS
-				gr_ibitblt( &VR_render_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap, Game_cockpit_copy_code );
-			#else
+			#ifdef WINDOWS
 				win_do_emul_ibitblt( &dd_VR_render_sub_buffer[0], dd_grd_screencanv);
 				DDGRRESTORE;
 				if (GRMODEINFO(modex)) {
@@ -1158,6 +1112,11 @@ void game_render_frame_mono(void)
 					//@@dd_gr_flip();
 					win_flip = 1;
 				}
+			#else
+			#ifdef __MSDOS__
+				gr_ibitblt( &VR_render_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap, Game_cockpit_copy_code );
+			#else //def MACINTOSH
+				gr_ibitblt( &VR_render_sub_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap );
 			#endif
 			#endif
 		}
@@ -1263,11 +1222,6 @@ void grow_window()
 
 		Game_window_w += WINDOW_W_DELTA;
 		Game_window_h += WINDOW_H_DELTA;
-
-		#ifdef MACINTOSH		// horrible hack to ensure that height is even to satisfy pixel doubling blitter
-		if ( Scanline_double && (Game_window_h & 1) )
-			Game_window_h--;
-		#endif
 
 		if (Game_window_h > max_window_h)
 			Game_window_h = max_window_h;
@@ -1447,11 +1401,6 @@ void shrink_window()
 		if ( Game_window_h < WINDOW_MIN_H )
 			Game_window_h = WINDOW_MIN_H;
 			
-		#ifdef MACINTOSH		// horrible hack to ensure that height is even to satisfy pixel doubling blitter
-		if ( Scanline_double && (Game_window_h & 1) )
-			Game_window_h--;
-		#endif
-
 		Game_window_x = (max_window_w - Game_window_w)/2;
 		Game_window_y = (max_window_h - Game_window_h)/2;
 
@@ -1506,14 +1455,6 @@ void update_cockpits(int force_redraw)
 				gr_ubitmapm(0,max_window_h,&GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index]);
 			WIN(DDGRUNLOCK(dd_grd_curcanv));
 	
-		#ifdef MACINTOSH		// hideously horrible hack to put grey line 1 scanline above because of pixel doubling "oddness"
-			if (Scanline_double)
-			{
-				gr_setcolor(BM_XRGB(13,13,13));		// color of top of status bar
-				gr_uscanline( 0, grd_curcanv->cv_w, max_window_h-1 );
-			}
-		#endif
-
 		Game_window_x = (max_window_w - Game_window_w)/2;
 		Game_window_y = (max_window_h - Game_window_h)/2;
 		fill_background();

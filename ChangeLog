@@ -15,6 +15,10 @@
 	* 2d/bitblt.c, main/gamerend.c, main/inferno.c, main/object.c,
 	main/polyobj.c: remove old _3DFX code
 
+	* 2d/bitblt.c, 2d/ibitblt.c, include/gr.h, include/ibitblt.h,
+	main/game.c, main/game.h, main/gamecntl.c, main/gamerend.c,
+	main/gauges.c, main/hud.c: remove pixel double code
+
 2005-07-29  Chris Taylor  <chris@icculus.org>
 
 	* 2d/font.c: show some missing wide 1's (bug #2269)

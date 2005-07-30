@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.26 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: gamecntl.c,v 1.27 2005-07-30 09:16:25 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1115,13 +1115,6 @@ int HandleSystemKey(int key)
 		case KEY_PAUSE: 
 			do_game_pause();				break;
 
-		#ifdef MACINTOSH
-		case KEY_COMMAND + KEY_D:
-			Scanline_double = !Scanline_double;
-			init_cockpit();
-			break;
-		#endif
-
 		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
 		case KEY_PRINT_SCREEN:  save_screen_shot(0);		break;
 
@@ -1131,12 +1124,9 @@ int HandleSystemKey(int key)
 		MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:					//Config_menu_flag = 1; break;
 			{
-				int scanline_save = Scanline_double;
-
 				if (!(Game_mode&GM_MULTI)) {palette_save(); apply_modified_palette(); reset_palette_add(); gr_palette_load(gr_palette); }
 				do_options_menu();
 				if (!(Game_mode&GM_MULTI)) palette_restore();
-				if (scanline_save != Scanline_double)   init_cockpit();	// reset the cockpit after changing...
 				break;
 			}
 

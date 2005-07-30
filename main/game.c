@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.39 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: game.c,v 1.40 2005-07-30 09:16:25 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.39 2005-07-30 01:50:17 chris Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.40 2005-07-30 09:16:25 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -166,12 +166,7 @@ int stop_count,start_count;
 int time_stopped,time_started;
 #endif
 
-#ifndef MACINTOSH
 ubyte * Game_cockpit_copy_code = NULL;
-#else
-ubyte Game_cockpit_copy_code = 0;
-ubyte Scanline_double = 1;
-#endif
 
 int			VR_screen_mode			= 0;
 
@@ -642,17 +637,8 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 	dd_VR_render_sub_buffer[1].yoff = y;
 
 #endif
-	if (Scanline_double) {
-		#ifdef MACINTOSH
-		if ( w & 0x3 )
-			w &= ~0x3;
-		gr_init_sub_canvas( &VR_render_sub_buffer[0], &VR_render_buffer[0], x, y, w/2, (h/2)+1);
-		gr_init_sub_canvas( &VR_render_sub_buffer[1], &VR_render_buffer[1], x, y, w/2, (h/2)+1);
-		#endif
-	} else {
-		gr_init_sub_canvas( &VR_render_sub_buffer[0], &VR_render_buffer[0], x, y, w, h );
-		gr_init_sub_canvas( &VR_render_sub_buffer[1], &VR_render_buffer[1], x, y, w, h );
-	}
+	gr_init_sub_canvas( &VR_render_sub_buffer[0], &VR_render_buffer[0], x, y, w, h );
+	gr_init_sub_canvas( &VR_render_sub_buffer[1], &VR_render_buffer[1], x, y, w, h );
 
 #ifdef WINDOWS
 	VR_render_sub_buffer[0].cv_bitmap.bm_x = 0;
@@ -2219,12 +2205,9 @@ void game()
 			songs_check_redbook_repeat();	// Handle RedBook Audio Repeating.
 
 			if (Config_menu_flag) 	{
-				int double_save = Scanline_double;
-
 				//WIN(mouse_set_mode(0));
 				if (!(Game_mode&GM_MULTI)) {palette_save(); reset_palette_add();	apply_modified_palette(); gr_palette_load( gr_palette ); }
 				do_options_menu();
-				if (Scanline_double != double_save)	init_cockpit();
 				if (!(Game_mode&GM_MULTI)) palette_restore();
 				//WIN(mouse_set_mode(1));
 			}

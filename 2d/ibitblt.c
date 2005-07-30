@@ -1,4 +1,4 @@
-/* $Id: ibitblt.c,v 1.11 2005-07-30 01:51:42 chris Exp $ */
+/* $Id: ibitblt.c,v 1.12 2005-07-30 09:17:06 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: ibitblt.c,v 1.11 2005-07-30 01:51:42 chris Exp $";
+static char rcsid[] = "$Id: ibitblt.c,v 1.12 2005-07-30 09:17:06 chris Exp $";
 #endif
 
 #ifdef __MSDOS__ //ndef MACINTOSH
@@ -562,11 +562,10 @@ static short start_points[MAX_SCANLINES][MAX_HOLES];
 static short hole_length[MAX_SCANLINES][MAX_HOLES];
 static double *scanline = NULL;
 
-void gr_ibitblt(grs_bitmap *src_bmp, grs_bitmap *dest_bmp, ubyte pixel_double)
+void gr_ibitblt(grs_bitmap *src_bmp, grs_bitmap *dest_bmp)
 {
-	int x, y, sw, sh, srowsize, drowsize, dstart, sy, dy;
+	int x, y, sw, sh, srowsize, drowsize, dstart, sy;
 	ubyte *src, *dest;
-	short *current_hole, *current_hole_length;
 
 // variable setup
 
@@ -583,51 +582,17 @@ void gr_ibitblt(grs_bitmap *src_bmp, grs_bitmap *dest_bmp, ubyte pixel_double)
 		dest += drowsize;
 	}
 
- 	if (pixel_double) {
-		ubyte *scan = (ubyte *)scanline;    // set up for byte processing of scanline
-
-		dy = sy;
-		for (y = sy; y < sy + sh; y++) {
-			gr_linear_rep_movsd_2x(src, scan, sw); // was: gr_linear_movsd_double(src, scan, sw*2);
-			current_hole = start_points[dy];
-			current_hole_length = hole_length[dy];
-			for (x = 0; x < MAX_HOLES; x++) {
-				if (*current_hole == -1)
-					break;
-				dstart = *current_hole;
-				gr_linear_movsd(&(scan[dstart]), &(dest[dstart]), *current_hole_length);
-				current_hole++;
-				current_hole_length++;
-			}
-			dy++;
-			dest += drowsize;
-			current_hole = start_points[dy];
-			current_hole_length = hole_length[dy];
-			for (x = 0;x < MAX_HOLES; x++) {
-				if (*current_hole == -1)
-					break;
-				dstart = *current_hole;
-				gr_linear_movsd(&(scan[dstart]), &(dest[dstart]), *current_hole_length);
-				current_hole++;
-				current_hole_length++;
-			}
-			dy++;
-			dest += drowsize;
-			src += srowsize;
+	Assert(sw <= MAX_WIDTH);
+	Assert(sh <= MAX_SCANLINES);
+	for (y = sy; y < sy + sh; y++) {
+		for (x = 0; x < MAX_HOLES; x++) {
+			if (start_points[y][x] == -1)
+				break;
+			dstart = start_points[y][x];
+			gr_linear_movsd(&(src[dstart]), &(dest[dstart]), hole_length[y][x]);
 		}
-	} else {
-		Assert(sw <= MAX_WIDTH);
-		Assert(sh <= MAX_SCANLINES);
-		for (y = sy; y < sy + sh; y++) {
-			for (x = 0; x < MAX_HOLES; x++) {
-				if (start_points[y][x] == -1)
-					break;
-				dstart = start_points[y][x];
-				gr_linear_movsd(&(src[dstart]), &(dest[dstart]), hole_length[y][x]);
-			}
-			dest += drowsize;
-			src += srowsize;
-		}
+		dest += drowsize;
+		src += srowsize;
 	}
 }
 

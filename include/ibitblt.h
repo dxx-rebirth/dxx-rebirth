@@ -1,4 +1,4 @@
-/* $Id: ibitblt.h,v 1.3 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: ibitblt.h,v 1.4 2005-07-30 09:16:48 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -44,7 +44,7 @@ void gr_ibitblt_create_mask(grs_bitmap *mask_bmp, int sx, int sy, int sw, int sh
 #ifdef __MSDOS__
 void gr_ibitblt(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, ubyte *mask);
 #else
-void gr_ibitblt(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, ubyte pixel_double);
+void gr_ibitblt(grs_bitmap *source_bmp, grs_bitmap *dest_bmp);
 #endif
 
 #endif

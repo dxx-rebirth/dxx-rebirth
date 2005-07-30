@@ -1,4 +1,4 @@
-/* $Id: hud.c,v 1.10 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: hud.c,v 1.11 2005-07-30 09:16:25 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -211,11 +211,6 @@ void HUD_render_message_frame()
 					grs_canvas	*canv_save = grd_curcanv
 				);
 
-				#ifdef MACINTOSH
-				if (Scanline_double)
-					FontHires=1;	// always display hires font outside of display
-				#endif
-
 				WINDOS(
 					ycrd = dd_grd_curcanv->yoff - (SMALL_FONT->ft_h+2),
 					ycrd = grd_curcanv->cv_bitmap.bm_y - (SMALL_FONT->ft_h+2)
@@ -259,11 +254,6 @@ void HUD_render_message_frame()
 
 				Last_msg_ycrd = ycrd;
 				Last_msg_height = h;
-
-				#ifdef MACINTOSH
-				if (Scanline_double)
-					FontHires=0;	// always display hires font outside of display
-				#endif
 
 			}
 		} else {

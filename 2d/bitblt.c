@@ -1,4 +1,4 @@
-/* $Id: bitblt.c,v 1.19 2005-07-30 07:48:24 chris Exp $ */
+/* $Id: bitblt.c,v 1.20 2005-07-30 09:17:06 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1146,42 +1146,6 @@ extern void gr_lbitblt( grs_bitmap * source, grs_bitmap * dest, int height, int 
 
 #ifdef MACINTOSH
 
-// width == number of destination pixels
-
-void gr_linear_movsd_double(ubyte *src, ubyte *dest, int width)
-{
-	double  *d = (double *)dest;
-	uint    *s = (uint *)src;
-	uint    doubletemp[2];
-	uint    temp, work;
-	int     i, num_pixels;
-
-	num_pixels = width / 2;
-	if ( (num_pixels & 0x3) || (((int)src & 0x7) != ((int)dest & 0x7)) ) {
-		// not a multiple of 4?  do single pixel at a time
-		for (i=0; i<num_pixels; i++) {
-			*dest++ = *src;
-			*dest++ = *src++;
-		}
-		return;
-	}
-
-	for (i = 0; i < num_pixels / 4; i++) {
-		temp = work = *s++;
-
-		temp = ((temp >> 8) & 0x00FFFF00) | (temp & 0xFF0000FF); // 0xABCDEFGH -> 0xABABCDEF
-		temp = ((temp >> 8) & 0x000000FF) | (temp & 0xFFFFFF00); // 0xABABCDEF -> 0xABABCDCD
-		doubletemp[0] = temp;
-
-		work = ((work << 8) & 0x00FFFF00) | (work & 0xFF0000FF); // 0xABCDEFGH -> 0xABEFGHGH
-		work = ((work << 8) & 0xFF000000) | (work & 0x00FFFFFF); // 0xABEFGHGH -> 0xEFEFGHGH
-		doubletemp[1] = work;
-
-		*d = *(double *) &(doubletemp[0]);
-		d++;
-	}
-}
-
 //extern void BlitLargeAlign(ubyte *draw_buffer, int dstRowBytes, ubyte *dstPtr, int w, int h, int modulus);
 
 asm void BlitLargeAlign(ubyte *rSrcPtr, int rDblDStrd, ubyte *rDst1Ptr, int rWidth, int rHeight, int rModulus)
@@ -1247,40 +1211,6 @@ BlitLargeAlignX:
     lwz     r30,-8(SP)          // restore non-volatile regs
     lwz     r31,-4(SP)          // restore non-volatile regs
     blr                         // return to caller
-}
-
-void gr_bm_ubitblt_double(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_bitmap *dest)
-{
-	ubyte * dbits;
-	ubyte * sbits;
-	int dstep, i;
-
-	sbits = src->bm_data  + (src->bm_rowsize * sy) + sx;
-	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
-	dstep = dest->bm_rowsize << gr_bitblt_dest_step_shift;
-	Assert( !((int)dbits & 0x7) );  // assert to check double word alignment
-	BlitLargeAlign(sbits, dstep, dbits, src->bm_w, src->bm_h, src->bm_rowsize);
-}
-
-// w and h are the doubled width and height
-
-void gr_bm_ubitblt_double_slow(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_bitmap *dest)
-{
-	ubyte * dbits;
-	ubyte * sbits;
-	int dstep, i;
-
-	sbits = src->bm_data  + (src->bm_rowsize * sy) + sx;
-	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
-	dstep = dest->bm_rowsize << gr_bitblt_dest_step_shift;
-
-	for (i=0; i < h; i++ )    {
-
-		gr_linear_movsd_double(sbits, dbits, w);
-		dbits += dstep;
-		if (i & 1)
-			sbits += src->bm_rowsize;
-	}
 }
 
 #endif /* MACINTOSH */

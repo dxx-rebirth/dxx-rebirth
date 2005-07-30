@@ -1,4 +1,4 @@
-/* $Id: gauges.c,v 1.18 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: gauges.c,v 1.19 2005-07-30 09:16:25 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -878,48 +878,6 @@ void copy_gauge_box(gauge_box *box,grs_bitmap *bm)
 						box->left,box->top,box->left,box->top,
 						bm,&grd_curcanv->cv_bitmap);
 	 }
-}
-#endif
-
-#ifdef MACINTOSH
-
-extern int gr_bitblt_double;
-
-int copy_whole_box = 0;
-
-void copy_gauge_box_double(gauge_box *box,grs_bitmap *bm)
-{
-
-	if (!copy_whole_box && box->spanlist) {
-		int n_spans = box->bot-box->top+1;
-		int cnt, sx, dx, sy, dy;
-
-		sy = dy = box->top;
-		for (cnt=0; cnt < n_spans; cnt++) {
-			ubyte * dbits;
-			ubyte * sbits;
-			int i, j;
-			
-			sx = box->left;
-			dx = box->left+box->spanlist[cnt].l;
-
-			sbits = bm->bm_data  + (bm->bm_rowsize * sy) + sx;
-			dbits = grd_curcanv->cv_bitmap.bm_data + (grd_curcanv->cv_bitmap.bm_rowsize * dy) + dx;
-			
-			for (j = box->spanlist[cnt].l; j < box->spanlist[cnt].r+1; j++)
-				*dbits++ = sbits[j/2];
-			
-			dy++;
-		
-			if (cnt & 1)
-				sy++;
-		}
-
- 	}
-	else
-		gr_bm_ubitblt_double_slow(box->right-box->left+1,box->bot-box->top,
-							box->left,box->top,box->left,box->top,
-							bm,&grd_curcanv->cv_bitmap);
 }
 #endif
 
@@ -2818,19 +2776,11 @@ void show_reticle(int force_big_one)
 #endif
 
 
-	#ifndef MACINTOSH
 		use_hires_reticle = (FontHires != 0);
-	#else
-		use_hires_reticle = !Scanline_double;
-	#endif
 
 	WIN(DDGRLOCK(dd_grd_curcanv));
 
-#ifndef MACINTOSH
 	small_reticle = !(grd_curcanv->cv_bitmap.bm_w*3 > max_window_w*2 || force_big_one);
-#else
-	small_reticle = !(grd_curcanv->cv_bitmap.bm_w*3 > max_window_w*(Scanline_double?1:2) || force_big_one);
-#endif
 	ofs = (use_hires_reticle?0:2) + small_reticle;
 
 	gauge_index = (small_reticle?SML_RETICLE_CROSS:RETICLE_CROSS) + cross_bm_num;
@@ -2860,10 +2810,6 @@ void hud_show_kill_list()
 // ugly hack since placement of netgame players and kills is based off of
 // menuhires (which is always 1 for mac).  This throws off placement of
 // players in pixel double mode.
-
-#ifdef MACINTOSH
-	MenuHires = !(Scanline_double);
-#endif
 
 	if (Show_kill_list_timer > 0)
 	{
@@ -3151,15 +3097,7 @@ void draw_hud()
 #endif
                                           
 
-#ifdef MACINTOSH
-	if (Scanline_double)		// I should be shot for this ugly hack....
-		FontHires = 1;
-#endif
 	Line_spacing = GAME_FONT->ft_h + GAME_FONT->ft_h/4;
-#ifdef MACINTOSH
-	if (Scanline_double)
-		FontHires = 0;
-#endif
 
 WIN(DDGRLOCK(dd_grd_curcanv));
 	//	Show score so long as not in rearview
@@ -3470,10 +3408,6 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	{
 
 		w = VR_render_buffer[0].cv_bitmap.bm_w/6;			// hmm.  I could probably do the sub_buffer assigment for all macines, but I aint gonna chance it
-		#ifdef MACINTOSH
-		if (Scanline_double)
-			w /= 2;
-		#endif
 
 		h = i2f(w) / grd_curscreen->sc_aspect;
 
@@ -3488,13 +3422,6 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 		window_x = dd_VR_render_sub_buffer[0].canvas.cv_bitmap.bm_w/2+dx;
 		window_y = VR_render_buffer[0].cv_bitmap.bm_h-h-(h/10)-dd_VR_render_sub_buffer[0].yoff;
 	#endif
-
-		#ifdef MACINTOSH
-		if (Scanline_double) {
-			window_x = (VR_render_buffer[0].cv_bitmap.bm_w/2+VR_render_sub_buffer[0].cv_bitmap.bm_x)/2+dx;
-			window_y = ((VR_render_buffer[0].cv_bitmap.bm_h+VR_render_sub_buffer[0].cv_bitmap.bm_y)/2)-h-(h/10);
-		}
-		#endif
 
 		//copy these vars so stereo code can get at them
 		SW_drawn[win]=1; SW_x[win] = window_x; SW_y[win] = window_y; SW_w[win] = w; SW_h[win] = h; 
@@ -3514,17 +3441,10 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 		box = &gauge_boxes[boxnum];
 
-		#ifndef MACINTOSH
 	WINDOS(								  
 		dd_gr_init_sub_canvas(&window_canv,&dd_VR_render_buffer[0],box->left,box->top,box->right-box->left+1,box->bot-box->top+1),
 		gr_init_sub_canvas(&window_canv,&VR_render_buffer[0],box->left,box->top,box->right-box->left+1,box->bot-box->top+1)
 	);
-		#else
-		if (Scanline_double)
-			gr_init_sub_canvas(&window_canv,&VR_render_buffer[0],box->left,box->top,(box->right-box->left+1)/2,(box->bot-box->top+1)/2);
-		else
-			gr_init_sub_canvas(&window_canv,&VR_render_buffer[0],box->left,box->top,box->right-box->left+1,box->bot-box->top+1);
-		#endif
 	}
 
 WINDOS(
@@ -3546,13 +3466,11 @@ WINDOS(
 
 	if (label) {
 	WIN(DDGRLOCK(dd_grd_curcanv));
-	MAC(if (Scanline_double) FontHires = 0;)		// get the right font size
 		gr_set_curfont( GAME_FONT );
 		if (Color_0_31_0 == -1)
 			Color_0_31_0 = gr_getcolor(0,31,0);
 		gr_set_fontcolor(Color_0_31_0, -1);
 		gr_printf(0x8000,2,label);
-	MAC(if (Scanline_double) FontHires = 1;)		// get the right font size back to normal
 	WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 
@@ -3575,19 +3493,6 @@ WINDOS(
 		//if the window only partially overlaps the big 3d window, copy
 		//the extra part to the visible screen
 
-		#ifdef MACINTOSH		// recalc window_x and window_y because of scanline doubling problems
-		{
-			int w, h, dx;
-			
-			w = VR_render_buffer[0].cv_bitmap.bm_w/6;			// hmm.  I could probably do the sub_buffer assigment for all macines, but I aint gonna chance it
-			h = i2f(w) / grd_curscreen->sc_aspect;
-			dx = (win==0)?-(w+(w/10)):(w/10);
-			window_x = VR_render_buffer[0].cv_bitmap.bm_w/2+dx;
-			window_y = VR_render_buffer[0].cv_bitmap.bm_h-h-(h/10);
-			if (Scanline_double)
-				window_x += ((win==0)?2:-1);		// a real hack here....
-		}
-		#endif
 		big_window_bottom = Game_window_y + Game_window_h - 1;
 
 	#ifdef WINDOWS
@@ -3615,11 +3520,6 @@ WINDOS(
 					gr_set_current_canvas(get_current_game_screen())
 				);
 
-			#ifdef MACINTOSH
-			if (Scanline_double)
-				gr_bm_ubitblt_double_slow(window_canv.cv_bitmap.bm_w*2, window_canv.cv_bitmap.bm_h*2, window_x, window_y, 0, 0, &window_canv.cv_bitmap, &grd_curcanv->cv_bitmap);
-			else
-			#endif		// note link to above if
 			WINDOS(
 				dd_gr_blt_notrans(&window_canv, 0,0,0,0,
 										dd_grd_curcanv, window_x, window_y, 0,0),
@@ -3634,20 +3534,11 @@ WINDOS(
 			small_window_bottom = window_y + window_canv.canvas.cv_bitmap.bm_h - 1,
 			small_window_bottom = window_y + window_canv.cv_bitmap.bm_h - 1
 		);
-			#ifdef MACINTOSH
-			if (Scanline_double)
-				small_window_bottom = window_y + (window_canv.cv_bitmap.bm_h*2) - 1;
-			#endif
 			
 			extra_part_h = small_window_bottom - big_window_bottom;
 
 			if (extra_part_h > 0) {
 			
-				#ifdef MACINTOSH
-				if (Scanline_double)
-					extra_part_h /= 2;
-				#endif
-	
 				WINDOS(
 					dd_gr_init_sub_canvas(&overlap_canv,&window_canv,0,
 						window_canv.canvas.cv_bitmap.bm_h-extra_part_h,
@@ -3666,11 +3557,6 @@ WINDOS(
 						gr_set_current_canvas(get_current_game_screen())
 					);
 
-				#ifdef MACINTOSH
-				if (Scanline_double)
-					gr_bm_ubitblt_double_slow(window_canv.cv_bitmap.bm_w*2, extra_part_h*2, window_x, big_window_bottom+1, 0, window_canv.cv_bitmap.bm_h-extra_part_h, &window_canv.cv_bitmap, &grd_curcanv->cv_bitmap);
-				else
-				#endif		// note link to above if
 				WINDOS(
 					dd_gr_blt_notrans(&overlap_canv, 0,0,0,0,
 											dd_grd_curcanv, window_x, big_window_bottom+1, 0,0),
@@ -3716,7 +3602,6 @@ abort:;
 
 		Assert(outBoundsRect);
 		Assert((inSubWindowNum == 0) || (inSubWindowNum == 1));
-		Assert(!Scanline_double);
 		
 		switch (Cockpit_mode)
 		{

@@ -1,4 +1,4 @@
-/* $Id: game.h,v 1.11 2005-06-22 09:08:21 chris Exp $ */
+/* $Id: game.h,v 1.12 2005-07-30 09:16:25 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -27,10 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 
 //#include "segment.h"
-
-#ifdef MACINTOSH
-extern ubyte Scanline_double;
-#endif
 
 #ifdef WINDOWS
 typedef struct cockpit_span_line {
@@ -123,16 +119,6 @@ extern int Game_double_buffer;      // double buffering?
 
 #define Slew_on             0       // no slewing in real game
 #define Game_double_buffer  1       // always double buffer in real game
-
-#endif
-
-#ifndef MACINTOSH
-
-#define Scanline_double     0       // PC doesn't do scanline doubling
-
-#else
-
-extern ubyte Scanline_double;       // but the Macintosh does
 
 #endif
 
