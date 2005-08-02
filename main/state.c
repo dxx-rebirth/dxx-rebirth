@@ -1,4 +1,4 @@
-/* $Id: state.c,v 1.25 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: state.c,v 1.26 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -182,29 +182,17 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 		if ( citem > 0 )	{
 			if ( sc_bmp[citem-1] )	{
 				if (MenuHires) {
-				WINDOS(
-					dd_grs_canvas *save_canv = dd_grd_curcanv,
-					grs_canvas *save_canv = grd_curcanv
-				);
+					grs_canvas *save_canv = grd_curcanv;
 					grs_canvas *temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
 					grs_point vertbuf[3] = {{0,0}, {0,0}, {i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)} };
 					gr_set_current_canvas(temp_canv);
 					scale_bitmap(sc_bmp[citem-1], vertbuf, 0 );
-				WINDOS(
-					dd_gr_set_current_canvas(save_canv),
-					gr_set_current_canvas( save_canv )
-				);
-				WIN(DDGRLOCK(dd_grd_curcanv));
+					gr_set_current_canvas( save_canv );
 					gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W*2)/2,items[0].y-10, &temp_canv->cv_bitmap);
-				WIN(DDGRUNLOCK(dd_grd_curcanv));
 					gr_free_canvas(temp_canv);
 				}
 				else	{
-				#ifdef WINDOWS
-					Int3();
-				#else
 					gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W)/2,items[0].y-5, sc_bmp[citem-1] );
-				#endif
 				}
 			}
 		}
@@ -641,13 +629,8 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		ubyte *buf;
 		int k;
 #endif
-		#ifdef WINDOWS
-			dd_grs_canvas *cnv_save;
-			cnv_save = dd_grd_curcanv;
-		#else
-			grs_canvas * cnv_save;
-			cnv_save = grd_curcanv;
-		#endif
+		grs_canvas * cnv_save;
+		cnv_save = grd_curcanv;
 
 		gr_set_current_canvas( cnv );
 
@@ -671,15 +654,11 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 # endif
 #endif
 
-					pal = gr_palette;
+		pal = gr_palette;
 
-					PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
+		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 
-		
-		WINDOS(
-			dd_gr_set_current_canvas(cnv_save),
-			gr_set_current_canvas(cnv_save)
-		);
+		gr_set_current_canvas(cnv_save);
 		gr_free_canvas( cnv );
 		PHYSFS_write(fp, pal, 3, 256);
 	}

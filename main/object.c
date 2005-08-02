@@ -1,4 +1,4 @@
-/* $Id: object.c,v 1.18 2005-07-30 07:46:03 chris Exp $ */
+/* $Id: object.c,v 1.19 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -20,10 +20,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef WINDOWS
-#include "desw.h"
 #endif
 
 #include <string.h>	// for memset
@@ -248,17 +244,7 @@ void draw_object_blob(object *obj,bitmap_index bmi)
 
 	orientation = global_orientation;
 
-//@@#ifdef WINDOWS
-//@@	if (obj->type == OBJ_POWERUP) {
-//@@		if ( GameBitmaps[(bmi).index].bm_flags & BM_FLAG_PAGED_OUT)
-//@@			piggy_bitmap_page_in_w( bmi,1 );
-//@@	}
-//@@	if (bm->bm_handle) {
-//@@		DDGRUNLOCK(dd_grd_curcanv);
-//@@	}
-//@@#else
 	PIGGY_PAGE_IN( bmi );
-//@@#endif	
 
 	if (bm->bm_w > bm->bm_h)
 
@@ -267,12 +253,6 @@ void draw_object_blob(object *obj,bitmap_index bmi)
 	else
 
 		g3_draw_bitmap(&obj->pos,fixmuldiv(obj->size,bm->bm_w,bm->bm_h),obj->size,bm, orientation);
-
-//@@#ifdef WINDOWS
-//@@	if (bm->bm_handle) {
-//@@		DDGRLOCK(dd_grd_curcanv);
-//@@	}
-//@@#endif
 }
 
 //draw an object that is a texture-mapped rod

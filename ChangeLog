@@ -1,3 +1,19 @@
+2005-08-02  Chris Taylor  <chris@icculus.org>
+
+	* 2d/bitblt.c, 2d/bitmap.c, 2d/pixel.c, 2d/rect.c, 2d/rle.c,
+	3d/draw.c, 3d/instance.c, 3d/matrix.c, 3d/points.c, 3d/rod.c,
+	3d/setup.c,
+	include/3d.h, include/palette.h,
+	main/automap.c, main/cntrlcen.c, main/credits.c, main/endlevel.c,
+	main/escort.c, main/game.c, main/game.h, main/gamecntl.c,
+	main/gamerend.c, main/gameseq.c, main/gauges.c, main/hud.c,
+	main/kconfig.c, main/kmatrix.c, main/menu.c, main/newmenu.c,
+	main/object.c, main/paging.c, main/piggy.c, main/scores.c,
+	main/state.c, main/titles.c:
+	remove DirectDraw use and Windows mouse stuff made redundant by SDL
+	(lots of WINDOWS code).
+	Makes cockpit draw properly in SDL
+
 2005-07-30  Chris Taylor  <chris@icculus.org>
 
 	* 2d/2dsline.c, 2d/bitblt.c, 2d/bitmap.c, 2d/font.c, 2d/ibitblt.c,

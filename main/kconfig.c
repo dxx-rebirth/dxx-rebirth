@@ -1,4 +1,4 @@
-/* $Id: kconfig.c,v 1.39 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: kconfig.c,v 1.40 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.39 2005-07-30 01:50:17 chris Exp $";
+static char rcsid[] = "$Id: kconfig.c,v 1.40 2005-08-02 06:13:56 chris Exp $";
 #endif
 
 #ifdef WINDOWS
@@ -884,10 +884,7 @@ int get_item_height(kc_item *item)
 
 void kconfig_sub(kc_item * items,int nitems, char * title)
 {
-WINDOS(
-	dd_grs_canvas * save_canvas,
-	grs_canvas * save_canvas
-);
+	grs_canvas * save_canvas;
 	grs_font * save_font;
 	int old_keyd_repeat;
 #ifdef NEWMENU_MOUSE
@@ -897,10 +894,6 @@ WINDOS(
 
 	int i,k,ocitem,citem;
 	int time_stopped = 0;
-WIN(char *old_bg_pcx);
-
-WIN(old_bg_pcx = _SCRContext.bkg_filename);
-WIN(DEFINE_SCREEN(NULL));
 
 	All_items = items;
 	Num_items = nitems;
@@ -918,16 +911,10 @@ WIN(DEFINE_SCREEN(NULL));
 //		);												// Get Samir...
 //	}
 
-WINDOS(
-	save_canvas = dd_grd_curcanv,
-	save_canvas = grd_curcanv
-);
+	save_canvas = grd_curcanv;
 
 
-WINDOS(
-	dd_gr_set_current_canvas(NULL),
-	gr_set_current_canvas(NULL)
-);		
+	gr_set_current_canvas(NULL);
 	save_font = grd_curcanv->cv_font;
 
 #ifdef WINDOWS
@@ -944,7 +931,6 @@ KConfigPaint:
 
 	grd_curcanv->cv_font = MEDIUM3_FONT;
 
-WIN(DDGRLOCK(dd_grd_curcanv));	
 	{
 		char * p;
 		p = strchr( title, '\n' );
@@ -1040,8 +1026,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	}
 #endif
 
-WIN(DDGRUNLOCK(dd_grd_curcanv));	
-
 	for (i=0; i<nitems; i++ )	{
 		kc_drawitem( &items[i], 0 );
 	}
@@ -1057,23 +1041,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	while(1)		{
 	//	Windows addendum to allow for kconfig input.
-	#ifdef WINDOWS
-		{
-			MSG msg;
-
-			DoMessageStuff(&msg);
-
-			if (_RedrawScreen) {
-				_RedrawScreen = FALSE;
-
-				dd_gr_set_current_canvas(NULL);	
-
-				goto KConfigPaint;
-			}
-
-			DDGRRESTORE;
-	 	}
-	#endif
 		gr_update();
 
 		//see if redbook song needs to be restarted
@@ -1200,12 +1167,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 		case KEY_ESC:
 			grd_curcanv->cv_font	= save_font;
 
-		WIN(DEFINE_SCREEN(old_bg_pcx));
-
-		WINDOS(
-			dd_gr_set_current_canvas(save_canvas),
-			gr_set_current_canvas( save_canvas )
-		);			
+			gr_set_current_canvas( save_canvas );
 			keyd_repeat = old_keyd_repeat;
 			game_flush_inputs();
 			newmenu_hide_cursor();
@@ -1329,8 +1291,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 				y2 = y1 + close_size - LHX(1);
 				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 					grd_curcanv->cv_font	= save_font;
-					WINDOS(dd_gr_set_current_canvas( save_canvas ),
-							gr_set_current_canvas( save_canvas ));
+					gr_set_current_canvas( save_canvas );
 					keyd_repeat = old_keyd_repeat;
 					game_flush_inputs();
 					newmenu_hide_cursor();
@@ -1358,14 +1319,11 @@ void kc_drawitem( kc_item *item, int is_current )
 	int x, w, h, aw;
 	char btext[16];
 
-WIN(DDGRLOCK(dd_grd_curcanv));
-
 	if (is_current)
 		gr_set_fontcolor( BM_XRGB(20,20,29), -1 );
 	else
 		gr_set_fontcolor( BM_XRGB(15,15,24), -1 );
    gr_string( LHX(item->x), LHY(item->y), item->text );
-WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	if (item->value==255) {
 		strcpy( btext, "" );
@@ -1427,7 +1385,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 		}
 	}
 	if (item->w1) {
-	WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_get_string_size(btext, &w, &h, &aw  );
 
 		if (is_current)
@@ -1441,8 +1398,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 		x = LHX(item->w1+item->x)+((LHX(item->w2)-w)/2);
 	
 		gr_string( x, LHY(item->y), btext );
-
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 }
 
@@ -1452,8 +1407,6 @@ static int looper=0;
 void kc_drawquestion( kc_item *item )
 {
 	int c, x, w, h, aw;
-
-WIN(DDGRLOCK(dd_grd_curcanv));	
 
 	gr_get_string_size("?", &w, &h, &aw  );
 
@@ -1471,7 +1424,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	x = LHX(item->w1+item->x)+((LHX(item->w2)-w)/2);
    
 	gr_string( x, LHY(item->y), "?" );
-WIN(DDGRUNLOCK(dd_grd_curcanv));
 gr_update();
 }
 
@@ -1480,11 +1432,9 @@ void kc_change_key( kc_item * item )
 	int i,n,f,k;
 	ubyte keycode;
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
 	gr_string( 0x8000, LHY(INFO_Y), TXT_PRESS_NEW_KEY );
-WIN(DDGRUNLOCK(dd_grd_curcanv));	
 
 	game_flush_inputs();
 	keycode=255;
@@ -1492,16 +1442,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 	
 	while( (k!=KEY_ESC) && (keycode==255) )	
 	{				
-	#ifdef WINDOWS
-		{
-			MSG msg;
-
-			DoMessageStuff(&msg);
-			DDGRRESTORE;
-		
-	 	}
-	#endif
-
 		#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1536,9 +1476,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 	kc_drawitem( item, 1 );
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
-WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	nm_restore_background( 0, LHY(INFO_Y), LHX(310), grd_curcanv->cv_font->ft_h );
 
@@ -1551,11 +1489,9 @@ void kc_change_joybutton( kc_item * item )
 	int n,i,k;
 	ubyte code;
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
 	gr_string( 0x8000, LHY(INFO_Y), TXT_PRESS_NEW_JBUTTON );
-WIN(DDGRUNLOCK(dd_grd_curcanv));	
 
 	game_flush_inputs();
 	code=255;
@@ -1563,14 +1499,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 	
 	while( (k!=KEY_ESC) && (code==255))	
 	{				
-	#ifdef WINDOWS
-		{
-			MSG msg;
-			DoMessageStuff(&msg);
-			DDGRRESTORE;
-	 	}
-	#endif
-
 		#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1640,12 +1568,9 @@ void kc_change_mousebutton( kc_item * item )
 	int n,i,b,k;
 	ubyte code;
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
 	gr_string( 0x8000, LHY(INFO_Y), TXT_PRESS_NEW_MBUTTON );
-WIN(DDGRUNLOCK(dd_grd_curcanv));	
-
 
 	game_flush_inputs();
 	code=255;
@@ -1653,14 +1578,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 	
 	while( (k!=KEY_ESC) && (code==255))	
 	{				
-	#ifdef WINDOWS
-		{
-			MSG msg;
-			DoMessageStuff(&msg);
-			DDGRRESTORE;
-	 	}
-	#endif
-
 		#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1747,11 +1664,9 @@ void kc_change_joyaxis( kc_item * item )
 	int n,i,k;
 	ubyte code;
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
 	gr_string( 0x8000, LHY(INFO_Y), TXT_MOVE_NEW_JOY_AXIS );
-WIN(DDGRUNLOCK(dd_grd_curcanv));	
 
 	game_flush_inputs();
 	code=255;
@@ -1764,14 +1679,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	while( (k!=KEY_ESC) && (code==255))	
 	{				
-	#ifdef WINDOWS
-		{
-			MSG msg;
-			DoMessageStuff(&msg);
-			DDGRRESTORE;
-	 	}
-	#endif
-
 		#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1838,11 +1745,9 @@ void kc_change_mouseaxis( kc_item * item )
 	int dz;
 #endif
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
 	gr_string( 0x8000, LHY(INFO_Y), TXT_MOVE_NEW_MSE_AXIS );
-WIN(DDGRUNLOCK(dd_grd_curcanv));	
 
 	game_flush_inputs();
 	code=255;
@@ -1852,14 +1757,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	while( (k!=KEY_ESC) && (code==255))	
 	{				
-	#ifdef WINDOWS
-		{
-			MSG msg;
-			DoMessageStuff(&msg);
-			DDGRRESTORE;
-	 	}
-	#endif
-
 		#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1927,16 +1824,11 @@ void kconfig(int n, char * title)
 	kc_set_controls();
 
 	//save screen
-	WIN(mouse_set_mode(0));
-	WIN(dd_gr_set_current_canvas(NULL));
-	
 	save_bm = gr_create_bitmap( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
 	Assert( save_bm != NULL );
 	
-	WIN(DDGRLOCK(dd_grd_curcanv));
-		gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_w, 
-						 0, 0, 0, 0, &grd_curcanv->cv_bitmap, save_bm );
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
+	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_w, 
+					0, 0, 0, 0, &grd_curcanv->cv_bitmap, save_bm );
 
 	switch(n)	{
 	case 0:kconfig_sub( kc_keyboard, NUM_KEY_CONTROLS, title );break;
@@ -1954,11 +1846,7 @@ void kconfig(int n, char * title)
 	}
 
 	//restore screen
-	WIN(mouse_set_mode(1));
-	WIN(dd_gr_set_current_canvas(NULL));
-	WIN(DDGRLOCK(dd_grd_curcanv));
-		gr_bitmap(0, 0, save_bm);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
+	gr_bitmap(0, 0, save_bm);
 	gr_free_bitmap(save_bm);
 
 #if 0 // set_screen_mode always calls this later... right?

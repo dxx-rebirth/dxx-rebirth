@@ -1,4 +1,4 @@
-/* $Id: gamerend.c,v 1.18 2005-07-30 09:16:25 chris Exp $ */
+/* $Id: gamerend.c,v 1.19 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,12 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.18 2005-07-30 09:16:25 chris Exp $";
-#endif
-
-#ifdef WINDOWS
-#include "desw.h"
-#include "winapp.h"
+static char rcsid[] = "$Id: gamerend.c,v 1.19 2005-08-02 06:13:56 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -74,12 +69,6 @@ extern fix Cruise_speed;
 extern int LinearSVGABuffer;
 extern int Current_display_mode;
 extern cvar_t r_framerate;
-
-
-#ifdef WINDOWS
-cockpit_span_line win_cockpit_mask[480];
-void win_do_emul_ibitblt(dd_grs_canvas *csrc, dd_grs_canvas *cdest);
-#endif
 
 
 #ifndef NDEBUG
@@ -544,7 +533,6 @@ void game_render_frame_stereo()
 
 		Viewer = Guided_missile[Player_num];
 
-		WIN(DDGRLOCK(dd_grd_curcanv)); 	// Must lock DD canvas!!!
   		{
 			update_rendered_data(0, Viewer, 0, 0);
 			render_frame(0, 0);
@@ -560,9 +548,8 @@ void game_render_frame_stereo()
 
 			draw_guided_crosshair();
 		}
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-			HUD_render_message_frame();
+		HUD_render_message_frame();
 
 		no_draw_hud=1;
 	}
@@ -917,53 +904,28 @@ void show_extra_views()
 
 int BigWindowSwitch=0;
 extern int force_cockpit_redraw;
-#ifndef MACINTOSH
 extern ubyte * Game_cockpit_copy_code;
-#else
-extern ubyte Game_cockpit_copy_code;
-#endif
 
 void draw_guided_crosshair(void);
 
 
 //render a frame for the game
-//		WINDOWS:
-//			will render everything to dd_VR_render_sub_buffer
-//			which all leads to the dd_VR_offscreen_buffer
 void game_render_frame_mono(void)
 {
-	WINDOS (
-		dd_grs_canvas Screen_3d_window,
-		grs_canvas Screen_3d_window
-	);
+	grs_canvas Screen_3d_window;
 	int no_draw_hud=0;
 	
 
-	WINDOS (
-		dd_gr_init_sub_canvas(&Screen_3d_window, &dd_VR_screen_pages[0],
-			dd_VR_render_sub_buffer[0].canvas.cv_bitmap.bm_x, 
-			dd_VR_render_sub_buffer[0].canvas.cv_bitmap.bm_y, 
-			dd_VR_render_sub_buffer[0].canvas.cv_bitmap.bm_w, 
-			dd_VR_render_sub_buffer[0].canvas.cv_bitmap.bm_h),
-		gr_init_sub_canvas( &Screen_3d_window, &VR_screen_pages[0], 
-			VR_render_sub_buffer[0].cv_bitmap.bm_x, 
-			VR_render_sub_buffer[0].cv_bitmap.bm_y, 
-			VR_render_sub_buffer[0].cv_bitmap.bm_w, 
-			VR_render_sub_buffer[0].cv_bitmap.bm_h)
-	);
+	gr_init_sub_canvas( &Screen_3d_window, &VR_screen_pages[0], 
+		VR_render_sub_buffer[0].cv_bitmap.bm_x, 
+		VR_render_sub_buffer[0].cv_bitmap.bm_y, 
+		VR_render_sub_buffer[0].cv_bitmap.bm_w, 
+		VR_render_sub_buffer[0].cv_bitmap.bm_h);
 
-	if ( Game_double_buffer ) {	
-		WINDOS(
-			dd_gr_set_current_canvas(&dd_VR_render_sub_buffer[0]),
-			gr_set_current_canvas(&VR_render_sub_buffer[0])
-		);
-	}
-	else	{
-		WINDOS(
-			dd_gr_set_current_canvas(&Screen_3d_window),
-			gr_set_current_canvas(&Screen_3d_window)
-		);
-	}
+	if ( Game_double_buffer )
+		gr_set_current_canvas(&VR_render_sub_buffer[0]);
+	else
+		gr_set_current_canvas(&Screen_3d_window);
 	
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window) {
 		char *msg = "Guided Missile View";
@@ -980,7 +942,6 @@ void game_render_frame_mono(void)
   
 		Viewer = Guided_missile[Player_num];
 
-		WIN(DDGRLOCK(dd_grd_curcanv)); 	// Must lock DD canvas!!!
   		{
 			update_rendered_data(0, Viewer, 0, 0);
 			render_frame(0, 0);
@@ -996,9 +957,8 @@ void game_render_frame_mono(void)
 
 			draw_guided_crosshair();
 		}
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-			HUD_render_message_frame();
+		HUD_render_message_frame();
 
 		no_draw_hud=1;
 	}
@@ -1011,43 +971,20 @@ void game_render_frame_mono(void)
 		   BigWindowSwitch=0;
 			return;
 		 }
-		WIN(DDGRLOCK(dd_grd_curcanv)); 	// Must lock DD canvas!!!
 		update_rendered_data(0, Viewer, Rear_view, 0);
 		render_frame(0, 0);
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 	 }
 
-	if ( Game_double_buffer ) {	
-		WINDOS(
-			dd_gr_set_current_canvas(&dd_VR_render_sub_buffer[0]),
-			gr_set_current_canvas(&VR_render_sub_buffer[0])
-		);
-	}
-	else	{
-		WINDOS(
-			dd_gr_set_current_canvas(&Screen_3d_window),
-			gr_set_current_canvas(&Screen_3d_window)
-		);
-	}
+	if ( Game_double_buffer )
+		gr_set_current_canvas(&VR_render_sub_buffer[0]);
+	else
+		gr_set_current_canvas(&Screen_3d_window);
 
-	if (!no_draw_hud)	{
-		WIN(DDGRLOCK(dd_grd_curcanv));
+	if (!no_draw_hud)
 		game_draw_hud_stuff();
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
-	}
 
 	show_extra_views();		//missile view, buddy bot, etc.
 
-#ifdef WINDOWS
-	if (Game_paused) {		//render pause message over off-screen 3d (to minimize flicker)
-		extern char *Pause_msg;
-//		LPDIRECTDRAWSURFACE save_dds = dd_VR_screen_pages[VR_current_page].lpdds;
-
-//		dd_VR_screen_pages[VR_current_page].lpdds = dd_VR_render_buffer[VR_current_page].lpdds;
-		show_boxed_message(Pause_msg);
-//		dd_VR_screen_pages[VR_current_page].lpdds = save_dds;
-	}
-#else
 	if (Game_paused) {		//render pause message over off-screen 3d (to minimize flicker)
 		extern char *Pause_msg;
 		ubyte *save_data = VR_screen_pages[VR_current_page].cv_bitmap.bm_data;
@@ -1056,44 +993,17 @@ void game_render_frame_mono(void)
 		show_boxed_message(Pause_msg);
 		VR_screen_pages[VR_current_page].cv_bitmap.bm_data=save_data;
 	}
-#endif
 
 	if ( Game_double_buffer ) {		//copy to visible screen
 		if ( !Game_cockpit_copy_code )	{
 			if ( VR_screen_flags&VRF_USE_PAGING )	{	
 				VR_current_page = !VR_current_page;
-				#ifdef WINDOWS
-					dd_gr_set_current_canvas(&dd_VR_screen_pages[VR_current_page]);
- 					dd_gr_flip();
-				#else
-					gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
-					gr_bm_ubitblt( VR_render_sub_buffer[0].cv_w, VR_render_sub_buffer[0].cv_h, VR_render_sub_buffer[0].cv_bitmap.bm_x, VR_render_sub_buffer[0].cv_bitmap.bm_y, 0, 0, &VR_render_sub_buffer[0].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap );
-					gr_wait_for_retrace = 0;
-					gr_show_canvas( &VR_screen_pages[VR_current_page] );
-					gr_wait_for_retrace = 1;
-				#endif
+				gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
+				gr_bm_ubitblt( VR_render_sub_buffer[0].cv_w, VR_render_sub_buffer[0].cv_h, VR_render_sub_buffer[0].cv_bitmap.bm_x, VR_render_sub_buffer[0].cv_bitmap.bm_y, 0, 0, &VR_render_sub_buffer[0].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap );
+				gr_wait_for_retrace = 0;
+				gr_show_canvas( &VR_screen_pages[VR_current_page] );
+				gr_wait_for_retrace = 1;
 			} else {
-			#ifdef WINDOWS	  
-				if (GRMODEINFO(emul) || GRMODEINFO(modex) || GRMODEINFO(dbuf))
-					// From render buffer to screen buffer.
-					dd_gr_blt_notrans(&dd_VR_render_sub_buffer[0],
-						0,0,
-						dd_VR_render_sub_buffer[0].canvas.cv_w,
-						dd_VR_render_sub_buffer[0].canvas.cv_h,
-						dd_grd_screencanv,
-						dd_VR_render_sub_buffer[0].xoff, 
-						dd_VR_render_sub_buffer[0].yoff, 
-						dd_VR_render_sub_buffer[0].canvas.cv_w,
-						dd_VR_render_sub_buffer[0].canvas.cv_h);
-
-					DDGRRESTORE;
-			// Puts back canvas to front canvas by blt or flip
-				if (GRMODEINFO(modex)) {
-					//@@VR_current_page = !VR_current_page;
-					//@@dd_gr_flip();
-					win_flip = 1;
-				}
-			#else
 				gr_bm_ubitblt( VR_render_sub_buffer[0].cv_w, 
 						VR_render_sub_buffer[0].cv_h, 
 						VR_render_sub_buffer[0].cv_bitmap.bm_x, 
@@ -1101,23 +1011,12 @@ void game_render_frame_mono(void)
 						0, 0, 
 						&VR_render_sub_buffer[0].cv_bitmap, 
 						&VR_screen_pages[0].cv_bitmap );
-			#endif
 			}
 		} else	{
-			#ifdef WINDOWS
-				win_do_emul_ibitblt( &dd_VR_render_sub_buffer[0], dd_grd_screencanv);
-				DDGRRESTORE;
-				if (GRMODEINFO(modex)) {
-					//@@VR_current_page = !VR_current_page;
-					//@@dd_gr_flip();
-					win_flip = 1;
-				}
-			#else
 			#ifdef __MSDOS__
 				gr_ibitblt( &VR_render_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap, Game_cockpit_copy_code );
 			#else //def MACINTOSH
 				gr_ibitblt( &VR_render_sub_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap );
-			#endif
 			#endif
 		}
 	}
@@ -1132,13 +1031,6 @@ void game_render_frame_mono(void)
 		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
 			Game_mode = GM_NORMAL;
 	}
-
-#ifdef WINDOWS
-	if (win_flip) {
-		VR_current_page = !VR_current_page;
-		dd_gr_flip();
-	}
-#endif
 
 	con_update();
 
@@ -1263,8 +1155,6 @@ void copy_background_rect(int left,int top,int right,int bot)
 	ofs_y = top % bm->bm_h;
 	dest_y = top;
 
-WIN(DDGRLOCK(dd_grd_curcanv))
-{
 	for (y=tile_top;y<=tile_bot;y++) {
 		int w,h;
 
@@ -1289,14 +1179,7 @@ WIN(DDGRLOCK(dd_grd_curcanv))
 		ofs_y = 0;
 		dest_y += h;
 	}
-} 
-WIN(DDGRUNLOCK(dd_grd_curcanv));
-
 }
-
-#ifdef WINDOWS
-int force_background_fill=0;
-#endif
 
 //fills int the background surrounding the 3d window
 void fill_background()
@@ -1311,51 +1194,23 @@ void fill_background()
 	dx = x;
 	dy = y;
 
-	WINDOS(	dd_gr_set_current_canvas(&dd_VR_screen_pages[VR_current_page]),
-				gr_set_current_canvas(&VR_screen_pages[VR_current_page])
-	);
+	gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 	copy_background_rect(x-dx,y-dy,x-1,y+h+dy-1);
 	copy_background_rect(x+w,y-dy,grd_curcanv->cv_w-1,y+h+dy-1);
 	copy_background_rect(x,y-dy,x+w-1,y-1);
 	copy_background_rect(x,y+h,x+w-1,y+h+dy-1);
 
-#ifdef WINDOWS
-	if (GRMODEINFO(modex)) {
-		copy_background_rect(x-dx,y-dy,x-1,y+h+dy-1);
-		copy_background_rect(x+w,y-dy,grd_curcanv->cv_w-1,y+h+dy-1);
-		copy_background_rect(x,y-dy,x+w-1,y-1);
-		copy_background_rect(x,y+h,x+w-1,y+h+dy-1);
-	}
-#endif
-
 	if (VR_screen_flags & VRF_USE_PAGING) {
-		WINDOS(	dd_gr_set_current_canvas(&dd_VR_screen_pages[!VR_current_page]),
-					gr_set_current_canvas(&VR_screen_pages[!VR_current_page])
-		);
+		gr_set_current_canvas(&VR_screen_pages[!VR_current_page]);
 		copy_background_rect(x-dx,y-dy,x-1,y+h+dy-1);
 		copy_background_rect(x+w,y-dy,x+w+dx-1,y+h+dy-1);
 		copy_background_rect(x,y-dy,x+w-1,y-1);
 		copy_background_rect(x,y+h,x+w-1,y+h+dy-1);
 	}
-
-	#ifdef WINDOWS
-	if (GRMODEINFO(modex) && force_background_fill==0)		//double-buffered
-		force_background_fill=2;
-	#endif
 }
 
 void shrink_window()
 {
-	#ifdef WINDOWS
-	//When you shrink the window twice in two frames, the background doens't
-	//restore properly.  So this hack keeps you from shrinking the window
-	//before two frames have been drawn
-	static int last_shrink_framecount=-1;
-	if (FrameCount - last_shrink_framecount < 2)
-		return;
-	last_shrink_framecount = FrameCount;
-	#endif
-	
 	mprintf((0,"%d ",FrameCount));
 
 //  mprintf ((0,"W=%d H=%d\n",Game_window_w,Game_window_h));
@@ -1426,15 +1281,10 @@ void update_cockpits(int force_redraw)
 	switch( Cockpit_mode )	{
 	case CM_FULL_COCKPIT:
 	case CM_REAR_VIEW:
-	WINDOS(
-		dd_gr_set_current_canvas(&dd_VR_screen_pages[VR_current_page]),
-		gr_set_current_canvas(&VR_screen_pages[VR_current_page])
-	);
+		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_ubitmapm(0,0, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index]);	
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 		break;
 
 	case CM_FULL_SCREEN:
@@ -1445,15 +1295,10 @@ void update_cockpits(int force_redraw)
 
 	case CM_STATUS_BAR:
 
-			WINDOS (	dd_gr_set_current_canvas(&dd_VR_screen_pages[VR_current_page]),
-						gr_set_current_canvas(&VR_screen_pages[VR_current_page])
-			);
+		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 
-			PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
-			
-			WIN(DDGRLOCK(dd_grd_curcanv));
-				gr_ubitmapm(0,max_window_h,&GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index]);
-			WIN(DDGRUNLOCK(dd_grd_curcanv));
+		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
+		gr_ubitmapm(0,max_window_h,&GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index]);
 	
 		Game_window_x = (max_window_w - Game_window_w)/2;
 		Game_window_y = (max_window_h - Game_window_h)/2;
@@ -1461,11 +1306,8 @@ void update_cockpits(int force_redraw)
 		break;
 
 	case CM_LETTERBOX:
-		WINDOS(	dd_gr_set_current_canvas(&dd_VR_screen_pages[VR_current_page]),
-					gr_set_current_canvas(&VR_screen_pages[VR_current_page])
-		);
-		WINDOS ( dd_gr_clear_canvas( BM_XRGB(0,0,0) ),
-					gr_clear_canvas( BM_XRGB(0,0,0) ) );
+		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+		gr_clear_canvas( BM_XRGB(0,0,0) );
 
 		// In a modex mode, clear the other buffer.
 		if (grd_curcanv->cv_bitmap.bm_type == BM_MODEX) {
@@ -1477,9 +1319,7 @@ void update_cockpits(int force_redraw)
 
 	}
 
-	WINDOS (	dd_gr_set_current_canvas(&dd_VR_screen_pages[VR_current_page]),
-				gr_set_current_canvas(&VR_screen_pages[VR_current_page])
-	);
+	gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 
 	if (Cockpit_mode != last_drawn_cockpit[VR_current_page] || force_redraw )
 		last_drawn_cockpit[VR_current_page] = Cockpit_mode;
@@ -1497,13 +1337,6 @@ void game_render_frame()
 	set_screen_mode( SCREEN_GAME );
 
 	update_cockpits(0);
-
-	#ifdef WINDOWS
-	if (force_background_fill) {
-		fill_background();
-		force_background_fill--;
-	}
-	#endif
 
 	play_homing_warning();
 
@@ -1559,10 +1392,7 @@ void show_boxed_message(char *msg)
 	int w,h,aw;
 	int x,y;
 
-	WINDOS(
-		dd_gr_set_current_canvas(&dd_VR_screen_pages[VR_current_page]),
-		gr_set_current_canvas(&VR_screen_pages[VR_current_page])
-	);
+	gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 	gr_set_curfont( MEDIUM1_FONT );
 
 	gr_get_string_size(msg,&w,&h,&aw);
@@ -1580,18 +1410,13 @@ void show_boxed_message(char *msg)
 
 	bg.bmp = gr_create_bitmap( w+BOX_BORDER, h+BOX_BORDER );
 
-	WIN( DDGRLOCK(dd_grd_curcanv));
-		gr_bm_ubitblt(w+BOX_BORDER, h+BOX_BORDER, 0, 0, x-BOX_BORDER/2, y-BOX_BORDER/2, &(grd_curcanv->cv_bitmap), bg.bmp );
-	WIN( DDGRUNLOCK(dd_grd_curcanv));
+	gr_bm_ubitblt(w+BOX_BORDER, h+BOX_BORDER, 0, 0, x-BOX_BORDER/2, y-BOX_BORDER/2, &(grd_curcanv->cv_bitmap), bg.bmp );
 
-		nm_draw_background(x-BOX_BORDER/2,y-BOX_BORDER/2,x+w+BOX_BORDER/2-1,y+h+BOX_BORDER/2-1);
+	nm_draw_background(x-BOX_BORDER/2,y-BOX_BORDER/2,x+w+BOX_BORDER/2-1,y+h+BOX_BORDER/2-1);
 
-		gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
+	gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
 
-	WIN( DDGRLOCK(dd_grd_curcanv));
-		gr_ustring( 0x8000, y, msg );
-	WIN( DDGRUNLOCK(dd_grd_curcanv));
-	WIN( DDGRRESTORE);
+	gr_ustring( 0x8000, y, msg );
 }
 
 void clear_boxed_message()
@@ -1599,90 +1424,9 @@ void clear_boxed_message()
 
 	if (bg.bmp) {
 
-		WIN(DDGRLOCK(dd_grd_curcanv));
-			gr_bitmap(bg.x-BOX_BORDER/2, bg.y-BOX_BORDER/2, bg.bmp);
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
-		WIN(DDGRRESTORE);
+		gr_bitmap(bg.x-BOX_BORDER/2, bg.y-BOX_BORDER/2, bg.bmp);
 	
 		gr_free_bitmap(bg.bmp);
 		bg.bmp = NULL;
 	}
 }
-
-
-#ifdef WINDOWS
-void win_do_emul_ibitblt(dd_grs_canvas *csrc, dd_grs_canvas *cdest)
-{
-	ubyte *src_data;
-	ubyte *dest_data;
-	int line, span;
-
-
-	WIN(DDGRLOCK(csrc));
-	WIN(DDGRLOCK(cdest));
-		src_data = csrc->canvas.cv_bitmap.bm_data;
-		dest_data = cdest->canvas.cv_bitmap.bm_data; 
-
-//		mprintf((0, "Render Ptr: %x;  Dest Ptr: %x;\n",src_data, dest_data));
-
-		for (line = 0; line < 480; line++, 
-						dest_data += cdest->canvas.cv_bitmap.bm_rowsize)
-		{
-			cockpit_span_line *sline;
-
-			sline = &win_cockpit_mask[line];
-
-			if (!sline->num) continue;
-			if (sline->num == 255) break;
-			for (span = 0; span < sline->num; span++)
-			{
-				if ((sline->span[span].xmax-sline->span[span].xmin+1) < 10) {
-					gr_winckpit_blt_span(sline->span[span].xmin,
-										sline->span[span].xmax,
-										src_data, dest_data);
-				}
-				else {
-					gr_winckpit_blt_span_long(sline->span[span].xmin,
-										sline->span[span].xmax,
-										src_data, dest_data);
-				}
-			}
-			src_data += csrc->canvas.cv_bitmap.bm_rowsize;
-		}
-	WIN(DDGRUNLOCK(cdest));
-	WIN(DDGRUNLOCK(csrc));
-}
-
-
-//@@void win_do_emul_ibitblt(dd_grs_canvas *csrc, dd_grs_canvas *cdest)
-//@@{
-//@@	HRESULT res;
-//@@	DDBLTFX bltfx;
-//@@	RECT srect, drect;
-//@@
-//@@//	Do Render Blt to Mask Surface (dest blt 1-255)
-//@@	bltfx.dwSize = sizeof(bltfx);
-//@@	bltfx.ddckDestColorkey.dwColorSpaceLowValue = 1;
-//@@	bltfx.ddckDestColorkey.dwColorSpaceHighValue = 255;
-//@@	SetRect(&srect, 0,0,	csrc->canvas.cv_w, csrc->canvas.cv_h);
-//@@	SetRect(&drect, 0,0,	csrc->canvas.cv_w, csrc->canvas.cv_h);
-//@@
-//@@	res = IDirectDrawSurface_Blt(_lpDDSMask, &drect, csrc->lpdds, &srect,
-//@@										DDBLT_WAIT | DDBLT_KEYDESTOVERRIDE,
-//@@										&bltfx);
-//@@	if (res != DD_OK) 
-//@@		Error("win_ibitblt: ddraw blt to mask err: %x.\n", res);
-//@@
-//@@//	Do Mask Blt to Screen (src blt !0)
-//@@	bltfx.dwSize = sizeof(bltfx);
-//@@	bltfx.ddckSrcColorkey.dwColorSpaceLowValue = 0;
-//@@	bltfx.ddckSrcColorkey.dwColorSpaceHighValue = 0;
-//@@
-//@@	res = IDirectDrawSurface_Blt(cdest->lpdds, &drect, _lpDDSMask, &srect,
-//@@										DDBLT_WAIT | DDBLT_KEYSRCOVERRIDE,
-//@@										NULL);
-//@@	if (res != DD_OK) 
-//@@		Error("win_ibitblt: ddraw blt to screen err: %x.\n", res);
-//@@}
-#endif
-

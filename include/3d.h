@@ -1,4 +1,4 @@
-/* $Id: 3d.h,v 1.12 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: 3d.h,v 1.13 2005-08-02 06:11:10 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -62,9 +62,6 @@ typedef struct g3s_codes {
 //if rotated, and flag to indicate if projected.
 typedef struct g3s_point {
 	vms_vector p3_vec;  //x,y,z of rotated point
-#ifdef D1XD3D
-	vms_vector p3_orig;
-#endif
 	fix p3_u,p3_v,p3_l; //u,v,l coords
 	fix p3_sx,p3_sy;    //screen x&y
 	ubyte p3_codes;     //clipping codes

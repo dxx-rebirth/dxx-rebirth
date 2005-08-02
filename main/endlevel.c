@@ -1,4 +1,4 @@
-/* $Id: endlevel.c,v 1.24 2004-10-23 17:42:13 schaffner Exp $ */
+/* $Id: endlevel.c,v 1.25 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.24 2004-10-23 17:42:13 schaffner Exp $";
+static char rcsid[] = "$Id: endlevel.c,v 1.25 2005-08-02 06:13:56 chris Exp $";
 #endif
 
 //#define SLEW_ON 1
@@ -354,13 +354,11 @@ void start_endlevel_sequence()
 		else
 			exit_models_loaded = load_exit_models();
 
-#ifndef WINDOWS
 		if (exit_models_loaded)
 		{
 			start_rendered_endlevel_sequence();
 			return;
 		}
-#endif
 	}
 
 	//don't have movie or rendered sequence, fade out

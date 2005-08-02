@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.62 2005-03-06 04:26:37 chris Exp $ */
+/* $Id: piggy.c,v 1.63 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.62 2005-03-06 04:26:37 chris Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.63 2005-08-02 06:13:56 chris Exp $";
 #endif
 
 
@@ -1240,11 +1240,9 @@ int piggy_init(void)
 	if (piggy_low_memory)
 		digi_lomem = 1;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_set_curfont( SMALL_FONT );
 		gr_set_fontcolor(gr_find_closest_color_current( 20, 20, 20 ),-1 );
 		gr_printf( 0x8000, grd_curcanv->cv_h-20, "%s...", TXT_LOADING_DATA );
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 #if 1 //def EDITOR //need for d1 mission briefings
 	piggy_init_pigfile(DEFAULT_PIGFILE);
@@ -1842,27 +1840,6 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 	return 0;
 }
 
-
-
-#ifdef WINDOWS
-//	New Windows stuff
-
-//	windows bitmap page in
-//		Page in a bitmap, if ddraw, then page it into a ddsurface in 
-//		'video' memory.  if that fails, page it in normally.
-
-void piggy_bitmap_page_in_w( bitmap_index bitmap, int ddraw )
-{
-}
-
-
-//	Essential when switching video modes!
-
-void piggy_bitmap_page_out_all_w()
-{
-}
-
-#endif // WINDOWS
 
 
 /*

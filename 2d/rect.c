@@ -1,4 +1,4 @@
-/* $Id: rect.c,v 1.4 2002-10-10 18:55:32 btb Exp $ */
+/* $Id: rect.c,v 1.5 2005-08-02 06:15:08 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -41,13 +41,6 @@ void gr_urect(int left,int top,int right,int bot)
 		return;
 	}
 #endif
-#ifdef D1XD3D
-	if (TYPE == BM_DIRECTX) {
-		if (left <= right && top <= bot)
-			Win32_Rect (left, top, right, bot, grd_curcanv->cv_bitmap.bm_data, COLOR);
-		return;
-	}
-#endif
 	for ( i=top; i<=bot; i++ )
 		gr_uscanline( left, right, i );
 }
@@ -59,13 +52,6 @@ void gr_rect(int left,int top,int right,int bot)
 #ifdef OGL
 	if (TYPE == BM_OGL) {
 		ogl_urect(left,top,right,bot);
-		return;
-	}
-#endif
-#ifdef D1XD3D
-	if (TYPE == BM_DIRECTX) {
-		if (left <= right && top <= bot)
-			Win32_Rect (left, top, right, bot, grd_curcanv->cv_bitmap.bm_data, COLOR);
 		return;
 	}
 #endif

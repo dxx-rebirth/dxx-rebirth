@@ -1,4 +1,4 @@
-/* $Id: cntrlcen.c,v 1.19 2005-06-22 09:08:21 chris Exp $ */
+/* $Id: cntrlcen.c,v 1.20 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,11 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.19 2005-06-22 09:08:21 chris Exp $";
-#endif
-
-#ifdef WINDOWS
-#include "desw.h"
+static char rcsid[] = "$Id: cntrlcen.c,v 1.20 2005-08-02 06:13:56 chris Exp $";
 #endif
 
 #include <stdlib.h>
@@ -230,14 +226,8 @@ void do_countdown_frame()
 		PALETTE_FLASH_SET(flash_value,flash_value,flash_value);
 
 		if (PaletteBlueAdd > 64 )	{
-		WINDOS(
-			dd_gr_set_current_canvas(NULL),
-			gr_set_current_canvas( NULL )
-		);
-		WINDOS(
-			dd_gr_clear_canvas(BM_XRGB(31,31,31)),
-			gr_clear_canvas(BM_XRGB(31,31,31))
-		);														//make screen all white to match palette effect
+			gr_set_current_canvas( NULL );
+			gr_clear_canvas(BM_XRGB(31,31,31));				//make screen all white to match palette effect
 			reset_cockpit();								//force cockpit redraw next time
 			reset_palette_add();							//restore palette for death message
 			//controlcen->MaxCapacity = Fuelcen_max_amount;

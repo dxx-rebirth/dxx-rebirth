@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.31 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: newmenu.c,v 1.32 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -20,10 +20,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef WINDOWS
-#include "desw.h"
 #endif
 
 #include <stdio.h>
@@ -109,7 +105,7 @@ int Newmenu_first_time = 1;
 //--unused-- int Newmenu_fade_in = 1;
 
 typedef struct bkg {
-	WINDOS (dd_grs_canvas *menu_canvas, grs_canvas * menu_canvas);
+	grs_canvas * menu_canvas;
 	grs_bitmap * saved;			// The background under the menu.
 	grs_bitmap * background;
 } bkg;
@@ -192,9 +188,7 @@ void nm_draw_background1(char * filename)
 
 	}
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	show_fullscr(bmp);
-WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	gr_free_bitmap(bmp);
 
@@ -257,7 +251,6 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 
 		gr_bitmap_scale_to(&nm_background, tmp);
 
-		WIN(DDGRLOCK(dd_grd_curcanv));
 		if (No_darkening)
 			gr_bm_bitblt(w, h, x1, y1, LHX(10), LHY(10), tmp, &(grd_curcanv->cv_bitmap) );
 		else
@@ -265,7 +258,6 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 		gr_free_bitmap(tmp);
 	}
 #else
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	if (No_darkening)
 		gr_bm_bitblt(w, h, x1, y1, LHX(10), LHY(10), &nm_background, &(grd_curcanv->cv_bitmap) );
 	else
@@ -290,7 +282,6 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 		gr_urect( x1+1, y2-1, x2, y2-1 );
 		gr_urect( x1+0, y2, x2, y2-0 );
 	}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 }
@@ -311,9 +302,7 @@ void nm_restore_background( int x, int y, int w, int h )
 	w = x2 - x1 + 1;
 	h = y2 - y1 + 1;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
-		gr_bm_bitblt(w, h, x1, y1, x1, y1, &nm_background, &(grd_curcanv->cv_bitmap) );
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
+	gr_bm_bitblt(w, h, x1, y1, x1, y1, &nm_background, &(grd_curcanv->cv_bitmap) );
 }
 
 // Draw a left justfied string
@@ -421,7 +410,6 @@ void nm_string_black( bkg * b, int w1,int x, int y, char * s )
 	b = b;					
 	if (w1 == 0) w1 = w;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_setcolor( BM_XRGB(2,2,2) );
   		gr_rect( x-1, y-1, x-1, y+h-1 );
 		gr_rect( x-1, y-1, x+w1-1, y-1 );
@@ -435,7 +423,6 @@ void nm_string_black( bkg * b, int w1,int x, int y, char * s )
 		gr_rect( x, y, x+w1-1, y+h-1 );
 	
 		gr_string( x+1, y+1, s );
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 
@@ -451,10 +438,8 @@ void nm_rstring( bkg * b,int w1,int x, int y, char * s )
 	//mprintf( 0, "Width = %d, string='%s'\n", w, s );
 
 	// CHANGED
-	WIN(DDGRLOCK(dd_grd_curcanv));
-		gr_bm_bitblt(w1, h, x-w1, y, x-w1, y, b->background, &(grd_curcanv->cv_bitmap) );
-		gr_string( x-w, y, s );
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
+	gr_bm_bitblt(w1, h, x-w1, y, x-w1, y, b->background, &(grd_curcanv->cv_bitmap) );
+	gr_string( x-w, y, s );
 }
 
 #include "timer.h"
@@ -480,14 +465,12 @@ void update_cursor( newmenu_item *item)
 		w = 0;
 	x = item->x+w; y = item->y;
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	if (time & 0x8000)
 		gr_string( x, y, CURSOR_STRING );
 	else {
 		gr_setcolor( BM_XRGB(0,0,0) );
 		gr_rect( x, y, x+grd_curcanv->cv_font->ft_w-1, y+grd_curcanv->cv_font->ft_h-1 );
 	}
-WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 void nm_string_inputbox( bkg *b, int w, int x, int y, char * text, int current )
@@ -536,7 +519,6 @@ void draw_item( bkg * b, newmenu_item *item, int is_current,int tiny )
 		#endif
         }
 
-WIN(DDGRLOCK(dd_grd_curcanv));	
 	switch( item->type )	{
 	case NM_TYPE_TEXT:
       // grd_curcanv->cv_font=TEXT_FONT;
@@ -594,8 +576,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 		}
 		break;
 	}
-WIN(DDGRUNLOCK(dd_grd_curcanv));
-
 }
 
 char *Newmenu_allowed_chars=NULL;
@@ -727,12 +707,10 @@ extern ubyte joydefs_calibrating;
 
 void draw_close_box(int x,int y)
 {
-	WIN (DDGRLOCK(dd_grd_curcanv));
 	gr_setcolor( BM_XRGB(0, 0, 0) );
 	gr_rect(x + CLOSE_X, y + CLOSE_Y, x + CLOSE_X + CLOSE_SIZE, y + CLOSE_Y + CLOSE_SIZE);
 	gr_setcolor( BM_XRGB(21, 21, 21) );
 	gr_rect(x + CLOSE_X + LHX(1), y + CLOSE_Y + LHX(1), x + CLOSE_X + CLOSE_SIZE - LHX(1), y + CLOSE_Y + CLOSE_SIZE - LHX(1));
-	WIN (DDGRUNLOCK(dd_grd_curcanv));
 }
 
 int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode )
@@ -750,7 +728,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
    char *Temp,TempVal;
 	int dont_restore=0;
    int MaxOnMenu=MAXDISPLAYABLEITEMS;
-	WINDOS(dd_grs_canvas *save_canvas, grs_canvas *save_canvas );	
+	grs_canvas *save_canvas;	
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, dblclick_flag=0;
 	int mx=0, my=0, x1 = 0, x2, y1, y2;
@@ -767,8 +745,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
     {
 		return -1;
     } 
-
-	WIN(mouse_set_mode(0));		//disable centering mode
 
         MaxDisplayable=nitems;
 
@@ -790,12 +766,9 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		#endif
 	}
 
-#ifdef WINDOWS
-RePaintNewmenu4:
-#endif
-	WINDOS( save_canvas = dd_grd_curcanv, save_canvas = grd_curcanv );
+	save_canvas = grd_curcanv;
 
-	WINDOS( dd_gr_set_current_canvas(NULL), gr_set_current_canvas(NULL) );
+	gr_set_current_canvas(NULL);
 
 	save_font = grd_curcanv->cv_font;
 
@@ -987,12 +960,8 @@ RePaintNewmenu4:
 	}
 
 // Save the background of the display
-//		Win95 must refer to the screen as a dd_grs_canvas, so...
-	WINDOS (	bg.menu_canvas = dd_gr_create_sub_canvas( dd_grd_screencanv, x, y, w, h ),
-			bg.menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w, h )
-	);
-	WINDOS (	dd_gr_set_current_canvas( bg.menu_canvas ), 
-			gr_set_current_canvas(bg.menu_canvas)	);
+	bg.menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w, h );
+	gr_set_current_canvas(bg.menu_canvas);
 
 	if ( filename == NULL )	{
 		// Save the background under the menu...
@@ -1004,19 +973,13 @@ RePaintNewmenu4:
 		bg.saved = gr_create_bitmap( w, h );
 		Assert( bg.saved != NULL );
 
-		WIN (DDGRLOCK(dd_grd_curcanv));
-			gr_bm_bitblt(w, h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.saved );
-		WIN (DDGRUNLOCK(dd_grd_curcanv));
+		gr_bm_bitblt(w, h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.saved );
 
-		WINDOS (	dd_gr_set_current_canvas(NULL), 
-					gr_set_current_canvas( NULL ) 
-		);
+		gr_set_current_canvas( NULL );
 
 		nm_draw_background(x,y,x+w-1,y+h-1);
 
-		WINDOS (	dd_gr_set_current_canvas(bg.menu_canvas),
-					gr_set_current_canvas( bg.menu_canvas )
-		);
+		gr_set_current_canvas( bg.menu_canvas );
 
 		bg.background = gr_create_sub_bitmap(&nm_background,0,0,w,h);
 
@@ -1024,10 +987,8 @@ RePaintNewmenu4:
 		bg.saved = NULL;
 		bg.background = gr_create_bitmap( w, h );
 		Assert( bg.background != NULL );
-		
-		WIN (DDGRLOCK(dd_grd_curcanv));
-			gr_bm_bitblt(w, h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.background );
-		WIN (DDGRUNLOCK(dd_grd_curcanv));
+
+		gr_bm_bitblt(w, h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.background );
 	}
 
 // ty = 15 + (yborder/4);
@@ -1040,9 +1001,7 @@ RePaintNewmenu4:
 		gr_get_string_size(title,&string_width,&string_height,&average_width );
 		tw = string_width;
 		th = string_height;
-		WIN (DDGRLOCK(dd_grd_curcanv));
-			gr_printf( 0x8000, ty, title );
-		WIN (DDGRUNLOCK(dd_grd_curcanv));
+		gr_printf( 0x8000, ty, title );
 		ty += th;
 	}
 
@@ -1052,9 +1011,7 @@ RePaintNewmenu4:
 		gr_get_string_size(subtitle,&string_width,&string_height,&average_width );
 		tw = string_width;
 		th = string_height;
-		WIN (DDGRLOCK(dd_grd_curcanv));
-			gr_printf( 0x8000, ty, subtitle );
-		WIN (DDGRUNLOCK(dd_grd_curcanv));
+		gr_printf( 0x8000, ty, subtitle );
 		ty += th;
 	}
 
@@ -1135,32 +1092,6 @@ RePaintNewmenu4:
    mprintf ((0,"Set to true!\n"));
 
 	while(!done)	{
-	#ifdef WINDOWS
-		MSG msg;
-
-		DoMessageStuff(&msg);
-
-		if (_RedrawScreen) {
-			_RedrawScreen = FALSE;
-		
-			if (!filename) {
-				gr_free_bitmap(bg.saved);
-				d_free( bg.background );
-			}
-			else 	
-				gr_free_bitmap(bg.background);
-
-			dd_gr_free_sub_canvas( bg.menu_canvas );
-			grd_curcanv->cv_font = save_font;
-			dd_grd_curcanv = save_canvas;
-
-			goto RePaintNewmenu4;
-		}
-
-		DDGRRESTORE;
-
-	#endif
-
 #ifdef NEWMENU_MOUSE
 		if (!joydefs_calibrating)
 			newmenu_show_cursor();      // possibly hidden
@@ -1194,10 +1125,8 @@ RePaintNewmenu4:
 			k = -1;
 			done = 1;
 		}
-#ifndef WINDOWS
 		if (check_button_press())
 			done = 1;
-#endif
 
 //		if ( (nmenus<2) && (k>0) && (nothers==0) )
 //			done=1;
@@ -1493,7 +1422,6 @@ RePaintNewmenu4:
 		}
 
 #ifdef NEWMENU_MOUSE // for mouse selection of menu's etc.
-		WIN(Sleep(100));
 		if ( !done && mouse_state && !omouse_state && !all_text ) {
 			mouse_get_pos(&mx, &my);
 			for (i=0; i<nitems; i++ )	{
@@ -1801,8 +1729,7 @@ RePaintNewmenu4:
 	
 		}
 
-		WINDOS (	dd_gr_set_current_canvas(bg.menu_canvas),
-				gr_set_current_canvas(bg.menu_canvas));
+		gr_set_current_canvas(bg.menu_canvas);
 
     	// Redraw everything...
      	for (i=ScrollOffset; i<MaxDisplayable+ScrollOffset; i++ )
@@ -1863,32 +1790,22 @@ RePaintNewmenu4:
 
 	// Restore everything...
 
-	WINDOS (	dd_gr_set_current_canvas(bg.menu_canvas),
-			gr_set_current_canvas(bg.menu_canvas));
+	gr_set_current_canvas(bg.menu_canvas);
 
 	if ( filename == NULL )	{
 		// Save the background under the menu...
-		WIN (DDGRLOCK(dd_grd_curcanv));
-			gr_bitmap(0, 0, bg.saved); 	
-		WIN (DDGRUNLOCK(dd_grd_curcanv));
+		gr_bitmap(0, 0, bg.saved); 	
 		gr_free_bitmap(bg.saved);
 		d_free( bg.background );
 	} else {
 		if (!dont_restore)	//info passed back from subfunction
-		{
-			WIN (DDGRLOCK(dd_grd_curcanv));
 			gr_bitmap(0, 0, bg.background);
-			WIN (DDGRUNLOCK(dd_grd_curcanv)); 	
-		}
 		gr_free_bitmap(bg.background);
 	}
 
-	WINDOS (	dd_gr_free_sub_canvas(bg.menu_canvas),
-			gr_free_sub_canvas( bg.menu_canvas ) );
+	gr_free_sub_canvas( bg.menu_canvas );
 
-	WINDOS (dd_gr_set_current_canvas(NULL), gr_set_current_canvas( NULL ));			
 	grd_curcanv->cv_font	= save_font;
-	WINDOS (dd_gr_set_current_canvas(NULL), gr_set_current_canvas( save_canvas ));			
 	keyd_repeat = old_keyd_repeat;
 
 	game_flush_inputs();
@@ -1904,8 +1821,6 @@ RePaintNewmenu4:
 
 	if ( sound_stopped )
 		digi_resume_digi_sounds();
-
-	WIN(mouse_set_mode(1));				//re-enable centering mode
 
 	return choice;
 	
@@ -2039,7 +1954,6 @@ int newmenu_get_filename(char *title, char *type, char *filename, int allow_abor
 	int show_up_arrow=0, show_down_arrow=0;
 # endif
 #endif
-WIN(int win_redraw=0);
 
 	w_x=w_y=w_w=w_h=title_height=0;
 	box_x=box_y=box_w=box_h=0;
@@ -2049,8 +1963,6 @@ WIN(int win_redraw=0);
 
 	citem = 0;
 	keyd_repeat = 1;
-
-	WIN(mouse_set_mode(0));				//disable centering mode
 
 	if (!stricmp(type, "plr"))
 		player_mode = 1;
@@ -2126,19 +2038,9 @@ ReadFileNames:
 //		set_screen_mode(SCREEN_MENU);
 		set_popup_screen();
 
-        #ifdef WINDOWS
-RePaintNewmenuFile:
-
-		dd_gr_set_current_canvas(NULL);
-	#else
 		gr_set_current_canvas(NULL);
-	#endif
 
-		WIN(DDGRLOCK(dd_grd_curcanv))					//mwa put these here -- are these needed Samir???
-		{
-			grd_curcanv->cv_font = SUBTITLE_FONT;
-		}
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
+		grd_curcanv->cv_font = SUBTITLE_FONT;
 
 		w_w = 0;
 		w_h = 0;
@@ -2179,39 +2081,23 @@ RePaintNewmenuFile:
 
 		bg.saved = NULL;
 
-	#if !defined(WINDOWS)
 		if ( (VR_offscreen_buffer->cv_w >= w_w) && (VR_offscreen_buffer->cv_h >= w_h) ) 
 			bg.background = &VR_offscreen_buffer->cv_bitmap;
 		else
-	#endif
 			bg.background = gr_create_bitmap( w_w, w_h );
 
 		Assert( bg.background != NULL );
 
 
-		WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_bm_bitblt(w_w, w_h, 0, 0, w_x, w_y, &grd_curcanv->cv_bitmap, bg.background );
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 #if 0
-		WINDOS(
-	 		dd_gr_blt_notrans(dd_grd_curcanv, 0, 0, 
-				_DDModeList[W95DisplayMode].rw, _DDModeList[W95DisplayMode].rh, 
-				dd_VR_offscreen_buffer, 0, 0, 
-				_DDModeList[W95DisplayMode].rw, _DDModeList[W95DisplayMode].rh),
-			gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_buffer->cv_bitmap) )
-		);
+		gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_buffer->cv_bitmap) );
 #endif
 
 		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h-1 );
 		
-		WIN(DDGRLOCK(dd_grd_curcanv))
-		{	
-			gr_string( 0x8000, w_y+10, title );
-		}
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
-
-		WIN(DDGRRESTORE);
+		gr_string( 0x8000, w_y+10, title );
 	 
 		initialized = 1;
 	}
@@ -2242,24 +2128,6 @@ RePaintNewmenuFile:
 #endif
 
 	while(!done)	{
-	#ifdef WINDOWS
-		MSG msg;
-
-		DoMessageStuff(&msg);
-
-		if (_RedrawScreen) {
-			_RedrawScreen = FALSE;
-
-			if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
-				gr_free_bitmap(bg.background);
-	
-			win_redraw = 1;		
-			goto RePaintNewmenuFile;
-		}
-
-		DDGRRESTORE
-	#endif
-
 		ocitem = citem;
 		ofirst_item = first_item;
 		gr_update();
@@ -2274,22 +2142,8 @@ RePaintNewmenuFile:
 		//see if redbook song needs to be restarted
 		songs_check_redbook_repeat();
 
-		#ifdef WINDOWS
-		if (!mouse2_state && omouse2_state)
-			key = KEY_CTRLED+KEY_D;		//fake ctrl-d
-		else
-		#endif
-			//NOTE LINK TO ABOVE ELSE
-			key = key_inkey();
+		key = key_inkey();
 
-	#ifdef WINDOWS
-		if (simukey==-1)
-			key=KEY_UP;
-		else if (simukey==1)
-		   key=KEY_DOWN;
-		simukey=0;
-	#endif
-			
 		switch(key)	{
 		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_3:)
 		case KEY_PRINT_SCREEN:
@@ -2307,17 +2161,11 @@ RePaintNewmenuFile:
 
 			if ( ((player_mode)&&(citem>0)) || ((demo_mode)&&(citem>=0)) )	{
 				int x = 1;
-				#ifdef WINDOWS
-				mouse_set_mode(1);				//re-enable centering mode
-				#endif
 				newmenu_hide_cursor();
 				if (player_mode)
 					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, &filenames[citem*14]+((player_mode && filenames[citem*14]=='$')?1:0) );
 				else if (demo_mode)
 					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, &filenames[citem*14]+((demo_mode && filenames[citem*14]=='$')?1:0) );
-				#ifdef WINDOWS
-				mouse_set_mode(0);				//disenable centering mode
-				#endif
 				newmenu_show_cursor();
  				if (x==0)	{
 					char * p;
@@ -2474,7 +2322,6 @@ RePaintNewmenuFile:
 		if (first_item < 0 ) first_item = 0;
 
 #ifdef NEWMENU_MOUSE
-		WIN(Sleep(100));
 		if (mouse_state || mouse2_state) {
 			int w, h, aw;
 
@@ -2537,17 +2384,11 @@ RePaintNewmenuFile:
 
 #endif
   
-	WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_setcolor( BM_XRGB(2,2,2));
 		//gr_rect( box_x - 1, box_y-2, box_x + box_w, box_y-2 );
 		gr_setcolor( BM_XRGB( 0,0,0)  );
 
-	#ifdef WINDOWS
-		if (ofirst_item != first_item || win_redraw)	{
-			win_redraw = 0;
-	#else
 		if (ofirst_item != first_item)	{
-	#endif
 			newmenu_hide_cursor();
 			gr_setcolor( BM_XRGB( 0,0,0)  );
 			for (i=first_item; i<first_item+NumFiles_displayed; i++ )	{
@@ -2636,10 +2477,6 @@ RePaintNewmenuFile:
 			}
 
 	#endif
-
-
-
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 
 ExitFileMenuEarly:
@@ -2655,32 +2492,17 @@ ExitFileMenu:
 	keyd_repeat = old_keyd_repeat;
 
 	if ( initialized )	{
-			if (Newdemo_state != ND_STATE_PLAYBACK)	//horrible hack to prevent restore when screen has been cleared
-			{
-			WIN (DDGRLOCK(dd_grd_curcanv));
-				gr_bm_bitblt(w_w, w_h, w_x, w_y, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
-			WIN (DDGRUNLOCK(dd_grd_curcanv)); 	
-			}
-			if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
-				gr_free_bitmap(bg.background);
+		if (Newdemo_state != ND_STATE_PLAYBACK)	//horrible hack to prevent restore when screen has been cleared
+			gr_bm_bitblt(w_w, w_h, w_x, w_y, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
+		if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
+			gr_free_bitmap(bg.background);
 #if 0
-		WINDOS(
-			dd_gr_blt_notrans(dd_VR_offscreen_buffer,
-				0,0,_DDModeList[W95DisplayMode].rw, _DDModeList[W95DisplayMode].rh,
-				dd_grd_curcanv,
-				0,0,_DDModeList[W95DisplayMode].rw, _DDModeList[W95DisplayMode].rh),
-			gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(VR_offscreen_buffer->cv_bitmap), &(grd_curcanv->cv_bitmap) )
-		);
+		gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(VR_offscreen_buffer->cv_bitmap), &(grd_curcanv->cv_bitmap) )
 #endif
-
-		WIN(DDGRRESTORE);
 	}
 
 	if ( filenames )
 		d_free(filenames);
-
-	WIN(mouse_set_mode(1));				//re-enable centering mode
-	WIN(newmenu_hide_cursor());
 
 	return exit_value;
 
@@ -2730,22 +2552,13 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
    int simukey=0,show_up_arrow=0,show_down_arrow=0;
 # endif
 #endif
-WIN(int win_redraw=0);
 
 	keyd_repeat = 1;
-
-	WIN(mouse_set_mode(0));				//disable centering mode
 
 //	set_screen_mode(SCREEN_MENU);
 	set_popup_screen();
 
-#ifdef WINDOWS
-RePaintNewmenuListbox:
- 
-	dd_gr_set_current_canvas(NULL);
-#else
 	gr_set_current_canvas(NULL);
-#endif
 
 	grd_curcanv->cv_font = SUBTITLE_FONT;
 
@@ -2783,37 +2596,23 @@ RePaintNewmenuListbox:
 
 	bg.saved = NULL;
 
-#if !defined(WINDOWS)
 	if ( (VR_offscreen_buffer->cv_w >= total_width) && (VR_offscreen_buffer->cv_h >= total_height) )
 		bg.background = &VR_offscreen_buffer->cv_bitmap;
 	else
-#endif
 		//bg.background = gr_create_bitmap( width, (height + title_height) );
 		bg.background = gr_create_bitmap(total_width,total_height);
 	Assert( bg.background != NULL );
 		
-	WIN (DDGRLOCK(dd_grd_curcanv));
-		//gr_bm_bitblt(wx+width+border_size, wy+height+border_size, 0, 0, wx-border_size, wy-title_height-border_size, &grd_curcanv->cv_bitmap, bg.background );
-		gr_bm_bitblt(total_width,total_height, 0, 0, wx-border_size, wy-title_height-border_size, &grd_curcanv->cv_bitmap, bg.background );
-	WIN (DDGRUNLOCK(dd_grd_curcanv));
+	//gr_bm_bitblt(wx+width+border_size, wy+height+border_size, 0, 0, wx-border_size, wy-title_height-border_size, &grd_curcanv->cv_bitmap, bg.background );
+	gr_bm_bitblt(total_width,total_height, 0, 0, wx-border_size, wy-title_height-border_size, &grd_curcanv->cv_bitmap, bg.background );
 
 #if 0
-	WINDOS(
- 		dd_gr_blt_notrans(dd_grd_curcanv, 0, 0, 
-				_DDModeList[W95DisplayMode].rw, _DDModeList[W95DisplayMode].rh, 
-				dd_VR_offscreen_buffer, 0, 0, 
-				_DDModeList[W95DisplayMode].rw, _DDModeList[W95DisplayMode].rh),
-		gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_buffer->cv_bitmap) )
-	);
+	gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_buffer->cv_bitmap) );
 #endif
 
 	nm_draw_background( wx-border_size,wy-title_height-border_size,wx+width+border_size-1,wy+height+border_size-1 );
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
-		gr_string( 0x8000, wy - title_height, title );
-	WIN(DDGRUNLOCK(dd_grd_curcanv));	
-
-	WIN(DDGRRESTORE);
+	gr_string( 0x8000, wy - title_height, title );
 
 	done = 0;
 	citem = default_item;
@@ -2831,23 +2630,6 @@ RePaintNewmenuListbox:
 #endif
 
 	while(!done)	{
-	#ifdef WINDOWS
-		MSG msg;
-
-		DoMessageStuff(&msg);
-
-		if (_RedrawScreen) {
-			_RedrawScreen = FALSE;
-
-			if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
-				gr_free_bitmap(bg.background);
-			win_redraw = 1;			
-			goto RePaintNewmenuListbox;
-		}
-
-	  	DDGRRESTORE;
-	#endif
-  
 		ocitem = citem;
 		ofirst_item = first_item;
 #ifdef NEWMENU_MOUSE
@@ -2863,13 +2645,6 @@ RePaintNewmenuListbox:
 			redraw = (*listbox_callback)(&citem, &nitems, items, &key );
 		else
 			redraw = 0;
-
-	#ifdef WINDOWS
-		if (win_redraw) {
-			redraw = 1;
-			win_redraw = 0;
-		}
-	#endif
 
 		if ( key<-1 ) {
 			citem = key;
@@ -2998,7 +2773,6 @@ RePaintNewmenuListbox:
 
 
 #ifdef NEWMENU_MOUSE
-		WIN(Sleep(100));
 		if (mouse_state) {
 			int w, h, aw;
 
@@ -3069,7 +2843,6 @@ RePaintNewmenuListbox:
 
 		if ( (ofirst_item != first_item) || redraw)	{
 			newmenu_hide_cursor();
-			WIN(DDGRLOCK(dd_grd_curcanv));
 
 			gr_setcolor( BM_XRGB( 0,0,0)  );
 			for (i=first_item; i<first_item+LB_ITEMS_ON_SCREEN; i++ )	{
@@ -3114,15 +2887,12 @@ RePaintNewmenuListbox:
 			#endif
 
 
-			WIN(DDGRUNLOCK(dd_grd_curcanv));
 			newmenu_show_cursor();
 			gr_update();
 		} else if ( citem != ocitem )	{
 			int w, h, aw, y;
 
 			newmenu_hide_cursor();
-
-			WIN(DDGRLOCK(dd_grd_curcanv));
 
 			i = ocitem;
 			if ( (i>=0) && (i<nitems) )	{
@@ -3147,7 +2917,6 @@ RePaintNewmenuListbox:
 				gr_rect( wx, y-1, wx+width-1, y+h );
 				gr_string( wx+5, y, items[i]  );
 			}
-			WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 			newmenu_show_cursor();
 			gr_update();
@@ -3157,26 +2926,14 @@ RePaintNewmenuListbox:
 
 	keyd_repeat = old_keyd_repeat;
 
-	WIN (DDGRLOCK(dd_grd_curcanv));
 	gr_bm_bitblt(total_width,total_height, wx-border_size, wy-title_height-border_size, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
-	WIN (DDGRUNLOCK(dd_grd_curcanv)); 	
 
 	if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
 		gr_free_bitmap(bg.background);
 
 #if 0
-	WINDOS(
-		dd_gr_blt_notrans(dd_VR_offscreen_buffer,
-				0,0,_DDModeList[W95DisplayMode].rw, _DDModeList[W95DisplayMode].rh,
-				dd_grd_curcanv,
-				0,0,_DDModeList[W95DisplayMode].rw, _DDModeList[W95DisplayMode].rh),
-		gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(VR_offscreen_buffer->cv_bitmap), &(grd_curcanv->cv_bitmap) )
-	);
+	gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(VR_offscreen_buffer->cv_bitmap), &(grd_curcanv->cv_bitmap) );
 #endif
-
-	WIN(DDGRRESTORE);
-
-	WIN(mouse_set_mode(1));				//re-enable centering mode
 
 	return citem;
 }

@@ -1,4 +1,4 @@
-/* $Id: hud.c,v 1.11 2005-07-30 09:16:25 chris Exp $ */
+/* $Id: hud.c,v 1.12 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -74,47 +74,19 @@ int Modex_hud_msg_count;
 #define LHX(x)      ((x)*(FontHires?2:1))
 #define LHY(y)      ((y)*(FontHires?2.4:1))
 
-#ifdef WINDOWS
-int extra_clear=0;
-#endif
-
 // ----------------------------------------------------------------------------
 void clear_background_messages(void)
 {
-	#ifdef WINDOWS
-	if (extra_clear == FrameCount) 		//don't do extra clear on same frame
-		return;
-	#endif
-
-#ifdef WINDOWS
-	if (((Cockpit_mode == CM_STATUS_BAR) || (Cockpit_mode == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (dd_VR_render_sub_buffer[0].yoff >= 6)) {
-		dd_grs_canvas *canv_save = dd_grd_curcanv;
-#else
 	if (((Cockpit_mode == CM_STATUS_BAR) || (Cockpit_mode == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (VR_render_sub_buffer[0].cv_bitmap.bm_y >= 6)) {
 		grs_canvas	*canv_save = grd_curcanv;
-#endif
 
-		WINDOS(	dd_gr_set_current_canvas(get_current_game_screen()),
-				gr_set_current_canvas(get_current_game_screen())
-		);
+		gr_set_current_canvas(get_current_game_screen());
 
 		copy_background_rect(0, Last_msg_ycrd, grd_curcanv->cv_bitmap.bm_w, Last_msg_ycrd+Last_msg_height-1);
 
-		WINDOS(
-			dd_gr_set_current_canvas(canv_save),
-			gr_set_current_canvas(canv_save)
-		);
+		gr_set_current_canvas(canv_save);
 
-		#ifdef WINDOWS
-		if (extra_clear || !GRMODEINFO(modex)) {
-			extra_clear = 0;
-			Last_msg_ycrd = -1;
-		}
-		else
-			extra_clear = FrameCount;
-		#else
 		Last_msg_ycrd = -1;
-		#endif
 	}
 
 	Displayed_background_message[VR_current_page][0] = 0;
@@ -168,11 +140,6 @@ void HUD_render_message_frame()
 
 	HUD_message_timer -= FrameTime;
 
-	#ifdef WINDOWS
-	if (extra_clear)
-		clear_background_messages();			//	If in status bar mode and no messages, then erase.
-	#endif
-
 	if ( HUD_message_timer < 0 )	{
 		// Timer expired... get rid of oldest message...
 		if (hud_last!=hud_first)	{
@@ -196,33 +163,20 @@ void HUD_render_message_frame()
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 
-	#ifdef WINDOWS
-		if ( (VR_render_mode==VR_NONE) && ((Cockpit_mode == CM_STATUS_BAR) || (Cockpit_mode == CM_FULL_SCREEN)) && (dd_VR_render_sub_buffer[0].yoff >= (max_window_h/8))) {
-	#else
 		if ( (VR_render_mode==VR_NONE) && ((Cockpit_mode == CM_STATUS_BAR) || (Cockpit_mode == CM_FULL_SCREEN)) && (VR_render_sub_buffer[0].cv_bitmap.bm_y >= (max_window_h/8))) {
-	#endif
 			// Only display the most recent message in this mode
 			char	*message = HUD_messages[(hud_first+HUD_nmessages-1) % HUD_MAX_NUM];
 
 			if (strcmp(Displayed_background_message[VR_current_page], message)) {
 				int	ycrd;
-				WINDOS(
-					dd_grs_canvas *canv_save = dd_grd_curcanv,
-					grs_canvas	*canv_save = grd_curcanv
-				);
+				grs_canvas	*canv_save = grd_curcanv;
 
-				WINDOS(
-					ycrd = dd_grd_curcanv->yoff - (SMALL_FONT->ft_h+2),
-					ycrd = grd_curcanv->cv_bitmap.bm_y - (SMALL_FONT->ft_h+2)
-				);
+				ycrd = grd_curcanv->cv_bitmap.bm_y - (SMALL_FONT->ft_h+2);
 
 				if (ycrd < 0)
 					ycrd = 0;
 
-				WINDOS(
-					dd_gr_set_current_canvas(get_current_game_screen()),
-					gr_set_current_canvas(get_current_game_screen())
-				);
+				gr_set_current_canvas(get_current_game_screen());
 
 				gr_set_curfont( SMALL_FONT );
 				gr_get_string_size(message, &w, &h, &aw );
@@ -230,7 +184,6 @@ void HUD_render_message_frame()
 
 
 				if (grd_curcanv->cv_bitmap.bm_type == BM_MODEX) {
-					WIN(Int3());    // No no no no ....
 					ycrd -= h;
 					h *= 2;
 					modex_hud_message((grd_curcanv->cv_bitmap.bm_w-w)/2, ycrd, message, SMALL_FONT, HUD_color);
@@ -240,17 +193,12 @@ void HUD_render_message_frame()
 					} else
 						strcpy(Displayed_background_message[VR_current_page], message);
 				} else {
-				WIN(DDGRLOCK(dd_grd_curcanv));
 					gr_set_fontcolor( HUD_color, -1);
 					gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, ycrd, message );
 					strcpy(Displayed_background_message[VR_current_page], message);
-				WIN(DDGRUNLOCK(dd_grd_curcanv));
 				}
 
-			WINDOS(
-				dd_gr_set_current_canvas(canv_save),
-				gr_set_current_canvas(canv_save)
-			);
+				gr_set_current_canvas(canv_save);
 
 				Last_msg_ycrd = ycrd;
 				Last_msg_height = h;
@@ -272,7 +220,6 @@ void HUD_render_message_frame()
 		      Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window)
 			      y+=SMALL_FONT->ft_h+3;
 
-		WIN(DDGRLOCK(dd_grd_curcanv));
 		  	for (i=0; i<HUD_nmessages; i++ )	{
 				n = (hud_first+i) % HUD_MAX_NUM;
 				if ((n < 0) || (n >= HUD_MAX_NUM))
@@ -285,10 +232,8 @@ void HUD_render_message_frame()
 				gr_string((grd_curcanv->cv_bitmap.bm_w-w)/2,y, &HUD_messages[n][0] );
 				y += h+1;
 			}
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		}
 	}
-	#ifndef WINDOWS
 	else if (get_current_game_screen()->cv_bitmap.bm_type == BM_MODEX) {
 		if (Modex_hud_msg_count) {
 			int	temp = Last_msg_ycrd;
@@ -297,7 +242,6 @@ void HUD_render_message_frame()
 			Last_msg_ycrd = temp;
 		}
 	}
-	#endif
 
 	gr_set_curfont( GAME_FONT );
 }

@@ -1,4 +1,4 @@
-/* $Id: game.h,v 1.12 2005-07-30 09:16:25 chris Exp $ */
+/* $Id: game.h,v 1.13 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -27,18 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 
 //#include "segment.h"
-
-#ifdef WINDOWS
-typedef struct cockpit_span_line {
-	short num;
-	struct {
-		short xmin, xmax;
-	} span[5];
-} cockpit_span_line;
-
-extern cockpit_span_line win_cockpit_mask[480];
-#endif
-
 
 // from mglobal.c
 extern fix FrameTime;               // time in seconds since last frame
@@ -174,9 +162,7 @@ extern void reset_time(void);       // called when starting level
 // If automap_flag == 1, then call automap routine to write message.
 extern void save_screen_shot(int automap_flag);
 
-#ifndef WINDOWS
 extern grs_canvas * get_current_game_screen();
-#endif
 
 //valid modes for cockpit
 #define CM_FULL_COCKPIT     0   // normal screen with cockput

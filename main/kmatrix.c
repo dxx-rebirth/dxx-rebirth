@@ -1,4 +1,4 @@
-/* $Id: kmatrix.c,v 1.8 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: kmatrix.c,v 1.9 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -20,10 +20,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef WINDOWS
-#include "desw.h"
 #endif
 
 #include <stdio.h>
@@ -376,19 +372,14 @@ void kmatrix_phallic ()
 
 void load_stars(void);
 
-WINDOS(dd_grs_canvas *StarBackCanvas,
-			grs_canvas *StarBackCanvas
-);		//,*SaveCanvas;
+grs_canvas *StarBackCanvas;
 
 
 void kmatrix_redraw()
 {
 	int i, color;
 	int sorted[MAX_NUM_NET_PLAYERS];
-WINDOS(
-	dd_grs_canvas *tempcanvas,
-   grs_canvas *tempcanvas
-);
+	grs_canvas *tempcanvas;
   
    if (Game_mode & GM_MULTI_COOP)
 	 {
@@ -398,22 +389,12 @@ WINDOS(
         
 	multi_sort_kill_list();
 
-	WINDOS(
-	   tempcanvas=dd_gr_create_canvas( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h ),
-   	tempcanvas=gr_create_canvas( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h )
-	);
+   tempcanvas=gr_create_canvas( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
 
-   WINDOS(
-		dd_gr_set_current_canvas(tempcanvas),
-		gr_set_current_canvas (tempcanvas)
-	);
+   gr_set_current_canvas (tempcanvas);
 
-	WINDOS (
-		dd_gr_blt_notrans(StarBackCanvas, 0,0,0,0, tempcanvas,0,0,0,0),
-	  	gr_bitmap (0,0,&StarBackCanvas->cv_bitmap)
-	);
+   gr_bitmap (0,0,&StarBackCanvas->cv_bitmap);
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	grd_curcanv->cv_font = MEDIUM3_FONT;
 
 	gr_string( 0x8000, LHY(10), TXT_KILL_MATRIX_TITLE	);
@@ -441,54 +422,29 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	}
 
 	kmatrix_draw_deaths(sorted);
-WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-WINDOS(
-	dd_gr_set_current_canvas(NULL),
-	gr_set_current_canvas(NULL)
-);
+	gr_set_current_canvas(NULL);
 
-WINDOS(
-	dd_gr_blt_notrans(tempcanvas, 0,0,0,0, dd_grd_curcanv, 0,0,0,0),
-  	gr_bitmap (0,0,&tempcanvas->cv_bitmap)
-);
+  	gr_bitmap (0,0,&tempcanvas->cv_bitmap);
 
 	gr_palette_load(gr_palette);
-WINDOS(
-	dd_gr_free_canvas(tempcanvas),
-	gr_free_canvas (tempcanvas)
-);
+	gr_free_canvas (tempcanvas);
 }
 
 void kmatrix_redraw_coop()
 {
 	int i, color;
 	int sorted[MAX_NUM_NET_PLAYERS];
-
-WINDOS(
-	dd_grs_canvas *tempcanvas,
-	grs_canvas *tempcanvas
-);
+	grs_canvas *tempcanvas;
        
 	multi_sort_kill_list();
 
-WINDOS(
-   tempcanvas=dd_gr_create_canvas( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h ),
-   tempcanvas=gr_create_canvas( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h )
-);
-WINDOS(
-	dd_gr_set_current_canvas(tempcanvas),
-   gr_set_current_canvas (tempcanvas)
-);
+	tempcanvas=gr_create_canvas( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
+	gr_set_current_canvas (tempcanvas);
 
-WINDOS (
-	dd_gr_blt_notrans(StarBackCanvas, 0,0,0,0, tempcanvas,0,0,0,0),
-  	gr_bitmap (0,0,&StarBackCanvas->cv_bitmap)
-);
+  	gr_bitmap (0,0,&StarBackCanvas->cv_bitmap);
 
 
-
-WIN(DDGRLOCK(dd_grd_curcanv));
 	grd_curcanv->cv_font = MEDIUM3_FONT;
 	gr_string( 0x8000, LHY(10), "COOPERATIVE SUMMARY"	);
 
@@ -511,23 +467,13 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	}
 
 	kmatrix_draw_deaths(sorted);
-WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-WINDOS(
-	dd_gr_set_current_canvas(NULL),
-	gr_set_current_canvas(NULL)
-);
+	gr_set_current_canvas(NULL);
 
-WINDOS(
-	dd_gr_blt_notrans(tempcanvas, 0,0,0,0, dd_grd_curcanv, 0,0,0,0),
-  	gr_bitmap (0,0,&tempcanvas->cv_bitmap)
-);
+  	gr_bitmap (0,0,&tempcanvas->cv_bitmap);
 
 	gr_palette_load(gr_palette);
-WINDOS(
-	dd_gr_free_canvas(tempcanvas),
-	gr_free_canvas (tempcanvas)
-);
+	gr_free_canvas (tempcanvas);
 }
 
 #define MAX_VIEW_TIME   F1_0*15
@@ -558,14 +504,8 @@ void kmatrix_view(int network)
  	
    set_screen_mode( SCREEN_MENU );
 
-	WINDOS(
-		StarBackCanvas=dd_gr_create_canvas( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h ),
-		StarBackCanvas=gr_create_canvas( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h )
-	);
-	WINDOS(
-		dd_gr_set_current_canvas(StarBackCanvas),
-	   gr_set_current_canvas(StarBackCanvas)
-	);
+   StarBackCanvas=gr_create_canvas( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
+   gr_set_current_canvas(StarBackCanvas);
 	#ifdef MACINTOSH
 	if (virtual_memory_on) {
 		load_stars_palette();		// horrible hack to prevent too much paging when doing endlevel syncing
@@ -589,15 +529,6 @@ void kmatrix_view(int network)
 	   network_endlevel(&key);
 
 	while(!done)	{
-	#ifdef WINDOWS
-		MSG msg;
-
-		DoMessageStuff(&msg);
-
-		DDGRRESTORE;
-
-	#endif
-
       kmatrix_kills_changed = 0;
       for (i=0; i<4; i++ )
           if (joy_get_button_down_cnt(i)>0)
@@ -609,10 +540,7 @@ void kmatrix_view(int network)
 	                Players[Player_num].connected=0;
 						 if (network)
 		                network_send_endlevel_packet();
-						WINDOS(
-							dd_gr_free_canvas(StarBackCanvas),
-						   gr_free_canvas (StarBackCanvas)
-						);
+						 gr_free_canvas (StarBackCanvas);
 					    multi_leave_game();
 				       Kmatrix_nomovie_message=0;
 				       longjmp(LeaveGame, 0);
@@ -635,10 +563,7 @@ void kmatrix_view(int network)
 	                Players[Player_num].connected=0;
 						 if (network)
 		                network_send_endlevel_packet();
-						WINDOS(
-							dd_gr_free_canvas(StarBackCanvas),
-						   gr_free_canvas (StarBackCanvas)
-						);
+						 gr_free_canvas (StarBackCanvas);
 					    multi_leave_game();
 				       Kmatrix_nomovie_message=0;
 				       longjmp(LeaveGame, 0);
@@ -671,10 +596,7 @@ void kmatrix_view(int network)
 	                Players[Player_num].connected=0;
 						 if (network)
 		                network_send_endlevel_packet();
-						WINDOS(
-							dd_gr_free_canvas(StarBackCanvas),
-						   gr_free_canvas (StarBackCanvas)
-						);
+						 gr_free_canvas (StarBackCanvas);
 					    multi_leave_game();
 				       Kmatrix_nomovie_message=0;
 				       longjmp(LeaveGame, 0);
@@ -699,10 +621,7 @@ void kmatrix_view(int network)
                 Players[Player_num].connected=0;
 					 if (network)
 	                network_send_endlevel_packet();
-						WINDOS(
-							dd_gr_free_canvas(StarBackCanvas),
-						   gr_free_canvas (StarBackCanvas)
-						);
+					 gr_free_canvas (StarBackCanvas);
 				    multi_leave_game();
 			       Kmatrix_nomovie_message=0;
 			       longjmp(LeaveGame, 0);
@@ -731,10 +650,7 @@ void kmatrix_view(int network)
 	                Players[Player_num].connected=0;
 						 if (network)
 		                network_send_endlevel_packet();
-						WINDOS(
-							dd_gr_free_canvas(StarBackCanvas),
-						   gr_free_canvas (StarBackCanvas)
-						);
+						 gr_free_canvas (StarBackCanvas);
 					    multi_leave_game();
 				       Kmatrix_nomovie_message=0;
 				       longjmp(LeaveGame, 0);
@@ -814,10 +730,7 @@ void kmatrix_view(int network)
 
 	game_flush_inputs();
 
-	WINDOS(
-		dd_gr_free_canvas(StarBackCanvas),
-		gr_free_canvas (StarBackCanvas)
-	);
+	gr_free_canvas (StarBackCanvas);
 
    Kmatrix_nomovie_message=0;
 

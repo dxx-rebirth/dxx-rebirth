@@ -1,4 +1,4 @@
-/* $Id: points.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: points.c,v 1.7 2005-08-02 06:14:48 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: points.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: points.c,v 1.7 2005-08-02 06:14:48 chris Exp $";
 #endif
 
 #include "3d.h"
@@ -57,10 +57,6 @@ ubyte g3_code_point(g3s_point *p)
 ubyte g3_rotate_point(g3s_point *dest,vms_vector *src)
 {
 	vms_vector tempv;
-
-#ifdef D1XD3D
-	dest->p3_orig = *src;
-#endif
 
 	vm_vec_sub(&tempv,src,&View_position);
 

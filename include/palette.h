@@ -1,4 +1,4 @@
-/* $Id: palette.h,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: palette.h,v 1.6 2005-08-02 06:11:10 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -39,10 +39,5 @@ extern void init_computed_colors(void);
 
 extern ubyte gr_palette_gamma;
 extern ubyte gr_current_pal[256*3];
-
-#ifdef D1XD3D
-typedef ubyte PALETTE [256 * 3];
-extern void DoSetPalette (PALETTE *pPal);
-#endif
 
 #endif

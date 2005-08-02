@@ -1,4 +1,4 @@
-/* $Id: instance.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: instance.c,v 1.6 2005-08-02 06:14:48 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -42,10 +42,6 @@ void g3_start_instance_matrix(vms_vector *pos,vms_matrix *orient)
 {
 	vms_vector tempv;
 	vms_matrix tempm,tempm2;
-
-#ifdef D1XD3D
-	Win32_start_instance_matrix (pos, orient);
-#endif
 
 	Assert(instance_depth<MAX_INSTANCE_DEPTH);
 
@@ -95,10 +91,6 @@ void g3_start_instance_angles(vms_vector *pos,vms_angvec *angles)
 //pops the old context
 void g3_done_instance()
 {
-#ifdef D1XD3D
-	Win32_done_instance ();
-#endif
-
 	instance_depth--;
 
 	Assert(instance_depth >= 0);

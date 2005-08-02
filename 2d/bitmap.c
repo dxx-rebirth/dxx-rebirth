@@ -1,4 +1,4 @@
-/* $Id: bitmap.c,v 1.8 2005-07-30 01:51:42 chris Exp $ */
+/* $Id: bitmap.c,v 1.9 2005-08-02 06:15:08 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -44,10 +44,6 @@ void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data)
 		ogl_freebmtexture(bm);
 #endif
 	bm->bm_data = data;
-#ifdef D1XD3D
-	Assert (bm->iMagic == BM_MAGIC_NUMBER);
-	Win32_SetTextureBits (bm, data, bm->bm_flags & BM_FLAG_RLE);
-#endif
 }
 
 grs_bitmap *gr_create_bitmap(int w, int h )
@@ -68,10 +64,6 @@ grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
 
 void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data ) // TODO: virtualize
 {
-#ifdef D1XD3D
-	Assert (bm->iMagic != BM_MAGIC_NUMBER || bm->pvSurface == NULL);
-#endif
-
 	bm->bm_x = x;
 	bm->bm_y = y;
 	bm->bm_w = w;
@@ -81,14 +73,6 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 	bm->bm_rowsize = bytesperline;
 
 	bm->bm_data = NULL;
-#ifdef D1XD3D
-	bm->iMagic = BM_MAGIC_NUMBER;
-	bm->pvSurface = NULL;
-#endif
-
-#ifdef D1XD3D
-	Win32_CreateTexture (bm);
-#endif
 #ifdef OGL
 	bm->bm_parent=NULL;bm->gltexture=NULL;
 #endif
@@ -114,11 +98,6 @@ void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h,
 void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 {
 	bm->bm_data = NULL;
-#ifdef D1XD3D
-	Assert (bm->iMagic != BM_MAGIC_NUMBER);
-	bm->iMagic = BM_MAGIC_NUMBER;
-	bm->pvSurface = NULL;
-#endif
 #ifdef OGL
 //	ogl_freebmtexture(bm);//not what we want here.
 	bm->bm_parent=NULL;bm->gltexture=NULL;
@@ -146,9 +125,6 @@ void gr_free_sub_bitmap(grs_bitmap *bm )
 {
 	if (bm!=NULL)
 	{
-#ifdef D1XD3D
-		bm->iMagic = 0;
-#endif
 		d_free(bm);
 	}
 }
@@ -156,14 +132,6 @@ void gr_free_sub_bitmap(grs_bitmap *bm )
 
 void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 {
-#ifdef D1XD3D
-	Assert (bm->iMagic == BM_MAGIC_NUMBER);
-
-	Win32_FreeTexture (bm);
-	bm->iMagic = 0;
-	if (bm->bm_data == BM_D3D_RENDER)
-		bm->bm_data = NULL;
-#endif
 #ifdef OGL
 	ogl_freebmtexture(bm);
 #endif
@@ -185,16 +153,6 @@ void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int
 #ifdef OGL
 	bm->gltexture=bmParent->gltexture;
 	bm->bm_parent=bmParent;
-#endif
-#ifdef D1XD3D
-	Assert (bmParent->iMagic == BM_MAGIC_NUMBER);
-	bm->iMagic = BM_MAGIC_NUMBER;
-	bm->pvSurface = bmParent->pvSurface;
-	if (bm->bm_type == BM_DIRECTX)
-	{
-		bm->bm_data = bmParent->bm_data;
-	}
-	else
 #endif
 	{
 		bm->bm_data = bmParent->bm_data+(unsigned int)((y*bmParent->bm_rowsize)+x);
@@ -276,17 +234,6 @@ void decode_data_asm(ubyte *data, int num_pixels, ubyte *colormap, int *count)
 
 void gr_set_bitmap_flags (grs_bitmap *pbm, int flags)
 {
-#ifdef D1XD3D
-	Assert (pbm->iMagic == BM_MAGIC_NUMBER);
-
-	if (pbm->pvSurface)
-	{
-		if ((flags & BM_FLAG_TRANSPARENT) != (pbm->bm_flags & BM_FLAG_TRANSPARENT))
-		{
-			Win32_SetTransparent (pbm->pvSurface, flags & BM_FLAG_TRANSPARENT);
-		}
-	}
-#endif
 	pbm->bm_flags = flags;
 }
 

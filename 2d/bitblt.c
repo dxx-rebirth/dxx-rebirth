@@ -1,4 +1,4 @@
-/* $Id: bitblt.c,v 1.20 2005-07-30 09:17:06 chris Exp $ */
+/* $Id: bitblt.c,v 1.21 2005-08-02 06:15:08 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1482,23 +1482,6 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 	}
 #endif
 
-#ifdef D1XD3D
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_DIRECTX ))
-	{
-		Assert ((int)dest->bm_data == BM_D3D_RENDER || (int)dest->bm_data == BM_D3D_DISPLAY);
-		Win32_BlitLinearToDirectX_bm (src, sx, sy, w, h, dx, dy, 0);
-		return;
-	}
-	if ( (src->bm_type == BM_DIRECTX) && (dest->bm_type == BM_LINEAR ))
-	{
-		return;
-	}
-	if ( (src->bm_type == BM_DIRECTX) && (dest->bm_type == BM_DIRECTX ))
-	{
-		return;
-	}
-#endif
-
 	if ( (src->bm_flags & BM_FLAG_RLE ) && (src->bm_type == BM_LINEAR) ) {
 		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest );
 		return;
@@ -1587,12 +1570,6 @@ void gr_ubitmap( int x, int y, grs_bitmap *bm )
 			ogl_ubitmapm(x,y,bm);
 			return;
 #endif
-#ifdef D1XD3D
-		case BM_DIRECTX:
-			Assert ((int)grd_curcanv->cv_bitmap.bm_data == BM_D3D_RENDER || (int)grd_curcanv->cv_bitmap.bm_data == BM_D3D_DISPLAY);
-			Win32_BlitLinearToDirectX_bm(bm, 0, 0, bm->bm_w, bm->bm_h, x, y, 0);
-			return;
-#endif
 #ifdef __MSDOS__
 		case BM_SVGA:
 			if ( bm->bm_flags & BM_FLAG_RLE )
@@ -1638,20 +1615,6 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 #ifdef OGL
 		case BM_OGL:
 			ogl_ubitmapm(x,y,bm);
-			return;
-#endif
-#ifdef D1XD3D
-		case BM_DIRECTX:
-			if (bm->bm_w < 35 && bm->bm_h < 35) {
-				// ugly hack needed for reticle
-				if ( bm->bm_flags & BM_FLAG_RLE )
-					gr_bm_ubitblt0x_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap, 1 );
-				else
-					gr_ubitmapGENERICm(x, y, bm);
-				return;
-			}
-			Assert ((int)grd_curcanv->cv_bitmap.bm_data == BM_D3D_RENDER || (int)grd_curcanv->cv_bitmap.bm_data == BM_D3D_DISPLAY);
-			Win32_BlitLinearToDirectX_bm(bm, 0, 0, bm->bm_w, bm->bm_h, x, y, 1);
 			return;
 #endif
 #ifdef __MSDOS__
@@ -1732,20 +1695,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))
 	{
 		ogl_ubitblt_copy(w, h, dx, dy, sx, sy, src, dest);
-		return;
-	}
-#endif
-#ifdef D1XD3D
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_DIRECTX ))
-	{
-		Assert ((int)dest->bm_data == BM_D3D_RENDER || (int)dest->bm_data == BM_D3D_DISPLAY);
-		Win32_BlitLinearToDirectX_bm (src, sx, sy, w, h, dx, dy, 1);
-		return;
-	}
-	if ( (src->bm_type == BM_DIRECTX) && (dest->bm_type == BM_DIRECTX ))
-	{
-		Assert ((int)src->bm_data == BM_D3D_RENDER || (int)src->bm_data == BM_D3D_DISPLAY);
-		//Win32_BlitDirectXToDirectX (w, h, dx, dy, sx, sy, src->bm_data, dest->bm_data, 0);
 		return;
 	}
 #endif

@@ -1,4 +1,4 @@
-/* $Id: pixel.c,v 1.6 2004-05-31 08:33:41 btb Exp $ */
+/* $Id: pixel.c,v 1.7 2005-08-02 06:15:08 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -34,7 +34,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 
-#ifndef D1XD3D
 void gr_upixel( int x, int y )
 {
 	switch (TYPE)
@@ -58,7 +57,6 @@ void gr_upixel( int x, int y )
 #endif
 	}
 }
-#endif
 
 void gr_pixel( int x, int y )
 {
@@ -66,7 +64,6 @@ void gr_pixel( int x, int y )
 	gr_upixel (x, y);
 }
 
-#ifndef D1XD3D
 inline void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char color )
 {
 	switch (bm->bm_type)
@@ -92,7 +89,6 @@ inline void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char color )
 #endif
 	}
 }
-#endif
 
 void gr_bm_pixel( grs_bitmap * bm, int x, int y, unsigned char color )
 {

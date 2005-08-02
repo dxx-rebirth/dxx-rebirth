@@ -1,4 +1,4 @@
-/* $Id: paging.c,v 1.4 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: paging.c,v 1.5 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -25,11 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#define PSX_BUILD_TOOLS
 
 #ifdef RCS
-static char rcsid[] = "$Id: paging.c,v 1.4 2004-08-28 23:17:45 schaffner Exp $";
-#endif
-
-#ifdef WINDOWS
-#include "desw.h"
+static char rcsid[] = "$Id: paging.c,v 1.5 2005-08-02 06:13:56 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -63,19 +59,6 @@ static char rcsid[] = "$Id: paging.c,v 1.4 2004-08-28 23:17:45 schaffner Exp $";
 #include "powerup.h"
 #include "fuelcen.h"
 #include "mission.h"
-
-
-#ifdef WINDOWS
-void paging_touch_vclip_w( vclip * vc )
-{
-	int i;
-
-	for (i=0; i<vc->num_frames; i++ )	{
-		if ( GameBitmaps[(vc->frames[i]).index].bm_flags & BM_FLAG_PAGED_OUT)
-			piggy_bitmap_page_in_w( vc->frames[i],1 );
-	}
-}
-#endif
 
 
 void paging_touch_vclip( vclip * vc )
@@ -221,11 +204,7 @@ void paging_touch_object( object * obj )
 
 		case RT_POWERUP:
 			if ( obj->rtype.vclip_info.vclip_num > -1 ) {
-		//@@	#ifdef WINDOWS
-		//@@		paging_touch_vclip_w(&Vclip[obj->rtype.vclip_info.vclip_num]);
-		//@@	#else
 				paging_touch_vclip(&Vclip[obj->rtype.vclip_info.vclip_num]);
-		//@@	#endif
 			}
 			break;
 

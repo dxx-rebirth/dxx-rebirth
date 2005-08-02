@@ -1,4 +1,4 @@
-/* $Id: escort.c,v 1.9 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: escort.c,v 1.10 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1864,15 +1864,7 @@ void do_escort_menu(void)
 	show_escort_menu(msg);		//TXT_PAUSE);
 
 	while (paused) {
-	#ifdef WINDOWS
-		while (!(key = key_inkey()))
-		{
-			MSG wmsg;
-			DoMessageStuff(&wmsg);
-		}
-	#else
 		key = key_getch();
-	#endif
 
 		switch (key) {
 			case KEY_0:
@@ -1957,10 +1949,7 @@ void show_escort_menu(char *msg)
 	int	x,y;
 
 
-	WINDOS(
-		dd_gr_set_current_canvas(&dd_VR_screen_pages[0]),
-		gr_set_current_canvas(&VR_screen_pages[0])
-	);
+	gr_set_current_canvas(&VR_screen_pages[0]);
 
 	gr_set_curfont( GAME_FONT );
 
@@ -1973,9 +1962,7 @@ void show_escort_menu(char *msg)
    
    nm_draw_background(x-15,y-15,x+w+15-1,y+h+15-1);
 
-WIN(DDGRLOCK(dd_grd_curcanv));\
   	gr_ustring( x, y, msg );
-WIN(DDGRUNLOCK(dd_grd_curcanv));
 	gr_update();
 
 	reset_cockpit();

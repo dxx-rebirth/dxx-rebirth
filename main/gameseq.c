@@ -1,4 +1,4 @@
-/* $Id: gameseq.c,v 1.46 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: gameseq.c,v 1.47 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,13 +24,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.46 2005-07-30 01:50:17 chris Exp $";
+char gameseq_rcsid[] = "$Id: gameseq.c,v 1.47 2005-08-02 06:13:56 chris Exp $";
 #endif
-
-#ifdef WINDOWS
-#include "desw.h"
-#endif
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -734,11 +729,6 @@ try_again:
 	return 1;
 }
 
-#ifdef WINDOWS
-#undef TXT_SELECT_PILOT
-#define TXT_SELECT_PILOT "Select pilot\n<Ctrl-D> or Right-click\nto delete"
-#endif
-
 //Inputs the player's name, without putting up the background screen
 int RegisterPlayer()
 {
@@ -823,13 +813,8 @@ void LoadLevel(int level_num,int page_in_textures)
 	else					//normal level
 		level_name = Level_names[level_num-1];
 
-	#ifdef WINDOWS
-		dd_gr_set_current_canvas(NULL);
-		dd_gr_clear_canvas(BM_XRGB(0,0,0));
-	#else
-		gr_set_current_canvas(NULL);
-		gr_clear_canvas(BM_XRGB(0, 0, 0));		//so palette switching is less obvious
-	#endif
+	gr_set_current_canvas(NULL);
+	gr_clear_canvas(BM_XRGB(0, 0, 0));		//so palette switching is less obvious
 
 	Last_msg_ycrd = -1;		//so we don't restore backgound under msg
 
@@ -1064,19 +1049,10 @@ void DoEndLevelScoreGlitz(int network)
 	sprintf(m_str[c++], "%s%i\n", TXT_TOTAL_BONUS, shield_points+energy_points+hostage_points+skill_points+all_hostage_points+endgame_points);
 	sprintf(m_str[c++], "%s%i", TXT_TOTAL_SCORE, Players[Player_num].score);
 
-	#ifdef WINDOWS
-	sprintf(m_str[c++], "");
-	sprintf(m_str[c++], "         Done");
-	#endif
-
 	for (i=0; i<c; i++) {
 		m[i].type = NM_TYPE_TEXT;
 		m[i].text = m_str[i];
 	}
-
-	#ifdef WINDOWS
-	m[c-1].type = NM_TYPE_MENU;
-	#endif
 
 	// m[c].type = NM_TYPE_MENU;	m[c++].text = "Ok";
 
@@ -1165,8 +1141,6 @@ void do_secret_message(char *msg)
 	Function_mode = FMODE_MENU;
 	nm_messagebox(NULL, 1, TXT_OK, msg);
 	Function_mode = old_fmode;
-
-	WIN(DEFINE_SCREEN(NULL));
 }
 
 //	-----------------------------------------------------------------------------------------------------
@@ -1426,10 +1400,7 @@ void DoEndGame(void)
 
 	set_screen_mode( SCREEN_MENU );
 
-	WINDOS(
-		dd_gr_set_current_canvas(NULL),
-		gr_set_current_canvas(NULL)
-	);
+	gr_set_current_canvas(NULL);
 
 	key_flush();
 
@@ -1479,14 +1450,8 @@ void DoEndGame(void)
 		DoEndLevelScoreGlitz(0);
 
 	if (PLAYING_BUILTIN_MISSION && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
-		WINDOS(
-			dd_gr_set_current_canvas(NULL),
-			gr_set_current_canvas( NULL )
-		);
-		WINDOS(
-			dd_gr_clear_canvas(BM_XRGB(0,0,0)),
-			gr_clear_canvas(BM_XRGB(0,0,0))
-		);
+		gr_set_current_canvas( NULL );
+		gr_clear_canvas(BM_XRGB(0,0,0));
 		gr_palette_clear();
 		load_palette(DEFAULT_PALETTE,0,1);
 		scores_maybe_add_player(0);
@@ -1608,8 +1573,6 @@ void load_stars()
 //@@
 //@@	gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
 
-	WIN(DEFINE_SCREEN(STARS_BACKGROUND));
-
 	nm_draw_background1(STARS_BACKGROUND);
 
 }
@@ -1628,10 +1591,7 @@ died_in_mine_message(void)
 
 	set_screen_mode(SCREEN_MENU);		//go into menu mode
 
-	WINDOS(
-		dd_gr_set_current_canvas(NULL),
-		gr_set_current_canvas(NULL)
-	);
+	gr_set_current_canvas(NULL);
 
 	load_stars();
 
@@ -1639,8 +1599,6 @@ died_in_mine_message(void)
 	Function_mode = FMODE_MENU;
 	nm_messagebox(NULL, 1, TXT_OK, TXT_DIED_IN_MINE);
 	Function_mode = old_fmode;
-
-	WIN(DEFINE_SCREEN(NULL));
 }
 
 //	Called when player dies on secret level.
@@ -1666,8 +1624,6 @@ void returning_to_level_message(void)
 	sprintf(msg, "Returning to level %i", Entered_from_level);
 	nm_messagebox(NULL, 1, TXT_OK, msg);
 	Function_mode = old_fmode;
-
-	WIN(DEFINE_SCREEN(NULL));
 }
 
 //	Called when player dies on secret level.
@@ -1696,8 +1652,6 @@ void advancing_to_level_message(void)
 	sprintf(msg, "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1);
 	nm_messagebox(NULL, 1, TXT_OK, msg);
 	Function_mode = old_fmode;
-
-	WIN(DEFINE_SCREEN(NULL));
 }
 
 void digi_stop_digi_sounds();
@@ -2022,13 +1976,6 @@ void ShowLevelIntro(int level_num)
 					}
 				}
 
-#ifdef WINDOWS
-				if (!movie) {					//must go before briefing
-					dd_gr_init_screen();
-					Screen_mode = -1;
-				}
-#endif
-
 #if 0
 				if (robot_movies)
 				{
@@ -2095,8 +2042,6 @@ void StartNewLevel(int level_num, int secret_flag)
 
 	ShowLevelIntro(level_num);
 
-	WIN(DEFINE_SCREEN(NULL));		// ALT-TAB: no restore of background.
-	
 	StartNewLevelSub(level_num, 1, secret_flag );
 
 }

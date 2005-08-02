@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.37 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: titles.c,v 1.38 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -111,12 +111,6 @@ int local_key_inkey(void)
 {
 	int	rval;
 
-#ifdef WINDOWS
-	MSG msg;
-
-	DoMessageStuff(&msg);
-#endif
-
 	rval = key_inkey();
 
 	if (rval == KEY_PRINT_SCREEN) {
@@ -199,15 +193,8 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	gr_palette_clear();
 #endif
 
-	WINDOS(
-		dd_gr_set_current_canvas(NULL),
-		gr_set_current_canvas( NULL )
-	);
-	WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas( NULL );
 	show_fullscr(&title_bm);
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
-
-	WIN(DDGRRESTORE);
 
 	if (gr_palette_fade_in( New_pal, 32, allow_keys ))
 		return 1;
@@ -336,11 +323,7 @@ sbyte   Door_dir=1, Door_div_count=0, Animating_bitmap_type=0;
 //-----------------------------------------------------------------------------
 void show_bitmap_frame(void)
 {
-#ifdef WINDOWS
-	dd_grs_canvas *curcanv_save, *bitmap_canv=0;
-#else
 	grs_canvas *curcanv_save, *bitmap_canv=0;
-#endif
 
 	grs_bitmap *bitmap_ptr;
 
@@ -366,25 +349,19 @@ void show_bitmap_frame(void)
 		}
 
 		switch (Animating_bitmap_type) {
-		case 0: WINDOS(
-				bitmap_canv = dd_gr_create_sub_canvas(dd_grd_curcanv, rescale_x(220), rescale_x(45), 64, 64);	break,
-				bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_x(45), 64, 64);	break
-			);
+		case 0:
+			bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_x(45), 64, 64);
+			break;
 		case 1:
-			WINDOS(
-				bitmap_canv = dd_gr_create_sub_canvas(dd_grd_curcanv, rescale_x(220), rescale_x(45), 94, 94);	break,
-				bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_x(45), 94, 94);	break
-			);
+			bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_x(45), 94, 94);
+			break;
 
 			// Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
 			default:
 				Int3(); // Impossible, illegal value for Animating_bitmap_type
 		}
 
-		WINDOS(
-			curcanv_save = dd_grd_curcanv; dd_grd_curcanv = bitmap_canv,
-			curcanv_save = grd_curcanv; grd_curcanv = bitmap_canv
-		);
+		curcanv_save = grd_curcanv; grd_curcanv = bitmap_canv;
 
 		pound_signp = strchr(Bitmap_name, '#');
 		Assert(pound_signp != NULL);
@@ -431,14 +408,9 @@ void show_bitmap_frame(void)
 			PIGGY_PAGE_IN( bi );
 		}
 
-		WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_bitmapm(0, 0, bitmap_ptr);
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 
-		WINDOS(
-			dd_grd_curcanv = curcanv_save,
-			grd_curcanv = curcanv_save
-		);
+		grd_curcanv = curcanv_save;
 		d_free(bitmap_canv);
 
 		switch (Animating_bitmap_type) {
@@ -461,17 +433,6 @@ void show_bitmap_frame(void)
 //-----------------------------------------------------------------------------
 void show_briefing_bitmap(grs_bitmap *bmp)
 {
-#ifdef WINDOWS
-  	dd_grs_canvas *bitmap_canv, *curcanv_save;
-
-	bitmap_canv = dd_gr_create_sub_canvas(dd_grd_curcanv, 220, 45, bmp->bm_w, bmp->bm_h);
-	curcanv_save = dd_grd_curcanv;
-	dd_gr_set_current_canvas(bitmap_canv);
-	DDGRLOCK(dd_grd_curcanv);
-	gr_bitmapm(0,0,bmp);
-	DDGRUNLOCK(dd_grd_curcanv);
-	dd_gr_set_current_canvas(curcanv_save);
-#else
 	grs_canvas	*curcanv_save, *bitmap_canv;
 
 	bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220, 45, bmp->bm_w, bmp->bm_h);
@@ -479,12 +440,10 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 	gr_set_current_canvas(bitmap_canv);
 	gr_bitmapm(0, 0, bmp);
 	gr_set_current_canvas(curcanv_save);
-#endif
 
 	d_free(bitmap_canv);
 }
 
-#ifndef WINDOWS
 //-----------------------------------------------------------------------------
 void show_spinning_robot_frame(int robot_num)
 {
@@ -517,7 +476,6 @@ void init_spinning_robot(void) //(int x,int y,int w,int h)
 	Robot_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
 	// 138, 55, 166, 138
 }
-#endif
 
 //---------------------------------------------------------------------------
 // Returns char width.
@@ -540,10 +498,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 	//	Draw cursor if there is some delay and caller says to draw cursor
 	if (cursor_flag && delay) {
-		WIN(DDGRLOCK(dd_grd_curcanv));
 		gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
 		gr_printf(Briefing_text_x+1, Briefing_text_y, "_" );
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		gr_update();
 	}
 
@@ -565,7 +521,6 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 	start_time = timer_get_fixed_seconds();
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	//	Erase cursor
 	if (cursor_flag && delay) {
 		gr_set_fontcolor(Erase_color, -1);
@@ -578,7 +533,6 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 	gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
 	gr_printf(Briefing_text_x+1, Briefing_text_y, message );
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 
 	if (delay) gr_update();
 
@@ -600,16 +554,11 @@ int load_briefing_screen( int screen_num )
 	else
 		fname = CurBriefScreenName;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	if ((pcx_error = pcx_read_fullscr(fname, New_pal)) != PCX_ERROR_NONE) {
 		printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n", fname, pcx_errormsg(pcx_error));
 		printf( "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n", fname, pcx_errormsg(pcx_error), pcx_error);
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n", fname, pcx_errormsg(pcx_error), pcx_error);
 	}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
-
-	WIN(DDGRRESTORE);
 
 	return 0;
 }
@@ -621,21 +570,14 @@ int load_new_briefing_screen( char *fname )
 	mprintf ((0,"Loading new briefing <%s>\n",fname));
 	strcpy (CurBriefScreenName,fname);
 
-	//WIN(DEFINE_SCREEN(CurBriefScreenName));
-
 	if (gr_palette_fade_out( New_pal, 32, 0 ))
 		return 0;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 	if ((pcx_error=pcx_read_fullscr( fname, New_pal ))!=PCX_ERROR_NONE)     {
 	//if ((pcx_error=pcx_read_bitmap( fname, &grd_curcanv->cv_bitmap, grd_curcanv->cv_bitmap.bm_type, New_pal ))!=PCX_ERROR_NONE)     {
 		printf( "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",fname, pcx_errormsg(pcx_error), pcx_error);
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
 	}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
-
-	WIN(DDGRRESTORE);
 
 	gr_copy_palette(gr_palette, New_pal, sizeof(gr_palette));
 
@@ -694,14 +636,12 @@ void flash_cursor(int cursor_flag)
 	if (cursor_flag == 0)
 		return;
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	if ((timer_get_fixed_seconds() % (F1_0/2) ) > (F1_0/4))
 		gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
 	else
 		gr_set_fontcolor(Erase_color, -1);
 
 	gr_printf(Briefing_text_x+1, Briefing_text_y, "_" );
-WIN(DDGRUNLOCK(dd_grd_curcanv));
 	gr_update();
 }
 
@@ -728,7 +668,6 @@ int show_briefing_message(int screen_num, char *message)
 	char chattering=0;
 	int hum_channel=-1,printing_channel=-1;
 	int LineAdjustment=1;
-	WIN(int wpage_done=0);
 
 	Bitmap_name[0] = 0;
 	Current_color = 0;
@@ -927,25 +866,10 @@ int show_briefing_message(int screen_num, char *message)
 					digi_stop_sound( printing_channel );
 				printing_channel=-1;
 
-#ifdef WINDOWS
-				if (!wpage_done) {
-					DDGRRESTORE;
-					wpage_done =1;
-				}
-#endif
-
 				gr_update();
 
 				start_time = timer_get_fixed_seconds();
 				while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
-#ifdef WINDOWS
-					if (_RedrawScreen) {
-						_RedrawScreen = FALSE;
-						hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
-						keypress = KEY_ESC;
-						break;
-					}
-#endif
 
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
@@ -970,7 +894,6 @@ int show_briefing_message(int screen_num, char *message)
 
 				flashing_cursor = 0;
 				done = 1;
-				WIN(wpage_done = 0);
 			} else if (ch == 'P') {		//	New page.
 				if (!GotZ) {
 					Int3(); // Hey ryan!!!! You gotta load a screen before you start
@@ -1028,8 +951,6 @@ int show_briefing_message(int screen_num, char *message)
 				chattering=1;
 			}
 
-			WIN(if (GRMODEINFO(emul)) delay_count = 0);
-
 			Briefing_text_x += show_char_delay(ch, delay_count, robot_num, flashing_cursor);
 
 		}
@@ -1078,24 +999,8 @@ int show_briefing_message(int screen_num, char *message)
 
 			chattering=0;
 
-#ifdef WINDOWS
-			if (!wpage_done) {
-				DDGRRESTORE;
-				wpage_done =1;
-			}
-#endif
-
 			start_time = timer_get_fixed_seconds();
 			while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
-#ifdef WINDOWS
-				if (_RedrawScreen) {
-					_RedrawScreen = FALSE;
-					hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
-					keypress = KEY_ESC;
-					break;
-				}
-#endif
-
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
 				flash_cursor(flashing_cursor);
@@ -1126,8 +1031,6 @@ int show_briefing_message(int screen_num, char *message)
 			Briefing_text_x = bsp->text_ulx;
 			Briefing_text_y = bsp->text_uly;
 			delay_count = KEY_DELAY_DEFAULT;
-
-			WIN(wpage_done = 0);
 		}
 	}
 
@@ -1362,17 +1265,8 @@ int show_briefing_screen( int screen_num, int allow_keys)
 	#endif
 
 
-#ifndef WINDOWS
 	if (gr_palette_fade_out( New_pal, 32, allow_keys ))
 		return 1;
-#else
-		DEFINE_SCREEN(NULL);
-		WIN(DDGRLOCK(dd_grd_curcanv));
-		gr_clear_canvas (0);
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
-		if (gr_palette_fade_out( New_pal, 32, allow_keys ))
-			return 1;
-#endif
 
 	//gr_copy_palette(gr_palette, palette_save, sizeof(palette_save));
 
@@ -1414,10 +1308,7 @@ void do_briefing_screens(char *filename,int level_num)
 
 	set_screen_mode( SCREEN_MENU );
 
-	WINDOS(
-		dd_gr_set_current_canvas(NULL),
-		gr_set_current_canvas(NULL)
-	);
+	gr_set_current_canvas(NULL);
 
 	mprintf ((0,"Playing briefing screen <%s>, level %d\n",filename,level_num));
 

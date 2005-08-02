@@ -1,4 +1,4 @@
-/* $Id: rod.c,v 1.6 2004-12-17 13:42:11 btb Exp $ */
+/* $Id: rod.c,v 1.7 2005-08-02 06:14:48 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: rod.c,v 1.6 2004-12-17 13:42:11 btb Exp $";
+static char rcsid[] = "$Id: rod.c,v 1.7 2005-08-02 06:14:48 chris Exp $";
 #endif
 
 #include "3d.h"
@@ -133,7 +133,7 @@ bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 int checkmuldiv(fix *r,fix a,fix b,fix c);
 #endif
 
-#if (!(defined(D1XD3D) || defined(OGL)))
+#ifndef OGL
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
 bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int orientation)

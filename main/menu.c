@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.43 2005-07-30 08:16:13 chris Exp $ */
+/* $Id: menu.c,v 1.44 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -20,10 +20,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef WINDOWS
-#include "desw.h"
 #endif
 
 #include <stdio.h>
@@ -177,14 +173,12 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 		int w,h,aw;
 
 		Menu_draw_copyright = 0;
-		WINDOS(	dd_gr_set_current_canvas(NULL),
-					gr_set_current_canvas(NULL));
+		gr_set_current_canvas(NULL);
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(6,6,6),-1);
 
 		gr_get_string_size("V2.2", &w, &h, &aw );
 	
-		WIN(DDGRLOCK(dd_grd_curcanv));
 			gr_printf(0x8000,grd_curcanv->cv_bitmap.bm_h-GAME_FONT->ft_h-2,TXT_COPYRIGHT);
 			#ifdef MACINTOSH	// print out fix level as well if it exists
 				if (Version_fix != 0)
@@ -211,8 +205,6 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 			gr_set_curfont(MEDIUM2_FONT);
 			gr_printf(MenuHires?495:248, MenuHires?88:37, "Vertigo");
 		}
-
-		WIN(DDGRUNLOCK(dd_grd_curcanv));
 	}
 	
 	// Don't allow them to hit ESC in the main menu.
@@ -235,10 +227,6 @@ try_again:;
 			if ((d_rand() % (n_demos+1)) == 0)
 			{
 				#ifndef SHAREWARE
-					#ifdef WINDOWS
-					mouse_set_mode(1);				//re-enable centering mode
-					HideCursorW();
-					#endif
 #ifdef OGL
 					Screen_mode = -1;
 #endif
@@ -246,10 +234,6 @@ try_again:;
 					songs_play_song(SONG_TITLE,1);
 					*last_key = -3; //exit menu to force redraw even if not going to game mode. -3 tells menu system not to restore
 					set_screen_mode(SCREEN_MENU);
-					#ifdef WINDOWS
-					mouse_set_mode(0);				//disenable centering mode
-					ShowCursorW();
-					#endif
 				#endif // end of ifndef shareware
 			}
 			else {
@@ -355,11 +339,6 @@ int DoMenu()
 }
 
 extern void show_order_form(void);      // John didn't want this in inferno.h so I just externed it.
-
-#ifdef WINDOWS
-#undef TXT_SELECT_DEMO
-#define TXT_SELECT_DEMO "Select Demo\n<Ctrl-D> or Right-click\nto delete"
-#endif
 
 //returns flag, true means quit menu
 void do_option ( int select) 
@@ -742,13 +721,6 @@ typedef struct {
 } dmi;
 
 dmi display_mode_info[7] = {
-		#ifdef WINDOWS
-			{SM95_320x200x8X, 320, 200, VR_NONE, VRF_ALLOW_COCKPIT},
-			{SM95_640x480x8, 640, 480, VR_NONE, VRF_COMPATIBLE_MENUS+VRF_ALLOW_COCKPIT},
-			{SM95_640x400x8, 640, 400, VR_NONE, VRF_COMPATIBLE_MENUS }, 
-			{SM95_800x600x8, 800, 600, VR_NONE, VRF_COMPATIBLE_MENUS },
-			{SM95_1024x768x8, 1024, 768, VR_NONE, VRF_COMPATIBLE_MENUS }, 
-		#else
 			{SM(320,200),	 320,	200, VR_NONE, VRF_ALLOW_COCKPIT+VRF_COMPATIBLE_MENUS}, 
 			{SM(640,480),	 640, 480, VR_NONE, VRF_COMPATIBLE_MENUS+VRF_ALLOW_COCKPIT},
 			{SM(320,400),	 320, 400, VR_NONE, VRF_USE_PAGING},
@@ -756,10 +728,7 @@ dmi display_mode_info[7] = {
 			{SM(800,600),	 800, 600, VR_NONE, VRF_COMPATIBLE_MENUS}, 
 			{SM(1024,768),	1024,	768, VR_NONE, VRF_COMPATIBLE_MENUS}, 	
 			{SM(1280,1024),1280,1024, VR_NONE, VRF_COMPATIBLE_MENUS}, 
-		#endif
 };
- 
-WIN(extern int DD_Emulation);
 
 
 void set_display_mode(int mode)
@@ -769,15 +738,11 @@ void set_display_mode(int mode)
 	if ((Current_display_mode == -1)||(VR_render_mode != VR_NONE))	//special VR mode
 		return;								//...don't change
 
-	#if !defined(MACINTOSH) && !defined(WINDOWS)
 	if (0) // (mode >= 5 && !FindArg("-superhires"))
 		mode = 4;
-	#endif
 
 	if (!MenuHiresAvailable && (mode != 2))
 		mode = 0;
-
-#ifndef WINDOWS
 
 	if (gr_check_mode(display_mode_info[mode].VGA_mode) != 0)		//can't do mode
 		#ifndef MACINTOSH
@@ -787,16 +752,6 @@ void set_display_mode(int mode)
 		#endif
 
 	Current_display_mode = mode;
-#else
-	if (mode == 2) mode = 3;					// 320x400 -> 640x400.
-	Current_display_mode = mode;
-	if (mode >= 3) mode--;						// Match to Windows dmi.
-	if (DDCheckMode(display_mode_info[mode].VGA_mode)) {
-		if (Platform_system == WINNT_PLATFORM || DD_Emulation) mode = 1;
-		else mode = 0;
-		Current_display_mode = mode;
-	}
-#endif
 
 	dmi = &display_mode_info[mode];
 
@@ -899,22 +854,9 @@ void do_screen_res_menu()
 
 	m[0].type=NM_TYPE_TEXT;	 m[0].value=0;    			  m[0].text="Modes w/ Cockpit:";
 	
-#ifdef WINDOWS
-	if (Platform_system == WINNT_PLATFORM || DD_Emulation) {
-		m[1].type=NM_TYPE_TEXT; m[1].value=0; m[1].text=" 320x200 N/A";
-	} else
-#endif
-		//NOTE LINK TO ABOVE IF
-		m[1].type=NM_TYPE_RADIO; m[1].value=0; m[1].group=0; m[1].text=" 320x200";
-
+	m[1].type=NM_TYPE_RADIO; m[1].value=0; m[1].group=0; m[1].text=" 320x200";
 	m[2].type=NM_TYPE_RADIO; m[2].value=0; m[2].group=0; m[2].text=" 640x480";
 	m[3].type=NM_TYPE_TEXT;	 m[3].value=0;   				  m[3].text="Modes w/o Cockpit:";
-#ifdef WINDOWS
-	m[4].type=NM_TYPE_RADIO; m[4].value=0; m[4].group=0; m[4].text=" 640x400";
-	m[5].type=NM_TYPE_RADIO; m[5].value=0; m[5].group=0; m[5].text=" 800x600";
-//	m[6].type=NM_TYPE_RADIO; m[6].value=0; m[6].group=0; m[6].text=" 1024x768";
-	n_items = 6;
-#else
 	m[4].type=NM_TYPE_RADIO; m[4].value=0; m[4].group=0; m[4].text=" 320x400";
 	m[5].type=NM_TYPE_RADIO; m[5].value=0; m[5].group=0; m[5].text=" 640x400";
 	m[6].type=NM_TYPE_RADIO; m[6].value=0; m[6].group=0; m[6].text=" 800x600";
@@ -924,7 +866,6 @@ void do_screen_res_menu()
 		m[8].type=NM_TYPE_RADIO; m[8].value=0; m[8].group=0; m[8].text=" 1280x1024";
 		n_items += 2;
 	}
-#endif
 
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	m[n_items].type = NM_TYPE_CHECK; m[n_items].text = "Fullscreen";
@@ -934,12 +875,8 @@ void do_screen_res_menu()
 
 	citem = Current_display_mode+1;
 	
-#ifdef WINDOWS
-	if (citem == 3) citem++;				// if 320x400 in DOS, make it look like 640x400
-#else
 	if (Current_display_mode >= 2)
 		citem++;
-#endif
 
 	if (citem >= n_items)
 		citem = n_items-1;
@@ -959,35 +896,17 @@ void do_screen_res_menu()
 		if (m[i].value)
 			break;
 
-#ifndef WINDOWS 								// if i >= 4 keep it that way since we skip 320x400
 	if (i >= 4)
 		i--;
-#endif
 
 	i--;
 
-#ifndef WINDOWS
 	if (((i != 0) && (i != 2) && !MenuHiresAvailable) || gr_check_mode(display_mode_info[i].VGA_mode)) {
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, 
 				"Cannot set requested\n"
 				"mode on this video card.");
 		return;
 	}
-#else
-	if (i >= 3) 
-		result = DDCheckMode(display_mode_info[i-1].VGA_mode);
-	else 
-		result = DDCheckMode(display_mode_info[i].VGA_mode);
-
-	if (result) {
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, 
-				"Mode not supported by your\n"
-				"DirectDraw driver.\n", 
-				"Using default mode for gameplay.\n");
-		return;
-	}
-
-#endif
 #ifdef SHAREWARE
 		if (i != 0)
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, 

@@ -1,4 +1,4 @@
-/* $Id: matrix.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: matrix.c,v 1.6 2005-08-02 06:14:48 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: matrix.c,v 1.5 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: matrix.c,v 1.6 2005-08-02 06:14:48 chris Exp $";
 #endif
 
 #include "3d.h"
@@ -38,10 +38,6 @@ void g3_set_view_angles(vms_vector *view_pos,vms_angvec *view_orient,fix zoom)
 
 	vm_angles_2_matrix(&View_matrix,view_orient);
 
-#ifdef D1XD3D
-	Win32_set_view_matrix ();
-#endif
-
 	scale_matrix();
 }
 
@@ -52,10 +48,6 @@ void g3_set_view_matrix(vms_vector *view_pos,vms_matrix *view_matrix,fix zoom)
 	View_position = *view_pos;
 
 	View_matrix = *view_matrix;
-
-#ifdef D1XD3D
-	Win32_set_view_matrix ();
-#endif
 
 	scale_matrix();
 }

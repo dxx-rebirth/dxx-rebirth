@@ -1,4 +1,4 @@
-/* $Id: gamecntl.c,v 1.27 2005-07-30 09:16:25 chris Exp $ */
+/* $Id: gamecntl.c,v 1.28 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -511,48 +511,13 @@ int do_game_pause()
 	{
 		int screen_changed;
 
-	#if defined (WINDOWS)
-
-		if (!(VR_screen_flags & VRF_COMPATIBLE_MENUS)) {
-			show_boxed_message(msg);
-		}
-
-	SkipPauseStuff:
-
-		while (!(key = key_inkey()))
-		{
-			MSG wmsg;
-			DoMessageStuff(&wmsg);
-			if (_RedrawScreen) {
-				mprintf((0, "Redrawing paused screen.\n"));
-				_RedrawScreen = FALSE;
-				if (VR_screen_flags & VRF_COMPATIBLE_MENUS) 
-					game_render_frame();
-				Screen_mode = -1;
-				set_popup_screen();
-				gr_palette_load(gr_palette);
-				show_boxed_message(msg);
-				if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
-					if (!GRMODEINFO(modex)) render_gauges();
-			}
-		}
-
-	#else
 		key = key_getch();
-	#endif
 
 		#ifndef RELEASE
 		HandleTestKey(key);
 		#endif
 		
 		screen_changed = HandleSystemKey(key);
-
-	#ifdef WINDOWS
-		if (screen_changed == -1) {
-			nm_messagebox(NULL,1, TXT_OK, "Unable to do this\noperation while paused under\n320x200 mode"); 
-			goto SkipPauseStuff;
-		}
-	#endif
 
 		HandleVRKey(key);
 
@@ -1134,14 +1099,6 @@ int HandleSystemKey(int key)
 		MAC(case KEY_COMMAND+KEY_3:)
 
 		case KEY_F3:
-			#ifdef WINDOWS		// HACK! these shouldn't work in 320x200 pause or in letterbox.
-				if (Player_is_dead) break;
-				if (!(VR_screen_flags&VRF_COMPATIBLE_MENUS) && Game_paused) {
-					screen_changed = -1;
-					break;
-				}
-			#endif
-	
 			if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window))
 			{
 				toggle_cockpit();	screen_changed=1;
@@ -1153,28 +1110,12 @@ int HandleSystemKey(int key)
 
 		case KEY_SHIFTED+KEY_MINUS:
 		case KEY_MINUS:	
-		#ifdef WINDOWS
-			if (Player_is_dead) break;
-			if (!(VR_screen_flags&VRF_COMPATIBLE_MENUS) && Game_paused) {
-				screen_changed = -1;
-				break;
-			}
-		#endif
-
 			shrink_window(); 
 			screen_changed=1; 
 			break;
 
 		case KEY_SHIFTED+KEY_EQUAL:
 		case KEY_EQUAL:			
-		#ifdef WINDOWS
-			if (Player_is_dead) break;
-			if (!(VR_screen_flags&VRF_COMPATIBLE_MENUS) && Game_paused) {
-				screen_changed = -1;
-				break;
-			}
-		#endif
-
 			grow_window();  
 			screen_changed=1; 
 			break;

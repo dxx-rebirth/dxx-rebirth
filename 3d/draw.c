@@ -1,4 +1,4 @@
-/* $Id: draw.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $ */
+/* $Id: draw.c,v 1.5 2005-08-02 06:14:48 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: draw.c,v 1.4 2002-07-17 21:55:19 bradleyb Exp $";
+static char rcsid[] = "$Id: draw.c,v 1.5 2005-08-02 06:14:48 chris Exp $";
 #endif
 
 #include "error.h"
@@ -199,7 +199,7 @@ free_points:
 	return ret;
 }
 
-#if (!(defined(D1XD3D) || defined(OGL)))
+#ifndef OGL
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
 bool g3_draw_poly(int nv,g3s_point **pointlist)

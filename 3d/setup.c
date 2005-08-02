@@ -1,4 +1,4 @@
-/* $Id: setup.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $ */
+/* $Id: setup.c,v 1.7 2005-08-02 06:14:48 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: setup.c,v 1.6 2004-08-28 23:17:45 schaffner Exp $";
+static char rcsid[] = "$Id: setup.c,v 1.7 2005-08-02 06:14:48 chris Exp $";
 #endif
 
 #include <stdlib.h>
@@ -80,24 +80,16 @@ void g3_start_frame(void)
 
 	init_free_points();
 
-#ifdef D1XD3D
-	Win32_start_frame ();
-#else
 #ifdef OGL
 	ogl_start_frame();
 #else
 	init_interface_vars_to_assembler();		//for the texture-mapper
 #endif
-#endif
-
 }
 
 //this doesn't do anything, but is here for completeness
 void g3_end_frame(void)
 {
-#ifdef D1XD3D
-	Win32_end_frame ();
-#endif
 #ifdef OGL
 	ogl_end_frame();
 #endif

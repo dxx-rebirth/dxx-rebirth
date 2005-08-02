@@ -1,4 +1,4 @@
-/* $Id: credits.c,v 1.13 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: credits.c,v 1.14 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,11 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: credits.c,v 1.13 2005-07-30 01:50:17 chris Exp $";
-#endif
-
-#ifdef WINDOWS
-#include "desw.h"
+static char rcsid[] = "$Id: credits.c,v 1.14 2005-08-02 06:13:56 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -138,20 +134,11 @@ void credits_show(char *credits_filename)
 	char * tempp;
 	char filename[32];
 
-WIN(int credinit = 0;)
-
 	box dirty_box[NUM_LINES_HIRES];
 	grs_canvas *CreditsOffscreenBuf=NULL;
+	grs_canvas *save_canv;
 
-	WINDOS(
-		dd_grs_canvas *save_canv,
-		grs_canvas *save_canv
-	);
-
-	WINDOS(
-		save_canv = dd_grd_curcanv,
-		save_canv = grd_curcanv
-	);
+	save_canv = grd_curcanv;
 
 	// Clear out all tex buffer lines.
 	for (i=0; i<NUM_LINES; i++ )
@@ -185,11 +172,6 @@ WIN(int credinit = 0;)
 
 	set_screen_mode(SCREEN_MENU);
 
-	WIN(DEFINE_SCREEN(NULL));
-
-#ifdef WINDOWS
-CreditsPaint:
-#endif
 	gr_use_palette_table( "credits.256" );
 #ifdef OGL
 	gr_palette_load(gr_palette);
@@ -212,14 +194,9 @@ CreditsPaint:
 
 	gr_remap_bitmap_good( &backdrop,backdrop_palette, -1, -1 );
 
-WINDOS(
-	dd_gr_set_current_canvas(NULL),	
-	gr_set_current_canvas(NULL)
-);
-WIN(DDGRLOCK(dd_grd_curcanv));
+	gr_set_current_canvas(NULL);
 	gr_bitmap(0,0,&backdrop);
-WIN(DDGRUNLOCK(dd_grd_curcanv));
-        gr_update();
+	gr_update();
 	gr_palette_fade_in( gr_palette, 32, 0 );
 
 //	Create a new offscreen buffer for the credits screen
@@ -227,7 +204,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 //MWA  for size to determine if we can use that buffer.  If the game size
 //MWA  matches what we need, then lets save memory.
 
-#ifndef WINDOWS
 	if (MenuHires && VR_offscreen_buffer->cv_w == 640)	{
 		CreditsOffscreenBuf = VR_offscreen_buffer;
 	}
@@ -237,9 +213,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 	else {
 		CreditsOffscreenBuf = gr_create_canvas(320,200);
 	}
-#else
-	CreditsOffscreenBuf = gr_create_canvas(640,480);
-#endif				
 
 	if (!CreditsOffscreenBuf)
 		Error("Not enough memory to allocate Credits Buffer.");
@@ -247,16 +220,11 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 	//gr_clear_canvas(BM_XRGB(0,0,0));
 	key_flush();
 
-#ifdef WINDOWS
-	if (!credinit)	
-#endif
 	{
 		last_time = timer_get_fixed_seconds();
 		done = 0;
 		first_line_offset = 0;
 	}
-
-	WIN(credinit = 1);
 
 	while( 1 )	{
 		int k;
@@ -365,11 +333,9 @@ get_line:;
 
 					tempbmp = &(CreditsOffscreenBuf->cv_bitmap);
 
-				WIN(DDGRSCREENLOCK);
 					gr_bm_bitblt( new_box->width + 1, new_box->height +4,
 								new_box->left, new_box->top, new_box->left, new_box->top,
 								tempbmp, &(grd_curscreen->sc_canvas.cv_bitmap) );
-				WIN(DDGRSCREENUNLOCK);
 				}
 
 #ifndef OGL
@@ -395,38 +361,12 @@ get_line:;
 			}
 
 //		Wacky Fast Credits thing doesn't need this (it's done above)
-//@@		WINDOS(
-//@@			dd_gr_blt_notrans(CreditsOffscreenBuf, 0,0,0,0,	dd_grd_screencanv, 0,0,0,0),
-//@@			gr_bm_ubitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(CreditsOffscreenBuf->cv_bitmap), &(grd_curscreen->sc_canvas.cv_bitmap) );
-//@@		);
+//@@		gr_bm_ubitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(CreditsOffscreenBuf->cv_bitmap), &(grd_curscreen->sc_canvas.cv_bitmap) );
 
 //			mprintf( ( 0, "Fr = %d", (timer_get_fixed_seconds() - last_time) ));
 			while( timer_get_fixed_seconds() < last_time+time_delay );
 			last_time = timer_get_fixed_seconds();
 		
-		#ifdef WINDOWS
-			{
-				MSG msg;
-
-				DoMessageStuff(&msg);
-
-				if (_RedrawScreen) {
-					_RedrawScreen = FALSE;
-
-					gr_close_font(header_font);
-					gr_close_font(title_font);
-					gr_close_font(names_font);
-
-					d_free(backdrop.bm_data);
-					gr_free_canvas(CreditsOffscreenBuf);
-		
-					goto CreditsPaint;
-				}
-
-				DDGRRESTORE;
-			}
-		#endif
-
 			//see if redbook song needs to be restarted
 			songs_check_redbook_repeat();
 
@@ -460,21 +400,12 @@ get_line:;
 					gr_use_palette_table( DEFAULT_PALETTE );
 					d_free(backdrop.bm_data);
 					cfclose(file);
-				WINDOS(
-					dd_gr_set_current_canvas(save_canv),
-					gr_set_current_canvas(save_canv)
-				);
+					gr_set_current_canvas(save_canv);
 					songs_play_song( SONG_TITLE, 1 );
 
-				#ifdef WINDOWS
-					gr_free_canvas(CreditsOffscreenBuf);
-				#else					
 					if (CreditsOffscreenBuf != VR_offscreen_buffer)
 						gr_free_canvas(CreditsOffscreenBuf);
-				#endif
 
-				WIN(DEFINE_SCREEN(Menu_pcx_name));
-			
 				return;
 			}
 		}

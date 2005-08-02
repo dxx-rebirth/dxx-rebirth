@@ -1,4 +1,4 @@
-/* $Id: scores.c,v 1.7 2004-12-01 12:48:13 btb Exp $ */
+/* $Id: scores.c,v 1.8 2005-08-02 06:13:56 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -311,7 +311,6 @@ void scores_draw_item( int  i, stats_info * stats )
 
 		int y;
 
-	WIN(DDGRLOCK(dd_grd_curcanv));
 		y = 7+70+i*9;
 
 		if (i==0) y -= 8;
@@ -325,7 +324,6 @@ void scores_draw_item( int  i, stats_info * stats )
 
 		if (strlen(stats->name)==0) {
 			gr_printf( LHX(26+33+XX), LHY(y+YY), TXT_EMPTY );
-			WIN(DDGRUNLOCK(dd_grd_curcanv));
 			return;
 		}
 		gr_printf( LHX(26+33+XX), LHY(y+YY), "%s", stats->name );
@@ -351,7 +349,6 @@ void scores_draw_item( int  i, stats_info * stats )
 			s = s % 60;
 			scores_rprintf( 311-42+XX, y+YY, "%d:%02d:%02d", h, m, s );
 		}
-	WIN(DDGRUNLOCK(dd_grd_curcanv));
 }
 
 void scores_view(int citem)
@@ -366,15 +363,12 @@ ReshowScores:
 
 	set_screen_mode(SCREEN_MENU);
  
-	WINDOS(	dd_gr_set_current_canvas(NULL),
-				gr_set_current_canvas(NULL)
-	);
+	gr_set_current_canvas(NULL);
 	
 	nm_draw_background(0,0,grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
 
 	grd_curcanv->cv_font = MEDIUM3_FONT;
 
-WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_string( 0x8000, LHY(15), TXT_HIGH_SCORES );
 
 	grd_curcanv->cv_font = SMALL_FONT;
@@ -394,7 +388,6 @@ WIN(DDGRLOCK(dd_grd_curcanv));
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
 	gr_printf( 0x8000, LHY(31), "%c%s%c  - %s", 34, Scores.cool_saying, 34, Scores.stats[0].name );
-WIN(DDGRUNLOCK(dd_grd_curcanv));	
 
 	for (i=0; i<MAX_HIGH_SCORES; i++ )		{
 		//@@if (i==0)	{
@@ -443,21 +436,6 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 		//see if redbook song needs to be restarted
 		songs_check_redbook_repeat();
 
-	#ifdef WINDOWS
-		{
-			MSG msg;
-
-			DoMessageStuff(&msg);
-
-			if (_RedrawScreen) {
-				_RedrawScreen = FALSE;
-				goto ReshowScores;
-			}
-
-			DDGRRESTORE;
-	 	}
-	#endif
-
 		k = key_inkey();
 		switch( k )	{
 		case KEY_CTRLED+KEY_R:		
@@ -484,13 +462,7 @@ WIN(DDGRUNLOCK(dd_grd_curcanv));
 // Restore background and exit
 	gr_palette_fade_out( gr_palette, 32, 0 );
 
-#ifdef WINDOWS
-	DDGRRESTORE;
-#endif
-
-	WINDOS(	dd_gr_set_current_canvas(NULL),
-				gr_set_current_canvas(NULL)
-	);
+	gr_set_current_canvas(NULL);
 
 	game_flush_inputs();
 	
