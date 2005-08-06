@@ -3,6 +3,8 @@
 	* main/automap.c: must_free_canvas isn't used when
 	AUTOMAP_DIRECT_RENDER is defined (whoops)
 
+	* main/inferno.c: print the command line help properly
+
 2005-08-02  Chris Taylor  <chris@icculus.org>
 
 	* 2d/bitblt.c, 2d/bitmap.c, 2d/pixel.c, 2d/rect.c, 2d/rle.c,
