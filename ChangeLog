@@ -5,6 +5,9 @@
 
 	* main/inferno.c: print the command line help properly
 
+	* arch/ogl/ogl.c, main/game.c, main/gamerend.c:
+	get the cockpit to show with d2x-gl
+
 2005-08-02  Chris Taylor  <chris@icculus.org>
 
 	* 2d/bitblt.c, 2d/bitmap.c, 2d/pixel.c, 2d/rect.c, 2d/rle.c,
