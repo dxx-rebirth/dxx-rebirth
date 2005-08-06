@@ -1,4 +1,4 @@
-/* $Id: automap.c,v 1.22 2005-08-02 06:13:56 chris Exp $ */
+/* $Id: automap.c,v 1.23 2005-08-06 09:16:15 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -672,7 +672,9 @@ void do_automap( int key_code )	{
 	int SegmentLimit = 1;
 	ubyte pal[256*3];
 	char maxdrop;
+#ifndef AUTOMAP_DIRECT_RENDER
 	int must_free_canvas=0;
+#endif
 	
 	Automap_active = 1;
 
