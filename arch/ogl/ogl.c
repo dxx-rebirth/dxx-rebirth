@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.36 2004-11-14 09:50:36 schaffner Exp $ */
+/* $Id: ogl.c,v 1.37 2005-08-07 09:58:33 chris Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -1872,7 +1872,7 @@ void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 
 }
 
-unsigned char decodebuf[512*512];
+unsigned char decodebuf[1024*1024];
 
 void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 {

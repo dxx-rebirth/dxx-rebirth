@@ -1,3 +1,8 @@
+2005-08-07  Chris Taylor  <chris@icculus.org>
+
+	* arch/ogl/ogl.c, main/game.c, main/gamerend.c:
+	get the cockpit to show with d2x-gl (actually committed!)
+
 2005-08-06  Chris Taylor  <chris@icculus.org>
 
 	* main/automap.c: must_free_canvas isn't used when

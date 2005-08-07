@@ -1,4 +1,4 @@
-/* $Id: game.c,v 1.41 2005-08-02 06:13:56 chris Exp $ */
+/* $Id: game.c,v 1.42 2005-08-07 09:58:12 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.41 2005-08-02 06:13:56 chris Exp $";
+char game_rcsid[] = "$Id: game.c,v 1.42 2005-08-07 09:58:12 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -161,8 +161,6 @@ fix _timer_value,actual_last_timer_value,_last_frametime;
 int stop_count,start_count;
 int time_stopped,time_started;
 #endif
-
-ubyte * Game_cockpit_copy_code = NULL;
 
 int			VR_screen_mode			= 0;
 
@@ -357,7 +355,7 @@ extern void newdemo_record_cockpit_change(int);
 //called every time the screen mode or cockpit changes
 void init_cockpit()
 {
-	int minx, maxx, miny, maxy;
+//	int minx, maxx, miny, maxy;
 
 	//Initialize the on-screen canvases
 
@@ -374,28 +372,13 @@ void init_cockpit()
 	if ( Screen_mode == SCREEN_EDITOR )
 		Cockpit_mode = CM_FULL_SCREEN;
 
-#ifdef OGL
-	if (Cockpit_mode == CM_FULL_COCKPIT || Cockpit_mode == CM_REAR_VIEW) {
-		hud_message(MSGC_GAME_FEEDBACK, "Cockpit not available in GL mode");
-		Cockpit_mode = CM_FULL_SCREEN;
-	}
-#endif
-
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( GAME_FONT );
-
-#ifdef __MSDOS__
-	if (Game_cockpit_copy_code)
-		d_free(Game_cockpit_copy_code);
-	Game_cockpit_copy_code  = NULL;
-#else
-	if (Game_cockpit_copy_code)
-		Game_cockpit_copy_code = 0;
-#endif
 
 	switch( Cockpit_mode ) {
 	case CM_FULL_COCKPIT:
 	case CM_REAR_VIEW: {
+#if 0
 		grs_bitmap *bm = &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index];
 
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
@@ -406,18 +389,12 @@ void init_cockpit()
 		bm = &VR_offscreen_buffer->cv_bitmap;
 		bm->bm_flags = BM_FLAG_TRANSPARENT;
 		gr_ibitblt_find_hole_size ( bm, &minx, &miny, &maxx, &maxy );
-
-#ifndef __MSDOS__
-		gr_ibitblt_create_mask( bm, minx, miny, maxx-minx+1, maxy-miny+1, VR_offscreen_buffer->cv_bitmap.bm_rowsize);
-		Game_cockpit_copy_code  = (ubyte *)(1);
-#else
-		if ( Current_display_mode ) {
-			Game_cockpit_copy_code  = gr_ibitblt_create_mask_svga( bm, minx, miny, maxx-minx+1, maxy-miny+1, VR_offscreen_buffer->cv_bitmap.bm_rowsize );
-		} else
-			Game_cockpit_copy_code  = gr_ibitblt_create_mask( bm, minx, miny, maxx-minx+1, maxy-miny+1, VR_offscreen_buffer->cv_bitmap.bm_rowsize );
 #endif
-		bm->bm_flags = 0;		// Clear all flags for offscreen canvas
-		game_init_render_sub_buffers( 0, 0, maxx-minx+1, maxy-miny+1 );
+
+		if (Cockpit_mode == CM_FULL_COCKPIT)
+			game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w, (grd_curscreen->sc_h*2)/3);
+		else if (Cockpit_mode == CM_REAR_VIEW)
+			game_init_render_sub_buffers((16*grd_curscreen->sc_w)/640, (89*grd_curscreen->sc_h)/480, (604*grd_curscreen->sc_w)/640, (209*grd_curscreen->sc_h)/480);
 		break;
 	}
 
@@ -2000,16 +1977,6 @@ void close_game()
 	close_gauge_canvases();
 
 	restore_effect_bitmap_icons();
-
-#ifdef __MSDOS__
-	if (Game_cockpit_copy_code)	{
-		d_free(Game_cockpit_copy_code);
-		Game_cockpit_copy_code = NULL;
-	}
-#else
-	if (Game_cockpit_copy_code)
-		Game_cockpit_copy_code = 0;
-#endif
 
 	if (background_bitmap.bm_data)
 		d_free(background_bitmap.bm_data);

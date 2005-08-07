@@ -1,4 +1,4 @@
-/* $Id: gamerend.c,v 1.19 2005-08-02 06:13:56 chris Exp $ */
+/* $Id: gamerend.c,v 1.20 2005-08-07 09:58:12 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.19 2005-08-02 06:13:56 chris Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.20 2005-08-07 09:58:12 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -904,9 +904,9 @@ void show_extra_views()
 
 int BigWindowSwitch=0;
 extern int force_cockpit_redraw;
-extern ubyte * Game_cockpit_copy_code;
 
 void draw_guided_crosshair(void);
+void update_cockpits(int force_redraw);
 
 
 //render a frame for the game
@@ -983,8 +983,6 @@ void game_render_frame_mono(void)
 	if (!no_draw_hud)
 		game_draw_hud_stuff();
 
-	show_extra_views();		//missile view, buddy bot, etc.
-
 	if (Game_paused) {		//render pause message over off-screen 3d (to minimize flicker)
 		extern char *Pause_msg;
 		ubyte *save_data = VR_screen_pages[VR_current_page].cv_bitmap.bm_data;
@@ -995,7 +993,7 @@ void game_render_frame_mono(void)
 	}
 
 	if ( Game_double_buffer ) {		//copy to visible screen
-		if ( !Game_cockpit_copy_code )	{
+//		if ( !Game_cockpit_copy_code )	{
 			if ( VR_screen_flags&VRF_USE_PAGING )	{	
 				VR_current_page = !VR_current_page;
 				gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
@@ -1012,6 +1010,7 @@ void game_render_frame_mono(void)
 						&VR_render_sub_buffer[0].cv_bitmap, 
 						&VR_screen_pages[0].cv_bitmap );
 			}
+#if 0
 		} else	{
 			#ifdef __MSDOS__
 				gr_ibitblt( &VR_render_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap, Game_cockpit_copy_code );
@@ -1019,7 +1018,12 @@ void game_render_frame_mono(void)
 				gr_ibitblt( &VR_render_sub_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap );
 			#endif
 		}
+#endif
 	}
+
+	update_cockpits(0);
+
+	show_extra_views();		//missile view, buddy bot, etc.
 
 	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR) {
 
@@ -1269,6 +1273,7 @@ void shrink_window()
 }
 
 int last_drawn_cockpit[2] = { -1, -1 };
+extern void ogl_loadbmtexture(grs_bitmap *bm); 
 
 // This actually renders the new cockpit onto the screen.
 void update_cockpits(int force_redraw)
@@ -1283,7 +1288,6 @@ void update_cockpits(int force_redraw)
 	case CM_REAR_VIEW:
 		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
-
 		gr_ubitmapm(0,0, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index]);	
 		break;
 
@@ -1336,7 +1340,7 @@ void game_render_frame()
 {
 	set_screen_mode( SCREEN_GAME );
 
-	update_cockpits(0);
+//	update_cockpits(0);
 
 	play_homing_warning();
 
