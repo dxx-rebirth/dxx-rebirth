@@ -1,4 +1,4 @@
-/* $Id: gauges.c,v 1.20 2005-08-02 06:13:56 chris Exp $ */
+/* $Id: gauges.c,v 1.21 2005-08-13 07:04:23 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1690,23 +1690,23 @@ void init_gauge_canvases()
 	PAGE_IN_GAUGE( SB_GAUGE_ENERGY );
 	PAGE_IN_GAUGE( GAUGE_AFTERBURNER );
 
-	Canv_LeftEnergyGauge = gr_create_canvas( LEFT_ENERGY_GAUGE_W, LEFT_ENERGY_GAUGE_H );
-	Canv_SBEnergyGauge = gr_create_canvas( SB_ENERGY_GAUGE_W, SB_ENERGY_GAUGE_H );
-	Canv_SBAfterburnerGauge = gr_create_canvas( SB_AFTERBURNER_GAUGE_W, SB_AFTERBURNER_GAUGE_H );
-	Canv_RightEnergyGauge = gr_create_canvas( RIGHT_ENERGY_GAUGE_W, RIGHT_ENERGY_GAUGE_H );
-	Canv_NumericalGauge = gr_create_canvas( NUMERICAL_GAUGE_W, NUMERICAL_GAUGE_H );
-	Canv_AfterburnerGauge = gr_create_canvas( AFTERBURNER_GAUGE_W, AFTERBURNER_GAUGE_H );
+	Canv_LeftEnergyGauge	= gr_create_sub_canvas( grd_curcanv, LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, LEFT_ENERGY_GAUGE_W, LEFT_ENERGY_GAUGE_H );
+	Canv_SBEnergyGauge		= gr_create_sub_canvas( grd_curcanv, SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_ENERGY_GAUGE_W, SB_ENERGY_GAUGE_H );
+	Canv_SBAfterburnerGauge	= gr_create_sub_canvas( grd_curcanv, SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_AFTERBURNER_GAUGE_W, SB_AFTERBURNER_GAUGE_H );
+	Canv_RightEnergyGauge	= gr_create_sub_canvas( grd_curcanv, RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, RIGHT_ENERGY_GAUGE_W, RIGHT_ENERGY_GAUGE_H );
+	Canv_NumericalGauge		= gr_create_sub_canvas( grd_curcanv, NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, NUMERICAL_GAUGE_W, NUMERICAL_GAUGE_H );
+	Canv_AfterburnerGauge	= gr_create_sub_canvas( grd_curcanv, AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, AFTERBURNER_GAUGE_W, AFTERBURNER_GAUGE_H );
 
 }
 
 void close_gauge_canvases()
 {
-	gr_free_canvas( Canv_LeftEnergyGauge );
-	gr_free_canvas( Canv_SBEnergyGauge );
-	gr_free_canvas( Canv_SBAfterburnerGauge );
-	gr_free_canvas( Canv_RightEnergyGauge );
-	gr_free_canvas( Canv_NumericalGauge );
-	gr_free_canvas( Canv_AfterburnerGauge );
+	gr_free_sub_canvas( Canv_LeftEnergyGauge );
+	gr_free_sub_canvas( Canv_SBEnergyGauge );
+	gr_free_sub_canvas( Canv_SBAfterburnerGauge );
+	gr_free_sub_canvas( Canv_RightEnergyGauge );
+	gr_free_sub_canvas( Canv_NumericalGauge );
+	gr_free_sub_canvas( Canv_AfterburnerGauge );
 }
 
 void init_gauges()
@@ -1759,16 +1759,14 @@ void draw_energy_bar(int energy)
 		for (y=0; y < LEFT_ENERGY_GAUGE_H; y++) {
 			x1 = LEFT_ENERGY_GAUGE_H - 1 - y;
 			x2 = LEFT_ENERGY_GAUGE_H - 1 - y + not_energy;
-	
-			if ( y>=0 && y<(LEFT_ENERGY_GAUGE_H/4) ) if (x2 > LEFT_ENERGY_GAUGE_W - 1) x2 = LEFT_ENERGY_GAUGE_W - 1;
-			if ( y>=(LEFT_ENERGY_GAUGE_H/4) && y<((LEFT_ENERGY_GAUGE_H*3)/4) ) if (x2 > LEFT_ENERGY_GAUGE_W - 2) x2 = LEFT_ENERGY_GAUGE_W - 2;
-			if ( y>=((LEFT_ENERGY_GAUGE_H*3)/4) ) if (x2 > LEFT_ENERGY_GAUGE_W - 3) x2 = LEFT_ENERGY_GAUGE_W - 3;
+
+			if (x2 > LEFT_ENERGY_GAUGE_W - y/3)
+				x2 = LEFT_ENERGY_GAUGE_W - y/3;
 			
-			if (x2 > x1) gr_uscanline( x1, x2, y ); 
+			if (x2 > x1) gr_uline( i2f(x1), i2f(y), i2f(x2), i2f(y) ); 
 		}
 	
 	gr_set_current_canvas( get_current_game_screen() );
-	gr_ubitmapm( LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, &Canv_LeftEnergyGauge->cv_bitmap );
 
 	// Draw right energy bar
 	gr_set_current_canvas( Canv_RightEnergyGauge );
@@ -1778,18 +1776,16 @@ void draw_energy_bar(int energy)
 
 	if (energy < 100)
 		for (y=0; y < RIGHT_ENERGY_GAUGE_H; y++) {
-			x1 = RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + y - not_energy;
-			x2 = RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + y;
-	
-			if ( y>=0 && y<(RIGHT_ENERGY_GAUGE_H/4) ) if (x1 < 0) x1 = 0;
-			if ( y>=(RIGHT_ENERGY_GAUGE_H/4) && y<((RIGHT_ENERGY_GAUGE_H*3)/4) ) if (x1 < 1) x1 = 1;
-			if ( y>=((RIGHT_ENERGY_GAUGE_H*3)/4) ) if (x1 < 2) x1 = 2;
-			
-			if (x2 > x1) gr_uscanline( x1, x2, y ); 
+			x1 = RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 1 + y - not_energy;
+			x2 = RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 1 + y;
+
+			if (x1 < y/3)
+				x1 = y/3;
+
+			if (x2 > x1) gr_uline( i2f(x1), i2f(y), i2f(x2), i2f(y) );  
 		}
 
 	gr_set_current_canvas( get_current_game_screen() );
-	gr_ubitmapm( RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, &Canv_RightEnergyGauge->cv_bitmap );
 }
 
 ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = {
@@ -1917,12 +1913,11 @@ void draw_afterburner_bar(int afterburner)
 
 	for (y=0;y<not_afterburner;y++) {
 
-		gr_uscanline( (Current_display_mode?afterburner_bar_table_hires[y*2]:afterburner_bar_table[y*2]),
-						(Current_display_mode?afterburner_bar_table_hires[y*2+1]:afterburner_bar_table[y*2+1]), y ); 
+		gr_uline( i2f(Current_display_mode ? afterburner_bar_table_hires[y*2] : afterburner_bar_table[y*2]), i2f(y),
+						i2f((Current_display_mode ? afterburner_bar_table_hires[y*2 + 1] : afterburner_bar_table[y*2 + 1]) + 1), i2f(y) ); 
 	}
 
 	gr_set_current_canvas( get_current_game_screen() );
-	gr_ubitmapm( AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, &Canv_AfterburnerGauge->cv_bitmap );
 }
 
 void draw_shield_bar(int shield)
@@ -2040,7 +2035,6 @@ void draw_numerical_display(int shield, int energy)
 	}
 	
 	gr_set_current_canvas( get_current_game_screen() );
-	gr_ubitmapm( NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, &Canv_NumericalGauge->cv_bitmap );
 }
 
 
@@ -2373,27 +2367,25 @@ void sb_draw_energy_bar(energy)
 	int erase_height, w, h, aw;
 	char energy_str[20];
 
-	//gr_set_current_canvas( Canv_SBEnergyGauge );
-
-	gr_set_current_canvas(get_current_game_screen());
+	gr_set_current_canvas( Canv_SBEnergyGauge );
 
 	PAGE_IN_GAUGE( SB_GAUGE_ENERGY );
-	gr_ubitmapm(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_ENERGY)]);
+	gr_ubitmapm(0, 0, &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_ENERGY)]);
 
 	erase_height = (100 - energy) * SB_ENERGY_GAUGE_H / 100;
 
 	if (erase_height > 0) {
 		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_ENERGY_GAUGE_X + SB_ENERGY_GAUGE_W - 1, SB_ENERGY_GAUGE_Y + erase_height - 1);
+		gr_rect(0, 0, SB_ENERGY_GAUGE_W - 1, erase_height - 1);
 	}
-
-	//gr_ubitmapm( SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &Canv_SBEnergyGauge->cv_bitmap );
-
+	
 	//draw numbers
 	sprintf(energy_str, "%d", energy);
 	gr_get_string_size(energy_str, &w, &h, &aw );
 	gr_set_fontcolor(gr_getcolor(25,18,6),-1 );
-	gr_printf(SB_ENERGY_GAUGE_X + ((SB_ENERGY_GAUGE_W - w)/2), SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4), "%d", energy);
+	gr_printf(((SB_ENERGY_GAUGE_W - w)/2), SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4), "%d", energy);
+
+	gr_set_current_canvas(get_current_game_screen());
 }
 
 void sb_draw_afterburner()
@@ -2401,19 +2393,16 @@ void sb_draw_afterburner()
 	int erase_height, w, h, aw;
 	char ab_str[3] = "AB";
 
-	//gr_set_current_canvas( Canv_SBAfterburnerGauge );
-	gr_set_current_canvas(get_current_game_screen());
+	gr_set_current_canvas( Canv_SBAfterburnerGauge );
 	PAGE_IN_GAUGE( SB_GAUGE_AFTERBURNER );
-	gr_ubitmapm(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_AFTERBURNER)]);
+	gr_ubitmapm(0, 0, &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_AFTERBURNER)]);
 
 	erase_height = fixmul((f1_0 - Afterburner_charge),SB_AFTERBURNER_GAUGE_H);
 
 	if (erase_height > 0) {
 		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_AFTERBURNER_GAUGE_X + SB_AFTERBURNER_GAUGE_W - 1, SB_AFTERBURNER_GAUGE_Y + erase_height - 1);
+		gr_rect(0, 0, SB_AFTERBURNER_GAUGE_W - 1, erase_height - 1);
 	}
-
-	//gr_ubitmapm( SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, &Canv_SBAfterburnerGauge->cv_bitmap );
 
 	//draw legend
 	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
@@ -2422,7 +2411,8 @@ void sb_draw_afterburner()
 		gr_set_fontcolor(gr_getcolor(12,12,12),-1 );
 
 	gr_get_string_size(ab_str, &w, &h, &aw );
-	gr_printf(SB_AFTERBURNER_GAUGE_X + ((SB_AFTERBURNER_GAUGE_W - w)/2),SB_AFTERBURNER_GAUGE_Y+SB_AFTERBURNER_GAUGE_H-GAME_FONT->ft_h - (GAME_FONT->ft_h / 4),"AB");
+	gr_printf(((SB_AFTERBURNER_GAUGE_W - w)/2), SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4), "AB");
+	gr_set_current_canvas(get_current_game_screen());
 }
 
 void sb_draw_shield_num(int shield)

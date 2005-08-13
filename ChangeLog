@@ -1,3 +1,8 @@
+2005-08-13  Chris Taylor  <chris@icculus.org>
+
+	* main/gauges.c: draw all gauges properly when using the cockpit
+	in d2x-gl, including the energy bars when empty
+
 2005-08-07  Chris Taylor  <chris@icculus.org>
 
 	* arch/ogl/ogl.c, main/game.c, main/gamerend.c:
