@@ -1,4 +1,4 @@
-/* $Id: ogl.c,v 1.37 2005-08-07 09:58:33 chris Exp $ */
+/* $Id: ogl.c,v 1.38 2005-11-07 15:36:46 chris Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
@@ -1917,7 +1917,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 	}
 #endif
 	if (bm->gltexture == NULL){
- 		ogl_init_texture(bm->gltexture = ogl_get_free_texture(), bm->bm_w, bm->bm_h, flags | ((bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
+ 		ogl_init_texture(bm->gltexture = ogl_get_free_texture(), bm->bm_w, bm->bm_h, flags | ((bm->bm_flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))? OGL_FLAG_ALPHA : 0));
 	}
 	else {
 		if (bm->gltexture->handle>0)
