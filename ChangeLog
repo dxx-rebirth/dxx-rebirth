@@ -1,3 +1,8 @@
+2005-11-29  Chris Taylor  <chris@icculus.org>
+
+	* main/titles.c: for Descent 1 briefings, look for briefings no
+	further than NUM_D1_BRIEFING_SCREENS (fix bug #2270)
+
 2005-11-07  Chris Taylor  <chris@icculus.org>
 
 	* arch/ogl/ogl.c: make super transparent textures have alpha

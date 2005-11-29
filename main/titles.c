@@ -1,4 +1,4 @@
-/* $Id: titles.c,v 1.38 2005-08-02 06:13:56 chris Exp $ */
+/* $Id: titles.c,v 1.39 2005-11-29 09:44:24 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -301,6 +301,7 @@ briefing_screen D1_Briefing_screens[] = {
 
 };
 
+#define NUM_D1_BRIEFING_SCREENS (sizeof(D1_Briefing_screens)/sizeof(briefing_screen))
 
 int	Briefing_text_x, Briefing_text_y;
 
@@ -1317,7 +1318,7 @@ void do_briefing_screens(char *filename,int level_num)
 	if (EMULATING_D1) {
 		int i;
 
-		for (i = 0; i < MAX_BRIEFING_SCREENS; i++)
+		for (i = 0; i < NUM_D1_BRIEFING_SCREENS; i++)
 			memcpy(&Briefing_screens[i], &D1_Briefing_screens[i], sizeof(briefing_screen));
 
 		if (level_num == 1) {
@@ -1328,7 +1329,7 @@ void do_briefing_screens(char *filename,int level_num)
 		}
 
 		if (!abort_briefing_screens) {
-			for (cur_briefing_screen = 0; cur_briefing_screen < MAX_BRIEFING_SCREENS; cur_briefing_screen++)
+			for (cur_briefing_screen = 0; cur_briefing_screen < NUM_D1_BRIEFING_SCREENS; cur_briefing_screen++)
 				if (Briefing_screens[cur_briefing_screen].level_num == level_num)
 					if (show_briefing_screen(cur_briefing_screen, 0))
 						break;
