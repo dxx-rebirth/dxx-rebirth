@@ -1,4 +1,4 @@
-/* $Id: gauges.c,v 1.21 2005-08-13 07:04:23 chris Exp $ */
+/* $Id: gauges.c,v 1.22 2006-02-24 06:08:31 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1687,6 +1687,10 @@ void add_bonus_points_to_score(int points)
 
 void init_gauge_canvases()
 {
+	grs_font *save_font = grd_curcanv->cv_font;
+
+	gr_set_curfont(GAME_FONT);
+
 	PAGE_IN_GAUGE( SB_GAUGE_ENERGY );
 	PAGE_IN_GAUGE( GAUGE_AFTERBURNER );
 
@@ -1697,6 +1701,7 @@ void init_gauge_canvases()
 	Canv_NumericalGauge		= gr_create_sub_canvas( grd_curcanv, NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, NUMERICAL_GAUGE_W, NUMERICAL_GAUGE_H );
 	Canv_AfterburnerGauge	= gr_create_sub_canvas( grd_curcanv, AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, AFTERBURNER_GAUGE_W, AFTERBURNER_GAUGE_H );
 
+	gr_set_curfont(save_font);
 }
 
 void close_gauge_canvases()

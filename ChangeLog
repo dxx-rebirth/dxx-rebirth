@@ -1,3 +1,7 @@
+2006-02-24  Chris Taylor  <chris@icculus.org>
+
+	* main/gauges.c: make sure the correct font is used (whoops)
+
 2005-11-29  Chris Taylor  <chris@icculus.org>
 
 	* main/titles.c: for Descent 1 briefings, look for briefings no
