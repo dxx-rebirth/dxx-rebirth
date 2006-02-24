@@ -1,4 +1,4 @@
-/* $Id: newmenu.c,v 1.32 2005-08-02 06:13:56 chris Exp $ */
+/* $Id: newmenu.c,v 1.33 2006-02-24 06:19:20 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1805,6 +1805,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 	gr_free_sub_canvas( bg.menu_canvas );
 
+	gr_set_current_canvas(save_canvas);
 	grd_curcanv->cv_font	= save_font;
 	keyd_repeat = old_keyd_repeat;
 

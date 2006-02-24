@@ -2,6 +2,9 @@
 
 	* main/gauges.c: make sure the correct font is used (whoops)
 
+	* main/newmenu.c: restore the old canvas after showing a menu,
+	avoiding potential problems
+
 2005-11-29  Chris Taylor  <chris@icculus.org>
 
 	* main/titles.c: for Descent 1 briefings, look for briefings no
