@@ -1,4 +1,4 @@
-/* $Id: gameseg.c,v 1.10 2004-09-05 12:07:01 schaffner Exp $ */
+/* $Id: gameseg.c,v 1.11 2006-02-25 06:15:47 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -40,7 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 #ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.10 2004-09-05 12:07:01 schaffner Exp $";
+static char rcsid[] = "$Id: gameseg.c,v 1.11 2006-02-25 06:15:47 chris Exp $";
 #endif
 
 // How far a point can be from a plane, and still be "in" the plane
@@ -1944,10 +1944,12 @@ void apply_light_to_segment(segment *segp,vms_vector *segment_center, fix light_
 			if (light_at_point >= 0) {
 				segment2	*seg2p	= &Segment2s[segnum];
 				light_at_point = fixmul(light_at_point, light_intensity);
+#if 0	// don't see the point, static_light can be greater than F1_0
 				if (light_at_point >= F1_0)
 					light_at_point = F1_0-1;
 				if (light_at_point <= -F1_0)
 					light_at_point = -(F1_0-1);
+#endif
 				seg2p->static_light += light_at_point;
 				if (seg2p->static_light < 0)	// if it went negative, saturate
 					seg2p->static_light = 0;

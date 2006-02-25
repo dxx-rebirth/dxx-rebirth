@@ -3,6 +3,9 @@
 	* main/menu.c: complete removal of 7th option in Options menu,
 	hopefully fixing bug #2514
 
+	* main/gameseg.c: when breaking a light, allow segment light to
+	change by more than F1_0
+
 2006-02-24  Chris Taylor  <chris@icculus.org>
 
 	* main/gauges.c: make sure the correct font is used (whoops)
