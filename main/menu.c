@@ -1,4 +1,4 @@
-/* $Id: menu.c,v 1.44 2005-08-02 06:13:56 chris Exp $ */
+/* $Id: menu.c,v 1.45 2006-02-25 05:43:39 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -1547,7 +1547,8 @@ extern int Automap_always_hires;
 
 void do_toggles_menu()
 {
-	newmenu_item m[7];
+#define N_TOGGLE_ITEMS 6
+	newmenu_item m[N_TOGGLE_ITEMS];
 	int i = 0;
 
 	do {
@@ -1568,9 +1569,10 @@ void do_toggles_menu()
 		ADD_CHECK(3, "Headlight on when picked up", Headlight_active_default );
 		ADD_CHECK(4, "Show guided missile in main display", Guided_in_big_window );
 		ADD_CHECK(5, "Escort robot hot keys",EscortHotKeys);
+		//ADD_CHECK(6, "Always use 640x480 or greater automap", Automap_always_hires);
 		//when adding more options, change N_TOGGLE_ITEMS above
 
-		i = newmenu_do1( NULL, "Toggles", 7, m, NULL, i );
+		i = newmenu_do1( NULL, "Toggles", N_TOGGLE_ITEMS, m, NULL, i );
 			
 		Auto_leveling_on			= m[0].value;
 		Reticle_on					= m[1].value;
@@ -1579,11 +1581,12 @@ void do_toggles_menu()
 		Guided_in_big_window		= m[4].value;
 		EscortHotKeys				= m[5].value;
 
-
+#if 0
 		if (MenuHiresAvailable)
 			Automap_always_hires = m[6].value;
 		else if (m[6].value)
 			nm_messagebox(TXT_SORRY,1,"OK","High Resolution modes are\nnot available on this video card");
+#endif
 	} while( i>-1 );
 
 }
