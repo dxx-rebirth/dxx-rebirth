@@ -1,4 +1,4 @@
-/* $Id: piggy.c,v 1.63 2005-08-02 06:13:56 chris Exp $ */
+/* $Id: piggy.c,v 1.64 2006-02-26 02:29:06 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.63 2005-08-02 06:13:56 chris Exp $";
+static char rcsid[] = "$Id: piggy.c,v 1.64 2006-02-26 02:29:06 chris Exp $";
 #endif
 
 
@@ -1523,8 +1523,6 @@ void piggy_load_level_data()
 
 #ifdef EDITOR
 
-void change_filename_ext( char *dest, char *src, char *ext );
-
 void piggy_write_pigfile(char *filename)
 {
 	FILE *pig_fp;
@@ -1562,9 +1560,9 @@ void piggy_write_pigfile(char *filename)
 	bitmap_data_start += (Num_bitmap_files - 1) * sizeof(DiskBitmapHeader);
 	data_offset = bitmap_data_start;
 
-	change_filename_ext(tname,filename,"lst");
+	change_filename_extension(tname,filename,"lst");
 	fp1 = fopen( tname, "wt" );
-	change_filename_ext(tname,filename,"all");
+	change_filename_extension(tname,filename,"all");
 	fp2 = fopen( tname, "wt" );
 
 	for (i=1; i < Num_bitmap_files; i++ )   {
@@ -1848,7 +1846,6 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name )
  *  2) From descent.pig (for loading d1 levels)
  */
 
-extern void change_filename_extension( char *dest, char *src, char *new_ext );
 extern char last_palette_loaded_pig[];
 
 void free_bitmap_replacements()

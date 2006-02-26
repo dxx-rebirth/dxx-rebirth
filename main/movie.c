@@ -1,4 +1,4 @@
-/* $Id: movie.c,v 1.39 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: movie.c,v 1.40 2006-02-26 02:29:06 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.39 2005-07-30 01:50:17 chris Exp $";
+static char rcsid[] = "$Id: movie.c,v 1.40 2006-02-26 02:29:06 chris Exp $";
 #endif
 
 #include <string.h>
@@ -99,7 +99,6 @@ SDL_RWops *RoboFile;
 // Function Prototypes
 int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int dy);
 
-void change_filename_ext( char *dest, char *src, char *ext );
 void decode_text_line(char *p);
 void draw_subtitles(int frame_num);
 
@@ -509,7 +508,7 @@ int init_subtitles(char *filename)
 
 	if (!ifile) {								//no text version, try binary version
 		char filename2[FILENAME_LEN];
-		change_filename_ext(filename2,filename,".TXB");
+		change_filename_extension(filename2, filename, ".TXB");
 		ifile = cfopen(filename2,"rb");
 		if (!ifile)
 			return 0;

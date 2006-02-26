@@ -1,3 +1,10 @@
+2006-02-26  Chris Taylor  <chris@icculus.org>
+
+	* include/strutil.h, main/bm.c, main/gamepal.c, main/gamesave.c,
+	main/movie.c, main/piggy.c, misc/strutil.c:
+	move change_filename_ext to strutil.c, rename to (and remove old)
+	change_filename_extension, add an assert and make it use strrchr
+
 2006-02-25  Chris Taylor  <chris@icculus.org>
 
 	* main/menu.c: complete removal of 7th option in Options menu,

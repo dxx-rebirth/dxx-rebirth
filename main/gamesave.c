@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.32 2005-06-22 09:42:04 chris Exp $ */
+/* $Id: gamesave.c,v 1.33 2006-02-26 02:29:06 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.32 2005-06-22 09:42:04 chris Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.33 2006-02-26 02:29:06 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -171,29 +171,6 @@ int is_real_level(char *filename)
 
 }
 #endif
-
-void change_filename_extension( char *dest, char *src, char *new_ext )
-{
-	int i;
-
-	strcpy (dest, src);
-
-	if (new_ext[0]=='.')
-		new_ext++;
-
-	for (i=1; i<strlen(dest); i++ )
-		if (dest[i]=='.'||dest[i]==' '||dest[i]==0)
-			break;
-
-	if (i < 123) {
-		dest[i]='.';
-		dest[i+1]=new_ext[0];
-		dest[i+2]=new_ext[1];
-		dest[i+3]=new_ext[2];
-		dest[i+4]=0;
-		return;
-	}
-}
 
 //--unused-- vms_angvec zero_angles={0,0,0};
 

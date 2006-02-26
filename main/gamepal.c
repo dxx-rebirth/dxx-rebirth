@@ -1,4 +1,4 @@
-/* $Id: gamepal.c,v 1.6 2005-07-30 01:50:17 chris Exp $ */
+/* $Id: gamepal.c,v 1.7 2006-02-26 02:29:06 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -46,25 +46,6 @@ extern void g3_remap_interp_colors();
 char Current_level_palette[FILENAME_LEN];
 
 extern int Color_0_31_0, HUD_color;
-
-//give a filename a new extension
-void change_filename_ext( char *dest, char *src, char *ext )
-{
-	char *p;
-
-	strcpy (dest, src);
-
-	if (ext[0] == '.')
-		ext++;
-
-	p = strchr(dest,'.');
-	if (!p) {
-		p = dest + strlen(dest);
-		*p = '.';
-	}
-
-	strcpy(p+1,ext);
-}
 
 //background for boxed messages
 typedef struct bkg {

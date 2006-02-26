@@ -1,4 +1,4 @@
-/* $Id: strutil.h,v 1.14 2004-12-20 07:12:25 btb Exp $ */
+/* $Id: strutil.h,v 1.15 2006-02-26 02:29:18 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -42,6 +42,9 @@ void strrev( char *s1 );
 
 // remove extension from filename, doesn't work with paths.
 void removeext(const char *filename, char *out);
+
+//give a filename a new extension, doesn't work with paths.
+extern void change_filename_extension( char *dest, char *src, char *new_ext );
 
 #if !defined(__MSDOS__) && !(defined(_WIN32) && !defined(_WIN32_WCE))
 void _splitpath(char *name, char *drive, char *path, char *base, char *ext);

@@ -1,4 +1,4 @@
-/* $Id: bm.c,v 1.49 2005-03-31 09:38:53 chris Exp $ */
+/* $Id: bm.c,v 1.50 2006-02-26 02:29:06 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -489,8 +489,6 @@ void bm_read_extra_robots(char *fname,int type)
 
 	cfclose(fp);
 }
-
-extern void change_filename_extension( char *dest, char *src, char *new_ext );
 
 int Robot_replacements_loaded = 0;
 

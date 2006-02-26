@@ -1,4 +1,4 @@
-/* $Id: strutil.c,v 1.15 2004-12-20 07:12:25 btb Exp $ */
+/* $Id: strutil.c,v 1.16 2006-02-26 02:29:24 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "u_mem.h"
 #include "error.h"
+#include "inferno.h"
 
 #ifdef macintosh
 # if defined(NDEBUG)
@@ -126,6 +127,26 @@ void removeext(const char *filename, char *out)
 		strcpy(out, filename);
 }
 
+
+//give a filename a new extension, doesn't work with paths.
+void change_filename_extension( char *dest, char *src, char *ext )
+{
+	char *p;
+	
+	strcpy (dest, src);
+	
+	if (ext[0] == '.')
+		ext++;
+	
+	p = strrchr(dest, '.');
+	if (!p) {
+		p = dest + strlen(dest);
+		*p = '.';
+	}
+	
+	Assert((p + strlen(ext)) - dest < FILENAME_LEN);
+	strcpy(p+1,ext);
+}
 
 #if !defined(__MSDOS__) && !(defined(_WIN32) && !defined(_WIN32_WCE))
 void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
