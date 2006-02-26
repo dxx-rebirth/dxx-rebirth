@@ -1,4 +1,4 @@
-/* $Id: gamesave.c,v 1.33 2006-02-26 02:29:06 chris Exp $ */
+/* $Id: gamesave.c,v 1.34 2006-02-26 06:16:57 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.33 2006-02-26 02:29:06 chris Exp $";
+char gamesave_rcsid[] = "$Id: gamesave.c,v 1.34 2006-02-26 06:16:57 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -1373,7 +1373,7 @@ int load_level(char * filename_passed)
 
 	set_ambient_sound_flags();
 
-	#ifdef EDITOR
+	#if 0	//def EDITOR
 	write_game_text_file(filename);
 	if (Errors_in_mine) {
 		if (is_real_level(filename)) {

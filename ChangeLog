@@ -8,6 +8,9 @@
 	* main/gamerend.c: show the death sequence for d2x-gl
 	(fix bug #2513)
 
+	* main/gamesave.c: with the editor built, don't make .txm files
+	when a level is loaded (only make them when saving levels)
+
 2006-02-25  Chris Taylor  <chris@icculus.org>
 
 	* main/menu.c: complete removal of 7th option in Options menu,
