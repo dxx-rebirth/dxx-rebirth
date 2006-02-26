@@ -1,4 +1,4 @@
-/* $Id: gamerend.c,v 1.20 2005-08-07 09:58:12 chris Exp $ */
+/* $Id: gamerend.c,v 1.21 2006-02-26 05:55:22 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.20 2005-08-07 09:58:12 chris Exp $";
+static char rcsid[] = "$Id: gamerend.c,v 1.21 2006-02-26 05:55:22 chris Exp $";
 #endif
 
 #include <stdio.h>
@@ -1311,7 +1311,9 @@ void update_cockpits(int force_redraw)
 
 	case CM_LETTERBOX:
 		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+#ifndef OGL
 		gr_clear_canvas( BM_XRGB(0,0,0) );
+#endif
 
 		// In a modex mode, clear the other buffer.
 		if (grd_curcanv->cv_bitmap.bm_type == BM_MODEX) {

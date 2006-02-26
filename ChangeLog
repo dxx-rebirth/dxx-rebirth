@@ -5,6 +5,9 @@
 	move change_filename_ext to strutil.c, rename to (and remove old)
 	change_filename_extension, add an assert and make it use strrchr
 
+	* main/gamerend.c: show the death sequence for d2x-gl
+	(fix bug #2513)
+
 2006-02-25  Chris Taylor  <chris@icculus.org>
 
 	* main/menu.c: complete removal of 7th option in Options menu,
