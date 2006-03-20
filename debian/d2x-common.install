@@ -1,0 +1,7 @@
+build_d2x-sdl/libmve/mveplayer     /usr/bin
+build_d2x-sdl/utilities/hogcreate  /usr/bin
+build_d2x-sdl/utilities/hogextract /usr/bin
+build_d2x-sdl/utilities/mvlcreate  /usr/bin
+build_d2x-sdl/utilities/mvlextract /usr/bin
+build_d2x-sdl/utilities/tex2txb    /usr/bin
+build_d2x-sdl/utilities/txb2tex    /usr/bin

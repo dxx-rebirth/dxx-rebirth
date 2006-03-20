@@ -1,0 +1,320 @@
+#include <dos.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <i86.h>
+#include <dos.h>
+#include "mono.h"
+
+
+#include "fxdpmi.h"
+#include "fxvesa.h"
+
+#define DPMI_INTERRUPT 0x31
+const VIDEO_INTERRUPT = 0x10;
+
+typedef struct
+{
+  short   ModeAttributes;         /* Mode attributes                  */
+  char    WinAAttributes;         /* Window A attributes              */
+  char    WinBAttributes;         /* Window B attributes              */
+  short   WinGranularity;         /* Window granularity in k          */
+  short   WinSize;                /* Window size in k                 */
+  short   WinASegment;            /* Window A segment                 */
+  short   WinBSegment;            /* Window B segment                 */
+  void   *WinFuncPtr;             /* Pointer to window function       */
+  short   BytesPerScanLine;       /* Bytes per scanline               */
+  short   XResolution;            /* Horizontal resolution            */
+  short   YResolution;            /* Vertical resolution              */
+  char    XCharSize;              /* Character cell width             */
+  char    YCharSize;              /* Character cell height            */
+  char    NumberOfPlanes;         /* Number of memory planes          */
+  char    BitsPerPixel;           /* Bits per pixel                   */
+  char    NumberOfBanks;          /* Number of CGA style banks        */
+  char    MemoryModel;            /* Memory model type                */
+  char    BankSize;               /* Size of CGA style banks          */
+  char    NumberOfImagePages;     /* Number of images pages           */
+  char    res1;                   /* Reserved                         */
+  char    RedMaskSize;            /* Size of direct color red mask    */
+  char    RedFieldPosition;       /* Bit posn of lsb of red mask      */
+  char    GreenMaskSize;          /* Size of direct color green mask  */
+  char    GreenFieldPosition;     /* Bit posn of lsb of green mask    */
+  char    BlueMaskSize;           /* Size of direct color blue mask   */
+  char    BlueFieldPosition;      /* Bit posn of lsb of blue mask     */
+  char    RsvdMaskSize;           /* Size of direct color res mask    */
+  char    RsvdFieldPosition;      /* Bit posn of lsb of res mask      */
+  char    DirectColorModeInfo;    /* Direct color mode attributes     */
+  FxU32   PhysBasePtr;            /* Physical address of lfb          */
+  FxU32   OffScreenMemOffset;
+  FxU32   OffScreenMemSize;
+  char    res2[206];              /* Pad to 256 byte block size       */
+} ModeInfoBlock;
+
+
+void VesaMain()
+{
+   FxU16     mode = 0x111;
+   VesaErr_t error;
+
+   if ( ( error = VesaInit( mode ) ) != VESA_ERR_NONE )
+   {
+      printf( "VesaInit failed with error '%s'\n", VesaGetErrorString( error ) );
+      exit( 1 );
+   }
+   else
+   {
+		char *MyPtr;
+		MyPtr=(char *)VesaGetPtr();	
+		  memset( (MyPtr+((rand()%0x10000)<<4)+rand()%0x10000),rand()%256, 1 );
+   }
+
+   VesaEnd();
+}
+
+/*
+** DpmiMapPhysicalToLinear
+*/
+FxU32 DpmiMapPhysicalToLinear( FxU32 paddr, FxU32 length )
+{
+   FxU32      laddr;
+   union REGS r;
+
+   /*
+   ** DPMI function 0x800
+   */
+   r.w.ax = 0x800;
+
+   /*
+   ** BX:CX = physical address
+   ** SI:DI = length
+   */
+   r.w.bx = ( FxU16 ) ( paddr >> 16 );
+   r.w.cx = ( FxU16 ) ( paddr & 0x0000FFFF );
+   r.w.si = ( FxU16 ) ( length >> 16 );
+   r.w.di = ( FxU16 ) ( length & 0x0000FFFF );
+   int386( DPMI_INTERRUPT, &r, &r );
+
+   /*
+   ** if cflag set then an error occured
+   */
+   if ( r.w.cflag )
+   {
+      laddr = 0;
+   }
+   else
+   {
+      laddr = r.w.bx;
+      laddr <<= 16;
+      laddr |= r.w.cx;
+   }
+   return laddr;
+}
+
+/*
+** DpmiAllocDosMem
+*/
+void *DpmiAllocDosMem( FxU16 size, DpmiSelector_t *pSel )
+{
+   union REGS  r;
+   void       *ptr;
+   FxU32       seg;
+
+   /*
+   ** AX = DPMI function 0x100
+   */
+   r.w.ax = 0x100;
+
+   /*
+   ** BX = # of paragraphs to allocate
+   */
+   r.w.bx = ( FxI16 ) ( size / 16 + 1 );
+
+   int386( DPMI_INTERRUPT, &r, &r );
+
+   if ( r.w.cflag )
+   {
+      ptr = 0;
+   }
+   else
+   {
+      seg  = r.w.ax;
+     *pSel = r.w.dx;
+
+      ptr = ( void * ) ( seg << 4 );
+   }
+
+   return ptr;
+}
+
+/*
+** DpmiFreeDosMem
+*/
+FxBool DpmiFreeDosMem( DpmiSelector_t sel )
+{
+  union REGS r;
+
+  r.w.ax = 0x101;
+  r.w.bx = sel;
+  int386( DPMI_INTERRUPT, &r, &r );
+
+  if ( r.w.cflag )
+     return FXFALSE;
+  else
+     return FXTRUE;
+}
+
+DpmiRMI       RMI;
+ModeInfoBlock infoblock;
+
+static void *vesa_lfb_ptr;
+
+static void VesaGetModeInfo( int mode, ModeInfoBlock *infoblock )
+{
+  union REGS           r;
+  struct SREGS        sr;
+  DpmiSelector_t   infosel;
+  unsigned short infoseg;
+  ModeInfoBlock *far_infoblock;
+
+  /*
+  ** Allocate some real-mode DOS memory using DPMI function 0x100
+  */
+  far_infoblock = ( ModeInfoBlock * ) DpmiAllocDosMem( sizeof( ModeInfoBlock ), &infosel );
+  infoseg = ( unsigned short ) ( ( ( unsigned long ) far_infoblock ) >> 4 );
+
+  /*
+  ** Get VESA SVGA info block by executing real-mode interrupt
+  ** 0x10, function 0x4F01.  This must be done using DPMI service
+  ** 0x300 since DOS4GW doesn't automatically thunk pointers down
+  ** for VESA functions.
+  */
+  memset( &RMI, 0, sizeof( RMI ) );
+  RMI.EAX = 0x4F01;        // Function 0x4F01
+  RMI.ECX = mode;          //
+  RMI.ES  = infoseg;       // ES:DI -> pointer to real mode buffer
+  RMI.EDI = 0;
+
+  r.x.eax = 0x0300;           // DPMI service "execute real mode interrupt"
+  r.x.ebx = VIDEO_INTERRUPT;  // BL = function to execute
+  r.x.ecx = 0;                // CX = 0
+  segread( &sr );
+  sr.es   = FP_SEG( &RMI );   // ES:EDI -> buffer to RMI struct
+  r.x.edi = FP_OFF( &RMI );
+
+  #define DPMI_INTERRUPT 0x31
+
+  int386x( DPMI_INTERRUPT, &r, &r, &sr );
+
+  /*
+  ** Copy realmode buffer into protected mode buffer
+  */
+  memcpy( infoblock, far_infoblock, sizeof( ModeInfoBlock ) );
+
+  /*
+  ** Free up the memory
+  */
+  DpmiFreeDosMem( infosel );
+}
+
+
+extern int FindArg(char *);
+/*
+** VesaInit
+**
+** VESA initialization function.  Returns a pointer to the
+** linear frame buffer.
+*/
+
+
+int VesaInit( int mode )
+{
+  union REGS r;
+
+	if ( FindArg( "-virge" ) && (mode==0x101) )	{
+		vesa_lfb_ptr = virge_init();
+		return 1;
+	}
+
+  if (FindArg ("-novesa"))
+	return(0);		
+	
+  /*
+  ** Get VESA mode information
+  */
+  VesaGetModeInfo( mode, &infoblock );
+
+  /*
+  ** Check mode information stuff
+  */
+  if ( !( infoblock.ModeAttributes & 0x1 ) ||
+       !( infoblock.ModeAttributes & 0x80 ) )
+  {
+		mprintf ((0,"mode %x is not supported!\n",mode));
+     return 0;
+  }
+
+  /*
+  ** Get a pointer to the linear frame buffer
+  */
+  if ( ( vesa_lfb_ptr = ( void * ) DpmiMapPhysicalToLinear( infoblock.PhysBasePtr, 0x400000 - 1 ) ) == 0 )
+  {
+		mprintf ((0,"mode %x mapping not supported!\n",mode));
+		
+     return 0;
+  }
+
+  /*
+  ** Set the video mode
+  */
+  r.w.ax = 0x4F02;
+  r.w.bx = ( short ) ( mode | 0x4000 );
+  int386( VIDEO_INTERRUPT, &r, &r );
+
+  if ( r.w.ax != 0x004F )
+  {
+     VesaEnd();
+		mprintf ((0,"mode %x  not set!\n",mode));
+	  
+     return 0;
+  }
+	mprintf ((0,"No errors! mode %x is go!\n",mode));
+  return 1;
+}
+
+/*
+** VesaEnd
+*/
+void VesaEnd( void )
+{
+   union REGS r;
+
+   r.w.ax = 0x3;
+   int386( VIDEO_INTERRUPT, &r, &r );
+}
+
+/*
+** VesaGetPtr
+*/
+void *VesaGetPtr( void )
+{
+   return vesa_lfb_ptr;
+}
+
+static const char *vesa_errors[] =
+{
+   "VESA_ERR_NONE",
+   "VESA_ERR_DPMI_MAPPING_FAILED",
+   "VESA_ERR_MODE_NOT_SUPPORTED",
+   "VESA_ERR_MODE_NOT_SET"
+};
+
+/*
+** VesaGetErrorString
+*/
+const char *VesaGetErrorString( VesaErr_t err )
+{
+   return vesa_errors[err];
+}
+
+
+

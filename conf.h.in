@@ -1,0 +1,175 @@
+/* conf.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define to enable console */
+#undef CONSOLE
+
+/* d2x major version */
+#undef D2XMAJOR
+
+/* d2x micro version */
+#undef D2XMICRO
+
+/* d2x minor version */
+#undef D2XMINOR
+
+/* Define if you want to build the editor */
+#undef EDITOR
+
+/* Define for faster i/o on little-endian cpus */
+#undef FAST_FILE_IO
+
+/* Define if you want a GGI build */
+#undef GGI
+
+/* Define to 1 if you have the declaration of `nanosleep', and to 0 if you
+   don't. */
+#undef HAVE_DECL_NANOSLEEP
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the <netipx/ipx.h> header file. */
+#undef HAVE_NETIPX_IPX_H
+
+/* Define to 1 if you have the <physfs.h> header file. */
+#undef HAVE_PHYSFS_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if the system has the type `struct timespec'. */
+#undef HAVE_STRUCT_TIMESPEC
+
+/* Define to 1 if the system has the type `struct timeval'. */
+#undef HAVE_STRUCT_TIMEVAL
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to enable use of the KaliNix driver */
+#undef KALINIX
+
+/* Define if you want to build for mac datafiles */
+#undef MACDATA
+
+/* Define to use the IPX support of the OS */
+#undef NATIVE_IPX
+
+/* Define to disable asserts, int3, etc. */
+#undef NDEBUG
+
+/* Define if you want a network build */
+#undef NETWORK
+
+/* Define if you want an assembler free build */
+#undef NO_ASM
+
+/* Define if you want an OpenGL build */
+#undef OGL
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* Define for a "release" build */
+#undef RELEASE
+
+/* Define if you have the SDL_image library */
+#undef SDL_IMAGE
+
+/* Define this to be the shared game directory root */
+#undef SHAREPATH
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Define if you want an SVGALib build */
+#undef SVGA
+
+/* define to not use the SDL_Joystick routines. */
+#undef USE_LINUX_JOY
+
+/* Version number of package */
+#undef VERSION
+
+/* Define to 1 if your processor stores words with the most significant byte
+   first (like Motorola and SPARC, unlike Intel and VAX). */
+#undef WORDS_BIGENDIAN
+
+/* Define if your processor needs data to be word-aligned */
+#undef WORDS_NEED_ALIGNMENT
+
+
+        /* General defines */
+#ifndef PACKAGE_STRING
+#define PACKAGE_STRING PACKAGE " " VERSION
+#endif
+#define VERSION_NAME PACKAGE_STRING
+#define NMONO 1
+#define PIGGY_USE_PAGING 1
+#define NEWDEMO 1
+
+#if defined(__APPLE__) && defined(__MACH__)
+#define __unix__ /* since we're doing a unix-style compilation... */
+#endif
+
+#ifdef __unix__
+# ifdef GGI
+#  define GII_INPUT 1
+#  define GGI_VIDEO 1
+# else
+#  ifdef SVGA
+#   define SVGALIB_INPUT 1
+#   define SVGALIB_VIDEO 1
+#  else
+#   define SDL_INPUT 1
+#   ifdef OGL
+#    define SDL_GL_VIDEO 1
+#   else
+#    define SDL_VIDEO 1
+#   endif
+#  endif
+# endif
+#endif
+
+#ifdef _WIN32
+# define SDL_INPUT 1
+# ifdef OGL
+#  define SDL_GL_VIDEO 1
+# else
+#  define SDL_VIDEO 1
+# endif
+#endif
+        
