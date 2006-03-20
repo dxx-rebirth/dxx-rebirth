@@ -1,0 +1,59 @@
+#default makefile for libraries
+
+CPPFLAGS= $(CFLAGS)
+
+all: $(SUBDIRS) $(OUTPUT)
+
+include $(TOPDIR)/makefile.rules
+
+$(filter %.a,$(OUTPUT)): depend
+	make make_a
+
+$(filter %.lib,$(OUTPUT)): depend
+	make make_lib
+
+make_a: $(LIBDIR) $(OBJDIR) $(OBJECTS_TARGETS) $(OBJECTS_DONT_LINK_TARGETS)
+	ar rcs $(OUTPUT) $(OBJECTS_TARGETS)
+
+make_lib: $(LIBDIR) $(OBJDIR) $(OBJECTS_TARGETS) $(OBJECTS_DONT_LINK_TARGETS)
+	lib -nologo -out:$(OUTPUT) $(OBJECTS_TARGETS)
+
+$(LIBDIR):
+	mkdir $(LIBDIR) -p
+
+ifneq ($(OBJECTS),)
+$(OBJDIR):
+	mkdir $(OBJDIR) -p
+endif
+
+#dependancy generation
+
+ALLOBJECTS = $(OBJECTS_TARGETS)
+DEPOBJ=$(ALLOBJECTS:.$(OBJ)=.d)
+
+$(OBJDIR)%.d: %.c
+	$(CC) $(CFLAGS) $(E_CFLAGS) -MM $< >> $@
+
+$(OBJDIR)%.d: %.cpp
+	$(CC) $(CFLAGS) $(E_CFLAGS) -MM $< >> $@
+
+depend: $(OBJDIR) $(subst .o,.d,$(OBJECTS_TARGETS))
+	$(DEPSUBS)
+
+ifneq ($(wildcard $(OBJDIR)*.d),)
+include $(wildcard $(OBJDIR)*.d)
+endif
+
+#rules for cleaning
+
+ifdef OBJECTS
+CLEANOBJ=rm -r -f $(OBJDIR)
+endif
+ifdef OUTPUT
+CLEANOUT=rm -f $(OUTPUT)
+endif
+
+clean:
+	$(CLEANOBJ)
+	$(CLEANOUT)
+	$(CLEANSUBS)

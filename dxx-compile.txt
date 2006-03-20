@@ -1,0 +1,11 @@
+This file describes how to compile D1X-Rebirth from source.
+
+* edit the "config" file and specify the output directory and the platform you´re running
+* edit the appropriate "config.lin" "config.mingw" or "config.other" file to chenge the options
+* run "make"
+* the resulting file now will be copied in the directory you specified in "config"
+* place the file wherever you want to have it
+* copy your data files to the desired path (see DXX-README.TXT for more information)
+
+If you run into any problems do not hesitate to contact me.
+eMail is: zicothehentaifreak@gmx.de

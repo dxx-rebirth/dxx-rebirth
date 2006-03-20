@@ -1,0 +1,71 @@
+D1X-Rebirth Changelog
+
+20060224
+--------
+/arch/ogl/include/ogl_init.h: fixing "OGL: texture list full"-bug
+/main/game.c, /main/gameseq.c: beter code older compilers (thanks to AD)
+/main/state.c: better savegame thumbs for every resolution
+/main/network.c, /main/multi.h, /main/menu.c: removed "D1X ONLY GAME" option, code cleaning
+/rules.mak, /main/vers_id.h: changes in date, version-number
+/main/gauges.c: fix for invulnerable/cloak hud font colors that had color of your last key
+/main/game.c: new keys to get shrink and grow window functions working
+/main/automap.c, /main/inferno.c: automap now always in gameres and eat less cpu power
+/main/kconfig.c: fix laser fire if energy and vulcan ammo recharged after 0
+/main/gauges.c: fix weapons descriptions in cockpit mode
+/main/menu.c, /main/playsave.c: save function for resolutions
+/main/menu.c: custom resolutions support
+/main/game.c: smoother demo playback
+/arch/win32/digi.c, /arch/win32/hmpfile.c, /arch/win32/hmpfile.h, /arch/win32/hmiplay.c: fix for incorrect midi loops on windows
+/main/game.c: fix to shrink window correctly
+/main/credits.c: removed flickering and added fading to credits
+/arch/win32/makefile, /arch/win32/makefile.nt: removed d1x.rc and d1x_res.rc from compiiling so ALT key doesn't call frame options in window-mode on windows
+/arch/win32/digi.c: fix that fans not play in menus on windows systems
+
+20060122
+--------
+/main/gauges.c: preventing vulcan ammo index overlapping reticle at high resolutions
+/main/ipclient.cpp: fixed segfault when starting udp/ip game
+/main/newmenu.c: comments an cleaning
+
+20060116
+--------
+/main/states.c: fix for text position in save/load screen while using hires fonts
+/arch/ogl/gr.c: fix for screenshot function
+/main/inferno.c, /main/kconfig.c: new function for optional mouselook style feature
+/main/state.c: fix for broken savegames
+/main/credits.c: fix for credits background palette
+/main/gamefont.c: added optional hires fonts from D2
+/main/gauges.c: new HUD icons for lives and keys if hires fonts
+/main/gameseq.c: fixed palette after endgame
+/main/titles.c: image fix while endgame in lowres briefings, implementation of hires briefings
+/arch/win32/digi.c: fix for fading/panning in windows
+/arch/ogl/gr.c, /main/game.c, /main/menu.c: fix for fullscreen switching in windows
+/arch/ogl/ogl.c, /main/inferno.c: implementation of trilinear filtering
+/main/mission.h: fix to hold up to 5000 addon levels
+/main/inferno.c, /main/game.c: grabmouse feature for linux
+/main/inferno.c: menus at 640x480 are standard now (fits better), fix for soundloops after game quit (some onboard soundcards)
+/main/game.c: made nicefps standard. better gameplay, lesser cpu usage, a little pause in linux for resolution change at new game
+/main/menu.c: resolutions up to 1600x1200
+/arch/ogl/gr.c, /arch/sdl/gr.c, /main/inferno.c: made fullscreen standard, changed '-fullscreen' option to '-window'
+/arch/ogl/wgl.c: build fix
+/arch/ogl/gr.c: fix for ingame screenshots
+/main/args.c: fix for crashes while using modified d1x.ini
+various: code cleaning, fixes and additional includes for windows build, restructuration for new multiplatform release
+
+20051025
+--------
+/main/state.c: fixed crash while loading saved game
+/main/polyobj.c: fixed slow spinning robots in briefing
+/main/titles.c: fixed exit-door in briefing
+/main/kconfig.c: much better mouse movement
+/main/vers_id.h: program and version specific changes
+/include/cfile.h: added definition for DESCENT_DATA_PATH
+d1x-install.sh: changes for v0.04
+README.TXT: removed/changed some known issues
+            added gentoo and suse 10 to working ditributions
+            added Maystorm to Thanks section
+Changelog: file created
+
+20050916
+--------
+initial release

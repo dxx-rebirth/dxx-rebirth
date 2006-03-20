@@ -1,0 +1,40 @@
+//vim generated resource script.
+//
+#include "resource.h"
+
+IDI_MAIN_ICON	ICON	"d1x.ico"
+
+
+//version stuff doesn't seem to work with windres anyway
+#ifdef HEH
+1 VERSIONINFO
+FILEVERSION 1, 41, 0, 0
+PRODUCTVERSION 1, 41, 0, 0
+//FILEOS VOS_NT_WINDOWS32
+//FILETYPE VFT_APP
+FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+FILEFLAGS 0x1L
+#else
+FILEFLAGS 0x0L
+#endif
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0
+BEGIN
+ BLOCK "StringFileInfo"
+ BEGIN
+  BLOCK "12345678"
+  BEGIN
+   VALUE "CompanyName", "D1x Project\000"
+   VALUE "FileDescription", "D1x win32.\000"
+   VALUE "FileVersion", "1.41\000"
+   VALUE "InternalName", "d1x\000"
+   VALUE "LegalCopyright", "Copyright © Parallax, D1x Project, other.s\000"
+   VALUE "OriginalFilename", "d1x_hraomeu.exe\000"
+   VALUE "ProductName","d1x\000"
+   VALUE "ProductVersion","1.41\000"
+  END
+ END
+END
+#endif

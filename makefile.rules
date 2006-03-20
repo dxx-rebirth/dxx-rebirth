@@ -1,0 +1,49 @@
+#file for make rules and stuff
+
+OBJDIR = build/
+
+#rules for building files
+
+OBJECTS_TARGETS = $(addprefix $(OBJDIR),$(OBJECTS))
+
+OBJECTS_DONT_LINK_TARGETS = $(addprefix $(OBJDIR),$(OBJECTS_DONT_LINK))
+
+$(OBJDIR)%.o: %.c
+	$(CC) $(CFLAGS) $(E_CFLAGS) -o $@ $<
+$(OBJDIR)%.o: %.cpp
+	$(CXX) $(CFLAGS) $(E_CFLAGS) -o $@ $<
+$(OBJDIR)%.o: %.asm
+	$(NASM) $< -o $@
+$(OBJDIR)%.o: %.s
+	$(CC) $(CFLAGS) $(patsubst %.s,%.S,$<) -o $@
+
+#rules for going into subdirs
+
+ifdef SUBDIRS
+
+.PHONY:$(SUBDIRS)
+
+$(SUBDIRS):
+	make -C $@
+
+ifdef ENV_LINUX
+FOR=set -e; for I in
+DO=; do 
+DONE=$$I;done
+else
+ifeq ($(findstring /,$(SHELL)),/)
+FOR=set -e; for I in
+DO=; do 
+DONE=$$I;done
+else
+FOR=for %%I in (
+DO=) do 
+DONE=%%I
+endif
+endif
+endif
+DOSUBS=$(FOR) $(SUBDIRS) $(DO) make -C $(DONE)
+ifdef SUBDIRS
+CLEANSUBS=$(FOR) $(SUBDIRS) $(DO) make clean -C $(DONE)
+DEPSUBS=$(FOR) $(SUBDIRS) $(DO) make -k depend -C $(DONE)
+endif

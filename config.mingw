@@ -1,0 +1,43 @@
+# NOERROR:       make sure there are no warnings in compile
+#NOERROR = 1
+
+# NO_ASM:       don't use assembler
+NO_ASM = 1
+
+# MAKE_EDITOR:  build editor into game  be sure to comment RELEASE
+#MAKE_EDITOR = 1 # not enabled by default - causes SEGVs...
+
+# DEBUG:	enable asserts, int3, etc. and include debugger data
+#DEBUG = 1
+
+# DEBUGABLE:    compiles an executable that is suitable for debugging, but
+# without including all the extra debug asserts/etc
+#DEBUGABLE = 1
+
+# PROFILE:	compiles an executable suitable for profiling
+#PROFILE = 1
+
+# MONO:
+#MONO = 1
+
+# SHAREWARE:	build for shareware files and remove registered only features
+#SHAREWARE = 1
+
+# RELEASE:      release build.   removes debug/editor things
+RELEASE = 1
+
+# WGL_IO: builds support for OpenGL on win32
+WGL_IO = 1
+
+# OGL_RUNTIME: use runtime dynamic loading, or link at compile time?  (Also
+# allows -gl_library command line to choose which opengl lib to use, and allows
+# you to build d1x-ogl without having a compiler specific opengl32.a)
+# Windows only, currently.
+OGL_RUNTIME=1
+
+# secondary compiler options
+#STATICSDL: a static SDL lib can be made by typing "make static" in the obj/x11 directory.
+#STATICSDL = ../SDL-0.9.9/obj/x11/libSDL.a 
+
+#network
+NETWORK = 1
