@@ -56,41 +56,18 @@ static char rcsid[] = "$Id: physics.c,v 1.1.1.1 2006/03/17 19:55:30 zicodxx Exp 
 
 //Global variables for physics system
 
-#define ROLL_RATE 		0x2000
-#define DAMP_ANG 			0x400                  //min angle to bank
-
+#define ROLL_RATE 	0x2000
+#define DAMP_ANG 	0x400 //min angle to bank
 #define TURNROLL_SCALE	(0x4ec4/2)
-
-#define MAX_OBJECT_VEL i2f(100)
-
-#define BUMP_HACK	1		//if defined, bump player when he gets stuck
-
-//--unused-- int mike_mode=0;
+#define MAX_OBJECT_VEL	i2f(100)
+#define BUMP_HACK	1 //if defined, bump player when he gets stuck
 
 //check point against each side of segment. return bitmask, where bit
 //set means behind that side
 
 int Physics_cheat_flag = 0;
 extern char BounceCheat;
-
-//##//returns the distance of a point (checkp) from a plane (defined by norm & planep)
-//##fix dist_to_plane(vms_vector *checkp,vms_vector *norm,vms_vector *planep)
-//##{
-//##    vms_vector deltap;
-//##
-//##    vm_vec_sub(&deltap,checkp,planep);
-//##
-//##    return vm_vec_dot(&deltap,norm);
-//##}
-
-//--unused-- int dpjm_old_joy_x, dpjm_old_joy_y;
-
 int floor_levelling=0;
-
-//--unused-- level_with_floor()
-//--unused-- {
-//--unused-- 	floor_levelling=1;
-//--unused-- }
 
 //make sure matrix is orthogonal
 void check_and_fix_matrix(vms_matrix *m)
@@ -117,13 +94,13 @@ void do_physics_align_object( object * obj )
 	//find side of segment that player is most alligned with
 
 	for (i=0;i<6;i++) {
-		#ifdef COMPACT_SEGS
+#ifdef COMPACT_SEGS
 			vms_vector _tv1;
 			get_side_normal( &Segments[obj->segnum], i, 0, &_tv1 );
 			d = vm_vec_dot(&_tv1,&obj->orient.uvec);
-		#else					
+#else					
 			d = vm_vec_dot(&Segments[obj->segnum].sides[i].normals[0],&obj->orient.uvec);
-		#endif
+#endif
 
 		if (d > largest_d) {largest_d = d; best_side=i;}
 	}
@@ -131,16 +108,16 @@ void do_physics_align_object( object * obj )
 	if (floor_levelling) {
 
 		// old way: used floor's normal as upvec
-		#ifdef COMPACT_SEGS
+#ifdef COMPACT_SEGS
 			get_side_normal(&Segments[obj->segnum], 3, 0, &desired_upvec );			
-		#else
+#else
 			desired_upvec = Segments[obj->segnum].sides[3].normals[0];
-		#endif
+#endif
 
 	}
 	else  // new player leveling code: use normal of side closest to our up vec
 		if (get_num_faces(&Segments[obj->segnum].sides[best_side])==2) {
-			#ifdef COMPACT_SEGS
+#ifdef COMPACT_SEGS
 				vms_vector normals[2];
 				get_side_normals(&Segments[obj->segnum], best_side, &normals[0], &normals[1] );			
 
@@ -149,21 +126,21 @@ void do_physics_align_object( object * obj )
 				desired_upvec.z = (normals[0].z + normals[1].z) / 2;
 
 				vm_vec_normalize(&desired_upvec);
-			#else
+#else
 				side *s = &Segments[obj->segnum].sides[best_side];
 				desired_upvec.x = (s->normals[0].x + s->normals[1].x) / 2;
 				desired_upvec.y = (s->normals[0].y + s->normals[1].y) / 2;
 				desired_upvec.z = (s->normals[0].z + s->normals[1].z) / 2;
 		
 				vm_vec_normalize(&desired_upvec);
-			#endif
+#endif
 		}
 		else
-			#ifdef COMPACT_SEGS
+#ifdef COMPACT_SEGS
 				get_side_normal(&Segments[obj->segnum], best_side, 0, &desired_upvec );			
-			#else
+#else
 				desired_upvec = Segments[obj->segnum].sides[best_side].normals[0];
-			#endif
+#endif
 
 	if (labs(vm_vec_dot(&desired_upvec,&obj->orient.fvec)) < f1_0/2) {
 		fixang save_delta_ang;
@@ -233,7 +210,6 @@ object *debug_obj=NULL;
 #endif
 
 #define XYZ(v) (v)->x,(v)->y,(v)->z
-
 
 #ifndef NDEBUG
 int	Total_retries=0, Total_sims=0;
@@ -368,13 +344,15 @@ void do_physics_sim(object *obj)
 	int orig_segnum = obj->segnum;
 	int bounced=0;
 
-	Assert(obj->type != OBJ_NONE);
+	if (!Player_is_dead) // ZICO - object can be none if player is dead
+		Assert(obj->type != OBJ_NONE);
+
 	Assert(obj->movement_type == MT_PHYSICS);
 
 #ifndef NDEBUG
-if (Dont_move_ai_objects)
-	if (obj->control_type == CT_AI)
-		return;
+	if (Dont_move_ai_objects)
+		if (obj->control_type == CT_AI)
+			return;
 #endif
 
 	pi = &obj->mtype.phys_info;
@@ -392,9 +370,9 @@ if (Dont_move_ai_objects)
 
 	sim_time = FrameTime;
 
-//debug_obj = obj;
+	//debug_obj = obj;
 
-	#ifdef EXTRA_DEBUG
+#ifdef EXTRA_DEBUG
 	if (obj == debug_obj) {
 		printf("object %d:\n  start pos = %x %x %x\n",objnum,XYZ(&obj->pos));
 		printf("  thrust = %x %x %x\n",XYZ(&obj->mtype.phys_info.thrust));
@@ -404,21 +382,21 @@ if (Dont_move_ai_objects)
 	//check for correct object segment
 	if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
 	{
-		#ifndef NDEBUG
+#ifndef NDEBUG
 		mprintf((0,"Warning: object %d not in given seg!\n",objnum));
-		#endif
+#endif
 		//Int3();  Removed by Rob 10/5/94
 		if (!update_object_seg(obj)) {
-			#ifndef NDEBUG
+#ifndef NDEBUG
 			mprintf((0,"Warning: can't find seg for object %d - moving\n",objnum));
-			#endif
+#endif
 			if (!(Game_mode & GM_MULTI))
 				Int3();
 			compute_segment_center(&obj->pos,&Segments[obj->segnum]);
 			obj->pos.x += objnum;
 		}
 	}
-	#endif
+#endif
 
 	start_pos = obj->pos;
 
@@ -429,7 +407,7 @@ if (Dont_move_ai_objects)
 		//if uses thrust, cannot have zero drag
 	Assert(!(obj->mtype.phys_info.flags&PF_USES_THRUST) || obj->mtype.phys_info.drag!=0);
 
-//mprintf((0,"thrust=%x  speed=%x\n",vm_vec_mag(&obj->mtype.phys_info.thrust),vm_vec_mag(&obj->mtype.phys_info.velocity)));
+	//mprintf((0,"thrust=%x  speed=%x\n",vm_vec_mag(&obj->mtype.phys_info.thrust),vm_vec_mag(&obj->mtype.phys_info.velocity)));
 
 	//do thrust & drag
 	
@@ -474,10 +452,10 @@ if (Dont_move_ai_objects)
 		}
 	}
 
-	#ifdef EXTRA_DEBUG
+#ifdef EXTRA_DEBUG
 	if (obj == debug_obj)
 		printf("  velocity = %x %x %x\n",XYZ(&obj->mtype.phys_info.velocity));
-	#endif
+#endif
 
 	do {
 		try_again = 0;
@@ -485,10 +463,10 @@ if (Dont_move_ai_objects)
 		//Move the object
 		vm_vec_copy_scale(&frame_vec, &obj->mtype.phys_info.velocity, sim_time);
 
-		#ifdef EXTRA_DEBUG
+#ifdef EXTRA_DEBUG
 		if (obj == debug_obj)
 			printf("  pass %d, frame_vec = %x %x %x\n",count,XYZ(&frame_vec));
-		#endif
+#endif
 
 		if ( (frame_vec.x==0) && (frame_vec.y==0) && (frame_vec.z==0) )	
 			break;
@@ -506,19 +484,19 @@ if (Dont_move_ai_objects)
 
 		vm_vec_add(&new_pos,&obj->pos,&frame_vec);
 
-		#ifdef EXTRA_DEBUG
+#ifdef EXTRA_DEBUG
 		if (obj == debug_obj)
 			printf("   desired_pos  = %x %x %x\n",XYZ(&new_pos));
-		#endif
+#endif
 
 		ignore_obj_list[n_ignore_objs] = -1;
 
-		#ifdef EXTRA_DEBUG
+#ifdef EXTRA_DEBUG
 		if (obj == debug_obj) {
 			printf("   FVI parms: p0 = %8x %8x %8x, segnum=%x, size=%x\n",XYZ(&obj->pos),obj->segnum,obj->size);
 			printf("              p1 = %8x %8x %8x\n",XYZ(&new_pos));
 		}
-		#endif
+#endif
 
 		fq.p0						= &obj->pos;
 		fq.startseg				= obj->segnum;
@@ -534,12 +512,8 @@ if (Dont_move_ai_objects)
 		if (obj->type == OBJ_PLAYER)
 			fq.flags |= FQ_GET_SEGLIST;
 
-//@@			if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
-//@@				Int3();
-
-save_p0 = *fq.p0;
-save_p1 = *fq.p1;
-
+		save_p0 = *fq.p0;
+		save_p1 = *fq.p1;
 
 		fate = find_vector_intersection(&fq,&hit_info);
 		//	Matt: Mike's hack.
@@ -550,12 +524,12 @@ save_p1 = *fq.p1;
 				count--;
 		}
 
-		#ifndef NDEBUG
+#ifndef NDEBUG
 		if (fate == HIT_BAD_P0) {
 			mprintf((0,"Warning: Bad p0 in physics!  Object = %i, type = %i [%s]\n", obj-Objects, obj->type, Object_type_names[obj->type]));
 			Int3();
 		}
-		#endif
+#endif
 
 		if (obj->type == OBJ_PLAYER) {
 			int i;
@@ -567,10 +541,10 @@ save_p1 = *fq.p1;
 				phys_seglist[n_phys_segs++] = hit_info.seglist[i++];
 		}
 
-		#ifdef EXTRA_DEBUG
+#ifdef EXTRA_DEBUG
 		if (obj == debug_obj)
 			printf("   fate  = %d, hit_pnt = %8x %8x %8x\n",fate,XYZ(&hit_info.hit_pnt));;
-		#endif
+#endif
 
 		ipos = hit_info.hit_pnt;
 		iseg = hit_info.hit_seg;
@@ -578,9 +552,9 @@ save_p1 = *fq.p1;
 		WallHitSeg = hit_info.hit_side_seg;
 
 		if (iseg==-1) {		//some sort of horrible error
-			#ifndef NDEBUG
+#ifndef NDEBUG
 			mprintf((1,"iseg==-1 in physics!  Object = %i, type = %i (%s)\n", obj-Objects, obj->type, Object_type_names[obj->type]));
-			#endif
+#endif
 			//Int3();
 			//compute_segment_center(&ipos,&Segments[obj->segnum]);
 			//ipos.x += objnum;
@@ -602,10 +576,10 @@ save_p1 = *fq.p1;
 		// update object's position and segment number
 		obj->pos = ipos;
 
-		#ifdef EXTRA_DEBUG
+#ifdef EXTRA_DEBUG
 		if (obj == debug_obj)
 			printf("   new pos = %x %x %x\n",XYZ(&obj->pos));
-		#endif
+#endif
 
 		if ( iseg != obj->segnum )
 			obj_relink(objnum, iseg );
@@ -645,12 +619,12 @@ save_p1 = *fq.p1;
 
 				//don't change position or sim_time
 
-//*******					mprintf((0,"Obj %d moved backwards\n",obj-Objects));
+//				mprintf((0,"Obj %d moved backwards\n",obj-Objects));
 
-				#ifdef EXTRA_DEBUG
+#ifdef EXTRA_DEBUG
 				if (obj == debug_obj)
 					printf("   Warning: moved backwards!\n");
-				#endif
+#endif
 
 				obj->pos = save_pos;
 		
@@ -672,12 +646,12 @@ save_p1 = *fq.p1;
 				moved_time = old_sim_time - sim_time;
 
 				if (sim_time < 0 || sim_time>old_sim_time) {
-					#ifndef NDEBUG
+#ifndef NDEBUG
 					mprintf((0,"Bogus sim_time = %x, old = %x\n",sim_time,old_sim_time));
 					if (obj == debug_obj)
 						printf("   Bogus sim_time = %x, old = %x, attempted_dist = %x, actual_dist = %x\n",sim_time,old_sim_time,attempted_dist,actual_dist);
 					//Int3(); Removed by Rob
-					#endif
+#endif
 					sim_time = old_sim_time;
 					//WHY DOES THIS HAPPEN??
 
@@ -685,10 +659,10 @@ save_p1 = *fq.p1;
 				}
 			}
 
-			#ifdef EXTRA_DEBUG
+#ifdef EXTRA_DEBUG
 			if (obj == debug_obj)
 				printf("   new sim_time = %x\n",sim_time);
-			#endif
+#endif
 
 		}
 
@@ -764,8 +738,8 @@ save_p1 = *fq.p1;
 
 //						mprintf((0, "Velocity at bounce time = %d\n", f2i(vm_vec_mag(&obj->mtype.phys_info.velocity))));
 
-//if (obj==ConsoleObject)
-//	mprintf((0,"player vel = %x\n",vm_vec_mag_quick(&obj->mtype.phys_info.velocity)));
+						//if (obj==ConsoleObject)
+						//	mprintf((0,"player vel = %x\n",vm_vec_mag_quick(&obj->mtype.phys_info.velocity)));
 
 						if (check_vel) {
 							fix vel = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
@@ -777,12 +751,12 @@ save_p1 = *fq.p1;
 						if (bounced && obj->type == OBJ_WEAPON)
 							vm_vector_2_matrix(&obj->orient,&obj->mtype.phys_info.velocity,&obj->orient.uvec,NULL);
 
-						#ifdef EXTRA_DEBUG
+#ifdef EXTRA_DEBUG
 						if (obj == debug_obj) {
 							printf("   sliding - wall_norm %x %x %x %x\n",wall_part,XYZ(&hit_info.hit_wallnorm));
 							printf("   wall_part %x, new velocity = %x %x %x\n",wall_part,XYZ(&obj->mtype.phys_info.velocity));
 						}
-						#endif
+#endif
 
 						try_again = 1;
 					}
@@ -831,13 +805,13 @@ save_p1 = *fq.p1;
 				break;
 			}	
 			case HIT_NONE:		
-			#ifdef TACTILE
+#ifdef TACTILE
 				if (TactileStick && obj==ConsoleObject && !(FrameCount & 15))
 				 Tactile_Xvibrate_clear ();
-			#endif
+#endif
 				break;
 
-			#ifndef NDEBUG
+#ifndef NDEBUG
 			case HIT_BAD_P0:
 				Int3();		// Unexpected collision type: start point not in specified segment.
 				mprintf((0,"Warning: Bad p0 in physics!!!\n"));
@@ -846,7 +820,7 @@ save_p1 = *fq.p1;
 				// Unknown collision type returned from find_vector_intersection!!
 				Int3();
 				break;
-			#endif
+#endif
 		}
 
 	} while ( try_again );
@@ -855,10 +829,10 @@ save_p1 = *fq.p1;
 	if (obj->control_type == CT_AI) {
 		if (count > 0) {
 			Ai_local_info[objnum].retry_count = count-1;
-			#ifndef NDEBUG
+#ifndef NDEBUG
 			Total_retries += count-1;
 			Total_sims++;
-			#endif
+#endif
 		}
 	}
 
@@ -871,7 +845,7 @@ save_p1 = *fq.p1;
 		vm_vec_sub(&moved_vec,&obj->pos,&start_pos);
 		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
 
-		#ifdef BUMP_HACK
+#ifdef BUMP_HACK
 		if (obj==ConsoleObject && (obj->mtype.phys_info.velocity.x==0 && obj->mtype.phys_info.velocity.y==0 && obj->mtype.phys_info.velocity.z==0) &&
 			  !(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0)) {
 			vms_vector center,bump_vec;
@@ -891,7 +865,7 @@ save_p1 = *fq.p1;
 			if (Segment2s[obj->segnum].special == SEGMENT_IS_CONTROLCEN)
 				update_object_seg(obj);
 		}
-		#endif
+#endif
 	}
 
 	//Assert(check_point_in_seg(&obj->pos,obj->segnum,0).centermask==0);
@@ -930,17 +904,17 @@ save_p1 = *fq.p1;
 					if (vertex_list[i] < vertnum)
 						vertnum = vertex_list[i];
 
-				#ifdef COMPACT_SEGS
+#ifdef COMPACT_SEGS
 					{
 					vms_vector _vn;
 					get_side_normal(&Segments[orig_segnum], sidenum, 0, &_vn );
 					dist = vm_dist_to_plane(&start_pos, &_vn, &Vertices[vertnum]);
 					vm_vec_scale_add(&obj->pos,&start_pos,&_vn,obj->size-dist);
 					}
-				#else
+#else
 					dist = vm_dist_to_plane(&start_pos, &s->normals[0], &Vertices[vertnum]);
 					vm_vec_scale_add(&obj->pos,&start_pos,&s->normals[0],obj->size-dist);
-				#endif
+#endif
 				update_object_seg(obj);
 
 			}
@@ -972,47 +946,6 @@ save_p1 = *fq.p1;
 
 }
 
-//--unused-- //tell us what the given object will do (as far as hiting walls) in
-//--unused-- //the given time (in seconds) t.  Igores acceleration (sorry)
-//--unused-- //if check_objects is set, check with objects, else just with walls
-//--unused-- //returns fate, fills in hit time.  If fate==HIT_NONE, hit_time undefined
-//--unused-- int physics_lookahead(object *obj,fix t,int fvi_flags,fix *hit_time, fvi_info *hit_info)
-//--unused-- {
-//--unused-- 	vms_vector new_pos;
-//--unused-- 	int objnum,fate;
-//--unused-- 	fvi_query fq;
-//--unused--
-//--unused-- 	Assert(obj->movement_type == MT_PHYSICS);
-//--unused--
-//--unused-- 	objnum = obj-Objects;
-//--unused--
-//--unused-- 	vm_vec_scale_add(&new_pos, &obj->pos, &obj->mtype.phys_info.velocity, t);
-//--unused--
-//--unused-- 	fq.p0						= &obj->pos;
-//--unused-- 	fq.startseg				= obj->segnum;
-//--unused-- 	fq.p1						= &new_pos;
-//--unused-- 	fq.rad					= obj->size;
-//--unused-- 	fq.thisobjnum			= objnum;
-//--unused-- 	fq.ignore_obj_list	= NULL;
-//--unused-- 	fq.flags					= fvi_flags;
-//--unused--
-//--unused-- 	fate = find_vector_intersection(&fq,hit_info);
-//--unused--
-//--unused-- 	if (fate != HIT_NONE) {
-//--unused-- 		fix dist,speed;
-//--unused--
-//--unused-- 		dist = vm_vec_dist(&obj->pos, &hit_info->hit_pnt);
-//--unused--
-//--unused-- 		speed = vm_vec_mag(&obj->mtype.phys_info.velocity);
-//--unused--
-//--unused-- 		*hit_time = fixdiv(dist,speed);
-//--unused--
-//--unused-- 	}
-//--unused--
-//--unused-- 	return fate;
-//--unused--
-//--unused-- }
-
 //Applies an instantaneous force on an object, resulting in an instantaneous
 //change in velocity.
 void phys_apply_force(object *obj,vms_vector *force_vec)
@@ -1027,7 +960,7 @@ void phys_apply_force(object *obj,vms_vector *force_vec)
 		return;
 
 #ifdef TACTILE
-   if (TactileStick && obj==&Objects[Players[Player_num].objnum])
+	if (TactileStick && obj==&Objects[Players[Player_num].objnum])
 		Tactile_apply_force (force_vec,&obj->orient);
 #endif
 
@@ -1158,5 +1091,3 @@ void set_thrust_from_velocity(object *obj)
 	vm_vec_copy_scale(&obj->mtype.phys_info.thrust,&obj->mtype.phys_info.velocity,k);
 
 }
-
-
