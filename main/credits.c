@@ -41,7 +41,6 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:56:57 zicodxx Exp 
 #include "game.h"
 #include "gamepal.h"
 #include "timer.h"
-
 #include "newmenu.h"
 #include "gamefont.h"
 #ifdef NETWORK
@@ -54,15 +53,24 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:56:57 zicodxx Exp 
 #include "joy.h"
 #include "screens.h"
 #include "digi.h"
-
 #include "cfile.h"
 #include "text.h"
 #include "songs.h"
 #include "menu.h"  // for MenuHires
 
-#define ROW_SPACING (grd_curcanv->cv_h / 21) // ZICO - variable spacing so credits fit into every res - old: (MenuHires?26:11)
-#define NUM_LINES_HIRES 21
-#define NUM_LINES  (MenuHires?NUM_LINES_HIRES:20)
+#define ROW_SPACING			(SHEIGHT / 17)-1
+#define NUM_LINES			17
+#define CREDITS_FILE			(cfexist("mcredits.tex")?"mcredits.tex":cfexist("ocredits.tex")?"ocredits.tex":"credits.tex")
+#ifdef RELEASE
+#define CREDITS_BACKGROUND_FILENAME	(MenuHires?"\x01starsb.pcx":"\x01stars.pcx")	//only read from hog file
+#else
+#define CREDITS_BACKGROUND_FILENAME	(MenuHires?"starsb.pcx":"stars.pcx")
+#endif
+#ifdef SHAREWARE
+#define ALLOWED_CHAR			'S'
+#else
+#define ALLOWED_CHAR			'R'
+#endif
 
 ubyte fade_values[200] = { 1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,8,9,9,10,10,
 11,11,12,12,12,13,13,14,14,15,15,15,16,16,17,17,17,18,18,19,19,19,20,20,
@@ -97,45 +105,32 @@ grs_font * header_font;
 grs_font * title_font;
 grs_font * names_font;
 
-#ifdef SHAREWARE
-#define ALLOWED_CHAR 'S'
-#else
-#define ALLOWED_CHAR 'R'
-#endif
-
-#ifdef RELEASE
-#define CREDITS_BACKGROUND_FILENAME (MenuHires?"\x01starsb.pcx":"\x01stars.pcx")	//only read from hog file
-#else
-#define CREDITS_BACKGROUND_FILENAME (MenuHires?"starsb.pcx":"stars.pcx")
-#endif
-
 typedef struct box {
 	int left, top, width, height;
 } box;
 
-#define CREDITS_FILE    (cfexist("mcredits.tex")?"mcredits.tex":cfexist("ocredits.tex")?"ocredits.tex":"credits.tex")
 
 //if filename passed is NULL, show normal credits
 void credits_show(char *credits_filename)
 {
-	int i, j, l, done;
 	CFILE * file;
-	char buffer[NUM_LINES_HIRES][80];
-	grs_bitmap backdrop;
-	ubyte backdrop_palette[768];
+	int i, j, l, done;
 	int pcx_error;
 	int buffer_line = 0;
-	fix last_time;
-	fix time_delay = 2800;
-	int first_line_offset,extra_inc=0;
+	int first_line_offset;
+	int extra_inc=0;
 	int have_bin_file = 0;
 	char * tempp;
 	char filename[32];
+	char buffer[NUM_LINES][80];
 	ubyte *fade_values_scalled;
-
-	box dirty_box[NUM_LINES_HIRES];
+	ubyte backdrop_palette[768];
+	fix last_time;
+	fix time_delay = 2800;
+	grs_bitmap backdrop;
 	grs_canvas *CreditsOffscreenBuf=NULL;
 	grs_canvas *save_canv;
+	box dirty_box[NUM_LINES];
 
 	save_canv = grd_curcanv;
 
@@ -146,8 +141,8 @@ void credits_show(char *credits_filename)
 		dirty_box[i].left = dirty_box[i].top = dirty_box[i].width = dirty_box[i].height = 0;
 	}
 
-	fade_values_scalled = malloc(l);
-	scale_line(fade_values, fade_values_scalled, 200, SHEIGHT); // ZICO - scale the fades
+	fade_values_scalled = malloc(SHEIGHT);
+	scale_line(fade_values, fade_values_scalled, 200, SHEIGHT);
 
 	sprintf(filename, "%s", CREDITS_FILE);
 	have_bin_file = 0;
@@ -160,7 +155,7 @@ void credits_show(char *credits_filename)
 		char nfile[32];
 		
 		if (credits_filename)
-			return;		//ok to not find special filename
+			return; //ok to not find special filename
 
 		tempp = strchr(filename, '.');
 		*tempp = '\0';
@@ -196,36 +191,22 @@ void credits_show(char *credits_filename)
 	gr_remap_bitmap_good( &backdrop,backdrop_palette, -1, -1 );
 
 	gr_set_current_canvas(NULL);
-	//gr_bitmap(0,0,&backdrop);
-	show_fullscr(&backdrop); // ZICO - for fullscreen image
+	show_fullscr(&backdrop);
 	gr_update();
 	gr_palette_fade_in( gr_palette, 32, 0 );
 
-// 	if (MenuHires && VR_offscreen_buffer->cv_w == 640)	{ // ZICO - removed because of var res
-// 		CreditsOffscreenBuf = VR_offscreen_buffer;
-// 	}
-// 	else if (MenuHires)	{
-// 		CreditsOffscreenBuf = gr_create_canvas(640,480);
-// 	}
-// 	else {
-// 		CreditsOffscreenBuf = gr_create_canvas(320,200);
-// 	}
-
-	CreditsOffscreenBuf = gr_create_canvas(grd_curcanv->cv_w,grd_curcanv->cv_h); // ZICO - for var res
+	CreditsOffscreenBuf = gr_create_canvas(grd_curcanv->cv_w,grd_curcanv->cv_h);
 
 	if (!CreditsOffscreenBuf)
 		Error("Not enough memory to allocate Credits Buffer.");
 
-	//gr_clear_canvas(BM_XRGB(0,0,0));
 	key_flush();
 
-	{
-		last_time = timer_get_fixed_seconds();
-		done = 0;
-		first_line_offset = 0;
-	}
+	last_time = timer_get_fixed_seconds();
+	done = 0;
+	first_line_offset = 0;
 
-	while( 1 )	{
+	while( 1 ) {
 		int k;
 
 		do {
@@ -261,9 +242,7 @@ get_line:;
 			y = first_line_offset - i;
 
 			gr_set_current_canvas(CreditsOffscreenBuf);
-		
-			//gr_bitmap(0,0,&backdrop);
-			show_fullscr(&backdrop); // ZICO - for fullscreen image
+			show_fullscr(&backdrop);
 
 			for (j=0; j<NUM_LINES; j++ )	{
 				char *s;
@@ -282,38 +261,18 @@ get_line:;
 				} else
 					grd_curcanv->cv_font = names_font;
 
-				gr_bitblt_fade_table = fade_values_scalled; // ZICO - (MenuHires?fade_values_hires:fade_values);
+				gr_bitblt_fade_table = fade_values_scalled;
 
 				tempp = strchr( s, '\t' );
-				if ( tempp )	{
-				//	Wacky Credits thing
-					/*int w, h, aw, w2, x1, x2;
-
-					*tempp = 0;
-					gr_get_string_size( s, &w, &h, &aw );
-					x1 = ((MenuHires?320:160)-w)/2;
-					gr_printf( x1 , y, s );
-					gr_get_string_size( &tempp[1], &w2, &h, &aw );
-					x2 = (MenuHires?320:160)+(((MenuHires?320:160)-w2)/2);
-					gr_printf( x2, y, &tempp[1] );
-
-					dirty_box[j].left = ((MenuHires?320:160)-w)/2;
-					dirty_box[j].top = y;
-					dirty_box[j].width =(x2+w2)-x1;
-					dirty_box[j].height = h;
-
-					*tempp = '\t';*/ // ZICO - do nothing
-		
-				} else {
+				if ( !tempp )	{
 				// Wacky Fast Credits thing
 					int w, h, aw;
 
 					gr_get_string_size( s, &w, &h, &aw);
 					dirty_box[j].width = w;
-        			dirty_box[j].height = h;
-        			dirty_box[j].top = y;
-        			dirty_box[j].left = ((MenuHires?640:320) - w) / 2;
-
+	        			dirty_box[j].height = h;
+        				dirty_box[j].top = y;
+        				dirty_box[j].left = ((MenuHires?640:320) - w) / 2;
 					gr_printf( 0x8000, y, s );
 				}
 				gr_bitblt_fade_table = NULL;
@@ -323,7 +282,7 @@ get_line:;
 					y += ROW_SPACING;
 			}
 
-			{	// Wacky Fast Credits Thing
+				// Wacky Fast Credits Thing
 				box	*new_box;
 				grs_bitmap *tempbmp;
 
@@ -333,9 +292,14 @@ get_line:;
 
 					tempbmp = &(CreditsOffscreenBuf->cv_bitmap);
 
-					gr_bm_bitblt( new_box->width + grd_curcanv->cv_w/2 /*1*/, new_box->height + 4, // ZICO - arrage width with grd_curcanv->cv_w to fit into every res
-								new_box->left, new_box->top, new_box->left, new_box->top,
-								tempbmp, &(grd_curscreen->sc_canvas.cv_bitmap) );
+					gr_bm_bitblt(	new_box->width + SWIDTH/2,
+							new_box->height + 4,
+							new_box->left,
+							new_box->top,
+							new_box->left,
+							new_box->top,
+							tempbmp,
+							&(grd_curscreen->sc_canvas.cv_bitmap) );
 				}
 
 #ifndef OGL
@@ -345,20 +309,18 @@ get_line:;
 
 					tempbmp = &(CreditsOffscreenBuf->cv_bitmap);
 
-					gr_bm_bitblt(   new_box->width
-									,new_box->height+2
-									,new_box->left
-									,new_box->top
-									,new_box->left
-									,new_box->top
-									,&backdrop
-									,tempbmp );
+					gr_bm_bitblt(   new_box->width,
+							new_box->height+2,
+							new_box->left,
+							new_box->top,
+							new_box->left,
+							new_box->top,
+							&backdrop,
+							tempbmp );
 				}
 				
 #endif
-			gr_update();
-				
-			}
+			gr_update();	
 
 			while( timer_get_fixed_seconds() < last_time+time_delay );
 			last_time = timer_get_fixed_seconds();
