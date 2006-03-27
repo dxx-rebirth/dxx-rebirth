@@ -10,354 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/game.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:43:10 $
- *
- * Game loop for Inferno
- *
- * $Log: game.c,v $
- * Revision 1.1.1.1  2006/03/17 19:43:10  zicodxx
- * initial import
- *
- * Revision 1.24  2000/10/28 09:31:08  donut
- * OGL support for fullscreen toggle key while in menus
- *
- * Revision 1.23  2000/10/27 03:27:43  donut
- * (shift-)alt-tab no longer unpauses game
- *
- * Revision 1.22  2000/06/20 06:55:50  donut
- * fix (sdl) opengl infinite fullscreen toggle problem
- *
- * Revision 1.21  2000/04/19 21:27:56  sekmu
- * movable death-cam from WraithX
- *
- * Revision 1.20  2000/01/17 05:43:13  donut
- * fixed nicefps bug and added other modifier combos for hotkey menu/fullscreen keys
- *
- * Revision 1.19  1999/12/15 06:12:58  donut
- * fix inconsistent placing of fps readout with proportional fonts
- *
- * Revision 1.18  1999/11/25 09:48:48  sekmu
- * observer mode fixes (broadcast,radar)
- *
- * Revision 1.17  1999/11/21 14:05:00  sekmu
- * observer mode
- *
- * Revision 1.16  1999/11/21 13:00:08  donut
- * Changed screen_mode format.  Now directly encodes res into a 32bit int, rather than using arbitrary values.
- *
- * Revision 1.15  1999/11/20 10:05:17  donut
- * variable size menu patch from Jan Bobrowski.  Variable menu font size support and a bunch of fixes for menus that didn't work quite right, by me (MPM).
- *
- * Revision 1.14  1999/10/18 06:36:46  donut
- * fixed menus not working in 320x200
- *
- * Revision 1.13  1999/10/12 06:33:11  donut
- * new maxfps code, doesn't delay unless you are really faster than allowed
- *
- * Revision 1.12  1999/10/07 21:00:59  donut
- * support for variable game font sizes, wider aspect shrinkage in highres (ala statusbar mode), and renderstats & badtexture cheats
- *
- * Revision 1.11  1999/09/30 23:02:27  donut
- * opengl direct support for ingame and normal menus, fonts as textures, and automap support
- *
- * Revision 1.10  1999/09/29 04:35:23  donut
- * added preliminary ogl screenshot capability
- *
- * Revision 1.9  1999/09/21 04:05:55  donut
- * mostly complete OGL implementation (still needs bitmap handling (reticle), and door/fan textures are corrupt)
- *
- * Revision 1.8  1999/09/16 03:34:15  donut
- * cleaned up fullscreen toggle code to make it easy to add support to other targets later, and added -nosdlvidmodecheck
- *
- * Revision 1.7  1999/08/30 02:24:30  donut
- * fixed undefined d1x_options_menu/change_res in non-SDL compiles
- *
- * Revision 1.6  1999/08/23 18:04:55  donut
- * added hotkeys for reschange and d1x menu
- *
- * Revision 1.5  1999/08/14 15:49:51  donut
- * moved MENU_SCREEN_MODE to main/screens.h so that it can be used for the startup screen mode in inferno.c
- *
- * Revision 1.4  1999/08/05 22:53:41  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.3  1999/07/10 02:59:06  donut
- * more from orulz
- *
- * Revision 1.2  1999/06/14 23:44:11  donut
- * Orulz' svgalib/ggi/noerror patches.
- *
- * Revision 1.1.1.1  1999/06/14 22:06:58  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.36  1996/01/05  16:52:05  john
- * Improved 3d stuff.
- *
- * Revision 2.35  1995/10/09  22:17:10  john
- * Took out the page flipping in set_screen_mode, which shouldn't
- * be there.  This was hosing the modex stuff.
- *
- * Revision 2.34  1995/10/09  19:46:34  john
- * Fixed bug with modex paging with lcdbios.
- *
- * Revision 2.33  1995/10/08  11:46:09  john
- * Fixed bug with 2d offset in interlaced mode in low res.
- * Made LCDBIOS with pageflipping using VESA set start
- * Address function.  X=CRTC offset, Y=0.
- *
- * Revision 2.32  1995/10/07  13:20:51  john
- * Added new modes for LCDBIOS, also added support for -JoyNice,
- * and added Shift+F1-F4 to controls various stereoscopic params.
- *
- * Revision 2.31  1995/05/31  14:34:43  unknown
- * fixed warnings.
- *
- * Revision 2.30  1995/05/08  11:23:45  john
- * Made 3dmax work like Kasan wants it to.
- *
- * Revision 2.29  1995/04/06  13:47:39  yuan
- * Restored rear view to original.
- *
- * Revision 2.28  1995/04/06  12:13:07  john
- * Fixed some bugs with 3dmax.
- *
- * Revision 2.27  1995/04/05  13:18:18  mike
- * decrease energy usage on fusion cannon
- *
- * Revision 2.26  1995/03/30  16:36:32  mike
- * text localization.
- *
- * Revision 2.25  1995/03/27  16:45:26  john
- * Fixed some cheat bugs.  Added astral cheat.
- *
- * Revision 2.24  1995/03/27  15:37:11  mike
- * boost fusion cannon for non-multiplayer modes.
- *
- * Revision 2.23  1995/03/24  17:48:04  john
- * Fixed bug with menus and 320x100.
- *
- * Revision 2.22  1995/03/24  15:34:02  mike
- * cheats.
- *
- * Revision 2.21  1995/03/24  13:11:39  john
- * Added save game during briefing screens.
- *
- * Revision 2.20  1995/03/21  14:40:50  john
- * Ifdef'd out the NETWORK code.
- *
- * Revision 2.19  1995/03/16  22:07:16  john
- * Made so only for screen can be used for anything other
- * than mode 13.
- *
- * Revision 2.18  1995/03/16  21:45:35  john
- * Made all paged modes have incompatible menus!
- *
- * Revision 2.17  1995/03/16  18:30:35  john
- * Made wider than 320 screens not have
- * a status bar mode.
- *
- * Revision 2.16  1995/03/16  10:53:34  john
- * Move VFX center to Shift+Z instead of Enter because
- * it conflicted with toggling HUD on/off.
- *
- * Revision 2.15  1995/03/16  10:18:33  john
- * Fixed bug with VFX mode not working. also made warning
- * when it can't set VESA mode.
- *
- * Revision 2.14  1995/03/14  16:22:39  john
- * Added cdrom alternate directory stuff.
- *
- * Revision 2.13  1995/03/14  12:14:17  john
- * Made VR helmets have 4 resolutions to choose from.
- *
- * Revision 2.12  1995/03/10  13:47:33  john
- * Added head tracking sensitivity.
- *
- * Revision 2.11  1995/03/10  13:13:47  john
- * Added code to show T-xx on iglasses.
- *
- * Revision 2.10  1995/03/09  18:07:29  john
- * Fixed bug with iglasses tracking not "centering" right.
- * Made VFX have bright headlight lighting.
- *
- * Revision 2.9  1995/03/09  11:48:02  john
- * Added HUD for VR helmets.
- *
- * Revision 2.8  1995/03/07  15:12:53  john
- * Fixed VFX,3dmax support.
- *
- * Revision 2.7  1995/03/07  11:35:03  john
- * Fixed bug with cockpit in rear view.
- *
- * Revision 2.6  1995/03/06  18:40:17  john
- * Added some ifdef EDITOR stuff.
- *
- * Revision 2.5  1995/03/06  18:31:21  john
- * Fixed bug with nmenu popping up on editor screen.
- *
- * Revision 2.4  1995/03/06  17:28:33  john
- * Fixed but with cockpit toggling wrong.
- *
- * Revision 2.3  1995/03/06  16:08:10  mike
- * Fix compile errors if building without editor.
- *
- * Revision 2.2  1995/03/06  15:24:10  john
- * New screen techniques.
- *
- * Revision 2.1  1995/02/27  13:41:03  john
- * Removed floating point from frame rate calculations.
- *
- * Revision 2.0  1995/02/27  11:31:54  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.770  1995/02/22  12:45:15  allender
- * remove anonymous unions from object structure
- *
- * Revision 1.769  1995/02/15  10:06:25  allender
- * make pause pause game during demo playback
- *
- * Revision 1.768  1995/02/13  20:35:11  john
- * Lintized
- *
- * Revision 1.767  1995/02/13  19:40:29  allender
- * added place to demo record restoration from rear view in place that
- * I forgot before
- *
- * Revision 1.766  1995/02/13  10:29:27  john
- * Fixed bug with cheats not restoreing across save games.
- *
- * Revision 1.765  1995/02/11  22:54:33  john
- * Made loading for pig not show up for demos.
- *
- * Revision 1.764  1995/02/11  17:30:08  allender
- * ifndef NDEBUG around strip frame stuff
- *
- * Revision 1.763  1995/02/11  17:13:01  rob
- * Took out modem.c code fille stuff.
- *
- * Revision 1.762  1995/02/11  16:36:47  allender
- * debug key to strip frames from end of demo
- *
- * Revision 1.761  1995/02/11  14:29:16  john
- * Turned off cheats when going into game.
- *
- * Revision 1.760  1995/02/11  13:46:54  mike
- * fix cheats.
- *
- * Revision 1.759  1995/02/11  12:36:09  matt
- * Cleaned up cheats
- *
- * Revision 1.758  1995/02/11  12:27:04  mike
- * fix path-to-exit cheat.
- *
- * Revision 1.757  1995/02/11  01:56:24  mike
- * robots don't fire cheat.
- *
- * Revision 1.756  1995/02/10  16:38:40  mike
- * illuminate path to exit cheat.
- *
- * Revision 1.755  1995/02/10  16:19:40  mike
- * new show-path-to-exit system, still buggy, compiled out.
- *
- * Revision 1.754  1995/02/10  15:54:46  matt
- * Added new cheats
- *
- * Revision 1.753  1995/02/09  12:25:42  matt
- * Made mem_fill() test routines not be called if RELEASE
- *
- * Revision 1.752  1995/02/09  08:49:32  mike
- * change fill opcode value to 0xcc, int 3 value.
- *
- *
- * Revision 1.751  1995/02/09  02:59:26  mike
- * check code for 00066xxx bugs.
- *
- * Revision 1.750  1995/02/08  17:10:02  mike
- * add, but don't call, debug code.
- *
- * Revision 1.749  1995/02/07  11:07:27  john
- * Added hooks for confirm on game state restore.
- *
- * Revision 1.748  1995/02/06  15:52:45  mike
- * add mini megawow powerup for giving reasonable weapons.
- *
- * Revision 1.747  1995/02/06  12:53:35  allender
- * force endlevel_sequence to 0 to fix weird bug
- *
- * Revision 1.746  1995/02/04  10:03:30  mike
- * Fly to exit cheat.
- *
- * Revision 1.745  1995/02/02  15:57:52  john
- * Added turbo mode cheat.
- *
- * Revision 1.744  1995/02/02  14:43:39  john
- * Uppped frametime limit to 150 Hz.
- *
- * Revision 1.743  1995/02/02  13:37:16  mike
- * move T-?? message down in certain modes.
- *
- * Revision 1.742  1995/02/02  01:26:59  john
- * Took out no key repeating.
- *
- * Revision 1.741  1995/01/29  21:36:44  mike
- * make fusion cannon not make pitching slow.
- *
- * Revision 1.740  1995/01/28  15:57:57  john
- * Made joystick calibration be only when wrong detected in
- * menu or joystick axis changed.
- *
- * Revision 1.739  1995/01/28  15:21:03  yuan
- * Added X-tra life cheat.
- *
- * Revision 1.738  1995/01/27  14:08:31  rob
- * Fixed a bug.
- *
- * Revision 1.737  1995/01/27  14:04:59  rob
- * Its not my fault, Mark told me to do it!
- *
- * Revision 1.736  1995/01/27  13:12:18  rob
- * Added charging noises to play across net.
- *
- * Revision 1.735  1995/01/27  11:48:28  allender
- * check for newdemo_state to be paused and stop recording.  We might be
- * in between levels
- *
- * Revision 1.734  1995/01/26  22:11:41  mike
- * Purple chromo-blaster (ie, fusion cannon) spruce up (chromification)
- *
- * Revision 1.733  1995/01/26  17:03:04  mike
- * make fusion cannon have more chrome, make fusion, mega rock you!
- *
- * Revision 1.732  1995/01/25  14:37:25  john
- * Made joystick only prompt for calibration once...
- *
- * Revision 1.731  1995/01/24  15:49:14  john
- * Made typeing in long net messages wrap on
- * small screen sizes.
- *
- * Revision 1.730  1995/01/24  15:23:42  mike
- * network message tweaking.
- *
- * Revision 1.729  1995/01/24  12:00:47  john
- * Fixed bug with defing macro passing keys to controls.
- *
- * Revision 1.728  1995/01/24  11:53:35  john
- * Added better macro defining code.
- *
- * Revision 1.727  1995/01/23  22:17:15  john
- * Fixed bug with not clearing key buffer when leaving f8.
- *
- * Revision 1.726  1995/01/23  22:07:09  john
- * Added flush to game inputs during F8.
- *
- */
-//#define PCCODE
+
+
 #ifdef RCS
 static char rcsid[] = "$Id: game.c,v 1.1.1.1 2006/03/17 19:43:10 zicodxx Exp $";
 #endif
@@ -439,53 +93,37 @@ static char rcsid[] = "$Id: game.c,v 1.1.1.1 2006/03/17 19:43:10 zicodxx Exp $";
 #include "state.h"
 #include "piggy.h"
 #include "multibot.h"
-
 #include "gr.h"
 #include "reorder.h"
 #include "hudmsg.h"
-
 //added on 9/2/98 by Victor Rachels to free some cpu instead of hogging during maxfps cycle
 #include "d_delay.h"
 //end this section addition - Victor Rachels
-//moved on 11/15/98 by Victor Rachels to consolidate cd controls
-//-moved-//added on 9/15/98 by Victor Rachels to add cd controls
-//-moved-#ifdef __DJGPP__
-//-moved-#include "bcd.h"
-//-moved-#endif
-//-moved-//end this section addition - Victor Rachels
 //added on 11/15/98 by Victor Rachels to add more cd controls
 #include "cdplay.h"
 //end this section change -VR
-
 //added 11/01/98 Matt Mueller
 #include "hudlog.h"
 //end addition -MM
-
 //added on 11/16/98 by Victor Rachels from Grim Fish for multi control
 #ifdef NETWORK
 #include "mlticntl.h"
 #endif
 //end this section addition - VR from GF
-
 //excluded until we can do something interesting with it - Victor Rachels
 #include "radar.h"
-
 //added on 8/7/98 by Matt Mueller
 #include "vers_id.h"
 //end modified section - Matt Mueller
-
 //added on 2/2/99 by Victor Rachels
 #include "ban.h"
 //end this section addition
-
 //added on 2/10/99 by Victor Rachels
 #include "pingstat.h"
 //end this section addition
-
 //added on 4/16/99 by Victor Rachels
 #include "vlcnfire.h"
 //end this section addition
-
 //added on 11/20/99 by Victor Rachels to add observermode
 #include "observer.h"
 int I_am_observer = 0;
@@ -500,21 +138,12 @@ extern void change_res();
 extern void d1x_options_menu();
 //end addition -MM
 
-
-
-//#define TEST_TIMER	1		//if this is set, do checking on timer
-
 #define	SHOW_EXIT_PATH	1
 #define FINAL_CHEATS 1
 
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
-
-//#define _MARK_ON 1
-//#include <wsample.h>            //should come after inferno.h to get mark setting
-//Above file is missing in the release version of the source. -KRB
-
 
 void game_init_render_sub_buffers( int x, int y, int w, int h );
 void draw_centered_text( int y, char * s );
@@ -524,14 +153,14 @@ void powerup_grab_cheat_all(void);
 int Speedtest_on = 0;
 
 #if !defined(NDEBUG) || defined(EDITOR)
-int	Mark_count = 0;                 // number of debugging marks set
+int	Mark_count = 0; // number of debugging marks set
 #endif
 #ifndef NDEBUG
 int	Speedtest_start_time;
 int	Speedtest_segnum;
 int	Speedtest_sidenum;
 int	Speedtest_frame_start;
-int	Speedtest_count=0;				//	number of times to do the debug test.
+int	Speedtest_count=0; // number of times to do the debug test.
 #endif
 
 static fix last_timer_value=0;
@@ -542,48 +171,48 @@ int stop_count,start_count;
 int time_stopped,time_started;
 #endif
 
-ubyte new_cheats[]= {KEY_B^0xaa, KEY_B^0xaa, KEY_B^0xaa, KEY_F^0xaa, KEY_A^0xaa,
-							KEY_U^0xaa, KEY_I^0xaa, KEY_R^0xaa, KEY_L^0xaa, KEY_H^0xaa,
-							KEY_G^0xaa, KEY_G^0xaa, KEY_U^0xaa, KEY_A^0xaa, KEY_I^0xaa,
-							KEY_G^0xaa, KEY_R^0xaa, KEY_I^0xaa, KEY_S^0xaa, KEY_M^0xaa,
-							KEY_I^0xaa, KEY_E^0xaa, KEY_N^0xaa, KEY_H^0xaa, KEY_S^0xaa,
-							KEY_N^0xaa, KEY_D^0xaa, KEY_X^0xaa, KEY_X^0xaa, KEY_A^0xaa };
+ubyte new_cheats[]= {	KEY_B^0xaa, KEY_B^0xaa, KEY_B^0xaa, KEY_F^0xaa, KEY_A^0xaa,
+			KEY_U^0xaa, KEY_I^0xaa, KEY_R^0xaa, KEY_L^0xaa, KEY_H^0xaa,
+			KEY_G^0xaa, KEY_G^0xaa, KEY_U^0xaa, KEY_A^0xaa, KEY_I^0xaa,
+			KEY_G^0xaa, KEY_R^0xaa, KEY_I^0xaa, KEY_S^0xaa, KEY_M^0xaa,
+			KEY_I^0xaa, KEY_E^0xaa, KEY_N^0xaa, KEY_H^0xaa, KEY_S^0xaa,
+			KEY_N^0xaa, KEY_D^0xaa, KEY_X^0xaa, KEY_X^0xaa, KEY_A^0xaa };
 
-ubyte			VR_use_paging		= 0;
-ubyte			VR_current_page	= 0;
-u_int32_t			VR_screen_mode		= 0;
-int			VR_render_width	= 0;
-int			VR_render_height	= 0;
-int			VR_render_mode		= VR_NONE;
-int			VR_compatible_menus	= 0;
-int			VR_low_res 			= 3;				// Default to low res
+ubyte			VR_use_paging = 0;
+ubyte			VR_current_page = 0;
+u_int32_t		VR_screen_mode = 0;
+int			VR_render_width = 0;
+int			VR_render_height = 0;
+int			VR_render_mode = VR_NONE;
+int			VR_compatible_menus = 0;
+int			VR_low_res = 3; // Default to low res
 int 			VR_show_hud = 1;
-int			VR_sensitivity     = 1;		// 0 - 2
-grs_canvas  *VR_offscreen_buffer	= NULL;		// The offscreen data buffer
-grs_canvas	VR_render_buffer[2];					//  Two offscreen buffers for left/right eyes.
-grs_canvas	VR_render_sub_buffer[2];			//  Two sub buffers for left/right eyes.
-grs_canvas	VR_screen_pages[2];					//  Two pages of VRAM if paging is available
-grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
+int			VR_sensitivity = 1; // 0 - 2
+grs_canvas		*VR_offscreen_buffer = NULL; // The offscreen data buffer
+grs_canvas		VR_render_buffer[2]; //  Two offscreen buffers for left/right eyes.
+grs_canvas		VR_render_sub_buffer[2]; //  Two sub buffers for left/right eyes.
+grs_canvas		VR_screen_pages[2]; //  Two pages of VRAM if paging is available
+grs_canvas		VR_editor_canvas; //  The canvas that the editor writes to.
 
 //added 07/11/99 by adb:
 //added buffer pointer to allow different buffers for 3D game rendering and
 //the 2D menus (for DX3D port)
-grs_canvas	*VR_offscreen_menu	= NULL;		// The offscreen data buffer for menus
+grs_canvas		*VR_offscreen_menu = NULL; // The offscreen data buffer for menus
 //end additions -- adb
 
-int Debug_pause=0;				//John's debugging pause system
+int Debug_pause=0; //John's debugging pause system
 
-int Cockpit_mode=CM_FULL_COCKPIT;		//set game.h for values
-int old_cockpit_mode=-1;
-int force_cockpit_redraw=0;
+int	Cockpit_mode=CM_FULL_COCKPIT; //set game.h for values
+int	old_cockpit_mode=-1;
+int	force_cockpit_redraw=0;
 
-int framerate_on=0;
+int	framerate_on=0;
 
 //added on 8/7/98 by Matt Mueller
-int netplayerinfo_on=0;
+int	netplayerinfo_on=0;
 //end modified section - Matt Mueller
 
-int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
+int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 //	Toggle_var points at a variable which gets !ed on ctrl-alt-T press.
 int	Dummy_var;
@@ -591,41 +220,40 @@ int	*Toggle_var = &Dummy_var;
 
 #ifdef EDITOR
 //flag for whether initial fade-in has been done
-char faded_in;
+char	faded_in;
 #endif
 
-#ifndef NDEBUG                          //these only exist if debugging
+#ifndef NDEBUG //these only exist if debugging
 
-int Game_double_buffer = 1; 	//double buffer by default
-fix fixed_frametime=0;          //if non-zero, set frametime to this
+int	Game_double_buffer = 1; //double buffer by default
+fix	fixed_frametime=0; //if non-zero, set frametime to this
 
 #endif
 
-int Game_suspended=0;           //if non-zero, nothing moves but player
+int	Game_suspended=0; //if non-zero, nothing moves but player
 
-//void vr_reset_display();
-int create_special_path(void);
-void fill_background(int x,int y,int w,int h,int dx,int dy);
+int	create_special_path(void);
+void	fill_background(int x,int y,int w,int h,int dx,int dy);
 
-fix 	RealFrameTime;
+fix	RealFrameTime;
 fix	Auto_fire_fusion_cannon_time = 0;
 fix	Fusion_charge = 0;
 fix	Fusion_next_sound_time = 0;
 
-int Debug_spew = 1;
-int Game_turbo_mode = 0;
+int	Debug_spew = 1;
+int	Game_turbo_mode = 0;
 
-int Game_mode = GM_GAME_OVER;
+int	Game_mode = GM_GAME_OVER;
 
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
 
 grs_bitmap background_bitmap;
 
-int Game_aborted;
-void update_cockpits(int force_redraw);
+int	Game_aborted;
+void	update_cockpits(int force_redraw);
 
-extern void newdemo_strip_frames(char *, int);
+extern	void newdemo_strip_frames(char *, int);
 
 #define BACKGROUND_NAME "statback.pcx"
 
@@ -673,7 +301,6 @@ void speedtest_frame(void)
 		else
 			speedtest_init();
 	}
-
 }
 
 #endif
@@ -684,7 +311,7 @@ void init_game()
 	ubyte pal[256*3];
 	int pcx_error;
 
-	atexit(close_game);             //for cleanup
+	atexit(close_game); //for cleanup
 
 	init_objects();
 
@@ -704,7 +331,7 @@ void init_game()
 		Error("File %s - PCX error: %s",BACKGROUND_NAME,pcx_errormsg(pcx_error));
 	gr_remap_bitmap_good( &background_bitmap, pal, -1, -1 );
 
-	Clear_window = 2;		//	do portal only window clear.
+	Clear_window = 2; // do portal only window clear.
 }
 
 
@@ -713,7 +340,6 @@ void reset_palette_add()
 	PaletteRedAdd 		= 0;
 	PaletteGreenAdd	= 0;
 	PaletteBlueAdd		= 0;
-	//gr_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
 }
 
 
@@ -733,10 +359,6 @@ void game_show_warning(char *s)
 //these should be in gr.h
 #define cv_w  cv_bitmap.bm_w
 #define cv_h  cv_bitmap.bm_h
-
-//killed 7/5/99 - Owen Evans for letterbox in high rez
-//#define LETTERBOX_HEIGHT 140
-//end killed - OE
 
 //added 3/24/99 by Owen Evans for screen res changing
 u_int32_t Game_screen_mode = 0;
@@ -810,7 +432,6 @@ void update_cockpits(int force_redraw)
 //called every time the screen mode or cockpit changes
 void init_cockpit()
 {
-//	int minx, maxx, miny, maxy, 
 	int x, y;
 
 	//Initialize the on-screen canvases
@@ -823,7 +444,7 @@ void init_cockpit()
 
 #ifndef OGL
 //changed 7/5/99 - Owen Evans for letterbox in hi res
-	if ( VR_screen_mode != SM(320,200) && Cockpit_mode != CM_LETTERBOX)    {               // This really should be 'if VR_screen_mode isn't linear'
+	if ( VR_screen_mode != SM(320,200) && Cockpit_mode != CM_LETTERBOX) { // This really should be 'if VR_screen_mode isn't linear'
 //end changed - OE
 		Cockpit_mode = CM_FULL_SCREEN;
 	}
@@ -916,7 +537,7 @@ void toggle_cockpit()
 	switch (Cockpit_mode) {
 
 		case CM_FULL_COCKPIT:
-			if (Game_window_h > max_window_h)			//too big for scalable
+			if (Game_window_h > max_window_h) //too big for scalable
 				new_mode = CM_FULL_SCREEN;
 			else
 				new_mode = CM_STATUS_BAR;
@@ -932,7 +553,7 @@ void toggle_cockpit()
 		case CM_REAR_VIEW:
 		case CM_LETTERBOX:
 		default:
-			return;			//do nothing
+			return; //do nothing
 			break;
 
 	}
@@ -941,28 +562,27 @@ void toggle_cockpit()
 	HUD_clear_messages();
 }
 
-#define WINDOW_W_DELTA	((max_window_w / 16)&~1)	//24	//20
-#define WINDOW_H_DELTA	((max_window_h / 16)&~1)	//12	//10
-#define WINDOW_MIN_W		((max_window_w * 10) / 22)	//160
+#define WINDOW_W_DELTA	((max_window_w / 16)&~1)
+#define WINDOW_H_DELTA	((max_window_h / 16)&~1)
+#define WINDOW_MIN_W	((max_window_w * 10) / 22)
 
 void grow_window()
 {
-	if ((Cockpit_mode == CM_FULL_COCKPIT)/* && (grd_curscreen->sc_mode == SM(320,200))*/) {
+	if ((Cockpit_mode == CM_FULL_COCKPIT)) {
 		Game_window_h = max_window_h;
 		Game_window_w = VR_render_width;
 		toggle_cockpit();
-//		grow_window();
 		hud_message(MSGC_GAME_FEEDBACK, "Press F3 to return to Cockpit mode");
 		return;
 	}
 
-	if ((Cockpit_mode != CM_STATUS_BAR)/* && (grd_curscreen->sc_mode == SM(320,200))*/)
+	if ((Cockpit_mode != CM_STATUS_BAR))
 		return;
 
 	if (Cockpit_mode == CM_FULL_SCREEN)
 		max_window_h = VR_render_height; 
 
-	if ((Game_window_h >= max_window_h)/* && (grd_curscreen->sc_mode == SM(320,200))*/) {
+	if ((Game_window_h >= max_window_h)) {
 		Game_window_w = VR_render_width;
 		Game_window_h = VR_render_height;
 		select_cockpit(CM_FULL_SCREEN);
@@ -991,9 +611,8 @@ void grow_window()
 		game_init_render_sub_buffers( x, y, Game_window_w, Game_window_h );
 	}
 
-	HUD_clear_messages();	//	@mk, 11/11/94
+	HUD_clear_messages(); // @mk, 11/11/94
 }
-
 
 grs_bitmap background_bitmap;
 
@@ -1081,7 +700,7 @@ void shrink_window()
 
 		old_window_w = Game_window_w;
 		old_window_h = Game_window_h;
-		if ((Cockpit_mode == CM_FULL_SCREEN) /*&& (old_window_h==max_window_h)*/){
+		if ((Cockpit_mode == CM_FULL_SCREEN)){
 			//320x200 mode gets the status bar, giving them a wider viewing angle, thus a (slight) advantage.
 			//this merely adds the same ability (viewing angle, not status bar) to other resolutions.  -MM
 			window_w_delta = 0; //must be even
@@ -1125,10 +744,10 @@ void game_init_render_buffers(u_int32_t screen_mode, int render_w, int render_h,
 		VR_use_paging 		= use_paging;
 
 		VR_screen_mode		= screen_mode;
-		VR_render_mode 	= render_method;
-		VR_render_width	= render_w;
+		VR_render_mode		= render_method;
+		VR_render_width		= render_w;
 		VR_render_height	= render_h;
-		VR_compatible_menus = compatible_menus;
+		VR_compatible_menus 	= compatible_menus;
 
 		Game_window_w 		= render_w;
 		Game_window_h		= render_h;
@@ -1227,8 +846,8 @@ stop_time();
                 gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 		gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 #ifdef __LINUX__
-	if (FindArg("-grabmouse")) // ZICO - if -grabmouse ...
-		SDL_WM_GrabInput(SDL_GRAB_OFF); // ZICO - ... capture mouse!
+	if (FindArg("-grabmouse"))
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
 #endif
 		break;
 	case SCREEN_GAME:
@@ -1291,8 +910,8 @@ stop_time();
 			gr_init_sub_canvas( &VR_screen_pages[1], game_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 }
 #ifdef __LINUX__
-	if (FindArg("-grabmouse")) // ZICO - if -grabmouse ...
-		SDL_WM_GrabInput(SDL_GRAB_ON); // ZICO - ... capture mouse!
+	if (FindArg("-grabmouse"))
+		SDL_WM_GrabInput(SDL_GRAB_ON);
 #endif
 		break;
 	#ifdef EDITOR
@@ -1311,7 +930,7 @@ stop_time();
 		gr_init_sub_canvas( &VR_screen_pages[0], Canv_editor, 0, 0, Canv_editor->cv_w, Canv_editor->cv_h );
 		gr_init_sub_canvas( &VR_screen_pages[1], Canv_editor, 0, 0, Canv_editor->cv_w, Canv_editor->cv_h );
 		gr_set_current_canvas( Canv_editor );
-		init_editor_screen();   //setup other editor stuff
+		init_editor_screen(); //setup other editor stuff
 		break;
 	#endif
 	default:
@@ -1540,7 +1159,7 @@ void calc_frame_time()
 	do {
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
-		if (use_nice_fps && FrameTime<F1_0/maxfps && Newdemo_state != ND_STATE_PLAYBACK) // ZICO - disable NiceFPS for demo playbacks
+		if (use_nice_fps && FrameTime<F1_0/maxfps)
 			d_delay(1);
 	}while (FrameTime<F1_0/maxfps);
 
@@ -1570,7 +1189,7 @@ void calc_frame_time()
 
 	last_timer_value = timer_value;
 
-	if (FrameTime < 0)						//if bogus frametime...
+	if (FrameTime < 0)				//if bogus frametime...
 		FrameTime = last_frametime;		//...then use time from last frame
 
 	#ifndef NDEBUG
@@ -1607,8 +1226,6 @@ void calc_frame_time()
 		Min_trackable_dot = MIN_TRACKABLE_DOT;
 
 }
-
-//--unused-- int Auto_flythrough=0;  //if set, start flythough automatically
 
 void move_player_2_segment(segment *seg,int side)
 {
