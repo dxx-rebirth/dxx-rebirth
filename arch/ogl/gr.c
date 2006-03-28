@@ -195,7 +195,7 @@ void ogl_get_verinfo(void)
 	ogl_luminance4_alpha4_ok = 1;
 	ogl_rgba2_ok = 1;
 	ogl_gettexlevelparam_ok = 1;
-	ogl_setgammaramp_ok = 1;
+	ogl_setgammaramp_ok = 0;
 
 #ifdef WGL_VIDEO
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
