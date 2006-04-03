@@ -16,6 +16,6 @@ ifndef NO_ASM
 OBJECTS += linear.$(OBJ) tmerge_a.$(OBJ)
 endif
 
-OUTPUT = $(LIBDIR)2d.$(ARC)
+OUTPUT = $(LIBDIR)/2d.$(LIB)
 
 include $(TOPDIR)/makefile.lib

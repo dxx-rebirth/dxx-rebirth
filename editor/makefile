@@ -12,7 +12,7 @@ OBJECTS = \
  medrobot.$(OBJ) meddraw.$(OBJ) segment.$(OBJ) ehostage.$(OBJ) centers.$(OBJ) \
  func.$(OBJ)
 
-OUTPUT = $(LIBDIR)editor.$(ARC)
+OUTPUT = $(LIBDIR)/editor.$(LIB)
 
 E_CFLAGS = -I../main -I../include/editor -DEDITOR
 

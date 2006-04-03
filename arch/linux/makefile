@@ -26,14 +26,6 @@ else
 OBJECTS += hmistub.$(OBJ)
 endif
 
-ifdef SVGALIB
-SUBDIRS += svgalib
-endif
-
-ifdef GGI
-SUBDIRS += ggi
-endif
-
 ifdef WANT_AWE32
 CFLAGS += -DWANT_AWE32
 endif
@@ -41,8 +33,6 @@ ifdef WANT_MPU401
 CFLAGS += -DWANT_MPU401
 endif
 
-OUTPUT = $(LIBDIR)io.$(ARC)
-
-CFLAGS += -I$(TOPDIR)/main
+OUTPUT = $(LIBDIR)/io.$(LIB)
 
 include $(TOPDIR)/makefile.lib

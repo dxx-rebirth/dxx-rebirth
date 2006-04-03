@@ -16,8 +16,6 @@ ifdef SDL_VIDEO
 OBJECTS += gr.$(OBJ) 
 endif
 
-OUTPUT = $(LIBDIR)sdl.$(ARC)
-
-CFLAGS += -I$(TOPDIR)/main
+OUTPUT = $(LIBDIR)/sdl.$(LIB)
 
 include $(TOPDIR)/makefile.lib

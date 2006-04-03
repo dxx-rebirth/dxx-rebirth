@@ -22,11 +22,11 @@ ALLOBJECTS = $(OBJECTS_TARGETS) $(OBJECTS_DONT_LINK_TARGETS)
 DEPFILES=$(subst .$(OBJ),.d,$(ALLOBJECTS))
 
 $(OBJDIR)/%.d: %.c
-	-mkdir $(OBJDIR)
+	-@mkdir $(OBJDIR)
 	$(CC) $(CFLAGS) $(E_CFLAGS) -MM $< >> $@
 
 $(OBJDIR)/%.d: %.cpp
-	-mkdir $(OBJDIR)
+	-@mkdir $(OBJDIR)
 	$(CC) $(CFLAGS) $(E_CFLAGS) -MM $< >> $@
 	
 ifneq ($(DEPFILES),)

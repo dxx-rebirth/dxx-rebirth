@@ -14,6 +14,6 @@ else
 OBJECTS += file.$(OBJ)
 endif
 
-OUTPUT = $(LIBDIR)ui.$(ARC)
+OUTPUT = $(LIBDIR)/ui.$(LIB)
 
 include $(TOPDIR)/makefile.lib

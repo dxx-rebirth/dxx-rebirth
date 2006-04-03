@@ -48,7 +48,7 @@ ifdef SHAREWARE
 OBJECTS += snddecom.$(OBJ)
 endif
 
-OUTPUT = $(LIBDIR)main.$(ARC)
+OUTPUT = $(LIBDIR)/main.$(LIB)
  
 include $(TOPDIR)/makefile.lib
 

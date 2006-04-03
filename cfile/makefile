@@ -4,6 +4,6 @@ include $(TOPDIR)/makefile.config
 
 OBJECTS = cfile.$(OBJ)
 
-OUTPUT = $(LIBDIR)cfile.$(ARC)
+OUTPUT = $(LIBDIR)/cfile.$(LIB)
 
 include $(TOPDIR)/makefile.lib

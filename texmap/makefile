@@ -19,6 +19,6 @@ ifndef NO_ASM
 endif
 endif
 
-OUTPUT = $(LIBDIR)texmap.$(ARC)
+OUTPUT = $(LIBDIR)/texmap.$(LIB)
 
 include $(TOPDIR)/makefile.lib

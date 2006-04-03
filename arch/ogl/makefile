@@ -11,8 +11,6 @@ ifdef WGL_IO
 OBJECTS += wgl.$(OBJ)
 endif
 
-OUTPUT = $(LIBDIR)ogl.$(ARC)
-
-CFLAGS += -I$(TOPDIR)/main
+OUTPUT = $(LIBDIR)/ogl.$(LIB)
 
 include $(TOPDIR)/makefile.lib

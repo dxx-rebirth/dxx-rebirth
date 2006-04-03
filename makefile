@@ -128,7 +128,7 @@ clean:
 	$(CLEANSUBS)
 	-rm $(OUTPUT)
 	-rm $(IP_DAEMON_OUTPUT)
-	-rm -r $(LIBDIR)
+	-rm -r $(LIBDIR)/
 
 depend:
 	$(DEPSUBS)

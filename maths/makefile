@@ -9,6 +9,6 @@ E_CFLAGS = -DASM_VECMAT
 OBJECTS = fix.$(OBJ) vecmat.$(OBJ) vecmata.$(OBJ) rand.$(OBJ)
 endif
 
-OUTPUT = $(LIBDIR)maths.$(ARC)
+OUTPUT = $(LIBDIR)/maths.$(LIB)
 
 include $(TOPDIR)/makefile.lib
