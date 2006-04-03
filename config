@@ -1,8 +1,8 @@
-#Specify which platform yu´re running
+#Specify which platform you´re running
+# if you´re using another platform don´t uncomment anything
 
-#USE_WINDOWS_MINGW = 1 
-USE_LINUX = 1
-#USE_OTHER = 1
+#ENV_MINGW32 = 1
+ENV_LINUX = 1
 
 #The destination dir where the executable will be stored, relative to the base dir
 
@@ -13,16 +13,13 @@ DESTINATION_DIR = ../d1x-run
 
 DESCENT_DATA_PATH =
 
-ifeq ($(USE_WINDOWS_MINGW),1)
-ENV_MINGW32 = 1
+ifeq ($(ENV_MINGW32),1)
 include $(TOPDIR)/config.mingw
-endif
-
-ifeq ($(USE_LINUX),1)
+else
+ifeq ($(ENV_LINUX),1)
 ENV_LINUX = 1
 include $(TOPDIR)/config.linux
-endif
-
-ifeq ($(USE_OTHER),1)
+else
 include $(TOPDIR)/config.other
+endif
 endif

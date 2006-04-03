@@ -6,54 +6,36 @@ all: $(SUBDIRS) $(OUTPUT)
 
 include $(TOPDIR)/makefile.rules
 
-$(filter %.a,$(OUTPUT)): depend
-	make make_a
-
-$(filter %.lib,$(OUTPUT)): depend
-	make make_lib
-
-make_a: $(LIBDIR) $(OBJDIR) $(OBJECTS_TARGETS) $(OBJECTS_DONT_LINK_TARGETS)
-	ar rcs $(OUTPUT) $(OBJECTS_TARGETS)
-
-make_lib: $(LIBDIR) $(OBJDIR) $(OBJECTS_TARGETS) $(OBJECTS_DONT_LINK_TARGETS)
-	lib -nologo -out:$(OUTPUT) $(OBJECTS_TARGETS)
+$(OUTPUT): $(LIBDIR) $(OBJDIR) $(OBJECTS_TARGETS) $(OBJECTS_DONT_LINK_TARGETS) $(RESOURCES_TARGETS)
+	ar rcs $(OUTPUT) $(OBJECTS_TARGETS) $(RESOURCES_TARGETS)
 
 $(LIBDIR):
-	mkdir $(LIBDIR) -p
-
-ifneq ($(OBJECTS),)
-$(OBJDIR):
-	mkdir $(OBJDIR) -p
+ifeq ($(ENV_MINGW32),1)
+	mkdir $(subst /,\,$(LIBDIR))
+else
+	mkdir $(LIBDIR)
 endif
 
 #dependancy generation
 
-ALLOBJECTS = $(OBJECTS_TARGETS)
-DEPOBJ=$(ALLOBJECTS:.$(OBJ)=.d)
+ALLOBJECTS = $(OBJECTS_TARGETS) $(OBJECTS_DONT_LINK_TARGETS)
+DEPFILES=$(subst .$(OBJ),.d,$(ALLOBJECTS))
 
-$(OBJDIR)%.d: %.c
+$(OBJDIR)/%.d: %.c
+	-mkdir $(OBJDIR)
 	$(CC) $(CFLAGS) $(E_CFLAGS) -MM $< >> $@
 
-$(OBJDIR)%.d: %.cpp
+$(OBJDIR)/%.d: %.cpp
+	-mkdir $(OBJDIR)
 	$(CC) $(CFLAGS) $(E_CFLAGS) -MM $< >> $@
-
-depend: $(OBJDIR) $(subst .o,.d,$(OBJECTS_TARGETS))
-	$(DEPSUBS)
-
-ifneq ($(wildcard $(OBJDIR)*.d),)
-include $(wildcard $(OBJDIR)*.d)
-endif
-
-#rules for cleaning
-
-ifdef OBJECTS
-CLEANOBJ=rm -r -f $(OBJDIR)
-endif
-ifdef OUTPUT
-CLEANOUT=rm -f $(OUTPUT)
+	
+ifneq ($(DEPFILES),)
+-include $(DEPFILES)
 endif
 
 clean:
-	$(CLEANOBJ)
-	$(CLEANOUT)
+ifneq ($(OUTPUT),)
+	-rm -r $(OBJDIR)
+	-rm $(OUTPUT)
+endif
 	$(CLEANSUBS)

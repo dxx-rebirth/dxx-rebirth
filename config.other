@@ -35,13 +35,6 @@ RELEASE = 1
 # if compiling with Cygwin, you need extra mingw compatible c++ libraries (see compile.txt)
 #MINGW_EXTRA = 
 
-# D1XD3D: for use only with ENV_MSVC, builds support for Direct3D
-#D1XD3D = 1
-
-# DXBASE: if D1XD3D is defined, or one of the other windows options that needs
-# it, use this to define DirectX base dir
-#DXBASE = 
-
 # WGL_IO: for use with ENV_CYGWIN or ENV_MINGW32 or ENV_MSVC, builds support for OpenGL on win32
 WGL_IO = 1
 
@@ -52,26 +45,12 @@ WGL_IO = 1
 OGL_RUNTIME=1
 
 # linux video/input options (choose one)
-#GGI_IO = 1
 #SDL_IO = 1
 SDLGL_IO = 1
-#SVGALIB_IO = 1
-#opengl support is still incomplete, you should only enable if you actually
-#want to work on the code, or can tolerate missing/partially implemented
-#features.  Uses GII for input. (note if you are using libgii0.6 (and possibly
-#others, including the 990922 snapshot (in which the xwin input method is
-#completely unchanged from 0.6)) you must edit libgii-0.6/input/xwin/input.c
-#(line 373), and change "ggUnlock(priv->lock);" to "if (priv->lock)
-#ggUnlock(priv->lock);"
-#GLX_IO = 1
 
-# linux audio options (chose one)
+# linux audio options (choose one)
 #SDL_AUDIO = 1
 #ALSA_AUDIO = 1
-
-# secondary compiler options
-#STATICSDL: a static SDL lib can be made by typing "make static" in the obj/x11 directory.
-#STATICSDL = ../SDL-0.9.9/obj/x11/libSDL.a 
 
 #music options for linux:
 #HMIPLAY = 1

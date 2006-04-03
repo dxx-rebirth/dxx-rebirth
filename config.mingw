@@ -35,9 +35,5 @@ WGL_IO = 1
 # Windows only, currently.
 OGL_RUNTIME=1
 
-# secondary compiler options
-#STATICSDL: a static SDL lib can be made by typing "make static" in the obj/x11 directory.
-#STATICSDL = ../SDL-0.9.9/obj/x11/libSDL.a 
-
 #network
 NETWORK = 1

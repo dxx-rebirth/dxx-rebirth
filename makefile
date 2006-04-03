@@ -17,10 +17,6 @@ ifdef ENV_MINGW32
 EXT=mw.exe
 endif
 
-ifdef D1XD3D
-EXT=3d.exe
-endif
-
 ifdef SHAREWARE
 SHRWR = sh
 endif
@@ -38,47 +34,24 @@ OUTPUT = $(DESTDIR)/$(D1XPREFIX)1x$(D1XMAJOR)$(D1XMINOR)$(SHRWR)$(DBG)$(SND)$(OP
 #libraries to link with
 
 LIBS = \
-	$(LIBDIR)main.$(ARC)	\
-	$(LIBDIR)3d.$(ARC)	\
-	$(LIBDIR)2d.$(ARC)	\
-	$(LIBDIR)iff.$(ARC)	\
-	$(LIBDIR)maths.$(ARC)	\
-	$(LIBDIR)cfile.$(ARC) \
-	$(LIBDIR)mem.$(ARC)	\
-	$(LIBDIR)misc.$(ARC)	\
-	$(LIBDIR)texmap.$(ARC)	\
-        $(LIBDIR)io.$(ARC)
-
-#defines for dxbase mode
-
-ifdef DXBASE
-CFLAGS += -I$(DXBASE)/include
-LINKLIBS += -L$(DXBASE)/lib
-endif
-
-ifdef D1XD3D
-LIBS += $(LIBDIR)d3dframe.$(ARC)
-endif
+	$(LIBDIR)/main.$(LIB)	\
+	$(LIBDIR)/3d.$(LIB)	\
+	$(LIBDIR)/2d.$(LIB)	\
+	$(LIBDIR)/iff.$(LIB)	\
+	$(LIBDIR)/maths.$(LIB)	\
+	$(LIBDIR)/cfile.$(LIB) \
+	$(LIBDIR)/mem.$(LIB)	\
+	$(LIBDIR)/misc.$(LIB)	\
+	$(LIBDIR)/texmap.$(LIB)	\
+        $(LIBDIR)/io.$(LIB)
 
 ifdef OGL
-LIBS += $(LIBDIR)ogl.$(ARC)
-endif
-
-ifdef SDLGL_IO
-LINKLIBS += -lGL -lGLU
-endif
-
-ifdef GLX_IO
-LINKLIBS += -L/usr/X11R6/lib
-ifndef OGL_RUNTIME
-LINKLIBS += -lGL 
-endif
-LINKLIBS += -lGLU -lm -lX11 -lXext
+LIBS += $(LIBDIR)/ogl.$(LIB)
 endif
 
 ifdef MAKE_EDITOR
 NO_RL2 = 1
-LIBS += $(LIBDIR)editor.$(ARC) $(LIBDIR)ui.$(ARC)
+LIBS += $(LIBDIR)/editor.$(LIB) $(LIBDIR)/ui.$(LIB)
 E_CFLAGS += -DEDITOR -I.
 ifdef ENV_LINUX
 LINKLIBS += -lm
@@ -93,51 +66,21 @@ endif
 LIBS += -lglu32 -lgdi32
 endif
 LIBS += -ldinput -lddraw -ldsound -ldxguid -lwsock32 -lwinmm -luser32 -lkernel32
-# LIBS += $(LIBDIR)d1x_res.$(OBJ)
-endif
-
-ifdef ENV_MSVC
-LINKLIBS += dinput.lib ddraw.lib dsound.lib dxguid.lib wsock32.lib \
-	winmm.lib user32.lib kernel32.lib gdi32.lib
-# LIBS += $(LIBDIR)d1x.res
-ifdef DEBUG
-LINKLIBS += msvcrtd.lib
-else
-LINKLIBS += msvcrt.lib
-endif
-ifdef RELEASE
-LFLAGS = -OPT:REF -PDB:NONE
-else
-LFLAGS = -DEBUG -DEBUGTYPE:CV -PDB:$(LIBDIR)
-endif
+LIBS += $(LIBDIR)/d1x_res.$(OBJ)
 endif
 
 ifdef ENV_LINUX
+ifdef SDLGL_IO
+LINKLIBS += -lGL -lGLU
+endif
 ifdef SDL
-LIBS += $(LIBDIR)sdl.$(ARC)
-ifdef STATICSDL
-LINKLIBS += $(STATICSDL) -ldl -L/usr/X11R6/lib -lX11 -lXext -lXxf86dga -lXxf86vm
-else
+LIBS += $(LIBDIR)/sdl.$(LIB)
 LINKLIBS += -ldl -lSDL
 endif
 endif
-ifdef SVGALIB
-LIBS += $(LIBDIR)svgalib.$(ARC)
-LINKLIBS += -lvga -lvgagl
-endif
-ifdef GGI
-LIBS += $(LIBDIR)ggi.$(ARC)
-endif
-endif
 ifdef SCRIPT
-LIBS += $(LIBDIR)script.$(ARC)
+LIBS += $(LIBDIR)/script.$(LIB)
 E_CFLAGS += -DSCRIPT
-ifdef GGI_VIDEO
-LINKLIBS += -lggi
-endif
-ifdef GII_INPUT
-LINKLIBS += -lgii
-endif
 ifdef GLIBC
 LINKLIBS += -lpthread
 endif
@@ -147,22 +90,25 @@ endif
 default: $(OUTPUT)
 
 $(DESTDIR):
+ifeq ($(ENV_MINGW32),1)
+	mkdir $(subst /,\,$(DESTDIR))
+else
 	mkdir $(DESTDIR)
+endif
 
 include $(TOPDIR)/makefile.rules
 
 #rule for building the descent binary
 
-ifdef ENV_MSVC
 $(OUTPUT):  $(DESTDIR) $(SUBDIRS)
-	link $(LFLAGS) -out:$(OUTPUT)  -machine:i386 -subsystem:console $(LIBS) $(LINKLIBS)
+ifdef SUPPORTS_NET_IP
+	$(CXX) $(LFLAGS) -o $@ $(LIBS) $(LINKLIBS)
 else
-$(OUTPUT):  $(DESTDIR) $(SUBDIRS)
 	$(CC) $(LFLAGS) -o $@ $(LIBS) $(LINKLIBS)
+endif
 ifdef	RELEASE
 ifndef DEBUGABLE
 	strip --strip-all $(OUTPUT)
-endif
 endif
 endif
 
@@ -179,9 +125,10 @@ $(IP_DAEMON_OUTPUT): $(SUBDIRS)
 endif
 
 clean:
+	$(CLEANSUBS)
 	-rm $(OUTPUT)
 	-rm $(IP_DAEMON_OUTPUT)
-	$(CLEANSUBS)
+	-rm -r $(LIBDIR)
 
 depend:
 	$(DEPSUBS)
