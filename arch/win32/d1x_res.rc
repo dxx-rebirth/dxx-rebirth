@@ -2,7 +2,7 @@
 //
 #include "resource.h"
 
-IDI_MAIN_ICON	ICON	"d1x.ico"
+#IDI_MAIN_ICON	ICON	"d1x.ico"
 
 
 //version stuff doesn't seem to work with windres anyway
@@ -30,7 +30,7 @@ BEGIN
    VALUE "FileDescription", "D1x win32.\000"
    VALUE "FileVersion", "1.41\000"
    VALUE "InternalName", "d1x\000"
-   VALUE "LegalCopyright", "Copyright © Parallax, D1x Project, other.s\000"
+   VALUE "LegalCopyright", "Copyright  Parallax, D1x Project, other.s\000"
    VALUE "OriginalFilename", "d1x_hraomeu.exe\000"
    VALUE "ProductName","d1x\000"
    VALUE "ProductVersion","1.41\000"
