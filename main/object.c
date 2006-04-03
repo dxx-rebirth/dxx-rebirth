@@ -134,7 +134,7 @@ int print_object_info = 0;
 
 window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
 
-#ifndef NDEBUG
+#if defined(EDITOR) || !defined(NDEBUG)
 char	Object_type_names[MAX_OBJECT_TYPES][9] = {
 	"WALL    ",
 	"FIREBALL",

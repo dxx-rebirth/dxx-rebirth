@@ -1,4 +1,4 @@
-/* $Id: kfuncs.c,v 1.1.1.1 2006/03/17 19:58:12 zicodxx Exp $ */
+/* $Id: kfuncs.c,v 1.5 2006/03/05 12:19:57 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: kfuncs.c,v 1.1.1.1 2006/03/17 19:58:12 zicodxx Exp $";
+static char rcsid[] = "$Id: kfuncs.c,v 1.5 2006/03/05 12:19:57 chris Exp $";
 #endif
 
 #ifdef HAVE_CONFIG_H
@@ -40,8 +40,7 @@ static char rcsid[] = "$Id: kfuncs.c,v 1.1.1.1 2006/03/17 19:58:12 zicodxx Exp $
 #include "editor/eobject.h"
 #include "editor/medwall.h"
 
-// Test function prototypes (replace Test1, 2 and 3 with whatever function 
-//										you wish to test.)
+// Test function prototypes (replace Test1, 2 and 3 with whatever function you wish to test.)
 extern void test_create_path();
 extern void test_create_all_paths();
 extern void test_create_path_many();
@@ -257,8 +256,10 @@ FUNCTION med_functions[] = {
 {   "med-segment-exchange",             0,      ExchangeMarkandCurseg },
 {   "med-segment-mark",                 0,      CopySegToMarked },
 {	 "med-about",								 0,      ShowAbout },
+#ifndef NDEBUG
 {	 "med-mark-start",						 0,		MarkStart },
 {	 "med-mark-end",						 	 0,		MarkEnd },
+#endif
 
 //	In group.c
 {	 "med-group-load",						 0, 		LoadGroup },
@@ -415,4 +416,5 @@ void init_med_functions()
 {
 	func_init(med_functions, (sizeof(med_functions)/sizeof(FUNCTION))-1 );
 }
+
 

@@ -1408,7 +1408,7 @@ int load_level(char * filename_passed)
 		editor_status("Loaded NEW mine %s, \"%s\"",filename,Current_level_name);
 	#endif
 
-	#ifdef EDITOR
+	#if !defined(NDEBUG) && !defined(COMPACT_SEGS)
 	if (check_segment_connections())
 		nm_messagebox( "ERROR", 1, "Ok", 
 				"Connectivity errors detected in\n"

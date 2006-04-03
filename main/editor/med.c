@@ -1,4 +1,4 @@
-/* $Id: med.c,v 1.1.1.1 2006/03/17 19:58:17 zicodxx Exp $ */
+/* $Id: med.c,v 1.10 2006/03/05 12:19:57 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -658,7 +658,9 @@ int DosShell()
 }
 
 int ToggleOutlineMode()
-{	int mode;
+{
+#ifndef NDEBUG
+	int mode;
 
 	mode=toggle_outline_mode();
 
@@ -679,6 +681,9 @@ int ToggleOutlineMode()
 
 	Update_flags |= UF_GAME_VIEW_CHANGED;
 	return mode;
+#else
+	return 1;
+#endif
 }
 
 //@@int do_reset_orient()
@@ -1448,7 +1453,7 @@ void dump_stuff(void)
 
 }
 
-
+#ifndef NDEBUG
 int MarkStart(void)
 {
 	char mystr[30];
@@ -1467,4 +1472,4 @@ int MarkEnd(void)
 
 	return 1;
 }
-
+#endif

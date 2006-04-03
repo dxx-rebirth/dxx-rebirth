@@ -2064,7 +2064,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	render_start_frame();
 
 
-	#if defined(EDITOR) && !defined(NDEBUG)
+	#if defined(EDITOR)
 	if (Show_only_curside) {
 		rotate_list(8,Cursegp->verts);
 		render_side(Cursegp,Curside);
