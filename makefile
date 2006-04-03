@@ -66,7 +66,7 @@ endif
 LIBS += -lglu32 -lgdi32
 endif
 LIBS += -ldinput -lddraw -ldsound -ldxguid -lwsock32 -lwinmm -luser32 -lkernel32
-LIBS += $(LIBDIR)/d1x_res.$(OBJ)
+#LIBS += $(LIBDIR)/d1x_res.$(OBJ)
 endif
 
 ifdef ENV_LINUX
