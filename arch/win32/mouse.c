@@ -12,13 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
 * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/arch/win32/mouse.c,v $
-* $Revision: 1.1.1.1 $
-* $Author: zicodxx $
-* $Date: 2006/03/17 19:41:06 $
+* $Revision: 1.2 $
+* $Author: michaelstather $
+* $Date: 2006/03/27 18:48:39 $
 * 
 * Functions to access Mouse and Cyberman...
 * 
 * $Log: mouse.c,v $
+* Revision 1.2  2006/03/27 18:48:39  michaelstather
+* *** empty log message ***
+*
 * Revision 1.1.1.1  2006/03/17 19:41:06  zicodxx
 * initial import
 *
@@ -200,11 +203,6 @@ static int Mouse_installed = 0;
 int WMMouse_Handler_Ready = 0;
 int mouse_wparam, mouse_lparam, mouse_msg;
 
-
-//GGI data:
-//extern  ggi_visual_t		visual;
-//extern  ggi_directbuffer_t		dbuf;	// GGI direct acces to screen memory
-//extern  ggi_pixellinearbuffer	*plb;
 
 //Mouse globals
 static double mouse_x, mouse_y;
@@ -594,7 +592,7 @@ void show_cursor()
 }
 
 
-/* New mouse pointer stuff for GGI/DGA */
+/* New mouse pointer stuff */
 //#include "cursor.h" /* cursor and mask */
 
 typedef struct Sprite {
