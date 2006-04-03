@@ -1,7 +1,14 @@
 This file describes how to compile D1X-Rebirth from source.
 
+To compile you´ll need:
+
+-gcc
+-mingw under windows
+-you don´t need msys but it´s supported anyway (just change the appropriate line in config.mingw)
+-sdl under linux (development version)
+
 * edit the "config" file and specify the output directory and the platform you´re running
-* edit the appropriate "config.lin" "config.mingw" or "config.other" file to chenge the options
+* edit the appropriate "config.linux" "config.mingw" or "config.other" file to chenge the options
 * run "make"
 * the resulting file now will be copied in the directory you specified in "config"
 * place the file wherever you want to have it
