@@ -340,6 +340,7 @@ void print_commandline_help()
 //	printf( "  -fullscreen     %s\n", "Use fullscreen mode if available");
         printf( "  -window         %s\n", "Run the game in a window"); // ZICO - from window to fullscreen
 #endif
+	printf( "  -16to9          %s\n", "Use widescreen");
 #ifdef OGL
 	printf( "  -gl_texmagfilt <f> %s\n","set GL_TEXTURE_MAG_FILTER");
 	printf( "  -gl_texminfilt <f> %s\n","set GL_TEXTURE_MIN_FILTER");
