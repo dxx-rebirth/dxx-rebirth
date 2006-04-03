@@ -11,7 +11,11 @@ $(OUTPUT): $(LIBDIR) $(OBJDIR) $(OBJECTS_TARGETS) $(OBJECTS_DONT_LINK_TARGETS) $
 
 $(LIBDIR):
 ifeq ($(ENV_MINGW32),1)
+ifneq ($(HAVE_MSYS),1)
 	mkdir $(subst /,\,$(LIBDIR))
+else
+	mkdir $(LIBDIR)
+endif
 else
 	mkdir $(LIBDIR)
 endif

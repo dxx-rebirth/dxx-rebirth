@@ -1,6 +1,9 @@
 # NOERROR:       make sure there are no warnings in compile
 #NOERROR = 1
 
+#HAVE_MSYS: uncomment this if you have msys installed
+#HAVE_MSYS = 1
+
 # NO_ASM:       don't use assembler
 NO_ASM = 1
 

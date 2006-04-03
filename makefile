@@ -91,7 +91,11 @@ default: $(OUTPUT)
 
 $(DESTDIR):
 ifeq ($(ENV_MINGW32),1)
+ifneq ($(HAVE_MSYS),1)
 	mkdir $(subst /,\,$(DESTDIR))
+else
+	mkdir $(DESTDIR)
+endif
 else
 	mkdir $(DESTDIR)
 endif
