@@ -6,7 +6,7 @@ ENV_LINUX = 1
 
 #The destination dir where the executable will be stored, relative to the base dir
 
-DESTINATION_DIR = ../d1x-run
+DESTINATION_DIR = .
 
 #The data path where the data files will be searched (default will look in the same directory than the executable)
 #Be sure you use the correct path seperator here if you enter anything
