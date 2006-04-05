@@ -128,7 +128,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NM_TYPE_INPUT_MENU	6		// A inputbox that you hit Enter to edit, when done, hit enter and menu leaves.
 #define NM_TYPE_SLIDER	7		// A slider from min_value to max_value. Draws with text_len chars.
 
-#define NM_MAX_TEXT_LEN	50
+#define NM_MAX_TEXT_LEN	255
 
 typedef struct newmenu_item {
 	int 	type;				// What kind of item this is, see NM_TYPE_????? defines
