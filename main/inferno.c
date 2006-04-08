@@ -318,7 +318,8 @@ void show_cmdline_help() {
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE 
 	printf( "  -window         %s\n", "Run the game in a window"); // ZICO - from window to fullscreen
 #endif
-	printf( "  -16to9          %s\n", "Use widescreen");
+	printf( "  -16to9          %s\n", "use 16/9 widescreen");
+	printf( "  -16to10         %s\n", "use 16/10 widescreen");
 #ifdef OGL
 	printf( "  -gl_texmaxfilt <f> %s\n","set GL_TEXTURE_MAX_FILTER (see readme.d1x)");
 	printf( "  -gl_texminfilt <f> %s\n","set GL_TEXTURE_MIN_FILTER (see readme.d1x)");
