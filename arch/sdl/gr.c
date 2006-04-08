@@ -211,6 +211,8 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_h = h;
 	if (FindArg("-16to9"))
 		grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*9,grd_curscreen->sc_h*16);
+	else if (FindArg("-16to10"))
+		grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*10,grd_curscreen->sc_h*16);
 	else
 		grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*3,grd_curscreen->sc_h*4);
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;

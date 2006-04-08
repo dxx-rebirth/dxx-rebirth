@@ -340,7 +340,8 @@ void print_commandline_help()
 //	printf( "  -fullscreen     %s\n", "Use fullscreen mode if available");
         printf( "  -window         %s\n", "Run the game in a window"); // ZICO - from window to fullscreen
 #endif
-	printf( "  -16to9          %s\n", "Use widescreen");
+	printf( "  -16to9          %s\n", "use 16/9 widescreen");
+	printf( "  -16to10         %s\n", "use 16/10 widescreen");
 #ifdef OGL
 	printf( "  -gl_texmagfilt <f> %s\n","set GL_TEXTURE_MAG_FILTER");
 	printf( "  -gl_texminfilt <f> %s\n","set GL_TEXTURE_MIN_FILTER");
@@ -356,7 +357,7 @@ void print_commandline_help()
 	printf( "  -gl_16bittextures %s\n","attempt to use 16bit textures");
 	printf("  -gl_16bpp       %s\n", "attempt to use 16bit screen mode");
 	printf( "  -gl_reticle <r> %s\n","use OGL reticle 0=never 1=above 320x* 2=always");
-	printf( "  -nomoviesmooth  %s\n","do not smooth movies"
+	printf( "  -nomoviesmooth  %s\n","do not smooth movies");
 //	printf( "  -gl_intensity4_ok %s\n","FIXME: Undocumented");
 //	printf( "  -gl_luminance4_alpha4_ok %s\n","FIXME: Undocumented");
 //	printf( "  -gl_readpixels_ok %s\n","FIXME: Undocumented");
