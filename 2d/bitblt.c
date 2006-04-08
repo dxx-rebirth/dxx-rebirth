@@ -1760,7 +1760,7 @@ void show_fullscr(grs_bitmap *bm)
 
 #ifdef OGL
 	if(bm->bm_type == BM_LINEAR && scr->bm_type == BM_OGL) {
-		ogl_ubitblt_i(scr->bm_w,scr->bm_h,0,0,bm->bm_w,bm->bm_h,0,0,bm,scr);//use opengl to scale, faster and saves ram. -MPM
+		ogl_ubitblt_i(scr->bm_w,scr->bm_h,0,0,bm->bm_w,bm->bm_h,0,0,bm,scr,0);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}
 #endif

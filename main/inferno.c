@@ -356,6 +356,7 @@ void print_commandline_help()
 	printf( "  -gl_16bittextures %s\n","attempt to use 16bit textures");
 	printf("  -gl_16bpp       %s\n", "attempt to use 16bit screen mode");
 	printf( "  -gl_reticle <r> %s\n","use OGL reticle 0=never 1=above 320x* 2=always");
+	printf( "  -nomoviesmooth  %s\n","do not smooth movies"
 //	printf( "  -gl_intensity4_ok %s\n","FIXME: Undocumented");
 //	printf( "  -gl_luminance4_alpha4_ok %s\n","FIXME: Undocumented");
 //	printf( "  -gl_readpixels_ok %s\n","FIXME: Undocumented");
@@ -503,7 +504,7 @@ int main(int argc, char *argv[])
 
 #ifdef __unix__
 		if (!t)
-			path = ""; // ZICO - files in current path - old: "~/.d2x";
+			path = ""; // ZICO - should be: "~/.d2x.rebirth";
 #endif
 		PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
 		
@@ -521,9 +522,27 @@ int main(int argc, char *argv[])
 			strncpy(fullPath, path, PATH_MAX + 5);
 		
 		PHYSFS_setWriteDir(fullPath);
-		if (!PHYSFS_getWriteDir())  // need to make it
-		{
-			PHYSFS_mkdir(fullPath);
+		if (!PHYSFS_getWriteDir())
+		{ // need to make it
+			char *p;
+			char ancestor[PATH_MAX + 5]; // the directory which actually exists
+			char child[PATH_MAX + 5]; // the directory relative to the above we're trying to make
+			strcpy(ancestor, fullPath);
+			while (!PHYSFS_getWriteDir() && ((p = strrchr(ancestor, *PHYSFS_getDirSeparator()))))
+			{
+				if (p[1] == 0)
+				{ // separator at the end (intended here, for safety)
+					*p = 0; // kill this separator
+					if (!((p = strrchr(ancestor, *PHYSFS_getDirSeparator()))))
+						break;// give up, this is (usually) the root directory
+				}
+				p[1] = 0; // go to parent
+				PHYSFS_setWriteDir(ancestor);
+			}
+			strcpy(child, fullPath + strlen(ancestor));
+			for (p = child; (p = strchr(p, *PHYSFS_getDirSeparator())); p++)
+				*p = '/';
+			PHYSFS_mkdir(child);
 			PHYSFS_setWriteDir(fullPath);
 		}
 			

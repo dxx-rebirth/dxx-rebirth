@@ -215,12 +215,18 @@ void MovieShowFrame (ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w,
 	double r = (double) bufh / (double) bufw;
 	int dh = (int) (grd_curcanv->cv_w * r);
 	int yOffs = (grd_curcanv->cv_h - dh) / 2;
+	int mip;
+
+	if (FindArg("-nomoviesmooth"))
+		mip = 0;
+	else
+		mip = 1;
 
 	glDisable (GL_BLEND);
 	if (bRobotRotate) {
-		ogl_ubitblt_i(grd_curcanv->cv_w/2, dh/2, grd_curcanv->cv_w/2.3, grd_curcanv->cv_h/2.3, bufw, bufh, sx, sy, &source_bm,&grd_curcanv->cv_bitmap);
+		ogl_ubitblt_i(grd_curcanv->cv_w/2, dh/2, grd_curcanv->cv_w/2.3, grd_curcanv->cv_h/2.3, bufw, bufh, sx, sy, &source_bm,&grd_curcanv->cv_bitmap, mip);
 	} else {
-		ogl_ubitblt_i(grd_curcanv->cv_w/1.08, dh/1.08, grd_curcanv->cv_w/26, yOffs+13, bufw, bufh, sx, sy,  &source_bm,&grd_curcanv->cv_bitmap); // ZICO - divided by 1.08 gives more original size - offset additions are just approximate values
+		ogl_ubitblt_i(grd_curcanv->cv_w/1.08, dh/1.08, grd_curcanv->cv_w/26, yOffs+13, bufw, bufh, sx, sy,  &source_bm,&grd_curcanv->cv_bitmap, mip); // ZICO - divided by 1.08 gives more original size - offset additions are just approximate values
 	}
 	glEnable (GL_BLEND);
 

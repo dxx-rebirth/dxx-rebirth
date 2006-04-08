@@ -1254,17 +1254,17 @@ bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, gr
 
 extern int bPlayMovie;
 
-bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
+bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int mipmap)
 {
 	GLfloat xo,yo,xs,ys;
 	GLfloat u1,v1;
 	ogl_texture tex;
 	r_ubitbltc++;
 
-	if (!bPlayMovie) {
-		ogl_init_texture(&tex, sw, sh, OGL_FLAG_ALPHA);
-	} else {
+	if (mipmap) {
 		ogl_init_texture(&tex, sw, sh, OGL_FLAG_MIPMAP);
+	} else {
+		ogl_init_texture(&tex, sw, sh, OGL_FLAG_ALPHA);
 	}
 	tex.prio = 0.0;
 	tex.lw=src->bm_rowsize;
@@ -1298,7 +1298,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	return 0;
 }
 bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
-	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest);
+	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,0);
 }
 #endif
 bool ogl_ubitblt_tolinear(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
