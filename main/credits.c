@@ -50,22 +50,36 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:44:11 zicodxx Exp 
 #include "cfile.h"
 #include "compbit.h"
 #include "songs.h"
+#ifdef OGL
+#include "ogl_init.h" // ZICO - for gl_scissors
+#endif
 
-#define ROW_SPACING			(SHEIGHT / 17)-1
-#define NUM_LINES			17
+#define ROW_SPACING			(GHEIGHT/17)
+#define NUM_LINES			15
 #define CREDITS_BACKGROUND_FILENAME	"stars.pcx"
 #define CREDITS_FILE 			"credits.tex"
 
-ubyte fade_values[200] = { 1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,8,9,9,10,10,
-11,11,12,12,12,13,13,14,14,15,15,15,16,16,17,17,17,18,18,19,19,19,20,20,
-20,21,21,22,22,22,23,23,23,24,24,24,24,25,25,25,26,26,26,26,27,27,27,27,
-28,28,28,28,28,29,29,29,29,29,29,30,30,30,30,30,30,30,30,30,31,31,31,31,
-31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,30,30,30,30,30,
-30,30,30,30,29,29,29,29,29,29,28,28,28,28,28,27,27,27,27,26,26,26,26,25,
-25,25,24,24,24,24,23,23,23,22,22,22,21,21,20,20,20,19,19,19,18,18,17,17,
-17,16,16,15,15,15,14,14,13,13,12,12,12,11,11,10,10,9,9,8,8,8,7,7,6,6,5,
-5,4,4,3,3,2,2,1 };
-
+#ifdef OGL
+ubyte fade_values_hires[480] = {
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,8,9,9,10,10,11,11,12,12,
+12,13,13,14,14,15,15,15,16,16,17,17,17,18,18,19,19,19,20,20,20,21,21,22,
+22,22,23,23,23,24,24,24,24,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28,
+28,29,29,29,29,29,29,30,30,30,30,30,30,30,30,30,31,31,31,31,31,31,31,31,
+31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
+31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
+31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
+31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
+31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
+31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,30,30,30,30,30,30,30,30,30,
+29,29,29,29,29,29,28,28,28,28,28,27,27,27,27,26,26,26,26,25,25,25,24,24,
+24,24,23,23,23,22,22,22,21,21,20,20,20,19,19,19,18,18,17,17,17,16,16,15,
+15,15,14,14,13,13,12,12,12,11,11,10,10,9,9,8,8,8,7,7,6,6,5,5,4,4,3,3,2,
+2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0 };
+#else
 ubyte fade_values_hires[480] = { 1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,
 5,5,5,6,6,6,6,6,7,7,7,7,7,8,8,8,8,8,9,9,9,9,9,10,10,10,10,10,10,11,11,11,11,11,12,12,12,12,12,12,
 13,13,13,13,13,14,14,14,14,14,14,15,15,15,15,15,15,16,16,16,16,16,17,17,17,17,17,17,18,18,
@@ -82,6 +96,7 @@ ubyte fade_values_hires[480] = { 1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,
 18,17,17,17,17,17,17,16,16,16,16,16,15,15,15,15,15,15,14,14,14,14,14,14,13,13,13,13,13,12,
 12,12,12,12,12,11,11,11,11,11,10,10,10,10,10,10,9,9,9,9,9,8,8,8,8,8,7,7,7,7,7,6,6,6,6,6,5,5,5,5,
 5,5,4,4,4,4,4,3,3,3,3,3,2,2,2,2,2,1,1};
+#endif
 
 extern ubyte *gr_bitblt_fade_table;
 
@@ -92,7 +107,6 @@ grs_font * names_font;
 typedef struct box {
 	int left, top, width, height;
 } box;
-
 
 //if filename passed is NULL, show normal credits
 void credits_show(char *credits_filename)
@@ -123,25 +137,13 @@ void credits_show(char *credits_filename)
 	}
 
 	fade_values_scalled = malloc(SHEIGHT);
-	scale_line(fade_values, fade_values_scalled, 200, SHEIGHT);
+	scale_line(fade_values_hires, fade_values_scalled, 480, GHEIGHT);
 
 	sprintf(filename, "%s", CREDITS_FILE);
 	have_bin_file = 0;
-	if (credits_filename) {
-		strcpy(filename,credits_filename);
-		have_bin_file = 1;
-	}
-	file = cfopen( filename, "rb" );
+	file = cfopen( "credits.tex", "rb" );
 	if (file == NULL) {
-		char nfile[32];
-		
-		if (credits_filename)
-			return; //ok to not find special filename
-
-		tempp = strchr(filename, '.');
-		*tempp = '\0';
-		sprintf(nfile, "%s.txb", filename);
-		file = cfopen(nfile, "rb");
+		file = cfopen("credits.txb", "rb");
 		if (file == NULL)
 			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
 		have_bin_file = 1;
@@ -176,7 +178,7 @@ void credits_show(char *credits_filename)
 	gr_update();
 	gr_palette_fade_in( gr_palette, 32, 0 );
 
-	CreditsOffscreenBuf = gr_create_canvas(SWIDTH,SHEIGHT);
+	CreditsOffscreenBuf = gr_create_canvas(GWIDTH,GHEIGHT);
 
 	if (!CreditsOffscreenBuf)
 		Error("Not enough memory to allocate Credits Buffer.");
@@ -185,8 +187,11 @@ void credits_show(char *credits_filename)
 
 	last_time = timer_get_fixed_seconds();
 	done = 0;
+#ifdef OGL
+	first_line_offset = GHEIGHT/20; // ZICO - keep the lines in canvas
+#else
 	first_line_offset = 0;
-
+#endif
 	while( 1 ) {
 		int k;
 
@@ -216,7 +221,6 @@ void credits_show(char *credits_filename)
 			y = first_line_offset - i;
 
 			gr_set_current_canvas(CreditsOffscreenBuf);
-		
 			show_fullscr(&backdrop);
 
 			for (j=0; j<NUM_LINES; j++ )	{
@@ -247,15 +251,12 @@ void credits_show(char *credits_filename)
 					dirty_box[j].width = w;
         				dirty_box[j].height = h;
         				dirty_box[j].top = y;
-        				dirty_box[j].left = ((SWIDTH>=640?640:320) - w) / 2;
+        				dirty_box[j].left = (GWIDTH - w) / 2;
 
 					gr_printf( 0x8000, y, s );
 				}
 				gr_bitblt_fade_table = NULL;
-				if (buffer[l][0] == '!')
-					y += ROW_SPACING/2;
-				else
-					y += ROW_SPACING;
+				y += ROW_SPACING;
 			}
 
 				// Wacky Fast Credits Thing
@@ -264,12 +265,16 @@ void credits_show(char *credits_filename)
 
 				for (j=0; j<NUM_LINES; j++ )
 				{
+#ifdef OGL
+					glScissor (0,GHEIGHT/6,GWIDTH,GHEIGHT-(GHEIGHT/3)); // ZICO - create borders for new line endings
+					glEnable (0x0C11);
+#endif
 					new_box = &dirty_box[j];
 
 					tempbmp = &(CreditsOffscreenBuf->cv_bitmap);
 
-					gr_bm_bitblt(	new_box->width + SWIDTH/2,
-							new_box->height + 4,
+					gr_bm_bitblt(	new_box->width+1,
+							new_box->height+4,
 							new_box->left,
 							new_box->top,
 							new_box->left,
@@ -327,16 +332,10 @@ void credits_show(char *credits_filename)
 					if (CreditsOffscreenBuf != VR_offscreen_buffer)
 						gr_free_canvas(CreditsOffscreenBuf);
 					gr_palette_load( gr_palette );
-
+#ifdef OGL
+					glDisable(0x0C11);
+#endif
 				return;
-			}
-		}
-
-		if (buffer[(buffer_line + 1 ) %  NUM_LINES][0] == '!') {
-			first_line_offset -= ROW_SPACING-ROW_SPACING/2;
-			if (first_line_offset <= -ROW_SPACING) {
-				first_line_offset += ROW_SPACING;
-				extra_inc++;
 			}
 		}
 	}
