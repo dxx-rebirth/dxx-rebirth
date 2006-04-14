@@ -233,7 +233,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 		set_screen_mode(SCREEN_GAME);
 	}
 
-
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
 #ifdef SHAREWARE
@@ -903,9 +902,6 @@ void change_res_poll()
 }
 
 extern int last_drawn_cockpit[2];
-#ifdef OGL
-int fullok;
-#endif
 
 void change_res()
 {
@@ -959,12 +955,8 @@ void change_res()
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	if (m[fullscreenc].value != gr_check_fullscreen())
 	{
-#ifndef OGL
 		gr_toggle_fullscreen();
 		Game_screen_mode = -1;
-#else
-		fullok=1;
-#endif
 	}
 #endif
 
@@ -1012,6 +1004,7 @@ void change_res()
 	last_drawn_cockpit[0]=-1;
 	last_drawn_cockpit[1]=-1;
 	vr_reset_display();
+	set_screen_mode(SCREEN_GAME);
 }
 
 
