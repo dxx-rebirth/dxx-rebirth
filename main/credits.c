@@ -62,7 +62,7 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:56:57 zicodxx Exp 
 #endif
 
 #define ROW_SPACING			(SHEIGHT / 17)
-#define NUM_LINES			15
+#define NUM_LINES			14
 #define CREDITS_FILE			(cfexist("mcredits.tex")?"mcredits.tex":cfexist("ocredits.tex")?"ocredits.tex":"credits.tex")
 #ifdef RELEASE
 #define CREDITS_BACKGROUND_FILENAME	(MenuHires?"\x01starsb.pcx":"\x01stars.pcx")	//only read from hog file
@@ -220,7 +220,7 @@ void credits_show(char *credits_filename)
 	last_time = timer_get_fixed_seconds();
 	done = 0;
 #ifdef OGL
-	first_line_offset = GHEIGHT/10; // ZICO - keep the lines in canvas
+	first_line_offset = GHEIGHT/8; // ZICO - keep the lines in canvas
 #else
 	first_line_offset = 0;
 #endif
