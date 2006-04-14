@@ -188,7 +188,7 @@ void credits_show(char *credits_filename)
 	last_time = timer_get_fixed_seconds();
 	done = 0;
 #ifdef OGL
-	first_line_offset = GHEIGHT/20; // ZICO - keep the lines in canvas
+	first_line_offset = GHEIGHT/10; // ZICO - keep the lines in canvas
 #else
 	first_line_offset = 0;
 #endif
