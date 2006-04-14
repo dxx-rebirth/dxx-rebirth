@@ -273,7 +273,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	#ifndef DEMO_ONLY
 	num_options = 0;
 
-	set_screen_mode (SCREEN_MENU);
+// 	set_screen_mode (SCREEN_MENU);
 
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
@@ -841,10 +841,6 @@ void do_screen_res_menu()
 
 #else	// PC version of do_screen_res_menu is below
 
-#ifdef OGL
-int fullok;
-#endif
-
 void do_screen_res_menu()
 {
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
@@ -901,12 +897,8 @@ void do_screen_res_menu()
 
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	if (m[fullscreenc].value != gr_check_fullscreen()){
-#ifndef OGL
 		gr_toggle_fullscreen();
 		Game_screen_mode = -1;
-#else
-		fullok=1;
-#endif
 	}
 #endif
 
@@ -937,6 +929,7 @@ void do_screen_res_menu()
 			set_display_mode(i);
 #endif
 
+	set_screen_mode(SCREEN_GAME);
 }
 #endif	// end of PC version of do_screen_res_menu()
 
@@ -1067,12 +1060,8 @@ void change_res()
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	if (m[fullscreenc].value != gr_check_fullscreen())
 	{
-#ifndef OGL
 		gr_toggle_fullscreen();
 		Game_screen_mode = -1;
-#else
-		fullok=1;
-#endif
 	}
 #endif
 
@@ -1127,8 +1116,7 @@ void change_res()
 	if (modes[i] != 99)
 		set_display_mode(i);
 
-	if (FindArg("-menu_gameres")) // ZICO - workaround for win32
-		set_screen_mode(SCREEN_GAME);
+	set_screen_mode(SCREEN_GAME);
 }
 //End changed section (OE)
 

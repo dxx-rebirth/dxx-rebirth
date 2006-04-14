@@ -131,7 +131,6 @@ void ogl_init_state(void){
 }
 
 int last_screen_mode=-1;
-extern int fullok;
 
 void ogl_set_screen_mode(void){
 	if (last_screen_mode==Screen_mode)
@@ -142,11 +141,6 @@ void ogl_set_screen_mode(void){
 	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h); // ZICO - better to use with windows
 #endif
 	if (Screen_mode==SCREEN_GAME){
-		if (fullok == 1) // ZICO - fullscreen set to on?
-		{
-			fullok=0;
-			gr_toggle_fullscreen(); // ZICO - toggle fullscreen
-		}
 		glDrawBuffer(GL_BACK);
 	}else{
 		glClearColor(0.0, 0.0, 0.0, 0.0);
