@@ -761,34 +761,40 @@ void init_polygon_models()
 //more-or-less fill the canvas.  Note that this routine actually renders
 //into an off-screen canvas that it creates, then copies to the current
 //canvas.
-void draw_model_picture(int mn,vms_angvec *orient_angles) //function taken and modified from d2x-w32 source to get spinning robots working in briefing at OGL - zico 20051015
+void draw_model_picture(int mn,vms_angvec *orient_angles)
 {
 	vms_vector	temp_pos=ZERO_VECTOR;
 	vms_matrix	temp_orient = IDENTITY_MATRIX;
 #ifndef OGL
 	grs_canvas	*save_canv = grd_curcanv,*temp_canv;
 #endif
+
 	Assert(mn>=0 && mn<N_polygon_models);
-#ifndef OGL
+
+#ifdef OGL
+	ogl_start_offscreen_render(0, 0, grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
+#else
 	temp_canv = gr_create_canvas(save_canv->cv_bitmap.bm_w,save_canv->cv_bitmap.bm_h);
-	temp_canv->cv_bitmap.bm_x = grd_curcanv->cv_bitmap.bm_x;
-	temp_canv->cv_bitmap.bm_y = grd_curcanv->cv_bitmap.bm_y;
 	gr_set_current_canvas(temp_canv);
 #endif
-	gr_clear_canvas (0);
+	gr_clear_canvas( BM_XRGB(0,0,0) );
 	g3_start_frame();
 	g3_set_view_matrix(&temp_pos,&temp_orient,0x9000);
+
 	if (Polygon_models[mn].rad != 0)
 		temp_pos.z = fixmuldiv(DEFAULT_VIEW_DIST,Polygon_models[mn].rad,BASE_MODEL_SIZE);
 	else
 		temp_pos.z = DEFAULT_VIEW_DIST;
+
 	vm_angles_2_matrix(&temp_orient, orient_angles);
 	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,f1_0,NULL,NULL);
-#ifndef OGL
+	g3_end_frame();
+
+#ifdef OGL
+	ogl_end_offscreen_render();
+#else
 	gr_set_current_canvas(save_canv);
 	gr_bitmap(0,0,&temp_canv->cv_bitmap);
 	gr_free_canvas(temp_canv);
 #endif
-	g3_end_frame ();
-	gr_update ();
 }
