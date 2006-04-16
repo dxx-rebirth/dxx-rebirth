@@ -2060,7 +2060,9 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 	glTexCoord2f(u2, v1); glVertex2f(xf, yo);
 	glTexCoord2f(u2, v2); glVertex2f(xf, yf);
 	glTexCoord2f(u1, v2); glVertex2f(xo, yf);
+#ifndef _WIN32 // ZICO - hack
 	glActiveTexture (GL_TEXTURE0_ARB);
+#endif
 	glEnd();
 	
 	return 0;
