@@ -4,8 +4,8 @@
 - - - - ~ ]  The D2X Rebirth  [ ~ - - - -
   - - - - ~ ]               [ ~ - - - -
     - - - - ~ ] --------- [ ~ - - - -
-________// Codename:     ___________v0.4
-               'Razor' //
+________// Codename:      __________v0.42
+               'Zaphod' //
 
 
 0. Introduction
@@ -38,14 +38,17 @@ zicothehentaifreak@gmx.de
 This Version of D2X has every little feature you already may know from the
 DOS/W32 Version of Descent ][ and much more.
 For example:
-* possibility to run AddOn levels
-* Vertigo Series support
+* High resoution Fonts and briefing screens
+* Full cockpits on all resolutions
 * high resolutions
+* widescreen options
 * joystick and mouse support
+* Vertigo Series support
+* possibility to run AddOn levels
 * network support
 * record and play demos
 * OpenGL functions like trilinear filtering etc.
-* everything else you know from DESCENT ][
+* everything else you know from DESCENT
 * ... and much more!
 
 
@@ -243,6 +246,7 @@ Special thanks go to Christopher Taylor of the D2X team. He answered all my
 probably bothering mails and helped me to solve some bugs in D2X.
 More thanks:
 * My girldfriend - for being very patient :)
+* KyroMaster for great patches and good program code
 * The guys at http://www.unixboard.de for technical assistance
 * Maystorm for technical assistance and endless hours of BETA-testing
 * Sniper of http://www.descentforum.de for windows BETA-testing

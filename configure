@@ -269,8 +269,8 @@ SHELL=${CONFIG_SHELL-/bin/sh}
 # Identity of this package.
 PACKAGE_NAME='d2x'
 PACKAGE_TARNAME='d2x'
-PACKAGE_VERSION='0.40'
-PACKAGE_STRING='d2x 0.40'
+PACKAGE_VERSION='0.42'
+PACKAGE_STRING='d2x 0.42'
 PACKAGE_BUGREPORT='descent-source@warpcore.org'
 
 # Factoring default headers for most tests.
@@ -1752,7 +1752,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE='d2x'
- VERSION='0.40'
+ VERSION='0.42'
 
 
 cat >>confdefs.h <<_ACEOF
@@ -1893,7 +1893,7 @@ _ACEOF
 
 
 cat >>confdefs.h <<_ACEOF
-#define D2XMINOR 40
+#define D2XMINOR 42
 _ACEOF
 
 

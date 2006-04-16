@@ -13,7 +13,7 @@
 #endif
 
 #define VERSION_TYPE	"Full Version"
-#define DESCENT_VERSION "D2X-Rebirth v" VERSION "     2006-02-26"
+#define DESCENT_VERSION "D2X-Rebirth v" VERSION "     2006-04-16"
 #define D2X_IVER (D2XMAJOR*10000+D2XMINOR*100+D2XMICRO)
 
 #endif /* _VERS_ID */

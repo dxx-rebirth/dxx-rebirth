@@ -1,5 +1,25 @@
 D2X-Rebirth Changelog
 
+20060416
+--------
+/main/newmenu.c, /main/gauges.c, /main/gameseg.c, /main/menu.c, /main/gamesave.c, /main/gamerend.c, /include/strutil.h, /main/bm.c, /main/gamepal.c, /main/piggy.c, /misc/strutil.c, /main/object.c, /main/render.c, /main/editor/kfuncs.c, /main/editor/med.c: implementation of current d2x-cvs patches
+/main/automap.c: FIX: deleting marker dialog in automap causes major graphical issues in automap
+/main/movie.c: more original look of scalable movies
+/texmap/tmapppro.S: compile-time bug with ASM
+/arch/ogl/ogl.c, /arch/ogl/include/ogl_init.h, /2d/bitblt.c, /main/menu.c, /main/game.c, /main/gamerend.c, /main/gauges.c: scalable cockpits
+/main/gamesave.c: FIX: d2x restores window size wrong after restart
+/main/gauges.c: FIX: if "you already have 20 concussion missles!" is displayed, lives and score disappeared
+/main/gauges.c: better alt-huds, alt-huds in cockpit
+/arch/ogl/ogl.c: fixed renderstats option
+/main/physics.c: allow asserting objet to none if player is dead - fixes some random crashes
+/main/credits.c: new credits code
+/main/gauges.c: no use of fading if alt huds and no alt hugs if missile view
+/arch/ogl/gr.c: FIX: gamma changes change whole screen
+/arch/sdl/gr.c, /arch/ogl/gr.c, /main/inferno.c: added widescreen aspect with command-line option for SDL and OGL build
+/main/newmenu.h: possible menu text sring length incrased to 255
+/arch/ogl/ogl.c, /include/ogl_init.h, /2d/bitblt.c, /main/movie.c, /main/inferno.c: added mipmap operator to ogl_bitblt_i, added if to MovieShowFrame to switch off movie mipmap if argument -nomoviesmooth given, added command-line option
+/arch/ogl/gr.c, /main/menu.c: removed fullok hack for fullscreen changing
+
 20060226
 --------
 /arch/ogl/include/internal.h fixing "OGL: texture list full"-bug
