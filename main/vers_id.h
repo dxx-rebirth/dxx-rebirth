@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define D1X_VERSION "v" D1XMAJOR "." D1XMINOR
 //end edit -MM
 #define DESCENT_VERSION "D1X-Rebirth " D1X_VERSION
-#define D1X_DATE        "     2006-02-26"
+#define D1X_DATE        "     2006-04-16"
 
 //added 4/19/99 Mat Mueller - the atois are a bit ugly, but oh well
 #define D1X_IVER (atoi(D1XMAJOR)*1000+atoi(D1XMINOR)*10)

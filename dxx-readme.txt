@@ -4,8 +4,8 @@
 - - - - ~ ]  The D1X Rebirth  [ ~ - - - -
   - - - - ~ ]               [ ~ - - - -
     - - - - ~ ] --------- [ ~ - - - -
-________// Codename:     ___________v0.40
-               'Razor' //
+________// Codename:      __________v0.42
+               'Zaphod' //
 
 
 http://www.dxx-rebirth.de
@@ -37,9 +37,11 @@ This Version of D1X has every little feature you already may know from the DOS
 Version 1.4a of Descent and much more.
 For example:
 * High resoution Fonts and briefing screens
-* possibility to run AddOn levels
+* Full cockpits on all resolutions
 * high resolutions
+* widescreen options
 * joystick and mouse support
+* possibility to run AddOn levels
 * network support
 * record and play demos
 * OpenGL functions like trilinear filtering etc.
@@ -120,11 +122,6 @@ Example:  * In MYLEVEL.MSN - 'MyLevel.RDL'. RDL file is named 'mylevel.RDL'.
             This will work.
           (NOTE: there is also a small shell script for download, that may help
                  you correcting your addon levels)
-
-Problem:  Help, the cockpit isn't working!
-Reason:   The cockpit mode is currently available für 320x200 only.
-          Scalable cockpit will be added in the future.
-Solution: Just wait for the next release. Or help me fixing it. ;)
 
 Problem:  The game looks like the old DOS version? Where are the OpenGL FX?
 Reason:   You just don't have activated them.
@@ -240,6 +237,7 @@ Next i want to thank Victor Rachels and his team for making D1X. Without you
 we all won't be able to play it on Linux.
 More thanks:
 * My girldfriend - for being very patient :)
+* KyroMaster for great patches and good program code
 * The guys at http://www.unixboard.de for technical assistance
 * Maystorm for technical assistance and endless hours of BETA-testing
 * Sniper of http://www.descentforum.de for windows BETA-testing

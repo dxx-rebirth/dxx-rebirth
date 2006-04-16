@@ -1,5 +1,26 @@
 D1X-Rebirth Changelog
 
+20060416
+--------
+/main/credits.c: new credits code
+/arch/hmpfile.c, /main/songs.c: improved midi shutdown at end of game
+/main/game.c: shrink/grow window not correct with scalable cockpits
+/arch/ogl/ogl.c, /arch/ogl/include/ogl_init.h, /main/game.c, /main/gauges.c: scalable cockpits
+/main/gauges.c: FIX: if "you already have 20 concussion missles!" is displayed, lives and score disappeared
+/main/newdemo.c: FIX: demo recording crashed game at X demo size
+/arch/ogl/wgl.c: FIX: fan-crash bug
+/include/gr.h: deactivated possibility to switch window/fullscreen in menu
+/main/game.c: mouse capture deactivated in menus for linux
+/arch/win32/wgl.c: ALT-key does not call windows frame options anymore
+/main/physics.c: allow asserting objet to none if player is dead - fixes some random crashes
+/main/titles.c: fix to show white instead of black background for semi-transparent briefing bitmaps
+/main/newdemo.c: new interpolate function for demos; changed call for d_delay to nice demo playback
+/arch/sdl/gr.c, /arch/ogl/gr.c, /main/inferno.c: added widescreen aspect with command-line option for SDL and OGL build
+/main/newmenu.h: possible menu text sring length incrased to 255
+/arch/ogl/gr.c, /main/menu.c: removed fullok hack for fullscreen changing
+/main/polyobj.c: using OGL offscreen render to reduce flickering in spinning briefing robots
+
+
 20060224
 --------
 /arch/ogl/include/ogl_init.h: fixing "OGL: texture list full"-bug
