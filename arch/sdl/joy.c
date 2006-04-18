@@ -25,16 +25,14 @@
 
 #define MAX_AXES_PER_JOYSTICK 8
 #define MAX_BUTTONS_PER_JOYSTICK 16
-#define MAX_HATS_PER_JOYSTICK 4
+#define MAX_HATS_PER_JOYSTICK 128 // ZICO was 4 - resolves axes recignition problems with two ore more devices
 
 extern char *joybutton_text[]; //from kconfig.c
 extern char *joyaxis_text[]; //from kconfig.c
 
 char joy_present = 0;
 int num_joysticks = 0;
-
 int joy_deadzone = 0;
-
 int joy_num_axes = 0;
 
 struct joybutton {
@@ -46,10 +44,10 @@ struct joybutton {
 };
 
 struct joyaxis {
-	int		value;
-	int		min_val;
-	int		center_val;
-	int		max_val;
+	int value;
+	int min_val;
+	int center_val;
+	int max_val;
 };
 
 /* This struct is a "virtual" joystick, which includes all the axes
@@ -85,8 +83,7 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 
 	switch (jbe->type) {
 	case SDL_JOYBUTTONDOWN:
-		Joystick.buttons[button].time_went_down
-			= timer_get_fixed_seconds();
+		Joystick.buttons[button].time_went_down = timer_get_fixed_seconds();
 		Joystick.buttons[button].num_downs++;
 		break;
 	case SDL_JOYBUTTONUP:
