@@ -454,13 +454,18 @@ void show_spinning_robot_frame(int robot_num)
 {
 	grs_canvas	*curcanv_save;
 
+	int x = rescale_x(138);
+	int y = rescale_y(55);
+	int w = rescale_x(162);
+	int h = rescale_y(134);
+
 	if (robot_num != -1) {
 		
 		Robot_angles.h += 150;
 		curcanv_save = grd_curcanv;
 		grd_curcanv = Robot_canv;
 		Assert(Robot_info[robot_num].model_num != -1);
-		draw_model_picture(Robot_info[robot_num].model_num, &Robot_angles);
+		draw_model_picture(x, y, w, h, Robot_info[robot_num].model_num, &Robot_angles);
 		grd_curcanv = curcanv_save;
 		
 	}

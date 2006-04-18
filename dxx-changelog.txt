@@ -19,6 +19,7 @@ D1X-Rebirth Changelog
 /main/newmenu.h: possible menu text sring length incrased to 255
 /arch/ogl/gr.c, /main/menu.c: removed fullok hack for fullscreen changing
 /main/polyobj.c: using OGL offscreen render to reduce flickering in spinning briefing robots
+various: new build system
 
 
 20060224
