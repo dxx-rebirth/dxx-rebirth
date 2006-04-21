@@ -261,6 +261,7 @@ void show_cmdline_help() {
 	getch();
 	printf( "\n");
 	printf( " D1X-Rebirth options:\n");
+	printf( "  -nod1xmenu      %s\n", "Disables D1X options menu for a more nostalgic experience");
 	printf( "  -mprofile <f>   %s\n", "Use multi game profile <f>");
 	printf( "  -missiondir <d> %s\n", "Set alternate mission dir to <d>");
 	printf( "  -mission <f>    %s\n", "Use mission <f> to start game");
