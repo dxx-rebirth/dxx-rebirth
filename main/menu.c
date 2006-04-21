@@ -1329,7 +1329,10 @@ void do_options_menu()
 
 		m[12].type = NM_TYPE_MENU;   m[12].text="D2X options...";
 
-		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
+		if (FindArg("-nod2xmenu"))
+			i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m) -1, m, options_menuset, i );
+		else
+			i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
 			
 		switch(i)       {
 			case  0: do_sound_menu();			break;
