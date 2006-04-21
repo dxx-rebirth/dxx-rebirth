@@ -458,7 +458,7 @@ void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int l
   *volume = 0;
   *pan = 0;
 
-        max_distance = (max_distance*5)/4;              // Make all sounds travel 1.25 times as far.
+        //max_distance = (max_distance*5)/4; // Make all sounds travel 1.25 times as far. // ZICO - deactivated to prevent back coupling
 
 	//	Warning: Made the vm_vec_normalized_dir be vm_vec_normalized_dir_quick and got illegal values to acos in the fang computation.
 	distance = vm_vec_normalized_dir_quick( &vector_to_sound, sound_pos, listener_pos );
