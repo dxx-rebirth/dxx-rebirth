@@ -1778,103 +1778,84 @@ void tex_set_size(ogl_texture *tex){
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format)
+void ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format)
 {
-//void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,int dyo, int *texid,float *u,float *v,char domipmap,float prio){
-//	int internalformat=GL_RGBA;
-//	int format=GL_RGBA;
-	//int filltype=0;
-	tex->tw=pow2ize(tex->w);tex->th=pow2ize(tex->h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
-//	tex->tw=tex->w;tex->th=tex->h;//feeling lucky?
-	
-	if(gr_badtexture>0) return;
+	GLubyte	*bufP = texbuf;
+	tex->tw = pow2ize (tex->w);
+	tex->th = pow2ize (tex->h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
 
-	if (tex_format_verify(tex))
-		return;
+	if (gr_badtexture > 0) 
+		return 1;
 
-	//calculate u/v values that would make the resulting texture correctly sized
-	tex->u=(float)tex->w/(float)tex->tw;
-	tex->v=(float)tex->h/(float)tex->th;
-
-#ifdef GL_EXT_paletted_texture
-	if (ogl_shared_palette_ok && data_format == 0 && (tex->format == GL_RGBA || tex->format == GL_RGB) &&
-		!(tex->wantmip && GL_needmipmaps) // gluBuild2DMipmaps doesn't support paletted textures.. this could be worked around be generating our own mipmaps, but thats too much trouble at the moment.
-		)
-	{
-		// descent makes palette entries 254 and 255 both do double duty, depending upon the setting of BM_FLAG_SUPER_TRANSPARENT and BM_FLAG_TRANSPARENT.
-		// So if the texture doesn't have BM_FLAG_TRANSPARENT set, yet uses index 255, we cannot use the palette for it since that color would be incorrect. (this case is much less common than transparent textures, hence why we don't exclude those instead.)
-		// We don't handle super transparent textures with ogl yet, so we don't bother checking that here.
-		int usesthetransparentindexcolor = 0, usesthesupertransparentindexcolor = 0;
-
-		if (!(bm_flags & BM_FLAG_SUPER_TRANSPARENT))
-		{
-			int i;
-
-			for (i = 0; i < tex->w * tex->h; ++i)
-				if (data[i] == 254)
-					usesthesupertransparentindexcolor += 1;
-		}
-		if (!(bm_flags & BM_FLAG_TRANSPARENT))
-		{
-			int i;
-
-			for (i=0; i < tex->w * tex->h; ++i)
-				if (data[i] == 255)
-					usesthetransparentindexcolor += 1;
-		}
-		if (!usesthetransparentindexcolor && !usesthesupertransparentindexcolor)
-		{
-			tex->internalformat = GL_COLOR_INDEX8_EXT;
-			tex->format = GL_COLOR_INDEX;
-		}
-		//else
-		//	printf("bm data=%p w=%i h=%i transparent:%i supertrans:%i\n", data, tex->w, tex->h, usesthetransparentindexcolor, usesthesupertransparentindexcolor);
-	}
+#ifndef MACINTOSH
+	if (tex_format_verify (tex))
+		return 1;
 #endif
 
-	//	if (width!=twidth || height!=theight)
-	//		glmprintf((0,"sizing %ix%i texture up to %ix%i\n",width,height,twidth,theight));
-	ogl_filltexbuf(data, texbuf, tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, tex->format, bm_flags, data_format);
+	//calculate u/v values that would make the resulting texture correctly sized
+	tex->u = (float) ((double) tex->w / (double) tex->tw);
+	tex->v = (float) ((double) tex->h / (double) tex->th);
 
+	if (data)
+		if (bm_flags >= 0)
+			ogl_filltexbuf (data, texbuf, tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, 
+								 tex->format, bm_flags, data_format);
+		else {
+#if 0
+			memcpy (bufP = texbuf, data, tex->w * tex->h * 4);
+#else
+			if (!dxo && !dyo && (tex->w == tex->tw) && (tex->h == tex->th))
+				bufP = data;
+			else {
+				int y, h, w, tw;
+				
+				h = tex->lw / tex->w;
+				w = (tex->w - dxo) * h;
+				data += tex->lw * dyo + h * dxo;
+				bufP = texbuf;
+				tw = tex->tw * h;
+				h = tw - w;
+				for (y; dyo < tex->h; dyo++, data += tex->lw) {
+					memcpy (bufP, data, w);
+					bufP += w;
+					memset (bufP, 0, h);
+					bufP += h;
+					}
+				memset (bufP, 0, tex->th * tw - (bufP - texbuf));
+				bufP = texbuf;
+				}
+#endif
+			}
 	// Generate OpenGL texture IDs.
-	glGenTextures(1, &tex->handle);
-
+	glGenTextures (1, &tex->handle);
 	//set priority
-	glPrioritizeTextures(1,&tex->handle,&tex->prio);
-	
+	glPrioritizeTextures (1, &tex->handle, &tex->prio);
 	// Give our data to OpenGL.
-
 	OGL_BINDTEXTURE(tex->handle);
-
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	if (tex->wantmip){
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_texmagfilt);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_texminfilt);
-		if (ogl_ext_texture_filter_anisotropic_ok && GL_texanisofilt)
-			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, GL_texanisofilt);
-	}
-	else
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
-//	domipmap=0;//mipmaps aren't used in GL_NEAREST anyway, and making the mipmaps is pretty slow
-	//however, if texturing mode becomes an ingame option, they would need to be made regardless, so it could switch to them later.  OTOH, texturing mode could just be made a command line arg.
-
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_texmagfilt);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_texminfilt);
+		}
+	else{
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		}
 	if (tex->wantmip && GL_needmipmaps)
-		gluBuild2DMipmaps( GL_TEXTURE_2D, tex->internalformat, tex->tw,
-				tex->th, tex->format, GL_UNSIGNED_BYTE, texbuf);
+		gluBuild2DMipmaps (
+				GL_TEXTURE_2D, tex->internalformat, 
+				tex->tw, tex->th, tex->format, 
+				GL_UNSIGNED_BYTE, 
+				bufP);
 	else
-		glTexImage2D(GL_TEXTURE_2D, 0, tex->internalformat,
+		glTexImage2D (
+			GL_TEXTURE_2D, 0, tex->internalformat,
 			tex->tw, tex->th, 0, tex->format, // RGBA textures.
 			GL_UNSIGNED_BYTE, // imageData is a GLubyte pointer.
-			texbuf);
-	
-	tex_set_size(tex);
-
+			bufP);
+	tex_set_size (tex);
 	r_texcount++; 
-	glmprintf((0,"ogl_loadtexture(%p,%i,%i,%ix%i,%p):%i u=%f v=%f b=%i bu=%i (%i)\n",data,tex->tw,tex->th,dxo,dyo,tex,tex->handle,tex->u,tex->v,tex->bytes,tex->bytesu,r_texcount));
-
+	return 0;
 }
 
 unsigned char decodebuf[1024*1024];
