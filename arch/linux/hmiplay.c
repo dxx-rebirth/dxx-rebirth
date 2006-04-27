@@ -93,7 +93,7 @@ void seqbuf_dump()
 	}
 	_seqbufptr = 0;
 }
-	      
+
 void my_quit()
 {
 //	printf("goodbye\n");//#####
@@ -142,7 +142,7 @@ int seq_init()
 		}
 		
 		if (card_info.synth_type == SYNTH_TYPE_SAMPLE)
-		{    
+		{
 			synth_dev = i;
 			break;
 		}
@@ -202,7 +202,7 @@ int seq_init()
 		SEQ_DUMPBUF();
 	} else
 #endif
-#ifdef WANT_AWE32    
+#ifdef WANT_AWE32
 	  if (card_info.synth_type == SYNTH_TYPE_SAMPLE
 	      && card_info.synth_subtype == SAMPLE_TYPE_AWE32)
 	{
@@ -289,7 +289,7 @@ void stop_note(int channel, int note, int vel)
 	}
 	else
 #endif
-	{      
+	{
 		for (i=0; i<card_info.nr_voices;i++)
 		  if ((voices[i].note == note) && (voices[i].channel == channel))
 		    break;
@@ -338,9 +338,8 @@ void set_pitchbend(int channel, int bend)
 		for (i=0; i<card_info.nr_voices;i++)
 		  if (voices[i].channel == channel)
 		{
-			/*SEQ_BENDER_RANGE(synth_dev, i, 200);*/
 			SEQ_BENDER(synth_dev, i, bend);
-		}    
+		}
 	}
 }
 
@@ -364,7 +363,7 @@ void set_key_pressure(int channel, int note, int vel)
 }
 
 void set_chn_pressure(int channel, int vel)
-{    
+{
 	int i;
 	
 #ifdef WANT_AWE32
@@ -379,7 +378,7 @@ void set_chn_pressure(int channel, int vel)
 		for (i=0; i<card_info.nr_voices;i++)
 		  if (voices[i].channel == channel)
 		    SEQ_CHN_PRESSURE(synth_dev,i,vel);
-	}    
+	}
 }
 
 void stop_all()
@@ -406,8 +405,29 @@ void stop_all()
 	{
 		for (i=0; i<card_info.nr_voices;i++)
 		  SEQ_STOP_NOTE(synth_dev,i,voices[i].note,0);
-	}    
+	}
 }
+
+// ZICO - clears some unused notes to improve song switching
+#ifdef WANT_AWE32
+void cut_trough()
+{
+	int i;
+	int j;
+	if (card_info.synth_type == SYNTH_TYPE_SAMPLE
+	    && card_info.synth_subtype == SAMPLE_TYPE_AWE32)    
+	{
+		for (i=4; i<16;i++)
+		  for (j=4;j<64;j++)
+		    SEQ_STOP_NOTE(synth_dev,i,j,0);
+	}
+	else
+	{
+		for (i=0; i<card_info.nr_voices;i++)
+		  SEQ_STOP_NOTE(synth_dev,i,voices[i].note,0);
+	}
+}
+#endif
 
 int get_dtime(unsigned char *data, int *pos)
 {
@@ -541,7 +561,7 @@ int do_track_event(unsigned char *data, int *pos)
 
 void send_ipc(char *message)
 {
-	printf ("sendipc %s\n", message);//##########3
+	printf ("sendipc %s\n", message);
 	if (ipc_queue_id<0)
 	{
 		ipc_queue_id=msgget ((key_t) ('l'<<24) | ('d'<<16) | ('e'<<8) | 's', 
@@ -549,8 +569,7 @@ void send_ipc(char *message)
 		snd=malloc(sizeof(long) + 32);
 		snd->mtype=1;
 		player_thread=SDL_CreateThread((int (*)(void *))play_hmi, NULL);
-//		player_pid = play_hmi();
-	}    
+	}
 	if (strlen(message) < 16)
 	{
 		sprintf(snd->mtext,"%s",message);
@@ -560,12 +579,9 @@ void send_ipc(char *message)
 
 void kill_ipc()
 {
-//	send_ipc("q");
-//	kill(player_pid,SIGTERM);
 	msgctl( ipc_queue_id, IPC_RMID, 0);
 	free(snd);
 	ipc_queue_id = -1;
-//	player_pid = 0;
 }
 
 int do_ipc(int qid, struct msgbuf *buf, int flags)
@@ -633,10 +649,8 @@ int do_ipc(int qid, struct msgbuf *buf, int flags)
 			stop = 2;
 			break;
 		 case 'q':
-//			SDL_KillThread(player_thread);
 			break;  
 		}
-		//printf("do_ipc %s ret %i\n", buf->mtext, ipc_read); // ##########3
 	}
 	
 	return ipc_read;
@@ -650,7 +664,6 @@ void play_hmi (void * arg)
 	int low_dtime;
 	int low_chunk;
 	int csec, lcsec;
-//	pid_t loc_pid;
 	int qid;
 	int ipc_read = 0;
 	int k=0;
@@ -663,20 +676,7 @@ void play_hmi (void * arg)
 	
 	stop = 0;
 	ipc_read=0;
-//	loc_pid=fork();
-    
-/*	switch (loc_pid)
-	{
-	 case 0:
-		break;
-	 case -1:
-		return -1;
-	 default:
-		atexit(kill_ipc);
-		return loc_pid;
-	}*/
-	
-//	signal(SIGTERM, my_quit);
+
 	rcv=malloc(sizeof(long) + 16);
 	
 	rcv->mtype=1;
@@ -756,6 +756,10 @@ void play_hmi (void * arg)
 				ioctl(seqfd, SNDCTL_SEQ_SYNC);
 				k = 0;
 			}
+
+#ifdef WANT_AWE32
+			cut_trough();
+#endif
 			
 			if (csec != lcsec) {
 				SEQ_WAIT_TIME(csec);
