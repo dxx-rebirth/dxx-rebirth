@@ -69,6 +69,7 @@ int synth_dev;
 int program[16];
 int stop;
 double volume=1;
+int rephmi;
 
 int ipc_queue_id = -1;
 struct msgbuf *snd;
@@ -142,7 +143,7 @@ int seq_init()
 		}
 		
 		if (card_info.synth_type == SYNTH_TYPE_SAMPLE)
-		{    
+		{
 			synth_dev = i;
 			break;
 		}
@@ -289,7 +290,7 @@ void stop_note(int channel, int note, int vel)
 	}
 	else
 #endif
-	{      
+	{
 		for (i=0; i<card_info.nr_voices;i++)
 		  if ((voices[i].note == note) && (voices[i].channel == channel))
 		    break;
@@ -338,7 +339,6 @@ void set_pitchbend(int channel, int bend)
 		for (i=0; i<card_info.nr_voices;i++)
 		  if (voices[i].channel == channel)
 		{
-			/*SEQ_BENDER_RANGE(synth_dev, i, 200);*/
 			SEQ_BENDER(synth_dev, i, bend);
 		}    
 	}
@@ -379,7 +379,7 @@ void set_chn_pressure(int channel, int vel)
 		for (i=0; i<card_info.nr_voices;i++)
 		  if (voices[i].channel == channel)
 		    SEQ_CHN_PRESSURE(synth_dev,i,vel);
-	}    
+	}
 }
 
 void stop_all()
@@ -408,6 +408,27 @@ void stop_all()
 		  SEQ_STOP_NOTE(synth_dev,i,voices[i].note,0);
 	}    
 }
+
+// ZICO - clears some unused notes to improve song switching
+#ifdef WANT_AWE32
+void cut_trough()
+{
+	int i;
+	int j;
+	if (card_info.synth_type == SYNTH_TYPE_SAMPLE
+	    && card_info.synth_subtype == SAMPLE_TYPE_AWE32)    
+	{
+		for (i=4; i<16;i++)
+		  for (j=4;j<64;j++)
+		    SEQ_STOP_NOTE(synth_dev,i,j,0);
+	}
+	else
+	{
+		for (i=0; i<card_info.nr_voices;i++)
+		  SEQ_STOP_NOTE(synth_dev,i,voices[i].note,0);
+	}
+}
+#endif
 
 int get_dtime(unsigned char *data, int *pos)
 {
@@ -541,7 +562,7 @@ int do_track_event(unsigned char *data, int *pos)
 
 void send_ipc(char *message)
 {
-	printf ("sendipc %s\n", message);//##########3
+	printf ("sendipc %s\n", message);
 	if (ipc_queue_id<0)
 	{
 		ipc_queue_id=msgget ((key_t) ('l'<<24) | ('d'<<16) | ('e'<<8) | 's', 
@@ -549,8 +570,7 @@ void send_ipc(char *message)
 		snd=malloc(sizeof(long) + 32);
 		snd->mtype=1;
 		player_thread=SDL_CreateThread((int (*)(void *))play_hmi, NULL);
-//		player_pid = play_hmi();
-	}    
+	}
 	if (strlen(message) < 16)
 	{
 		sprintf(snd->mtext,"%s",message);
@@ -560,12 +580,9 @@ void send_ipc(char *message)
 
 void kill_ipc()
 {
-//	send_ipc("q");
-//	kill(player_pid,SIGTERM);
 	msgctl( ipc_queue_id, IPC_RMID, 0);
 	free(snd);
 	ipc_queue_id = -1;
-//	player_pid = 0;
 }
 
 int do_ipc(int qid, struct msgbuf *buf, int flags)
@@ -633,12 +650,10 @@ int do_ipc(int qid, struct msgbuf *buf, int flags)
 			stop = 2;
 			break;
 		 case 'q':
-//			SDL_KillThread(player_thread);
-			break;  
+			break;
 		}
-		//printf("do_ipc %s ret %i\n", buf->mtext, ipc_read); // ##########3
 	}
-	
+
 	return ipc_read;
 }
 
@@ -650,33 +665,21 @@ void play_hmi (void * arg)
 	int low_dtime;
 	int low_chunk;
 	int csec, lcsec;
-//	pid_t loc_pid;
 	int qid;
 	int ipc_read = 0;
 	int k=0;
+	char t1;
+
 	
 	struct msgbuf *rcv;
 	
 	Track_info *t_info;
 
-	printf ("play_hmi\n");//#########
+	printf ("play_hmi\n");
 	
 	stop = 0;
 	ipc_read=0;
-//	loc_pid=fork();
-    
-/*	switch (loc_pid)
-	{
-	 case 0:
-		break;
-	 case -1:
-		return -1;
-	 default:
-		atexit(kill_ipc);
-		return loc_pid;
-	}*/
-	
-//	signal(SIGTERM, my_quit);
+
 	rcv=malloc(sizeof(long) + 16);
 	
 	rcv->mtype=1;
@@ -725,7 +728,7 @@ void play_hmi (void * arg)
 			do
 			{
 				if (t_info[i].status == PLAYING)
-				  low_chunk = i;
+					low_chunk = i;
 				i++;
 			}
 			while((low_chunk <=0) && (i<n_chunks));
@@ -738,7 +741,7 @@ void play_hmi (void * arg)
 			for(i=1;i<n_chunks;i++)
 			{
 				if ((t_info[i].time < low_dtime) && 
-				    (t_info[i].status == PLAYING))
+					(t_info[i].status == PLAYING))
 				{
 					low_dtime = t_info[i].time;
 					low_chunk = i;
@@ -746,7 +749,7 @@ void play_hmi (void * arg)
 			}
 			
 			if (low_dtime < 0)
-			  printf("Serious warning: d_time negative!!!!!!\n");
+				printf("Serious warning: d_time negative!!!!!!\n");
 			
 			csec = 0.86 * low_dtime;
 			
@@ -756,7 +759,9 @@ void play_hmi (void * arg)
 				ioctl(seqfd, SNDCTL_SEQ_SYNC);
 				k = 0;
 			}
-			
+#ifdef WANT_AWE32
+			cut_trough();
+#endif
 			if (csec != lcsec) {
 				SEQ_WAIT_TIME(csec);
 			}
@@ -777,7 +782,12 @@ void play_hmi (void * arg)
 			//Check if the song has reached the end
 			stop = t_info[0].status;
 			for(i=1;i<n_chunks;i++)
-			  stop &= t_info[i].status;
+				stop &= t_info[i].status;
+
+// ZICO - since we don't seem to have a real repeat call we need a hack
+// endlevel song does change rephmi to 0 while endlevel. endlevel song takes about 1950 csec till it's finished
+			if (!rephmi && csec > 1950)
+				send_ipc("s");
 			
 			if((do_ipc(qid,rcv,IPC_NOWAIT) > 0) && (rcv->mtext[0]=='p'))
 			{
@@ -792,7 +802,7 @@ void play_hmi (void * arg)
 		SEQ_STOP_TIMER();
 		if( stop == 2)
 		{
-			stop_all();	    
+			stop_all();
 			do
 			{
 				ipc_read=do_ipc(qid,rcv,0);
@@ -824,6 +834,7 @@ void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, in
 		sprintf(buf, "p%s", filename);
 		send_ipc(buf);
 	}
+	rephmi=loop;
 }
 
 void digi_set_midi_volume( int mvolume ) { 
