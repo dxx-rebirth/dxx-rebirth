@@ -419,7 +419,7 @@ void cut_trough()
 	    && card_info.synth_subtype == SAMPLE_TYPE_AWE32)    
 	{
 		for (i=4; i<16;i++)
-		  for (j=4;j<64;j++)
+		  for (j=4;j<32;j++)
 		    SEQ_STOP_NOTE(synth_dev,i,j,0);
 	}
 	else
