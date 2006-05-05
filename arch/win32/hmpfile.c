@@ -107,7 +107,7 @@ void hmp_stop(hmp_file *hmp) {
 		hmp->evbuf = mhdr->lpNext;
 		free(mhdr);
 	}
-	
+
 	if (hmp->hmidi) {
 		midiStreamClose(hmp->hmidi);
 		hmp->hmidi = NULL;
@@ -214,7 +214,7 @@ static int get_event(hmp_file *hmp, event *ev) {
 	} else if (ev_num == 0xff) {
 		ev->msg[1] = *(trk->cur++);
 		trk->left--;
-		if (!(got = get_var_num(ev->data = trk->cur, 
+		if (!(got = get_var_num(ev->data = trk->cur,
 			trk->left, (unsigned long *)&ev->datalen)))
 			return HMP_INVALID_FILE;
 	    trk->cur += ev->datalen;
@@ -285,14 +285,19 @@ static int setup_buffers(hmp_file *hmp) {
 	return 0;
 }
 
-static void reset_tracks(struct hmp_file *hmp) {
+static void reset_tracks(struct hmp_file *hmp)
+{
 	int i;
 
 	for (i = 0; i < hmp->num_trks; i++) {
-		hmp->trks[i].cur = hmp->trks[i].data;
-		hmp->trks[i].left = hmp->trks[i].len;
+		hmp->trks [i].cur = hmp->trks [i].data;
+		hmp->trks [i].left = hmp->trks [i].len;
+		hmp->trks [i].cur_time = 0;
 	}
+	hmp->cur_time=0;
 }
+
+extern int loop;
 
 static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2) {
 	MIDIHDR *mhdr;
@@ -301,7 +306,7 @@ static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD
 
 	if (uMsg != MOM_DONE)
 		return;
-	
+
 	mhdr = ((MIDIHDR *)dw1);
 	mhdr->dwBytesRecorded = 0;
 	hmp = (hmp_file *)(mhdr->dwUser);
@@ -310,9 +315,15 @@ static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD
 	hmp->bufs_in_mm--;
 
 	if (!hmp->stop) {
-		while (fill_buffer(hmp) == HMP_EOF)
+		while (fill_buffer(hmp) == HMP_EOF) {
+			if (loop)
+				hmp->stop = 0;
+			else
+				hmp->stop = 1;
+
 			reset_tracks(hmp);
-		if ((rc = midiStreamOut(hmp->hmidi, hmp->evbuf, 
+		}
+		if ((rc = midiStreamOut(hmp->hmidi, hmp->evbuf,
 			sizeof(MIDIHDR))) != MMSYSERR_NOERROR) {
 			/* ??? */
 		} else {
@@ -320,7 +331,6 @@ static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD
 			hmp->bufs_in_mm++;
 		}
 	}
-
 }
 
 static void setup_tempo(hmp_file *hmp, unsigned long tempo) {
@@ -332,12 +342,14 @@ static void setup_tempo(hmp_file *hmp, unsigned long tempo) {
 	mhdr->dwBytesRecorded += 12;
 }
 
-int hmp_play(hmp_file *hmp) {
+
+int hmp_play(hmp_file *hmp, int bLoop)
+{
 	int rc;
 	MIDIPROPTIMEDIV mptd;
-#if 0
+#if 1
         unsigned int    numdevs;
-        int i=0;
+        int i=0; // ZICO - LOOP HERE
 
         numdevs=midiOutGetNumDevs();
         hmp->devid=-1;
@@ -346,17 +358,19 @@ int hmp_play(hmp_file *hmp) {
          MIDIOUTCAPS devcaps;
          midiOutGetDevCaps(i,&devcaps,sizeof(MIDIOUTCAPS));
          if ((devcaps.wTechnology==MOD_FMSYNTH) || (devcaps.wTechnology==MOD_SYNTH))
+//			if ((devcaps.dwSupport & (MIDICAPS_VOLUME | MIDICAPS_STREAM)) == (MIDICAPS_VOLUME | MIDICAPS_STREAM))
              hmp->devid=i;
          i++;
         } while ((i<(int)numdevs) && (hmp->devid==-1));
-#else
-	hmp->devid = MIDI_MAPPER;
+	if (hmp->devid == -1)
 #endif
+	hmp->bLoop = bLoop;
+	hmp->devid = MIDI_MAPPER;
 
 	if ((rc = setup_buffers(hmp)))
 		return rc;
-	if ((midiStreamOpen(&hmp->hmidi, &hmp->devid,1,(DWORD)midi_callback,
-	 0, CALLBACK_FUNCTION)) != MMSYSERR_NOERROR) {
+	if ((midiStreamOpen(&hmp->hmidi, &hmp->devid,1, (DWORD) (size_t) midi_callback,
+								0, CALLBACK_FUNCTION)) != MMSYSERR_NOERROR) {
 		hmp->hmidi = NULL;
 		return HMP_MM_ERR;
 	}
@@ -382,15 +396,15 @@ int hmp_play(hmp_file *hmp) {
 				return rc;
 		}
 #if 0
-		{  FILE *f = fopen("dump","wb"); fwrite(hmp->evbuf->lpData, 
+		{  FILE *f = fopen("dump","wb"); fwrite(hmp->evbuf->lpData,
  hmp->evbuf->dwBytesRecorded,1,f); fclose(f); exit(1);}
 #endif
- 		if ((rc = midiOutPrepareHeader((HMIDIOUT)hmp->hmidi, hmp->evbuf, 
+ 		if ((rc = midiOutPrepareHeader((HMIDIOUT)hmp->hmidi, hmp->evbuf,
 			sizeof(MIDIHDR))) != MMSYSERR_NOERROR) {
 			/* FIXME: cleanup... */
 			return HMP_MM_ERR;
 		}
-		if ((rc = midiStreamOut(hmp->hmidi, hmp->evbuf, 
+		if ((rc = midiStreamOut(hmp->hmidi, hmp->evbuf,
 			sizeof(MIDIHDR))) != MMSYSERR_NOERROR) {
 			/* FIXME: cleanup... */
 			return HMP_MM_ERR;
@@ -401,4 +415,3 @@ int hmp_play(hmp_file *hmp) {
 	midiStreamRestart(hmp->hmidi);
 	return 0;
 }
-

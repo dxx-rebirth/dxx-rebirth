@@ -6,6 +6,8 @@
 #define HMP_TRACKS 32
 #define HMP_BUFFERS 4
 #define HMP_BUFSIZE 1024
+#define BE_INT(x)    (x)
+#define BE_SHORT(x)  (x)
 
 typedef struct event {
 	unsigned int delta;
@@ -33,8 +35,10 @@ typedef struct hmp_file {
 	unsigned char *pending;
 	unsigned int pending_size;
 	unsigned int pending_event;
-	int stop;		/* 1 -> don't send more data */
-	int bufs_in_mm;	/* number of queued buffers */
+	int stop;
+	int bufs_in_mm;
+	int				bLoop;
+	unsigned int	midi_division;
 } hmp_file;
 
 
@@ -44,7 +48,7 @@ typedef struct hmp_file {
 #define HMP_EOF 1
 
 hmp_file *hmp_open(const char *filename);
-int hmp_play(hmp_file *hmp);
+int hmp_play(hmp_file *hmp, int bLoop);
 void hmp_close(hmp_file *hmp);
 
 #endif

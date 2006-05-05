@@ -304,6 +304,7 @@ int songs_haved2_cd()
 }
 #endif
 
+int loop;
 
 void songs_play_song( int songnum, int repeat )
 {
@@ -338,6 +339,8 @@ void songs_play_song( int songnum, int repeat )
 			digi_play_midi_song(songnum, repeat);
 		#endif
 	}
+	
+	loop = repeat;
 }
 
 int current_song_level;
