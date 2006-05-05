@@ -63,7 +63,7 @@ void ogl_init(void){
 //	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 8 );
 
 
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,0);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,0);
