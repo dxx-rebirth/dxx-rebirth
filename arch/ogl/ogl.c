@@ -113,6 +113,7 @@ int sphereh=0;
 int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
 int secondary_lh[5]={0,0,0,0,0};
+int tempNoDepthTest=0;
 /*int lastbound=-1;
 
 #define OGL_BINDTEXTURE(a) if(gr_badtexture>0) glBindTexture(GL_TEXTURE_2D, 0);\
@@ -749,18 +750,19 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	int c;
 	r_polyc++;
 	c=grd_curcanv->cv_color;
-//	glColor3f((gr_palette[c*3]+gr_palette_gamma)/63.0,(gr_palette[c*3+1]+gr_palette_gamma)/63.0,(gr_palette[c*3+2]+gr_palette_gamma)/63.0);
 	OGL_DISABLE(TEXTURE_2D);
-	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
+	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) {
 		glColor3f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c));
-	else
+		glDisable(GL_DEPTH_TEST);
+	}else{
 		glColor4f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
+	}
 	glBegin(GL_TRIANGLE_FAN);
 	for (c=0;c<nv;c++){
-	//	glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
 		glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 	}
 	glEnd();
+	glEnable(GL_DEPTH_TEST);
 	return 0;
 }
 
@@ -776,25 +778,15 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 	int c;
 	float l;
 	if (tmap_drawer_ptr==draw_tmap_flat){
-/*		fix average_light=0;
-		int i;
-		for (i=0; i<nv; i++)
-			average_light += uvl_list[i].l;*/
 		OGL_DISABLE(TEXTURE_2D);
-//		glmprintf((0,"Gr_scanline_darkening_level=%i %f\n",Gr_scanline_darkening_level,Gr_scanline_darkening_level/(float)NUM_LIGHTING_LEVELS));
 		glColor4f(0,0,0,1.0-(Gr_scanline_darkening_level/(float)NUM_LIGHTING_LEVELS));
-		//glColor4f(0,0,0,f2fl(average_light/nv));
 		glBegin(GL_TRIANGLE_FAN);
 		for (c=0;c<nv;c++){
-//			glColor4f(0,0,0,f2fl(uvl_list[c].l));
-//			glTexCoord2f(f2glf(uvl_list[c].u),f2glf(uvl_list[c].v));
 			glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 		}
 		glEnd();
 	}else if (tmap_drawer_ptr==draw_tmap){
 		r_tpolyc++;
-		/*	if (bm->bm_w !=64||bm->bm_h!=64)
-			printf("g3_draw_tmap w %i h %i\n",bm->bm_w,bm->bm_h);*/
 		OGL_ENABLE(TEXTURE_2D);
 		ogl_bindbmtex(bm);
 		ogl_texwrap(bm->gltexture,GL_REPEAT);
@@ -803,18 +795,19 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 			if (bm->bm_flags&BM_FLAG_NO_LIGHTING){
 				l=1.0;
 			}else{
-				//l=f2fl(uvl_list[c].l)+gr_palette_gamma/63.0;
 				l=f2fl(uvl_list[c].l);
 			}
 			glColor3f(l,l,l);
 			glTexCoord2f(f2glf(uvl_list[c].u),f2glf(uvl_list[c].v));
-			//glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
 			glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 		}
 		glEnd();
 	}else{
 		mprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
 	}
+	if (!tempNoDepthTest)
+		glEnable(GL_DEPTH_TEST);
+
 	return 0;
 }
 
@@ -1106,27 +1099,25 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap
 
 bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int orientation)
 {
-	//float l=1.0;
 	vms_vector pv,v1;//,v2;
 	int i;
 	r_bitmapc++;
 	v1.z=0;
-//	printf("g3_draw_bitmap: %f,%f,%f - ",f2glf(pos->x),f2glf(pos->y),-f2glf(pos->z));
-//	printf("(%f,%f,%f) ",f2glf(View_position.x),f2glf(View_position.y),-f2glf(View_position.z));
 
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP);
 
+	if (tempNoDepthTest)
+		glDisable(GL_DEPTH_TEST);
+
 	glBegin(GL_QUADS);
 	glColor3f(1.0,1.0,1.0);
-    width = fixmul(width,Matrix_scale.x);	
-    height = fixmul(height,Matrix_scale.y);	
+	width = fixmul(width,Matrix_scale.x);	
+	height = fixmul(height,Matrix_scale.y);	
 	for (i=0;i<4;i++){
-//		g3_rotate_point(&p[i],pos);
 		vm_vec_sub(&v1,pos,&View_position);
 		vm_vec_rotate(&pv,&v1,&View_matrix);
-//		printf(" %f,%f,%f->",f2glf(pv.x),f2glf(pv.y),-f2glf(pv.z));
 		switch (i){
 			case 0:
 				glTexCoord2f(0.0, 0.0);
@@ -1149,16 +1140,9 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 				pv.y+=-height;
 				break;
 		}
-//		vm_vec_rotate(&v2,&v1,&View_matrix);
-//		vm_vec_sub(&v1,&v2,&pv);
-		//vm_vec_sub(&v1,&pv,&v2);
-//		vm_vec_sub(&v2,&pv,&v1);
 		glVertex3f(f2glf(pv.x),f2glf(pv.y),-f2glf(pv.z));
-//		printf("%f,%f,%f ",f2glf(v1.x),f2glf(v1.y),-f2glf(v1.z));
 	}
 	glEnd();
-//	printf("\n");
-
 	return 0;
 }
 
@@ -1428,65 +1412,42 @@ void ogl_end_offscreen_render(void)
 	offscreen_canv=NULL;
 }
 
-void ogl_start_frame(){
+void ogl_start_frame(void){
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitmapc=0;r_ubitbltc=0;r_upixelc=0;
-//	gl_badtexture=500;
 
 	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,Canvas_width,Canvas_height);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glEnable(GL_ALPHA_TEST); // ZICO
-	glAlphaFunc(GL_GREATER,0.02); // ZICO - added both to render two dimensional sprites correctly
+
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GREATER,0.02);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+
 	glShadeModel(GL_SMOOTH);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
 	gluPerspective(90.0,1.0,0.01,1000000.0);
-
-
-	//glEnable(GL_DEPTH_TEST); // ZICO - FIXME need restrictions
-	glDepthFunc(GL_LEQUAL);
-	glClear(GL_DEPTH_BUFFER_BIT); // ZICO - provisoric for INV-WALLS-effect
-
-
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//	glDisABLE(DITHER);
-//	glScalef(1.0,1.0,-1.0);
-//	glScalef(1.0,1.0,-1.0);
-//	glPushMatrix();
-	
-//	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-//	OGL_TEXENV(GL_TEXTURE_ENV_MODE,GL_MODULATE);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_texmagfilt);
-//	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_texminfilt);
-//	OGL_TEXPARAM(GL_TEXTURE_MAG_FILTER,GL_texmagfilt);
-//	OGL_TEXPARAM(GL_TEXTURE_MIN_FILTER,GL_texminfilt);
-//	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
 #ifndef NMONO
 void merge_textures_stats(void);
 #endif
 void ogl_end_frame(void){
-//	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,);
 	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
-#ifndef NMONO
-//	merge_textures_stats();
-//	ogl_texture_stats();
-#endif
-//	glViewport(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
 	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
-//	glDisABLE(BLEND);
-	//glDisABLE(ALPHA_TEST);
-	//gluPerspective(90.0,(GLfloat)(grd_curscreen->sc_w*3)/(GLfloat)(grd_curscreen->sc_h*4),1.0,1000000.0);
-//	ogl_swap_buffers();//platform specific code
-//	glClear(GL_COLOR_BUFFER_BIT);
+	glDisable(GL_DEPTH_TEST);
 }
 void ogl_swap_buffers(void){
 	ogl_clean_texture_cache();
