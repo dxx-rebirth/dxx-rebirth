@@ -297,7 +297,7 @@ static void reset_tracks(struct hmp_file *hmp)
 	hmp->cur_time=0;
 }
 
-extern int non_loop;
+extern int loop;
 
 static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2) {
 	MIDIHDR *mhdr;
@@ -316,12 +316,11 @@ static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD
 
 	if (!hmp->stop) {
 		while (fill_buffer(hmp) == HMP_EOF) {
-			if (non_loop)
-			{
-				hmp->stop = 1; // ZICO - FIXME
-			} else {
+			if (loop)
 				hmp->stop = 0;
-			}
+			else
+				hmp->stop = 1;
+
 			reset_tracks(hmp);
 		}
 		if ((rc = midiStreamOut(hmp->hmidi, hmp->evbuf,

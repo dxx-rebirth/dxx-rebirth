@@ -107,17 +107,13 @@ void songs_init()
 #endif
 }
 
-int non_loop;
+int loop;
 
 void songs_play_song( int songnum, int repeat )
 {
 	if ( !Songs_initialized ) songs_init();
 
-	if (!repeat) {
-		non_loop = 1;
-	} else {
-		non_loop = 0;
-	}
+	loop=repeat;
 
 	digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
 }
