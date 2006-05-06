@@ -211,8 +211,10 @@ void ogl_get_verinfo(void){
 
 int gr_set_mode(u_int32_t mode)
 {
-	unsigned int w,h;
+	unsigned int w,h,t;
 	char *gr_bm_data;
+	float awidth = 3;
+	float aheight = 4;
 
 #ifdef NOGRAPH
 return 0;
@@ -227,18 +229,24 @@ return 0;
 	//if (screen != NULL) gr_palette_clear();
 
 //	ogl_init_state();
+
+	if ((t = FindArg( "-aspect" ))) {
+		t=atoi(Args[t+1]);
+		if (t>0&&t<=16)
+			aheight=t;
+	}
+	if ((t = FindArg( "-aspect" ))) {
+		t=atoi(Args[t+2]);
+		if (t>0&&t<=16)
+			awidth=t;
+	}
 	
 	gr_bm_data=grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	if (FindArg("-16to9"))
-		grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*9,grd_curscreen->sc_h*16);
-	else if (FindArg("-16to10"))
-		grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*10,grd_curscreen->sc_h*16);
-	else
-		grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*3,grd_curscreen->sc_h*4);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*awidth,grd_curscreen->sc_h*aheight);
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
