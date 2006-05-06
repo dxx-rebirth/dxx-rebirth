@@ -490,7 +490,7 @@ void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank
        //end this section addition - VR
 
 	if ((hmp = hmp_open(filename))) {
-	    hmp_play(hmp);
+	    hmp_play(hmp,play);
 	    digi_midi_song_playing = 1;
 	    digi_set_midi_volume(midi_volume);
 	}
