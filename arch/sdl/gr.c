@@ -156,7 +156,9 @@ extern int VGA_current_mode; // DPH: kludge - remove at all costs
 
 int gr_set_mode(u_int32_t mode)
 {
-	int w,h;
+	int w,h,t;
+	float awidth = 3;
+	float aheight = 4;
 
 #ifdef NOGRAPH
 	return 0;
@@ -170,6 +172,17 @@ int gr_set_mode(u_int32_t mode)
 	VGA_current_mode = mode;
 	
 	if (screen != NULL) gr_palette_clear();
+
+	if ((t = FindArg( "-aspect" ))) {
+		t=atoi(Args[t+1]);
+		if (t>0&&t<=16)
+			aheight=t;
+	}
+	if ((t = FindArg( "-aspect" ))) {
+		t=atoi(Args[t+2]);
+		if (t>0&&t<=16)
+			awidth=t;
+	}
 
 //added on 11/06/98 by Matt Mueller to set the title bar. (moved from below)
 //sekmu: might wanna copy this litte blurb to one of the text files or something
@@ -209,12 +222,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	if (FindArg("-16to9"))
-		grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*9,grd_curscreen->sc_h*16);
-	else if (FindArg("-16to10"))
-		grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*10,grd_curscreen->sc_h*16);
-	else
-		grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*3,grd_curscreen->sc_h*4);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*awidth,grd_curscreen->sc_h*aheight);
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
