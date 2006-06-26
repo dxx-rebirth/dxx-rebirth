@@ -125,11 +125,11 @@ void ogl_close(void);//one time shutdown
 #define OGLTEXBUFSIZE (2048*2048*4)
 extern GLubyte texbuf[OGLTEXBUFSIZE];
 //void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int width,int height,int twidth,int theight);
-void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type);
+void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type, int transp);
 void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap);
 void ogl_loadbmtexture(grs_bitmap *bm);
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,int dyo, int *texid,float *u,float *v,char domipmap,float prio);
-void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex);
+void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex, int transp);
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_freebmtexture(grs_bitmap *bm);
 void ogl_do_palfx(void);
@@ -145,7 +145,7 @@ void ogl_urect(int left,int top,int right,int bot);
 bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c);
 bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale, int orient);
 bool ogl_ubitmapm(int x, int y,grs_bitmap *bm);
-bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
+bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int transp);
 bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 bool ogl_ubitblt_tolinear(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 bool ogl_ubitblt_copy(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);

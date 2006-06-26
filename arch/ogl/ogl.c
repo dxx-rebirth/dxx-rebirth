@@ -953,7 +953,7 @@ bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, gr
 	return 0;
 }
 #else
-bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
+bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int transp)
 {
 	GLfloat xo,yo,xs,ys;
 	GLfloat u1,v1;//,u2,v2;
@@ -991,7 +991,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	
 //	oldpal=ogl_pal;
 	ogl_pal=gr_current_pal;
-	ogl_loadtexture(src->bm_data,sx,sy,&tex);
+	ogl_loadtexture(src->bm_data,sx,sy,&tex,transp);
 //	ogl_pal=oldpal;
 	ogl_pal=gr_palette;
 	OGL_BINDTEXTURE(tex.handle);
@@ -1009,7 +1009,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	return 0;
 }
 bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
-	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest);
+	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,1);
 }
 #endif
 bool ogl_ubitblt_tolinear(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
@@ -1209,7 +1209,7 @@ int pow2ize(int x){
 
 //GLubyte texbuf[512*512*4];
 GLubyte texbuf[OGLTEXBUFSIZE];
-void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type)
+void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type,int transp)
 {
 //	GLushort *tex=(GLushort *)texp;
 	int x,y,c,i;
@@ -1224,7 +1224,7 @@ void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,in
 				c=data[i++];
 			else
 				c=255;//fill the pad space with transparancy
-			if (c==255){
+			if (c==255 && transp){
 				switch (type){
 					case GL_LUMINANCE:
 						(*(texp++))=0;
@@ -1346,7 +1346,7 @@ void tex_set_size(ogl_texture *tex){
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex){
+void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex, int transp){
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,int dyo, int *texid,float *u,float *v,char domipmap,float prio){
 //	int internalformat=GL_RGBA;
 //	int format=GL_RGBA;
@@ -1365,7 +1365,7 @@ void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex){
 
 	//	if (width!=twidth || height!=theight)
 	//		glmprintf((0,"sizing %ix%i texture up to %ix%i\n",width,height,twidth,theight));
-	ogl_filltexbuf(data,texbuf,tex->lw,tex->w,tex->h,dxo,dyo,tex->tw,tex->th,tex->format);
+	ogl_filltexbuf(data,texbuf,tex->lw,tex->w,tex->h,dxo,dyo,tex->tw,tex->th,tex->format,transp);
 
 	// Generate OpenGL texture IDs.
 	glGenTextures(1, &tex->handle);
@@ -1439,7 +1439,7 @@ void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap){
 		}
 		buf=decodebuf;
 	}
-	ogl_loadtexture(buf,0,0,bm->gltexture);
+	ogl_loadtexture(buf,0,0,bm->gltexture,1);
 }
 void ogl_loadbmtexture(grs_bitmap *bm){
 	ogl_loadbmtexture_m(bm,1);

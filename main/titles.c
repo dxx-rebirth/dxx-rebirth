@@ -1075,7 +1075,6 @@ void do_briefing_screens(int level_num)
 
 	key_flush();
 
-	gr_clear_canvas(BM_RGB(0,255,255));
 	load_screen_text(Briefing_text_filename, &Briefing_text);
 
 	if (level_num == 1) {
