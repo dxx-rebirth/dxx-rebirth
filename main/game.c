@@ -1907,6 +1907,7 @@ void game()
 				init_cockpit();
 				last_drawn_cockpit[0] = -1;
 				last_drawn_cockpit[1] = -1;
+				game_flush_inputs();
 			}
 
 			if ( (Function_mode != FMODE_GAME) && Auto_demo && (Newdemo_state != ND_STATE_NORMAL) )	{
