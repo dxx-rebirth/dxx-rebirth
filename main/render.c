@@ -573,14 +573,14 @@ void flash_frame()
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap2, uvl *uvlp, vms_vector *norm)
 {
-	fix			face_light;
+	fix		face_light;
 	grs_bitmap	*bm;
 #ifdef OGL
 	grs_bitmap	*bm2=NULL;
 #endif
-	fix			reflect;
-	uvl			uvl_copy[8];
-	int			i;
+	fix		reflect;
+	uvl		uvl_copy[8];
+	int		i;
 	g3s_point	*pointlist[8];
 
 	Assert(nv <= 8);
@@ -744,10 +744,11 @@ void render_side(segment *segp, int sidenum)
 
 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 	//	deal with it, get the dot product.
-	if (sidep->type == SIDE_IS_TRI_13)
+	if (sidep->type == SIDE_IS_TRI_13) {
 		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][1]]]);
-	else
+	} else {
 		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
+	}
 
 	get_side_verts(vertnum_list,segp-Segments,sidenum);
 
@@ -779,10 +780,11 @@ void render_side(segment *segp, int sidenum)
 		if (Detriangulation_on && ((min_dot+F1_0/256 > max_dot) || ((Viewer->segnum != segp-Segments) &&  (min_dot > Tulate_min_dot) && (max_dot < min_dot*2)))) {
 			fix	n0_dot_n1;
 
-			//	The other detriangulation code doesn't deal well with badly non-planar sides.
+			// The other detriangulation code doesn't deal well with badly non-planar sides.
 			n0_dot_n1 = vm_vec_dot(&normals[0], &normals[1]);
-			if (n0_dot_n1 < Min_n0_n1_dot)
+			if (n0_dot_n1 < Min_n0_n1_dot) {
 				goto im_so_ashamed;
+			}
 
 			render_face(segp-Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, &normals[0]);
 			#ifdef EDITOR
@@ -797,7 +799,7 @@ im_so_ashamed: ;
 					check_face(segp-Segments, sidenum, 0, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 					#endif
 				}
-
+ 
 				if (v_dot_n1 >= 0) {
 					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[2];		temp_uvls[2] = sidep->uvls[3];
 					vertnum_list[1] = vertnum_list[2];	vertnum_list[2] = vertnum_list[3];	// want to render from vertices 0, 2, 3 on side
@@ -806,7 +808,7 @@ im_so_ashamed: ;
 					check_face(segp-Segments, sidenum, 1, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 					#endif
 				}
-			} else if (sidep->type ==  SIDE_IS_TRI_13) {
+			} else if (sidep->type == SIDE_IS_TRI_13) {
 				if (v_dot_n1 >= 0) {
 					render_face(segp-Segments, sidenum, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, &sidep->uvls[1], &normals[1]);	// rendering 1,2,3, so just skip 0
 					#ifdef EDITOR
@@ -827,7 +829,6 @@ im_so_ashamed: ;
                                 Error("Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type,(int)(segp-Segments), sidenum);
 		}
 	}
-
 }
 
 #ifdef EDITOR
@@ -1305,7 +1306,7 @@ int find_seg_side(segment *seg,short *verts,int notside)
 		}
 	}
 
-	Assert(vv0!=-1 && vv1!=-1);
+// 	Assert(vv0!=-1 && vv1!=-1); // ZICO - disabled. will fail sometimes in some 4D levels.
 
 	eptr = Edge_to_sides[vv0][vv1];
 
@@ -1322,7 +1323,6 @@ int find_seg_side(segment *seg,short *verts,int notside)
 		Assert(side0==notside);
 		return side1;
 	}
-
 }
 
 //find the two segments that join a given seg though two sides, and
@@ -1403,6 +1403,13 @@ int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *
 	*pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].type==3?1:0]]];
 	*pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].type==3?1:0]]];
 
+#ifdef OGL
+	/* ZICO - experimental HACK
+	   If edge_verts differ +/- 100 it's mostly an indication of overlapping rooms using the 4D effect. So we don't want GL_LEQUAL.  It does also happen on other places in a level. But it's *unlikely* we see a portal bug caused by missing GL_LEQUAL with verts that differ that much. Nevertheless it's a simple hack to prevent unwanted textures in 4D rooms. */
+	if ((edge_verts[0] - edge_verts[1] >= 100) || (edge_verts[0] - edge_verts[1] <= -100))
+		glDepthFunc(GL_ALWAYS);
+#endif
+
 	return 1;
 }
 
@@ -1413,7 +1420,7 @@ int compare_children(segment *seg,short c0,short c1)
 	vms_vector norm0_0,norm0_1,*pnt0,temp;
 	vms_vector norm1_0,norm1_1,*pnt1;
 	fix d0_0,d0_1,d1_0,d1_1,d0,d1;
-int t;
+	int t;
 
 	if (Side_opposite[c0] == c1) return 0;
 
@@ -1446,7 +1453,6 @@ int t;
 		return -1;
 	else
 		return 0;
-
 }
 
 int ssc_total=0,ssc_swaps=0;

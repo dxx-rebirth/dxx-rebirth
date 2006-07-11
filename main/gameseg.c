@@ -1984,8 +1984,8 @@ void validate_segment_all(void)
 
 	#ifndef NDEBUG
 	#ifndef COMPACT_SEGS
-	if (check_segment_connections())
-		Int3();		//Get Matt, si vous plait.
+// 	if (check_segment_connections()) // ZICO - disabled. will fail with 4D levels.
+// 		Int3();		//Get Matt, si vous plait.
 	#endif
 	#endif
 }
