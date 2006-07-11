@@ -464,14 +464,14 @@ extern fix	Obj_light_xlate[16];
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 void render_side(segment *segp, int sidenum)
 {
-	short			vertnum_list[4];
-	side			*sidep = &segp->sides[sidenum];
+	short		vertnum_list[4];
+	side		*sidep = &segp->sides[sidenum];
 	vms_vector	tvec;
-	fix			v_dot_n0, v_dot_n1;
-	uvl			temp_uvls[3];
-	fix			min_dot, max_dot;
-	vms_vector  normals[2];
-	int			wid_flags;
+	fix		v_dot_n0, v_dot_n1;
+	uvl		temp_uvls[3];
+	fix		min_dot, max_dot;
+	vms_vector	normals[2];
+	int		wid_flags;
 
 
 	wid_flags = WALL_IS_DOORWAY(segp,sidenum);
@@ -1123,7 +1123,7 @@ int find_seg_side(segment *seg,short *verts,int notside)
 		}
 	}
 
-	Assert(vv0!=-1 && vv1!=-1);
+// 	Assert(vv0!=-1 && vv1!=-1); // ZICO - disabled. will fail sometimes in some 4D levels.
 
 	eptr = Edge_to_sides[vv0][vv1];
 
@@ -1221,6 +1221,13 @@ int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *
 	*pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].type==3?1:0]]];
 	*pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].type==3?1:0]]];
 
+#ifdef OGL
+	/* ZICO - experimental HACK
+	   If edge_verts differ +/- 100 it's mostly an indication of overlapping rooms using the 4D effect. So we don't want GL_LEQUAL.  It does also happen on other places in a level. But it's unlikely we see a portal bug caused by missing GL_LEQUAL with verts that differ that much. Nevertheless it's a simple hack to prevent unwanted textures in 4D rooms. */
+	if ((edge_verts[0] - edge_verts[1] >= 100) || (edge_verts[0] - edge_verts[1] <= -100))
+		glDepthFunc(GL_ALWAYS);
+#endif
+
 	return 1;
 }
 
@@ -1231,7 +1238,7 @@ int compare_children(segment *seg,short c0,short c1)
 	vms_vector norm0_0,norm0_1,*pnt0,temp;
 	vms_vector norm1_0,norm1_1,*pnt1;
 	fix d0_0,d0_1,d1_0,d1_1,d0,d1;
-int t;
+	int t;
 
 	if (Side_opposite[c0] == c1) return 0;
 

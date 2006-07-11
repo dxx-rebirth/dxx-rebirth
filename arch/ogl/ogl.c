@@ -113,7 +113,7 @@ int sphereh=0;
 int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
 int secondary_lh[5]={0,0,0,0,0};
-int tempNoDepthTest=0;
+int bNoDepthTest=0;
 /*int lastbound=-1;
 
 #define OGL_BINDTEXTURE(a) if(gr_badtexture>0) glBindTexture(GL_TEXTURE_2D, 0);\
@@ -598,7 +598,7 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 	glScalef(scale/320.0,scale/200.0,scale);//the positions are based upon the standard reticle at 320x200 res.
 	
 	OGL_DISABLE(TEXTURE_2D);
-
+	glDisable(GL_CULL_FACE);
 	if (!cross_lh[cross]){
 		cross_lh[cross]=glGenLists(1);
 		glNewList(cross_lh[cross], GL_COMPILE_AND_EXECUTE);
@@ -753,7 +753,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	OGL_DISABLE(TEXTURE_2D);
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) {
 		glColor3f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c));
-		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST); // ZICO - disable to show lasers correctly
 	}else{
 		glColor4f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
 	}
@@ -762,7 +762,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 		glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 	}
 	glEnd();
-	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST); // ZICO - enable it again to stay correct
 	return 0;
 }
 
@@ -805,8 +805,8 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 	}else{
 		mprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
 	}
-	if (!tempNoDepthTest)
-		glEnable(GL_DEPTH_TEST);
+	if (!bNoDepthTest)
+		glEnable(GL_DEPTH_TEST); // ZICO - we need this so we do not run into any problems if lasers or sprites show up
 
 	return 0;
 }
@@ -1108,8 +1108,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP);
 
-	if (tempNoDepthTest)
-		glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST); // ZICO - disable to prevent sprites get cutted by polygons
 
 	glBegin(GL_QUADS);
 	glColor3f(1.0,1.0,1.0);
@@ -1143,6 +1142,8 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 		glVertex3f(f2glf(pv.x),f2glf(pv.y),-f2glf(pv.z));
 	}
 	glEnd();
+	if (!bNoDepthTest) // ZICO - need this for escape seq
+		glEnable(GL_DEPTH_TEST);
 	return 0;
 }
 
@@ -1423,11 +1424,13 @@ void ogl_start_frame(void){
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER,0.02);
+	glAlphaFunc(GL_GEQUAL,0.02);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	glClear(GL_DEPTH_BUFFER_BIT);
 
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 
 	glShadeModel(GL_SMOOTH);
 	glMatrixMode(GL_PROJECTION);

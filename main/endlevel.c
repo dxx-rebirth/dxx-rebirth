@@ -302,7 +302,7 @@ vms_matrix surface_orient;
 
 int endlevel_data_loaded=0;
 #ifdef OGL
-extern int tempNoDepthTest;
+extern int bNoDepthTest;
 #endif
 extern char last_palette_loaded[];
 
@@ -433,7 +433,7 @@ void start_rendered_endlevel_sequence()
 
 	Endlevel_sequence = EL_FLYTHROUGH;
 #ifdef OGL
-	tempNoDepthTest=1;
+	bNoDepthTest=1;
 #endif
 
 	ConsoleObject->movement_type = MT_NONE;			//movement handled by flythrough
@@ -551,7 +551,7 @@ void stop_endlevel_sequence()
 
 	PlayerFinishedLevel(0);
 #ifdef OGL
-	tempNoDepthTest=0;
+	bNoDepthTest=0;
 #endif
 }
 
