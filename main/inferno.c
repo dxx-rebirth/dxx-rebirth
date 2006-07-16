@@ -319,7 +319,7 @@ void show_cmdline_help() {
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE 
 	printf( "  -window         %s\n", "Run the game in a window"); // ZICO - from window to fullscreen
 #endif
-	printf( " -aspect <y> <x>  %s\n"  ";use specified aspect - example: -aspect 16 9, -aspect 16 7.5 etc.");
+	printf( "  -aspect <y> <x>  %s\n",  ";use specified aspect - example: -aspect 16 9, -aspect 16 7.5 etc.");
 #ifdef OGL
 	printf( "  -gl_texmaxfilt <f> %s\n","set GL_TEXTURE_MAX_FILTER (see readme.d1x)");
 	printf( "  -gl_texminfilt <f> %s\n","set GL_TEXTURE_MIN_FILTER (see readme.d1x)");
