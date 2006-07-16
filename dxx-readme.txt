@@ -236,7 +236,7 @@ called DESCENT.
 Next i want to thank Victor Rachels and his team for making D1X. Without you
 we all won't be able to play it on Linux.
 More thanks:
-* My girldfriend - for being very patient :)
+* My girlfriend - for being very patient :)
 * KyroMaster for great patches and good program code
 * The guys at http://www.unixboard.de for technical assistance
 * Maystorm for technical assistance and endless hours of BETA-testing
