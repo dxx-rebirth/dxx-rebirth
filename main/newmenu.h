@@ -239,3 +239,12 @@ int nm_messagebox_fixedfont( char *title, int nchoices, ... );
 
 #endif
  
+#define NORMAL_CHECK_BOX	"Å"
+#define CHECKED_CHECK_BOX	"Ç"
+#define NORMAL_RADIO_BOX	""
+#define CHECKED_RADIO_BOX	"Ä"
+#define CURSOR_STRING		"_"
+#define SLIDER_LEFT			"É"		// 131
+#define SLIDER_RIGHT			"Ñ"		// 132
+#define SLIDER_MIDDLE		"Ö"		// 133
+#define SLIDER_MARKER		"Ü"		// 134
