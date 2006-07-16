@@ -507,7 +507,7 @@ segmasks get_seg_masks(vms_vector *checkp,int segnum,fix rad,char *calling_file,
 	int			vertex_list[6];
 	segment		*seg;
 
-	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
+// 	Assert((segnum <= Highest_segment_index) && (segnum >= 0)); // ZICO - FIXME
 
 	seg = &Segments[segnum];
 
@@ -1984,7 +1984,7 @@ void validate_segment_all(void)
 
 	#ifndef NDEBUG
 	#ifndef COMPACT_SEGS
-// 	if (check_segment_connections()) // ZICO - disabled. will fail with 4D levels.
+// 	if (check_segment_connections()) // ZICO - FIXME - disabled. will fail with 4D levels.
 // 		Int3();		//Get Matt, si vous plait.
 	#endif
 	#endif
