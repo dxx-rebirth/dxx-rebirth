@@ -245,7 +245,7 @@ we all won't be able to play it on Linux.
 Special thanks go to Christopher Taylor of the D2X team. He answered all my
 probably bothering mails and helped me to solve some bugs in D2X.
 More thanks:
-* My girldfriend - for being very patient :)
+* My girlfriend - for being very patient :)
 * KyroMaster for great patches and good program code
 * The guys at http://www.unixboard.de for technical assistance
 * Maystorm for technical assistance and endless hours of BETA-testing
