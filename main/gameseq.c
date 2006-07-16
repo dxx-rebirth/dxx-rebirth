@@ -745,7 +745,7 @@ void DoEndLevelScoreGlitzPoll( int nitems, newmenu_item * menus, int * key, int 
 void DoGameOver()
 {
 	time_out_value = timer_get_approx_seconds() + i2f(60*5);
-	nm_messagebox1( TXT_GAME_OVER, DoEndLevelScoreGlitzPoll, 1, TXT_OK, "" );
+// 	nm_messagebox1( TXT_GAME_OVER, DoEndLevelScoreGlitzPoll, 1, TXT_OK, "" );
 
 #ifndef SHAREWARE
 	if (Current_mission_num == 0)

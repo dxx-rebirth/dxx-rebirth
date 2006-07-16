@@ -440,17 +440,28 @@ void HUD_init_message(char * format, va_list args)
 
 void player_dead_message(void)
 {
-          if (Player_exploded) {
-//		gr_set_curfont( Gamefonts[GFONT_SMALL] );
-		gr_set_curfont( GAME_FONT );    
+	if (Player_exploded) {
+		if ( Players[Player_num].lives < 2 )    {
+			int x, y, w, h, aw;
+			gr_set_curfont(Gamefonts[GFONT_BIG_1]);
+			gr_get_string_size( TXT_GAME_OVER, &w, &h, &aw );
+			w += 20;
+			h += 8;
+			x = (GWIDTH - w ) / 2;
+			y = (GHEIGHT - h ) / 2;
+			Gr_scanline_darkening_level = 2*7;
+			gr_setcolor( BM_XRGB(0,0,0) );
+			gr_rect( x, y, x+w, y+h );
+			Gr_scanline_darkening_level = GR_FADE_LEVELS;
+		
+			gr_string(0x8000, (GHEIGHT - grd_curcanv->cv_font->ft_h)/2 + h/8, TXT_GAME_OVER );
+        	}
+		gr_set_curfont( GAME_FONT );
 		if (HUD_color == -1)
-			HUD_color = BM_XRGB(0,28,0);
+		HUD_color = BM_XRGB(0,28,0);
 		gr_set_fontcolor( HUD_color, -1);
-
-		gr_printf(0x8000, grd_curcanv->cv_bitmap.bm_h-(GAME_FONT->ft_h+3), TXT_PRESS_ANY_KEY);//was -8
-//		gr_set_curfont( GAME_FONT );    
+		gr_string(0x8000, GHEIGHT-(grd_curcanv->cv_font->ft_h+3), TXT_PRESS_ANY_KEY);
 	}
-
 }
 
 // void say_afterburner_status(void)
