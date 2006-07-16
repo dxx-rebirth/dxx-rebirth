@@ -633,14 +633,18 @@ int main(int argc, char *argv[])
 	}
 
 	//(re)added Mar 30, 2003 Micah Lieske - Allow use of 22K sound samples again.
-	if(FindArg("-sound22k"))
-	{
-		digi_sample_rate = SAMPLE_RATE_22K;
-	}
+// 	if(FindArg("-sound22k"))
+// 	{
+// 		digi_sample_rate = SAMPLE_RATE_22K;
+// 	}
 
 	if(FindArg("-sound11k"))
 	{
 		digi_sample_rate = SAMPLE_RATE_11K;
+	}
+	else
+	{
+		digi_sample_rate = SAMPLE_RATE_22K;
 	}
 
 	arch_init_start();
