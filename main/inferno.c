@@ -219,7 +219,6 @@ void print_commandline_help()
 	printf( "\n");
 #endif
 	printf( " D2X Options:\n\n");
-	printf( "  -nod2xmenu      %s\n", "Disables D2X options menu for a more nostalgic experience");
 	printf( "  -noredundancy   %s\n", "Do not send messages when picking up redundant items in multi");
 	printf( "  -shortpackets   %s\n", "Set shortpackets to default as on");
 #ifdef OGL // currently only does anything on ogl build, so don't advertise othewise.
