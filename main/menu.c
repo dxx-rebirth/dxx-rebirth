@@ -1210,10 +1210,7 @@ void do_options_menu()
 		m[12].type = NM_TYPE_CHECK; m[12].text="Ship auto-leveling"; m[12].value=Auto_leveling_on;
 		m[13].type = NM_TYPE_MENU; m[13].text="D1X options...";
 
-		if (FindArg("-nod1xmenu"))
-			i = newmenu_do1( NULL, TXT_OPTIONS, 13, m, joydef_menuset, i );
-		else
-			i = newmenu_do1( NULL, TXT_OPTIONS, 14, m, joydef_menuset, i );
+		i = newmenu_do1( NULL, TXT_OPTIONS, 14, m, joydef_menuset, i );
 			
 		switch(i)	{
 			case 6: joydefs_config(); break;
