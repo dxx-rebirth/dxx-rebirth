@@ -1450,6 +1450,7 @@ void ogl_end_frame(void){
 	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
+	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 }
 void ogl_swap_buffers(void){
