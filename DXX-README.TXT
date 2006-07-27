@@ -27,7 +27,7 @@ help them in any way possible.
 I hope you enjoy the game as you did when you played it the first time.
 
 If you have something to say about my release, feel free to contact me at
-zicothehentaifreak@gmx.de
+zico@unixboard.de
 
 - zico 20051229
 
@@ -57,6 +57,8 @@ For example:
 
 The original game:
 ==================
+
+Windows:
 After you extracted the archive you're almost ready for Descent.
 But there is still a little bit work to do.
 You need to copy the original Descent ][ data to the current directory.
@@ -80,8 +82,9 @@ intro-h.mvl and/or intro-l.mvl
 other-h.mvl and/or other-l.mvl
 robots-h.mvl and/or robots-l.mvl
 
-[NOTE: if you compiled the source, copy the files to your data directory you
-selected]
+Linux:
+if you compiled the source, copy the files to your data directory you
+selected.
 In linux, all filenames must be in _lower case_. It's important.
 
 That's it :)
@@ -123,22 +126,12 @@ allowed me to implement it to this release. Thanks again, Novacron!
 [NOTE: for the source you need to download this icons from 
 http://www.dxx-rebirth.de]
 
-NOTE for Linux:
-D2X-Rebirth will probably need a special version of libstdc++ and
-PhysicsFS-1.0.1.
-These files are located in the subdirectory "lib". Place these file to
-"/usr/lib". But do NOT overwrite any of your libs. 
-If D2X-Rebirth refuses to work, please use the source to create your very own
-binary.
-
 
 3. Running the game
 ^^^^^^^^^^^^^^^^^^^
 
 windows: Just start the d2x-rebirth.exe :)
-linux: go to the directory where you extracted the archive and type
-       './d2x-rebirth'.
-
+linux: see dxx-compile.txt
 There are also a lot of optional command-line options you can set for
 D2X-Rebirth. Just open the file d2x.ini for a complete list of options and
 select whatever you want to use.
@@ -191,7 +184,7 @@ Solution: To enable a mouselook styl control tye as you know it from other
           oter players which do not use mouselook it will not work in a
           multiplayer game.
 
-Problem:  Using Open-GL my gameplay is not really fluid and/or my screen looks
+Problem:  Using OpenGL my gameplay is not really fluid and/or my screen looks
           sometimes like cut in an upper and lower half while turning.
           (V-Sync-Problem)
 Reason:   For some configurations D2X is not able to syncronize the
@@ -199,11 +192,17 @@ Reason:   For some configurations D2X is not able to syncronize the
 Solution: Set the refresh-rate of the display in the menu of your operating 
           System to 75 or 60 Hz and set the same fps-value in the D2X-Menu or
           the d2x.ini. (-maxfps <x>)
+          It may also be useful to play around with these settings.
           [Thanks for this hint go to SNIPER]
 
+Problem:  [WINDOWS] My joystick is not recognized by the game.
+Reason:   Probably you have more than one Joystick but only one connected now.
+Solution: Go to control center -> gamecontroller. There set your joystick as
+          "preferred device".
+
 I'll try to find better solutions for these problems listed above if possible.
-If you find a new bug or a better workaround for any existing problem, please
-submit it to zicothehentaifreak@gmx.de.
+If you find a new bug or a better workaround/fix for any existing problem, please
+submit it to zico@unixboard.de.
 
 
 5. LEGAL STUFF
