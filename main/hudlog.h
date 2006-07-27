@@ -7,7 +7,6 @@ void kmatrix_log(int fhudonly);
 void hud_log_setdir(char *dir);
 void hud_log_message(char * message);
 
-extern int HUD_log_messages;
 extern int HUD_log_multi_autostart;
 extern int HUD_log_autostart;
 

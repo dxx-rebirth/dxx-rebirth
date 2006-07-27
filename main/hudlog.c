@@ -16,7 +16,6 @@
 #include "d_slash.h"
 //end this section addition -VR
 
-int HUD_log_messages = 0;
 int HUD_log_multi_autostart = 0;
 int HUD_log_autostart = 0;
 int fhudmulti = 0;
@@ -116,40 +115,35 @@ void hud_log_message(char * message){
 		}
 	}
 	--recurse_flag;
-	if (HUD_log_messages||fhudlog){
-		time_t t;
-		struct tm *lt;
-		t=time(NULL);
-		lt=localtime(&t);
-//02/06/99 Matthew Mueller - added zero padding to hour
-		if (HUD_log_messages)
-		     printf("%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
-		if (fhudlog)
-			fprintf(fhudlog,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
-		while (*message){
-			if (*message>=0x01 && *message<=0x03){//filter out color codes
-				message++;
-				if (!*message)break;
-			}else if (*message>=0x04 && *message<=0x06){//filter out color reset code
-			}else{
-				if (HUD_log_messages)
-					printf("%c",*message);
-				if (fhudlog)
-					fprintf(fhudlog,"%c",*message);
-			}
-			message++;
-		}
-		if (HUD_log_messages)
-			printf("\n");
-		if (fhudlog){
-			fprintf(fhudlog,"\n");
-			//added 05/17/99 Matt Mueller - flush file to make sure it all gets out there
-			fflush(fhudlog);
-			//end addition -MM
 
+	time_t t;
+	struct tm *lt;
+	t=time(NULL);
+	lt=localtime(&t);
+//02/06/99 Matthew Mueller - added zero padding to hour
+	printf("%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
+	if (fhudlog)
+		fprintf(fhudlog,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
+	while (*message){
+		if (*message>=0x01 && *message<=0x03){//filter out color codes
+			message++;
+			if (!*message)break;
+		}else if (*message>=0x04 && *message<=0x06){//filter out color reset code
+		}else{
+			printf("%c",*message);
+			if (fhudlog)
+				fprintf(fhudlog,"%c",*message);
 		}
-//end edit -MM
+		message++;
 	}
+	printf("\n");
+	if (fhudlog){
+		fprintf(fhudlog,"\n");
+		//added 05/17/99 Matt Mueller - flush file to make sure it all gets out there
+		fflush(fhudlog);
+		//end addition -MM
+	}
+//end edit -MM
 }
 
 void kmatrix_print(FILE* out,int *sorted){
@@ -211,7 +205,7 @@ void kmatrix_log(int fhudonly){
 	
 	if (fhudlog)
 	     kmatrix_print(fhudlog,sorted);
-	if (HUD_log_messages && !fhudonly)
+	if (!fhudonly)
 	     kmatrix_print(stdout,sorted);
 #endif
 }
