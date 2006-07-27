@@ -316,7 +316,7 @@ if sys.platform == 'win32':
 	ogldefines = ['SDL_GL', 'OGL_RUNTIME_LOAD', 'OGL']
 	common_sources = arch_win32_sources + common_sources
 	ogllibs = ['']
-	winlibs = ['glu32', 'wsock32', 'winmm']
+	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
 	alllibs = winlibs + sdllibs
 	lflags = '-mwindows'
 else:

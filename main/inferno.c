@@ -163,9 +163,8 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "ogl_init.h"
 #endif
 
-#ifdef __LINUX__
-#include "SDL/SDL.h"
-#endif
+#include <SDL/SDL.h>
+
 
 void check_joystick_calibration();
 void show_order_form();
