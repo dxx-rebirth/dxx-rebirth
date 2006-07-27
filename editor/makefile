@@ -1,6 +1,6 @@
 TOPDIR = ..
 
-#include $(TOPDIR)/makefile.config
+include $(TOPDIR)/makefile.config
 
 OBJECTS = \
  med.$(OBJ) eglobal.$(OBJ) mine.$(OBJ) curves.$(OBJ) \

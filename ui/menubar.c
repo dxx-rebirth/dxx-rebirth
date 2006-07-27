@@ -181,7 +181,7 @@ void menu_show( MENU * menu )
 		if ( menu != &Menu[0] )
 		{
 			gr_setcolor( CBLACK );
-			gr_ubox( menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1 );
+			gr_urect( menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1 );
 		}
 	}
 		

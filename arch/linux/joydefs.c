@@ -69,14 +69,14 @@ int joycal_message( char * title, char * text )
 extern int WriteConfigFile();	
 
 extern joystick_device j_joystick[MAX_JOY_DEVS];
-extern joystick_axis j_axis[MAX_AXES];
-extern joystick_button j_button[MAX_BUTTONS];
+extern joystick_axis j_axis[JOY_MAX_AXES];
+extern joystick_button j_button[JOY_MAX_BUTTONS];
 
 void joydefs_calibrate()
 {
 
 	int i;
-	int temp_values[MAX_AXES];
+	int temp_values[JOY_MAX_AXES];
 	char title[50];
 	char text[256];
 //added/killed on 10/17/98 by Hans de Goede for joystick/mouse # fix

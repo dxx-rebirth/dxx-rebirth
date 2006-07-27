@@ -2,17 +2,26 @@ This file describes how to compile D1X-Rebirth from source.
 
 To compile you´ll need:
 
--gcc
--mingw under windows
--you don´t need msys but it´s supported anyway (just change the appropriate line in config.mingw)
--sdl under linux (development version)
+-gcc/g++
+-mingw [windows]
+-nasm (optional, for sdl-build)
+-sdl
+-scons
 
+
+Building with SCons:
+* open SConstruct and change D1XDATAPATH to specify where the DESCENT data files are located
+* run "scons" with desired command-line options (see "scons -h" for complete list of options)
+* place the binary wherever you want to have it
+* copy your data files to the desired path you specified in "SConstruct" on D1XDATAPATH (see dxx-readme.txt for more information)
+
+
+Building with make: [not supported anymore!!! Please use SCons or fix on your own :)]
 * edit the "config" file and specify the output directory and the platform you´re running
 * edit the appropriate "config.linux" "config.mingw" or "config.other" file to chenge the options
 * run "make"
-* the resulting file now will be copied in the directory you specified in "config"
-* place the file wherever you want to have it
-* copy your data files to the desired path (see DXX-README.TXT for more information)
+* place the binary wherever you want to have it
+* copy your data files to the desired path you specified in "config" on DESCENT_DATA_PATH (see dxx-readme.txt for more information)
 
 If you run into any problems do not hesitate to contact me.
-eMail is: zicothehentaifreak@gmx.de
+eMail is: zico@unixboard.de

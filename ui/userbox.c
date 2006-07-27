@@ -68,7 +68,7 @@ void ui_draw_userbox( UI_GADGET_USERBOX * userbox )
 		else
 			gr_setcolor( CBRIGHT );
 
-		gr_box( -1, -1, userbox->width, userbox->height );
+		gr_rect( -1, -1, userbox->width, userbox->height );
 
 		ui_mouse_show();
 	}

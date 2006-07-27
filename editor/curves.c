@@ -131,9 +131,9 @@ void plot_parametric(vms_equation *coeffs, fix min_t, fix max_t, fix del_t) {
     fix t, dt;
 
     gr_setcolor(15);
-    gr_box(  75,  40, 325, 290 );
-    gr_box(  75, 310, 325, 560 );
-    gr_box( 475, 310, 725, 560 );
+    gr_rect(  75,  40, 325, 290 );
+    gr_rect(  75, 310, 325, 560 );
+    gr_rect( 475, 310, 725, 560 );
     //gr_pal_fade_in( grd_curscreen->pal );
 
     for (t=min_t;t<max_t-del_t;t+=del_t) {

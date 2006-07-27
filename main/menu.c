@@ -1141,9 +1141,9 @@ void d1x_options_menu()
 #ifdef __MSDOS__
   Joy_is_Sidewinder=m[(checks+0)].value;
 #endif
-#ifdef __LINUX__
-  Joy_is_Sidewinder=0;
-#endif
+// #ifdef __LINUX__
+//   Joy_is_Sidewinder=0;
+// #endif
 #ifdef SUPPORTS_NICEFPS
   use_nice_fps=m[(checks+0)].value;
 #else

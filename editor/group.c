@@ -1318,7 +1318,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 }
 
 static char old_tmap_list[MAX_TEXTURES][13];
-static short tmap_xlate_table[MAX_TEXTURES];
+// static short tmap_xlate_table[MAX_TEXTURES]; // ZICO - FIXME
 
 // -----------------------------------------------------------------------------
 // Load group will:

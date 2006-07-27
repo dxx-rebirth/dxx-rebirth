@@ -1,4 +1,14 @@
-// SDL Event related stuff
+/* $Id: event.c,v 1.1.1.1 2006/03/17 19:53:40 zicodxx Exp $ */
+/*
+ *
+ * SDL Event related stuff
+ *
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,48 +16,55 @@
 #include <SDL/SDL.h>
 
 extern void key_handler(SDL_KeyboardEvent *event);
-//added on 10/17/98 by Hans de Goede for mouse functionality
 extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);
 extern void mouse_motion_handler(SDL_MouseMotionEvent *mme);
-//end this section addition - Hans
+extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
+extern void joy_hat_handler(SDL_JoyHatEvent *jhe);
+extern void joy_axis_handler(SDL_JoyAxisEvent *jae);
 
 static int initialised=0;
 
 void event_poll()
 {
- SDL_Event event;
- while (SDL_PollEvent(&event))
- {
-// if( (event.type == SDL_KEYEVENT) {
-//added/changed on 10/17/98 by Hans de Goede for mouse functionality
-//-killed-   if( (event.type == SDL_KEYDOWN) || (event.type == SDL_KEYUP) ) {
-   switch(event.type)
-   {
-    case SDL_KEYDOWN:
-    case SDL_KEYUP:
-     key_handler((SDL_KeyboardEvent *)&event);
-     break;
-    case SDL_MOUSEBUTTONDOWN:
-    case SDL_MOUSEBUTTONUP:
-     mouse_button_handler((SDL_MouseButtonEvent *)&event);
-     break;
-    case SDL_MOUSEMOTION:
-     mouse_motion_handler((SDL_MouseMotionEvent *)&event);
-     break;
-//-killed-     return;
-//end this section addition/change - Hans
-    case SDL_QUIT: {
-    	void quit_request();
-	quit_request();
-    } break;
-   }
- }
+	SDL_Event event;
+
+	while (SDL_PollEvent(&event)) {
+		switch(event.type) {
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+			key_handler((SDL_KeyboardEvent *)&event);
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+			mouse_button_handler((SDL_MouseButtonEvent *)&event);
+			break;
+		case SDL_MOUSEMOTION:
+			mouse_motion_handler((SDL_MouseMotionEvent *)&event);
+			break;
+		case SDL_JOYBUTTONDOWN:
+		case SDL_JOYBUTTONUP:
+			joy_button_handler((SDL_JoyButtonEvent *)&event);
+			break;
+		case SDL_JOYAXISMOTION:
+			joy_axis_handler((SDL_JoyAxisEvent *)&event);
+			break;
+		case SDL_JOYHATMOTION:
+			joy_hat_handler((SDL_JoyHatEvent *)&event);
+			break;
+		case SDL_JOYBALLMOTION:
+			break;
+		case SDL_QUIT: {
+			void quit_request();
+			quit_request();
+		} break;
+		}
+	}
 }
 
 int event_init()
 {
- // We should now be active and responding to events.
- initialised = 1;
+	// We should now be active and responding to events.
+	initialised = 1;
 
- return 0;
+	return 0;
 }

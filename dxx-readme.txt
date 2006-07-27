@@ -25,7 +25,7 @@ D1X-Rebrith.
 I hope you enjoy the game as you did when you played it the first time.
 
 If you have something to say about my release, feel free to contact me at
-zicothehentaifreak@gmx.de
+zico@unixboard.de
 
 - zico 20051229
 
@@ -52,6 +52,7 @@ For example:
 2. Installation
 ^^^^^^^^^^^^^^^
 
+Windows:
 After you extracted the archive you're almost ready for Descent. But there is
 still a little bit work to do.
 You need to copy the original Descent data - namely "descent.hog" and
@@ -60,29 +61,25 @@ NOTE: These files need to be patched to version 1.4a.
       You will find the DOS- and a self made linux patch on
       http://www.dxx-rebirth.de.
 
+Linux: see dxx-compile.txt
+
 If you wish to add some extra levels like "Levels of the world" copy them
 to this directory, too.
-[NOTE: if you compiled the source, copy the files to your data directory you 
+[NOTE: if you compiled the source, copy the files to your data directory you
 selected]
 
 If you want to create Shortcurts to D1X on your Desktop and/or WM
 there is a wonderful icon stored in this directory.
 Novacron aka Troy Anderson of http://www.planetdescent.com has created it and
 allowed me to implement it to this release. Thanks again, Novacron!
-[NOTE: for the source you need to download this icons from 
+[NOTE: for the source you need to download this icons from
 http://www.dxx-rebirth.de]
 
-This package contains a set of HiRes fonts and briefing pictures D1X-Rebirth
-will use. If you don't want them, delete them, move them to another directory,
-or whatever you want.
+The windows package contains a set of HiRes fonts and briefing pictures
+D1X-Rebirth will use. If you don't want them, delete them, move them to 
+another directory, or whatever you want.
 [NOTE: if you compiled the source you need to download these HiRes sets from
-Http://www.dxx-rebirth.de and store them into your data path]
-
-NOTE for Linux:
-D1X-Rebirth will probably need a special version of libstdc++.
-This file is located in the subdirectory "lib". Place this file to "/usr/lib".
-But do NOT overwrite any of your libs. If D1X-Rebirth refuses to work, please
-use the source to create your very own binary.
+http://www.dxx-rebirth.de and store them into your data path]
 
 WARNING:
 IF YOU UPDATE FROM v0.31 OR OLDER RESET YOUR RESOLUTION AND CONTROLS IN THE
@@ -92,9 +89,8 @@ MENUS. OTHERWISE THE GAME MAY CRASH!
 3. Running the game
 ^^^^^^^^^^^^^^^^^^^
 
-windows: Just start the d1x-rebirth.exe :)
-linux: go to the directory where you extracted the archive and type
-       './d1x-rebirth'.
+windows: Just start the d1x-rebirth-gl/sdl.exe :)
+linux: see dxx-compile.txt
 
 There are also a lot of optional command-line options you can set for
 D1X-Rebirth. Just open the file d1x.ini for a complete list of options and
@@ -130,11 +126,10 @@ Solution: Use the option '-gl_mipmap' or '-gl_trilinear' to activate
 
 Problem:  [LINUX] MIDI music doesn't work.
 Reason:   The game is binaries are compiled for AWE support and should run with
-          it very well.
-Solution: If you use an MPU401 card, just make the changes in defines.mak
-          and compile it again. If it doesn't work, make shure you have
-          MIDI configures correctly.
-          Hint for AWE cards: asfxload -V100 8mbgmsfx.sf2
+          it very well. Hint for AWE cards: asfxload -V100 8mbgmsfx.sf2
+Solution: If you use an MPU401 card, just make the following changes in SConstruct:
+          Look for WANT_AWE32 and change it to WANT_MPU401. Then compile again.
+          If you still use make, do the changes in config.linux
 
 Problem:  The mouse movement is too slow. Is there no way to control the ship
           like in other first person shooters?
@@ -154,19 +149,17 @@ Solution: To check that out try the following two options in the d1x.ini and
           that values:
           -maxfps 80
           -gl_refresh 60
-          If you see no difference or D1X runs less fluently change the d1x.ini
-          back to its old settings because your System is in best condition
-          without that settings.
-          If D1X now runs more fluently: CONGRATULATIONS, it was a pleasure to
-          help you.
-          If your D1X RUNS BETTER with that settings, please send a short info-e-
-          mail to zicothehentaifreak@gmx.de. I would like to know on how many
-          systems this behaviour occure.
+          It may also be useful to play around with these settings.
           [Thanks for this hint go to SNIPER]
 
+Problem:  [WINDOWS] My joystick is not recognized by the game.
+Reason:   Probably you have more than one Joystick but only one connected now.
+Solution: Go to control center -> gamecontroller. There set your joystick as
+          "preferred device".
+
 I'll try to find better solutions for these problems listed above if possible.
-If you find a new bug or a better workaround for any existing problem, please
-submit it to zicothehentaifreak@gmx.de.
+If you find a new bug or a better workaround/fix for any existing problem, please
+submit it to zico@unixboard.de.
 
 
 5. LEGAL STUFF

@@ -2,8 +2,8 @@ TOPDIR = ../..
 
 include $(TOPDIR)/makefile.config
 
-OBJECTS = joystick.$(OBJ) init.$(OBJ) \
-          joydefs.$(OBJ) mono.$(OBJ) \
+OBJECTS = init.$(OBJ) \
+          mono.$(OBJ) \
           timer.$(OBJ)
 
 ifdef NETWORK

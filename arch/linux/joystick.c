@@ -14,8 +14,8 @@ char joy_installed = 0;
 char joy_present = 0;
 
 joystick_device j_joystick[MAX_JOY_DEVS];
-joystick_axis j_axis[MAX_AXES];
-joystick_button j_button[MAX_BUTTONS];
+joystick_axis j_axis[JOY_MAX_AXES];
+joystick_button j_button[JOY_MAX_BUTTONS];
 
 int j_num_axes = 0, j_num_buttons = 0;
 int timer_rate;
@@ -253,10 +253,10 @@ int joy_init () {
 
 //		printf ("\n");
 
-		if (j_num_axes > MAX_AXES)
-			j_num_axes = MAX_AXES;
-		if (j_num_buttons > MAX_BUTTONS)
-			j_num_buttons = MAX_BUTTONS;
+		if (j_num_axes > JOY_MAX_AXES)
+			j_num_axes = JOY_MAX_AXES;
+		if (j_num_buttons > JOY_MAX_BUTTONS)
+			j_num_buttons = JOY_MAX_BUTTONS;
 
 		joy_present = 1;
 		joy_installed = 1;
@@ -323,7 +323,7 @@ int joy_get_scaled_reading(int raw, int axis_num)
 
 
 void joy_get_pos(int *x, int *y) {
-	int axis[MAX_AXES];
+	int axis[JOY_MAX_AXES];
 
 	if ((!joy_installed)||(!joy_present)) { *x=*y=0; return; }
 

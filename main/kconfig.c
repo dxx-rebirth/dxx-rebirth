@@ -81,18 +81,9 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:44:27 zicodxx Exp 
 byte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
 int invert_text[2] = { TNUM_N, TNUM_Y };
-#ifndef __LINUX__
-int joybutton_text[28] = 
-	{ TNUM_BTN_1, TNUM_BTN_2, TNUM_BTN_3, TNUM_BTN_4,
-	-1, TNUM_TRIG, TNUM_LEFT, TNUM_HAT_L,
-	TNUM_RIGHT, -1, TNUM_HAT2_D, TNUM_HAT_R,
-	TNUM_MID, -1, TNUM_HAT2_R, TNUM_HAT_U,
-	TNUM_HAT2_L, -1, TNUM_HAT2_U, TNUM_HAT_D,
-	TNUM_TRIG, TNUM_LEFT, TNUM_RIGHT, -1, 
- 	TNUM_UP, TNUM_DOWN, TNUM_LEFT, TNUM_RIGHT };
-int joyaxis_text[4] = { TNUM_X1, TNUM_Y1, TNUM_X2, TNUM_Y2 };
-#endif
-int mouseaxis_text[2] = { TNUM_L_R, TNUM_F_B };
+char *joybutton_text[JOY_MAX_BUTTONS];
+char *joyaxis_text[JOY_MAX_AXES];
+int mouseaxis_text[3] = { TNUM_L_R, TNUM_F_B, "Z1" };
 int mousebutton_text[3] = { TNUM_LEFT, TNUM_RIGHT, TNUM_MID };
 char * mousebutton_textra[13] = { "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };//text for buttons above 3. -MPM
 
@@ -856,27 +847,43 @@ void kc_drawitem( kc_item *item, int is_current )
 			case BT_KEY:
 				strncpy( btext, key_text[item->value], 10 ); break;
 			case BT_MOUSE_BUTTON:
+
 				strncpy( btext, item->value<=3?Text_string[mousebutton_text[item->value]]:mousebutton_textra[item->value-3], 10 ); break;
 			case BT_MOUSE_AXIS:
 				strncpy( btext, Text_string[mouseaxis_text[item->value]], 10 ); break;
+// 			case BT_JOY_BUTTON:
+// //added/changed 9/6/98 Matt Mueller -> #endif
+// // #ifdef __LINUX__
+// // 				sprintf( btext, "J%d B%d", j_button[item->value].joydev, j_Get_joydev_button_number (item->value) );
+// // #else
+// 				if ( joybutton_text[item->value] !=-1 )
+// 					strncpy( btext, Text_string[ joybutton_text[item->value]  ], 10 );
+// 				else
+// 					sprintf( btext, "BTN%d", item->value );
+// // #endif
+// 				break;
+// 			case BT_JOY_AXIS:
+// //added/changed 9/6/98 Matt Mueller -> #endif
+// // #ifdef __LINUX__
+// // 				sprintf( btext, "J%d A%d", j_axis[item->value].joydev, j_Get_joydev_axis_number (item->value) );
+// // #else
+// 				strncpy( btext, Text_string[joyaxis_text[item->value]], 10 );
+// // #endif
+// 				break;
+
+
 			case BT_JOY_BUTTON:
-//added/changed 9/6/98 Matt Mueller -> #endif
-#ifdef __LINUX__
-				sprintf( btext, "J%d B%d", j_button[item->value].joydev, j_Get_joydev_button_number (item->value) );
-#else
-				if ( joybutton_text[item->value] !=-1 )
-					strncpy( btext, Text_string[ joybutton_text[item->value]  ], 10 );
+				if (joybutton_text[item->value])
+					strncpy(btext, joybutton_text[item->value], 10);
 				else
-					sprintf( btext, "BTN%d", item->value );
-#endif
+					sprintf(btext, "BTN%2d", item->value + 1);
+
 				break;
 			case BT_JOY_AXIS:
-//added/changed 9/6/98 Matt Mueller -> #endif
-#ifdef __LINUX__
-				sprintf( btext, "J%d A%d", j_axis[item->value].joydev, j_Get_joydev_axis_number (item->value) );
-#else
-				strncpy( btext, Text_string[joyaxis_text[item->value]], 10 );
-#endif
+				if (joyaxis_text[item->value])
+					strncpy(btext, joyaxis_text[item->value], 10);
+				else
+					sprintf(btext, "AXIS%2d", item->value + 1);
 				break;
 			case BT_INVERT:
 				strncpy( btext, Text_string[invert_text[item->value]], 10 ); break;
@@ -1009,9 +1016,9 @@ void kc_change_joybutton( kc_item * item )
 		kc_drawquestion( item );
 
 //added/changed 9/6/98 Matt Mueller + 9/19/98 Owen Evans-> #endif
-#ifdef __LINUX__
-		for (i = 0; i < j_num_buttons; i++) {
-#else
+// #ifdef __LINUX__
+// 		for (i = 0; i < j_num_buttons; i++) {
+// #else
 		if (Config_control_type==CONTROL_THRUSTMASTER_FCS)	{
 
 			int axis[JOY_NUM_AXES];
@@ -1022,12 +1029,12 @@ void kc_change_joybutton( kc_item * item )
 			if ( joy_get_button_state(15) ) code = 15;
 			if ( joy_get_button_state(19) ) code = 19;
 			for (i=0; i<4; i++ )	{
-#endif
+// #endif
 				if ( joy_get_button_state(i) )
 					code = i;
 			}
 //added/changed 9/6/98 Matt Mueller -> #endif
-#ifndef __LINUX__
+// #ifndef __LINUX__
 		} else if (Config_control_type==CONTROL_FLIGHTSTICK_PRO) {
 			for (i=4; i<20; i++ )	{
 				if ( joy_get_button_state(i)  )	{
@@ -1037,12 +1044,12 @@ void kc_change_joybutton( kc_item * item )
 			}
 		} else {
 //added/changed 3/7/99 Owen Evans (next line)
-                        for (i=0; i<MAX_BUTTONS; i++ )    {
+                        for (i=0; i<JOY_MAX_BUTTONS; i++ )    {
 				if ( joy_get_button_state(i) )
 					code = i;
 			}
 		}
-#endif
+// #endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1113,14 +1120,14 @@ void kc_change_mousebutton( kc_item * item )
 void kc_change_joyaxis( kc_item * item )
 {
 //added/changed 9/6/98 Matt Mueller -> #endif
-#ifdef __LINUX__
-	int axis[32];
-	int old_axis[32];
-#else
-//added/changed 3/7/99 Owen Evans -> #endif
+// #ifdef __LINUX__
+// 	int axis[32];
+// 	int old_axis[32];
+// #else
+// //added/changed 3/7/99 Owen Evans -> #endif
 	int axis[JOY_NUM_AXES];
 	int old_axis[JOY_NUM_AXES];
-#endif
+// #endif
 	int n,i,k;
 	ubyte code;
 
@@ -1154,12 +1161,12 @@ void kc_change_joyaxis( kc_item * item )
 		joystick_read_raw_axis( JOY_ALL_AXIS, axis );
 		
 //added/changed 9/6/98 Matt Mueller + 9/19/98 Owen Evans -> #endif
-#ifdef __LINUX__
-		for (i = 0; i < j_num_axes; i++)
-		{
-			if (abs (axis[i] - old_axis[i]) > ((j_axis[i].max_val - j_axis[i].min_val) / 32))
-			{
-#else
+// #ifdef __LINUX__
+// 		for (i = 0; i < j_num_axes; i++)
+// 		{
+// 			if (abs (axis[i] - old_axis[i]) > ((j_axis[i].max_val - j_axis[i].min_val) / 32))
+// 			{
+// #else
 //added/changed 3/17/99 Owen Evans
 //added/edited on 9/6/99 by Victor Rachels for better config
 //-unneeded-           joy_get_cal_vals(temp_min, temp_center, temp_max);
@@ -1169,7 +1176,7 @@ void kc_change_joyaxis( kc_item * item )
 					if(axis[i])    //-was- if (abs(axis[i] - old_axis[i]) > ((temp_max[i] - temp_min[i]) / 32))
 //end this section addition/edit - VR
 					{
-#endif
+// #endif
 						code = i;
 					}
                    			old_axis[i] = axis[i];
@@ -1316,7 +1323,7 @@ void kconfig(int n, char * title)
 }
 
 //added/changed 9/6/98 Matt Mueller -> #endif
-#ifndef __LINUX__
+// #ifndef __LINUX__
 void kconfig_read_fcs( int raw_axis )
 {
 	int raw_button, button, axis_min[JOY_NUM_AXES], axis_center[JOY_NUM_AXES], axis_max[JOY_NUM_AXES];
@@ -1373,7 +1380,7 @@ void kconfig_set_fcs_button( int btn, int button )
 	joy_set_btn_values( btn, state, time_down, downcount, upcount );
 					
 }
-#endif
+// #endif
 
 #define	PH_SCALE	8
 //added/changed 9/6/98 Matt Mueller -> #endif
@@ -1385,11 +1392,11 @@ void kconfig_set_fcs_button( int btn, int button )
 fix	LastReadTime = 0;
 
 //added/changed 9/6/98 Matt Mueller -> #endif
-#ifdef __LINUX__
-fix	joy_axis[32];
-#else
+// #ifdef __LINUX__
+// fix	joy_axis[32];
+// #else
 fix	joy_axis[JOY_NUM_AXES];
-#endif
+// #endif
 		
 ubyte 			kc_use_external_control = 0;
 ubyte				kc_enable_external_control = 1;
@@ -1561,11 +1568,11 @@ void controls_read_all()
 	fix ctime;
 	fix mouse_axis[2];
 //added/changed 9/6/98 Matt Mueller -> #endif
-#ifdef __LINUX__
-	int raw_joy_axis[32];
-#else
+// #ifdef __LINUX__
+// 	int raw_joy_axis[32];
+// #else
 	int raw_joy_axis[JOY_NUM_AXES];
-#endif
+// #endif
 	int mouse_buttons;
 	fix k0, k1, k2, k3, kp;
 	fix k4, k5, k6, k7, kh;
@@ -1610,21 +1617,21 @@ void controls_read_all()
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 		
 //added/changed 9/6/98 Matt Mueller -> #endif
-#ifdef __LINUX__
-		for (i=0; i < j_num_axes; i++ )  {
-#else
+// #ifdef __LINUX__
+// 		for (i=0; i < j_num_axes; i++ )  {
+// #else
 //added/changed 3/7/99 Owen Evans (next line)
                 for (i=0; i<JOY_NUM_AXES; i++ )    {
 			if (channel_masks&(1<<i))	{
-#endif
+// #endif
 				int joy_null_value = 10;
 
 //added/changed 9/6/98 Matt Mueller -> #endif
-#ifndef __LINUX__
+// #ifndef __LINUX__
 				if ( (i==3) && (Config_control_type==CONTROL_THRUSTMASTER_FCS) )	{
 					kconfig_read_fcs( raw_joy_axis[i] );
 				} else {
-#endif
+// #endif
 					raw_joy_axis[i] = joy_get_scaled_reading( raw_joy_axis[i], i );
 	
 					if (kc_joystick[23].value==i)		// If this is the throttle
@@ -1639,20 +1646,20 @@ void controls_read_all()
 					joy_axis[i]	= (raw_joy_axis[i]*FrameTime)/128;	
 				}
 //added/changed 9/6/98 Matt Mueller -> #endif
-#ifndef __LINUX__
+// #ifndef __LINUX__
 			} else {
 				joy_axis[i] = 0;
 			}
 		}
-#endif
+// #endif
 		use_joystick=1;
 	} else {
 //added/changed 9/6/98 Matt Mueller -> #endif
-#ifdef __LINUX__
-		for (i=0; i<j_num_axes; i++ )
-#else
+// #ifdef __LINUX__
+// 		for (i=0; i<j_num_axes; i++ )
+// #else
                 for (i=0; i<JOY_NUM_AXES; i++ )
-#endif
+// #endif
 			joy_axis[i] = 0;
 		use_joystick=0;
 	}

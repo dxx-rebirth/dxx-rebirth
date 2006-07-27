@@ -374,19 +374,7 @@ RetrySelection:
         kc_set_controls();
         Config_control_type = control_choice;
 
-        Joy_is_Sidewinder = 0;
-//added/edited 9/03/98 by Victor Rachels to add Sidewinder
-        if ( (Config_control_type==CONTROL_THRUSTMASTER_FCS) &&
-             (nm_messagebox(NULL, 2, "Yes", "No", "Is your joystick a sidewinder?")==0) )
-         {
-           Joy_is_Sidewinder = 1;
-           kconfig_settings[3][21] = 0x2;
-           kc_set_controls();
-         }
-  
-
-
-        if ( Config_control_type==CONTROL_THRUSTMASTER_FCS && !Joy_is_Sidewinder)     {
+        if ( Config_control_type==CONTROL_THRUSTMASTER_FCS)     {
 //end addition/edit - Victor Rachels
                 i = nm_messagebox( TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, TXT_FCS );
 		if (i==0) goto RetrySelection;
@@ -660,8 +648,6 @@ int read_player_d1x(const char *filename)
 
                 while(!strstr(word,"END") && !feof(f))
                  {
-                    if(!strcmp(word,"JOY IS SIDEWINDER"))
-                     sscanf(line,"%i",&Joy_is_Sidewinder);
                     if(!strcmp(word,"DEADZONE"))
                      sscanf(line,"%i",&joy_deadzone);
                    free(line); free(word);
@@ -931,7 +917,6 @@ int write_player_d1x(const char *filename)
           fprintf(fout,"[end]\n");
 
           fprintf(fout,"[joystick]\n");
-          fprintf(fout,"joy is sidewinder=%i\n",Joy_is_Sidewinder);
           fprintf(fout,"deadzone=%i\n",joy_deadzone);
           fprintf(fout,"[end]\n");
 
@@ -1103,7 +1088,6 @@ int write_player_d1x(const char *filename)
                else if (strstr(line,"JOYSTICK"))
                 {
                   fprintf(fout,"[joystick]\n");
-                  fprintf(fout,"joy is sidewinder=%i\n",Joy_is_Sidewinder);
                   fprintf(fout,"deadzone=%i\n",joy_deadzone);
                   fprintf(fout,"[end]\n");
                    while(!strstr(line,"END")&&!feof(fin))
@@ -1154,7 +1138,6 @@ int write_player_d1x(const char *filename)
            if(!(printed&JOYSTICK))
             {
               fprintf(fout,"[joystick]\n");
-              fprintf(fout,"joy is sidewinder=%i\n",Joy_is_Sidewinder);
               fprintf(fout,"deadzone=%i\n",joy_deadzone);
               fprintf(fout,"[end]\n");
             }

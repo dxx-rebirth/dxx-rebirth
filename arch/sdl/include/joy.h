@@ -36,8 +36,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define JOY_BIOS_READINGS 			4
 #define JOY_FRIENDLY_READINGS 	8
 
-#define MAX_AXES	32
-#define MAX_BUTTONS	64
+#define JOY_MAX_AXES	32
+#define JOY_MAX_BUTTONS	64
 
 #define JOY_NUM_AXES 4
 
@@ -87,8 +87,8 @@ extern int j_num_buttons;
 extern int joy_deadzone;
 
 extern joystick_device j_joystick[MAX_JOY_DEVS];
-extern joystick_axis j_axis[MAX_AXES];
-extern joystick_button j_button[MAX_BUTTONS];
+extern joystick_axis j_axis[JOY_MAX_AXES];
+extern joystick_button j_button[JOY_MAX_BUTTONS];
 
 //==========================================================================
 // The following 3 routines can be used to zero in on better joy
