@@ -311,6 +311,7 @@ sdllibs = ['SDL']
 if sys.platform == 'win32':
 	print "compiling on Windows"
 	osdef = '__WINDOWS__'
+	osasmdef = 'win32'
 	env.Append(CPPDEFINES = ['__WINDOWS__'])
 	env.Append(CPPPATH = ['arch/win32/include'])
 	ogldefines = ['SDL_GL', 'OGL_RUNTIME_LOAD', 'OGL']
@@ -322,6 +323,7 @@ if sys.platform == 'win32':
 else:
 	print "compiling on *NIX"
 	osdef = '__LINUX__'
+	osasmdef = 'elf'
 	env.Append(CPPDEFINES = ['__LINUX__', 'WANT_AWE32'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL', 'OGL']
@@ -362,8 +364,8 @@ if (no_asm == 0) and (sdl_only == 1):
 	env.Append(CPPDEFINES = ['ASM_VECMAT'])
 	Object(['texmap/tmappent.S', 'texmap/tmapppro.S'], AS='gcc', ASFLAGS='-D' + str(osdef) + ' -c ')
 	env.Replace(AS = 'nasm')
-	env.Append(ASCOM = ' -f elf -d' + str(osdef) + ' -Itexmap/ ')
-	common_sources = asm_sources + common_sources + ['texmap/tmappent.c', 'texmap/tmapppro.c']
+	env.Append(ASCOM = ' -f ' + str(osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
+	common_sources = asm_sources + common_sources + ['texmap/tmappent.o', 'texmap/tmapppro.o']
 else:
 	env.Append(CPPDEFINES = ['NO_ASM'])
 	common_sources = noasm_sources + common_sources
