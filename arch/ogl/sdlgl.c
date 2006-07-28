@@ -19,7 +19,9 @@ int ogl_init_window(int x, int y){
 	if (gl_initialized){
 		if (x==curx && y==cury && curfull==ogl_fullscreen)
 			return 0;
+#ifdef __LINUX__
 		if (ogl_fullscreen || curfull)
+#endif
 			ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
 	SDL_WM_SetCaption(DESCENT_VERSION " " D1X_DATE, "Descent");
