@@ -306,9 +306,7 @@ void show_cmdline_help() {
 	printf( "  -font1024 <f>   %s\n", "font to use for res 1024x* and above (default pc8x16.fnt)");
 	printf( "  -tmap <t>       %s\n","select texmapper to use (c,fp,i386,pent,ppro)");
 	printf( "  -mouselook      %s\n","Activate fast mouselook. Works in singleplayer only"); // ZICO - added for mouselook
-#ifdef __LINUX__
 	printf( "  -grabmouse      %s\n","Keeps the mouse from wandering out of the window"); // ZICO - added for mouse capture
-#endif
 	printf( "\n");
 	printf( "\n%s\n",TXT_PRESS_ANY_KEY3);
 	getch();
@@ -769,7 +767,17 @@ int main(int argc,char **argv)
 			#ifdef EDITOR
 				keyd_editor_mode = 0;
 			#endif
+
+			/* keep the mouse from wandering in SDL */
+			if (FindArg("-grabmouse"))
+				SDL_WM_GrabInput(SDL_GRAB_ON);
+
 			game();
+
+			/* give control back to the WM */
+			if (FindArg("-grabmouse"))
+				SDL_WM_GrabInput(SDL_GRAB_OFF);
+
 			if ( Function_mode == FMODE_MENU )
 				songs_play_song( SONG_TITLE, 1 );
 			break;

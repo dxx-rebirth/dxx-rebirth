@@ -845,10 +845,6 @@ stop_time();
 		}
                 gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 		gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-#ifdef __LINUX__
-	if (FindArg("-grabmouse"))
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
-#endif
 		break;
 	case SCREEN_GAME:
 		if (grd_curscreen->sc_mode != VR_screen_mode)
@@ -909,10 +905,6 @@ stop_time();
 		else
 			gr_init_sub_canvas( &VR_screen_pages[1], game_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 }
-#ifdef __LINUX__
-	if (FindArg("-grabmouse"))
-		SDL_WM_GrabInput(SDL_GRAB_ON);
-#endif
 		break;
 	#ifdef EDITOR
 	case SCREEN_EDITOR:
@@ -1984,6 +1976,10 @@ int do_game_pause(int allow_menu)
 
 	show_boxed_message(TXT_PAUSE);
 
+	/* give control back to the WM */
+	if (FindArg("-grabmouse"))
+	    SDL_WM_GrabInput(SDL_GRAB_OFF);
+
 	while (paused) {
 
 		key = key_getch();
@@ -2027,6 +2023,10 @@ int do_game_pause(int allow_menu)
 		}
 
 	}
+
+	/* keep the mouse from wandering in SDL */
+	if (FindArg("-grabmouse"))
+	    SDL_WM_GrabInput(SDL_GRAB_ON);
 
 	game_flush_inputs();
 
