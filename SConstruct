@@ -19,7 +19,7 @@ D1XDATAPATH = '\\"\\"'
 
 # command-line parms
 debug = int(ARGUMENTS.get('debug', 0))
-no_release = int(ARGUMENTS.get('no_release', 0))
+profiler = int(ARGUMENTS.get('profiler', 0))
 sdl_only = int(ARGUMENTS.get('sdl_only', 0))
 no_asm = int(ARGUMENTS.get('no_asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
@@ -300,7 +300,7 @@ noasm_sources = [
 
 # flags and stuff for all platforms
 env = Environment(ENV = os.environ)
-env.Append(CPPFLAGS = '-O2 -Wall -funsigned-char ')
+env.Append(CPPFLAGS = '-O2 -Wall -funsigned-char')
 env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', D1XDATAPATH)])
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
 env.Append(CPPPATH = ['include', 'main', 'arch/sdl/include'])
@@ -351,12 +351,12 @@ else:
 if (debug == 1):
 	print "including: DEBUG"
 else:
-	env.Append(CPPDEFINES = ['NDEBUG'])
+	env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
 
-# release?
-if (no_release == 0):
-	print "including: RELEASE"
-	env.Append(CPPDEFINES = ['RELEASE'])
+# profiler?
+if (profiler == 1):
+	env.Append(CPPFLAGS = ' -pg ')
+	lflags = ' -pg '
 
 # assembler code?
 if (no_asm == 0) and (sdl_only == 1):
@@ -389,9 +389,9 @@ Help("""
 	Type 'scons -c' to clean up.
 	Extra options (add them to command line, like 'scons extraoption=value'):
 	'debug=1' build DEBUG binary which includes asserts, debugging output, cheats and more output
-	'no_release=1' don't build RELEASE binary - gives debug/editor things
 	'sdl_only=1' don't include OpenGL, use SDL-only instead
 	'no_asm=1' don't use ASSEMBLER (only with sdl_only=1 - NOT recommended, slow)
+	'profiler=1' do profiler build
 	'editor=1' build editor !EXPERIMENTAL!
 	""")
 
