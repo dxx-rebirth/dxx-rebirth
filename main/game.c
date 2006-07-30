@@ -809,7 +809,6 @@ void game_init_render_buffers(u_int32_t screen_mode, int render_w, int render_h,
 //mode if cannot init requested mode)
 int set_screen_mode(int sm)
 {
-stop_time();
 #ifndef OGL //ogl needs Screen_mode set correctly, or menus do not work.
 	if ( (sm==SCREEN_MENU) && (Screen_mode==SCREEN_GAME) && VR_compatible_menus )	{
 		sm = SCREEN_GAME;
