@@ -541,6 +541,7 @@ int g3_draw_sphere(g3s_point *pnt,fix rad){
 	int c;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
+	glDisable(GL_CULL_FACE); // ZICO - to draw sheres on automap correctly
 //	glPointSize(f2glf(rad));
 	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
 //	glBegin(GL_POINTS);
