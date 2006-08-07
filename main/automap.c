@@ -59,12 +59,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "gamefont.h"
 #ifdef NETWORK
+#include "multi.h"
 #include "network.h"
 #endif
 #include "kconfig.h"
-#ifdef NETWORK
-#include "multi.h"
-#endif
 #include "endlevel.h"
 #include "text.h"
 #include "gauges.h"
@@ -97,13 +95,7 @@ typedef struct Edge_info {
 	ubyte num_faces;    // 1 bytes  // 19 bytes...
 } Edge_info;
 
-// OLD BUT GOOD -- #define MAX_EDGES_FROM_VERTS(v)   ((v*5)/2)
-// THE following was determined by John by loading levels 1-14 and recording
-// numbers on 10/26/94.
-//#define MAX_EDGES_FROM_VERTS(v)   (((v)*21)/10)
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
-//#define MAX_EDGES (MAX_EDGES_FROM_VERTS(MAX_VERTICES))
-
 #define MAX_EDGES 6000  // Determined by loading all the levels by John & Mike, Feb 9, 1995
 
 #define K_WALL_NORMAL_COLOR     BM_XRGB(29, 29, 29 )
@@ -156,123 +148,118 @@ static int Highest_edge_index = -1;
 static Edge_info Edges[MAX_EDGES];
 static short DrawingListBright[MAX_EDGES];
 
-//static short DrawingListBright[MAX_EDGES];
-//static short Edge_used_list[MAX_EDGES];				//which entries in edge_list have been used
-
 // Map movement defines
 #define PITCH_DEFAULT 9000
 #define ZOOM_DEFAULT i2f(20*10)
 #define ZOOM_MIN_VALUE i2f(20*5)
 #define ZOOM_MAX_VALUE i2f(20*100)
 
-#define SLIDE_SPEED 				(350)
-#define ZOOM_SPEED_FACTOR		500	//(1500)
+#define SLIDE_SPEED 			(350)
+#define ZOOM_SPEED_FACTOR		(500)	//(1500)
 #define ROT_SPEED_DIVISOR		(115000)
 
-#ifndef AUTOMAP_DIRECT_RENDER
 // Screen anvas variables
+#ifndef AUTOMAP_DIRECT_RENDER
 static int current_page=0;
+#endif /* AUTOMAP_DIRECT_RENDER */
 static grs_canvas Pages[2];
 static grs_canvas DrawingPages[2];
-#endif /* AUTOMAP_DIRECT_RENDER */
 
 #define Page Pages[0]
 #define DrawingPage DrawingPages[0]
 
 // Flags
-static int Automap_cheat = 0;		// If set, show everything
+static int Automap_cheat = 0; // If set, show everything
 
 // Rendering variables
 static fix Automap_zoom = 0x9000;
 static vms_vector view_target;
-static fix Automap_farthest_dist = (F1_0 * 20 * 50);		// 50 segments away
+static fix Automap_farthest_dist = (F1_0 * 20 * 50); // 50 segments away
 static vms_matrix	ViewMatrix;
 static fix ViewDist=0;
 
-//	Function Prototypes
+// Function Prototypes
 void adjust_segment_limit(int SegmentLimit);
 void draw_all_edges(void);
 void automap_build_edge_list(void);
 
-#define	MAX_DROP_MULTI		2
+#define	MAX_DROP_MULTI	2
 #define	MAX_DROP_SINGLE	9
 
-vms_vector MarkerPoint[NUM_MARKERS];		//these are only used in multi.c, and I'd get rid of them there, but when I tried to do that once, I caused some horrible bug. -MT
+vms_vector MarkerPoint[NUM_MARKERS]; //these are only used in multi.c, and I'd get rid of them there, but when I tried to do that once, I caused some horrible bug. -MT
 int HighlightMarker=-1;
 char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
 char MarkerOwner[NUM_MARKERS][CALLSIGN_LEN+1];
 float MarkerScale=2.0;
 int	MarkerObject[NUM_MARKERS];
 
-extern vms_vector Matrix_scale;		//how the matrix is currently scaled
-
+extern vms_vector Matrix_scale; //how the matrix is currently scaled
 
 # define automap_draw_line g3_draw_line
-
 
 // -------------------------------------------------------------
 
 void DrawMarkerNumber (int num)
- {
-  int i;
-  g3s_point BasePoint,FromPoint,ToPoint;
+{
+	int i;
+	g3s_point BasePoint,FromPoint,ToPoint;
 
-  float ArrayX[10][20]={ {-.25, 0.0, 0.0, 0.0, -1.0, 1.0},
-                         {-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0},
-                         {-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 0.0, 1.0},
-                         {-1.0, -1.0, -1.0, 1.0, 1.0, 1.0},
-                         {-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0},
-                         {-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0},
-                         {-1.0, 1.0, 1.0, 1.0},
-                         {-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0},
-                         {-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0}
+	float ArrayX[10][20]={ 	{-.25, 0.0, 0.0, 0.0, -1.0, 1.0},
+				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0},
+				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 0.0, 1.0},
+				{-1.0, -1.0, -1.0, 1.0, 1.0, 1.0},
+				{-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0},
+				{-1.0, 1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, -1.0, 1.0},
+				{-1.0, 1.0, 1.0, 1.0},
+				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, 1.0},
+				{-1.0, 1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0}
+				};
 
-                       };
-  float ArrayY[10][20]={ {.75, 1.0, 1.0, -1.0, -1.0, -1.0},
-                         {1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, -1.0, -1.0},
-                         {1.0, 1.0, 1.0, -1.0, -1.0, -1.0, 0.0, 0.0},
-                         {1.0, 0.0, 0.0, 0.0, 1.0, -1.0},
-                         {1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, -1.0, -1.0},
-                         {1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 0.0, 0.0, 0.0},
-                         {1.0, 1.0, 1.0, -1.0},
-                         {1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 0.0, 0.0},
-                         {1.0, 1.0, 1.0, -1.0, 0.0, 0.0, 0.0, 1.0}
-                       };
-  int NumOfPoints[]={6,10,8,6,10,10,4,10,8};
-
-  for (i=0;i<NumOfPoints[num];i++)
-   {
-    ArrayX[num][i]*=MarkerScale;
-    ArrayY[num][i]*=MarkerScale;
-   }
-
-  if (num==HighlightMarker)
-   gr_setcolor (White_63);
-  else
-   gr_setcolor (Blue_48);
-
-
-  g3_rotate_point(&BasePoint,&Objects[MarkerObject[(Player_num*2)+num]].pos);
-
-  for (i=0;i<NumOfPoints[num];i+=2)
-   {
-
-    FromPoint=BasePoint;
-    ToPoint=BasePoint;
-
-    FromPoint.p3_x+=fixmul ((fl2f (ArrayX[num][i])),Matrix_scale.x);
-    FromPoint.p3_y+=fixmul ((fl2f (ArrayY[num][i])),Matrix_scale.y);
-    g3_code_point (&FromPoint);
-    g3_project_point (&FromPoint);
-
-    ToPoint.p3_x+=fixmul ((fl2f (ArrayX[num][i+1])),Matrix_scale.x);
-    ToPoint.p3_y+=fixmul ((fl2f (ArrayY[num][i+1])),Matrix_scale.y);
-    g3_code_point (&ToPoint);
-    g3_project_point (&ToPoint);
-
-	automap_draw_line(&FromPoint, &ToPoint);
-   }
- }
+	float ArrayY[10][20]={	{.75, 1.0, 1.0, -1.0, -1.0, -1.0},
+				{1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, -1.0, -1.0},
+				{1.0, 1.0, 1.0, -1.0, -1.0, -1.0, 0.0, 0.0},
+				{1.0, 0.0, 0.0, 0.0, 1.0, -1.0},
+				{1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0, -1.0, -1.0},
+				{1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 0.0, 0.0, 0.0},
+				{1.0, 1.0, 1.0, -1.0},
+				{1.0, 1.0, 1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 0.0, 0.0},
+				{1.0, 1.0, 1.0, -1.0, 0.0, 0.0, 0.0, 1.0}
+				};
+	int NumOfPoints[]={6,10,8,6,10,10,4,10,8};
+	
+	for (i=0;i<NumOfPoints[num];i++)
+	{
+		ArrayX[num][i]*=MarkerScale;
+		ArrayY[num][i]*=MarkerScale;
+	}
+	
+	if (num==HighlightMarker)
+		gr_setcolor (White_63);
+	else
+		gr_setcolor (Blue_48);
+	
+	
+	g3_rotate_point(&BasePoint,&Objects[MarkerObject[(Player_num*2)+num]].pos);
+	
+	for (i=0;i<NumOfPoints[num];i+=2)
+	{
+	
+		FromPoint=BasePoint;
+		ToPoint=BasePoint;
+		
+		FromPoint.p3_x+=fixmul ((fl2f (ArrayX[num][i])),Matrix_scale.x);
+		FromPoint.p3_y+=fixmul ((fl2f (ArrayY[num][i])),Matrix_scale.y);
+		g3_code_point (&FromPoint);
+		g3_project_point (&FromPoint);
+		
+		ToPoint.p3_x+=fixmul ((fl2f (ArrayX[num][i+1])),Matrix_scale.x);
+		ToPoint.p3_y+=fixmul ((fl2f (ArrayY[num][i+1])),Matrix_scale.y);
+		g3_code_point (&ToPoint);
+		g3_project_point (&ToPoint);
+	
+		automap_draw_line(&FromPoint, &ToPoint);
+	}
+}
 
 void DropMarker (int player_marker_num)
 {
@@ -297,14 +284,14 @@ extern char guidebot_name[];
 
 void DropBuddyMarker(object *objp)
 {
-	int	marker_num;
+	int marker_num;
 
-	//	Find spare marker slot.  "if" code below should be an assert, but what if someone changes NUM_MARKERS or MAX_CROP_SINGLE and it never gets hit?
+	// Find spare marker slot.  "if" code below should be an assert, but what if someone changes NUM_MARKERS or MAX_CROP_SINGLE and it never gets hit?
 	marker_num = MAX_DROP_SINGLE+1;
 	if (marker_num > NUM_MARKERS-1)
 		marker_num = NUM_MARKERS-1;
 
-   sprintf(MarkerMessage[marker_num], "RIP: %s",guidebot_name);
+	sprintf(MarkerMessage[marker_num], "RIP: %s",guidebot_name);
 
 	MarkerPoint[marker_num] = objp->pos;
 
@@ -324,9 +311,9 @@ void DrawMarkers ()
 	g3s_point sphere_point;
 
 	if (Game_mode & GM_MULTI)
-   	maxdrop=2;
+		maxdrop=2;
 	else
-   	maxdrop=9;
+		maxdrop=9;
 
 	for (i=0;i<maxdrop;i++)
 		if (MarkerObject[(Player_num*2)+i] != -1) {
@@ -349,34 +336,34 @@ void DrawMarkers ()
 		cyc-=2;
 
 	if (cyc>43)
-	 {
+	{
 		cyc=43;
 		cycdir=0;
-	 }
+	}
 	else if (cyc<10)
-	 {
+	{
 		cyc=10;
 		cycdir=1;
-	 }
+	}
 
- }
+}
 
 void ClearMarkers()
- {
+{
 	int i;
 
 	for (i=0;i<NUM_MARKERS;i++) {
 		MarkerMessage[i][0]=0;
 		MarkerObject[i]=-1;
 	}
- }
+}
 
 void automap_clear_visited()	
 {
 	int i;
 	for (i=0; i<MAX_SEGMENTS; i++ )
 		Automap_visited[i] = 0;
-			  ClearMarkers();
+		ClearMarkers();
 }
 
 grs_canvas *name_canv_left,*name_canv_right;
@@ -413,7 +400,6 @@ void draw_player( object * obj )
 	automap_draw_line(&sphere_point, &arrow_point);
 }
 
-int AutomapHires;
 void draw_automap()
 {
 	int i;
@@ -423,13 +409,7 @@ void draw_automap()
 	g3s_point sphere_point;
 
 #ifndef AUTOMAP_DIRECT_RENDER
-	if (!AutomapHires) {
-		current_page ^= 1;
-		gr_set_current_canvas(&DrawingPages[current_page]);
-	}
-	else {
-		gr_set_current_canvas(&DrawingPage);
-	}
+	gr_set_current_canvas(&DrawingPage);
 #endif
 
 	gr_clear_canvas(BM_XRGB(0,0,0));
@@ -440,8 +420,6 @@ void draw_automap()
 	vm_vec_scale_add(&viewer_position,&view_target,&ViewMatrix.fvec,-ViewDist );
 
 	g3_set_view_matrix(&viewer_position,&ViewMatrix,Automap_zoom);
-
-//	mprintf((0, "grd_curcanv->cv_bitmap.bm_data= %x\n", grd_curcanv->cv_bitmap.bm_data));
 
 	draw_all_edges();
 
@@ -459,7 +437,7 @@ void draw_automap()
 	DrawMarkers();
 	
 	if (HighlightMarker>-1 && MarkerMessage[HighlightMarker][0]!=0)
-	 {
+	{
 		char msg[10+MARKER_MESSAGE_LEN+1];
 
 		sprintf(msg,"Marker %d: %s",HighlightMarker+1,MarkerMessage[(Player_num*2)+HighlightMarker]);
@@ -467,7 +445,7 @@ void draw_automap()
 		gr_setcolor (Red_48);
 		
 		modex_printf(5,20,msg,SMALL_FONT,Font_color_20);
-	 }
+	}
 				
 	// Draw player(s)...
 #ifdef NETWORK
@@ -515,19 +493,14 @@ void draw_automap()
 
 	g3_end_frame();
 
-	gr_bitmapm(AutomapHires?10:5, AutomapHires?10:5, &name_canv_left->cv_bitmap);
-	gr_bitmapm(grd_curcanv->cv_bitmap.bm_w-(AutomapHires?10:5)-name_canv_right->cv_bitmap.bm_w,AutomapHires?10:5,&name_canv_right->cv_bitmap);
+	gr_bitmapm(10, 10, &name_canv_left->cv_bitmap);
+	gr_bitmapm(grd_curcanv->cv_bitmap.bm_w-10-name_canv_right->cv_bitmap.bm_w,10,&name_canv_right->cv_bitmap);
 
 #ifdef OGL
 	ogl_swap_buffers();
 #else
 #ifndef AUTOMAP_DIRECT_RENDER
-	if (!AutomapHires)
-		gr_show_canvas( &Pages[current_page] );
-	else {
-		//gr_bm_ubitblt( Page.cv_bitmap.bm_w, Page.cv_bitmap.bm_h, Page.cv_bitmap.bm_x, Page.cv_bitmap.bm_y, 0, 0, &Page.cv_bitmap, &VR_screen_pages[0].cv_bitmap );
-		gr_bm_ubitblt( Page.cv_bitmap.bm_w, Page.cv_bitmap.bm_h, Page.cv_bitmap.bm_x, Page.cv_bitmap.bm_y, 0, 0, &Page.cv_bitmap, &grd_curscreen->sc_canvas.cv_bitmap );
-	}
+	gr_bm_ubitblt( Page.cv_bitmap.bm_w, Page.cv_bitmap.bm_h, Page.cv_bitmap.bm_x, Page.cv_bitmap.bm_y, 0, 0, &Page.cv_bitmap, &grd_curscreen->sc_canvas.cv_bitmap );
 	gr_update();
 #endif
 #endif
@@ -539,11 +512,8 @@ void draw_automap()
 
 
 //print to canvas & double height
-grs_canvas *print_to_canvas(char *s,grs_font *font, int fc, int bc, int double_flag)
+grs_canvas *print_to_canvas(char *s,grs_font *font, int fc, int bc)
 {
-	int y;
-	ubyte *data;
-	int rs;
 	grs_canvas *temp_canv;
 	grs_font *save_font;
 	int w,h,aw;
@@ -553,30 +523,17 @@ grs_canvas *print_to_canvas(char *s,grs_font *font, int fc, int bc, int double_f
 
 	save_font = grd_curcanv->cv_font;
 	gr_set_curfont(font);					//set the font we're going to use
-	gr_get_string_size(s,&w,&h,&aw);		//now get the string size
+	gr_get_string_size(s,&w,&h,&aw);			//now get the string size
 	gr_set_curfont(save_font);				//restore real font
 
-	//temp_canv = gr_create_canvas(font->ft_w*strlen(s),font->ft_h*2);
 	temp_canv = gr_create_canvas(w,font->ft_h*2);
 
 	gr_set_current_canvas(temp_canv);
 	gr_set_curfont(font);
 	temp_canv->cv_bitmap.bm_flags |= BM_FLAG_TRANSPARENT;
-	gr_clear_canvas(TRANSPARENCY_COLOR);						//trans color
+	gr_clear_canvas(TRANSPARENCY_COLOR);			//trans color
 	gr_set_fontcolor(fc,bc);
 	gr_printf(0,0,s);
-
-	//now double it, since we're drawing to 400-line modex screen
-
-	if (double_flag) {
-		data = temp_canv->cv_bitmap.bm_data;
-		rs = temp_canv->cv_bitmap.bm_rowsize;
-
-		for (y=temp_canv->cv_bitmap.bm_h/2;y--;) {
-			memcpy(data+(rs*y*2),data+(rs*y),temp_canv->cv_bitmap.bm_w);
-			memcpy(data+(rs*(y*2+1)),data+(rs*y),temp_canv->cv_bitmap.bm_w);
-		}
-	}
 
 	gr_set_current_canvas(save_canv);
 
@@ -588,7 +545,7 @@ void modex_printf(int x,int y,char *s,grs_font *font,int color)
 {
 	grs_canvas *temp_canv;
 
-	temp_canv = print_to_canvas(s, font, color, -1, !AutomapHires);
+	temp_canv = print_to_canvas(s, font, color, -1);
 
 	gr_bitmapm(x,y,&temp_canv->cv_bitmap);
 
@@ -621,34 +578,28 @@ void create_name_canv()
 	strcat(name_level_right, Current_level_name);
 
 	gr_set_fontcolor(Green_31,-1);
-	name_canv_left = print_to_canvas(name_level_left, SMALL_FONT, Green_31, -1, !AutomapHires);
-	name_canv_right = print_to_canvas(name_level_right,SMALL_FONT, Green_31, -1, !AutomapHires);
+	name_canv_left = print_to_canvas(name_level_left, SMALL_FONT, Green_31, -1);
+	name_canv_right = print_to_canvas(name_level_right,SMALL_FONT, Green_31, -1);
 
 }
 
-
 extern void GameLoop(int, int );
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
-
-int Automap_active = 0;
-
-#ifdef RELEASE
-#define MAP_BACKGROUND_FILENAME (AutomapHires?"\x01MAPB.PCX":"\x01MAP.PCX")	//load only from hog file
-#else
-#define MAP_BACKGROUND_FILENAME ((AutomapHires && cfexist("mapb.pcx"))?"MAPB.PCX":"MAP.PCX")
-#endif
-
-int Automap_always_hires=0;
 extern int MenuHiresAvailable;
-
 extern int Current_display_mode;
-
 u_int32_t automap_mode = SM(640,480);
 int automap_width = 640;
 int automap_height = 480;
 int automap_use_game_res=1; // ZICO - should be better
 int nice_automap = 1; // ZICO - should be better (command-line switches deactivated)
+int Automap_active = 0;
+int Automap_always_hires; // ZICO - dummy
 
+#ifdef RELEASE
+#define MAP_BACKGROUND_FILENAME ((VR_render_buffer[0].cv_w>=640)?"\x01MAPB.PCX":"\x01MAP.PCX")	//load only from hog file
+#else
+#define MAP_BACKGROUND_FILENAME (((VR_render_buffer[0].cv_w>=640) && cfexist("mapb.pcx"))?"MAPB.PCX":"MAP.PCX")
+#endif
 #define RESCALE_X(x) ((x) * automap_width / 640)
 #define RESCALE_Y(y) ((y) * automap_height / 480)
 
@@ -664,7 +615,7 @@ void do_automap( int key_code )	{
 #endif
 	int c, marker_num;
 	fix entry_time;
-	int pause_game=1;		// Set to 1 if everything is paused during automap...No pause during net.
+	int pause_game=1; // Set to 1 if everything is paused during automap...No pause during net.
 	fix t1, t2;
 	control_info saved_control_info;
 	grs_bitmap Automap_background;
@@ -672,9 +623,7 @@ void do_automap( int key_code )	{
 	int SegmentLimit = 1;
 	ubyte pal[256*3];
 	char maxdrop;
-#ifndef AUTOMAP_DIRECT_RENDER
 	int must_free_canvas=0;
-#endif
 	
 	Automap_active = 1;
 
@@ -690,103 +639,61 @@ void do_automap( int key_code )	{
 		digi_pause_digi_sounds();
 	}
 
-	Max_edges = min(MAX_EDGES_FROM_VERTS(Num_vertices),MAX_EDGES);			//make maybe smaller than max
+	Max_edges = min(MAX_EDGES_FROM_VERTS(Num_vertices),MAX_EDGES); //make maybe smaller than max
 
 	mprintf( (0, "Num_vertices=%d, Max_edges=%d, (MAX:%d)\n", Num_vertices, Max_edges, MAX_EDGES ));
 	mprintf( (0, "Allocated %d K for automap edge list\n", (sizeof(Edge_info)+sizeof(short))*Max_edges/1024 ));
 
-	if ((Current_display_mode!=0 && Current_display_mode!=2) || (Automap_always_hires && MenuHiresAvailable)) {
-		//edit 4/23/99 Matt Mueller - don't switch res unless we need to
-		if (grd_curscreen->sc_mode != AUTOMAP_MODE)
-			gr_set_mode( AUTOMAP_MODE );
-		else
-			gr_set_current_canvas(NULL);
-		//end edit -MM
-		automap_width=grd_curscreen->sc_canvas.cv_bitmap.bm_w;
-		automap_height=grd_curscreen->sc_canvas.cv_bitmap.bm_h;
-		AutomapHires = 1;
-	}
-	else {
-		gr_set_mode( SM(320, 400));
-		AutomapHires = 0;
-	}
+	if (grd_curscreen->sc_mode != AUTOMAP_MODE)
+		gr_set_mode( AUTOMAP_MODE );
+	else
+		gr_set_current_canvas(NULL);
+	//end edit -MM
+	automap_width=grd_curscreen->sc_canvas.cv_bitmap.bm_w;
+	automap_height=grd_curscreen->sc_canvas.cv_bitmap.bm_h;
 
-	FontHires = FontHiresAvailable && AutomapHires;
+	if (VR_render_buffer[0].cv_w >= 640)
+		FontHires = 1;
+	else
+		FontHires = 0;
 
 	create_name_canv();
 
 	gr_palette_clear();
 
-	if (!AutomapHires) {
-#ifndef MACINTOSH
-#ifndef AUTOMAP_DIRECT_RENDER
-		gr_init_sub_canvas(&Pages[0],grd_curcanv,0,0,320,400);
-		gr_init_sub_canvas(&Pages[1],grd_curcanv,0,401,320,400);
-		gr_init_sub_canvas(&DrawingPages[0],&Pages[0],16,69,WINDOW_WIDTH,272);
-		gr_init_sub_canvas(&DrawingPages[1],&Pages[1],16,69,WINDOW_WIDTH,272);
-#endif
-
-		gr_init_bitmap_data (&Automap_background);
-		pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, &Automap_background, BM_LINEAR, pal);
-		if (pcx_error != PCX_ERROR_NONE)
-			Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
-		gr_remap_bitmap_good(&Automap_background, pal, -1, -1);
 
 #ifndef AUTOMAP_DIRECT_RENDER
-		for (i=0; i<2; i++)
-		{
-			gr_set_current_canvas(&Pages[i]);
-			gr_bitmap(0, 0, &Automap_background );
-			modex_printf(40,  22, TXT_AUTOMAP, HUGE_FONT, Font_color_20);
-			modex_printf(30, 353, TXT_TURN_SHIP, SMALL_FONT, Font_color_20);
-			modex_printf(30, 369, TXT_SLIDE_UPDOWN, SMALL_FONT, Font_color_20);
-			modex_printf(30, 385, TXT_VIEWING_DISTANCE, SMALL_FONT, Font_color_20);
-		}
-		gr_free_bitmap_data(&Automap_background);	
-		gr_set_current_canvas(&DrawingPages[current_page]);
-#endif /* AUTOMAP_DIRECT_RENDER */
-#endif /* MACINTOSH */
-	}
+	if (VR_render_buffer[0].cv_w >= automap_width && VR_render_buffer[0].cv_h >= automap_height)
+		gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
 	else {
-#ifndef AUTOMAP_DIRECT_RENDER
-		if (VR_render_buffer[0].cv_w >= automap_width && VR_render_buffer[0].cv_h >= automap_height)
-			gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
-		else {
-			void *raw_data;
-			MALLOC(raw_data,ubyte,automap_width*automap_height);
-			gr_init_canvas(&Page,raw_data,BM_LINEAR,automap_width,automap_height);
-			must_free_canvas = 1;
-		}
-
-		gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
-
-		gr_set_current_canvas(&Page);
-#endif
-
-
-		pcx_error = pcx_read_fullscr(MAP_BACKGROUND_FILENAME, pal);
-			if ( pcx_error != PCX_ERROR_NONE )	{
-				//printf("File %s - PCX error: %s",MAP_BACKGROUND_FILENAME,pcx_errormsg(pcx_error));
-				Error("File %s - PCX error: %s",MAP_BACKGROUND_FILENAME,pcx_errormsg(pcx_error));
-				return;
-			}
-
-			gr_remap_bitmap_good( &(grd_curcanv->cv_bitmap), pal, -1, -1 );
-	
-			gr_set_curfont(HUGE_FONT);
-			gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-			gr_printf(RESCALE_X(80), RESCALE_Y(36), TXT_AUTOMAP, HUGE_FONT);
-			gr_set_curfont(SMALL_FONT);
-			gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-			gr_printf(RESCALE_X(60), RESCALE_Y(426), TXT_TURN_SHIP);
-			gr_printf(RESCALE_X(60), RESCALE_Y(443), TXT_SLIDE_UPDOWN);
-			gr_printf(RESCALE_X(60), RESCALE_Y(460), TXT_VIEWING_DISTANCE);
-	
-#ifndef AUTOMAP_DIRECT_RENDER
-			gr_set_current_canvas(&DrawingPage);
-#endif
+		void *raw_data;
+		MALLOC(raw_data,ubyte,automap_width*automap_height);
+		gr_init_canvas(&Page,raw_data,BM_LINEAR,automap_width,automap_height);
+		must_free_canvas = 1;
 	}
 
+	gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
+
+	gr_set_current_canvas(&Page);
+
+	pcx_error = pcx_read_fullscr(MAP_BACKGROUND_FILENAME, pal);
+	if ( pcx_error != PCX_ERROR_NONE )	{
+		Error("File %s - PCX error: %s",MAP_BACKGROUND_FILENAME,pcx_errormsg(pcx_error));
+		return;
+	}
+	gr_remap_bitmap_good( &(grd_curcanv->cv_bitmap), pal, -1, -1 );
+	
+	gr_set_curfont(HUGE_FONT);
+	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+	gr_printf(RESCALE_X(80), RESCALE_Y(36), TXT_AUTOMAP);
+	gr_set_curfont(SMALL_FONT);
+	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+	gr_printf(RESCALE_X(60), RESCALE_Y(426), TXT_TURN_SHIP);
+	gr_printf(RESCALE_X(60), RESCALE_Y(443), TXT_SLIDE_UPDOWN);
+	gr_printf(RESCALE_X(60), RESCALE_Y(460), TXT_VIEWING_DISTANCE);
+	
+	gr_set_current_canvas(&DrawingPage);
+#endif
 
 	automap_build_edge_list();
 
@@ -811,7 +718,39 @@ void do_automap( int key_code )	{
 
 	adjust_segment_limit(SegmentLimit);
 
+#ifdef OGL
+	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
+	gr_init_bitmap_data (&Automap_background);
+	pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, &Automap_background, BM_LINEAR, pal);
+	if (pcx_error != PCX_ERROR_NONE)
+		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
+	gr_remap_bitmap_good(&Automap_background, pal, -1, -1);
+
+	if (VR_render_buffer[0].cv_w >= automap_width && VR_render_buffer[0].cv_h >= automap_height)
+		gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
+	else {
+		void *raw_data;
+		MALLOC(raw_data,ubyte,automap_width*automap_height);
+		gr_init_canvas(&Page,raw_data,BM_LINEAR,automap_width,automap_height);
+		must_free_canvas = 1;
+	}
+#endif
+
 	while(!done)	{
+#ifdef OGL
+		gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
+		gr_set_current_canvas(&Page);
+		ogl_ubitmapm_cs(0, 0, -1, -1, &Automap_background, -1, F1_0, 0 );
+		gr_set_curfont(HUGE_FONT);
+		gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+		gr_printf(RESCALE_X(80), RESCALE_Y(36), TXT_AUTOMAP);
+		gr_set_curfont(SMALL_FONT);
+		gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+		gr_printf(RESCALE_X(60), RESCALE_Y(426), TXT_TURN_SHIP);
+		gr_printf(RESCALE_X(60), RESCALE_Y(443), TXT_SLIDE_UPDOWN);
+		gr_printf(RESCALE_X(60), RESCALE_Y(460), TXT_VIEWING_DISTANCE);
+		gr_set_current_canvas(&DrawingPage);
+#endif
 		if ( leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-entry_time)>LEAVE_TIME)
 			leave_mode = 1;
 
@@ -820,24 +759,23 @@ void do_automap( int key_code )	{
 
 		if (!pause_game)	{
 			ushort old_wiggle;
-			saved_control_info = Controls;				// Save controls so we can zero them
-			memset(&Controls,0,sizeof(control_info));	// Clear everything...
+			saved_control_info = Controls;					// Save controls so we can zero them
+			memset(&Controls,0,sizeof(control_info));			// Clear everything...
 			old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
 			ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
-			#ifdef NETWORK
+#ifdef NETWORK
 			if (multi_menu_poll())
 				done = 1;
-			#endif
-//			GameLoop( 0, 0 );		// Do game loop with no rendering and no reading controls.
-			ConsoleObject->mtype.phys_info.flags |= old_wiggle;	// Restore wiggle
+#endif
+			ConsoleObject->mtype.phys_info.flags |= old_wiggle;		// Restore wiggle
 			Controls = saved_control_info;
 		}
 
-	#ifndef WINDOWS
+#ifndef WINDOWS
 		controls_read_all();		
-	#else
+#else
 		controls_read_all_win();
-	#endif
+#endif
 
 		if ( Controls.automap_down_count )	{
 			if (leave_mode==0)
@@ -850,17 +788,12 @@ void do_automap( int key_code )	{
 
 		while( (c=key_inkey()) )	{
 			switch( c ) {
-			#ifndef NDEBUG
+#ifndef NDEBUG
 			case KEY_BACKSP: Int3(); break;
-			#endif
+#endif
 	
 			case KEY_PRINT_SCREEN: {
-				if (AutomapHires)
-					gr_set_current_canvas(NULL);
-#ifndef AUTOMAP_DIRECT_RENDER
-				else
-					gr_set_current_canvas(&Pages[current_page]);
-#endif
+				gr_set_current_canvas(NULL);
 				save_screen_shot(1);
 				break;
 			}
@@ -870,7 +803,7 @@ void do_automap( int key_code )	{
 					done = 1;
 				 break;
 
-			#ifndef NDEBUG
+#ifndef NDEBUG
 		  	case KEY_DEBUGGED+KEY_F: 	{
 				for (i=0; i<=Highest_segment_index; i++ )
 					Automap_visited[i] = 1;
@@ -880,7 +813,7 @@ void do_automap( int key_code )	{
 				adjust_segment_limit(SegmentLimit);
 				}
 				break;
-			#endif
+#endif
 
 			case KEY_MINUS:
 				if (SegmentLimit > 1) 		{
@@ -909,9 +842,9 @@ void do_automap( int key_code )	{
 				else
 			   	maxdrop=9;
 
-			#ifndef MACINTOSH
+#ifndef MACINTOSH
 			marker_num = c-KEY_1;
-			#else
+#else
 			switch(c) {		// god this is stupid.....
 				case KEY_1: marker_num = 0; break;
 				case KEY_2: marker_num = 1; break;
@@ -924,7 +857,7 @@ void do_automap( int key_code )	{
 				case KEY_9: marker_num = 8; break;
 				case KEY_0: marker_num = 9; break;
 			}
-			#endif
+#endif
             if (marker_num<=maxdrop)
 				 {
 					if (MarkerObject[marker_num] != -1)
@@ -935,24 +868,24 @@ void do_automap( int key_code )	{
 			case KEY_D+KEY_CTRLED:
 #ifndef AUTOMAP_DIRECT_RENDER
 				if (current_page)		//menu will only work on page 0
-					draw_automap();	//..so switch from 1 to 0
+					draw_automap();		//..so switch from 1 to 0
 #endif
  
 				if (HighlightMarker > -1 && MarkerObject[HighlightMarker] != -1) {
 #ifndef AUTOMAP_DIRECT_RENDER
 					gr_set_current_canvas(&Pages[current_page]);
 #endif
- 
-//					if (nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "Delete Marker?" ) == 0) {
+					if (nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "Delete Marker?" ) == 0) {
 						obj_delete(MarkerObject[HighlightMarker]);
 						MarkerObject[HighlightMarker]=-1;
 						MarkerMessage[HighlightMarker][0]=0;
 						HighlightMarker = -1;
-//					} // ZICO - no messagebox - just delete. messagebox causes major graphical issues
+					}
+				set_screen_mode(SCREEN_GAME);
 				}
 				break;
 
-			#ifndef RELEASE
+#ifndef RELEASE
 			case KEY_COMMA:
 				if (MarkerScale>.5)
 					MarkerScale-=.5;
@@ -961,41 +894,15 @@ void do_automap( int key_code )	{
 				if (MarkerScale<30.0)
 					MarkerScale+=.5;
 				break;
-			#endif
-
-//added 8/23/99 by Matt Mueller for hot key res/fullscreen changing, and menu access
-#if 0
-			case KEY_CTRLED+KEY_SHIFTED+KEY_PADDIVIDE:
-			case KEY_ALTED+KEY_CTRLED+KEY_PADDIVIDE:
-			case KEY_ALTED+KEY_SHIFTED+KEY_PADDIVIDE:
-				d1x_options_menu();
-				break;
-			case KEY_CTRLED+KEY_SHIFTED+KEY_PADMULTIPLY:
-			case KEY_ALTED+KEY_CTRLED+KEY_PADMULTIPLY:
-			case KEY_ALTED+KEY_SHIFTED+KEY_PADMULTIPLY:
-				change_res();
-				break;
-			case KEY_CTRLED+KEY_SHIFTED+KEY_PADMINUS:
-			case KEY_ALTED+KEY_CTRLED+KEY_PADMINUS:
-			case KEY_ALTED+KEY_SHIFTED+KEY_PADMINUS:
-				//lower res
-				//should we just cycle through the list that is displayed in the res change menu?
-				// what if their card/X/etc can't handle that mode? hrm.
-				//well, the quick access to the menu is good enough for now.
-				break;
-			case KEY_CTRLED+KEY_SHIFTED+KEY_PADPLUS:
-			case KEY_ALTED+KEY_CTRLED+KEY_PADPLUS:
-			case KEY_ALTED+KEY_SHIFTED+KEY_PADPLUS:
-				//increase res
-				break;
 #endif
+
 			case KEY_ALTED+KEY_ENTER:
 			case KEY_ALTED+KEY_PADENTER:
 				gr_toggle_fullscreen_game();
 				break;
 //end addition -MM
 
-	      }
+			}
 		}
 
 		if ( Controls.fire_primary_down_count )	{
@@ -1053,15 +960,13 @@ void do_automap( int key_code )	{
 		t1 = t2;
 	}
 
-	//d_free(Edges);
-	//d_free(DrawingListBright);
-
 	gr_free_canvas(name_canv_left);  name_canv_left=NULL;
 	gr_free_canvas(name_canv_right);  name_canv_right=NULL;
 
-#ifndef AUTOMAP_DIRECT_RENDER
 	if (must_free_canvas)
 		d_free(Page.cv_bitmap.bm_data);
+#ifdef OGL
+		gr_free_bitmap_data(&Automap_background);
 #endif
 
 	mprintf( (0, "Automap memory freed\n" ));
@@ -1118,9 +1023,9 @@ void draw_all_edges()
 
 		if ( e->flags & EF_TOO_FAR) continue;
 
-		if (e->flags&EF_FRONTIER)	{						// A line that is between what we have seen and what we haven't
+		if (e->flags&EF_FRONTIER) { 	// A line that is between what we have seen and what we haven't
 			if ( (!(e->flags&EF_SECRET))&&(e->color==Wall_normal_color))
-				continue;		// If a line isn't secret and is normal color, then don't draw it
+				continue; 	// If a line isn't secret and is normal color, then don't draw it
 		}
 
 		cc=rotate_list(2,e->verts);
@@ -1129,18 +1034,18 @@ void draw_all_edges()
 		if (min_distance>distance )
 			min_distance = distance;
 
-		if (!cc.and) 	{	//all off screen?
+		if (!cc.and) {			//all off screen?
 			nfacing = nnfacing = 0;
 			tv1 = &Vertices[e->verts[0]];
 			j = 0;
 			while( j<e->num_faces && (nfacing==0 || nnfacing==0) )	{
-				#ifdef COMPACT_SEGS
+#ifdef COMPACT_SEGS
 				vms_vector temp_v;
 				get_side_normal(&Segments[e->segnum[j]], e->sides[j], 0, &temp_v );
 				if (!g3_check_normal_facing( tv1, &temp_v ) )
-				#else
+#else
 				if (!g3_check_normal_facing( tv1, &Segments[e->segnum[j]].sides[e->sides[j]].normals[0] ) )
-				#endif
+#endif
 					nfacing++;
 				else
 					nnfacing++;
@@ -1164,8 +1069,6 @@ void draw_all_edges()
 		}
 	}
 		
-///	mprintf( (0, "Min distance=%.2f, ViewDist=%.2f, Delta=%.2f\n", f2fl(min_distance), f2fl(ViewDist), f2fl(min_distance)- f2fl(ViewDist) ));
-
 	if ( min_distance < 0 ) min_distance = 0;
 
 	// Sort the bright ones using a shell sort
@@ -1218,7 +1121,6 @@ void draw_all_edges()
 		}
 		g3_draw_line( p1, p2 );
 	}
-
 }
 
 
@@ -1384,7 +1286,7 @@ void add_segment_edges(segment *seg)
 			ttype = Triggers[trigger_num].type;
 			if (ttype==TT_SECRET_EXIT)
 				{
-		 	    color = BM_XRGB( 29, 0, 31 );
+			    color = BM_XRGB( 29, 0, 31 );
 				 no_fade=1;
 				 goto Here;
 				} 	
@@ -1417,14 +1319,12 @@ void add_segment_edges(segment *seg)
 								case KEY_RED:	color = Wall_door_red;	no_fade = 1; break;
 								default:	Error("Inconsistent data.  Supposed to be a colored wall, but not blue, gold or red.\n");
 							}
-							//mprintf((0, "Seg %i, side %i has a colored door on the other side.\n", segnum, sn));
 						}
 
 					}
 				} else {
 					color = Wall_normal_color;
 					hidden_flag = 1;
-					//mprintf((0, "Wall at seg:side %i:%i is hidden.\n", seg-Segments, sn));
 				}
 				break;
 			case WALL_CLOSED:
@@ -1450,7 +1350,6 @@ void add_segment_edges(segment *seg)
 			if (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL && (!Automap_visited[segnum]))	
 				color = Wall_revealed_color;
 
-
 			Here:
 
 			get_side_verts(vertex_list,segnum,sn);
@@ -1465,7 +1364,6 @@ void add_segment_edges(segment *seg)
 			}
 		}
 	}
-
 }
 
 
@@ -1488,10 +1386,7 @@ void add_unknown_segment_edges(segment *seg)
 			add_one_unknown_edge( vertex_list[2], vertex_list[3] );
 			add_one_unknown_edge( vertex_list[3], vertex_list[0] );
 		}
-
-
 	}
-
 }
 
 void automap_build_edge_list()
@@ -1515,26 +1410,26 @@ void automap_build_edge_list()
 	if (Automap_cheat || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) )	{
 		// Cheating, add all edges as visited
 		for (s=0; s<=Highest_segment_index; s++)
-			#ifdef EDITOR
+#ifdef EDITOR
 			if (Segments[s].segnum != -1)
-			#endif
+#endif
 			{
 				add_segment_edges(&Segments[s]);
 			}
 	} else {
 		// Not cheating, add visited edges, and then unvisited edges
 		for (s=0; s<=Highest_segment_index; s++)
-			#ifdef EDITOR
+#ifdef EDITOR
 			if (Segments[s].segnum != -1)
-			#endif
+#endif
 				if (Automap_visited[s]) {
 					add_segment_edges(&Segments[s]);
 				}
 	
 		for (s=0; s<=Highest_segment_index; s++)
-			#ifdef EDITOR
+#ifdef EDITOR
 			if (Segments[s].segnum != -1)
-			#endif
+#endif
 				if (!Automap_visited[s]) {
 					add_unknown_segment_edges(&Segments[s]);
 				}
@@ -1548,14 +1443,14 @@ void automap_build_edge_list()
 		for (e1=0; e1<e->num_faces; e1++ )	{
 			for (e2=1; e2<e->num_faces; e2++ )	{
 				if ( (e1 != e2) && (e->segnum[e1] != e->segnum[e2]) )	{
-					#ifdef COMPACT_SEGS
+#ifdef COMPACT_SEGS
 					vms_vector v1, v2;
 					get_side_normal(&Segments[e->segnum[e1]], e->sides[e1], 0, &v1 );
 					get_side_normal(&Segments[e->segnum[e2]], e->sides[e2], 0, &v2 );
 					if ( vm_vec_dot(&v1,&v2) > (F1_0-(F1_0/10))  )	{
-					#else
+#else
 					if ( vm_vec_dot( &Segments[e->segnum[e1]].sides[e->sides[e1]].normals[0], &Segments[e->segnum[e2]].sides[e->sides[e2]].normals[0] ) > (F1_0-(F1_0/10))  )	{
-					#endif
+#endif
 						e->flags &= (~EF_DEFINING);
 						break;
 					}
@@ -1565,9 +1460,7 @@ void automap_build_edge_list()
 				break;
 		}
 	}	
-
 	mprintf( (0, "Automap used %d / %d edges\n", Num_edges, Max_edges  ));
-
 }
 
 char Marker_input [40];
@@ -1577,15 +1470,15 @@ ubyte MarkerBeingDefined;
 ubyte LastMarkerDropped;
 
 void InitMarkerInput ()
- {
+{
 	int maxdrop,i;
 
 	//find free marker slot
 
 	if (Game_mode & GM_MULTI)
-   	maxdrop=MAX_DROP_MULTI;
+	maxdrop=MAX_DROP_MULTI;
 	else
-   	maxdrop=MAX_DROP_SINGLE;
+	maxdrop=MAX_DROP_SINGLE;
 
 	for (i=0;i<maxdrop;i++)
 		if (MarkerObject[(Player_num*2)+i] == -1)		//found free slot!
@@ -1607,10 +1500,10 @@ void InitMarkerInput ()
 	Marker_index=0;
 	DefiningMarkerMessage=1;
 	MarkerBeingDefined = i;
- }
+}
 
 void MarkerInputMessage (int key)
- {
+{
 	switch( key )	{
 	case KEY_F8:
 	case KEY_ESC:
@@ -1635,20 +1528,15 @@ void MarkerInputMessage (int key)
 		break;
 	default:
 		if ( key > 0 )
-		 {
-		  int ascii = key_to_ascii(key);
-		  if ((ascii < 255 ))
-		    if (Marker_index < 38 )
-		      {
-			Marker_input[Marker_index++] = ascii;
-			Marker_input[Marker_index] = 0;
-		      }
-		 }
+		{
+			int ascii = key_to_ascii(key);
+			if ((ascii < 255 ))
+				if (Marker_index < 38 )
+				{
+					Marker_input[Marker_index++] = ascii;
+					Marker_input[Marker_index] = 0;
+				}
+		}
 		break;
-
 	}
- }
-
-
-
-
+}
