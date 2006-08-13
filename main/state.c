@@ -339,7 +339,7 @@ char dgss_id[4] = "DGSS";
 int state_default_item = 0;
 
 uint state_game_id;
-
+#include "ogl_init.h"
 void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 /*{
 	nitems = nitems;
@@ -385,7 +385,11 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 					gr_set_current_canvas(temp_canv);
 					scale_bitmap(sc_bmp[citem-1], vertbuf);
 					gr_set_current_canvas( save_canv );
+#ifndef OGL
 					gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W*2)/2,items[0].y-10, &temp_canv->cv_bitmap);
+#else
+					ogl_ubitmapm_cf((grd_curcanv->cv_bitmap.bm_w/2)-((double)(THUMBNAIL_W/2)*(SWIDTH/320)),items[0].y-10,((double)THUMBNAIL_W*(SWIDTH/320)),((double)THUMBNAIL_H*(SHEIGHT/200)),&temp_canv->cv_bitmap,255,F1_0);
+#endif
 					gr_free_canvas(temp_canv);
 				}
 				else	{

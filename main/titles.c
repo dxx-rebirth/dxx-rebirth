@@ -796,7 +796,7 @@ int show_briefing_message(int screen_num, char *message)
 		} else if (ch == 10) {
 			if (prev_ch != '\\') {
 				prev_ch = ch;
-				Briefing_text_y += GAME_FONT->ft_h+GAME_FONT->ft_h*3/5;
+				Briefing_text_y += FONTSCALE_Y(GAME_FONT->ft_h)+FONTSCALE_Y(GAME_FONT->ft_h)*3/5;
 				Briefing_text_x = text_ulx;
 				if (Briefing_text_y > text_uly + rescale_y(bsp->text_height)) {
 					load_briefing_screen(screen_num);

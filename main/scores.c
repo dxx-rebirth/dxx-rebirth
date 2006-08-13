@@ -579,7 +579,7 @@ ReshowScores:
 	set_screen_mode(SCREEN_MENU);
 
 // menu screen scaling, 10/14/99 Jan Bobrowski - scaling for different font sizes 11/18/99 Matt Mueller
-		scale=GAME_FONT->ft_h/5.0;//5 is the size of the standard font the menus were designed for.
+		scale=FONTSCALE_Y(GAME_FONT->ft_h/5.0);//5 is the size of the standard font the menus were designed for.
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 200*scale)/2, 320*scale, 200*scale);
 		gr_set_current_canvas(&canvas);
 	

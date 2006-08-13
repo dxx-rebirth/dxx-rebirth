@@ -1471,7 +1471,8 @@ void ogl_freebmtexture(grs_bitmap *bm){
 	}
 }
 
-bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale, int orient) // ZICO - only used to scale cockpit and statusbar
+// ZICO - following functions are clones of ogl_ubitmapm_c - redundant. should be merged if works ok
+bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale, int orient) // ZICO - ogl_ubitmapm_c-clone to scale bitmaps
 {
 	GLfloat xo,yo,xf,yf;
 	GLfloat u1,u2,v1,v2;
@@ -1504,6 +1505,77 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 		x += grd_curcanv->cv_bitmap.bm_x;
 		y += grd_curcanv->cv_bitmap.bm_y;
 	}
+
+	a = (double) grd_curscreen->sc_w / (double) grd_curscreen->sc_h;
+	h = (double) scale / (double) F1_0;
+
+	xo = x / ((double) last_width * h);
+	xf = (dw + x) / ((double) last_width * h);
+	yo = 1.0 - y / ((double) last_height * h);
+	yf = 1.0 - (dh + y) / ((double) last_height * h);
+
+	OGL_ENABLE(TEXTURE_2D);
+	ogl_bindbmtex(bm);
+	ogl_texwrap(bm->gltexture,GL_CLAMP);
+	
+	if (bm->bm_x==0){
+		u1=0;
+		if (bm->bm_w==bm->gltexture->w)
+			u2=bm->gltexture->u;
+		else
+			u2=(bm->bm_w+bm->bm_x)/(float)bm->gltexture->tw;
+	}else {
+		u1=bm->bm_x/(float)bm->gltexture->tw;
+		u2=(bm->bm_w+bm->bm_x)/(float)bm->gltexture->tw;
+	}
+	if (bm->bm_y==0){
+		v1=0;
+		if (bm->bm_h==bm->gltexture->h)
+			v2=bm->gltexture->v;
+		else
+			v2=(bm->bm_h+bm->bm_y)/(float)bm->gltexture->th;
+	}else{
+		v1=bm->bm_y/(float)bm->gltexture->th;
+		v2=(bm->bm_h+bm->bm_y)/(float)bm->gltexture->th;
+	}
+
+	glBegin(GL_QUADS);
+	if (c<0)
+		glColor3f(1.0,1.0,1.0);
+	else
+	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
+	glTexCoord2f(u1, v1); glVertex2f(xo, yo);
+	glTexCoord2f(u2, v1); glVertex2f(xf, yo);
+	glTexCoord2f(u2, v2); glVertex2f(xf, yf);
+	glTexCoord2f(u1, v2); glVertex2f(xo, yf);
+	glActiveTextureARB(GL_TEXTURE0_ARB);
+	glEnd();
+	
+	return 0;
+}
+
+bool ogl_ubitmapm_cf(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale) // ZICO - ogl_ubitmapm_c-clone to scale fonts
+{
+	GLfloat xo,yo,xf,yf;
+	GLfloat u1,u2,v1,v2;
+	GLdouble h,a;
+	r_ubitmapc++;
+	x+=grd_curcanv->cv_bitmap.bm_x;
+	y+=grd_curcanv->cv_bitmap.bm_y;
+	xo=x/(float)last_width;
+	xf=(bm->bm_w+x)/(float)last_width;
+	yo=1.0-y/(float)last_height;
+	yf=1.0-(bm->bm_h+y)/(float)last_height;
+
+	if (dw < 0)
+		dw = grd_curcanv->cv_bitmap.bm_w;
+	else if (dw == 0)
+		dw = bm->bm_w;
+	if (dh < 0)
+		dh = grd_curcanv->cv_bitmap.bm_h;
+	else if (dh == 0)
+		dh = bm->bm_h;
+	r_ubitmapc++;
 
 	a = (double) grd_curscreen->sc_w / (double) grd_curscreen->sc_h;
 	h = (double) scale / (double) F1_0;

@@ -181,7 +181,7 @@ void adjust_segment_limit(int SegmentLimit);
 void draw_all_edges(void);
 void automap_build_edge_list(void);
 
-#define	MAX_DROP_MULTI		2
+#define	MAX_DROP_MULTI	2
 #define	MAX_DROP_SINGLE	9
 
 extern vms_vector Matrix_scale;		//how the matrix is currently scaled
@@ -197,6 +197,79 @@ void automap_clear_visited()
 
 grs_canvas *name_canv;
 char	name_level[128];
+
+//print to canvas & double height
+grs_canvas *print_to_canvas(char *s,grs_font *font, int fc, int bc)
+{
+	grs_canvas *temp_canv;
+	grs_font *save_font;
+	int w,h,aw;
+	grs_canvas *save_canv;
+
+	save_canv = grd_curcanv;
+
+	save_font = grd_curcanv->cv_font;
+	gr_set_curfont(font);			//set the font we're going to use
+	gr_get_string_size(s,&w,&h,&aw);	//now get the string size
+	gr_set_curfont(save_font);		//restore real font
+
+	temp_canv = gr_create_canvas(w,font->ft_h*2);
+
+	gr_set_current_canvas(temp_canv);
+	gr_set_curfont(font);
+	temp_canv->cv_bitmap.bm_flags |= BM_FLAG_TRANSPARENT;
+	gr_clear_canvas(TRANSPARENCY_COLOR);	//trans color
+	gr_set_fontcolor(fc,bc);
+	gr_uprintf(0,0,s);
+
+	gr_set_current_canvas(save_canv);
+
+	return temp_canv;
+}
+
+//print to buffer, double heights, and blit bitmap to screen
+void modex_printf(int x,int y,char *s,grs_font *font,int color)
+{
+	grs_canvas *temp_canv;
+
+	temp_canv = print_to_canvas(s, font, color, -1);
+
+	gr_bitmapm(x,y,&temp_canv->cv_bitmap);
+
+	gr_free_canvas(temp_canv);
+}
+
+void modex_print_message(int x, int y, char *str)
+{
+
+#ifndef AUTOMAP_DIRECT_RENDER
+	int	i;
+	for (i=0; i<2; i++ )	{
+		gr_set_current_canvas(&Pages[i]);
+#endif
+		modex_printf(x, y, str, GFONT_MEDIUM_1,Green_31);
+#ifndef AUTOMAP_DIRECT_RENDER
+	}
+
+	gr_set_current_canvas(&DrawingPages[current_page]);
+#endif
+}
+
+//name for each group.  maybe move somewhere else
+void create_name_canv()
+{
+	if (Current_level_num > 0)
+		sprintf(name_level, "%s %i: ",TXT_LEVEL, Current_level_num);
+	else
+		name_level[0] = 0;
+
+	strcat(name_level, Current_level_name);
+
+	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
+// 	name_canv = print_to_canvas(name_level,Gamefonts[GFONT_SMALL], BM_XRGB(0,31,0), -1);
+	gr_set_curfont((Gamefonts[GFONT_SMALL]));
+	gr_printf(5,5,"%s", name_level);
+}
 
 void draw_player( object * obj )
 {
@@ -310,7 +383,8 @@ void draw_automap()
 
 	g3_end_frame();
 
-	gr_bitmapm(5, 5, &name_canv->cv_bitmap);
+// 	gr_bitmapm(5, 5, &name_canv->cv_bitmap);
+	create_name_canv();
 
 #ifdef OGL
 	ogl_swap_buffers();
@@ -323,83 +397,7 @@ void draw_automap()
 }
 
 #define LEAVE_TIME 0x4000
-
 #define WINDOW_WIDTH		288
-
-
-//print to canvas & double height
-grs_canvas *print_to_canvas(char *s,grs_font *font, int fc, int bc)
-{
-	grs_canvas *temp_canv;
-	grs_font *save_font;
-	int w,h,aw;
-	grs_canvas *save_canv;
-
-	save_canv = grd_curcanv;
-
-	save_font = grd_curcanv->cv_font;
-	gr_set_curfont(font);			//set the font we're going to use
-	gr_get_string_size(s,&w,&h,&aw);	//now get the string size
-	gr_set_curfont(save_font);		//restore real font
-
-	temp_canv = gr_create_canvas(w,font->ft_h*2);
-
-	gr_set_current_canvas(temp_canv);
-	gr_set_curfont(font);
-	temp_canv->cv_bitmap.bm_flags |= BM_FLAG_TRANSPARENT;
-	gr_clear_canvas(TRANSPARENCY_COLOR);	//trans color
-	gr_set_fontcolor(fc,bc);
-	gr_printf(0,0,s);
-
-	gr_set_current_canvas(save_canv);
-
-	return temp_canv;
-}
-
-//print to buffer, double heights, and blit bitmap to screen
-void modex_printf(int x,int y,char *s,grs_font *font,int color)
-{
-	grs_canvas *temp_canv;
-
-	temp_canv = print_to_canvas(s, font, color, -1);
-
-	gr_bitmapm(x,y,&temp_canv->cv_bitmap);
-
-	gr_free_canvas(temp_canv);
-}
-
-void modex_print_message(int x, int y, char *str)
-{
-
-#ifndef AUTOMAP_DIRECT_RENDER
-// #ifndef AUTOMAP_NO_PAGING
-	int	i;
-	for (i=0; i<2; i++ )	{
-		gr_set_current_canvas(&Pages[i]);
-#endif
-		modex_printf(x, y, str, GFONT_MEDIUM_1,Green_31);
-#ifndef AUTOMAP_DIRECT_RENDER
-	}
-
-	gr_set_current_canvas(&DrawingPages[current_page]);
-#endif
-}
-
-//name for each group.  maybe move somewhere else
-void create_name_canv()
-{
-
-	if (Current_level_num > 0)
-		sprintf(name_level, "%s %i: ",TXT_LEVEL, Current_level_num);
-	else
-		name_level[0] = 0;
-
-	strcat(name_level, Current_level_name);
-
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
-	name_canv = print_to_canvas(name_level,Gamefonts[GFONT_SMALL], BM_XRGB(0,31,0), -1);
-
-}
 
 extern void GameLoop(int, int );
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
@@ -465,7 +463,7 @@ void do_automap( int key_code )	{
 	automap_width=grd_curscreen->sc_canvas.cv_bitmap.bm_w;
 	automap_height=grd_curscreen->sc_canvas.cv_bitmap.bm_h;
 
-	create_name_canv();
+// 	create_name_canv();
 
 	gr_palette_clear();
 
@@ -692,7 +690,7 @@ void do_automap( int key_code )	{
 		t1 = t2;
 	}
 
-	gr_free_canvas(name_canv);  name_canv=NULL;
+// 	gr_free_canvas(name_canv);  name_canv=NULL;
 
 #ifndef AUTOMAP_DIRECT_RENDER
 	if (must_free_canvas)

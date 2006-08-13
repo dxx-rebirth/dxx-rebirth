@@ -228,6 +228,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GR_H
 #define _GR_H
 
+// ZICO - for FONTSCALE_X/Y
+#include "args.h"
+#include "cfile.h"
+
 #include "types.h"
 #include "fix.h"
 
@@ -248,28 +252,40 @@ typedef struct _grs_point {
 	fix	x,y;
 } grs_point;
 
+extern int fixedfont;
+extern int hiresfont;
+
+// ZICO - we use this defines to scale the fon bitmaps itself, spacing between letters and rows
+#ifdef OGL
+#define FONTSCALE_X(x) ((fixedfont)?x:(x)*((SWIDTH/ ((hiresfont&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))
+#define FONTSCALE_Y(x) ((fixedfont)?x:(x)*((SHEIGHT/((hiresfont&&SWIDTH>=640&&SHEIGHT>=480)?480:200))))
+#else // without OGL we don't scale. But instead of defining out eery single FONTSCALE_* call we just do not scale
+#define FONTSCALE_X(x) x
+#define FONTSCALE_Y(x) x
+#endif
+
 //old font structure, could not add new items to it without screwing up gr_init_font
 typedef struct _grs_font {
-	int16_t		ft_w,ft_h;		// Width and height in pixels
-	int16_t		ft_flags;		// Proportional?
+	int16_t		ft_w,ft_h;	// Width and height in pixels
+	int16_t		ft_flags;	// Proportional?
 	int16_t		ft_baseline;	//
-	ubyte		ft_minchar,		// The first and last chars defined by
-				ft_maxchar;		// This font
+	ubyte		ft_minchar,	// The first and last chars defined by
+			ft_maxchar;	// This font
 	int16_t		ft_bytewidth;	// Width in unsigned chars
-	u_int32_t 	ft_data;			// Ptr to raw data.
-	u_int32_t	ft_chars;		// Ptrs to data for each char (required for prop font)
-	u_int32_t	ft_widths;		// Array of widths (required for prop font)
+	u_int32_t 	ft_data;	// Ptr to raw data.
+	u_int32_t	ft_chars;	// Ptrs to data for each char (required for prop font)
+	u_int32_t	ft_widths;	// Array of widths (required for prop font)
 	u_int32_t	ft_kerndata;	// Array of kerning triplet data
 } 
 old_grs_font;
 
 #define BM_LINEAR   0
 
-#define BM_FLAG_TRANSPARENT			1
+#define BM_FLAG_TRANSPARENT		1
 #define BM_FLAG_SUPER_TRANSPARENT	2
-#define BM_FLAG_NO_LIGHTING			4
-#define BM_FLAG_RLE						8			// A run-length encoded bitmap.
-#define BM_FLAG_PAGED_OUT				16			// This bitmap's data is paged out.
+#define BM_FLAG_NO_LIGHTING		4
+#define BM_FLAG_RLE			8	// A run-length encoded bitmap.
+#define BM_FLAG_PAGED_OUT		16	// This bitmap's data is paged out.
 #define BM_FLAG_INITIALIZED 32
 
 #ifdef D1XD3D

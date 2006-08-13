@@ -179,7 +179,7 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 		gr_set_current_canvas(NULL);
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(6,6,6),-1);
-		gr_printf(0x8000,grd_curcanv->cv_bitmap.bm_h-GAME_FONT->ft_h-2,TXT_COPYRIGHT);
+		gr_printf(0x8000,grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,TXT_COPYRIGHT);
 	}
 	
 	// Don't allow them to hit ESC in the main menu.

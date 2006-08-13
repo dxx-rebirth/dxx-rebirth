@@ -1916,7 +1916,7 @@ void show_boxed_message(char *msg)
 	bg.bmp = gr_create_bitmap( w+30, h+30 );
 	gr_bm_ubitblt(w+30, h+30, 0, 0, x-15, y-15, &(grd_curscreen->sc_canvas.cv_bitmap), bg.bmp );
 
-	nm_draw_background(x-15,y-15,x+w+15-1,y+h+15-1);
+	nm_draw_background(x-(15*(SWIDTH/320)),y-(15*(SHEIGHT/200)),x+w+(15-1*(SWIDTH/320)),y+h+(15-1*(SHEIGHT/200)));
 
 	gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
 	gr_ustring( 0x8000, y, msg );

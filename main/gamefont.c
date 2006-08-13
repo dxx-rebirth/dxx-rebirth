@@ -107,11 +107,14 @@ char * Gamefont_filenames_h[] = { 	"font1-1h.fnt",			// Font 0
 grs_font *Gamefonts[MAX_FONTS];
 
 int Gamefont_installed=0;
+int fixedfont=0;
+int hiresfont=0;
 
 //code to allow variable GAME_FONT, added 10/7/99 Matt Mueller - updated 11/18/99 to handle all fonts, not just GFONT_SMALL
 //	take scry into account? how/when?
 typedef struct _a_gamefont_conf{
 	int x;
+	int y;
 	union{
 		char name[64];//hrm.
 		grs_font *ptr;
@@ -159,7 +162,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 
 	for (gf=0;gf<MAX_FONTS;gf++){
 		for (i=0;i<font_conf[gf].num;i++)
-			if (scrx>=font_conf[gf].font[i].x && close<font_conf[gf].font[i].x){
+			if ((scrx>=font_conf[gf].font[i].x && close<font_conf[gf].font[i].x)&&(scry>=font_conf[gf].font[i].y && close<font_conf[gf].font[i].y)){
 				close=font_conf[gf].font[i].x;
 				m=i;
 			}
@@ -173,11 +176,11 @@ void gamefont_choose_game_font(int scrx,int scry){
 		mprintf ((0,"font %i: %ix%i\n",i,Gamefonts[i]->ft_w,Gamefonts[i]->ft_h));
 }
 	
-void addfontconf(int gf, int x,char * fn){
+void addfontconf(int gf, int x, int y, char * fn){
 	int i;
-	mprintf((0,"adding font %s at %i %i: ",fn,gf,x));	
+	mprintf((0,"adding font %s at %i %i %i: ",fn,gf,x,y));	
 	for (i=0;i<font_conf[gf].num;i++){
-		if (font_conf[gf].font[i].x==x){
+		if (font_conf[gf].font[i].x==x && font_conf[gf].font[i].y==y){
 			mprintf((0,"replaced %i\n",i));
 			if (i==font_conf[gf].cur)
 				gamefont_unloadfont(gf);
@@ -189,6 +192,7 @@ void addfontconf(int gf, int x,char * fn){
 	}
 	mprintf((0,"added %i\n",font_conf[gf].num));
 	font_conf[gf].font[font_conf[gf].num].x=x;
+	font_conf[gf].font[font_conf[gf].num].y=y;
 	strcpy(font_conf[gf].font[font_conf[gf].num].f.name,fn);
 	font_conf[gf].num++;
 }
@@ -197,31 +201,43 @@ void gamefont_init()
 {
 	int i;
 
+	if (FindArg("-fixedfont"))
+		fixedfont=1;
+
 	if (Gamefont_installed) return;
 	Gamefont_installed = 1;
 
 	for (i=0;i<MAX_FONTS;i++){
 		Gamefonts[i]=NULL;
 
-
 		// HDG: commented, these files are not available in the normal
 		// d1data files since they are d2 files
 		// addfontconf(i,640,Gamefont_filenames_h[i]);
-		addfontconf(i,640,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts
-		addfontconf(i,0,Gamefont_filenames_l[i]); // ZICO - but not in small resolutions...
+
+		if (FindArg("-hiresfont")
+			&& cfexist(DESCENT_DATA_PATH "font1-1h.fnt")
+			&& cfexist(DESCENT_DATA_PATH "font2-1h.fnt")
+			&& cfexist(DESCENT_DATA_PATH "font2-2h.fnt")
+			&& cfexist(DESCENT_DATA_PATH "font2-3h.fnt")
+			&& cfexist(DESCENT_DATA_PATH "font3-1h.fnt")) {
+			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts
+			hiresfont=1;
+		}
+
+		addfontconf(i,0,0,Gamefont_filenames_l[i]); // ZICO - but not in small resolutions...
 	}
 	// HDG: uncommented, these addon files can be easily added
 //	addfontconf(4, 640,"pc6x8.fnt");
 //	addfontconf(4, 1024,"pc8x16.fnt");
 	if ((i=FindArg("-font320")))
-		addfontconf(4,320,Args[i+1]);
+		addfontconf(4,320,200,Args[i+1]);
 	if ((i=FindArg("-font640")))
-		addfontconf(4,640,Args[i+1]);
+		addfontconf(4,640,480,Args[i+1]);
 	if ((i=FindArg("-font800")))
-		addfontconf(4,800,Args[i+1]);
+		addfontconf(4,800,600,Args[i+1]);
 	if ((i=FindArg("-font1024")))
-		addfontconf(4,1024,Args[i+1]);
-	
+		addfontconf(4,1024,768,Args[i+1]);
+
 	gamefont_choose_game_font(grd_curscreen->sc_canvas.cv_bitmap.bm_w,grd_curscreen->sc_canvas.cv_bitmap.bm_h);
 	
 	atexit( gamefont_close );

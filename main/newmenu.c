@@ -80,8 +80,9 @@ grs_bitmap nm_background;
 #define MESSAGEBOX_TEXT_SIZE 2176		// How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
 #define MAX_TEXT_WIDTH 	200			// How many pixels wide a input box can be
 
-#define BORDERX 6*((double)GWIDTH/320.0)
-#define BORDERY 4*((double)GHEIGHT/200.0)
+// ZICO - since the background is rescaled the bevels do the same. because of this we need bigger borders or the fonts would be printed inside the bevels...
+#define MENSCALE_X ((fixedfont)?1:(SWIDTH/320))
+#define MENSCALE_Y ((fixedfont)?1:(SHEIGHT/200))
 
 extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
@@ -315,7 +316,7 @@ void update_cursor( newmenu_item *item)
 		gr_string( x, y, CURSOR_STRING );
 	else {
 		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect( x, y, x+grd_curcanv->cv_font->ft_w-1, y+grd_curcanv->cv_font->ft_h-1 );
+		gr_rect( x, y, x+FONTSCALE_X(grd_curcanv->cv_font->ft_w-1), y+FONTSCALE_Y(grd_curcanv->cv_font->ft_h-1) );
 	}
 
 }
@@ -491,7 +492,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	}
 
 	save_canvas = grd_curcanv;
-	gr_set_current_canvas( NULL );			
+	gr_set_current_canvas( NULL );
 	save_font = grd_curcanv->cv_font;
 
 	tw = th = 0;
@@ -511,7 +512,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	}
 
 
-	th += 8;		//put some space between titles & body
+	th += 8*MENSCALE_Y;		//put some space between titles & body
 
 	grd_curcanv->cv_font = normal_font;
 
@@ -581,7 +582,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			Assert( strlen(item[i].text) < NM_MAX_TEXT_LEN );
 			strcpy(item[i].saved_text, item[i].text );
 			nothers++;
-			string_width = item[i].text_len*grd_curcanv->cv_font->ft_w+item[i].text_len;
+			string_width = item[i].text_len*FONTSCALE_X(grd_curcanv->cv_font->ft_w)+item[i].text_len;
 			if ( string_width > MAX_TEXT_WIDTH ) 
 				string_width = MAX_TEXT_WIDTH;
 			item[i].value = -1;
@@ -591,7 +592,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			Assert( strlen(item[i].text) < NM_MAX_TEXT_LEN );
 			strcpy(item[i].saved_text, item[i].text );
 			nmenus++;
-			string_width = item[i].text_len*grd_curcanv->cv_font->ft_w+item[i].text_len;
+			string_width = item[i].text_len*FONTSCALE_X(grd_curcanv->cv_font->ft_w)+item[i].text_len;
 			item[i].value = -1;
 			item[i].group = 0;
 		}
@@ -620,7 +621,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			right_offset = item[i].right_offset;
 	}
 	if (right_offset > 0 )
-		right_offset += BORDERX;
+		right_offset += 3;
 	
 	//mprintf( 0, "Right offset = %d\n", right_offset );
 
@@ -638,8 +639,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 //	x = (grd_curscreen->sc_w-w)/2;
 //	y = (grd_curscreen->sc_h-h)/2;
 
-	w += 30;
-	h += 30;
+	w += 30*MENSCALE_X;
+	h += 30*MENSCALE_Y;
 
 	if ( w > SWIDTH ) w = SWIDTH;
 	if ( h > SHEIGHT ) h = SHEIGHT;
@@ -649,26 +650,33 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 	if ( x < 0 ) x = 0;
 	if ( y < 0 ) y = 0;
-		
+
 	if ( filename != NULL )	{
 		nm_draw_background1( filename );
 	}
 
 	// Save the background of the display
-	bg.menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w+1+BORDERX, h+1+BORDERY );
+	bg.menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w+MENSCALE_X, h+MENSCALE_Y );
 	gr_set_current_canvas( bg.menu_canvas );
 
 	if ( filename == NULL )	{
 		// Save the background under the menu...
-		bg.saved = gr_create_bitmap( w+(BORDERX*8), h+(BORDERY*8) );
+		bg.saved = gr_create_bitmap( w+MENSCALE_X, h+MENSCALE_Y );
 		Assert( bg.saved != NULL );
-		gr_bm_bitblt(w+(BORDERX*8), h+(BORDERY*8), 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.saved );
+		gr_bm_bitblt(w+MENSCALE_X, h+MENSCALE_Y, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.saved );
 		gr_set_current_canvas( NULL );
-		nm_draw_background(x,y,x+w+BORDERX,y+h+BORDERY);
+		nm_draw_background(x,y,x+w,y+h);
 		if (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h){
 			grs_bitmap sbg;
 			gr_init_sub_bitmap(&sbg,&nm_background,0,0,w*(320.0/GWIDTH),h*(200.0/GHEIGHT));//use the correctly resized portion of the background instead of the whole thing -MPM
-			bg.background=gr_create_bitmap(w,h);
+			bg.background=gr_create_bitmap(
+#ifndef OGL
+							w,h
+#else
+			// ZICO - since we draw the bevels in a different way with OGL, string backgrounds would overlap. However in OGL we don't need string backgrounds so we remove it this way...
+							0,0
+#endif
+								);
 			gr_bitmap_scale_to(&sbg,bg.background);
 			bg.background_is_sub=0;
 		}else{
@@ -684,7 +692,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	}
 
 // ty = 15 + (yborder/4);
-	ty = 15;
+	ty = (15*MENSCALE_Y);
 
         //added on 11/20/98 by Victor Rachels for d1x ver
 //added/changed on 11/31/98 by Victor Rachels for different way to do ver
@@ -729,8 +737,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	
 	// Update all item's x & y values.
 	for (i=0; i<nitems; i++ )	{
-		item[i].x = 15 + twidth + right_offset;
-		item[i].y += 15;
+		item[i].x = (15*MENSCALE_X) + twidth + right_offset;
+		item[i].y += (15*MENSCALE_Y);
 		if ( item[i].type==NM_TYPE_RADIO )	{
 			fm = -1;	// find first marked one
 			for ( j=0; j<nitems; j++ )	{
@@ -1251,7 +1259,7 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 	int initialized = 0;
 	int exit_value = 0;
 	int w_x, w_y=0, w_w, w_h, x=0,blank_w=120;
-	int font_height=Gamefonts[GFONT_MEDIUM_1]->ft_h+2, font_height1=font_height-1;
+	int font_height=FONTSCALE_Y(Gamefonts[GFONT_MEDIUM_1]->ft_h+2), font_height1=font_height-1;
 
 	filenames = malloc( MAX_FILES * 14 );
 	if (filenames==NULL) return 0;
@@ -1346,7 +1354,7 @@ ReadFileNames:
 		w_w = GWIDTH - 180*GWIDTH/320 + 1 + 30;
 		//w_h = GHEIGHT - 60*GHEIGHT/200 + 1 + 30;
 		//NumFiles_displayed=(GHEIGHT-10)/font_height-4;//it works, but do we want it really?
-		w_h=(NumFiles_displayed+3+1)*font_height+10;//scale height to font size, not screen size.
+		w_h=(NumFiles_displayed+3+1)*font_height+(10*SHEIGHT/200);//scale height to font size, not screen size.
 		blank_w = 120*GWIDTH/320;
 
 	
@@ -1365,12 +1373,12 @@ ReadFileNames:
 			&grd_curcanv->cv_bitmap,
 			&VR_offscreen_menu->cv_bitmap
 		);
-		nm_draw_background( w_x,w_y-BORDERY,w_x+w_w-1,w_y+w_h-1+(BORDERY/2) );
+		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h-1 );
 		
 		x = w_x + (w_w-blank_w)/2;//was +24
 
 		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
-		gr_string( 0x8000, w_y+10, title );
+		gr_string( 0x8000, w_y+(10*MENSCALE_Y), title );
 		initialized = 1;
 	}
 
@@ -1629,7 +1637,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		if ( w > width )
 			width = w;
 	}
-	font_height=Gamefonts[GFONT_MEDIUM_1]->ft_h+2;
+	font_height=FONTSCALE_Y(Gamefonts[GFONT_MEDIUM_1]->ft_h)+2;
 	font_height1=font_height-1;
 	height = font_height * LB_ITEMS_ON_SCREEN; // was 12*
 
@@ -1651,7 +1659,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		wy = title_height;
 
 	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_menu->cv_bitmap) );
-	nm_draw_background( wx-(BORDERX*2),wy-title_height-(BORDERY*2),wx+width+(BORDERX*2),wy+height+(BORDERY*2) );
+	nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
 
 	gr_string( 0x8000, wy - title_height, title );
 

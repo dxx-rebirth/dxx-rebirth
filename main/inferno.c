@@ -304,6 +304,10 @@ void show_cmdline_help() {
 	printf( "  -font640 <f>    %s\n", "font to use for res 640x* and above (default pc6x8.fnt)");
 	printf( "  -font800 <f>    %s\n", "font to use for res 800x* and above");
 	printf( "  -font1024 <f>   %s\n", "font to use for res 1024x* and above (default pc8x16.fnt)");
+#ifdef OGL
+	printf( "  -fixedfont      %s\n", "do not scale fonts to current resolution");
+#endif
+	printf( "  -hiresfont      %s\n", "use high resolution fonts if available");
 	printf( "  -tmap <t>       %s\n","select texmapper to use (c,fp,i386,pent,ppro)");
 	printf( "  -mouselook      %s\n","Activate fast mouselook. Works in singleplayer only"); // ZICO - added for mouselook
 	printf( "  -grabmouse      %s\n","Keeps the mouse from wandering out of the window"); // ZICO - added for mouse capture
@@ -623,7 +627,7 @@ int main(int argc,char **argv)
 	mprintf( (0, "\nInitializing palette system..." ));
 	gr_use_palette_table( "PALETTE.256" );
 	mprintf( (0, "\nInitializing font system..." ));
-	gamefont_init();	// must load after palette data loaded.
+	gamefont_init(); // must load after palette data loaded.
 	songs_play_song( SONG_TITLE, 1 );
 
 #ifndef QUICKSTART
