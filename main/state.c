@@ -339,7 +339,7 @@ char dgss_id[4] = "DGSS";
 int state_default_item = 0;
 
 uint state_game_id;
-#include "ogl_init.h"
+
 void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 /*{
 	nitems = nitems;
