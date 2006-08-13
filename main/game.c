@@ -1913,8 +1913,8 @@ void show_boxed_message(char *msg)
 	// Save the background of the display
 	bg.x=x; bg.y=y; bg.w=w; bg.h=h;
 
-	bg.bmp = gr_create_bitmap( w+30, h+30 );
-	gr_bm_ubitblt(w+30, h+30, 0, 0, x-15, y-15, &(grd_curscreen->sc_canvas.cv_bitmap), bg.bmp );
+	bg.bmp = gr_create_bitmap( w+(30*(SWIDTH/320)), h+(30*(SHEIGHT/200)) );
+	gr_bm_ubitblt(w+(30*(SWIDTH/320)), h+(30*(SHEIGHT/200)), 0, 0, x-(15*(SWIDTH/320)), y-(15*(SHEIGHT/200)), &(grd_curscreen->sc_canvas.cv_bitmap), bg.bmp );
 
 	nm_draw_background(x-(15*(SWIDTH/320)),y-(15*(SHEIGHT/200)),x+w+(15-1*(SWIDTH/320)),y+h+(15-1*(SHEIGHT/200)));
 
@@ -1930,7 +1930,7 @@ void clear_boxed_message()
 
 	if (bg.bmp) {
 
-		gr_bitmap(bg.x-15, bg.y-15, bg.bmp);
+		gr_bitmap(bg.x-(15*(SWIDTH/320)), bg.y-(15*(SHEIGHT/200)), bg.bmp);
 
 		gr_free_bitmap(bg.bmp);
 
