@@ -706,7 +706,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		grd_curcanv->cv_font = GAME_FONT;
 		gr_get_string_size(DESCENT_VERSION,&sw,&sh,&aw);
 		gr_set_fontcolor( GR_GETCOLOR(25,0,0), -1);
-		gr_printf(GWIDTH-sw*3,GHEIGHT-sh*3,DESCENT_VERSION);
+		gr_printf((GWIDTH/2)-(sw/2),GHEIGHT-sh*3,DESCENT_VERSION);
 		grd_curcanv = saved_canvas;
 		Menu_Special = 0;
 	}
