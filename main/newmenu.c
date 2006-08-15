@@ -78,7 +78,7 @@ typedef struct bkg {
 grs_bitmap nm_background;
 
 #define MESSAGEBOX_TEXT_SIZE 2176		// How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
-#define MAX_TEXT_WIDTH 	200			// How many pixels wide a input box can be
+#define MAX_TEXT_WIDTH 	FONTSCALE_X(200)			// How many pixels wide a input box can be
 
 // ZICO - since the background is rescaled the bevels do the same. because of this we need bigger borders or the fonts would be printed inside the bevels...
 #define MENSCALE_X ((fixedfont)?1:(SWIDTH/320))
