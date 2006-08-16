@@ -217,7 +217,7 @@ void nm_string( bkg * b, int w1,int x, int y, char * _s )
 		w = w1;
 
 	// CHANGED
-	gr_bm_bitblt(b->background->bm_w-15, h, 5, y, 5, y, b->background, &(grd_curcanv->cv_bitmap) );
+	gr_bm_bitblt(b->background->bm_w-(15*MENSCALE_X), h, 5, y, 5, y, b->background, &(grd_curcanv->cv_bitmap) );
 	//gr_bm_bitblt(w, h, x, y, x, y, b->background, &(grd_curcanv->cv_bitmap) );
 	
 	gr_string( x, y, s );
@@ -245,7 +245,7 @@ void nm_string_slider( bkg * b, int w1,int x, int y, char * s )
 
 	gr_get_string_size(s, &w, &h, &aw  );
 	// CHANGED
-	gr_bm_bitblt(b->background->bm_w-15, h, 5, y, 5, y, b->background, &(grd_curcanv->cv_bitmap) );
+	gr_bm_bitblt(b->background->bm_w-(15*MENSCALE_X), h, 5, y, 5, y, b->background, &(grd_curcanv->cv_bitmap) );
 	//gr_bm_bitblt(w, h, x, y, x, y, b->background, &(grd_curcanv->cv_bitmap) );
 
 	gr_string( x, y, s );
@@ -669,14 +669,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		if (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h){
 			grs_bitmap sbg;
 			gr_init_sub_bitmap(&sbg,&nm_background,0,0,w*(320.0/GWIDTH),h*(200.0/GHEIGHT));//use the correctly resized portion of the background instead of the whole thing -MPM
-			bg.background=gr_create_bitmap(
-#ifndef OGL
-							w,h
-#else
-			// ZICO - since we draw the bevels in a different way with OGL, string backgrounds would overlap. However in OGL we don't need string backgrounds so we remove it this way...
-							0,0
-#endif
-								);
+			bg.background=gr_create_bitmap(w,h);
 			gr_bitmap_scale_to(&sbg,bg.background);
 			bg.background_is_sub=0;
 		}else{
