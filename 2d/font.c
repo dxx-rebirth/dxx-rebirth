@@ -74,6 +74,7 @@ openfont open_font[MAX_OPEN_FONTS];
 
 int gr_internal_string_clipped(int x, int y, char *s );
 int gr_internal_string_clipped_m(int x, int y, char *s );
+extern int FontHires;
 
 ubyte *find_kern_entry(grs_font *font,ubyte first,ubyte second)
 {
@@ -108,7 +109,11 @@ void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
 	}
 
 	if (FFLAGS & FT_PROPORTIONAL)
+#ifndef OGL
 		*width = FWIDTHS[letter];
+#else
+		*width = FONTSCALE_X(FWIDTHS[letter]);
+#endif
 	else
 		*width = FWIDTH;
 
@@ -119,9 +124,11 @@ void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
 
 		if (!(c2==0 || c2=='\n')) {
 			int letter2;
-
+#ifndef OGL
 			letter2 = c2-FMINCHAR;
-
+#else
+			letter2 = FONTSCALE_X(c2-FMINCHAR)+1;
+#endif
 			if (INFONT(letter2)) {
 
 				p = find_kern_entry(FONT,(ubyte)letter,letter2);
@@ -1080,7 +1087,7 @@ int ogl_internal_string(int x, int y, char *s )
 			if (*text_ptr == '\n' )
 			{
 				next_row = &text_ptr[1];
-				yy += FHEIGHT;
+				yy += FONTSCALE_Y(FHEIGHT);
 				break;
 			}
 
@@ -1100,10 +1107,15 @@ int ogl_internal_string(int x, int y, char *s )
 //			ogl_ubitblt(FONT->ft_bitmaps[letter].bm_w,FONT->ft_bitmaps[letter].bm_h,xx,yy,0,0,&FONT->ft_bitmaps[letter],NULL);
 //			if (*text_ptr>='0' && *text_ptr<='9'){
 			if (FFLAGS&FT_COLOR)
+#ifndef OGL // FIXME: OK???
 				gr_ubitmapm(xx,yy,&FONT->ft_bitmaps[letter]);
+#else
+				ogl_ubitmapm_cf(xx,yy,((double)FONTSCALE_X(FWIDTHS[letter])),FONTSCALE_Y(FHEIGHT),&FONT->ft_bitmaps[letter],-1,F1_0);
+#endif
 			else{
 				if (grd_curcanv->cv_bitmap.bm_type==BM_OGL)
-					ogl_ubitmapm_c(xx,yy,&FONT->ft_bitmaps[letter],FG_COLOR);
+// 					ogl_ubitmapm_c(xx,yy,&FONT->ft_bitmaps[letter],FG_COLOR);
+					ogl_ubitmapm_cf(xx,yy,FONTSCALE_X(FWIDTHS[letter]),FONTSCALE_Y(FHEIGHT),&FONT->ft_bitmaps[letter],FG_COLOR,F1_0);
 				else
 					Error("ogl_internal_string: non-color string to non-ogl dest\n");
 //					gr_ubitmapm(xx,yy,&FONT->ft_bitmaps[letter]);//ignores color..
@@ -1219,7 +1231,7 @@ void gr_get_string_size(char *s, int *string_width, int *string_height, int *ave
 	int i = 0, longest_width = 0;
 	int width,spacing;
 
-	*string_height = FHEIGHT;
+	*string_height = FONTSCALE_Y(FHEIGHT);
 	*string_width = 0;
 	*average_width = FWIDTH;
 
@@ -1233,7 +1245,7 @@ void gr_get_string_size(char *s, int *string_width, int *string_height, int *ave
 			while (*s == '\n')
 			{
 				s++;
-				*string_height += FHEIGHT;
+				*string_height += FONTSCALE_Y(FHEIGHT);
 				*string_width = 0;
 			}
 

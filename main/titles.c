@@ -923,7 +923,7 @@ int show_briefing_message(int screen_num, char *message)
 			if (prev_ch != '\\') {
 				prev_ch = ch;
 				if (DumbAdjust==0)
-					Briefing_text_y += (8*(MenuHires+1));
+					Briefing_text_y += FONTSCALE_Y(8*(MenuHires+1));
 				else
 					DumbAdjust--;
 				Briefing_text_x = bsp->text_ulx;

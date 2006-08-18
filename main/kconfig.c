@@ -209,8 +209,8 @@ fix Cruise_speed=0;
 
 // macros for drawing lo/hi res kconfig screens (see scores.c as well)
 
-#define LHX(x)		((x)*(MenuHires?2:1))
-#define LHY(y)		((y)*(MenuHires?2.4:1))
+#define LHX(x)		((x)*(MenuHires?FONTSCALE_X(2):1))
+#define LHY(y)		((y)*(MenuHires?FONTSCALE_Y(2.4):1))
 
 
 #define BT_KEY 				0
@@ -907,7 +907,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	save_canvas = grd_curcanv;
 
-	scale=GAME_FONT->ft_h/5.0;
+	scale=FONTSCALE_Y(GAME_FONT->ft_h/5.0);
 	printf("scale=%f\n",scale);
 	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 240*scale)/2, 320*scale, 240*scale);
 	gr_set_current_canvas(&canvas);
@@ -946,8 +946,8 @@ KConfigPaint:
 //	}
 
 #ifdef NEWMENU_MOUSE
-	close_x = close_y = MenuHires?15:7;
-	close_size = MenuHires?10:5;
+	close_x = close_y = MenuHires?FONTSCALE_X(15):FONTSCALE_X(7);
+	close_size = MenuHires?FONTSCALE_X(10):FONTSCALE_X(5);
 	gr_setcolor( BM_XRGB(0, 0, 0) );
 	gr_rect(close_x, close_y, close_x + close_size, close_y + close_size);
 	gr_setcolor( BM_XRGB(21, 21, 21) );

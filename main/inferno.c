@@ -308,6 +308,9 @@ void print_commandline_help()
 	printf( "  -subtitles      %s\n","Turn on movie subtitles (English-only)");
 //	printf( "  -sysram         %s\n","FIXME: Undocumented");
 	printf( "  -text <file>    %s\n","Specify alternate .tex file");
+#ifdef OGL
+	printf( "  -fixedfont      %s\n", "do not scale fonts to current resolution");
+#endif
 //	printf( "  -tsengdebug1    %s\n","FIXME: Undocumented");
 //	printf( "  -tsengdebug2    %s\n","FIXME: Undocumented");
 //	printf( "  -tsengdebug3    %s\n","FIXME: Undocumented");

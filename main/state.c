@@ -169,6 +169,8 @@ extern sbyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 extern ubyte Hack_DblClick_MenuMode;
 #endif
 
+#include "gamefont.h"
+
 void compute_all_static_light(void);
 
 //-------------------------------------------------------------------
@@ -188,7 +190,11 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 					gr_set_current_canvas(temp_canv);
 					scale_bitmap(sc_bmp[citem-1], vertbuf, 0 );
 					gr_set_current_canvas( save_canv );
+#ifndef OGL
 					gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W*2)/2,items[0].y-10, &temp_canv->cv_bitmap);
+#else
+					ogl_ubitmapm_cf((grd_curcanv->cv_bitmap.bm_w/2)-((THUMBNAIL_W/2)*(SWIDTH/320)),items[0].y-10,(THUMBNAIL_W*(SWIDTH/320)),FONTSCALE_Y(grd_curcanv->cv_font->ft_h*5),&temp_canv->cv_bitmap,255,F1_0);
+#endif
 					gr_free_canvas(temp_canv);
 				}
 				else	{
@@ -223,8 +229,9 @@ int state_get_save_file(char * fname, char * dsc, int multi, int blind_save)
 	char desc[NUM_SAVES+1][DESC_LENGTH+16];
 	char id[5];
 	int valid=0;
-	
-	for (i=0;i<NUM_SAVES; i++ )	{
+
+	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
+	for (i=0;i<NUM_SAVES+1; i++ )	{
 		sc_bmp[i] = NULL;
 		if ( !multi )
 			#ifndef MACINTOSH
@@ -251,26 +258,33 @@ int state_get_save_file(char * fname, char * dsc, int multi, int blind_save)
 					// Read description
 					PHYSFS_read(fp, desc[i], sizeof(char) * DESC_LENGTH, 1);
 					//rpad_string( desc[i], DESC_LENGTH-1 );
+					m[i+1].type = NM_TYPE_MENU; m[i+1].text = desc[i];
 					// Read thumbnail
-					//sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
-					//PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
+					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
+					PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
+					if (version >= 9) {
+						ubyte pal[256*3];
+						PHYSFS_read(fp, pal, 3, 256);
+						gr_remap_bitmap_good( sc_bmp[i], pal, -1, -1 );
+					}
+// 					nsaves++;
 					valid = 1;
 				}
-			} 
+			}
 			PHYSFS_close(fp);
 		}
 		if (!valid) {
 			strcpy( desc[i], TXT_EMPTY );
 			//rpad_string( desc[i], DESC_LENGTH-1 );
 		}
-		m[i].type = NM_TYPE_INPUT_MENU; m[i].text = desc[i]; m[i].text_len = DESC_LENGTH-1;
+		m[i+1].type = NM_TYPE_INPUT_MENU; m[i+1].text = desc[i]; m[i+1].text_len = DESC_LENGTH-1;
 	}
 
 	sc_last_item = -1;
 	if (blind_save && state_default_item >= 0)
 		choice = state_default_item;
 	else
-		choice = newmenu_do1(NULL, "Save Game", NUM_SAVES, m, NULL, state_default_item);
+		choice = newmenu_do3(NULL, "Save Game", NUM_SAVES+2, m, state_callback, state_default_item, NULL, 385, -1 );
 
 	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )
@@ -628,6 +642,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 #ifdef OGL
 		ubyte *buf;
 		int k;
+		GLint gl_draw_buffer;
 #endif
 		grs_canvas * cnv_save;
 		cnv_save = grd_curcanv;
@@ -639,7 +654,8 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 #if defined(OGL)
 # if 1
 		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
-		glReadBuffer(GL_FRONT);
+		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
+		glReadBuffer(gl_draw_buffer);
 		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGB, GL_UNSIGNED_BYTE, buf);
 		k = THUMBNAIL_H;
 		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {

@@ -493,8 +493,9 @@ void draw_automap()
 
 	g3_end_frame();
 
-	gr_bitmapm(10, 10, &name_canv_left->cv_bitmap);
-	gr_bitmapm(grd_curcanv->cv_bitmap.bm_w-10-name_canv_right->cv_bitmap.bm_w,10,&name_canv_right->cv_bitmap);
+// 	gr_bitmapm(10, 10, &name_canv_left->cv_bitmap);
+// 	gr_bitmapm(grd_curcanv->cv_bitmap.bm_w-10-name_canv_right->cv_bitmap.bm_w,10,&name_canv_right->cv_bitmap);
+	create_name_canv();
 
 #ifdef OGL
 	ogl_swap_buffers();
@@ -564,6 +565,7 @@ char *system_name[] = {
 void create_name_canv()
 {
 	char	name_level_left[128],name_level_right[128];
+	int wr1,wr2,h,aw;
 
 	if (Current_level_num > 0)
 		sprintf(name_level_left, "%s %i",TXT_LEVEL, Current_level_num);
@@ -578,9 +580,13 @@ void create_name_canv()
 	strcat(name_level_right, Current_level_name);
 
 	gr_set_fontcolor(Green_31,-1);
-	name_canv_left = print_to_canvas(name_level_left, SMALL_FONT, Green_31, -1);
-	name_canv_right = print_to_canvas(name_level_right,SMALL_FONT, Green_31, -1);
-
+// 	name_canv_left = print_to_canvas(name_level_left, SMALL_FONT, Green_31, -1);
+// 	name_canv_right = print_to_canvas(name_level_right,SMALL_FONT, Green_31, -1);
+	gr_set_curfont(SMALL_FONT);
+	gr_printf(10,10,"%s", name_level_left);
+	gr_get_string_size(system_name[(Current_level_num-1)/4],&wr1,&h,&aw);
+	gr_get_string_size(Current_level_name,&wr2,&h,&aw);
+	gr_printf(grd_curcanv->cv_bitmap.bm_w-(wr1+wr2)-FONTSCALE_X(35),10,"%s", name_level_right);
 }
 
 extern void GameLoop(int, int );
@@ -657,7 +663,7 @@ void do_automap( int key_code )	{
 	else
 		FontHires = 0;
 
-	create_name_canv();
+// 	create_name_canv();
 
 	gr_palette_clear();
 
@@ -960,8 +966,8 @@ void do_automap( int key_code )	{
 		t1 = t2;
 	}
 
-	gr_free_canvas(name_canv_left);  name_canv_left=NULL;
-	gr_free_canvas(name_canv_right);  name_canv_right=NULL;
+// 	gr_free_canvas(name_canv_left);  name_canv_left=NULL;
+// 	gr_free_canvas(name_canv_right);  name_canv_right=NULL;
 
 	if (must_free_canvas)
 		d_free(Page.cv_bitmap.bm_data);

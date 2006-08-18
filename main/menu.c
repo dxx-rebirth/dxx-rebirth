@@ -179,32 +179,32 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 
 		gr_get_string_size("V2.2", &w, &h, &aw );
 	
-			gr_printf(0x8000,grd_curcanv->cv_bitmap.bm_h-GAME_FONT->ft_h-2,TXT_COPYRIGHT);
+			gr_printf(0x8000,grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,TXT_COPYRIGHT);
 			#ifdef MACINTOSH	// print out fix level as well if it exists
 				if (Version_fix != 0)
 				{
 					gr_get_string_size("V2.2.2", &w, &h, &aw );
 					gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2,
-							  grd_curcanv->cv_bitmap.bm_h-GAME_FONT->ft_h-2,
+							  grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,
 							  "V%d.%d.%d",
 							  Version_major,Version_minor,Version_fix);
 				}
 				else
 				{
 					gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2,
-							  grd_curcanv->cv_bitmap.bm_h-GAME_FONT->ft_h-2,
+							  grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,
 							  "V%d.%d",
 							  Version_major,Version_minor);
 				}
 			#else
-				gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2,grd_curcanv->cv_bitmap.bm_h-GAME_FONT->ft_h-2,"V%d.%d",Version_major,Version_minor);
+				gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2,grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,"V%d.%d",Version_major,Version_minor);
 			#endif
 
 		//say this is vertigo version
-/*		if (cfexist(MISSION_DIR "d2x.hog")) {
+		if (cfexist(MISSION_DIR "d2x.hog")) {
 			gr_set_curfont(MEDIUM2_FONT);
-			gr_printf(MenuHires?495:248, MenuHires?88:37, "Vertigo");
-		}*/ // ZICO - since we have scalable menus we don't use this - nevertheless we don't really need it
+			gr_printf(MenuHires?495*(SWIDTH/640):248*(SWIDTH/320), MenuHires?88*(SHEIGHT/480):37*(SHEIGHT/200), "Vertigo");
+		}
 	}
 	
 	// Don't allow them to hit ESC in the main menu.

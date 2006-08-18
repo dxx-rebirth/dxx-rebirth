@@ -129,6 +129,17 @@ typedef struct _grs_bitmap {
 #endif /* def OGL */
 } grs_bitmap;
 
+extern int fixedfont;
+
+// ZICO - we use this defines to scale the font bitmaps itself, spacing between letters and rows
+#ifdef OGL
+#define FONTSCALE_X(x) ((fixedfont)?x:(x)*((SWIDTH/ ((FontHires&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))
+#define FONTSCALE_Y(x) ((fixedfont)?x:(x)*((SHEIGHT/((FontHires&&SWIDTH>=640&&SHEIGHT>=480)?480:200))))
+#else // without OGL we don't scale. But instead of defining out eery single FONTSCALE_* call we just do not scale
+#define FONTSCALE_X(x) x
+#define FONTSCALE_Y(x) x
+#endif
+
 //font structure
 typedef struct _grs_font {
 	short       ft_w;           // Width in pixels

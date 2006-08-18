@@ -81,8 +81,8 @@ char scores_filename[128];
 #define XX  (7)
 #define YY  (-3)
 
-#define LHX(x)		((x)*(MenuHires?2:1))
-#define LHY(y)		((y)*(MenuHires?2.4:1))
+#define LHX(x)		((x)*(MenuHires?FONTSCALE_X(2):1))
+#define LHY(y)		((y)*(MenuHires?FONTSCALE_Y(2.4):1))
 
 
 char * get_scores_filename()
@@ -371,7 +371,7 @@ ReshowScores:
  
 	gr_set_current_canvas(NULL);
 
-	scale=GAME_FONT->ft_h/5;//5 is the size of the standard font the menus were designed for.
+	scale=FONTSCALE_Y(GAME_FONT->ft_h/5);//5 is the size of the standard font the menus were designed for.
 	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 240*scale)/2, 320*scale, 240*scale); // ZICO - added
 	gr_set_current_canvas(&canvas);
 	
