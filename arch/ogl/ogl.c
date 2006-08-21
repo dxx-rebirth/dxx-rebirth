@@ -1109,26 +1109,28 @@ bool ogl_ubitblt_copy(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * sr
 }
 
 grs_canvas *offscreen_save_canv=NULL, *offscreen_canv=NULL;
+
 void ogl_start_offscreen_render(int x, int y, int w, int h) {
+	int y2;
+	float pixels [SWIDTH*SHEIGHT];
 	if (offscreen_canv) Error("ogl_start_offscreen_render: offscreen_canv!=NULL");
 	offscreen_save_canv = grd_curcanv;
 	offscreen_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
 	gr_set_current_canvas(offscreen_canv);
 	glDrawBuffer(GL_BACK);
+	y2 = last_height - offscreen_canv->cv_bitmap.bm_y - offscreen_canv->cv_bitmap.bm_h;
+	glReadPixels(offscreen_canv->cv_bitmap.bm_x,y2,w,h,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
 }
 void ogl_end_offscreen_render(void) {
 	int y;
+	float pixels [SWIDTH*SHEIGHT];
 	if (!offscreen_canv) Error("ogl_end_offscreen_render: no offscreen_canv");
-
 	glDrawBuffer(GL_FRONT);
 	glReadBuffer(GL_BACK);
 	OGL_DISABLE(TEXTURE_2D);
-
 	y = last_height - offscreen_canv->cv_bitmap.bm_y - offscreen_canv->cv_bitmap.bm_h;
 	glRasterPos2f(offscreen_canv->cv_bitmap.bm_x/(float)last_width, y/(float)last_height);
-	glCopyPixels(offscreen_canv->cv_bitmap.bm_x, y,
-			offscreen_canv->cv_bitmap.bm_w, offscreen_canv->cv_bitmap.bm_h, GL_COLOR);
-
+	glDrawPixels(offscreen_canv->cv_bitmap.bm_w, offscreen_canv->cv_bitmap.bm_h,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
 	gr_free_sub_canvas(offscreen_canv);
 	gr_set_current_canvas(offscreen_save_canv);
 	offscreen_canv=NULL;

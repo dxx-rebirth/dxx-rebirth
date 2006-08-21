@@ -155,6 +155,7 @@ typedef struct {
 #define BRIEFING_OFFSET_NUM	4 // This must correspond to the first level screen (ie, past the bald guy briefing screens)
 #define	SHAREWARE_ENDING_LEVEL_NUM	0x7f
 #define	REGISTERED_ENDING_LEVEL_NUM	0x7e
+#define Briefing_screens_LH ((SWIDTH >= 640 && cfexist(DESCENT_DATA_PATH "brief01h.pcx"))?Briefing_screens_h:Briefing_screens)
 
 briefing_screen Briefing_screens[] = {
 	{	"brief01.pcx",   0,  1,  13, 140, 290,  59 },
@@ -288,13 +289,8 @@ char * get_briefing_screen( int level_num )
 {
 	int i, found_level=0, last_level=0;
 	for (i = 0; i < MAX_BRIEFING_SCREEN; i++)	{
-		if (SWIDTH >= 640 && cfexist(DESCENT_DATA_PATH "brief01h.pcx")) {
-			if ( found_level && Briefing_screens_h[i].level_num != level_num )
-				return Briefing_screens_h[last_level].bs_name;
-		} else {
-			if ( found_level && Briefing_screens[i].level_num != level_num )
-				return Briefing_screens[last_level].bs_name;
-		}
+		if ( found_level && Briefing_screens_LH[i].level_num != level_num )
+			return Briefing_screens_LH[last_level].bs_name;
 		if (Briefing_screens[i].level_num == level_num )	{
 			found_level=1;
 			last_level = i;
@@ -467,6 +463,8 @@ void show_spinning_robot_frame(int robot_num)
 
 }
 
+
+
 //	-----------------------------------------------------------------------------
 void init_spinning_robot(void)
 {
@@ -546,20 +544,12 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 int load_briefing_screen( int screen_num )
 {
 	int	pcx_error;
-	if (SWIDTH >= 640 && cfexist(DESCENT_DATA_PATH "brief01h.pcx")) // ZICO - use hires if available
-	{
-		if ((pcx_error=pcx_read_fullscr( Briefing_screens_h[screen_num].bs_name, New_pal ))!=PCX_ERROR_NONE) {
-			printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens_h[screen_num].bs_name, pcx_errormsg(pcx_error));
-			Int3();
-			return 0;
-		}
-	} else {
-		if ((pcx_error=pcx_read_fullscr( Briefing_screens[screen_num].bs_name, New_pal ))!=PCX_ERROR_NONE) {
-			printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens[screen_num].bs_name, pcx_errormsg(pcx_error));
-			Int3();
-			return 0;
-		}
+	if ((pcx_error=pcx_read_fullscr( Briefing_screens_LH[screen_num].bs_name, New_pal ))!=PCX_ERROR_NONE) {
+		printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens_LH[screen_num].bs_name, pcx_errormsg(pcx_error));
+		Int3();
+		return 0;
 	}
+
 	return 0;
 }
 
@@ -994,6 +984,28 @@ int show_briefing_text(int screen_num)
 	return show_briefing_message(screen_num, message_ptr);
 }
 
+#ifdef OGL
+// ZICO - this function will load the bitmap frame for spinning robots in the offscreen buffer.
+//        this way we can be sure the frame is shown when offscreen render is called in draw_model_picture().
+//        some GPU configurations seem (dunno why) to mess it up otherwise...
+void ogl_init_robot_frame()
+{
+	CFILE * file;
+	int pcx_error;
+	grs_bitmap backdrop;
+
+	backdrop.bm_data=NULL;
+	pcx_error = pcx_read_bitmap("brief03.pcx",&backdrop, BM_LINEAR,New_pal);
+	if (pcx_error != PCX_ERROR_NONE)		{
+		cfclose(file);
+		return;
+	}
+	ogl_start_offscreen_render(0, 0, SWIDTH, SHEIGHT);
+	show_fullscr(&backdrop);
+	ogl_end_offscreen_render();
+}
+#endif
+
 //	-----------------------------------------------------------------------------
 //	Return true if screen got aborted by user, else return false.
 int show_briefing_screen( int screen_num, int allow_keys)
@@ -1011,29 +1023,23 @@ int show_briefing_screen( int screen_num, int allow_keys)
 
 	gr_init_bitmap_data (&briefing_bm);
 
-	if (SWIDTH >= 640 && cfexist(DESCENT_DATA_PATH "brief01h.pcx")) // ZICO - use hires if available
-	{
-		if ((pcx_error=pcx_read_bitmap( Briefing_screens_h[screen_num].bs_name, &briefing_bm, BM_LINEAR, New_pal ))!=PCX_ERROR_NONE) {
-			printf( "PCX load error: %s.  File '%s'\n\n", pcx_errormsg(pcx_error), Briefing_screens_h[screen_num].bs_name);
-			mprintf((0, "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens_h[screen_num].bs_name, pcx_errormsg(pcx_error), pcx_error));
+	if ((pcx_error=pcx_read_bitmap( Briefing_screens_LH[screen_num].bs_name, &briefing_bm, BM_LINEAR, New_pal ))!=PCX_ERROR_NONE) {
+		printf( "PCX load error: %s.  File '%s'\n\n", pcx_errormsg(pcx_error), Briefing_screens_LH[screen_num].bs_name);
+		mprintf((0, "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens_LH[screen_num].bs_name, pcx_errormsg(pcx_error), pcx_error));
 		Int3();
 		return 0;
-		}
-	} else {
-		if ((pcx_error=pcx_read_bitmap( Briefing_screens[screen_num].bs_name, &briefing_bm, BM_LINEAR, New_pal ))!=PCX_ERROR_NONE) {
-			printf( "PCX load error: %s.  File '%s'\n\n", pcx_errormsg(pcx_error), Briefing_screens[screen_num].bs_name);
-			mprintf((0, "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens[screen_num].bs_name, pcx_errormsg(pcx_error), pcx_error));
-		Int3();
-		return 0;
-		}
-		
 	}
-
+	
 #ifdef OGL
 	gr_palette_load(New_pal);
+	
+	if (screen_num>1)
+		ogl_init_robot_frame();
 #else
 	gr_palette_clear();
 #endif
+
+		
         show_fullscr(&briefing_bm );
 
 //added on 9/13/98 by adb to make arch's requiring updates work

@@ -55,7 +55,7 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:44:11 zicodxx Exp 
 #endif
 
 #define ROW_SPACING			(GHEIGHT/17)
-#define NUM_LINES			14
+#define NUM_LINES			20 //14
 #define CREDITS_BACKGROUND_FILENAME	"stars.pcx"
 #define CREDITS_FILE 			"credits.tex"
 
@@ -178,7 +178,11 @@ void credits_show(char *credits_filename)
 	gr_update();
 	gr_palette_fade_in( gr_palette, 32, 0 );
 
+#ifndef OGL
 	CreditsOffscreenBuf = gr_create_canvas(GWIDTH,GHEIGHT);
+#else
+	CreditsOffscreenBuf = gr_create_sub_canvas(grd_curcanv,0,0,GWIDTH,GHEIGHT);
+#endif
 
 	if (!CreditsOffscreenBuf)
 		Error("Not enough memory to allocate Credits Buffer.");
@@ -187,11 +191,9 @@ void credits_show(char *credits_filename)
 
 	last_time = timer_get_fixed_seconds();
 	done = 0;
-#ifdef OGL
-	first_line_offset = GHEIGHT/8; // ZICO - keep the lines in canvas
-#else
+
 	first_line_offset = 0;
-#endif
+
 	while( 1 ) {
 		int k;
 
@@ -215,11 +217,13 @@ void credits_show(char *credits_filename)
 		} while (extra_inc--);
 		extra_inc = 0;
 
-		for (i=0; i<ROW_SPACING; i += (SWIDTH>=640?2:1) )	{
+		for (i=0; i<ROW_SPACING; i += (SWIDTH>=640?FONTSCALE_Y(2):1) )	{
 			int y;
 
 			y = first_line_offset - i;
-
+#ifdef OGL
+			ogl_start_offscreen_render(0,-1,GWIDTH,GHEIGHT);
+#endif
 			gr_set_current_canvas(CreditsOffscreenBuf);
 			show_fullscr(&backdrop);
 
@@ -265,10 +269,6 @@ void credits_show(char *credits_filename)
 
 				for (j=0; j<NUM_LINES; j++ )
 				{
-#ifdef OGL
-					glScissor (0,GHEIGHT/6,GWIDTH,GHEIGHT-(GHEIGHT/3)); // ZICO - create borders for new line endings
-					glEnable (0x0C11);
-#endif
 					new_box = &dirty_box[j];
 
 					tempbmp = &(CreditsOffscreenBuf->cv_bitmap);
@@ -329,14 +329,18 @@ void credits_show(char *credits_filename)
 					free(backdrop.bm_data);
 					cfclose(file);
 					songs_play_song( SONG_TITLE, 1 );
-					if (CreditsOffscreenBuf != VR_offscreen_buffer)
-						gr_free_canvas(CreditsOffscreenBuf);
 					gr_palette_load( gr_palette );
 #ifdef OGL
-					glDisable(0x0C11);
+					gr_free_sub_canvas(CreditsOffscreenBuf);
+					ogl_end_offscreen_render();
+#else
+					gr_free_canvas(CreditsOffscreenBuf);
 #endif
 				return;
 			}
+#ifdef OGL
+		ogl_end_offscreen_render();
+#endif
 		}
 	}
 }
