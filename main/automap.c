@@ -573,11 +573,7 @@ void do_automap( int key_code )	{
 			Controls = saved_control_info;
 		}
 
-#ifndef __WINDOWS__
-		controls_read_all();		
-#else
-		controls_read_all_win();
-#endif
+		controls_read_all();
 
 		if ( Controls.automap_down_count ) {
 			if (leave_mode==0)

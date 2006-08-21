@@ -128,10 +128,7 @@ static char rcsid[] = "$Id: game.c,v 1.1.1.1 2006/03/17 19:43:10 zicodxx Exp $";
 #include "observer.h"
 int I_am_observer = 0;
 //end this section addition - VR
-
-#ifdef __LINUX__
 #include "SDL/SDL.h"
-#endif
 
 //added 8/23/99 by Matt Mueller for hot key res/fullscreen changing, and menu access
 extern void change_res();
