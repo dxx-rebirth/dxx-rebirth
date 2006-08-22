@@ -81,8 +81,13 @@ grs_bitmap nm_background;
 #define MAX_TEXT_WIDTH 	FONTSCALE_X(200)			// How many pixels wide a input box can be
 
 // ZICO - since the background is rescaled the bevels do the same. because of this we need bigger borders or the fonts would be printed inside the bevels...
-#define MENSCALE_X ((fixedfont)?1:(SWIDTH/320))
-#define MENSCALE_Y ((fixedfont)?1:(SHEIGHT/200))
+#ifdef OGL
+#define MENSCALE_X ((fixedfont)?(1):(SWIDTH/320))
+#define MENSCALE_Y ((fixedfont)?(1):(SHEIGHT/200))
+#else
+#define MENSCALE_X 1
+#define MENSCALE_Y 1
+#endif
 
 extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
@@ -127,7 +132,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 //	x2 = x1 + w - 1;
 //	y2 = y1 + h - 1;
 
-	if ( GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h ){//Resize background to fit.  Resize so that the original aspect is preserved. -MPM
+	if ( !fixedfont && (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h) ){//Resize background to fit.  Resize so that the original aspect is preserved. -MPM
 		grs_canvas *tmp,*old;
 		grs_bitmap bg;
 		old=grd_curcanv;
@@ -144,20 +149,21 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	Gr_scanline_darkening_level = 2*7;
 
 	//scale the bevels to the res too.  All the gwidth/height stuff is needed so that the corners have the correct angles at odd resolutions like 320x400 where the ratios are different for x and y
+
 #ifdef OGL
 	gr_setcolor( BM_XRGB(1,1,1) );
 
-	for (w=5*(GWIDTH/320.0);w>=0;w--)
-		gr_rect( x2-w+1, y1+w*((GHEIGHT/200.0)/(GWIDTH/320.0)), x2+1, y2-(GHEIGHT/200.0) );//right edge
-	for (h=5*(GHEIGHT/200.0);h>=0;h--)
-		gr_rect( x1+h*((GWIDTH/320.0)/(GHEIGHT/200.0)), y2+1, x2+1, y2-h+1 );//bottom edge
+	for (w=5*MENSCALE_X;w>=0;w--)
+		gr_rect( x2-w+1, y1+w*(MENSCALE_Y/MENSCALE_X), x2+1, y2-MENSCALE_Y );//right edge
+	for (h=5*MENSCALE_Y;h>=0;h--)
+		gr_rect( x1+h*(MENSCALE_X/MENSCALE_Y), y2+1, x2+1, y2-h+1 );//bottom edge
 #else
 	gr_setcolor( BM_XRGB(0,0,0) );
 
-	for (w=5*(GWIDTH/320.0);w>=0;w--)
-		gr_urect( x2-w, y1+w*((GHEIGHT/200.0)/(GWIDTH/320.0)), x2-w, y2-(GHEIGHT/200.0) );//right edge
-	for (h=5*(GHEIGHT/200.0);h>=0;h--)
-		gr_urect( x1+h*((GWIDTH/320.0)/(GHEIGHT/200.0)), y2-h, x2, y2-h );//bottom edge
+	for (w=5;w>=0;w--)
+		gr_urect( x2-w, y1+w, x2-w, y2 );//right edge
+	for (h=5;h>=0;h--)
+		gr_urect( x1+h, y2-h, x2, y2-h );//bottom edge
 #endif
 
 
@@ -180,7 +186,7 @@ void nm_restore_background( int x, int y, int w, int h )
 	w = x2 - x1 + 1;
 	h = y2 - y1 + 1;
 
-	if (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h){
+	if ( !fixedfont && (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h) ){
 		grs_bitmap sbg;
 		grs_canvas *tmp,*old;
 		old=grd_curcanv;
@@ -661,12 +667,12 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 	if ( filename == NULL )	{
 		// Save the background under the menu...
-		bg.saved = gr_create_bitmap( w+MENSCALE_X, h+MENSCALE_Y );
+		bg.saved = gr_create_bitmap( w+MENSCALE_X+10, h+MENSCALE_Y );
 		Assert( bg.saved != NULL );
 		gr_bm_bitblt(w+MENSCALE_X, h+MENSCALE_Y, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.saved );
 		gr_set_current_canvas( NULL );
 		nm_draw_background(x,y,x+w,y+h);
-		if (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h){
+		if (!fixedfont && (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h)){
 			grs_bitmap sbg;
 			gr_init_sub_bitmap(&sbg,&nm_background,0,0,w*(320.0/GWIDTH),h*(200.0/GHEIGHT));//use the correctly resized portion of the background instead of the whole thing -MPM
 			bg.background=gr_create_bitmap(w,h);
@@ -836,12 +842,13 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	
 		switch( k )	{
 		case KEY_V + KEY_CTRLED:
+#ifndef __WINDOWS__
 		case KEY_INSERT + KEY_SHIFTED:
                           if(item[choice].type==NM_TYPE_INPUT)
 			{
 				char cbtext[MAX_PASTE_SIZE+1];
 				memset(cbtext,0,MAX_PASTE_SIZE+1);
-				/*int ret = getClipboardText(cbtext,MAX_PASTE_SIZE);
+				int ret = getClipboardText(cbtext,MAX_PASTE_SIZE);
 				if(ret)
 				{
 					int idx;
@@ -871,9 +878,10 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 					}
 					}
 					k = -1;
-				}*/
+				}
 			}
                         break;
+#endif
 		case KEY_TAB + KEY_SHIFTED:
 		case KEY_UP:
 		case KEY_PAD8:
@@ -1340,15 +1348,20 @@ ReadFileNames:
 		set_screen_mode(SCREEN_MENU);
 		gr_set_current_canvas(NULL);
 
-		
-//		w_w = 230 - 90 + 1 + 30;
-//		w_h = 170 - 30 + 1 + 30;
-		
+#ifdef OGL
+	if (!fixedfont) {
 		w_w = GWIDTH - 180*GWIDTH/320 + 1 + 30;
 		//w_h = GHEIGHT - 60*GHEIGHT/200 + 1 + 30;
 		//NumFiles_displayed=(GHEIGHT-10)/font_height-4;//it works, but do we want it really?
 		w_h=(NumFiles_displayed+3+1)*font_height+(10*SHEIGHT/200);//scale height to font size, not screen size.
 		blank_w = 120*GWIDTH/320;
+	}
+	else
+#endif
+	{
+		w_w = 230 - 90 + 1 + 30;
+		w_h = 170 - 30 + 1 + 30;
+	}
 
 	
 		if ( w_w > GWIDTH ) w_w = GWIDTH;//was 320
