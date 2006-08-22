@@ -102,8 +102,13 @@ grs_bitmap nm_background,nm_background_save;
 #define MESSAGEBOX_TEXT_SIZE 2176   // How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
 #define MAX_TEXT_WIDTH 	FONTSCALE_X(200)				// How many pixels wide a input box can be
 
-#define MENSCALE_X ((fixedfont)?1:((MenuHires)?(SWIDTH/640):(SWIDTH/320)))
-#define MENSCALE_Y ((fixedfont)?1:((MenuHires)?(SHEIGHT/480):(SHEIGHT/200)))
+#ifdef OGL
+#define MENSCALE_X ((fixedfont)?(1):((MenuHires)?(SWIDTH/640):(SWIDTH/320)))
+#define MENSCALE_Y ((fixedfont)?(1):((MenuHires)?(SHEIGHT/480):(SHEIGHT/200)))
+#else
+#define MENSCALE_X 1
+#define MENSCALE_Y 1
+#endif
 
 ubyte MenuReordering=0;
 ubyte SurfingNet=0;
@@ -2084,7 +2089,7 @@ ReadFileNames:
 		}
 
 		box_w = w_w;
-		box_h = (FONTSCALE_Y(grd_curfont->ft_h + 2) * NumFiles_displayed);
+		box_h = ((FONTSCALE_Y(grd_curfont->ft_h + 2)) * NumFiles_displayed);
 
 		w_w += FONTSCALE_X(grd_curfont->ft_w * 4);
 		w_h = title_height + box_h + FONTSCALE_Y(grd_curfont->ft_h * 2);		// more space at bottom
@@ -2593,7 +2598,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		if ( w > width )
 			width = w;
 	}
-	height = FONTSCALE_Y(grd_curfont->ft_h + 2) * LB_ITEMS_ON_SCREEN;
+	height = (FONTSCALE_Y(grd_curfont->ft_h + 2)) * LB_ITEMS_ON_SCREEN;
 
 	{
 		int w, h, aw;
@@ -2950,7 +2955,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 	keyd_repeat = old_keyd_repeat;
 
-	gr_bm_bitblt(total_width,total_height, wx-border_size, wy-title_height-border_size, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
+// 	gr_bm_bitblt(total_width,total_height, wx-border_size, wy-title_height-border_size, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
 
 	if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
 		gr_free_bitmap(bg.background);
