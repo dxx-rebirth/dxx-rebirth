@@ -1194,6 +1194,28 @@ void DoBriefingColorStuff ()
 	Erase_color = gr_find_closest_color_current(0, 0, 0);
 }
 
+#ifdef OGL
+// ZICO - this function will load the bitmap frame for spinning robots in the offscreen buffer.
+//        this way we can be sure the frame is shown when offscreen render is called in draw_model_picture().
+//        some GPU configurations seem (dunno why) to mess it up otherwise...
+void ogl_init_robot_frame()
+{
+	CFILE * file;
+	int pcx_error;
+	grs_bitmap backdrop;
+
+	backdrop.bm_data=NULL;
+	pcx_error = pcx_read_bitmap("brief03.pcx",&backdrop, BM_LINEAR,New_pal);
+	if (pcx_error != PCX_ERROR_NONE)		{
+		cfclose(file);
+		return;
+	}
+	ogl_start_offscreen_render(0, 0, SWIDTH, SHEIGHT);
+	show_fullscr(&backdrop);
+	ogl_end_offscreen_render();
+}
+#endif
+
 //-----------------------------------------------------------------------------
 // Return true if screen got aborted by user, else return false.
 int show_briefing_screen( int screen_num, int allow_keys)
@@ -1231,6 +1253,9 @@ int show_briefing_screen( int screen_num, int allow_keys)
 		//vfx_set_palette_sub( New_pal );
 #ifdef OGL
 		gr_palette_load(New_pal);
+	
+		if (screen_num>1)
+			ogl_init_robot_frame();
 #else
 		gr_palette_clear();
 #endif

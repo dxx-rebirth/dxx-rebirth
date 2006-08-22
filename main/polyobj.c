@@ -828,17 +828,15 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 #ifndef OGL
 	grs_canvas	*save_canv = grd_curcanv,*temp_canv;
 #endif
-
 	Assert(mn>=0 && mn<N_polygon_models);
 
 #ifdef OGL
-	ogl_start_offscreen_render(0, 0, grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
+	ogl_start_offscreen_render(0,0,grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h);
 #else
 	temp_canv = gr_create_canvas(save_canv->cv_bitmap.bm_w,save_canv->cv_bitmap.bm_h);
 	gr_set_current_canvas(temp_canv);
 #endif
 	gr_clear_canvas( BM_XRGB(0,0,0) );
-
 	g3_start_frame();
 	g3_set_view_matrix(&temp_pos,&temp_orient,0x9000);
 
@@ -848,18 +846,14 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
 	vm_angles_2_matrix(&temp_orient, orient_angles);
-
 	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,f1_0,NULL,NULL);
-
 	g3_end_frame();
 
 #ifdef OGL
 	ogl_end_offscreen_render();
 #else
 	gr_set_current_canvas(save_canv);
-
 	gr_bitmap(0,0,&temp_canv->cv_bitmap);
-
 	gr_free_canvas(temp_canv);
 #endif
 }
