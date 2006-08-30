@@ -583,10 +583,10 @@ void create_name_canv()
 // 	name_canv_left = print_to_canvas(name_level_left, SMALL_FONT, Green_31, -1);
 // 	name_canv_right = print_to_canvas(name_level_right,SMALL_FONT, Green_31, -1);
 	gr_set_curfont(SMALL_FONT);
-	gr_printf(10,10,"%s", name_level_left);
+	gr_printf(((MenuHires)?10:5),((MenuHires)?10:5),"%s", name_level_left);
 	gr_get_string_size(system_name[(Current_level_num-1)/4],&wr1,&h,&aw);
 	gr_get_string_size(Current_level_name,&wr2,&h,&aw);
-	gr_printf(grd_curcanv->cv_bitmap.bm_w-(wr1+wr2)-FONTSCALE_X(35),10,"%s", name_level_right);
+	gr_printf(grd_curcanv->cv_bitmap.bm_w-(wr1+wr2)-FONTSCALE_X(((MenuHires)?35:18)),((MenuHires)?10:5),"%s", name_level_right);
 }
 
 extern void GameLoop(int, int );
@@ -602,9 +602,9 @@ int Automap_active = 0;
 int Automap_always_hires; // ZICO - dummy
 
 #ifdef RELEASE
-#define MAP_BACKGROUND_FILENAME ((VR_render_buffer[0].cv_w>=640)?"\x01MAPB.PCX":"\x01MAP.PCX")	//load only from hog file
+#define MAP_BACKGROUND_FILENAME ((MenuHires)?"\x01MAPB.PCX":"\x01MAP.PCX")	//load only from hog file
 #else
-#define MAP_BACKGROUND_FILENAME (((VR_render_buffer[0].cv_w>=640) && cfexist("mapb.pcx"))?"MAPB.PCX":"MAP.PCX")
+#define MAP_BACKGROUND_FILENAME (((MenuHires) && cfexist("mapb.pcx"))?"MAPB.PCX":"MAP.PCX")
 #endif
 #define RESCALE_X(x) ((x) * automap_width / 640)
 #define RESCALE_Y(y) ((y) * automap_height / 480)
@@ -658,10 +658,7 @@ void do_automap( int key_code )	{
 	automap_width=grd_curscreen->sc_canvas.cv_bitmap.bm_w;
 	automap_height=grd_curscreen->sc_canvas.cv_bitmap.bm_h;
 
-	if (VR_render_buffer[0].cv_w >= 640)
-		FontHires = 1;
-	else
-		FontHires = 0;
+	FontHires = MenuHires;
 
 // 	create_name_canv();
 

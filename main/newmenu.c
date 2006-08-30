@@ -100,7 +100,7 @@ typedef struct bkg {
 grs_bitmap nm_background,nm_background_save;
 
 #define MESSAGEBOX_TEXT_SIZE 2176   // How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
-#define MAX_TEXT_WIDTH 	FONTSCALE_X(200)				// How many pixels wide a input box can be
+#define MAX_TEXT_WIDTH 	((MenuHires)?FONTSCALE_X(200):100)				// How many pixels wide a input box can be
 
 #ifdef OGL
 #define MENSCALE_X ((fixedfont)?(1):((MenuHires)?(SWIDTH/640):(SWIDTH/320)))
@@ -1046,7 +1046,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	
 	// Update all item's x & y values.
 	for (i=0; i<nitems; i++ )	{
-		item[i].x = (MenuHires?30:15)*MENSCALE_Y + twidth + right_offset;
+		item[i].x = (MenuHires?30:15)*MENSCALE_X + twidth + right_offset;
 		item[i].y += (MenuHires?30:15)*MENSCALE_Y;
 		if ( item[i].type==NM_TYPE_RADIO )	{
 			fm = -1;	// find first marked one

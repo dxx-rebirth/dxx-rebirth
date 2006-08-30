@@ -109,15 +109,15 @@ int Gauge_hud_mode=0; // ZICO - new HUD modes
 
 #define SB_GAUGE_ENERGY			36
 
-#define GAUGE_LIVES				37	
+#define GAUGE_LIVES			37	
 
-#define GAUGE_SHIPS				38
+#define GAUGE_SHIPS			38
 #define GAUGE_SHIPS_LAST		45
 
 #define RETICLE_CROSS			46
 #define RETICLE_PRIMARY			48
 #define RETICLE_SECONDARY		51
-#define RETICLE_LAST				55
+#define RETICLE_LAST			55
 
 #define GAUGE_HOMING_WARNING_ON	56
 #define GAUGE_HOMING_WARNING_OFF	57
@@ -129,7 +129,7 @@ int Gauge_hud_mode=0; // ZICO - new HUD modes
 
 #define KEY_ICON_BLUE			68
 #define KEY_ICON_YELLOW			69
-#define KEY_ICON_RED				70
+#define KEY_ICON_RED			70
 
 #define SB_GAUGE_AFTERBURNER		71
 
@@ -142,7 +142,7 @@ int Gauge_hud_mode=0; // ZICO - new HUD modes
 #define PAGE_IN_GAUGE(x) _page_in_gauge(x)
 static inline void _page_in_gauge(int x)
 {
-    if (FontHires) {
+    if (grd_curscreen->sc_w > 320) {
         PIGGY_PAGE_IN(Gauges_hires[x]);
     } else {
 	PIGGY_PAGE_IN(Gauges[x]);
@@ -152,7 +152,7 @@ static inline void _page_in_gauge(int x)
 #else
 #define PAGE_IN_GAUGE(x) \
 	do {									 				\
-		if (FontHires) {				\
+		if (grd_curscreen->sc_w > 320) {				\
 			PIGGY_PAGE_IN(Gauges_hires[x]);	  	\
 		} else {										  	\
 			PIGGY_PAGE_IN(Gauges[x]);			  	\
@@ -161,7 +161,7 @@ static inline void _page_in_gauge(int x)
 // #endif
 #endif
 
-#define GET_GAUGE_INDEX(x)	(FontHires?Gauges_hires[x].index:Gauges[x].index)
+#define GET_GAUGE_INDEX(x)	((grd_curscreen->sc_w > 320)?Gauges_hires[x].index:Gauges[x].index)
 
 //change MAX_GAUGE_BMS when adding gauges
 

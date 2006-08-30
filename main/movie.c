@@ -95,6 +95,7 @@ char movielib_files[4][FILENAME_LEN] = {"intro","other","robots"};
 
 int MovieHires = 1;   //default is highres
 int bPlayMovie;
+int bRobotRotate;
 
 SDL_RWops *RoboFile;
 
@@ -174,11 +175,7 @@ int PlayMovie(const char *filename, int must_have)
 	return ret;
 }
 
-
 int bRobotRotate;
-
-#ifndef OGL
-
 void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, uint h, uint dstx, uint dsty)
 {
 	grs_bitmap source_bm;
@@ -193,30 +190,13 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 	source_bm.bm_type = BM_LINEAR;
 	source_bm.bm_flags = 0;
 	source_bm.bm_data = buf;
-
-	gr_bm_ubitblt(bufw,bufh,dstx,dsty,sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
-}
-
-#else
-
-void MovieShowFrame (ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, uint h, uint dstx, uint dsty)
-{
-	bPlayMovie = 1;
-	grs_bitmap source_bm;
-
-	Assert(bufw == w && bufh == h);
-
-	memset (&source_bm, 0, sizeof (source_bm));
-	source_bm.bm_w = source_bm.bm_rowsize = bufw;
-	source_bm.bm_h = bufh;
-	source_bm.bm_type = BM_LINEAR;
-	source_bm.bm_data = buf;
-
+#ifdef OGL
 	double r = (double) bufh / (double) bufw;
 	int dh = (int) (grd_curcanv->cv_w * r);
 	int yOffs = (grd_curcanv->cv_h - dh) / 2;
 	int mip;
-
+	
+	bPlayMovie = 1;
 	if (FindArg("-nomoviesmooth"))
 		mip = 0;
 	else
@@ -231,9 +211,10 @@ void MovieShowFrame (ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w,
 	glEnable (GL_BLEND);
 
 	bPlayMovie = 0;
-}
-
+#else
+	gr_bm_ubitblt(bufw,bufh,dstx,dsty,sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
 #endif
+}
 
 //our routine to set the pallete, called from the movie code
 void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
@@ -353,10 +334,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
 
-	if (FindArg("-menu_gameres"))
-		gr_set_mode(SM(Game_window_w,Game_window_h));
-	else
-		gr_set_mode(SM((hires_flag?640:320),(hires_flag?480:200)));
+	gr_set_mode(SM((hires_flag?Game_window_w:320),(hires_flag?Game_window_h:200)));
 
 #ifdef OGL
 	set_screen_mode(SCREEN_MENU);

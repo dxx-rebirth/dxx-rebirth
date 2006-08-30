@@ -431,12 +431,10 @@ void format_time(char *str, int secs_int)
 
 extern int Redbook_playing;
 void do_show_netgame_help();
-extern int menu_except;
 
 //Process selected keys until game unpaused. returns key that left pause (p or esc)
 int do_game_pause()
 {
-	menu_except=1; // ZICO - we're in pause, so we don't want to go to menu res
 	int key;
 	char msg[1000];
 	char total_time[9],level_time[9];
@@ -445,11 +443,10 @@ int do_game_pause()
 
 	if (Game_paused) {		//unpause!
 		Game_paused=0;
-      #if defined (TACTILE)
+#if defined (TACTILE)
 			if (TactileStick)
 			  EnableForces();
-		#endif
-		menu_except=0; // ZICO - pause over, switching back to normal menu res if needed
+#endif
 		return KEY_PAUSE;
 	}
 
@@ -1082,6 +1079,7 @@ int HandleSystemKey(int key)
 		case KEY_PAUSE: 
 			do_game_pause();				break;
 
+
 		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
 		case KEY_PRINT_SCREEN:  save_screen_shot(0);		break;
 
@@ -1255,9 +1253,7 @@ int HandleSystemKey(int key)
 
 		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_4:)
 		case KEY_F4 + KEY_SHIFTED:
-			menu_except = 1;
 			do_escort_menu();
-			menu_except = 0;
 			break;
 
 

@@ -907,7 +907,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	save_canvas = grd_curcanv;
 
-	scale=FONTSCALE_Y(GAME_FONT->ft_h/5.0);
+	scale=FONTSCALE_X(GAME_FONT->ft_h/5.0);
 	printf("scale=%f\n",scale);
 	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 240*scale)/2, 320*scale, 240*scale);
 	gr_set_current_canvas(&canvas);

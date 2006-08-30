@@ -98,4 +98,8 @@ extern int Default_display_mode;		// cannot be -1
 // if we can't have popups over the game screen, switch to menu mode.
 void set_popup_screen(void);
 
+extern u_int32_t MENU_HIRES_MODE;
+extern int menu_use_game_res;
+#define MENU_SCREEN_MODE (menu_use_game_res?Game_screen_mode:MENU_HIRES_MODE)
+
 #endif /* _SCREENS_H */

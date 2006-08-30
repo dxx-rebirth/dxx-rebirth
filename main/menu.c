@@ -253,7 +253,6 @@ try_again:;
 
 static int First_time = 1;
 static int main_menu_choice = 0;
-extern int VR_screen_mode, Current_display_mode;
 
 //      -----------------------------------------------------------------------------
 //      Create the main menu.
@@ -261,19 +260,12 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 {
 	int     num_options;
 
-	read_player_file();
-	VR_screen_mode = Game_screen_mode = SM(Game_window_w,Game_window_h);
-	// ZICO - we need this to get custom res working
- 
-	if (FindArg("-menu_gameres")) // ZICO - set players resolution ofter player is selected
-		set_screen_mode (SCREEN_GAME);
-
 	gr_update();
 
 	#ifndef DEMO_ONLY
 	num_options = 0;
 
-// 	set_screen_mode (SCREEN_MENU);
+	set_screen_mode (SCREEN_MENU);
 
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
@@ -1042,21 +1034,26 @@ void change_res()
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1024x768"; m[mc].value = (Game_screen_mode == SM(1024,768)); m[mc].group = 0; modes[mc] = SM(1024,768); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x1024"; m[mc].value = (Game_screen_mode == SM(1280,1024)); m[mc].group = 0; modes[mc] = SM(1280,1024); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1600x1200"; m[mc].value = (Game_screen_mode == SM(1600,1200)); m[mc].group = 0; modes[mc] = SM(1600,1200); mc++; // ZICO - added res
-
+	
 	num_presets = mc;
-	for (i = 0; i < mc; i++)
+	m[mc].value=0; // make sure we count and reach the right selection
+	for (i = 0; i < 8; i++)
 		if (m[mc].value)
 			break;
-
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "custom:"; m[mc].value = (Game_screen_mode == SM(Game_window_w,Game_window_h)); m[mc].group = 0; modes[mc] = 99; mc++;
+	
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "custom:"; m[mc].value = (i == mc); m[mc].group = 0; modes[mc] = 0; mc++;
 	sprintf(customres, "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
-	m[mc].type = NM_TYPE_INPUT; m[mc].text = customres; m[mc].text_len = 11; modes[mc] = 99; mc++;
+	m[mc].type = NM_TYPE_INPUT; m[mc].text = customres; m[mc].text_len = 11; modes[mc] = 0; mc++;
 
+	// added 05/27/99 Matt Mueller - ingame fullscreen changing
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	fullscreenc = mc; m[mc].type = NM_TYPE_CHECK; m[mc].text = "Fullscreen"; m[mc].value = gr_check_fullscreen(); mc++;
 #endif
-	i = newmenu_do1(NULL, "Screen Resolution", mc, m, &change_res_poll, 0);
+	// end addition -MM
 
+	i = newmenu_do1( NULL, "Screen Resolution", mc, m, &change_res_poll, 0 );
+
+	// added 05/27/99 Matt Mueller - ingame fullscreen changing
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	if (m[fullscreenc].value != gr_check_fullscreen())
 	{
@@ -1064,12 +1061,11 @@ void change_res()
 		Game_screen_mode = -1;
 	}
 #endif
+	// end addition -MM
 
 	for (i = 0; (m[i].value == 0) && (i < num_presets); i++);
 
-	for (i = 0; (m[i].value == 0) && (i < num_presets); i++);
-
-	if (modes[i]==99)
+	if (modes[i]==0)
 	{
 		char *h = strchr(customres, 'x');
 		if (!h)
@@ -1086,37 +1082,21 @@ void change_res()
 	if (screen_height <= 0 || screen_width <= 0)
 		return;
 
-	switch (screen_mode)
-	{
-	case SM(320, 200):
-	case SM(640, 480):
-		screen_flags = VRF_ALLOW_COCKPIT + VRF_COMPATIBLE_MENUS;
-		break;
-	default:
-		screen_flags = VRF_COMPATIBLE_MENUS;
-		break;
-	}
-
-#ifdef __MSDOS__
-	if (FindArg("-nodoublebuffer"))
-#endif
-	{
-		screen_flags &= ~VRF_USE_PAGING;
-	}
-
+	// added 6/15/1999 by Owen Evans to eliminate unneccesary mode modification
 	if (Game_screen_mode == screen_mode)
 		return;
+	// end section - OE
 
-	//VR_offscreen_buffer = 0; // Disable VR (so that VR_Screen_mode doesnt mess us up
+	VR_offscreen_buffer = 0; // Disable VR (so that VR_Screen_mode doesnt mess us up
 	Game_screen_mode = screen_mode;
-	Game_window_w = screen_width;
-	Game_window_h = screen_height;
-	VR_screen_mode = SM(Game_window_w,Game_window_h); // ZICO - need this to get custom res working
+	VR_render_buffer[0].cv_bitmap.bm_w = Game_window_w = screen_width;
+	VR_render_buffer[0].cv_bitmap.bm_h = Game_window_h = screen_height;
 	game_init_render_buffers(screen_mode, screen_width, screen_height, vr_mode, screen_flags);
-	if (modes[i] != 99)
-		set_display_mode(i);
 
-	set_screen_mode(SCREEN_GAME);
+	if (menu_use_game_res) {
+		gr_set_mode(SM(Game_window_w,Game_window_h));
+		set_screen_mode(SCREEN_GAME);
+	}
 }
 //End changed section (OE)
 

@@ -126,6 +126,7 @@ extern void InitWeaponOrdering();
 extern ubyte default_firebird_settings[];
 extern ubyte default_mousestick_settings[];
 #endif
+int saved_w, saved_h;
 
 int new_player_config()
 {
@@ -351,6 +352,9 @@ int read_player_file()
 		return -1;
 	}
 
+	// ZICO - also set VR_render to saved resolution because it won't get screwed up by any screen changes like window shrink etc.
+	VR_render_buffer[0].cv_bitmap.bm_w = cfile_read_short(file);
+	VR_render_buffer[0].cv_bitmap.bm_h = cfile_read_short(file);
 	Game_window_w = cfile_read_short(file);
 	Game_window_h = cfile_read_short(file);
 
@@ -645,8 +649,10 @@ int write_player_file()
 	PHYSFS_writeULE32(file, SAVE_FILE_ID);
 	PHYSFS_writeULE16(file, PLAYER_FILE_VERSION);
 
-	PHYSFS_writeULE16(file, grd_curscreen->sc_w); // ZICO - removed "Game_window_" so d2x doesn't save modified resolutions for cockpit views
-	PHYSFS_writeULE16(file, grd_curscreen->sc_h);
+	PHYSFS_writeULE16(file,VR_render_buffer[0].cv_bitmap.bm_w/*Game_window_w*/);
+	PHYSFS_writeULE16(file,VR_render_buffer[0].cv_bitmap.bm_h/*Game_window_h*/);
+	PHYSFS_writeULE16(file,Game_window_w);
+	PHYSFS_writeULE16(file,Game_window_h);
 
 	PHYSFSX_writeU8(file, Player_default_difficulty);
 	PHYSFSX_writeU8(file, Auto_leveling_on);

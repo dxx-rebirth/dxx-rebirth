@@ -1102,6 +1102,7 @@ void grow_window()
 		Game_window_w = max_window_w;
 		toggle_cockpit();
 		HUD_init_message("Press F3 to return to Cockpit mode");
+		write_player_file();
 		return;
 	}
 
@@ -1133,7 +1134,7 @@ void grow_window()
 
 	HUD_clear_messages();	//	@mk, 11/11/94
 
-//	write_player_file(); // ZICO - deactivated to not screw up resolutions
+	write_player_file();
 }
 
 // grs_bitmap background_bitmap;	already declared in line 434 (samir 4/10/94)
@@ -1172,9 +1173,11 @@ void copy_background_rect(int left,int top,int right,int bot)
 
 			//w = (right < dest_x+bm->bm_w)?(right-dest_x+1):(bm->bm_w-ofs_x);
 			w = min(right-dest_x+1,bm->bm_w-ofs_x);
-		
-			gr_bm_ubitblt(w,h,dest_x,dest_y,ofs_x,ofs_y,
-					&background_bitmap,&grd_curcanv->cv_bitmap);
+#ifdef OGL
+			ogl_ubitmapm_cs (dest_x, dest_y, w, h, &background_bitmap,255, F1_0, 0);
+#else
+			gr_bm_ubitblt(w,h,dest_x,dest_y,ofs_x,ofs_y,&background_bitmap,&grd_curcanv->cv_bitmap);
+#endif
 
 			ofs_x = 0;
 			dest_x += w;
@@ -1225,7 +1228,7 @@ void shrink_window()
 		//!!toggle_cockpit();
 		select_cockpit(CM_STATUS_BAR);
 		HUD_init_message("Press F3 to return to Cockpit mode");
-		//write_player_file();
+		write_player_file();
 		return;
 	}
 
@@ -1234,7 +1237,7 @@ void shrink_window()
 		//Game_window_w = max_window_w;
 		//Game_window_h = max_window_h;
 		select_cockpit(CM_STATUS_BAR);
-		//write_player_file();
+		write_player_file();
 		return;
 	}
 
@@ -1265,7 +1268,7 @@ void shrink_window()
 
 		game_init_render_sub_buffers( Game_window_x, Game_window_y, Game_window_w, Game_window_h );
 		HUD_clear_messages();
-//		write_player_file(); // ZICO - deactivated to not screw up resolutions
+		write_player_file();
 	}
 
 }
@@ -1280,14 +1283,6 @@ void update_cockpits(int force_redraw)
 
 	//Redraw the on-screen cockpit bitmaps
 	if (VR_render_mode != VR_NONE )	return;
-
-#ifdef OGL
-	if (grd_curscreen->sc_w >= 640) { // ZICO - scale fonts correctly with scalable cockpits
-		FontHires = 1;
-	} else {
-		FontHires = 0;
-	}
-#endif
 
 	switch( Cockpit_mode )	{
 	case CM_FULL_COCKPIT:

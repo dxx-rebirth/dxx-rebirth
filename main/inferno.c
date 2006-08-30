@@ -328,9 +328,8 @@ void print_commandline_help()
 #endif
 	printf("  -niceautomap    %s\n", "Free cpu while doing automap");
 	printf( "  -automap<X>x<Y> %s\n","Set automap resolution to <X> by <Y>");
-	printf( "  -automap_gameres %s\n","Set automap to use the same resolution as in game");
-//	printf( "  -menu<X>x<Y>    %s\n","Set menu resolution to <X> by <Y>");*/ // ZICO - not really needed anymore
-	printf( "  -menu_gameres   %s\n","Set menus to use the same resolution as in game");
+	printf( "  -automap_gameres %s\n","Set automap to use the same resolution as in game");*/
+	printf( "  -menu<X>x<Y>    %s\n","Set menu resolution to <X> by <Y> instead of using game-resolution");
 	printf("  -rearviewtime t %s\n", "time holding rearview key to use toggle mode (default 0.0625 seconds)");
 	printf( "\n");
 
@@ -343,7 +342,7 @@ void print_commandline_help()
 //	printf( "  -fullscreen     %s\n", "Use fullscreen mode if available");
         printf( "  -window         %s\n", "Run the game in a window"); // ZICO - from window to fullscreen
 #endif
-	printf( "  -aspect <y> <x>  %s\n",  ";use specified aspect - example: -aspect 16 9, -aspect 16 7.5 etc.");
+	printf( "  -aspect<Y>x<X>  %s\n", "use specified aspect");
 #ifdef OGL
 	printf( "  -gl_texmagfilt <f> %s\n","set GL_TEXTURE_MAG_FILTER");
 	printf( "  -gl_texminfilt <f> %s\n","set GL_TEXTURE_MIN_FILTER");
@@ -444,6 +443,7 @@ void do_register_player(ubyte *title_pal)
 		memcpy(gr_palette,title_pal,sizeof(gr_palette));
 		remap_fonts_and_menus(1);
 		RegisterPlayer();		//get player's name
+		read_player_file(); // read out now so we are able to use game resolution in menu
 	}
 
 }
@@ -466,7 +466,8 @@ int start_net_immediately = 0;
 //char *start_with_mission_name;
 //end this section addition
 
-#define MENU_HIRES_MODE SM(640,480)
+u_int32_t MENU_HIRES_MODE=SM(640,480); //#define MENU_HIRES_MODE SM(640,480)
+int menu_use_game_res=1;
 
 //	DESCENT II by Parallax Software
 //		Descent Main
@@ -777,6 +778,7 @@ int main(int argc, char *argv[])
 		game_init_render_buffers(Game_screen_mode, screen_width, screen_height, vr_mode, screen_flags);
 
 	}
+
 	{
 // added/edited on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
 		int i, argnum = INT_MAX, w, h;
@@ -788,8 +790,9 @@ int main(int argc, char *argv[])
 // end addition/edit -MM
 #define S_MODE(V,VV,VG) argnum = INT_MAX; SMODE(V, VV, VG); SMODE_GR(V, VG); SMODE_PRINT(V, VV, VG);
 
+
 		S_MODE(automap,automap_mode,automap_use_game_res);
-//		S_MODE(menu,menu_screen_mode,menu_use_game_res);
+		S_MODE(menu,MENU_HIRES_MODE,menu_use_game_res);
 	 }
 //end addition -MM
 
@@ -880,9 +883,9 @@ int main(int argc, char *argv[])
 				char filename[FILENAME_LEN];
 
 				gr_set_mode(MenuHires?SM(640,480):SM(320,200));
-#ifdef OGL
-				set_screen_mode(SCREEN_MENU);
-#endif
+// #ifdef OGL
+// 				set_screen_mode(SCREEN_MENU);
+// #endif
 				con_printf( CON_DEBUG, "\nPlaying title song..." );
 				songs_play_song( SONG_TITLE, 1);
 				song_playing = 1;
@@ -1107,7 +1110,7 @@ int main(int argc, char *argv[])
 
 				check_joystick_calibration();
 				gr_palette_clear();		//I'm not sure why we need this, but we do
-				DoMenu();									 	
+				DoMenu();
 				#ifdef EDITOR
 				if ( Function_mode == FMODE_EDITOR )	{
 					create_new_mine();

@@ -124,6 +124,7 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.1.1.1 2006/03/17 19:57:54 zicodxx Exp
 #include "strutil.h"
 #include "rle.h"
 
+
 void StartNewLevelSecret(int level_num, int page_in_textures);
 void InitPlayerPosition(int random_flag);
 void load_stars();
@@ -784,7 +785,11 @@ do_menu_again:
 
 	Auto_leveling_on = Default_leveling_on;
 
-	set_display_mode(Default_display_mode);
+	if (menu_use_game_res) { // ZICO - set players resolution after player is selected
+		gr_set_mode(SM(VR_render_buffer[0].cv_bitmap.bm_w, VR_render_buffer[0].cv_bitmap.bm_h));
+		set_screen_mode(SCREEN_GAME);
+	} else 
+		set_display_mode(Default_display_mode);
 
 	WriteConfigFile();		// Update lastplr
 
@@ -1130,8 +1135,6 @@ int p_secret_level_destroyed(void)
 	}
 }
 
-extern int menu_except;
-
 //	-----------------------------------------------------------------------------------------------------
 void do_secret_message(char *msg)
 {
@@ -1171,7 +1174,6 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 	} else if (Newdemo_state != ND_STATE_PLAYBACK) {
 
 		gr_palette_fade_out(gr_palette, 32, 0);
-		menu_except = 1; // ZICO - we're going to a secret level, so we don't want to go to menu res
 		set_screen_mode(SCREEN_MENU);
  
 		if (First_secret_visit) {
@@ -1263,7 +1265,6 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 	Last_level_path_created = -1;
 
 	First_secret_visit = 0;
-	menu_except=0; // ZICO - we've reached secret level, so we want to go to menu res if needed
 }
 
 int	Entered_from_level;
@@ -1272,7 +1273,6 @@ int	Entered_from_level;
 //	Called from switch.c when player is on a secret level and hits exit to return to base level.
 void ExitSecretLevel(void)
 {
-	menu_except = 1; // ZICO - we're leaving a secret level, so we don't want to go to menu res
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
 
@@ -1290,9 +1290,7 @@ void ExitSecretLevel(void)
 		state_restore_all(1, 1, SECRETB_FILENAME);
 		Primary_weapon = pw_save;
 		Secondary_weapon = sw_save;
-		menu_except = 0; // ZICO - we've reached normal level, so we want to go to menu res if needed
 	} else {
-		menu_except = 0;
 		// File doesn't exist, so can't return to base level.  Advance to next one.
 		if (Entered_from_level == Last_level)
 			DoEndGame();

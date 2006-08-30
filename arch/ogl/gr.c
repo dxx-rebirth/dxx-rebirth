@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
@@ -319,10 +320,10 @@ extern int VGA_current_mode; // DPH: kludge - remove at all costs
 
 int gr_set_mode(u_int32_t mode)
 {
-	unsigned int w,h,t;
+	unsigned int w, h, aw, ah;
 	char *gr_bm_data;
-	float awidth = 3;
-	float aheight = 4;
+	float awidth = 3, aheight = 4;
+	int i, argnum = INT_MAX;
 
 #ifdef NOGRAPH
 return 0;
@@ -339,16 +340,7 @@ return 0;
 
 //	ogl_init_state();
 
-	if ((t = FindArg( "-aspect" ))) {
-		t=atoi(Args[t+1]);
-		if (t>0&&t<=16)
-			aheight=t;
-	}
-	if ((t = FindArg( "-aspect" ))) {
-		t=atoi(Args[t+2]);
-		if (t>0&&t<=16)
-			awidth=t;
-	}
+	if ((i=FindResArg("aspect", &ah, &aw)) && (i < argnum)) { argnum = i; awidth=aw; aheight=ah; }
 	
 	gr_bm_data=(char *)grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
 	memset( grd_curscreen, 0, sizeof(grs_screen));

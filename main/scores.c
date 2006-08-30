@@ -371,7 +371,7 @@ ReshowScores:
  
 	gr_set_current_canvas(NULL);
 
-	scale=FONTSCALE_Y(GAME_FONT->ft_h/5);//5 is the size of the standard font the menus were designed for.
+	scale=FONTSCALE_X(GAME_FONT->ft_h/5);//5 is the size of the standard font the menus were designed for.
 	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 240*scale)/2, 320*scale, 240*scale); // ZICO - added
 	gr_set_current_canvas(&canvas);
 	

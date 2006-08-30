@@ -356,7 +356,7 @@ extern void newdemo_record_cockpit_change(int);
 void init_cockpit()
 {
 //	int minx, maxx, miny, maxy;
-	int h;
+	int x,y;
 	//Initialize the on-screen canvases
 
 	if (Newdemo_state==ND_STATE_RECORDING) {
@@ -403,8 +403,7 @@ void init_cockpit()
 	}
 
 	case CM_FULL_SCREEN:
-
-		max_window_h = grd_curscreen->sc_h;
+		max_window_h = Game_window_h;
 
 		if (Game_window_h > max_window_h || VR_screen_flags&VRF_ALLOW_COCKPIT)
 			Game_window_h = max_window_h;
@@ -419,30 +418,20 @@ void init_cockpit()
 		break;
 
 	case CM_STATUS_BAR:
-
-		//max_window_h = grd_curscreen->sc_h - GameBitmaps[cockpit_bitmap[CM_STATUS_BAR+(Current_display_mode?(Num_cockpits/2):0)].index].bm_h;
-		h = GameBitmaps[cockpit_bitmap[CM_STATUS_BAR+ (Current_display_mode? (Num_cockpits/2):0)].index].bm_h; // ZICO - to scale cockpit correctly
-		if  (Current_display_mode)
-			h =  (int)  ((double) h *  (double) grd_curscreen->sc_h / 480.0);
-
-		if (grd_curscreen->sc_w >= 640) {
-			max_window_h = grd_curscreen->sc_h - h;
-		} else {
-			max_window_h = (grd_curscreen->sc_h*2)/2.725;
+		if (grd_curscreen->sc_w >= 640)
+			max_window_h = (grd_curscreen->sc_h*2)/2.6;
+		else
+			max_window_h = (grd_curscreen->sc_h*2)/2.7;
+		if (Game_window_h > max_window_h) {
+			Game_window_w = max_window_w;
+			Game_window_h = max_window_h;
 		}
 
-		if (Game_window_h > max_window_h)
-			Game_window_h = max_window_h;
+		x = (max_window_w - Game_window_w)/2;
+		y = (max_window_h - Game_window_h)/2;
 
-		if (Game_window_w > max_window_w)
-			Game_window_w = max_window_w;
-
-		Game_window_x = (max_window_w - Game_window_w)/2;
-		Game_window_y = (max_window_h - Game_window_h)/2;
-
-		game_init_render_sub_buffers( Game_window_x, Game_window_y, Game_window_w, Game_window_h );
+		game_init_render_sub_buffers( x, y, Game_window_w, Game_window_h );
 		break;
-
 	case CM_LETTERBOX:	{
 		int x,y,w,h;
 
@@ -453,7 +442,6 @@ void init_cockpit()
 		game_init_render_sub_buffers( x, y, w, h );
 		break;
 		}
-
 	}
 
 	gr_set_current_canvas(NULL);
@@ -561,8 +549,6 @@ void set_popup_screen(void)
 
 }
 
-int menu_except=0;
-
 //called to change the screen mode. Parameter sm is the new mode, one of
 //SMODE_GAME or SMODE_EDITOR. returns mode acutally set (could be other
 //mode if cannot init requested mode)
@@ -574,6 +560,14 @@ int set_screen_mode(int sm)
 		return 1;
 	}
 #endif
+	// ZICO - since we use variable resolutions we can't store them in modes. Game_window_w/h is used to scale the window for STATUSBAR and shrink/grow_window so we can't use it to store the current resolution. So we store it in the VR_render variables. If we are going to remove this VR stuff we need to create new variables.
+	VR_screen_mode = Game_screen_mode = SM(VR_render_buffer[0].cv_bitmap.bm_w, VR_render_buffer[0].cv_bitmap.bm_h);
+
+	if (MenuHiresAvailable && FontHiresAvailable && (grd_curscreen->sc_w >= 640) && (grd_curscreen->sc_h >= 480)) {
+		MenuHires = FontHires = 1;
+	} else {
+		MenuHires = FontHires = 0;
+	}
 
 	if ( Screen_mode == sm && VGA_current_mode == VR_screen_mode) {
 		gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
@@ -596,39 +590,13 @@ int set_screen_mode(int sm)
 
 	switch( Screen_mode )
 	{
-		case SCREEN_MENU:
-		{
-			int menu_mode;
-
-			if ((FindArg("-menu_gameres") && grd_curscreen->sc_w >= 640) || !FindArg("-menu_gameres")) { // ZICO - new way to set menu to fit better with -menu_gameres
-				MenuHires = MenuHiresAvailable;		//do highres if we can
-			} else {
-				MenuHires = 0;
-			}
-
-			if (FindArg( "-menu_gameres" ) || menu_except) { // ZICO - let's implement -menu_gameres. Sort of a hack but few code and works great
-				menu_mode = SM(grd_curscreen->sc_w,grd_curscreen->sc_h);
-			} else {
-				menu_mode = MenuHires?SM(640,480):SM(320,200);
-			}
-
-			if ( VGA_current_mode != menu_mode ) {
-				if (gr_set_mode(menu_mode))
-					Error("Cannot set screen mode for menu");
-				if (!gr_palette_faded_out)
-					gr_palette_load(gr_palette);
-			}
-
-			gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-			gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-
-			if ((FindArg("-menu_gameres") && grd_curscreen->sc_w >= 640) || !FindArg("-menu_gameres")) { // ZICO - new way to set fonts to fit better with -menu_gameres
-				FontHires = FontHiresAvailable && MenuHires;
-			} else {
-				FontHires = 0;
-			}
-		// ZICO - font and menu hires selection is just provisoric. should be solved better in the future
+	case SCREEN_MENU:
+		if (grd_curscreen->sc_mode != MENU_SCREEN_MODE)	{
+			if (gr_set_mode(MENU_SCREEN_MODE)) Error("Cannot set screen mode for game!");
+			gr_palette_load( gr_palette );
 		}
+                gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
+		gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 		break;
 
 	case SCREEN_GAME:
@@ -644,31 +612,30 @@ int set_screen_mode(int sm)
 			reset_cockpit();
 		}
 
-		if ( VR_render_mode == VR_NONE )
-		{
+// 		if ( VR_render_mode == VR_NONE )
+// 		{
 			max_window_w = grd_curscreen->sc_w;
 			max_window_h = grd_curscreen->sc_h;
+// 
+// 			if (VR_screen_flags & VRF_ALLOW_COCKPIT) {
+// 				if (Cockpit_mode == CM_STATUS_BAR)
+// 		      			max_window_h = grd_curscreen->sc_h - GameBitmaps[cockpit_bitmap[CM_STATUS_BAR+(Current_display_mode?(Num_cockpits/2):0)].index].bm_h;
+// 			}
+// #ifndef OGL // ZICO - override for scalable cockpits
+// 			else if (Cockpit_mode != CM_LETTERBOX)
+// 				Cockpit_mode = CM_FULL_SCREEN;
+// #endif
+// 
+// 			if (Game_window_h==0 || Game_window_h > max_window_h || Game_window_w==0 || Game_window_w > max_window_w) {
+// 						Game_window_w = max_window_w;
+// 						Game_window_h = max_window_h;
+// 			}
+// 		}
+// 		else
+// 			Cockpit_mode = CM_FULL_SCREEN;
 
-			if (VR_screen_flags & VRF_ALLOW_COCKPIT) {
-				if (Cockpit_mode == CM_STATUS_BAR)
-		      	max_window_h = grd_curscreen->sc_h - GameBitmaps[cockpit_bitmap[CM_STATUS_BAR+(Current_display_mode?(Num_cockpits/2):0)].index].bm_h;
-			}
-			else if (Cockpit_mode != CM_LETTERBOX)
-#ifndef OGL // ZICO - override for scalable cockpits
-				Cockpit_mode = CM_FULL_SCREEN;
-#endif
-
-	      if (Game_window_h==0 || Game_window_h > max_window_h || Game_window_w==0 || Game_window_w > max_window_w) {
-				Game_window_w = max_window_w;
-				Game_window_h = max_window_h;
-	      }
-
-		}
-		else
-			Cockpit_mode = CM_FULL_SCREEN;
-
-	//	Define screen pages for game mode
-	// If we designate through screen_flags to use paging, then do so.
+		// Define screen pages for game mode
+		// If we designate through screen_flags to use paging, then do so.
 		gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 
 		if ( VR_screen_flags&VRF_USE_PAGING )
@@ -678,15 +645,6 @@ int set_screen_mode(int sm)
 
 		init_cockpit();
 
-		FontHires = FontHiresAvailable && (MenuHires = ((Current_display_mode != 0) && (Current_display_mode != 2)));
-
-		if ( VR_render_mode != VR_NONE )	{
-			// for 640x480 or higher, use hires font.
-			if (FontHiresAvailable && (grd_curscreen->sc_h > 400))
-				FontHires = 1;
-			else
-				FontHires = 0;
-		}
 		con_resize();
 
 		break;
@@ -715,7 +673,7 @@ int set_screen_mode(int sm)
 
 	VR_current_page = 0;
 
-		gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
+	gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
 
 	if ( VR_screen_flags&VRF_USE_PAGING )
 		gr_show_canvas( &VR_screen_pages[VR_current_page] );
@@ -725,6 +683,7 @@ int set_screen_mode(int sm)
 
 	return 1;
 }
+
 
 int gr_toggle_fullscreen_game(void){
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
@@ -839,8 +798,7 @@ int Movie_fixed_frametime;
 
 //added on 8/18/98 by Victor Rachels to add maximum framerate
 int maxfps = MAX_FPS;
-int use_nice_fps=1; // ZICO - added to be default - but has no effect because use of timer_delay
-//end this section
+int use_nice_fps=1;
 
 void calc_frame_time()
 {
@@ -1797,15 +1755,6 @@ void game_setup(void)
 	set_screen_mode(SCREEN_GAME);
 
 	reset_palette_add();
-
-	// ZICO - because we had changes in resolutions and modes we give linux' X time to change
-#ifdef __linux
-	fix t1;
-	stop_time();
-	t1 = timer_get_fixed_seconds() + F1_0*1.5;
-	while ( timer_get_fixed_seconds() < t1 );
-	start_time();
-#endif
 
 	set_warn_func(game_show_warning);
 
