@@ -226,13 +226,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 
 	set_screen_mode (SCREEN_MENU);
 
-	VR_screen_mode = Game_screen_mode = SM(VR_render_width,VR_render_height);
-
-	if (FindArg("-menu_gameres")) { // ZICO - set players resolution ofter player is selected
-		gr_set_mode(SM(VR_render_width,VR_render_height));
-		set_screen_mode(SCREEN_GAME);
-	}
-
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
 #ifdef SHAREWARE
@@ -906,7 +899,7 @@ extern int last_drawn_cockpit[2];
 void change_res()
 {
 	// edited 05/27/99 Matt Mueller - ingame fullscreen changing
-	newmenu_item m[12]; // ZICO - from 11 to 12 to be sure...
+	newmenu_item m[12];
 	u_int32_t modes[12];
 	int i = 0, mc = 0, num_presets = 0;
 	char customres[16];
@@ -929,9 +922,10 @@ void change_res()
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "800x600"; m[mc].value = (Game_screen_mode == SM(800,600)); m[mc].group = 0; modes[mc] = SM(800,600); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1024x768"; m[mc].value = (Game_screen_mode == SM(1024,768)); m[mc].group = 0; modes[mc] = SM(1024,768); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x1024"; m[mc].value = (Game_screen_mode == SM(1280,1024)); m[mc].group = 0; modes[mc] = SM(1280,1024); mc++;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1600x1200"; m[mc].value = (Game_screen_mode == SM(1600,1200)); m[mc].group = 0; modes[mc] = SM(1600,1200); mc++; // ZICO - added res
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1600x1200"; m[mc].value = (Game_screen_mode == SM(1600,1200)); m[mc].group = 0; modes[mc] = SM(1600,1200); mc++;
 
 	num_presets = mc;
+	m[mc].value=0; // make sure we count and reach the right selection
 	for (i = 0; i < mc; i++)
 		if (m[mc].value)
 			break;
@@ -939,8 +933,6 @@ void change_res()
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "custom:"; m[mc].value = (i == mc); m[mc].group = 0; modes[mc] = 0; mc++;
 	sprintf(customres, "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 	m[mc].type = NM_TYPE_INPUT; m[mc].text = customres; m[mc].text_len = 11; modes[mc] = 0; mc++;
-
-	//m[mc].type = NM_TYPE_CHECK; m[mc].text = "No Doublebuffer"; m[mc].value = use_double_buffer;
 
 	// added 05/27/99 Matt Mueller - ingame fullscreen changing
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
@@ -962,8 +954,6 @@ void change_res()
 
 	for (i = 0; (m[i].value == 0) && (i < num_presets); i++);
 
-	for(i = 0; (m[i].value == 0) && (i < num_presets); i++);
-
 	if (modes[i]==0)
 	{
 		char *h = strchr(customres, 'x');
@@ -981,17 +971,10 @@ void change_res()
 	if (screen_height <= 0 || screen_width <= 0)
 		return;
 
-#ifdef __MSDOS__
-	if (FindArg("-nodoublebuffer"))
-#endif
-	{
-		use_double_buffer = 0;
-	}
-
 	VR_offscreen_buffer = 0;        //Disable VR (so that VR_Screen_mode doesnt mess us up
 	Game_screen_mode = screen_mode;
-	Game_window_w=screen_width;
-	Game_window_h=screen_height;
+	VR_render_width  = Game_window_w = screen_width;
+	VR_render_height = Game_window_h = screen_height;
 	game_init_render_buffers(screen_mode, screen_width, screen_height, use_double_buffer, vr_mode, screen_compatible);
  
 	mprintf( (0, "\nInitializing palette system..." ));
@@ -1004,7 +987,11 @@ void change_res()
 	last_drawn_cockpit[0]=-1;
 	last_drawn_cockpit[1]=-1;
 	vr_reset_display();
-	set_screen_mode(SCREEN_GAME);
+
+	if (menu_use_game_res) {
+		gr_set_mode(SM(Game_window_w,Game_window_h));
+		set_screen_mode(SCREEN_GAME);
+	}
 }
 
 

@@ -82,8 +82,8 @@ grs_bitmap nm_background;
 
 // ZICO - since the background is rescaled the bevels do the same. because of this we need bigger borders or the fonts would be printed inside the bevels...
 #ifdef OGL
-#define MENSCALE_X ((fixedfont)?(1):(SWIDTH/320))
-#define MENSCALE_Y ((fixedfont)?(1):(SHEIGHT/200))
+#define MENSCALE_X ((fixedfont)?(1):((double)(SWIDTH/320)))
+#define MENSCALE_Y ((fixedfont)?(1):((double)(SHEIGHT/200)))
 #else
 #define MENSCALE_X 1
 #define MENSCALE_Y 1
@@ -131,7 +131,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 //	if ( h > nm_background.bm_h ) h = nm_background.bm_h;
 //	x2 = x1 + w - 1;
 //	y2 = y1 + h - 1;
-
+#ifdef OGL
 	if ( !fixedfont && (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h) ){//Resize background to fit.  Resize so that the original aspect is preserved. -MPM
 		grs_canvas *tmp,*old;
 		grs_bitmap bg;
@@ -142,7 +142,10 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 		show_fullscr( &bg );
 		gr_set_current_canvas(old);
 		gr_free_sub_canvas(tmp);
-	}else{
+	}
+	else
+#endif
+	{
 		gr_bm_bitblt(w, h, x1, y1, 0, 0, &nm_background, &(grd_curcanv->cv_bitmap) );
 	}
 
@@ -185,7 +188,7 @@ void nm_restore_background( int x, int y, int w, int h )
 
 	w = x2 - x1 + 1;
 	h = y2 - y1 + 1;
-
+#ifdef OGL
 	if ( !fixedfont && (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h) ){
 		grs_bitmap sbg;
 		grs_canvas *tmp,*old;
@@ -196,7 +199,10 @@ void nm_restore_background( int x, int y, int w, int h )
 		show_fullscr( &sbg );
 		gr_set_current_canvas(old);
 		gr_free_sub_canvas(tmp);
-	}else{
+	}
+	else
+#endif
+	{
 		gr_bm_bitblt(w, h, x1, y1, x1, y1, &nm_background, &(grd_curcanv->cv_bitmap) );
 	}
 }
@@ -672,13 +678,17 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		gr_bm_bitblt(w+MENSCALE_X, h+MENSCALE_Y, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.saved );
 		gr_set_current_canvas( NULL );
 		nm_draw_background(x,y,x+w,y+h);
+#ifdef OGL
 		if (!fixedfont && (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h)){
 			grs_bitmap sbg;
 			gr_init_sub_bitmap(&sbg,&nm_background,0,0,w*(320.0/GWIDTH),h*(200.0/GHEIGHT));//use the correctly resized portion of the background instead of the whole thing -MPM
 			bg.background=gr_create_bitmap(w,h);
 			gr_bitmap_scale_to(&sbg,bg.background);
 			bg.background_is_sub=0;
-		}else{
+		}
+		else
+#endif
+		{
 			bg.background = gr_create_sub_bitmap(&nm_background,0,0,w,h);
 			bg.background_is_sub=1;
 		}

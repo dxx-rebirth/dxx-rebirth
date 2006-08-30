@@ -390,7 +390,7 @@ void update_cockpits(int force_redraw)
 	case CM_REAR_VIEW:
 		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
-#ifdef OGL // ZICO - scalable
+#ifdef OGL
 		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0, 0);
 #else
 		gr_ubitmapm(0,0, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index]);
@@ -401,9 +401,8 @@ void update_cockpits(int force_redraw)
 	case CM_STATUS_BAR:
 		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
-#ifdef OGL // ZICO - scalable
-		ogl_ubitmapm_cs (0, grd_curscreen->sc_h-grd_curcanv->cv_bitmap.bm_h/4-(grd_curscreen->sc_h/65), -1, grd_curcanv->cv_bitmap.bm_h/4+(grd_curscreen->sc_h/65), &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0, 0);
-		// ZICO - cleanup ... find an easier way
+#ifdef OGL
+		ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0, 0);
 #else
 		gr_ubitmapm(0,max_window_h,&GameBitmaps[cockpit_bitmap[Cockpit_mode].index]);
 #endif
@@ -475,21 +474,16 @@ void init_cockpit()
 		break;
 
 	case CM_STATUS_BAR:	{
-#ifdef OGL // ZICO - scalable
-		game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w, (grd_curscreen->sc_h*2)/2.7);
-#else
-		int x,y;
-
+		max_window_h = (grd_curscreen->sc_h*2)/2.7;
 		if (Game_window_h > max_window_h) {
-			Game_window_w = VR_render_width;
+			Game_window_w = max_window_w;
 			Game_window_h = max_window_h;
 		}
 
-		x = (VR_render_width - Game_window_w)/2;
+		x = (max_window_w - Game_window_w)/2;
 		y = (max_window_h - Game_window_h)/2;
 
 		game_init_render_sub_buffers( x, y, Game_window_w, Game_window_h );
-#endif
 		break;
 		}
 	case CM_LETTERBOX:	{
@@ -570,6 +564,7 @@ void grow_window()
 		Game_window_w = VR_render_width;
 		toggle_cockpit();
 		hud_message(MSGC_GAME_FEEDBACK, "Press F3 to return to Cockpit mode");
+		write_player_file();
 		return;
 	}
 
@@ -609,6 +604,7 @@ void grow_window()
 	}
 
 	HUD_clear_messages(); // @mk, 11/11/94
+	write_player_file();
 }
 
 grs_bitmap background_bitmap;
@@ -643,9 +639,11 @@ void copy_background_rect(int left,int top,int right,int bot)
 		for (x=tile_left;x<=tile_right;x++) {
 
 			w = min(right-dest_x+1,bm->bm_w-ofs_x);
-
-			gr_bm_ubitblt(w,h,dest_x,dest_y,ofs_x,ofs_y,
-					&background_bitmap,&grd_curcanv->cv_bitmap);
+#ifdef OGL
+			ogl_ubitmapm_cs (dest_x, dest_y, w, h, &background_bitmap,255, F1_0, 0);
+#else
+			gr_bm_ubitblt(w,h,dest_x,dest_y,ofs_x,ofs_y,&background_bitmap,&grd_curcanv->cv_bitmap);
+#endif
 
 			ofs_x = 0;
 			dest_x += w;
@@ -674,12 +672,14 @@ void shrink_window()
 		Game_window_w = VR_render_width;
 		toggle_cockpit();
 		HUD_init_message("Press F3 to return to Cockpit mode");
+		write_player_file();
 		return;
 	}
 
 	if (Cockpit_mode == CM_FULL_SCREEN )	{
 		Game_window_h = max_window_h;
 		select_cockpit(CM_STATUS_BAR);
+		write_player_file();
 		return;
 	}
 
@@ -724,7 +724,7 @@ void shrink_window()
 	}
 
 	HUD_clear_messages();
-
+	write_player_file();
 }
 
 void game_init_render_sub_buffers( int x, int y, int w, int h )
@@ -806,6 +806,9 @@ void game_init_render_buffers(u_int32_t screen_mode, int render_w, int render_h,
 //mode if cannot init requested mode)
 int set_screen_mode(int sm)
 {
+	// ZICO - since we use variable resolutions we can't store them in modes. Game_window_w/h is used to scale the window for STATUSBAR and shrink/grow_window so we can't use it to store the current resolution. So we store it in the VR_render variables. If we are going to remove this VR stuff we need to create new variables.
+	VR_screen_mode = Game_screen_mode = SM(VR_render_width,VR_render_height);
+
 #ifndef OGL //ogl needs Screen_mode set correctly, or menus do not work.
 	if ( (sm==SCREEN_MENU) && (Screen_mode==SCREEN_GAME) && VR_compatible_menus )	{
 		sm = SCREEN_GAME;
@@ -837,7 +840,7 @@ int set_screen_mode(int sm)
 	case SCREEN_MENU:
 		if (grd_curscreen->sc_mode != MENU_SCREEN_MODE)	{
 			if (gr_set_mode(MENU_SCREEN_MODE)) Error("Cannot set screen mode for game!");
-	 		gr_palette_load( gr_palette );
+			gr_palette_load( gr_palette );
 		}
                 gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 		gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
@@ -857,29 +860,21 @@ int set_screen_mode(int sm)
                                 Error("Cannot set screen mode.");
 //End section
 
-		if ( VR_render_mode == VR_NONE ) {
-#ifdef OGL // ZICO - scale the screen correctly for scalable statusbar
-			if ( max_window_h == 0 && grd_curscreen->sc_mode == SM(grd_curscreen->sc_w, grd_curscreen->sc_h))	{
-				max_window_h = (grd_curscreen->sc_h*2)/2.7;
-				Game_window_h = grd_curscreen->sc_h;
-			} else if (grd_curscreen->sc_mode == SM(grd_curscreen->sc_w, grd_curscreen->sc_h)) {
-				max_window_h = (grd_curscreen->sc_h*2)/2.7;
-			} else {
-				max_window_h = grd_curscreen->sc_h;
-			}
-#else
-			if ( max_window_h == 0 && grd_curscreen->sc_mode == SM(320, 200))	{
-				max_window_h = grd_curscreen->sc_h - GameBitmaps[cockpit_bitmap[CM_STATUS_BAR].index].bm_h;
-				Game_window_h = max_window_h;
-			} else if (grd_curscreen->sc_mode == SM(320,200)) {
-				max_window_h = grd_curscreen->sc_h - GameBitmaps[cockpit_bitmap[CM_STATUS_BAR].index].bm_h;
-			} else {
-				max_window_h = grd_curscreen->sc_h;
-			}
-#endif	
-		} else {
-			Cockpit_mode = CM_FULL_SCREEN;
-		}
+			max_window_w = grd_curscreen->sc_w;
+			max_window_h = grd_curscreen->sc_h;
+
+// 		if ( VR_render_mode == VR_NONE ) {
+// 			if ( max_window_h == 0 && grd_curscreen->sc_mode == SM(grd_curscreen->sc_w, grd_curscreen->sc_h))	{
+// 				max_window_h = (grd_curscreen->sc_h*2)/2.7;
+// 				Game_window_h = grd_curscreen->sc_h;
+// 			} else if (grd_curscreen->sc_mode == SM(grd_curscreen->sc_w, grd_curscreen->sc_h)) {
+// 				max_window_h = (grd_curscreen->sc_h*2)/2.7;
+// 			} else {
+// 				max_window_h = grd_curscreen->sc_h;
+// 			}
+// 		} else {
+// 			Cockpit_mode = CM_FULL_SCREEN;
+// 		}
 		
 {
 		grs_canvas *game_canvas;
@@ -1132,7 +1127,7 @@ void reset_time()
 int maxfps=80;
 //end this section
 //added on 9/2/98 by Victor Rachels to add option to free cpu time
-int use_nice_fps=1; // ZICO - changed to be default
+int use_nice_fps=1;
 //end this section
 
 void calc_frame_time()
@@ -1408,7 +1403,7 @@ void game_draw_hud_stuff()
 			h += 7;
 
 		if (Cockpit_mode != CM_REAR_VIEW)
-                        gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, grd_curcanv->cv_bitmap.bm_h - ((double)grd_curscreen->sc_h/200)*h - 2, message ); // ZICO - added multiplicator for h for scalable cockpits
+                        gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, grd_curcanv->cv_bitmap.bm_h - ((double)grd_curscreen->sc_h/200)*h - 2, message );
 	}
 
 	render_countdown_gauge();
@@ -1916,7 +1911,7 @@ void show_boxed_message(char *msg)
 	nm_draw_background(x-(15*(SWIDTH/320)),y-(15*(SHEIGHT/200)),x+w+(15*(SWIDTH/320))-1,y+h+(15*(SHEIGHT/200))-1);
 
 	gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
-	gr_ustring( 0x8000, y, msg );
+	gr_ustring( (grd_curscreen->sc_w-w)/2, y, msg );
         //added on 9/13/98 by adb for arch's that require updating
         gr_update();
         //end addition - adb
@@ -2247,9 +2242,6 @@ void game()
 {
 	//@@int demo_playing=0;
 	//@@int multi_game=0;
-#ifdef __LINUX__
-	fix t1;
-#endif
 	do_lunacy_on();		//	Copy values for insane into copy buffer in ai.c
 	do_lunacy_off();		//	Restore true insane mode.
 
@@ -2268,14 +2260,6 @@ void game()
 	set_screen_mode(SCREEN_GAME);
 
 	reset_palette_add();
-
-	// ZICO - because we had changes in resolutions and modes we give linux' X time to change
-#ifdef __LINUX__
-	stop_time();
-	t1 = timer_get_fixed_seconds() + F1_0*1.5;
-	while ( timer_get_fixed_seconds() < t1 );
-	start_time();
-#endif
 
 	set_warn_func(game_show_warning);
 

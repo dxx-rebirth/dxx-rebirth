@@ -956,6 +956,11 @@ do_menu_again:
 
 	Auto_leveling_on = Default_leveling_on;
 
+	if (menu_use_game_res) { // ZICO - set players resolution after player is selected
+		gr_set_mode(SM(VR_render_width,VR_render_height));
+		set_screen_mode(SCREEN_GAME);
+	}
+
 	WriteConfigFile();		// Update lastplr
 
         return 1;

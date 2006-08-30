@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <SDL/SDL.h>
 #include "gr.h"
 #include "grdef.h"
@@ -65,9 +66,9 @@ void gr_update()
 
 int gr_set_mode(u_int32_t mode)
 {
-	int w,h,t;
-	float awidth = 3;
-	float aheight = 4;
+	unsigned int w, h, aw, ah;
+	float awidth = 3, aheight = 4;
+	int i, argnum = INT_MAX;
 	
 #ifdef NOGRAPH
 	return 0;
@@ -81,16 +82,7 @@ int gr_set_mode(u_int32_t mode)
 	
 	if (screen != NULL) gr_palette_clear();
 
-	if ((t = FindArg( "-aspect" ))) {
-		t=atoi(Args[t+1]);
-		if (t>0&&t<=16)
-			aheight=t;
-	}
-	if ((t = FindArg( "-aspect" ))) {
-		t=atoi(Args[t+2]);
-		if (t>0&&t<=16)
-			awidth=t;
-	}
+	if ((i=FindResArg("aspect", &ah, &aw)) && (i < argnum)) { argnum = i; awidth=aw; aheight=ah; }
 
 //added on 11/06/98 by Matt Mueller to set the title bar. (moved from below)
 //sekmu: might wanna copy this litte blurb to one of the text files or something

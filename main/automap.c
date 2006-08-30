@@ -468,14 +468,7 @@ void do_automap( int key_code )	{
 	gr_palette_clear();
 
 #ifndef AUTOMAP_DIRECT_RENDER
-	if (Game_window_w >= automap_width && Game_window_h >= automap_height)
-		gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
-	else {
-		void *raw_data;
-		MALLOC(raw_data,ubyte,automap_width*automap_height);
-		gr_init_canvas(&Page,raw_data,BM_LINEAR,automap_width,automap_height);
-		must_free_canvas = 1;
-	}
+	gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
 
 	gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
 	gr_set_current_canvas(&Page);
@@ -529,13 +522,7 @@ void do_automap( int key_code )	{
 		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 	gr_remap_bitmap_good(&Automap_background, pal, -1, -1);
 
-	if (Game_window_w >= automap_width && Game_window_h >= automap_height)
-		gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
-	else {
-		void *raw_data;
-		MALLOC(raw_data,ubyte,automap_width*automap_height);
-		gr_init_canvas(&Page,raw_data,BM_LINEAR,automap_width,automap_height);
-	}
+	gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
 #endif
 
 	while(!done)	{

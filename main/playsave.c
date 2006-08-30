@@ -297,6 +297,8 @@ typedef struct save_info {
 	int	n_highest_levels;				//how many highest levels are saved
 	int	default_difficulty_level;
 	int	default_leveling_on;
+	int	VR_render_w;
+	int	VR_render_h;
 	int	Game_window_w;
 	int	Game_window_h;
 } __pack__ save_info;
@@ -1380,10 +1382,11 @@ int read_player_file()
 		kc_set_controls();
 	}
 
-	Game_window_w = info.Game_window_w; // ZICO - read out saved pilot data
-	Game_window_h = info.Game_window_h;
-	VR_render_width =  info.Game_window_w;
-	VR_render_height =  info.Game_window_h;
+	// ZICO - also set VR_render to saved resolution because it won't get screwed up by any screen changes like window shrink etc.
+	VR_render_width = info.VR_render_w;
+	VR_render_height = info.VR_render_h;
+	Game_window_w = /*VR_render_width =*/ info.Game_window_w;
+	Game_window_h = /*VR_render_height =*/ info.Game_window_h;
 
 	return errno_ret;
 
@@ -1471,6 +1474,8 @@ int write_player_file()
 	info.player_struct_version = PLAYER_STRUCT_VERSION;
 	info.default_difficulty_level = Player_default_difficulty;
 	info.default_leveling_on = Auto_leveling_on;
+	info.VR_render_w = VR_render_width;/*Game_window_w*/;
+	info.VR_render_h = VR_render_height;/*Game_window_h*/;
 	info.Game_window_w = Game_window_w;
 	info.Game_window_h = Game_window_h;
 

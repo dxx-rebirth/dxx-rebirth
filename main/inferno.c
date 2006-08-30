@@ -179,8 +179,8 @@ int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
 
-u_int32_t menu_screen_mode=SM(640,480); // ZICO - the way menus should be - old: SM(320,200); // mode used for menus -- jb
-int menu_use_game_res=0; // ZICO - NO, D1X shouldn't use game res for menu!!!
+u_int32_t menu_screen_mode=SM(640,480); // mode used for menus -- jb
+int menu_use_game_res=1;
 
 #ifdef EDITOR
 int Inferno_is_800x600_available = 0;
@@ -291,8 +291,8 @@ void show_cmdline_help() {
 #endif
         printf( "  -automap<X>x<Y> %s\n", "Set automap resolution to <X> by <Y>");
         printf( "  -automap_gameres %s\n", "Set automap to use the same resolution as in game");*/ // ZICO - not really needed anymore
-	printf( "  -menu<X>x<Y>    %s\n", "Set menu resolution to <X> by <Y>");
-	printf( "  -menu_gameres   %s\n", "Set menus to use the same resolution as in game");
+	printf( "  -menu<X>x<Y>    %s\n", "Set menu resolution to <X> by <Y> instead of using game-resolution");
+// 	printf( "  -menu_gameres   %s\n", "Set menus to use the same resolution as in game");
 	printf( "  -hudlog_multi   %s\n", "Start hudlog upon entering multiplayer games");
 	printf( "  -hudlogdir <d>  %s\n", "Log hud messages in directory <d>");
 	printf( "  -hudlines <l>   %s\n", "Number of hud messages to show");
@@ -318,7 +318,7 @@ void show_cmdline_help() {
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE 
 	printf( "  -window         %s\n", "Run the game in a window"); // ZICO - from window to fullscreen
 #endif
-	printf( "  -aspect <y> <x>  %s\n",  ";use specified aspect - example: -aspect 16 9, -aspect 16 7.5 etc.");
+	printf( "  -aspect<Y>x<X>  %s\n", "use specified aspect");
 #ifdef OGL
 	printf( "  -gl_texmaxfilt <f> %s\n","set GL_TEXTURE_MAX_FILTER (see readme.d1x)");
 	printf( "  -gl_texminfilt <f> %s\n","set GL_TEXTURE_MIN_FILTER (see readme.d1x)");
@@ -585,14 +585,17 @@ int main(int argc,char **argv)
 	}
 	{
 //added/edited on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
-	int i, argnum=INT_MAX;
+	int i, argnum=INT_MAX, w, h;
 //added on 9/30/98 by Matt Mueller for selectable automap modes - edited 11/21/99 whee, more fun with defines.
-#define SMODE(V,VV,VG,X,Y) if ( (i=FindArg( "-" #V #X "x" #Y )) && (i<argnum))  {argnum=i; VV = SM( X , Y );VG=0;}
+// #define SMODE(V,VV,VG,X,Y) if ( (i=FindArg( "-" #V #X "x" #Y )) && (i<argnum))  {argnum=i; VV = SM( X , Y );VG=0;}
+// #define SMODE_GR(V,VG) if ((i=FindArg("-" #V "_gameres"))){if (i<argnum) VG=1;}
+#define SMODE(V,VV,VG) if ((i=FindResArg(#V, &w, &h)) && (i < argnum)) { argnum = i; VV = SM(w, h); VG = 0; }
 #define SMODE_GR(V,VG) if ((i=FindArg("-" #V "_gameres"))){if (i<argnum) VG=1;}
 #define SMODE_PRINT(V,VV,VG) if (Inferno_verbose) { if (VG) printf( #V " using game resolution ...\n"); else printf( #V " using %ix%i ...\n",SM_W(VV),SM_H(VV) ); }
 //aren't #defines great? :)
 //end addition/edit -MM
-#define S_MODE(V,VV,VG) argnum=INT_MAX;SMODE(V,VV,VG,320,200);SMODE(V,VV,VG,320,240);SMODE(V,VV,VG,320,400);SMODE(V,VV,VG,640,400);SMODE(V,VV,VG,640,480);SMODE(V,VV,VG,800,600);SMODE(V,VV,VG,1024,768);SMODE(V,VV,VG,1280,1024);SMODE(V,VV,VG,1600,1200);SMODE_GR(V,VG);SMODE_PRINT(V,VV,VG);
+// #define S_MODE(V,VV,VG) argnum=INT_MAX;SMODE(V,VV,VG,320,200);SMODE(V,VV,VG,320,240);SMODE(V,VV,VG,320,400);SMODE(V,VV,VG,640,400);SMODE(V,VV,VG,640,480);SMODE(V,VV,VG,800,600);SMODE(V,VV,VG,1024,768);SMODE(V,VV,VG,1280,1024);SMODE(V,VV,VG,1600,1200);SMODE_GR(V,VG);SMODE_PRINT(V,VV,VG);
+#define S_MODE(V,VV,VG) argnum = INT_MAX; SMODE(V, VV, VG); SMODE_GR(V, VG); SMODE_PRINT(V, VV, VG);
 
 	S_MODE(automap,automap_mode,automap_use_game_res);
 	S_MODE(menu,menu_screen_mode,menu_use_game_res);

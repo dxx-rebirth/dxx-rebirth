@@ -53,6 +53,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int Num_args;						
 extern char * Args[];						
 extern int FindArg( char * s );
+extern int FindResArg(char *prefix, int *sw, int *sh);
 //added/edited on 1/11/99 by dph
 extern void InitArgs( int argc, char **argv );
 //end this section addition/change -dph

@@ -545,7 +545,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	save_canvas = grd_curcanv;
 
 	// menu screen scaling, 10/14/99 Jan Bobrowski - scaling for different font sizes 11/18/99 Matt Mueller
-	scale=FONTSCALE_Y(GAME_FONT->ft_h/5.0);//5 is the size of the standard font the menus were designed for.
+	scale=FONTSCALE_X(GAME_FONT->ft_h/5.0);//5 is the size of the standard font the menus were designed for.
 	printf("scale=%f\n",scale);
 	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 200*scale)/2, 320*scale, 200*scale);
 	gr_set_current_canvas(&canvas);
