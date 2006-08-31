@@ -470,7 +470,7 @@ void init_cockpit()
 
 		fill_background (x, y, Game_window_w, Game_window_h, x, y);
 
-                game_init_render_sub_buffers( x, y, Game_window_w, Game_window_h);
+                game_init_render_sub_buffers( x, y, VR_render_width, VR_render_height);
 		break;
 
 	case CM_STATUS_BAR:	{
