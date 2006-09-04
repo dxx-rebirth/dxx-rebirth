@@ -81,13 +81,8 @@ grs_bitmap nm_background;
 #define MAX_TEXT_WIDTH 	FONTSCALE_X(200)			// How many pixels wide a input box can be
 
 // ZICO - since the background is rescaled the bevels do the same. because of this we need bigger borders or the fonts would be printed inside the bevels...
-#ifdef OGL
-#define MENSCALE_X ((fixedfont)?(1):((double)(SWIDTH/320)))
-#define MENSCALE_Y ((fixedfont)?(1):((double)(SHEIGHT/200)))
-#else
-#define MENSCALE_X 1
-#define MENSCALE_Y 1
-#endif
+#define MENSCALE_X ((double)(SWIDTH/320))
+#define MENSCALE_Y ((double)(SHEIGHT/200))
 
 extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
@@ -127,12 +122,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	w = x2-x1+1;
 	h = y2-y1+1;
 
-//	if ( w > nm_background.bm_w ) w = nm_background.bm_w;
-//	if ( h > nm_background.bm_h ) h = nm_background.bm_h;
-//	x2 = x1 + w - 1;
-//	y2 = y1 + h - 1;
-#ifdef OGL
-	if ( !fixedfont && (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h) ){//Resize background to fit.  Resize so that the original aspect is preserved. -MPM
+	if ( GWIDTH >= nm_background.bm_w || GHEIGHT >= nm_background.bm_h ){//Resize background to fit.  Resize so that the original aspect is preserved. -MPM
 		grs_canvas *tmp,*old;
 		grs_bitmap bg;
 		old=grd_curcanv;
@@ -144,7 +134,6 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 		gr_free_sub_canvas(tmp);
 	}
 	else
-#endif
 	{
 		gr_bm_bitblt(w, h, x1, y1, 0, 0, &nm_background, &(grd_curcanv->cv_bitmap) );
 	}
@@ -156,17 +145,17 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 #ifdef OGL
 	gr_setcolor( BM_XRGB(1,1,1) );
 
-	for (w=5*MENSCALE_X;w>=0;w--)
-		gr_rect( x2-w+1, y1+w*(MENSCALE_Y/MENSCALE_X), x2+1, y2-MENSCALE_Y );//right edge
-	for (h=5*MENSCALE_Y;h>=0;h--)
-		gr_rect( x1+h*(MENSCALE_X/MENSCALE_Y), y2+1, x2+1, y2-h+1 );//bottom edge
+	for (w=5*(GWIDTH/320.0);w>=0;w--)
+		gr_urect( x2-w+1, y1+w*((GHEIGHT/200.0)/(GWIDTH/320.0)), x2+1, y2-(GHEIGHT/200.0) );//right edge
+	for (h=5*(GHEIGHT/200.0);h>=0;h--)
+		gr_urect( x1+h*((GWIDTH/320.0)/(GHEIGHT/200.0)), y2+1, x2+1, y2-h+1 );//bottom edge
 #else
 	gr_setcolor( BM_XRGB(0,0,0) );
 
-	for (w=5;w>=0;w--)
-		gr_urect( x2-w, y1+w, x2-w, y2 );//right edge
-	for (h=5;h>=0;h--)
-		gr_urect( x1+h, y2-h, x2, y2-h );//bottom edge
+	for (w=5*(GWIDTH/320.0);w>=0;w--)
+		gr_urect( x2-w, y1+w*((GHEIGHT/200.0)/(GWIDTH/320.0)), x2-w, y2-(GHEIGHT/200.0) );//right edge
+	for (h=5*(GHEIGHT/200.0);h>=0;h--)
+		gr_urect( x1+h*((GWIDTH/320.0)/(GHEIGHT/200.0)), y2-h, x2, y2-h );//bottom edge
 #endif
 
 
@@ -188,8 +177,8 @@ void nm_restore_background( int x, int y, int w, int h )
 
 	w = x2 - x1 + 1;
 	h = y2 - y1 + 1;
-#ifdef OGL
-	if ( !fixedfont && (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h) ){
+
+	if ( GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h ) {
 		grs_bitmap sbg;
 		grs_canvas *tmp,*old;
 		old=grd_curcanv;
@@ -201,7 +190,6 @@ void nm_restore_background( int x, int y, int w, int h )
 		gr_free_sub_canvas(tmp);
 	}
 	else
-#endif
 	{
 		gr_bm_bitblt(w, h, x1, y1, x1, y1, &nm_background, &(grd_curcanv->cv_bitmap) );
 	}
@@ -485,17 +473,17 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	int ty;
 	bkg bg;
 	int all_text=0;		//set true if all text items
-	int time_stopped=0;
+	int sound_stopped=0, time_stopped=0;
 
 	if (nitems < 1 )
 		return -1;
 
 //	set_screen_mode(SCREEN_MENU);// caller is responsible for setting screen mode first, else fonts can get screwed up.  Not a big deal since (at the moment) only the 2 funcs below call this one directly.
 
-//NO_SOUND_PAUSE	if ( Function_mode == FMODE_GAME )	{
-//NO_SOUND_PAUSE		digi_pause_all();
-//NO_SOUND_PAUSE		sound_stopped = 1;
-//NO_SOUND_PAUSE	}
+	if ( Function_mode == FMODE_GAME )	{
+		digi_pause_all();
+		sound_stopped = 1;
+	}
 
 	if (!((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
 	{
@@ -648,9 +636,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	}
 			
 	// Find min point of menu border
-//	x = (grd_curscreen->sc_w-w)/2;
-//	y = (grd_curscreen->sc_h-h)/2;
-
 	w += 30*MENSCALE_X;
 	h += 30*MENSCALE_Y;
 
@@ -678,8 +663,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		gr_bm_bitblt(w+MENSCALE_X, h+MENSCALE_Y, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.saved );
 		gr_set_current_canvas( NULL );
 		nm_draw_background(x,y,x+w,y+h);
-#ifdef OGL
-		if (!fixedfont && (GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h)){
+
+		if ( GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h ) {
 			grs_bitmap sbg;
 			gr_init_sub_bitmap(&sbg,&nm_background,0,0,w*(320.0/GWIDTH),h*(200.0/GHEIGHT));//use the correctly resized portion of the background instead of the whole thing -MPM
 			bg.background=gr_create_bitmap(w,h);
@@ -687,7 +672,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			bg.background_is_sub=0;
 		}
 		else
-#endif
 		{
 			bg.background = gr_create_sub_bitmap(&nm_background,0,0,w,h);
 			bg.background_is_sub=1;
@@ -1140,8 +1124,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	if (time_stopped)
 		start_time();
 
-//NO_SOUND_PAUSE	if ( sound_stopped )
-//NO_SOUND_PAUSE		digi_resume_all();
+	if ( sound_stopped )
+		digi_resume_all();
 
 	return choice;
 
@@ -1269,14 +1253,17 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 	int demos_deleted=0;
 	int initialized = 0;
 	int exit_value = 0;
-	int w_x, w_y=0, w_w, w_h, x=0,blank_w=120;
-	int font_height=FONTSCALE_Y(Gamefonts[GFONT_MEDIUM_1]->ft_h+2), font_height1=font_height-1;
+	int w_x, w_y, w_w, w_h, title_height;
+	int box_x, box_y, box_w, box_h;
+	bkg bg;		// background under listbox
 
 	filenames = malloc( MAX_FILES * 14 );
 	if (filenames==NULL) return 0;
 
 	citem = 0;
 	keyd_repeat = 1;
+	w_x=w_y=w_w=w_h=title_height=0;
+	box_x=box_y=box_w=box_h=0;
 
 	if (!strcasecmp( filespec, "*.plr" ))
 		player_mode = 1;
@@ -1354,47 +1341,79 @@ ReadFileNames:
 		goto ExitFileMenu;
 	}
 
-	if (!initialized) {
+	if (!initialized) {	
 		set_screen_mode(SCREEN_MENU);
+
 		gr_set_current_canvas(NULL);
 
-#ifdef OGL
-	if (!fixedfont) {
-		w_w = GWIDTH - 180*GWIDTH/320 + 1 + 30;
-		//w_h = GHEIGHT - 60*GHEIGHT/200 + 1 + 30;
-		//NumFiles_displayed=(GHEIGHT-10)/font_height-4;//it works, but do we want it really?
-		w_h=(NumFiles_displayed+3+1)*font_height+(10*SHEIGHT/200);//scale height to font size, not screen size.
-		blank_w = 120*GWIDTH/320;
-	}
-	else
-#endif
-	{
-		w_w = 230 - 90 + 1 + 30;
-		w_h = 170 - 30 + 1 + 30;
-	}
+		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
 
-	
-		if ( w_w > GWIDTH ) w_w = GWIDTH;//was 320
-		if ( w_h > GHEIGHT ) w_h = GHEIGHT;//was 200
+		w_w = 0;
+		w_h = 0;
+
+		for (i=0; i<NumFiles; i++ ) {
+			int w, h, aw;
+			gr_get_string_size( &filenames[i*14], &w, &h, &aw );		
+			if ( w > w_w )
+				w_w = w;
+		}
+		if ( title ) {
+			int w, h, aw;
+			gr_get_string_size( title, &w, &h, &aw );		
+			if ( w > w_w )
+				w_w = w;
+			if (fixedfont)
+				h += 10*MENSCALE_Y;
+			title_height = h + FONTSCALE_Y(grd_curcanv->cv_font->ft_h*2);		// add a little space at the bottom of the title
+		}
+
+		box_w = w_w;
+		box_h = ((FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2)) * NumFiles_displayed);
+
+		if (fixedfont)
+			w_w += (grd_curcanv->cv_font->ft_w * 2)*MENSCALE_X;
+		else
+			w_w += FONTSCALE_X(grd_curcanv->cv_font->ft_w * 4);
+		w_h = title_height + box_h + FONTSCALE_Y(grd_curcanv->cv_font->ft_h * 2)+(5*MENSCALE_Y);		// more space at bottom
+
+		if ( w_w > GWIDTH ) w_w = GWIDTH;
+		if ( w_h > GHEIGHT ) w_h = GHEIGHT;
 	
 		w_x = (GWIDTH-w_w)/2;
 		w_y = (GHEIGHT-w_h)/2;
-
+	
 		if ( w_x < 0 ) w_x = 0;
 		if ( w_y < 0 ) w_y = 0;
 
-		gr_bm_bitblt(
-			GWIDTH, GHEIGHT,
-			0, 0, 0, 0,
-			&grd_curcanv->cv_bitmap,
-			&VR_offscreen_menu->cv_bitmap
-		);
+		if (fixedfont)
+			box_x = w_x + (grd_curcanv->cv_font->ft_w)*MENSCALE_X;
+		else
+			box_x = w_x + FONTSCALE_X(grd_curcanv->cv_font->ft_w)*2;			// must be in sync with w_w!!!
+		box_y = w_y + title_height;
+
+
+// save the screen behind the menu.
+
+		bg.saved = NULL;
+
+		if ( (GWIDTH >= w_w) && (GHEIGHT >= w_h) ) 
+			bg.background = &VR_offscreen_buffer->cv_bitmap;
+		else
+			bg.background = gr_create_bitmap( w_w, w_h );
+
+		Assert( bg.background != NULL );
+
+
+		gr_bm_bitblt(w_w, w_h, 0, 0, w_x, w_y, &grd_curcanv->cv_bitmap, bg.background );
+
+#if 0
+		gr_bm_bitblt(GWIDTH, GHEIGHT, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_buffer->cv_bitmap) );
+#endif
+
 		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h-1 );
 		
-		x = w_x + (w_w-blank_w)/2;//was +24
-
-		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
 		gr_string( 0x8000, w_y+(10*MENSCALE_Y), title );
+	 
 		initialized = 1;
 	}
 
@@ -1532,48 +1551,69 @@ ReadFileNames:
 			first_item = NumFiles-NumFiles_displayed;
 		if (first_item < 0 ) first_item = 0;
 
-		if (ofirst_item != first_item )	{
+		gr_setcolor( BM_XRGB( 0,0,0)  );
+
+		if (ofirst_item != first_item)	{
 			gr_setcolor( BM_XRGB( 0,0,0)  );
 			for (i=first_item; i<first_item+NumFiles_displayed; i++ )	{
 				int w, h, aw, y;
-				y = (i-first_item)*font_height+w_y+9+font_height*3;//was *12+..+45
+				y = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2) + box_y;
+			
 				if ( i >= NumFiles )	{
+
+					gr_setcolor( BM_XRGB(5,5,5));
+					gr_rect( box_x + box_w, y-1, box_x + box_w, y + FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2));
+					//gr_rect( box_x, y + grd_curcanv->cv_font->ft_h + 2, box_x + box_w, y + grd_curcanv->cv_font->ft_h + 2);
+					
+					gr_setcolor( BM_XRGB(2,2,2));
+					gr_rect( box_x - 1, y - 1, box_x - 1, y + FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2) );
+					
 					gr_setcolor( BM_XRGB(0,0,0));
-					gr_rect( x, y-1, x+blank_w, y+font_height1 );//was +11
+					gr_rect( box_x, y - 1, box_x + box_w - 1, y + FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2));
+					
 				} else {
 					if ( i == citem )	
 						grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_2];
 					else	
 						grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_1];
 					gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
-					gr_rect( x, y-1, x+blank_w, y+font_height1);//was +11
-					gr_string( x+5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
+
+					gr_setcolor( BM_XRGB(5,5,5));
+				//	gr_rect( box_x, y + h + 2, box_x + box_w, y + h + 2);
+					gr_rect( box_x + box_w, y - 1, box_x + box_w, y + h + FONTSCALE_Y(2));
+					
+					gr_setcolor( BM_XRGB(2,2,2));
+					gr_rect( box_x - 1, y - 1, box_x - 1, y + h + FONTSCALE_Y(2));
+					gr_setcolor( BM_XRGB(0,0,0));
+							
+					gr_rect( box_x, y-1, box_x + box_w - 1, y + h + FONTSCALE_Y(2) );
+					gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 				}
-			}		
+			}	 
 		} else if ( citem != ocitem )	{
 			int w, h, aw, y;
 
 			i = ocitem;
 			if ( (i>=0) && (i<NumFiles) )	{
-				y = (i-first_item)*font_height+w_y+9+font_height*3;//was *12+...+45
+				y = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h+2)+box_y;
 				if ( i == citem )	
 					grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_2];
 				else	
 					grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_1];
 				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
-				gr_rect( x, y-1, x+blank_w, y+font_height1 );//was +11
-				gr_string( x+5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
+				gr_rect( box_x, y-1, box_x + box_w - 1, y + h + FONTSCALE_Y(2) );
+				gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 			}
 			i = citem;
 			if ( (i>=0) && (i<NumFiles) )	{
-				y = (i-first_item)*font_height+w_y+9+font_height*3;//was *12+...+45
+				y = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h+2)+box_y;
 				if ( i == citem )	
 					grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_2];
 				else	
 					grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_1];
 				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
-				gr_rect( x, y-1, x+blank_w, y+font_height1 );//was +11
-				gr_string( x+5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
+// 				gr_rect( box_x, y-1, box_x + box_x - 1, y + h + FONTSCALE_Y(2) );
+				gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 			}
 		}
 
@@ -1722,7 +1762,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		case KEY_PAD2:
 			citem++;
 			break;
- 		case KEY_PAGEDOWN:
+		case KEY_PAGEDOWN:
 		case KEY_PAD3:
 			citem += LB_ITEMS_ON_SCREEN;
 			break;
@@ -1833,10 +1873,9 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 				gr_get_string_size( items[i], &w, &h, &aw  );
 				gr_rect( wx, y-1, wx+width-1, y+font_height1 );//was +11
 				gr_string( wx+5, y, items[i]  );
-                                //added on 9/13/98 by adb to make update-needing arch's work
-                                gr_update();
-                                //end addition - adb
-
+				//added on 9/13/98 by adb to make update-needing arch's work
+				gr_update();
+				//end addition - adb
 			}
 		}
 	}

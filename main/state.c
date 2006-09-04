@@ -263,7 +263,7 @@ static char rcsid[] = "$Id: state.c,v 1.1.1.1 2006/03/17 19:42:43 zicodxx Exp $"
 #include "switch.h"
 #include "game.h"
 #include "newmenu.h"
-#include "cfile.h"		
+#include "cfile.h"
 #include "fuelcen.h"
 #include "hash.h"
 #include "key.h"
@@ -341,37 +341,6 @@ int state_default_item = 0;
 uint state_game_id;
 
 void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
-/*{
-	nitems = nitems;
-	last_key = last_key;
-	
-//	if ( sc_last_item != citem )	{
-//		sc_last_item = citem;
-		if ( citem > 0 )	{
-			int w=SWIDTH * THUMBNAIL_W / 320;
-			int h=SHEIGHT * THUMBNAIL_H / 200;
-			if ( sc_bmp[citem-1] )	{
-//				gr_set_current_canvas( NULL );
-				if (SWIDTH>320 || SHEIGHT>200){
-					grs_canvas *tmp,*old;
-					old=grd_curcanv;
-					tmp=gr_create_sub_canvas(grd_curcanv, (grd_curcanv->cv_bitmap.bm_w-w)/2,
-							items[0].y-5, w, h);
-					gr_set_current_canvas(tmp);
-					show_fullscr( sc_bmp[citem-1] );
-//					gr_set_current_canvas(NULL);
-					gr_set_current_canvas(old);
-					gr_free_sub_canvas(tmp);
-				}else
-					gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W)/2,items[0].y-5, sc_bmp[citem-1] );
-			} else {
-				gr_setcolor( BM_XRGB( 0, 0, 0 ) );
-				gr_rect( (grd_curcanv->cv_bitmap.bm_w - w) / 2,     items[0].y - 5, 
-				         (grd_curcanv->cv_bitmap.bm_w + w) / 2 - 1, items[0].y - 5 + h - 1); 
-			}
-		}
-//	}	
-}*/
 {
 	nitems = nitems;
 	last_key = last_key;
@@ -388,7 +357,7 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 #ifndef OGL
 					gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W*2)/2,items[0].y-10, &temp_canv->cv_bitmap);
 #else
-					ogl_ubitmapm_cf((grd_curcanv->cv_bitmap.bm_w/2)-((double)(THUMBNAIL_W/2)*(SWIDTH/320)),items[0].y-10,((double)THUMBNAIL_W*(SWIDTH/320)),((double)THUMBNAIL_H*(SHEIGHT/200)),&temp_canv->cv_bitmap,255,F1_0);
+					ogl_ubitmapm_cf((grd_curcanv->cv_bitmap.bm_w/2)-FONTSCALE_X(grd_curcanv->cv_font->ft_h*5),items[0].y-10,FONTSCALE_X(grd_curcanv->cv_font->ft_h*10),FONTSCALE_Y(grd_curcanv->cv_font->ft_h*5),&temp_canv->cv_bitmap,255,F1_0);
 #endif
 					gr_free_canvas(temp_canv);
 				}
@@ -429,23 +398,10 @@ int state_get_savegame_filename(char * fname, char * dsc, int multi, char * capt
 	char filename[NUM_SAVES][20];
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	char id[5];
-	char thumbnailtext[50];
 	int valid;
 
 	nsaves=0;
-	m[0].type = NM_TYPE_TEXT; 
-	{
-		int w,h,h2,aw;
-		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_1];
-		gr_get_string_size("\n",&w,&h,&aw);
-		gr_get_string_size("\n\n",&w,&h2,&aw);//adding successive newlines increases less than the size of a single
-		h2=h2-h;
-		aw=5;
-		if (aw>=49) Error("state_get_restore_file: aw too big\n");
-		memset(thumbnailtext,'\n',aw);
-		thumbnailtext[aw]=0;
-		m[0].text = thumbnailtext;
-	}
+	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
 	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
 		if (!multi)
@@ -463,7 +419,7 @@ int state_get_savegame_filename(char * fname, char * dsc, int multi, char * capt
 			if ( !memcmp( id, dgss_id, 4 )) {
 				//Read version
 				fread( &version, sizeof(int), 1, fp );
-				if (version >= STATE_COMPATIBLE_VERSION)	{
+				if (version >= STATE_COMPATIBLE_VERSION) {
 					// Read description
 					fread( desc[i], sizeof(char)*DESC_LENGTH, 1, fp );
 					//rpad_string( desc[i], DESC_LENGTH-1 );
@@ -473,7 +429,7 @@ int state_get_savegame_filename(char * fname, char * dsc, int multi, char * capt
 					fread( sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1, fp );
 					nsaves++;
 					valid = 1;
-				} 
+				}
 			}
 			fclose(fp);
 		} 
