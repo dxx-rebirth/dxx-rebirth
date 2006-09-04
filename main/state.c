@@ -61,6 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "gamemine.h"
 #include "error.h"
+#include "gamefont.h"
 #include "gameseg.h"
 #include "menu.h"
 #include "switch.h"
@@ -169,8 +170,6 @@ extern sbyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
 extern ubyte Hack_DblClick_MenuMode;
 #endif
 
-#include "gamefont.h"
-
 void compute_all_static_light(void);
 
 //-------------------------------------------------------------------
@@ -179,8 +178,6 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 	nitems = nitems;
 	last_key = last_key;
 	
-//	if ( sc_last_item != citem )	{
-//		sc_last_item = citem;
 		if ( citem > 0 )	{
 			if ( sc_bmp[citem-1] )	{
 				if (MenuHires) {
@@ -193,7 +190,7 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 #ifndef OGL
 					gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W*2)/2,items[0].y-10, &temp_canv->cv_bitmap);
 #else
-					ogl_ubitmapm_cf((grd_curcanv->cv_bitmap.bm_w/2)-((THUMBNAIL_W/2)*(SWIDTH/320)),items[0].y-10,(THUMBNAIL_W*(SWIDTH/320)),FONTSCALE_Y(grd_curcanv->cv_font->ft_h*5),&temp_canv->cv_bitmap,255,F1_0);
+					ogl_ubitmapm_cf((grd_curcanv->cv_bitmap.bm_w/2)-FONTSCALE_X(grd_curcanv->cv_font->ft_h*5),items[0].y-10,FONTSCALE_X(grd_curcanv->cv_font->ft_h*10),FONTSCALE_Y(grd_curcanv->cv_font->ft_h*5),&temp_canv->cv_bitmap,255,F1_0);
 #endif
 					gr_free_canvas(temp_canv);
 				}
@@ -202,7 +199,6 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 				}
 			}
 		}
-//	}	
 }
 
 void rpad_string( char * string, int max_chars )
@@ -229,8 +225,7 @@ int state_get_save_file(char * fname, char * dsc, int multi, int blind_save)
 	char desc[NUM_SAVES+1][DESC_LENGTH+16];
 	char id[5];
 	int valid=0;
-
-	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
+	
 	for (i=0;i<NUM_SAVES+1; i++ )	{
 		sc_bmp[i] = NULL;
 		if ( !multi )
@@ -257,34 +252,22 @@ int state_get_save_file(char * fname, char * dsc, int multi, int blind_save)
 				if (version >= STATE_COMPATIBLE_VERSION)	{
 					// Read description
 					PHYSFS_read(fp, desc[i], sizeof(char) * DESC_LENGTH, 1);
-					//rpad_string( desc[i], DESC_LENGTH-1 );
-					m[i+1].type = NM_TYPE_MENU; m[i+1].text = desc[i];
-					// Read thumbnail
-					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
-					PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
-					if (version >= 9) {
-						ubyte pal[256*3];
-						PHYSFS_read(fp, pal, 3, 256);
-						gr_remap_bitmap_good( sc_bmp[i], pal, -1, -1 );
-					}
-// 					nsaves++;
 					valid = 1;
 				}
-			}
+			} 
 			PHYSFS_close(fp);
 		}
 		if (!valid) {
 			strcpy( desc[i], TXT_EMPTY );
-			//rpad_string( desc[i], DESC_LENGTH-1 );
 		}
-		m[i+1].type = NM_TYPE_INPUT_MENU; m[i+1].text = desc[i]; m[i+1].text_len = DESC_LENGTH-1;
+		m[i].type = NM_TYPE_INPUT_MENU; m[i].text = desc[i]; m[i].text_len = DESC_LENGTH-1;
 	}
 
 	sc_last_item = -1;
 	if (blind_save && state_default_item >= 0)
 		choice = state_default_item;
 	else
-		choice = newmenu_do3(NULL, "Save Game", NUM_SAVES+2, m, state_callback, state_default_item, NULL, 385, -1 );
+		choice = newmenu_do3(NULL, "Save Game", NUM_SAVES+1, m, state_callback, state_default_item, NULL, FONTSCALE_X(MenuHires?385:190), -1 );
 
 	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )
@@ -601,6 +584,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	PHYSFS_file *fp;
 	grs_canvas * cnv;
 	ubyte *pal;
+	GLint gl_draw_buffer;
 
 	Assert(between_levels == 0);	//between levels save ripped out
 
@@ -642,7 +626,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 #ifdef OGL
 		ubyte *buf;
 		int k;
-		GLint gl_draw_buffer;
 #endif
 		grs_canvas * cnv_save;
 		cnv_save = grd_curcanv;
