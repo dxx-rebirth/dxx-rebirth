@@ -142,21 +142,21 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 
 	//scale the bevels to the res too.  All the gwidth/height stuff is needed so that the corners have the correct angles at odd resolutions like 320x400 where the ratios are different for x and y
 
-#ifdef OGL
-	gr_setcolor( BM_XRGB(1,1,1) );
-
-	for (w=5*(GWIDTH/320.0);w>=0;w--)
-		gr_urect( x2-w+1, y1+w*((GHEIGHT/200.0)/(GWIDTH/320.0)), x2+1, y2-(GHEIGHT/200.0) );//right edge
-	for (h=5*(GHEIGHT/200.0);h>=0;h--)
-		gr_urect( x1+h*((GWIDTH/320.0)/(GHEIGHT/200.0)), y2+1, x2+1, y2-h+1 );//bottom edge
-#else
+// #ifdef OGL
+// 	gr_setcolor( BM_XRGB(1,1,1) );
+// 
+// 	for (w=5*(GWIDTH/320.0);w>=0;w--)
+// 		gr_urect( x2-w+1, y1+w*((GHEIGHT/200.0)/(GWIDTH/320.0)), x2+1, y2-(GHEIGHT/200.0) );//right edge
+// 	for (h=5*(GHEIGHT/200.0);h>=0;h--)
+// 		gr_urect( x1+h*((GWIDTH/320.0)/(GHEIGHT/200.0)), y2+1, x2+1, y2-h+1 );//bottom edge
+// #else
 	gr_setcolor( BM_XRGB(0,0,0) );
 
 	for (w=5*(GWIDTH/320.0);w>=0;w--)
 		gr_urect( x2-w, y1+w*((GHEIGHT/200.0)/(GWIDTH/320.0)), x2-w, y2-(GHEIGHT/200.0) );//right edge
 	for (h=5*(GHEIGHT/200.0);h>=0;h--)
 		gr_urect( x1+h*((GWIDTH/320.0)/(GHEIGHT/200.0)), y2-h, x2, y2-h );//bottom edge
-#endif
+// #endif
 
 
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;

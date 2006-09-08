@@ -174,7 +174,7 @@ int ogl_texture_stats(void){
 //			grabbed++;
 	}
 	if (gr_renderstats){
-		gr_printf(5,GAME_FONT->ft_h*14+3*14,"%i(%i,%i) %iK(%iK wasted)",used,usedrgba,usedl4a4,truebytes/1024,(truebytes-databytes)/1024);
+		gr_printf(5,FONTSCALE_Y(GAME_FONT->ft_h*14+3*14),"%i(%i,%i) %iK(%iK wasted)",used,usedrgba,usedl4a4,truebytes/1024,(truebytes-databytes)/1024);
 	}
 //	glmprintf((0,"ogl tex stats: %i(%i,%i|%i,%i,%i,%i,%i) %i(%i)b (%i(%i)wasted)\n",used,usedrgba,usedl4a4,prio0,prio1,prio2,prio3,prioh,truebytes,truetexel,truebytes-databytes,truetexel-datatexel));
 	return truebytes;
@@ -1179,7 +1179,7 @@ void ogl_end_frame(void){
 void ogl_swap_buffers(void){
 	ogl_clean_texture_cache();
 	if (gr_renderstats){
-		gr_printf(5,GAME_FONT->ft_h*13+3*13,"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc);
+		gr_printf(5,FONTSCALE_Y(GAME_FONT->ft_h*13+3*13),"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc);
 //	glmprintf((0,"ogl_end_frame: %i polys, %i tmaps, %i sprites, %i bitmaps, %i bitblts, %i pixels\n",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc,r_ubitbltc,r_upixelc));//we need to do it here because some things get drawn after end_frame
 	}
 	ogl_do_palfx();

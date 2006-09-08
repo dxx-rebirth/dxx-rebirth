@@ -11,65 +11,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/radar.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:41:45 $
- * 
+ *
  * Routines for drawing the radar.
- * . 
- * 
- * $Log: radar.c,v $
- * Revision 1.1.1.1  2006/03/17 19:41:45  zicodxx
- * initial import
  *
- * Revision 1.2  1999/07/10 02:59:07  donut
- * more from orulz
- *
- * Revision 1.1.1.1  1999/06/14 22:11:14  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.10  1995/02/27  12:31:15  john
- * Version 2.0.
- * 
- * Revision 1.9  1995/02/01  21:03:36  john
- * Lintified.
- * 
- * Revision 1.8  1994/08/12  22:41:28  john
- * Took away Player_stats; add Players array.
- * 
- * Revision 1.7  1994/07/15  09:38:00  john
- * Moved in radar_farthest_dist.
- * 
- * Revision 1.6  1994/07/14  22:05:57  john
- * Made radar display not conflict with hostage
- * vclip talking.
- * 
- * Revision 1.5  1994/07/12  18:41:51  yuan
- * Tweaked location of radar and hostage screen... 
- * Still needs work.
- * 
- * 
- * Revision 1.4  1994/07/07  14:59:00  john
- * Made radar powerups.
- * 
- * 
- * Revision 1.3  1994/07/07  10:05:36  john
- * Pegged objects in radar to edges.
- * 
- * Revision 1.2  1994/07/06  19:36:33  john
- * Initial version of radar.
- * 
- * Revision 1.1  1994/07/06  17:22:07  john
- * Initial revision
- * 
- * 
  */
-
-
-#ifdef RCS
-static char rcsid[] = "$Id: radar.c,v 1.1.1.1 2006/03/17 19:41:45 zicodxx Exp $";
-#endif
 
 
 #include <stdlib.h>
@@ -90,16 +35,9 @@ static char rcsid[] = "$Id: radar.c,v 1.1.1.1 2006/03/17 19:41:45 zicodxx Exp $"
 #include "network.h"
 #include "gauges.h"
 
-//added/moved on 9/17/98 by Victor Rachels - radar toggle
 int show_radar=0;
-//end this section
-//added on 11/12/98 by Victor Rachels for Network radar
 int Network_allow_radar=0;
-//end this section
-
-//changed 7/5/99 - Owen Evans - radar resizes with screen size
 short Hostage_monitor_size, Hostage_monitor_x, Hostage_monitor_y;
-//end changed - OE
 
 static fix radx, rady, rox, roy, cenx, ceny;
 
@@ -112,10 +50,7 @@ typedef struct blip	{
 
 blip Blips[MAX_BLIPS];
 int N_blips = 0;
-
 fix Radar_farthest_dist = (F1_0 * 20 * 15);             // 15 segments away
-//fix Radar_farthest_dist = (F1_0 * 20 * 8);             // 8 segments away
-
 
 void radar_plot_object( object * objp, int hue )
 {
@@ -156,29 +91,27 @@ void radar_render_frame()
 	int i,color;
 	object * objp;
 
-// added 7/5/99 - Owen Evans - radar resizes with screen size
-        switch (Cockpit_mode)
-        {
-                case CM_FULL_SCREEN:
-                        Hostage_monitor_size = Game_window_w / 6;
-                        Hostage_monitor_x = (grd_curscreen->sc_w - Game_window_w) / 2;
-                        Hostage_monitor_y = (grd_curscreen->sc_h - Game_window_h) / 2;
-                        break;
-                case CM_FULL_COCKPIT:
-                        Hostage_monitor_size = 40;
-                        Hostage_monitor_x = 0;
-                        Hostage_monitor_y = 80;
-                        break;
-                case CM_STATUS_BAR:
-                        Hostage_monitor_size = Game_window_w / 6;
-                        Hostage_monitor_x = (grd_curscreen->sc_w - Game_window_w) / 2;
-                        Hostage_monitor_y = (max_window_h - Game_window_h) / 2;
-                        break;
-                case CM_REAR_VIEW: //no radar in rear view or letterbox!
-                case CM_LETTERBOX:
-                        return;
-        }
-//end added - OE
+	switch (Cockpit_mode)
+	{
+		case CM_FULL_SCREEN:
+			Hostage_monitor_size = Game_window_w / 6;
+			Hostage_monitor_x = (grd_curscreen->sc_w - Game_window_w) / 2;
+			Hostage_monitor_y = (grd_curscreen->sc_h - Game_window_h) / 2;
+			break;
+		case CM_FULL_COCKPIT:
+			Hostage_monitor_size = 40*(SHEIGHT/200);
+			Hostage_monitor_x = 0;
+			Hostage_monitor_y = 80*(SHEIGHT/200);
+			break;
+		case CM_STATUS_BAR:
+			Hostage_monitor_size = Game_window_w / 6;
+			Hostage_monitor_x = (grd_curscreen->sc_w - Game_window_w) / 2;
+			Hostage_monitor_y = (max_window_h - Game_window_h) / 2;
+			break;
+		case CM_REAR_VIEW: //no radar in rear view or letterbox!
+		case CM_LETTERBOX:
+			return;
+		}
 
 	if (hostage_is_vclip_playing())
 		return;
@@ -189,24 +122,14 @@ void radar_render_frame()
 	
         gr_ucircle( i2f(Hostage_monitor_x+Hostage_monitor_size/2), i2f(Hostage_monitor_y+Hostage_monitor_size/2),     i2f(Hostage_monitor_size)/2);
 
-     //other stuff added 9/14/98 by Victor Rachels for fun.
-        gr_circle( i2f(Hostage_monitor_x+Hostage_monitor_size/2), i2f(Hostage_monitor_y+Hostage_monitor_size/2),     i2f(Hostage_monitor_size) / 8 );
-        gr_upixel((Hostage_monitor_x+Hostage_monitor_size/2), (Hostage_monitor_y+Hostage_monitor_size/2) );
-        gr_uline(i2f(Hostage_monitor_x+Hostage_monitor_size/10),i2f(Hostage_monitor_y+Hostage_monitor_size/2),i2f(Hostage_monitor_x+Hostage_monitor_size*2/10),i2f(Hostage_monitor_y+Hostage_monitor_size/2));
-        gr_uline(i2f(Hostage_monitor_x+Hostage_monitor_size-Hostage_monitor_size/10),i2f(Hostage_monitor_y+Hostage_monitor_size/2),i2f(Hostage_monitor_x+Hostage_monitor_size-Hostage_monitor_size*2/10),i2f(Hostage_monitor_y+Hostage_monitor_size/2));
+	//other stuff added 9/14/98 by Victor Rachels for fun.
+	gr_circle( i2f(Hostage_monitor_x+Hostage_monitor_size/2), i2f(Hostage_monitor_y+Hostage_monitor_size/2),     i2f(Hostage_monitor_size) / 8 );
+	gr_upixel((Hostage_monitor_x+Hostage_monitor_size/2), (Hostage_monitor_y+Hostage_monitor_size/2) );
+	gr_uline(i2f(Hostage_monitor_x+Hostage_monitor_size/10),i2f(Hostage_monitor_y+Hostage_monitor_size/2),i2f(Hostage_monitor_x+Hostage_monitor_size*2/10),i2f(Hostage_monitor_y+Hostage_monitor_size/2));
+	gr_uline(i2f(Hostage_monitor_x+Hostage_monitor_size-Hostage_monitor_size/10),i2f(Hostage_monitor_y+Hostage_monitor_size/2),i2f(Hostage_monitor_x+Hostage_monitor_size-Hostage_monitor_size*2/10),i2f(Hostage_monitor_y+Hostage_monitor_size/2));
 
-
-//killed 7/5/99 - Owen Evans - make radar much more useable
-//        // Erase old blips
-//        for (i=0; i<N_blips; i++ )      {
-//                gr_setcolor(gr_gpixel( &GameBitmaps[cockpit_bitmap[0].index], Blips[i].x, Blips[i].y ));
-//                gr_upixel( Blips[i].x, Blips[i].y );
-//        }
-//end killed - OE
 
         N_blips = 0;
-
-//	if ( !(Players[Player_num].flags & (PLAYER_FLAGS_RADAR_ENEMIES | PLAYER_FLAGS_RADAR_POWERUPS  )) ) return;
 
         radx = i2f(Hostage_monitor_size*4)/2;
         rady = i2f(Hostage_monitor_size*4)/2;
@@ -230,23 +153,19 @@ void radar_render_frame()
 				radar_plot_object( objp, gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b) );
 			}
 			break;
-              case OBJ_HOSTAGE:
-                      radar_plot_object( objp, BM_XRGB(0,31,0) );
-                      break;
-              case OBJ_POWERUP:
-                      //if ( Players[Player_num].flags & PLAYER_FLAGS_RADAR_POWERUPS )
-                       if(!(Game_mode & GM_MULTI))
-                        radar_plot_object( objp, BM_XRGB(0,0,31) );
-                      break;
-	      case OBJ_ROBOT:
-//			//if ( Players[Player_num].flags & PLAYER_FLAGS_RADAR_ENEMIES )
-		      radar_plot_object( objp, BM_XRGB(31,0,0) );
-		      break;
-// added 7/5/99 - Owen Evans - reactor is now shown on radar
-              case OBJ_CNTRLCEN:
-                      radar_plot_object( objp, BM_XRGB(31,31,31) );
-                      break;
-// end added - OE
+		case OBJ_HOSTAGE:
+			radar_plot_object( objp, BM_XRGB(0,31,0) );
+			break;
+		case OBJ_POWERUP:
+			if(!(Game_mode & GM_MULTI))
+				radar_plot_object( objp, BM_XRGB(0,0,31) );
+			break;
+		case OBJ_ROBOT:
+			radar_plot_object( objp, BM_XRGB(31,0,0) );
+			break;
+		case OBJ_CNTRLCEN:
+			radar_plot_object( objp, BM_XRGB(31,31,31) );
+			break;
 		default:
 			break;
 		}

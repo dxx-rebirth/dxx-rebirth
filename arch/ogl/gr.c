@@ -6,8 +6,6 @@
 #ifdef __WINDOWS__
 #include <windows.h>
 #endif
-
-//#include <GL/gl.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -24,16 +22,13 @@
 #include "palette.h"
 #include "u_mem.h"
 #include "error.h"
-
 #include "inferno.h"
 #include "screens.h"
-
 #include "strutil.h"
 #include "mono.h"
 #include "args.h"
 #include "key.h"
 #include "u_mem.h"
-
 #include "gamefont.h"
 
 #define DECLARE_VARS
@@ -41,14 +36,10 @@
 #include <GL/glu.h>
 
 int ogl_voodoohack=0;
-
 int gr_installed = 0;
-
-
 void gr_palette_clear(); // Function prototype for gr_init;
 int gl_initialized=0;
-int gl_reticle=1;
-
+int gl_reticle=0;
 int ogl_fullscreen=0;
 
 int gr_check_fullscreen(void){
@@ -56,10 +47,10 @@ int gr_check_fullscreen(void){
 }
 
 void gr_do_fullscreen(int f){
- 	if (ogl_voodoohack)
+	if (ogl_voodoohack)
 		ogl_fullscreen=1;//force fullscreen mode on voodoos.
- 	else
- 		ogl_fullscreen=f;
+	else
+		ogl_fullscreen=f;
 	if (gl_initialized){
 		ogl_do_fullscreen_internal();
 	}
@@ -67,9 +58,7 @@ void gr_do_fullscreen(int f){
 
 int gr_toggle_fullscreen(void){
 	gr_do_fullscreen(!ogl_fullscreen);
-	//	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
 	glFlush(); // ZICO - prevents black screen, screen glitches etc.
- 
 	return ogl_fullscreen;
 }
 
@@ -85,12 +74,10 @@ int arch_toggle_fullscreen_menu(void){
 	gr_do_fullscreen(!ogl_fullscreen);
 
 	if (ogl_readpixels_ok){
-//		glWritePixels(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
 		glRasterPos2f(0,0);
 		glDrawPixels(grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
 		free(buf);
 	}
-	//	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
 
 	return ogl_fullscreen;
 }
@@ -116,7 +103,6 @@ void ogl_set_screen_mode(void){
 	if (last_screen_mode==Screen_mode)
 		return;
 	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
-//	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h);
 	if (Screen_mode==SCREEN_GAME){
 		glDrawBuffer(GL_BACK);
 	}else{
@@ -218,18 +204,13 @@ int gr_set_mode(u_int32_t mode)
 	int i, argnum = INT_MAX;
 
 #ifdef NOGRAPH
-return 0;
+	return 0;
 #endif
-//	mode=0;
 	if (mode<=0)
 		return 0;
 
 	w=SM_W(mode);
 	h=SM_H(mode);
-
-	//if (screen != NULL) gr_palette_clear();
-
-//	ogl_init_state();
 
 	if ((i=FindResArg("aspect", &ah, &aw)) && (i < argnum)) { argnum = i; awidth=aw; aheight=ah; }
 	
@@ -243,23 +224,14 @@ return 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_h = h;
-	//grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = screen->pitch;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = w;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_OGL;
-	//grd_curscreen->sc_canvas.cv_bitmap.bm_data = (unsigned char *)screen->pixels;
-//	mprintf((0,"ogl/gr.c: reallocing %p to %i\n",grd_curscreen->sc_canvas.cv_bitmap.bm_data,w*h));
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = realloc(gr_bm_data,w*h);
 	gr_set_current_canvas(NULL);
-	//gr_enable_default_palette_loading();
-	
 	ogl_init_window(w,h);//platform specific code
-
 	ogl_get_verinfo();
-
 	OGL_VIEWPORT(0,0,w,h);
-
 	ogl_set_screen_mode();
-
 	gamefont_choose_game_font(w,h);
 	
 	return 0;
@@ -276,8 +248,8 @@ int ogl_atotexfilti(char *a,int min){
 		GLstrcmptestr(a,LINEAR_MIPMAP_LINEAR);
 	}
 	Error("unknown/invalid texture filter %s\n",a);
-//	return GL_NEAREST;
 }
+
 int ogl_testneedmipmaps(int i){
 	switch (i){
 		case GL_NEAREST:
@@ -290,7 +262,7 @@ int ogl_testneedmipmaps(int i){
 			return 1;
 	}
 	Error("unknown texture filter %x\n",i);
-//	return -1;
+
 }
 #ifdef OGL_RUNTIME_LOAD
 #ifdef __WINDOWS__
@@ -345,8 +317,7 @@ int gr_init(int mode)
 		ogl_voodoohack=1;
 		gr_toggle_fullscreen();
 	}
-//	if (FindArg("-fullscreen"))
-	if (!(FindArg("-window"))) // ZICO - from window to fullscreen
+	if (!(FindArg("-window")))
 		gr_toggle_fullscreen();
 #endif
 	if ((glt=FindArg("-gl_alttexmerge")))
@@ -362,7 +333,7 @@ int gr_init(int mode)
 		GL_texmagfilt=GL_LINEAR;
 		GL_texminfilt=GL_LINEAR_MIPMAP_NEAREST;
 	}
-		if ((glt=FindArg("-gl_trilinear")))
+	if ((glt=FindArg("-gl_trilinear")))
 	{
 		GL_texmagfilt = GL_LINEAR;
 		GL_texminfilt = GL_LINEAR_MIPMAP_LINEAR;
@@ -391,7 +362,6 @@ int gr_init(int mode)
 	if ((t=FindArg("-gl_reticle"))){
 		gl_reticle=atoi(Args[t+1]);
 	}
-	//printf("ogl_mem_target=%i\n",ogl_mem_target);
 	
 	ogl_init();//platform specific initialization
 
@@ -422,8 +392,6 @@ int gr_init(int mode)
 
 void gr_close()
 {
-//	mprintf((0,"ogl init: %s %s %s - %s\n",glGetString(GL_VENDOR),glGetString(GL_RENDERER),glGetString(GL_VERSION),glGetString,(GL_EXTENSIONS)));
-
 	ogl_close();//platform specific code
 	if (grd_curscreen){
 		if (grd_curscreen->sc_canvas.cv_bitmap.bm_data)
@@ -438,33 +406,28 @@ void gr_close()
 extern int r_upixelc;
 void ogl_upixelc(int x, int y, int c){
 	r_upixelc++;
-//	printf("gr_upixelc(%i,%i,%i)%i\n",x,y,c,Function_mode==FMODE_GAME);
-//	if(Function_mode != FMODE_GAME){
-//		grd_curcanv->cv_bitmap.bm_data[y*grd_curscreen->sc_canvas.cv_bitmap.bm_w+x]=c;
-//	}else{
-		OGL_DISABLE(TEXTURE_2D);
-		glPointSize(1.0);
-		glBegin(GL_POINTS);
-//		glBegin(GL_LINES);
-//	ogl_pal=gr_current_pal;
-		glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-//	ogl_pal=gr_palette;
-		glVertex2f((x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height);
-//		glVertex2f(x/((float)last_width+1),1.0-y/((float)last_height+1));
-		glEnd();
-//	}
+
+	OGL_DISABLE(TEXTURE_2D);
+	glPointSize(1.0);
+	glBegin(GL_POINTS);
+	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
+	glVertex2f((x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height);
+	glEnd();
 }
+
 void ogl_urect(int left,int top,int right,int bot){
 	GLfloat xo,yo,xf,yf;
 	int c=COLOR;
-	
 	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
-	xf=(right+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
+	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / (float)last_width;
 	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
-	yf=1.0-(bot+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
-	
+	yf = 1.0 - (bot + 1 + grd_curcanv->cv_bitmap.bm_y) / (float)last_height;
+
 	OGL_DISABLE(TEXTURE_2D);
-	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
+	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
+		glColor3f(CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c));
+	else
+		glColor4f(CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
 	glBegin(GL_QUADS);
 	glVertex2f(xo,yo);
 	glVertex2f(xo,yf);
@@ -472,6 +435,7 @@ void ogl_urect(int left,int top,int right,int bot){
 	glVertex2f(xf,yo);
 	glEnd();
 }
+
 void ogl_ulinec(int left,int top,int right,int bot,int c){
 	GLfloat xo,yo,xf,yf;
 	
@@ -491,21 +455,16 @@ void ogl_ulinec(int left,int top,int right,int bot,int c){
 
 GLfloat last_r=0, last_g=0, last_b=0;
 int do_pal_step=0;
+
 void ogl_do_palfx(void){
-//	GLfloat r,g,b,a;
 	OGL_DISABLE(TEXTURE_2D);
 	if (gr_palette_faded_out){
-/*		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
 		glColor3f(0,0,0);
-//		r=g=b=0.0;a=1.0;
 	}else{
 		if (do_pal_step){
-			//glBlendFunc(GL_SRC_COLOR, GL_DST_COLOR);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE,GL_ONE);
 			glColor3f(last_r,last_g,last_b);
-//			r=f2fl(last_r);g=f2fl(last_g);b=f2fl(last_b);a=0.5;
 		}else
 			return;
 	}
@@ -517,7 +476,6 @@ void ogl_do_palfx(void){
 	glVertex2f(1,1);
 	glVertex2f(1,0);
 	glEnd();
-	
 	glEnable(GL_BLEND);	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -532,13 +490,6 @@ void gr_palette_step_up( int r, int g, int b )
 {
 	if (gr_palette_faded_out) return;
 
-//	if ( (r==last_r) && (g==last_g) && (b==last_b) ) return;
-
-/*	last_r = r/63.0;
-	last_g = g/63.0;
-	last_b = b/63.0;
-	do_pal_step=(r || g || b);*/
-	
 	last_r = (r+gr_palette_gamma)/63.0;
 	last_g = (g+gr_palette_gamma)/63.0;
 	last_b = (b+gr_palette_gamma)/63.0;
@@ -547,28 +498,21 @@ void gr_palette_step_up( int r, int g, int b )
 	
 }
 
-//added on 980913 by adb to fix palette problems
-// need a min without side effects...
 #undef min
 static inline int min(int x, int y) { return x < y ? x : y; }
-//end changes by adb
 
 void gr_palette_load( ubyte *pal )	
 {
- int i;//, j;
+	int i;//, j;
+	
+	for (i=0; i<768; i++ ) {
+		gr_current_pal[i] = pal[i];
+		if (gr_current_pal[i] > 63) gr_current_pal[i] = 63;
+	}
 
- for (i=0; i<768; i++ ) {
-     gr_current_pal[i] = pal[i];
-     if (gr_current_pal[i] > 63) gr_current_pal[i] = 63;
- }
- //palette = screen->format->palette;
-
- gr_palette_faded_out=0;
-
- init_computed_colors();
+	gr_palette_faded_out=0;
+	init_computed_colors();
 }
-
-
 
 int gr_palette_fade_out(ubyte *pal, int nsteps, int allow_keys)
 {
@@ -576,15 +520,11 @@ int gr_palette_fade_out(ubyte *pal, int nsteps, int allow_keys)
 	return 0;
 }
 
-
-
 int gr_palette_fade_in(ubyte *pal, int nsteps, int allow_keys)
 {
 	gr_palette_faded_out=0;
 	return 0;
 }
-
-
 
 void gr_palette_read(ubyte * pal)
 {
@@ -646,7 +586,6 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){ // ZICO - modifie
 
 void save_screen_shot(int automap_flag)
 {
-//	fix t1;
 	char message[100];
 	static int savenum=0;
 	char savename[13];
@@ -660,7 +599,6 @@ void save_screen_shot(int automap_flag)
 
 	stop_time();
 
-//added/changed on 10/31/98 by Victor Rachels to fix overwrite each new game
 	if ( savenum == 9999 ) savenum = 0;
 	sprintf(savename,"scrn%04d.tga",savenum++);
 
@@ -670,19 +608,15 @@ void save_screen_shot(int automap_flag)
 		sprintf(savename,"scrn%04d.tga",savenum++);
 	}
 	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
-//end this section addition/change - Victor Rachels
 
-	if (automap_flag) {
-	} else {
+	if (!automap_flag) {
 		hud_message(MSGC_GAME_FEEDBACK,message);
 	}
 	
 	buf = malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
 	glReadBuffer(GL_FRONT);
-	//glReadPixels(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
 	free(buf);
-
 	key_flush();
 	start_time();
 }

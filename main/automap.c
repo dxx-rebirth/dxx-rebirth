@@ -69,7 +69,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "network.h" 
 #include "newmenu.h"
 #include "cntrlcen.h"
-
 #include "d_delay.h"
 #include "automap.h"
 
@@ -130,7 +129,6 @@ void init_automap_colors(void)
 	Hostage_color = K_HOSTAGE_COLOR;
 	Font_color_20 = K_FONT_COLOR_20;
 	Green_31 = K_GREEN_31;
-
 	White_63 = gr_find_closest_color_current(63,63,63);
 	Blue_48 = gr_find_closest_color_current(0,0,48);
 	Red_48 = gr_find_closest_color_current(48,0,0);
@@ -141,20 +139,20 @@ ubyte Automap_visited[MAX_SEGMENTS];
 
 // Edge list variables
 static int Num_edges=0;
-static int Max_edges;		//set each frame
+static int Max_edges; //set each frame
 static int Highest_edge_index = -1;
 static Edge_info Edges[MAX_EDGES];
 static short DrawingListBright[MAX_EDGES];
 
 // Map movement defines
-#define PITCH_DEFAULT 9000
-#define ZOOM_DEFAULT i2f(20*10)
-#define ZOOM_MIN_VALUE i2f(20*5)
-#define ZOOM_MAX_VALUE i2f(20*100)
+#define PITCH_DEFAULT		9000
+#define ZOOM_DEFAULT		i2f(20*10)
+#define ZOOM_MIN_VALUE		i2f(20*5)
+#define ZOOM_MAX_VALUE		i2f(20*100)
 
-#define SLIDE_SPEED 			(350)
-#define ZOOM_SPEED_FACTOR		(500)	//(1500)
-#define ROT_SPEED_DIVISOR		(115000)
+#define SLIDE_SPEED 		(350)
+#define ZOOM_SPEED_FACTOR	(500)
+#define ROT_SPEED_DIVISOR	(115000)
 
 // Screen anvas variables
 #ifndef AUTOMAP_DIRECT_RENDER
@@ -195,8 +193,8 @@ void automap_clear_visited()
 		Automap_visited[i] = 0;
 }
 
-grs_canvas *name_canv;
-char	name_level[128];
+grs_canvas	*name_canv;
+char		name_level[128];
 
 //print to canvas & double height
 grs_canvas *print_to_canvas(char *s,grs_font *font, int fc, int bc)
@@ -266,7 +264,6 @@ void create_name_canv()
 	strcat(name_level, Current_level_name);
 
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
-// 	name_canv = print_to_canvas(name_level,Gamefonts[GFONT_SMALL], BM_XRGB(0,31,0), -1);
 	gr_set_curfont((Gamefonts[GFONT_SMALL]));
 	gr_printf(5,5,"%s", name_level);
 }
@@ -332,7 +329,7 @@ void draw_automap()
 		color = get_team(Player_num);
 	else
 #endif	
-		color = Player_num;	// Note link to above if!
+		color = Player_num; // Note link to above if!
 
 	gr_setcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
 	draw_player(&Objects[Players[Player_num].objnum]);
@@ -383,7 +380,6 @@ void draw_automap()
 
 	g3_end_frame();
 
-// 	gr_bitmapm(5, 5, &name_canv->cv_bitmap);
 	create_name_canv();
 
 #ifdef OGL
@@ -401,12 +397,11 @@ void draw_automap()
 
 extern void GameLoop(int, int );
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
-extern int Current_display_mode;
 u_int32_t automap_mode = SM(640,480);
 int automap_width = 640;
 int automap_height = 480;
-int automap_use_game_res=1; // ZICO - should be better
-int nice_automap = 1; // ZICO - should be better (command-line switches deactivated)
+int automap_use_game_res=1;
+int nice_automap = 1;
 int Automap_active = 0;
 
 #define MAP_BACKGROUND_FILENAME "MAP.PCX"
@@ -462,8 +457,6 @@ void do_automap( int key_code )	{
 	//end edit -MM
 	automap_width=grd_curscreen->sc_canvas.cv_bitmap.bm_w;
 	automap_height=grd_curscreen->sc_canvas.cv_bitmap.bm_h;
-
-// 	create_name_canv();
 
 	gr_palette_clear();
 
@@ -613,8 +606,6 @@ void do_automap( int key_code )	{
 			case KEY_ALTED+KEY_PADENTER:
 				gr_toggle_fullscreen_game();
 				break;
-//end addition -MM
-
 			}
 		}
 
@@ -673,8 +664,6 @@ void do_automap( int key_code )	{
 		t1 = t2;
 	}
 
-// 	gr_free_canvas(name_canv);  name_canv=NULL;
-
 #ifndef AUTOMAP_DIRECT_RENDER
 	if (must_free_canvas)
 		free(Page.cv_bitmap.bm_data);
@@ -709,7 +698,6 @@ void adjust_segment_limit(int SegmentLimit)
 			}
 		}
 	}
-	
 }
 
 void draw_all_edges()	
@@ -733,7 +721,7 @@ void draw_all_edges()
 
 		if ( e->flags & EF_TOO_FAR) continue;
 
-		if (e->flags&EF_FRONTIER)	{						// A line that is between what we have seen and what we haven't
+		if (e->flags&EF_FRONTIER) { 		// A line that is between what we have seen and what we haven't
 			if ( (!(e->flags&EF_SECRET))&&(e->color==Wall_normal_color))
 				continue;		// If a line isn't secret and is normal color, then don't draw it
 		}
@@ -1074,7 +1062,6 @@ void add_unknown_segment_edges(segment *seg)
 		// Only add edges that have no children
 		if (seg->children[sn] == -1) {
 			get_side_verts(vertex_list,segnum,sn);
-	
 			add_one_unknown_edge( vertex_list[0], vertex_list[1] );
 			add_one_unknown_edge( vertex_list[1], vertex_list[2] );
 			add_one_unknown_edge( vertex_list[2], vertex_list[3] );
@@ -1154,7 +1141,5 @@ void automap_build_edge_list()
 				break;
 		}
 	}
-
 	mprintf( (0, "Automap used %d / %d edges\n", Num_edges, Max_edges  ));
-
 }
