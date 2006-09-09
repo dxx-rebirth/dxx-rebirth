@@ -1427,7 +1427,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 
 	//clear the window
 	gr_setcolor(BM_XRGB(0,0,0));
-	gr_rect(COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*box->right,COCKPITSCALE_Y*(box->bot+2));
+	gr_rect(COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*box->right,COCKPITSCALE_Y*(box->bot+1));
 
 	bm=&GameBitmaps[Weapon_info[info_index].picture.index];
 	Assert(bm != NULL);
