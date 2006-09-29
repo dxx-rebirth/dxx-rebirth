@@ -207,9 +207,9 @@ int  	window_width;
 int  	window_height;
 
 #ifdef EDITOR_TMAP
-#define MAX_Y_POINTERS  600
+#define MAX_Y_POINTERS  1024
 #else
-#define MAX_Y_POINTERS  600
+#define MAX_Y_POINTERS  1024
 #endif
 int	y_pointers[MAX_Y_POINTERS];
 
