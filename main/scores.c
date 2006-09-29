@@ -81,8 +81,8 @@ char scores_filename[128];
 #define XX  (7)
 #define YY  (-3)
 
-#define LHX(x)		((x)*(MenuHires?FONTSCALE_X(2):1))
-#define LHY(y)		((y)*(MenuHires?FONTSCALE_Y(2.4):1))
+#define LHX(x)		((x)*(MenuHires?FONTSCALE_X(2):FONTSCALE_X(1)))
+#define LHY(y)		((y)*(MenuHires?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
 
 
 char * get_scores_filename()
@@ -357,7 +357,9 @@ static float scale=1.0;
 
 void scores_view(int citem)
 {
+#ifdef OGL
 	gr_palette_load( gr_palette ); // ZICO - added to be sure right palette is loaded after engame
+#endif
 	fix t1;
 	int i,done,looper;
 	int k;
@@ -372,12 +374,14 @@ ReshowScores:
 	gr_set_current_canvas(NULL);
 
 	scale=FONTSCALE_X(GAME_FONT->ft_h/5);//5 is the size of the standard font the menus were designed for.
-	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 240*scale)/2, 320*scale, 240*scale); // ZICO - added
+	if (MenuHires)
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 240*scale)/2, 320*scale, 240*scale);
+	else
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 200*scale)/2, 320*scale, 200*scale);
 	gr_set_current_canvas(&canvas);
 	
-	nm_draw_background(0, 0, GWIDTH-1, GHEIGHT-1); // ZICO - added
-	
-	//nm_draw_background(0,0,grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h ); // ZICO - removed
+	nm_draw_background(0, 0, GWIDTH-1, GHEIGHT-1);
+	//nm_draw_background(0,0,grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
 
 	grd_curcanv->cv_font = MEDIUM3_FONT;
 

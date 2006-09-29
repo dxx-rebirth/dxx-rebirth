@@ -209,8 +209,8 @@ fix Cruise_speed=0;
 
 // macros for drawing lo/hi res kconfig screens (see scores.c as well)
 
-#define LHX(x)		((x)*(MenuHires?FONTSCALE_X(2):1))
-#define LHY(y)		((y)*(MenuHires?FONTSCALE_Y(2.4):1))
+#define LHX(x)		((x)*(MenuHires?FONTSCALE_X(2):FONTSCALE_X(1)))
+#define LHY(y)		((y)*(MenuHires?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
 
 
 #define BT_KEY 				0
@@ -909,7 +909,10 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	scale=FONTSCALE_X(GAME_FONT->ft_h/5.0);
 	printf("scale=%f\n",scale);
-	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 240*scale)/2, 320*scale, 240*scale);
+	if (MenuHires)
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 240*scale)/2, 320*scale, 240*scale);
+	else
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 200*scale)/2, 320*scale, 200*scale);
 	gr_set_current_canvas(&canvas);
 
 	save_font = grd_curcanv->cv_font;
