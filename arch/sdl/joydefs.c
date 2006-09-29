@@ -18,6 +18,7 @@
 #include "kconfig.h"
 
 extern int num_joysticks;
+extern int joy_deadzone;
 
 int joydefs_calibrate_flag = 0;
 
@@ -72,9 +73,9 @@ void joydefs_config()
 	newmenu_item m[13];
 	int i, i1 = 5, j;
 #ifdef D2X_KEYS
-	int nitems = 10;
+	int nitems = 11;
 #else
-	int nitems = 9;
+	int nitems = 10;
 #endif
 
 	m[0].type = NM_TYPE_RADIO;  m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
@@ -82,12 +83,15 @@ void joydefs_config()
 	m[2].type = NM_TYPE_RADIO;  m[2].text = "MOUSE";    m[2].value = 0; m[2].group = 0;
 	m[3].type = NM_TYPE_TEXT;   m[3].text = "";
 	m[4].type = NM_TYPE_MENU;   m[4].text = TXT_CUST_ABOVE;
+	m[9].type = NM_TYPE_MENU;   m[9].text = TXT_CUST_KEYBOARD;
 	m[5].type = NM_TYPE_TEXT;   m[5].text = "";
+
 	m[6].type = NM_TYPE_SLIDER; m[6].text = TXT_JOYS_SENSITIVITY; m[6].value = Config_joystick_sensitivity; m[6].min_value = 0; m[6].max_value = 16;
-	m[7].type = NM_TYPE_TEXT;   m[7].text = "";
-	m[8].type = NM_TYPE_MENU;   m[8].text = TXT_CUST_KEYBOARD;
+	m[7].type = NM_TYPE_SLIDER; m[7].text="Joystick Deadzone"; m[7].value=joy_deadzone; m[7].min_value=0; m[7].max_value = 16;
+	m[8].type = NM_TYPE_TEXT;   m[8].text = "";
+
 #ifdef D2X_KEYS
-	m[9].type = NM_TYPE_MENU;   m[9].text = "CUSTOMIZE D2X KEYS";
+	m[10].type = NM_TYPE_MENU;   m[10].text = "CUSTOMIZE D2X KEYS";
 #endif
 
 	do {
@@ -99,6 +103,7 @@ void joydefs_config()
 		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, joydef_menuset_1, i1);
 
 		Config_joystick_sensitivity = m[6].value;
+		joy_deadzone = m[7].value;
 
 		for (j = 0; j <= 2; j++)
 			if (m[j].value)
@@ -111,11 +116,11 @@ void joydefs_config()
 		case 4:
 			kconfig(i, m[i].text);
 			break;
-		case 8:
+		case 9:
 			kconfig(0, "KEYBOARD");
 			break;
 #ifdef D2X_KEYS
-		case 9:
+		case 10:
 			kconfig(4, "D2X KEYS");
 			break;
 #endif
