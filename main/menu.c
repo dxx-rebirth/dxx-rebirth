@@ -913,7 +913,6 @@ void change_res()
 	int screen_width = 0;
 	int screen_height = 0;
 	int vr_mode = VR_NONE;
-	int screen_flags = 0;
 
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x200"; m[mc].value = (Game_screen_mode == SM(320,200)); m[mc].group = 0; modes[mc] = SM(320,200); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x480"; m[mc].value = (Game_screen_mode == SM(640,480)); m[mc].group = 0; modes[mc] = SM(640,480); mc++;
@@ -1162,16 +1161,16 @@ void joydef_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 	}
 }
 
-//this change was made in DESCENT.TEX, but since we're not including that
-//file in the v1.1 update, we're making the change in the code here also
-#ifdef SHAREWARE
-#undef	TXT_JOYS_SENSITIVITY
-#define	TXT_JOYS_SENSITIVITY "Joystick/Mouse\nSensitivity"
-#endif
+// //this change was made in DESCENT.TEX, but since we're not including that
+// //file in the v1.1 update, we're making the change in the code here also
+// #ifdef SHAREWARE
+// #undef	TXT_JOYS_SENSITIVITY
+// #define	TXT_JOYS_SENSITIVITY "Joystick/Mouse\nSensitivity"
+// #endif
 
 void do_options_menu()
 {
-	newmenu_item m[14];
+	newmenu_item m[12];
 
 	int i = 0;
 
@@ -1185,31 +1184,31 @@ void do_options_menu()
 //end this section addition - Victor Rachels
 		m[5].type = NM_TYPE_TEXT; m[5].text="";
 		m[6].type = NM_TYPE_MENU; m[6].text=TXT_CONTROLS_;
-		m[7].type = NM_TYPE_MENU; m[7].text=TXT_DETAIL_LEVELS;
-		m[8].type = NM_TYPE_MENU; m[8].text=TXT_CAL_JOYSTICK;
+		m[7].type = NM_TYPE_MENU; m[7].text=TXT_CAL_JOYSTICK;
+		m[8].type = NM_TYPE_TEXT; m[8].text="";
+		m[9].type = NM_TYPE_MENU; m[9].text=TXT_DETAIL_LEVELS;
 //added/changed on 10/27/98 by Victor Rachels to increase sensitivity range
-		m[9].type = NM_TYPE_SLIDER; m[9].text=TXT_JOYS_SENSITIVITY; m[9].value=Config_joystick_sensitivity; m[9].min_value =0; m[9].max_value = 16;
+// 		m[9].type = NM_TYPE_SLIDER; m[9].text=TXT_JOYS_SENSITIVITY; m[9].value=Config_joystick_sensitivity; m[9].min_value =0; m[9].max_value = 16;
 //end this section addition - Victor Rachels
 //added on 4/13/99 by Victor Rachels to add joystick deadzone option
-		m[10].type = NM_TYPE_SLIDER; m[10].text="Joystick Deadzone"; m[10].value=joy_deadzone; m[10].min_value=0; m[10].max_value=16;
+// 		m[10].type = NM_TYPE_SLIDER; m[10].text="Joystick Deadzone"; m[10].value=joy_deadzone; m[10].min_value=0; m[10].max_value=16;
 //end this section addition - VR
-		m[11].type = NM_TYPE_TEXT; m[11].text="";
-		m[12].type = NM_TYPE_CHECK; m[12].text="Ship auto-leveling"; m[12].value=Auto_leveling_on;
-		m[13].type = NM_TYPE_MENU; m[13].text="D1X options...";
+		m[10].type = NM_TYPE_CHECK; m[10].text="Ship auto-leveling"; m[10].value=Auto_leveling_on;
+		m[11].type = NM_TYPE_MENU; m[11].text="D1X options...";
 
-		i = newmenu_do1( NULL, TXT_OPTIONS, 14, m, joydef_menuset, i );
+		i = newmenu_do1( NULL, TXT_OPTIONS, 12, m, joydef_menuset, i );
 			
 		switch(i)	{
 			case 6: joydefs_config(); break;
-			case 7: do_detail_level_menu(); break;
-			case 8: joydefs_calibrate(); break;
-			case 13: d1x_options_menu(); break;
+			case 7: joydefs_calibrate(); break;
+			case 9: do_detail_level_menu(); break;
+			case 11: d1x_options_menu(); break;
 		}
 
 		Config_channels_reversed = m[2].value;
-		Config_joystick_sensitivity = m[9].value;
-		joy_deadzone = m[10].value;
-	Auto_leveling_on = m[12].value;
+// 		Config_joystick_sensitivity = m[9].value;
+// 		joy_deadzone = m[10].value;
+		Auto_leveling_on = m[10].value;
 	} while( i>-1 );
 
 	write_player_file();

@@ -383,7 +383,16 @@ void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max)
 int joy_get_scaled_reading( int raw, int axis_num )
 {
 #if 1
-	return raw/256;
+	int x, d;
+
+	d =  (joy_deadzone) * 6;
+	if (((raw/256) > (-1*d)) && ((raw/256) < d))
+		x = 0;
+	else
+		x = raw/256;
+
+	return x;
+	//return raw/256;
 #else
 	int d, x;
 

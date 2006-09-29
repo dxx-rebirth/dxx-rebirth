@@ -18,6 +18,7 @@
 #include "kconfig.h"
 
 extern int num_joysticks;
+extern int joy_deadzone;
 
 int joydefs_calibrate_flag = 0;
 
@@ -33,6 +34,13 @@ void joydefs_calibrate()
 	//Actual calibration if necessary
 
 }
+
+//this change was made in DESCENT.TEX, but since we're not including that
+//file in the v1.1 update, we're making the change in the code here also
+#ifdef SHAREWARE
+#undef	TXT_JOYS_SENSITIVITY
+#define	TXT_JOYS_SENSITIVITY "Joystick/Mouse\nSensitivity"
+#endif
 
 void joydef_menuset_1(int nitems, newmenu_item * items, int *last_key, int citem )
 {
@@ -70,16 +78,21 @@ void joydef_menuset_1(int nitems, newmenu_item * items, int *last_key, int citem
 void joydefs_config()
 {
 	newmenu_item m[13];
-	int i, i1 = 5, j;
-	int nitems = 6;
+	int i, i1 = 9, j;
+	int nitems = 10;
 
 	m[0].type = NM_TYPE_RADIO;  m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
 	m[1].type = NM_TYPE_RADIO;  m[1].text = "JOYSTICK"; m[1].value = 0; m[1].group = 0;
 	m[2].type = NM_TYPE_RADIO;  m[2].text = "MOUSE";    m[2].value = 0; m[2].group = 0;
 	m[3].type = NM_TYPE_TEXT;   m[3].text = "";
 	m[4].type = NM_TYPE_MENU;   m[4].text = TXT_CUST_ABOVE;
-	m[5].type = NM_TYPE_MENU;   m[5].text = TXT_CUST_KEYBOARD;
+	m[5].type = NM_TYPE_TEXT;   m[5].text = "";
+	// from menu.c
+	m[6].type = NM_TYPE_SLIDER; m[6].text=TXT_JOYS_SENSITIVITY; m[6].value=Config_joystick_sensitivity; m[6].min_value = 0; m[6].max_value = 16;
+	m[7].type = NM_TYPE_SLIDER; m[7].text="Joystick Deadzone"; m[7].value=joy_deadzone; m[7].min_value=0; m[7].max_value = 16;
 
+	m[8].type = NM_TYPE_TEXT;   m[8].text="";
+	m[9].type = NM_TYPE_MENU;   m[9].text = TXT_CUST_KEYBOARD;
 	do {
 
 		i = Config_control_type;
@@ -88,7 +101,8 @@ void joydefs_config()
 
 		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, joydef_menuset_1, i1);
 
-// 		Config_joystick_sensitivity = m[6].value;
+		Config_joystick_sensitivity = m[6].value;
+		joy_deadzone = m[7].value;
 
 		for (j = 0; j <= 2; j++)
 			if (m[j].value)
@@ -101,7 +115,7 @@ void joydefs_config()
 		case 4:
 			kconfig(i, m[i].text);
 			break;
-		case 5:
+		case 9:
 			kconfig(0, "KEYBOARD");
 			break;
 		}
