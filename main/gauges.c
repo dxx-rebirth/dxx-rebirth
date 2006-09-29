@@ -667,9 +667,9 @@ void hud_show_energy(void)
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 		if (Game_mode & GM_MULTI)
-		     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h*5+3*5)),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
+		     gr_printf(2, (grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h*5+3*5)),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
 		else
-		     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h+3)),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
+		     gr_printf(2, (grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h+3)),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
 	}
 
 	if (Newdemo_state==ND_STATE_RECORDING ) {
@@ -825,7 +825,7 @@ void hud_show_weapons(void)
 		}
 		
 		gr_get_string_size(weapon_str, &w, &h, &aw );
-		gr_printf(grd_curcanv->cv_w-5-w, FONTSCALE_Y(y-(GAME_FONT->ft_h+3)), weapon_str);//originally y-8
+		gr_printf(grd_curcanv->cv_w-5-w, (y-FONTSCALE_Y(GAME_FONT->ft_h+3)), weapon_str);//originally y-8
 
 		switch (Secondary_weapon) {
 			case 0:		strcpy(weapon_str, TXT_CONCUSSION);	break;
@@ -846,7 +846,7 @@ void hud_show_weapons(void)
 		gr_printf(grd_curcanv->cv_w-5-w, y, weapon_str);
 		sprintf(weapon_str, "PROX %u",Players[Player_num].secondary_ammo[2]);
 		gr_get_string_size(weapon_str, &w,&h, &aw );
-		gr_printf(grd_curcanv->cv_w-5-w, FONTSCALE_Y(y-(GAME_FONT->ft_h*2+3*2)), weapon_str);//originally y-16
+		gr_printf(grd_curcanv->cv_w-5-w, (y-FONTSCALE_Y(GAME_FONT->ft_h*2+3*2)), weapon_str);//originally y-16
 	}
 
 #ifndef SHAREWARE
@@ -902,14 +902,14 @@ void hud_show_shield(void)
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 		if ( Players[Player_num].shields >= 0 )	{
 			if (Game_mode & GM_MULTI)
-			     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h*6+3*6)),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
+			     gr_printf(2, (grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h*6+3*6)),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
 			else
-			     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h*2+3*2)),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
+			     gr_printf(2, (grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h*2+3*2)),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
 		} else {
 			if (Game_mode & GM_MULTI)
-			     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h*6+3*6)),"%s: 0", TXT_SHIELD );
+			     gr_printf(2, (grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h*6+3*6)),"%s: 0", TXT_SHIELD );
 			else
-			     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h*2+3*2)),"%s: 0", TXT_SHIELD );
+			     gr_printf(2, (grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h*2+3*2)),"%s: 0", TXT_SHIELD );
 		}
 	}
 

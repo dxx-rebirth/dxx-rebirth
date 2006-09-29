@@ -260,8 +260,8 @@ extern int hiresfont;
 #define FONTSCALE_X(x) ((fixedfont)?x:(x)*((SWIDTH/ ((hiresfont&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))
 #define FONTSCALE_Y(x) ((fixedfont)?x:(x)*((SHEIGHT/((hiresfont&&SWIDTH>=640&&SHEIGHT>=480)?480:200))))
 #else // without OGL we don't scale. But instead of defining out eery single FONTSCALE_* call we just do not scale
-#define FONTSCALE_X(x) x
-#define FONTSCALE_Y(x) x
+#define FONTSCALE_X(x) (x)
+#define FONTSCALE_Y(x) (x)
 #endif
 
 //old font structure, could not add new items to it without screwing up gr_init_font

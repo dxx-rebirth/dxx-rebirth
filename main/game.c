@@ -424,30 +424,24 @@ void init_cockpit()
 		}
 
 	case CM_FULL_SCREEN:
-		if (Game_window_h > max_window_h
 #ifndef OGL
-		|| (VR_screen_mode == SM(320,200))
+		if (Game_window_h > max_window_h || (VR_screen_mode == SM(320,200)) || !Game_window_h)
 #endif
-		)
 			Game_window_h = max_window_h;
-
-		if (Game_window_w > max_window_w 
 #ifndef OGL
-		|| (VR_screen_mode == SM(320,200))
+		if (Game_window_w > max_window_w || (VR_screen_mode == SM(320,200)) || !Game_window_w)
 #endif
-		)
 			Game_window_w = max_window_w;
 
 		Game_window_x = (max_window_w - Game_window_w)/2;
 		Game_window_y = (max_window_h - Game_window_h)/2;
-
 		game_init_render_sub_buffers(Game_window_x, Game_window_y, Game_window_w, Game_window_h);
 		break;
 
 	case CM_STATUS_BAR:
 		max_window_h = (grd_curscreen->sc_h*2)/2.72;
 
-		if (Game_window_h > max_window_h) {
+		if (Game_window_h > max_window_h || (!Game_window_w || !Game_window_h)) {
 			Game_window_w = max_window_w;
 			Game_window_h = max_window_h;
 		}
