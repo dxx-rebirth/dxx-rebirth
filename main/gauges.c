@@ -146,7 +146,7 @@ grs_canvas *Canv_NumericalGauge;
 #define PRIMARY_W_PIC_Y			154
 #define PRIMARY_W_TEXT_X		COCKPITSCALE_X*87
 #define PRIMARY_W_TEXT_Y		COCKPITSCALE_Y*157
-#define PRIMARY_AMMO_X			COCKPITSCALE_X*(93)
+#define PRIMARY_AMMO_X			COCKPITSCALE_X*93
 #define PRIMARY_AMMO_Y			COCKPITSCALE_Y*171
 #define SECONDARY_W_PIC_X		234
 #define SECONDARY_W_PIC_Y		154
@@ -667,9 +667,9 @@ void hud_show_energy(void)
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 		if (Game_mode & GM_MULTI)
-		     gr_printf(2, grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h*5+3*5),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
+		     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h*5+3*5)),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
 		else
-		     gr_printf(2, grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h+3),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
+		     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h+3)),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
 	}
 
 	if (Newdemo_state==ND_STATE_RECORDING ) {
@@ -724,9 +724,9 @@ void hud_show_weapons_mode1(int type,int vertical,int clear,int x,int y){
 			}
 			gr_get_string_size(weapon_str, &w, &h, &aw );
 			if (vertical){
-				y-=h+2;
+				y-=h+FONTSCALE_X(2);
 			}else
-			     x-=w+3;
+			     x-=w+FONTSCALE_Y(3);
 			gr_printf(x, y, weapon_str);
 		}
 	}else{
@@ -742,9 +742,9 @@ void hud_show_weapons_mode1(int type,int vertical,int clear,int x,int y){
 			sprintf(weapon_str,"%i",Players[Player_num].secondary_ammo[i]);
 			gr_get_string_size(weapon_str, &w, &h, &aw );
 			if (vertical){
-				y-=h+2;
+				y-=h+FONTSCALE_X(2);
 			}else
-			     x-=w+3;
+			     x-=w+FONTSCALE_Y(3);
 			if (clear){
 				gr_setcolor(BM_XRGB(0,0,0));
 				gr_rect(x-2,y-4,x+8,y+4);
@@ -783,16 +783,16 @@ void hud_show_weapons(void)
 			x1=grd_curcanv->cv_w/2-(w);
 			x2=grd_curcanv->cv_w/2+x2;//originally /2+10
 		}else{
-			y=grd_curcanv->cv_h/1.8+8;
-			x1=grd_curcanv->cv_w/2.1-(40+w);
-			x2=grd_curcanv->cv_w/1.9+(42+x2);
+			y=grd_curcanv->cv_h/1.75;
+			x1=grd_curcanv->cv_w/2.1-(FONTSCALE_X(40)+w);
+			x2=grd_curcanv->cv_w/1.9+(FONTSCALE_X(42)+x2);
 		}
 		hud_show_weapons_mode1(0,1,0,x1,y);
 		hud_show_weapons_mode1(1,1,0,x2,y);
 		gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
-		gr_printf(x2, y-FONTSCALE_Y(GAME_FONT->ft_h*4+4),"%i", f2ir(Players[Player_num].shields));
+		gr_printf(x2, y-(FONTSCALE_Y(GAME_FONT->ft_h*4+4)),"%i", f2ir(Players[Player_num].shields));
 		gr_set_fontcolor(gr_getcolor(25,18,6),-1 );
-		gr_printf(x1, y-FONTSCALE_Y(GAME_FONT->ft_h*4+4),"%i", f2ir(Players[Player_num].energy));
+		gr_printf(x1, y-(FONTSCALE_Y(GAME_FONT->ft_h*4+4)),"%i", f2ir(Players[Player_num].energy));
 	}
 
 	else{
@@ -825,7 +825,7 @@ void hud_show_weapons(void)
 		}
 		
 		gr_get_string_size(weapon_str, &w, &h, &aw );
-		gr_printf(grd_curcanv->cv_w-5-w, y-FONTSCALE_Y(GAME_FONT->ft_h+3), weapon_str);//originally y-8
+		gr_printf(grd_curcanv->cv_w-5-w, FONTSCALE_Y(y-(GAME_FONT->ft_h+3)), weapon_str);//originally y-8
 
 		switch (Secondary_weapon) {
 			case 0:		strcpy(weapon_str, TXT_CONCUSSION);	break;
@@ -846,7 +846,7 @@ void hud_show_weapons(void)
 		gr_printf(grd_curcanv->cv_w-5-w, y, weapon_str);
 		sprintf(weapon_str, "PROX %u",Players[Player_num].secondary_ammo[2]);
 		gr_get_string_size(weapon_str, &w,&h, &aw );
-		gr_printf(grd_curcanv->cv_w-5-w, y-FONTSCALE_Y(GAME_FONT->ft_h*2+3*2), weapon_str);//originally y-16
+		gr_printf(grd_curcanv->cv_w-5-w, FONTSCALE_Y(y-(GAME_FONT->ft_h*2+3*2)), weapon_str);//originally y-16
 	}
 
 #ifndef SHAREWARE
@@ -902,14 +902,14 @@ void hud_show_shield(void)
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 		if ( Players[Player_num].shields >= 0 )	{
 			if (Game_mode & GM_MULTI)
-			     gr_printf(2, grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h*6+3*6),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
+			     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h*6+3*6)),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
 			else
-			     gr_printf(2, grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h*2+3*2),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
+			     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h*2+3*2)),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
 		} else {
 			if (Game_mode & GM_MULTI)
-			     gr_printf(2, grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h*6+3*6),"%s: 0", TXT_SHIELD );
+			     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h*6+3*6)),"%s: 0", TXT_SHIELD );
 			else
-			     gr_printf(2, grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h*2+3*2),"%s: 0", TXT_SHIELD );
+			     gr_printf(2, FONTSCALE_Y(grd_curcanv->cv_h-(GAME_FONT->ft_h*2+3*2)),"%s: 0", TXT_SHIELD );
 		}
 	}
 
@@ -1354,7 +1354,7 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 	}
 
 	gr_set_current_canvas(&VR_render_buffer[0]);
-
+	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w), COCKPITSCALE_Y*(y+bm->bm_h));
 	hud_bitblt( x, y, bm, F1_0, 0);
 
 	Gr_scanline_darkening_level = cloak_fade_value;
@@ -2100,18 +2100,6 @@ extern int last_drawn_cockpit[2];
 
 void draw_hud()
 {
-
-// #ifdef OGL
-// 	if (Cockpit_mode==CM_STATUS_BAR){
-		//ogl needs to redraw every frame, at least currently.
-//		init_cockpit();
-// 		last_drawn_cockpit[0]=-1;
-// 		last_drawn_cockpit[1]=-1;
-// 		  init_gauges();
-//		vr_reset_display();
-// 	}
-// #endif
-
 	// Show score so long as not in rearview
 	if ( !Rear_view && Cockpit_mode!=CM_REAR_VIEW && Cockpit_mode!=CM_STATUS_BAR) {
 		hud_show_score();
