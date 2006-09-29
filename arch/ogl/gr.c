@@ -70,7 +70,7 @@ int gr_installed = 0;
 
 void gr_palette_clear(); // Function prototype for gr_init;
 int gl_initialized=0;
-int gl_reticle = 1;
+int gl_reticle = 0;
 
 int ogl_fullscreen;
 

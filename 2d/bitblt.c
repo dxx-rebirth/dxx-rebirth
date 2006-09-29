@@ -1598,11 +1598,6 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 	source = bm->bm_type;
 	dest = TYPE;
 
-#ifndef OGL
-	Assert(x+bm->bm_w <= grd_curcanv->cv_w); // ZICO - moved from avove into this ifndef for scalable cockpits
-	Assert(y+bm->bm_h <= grd_curcanv->cv_h);
-#endif
-
 	if (source==BM_LINEAR) {
 		switch( dest )
 		{

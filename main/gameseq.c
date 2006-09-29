@@ -788,8 +788,8 @@ do_menu_again:
 	if (menu_use_game_res) { // ZICO - set players resolution after player is selected
 		gr_set_mode(SM(VR_render_buffer[0].cv_bitmap.bm_w, VR_render_buffer[0].cv_bitmap.bm_h));
 		set_screen_mode(SCREEN_GAME);
-	} else 
-		set_display_mode(Default_display_mode);
+	} /*else 
+		set_display_mode(Default_display_mode);*/
 
 	WriteConfigFile();		// Update lastplr
 

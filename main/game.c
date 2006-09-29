@@ -355,56 +355,39 @@ extern void newdemo_record_cockpit_change(int);
 //called every time the screen mode or cockpit changes
 void init_cockpit()
 {
-//	int minx, maxx, miny, maxy;
-	int x,y;
-	//Initialize the on-screen canvases
+	int x,y,w,h;
 
 	if (Newdemo_state==ND_STATE_RECORDING) {
 		newdemo_record_cockpit_change(Cockpit_mode);
 	}
 
-	if ( VR_render_mode != VR_NONE )
-		Cockpit_mode = CM_FULL_SCREEN;
-
 #ifndef OGL
-	if (!(VR_screen_flags & VRF_ALLOW_COCKPIT) && (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR || Cockpit_mode==CM_REAR_VIEW) )
-		Cockpit_mode = CM_FULL_SCREEN; // ZICO - deactivated to allow cockpit on every res
+	if ((SWIDTH == 320 && SHEIGHT == 200) || (SWIDTH == 640 && SHEIGHT == 480))
 #endif
+	{
+		VR_screen_flags = VRF_ALLOW_COCKPIT;
+	}
 
-	if ( Screen_mode == SCREEN_EDITOR )
+	if ((!(VR_screen_flags & VRF_ALLOW_COCKPIT) && (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR || Cockpit_mode==CM_REAR_VIEW)) || ( VR_render_mode != VR_NONE ) || ( Screen_mode == SCREEN_EDITOR ))
 		Cockpit_mode = CM_FULL_SCREEN;
 
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( GAME_FONT );
 
+	game_init_render_buffers(Game_screen_mode, grd_curscreen->sc_w, grd_curscreen->sc_h, VR_render_mode, VR_screen_flags);
+
 	switch( Cockpit_mode ) {
 	case CM_FULL_COCKPIT:
-	case CM_REAR_VIEW: {
-#if 0
-		grs_bitmap *bm = &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index];
-
-		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
-
-		gr_set_current_canvas(VR_offscreen_buffer);
-
-		gr_bitmap( 0, 0, bm );
-		bm = &VR_offscreen_buffer->cv_bitmap;
-		bm->bm_flags = BM_FLAG_TRANSPARENT;
-		gr_ibitblt_find_hole_size ( bm, &minx, &miny, &maxx, &maxy );
-#endif
-
+	case CM_REAR_VIEW:
 		if (Cockpit_mode == CM_FULL_COCKPIT) {
-			game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w, (grd_curscreen->sc_h*2)/3); 
+			game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w,(grd_curscreen->sc_h*2)/3); 
 		}
 		else if (Cockpit_mode == CM_REAR_VIEW) {
-			game_init_render_sub_buffers((16*grd_curscreen->sc_w)/640, (89*grd_curscreen->sc_h)/480, (604*grd_curscreen->sc_w)/640, (209*grd_curscreen->sc_h)/480);
+			game_init_render_sub_buffers((16*grd_curscreen->sc_w)/640,(89*grd_curscreen->sc_h)/480, (604*grd_curscreen->sc_w)/640, (209*grd_curscreen->sc_h)/480);
 		}
 		break;
-	}
 
 	case CM_FULL_SCREEN:
-		max_window_h = Game_window_h;
-
 		if (Game_window_h > max_window_h || VR_screen_flags&VRF_ALLOW_COCKPIT)
 			Game_window_h = max_window_h;
 
@@ -414,14 +397,14 @@ void init_cockpit()
 		Game_window_x = (max_window_w - Game_window_w)/2;
 		Game_window_y = (max_window_h - Game_window_h)/2;
 
-		game_init_render_sub_buffers( Game_window_x, Game_window_y, Game_window_w, Game_window_h );
+		game_init_render_sub_buffers(Game_window_x, Game_window_y, Game_window_w, Game_window_h);
 		break;
 
 	case CM_STATUS_BAR:
-		if (grd_curscreen->sc_w >= 640)
+		if (Current_display_mode)
 			max_window_h = (grd_curscreen->sc_h*2)/2.6;
 		else
-			max_window_h = (grd_curscreen->sc_h*2)/2.7;
+			max_window_h = (grd_curscreen->sc_h*2)/2.72;
 		if (Game_window_h > max_window_h) {
 			Game_window_w = max_window_w;
 			Game_window_h = max_window_h;
@@ -432,16 +415,17 @@ void init_cockpit()
 
 		game_init_render_sub_buffers( x, y, Game_window_w, Game_window_h );
 		break;
-	case CM_LETTERBOX:	{
-		int x,y,w,h;
 
-		x = 0; w = VR_render_buffer[0].cv_bitmap.bm_w;		//VR_render_width;
-		h = (VR_render_buffer[0].cv_bitmap.bm_h * 7) / 10;
+	case CM_LETTERBOX:
+		x = 0; w = VR_render_buffer[0].cv_bitmap.bm_w;
+		h = (VR_render_buffer[0].cv_bitmap.bm_h*7)/10;
 		y = (VR_render_buffer[0].cv_bitmap.bm_h-h)/2;
+
+		gr_rect(x,0,w,VR_render_buffer[0].cv_bitmap.bm_h-h);
+		gr_rect(x,VR_render_buffer[0].cv_bitmap.bm_h-h,w,VR_render_buffer[0].cv_bitmap.bm_h);
 
 		game_init_render_sub_buffers( x, y, w, h );
 		break;
-		}
 	}
 
 	gr_set_current_canvas(NULL);
@@ -497,8 +481,8 @@ void game_init_render_buffers(int screen_mode, int render_w, int render_h, int r
 	VR_reset_params();
 	VR_render_mode 	= render_method;
 
-	Game_window_w 		= render_w;
-	Game_window_h		= render_h;
+// 	Game_window_w 		= render_w; FIXME: OK to be removed?
+// 	Game_window_h		= render_h;
 
 	if (VR_offscreen_buffer) {
 		gr_free_canvas(VR_offscreen_buffer);
@@ -560,13 +544,14 @@ int set_screen_mode(int sm)
 		return 1;
 	}
 #endif
+
 	// ZICO - since we use variable resolutions we can't store them in modes. Game_window_w/h is used to scale the window for STATUSBAR and shrink/grow_window so we can't use it to store the current resolution. So we store it in the VR_render variables. If we are going to remove this VR stuff we need to create new variables.
 	VR_screen_mode = Game_screen_mode = SM(VR_render_buffer[0].cv_bitmap.bm_w, VR_render_buffer[0].cv_bitmap.bm_h);
 
 	if (MenuHiresAvailable && FontHiresAvailable && (grd_curscreen->sc_w >= 640) && (grd_curscreen->sc_h >= 480)) {
-		MenuHires = FontHires = 1;
+		Current_display_mode = MenuHires = FontHires = 1;
 	} else {
-		MenuHires = FontHires = 0;
+		Current_display_mode = MenuHires = FontHires = 0;
 	}
 
 	if ( Screen_mode == sm && VGA_current_mode == VR_screen_mode) {
@@ -612,27 +597,8 @@ int set_screen_mode(int sm)
 			reset_cockpit();
 		}
 
-// 		if ( VR_render_mode == VR_NONE )
-// 		{
-			max_window_w = grd_curscreen->sc_w;
-			max_window_h = grd_curscreen->sc_h;
-// 
-// 			if (VR_screen_flags & VRF_ALLOW_COCKPIT) {
-// 				if (Cockpit_mode == CM_STATUS_BAR)
-// 		      			max_window_h = grd_curscreen->sc_h - GameBitmaps[cockpit_bitmap[CM_STATUS_BAR+(Current_display_mode?(Num_cockpits/2):0)].index].bm_h;
-// 			}
-// #ifndef OGL // ZICO - override for scalable cockpits
-// 			else if (Cockpit_mode != CM_LETTERBOX)
-// 				Cockpit_mode = CM_FULL_SCREEN;
-// #endif
-// 
-// 			if (Game_window_h==0 || Game_window_h > max_window_h || Game_window_w==0 || Game_window_w > max_window_w) {
-// 						Game_window_w = max_window_w;
-// 						Game_window_h = max_window_h;
-// 			}
-// 		}
-// 		else
-// 			Cockpit_mode = CM_FULL_SCREEN;
+		max_window_w = grd_curscreen->sc_w;
+		max_window_h = grd_curscreen->sc_h;
 
 		// Define screen pages for game mode
 		// If we designate through screen_flags to use paging, then do so.
@@ -2243,7 +2209,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 				force_cockpit_redraw=0;
 			}
 			game_render_frame();
-			//show_extra_views();		//missile view, buddy bot, etc.
+// 			show_extra_views();		//missile view, buddy bot, etc.
 
 			#ifndef RELEASE
 			if (Saving_movie_frames)

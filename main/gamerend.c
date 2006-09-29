@@ -198,7 +198,7 @@ void show_framerate() // ZICO - function modified
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 
 		ftoa( temp, rate );
-                gr_printf(grd_curcanv->cv_w-(x*GAME_FONT->ft_w),grd_curcanv->cv_h-y*(GAME_FONT->ft_h+GAME_FONT->ft_h/4),"FPS: %s ", temp );
+                gr_printf(grd_curcanv->cv_w-FONTSCALE_X(x*GAME_FONT->ft_w),grd_curcanv->cv_h-y*FONTSCALE_Y(GAME_FONT->ft_h+GAME_FONT->ft_h/4),"FPS: %s ", temp );
 	}
 }
 
@@ -281,12 +281,12 @@ void render_countdown_gauge()
 
 		gr_set_curfont( SMALL_FONT );
 		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
-		y = SMALL_FONT->ft_h*4;
+		y = FONTSCALE_Y(SMALL_FONT->ft_h*4);
 		if (Cockpit_mode == CM_FULL_SCREEN)
-			y += SMALL_FONT->ft_h*2;
+			y += FONTSCALE_Y(SMALL_FONT->ft_h*2);
 
 		if (Player_is_dead)
-			y += SMALL_FONT->ft_h*2;
+			y += FONTSCALE_Y(SMALL_FONT->ft_h*2);
 
 		//if (!((Cockpit_mode == CM_STATUS_BAR) && (Game_window_y >= 19)))
 		//	y += 5;
@@ -359,7 +359,7 @@ void game_draw_hud_stuff()
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor( gr_getcolor(0, 31, 0), -1 );
 		if (Cruise_speed > 0) {
-			int line_spacing = GAME_FONT->ft_h + GAME_FONT->ft_h/4;
+			int line_spacing = FONTSCALE_Y(GAME_FONT->ft_h + GAME_FONT->ft_h/4);
 
 mprintf((0,"line_spacing=%d ",line_spacing));
 
@@ -375,7 +375,7 @@ mprintf((0,"line_spacing=%d ",line_spacing));
 					y -= line_spacing * 4;	//24
 			} else {
 				y = line_spacing * 2;	//12
-				x = 20+2;
+				x = FONTSCALE_X(22);
 			}
 
 			gr_printf( x, y, "%s %2d%%", TXT_CRUISE, f2i(Cruise_speed) );
@@ -479,271 +479,7 @@ void game_expand_bitmap( grs_bitmap * bmp, uint flags )
 }
 
 extern int SW_drawn[2], SW_x[2], SW_y[2], SW_w[2], SW_h[2];
-
 extern int Guided_in_big_window;
-
-#if 0
-//render a frame for the game in stereo
-void game_render_frame_stereo()
-{
-	int dw,dh,sw,sh;
-	fix save_aspect;
-	fix actual_eye_width;
-	int actual_eye_offset;
-	grs_canvas RenderCanvas[2];
-	int no_draw_hud=0;
-
-	save_aspect = grd_curscreen->sc_aspect;
-	grd_curscreen->sc_aspect *= 2;	//Muck with aspect ratio
-
-	sw = dw = VR_render_buffer[0].cv_bitmap.bm_w;
-	sh = dh = VR_render_buffer[0].cv_bitmap.bm_h;
-
-	if (VR_low_res & 1)	{
-		sh /= 2;				
-		grd_curscreen->sc_aspect *= 2;  //Muck with aspect ratio	                        
-	}
-	if (VR_low_res & 2)	{
-		sw /= 2;				
-		grd_curscreen->sc_aspect /= 2;  //Muck with aspect ratio	                        
-	}
-
-	gr_init_sub_canvas( &RenderCanvas[0], &VR_render_buffer[0], 0, 0, sw, sh );
-	gr_init_sub_canvas( &RenderCanvas[1], &VR_render_buffer[1], 0, 0, sw, sh );
-
-	// Draw the left eye's view
-	if (VR_eye_switch)	{
-		actual_eye_width = -VR_eye_width;
-		actual_eye_offset = -VR_eye_offset;
-	} else {
-		actual_eye_width = VR_eye_width;
-		actual_eye_offset = VR_eye_offset;
-	}
-
-	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window)
-		actual_eye_offset = 0;
-
-	gr_set_current_canvas(&RenderCanvas[0]);
-
-	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window) {
-		char *msg = "Guided Missile View";
-		object *viewer_save = Viewer;
-		int w,h,aw;
-
-		Viewer = Guided_missile[Player_num];
-
-  		{
-			update_rendered_data(0, Viewer, 0, 0);
-			render_frame(0, 0);
-  
-			wake_up_rendered_objects(Viewer, 0);
-			Viewer = viewer_save;
-
-			gr_set_curfont( GAME_FONT );    //GAME_FONT );
-			gr_set_fontcolor(gr_getcolor(27,0,0), -1 );
-			gr_get_string_size(msg, &w, &h, &aw );
-
-			gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, 3, msg );
-
-			draw_guided_crosshair();
-		}
-
-		HUD_render_message_frame();
-
-		no_draw_hud=1;
-	}
-	else if (Rear_view)
-		render_frame(actual_eye_width, 0);	// switch eye positions for rear view
-	else
-		render_frame(-actual_eye_width, 0);		// Left eye
-
-	if ( VR_low_res )
-		game_expand_bitmap( &RenderCanvas[0].cv_bitmap, VR_low_res );
-
-	{	//render small window into left eye's canvas
-		grs_canvas *save=grd_curcanv;
-		fix save_aspect2 = grd_curscreen->sc_aspect;
-		grd_curscreen->sc_aspect = save_aspect*2;
-		SW_drawn[0] = SW_drawn[1] = 0;
-		show_extra_views();
-		gr_set_current_canvas(save);
-		grd_curscreen->sc_aspect = save_aspect2;
-	}
-
-//NEWVR
-	if (actual_eye_offset > 0 ) {
-		gr_setcolor( gr_getcolor(0,0,0) );
-		gr_rect( grd_curcanv->cv_bitmap.bm_w-labs(actual_eye_offset)*2, 0, 
-               grd_curcanv->cv_bitmap.bm_w-1, grd_curcanv->cv_bitmap.bm_h );
-	} else if (actual_eye_offset < 0 ) {
-		gr_setcolor( gr_getcolor(0,0,0) );
-		gr_rect( 0, 0, labs(actual_eye_offset)*2-1, grd_curcanv->cv_bitmap.bm_h );
-	}
-
-	if ( VR_show_hud && !no_draw_hud )	{
-		grs_canvas tmp;
-		if (actual_eye_offset < 0 ) {
-			gr_init_sub_canvas( &tmp, grd_curcanv, labs(actual_eye_offset*2), 0, grd_curcanv->cv_bitmap.bm_w-(labs(actual_eye_offset)*2), grd_curcanv->cv_bitmap.bm_h );
-		} else {
-			gr_init_sub_canvas( &tmp, grd_curcanv, 0, 0, grd_curcanv->cv_bitmap.bm_w-(labs(actual_eye_offset)*2), grd_curcanv->cv_bitmap.bm_h );
-		}
-		gr_set_current_canvas( &tmp );
-		game_draw_hud_stuff();
-	}
-
-
-	// Draw the right eye's view
-	gr_set_current_canvas(&RenderCanvas[1]);
-
-	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window)
-		gr_bitmap(0,0,&RenderCanvas[0].cv_bitmap);
-	else {
-		if (Rear_view)
-			render_frame(-actual_eye_width, 0);	// switch eye positions for rear view
-		else
-			render_frame(actual_eye_width, 0);		// Right eye
-
-		if ( VR_low_res )
-			game_expand_bitmap( &RenderCanvas[1].cv_bitmap, VR_low_res );
-	}
-
-
-	{	//copy small window from left eye
-		grs_canvas temp;
-		int w;
-		for (w=0;w<2;w++) {
-			if (SW_drawn[w]) {
-				gr_init_sub_canvas(&temp,&RenderCanvas[0],SW_x[w],SW_y[w],SW_w[w],SW_h[w]);
-				gr_bitmap(SW_x[w]+actual_eye_offset*2,SW_y[w],&temp.cv_bitmap);
-			}
-		}
-	}
-
-//NEWVR
-	if (actual_eye_offset>0) {
-		gr_setcolor( gr_getcolor(0,0,0) );
-		gr_rect( 0, 0, labs(actual_eye_offset)*2-1, grd_curcanv->cv_bitmap.bm_h );
-	} else if ( actual_eye_offset < 0 )	{
-		gr_setcolor( gr_getcolor(0,0,0) );
-		gr_rect( grd_curcanv->cv_bitmap.bm_w-labs(actual_eye_offset)*2, 0, 
-               grd_curcanv->cv_bitmap.bm_w-1, grd_curcanv->cv_bitmap.bm_h );
-	}
-
-//NEWVR (Add the next 2 lines)
-	if ( VR_show_hud && !no_draw_hud )	{
-		grs_canvas tmp;
-		if (actual_eye_offset > 0 ) {
-			gr_init_sub_canvas( &tmp, grd_curcanv, labs(actual_eye_offset*2), 0, grd_curcanv->cv_bitmap.bm_w-(labs(actual_eye_offset)*2), grd_curcanv->cv_bitmap.bm_h );
-		} else {
-			gr_init_sub_canvas( &tmp, grd_curcanv, 0, 0, grd_curcanv->cv_bitmap.bm_w-(labs(actual_eye_offset)*2), grd_curcanv->cv_bitmap.bm_h );
-		}
-		gr_set_current_canvas( &tmp );
-		game_draw_hud_stuff();
-	}
-
-
-	// Draws white and black registration encoding lines
-	// and Accounts for pixel-shift adjustment in upcoming bitblts
-	if (VR_use_reg_code)	{
-		int width, height, quarter;
-
-		width = RenderCanvas[0].cv_bitmap.bm_w;
-		height = RenderCanvas[0].cv_bitmap.bm_h;
-		quarter = width / 4;
-
-		// black out left-hand side of left page
-
-		// draw registration code for left eye
-		if ( VR_eye_switch )
-			gr_set_current_canvas( &RenderCanvas[1] );
-		else
-			gr_set_current_canvas( &RenderCanvas[0] );
-		gr_setcolor( VR_WHITE_INDEX );
-		gr_scanline( 0, quarter, height-1 );
-		gr_setcolor( VR_BLACK_INDEX );
-		gr_scanline( quarter, width-1, height-1 );
-
-		if ( VR_eye_switch )
-			gr_set_current_canvas( &RenderCanvas[0] );
-		else
-			gr_set_current_canvas( &RenderCanvas[1] );
-		gr_setcolor( VR_WHITE_INDEX );
-		gr_scanline( 0, quarter*3, height-1 );
-		gr_setcolor( VR_BLACK_INDEX );
-		gr_scanline( quarter*3, width-1, height-1 );
-   }
-
- 		// Copy left eye, then right eye
-	if ( VR_screen_flags&VRF_USE_PAGING )
-		VR_current_page = !VR_current_page;
-	else 
-		VR_current_page = 0;
-	gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
-
-//NEWVR
-
-	if ( VR_eye_offset_changed > 0 )	{
-		VR_eye_offset_changed--;
-		gr_clear_canvas(0);
-	}
-
-	sw = dw = VR_render_buffer[0].cv_bitmap.bm_w;
-	sh = dh = VR_render_buffer[0].cv_bitmap.bm_h;
-
-	// Copy left eye, then right eye
-	gr_bitblt_dest_step_shift = 1;		// Skip every other scanline.
-
-	if (VR_render_mode == VR_INTERLACED ) 	{
-		if ( actual_eye_offset > 0 )	{
-			int xoff = labs(actual_eye_offset);
-			gr_bm_ubitblt( dw-xoff, dh, xoff, 0, 0, 0, &RenderCanvas[0].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap);
-			gr_bm_ubitblt( dw-xoff, dh, 0, 1, xoff, 0, &RenderCanvas[1].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap);
-		} else if ( actual_eye_offset < 0 )	{
-			int xoff = labs(actual_eye_offset);
-			gr_bm_ubitblt( dw-xoff, dh, 0, 0, xoff, 0, &RenderCanvas[0].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap);
-			gr_bm_ubitblt( dw-xoff, dh, xoff, 1, 0, 0, &RenderCanvas[1].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap);
-		} else {
-			gr_bm_ubitblt( dw, dh, 0, 0, 0, 0, &RenderCanvas[0].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap);
-			gr_bm_ubitblt( dw, dh, 0, 1, 0, 0, &RenderCanvas[1].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap);
-		}
-	} else if (VR_render_mode == VR_AREA_DET) {
-		// VFX copy
-		gr_bm_ubitblt( dw, dh, 0,  VR_current_page, 0, 0, &RenderCanvas[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap);
-		gr_bm_ubitblt( dw, dh, dw, VR_current_page, 0, 0, &RenderCanvas[1].cv_bitmap, &VR_screen_pages[0].cv_bitmap);
-	} else {
-		Int3();		// Huh?
-	}
-
-	gr_bitblt_dest_step_shift = 0;
-
-	//if ( Game_vfx_flag )
-	//	vfx_set_page(VR_current_page);		// 0 or 1
-	//else 
-		if ( VR_screen_flags&VRF_USE_PAGING )	{
-			gr_wait_for_retrace = 0;
-
-//	Added by Samir from John's code
-		if ( (VR_screen_pages[VR_current_page].cv_bitmap.bm_type == BM_MODEX) && (Game_3dmax_flag==3) )	{
-			int old_x, old_y, new_x;
-			old_x = VR_screen_pages[VR_current_page].cv_bitmap.bm_x;
-			old_y = VR_screen_pages[VR_current_page].cv_bitmap.bm_y;
-			new_x = old_y*VR_screen_pages[VR_current_page].cv_bitmap.bm_rowsize;
-			new_x += old_x/4;
-			VR_screen_pages[VR_current_page].cv_bitmap.bm_x = new_x;
-			VR_screen_pages[VR_current_page].cv_bitmap.bm_y = 0;
-			VR_screen_pages[VR_current_page].cv_bitmap.bm_type = BM_SVGA;
-			gr_show_canvas( &VR_screen_pages[VR_current_page] );
-			VR_screen_pages[VR_current_page].cv_bitmap.bm_type = BM_MODEX;
-			VR_screen_pages[VR_current_page].cv_bitmap.bm_x = old_x;
-			VR_screen_pages[VR_current_page].cv_bitmap.bm_y = old_y;
-		} else {
-			gr_show_canvas( &VR_screen_pages[VR_current_page] );
-		}
-		gr_wait_for_retrace = 1;
-	}
-	grd_curscreen->sc_aspect=save_aspect;
-}
-#endif
 ubyte RenderingType=0;
 ubyte DemoDoingRight=0,DemoDoingLeft=0;
 extern ubyte DemoDoRight,DemoDoLeft;
@@ -993,7 +729,7 @@ void game_render_frame_mono(void)
 
 	if ( Game_double_buffer ) {		//copy to visible screen
 //		if ( !Game_cockpit_copy_code )	{
-			if ( VR_screen_flags&VRF_USE_PAGING )	{	
+			if ( VR_screen_flags&VRF_USE_PAGING )	{
 				VR_current_page = !VR_current_page;
 				gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
 				gr_bm_ubitblt( VR_render_sub_buffer[0].cv_w, VR_render_sub_buffer[0].cv_h, VR_render_sub_buffer[0].cv_bitmap.bm_x, VR_render_sub_buffer[0].cv_bitmap.bm_y, 0, 0, &VR_render_sub_buffer[0].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap );
@@ -1081,16 +817,11 @@ void toggle_cockpit()
 #ifndef MACINTOSH
 #define WINDOW_W_DELTA	((max_window_w / 16)&~1)	//24	//20
 #define WINDOW_H_DELTA	((max_window_h / 16)&~1)	//12	//10
-
 #define WINDOW_MIN_W		((max_window_w * 10) / 22)	//160
 #define WINDOW_MIN_H		((max_window_h * 10) / 22)
 #else
-//#define WINDOW_W_DELTA	32
-//#define WINDOW_H_DELTA	16
-
 #define WINDOW_W_DELTA	((max_window_w / 16) & ~15)		// double word aligned
 #define WINDOW_H_DELTA	((max_window_h / 16) & ~15)		// double word aligned
-
 #define WINDOW_MIN_W		(max_window_w-(WINDOW_W_DELTA*11))
 #define WINDOW_MIN_H		(max_window_h-(WINDOW_H_DELTA*11))
 #endif
@@ -1110,13 +841,9 @@ void grow_window()
 		return;
 
 	if (Game_window_h>=max_window_h || Game_window_w>=max_window_w) {
-		//Game_window_w = max_window_w;
-		//Game_window_h = max_window_h;
-		Game_window_h = grd_curscreen->sc_h;
+		max_window_h = grd_curscreen->sc_h;
 		select_cockpit(CM_FULL_SCREEN);
 	} else {
-		//int x,y;
-
 		Game_window_w += WINDOW_W_DELTA;
 		Game_window_h += WINDOW_H_DELTA;
 
@@ -1222,7 +949,7 @@ void shrink_window()
 
 //  mprintf ((0,"W=%d H=%d\n",Game_window_w,Game_window_h));
  
-	if (Cockpit_mode == CM_FULL_COCKPIT/* && (VR_screen_flags & VRF_ALLOW_COCKPIT)*/) {
+	if (Cockpit_mode == CM_FULL_COCKPIT && (VR_screen_flags & VRF_ALLOW_COCKPIT)) {
 		Game_window_h = max_window_h;
 		Game_window_w = max_window_w;
 		//!!toggle_cockpit();
@@ -1232,28 +959,23 @@ void shrink_window()
 		return;
 	}
 
-	if (Cockpit_mode == CM_FULL_SCREEN/* && (VR_screen_flags & VRF_ALLOW_COCKPIT)*/)
+	if (Cockpit_mode == CM_FULL_SCREEN && (VR_screen_flags & VRF_ALLOW_COCKPIT))
 	{
-		//Game_window_w = max_window_w;
-		//Game_window_h = max_window_h;
 		select_cockpit(CM_STATUS_BAR);
 		write_player_file();
 		return;
 	}
 
-	if (Cockpit_mode != CM_STATUS_BAR/* && (VR_screen_flags & VRF_ALLOW_COCKPIT)*/)
+	if (Cockpit_mode != CM_STATUS_BAR && (VR_screen_flags & VRF_ALLOW_COCKPIT))
 		return;
 
-   mprintf ((0,"Cockpit mode=%d\n",Cockpit_mode));
+	mprintf ((0,"Cockpit mode=%d\n",Cockpit_mode));
 
 	if (Game_window_w > WINDOW_MIN_W) {
-		//int x,y;
-
-      Game_window_w -= WINDOW_W_DELTA;
+		Game_window_w -= WINDOW_W_DELTA;
 		Game_window_h -= WINDOW_H_DELTA;
 
-
-  mprintf ((0,"NewW=%d NewH=%d VW=%d maxH=%d\n",Game_window_w,Game_window_h,max_window_w,max_window_h));
+		mprintf ((0,"NewW=%d NewH=%d VW=%d maxH=%d\n",Game_window_w,Game_window_h,max_window_w,max_window_h));
 
 		if ( Game_window_w < WINDOW_MIN_W )
 			Game_window_w = WINDOW_MIN_W;
@@ -1270,7 +992,6 @@ void shrink_window()
 		HUD_clear_messages();
 		write_player_file();
 	}
-
 }
 
 int last_drawn_cockpit[2] = { -1, -1 };
@@ -1320,9 +1041,6 @@ void update_cockpits(int force_redraw)
 
 	case CM_LETTERBOX:
 		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
-#ifndef OGL
-		gr_clear_canvas( BM_XRGB(0,0,0) );
-#endif
 
 		// In a modex mode, clear the other buffer.
 		if (grd_curcanv->cv_bitmap.bm_type == BM_MODEX) {
@@ -1350,15 +1068,10 @@ void game_render_frame()
 {
 	set_screen_mode( SCREEN_GAME );
 
-//	update_cockpits(0);
-
 	play_homing_warning();
 
 	if (VR_render_mode == VR_NONE )
 		game_render_frame_mono();	 
-/*	else
-		game_render_frame_stereo();	 
-		*/
 
 	// Make sure palette is faded in
 	stop_time();
@@ -1388,7 +1101,7 @@ void draw_guided_crosshair(void)
 
 	gr_scanline(x-w/2,x+w/2,y);
 	gr_uline(i2f(x),i2f(y-h/2),i2f(x),i2f(y+h/2));
-	gr_uline(i2f(x-w/2),i2f(y),i2f(x+w/2),i2f(y)); // ZICO added for horizontal crosshair line
+	gr_uline(i2f(x-w/2),i2f(y),i2f(x+w/2),i2f(y));
 }
 
 typedef struct bkg {
@@ -1402,7 +1115,7 @@ bkg bg = {0,0,0,0,NULL};
 
 //show a message in a nice little box
 void show_boxed_message(char *msg)
-{	
+{
 	int w,h,aw;
 	int x,y;
 
@@ -1422,15 +1135,14 @@ void show_boxed_message(char *msg)
 	// Save the background of the display
 	bg.x=x; bg.y=y; bg.w=w; bg.h=h;
 
-	bg.bmp = gr_create_bitmap( w+BOX_BORDER, h+BOX_BORDER );
+	bg.bmp = gr_create_bitmap( w+(30*(SWIDTH/320)), h+(30*(SHEIGHT/200)) );
+	gr_bm_ubitblt(w+(30*(SWIDTH/320)), h+(30*(SHEIGHT/200)), 0, 0, x-(15*(SWIDTH/320)), y-(15*(SHEIGHT/200)), &(grd_curscreen->sc_canvas.cv_bitmap), bg.bmp );
 
-	gr_bm_ubitblt(w+BOX_BORDER, h+BOX_BORDER, 0, 0, x-BOX_BORDER/2, y-BOX_BORDER/2, &(grd_curcanv->cv_bitmap), bg.bmp );
-
-	nm_draw_background(x-BOX_BORDER/2,y-BOX_BORDER/2,x+w+BOX_BORDER/2-1,y+h+BOX_BORDER/2-1);
+	nm_draw_background(x-(15*(SWIDTH/320)),y-(15*(SHEIGHT/200)),x+w+(15*(SWIDTH/320))-1,y+h+(15*(SHEIGHT/200))-1);
 
 	gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
-
 	gr_ustring( 0x8000, y, msg );
+        gr_update();
 }
 
 void clear_boxed_message()
