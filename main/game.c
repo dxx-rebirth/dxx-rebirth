@@ -3320,7 +3320,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 				lamer_do_restrict_frame();
 #endif
 			if (allowed_to_fire_laser()) {
-				Global_laser_firing_count += Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
+				Global_laser_firing_count = Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
 				if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count)) {
 					if ((Players[Player_num].energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
 						Global_laser_firing_count = 0;
