@@ -584,7 +584,9 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	PHYSFS_file *fp;
 	grs_canvas * cnv;
 	ubyte *pal;
+#ifdef OGL
 	GLint gl_draw_buffer;
+#endif
 
 	Assert(between_levels == 0);	//between levels save ripped out
 
