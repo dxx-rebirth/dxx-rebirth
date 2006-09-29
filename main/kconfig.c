@@ -83,7 +83,7 @@ byte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,2
 int invert_text[2] = { TNUM_N, TNUM_Y };
 char *joybutton_text[JOY_MAX_BUTTONS];
 char *joyaxis_text[JOY_MAX_AXES];
-int mouseaxis_text[3] = { TNUM_L_R, TNUM_F_B, "Z1" };
+int mouseaxis_text[2] = { TNUM_L_R, TNUM_F_B };
 int mousebutton_text[3] = { TNUM_LEFT, TNUM_RIGHT, TNUM_MID };
 char * mousebutton_textra[13] = { "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };//text for buttons above 3. -MPM
 
