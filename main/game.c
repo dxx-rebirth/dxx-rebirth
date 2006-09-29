@@ -388,10 +388,10 @@ void init_cockpit()
 		break;
 
 	case CM_FULL_SCREEN:
-		if (Game_window_h > max_window_h || VR_screen_flags&VRF_ALLOW_COCKPIT)
+		if (Game_window_h > max_window_h || VR_screen_flags&VRF_ALLOW_COCKPIT || !Game_window_h)
 			Game_window_h = max_window_h;
 
-		if (Game_window_w > max_window_w || VR_screen_flags&VRF_ALLOW_COCKPIT)
+		if (Game_window_w > max_window_w || VR_screen_flags&VRF_ALLOW_COCKPIT || !Game_window_w)
 			Game_window_w = max_window_w;
 
 		Game_window_x = (max_window_w - Game_window_w)/2;
@@ -405,7 +405,7 @@ void init_cockpit()
 			max_window_h = (grd_curscreen->sc_h*2)/2.6;
 		else
 			max_window_h = (grd_curscreen->sc_h*2)/2.72;
-		if (Game_window_h > max_window_h) {
+		if (Game_window_h > max_window_h || (!Game_window_w || !Game_window_h)) {
 			Game_window_w = max_window_w;
 			Game_window_h = max_window_h;
 		}
