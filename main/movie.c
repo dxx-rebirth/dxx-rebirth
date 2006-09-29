@@ -334,15 +334,15 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
 
-	gr_set_mode(SM((hires_flag?Game_window_w:320),(hires_flag?Game_window_h:200)));
-
 #ifdef OGL
+	gr_set_mode(SM((hires_flag?Game_window_w:320),(hires_flag?Game_window_h:200)));
 	set_screen_mode(SCREEN_MENU);
 	gr_copy_palette(pal_save, gr_palette, 768);
 	memset(gr_palette, 0, 768);
 	gr_palette_load(gr_palette);
+#else
+	gr_set_mode(SM((hires_flag?640:320),(hires_flag?480:200)));
 #endif
-
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
@@ -411,7 +411,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 int InitMovieBriefing()
 {
-#if 0
+#ifndef OGL // 0
 	if (MenuHires)
 		gr_set_mode(SM(640,480));
 	else
