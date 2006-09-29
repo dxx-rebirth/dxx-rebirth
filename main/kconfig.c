@@ -2653,18 +2653,16 @@ void controls_read_all_win()
                 transfer_energy_to_shield(key_down_time(kc_keyboard[55].value));
 
 //----------- Read fire_primary_down_count
-	if (!Global_laser_firing_count) { // ZICO - prevets primary counts if energy is 0 ansd lasers go wild while recharge - VERY DIRTY HACK
-		if (kc_keyboard[24].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[24].value);
-		if (kc_keyboard[25].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[25].value);
-		if ((use_joystick)&&(kc_superjoy[0].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_superjoy[0].value);
-		if ((use_mouse)&&(kc_mouse[0].value < 255 )) Controls.fire_primary_down_count += mouse_button_down_count(kc_mouse[0].value);
+	if (kc_keyboard[24].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[24].value);
+	if (kc_keyboard[25].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[25].value);
+	if ((use_joystick)&&(kc_superjoy[0].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_superjoy[0].value);
+	if ((use_mouse)&&(kc_mouse[0].value < 255 )) Controls.fire_primary_down_count += mouse_button_down_count(kc_mouse[0].value);
 
 //----------- Read fire_primary_state
-		if (kc_keyboard[24].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[24].value];
-		if (kc_keyboard[25].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[25].value];
-		if ((use_joystick)&&(kc_superjoy[0].value < 255 )) Controls.fire_primary_state |= joy_get_button_state(kc_superjoy[0].value);
-		if ((use_mouse)&&(kc_mouse[0].value < 255) ) Controls.fire_primary_state |= mouse_button_state(kc_mouse[0].value);
-	}
+	if (kc_keyboard[24].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[24].value];
+	if (kc_keyboard[25].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[25].value];
+	if ((use_joystick)&&(kc_superjoy[0].value < 255 )) Controls.fire_primary_state |= joy_get_button_state(kc_superjoy[0].value);
+	if ((use_mouse)&&(kc_mouse[0].value < 255) ) Controls.fire_primary_state |= mouse_button_state(kc_mouse[0].value);
 
 //----------- Read fire_secondary_down_count
 	if (kc_keyboard[26].value < 255 ) Controls.fire_secondary_down_count += key_down_count(kc_keyboard[26].value);
