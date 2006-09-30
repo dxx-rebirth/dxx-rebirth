@@ -77,26 +77,26 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
   Mouse.delta_y += mme->yrel;
   Mouse.x += mme->xrel;
   Mouse.y += mme->yrel;
-  if      (Mouse.x > Mouse.max_x) Mouse.x = Mouse.max_x;
-  else if (Mouse.x < Mouse.min_x) Mouse.x = Mouse.min_x;
-  if      (Mouse.y > Mouse.max_y) Mouse.y = Mouse.max_y;
-  else if (Mouse.y < Mouse.min_y) Mouse.y = Mouse.min_y;
+//   if      (Mouse.x > Mouse.max_x) Mouse.x = Mouse.max_x;
+//   else if (Mouse.x < Mouse.min_x) Mouse.x = Mouse.min_x;
+//   if      (Mouse.y > Mouse.max_y) Mouse.y = Mouse.max_y;
+//   else if (Mouse.y < Mouse.min_y) Mouse.y = Mouse.min_y;
 }
 //end this section addition - Hans
 
 
-int mouse_set_limits( int x1, int y1, int x2, int y2 )
-{
-//added on 10/17/98 by Hans de Goede for mouse functionality
-//-killed- // Shrug...
-//-killed- event_poll();
- Mouse.min_x = x1;
- Mouse.min_y = y1;
- Mouse.max_x = x2;
- Mouse.max_y = y2;
-//end this section addition - Hans
- return 0;
-}
+// int mouse_set_limits( int x1, int y1, int x2, int y2 )
+// {
+// //added on 10/17/98 by Hans de Goede for mouse functionality
+// //-killed- // Shrug...
+// //-killed- event_poll();
+//  Mouse.min_x = x1;
+//  Mouse.min_y = y1;
+//  Mouse.max_x = x2;
+//  Mouse.max_y = y2;
+// //end this section addition - Hans
+//  return 0;
+// }
 
 void mouse_flush()	// clears all mice events...
 {
@@ -120,6 +120,7 @@ void mouse_flush()	// clears all mice events...
  Mouse.x = 0;
  Mouse.y = 0;
 //end this section addition - Hans
+SDL_GetMouseState(&Mouse.x, &Mouse.y); // necessary because polling only gives us the delta.
 }
 
 //========================================================================
@@ -172,19 +173,19 @@ int mouse_get_btns()
 	return status;
 }
 
-void mouse_set_pos( int x, int y)
-{
- event_poll();
-//added/changed on 10/17/98 by Hans de Goede for mouse functionality
-//-killed- SDL_WarpMouse(x,y);
- Mouse.x=x;
- Mouse.y=y;
- if      (Mouse.x > Mouse.max_x) Mouse.x = Mouse.max_x;
- else if (Mouse.x < Mouse.min_x) Mouse.x = Mouse.min_x;
- if      (Mouse.y > Mouse.max_y) Mouse.y = Mouse.max_y;
- else if (Mouse.y < Mouse.min_y) Mouse.y = Mouse.min_y;
-//end this section change - Hans
-}
+// void mouse_set_pos( int x, int y)
+// {
+//  event_poll();
+// //added/changed on 10/17/98 by Hans de Goede for mouse functionality
+// //-killed- SDL_WarpMouse(x,y);
+//  Mouse.x=x;
+//  Mouse.y=y;
+//  if      (Mouse.x > Mouse.max_x) Mouse.x = Mouse.max_x;
+//  else if (Mouse.x < Mouse.min_x) Mouse.x = Mouse.min_x;
+//  if      (Mouse.y > Mouse.max_y) Mouse.y = Mouse.max_y;
+//  else if (Mouse.y < Mouse.min_y) Mouse.y = Mouse.min_y;
+// //end this section change - Hans
+// }
 
 void mouse_get_cyberman_pos( int *x, int *y )
 {
