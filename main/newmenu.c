@@ -441,9 +441,54 @@ void strip_end_whitespace( char * text )
 	}
 }
 
+//returns 1 if a control device button has been pressed
+int check_button_press()
+{
+	int i;
+
+	switch (Config_control_type) {
+	case	CONTROL_JOYSTICK:
+	case	CONTROL_FLIGHTSTICK_PRO:
+	case	CONTROL_THRUSTMASTER_FCS:
+	case	CONTROL_GRAVIS_GAMEPAD:
+		for (i=0; i<4; i++ )	
+	 		if (joy_get_button_down_cnt(i)>0) return 1;
+		break;
+	case	CONTROL_MOUSE:
+	case	CONTROL_CYBERMAN:
+#ifndef NEWMENU_MOUSE   // don't allow mouse to continue from menu
+		for (i=0; i<3; i++ )	
+			if (mouse_button_down_count(i)>0) return 1;
+		break;
+#endif
+	case	CONTROL_NONE:		//keyboard only
+		break;
+	default:
+		Error("Bad control type (Config_control_type):%i",Config_control_type);
+	}
+
+	return 0;
+}
+
 //added on 11/31/98 by Victor Rachels for different way to do ver
 int Menu_Special = 0;
 //end this section addition - VR
+
+#ifdef NEWMENU_MOUSE
+ubyte Hack_DblClick_MenuMode=0;
+#endif
+
+#define CLOSE_X     (7*(SWIDTH/320))
+#define CLOSE_Y     (7*(SHEIGHT/200))
+#define CLOSE_SIZE  FONTSCALE_X(5)
+
+void draw_close_box(int x,int y)
+{
+	gr_setcolor( BM_XRGB(0, 0, 0) );
+	gr_rect(x + CLOSE_X, y + CLOSE_Y, x + CLOSE_X + CLOSE_SIZE, y + CLOSE_Y + CLOSE_SIZE);
+	gr_setcolor( BM_XRGB(21, 21, 21) );
+	gr_rect(x + CLOSE_X + (1), y + CLOSE_Y + (1), x + CLOSE_X + CLOSE_SIZE - (1), y + CLOSE_Y + CLOSE_SIZE - (1));
+}
 
 int newmenu_do( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) )
 {
@@ -474,6 +519,11 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	bkg bg;
 	int all_text=0;		//set true if all text items
 	int sound_stopped=0, time_stopped=0;
+#ifdef NEWMENU_MOUSE
+	int mouse_state, omouse_state, dblclick_flag=0;
+	int mx=0, my=0, x1 = 0, x2, y1, y2;
+	int close_box=0;
+#endif
 
 	if (nitems < 1 )
 		return -1;
@@ -757,7 +807,11 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		if (citem < 0 ) citem = 0;
 		if (citem > nitems-1 ) citem = nitems-1;
 		choice = citem;
-	
+
+#ifdef NEWMENU_MOUSE
+		dblclick_flag = 1;
+#endif
+
 		while ( item[choice].type==NM_TYPE_TEXT )	{
 			choice++;
 			if (choice >= nitems ) {
@@ -775,9 +829,27 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	// Clear mouse, joystick to clear button presses.
 	game_flush_inputs();
 
+#ifdef NEWMENU_MOUSE
+	mouse_state = omouse_state = 0;
+	if (filename == NULL) {
+		draw_close_box(0,0);
+		close_box = 1;
+	}
+
+	newmenu_show_cursor();
+# ifdef __WINDOWS__
+	SetCursor(LoadCursor(NULL,IDC_ARROW));
+# endif
+#endif
+
 	while(!done)	{
 		//network_listen();
 	
+#ifdef NEWMENU_MOUSE
+		newmenu_show_cursor();      // possibly hidden
+		omouse_state = mouse_state;
+		mouse_state = mouse_button_state(0);
+#endif
 
 		k = key_inkey();
 
@@ -812,25 +884,27 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			k = -1;
 			done = 1;
 		}
+		if (check_button_press())
+			done = 1;
 				
-		switch (Config_control_type) {
-		case	CONTROL_JOYSTICK:
-		case	CONTROL_FLIGHTSTICK_PRO:
-		case	CONTROL_THRUSTMASTER_FCS:
-		case	CONTROL_GRAVIS_GAMEPAD:
-			for (i=0; i<4; i++ )	
-				if (joy_get_button_down_cnt(i)>0) done=1;
-			break;
-		case	CONTROL_MOUSE:
-		case	CONTROL_CYBERMAN:
-			for (i=0; i<3; i++ )	
-				if (mouse_button_down_count(i)>0) done=1;
-			break;
-		}
+// 		switch (Config_control_type) {
+// 		case	CONTROL_JOYSTICK:
+// 		case	CONTROL_FLIGHTSTICK_PRO:
+// 		case	CONTROL_THRUSTMASTER_FCS:
+// 		case	CONTROL_GRAVIS_GAMEPAD:
+// 			for (i=0; i<4; i++ )	
+// 				if (joy_get_button_down_cnt(i)>0) done=1;
+// 			break;
+// 		case	CONTROL_MOUSE:
+// 		case	CONTROL_CYBERMAN:
+// 			for (i=0; i<3; i++ )	
+// 				if (mouse_button_down_count(i)>0) done=1;
+// 			break;
+// 		}
 	
 
-//		if ( (nmenus<2) && (k>0) && (nothers==0) )
-//			done=1;
+		if ( (nmenus<2) && (k>0) && (nothers==0) )
+			done=1;
 
 		old_choice = choice;
 	
@@ -986,6 +1060,158 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 		}
 
+#ifdef NEWMENU_MOUSE // for mouse selection of menu's etc.
+		if ( !done && mouse_state && !omouse_state && !all_text ) {
+			mouse_get_pos(&mx, &my);
+			for (i=0; i<nitems; i++ )	{
+				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x - item[i].right_offset - 6;
+				x2 = x1 + item[i].w;
+				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
+				y2 = y1 + item[i].h;
+				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+					if (i != choice) {
+						if(Hack_DblClick_MenuMode) dblclick_flag = 0; 
+					}
+					
+					choice = i;
+
+					switch( item[choice].type )	{
+					case NM_TYPE_CHECK:
+						if ( item[choice].value )
+							item[choice].value = 0;
+						else
+							item[choice].value = 1;
+						item[choice].redraw=1;
+						break;
+					case NM_TYPE_RADIO:
+						for (i=0; i<nitems; i++ )	{
+							if ((i!=choice) && (item[i].type==NM_TYPE_RADIO) && (item[i].group==item[choice].group) && (item[i].value) )	{
+								item[i].value = 0;
+								item[i].redraw = 1;
+							}
+						}
+						item[choice].value = 1;
+						item[choice].redraw = 1;
+						break;
+					}
+					item[old_choice].redraw=1;
+					break;
+				}
+			}
+		}
+
+		if (mouse_state && all_text)
+			done = 1;
+		
+		if ( !done && mouse_state && !all_text ) {
+			mouse_get_pos(&mx, &my);
+
+			for (i=0; i<nitems; i++ )	{
+				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x - item[i].right_offset - 6;
+				x2 = x1 + item[i].w;
+				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
+				y2 = y1 + item[i].h;
+				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (item[i].type != NM_TYPE_TEXT) ) {
+					if (i != choice) {
+						if(Hack_DblClick_MenuMode) dblclick_flag = 0; 
+					}
+
+					choice = i;
+
+					if ( item[choice].type == NM_TYPE_SLIDER ) {
+						char slider_text[NM_MAX_TEXT_LEN+1], *p, *s1;
+						int slider_width, height, aw, sleft_width, sright_width, smiddle_width;
+						
+						strcpy(slider_text, item[choice].saved_text);
+						p = strchr(slider_text, '\t');
+						if (p) {
+							*p = '\0';
+							s1 = p+1;
+						}
+						if (p) {
+							gr_get_string_size(s1, &slider_width, &height, &aw);
+							gr_get_string_size(SLIDER_LEFT, &sleft_width, &height, &aw);
+							gr_get_string_size(SLIDER_RIGHT, &sright_width, &height, &aw);
+							gr_get_string_size(SLIDER_MIDDLE, &smiddle_width, &height, &aw);
+
+							x1 = grd_curcanv->cv_bitmap.bm_x + item[choice].x + item[choice].w - slider_width;
+							x2 = x1 + slider_width + sright_width;
+							if ( (mx > x1) && (mx < (x1 + sleft_width)) && (item[choice].value != item[choice].min_value) ) {
+								item[choice].value = item[choice].min_value;
+								item[choice].redraw = 2;
+							} else if ( (mx < x2) && (mx > (x2 - sright_width)) && (item[choice].value != item[choice].max_value) ) {
+								item[choice].value = item[choice].max_value;
+								item[choice].redraw = 2;
+							} else if ( (mx > (x1 + sleft_width)) && (mx < (x2 - sright_width)) ) {
+								int num_values, value_width, new_value;
+								
+								num_values = item[choice].max_value - item[choice].min_value + 1;
+								value_width = (slider_width - sleft_width - sright_width) / num_values;
+								new_value = (mx - x1 - sleft_width) / value_width;
+								if ( item[choice].value != new_value ) {
+									item[choice].value = new_value;
+									item[choice].redraw = 2;
+								}
+							}
+							*p = '\t';
+						}
+					}
+					if (choice == old_choice)
+						break;
+					if ((item[choice].type==NM_TYPE_INPUT) && (choice!=old_choice))	
+						item[choice].value = -1;
+					if ((old_choice>-1) && (item[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=choice))	{
+						item[old_choice].group=0;
+						strcpy(item[old_choice].text, item[old_choice].saved_text );
+						item[old_choice].value = -1;
+					}
+					if (old_choice>-1) 
+						item[old_choice].redraw = 1;
+					item[choice].redraw=1;
+					break;
+				}
+			}
+		}
+		
+		if ( !done && !mouse_state && omouse_state && !all_text && (choice != -1) && (item[choice].type == NM_TYPE_MENU) ) {
+			mouse_get_pos(&mx, &my);
+			x1 = grd_curcanv->cv_bitmap.bm_x + item[choice].x;
+			x2 = x1 + item[choice].w;
+			y1 = grd_curcanv->cv_bitmap.bm_y + item[choice].y;
+			y2 = y1 + item[choice].h;
+			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+				if (Hack_DblClick_MenuMode) {
+					if (dblclick_flag) done = 1;
+					else dblclick_flag = 1;
+				}
+				else done = 1;
+			}
+		}
+		
+		if ( !done && !mouse_state && omouse_state && (choice>-1) && (item[choice].type==NM_TYPE_INPUT_MENU) && (item[choice].group==0))	{
+			item[choice].group = 1;
+			item[choice].redraw = 1;
+			if ( !strnicmp( item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
+				item[choice].text[0] = 0;
+				item[choice].value = -1;
+			} else {
+				strip_end_whitespace(item[choice].text);
+			}
+		}
+		
+		if ( !done && !mouse_state && omouse_state && close_box ) {
+			mouse_get_pos(&mx, &my);
+			x1 = grd_curcanv->cv_bitmap.bm_x + CLOSE_X;
+			x2 = x1 + CLOSE_SIZE;
+			y1 = grd_curcanv->cv_bitmap.bm_y + CLOSE_Y;
+			y2 = y1 + CLOSE_SIZE;
+			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+				choice = -1;
+				done = 1;
+			}
+		}
+#endif // NEWMENU_MOUSE
+
 		if ( (choice > -1) && (k != -1))	{
 			int ascii;
 
@@ -1085,6 +1311,9 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			if (item[i].redraw)	{
                                 draw_item( &bg, &item[i], (i==choice && !all_text) );
 				item[i].redraw=0;
+#ifdef NEWMENU_MOUSE
+				newmenu_show_cursor();
+#endif
 			}
 			else if (i==choice && (item[i].type==NM_TYPE_INPUT || (item[i].type==NM_TYPE_INPUT_MENU && item[i].group)))
 				update_cursor( &item[i]);
@@ -1095,7 +1324,9 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			gr_palette_fade_in( gr_palette, 32, 0 );
 		}
 	}
-	
+
+	newmenu_hide_cursor();
+
 	// Restore everything...
 	gr_set_current_canvas(bg.menu_canvas);
 	if ( filename == NULL )	{
@@ -1197,9 +1428,6 @@ int nm_messagebox( char *title, int nchoices, ... )
 	return newmenu_do( title, nm_text, nchoices, nm_message_items, NULL );
 }
 
-
-
-
 void newmenu_file_sort( int n, char *list )
 {
 	int i, j, incr;
@@ -1256,6 +1484,11 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 	int w_x, w_y, w_w, w_h, title_height;
 	int box_x, box_y, box_w, box_h;
 	bkg bg;		// background under listbox
+#ifdef NEWMENU_MOUSE
+	int mx, my, x1, x2, y1, y2, mouse_state, omouse_state;
+	int mouse2_state, omouse2_state;
+	int dblclick_flag=0;
+#endif
 
 	filenames = malloc( MAX_FILES * 14 );
 	if (filenames==NULL) return 0;
@@ -1423,14 +1656,32 @@ ReadFileNames:
 		newmenu_file_sort( NumFiles-1, &filenames[14] );		// Don't sort first one!
 		for ( i=0; i<NumFiles; i++ )	{
 			if (!strcasecmp(Players[Player_num].callsign, &filenames[i*14]) )
+#ifdef NEWMENU_MOUSE
+				dblclick_flag = 1;
+#endif
 				citem = i;
 		}
 	}
+
+#ifdef NEWMENU_MOUSE
+	mouse_state = omouse_state = 0;
+	mouse2_state = omouse2_state = 0;
+	draw_close_box(w_x,w_y);
+	newmenu_show_cursor();
+#endif
 
 	while(!done)	{
 		ocitem = citem;
 		ofirst_item = first_item;
                 gr_update();
+
+#ifdef NEWMENU_MOUSE
+		omouse_state = mouse_state;
+		omouse2_state = mouse2_state;
+		mouse_state = mouse_button_state(0);
+		mouse2_state = mouse_button_state(1);
+#endif
+
 		key = key_inkey();
 
 		switch(key) {
@@ -1438,10 +1689,12 @@ ReadFileNames:
 		case KEY_CTRLED+KEY_D:
 			if ( ((player_mode)&&(citem>0)) || ((demo_mode)&&(citem>=0)) )	{
 				int x = 1;
+				newmenu_hide_cursor();
 				if (player_mode)
 					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, &filenames[citem*14]+((player_mode && filenames[citem*14]=='$')?1:0) );
 				else if (demo_mode)
 					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, &filenames[citem*14]+((demo_mode && filenames[citem*14]=='$')?1:0) );
+				newmenu_show_cursor();
  				if (x==0)	{
 					char * p;
 					int ret;
@@ -1551,9 +1804,61 @@ ReadFileNames:
 			first_item = NumFiles-NumFiles_displayed;
 		if (first_item < 0 ) first_item = 0;
 
+#ifdef NEWMENU_MOUSE
+		if (mouse_state || mouse2_state) {
+			int w, h, aw;
+
+			mouse_get_pos(&mx, &my);
+			for (i=first_item; i<first_item+NumFiles_displayed; i++ )	{
+				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
+				x1 = box_x;
+				x2 = box_x + box_w - 1;
+				y1 = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2) + box_y;
+				y2 = y1+h+1;
+				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+					if (i == citem && !mouse2_state) {
+						break;
+					}
+					citem = i;
+					dblclick_flag = 0;
+					break;
+				}
+			}
+		}
+		
+		if (!mouse_state && omouse_state) {
+			int w, h, aw;
+
+			gr_get_string_size(&filenames[citem*14], &w, &h, &aw  );
+			mouse_get_pos(&mx, &my);
+			x1 = box_x;
+			x2 = box_x + box_w - 1;
+			y1 = (citem-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2) + box_y;
+			y2 = y1+h+1;
+			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+				if (dblclick_flag) done = 1;
+				else dblclick_flag = 1;
+			}
+		}
+
+		if ( !mouse_state && omouse_state ) {
+			mouse_get_pos(&mx, &my);
+			x1 = w_x + CLOSE_X + 2;
+			x2 = x1 + CLOSE_SIZE - 2;
+			y1 = w_y + CLOSE_Y + 2;
+			y2 = y1 + CLOSE_SIZE - 2;
+			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+				citem = -1;
+				done = 1;
+			}
+		}
+
+#endif
+
 		gr_setcolor( BM_XRGB( 0,0,0)  );
 
 		if (ofirst_item != first_item)	{
+			newmenu_hide_cursor();
 			gr_setcolor( BM_XRGB( 0,0,0)  );
 			for (i=first_item; i<first_item+NumFiles_displayed; i++ )	{
 				int w, h, aw, y;
@@ -1589,10 +1894,12 @@ ReadFileNames:
 					gr_rect( box_x, y-1, box_x + box_w - 1, y + h + FONTSCALE_Y(2) );
 					gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 				}
-			}	 
+			}
+			newmenu_show_cursor();
 		} else if ( citem != ocitem )	{
 			int w, h, aw, y;
 
+			newmenu_hide_cursor();
 			i = ocitem;
 			if ( (i>=0) && (i<NumFiles) )	{
 				y = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h+2)+box_y;
@@ -1615,6 +1922,7 @@ ReadFileNames:
 // 				gr_rect( box_x, y-1, box_x + box_x - 1, y + h + FONTSCALE_Y(2) );
 				gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 			}
+			newmenu_show_cursor();
 		}
 
 		if ( gr_palette_faded_out )	{
@@ -1681,6 +1989,10 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	int width, height, wx, wy, title_height;
 	int font_height,font_height1;
 	keyd_repeat = 1;
+#ifdef NEWMENU_MOUSE
+	int mx, my, x1, x2, y1, y2, mouse_state, omouse_state;	//, dblclick_flag;
+	int close_x,close_y;
+#endif
 
 	set_screen_mode(SCREEN_MENU);
 	gr_set_current_canvas(NULL);
@@ -1726,9 +2038,23 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 	first_item = -1;
 
+#ifdef NEWMENU_MOUSE
+	mouse_state = omouse_state = 0;	//dblclick_flag = 0;
+	close_x = wx-(grd_curcanv->cv_font->ft_w);
+	close_y = wy-title_height-(grd_curcanv->cv_font->ft_w);
+	draw_close_box(close_x,close_y);
+	newmenu_show_cursor();
+#endif
+
 	while(!done)	{
 		ocitem = citem;
 		ofirst_item = first_item;
+
+#ifdef NEWMENU_MOUSE
+		omouse_state = mouse_state;
+		mouse_state = mouse_button_state(0);
+#endif
+
 		key = key_inkey();
 
 		if ( listbox_callback )
@@ -1828,7 +2154,47 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			first_item = nitems-LB_ITEMS_ON_SCREEN;
 		if (first_item < 0 ) first_item = 0;
 
+#ifdef NEWMENU_MOUSE
+		if (mouse_state) {
+			int w, h, aw;
+
+			mouse_get_pos(&mx, &my);
+			for (i=first_item; i<first_item+LB_ITEMS_ON_SCREEN; i++ )	{
+				if (i > nitems)
+					break;
+				gr_get_string_size(items[i], &w, &h, &aw  );
+				x1 = wx;
+				x2 = wx + width;
+				y1 = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h+2)+wy;
+				y2 = y1+h+1;
+				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+					//if (i == citem) {
+					//	break;
+					//}
+					//dblclick_flag= 0;
+					citem = i;
+					done = 1;
+					break;
+				}
+			}
+		}
+
+		//check for close box clicked
+		if ( !mouse_state && omouse_state ) {
+			mouse_get_pos(&mx, &my);
+			x1 = close_x + CLOSE_X + 2;
+			x2 = x1 + CLOSE_SIZE - 2;
+			y1 = close_y + CLOSE_Y + 2;
+			y2 = y1 + CLOSE_SIZE - 2;
+			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+				citem = -1;
+				done = 1;
+			}
+		}
+#endif
+
 		if ( (ofirst_item != first_item) || redraw)	{
+			newmenu_hide_cursor();
 			gr_setcolor( BM_XRGB( 0,0,0)  );
 			for (i=first_item; i<first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 				int w, h, aw, y;
@@ -1846,12 +2212,14 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 					gr_string( wx+5, y, items[i]  );
 				}
 			}		
+			newmenu_show_cursor();
 			//added on 9/13/98 by adb to make update-needing arch's work
 			gr_update();
 			//end addition - adb
 		} else if ( citem != ocitem )	{
 			int w, h, aw, y;
 
+			newmenu_hide_cursor();
 			i = ocitem;
 			if ( (i>=0) && (i<nitems) )	{
 				y = (i-first_item)*font_height+wy;//was *12
@@ -1873,12 +2241,14 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 				gr_get_string_size( items[i], &w, &h, &aw  );
 				gr_rect( wx, y-1, wx+width-1, y+font_height1 );//was +11
 				gr_string( wx+5, y, items[i]  );
+				newmenu_show_cursor();
 				//added on 9/13/98 by adb to make update-needing arch's work
 				gr_update();
 				//end addition - adb
 			}
 		}
 	}
+	newmenu_hide_cursor();
 	keyd_repeat = old_keyd_repeat;
 
 	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &(VR_offscreen_menu->cv_bitmap), &(grd_curcanv->cv_bitmap) );

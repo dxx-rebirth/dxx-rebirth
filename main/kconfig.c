@@ -517,7 +517,54 @@ int find_next_item_left( kc_item * items, int nitems, int citem )
 }
 #endif
 
+#ifdef NEWMENU_MOUSE
+int get_item_height(kc_item *item)
+{
+	int w, h, aw;
+	char btext[10];
 
+	if (item->value==255) {
+		strcpy(btext, "");
+	} else {
+		switch( item->type )	{
+			case BT_KEY:
+				strncpy( btext, key_text[item->value], 10 ); break;
+			case BT_MOUSE_BUTTON:
+				strncpy( btext, Text_string[mousebutton_text[item->value]], 10); break;
+			case BT_MOUSE_AXIS:
+				strncpy( btext, Text_string[mouseaxis_text[item->value]], 10 ); break;
+			case BT_JOY_BUTTON:
+#if defined(SDL_INPUT)
+				if (joybutton_text[item->value])
+					strncpy(btext, joybutton_text[item->value], 10);
+				else
+					sprintf(btext, "BTN%2d", item->value + 1);
+#else
+				if ( joybutton_text[item->value] !=-1 )
+					strncpy( btext, Text_string[ joybutton_text[item->value]  ], 10 );
+				else
+					sprintf( btext, "BTN%d", item->value );
+#endif
+				break;
+			case BT_JOY_AXIS:
+#if defined(SDL_INPUT)
+				if (joyaxis_text[item->value])
+					strncpy(btext, joyaxis_text[item->value], 10);
+				else
+					sprintf(btext, "AXIS%2d", item->value + 1);
+#else
+				strncpy(btext, Text_string[joyaxis_text[item->value]], 10);
+#endif
+				break;
+			case BT_INVERT:
+				strncpy( btext, Text_string[invert_text[item->value]], 10 ); break;
+		}
+	}
+	gr_get_string_size(btext, &w, &h, &aw  );
+
+	return h;
+}
+#endif
 
 static float scale=1.0;
 void kconfig_sub(kc_item * items,int nitems, char * title)
@@ -525,6 +572,10 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	grs_canvas * save_canvas, canvas;
 	grs_font * save_font;
 	int old_keyd_repeat;
+#ifdef NEWMENU_MOUSE
+	int mouse_state, omouse_state, mx, my, x1, x2, y1, y2;
+	int close_x, close_y, close_size;
+#endif
 	int i,k,ocitem,citem;
 	int time_stopped = 0;
 	char * p;
@@ -564,6 +615,15 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	if ( p ) *p = 32;
 	gr_string( 0x8000, 8*scale, title );
 	if ( p ) *p = '\n';
+
+#ifdef NEWMENU_MOUSE
+	close_x = close_y = FONTSCALE_X(7);
+	close_size = FONTSCALE_X(5);
+	gr_setcolor( BM_XRGB(0, 0, 0) );
+	gr_rect(close_x, close_y, close_x + close_size, close_y + close_size);
+	gr_setcolor( BM_XRGB(21, 21, 21) );
+	gr_rect(close_x + 1, close_y + 1, close_x + close_size - 1, close_y + close_size - 1);
+#endif
 
 	grd_curcanv->cv_font = GAME_FONT;
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
@@ -634,10 +694,22 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	citem = 0;
 	kc_drawitem( &items[citem], 1 );
 
+	newmenu_show_cursor();
+
+#ifdef NEWMENU_MOUSE
+	mouse_state = omouse_state = 0;
+#endif
+
 	while(1)
 	{
 		gr_update();
 		k = key_inkey();
+
+#ifdef NEWMENU_MOUSE
+		omouse_state = mouse_state;
+		mouse_state = mouse_button_state(0);
+#endif
+
 #ifdef NETWORK
 		if ( !time_stopped )
 			if (multi_menu_poll() == -1)
@@ -797,6 +869,63 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 				break;
 #endif
 		}
+
+#ifdef NEWMENU_MOUSE
+		if ( (mouse_state && !omouse_state) || (mouse_state && omouse_state) ) {
+			int item_height;
+			
+			mouse_get_pos(&mx, &my);
+			for (i=0; i<nitems; i++ )	{
+				item_height = get_item_height( &items[i] );
+				x1 = grd_curcanv->cv_bitmap.bm_x + FONTSCALE_X(items[i].x) + FONTSCALE_X(items[i].w1);
+				x2 = x1 + FONTSCALE_X(items[i].w2);
+				y1 = grd_curcanv->cv_bitmap.bm_y + FONTSCALE_Y(items[i].y);
+				y2 = y1 + FONTSCALE_Y(item_height);
+				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+					citem = i;
+					break;
+				}
+			}
+		}
+		else if ( !mouse_state && omouse_state ) {
+			int item_height;
+			
+			mouse_get_pos(&mx, &my);
+			item_height = get_item_height( &items[citem] );
+			x1 = grd_curcanv->cv_bitmap.bm_x + FONTSCALE_X(items[citem].x) + FONTSCALE_X(items[citem].w1);
+			x2 = x1 + FONTSCALE_X(items[citem].w2);
+			y1 = grd_curcanv->cv_bitmap.bm_y + FONTSCALE_Y(items[citem].y);
+			y2 = y1 + FONTSCALE_Y(item_height);
+			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+				newmenu_hide_cursor();
+				switch( items[citem].type )	{
+				case BT_KEY:				kc_change_key( &items[citem] ); break;
+				case BT_MOUSE_BUTTON:	kc_change_mousebutton( &items[citem] ); break;
+				case BT_MOUSE_AXIS: 		kc_change_mouseaxis( &items[citem] ); break;
+				case BT_JOY_BUTTON: 		kc_change_joybutton( &items[citem] ); break;
+				case BT_JOY_AXIS: 		kc_change_joyaxis( &items[citem] ); break;
+				case BT_INVERT: 			kc_change_invert( &items[citem] ); break;
+				}
+				newmenu_show_cursor();
+			} else {
+				x1 = grd_curcanv->cv_bitmap.bm_x + close_x + FONTSCALE_X(1);
+				x2 = x1 + close_size - FONTSCALE_X(1);
+				y1 = grd_curcanv->cv_bitmap.bm_y + close_y + FONTSCALE_Y(1);
+				y2 = y1 + close_size - FONTSCALE_Y(1);
+				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+					grd_curcanv->cv_font	= save_font;
+					gr_set_current_canvas( save_canvas );
+					keyd_repeat = old_keyd_repeat;
+					game_flush_inputs();
+					newmenu_hide_cursor();
+					if (time_stopped)
+						start_time();
+					return;
+				}
+			}
+
+		}
+#endif // NEWMENU_MOUSE
 
 		if (ocitem!=citem)
 		{
@@ -2271,12 +2400,10 @@ if (!Player_is_dead)
        #endif
 
 //----------- Read fire_primary_state
-	if (!Global_laser_firing_count) { // ZICO - prevets primary counts if energy is 0 ansd lasers go wild while recharge - VERY DIRTY HACK
-		if (kc_keyboard[24].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[24].value];
-		if (kc_keyboard[25].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[25].value];
-		if ((use_joystick)&&(kc_joystick[0].value < 255 )) Controls.fire_primary_state |= joy_get_button_state(kc_joystick[0].value);
-		if ((use_mouse)&&(kc_mouse[0].value < 255) ) Controls.fire_primary_state |= mouse_button_state(kc_mouse[0].value);
-	}
+	if (kc_keyboard[24].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[24].value];
+	if (kc_keyboard[25].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[25].value];
+	if ((use_joystick)&&(kc_joystick[0].value < 255 )) Controls.fire_primary_state |= joy_get_button_state(kc_joystick[0].value);
+	if ((use_mouse)&&(kc_mouse[0].value < 255) ) Controls.fire_primary_state |= mouse_button_state(kc_mouse[0].value);
 
 //----------- Read fire_secondary_down_count
 	if (kc_keyboard[26].value < 255 ) Controls.fire_secondary_down_count += key_down_count(kc_keyboard[26].value);
