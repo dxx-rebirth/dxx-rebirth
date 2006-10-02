@@ -231,7 +231,7 @@ void print_commandline_help()
 	printf( "  -hogdir <dir>   %s\n", "set shared data directory to <dir>");
 #ifdef __unix__
 	printf( "  -nohogdir       %s\n", "don't try to use shared data directory");
-	printf( "  -userdir <dir>  %s\n", "set user dir to <dir> instead of current dir"); //ZICO - changed for files in current path - old: $HOME/.d2x");
+	printf( "  -userdir <dir>  %s\n", "set user dir to <dir> instead of $HOME/.d2x-rebirth");
 #endif
 	printf( "  -ini <file>     %s\n", "option file (alternate to command line), defaults to d2x.ini");
 	printf( "  -autodemo       %s\n", "Start in demo mode");
@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
 
 #ifdef __unix__
 		if (!t)
-			path = ""; // ZICO - should be: "~/.d2x.rebirth";
+			path = "~/.d2x.rebirth";
 #endif
 		PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
 		
@@ -580,7 +580,7 @@ int main(int argc, char *argv[])
 		if (! cfile_init("d2demo.hog"))
 			Warning("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
 #ifdef __unix__
-			      "\t$HOME/.d2x\n"
+			      "\t$HOME/.d2x-rebirth\n"
 			      "\t" SHAREPATH "\n"
 #else
 				  "\tCurrent directory\n"
