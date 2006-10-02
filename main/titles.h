@@ -27,12 +27,14 @@ extern int	Skip_briefing_screens;
 #define Skip_briefing_screens 0
 #endif
 
-extern int show_title_screen( char * filename, int allow_keys, int from_hog_only );
+extern void show_titles(void);
+extern void show_loading_screen(ubyte *title_pal);
 extern int show_briefing_screen( char * filename, int allow_keys );
 extern void show_title_flick(char *name, int allow_keys );
 extern void do_briefing_screens(char *filename,int level_num);
 extern char * get_briefing_screen( int level_num );
 
 extern void show_endgame_briefing(void);
+extern void show_order_form(void);
 
 #endif

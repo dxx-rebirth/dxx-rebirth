@@ -68,7 +68,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "polyobj.h"
 #include "effects.h"
 #include "digi.h"
-#include "pcx.h"
 #include "palette.h"
 #include "args.h"
 #include "sounds.h"
@@ -454,8 +453,6 @@ extern char Language[];
 //can we do highres menus?
 extern int MenuHiresAvailable;
 
-int intro_played = 0;
-
 int Inferno_verbose = 0;
 extern int framerate_on;
 
@@ -835,140 +832,10 @@ int main(int argc, char *argv[])
 	if ( FindArg( "-notitles" ) )
 		songs_play_song( SONG_TITLE, 1);
 	else
-	{
-#ifndef SHAREWARE
-		int played=MOVIE_NOT_PLAYED;	//default is not played
-#endif
-		int song_playing = 0;
-
-		#ifdef D2_OEM
-		#define MOVIE_REQUIRED 0
-		#else
-		#define MOVIE_REQUIRED 1
-		#endif
-
-		{	//show bundler screens
-			char filename[FILENAME_LEN];
-
-			played=MOVIE_NOT_PLAYED;	//default is not played
-
-            played = PlayMovie("pre_i.mve",0);
-
-			if (!played) {
-                strcpy(filename,MenuHires?"pre_i1b.pcx":"pre_i1.pcx");
-
-				while (PHYSFS_exists(filename))
-				{
-					show_title_screen( filename, 1, 0 );
-                    filename[5]++;
-				}
-			}
-		}
-
-		#ifndef SHAREWARE
-			init_subtitles("intro.tex");
-			played = PlayMovie("intro.mve",MOVIE_REQUIRED);
-			close_subtitles();
-		#endif
-
-		if (played != MOVIE_NOT_PLAYED)
-			intro_played = 1;
-		else {						//didn't get intro movie, try titles
-
-			played = PlayMovie("titles.mve",MOVIE_REQUIRED);
-
-			if (played == MOVIE_NOT_PLAYED)
-			{
-				char filename[FILENAME_LEN];
-
-				gr_set_mode(MenuHires?SM(640,480):SM(320,200));
-// #ifdef OGL
-// 				set_screen_mode(SCREEN_MENU);
-// #endif
-				con_printf( CON_DEBUG, "\nPlaying title song..." );
-				songs_play_song( SONG_TITLE, 1);
-				song_playing = 1;
-				con_printf( CON_DEBUG, "\nShowing logo screens..." );
-
-				strcpy(filename, MenuHires?"iplogo1b.pcx":"iplogo1.pcx"); // OEM
-				if (! cfexist(filename))
-					strcpy(filename, "iplogo1.pcx"); // SHAREWARE
-				if (! cfexist(filename))
-					strcpy(filename, "mplogo.pcx"); // MAC SHAREWARE
-				if (cfexist(filename))
-					show_title_screen(filename, 1, 1);
-
-				strcpy(filename, MenuHires?"logob.pcx":"logo.pcx"); // OEM
-				if (! cfexist(filename))
-					strcpy(filename, "logo.pcx"); // SHAREWARE
-				if (! cfexist(filename))
-					strcpy(filename, "plogo.pcx"); // MAC SHAREWARE
-				if (cfexist(filename))
-					show_title_screen(filename, 1, 1);
-			}
-		}
-
-		{	//show bundler movie or screens
-
-			char filename[FILENAME_LEN];
-			PHYSFS_file *movie_handle;
-
-			played=MOVIE_NOT_PLAYED;	//default is not played
-
-			//check if OEM movie exists, so we don't stop the music if it doesn't
-			movie_handle = PHYSFS_openRead("oem.mve");
-			if (movie_handle)
-			{
-				PHYSFS_close(movie_handle);
-				played = PlayMovie("oem.mve",0);
-				song_playing = 0;		//movie will kill sound
-			}
-
-			if (!played) {
-				strcpy(filename,MenuHires?"oem1b.pcx":"oem1.pcx");
-
-				while (PHYSFS_exists(filename))
-				{
-					show_title_screen( filename, 1, 0 );
-					filename[3]++;
-				}
-			}
-		}
-
-		if (!song_playing)
-			songs_play_song( SONG_TITLE, 1);
-			
-	}
+		show_titles();
 
 	con_printf( CON_DEBUG, "\nShowing loading screen..." );
-	{
-		//grs_bitmap title_bm;
-		int pcx_error;
-		char filename[14];
-
-		strcpy(filename, MenuHires?"descentb.pcx":"descent.pcx");
-		if (! cfexist(filename))
-			strcpy(filename, MenuHires?"descntob.pcx":"descento.pcx"); // OEM
-		if (! cfexist(filename))
-			strcpy(filename, "descentd.pcx"); // SHAREWARE
-		if (! cfexist(filename))
-			strcpy(filename, "descentb.pcx"); // MAC SHAREWARE
-
-		gr_set_mode(MenuHires?SM(640,480):SM(320,200));
-#ifdef OGL
-		set_screen_mode(SCREEN_MENU);
-#endif
-
-		FontHires = FontHiresAvailable && MenuHires;
-
-		if ((pcx_error=pcx_read_fullscr( filename, title_pal ))==PCX_ERROR_NONE)	{
-			//vfx_set_palette_sub( title_pal );
-			gr_palette_clear();
-			gr_palette_fade_in( title_pal, 32, 0 );
-			gr_update();
-		} else
-			Error( "Couldn't load pcx file '%s', PCX load error: %s\n",filename, pcx_errormsg(pcx_error));
-	}
+	show_loading_screen(title_pal); // title_pal is needed (see below)
 
 	con_printf( CON_DEBUG , "\nDoing bm_init..." );
 	#ifdef EDITOR
@@ -1150,44 +1017,6 @@ void check_joystick_calibration()	{
 		}
 	}
 
-}
-
-void show_order_form()
-{
-#ifndef EDITOR
-
-	int pcx_error;
-	unsigned char title_pal[768];
-	char	exit_screen[16];
-
-	gr_set_current_canvas( NULL );
-	gr_palette_clear();
-
-	key_flush();
-
-	strcpy(exit_screen, MenuHires?"ordrd2ob.pcx":"ordrd2o.pcx"); // OEM
-	if (! cfexist(exit_screen))
-		strcpy(exit_screen, MenuHires?"orderd2b.pcx":"orderd2.pcx"); // SHAREWARE, prefer mac if hires
-	if (! cfexist(exit_screen))
-		strcpy(exit_screen, MenuHires?"orderd2.pcx":"orderd2b.pcx"); // SHAREWARE, have to rescale
-	if (! cfexist(exit_screen))
-		strcpy(exit_screen, MenuHires?"warningb.pcx":"warning.pcx"); // D1
-	if (! cfexist(exit_screen))
-		return; // D2 registered
-
-	if ((pcx_error=pcx_read_fullscr( exit_screen, title_pal ))==PCX_ERROR_NONE) {
-		//vfx_set_palette_sub( title_pal );
-		gr_palette_fade_in( title_pal, 32, 0 );
-		gr_update();
-		while (!key_inkey() && !mouse_button_state(0)) {} //key_getch();
-		gr_palette_fade_out( title_pal, 32, 0 );
-	}
-	else
-		Int3();		//can't load order screen
-
-	key_flush();
-
-#endif
 }
 
 void quit_request()
