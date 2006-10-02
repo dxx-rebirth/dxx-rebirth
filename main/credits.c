@@ -50,9 +50,6 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:44:11 zicodxx Exp 
 #include "cfile.h"
 #include "compbit.h"
 #include "songs.h"
-#ifdef OGL
-#include "ogl_init.h" // ZICO - for gl_scissors
-#endif
 
 #define ROW_SPACING			(GHEIGHT/17)
 #define NUM_LINES			20 //14
@@ -107,6 +104,8 @@ grs_font * names_font;
 typedef struct box {
 	int left, top, width, height;
 } box;
+
+extern inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen);
 
 //if filename passed is NULL, show normal credits
 void credits_show(char *credits_filename)
@@ -219,6 +218,8 @@ void credits_show(char *credits_filename)
 
 		for (i=0; i<ROW_SPACING; i += (SWIDTH>=640?FONTSCALE_Y(2):1) )	{
 			int y;
+			box	*new_box;
+			grs_bitmap *tempbmp;
 
 			y = first_line_offset - i;
 #ifdef OGL
@@ -264,9 +265,6 @@ void credits_show(char *credits_filename)
 			}
 
 				// Wacky Fast Credits Thing
-				box	*new_box;
-				grs_bitmap *tempbmp;
-
 				for (j=0; j<NUM_LINES; j++ )
 				{
 					new_box = &dirty_box[j];

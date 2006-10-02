@@ -58,7 +58,6 @@ void gr_do_fullscreen(int f){
 
 int gr_toggle_fullscreen(void){
 	gr_do_fullscreen(!ogl_fullscreen);
-	glFlush(); // ZICO - prevents black screen, screen glitches etc.
 	return ogl_fullscreen;
 }
 
