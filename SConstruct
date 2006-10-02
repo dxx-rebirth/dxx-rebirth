@@ -1,8 +1,5 @@
 #SConstruct
 
-# TODO:
-# - command-line parameter for datapath
-
 
 print "D1X-Rebirth"
 
@@ -14,15 +11,18 @@ import os
 D1XMAJOR = 0
 D1XMINOR = 45
 
-# place of descent data - please change if desired
-D1XDATAPATH = '\\"\\"'
-
 # command-line parms
+sharepath = str(ARGUMENTS.get('sharepath', '/usr/local/share/games/d1x/'))
 debug = int(ARGUMENTS.get('debug', 0))
 profiler = int(ARGUMENTS.get('profiler', 0))
 sdl_only = int(ARGUMENTS.get('sdl_only', 0))
 no_asm = int(ARGUMENTS.get('no_asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
+
+# place of descent data - please change if desired
+# path must begin and end with a slash (/) + qotes and backslashes
+# pattern: '\\" /MY/SHARE/PATH/ \\"'
+D1XDATAPATH = '\\"' + str(sharepath) + '\\"'
 
 # general source files
 common_sources = [
@@ -345,7 +345,7 @@ else:
 	env.Append(CPPDEFINES = ogldefines)
 	env.Append(CPPPATH = ['arch/ogl/include'])
 	common_sources = arch_ogl_sources + common_sources
-	alllibs = ogllibs + sdllibs + alllibs
+	alllibs = ogllibs + alllibs
 
 # debug?
 if (debug == 1):
@@ -388,9 +388,11 @@ Help("""
 	Type 'scons' to build the binary.
 	Type 'scons -c' to clean up.
 	Extra options (add them to command line, like 'scons extraoption=value'):
-	'debug=1' build DEBUG binary which includes asserts, debugging output, cheats and more output
+	'sharepath=DIR' Use DIR for shared game data (*NIX only). Must end with a slash.
+			Default: /usr/local/share/games/d1x/
 	'sdl_only=1' don't include OpenGL, use SDL-only instead
 	'no_asm=1' don't use ASSEMBLER (only with sdl_only=1 - NOT recommended, slow)
+	'debug=1' build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1' do profiler build
 	'editor=1' build editor !EXPERIMENTAL!
 	""")

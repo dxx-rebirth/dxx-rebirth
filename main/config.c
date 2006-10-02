@@ -190,6 +190,49 @@ void CrystalLakeSetWSS()
 }
 #endif
 
+#ifdef __unix__
+#include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+int check_and_create_dir(const char *name)
+{
+	struct stat stat_buffer;
+
+	if (stat(name, &stat_buffer))
+	{
+		/* error check if it doesn't exist or something else is wrong */
+		if (errno == ENOENT)
+		{
+			/* doesn't exist letts create it ;) */
+			if (mkdir(name, 0775))
+			{
+				fprintf(stderr, "Error creating dir %s", name);
+				perror(" ");
+				return -1;
+			}
+		}
+		else
+		{
+			/* something else went wrong yell about it */
+			fprintf(stderr, "Error opening %s", name);
+			perror(" ");
+			return -1;
+		}
+	}
+	else
+	{
+		/* file exists check it's a dir otherwise yell about it */
+		if (!(S_IFDIR & stat_buffer.st_mode))
+		{
+			fprintf(stderr,"Error %s exists but isn't a dir\n", name);
+			return -1;
+		}
+	}
+	return 0;
+}
+#endif
+
 int ReadConfigFile()
 {
 	FILE *infile;
@@ -220,6 +263,18 @@ int ReadConfigFile()
 	Config_midi_volume = 4;
 	Config_control_type = 0;
 	Config_channels_reversed = 0;
+
+#ifdef __unix__
+	/* we abuse the line buf here todo some unix specific stuff */
+	ptr = getenv("HOME");
+	snprintf(line, sizeof(line), "%s/.d1x-rebirth", ptr? ptr:".");
+	/* If we succeed we do a chdir, because patching the file load/save
+	   code to use this path is easy, but then we also need to hack the
+	   file-selector, so just doing a chdir is easier. */
+	if (!check_and_create_dir(line))
+		chdir(line);
+#endif
+
 //added on 5/20/99 by Victor Rachels to make less hassle when switching
 #ifdef __WINDOWS__
         infile = fopen("descentw.cfg", "rt");
