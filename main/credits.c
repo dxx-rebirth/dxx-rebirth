@@ -105,7 +105,7 @@ typedef struct box {
 	int left, top, width, height;
 } box;
 
-extern inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen);
+extern inline void scale_line(byte *in, byte *out, int ilen, int olen);
 
 //if filename passed is NULL, show normal credits
 void credits_show(char *credits_filename)
