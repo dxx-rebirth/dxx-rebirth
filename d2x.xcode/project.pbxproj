@@ -4166,7 +4166,6 @@
 				676032DE066B399A008A67A3,
 				676032DF066B399A008A67A3,
 				67B4473D06687CF400DF26D8,
-				6791D10006688BD900056A5A,
 				67B4473F06687CF400DF26D8,
 				67B4474106687CF400DF26D8,
 				67B4475906687CF400DF26D8,
@@ -4191,6 +4190,83 @@
 				67B4478406687CF500DF26D8,
 				67B4478706687CF500DF26D8,
 				67B4478906687CF500DF26D8,
+				EB0421040A341042002CC961,
+				EB0421010A341042002CC961,
+				EB0421030A341042002CC961,
+				EB0421020A341042002CC961,
+				EB0420C00A341042002CC961,
+				EB0420F10A341042002CC961,
+				EB0421060A341042002CC961,
+				EB0421050A341042002CC961,
+				EB0420BF0A341042002CC961,
+				EB0420E50A341042002CC961,
+				EB0420E40A341042002CC961,
+				EB0420E20A341042002CC961,
+				EB0420E10A341042002CC961,
+				EB0421000A341042002CC961,
+				EB0420FF0A341042002CC961,
+				EB0420FE0A341042002CC961,
+				EB0420FD0A341042002CC961,
+				EB0420F00A341042002CC961,
+				EB0420EF0A341042002CC961,
+				EB0420EE0A341042002CC961,
+				EB0420ED0A341042002CC961,
+				EB0420EC0A341042002CC961,
+				EB0420EB0A341042002CC961,
+				EB0420EA0A341042002CC961,
+				EB0420E90A341042002CC961,
+				EB0420E80A341042002CC961,
+				EB0420E30A341042002CC961,
+				EB0420F90A341042002CC961,
+				EB0420F80A341042002CC961,
+				EB0420F70A341042002CC961,
+				EB0420F60A341042002CC961,
+				EB0420F50A341042002CC961,
+				EB0420F40A341042002CC961,
+				EB0420F30A341042002CC961,
+				EB0420F20A341042002CC961,
+				EB0420FC0A341042002CC961,
+				EB0420FA0A341042002CC961,
+				EB0420BE0A341042002CC961,
+				EB0420BD0A341042002CC961,
+				EB0420BC0A341042002CC961,
+				EB0420BB0A341042002CC961,
+				EB0420BA0A341042002CC961,
+				EB0420B90A341041002CC961,
+				EB0420E70A341042002CC961,
+				EB0420E60A341042002CC961,
+				EB0420E00A341042002CC961,
+				EB01AFA90A65323200EA4C7C,
+				EB0420DE0A341042002CC961,
+				EB0420DD0A341042002CC961,
+				EB0420DC0A341042002CC961,
+				EB0420DB0A341042002CC961,
+				EB0420DA0A341042002CC961,
+				EB0420D90A341042002CC961,
+				EB0420D80A341042002CC961,
+				EB0420D70A341042002CC961,
+				EB0420D60A341042002CC961,
+				EB0420D50A341042002CC961,
+				EB0420D40A341042002CC961,
+				EB0420D30A341042002CC961,
+				EB0420D20A341042002CC961,
+				EB0420D10A341042002CC961,
+				EB0420D00A341042002CC961,
+				EB0420CF0A341042002CC961,
+				EB0420CE0A341042002CC961,
+				EB0420CD0A341042002CC961,
+				EB0420CC0A341042002CC961,
+				EB0420CB0A341042002CC961,
+				EB0420CA0A341042002CC961,
+				EB0420C90A341042002CC961,
+				EB0420C80A341042002CC961,
+				EB0420C70A341042002CC961,
+				EB0420C60A341042002CC961,
+				EB0420C50A341042002CC961,
+				EB0420C40A341042002CC961,
+				EB0420C30A341042002CC961,
+				EB0420C20A341042002CC961,
+				EB0420C10A341042002CC961,
 			);
 			isa = PBXGroup;
 			path = main;
@@ -5021,6 +5097,622 @@
 //EB2
 //EB3
 //EB4
+		EB01AFA90A65323200EA4C7C = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = newdemo.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420B90A341041002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = multi.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420BA0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = movie.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420BB0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = morph.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420BC0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = modem.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420BD0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = mission.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420BE0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = menu.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420BF0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = cntrlcen.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420C00A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = bmread.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420C10A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = weapon.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420C20A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = wall.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420C30A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = vers_id.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420C40A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = vclip.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420C50A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = titles.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420C60A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = textures.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420C70A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = text.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420C80A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = texmerge.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420C90A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = terrain.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420CA0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = switch.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420CB0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = state.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420CC0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = sounds.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420CD0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = songs.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420CE0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = slew.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420CF0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = segpoint.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420D00A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = segment.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420D10A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = screens.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420D20A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = scores.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420D30A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = robot.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420D40A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = reorder.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420D50A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = render.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420D60A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = powerup.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420D70A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = polyobj.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420D80A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = playsave.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420D90A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = player.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420DA0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = piggy.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420DB0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = physics.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420DC0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = paging.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420DD0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = object.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420DE0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = newmenu.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420E00A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = network.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420E10A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = digi.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420E20A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = desw.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420E30A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = gameseq.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420E40A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = desc_id.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420E50A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = credits.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420E60A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = netmisc.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420E70A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = multibot.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420E80A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = gameseg.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420E90A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = gamesave.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420EA0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = gamepal.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420EB0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = gamemine.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420EC0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = gamefont.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420ED0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = game.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420EE0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = fvi_a.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420EF0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = fvi.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420F00A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = fuelcen.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420F10A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = collide.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420F20A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = kmatrix.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420F30A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = kconfig.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420F40A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = joydefs.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420F50A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = inferno.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420F60A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = hudmsg.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420F70A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = hostage.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420F80A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = gauges.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420F90A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = gamestat.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420FA0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = lighting.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420FC0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = laser.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420FD0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = fireball.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420FE0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = escort.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0420FF0A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = endlevel.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0421000A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = effects.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0421010A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = aistruct.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0421020A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = bm.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0421030A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = automap.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0421040A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = ai.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0421050A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = controls.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		EB0421060A341042002CC961 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.c.h;
+			path = config.h;
+			refType = 4;
+			sourceTree = "<group>";
+		};
 		EBAFC20E088E3F2A006329AD = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
