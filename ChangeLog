@@ -1,3 +1,59 @@
+2006-07-27  Chris Taylor  <chris@icculus.org>
+
+	* main/inferno.c, main/titles.c, main/titles.h:
+	move titles, loading screen and order form showing to titles.c
+
+	* include/physfsx.h, main/inferno.c: move PhysicsFS
+	initialisation, search path setup and argument reading to physfsx.h
+
+	* main/gauges.c: always show bomb count if player has them,
+	bombs may be the selected secondary weapon but the right view can
+	be a camera view (http://dxx-rebirth.de/smf/index.php?topic=58.0)
+
+2006-07-27  Chris Taylor  <chris@icculus.org>
+
+	* main/inferno.c, main/multi.c, main/multi.h:
+	move hoard data saving from main to save_hoard_data
+
+2006-07-24  Chris Taylor  <chris@icculus.org>
+
+	* main/state.c: make the thumbnail properly when doing fast save
+	in d2xgl
+
+2006-07-12  Chris Taylor  <chris@icculus.org>
+
+	* d2x.xcode/project.pbxproj: add references to headers in main
+	for SCM and batch find
+
+2006-07-09  Chris Taylor  <chris@icculus.org>
+
+	* main/laser.c, main/object.c: fix crash when a robot's guided
+	missile explodes
+
+	* arch/carbon/descent.r: don't allow MPW build to run in OS X
+	(it won't work and doesn't need to)
+
+	* main/gauges.c: only free the gauge canvases when they exist
+
+2006-06-05  Chris Taylor  <chris@icculus.org>
+
+	* main/slew.h: fix error when building editor with RELEASE
+
+2006-06-03  Chris Taylor  <chris@icculus.org>
+
+	* main/game.c, main/gauges.c: the gauges work in 320xXXX (sdl)
+	again. It needs to create gauge canvases in the game when they're
+	sub-canvases, which they were made into on 2005-08-13
+
+2006-03-05  Chris Taylor  <chris@icculus.org>
+
+	* main/inferno.c: create write directory if it doesn't exist
+	(didn't work before)
+
+	* main/gamesave.c, main/object.c, main/render.c,
+	main/editor/kfuncs.c, main/editor/med.c: allow the editor to be
+	built with NDEBUG
+
 2006-02-26  Chris Taylor  <chris@icculus.org>
 
 	* include/strutil.h, main/bm.c, main/gamepal.c, main/gamesave.c,
