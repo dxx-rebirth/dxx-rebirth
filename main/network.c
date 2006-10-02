@@ -2026,9 +2026,8 @@ void network_get_d1x_params(netgame_info *temp_game, int *new_socket, int multiv
 	/* 3*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network socket (-99 to 99)"; opt++;
         /* 4*/ m[opt].type = NM_TYPE_INPUT; m[opt].text_len = 3; opt++;
 
-//	/* 5*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = "Options below need D1X only games"; opt++; // ZICO - obsolete
-//        /* 6*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "D1X only game"; opt++;
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++; m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++; // ZICO - placeholders
+	/* 5*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = "Options below need D1X only games"; opt++;
+       /* 6*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "D1X only game"; opt++;
 //added/edited on 11/1/98 by Matthew Mueller
         /* 7*/ m[opt].type = NM_TYPE_SLIDER; m[opt].text = smaxplayers; m[opt].min_value = 0; m[opt].max_value = MaxNumNetPlayers - 2; opt++;
 //end edit -MM

@@ -302,6 +302,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compare.h"
 //end addition -MM
 
+extern int netgame_d1x_only;
+
 // What version of the multiplayer protocol is this?
 
 #ifdef SHAREWARE
@@ -309,7 +311,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #define MULTI_PROTO_VERSION	2
 #endif
-#define MULTI_PROTO_D1X_VER	MULTI_PROTO_VERSION // ZICO - we got rid of "D1X ONLY GAME", old was: 3
+#define MULTI_PROTO_D1X_VER	(netgame_d1x_only?MULTI_PROTO_VERSION:3)
 
 //edit 4/18/99 Matt Mueller - Needed to add data onto netgame_lite packet for flags.
 //Incrementing this seems the only way possible.  Still stays backwards compitible.

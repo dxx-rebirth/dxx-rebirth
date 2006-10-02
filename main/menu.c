@@ -323,6 +323,7 @@ int DoMenu()
 }
 
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
+int netgame_d1x_only=0;
 
 //returns flag, true means quit menu
 void do_option ( int select) 
@@ -437,13 +438,16 @@ void do_option ( int select)
 			break;
 #ifdef NETWORK
 		case MENU_IPX_MULTIPLAYER:
+			netgame_d1x_only=0;
 			do_ipx_multi_player_menu();
 			break;
 		case MENU_KALI_MULTIPLAYER:
+			netgame_d1x_only=0;
 			do_kali_multi_player_menu();
 			break;
 #ifdef SUPPORTS_NET_IP
 		case MENU_IP_MULTIPLAYER:
+			netgame_d1x_only=1;
 			do_ip_multi_player_menu();
 			break;
 		case MENU_IP_SERV_CONNECT:

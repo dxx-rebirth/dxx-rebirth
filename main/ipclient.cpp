@@ -3,6 +3,10 @@
  * added 2000/02/07 Matt Mueller
  */
 extern "C"{
+#include <stdlib.h>
+#ifdef __WINDOWS__
+#include <malloc.h>
+#endif
 #include "mono.h"
 #include "key.h"
 #include "text.h"
@@ -117,8 +121,7 @@ static int ipx_ip_SendPacket(IPXPacket_t *IPXHeader,
 #endif
 		return -1;
 	}
-//	chk(buf=(char*)alloca(2+dataLen)); // ZICO - removed - outdated
-	chk(buf=(char*)malloc(2+dataLen)); // ZICO - should work
+	chk(buf=(char*)alloca(2+dataLen));
 	memcpy(buf+0,D1Xid ,2);
 	memcpy(buf+2,data,dataLen);
 
