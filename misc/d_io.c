@@ -31,7 +31,7 @@ unsigned long d_getdiskfree()
 #ifdef __MSDOS__
   return getdiskfree();
 #else
-#ifdef __WINDOWS__
+#if 0 //def __WINDOWS__
 	ULONG cbCluster = 0;
 	ULONG cClusters = 0;
 

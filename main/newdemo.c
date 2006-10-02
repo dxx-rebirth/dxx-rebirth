@@ -2639,12 +2639,17 @@ void newdemo_playback_one_frame()
 
 void newdemo_start_recording()
 {
-	/*Newdemo_size = d_getdiskfree();
-	if (Newdemo_size < 500000) {
-		nm_messagebox(NULL, 1, TXT_OK, TXT_DEMO_NO_SPACE);
-		return;
-	}*/ // ZICO - token out because wrong calculating - let OS do the work if demo really get's that big
+	Newdemo_size = d_getdiskfree();
+
 	Newdemo_size -= 100000;
+
+	if ((Newdemo_size+100000) <  2000000000) {
+		if (((int)(Newdemo_size)) < 500000) {
+			nm_messagebox(NULL, 1, TXT_OK, TXT_DEMO_NO_SPACE);
+			return;
+		}
+	}
+
 	Newdemo_num_written = 0;
 	Newdemo_no_space=0;
 	Newdemo_state = ND_STATE_RECORDING;
