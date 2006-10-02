@@ -442,10 +442,12 @@ void digi_end_sound(int channel)
 }
 
 
-#if !defined(_WIN32) && !defined(__linux__)
+#ifndef _WIN32
 // MIDI stuff follows.
+#ifdef MACINTOSH
 void digi_set_midi_volume( int mvolume ) { }
 void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {}
+#endif
 void digi_stop_current_song()
 {
 #ifdef HMIPLAY
