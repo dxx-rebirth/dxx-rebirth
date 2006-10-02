@@ -335,7 +335,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_ioCallbacks(FileRead);
 
 #ifdef OGL
-	gr_set_mode(SM((hires_flag?Game_window_w:320),(hires_flag?Game_window_h:200)));
+	gr_set_mode(SM((hires_flag?grd_curscreen->sc_w:320),(hires_flag?grd_curscreen->sc_h:200)));
 	set_screen_mode(SCREEN_MENU);
 	gr_copy_palette(pal_save, gr_palette, 768);
 	memset(gr_palette, 0, 768);

@@ -26,6 +26,7 @@
 #include "error.h"
 #include "vecmat.h"
 #include "args.h"
+#include "conf.h"
 
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file(s).
 // The arguments are used to determine the search paths, so the first .ini file must be
