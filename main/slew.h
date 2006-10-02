@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //from slew.c
 
-#ifndef RELEASE
+#if 1   //ndef RELEASE  //kill error on RELEASE build
 
 void slew_init(object *obj);                // say this is slew obj
 int slew_stop();                            // Stops object
