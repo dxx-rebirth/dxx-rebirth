@@ -91,7 +91,6 @@ void gr_do_fullscreen(int f){
 int gr_toggle_fullscreen(void){
 	gr_do_fullscreen(!ogl_fullscreen);
 	//	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
-	glFlush(); // ZICO - prevents glitches while resolution changes
 	return ogl_fullscreen;
 }
 

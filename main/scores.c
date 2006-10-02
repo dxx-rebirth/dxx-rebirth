@@ -357,14 +357,15 @@ static float scale=1.0;
 
 void scores_view(int citem)
 {
-#ifdef OGL
-	gr_palette_load( gr_palette ); // ZICO - added to be sure right palette is loaded after engame
-#endif
 	fix t1;
 	int i,done,looper;
 	int k;
 	sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 	grs_canvas canvas;
+
+#ifdef OGL
+	gr_palette_load( gr_palette ); // ZICO - added to be sure right palette is loaded after endgame
+#endif
 
 ReshowScores:
 	scores_read();
