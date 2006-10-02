@@ -417,4 +417,8 @@ void change_playernum_to(int new_pnum);
 #define MISSILE_ADJUST  100
 #define FLARE_ADJUST    127
 
+#ifdef EDITOR
+void save_hoard_data(void);
+#endif
+
 #endif /* _MULTI_H */

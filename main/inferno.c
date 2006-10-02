@@ -68,7 +68,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "polyobj.h"
 #include "effects.h"
 #include "digi.h"
-#include "iff.h"
 #include "pcx.h"
 #include "palette.h"
 #include "args.h"
@@ -979,64 +978,7 @@ int main(int argc, char *argv[])
 
 	#ifdef EDITOR
 	if (FindArg("-hoarddata") != 0) {
-		#define MAX_BITMAPS_PER_BRUSH 30
-		grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
-		grs_bitmap icon;
-		int nframes;
-		ubyte palette[256*3];
-		PHYSFS_file *ofile;
-		int iff_error,i;
-		char *sounds[] = {"selforb.raw","selforb.r22",		//SOUND_YOU_GOT_ORB			
-								"teamorb.raw","teamorb.r22",		//SOUND_FRIEND_GOT_ORB			
-								"enemyorb.raw","enemyorb.r22",	//SOUND_OPPONENT_GOT_ORB	
-								"OPSCORE1.raw","OPSCORE1.r22"};	//SOUND_OPPONENT_HAS_SCORED
-
-		ofile = PHYSFSX_openWriteBuffered("hoard.ham");
-
-	   iff_error = iff_read_animbrush("orb.abm",bm,MAX_BITMAPS_PER_BRUSH,&nframes,palette);
-		Assert(iff_error == IFF_NO_ERROR);
-		PHYSFS_writeULE16(ofile, nframes);
-		PHYSFS_writeULE16(ofile, bm[0]->bm_w);
-		PHYSFS_writeULE16(ofile, bm[0]->bm_h);
-		PHYSFS_write(ofile, palette, 3, 256);
-		for (i=0;i<nframes;i++)
-			PHYSFS_write(ofile, bm[i]->bm_data, bm[i]->bm_w*bm[i]->bm_h, 1);
-
-		iff_error = iff_read_animbrush("orbgoal.abm",bm,MAX_BITMAPS_PER_BRUSH,&nframes,palette);
-		Assert(iff_error == IFF_NO_ERROR);
-		Assert(bm[0]->bm_w == 64 && bm[0]->bm_h == 64);
-		PHYSFS_writeULE16(ofile, nframes);
-		PHYSFS_write(ofile, palette, 3, 256);
-		for (i=0;i<nframes;i++)
-			PHYSFS_write(ofile, bm[i]->bm_data, bm[i]->bm_w*bm[i]->bm_h, 1);
-
-		for (i=0;i<2;i++) {
-			iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",&icon,BM_LINEAR,palette);
-			Assert(iff_error == IFF_NO_ERROR);
-			PHYSFS_writeULE16(ofile, icon.bm_w);
-			PHYSFS_writeULE16(ofile, icon.bm_h);
-			PHYSFS_write(ofile, palette, 3, 256);
-			PHYSFS_write(ofile, icon.bm_data, icon.bm_w*icon.bm_h, 1);
-		}
-
-		for (i=0;i<sizeof(sounds)/sizeof(*sounds);i++) {
-			PHYSFS_file *ifile;
-			int size;
-			ubyte *buf;
-
-			ifile = PHYSFS_openRead(sounds[i]);
-			Assert(ifile != NULL);
-			size = PHYSFS_fileLength(ifile);
-			buf = d_malloc(size);
-			PHYSFS_read(ifile, buf, size, 1);
-			PHYSFS_writeULE32(ofile, size);
-			PHYSFS_write(ofile, buf, size, 1);
-			d_free(buf);
-			PHYSFS_close(ifile);
-		}
-
-		PHYSFS_close(ofile);
-
+		save_hoard_data();
 		exit(1);
 	}
 	#endif
