@@ -1536,7 +1536,8 @@ void Laser_do_weapon_sequence(object *obj)
 
 
 	//	For homing missiles, turn towards target. (unless it's the guided missile)
-	if (Weapon_info[obj->id].homing_flag && !(obj->id==GUIDEDMISS_ID && obj==Guided_missile[Objects[obj->ctype.laser_info.parent_num].id] && obj->signature==Guided_missile[Objects[obj->ctype.laser_info.parent_num].id]->signature)) {
+	if (Weapon_info[obj->id].homing_flag && !(obj->id==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER && obj==Guided_missile[Objects[obj->ctype.laser_info.parent_num].id] && obj->signature==Guided_missile[Objects[obj->ctype.laser_info.parent_num].id]->signature))
+	{
 		vms_vector		vector_to_object, temp_vec;
 		fix				dot=F1_0;
 		fix				speed, max_speed;

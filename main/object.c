@@ -1416,7 +1416,8 @@ void obj_delete(int objnum)
 	Assert(obj->type != OBJ_NONE);
 	Assert(obj != ConsoleObject);
 
-	if (obj->type==OBJ_WEAPON && obj->id==GUIDEDMISS_ID) {
+	if (obj->type==OBJ_WEAPON && obj->id==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
+	{
 		pnum=Objects[obj->ctype.laser_info.parent_num].id;
 		mprintf ((0,"Deleting a guided missile! Player %d\n\n",pnum));
 
