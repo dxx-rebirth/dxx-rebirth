@@ -861,17 +861,6 @@ void check_joystick_calibration()	{
 
 }
 
-void show_order_form()
-{
-	show_title_screen(
-#ifdef SHAREWARE
-	"order01.pcx",
-#else
-	"warning.pcx",
-#endif
-	1);
-}
-
 void quit_request()
 {
 #ifdef NETWORK

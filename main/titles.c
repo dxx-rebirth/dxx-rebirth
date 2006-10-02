@@ -1157,8 +1157,6 @@ void do_shareware_end_game(void)
 
 }
 
-extern void show_order_form(void);
-
 void do_end_game(void)
 {
 	set_screen_mode( SCREEN_MENU );
