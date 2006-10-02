@@ -3355,8 +3355,7 @@ void render_gauges()
   
 	if (old_display_mode != Current_display_mode)
 	{
-		if (old_display_mode != -2)
-			close_gauge_canvases();
+		close_gauge_canvases();
 		init_gauge_canvases();
 		old_display_mode = Current_display_mode;
 	}
