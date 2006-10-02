@@ -821,11 +821,6 @@ int main(int argc,char **argv)
 //--killed #endif
 //end changes - adb
 
-#ifdef __WINDOWS__
-	digi_stop_current_song(); // ZICO - stop all midis // hack for some onboard soundcards
-#endif
-	digi_close(); // ZICO - stop all sounds // hack for some onboard soundcards
-
 	return(0);		//presumably successful exit
 
 }
