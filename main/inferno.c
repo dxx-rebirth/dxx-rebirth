@@ -529,9 +529,6 @@ int main(int argc, char *argv[])
 		print_commandline_help();
 		set_exit_message("");
 
-	digi_stop_current_song(); // ZICO - stop all midis // hack for some onboard soundcards
-	digi_close(); // ZICO - stop all sounds // hack for some onboard soundcards
-
 #ifdef __MINGW32__
 		exit(0);  /* mingw hangs on this return.  dunno why */
 #endif
