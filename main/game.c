@@ -159,7 +159,6 @@ u_int32_t		VR_screen_mode = 0;
 int			VR_render_width = 0;
 int			VR_render_height = 0;
 int			VR_render_mode = VR_NONE;
-int			VR_compatible_menus = 0;
 int			VR_low_res = 3; // Default to low res
 int 			VR_show_hud = 1;
 int			VR_sensitivity = 1; // 0 - 2
@@ -410,8 +409,6 @@ void init_cockpit()
 #endif
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( GAME_FONT );
-
-	game_init_render_buffers(Game_screen_mode, VR_render_width, VR_render_height, 0, VR_NONE, 0);
 
 	switch( Cockpit_mode )	{
 	case CM_FULL_COCKPIT:
@@ -696,15 +693,14 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 
 
 // Sets up the canvases we will be rendering to
-void game_init_render_buffers(u_int32_t screen_mode, int render_w, int render_h, int use_paging, int render_method, int compatible_menus )
+void game_init_render_buffers(u_int32_t screen_mode, int render_w, int render_h, int render_method )
 {
 // 	if (!VR_offscreen_buffer)	{
-	VR_use_paging 		= use_paging;
+	VR_use_paging 		= FindArg("-doublebuffer");
 	VR_screen_mode		= screen_mode;
 	VR_render_mode		= render_method;
 	VR_render_width		= render_w;
 	VR_render_height	= render_h;
-	VR_compatible_menus 	= compatible_menus;
 
 	if ( (VR_render_mode==VR_AREA_DET) || (VR_render_mode==VR_INTERLACED ) )	{
 		if ( render_h*2 < 200 )
@@ -738,12 +734,6 @@ int set_screen_mode(int sm)
 	// ZICO - since we use variable resolutions we can't store them in modes. Game_window_w/h is used to scale the window for STATUSBAR and shrink/grow_window so we can't use it to store the current resolution. So we store it in the VR_render variables. If we are going to remove this VR stuff we need to create new variables.
 	VR_screen_mode = Game_screen_mode = SM(VR_render_width,VR_render_height);
 
-#ifndef OGL //ogl needs Screen_mode set correctly, or menus do not work.
-	if ( (sm==SCREEN_MENU) && (Screen_mode==SCREEN_GAME) && VR_compatible_menus )	{
-		sm = SCREEN_GAME;
-	}
-#endif
-
 #ifdef EDITOR
 	if ( (sm==SCREEN_MENU) && (Screen_mode==SCREEN_EDITOR) )	{
 		gr_set_current_canvas( Canv_editor );
@@ -751,7 +741,11 @@ int set_screen_mode(int sm)
 	}
 #endif
 
-        if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->sc_mode != Game_screen_mode) && (Screen_mode == SCREEN_GAME))) {
+	if ( (Screen_mode == sm) &&
+		!((sm==SCREEN_GAME) &&
+			(grd_curscreen->sc_mode != Game_screen_mode)) &&
+		!((sm==SCREEN_MENU) &&
+			(grd_curscreen->sc_mode != MENU_SCREEN_MODE)) ) {
 		gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
 #ifdef OGL
 		ogl_set_screen_mode();
@@ -3020,16 +3014,8 @@ break;
 					Game_aborted=1;
 					Function_mode=FMODE_EXIT;
 					break;
-#ifdef SHAREWARE
-				case KEY_ALTED+KEY_F2:
-				case KEY_ALTED+KEY_F3:
-					hud_message( MSGC_GAME_FEEDBACK, TXT_ONLY_REGISTERED );
-					digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
-					break;
-#else
 				case KEY_ALTED+KEY_F2:	state_save_all( 0 );		break;	// 0 means not between levels.
 				case KEY_ALTED+KEY_F3:	state_restore_all(1);		break;
-#endif
 
                                 //use function keys for window sizing
 

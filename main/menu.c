@@ -228,10 +228,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
-#ifdef SHAREWARE
-	if (get_game_list(NULL)>0)
-#endif
-
   	ADD_ITEM(TXT_LOAD_GAME,MENU_LOAD_GAME,KEY_L);
 
 #ifdef NETWORK
@@ -343,11 +339,7 @@ void do_option ( int select)
 			}
 			break;
 		case MENU_LOAD_GAME:
-#ifdef SHAREWARE
-			do_load_game_menu();
-#else
 			state_restore_all(0);	
-#endif
 			break;
 		#ifdef EDITOR
 		case MENU_EDITOR:
@@ -907,8 +899,6 @@ void change_res()
 	u_int32_t modes[12];
 	int i = 0, mc = 0, num_presets = 0;
 	char customres[16];
-	int screen_compatible = 0;
-	int use_double_buffer = 0;
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	int fullscreenc;
 #endif
@@ -916,7 +906,6 @@ void change_res()
 	u_int32_t screen_mode = 0;
 	int screen_width = 0;
 	int screen_height = 0;
-	int vr_mode = VR_NONE;
 
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x200"; m[mc].value = (Game_screen_mode == SM(320,200)); m[mc].group = 0; modes[mc] = SM(320,200); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x480"; m[mc].value = (Game_screen_mode == SM(640,480)); m[mc].group = 0; modes[mc] = SM(640,480); mc++;
@@ -974,11 +963,10 @@ void change_res()
 	if (screen_height <= 0 || screen_width <= 0)
 		return;
 
-	VR_offscreen_buffer = 0;        //Disable VR (so that VR_Screen_mode doesnt mess us up
 	Game_screen_mode = screen_mode;
 	VR_render_width  = Game_window_w = screen_width;
 	VR_render_height = Game_window_h = screen_height;
-	game_init_render_buffers(screen_mode, screen_width, screen_height, use_double_buffer, vr_mode, screen_compatible);
+	game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE);
  
 	mprintf( (0, "\nInitializing palette system..." ));
 	gr_use_palette_table( "PALETTE.256" );
@@ -992,7 +980,7 @@ void change_res()
 	vr_reset_display();
 
 	if (menu_use_game_res) {
-		gr_set_mode(SM(Game_window_w,Game_window_h));
+		gr_set_mode(SM(VR_render_width,VR_render_height));
 		set_screen_mode(SCREEN_GAME);
 	}
 }

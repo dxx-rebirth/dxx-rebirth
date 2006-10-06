@@ -18,6 +18,7 @@ profiler = int(ARGUMENTS.get('profiler', 0))
 sdl_only = int(ARGUMENTS.get('sdl_only', 0))
 no_asm = int(ARGUMENTS.get('no_asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
+shareware = int(ARGUMENTS.get('shareware', 0))
 
 # place of descent data - please change if desired
 # path must begin and end with a slash (/) + qotes and backslashes
@@ -376,7 +377,13 @@ if (editor == 1):
 	env.Append(CPPPATH = ['include/editor'])
 	common_sources = editor_sources + common_sources
 	target = 'miner'
-else:
+
+#shareware build?
+if (shareware == 1):
+	env.Append(CPPDEFINES = ['SHAREWARE'])
+	common_sources = ['main/gamesave.c', 'main/gamemine.c', 'main/snddecom.c'] + common_sources
+
+if (shareware == 0) and (editor == 0):
 	common_sources = ['main/loadrl2.c'] + common_sources
 
 # finally building program...
@@ -391,6 +398,7 @@ Help("""
 	'sharepath=DIR' Use DIR for shared game data (*NIX only). Must end with a slash.
 			Default: /usr/local/share/games/d1x/
 	'sdl_only=1' don't include OpenGL, use SDL-only instead
+	'shareware=1' build SHAREWARE version
 	'no_asm=1' don't use ASSEMBLER (only with sdl_only=1 - NOT recommended, slow)
 	'debug=1' build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1' do profiler build

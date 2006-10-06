@@ -11,231 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/state.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:43 $
  * 
  * Functions to save/restore game state.
- * 
- * $Log: state.c,v $
- * Revision 1.1.1.1  2006/03/17 19:42:43  zicodxx
- * initial import
- *
- * Revision 1.9  2003/03/09 06:41:01  donut
- * change byte typedef to sbyte to avoid conflict with win32 byte which is unsigned
- *
- * Revision 1.8  2002/03/27 00:39:57  donut
- * missed little bit of last patch
- *
- * Revision 1.7  2002/03/27 00:30:35  donut
- * show savegame thumbnail in save mode too (and refactor savegame chooser code) (patch from Steven Mueller)
- *
- * Revision 1.6  2002/03/26 05:33:14  donut
- * fix savegame thumbnail saving in OGL
- *
- * Revision 1.5  2000/11/13 07:55:34  donut
- * fix OGL level load crash
- *
- * Revision 1.4  2000/10/26 23:58:45  donut
- * increased thumbnailtext size to remove aw too big error at high res with small font
- *
- * Revision 1.3  1999/11/20 10:05:18  donut
- * variable size menu patch from Jan Bobrowski.  Variable menu font size support and a bunch of fixes for menus that didn't work quite right, by me (MPM).
- *
- * Revision 1.2  1999/06/14 23:44:12  donut
- * Orulz' svgalib/ggi/noerror patches.
- *
- * Revision 1.1.1.1  1999/06/14 22:11:39  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.14  1995/05/26  16:16:10  john
- * Split SATURN into define's for requiring cd, using cd, etc.
- * Also started adding all the Rockwell stuff.
- * 
- * Revision 2.13  1995/04/06  15:12:20  john
- * Fixed bug with lunacy not working.
- * 
- * Revision 2.12  1995/04/04  13:33:05  john
- * Removed multiplayer save.
- * 
- * Revision 2.11  1995/03/31  13:42:10  john
- * Made saved games from the bogus saturn version read in
- * correctly.
- * 
- * Revision 2.10  1995/03/31  12:45:28  john
- * Fixed bug with previous.
- * 
- * Revision 2.9  1995/03/31  12:24:40  john
- * I had changed alt_textures from a pointer to a byte. This hosed old
- * saved games, so I restored it to an int.
- * 
- * Revision 2.8  1995/03/28  11:22:47  john
- * Added cheats to save file. Changed lunacy text.
- * 
- * Revision 2.7  1995/03/27  21:41:03  john
- * Added code to verify that the proper multi save file
- * is used when restoring a network game.
- * 
- * Revision 2.6  1995/03/27  18:04:18  john
- * Made multi save/restore require the -multisave command line arg.
- * 
- * Revision 2.5  1995/03/27  17:01:52  john
- * Made deafult choice work better.
- * 
- * Revision 2.4  1995/03/27  15:49:44  john
- * Added slots to save games.
- * 
- * Revision 2.3  1995/03/27  12:59:19  john
- * Initial version of multiplayer save games.
- * 
- * Revision 2.2  1995/03/24  13:11:35  john
- * Added save game during briefing screens.
- * 
- * Revision 2.1  1995/03/21  14:38:36  john
- * Ifdef'd out the NETWORK code.
- * 
- * Revision 2.0  1995/02/27  11:27:00  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.43  1995/02/22  14:32:41  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.42  1995/02/13  20:34:33  john
- * Lintized
- * 
- * Revision 1.41  1995/02/13  10:37:30  john
- * Saved Buggin' cheat mode to save file.
- * 
- * Revision 1.40  1995/02/09  10:24:25  john
- * *** empty log message ***
- * 
- * Revision 1.39  1995/02/09  10:22:20  john
- * Fixed bug with callsign getting trashed if you copy somebody else
- * 's save game file into your directory.
- * 
- * Revision 1.38  1995/02/08  21:01:27  john
- * Closed state file around the code that shows briefing screens so that the
- * code works on machines with clean boot with only 5 file handles.
- * 
- * Revision 1.37  1995/02/07  14:02:33  john
- * Added code to verify game restore.
- * 
- * Revision 1.36  1995/02/07  11:07:43  john
- * Added hooks for confirm on game state restore.
- * 
- * Revision 1.35  1995/02/03  11:27:36  john
- * Made inbetween level save's thumbnail's have correct aspect.
- * 
- * Revision 1.34  1995/02/03  10:58:43  john
- * Added code to save shareware style saved games into new format...
- * Also, made new player file format not have the saved game array in it.
- * 
- * Revision 1.33  1995/02/02  19:40:52  john
- * Added 10 save game slots.
- * 
- * Revision 1.32  1995/02/02  12:23:20  john
- * Made between level saves have picture.
- * 
- * Revision 1.31  1995/01/31  11:21:43  john
- * Added code for fixed with menus.
- * 
- * Revision 1.30  1995/01/29  21:37:29  mike
- * initialize variables on game load so you don't drain your energy when you fire.
- * 
- * Revision 1.29  1995/01/29  13:47:58  mike
- * Restore some variables on game load (in game).
- * 
- * Revision 1.28  1995/01/26  10:46:57  john
- * Fixed bug with state names getting hosed.
- * 
- * Revision 1.27  1995/01/26  09:51:23  john
- * Fixed bug with game descriptions getting hosed.
- * 
- * Revision 1.26  1995/01/25  16:35:49  john
- * Made so that when you hit enter during
- * game save, -empty- goes away.
- * 
- * Revision 1.25  1995/01/25  15:01:39  john
- * Upped the save file version.
- * 
- * Revision 1.24  1995/01/24  20:35:35  john
- * *** empty log message ***
- * 
- * Revision 1.23  1995/01/24  20:34:24  john
- * Fixed bug with player stats not being set right for in
- * between level saves.
- * 
- * Revision 1.22  1995/01/23  10:39:03  john
- * Added mission stuff to game saves.
- * 
- * Revision 1.21  1995/01/22  16:07:12  mike
- * localization.
- * 
- * Revision 1.20  1995/01/22  15:58:32  mike
- * localization
- * 
- * Revision 1.19  1995/01/20  11:04:40  john
- * Upped state save version.
- * 
- * Revision 1.18  1995/01/19  17:00:44  john
- * Made save game work between levels.
- * 
- * Revision 1.17  1995/01/17  14:27:33  john
- * *** empty log message ***
- * 
- * Revision 1.16  1995/01/17  13:36:37  john
- * Moved pig loading into StartNewLevelSub.
- * 
- * Revision 1.15  1995/01/16  16:53:38  john
- * Added code to save cheat state during save game.
- * 
- * Revision 1.14  1995/01/15  16:55:22  john
- * Improved mine texture parsing.
- * 
- * Revision 1.13  1995/01/12  10:45:15  john
- * Added difficulty level to save/restore game.
- * 
- * Revision 1.12  1995/01/05  15:46:55  john
- * Made weapons not rearm when starting a saved game.
- * 
- * Revision 1.11  1995/01/05  11:51:45  john
- * Added better Abort game menu.
- * Made save state return success or nopt.
- * 
- * Revision 1.10  1995/01/05  11:34:51  john
- * Took out endlevel save stuff for registered.
- * 
- * Revision 1.9  1995/01/04  18:19:52  john
- * Added automap visited list saving.
- * 
- * Revision 1.8  1995/01/04  17:29:56  john
- * Made save/restore ALT+F?. Also made them not work
- * in network mode, and if recording a demo, will 
- * quit recording.
- * 
- * Revision 1.7  1995/01/04  13:18:31  john
- * Added cool 6 game save.
- * 
- * Revision 1.6  1995/01/03  20:38:46  john
- * Saved morph objects.
- * 
- * Revision 1.5  1995/01/03  20:19:29  john
- * Pretty good working version of game save.
- * 
- * Revision 1.4  1995/01/03  14:18:18  matt
- * ifdefs added to compile code add.  Added by Mike, I think.
- * 
- * Revision 1.3  1994/12/29  18:40:19  john
- * Initial version.
- * 
- * Revision 1.2  1994/12/29  15:26:40  john
- * Put in hooks for saving/restoring game state.
- * 
- * Revision 1.1  1994/12/29  15:16:02  john
- * Initial revision
- * 
  * 
  */
 
@@ -294,8 +71,6 @@ static char rcsid[] = "$Id: state.c,v 1.1.1.1 2006/03/17 19:42:43 zicodxx Exp $"
 #include "ogl_init.h"
 #endif
 
-
-#ifndef SHAREWARE
 
 #define STATE_VERSION 7
 #define STATE_COMPATIBLE_VERSION 6
@@ -369,6 +144,7 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 
 }
 
+#if 0
 void rpad_string( char * string, int max_chars )
 {
 	int i, end_found;
@@ -383,6 +159,7 @@ void rpad_string( char * string, int max_chars )
 	}
 	*string = 0;		// NULL terminate
 }
+#endif
 
 /* Present a menu for selection of a savegame filename.
  * For saving, dsc should be a pre-allocated buffer into which the new
@@ -544,7 +321,11 @@ int state_save_old_game(int slotnum, char * sg_name, player * sg_player,
 	fwrite( &temp_int, sizeof(int), 1, fp );
 
 // Save the mission info...
+#ifndef SHAREWARE
 	fwrite( &Mission_list[0], sizeof(char)*9, 1, fp );
+#else
+	fwrite( "\0\0\0\0\0\0\0\0", sizeof(char)*9, 1, fp );
+#endif
 
 //Save level info
 	temp_int = sg_player->level;
@@ -592,6 +373,7 @@ int state_save_all(int between_levels)
 {
 	char filename[128], desc[DESC_LENGTH+1];
 
+#ifndef SHAREWARE
 	if ( Game_mode & GM_MULTI )	{
 #ifdef MULTI_SAVE
 		if ( FindArg( "-multisave" ) )
@@ -601,6 +383,7 @@ int state_save_all(int between_levels)
 			hud_message( MSGC_GAME_FEEDBACK, "Can't save in a multiplayer game!" );
 		return 0;
 	}
+#endif
 
 	mprintf(( 0, "CL=%d, NL=%d\n", Current_level_num, Next_level_num ));
 	
@@ -620,12 +403,14 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	FILE * fp;
 	grs_canvas * cnv;
 
+#ifndef SHAREWARE
 	if ( Game_mode & GM_MULTI )	{
 #ifdef MULTI_SAVE
 		if ( !FindArg( "-multisave" ) ) 
 #endif  
 			return 0;
 	}
+#endif
 
 	fp = fopen( filename, "wb" );
 	if ( !fp ) {
@@ -691,7 +476,11 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	fwrite( &between_levels, sizeof(int), 1, fp );
 
 // Save the mission info...
+#ifndef SHAREWARE
 	fwrite( &Mission_list[Current_mission_num], sizeof(char)*9, 1, fp );
+#else
+	fwrite( "\0\0\0\0\0\0\0\0", sizeof(char)*9, 1, fp );
+#endif
 
 //Save level info
 	fwrite( &Current_level_num, sizeof(int), 1, fp );
@@ -891,15 +680,32 @@ int state_restore_all_sub(char *filename, int multi)
 // Read the mission info...
 	fread( mission, sizeof(char)*9, 1, fp );
 
+#ifndef SHAREWARE
 	if (!load_mission_by_name( mission ))	{
 		nm_messagebox( NULL, 1, "Ok", "Error!\nUnable to load mission\n'%s'\n", mission );
 		fclose(fp);
 		return 0;
 	}
+#else
+	if (mission[0]) {
+		nm_messagebox( NULL, 1, "Ok", "Error!\nCannot load mission '%s'\nThe shareware version only supports savegames of the shareware mission!", mission );
+		fclose(fp);
+		return 0;
+	}
+#endif
 
 //Read level info
 	fread( &current_level, sizeof(int), 1, fp );
 	fread( &next_level, sizeof(int), 1, fp );
+#ifdef SHAREWARE
+	if (current_level < 1 || current_level > Last_level ||
+		next_level < 0 || next_level > Last_level) {
+		nm_messagebox( NULL, 1, "Ok", "Error!\nCannot load level %d\nThe shareware version only supports savegames of shareware levels!",
+			between_levels? next_level:current_level);
+		fclose(fp);
+		return 0;
+	}
+#endif
 
 //Restore GameTime
 	fread( &GameTime, sizeof(fix), 1, fp );
@@ -1097,6 +903,3 @@ RetryObjectLoading:
 
 	return 1;
 }
-
-
-#endif

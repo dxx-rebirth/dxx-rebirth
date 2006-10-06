@@ -551,13 +551,10 @@ int main(int argc,char **argv)
 //added on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
 	int i, argnum=INT_MAX;
 //end addition -MM
-	int vr_mode = VR_NONE;
-	int screen_compatible = 1;
-	int use_double_buffer = 0;
 
 //added/edited on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
 //added on 9/30/98 by Matt Mueller clean up screen mode code, and add higher resolutions
-#define SCREENMODE(X,Y,C) if ( (i=FindArg( "-" #X "x" #Y ))&&(i<argnum))  {argnum=i; screen_mode = SM( X , Y );if (Inferno_verbose) printf( "Using " #X "x" #Y " ...\n" );screen_width = X;screen_height = Y;use_double_buffer = 1;screen_compatible = C;}
+#define SCREENMODE(X,Y,C) if ( (i=FindArg( "-" #X "x" #Y ))&&(i<argnum))  {argnum=i; screen_mode = SM( X , Y );if (Inferno_verbose) printf( "Using " #X "x" #Y " ...\n" );screen_width = X;screen_height = Y;}
 //aren't #defines great? :)
 
 	SCREENMODE(320,100,0);
@@ -575,13 +572,10 @@ int main(int argc,char **argv)
 	SCREENMODE(1600,1200,0);
 //end addition -MM
 		
-//added ifdefs on 9/30/98 by Matt Mueller to fix high res in linux
-	use_double_buffer = 0;
-//end addition -MM
 //added 3/24/99 by Owen Evans for screen res changing
 	Game_screen_mode = screen_mode;
 //end added -OE
-	game_init_render_buffers(screen_mode, screen_width, screen_height, use_double_buffer, vr_mode, screen_compatible);
+	game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE);
 	}
 	{
 //added/edited on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args

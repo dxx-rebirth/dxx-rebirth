@@ -11,223 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/playsave.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:10 $
  * 
  * Functions to load & save player games
- * 
- * $Log: playsave.c,v $
- * Revision 1.1.1.1  2006/03/17 19:42:10  zicodxx
- * initial import
- *
- * Revision 1.3  2003/02/16 10:44:56  donut
- * fix the weird bug where joystick fire button would do all the d1x key functions at once, when joining a udp game. (but going into config menu would fix it.)  It was due to kc_set_controls() being called before read_player_d1x, so the d1x settings weren't getting noticed.
- *
- * Revision 1.2  1999/06/14 23:44:12  donut
- * Orulz' svgalib/ggi/noerror patches.
- *
- * Revision 1.1.1.1  1999/06/14 22:11:04  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.3  1995/05/26  16:16:23  john
- * Split SATURN into define's for requiring cd, using cd, etc.
- * Also started adding all the Rockwell stuff.
- * 
- * Revision 2.2  1995/03/24  17:48:21  john
- * Made player files from saturn excrement the highest level for
- * normal descent levels.
- * 
- * Revision 2.1  1995/03/21  14:38:49  john
- * Ifdef'd out the NETWORK code.
- * 
- * Revision 2.0  1995/02/27  11:27:59  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.57  1995/02/13  20:34:55  john
- * Lintized
- * 
- * Revision 1.56  1995/02/13  13:23:24  john
- * Fixed bug with new player joystick selection.
- * 
- * Revision 1.55  1995/02/13  12:01:19  john
- * Fixed bug with joystick throttle still asking for 
- * calibration with new pilots.
- * 
- * Revision 1.54  1995/02/13  10:29:12  john
- * Fixed bug with creating new player not resetting everything to default.
- * 
- * Revision 1.53  1995/02/03  10:58:46  john
- * Added code to save shareware style saved games into new format...
- * Also, made new player file format not have the saved game array in it.
- * 
- * Revision 1.52  1995/02/02  21:09:28  matt
- * Let player start of level 8 if he made it to level 7 in the shareware
- * 
- * Revision 1.51  1995/02/02  18:50:14  john
- * Added warning for FCS when new pilot chooses.
- * 
- * Revision 1.50  1995/02/02  11:21:34  john
- * Made joystick calibrate when new user selects.
- * 
- * Revision 1.49  1995/02/01  18:06:38  rob
- * Put defaults macros into descent.tex
- * 
- * Revision 1.48  1995/01/25  14:37:53  john
- * Made joystick only prompt for calibration once...
- * 
- * Revision 1.47  1995/01/24  19:37:12  matt
- * Took out incorrect mprintf
- * 
- * Revision 1.46  1995/01/22  18:57:22  matt
- * Made player highest level work with missions
- * 
- * Revision 1.45  1995/01/21  16:36:05  matt
- * Made starting level system work for now, pending integration with
- * mission code.
- * 
- * Revision 1.44  1995/01/20  22:47:32  matt
- * Mission system implemented, though imcompletely
- * 
- * Revision 1.43  1995/01/04  14:58:39  rob
- * Fixed for shareware build.
- * 
- * Revision 1.42  1995/01/04  11:36:43  rob
- * Added compatibility with older shareware pilot files.
- * 
- * Revision 1.41  1995/01/03  11:01:58  rob
- * fixed a default macro.
- * 
- * Revision 1.40  1995/01/03  10:44:06  rob
- * Added default taunt macros.
- * 
- * Revision 1.39  1994/12/13  10:01:16  allender
- * pop up message box when unable to correctly save player file
- * 
- * Revision 1.38  1994/12/12  11:37:14  matt
- * Fixed auto leveling defaults & saving
- * 
- * Revision 1.37  1994/12/12  00:26:59  matt
- * Added support for no-levelling option
- * 
- * Revision 1.36  1994/12/10  19:09:54  matt
- * Added assert for valid player number when loading game
- * 
- * Revision 1.35  1994/12/08  10:53:07  rob
- * Fixed a bug in highest_level tracking.
- * 
- * Revision 1.34  1994/12/08  10:01:36  john
- * Changed the way the player callsign stuff works.
- * 
- * Revision 1.33  1994/12/07  18:30:38  rob
- * Load highest level along with player (used to be only if higher)
- * Capped at LAST_LEVEL in case a person loads a registered player in shareware.
- * 
- * Revision 1.32  1994/12/03  16:01:12  matt
- * When player file has bad version, force player to choose another
- * 
- * Revision 1.31  1994/12/02  19:54:00  yuan
- * Localization.
- * 
- * Revision 1.30  1994/12/02  11:01:36  yuan
- * Localization.
- * 
- * Revision 1.29  1994/11/29  03:46:28  john
- * Added joystick sensitivity; Added sound channels to detail menu.  Removed -maxchannels
- * command line arg.
- * 
- * Revision 1.28  1994/11/29  01:10:23  john
- * Took out code that allowed new players to
- * configure keyboard.
- * 
- * Revision 1.27  1994/11/25  22:47:10  matt
- * Made saved game descriptions longer
- * 
- * Revision 1.26  1994/11/22  12:10:42  rob
- * Fixed file handle left open if player file versions don't
- * match.
- * 
- * Revision 1.25  1994/11/21  19:35:30  john
- * Replaced calls to joy_init with if (joy_present)
- * 
- * Revision 1.24  1994/11/21  17:29:34  matt
- * Cleaned up sequencing & game saving for secret levels
- * 
- * Revision 1.23  1994/11/21  11:10:01  john
- * Fixed bug with read-only .plr file making the config file 
- * not update.
- * 
- * Revision 1.22  1994/11/20  19:03:08  john
- * Fixed bug with if not having a joystick, default 
- * player input device is cyberman.
- * 
- * Revision 1.21  1994/11/17  12:24:07  matt
- * Made an array the right size, to fix error loading games
- * 
- * Revision 1.20  1994/11/14  17:52:54  allender
- * add call to WriteConfigFile when player files gets written
- * 
- * Revision 1.19  1994/11/14  17:19:23  rob
- * Removed gamma, joystick calibration, and sound settings from player file.
- * Added default difficulty and multi macros.
- * 
- * Revision 1.18  1994/11/07  14:01:23  john
- * Changed the gamma correction sequencing.
- * 
- * Revision 1.17  1994/11/05  17:22:49  john
- * Fixed lots of sequencing problems with newdemo stuff.
- * 
- * Revision 1.16  1994/11/01  16:40:11  john
- * Added Gamma correction.
- * 
- * Revision 1.15  1994/10/24  19:56:50  john
- * Made the new user setup prompt for config options.
- * 
- * Revision 1.14  1994/10/24  17:44:21  john
- * Added stereo channel reversing.
- * 
- * Revision 1.13  1994/10/24  16:05:12  matt
- * Improved handling of player names that are the names of DOS devices
- * 
- * Revision 1.12  1994/10/22  00:08:51  matt
- * Fixed up problems with bonus & game sequencing
- * Player doesn't get credit for hostages unless he gets them out alive
- * 
- * Revision 1.11  1994/10/19  19:59:57  john
- * Added bonus points at the end of level based on skill level.
- * 
- * Revision 1.10  1994/10/19  15:14:34  john
- * Took % hits out of player structure, made %kills work properly.
- * 
- * Revision 1.9  1994/10/19  12:44:26  john
- * Added hours field to player structure.
- * 
- * Revision 1.8  1994/10/17  17:24:34  john
- * Added starting_level to player struct.
- * 
- * Revision 1.7  1994/10/17  13:07:15  john
- * Moved the descent.cfg info into the player config file.
- * 
- * Revision 1.6  1994/10/09  14:54:31  matt
- * Made player cockpit state & window size save/restore with saved games & automap
- * 
- * Revision 1.5  1994/10/08  23:08:09  matt
- * Added error check & handling for game load/save disk io
- * 
- * Revision 1.4  1994/10/05  17:40:54  rob
- * Bumped save_file_version to 5 due to change in player.h
- * 
- * Revision 1.3  1994/10/03  23:00:54  matt
- * New file version for shorter callsigns
- * 
- * Revision 1.2  1994/09/28  17:25:05  matt
- * Added first draft of game save/load system
- * 
- * Revision 1.1  1994/09/27  14:39:12  matt
- * Initial revision
- * 
  * 
  */
 
@@ -297,10 +82,6 @@ typedef struct save_info {
 	int	n_highest_levels;				//how many highest levels are saved
 	int	default_difficulty_level;
 	int	default_leveling_on;
-	int	VR_render_w;
-	int	VR_render_h;
-	int	Game_window_w;
-	int	Game_window_h;
 } __pack__ save_info;
 
 typedef struct hli {
@@ -324,6 +105,15 @@ hli highest_levels[MAX_MISSIONS];
 #define COMPATIBLE_SAVED_GAME_VERSION		4
 #define COMPATIBLE_PLAYER_STRUCT_VERSION	16
 
+#define ADV_WEAPON_ORDER 1
+#define NEW_KEYS 2
+#define WEAPON_KEYS 4
+#define JOYSTICK 8
+#define NEWER_KEYS 16
+#define WEAPON_ORDER 32
+#define WINDOWSIZE 64
+#define RESOLUTION 64
+
 typedef struct saved_game {
 	char		name[GAME_NAME_LEN+1];		//extra char for terminating zero
 	player	player;
@@ -339,6 +129,11 @@ typedef struct saved_game {
 saved_game saved_games[N_SAVE_SLOTS];
 
 int Default_leveling_on=1;
+
+static int Player_Game_window_w = 0;
+static int Player_Game_window_h = 0;
+static int Player_render_width = 0;
+static int Player_render_height = 0;
 
 void init_game_list()
 {
@@ -659,6 +454,46 @@ int read_player_d1x(const char *filename)
                  }
                free(line);
              }
+            else if (strstr(word,"WINDOWSIZE"))
+             {
+               free(line); free(word);
+               line=fsplitword(f,'\n');
+               word=splitword(line,'=');
+               strupr(word);
+
+                while(!strstr(word,"END") && !feof(f))
+                 {
+                    if(!strcmp(word,"WIDTH"))
+                     sscanf(line,"%i",&Player_Game_window_w);
+                    if(!strcmp(word,"HEIGHT"))
+                     sscanf(line,"%i",&Player_Game_window_h);
+                   free(line); free(word);
+                   line=fsplitword(f,'\n');
+                   word=splitword(line,'=');
+                   strupr(word);
+                 }
+               free(line);
+             }
+            else if (strstr(word,"RESOLUTION"))
+             {
+               free(line); free(word);
+               line=fsplitword(f,'\n');
+               word=splitword(line,'=');
+               strupr(word);
+
+                while(!strstr(word,"END") && !feof(f))
+                 {
+                    if(!strcmp(word,"WIDTH"))
+                     sscanf(line,"%i",&Player_render_width);
+                    if(!strcmp(word,"HEIGHT"))
+                     sscanf(line,"%i",&Player_render_height);
+                   free(line); free(word);
+                   line=fsplitword(f,'\n');
+                   word=splitword(line,'=');
+                   strupr(word);
+                 }
+               free(line);
+             }
             else if (strstr(word,"END") || feof(f))
              {
               Stop=1;
@@ -877,7 +712,7 @@ void plyr_save_stats()
 // this mess tries to preserve unknown settings in the file...
 int write_player_d1x(const char *filename)
 {
- FILE *fin, *fout;
+	FILE *fin, *fout;
  int rc=0;
  int Stop=0;
  char *line;
@@ -956,6 +791,14 @@ int write_player_d1x(const char *filename)
           fprintf(fout,"0=0x%x,0x%x\n",kconfig_d1x_settings[18],kconfig_d1x_settings[19]);
           fprintf(fout,"[end]\n");
 //end this section change - VR
+          fprintf(fout,"[windowsize]\n");
+          fprintf(fout,"width=%d\n", Game_window_w);
+          fprintf(fout,"height=%d\n", Game_window_h);
+          fprintf(fout,"[end]\n");
+          fprintf(fout,"[resolution]\n");
+          fprintf(fout,"width=%d\n", VR_render_width);
+          fprintf(fout,"height=%d\n", VR_render_height);
+          fprintf(fout,"[end]\n");
 
           fprintf(fout,"[plx version]\n");
           fprintf(fout,"plx version=%s\n",D1X_VERSION);
@@ -966,13 +809,6 @@ int write_player_d1x(const char *filename)
        else
         {
           int printed=0;
-
-#define ADV_WEAPON_ORDER 1
-#define NEW_KEYS 2
-#define WEAPON_KEYS 4
-#define JOYSTICK 8
-#define NEWER_KEYS 16
-#define WEAPON_ORDER 32
 
            while(!Stop && !feof(fin))
             {
@@ -1101,6 +937,36 @@ int write_player_d1x(const char *filename)
                   free(line);
                   printed |= JOYSTICK;
                 }
+               else if (strstr(line,"WINDOWSIZE"))
+                {
+		  fprintf(fout,"[windowsize]\n");
+		  fprintf(fout,"width=%d\n", Game_window_w);
+		  fprintf(fout,"height=%d\n", Game_window_h);
+		  fprintf(fout,"[end]\n");
+                   while(!strstr(line,"END")&&!feof(fin))
+                    {
+                      free(line);
+                      line=fsplitword(fin,'\n');
+                      strupr(line);
+                    }
+                  free(line);
+                  printed |= WINDOWSIZE;
+                }
+               else if (strstr(line,"RESOLUTION"))
+                {
+		  fprintf(fout,"[resolution]\n");
+		  fprintf(fout,"width=%d\n", VR_render_width);
+		  fprintf(fout,"height=%d\n", VR_render_height);
+		  fprintf(fout,"[end]\n");
+                   while(!strstr(line,"END")&&!feof(fin))
+                    {
+                      free(line);
+                      line=fsplitword(fin,'\n');
+                      strupr(line);
+                    }
+                  free(line);
+                  printed |= RESOLUTION;
+                }
                else if (strstr(line,"END"))
                 {
                   Stop=1;
@@ -1185,6 +1051,21 @@ int write_player_d1x(const char *filename)
               fprintf(fout,"[end]\n");
             }
 //end this section addition - VR
+           if(!(printed&WINDOWSIZE))
+            {
+	      fprintf(fout,"[windowsize]\n");
+	      fprintf(fout,"width=%d\n", Game_window_w);
+	      fprintf(fout,"height=%d\n", Game_window_h);
+	      fprintf(fout,"[end]\n");
+	    }
+
+           if(!(printed&RESOLUTION))
+            {
+	      fprintf(fout,"[resolution]\n");
+	      fprintf(fout,"width=%d\n", VR_render_width);
+	      fprintf(fout,"height=%d\n", VR_render_height);
+	      fprintf(fout,"[end]\n");
+	    }
 
           fprintf(fout,"[plx version]\n");
           fprintf(fout,"plx version=%s\n",D1X_VERSION);
@@ -1220,6 +1101,8 @@ int read_player_file()
 	FILE *file;
 	save_info info;
 	int errno_ret = EZERO;
+	int player_file_size;
+	int shareware_file = -1;
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
@@ -1244,6 +1127,20 @@ int read_player_file()
 		return errno;
 	}
 
+	// Unfortunatly d1x has been writing both shareware and registered
+	// player files with a saved_game_version of 7 and 8, whereas the
+	// original decent used 4 for shareware games and 7 for registered
+	// games. Because of this the player files didn't get properly read
+	// when reading d1x shareware player files in d1x registered or
+	// vica versa. The problem is that the sizeof of the taunt macros
+	// differ between the share and registered versions, causing the
+	// reading of the player file to go wrong. Thus we now determine the
+	// sizeof the player file to determine what kinda player file we are
+	// dealing with so that we can do the right thing
+	fseek(file, 0, SEEK_END);
+	player_file_size = ftell(file);
+	rewind(file);
+
 	if (fread(&info,sizeof(info),1,file) != 1) {
 		errno_ret = errno;
 		fclose(file);
@@ -1258,6 +1155,50 @@ int read_player_file()
 
 	if (info.saved_game_version<COMPATIBLE_SAVED_GAME_VERSION || info.player_struct_version<COMPATIBLE_PLAYER_STRUCT_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
+		fclose(file);
+		return -1;
+	}
+
+	/* determine if we're dealing with a shareware or registered playerfile */
+	switch (info.saved_game_version)
+	{
+		case 4:
+			shareware_file = 1;
+			break;
+		case 5:
+		case 6:
+			shareware_file = 0;
+			break;
+		case 7:
+			/* version 7 doesn't have the saved games array */
+			if (player_file_size == (2222 - sizeof(saved_games)))
+				shareware_file = 1;
+			if (player_file_size == (2262 - sizeof(saved_games)))
+				shareware_file = 0;
+			break;
+		case 8:
+			if (player_file_size == 2222)
+				shareware_file = 1;
+			if (player_file_size == 2262)
+				shareware_file = 0;
+			/* d1x-rebirth v0.31 to v0.42 broke things by adding stuff to the
+			   player struct without thinking (sigh) */
+			if (player_file_size == (2222 + 2*sizeof(int)))
+			{
+				shareware_file = 1;
+				/* skip the cruft added to the player_info struct */
+				fseek(file, 2*sizeof(int), SEEK_CUR);
+			}
+			if (player_file_size == (2262 + 2*sizeof(int)))
+			{
+				shareware_file = 0;
+				/* skip the cruft added to the player_info struct */
+				fseek(file, 2*sizeof(int), SEEK_CUR);
+			}
+	}
+
+	if (shareware_file == -1) {
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Error invalid or unknown playerfile-size");
 		fclose(file);
 		return -1;
 	}
@@ -1303,13 +1244,23 @@ int read_player_file()
 
 	//read taunt macros
 	{
-		int i,len;
-
-		#ifdef SHAREWARE
-		len = MAX_MESSAGE_LEN;
+		int i;
+		#if defined SHAREWARE && defined NETWORK
+		for (i = 0; i < 4; i++)
+		{
+			if (fread(Network_message_macro[i], MAX_MESSAGE_LEN, 1, file) != 1)
+				{errno_ret = errno; break;}
+			/* if this is not a shareware file, make sure what we've
+			   read is 0 terminated and skip the 10 additional bytes
+			   of the registered version */
+			if (!shareware_file)
+			{
+				Network_message_macro[i][MAX_MESSAGE_LEN-1] = 0;
+				fseek(file, 10, SEEK_CUR);
+			}
+		}
 		#else
-		len = (info.saved_game_version == 4)?SHAREWARE_MAX_MESSAGE_LEN:MAX_MESSAGE_LEN;
-		#endif
+		int len = shareware_file? 25:35;
 
 		#ifdef NETWORK
 		for (i = 0; i < 4; i++)
@@ -1318,6 +1269,7 @@ int read_player_file()
 		#else
 		i = 0;
 		fseek( file, 4*len, SEEK_CUR );
+		#endif
 		#endif
 	}
 
@@ -1344,22 +1296,25 @@ int read_player_file()
 	if (fclose(file) && errno_ret==EZERO)
 		errno_ret = errno;
 
-#ifndef SHAREWARE
-	if ( info.saved_game_version == COMPATIBLE_SAVED_GAME_VERSION ) 	{
-		int i;
+	if ( info.saved_game_version != 7 ) 	{
+		int i, found=0;
 		
 		Assert( N_SAVE_SLOTS == 10 );
 
 		for (i=0; i<N_SAVE_SLOTS; i++ )	{
 			if ( saved_games[i].name[0] )	{
 				state_save_old_game(i, saved_games[i].name, &saved_games[i].player, 
-             		saved_games[i].difficulty_level, saved_games[i].primary_weapon, 
-          			saved_games[i].secondary_weapon, saved_games[i].next_level_num );
+			saved_games[i].difficulty_level, saved_games[i].primary_weapon, 
+				saved_games[i].secondary_weapon, saved_games[i].next_level_num );
+				// make sure we do not do this again, which would possibly overwrite
+				// a new newstyle savegame
+				saved_games[i].name[0] = 0;
+				found++;
 			}
 		}
-		write_player_file();
+		if (found)
+			write_player_file();
 	}
-#endif
 
 	filename[strlen(filename) - 4] = 0;
 	strcat(filename, ".plx");
@@ -1382,11 +1337,16 @@ int read_player_file()
 		kc_set_controls();
 	}
 
-	// ZICO - also set VR_render to saved resolution because it won't get screwed up by any screen changes like window shrink etc.
-	VR_render_width = info.VR_render_w;
-	VR_render_height = info.VR_render_h;
-	Game_window_w = /*VR_render_width =*/ info.Game_window_w;
-	Game_window_h = /*VR_render_height =*/ info.Game_window_h;
+	if (Player_render_width && Player_render_height && Game_screen_mode != SM(Player_render_width, Player_render_height))
+	{
+		Game_screen_mode = SM(Player_render_width,Player_render_height);
+		game_init_render_buffers(
+			SM(Player_render_width,Player_render_height),
+			Player_render_width,
+			Player_render_height, VR_NONE);
+	}
+	Game_window_w = Player_Game_window_w;
+	Game_window_h = Player_Game_window_h;
 
 	return errno_ret;
 
@@ -1474,10 +1434,6 @@ int write_player_file()
 	info.player_struct_version = PLAYER_STRUCT_VERSION;
 	info.default_difficulty_level = Player_default_difficulty;
 	info.default_leveling_on = Auto_leveling_on;
-	info.VR_render_w = VR_render_width;/*Game_window_w*/;
-	info.VR_render_h = VR_render_height;/*Game_window_h*/;
-	info.Game_window_w = Game_window_w;
-	info.Game_window_h = Game_window_h;
 
 	info.n_highest_levels = n_highest_levels;
 

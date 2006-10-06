@@ -1102,6 +1102,17 @@ void do_briefing_screens(int level_num)
 	key_flush();
 }
 
+void show_order_form()
+{
+	show_title_screen(
+#ifdef SHAREWARE
+	"order01.pcx",
+#else
+	"warning.pcx",
+#endif
+	1);
+}
+
 #ifndef SHAREWARE
 void do_registered_end_game(void)
 {

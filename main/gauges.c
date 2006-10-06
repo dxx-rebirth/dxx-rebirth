@@ -2186,7 +2186,11 @@ void render_gauges()
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy[VR_current_page]))
 		{
-			newdemo_record_player_energy(old_energy[VR_current_page], energy);
+			newdemo_record_player_energy(
+#ifndef SHAREWARE
+				old_energy[VR_current_page],
+#endif
+				energy);
 			old_energy[VR_current_page] = energy;
 		}
 		draw_energy_bar(energy);
@@ -2198,7 +2202,11 @@ void render_gauges()
 		} else {		// Draw the shield gauge
 			if (Newdemo_state == ND_STATE_RECORDING && (shields != old_shields[VR_current_page]))
 			{
-				newdemo_record_player_shields(old_shields[VR_current_page], shields);
+				newdemo_record_player_shields(
+#ifndef SHAREWARE
+					old_shields[VR_current_page],
+#endif
+					shields);
 				old_shields[VR_current_page] = shields;
 			}
 			draw_shield_bar(shields);
@@ -2218,7 +2226,11 @@ void render_gauges()
 
 		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy[VR_current_page]))
 		{
-			newdemo_record_player_energy(old_energy[VR_current_page], energy);
+			newdemo_record_player_energy(
+#ifndef SHAREWARE
+				old_energy[VR_current_page],
+#endif
+				energy);
 			old_energy[VR_current_page] = energy;
 		}
 		sb_draw_energy_bar(energy);
@@ -2232,7 +2244,11 @@ void render_gauges()
 		{	// Draw the shield gauge
 			if (Newdemo_state == ND_STATE_RECORDING && (shields != old_shields[VR_current_page]))
 			{
-				newdemo_record_player_shields(old_shields[VR_current_page], shields);
+				newdemo_record_player_shields(
+#ifndef SHAREWARE
+					old_shields[VR_current_page],
+#endif
+					shields);
 				old_shields[VR_current_page] = shields;
 			}
 			sb_draw_shield_bar(shields);
