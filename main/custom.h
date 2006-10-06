@@ -13,7 +13,7 @@ extern ubyte * Piggy_bitmap_cache_data;
 int read_int(CFILE *f);
 short read_short(CFILE *f);
 fix read_fix(CFILE *f);
-byte read_byte(CFILE *f);
+sbyte read_byte(CFILE *f);
 
 void load_custom_data(char *level_file);
 

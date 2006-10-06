@@ -536,7 +536,7 @@ void write_matcen_text(FILE *my_file)
 void write_wall_text(FILE *my_file)
 {
 	int	i, j;
-	byte	wall_flags[MAX_WALLS];
+	sbyte	wall_flags[MAX_WALLS];
 
 	fprintf(my_file, "-----------------------------------------------------------------------------\n");
 	fprintf(my_file, "Walls:\n");
@@ -739,7 +739,7 @@ void write_game_text_file(char *filename)
 // -- }
 
 //	-----------------------------------------------------------------------------
-void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, int *tmap_buf, int *wall_buf, byte *level_tmap_buf, int max_tmap)
+void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, int *tmap_buf, int *wall_buf, sbyte *level_tmap_buf, int max_tmap)
 {
 	int	segnum, sidenum;
 	int	i, j;
@@ -836,7 +836,7 @@ void say_used_tmaps(FILE *my_file, int *tb)
 }
 
 //	-----------------------------------------------------------------------------
-void say_used_once_tmaps(FILE *my_file, int *tb, byte *tb_lnum)
+void say_used_once_tmaps(FILE *my_file, int *tb, sbyte *tb_lnum)
 {
 	int	i;
 	char	*level_name;
@@ -991,7 +991,7 @@ void dump_used_textures_level(FILE *my_file, int level_num)
 	int	i;
 	int	temp_tmap_buf[MAX_TEXTURES];
 	int	perm_tmap_buf[MAX_TEXTURES];
-	byte	level_tmap_buf[MAX_TEXTURES];
+	sbyte	level_tmap_buf[MAX_TEXTURES];
 	int	temp_wall_buf[MAX_WALL_ANIMS];
 	int	perm_wall_buf[MAX_WALL_ANIMS];
 
@@ -1017,7 +1017,7 @@ void dump_used_textures_all(void)
 	int	i;
 	int	temp_tmap_buf[MAX_TEXTURES];
 	int	perm_tmap_buf[MAX_TEXTURES];
-	byte	level_tmap_buf[MAX_TEXTURES];
+	sbyte	level_tmap_buf[MAX_TEXTURES];
 	int	temp_wall_buf[MAX_WALL_ANIMS];
 	int	perm_wall_buf[MAX_WALL_ANIMS];
 

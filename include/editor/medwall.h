@@ -90,7 +90,7 @@ extern int wall_remove_blastable();
 
 // Adds a wall. (visually)
 extern int wall_add_to_curside();
-extern int wall_add_to_markedside(byte type);
+extern int wall_add_to_markedside(sbyte type);
  
 // Removes a wall. (visually)
 extern int wall_remove();

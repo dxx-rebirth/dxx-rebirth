@@ -180,8 +180,8 @@ typedef struct wall {
 	ubyte	type; 			  	// What kind of special wall.
 	ubyte	flags;				// Flags for the wall.		
 	ubyte	state;				// Opening, closing, etc.
-	byte	trigger;				// Which trigger is associated with the wall.
-	byte	clip_num;			// Which	animation associated with the wall. 
+	sbyte	trigger;				// Which trigger is associated with the wall.
+	sbyte	clip_num;			// Which	animation associated with the wall. 
 	ubyte	keys;					// which keys are required
 	short	pad;					// keep longword aligned
 	} __pack__ wall;

@@ -249,7 +249,7 @@ void set_dynamic_light(void)
 	int	objnum,vertnum;
 	int	n_render_vertices;
 	short	render_vertices[MAX_VERTICES];
-	byte	render_vertex_flags[MAX_VERTICES];
+	sbyte	render_vertex_flags[MAX_VERTICES];
 	int	render_seg,segnum, v;
 
 	if (!Do_dynamic_light)

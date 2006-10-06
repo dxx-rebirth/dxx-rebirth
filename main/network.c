@@ -912,12 +912,12 @@ void network_stop_resync(sequence_packet *their)
 	}
 }
 
-byte object_buffer[IPX_MAX_DATA_SIZE];
+sbyte object_buffer[IPX_MAX_DATA_SIZE];
 
 void network_send_objects(void)
 {
 	short remote_objnum;
-	byte owner;
+	sbyte owner;
 	int loc, i, h;
 
 	static int obj_count = 0;
@@ -1721,7 +1721,7 @@ network_read_object_packet( ubyte *data )
 	// Object from another net player we need to sync with
 
 	short objnum, remote_objnum;
-	byte obj_owner;
+	sbyte obj_owner;
 	int segnum, i;
 	object *obj;
 
@@ -3734,7 +3734,7 @@ void network_read_pdata_packet(ubyte *data, int short_packet)
 	}
 //	mprintf((0, "Gametime = %d, Frametime = %d.\n", GameTime, FrameTime));
 
-	if ((byte)pd->level_num != Current_level_num)
+	if ((sbyte)pd->level_num != Current_level_num)
 	{
 		mprintf((0, "Got frame packet from player %d wrong level %d!\n", pd->playernum, pd->level_num));
 		return;

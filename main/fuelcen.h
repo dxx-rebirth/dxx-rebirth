@@ -208,10 +208,10 @@ typedef struct control_center_triggers {
 typedef struct FuelCenter {
 	int			Type;
 	int			segnum;
-	byte			Flag;
-	byte			Enabled;
-	byte			Lives;			//	Number of times this can be enabled.
-	byte			dum1;
+	sbyte			Flag;
+	sbyte			Enabled;
+	sbyte			Lives;			//	Number of times this can be enabled.
+	sbyte			dum1;
 	fix 			Capacity;
 	fix			MaxCapacity;
 	fix			Timer;

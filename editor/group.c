@@ -468,7 +468,7 @@ void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_flag, se
 void med_rotate_group(vms_matrix *rotmat, short *group_seglist, int group_size, segment *first_seg, int first_side)
 {
 	int			v,s, objnum;
-	byte			vertex_list[MAX_VERTICES];
+	sbyte			vertex_list[MAX_VERTICES];
 	vms_vector	rotate_center;
 
 	compute_center_point_on_side(&rotate_center, first_seg, first_side);
@@ -553,7 +553,7 @@ void create_group_list(segment *segp, short *seglistp, int *num_segs, short *ign
 #define MXV MAX_VERTICES
 
 // ------------------------------------------------------------------------------------------------
-void duplicate_group(byte *vertex_ids, short *segment_ids, int num_segments)
+void duplicate_group(sbyte *vertex_ids, short *segment_ids, int num_segments)
 {
 	int	v,s,ss,new_vertex_id,new_segment_id,sidenum;
 	short	new_segment_ids[MAX_SEGMENTS];
@@ -659,7 +659,7 @@ int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *gr
 	segment		*segp;
 	int 			c;
         int                     gs_index=0;
-	byte			in_vertex_list[MAX_VERTICES];
+	sbyte			in_vertex_list[MAX_VERTICES];
 	vms_matrix	rotmat;
 	int			objnum;
 
@@ -813,7 +813,7 @@ int med_move_group(int delta_flag, segment *base_seg, int base_side, segment *gr
 	int			v,vv,s,ss,c,d;
 	vms_vector	srcv,destv;
 	segment		*segp, *csegp, *dsegp;
-	byte			in_vertex_list[MAX_VERTICES], out_vertex_list[MAX_VERTICES];
+	sbyte			in_vertex_list[MAX_VERTICES], out_vertex_list[MAX_VERTICES];
 	int			local_hvi;
 	vms_matrix	rotmat;
 
@@ -1601,7 +1601,7 @@ int SaveGroup()
 	// Save group
 	int i, s, v;
 	char  ErrorMessage[200];
-	byte	vertex_list[MAX_VERTICES];
+	sbyte	vertex_list[MAX_VERTICES];
 
 	if (current_group == -1)
 		{

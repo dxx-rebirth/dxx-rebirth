@@ -147,7 +147,7 @@ int Config_midi_type = 0;
 int Config_vr_type = 0;
 int Config_vr_tracking = 0;
 
-extern byte	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
+extern sbyte	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
 
 void set_custom_detail_vars(void);
 

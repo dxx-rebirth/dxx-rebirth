@@ -219,7 +219,7 @@ ogl_ubitmapm_cs (
 }
 
 typedef struct span {
-	byte l,r;
+	sbyte l,r;
 } span;
 
 //store delta x values from left of box

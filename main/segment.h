@@ -164,7 +164,7 @@ typedef struct uvl {
 
 #ifdef COMPACT_SEGS
 typedef struct side {
-	byte		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
+	sbyte		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
 	ubyte		pad;									//keep us longword alligned
 	short		wall_num;
 	short		tmap_num;
@@ -174,7 +174,7 @@ typedef struct side {
 } __pack__ side;
 #else
 typedef struct side {
-	byte		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
+	sbyte		type;									// replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
 	ubyte		pad;									//keep us longword alligned
 	short		wall_num;
 	short		tmap_num;
@@ -196,7 +196,7 @@ typedef struct segment {
 	#endif
 	short		objects;								// pointer to objects in this segment
 	ubyte		special;								// special property of a segment (such as damaging, trigger, etc.)
-	byte		matcen_num;							//	which center segment is associated with.
+	sbyte		matcen_num;							//	which center segment is associated with.
 	short		value;
 	fix		static_light;						//average static light in segment
 	#ifndef	EDITOR
@@ -234,7 +234,7 @@ extern	segment		Segments[];
 extern	int			Num_segments;
 extern	int			Num_vertices;
 
-extern	byte		Side_to_verts[MAX_SIDES_PER_SEGMENT][4];	// Side_to_verts[my_side] is list of vertices forming side my_side.
+extern	sbyte		Side_to_verts[MAX_SIDES_PER_SEGMENT][4];	// Side_to_verts[my_side] is list of vertices forming side my_side.
 extern	int		Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];	// Side_to_verts[my_side] is list of vertices forming side my_side.
 extern	char		Side_opposite[];									// Side_opposite[my_side] returns side opposite cube from my_side.
 

@@ -310,7 +310,7 @@ int get_num_faces(side *sidep)
 void get_side_verts(short *vertlist,int segnum,int sidenum)
 {
 	int	i;
-	byte  *sv = Side_to_verts[sidenum];
+	sbyte  *sv = Side_to_verts[sidenum];
 	short	*vp = Segments[segnum].verts;
 
 	for (i=4; i--;)
@@ -1122,7 +1122,7 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
-	byte		visited[MAX_SEGMENTS];
+	sbyte		visited[MAX_SEGMENTS];
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
@@ -1270,7 +1270,7 @@ fcd_done1: ;
 //--unused-- 	return rval;
 //--unused-- }
 
-byte convert_to_byte(fix f)
+sbyte convert_to_byte(fix f)
 {
 	if (f >= 0x00010000)
 		return MATRIX_MAX;
@@ -1298,7 +1298,7 @@ void create_shortpos(shortpos *spp, object *objp)
 void create_shorterpos(shorterpos *spp, object *objp)
 {
 	// int	segnum;
-	byte	*sp;
+	sbyte	*sp;
 
 	sp = spp->bytemat;
 
@@ -1351,7 +1351,7 @@ void extract_shortpos(object *objp, shortpos *spp)
 void extract_shorterpos(object *objp, shorterpos *spp)
 {
 	int	segnum;
-	byte	*sp;
+	sbyte	*sp;
 
 	sp = spp->bytemat;
 

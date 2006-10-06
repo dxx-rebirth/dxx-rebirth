@@ -224,9 +224,9 @@ static char rcsid[] = "$Id: medwall.c,v 1.1.1.1 2006/03/17 19:45:52 zicodxx Exp 
 #include "centers.h"
 #include "piggy.h"
 
-int wall_add_door_flag(byte flag);
-int wall_add_to_side(segment *segp, int side, byte type);
-int wall_remove_door_flag(byte flag);
+int wall_add_door_flag(sbyte flag);
+int wall_add_to_side(segment *segp, int side, sbyte type);
+int wall_remove_door_flag(sbyte flag);
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
@@ -586,7 +586,7 @@ void close_wall_window()
 void do_wall_window()
 {
 	int i;
-	byte type;
+	sbyte type;
 	fix DeltaTime, Temp;
 
 	if ( MainWindow == NULL ) return;
@@ -919,7 +919,7 @@ int wall_remove()
 
 //---------------------------------------------------------------------
 // Add a wall to curside
-int wall_add_to_side(segment *segp, int side, byte type)
+int wall_add_to_side(segment *segp, int side, sbyte type)
 {
 	int connectside;
 	segment *csegp;
@@ -985,7 +985,7 @@ int wall_add_to_side(segment *segp, int side, byte type)
 
 //---------------------------------------------------------------------
 // Add a wall to markedside
-int wall_add_to_markedside(byte type)
+int wall_add_to_markedside(sbyte type)
 {
 	int Connectside;
 	segment *csegp;
@@ -1042,7 +1042,7 @@ int wall_add_to_markedside(byte type)
 }
 
 
-int wall_add_door_flag(byte flag)
+int wall_add_door_flag(sbyte flag)
 {
 	int Connectside;
 	segment *csegp;
@@ -1069,7 +1069,7 @@ int wall_add_door_flag(byte flag)
 	return 1;
 }
 
-int wall_remove_door_flag(byte flag)
+int wall_remove_door_flag(sbyte flag)
 {
 	int Connectside;
 	segment *csegp;
@@ -1506,7 +1506,7 @@ void check_wall_validity(void)
 {
 	int	i, j;
 	int	segnum, sidenum, wall_num;
-	byte	wall_flags[MAX_WALLS];
+	sbyte	wall_flags[MAX_WALLS];
 
 	if (!Validate_walls)
 		return;

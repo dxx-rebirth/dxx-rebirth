@@ -8,7 +8,7 @@
 //#define swapshort(x) x
 //end edit -MM
 
-byte out_buffer[IPX_MAX_DATA_SIZE];		// used for tmp netgame packets as well as sending object data
+sbyte out_buffer[IPX_MAX_DATA_SIZE];		// used for tmp netgame packets as well as sending object data
 extern frame_info 	MySyncPack;
 void send_d1x_netgame_packet(ubyte *server, ubyte *node);
 void receive_d1x_netgame_packet(ubyte *data, netgame_info *netgame);

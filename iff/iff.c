@@ -206,7 +206,7 @@ extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 #define mskHasTransparentColor 2
 
 //Palette entry structure
-typedef struct pal_entry {byte r,g,b;} pal_entry;
+typedef struct pal_entry {sbyte r,g,b;} pal_entry;
 
 //structure of the header in the file
 typedef struct iff_bitmap_header {
@@ -215,9 +215,9 @@ typedef struct iff_bitmap_header {
 	short type;						//see types above
 	short transparentcolor;		//which color is transparent (if any)
 	short pagewidth,pageheight; //width & height of source screen
-	byte nplanes;					//number of planes (8 for 256 color image)
-	byte masking,compression;	//see constants above
-	byte xaspect,yaspect;		//aspect ratio (usually 5/6)
+	sbyte nplanes;					//number of planes (8 for 256 color image)
+	sbyte masking,compression;	//see constants above
+	sbyte xaspect,yaspect;		//aspect ratio (usually 5/6)
 	pal_entry palette[256];		//the palette for this bitmap
 	ubyte *raw_data;				//ptr to array of data
 	short row_size;				//offset to next row
@@ -749,11 +749,11 @@ int iff_parse_ilbm_pbm(FFILE *ifile,long form_type,iff_bitmap_header *bmheader,i
 int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 {
 	int x,y,p;
-	byte *new_data,*destptr,*rowptr;
+	sbyte *new_data,*destptr,*rowptr;
 	int bytes_per_row,byteofs;
 	ubyte checkmask,newbyte,setbit;
 
-	MALLOC( new_data, byte, bmheader->w * bmheader->h );
+	MALLOC( new_data, sbyte, bmheader->w * bmheader->h );
 	if (new_data == NULL) return IFF_NO_MEM;
 
 	destptr = new_data;
@@ -860,7 +860,7 @@ void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
 //allocate the memory
-int iff_parse_bitmap(FFILE *ifile,grs_bitmap *bm,int bitmap_type,byte *palette,grs_bitmap *prev_bm)
+int iff_parse_bitmap(FFILE *ifile,grs_bitmap *bm,int bitmap_type,sbyte *palette,grs_bitmap *prev_bm)
 {
 	int ret;			//return code
 	iff_bitmap_header bmheader;
@@ -954,7 +954,7 @@ done:
 
 //like iff_read_bitmap(), but reads into a bitmap that already exists,
 //without allocating memory for the bitmap. 
-int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm,byte *palette)
+int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm,sbyte *palette)
 {
 	int ret;			//return code
 	FFILE ifile;

@@ -128,8 +128,8 @@ int get_new_seg(vms_vector *p0,int startseg);
 
 typedef struct segmasks {
    short facemask;     //which faces sphere pokes through (12 bits)
-   byte  sidemask;     //which sides sphere pokes through (6 bits)
-   byte  centermask;   //which sides center point is on back of (6 bits)
+   sbyte  sidemask;     //which sides sphere pokes through (6 bits)
+   sbyte  centermask;   //which sides center point is on back of (6 bits)
 } segmasks;
 
 extern int	Highest_vertex_index;			// Highest index in Vertices and Vertex_active, an efficiency hack

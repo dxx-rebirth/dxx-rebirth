@@ -213,7 +213,7 @@ typedef struct player {
 	// Who am I data
 	char		callsign[CALLSIGN_LEN+1];	// The callsign of this player, for net purposes.
 	ubyte		net_address[6];				// The network address of the player.
-	byte		connected; 						//	Is the player connected or not?
+	sbyte		connected; 						//	Is the player connected or not?
 	int		objnum;							// What object number this player is. (made an int by mk because it's very often referenced)
 	int		n_packets_got;					// How many packets we got from them
 	int		n_packets_sent;				// How many packets we sent to them
@@ -225,9 +225,9 @@ typedef struct player {
 	fix		energy;							// Amount of energy remaining.
 	fix		shields;							// shields remaining (protection) 
 	ubyte		lives;							// Lives remaining, 0 = game over.
-	byte		level;							// Current level player is playing. (must be signed for secret levels)
+	sbyte		level;							// Current level player is playing. (must be signed for secret levels)
 	ubyte		laser_level;					//	Current level of the laser.
-	byte     starting_level;				// What level the player started on.
+	sbyte     starting_level;				// What level the player started on.
 	short	 	killer_objnum;					// Who killed me.... (-1 if no one)
 	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
 	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
@@ -256,8 +256,8 @@ typedef struct player {
 	ubyte		hostages_on_board;			//	Number of hostages on ship.
 	ubyte		hostages_level;				// Number of hostages on this level.
 	fix		homing_object_dist;			//	Distance of nearest homing object.
-	byte		hours_level;					// Hours played (since time_total can only go up to 9 hours)
-	byte		hours_total;					// Hours played (since time_total can only go up to 9 hours)
+	sbyte		hours_level;					// Hours played (since time_total can only go up to 9 hours)
+	sbyte		hours_total;					// Hours played (since time_total can only go up to 9 hours)
 } __pack__ player;
 
 #define N_PLAYER_GUNS 8

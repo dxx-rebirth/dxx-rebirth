@@ -146,7 +146,7 @@ unsigned char multibuf2[MAX_MULTI_MESSAGE_LEN+4];
 
 short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
 short local_to_remote[MAX_OBJECTS]; 
-byte  object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
+sbyte  object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
 
 int 	Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int 	Net_create_loc = 0;  // pointer into previous array
@@ -412,7 +412,7 @@ int objnum_remote_to_local(int remote_objnum, int owner)
 	return(result);
 }
 
-int objnum_local_to_remote(int local_objnum, byte *owner)
+int objnum_local_to_remote(int local_objnum, sbyte *owner)
 {
 	// Map a local object number to a remote + owner
 
@@ -1714,7 +1714,7 @@ multi_do_fire(char *buf)
 {
 	ubyte weapon;
 	int pnum;
-	byte flags;
+	sbyte flags;
 	fix save_charge = Fusion_charge;
     
 	// Act out the actual shooting
@@ -2160,12 +2160,12 @@ multi_do_kill(char *buf)
 	killed = Players[pnum].objnum;			
 	count += 1;
 #else
-	killed = objnum_remote_to_local(*(short *)(buf+count), (byte)buf[count+2]);
+	killed = objnum_remote_to_local(*(short *)(buf+count), (sbyte)buf[count+2]);
 	count += 3;
 #endif
 	killer = *(short *)(buf+count); 
 	if (killer > 0)
-		killer = objnum_remote_to_local(killer, (byte)buf[count+2]);
+		killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
 
 #ifdef SHAREWARE
 	if ((Objects[killed].type != OBJ_PLAYER) && (Objects[killed].type != OBJ_GHOST))
@@ -2185,7 +2185,7 @@ multi_do_kill(char *buf)
 // which means not a controlcen object, but contained in another object
 void multi_do_controlcen_destroy(char *buf)
 {
-	byte who;
+	sbyte who;
 	short objnum;
 
 	objnum = *(short *)(buf+1);
@@ -2248,7 +2248,7 @@ multi_do_remobj(unsigned char *buf)
 {
 	short objnum; // which object to remove
 	short local_objnum;
-	byte obj_owner; // which remote list is it entered in
+	sbyte obj_owner; // which remote list is it entered in
 
 	objnum = *(short *)(buf+1);
 	obj_owner = buf[3];
@@ -3232,14 +3232,14 @@ multi_send_kill(int objnum)
 #ifndef SHAREWARE
 	multibuf[1] = Player_num;					count += 1;
 #else
-	*(short *)(multibuf+count) = (short)objnum_local_to_remote(objnum, (byte *)&multibuf[count+2]);
+	*(short *)(multibuf+count) = (short)objnum_local_to_remote(objnum, (sbyte *)&multibuf[count+2]);
 	count += 3;
 #endif
 
 	Assert(Objects[objnum].id == Player_num);
 	killer_objnum = Players[Player_num].killer_objnum;
 	if (killer_objnum > -1)
-		*(short *)(multibuf+count) = (short)objnum_local_to_remote(killer_objnum, (byte *)&multibuf[count+2]);
+		*(short *)(multibuf+count) = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]);
 	else
 	{
 		*(short *)(multibuf+count) = -1;
@@ -3261,7 +3261,7 @@ multi_send_remobj(int objnum)
 {
 	// Tell the other guy to remove an object from his list
 
-	byte obj_owner;
+	sbyte obj_owner;
 	short remote_objnum;
 
 	multibuf[0] = (char)MULTI_REMOVE_OBJECT;
@@ -3339,7 +3339,7 @@ multi_send_door_open(int segnum, int side)
 	multi_send_data(multibuf, 7, 1);
 #else
 	*(short *)(multibuf+1) = (short)segnum;
-	multibuf[3] = (byte)side;
+	multibuf[3] = (sbyte)side;
 	multi_send_data(multibuf, 4, 1);
 #endif
 
@@ -3359,7 +3359,7 @@ multi_send_create_explosion(int pnum)
 	int count = 0;
 
 	multibuf[count] = MULTI_CREATE_EXPLOSION; 	count += 1;
-	multibuf[count] = (byte)pnum;					count += 1;
+	multibuf[count] = (sbyte)pnum;					count += 1;
 	//													-----------
 	//													Total size = 2
 

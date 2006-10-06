@@ -425,9 +425,9 @@ int pick_connected_segment(object *objp, int max_depth)
 	int		start_seg;
 	int		head, tail;
 	int		seg_queue[QUEUE_SIZE*2];
-	byte		visited[MAX_SEGMENTS];
-	byte		depth[MAX_SEGMENTS];
-	byte		side_rand[MAX_SIDES_PER_SEGMENT];
+	sbyte		visited[MAX_SEGMENTS];
+	sbyte		depth[MAX_SEGMENTS];
+	sbyte		side_rand[MAX_SIDES_PER_SEGMENT];
 
 //	mprintf((0, "Finding a segment %i segments away from segment %i: ", max_depth, objp->segnum));
 
@@ -446,7 +446,7 @@ int pick_connected_segment(object *objp, int max_depth)
 	while (tail != head) {
 		int		sidenum;
 		segment	*segp;
-		byte		ind1, ind2, temp;
+		sbyte		ind1, ind2, temp;
 
 		if (cur_depth >= max_depth) {
 //			mprintf((0, "selected segment %i\n", seg_queue[tail]));

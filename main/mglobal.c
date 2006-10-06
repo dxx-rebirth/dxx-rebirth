@@ -223,7 +223,7 @@ char	Side_opposite[MAX_SIDES_PER_SEGMENT] = {WRIGHT, WBOTTOM, WLEFT, WTOP, WFRON
 #define encrypt(a,b,c,d) { a,b,c,d }
 #endif
 
-byte Side_to_verts[MAX_SIDES_PER_SEGMENT][4] = {
+sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4] = {
 			encrypt(7,6,2,3),			// left
 			encrypt(0,4,7,3),			// top
 			encrypt(0,1,5,4),			// right

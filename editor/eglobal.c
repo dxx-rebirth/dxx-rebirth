@@ -164,7 +164,7 @@ int		Markedside;					// Marked side on Markedsegp.
 
 int		Draw_all_segments;		// Set to 1 means draw_world draws all segments in Segments, else draw only connected segments
 
-byte		Vertex_active[MAX_VERTICES];	// !0 means vertex is in use, 0 means not in use.
+sbyte		Vertex_active[MAX_VERTICES];	// !0 means vertex is in use, 0 means not in use.
 
 int		N_selected_segs=0;							// Number of segments found at Selected_segs
 short		Selected_segs[MAX_SELECTED_SEGS];		// List of segment numbers currently selected
@@ -177,7 +177,7 @@ short		Found_segs[MAX_FOUND_SEGS];				// List of warning-worthy segments
 
 int		Show_axes_flag=0;								// 0 = don't show, !0 = do show coordinate axes in *Cursegp orientation
 
-byte		Been_visited[MAX_SEGMENTS];				//	List of segments visited in a recursive search, if element n set, segment n done been visited
+sbyte		Been_visited[MAX_SEGMENTS];				//	List of segments visited in a recursive search, if element n set, segment n done been visited
 
 // Variables global to this editor.c and the k?????.c files.
 uint        Update_flags = UF_ALL;  //force total redraw

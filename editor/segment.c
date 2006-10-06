@@ -236,7 +236,7 @@ void copy_side_except_vertex_ids(side *destside, side *sourceside)
 
 //	[side] [index] [cur:next]
 //	To remap the vertices on a side after a forward rotation
-byte xlate_previous[6][4][2] = {
+sbyte xlate_previous[6][4][2] = {
 { {7, 3}, {3, 2}, {2, 6}, {6, 7} },		// remapping left to left
 { {5, 4}, {4, 0}, {7, 3}, {6, 7} },		// remapping back to top
 { {5, 4}, {1, 5}, {0, 1}, {4, 0} },		// remapping right to right
@@ -266,7 +266,7 @@ void remap_vertices_previous(segment *segp, int sidenum)
 	}
 }
 
-byte xlate_previous_right[6][4][2] = {
+sbyte xlate_previous_right[6][4][2] = {
 { {5, 6}, {6, 7}, {2, 3}, {1, 2} },		// bottom to left
 { {6, 7}, {7, 4}, {3, 0}, {2, 3} },		// left to top
 { {7, 4}, {4, 5}, {0, 1}, {3, 0} },		// top to right
@@ -1019,7 +1019,7 @@ void compress_segments(void)
 //	Combine duplicate vertices.
 //	If two vertices have the same coordinates, within some small tolerance, then assign
 //	the same vertex number to the two vertices, freeing up one of the vertices.
-void med_combine_duplicate_vertices(byte *vlp)
+void med_combine_duplicate_vertices(sbyte *vlp)
 {
 	int	v,w;
 

@@ -197,9 +197,9 @@ static short read_fixang(CFILE *file)
 	return f;
 }
 
-/*static*/ byte read_byte(CFILE *file)
+/*static*/ sbyte read_byte(CFILE *file)
 {
-	byte b;
+	sbyte b;
 
 	if (cfread( &b, sizeof(b), 1, file) != 1)
 		Error( "Error reading byte in gamesave.c" );

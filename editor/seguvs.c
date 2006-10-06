@@ -257,7 +257,7 @@ fix get_average_light_at_vertex(int vnum, short *segs)
 			for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 				if (!IS_CHILD(segp->children[sidenum])) {
 					side	*sidep = &segp->sides[sidenum];
-					byte	*vp = Side_to_verts[sidenum];
+					sbyte	*vp = Side_to_verts[sidenum];
 					int	v;
 
 					for (v=0; v<4; v++)
@@ -306,7 +306,7 @@ void set_average_light_at_vertex(int vnum)
 			for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 				if (!IS_CHILD(segp->children[sidenum])) {
 					side *sidep = &segp->sides[sidenum];
-					byte	*vp = Side_to_verts[sidenum];
+					sbyte	*vp = Side_to_verts[sidenum];
 					int	v;
 
 					for (v=0; v<4; v++)
@@ -372,7 +372,7 @@ void set_average_light_on_all_fast(void)
 						for (si=0; si<MAX_SIDES_PER_SEGMENT; si++) {
 							if (!IS_CHILD(segp->children[si])) {
 								side	*sidep = &segp->sides[si];
-								byte	*vp = Side_to_verts[si];
+								sbyte	*vp = Side_to_verts[si];
 								int	vv;
 
 								for (vv=0; vv<4; vv++)
@@ -409,7 +409,7 @@ void set_average_light_on_all_fast(void)
 					wid_result = WALL_IS_DOORWAY(segp, sidenum);
 					if ((wid_result != WID_FLY_FLAG) && (wid_result != WID_NO_WALL)) {
 						side *sidep = &segp->sides[sidenum];
-						byte	*vp = Side_to_verts[sidenum];
+						sbyte	*vp = Side_to_verts[sidenum];
 						int	v;
 
 						for (v=0; v<4; v++)
@@ -659,12 +659,12 @@ void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, int va, 
 	vms_matrix	rotmat;
 	uvl			uvls[4],ruvmag,fuvmag,uvlo,uvhi;
 	fix			fmag,mag01;
-	byte			*vp;
+	sbyte			*vp;
 
 	Assert( (va<4) && (vb<4) );
 	Assert((abs(va - vb) == 1) || (abs(va - vb) == 3));		// make sure the verticies specify an edge
 
-	vp = (byte *)&Side_to_verts[sidenum];
+	vp = (sbyte *)&Side_to_verts[sidenum];
 
 	// We want vlo precedes vhi, ie vlo < vhi, or vlo = 3, vhi = 0
 	if (va == ((vb + 1) % 4)) {		// va = vb + 1
@@ -769,7 +769,7 @@ int Vmag = VMAG;
 void assign_default_uvs_to_side(segment *segp,int side)
 {
 	uvl			uv0,uv1;
-	byte			*vp;
+	sbyte			*vp;
 
 	uv0.u = 0;
 	uv0.v = 0;
@@ -1050,7 +1050,7 @@ void propagate_tmaps_to_segment_side(segment *base_seg, int base_side, segment *
 
 }
 
-byte	Edge_between_sides[MAX_SIDES_PER_SEGMENT][MAX_SIDES_PER_SEGMENT][2] = {
+sbyte	Edge_between_sides[MAX_SIDES_PER_SEGMENT][MAX_SIDES_PER_SEGMENT][2] = {
 //		left		top		right		bottom	back		front
 	{ {-1,-1}, { 3, 7}, {-1,-1}, { 2, 6}, { 6, 7}, { 2, 3} },	// left
 	{ { 3, 7}, {-1,-1}, { 0, 4}, {-1,-1}, { 4, 7}, { 0, 3} },	// top
@@ -1241,7 +1241,7 @@ fix	Magical_light_constant = (F1_0*16);
 //int	Bugseg = 27;
 
 typedef struct {
-	byte			flag, hit_type;
+	sbyte			flag, hit_type;
 	vms_vector	vector;
 } hash_info;
 

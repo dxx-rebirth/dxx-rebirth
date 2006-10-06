@@ -94,8 +94,8 @@ ubyte AltSounds[MAX_SOUNDS];
 
 int Num_total_object_types;
 
-byte	ObjType[MAX_OBJTYPE];
-byte	ObjId[MAX_OBJTYPE];
+sbyte	ObjType[MAX_OBJTYPE];
+sbyte	ObjId[MAX_OBJTYPE];
 fix	ObjStrength[MAX_OBJTYPE];
 
 //for each model, a model number for dying & dead variants, or -1 if none
@@ -202,8 +202,8 @@ void bm_read_all(CFILE * fp)
 	cfread( AltSounds, sizeof(ubyte), MAX_SOUNDS, fp );
 
 	cfread( &Num_total_object_types, sizeof(int), 1, fp );
-	cfread( ObjType, sizeof(byte), MAX_OBJTYPE, fp );
-	cfread( ObjId, sizeof(byte), MAX_OBJTYPE, fp );
+	cfread( ObjType, sizeof(sbyte), MAX_OBJTYPE, fp );
+	cfread( ObjId, sizeof(sbyte), MAX_OBJTYPE, fp );
 	cfread( ObjStrength, sizeof(fix), MAX_OBJTYPE, fp );
 
 	cfread( &First_multi_bitmap_num, sizeof(int), 1, fp );

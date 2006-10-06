@@ -499,17 +499,17 @@ int do_difficulty_menu()
 int	Max_debris_objects, Max_objects_onscreen_detailed;
 int	Max_linear_depth_objects;
 
-byte	Object_complexity=2, Object_detail=2;
-byte	Wall_detail=2, Wall_render_depth=2, Debris_amount=2, SoundChannels = 2;
+sbyte	Object_complexity=2, Object_detail=2;
+sbyte	Wall_detail=2, Wall_render_depth=2, Debris_amount=2, SoundChannels = 2;
 
-byte	Render_depths[NUM_DETAIL_LEVELS-1] =								{ 6,  9, 12, 15, 20};
-byte	Max_perspective_depths[NUM_DETAIL_LEVELS-1] =					{ 1,  2,  3,  5,  8};
-byte	Max_linear_depths[NUM_DETAIL_LEVELS-1] =							{ 3,  5,  7, 10, 17};
-byte	Max_linear_depths_objects[NUM_DETAIL_LEVELS-1] =				{ 1,  2,  3,  5, 12};
-byte	Max_debris_objects_list[NUM_DETAIL_LEVELS-1] =					{ 2,  4,  7, 10, 15};
-byte	Max_objects_onscreen_detailed_list[NUM_DETAIL_LEVELS-1] =	{ 2,  4,  7, 10, 15};
-byte	Smts_list[NUM_DETAIL_LEVELS-1] =										{ 2,  4,  8, 16, 50};	//	threshold for models to go to lower detail model, gets multiplied by obj->size
-byte	Max_sound_channels[NUM_DETAIL_LEVELS-1] =							{ 2,  4,  8, 12, 16};
+sbyte	Render_depths[NUM_DETAIL_LEVELS-1] =								{ 6,  9, 12, 15, 20};
+sbyte	Max_perspective_depths[NUM_DETAIL_LEVELS-1] =					{ 1,  2,  3,  5,  8};
+sbyte	Max_linear_depths[NUM_DETAIL_LEVELS-1] =							{ 3,  5,  7, 10, 17};
+sbyte	Max_linear_depths_objects[NUM_DETAIL_LEVELS-1] =				{ 1,  2,  3,  5, 12};
+sbyte	Max_debris_objects_list[NUM_DETAIL_LEVELS-1] =					{ 2,  4,  7, 10, 15};
+sbyte	Max_objects_onscreen_detailed_list[NUM_DETAIL_LEVELS-1] =	{ 2,  4,  7, 10, 15};
+sbyte	Smts_list[NUM_DETAIL_LEVELS-1] =										{ 2,  4,  8, 16, 50};	//	threshold for models to go to lower detail model, gets multiplied by obj->size
+sbyte	Max_sound_channels[NUM_DETAIL_LEVELS-1] =							{ 2,  4,  8, 12, 16};
 
 //	-----------------------------------------------------------------------------
 //	Set detail level based stuff.

@@ -1304,7 +1304,7 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 			Laser_player_fire( objp, FUSION_ID, 0, 1, 0);
 			Laser_player_fire( objp, FUSION_ID, 1, 1, 0);
 
-			flags = (byte)(Fusion_charge >> 12);
+			flags = (sbyte)(Fusion_charge >> 12);
 
 			Fusion_charge = 0;
 

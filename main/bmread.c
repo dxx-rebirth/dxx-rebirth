@@ -161,7 +161,7 @@ static short 		sound_num;
 static short 		frames;
 static float 		time;
 static int			hit_sound = -1;
-static byte 		bm_flag = BM_NONE;
+static sbyte 		bm_flag = BM_NONE;
 static int 			abm_flag = 0;
 static int 			rod_flag = 0;
 static short		wall_open_sound, wall_close_sound,wall_explodes,wall_blastable, wall_hidden;
@@ -699,7 +699,7 @@ void bm_close()
 }
 #endif
 
-void set_lighting_flag(byte *bp)
+void set_lighting_flag(sbyte *bp)
 {
 	if (vlighting < 0)
 		*bp |= BM_FLAG_NO_LIGHTING;
@@ -987,7 +987,7 @@ void get4fix(fix *fixp)
 }
 
 // ------------------------------------------------------------------------------
-void get4byte(byte *bytep)
+void get4byte(sbyte *bytep)
 {
 	char	*curtext;
 	int	i;
@@ -2025,8 +2025,8 @@ void bm_write_all(FILE *fp)
 	fwrite( AltSounds, sizeof(ubyte), MAX_SOUNDS, fp );
 
 	fwrite( &Num_total_object_types, sizeof(int), 1, fp );
-	fwrite( ObjType, sizeof(byte), MAX_OBJTYPE, fp );
-	fwrite( ObjId, sizeof(byte), MAX_OBJTYPE, fp );
+	fwrite( ObjType, sizeof(sbyte), MAX_OBJTYPE, fp );
+	fwrite( ObjId, sizeof(sbyte), MAX_OBJTYPE, fp );
 	fwrite( ObjStrength, sizeof(fix), MAX_OBJTYPE, fp );
 
 	fwrite( &First_multi_bitmap_num, sizeof(int), 1, fp );

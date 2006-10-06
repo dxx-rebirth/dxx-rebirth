@@ -88,7 +88,7 @@ int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palett
 
 //like iff_read_bitmap(), but reads into a bitmap that already exists,
 //without allocating memory for the bitmap. 
-int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm,byte *palette);
+int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm,sbyte *palette);
 
 //read in animator brush (.abm) file
 //fills in array of pointers, and n_bitmaps.

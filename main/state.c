@@ -342,9 +342,9 @@ int state_save_old_game(int slotnum, char * sg_name, player * sg_player,
 
 // Save the current weapon info
 	temp_byte = sg_primary_weapon;
-	fwrite( &temp_byte, sizeof(byte), 1, fp );
+	fwrite( &temp_byte, sizeof(sbyte), 1, fp );
 	temp_byte = sg_secondary_weapon;
-	fwrite( &temp_byte, sizeof(byte), 1, fp );
+	fwrite( &temp_byte, sizeof(sbyte), 1, fp );
 
 // Save the difficulty level
 	temp_int = sg_difficulty_level;
@@ -493,8 +493,8 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	fwrite( &Players[Player_num], sizeof(player), 1, fp );
 
 // Save the current weapon info
-	fwrite( &Primary_weapon, sizeof(byte), 1, fp );
-	fwrite( &Secondary_weapon, sizeof(byte), 1, fp );
+	fwrite( &Primary_weapon, sizeof(sbyte), 1, fp );
+	fwrite( &Secondary_weapon, sizeof(sbyte), 1, fp );
 
 // Save the difficulty level
 	fwrite( &Difficulty_level, sizeof(int), 1, fp );
@@ -746,8 +746,8 @@ int state_restore_all_sub(char *filename, int multi)
 		Players[Player_num].level = next_level;
 
 // Restore the weapon states
-	fread( &Primary_weapon, sizeof(byte), 1, fp );
-	fread( &Secondary_weapon, sizeof(byte), 1, fp );
+	fread( &Primary_weapon, sizeof(sbyte), 1, fp );
+	fread( &Secondary_weapon, sizeof(sbyte), 1, fp );
 
 	select_weapon(Primary_weapon, 0, 0, 0);
 	select_weapon(Secondary_weapon, 1, 0, 0);

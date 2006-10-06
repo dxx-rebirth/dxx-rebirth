@@ -149,10 +149,10 @@ typedef struct robot_info {
 	short 		exp2_vclip_num;
 	short			exp2_sound_num;
 	short			weapon_type;
-	byte			contains_id;						//	ID of powerup this robot can contain.
-	byte			contains_count;					//	Max number of things this instance can contain.
-	byte			contains_prob;						//	Probability that this instance will contain something in N/16
-	byte			contains_type;						//	Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
+	sbyte			contains_id;						//	ID of powerup this robot can contain.
+	sbyte			contains_count;					//	Max number of things this instance can contain.
+	sbyte			contains_prob;						//	Probability that this instance will contain something in N/16
+	sbyte			contains_type;						//	Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
 	int			score_value;						//	Score from this robot.
 	fix			lighting;							// should this be here or with polygon model?
 	fix			strength;							// Initial shields of robot
@@ -168,11 +168,11 @@ typedef struct robot_info {
 	fix		max_speed[NDL];						//	maximum speed attainable by this robot
 	fix		circle_distance[NDL];				//	distance at which robot circles player
 
-	byte		rapidfire_count[NDL];				//	number of shots fired rapidly
-	byte		evade_speed[NDL];						//	rate at which robot can evade shots, 0=none, 4=very fast
-	byte		cloak_type;								//	0=never, 1=always, 2=except-when-firing
-	byte		attack_type;							//	0=firing, 1=charge (like green guy)
-	byte		boss_flag;								//	0 = not boss, 1 = boss.  Is that surprising?
+	sbyte		rapidfire_count[NDL];				//	number of shots fired rapidly
+	sbyte		evade_speed[NDL];						//	rate at which robot can evade shots, 0=none, 4=very fast
+	sbyte		cloak_type;								//	0=never, 1=always, 2=except-when-firing
+	sbyte		attack_type;							//	0=firing, 1=charge (like green guy)
+	sbyte		boss_flag;								//	0 = not boss, 1 = boss.  Is that surprising?
 	ubyte		see_sound;								//	sound robot makes when it first sees the player
 	ubyte		attack_sound;							//	sound robot makes when it attacks the player
 	ubyte		claw_sound;								//	sound robot makes as it claws you (attack_type should be 1)

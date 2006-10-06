@@ -330,7 +330,7 @@ int	Attack_scale = 24;
 #define	ANIM_RATE		(F1_0/16)
 #define	DELTA_ANG_SCALE	16
 
-byte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
+sbyte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
 int	john_cheats_index_2;		//	PORGYS		high speed weapon firing
 
 // int	No_ai_flag=0;
@@ -413,7 +413,7 @@ int				ai_evaded=0;
 // 23 super boss
 
 // byte	Super_boss_gate_list[] = {0, 1, 2, 9, 11, 16, 18, 19, 21, 22, 0, 9, 9, 16, 16, 18, 19, 19, 22, 22};
-byte	Super_boss_gate_list[] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
+sbyte	Super_boss_gate_list[] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
 #define	MAX_GATE_INDEX	( sizeof(Super_boss_gate_list) / sizeof(Super_boss_gate_list[0]) )
 #endif
 
@@ -421,7 +421,7 @@ int	Ai_info_enabled=0;
 int	Robot_firing_enabled = 1;
 
 extern	int	Ugly_robot_cheat, Ugly_robot_texture, Laser_rapid_fire;
-extern	byte	Enable_john_cheat_1, Enable_john_cheat_2, Enable_john_cheat_3, Enable_john_cheat_4;
+extern	sbyte	Enable_john_cheat_1, Enable_john_cheat_2, Enable_john_cheat_3, Enable_john_cheat_4;
 
 ubyte	john_cheats_3[2*JOHN_CHEATS_SIZE_3+1] = { KEY_Y ^ 0x67, 
 																KEY_E ^ 0x66, 
@@ -501,7 +501,7 @@ int	Ai_animation_test=0;
 //	 Third dimension is goal state.
 //	Result is new goal state.
 //	ERR_ means something impossible has happened.
-byte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
+sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
 	{
 	//	Event = AIE_FIRE, a nearby object fired
 	//	none			rest			srch			lock			flin			fire			reco				// CURRENT is rows, GOAL is columns
@@ -742,7 +742,7 @@ int	Lunacy = 0;
 int	Diff_save = 1;
 
 fix	Firing_wait_copy[MAX_ROBOT_TYPES];
-byte	Rapidfire_count_copy[MAX_ROBOT_TYPES];
+sbyte	Rapidfire_count_copy[MAX_ROBOT_TYPES];
 
 void do_lunacy_on(void)
 {
@@ -3622,7 +3622,7 @@ void create_awareness_event(object *objp, int type)
 	}
 }
 
-byte	New_awareness[MAX_SEGMENTS];
+sbyte	New_awareness[MAX_SEGMENTS];
 
 // ----------------------------------------------------------------------------------
 void pae_aux(int segnum, int type, int level)

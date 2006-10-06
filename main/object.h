@@ -336,7 +336,7 @@ extern int Num_rendered_objects;
 
 //	A compressed form for sending crucial data about via slow devices, such as modems and buggies.
 typedef struct shortpos {
-	byte	bytemat[9];
+	sbyte	bytemat[9];
 	short	xo,yo,zo;
 	short	segment;
 	short velx, vely, velz;
@@ -347,7 +347,7 @@ typedef struct shortpos {
 //notice that it is the same as short pos minus the vel info.
 //this is important for modified shortpos funcs
 typedef struct shorterpos {
-	byte	bytemat[9];
+	sbyte	bytemat[9];
 	short	xo,yo,zo;
 	short	segment;
 } __pack__ shorterpos;
@@ -403,7 +403,7 @@ typedef struct powerup_info {
 typedef struct vclip_info {
 	int			vclip_num;
 	fix			frametime;
-	byte			framenum;
+	sbyte			framenum;
 } __pack__ vclip_info;
 
 //structures for different kinds of rendering
@@ -432,10 +432,10 @@ typedef struct object {
 	fix			size;				// 3d size of object - for collision detection
 	fix			shields; 		// Starts at maximum, when <0, object dies..
 	vms_vector  last_pos;		// where object was last frame
-	byte			contains_type;	//	Type of object this object contains (eg, spider contains powerup)
-	byte			contains_id;	//	ID of object this object contains (eg, id = blue type = key)
-	byte			contains_count;// number of objects of type:id this object contains
-	byte			matcen_creator;//	Materialization center that created this object, high bit set if matcen-created
+	sbyte			contains_type;	//	Type of object this object contains (eg, spider contains powerup)
+	sbyte			contains_id;	//	ID of object this object contains (eg, id = blue type = key)
+	sbyte			contains_count;// number of objects of type:id this object contains
+	sbyte			matcen_creator;//	Materialization center that created this object, high bit set if matcen-created
 	fix			lifeleft;		// how long until goes away, or 7fff if immortal
 	
 

@@ -324,7 +324,7 @@ extern        int             AttachSide;                             //      Si
 extern        int             Draw_all_segments;      // Set to 1 means draw_world draws all segments in Segments, else draw only connected segments
 extern        segment *Markedsegp;                    // Marked segment, used in conjunction with *Cursegp to form joints.
 extern        int             Markedside;                             // Marked side on Markedsegp.
-extern        byte            Vertex_active[MAX_VERTICES];    // !0 means vertex is in use, 0 means not in use.
+extern        sbyte            Vertex_active[MAX_VERTICES];    // !0 means vertex is in use, 0 means not in use.
 
 extern        grs_canvas *Pad_text_canvas;            // Keypad text
 
@@ -364,7 +364,7 @@ extern int is_free_vertex(int vi);
 //    Set existing vertex vnum to value *vp.
 extern        int med_set_vertex(int vnum,vms_vector *vp);
 
-extern void med_combine_duplicate_vertices(byte *vlp);
+extern void med_combine_duplicate_vertices(sbyte *vlp);
 
 // Attach side newside of newseg to side destside of destseg.
 // Copies *newseg into global array Segments, increments Num_segments.
@@ -719,7 +719,7 @@ extern        int     Lock_view_to_cursegp;                   // !0 means whenev
 extern        int     Num_tilings;                                            // number of tilings/wall
 extern        int     Degenerate_segment_found;
 
-extern        byte    Been_visited[];                                 //      List of segments visited in a recursive search, if element n set, segment n done been visited
+extern        sbyte    Been_visited[];                                 //      List of segments visited in a recursive search, if element n set, segment n done been visited
 
 // Initializes autosave system.
 // Sets global Autosave_count to 0.

@@ -598,8 +598,8 @@ void show_cursor()
 typedef struct Sprite {
 	ushort width;
 	ushort height;
-	byte *pixels;
-	byte *mask;
+	sbyte *pixels;
+	sbyte *mask;
 } Sprite;
 
 //Sprite mouse_sprite = { cursor_width, cursor_height, cursor_bits, cursor_mask_bits};

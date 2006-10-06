@@ -288,8 +288,8 @@ void init_textures();
 #define	MAX_OBJTYPE			100
 
 extern int Num_total_object_types;		//	Total number of object types, including robots, hostages, powerups, control centers, faces
-extern byte	ObjType[MAX_OBJTYPE];		// Type of an object, such as Robot, eg if ObjType[11] == OL_ROBOT, then object #11 is a robot
-extern byte	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
+extern sbyte	ObjType[MAX_OBJTYPE];		// Type of an object, such as Robot, eg if ObjType[11] == OL_ROBOT, then object #11 is a robot
+extern sbyte	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if ObjType[11] == 3, then object #11 is the third robot
 extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
 #define MAX_OBJ_BITMAPS				210

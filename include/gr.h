@@ -301,8 +301,8 @@ old_grs_font;
 typedef struct _grs_bitmap {
 	short       bm_x,bm_y;      // Offset from parent's origin
 	short       bm_w,bm_h;      // width,height
-	byte       	bm_type;        // 0=Linear, 1=ModeX, 2=SVGA
-	byte		bm_flags;		// bit 0 on means it has transparency.
+	sbyte       	bm_type;        // 0=Linear, 1=ModeX, 2=SVGA
+	sbyte		bm_flags;		// bit 0 on means it has transparency.
 								// bit 1 on means it has supertransparency
 								// bit 2 on means it doesn't get passed through lighting.
 	short	    bm_rowsize;     // unsigned char offset to next row
@@ -315,7 +315,7 @@ typedef struct _grs_bitmap {
 	unsigned short bm_selector;
 	#endif
 	ubyte			avg_color;	//	Average color of all pixels in texture map.
-	byte			unused;		//	to 4-byte align.
+	sbyte			unused;		//	to 4-byte align.
 
 #ifdef D1XD3D
 	void		*pvSurface;
@@ -594,7 +594,7 @@ int gr_uaaline(fix x0,fix y0,fix x1,fix y1);
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(int x,int y,grs_bitmap *bm);
 void gr_ubitmap(int x,int y,grs_bitmap *bm);
-inline void scale_line(byte *in, byte *out, int ilen, int olen);
+inline void scale_line(sbyte *in, sbyte *out, int ilen, int olen);
 void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst);
 void show_fullscr(grs_bitmap *bm);
 

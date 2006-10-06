@@ -16,22 +16,22 @@
 //Start old wall structures
 
 typedef struct v16_wall {
-	byte  type; 			  	// What kind of special wall.
-	byte	flags;				// Flags for the wall.		
+	sbyte  type; 			  	// What kind of special wall.
+	sbyte	flags;				// Flags for the wall.		
 	fix   hps;				  	// "Hit points" of the wall. 
-	byte	trigger;				// Which trigger is associated with the wall.
-	byte	clip_num;			// Which	animation associated with the wall. 
-	byte	keys;
+	sbyte	trigger;				// Which trigger is associated with the wall.
+	sbyte	clip_num;			// Which	animation associated with the wall. 
+	sbyte	keys;
 	} __pack__ v16_wall;
 
 typedef struct v19_wall {
 	int	segnum,sidenum;	// Seg & side for this wall
-	byte	type; 			  	// What kind of special wall.
-	byte	flags;				// Flags for the wall.		
+	sbyte	type; 			  	// What kind of special wall.
+	sbyte	flags;				// Flags for the wall.		
 	fix   hps;				  	// "Hit points" of the wall. 
-	byte	trigger;				// Which trigger is associated with the wall.
-	byte	clip_num;			// Which	animation associated with the wall. 
-	byte	keys;
+	sbyte	trigger;				// Which trigger is associated with the wall.
+	sbyte	clip_num;			// Which	animation associated with the wall. 
+	sbyte	keys;
 	int	linked_wall;		// number of linked wall
 	} __pack__ v19_wall;
 

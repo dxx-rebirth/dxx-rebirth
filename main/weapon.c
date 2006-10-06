@@ -37,7 +37,7 @@ int Primary_ammo_max[MAX_PRIMARY_WEAPONS] = {0, VULCAN_AMMO_MAX, 0, 0, 0};
 ubyte Secondary_ammo_max[MAX_SECONDARY_WEAPONS] = {20, 10, 10, 5, 5};
 weapon_info Weapon_info[MAX_WEAPON_TYPES];
 int	N_weapon_types=0;
-byte	Primary_weapon, Secondary_weapon;
+sbyte	Primary_weapon, Secondary_weapon;
 
 char	*Primary_weapon_names_short[MAX_PRIMARY_WEAPONS] = {
 	"Laser",

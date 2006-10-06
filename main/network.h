@@ -474,7 +474,7 @@ void network_send_game_info(sequence_packet *their, int light);
 typedef struct endlevel_info {
         ubyte                                   type;
         ubyte                                   player_num;
-        byte                                    connected;
+        sbyte                                    connected;
         short                                   kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
         short                                   kills;
         short                                   killed;

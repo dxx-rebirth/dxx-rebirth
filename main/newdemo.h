@@ -191,7 +191,7 @@ extern int NewdemoFrameCount;
 extern int Newdemo_game_mode;
 
 extern int Newdemo_vcr_state;
-extern byte Newdemo_do_interpolate;
+extern sbyte Newdemo_do_interpolate;
 
 //Does demo start automatically?
 extern int Auto_demo;
@@ -237,7 +237,7 @@ extern void newdemo_record_restore_rearview(void);
 
 #ifndef SHAREWARE
 extern void newdemo_record_multi_death(int pnum);
-extern void newdemo_record_multi_kill(int pnum, byte kill);
+extern void newdemo_record_multi_kill(int pnum, sbyte kill);
 extern void newdemo_record_multi_connect(int pnum, int new_player, char *new_callsign);
 extern void newdemo_record_multi_reconnect(int pnum);
 extern void newdemo_record_multi_disconnect(int pnum);
@@ -248,7 +248,7 @@ extern void newdemo_record_secondary_ammo(int old_ammo, int new_ammo);
 extern void newdemo_record_door_opening(int segnum, int side);
 #endif
 
-extern void newdemo_record_laser_level(byte old_level, byte new_level);
+extern void newdemo_record_laser_level(sbyte old_level, sbyte new_level);
 
 // Functions called during playback process...
 extern void newdemo_object_move_all();

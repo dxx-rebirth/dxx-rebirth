@@ -69,7 +69,7 @@ typedef unsigned char u_char;  // ehhh?
 #endif
 
 //define a byte 
-typedef signed char byte;
+typedef signed char sbyte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
