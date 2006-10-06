@@ -60,22 +60,11 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:44:27 zicodxx Exp 
 #include "menu.h"
 #include "args.h"
 #include "key.h"
-
-//added on 2/4/99 by Victor Rachels for new weapon selectable keys
+#include "gr.h"
 #include "reorder.h"
-//end this section addition
-
-//added on 9/2/98 by Matt Mueller
 #include "d_delay.h"
-//end addition -MM
-
-//added on 3/12/99 by VR to screw with sporbs
 #include "physics.h"
-//end this section addition - VR
-
-//added on 4/16/99 by VR to add alt vulcan fire
 #include "vlcnfire.h"
-//end this section addition - VR
 
 // Array used to 'blink' the cursor while waiting for a keypress.
 byte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
@@ -83,7 +72,7 @@ byte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,2
 int invert_text[2] = { TNUM_N, TNUM_Y };
 char *joybutton_text[JOY_MAX_BUTTONS];
 char *joyaxis_text[JOY_MAX_AXES];
-int mouseaxis_text[2] = { TNUM_L_R, TNUM_F_B };
+int mouseaxis_text[3] = { TNUM_L_R, TNUM_F_B, TNUM_MID };
 int mousebutton_text[3] = { TNUM_LEFT, TNUM_RIGHT, TNUM_MID };
 char * mousebutton_textra[13] = { "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };//text for buttons above 3. -MPM
 
@@ -92,6 +81,7 @@ char * mousebutton_textra[13] = { "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11
 ubyte system_keys[] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN };
 
 //extern void GameLoop(int, int );
+extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 control_info Controls;
 
@@ -103,11 +93,8 @@ ubyte Config_joystick_sensitivity = 8;
 
 fix Cruise_speed=0;
 
-
-//added/edited on 11/01/98 by Victor Rachels for primary/secondary autotoggle
 int Allow_primary_cycle=1;
 int Allow_secondary_cycle=1;
-//end this section edit - Victor Rachels
 
 #define BT_KEY                  0
 #define BT_MOUSE_BUTTON 	1
@@ -632,59 +619,59 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	if ( items == kc_keyboard )
 	{
-	gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-	gr_setcolor( BM_XRGB(31,27,6) );
-	gr_scanline( 98*scale, 106*scale, 42*scale );
-	gr_scanline( 120*scale, 128*scale, 42*scale );
-	gr_pixel( 98*scale, 43*scale );
-	gr_pixel( 98*scale, 44*scale );
-	gr_pixel( 128*scale, 43*scale );
-	gr_pixel( 128*scale, 44*scale );
-	gr_string( 109*scale, 40*scale, "OR" );
-	gr_scanline( 253*scale, 261*scale, 42*scale );
-	gr_scanline( 274*scale, 283*scale, 42*scale );
-	gr_pixel( 253*scale, 43*scale );
-	gr_pixel( 253*scale, 44*scale );
-	gr_pixel( 283*scale, 43*scale );
-	gr_pixel( 283*scale, 44*scale );
-	gr_string( 264*scale, 40*scale, "OR" );
+		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+		gr_setcolor( BM_XRGB(31,27,6) );
+		gr_scanline( 98*scale, 106*scale, 42*scale );
+		gr_scanline( 120*scale, 128*scale, 42*scale );
+		gr_pixel( 98*scale, 43*scale );
+		gr_pixel( 98*scale, 44*scale );
+		gr_pixel( 128*scale, 43*scale );
+		gr_pixel( 128*scale, 44*scale );
+		gr_string( 109*scale, 40*scale, "OR" );
+		gr_scanline( 253*scale, 261*scale, 42*scale );
+		gr_scanline( 274*scale, 283*scale, 42*scale );
+		gr_pixel( 253*scale, 43*scale );
+		gr_pixel( 253*scale, 44*scale );
+		gr_pixel( 283*scale, 43*scale );
+		gr_pixel( 283*scale, 44*scale );
+		gr_string( 264*scale, 40*scale, "OR" );
 	}
 	else if ( items == kc_joystick )
 	{
-	gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-	gr_setcolor( BM_XRGB(31,27,6) );
-	gr_scanline( 18*scale, 135*scale, 37*scale );
-	gr_scanline( 181*scale, 294*scale, 37*scale );
-	gr_scanline( 18*scale, 144*scale, (122+10)*scale ); //122 was 119
-	gr_scanline( 174*scale, 294*scale, (122+10)*scale ); //122 was 119 
-	gr_string( 0x8000, 35*scale, TXT_BUTTONS );
-	gr_string( 0x8000,(120+10)*scale, TXT_AXES );  //120 was 117
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-	gr_string( 81*scale, 137*scale, TXT_AXIS );
-	gr_string( 111*scale, 137*scale, TXT_INVERT );
-	gr_string( 222*scale, 137*scale, TXT_AXIS );
-	gr_string( 252*scale, 137*scale, TXT_INVERT );
+		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+		gr_setcolor( BM_XRGB(31,27,6) );
+		gr_scanline( 18*scale, 135*scale, 37*scale );
+		gr_scanline( 181*scale, 294*scale, 37*scale );
+		gr_scanline( 18*scale, 144*scale, (122+10)*scale ); //122 was 119
+		gr_scanline( 174*scale, 294*scale, (122+10)*scale ); //122 was 119 
+		gr_string( 0x8000, 35*scale, TXT_BUTTONS );
+		gr_string( 0x8000,(120+10)*scale, TXT_AXES );  //120 was 117
+		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+		gr_string( 81*scale, 137*scale, TXT_AXIS );
+		gr_string( 111*scale, 137*scale, TXT_INVERT );
+		gr_string( 222*scale, 137*scale, TXT_AXIS );
+		gr_string( 252*scale, 137*scale, TXT_INVERT );
 	}
 	else if ( items == kc_mouse )
 	{
-	gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-	gr_setcolor( BM_XRGB(31,27,6) );
-	gr_scanline( 18*scale, 135*scale, 37*scale );
-	gr_scanline( 181*scale, 294*scale, 37*scale );
-	gr_scanline( 18*scale, 144*scale, (119+5)*scale );
-	gr_scanline( 174*scale, 294*scale, (119+5)*scale );
-	gr_string( 0x8000, 35*scale, TXT_BUTTONS );
-	gr_string( 0x8000,(117+5)*scale, TXT_AXES );
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-	gr_string( 169*scale, 129*scale, TXT_AXIS );
-	gr_string( 199*scale, 129*scale, TXT_INVERT );
+		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+		gr_setcolor( BM_XRGB(31,27,6) );
+		gr_scanline( 18*scale, 135*scale, 37*scale );
+		gr_scanline( 181*scale, 294*scale, 37*scale );
+		gr_scanline( 18*scale, 144*scale, (119+5)*scale );
+		gr_scanline( 174*scale, 294*scale, (119+5)*scale );
+		gr_string( 0x8000, 35*scale, TXT_BUTTONS );
+		gr_string( 0x8000,(117+5)*scale, TXT_AXES );
+		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+		gr_string( 169*scale, 129*scale, TXT_AXIS );
+		gr_string( 199*scale, 129*scale, TXT_INVERT );
 	}
 	else if ( items == kc_d1x )
 	{
-	gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-	gr_setcolor( BM_XRGB(31,27,6) );
-	gr_string( 94*scale, 40*scale, "KB");
-	gr_string(121*scale, 40*scale, "JOY");
+		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+		gr_setcolor( BM_XRGB(31,27,6) );
+		gr_string( 94*scale, 40*scale, "KB");
+		gr_string(121*scale, 40*scale, "JOY");
 	}
 	
 	for (i=0; i<nitems; i++ )
@@ -769,15 +756,15 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 #endif
 				citem = items[citem].d; 
 				break;
-		case KEY_LEFT:
-		case KEY_PAD4:
+			case KEY_LEFT:
+			case KEY_PAD4:
 #ifdef TABLE_CREATION
 				if (items[citem].l==-1) items[citem].l=find_next_item_left( items,nitems, citem);
 #endif
 				citem = items[citem].l; 
 				break;
-		case KEY_RIGHT:
-		case KEY_PAD6:
+			case KEY_RIGHT:
+			case KEY_PAD6:
 #ifdef TABLE_CREATION
 				if (items[citem].r==-1) items[citem].r=find_next_item_right( items,nitems, citem);
 #endif
@@ -899,12 +886,12 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 				newmenu_hide_cursor();
 				switch( items[citem].type )	{
-				case BT_KEY:				kc_change_key( &items[citem] ); break;
-				case BT_MOUSE_BUTTON:	kc_change_mousebutton( &items[citem] ); break;
-				case BT_MOUSE_AXIS: 		kc_change_mouseaxis( &items[citem] ); break;
-				case BT_JOY_BUTTON: 		kc_change_joybutton( &items[citem] ); break;
-				case BT_JOY_AXIS: 		kc_change_joyaxis( &items[citem] ); break;
-				case BT_INVERT: 			kc_change_invert( &items[citem] ); break;
+					case BT_KEY:		kc_change_key( &items[citem] ); break;
+					case BT_MOUSE_BUTTON:	kc_change_mousebutton( &items[citem] ); break;
+					case BT_MOUSE_AXIS: 	kc_change_mouseaxis( &items[citem] ); break;
+					case BT_JOY_BUTTON: 	kc_change_joybutton( &items[citem] ); break;
+					case BT_JOY_AXIS: 	kc_change_joyaxis( &items[citem] ); break;
+					case BT_INVERT: 	kc_change_invert( &items[citem] ); break;
 				}
 				newmenu_show_cursor();
 			} else {
@@ -952,20 +939,20 @@ void kc_drawitem( kc_item *item, int is_current )
 	{
 		switch(item->text_num1-N_TEXT_STRINGS)
 		{
-		case 0:  gr_string( item->x*scale, item->y*scale,"CYC PRIMARY"); break;
-		case 1:  gr_string( item->x*scale, item->y*scale,"CYC SECONDARY"); break;
-		case 2:  gr_string( item->x*scale, item->y*scale,"TOGGLE PRIM AUTO"); break;
-		case 3:  gr_string( item->x*scale, item->y*scale,"TOGGLE SEC AUTO"); break;
-		case 4:  gr_string( item->x*scale, item->y*scale,"WEAPON 1"); break;
-		case 5:  gr_string( item->x*scale, item->y*scale,"WEAPON 2"); break;
-		case 6:  gr_string( item->x*scale, item->y*scale,"WEAPON 3"); break;
-		case 7:  gr_string( item->x*scale, item->y*scale,"WEAPON 4"); break;
-		case 8:  gr_string( item->x*scale, item->y*scale,"WEAPON 5"); break;
-		case 9:  gr_string( item->x*scale, item->y*scale,"WEAPON 6"); break;
-		case 10: gr_string( item->x*scale, item->y*scale,"WEAPON 7"); break;
-		case 11: gr_string( item->x*scale, item->y*scale,"WEAPON 8"); break;
-		case 12: gr_string( item->x*scale, item->y*scale,"WEAPON 9"); break;
-		case 13: gr_string( item->x*scale, item->y*scale,"WEAPON 0"); break;
+			case 0:  gr_string( item->x*scale, item->y*scale,"CYC PRIMARY"); break;
+			case 1:  gr_string( item->x*scale, item->y*scale,"CYC SECONDARY"); break;
+			case 2:  gr_string( item->x*scale, item->y*scale,"TOGGLE PRIM AUTO"); break;
+			case 3:  gr_string( item->x*scale, item->y*scale,"TOGGLE SEC AUTO"); break;
+			case 4:  gr_string( item->x*scale, item->y*scale,"WEAPON 1"); break;
+			case 5:  gr_string( item->x*scale, item->y*scale,"WEAPON 2"); break;
+			case 6:  gr_string( item->x*scale, item->y*scale,"WEAPON 3"); break;
+			case 7:  gr_string( item->x*scale, item->y*scale,"WEAPON 4"); break;
+			case 8:  gr_string( item->x*scale, item->y*scale,"WEAPON 5"); break;
+			case 9:  gr_string( item->x*scale, item->y*scale,"WEAPON 6"); break;
+			case 10: gr_string( item->x*scale, item->y*scale,"WEAPON 7"); break;
+			case 11: gr_string( item->x*scale, item->y*scale,"WEAPON 8"); break;
+			case 12: gr_string( item->x*scale, item->y*scale,"WEAPON 9"); break;
+			case 13: gr_string( item->x*scale, item->y*scale,"WEAPON 0"); break;
 		}
 	}
 
@@ -980,27 +967,6 @@ void kc_drawitem( kc_item *item, int is_current )
 				strncpy( btext, item->value<=3?Text_string[mousebutton_text[item->value]]:mousebutton_textra[item->value-3], 10 ); break;
 			case BT_MOUSE_AXIS:
 				strncpy( btext, Text_string[mouseaxis_text[item->value]], 10 ); break;
-// 			case BT_JOY_BUTTON:
-// //added/changed 9/6/98 Matt Mueller -> #endif
-// // #ifdef __LINUX__
-// // 				sprintf( btext, "J%d B%d", j_button[item->value].joydev, j_Get_joydev_button_number (item->value) );
-// // #else
-// 				if ( joybutton_text[item->value] !=-1 )
-// 					strncpy( btext, Text_string[ joybutton_text[item->value]  ], 10 );
-// 				else
-// 					sprintf( btext, "BTN%d", item->value );
-// // #endif
-// 				break;
-// 			case BT_JOY_AXIS:
-// //added/changed 9/6/98 Matt Mueller -> #endif
-// // #ifdef __LINUX__
-// // 				sprintf( btext, "J%d A%d", j_axis[item->value].joydev, j_Get_joydev_axis_number (item->value) );
-// // #else
-// 				strncpy( btext, Text_string[joyaxis_text[item->value]], 10 );
-// // #endif
-// 				break;
-
-
 			case BT_JOY_BUTTON:
 				if (joybutton_text[item->value])
 					strncpy(btext, joybutton_text[item->value], 10);
@@ -1109,7 +1075,7 @@ void kc_change_key( kc_item * item )
 	kc_drawitem( item, 1 );
 	gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
 
-	nm_restore_background( 0, INFO_Y, GWIDTH-10, grd_curcanv->cv_font->ft_h );
+	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 
 	game_flush_inputs();
 
@@ -1144,10 +1110,6 @@ void kc_change_joybutton( kc_item * item )
 
 		kc_drawquestion( item );
 
-//added/changed 9/6/98 Matt Mueller + 9/19/98 Owen Evans-> #endif
-// #ifdef __LINUX__
-// 		for (i = 0; i < j_num_buttons; i++) {
-// #else
 		if (Config_control_type==CONTROL_THRUSTMASTER_FCS)	{
 
 			int axis[JOY_NUM_AXES];
@@ -1158,12 +1120,10 @@ void kc_change_joybutton( kc_item * item )
 			if ( joy_get_button_state(15) ) code = 15;
 			if ( joy_get_button_state(19) ) code = 19;
 			for (i=0; i<4; i++ )	{
-// #endif
 				if ( joy_get_button_state(i) )
 					code = i;
 			}
-//added/changed 9/6/98 Matt Mueller -> #endif
-// #ifndef __LINUX__
+
 		} else if (Config_control_type==CONTROL_FLIGHTSTICK_PRO) {
 			for (i=4; i<20; i++ )	{
 				if ( joy_get_button_state(i)  )	{
@@ -1172,13 +1132,12 @@ void kc_change_joybutton( kc_item * item )
 				}
 			}
 		} else {
-//added/changed 3/7/99 Owen Evans (next line)
+
                         for (i=0; i<JOY_MAX_BUTTONS; i++ )    {
 				if ( joy_get_button_state(i) )
 					code = i;
 			}
 		}
-// #endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1191,7 +1150,7 @@ void kc_change_joybutton( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, INFO_Y, GWIDTH-10, grd_curcanv->cv_font->ft_h );
+	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 }
 
@@ -1241,22 +1200,15 @@ void kc_change_mousebutton( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, INFO_Y, GWIDTH-10, grd_curcanv->cv_font->ft_h );
+	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 
 }
 
 void kc_change_joyaxis( kc_item * item )
 {
-//added/changed 9/6/98 Matt Mueller -> #endif
-// #ifdef __LINUX__
-// 	int axis[32];
-// 	int old_axis[32];
-// #else
-// //added/changed 3/7/99 Owen Evans -> #endif
 	int axis[JOY_NUM_AXES];
 	int old_axis[JOY_NUM_AXES];
-// #endif
 	int n,i,k;
 	ubyte code;
 
@@ -1289,23 +1241,11 @@ void kc_change_joyaxis( kc_item * item )
 
 		joystick_read_raw_axis( JOY_ALL_AXIS, axis );
 		
-//added/changed 9/6/98 Matt Mueller + 9/19/98 Owen Evans -> #endif
-// #ifdef __LINUX__
-// 		for (i = 0; i < j_num_axes; i++)
-// 		{
-// 			if (abs (axis[i] - old_axis[i]) > ((j_axis[i].max_val - j_axis[i].min_val) / 32))
-// 			{
-// #else
-//added/changed 3/17/99 Owen Evans
-//added/edited on 9/6/99 by Victor Rachels for better config
-//-unneeded-           joy_get_cal_vals(temp_min, temp_center, temp_max);
 				for (i=0; i<JOY_NUM_AXES; i++ )
 				{
 					axis[i] = joy_get_scaled_reading(axis[i],i);
 					if(axis[i])    //-was- if (abs(axis[i] - old_axis[i]) > ((temp_max[i] - temp_min[i]) / 32))
-//end this section addition/edit - VR
 					{
-// #endif
 						code = i;
 					}
                    			old_axis[i] = axis[i];
@@ -1323,7 +1263,7 @@ void kc_change_joyaxis( kc_item * item )
 				item->value = code;
 			}
 			kc_drawitem( item, 1 );
-			nm_restore_background( 0, INFO_Y, GWIDTH-10, grd_curcanv->cv_font->ft_h );
+			nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 			game_flush_inputs();
 
 		}
@@ -1333,6 +1273,9 @@ void kc_change_mouseaxis( kc_item * item )
 	int i,n,k;
 	ubyte code;
 	int dx,dy;
+#ifdef SDL_INPUT
+	int dz;
+#endif
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
@@ -1361,9 +1304,16 @@ void kc_change_mouseaxis( kc_item * item )
 
 		kc_drawquestion( item );
 
+#ifdef SDL_INPUT
+		mouse_get_delta_z( &dx, &dy, &dz );
+#else
 		mouse_get_delta( &dx, &dy );
+#endif
 		if ( abs(dx)>20 ) code = 0;
 		if ( abs(dy)>20 )	code = 1;
+#ifdef SDL_INPUT
+		if ( abs(dz)>20 ) code = 2;
+#endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1376,7 +1326,7 @@ void kc_change_mouseaxis( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, INFO_Y, GWIDTH-10, grd_curcanv->cv_font->ft_h );
+	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 
 }
@@ -1452,7 +1402,6 @@ void kconfig(int n, char * title)
 }
 
 //added/changed 9/6/98 Matt Mueller -> #endif
-// #ifndef __LINUX__
 void kconfig_read_fcs( int raw_axis )
 {
 	int raw_button, button, axis_min[JOY_NUM_AXES], axis_center[JOY_NUM_AXES], axis_max[JOY_NUM_AXES];
@@ -1509,7 +1458,6 @@ void kconfig_set_fcs_button( int btn, int button )
 	joy_set_btn_values( btn, state, time_down, downcount, upcount );
 					
 }
-// #endif
 
 #define	PH_SCALE	8
 //added/changed 9/6/98 Matt Mueller -> #endif
@@ -1519,14 +1467,8 @@ void kconfig_set_fcs_button( int btn, int button )
 #define	JOYSTICK_READ_TIME	(F1_0/10)		//	Read joystick at 10 Hz.
 #endif
 fix	LastReadTime = 0;
-
-//added/changed 9/6/98 Matt Mueller -> #endif
-// #ifdef __LINUX__
-// fix	joy_axis[32];
-// #else
 fix	joy_axis[JOY_NUM_AXES];
-// #endif
-		
+
 ubyte 			kc_use_external_control = 0;
 ubyte				kc_enable_external_control = 1;
 ubyte 			kc_external_intno = 0;
@@ -1536,7 +1478,7 @@ control_info	*kc_external_control = NULL;
 unsigned long  kc_external_control_addr=0;
 #endif
 //end modified section - Matt Mueller
-ubyte				*kc_external_name = NULL;
+char				*kc_external_name = NULL;
 ubyte				kc_external_version = 0;
 
 void kconfig_init_external_controls(int intno, ssize_t address)
@@ -1693,28 +1635,19 @@ void controls_read_all()
 	int i;
 	int slide_on, bank_on;
 	int dx, dy;
+#ifdef SDL_INPUT
+	int dz;
+#endif
 	int idx, idy;
 	fix ctime;
-	fix mouse_axis[2];
-//added/changed 9/6/98 Matt Mueller -> #endif
-// #ifdef __LINUX__
-// 	int raw_joy_axis[32];
-// #else
+	fix mouse_axis[3] = {0,0,0};
 	int raw_joy_axis[JOY_NUM_AXES];
-// #endif
 	int mouse_buttons;
 	fix k0, k1, k2, k3, kp;
 	fix k4, k5, k6, k7, kh;
 	ubyte channel_masks;
 	int use_mouse, use_joystick;
 	int speed_factor=1;
-	int ph_div;
-
-	if ((i=FindArg("-mouselook")) && (Config_control_type == 5) ) {
-		ph_div = 2;
-	} else {
-		ph_div = 8;
-	}
 
 	if (Game_turbo_mode)
 		speed_factor = 2;
@@ -1745,22 +1678,13 @@ void controls_read_all()
 		LastReadTime = ctime;
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 		
-//added/changed 9/6/98 Matt Mueller -> #endif
-// #ifdef __LINUX__
-// 		for (i=0; i < j_num_axes; i++ )  {
-// #else
-//added/changed 3/7/99 Owen Evans (next line)
                 for (i=0; i<JOY_NUM_AXES; i++ )    {
 			if (channel_masks&(1<<i))	{
-// #endif
 				int joy_null_value = 10;
 
-//added/changed 9/6/98 Matt Mueller -> #endif
-// #ifndef __LINUX__
 				if ( (i==3) && (Config_control_type==CONTROL_THRUSTMASTER_FCS) )	{
 					kconfig_read_fcs( raw_joy_axis[i] );
 				} else {
-// #endif
 					raw_joy_axis[i] = joy_get_scaled_reading( raw_joy_axis[i], i );
 	
 					if (kc_joystick[23].value==i)		// If this is the throttle
@@ -1774,30 +1698,29 @@ void controls_read_all()
 						raw_joy_axis[i] = 0;
 					joy_axis[i]	= (raw_joy_axis[i]*FrameTime)/128;	
 				}
-//added/changed 9/6/98 Matt Mueller -> #endif
-// #ifndef __LINUX__
 			} else {
 				joy_axis[i] = 0;
 			}
 		}
-// #endif
 		use_joystick=1;
 	} else {
-//added/changed 9/6/98 Matt Mueller -> #endif
-// #ifdef __LINUX__
-// 		for (i=0; i<j_num_axes; i++ )
-// #else
                 for (i=0; i<JOY_NUM_AXES; i++ )
-// #endif
 			joy_axis[i] = 0;
 		use_joystick=0;
 	}
 
 	if (Config_control_type==5 ) {
 		//---------  Read Mouse -----------
+#ifdef SDL_INPUT
+		mouse_get_delta_z( &dx, &dy, &dz );
+#else
 		mouse_get_delta( &dx, &dy );
-		mouse_axis[0] = (dx*FrameTime)/35;
-		mouse_axis[1] = (dy*FrameTime)/25;
+#endif
+		mouse_axis[0] = (dx*60); //(dx*FrameTime)/35;
+		mouse_axis[1] = (dy*85); //(dy*FrameTime)/25;
+#ifdef SDL_INPUT
+		mouse_axis[2] = (dz*FrameTime);
+#endif
 		mouse_buttons = mouse_get_btns();
 		//mprintf(( 0, "Mouse %d,%d b:%d, 0x%x\n", mouse_axis[0], mouse_axis[1], mouse_buttons, FrameTime ));
 		use_mouse=1;
@@ -1901,11 +1824,7 @@ if (!Player_is_dead)
 		if ( kc_d1x[24].value < 255 ) Allow_primary_cycle_count += key_down_count(kc_d1x[24].value);
 		if ( (use_joystick)&&(kc_d1x[25].value < 255) ) Allow_primary_cycle_jstate= joy_get_button_state( kc_d1x[25].value );
 	
-	//-killed-         if ( kc_keyboard[50].value < 255 ) Allow_primary_cycle_count += key_down_count(kc_keyboard[50].value);
-	//-killed-         if ( kc_keyboard[51].value < 255 ) Allow_primary_cycle_count += key_down_count(kc_keyboard[51].value);
-	//-killed-         if ( (use_joystick)&&(kc_joystick[29].value < 255) ) Allow_primary_cycle_jstate= joy_get_button_state( kc_joystick[29].value );
-	//end this section change - VR
-	
+
 		if (Allow_primary_cycle_count || Allow_primary_cycle_jstate!=Allow_primary_cycle_ostate)
 		{
 			if((Allow_primary_cycle_jstate!=Allow_primary_cycle_ostate)&&(Allow_primary_cycle_jstate==0))
@@ -1931,11 +1850,6 @@ if (!Player_is_dead)
 //added/killed on 2/4/99 by Victor Rachels for d1x keys
 		if ( kc_d1x[26].value < 255 ) Allow_secondary_cycle_count += key_down_count(kc_d1x[26].value);
 		if ( (use_joystick)&&(kc_d1x[27].value < 255) ) Allow_secondary_cycle_jstate= joy_get_button_state( kc_d1x[27].value );
-
-//-killed-         if ( kc_keyboard[52].value < 255 ) Allow_secondary_cycle_count += key_down_count(kc_keyboard[52].value);
-//-killed-         if ( kc_keyboard[53].value < 255 ) Allow_secondary_cycle_count += key_down_count(kc_keyboard[53].value);
-//-killed-         if ( (use_joystick)&&(kc_joystick[30].value < 255) ) Allow_secondary_cycle_jstate= joy_get_button_state( kc_joystick[30].value );
-//end this section change - VR
 
 		if (Allow_secondary_cycle_count || Allow_secondary_cycle_jstate!=Allow_secondary_cycle_ostate)
 		{
@@ -1964,22 +1878,11 @@ if (!Player_is_dead)
 	if ( kc_d1x[20].value < 255 ) Controls.cycle_primary_down_count += key_down_count(kc_d1x[20].value);
 	if ( (use_joystick)&&(kc_d1x[21].value < 255) ) Controls.cycle_primary_state= joy_get_button_state( kc_d1x[21].value );
 
-
-//-killed-        if ( kc_keyboard[46].value < 255 ) Controls.cycle_primary_down_count += key_down_count(kc_keyboard[46].value);
-//-killed-        if ( kc_keyboard[47].value < 255 ) Controls.cycle_primary_down_count += key_down_count(kc_keyboard[47].value);
-//-killed-        if ( (use_joystick)&&(kc_joystick[27].value < 255 ) ) Controls.cycle_primary_state = joy_get_button_state( kc_joystick[27].value );
-
   //Read secondary cycle
 
 	if ( kc_d1x[22].value < 255 ) Controls.cycle_secondary_down_count += key_down_count(kc_d1x[22].value);
 	if ( (use_joystick)&&(kc_d1x[23].value < 255) ) Controls.cycle_secondary_state= joy_get_button_state( kc_d1x[23].value );
 
-
-//-killed-        if ( kc_keyboard[48].value < 255 ) Controls.cycle_secondary_down_count += key_down_count(kc_keyboard[48].value);
-//-killed-        if ( kc_keyboard[49].value < 255 ) Controls.cycle_secondary_down_count += key_down_count(kc_keyboard[49].value);
-//-killed-        if ( (use_joystick)&&(kc_joystick[28].value < 255 ) ) Controls.cycle_secondary_state = joy_get_button_state( kc_joystick[28].value );
-//end this section addition/kill - VR
-//end edit - Victor Rachels
 }//end "if (!Player_is_dead)" - WraithX
 
 //------------- Read slide_on -------------
@@ -2045,9 +1948,9 @@ if (!Player_is_dead)
 		//mprintf(( 0, "UM: %d, PV: %d\n", use_mouse, kc_mouse[13].value ));
 		if ( (use_mouse)&&(kc_mouse[13].value < 255) )	{
 			if ( !kc_mouse[14].value )		// If not inverted...
-				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/ph_div; // ZICO we call pitch_div here for better pitching if mouselook
+				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/8;
 			else
-				Controls.pitch_time += (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/ph_div;
+				Controls.pitch_time += (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/8;
 		}
 	} else {
 		Controls.pitch_time = 0;
@@ -2174,9 +2077,9 @@ if (!Player_is_dead)
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/ph_div;	// ZICO we call head_div here for better pitching if mouselook
+				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
 				else
-				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/ph_div;
+				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
 		}
 	} else {
 		Controls.heading_time = 0;

@@ -69,7 +69,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix.h"
 
 #define MOUSE_MAX_BUTTONS       8
-
+#define Z_SENSITIVITY		100
 #define MB_LEFT			0
 #define MB_RIGHT		1
 #define MB_MIDDLE		2
@@ -99,6 +99,7 @@ extern void mouse_flush();	// clears all mice events...
 //========================================================================
 extern void mouse_get_pos( int *x, int *y);
 extern void mouse_get_delta( int *dx, int *dy );
+extern void mouse_get_delta_z( int *dx, int *dy, int *dz );
 extern int mouse_get_btns();
 extern void mouse_set_pos( int x, int y);
 extern void mouse_get_cyberman_pos( int *x, int *y );

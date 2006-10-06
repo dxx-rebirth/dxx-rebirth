@@ -149,4 +149,6 @@ extern void joy_set_min (int axis_number, int value);
 extern void joy_set_center (int axis_number, int value);
 extern void joy_set_max (int axis_number, int value);
 
+extern void joy_set_btn_values(int btn, int state, fix timedown, int downcount, int upcount);
+
 #endif
