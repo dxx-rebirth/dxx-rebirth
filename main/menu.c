@@ -1023,8 +1023,6 @@ void change_res()
 	u_int32_t screen_mode = 0;
 	int screen_width = 0;
 	int screen_height = 0;
-	int vr_mode = VR_NONE;
-	int screen_flags = 0;
 
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x200"; m[mc].value = (Game_screen_mode == SM(320,200)); m[mc].group = 0; modes[mc] = SM(320,200); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x480"; m[mc].value = (Game_screen_mode == SM(640,480)); m[mc].group = 0; modes[mc] = SM(640,480); mc++;
@@ -1087,14 +1085,13 @@ void change_res()
 		return;
 	// end section - OE
 
-	VR_offscreen_buffer = 0; // Disable VR (so that VR_Screen_mode doesnt mess us up
 	Game_screen_mode = screen_mode;
 	VR_render_buffer[0].cv_bitmap.bm_w = Game_window_w = screen_width;
 	VR_render_buffer[0].cv_bitmap.bm_h = Game_window_h = screen_height;
-	game_init_render_buffers(screen_mode, screen_width, screen_height, vr_mode, screen_flags);
+	game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE, 0);
 
 	if (menu_use_game_res) {
-		gr_set_mode(SM(Game_window_w,Game_window_h));
+		gr_set_mode(SM(VR_render_buffer[0].cv_bitmap.bm_w,VR_render_buffer[0].cv_bitmap.bm_h));
 		set_screen_mode(SCREEN_GAME);
 	}
 }

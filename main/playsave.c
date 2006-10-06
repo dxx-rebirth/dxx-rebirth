@@ -1,4 +1,4 @@
-/* $Id: playsave.c,v 1.1.1.1 2006/03/17 19:55:10 zicodxx Exp $ */
+/* $Id: playsave.c,v 1.24 2005/07/30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -63,7 +63,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "byteswap.h"
 #include "escort.h"
-
+#include "u_mem.h"
+#include "strio.h"
 #include "physfsx.h"
 
 #define SAVE_FILE_ID			MAKE_SIG('D','P','L','R')
@@ -116,6 +117,8 @@ hli highest_levels[MAX_MISSIONS];
 //version 24 -> 25: add d2x keys array
 
 #define COMPATIBLE_PLAYER_FILE_VERSION          17
+#define WINDOWSIZE 64
+#define RESOLUTION 64
 
 
 int Default_leveling_on=1;
@@ -126,7 +129,11 @@ extern void InitWeaponOrdering();
 extern ubyte default_firebird_settings[];
 extern ubyte default_mousestick_settings[];
 #endif
-int saved_w, saved_h;
+
+static int Player_Game_window_w = 0;
+static int Player_Game_window_h = 0;
+static int Player_render_width = 0;
+static int Player_render_height = 0;
 
 int new_player_config()
 {
@@ -274,6 +281,282 @@ RetrySelection:
 	return 1;
 }
 
+int read_player_d2x(char *filename)
+{
+	PHYSFS_file *f;
+	int rc = 0;
+	char line[20],*word;
+	int Stop=0;
+	char plxver[6];
+
+	sprintf(plxver,"v0.00");
+
+	f = PHYSFSX_openReadBuffered(filename);
+
+	if(!f || PHYSFS_eof(f))
+		return errno;
+
+	while(!Stop && !PHYSFS_eof(f))
+	{
+		cfgets(line,20,f);
+		word=splitword(line,':');
+		strupr(word);
+		if (strstr(word,"PLX VERSION"))
+		{
+			d_free(word);
+			cfgets(line,20,f);
+			word=splitword(line,'=');
+			strupr(word);
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				if(!strcmp(word,"PLX VERSION"))
+				{
+					int maj,min;
+					sscanf(line,"v%i.%i",&maj,&min);
+					sprintf(plxver,"v%i.%i",maj,min);
+				}
+				d_free(word);
+				cfgets(line,20,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
+		else if (strstr(word,"WINDOWSIZE"))
+		{
+			d_free(word);
+			cfgets(line,20,f);
+			word=splitword(line,'=');
+			strupr(word);
+		
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				if(!strcmp(word,"WIDTH"))
+					sscanf(line,"%i",&Player_Game_window_w);
+				if(!strcmp(word,"HEIGHT"))
+					sscanf(line,"%i",&Player_Game_window_h);
+
+				d_free(word);
+				cfgets(line,20,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
+		else if (strstr(word,"RESOLUTION"))
+		{
+			d_free(word);
+			cfgets(line,20,f);
+			word=splitword(line,'=');
+			strupr(word);
+	
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				if(!strcmp(word,"WIDTH"))
+					sscanf(line,"%i",&Player_render_width);
+				if(!strcmp(word,"HEIGHT"))
+					sscanf(line,"%i",&Player_render_height);
+				d_free(word);
+				cfgets(line,20,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
+		else if (strstr(word,"END") || PHYSFS_eof(f))
+		{
+			Stop=1;
+		}
+		else
+		{
+			if(word[0]=='['&&!strstr(word,"D2X OPTIONS"))
+			{
+				while(!strstr(line,"END") && !PHYSFS_eof(f))
+				{
+					cfgets(line,20,f);
+					strupr(line);
+				}
+			}
+		}
+
+		if(word)
+			d_free(word);
+	}
+
+// 	if (ferror(f)) // FIXME
+//                 rc = errno;
+
+	PHYSFS_close(f);
+
+	return rc;
+}
+
+int write_player_d2x(char *filename)
+{
+	PHYSFS_file *fin, *fout;
+	int rc=0;
+	int Stop=0;
+	char line[20];
+	char tempfile[PATH_MAX];
+	char str[256];
+
+	strcpy(tempfile,filename);
+	tempfile[strlen(tempfile)-4]=0;
+	strcat(tempfile,".pl$");
+	fout=PHYSFSX_openWriteBuffered(tempfile);
+	
+	if(fout)
+	{
+		fin=PHYSFSX_openReadBuffered(filename);
+		if(!fin)
+		{
+			sprintf (str, "[D2X OPTIONS]\n");
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "[windowsize]\n");
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "width=%i\n", Game_window_w);
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "height=%d\n", Game_window_h);
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "[end]\n");
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "[resolution]\n");
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "width=%i\n", VR_render_buffer[0].cv_bitmap.bm_w);
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "height=%d\n", VR_render_buffer[0].cv_bitmap.bm_h);
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "[end]\n");
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "[plx version]\n");
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "plx version=%s\n", VERSION);
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "[end]\n");
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "[end]\n");
+			PHYSFSX_puts(fout, str);
+		}
+		else
+		{
+			int printed=0;
+		
+			while(!Stop && !PHYSFS_eof(fin))
+			{
+				cfgets(line,20,fin);
+				strupr(line);
+				if (strstr(line,"PLX VERSION"))
+				{
+					while(!strstr(line,"END")&&!PHYSFS_eof(fin))
+					{
+						cfgets(line,20,fin);
+						strupr(line);
+					}
+				}
+				else if (strstr(line,"WINDOWSIZE"))
+				{
+					sprintf (str, "[windowsize]\n");
+					PHYSFSX_puts(fout, str);
+					sprintf (str, "width=%i\n", Game_window_w);
+					PHYSFSX_puts(fout, str);
+					sprintf (str, "height=%d\n", Game_window_h);
+					PHYSFSX_puts(fout, str);
+					sprintf (str, "[end]\n");
+					PHYSFSX_puts(fout, str);
+					while(!strstr(line,"END")&&!PHYSFS_eof(fin))
+					{
+						cfgets(line,20,fin);
+						strupr(line);
+					}
+					printed |= WINDOWSIZE;
+				}
+				else if (strstr(line,"RESOLUTION"))
+				{
+					sprintf (str, "[resolution]\n");
+					PHYSFSX_puts(fout, str);
+					sprintf (str, "width=%i\n", VR_render_buffer[0].cv_bitmap.bm_w);
+					PHYSFSX_puts(fout, str);
+					sprintf (str, "height=%d\n", VR_render_buffer[0].cv_bitmap.bm_h);
+					PHYSFSX_puts(fout, str);
+					sprintf (str, "[end]\n");
+					PHYSFSX_puts(fout, str);
+					while(!strstr(line,"END")&&!PHYSFS_eof(fin))
+					{
+						cfgets(line,20,fin);
+						strupr(line);
+					}
+					printed |= RESOLUTION;
+				}
+				else if (strstr(line,"END"))
+				{
+					Stop=1;
+				}
+				else
+				{
+					if(line[0]=='['&&!strstr(line,"D2X OPTIONS"))
+						while(!strstr(line,"END") && !PHYSFS_eof(fin))
+						{
+							sprintf (str, "%s\n", line);
+							PHYSFSX_puts(fout, str);
+							cfgets(line,20,fin);
+							strupr(line);
+						}
+					sprintf (str, "%s\n", line);
+					PHYSFSX_puts(fout, str);
+				}
+			
+				if(!Stop&&PHYSFS_eof(fin))
+					Stop=1;
+			}
+			if(!(printed&WINDOWSIZE))
+			{
+				sprintf (str, "[windowsize]\n");
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "width=%i\n", Game_window_w);
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "height=%d\n", Game_window_h);
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "[end]\n");
+				PHYSFSX_puts(fout, str);
+			}
+		
+			if(!(printed&RESOLUTION))
+			{
+				sprintf (str, "[resolution]\n");
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "width=%i\n", VR_render_buffer[0].cv_bitmap.bm_w);
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "height=%d\n", VR_render_buffer[0].cv_bitmap.bm_h);
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "[end]\n");
+				PHYSFSX_puts(fout, str);
+			}
+		
+				sprintf (str, "[plx version]\n");
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "plx version=%s\n", VERSION);
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "[end]\n");
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "[end]\n");
+				PHYSFSX_puts(fout, str);
+			
+				PHYSFS_close(fin);
+		}
+		
+		//if (ferror(fout)) // FIXME
+			//rc = errno;
+
+		PHYSFS_close(fout);
+		if(rc==0)
+		{
+			unlink(filename);
+			rc = PHYSFSX_rename(tempfile,filename);
+		}
+		return rc;
+	}
+	else
+		return errno;
+
+}
+
 extern int Guided_in_big_window,Automap_always_hires;
 
 //this length must match the value in escort.c
@@ -352,9 +635,6 @@ int read_player_file()
 		return -1;
 	}
 
-	// ZICO - also set VR_render to saved resolution because it won't get screwed up by any screen changes like window shrink etc.
-	VR_render_buffer[0].cv_bitmap.bm_w = cfile_read_short(file);
-	VR_render_buffer[0].cv_bitmap.bm_h = cfile_read_short(file);
 	Game_window_w = cfile_read_short(file);
 	Game_window_h = cfile_read_short(file);
 
@@ -532,6 +812,22 @@ int read_player_file()
 	if (rewrite_it)
 		write_player_file();
 
+	filename[strlen(filename) - 4] = 0;
+	strcat(filename, ".plx");
+        strlwr(filename);
+	read_player_d2x(filename);
+
+	if (Player_render_width && Player_render_height && Game_screen_mode != SM(Player_render_width, Player_render_height))
+	{
+		Game_screen_mode = SM(Player_render_width,Player_render_height);
+		game_init_render_buffers(
+			SM(Player_render_width,Player_render_height),
+			Player_render_width,
+			Player_render_height, VR_NONE, 0);
+	}
+	Game_window_w = Player_Game_window_w;
+	Game_window_h = Player_Game_window_h;
+
 	return EZERO;
 
  read_player_file_failed:
@@ -604,7 +900,7 @@ int get_highest_level(void)
 }
 
 extern int Cockpit_mode_save;
-extern int max_window_w, max_window_h;
+
 
 //write out player's saved games.  returns errno (0 == no error)
 int write_player_file()
@@ -623,6 +919,9 @@ int write_player_file()
 
 	WriteConfigFile();
 
+        sprintf(filename,"%s.plx",Players[Player_num].callsign);
+        strlwr(filename);
+	write_player_d2x(filename);
 #ifndef MACINTOSH
 	sprintf(filename,"%s.plr",Players[Player_num].callsign);
 #else
@@ -649,10 +948,8 @@ int write_player_file()
 	PHYSFS_writeULE32(file, SAVE_FILE_ID);
 	PHYSFS_writeULE16(file, PLAYER_FILE_VERSION);
 
-	PHYSFS_writeULE16(file,VR_render_buffer[0].cv_bitmap.bm_w/*Game_window_w*/);
-	PHYSFS_writeULE16(file,VR_render_buffer[0].cv_bitmap.bm_h/*Game_window_h*/);
-	PHYSFS_writeULE16(file,Game_window_w);
-	PHYSFS_writeULE16(file,Game_window_h);
+	PHYSFS_writeULE16(file, Game_window_w);
+	PHYSFS_writeULE16(file, Game_window_h);
 
 	PHYSFSX_writeU8(file, Player_default_difficulty);
 	PHYSFSX_writeU8(file, Auto_leveling_on);
@@ -780,7 +1077,7 @@ int update_player_file()
 }
 
 int get_lifetime_checksum (int a,int b)
- {
+{
   int num;
 
   // confusing enough to beat amateur disassemblers? Lets hope so
@@ -789,6 +1086,4 @@ int get_lifetime_checksum (int a,int b)
   num^=(a | b);
   num*=num>>2;
   return (num);
- }
-  
-
+}

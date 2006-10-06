@@ -374,8 +374,6 @@ void init_cockpit()
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( GAME_FONT );
 
-	game_init_render_buffers(Game_screen_mode, grd_curscreen->sc_w, grd_curscreen->sc_h, VR_render_mode, VR_screen_flags);
-
 	switch( Cockpit_mode ) {
 	case CM_FULL_COCKPIT:
 	case CM_REAR_VIEW:
@@ -470,19 +468,14 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 // Sets up the canvases we will be rendering to (NORMAL VERSION)
 void game_init_render_buffers(int screen_mode, int render_w, int render_h, int render_method, int flags )
 {
-//	if (vga_check_mode(screen_mode) != 0)
-//		Error("Cannot set requested video mode");
 
-	VR_screen_mode		=	screen_mode;
+	VR_screen_mode	=	screen_mode;
+	VR_screen_flags	=	flags;
 
-	VR_screen_flags	=  flags;
-
-//NEWVR
 	VR_reset_params();
-	VR_render_mode 	= render_method;
 
-// 	Game_window_w 		= render_w; FIXME: OK to be removed?
-// 	Game_window_h		= render_h;
+	VR_render_mode 	=	render_method;
+
 
 	if (VR_offscreen_buffer) {
 		gr_free_canvas(VR_offscreen_buffer);
@@ -559,13 +552,17 @@ int set_screen_mode(int sm)
 		return 1;
 	}
 
-#ifdef OGL
-	if ((Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->sc_mode != VR_screen_mode) && (Screen_mode == SCREEN_GAME))) {
+	if ( (Screen_mode == sm) &&
+		!((sm==SCREEN_GAME) &&
+			(grd_curscreen->sc_mode != Game_screen_mode)) &&
+		!((sm==SCREEN_MENU) &&
+			(grd_curscreen->sc_mode != MENU_SCREEN_MODE)) ) {
 		gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
+#ifdef OGL
 		ogl_set_screen_mode();
+#endif
 		return 1;
 	}
-#endif
 
 #ifdef EDITOR
 	Canv_editor = NULL;
