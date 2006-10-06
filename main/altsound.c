@@ -18,20 +18,19 @@ int use_altsound[MAX_SOUNDS];
 
 int digi_xlat_sound(int soundnum)
 {
-   if ( soundnum < 0 )
-    return -1;
+	if (soundnum < 0)
+		return -1;
 
-   if ( digi_lomem )
-    {
-     int i;
-      i = AltSounds[soundnum];
-       if ( i == 255 )
-        return -1;
-       else
-        return i;
-    }
-   else
-    return Sounds[soundnum];
+	if (digi_lomem)
+	{
+		soundnum = AltSounds[soundnum];
+		if (soundnum == 255)
+			return -1;
+	}
+
+	Assert(Sounds[soundnum] != 255);	//if hit this, probably using undefined sound
+
+	return Sounds[soundnum];
 }
 
 digi_sound *Sounddat(int soundnum)
