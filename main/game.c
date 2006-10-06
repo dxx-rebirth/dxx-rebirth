@@ -702,6 +702,10 @@ void game_init_render_buffers(u_int32_t screen_mode, int render_w, int render_h,
 	VR_render_width		= render_w;
 	VR_render_height	= render_h;
 
+	if (VR_offscreen_buffer) {
+		gr_free_canvas(VR_offscreen_buffer);
+	}
+
 	if ( (VR_render_mode==VR_AREA_DET) || (VR_render_mode==VR_INTERLACED ) )	{
 		if ( render_h*2 < 200 )
 			VR_offscreen_buffer = gr_create_canvas( render_w, 200 );

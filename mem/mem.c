@@ -155,7 +155,7 @@ static unsigned int LastSignature = 0;
 static unsigned int SmallestAddress = 0xFFFFFFF;
 static unsigned int LargestAddress = 0x0;
 
-int show_mem_info = 0;
+int show_mem_info = 1;
 
 static int free_list[MAX_INDEX];
 
