@@ -92,12 +92,6 @@ ubyte ExtYVibrateClear=0;
 // Array used to 'blink' the cursor while waiting for a keypress.
 sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
-//char * invert_text[2] = { "N", "Y" };
-//char * joybutton_text[28] = { "BTN 1", "BTN 2", "BTN 3", "BTN 4", "", "TRIG", "LEFT", "HAT ", "RIGHT", "", "", "HAT ", "MID", "", "", "HAT ", "", "", "", "HAT ", "TRIG", "LEFT", "RIGHT", "", "UP","DOWN","LEFT", "RIGHT" };
-//char * joyaxis_text[4] = { "X1", "Y1", "X2", "Y2" };
-//char * mouseaxis_text[2] = { "L/R", "F/B" };
-//char * mousebutton_text[3] = { "Left", "Right", "Mid" };
-
 int invert_text[2] = { TNUM_N, TNUM_Y };
 
 #ifndef USE_LINUX_JOY
@@ -126,7 +120,6 @@ char *joyaxis_text[JOY_MAX_AXES];
 	 TNUM_UP, TNUM_DOWN, TNUM_LEFT, TNUM_RIGHT };
 
 	int joyaxis_text[7] = { TNUM_X1, TNUM_Y1, TNUM_Z1, TNUM_UN, TNUM_P1,TNUM_R1,TNUM_YA1 };
-//	int joyaxis_text[4] = { TNUM_X1, TNUM_Y1, TNUM_X2, TNUM_Y2 };
 #endif
 #endif
 
@@ -139,7 +132,7 @@ char *mousebutton_text[3] = { "Btn", "", "" };		// only one silly mouse button o
 #endif
 
 #ifdef MACINTOSH
-char * key_text[256] = {         
+char * key_text[256] = {
 "","S","D","F","H","G","Z","X","C","V","","B","Q", "W", "E", "R",
 "Y","T","1","2","3","4","6","5","=","9","7","-", "8", "0", "]", "O",
 "U","[","I","P","RET","L","J","'","K", ";", "\\", ",", "/", "N", "M", ".",
@@ -213,12 +206,12 @@ fix Cruise_speed=0;
 #define LHY(y)		((y)*(MenuHires?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
 
 
-#define BT_KEY 				0
+#define BT_KEY 			0
 #define BT_MOUSE_BUTTON 	1
 #define BT_MOUSE_AXIS		2
 #define BT_JOY_BUTTON 		3
-#define BT_JOY_AXIS			4
-#define BT_INVERT				5
+#define BT_JOY_AXIS		4
+#define BT_INVERT		5
 
 char *btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
 
@@ -226,7 +219,7 @@ char *btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUT
 
 typedef struct kc_item {
 	short id;				// The id of this item
-	short x, y;				
+	short x, y;
 	short w1;
 	short w2;
 	short u,d,l,r;
@@ -939,15 +932,6 @@ KConfigPaint:
 		if ( p ) *p = '\n';
 	}
 
-
-//	if ( items == kc_keyboard )	{
-//		gr_string( 0x8000, 8, "Keyboard" );
-//	} else if ( items == kc_joystick )	{
-//		gr_string( 0x8000, 8, "Joysticks" );
-//	} else if ( items == kc_mouse )	{
-//		gr_string( 0x8000, 8, "Mouse" );
-//	}
-
 #ifdef NEWMENU_MOUSE
 	close_x = close_y = MenuHires?FONTSCALE_X(15):FONTSCALE_X(7);
 	close_size = MenuHires?FONTSCALE_X(10):FONTSCALE_X(5);
@@ -1478,7 +1462,7 @@ void kc_change_key( kc_item * item )
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
 
-	nm_restore_background( 0, LHY(INFO_Y), LHX(310), grd_curcanv->cv_font->ft_h );
+	nm_restore_background( 0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 
 	game_flush_inputs();
 
@@ -1559,7 +1543,7 @@ void kc_change_joybutton( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, LHY(INFO_Y), LHX(310), grd_curcanv->cv_font->ft_h );
+	nm_restore_background( 0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 }
 
@@ -1609,7 +1593,7 @@ void kc_change_mousebutton( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, LHY(INFO_Y), LHX(310), grd_curcanv->cv_font->ft_h );
+	nm_restore_background( 0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 
 }
@@ -1649,7 +1633,7 @@ void kc_next_joyaxis(kc_item *item)
 	}//end if
 
 	kc_drawitem(item, 1);
-	nm_restore_background(0, LHY(INFO_Y), LHX(310), grd_curcanv->cv_font->ft_h);
+	nm_restore_background(0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h));
 	game_flush_inputs();
 
 }//method kc_next_joyaxis
@@ -1731,7 +1715,7 @@ void kc_change_joyaxis( kc_item * item )
 		item->value = code;					 
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, LHY(INFO_Y), LHX(310), grd_curcanv->cv_font->ft_h );
+	nm_restore_background( 0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 
 }
@@ -1793,7 +1777,7 @@ void kc_change_mouseaxis( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, LHY(INFO_Y), LHX(310), grd_curcanv->cv_font->ft_h );
+	nm_restore_background( 0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 
 }
@@ -1941,50 +1925,8 @@ fix Last_angles_b = 0;
 fix Last_angles_h = 0;
 ubyte Last_angles_read = 0;
 
-extern int			VR_sensitivity;
-						
+extern int VR_sensitivity;
 int VR_sense_range[3] = { 25, 50, 75 };
-
-#if 0 //ndef MACINTOSH
-read_head_tracker()
-{
-#ifndef WINDOWS
-
-	fix yaw, pitch, roll;
-	int buttons;
-
-//------ read vfx1 helmet --------
-	if (vfx1_installed) {
-		vfx_get_data(&yaw,&pitch,&roll,&buttons);
-	} else if (iglasses_headset_installed)	{
-		iglasses_read_headset( &yaw, &pitch, &roll );
-	} else if (Victor_headset_installed)   {
-		victor_read_headset_filtered( &yaw, &pitch, &roll );
-	} else {
-		return;
-	}
-
-	Use_player_head_angles = 0;
-	if ( Last_angles_read )	{
-		fix yaw1 = yaw;
-		
-		yaw1 = yaw;
-		if ( (Last_angles_h < (F1_0/4) ) && (yaw > ((F1_0*3)/4) ) )	
-			yaw1 -= F1_0;
-		else if ( (yaw < (F1_0/4) ) && (Last_angles_h > ((F1_0*3)/4) ) )	
-			yaw1 += F1_0;
-	
-		Controls.pitch_time	+= fixmul((pitch- Last_angles_p)*VR_sense_range[VR_sensitivity],FrameTime);
-		Controls.heading_time+= fixmul((yaw1 -  Last_angles_h)*VR_sense_range[VR_sensitivity],FrameTime);
-		Controls.bank_time	+= fixmul((roll - Last_angles_b)*VR_sense_range[VR_sensitivity],FrameTime);
-	}
-	Last_angles_read = 1;
-	Last_angles_p = pitch;
-	Last_angles_h = yaw;
-	Last_angles_b = roll;
-#endif
-}
-#endif
 
 #define	PH_SCALE	8
 
@@ -2031,90 +1973,6 @@ void kconfig_init_external_controls(int intno, int address)
 	printf( "%s int: 0x%x, data: 0x%p, ver:%d\n", kc_external_name, kc_external_intno, kc_external_control, kc_external_version );
 
 }
-
-#if !defined(MACINTOSH)
-/*void kconfig_read_external_controls()
-{
-	union REGS r;
-
-	if ( !kc_enable_external_control && !CybermouseActive) 
-		return;
-
-	if ( kc_external_version == 0 ) 
-		memset( kc_external_control, 0, sizeof(control_info) );
-	else if ( kc_external_version > 0 ) 	{
-		memset( kc_external_control, 0, sizeof(control_info)+sizeof(vms_angvec) + 64 );
-		if ( kc_external_version > 1 ) {
-			// Write ship pos and angles to external controls...
-			ubyte *temp_ptr = (ubyte *)kc_external_control;
-			vms_vector *ship_pos;
-			vms_matrix *ship_orient;
-			memset( kc_external_control, 0, sizeof(control_info)+sizeof(vms_angvec) + 64 + sizeof(vms_vector)+sizeof(vms_matrix) );
-			temp_ptr += sizeof(control_info)+sizeof(vms_angvec) + 64;
-			ship_pos = (vms_vector *)temp_ptr;
-			temp_ptr += sizeof(vms_vector);
-			ship_orient = (vms_matrix *)temp_ptr;
-			// Fill in ship postion...
-			*ship_pos = Objects[Players[Player_num].objnum].pos;
-			// Fill in ship orientation...
-			*ship_orient = Objects[Players[Player_num].objnum].orient;
-		}
-	}
-
-        if ( Automap_active )                    // (If in automap...)
-		kc_external_control->automap_state = 1;
-	memset(&r,0,sizeof(r));
-
-#ifndef WINDOWS
-  
-   if (!CybermouseActive)
-   	int386 ( kc_external_intno, &r, &r);		// Read external info...
-//	else
-  //		ReadOWL (kc_external_control);
-
-#endif
-
-	if ( Player_num > -1 )	{
-		Objects[Players[Player_num].objnum].mtype.phys_info.flags &= (~PF_TURNROLL);	// Turn off roll when turning
-		Objects[Players[Player_num].objnum].mtype.phys_info.flags &= (~PF_LEVELLING);	// Turn off leveling to nearest side.
-		Auto_leveling_on = 0;
-
-		if ( kc_external_version > 0 ) {		
-			vms_matrix tempm, ViewMatrix;
-			vms_angvec * Kconfig_abs_movement;
-			char * oem_message;
-	
-			Kconfig_abs_movement = (vms_angvec *)((uint)kc_external_control + sizeof(control_info));
-	
-			if ( Kconfig_abs_movement->p || Kconfig_abs_movement->b || Kconfig_abs_movement->h )	{
-				vm_angles_2_matrix(&tempm,Kconfig_abs_movement);
-				vm_matrix_x_matrix(&ViewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
-				Objects[Players[Player_num].objnum].orient = ViewMatrix;		
-			}
-			oem_message = (char *)((uint)Kconfig_abs_movement + sizeof(vms_angvec));
-			if (oem_message[0] != '\0' )
-				HUD_init_message( oem_message );
-		}
-	}
-
-	Controls.pitch_time += fixmul(kc_external_control->pitch_time,FrameTime);						
-	Controls.vertical_thrust_time += fixmul(kc_external_control->vertical_thrust_time,FrameTime);
-	Controls.heading_time += fixmul(kc_external_control->heading_time,FrameTime);
-	Controls.sideways_thrust_time += fixmul(kc_external_control->sideways_thrust_time ,FrameTime);
-	Controls.bank_time += fixmul(kc_external_control->bank_time ,FrameTime);
-	Controls.forward_thrust_time += fixmul(kc_external_control->forward_thrust_time ,FrameTime);
-	Controls.rear_view_down_count += kc_external_control->rear_view_down_count;	
-	Controls.rear_view_down_state |= kc_external_control->rear_view_down_state;	
-	Controls.fire_primary_down_count += kc_external_control->fire_primary_down_count;
-	Controls.fire_primary_state |= kc_external_control->fire_primary_state;
-	Controls.fire_secondary_state |= kc_external_control->fire_secondary_state;
-	Controls.fire_secondary_down_count += kc_external_control->fire_secondary_down_count;
-	Controls.fire_flare_down_count += kc_external_control->fire_flare_down_count;
-	Controls.drop_bomb_down_count += kc_external_control->drop_bomb_down_count;	
-	Controls.automap_down_count += kc_external_control->automap_down_count;
-	Controls.automap_state |= kc_external_control->automap_state;
-} */
-#endif
 
 #ifdef WINDOWS
 void controls_read_all_win()
@@ -2202,8 +2060,8 @@ void controls_read_all_win()
 //	----------------------------------------------------------------------------
 	if (Config_control_type==5) {
 		mouse_get_delta( &dx, &dy );
-		mouse_axis[0] = (dx*FrameTime)/35;
-		mouse_axis[1] = (dy*FrameTime)/25;
+		mouse_axis[0] = (dx*60); //(dx*FrameTime)/35;
+		mouse_axis[1] = (dy*85); //(dy*FrameTime)/25;
 		mouse_buttons = mouse_get_btns();
 		//mprintf(( 0, "Mouse %d,%d b:%d, 0x%x\n", mouse_axis[0], mouse_axis[1], mouse_buttons, FrameTime ));
 		use_mouse=1;
@@ -2804,16 +2662,9 @@ void controls_read_all()
 	ubyte channel_masks;
 	int use_mouse, use_joystick;
 	int speed_factor=1;
-	int ph_div;
 
 	mouse_buttons=0;
 	use_mouse=0;
-
-	if ((i=FindArg("-mouselook")) && (Config_control_type == 5) ) {
-		ph_div = 2;
-	} else {
-		ph_div = 8;
-	}
 
 	if (Game_turbo_mode)
 		speed_factor = 2;
@@ -2918,8 +2769,8 @@ void controls_read_all()
 #else
 		mouse_get_delta( &dx, &dy );
 #endif
-		mouse_axis[0] = (dx*FrameTime)/35;
-		mouse_axis[1] = (dy*FrameTime)/25;
+		mouse_axis[0] = (dx*60); //(dx*FrameTime)/35;
+		mouse_axis[1] = (dy*85); //(dy*FrameTime)/25;
 #ifdef SDL_INPUT
 		mouse_axis[2] = (dz*FrameTime);
 #endif
@@ -3089,9 +2940,9 @@ void controls_read_all()
 		//mprintf(( 0, "UM: %d, PV: %d\n", use_mouse, kc_mouse[13].value ));
 		if ( (use_mouse)&&(kc_mouse[13].value < 255) )	{
 			if ( !kc_mouse[14].value )		// If not inverted...
-				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/ph_div; // ZICO we call pitch_div here for better pitching if mouselook
+				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/8;
 			else
-				Controls.pitch_time += (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/ph_div;
+				Controls.pitch_time += (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/8;
 		}
 	} else {
 		Controls.pitch_time = 0;
@@ -3219,9 +3070,9 @@ if (!Player_is_dead)
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/ph_div; // ZICO we call head_div here for better pitching if mouselook
+				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
 			else
-				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/ph_div;
+				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
 		}
 	} else {
 		Controls.heading_time = 0;
@@ -3645,49 +3496,9 @@ void kc_set_controls()
 #endif
 }
 
-#if 0 //ndef MACINTOSH	// no mac support for vr headset
-
-void kconfig_center_headset()
-{
-#ifndef WINDOWS
-	if (vfx1_installed)
-		vfx_center_headset();
-#endif
-//	} else if (iglasses_headset_installed)	{
-//	} else if (Victor_headset_installed)   {
-//	} else {
-//	}
-
-}
-
-#endif	// end of #ifndef MACINTOSH for kconfig_center_headset
-
 void CybermouseAdjust ()
  {
-/*	if ( Player_num > -1 )	{
-		Objects[Players[Player_num].objnum].mtype.phys_info.flags &= (~PF_TURNROLL);	// Turn off roll when turning
-		Objects[Players[Player_num].objnum].mtype.phys_info.flags &= (~PF_LEVELLING);	// Turn off leveling to nearest side.
-		Auto_leveling_on = 0;
-
-		if ( kc_external_version > 0 ) {		
-			vms_matrix tempm, ViewMatrix;
-			vms_angvec * Kconfig_abs_movement;
-			char * oem_message;
-	
-			Kconfig_abs_movement = (vms_angvec *)((uint)kc_external_control + sizeof(control_info));
-	
-			if ( Kconfig_abs_movement->p || Kconfig_abs_movement->b || Kconfig_abs_movement->h )	{
-				vm_angles_2_matrix(&tempm,Kconfig_abs_movement);
-				vm_matrix_x_matrix(&ViewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
-				Objects[Players[Player_num].objnum].orient = ViewMatrix;		
-			}
-			oem_message = (char *)((uint)Kconfig_abs_movement + sizeof(vms_angvec));
-			if (oem_message[0] != '\0' )
-				HUD_init_message( oem_message );
-		}
-	}*/
-
-	Controls.pitch_time += fixmul(kc_external_control->pitch_time,FrameTime);						
+	Controls.pitch_time += fixmul(kc_external_control->pitch_time,FrameTime);	
 	Controls.vertical_thrust_time += fixmul(kc_external_control->vertical_thrust_time,FrameTime);
 	Controls.heading_time += fixmul(kc_external_control->heading_time,FrameTime);
 	Controls.sideways_thrust_time += fixmul(kc_external_control->sideways_thrust_time ,FrameTime);
@@ -3718,17 +3529,17 @@ extern object *obj_find_first_of_type (int);
 void kconfig_read_external_controls()
 {
 	//union REGS r;
-   int i;
+	int i;
 
 	if ( !kc_enable_external_control ) return;
 
 	if ( kc_external_version == 0 ) 
 		memset( kc_external_control, 0, sizeof(ext_control_info));
 	else if ( kc_external_version > 0 ) 	{
-    	
+
 		if (kc_external_version>=4)
 			memset( kc_external_control, 0, sizeof(advanced_ext_control_info));
-      else if (kc_external_version>0)     
+		else if (kc_external_version>0)
 			memset( kc_external_control, 0, sizeof(ext_control_info)+sizeof(vms_angvec) + 64 );
 		else if (kc_external_version>2)
 			memset( kc_external_control, 0, sizeof(ext_control_info)+sizeof(vms_angvec) + 64 + sizeof(vms_vector) + sizeof(vms_matrix) +4 );
@@ -3748,47 +3559,41 @@ void kconfig_read_external_controls()
 			// Fill in ship orientation...
 			*ship_orient = Objects[Players[Player_num].objnum].orient;
 		}
-    if (kc_external_version>=4)
-	  {
-	   advanced_ext_control_info *temp_ptr=(advanced_ext_control_info *)kc_external_control;
- 
-      temp_ptr->headlight_state=(Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON);
-		temp_ptr->primary_weapon_flags=Players[Player_num].primary_weapon_flags;
-		temp_ptr->secondary_weapon_flags=Players[Player_num].secondary_weapon_flags;
-      temp_ptr->current_primary_weapon=Primary_weapon;
-      temp_ptr->current_secondary_weapon=Secondary_weapon;
-
-      temp_ptr->current_guidebot_command=Escort_goal_object;
-
-	   temp_ptr->force_vector=ExtForceVec;
-		temp_ptr->force_matrix=ExtApplyForceMatrix;
-	   for (i=0;i<3;i++)
-       temp_ptr->joltinfo[i]=ExtJoltInfo[i];  
-      for (i=0;i<2;i++)
-		   temp_ptr->x_vibrate_info[i]=ExtXVibrateInfo[i];
-		temp_ptr->x_vibrate_clear=ExtXVibrateClear;
- 	   temp_ptr->game_status=ExtGameStatus;
-   
-      memset ((void *)&ExtForceVec,0,sizeof(vms_vector));
-      memset ((void *)&ExtApplyForceMatrix,0,sizeof(vms_matrix));
-      
-      for (i=0;i<3;i++)
-		 ExtJoltInfo[i]=0;
-      for (i=0;i<2;i++)
-		 ExtXVibrateInfo[i]=0;
-      ExtXVibrateClear=0;
-     }
+		if (kc_external_version>=4)
+		{
+			advanced_ext_control_info *temp_ptr=(advanced_ext_control_info *)kc_external_control;
+		
+			temp_ptr->headlight_state=(Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON);
+					temp_ptr->primary_weapon_flags=Players[Player_num].primary_weapon_flags;
+					temp_ptr->secondary_weapon_flags=Players[Player_num].secondary_weapon_flags;
+			temp_ptr->current_primary_weapon=Primary_weapon;
+			temp_ptr->current_secondary_weapon=Secondary_weapon;
+			
+			temp_ptr->current_guidebot_command=Escort_goal_object;
+			
+			temp_ptr->force_vector=ExtForceVec;
+			temp_ptr->force_matrix=ExtApplyForceMatrix;
+			for (i=0;i<3;i++)
+				temp_ptr->joltinfo[i]=ExtJoltInfo[i];  
+			for (i=0;i<2;i++)
+					temp_ptr->x_vibrate_info[i]=ExtXVibrateInfo[i];
+					temp_ptr->x_vibrate_clear=ExtXVibrateClear;
+				temp_ptr->game_status=ExtGameStatus;
+			
+			memset ((void *)&ExtForceVec,0,sizeof(vms_vector));
+			memset ((void *)&ExtApplyForceMatrix,0,sizeof(vms_matrix));
+			
+			for (i=0;i<3;i++)
+				ExtJoltInfo[i]=0;
+			for (i=0;i<2;i++)
+				ExtXVibrateInfo[i]=0;
+			ExtXVibrateClear=0;
+		}
 	}
 
 	if ( Automap_active )			// (If in automap...)
 		kc_external_control->automap_state = 1;
 	//memset(&r,0,sizeof(r));
-
-  #if 0
- 
-	int386 ( kc_external_intno, &r, &r);		// Read external info...
-
-  #endif 
 
 	if ( Player_num > -1 )	{
 		Objects[Players[Player_num].objnum].mtype.phys_info.flags &= (~PF_TURNROLL);	// Turn off roll when turning
@@ -3830,39 +3635,39 @@ void kconfig_read_external_controls()
 	Controls.automap_down_count += kc_external_control->automap_down_count;
 	Controls.automap_state |= kc_external_control->automap_state;
 	
-   if (kc_external_version>=3)
-	 {
+	if (kc_external_version>=3)
+	{
 		ubyte *temp_ptr = (ubyte *)kc_external_control;
 		temp_ptr += (sizeof(ext_control_info) + sizeof(vms_angvec) + 64 + sizeof(vms_vector) + sizeof (vms_matrix));
-  
-	   if (*(temp_ptr))
-		 Controls.cycle_primary_count=(*(temp_ptr));
-	   if (*(temp_ptr+1))
-		 Controls.cycle_secondary_count=(*(temp_ptr+1));
-
+	
+		if (*(temp_ptr))
+			Controls.cycle_primary_count=(*(temp_ptr));
+		if (*(temp_ptr+1))
+			Controls.cycle_secondary_count=(*(temp_ptr+1));
+	
 		if (*(temp_ptr+2))
-		 Controls.afterburner_state=(*(temp_ptr+2));
+			Controls.afterburner_state=(*(temp_ptr+2));
 		if (*(temp_ptr+3))
-		 Controls.headlight_count=(*(temp_ptr+3));
-  	 }
-   if (kc_external_version>=4)
-	 {
-     int i;
-	  advanced_ext_control_info *temp_ptr=(advanced_ext_control_info *)kc_external_control;
-     
-     for (i=0;i<128;i++)
-	   if (temp_ptr->keyboard[i])
-			key_putkey (i);
-
-     if (temp_ptr->Reactor_blown)
-      {
-       if (Game_mode & GM_MULTI)
-		    net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
-		 else
-			 do_controlcen_destroyed_stuff(obj_find_first_of_type (OBJ_CNTRLCEN));
-	   }
-    }
-  
+			Controls.headlight_count=(*(temp_ptr+3));
+	}
+	if (kc_external_version>=4)
+	{
+		int i;
+		advanced_ext_control_info *temp_ptr=(advanced_ext_control_info *)kc_external_control;
+	
+		for (i=0;i<128;i++)
+			if (temp_ptr->keyboard[i])
+				key_putkey (i);
+	
+		if (temp_ptr->Reactor_blown)
+		{
+			if (Game_mode & GM_MULTI)
+				net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
+			else
+				do_controlcen_destroyed_stuff(obj_find_first_of_type (OBJ_CNTRLCEN));
+		}
+	}
+	
 }
 #endif
 
