@@ -400,11 +400,6 @@ int main(int argc,char **argv)
 
 	printf("\n%s\n", TXT_HELP);
 
-	if ((t = FindArg( "-altsounds" ))) {
-		load_alt_sounds(Args[t+1]);
-		atexit(free_alt_sounds);
-	}
-
 	if ((t = FindArg( "-missiondir" )))
 		cfile_use_alternate_hogdir(Args[t+1]);
 	else

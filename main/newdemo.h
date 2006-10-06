@@ -262,7 +262,11 @@ extern void newdemo_stop_playback();
 extern void newdemo_start_recording();
 extern void newdemo_stop_recording();
 
-extern int newdemo_get_percent_done();               
+extern int newdemo_get_percent_done();
+
+extern void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end );
+extern int newdemo_find_object( int signature );
+extern void newdemo_record_kill_sound_linked_to_object( int objnum );
 
 #endif
 

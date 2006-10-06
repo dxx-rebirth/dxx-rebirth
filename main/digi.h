@@ -209,5 +209,34 @@ extern int digi_get_max_channels();
 
 extern int digi_lomem;
 
+extern int digi_xlat_sound(int soundno);
+
+extern void digi_stop_sound( int channel );
+
+// Returns the channel a sound number is playing on, or
+// -1 if none.
+extern int digi_find_channel(int soundno);
+
+// Volume 0-F1_0
+extern int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj);
+
+// Stops all sounds that are playing
+void digi_stop_all_channels();
+
+extern void digi_end_sound( int channel );
+extern void digi_set_channel_pan( int channel, int pan );
+extern void digi_set_channel_volume( int channel, int volume );
+extern int digi_is_channel_playing(int channel);
+extern void digi_pause_midi();
+extern void digi_debug();
+extern void digi_stop_current_song();
+
+extern void digi_play_sample_looping( int soundno, fix max_volume,int loop_start, int loop_end );
+extern void digi_change_looping_volume( fix volume );
+extern void digi_stop_looping_sound();
+
+// Plays a queued voice sound.
+extern void digi_start_sound_queued( short soundnum, fix volume );
+
 #endif
  

@@ -136,6 +136,8 @@ void DoJasonInterpolate (fix recorded_time);
 #define ND_EVENT_DOOR_OPENING			41	// with segment/side
 #endif
 #define ND_EVENT_LASER_LEVEL			42	// with old/new level
+#define ND_EVENT_LINK_SOUND_TO_OBJ  43  // record digi_link_sound_to_object3
+#define ND_EVENT_KILL_SOUND_TO_OBJ  44  // record digi_kill_sound_linked_to_object
 
 #define NORMAL_PLAYBACK 			0
 #define SKIP_PLAYBACK				1
@@ -236,6 +238,18 @@ int newdemo_read( void *buffer, int elsize, int nelem )
 	return num_read;
 }
 
+int newdemo_find_object( int signature )
+{
+	int i;
+	object * objp;
+	objp = Objects;
+	for (i=0; i<=Highest_object_index; i++, objp++ ) {
+		if ( (objp->type != OBJ_NONE) && (objp->signature == signature))
+			return i;
+	}
+	return -1;
+}
+
 int newdemo_write( void *buffer, int elsize, int nelem )
 {
 	int num_written, total_size;
@@ -244,7 +258,6 @@ int newdemo_write( void *buffer, int elsize, int nelem )
         if (mekh_demo_paused)
                 return 0;
 //End add -GC
-
 
 	total_size = elsize * nelem;
 	frame_bytes_written += total_size;
@@ -425,13 +438,13 @@ void nd_read_object(object *obj)
  *  Do render type first, since with render_type == RT_NONE, we
  *  blow by all other object information
 */
-	nd_read_byte(&(obj->render_type));
- 	nd_read_byte(&(obj->type));
+	nd_read_byte((sbyte *)&(obj->render_type));
+ 	nd_read_byte((sbyte *)&(obj->type));
 	if ((obj->render_type == RT_NONE) && (obj->type != OBJ_CAMERA))
 		return;
 
-	nd_read_byte(&(obj->id));
-	nd_read_byte(&(obj->flags));
+	nd_read_byte((sbyte *)&(obj->id));
+	nd_read_byte((sbyte *)&(obj->flags));
 	nd_read_short((short *)&(obj->signature));
 	nd_read_shortpos(obj);
 
@@ -456,7 +469,7 @@ void nd_read_object(object *obj)
 
 		case OBJ_POWERUP:
 			obj->control_type = CT_POWERUP;
-			nd_read_byte(&(obj->movement_type)); // might have physics movement
+			nd_read_byte((sbyte *)&(obj->movement_type)); // might have physics movement
 			obj->size = Powerup_info[obj->id].size;
 			break;
 
@@ -477,8 +490,8 @@ void nd_read_object(object *obj)
 			break;
 
 		default:
-			nd_read_byte(&(obj->control_type));
-			nd_read_byte(&(obj->movement_type));
+			nd_read_byte((sbyte *)&(obj->control_type));
+			nd_read_byte((sbyte *)&(obj->movement_type));
 			nd_read_fix(&(obj->size));
 			break;	
 	}
@@ -487,7 +500,7 @@ void nd_read_object(object *obj)
 	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
 		nd_read_fix(&(obj->lifeleft));
 	else {
-		nd_read_byte((ubyte *)&(obj->lifeleft));
+		nd_read_byte((sbyte *)&(obj->lifeleft));
 		obj->lifeleft = (fix)((int)obj->lifeleft << 12);
 	}
 
@@ -913,6 +926,27 @@ void newdemo_record_sound_3d_once( int soundno, int angle, int volume )	{
 	start_time();
 }
 
+void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end )
+{
+	stop_time();
+	nd_write_byte( ND_EVENT_LINK_SOUND_TO_OBJ );
+	nd_write_int( soundno );
+	nd_write_int( Objects[objnum].signature );
+	nd_write_int( max_volume );
+	nd_write_int( max_distance );
+	nd_write_int( loop_start );
+	nd_write_int( loop_end );
+	start_time();
+}
+
+void newdemo_record_kill_sound_linked_to_object( int objnum )
+{
+	stop_time();
+	nd_write_byte( ND_EVENT_KILL_SOUND_TO_OBJ );
+	nd_write_int( Objects[objnum].signature );
+	start_time();
+}
+
 void newdemo_record_wall_hit_process( int segnum, int side, int damage, int playernum )
 {
 	stop_time();
@@ -1256,7 +1290,7 @@ int newdemo_read_demo_start(int rnd_demo)
         sbyte i, laser_level;
         char current_mission[9];
 
-	nd_read_byte(&c);
+	nd_read_byte((sbyte *)&c);
 	if ((c != ND_EVENT_START_DEMO) || nd_bad_read) {
 		newmenu_item m[1];
 
@@ -1313,7 +1347,7 @@ JasonPlaybackTotal=0;
 	}
 #else
 	if (Newdemo_game_mode & GM_TEAM) {
-		nd_read_byte(&(Netgame.team_vector));
+		nd_read_byte((sbyte *)&(Netgame.team_vector));
 		nd_read_string(Netgame.team_name[0]);
 		nd_read_string(Netgame.team_name[1]);
 	}
@@ -1376,8 +1410,8 @@ JasonPlaybackTotal=0;
 
 	nd_recorded_total = 0;
 	nd_playback_total = 0;
-	nd_read_byte(&energy);
-	nd_read_byte(&shield);
+	nd_read_byte((sbyte *)&energy);
+	nd_read_byte((sbyte *)&shield);
 
 	nd_read_int((int *)&(Players[Player_num].flags));
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
@@ -1463,7 +1497,7 @@ int newdemo_read_frame_information()
 	prev_obj = NULL;
 
 	while( !done )	{
-		nd_read_byte(&c);
+		nd_read_byte((sbyte *)&c);
 		if (nd_bad_read) { done = -1; break; }
 
 		switch( c )	{
@@ -1673,9 +1707,9 @@ int newdemo_read_frame_information()
 #ifndef SHAREWARE
 			ubyte old_energy;
 
-			nd_read_byte(&old_energy);
+			nd_read_byte((sbyte *)&old_energy);
 #endif
-			nd_read_byte(&energy);
+			nd_read_byte((sbyte *)&energy);
 			if (nd_bad_read) {done = -1; break; }
 #ifdef SHAREWARE
 			Players[Player_num].energy = i2f(energy);
@@ -1695,9 +1729,9 @@ int newdemo_read_frame_information()
 #ifndef SHAREWARE
 			ubyte old_shield;
 
-			nd_read_byte(&old_shield);
+			nd_read_byte((sbyte *)&old_shield);
 #endif
-			nd_read_byte(&shield);
+			nd_read_byte((sbyte *)&shield);
 			if (nd_bad_read) {done = -1; break; }
 #ifdef SHAREWARE
 			Players[Player_num].shields = i2f(shield);
@@ -1863,9 +1897,9 @@ int newdemo_read_frame_information()
 			ubyte side,cside;
 
 			nd_read_short(&seg);
-			nd_read_byte(&side);
+			nd_read_byte((sbyte *)&side);
 			nd_read_short(&cseg);
-			nd_read_byte(&cside);
+			nd_read_byte((sbyte *)&cside);
 			nd_read_short( &tmap );
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD))
 				Segments[seg].sides[side].tmap_num = Segments[cseg].sides[cside].tmap_num = tmap;
@@ -1877,9 +1911,9 @@ int newdemo_read_frame_information()
 			ubyte side,cside;
 
 			nd_read_short(&seg);
-			nd_read_byte(&side);
+			nd_read_byte((sbyte *)&side);
 			nd_read_short(&cseg);
-			nd_read_byte(&cside);
+			nd_read_byte((sbyte *)&cside);
 			nd_read_short( &tmap );
 			if ((Newdemo_vcr_state != ND_STATE_PAUSED) && (Newdemo_vcr_state != ND_STATE_REWINDING) && (Newdemo_vcr_state != ND_STATE_ONEFRAMEBACKWARD)) {
 				Assert(tmap!=0 && Segments[seg].sides[side].tmap_num2!=0);
@@ -2272,8 +2306,8 @@ void newdemo_goto_end()
 	nd_read_short(&bshort);
 	nd_read_int(&bint);
 	
-	nd_read_byte(&energy);
-	nd_read_byte(&shield);
+	nd_read_byte((sbyte *)&energy);
+	nd_read_byte((sbyte *)&shield);
 	Players[Player_num].energy = i2f(energy);
 	Players[Player_num].shields = i2f(shield);
 	nd_read_int((int *)&(Players[Player_num].flags));

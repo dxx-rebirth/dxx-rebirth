@@ -59,7 +59,7 @@ common_sources = [
 'iff/iff.c',
 'main/ai.c',
 'main/aipath.c',
-'main/altsound.c',
+'main/digiobj.c',
 'main/args.c',
 'main/automap.c',
 'main/ban.c',
