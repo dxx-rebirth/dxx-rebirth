@@ -254,10 +254,7 @@ int nm_messagebox_fixedfont( char *title, int nchoices, ... );
 #endif
 
 #ifdef NEWMENU_MOUSE
-# if defined(__WINDOWS__)
-#  define newmenu_show_cursor() ShowCursorW()
-#  define newmenu_hide_cursor() HideCursorW()
-# elif defined(SDL_INPUT)
+# if defined(SDL_INPUT)
 #  include <SDL/SDL.h>
 #  define newmenu_show_cursor() SDL_ShowCursor(SDL_ENABLE)
 #  define newmenu_hide_cursor() SDL_ShowCursor(SDL_DISABLE)

@@ -5,7 +5,7 @@
 extern "C"{
 #include <stdlib.h>
 #ifdef __WINDOWS__
-#include <malloc.h>
+#include "alloca.h"
 #endif
 #include "mono.h"
 #include "key.h"

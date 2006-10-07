@@ -838,9 +838,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	}
 
 	newmenu_show_cursor();
-# ifdef __WINDOWS__
-	SetCursor(LoadCursor(NULL,IDC_ARROW));
-# endif
 #endif
 
 	while(!done)	{

@@ -20,11 +20,6 @@ no_asm = int(ARGUMENTS.get('no_asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
 shareware = int(ARGUMENTS.get('shareware', 0))
 
-# place of descent data - please change if desired
-# path must begin and end with a slash (/) + qotes and backslashes
-# pattern: '\\" /MY/SHARE/PATH/ \\"'
-D1XDATAPATH = '\\"' + str(sharepath) + '\\"'
-
 # general source files
 common_sources = [
 '2d/2dsline.c',
@@ -302,7 +297,6 @@ noasm_sources = [
 # flags and stuff for all platforms
 env = Environment(ENV = os.environ)
 env.Append(CPPFLAGS = '-O2 -Wall -funsigned-char')
-env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', D1XDATAPATH)])
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
 env.Append(CPPPATH = ['include', 'main', 'arch/sdl/include'])
 env.Append(CPPDEFINES = ['NMONO', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'SUPPORTS_NET_IP', '__SDL__', 'SDL_INPUT', 'SDL_AUDIO', '_REENTRANT'])
@@ -313,6 +307,7 @@ if sys.platform == 'win32':
 	print "compiling on Windows"
 	osdef = '__WINDOWS__'
 	osasmdef = 'win32'
+	env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"''\\"')])
 	env.Append(CPPDEFINES = ['__WINDOWS__'])
 	env.Append(CPPPATH = ['arch/win32/include'])
 	ogldefines = ['SDL_GL', 'OGL_RUNTIME_LOAD', 'OGL']
@@ -325,6 +320,7 @@ else:
 	print "compiling on *NIX"
 	osdef = '__LINUX__'
 	osasmdef = 'elf'
+	env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"' + str(sharepath) + '\\"')])
 	env.Append(CPPDEFINES = ['__LINUX__', 'WANT_AWE32'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL', 'OGL']
