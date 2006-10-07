@@ -2724,7 +2724,7 @@ void draw_weapon_boxes()
 		draw_static(1);
 
 	if (Cockpit_mode == CM_STATUS_BAR) {
-		if (!Gauge_hud_mode)
+		if (!Gauge_hud_mode && weapon_box_user[1] == WBU_WEAPON)
 			show_bomb_count(SB_BOMB_COUNT_X, SB_BOMB_COUNT_Y, gr_find_closest_color(0, 0, 0), 0);
 	} else {
 		show_bomb_count(BOMB_COUNT_X, BOMB_COUNT_Y, gr_find_closest_color(0, 0, 0), 0);
