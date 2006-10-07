@@ -636,6 +636,7 @@ int check_button_press()
 	case	CONTROL_FLIGHTSTICK_PRO:
 	case	CONTROL_THRUSTMASTER_FCS:
 	case	CONTROL_GRAVIS_GAMEPAD:
+	case	CONTROL_JOYMOUSE:
 		for (i=0; i<4; i++ )	
 	 		if (joy_get_button_down_cnt(i)>0) return 1;
 		break;

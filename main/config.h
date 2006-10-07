@@ -55,6 +55,7 @@ extern ubyte Config_redbook_volume;
 extern ubyte Config_control_type;
 extern ubyte Config_channels_reversed;
 extern ubyte Config_joystick_sensitivity;
+extern ubyte Config_mouse_sensitivity;
 
 //values for Config_control_type
 #define CONTROL_NONE 0
@@ -67,5 +68,6 @@ extern ubyte Config_joystick_sensitivity;
 #define CONTROL_WINJOYSTICK 7
 
 #define CONTROL_MAX_TYPES 8
+#define CONTROL_JOYMOUSE 9
 
 #endif

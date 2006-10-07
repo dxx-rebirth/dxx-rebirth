@@ -117,9 +117,9 @@ hli highest_levels[MAX_MISSIONS];
 //version 24 -> 25: add d2x keys array
 
 #define COMPATIBLE_PLAYER_FILE_VERSION          17
-#define WINDOWSIZE 64
-#define RESOLUTION 64
-
+#define WINDOWSIZE 1
+#define RESOLUTION 2
+#define MOUSE_SENSITIVITY 4
 
 int Default_leveling_on=1;
 extern ubyte SecondaryOrder[],PrimaryOrder[];
@@ -266,6 +266,7 @@ RetrySelection:
 	highest_levels[0].shortname[0] = 0;			//no name for mission 0
 	highest_levels[0].level_num = 1;				//was highest level in old struct
 	Config_joystick_sensitivity = 8;
+	Config_mouse_sensitivity = 8;
 	Cockpit_3d_view[0]=CV_NONE;
 	Cockpit_3d_view[1]=CV_NONE;
 
@@ -360,6 +361,27 @@ int read_player_d2x(char *filename)
 				strupr(word);
 			}
 		}
+		else if (strstr(word,"MOUSE"))
+		{
+			d_free(word);
+			cfgets(line,20,f);
+			word=splitword(line,'=');
+			strupr(word);
+	
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				if(!strcmp(word,"SENSITIVITY"))
+				{
+					int tmp;
+					sscanf(line,"%i",&tmp);
+					Config_mouse_sensitivity = (ubyte) tmp;
+				}
+				d_free(word);
+				cfgets(line,20,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
 		else if (strstr(word,"END") || PHYSFS_eof(f))
 		{
 			Stop=1;
@@ -379,9 +401,6 @@ int read_player_d2x(char *filename)
 		if(word)
 			d_free(word);
 	}
-
-// 	if (ferror(f)) // FIXME
-//                 rc = errno;
 
 	PHYSFS_close(f);
 
@@ -425,6 +444,13 @@ int write_player_d2x(char *filename)
 			PHYSFSX_puts(fout, str);
 			sprintf (str, "[end]\n");
 			PHYSFSX_puts(fout, str);
+			sprintf (str, "[mouse]\n");
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "sensitivity=%d\n",Config_mouse_sensitivity);
+			PHYSFSX_puts(fout, str);
+			sprintf (str, "[end]\n");
+			PHYSFSX_puts(fout, str);
+
 			sprintf (str, "[plx version]\n");
 			PHYSFSX_puts(fout, str);
 			sprintf (str, "plx version=%s\n", VERSION);
@@ -484,6 +510,21 @@ int write_player_d2x(char *filename)
 					}
 					printed |= RESOLUTION;
 				}
+				else if (strstr(line,"MOUSE"))
+				{
+					sprintf (str, "[mouse]\n");
+					PHYSFSX_puts(fout, str);
+					sprintf (str, "sensitivity=%d\n",Config_mouse_sensitivity);
+					PHYSFSX_puts(fout, str);
+					sprintf (str, "[end]\n");
+					PHYSFSX_puts(fout, str);
+					while(!strstr(line,"END")&&!PHYSFS_eof(fin))
+					{
+						cfgets(line,20,fin);
+						strupr(line);
+					}
+					printed |= MOUSE_SENSITIVITY;
+				}
 				else if (strstr(line,"END"))
 				{
 					Stop=1;
@@ -528,6 +569,15 @@ int write_player_d2x(char *filename)
 				sprintf (str, "[end]\n");
 				PHYSFSX_puts(fout, str);
 			}
+			if(!(printed&MOUSE_SENSITIVITY))
+			{
+				sprintf (str, "[mouse]\n");
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "sensitivity=%d\n",Config_mouse_sensitivity);
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "[end]\n");
+				PHYSFSX_puts(fout, str);
+			}
 		
 				sprintf (str, "[plx version]\n");
 				PHYSFSX_puts(fout, str);
@@ -541,9 +591,6 @@ int write_player_d2x(char *filename)
 				PHYSFS_close(fin);
 		}
 		
-		//if (ferror(fout)) // FIXME
-			//rc = errno;
-
 		PHYSFS_close(fout);
 		if(rc==0)
 		{

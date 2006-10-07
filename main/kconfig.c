@@ -198,6 +198,8 @@ extern joydefsw_win_joyselect(char *title);
 
 control_info Controls;
 
+ubyte Config_mouse_sensitivity = 8;
+
 fix Cruise_speed=0;
 
 // macros for drawing lo/hi res kconfig screens (see scores.c as well)
@@ -205,13 +207,15 @@ fix Cruise_speed=0;
 #define LHX(x)		((x)*(MenuHires?FONTSCALE_X(2):FONTSCALE_X(1)))
 #define LHY(y)		((y)*(MenuHires?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
 
-
 #define BT_KEY 			0
 #define BT_MOUSE_BUTTON 	1
 #define BT_MOUSE_AXIS		2
 #define BT_JOY_BUTTON 		3
 #define BT_JOY_AXIS		4
 #define BT_INVERT		5
+
+#define CONTROL_USING_JOYSTICK (Config_control_type == CONTROL_JOYSTICK || Config_control_type == CONTROL_WINJOYSTICK || Config_control_type == CONTROL_JOYMOUSE)
+#define CONTROL_USING_MOUSE (Config_control_type == CONTROL_MOUSE || Config_control_type == CONTROL_JOYMOUSE)
 
 char *btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
 
@@ -1815,18 +1819,29 @@ void kconfig(int n, char * title)
 					0, 0, 0, 0, &grd_curcanv->cv_bitmap, save_bm );
 
 	switch(n)	{
-	case 0:kconfig_sub( kc_keyboard, NUM_KEY_CONTROLS, title );break;
-	case 1:kconfig_sub( kc_joystick, NUM_OTHER_CONTROLS, title );break;
-	case 2:kconfig_sub( kc_mouse, NUM_OTHER_CONTROLS, title ); break;
-	case 3:kconfig_sub( kc_superjoy, NUM_OTHER_CONTROLS, title); break;
+		case 0:kconfig_sub( kc_keyboard, NUM_KEY_CONTROLS, title );break;
+		case 1:kconfig_sub( kc_joystick, NUM_OTHER_CONTROLS, title );break;
+		case 2:kconfig_sub( kc_mouse, NUM_OTHER_CONTROLS, title ); break;
+// 		case 3:kconfig_sub( kc_superjoy, NUM_OTHER_CONTROLS, title); break;
+		case 3:
+			Config_control_type = CONTROL_JOYSTICK;
+#ifndef WINDOWS
+			kconfig_sub( kc_joystick,NUM_OTHER_CONTROLS, "JOYSTICK");
+#else
+			kconfig_sub( kc_superjoy,NUM_OTHER_CONTROLS, "JOYSTICK");
+#endif
+			Config_control_type = CONTROL_MOUSE;
+			kconfig_sub( kc_mouse,   NUM_OTHER_CONTROLS,     "MOUSE");
+			Config_control_type = CONTROL_JOYMOUSE;
+			break;
 #ifdef D2X_KEYS
 	//added on 2/4/99 by Victor Rachels for new keys menu
-	case 4:kconfig_sub( kc_d2x, NUM_D2X_CONTROLS, title ); break;
+		case 4:kconfig_sub( kc_d2x, NUM_D2X_CONTROLS, title ); break;
 	//end this section addition - VR
 #endif
- 	default:
-		Int3();
-		return;
+ 		default:
+			Int3();
+			return;
 	}
 
 	//restore screen
@@ -1842,17 +1857,22 @@ void kconfig(int n, char * title)
 	for (i=0; i<NUM_KEY_CONTROLS; i++ )	
 		kconfig_settings[0][i] = kc_keyboard[i].value;
 
-	if ( (Config_control_type>0) && (Config_control_type<5)) { 
+	if ( CONTROL_USING_JOYSTICK) { 
 		for (i=0; i<NUM_OTHER_CONTROLS; i++ )	
-			kconfig_settings[Config_control_type][i] = kc_joystick[i].value;
-	} else if (Config_control_type>4 && Config_control_type<CONTROL_WINJOYSTICK) {
-		for (i=0; i<NUM_OTHER_CONTROLS; i++ )	
-			kconfig_settings[Config_control_type][i] = kc_mouse[i].value;
+#ifndef WINDOWS
+			kconfig_settings[CONTROL_JOYSTICK][i] = kc_joystick[i].value;
+#else
+			kconfig_settings[CONTROL_JOYSTICK][i] = kc_superjoy[i].value;
+#endif
 	}
-	else if (Config_control_type == CONTROL_WINJOYSTICK) {
+	if (CONTROL_USING_MOUSE && Config_control_type != CONTROL_WINJOYSTICK) {
 		for (i=0; i<NUM_OTHER_CONTROLS; i++ )	
-			kconfig_settings[Config_control_type][i] = kc_superjoy[i].value;
+			kconfig_settings[CONTROL_MOUSE][i] = kc_mouse[i].value;
 	}
+// 	if (Config_control_type == CONTROL_WINJOYSTICK) {
+// 		for (i=0; i<NUM_OTHER_CONTROLS; i++ )	
+// 			kconfig_settings[Config_control_type][i] = kc_superjoy[i].value;
+// 	}
 
 #ifdef D2X_KEYS
 	for (i=0; i<NUM_D2X_CONTROLS; i++)
@@ -1980,6 +2000,9 @@ void controls_read_all_win()
 	int i;
 	int slide_on, bank_on;
 	int dx, dy;
+#ifdef SDL_INPUT
+	int dz;
+#endif
 	fix ctime;
 	fix mouse_axis[2];
 	int raw_joy_axis[7];
@@ -2011,7 +2034,7 @@ void controls_read_all_win()
 		if ((ctime < 0) && (LastReadTime > 0))
 			LastReadTime = ctime;
 		use_joystick=1;
-	} else if ((Config_control_type==CONTROL_WINJOYSTICK)) {
+	} else if (CONTROL_USING_JOYSTICK) {
 		LastReadTime = ctime;
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS+JOY_EXT_AXIS, raw_joy_axis );
 
@@ -2058,10 +2081,17 @@ void controls_read_all_win()
 
 //	DO MOUSE 
 //	----------------------------------------------------------------------------
-	if (Config_control_type==5) {
+	if (CONTROL_USING_MOUSE) {
+#ifdef SDL_INPUT
+		mouse_get_delta_z( &dx, &dy, &dz );
+#else
 		mouse_get_delta( &dx, &dy );
+#endif
 		mouse_axis[0] = (dx*60); //(dx*FrameTime)/35;
 		mouse_axis[1] = (dy*85); //(dy*FrameTime)/25;
+#ifdef SDL_INPUT
+		mouse_axis[2] = (dz*FrameTime);
+#endif
 		mouse_buttons = mouse_get_btns();
 		//mprintf(( 0, "Mouse %d,%d b:%d, 0x%x\n", mouse_axis[0], mouse_axis[1], mouse_buttons, FrameTime ));
 		use_mouse=1;
@@ -2135,9 +2165,9 @@ void controls_read_all_win()
 		//mprintf(( 0, "UM: %d, PV: %d\n", use_mouse, kc_mouse[13].value ));
 		if ( (use_mouse)&&(kc_mouse[13].value < 255) )	{
 			if ( !kc_mouse[14].value )		// If not inverted...
-				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/8;
+				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*Config_mouse_sensitivity)/8;
 			else
-				Controls.pitch_time += (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/8;
+				Controls.pitch_time += (mouse_axis[kc_mouse[13].value]*Config_mouse_sensitivity)/8;
 		}
 	} else {
 		Controls.pitch_time = 0;
@@ -2260,9 +2290,9 @@ void controls_read_all_win()
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
+				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*Config_mouse_sensitivity)/8;
 			else
-				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
+				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*Config_mouse_sensitivity)/8;
 		}
 	} else {
 		Controls.heading_time = 0;
@@ -2366,9 +2396,9 @@ void controls_read_all_win()
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.bank_time += (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
+				Controls.bank_time += (mouse_axis[kc_mouse[15].value]*Config_mouse_sensitivity)/8;
 			else
-				Controls.bank_time -= (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
+				Controls.bank_time -= (mouse_axis[kc_mouse[15].value]*Config_mouse_sensitivity)/8;
 		}
 	}
 
@@ -2691,7 +2721,7 @@ void controls_read_all()
 # endif
 			LastReadTime = ctime;
 		use_joystick=1;
-	} else if ((Config_control_type>0) && (Config_control_type<5) ) {
+	} else if (CONTROL_USING_JOYSTICK ) {
 		LastReadTime = ctime;
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 
@@ -2732,7 +2762,7 @@ void controls_read_all()
 	}
 #else   // MACINTOSH
 	//---------  Read Joystick -----------
-	if ((Config_control_type>0) && (Config_control_type<5) ) {
+	if (CONTROL_USING_JOYSTICK ) {
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 		for (i=0; i<4; i++ )	{
 			if (channel_masks&(1<<i))	{
@@ -2762,7 +2792,7 @@ void controls_read_all()
 	}
 #endif		// ifndef MACINTOSH
 
-	if (Config_control_type==5 && !CybermouseActive) {
+	if (CONTROL_USING_MOUSE && !CybermouseActive) {
 		//---------  Read Mouse -----------
 #ifdef SDL_INPUT
 		mouse_get_delta_z( &dx, &dy, &dz );
@@ -2940,9 +2970,9 @@ void controls_read_all()
 		//mprintf(( 0, "UM: %d, PV: %d\n", use_mouse, kc_mouse[13].value ));
 		if ( (use_mouse)&&(kc_mouse[13].value < 255) )	{
 			if ( !kc_mouse[14].value )		// If not inverted...
-				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/8;
+				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*Config_mouse_sensitivity)/8;
 			else
-				Controls.pitch_time += (mouse_axis[kc_mouse[13].value]*Config_joystick_sensitivity)/8;
+				Controls.pitch_time += (mouse_axis[kc_mouse[13].value]*Config_mouse_sensitivity)/8;
 		}
 	} else {
 		Controls.pitch_time = 0;
@@ -3070,9 +3100,9 @@ if (!Player_is_dead)
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
+				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*Config_mouse_sensitivity)/8;
 			else
-				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
+				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*Config_mouse_sensitivity)/8;
 		}
 	} else {
 		Controls.heading_time = 0;
@@ -3181,9 +3211,9 @@ if (!Player_is_dead)
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.bank_time += (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
+				Controls.bank_time += (mouse_axis[kc_mouse[15].value]*Config_mouse_sensitivity)/8;
 			else
-				Controls.bank_time -= (mouse_axis[kc_mouse[15].value]*Config_joystick_sensitivity)/8;
+				Controls.bank_time -= (mouse_axis[kc_mouse[15].value]*Config_mouse_sensitivity)/8;
 		}
 	}
 
@@ -3461,31 +3491,32 @@ void kc_set_controls()
 	for (i=0; i<NUM_KEY_CONTROLS; i++ )	
 		kc_keyboard[i].value = kconfig_settings[0][i];
 
-	if ( (Config_control_type>0) && (Config_control_type<5)) {
+	if (CONTROL_USING_JOYSTICK) {
 		for (i=0; i<NUM_OTHER_CONTROLS; i++ ) {
-			kc_joystick[i].value = kconfig_settings[Config_control_type][i];
+#ifndef WINDOWS
+			kc_joystick[i].value = kconfig_settings[CONTROL_JOYSTICK][i];
 			if (kc_joystick[i].type == BT_INVERT )	{
 				if (kc_joystick[i].value!=1)
 					kc_joystick[i].value	= 0;
-				kconfig_settings[Config_control_type][i] = kc_joystick[i].value;
+				kconfig_settings[CONTROL_JOYSTICK][i] = kc_joystick[i].value;
 			}
-		}
-	} else if (Config_control_type>4 && Config_control_type<CONTROL_WINJOYSTICK) {
-		for (i=0; i<NUM_OTHER_CONTROLS; i++ )	{
-			kc_mouse[i].value = kconfig_settings[Config_control_type][i];
-			if (kc_mouse[i].type == BT_INVERT )	{
-				if (kc_mouse[i].value!=1)
-					kc_mouse[i].value	= 0;
-				kconfig_settings[Config_control_type][i] = kc_mouse[i].value;
-			}
-		}
-	} else if (Config_control_type == CONTROL_WINJOYSTICK) {
-		for (i=0; i<NUM_OTHER_CONTROLS; i++ ) {
-			kc_superjoy[i].value = kconfig_settings[Config_control_type][i];
+#else
+			kc_superjoy[i].value = kconfig_settings[CONTROL_WINJOYSTICK][i];
 			if (kc_superjoy[i].type == BT_INVERT )	{
 				if (kc_superjoy[i].value!=1)
 					kc_superjoy[i].value	= 0;
-				kconfig_settings[Config_control_type][i] = kc_superjoy[i].value;
+				kconfig_settings[CONTROL_WINJOYSTICK][i] = kc_superjoy[i].value;
+			}
+#endif
+		}
+	}
+	if (CONTROL_USING_MOUSE && Config_control_type != CONTROL_WINJOYSTICK) {
+		for (i=0; i<NUM_OTHER_CONTROLS; i++ )	{
+			kc_mouse[i].value = kconfig_settings[CONTROL_MOUSE][i];
+			if (kc_mouse[i].type == BT_INVERT )	{
+				if (kc_mouse[i].value!=1)
+					kc_mouse[i].value	= 0;
+				kconfig_settings[CONTROL_MOUSE][i] = kc_mouse[i].value;
 			}
 		}
 	}
@@ -3670,4 +3701,3 @@ void kconfig_read_external_controls()
 	
 }
 #endif
-
