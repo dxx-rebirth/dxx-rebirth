@@ -167,6 +167,7 @@ extern ubyte Config_midi_volume;
 extern ubyte Config_control_type;
 extern ubyte Config_channels_reversed;
 extern ubyte Config_joystick_sensitivity;
+extern ubyte Config_mouse_sensitivity;
 
 #define CONTROL_NONE 0
 #define CONTROL_JOYSTICK 1
@@ -176,6 +177,7 @@ extern ubyte Config_joystick_sensitivity;
 #define CONTROL_MOUSE 5
 #define CONTROL_CYBERMAN 6
 #define CONTROL_MAX_TYPES 7
+#define CONTROL_JOYMOUSE 8
 
 //added on 2/4/99 by Victor Rachels to add new keys menu
 #define NUM_D1X_CONTROLS 28

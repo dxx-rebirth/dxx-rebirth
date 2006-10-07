@@ -914,6 +914,7 @@ int RegisterPlayer()
 		// Set default config options in case there is no config file
 		// kc_keyboard, kc_joystick, kc_mouse are statically defined.
 		Config_joystick_sensitivity = 8;
+		Config_mouse_sensitivity = 8;
 		Config_control_type =CONTROL_NONE;
 		for (i=0; i<CONTROL_MAX_TYPES; i++ )
 			for (j=0; j<MAX_CONTROLS; j++ )

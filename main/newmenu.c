@@ -456,6 +456,7 @@ int check_button_press()
 		break;
 	case	CONTROL_MOUSE:
 	case	CONTROL_CYBERMAN:
+	case	CONTROL_JOYMOUSE:
 #ifndef NEWMENU_MOUSE   // don't allow mouse to continue from menu
 		for (i=0; i<3; i++ )	
 			if (mouse_button_down_count(i)>0) return 1;

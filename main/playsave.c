@@ -112,7 +112,8 @@ hli highest_levels[MAX_MISSIONS];
 #define NEWER_KEYS 16
 #define WEAPON_ORDER 32
 #define WINDOWSIZE 64
-#define RESOLUTION 64
+#define RESOLUTION 128
+#define MOUSE_SENSITIVITY 256
 
 typedef struct saved_game {
 	char		name[GAME_NAME_LEN+1];		//extra char for terminating zero
@@ -188,6 +189,7 @@ RetrySelection:
 	highest_levels[0].shortname[0] = 0;			//no name for mission 0
 	highest_levels[0].level_num = 1;				//was highest level in old struct
 	Config_joystick_sensitivity = 8;
+	Config_mouse_sensitivity = 8;
 
 	memcpy(primary_order, default_primary_order, sizeof(primary_order));
 	memcpy(secondary_order, default_secondary_order, sizeof(secondary_order));
@@ -487,6 +489,28 @@ int read_player_d1x(const char *filename)
                      sscanf(line,"%i",&Player_render_width);
                     if(!strcmp(word,"HEIGHT"))
                      sscanf(line,"%i",&Player_render_height);
+                   free(line); free(word);
+                   line=fsplitword(f,'\n');
+                   word=splitword(line,'=');
+                   strupr(word);
+                 }
+               free(line);
+             }
+            else if (strstr(word,"MOUSE"))
+             {
+               free(line); free(word);
+               line=fsplitword(f,'\n');
+               word=splitword(line,'=');
+               strupr(word);
+
+                while(!strstr(word,"END") && !feof(f))
+                 {
+                   if(!strcmp(word,"SENSITIVITY"))
+                   {
+                     int tmp;
+                     sscanf(line,"%i",&tmp);
+                     Config_mouse_sensitivity = (ubyte) tmp;
+                   }
                    free(line); free(word);
                    line=fsplitword(f,'\n');
                    word=splitword(line,'=');
@@ -799,6 +823,9 @@ int write_player_d1x(const char *filename)
           fprintf(fout,"width=%d\n", VR_render_width);
           fprintf(fout,"height=%d\n", VR_render_height);
           fprintf(fout,"[end]\n");
+          fprintf(fout,"[mouse]\n");
+          fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
+          fprintf(fout,"[end]\n");
 
           fprintf(fout,"[plx version]\n");
           fprintf(fout,"plx version=%s\n",D1X_VERSION);
@@ -967,6 +994,20 @@ int write_player_d1x(const char *filename)
                   free(line);
                   printed |= RESOLUTION;
                 }
+               else if (strstr(line,"MOUSE"))
+               {
+                  fprintf(fout,"[mouse]\n");
+                  fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
+                  fprintf(fout,"[end]\n");
+                  while(!strstr(line,"END")&&!feof(fin))
+                  {
+                    free(line);
+                    line=fsplitword(fin,'\n');
+                    strupr(line);
+                  }
+                  free(line);
+                  printed |= MOUSE_SENSITIVITY;
+               }
                else if (strstr(line,"END"))
                 {
                   Stop=1;
@@ -1066,6 +1107,12 @@ int write_player_d1x(const char *filename)
 	      fprintf(fout,"height=%d\n", VR_render_height);
 	      fprintf(fout,"[end]\n");
 	    }
+           if(!(printed&MOUSE_SENSITIVITY))
+            {
+              fprintf(fout,"[mouse]\n");
+              fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
+              fprintf(fout,"[end]\n");
+            }
 
           fprintf(fout,"[plx version]\n");
           fprintf(fout,"plx version=%s\n",D1X_VERSION);
