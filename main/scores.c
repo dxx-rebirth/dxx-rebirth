@@ -566,7 +566,6 @@ void scores_draw_item( int  i, stats_info * stats )
 
 void scores_view(int citem)
 {
-	fix time_out_value;
 	fix t1;
 	int i,done,looper;
 	int k;
@@ -612,38 +611,35 @@ ReshowScores:
 	gr_printf( 0x8000, 31*scaley, "%c%s%c  - %s", 34, Scores.cool_saying, 34, Scores.stats[0].name );
 	
 	for (i=0; i<MAX_HIGH_SCORES; i++ )		{
-		if (i==0)	{
-			gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		} else {
-			gr_set_fontcolor( gr_fade_table[BM_XRGB(28,28,28)+((28-i*2)*256)], -1 );
-		}														 
+		gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );
 		scores_draw_item( i, &Scores.stats[i] );
 	}
 
-        gr_update();
-
 	gr_palette_fade_in( gr_palette,32, 0);
+
+#ifdef OGL
+        gr_update();
+#endif
 
 	game_flush_inputs();
 
 	done = 0;
 	looper = 0;
 
-	time_out_value = timer_get_fixed_seconds()+i2f(60*5);
 	while(!done)	{
 		if ( citem > -1 )	{
 	
 			t1	= timer_get_fixed_seconds();
-			if ( t1 > time_out_value ) done = 1;
 			while ( timer_get_fixed_seconds() < t1+F1_0/128 );	
 
-			gr_set_fontcolor( gr_fade_table[fades[looper]*256+BM_XRGB(28,28,28)], -1 );
+			gr_set_fontcolor( BM_XRGB(7+fades[looper],7+fades[looper],7+fades[looper]), -1 );
 			looper++;
 			if (looper>63) looper=0;
 			if ( citem ==  MAX_HIGH_SCORES )
 				scores_draw_item( MAX_HIGH_SCORES, &Last_game );
 			else
 				scores_draw_item( citem, &Scores.stats[citem] );
+			gr_update();
 		}
 
 		for (i=0; i<4; i++ )	

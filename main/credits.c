@@ -50,33 +50,15 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:44:11 zicodxx Exp 
 #include "cfile.h"
 #include "compbit.h"
 #include "songs.h"
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 #define ROW_SPACING			(GHEIGHT/17)
 #define NUM_LINES			20 //14
 #define CREDITS_BACKGROUND_FILENAME	"stars.pcx"
 #define CREDITS_FILE 			"credits.tex"
 
-#ifdef OGL
-ubyte fade_values_hires[480] = {
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,8,9,9,10,10,11,11,12,12,
-12,13,13,14,14,15,15,15,16,16,17,17,17,18,18,19,19,19,20,20,20,21,21,22,
-22,22,23,23,23,24,24,24,24,25,25,25,26,26,26,26,27,27,27,27,28,28,28,28,
-28,29,29,29,29,29,29,30,30,30,30,30,30,30,30,30,31,31,31,31,31,31,31,31,
-31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
-31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
-31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
-31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
-31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,
-31,31,31,31,31,31,31,31,31,31,31,31,31,31,31,30,30,30,30,30,30,30,30,30,
-29,29,29,29,29,29,28,28,28,28,28,27,27,27,27,26,26,26,26,25,25,25,24,24,
-24,24,23,23,23,22,22,22,21,21,20,20,20,19,19,19,18,18,17,17,17,16,16,15,
-15,15,14,14,13,13,12,12,12,11,11,10,10,9,9,8,8,8,7,7,6,6,5,5,4,4,3,3,2,
-2,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0 };
-#else
 ubyte fade_values_hires[480] = { 1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,
 5,5,5,6,6,6,6,6,7,7,7,7,7,8,8,8,8,8,9,9,9,9,9,10,10,10,10,10,10,11,11,11,11,11,12,12,12,12,12,12,
 13,13,13,13,13,14,14,14,14,14,14,15,15,15,15,15,15,16,16,16,16,16,17,17,17,17,17,17,18,18,
@@ -93,7 +75,6 @@ ubyte fade_values_hires[480] = { 1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,4,4,4,5,5,5,
 18,17,17,17,17,17,17,16,16,16,16,16,15,15,15,15,15,15,14,14,14,14,14,14,13,13,13,13,13,12,
 12,12,12,12,12,11,11,11,11,11,10,10,10,10,10,10,9,9,9,9,9,8,8,8,8,8,7,7,7,7,7,6,6,6,6,6,5,5,5,5,
 5,5,4,4,4,4,4,3,3,3,3,3,2,2,2,2,2,1,1};
-#endif
 
 extern ubyte *gr_bitblt_fade_table;
 
@@ -106,6 +87,7 @@ typedef struct box {
 } box;
 
 extern inline void scale_line(sbyte *in, sbyte *out, int ilen, int olen);
+extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 //if filename passed is NULL, show normal credits
 void credits_show(char *credits_filename)
@@ -136,7 +118,7 @@ void credits_show(char *credits_filename)
 	}
 
 	fade_values_scalled = malloc(SHEIGHT);
-	scale_line(fade_values_hires, fade_values_scalled, 480, GHEIGHT);
+	scale_line((sbyte*)fade_values_hires, (sbyte*)fade_values_scalled, 480, GHEIGHT);
 
 	sprintf(filename, "%s", CREDITS_FILE);
 	have_bin_file = 0;
@@ -223,7 +205,7 @@ void credits_show(char *credits_filename)
 
 			y = first_line_offset - i;
 #ifdef OGL
-			ogl_start_offscreen_render(0,-1,GWIDTH,GHEIGHT);
+			ogl_start_offscreen_render(0,-2,GWIDTH,GHEIGHT);
 #endif
 			gr_set_current_canvas(CreditsOffscreenBuf);
 			show_fullscr(&backdrop);
@@ -325,6 +307,7 @@ void credits_show(char *credits_filename)
 					gr_palette_fade_out( gr_palette, 32, 0 );
 					gr_use_palette_table( "palette.256" );
 					free(backdrop.bm_data);
+					free(fade_values_scalled);
 					cfclose(file);
 					songs_play_song( SONG_TITLE, 1 );
 					gr_palette_load( gr_palette );

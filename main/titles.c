@@ -47,6 +47,9 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include "newmenu.h"
 #include "state.h"
 #include "gameseq.h"
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 void title_save_game();
 
@@ -155,7 +158,11 @@ typedef struct {
 #define BRIEFING_OFFSET_NUM	4 // This must correspond to the first level screen (ie, past the bald guy briefing screens)
 #define	SHAREWARE_ENDING_LEVEL_NUM	0x7f
 #define	REGISTERED_ENDING_LEVEL_NUM	0x7e
-#define Briefing_screens_LH ((SWIDTH >= 640 && cfexist(DESCENT_DATA_PATH "brief01h.pcx"))?Briefing_screens_h:Briefing_screens)
+#ifdef OGL
+#define Briefing_screens_LH ((SWIDTH >= 640 && SHEIGHT >= 480 && cfexist(DESCENT_DATA_PATH "brief01h.pcx"))?Briefing_screens_h:Briefing_screens)
+#else
+#define Briefing_screens_LH Briefing_screens
+#endif
 
 briefing_screen Briefing_screens[] = {
 	{	"brief01.pcx",   0,  1,  13, 140, 290,  59 },
@@ -311,11 +318,7 @@ grs_canvas *Robot_canv = NULL;
 vms_angvec Robot_angles;
 
 char	Bitmap_name[32] = "";
-#ifndef OGL
 #define	EXIT_DOOR_MAX	14
-#else
-#define	EXIT_DOOR_MAX	0	// ZICO - removed door animation because broken in OGL
-#endif
 #define	OTHER_THING_MAX	10	// Adam: This is the number of frames in your new animating thing.
 #define	DOOR_DIV_INIT	6
 sbyte	Door_dir=1, Door_div_count=0, Animating_bitmap_type=0;
@@ -325,7 +328,6 @@ void show_bitmap_frame(void)
 {
         grs_canvas      *curcanv_save, *bitmap_canv=0;
 	grs_bitmap	*bitmap_ptr;
-	int c0, c1;
 
 	// Only plot every nth frame.
 	if (Door_div_count) {
@@ -347,15 +349,9 @@ void show_bitmap_frame(void)
 			New_pal[254*3+2] = 0;
 		}
 
-	if (SWIDTH >= 640 && cfexist(DESCENT_DATA_PATH "brief01h.pcx")) {
-		c0=0;c1=0;
-	} else {
-		c0=64;c1=94;
-	}
-
 	switch (Animating_bitmap_type) {
-		case 0:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), c0, c0);	break;
-		case 1:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), c1, c1);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
+		case 0:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
+		case 1:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
 		default:	Int3(); // Impossible, illegal value for Animating_bitmap_type
 		}
 
@@ -404,8 +400,11 @@ void show_bitmap_frame(void)
 		bi = piggy_find_bitmap(Bitmap_name);
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
-
+#ifdef OGL
+		ogl_ubitmapm_cf(0,0,(bitmap_ptr->bm_w*(SWIDTH/320)),(bitmap_ptr->bm_h*(SHEIGHT/200)),bitmap_ptr,255,F1_0);
+#else
 		gr_bitmapm(0, 0, bitmap_ptr);
+#endif
 		grd_curcanv = curcanv_save;
 		free(bitmap_canv);
 
@@ -430,19 +429,14 @@ void show_bitmap_frame(void)
 void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save, *bitmap_canv;
-
-	if (SWIDTH >= 640 && cfexist(DESCENT_DATA_PATH "brief01h.pcx")) // ZICO - use hires if available
-	{
-		bitmap_canv = gr_create_sub_canvas(grd_curcanv, 0, 0, 0, 0);
-	} else {
+	if (!(Briefing_screens_LH == Briefing_screens_h)) {
 		bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220*((double)SWIDTH/320), 45*((double)SHEIGHT/200), 166, 138);
+		curcanv_save = grd_curcanv;
+		grd_curcanv = bitmap_canv;	
+		gr_bitmapm(0, 0, bmp);
+		grd_curcanv = curcanv_save;
+		free(bitmap_canv);
 	}
-
-	curcanv_save = grd_curcanv;
-	grd_curcanv = bitmap_canv;
-	gr_bitmapm(0, 0, bmp);
-	grd_curcanv = curcanv_save;
-	free(bitmap_canv);
 }
 
 //	-----------------------------------------------------------------------------
@@ -990,12 +984,12 @@ int show_briefing_text(int screen_num)
 //        some GPU configurations seem (dunno why) to mess it up otherwise...
 void ogl_init_robot_frame()
 {
-	CFILE * file;
+	CFILE * file = NULL;
 	int pcx_error;
 	grs_bitmap backdrop;
 
 	backdrop.bm_data=NULL;
-	pcx_error = pcx_read_bitmap("brief03.pcx",&backdrop, BM_LINEAR,New_pal);
+	pcx_error = pcx_read_bitmap(((Briefing_screens_LH == Briefing_screens)?"brief03.pcx":"brief03h.pcx"),&backdrop, BM_LINEAR,New_pal);
 	if (pcx_error != PCX_ERROR_NONE)		{
 		cfclose(file);
 		return;
@@ -1003,6 +997,7 @@ void ogl_init_robot_frame()
 	ogl_start_offscreen_render(0, 0, SWIDTH, SHEIGHT);
 	show_fullscr(&backdrop);
 	ogl_end_offscreen_render();
+	gr_free_bitmap_data(&backdrop);
 }
 #endif
 
@@ -1029,11 +1024,11 @@ int show_briefing_screen( int screen_num, int allow_keys)
 		Int3();
 		return 0;
 	}
-	
+// 	
 #ifdef OGL
 	gr_palette_load(New_pal);
 	
-	if (screen_num>1)
+	if (screen_num == 2)
 		ogl_init_robot_frame();
 #else
 	gr_palette_clear();

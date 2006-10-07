@@ -451,6 +451,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 					gr_remap_bitmap_good( &cnv->cv_bitmap, pcx_palette, -1, -1 );
 				}
 				gr_free_bitmap_data (&bmp);
+				free(pcx_file);
 			}
 		} else {
 			render_frame(0);
@@ -459,13 +460,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 #endif
 		}
 		fwrite( cnv->cv_bitmap.bm_data, THUMBNAIL_W*THUMBNAIL_H, 1, fp );
-//added ifdef on 9/30/98 by Matt Mueller to fix savegames in linux
-// I dunno why it doesn't like this, all I can guess is that the mem system
-// in descent is screwed somewhere.
-#ifndef __LINUX__
 		gr_free_canvas( cnv );
-#endif
-//end addition -MM
 	} else {
 	 	ubyte color = 0;
 	 	for ( i=0; i<THUMBNAIL_W*THUMBNAIL_H; i++ )
