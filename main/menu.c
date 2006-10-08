@@ -251,7 +251,6 @@ try_again:;
 	}
 }
 
-static int First_time = 1;
 static int main_menu_choice = 0;
 
 //      -----------------------------------------------------------------------------
@@ -1097,227 +1096,45 @@ void change_res()
 }
 //End changed section (OE)
 
-
-//added on 8/18/98 by Victor Rachels to add d1x options menu, maxfps setting
-//added/edited on 8/18/98 by Victor Rachels to set maxfps always on, max=80
-//added/edited on 9/7/98 by Victor Rachels to attempt dir browsing.  failed.
-
-void d2x_options_menu_poll(int nitems, newmenu_item * menus, int * key, int citem)
-{
-}
-
-
-void d2x_options_menu()
-{
-	newmenu_item m[14];
-	int i=0;
-	int opt = 0;
-	int inputs, commands;
-#if 0
-	int checks;
-#endif
-
-	char smaxfps[4];
-#if 0
-	char shudmaxnumdisp[4];
-	char thogdir[64];
-	extern int gr_message_color_level;
-
-	sprintf(thogdir,AltHogDir);
-#endif
-	sprintf(smaxfps,"%d",maxfps);
-#if 0
-	sprintf(shudmaxnumdisp,"%d",HUD_max_num_disp);
-
-	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Primary autoselect ordering...";   opt++;
-	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Secondary autoselect ordering..."; opt++;
-#endif
-
-#ifdef D2X_KEYS
-	//added on 2/4/99 by Victor Rachels for new key menu
-	m[opt].type = NM_TYPE_MENU;  m[opt].text = "D2X Keys"; opt++;
-	//end this section addition - VR
-#endif
-
-	// enabled 3/24/99 - Owen Evans
-	m[opt].type = NM_TYPE_MENU; m[opt].text = "Change Screen Resolution"; opt++; // ZICO - we don't need that here... for now
-	// end enabled stuff - OE
-
-	commands=opt;
-#if 0
-	//added on 2/2/99 by Victor Rachels for bans
-#ifdef NETWORK
-	m[opt].type = NM_TYPE_MENU; m[opt].text = "Save bans now"; opt++;
-#endif
-	//end this section addition - VR
-#endif // 0
-
-	m[opt].type = NM_TYPE_TEXT;  m[opt].text = "Maximum Framerate (1-80):";       opt++;
-
-
-	inputs=opt;
-	m[opt].type = NM_TYPE_INPUT; m[opt].text = smaxfps; m[opt].text_len=3;         opt++;
-#if 0
-	m[opt].type = NM_TYPE_TEXT;  m[opt].text = "Mission Directory";                opt++;
-	m[opt].type = NM_TYPE_INPUT; m[opt].text = thogdir; m[opt].text_len=64;        opt++;
-	m[opt].type = NM_TYPE_TEXT;  m[opt].text = "Hud Messages lines (1-80):";       opt++;
-	m[opt].type = NM_TYPE_INPUT; m[opt].text = shudmaxnumdisp; m[opt].text_len=3;  opt++;
-	m[opt].type = NM_TYPE_SLIDER; m[opt].text = "Message colorization level"; m[opt].value=gr_message_color_level;m[opt].min_value=0;m[opt].max_value=3;  opt++;
-	checks=opt;
-#ifdef __MSDOS__
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Joy is sidewinder"; m[opt].value=Joy_is_Sidewinder;  opt++;
-#endif
-#ifdef SUPPORTS_NICEFPS
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Nice FPS (free cpu cycles)"; m[opt].value = use_nice_fps; opt++;
-#endif
-#endif // 0
-
-	for(;;)
-	{
-		i=newmenu_do1( NULL, "D2X options", opt, m, &d2x_options_menu_poll, i);
-
-		if(i>-1)
-		{
-            if(i<commands)
-			{
-				switch(i)
-				{
-#if 0
-				case 0: reorder_primary(); break;
-				case 1: reorder_secondary(); break;
-#endif
-#ifdef D2X_KEYS
-					//added on 2/4/99 by Victor Rachels for new key menu
-				case 0: kconfig(4, "D2X Keys"); break;
-					//end this section addition - VR
-#endif
-					// enabled 3/24/99 - Owen Evans
-				case 0: change_res(); break;
-					// end enabled stuff - OE
-				}
-			}
-
-#if 0
-            //added on 2/4/99 by Victor Rachels for bans
-#ifdef NETWORK
-            if(i==commands+0)
-			{              
-
-				nm_messagebox(NULL,1,TXT_OK, "%i Bans saved",writebans());
-
-			}
-#endif
-            //end this section addition - VR
-#endif // 0
-
-            if(i == inputs+0)
-			{
-				maxfps = atoi(smaxfps);
-				if(maxfps < 1 || maxfps > MAX_FPS)
-				{
-					nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for maximum framerate");
-					maxfps = MAX_FPS;
-					i = (inputs+0);
-				}
-			}
-#if 0
-            else if(i==inputs+2)
-				cfile_use_alternate_hogdir(thogdir);
-			else if(i==inputs+4)
-			{
-				HUD_max_num_disp = atoi(shudmaxnumdisp);
-                if(HUD_max_num_disp < 1||HUD_max_num_disp>HUD_MAX_NUM)
-				{
-					nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for hud lines");
-					HUD_max_num_disp=4;
-					//                   i=(inputs+4);//???
-				}
-			}
-			gr_message_color_level=m[inputs+5].value;
-
-			sprintf(shudmaxnumdisp,"%d",HUD_max_num_disp);
-#endif // 0
-			sprintf(smaxfps,"%d",maxfps);
-			//           m[inputs+0].text=smaxfps;//redundant.. its not going anywhere
-#if 0
-			sprintf(thogdir,AltHogDir);
-			//           m[inputs+2].text=thogdir;//redundant
-#endif
-		}
-		else
-			break;
-	}
-
-#if 0
-	write_player_file();
-
-#ifdef __MSDOS__
-	Joy_is_Sidewinder=m[(checks+0)].value;
-#endif
-#ifdef __linux__
-	Joy_is_Sidewinder=0;
-#endif
-#ifdef SUPPORTS_NICEFPS
-	use_nice_fps=m[(checks+0)].value;
-#else
-	use_nice_fps=0;
-#endif
-#endif // 0
-}
-
-//end edit - Victor Rachels
-//end addition - Victor Rachels
-
-
 void do_options_menu()
 {
-	newmenu_item m[13];
+	newmenu_item m[11];
 	int i = 0;
 
 	do {
 		m[ 0].type = NM_TYPE_MENU;   m[ 0].text="Sound effects & music...";
 		m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
-		#if defined(MACINTOSH) && defined(APPLE_DEMO)
-		m [2].type = NM_TYPE_TEXT;   m[ 2].text="";
-		#else
+#if defined(MACINTOSH) && defined(APPLE_DEMO)
+		m[ 2].type = NM_TYPE_TEXT;   m[ 2].text="";
+#else
 		m[ 2].type = NM_TYPE_MENU;   m[ 2].text=TXT_CONTROLS_;
-		#endif
-	#ifdef WINDOWS
-		m[ 3].type = NM_TYPE_MENU;   m[ 3].text="INVOKE JOYSTICK CONTROL PANEL";
-	#else
-		m[ 3].type = NM_TYPE_MENU;   m[ 3].text=TXT_CAL_JOYSTICK;
-	#endif
-		m[ 4].type = NM_TYPE_TEXT;   m[ 4].text="";
+#endif
+		m[ 3].type = NM_TYPE_TEXT;   m[ 3].text="";
 
-		m[5].type = NM_TYPE_SLIDER;
-		m[5].text = TXT_BRIGHTNESS;
-		m[5].value = gr_palette_get_gamma();
-		m[5].min_value = 0;
-		m[5].max_value = 16; // CCA too dim, was 8;
+		m[ 4].type = NM_TYPE_SLIDER;
+		m[ 4].text = TXT_BRIGHTNESS;
+		m[ 4].value = gr_palette_get_gamma();
+		m[ 4].min_value = 0;
+		m[ 4].max_value = 16;
 
+		m[ 5].type = NM_TYPE_MENU;   m[ 5].text=TXT_DETAIL_LEVELS;
+		m[ 6].type = NM_TYPE_MENU;   m[ 6].text="Screen resolution...";
 
-		m[ 6].type = NM_TYPE_MENU;   m[ 6].text=TXT_DETAIL_LEVELS;
-		m[ 7].type = NM_TYPE_MENU;   m[ 7].text="Screen resolution...";
-
-		m[ 8].type = NM_TYPE_TEXT;   m[ 8].text="";
-		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Primary autoselect ordering...";
-		m[10].type = NM_TYPE_MENU;   m[10].text="Secondary autoselect ordering...";
-		m[11].type = NM_TYPE_MENU;   m[11].text="Toggles...";
-
-		m[12].type = NM_TYPE_MENU;   m[12].text="D2X options...";
+		m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
+		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Primary autoselect ordering...";
+		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
+		m[10].type = NM_TYPE_MENU;   m[10].text="Toggles...";
 
 		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
 			
 		switch(i)       {
-			case  0: do_sound_menu();			break;
-			case  2: joydefs_config();			break;
-			case  3: joydefs_calibrate();		break;
-			case  6: do_detail_level_menu(); 	break;
-			case  7: change_res();/*do_screen_res_menu();*/		break; // ZICO - let's use the new res menu
-			case  9: ReorderPrimary();			break;
-			case 10: ReorderSecondary();		break;
-			case 11: do_toggles_menu();			break;
-			case 12: d2x_options_menu();        break;
+			case  0: do_sound_menu();		break;
+			case  2: joydefs_config();		break;
+			case  5: do_detail_level_menu(); 	break;
+			case  6: change_res();			break;
+			case  8: ReorderPrimary();		break;
+			case  9: ReorderSecondary();		break;
+			case 10: do_toggles_menu();		break;
 		}
 
 	} while( i>-1 );
@@ -1333,7 +1150,7 @@ WIN(static BOOL windigi_driver_off=FALSE);
 
 void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 {
-	nitems=nitems;          
+	nitems=nitems;
 	*last_key = *last_key;
 
 	if ( Config_digi_volume != items[0].value )     {

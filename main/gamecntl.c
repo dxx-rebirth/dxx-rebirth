@@ -1312,11 +1312,6 @@ int HandleSystemKey(int key)
 		#endif
 
 //added 8/23/99 by Matt Mueller for hot key res/fullscreen changing, and menu access
-		case KEY_CTRLED+KEY_SHIFTED+KEY_PADDIVIDE:
-		case KEY_ALTED+KEY_CTRLED+KEY_PADDIVIDE:
-		case KEY_ALTED+KEY_SHIFTED+KEY_PADDIVIDE:
-			d2x_options_menu();
-			break;
 #if 0
 		case KEY_CTRLED+KEY_SHIFTED+KEY_PADMULTIPLY:
 		case KEY_ALTED+KEY_CTRLED+KEY_PADMULTIPLY:

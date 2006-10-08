@@ -157,25 +157,6 @@ int get_centered_x(char *s)
 	return ((grd_curcanv->cv_bitmap.bm_w - w) / 2);
 }
 
-//hack to allow color codes to be embedded in strings -MPM
-//note we subtract one from color, since 255 is "transparent" so it'll never be used, and 0 would otherwise end the string.
-//function must already have orig_color var set (or they could be passed as args...)
-//perhaps some sort of recursive orig_color type thing would be better, but that would be way too much trouble for little gain
-int gr_message_color_level=1;
-#define CHECK_EMBEDDED_COLORS() if ((*text_ptr >= 0x01) && (*text_ptr <= 0x03)) { \
-		text_ptr++; \
-		if (*text_ptr){ \
-			if (gr_message_color_level >= *(text_ptr-1)) \
-				FG_COLOR = *text_ptr - 1; \
-			text_ptr++; \
-		} \
-	} \
-	else if ((*text_ptr >= 0x04) && (*text_ptr <= 0x06)){ \
-		if (gr_message_color_level >= *text_ptr - 3) \
-			FG_COLOR=orig_color; \
-		text_ptr++; \
-	}
-
 int gr_internal_string0(int x, int y, char *s )
 {
 	unsigned char * fp;
@@ -358,10 +339,8 @@ int gr_internal_string0m(int x, int y, char *s )
 
 				if (!INFONT(letter) || (unsigned char) *text_ptr <= 0x06)	//not in font, draw as space
 				{
-					CHECK_EMBEDDED_COLORS() else{
-						VideoOffset += spacing;
-						text_ptr++;
-					}
+					VideoOffset += spacing;
+					text_ptr++;
 					continue;
 				}
 
@@ -1097,10 +1076,8 @@ int ogl_internal_string(int x, int y, char *s )
 
 			if (!INFONT(letter) || (unsigned char)*text_ptr <= 0x06)
 			{   //not in font, draw as space
-				CHECK_EMBEDDED_COLORS() else{
-					xx += spacing;
-					text_ptr++;
-				}
+				xx += spacing;
+				text_ptr++;
 				continue;
 			}
 			
