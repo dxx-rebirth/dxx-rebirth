@@ -131,12 +131,14 @@ void gr_update()
 const char *gl_vendor,*gl_renderer,*gl_version,*gl_extensions;
 void ogl_get_verinfo(void){
 	int t;
-	gl_vendor=glGetString(GL_VENDOR);
-	gl_renderer=glGetString(GL_RENDERER);
-	gl_version=glGetString(GL_VERSION);
-	gl_extensions=glGetString(GL_EXTENSIONS);
+	gl_vendor=(const char *)glGetString(GL_VENDOR);
+	gl_renderer=(const char *)glGetString(GL_RENDERER);
+	gl_version=(const char *)glGetString(GL_VERSION);
+	gl_extensions=(const char *)glGetString(GL_EXTENSIONS);
 
+#ifndef NDEBUG
 	printf("gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
+#endif
 
 	ogl_intensity4_ok=1;ogl_luminance4_alpha4_ok=1;ogl_rgba2_ok=1;ogl_gettexlevelparam_ok=1;
 
@@ -149,11 +151,11 @@ void ogl_get_verinfo(void){
 
 	//multitexturing doesn't work yet.
 #ifdef GL_ARB_multitexture
-	ogl_arb_multitexture_ok=0;//(strstr(gl_extensions,"GL_ARB_multitexture")!=0 && glActiveTextureARB!=0 && 0);
+	ogl_arb_multitexture_ok=0;
 	mprintf((0,"c:%p d:%p e:%p\n",strstr(gl_extensions,"GL_ARB_multitexture"),glActiveTextureARB,glBegin));
 #endif
 #ifdef GL_SGIS_multitexture
-	ogl_sgis_multitexture_ok=0;//(strstr(gl_extensions,"GL_SGIS_multitexture")!=0 && glSelectTextureSGIS!=0 && 0);
+	ogl_sgis_multitexture_ok=0;
 	mprintf((0,"a:%p b:%p\n",strstr(gl_extensions,"GL_SGIS_multitexture"),glSelectTextureSGIS));
 #endif
 
@@ -191,13 +193,16 @@ void ogl_get_verinfo(void){
 		ogl_gettexlevelparam_ok=atoi(Args[t+1]);
 	}
 
+#ifndef NDEBUG
 	printf("gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
 	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok);
+#endif
 }
 
 int gr_set_mode(u_int32_t mode)
 {
-	unsigned int w, h, aw, ah;
+	unsigned int w, h;
+	int aw, ah;
 	char *gr_bm_data;
 	float awidth = 3, aheight = 4;
 	int i, argnum = INT_MAX;
@@ -213,7 +218,7 @@ int gr_set_mode(u_int32_t mode)
 
 	if ((i=FindResArg("aspect", &ah, &aw)) && (i < argnum)) { argnum = i; awidth=aw; aheight=ah; }
 	
-	gr_bm_data=grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
+	gr_bm_data=(char *)grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;

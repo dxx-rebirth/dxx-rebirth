@@ -66,7 +66,8 @@ void gr_update()
 
 int gr_set_mode(u_int32_t mode)
 {
-	unsigned int w, h, aw, ah;
+	unsigned int w, h;
+	int aw, ah;
 	float awidth = 3, aheight = 4;
 	int i, argnum = INT_MAX;
 	
