@@ -1176,12 +1176,12 @@ int ogl_internal_string(int x, int y, char *s )
 #ifndef OGL // FIXME: OK???
 				gr_ubitmapm(xx,yy,&FONT->ft_bitmaps[letter]);
 #else
-				ogl_ubitmapm_cf(xx,yy,((double)FONTSCALE_X(FWIDTHS[letter])),FONTSCALE_Y(FHEIGHT),&FONT->ft_bitmaps[letter],255,F1_0);
+				ogl_ubitmapm_cs(xx,yy,((double)FONTSCALE_X(FWIDTHS[letter])),FONTSCALE_Y(FHEIGHT),&FONT->ft_bitmaps[letter],255,F1_0);
 #endif
 			}else{
 				if (grd_curcanv->cv_bitmap.bm_type==BM_OGL) {
 // 					ogl_ubitmapm_c(xx,yy,&FONT->ft_bitmaps[letter],FG_COLOR);
-					ogl_ubitmapm_cf(xx,yy,FONTSCALE_X(FWIDTHS[letter]),FONTSCALE_Y(FHEIGHT),&FONT->ft_bitmaps[letter],FG_COLOR,F1_0);
+					ogl_ubitmapm_cs(xx,yy,FONTSCALE_X(FWIDTHS[letter]),FONTSCALE_Y(FHEIGHT),&FONT->ft_bitmaps[letter],FG_COLOR,F1_0);
 				} else {
 					Error("ogl_internal_string: non-color string to non-ogl dest\n");
 //					gr_ubitmapm(xx,yy,&FONT->ft_bitmaps[letter]);//ignores color..

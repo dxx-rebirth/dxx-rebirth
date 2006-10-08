@@ -143,8 +143,7 @@ void ogl_cache_level_textures(void);
 
 void ogl_urect(int left,int top,int right,int bot);
 bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c);
-bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale, int orient);
-bool ogl_ubitmapm_cf(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale);
+bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale);
 bool ogl_ubitmapm(int x, int y,grs_bitmap *bm);
 bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int transp);
 bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);

@@ -340,9 +340,10 @@ void update_cockpits(int force_redraw)
 	case CM_FULL_COCKPIT:
 	case CM_REAR_VIEW:
 		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
 #ifdef OGL
-		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0, 0);
+		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0);
 #else
 		gr_ubitmapm(0,0, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index]);
 #endif
@@ -356,7 +357,7 @@ void update_cockpits(int force_redraw)
 		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
 #ifdef OGL
-		ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0, 0);
+		ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0);
 #else
 		gr_ubitmapm(0,max_window_h,&GameBitmaps[cockpit_bitmap[Cockpit_mode].index]);
 #endif
@@ -413,6 +414,7 @@ void init_cockpit()
 	switch( Cockpit_mode )	{
 	case CM_FULL_COCKPIT:
 	case CM_REAR_VIEW:		{
+
 		if (Cockpit_mode == CM_FULL_COCKPIT)
 			game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w, (grd_curscreen->sc_h*2)/3);
 		else if (Cockpit_mode == CM_REAR_VIEW)
@@ -445,7 +447,7 @@ void init_cockpit()
 
 		x = (max_window_w - Game_window_w)/2;
 		y = (max_window_h - Game_window_h)/2;
-
+		gr_rect(0,Game_window_h,VR_render_width,VR_render_height);
 		game_init_render_sub_buffers( x, y, Game_window_w, Game_window_h );
 		break;
 
@@ -600,7 +602,7 @@ void copy_background_rect(int left,int top,int right,int bot)
 
 			w = min(right-dest_x+1,bm->bm_w-ofs_x);
 #ifdef OGL
-			ogl_ubitmapm_cs (dest_x, dest_y, w, h, &background_bitmap,255, F1_0, 0);
+			ogl_ubitmapm_cs (dest_x, dest_y, w, h, &background_bitmap,255, F1_0);
 #else
 			gr_bm_ubitblt(w,h,dest_x,dest_y,ofs_x,ofs_y,&background_bitmap,&grd_curcanv->cv_bitmap);
 #endif
@@ -1238,7 +1240,7 @@ void game_draw_hud_stuff()
 
 	if ((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) {
 		char message[128];
-		int h,w,aw;
+		int h,w,aw,y;
 
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			if (Newdemo_vcr_state != ND_STATE_PRINTSCREEN) {
@@ -1258,13 +1260,13 @@ void game_draw_hud_stuff()
 		gr_set_fontcolor(gr_getcolor(27,0,0), -1 );
 
 		gr_get_string_size(message, &w, &h, &aw );
-		if (Cockpit_mode == CM_FULL_COCKPIT)
-			h += 15;
-		else if ( Cockpit_mode == CM_LETTERBOX )
-			h += 7;
 
+		y = grd_curcanv->cv_bitmap.bm_h;
+
+		if (Cockpit_mode == CM_FULL_COCKPIT)
+			y = grd_curcanv->cv_bitmap.bm_h / 1.15;
 		if (Cockpit_mode != CM_REAR_VIEW)
-                        gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, grd_curcanv->cv_bitmap.bm_h - ((double)grd_curscreen->sc_h/200)*h - 2, message );
+			gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2,y - h - 2, message );
 	}
 
 	render_countdown_gauge();

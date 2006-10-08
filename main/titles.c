@@ -401,7 +401,7 @@ void show_bitmap_frame(void)
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
 #ifdef OGL
-		ogl_ubitmapm_cf(0,0,(bitmap_ptr->bm_w*(SWIDTH/320)),(bitmap_ptr->bm_h*(SHEIGHT/200)),bitmap_ptr,255,F1_0);
+		ogl_ubitmapm_cs(0,0,(bitmap_ptr->bm_w*(SWIDTH/320)),(bitmap_ptr->bm_h*(SHEIGHT/200)),bitmap_ptr,255,F1_0);
 #else
 		gr_bitmapm(0, 0, bitmap_ptr);
 #endif

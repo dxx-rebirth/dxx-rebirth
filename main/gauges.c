@@ -200,19 +200,18 @@ fix weapon_box_fade_values[2];
 #define COCKPITSCALE_Y 1
 #endif
 
-inline void hud_bitblt (int x, int y, grs_bitmap *bm, int scale, int orient)
+inline void hud_bitblt (int x, int y, grs_bitmap *bm, int scale)
 {
 #ifdef OGL
-ogl_ubitmapm_cs (
-	(x < 0) ? -x : HUD_SCALE_X (x), 
-	(y < 0) ? -y : HUD_SCALE_Y (y), 
-	HUD_SCALE_X (bm->bm_w), 
-	HUD_SCALE_Y (bm->bm_h), 
-	bm, 
-	-1,
-	scale,
-	orient
-	);
+	ogl_ubitmapm_cs (
+		(x < 0) ? -x : HUD_SCALE_X (x), 
+		(y < 0) ? -y : HUD_SCALE_Y (y), 
+		HUD_SCALE_X (bm->bm_w), 
+		HUD_SCALE_Y (bm->bm_h), 
+		bm, 
+		-1,
+		scale
+		);
 #else
 	gr_ubitmapm(x, y, bm);
 #endif
@@ -595,7 +594,7 @@ void show_homing_warning(void)
 	if ((Cockpit_mode == CM_STATUS_BAR) || (Endlevel_sequence)) {
 		if (Last_homing_warning_shown[VR_current_page] == 1) {
 			PIGGY_PAGE_IN( Gauges[GAUGE_HOMING_WARNING_OFF] );
-			hud_bitblt( 7, 171, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index], F1_0, 0);
+			hud_bitblt( 7, 171, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index], F1_0);
 			Last_homing_warning_shown[VR_current_page] = 0;
 		}
 		return;
@@ -608,19 +607,19 @@ void show_homing_warning(void)
 		if (GameTime & 0x4000) {
 			if (Last_homing_warning_shown[VR_current_page] != 1) {
 				PIGGY_PAGE_IN(Gauges[GAUGE_HOMING_WARNING_ON]);
-				hud_bitblt( 7, 171, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_ON].index], F1_0, 0);
+				hud_bitblt( 7, 171, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_ON].index], F1_0);
 				Last_homing_warning_shown[VR_current_page] = 1;
 			}
 		} else {
 			if (Last_homing_warning_shown[VR_current_page] != 0) {
 				PIGGY_PAGE_IN(Gauges[GAUGE_HOMING_WARNING_OFF]);
-				hud_bitblt( 7, 171, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index], F1_0, 0);
+				hud_bitblt( 7, 171, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index], F1_0);
 				Last_homing_warning_shown[VR_current_page] = 0;
 			}
 		}
 	} else if (Last_homing_warning_shown[VR_current_page] != 0) {
 		PIGGY_PAGE_IN(Gauges[GAUGE_HOMING_WARNING_OFF]);
-		hud_bitblt( 7, 171, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index], F1_0, 0);
+		hud_bitblt( 7, 171, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index], F1_0);
 		Last_homing_warning_shown[VR_current_page] = 0;
 	}
 
@@ -645,17 +644,17 @@ void hud_show_keys(void)
 #ifndef SHAREWARE
 	if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY) {
 		PIGGY_PAGE_IN(Gauges[KEY_ICON_BLUE]);
-		hud_bitblt(2,17,&GameBitmaps[Gauges[KEY_ICON_BLUE].index], F1_0, 0);
+		hud_bitblt(2,17,&GameBitmaps[Gauges[KEY_ICON_BLUE].index], F1_0);
 	}
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY) {
 		PIGGY_PAGE_IN(Gauges[KEY_ICON_YELLOW]);
-		hud_bitblt(10,17,&GameBitmaps[Gauges[KEY_ICON_YELLOW].index], F1_0, 0);
+		hud_bitblt(10,17,&GameBitmaps[Gauges[KEY_ICON_YELLOW].index], F1_0);
 	}
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY) {
 		PIGGY_PAGE_IN(Gauges[KEY_ICON_RED]);
-		hud_bitblt(18,17,&GameBitmaps[Gauges[KEY_ICON_RED].index], F1_0, 0);
+		hud_bitblt(18,17,&GameBitmaps[Gauges[KEY_ICON_RED].index], F1_0);
 
 	}
 #endif
@@ -946,7 +945,7 @@ void hud_show_lives()
 		gr_ubitmapm(10,3,&GameBitmaps[Gauges[GAUGE_LIVES].index]);
 		gr_printf(22, 3, "x %d", Players[Player_num].lives-1);
 #else
-		ogl_ubitmapm_cf(FONTSCALE_X(10),3,FONTSCALE_X((hiresfont && SWIDTH >= 640)?16:8),FONTSCALE_Y((hiresfont && SWIDTH >= 640)?14:7),&GameBitmaps[Gauges[GAUGE_LIVES].index],255,F1_0);
+		ogl_ubitmapm_cs(FONTSCALE_X(10),3,FONTSCALE_X((hiresfont && SWIDTH >= 640)?16:8),FONTSCALE_Y((hiresfont && SWIDTH >= 640)?14:7),&GameBitmaps[Gauges[GAUGE_LIVES].index],255,F1_0);
 		gr_printf(FONTSCALE_X((hiresfont && SWIDTH >= 640)?35:22), 3, "x %d", Players[Player_num].lives-1);
 #endif
 	}
@@ -997,7 +996,7 @@ void sb_show_lives()
 #ifndef OGL
 		gr_ubitmapm(x,y,&GameBitmaps[Gauges[GAUGE_LIVES].index]);
 #else
-		ogl_ubitmapm_cf(x*COCKPITSCALE_X,y*COCKPITSCALE_Y,FONTSCALE_X((hiresfont && SWIDTH >= 640)?16:8),FONTSCALE_Y((hiresfont && SWIDTH >= 640)?14:7),bm,255,F1_0);
+		ogl_ubitmapm_cs(x*COCKPITSCALE_X,y*COCKPITSCALE_Y,FONTSCALE_X((hiresfont && SWIDTH >= 640)?16:8),FONTSCALE_Y((hiresfont && SWIDTH >= 640)?14:7),bm,255,F1_0);
 #endif
 		gr_printf(COCKPITSCALE_X*x+COCKPITSCALE_X*12, COCKPITSCALE_Y*y, "x %d", Players[Player_num].lives-1);
 	}
@@ -1158,7 +1157,7 @@ void draw_energy_bar(int energy)
 	// Draw left energy bar
 	PIGGY_PAGE_IN(Gauges[GAUGE_ENERGY_LEFT]);
 	bm = &GameBitmaps[Gauges[GAUGE_ENERGY_LEFT].index];
-	hud_bitblt (LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, bm, F1_0, 0);
+	hud_bitblt (LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, bm, F1_0);
 
 	gr_setcolor(BM_XRGB(0,0,0));
 
@@ -1192,7 +1191,7 @@ void draw_energy_bar(int energy)
 	// Draw right energy bar
 	PIGGY_PAGE_IN(Gauges[GAUGE_ENERGY_RIGHT]);
 	bm = &GameBitmaps[Gauges[GAUGE_ENERGY_RIGHT].index];
-	hud_bitblt (RIGHT_ENERGY_GAUGE_X-1, RIGHT_ENERGY_GAUGE_Y, bm, F1_0, 0);
+	hud_bitblt (RIGHT_ENERGY_GAUGE_X-1, RIGHT_ENERGY_GAUGE_Y, bm, F1_0);
 
 	gr_setcolor(BM_XRGB(0,0,0));
 
@@ -1280,7 +1279,7 @@ void draw_shield_bar(int shield)
 	int bm_num = shield>=100?9:(shield / 10);
 
 	PIGGY_PAGE_IN(Gauges[GAUGE_SHIELDS+9-bm_num]);
-	hud_bitblt (SHIELD_GAUGE_X, SHIELD_GAUGE_Y, &GameBitmaps[Gauges[GAUGE_SHIELDS+9-bm_num].index], F1_0, 0);
+	hud_bitblt (SHIELD_GAUGE_X, SHIELD_GAUGE_Y, &GameBitmaps[Gauges[GAUGE_SHIELDS+9-bm_num].index], F1_0);
 }
 
 #define CLOAK_FADE_WAIT_TIME  0x400
@@ -1354,13 +1353,15 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 	}
 
 	gr_set_current_canvas(&VR_render_buffer[0]);
-	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w), COCKPITSCALE_Y*(y+bm->bm_h));
-	hud_bitblt( x, y, bm, F1_0, 0);
+
+	hud_bitblt( x, y, bm, F1_0);
 
 	Gr_scanline_darkening_level = cloak_fade_value;
 	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w), COCKPITSCALE_Y*(y+bm->bm_h));
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
+
 	gr_set_current_canvas( get_current_game_screen() );
+
 	gr_bm_ubitbltm( bm->bm_w, bm->bm_h, x, y, x, y, &VR_render_buffer[0].cv_bitmap, &grd_curcanv->cv_bitmap);
 }
 
@@ -1373,7 +1374,7 @@ void draw_numerical_display(int shield, int energy)
 
 	gr_set_curfont( GAME_FONT );
 	PIGGY_PAGE_IN(Gauges[GAUGE_NUMERICAL]);
-	hud_bitblt (dx, dy, &GameBitmaps[Gauges[GAUGE_NUMERICAL].index], F1_0, 0);
+	hud_bitblt (dx, dy, &GameBitmaps[Gauges[GAUGE_NUMERICAL].index], F1_0);
 	// cockpit is not 100% geometric so we need to divide shield and energy X position by 1.951 which should be most accurate
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
 	gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
@@ -1396,26 +1397,26 @@ void draw_keys()
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY )	{
 		PIGGY_PAGE_IN(Gauges[GAUGE_BLUE_KEY]);
-                hud_bitblt( GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y, &GameBitmaps[Gauges[GAUGE_BLUE_KEY].index], F1_0, 0 );
+                hud_bitblt( GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y, &GameBitmaps[Gauges[GAUGE_BLUE_KEY].index], F1_0);
 	} else {
 		PIGGY_PAGE_IN(Gauges[GAUGE_BLUE_KEY_OFF]);
-		hud_bitblt( GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y, &GameBitmaps[Gauges[GAUGE_BLUE_KEY_OFF].index], F1_0, 0 );
+		hud_bitblt( GAUGE_BLUE_KEY_X, GAUGE_BLUE_KEY_Y, &GameBitmaps[Gauges[GAUGE_BLUE_KEY_OFF].index], F1_0);
 	}
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY)	{
 		PIGGY_PAGE_IN(Gauges[GAUGE_GOLD_KEY]);
-		hud_bitblt( GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, &GameBitmaps[Gauges[GAUGE_GOLD_KEY].index], F1_0, 0 );
+		hud_bitblt( GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, &GameBitmaps[Gauges[GAUGE_GOLD_KEY].index], F1_0);
 	} else {
 		PIGGY_PAGE_IN(Gauges[GAUGE_GOLD_KEY_OFF]);
-		hud_bitblt( GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, &GameBitmaps[Gauges[GAUGE_GOLD_KEY_OFF].index], F1_0, 0 );
+		hud_bitblt( GAUGE_GOLD_KEY_X, GAUGE_GOLD_KEY_Y, &GameBitmaps[Gauges[GAUGE_GOLD_KEY_OFF].index], F1_0);
 	}
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)	{
 		PIGGY_PAGE_IN( Gauges[GAUGE_RED_KEY] );
-		hud_bitblt( GAUGE_RED_KEY_X,  GAUGE_RED_KEY_Y,  &GameBitmaps[Gauges[GAUGE_RED_KEY].index], F1_0, 0 );
+		hud_bitblt( GAUGE_RED_KEY_X,  GAUGE_RED_KEY_Y,  &GameBitmaps[Gauges[GAUGE_RED_KEY].index], F1_0);
 	} else {
 		PIGGY_PAGE_IN(Gauges[GAUGE_RED_KEY_OFF]);
-		hud_bitblt( GAUGE_RED_KEY_X,  GAUGE_RED_KEY_Y,  &GameBitmaps[Gauges[GAUGE_RED_KEY_OFF].index], F1_0, 0 );
+		hud_bitblt( GAUGE_RED_KEY_X,  GAUGE_RED_KEY_Y,  &GameBitmaps[Gauges[GAUGE_RED_KEY_OFF].index], F1_0);
 	}
 }
 
@@ -1433,7 +1434,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	Assert(bm != NULL);
 
 	PIGGY_PAGE_IN( Weapon_info[info_index].picture );
-	hud_bitblt (pic_x, pic_y, bm, (Cockpit_mode == CM_FULL_SCREEN) ? 2 * F1_0 : F1_0, 0);
+	hud_bitblt (pic_x, pic_y, bm, (Cockpit_mode == CM_FULL_SCREEN) ? 2 * F1_0 : F1_0);
 
 	if (Gauge_hud_mode==0)
 	{
@@ -1695,7 +1696,7 @@ void sb_draw_energy_bar(int energy)
 	int ew,eh,eaw;
 
 	PIGGY_PAGE_IN(Gauges[SB_GAUGE_ENERGY]);
-	hud_bitblt( SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &GameBitmaps[Gauges[SB_GAUGE_ENERGY].index], F1_0, 0 );
+	hud_bitblt( SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &GameBitmaps[Gauges[SB_GAUGE_ENERGY].index], F1_0);
 	erase_height = (100 - energy) * SB_ENERGY_GAUGE_H / 100;
 
 	if (erase_height > 0) {
@@ -1734,7 +1735,7 @@ void sb_draw_shield_bar(int shield)
 	gr_set_current_canvas( get_current_game_screen() );
 
 	PIGGY_PAGE_IN( Gauges[GAUGE_SHIELDS+9-bm_num] );
-	hud_bitblt( SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[Gauges[GAUGE_SHIELDS+9-bm_num].index], F1_0, 0 );
+	hud_bitblt( SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[Gauges[GAUGE_SHIELDS+9-bm_num].index], F1_0);
 }
 
 void sb_draw_keys()
@@ -1746,13 +1747,13 @@ void sb_draw_keys()
 
 	bm = &GameBitmaps[Gauges[(flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF].index];
 	PIGGY_PAGE_IN(Gauges[(flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF]);
-	hud_bitblt( SB_GAUGE_KEYS_X, SB_GAUGE_BLUE_KEY_Y, bm, F1_0, 0 );
+	hud_bitblt( SB_GAUGE_KEYS_X, SB_GAUGE_BLUE_KEY_Y, bm, F1_0);
 	bm = &GameBitmaps[Gauges[(flags&PLAYER_FLAGS_GOLD_KEY)?SB_GAUGE_GOLD_KEY:SB_GAUGE_GOLD_KEY_OFF].index];
 	PIGGY_PAGE_IN(Gauges[(flags&PLAYER_FLAGS_GOLD_KEY)?SB_GAUGE_GOLD_KEY:SB_GAUGE_GOLD_KEY_OFF]);
-	hud_bitblt( SB_GAUGE_KEYS_X, SB_GAUGE_GOLD_KEY_Y, bm, F1_0, 0 );
+	hud_bitblt( SB_GAUGE_KEYS_X, SB_GAUGE_GOLD_KEY_Y, bm, F1_0);
 	bm = &GameBitmaps[Gauges[(flags&PLAYER_FLAGS_RED_KEY)?SB_GAUGE_RED_KEY:SB_GAUGE_RED_KEY_OFF].index];
 	PIGGY_PAGE_IN(Gauges[(flags&PLAYER_FLAGS_RED_KEY)?SB_GAUGE_RED_KEY:SB_GAUGE_RED_KEY_OFF]);
-	hud_bitblt( SB_GAUGE_KEYS_X, SB_GAUGE_RED_KEY_Y, bm, F1_0, 0  );
+	hud_bitblt( SB_GAUGE_KEYS_X, SB_GAUGE_RED_KEY_Y, bm, F1_0);
 }
 
 // Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
@@ -1766,10 +1767,10 @@ void draw_invulnerable_ship()
 
 		if (Cockpit_mode == CM_STATUS_BAR)	{
 			PIGGY_PAGE_IN(Gauges[GAUGE_INVULNERABLE+invulnerable_frame]);
-			hud_bitblt( SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[Gauges[GAUGE_INVULNERABLE+invulnerable_frame].index], F1_0, 0 );
+			hud_bitblt( SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[Gauges[GAUGE_INVULNERABLE+invulnerable_frame].index], F1_0);
 		} else {
 			PIGGY_PAGE_IN(Gauges[GAUGE_INVULNERABLE+invulnerable_frame]);
-			hud_bitblt( SHIELD_GAUGE_X, SHIELD_GAUGE_Y, &GameBitmaps[Gauges[GAUGE_INVULNERABLE+invulnerable_frame].index], F1_0, 0 );
+			hud_bitblt( SHIELD_GAUGE_X, SHIELD_GAUGE_Y, &GameBitmaps[Gauges[GAUGE_INVULNERABLE+invulnerable_frame].index], F1_0);
 		}
 
 		time += FrameTime;
@@ -1874,11 +1875,11 @@ void show_reticle(int force_big_one)
 		gr_ubitmapm(x-12,y+1,&GameBitmaps[Gauges[RETICLE_SECONDARY + secondary_bm_num].index]);
 #else
 		PIGGY_PAGE_IN(Gauges[RETICLE_CROSS + cross_bm_num]);
-		ogl_ubitmapm_cf(x-(4*COCKPITSCALE_X) ,y-(2*COCKPITSCALE_Y),9*COCKPITSCALE_X,7*COCKPITSCALE_Y,&GameBitmaps[Gauges[RETICLE_CROSS + cross_bm_num].index],255,F1_0);
+		ogl_ubitmapm_cs(x-(4*COCKPITSCALE_X) ,y-(2*COCKPITSCALE_Y),9*COCKPITSCALE_X,7*COCKPITSCALE_Y,&GameBitmaps[Gauges[RETICLE_CROSS + cross_bm_num].index],255,F1_0);
 		PIGGY_PAGE_IN(Gauges[RETICLE_PRIMARY + primary_bm_num]);
-		ogl_ubitmapm_cf(x-(15*COCKPITSCALE_X),y+(6*COCKPITSCALE_Y),31*COCKPITSCALE_X,5*COCKPITSCALE_Y,&GameBitmaps[Gauges[RETICLE_PRIMARY + primary_bm_num].index],255,F1_0);
+		ogl_ubitmapm_cs(x-(15*COCKPITSCALE_X),y+(6*COCKPITSCALE_Y),31*COCKPITSCALE_X,5*COCKPITSCALE_Y,&GameBitmaps[Gauges[RETICLE_PRIMARY + primary_bm_num].index],255,F1_0);
 		PIGGY_PAGE_IN(Gauges[RETICLE_SECONDARY + secondary_bm_num]);
-		ogl_ubitmapm_cf(x-(12*COCKPITSCALE_X),y+(1*COCKPITSCALE_Y),25*COCKPITSCALE_X,10*COCKPITSCALE_Y,&GameBitmaps[Gauges[RETICLE_SECONDARY + secondary_bm_num].index],255,F1_0);
+		ogl_ubitmapm_cs(x-(12*COCKPITSCALE_X),y+(1*COCKPITSCALE_Y),25*COCKPITSCALE_X,10*COCKPITSCALE_Y,&GameBitmaps[Gauges[RETICLE_SECONDARY + secondary_bm_num].index],255,F1_0);
 #endif
 	}
 	else {
@@ -1949,7 +1950,7 @@ void show_reticle(int force_big_one)
 			gr_get_string_size(s, &w, &h, &aw);
 			gr_set_fontcolor(gr_getcolor(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
 			x1 = x-(w/2);
-			y1 = y+12;
+			y1 = y+(12*COCKPITSCALE_Y);
 			gr_string (x1, y1, s);
 		}
 #endif
