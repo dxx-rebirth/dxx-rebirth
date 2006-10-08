@@ -295,8 +295,6 @@ void show_cmdline_help() {
 // 	printf( "  -menu_gameres   %s\n", "Set menus to use the same resolution as in game");
 	printf( "  -hudlog_multi   %s\n", "Start hudlog upon entering multiplayer games");
 	printf( "  -hudlogdir <d>  %s\n", "Log hud messages in directory <d>");
-	printf( "  -hudlines <l>   %s\n", "Number of hud messages to show");
-	printf( "  -msgcolorlevel <c> %s\n", "Level of colorization for hud messages (0-3)");
 	printf( "  -nocdaudio      %s\n", "Disable cd audio");
 	printf( "  -playlist \"...\" %s\n", "Set the cd audio playlist to tracks \"a b c ... f g\"");
 	printf( "  -fastext        %s\n", "Fast external control");
@@ -424,19 +422,6 @@ int main(int argc,char **argv)
 			Gauge_hud_mode = t;
 	}
 		
-	if ((t=FindArg("-msgcolorlevel"))){
-		extern int gr_message_color_level;
-		t=atoi(Args[t+1]);
-		if(t>=0 && t<=3)
-			gr_message_color_level = t;
-	}
-		 
-	if ((t=FindArg("-hudlines"))){
-		t=atoi(Args[t+1]);
-		if(t>0 && t<=HUD_MAX_NUM)
-			HUD_max_num_disp = t;
-	}
-
 	if (FindArg("-hudlog_multi"))
 	HUD_log_multi_autostart = 1;
 	

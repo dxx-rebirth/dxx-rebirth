@@ -111,7 +111,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fvi.h"
 
 extern void change_res();
-extern void d1x_options_menu();
 extern void write_player_file();
 
 #define	SHOW_EXIT_PATH	1
@@ -2996,11 +2995,6 @@ break;
                                 case KEY_SHIFTED+KEY_EQUAL:
 				case KEY_ALTED+KEY_F10:
 				case KEY_EQUAL:			grow_window();		break;
-				case KEY_CTRLED+KEY_SHIFTED+KEY_PADDIVIDE:
-				case KEY_ALTED+KEY_CTRLED+KEY_PADDIVIDE:
-				case KEY_ALTED+KEY_SHIFTED+KEY_PADDIVIDE:
-						d1x_options_menu();
-						break;
 				case KEY_CTRLED+KEY_SHIFTED+KEY_PADMULTIPLY:
 				case KEY_ALTED+KEY_CTRLED+KEY_PADMULTIPLY:
 				case KEY_ALTED+KEY_SHIFTED+KEY_PADMULTIPLY:

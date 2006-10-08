@@ -985,226 +985,95 @@ void change_res()
 	}
 }
 
-
-//added on 8/18/98 by Victor Rachels to add d1x options menu, maxfps setting
-//added/edited on 8/18/98 by Victor Rachels to set maxfps always on, max=80
-//added/edited on 9/7/98 by Victor Rachels to attempt dir browsing.  failed.
-
-void d1x_options_menu_poll(int nitems, newmenu_item * menus, int * key, int citem)
+void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 {
+	nitems=nitems;
+	*last_key = *last_key;
+
+	if ( Config_digi_volume != items[0].value )     {
+		Config_digi_volume = items[0].value;
+		digi_set_digi_volume( (Config_digi_volume*32768)/8 );
+		digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
+	}
+	if (Config_midi_volume != items[1].value )   {
+ 		Config_midi_volume = items[1].value;
+		digi_set_midi_volume( (Config_midi_volume*128)/8 );
+	}
+
+	citem++; //kill warning
 }
 
-
-void d1x_options_menu()
+void do_sound_menu()
 {
- newmenu_item m[14];
- int i=0;
- int opt=0;
- int inputs,checks,commands;
+	newmenu_item m[4];
+	int i = 0;
 
- char smaxfps[4];
- char shudmaxnumdisp[4];
- char thogdir[64];
- extern int gr_message_color_level;
+	do {
+		m[0].type = NM_TYPE_SLIDER; m[0].text=TXT_FX_VOLUME; m[0].value=Config_digi_volume; m[0].min_value=0; m[0].max_value=8; 
+		m[1].type =NM_TYPE_SLIDER; m[1].text=TXT_MUSIC_VOLUME; m[1].value=Config_midi_volume; m[1].min_value=0; m[1].max_value=8;
+		m[2].type = NM_TYPE_TEXT; m[2].text="";
+		m[3].type = NM_TYPE_CHECK; m[3].text=TXT_REVERSE_STEREO; m[3].value=Config_channels_reversed; 
 
-  sprintf(thogdir,AltHogDir);
-  sprintf(smaxfps,"%d",maxfps);
-  sprintf(shudmaxnumdisp,"%d",HUD_max_num_disp);
+		i = newmenu_do1( NULL, "Sound Effects & Music", sizeof(m)/sizeof(*m), m, sound_menuset, i );
 
+		Config_channels_reversed = m[3].value;
 
-     m[opt].type = NM_TYPE_MENU;  m[opt].text = "Primary autoselect ordering...";   opt++;
-     m[opt].type = NM_TYPE_MENU;  m[opt].text = "Secondary autoselect ordering..."; opt++;
-
-     //added on 2/4/99 by Victor Rachels for new key menu
-     m[opt].type = NM_TYPE_MENU;  m[opt].text = "D1X Keys"; opt++;
-     //end this section addition - VR
-
-     //enabled 3/24/99 - Owen Evans
-     m[opt].type = NM_TYPE_MENU;  m[opt].text = "Change Screen Resolution";         opt++;
-     //end enabled stuff - OE
-
-     commands=opt;
-     //added on 2/2/99 by Victor Rachels for bans
-#ifdef NETWORK
-     m[opt].type = NM_TYPE_MENU; m[opt].text = "Save bans now"; opt++;
-#endif
-     //end this section addition - VR
-
-     m[opt].type = NM_TYPE_TEXT;  m[opt].text = "Maximum Framerate (1-80):";       opt++;
-
-
-     inputs=opt;
-     m[opt].type = NM_TYPE_INPUT; m[opt].text = smaxfps; m[opt].text_len=3;         opt++;
-     m[opt].type = NM_TYPE_TEXT;  m[opt].text = "Mission Directory";                opt++;
-     m[opt].type = NM_TYPE_INPUT; m[opt].text = thogdir; m[opt].text_len=64;        opt++;
-     m[opt].type = NM_TYPE_TEXT;  m[opt].text = "Hud Messages lines (1-80):";       opt++;
-     m[opt].type = NM_TYPE_INPUT; m[opt].text = shudmaxnumdisp; m[opt].text_len=3;  opt++;
-     m[opt].type = NM_TYPE_SLIDER; m[opt].text = "Message colorization level"; m[opt].value=gr_message_color_level;m[opt].min_value=0;m[opt].max_value=3;  opt++;
-     checks=opt;
-#ifdef __MSDOS__
-     m[opt].type = NM_TYPE_CHECK; m[opt].text = "Joy is sidewinder"; m[opt].value=Joy_is_Sidewinder;  opt++;
-#endif
-#ifdef SUPPORTS_NICEFPS
-     m[opt].type = NM_TYPE_CHECK; m[opt].text = "Nice FPS (free cpu cycles)"; m[opt].value = use_nice_fps; opt++;
-#endif
-
-      for(;;)
-       {
-        i=newmenu_do1( NULL, "D1X options", opt, m, &d1x_options_menu_poll, i);
-
-         if(i>-1)
-          {
-            if(i<commands)
-             {
-              switch(i)
-               {
-                case 0: reorder_primary(); break;
-                case 1: reorder_secondary(); break;
-                //added on 2/4/99 by Victor Rachels for new key menu
-                case 2: kconfig(3,"D1X Keys"); break;
-                //end this section addition - VR
-                //enabled 3/24/99 - Owen Evans
-                case 3: change_res(); break;
-                //end enabled stuff - OE
-               }
-             }
-
-            //added on 2/4/99 by Victor Rachels for bans
-            #ifdef NETWORK
-            if(i==commands+0)
-             {              
-
-              nm_messagebox(NULL,1,TXT_OK, "%i Bans saved",writebans());
-
-             }
-            #endif
-            //end this section addition - VR
-
-            if(i==inputs+0)
-             {
-               maxfps = atoi(smaxfps);
-                if(maxfps < 1||maxfps>80)
-                 {
-                   nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for maximum framerate");
-                   maxfps=80;
-                   i=(inputs+0);
-                 }
-             }
-            else if(i==inputs+2)
-             cfile_use_alternate_hogdir(thogdir);
-			else if(i==inputs+4)
-             {
-               HUD_max_num_disp = atoi(shudmaxnumdisp);
-                if(HUD_max_num_disp < 1||HUD_max_num_disp>HUD_MAX_NUM)
-                 {
-                   nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for hud lines");
-                   HUD_max_num_disp=4;
-//                   i=(inputs+4);//???
-                 }
-             }
-			gr_message_color_level=m[inputs+5].value;
-
-			sprintf(shudmaxnumdisp,"%d",HUD_max_num_disp);
-           sprintf(smaxfps,"%d",maxfps);
-//           m[inputs+0].text=smaxfps;//redundant.. its not going anywhere
-           sprintf(thogdir,AltHogDir);
-//           m[inputs+2].text=thogdir;//redundant
-          }
-         else
-          break;
-       }
-
-  write_player_file();
-
-#ifdef __MSDOS__
-  Joy_is_Sidewinder=m[(checks+0)].value;
-#endif
-// #ifdef __LINUX__
-//   Joy_is_Sidewinder=0;
-// #endif
-#ifdef SUPPORTS_NICEFPS
-  use_nice_fps=m[(checks+0)].value;
-#else
-  use_nice_fps=0;
-#endif
+	} while( i>-1 );
 }
 
-//end edit - Victor Rachels
-//end addition - Victor Rachels
-
-void joydef_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
+void options_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 {
-	nitems=nitems;		
+	nitems=nitems;
 	*last_key = *last_key;
 
 	if ( citem==4)	{
 		gr_palette_set_gamma(items[4].value);
 	}
-
-	if ( Config_digi_volume != items[0].value )	{
-		Config_digi_volume = items[0].value;
-		digi_set_digi_volume( (Config_digi_volume*32768)/8 );
-		digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
-	}
-
-	if (Config_midi_volume != items[1].value )	{
-		Config_midi_volume = items[1].value;
-		digi_set_midi_volume( (Config_midi_volume*128)/8 );
-	}
 }
-
-// //this change was made in DESCENT.TEX, but since we're not including that
-// //file in the v1.1 update, we're making the change in the code here also
-// #ifdef SHAREWARE
-// #undef	TXT_JOYS_SENSITIVITY
-// #define	TXT_JOYS_SENSITIVITY "Joystick/Mouse\nSensitivity"
-// #endif
 
 void do_options_menu()
 {
-	newmenu_item m[12];
-
+	newmenu_item m[11];
 	int i = 0;
 
 	do {
-		m[0].type = NM_TYPE_SLIDER; m[0].text=TXT_FX_VOLUME; m[0].value=Config_digi_volume;m[0].min_value=0; m[0].max_value=8;
-		m[1].type = NM_TYPE_SLIDER; m[1].text=TXT_MUSIC_VOLUME; m[1].value=Config_midi_volume;m[1].min_value=0; m[1].max_value=8; 
-		m[2].type = NM_TYPE_CHECK; m[2].text=TXT_REVERSE_STEREO; m[2].value=Config_channels_reversed; 
-		m[3].type = NM_TYPE_TEXT; m[3].text="";
-//added/changed on 10/27/98 by Victor Rachels to increase brightness range
-		m[4].type = NM_TYPE_SLIDER; m[4].text=TXT_BRIGHTNESS; m[4].value=gr_palette_get_gamma();m[4].min_value=0; m[4].max_value=16;
-//end this section addition - Victor Rachels
-		m[5].type = NM_TYPE_TEXT; m[5].text="";
-		m[6].type = NM_TYPE_MENU; m[6].text=TXT_CONTROLS_;
-		m[7].type = NM_TYPE_MENU; m[7].text=TXT_CAL_JOYSTICK;
-		m[8].type = NM_TYPE_TEXT; m[8].text="";
-		m[9].type = NM_TYPE_MENU; m[9].text=TXT_DETAIL_LEVELS;
-//added/changed on 10/27/98 by Victor Rachels to increase sensitivity range
-// 		m[9].type = NM_TYPE_SLIDER; m[9].text=TXT_JOYS_SENSITIVITY; m[9].value=Config_joystick_sensitivity; m[9].min_value =0; m[9].max_value = 16;
-//end this section addition - Victor Rachels
-//added on 4/13/99 by Victor Rachels to add joystick deadzone option
-// 		m[10].type = NM_TYPE_SLIDER; m[10].text="Joystick Deadzone"; m[10].value=joy_deadzone; m[10].min_value=0; m[10].max_value=16;
-//end this section addition - VR
-		m[10].type = NM_TYPE_CHECK; m[10].text="Ship auto-leveling"; m[10].value=Auto_leveling_on;
-		m[11].type = NM_TYPE_MENU; m[11].text="D1X options...";
+		m[ 0].type = NM_TYPE_MENU;   m[ 0].text="Sound effects & music...";
+		m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
+		m[ 2].type = NM_TYPE_MENU;   m[ 2].text=TXT_CONTROLS_;
+		m[ 3].type = NM_TYPE_TEXT;   m[ 3].text="";
+		m[ 4].type = NM_TYPE_SLIDER;
+		m[ 4].text = TXT_BRIGHTNESS;
+		m[ 4].value = gr_palette_get_gamma();
+		m[ 4].min_value = 0;
+		m[ 4].max_value = 16;
 
-		i = newmenu_do1( NULL, TXT_OPTIONS, 12, m, joydef_menuset, i );
+		m[ 5].type = NM_TYPE_MENU;   m[ 5].text=TXT_DETAIL_LEVELS;
+		m[ 6].type = NM_TYPE_MENU;   m[ 6].text="Screen resolution...";
+
+		m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
+		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Primary autoselect ordering...";
+		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
+		m[10].type = NM_TYPE_CHECK;  m[10].text="Ship auto-leveling";
+		m[10].value=Auto_leveling_on;
+
+		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
 			
-		switch(i)	{
-			case 6: joydefs_config(); break;
-			case 7: joydefs_calibrate(); break;
-			case 9: do_detail_level_menu(); break;
-			case 11: d1x_options_menu(); break;
+		switch(i)       {
+			case  0: do_sound_menu();		break;
+			case  2: joydefs_config();		break;
+			case  5: do_detail_level_menu(); 	break;
+			case  6: change_res();			break;
+			case  8: reorder_primary();		break;
+			case  9: reorder_secondary();		break;
 		}
 
-		Config_channels_reversed = m[2].value;
-// 		Config_joystick_sensitivity = m[9].value;
-// 		joy_deadzone = m[10].value;
 		Auto_leveling_on = m[10].value;
+
 	} while( i>-1 );
 
 	write_player_file();
 }
+
 #ifdef NETWORK
 void do_multi_player_menu()
 {
