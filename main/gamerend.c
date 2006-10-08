@@ -324,7 +324,7 @@ void game_draw_hud_stuff()
 
 	if ((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) {
 		char message[128];
-		int h,w,aw;
+		int h,w,aw,y;
 
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			if (Newdemo_vcr_state != ND_STATE_PRINTSCREEN) {
@@ -339,15 +339,13 @@ void game_draw_hud_stuff()
 		gr_set_fontcolor(gr_getcolor(27,0,0), -1 );
 
 		gr_get_string_size(message, &w, &h, &aw );
-		if (Cockpit_mode == CM_FULL_COCKPIT) {
-			if (grd_curcanv->cv_bitmap.bm_h > 240)
-				h += 40;
-			else
-				h += 15;
-		} else if ( Cockpit_mode == CM_LETTERBOX )
-			h += 7;
-		if (Cockpit_mode != CM_REAR_VIEW && !Saving_movie_frames)
-			gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, grd_curcanv->cv_bitmap.bm_h - ((double)grd_curscreen->sc_h/(FontHires?480:200))*h - 2, message ); // ZICO - added multiplicator for h for scalable cockpits
+
+		y = grd_curcanv->cv_bitmap.bm_h;
+
+		if (Cockpit_mode == CM_FULL_COCKPIT)
+			y = grd_curcanv->cv_bitmap.bm_h / 1.15;
+		if (Cockpit_mode != CM_REAR_VIEW)
+			gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2,y - h - 2, message );
 	}
 
 	render_countdown_gauge();
@@ -901,7 +899,7 @@ void copy_background_rect(int left,int top,int right,int bot)
 			//w = (right < dest_x+bm->bm_w)?(right-dest_x+1):(bm->bm_w-ofs_x);
 			w = min(right-dest_x+1,bm->bm_w-ofs_x);
 #ifdef OGL
-			ogl_ubitmapm_cs (dest_x, dest_y, w, h, &background_bitmap,255, F1_0, 0);
+			ogl_ubitmapm_cs (dest_x, dest_y, w, h, &background_bitmap,255, F1_0);
 #else
 			gr_bm_ubitblt(w,h,dest_x,dest_y,ofs_x,ofs_y,&background_bitmap,&grd_curcanv->cv_bitmap);
 #endif
@@ -1011,7 +1009,7 @@ void update_cockpits(int force_redraw)
 		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
 #ifdef OGL // ZICO - scalable
-		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0, 0);
+		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0);
 #else
 		gr_ubitmapm(0,0, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index]);
 #endif
@@ -1029,7 +1027,7 @@ void update_cockpits(int force_redraw)
 
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
 #ifdef OGL // ZICO - scalable
-		ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0, 0);
+		ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0);
 #else
 		gr_ubitmapm(0,max_window_h,&GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index]);
 #endif

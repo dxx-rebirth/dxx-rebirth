@@ -1639,12 +1639,12 @@ int newdemo_read_frame_information()
 			{
 				//mprintf ((0,"Reading extra!\n"));
 				nd_read_object (&extraobj);
-				if (Newdemo_vcr_state!=ND_STATE_PAUSED)
+				if (nd_bad_read)
 				{
-					if (nd_bad_read) { done = -1; break; }
-
-					nd_render_extras (WhichWindow,&extraobj);
+					done = -1;
+					break;
 				}
+				nd_render_extras (WhichWindow,&extraobj);
 			}
 			else
 			{
