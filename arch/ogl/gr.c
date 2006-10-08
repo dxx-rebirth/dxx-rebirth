@@ -171,8 +171,7 @@ const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
 void ogl_get_verinfo(void)
 {
-	long t, sgi_max_textures = -1;
-	GLint arb_max_textures = -1;
+	long t;
 #ifdef GL_NV_register_combiners
 	long nv_register_combiners = -1;
 #endif
@@ -319,7 +318,8 @@ extern int VGA_current_mode; // DPH: kludge - remove at all costs
 
 int gr_set_mode(u_int32_t mode)
 {
-	unsigned int w, h, aw, ah;
+	unsigned int w, h;
+	int aw, ah;
 	char *gr_bm_data;
 	float awidth = 3, aheight = 4;
 	int i, argnum = INT_MAX;

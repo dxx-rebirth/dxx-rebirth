@@ -1354,25 +1354,6 @@ void show_bomb_count(int x,int y,int bg_color,int always_show)
 	if (always_show && count == 0)		//no bombs, draw nothing on HUD
 		return;
 
-	//if (!always_show && countx == old_bombcount[VR_current_page])
-	//	return;
-
-// I hate doing this off of hard coded coords!!!!
-
-	if (Cockpit_mode == CM_STATUS_BAR) {		//draw background
-		gr_setcolor(bg_color);
-		if (!Current_display_mode) {
-			gr_rect(COCKPITSCALE_X*168,COCKPITSCALE_Y*189,COCKPITSCALE_X*189,COCKPITSCALE_Y*196);
-			gr_setcolor(gr_find_closest_color(10,10,10));
-			gr_scanline(COCKPITSCALE_X*168,COCKPITSCALE_X*189,COCKPITSCALE_Y*189);
-		} else {
-			gr_rect(COCKPITSCALE_X*340,COCKPITSCALE_Y*453,COCKPITSCALE_X*378,COCKPITSCALE_Y*470);
-
-			gr_setcolor(gr_find_closest_color(10,10,10));
-			gr_scanline(COCKPITSCALE_X*336,COCKPITSCALE_X*378,COCKPITSCALE_Y*453);
-		}
-	}
-
 	if (count)
 		gr_set_fontcolor((bomb==PROXIMITY_INDEX)?gr_find_closest_color(55,0,0):gr_getcolor(59,50,21),bg_color);
 	else
@@ -1499,9 +1480,7 @@ void hud_show_weapons_mode2(int type,int vertical,int clear,int x,int y){
 			}
 			switch(i){
 			  case 5:
-				sprintf(weapon_str,"",
-					  (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L',
-					  Players[Player_num].laser_level+1);
+				sprintf(weapon_str," ");
 				break;
 			  case 6:
 				if (Cockpit_mode!=CM_FULL_SCREEN || Primary_weapon == 1) {

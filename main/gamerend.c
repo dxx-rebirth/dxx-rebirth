@@ -1109,8 +1109,6 @@ typedef struct bkg {
 
 bkg bg = {0,0,0,0,NULL};
 
-#define BOX_BORDER (MenuHires?60:30)
-
 //show a message in a nice little box
 void show_boxed_message(char *msg)
 {
@@ -1148,8 +1146,7 @@ void clear_boxed_message()
 
 	if (bg.bmp) {
 
-		gr_bitmap(bg.x-BOX_BORDER/2, bg.y-BOX_BORDER/2, bg.bmp);
-	
+		gr_bitmap(bg.x-(15*(SWIDTH/320)), bg.y-(15*(SHEIGHT/200)), bg.bmp);
 		gr_free_bitmap(bg.bmp);
 		bg.bmp = NULL;
 	}

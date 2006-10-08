@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "hudmsg.h"
 
@@ -248,7 +249,6 @@ void HUD_render_message_frame()
 
 int PlayerMessage=1;
 
-
 // Call to flash a message on the HUD.  Returns true if message drawn.
 // (message might not be drawn if previous message was same)
 int HUD_init_message_va(char * format, va_list args)
@@ -261,6 +261,8 @@ int HUD_init_message_va(char * format, va_list args)
 	char *cleanmessage;
 #endif
 	char con_message[HUD_MESSAGE_LENGTH + 3];
+	time_t t;
+	struct tm *lt;
 
 	Modex_hud_msg_count = 2;
 
@@ -271,8 +273,11 @@ int HUD_init_message_va(char * format, va_list args)
 	message = &HUD_messages[hud_last][0];
 	vsprintf(message,format,args);
 
+	t=time(NULL);
+	lt=localtime(&t);
 
 	/* Produce a colorised version and send it to the console */
+	printf("%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
 	if (HUD_color == -1)
 		HUD_color = BM_XRGB(0,28,0);
 	con_message[0] = CC_COLOR;

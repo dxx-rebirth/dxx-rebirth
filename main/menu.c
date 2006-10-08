@@ -992,9 +992,9 @@ extern int Redbook_enabled;
 
 void options_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 {
-	if ( citem==5)
+	if ( citem==4)
 	{
-		gr_palette_set_gamma(items[5].value);
+		gr_palette_set_gamma(items[4].value);
 	}
 
 	nitems++;		//kill warning

@@ -143,7 +143,7 @@ int joy_init()
 	char temp[10];
 
 	if (SDL_Init(SDL_INIT_JOYSTICK) < 0) {
-		con_printf(CON_VERBOSE, "sdl-joystick: initialisation failed: %s.",SDL_GetError());
+		con_printf(CON_NORMAL, "sdl-joystick: initialisation failed: %s.",SDL_GetError());
 		return 0;
 	}
 
@@ -153,9 +153,9 @@ int joy_init()
 
 	n = SDL_NumJoysticks();
 
-	con_printf(CON_VERBOSE, "sdl-joystick: found %d joysticks\n", n);
+	con_printf(CON_NORMAL, "sdl-joystick: found %d joysticks\n", n);
 	for (i = 0; i < n; i++) {
-		con_printf(CON_VERBOSE, "sdl-joystick %d: %s\n", i, SDL_JoystickName(i));
+		con_printf(CON_NORMAL, "sdl-joystick %d: %s\n", i, SDL_JoystickName(i));
 		SDL_Joysticks[num_joysticks].handle = SDL_JoystickOpen(i);
 		if (SDL_Joysticks[num_joysticks].handle) {
 			joy_present = 1;
@@ -184,9 +184,9 @@ int joy_init()
 				SDL_Joysticks[num_joysticks].n_hats = MAX_HATS_PER_JOYSTICK;
 			}
 
-			con_printf(CON_VERBOSE, "sdl-joystick: %d axes\n", SDL_Joysticks[num_joysticks].n_axes);
-			con_printf(CON_VERBOSE, "sdl-joystick: %d buttons\n", SDL_Joysticks[num_joysticks].n_buttons);
-			con_printf(CON_VERBOSE, "sdl-joystick: %d hats\n", SDL_Joysticks[num_joysticks].n_hats);
+			con_printf(CON_NORMAL, "sdl-joystick: %d axes\n", SDL_Joysticks[num_joysticks].n_axes);
+			con_printf(CON_NORMAL, "sdl-joystick: %d buttons\n", SDL_Joysticks[num_joysticks].n_buttons);
+			con_printf(CON_NORMAL, "sdl-joystick: %d hats\n", SDL_Joysticks[num_joysticks].n_hats);
 
 			for (j=0; j < SDL_Joysticks[num_joysticks].n_axes; j++)
 			{
@@ -217,10 +217,10 @@ int joy_init()
 			num_joysticks++;
 		}
 		else
-			con_printf(CON_VERBOSE, "sdl-joystick: initialization failed!\n");
+			con_printf(CON_NORMAL, "sdl-joystick: initialization failed!\n");
 
-		con_printf(CON_VERBOSE, "sdl-joystick: %d axes (total)\n", Joystick.n_axes);
-		con_printf(CON_VERBOSE, "sdl-joystick: %d buttons (total)\n", Joystick.n_buttons);
+		con_printf(CON_NORMAL, "sdl-joystick: %d axes (total)\n", Joystick.n_axes);
+		con_printf(CON_NORMAL, "sdl-joystick: %d buttons (total)\n", Joystick.n_buttons);
 	}
 
 	joy_num_axes = Joystick.n_axes;
