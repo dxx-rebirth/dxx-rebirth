@@ -536,9 +536,7 @@ int do_game_pause()
 	    SDL_WM_GrabInput(SDL_GRAB_ON);
 #endif
 
-	if (VR_screen_flags & VRF_COMPATIBLE_MENUS) {
-		clear_boxed_message();
-	}
+	clear_boxed_message();
 
 	game_flush_inputs();
 

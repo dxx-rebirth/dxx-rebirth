@@ -135,17 +135,16 @@ int last_screen_mode=-1;
 void ogl_set_screen_mode(void){
 	if (last_screen_mode==Screen_mode)
 		return;
-#ifndef __WIN32
-	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h); // ZICO - used for linux, mac
-#else
-	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h); // ZICO - better to use with windows
-#endif
+
+	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
+
 	if (Screen_mode==SCREEN_GAME){
 		glDrawBuffer(GL_BACK);
 	}else{
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 		glDrawBuffer(GL_FRONT);
-		glClear(GL_COLOR_BUFFER_BIT);
+		if (Screen_mode == -1 && Function_mode == FMODE_GAME)
+			glClear(GL_COLOR_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();//clear matrix
 		glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
@@ -218,6 +217,8 @@ void ogl_get_verinfo(void)
 	ogl_ext_texture_filter_anisotropic_ok = (strstr(gl_extensions, "GL_EXT_texture_filter_anisotropic") != 0);
 	if (ogl_ext_texture_filter_anisotropic_ok)
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropic_max);
+
+printf("ANIS: %i\n",anisotropic_max);
 
 #ifdef GL_EXT_paletted_texture
 	ogl_paletted_texture_ok = (strstr(gl_extensions, "GL_EXT_paletted_texture") != 0 && glColorTableEXT != 0);
@@ -367,6 +368,8 @@ return 0;
 	OGL_VIEWPORT(0,0,w,h);
 
 	ogl_set_screen_mode();
+
+	gr_update();
 
 //	gamefont_choose_game_font(w,h);
 	

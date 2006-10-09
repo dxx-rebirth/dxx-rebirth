@@ -6,7 +6,7 @@
 #include "ogl_init.h" // interface to OpenGL module
 
 /* I assume this ought to be >= MAX_BITMAP_FILES in piggy.h? */
-#define OGL_TEXTURE_LIST_SIZE 30000 // ZICO - works better than 3000
+#define OGL_TEXTURE_LIST_SIZE 20000
 
 extern ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
 

@@ -129,7 +129,7 @@ int bLegacyZBuf = 0;
 /* some function prototypes */
 
 //#define OGLTEXBUFSIZE (1024*1024*4)
-#define OGLTEXBUFSIZE (2048*2048*4)
+#define OGLTEXBUFSIZE (4096*4096*4)
 #define GL_TEXTURE0_ARB 0x84C0
 extern GLubyte texbuf[OGLTEXBUFSIZE];
 //void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int width,int height,int  twidth,int theight);
