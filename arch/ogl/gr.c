@@ -101,13 +101,16 @@ int last_screen_mode=-1;
 void ogl_set_screen_mode(void){
 	if (last_screen_mode==Screen_mode)
 		return;
+
 	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
+
 	if (Screen_mode==SCREEN_GAME){
 		glDrawBuffer(GL_BACK);
 	}else{
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 		glDrawBuffer(GL_FRONT);
-		glClear(GL_COLOR_BUFFER_BIT);
+		if (Screen_mode == -1 && Function_mode == FMODE_GAME)
+			glClear(GL_COLOR_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();//clear matrix
 		glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
@@ -237,6 +240,8 @@ int gr_set_mode(u_int32_t mode)
 	OGL_VIEWPORT(0,0,w,h);
 	ogl_set_screen_mode();
 	gamefont_choose_game_font(w,h);
+
+	gr_update();
 	
 	return 0;
 }

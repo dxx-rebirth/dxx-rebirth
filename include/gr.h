@@ -773,9 +773,9 @@ int gr_toggle_fullscreen(void);//returns state after toggling (ie, same as if yo
 #endif
 
 //currently only OGL can toggle in the menus, because its screen data is not used (and stays in the same place).  whereas software modes, toggling fullscreen would very likely make the data buffer point to a different location, and all the subbitmaps of it would have invalid addresses in them.
-/*#ifdef OGL
+#ifdef OGL
 #define GR_SUPPORTS_FULLSCREEN_MENU_TOGGLE
-#endif*/ // ZICO - do not allow this, becuse windows does not like that
+#endif
 int gr_toggle_fullscreen_menu(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)
 
 //make this a define, since its used in several places

@@ -59,11 +59,11 @@ void ogl_init(void){
 		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, atoi(Args[t+1]) );
 	if ((t=FindArg("-gl_buffer")))
 		SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, atoi(Args[t+1]) );
-//	SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
-//	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 5 );
-//	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
-//	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 8 );
-
+	if ((t=FindArg("-gl_fsaa")) && atoi(Args[t+1]) == (2 || 4))
+	{
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,atoi(Args[t+1]));
+	}
 
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
@@ -75,9 +75,5 @@ void ogl_init(void){
 
 }
 void ogl_close(void){
-/*	if (ogl_fullscreen){
-		ogl_fullscreen=0;
-		ogl_do_fullscreen_internal();
-	}*/
 	ogl_destroy_window();
 }

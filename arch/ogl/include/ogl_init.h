@@ -34,7 +34,7 @@ int ogl_init_load_library(void);
 #include "types.h"
 
 
-#define OGL_TEXTURE_LIST_SIZE 20000 // ZICO - works better than 2000
+#define OGL_TEXTURE_LIST_SIZE 20000
 
 typedef struct _ogl_texture {
 	int handle;
@@ -122,7 +122,7 @@ void ogl_close(void);//one time shutdown
 
 //generic funcs
 //#define OGLTEXBUFSIZE (1024*1024*4)
-#define OGLTEXBUFSIZE (2048*2048*4)
+#define OGLTEXBUFSIZE (4096*4096*4)
 extern GLubyte texbuf[OGLTEXBUFSIZE];
 //void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int width,int height,int twidth,int theight);
 void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type, int transp);
