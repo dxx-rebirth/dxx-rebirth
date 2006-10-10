@@ -497,7 +497,7 @@ int gr_toggle_fullscreen(void);
  * toggling fullscreen would very likely make the data buffer point to
  * a different location, and all the subbitmaps of it would have
  * invalid addresses in them. */
-#ifdef OGL
+#if (defined(OGL) && !defined(_WIN32))
 #define GR_SUPPORTS_FULLSCREEN_MENU_TOGGLE
 #endif
 int gr_toggle_fullscreen_menu(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)

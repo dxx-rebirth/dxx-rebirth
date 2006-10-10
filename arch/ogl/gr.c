@@ -126,6 +126,7 @@ void ogl_init_state(void){
 }
 
 int last_screen_mode=-1;
+extern int bPlayMovie;
 
 void ogl_set_screen_mode(void){
 	if (last_screen_mode==Screen_mode)
@@ -138,7 +139,7 @@ void ogl_set_screen_mode(void){
 	}else{
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 		glDrawBuffer(GL_FRONT);
-		if (Screen_mode == -1 && Function_mode == FMODE_GAME)
+		if (Screen_mode == -1 || bPlayMovie)
 			glClear(GL_COLOR_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();//clear matrix
@@ -183,7 +184,7 @@ void ogl_get_verinfo(void)
 	ogl_luminance4_alpha4_ok = 1;
 	ogl_rgba2_ok = 1;
 	ogl_gettexlevelparam_ok = 1;
-	ogl_setgammaramp_ok = 0;
+	ogl_setgammaramp_ok = 1;
 
 #ifdef WGL_VIDEO
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");

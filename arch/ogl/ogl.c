@@ -1238,8 +1238,6 @@ bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, gr
 }
 #else
 
-extern int bPlayMovie;
-
 bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int mipmap)
 {
 	GLfloat xo,yo,xs,ys;
@@ -1382,21 +1380,22 @@ bool ogl_ubitblt_copy(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * sr
 }
 
 grs_canvas *offscreen_save_canv = NULL, *offscreen_canv = NULL;
+float pixels [OGLTEXBUFSIZE];
 
 void ogl_start_offscreen_render(int x, int y, int w, int h) {
 	int y2;
-	float pixels [SWIDTH*SHEIGHT];
+
 	if (offscreen_canv) Error("ogl_start_offscreen_render: offscreen_canv!=NULL");
 	offscreen_save_canv = grd_curcanv;
+	glDrawBuffer(GL_BACK);
 	offscreen_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
 	gr_set_current_canvas(offscreen_canv);
-	glDrawBuffer(GL_BACK);
 	y2 = last_height - offscreen_canv->cv_bitmap.bm_y - offscreen_canv->cv_bitmap.bm_h;
 	glReadPixels(offscreen_canv->cv_bitmap.bm_x,y2,w,h,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
 }
 void ogl_end_offscreen_render(void) {
 	int y;
-	float pixels [SWIDTH*SHEIGHT];
+
 	if (!offscreen_canv) Error("ogl_end_offscreen_render: no offscreen_canv");
 	glDrawBuffer(GL_FRONT);
 	glReadBuffer(GL_BACK);

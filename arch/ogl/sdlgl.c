@@ -113,11 +113,6 @@ void ogl_init(void){
 		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, atoi(Args[t+1]) );
 	if ((t=FindArg("-gl_buffer")))
 		SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, atoi(Args[t+1]) );
-	if ((t=FindArg("-gl_fsaa")) && atoi(Args[t+1]) == (2 || 4))
-	{
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,atoi(Args[t+1]));
-	}
 
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
