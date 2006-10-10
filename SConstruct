@@ -9,7 +9,7 @@ import os
 
 # version number
 D1XMAJOR = 0
-D1XMINOR = 45
+D1XMINOR = 50
 
 # command-line parms
 sharepath = str(ARGUMENTS.get('sharepath', '/usr/local/share/games/d1x/'))
@@ -372,7 +372,6 @@ if (editor == 1):
 	env.Append(CPPDEFINES = ['EDITOR'])
 	env.Append(CPPPATH = ['include/editor'])
 	common_sources = editor_sources + common_sources
-	target = 'miner'
 
 #shareware build?
 if (shareware == 1):
@@ -384,11 +383,14 @@ if (shareware == 0) and (editor == 0):
 
 # finally building program...
 env.Program(target=str(target), source = common_sources, LIBS = alllibs, LINKFLAGS = str(lflags))
+env.Install('/usr/local/bin', str(target))
+env.Alias('install', '/usr/local/bin')
 
 # show some help when running scons -h
 Help("""
 	D1X-Rebirth, SConstruct file help:
 	Type 'scons' to build the binary.
+	Type 'scons install' to build and install to /usr/local/bin.
 	Type 'scons -c' to clean up.
 	Extra options (add them to command line, like 'scons extraoption=value'):
 	'sharepath=DIR' Use DIR for shared game data (*NIX only). Must end with a slash.
