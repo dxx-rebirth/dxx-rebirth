@@ -2359,12 +2359,12 @@ void draw_numerical_display(int shield, int energy)
 	hud_bitblt( NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_NUMERICAL) ], F1_0);
 
 	gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
-	gr_get_string_size((shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
+	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
 	gr_printf(	(grd_curscreen->sc_w/1.951)-(sw/2), 
 			(grd_curscreen->sc_h/1.365),"%d",shield);
 
 	gr_set_fontcolor(gr_getcolor(25,18,6),-1 );
-	gr_get_string_size((energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
+	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
 	gr_printf(	(grd_curscreen->sc_w/1.951)-(ew/2),
 			(grd_curscreen->sc_h/1.5),"%d",energy);
 	
@@ -2731,7 +2731,7 @@ void sb_draw_energy_bar(energy)
 	sprintf(energy_str, "%d", energy);
 	gr_get_string_size(energy_str, &w, &h, &aw );
 	gr_set_fontcolor(gr_getcolor(25,18,6),-1 );
-	gr_get_string_size((energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
+	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
 	gr_printf((grd_curscreen->sc_w/3)-(ew/2),COCKPITSCALE_Y*(SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4)),"%d",energy);
 
 	gr_set_current_canvas(get_current_game_screen());
@@ -2772,7 +2772,7 @@ void sb_draw_shield_num(int shield)
 	gr_set_curfont( GAME_FONT );
 	gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
 
-	gr_get_string_size((shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
+	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
 	gr_printf((grd_curscreen->sc_w/2.266)-(sw/2),COCKPITSCALE_Y*SB_SHIELD_NUM_Y,"%d",shield);
 }
 
