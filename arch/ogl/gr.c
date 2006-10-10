@@ -143,7 +143,11 @@ void ogl_get_verinfo(void){
 	printf("gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
 #endif
 
-	ogl_intensity4_ok=1;ogl_luminance4_alpha4_ok=1;ogl_rgba2_ok=1;ogl_gettexlevelparam_ok=1;
+	ogl_intensity4_ok=1;
+	ogl_luminance4_alpha4_ok=1;
+	ogl_rgba2_ok=1;
+	ogl_gettexlevelparam_ok=1;
+	ogl_setgammaramp_ok = 1;
 
 #ifdef __WINDOWS__
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
@@ -195,10 +199,14 @@ void ogl_get_verinfo(void){
 	if ((t=FindArg("-gl_gettexlevelparam_ok"))){
 		ogl_gettexlevelparam_ok=atoi(Args[t+1]);
 	}
+	if ((t=FindArg("-gl_setgammaramp_ok")))
+	{
+		ogl_setgammaramp_ok = atoi(Args[t + 1]);
+	}
 
 #ifndef NDEBUG
 	printf("gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
-	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok);
+	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok);
 #endif
 }
 
@@ -494,16 +502,42 @@ void gr_palette_clear()
 	gr_palette_faded_out=1;
 }
 
+int ogl_brightness_ok = 0;
+int ogl_setgammaramp_ok = 1;
+int ogl_brightness_r = 0, ogl_brightness_g = 0, ogl_brightness_b = 0;
+static int old_b_r = 0, old_b_g = 0, old_b_b = 0;
 
 void gr_palette_step_up( int r, int g, int b )
 {
-	if (gr_palette_faded_out) return;
+	if (gr_palette_faded_out)
+		return;
 
-	last_r = (r+gr_palette_gamma)/63.0;
-	last_g = (g+gr_palette_gamma)/63.0;
-	last_b = (b+gr_palette_gamma)/63.0;
+	old_b_r = ogl_brightness_r;
+	old_b_g = ogl_brightness_g;
+	old_b_b = ogl_brightness_b;
 
-	do_pal_step=(r || g || b || gr_palette_gamma);
+	ogl_brightness_r = max(r + gr_palette_gamma, 0);
+	ogl_brightness_g = max(g + gr_palette_gamma, 0);
+	ogl_brightness_b = max(b + gr_palette_gamma, 0);
+
+	if (ogl_setgammaramp_ok &&
+	    (old_b_r != ogl_brightness_r ||
+	     old_b_g != ogl_brightness_g ||
+	     old_b_b != ogl_brightness_b))
+		ogl_brightness_ok = !ogl_setbrightness_internal();
+
+	if (!ogl_setgammaramp_ok || !ogl_brightness_ok)
+	{
+		last_r = ogl_brightness_r / 63.0;
+		last_g = ogl_brightness_g / 63.0;
+		last_b = ogl_brightness_b / 63.0;
+
+		do_pal_step = (r || g || b || gr_palette_gamma);
+	}
+	else
+	{
+		do_pal_step = 0;
+	}
 	
 }
 
@@ -520,6 +554,7 @@ void gr_palette_load( ubyte *pal )
 	}
 
 	gr_palette_faded_out=0;
+	gr_palette_step_up(0, 0, 0); // make ogl_setbrightness_internal get run so that menus get brightened too.
 	init_computed_colors();
 }
 

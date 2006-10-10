@@ -12,7 +12,7 @@ D1XMAJOR = 0
 D1XMINOR = 50
 
 # command-line parms
-sharepath = str(ARGUMENTS.get('sharepath', '/usr/local/share/games/d1x/'))
+sharepath = str(ARGUMENTS.get('sharepath', '/usr/local/share/games/d1x-rebirth/'))
 debug = int(ARGUMENTS.get('debug', 0))
 profiler = int(ARGUMENTS.get('profiler', 0))
 sdl_only = int(ARGUMENTS.get('sdl_only', 0))
@@ -394,10 +394,10 @@ Help("""
 	Type 'scons -c' to clean up.
 	Extra options (add them to command line, like 'scons extraoption=value'):
 	'sharepath=DIR' Use DIR for shared game data (*NIX only). Must end with a slash.
-			Default: /usr/local/share/games/d1x/
+			Default: /usr/local/share/games/d1x-rebirth/
 	'sdl_only=1' don't include OpenGL, use SDL-only instead
 	'shareware=1' build SHAREWARE version
-	'no_asm=1' don't use ASSEMBLER (only with sdl_only=1 - NOT recommended, slow)
+	'no_asm=1' don't use ASSEMBLER (only with sdl_only=1)
 	'debug=1' build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1' do profiler build
 	'editor=1' build editor !EXPERIMENTAL!

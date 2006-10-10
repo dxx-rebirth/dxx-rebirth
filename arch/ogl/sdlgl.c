@@ -12,6 +12,26 @@ void ogl_do_fullscreen_internal(void){
 	ogl_init_window(curx,cury);
 }
 
+static Uint16 gammaramp[512];
+
+static void init_gammaramp(void)
+{
+	int i;
+
+	for (i = 0; i < 256; ++i)
+		gammaramp[i] = i * 256;
+	for (i = 256; i < 512; ++i)
+		gammaramp[i] = 0xffff;
+}
+
+int ogl_setbrightness_internal(void)
+{
+	return SDL_SetGammaRamp(gammaramp + ogl_brightness_r * 4,
+	                        gammaramp + ogl_brightness_g * 4,
+	                        gammaramp + ogl_brightness_b * 4
+							);
+}
+
 void ogl_swap_buffers_internal(void){
 	SDL_GL_SwapBuffers();
 }
@@ -59,11 +79,6 @@ void ogl_init(void){
 		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, atoi(Args[t+1]) );
 	if ((t=FindArg("-gl_buffer")))
 		SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, atoi(Args[t+1]) );
-	if ((t=FindArg("-gl_fsaa")) && atoi(Args[t+1]) == (2 || 4))
-	{
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS,1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES,atoi(Args[t+1]));
-	}
 
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
@@ -73,6 +88,7 @@ void ogl_init(void){
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
 
+	init_gammaramp();
 }
 void ogl_close(void){
 	ogl_destroy_window();
