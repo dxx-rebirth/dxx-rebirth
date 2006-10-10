@@ -92,7 +92,7 @@ int gr_set_mode(u_int32_t mode)
 //Style "D1X*"  NoTitle, NoHandles, BorderWidth 0
 //if you can't use -fullscreen like me (crashes X), this is a big help in
 //getting the window centered correctly (if you use SmartPlacement)
-	SDL_WM_SetCaption(DESCENT_VERSION " " D1X_DATE, "Descent");
+	SDL_WM_SetCaption(DESCENT_VERSION, "Descent");
 //end addition -MM
 
 //edited 10/05/98 by Matt Mueller - make fullscreen mode optional

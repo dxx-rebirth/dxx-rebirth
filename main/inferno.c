@@ -662,26 +662,26 @@ int main(int argc,char **argv)
 		write_player_file();
 #else
 //added/changed on 10/31/98  by Victor Rachels to add -pilot and exit on esc
-                if((i=FindArg("-pilot")))
-                 {
-                  char filename[15];
-                  sprintf(filename,"%.8s.plr",Args[i+1]);
-                  strlwr(filename);
-                   if(!access(filename,4))
-                    {
-                     strcpy(Players[Player_num].callsign,Args[i+1]);
-                     strupr(Players[Player_num].callsign);
-                     read_player_file();
-                     Auto_leveling_on = Default_leveling_on;
-                     WriteConfigFile();
-                    }
-                   else          //pilot doesn't exist. get pilot.
-                    if(!RegisterPlayer())
-                     Function_mode = FMODE_EXIT;
-                 }
-                else
-                 if(!RegisterPlayer())               //get player's name
-                  Function_mode = FMODE_EXIT;
+		if((i=FindArg("-pilot")))
+		{
+			char filename[15];
+			sprintf(filename,"%.8s.plr",Args[i+1]);
+			strlwr(filename);
+			if(!access(filename,4))
+			{
+				strcpy(Players[Player_num].callsign,Args[i+1]);
+				strupr(Players[Player_num].callsign);
+				read_player_file();
+				Auto_leveling_on = Default_leveling_on;
+				WriteConfigFile();
+			}
+			else          //pilot doesn't exist. get pilot.
+				if(!RegisterPlayer())
+					Function_mode = FMODE_EXIT;
+			}
+			else
+				if(!RegisterPlayer())               //get player's name
+					Function_mode = FMODE_EXIT;
 //end this section addition - Victor Rachels
 #endif
 	}

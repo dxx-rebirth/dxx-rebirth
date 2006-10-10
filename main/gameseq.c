@@ -937,7 +937,7 @@ do_menu_again:
 	;
 
 	if (!newmenu_get_filename( TXT_SELECT_PILOT, "*.plr", filename, allow_abort_flag ))	{
-		return 0;		// They hit Esc in file selector
+		goto do_menu_again;		// They hit Esc in file selector
 	}
 
 	if ( filename[0] == '<' )	{

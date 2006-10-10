@@ -24,7 +24,7 @@ int ogl_init_window(int x, int y){
 #endif
 			ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
-	SDL_WM_SetCaption(DESCENT_VERSION " " D1X_DATE, "Descent");
+	SDL_WM_SetCaption(DESCENT_VERSION, "Descent");
 
         if (!SDL_SetVideoMode(x,y, 16, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0))) {
            Error("Could not set %dx%dx16 opengl video mode\n",x,y);

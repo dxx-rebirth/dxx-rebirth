@@ -744,13 +744,11 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 //-killed-        title && !strcmp(title,"MAIN MENU"))
 //end this section change - VR
 	{
-		int sw,sh,aw;
 		grs_canvas *saved_canvas = grd_curcanv;
 		grd_curcanv = &grd_curscreen->sc_canvas;
 		grd_curcanv->cv_font = GAME_FONT;
-		gr_get_string_size(DESCENT_VERSION,&sw,&sh,&aw);
 		gr_set_fontcolor( GR_GETCOLOR(25,0,0), -1);
-		gr_printf((GWIDTH/2)-(sw/2),GHEIGHT-sh*3,DESCENT_VERSION);
+		gr_printf(0x8000,GHEIGHT-FONTSCALE_Y(grd_curcanv->cv_font->ft_h*3),DESCENT_VERSION);
 		grd_curcanv = saved_canvas;
 		Menu_Special = 0;
 	}
@@ -1695,6 +1693,7 @@ ReadFileNames:
 				newmenu_show_cursor();
  				if (x==0)	{
 					char * p;
+					char plxfile[256];
 					int ret;
 					p = &filenames[(citem*14)+strlen(&filenames[citem*14])];
 					if (player_mode)
@@ -1705,6 +1704,10 @@ ReadFileNames:
 
 					if ((!ret) && player_mode)	{
 						delete_player_saved_games( &filenames[citem*14] );
+						// also delete PLX file
+						sprintf(plxfile,"%.8s.plx",Players[Player_num].callsign);
+						if (cfexist(plxfile))
+							unlink(plxfile);
 					}
 
 					if (ret) {
