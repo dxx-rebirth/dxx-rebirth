@@ -531,7 +531,7 @@ int init_subtitles(char *filename)
 
 	if (!ifile) {								//no text version, try binary version
 		char filename2[FILENAME_LEN];
-		change_filename_extension(filename2, filename, ".TXB"); // ZICO - removed in CVS, but breaks subtitles
+		change_filename_extension(filename2, filename, ".txb");
 		ifile = cfopen(filename2,"rb");
 		if (!ifile)
 			return 0;
