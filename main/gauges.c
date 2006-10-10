@@ -1378,12 +1378,12 @@ void draw_numerical_display(int shield, int energy)
 	// cockpit is not 100% geometric so we need to divide shield and energy X position by 1.951 which should be most accurate
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
 	gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
-	gr_get_string_size((shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
+	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
 	gr_printf(	(grd_curscreen->sc_w/1.951)-(sw/2), 
 			(grd_curscreen->sc_h/1.365),"%d",shield);
 
 	gr_set_fontcolor(gr_getcolor(25,18,6),-1 );
-	gr_get_string_size((energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
+	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
 	gr_printf(	(grd_curscreen->sc_w/1.951)-(ew/2),
 			(grd_curscreen->sc_h/1.5),"%d",energy);
 
@@ -1708,7 +1708,7 @@ void sb_draw_energy_bar(int energy)
 
 	//draw numbers
 	gr_set_fontcolor(gr_getcolor(25,18,6),-1 );
-	gr_get_string_size((energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
+	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
 	gr_printf((grd_curscreen->sc_w/3)-(ew/2),COCKPITSCALE_Y*SB_ENERGY_NUM_Y,"%d",energy);
 }
 
@@ -1724,7 +1724,7 @@ void sb_draw_shield_num(int shield)
 	//erase old one
 	PIGGY_PAGE_IN( cockpit_bitmap[Cockpit_mode] );
 	gr_setcolor(gr_gpixel(bm,SB_SHIELD_NUM_X,SB_SHIELD_NUM_Y-(VR_render_height-bm->bm_h)));
-	gr_get_string_size((shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
+	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
 	gr_printf((grd_curscreen->sc_w/2.267)-(sw/2),COCKPITSCALE_Y*SB_SHIELD_NUM_Y,"%d",shield);
 }
 
