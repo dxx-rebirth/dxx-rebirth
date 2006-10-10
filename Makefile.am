@@ -6,7 +6,7 @@ EXTRA_SUBDIRS = ui include unused debian rpm VisualC VisualCE English.lproj d2x.
 
 bin_PROGRAMS = @TARGETS@
 
-EXTRA_PROGRAMS = d2x d2x-sdl d2x-gl d2x-svga d2x-ggi
+EXTRA_PROGRAMS = d2x-rebirth d2x-rebirth-sdl d2x-rebirth-gl d2x-rebirth-svga d2x-rebirth-ggi
 
 ARCH_LIBS = $(foreach subdir,${D2X_ARCH_SUBDIRS},arch/${subdir}/libarch_${subdir}.a)
 
@@ -26,26 +26,26 @@ if CONSOLE
 CONSOLE_LIBS = console/libconsole.a
 endif
 
-d2x_SOURCES =
-d2x_sdl_SOURCES =
-d2x_gl_SOURCES =
-d2x_svga_SOURCES =
-d2x_ggi_SOURCES =
+d2x_rebirth_SOURCES =
+d2x_rebirth_sdl_SOURCES =
+d2x_rebirth_gl_SOURCES =
+d2x_rebirth_svga_SOURCES =
+d2x_rebirth_ggi_SOURCES =
 
-d2x_LDADD = ${LD_KLUDGE} main/libmain.a ${EDITOR_LIBS} 3d/lib3d.a 2d/lib2d.a ${ARCH_LIBS} libmve/libmve.a mem/libmem.a iff/libiff.a texmap/libtexmap.a misc/libmisc.a maths/libmaths.a ${CONSOLE_LIBS}
+d2x_rebirth_LDADD = ${LD_KLUDGE} main/libmain.a ${EDITOR_LIBS} 3d/lib3d.a 2d/lib2d.a ${ARCH_LIBS} libmve/libmve.a mem/libmem.a iff/libiff.a texmap/libtexmap.a misc/libmisc.a maths/libmaths.a ${CONSOLE_LIBS}
 
 if MINGW32
 if USE_NETWORK
-d2x_sdl_LDADD = ${d2x_LDADD} -lwinmm -lwsock32
+d2x_rebirth_sdl_LDADD = ${d2x_rebirth_LDADD} -lwinmm -lwsock32
 else
-d2x_sdl_LDADD = ${d2x_LDADD} -lwinmm
+d2x_rebirth_sdl_LDADD = ${d2x_rebirth_LDADD} -lwinmm
 endif
 else
-d2x_sdl_LDADD = ${d2x_LDADD} -lm
+d2x_rebirth_sdl_LDADD = ${d2x_rebirth_LDADD} -lm
 endif
-d2x_gl_LDADD = ${d2x_sdl_LDADD} ${OGL_LIBS}
-d2x_svga_LDADD = ${d2x_sdl_LDADD} ${SVGA_LIBS}
-d2x_ggi_LDADD = ${d2x_sdl_LDADD} ${GGI_LIBS}
+d2x_rebirth_gl_LDADD = ${d2x_rebirth_sdl_LDADD} ${OGL_LIBS}
+d2x_rebirth_svga_LDADD = ${d2x_rebirth_sdl_LDADD} ${SVGA_LIBS}
+d2x_rebirth_ggi_LDADD = ${d2x_rebirth_sdl_LDADD} ${GGI_LIBS}
 
 dist-hook:
 	rm -rf `find $(distdir) -name CVS`

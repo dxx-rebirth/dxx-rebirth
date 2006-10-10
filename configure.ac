@@ -1,10 +1,10 @@
 # -*- mode: shell-script -*-
 
 define([D2X_MAJOR],0)
-define([D2X_MINOR],2)
-define([D2X_MICRO],6)
+define([D2X_MINOR],5)
+define([D2X_MICRO],0)
 
-AC_INIT(d2x,[D2X_MAJOR.D2X_MINOR.D2X_MICRO],[descent-source@warpcore.org])
+AC_INIT(D2X-Rebirth,['D2X_MAJOR'.'D2X_MINOR''D2X_MICRO'],[descent-source@warpcore.org])
 AC_PREREQ(2.52)
 
 AC_CANONICAL_BUILD
@@ -173,7 +173,7 @@ AC_DEFINE_UNQUOTED(SHAREPATH, "$sharepath",[Define this to be the shared game di
 # Test for MSDOS
 if test x$MSDOS = xyes; then
     CFLAGS="-I \$(top_srcdir)/arch/dos/include $CFLAGS"
-    TARGETS=d2x
+    TARGETS=d2x-rebirth
     D2X_ARCH_SUBDIRS=dos
 else
 
@@ -187,7 +187,7 @@ else
     CFLAGS="$SDL_CFLAGS $CFLAGS"
     LIBS="$SDL_LIBS $LIBS"
 
-    TARGETS=d2x-sdl
+    TARGETS=d2x-rebirth-sdl
     D2X_ARCH_SUBDIRS=sdl
 
     AC_CHECK_HEADERS(netipx/ipx.h)
@@ -225,7 +225,7 @@ else
             )
         done
         AC_DEFINE(OGL,,[Define if you want an OpenGL build])
-        TARGETS=d2x-gl
+        TARGETS=d2x-rebirth-gl
         D2X_ARCH_SUBDIRS="ogl ${D2X_ARCH_SUBDIRS}"
     fi
     AC_SUBST(OGL_LIBS)
@@ -242,7 +242,7 @@ else
             GGI_LIBS="${GGI_LIBS} -lgii",
             [AC_MSG_ERROR([GII not found, GGI version cannot be built]); ggi=false])
         AC_DEFINE(GGI,,[Define if you want a GGI build])
-        TARGETS=d2x-ggi
+        TARGETS=d2x-rebirth-ggi
         D2X_ARCH_SUBDIRS="ggi ${D2X_ARCH_SUBDIRS}"
     fi
     AC_SUBST(GGI_LIBS)
@@ -263,7 +263,7 @@ else
                 svga=false],
             -lvga)
         AC_DEFINE(SVGA,,[Define if you want an SVGALib build])
-        TARGETS=d2x-svga
+        TARGETS=d2x-rebirth-svga
         D2X_ARCH_SUBDIRS="svgalib ${D2X_ARCH_SUBDIRS}"
     fi
     AC_SUBST(SVGA_LIBS)
