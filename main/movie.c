@@ -95,7 +95,6 @@ char movielib_files[4][FILENAME_LEN] = {"intro","other","robots"};
 
 int MovieHires = 1;   //default is highres
 int bPlayMovie;
-int bRobotRotate;
 
 SDL_RWops *RoboFile;
 
@@ -175,7 +174,6 @@ int PlayMovie(const char *filename, int must_have)
 	return ret;
 }
 
-int bRobotRotate;
 void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, uint h, uint dstx, uint dsty)
 {
 	grs_bitmap source_bm;
@@ -196,21 +194,22 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 	int yOffs = (grd_curcanv->cv_h - dh) / 2;
 	int mip;
 	
-	bPlayMovie = 1;
 	if (FindArg("-nomoviesmooth"))
 		mip = 0;
 	else
 		mip = 1;
 
 	glDisable (GL_BLEND);
-	if (bRobotRotate) {
-		ogl_ubitblt_i(grd_curcanv->cv_w/2, dh/2, grd_curcanv->cv_w/2.3, grd_curcanv->cv_h/2.3, bufw, bufh, sx, sy, &source_bm,&grd_curcanv->cv_bitmap, mip);
-	} else {
-		ogl_ubitblt_i(grd_curcanv->cv_w/1.08, dh/1.08, grd_curcanv->cv_w/26, yOffs+13, bufw, bufh, sx, sy,  &source_bm,&grd_curcanv->cv_bitmap, mip); // ZICO - divided by 1.08 gives more original size - offset additions are just approximate values
-	}
+
+	ogl_ubitblt_i(	w*((double)grd_curscreen->sc_w/(MovieHires?640:320)),
+			h*((double)grd_curscreen->sc_h/(MovieHires?480:200)),
+			dstx*((double)grd_curscreen->sc_w/(MovieHires?640:320)),
+			dsty*((double)grd_curscreen->sc_h/(MovieHires?480:200)),
+			bufw, bufh, sx, sy,
+			&source_bm,&grd_curcanv->cv_bitmap, mip);
+
 	glEnable (GL_BLEND);
 
-	bPlayMovie = 0;
 #else
 	gr_bm_ubitblt(bufw,bufh,dstx,dsty,sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
 #endif
@@ -331,6 +330,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		return MOVIE_NOT_PLAYED;
 	}
 
+	bPlayMovie = 1;
+
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
 
@@ -397,6 +398,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	SDL_FreeRW(filehndl);                           // Close Movie File
 
+	bPlayMovie = 0;
+
 	// Restore old graphic state
 
 	Screen_mode=-1;  //force reset of screen mode
@@ -456,7 +459,6 @@ void DeInitRobotMovie(void)
 {
 	MVE_rmEndMovie();
 	SDL_FreeRW(RoboFile);                           // Close Movie File
-	bRobotRotate = 0;
 }
 
 
@@ -465,7 +467,6 @@ int InitRobotMovie(char *filename)
 	if (FindArg("-nomovies"))
 		return 0;
 
-	bRobotRotate = 1;
 	con_printf(CON_DEBUG, "RoboFile=%s\n", filename);
 
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
