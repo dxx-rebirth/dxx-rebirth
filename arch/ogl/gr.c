@@ -218,8 +218,6 @@ void ogl_get_verinfo(void)
 	if (ogl_ext_texture_filter_anisotropic_ok)
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropic_max);
 
-printf("ANIS: %i\n",anisotropic_max);
-
 #ifdef GL_EXT_paletted_texture
 	ogl_paletted_texture_ok = (strstr(gl_extensions, "GL_EXT_paletted_texture") != 0 && glColorTableEXT != 0);
 	ogl_shared_palette_ok = (strstr(gl_extensions, "GL_EXT_shared_texture_palette") != 0 && ogl_paletted_texture_ok);

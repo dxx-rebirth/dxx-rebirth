@@ -158,6 +158,7 @@ void ipx_set_driver(int ipx_driver);
 //returns the number of demo files on the disk
 int newdemo_count_demos();
 extern ubyte Version_major,Version_minor;
+extern int Menu_Special;
 
 // ------------------------------------------------------------------------
 void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int citem )
@@ -203,7 +204,7 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 		//say this is vertigo version
 		if (cfexist(MISSION_DIR "d2x.hog")) {
 			gr_set_curfont(MEDIUM2_FONT);
-			gr_printf(MenuHires?495*(SWIDTH/640):248*(SWIDTH/320), MenuHires?88*(SHEIGHT/480):37*(SHEIGHT/200), "Vertigo");
+			gr_printf(MenuHires?495*((double)SWIDTH/640):248*((double)SWIDTH/320), MenuHires?88*((double)SHEIGHT/480):37*((double)SHEIGHT/200), "Vertigo");
 		}
 	}
 	
@@ -327,6 +328,7 @@ int DoMenu()
 		if (main_menu_choice < 0 )
 			main_menu_choice = 0;
 		Menu_draw_copyright = 1;
+		Menu_Special = 1;
 		main_menu_choice = newmenu_do2( "", NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
 		if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
 	} while( Function_mode==FMODE_MENU );

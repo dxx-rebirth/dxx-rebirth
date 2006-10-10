@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "kconfig.h"
 #include "strutil.h"
+#include "vers_id.h"
 
 #ifdef MACINTOSH
 #include <Events.h>
@@ -666,6 +667,7 @@ int check_button_press()
 	return 0;
 }
 
+int Menu_Special = 0;
 extern int network_request_player_names(int);
 extern int RestoringMenu;
 
@@ -978,6 +980,17 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	}
 
 	ty = (MenuHires?30:15)*MENSCALE_Y;
+
+        if(Menu_Special==1)
+	{
+		grs_canvas *saved_canvas = grd_curcanv;
+		grd_curcanv = &grd_curscreen->sc_canvas;
+		grd_curcanv->cv_font = GAME_FONT;
+		gr_set_fontcolor( GR_GETCOLOR(25,0,0), -1);
+		gr_printf(0x8000,GHEIGHT-FONTSCALE_Y(grd_curcanv->cv_font->ft_h*3),DESCENT_VERSION);
+		grd_curcanv = saved_canvas;
+		Menu_Special = 0;
+	}
 
 	if ( title )	{
 		grd_curcanv->cv_font = TITLE_FONT;
@@ -2157,6 +2170,7 @@ ReadFileNames:
 				newmenu_show_cursor();
  				if (x==0)	{
 					char * p;
+					char plxfile[PATH_MAX];
 					int ret;
 					char name[PATH_MAX];
 
@@ -2186,6 +2200,10 @@ ReadFileNames:
 
 					if ((!ret) && player_mode)	{
 						delete_player_saved_games( &filenames[citem*14] );
+						// also delete PLX file
+						sprintf(plxfile,"%.8s.plx",Players[Player_num].callsign);
+						if (cfexist(plxfile))
+							PHYSFS_delete(plxfile);
 					}
 
 					if (ret) {

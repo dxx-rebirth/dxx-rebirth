@@ -318,6 +318,7 @@ void print_commandline_help()
 //	printf( "  -xver           %s\n","FIXME: Undocumented");
 	printf( "  -tmap <t>       %s\n","select texmapper to use (c,fp,i386,pent,ppro)");
 	printf( "  -mouselook      %s\n","Activate mouselook. Works in singleplayer only"); // ZICO - added for mouselook
+	printf( "  -pilot <name>   %s\n", "Select this pilot automatically");
 /*#ifdef __MSDOS__
 	printf( "  -<X>x<Y>        %s\n", "Change screen resolution. Options:");
 	printf( "                     320x100;320x200;320x240;320x400;640x400;640x480;800x600;1024x768\n");
@@ -806,7 +807,28 @@ int main(int argc, char *argv[])
 		strcpy(Players[0].callsign, "dummy");
 	} else
 	#endif
-		do_register_player(title_pal);
+	{
+// 		do_register_player(title_pal);
+		if((t = FindArg( "-pilot" )))
+		{
+			char filename[15];
+
+			sprintf(filename,"%.8s.plr",Args[i+1]);
+			strlwr(Args[t+1]);
+
+			if(cfexist(filename))
+			{
+				strcpy(Players[Player_num].callsign,Args[t+1]);
+				read_player_file();
+				WriteConfigFile();
+				remap_fonts_and_menus(1);
+			}
+			else
+				do_register_player(title_pal);
+		}
+		else
+			do_register_player(title_pal);
+	}
 
 	gr_palette_fade_out( title_pal, 32, 0 );
 
