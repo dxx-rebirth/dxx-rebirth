@@ -53,26 +53,21 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
 #undef GL_ARB_multitexture // hack!
+#elif defined(_WIN32)
+#undef GL_ARB_multitexture
+#undef GL_NV_register_combiners
+#undef GL_EXT_paletted_texture
 #else
 #include <GL/glu.h>
 #endif
 
-#if _WIN32 // ZICO - hack for win32
-#undef GL_ARB_multitexture
-#undef GL_NV_register_combiners
-#undef GL_EXT_paletted_texture
-#endif
-
 int ogl_voodoohack=0;
-
 int gr_installed = 0;
-
-
-void gr_palette_clear(); // Function prototype for gr_init;
 int gl_initialized=0;
 int gl_reticle = 0;
-
 int ogl_fullscreen;
+
+void gr_palette_clear(); // Function prototype for gr_init;
 
 int gr_check_fullscreen(void){
 	return ogl_fullscreen;
@@ -173,6 +168,7 @@ void ogl_get_verinfo(void)
 	long t;
 #ifdef GL_NV_register_combiners
 	long nv_register_combiners = -1;
+	GLint arb_max_textures, sgi_max_testures;
 #endif
 	float anisotropic_max = 0;
 
