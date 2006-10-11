@@ -952,9 +952,6 @@ do_menu_again:
 
 	read_player_file();
 
-        if( filename[0] == '<')
-         joydefs_calibrate();
-
 	Auto_leveling_on = Default_leveling_on;
 
 	if (menu_use_game_res) { // ZICO - set players resolution after player is selected
