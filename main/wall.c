@@ -60,6 +60,10 @@ static char rcsid[] = "$Id: wall.c,v 1.1.1.1 2006/03/17 19:56:48 zicodxx Exp $";
 #include "editor/editor.h"
 #endif
 
+#ifdef OGL
+#include "ogl_init.h"
+#endif
+
 //	Special door on boss level which is locked if not in multiplayer...sorry for this awful solution --MK.
 #define	BOSS_LOCKED_DOOR_LEVEL	7
 #define	BOSS_LOCKED_DOOR_SEG		595
@@ -87,6 +91,9 @@ int Num_cloaking_walls;
 
 //#define BM_FLAG_TRANSPARENT			1
 //#define BM_FLAG_SUPER_TRANSPARENT	2
+#ifdef OGL
+int wall_maybe_4d = 0;
+#endif
 
 #ifdef EDITOR
 char	Wall_names[7][10] = {
@@ -161,6 +168,10 @@ int wall_is_doorway ( segment * seg, int side )
 		return WID_NO_WALL;
 
 	if (type == WALL_ILLUSION) {
+#ifdef OGL
+		if(wall_maybe_4d)
+			glDepthFunc(GL_ALWAYS);
+#endif
 		if (Walls[seg->sides[side].wall_num].flags & WALL_ILLUSION_OFF)
 			return WID_NO_WALL;
 		else {
@@ -170,6 +181,10 @@ int wall_is_doorway ( segment * seg, int side )
 				return WID_ILLUSORY_WALL;
 		}
 	}
+#ifdef OGL
+	else
+		wall_maybe_4d=0;
+#endif
 
 	if (type == WALL_BLASTABLE) {
 	 	if (flags & WALL_BLASTED)

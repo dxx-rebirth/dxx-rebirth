@@ -1143,6 +1143,10 @@ int find_seg_side(segment *seg,short *verts,int notside)
 
 }
 
+#ifdef OGL
+extern int wall_maybe_4d;
+#endif
+
 //find the two segments that join a given seg though two sides, and
 //the sides of those segments the abut. 
 int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *norm1_0,vms_vector *norm1_1,vms_vector **pnt0,vms_vector **pnt1,segment *seg,int s0,int s1)
@@ -1223,9 +1227,12 @@ int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *
 
 #ifdef OGL
 	/* ZICO - experimental HACK
-	   If edge_verts differ +/- 100 it's mostly an indication of overlapping rooms using the 4D effect. So we don't want GL_LEQUAL.  It does also happen on other places in a level. But it's unlikely we see a portal bug caused by missing GL_LEQUAL with verts that differ that much. Nevertheless it's a simple hack to prevent unwanted textures in 4D rooms. */
-	if ((edge_verts[0] - edge_verts[1] >= 100) || (edge_verts[0] - edge_verts[1] <= -100))
-		glDepthFunc(GL_ALWAYS);
+	   If edge_verts differ +/- 100 it's mostly an indication of overlapping rooms using the 4D effect. So we don't want GL_LEQUAL. So we set wall_maybe_4d causes GL_ALWAYS in wall.c if WALL_ILLUSION */
+	if (((edge_verts[0] - edge_verts[1] >= 100) || (edge_verts[0] - edge_verts[1] <= -100)))
+	{
+		wall_maybe_4d=1;
+	}
+
 #endif
 
 	return 1;
