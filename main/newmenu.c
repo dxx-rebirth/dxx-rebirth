@@ -883,25 +883,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		if (check_button_press())
 			done = 1;
 				
-// 		switch (Config_control_type) {
-// 		case	CONTROL_JOYSTICK:
-// 		case	CONTROL_FLIGHTSTICK_PRO:
-// 		case	CONTROL_THRUSTMASTER_FCS:
-// 		case	CONTROL_GRAVIS_GAMEPAD:
-// 			for (i=0; i<4; i++ )	
-// 				if (joy_get_button_down_cnt(i)>0) done=1;
-// 			break;
-// 		case	CONTROL_MOUSE:
-// 		case	CONTROL_CYBERMAN:
-// 			for (i=0; i<3; i++ )	
-// 				if (mouse_button_down_count(i)>0) done=1;
-// 			break;
-// 		}
-	
-
-		if ( (nmenus<2) && (k>0) && (nothers==0) )
-			done=1;
-
 		old_choice = choice;
 	
 		switch( k )	{

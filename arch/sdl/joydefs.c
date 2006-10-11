@@ -80,7 +80,7 @@ void joydef_menuset_1(int nitems, newmenu_item * items, int *last_key, int citem
 void joydefs_config()
 {
 	newmenu_item m[13];
-	int i, i1 = 10, j;
+	int i, i1 = 5, j;
 	int nitems = 11;
 
 	m[0].type = NM_TYPE_RADIO;  m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
