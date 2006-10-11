@@ -97,6 +97,9 @@ void nm_draw_background1(char * filename)
 	gr_clear_canvas( BM_XRGB(0,0,0) );
 	pcx_error = pcx_read_fullscr(filename, NULL);
 	Assert(pcx_error == PCX_ERROR_NONE);
+#ifdef OGL
+	gr_palette_load(gr_palette);
+#endif
 }
 
 void nm_draw_background(int x1, int y1, int x2, int y2 )
@@ -701,6 +704,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 	if ( filename != NULL )	{
 		nm_draw_background1( filename );
+		gr_palette_load(gr_palette);
 	}
 
 	// Save the background of the display
