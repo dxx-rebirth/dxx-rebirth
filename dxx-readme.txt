@@ -4,14 +4,14 @@
 - - - - ~ ]  The D2X Rebirth  [ ~ - - - -
   - - - - ~ ]               [ ~ - - - -
     - - - - ~ ] --------- [ ~ - - - -
-________// Codename:      __________v0.42
-               'Zaphod' //
+________// Codename:         _______v0.50
+               'Overdrive' //
 
 
 0. Introduction
 ^^^^^^^^^^^^^^^
 
-This version of D2X is based on the latest CVS Source of November 29th 2005
+This version of D2X is based on the latest CVS Source,
 coded and released by Bradley Bell and his team.
 
 I spend much time to improve the sourcecode, tried to fix any bug in there and
@@ -83,8 +83,7 @@ other-h.mvl and/or other-l.mvl
 robots-h.mvl and/or robots-l.mvl
 
 Linux:
-if you compiled the source, copy the files to your data directory you
-selected.
+Please consider dxx-compile.txt.
 In linux, all filenames must be in _lower case_. It's important.
 
 That's it :)
@@ -138,10 +137,6 @@ select whatever you want to use.
 You can also apply these options in a shortcut, a small shellscript [linux]
 or by starting it in a terminal [linux] or command line [windows].
 
-Be aware that all your configuration data, savegames and recorded demos will be
-stored (and loaded) in the directory from where you start the game. So you
-should make sure you have write permissions in this directory [linux].
-
 
 4. Known Issues
 ^^^^^^^^^^^^^^^
@@ -178,22 +173,11 @@ Problem:  The mouse movement is too slow. Is there no way to control the ship
           like in other first person shooters?
 Reason:   The Pyro is no human, it can't turn that fast. ;)
           But there is a way indeed...
-Solution: To enable a mouselook styl control tye as you know it from other
+Solution: To enable a mouselook style control tye as you know it from other
           first person shooters. Just start the game with the
           command-line option '-mouselook' to enable this. But to be fair to
           oter players which do not use mouselook it will not work in a
           multiplayer game.
-
-Problem:  Using OpenGL my gameplay is not really fluid and/or my screen looks
-          sometimes like cut in an upper and lower half while turning.
-          (V-Sync-Problem)
-Reason:   For some configurations D2X is not able to syncronize the
-          screen-refresh of the operating system and the fps-rate of D2X.
-Solution: Set the refresh-rate of the display in the menu of your operating 
-          System to 75 or 60 Hz and set the same fps-value in the D2X-Menu or
-          the d2x.ini. (-maxfps <x>)
-          It may also be useful to play around with these settings.
-          [Thanks for this hint go to SNIPER]
 
 Problem:  [WINDOWS] My joystick is not recognized by the game.
 Reason:   Probably you have more than one Joystick but only one connected now.
@@ -249,6 +233,8 @@ More thanks:
 * The guys at http://www.unixboard.de for technical assistance
 * Maystorm for technical assistance and endless hours of BETA-testing
 * Sniper of http://www.descentforum.de for windows BETA-testing
+* Escorter for bug reports, BETA testing and much more
+* Matt for his work and technical assistance
 * Everyone who helps to let this project live on
 * Novacron for allowing me to use his icons and everyone at
   http://www.planetdescent.com

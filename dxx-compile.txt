@@ -1,0 +1,17 @@
+This file describes how to compile D2X-Rebirth from source.
+
+D2X needs SDL, GLU (optionally) and PhysicsFS.
+You can download PhysicsFS it from: http://icculus.org/physfs/ or http://www.dxx-rebirth.de
+
+* run ./autogen.sh
+* run ./configure. Use '--help' for more information and parameters.
+* You also should use '--with-opengl' to compile the OpenGL build (recommended)
+* also you can optinally appen '--with-sharepath=/path' (unix/linux only) to define the place for the descent2 data files
+* additionally add '--disable-debug' and '--enable-release' to get rid of the debugging stuff
+* x86_64 users should also use '--disable-fastfileio'.
+* run "make"
+* run "make install" (unix/linux only)
+* copy your data files to the Sharepath
+
+If you run into any problems do not hesitate to contact me.
+eMail is: zico@unixboard.de
