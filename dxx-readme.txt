@@ -4,8 +4,8 @@
 - - - - ~ ]  The D1X Rebirth  [ ~ - - - -
   - - - - ~ ]               [ ~ - - - -
     - - - - ~ ] --------- [ ~ - - - -
-________// Codename:      __________v0.42
-               'Zaphod' //
+________// Codename:         _______v0.50
+               'Overdrive' //
 
 
 http://www.dxx-rebirth.de
@@ -64,9 +64,8 @@ NOTE: These files need to be patched to version 1.4a.
 Linux: see dxx-compile.txt
 
 If you wish to add some extra levels like "Levels of the world" copy them
-to this directory, too.
-[NOTE: if you compiled the source, copy the files to your data directory you
-selected]
+to this directory, too. for Linux everything should be copied to the
+Sharepath.
 
 If you want to create Shortcurts to D1X on your Desktop and/or WM
 there is a wonderful icon stored in this directory.
@@ -78,12 +77,8 @@ http://www.dxx-rebirth.de]
 The windows package contains a set of HiRes fonts and briefing pictures
 D1X-Rebirth will use. If you don't want them, delete them, move them to 
 another directory, or whatever you want.
-[NOTE: if you compiled the source you need to download these HiRes sets from
+[NOTE: for the source you need to download these HiRes sets from
 http://www.dxx-rebirth.de and store them into your data path]
-
-WARNING:
-IF YOU UPDATE FROM v0.31 OR OLDER RESET YOUR RESOLUTION AND CONTROLS IN THE
-MENUS. OTHERWISE THE GAME MAY CRASH!
 
 
 3. Running the game
@@ -97,10 +92,6 @@ D1X-Rebirth. Just open the file d1x.ini for a complete list of options and
 select whatever you want to use.
 You can also apply these options in a shortcut, a small shellscript [linux]
 or by starting it in a terminal [linux] or command line [windows].
-
-Be aware that all your configuration data, savegames and recorded demos will be
-stored (and loaded) in the directory from where you start the game. So you
-should make sure you have write permissions in this directory [linux].
 
 
 4. Known Issues
@@ -140,17 +131,6 @@ Solution: To enable a mouselook styl control tye as you know it from other
           command-line option '-mouselook' to enable this. But to be fair to
           oter players which do not use mouselook it will not work in a
           multiplayer game.
-
-Problem:  D1X runs a little bit choppy. No matter if bilinear (gl_mipmap) or 
-          trilinear (gl_trilinear).
-Reason:   D1X with activated open-gl runs on most systems at its best, but not
-          at all PCs. There could be a problem with thee refresh rate.
-Solution: To check that out try the following two options in the d1x.ini and 
-          that values:
-          -maxfps 80
-          -gl_refresh 60
-          It may also be useful to play around with these settings.
-          [Thanks for this hint go to SNIPER]
 
 Problem:  [WINDOWS] My joystick is not recognized by the game.
 Reason:   Probably you have more than one Joystick but only one connected now.
@@ -234,6 +214,8 @@ More thanks:
 * The guys at http://www.unixboard.de for technical assistance
 * Maystorm for technical assistance and endless hours of BETA-testing
 * Sniper of http://www.descentforum.de for windows BETA-testing
+* Escorter for bug reports, BETA testing and much more
+* Matt for his work and technical assistance
 * Everyone who helps to let this project live on
 * Novacron for allowing me t use his icons and everyone at
   http://www.planetdescent.com
