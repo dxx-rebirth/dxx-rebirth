@@ -147,41 +147,45 @@ void init_game_list()
 int new_player_config()
 {
 	int i,j,control_choice;
-	newmenu_item m[7];
+	newmenu_item m[8];
+	int mct=CONTROL_MAX_TYPES;
+ 
+	 mct--;
 
 RetrySelection:
 	for (i=0; i<CONTROL_MAX_TYPES; i++ )	{
 		m[i].type = NM_TYPE_MENU; m[i].text = CONTROL_TEXT(i);
 	}
 	m[0].text = TXT_CONTROL_KEYBOARD;
-
+	
 	control_choice = Config_control_type;				// Assume keyboard
 
-	control_choice = newmenu_do1( NULL, TXT_CHOOSE_INPUT, CONTROL_MAX_TYPES, m, NULL, control_choice );
+	control_choice = newmenu_do1( NULL, TXT_CHOOSE_INPUT, i, m, NULL, control_choice );
+		
+		if ( control_choice < 0 )
+			return 0;
 
-	if ( control_choice < 0 )
-		return 0;
 
 	for (i=0;i<CONTROL_MAX_TYPES; i++ )
 		for (j=0;j<MAX_CONTROLS; j++ )
 			kconfig_settings[i][j] = default_kconfig_settings[i][j];
-        //added on 2/4/99 by Victor Rachels for new keys
-         for(i=0;i<MAX_D1X_CONTROLS;i++)
-          kconfig_d1x_settings[i] = default_kconfig_d1x_settings[i];
-        //end this section addition - VR
-        kc_set_controls();
-        Config_control_type = control_choice;
+	//added on 2/4/99 by Victor Rachels for new keys
+	for(i=0; i < MAX_D1X_CONTROLS; i++)
+		kconfig_d1x_settings[i] = default_kconfig_d1x_settings[i];
+	//end this section addition - VR
+	kc_set_controls();
 
-        if ( Config_control_type==CONTROL_THRUSTMASTER_FCS)     {
-//end addition/edit - Victor Rachels
-                i = nm_messagebox( TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, TXT_FCS );
+	Config_control_type = control_choice;
+
+
+	if ( Config_control_type==CONTROL_THRUSTMASTER_FCS)	{
+		i = nm_messagebox( TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, TXT_FCS );
 		if (i==0) goto RetrySelection;
 	}
-
 	
-//        if ( (Config_control_type>0) &&  (Config_control_type<5) )       {
-//                joydefs_calibrate();
-//        }
+	if ( (Config_control_type>0) && 	(Config_control_type<5))	{
+		joydefs_calibrate();
+	}
 
 	Player_default_difficulty = 1;
 	Auto_leveling_on = Default_leveling_on = 1;
@@ -201,7 +205,7 @@ RetrySelection:
 	strcpy(Network_message_macro[2], TXT_DEF_MACRO_3);
 	strcpy(Network_message_macro[3], TXT_DEF_MACRO_4);
 	#endif
-
+	
 	return 1;
 }
 
@@ -623,7 +627,7 @@ void plyr_read_stats_v(int *k, int *d){
 			 if(!strcmp(word,"key") && strlen(line)>10){
 				 unsigned char *p;
 				 if (line[0]=='0' && line[1]=='1'){
-					 if ((p=decode_stat(line+3,&k1,effcode1))&&
+					 if ((p=decode_stat((unsigned char*)line+3,&k1,effcode1))&&
 					     (p=decode_stat(p+1,&k2,effcode2))&&
 					     (p=decode_stat(p+1,&d1,effcode3))){
 						 decode_stat(p+1,&d2,effcode4);
@@ -1218,34 +1222,35 @@ int read_player_file()
 			break;
 		case 7:
 			/* version 7 doesn't have the saved games array */
-			if (player_file_size == (2222 - sizeof(saved_games)))
+			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == (2212 - sizeof(saved_games)))
 				shareware_file = 1;
-			if (player_file_size == (2262 - sizeof(saved_games)))
+			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == (2252 - sizeof(saved_games)))
 				shareware_file = 0;
 			break;
 		case 8:
-			if (player_file_size == 2222)
+			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == 2212)
 				shareware_file = 1;
-			if (player_file_size == 2262)
+			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == 2252)
 				shareware_file = 0;
 			/* d1x-rebirth v0.31 to v0.42 broke things by adding stuff to the
 			   player struct without thinking (sigh) */
-			if (player_file_size == (2222 + 2*sizeof(int)))
+			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == (2212 + 2*sizeof(int)))
 			{
 				shareware_file = 1;
 				/* skip the cruft added to the player_info struct */
 				fseek(file, 2*sizeof(int), SEEK_CUR);
 			}
-			if (player_file_size == (2262 + 2*sizeof(int)))
+			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == (2252 + 2*sizeof(int)))
 			{
 				shareware_file = 0;
 				/* skip the cruft added to the player_info struct */
 				fseek(file, 2*sizeof(int), SEEK_CUR);
 			}
+			shareware_file=0;
 	}
 
 	if (shareware_file == -1) {
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Error invalid or unknown playerfile-size");
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Error invalid or unknown\nplayerfile-size");
 		fclose(file);
 		return -1;
 	}
@@ -1542,10 +1547,12 @@ int write_player_file()
 //                if (fwrite( kconfig_settings, MAX_CONTROLS*CONTROL_MAX_TYPES, 1, file )!=1)
 //                        errno_ret=errno;
                 int i,j;
-                 for(i=0;i<CONTROL_MAX_TYPES;i++)
-                  for(j=0;j<MAX_NOND1X_CONTROLS;j++)
+                 for(i=0;i<CONTROL_MAX_TYPES;i++) {
+                  for(j=0;j<MAX_NOND1X_CONTROLS;j++) {
                    if(fwrite( &kconfig_settings[i][j], sizeof(kconfig_settings[i][j]), 1, file)!=1)
                     errno_ret=errno;
+                  }
+                 }
 
                 if(errno_ret == EZERO)
                 {
@@ -1553,6 +1560,7 @@ int write_player_file()
 			errno_ret=errno;
                  else if (fwrite( &Config_joystick_sensitivity, sizeof(ubyte), 1, file )!=1)
 			errno_ret=errno;
+
                 }
 	}
 
