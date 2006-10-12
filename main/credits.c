@@ -105,7 +105,7 @@ void credits_show(char *credits_filename)
 	ubyte backdrop_palette[768];
 	ubyte *fade_values_scalled;
 	fix last_time;
-	fix time_delay = 2800;
+	fix time_delay = (2800/(SHEIGHT/200));
 	grs_canvas *CreditsOffscreenBuf=NULL;
 	grs_bitmap backdrop;
 	box dirty_box[NUM_LINES];
@@ -198,7 +198,7 @@ void credits_show(char *credits_filename)
 		} while (extra_inc--);
 		extra_inc = 0;
 
-		for (i=0; i<ROW_SPACING; i += (SWIDTH>=640?FONTSCALE_Y(2):1) )	{
+		for (i=0; i<ROW_SPACING; i += 1 )	{
 			int y;
 			box	*new_box;
 			grs_bitmap *tempbmp;
