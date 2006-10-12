@@ -184,7 +184,7 @@ void ogl_get_verinfo(void)
 	ogl_luminance4_alpha4_ok = 1;
 	ogl_rgba2_ok = 1;
 	ogl_gettexlevelparam_ok = 1;
-	ogl_setgammaramp_ok = 1;
+	ogl_setgammaramp_ok = 0;
 
 #ifdef WGL_VIDEO
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
@@ -655,7 +655,7 @@ void gr_palette_clear()
 
 
 int ogl_brightness_ok = 0;
-int ogl_setgammaramp_ok = 1;
+int ogl_setgammaramp_ok = 0;
 int ogl_brightness_r = 0, ogl_brightness_g = 0, ogl_brightness_b = 0;
 static int old_b_r = 0, old_b_g = 0, old_b_b = 0;
 
