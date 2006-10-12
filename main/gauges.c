@@ -1483,7 +1483,7 @@ void hud_show_weapons_mode2(int type,int vertical,int clear,int x,int y){
 				sprintf(weapon_str," ");
 				break;
 			  case 6:
-				if (Cockpit_mode!=CM_FULL_SCREEN || Primary_weapon == 1) {
+				if (Cockpit_mode!=CM_FULL_SCREEN) {
 					sprintf(weapon_str,"G");
 					if (Primary_weapon != 1)
 					gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i(Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
@@ -2502,11 +2502,11 @@ void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 	{
 		if (Cockpit_3d_view[0] == CV_NONE) {
 		hud_show_weapons_mode1(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
-		hud_show_weapons_mode2(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X)+(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
+		hud_show_weapons_mode2(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X)+FONTSCALE_X(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
 		}
 		if (Cockpit_3d_view[1] == CV_NONE && !Missile_viewer) {
 		hud_show_weapons_mode1(1,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
-		hud_show_weapons_mode2(1,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X)+(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
+		hud_show_weapons_mode2(1,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X)+FONTSCALE_X(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
 		}
 	}
 }
