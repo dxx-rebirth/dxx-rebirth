@@ -1636,11 +1636,12 @@ ReadFileNames:
 	} else {
 		newmenu_file_sort( NumFiles-1, &filenames[14] );		// Don't sort first one!
 		for ( i=0; i<NumFiles; i++ )	{
-			if (!strcasecmp(Players[Player_num].callsign, &filenames[i*14]) )
+			if (!strcasecmp(Players[Player_num].callsign, &filenames[i*14]) ) {
 #ifdef NEWMENU_MOUSE
 				dblclick_flag = 1;
 #endif
 				citem = i;
+			}
 		}
 	}
 
