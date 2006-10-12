@@ -883,7 +883,7 @@ void show_framerate()
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 
 		ftoa( temp, rate );	// Convert fixed to string
-                gr_printf(grd_curcanv->cv_w-GAME_FONT->ft_aw*11,grd_curcanv->cv_h-(GAME_FONT->ft_h*4+5*4),"FPS: %s ", temp );
+                gr_printf(grd_curcanv->cv_w-FONTSCALE_X(8*GAME_FONT->ft_w),grd_curcanv->cv_h-5*FONTSCALE_Y(GAME_FONT->ft_h+GAME_FONT->ft_h/4),"FPS: %s ", temp );
 	}
 }
 
