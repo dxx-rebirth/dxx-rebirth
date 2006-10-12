@@ -374,7 +374,7 @@ void player_dead_message(void)
             gr_rect( x, y, x+w, y+h );
             Gr_scanline_darkening_level = GR_FADE_LEVELS;
 
-            gr_string(0x8000, (grd_curcanv->cv_h - grd_curcanv->cv_font->ft_h)/2 + h/8, TXT_GAME_OVER );
+            gr_string(0x8000, (grd_curcanv->cv_h - FONTSCALE_Y(grd_curcanv->cv_font->ft_h))/2 + h/8, TXT_GAME_OVER );
 
 #if 0
             // Automatically exit death after 10 secs
@@ -390,7 +390,7 @@ void player_dead_message(void)
         if (HUD_color == -1)
             HUD_color = BM_XRGB(0,28,0);
         gr_set_fontcolor( HUD_color, -1);
-        gr_string(0x8000, grd_curcanv->cv_h-(grd_curcanv->cv_font->ft_h+3), TXT_PRESS_ANY_KEY);
+        gr_string(0x8000, grd_curcanv->cv_h-FONTSCALE_Y(grd_curcanv->cv_font->ft_h+3), TXT_PRESS_ANY_KEY);
     }
 }
 
