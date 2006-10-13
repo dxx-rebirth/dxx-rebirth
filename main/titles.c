@@ -643,8 +643,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 		gr_update();
 	}
 
-	if (delay)
-		delay=fixdiv (F1_0,i2f(15));
+// 	if (delay)
+// 		delay=fixdiv (F1_0,i2f(15));
 
 	if ((Bitmap_name[0] != 0) && (delay != 0))
 		show_bitmap_frame();

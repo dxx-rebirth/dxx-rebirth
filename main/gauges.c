@@ -2500,13 +2500,13 @@ void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 	}
 	if (Gauge_hud_mode!=0)
 	{
-		if (Cockpit_3d_view[0] == CV_NONE) {
-		hud_show_weapons_mode1(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
-		hud_show_weapons_mode2(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X)+FONTSCALE_X(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
+		if (weapon_box_user[0] == WBU_WEAPON) {
+			hud_show_weapons_mode1(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
+			hud_show_weapons_mode2(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X)+FONTSCALE_X(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
 		}
-		if (Cockpit_3d_view[1] == CV_NONE && !Missile_viewer) {
-		hud_show_weapons_mode1(1,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
-		hud_show_weapons_mode2(1,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X)+FONTSCALE_X(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
+		if (weapon_box_user[1] == WBU_WEAPON) {
+			hud_show_weapons_mode1(1,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
+			hud_show_weapons_mode2(1,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X)+FONTSCALE_X(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
 		}
 	}
 }
