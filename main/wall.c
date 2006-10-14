@@ -147,9 +147,6 @@ static char rcsid[] = "$Id: wall.c,v 1.1.1.1 2006/03/17 19:44:01 zicodxx Exp $";
 #include "newdemo.h"
 #include "multi.h"
 #include "gameseq.h"
-#ifdef OGL
-#include "ogl_init.h"
-#endif
 
 void kill_stuck_objects(int wallnum);
 
@@ -174,9 +171,6 @@ int Num_open_doors;						// Number of open doors
 
 //#define BM_FLAG_TRANSPARENT			1
 //#define BM_FLAG_SUPER_TRANSPARENT	2
-#ifdef OGL
-int wall_maybe_4d = 0;
-#endif
 
 #ifdef EDITOR
 char	Wall_names[7][10] = {
@@ -247,10 +241,6 @@ int wall_is_doorway ( segment * seg, int side )
 		return WID_NO_WALL;
 
 	if (type == WALL_ILLUSION) {
-#ifdef OGL
-		if(wall_maybe_4d)
-			glDepthFunc(GL_ALWAYS);
-#endif
 		if (Walls[seg->sides[side].wall_num].flags & WALL_ILLUSION_OFF)
 			return WID_NO_WALL;
 		else {
@@ -260,10 +250,6 @@ int wall_is_doorway ( segment * seg, int side )
 				return WID_ILLUSORY_WALL;
 		}
 	}
-#ifdef OGL
-	else
-		wall_maybe_4d=0;
-#endif
 
 	if (type == WALL_BLASTABLE) {
 	 	if (flags & WALL_BLASTED)
@@ -525,7 +511,7 @@ void wall_open_door(segment *seg, int side)
 		w2		= &Walls[w->linked_wall];
 		seg2	= &Segments[w2->segnum];
 
-		Assert(w2->linked_wall == seg->sides[side].wall_num);
+		//Assert(w2->linked_wall == seg->sides[side].wall_num);
 		//Assert(!(w2->flags & WALL_DOOR_OPENING  ||  w2->flags & WALL_DOOR_OPENED));
 
 		w2->state = WALL_DOOR_OPENING;
