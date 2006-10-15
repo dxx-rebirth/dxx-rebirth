@@ -81,7 +81,7 @@ void joydefs_config()
 {
 	newmenu_item m[13];
 	int i, i1 = 5, j;
-	int nitems = 11;
+	int nitems = 12;
 
 	m[0].type = NM_TYPE_RADIO;  m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
 	m[1].type = NM_TYPE_RADIO;  m[1].text = "JOYSTICK"; m[1].value = 0; m[1].group = 0;
@@ -95,6 +95,7 @@ void joydefs_config()
 	m[8].type = NM_TYPE_SLIDER; m[8].text="Mouse sensitivity"; m[8].value=Config_mouse_sensitivity; m[8].min_value = 0; m[8].max_value = 16;
 	m[9].type = NM_TYPE_SLIDER; m[9].text="Joystick sensitivity"; m[9].value=Config_joystick_sensitivity; m[9].min_value = 0; m[9].max_value = 16;
 	m[10].type = NM_TYPE_SLIDER; m[10].text="Joystick Deadzone"; m[10].value=joy_deadzone; m[10].min_value=0; m[10].max_value = 16;
+	m[11].type = NM_TYPE_MENU;   m[11].text = "CUSTOMIZE WEAPON KEYS";
 
 	do {
 
@@ -124,6 +125,9 @@ void joydefs_config()
 			break;
 		case 6:
 			kconfig(0, "KEYBOARD");
+			break;
+		case 11:
+			kconfig(4, "WEAPON KEYS");
 			break;
 		}
 
