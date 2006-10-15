@@ -368,7 +368,9 @@ int main(int argc,char **argv)
 	error_init(NULL);
 
 	setbuf(stdout, NULL);	// unbuffered output via printf
-		
+
+	ReadConfigFile();
+
 	InitArgs( argc,argv );
 
 	if ( FindArg( "-verbose" ) )
@@ -495,7 +497,6 @@ int main(int argc,char **argv)
 	#endif
 
 	if (Inferno_verbose) printf ("%s", TXT_VERBOSE_1);
-        ReadConfigFile();
 
 	arch_init();
         cd_init();
