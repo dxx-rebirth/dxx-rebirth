@@ -99,9 +99,9 @@ void radar_render_frame()
 			Hostage_monitor_y = (grd_curscreen->sc_h - Game_window_h) / 2;
 			break;
 		case CM_FULL_COCKPIT:
-			Hostage_monitor_size = 40*(SHEIGHT/200);
-			Hostage_monitor_x = 0;
-			Hostage_monitor_y = 80*(SHEIGHT/200);
+			Hostage_monitor_size = Game_window_w / 6;
+			Hostage_monitor_x = (grd_curscreen->sc_w - Game_window_w) / 2;
+			Hostage_monitor_y = (grd_curscreen->sc_h) / 2.5;
 			break;
 		case CM_STATUS_BAR:
 			Hostage_monitor_size = Game_window_w / 6;
