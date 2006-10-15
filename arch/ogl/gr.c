@@ -169,8 +169,12 @@ void ogl_get_verinfo(void)
 	long t;
 #ifdef GL_NV_register_combiners
 	long nv_register_combiners = -1;
-	GLint arb_max_textures, sgi_max_testures;
+	GLint sgi_max_testures;
 #endif
+#ifdef GL_ARB_multitexture
+	GLint arb_max_textures;
+#endif
+
 	float anisotropic_max = 0;
 
 	gl_vendor = (const char *) glGetString (GL_VENDOR);

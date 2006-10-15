@@ -1434,7 +1434,8 @@ void compute_all_static_light(void)
 				total_light += sidep->uvls[k].l;
 		}
 
-		Segment2s[i].static_light = total_light/(MAX_SIDES_PER_SEGMENT*4);
+		if (total_light<F1_0*2)
+			Segment2s[i].static_light = total_light/(MAX_SIDES_PER_SEGMENT*4);
 	}
 
 }

@@ -1024,6 +1024,7 @@ void change_res()
 	u_int32_t screen_mode = 0;
 	int screen_width = 0;
 	int screen_height = 0;
+	SDL_Rect **sdlmode = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
 
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x200"; m[mc].value = (Game_screen_mode == SM(320,200)); m[mc].group = 0; modes[mc] = SM(320,200); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x480"; m[mc].value = (Game_screen_mode == SM(640,480)); m[mc].group = 0; modes[mc] = SM(640,480); mc++;
@@ -1078,6 +1079,12 @@ void change_res()
 
 	screen_width = SM_W(screen_mode);
 	screen_height = SM_H(screen_mode);
+
+	if (screen_width > sdlmode[0]->w || screen_height > sdlmode[0]->h) {
+		nm_messagebox( TXT_WARNING, 1, TXT_OK, "Could not set requested\nscreen resolution" );
+		return;
+	}
+
 	if (screen_height <= 0 || screen_width <= 0)
 		return;
 

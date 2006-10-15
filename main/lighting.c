@@ -639,11 +639,9 @@ fix compute_object_light(object *obj,vms_vector *rotated_pnt)
 
 	//First, get static light for this segment
 
-	//light = Segment2s[obj->segnum].static_light;
-	light = f1_0; //+ (light)/4; // fixes dark models after load game 20050915
+	light = Segment2s[obj->segnum].static_light;
 
 	//return light;
-
 
 	//Now, maybe return different value to smooth transitions
 
