@@ -94,7 +94,7 @@ void joydefs_config()
 	m[10].type = NM_TYPE_SLIDER; m[10].text="Joystick Deadzone"; m[10].value=joy_deadzone; m[10].min_value=0; m[10].max_value = 16;
 
 #ifdef D2X_KEYS
-	m[11].type = NM_TYPE_MENU;   m[11].text = "CUSTOMIZE D2X KEYS";
+	m[11].type = NM_TYPE_MENU;   m[11].text = "CUSTOMIZE WEAPON KEYS";
 #endif
 
 	do {
@@ -128,7 +128,7 @@ void joydefs_config()
 			break;
 #ifdef D2X_KEYS
 		case 11:
-			kconfig(4, "D2X KEYS");
+			kconfig(4, "WEAPON KEYS");
 			break;
 #endif
 		}

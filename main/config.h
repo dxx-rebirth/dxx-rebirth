@@ -70,4 +70,6 @@ extern ubyte Config_mouse_sensitivity;
 #define CONTROL_MAX_TYPES 8
 #define CONTROL_JOYMOUSE 9
 
+#define D2X_KEYS 1
+
 #endif
