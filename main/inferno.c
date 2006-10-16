@@ -142,8 +142,6 @@ ubyte CybermouseActive=0;
 int __far descent_critical_error_handler( unsigned deverr, unsigned errcode, unsigned __far * devhdr );
 #endif
 
-void check_joystick_calibration(void);
-
 void show_order_form(void);
 
 //--------------------------------------------------------------------------
@@ -862,7 +860,6 @@ int main(int argc, char *argv[])
 				}
 				#endif
 
-				check_joystick_calibration();
 				gr_palette_clear();		//I'm not sure why we need this, but we do
 				DoMenu();
 				#ifdef EDITOR
@@ -931,37 +928,6 @@ int main(int argc, char *argv[])
 #endif
 
 	return(0);		//presumably successful exit
-}
-
-
-void check_joystick_calibration()	{
-	int x1, y1, x2, y2, c;
-	fix t1;
-
-	if ( (Config_control_type!=CONTROL_JOYSTICK) &&
-		  (Config_control_type!=CONTROL_FLIGHTSTICK_PRO) &&
-		  (Config_control_type!=CONTROL_THRUSTMASTER_FCS) &&
-		  (Config_control_type!=CONTROL_GRAVIS_GAMEPAD)
-		) return;
-
-	joy_get_pos( &x1, &y1 );
-
-	t1 = timer_get_fixed_seconds();
-	while( timer_get_fixed_seconds() < t1 + F1_0/100 )
-		;
-
-	joy_get_pos( &x2, &y2 );
-
-	// If joystick hasn't moved...
-	if ( (abs(x2-x1)<30) &&  (abs(y2-y1)<30) )	{
-		if ( (abs(x1)>30) || (abs(x2)>30) ||  (abs(y1)>30) || (abs(y2)>30) )	{
-			c = nm_messagebox( NULL, 2, TXT_CALIBRATE, TXT_SKIP, TXT_JOYSTICK_NOT_CEN );
-			if ( c==0 )	{
-				joydefs_calibrate();
-			}
-		}
-	}
-
 }
 
 void quit_request()
