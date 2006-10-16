@@ -166,7 +166,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include <SDL/SDL.h>
 
 
-void check_joystick_calibration();
 void show_order_form();
 
 static const char desc_id_checksum_str[] = DESC_ID_CHKSUM;
@@ -735,7 +734,6 @@ int main(int argc,char **argv)
 				if (Newdemo_state != ND_STATE_PLAYBACK)	
 					Error("No demo files were found for autodemo mode!");
 			} else {
-				check_joystick_calibration();
 				DoMenu();									 	
 #ifdef EDITOR
 				if ( Function_mode == FMODE_EDITOR )	{
@@ -800,36 +798,6 @@ int main(int argc,char **argv)
 
 }
 
-
-void check_joystick_calibration()	{
-	int x1, y1, x2, y2, c;
-	fix t1;
-
-	if ( (Config_control_type!=CONTROL_JOYSTICK) &&
-		  (Config_control_type!=CONTROL_FLIGHTSTICK_PRO) &&
-		  (Config_control_type!=CONTROL_THRUSTMASTER_FCS) &&
-		  (Config_control_type!=CONTROL_GRAVIS_GAMEPAD)
-		) return;
-
-	joy_get_pos( &x1, &y1 );
-
-	t1 = timer_get_fixed_seconds();
-	while( timer_get_fixed_seconds() < t1 + F1_0/100 )
-		;
-
-	joy_get_pos( &x2, &y2 );
-
-	// If joystick hasn't moved...
-	if ( (abs(x2-x1)<30) &&  (abs(y2-y1)<30) )	{
-		if ( (abs(x1)>30) || (abs(x2)>30) ||  (abs(y1)>30) || (abs(y2)>30) )	{
-			c = nm_messagebox( NULL, 2, TXT_CALIBRATE, TXT_SKIP, TXT_JOYSTICK_NOT_CEN );
-			if ( c==0 )	{
-				joydefs_calibrate();
-			}
-		}
-	}
-
-}
 
 void quit_request()
 {

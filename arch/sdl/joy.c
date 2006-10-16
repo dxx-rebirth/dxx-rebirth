@@ -231,8 +231,8 @@ int joy_init()
 
 void joy_close()
 {
-	while (num_joysticks)
-		SDL_JoystickClose(SDL_Joysticks[num_joysticks--].handle);
+	SDL_JoystickClose(SDL_Joysticks[num_joysticks].handle);
+
 	while (Joystick.n_axes--)
 		free(joyaxis_text[Joystick.n_axes]);
 	while (Joystick.n_buttons--)

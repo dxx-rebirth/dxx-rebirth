@@ -85,6 +85,7 @@ extern int j_num_axes;
 extern int j_num_buttons;
 
 extern int joy_deadzone;
+extern int joy_num_axes;
 
 extern joystick_device j_joystick[MAX_JOY_DEVS];
 extern joystick_axis j_axis[JOY_MAX_AXES];

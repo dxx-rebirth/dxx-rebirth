@@ -343,6 +343,7 @@ void kc_drawitem( kc_item *item, int is_current );
 void kc_change_key( kc_item * item );
 void kc_change_joybutton( kc_item * item );
 void kc_change_mousebutton( kc_item * item );
+void kc_next_joyaxis(kc_item *item);  //added by WraithX on 11/22/00
 void kc_change_joyaxis( kc_item * item );
 void kc_change_mouseaxis( kc_item * item );
 void kc_change_invert( kc_item * item );
@@ -785,6 +786,16 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 				case BT_INVERT:         kc_change_invert(      &items[citem] ); break;
 				}
 				break;
+			//the following case added by WraithX on 11/22/00 to work around the weird joystick bug...
+			case KEY_SPACEBAR:
+				switch(items[citem].type)
+				{
+					case BT_JOY_AXIS:
+					kc_next_joyaxis(&items[citem]);
+					break;
+				}
+				break;
+			//end addition by WraithX
 			case -2:	
 			case KEY_ESC:
 				grd_curcanv->cv_font	= save_font;
@@ -1209,24 +1220,66 @@ void kc_change_mousebutton( kc_item * item )
 
 }
 
+// the following function added by WraithX on 11/22/00 to work around the weird joystick bug... - modified my Matt Mueller to skip already allocated axes
+void kc_next_joyaxis(kc_item *item)
+{
+	int n, i, k, max, tries;
+	ubyte code = 0;
+
+	k = 255;
+	n = 0;
+	i = 0;
+
+	// I modelled this ifdef after the code in the kc_change_joyaxis method.
+	// So, if somethin's not workin here, it might not be workin there either.
+	max = JOY_MAX_AXES;
+	tries = 1;
+	code = (item->value + 1) % max;
+
+	if (code != 255)
+	{
+		for (i = 0; i < Num_items; i++)
+		{
+			n = item - All_items;
+			if ((i != n) && (All_items[i].type == BT_JOY_AXIS) && (All_items[i].value == code))
+			{
+				if (tries > max)
+					return; // all axes allocated already
+				i = -1; // -1 so the i++ will push back to 0
+				code = (item->value + ++tries) % max; // try next axis
+			}//end if
+		}//end for
+
+		item->value = code;
+	}//end if
+
+	kc_drawitem(item, 1);
+	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
+	game_flush_inputs();
+
+}//method kc_next_joyaxis
+//end addition by WraithX
+
 void kc_change_joyaxis( kc_item * item )
 {
-	int axis[JOY_NUM_AXES];
-	int old_axis[JOY_NUM_AXES];
+	int axis[JOY_MAX_AXES];
+	int old_axis[JOY_MAX_AXES];
+	int numaxis = joy_num_axes;
 	int n,i,k;
 	ubyte code;
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
 	gr_string( 0x8000, INFO_Y, TXT_MOVE_NEW_JOY_AXIS );
-	
+
 	game_flush_inputs();
 	code=255;
 	k=255;
 
 	joystick_read_raw_axis( JOY_ALL_AXIS, old_axis );
 
-        while( (k!=KEY_ESC) && (code==255))     {
+	while( (k!=KEY_ESC) && (code==255))	
+	{				
 		#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1234,9 +1287,7 @@ void kc_change_joyaxis( kc_item * item )
 //		if ( Game_mode & GM_MULTI )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
-//added/changed on 9/2/98 by Matt Mueller
                 d_delay(10);
-//end change -MM
 
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
@@ -1244,33 +1295,44 @@ void kc_change_joyaxis( kc_item * item )
 		kc_drawquestion( item );
 
 		joystick_read_raw_axis( JOY_ALL_AXIS, axis );
-		
-				for (i=0; i<JOY_NUM_AXES; i++ )
-				{
-					axis[i] = joy_get_scaled_reading(axis[i],i);
-					if(axis[i])    //-was- if (abs(axis[i] - old_axis[i]) > ((temp_max[i] - temp_min[i]) / 32))
-					{
-						code = i;
-					}
-                   			old_axis[i] = axis[i];
-				}
-			}
-			if (code!=255)	{
-				for (i=0; i<Num_items; i++ )	{
-					n = item - All_items;
-					if ( (i!=n) && (All_items[i].type==BT_JOY_AXIS) && (All_items[i].value==code) )		{
-						All_items[i].value = 255;
-						kc_drawitem( &All_items[i], 0 );
-					}
-				}
 
-				item->value = code;
+		for (i=0; i<numaxis; i++ )	{
+#if defined(__WINDOWS__)
+			if ( abs(axis[i]-old_axis[i])>1024 )	{
+#else 
+  			if ( abs(axis[i]-old_axis[i])>200 )	{
+#endif
+				code = i;
+#ifndef NDEBUG
+				printf("Axis Movement detected: Axis %i\n", i);
+#endif
 			}
-			kc_drawitem( item, 1 );
-			nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
-			game_flush_inputs();
-
+			//old_axis[i] = axis[i];
 		}
+		for (i=0; i<Num_items; i++ )	
+		 {
+			n = item - All_items;
+			if ( (i!=n) && (All_items[i].type==BT_JOY_AXIS) && (All_items[i].value==code) )	
+				code = 255;
+		 }
+	
+	}
+	if (code!=255)	{
+		for (i=0; i<Num_items; i++ )	{
+			n = item - All_items;
+			if ( (i!=n) && (All_items[i].type==BT_JOY_AXIS) && (All_items[i].value==code) )	{
+				All_items[i].value = 255;
+				kc_drawitem( &All_items[i], 0 );
+			}
+		}
+
+		item->value = code;					 
+	}
+	kc_drawitem( item, 1 );
+	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
+	game_flush_inputs();
+
+}
 
 void kc_change_mouseaxis( kc_item * item )
 {
@@ -1478,7 +1540,7 @@ void kconfig_set_fcs_button( int btn, int button )
 #define	JOYSTICK_READ_TIME	(F1_0/10)		//	Read joystick at 10 Hz.
 #endif
 fix	LastReadTime = 0;
-fix	joy_axis[JOY_NUM_AXES];
+fix	joy_axis[JOY_MAX_AXES];
 
 ubyte 			kc_use_external_control = 0;
 ubyte				kc_enable_external_control = 1;
@@ -1652,7 +1714,7 @@ void controls_read_all()
 	int idx, idy;
 	fix ctime;
 	fix mouse_axis[3] = {0,0,0};
-	int raw_joy_axis[JOY_NUM_AXES];
+	int raw_joy_axis[JOY_MAX_AXES];
 	int mouse_buttons;
 	fix k0, k1, k2, k3, kp;
 	fix k4, k5, k6, k7, kh;
@@ -1689,7 +1751,7 @@ void controls_read_all()
 		LastReadTime = ctime;
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 		
-                for (i=0; i<JOY_NUM_AXES; i++ )    {
+                for (i=0; i<joy_num_axes; i++ )    {
 			if (channel_masks&(1<<i))	{
 				int joy_null_value = 10;
 
@@ -1715,7 +1777,7 @@ void controls_read_all()
 		}
 		use_joystick=1;
 	} else {
-                for (i=0; i<JOY_NUM_AXES; i++ )
+                for (i=0; i<joy_num_axes; i++ )
 			joy_axis[i] = 0;
 		use_joystick=0;
 	}
