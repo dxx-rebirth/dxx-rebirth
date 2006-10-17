@@ -1,24 +1,38 @@
 #SConstruct
 
-
-print "D1X-Rebirth"
-
 # needed imports
 import sys
 import os
 
+PROGRAM_NAME = 'D1X-Rebirth'
+
+#SVN_REVISION = os.popen('echo -n `LANG=C svn info | grep Revision | cut -d\  -f2`').read()
+
 # version number
 D1XMAJOR = 0
 D1XMINOR = 50
+#D1XMICRO = int(SVN_REVISION)
+
+VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR)
+
+print '\n===== ' + PROGRAM_NAME + VERSION_STRING + ' =====\n'
+
+# installation path
+PREFIX = '/usr/local/'
+BIN_SUBDIR = 'games/'
+DATA_SUBDIR = 'share/games/d1x-rebirth/'
+BIN_DIR = PREFIX + BIN_SUBDIR
+DATA_DIR = PREFIX + DATA_SUBDIR
 
 # command-line parms
-sharepath = str(ARGUMENTS.get('sharepath', '/usr/local/share/games/d1x-rebirth/'))
+sharepath = str(ARGUMENTS.get('sharepath', DATA_DIR))
 debug = int(ARGUMENTS.get('debug', 0))
 profiler = int(ARGUMENTS.get('profiler', 0))
 sdl_only = int(ARGUMENTS.get('sdl_only', 0))
 no_asm = int(ARGUMENTS.get('no_asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
 shareware = int(ARGUMENTS.get('shareware', 0))
+sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 
 # general source files
 common_sources = [
@@ -82,6 +96,7 @@ common_sources = [
 'main/gameseq.c',
 'main/gauges.c',
 'main/hash.c',
+'main/hmp2mid.c',
 'main/hostage.c',
 'main/hud.c',
 'main/hudlog.c',
@@ -220,7 +235,6 @@ editor_sources = [
 # for linux
 arch_linux_sources = [
 'arch/linux/arch_ip.cpp',
-'arch/linux/hmiplay.c',
 'arch/linux/init.c',
 'arch/linux/ipx_bsd.c',
 'arch/linux/ipx_kali.c',
@@ -230,7 +244,6 @@ arch_linux_sources = [
 'arch/linux/timer.c',
 'arch/linux/ukali.c',
 'arch/sdl/clipboard.c',
-'arch/sdl/digi.c',
 'arch/sdl/event.c',
 'arch/sdl/init.c',
 'arch/sdl/joy.c',
@@ -238,6 +251,16 @@ arch_linux_sources = [
 'arch/sdl/key_arch.c',
 'arch/sdl/mouse.c'
 ]
+
+# choosing a sound implementation for linux
+arch_linux_sound_sdlmixer = [ 'arch/sdl/mixdigi.c', 'arch/sdl/mixmusic.c' ]
+arch_linux_sound_old = [ 'arch/sdl/digi.c', 'arch/linux/hmiplay.c' ]
+
+if (sdlmixer == 1):
+	arch_linux_sources += arch_linux_sound_sdlmixer
+else:
+	arch_linux_sources += arch_linux_sound_old
+	
 
 # for windows
 arch_win32_sources = [
@@ -263,7 +286,7 @@ arch_win32_sources = [
 arch_ogl_sources = [
 'arch/ogl/gr.c',
 'arch/ogl/ogl.c',
-'arch/ogl/sdlgl.c',
+'arch/ogl/sdlgl.c'
 ]
 
 # for sdl
@@ -298,9 +321,12 @@ noasm_sources = [
 env = Environment(ENV = os.environ)
 env.Append(CPPFLAGS = '-O2 -Wall -funsigned-char')
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
-env.Append(CPPPATH = ['include', 'main', 'arch/sdl/include'])
+#env.Append(CPPDEFINES = [('D1XMICRO', '\\"' + str(D1XMICRO) + '\\"')])
+env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
 env.Append(CPPDEFINES = ['NMONO', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'SUPPORTS_NET_IP', '__SDL__', 'SDL_INPUT', 'SDL_AUDIO', '_REENTRANT'])
+env.Append(CPPPATH = ['include', 'main', 'arch/sdl/include'])
 sdllibs = ['SDL']
+sdlmixerlib = ['SDL_mixer'] 
 
 # windows or *nix?
 if sys.platform == 'win32':
@@ -342,7 +368,12 @@ else:
 	env.Append(CPPDEFINES = ogldefines)
 	env.Append(CPPPATH = ['arch/ogl/include'])
 	common_sources = arch_ogl_sources + common_sources
-	alllibs = ogllibs + alllibs
+	alllibs += ogllibs
+
+# SDL_mixer for sound? (*NIX only)
+if (sdlmixer == 1):
+	print "including SDL_mixer"
+	alllibs += sdlmixerlib
 
 # debug?
 if (debug == 1):
@@ -352,8 +383,8 @@ else:
 
 # profiler?
 if (profiler == 1):
-	env.Append(CPPFLAGS = ' -pg ')
-	lflags = ' -pg '
+	lflags = ' -g -pg '
+	env.Append(CPPFLAGS = lflags)
 
 # assembler code?
 if (no_asm == 0) and (sdl_only == 1):
@@ -383,24 +414,29 @@ if (shareware == 0) and (editor == 0):
 
 # finally building program...
 env.Program(target=str(target), source = common_sources, LIBS = alllibs, LINKFLAGS = str(lflags))
-env.Install('/usr/local/bin', str(target))
-env.Alias('install', '/usr/local/bin')
+env.Install(BIN_DIR, str(target))
+env.Alias('install', BIN_DIR)
 
 # show some help when running scons -h
-Help("""
-	D1X-Rebirth, SConstruct file help:
+Help(PROGRAM_NAME + ', SConstruct file help:' +
+	"""
+
 	Type 'scons' to build the binary.
-	Type 'scons install' to build and install to /usr/local/bin.
+	Type 'scons install' to build and install.
 	Type 'scons -c' to clean up.
+	
 	Extra options (add them to command line, like 'scons extraoption=value'):
-	'sharepath=DIR' Use DIR for shared game data (*NIX only). Must end with a slash.
-			Default: /usr/local/share/games/d1x-rebirth/
-	'sdl_only=1' don't include OpenGL, use SDL-only instead
-	'shareware=1' build SHAREWARE version
-	'no_asm=1' don't use ASSEMBLER (only with sdl_only=1)
-	'debug=1' build DEBUG binary which includes asserts, debugging output, cheats and more output
-	'profiler=1' do profiler build
-	'editor=1' build editor !EXPERIMENTAL!
-	""")
+	
+	'sharepath=DIR'	 (*NIX only) use DIR for shared game data. Must end with a slash.
+	'sdl_only=1'	 don't include OpenGL, use SDL-only instead
+	'sdlmixer=1'	 (*NIX only) use SDL_Mixer for sound (includes external music support)
+	'shareware=1'	 build SHAREWARE version
+	'no_asm=1'	 don't use ASSEMBLER (only with sdl_only=1)
+	'debug=1' 	 build DEBUG binary which includes asserts, debugging output, cheats and more output
+	'profiler=1' 	 do profiler build
+	'editor=1' 	 build editor !EXPERIMENTAL!
+	
+	Default values:
+	""" + ' sharepath = ' + DATA_DIR + '\n')
 
 #EOF
