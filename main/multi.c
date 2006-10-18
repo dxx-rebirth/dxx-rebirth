@@ -569,14 +569,9 @@ multi_choose_mission(int *anarchy_only)
 			m[i] = Mission_list[i].mission_name;
 			if ( !strcasecmp( m[i], config_last_mission ) )	
 				default_mission = i;
-                        if (start_with_mission && !strcasecmp( Mission_list[i].filename, start_with_mission_name))
-                         new_mission_num = i;
 		}
 
-                if(!start_with_mission)
                  new_mission_num = newmenu_listbox1(TXT_MULTI_MISSION, n_missions, m, 1, default_mission, NULL );
-
-                start_with_mission= 0;
 
                  if (new_mission_num == -1)
 			return -1; 	//abort!

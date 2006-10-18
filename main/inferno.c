@@ -43,31 +43,54 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <SDL/SDL.h>
+
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
+
 #ifdef __MSDOS__
 #include <time.h>
 #endif
-//added on 1/11/99 by DPH for win32
+
 #ifdef __WINDOWS__
 #include <windows.h>
 #endif
-//end this section addition - dph
-//added on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
-#include <limits.h>
-//end addition -MM
+
 #if defined(_MSC_VER) && defined(_DEBUG)
 #include <crtdbg.h>
 #endif
 
+#ifdef __MSDOS__
+#include <conio.h>
+#else
+#define getch() getchar()
+#endif
+
+#ifdef EDITOR
+#include "editor/editor.h"
+#include "editor/kdefs.h"
+#endif
+
+#ifdef QUICKSTART
+#include "playsave.h"
+#endif
+
+#ifdef SCRIPT
+#include "script.h"
+#endif
+
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 #include "gr.h"
 #include "3d.h"
 #include "inferno.h"
 #include "error.h"
 #include "game.h"
-#include "segment.h"		//for Side_to_verts
+#include "segment.h" //for Side_to_verts
 #include "u_mem.h"
 #include "texmerge.h"
 #include "menu.h"
@@ -100,85 +123,29 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "hudmsg.h"
 #include "playsave.h"
 #include "d_io.h"
-
-//added on 9/30/98 by Matt Mueller for selectable automap modes
 #include "automap.h"
-//end addition -MM
-
-//added on 11/01/98 by Matt Mueller
 #include "hudlog.h"
-//end addition -MM
-//added on 11/15/98 by Victor Racels to ease cd stuff
 #include "cdplay.h"
-//end this section addition - VR
-
-//added on 2/3/99 by Victor Rachels to add readbans
 #include "ban.h"
-//end this section addition - VR
-
-//added 02/07/99 Matt Mueller - for -hud command line
 #include "gauges.h"
-//end addition -MM
-
-//added 2/9/99 by Victor Rachels for pingstats
 #include "pingstat.h"
-//end this section addition - VR
-
-//added 3/12/99 by Victor Rachels for faster sporb turning
 #include "physics.h"
-//end this section addition - VR
-
-//added 6/15/99 by Owen Evans to fix compile warnings
 #include "strutil.h"
-//end section -OE
-
-//added 11/13/99 by Victor Rachels for alternate sounds
 #include "altsound.h"
-//end this section addition - VR
-
 #include "../texmap/scanline.h" //for select_tmap -MM
-
-#include "d_delay.h" //for SUPPORTS_NICEFPS
-
-#ifdef __MSDOS__
-#include <conio.h>
-#else
-#define getch() getchar()
-#endif
-
-#ifdef EDITOR
-#include "editor/editor.h"
-#include "editor/kdefs.h"
-#endif
-
+#include "d_delay.h"
 #include "vers_id.h"
-
-#ifdef QUICKSTART
-#include "playsave.h"
-#endif
-#ifdef SCRIPT
-#include "script.h"
-#endif
-#ifdef OGL
-#include "ogl_init.h"
-#endif
-
-#include <SDL/SDL.h>
-
 
 void show_order_form();
 
 static const char desc_id_checksum_str[] = DESC_ID_CHKSUM;
 char desc_id_exit_num = 0;
-
-int Function_mode=FMODE_MENU;		//game or editor?
-int Screen_mode=-1;					//game screen or editor screen?
-
+int Function_mode=FMODE_MENU; //game or editor?
+int Screen_mode=-1; //game screen or editor screen?
 int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
-
-u_int32_t menu_screen_mode=SM(640,480); // mode used for menus -- jb
+u_int32_t menu_screen_mode=SM(640,480);
 int menu_use_game_res=1;
 
 #ifdef EDITOR
@@ -242,121 +209,112 @@ int init_graphics()
 	return 0;
 }
 
-void show_cmdline_help() {
-	printf( "%s\n", TXT_COMMAND_LINE_0 );
-	printf( "  -<X>x<Y>       %s\n", "Change screen resolution. Options: 320x100;320x200;320x240;320x400;640x400;640x480;800x600;1024x768");
-	printf( "%s\n", TXT_COMMAND_LINE_5 );
-	printf( "%s\n", TXT_COMMAND_LINE_6 );
-	printf( "%s\n", TXT_COMMAND_LINE_8 );
-	printf( "%s\n", TXT_COMMAND_LINE_9);
-	printf( "%s\n", TXT_COMMAND_LINE_11);
-	printf( "%s\n", TXT_COMMAND_LINE_12);
-	printf( "%s\n", TXT_COMMAND_LINE_14);
-	printf( "%s\n", TXT_COMMAND_LINE_15);
-	printf( "%s\n", TXT_COMMAND_LINE_16);
-	printf( "%s\n", TXT_COMMAND_LINE_17);
-	printf( "\n%s\n",TXT_PRESS_ANY_KEY3);
-	getch();
-	printf( "\n");
-	printf( " D1X-Rebirth options:\n");
-	printf( "  -mprofile <f>   %s\n", "Use multi game profile <f>");
-	printf( "  -missiondir <d> %s\n", "Set alternate mission dir to <d>");
-	printf( "  -mission <f>    %s\n", "Use mission <f> to start game");
-	printf( "  -startnetgame   %s\n", "Start a network game immediately");
-	printf( "  -joinnetgame    %s\n", "Skip to join menu screen");
-	printf( "  -nobans         %s\n", "Don't use saved bans");
-	printf( "  -savebans       %s\n", "Automatically save new bans");
-	printf( "  -pingstats      %s\n", "Show pingstats on hud");
-	printf( "  -noredundancy   %s\n", "Do not send messages when picking up redundant items in multiplayer");
-	printf( "  -playermessages %s\n", "View only messages from other players in multi");
-//	printf( "  -shortpackets   %s\n", "Set shortpackets to default as on");
-//	printf( "  -pps <n>        %s\n", "Set packets per second to default at <n>");
-//	printf( "  -ackmsg         %s\n", "Turn on packet acknowledgement debug msgs");
-	printf( "  -pilot <pilot>  %s\n", "Select this pilot automatically");
-	printf( "  -cockpit <n>    %s\n", "Set initial cockpit");
-	printf( "                  %s\n", "0=full 2=status bar 3=full screen");
-	printf( "  -hud <h>        %s\n", "Set hud mode.  0=normal 1-3=new");
-	printf( "  -fps            %s\n", "Enable FPS indicator by default");
-	printf( "  -demo <f>       %s\n", "Start playing demo <f>");
-	printf( "  -maxfps <n>     %s\n", "Set maximum framerate (1-100)");
-	printf( "  -notitles       %s\n", "Do not show titlescreens on startup");
-	printf( "  -ini <file>     %s\n", "option file (alternate to command line)");
-	printf( "  -handicap <n>   %s\n", "Start game with <n> shields. Must be < 100 for multi");
-	printf( "  -hudlog         %s\n", "Start hudlog immediatly");
-/*
-#ifdef SUPPORTS_NICEFPS
-        printf( "  -nicefps        %s\n", "Free cpu while waiting for next frame");
-        printf( "  -niceautomap    %s\n", "Free cpu while doing automap");
-#endif
-        printf( "  -automap<X>x<Y> %s\n", "Set automap resolution to <X> by <Y>");
-        printf( "  -automap_gameres %s\n", "Set automap to use the same resolution as in game");*/ // ZICO - not really needed anymore
-	printf( "  -menu<X>x<Y>    %s\n", "Set menu resolution to <X> by <Y> instead of using game-resolution");
-// 	printf( "  -menu_gameres   %s\n", "Set menus to use the same resolution as in game");
-	printf( "  -hudlog_multi   %s\n", "Start hudlog upon entering multiplayer games");
-	printf( "  -hudlogdir <d>  %s\n", "Log hud messages in directory <d>");
-	printf( "  -nocdaudio      %s\n", "Disable cd audio");
-	printf( "  -playlist \"...\" %s\n", "Set the cd audio playlist to tracks \"a b c ... f g\"");
-	printf( "  -fastext        %s\n", "Fast external control");
-	printf( "  -font320 <f>    %s\n", "font to use for res 320x* and above (default font3-1.fnt)");
-	printf( "  -font640 <f>    %s\n", "font to use for res 640x* and above (default pc6x8.fnt)");
-	printf( "  -font800 <f>    %s\n", "font to use for res 800x* and above");
-	printf( "  -font1024 <f>   %s\n", "font to use for res 1024x* and above (default pc8x16.fnt)");
-#ifdef OGL
-	printf( "  -fixedfont      %s\n", "do not scale fonts to current resolution");
-#endif
-	printf( "  -hiresfont      %s\n", "use high resolution fonts if available");
-	printf( "  -tmap <t>       %s\n","select texmapper to use (c,fp,i386,pent,ppro)");
-	printf( "  -mouselook      %s\n","Activate fast mouselook. Works in singleplayer only"); // ZICO - added for mouselook
-	printf( "  -grabmouse      %s\n","Keeps the mouse from wandering out of the window"); // ZICO - added for mouse capture
-	printf( "\n");
-	printf( "\n%s\n",TXT_PRESS_ANY_KEY3);
-	getch();
-	printf( " System options:\n");
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE 
-	printf( "  -window         %s\n", "Run the game in a window"); // ZICO - from window to fullscreen
-#endif
-	printf( "  -aspect<Y>x<X>  %s\n", "use specified aspect");
-#ifdef OGL
-	printf( "  -gl_texmaxfilt <f> %s\n","set GL_TEXTURE_MAX_FILTER (see readme.d1x)");
-	printf( "  -gl_texminfilt <f> %s\n","set GL_TEXTURE_MIN_FILTER (see readme.d1x)");
-	printf( "  -gl_mipmap      %s\n","set gl texture filters to \"standard\" options for mipmapping");
-	printf( "  -gl_trilinear   %s\n","set gl texture filters to trilinear mipmapping");
-	printf( "  -gl_simple      %s\n","set gl texture filters to gl_nearest for \"original\" look. (default)");
-	printf( "  -gl_alttexmerge %s\n","use new texmerge, usually uses less ram (default)");
-	printf( "  -gl_stdtexmerge %s\n","use old texmerge, uses more ram, but _might_ be a bit faster");
-	printf( "  -gl_voodoo      %s\n","force fullscreen mode only");
-	printf( "  -gl_16bittextures %s\n","attempt to use 16bit textures");
-	printf( "  -gl_reticle <r> %s\n","use OGL reticle 0=never 1=above 320x* 2=always");
-#ifdef OGL_RUNTIME_LOAD
-	printf( "  -gl_library <l> %s\n","use alternate opengl library");
-#endif
-#ifdef __WINDOWS__
-	printf( "  -gl_refresh <r> %s\n","set refresh rate (in fullscreen mode)");
-#endif
-#endif
-#ifdef SDL_VIDEO
+void show_commandline_help()
+{
+	printf( "\n System Options:\n\n");
+	printf( "  -fps               %s\n", "Enable FPS indicator by default");
+	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-100)");
+	printf( "  -missiondir <d>    %s\n", "Set alternate mission dir to <d>");
+	printf( "  -hudlog            %s\n", "Start hudlog immediatly");
+	printf( "  -hudlogdir <d>     %s\n", "Log hud messages in directory <d>");
+	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
+
+	printf( "\n Controls:\n\n");
+	printf( "  -NoJoystick        %s\n", "Disables joystick support");
+	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
+	printf( "  -grabmouse         %s\n", "Keeps the mouse from wandering out of the window");
+
+	printf( "\n Sound:\n\n");
+	printf( "  -Volume <v>        %s\n", "Sets sound volume to v, where v is between 0 and 100");
+	printf( "  -NoSound           %s\n", "Disables sound drivers");
+	printf( "  -NoMusic           %s\n", "Disables music; sound effects remain enabled");
+
+	printf( "\n Graphics:\n\n");
+	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
+	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
+	printf( "  -cockpit <n>       %s\n", "Set initial cockpit. 0=full 2=status bar 3=full screen");
+	printf( "  -hud <h>           %s\n", "Set hud mode.  0=normal 1-3=new");
+	printf( "  -hiresfont         %s\n", "use high resolution fonts if available");
+#ifdef    GR_SUPPORTS_FULLSCREEN_TOGGLE
+	printf( "  -window            %s\n", "Run the game in a window");
+#endif // GR_SUPPORTS_FULLSCREEN_TOGGLE
+
+#ifdef    OGL
+	printf( "\n OpenGL:\n\n");
+	printf( "  -gl_simple         %s\n", "Set gl texture filters to gl_nearest for \"original\" look. (default)");
+	printf( "  -gl_mipmap         %s\n", "Set gl texture filters to \"standard\" options for mipmapping");
+	printf( "  -gl_trilinear      %s\n", "Set gl texture filters to trilinear mipmapping");
+	printf( "  -gl_reticle <r>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
+	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
+#endif // OGL
+
+	printf( "\n Quickstart:\n\n");
+	printf( "  -ini <file>        %s\n", "Option file (alternate to command line), defaults to d1x.ini");
+	printf( "  -notitles          %s\n", "Do not show titlescreens on startup");
+	printf( "  -pilot <pilot>     %s\n", "Select this pilot-file automatically");
+	printf( "  -demo <f>          %s\n", "Start playing demo <f>");
+
+#ifdef    NETWORK
+	printf( "\n Multiplayer:\n\n");
+	printf( "  -mprofile <f>      %s\n", "Use multi game profile <f>");
+	printf( "  -startnetgame      %s\n", "Start an IPX network game immediately");
+	printf( "  -joinnetgame       %s\n", "Skip to join IPX menu screen");
+	printf( "  -nobans            %s\n", "Don't use saved bans");
+	printf( "  -savebans          %s\n", "Automatically save new bans");
+	printf( "  -pingstats         %s\n", "Show pingstats on hud");
+	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multiplayer");
+	printf( "  -playermessages    %s\n", "View only messages from other players in multi");
+	printf( "  -handicap <n>      %s\n", "Start game with <n> shields. Must be < 100 for multi");
+	printf( "  -hudlog_multi      %s\n", "Start hudlog upon entering multiplayer games");
+#endif // NETWORK
+
+#ifndef   NDEBUG
+	printf( "\n Debug:\n\n");
+	printf( "  -Verbose           %s\n", "Shows initialization steps for tech support");
+	printf( "  -norun             %s\n", "Bail out after initialization");
+	printf( "  -font320 <f>       %s\n", "Font to use for res 320x* and above (default font3-1.fnt)");
+	printf( "  -font640 <f>       %s\n", "Font to use for res 640x* and above");
+	printf( "  -font800 <f>       %s\n", "Font to use for res 800x* and above");
+	printf( "  -font1024 <f>      %s\n", "Font to use for res 1024x* and above");
+#ifdef    OGL
+	printf( "  -gl_texmaxfilt <f> %s\n", "Set GL_TEXTURE_MAX_FILTER");
+	printf( "  -gl_texminfilt <f> %s\n", "Set GL_TEXTURE_MIN_FILTER");
+	printf( "  -gl_alttexmerge    %s\n", "Use new texmerge, usually uses less ram (default)");
+	printf( "  -gl_stdtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
+	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
+	printf( "  -gl_16bittextures  %s\n", "Attempt to use 16bit textures");
+#ifdef    OGL_RUNTIME_LOAD
+	printf( "  -gl_library <l>    %s\n", "Use alternate opengl library");
+#endif // OGL_RUNTIME_LOAD
+#else  // ifndef OGL
+	printf( "  -tmap <t>          %s\n", "Select texmapper to use (c,fp,i386,pent,ppro)");
+#endif // OGL
+#ifdef    __SDL__
 	printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
-#endif
-#ifdef __LINUX__
-	printf( "  -serialdevice <s> %s\n", "Set serial/modem device to <s>");
-	printf( "  -serialread <r>   %s\n", "Set serial/modem to read from <r>");
-#endif
-	printf( "\n");
+#endif // __SDL__
+
+/*	KEPT FOR FURTHER REFERENCE
+	printf( "\n Unused / Obsolete:\n\n");
+	printf( "  -nocdaudio         %s\n", "Disable cd audio");
+	printf( "  -playlist \"...\"    %s\n", "Set the cd audio playlist to tracks \"a b c ... f g\"");
+	printf( "  -serialdevice <s>  %s\n", "Set serial/modem device to <s>");
+	printf( "  -serialread <r>    %s\n", "Set serial/modem to read from <r>");
+*/
+#endif // NDEBUG
+
+	printf( "\n Help:\n\n");
+	printf( "  -help, -h, -?, ?   %s\n", "View this help screen");
+	printf( "\n\n");
 }
 
 extern fix fixed_frametime;
 extern int framerate_on;
-
 extern void vfx_set_palette_sub(ubyte *);
 
 int Inferno_verbose = 0;
-
 int start_net_immediately = 0;
-int start_with_mission = 0;
-char *start_with_mission_name;
 
 int main(int argc,char **argv)
-//end this section addition - dph
 {
 	int i,t;
 	char start_demo[13];
@@ -366,7 +324,7 @@ int main(int argc,char **argv)
 
 	error_init(NULL);
 
-	setbuf(stdout, NULL);	// unbuffered output via printf
+	setbuf(stdout, NULL); // unbuffered output via printf
 
 	ReadConfigFile();
 
@@ -374,11 +332,6 @@ int main(int argc,char **argv)
 
 	if ( FindArg( "-verbose" ) )
 		Inferno_verbose = 1;
-
-	#ifndef NDEBUG
-        if ( FindArg( "-showmeminfo" ) )
-                show_mem_info = 1;              // Make memory statistics show
-        #endif
 
 	// Things to initialize before anything else
 	arch_init_start();
@@ -391,25 +344,23 @@ int main(int argc,char **argv)
 	printf("Based on: DESCENT   %s\n", VERSION_NAME);
 	printf("%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 
-	if (FindArg( "-?" ) || FindArg( "-help" ) || FindArg( "--help" ) || FindArg( "?" ) ) {
-		show_cmdline_help();
+	if (FindArg( "-help" ) || FindArg( "-h" ) || FindArg( "-?" ) || FindArg( "?" ) ) {
+		show_commandline_help();
                 set_exit_message("");
 		return 0;
 	}
 
-	printf("\n%s\n", TXT_HELP);
+	printf("\nType 'd1x-rebirth-gl/sdl -help' for a list of command-line options.\n");
 
 	if ((t = FindArg( "-missiondir" )))
 		cfile_use_alternate_hogdir(Args[t+1]);
 	else
 		cfile_use_alternate_hogdir(DESCENT_DATA_PATH);
 
-	if ((t=FindArg("-tmap"))){
+	if ((t=FindArg("-tmap")))
 		select_tmap(Args[t+1]);
-	}
-	else {
+	else
 		select_tmap(NULL);
-	}
 
 	if ((t=FindArg("-cockpit"))){
 		t=atoi(Args[t+1]);
@@ -433,9 +384,10 @@ int main(int argc,char **argv)
 	HUD_log_autostart = 1;
 
 	if (FindArg("-noredundancy"))
-	MSG_Noredundancy = 1;
+		MSG_Noredundancy = 1;
+
 	if (FindArg("-playermessages"))
-	MSG_Playermessages = 1;
+		MSG_Playermessages = 1;
 
 	if ((t = FindArg( "-handicap" ))) {
 		t = i2f(atoi(Args[t+1]));
@@ -452,19 +404,12 @@ int main(int argc,char **argv)
 			maxfps=t;
 	}
 
-	if((t=FindArg( "-mission" ))) {
-		start_with_mission = 1;
-		sprintf(start_with_mission_name,"%s",Args[t+1]);
-		removeext(start_with_mission_name,start_with_mission_name);
-		if(strlen(start_with_mission_name)>8)
-			start_with_mission_name[9]=0;
-	}
 #ifdef NETWORK
 	if(FindArg( "-startnetgame" ))
 		start_net_immediately = 1;
 
 	if(FindArg( "-joinnetgame" ))
-	start_net_immediately = 2;
+		start_net_immediately = 2;
 
 	if(FindArg( "-ackmsg" ))
 		ackdebugmsg = 1;
@@ -479,13 +424,19 @@ int main(int argc,char **argv)
 		framerate_on = 1;
 
 	if ((t = FindArg( "-demo" ))) {
-		strncpy(start_demo, Args[t + 1], 12);
+		int j;
+		snprintf(start_demo, 12, Args[t+1]);
+		for (j=0; start_demo[j] != '\0'; j++) {
+			switch (start_demo[j]) {
+				case ' ':
+					start_demo[j] = '\0';
+			}
+		}
 		start_demo[12] = 0;
 		Auto_demo = 1;
 	} 
-	else {
+	else
 		start_demo[0] = 0;
-	}
 
 	if ( FindArg( "-autodemo" ))
 		Auto_demo = 1;
@@ -495,7 +446,8 @@ int main(int argc,char **argv)
 		Skip_briefing_screens = 1;
 	#endif
 
-	if (Inferno_verbose) printf ("%s", TXT_VERBOSE_1);
+	if (Inferno_verbose)
+		printf ("%s", TXT_VERBOSE_1);
 
 	arch_init();
         cd_init();
@@ -520,59 +472,42 @@ int main(int argc,char **argv)
 		if (Inferno_verbose) printf( "\n%s",TXT_SOUND_DISABLED );
 	}
 #ifdef NETWORK
-	if (!FindArg("-noserial"))	{
+	if (!FindArg("-noserial"))
 		serial_active = 1;
-	}
-	else {
+	else
 		serial_active = 0;
-	}
 #endif
 	{
-//added on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
-	int i, argnum=INT_MAX;
-//end addition -MM
+		int i, argnum=INT_MAX;
 
-//added/edited on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
-//added on 9/30/98 by Matt Mueller clean up screen mode code, and add higher resolutions
 #define SCREENMODE(X,Y,C) if ( (i=FindArg( "-" #X "x" #Y ))&&(i<argnum))  {argnum=i; screen_mode = SM( X , Y );if (Inferno_verbose) printf( "Using " #X "x" #Y " ...\n" );screen_width = X;screen_height = Y;}
-//aren't #defines great? :)
 
-	SCREENMODE(320,100,0);
-	SCREENMODE(320,200,1);
-//end addition/edit -MM
-	SCREENMODE(320,240,0);
-	SCREENMODE(320,400,0);
-	SCREENMODE(640,400,0);
-	SCREENMODE(640,480,0);
-	SCREENMODE(800,600,0);
-	SCREENMODE(1024,768,0);
-	SCREENMODE(1152,864,0);
-	SCREENMODE(1280,960,0);
-	SCREENMODE(1280,1024,0);
-	SCREENMODE(1600,1200,0);
-//end addition -MM
-		
-//added 3/24/99 by Owen Evans for screen res changing
-	Game_screen_mode = screen_mode;
-//end added -OE
-	game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE);
+		SCREENMODE(320,100,0);
+		SCREENMODE(320,200,1);
+		SCREENMODE(320,240,0);
+		SCREENMODE(320,400,0);
+		SCREENMODE(640,400,0);
+		SCREENMODE(640,480,0);
+		SCREENMODE(800,600,0);
+		SCREENMODE(1024,768,0);
+		SCREENMODE(1152,864,0);
+		SCREENMODE(1280,960,0);
+		SCREENMODE(1280,1024,0);
+		SCREENMODE(1600,1200,0);
+
+		Game_screen_mode = screen_mode;
+		game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE);
 	}
+
 	{
-//added/edited on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
-	int i, argnum=INT_MAX, w, h;
-//added on 9/30/98 by Matt Mueller for selectable automap modes - edited 11/21/99 whee, more fun with defines.
-// #define SMODE(V,VV,VG,X,Y) if ( (i=FindArg( "-" #V #X "x" #Y )) && (i<argnum))  {argnum=i; VV = SM( X , Y );VG=0;}
-// #define SMODE_GR(V,VG) if ((i=FindArg("-" #V "_gameres"))){if (i<argnum) VG=1;}
+		int i, argnum=INT_MAX, w, h;
 #define SMODE(V,VV,VG) if ((i=FindResArg(#V, &w, &h)) && (i < argnum)) { argnum = i; VV = SM(w, h); VG = 0; }
 #define SMODE_GR(V,VG) if ((i=FindArg("-" #V "_gameres"))){if (i<argnum) VG=1;}
 #define SMODE_PRINT(V,VV,VG) if (Inferno_verbose) { if (VG) printf( #V " using game resolution ...\n"); else printf( #V " using %ix%i ...\n",SM_W(VV),SM_H(VV) ); }
-//aren't #defines great? :)
-//end addition/edit -MM
-// #define S_MODE(V,VV,VG) argnum=INT_MAX;SMODE(V,VV,VG,320,200);SMODE(V,VV,VG,320,240);SMODE(V,VV,VG,320,400);SMODE(V,VV,VG,640,400);SMODE(V,VV,VG,640,480);SMODE(V,VV,VG,800,600);SMODE(V,VV,VG,1024,768);SMODE(V,VV,VG,1280,1024);SMODE(V,VV,VG,1600,1200);SMODE_GR(V,VG);SMODE_PRINT(V,VV,VG);
 #define S_MODE(V,VV,VG) argnum = INT_MAX; SMODE(V, VV, VG); SMODE_GR(V, VG); SMODE_PRINT(V, VV, VG);
 
-	S_MODE(automap,automap_mode,automap_use_game_res);
-	S_MODE(menu,menu_screen_mode,menu_use_game_res);
+		S_MODE(automap,automap_mode,automap_use_game_res);
+		S_MODE(menu,menu_screen_mode,menu_use_game_res);
 	}
 //end addition -MM
 	
@@ -639,9 +574,9 @@ int main(int argc,char **argv)
 	g3_init();
 	mprintf( (0, "\nInitializing texture caching system..." ));
 	if (FindArg( "-lowmem" ))
-		texmerge_init( 10 );		// if we are low on mem, only use 10 cache bitmaps
+		texmerge_init( 10 ); // if we are low on mem, only use 10 cache bitmaps
 	else
-		texmerge_init( 9999 );		// otherwise, use as much as possible (its still limited by the #define in texmerge.c, so it won't actually use 9999) -MM
+		texmerge_init( 9999 ); // otherwise, use as much as possible (its still limited by the #define in texmerge.c, so it won't actually use 9999) -MM
 	mprintf( (0, "\nRunning game...\n" ));
 #ifdef SCRIPT
 	script_init();
@@ -660,34 +595,38 @@ int main(int argc,char **argv)
 		Auto_leveling_on = Default_leveling_on;
 		write_player_file();
 #else
-//added/changed on 10/31/98  by Victor Rachels to add -pilot and exit on esc
 		if((i=FindArg("-pilot")))
 		{
 			char filename[15];
-			sprintf(filename,"%.8s.plr",Args[i+1]);
+			int j;
+			snprintf(filename, 12, Args[i+1]);
+			for (j=0; filename[j] != '\0'; j++) {
+				switch (filename[j]) {
+					case ' ':
+						filename[j] = '\0';
+				}
+			}
 			strlwr(filename);
 			if(!access(filename,4))
 			{
-				strcpy(Players[Player_num].callsign,Args[i+1]);
+				strcpy(strstr(filename,".plr"),"\0");
+				strcpy(Players[Player_num].callsign,filename);
 				strupr(Players[Player_num].callsign);
 				read_player_file();
 				Auto_leveling_on = Default_leveling_on;
 				WriteConfigFile();
 			}
-			else          //pilot doesn't exist. get pilot.
+			else //pilot doesn't exist. get pilot.
 				if(!RegisterPlayer())
 					Function_mode = FMODE_EXIT;
-			}
-			else
-				if(!RegisterPlayer())               //get player's name
-					Function_mode = FMODE_EXIT;
-//end this section addition - Victor Rachels
+		}
+		else
+			if(!RegisterPlayer())
+				Function_mode = FMODE_EXIT;
 #endif
 	}
 
 	gr_palette_fade_out( NULL, 32, 0 );
-
-	//kconfig_load_all();
 
 	Game_mode = GM_GAME_OVER;
 
@@ -698,7 +637,7 @@ int main(int argc,char **argv)
 	}
 
 #ifndef SHAREWARE
-	t = build_mission_list(0);	    // This also loads mission 0.
+	t = build_mission_list(0); // This also loads mission 0.
 #endif
 
 
@@ -724,19 +663,19 @@ int main(int argc,char **argv)
 		case FMODE_MENU:
 			if ( Auto_demo < 0 ) {
 				show_title_screen( "descent.pcx", 3 ); // show w/o fade,keywait
-                                RegisterPlayer();               //get player's name
+                                RegisterPlayer(); //get player's name
 				Auto_demo = 0;
 			} else if ( Auto_demo )        {
 				if (start_demo[0])
 					newdemo_start_playback(start_demo);
 				else
-					newdemo_start_playback(NULL);		// Randomly pick a file
+					newdemo_start_playback(NULL); // Randomly pick a file
 				if (Newdemo_state != ND_STATE_PLAYBACK)	
 					Error("No demo files were found for autodemo mode!");
 			} else {
-				DoMenu();									 	
+				DoMenu();
 #ifdef EDITOR
-				if ( Function_mode == FMODE_EDITOR )	{
+				if ( Function_mode == FMODE_EDITOR ) {
 					create_new_mine();
 					SetPlayerFromCurseg();
 				}
@@ -788,16 +727,9 @@ int main(int argc,char **argv)
 	#endif
 #endif
 
-//killed at 7/11/99 by adb - first run all atexit()'s
-//--killed #if defined(_MSC_VER) && defined(_DEBUG)
-//--killed	_CrtDumpMemoryLeaks();
-//--killed #endif
-//end changes - adb
-
-	return(0);		//presumably successful exit
+	return(0); //presumably successful exit
 
 }
-
 
 void quit_request()
 {
