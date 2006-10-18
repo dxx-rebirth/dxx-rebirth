@@ -96,7 +96,6 @@ common_sources = [
 'main/gameseq.c',
 'main/gauges.c',
 'main/hash.c',
-'main/hmp2mid.c',
 'main/hostage.c',
 'main/hud.c',
 'main/hudlog.c',
@@ -252,15 +251,16 @@ arch_linux_sources = [
 'arch/sdl/mouse.c'
 ]
 
-# choosing a sound implementation for linux
+# choosing a sound implementation for Linux
+common_sound_hmp2mid = [ 'main/hmp2mid.c' ]
 arch_linux_sound_sdlmixer = [ 'arch/sdl/mixdigi.c', 'arch/sdl/mixmusic.c' ]
 arch_linux_sound_old = [ 'arch/sdl/digi.c', 'arch/linux/hmiplay.c' ]
 
 if (sdlmixer == 1):
+	common_sources += common_sound_hmp2mid
 	arch_linux_sources += arch_linux_sound_sdlmixer
 else:
 	arch_linux_sources += arch_linux_sound_old
-	
 
 # for windows
 arch_win32_sources = [
@@ -411,6 +411,8 @@ if (shareware == 1):
 
 if (shareware == 0) and (editor == 0):
 	common_sources = ['main/loadrl2.c'] + common_sources
+
+print '\n'
 
 # finally building program...
 env.Program(target=str(target), source = common_sources, LIBS = alllibs, LINKFLAGS = str(lflags))

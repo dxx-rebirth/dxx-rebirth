@@ -449,10 +449,7 @@ int main(int argc,char **argv)
 	if (Inferno_verbose)
 		printf ("%s", TXT_VERBOSE_1);
 
-	arch_init();
-        cd_init();
-
-	if (init_graphics()) return 1;
+	//MD2211, 2006-08-30 : moving sound init *before* ReadConfigFile(), so that we restore music volume properly.
 
 	//------------ Init sound ---------------
 	if (!FindArg( "-nosound" ))	{
@@ -471,6 +468,14 @@ int main(int argc,char **argv)
 	else {
 		if (Inferno_verbose) printf( "\n%s",TXT_SOUND_DISABLED );
 	}
+
+        ReadConfigFile();
+
+	arch_init();
+        cd_init();
+
+	if (init_graphics()) return 1;
+
 #ifdef NETWORK
 	if (!FindArg("-noserial"))
 		serial_active = 1;
