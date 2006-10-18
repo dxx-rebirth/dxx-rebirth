@@ -168,231 +168,171 @@ extern int Config_vr_tracking;
 //read help from a file & print to screen
 void print_commandline_help()
 {
-	CFILE *ifile;
-	int have_binary=0;
-	char line[LINE_LEN];
+	printf( "\n System Options:\n\n");
+	printf( "  -fps               %s\n", "Enable FPS indicator by default"); // ZICO - would be good, right?
+	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-100)");
+	printf( "  -hogdir <dir>      %s\n", "set shared data directory to <dir>");
+#ifdef    __unix__
+	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
+	printf( "  -userdir <dir>     %s\n", "set user dir to <dir> instead of $HOME/.d2x-rebirth");
+#endif // __unix__
+#if       defined(EDITOR) || !defined(MACDATA)
+	printf( "  -macdata           %s\n","Read (and, for editor, write) mac data files (swap colors)");
+#endif // defined(EDITOR) || !defined(MACDATA)
+	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 
-	ifile = cfopen("help.tex","rb");
-	if (!ifile) {
-		ifile = cfopen("help.txb","rb");
-		if (!ifile)
-			Warning("Cannot load help text file.");
-		have_binary = 1;
-	}
+	printf( "\n Controls:\n\n");
+	printf( "  -NoJoystick        %s\n", "Disables joystick support");
+	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
+#ifdef    SDL_INPUT
+	printf( "  -grabmouse         %s\n", "Keeps the mouse from wandering out of the window");
+#endif // SDL_INPUT
 
-	if (ifile)
-	{
-        char *end;
-        
-		while ((end = cfgets(line,LINE_LEN,ifile))) {
+	printf( "\n Sound:\n\n");
+	printf( "  -Volume <v>        %s\n", "Sets sound volume to v, where v is between 0 and 100");
+	printf( "  -NoSound           %s\n", "Disables sound drivers");
+	printf( "  -NoMusic           %s\n", "Disables music; sound effects remain enabled");
+	printf( "  -DisableSound      %s\n", "Completely disable sound system (also disables movies)");
+	printf( "  -Sound11K          %s\n", "Use 11KHz sounds");
+#if       !defined(MACINTOSH) && !defined(WINDOWS)
+	printf( "  -nomixer           %s\n", "Don't crank music volume");
+#endif // !defined(MACINTOSH) && !defined(WINDOWS)
+#if       !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
+	printf( "  -noredbook         %s\n", "Disable redbook audio");
+#endif //  !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
 
-			if (have_binary)
-				decode_text_line (line);
+	printf( "\n Graphics:\n\n");
+	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
+	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
+	printf( "  -cockpit <n>       %s\n", "Set initial cockpit. 0=full 2=status bar 3=full screen");
+	printf( "  -hud <h>           %s\n", "Set hud mode.  0=normal 1-3=new");
+	printf( "  -hiresfont         %s\n", "use high resolution fonts if available");
+#ifdef    GR_SUPPORTS_FULLSCREEN_TOGGLE
+	printf( "  -window            %s\n", "Run the game in a window");
+#endif // GR_SUPPORTS_FULLSCREEN_TOGGLE
+	printf( "  -lowresmovies      %s\n","Play low resolution movies if available (for slow machines)");
+	printf( "  -subtitles         %s\n","Turn on movie subtitles (English-only)");
+	printf( "  -rearviewtime t    %s\n", "Time holding rearview key to use toggle mode (default 0.0625 seconds)");
 
-            // This is the only use of cfgets that needs the CR
-			strcat(end, "\n");
+#ifdef    OGL
+	printf( "\n OpenGL:\n\n");
+	printf( "  -gl_simple         %s\n", "Set gl texture filters to gl_nearest for \"original\" look. (default)");
+	printf( "  -gl_mipmap         %s\n", "Set gl texture filters to \"standard\" options for mipmapping");
+	printf( "  -gl_trilinear      %s\n", "Set gl texture filters to trilinear mipmapping");
+	printf( "  -gl_reticle <r>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
+	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
+	printf( "  -nomoviesmooth     %s\n", "Do not smooth movies");
+#endif // OGL
 
-			if (line[0] == ';')
-				continue;		//don't show comments
+	printf( "\n Quickstart:\n\n");
+	printf( "  -ini <file>        %s\n", "Option file (alternate to command line), defaults to d2x.ini");
+	printf( "  -notitles          %s\n", "Do not show titlescreens on startup");
+	printf( "  -pilot <name>      %s\n", "Select this pilot automatically");
+	printf( "  -autodemo          %s\n", "Start in demo mode");
 
-			printf("%s",line);
+#ifdef    NETWORK
+	printf( "\n Multiplayer:\n\n");
+	printf( "  -norankings        %s\n", "Disable multiplayer ranking system");
+	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multi");
+	printf( "  -shortpackets      %s\n", "Set shortpackets to default as on");
+	printf( "  -packets <num>     %s\n", "Specifies the number of packets per second\n");
+	printf( "  -ipxnetwork <num>  %s\n", "Use IPX network number <num>");
+	printf( "  -kali              %s\n", "Use Kali for networking");
+	printf( "  -udp               %s\n", "Specify options for udp/ip:");
+	printf( "    @<shift>         %s\n", "  Shift udp port base offset");
+	printf( "    =<HOST_LIST>     %s\n", "  Broadcast both local and to HOST_LIST");
+	printf( "    +<HOST_LIST>     %s\n", "  Broadcast only to HOST_LIST");
+	printf( "                     %s\n", "  HOSTS can be any IP or hostname");
+	printf( "                     %s\n", "  HOSTS can also be in the form of <address>:<shift>");
+	printf( "                     %s\n", "  Separate multiple HOSTS with a ,");
+#endif // NETWORK
 
-		}
-
-		cfclose(ifile);
-
-	}
-
-//	printf( " Diagnostic:\n\n");
-//	printf( "  -emul           %s\n", "Certain video cards need this option in order to run game");
-//	printf(	"  -ddemul         %s\n", "If -emul doesn't work, use this option");
-//	printf( "\n");
-#ifdef EDITOR
-	printf( " Editor Options:\n\n");
-	printf( "  -autoload <file>%s\n", "Autoload a level in the editor");
-	printf( "  -hoarddata      %s\n","Make the hoard ham file from some files, then exit");
-//	printf( "  -nobm           %s\n","FIXME: Undocumented");
-	printf( "\n");
-#endif
-	printf( " D2X Options:\n\n");
-	printf( "  -noredundancy   %s\n", "Do not send messages when picking up redundant items in multi");
-	printf( "  -shortpackets   %s\n", "Set shortpackets to default as on");
-#ifdef OGL // currently only does anything on ogl build, so don't advertise othewise.
-//	printf("  -renderstats    %s\n", "Enable renderstats info by default");
-#endif
-	printf( "  -hud <h>        %s\n", "Set hud mode.  0=normal 1-3=new"); // ZICO - new hud modes
-	printf( "  -fps            %s\n", "Enable FPS indicator by default"); // ZICO - would be good, right?
-	printf( "  -maxfps <n>     %s\n", "Set maximum framerate (1-100)");
-	printf( "  -notitles       %s\n", "Do not show titlescreens on startup");
-	printf( "  -hogdir <dir>   %s\n", "set shared data directory to <dir>");
-#ifdef __unix__
-	printf( "  -nohogdir       %s\n", "don't try to use shared data directory");
-	printf( "  -userdir <dir>  %s\n", "set user dir to <dir> instead of $HOME/.d2x-rebirth");
-#endif
-	printf( "  -ini <file>     %s\n", "option file (alternate to command line), defaults to d2x.ini");
-	printf( "  -autodemo       %s\n", "Start in demo mode");
-//	printf( "  -bigpig         %s\n","FIXME: Undocumented");
-//	printf( "  -bspgen         %s\n","FIXME: Undocumented");
-//	printf( "  -cdproxy        %s\n","FIXME: Undocumented");
-#ifndef NDEBUG
-//	printf( "  -checktime      %s\n","FIXME: Undocumented");
-//	printf( "  -showmeminfo    %s\n","FIXME: Undocumented");
-#endif
-//	printf( "  -codereadonly   %s\n","FIXME: Undocumented");
-//	printf( "  -cyberimpact    %s\n","FIXME: Undocumented");
-	printf( "  -debug          %s\n","Enable very verbose output");
-//	printf( "  -debugmode      %s\n","FIXME: Undocumented");
-//	printf( "  -disallowgfx    %s\n","FIXME: Undocumented");
-//	printf( "  -disallowreboot %s\n","FIXME: Undocumented");
-//	printf( "  -dynamicsockets %s\n","FIXME: Undocumented");
-//	printf( "  -forcegfx       %s\n","FIXME: Undocumented");
-#ifdef SDL_INPUT
-	printf( "  -grabmouse      %s\n","Keeps the mouse from wandering out of the window");
-#endif
-//	printf( "  -hw_3dacc       %s\n","FIXME: Undocumented");
-#ifndef RELEASE
-	printf( "  -invulnerability %s\n","Make yourself invulnerable");
-#endif
-	printf( "  -ipxnetwork <num> %s\n","Use IPX network number <num>");
-//	printf( "  -jasen          %s\n","FIXME: Undocumented");
-//	printf( "  -joyslow        %s\n","FIXME: Undocumented");
-#ifdef NETWORK
-	printf( "  -kali           %s\n","use Kali for networking");
-#endif
-//	printf( "  -logfile        %s\n","FIXME: Undocumented");
-	printf( "  -lowresmovies   %s\n","Play low resolution movies if available (for slow machines)");
-#if defined(EDITOR) || !defined(MACDATA)
-	printf( "  -macdata        %s\n","Read (and, for editor, write) mac data files (swap colors)");
-#endif
-//	printf( "  -memdbg         %s\n","FIXME: Undocumented");
-//	printf( "  -monodebug      %s\n","FIXME: Undocumented");
-//	printf( "  -nocdrom        %s\n","FIXME: Undocumented");
-#ifdef __DJGPP__
-//	printf( "  -nocyberman     %s\n","FIXME: Undocumented");
-#endif
-#ifndef NDEBUG
-	printf( "  -nofade         %s\n","Disable fades");
-#endif
-#ifdef NETWORK
-//	printf( "  -nomatrixcheat  %s\n","FIXME: Undocumented");
-	printf( "  -norankings     %s\n","Disable multiplayer ranking system");
-	printf( "  -packets <num>  %s\n","Specifies the number of packets per second\n");
-//	printf( "  -showaddress    %s\n","FIXME: Undocumented");
-//	printf( "  -socket         %s\n","FIXME: Undocumented");
-#endif
-#if !defined(MACINTOSH) && !defined(WINDOWS)
-	printf( "  -nomixer        %s\n","Don't crank music volume");
-//	printf( "  -superhires     %s\n","Allow higher-resolution modes");
-#endif
-//	printf( "  -nomodex        %s\n","FIXME: Undocumented");
-#ifndef RELEASE
-	printf( "  -nomovies       %s\n","Don't play movies");
-	printf( "  -noscreens      %s\n","Skip briefing screens");
-#endif
-#if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-	printf( "  -noredbook      %s\n","Disable redbook audio");
-#endif
-	printf( "  -norun          %s\n","Bail out after initialization");
-//	printf( "  -ordinaljoy     %s\n","FIXME: Undocumented");
-//	printf( "  -rtscts         %s\n","Same as -ctsrts");
-//	printf( "  -semiwin        %s\n","Use non-fullscreen mode");
-//	printf( "  -specialdevice  %s\n","FIXME: Undocumented");
-#ifdef TACTILE
-//	printf( "  -stickmag       %s\n","FIXME: Undocumented");
-#endif
-//	printf( "  -stopwatch      %s\n","FIXME: Undocumented");
-	printf( "  -subtitles      %s\n","Turn on movie subtitles (English-only)");
-//	printf( "  -sysram         %s\n","FIXME: Undocumented");
-	printf( "  -text <file>    %s\n","Specify alternate .tex file");
-#ifdef OGL
-	printf( "  -fixedfont      %s\n", "do not scale fonts to current resolution");
-#endif
-//	printf( "  -tsengdebug1    %s\n","FIXME: Undocumented");
-//	printf( "  -tsengdebug2    %s\n","FIXME: Undocumented");
-//	printf( "  -tsengdebug3    %s\n","FIXME: Undocumented");
-//	printf( "  -vidram         %s\n","FIXME: Undocumented");
-//	printf( "  -xcontrol       %s\n","FIXME: Undocumented");
-//	printf( "  -xname          %s\n","FIXME: Undocumented");
-//	printf( "  -xver           %s\n","FIXME: Undocumented");
-	printf( "  -tmap <t>       %s\n","select texmapper to use (c,fp,i386,pent,ppro)");
-	printf( "  -mouselook      %s\n","Activate mouselook. Works in singleplayer only"); // ZICO - added for mouselook
-	printf( "  -pilot <name>   %s\n", "Select this pilot automatically");
-/*#ifdef __MSDOS__
-	printf( "  -<X>x<Y>        %s\n", "Change screen resolution. Options:");
-	printf( "                     320x100;320x200;320x240;320x400;640x400;640x480;800x600;1024x768\n");
-#else
-	printf( "  -<X>x<Y>        %s\n", "Change screen resolution to <X> by <Y>"); // ZICO - doesn't even work
-#endif
-	printf("  -niceautomap    %s\n", "Free cpu while doing automap");
-	printf( "  -automap<X>x<Y> %s\n","Set automap resolution to <X> by <Y>");
-	printf( "  -automap_gameres %s\n","Set automap to use the same resolution as in game");*/
-	printf( "  -menu<X>x<Y>    %s\n","Set menu resolution to <X> by <Y> instead of using game-resolution");
-	printf("  -rearviewtime t %s\n", "time holding rearview key to use toggle mode (default 0.0625 seconds)");
-	printf( "\n");
-
-	printf( "D2X System Options:\n\n");
-#ifdef __MSDOS__
-	printf("  -ihaveabrokenmouse %s\n", "try to make mouse work if it is not currently");
-	printf( "  -joy209         %s\n", "Use alternate port 209 for joystick");
-#endif
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
-//	printf( "  -fullscreen     %s\n", "Use fullscreen mode if available");
-        printf( "  -window         %s\n", "Run the game in a window"); // ZICO - from window to fullscreen
-#endif
-	printf( "  -aspect<Y>x<X>  %s\n", "use specified aspect");
-#ifdef OGL
-	printf( "  -gl_texmagfilt <f> %s\n","set GL_TEXTURE_MAG_FILTER");
-	printf( "  -gl_texminfilt <f> %s\n","set GL_TEXTURE_MIN_FILTER");
-	printf("  -gl_mipmap      %s\n", "set gl texture filters to \"standard\" (bilinear) mipmapping");
-	printf("  -gl_trilinear   %s\n", "set gl texture filters to trilinear mipmapping");
-	printf( "  -gl_simple      %s\n","set gl texture filters to gl_nearest for \"original\" look. (default)");
-	printf("  -gl_anisotropy <f> %s\n", "set maximum degree of anisotropy to <f>");
-	printf( "  -gl_alttexmerge %s\n","use new texmerge, usually uses less ram (default)");
-	printf( "  -gl_stdtexmerge %s\n","use old texmerge, uses more ram, but _might_ be a bit faster");
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
-	printf( "  -gl_voodoo      %s\n","force fullscreen mode only");
-#endif
-	printf( "  -gl_16bittextures %s\n","attempt to use 16bit textures");
-	printf("  -gl_16bpp       %s\n", "attempt to use 16bit screen mode");
-	printf( "  -gl_reticle <r> %s\n","use OGL reticle 0=never 1=above 320x* 2=always");
-	printf( "  -nomoviesmooth  %s\n","do not smooth movies");
-//	printf( "  -gl_intensity4_ok %s\n","FIXME: Undocumented");
-//	printf( "  -gl_luminance4_alpha4_ok %s\n","FIXME: Undocumented");
-//	printf( "  -gl_readpixels_ok %s\n","FIXME: Undocumented");
-//	printf( "  -gl_rgba2_ok    %s\n","FIXME: Undocumented");
-//	printf( "  -gl_test1       %s\n","FIXME: Undocumented");
-//	printf( "  -gl_test2       %s\n","FIXME: Undocumented");
-//	printf( "  -gl_vidmem      %s\n","FIXME: Undocumented");
-#ifdef OGL_RUNTIME_LOAD
-	printf( "  -gl_library <l> %s\n","use alternate opengl library");
-#endif
-#ifdef WGL_VIDEO
-	printf("  -gl_refresh <r> %s\n", "set refresh rate (in fullscreen mode)");
-#endif
-#endif
-#ifdef SDL_VIDEO
+#ifndef   NDEBUG
+	printf( "\n Debug:\n\n");
+	printf( "  -debug             %s\n","Enable very verbose output");
+	printf( "  -Verbose           %s\n", "Shows initialization steps for tech support");
+	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
+	printf( "  -norun             %s\n","Bail out after initialization");
+	printf( "  -nofade            %s\n","Disable fades");
+	printf( "  -norun             %s\n","Bail out after initialization");
+	printf( "  -text <file>       %s\n","Specify alternate .tex file");
+#ifndef   RELEASE
+	printf( "  -invulnerability   %s\n","Make yourself invulnerable");
+	printf( "  -nomovies          %s\n","Don't play movies");
+	printf( "  -noscreens         %s\n","Skip briefing screens");
+#endif // RELEASE
+#ifdef    SDL_VIDEO
 	printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
-//	printf( "  -hwsurface      %s\n","FIXME: Undocumented");
-#endif
-#ifdef NETWORK
-	printf("  -udp            %s\n", "Specify options for udp/ip:");
-	printf("    @<shift>      %s\n", "  shift udp port base offset");
-	printf("    =<HOST_LIST>  %s\n", "  broadcast both local and to HOST_LIST");
-	printf("    +<HOST_LIST>  %s\n", "  broadcast only to HOST_LIST");
-	printf("                  %s\n", "   HOSTS can be any IP or hostname")
-		;
-	printf("                  %s\n", "   HOSTS can also be in the form of <address>:<shift>");
-	printf("                  %s\n", "   separate multiple HOSTS with a ,");
-	printf("                  %s\n", "   (default is =255.255.255.255");
-	printf("                  %s\n", "     - scans all HOSTS in local network)");
-#endif
-/*#ifdef __unix__
-	printf( "  -serialdevice <s> %s\n", "Set serial/modem device to <s>");
-	printf( "  -serialread <r> %s\n", "Set serial/modem to read from <r>");
-#endif*/ // ZICO - outdated
+#endif // SDL_VIDEO
+
+#ifdef    EDITOR
+	printf( "\n Editor:\n\n");
+	printf( "  -autoload <file>   %s\n", "Autoload a level in the editor");
+	printf( "  -hoarddata         %s\n","Make the hoard ham file from some files, then exit");
+#endif // EDITOR
+
+/*	KEPT FOR FURTHER REFERENCE
+	printf( "\n Unused / Obsolete:\n\n");
+	printf( "  -nobm              %s\n", "FIXME: Undocumented");
+	printf( "  -bigpig            %s\n", "FIXME: Undocumented");
+	printf( "  -bspgen            %s\n", "FIXME: Undocumented");
+	printf( "  -cdproxy           %s\n", "FIXME: Undocumented");
+	printf( "  -checktime         %s\n", "FIXME: Undocumented");
+	printf( "  -showmeminfo       %s\n", "FIXME: Undocumented");
+	printf( "  -codereadonly      %s\n", "FIXME: Undocumented");
+	printf( "  -cyberimpact       %s\n", "FIXME: Undocumented");
+	printf( "  -debugmode         %s\n", "FIXME: Undocumented");
+	printf( "  -disallowgfx       %s\n", "FIXME: Undocumented");
+	printf( "  -disallowreboot    %s\n", "FIXME: Undocumented");
+	printf( "  -dynamicsockets    %s\n", "FIXME: Undocumented");
+	printf( "  -forcegfx          %s\n", "FIXME: Undocumented");
+	printf( "  -hw_3dacc          %s\n", "FIXME: Undocumented");
+	printf( "  -jasen             %s\n", "FIXME: Undocumented");
+	printf( "  -joyslow           %s\n", "FIXME: Undocumented");
+	printf( "  -logfile           %s\n", "FIXME: Undocumented");
+	printf( "  -memdbg            %s\n", "FIXME: Undocumented");
+	printf( "  -monodebug         %s\n", "FIXME: Undocumented");
+	printf( "  -nocdrom           %s\n", "FIXME: Undocumented");
+	printf( "  -nocyberman        %s\n", "FIXME: Undocumented");
+	printf( "  -nomatrixcheat     %s\n", "FIXME: Undocumented");
+	printf( "  -showaddress       %s\n", "FIXME: Undocumented");
+	printf( "  -socket            %s\n", "FIXME: Undocumented");
+	printf( "  -nomodex           %s\n", "FIXME: Undocumented");
+	printf( "  -ordinaljoy        %s\n", "FIXME: Undocumented");
+	printf( "  -specialdevice     %s\n", "FIXME: Undocumented");
+	printf( "  -stickmag          %s\n", "FIXME: Undocumented");
+	printf( "  -stopwatch         %s\n", "FIXME: Undocumented");
+	printf( "  -sysram            %s\n", "FIXME: Undocumented");
+	printf( "  -tsengdebug1       %s\n", "FIXME: Undocumented");
+	printf( "  -tsengdebug2       %s\n", "FIXME: Undocumented");
+	printf( "  -tsengdebug3       %s\n", "FIXME: Undocumented");
+	printf( "  -vidram            %s\n", "FIXME: Undocumented");
+	printf( "  -xcontrol          %s\n", "FIXME: Undocumented");
+	printf( "  -xname             %s\n", "FIXME: Undocumented");
+	printf( "  -xver              %s\n", "FIXME: Undocumented");
+	printf( "  -gl_intensity4_ok  %s\n", "FIXME: Undocumented");
+	printf( "  -gl_luminance4_alpha4_ok %s\n", "FIXME: Undocumented");
+	printf( "  -gl_readpixels_ok  %s\n", "FIXME: Undocumented");
+	printf( "  -gl_rgba2_ok       %s\n", "FIXME: Undocumented");
+	printf( "  -gl_test1          %s\n", "FIXME: Undocumented");
+	printf( "  -gl_test2          %s\n", "FIXME: Undocumented");
+	printf( "  -gl_vidmem         %s\n", "FIXME: Undocumented");
+	printf( "  -hwsurface         %s\n", "FIXME: Undocumented");
+	printf( "  -gl_library <l>    %s\n", "use alternate opengl library");
+	printf( "  -emul              %s\n", "Certain video cards need this option in order to run game");
+	printf( "  -ddemul            %s\n", "If -emul doesn't work, use this option");
+	printf( "  -rtscts            %s\n", "Same as -ctsrts");
+	printf( "  -semiwin           %s\n", "Use non-fullscreen mode");
+	printf( "  -ihaveabrokenmouse %s\n", "try to make mouse work if it is not currently");
+	printf( "  -joy209            %s\n", "Use alternate port 209 for joystick");
+	printf( "  -serialdevice <s>  %s\n", "Set serial/modem device to <s>");
+	printf( "  -serialread <r>    %s\n", "Set serial/modem to read from <r>");
+*/
+#endif // NDEBUG
+
 	printf( "\n Help:\n\n");
-	printf( "  -help, -h, -?, ? %s\n", "View this help screen");
-	printf( "\n");
+	printf( "  -help, -h, -?, ?   %s\n", "View this help screen");
+	printf( "\n\n");
 }
 
 void do_joystick_init()
@@ -524,7 +464,7 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL, "                                         Copyright (c) 2002 Bradley Bell\n");
 
 
-	if (FindArg( "-?" ) || FindArg( "-help" ) || FindArg( "?" ) || FindArg( "-h" ) ) {
+	if (FindArg( "-help" ) || FindArg( "-h" ) || FindArg( "-?" ) || FindArg( "?" ) ) {
 		print_commandline_help();
 		set_exit_message("");
 
@@ -806,21 +746,28 @@ int main(int argc, char *argv[])
 	#endif
 	{
 // 		do_register_player(title_pal);
-		if((t = FindArg( "-pilot" )))
+		if((i = FindArg( "-pilot" )))
 		{
 			char filename[15];
-
-			sprintf(filename,"%.8s.plr",Args[i+1]);
-			strlwr(Args[t+1]);
-
+			int j;
+			snprintf(filename, 12, Args[i+1]);
+			for (j=0; filename[j] != '\0'; j++) {
+				switch (filename[j]) {
+					case ' ':
+						filename[j] = '\0';
+				}
+			}
+			strlwr(filename);
 			if(cfexist(filename))
 			{
-				strcpy(Players[Player_num].callsign,Args[t+1]);
+				strcpy(strstr(filename,".plr"),"\0");
+				strcpy(Players[Player_num].callsign,filename);
+				strupr(Players[Player_num].callsign);
 				read_player_file();
 				WriteConfigFile();
 				remap_fonts_and_menus(1);
 			}
-			else
+			else //pilot doesn't exist. get pilot.
 				do_register_player(title_pal);
 		}
 		else
