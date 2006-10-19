@@ -757,8 +757,8 @@ typedef struct {
 
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
-void write_bmp(char *savename,int w,int h,unsigned char *buf){ // ZICO - modified for win32
-	FILE* TGAFile;
+void write_bmp(char *savename,int w,int h,unsigned char *buf){
+	PHYSFS_file* TGAFile;
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
 
@@ -766,7 +766,7 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){ // ZICO - modifie
 
 	glReadPixels(0,0,w,h,GL_BGR_EXT,GL_UNSIGNED_BYTE,buf);
 
-	TGAFile = fopen(savename, "wb");
+	TGAFile = PHYSFSX_openWriteBuffered(savename);
 
 	HeightH = (GLbyte)(h / 256);
 	HeightL = (GLbyte)(h % 256);
@@ -791,9 +791,9 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){ // ZICO - modifie
 	TGA.header[3] = (GLbyte) HeightH;
 	TGA.header[4] = (GLbyte) 24;
 	TGA.header[5] = 0;
-	fwrite(&TGA,sizeof(TGA_header),1,TGAFile);
-	fwrite(buf,w*h*3*sizeof(unsigned char),1,TGAFile);
-	fclose(TGAFile);
+	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
+	PHYSFS_write(TGAFile,buf,w*h*3*sizeof(unsigned char),1);
+	PHYSFS_close(TGAFile);
 	free(buf);
 }
 
