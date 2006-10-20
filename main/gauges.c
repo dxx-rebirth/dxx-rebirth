@@ -786,7 +786,7 @@ span weapon_window_right_hires[] = {		//first span 207,154
 #define SB_PRIMARY_AMMO_X		COCKPITSCALE_X*(SB_PRIMARY_W_BOX_LEFT+(Current_display_mode?(38+20):30))	//((SB_PRIMARY_W_BOX_LEFT+33)-3)	//(51+32)
 #define SB_PRIMARY_AMMO_Y		COCKPITSCALE_Y*(Current_display_mode?410:171)
 
-#define SB_SECONDARY_W_PIC_X		(Current_display_mode?385:(SB_SECONDARY_W_BOX_LEFT+29))	//(212+27)
+#define SB_SECONDARY_W_PIC_X		(Current_display_mode?385:(SB_SECONDARY_W_BOX_LEFT+27))	//(212+27)
 #define SB_SECONDARY_W_PIC_Y		(Current_display_mode?382:154)
 #define SB_SECONDARY_W_TEXT_X		COCKPITSCALE_X*(SB_SECONDARY_W_BOX_LEFT+2)	//212
 #define SB_SECONDARY_W_TEXT_Y		COCKPITSCALE_Y*(Current_display_mode?389:157)
@@ -850,6 +850,45 @@ void copy_gauge_box(gauge_box *box,grs_bitmap *bm)
 						bm,&grd_curcanv->cv_bitmap);
 	 }
 }
+
+#ifdef OGL
+void draw_wbu_border(gauge_box *box)
+{
+	int n_spans = box->bot-box->top+1;
+	int cnt,y;
+
+	for (cnt=0,y=(Current_display_mode?117:48);cnt<n_spans;cnt++,y--) {
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(
+				COCKPITSCALE_X*(box->left+box->spanlist[cnt].l-(Current_display_mode?22:10)),
+				COCKPITSCALE_Y*y-1,
+				COCKPITSCALE_X*(Current_display_mode?22:10)+1,
+				COCKPITSCALE_Y*2
+			); // left wbu border
+		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0);
+		glDisable(GL_SCISSOR_TEST);
+
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(
+				COCKPITSCALE_X*(box->left+box->spanlist[cnt].r),
+				COCKPITSCALE_Y*y-1,
+				COCKPITSCALE_X*(Current_display_mode?22:10),
+				COCKPITSCALE_Y*2
+			); // right border
+		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0);
+		glDisable(GL_SCISSOR_TEST);
+	}
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(
+			COCKPITSCALE_X*(box->left+box->spanlist[cnt].r),
+			COCKPITSCALE_Y*y-1,
+			COCKPITSCALE_X*(Current_display_mode?130:65),
+			COCKPITSCALE_Y*2
+		); // bottom line
+	ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0);
+	glDisable(GL_SCISSOR_TEST);
+}
+#endif
 
 //fills in the coords of the hostage video window
 void get_hostage_window_coords(int *x,int *y,int *w,int *h)
@@ -2409,9 +2448,11 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 
 	//clear the window
 	gr_setcolor(BM_XRGB(0,0,0));
-	
 	gr_rect(COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*box->right,COCKPITSCALE_Y*box->bot);
-
+#ifdef OGL
+	if (Cockpit_mode == CM_FULL_COCKPIT)
+		draw_wbu_border(box);
+#endif
 	if (Piggy_hamfile_version >= 3 // !SHAREWARE
 		&& Current_display_mode)
 	{
@@ -2606,7 +2647,10 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		
 		Gr_scanline_darkening_level = fade_value;
 		gr_rect(COCKPITSCALE_X*gauge_boxes[boxofs+weapon_type].left,COCKPITSCALE_Y*gauge_boxes[boxofs+weapon_type].top,COCKPITSCALE_X*gauge_boxes[boxofs+weapon_type].right,COCKPITSCALE_Y*gauge_boxes[boxofs+weapon_type].bot);
-
+#ifdef OGL
+		if (Cockpit_mode == CM_FULL_COCKPIT)
+			draw_wbu_border(&gauge_boxes[boxofs+weapon_type]);
+#endif
 		Gr_scanline_darkening_level = GR_FADE_LEVELS;
 	}
 
@@ -2622,6 +2666,9 @@ void draw_static(int win)
 	grs_bitmap *bmp;
 	int framenum;
 	int boxofs = (Cockpit_mode==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
+#ifndef OGL
+	int x,y;
+#endif
 
 	static_time[win] += FrameTime;
 	if (static_time[win] >= vc->play_time) {
@@ -2636,13 +2683,24 @@ void draw_static(int win)
 	bmp = &GameBitmaps[vc->frames[framenum].index];
 
 	gr_set_current_canvas(&VR_render_buffer[0]);
-
-	hud_bitblt(gauge_boxes[boxofs+win].left,gauge_boxes[boxofs+win].top,bmp,F1_0);
-	if (Current_display_mode) {
+#ifndef OGL
+	for (x=gauge_boxes[boxofs+win].left;x<gauge_boxes[boxofs+win].right;x+=bmp->bm_w)
+		for (y=gauge_boxes[boxofs+win].top;y<gauge_boxes[boxofs+win].bot;y+=bmp->bm_h)
+			gr_bitmap(x,y,bmp);
+#else
+	if (!Current_display_mode)
+		ogl_ubitmapm_cs(COCKPITSCALE_X*gauge_boxes[boxofs+win].left,COCKPITSCALE_Y*gauge_boxes[boxofs+win].top,COCKPITSCALE_X*bmp->bm_w,COCKPITSCALE_Y*bmp->bm_h/1.5,bmp,255,F1_0);
+	else
+	{
+		hud_bitblt(gauge_boxes[boxofs+win].left,gauge_boxes[boxofs+win].top,bmp,F1_0);
 		hud_bitblt(gauge_boxes[boxofs+win].left,gauge_boxes[boxofs+win].bot-bmp->bm_h,bmp,F1_0);
 		hud_bitblt(gauge_boxes[boxofs+win].right-bmp->bm_w,gauge_boxes[boxofs+win].top,bmp,F1_0);
 		hud_bitblt(gauge_boxes[boxofs+win].right-bmp->bm_w,gauge_boxes[boxofs+win].bot-bmp->bm_h,bmp,F1_0);
 	}
+
+	if (Cockpit_mode == CM_FULL_COCKPIT)
+		draw_wbu_border(&gauge_boxes[boxofs+win]);
+#endif
 
 	gr_set_current_canvas(get_current_game_screen());
 
@@ -3353,6 +3411,10 @@ void render_gauges()
 
 	old_cloak[VR_current_page] = cloak;
 
+#ifdef OGL // draw now so draw_wbu_border does not overlap other gauges
+	draw_weapon_boxes();
+#endif
+
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy[VR_current_page]))
 		{
@@ -3457,10 +3519,9 @@ void render_gauges()
 				sb_show_score_added();
 		}
 	}
-
-
+#ifndef OGL
 	draw_weapon_boxes();
-
+#endif
 }
 
 //	---------------------------------------------------------------------------------------------------------
@@ -3494,7 +3555,6 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	gauge_box *box;
 	int rear_view_save = Rear_view;
 	int w,h,dx;
-
 
 	box = NULL;
 
@@ -3551,14 +3611,13 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 			goto abort;
 
 		box = &gauge_boxes[boxnum];
-
 		gr_init_sub_canvas(&window_canv,&VR_render_buffer[0],COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*(box->right-box->left+1),COCKPITSCALE_Y*(box->bot-box->top+1));
 	}
 
 	gr_set_current_canvas(&window_canv);
-	
+
 	render_frame(0, win+1);
-		
+
 	//	HACK! If guided missile, wake up robots as necessary.
 	if (viewer->type == OBJ_WEAPON) {
 		// -- Used to require to be GUIDED -- if (viewer->id == GUIDEDMISS_ID)
@@ -3638,6 +3697,11 @@ abort:;
 	Viewer = viewer_save;
 
 	Rear_view = rear_view_save;
+
+#ifdef OGL
+	if (Cockpit_mode == CM_FULL_COCKPIT)
+		draw_wbu_border(box);
+#endif
 }
 
 #ifdef MACINTOSH
