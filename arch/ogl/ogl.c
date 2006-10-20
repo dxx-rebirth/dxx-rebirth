@@ -136,7 +136,7 @@ extern GLubyte texbuf[OGLTEXBUFSIZE];
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format);
 void ogl_loadbmtexture(grs_bitmap *bm);
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,intdyo , int *texid,float *u,float *v,char domipmap,float prio);
-void ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format);
+int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format);
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_do_palfx(void);
 
@@ -552,6 +552,7 @@ bool g3_draw_line(g3s_point *p0,g3s_point *p1)
 	int c;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
+	glLineWidth(grd_curscreen->sc_w/640);
 	glColor3f(PAL2Tr(c),PAL2Tg(c),PAL2Tb(c));
 	glBegin(GL_LINES);
 	glVertex3f(f2glf(p0->p3_vec.x),f2glf(p0->p3_vec.y),-f2glf(p0->p3_vec.z));
@@ -602,6 +603,7 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 	if (!cross_lh[cross]){
 		cross_lh[cross]=glGenLists(1);
 		glNewList(cross_lh[cross], GL_COMPILE_AND_EXECUTE);
+		glLineWidth(grd_curscreen->sc_w/640);
 		glBegin(GL_LINES);
 		//cross top left
 		glColor3fv(darker_g);
@@ -645,8 +647,8 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 	if (!primary_lh[primary]){
 		primary_lh[primary]=glGenLists(1);
 		glNewList(primary_lh[primary], GL_COMPILE_AND_EXECUTE);
-
 		glColor3fv(dark_g);
+		glLineWidth(grd_curscreen->sc_w/640);
 		glBegin(GL_LINES);
 		//left primary bar
 		glVertex2f(-14.0,-8.0);
@@ -1738,7 +1740,7 @@ void tex_set_size(ogl_texture *tex){
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-void ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format)
+int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format)
 {
 	GLubyte	*bufP = texbuf;
 	tex->tw = pow2ize (tex->w);
@@ -1756,7 +1758,7 @@ void ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, i
 	tex->u = (float) ((double) tex->w / (double) tex->tw);
 	tex->v = (float) ((double) tex->h / (double) tex->th);
 
-	if (data)
+	if (data) {
 		if (bm_flags >= 0)
 			ogl_filltexbuf (data, texbuf, tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, 
 								 tex->format, bm_flags, data_format);
@@ -1767,7 +1769,7 @@ void ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, i
 			if (!dxo && !dyo && (tex->w == tex->tw) && (tex->h == tex->th))
 				bufP = data;
 			else {
-				int y, h, w, tw;
+				int h, w, tw;
 				
 				h = tex->lw / tex->w;
 				w = (tex->w - dxo) * h;
@@ -1775,17 +1777,18 @@ void ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, i
 				bufP = texbuf;
 				tw = tex->tw * h;
 				h = tw - w;
-				for (y; dyo < tex->h; dyo++, data += tex->lw) {
+				for (; dyo < tex->h; dyo++, data += tex->lw) {
 					memcpy (bufP, data, w);
 					bufP += w;
 					memset (bufP, 0, h);
 					bufP += h;
-					}
+				}
 				memset (bufP, 0, tex->th * tw - (bufP - texbuf));
 				bufP = texbuf;
 				}
 #endif
 			}
+	}
 	// Generate OpenGL texture IDs.
 	glGenTextures (1, &tex->handle);
 	//set priority
