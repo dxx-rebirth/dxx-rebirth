@@ -235,7 +235,7 @@ get_line:;
 		} while (extra_inc--);
 		extra_inc = 0;
 
-		for (i=0; i<ROW_SPACING; i += 1 )	{
+		for (i=0; i<ROW_SPACING; i += (MenuHires?2:1) )	{
 			int y;
 			box	*new_box;
 			grs_bitmap *tempbmp;
