@@ -241,7 +241,7 @@ typedef struct object {
 	union {
 		physics_info phys_info; // a physics object
 		vms_vector   spin_rate; // for spinning objects
-	} mtype __pack__ ;
+	} __pack__ mtype ;
 
 	// control info, determined by CONTROL_TYPE
 	union {
@@ -250,13 +250,13 @@ typedef struct object {
 		ai_static       ai_info;
 		light_info      light_info;     // why put this here?  Didn't know what else to do with it.
 		powerup_info    powerup_info;
-	} ctype __pack__ ;
+	} __pack__ ctype ;
 
 	// render info, determined by RENDER_TYPE
 	union {
 		polyobj_info    pobj_info;      // polygon model
 		vclip_info      vclip_info;     // vclip
-	} rtype __pack__ ;
+	} __pack__ rtype ;
 
 #ifdef WORDS_NEED_ALIGNMENT
 	short   pad2;
