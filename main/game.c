@@ -1816,7 +1816,7 @@ int do_game_pause(int allow_menu)
 
 void show_help()
 {
-	newmenu_item m[14];
+	newmenu_item m[13];
 
 	if ( VR_render_mode != VR_NONE )	{
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_HELP_ESC;
@@ -1837,16 +1837,16 @@ void show_help()
 		m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_HELP_ALT_F3;
 		m[ 3].type = NM_TYPE_TEXT; m[ 3].text = TXT_HELP_F2;
 		m[ 4].type = NM_TYPE_TEXT; m[ 4].text = TXT_HELP_F3;
-		m[ 5].type = NM_TYPE_TEXT; m[ 5].text = TXT_HELP_F4;
-		m[ 6].type = NM_TYPE_TEXT; m[ 6].text = TXT_HELP_F5;
-		m[ 7].type = NM_TYPE_TEXT; m[ 7].text = TXT_HELP_PAUSE;
-		m[ 8].type = NM_TYPE_TEXT; m[ 8].text = "ALT-F9/F10\t  change screen size"; // ZICO - we changed keys - old: TXT_HELP_MINUSPLUS;
-		m[ 9].type = NM_TYPE_TEXT; m[ 9].text = TXT_HELP_PRTSCN;
-		m[10].type = NM_TYPE_TEXT; m[10].text = TXT_HELP_1TO5;
-		m[11].type = NM_TYPE_TEXT; m[11].text = TXT_HELP_6TO10;
-		m[12].type = NM_TYPE_TEXT; m[12].text = "";
-		m[13].type = NM_TYPE_TEXT; m[13].text = TXT_HELP_TO_VIEW;
-		newmenu_do( NULL, TXT_KEYS, 14, m, NULL );
+// 		m[ 5].type = NM_TYPE_TEXT; m[ 5].text = TXT_HELP_F4;
+		m[ 5].type = NM_TYPE_TEXT; m[ 5].text = TXT_HELP_F5;
+		m[ 6].type = NM_TYPE_TEXT; m[ 6].text = TXT_HELP_PAUSE;
+		m[ 7].type = NM_TYPE_TEXT; m[ 7].text = "ALT-F9/F10\t  change screen size"; // ZICO - we changed keys - old: TXT_HELP_MINUSPLUS;
+		m[ 8].type = NM_TYPE_TEXT; m[ 8].text = TXT_HELP_PRTSCN;
+		m[ 9].type = NM_TYPE_TEXT; m[ 9].text = TXT_HELP_1TO5;
+		m[10].type = NM_TYPE_TEXT; m[10].text = TXT_HELP_6TO10;
+		m[11].type = NM_TYPE_TEXT; m[11].text = "";
+		m[12].type = NM_TYPE_TEXT; m[12].text = TXT_HELP_TO_VIEW;
+		newmenu_do( NULL, TXT_KEYS, 13, m, NULL );
 	}
 
 }
