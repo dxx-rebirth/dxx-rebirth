@@ -2681,26 +2681,30 @@ void ReadControls()
 
 			if (Player_is_dead) {
 
-	  			if (key==KEY_PRINT_SCREEN)
-					save_screen_shot(0);
-
-				if (key == KEY_PAUSE)	{
-					key = do_game_pause(0);		//so esc from pause will end level
+				if (Player_exploded)
+					Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
+			
+				if (key==KEY_PRINT_SCREEN || key == KEY_PAUSE) {
 					Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
 				}
-
+			
 				if (key == KEY_ESC) {
 					if (ConsoleObject->flags & OF_EXPLODING)
 						Death_sequence_aborted = 1;
 				}
-
-				if (key == KEY_BACKSP)	{
+			
+				if (key == KEY_BACKSP)  {
 					Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
 					Int3();
 				}
-
-				if (key < KEY_F1 || key > KEY_F12)
-					break;		//don't process any other keys
+			
+				//don't abort death sequence for netgame join/refuse keys
+				if (	(key == KEY_ALTED + KEY_1) ||
+						(key == KEY_ALTED + KEY_2))
+					Death_sequence_aborted  = 0;
+			
+				if (Death_sequence_aborted)
+					game_flush_inputs();
 			}
 
 			if (Newdemo_state == ND_STATE_PLAYBACK )	{
