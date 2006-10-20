@@ -1548,7 +1548,7 @@ void show_help()
 	#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F5\t  Drop primary";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F6\t  Drop secondary";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F7\t  Calibrate joystick";
+// 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F7\t  Calibrate joystick";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-number\t  GuideBot commands";
 	#ifdef MACINTOSH
 	sprintf(pixel_double_help, "%c-D\t  Toggle Pixel Double Mode", 133);
