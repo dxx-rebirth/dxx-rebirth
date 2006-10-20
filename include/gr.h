@@ -772,11 +772,5 @@ int gr_check_fullscreen(void);//must return 0 if windowed, 1 if fullscreen
 int gr_toggle_fullscreen(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)
 #endif
 
-//currently only OGL can toggle in the menus, because its screen data is not used (and stays in the same place).  whereas software modes, toggling fullscreen would very likely make the data buffer point to a different location, and all the subbitmaps of it would have invalid addresses in them.
-#if (defined(OGL) && !defined(__WINDOWS__))
-#define GR_SUPPORTS_FULLSCREEN_MENU_TOGGLE
-#endif
-int gr_toggle_fullscreen_menu(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)
-
 //make this a define, since its used in several places
 #define KEYS_GR_TOGGLE_FULLSCREEN KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER: case KEY_ALTED+KEY_CTRLED+KEY_PADENTER: case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER: case KEY_ALTED+KEY_ENTER

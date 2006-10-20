@@ -61,27 +61,6 @@ int gr_toggle_fullscreen(void){
 	return ogl_fullscreen;
 }
 
-int arch_toggle_fullscreen_menu(void){
-	unsigned char *buf=NULL;
-
-	if (ogl_readpixels_ok){
-		MALLOC(buf,unsigned char,grd_curscreen->sc_w*grd_curscreen->sc_h*3);
-		glReadBuffer(GL_FRONT);
-		glReadPixels(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
-	}
-
-	gr_do_fullscreen(!ogl_fullscreen);
-
-	if (ogl_readpixels_ok){
-		glRasterPos2f(0,0);
-		glDrawPixels(grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
-		free(buf);
-	}
-
-	return ogl_fullscreen;
-}
-
-
 void ogl_init_state(void){
 	/* select clearing (background) color   */
 	glClearColor(0.0, 0.0, 0.0, 0.0);

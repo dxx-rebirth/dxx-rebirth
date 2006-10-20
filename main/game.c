@@ -834,23 +834,6 @@ int gr_toggle_fullscreen_game(void) {
 #endif
 }
 
-int arch_toggle_fullscreen_menu(void);
-
-int gr_toggle_fullscreen_menu(void){
-#ifdef GR_SUPPORTS_FULLSCREEN_MENU_TOGGLE
-	int i;
-	i=arch_toggle_fullscreen_menu();
-
-	generic_key_handler(KEY_PADENTER,0);
-	generic_key_handler(KEY_ENTER,0);
-	key_flush();
-
-	return i;
-#else
-	return -1;
-#endif
-}
-
 fix frame_time_list[8] = {0,0,0,0,0,0,0,0};
 fix frame_time_total=0;
 int frame_time_cntr=0;

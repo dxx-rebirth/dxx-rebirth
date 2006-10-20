@@ -687,9 +687,6 @@ int network_join_game_menu() {
 				selected_game = -1;
 				done = 1;
 				break;
-			case KEYS_GR_TOGGLE_FULLSCREEN:
-				gr_toggle_fullscreen_menu();
-				break;
 		}
 	}
     done_background(&bg);
