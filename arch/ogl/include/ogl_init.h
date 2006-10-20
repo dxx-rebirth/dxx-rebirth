@@ -37,7 +37,7 @@ int ogl_init_load_library(void);
 #define OGL_TEXTURE_LIST_SIZE 20000
 
 typedef struct _ogl_texture {
-	int handle;
+	GLuint handle;
 	GLint internalformat;
 	GLenum format;
 	int w,h,tw,th,lw;
@@ -47,7 +47,7 @@ typedef struct _ogl_texture {
 	GLfloat prio;
 	int wrapstate;
 	fix lastrend;
-	ulong numrend;
+	unsigned long numrend;
 	char wantmip;
 } ogl_texture;
 
@@ -135,7 +135,7 @@ void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,in
 void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap);
 void ogl_loadbmtexture(grs_bitmap *bm);
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,int dyo, int *texid,float *u,float *v,char domipmap,float prio);
-void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex, int transp);
+int ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex, int transp);
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_freebmtexture(grs_bitmap *bm);
 void ogl_do_palfx(void);

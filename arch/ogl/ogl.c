@@ -115,8 +115,6 @@ void ogl_init_texture_list_internal(void){
 void ogl_smash_texture_list_internal(void){
 	int i;
 	sphereh=0;
-	circleh5=0;
-	circleh10=0;
 	memset(cross_lh,0,sizeof(cross_lh));
 	memset(primary_lh,0,sizeof(primary_lh));
 	memset(secondary_lh,0,sizeof(secondary_lh));
@@ -381,6 +379,7 @@ bool g3_draw_line(g3s_point *p0,g3s_point *p1)
 	int c;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
+	glLineWidth(grd_curscreen->sc_w/640);
 	glColor3f(PAL2Tr(c),PAL2Tg(c),PAL2Tb(c));
 	glBegin(GL_LINES);
 	glVertex3f(f2glf(p0->p3_vec.x),f2glf(p0->p3_vec.y),-f2glf(p0->p3_vec.z));
@@ -431,6 +430,7 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 	if (!cross_lh[cross]){
 		cross_lh[cross]=glGenLists(1);
 		glNewList(cross_lh[cross], GL_COMPILE_AND_EXECUTE);
+		glLineWidth(grd_curscreen->sc_w/640);
 		glBegin(GL_LINES);
 		//cross top left
 		glColor3fv(darker_g);
@@ -476,6 +476,7 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 		glNewList(primary_lh[primary], GL_COMPILE_AND_EXECUTE);
 
 		glColor3fv(dark_g);
+		glLineWidth(grd_curscreen->sc_w/640);
 		glBegin(GL_LINES);
 		//left primary bar
 		glVertex2f(-14.0,-8.0);
@@ -1355,7 +1356,7 @@ void tex_set_size(ogl_texture *tex){
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex, int transp){
+int ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex, int transp){
 //void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,int dyo, int *texid,float *u,float *v,char domipmap,float prio){
 //	int internalformat=GL_RGBA;
 //	int format=GL_RGBA;
@@ -1363,10 +1364,10 @@ void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex, in
 	tex->tw=pow2ize(tex->w);tex->th=pow2ize(tex->h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
 //	tex->tw=tex->w;tex->th=tex->h;//feeling lucky?
 	
-	if(gr_badtexture>0) return;
+	if(gr_badtexture>0) return 1;
 
 	if (tex_format_verify(tex))
-		return;
+		return 1;
 	
 	//calculate u/v values that would make the resulting texture correctly sized
 	tex->u=(float)tex->w/(float)tex->tw;
@@ -1411,6 +1412,7 @@ void ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex, in
 	r_texcount++; 
 	glmprintf((0,"ogl_loadtexture(%p,%i,%i,%ix%i,%p):%i u=%f v=%f b=%i bu=%i (%i)\n",data,tex->tw,tex->th,dxo,dyo,tex,tex->handle,tex->u,tex->v,tex->bytes,tex->bytesu,r_texcount));
 
+	return 0;
 }
 unsigned char decodebuf[1024*1024];
 void ogl_loadbmtexture_m(grs_bitmap *bm,int domipmap){
