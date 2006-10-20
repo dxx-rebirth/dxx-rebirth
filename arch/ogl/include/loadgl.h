@@ -32,6 +32,7 @@
 #define GL_TEXTURE1_SGIS 0x8360
 #endif
 
+#define GL_SCISSOR_TEST 0x0C11
 
 #ifdef _cplusplus
 #define OEXTERN	extern "C"

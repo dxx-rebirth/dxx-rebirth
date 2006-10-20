@@ -222,46 +222,50 @@ typedef struct span {
 } span;
 
 //store delta x values from left of box
-span weapon_window_left[] = {		//first span 67,154
-		{4,53},
-		{4,53},
-		{4,53},
-		{4,53},
-		{4,53},
-		{3,53},
-		{3,53},
-		{3,53},
-		{3,53},
-		{3,53},
-		{3,53},
-		{3,53},
-		{3,53},
-		{2,53},
-		{2,53},
-		{2,53},
-		{2,53},
-		{2,53},
-		{2,53},
-		{2,53},
-		{2,53},
-		{1,53},
-		{1,53},
-		{1,53},
-		{1,53},
-		{1,53},
-		{1,53},
-		{1,53},
-		{1,53},
-		{0,53},
-		{0,53},
-		{0,53},
-		{0,53},
-		{0,52},
-		{1,52},
-		{2,51},
-		{3,51},
-		{4,50},
-		{5,50},
+span weapon_window_left[] = {		//first span 67,151
+		{8,51},
+		{6,53},
+		{5,54},
+		{4-1,53+2},
+		{4-1,53+3},
+		{4-1,53+3},
+		{4-2,53+3},
+		{4-2,53+3},
+		{3-1,53+3},
+		{3-1,53+3},
+		{3-1,53+3},
+		{3-1,53+3},
+		{3-1,53+3},
+		{3-1,53+3},
+		{3-1,53+3},
+		{3-2,53+3},
+		{2-1,53+3},
+		{2-1,53+3},
+		{2-1,53+3},
+		{2-1,53+3},
+		{2-1,53+3},
+		{2-1,53+3},
+		{2-1,53+3},
+		{2-1,53+3},
+		{1-1,53+3},
+		{1-1,53+2},
+		{1-1,53+2},
+		{1-1,53+2},
+		{1-1,53+2},
+		{1-1,53+2},
+		{1-1,53+2},
+		{1-1,53+2},
+		{0,53+2},
+		{0,53+2},
+		{0,53+2},
+		{0,53+2},
+		{0,52+3},
+		{1-1,52+2},
+		{2-2,51+3},
+		{3-2,51+2},
+		{4-2,50+2},
+		{5-2,50},
+		{5-2+2,50-2},
 	};
 
 
@@ -318,7 +322,7 @@ span weapon_window_right[] = {		//first span 207,154
 #define PRIMARY_W_BOX_LEFT		63
 #define PRIMARY_W_BOX_TOP		151
 #define PRIMARY_W_BOX_RIGHT		(PRIMARY_W_BOX_LEFT+58)
-#define PRIMARY_W_BOX_BOT		(PRIMARY_W_BOX_TOP+N_LEFT_WINDOW_SPANS+3)
+#define PRIMARY_W_BOX_BOT		(PRIMARY_W_BOX_TOP+N_LEFT_WINDOW_SPANS-1)
 #define SECONDARY_W_BOX_LEFT		202
 #define SECONDARY_W_BOX_TOP		151
 #define SECONDARY_W_BOX_RIGHT		264
@@ -337,7 +341,7 @@ span weapon_window_right[] = {		//first span 207,154
 #define SB_PRIMARY_W_TEXT_Y		COCKPITSCALE_Y*157
 #define SB_PRIMARY_AMMO_X		COCKPITSCALE_X*((SB_PRIMARY_W_BOX_LEFT+33)-3)
 #define SB_PRIMARY_AMMO_Y		COCKPITSCALE_Y*171
-#define SB_SECONDARY_W_PIC_X		(SB_SECONDARY_W_BOX_LEFT+29)
+#define SB_SECONDARY_W_PIC_X		(SB_SECONDARY_W_BOX_LEFT+27)
 #define SB_SECONDARY_W_PIC_Y		154
 #define SB_SECONDARY_W_TEXT_X		COCKPITSCALE_X*(SB_SECONDARY_W_BOX_LEFT+2)
 #define SB_SECONDARY_W_TEXT_Y		COCKPITSCALE_Y*157
@@ -381,6 +385,45 @@ void copy_gauge_box(gauge_box *box,grs_bitmap *bm)
 						bm,&grd_curcanv->cv_bitmap);
 	}
 }
+
+#ifdef OGL
+void draw_wbu_border(gauge_box *box)
+{
+	int n_spans = box->bot-box->top+1;
+	int cnt,y;
+
+	for (cnt=0,y=48;cnt<n_spans;cnt++,y--) {
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(
+				COCKPITSCALE_X*(box->left+box->spanlist[cnt].l-10),
+				COCKPITSCALE_Y*y-1,
+				COCKPITSCALE_X*(10)+1,
+				COCKPITSCALE_Y*2
+			); // left wbu border
+		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0);
+		glDisable(GL_SCISSOR_TEST);
+
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(
+				COCKPITSCALE_X*(box->left+box->spanlist[cnt].r),
+				COCKPITSCALE_Y*y-1,
+				COCKPITSCALE_X*(10),
+				COCKPITSCALE_Y*2
+			); // right border
+		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0);
+		glDisable(GL_SCISSOR_TEST);
+	}
+	glEnable(GL_SCISSOR_TEST);
+	glScissor(
+			COCKPITSCALE_X*(box->left+box->spanlist[cnt].r),
+			COCKPITSCALE_Y*y-1,
+			COCKPITSCALE_X*(65),
+			COCKPITSCALE_Y*2
+		); // bottom line
+	ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0);
+	glDisable(GL_SCISSOR_TEST);
+}
+#endif
 
 //fills in the coords of the hostage video window
 void get_hostage_window_coords(int *x,int *y,int *w,int *h)
@@ -1429,7 +1472,10 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	//clear the window
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*box->right,COCKPITSCALE_Y*(box->bot+1));
-
+#ifdef OGL
+	if (Cockpit_mode == CM_FULL_COCKPIT)
+		draw_wbu_border(box);
+#endif
 	bm=&GameBitmaps[Weapon_info[info_index].picture.index];
 	Assert(bm != NULL);
 
@@ -1630,6 +1676,10 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		
 		Gr_scanline_darkening_level = fade_value;
 		gr_rect(COCKPITSCALE_X*gauge_boxes[boxofs+weapon_type].left,COCKPITSCALE_Y*gauge_boxes[boxofs+weapon_type].top,COCKPITSCALE_X*gauge_boxes[boxofs+weapon_type].right,COCKPITSCALE_Y*gauge_boxes[boxofs+weapon_type].bot);
+#ifdef OGL
+		if (Cockpit_mode == CM_FULL_COCKPIT)
+			draw_wbu_border(&gauge_boxes[boxofs+weapon_type]);
+#endif
 		Gr_scanline_darkening_level = GR_FADE_LEVELS;
 	}
 	
@@ -2184,6 +2234,10 @@ void render_gauges()
 
 	old_cloak[VR_current_page] = cloak;
 
+#ifdef OGL // draw now so draw_wbu_border does not overlap other gauges
+	draw_weapon_boxes();
+#endif
+
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy[VR_current_page]))
 		{
@@ -2288,7 +2342,9 @@ void render_gauges()
 			sb_show_score_added();
 		}
 	}
+#ifndef OGL
 	draw_weapon_boxes();
+#endif
 }
 
 //	---------------------------------------------------------------------------------------------------------
