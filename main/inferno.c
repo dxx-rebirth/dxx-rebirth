@@ -310,6 +310,7 @@ void show_commandline_help()
 extern fix fixed_frametime;
 extern int framerate_on;
 extern void vfx_set_palette_sub(ubyte *);
+extern int mouselook;
 
 int Inferno_verbose = 0;
 int start_net_immediately = 0;
@@ -419,6 +420,11 @@ int main(int argc,char **argv)
 
 	if(FindArg( "-fastext" ))
 		extfaster=1;
+
+	if (FindArg("-mouselook"))
+		mouselook=1;
+	else
+		mouselook=0;
 
 	if ( FindArg( "-fps" ))
 		framerate_on = 1;
