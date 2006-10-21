@@ -95,6 +95,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "gamepal.h"
 #include "mission.h"
 #include "movie.h"
+#include "playsave.h"
 
 // #  include "3dfx_des.h"
 
@@ -162,6 +163,7 @@ extern int VR_low_res;
 extern int Config_vr_type;
 extern int Config_vr_resolution;
 extern int Config_vr_tracking;
+extern int mouselook;
 
 #define LINE_LEN	100
 
@@ -537,6 +539,10 @@ int main(int argc, char *argv[])
 	if (FindArg("-niceautomap"))
 		nice_automap = 1;
 #endif
+	if (FindArg("-mouselook"))
+		mouselook=1;
+	else
+		mouselook=0;
 
 	if ( FindArg( "-fps" )) // ZICO - for the indicator
 		framerate_on = 1;

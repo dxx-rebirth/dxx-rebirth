@@ -201,6 +201,7 @@ control_info Controls;
 ubyte Config_mouse_sensitivity = 8;
 
 fix Cruise_speed=0;
+int mouselook=0;
 
 // macros for drawing lo/hi res kconfig screens (see scores.c as well)
 
@@ -3450,7 +3451,7 @@ if (!Player_is_dead)
 		mprintf( (1, "Bogus frame time of %.2f seconds\n", f2fl(FrameTime) ));
 
 // ZICO - remove clamp for pitch and heading if mouselook on and no multiplayer game
-if ((Config_control_type != 5) || !(i=FindArg("-mouselook")) || (Game_mode & GM_MULTI) ) {
+if ((Config_control_type != 5) || !mouselook || (Game_mode & GM_MULTI) ) {
 	if (Controls.pitch_time > FrameTime/2 ) Controls.pitch_time = FrameTime/2;
 	if (Controls.heading_time > FrameTime ) Controls.heading_time = FrameTime;
 	if (Controls.pitch_time < -FrameTime/2 ) Controls.pitch_time = -FrameTime/2;
