@@ -1,0 +1,157 @@
+D2X-Rebirth Changelog
+
+20061023
+--------
+/arch/sdl/joy.c: increased "MAX_HATS_PER_JOYSTICK" from 4 to 128 to prevent axes recognition problems
+/d1x.ini, /main/inferno.c, /main/menu.c: in do_options_menu decreased i by 1 to not show d2x options menu if arg -nod2xmenu is found; added help text; added INI line
+/arch/ogl/ogl.c: changed ogl_loadtexture to deal with transparent walls
+/arch/linux/hmiplay.c: added cut_trough(), a clone of stop_all that is called to flush notes while playing a song to improve song switching
+/arch/ogl/sdlgl.c, /arch/ogl/ogl.c, /main/endlevel.c: added GL functions to fix the portal-bug; added exception boolean value tempNoDepthTest to render d1 endlevel correctly; code reformatting
+/arch/win32/hmpfile.c, /arch/win32/hmpfile.h, /arch/win32/midi.c, /main/songs.c: midi repeat improvements
+/arch/ogl/gr.c, /arch/sdl/gr.c, /main/inferno.c, /d2x.ini: added variable aspect function, changed cmd-help, changed ini file
+/arch/ogl/ogl.c, /main/endlevel.c, /main/gameseg.c, /main/render.c: improved use of Depth Test, added experimental hack for 4D levels; removed two Asserts which fail with 4D levels
+/main/game.c: added game_flush_input() on automap calls to avaoid control irritations
+/main/inferno.c: corrected command-line output in inferno.c
+/dxx-readme.txt: corrected typo
+/arch/ogl/ogl.c: disabled GL_CULL_FACE at ogl_end_frame to avoid problems with menus after player's death
+/d1x.ini, /main/inferno.c, /main/menu.c: rejected -nod2xmenu feature
+/main/gameseg.c: disabled another Assert. commented with FIXME's - debugging if needed
+/main/inferno.c: made 22k sounds default
+/arch/ogl/ogl.c, /main/automap.c: show borders in SDL and OGL, optimized and cleaned
+/2d/font.c, /arch/ogl/ogl.c, /d2x.ini, /include/gr.h, /include/ogl_init.h, /main/automap.c, /main/gamefont.c, /main/inferno.c, /main/kconfig.c, /main/menu.c, /main/newmenu.c, /main/newmenu.h, /main/scores.c, /main/state.c, /main/titles.c: made fonts scalable, added command-line to enable fixed fonts, made savegame thumbs scalable, reworked menu borders, new way to display level info in automap to get right with scaled fonts. additionally layed out special characters to newmenu.h
+/arch/ogl/ogl.c, /main/credits.c, /main/polyobj.c, /main/titles.c: new code for ogl_offscreen_render, used it to reduce flickering in credits
+/arch/ogl/gr.c, /arch/sdl/gr.c, /d2x.ini, /main/automap.c, /main/game.c, /main/gamecntl.c, /main/gamerend.c, /main/gameseq.c, /main/gauges.c, /main/inferno.c, /main/kconfig.c, /main/menu.c, /main/movie.c, /main/newmenu.c, /main/playsave.c, /main/scores.c, /main/screens.h: some fixes for menus and automap; new aspect code; improved code to scale window for cockpits; introducing new variable in playsave.c to store game resolution and saving Game_window_h/h again properly - fixes bugs with screwed resolutions; making menus in game-resolution as default and re-activating old command-line arg '-menu<X>x<Y>' to scale menus
+/2d/bitblt.c, /arch/ogl/gr.c, /main/game.c, /main/gamerend.c, /main/gameseq.c, /main/gauges.c: scalable HUD, improvements for HUD and cockpits, cleaner code, fixes to get SDL renderer working again
+/arch/sdl/joy.c, /arch/sdl/joydefs.c: added joystick deadzone feature
+/main/inferno.c: saving config files in home directory
+/main/slew.h: fix error when building editor with RELEASE (d2x-cvs takeover)
+/arch/carbon/descent.r: don't allow MPW build to run in OS X (d2x-cvs takeover)
+/main/laser.c, /main/object.c: fix crash when a robot's guided missile explodes (d2x-cvs takeover)
+/d2x.xcode/project.pbxproj: add references to headers in main for SCM and batch find (d2x-cvs takeover)
+/main/inferno.c, /main/multi.c, /main/multi.h: move hoard data saving from main to save_hoard_data (d2x-cvs takeover)
+/main/inferno.c, main/titles.c, main/titles.h: move titles, loading screen and order form showing to titles.c (d2x-cvs takeover)
+/include/physfsx.h, /main/inferno.c: move PhysicsFS initialisation, search path setup and argument reading to physfsx.h (d2x-cvs takeover)
+/ChangeLog: Update
+/main/game.c, /main/inferno.c, /main/menu.c, /main/playsave.c: removing unnecessary stuff from game_init_render_buffers; better resolution handling; storing resolution stuff in PLX file (Thanks to Hans de Goede and Chris Taylor)"
+/arch/sdl/joydefs.c, /main/config.h, /main/gameseq.c, /main/kconfig.c, /main/newmenu.c, /main/playsave.c: added new control type: Joystick & Mouse (Thanks to The_Lion)
+/main/credits.c: code cleanup
+/2d/font.c, /arch/ogl/ogl.c, /include/ogl_init.h, /main/automap.c, /main/gamerend.c, /main/gauges.c, /main/newdemo.c, /main/state.c: corrected demo-related font positions; fixed window view glitch in demo playback; merged ogl_ubitmapm_cs and ogl_ubitmapm_cf
+/2d/font.c, /main/gamecntl.c, /main/menu.c: cleaned up options menu and removed 'd1x options' because not really necessary anymore
+/arch/ogl/gr.c, /arch/sdl/gr.c, /arch/sdl/joy.c , /main/gamerend.c, /main/gauges.c, /main/hud.c, /main/menu.c: print joystick dialog to stdout; print time with hud messages; fixing some graphical glitches; repaired brightness slider (oops); code cleanup
+/2d/font.c, /arch/ogl/gr.c, /arch/ogl/internal.h, /arch/ogl/ogl.c, /arch/ogl/sdlgl.c, /main/gamecntl.c, /main/inferno.c: introduced FSAA; fixed fullscreen toggle glitches; adjusted OGL_TEXTURE_LIST_SIZE and OGLTEXBUFSIZE; code cleanup; fixed memleak in game pause; restored font.c (oops)
+/main/movie.c: made file extension for TXB files lowercase to match filename case itself. makes easier to use external files
+/arch/ogl/gr.c, /main/inferno.c, /main/menu.c, /main/newmenu.c, /main/vers_id.h: if player is deleted also delete PLX file; removed date strings, not necessary; added Menu_special
+/configure.ac, /Makefile.am: changed build target to 'rebirth'; changed version string; preparations for v0.50 release
+/main/gauges.c: corrected position of shield/energy numbers if 200
+/main/movie.c: improved code to show scaled movies
+/arch/ogl/gr.c, /arch/ogl/ogl.c, /arch/ogl/sdlgl.c, /include/gr.h, /main/inferno.c: re-enabled SDL_SetGammaRamp; removed FSAA because no function on all platforms; fixed offscreen render; better restriction to show menus ingame
+/main/render.c, /main/wall.c: improved 4D room detection
+/arch/ogl/gr.c: switching SDL gammaramp off by default because uses too much CPU
+/main/hud.c: aligned 'press any key...' message on hud
+/main/credits.c: make scrolling smoother by changing time_delay
+/main/gauges.c: fixes for alt huds
+/main/gauges.c, /main/titles.c: don't show alt hud while guilded missile view; removed unnbecessary delay in show_char_delay to make robo movies smoother
+/main/menu.c: print warning if resolution is set too high and don't change after all
+/arch/ogl/gr.c, /main/lighting.c, /main/state.c: fixing OGL compile bug; fixing calculation of object light before and after restoring a saved game
+/arch/sdl/joydefs.c, /main/config.h: re-activated Weapon Keys menu - aka D2X keys
+/arch/sdl/joy.c, /main/inferno.c: fixing mem corruptions while closing joysticks; removed Joystick calibration which should be unnecessary with SDL
+/arch/ogl/ogl.c: Fix for inherent limitation in pow2ize() and wrong description thereof
+/d1x.ini, /main/inferno.c: cleaned up command-line help; removed old/redundant/unfunctional options; improved code to read -pilot argument
+/arch/ogl/gr.c: make write_bmp use PhysFS
+/main/credits.c: adjusted credits scroll speed with MenuHires
+/include/loadgl.h, /main/gauges.c: introducing draw_wbu_border to draw rounded weapon boxes with glScissor
+/main/game.c: removed calibrate joystick line from help menu
+/arch/ogl/ogl.c: made lines width scale to resolution; fixed compiler warnings
+/main/object.h: fixed compiler warnings in object header
+/main/inferno.c, /main/kconfig.c: using global variable for sp-mouselook to save CPU usage
+
+20060416
+--------
+/main/newmenu.c, /main/gauges.c, /main/gameseg.c, /main/menu.c, /main/gamesave.c, /main/gamerend.c, /include/strutil.h, /main/bm.c, /main/gamepal.c, /main/piggy.c, /misc/strutil.c, /main/object.c, /main/render.c, /main/editor/kfuncs.c, /main/editor/med.c: implementation of current d2x-cvs patches
+/main/automap.c: FIX: deleting marker dialog in automap causes major graphical issues in automap
+/main/movie.c: more original look of scalable movies
+/texmap/tmapppro.S: compile-time bug with ASM
+/arch/ogl/ogl.c, /arch/ogl/include/ogl_init.h, /2d/bitblt.c, /main/menu.c, /main/game.c, /main/gamerend.c, /main/gauges.c: scalable cockpits
+/main/gamesave.c: FIX: d2x restores window size wrong after restart
+/main/gauges.c: FIX: if "you already have 20 concussion missles!" is displayed, lives and score disappeared
+/main/gauges.c: better alt-huds, alt-huds in cockpit
+/arch/ogl/ogl.c: fixed renderstats option
+/main/physics.c: allow asserting objet to none if player is dead - fixes some random crashes
+/main/credits.c: new credits code
+/main/gauges.c: no use of fading if alt huds and no alt hugs if missile view
+/arch/ogl/gr.c: FIX: gamma changes change whole screen
+/arch/sdl/gr.c, /arch/ogl/gr.c, /main/inferno.c: added widescreen aspect with command-line option for SDL and OGL build
+/main/newmenu.h: possible menu text sring length incrased to 255
+/arch/ogl/ogl.c, /include/ogl_init.h, /2d/bitblt.c, /main/movie.c, /main/inferno.c: added mipmap operator to ogl_bitblt_i, added if to MovieShowFrame to switch off movie mipmap if argument -nomoviesmooth given, added command-line option
+/arch/ogl/gr.c, /main/menu.c: removed fullok hack for fullscreen changing
+
+20060226
+--------
+/arch/ogl/include/internal.h fixing "OGL: texture list full"-bug
+/arch/linux/ipx_udp.c, /arch/win32/ipx_udp.c: full broadcast as default in UPD/IP games
+/configure, /main/vers_id.h: changes in date, version-number
+/arch/ogl/gr.c: setting gl_reticle as default (if you don't like it, set -gl_reticle 0)
+/main/gauges.c: fixed alt-hud text positions for gl_reticle
+/main/menu.c: removed serial connection functions (not really needed anymore)
+/main/game.c, /main/inferno.c: implementation of menu in gameres
+/arch/ogl/ogl.c, /main/movie.c: scalable movies
+/main/menu.c: removed vertigo say for menu_gameres
+/main/menu.c: load resolution after player is selected
+/main/game.c, /main/gamecntl.c: new keys to get shrink and grow window functions working
+/main/automap.c, /main/inferno.c: automap now always in gameres and eat less cpu power
+/main/credits.c: credits now working correctly with menu_gameres
+/main/scores.c: fixing frames in scoretable in menu_gameres
+/main/kconfig.c: fixing frames in controls-config in menu_gameres
+/main/menu.c: implementation of custom resolutions
+/main/game.c, /main/menu.c: new calls to get right fonts with new resolutions menus-menu
+/main/newdemo.c: smoother demo-playback
+/arch/sdl/digi.c, /arch/linux/Makefile.am, /arch/linux/Makefile.in: implementation for midi on linux
+/main/inferno.c: fixing possibility for midi-loops after game was killed
+
+20060122
+--------
+/main/menu.c: removed second resolutions menu
+/arch/ogl/gr.c: resolution switches now faster in windows (at least as fast as windows is able to)
+
+20060116
+--------
+/main/inferno.c, /main/gamerend.c: added -fps switch
+/arch/ogl/gr.c: fix for screenshot function
+/main/inferno.c, /main/kconfig.c: new function for optional mouselook style feature
+/arch/ogl/ogl.c: D2X-CVS update - make super transparent textures have alpha
+/main/titles.c: D2X-CVS update - for Descent 1 briefings, look for briefings no further than NUM_D1_BRIEFING_SCREENS (fix bug #2270)
+/main/inferno.c: new definition of config dir for linux because multiplatform release, fix for soundloops after game quit (some onboard soundcards)
+/arch/ogl/gr.c, /main/game.c, /main/menu.c: fix for fullscreen switching in windows
+/main/game.c, /main/gamecntl.c /main/gameseq.c: resolution fix after pause, secret level messages and guidebot menu
+/main/mission.h: fix to hold up to 5000 addon levels
+/main/game.c: made nicefps standard. better gameplay, lesser cpu usage, a little pause in linux for resolution change at new game
+/main/gamerend.c: fix for guided missle crosshair
+/main/menu.c: resolutions up to 1600x1200
+/arch/ogl/gr.c, /arch/ogl/sdlgl.c: fix for ingame screenshots
+/arch/include/key.h, /main/game.c: windows fix for PRINTSCREEN key -> is now ALT+P
+/main/credits.c: fix for crash while credits in higher game resolutions
+/main/escort.c: fix for linespacing in guidebot-menu
+/main/inferno.c, /main/gauges.c: added new hud modes
+/misc/args.c: fix for crashes while using modified d2x.ini
+various: code cleaning, fixes and additional includes for windows build, restructuration for new multiplatform release
+
+20051025
+--------
+/main/inferno.c: cleaned up the command-line help, removed inactive/defected functions
+/main/kconfig.c: improved turn speed on x and y if mouse is used for better/faster control
+/main/newmenu.c: fixed messageboxes to prevent chrases in automap, secret leves etc
+/main/menu.c: fix to prevent toggles menu from crashing game
+README.TXT: removed/changed some kown issues
+            added gentoo and suse 10 to working ditributions
+            added Maystorm to Thanks section
+Changelog: file created
+
+20050928
+--------
+README.TXT d2x-install.sh: Added hint to create $HOME/.d2x manually
+
+20050916
+--------
+initial release
+/main/gamerend.c: fix for death-sequence and sdl segfault in 320xXXX
+/main/lighting.c: fix for dark models after loading a game
