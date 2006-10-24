@@ -147,6 +147,7 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 }
 
 void digi_set_channel_volume(int channel, int volume) {
+  if (!digi_initialised) return;
   int mix_vol = fix2byte(volume);
   Mix_SetDistance(channel, 255-mix_vol);
 }
@@ -165,22 +166,12 @@ void digi_end_sound(int channel) {
   digi_stop_sound(channel);
 }
 
-//added on 980905 by adb from original source to make sfx volume work
 void digi_set_digi_volume( int dvolume )
 {
-	dvolume = fixmuldiv( dvolume, SOUND_MAX_VOLUME, 0x7fff);
-	if ( dvolume > SOUND_MAX_VOLUME )
-		digi_volume = SOUND_MAX_VOLUME;
-	else if ( dvolume < 0 )
-		digi_volume = 0;
-	else
-		digi_volume = dvolume;
-
-	if ( !digi_initialised ) return;
-
-	digi_sync_sounds();
+  if ( !digi_initialised ) return;
+  int mix_vol = fix2byte(dvolume);
+  Mix_Volume(-1, mix_vol);
 }
-//end edit by adb
 
 void digi_set_volume( int dvolume, int mvolume ) {
   digi_set_digi_volume(dvolume);
