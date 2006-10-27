@@ -158,6 +158,7 @@ void digi_set_channel_pan(int channel, int pan) {
 }
 
 void digi_stop_sound(int channel) {
+  if (!digi_initialised) return;
   if (MIX_DIGI_DEBUG) printf("digi_stop_sound %d\n", channel);
   Mix_HaltChannel(channel);
 }
@@ -168,7 +169,7 @@ void digi_end_sound(int channel) {
 
 void digi_set_digi_volume( int dvolume )
 {
-  if ( !digi_initialised ) return;
+  if (!digi_initialised) return;
   int mix_vol = fix2byte(dvolume);
   Mix_Volume(-1, mix_vol);
 }
