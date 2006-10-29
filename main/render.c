@@ -392,7 +392,7 @@ ubyte object_rendered[MAX_OBJECTS];
 #define DEFAULT_RENDER_DEPTH 16
 int Render_depth=DEFAULT_RENDER_DEPTH;			//how many segments deep to render
 
-int	Detriangulation_on = 1;					// 1 = allow rendering of triangulated side as a quad, 0 = don't allow
+int	Detriangulation_on = 0;					// 1 = allow rendering of triangulated side as a quad, 0 = don't allow
 
 #ifdef EDITOR
 int	Render_only_bottom=0;
