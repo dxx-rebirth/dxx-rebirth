@@ -207,6 +207,9 @@ grs_bitmap background_bitmap;
 int	Game_aborted;
 void	update_cockpits(int force_redraw);
 extern	void newdemo_strip_frames(char *, int);
+#ifndef RELEASE
+int invulnerability=0;
+#endif
 
 #define BACKGROUND_NAME "statback.pcx"
 
@@ -3190,7 +3193,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		}
 
 		#ifndef RELEASE
-		if (FindArg("-invulnerability"))
+		if (invulnerability)
 			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 		#endif
 

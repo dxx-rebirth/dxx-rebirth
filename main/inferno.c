@@ -311,6 +311,12 @@ extern fix fixed_frametime;
 extern int framerate_on;
 extern void vfx_set_palette_sub(ubyte *);
 extern int mouselook;
+#ifndef RELEASE
+extern int invulnerability;
+#endif
+#ifndef NDEBUG
+extern int checktime;
+#endif
 
 int Inferno_verbose = 0;
 int start_net_immediately = 0;
@@ -450,6 +456,14 @@ int main(int argc,char **argv)
 	#ifndef RELEASE
 	if ( FindArg( "-noscreens" ) )
 		Skip_briefing_screens = 1;
+
+	if ( FindArg( "-invulnerability") )
+		invulnerability = 1;
+	#endif
+
+	#ifndef NDEBUG
+	if ( FindArg( "-checktime") )
+		checktime = 1;
 	#endif
 
 	if (Inferno_verbose)

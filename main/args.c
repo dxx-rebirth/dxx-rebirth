@@ -87,6 +87,10 @@ char * Args[200];
 int FindArg( char * s )	{
 	int i;
 
+#ifndef NDEBUG
+	printf("FindArg call: %s\n",s);
+#endif
+
 	for (i=0; i<Num_args; i++ )
 		if (! strcasecmp( Args[i], s))
 			return i;
