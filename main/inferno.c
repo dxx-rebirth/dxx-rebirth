@@ -206,9 +206,7 @@ void print_commandline_help()
 	printf( "\n Graphics:\n\n");
 	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
 	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
-	printf( "  -cockpit <n>       %s\n", "Set initial cockpit. 0=full 2=status bar 3=full screen");
 	printf( "  -hud <h>           %s\n", "Set hud mode.  0=normal 1-3=new");
-	printf( "  -hiresfont         %s\n", "use high resolution fonts if available");
 #ifdef    GR_SUPPORTS_FULLSCREEN_TOGGLE
 	printf( "  -window            %s\n", "Run the game in a window");
 #endif // GR_SUPPORTS_FULLSCREEN_TOGGLE
