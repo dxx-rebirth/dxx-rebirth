@@ -167,6 +167,9 @@ extern int mouselook;
 #ifndef RELEASE
 extern int invulnerability;
 #endif
+#ifndef NDEBUG
+extern int checktime;
+#endif
 
 #define LINE_LEN	100
 
@@ -561,6 +564,11 @@ int main(int argc, char *argv[])
 	if ( FindArg( "-invulnerability") )
 		invulnerability = 1;
 #endif
+
+	#ifndef NDEBUG
+	if ( FindArg( "-checktime") )
+		checktime = 1;
+	#endif
 
 	if ((t=FindArg("-tmap"))){
 		select_tmap(Args[t+1]);
