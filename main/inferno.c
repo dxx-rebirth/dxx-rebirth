@@ -164,6 +164,9 @@ extern int Config_vr_type;
 extern int Config_vr_resolution;
 extern int Config_vr_tracking;
 extern int mouselook;
+#ifndef RELEASE
+extern int invulnerability;
+#endif
 
 #define LINE_LEN	100
 
@@ -554,6 +557,9 @@ int main(int argc, char *argv[])
 #ifndef RELEASE
 	if ( FindArg( "-noscreens" ) )
 		Skip_briefing_screens = 1;
+
+	if ( FindArg( "-invulnerability") )
+		invulnerability = 1;
 #endif
 
 	if ((t=FindArg("-tmap"))){

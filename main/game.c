@@ -213,6 +213,7 @@ char faded_in;
 
 int Game_double_buffer = 1;     //double buffer by default
 fix fixed_frametime=0;          //if non-zero, set frametime to this
+int checktime = 0;
 
 #endif
 
@@ -235,6 +236,9 @@ int	Global_missile_firing_count = 0;
 grs_bitmap background_bitmap;
 
 int Game_aborted;
+#ifndef RELEASE
+int invulnerability=0;
+#endif
 
 #define BACKGROUND_NAME "statback.pcx"
 
@@ -2142,7 +2146,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 	#endif
 
 		#ifndef RELEASE
-		if (FindArg("-invulnerability"))
+		if (invulnerability)
 			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 		#endif
 
@@ -2249,7 +2253,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		}
 
 		#ifndef NDEBUG
-		if (FindArg("-checktime") != 0)
+		if (checktime)
 			if (GameTime >= i2f(600))		//wrap after 10 minutes
 				GameTime = FrameTime;
 		#endif
