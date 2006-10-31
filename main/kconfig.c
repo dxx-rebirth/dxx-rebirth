@@ -2057,17 +2057,17 @@ if (!Player_is_dead)
 		// From joystick...
 		if ((use_joystick)&&( kc_joystick[13].value < 255 ))	{
 			if ( !kc_joystick[14].value )		// If not inverted...
-				Controls.vertical_thrust_time += joy_axis[kc_joystick[13].value];
+				Controls.vertical_thrust_time += (joy_axis[kc_joystick[13].value]*Config_joystick_sensitivity)/8;
 			else
-				Controls.vertical_thrust_time -= joy_axis[kc_joystick[13].value];
+				Controls.vertical_thrust_time -= (joy_axis[kc_joystick[13].value]*Config_joystick_sensitivity)/8;
 		}
 	
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[13].value < 255 ))	{
 			if ( !kc_mouse[14].value )		// If not inverted...
-				Controls.vertical_thrust_time -= mouse_axis[kc_mouse[13].value];
+				Controls.vertical_thrust_time -= (mouse_axis[kc_mouse[13].value]*Config_mouse_sensitivity)/8;
 			else
-				Controls.vertical_thrust_time += mouse_axis[kc_mouse[13].value];
+				Controls.vertical_thrust_time += (mouse_axis[kc_mouse[13].value]*Config_mouse_sensitivity)/8;
 		}
 	}
 
@@ -2080,9 +2080,9 @@ if (!Player_is_dead)
 	// From joystick...
 	if ((use_joystick)&&( kc_joystick[19].value < 255 ))	{
 		if ( !kc_joystick[20].value )		// If not inverted...
-			Controls.vertical_thrust_time += joy_axis[kc_joystick[19].value];
+			Controls.vertical_thrust_time += (joy_axis[kc_joystick[19].value]*Config_joystick_sensitivity)/8;
 		else
-			Controls.vertical_thrust_time -= joy_axis[kc_joystick[19].value];
+			Controls.vertical_thrust_time -= (joy_axis[kc_joystick[19].value]*Config_joystick_sensitivity)/8;
 	}
 
 	// From joystick buttons
@@ -2096,9 +2096,9 @@ if (!Player_is_dead)
 	// From mouse...
 	if ( (use_mouse)&&(kc_mouse[19].value < 255 ))	{
 		if ( !kc_mouse[20].value )		// If not inverted...
-			Controls.vertical_thrust_time += mouse_axis[kc_mouse[19].value];
+			Controls.vertical_thrust_time += (mouse_axis[kc_mouse[19].value]*Config_mouse_sensitivity)/8;
 		else
-			Controls.vertical_thrust_time -= mouse_axis[kc_mouse[19].value];
+			Controls.vertical_thrust_time -= (mouse_axis[kc_mouse[19].value]*Config_mouse_sensitivity)/8;
 	}
 
 	// From Cyberman...
@@ -2180,9 +2180,9 @@ if (!Player_is_dead)
 		// From joystick...
 		if ( (use_joystick)&&(kc_joystick[15].value < 255 ))	{
 			if ( !kc_joystick[16].value )		// If not inverted...
-				Controls.sideways_thrust_time += joy_axis[kc_joystick[15].value];
+				Controls.sideways_thrust_time += (joy_axis[kc_joystick[15].value]*Config_joystick_sensitivity)/8;
 			else
-				Controls.sideways_thrust_time -= joy_axis[kc_joystick[15].value];
+				Controls.sideways_thrust_time -= (joy_axis[kc_joystick[15].value]*Config_joystick_sensitivity)/8;
 		}
 		
 		// From cyberman
@@ -2194,9 +2194,9 @@ if (!Player_is_dead)
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.sideways_thrust_time += mouse_axis[kc_mouse[15].value];
+				Controls.sideways_thrust_time += (mouse_axis[kc_mouse[15].value]*Config_mouse_sensitivity)/8;
 			else
-				Controls.sideways_thrust_time -= mouse_axis[kc_mouse[15].value];
+				Controls.sideways_thrust_time -= (mouse_axis[kc_mouse[15].value]*Config_mouse_sensitivity)/8;
 		}
 	}
 
@@ -2209,9 +2209,9 @@ if (!Player_is_dead)
 	// From joystick...
 	if ( (use_joystick)&&(kc_joystick[17].value < 255 ))	{
 		if ( !kc_joystick[18].value )		// If not inverted...
-			Controls.sideways_thrust_time -= joy_axis[kc_joystick[17].value];
+			Controls.sideways_thrust_time -= (joy_axis[kc_joystick[17].value]*Config_joystick_sensitivity)/8;
 		else
-			Controls.sideways_thrust_time += joy_axis[kc_joystick[17].value];
+			Controls.sideways_thrust_time += (joy_axis[kc_joystick[17].value]*Config_joystick_sensitivity)/8;
 	}
 
 	// From joystick buttons
@@ -2225,9 +2225,9 @@ if (!Player_is_dead)
 	// From mouse...
 	if ( (use_mouse)&&(kc_mouse[17].value < 255 ))	{
 		if ( !kc_mouse[18].value )		// If not inverted...
-			Controls.sideways_thrust_time += mouse_axis[kc_mouse[17].value];
+			Controls.sideways_thrust_time += (mouse_axis[kc_mouse[17].value]*Config_mouse_sensitivity)/8;
 		else
-			Controls.sideways_thrust_time -= mouse_axis[kc_mouse[17].value];
+			Controls.sideways_thrust_time -= (mouse_axis[kc_mouse[17].value]*Config_mouse_sensitivity)/8;
 	}
 }//end "if" added by WraithX
 
