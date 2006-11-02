@@ -1473,7 +1473,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*box->right,COCKPITSCALE_Y*(box->bot+1));
 #ifdef OGL
-	if (Cockpit_mode == CM_FULL_COCKPIT)
+	if (Cockpit_mode == CM_FULL_COCKPIT && ogl_scissor_ok)
 		draw_wbu_border(box);
 #endif
 	bm=&GameBitmaps[Weapon_info[info_index].picture.index];
@@ -1677,7 +1677,7 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		Gr_scanline_darkening_level = fade_value;
 		gr_rect(COCKPITSCALE_X*gauge_boxes[boxofs+weapon_type].left,COCKPITSCALE_Y*gauge_boxes[boxofs+weapon_type].top,COCKPITSCALE_X*gauge_boxes[boxofs+weapon_type].right,COCKPITSCALE_Y*gauge_boxes[boxofs+weapon_type].bot);
 #ifdef OGL
-		if (Cockpit_mode == CM_FULL_COCKPIT)
+		if (Cockpit_mode == CM_FULL_COCKPIT && ogl_scissor_ok)
 			draw_wbu_border(&gauge_boxes[boxofs+weapon_type]);
 #endif
 		Gr_scanline_darkening_level = GR_FADE_LEVELS;

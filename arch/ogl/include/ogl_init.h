@@ -92,6 +92,7 @@ extern int ogl_sgis_multitexture_ok;
 extern int gl_initialized;
 extern int GL_texmagfilt,GL_texminfilt,GL_needmipmaps;
 extern int gl_reticle;
+extern int ogl_scissor_ok;
 
 extern int GL_TEXTURE_2D_enabled;
 //extern int GL_texclamp_enabled;

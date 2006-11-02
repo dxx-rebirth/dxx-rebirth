@@ -245,6 +245,7 @@ void show_commandline_help()
 	printf( "  -gl_mipmap         %s\n", "Set gl texture filters to \"standard\" options for mipmapping");
 	printf( "  -gl_trilinear      %s\n", "Set gl texture filters to trilinear mipmapping");
 	printf( "  -gl_reticle <r>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
+	printf( "  -gl_scissor_ok <r> %s\n", "Set glScissor. 0=off 1=on (default)");
 	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
 #endif // OGL
 

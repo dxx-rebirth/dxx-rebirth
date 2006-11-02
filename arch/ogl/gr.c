@@ -41,6 +41,7 @@ void gr_palette_clear(); // Function prototype for gr_init;
 int gl_initialized=0;
 int gl_reticle=0;
 int ogl_fullscreen=0;
+int ogl_scissor_ok=1;
 
 int gr_check_fullscreen(void){
 	return ogl_fullscreen;
@@ -182,10 +183,14 @@ void ogl_get_verinfo(void){
 	{
 		ogl_setgammaramp_ok = atoi(Args[t + 1]);
 	}
+	if ((t=FindArg("-gl_scissor_ok")))
+	{
+		ogl_scissor_ok = atoi(Args[t + 1]);
+	}
 
 #ifndef NDEBUG
 	printf("gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
-	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok);
+	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i  gl_scissor_ok:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok,ogl_scissor_ok);
 #endif
 }
 
