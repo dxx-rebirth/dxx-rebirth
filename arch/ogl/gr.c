@@ -66,6 +66,7 @@ int gr_installed = 0;
 int gl_initialized=0;
 int gl_reticle = 0;
 int ogl_fullscreen;
+int ogl_scissor_ok=1;
 
 void gr_palette_clear(); // Function prototype for gr_init;
 
@@ -295,12 +296,16 @@ void ogl_get_verinfo(void)
 	{
 		ogl_setgammaramp_ok = atoi(Args[t + 1]);
 	}
+	if ((t=FindArg("-gl_scissor_ok")))
+	{
+		ogl_scissor_ok = atoi(Args[t + 1]);
+	}
 
 #ifdef GL_NV_register_combiners
 	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i(%i units) gl_sgis_multitexture:%i(%i units) gl_nv_texture_env_combine4:%i\n", ogl_arb_multitexture_ok, arb_max_textures, ogl_sgis_multitexture_ok, sgi_max_textures, ogl_nv_texture_env_combine4_ok); // ZICO - moved this to this ifdef
 	con_printf(CON_VERBOSE, "gl_nv_register_combiners:%i(%i stages)\n", ogl_nv_register_combiners_ok, nv_register_combiners);
 #endif
-	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i gl_ext_texture_filter_anisotropic:%i(%f max)\n", ogl_intensity4_ok, ogl_luminance4_alpha4_ok, ogl_rgba2_ok, ogl_readpixels_ok, ogl_gettexlevelparam_ok, ogl_setgammaramp_ok, ogl_ext_texture_filter_anisotropic_ok, anisotropic_max);
+	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i gl_ext_texture_filter_anisotropic:%i(%f max) gl_scissor_ok:%i\n", ogl_intensity4_ok, ogl_luminance4_alpha4_ok, ogl_rgba2_ok, ogl_readpixels_ok, ogl_gettexlevelparam_ok, ogl_setgammaramp_ok, ogl_ext_texture_filter_anisotropic_ok, anisotropic_max,ogl_scissor_ok);
 }
 
 

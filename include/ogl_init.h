@@ -71,6 +71,7 @@ extern int ogl_luminance4_alpha4_ok;
 extern int ogl_rgba2_ok;
 extern int ogl_readpixels_ok;
 extern int ogl_gettexlevelparam_ok;
+extern int ogl_scissor_ok;
 
 #ifndef EXT_texture_env_combine
 #define EXT_texture_env_combine 1

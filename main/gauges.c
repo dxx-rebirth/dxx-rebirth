@@ -2450,7 +2450,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*box->right,COCKPITSCALE_Y*box->bot);
 #ifdef OGL
-	if (Cockpit_mode == CM_FULL_COCKPIT)
+	if (Cockpit_mode == CM_FULL_COCKPIT && ogl_scissor_ok)
 		draw_wbu_border(box);
 #endif
 	if (Piggy_hamfile_version >= 3 // !SHAREWARE
@@ -2648,7 +2648,7 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		Gr_scanline_darkening_level = fade_value;
 		gr_rect(COCKPITSCALE_X*gauge_boxes[boxofs+weapon_type].left,COCKPITSCALE_Y*gauge_boxes[boxofs+weapon_type].top,COCKPITSCALE_X*gauge_boxes[boxofs+weapon_type].right,COCKPITSCALE_Y*gauge_boxes[boxofs+weapon_type].bot);
 #ifdef OGL
-		if (Cockpit_mode == CM_FULL_COCKPIT)
+		if (Cockpit_mode == CM_FULL_COCKPIT && ogl_scissor_ok)
 			draw_wbu_border(&gauge_boxes[boxofs+weapon_type]);
 #endif
 		Gr_scanline_darkening_level = GR_FADE_LEVELS;
@@ -2698,7 +2698,7 @@ void draw_static(int win)
 		hud_bitblt(gauge_boxes[boxofs+win].right-bmp->bm_w,gauge_boxes[boxofs+win].bot-bmp->bm_h,bmp,F1_0);
 	}
 
-	if (Cockpit_mode == CM_FULL_COCKPIT)
+	if (Cockpit_mode == CM_FULL_COCKPIT && ogl_scissor_ok)
 		draw_wbu_border(&gauge_boxes[boxofs+win]);
 #endif
 
@@ -3699,7 +3699,7 @@ abort:;
 	Rear_view = rear_view_save;
 
 #ifdef OGL
-	if (Cockpit_mode == CM_FULL_COCKPIT)
+	if (Cockpit_mode == CM_FULL_COCKPIT && ogl_scissor_ok)
 		draw_wbu_border(box);
 #endif
 }
