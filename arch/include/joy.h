@@ -24,6 +24,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
+#define MAX_JOYSTICKS 3
+#define MAX_AXES_PER_JOYSTICK 8
+#define MAX_BUTTONS_PER_JOYSTICK 32
+#define MAX_HATS_PER_JOYSTICK 4
+
 // added October 24, 2000 20:40  Steven Mueller: more than 4 joysticks now
 #define MAX_JOY_DEVS 8
 #define JOY_1_BUTTON_A  1
@@ -39,15 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define JOY_1_U_AXIS        32
 #define JOY_1_V_AXIS        64
 
-#define JOY_MAX_AXES        32
-
-#if defined WINDOWS
-#define JOY_NUM_AXES        7
-#elif defined USE_LINUX_JOY
-#define JOY_NUM_AXES        5
-#else
-#define JOY_NUM_AXES        4
-#endif
+#define JOY_MAX_AXES        (MAX_AXES_PER_JOYSTICK * MAX_JOYSTICKS)
 
 #ifdef WINDOWS
 #define JOY_1_POV           8
@@ -65,11 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /* not present in d2src, maybe we don't really need it? */
 #define JOY_FRIENDLY_READINGS   8
 
-#ifdef USE_LINUX_JOY
-#define JOY_MAX_BUTTONS 64
-#else
-#define JOY_MAX_BUTTONS 20
-#endif
+#define JOY_MAX_BUTTONS (MAX_BUTTONS_PER_JOYSTICK * MAX_JOYSTICKS)
 
 //==========================================================================
 // This initializes the joy and does a "quick" calibration which

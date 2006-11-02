@@ -21,12 +21,6 @@
 #include "text.h"
 #include "u_mem.h"
 
-#define MAX_JOYSTICKS 16
-
-#define MAX_AXES_PER_JOYSTICK 8
-#define MAX_BUTTONS_PER_JOYSTICK 16
-#define MAX_HATS_PER_JOYSTICK 128 // ZICO was 4 - resolves axes recignition problems with two ore more devices
-
 extern char *joybutton_text[]; //from kconfig.c
 extern char *joyaxis_text[]; //from kconfig.c
 
