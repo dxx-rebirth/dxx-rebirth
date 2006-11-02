@@ -39,9 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define JOY_POLL_RATE		0 // use minimum FIXME: is this what we want?
 
-#define JOY_NUM_AXES 6
-
-#define MAX_BUTTONS 20
+#define JOY_MAX_BUTTONS 20
 
 //==========================================================================
 // This initializes the joy and does a "quick" calibration which
