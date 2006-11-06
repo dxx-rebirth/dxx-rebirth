@@ -33,11 +33,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define CFILE            PHYSFS_file
 #define cfopen(f,m)      PHYSFSX_openReadBuffered(f)
-#define cfread(p,s,n,fp) PHYSFS_read(fp,p,s,n)
+//killed by MD2211 - see cfread() below
+//#define cfread(p,s,n,fp) PHYSFS_read(fp,p,s,n)
 #define cfclose          PHYSFS_close
 #define cftell           PHYSFS_tell
 #define cfexist          PHYSFS_exists
 #define cfilelength      PHYSFS_fileLength
+
+//MD2211: hmp2mid needs a function pointer, so a macro won't do the job
+static inline size_t cfread(void *p, size_t s, size_t n, CFILE *fp) {
+  return PHYSFS_read(fp,p,s,n);
+}
 
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
 static inline int cfile_init(char *hogname)

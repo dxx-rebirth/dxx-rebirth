@@ -18,11 +18,15 @@ if USE_LINUX_JOY
 JOYSTICK_SRCS = joystick.c joydefs.c
 endif
 
-libarch_linux_a_SOURCES = ${NETWORK_SRCS} ${IPX_SRCS} ${KALI_SRCS} ${JOYSTICK_SRCS} init.c hmiplay.c
+if !USE_SDLMIXER
+MUSIC_SRCS = hmiplay.c
+endif
+
+libarch_linux_a_SOURCES = ${NETWORK_SRCS} ${IPX_SRCS} ${KALI_SRCS} ${JOYSTICK_SRCS} init.c ${MUSIC_SRCS}
 
 EXTRA_libarch_linux_a_SOURCES = \
 ipx_bsd.c ipx_kali.c ipx_mcast4.c ipx_udp.c linuxnet.c ukali.c \
 joydefs.c joystick.c
 
 EXTRA_DIST = ${EXTRA_SUBDIRS} \
-alsadigi.c hmistub.c hmiplay.c mono.c serial.c timer.c
+alsadigi.c hmistub.c ${MUSIC_SRCS} mono.c serial.c timer.c

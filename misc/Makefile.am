@@ -7,7 +7,7 @@ endif
 
 libmisc_a_SOURCES = ${PNG_SRCS} \
 args.c      error.c    strio.c    ignorecase.c physfsrwops.c \
-hash.c     strutil.c
+hash.c     strutil.c   hmp2mid.c
 
 EXTRA_libmisc_a_SOURCES = pngfile.c
 

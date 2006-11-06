@@ -82,6 +82,9 @@ dnl Set $prefix and $exec_prefix to $ac_default_prefix if they are not set
 test "x$prefix" = "xNONE" && prefix=$ac_default_prefix
 test "x$exec_prefix" = "xNONE" && exec_prefix="${prefix}"
 
+# This fix may be needed in some cases
+#datadir="$prefix/share"
+
 dnl Set default locations to find data files.
 default_sharepath="$datadir/games/$PACKAGE"
 
@@ -136,6 +139,15 @@ if test x$enable_linuxjoy = xyes; then
     D2X_FEATURES="linuxjoy ${D2X_FEATURES}"
 fi
 AM_CONDITIONAL(USE_LINUX_JOY, test x$enable_linuxjoy = xyes)
+
+dnl Use SDL_mixer sound system ?
+AC_ARG_ENABLE(sdlmixer,
+    [  --enable-sdlmixer       use SDL_mixer for effects and music (allows external file playback)],,)
+if test x$enable_sdlmixer = xyes; then
+    AC_DEFINE(USE_SDLMIXER,,[define to use SDL_mixer for sound.])
+    D2X_FEATURES="sdlmixer ${D2X_FEATURES}"
+fi
+AM_CONDITIONAL(USE_SDLMIXER, test x$enable_sdlmixer = xyes)
 
 dnl Build with FAST_FILE_IO?
 AC_ARG_ENABLE(fastfileio,
@@ -196,6 +208,11 @@ else
     AC_CHECK_LIB(SDL_image, IMG_ReadXPMFromArray,
         LIBS="-lSDL_image $LIBS"
         AC_DEFINE(SDL_IMAGE,,[Define if you have the SDL_image library]))
+
+  # Check for SDL_mixer
+    AC_CHECK_LIB(SDL_mixer, Mix_OpenAudio,
+        LIBS="-lSDL_mixer $LIBS"
+        AC_DEFINE(USE_SDLMIXER,,[Define if you have the SDL_mixer library]))
 
   # Check for libpng
     have_libpng=no

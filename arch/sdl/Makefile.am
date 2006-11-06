@@ -18,8 +18,14 @@ if !USE_OPENGL
 VIDEO_SRCS = gr.c
 endif
 
-libarch_sdl_a_SOURCES = ${JOYSTICK_SRCS} ${VIDEO_SRCS} ${INPUT_SRCS} \
-digi.c init.c rbaudio.c timer.c
+if USE_SDLMIXER
+SOUND_SRCS = mixdigi.c mixmusic.c
+else
+SOUND_SRCS = digi.c
+endif
+
+libarch_sdl_a_SOURCES = ${JOYSTICK_SRCS} ${VIDEO_SRCS} ${INPUT_SRCS} ${SOUND_SRCS} \
+init.c rbaudio.c timer.c
 
 EXTRA_libarch_sdl_a_SOURCES = \
 event.c gr.c joy.c joydefs.c key.c mouse.c
