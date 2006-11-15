@@ -215,7 +215,7 @@ void show_commandline_help()
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-100)");
 	printf( "  -missiondir <d>    %s\n", "Set alternate mission dir to <d>");
-	printf( "  -hudlog            %s\n", "Start hudlog immediatly");
+	printf( "  -hudlog            %s\n", "Start hudlog immediately");
 	printf( "  -hudlogdir <d>     %s\n", "Log hud messages in directory <d>");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 
