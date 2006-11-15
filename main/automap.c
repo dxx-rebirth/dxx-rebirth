@@ -184,6 +184,8 @@ void automap_build_edge_list(void);
 
 extern vms_vector Matrix_scale;		//how the matrix is currently scaled
 
+extern void gr_toggle_fullscreen_game();
+
 # define automap_draw_line g3_draw_line
 
 void automap_clear_visited()	
@@ -245,7 +247,7 @@ void modex_print_message(int x, int y, char *str)
 	for (i=0; i<2; i++ )	{
 		gr_set_current_canvas(&Pages[i]);
 #endif
-		modex_printf(x, y, str, GFONT_MEDIUM_1,Green_31);
+		modex_printf(x, y, str, (grs_font *)GFONT_MEDIUM_1,Green_31);
 #ifndef AUTOMAP_DIRECT_RENDER
 	}
 
@@ -577,7 +579,16 @@ void do_automap( int key_code )	{
 				if (leave_mode==0)
 					done = 1;
 				 break;
-
+			case KEY_ALTED+KEY_F:           // Alt+F shows full map, if cheats enabled
+				if (Cheats_enabled) 	 
+				{
+					uint t;
+					t = Players[Player_num].flags;
+					Players[Player_num].flags |= PLAYER_FLAGS_MAP_ALL_CHEAT;
+					automap_build_edge_list();
+					Players[Player_num].flags=t;
+				}
+				break;
 #ifndef NDEBUG
 		  	case KEY_DEBUGGED+KEY_F: 	{
 				for (i=0; i<=Highest_segment_index; i++ )
@@ -902,8 +913,10 @@ void add_one_edge( short va, short vb, ubyte color, ubyte side, short segnum, in
 			Highest_edge_index = e - Edges;
 		Num_edges++;
 	} else {
+		if ( color != Wall_normal_color )
+			e->color = color;
 		if ( e->num_faces < 4 ) {
-			e->sides[e->num_faces] = side;					
+			e->sides[e->num_faces] = side;
 			e->segnum[e->num_faces] = segnum;
 			e->num_faces++;
 		}
