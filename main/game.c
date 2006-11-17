@@ -827,8 +827,6 @@ int gr_toggle_fullscreen_game(void) {
 #ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	int i;
 	hud_message(MSGC_GAME_FEEDBACK, "toggling fullscreen mode %s",(i=gr_toggle_fullscreen())?"on":"off" );
-	generic_key_handler(KEY_PADENTER,0);
-	generic_key_handler(KEY_ENTER,0);
 	key_flush();
 	return i;
 #else

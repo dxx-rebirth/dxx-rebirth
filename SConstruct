@@ -106,7 +106,6 @@ common_sources = [
 'main/ipclient.cpp',
 'main/ipx_drv.c',
 'main/kconfig.c',
-'main/key.c',
 'main/kmatrix.c',
 'main/laser.c',
 'main/lighting.c',
@@ -247,7 +246,7 @@ arch_linux_sources = [
 'arch/sdl/init.c',
 'arch/sdl/joy.c',
 'arch/sdl/joydefs.c',
-'arch/sdl/key_arch.c',
+'arch/sdl/key.c',
 'arch/sdl/mouse.c'
 ]
 
@@ -278,7 +277,7 @@ arch_win32_sources = [
 'arch/sdl/init.c',
 'arch/sdl/joy.c',
 'arch/sdl/joydefs.c',
-'arch/sdl/key_arch.c',
+'arch/sdl/key.c',
 'arch/sdl/mouse.c'
 ]
 
