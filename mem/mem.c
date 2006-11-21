@@ -336,7 +336,7 @@ int mem_check_integrity( int block_number )
 	int i, ErrorCount;
 	unsigned char * CheckData;
 
-	CheckData = (char *)(MallocBase[block_number] + MallocSize[block_number]);
+	CheckData = (ubyte *)((char *)MallocBase[block_number] + MallocSize[block_number]);
 
 	#ifdef CHECK_DWORD_BELOW
 	data = (int *)((int)MallocBase[block_number]-4);
