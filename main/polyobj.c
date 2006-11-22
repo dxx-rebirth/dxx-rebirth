@@ -144,6 +144,7 @@ static char rcsid[] = "$Id: polyobj.c,v 1.1.1.1 2006/03/17 19:43:43 zicodxx Exp 
 #include "cfile.h"
 #include "piggy.h"
 #endif
+#include "byteswap.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -266,6 +267,93 @@ vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
 //be filled in.
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS]);
 #endif
+
+#ifdef WORDS_NEED_ALIGNMENT
+ubyte * old_dest(chunk o) // return where chunk is (in unaligned struct)
+{
+	return o.old_base + swapshort(*((short *)(o.old_base + o.offset)));
+}
+
+ubyte * new_dest(chunk o) // return where chunk is (in aligned struct)
+{
+	return o.new_base + swapshort(*((short *)(o.old_base + o.offset))) + o.correction;
+}
+
+/*
+ * find chunk with smallest address
+ */
+int get_first_chunks_index(chunk *chunk_list, int no_chunks) 
+{
+	int i, first_index = 0;
+	Assert(no_chunks >= 1);
+	for (i = 1; i < no_chunks; i++)
+		if (old_dest(chunk_list[i]) < old_dest(chunk_list[first_index]))
+			first_index = i;
+	return first_index;
+}
+#define SHIFT_SPACE 500 // increase if insufficent
+
+void align_polygon_model_data(polymodel *pm)
+{
+	int i, chunk_len;
+	int total_correction = 0;
+	ubyte *cur_old, *cur_new;
+	chunk cur_ch;
+	chunk ch_list[MAX_CHUNKS];
+	int no_chunks = 0;
+	int tmp_size = pm->model_data_size + SHIFT_SPACE;
+	ubyte *tmp = malloc(tmp_size); // where we build the aligned version of pm->model_data
+
+	Assert(tmp != NULL);
+	//start with first chunk (is always aligned!)
+	cur_old = pm->model_data;
+	cur_new = tmp;
+	chunk_len = get_chunks(cur_old, cur_new, ch_list, &no_chunks);
+	memcpy(cur_new, cur_old, chunk_len);
+	while (no_chunks > 0) {
+		int first_index = get_first_chunks_index(ch_list, no_chunks);
+		cur_ch = ch_list[first_index];
+		// remove first chunk from array:
+		no_chunks--;
+		for (i = first_index; i < no_chunks; i++)
+			ch_list[i] = ch_list[i + 1];
+		// if (new) address unaligned:
+		if ((u_int32_t)new_dest(cur_ch) % 4L != 0) {
+			// calculate how much to move to be aligned
+			short to_shift = 4 - (u_int32_t)new_dest(cur_ch) % 4L;
+			// correct chunks' addresses
+			cur_ch.correction += to_shift;
+			for (i = 0; i < no_chunks; i++)
+				ch_list[i].correction += to_shift;
+			total_correction += to_shift;
+			Assert((u_int32_t)new_dest(cur_ch) % 4L == 0);
+			Assert(total_correction <= SHIFT_SPACE); // if you get this, increase SHIFT_SPACE
+		}
+		//write (corrected) chunk for current chunk:
+		*((short *)(cur_ch.new_base + cur_ch.offset))
+		  = swapshort(cur_ch.correction
+				+ swapshort(*((short *)(cur_ch.old_base + cur_ch.offset))));
+		//write (correctly aligned) chunk:
+		cur_old = old_dest(cur_ch);
+		cur_new = new_dest(cur_ch);
+		chunk_len = get_chunks(cur_old, cur_new, ch_list, &no_chunks);
+		memcpy(cur_new, cur_old, chunk_len);
+		//correct submodel_ptr's for pm, too
+		for (i = 0; i < MAX_SUBMODELS; i++)
+			if (pm->model_data + pm->submodel_ptrs[i] >= cur_old
+			    && pm->model_data + pm->submodel_ptrs[i] < cur_old + chunk_len)
+				pm->submodel_ptrs[i] += (cur_new - tmp) - (cur_old - pm->model_data);
+ 	}
+	free(pm->model_data);
+	pm->model_data_size += total_correction;
+	pm->model_data = 
+	malloc(pm->model_data_size);
+	Assert(pm->model_data != NULL);
+	memcpy(pm->model_data, tmp, pm->model_data_size);
+	free(tmp);
+}
+#endif //def WORDS_NEED_ALIGNMENT
+
 
 //reads a binary file containing a 3d model
 polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
@@ -458,6 +546,10 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 		fprintf( stderr, " %s.3ds\n", filename );
 		*p = '.';
 	}
+
+#ifdef WORDS_NEED_ALIGNMENT
+	align_polygon_model_data(pm);
+#endif
 
 	return pm;
 }
@@ -795,5 +887,61 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	gr_set_current_canvas(save_canv);
 	gr_bitmap(0,0,&temp_canv->cv_bitmap);
 	gr_free_canvas(temp_canv);
+#endif
+}
+
+extern int read_int(CFILE *file);
+extern fix read_fix(CFILE *file);
+extern short read_short(CFILE *file);
+extern sbyte read_byte(CFILE *file);
+extern void read_vector(vms_vector *v,CFILE *file);
+
+/*
+ * reads n polymodel structs from a CFILE
+ */
+extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp)
+{
+	int i, j;
+
+	for (i = 0; i < n; i++) {
+		pm[i].n_models = read_int(fp);
+		pm[i].model_data_size = read_int(fp);
+		pm[i].model_data = (ubyte *) read_int(fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			pm[i].submodel_ptrs[j] = read_int(fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			read_vector(&(pm[i].submodel_offsets[j]), fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			read_vector(&(pm[i].submodel_norms[j]), fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			read_vector(&(pm[i].submodel_pnts[j]), fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			pm[i].submodel_rads[j] = read_fix(fp);
+		cfread(pm[i].submodel_parents, MAX_SUBMODELS, 1, fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			read_vector(&(pm[i].submodel_mins[j]), fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			read_vector(&(pm[i].submodel_maxs[j]), fp);
+		read_vector(&(pm[i].mins), fp);
+		read_vector(&(pm[i].maxs), fp);
+		pm[i].rad = read_fix(fp);
+		pm[i].n_textures = read_byte(fp);
+		pm[i].first_texture = read_short(fp);
+		pm[i].simpler_model = read_byte(fp);
+	}
+	return i;
+}
+
+
+/*
+ * routine which allocates, reads, and inits a polymodel's model_data
+ */
+void polygon_model_data_read(polymodel *pm, CFILE *fp)
+{
+	pm->model_data = malloc(pm->model_data_size);
+	Assert(pm->model_data != NULL);
+	cfread(pm->model_data, sizeof(ubyte), pm->model_data_size, fp );
+#ifdef WORDS_NEED_ALIGNMENT
+	align_polygon_model_data(pm);
 #endif
 }

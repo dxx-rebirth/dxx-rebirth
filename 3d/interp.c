@@ -53,6 +53,8 @@ static char rcsid[] = "$Id: interp.c,v 1.1.1.1 2006/03/17 19:39:05 zicodxx Exp $
 #include "3d.h"
 #include "globvars.h"
 #include "gr.h"
+#include "byteswap.h"
+#include "polyobj.h"
 
 #define OP_EOF				0	//eof
 #define OP_DEFPOINTS		1	//defpoints
@@ -522,4 +524,66 @@ void g3_init_polygon_model(void *model_ptr)
 
 	init_model_sub((ubyte *) model_ptr);
 }
+
+#ifdef WORDS_NEED_ALIGNMENT
+void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
+	       chunk *chunk_list, int *no_chunks)
+{
+	Assert(*no_chunks + 1 < MAX_CHUNKS); //increase MAX_CHUNKS if you get this
+	chunk_list[*no_chunks].old_base = old_base;
+	chunk_list[*no_chunks].new_base = new_base;
+	chunk_list[*no_chunks].offset = offset;
+	chunk_list[*no_chunks].correction = 0;
+	(*no_chunks)++;
+}
+
+/*
+ * finds what chunks the data points to, adds them to the chunk_list, 
+ * and returns the length of the current chunk
+ */
+int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no)
+{
+	short n;
+	ubyte *p = data;
+
+	while (swapshort(w(p)) != OP_EOF) {
+		switch (swapshort(w(p))) {
+		case OP_DEFPOINTS:
+			n = swapshort(w(p+2));
+			p += n*sizeof(struct vms_vector) + 4;
+			break;
+		case OP_DEFP_START:
+			n = swapshort(w(p+2));
+			p += n*sizeof(struct vms_vector) + 8;
+			break;
+		case OP_FLATPOLY:
+			n = swapshort(w(p+2));
+			p += 30 + ((n&~1)+1)*2;
+			break;
+		case OP_TMAPPOLY:
+			n = swapshort(w(p+2));
+			p += 30 + ((n&~1)+1)*2 + n*12;
+			break;
+		case OP_SORTNORM:
+			add_chunk(p, p - data + new_data, 28, list, no);
+			add_chunk(p, p - data + new_data, 30, list, no);
+			p += 32;
+			break;
+		case OP_RODBM:
+			p+=36;
+			break;
+		case OP_SUBCALL:
+			add_chunk(p, p - data + new_data, 16, list, no);
+			p+=20;
+			break;
+		case OP_GLOW:
+			p += 4;
+			break;
+		default:
+			Error("invalid polygon model\n");
+		}
+	}
+	return p + 2 - data;
+}
+#endif //def WORDS_NEED_ALIGNMENT
 

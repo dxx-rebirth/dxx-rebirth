@@ -420,6 +420,9 @@ typedef struct object {
 	int			signature;		// Every object ever has a unique signature...
 	ubyte			type;				// what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte			id;				// which form of object...which powerup, robot, etc.
+#ifdef WORDS_NEED_ALIGNMENT
+	short pad;
+#endif
 	short			next,prev;		// id of next and previous connected object in Objects, -1 = no connection
 	ubyte			control_type;  // how this object is controlled
 	ubyte			movement_type; // how this object moves
@@ -459,7 +462,9 @@ typedef struct object {
 		polyobj_info pobj_info;			//polygon model
 		vclip_info	 vclip_info;		//vclip
 	} __pack__ rtype;
-
+#ifdef WORDS_NEED_ALIGNMENT
+	short pad2;
+#endif
 } __pack__ object;
 
 typedef struct obj_position {

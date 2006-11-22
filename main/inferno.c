@@ -288,7 +288,7 @@ void show_commandline_help()
 	printf( "  -gl_library <l>    %s\n", "Use alternate opengl library");
 #endif // OGL_RUNTIME_LOAD
 #else  // ifndef OGL
-	printf( "  -tmap <t>          %s\n", "Select texmapper to use (c,fp,i386,pent,ppro)");
+	printf( "  -tmap <t>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
 #endif // OGL
 #ifdef    __SDL__
 	printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");

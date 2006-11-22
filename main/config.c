@@ -264,7 +264,7 @@ int ReadConfigFile()
 	Config_control_type = 0;
 	Config_channels_reversed = 0;
 
-#ifdef __unix__
+#if defined(__unix__) && !defined (GP2X)
 	/* we abuse the line buf here todo some unix specific stuff */
 	ptr = getenv("HOME");
 	snprintf(line, sizeof(line), "%s/.d1x-rebirth", ptr? ptr:".");

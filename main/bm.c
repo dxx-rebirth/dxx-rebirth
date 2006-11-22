@@ -166,24 +166,10 @@ void bm_read_all(CFILE * fp)
 	cfread( Powerup_info, sizeof(powerup_type_info), MAX_POWERUP_TYPES, fp );
 	
 	cfread( &N_polygon_models, sizeof(int), 1, fp );
+	polymodel_read_n(Polygon_models, N_polygon_models, fp);
 
-#if defined(__alpha__) || defined(_LP64)
-       for (i=0; i<N_polygon_models; i++ ) {
-               cfread( &Polygon_models[i], sizeof(polymodel)-4, 1, fp );
-               /* this is a dirty hack */
-               memmove ((char *)(&Polygon_models[i].model_data)+4, &Polygon_models[i].model_data, sizeof (polymodel)-12);
-       }
-#else
-        cfread( Polygon_models, sizeof(polymodel), N_polygon_models, fp );
-#endif    
-    
-       for (i=0; i<N_polygon_models; i++ ) {
-		Polygon_models[i].model_data = malloc(Polygon_models[i].model_data_size);
-/*		  printf("%d. size=%d, ptr=%p\n",i,Polygon_models[i].model_data_size,
-		 Polygon_models[i].model_data);*/
-		Assert( Polygon_models[i].model_data != NULL );
-		cfread( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
-	}
+	for (i=0; i<N_polygon_models; i++ )
+		polygon_model_data_read(&Polygon_models[i], fp);
 
 	cfread( Gauges, sizeof(bitmap_index), MAX_GAUGE_BMS, fp );
 

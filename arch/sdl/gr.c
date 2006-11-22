@@ -99,7 +99,11 @@ int gr_set_mode(u_int32_t mode)
 	  // changed by adb on 980913: added SDL_HWPALETTE (should be option?)
         // changed by someone on 980923 to add SDL_FULLSCREEN
 	if(!checkvidmodeok || SDL_VideoModeOK(w,h,8,sdl_video_flags)){
+#ifdef GP2X
+	  screen = SDL_SetVideoMode(w, 240, 8, sdl_video_flags);
+#else
 	  screen = SDL_SetVideoMode(w, h, 8, sdl_video_flags);
+#endif
 	} else {
 	  screen=NULL;
 	}

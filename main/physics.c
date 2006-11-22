@@ -953,8 +953,27 @@ void physics_turn_towards_vector(vms_vector *goal_vector, object *obj, fix rate)
 	if (abs(delta_p) < F1_0/16) delta_p *= 4;
 	if (abs(delta_h) < F1_0/16) delta_h *= 4;
 
-	physics_set_rotvel_and_saturate(&rotvel_ptr->x, delta_p);
+#ifdef WORDS_NEED_ALIGNMENT
+	if ((delta_p ^ rotvel_ptr->x) < 0) {
+		if (abs(delta_p) < F1_0/8)
+			rotvel_ptr->x = delta_p/4;
+		else
+			rotvel_ptr->x = delta_p;
+	} else
+		rotvel_ptr->x = delta_p;
+	if ((delta_h ^ rotvel_ptr->y) < 0) {
+		if (abs(delta_h) < F1_0/8)
+			rotvel_ptr->y = delta_h/4;
+		else
+			rotvel_ptr->y = delta_h;
+	} else
+		rotvel_ptr->y = delta_h;
+
+#else
+ 	physics_set_rotvel_and_saturate(&rotvel_ptr->x, delta_p);
 	physics_set_rotvel_and_saturate(&rotvel_ptr->y, delta_h);
+#endif
+	
 	rotvel_ptr->z = 0;
 }
 

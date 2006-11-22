@@ -1,7 +1,9 @@
 #include "clipboard.h"
 
 #include <SDL/SDL.h>
+#ifndef GP2X
 #include <SDL/SDL_syswm.h>
+#endif
 #include <limits.h>
 #include <string.h>
 
@@ -10,6 +12,7 @@
 int getClipboardText(char *text, int strlength)
 {
 	int retval = 0;
+#ifndef GP2X
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	if ( SDL_GetWMInfo(&info) )
@@ -84,6 +87,6 @@ int getClipboardText(char *text, int strlength)
 		//	SDL is not running on X11
 
 	}
-
+#endif
 	return retval;
 }

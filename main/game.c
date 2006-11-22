@@ -2206,6 +2206,9 @@ ubyte exploding_flag = 0;
 extern void dump_used_textures_all();
 int ostate_p=0;
 int ostate_s=0;
+#ifdef GP2X
+extern int digi_volume;
+#endif
 
 void ReadControls()
 {
@@ -2746,10 +2749,22 @@ void ReadControls()
 #endif
 
 				case KEY_F3:			toggle_cockpit();	break;
-				case KEY_SHIFTED+KEY_MINUS:
-				case KEY_MINUS:			shrink_window();	break;
+ 				case KEY_SHIFTED+KEY_MINUS:
+				case KEY_MINUS:
+#ifdef GP2X
+						digi_set_digi_volume( digi_volume-2048 );
+#else
+						shrink_window();
+#endif
+						break;
 				case KEY_SHIFTED+KEY_EQUAL:
-				case KEY_EQUAL:			grow_window();		break;
+				case KEY_EQUAL:
+#ifdef GP2X
+						digi_set_digi_volume( digi_volume+2048 );
+#else
+						grow_window();
+#endif
+						break;
 				case KEY_F2:			Config_menu_flag = 1;	break;
 				case KEY_F7:
 #ifdef NETWORK
@@ -2977,12 +2992,22 @@ break;
 				case KEY_CTRLED + KEY_F12:
 				case KEY_PRINT_SCREEN: 		save_screen_shot(0);	break;
 
-                                case KEY_SHIFTED+KEY_MINUS:
-				case KEY_ALTED+KEY_F9:
-				case KEY_MINUS:			shrink_window();	break;
-                                case KEY_SHIFTED+KEY_EQUAL:
-				case KEY_ALTED+KEY_F10:
-				case KEY_EQUAL:			grow_window();		break;
+ 				case KEY_SHIFTED+KEY_MINUS:
+				case KEY_MINUS:
+#ifdef GP2X
+						digi_set_digi_volume( digi_volume-2048 );
+#else
+						shrink_window();
+#endif
+						break;
+				case KEY_SHIFTED+KEY_EQUAL:
+				case KEY_EQUAL:
+#ifdef GP2X
+						digi_set_digi_volume( digi_volume+2048 );
+#else
+						grow_window();
+#endif
+						break;
 				case KEY_CTRLED+KEY_SHIFTED+KEY_PADMULTIPLY:
 				case KEY_ALTED+KEY_CTRLED+KEY_PADMULTIPLY:
 				case KEY_ALTED+KEY_SHIFTED+KEY_PADMULTIPLY:
@@ -3002,6 +3027,9 @@ break;
 					Game_aborted=1;
 					Function_mode=FMODE_EXIT;
 					break;
+#ifdef GP2X
+				case KEY_ALTED + KEY_ESC:
+#endif
 				case KEY_ALTED+KEY_F2:	state_save_all( 0 );		break;	// 0 means not between levels.
 				case KEY_ALTED+KEY_F3:	state_restore_all(1);		break;
 

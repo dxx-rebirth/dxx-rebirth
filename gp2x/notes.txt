@@ -1,0 +1,23 @@
+D1X-Rebirth
+http://www.dxx-rebirth.de
+zico@unixboard.de
+
+Install
+
+* Copy all the files from the archive to a directory of your SD card
+* Copy the files "descent.hog" and "descent.pig" from your Descent CD to this directory as well
+* Run d1x-rebirth_cockpit or d1x-rebirth_fullscreen to run the game
+* See buttonmap.txt for a list of keys and combos
+
+
+Notes
+
+The game runs smoother in Cockpit-mode but you have also the choice to select a higher
+cpu speed from the main menu. Be aware that this value will not be saved.
+
+If you save a game please quit the game normally or your save state may be corrupted.
+
+Please report any bugs to zicounixboard.de or the DXX-Forum found at http://www.dxx-rebirth.de.
+
+Have fun :)
+             -zico

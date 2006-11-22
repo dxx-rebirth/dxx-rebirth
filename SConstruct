@@ -33,6 +33,8 @@ no_asm = int(ARGUMENTS.get('no_asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
 shareware = int(ARGUMENTS.get('shareware', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
+arm = int(ARGUMENTS.get('arm', 0))
+gp2x = int(ARGUMENTS.get('gp2x', 0))
 
 # general source files
 common_sources = [
@@ -332,7 +334,7 @@ if sys.platform == 'win32':
 	print "compiling on Windows"
 	osdef = '__WINDOWS__'
 	osasmdef = 'win32'
-	env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"''\\"')])
+	sharepath = ''
 	env.Append(CPPDEFINES = ['__WINDOWS__'])
 	env.Append(CPPPATH = ['arch/win32/include'])
 	ogldefines = ['SDL_GL', 'OGL_RUNTIME_LOAD', 'OGL']
@@ -345,7 +347,6 @@ else:
 	print "compiling on *NIX"
 	osdef = '__LINUX__'
 	osasmdef = 'elf'
-	env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"' + str(sharepath) + '\\"')])
 	env.Append(CPPDEFINES = ['__LINUX__', 'WANT_AWE32'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL', 'OGL']
@@ -353,6 +354,31 @@ else:
 	ogllibs = ['GL', 'GLU']
 	alllibs = sdllibs
 	lflags = ' '
+
+# GP2X test env
+if (gp2x == 1):
+	sdl_only = 1
+	arm = 1
+	sharepath = ''
+	env.Replace(CC = '/usr/local/gp2xdev/bin/gp2x-gcc')
+	env.Replace(CXX = '/usr/local/gp2xdev/bin/gp2x-g++')
+	env.Append(CPPDEFINES = ['GP2X'])
+	env.Append(CPPPATH = ['/usr/local/gp2xdev/include'])
+	#env.Append(CPPFLAGS = '-ffast-math -fPIC -funroll-all-loops -fomit-frame-pointer -march=armv4t') please do not remove - left for further optimisation/debugging
+	Object(['main/clock.c'], CC = '/usr/local/gp2xdev/bin/gp2x-gcc')
+	common_sources = common_sources + ['main/clock.o']
+	gp2xlibs = ['pthread']
+	alllibs = alllibs + gp2xlibs
+	lflags = '-static'
+	lpath = '/usr/local/gp2xdev/lib'
+else:
+	lpath = ''
+
+# arm architecture?
+if (arm == 1):
+	no_asm = 1
+	env.Append(CPPDEFINES = ['WORDS_NEED_ALIGNMENT'])
+	env.Append(CPPFLAGS = ' -mstructure-size-boundary=8')
 
 # sdl or opengl?
 if (sdl_only == 1):
@@ -413,8 +439,9 @@ if (shareware == 0) and (editor == 0):
 
 print '\n'
 
+env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"' + str(sharepath) + '\\"')])
 # finally building program...
-env.Program(target=str(target), source = common_sources, LIBS = alllibs, LINKFLAGS = str(lflags))
+env.Program(target=str(target), source = common_sources, LIBS = alllibs, LINKFLAGS = str(lflags), LIBPATH = str(lpath))
 env.Install(BIN_DIR, str(target))
 env.Alias('install', BIN_DIR)
 
@@ -436,6 +463,8 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'debug=1' 	 build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1' 	 do profiler build
 	'editor=1' 	 build editor !EXPERIMENTAL!
+	'arm=1'		 compile for ARM architecture
+	'gp2x=1'	 compile for GP2X handheld
 	
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + '\n')

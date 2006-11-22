@@ -21,6 +21,12 @@
 #include "text.h"
 #include "u_mem.h"
 
+#ifdef GP2X
+#include "gp2x.h"
+SDL_Joystick *gp2xJoystick;
+int gp2xJoyButtons;
+#endif
+
 extern char *joybutton_text[]; //from kconfig.c
 extern char *joyaxis_text[]; //from kconfig.c
 
@@ -151,6 +157,9 @@ int joy_init()
 	for (i = 0; i < n; i++) {
 		printf("sdl-joystick %d: %s\n", i, SDL_JoystickName(i));
 		SDL_Joysticks[num_joysticks].handle = SDL_JoystickOpen(i);
+#ifdef GP2X
+		gp2xJoystick=SDL_Joysticks[num_joysticks].handle;
+#endif
 		if (SDL_Joysticks[num_joysticks].handle) {
 			joy_present = 1;
 
@@ -164,6 +173,9 @@ int joy_init()
 
 			SDL_Joysticks[num_joysticks].n_buttons
 				= SDL_JoystickNumButtons(SDL_Joysticks[num_joysticks].handle);
+#ifdef GP2X
+			gp2xJoyButtons=SDL_Joysticks[num_joysticks].n_buttons;
+#endif
 			if(SDL_Joysticks[num_joysticks].n_buttons > MAX_BUTTONS_PER_JOYSTICK)
 			{
 				Warning("sdl-joystick: found %d buttons, only %d supported.  Game may be unstable.\n", SDL_Joysticks[num_joysticks].n_buttons, MAX_BUTTONS_PER_JOYSTICK);

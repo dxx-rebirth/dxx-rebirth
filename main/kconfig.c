@@ -66,6 +66,10 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:44:27 zicodxx Exp 
 #include "physics.h"
 #include "vlcnfire.h"
 
+#ifdef GP2X
+#include "gp2x.h"
+#endif
+
 // Array used to 'blink' the cursor while waiting for a keypress.
 sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
@@ -2341,8 +2345,13 @@ if (!Player_is_dead)
 	if ( (use_mouse)&&(kc_mouse[3].value < 255 )) Controls.forward_thrust_time -= mouse_button_down_time( kc_mouse[3].value );
 
 //----------- Read fire_primary_down_count
+#ifdef GP2X // deny these controls for GP2X combo actions with SELECT
+if (!keyd_pressed[ KEY_LALT ])
+#endif
+{
 	if (kc_keyboard[24].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[24].value);
 	if (kc_keyboard[25].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[25].value);
+}
 	if ((use_joystick)&&(kc_joystick[0].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_joystick[0].value);
 	if ((use_mouse)&&(kc_mouse[0].value < 255 )) Controls.fire_primary_down_count += mouse_button_down_count(kc_mouse[0].value);
 
@@ -2376,6 +2385,10 @@ if (!Player_is_dead)
 	}
        #endif
 
+#ifdef GP2X // deny these controls for GP2X combo actions with SELECT
+if (!keyd_pressed[ KEY_LALT ])
+#endif
+{
 //----------- Read fire_primary_state
 	if (kc_keyboard[24].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[24].value];
 	if (kc_keyboard[25].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[25].value];
@@ -2393,6 +2406,7 @@ if (!Player_is_dead)
 	if (kc_keyboard[27].value < 255 ) Controls.fire_secondary_state |= keyd_pressed[kc_keyboard[27].value];
 	if ((use_joystick)&&(kc_joystick[1].value < 255 )) Controls.fire_secondary_state |= joy_get_button_state(kc_joystick[1].value);
 	if ((use_mouse)&&(kc_mouse[1].value < 255) ) Controls.fire_secondary_state |= mouse_button_state(kc_mouse[1].value);
+}
 
 //----------- Read fire_flare_down_count
 	if (kc_keyboard[28].value < 255 ) Controls.fire_flare_down_count += key_down_count(kc_keyboard[28].value);
@@ -2478,6 +2492,56 @@ if ((Config_control_type != 5) || !mouselook || (Game_mode & GM_MULTI) ) {
 #ifndef NDEBUG
 	if ( keyd_pressed[KEY_DELETE] )	{
 		memset( &Controls, 0, sizeof(control_info) );
+	}
+#endif
+
+#ifdef GP2X
+	if (keyd_pressed[ KEY_LALT ] && keyd_pressed[ KEY_R ]) // SELECT + R = cycle primary
+		Controls.cycle_primary_down_count = 1;
+	if (keyd_pressed[ KEY_LALT ] && keyd_pressed[ KEY_L ]) // SELECT + L = cycle seconday
+		Controls.cycle_secondary_down_count = 1;
+	if (keyd_pressed[ KEY_A ] && keyd_pressed[ KEY_R ]) // A + R = fire flare
+		Controls.fire_flare_down_count = 1;
+	if (keyd_pressed[ KEY_A ] && keyd_pressed[ KEY_X ]) // A + X = automap
+		Controls.automap_down_count = 1;
+	if (keyd_pressed[ KEY_LALT ] && keyd_pressed[ KEY_DOWN ]) // SELECT + STICK DOWN = rear-view
+		Controls.rear_view_down_count = 1;
+	if (keyd_pressed[ KEY_PADENTER ] && keyd_pressed[ KEY_A ]) // B + A = drop bomb
+		Controls.drop_bomb_down_count = 1;
+	if (!slide_on) {
+		if (keyd_pressed[ KEY_PAD1 ]) {
+			Controls.pitch_time = -FrameTime/3;
+			Controls.heading_time = -FrameTime/3;
+		}
+		if (keyd_pressed[ KEY_PAD3 ]) {
+			Controls.pitch_time = -FrameTime/3;
+			Controls.heading_time = FrameTime/3;
+		}
+		if (keyd_pressed[ KEY_PAD7 ]) {
+			Controls.pitch_time = FrameTime/3;
+			Controls.heading_time = -FrameTime/3;
+		}
+		if (keyd_pressed[ KEY_PAD9 ]) {
+			Controls.pitch_time = FrameTime/3;
+			Controls.heading_time = FrameTime/3;
+		}
+	} else {
+		if (keyd_pressed[ KEY_PAD1 ]) {
+			Controls.vertical_thrust_time = -FrameTime/2;
+			Controls.sideways_thrust_time = -FrameTime/2;
+		}
+		if (keyd_pressed[ KEY_PAD3 ]) {
+			Controls.vertical_thrust_time = -FrameTime/2;
+			Controls.sideways_thrust_time = FrameTime/2;
+		}
+		if (keyd_pressed[ KEY_PAD7 ]) {
+			Controls.vertical_thrust_time = FrameTime/2;
+			Controls.sideways_thrust_time = -FrameTime/2;
+		}
+		if (keyd_pressed[ KEY_PAD9 ]) {
+			Controls.vertical_thrust_time = FrameTime/2;
+			Controls.sideways_thrust_time = FrameTime/2;
+		}
 	}
 #endif
 }
