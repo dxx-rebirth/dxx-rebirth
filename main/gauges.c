@@ -1396,7 +1396,9 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 	}
 
 	gr_set_current_canvas(&VR_render_buffer[0]);
-
+#ifndef OGL
+	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w), COCKPITSCALE_Y*(y+bm->bm_h));
+#endif
 	hud_bitblt( x, y, bm, F1_0);
 
 	Gr_scanline_darkening_level = cloak_fade_value;
