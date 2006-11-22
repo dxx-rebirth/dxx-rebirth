@@ -1301,9 +1301,9 @@ void do_cpu_menu()
 
 	cpu_speed = modes[i];
 
-	printf("Set CPU Clock...(%i)\n",cpu_speed);
-	SetClock(cpu_speed);
-
-
+	if (cpu_speed >= 200 && cpu_speed <= 275) {
+		printf("Set CPU Clock...(%i)\n",cpu_speed);
+		SetClock(cpu_speed);
+	}
 }
 #endif

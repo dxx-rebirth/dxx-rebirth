@@ -6,6 +6,7 @@ Install
 
 * Copy all the files from the archive to a directory of your SD card
 * Copy the files "descent.hog" and "descent.pig" from your Descent CD to this directory as well
+  (please note these files MUST be lowercase)
 * Run d1x-rebirth_cockpit or d1x-rebirth_fullscreen to run the game
 * See buttonmap.txt for a list of keys and combos
 
