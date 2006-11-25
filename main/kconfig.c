@@ -2351,10 +2351,9 @@ if (!keyd_pressed[ KEY_LALT ])
 {
 	if (kc_keyboard[24].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[24].value);
 	if (kc_keyboard[25].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[25].value);
-}
 	if ((use_joystick)&&(kc_joystick[0].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_joystick[0].value);
 	if ((use_mouse)&&(kc_mouse[0].value < 255 )) Controls.fire_primary_down_count += mouse_button_down_count(kc_mouse[0].value);
-
+}
 #ifdef NETWORK
 	if(use_alt_vulcanfire)
 	{
@@ -2496,9 +2495,9 @@ if ((Config_control_type != 5) || !mouselook || (Game_mode & GM_MULTI) ) {
 #endif
 
 #ifdef GP2X
-	if (keyd_pressed[ KEY_LALT ] && keyd_pressed[ KEY_R ]) // SELECT + R = cycle primary
+	if (keyd_pressed[ KEY_LALT ] && key_down_count( KEY_R )) // SELECT + R = cycle primary
 		Controls.cycle_primary_down_count = 1;
-	if (keyd_pressed[ KEY_LALT ] && keyd_pressed[ KEY_L ]) // SELECT + L = cycle seconday
+	if (keyd_pressed[ KEY_LALT ] && key_down_count( KEY_L )) // SELECT + L = cycle seconday
 		Controls.cycle_secondary_down_count = 1;
 	if (keyd_pressed[ KEY_A ] && keyd_pressed[ KEY_R ]) // A + R = fire flare
 		Controls.fire_flare_down_count = 1;
@@ -2510,20 +2509,20 @@ if ((Config_control_type != 5) || !mouselook || (Game_mode & GM_MULTI) ) {
 		Controls.drop_bomb_down_count = 1;
 	if (!slide_on) {
 		if (keyd_pressed[ KEY_PAD1 ]) {
-			Controls.pitch_time = -FrameTime/3;
-			Controls.heading_time = -FrameTime/3;
+			Controls.pitch_time = -FrameTime/2;
+			Controls.heading_time = -FrameTime/2;
 		}
 		if (keyd_pressed[ KEY_PAD3 ]) {
-			Controls.pitch_time = -FrameTime/3;
-			Controls.heading_time = FrameTime/3;
+			Controls.pitch_time = -FrameTime/2;
+			Controls.heading_time = FrameTime/2;
 		}
 		if (keyd_pressed[ KEY_PAD7 ]) {
-			Controls.pitch_time = FrameTime/3;
-			Controls.heading_time = -FrameTime/3;
+			Controls.pitch_time = FrameTime/2;
+			Controls.heading_time = -FrameTime/2;
 		}
 		if (keyd_pressed[ KEY_PAD9 ]) {
-			Controls.pitch_time = FrameTime/3;
-			Controls.heading_time = FrameTime/3;
+			Controls.pitch_time = FrameTime/2;
+			Controls.heading_time = FrameTime/2;
 		}
 	} else {
 		if (keyd_pressed[ KEY_PAD1 ]) {
