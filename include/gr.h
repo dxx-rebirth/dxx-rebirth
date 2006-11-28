@@ -245,6 +245,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define GR_FADE_LEVELS 34
 #define GR_ACTUAL_FADE_LEVELS 32
+#define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 
 extern int Gr_scanline_darkening_level;
 
