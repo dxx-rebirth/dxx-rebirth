@@ -169,6 +169,7 @@ void load_text()
 
 	for (i=0,tptr=text;i<N_TEXT_STRINGS;i++) {
 		char *p;
+		char *buf;
 
 		Text_string[i] = tptr;
 
@@ -198,13 +199,16 @@ void load_text()
 				Error("Unsupported key sequence <\\%c> on line %d of file <%s>",p[1],i+1,filename); 
 
 			p[0] = newchar;
-			strcpy(p+1,p+2);
+// 			strcpy(p+1,p+2);
+			MALLOC(buf,char,len+1);
+			strcpy(buf,p+2);
+			strcpy(p+1,buf);
 			p++;
 		}
 
           switch(i) {
           case 145:
-                  Text_string[i]=(char *) malloc(sizeof(char *) * 48);
+                  Text_string[i]=(char *) malloc(sizeof(char) * 48);
                   strcpy(Text_string[i],"Sidewinder &\nThrustmaster FCS &\nWingman Extreme");
           }
 
