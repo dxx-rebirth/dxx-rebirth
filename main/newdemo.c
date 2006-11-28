@@ -433,7 +433,7 @@ object *prev_obj=NULL; //ptr to last object read in
 void nd_read_object(object *obj)
 {
 	memset(obj, 0, sizeof(object));
-
+	int* sig = &(obj->signature);
 /*
  *  Do render type first, since with render_type == RT_NONE, we
  *  blow by all other object information
@@ -445,7 +445,7 @@ void nd_read_object(object *obj)
 
 	nd_read_byte((sbyte *)&(obj->id));
 	nd_read_byte((sbyte *)&(obj->flags));
-	nd_read_short((short *)&(obj->signature));
+	nd_read_short(/*(short *)&(obj->signature)*/(short*)sig);
 	nd_read_shortpos(obj);
 
 	obj->attached_obj = -1;
@@ -2429,7 +2429,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 //  Some of this code taken from ai_turn_towards_vector
 //  Don't do the interpolation on certain render types which don't use an orientation matrix
 
-				if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP))) {
+				if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP)  || (render_type == RT_WEAPON_VCLIP))) {
 
 				vms_vector	fvec1, fvec2, rvec1, rvec2;
 				fix			mag1;

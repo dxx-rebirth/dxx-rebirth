@@ -1038,6 +1038,7 @@ void ogl_init_font(grs_font * font){
 	//	char s[2];
 	ogl_font_choose_size(font,gap,&tw,&th);
 	data=malloc(tw*th);
+	memset(data, 0, tw * th);
 	gr_init_bitmap(&font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
 
 	font->ft_parent_bitmap.gltexture=ogl_get_free_texture();

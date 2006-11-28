@@ -320,7 +320,7 @@ noasm_sources = [
 
 # flags and stuff for all platforms
 env = Environment(ENV = os.environ)
-env.Append(CPPFLAGS = '-O2 -Wall -funsigned-char')
+env.Append(CPPFLAGS = '-Wall -funsigned-char')
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
 #env.Append(CPPDEFINES = [('D1XMICRO', '\\"' + str(D1XMICRO) + '\\"')])
 env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
@@ -364,7 +364,7 @@ if (gp2x == 1):
 	env.Replace(CXX = '/usr/local/gp2xdev/bin/gp2x-g++')
 	env.Append(CPPDEFINES = ['GP2X'])
 	env.Append(CPPPATH = ['/usr/local/gp2xdev/include'])
-	#env.Append(CPPFLAGS = '-ffast-math -fPIC -funroll-all-loops -fomit-frame-pointer -march=armv4t') please do not remove - left for further optimisation/debugging
+	#env.Append(CPPFLAGS = ' -ffast-math -fPIC -funroll-all-loops -fomit-frame-pointer -march=armv4t') # left for further optimisation/debugging
 	Object(['main/clock.c'], CC = '/usr/local/gp2xdev/bin/gp2x-gcc')
 	common_sources = common_sources + ['main/clock.o']
 	gp2xlibs = ['pthread']
@@ -403,12 +403,15 @@ if (sdlmixer == 1):
 # debug?
 if (debug == 1):
 	print "including: DEBUG"
+	lflags = ' -g '
+	env.Append(CPPFLAGS = lflags)
 else:
 	env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
+	env.Append(CPPFLAGS = ' -O2 ')
 
 # profiler?
 if (profiler == 1):
-	lflags = ' -g -pg '
+	lflags = ' -pg '
 	env.Append(CPPFLAGS = lflags)
 
 # assembler code?

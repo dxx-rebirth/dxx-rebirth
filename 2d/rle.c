@@ -267,12 +267,13 @@ __inline void rle_stosb(char *dest, int len, int color)
 #endif
 
 #ifdef NO_ASM
-void rle_stosb(ubyte *dest, int len, int color)
+/*void rle_stosb(ubyte *dest, int len, int color)
 {
 	int i;
 	for (i=0; i<len; i++ )
 		*dest++ = color;
-}
+}*/
+#define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
 #endif
 
 void gr_rle_decode( ubyte * src, ubyte * dest )
@@ -519,7 +520,7 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 	int doffset;
 	ubyte *rle_data;
 
-	rle_data=malloc( (bmp->bm_w+1)* bmp->bm_h );
+	rle_data=malloc( /*(bmp->bm_w+1)* bmp->bm_h*/MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) );
 	if (rle_data==NULL) return 0;
 	doffset = 4 + bmp->bm_h;
 	for (y=0; y<bmp->bm_h; y++ )	{

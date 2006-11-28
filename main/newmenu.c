@@ -697,8 +697,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	w += 30*MENSCALE_X;
 	h += 30*MENSCALE_Y;
 
-	if ( w > SWIDTH ) w = SWIDTH;
-	if ( h > SHEIGHT ) h = SHEIGHT;
+	if ( w > SWIDTH ) w = SWIDTH-3;
+	if ( h > SHEIGHT ) h = SHEIGHT-3;
 
 	x = (GWIDTH-w)/2;
 	y = (GHEIGHT-h)/2;
@@ -1621,11 +1621,11 @@ ReadFileNames:
 		Assert( bg.background != NULL );
 
 
-		gr_bm_bitblt(w_w, w_h, 0, 0, w_x, w_y, &grd_curcanv->cv_bitmap, bg.background );
+// 		gr_bm_bitblt(w_w, w_h, 0, 0, w_x, w_y, &grd_curcanv->cv_bitmap, bg.background );
 
-#if 0
+// #if 0
 		gr_bm_bitblt(GWIDTH, GHEIGHT, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_buffer->cv_bitmap) );
-#endif
+// #endif
 
 		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h-1 );
 		

@@ -71,7 +71,7 @@ void c_tmap_scanline_flat()
 	ubyte *dest;
 //        int x;
 
-	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y )  );
+	dest = (ubyte *)(write_buffer + fx_xleft+1 + (bytes_per_row * fx_y )  );
 
 /*	for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 		*dest++ = tmap_flat_color;

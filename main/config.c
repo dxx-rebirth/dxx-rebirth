@@ -427,12 +427,12 @@ int WriteConfigFile()
 {
 	FILE *infile;
 	char str[256];
-	int joy_axis_min[JOY_NUM_AXES];
+	/*int joy_axis_min[JOY_NUM_AXES];
 	int joy_axis_center[JOY_NUM_AXES];
-	int joy_axis_max[JOY_NUM_AXES];
+	int joy_axis_max[JOY_NUM_AXES];*/
 	ubyte gamma = gr_palette_get_gamma();
 	
-	joy_get_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
+// 	joy_get_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
 
 //added on 5/20/99 by Victor Rachels to make less hassle when switching
 #ifdef __WINDOWS__
@@ -477,11 +477,11 @@ int WriteConfigFile()
 	else
 		sprintf (str, "%s=%d\n", detail_level_str, Detail_level);
 	fputs(str, infile);
-	sprintf (str, "%s=%d,%d,%d,%d\n", joystick_min_str, joy_axis_min[0], joy_axis_min[1], joy_axis_min[2], joy_axis_min[3] );
+	sprintf (str, "%s=0,0,0,0\n", joystick_min_str/*, joy_axis_min[0], joy_axis_min[1], joy_axis_min[2], joy_axis_min[3]*/ );
 	fputs(str, infile);
-	sprintf (str, "%s=%d,%d,%d,%d\n", joystick_cen_str, joy_axis_center[0], joy_axis_center[1], joy_axis_center[2], joy_axis_center[3] );
+	sprintf (str, "%s=0,0,0,0\n", joystick_cen_str/*, joy_axis_center[0], joy_axis_center[1], joy_axis_center[2], joy_axis_center[3]*/ );
 	fputs(str, infile);
-	sprintf (str, "%s=%d,%d,%d,%d\n", joystick_max_str, joy_axis_max[0], joy_axis_max[1], joy_axis_max[2], joy_axis_max[3] );
+	sprintf (str, "%s=0,0,0,0\n", joystick_max_str/*, joy_axis_max[0], joy_axis_max[1], joy_axis_max[2], joy_axis_max[3]*/ );
 	fputs(str, infile);
 	sprintf (str, "%s=%s\n", last_player_str, Players[Player_num].callsign );
 	fputs(str, infile);

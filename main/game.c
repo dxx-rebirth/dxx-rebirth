@@ -2684,7 +2684,6 @@ void ReadControls()
 			john_cheat_func_4(key);
 
 			if (Player_is_dead) {
-
 				if (Player_exploded)
 					Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
 			
@@ -2701,11 +2700,14 @@ void ReadControls()
 					Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
 					Int3();
 				}
-			
+
 				//don't abort death sequence for netgame join/refuse keys
 				if (	(key == KEY_ALTED + KEY_1) ||
 						(key == KEY_ALTED + KEY_2))
 					Death_sequence_aborted  = 0;
+
+				if (key < KEY_F1 || key > KEY_F12)
+					break;
 			
 				if (Death_sequence_aborted)
 					game_flush_inputs();
