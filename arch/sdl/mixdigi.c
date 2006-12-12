@@ -32,11 +32,14 @@
 #include "newdemo.h"
 #include "kconfig.h"
 
-#define MIX_DIGI_DEBUG 0
+#define MIX_DIGI_DEBUG 1
 
 #define MIX_OUTPUT_FREQUENCY	44100	// in 2006, we can afford it! 
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
 #define MIX_OUTPUT_CHANNELS	2
+
+//MD2211 - added 2006/12/12 to correctly remember music volume
+static int midi_volume = F1_0;
 
 int digi_sample_rate = SAMPLE_RATE_22K;
 
@@ -58,9 +61,9 @@ extern inline fix fixmul(fix x, fix y) { return do_fixmul(x,y); }
 //end edit by adb
 //end edit -MM
 
-#define MAX_SOUND_SLOTS 32
-#define SOUND_BUFFER_SIZE 512
-#define MIN_VOLUME 10
+#define MAX_SOUND_SLOTS 64
+#define SOUND_BUFFER_SIZE 2048
+#define MIN_VOLUME 0
 
 //added/changed on 980905 by adb to make sfx volume work, on 990221 by adb changed F1_0 to F1_0 / 2
 #define SOUND_MAX_VOLUME (F1_0 / 2)
@@ -125,7 +128,7 @@ void mixdigi_convert_sound(int i) {
     SoundChunks[i].abuf = cvt.buf;
     SoundChunks[i].alen = dlen * cvt.len_mult;
     SoundChunks[i].allocated = 1;
-    SoundChunks[i].volume = 128; // Max volume = 128
+    SoundChunks[i].volume = 128; // Max volume (SDL) = 128
   }
 }
 
@@ -151,6 +154,7 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 }
 
 void digi_set_channel_volume(int channel, int volume) {
+  if (MIX_DIGI_DEBUG) printf("digi_set_channel_volume %d %d\n", channel, volume);
   int mix_vol = fix2byte(volume);
   Mix_SetDistance(channel, 255-mix_vol);
 }
@@ -169,7 +173,16 @@ void digi_end_sound(int channel) {
   digi_stop_sound(channel);
 }
 
+void digi_set_digi_volume( int dvolume )
+{
+  if (!digi_initialised) return;
+  if (MIX_DIGI_DEBUG) printf("digi_set_digi_volume %d\n", dvolume); 
+  int mix_vol = fix2byte(dvolume);
+  Mix_Volume(-1, mix_vol);
+}
+
 //added on 980905 by adb from original source to make sfx volume work
+/*
 void digi_set_digi_volume( int dvolume )
 {
 	dvolume = fixmuldiv( dvolume, SOUND_MAX_VOLUME, 0x7fff);
@@ -184,18 +197,18 @@ void digi_set_digi_volume( int dvolume )
 
 	digi_sync_sounds();
 }
+*/
 //end edit by adb
 
 void digi_set_volume( int dvolume, int mvolume ) {
+  if (MIX_DIGI_DEBUG) printf("digi_set_volume %d %d\n", dvolume, mvolume); 
   digi_set_digi_volume(dvolume);
   digi_set_midi_volume(mvolume);
 }
 
-
 int digi_find_channel(int soundno) { return 0; }
 int digi_is_sound_playing(int soundno) { return 0; }
 int digi_is_channel_playing(int channel) { return 0; }
-
 void digi_reset() {}
 void digi_stop_all_channels() {}
 
@@ -203,7 +216,7 @@ extern void digi_end_soundobj(int channel);
 int verify_sound_channel_free(int channel);
 
  //added on 980905 by adb to make sound channel setting work
-void digi_set_max_channels(int n) { }
+void digi_set_max_channels(int n) { digi_max_channels = n; }
 int digi_get_max_channels() { return digi_max_channels; }
 // end edit by adb
 
@@ -212,9 +225,11 @@ int digi_get_max_channels() { return digi_max_channels; }
 
 #ifndef _WIN32
 void digi_set_midi_volume( int mvolume ) { 
+  midi_volume = mvolume;
   mix_set_music_volume(mvolume);
 }
 void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {
+  mix_set_music_volume(midi_volume);
   mix_play_music(filename, loop);
 }
 void digi_stop_current_song() {
@@ -228,3 +243,4 @@ void digi_resume_midi() {}
 #ifndef NDEBUG
 void digi_debug() {}
 #endif
+

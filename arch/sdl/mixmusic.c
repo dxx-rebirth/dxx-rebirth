@@ -126,6 +126,7 @@ void mix_play_music(char *filename, int loop) {
 }
 
 void mix_set_music_volume(int vol) {
+  printf("mix_set_music_volume %d\n", vol);
   Mix_VolumeMusic(vol);
 }
 
