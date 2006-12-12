@@ -34,6 +34,9 @@
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
 #define MIX_OUTPUT_CHANNELS	2
 
+//MD2211 - added 2006/12/12 to correctly remember music volume
+static int midi_volume = F1_0;
+
 int digi_sample_rate = 11025; //SAMPLE_RATE_11K;
 
 //edited 05/17/99 Matt Mueller - added ifndef NO_ASM
@@ -199,10 +202,12 @@ int digi_get_max_channels() { return digi_max_channels; }
 // MIDI stuff follows.
 
 #ifndef _WIN32
-void digi_set_midi_volume( int mvolume ) { 
+void digi_set_midi_volume( int mvolume ) {
+  midi_volume = mvolume;
   mix_set_music_volume(mvolume);
 }
 void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {
+  mix_set_music_volume(midi_volume);
   mix_play_music(filename, loop);
 }
 void digi_stop_current_song() {
