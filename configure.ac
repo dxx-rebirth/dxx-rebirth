@@ -172,6 +172,18 @@ if test x$enable_console = xyes; then
 fi
 AM_CONDITIONAL(CONSOLE, test x$enable_console = xyes)
 
+dnl Use GP2X modifications ?
+AC_ARG_ENABLE(gp2x,
+    [  --enable-gp2x           use special modifications for GP2X handheld],,)
+if test x$enable_gp2x = xyes; then
+    AC_DEFINE(GP2X,,[define to use GP2X modifications.])
+    AC_DEFINE(WORDS_NEED_ALIGNMENT,,[Define if your processor needs data to be word-aligned])
+    CFLAGS="-mstructure-size-boundary=8 $CFLAGS"
+    CFLAGS="-I /gp2xsdk/Tools/arm-gp2x-linux/include/SDL/ $CFLAGS"
+    D2X_FEATURES="gp2x ${D2X_FEATURES}"
+fi
+AM_CONDITIONAL(GP2X, test x$enable_gp2x = xyes)
+
 AC_ARG_WITH(sharepath,
     [[  --with-sharepath=DIR    Use DIR for shared game data (unix only) [DATADIR/games/d2x]]],
     sharepath=$withval, sharepath="auto")

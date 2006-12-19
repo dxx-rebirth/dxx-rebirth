@@ -312,9 +312,9 @@ int read_player_d2x(char *filename)
 			{
 				if(!strcmp(word,"PLX VERSION"))
 				{
-					int maj,min;
+					int maj=0,min=0;
 					sscanf(line,"v%i.%i",&maj,&min);
-					sprintf(plxver,"v%i.%i",maj,min);
+					sprintf(plxver,"v%i.%d",maj,min);
 				}
 				d_free(word);
 				cfgets(line,20,f);

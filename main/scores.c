@@ -228,8 +228,10 @@ void scores_fill_struct(stats_info * stats)
 
 void scores_maybe_add_player(int abort_flag)
 {
+#ifndef GP2X
 	char text1[COOL_MESSAGE_LEN+10];
 	newmenu_item m[10];
+#endif
 	int i,position;
 
 	#ifdef APPLE_DEMO		// no high scores in apple oem version
@@ -260,6 +262,7 @@ void scores_maybe_add_player(int abort_flag)
 //--		}
 
 		if ( position==0 )	{
+#ifndef GP2X
 			strcpy( text1,  "" );
 			m[0].type = NM_TYPE_TEXT; m[0].text = TXT_COOL_SAYING;
 			m[1].type = NM_TYPE_INPUT; m[1].text = text1; m[1].text_len = COOL_MESSAGE_LEN-5;
@@ -267,6 +270,9 @@ void scores_maybe_add_player(int abort_flag)
 			strncpy( Scores.cool_saying, text1, COOL_MESSAGE_LEN );
 			if (strlen(Scores.cool_saying)<1)
 				sprintf( Scores.cool_saying, "No Comment" );
+#else
+			sprintf( Scores.cool_saying, "http://www.dxx-rebirth.de" );
+#endif
 		} else {
 			nm_messagebox( TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, *(&TXT_1ST + position) );
 		}
@@ -419,9 +425,9 @@ ReshowScores:
 
 	gr_palette_fade_in( gr_palette,32, 0);
 
-#ifdef OGL
+// #ifdef OGL
 	gr_update();
-#endif
+// #endif
 
 	game_flush_inputs();
 

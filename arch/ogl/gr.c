@@ -127,7 +127,6 @@ void ogl_init_state(void){
 }
 
 int last_screen_mode=-1;
-extern int bPlayMovie;
 
 void ogl_set_screen_mode(void){
 	if (last_screen_mode==Screen_mode)
@@ -140,8 +139,7 @@ void ogl_set_screen_mode(void){
 	}else{
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 		glDrawBuffer(GL_FRONT);
-		if (Screen_mode == -1 || bPlayMovie || Function_mode == FMODE_MENU)
-			glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();//clear matrix
 		glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);

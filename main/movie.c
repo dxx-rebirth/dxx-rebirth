@@ -59,7 +59,9 @@ static char rcsid[] = "$Id: movie.c,v 1.1.1.1 2006/03/17 19:55:55 zicodxx Exp $"
 #include "text.h"
 #include "screens.h"
 #include "physfsrwops.h"
+#ifdef OGL
 #include "ogl_init.h"
+#endif
 
 extern int MenuHiresAvailable;
 extern char CDROM_dir[];
@@ -94,7 +96,6 @@ char movielib_files[4][FILENAME_LEN] = {"intro","other","robots"};
 #define EXTRA_ROBOT_LIB N_BUILTIN_MOVIE_LIBS
 
 int MovieHires = 1;   //default is highres
-int bPlayMovie;
 #ifdef OGL
 int mip;
 #endif
@@ -199,10 +200,6 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 	source_bm.bm_flags = 0;
 	source_bm.bm_data = buf;
 #ifdef OGL
-	double r = (double) bufh / (double) bufw;
-	int dh = (int) (grd_curcanv->cv_w * r);
-	int yOffs = (grd_curcanv->cv_h - dh) / 2;
-	
 	glDisable (GL_BLEND);
 
 	ogl_ubitblt_i(	w*((double)grd_curscreen->sc_w/(MovieHires?640:320)),
@@ -238,22 +235,8 @@ void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
 
 	//movie libs palette into our array
 	memcpy(gr_palette+start*3,p+start*3,count*3);
-
-	//finally set the palette in the hardware
-	//gr_palette_load(gr_palette);
-
-	//MVE_SetPalette(p, start, count);
 }
 
-
-#if 0
-typedef struct bkg {
-	short x, y, w, h;           // The location of the menu.
-	grs_bitmap * bmp;       	// The background under the menu.
-} bkg;
-
-bkg movie_bg = {0,0,0,0,NULL};
-#endif
 
 #define BOX_BORDER (MenuHires?40:20)
 
@@ -271,20 +254,6 @@ void show_pause_message(char *msg)
 	x = (grd_curscreen->sc_w-w)/2;
 	y = (grd_curscreen->sc_h-h)/2;
 
-#if 0
-	if (movie_bg.bmp) {
-		gr_free_bitmap(movie_bg.bmp);
-		movie_bg.bmp = NULL;
-	}
-
-	// Save the background of the display
-	movie_bg.x=x; movie_bg.y=y; movie_bg.w=w; movie_bg.h=h;
-
-	movie_bg.bmp = gr_create_bitmap( w+BOX_BORDER, h+BOX_BORDER );
-
-	gr_bm_ubitblt(w+BOX_BORDER, h+BOX_BORDER, 0, 0, x-BOX_BORDER/2, y-BOX_BORDER/2, &(grd_curcanv->cv_bitmap), movie_bg.bmp );
-#endif
-
 	gr_setcolor(0);
 	gr_rect(x-BOX_BORDER/2,y-BOX_BORDER/2,x+w+BOX_BORDER/2-1,y+h+BOX_BORDER/2-1);
 
@@ -297,18 +266,8 @@ void show_pause_message(char *msg)
 
 void clear_pause_message()
 {
-#if 0
-	if (movie_bg.bmp) {
-
-		gr_bitmap(movie_bg.x-BOX_BORDER/2, movie_bg.y-BOX_BORDER/2, movie_bg.bmp);
-
-		gr_free_bitmap(movie_bg.bmp);
-		movie_bg.bmp = NULL;
-	}
-#endif
 }
 
-extern int Game_window_w, Game_window_h;
 //returns status.  see movie.h
 int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 {
@@ -334,13 +293,11 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		return MOVIE_NOT_PLAYED;
 	}
 
-	bPlayMovie = 1;
-
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
 
 #ifdef OGL
-	gr_set_mode(SM((hires_flag?grd_curscreen->sc_w:320),(hires_flag?grd_curscreen->sc_h:200)));
+	gr_set_mode(SM(grd_curscreen->sc_w,grd_curscreen->sc_h));
 	set_screen_mode(SCREEN_MENU);
 	gr_copy_palette(pal_save, gr_palette, 768);
 	memset(gr_palette, 0, 768);
@@ -402,8 +359,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	SDL_FreeRW(filehndl);                           // Close Movie File
 
-	bPlayMovie = 0;
-
 	// Restore old graphic state
 
 	Screen_mode=-1;  //force reset of screen mode
@@ -419,7 +374,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 int InitMovieBriefing()
 {
 #ifndef OGL // 0
-	if (MenuHires)
+	if (MovieHires)
 		gr_set_mode(SM(640,480));
 	else
 		gr_set_mode(SM(320,200));
@@ -444,7 +399,7 @@ int RotateRobot()
 	if (err == MVE_ERR_EOF)     //end of movie, so reset
 	{
 		SDL_RWseek(RoboFile, 0, SEEK_SET);
-		if (MVE_rmPrepMovie(RoboFile, MenuHires?280:140, MenuHires?200:80, 0))
+		if (MVE_rmPrepMovie(RoboFile, MovieHires?280:140, MovieHires?200:80, 0))
 		{
 			Int3();
 			return 0;
@@ -485,7 +440,7 @@ int InitRobotMovie(char *filename)
 
 	Vid_State = VID_PLAY;
 
-	if (MVE_rmPrepMovie((void *)RoboFile, MenuHires?280:140, MenuHires?200:80, 0)) {
+	if (MVE_rmPrepMovie((void *)RoboFile, MovieHires?280:140, MovieHires?200:80, 0)) {
 		Int3();
 		return 0;
 	}
@@ -657,22 +612,16 @@ void draw_subtitles(int frame_num)
 }
 
 
-void close_movie(char *movielib, int is_robots)
+void close_movie(char *movielib)
 {
-	int high_res;
 	char filename[FILENAME_LEN];
 
-	if (is_robots)
-		high_res = MenuHiresAvailable;
-	else
-		high_res = MovieHires;
-
-	sprintf(filename, "%s-%s.mvl", movielib, high_res?"h":"l");
+	sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"h":"l");
 
 	if (!cfile_close(filename))
 	{
 		con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
-		sprintf(filename, "%s-%s.mvl", movielib, high_res?"l":"h");
+		sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"l":"h");
 
 		if (!cfile_close(filename))
 			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
@@ -681,16 +630,11 @@ void close_movie(char *movielib, int is_robots)
 
 void close_movies()
 {
-	int i, is_robots;
+	int i;
 
 	for (i = 0 ; i < N_BUILTIN_MOVIE_LIBS ; i++)
 	{
-		if (!strnicmp(movielib_files[i], "robot", 5))
-			is_robots = 1;
-		else
-			is_robots = 0;
-
-		close_movie(movielib_files[i], is_robots);
+		close_movie(movielib_files[i]);
 	}
 }
 
@@ -754,25 +698,18 @@ int request_cd(void)
 }
 
 
-void init_movie(char *movielib, int is_robots, int required)
+void init_movie(char *movielib, int required)
 {
-	int high_res;
 	char filename[FILENAME_LEN];
 
-	//for robots, load highres versions if highres menus set
-	if (is_robots)
-		high_res = MenuHiresAvailable;
-	else
-		high_res = MovieHires;
-
-	sprintf(filename, "%s-%s.mvl", movielib, high_res?"h":"l");
+	sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"h":"l");
 
 	if (!cfile_init(filename))
 	{
 		if (required)
 			con_printf(CON_URGENT, "Can't open movielib <%s>: %s\n", filename, PHYSFS_getLastError());
 
-		sprintf(filename, "%s-%s.mvl", movielib, high_res?"l":"h");
+		sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"l":"h");
 
 		if (!cfile_init(filename))
 			if (required)
@@ -785,19 +722,12 @@ void init_movie(char *movielib, int is_robots, int required)
 void init_movies()
 {
 	int i;
-	int is_robots;
 
 	if (FindArg("-nomovies"))
 		return;
 
 	for (i=0;i<N_BUILTIN_MOVIE_LIBS;i++) {
-
-		if (!strnicmp(movielib_files[i],"robot",5))
-			is_robots = 1;
-		else
-			is_robots = 0;
-
-		init_movie(movielib_files[i], is_robots, 1);
+		init_movie(movielib_files[i], 1);
 	}
 
 	atexit(close_movies);
@@ -817,7 +747,7 @@ void init_extra_robot_movie(char *movielib)
 		return;
 
 	close_extra_robot_movie();
-	init_movie(movielib, 1, 0);
+	init_movie(movielib, 0);
 	strcpy(movielib_files[EXTRA_ROBOT_LIB], movielib);
 	atexit(close_extra_robot_movie);
 }

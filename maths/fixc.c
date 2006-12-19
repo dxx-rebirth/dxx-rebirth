@@ -109,16 +109,18 @@ fix fixmul(fix a, fix b) {
 /*        register fix ret;
 	asm("imul %%edx; shrd $16,%%edx,%%eax" : "=a" (ret) : "a" (a), "d" (b) : "%edx");
         return ret;                                 */
-        return (fix)((((QLONG)a)*b) >> 16);
+//         return (fix)((((QLONG)a)*b) >> 16);
+	return (fix)((((QLONG) a) * b) / 65536);
 }
 
 fix fixdiv(fix a, fix b)
 {
 /*	  return (fix)(((double)a * 65536.0) / (double)b);*/
-        return (fix)((((QLONG)a) << 16)/b);
+//         return (fix)((((QLONG)a) << 16)/b);
 /*        register fix ret;
 	asm("mov %%eax,%%edx; sar $16,%%edx; shl $16,%%eax; idiv %%ebx" : "=a" (ret) : "a" (a), "b" (b) : "%edx");
     return ret; */
+	return b ? (fix)((((QLONG)a) *65536)/b) : 1;
 }
 
 fix fixmuldiv(fix a, fix b, fix c)
@@ -132,7 +134,8 @@ fix fixmuldiv(fix a, fix b, fix c)
 	d = (double)a * (double) b;
 	return (fix)(d / (double) c);
 */
-        return (fix)((((QLONG)a)*b)/c);
+//         return (fix)((((QLONG)a)*b)/c);
+	return c ? (fix)((((QLONG)a)*b)/c) : 1;
 }
 #endif
 
@@ -172,6 +175,7 @@ fixang fix_atan2(fix cos,fix sin)
 	}
 }
 
+#if 0
 #ifdef NO_FIX_INLINE
 //divide a quadint by a fix, returning a fix
 int32_t fixdivquadlong(u_int32_t nl,u_int32_t nh,u_int32_t d)
@@ -308,6 +312,19 @@ __asm__("divl %3"
 return (a);
 }
 #endif //def NO_FIX_INLINE
+#else
+int32_t fixdivquadlong(u_int32_t nl,u_int32_t nh,u_int32_t d)
+{
+	int64_t n = (int64_t)nl | (((int64_t)nh) << 32 );
+	return (signed int) (n / ((int64_t)d));
+}
+
+unsigned int fixdivquadlongu(uint nl, uint nh, uint d)
+{
+	u_int64_t n = (u_int64_t)nl | (((u_int64_t)nh) << 32 );
+	return (unsigned int) (n / ((u_int64_t)d));
+}
+#endif
 
 u_int32_t quad_sqrt(u_int32_t low,int32_t high)
 {

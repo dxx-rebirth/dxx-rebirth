@@ -201,7 +201,11 @@ int gr_set_mode(u_int32_t mode)
 	real_screen = SDL_SetVideoMode(h, w, 0, sdl_video_flags);
 	screen = CreateRotatedSurface(real_screen);
 #else
-	screen = SDL_SetVideoMode(w, h, 8, sdl_video_flags);
+#ifdef GP2X
+	  screen = SDL_SetVideoMode(w, 240, 8, sdl_video_flags);
+#else
+	  screen = SDL_SetVideoMode(w, h, 8, sdl_video_flags);
+#endif
 #endif
 		// end changes by someone
         // end changes by adb

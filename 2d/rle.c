@@ -243,13 +243,13 @@ __inline void rle_stosb (unsigned char *dest, int len, int color)
 
 #else // NO_ASM or unknown compiler
 
-void rle_stosb (unsigned char *dest, int len, int color)
+/*void rle_stosb (unsigned char *dest, int len, int color)
 {
 	int i;
 	for (i=0; i<len; i++ )
 		*dest++ = color;
-}
-
+}*/
+#define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
 #endif
 
 // Given pointer to start of one scanline of rle data, uncompress it to

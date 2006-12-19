@@ -771,7 +771,6 @@ void game_render_frame_mono(void)
 
 	con_update();
 
-	gr_update();
 #ifdef OGL
 	ogl_swap_buffers();
 #endif

@@ -25,7 +25,7 @@
 #include "cfile.h"
 #include "args.h"
 
-#include <SDL/SDL_thread.h>
+#include <SDL_thread.h>
 
 #define WANT_AWE32 1
 

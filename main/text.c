@@ -149,6 +149,7 @@ void load_text()
 
 	for (i=0,tptr=text;i<N_TEXT_STRINGS;i++) {
 		char *p;
+		char *buf;
 
 		Text_string[i] = tptr;
 
@@ -177,7 +178,11 @@ void load_text()
 				Error("Unsupported key sequence <\\%c> on line %d of file <%s>",p[1],i+1,filename);
 
 			p[0] = newchar;
-			strcpy(p+1,p+2);
+// 			strcpy(p+1,p+2);
+			MALLOC(buf,char,len+1);
+			strcpy(buf,p+2);
+			strcpy(p+1,buf);
+			d_free(buf);
 			p++;
 		}
 

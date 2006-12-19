@@ -9,6 +9,9 @@
 #ifndef PHYSFSX_H
 #define PHYSFSX_H
 
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 #if !defined(macintosh) && !defined(_MSC_VER)
 #include <sys/param.h>
 #endif
@@ -26,7 +29,6 @@
 #include "error.h"
 #include "vecmat.h"
 #include "args.h"
-#include "conf.h"
 
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file(s).
 // The arguments are used to determine the search paths, so the first .ini file must be
@@ -42,7 +44,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	InitArgs( argc,argv );
 
 	if ((t = FindArg("-userdir"))
-#ifdef __unix__
+#if defined(__unix__) && !defined(GP2X)
 		|| 1    // or if it's a unix platform
 #endif
 		)
@@ -52,7 +54,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 		char *path = Args[t+1];
 		char fullPath[PATH_MAX + 5];
 
-#ifdef __unix__
+#if defined(__unix__) && !defined(GP2X)
 		if (!t)
 			path = "~/.d2x-rebirth";
 #endif
@@ -115,7 +117,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	//tell cfile where hogdir is
 	if ((t=FindArg("-hogdir")))
 		PHYSFS_addToSearchPath(Args[t + 1], 1);
-#ifdef __unix__
+#if defined(__unix__) && !defined(GP2X)
 	else if (!FindArg("-nohogdir"))
 		PHYSFS_addToSearchPath(SHAREPATH, 1);
 #endif

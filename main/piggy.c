@@ -130,6 +130,7 @@ ubyte * Piggy_bitmap_cache_data = NULL;
 static int GameBitmapOffset[MAX_BITMAP_FILES];
 static ubyte GameBitmapFlags[MAX_BITMAP_FILES];
 ushort GameBitmapXlat[MAX_BITMAP_FILES];
+int macdata = 0;
 
 #define PIGGY_BUFFER_SIZE (2400*1024)
 
@@ -268,7 +269,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 
 	if (!in_file)   {
 #ifdef EDITOR
-		if ( FindArg("-macdata") )
+		if ( macdata )
 			swap_0_255( bmp );
 #endif
 		if ( !BigPig )  gr_bitmap_rle_compress( bmp );
@@ -907,7 +908,7 @@ void piggy_new_pigfile(char *pigname)
 					bm[fnum]->avg_color = compute_average_pixel(bm[fnum]);
 
 #ifdef EDITOR
-					if ( FindArg("-macdata") )
+					if ( macdata )
 						swap_0_255( bm[fnum] );
 #endif
 					if ( !BigPig ) gr_bitmap_rle_compress( bm[fnum] );
@@ -960,7 +961,7 @@ void piggy_new_pigfile(char *pigname)
 				new->avg_color = compute_average_pixel(new);
 
 #ifdef EDITOR
-				if ( FindArg("-macdata") )
+				if ( macdata )
 					swap_0_255( new );
 #endif
 				if ( !BigPig )  gr_bitmap_rle_compress( new );
@@ -1412,7 +1413,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 #ifndef MACDATA
 			switch (pigsize) {
 			default:
-				if (!FindArg("-macdata"))
+				if (!macdata)
 					break;
 				// otherwise, fall through...
 			case MAC_ALIEN1_PIGSIZE:
@@ -1454,7 +1455,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 #ifndef MACDATA
 			switch (pigsize) {
 			default:
-				if (!FindArg("-macdata"))
+				if (!macdata)
 					break;
 				// otherwise, fall through...
 			case MAC_ALIEN1_PIGSIZE:

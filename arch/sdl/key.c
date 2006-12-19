@@ -23,6 +23,10 @@
 
 #define KEY_BUFFER_SIZE 16
 
+#ifdef GP2X
+#include "gp2x.h"
+#endif
+
 static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
@@ -90,7 +94,7 @@ key_props key_properties[256] = {
 { "[",      '[',    '{',    SDLK_LEFTBRACKET   },
 { "]",      ']',    '}',    SDLK_RIGHTBRACKET  },
 //edited 06/08/99 Matt Mueller - set to correct key_text
-{ "ƒ",      255,    255,    SDLK_RETURN        },
+{ "",      255,    255,    SDLK_RETURN        },
 //end edit -MM
 { "LCTRL",  255,    255,    SDLK_LCTRL         },
 { "A",      'a',    'A',    SDLK_a             },
@@ -228,7 +232,7 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 //edited 06/08/99 Matt Mueller - set to correct key_text
-{ "PADƒ",   255,    255,    SDLK_KP_ENTER      },
+{ "PAD",   255,    255,    SDLK_KP_ENTER      },
 //end edit -MM
 //edited 06/08/99 Matt Mueller - set to correct sym
 { "RCTRL",  255,    255,    SDLK_RCTRL            },
@@ -362,14 +366,22 @@ unsigned char key_to_ascii(int keycode )
 		return key_properties[keycode].ascii_value;
 }
 
+#ifdef GP2X
+void key_handler(SDL_JoyButtonEvent *event)
+#else
 void key_handler(SDL_KeyboardEvent *event)
+#endif
 {
 	ubyte state;
 	int i, keycode, event_key, key_state;
 	Key_info *key;
 	unsigned char temp;
 
+#ifndef GP2X
         event_key = event->keysym.sym;
+#else
+	event_key = event->button;
+#endif
 
         key_state = (event->state == SDL_PRESSED); //  !(wInfo & KF_UP);
 	//=====================================================
@@ -559,6 +571,9 @@ int key_getch()
 unsigned int key_get_shift_status()
 {
 	unsigned int shift_status = 0;
+#ifdef GP2X
+	int i, state;
+#endif
 
 	if ( keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT] )
 		shift_status |= KEY_SHIFTED;
@@ -572,6 +587,11 @@ unsigned int key_get_shift_status()
 #ifndef NDEBUG
 	if (keyd_pressed[KEY_DELETE])
 		shift_status |=KEY_DEBUGGED;
+#endif
+
+#ifdef GP2X
+	for (i=0;i<gp2xJoyButtons;i++)
+		state=SDL_JoystickGetButton(gp2xJoystick,i);
 #endif
 
 	return shift_status;

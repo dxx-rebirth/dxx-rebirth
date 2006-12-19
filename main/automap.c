@@ -85,6 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_TOO_FAR  64  // An edge that is too far away
 
 void modex_printf(int x,int y,char *s,grs_font *font,int color);
+void create_name_canv();
 
 typedef struct Edge_info {
 	short verts[2];     // 4 bytes

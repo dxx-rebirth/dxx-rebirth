@@ -178,6 +178,8 @@ static inline void _page_in_gauge(int x)
 #else
 #define COCKPITSCALE_X 1
 #define COCKPITSCALE_Y 1
+#define HUD_SCALE_X(v)	(v)
+#define HUD_SCALE_Y(v)	(v)
 #endif
 
 inline void hud_bitblt (int x, int y, grs_bitmap *bm, int scale)
@@ -1403,8 +1405,7 @@ void show_bomb_count(int x,int y,int bg_color,int always_show)
 	while ((t=strchr(txt,'1')) != NULL)
 		*t = '\x84';	//convert to wide '1'
 
-
-	gr_string(COCKPITSCALE_X*x,COCKPITSCALE_Y*y,txt);
+	gr_string(x,y,txt);
 
 	old_bombcount[VR_current_page] = countx;
 }
@@ -2001,7 +2002,6 @@ void init_gauges()
 	weapon_box_user[0] = weapon_box_user[1] = WBU_WEAPON;
 }
 
-#ifdef OGL // ZICO - scalable
 void draw_energy_bar(int energy)
 {
 	grs_bitmap *bm;
@@ -2084,56 +2084,6 @@ void draw_energy_bar(int energy)
 		}
 	gr_set_current_canvas( get_current_game_screen() );
 }
-#else // ZICO - SDL mode with non-scalable cockpit
-void draw_energy_bar(int energy)
-{
-	int not_energy;
-	int x1, x2, y;
-
-	// Draw left energy bar
-	gr_set_current_canvas( Canv_LeftEnergyGauge );
-	PAGE_IN_GAUGE( GAUGE_ENERGY_LEFT );
-	gr_ubitmapm(0, 0, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_ENERGY_LEFT)]);
-	gr_setcolor( BM_XRGB(0,0,0) );
-
-	if ( !Current_display_mode )
-		not_energy = 61 - (energy*61)/100;
-	else
-		not_energy = 125 - (energy*125)/100;
-
-	if (energy < 100)
-		for (y=0; y < LEFT_ENERGY_GAUGE_H; y++) {
-			x1 = LEFT_ENERGY_GAUGE_H - 1 - y;
-			x2 = LEFT_ENERGY_GAUGE_H - 1 - y + not_energy;
-
-			if (x2 > LEFT_ENERGY_GAUGE_W - y/3)
-				x2 = LEFT_ENERGY_GAUGE_W - y/3;
-			
-			if (x2 > x1) gr_uline( i2f(x1), i2f(y), i2f(x2), i2f(y) ); 
-		}
-	
-	gr_set_current_canvas( get_current_game_screen() );
-
-	// Draw right energy bar
-	gr_set_current_canvas( Canv_RightEnergyGauge );
-	PAGE_IN_GAUGE( GAUGE_ENERGY_RIGHT );
-	gr_ubitmapm( 0, 0, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_ENERGY_RIGHT) ]);
-	gr_setcolor( BM_XRGB(0,0,0) );
-
-	if (energy < 100)
-		for (y=0; y < RIGHT_ENERGY_GAUGE_H; y++) {
-			x1 = RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 1 + y - not_energy;
-			x2 = RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 1 + y;
-
-			if (x1 < y/3)
-				x1 = y/3;
-
-			if (x2 > x1) gr_uline( i2f(x1), i2f(y), i2f(x2), i2f(y) );  
-		}
-
-	gr_set_current_canvas( get_current_game_screen() );
-}
-#endif
 
 ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = {
 			3,11,
@@ -2244,7 +2194,6 @@ ubyte afterburner_bar_table_hires[AFTERBURNER_GAUGE_H_H*2] = {
 	12,13
 };
 
-#ifdef OGL
 void draw_afterburner_bar(int afterburner)
 {
 	int not_afterburner;
@@ -2256,6 +2205,7 @@ void draw_afterburner_bar(int afterburner)
 	hud_bitblt( AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_AFTERBURNER) ], F1_0);
 	gr_setcolor( BM_XRGB(0,0,0) );
 	not_afterburner = fixmul(f1_0 - afterburner,AFTERBURNER_GAUGE_H);
+
 	yMax = HUD_SCALE_Y (not_afterburner);
 
 	for (y = 0; y < not_afterburner; y++) {
@@ -2267,31 +2217,9 @@ void draw_afterburner_bar(int afterburner)
 				HUD_SCALE_Y (AFTERBURNER_GAUGE_Y) + i);
 			}
 		}
-	gr_set_current_canvas( get_current_game_screen() );
-}
-#else
-void draw_afterburner_bar(int afterburner)
-{
-	int not_afterburner;
-	int y;
-
-	// Draw afterburner bar
-	gr_set_current_canvas( Canv_AfterburnerGauge );
-	PAGE_IN_GAUGE( GAUGE_AFTERBURNER );
-	gr_ubitmapm( 0, 0, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_AFTERBURNER) ] );
-	gr_setcolor( BM_XRGB(0,0,0) );
-
-	not_afterburner = fixmul(f1_0 - afterburner,AFTERBURNER_GAUGE_H);
-
-	for (y=0;y<not_afterburner;y++) {
-
-		gr_uline( i2f(Current_display_mode ? afterburner_bar_table_hires[y*2] : afterburner_bar_table[y*2]), i2f(y),
-						i2f((Current_display_mode ? afterburner_bar_table_hires[y*2 + 1] : afterburner_bar_table[y*2 + 1]) + 1), i2f(y) ); 
-	}
 
 	gr_set_current_canvas( get_current_game_screen() );
 }
-#endif
 
 void draw_shield_bar(int shield)
 {
@@ -2374,11 +2302,13 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 	}
 
 	gr_set_current_canvas(&VR_render_buffer[0]);
-
+#ifndef OGL
+	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w), COCKPITSCALE_Y*(y+bm->bm_h));
+#endif
 	hud_bitblt( x, y, bm, F1_0);
 
 	Gr_scanline_darkening_level = cloak_fade_value;
-	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w-1), COCKPITSCALE_Y*(y+bm->bm_h-1));
+	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w), COCKPITSCALE_Y*(y+bm->bm_h));
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 
 	gr_set_current_canvas( get_current_game_screen() );
@@ -2760,9 +2690,9 @@ void draw_weapon_boxes()
 
 	if (Cockpit_mode == CM_STATUS_BAR) {
 		if (!Gauge_hud_mode && weapon_box_user[1] == WBU_WEAPON)
-			show_bomb_count(SB_BOMB_COUNT_X, SB_BOMB_COUNT_Y, gr_find_closest_color(0, 0, 0), 0);
+			show_bomb_count(COCKPITSCALE_X*SB_BOMB_COUNT_X, COCKPITSCALE_Y*SB_BOMB_COUNT_Y, gr_find_closest_color(0, 0, 0), 0);
 	} else {
-		show_bomb_count(BOMB_COUNT_X, BOMB_COUNT_Y, gr_find_closest_color(0, 0, 0), 0);
+		show_bomb_count(COCKPITSCALE_X*BOMB_COUNT_X, COCKPITSCALE_Y*BOMB_COUNT_Y, gr_find_closest_color(0, 0, 0), 0);
 	}
 }
 

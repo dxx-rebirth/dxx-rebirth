@@ -366,7 +366,7 @@ void init_cockpit()
 	}
 
 #ifndef OGL
-	if ((SWIDTH == 320 && SHEIGHT == 200) || (SWIDTH == 640 && SHEIGHT == 480))
+	if ((SWIDTH == 320 && SHEIGHT == 200) || (MenuHiresAvailable && (SWIDTH == 640 && SHEIGHT == 480)))
 #endif
 	{
 		VR_screen_flags = VRF_ALLOW_COCKPIT;
@@ -2211,7 +2211,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			}
 			game_render_frame();
 // 			show_extra_views();		//missile view, buddy bot, etc.
-
+			gr_update();
 			#ifndef RELEASE
 			if (Saving_movie_frames)
 				save_movie_frame();

@@ -170,6 +170,7 @@ extern int invulnerability;
 #ifndef NDEBUG
 extern int checktime;
 #endif
+extern int macdata;
 
 #define LINE_LEN	100
 
@@ -570,6 +571,9 @@ int main(int argc, char *argv[])
 	if ( FindArg( "-checktime") )
 		checktime = 1;
 	#endif
+
+	if ( FindArg("-macdata") )
+		macdata = 1;
 
 	if ((t=FindArg("-tmap"))){
 		select_tmap(Args[t+1]);

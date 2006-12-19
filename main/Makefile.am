@@ -16,7 +16,11 @@ if EDITOR
 EDITOR_SRCS = bmread.c dumpmine.c
 endif
 
-libmain_a_SOURCES = ${EDITOR_SRCS} ${NETWORK_SRCS} \
+if GP2X
+GP2X_SRCS = clock.c
+endif
+
+libmain_a_SOURCES = ${EDITOR_SRCS} ${NETWORK_SRCS} ${GP2X_SRCS} \
 ai.c        ai2.c       aipath.c    automap.c   bm.c        \
 cmd.c       cntrlcen.c  collide.c   config.c    console.c   \
 controls.c  credits.c   crypt.c     digiobj.c   effects.c   endlevel.c  \
