@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20061219
+--------
+main/game.c, main/gamerend.c: small brace tidy up to allow a source code editor to list all the functions
+
 20061023
 --------
 /arch/sdl/joy.c: increased "MAX_HATS_PER_JOYSTICK" from 4 to 128 to prevent axes recognition problems

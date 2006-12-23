@@ -743,8 +743,9 @@ void game_render_frame_mono(void)
 						&VR_render_sub_buffer[0].cv_bitmap, 
 						&VR_screen_pages[0].cv_bitmap );
 			}
+//		}
 #if 0
-		} else	{
+		else	{
 			#ifdef __MSDOS__
 				gr_ibitblt( &VR_render_buffer[0].cv_bitmap, &VR_screen_pages[0].cv_bitmap, Game_cockpit_copy_code );
 			#else //def MACINTOSH

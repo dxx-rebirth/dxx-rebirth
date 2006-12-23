@@ -721,7 +721,6 @@ void start_time()
 		#if defined(TIMER_TEST) && !defined(NDEBUG)
 		if (last_timer_value < 0)
 			Int3();		//get Matt!!!!
-		}
 		#endif
 		last_timer_value = time - last_timer_value;
 		#if defined(TIMER_TEST) && !defined(NDEBUG)
