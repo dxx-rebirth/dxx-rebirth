@@ -40,6 +40,7 @@ static char rcsid[] = "$Id: scanline.c,v 1.1.1.1 2006/03/17 19:59:55 zicodxx Exp
 #include "texmapl.h"
 #include "scanline.h"
 #include "strutil.h"
+#include "error.h"
 
 void c_tmap_scanline_flat()
 {
@@ -116,7 +117,7 @@ void c_tmap_scanline_lin()
 	dvdx = fx_dv_dx*64; 
 
 	l = fx_l>>8;
-	dldx = fx_dl_dx>>8;
+	dldx = fx_dl_dx/256;
 	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
@@ -218,7 +219,7 @@ void c_tmap_scanline_lin()
 	dvdx = fx_dv_dx*64; 
 
 	l = fx_l>>8;
-	dldx = fx_dl_dx>>8;
+	dldx = fx_dl_dx/256;
 	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
@@ -805,7 +806,7 @@ void c_tmap_scanline_per()
 	dzdx = fx_dz_dx;
 
 	l = fx_l>>8;
-	dldx = fx_dl_dx>>8;
+	dldx = fx_dl_dx/256;
 	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
@@ -813,7 +814,7 @@ void c_tmap_scanline_per()
 		ubyte*			fadeTableLocalCopy = gr_fade_table;
 		unsigned long	destlong;
 
-		x = fx_xright-fx_xleft+1;
+		x = fx_xright-fx_xleft+1; // x = number of pixels in scanline
 
 		if ((j = (unsigned long) dest & 3) != 0)
 			{
@@ -888,9 +889,13 @@ void c_tmap_scanline_per()
 		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 			c = (uint)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
 			if ( c!=TRANSPARENCY_COLOR)
-			//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
+			{
+				if ((l&(0x7f00)) + c >= 34*256)	//gr_fade_table is only 34*256 bytes
+					Int3();
+				//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
 				*dest = gr_fade_table[ (l&(0x7f00)) + c ];
 			//end edit -MM
+			}
 			dest++;
 			l += dldx;
 			u += dudx;
@@ -916,7 +921,7 @@ void c_tmap_scanline_per()
 	dzdx = fx_dz_dx;
 
 	l = fx_l>>8;
-	dldx = fx_dl_dx>>8;
+	dldx = fx_dl_dx/256;
 	dest = (ubyte *)(write_buffer + fx_xleft + (bytes_per_row * fx_y)  );
 
 	if (!Transparency_on)	{
