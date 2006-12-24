@@ -1,3 +1,8 @@
+2006-11-30  Chris Taylor  <chris@icculus.org>
+
+	* arch/ogl/ogl.c: avoid loading OpenGL textures before they have
+	been paged in, bug found by loading Abalyon 5
+
 2006-11-26  Chris Taylor  <chris@icculus.org>
 
 	* main/game.c, main/gamerend.c: small brace tidy up to allow

@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20061224
 --------
 arch/ogl/gr.c: use PhysicsFS to check for existing screenshots, previous method may have caused writing over of open screenshots (from D2X CVS)
+arch/ogl/gr.c: avoid loading OpenGL textures before they have been paged in, bug found by loading Abalyon 5 (from D2X CVS)
 
 20061219
 --------

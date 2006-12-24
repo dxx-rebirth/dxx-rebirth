@@ -533,10 +533,16 @@ void ogl_cache_level_textures(void)
 			}
 			else if(Objects[i].render_type==RT_POLYOBJ){
 				//printf("robot %i model %i rmodel %i\n", Objects[i].id, Objects[i].rtype.pobj_info.model_num, Robot_info[Objects[i].id].model_num);
-				ogl_cache_vclipn_textures(Robot_info[Objects[i].id].exp1_vclip_num);
-				ogl_cache_vclipn_textures(Robot_info[Objects[i].id].exp2_vclip_num);
-				ogl_cache_weapon_textures(Robot_info[Objects[i].id].weapon_type);
-				ogl_cache_polymodel_textures(Objects[i].rtype.pobj_info.model_num);
+				if (Objects[i].type == OBJ_ROBOT)
+				{
+					ogl_cache_vclipn_textures(Robot_info[Objects[i].id].exp1_vclip_num);
+					ogl_cache_vclipn_textures(Robot_info[Objects[i].id].exp2_vclip_num);
+					ogl_cache_weapon_textures(Robot_info[Objects[i].id].weapon_type);
+				}
+				if (Objects[i].rtype.pobj_info.tmap_override != -1)
+					ogl_loadbmtexture(&GameBitmaps[Textures[Objects[i].rtype.pobj_info.tmap_override].index]);
+				else
+					ogl_cache_polymodel_textures(Objects[i].rtype.pobj_info.model_num);
 			}
 		}
 	}
