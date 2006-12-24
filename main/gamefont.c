@@ -31,6 +31,7 @@ static char rcsid[] = "$Id: gamefont.c,v 1.1.1.1 2006/03/17 19:56:39 zicodxx Exp
 #include "inferno.h"
 #include "gr.h"
 #include "gamefont.h"
+#include "args.h"
 
 // if 1, use high-res versions of fonts
 int FontHires = 0;

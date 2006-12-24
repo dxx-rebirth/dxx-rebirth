@@ -401,6 +401,8 @@ void draw_player( object * obj )
 	automap_draw_line(&sphere_point, &arrow_point);
 }
 
+void create_name_canv(void);
+
 void draw_automap()
 {
 	int i;
@@ -625,7 +627,9 @@ void do_automap( int key_code )	{
 	int pause_game=1; // Set to 1 if everything is paused during automap...No pause during net.
 	fix t1, t2;
 	control_info saved_control_info;
+#ifdef OGL
 	grs_bitmap Automap_background;
+#endif
 	int Max_segments_away = 0;
 	int SegmentLimit = 1;
 	ubyte pal[256*3];

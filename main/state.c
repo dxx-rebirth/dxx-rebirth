@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #include <GL/gl.h>
 #endif
+#include "ogl_init.h"
 #endif
 
 #include "pstypes.h"

@@ -30,6 +30,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
+#ifdef OGL
+#include "ogl_init.h"
+#endif
+
 #ifdef MACINTOSH
 #include <Events.h>
 #endif

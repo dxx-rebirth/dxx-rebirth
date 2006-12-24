@@ -11,8 +11,9 @@ arch/carbon/conf.h: allow universal binaries to be built using Xcode 2.1 or late
 arch/sdl/digi.c: add MIDI stubs for Mac, it doesn't have the 'real' functions yet
 arch/sdl/joy.c: use d_strdup instead of strdup to avoid errors when compiling on Mac OS 9, free the joystick button texts when closing
 main/inferno.c: use strncpy instead of snprintf, MPW on Mac OS 9 doesn't have snprintf
+main/automap.c, main/gamefont.c, main/newmenu.c, main/state.c, main/titles.c: warning fixes for gcc 4.0
 
-20061219
+20061223
 --------
 main/game.c, main/gamerend.c: small brace tidy up to allow a source code editor to list all the functions (from D2X CVS)
 
