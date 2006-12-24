@@ -19,6 +19,7 @@
 #include <sys/vfs.h>
 #elif defined(__MACH__) && defined(__APPLE__)
 #include <sys/mount.h>
+#include <unistd.h>	// for chdir hack
 #endif
 #include <string.h>
 #include <stdarg.h>
@@ -41,6 +42,9 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	PHYSFS_permitSymbolicLinks(1);
 
 	PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
+#if defined(__APPLE__) && defined(__MACH__)	// others?
+	chdir(PHYSFS_getBaseDir());	// make sure relative hogdir and userdir paths work
+#endif
 	InitArgs( argc,argv );
 
 	if ((t = FindArg("-userdir"))
