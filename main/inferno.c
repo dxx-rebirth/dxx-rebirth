@@ -773,7 +773,7 @@ int main(int argc, char *argv[])
 		{
 			char filename[15];
 			int j;
-			snprintf(filename, 12, Args[i+1]);
+			strncpy(filename, Args[i+1], 12);
 			for (j=0; filename[j] != '\0'; j++) {
 				switch (filename[j]) {
 					case ' ':
