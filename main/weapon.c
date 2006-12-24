@@ -598,21 +598,24 @@ int pick_up_secondary(int weapon_index,int count)
 		Players[Player_num].secondary_ammo[weapon_index] = max;
 	}
 
-	cutpoint=SOrderList (255);
-	if (SOrderList (weapon_index)<cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (Players[Player_num].secondary_ammo[Secondary_weapon] == 0))   )
-		select_weapon(weapon_index,1, 0, 1);
-	else {
-		//if we don't auto-select this weapon, but it's a proxbomb or smart mine,
-		//we want to do a mini-auto-selection that applies to the drop bomb key
+	if (Players[Player_num].secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
+	{
+		cutpoint=SOrderList (255);
+		if (SOrderList (weapon_index)<cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (Players[Player_num].secondary_ammo[Secondary_weapon] == 0))   )
+			select_weapon(weapon_index,1, 0, 1);
+		else {
+			//if we don't auto-select this weapon, but it's a proxbomb or smart mine,
+			//we want to do a mini-auto-selection that applies to the drop bomb key
 
-		if ((weapon_index == PROXIMITY_INDEX || weapon_index == SMART_MINE_INDEX) &&
-				!(Secondary_weapon == PROXIMITY_INDEX || Secondary_weapon == SMART_MINE_INDEX)) {
-			int cur;
+			if ((weapon_index == PROXIMITY_INDEX || weapon_index == SMART_MINE_INDEX) &&
+					!(Secondary_weapon == PROXIMITY_INDEX || Secondary_weapon == SMART_MINE_INDEX)) {
+				int cur;
 
-			cur = Secondary_last_was_super[PROXIMITY_INDEX]?SMART_MINE_INDEX:PROXIMITY_INDEX;
+				cur = Secondary_last_was_super[PROXIMITY_INDEX]?SMART_MINE_INDEX:PROXIMITY_INDEX;
 
-			if (SOrderList (weapon_index) < SOrderList(cur))
-				Secondary_last_was_super[PROXIMITY_INDEX] = (weapon_index == SMART_MINE_INDEX);
+				if (SOrderList (weapon_index) < SOrderList(cur))
+					Secondary_last_was_super[PROXIMITY_INDEX] = (weapon_index == SMART_MINE_INDEX);
+			}
 		}
 	}
 
