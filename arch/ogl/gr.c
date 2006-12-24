@@ -168,7 +168,9 @@ void ogl_get_verinfo(void)
 	long t;
 #ifdef GL_NV_register_combiners
 	long nv_register_combiners = -1;
-	GLint sgi_max_testures;
+#endif
+#if defined(GL_NV_register_combiners) || defined(GL_SGIS_multitexture)
+	GLint sgi_max_textures;
 #endif
 #ifdef GL_ARB_multitexture
 	GLint arb_max_textures;
@@ -817,14 +819,13 @@ void save_screen_shot(int automap_flag)
 	stop_time();
 
 //added/changed on 10/31/98 by Victor Rachels to fix overwrite each new game
-	if ( savenum == 9999 ) savenum = 0;
-	sprintf(savename,"scrn%04d.tga",savenum++);
-
-	while(!access(savename,0))
+	do
 	{
-		if ( savenum == 9999 ) savenum = 0;
-		sprintf(savename,"scrn%04d.tga",savenum++);
-	}
+		if (savenum == 9999)
+			savenum = 0;
+		sprintf(savename, "scrn%04d.tga", savenum++);
+	} while (PHYSFS_exists(savename));
+
 	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
 //end this section addition/change - Victor Rachels
 

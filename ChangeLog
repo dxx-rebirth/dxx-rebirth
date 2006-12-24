@@ -3,6 +3,9 @@
 	* main/game.c, main/gamerend.c: small brace tidy up to allow
 	a source code editor to list all the functions
 
+	* arch/ogl/gr.c: use PhysicsFS to check for existing screenshots
+	(previous method may have caused writing over of open screenshots)
+
 2006-07-29  Chris Taylor  <chris@icculus.org>
 
 	* main/inferno.c, main/titles.c, main/titles.h:
