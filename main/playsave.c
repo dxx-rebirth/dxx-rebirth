@@ -313,7 +313,7 @@ int read_player_d2x(char *filename)
 				if(!strcmp(word,"PLX VERSION"))
 				{
 					int maj=0,min=0;
-					sscanf(line,"v%i.%i",&maj,&min);
+					sscanf(line,"%i.%i",&maj,&min);
 					sprintf(plxver,"v%i.%d",maj,min);
 				}
 				d_free(word);
@@ -594,7 +594,7 @@ int write_player_d2x(char *filename)
 		PHYSFS_close(fout);
 		if(rc==0)
 		{
-			unlink(filename);
+			PHYSFS_delete(filename);
 			rc = PHYSFSX_rename(tempfile,filename);
 		}
 		return rc;

@@ -12,6 +12,7 @@ arch/sdl/digi.c: add MIDI stubs for Mac, it doesn't have the 'real' functions ye
 arch/sdl/joy.c: use d_strdup instead of strdup to avoid errors when compiling on Mac OS 9, free the joystick button texts when closing
 main/inferno.c: use strncpy instead of snprintf, MPW on Mac OS 9 doesn't have snprintf
 main/automap.c, main/gamefont.c, main/newmenu.c, main/state.c, main/titles.c: warning fixes for gcc 4.0
+main/playsave.c: make sscanf look for "%i.%i" instead of "v%i.%i" because the 'v' isn't written to file (used to cause D2X for Mac OS 9 to crash), use PHYSFS_delete instead of unlink to be safe
 
 20061223
 --------
