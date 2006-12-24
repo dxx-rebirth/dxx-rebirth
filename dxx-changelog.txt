@@ -7,6 +7,7 @@ arch/ogl/gr.c: avoid loading OpenGL textures before they have been paged in, bug
 main/weapon.c: only autoselect a secondary weapon if the player didn't have any of that type before (fix bug #2671) (from D2X CVS)
 texmap/scanline.c: divide negative light rates of change properly (fix bug #2575) (from D2X CVS)
 texmap/tmapflat.c: divide negative window x-coordinates properly, fixing random crashes (from D2X CVS)
+arch/carbon/conf.h: allow universal binaries to be built using Xcode 2.1 or later (from D2X CVS)
 
 20061219
 --------
