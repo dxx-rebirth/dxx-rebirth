@@ -341,7 +341,7 @@ void show_loading_screen(ubyte *title_pal)
 		strcpy(filename, "descentb.pcx"); // MAC SHAREWARE
 
 // 	gr_set_mode(MenuHires?SM(640,480):SM(320,200));
-#ifdef OGL
+#if 1	//def OGL
 	set_screen_mode(SCREEN_MENU);
 #endif
 
