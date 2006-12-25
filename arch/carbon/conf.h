@@ -25,28 +25,28 @@
 
 /* Define to 1 if you have the declaration of `nanosleep', and to 0 if you
    don't. */
-#define HAVE_DECL_NANOSLEEP 1
+//#define HAVE_DECL_NANOSLEEP 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-#define HAVE_INTTYPES_H 1
+//#define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the <memory.h> header file. */
-#define HAVE_MEMORY_H 1
+//#define HAVE_MEMORY_H 1
 
 /* Define to 1 if you have the <netipx/ipx.h> header file. */
 /* #undef HAVE_NETIPX_IPX_H */
 
 /* Define to 1 if you have the <stdint.h> header file. */
-#define HAVE_STDINT_H 1
+//#define HAVE_STDINT_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
-#define HAVE_STDLIB_H 1
+//#define HAVE_STDLIB_H 1
 
 /* Define to 1 if you have the <strings.h> header file. */
-#define HAVE_STRINGS_H 1
+//#define HAVE_STRINGS_H 1
 
 /* Define to 1 if you have the <string.h> header file. */
-#define HAVE_STRING_H 1
+//#define HAVE_STRING_H 1
 
 /* Define if you want to build for mac datafiles */
 //#define MACDATA 
@@ -88,7 +88,7 @@
 #define SHAREPATH "/Users/christaylor/share/games/d2x"
 
 /* Define to 1 if you have the ANSI C header files. */
-#define STDC_HEADERS 1
+//#define STDC_HEADERS 1
 
 /* Define if you want an SVGALib build */
 /* #undef SVGA */
@@ -132,13 +132,13 @@
 #define HAVE_STRUCT_TIMEVAL 1
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#define HAVE_SYS_STAT_H 1
+//#define HAVE_SYS_STAT_H 1
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#define HAVE_SYS_TYPES_H 1
+//#define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#define HAVE_UNISTD_H 1
+//#define HAVE_UNISTD_H 1
 
 #else // Mac OS 9
 # ifndef __MWERKS__
@@ -155,13 +155,13 @@
 #define HAVE_STRUCT_TIMEVAL 0
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
-#define HAVE_SYS_STAT_H 0
+//#define HAVE_SYS_STAT_H 0
 
 /* Define to 1 if you have the <sys/types.h> header file. */
-#define HAVE_SYS_TYPES_H 0
+//#define HAVE_SYS_TYPES_H 0
 
 /* Define to 1 if you have the <unistd.h> header file. */
-#define HAVE_UNISTD_H 0
+//#define HAVE_UNISTD_H 0
 
 #endif	// OS 9/X
 

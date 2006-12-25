@@ -500,11 +500,11 @@ int main(int argc, char *argv[])
     /* Set pseudo-environment variables for video driver, update prefs */
 	switch ( videodriver ) {
 	   case VIDEO_ID_DRAWSPROCKET: 
-	      putenv ("SDL_VIDEODRIVER=DSp");
+	      SDL_putenv ("SDL_VIDEODRIVER=DSp");
 	      memcpy (prefs.video_driver_name, "\pDSp", 4);
 	      break;
 	   case VIDEO_ID_TOOLBOX:
-	      putenv ("SDL_VIDEODRIVER=toolbox");
+	      SDL_putenv ("SDL_VIDEODRIVER=toolbox");
 	      memcpy (prefs.video_driver_name, "\ptoolbox", 8);
 	      break;
 	}

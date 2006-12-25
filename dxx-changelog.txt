@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20061225
 --------
 main/titles.c: fix crash where loading screen function is called before video mode is set (when SDL Video is used as well as -notitles)
+arch/carbon/conf.h, arch/carbon/SDL_main.c: fix compile errors when building on Mac OS 9 using SDL 1.2.10 (conflicting macros, use of putenv)
 
 20061224
 --------
