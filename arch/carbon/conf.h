@@ -5,14 +5,16 @@
 /* Define to enable console */
 /* #undef CONSOLE */
 
+// Used only in vers_id.h:D2X_IVER, which is unused (may be useful for external utilities that use D2X source)
+
 /* d2x major version */
 #define D2XMAJOR 0
 
-/* d2x micro version */
-#define D2XMICRO 5
-
 /* d2x minor version */
-#define D2XMINOR 2
+#define D2XMINOR 5
+
+/* d2x micro version */
+#define D2XMICRO 0
 
 /* Define if you want to build the editor */
 /* #undef EDITOR */
@@ -60,23 +62,25 @@
 /* Define if you want an OpenGL build */
 //#define OGL
 
+// Package macros are currently unused
+
 /* Name of package */
-#define PACKAGE "d2x"
+//#define PACKAGE "d2x"
 
 /* Define to the address where bug reports for this package should be sent. */
-#define PACKAGE_BUGREPORT "descent-source@warpcore.org"
+//#define PACKAGE_BUGREPORT "descent-source@warpcore.org"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "d2x"
-
-/* Define to the full name and version of this package. */
-#define PACKAGE_STRING "d2x 0.2.6"
-
-/* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "d2x"
+//#define PACKAGE_NAME "D2X-Rebirth"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.2.6"
+//#define PACKAGE_VERSION "0.5.0"
+
+/* Define to the full name and version of this package. */
+//#define PACKAGE_STRING PACKAGE_NAME " v" PACKAGE_VERSION
+
+/* Define to the one symbol short name of this package. */
+//#define PACKAGE_TARNAME "d2x"
 
 /* Define for a "release" build */
 /* #undef RELEASE */
@@ -97,7 +101,7 @@
 /* #undef USE_LINUX_JOY */
 
 /* Version number of package */
-#define VERSION "0.2.6"
+#define VERSION "0.5.0"
 
 /* Define to 1 if your processor stores words with the most significant byte
    first (like Motorola and SPARC, unlike Intel and VAX). */
@@ -112,9 +116,6 @@
 
 
         /* General defines */
-#ifndef PACKAGE_STRING
-#define PACKAGE_STRING "d2x 0.2.6"
-#endif
 #define VERSION_NAME PACKAGE_STRING
 #define NMONO 1
 #define PIGGY_USE_PAGING 1

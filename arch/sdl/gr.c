@@ -24,6 +24,7 @@
 #include "u_mem.h"
 #include "error.h"
 #include "menu.h"
+#include "vers_id.h"
 
 //added 10/05/98 by Matt Mueller - make fullscreen mode optional
 #include "args.h"
@@ -183,7 +184,7 @@ int gr_set_mode(u_int32_t mode)
 //Style "D1X*"  NoTitle, NoHandles, BorderWidth 0
 //if you can't use -fullscreen like me (crashes X), this is a big help in
 //getting the window centered correctly (if you use SmartPlacement)
-	SDL_WM_SetCaption(PACKAGE_STRING, "Descent II");
+	SDL_WM_SetCaption(DESCENT_VERSION, "Descent II");
 //end addition -MM
 
 #ifdef SDL_IMAGE
