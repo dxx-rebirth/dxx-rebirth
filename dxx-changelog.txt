@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20061226
 --------
 arch/carbon/conf.h, arch/sdl/gr.c, d2x-Info.plist, d2xgl-Info.plist, main/inferno.c, English.lproj/InfoPlist.strings: update version info, use DESCENT_VERSION instead of PACKAGE_NAME
+D2X.make: disable a heap of warnings that are impractical to fix (eg assignment in an if ())
 
 20061225
 --------
