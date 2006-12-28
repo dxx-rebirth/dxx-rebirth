@@ -82,9 +82,14 @@ intro-h.mvl and/or intro-l.mvl
 other-h.mvl and/or other-l.mvl
 robots-h.mvl and/or robots-l.mvl
 
+They can go in a different directory, but you have to use the -hogdir option (D2X will read options from the d2x.ini file as well as the command line). Also, you can use -userdir to change where it puts the player files, saved games etc. Note that it will also put screenshots in here if using PrintScreen.
+
 Linux:
 Please consider dxx-compile.txt.
 In linux, all filenames must be in _lower case_. It's important.
+
+Mac OS 9:
+The d2x.ini that's used is inside the package. Control-click 'd2x-rebirth' and choose 'Show Package Contents'. It's in Contents:MacOSClassic. The userdir could be set to "Macintosh HD:System Folder:Preferences:D2X" (no quotes), with your hard disk name in place of "Macintosh HD". If Multiple Users is enabled, this would be different: "~:Preferences:D2X" or something.
 
 That's it :)
 
@@ -114,7 +119,7 @@ AddOn Levels:
 
 To play other AddOn Levels, just place them (MN2, HOG, RL2 files) to
 the subdirectory "missions".
-D2X will recognize them automaticly.
+D2X will recognize them automaticly and will search recursively in subdirectories.
 
 Icons:
 ======
