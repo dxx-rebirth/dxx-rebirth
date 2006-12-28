@@ -18,6 +18,8 @@ Includes        =  ¶
 
 Sym-PPC         = -sym on
 
+# Comment out '-d OGL' to build for SDL Video
+# More to do further down where the PPCLink call is...
 PPCCOptions     = {Includes} -includes unix {Sym-PPC} -d HAVE_CONFIG_H -enum int -noMapCR -w 2,7,30,35 -d OGL
 
 ### Source Files ###
@@ -59,6 +61,7 @@ SrcFiles        =  ¶
 				  :arch:ogl:sdlgl.c ¶
 				  :arch:sdl:digi.c ¶
 				  :arch:sdl:event.c ¶
+				  :arch:sdl:gr.c ¶
 				  :arch:sdl:init.c ¶
 				  :arch:sdl:joy.c ¶
 				  :arch:sdl:joydefs.c ¶
@@ -163,7 +166,15 @@ SrcFiles        =  ¶
 
 ### Object Files ###
 
-ObjFiles-PPC    =  ¶
+OpenGLObjects    =  ¶
+				  "{ObjDir}gr.c.x" ¶
+				  "{ObjDir}ogl.c.x" ¶
+				  "{ObjDir}sdlgl.c.x"
+
+SDLVideoObjects    =  ¶
+				  "{ObjDir}SDL:gr.c.x"
+
+GeneralObjects    =  ¶
 				  "{ObjDir}2dsline.c.x" ¶
 				  "{ObjDir}bitblt.c.x" ¶
 				  "{ObjDir}bitmap.c.x" ¶
@@ -195,12 +206,9 @@ ObjFiles-PPC    =  ¶
 				  "{ObjDir}SDL_main.c.x" ¶
 				  "{ObjDir}init.c.x" ¶
 				  "{ObjDir}mono.c.x" ¶
-				  "{ObjDir}SDL:init.c.x" ¶
-				  "{ObjDir}gr.c.x" ¶
-				  "{ObjDir}ogl.c.x" ¶
-				  "{ObjDir}sdlgl.c.x" ¶
 				  "{ObjDir}digi.c.x" ¶
 				  "{ObjDir}event.c.x" ¶
+				  "{ObjDir}SDL:init.c.x" ¶
 				  "{ObjDir}joy.c.x" ¶
 				  "{ObjDir}joydefs.c.x" ¶
 				  "{ObjDir}key.c.x" ¶
@@ -304,11 +312,9 @@ ObjFiles-PPC    =  ¶
 
 ### Libraries ###
 
-LibFiles-PPC    =	¶
+GeneralLibFiles    =	¶
 					"{SharedLibraries}PhysicsFS" ¶
 					"{SharedLibraries}SDL" ¶
-					"{SharedLibraries}OpenGLLibraryStub" ¶
-					"{SharedLibraries}OpenGLUtilityStub" ¶
 					"{SharedLibraries}StdCLib" ¶
 #					"{SharedLibraries}CarbonLib" ¶
 					"{SharedLibraries}DialogsLib" ¶
@@ -317,6 +323,10 @@ LibFiles-PPC    =	¶
 					"{PPCLibraries}StdCRuntime.o" ¶
 					"{PPCLibraries}PPCCRuntime.o" ¶
 					"{PPCLibraries}PPCToolLibs.o"
+
+OpenGLFiles    =	¶
+					"{SharedLibraries}OpenGLLibraryStub" ¶
+					"{SharedLibraries}OpenGLUtilityStub"
 
 
 ### Default Rules ###
@@ -327,14 +337,19 @@ LibFiles-PPC    =	¶
 
 ### Build Rules ###
 
-D2X  ÄÄ  directories {ObjFiles-PPC} {LibFiles-PPC} {¥MondoBuild¥}
+# Comment out OpenGLObjects and OpenGLFiles for SDL Video build, commment out SDLVideoObjects for OpenGL build
+# This should be done for the following line as well as the arguments to PPCLink
+D2X  ÄÄ  directories {GeneralObjects} {GeneralLibFiles} {¥MondoBuild¥} {OpenGLObjects} {OpenGLFiles} #{SDLVideoObjects}
 	PPCLink ¶
 		-o {Targ} ¶
-		{ObjFiles-PPC} ¶
-		{LibFiles-PPC} ¶
+		{GeneralObjects} ¶
+#		{SDLVideoObjects} ¶
+		{OpenGLObjects} ¶
+		{GeneralLibFiles} ¶
+		{OpenGLFiles} ¶
 		{Sym-PPC} ¶
 		-mf -d ¶
-		-m __appstart ¶
+		-m main ¶
 		-t 'APPL' ¶
 		-c 'DCT2'
 	Rez -a -o {Targ} ":arch:carbon:descent.r"
@@ -384,6 +399,7 @@ directories Ä
 "{ObjDir}sdlgl.c.x"  Ä  :arch:ogl:sdlgl.c
 "{ObjDir}digi.c.x"  Ä  :arch:sdl:digi.c
 "{ObjDir}event.c.x"  Ä  :arch:sdl:event.c
+"{ObjDir}SDL:gr.c.x"  Ä  :arch:sdl:gr.c
 "{ObjDir}SDL:init.c.x"  Ä  :arch:sdl:init.c
 "{ObjDir}joy.c.x"  Ä  :arch:sdl:joy.c
 "{ObjDir}joydefs.c.x"  Ä  :arch:sdl:joydefs.c

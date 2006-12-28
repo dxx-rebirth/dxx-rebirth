@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20061228
+--------
+D2X.make, README: make it easier to build for SDL Video on Mac OS 9, update README
+
 20061226
 --------
 arch/carbon/conf.h, arch/sdl/gr.c, d2x-Info.plist, d2xgl-Info.plist, main/inferno.c, English.lproj/InfoPlist.strings: update version info, use DESCENT_VERSION instead of PACKAGE_NAME
