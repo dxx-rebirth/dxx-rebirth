@@ -18,6 +18,7 @@ Includes        =  ¶
 
 Sym-PPC         = -sym on
 
+PPCAOptions     = {Includes} {Sym-PPC}
 # Comment out '-d OGL' to build for SDL Video
 # More to do further down where the PPCLink call is...
 PPCCOptions     = {Includes} -includes unix {Sym-PPC} -d HAVE_CONFIG_H -enum int -noMapCR -w 2,7,30,35 -d OGL
@@ -161,7 +162,8 @@ SrcFiles        =  ¶
 				  :misc:strutil.c ¶
 				  :texmap:ntmap.c ¶
 				  :texmap:scanline.c ¶
-				  :texmap:tmapflat.c
+				  :texmap:tmapflat.c ¶
+				  :texmap:tmapppc.a
 
 
 ### Object Files ###
@@ -307,7 +309,8 @@ GeneralObjects    =  ¶
 				  "{ObjDir}strutil.c.x" ¶
 				  "{ObjDir}ntmap.c.x" ¶
 				  "{ObjDir}scanline.c.x" ¶
-				  "{ObjDir}tmapflat.c.x"
+				  "{ObjDir}tmapflat.c.x" ¶
+				  "{ObjDir}tmapppc.a.x"
 
 
 ### Libraries ###
@@ -330,6 +333,9 @@ OpenGLFiles    =	¶
 
 
 ### Default Rules ###
+
+.a.x  Ä  .a  {¥MondoBuild¥}
+	{PPCAsm} {depDir}{default}.a -o {targDir}{default}.a.x {PPCAOptions}
 
 .c.x  Ä  .c  {¥MondoBuild¥}
 	{PPCC} {depDir}{default}.c -o {targDir}{default}.c.x {PPCCOptions}
@@ -500,6 +506,7 @@ directories Ä
 "{ObjDir}ntmap.c.x"  Ä  :texmap:ntmap.c
 "{ObjDir}scanline.c.x"  Ä  :texmap:scanline.c
 "{ObjDir}tmapflat.c.x"  Ä  :texmap:tmapflat.c
+"{ObjDir}tmapppc.a.x"  Ä  :texmap:tmapppc.a
 
 
 ### Optional Dependencies ###
