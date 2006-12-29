@@ -35,6 +35,7 @@
 #include "palette.h"
 #include "rle.h"
 #include "mono.h"
+#include "u_mem.h"
 #ifdef HAVE_LIBPNG
 #include "pngfile.h"
 #endif
@@ -129,9 +130,10 @@ int bLegacyZBuf = 0;
 /* some function prototypes */
 
 //#define OGLTEXBUFSIZE (1024*1024*4)
-#define OGLTEXBUFSIZE (4096*4096*4)
+//#define OGLTEXBUFSIZE (4096*4096*4)
 #define GL_TEXTURE0_ARB 0x84C0
-extern GLubyte texbuf[OGLTEXBUFSIZE];
+extern GLubyte *pixels;
+extern GLubyte *texbuf;
 //void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int width,int height,int  twidth,int theight);
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format);
 void ogl_loadbmtexture(grs_bitmap *bm);
@@ -1300,8 +1302,8 @@ bool ogl_ubitblt_tolinear(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap 
 	int w1,h1;
 //	w1=w;h1=h;
 	w1=grd_curscreen->sc_w;h1=grd_curscreen->sc_h;
-	if (w1*h1*3>OGLTEXBUFSIZE)
-		Error("ogl_ubitblt_tolinear: screen res larger than OGLTEXBUFSIZE\n");
+//	if (w1*h1*3>OGLTEXBUFSIZE)
+//		Error("ogl_ubitblt_tolinear: screen res larger than OGLTEXBUFSIZE\n");
 
 	if (ogl_readpixels_ok>0){
 		OGL_DISABLE(TEXTURE_2D);
@@ -1388,7 +1390,8 @@ bool ogl_ubitblt_copy(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * sr
 }
 
 grs_canvas *offscreen_save_canv = NULL, *offscreen_canv = NULL;
-float pixels [OGLTEXBUFSIZE];
+//float pixels [OGLTEXBUFSIZE];
+GLubyte *pixels = NULL;
 
 void ogl_start_offscreen_render(int x, int y, int w, int h) {
 	int y2;
@@ -1537,14 +1540,40 @@ int pow2ize(int x){
 
 
 //GLubyte texbuf[512*512*4];
-GLubyte texbuf[OGLTEXBUFSIZE];
+//GLubyte texbuf[OGLTEXBUFSIZE];
+GLubyte *texbuf = NULL;
+
+// Allocate the pixel buffers 'pixels' and 'texbuf' based on current screen resolution
+void ogl_init_pixel_buffers(int w, int h)
+{
+	w = pow2ize(w);	// convert to OpenGL texture size
+	h = pow2ize(h);
+
+	if (pixels)
+		d_free(pixels);
+	pixels = d_malloc(w*h*4);
+
+	if (texbuf)
+		d_free(texbuf);
+	texbuf = d_malloc(max(w, 1024)*max(h, 256)*4);	// must also fit big font texture
+
+	if ((pixels == NULL) || (texbuf == NULL))
+		Error("Not enough memory for current resolution");
+}
+
+void ogl_close_pixel_buffers(void)
+{
+	d_free(pixels);
+	d_free(texbuf);
+}
 
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format)
 {
 //	GLushort *tex=(GLushort *)texp;
 	int x,y,c,i;
-	if (twidth*theight*4>sizeof(texbuf))//shouldn't happen, descent never uses textures that big.
-		Error("texture toobig %i %i",twidth,theight);
+//	if (twidth*theight*4>sizeof(texbuf))//shouldn't happen, descent never uses textures that big.
+	if ((width > max(grd_curscreen->sc_w, 1024)) || (height > max(grd_curscreen->sc_h, 256)))
+		Error("Texture is too big: %ix%i", width, height);
 
 	i=0;
 	for (y=0;y<theight;y++){

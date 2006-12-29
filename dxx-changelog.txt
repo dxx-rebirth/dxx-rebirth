@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20061229
+--------
+arch/ogl/gr.c, arch/ogl/ogl.c: allocate 'pixels' and 'texbuf' according to current screen resolution, saving over a hundred megabytes of memory
+
 20061228
 --------
 D2X.make, README: make it easier to build for SDL Video on Mac OS 9, update README

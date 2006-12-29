@@ -127,6 +127,8 @@ void ogl_init_state(void){
 }
 
 int last_screen_mode=-1;
+extern void ogl_init_pixel_buffers(int w, int h);
+extern void ogl_close_pixel_buffers(void);
 
 void ogl_set_screen_mode(void){
 	if (last_screen_mode==Screen_mode)
@@ -148,6 +150,7 @@ void ogl_set_screen_mode(void){
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
+	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
 	last_screen_mode=Screen_mode;
 }
 
@@ -542,6 +545,8 @@ int gr_init()
 	grd_curscreen->sc_canvas.cv_font_fg_color = 0;
 	grd_curscreen->sc_canvas.cv_font_bg_color = 0;
 	gr_set_current_canvas( &grd_curscreen->sc_canvas );
+	
+	ogl_init_pixel_buffers(256, 128);	// for gamefont_init
 
 	gr_installed = 1;
 	
@@ -562,6 +567,7 @@ void gr_close()
 			d_free(grd_curscreen->sc_canvas.cv_bitmap.bm_data);
 		d_free(grd_curscreen);
 	}
+	ogl_close_pixel_buffers();
 #ifdef OGL_RUNTIME_LOAD
 	if (ogl_rt_loaded)
 		OpenGL_LoadLibrary(false);
