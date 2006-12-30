@@ -19,15 +19,16 @@
    Boston, MA 02111-1307, USA.
 */
 #include <string.h>
-#include <errno.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <physfs.h>
 #include "hmp2mid.h"
 
 /* Some convience macros to keep the code below more readable */
 
 #define HMP_READ(buf, count) \
   {\
-    if (read_func(buf, 1, count, hmp_in) != (count)) \
+    if (PHYSFS_read(hmp_in, buf, 1, count) != (count)) \
     { \
       free(mid_track_buf); \
       return hmp_read_error; \
@@ -45,11 +46,11 @@
   }
 
 #define MID_WRITE(buf, count) \
-  if (fwrite(buf, 1, count, mid_out) != (count)) \
+  if (PHYSFS_write(mid_out, buf, 1, count) != (count)) \
   { \
     free(mid_track_buf); \
     snprintf(hmp2mid_error, sizeof(hmp2mid_error), mid_write_error_templ, \
-      strerror(errno)); \
+      PHYSFS_getLastError); \
     return hmp2mid_error; \
   }
 
@@ -79,7 +80,7 @@ static const char midi_header1[10] = { 'M', 'T', 'h', 'd', 0, 0, 0, 6, 0, 1 };
 static const char midi_header2[21] = { 0, 0xC0, 'M', 'T', 'r', 'k', 0, 0, 0,
   0x0B, 0, 0xFF, 0x51, 0x03, 0x18, 0x80, 0, 0, 0xFF, 0x2F, 0 };
   
-const char *hmp2mid(hmp2mid_read_func_t read_func, void *hmp_in, FILE* mid_out)
+const char *hmp2mid(PHYSFS_File *hmp_in, PHYSFS_File *mid_out)
 {
   unsigned char last_com = 0, buf[0x300];
   unsigned int num_tracks, track_length = 0, i, t;

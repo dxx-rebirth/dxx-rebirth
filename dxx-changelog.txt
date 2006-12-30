@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20061230
+--------
+arch/sdl/mixmusic.c, include/cfile.h, include/hmp2mid.h, misc/hmp2mid.c: use PhysicsFS to write MIDI file, make hmp2mid use PhysicsFS exclusively
+
 20061229
 --------
 arch/ogl/gr.c, arch/ogl/ogl.c: allocate 'pixels' and 'texbuf' according to current screen resolution, saving over a hundred megabytes of memory
