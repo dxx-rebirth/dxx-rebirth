@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/inferno.c: fix a memory leak that occurs when listing the search paths
 main/inferno.c: if a Descent 2 hog file is not available, generate an error, not a warning
+main/mission.c: allow an add-on mission to override the built-in hog file, such as the use of custom MIDI tracks
 
 20061230
 --------
