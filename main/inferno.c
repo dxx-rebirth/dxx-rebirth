@@ -448,7 +448,7 @@ int main(int argc, char *argv[])
 
 	if (! cfile_init("descent2.hog"))
 		if (! cfile_init("d2demo.hog"))
-			Warning("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
+			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
 #ifdef __unix__
 			      "\t$HOME/.d2x-rebirth\n"
 			      "\t" SHAREPATH "\n"
