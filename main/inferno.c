@@ -490,8 +490,10 @@ int main(int argc, char *argv[])
 	{
 		char **i, **list;
 
-		for (i = PHYSFS_getSearchPath(); *i != NULL; i++)
+		list = PHYSFS_getSearchPath();
+		for (i = list; *i != NULL; i++)
 			con_printf(CON_VERBOSE, "PHYSFS: [%s] is in the search path.\n", *i);
+		PHYSFS_freeList(list);
 
 		list = PHYSFS_getCdRomDirs();
 		for (i = list; *i != NULL; i++)
