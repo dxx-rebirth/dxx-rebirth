@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070109
+--------
+dxx-changelog.txt: added missing changelog entries
+
 20070107
 --------
 arch/cocoa/d2x-rebirth.icns, d2x-Info.plist: add Mac OS X icon
@@ -52,6 +56,49 @@ include/physfsx.h: chdir to application directory so it uses relative userdir an
 20061223
 --------
 main/game.c, main/gamerend.c: small brace tidy up to allow a source code editor to list all the functions (from D2X CVS)
+
+
+20061219
+--------
+2d/rle.c, SConstruct, arch/include/gp2x.h, arch/linux/hmiplay.c, arch/ogl/gr.c, arch/sdl/digi.c, arch/sdl/event.c, arch/sdl/gr.c, arch/sdl/joy.c, arch/sdl/key.c, configure.ac, gp2x/buttonmap.txt, gp2x/dxx-rebirth_buttonmap.pdf, gp2x/notes.txt, include/physfsx.h, main/Makefile.am, main/automap.c, main/config.c, main/game.c, main/gamecntl.c, main/gamerend.c, main/gauges.c, main/inferno.c, main/kconfig.c, main/menu.c, main/movie.c, main/newmenu.c, main/physics.c, main/piggy.c, main/playsave.c, main/scores.c, main/text.c, main/titles.c, maths/fixc.c, texmap/scanline.c: GP2X handheld support; added SConstruct file (MAC support incomplete); code optimisations for software renderer; fixed memleaks
+
+20061212
+--------
+arch/sdl/mixdigi.c, arch/sdl/mixmusic.c: music volume now properly restored and remembered in D1 and D2, using a static int; removed ugly hack that fixed this bug in D1 (inferno.c, revision 230) 
+
+20061123
+--------
+arch/include/mixmusic.h, arch/sdl/mixdigi.c, arch/sdl/mixmusic.c: SDL_mixer backend implementation files for D2
+
+20061113
+--------
+include/hmp2mid.h, misc/hmp2mid.c: Providing hmp2mid code, which was previously forgotten when introducing sdl_mixer in r264
+
+20061107
+--------
+arch/linux/Makefile.am, arch/sdl/Makefile.am, arch/win32/Makefile.am, configure.ac, include/cfile.h, misc/Makefile.am, initial integration of SDL_mixer sound system for Linux
+
+20061102
+--------
+arch/ogl/gr.c, d2x.ini, include/ogl_init.h, main/gauges.c, main/inferno.c, command-line to set glScissor off if needed
+arch/include/joy.h, arch/sdl/joy.c: improved joystick code for more buttons
+
+20061101
+--------
+main/render.c: just turn off detriangulation for OGL
+
+20061031
+--------
+main/kconfig.c: make sliding use sensitivity
+main/game.c, main/inferno.c, main/movie.c, misc/args.c, moved some FindArgs to main() so they are not called in the game; added printf for DEBUG to track FindArgs
+
+20061031
+--------
+d2x.ini, main/inferno.c: removing -cockpit and -hiresfont parameters which actually belong to D1X-Rebirth
+
+20061029
+--------
+main/render.c: turning detriangulation off by default; not really needed anymore and makes rendering nicer
 
 20061023
 --------
