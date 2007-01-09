@@ -278,7 +278,7 @@ int read_player_d1x(const char *filename)
                     if(!strcmp(word,"PLX VERSION"))
                      {
                       int maj,min;
-                       sscanf(line,"v%i.%i",&maj,&min);
+                       sscanf(line,"%i.%i",&maj,&min);
                        sprintf(plxver,"v%i.%i",maj,min);
                      }
                    free(line); free(word);

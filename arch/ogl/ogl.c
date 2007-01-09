@@ -16,7 +16,7 @@
 #include "palette.h"
 #include "rle.h"
 #include "mono.h"
-
+#include "u_mem.h"
 #include "segment.h"
 #include "textures.h"
 #include "texmerge.h"
@@ -75,6 +75,9 @@ int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
 int secondary_lh[5]={0,0,0,0,0};
 int bNoDepthTest=0;
+extern GLubyte *pixels;
+extern GLubyte *texbuf;
+
 /*int lastbound=-1;
 
 #define OGL_BINDTEXTURE(a) if(gr_badtexture>0) glBindTexture(GL_TEXTURE_2D, 0);\
@@ -1022,8 +1025,8 @@ bool ogl_ubitblt_tolinear(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap 
 	int w1,h1;
 //	w1=w;h1=h;
 	w1=grd_curscreen->sc_w;h1=grd_curscreen->sc_h;
-	if (w1*h1*3>OGLTEXBUFSIZE)
-		Error("ogl_ubitblt_tolinear: screen res larger than OGLTEXBUFSIZE\n");
+// 	if (w1*h1*3>OGLTEXBUFSIZE)
+// 		Error("ogl_ubitblt_tolinear: screen res larger than OGLTEXBUFSIZE\n");
 
 	if (ogl_readpixels_ok>0){
 		OGL_DISABLE(TEXTURE_2D);
@@ -1110,7 +1113,8 @@ bool ogl_ubitblt_copy(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * sr
 }
 
 grs_canvas *offscreen_save_canv = NULL, *offscreen_canv = NULL;
-float pixels [OGLTEXBUFSIZE];
+// float pixels [OGLTEXBUFSIZE];
+GLubyte *pixels = NULL;
 
 void ogl_start_offscreen_render(int x, int y, int w, int h) {
 	int y2;
@@ -1218,12 +1222,40 @@ int pow2ize(int x){
 }
 // 
 //GLubyte texbuf[512*512*4];
-GLubyte texbuf[OGLTEXBUFSIZE];
+//GLubyte texbuf[OGLTEXBUFSIZE];
+GLubyte *texbuf = NULL;
+
+// Allocate the pixel buffers 'pixels' and 'texbuf' based on current screen resolution
+void ogl_init_pixel_buffers(int w, int h)
+{
+	w = pow2ize(w); // convert to OpenGL texture size
+	h = pow2ize(h);
+
+	if (pixels)
+		free(pixels);
+	pixels = malloc(w*h*4);
+
+	if (texbuf)
+		free(texbuf);
+	texbuf = malloc(max(w, 1024)*max(h, 256)*4);  // must also fit big font texture
+
+	if ((pixels == NULL) || (texbuf == NULL))
+		Error("Not enough memory for current resolution");
+}
+
+void ogl_close_pixel_buffers(void)
+{
+	free(pixels);
+	free(texbuf);
+}
+
+
 void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int truewidth,int width,int height,int dxo,int dyo,int twidth,int theight,int type,int transp)
 {
 //	GLushort *tex=(GLushort *)texp;
 	int x,y,c,i;
-	if (twidth*theight*4>sizeof(texbuf))//shouldn't happen, descent never uses textures that big.
+// 	if (twidth*theight*4>sizeof(texbuf))//shouldn't happen, descent never uses textures that big.
+	if ((width > max(grd_curscreen->sc_w, 1024)) || (height > max(grd_curscreen->sc_h, 256)))
 		Error("texture toobig %i %i",twidth,theight);
 
 	i=0;
