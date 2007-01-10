@@ -697,8 +697,14 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	w += 30*MENSCALE_X;
 	h += 30*MENSCALE_Y;
 
-	if ( w > SWIDTH ) w = SWIDTH-3;
-	if ( h > SHEIGHT ) h = SHEIGHT-3;
+// 	if ( w > SWIDTH ) w = SWIDTH;
+// 	if ( h > SHEIGHT ) h = SHEIGHT;
+	/* If window is as or almost as big as screen define hard size so it fits (with borders and stuff).
+	   Also make use of MENSCALE_* so we are sure it does scale correct if font does scale or not */
+	if (w >= 320*MENSCALE_X-3)
+		w=318*MENSCALE_X;
+	if (h >= 200*MENSCALE_Y-3)
+		h=198*MENSCALE_Y;
 
 	x = (GWIDTH-w)/2;
 	y = (GHEIGHT-h)/2;

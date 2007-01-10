@@ -1302,11 +1302,8 @@ void kc_change_joyaxis( kc_item * item )
 		joystick_read_raw_axis( JOY_ALL_AXIS, axis );
 
 		for (i=0; i<numaxis; i++ )	{
-#if defined(__WINDOWS__)
-			if ( abs(axis[i]-old_axis[i])>1024 )	{
-#else 
-  			if ( abs(axis[i]-old_axis[i])>200 )	{
-#endif
+  			if ( abs(axis[i]-old_axis[i])>1024 )
+			{
 				code = i;
 #ifndef NDEBUG
 				printf("Axis Movement detected: Axis %i\n", i);
@@ -1314,13 +1311,13 @@ void kc_change_joyaxis( kc_item * item )
 			}
 			//old_axis[i] = axis[i];
 		}
-		for (i=0; i<Num_items; i++ )	
-		 {
+/*		for (i=0; i<Num_items; i++ )	This only prevents us from defining an axis that is already mapped to another action
+		{
 			n = item - All_items;
 			if ( (i!=n) && (All_items[i].type==BT_JOY_AXIS) && (All_items[i].value==code) )	
 				code = 255;
-		 }
-	
+		}
+*/
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1333,6 +1330,7 @@ void kc_change_joyaxis( kc_item * item )
 
 		item->value = code;					 
 	}
+
 	kc_drawitem( item, 1 );
 	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
