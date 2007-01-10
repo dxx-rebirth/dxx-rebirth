@@ -1693,24 +1693,23 @@ void kc_change_joyaxis( kc_item * item )
 		
 		for (i=0; i<numaxis; i++ )	{
 #if defined (MACINTOSH)
-			if ( abs(axis[i]-old_axis[i])>100 )	{
-#elif defined(WINDOWS)
-			if ( abs(axis[i]-old_axis[i])>1024 )	{
-#else 
-  			if ( abs(axis[i]-old_axis[i])>200 )	{
+			if ( abs(axis[i]-old_axis[i])>100 )
+#else
+			if ( abs(axis[i]-old_axis[i])>1024 )
 #endif
+			{
 				code = i;
 				con_printf(CON_DEBUG, "Axis Movement detected: Axis %i\n", i);
 			}
 			//old_axis[i] = axis[i];
 		}
-		for (i=0; i<Num_items; i++ )	
-		 {
+/*		for (i=0; i<Num_items; i++ )	This only prevents us from defining an axis that is already mapped to another action
+		{
 			n = item - All_items;
 			if ( (i!=n) && (All_items[i].type==BT_JOY_AXIS) && (All_items[i].value==code) )	
 				code = 255;
-		 }
-	
+		}
+*/
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{

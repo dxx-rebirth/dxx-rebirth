@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070110
+--------
+main/kconfig.c, main/newmenu.c: joystick axes can be reassigned; higher offset for axes moving detection; correction for menus that are bigger than screen
+
 20070109
 --------
 dxx-changelog.txt: added missing changelog entries

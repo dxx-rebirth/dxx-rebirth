@@ -928,8 +928,14 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	w += (MenuHires?60:30)*MENSCALE_X;
 	h += (MenuHires?60:30)*MENSCALE_Y;
 
-	if ( w > grd_curcanv->cv_bitmap.bm_w ) w = grd_curcanv->cv_bitmap.bm_w;
-	if ( h > grd_curcanv->cv_bitmap.bm_h ) h = grd_curcanv->cv_bitmap.bm_h;
+// 	if ( w > grd_curcanv->cv_bitmap.bm_w ) w = grd_curcanv->cv_bitmap.bm_w;
+// 	if ( h > grd_curcanv->cv_bitmap.bm_h ) h = grd_curcanv->cv_bitmap.bm_h;
+	/* If window is as or almost as big as screen define hard size so it fits (with borders and stuff).
+	   Also make use of MENSCALE_* so we are sure it does scale correct if font does scale or not */
+	if (w >= (MenuHires?640:320)*MENSCALE_X-3)
+		w=(MenuHires?638:318)*MENSCALE_X;
+	if (h >= (MenuHires?480:200)*MENSCALE_Y-3)
+		h=(MenuHires?478:198)*MENSCALE_Y;
 
 	x = (grd_curcanv->cv_bitmap.bm_w-w)/2;
 	y = (grd_curcanv->cv_bitmap.bm_h-h)/2;
