@@ -316,7 +316,7 @@ noasm_sources = [
 env = Environment(ENV = os.environ)
 env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
-env.Append(CPPFLAGS = '-Wall -funsigned-char')
+env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
 #env.Append(CPPDEFINES = [('D1XMICRO', '\\"' + str(D1XMICRO) + '\\"')])
 env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
@@ -400,7 +400,7 @@ if (debug == 1):
 	env.Append(CPPFLAGS = ['-g'])
 else:
 	env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
-	env.Append(CPPFLAGS = ' -O2 ')
+	env.Append(CPPFLAGS = ['-O2'])
 
 # profiler?
 if (profiler == 1):
