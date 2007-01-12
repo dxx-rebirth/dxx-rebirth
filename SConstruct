@@ -337,7 +337,7 @@ if sys.platform == 'win32':
 	common_sources += arch_win32_sources
 	ogllibs = ''
 	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
-	alllibs = winlibs + generic_libs
+	libs = winlibs + generic_libs
 	lflags = '-mwindows'
 else:
 	print "compiling on *NIX"
