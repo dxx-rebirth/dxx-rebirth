@@ -301,7 +301,7 @@ env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('VERSION', '\\"' + str(VERSION) + '\\"')])
 env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
-env.Append(CPPDEFINES = ['NMONO', 'PIGGY_USE_PAGING', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'NEWDEMO', 'SDL_INPUT', '_REENTRANT'])
+env.Append(CPPDEFINES = ['NMONO', 'PIGGY_USE_PAGING', 'NETWORK', 'NATIVE_IPX', 'HAVE_NETIPX_IPX_H', 'NEWDEMO', 'SDL_INPUT', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 generic_libs = ['SDL', 'physfs']
 sdlmixerlib = ['SDL_mixer']
@@ -325,7 +325,7 @@ else:
 	print "compiling on *NIX"
 	osdef = '__LINUX__'
 	osasmdef = 'elf'
-	env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
+	env.Append(CPPDEFINES = ['__LINUX__', 'KALINIX', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL_VIDEO', 'OGL']
 	common_sources += arch_linux_sources
