@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070112
+--------
+main/kmatrix.c: fixed canvas stuff to show summary correctly in OGL, added new strings for CTF and HOARD, code cleanup
+
 20070110
 --------
 main/kconfig.c, main/newmenu.c: joystick axes can be reassigned; higher offset for axes moving detection; correction for menus that are bigger than screen
