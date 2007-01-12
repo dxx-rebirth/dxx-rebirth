@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/kmatrix.c: fixed canvas stuff to show summary correctly in OGL, added new strings for CTF and HOARD, code cleanup
 SConstruct: added NATIVE_IPX and KALINIX to build
+main/newmenu.c: removed timer_delay from DoJasonInterpolate - caused slowdowns in some demos
 
 20070110
 --------

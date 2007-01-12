@@ -3357,13 +3357,7 @@ void DoJasonInterpolate (fix recorded_time)
 		// get the difference between the recorded time and the playback time
 		the_delay=(recorded_time - FrameTime);
 		//mprintf ((0,"The delay=%d\n", f2i(the_delay)));
-		if (the_delay >= f0_0)
-		{
-			stop_time();
-			timer_delay(the_delay);
-			start_time();
-		}
-		else
+		if (!the_delay >= f0_0)
 		{
 			while (JasonPlaybackTotal > nd_recorded_total)
 				if (newdemo_read_frame_information() == -1)
@@ -3371,14 +3365,8 @@ void DoJasonInterpolate (fix recorded_time)
 					newdemo_stop_playback();
 					return;
 				}
-
-			//the_delay = nd_recorded_total - JasonPlaybackTotal;
-			//if (the_delay > f0_0)
-			//	timer_delay(the_delay);
 		}
-
 	}
-
 	First_time_playback=0;
 }
 
