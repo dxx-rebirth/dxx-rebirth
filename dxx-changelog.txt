@@ -4,6 +4,10 @@ D1X-Rebirth Changelog
 --------
 main/kconfig.c, main/newmenu.c, main/playsave.c: joystick axes can be reassigned; higher offset for axes moving detection; correction for menus that are bigger than screen; plxver correction (is actually used)
 
+20070112
+--------
+SConstruct: cleanup
+
 20070109
 --------
 dxx-changelog.txt, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, main/playsave.c, texmap/scanline.c, texmap/tmapflat.c: allocate 'pixels' and 'texbuf' according to current screen resolution, saving over a hundred megabytes of memory; divide negative light rates of change properly (fix bug #2575) (from D2X CVS); divide negative window x-coordinates properly, fixing random crashes (from D2X CVS); make sscanf look for "%i.%i" instead of "v%i.%i" because the 'v' isn't written to file; added missing changelog entries

@@ -66,6 +66,12 @@ common_sources = [
 '3d/points.c',
 '3d/rod.c',
 '3d/setup.c',
+'arch/sdl/event.c',
+'arch/sdl/init.c',
+'arch/sdl/joy.c',
+'arch/sdl/joydefs.c',
+'arch/sdl/key.c',
+'arch/sdl/mouse.c',
 'cfile/cfile.c',
 'iff/iff.c',
 'main/ai.c',
@@ -243,13 +249,7 @@ arch_linux_sources = [
 'arch/linux/serial.c',
 'arch/linux/timer.c',
 'arch/linux/ukali.c',
-'arch/sdl/clipboard.c',
-'arch/sdl/event.c',
-'arch/sdl/init.c',
-'arch/sdl/joy.c',
-'arch/sdl/joydefs.c',
-'arch/sdl/key.c',
-'arch/sdl/mouse.c'
+'arch/sdl/clipboard.c'
 ]
 
 # choosing a sound implementation for Linux
@@ -274,13 +274,7 @@ arch_win32_sources = [
 'arch/win32/serial.c',
 'arch/win32/timer.c',
 'arch/win32/winnet.c',
-'arch/sdl/digi.c',
-'arch/sdl/event.c',
-'arch/sdl/init.c',
-'arch/sdl/joy.c',
-'arch/sdl/joydefs.c',
-'arch/sdl/key.c',
-'arch/sdl/mouse.c'
+'arch/sdl/digi.c'
 ]
 
 # for opengl
@@ -320,14 +314,16 @@ noasm_sources = [
 
 # flags and stuff for all platforms
 env = Environment(ENV = os.environ)
+env.ParseConfig('sdl-config --cflags')
+env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = '-Wall -funsigned-char')
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
 #env.Append(CPPDEFINES = [('D1XMICRO', '\\"' + str(D1XMICRO) + '\\"')])
 env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
 env.Append(CPPDEFINES = ['NMONO', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'SUPPORTS_NET_IP', '__SDL__', 'SDL_INPUT', 'SDL_AUDIO', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/sdl/include'])
-sdllibs = ['SDL']
-sdlmixerlib = ['SDL_mixer'] 
+generic_libs = ['SDL']
+sdlmixerlib = ['SDL_mixer']
 
 # windows or *nix?
 if sys.platform == 'win32':
@@ -338,10 +334,10 @@ if sys.platform == 'win32':
 	env.Append(CPPDEFINES = ['__WINDOWS__'])
 	env.Append(CPPPATH = ['arch/win32/include'])
 	ogldefines = ['SDL_GL', 'OGL_RUNTIME_LOAD', 'OGL']
-	common_sources = arch_win32_sources + common_sources
-	ogllibs = ['']
+	common_sources += arch_win32_sources
+	ogllibs = ''
 	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
-	alllibs = winlibs + sdllibs
+	alllibs = winlibs + generic_libs
 	lflags = '-mwindows'
 else:
 	print "compiling on *NIX"
@@ -350,10 +346,10 @@ else:
 	env.Append(CPPDEFINES = ['__LINUX__', 'WANT_AWE32'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL', 'OGL']
-	common_sources = arch_linux_sources + common_sources
+	common_sources += arch_linux_sources
 	ogllibs = ['GL', 'GLU']
-	alllibs = sdllibs
-	lflags = ' '
+	libs = generic_libs
+	lflags = ''
 
 # GP2X test env
 if (gp2x == 1):
@@ -365,10 +361,8 @@ if (gp2x == 1):
 	env.Append(CPPDEFINES = ['GP2X'])
 	env.Append(CPPPATH = ['/usr/local/gp2xdev/include'])
 	#env.Append(CPPFLAGS = ' -ffast-math -fPIC -funroll-all-loops -fomit-frame-pointer -march=armv4t') # left for further optimisation/debugging
-	Object(['main/clock.c'], CC = '/usr/local/gp2xdev/bin/gp2x-gcc')
-	common_sources = common_sources + ['main/clock.o']
-	gp2xlibs = ['pthread']
-	alllibs = alllibs + gp2xlibs
+	common_sources += ['main/clock.c']
+	libs += ['pthread']
 	lflags = '-static'
 	lpath = '/usr/local/gp2xdev/lib'
 else:
@@ -378,7 +372,7 @@ else:
 if (arm == 1):
 	no_asm = 1
 	env.Append(CPPDEFINES = ['WORDS_NEED_ALIGNMENT'])
-	env.Append(CPPFLAGS = ' -mstructure-size-boundary=8')
+	env.Append(CPPFLAGS = ['-mstructure-size-boundary=8'])
 
 # sdl or opengl?
 if (sdl_only == 1):
@@ -386,33 +380,31 @@ if (sdl_only == 1):
 	target = 'd1x-rebirth-sdl'
 	env.Append(CPPDEFINES = ['SDL_VIDEO'])
 	env.Append(CPPPATH = ['arch/sdl/include'])
-	common_sources = arch_sdl_sources + common_sources
+	common_sources += arch_sdl_sources
 else:
 	print "building with OpenGL"
 	target = 'd1x-rebirth-gl'
 	env.Append(CPPDEFINES = ogldefines)
 	env.Append(CPPPATH = ['arch/ogl/include'])
-	common_sources = arch_ogl_sources + common_sources
-	alllibs += ogllibs
+	common_sources += arch_ogl_sources
+	libs += ogllibs
 
 # SDL_mixer for sound? (*NIX only)
 if (sdlmixer == 1):
 	print "including SDL_mixer"
-	alllibs += sdlmixerlib
+	libs += sdlmixerlib
 
 # debug?
 if (debug == 1):
 	print "including: DEBUG"
-	lflags = ' -g '
-	env.Append(CPPFLAGS = lflags)
+	env.Append(CPPFLAGS = ['-g'])
 else:
 	env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
 	env.Append(CPPFLAGS = ' -O2 ')
 
 # profiler?
 if (profiler == 1):
-	lflags = ' -pg '
-	env.Append(CPPFLAGS = lflags)
+	env.Append(CPPFLAGS = ['-pg'])
 
 # assembler code?
 if (no_asm == 0) and (sdl_only == 1):
@@ -421,30 +413,30 @@ if (no_asm == 0) and (sdl_only == 1):
 	Object(['texmap/tmappent.S', 'texmap/tmapppro.S'], AS='gcc', ASFLAGS='-D' + str(osdef) + ' -c ')
 	env.Replace(AS = 'nasm')
 	env.Append(ASCOM = ' -f ' + str(osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
-	common_sources = asm_sources + common_sources + ['texmap/tmappent.o', 'texmap/tmapppro.o']
+	common_sources += asm_sources + ['texmap/tmappent.o', 'texmap/tmapppro.o']
 else:
 	env.Append(CPPDEFINES = ['NO_ASM'])
-	common_sources = noasm_sources + common_sources
+	common_sources += noasm_sources
 
 #editor build?
 if (editor == 1):
 	env.Append(CPPDEFINES = ['EDITOR'])
 	env.Append(CPPPATH = ['include/editor'])
-	common_sources = editor_sources + common_sources
+	common_sources += editor_sources
 
 #shareware build?
 if (shareware == 1):
 	env.Append(CPPDEFINES = ['SHAREWARE'])
-	common_sources = ['main/gamesave.c', 'main/gamemine.c', 'main/snddecom.c'] + common_sources
+	common_sources += ['main/gamesave.c', 'main/gamemine.c', 'main/snddecom.c']
 
 if (shareware == 0) and (editor == 0):
-	common_sources = ['main/loadrl2.c'] + common_sources
+	common_sources += ['main/loadrl2.c']
 
 print '\n'
 
-env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"' + str(sharepath) + '\\"')])
+env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"' + str(sharepath) + '/\\"')])
 # finally building program...
-env.Program(target=str(target), source = common_sources, LIBS = alllibs, LINKFLAGS = str(lflags), LIBPATH = str(lpath))
+env.Program(target=str(target), source = common_sources, LIBS = libs, LINKFLAGS = str(lflags), LIBPATH = str(lpath))
 env.Install(BIN_DIR, str(target))
 env.Alias('install', BIN_DIR)
 
@@ -453,7 +445,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	"""
 
 	Type 'scons' to build the binary.
-	Type 'scons install' to build and install.
+	Type 'scons install' to build (if it hasn't been done) and install.
 	Type 'scons -c' to clean up.
 	
 	Extra options (add them to command line, like 'scons extraoption=value'):
