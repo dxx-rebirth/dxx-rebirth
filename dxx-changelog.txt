@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070113
 --------
 main/game.c: fixed key combo to shrink/grow window (lost while porting to GP2X)
+main/laser.c: limit homing missle turn-rate
 
 20070110
 --------
