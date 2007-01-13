@@ -4,6 +4,10 @@ D1X-Rebirth Changelog
 --------
 main/kconfig.c, main/newmenu.c, main/playsave.c: joystick axes can be reassigned; higher offset for axes moving detection; correction for menus that are bigger than screen; plxver correction (is actually used)
 
+20070113
+--------
+main/object.c: removing the !dead statement (leftover from WraithX Deathcam) from object_move_one() so the function will return correctly if player dies instead running further and creating invalid code and crashes
+
 20070112
 --------
 SConstruct: cleanup

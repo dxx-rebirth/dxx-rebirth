@@ -2038,16 +2038,12 @@ void object_move_one( object * obj )
 			explode_badass_weapon(obj);
 	}
 
-	//the following ( if !dead) statement added by WraithX
-	if (!Player_is_dead)
-	{
 	if (obj->type == OBJ_NONE || obj->flags&OF_SHOULD_BE_DEAD)
 		return;			//object has been deleted
-	}//end addition by WraithX
 
 	switch (obj->movement_type) {
 
-		case MT_NONE:			break;								//this doesn't move
+		case MT_NONE:			break;				//this doesn't move
 
 		case MT_PHYSICS:		do_physics_sim(obj);	break;	//move by physics
 
