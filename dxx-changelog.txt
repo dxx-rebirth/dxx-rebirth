@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070113
+--------
+main/game.c: fixed key combo to shrink/grow window (lost while porting to GP2X)
+
 20070110
 --------
 main/kconfig.c, main/newmenu.c, main/playsave.c: joystick axes can be reassigned; higher offset for axes moving detection; correction for menus that are bigger than screen; plxver correction (is actually used)
