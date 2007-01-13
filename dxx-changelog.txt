@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/object.c: removing the !dead statement (leftover from WraithX Deathcam) from object_move_one() so the function will return correctly if player dies instead running further and creating invalid code and crashes
 arch/cocoa/d2x-rebirth.icns: update to Novacron's 128x128-bit icon
+main/kconfig.c: do not select weapon if guide-bot shortcut has done and weapon key is mapped from 0 to 9
 
 20070112
 --------
