@@ -1,10 +1,14 @@
 D2X-Rebirth Changelog
 
+20070113
+--------
+main/object.c: removing the !dead statement (leftover from WraithX Deathcam) from object_move_one() so the function will return correctly if player dies instead running further and creating invalid code and crashes
+
 20070112
 --------
 main/kmatrix.c: fixed canvas stuff to show summary correctly in OGL, added new strings for CTF and HOARD, code cleanup
 SConstruct: added NATIVE_IPX and KALINIX to build
-main/newmenu.c: removed timer_delay from DoJasonInterpolate - caused slowdowns in some demos
+main/newdemo.c: removed timer_delay from DoJasonInterpolate - caused slowdowns in some demos
 
 20070110
 --------

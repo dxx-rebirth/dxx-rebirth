@@ -2001,16 +2001,12 @@ void object_move_one( object * obj )
 			explode_object(obj,0);
 	}
 
-	if (obj->type == OBJ_NONE)
+	if (obj->type == OBJ_NONE || obj->flags&OF_SHOULD_BE_DEAD)
 		return;         // object has been deleted
-
-	// stay around if !dead, for WraithX's death-cam
-	if (!Player_is_dead && obj->flags&OF_SHOULD_BE_DEAD)
-		return;
 
 	switch (obj->movement_type) {
 
-		case MT_NONE:			break;								//this doesn't move
+		case MT_NONE:			break;				//this doesn't move
 
 		case MT_PHYSICS:		do_physics_sim(obj);	break;	//move by physics
 
