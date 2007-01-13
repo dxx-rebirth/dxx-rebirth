@@ -96,9 +96,6 @@ char movielib_files[4][FILENAME_LEN] = {"intro","other","robots"};
 #define EXTRA_ROBOT_LIB N_BUILTIN_MOVIE_LIBS
 
 int MovieHires = 1;   //default is highres
-#ifdef OGL
-int mip;
-#endif
 
 SDL_RWops *RoboFile;
 
@@ -143,13 +140,6 @@ int PlayMovie(const char *filename, int must_have)
 
 	if (FindArg("-nomovies"))
 		return MOVIE_NOT_PLAYED;
-
-#ifdef OGL
-	if (FindArg("-nomoviesmooth"))
-		mip = 0;
-	else
-		mip = 1;
-#endif
 
 	strcpy(name,filename);
 
@@ -207,7 +197,7 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 			dstx*((double)grd_curscreen->sc_w/(MovieHires?640:320)),
 			dsty*((double)grd_curscreen->sc_h/(MovieHires?480:200)),
 			bufw, bufh, sx, sy,
-			&source_bm,&grd_curcanv->cv_bitmap, mip);
+			&source_bm,&grd_curcanv->cv_bitmap,0);
 
 	glEnable (GL_BLEND);
 

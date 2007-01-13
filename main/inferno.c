@@ -229,7 +229,6 @@ void print_commandline_help()
 	printf( "  -gl_reticle <r>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
 	printf( "  -gl_scissor_ok <r> %s\n", "Set glScissor. 0=off 1=on (default)");
 	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
-	printf( "  -nomoviesmooth     %s\n", "Do not smooth movies");
 #endif // OGL
 
 	printf( "\n Quickstart:\n\n");
