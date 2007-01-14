@@ -273,19 +273,6 @@ int HUD_init_message_va(char * format, va_list args)
 	message = &HUD_messages[hud_last][0];
 	vsprintf(message,format,args);
 
-	t=time(NULL);
-	lt=localtime(&t);
-
-	/* Produce a colorised version and send it to the console */
-	printf("%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
-	if (HUD_color == -1)
-		HUD_color = BM_XRGB(0,28,0);
-	con_message[0] = CC_COLOR;
-	con_message[1] = HUD_color;
-	con_message[2] = '\0';
-	strcat(con_message, message);
-	con_printf(CON_NORMAL, "%s\n", con_message);
-
 	// Added by Leighton
 
    if ((Game_mode & GM_MULTI) && FindArg("-noredundancy"))
@@ -314,6 +301,19 @@ int HUD_init_message_va(char * format, va_list args)
 		HUD_message_timer = F1_0*3;		// 1 second per 5 characters
 		return 0;	// ignore since it is the same as the last one
 	}
+
+	t=time(NULL);
+	lt=localtime(&t);
+
+	/* Produce a colorised version and send it to the console */
+	printf("%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
+	if (HUD_color == -1)
+		HUD_color = BM_XRGB(0,28,0);
+	con_message[0] = CC_COLOR;
+	con_message[1] = HUD_color;
+	con_message[2] = '\0';
+	strcat(con_message, message);
+	con_printf(CON_NORMAL, "%s\n", con_message);
 
 	hud_last = temp;
 	// Check if memory has been overwritten at this point.

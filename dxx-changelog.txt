@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070114
+--------
+main/hud.c: moved hudlog printf's so they do not spam stdout with redundant messages
+
 20070113
 --------
 main/object.c: removing the !dead statement (leftover from WraithX Deathcam) from object_move_one() so the function will return correctly if player dies instead running further and creating invalid code and crashes
