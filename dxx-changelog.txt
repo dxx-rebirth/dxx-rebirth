@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070117
+--------
+main/endlevel.c: draw spheres instead of pixels in draw_stars to show correctly in OGL
+
 20070114
 --------
 main/hud.c: moved hudlog printf's so they do not spam stdout with redundant messages
