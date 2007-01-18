@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070118
+--------
+main/gauges.c: draw bomb count correctly in CM_FULL_SCREEN ... finally
+
 20070117
 --------
 main/endlevel.c: draw spheres instead of pixels in draw_stars to show correctly in OGL

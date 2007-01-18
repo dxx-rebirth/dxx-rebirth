@@ -1696,7 +1696,7 @@ void hud_show_weapons(void)
 			old_ammo_count[1][VR_current_page] = Players[Player_num].secondary_ammo[Secondary_weapon];
 		}
 	
-		show_bomb_count(grd_curcanv->cv_bitmap.bm_w-(3*GAME_FONT->ft_w+(FontHires?0:2)), y-3*Line_spacing,-1,1);
+		show_bomb_count(grd_curcanv->cv_bitmap.bm_w-FONTSCALE_X(3*GAME_FONT->ft_w+(FontHires?0:2)), y-FONTSCALE_Y(3*Line_spacing),-1,1);
 	}
 }
 
