@@ -101,6 +101,7 @@ fix Cruise_speed=0;
 int Allow_primary_cycle=1;
 int Allow_secondary_cycle=1;
 int mouselook=0;
+extern int Automap_flag;
 
 #define BT_KEY                  0
 #define BT_MOUSE_BUTTON 	1
@@ -1831,60 +1832,71 @@ if (!Player_is_dead)
 	(joy_get_button_state(kc_d1x[1].value) &&
 		(d1x_joystick_state[0]!=d1x_joystick_ostate[0]) ) )
 	{
-	int i, valu=0;
-	do_weapon_select(0,0);
-		for(i=MAX_PRIMARY_WEAPONS;i<MAX_PRIMARY_WEAPONS+NEWPRIMS;i++)
-		if(primary_order[i]>primary_order[valu]&&player_has_weapon(i,0))
-		valu = i;
-	LaserPowSelected = valu;
+		int i, valu=0;
+		if (!Automap_flag) { // this (and the following statements) prevents to select weapon if Automap is active
+			do_weapon_select(0,0);
+			for(i=MAX_PRIMARY_WEAPONS;i<MAX_PRIMARY_WEAPONS+NEWPRIMS;i++)
+				if(primary_order[i]>primary_order[valu]&&player_has_weapon(i,0))
+					valu = i;
+			LaserPowSelected = valu;
+		}
 	}
 	//----------------Weapon 2----------------
 	if(key_down_count(kc_d1x[2].value) ||
 	(joy_get_button_state(kc_d1x[3].value) &&
 		(d1x_joystick_state[1]!=d1x_joystick_ostate[1]) ) )
-	do_weapon_select(1,0);
+	if (!Automap_flag)
+		do_weapon_select(1,0);
 	//----------------Weapon 3----------------
 	if(key_down_count(kc_d1x[4].value) ||
 	(joy_get_button_state(kc_d1x[5].value) &&
 		(d1x_joystick_state[2]!=d1x_joystick_ostate[2]) ) )
-	do_weapon_select(2,0);
+	if (!Automap_flag)
+		do_weapon_select(2,0);
 	//----------------Weapon 4----------------
 	if(key_down_count(kc_d1x[6].value) ||
 	(joy_get_button_state(kc_d1x[7].value) &&
 		(d1x_joystick_state[3]!=d1x_joystick_ostate[3]) ) )
-	do_weapon_select(3,0);
+	if (!Automap_flag)
+		do_weapon_select(3,0);
 	//----------------Weapon 5----------------
 	if(key_down_count(kc_d1x[8].value) ||
 	(joy_get_button_state(kc_d1x[9].value) &&
 		(d1x_joystick_state[4]!=d1x_joystick_ostate[4]) ) )
-	do_weapon_select(4,0);
+	if (!Automap_flag)
+		do_weapon_select(4,0);
 	
 	//--------- Read secondary weapon select ----------
 	//----------------Weapon 6----------------
 	if(key_down_count(kc_d1x[10].value) ||
 	(joy_get_button_state(kc_d1x[11].value) &&
 		(d1x_joystick_state[5]!=d1x_joystick_ostate[5]) ) )
-	do_weapon_select(0,1);
+	if (!Automap_flag)
+		do_weapon_select(0,1);
 	//----------------Weapon 7----------------
 	if(key_down_count(kc_d1x[12].value) ||
 	(joy_get_button_state(kc_d1x[13].value) &&
 		(d1x_joystick_state[6]!=d1x_joystick_ostate[6]) ) )
-	do_weapon_select(1,1);
+	if (!Automap_flag)
+		do_weapon_select(1,1);
 	//----------------Weapon 8----------------
 	if(key_down_count(kc_d1x[14].value) ||
 	(joy_get_button_state(kc_d1x[15].value) &&
 		(d1x_joystick_state[7]!=d1x_joystick_ostate[7]) ) )
-	do_weapon_select(2,1);
+	if (!Automap_flag)
+		do_weapon_select(2,1);
 	//----------------Weapon 9----------------
 	if(key_down_count(kc_d1x[16].value) ||
 	(joy_get_button_state(kc_d1x[17].value) &&
 		(d1x_joystick_state[8]!=d1x_joystick_ostate[8]) ) )
-	do_weapon_select(3,1);
+	if (!Automap_flag)
+		do_weapon_select(3,1);
 	//----------------Weapon 0----------------
 	if(key_down_count(kc_d1x[18].value) ||
 	(joy_get_button_state(kc_d1x[19].value) &&
 		(d1x_joystick_state[9]!=d1x_joystick_ostate[9]) ) )
-	do_weapon_select(4,1);
+	if (!Automap_flag)
+		do_weapon_select(4,1);
 	memcpy(d1x_joystick_ostate,d1x_joystick_state,10*sizeof(int));
 	}
 	//end this section addition - VR

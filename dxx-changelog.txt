@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070118
+--------
+main/kconfig.c: prevent changing weapons if automap is active
+
 20070117
 --------
 main/endlevel.c: draw spheres instead of pixels in draw_stars to show correctly in OGL
