@@ -724,6 +724,7 @@ try_again:
 		goto try_again;			// They hit Esc during New player config
 
 	strncpy(Players[Player_num].callsign, text, CALLSIGN_LEN);
+	strlwr(Players[Player_num].callsign);
 
 	write_player_file();
 
@@ -779,6 +780,7 @@ do_menu_again:
 			goto do_menu_again;
 	} else {
 		strncpy(Players[Player_num].callsign,filename, CALLSIGN_LEN);
+		strlwr(Players[Player_num].callsign);
 	}
 
 	if (read_player_file() != EZERO)

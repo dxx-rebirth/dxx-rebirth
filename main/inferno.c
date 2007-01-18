@@ -787,7 +787,6 @@ int main(int argc, char *argv[])
 			{
 				strcpy(strstr(filename,".plr"),"\0");
 				strcpy(Players[Player_num].callsign,filename);
-				strupr(Players[Player_num].callsign);
 				read_player_file();
 				WriteConfigFile();
 				remap_fonts_and_menus(1);

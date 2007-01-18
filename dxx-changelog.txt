@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/gauges.c: draw bomb count correctly in CM_FULL_SCREEN ... finally
 main/laser.c: made Omega selectable even if it has no energy left and can't fire
 main/kconfig.c: prevent changing weapons if automap is active
+main/inferno.c, main/gameseq.c: only read and write lowercase pilots - prevents mistakes in -pilot option as well as multisaves
 
 20070117
 --------
