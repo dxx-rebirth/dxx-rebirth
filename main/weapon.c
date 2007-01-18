@@ -641,7 +641,7 @@ void ReorderPrimary ()
 	{
 		m[i].type=NM_TYPE_MENU;
 		if (PrimaryOrder[i]==255)
-			m[i].text=" Never autoselect ";
+			m[i].text="ˆˆˆˆˆˆˆ Never autoselect ˆˆˆˆˆˆˆ";
 		else
 			m[i].text=(char *)PRIMARY_WEAPON_NAMES(PrimaryOrder[i]);
 		m[i].value=PrimaryOrder[i];
@@ -663,7 +663,7 @@ void ReorderSecondary ()
 	{
 		m[i].type=NM_TYPE_MENU;
 		if (SecondaryOrder[i]==255)
-			m[i].text=" Never autoselect ";
+			m[i].text="ˆˆˆˆˆˆˆ Never autoselect ˆˆˆˆˆˆˆ";
 		else
 			m[i].text=(char *)SECONDARY_WEAPON_NAMES(SecondaryOrder[i]);
 		m[i].value=SecondaryOrder[i];
