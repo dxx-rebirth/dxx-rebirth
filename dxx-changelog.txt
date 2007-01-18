@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070118
 --------
 main/kconfig.c: prevent changing weapons if automap is active
+main/inferno.c, main/gameseq.c: only read and write lowercase pilots - prevents mistakes in -pilot option as well as multisaves
 
 20070117
 --------

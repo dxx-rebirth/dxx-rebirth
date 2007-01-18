@@ -626,7 +626,6 @@ int main(int argc,char **argv)
 			{
 				strcpy(strstr(filename,".plr"),"\0");
 				strcpy(Players[Player_num].callsign,filename);
-				strupr(Players[Player_num].callsign);
 				read_player_file();
 				Auto_leveling_on = Default_leveling_on;
 				WriteConfigFile();

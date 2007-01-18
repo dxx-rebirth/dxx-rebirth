@@ -893,7 +893,7 @@ try_again:
 		goto try_again;			// They hit Esc during New player config
 
 	strncpy(Players[Player_num].callsign, text, CALLSIGN_LEN);
-	strupr(Players[Player_num].callsign);
+	strlwr(Players[Player_num].callsign);
 
 	init_game_list();				//init to defaults
 
@@ -947,7 +947,7 @@ do_menu_again:
 			goto do_menu_again;
 	} else {
 		strncpy(Players[Player_num].callsign,filename, CALLSIGN_LEN);
-		strupr(Players[Player_num].callsign);
+		strlwr(Players[Player_num].callsign);
 	}
 
 	read_player_file();
