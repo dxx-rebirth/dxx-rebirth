@@ -495,11 +495,6 @@ void omega_charge_frame(void)
 	if (Player_is_dead)
 		return;
 
-	if ((Primary_weapon == OMEGA_INDEX) && (Omega_charge == 0) && (Players[Player_num].energy == 0)) {
-		Primary_weapon--;
-		auto_select_weapon(0);
-	}
-
 	//	Don't charge while firing.
 	if ((Last_omega_fire_frame == FrameCount) || (Last_omega_fire_frame == FrameCount-1))
 		return;
