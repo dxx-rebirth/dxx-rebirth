@@ -216,7 +216,6 @@ void show_commandline_help()
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-100)");
 	printf( "  -missiondir <d>    %s\n", "Set alternate mission dir to <d>");
 	printf( "  -hudlog            %s\n", "Start hudlog immediately");
-	printf( "  -hudlogdir <d>     %s\n", "Log hud messages in directory <d>");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 
 	printf( "\n Controls:\n\n");
@@ -341,11 +340,20 @@ int main(int argc,char **argv)
 	// Things to initialize before anything else
 	arch_init_start();
 
+	if (!cfexist(DESCENT_DATA_PATH "descent.hog") || !cfexist(DESCENT_DATA_PATH "descent.pig"))
+		Error("Could not find valid descent.hog and/or descent.pig in\n"
+#ifdef __unix__
+				"\t" DESCENT_DATA_PATH "\n"
+#else
+				"\tcurrent directory\n"
+#endif
+				);
+
 	load_text();
 
 	printf(DESCENT_VERSION "\n"
 	       "This is a MODIFIED version of DESCENT which is NOT supported by Parallax or\n"
-	       "Interplay. Use at your own risk!\n");
+	       "Interplay. Use at your own risk! Copyright (c) 2005 Christian Beckhaeuser\n");
 	printf("Based on: DESCENT   %s\n", VERSION_NAME);
 	printf("%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 
@@ -381,9 +389,6 @@ int main(int argc,char **argv)
 		
 	if (FindArg("-hudlog_multi"))
 	HUD_log_multi_autostart = 1;
-	
-	if ((t=FindArg("-hudlogdir")))
-	hud_log_setdir(Args[t+1]);
 	
 	if (FindArg("-hudlog"))
 	HUD_log_autostart = 1;

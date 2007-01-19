@@ -20,19 +20,7 @@ int HUD_log_multi_autostart = 0;
 int HUD_log_autostart = 0;
 int fhudmulti = 0;
 FILE *fhudlog=NULL;
-char hudlogdir[128]="";
 char hudlogname[143];
-
-void hud_log_setdir(char *dir){
-	int l=strlen(dir);
-	strcpy(hudlogdir,dir);
-//added/edited on 9/5/99 by Victor Rachels for \ or / usage
-        if (l && hudlogdir[l-1]!=USEDSLASH){
-                hudlogdir[l++]=USEDSLASH;
-//end this section edit - VR
-		hudlogdir[l]=0;
-	}
-}
 
 void hud_log_check_multi_start(void){
 #ifdef NETWORK
@@ -68,7 +56,7 @@ void open_hud_log(void){
 	do{
 //		sprintf(hudlogname,"%shud%05d.log",hudlogdir,num++);
  //edited 03/22/99 Matthew Mueller - tm_mon is 0 based.
-		sprintf(hudlogname,"%s%04d%02d%02d.%03d",hudlogdir,lt->tm_year+1900,lt->tm_mon+1,lt->tm_mday,num++);
+		sprintf(hudlogname,"%04d%02d%02d.%03d",lt->tm_year+1900,lt->tm_mon+1,lt->tm_mday,num++);
  //end edit -MM
 //end edit -MM
 	}while (!access(hudlogname,0));

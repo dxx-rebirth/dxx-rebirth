@@ -4,7 +4,6 @@ void open_hud_log(void);
 void close_hud_log(void);
 void toggle_hud_log(void);
 void kmatrix_log(int fhudonly);
-void hud_log_setdir(char *dir);
 void hud_log_message(char * message);
 
 extern int HUD_log_multi_autostart;

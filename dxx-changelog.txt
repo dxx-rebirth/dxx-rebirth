@@ -2,7 +2,8 @@ D1X-Rebirth Changelog
 
 20070118
 --------
-main/cfile.c: patch by TheLion: cfile_get_filehandle reads case-insensitive on *NIX systems - makes use of .rdl levels easier
+cfile/cfile.c: patch by TheLion: cfile_get_filehandle reads case-insensitive on *NIX systems - makes use of .rdl levels easier
+d1x.ini, main/inferno.c, main/hudlog.c, main/hudlog.h: tell user where descent.hog/pig should be if it isn't there, removed broken -hudlogdir code
 
 20070118
 --------
