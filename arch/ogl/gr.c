@@ -581,7 +581,7 @@ void ogl_upixelc(int x, int y, int c){
 //		grd_curcanv->cv_bitmap.bm_data[y*grd_curscreen->sc_canvas.cv_bitmap.bm_w+x]=c;
 //	}else{
 		OGL_DISABLE(TEXTURE_2D);
-		glPointSize(1.0);
+		glPointSize(grd_curscreen->sc_w/320);
 		glBegin(GL_POINTS);
 //		glBegin(GL_LINES);
 //	ogl_pal=gr_current_pal;

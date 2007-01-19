@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070119
+--------
+arch/ogl/gr.c: gr_upixelc now able to scale pixels to current resolution
+
 20070118
 --------
 main/gauges.c: draw bomb count correctly in CM_FULL_SCREEN ... finally
