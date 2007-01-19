@@ -192,7 +192,7 @@ void ogl_get_verinfo(void){
 
 #ifndef NDEBUG
 	printf("gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
-	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i  gl_scissor_ok:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok,ogl_scissor_ok);
+	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i gl_scissor_ok:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok,ogl_scissor_ok);
 #endif
 }
 
@@ -414,7 +414,7 @@ void ogl_upixelc(int x, int y, int c){
 	r_upixelc++;
 
 	OGL_DISABLE(TEXTURE_2D);
-	glPointSize(1.0);
+	glPointSize(grd_curscreen->sc_w/320);
 	glBegin(GL_POINTS);
 	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
 	glVertex2f((x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height);
