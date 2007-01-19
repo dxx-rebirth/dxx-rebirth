@@ -127,6 +127,7 @@ static char rcsid[] = "$Id: cfile.c,v 1.2 2006/03/18 23:07:34 michaelstather Exp
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <dirent.h>
 
 #include "types.h"
 
@@ -162,35 +163,98 @@ char AltHogFilename[64];
 char AltHogDir[64];
 char AltHogdir_initialized = 0;
 
+// case-insensitive search for file in
+// directory. We only need this on non-Windows systems.
+#ifndef __WINDOWS__
+char *cfile_find_file(const char *dirname, const char *filename)
+{
+	DIR *d = opendir(dirname);
+	struct dirent *entry_p;
+	struct dirent entry;
+	int dn_len = strlen(dirname);
+
+	if (!d)
+		return NULL;
+
+	while ( (entry_p = readdir(d)) )
+	{
+		entry = *entry_p;
+		if (strcasecmp(entry.d_name, filename) == 0)
+		{
+			int fn_len;
+			char *path;
+			// There _might_ be more of course, but we'll
+			// just take the first one found and use it...
+			closedir(d);
+			fn_len = strlen(entry.d_name);
+			path = malloc(dn_len + fn_len + 2);
+			strcpy(path, dirname);
+			path[dn_len] = USEDSLASH;
+			path[dn_len+1] = '\0';
+			strcat(path, entry.d_name);
+
+			return path;
+		}
+	}
+	closedir(d);
+	return NULL;
+}
+#endif
+
+// ifopen() is like fopen() but case-insensitive; if the
+// file is not found it will look for variations of the
+// filename with only case differences.
+FILE *ignorecase_fopen(const char *path, const char *mode)
+{
+	// First, try a regular fopen(), see if it works
+	FILE *f = fopen(path, mode);
+	// Keep searching only if we open for reading, of course
+	if (f || mode[0] != 'r')
+		return f;
+
+	// No? Then let's hope it's just a case difference
+	{
+		char *tmp_path = strdup(path);
+		char *dirname;
+		char *filename;
+		char *replacement_path;
+
+		dirname = strrchr(tmp_path, USEDSLASH);
+		if (dirname)
+		{
+			filename = &dirname[1];
+			*dirname = '\0';
+			dirname = tmp_path;
+		}
+		else
+		{
+			dirname = ".";
+			filename = tmp_path;
+		}
+
+		replacement_path = cfile_find_file(dirname, filename);
+		free(tmp_path);
+		if (!replacement_path)
+			// Nothing found
+			return NULL;
+
+		f = fopen(replacement_path, mode);
+		free(replacement_path);
+		/* f _might_ still be NULL if something goes wrong
+		 * of course, but we leave the error handling for
+		 * the caller. */
+	}
+	return f;
+}
+
 void cfile_use_alternate_hogdir( char * path )
 {
-//        char *p;
-
 	if ( path )	{
-                strcpy( AltHogDir, path );
+		strcpy( AltHogDir, path );
 		// change backslashes to slashes, and terminate
 		// AltHogDir with a slash without changing its meaning
-//added/edited by Victor Rachels on 9/4/99 for \ or / usage in path
+		//added/edited by Victor Rachels on 9/4/99 for \ or / usage in path
                 d_slash( AltHogDir );
-//-killed-           for (p = AltHogDir; *p; p++)
-//-killed-            if (*p == NOTUSEDSLASH)
-//-killed-             *p = USEDSLASH;
-//-killed-            if (p == AltHogDir || p[-1] == ':')
-//-killed-             *(p++) = '.';
-//-killed-            if (p[-1] != USEDSLASH)
-//-killed-             *(p++) = USEDSLASH;
-//-killed-           *p = 0;
-
-/*           for (p = AltHogDir; *p; p++)
-            if (*p == '\\')
-             *p = '/';
-            if (p == AltHogDir || p[-1] == ':')
-             *(p++) = '.';
-            if (p[-1] != '/')
-             *(p++) = '/';
-           *p = 0;*/
-
-//end this section edit - VR
 		AltHogdir_initialized = 1;
 	} else {
 		AltHogdir_initialized = 0;
@@ -205,7 +269,11 @@ FILE * cfile_get_filehandle( char * filename, char * mode )
 	char temp[128];
 	
 	descent_critical_error = 0;
+#ifdef __WINDOWS__
 	fp = fopen( filename, mode );
+#else
+	fp = ignorecase_fopen( filename, mode );
+#endif
 	if ( fp && descent_critical_error )	{
 		fclose(fp);
 		fp = NULL;
@@ -214,7 +282,11 @@ FILE * cfile_get_filehandle( char * filename, char * mode )
 		strcpy( temp, AltHogDir );
 		strcat( temp, filename );
 		descent_critical_error = 0;
+#ifdef __WINDOWS__
 		fp = fopen( temp, mode );
+#else
+		fp = ignorecase_fopen( temp, mode );
+#endif
 		if ( fp && descent_critical_error )	{
 			fclose(fp);
 			fp = NULL;
