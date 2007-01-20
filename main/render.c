@@ -568,6 +568,10 @@ void flash_frame()
 
 }
 
+#ifdef OGL
+extern int Current_level_num;
+#endif
+
 // -----------------------------------------------------------------------------------
 //	Render a face.
 //	It would be nice to not have to pass in segnum and sidenum, but they are used for our
@@ -657,6 +661,13 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 		}
 	}
 
+
+#ifdef GOL
+	/* ZICO - experimental HACK
+ 	   Level 19 has an unwanted 4D room. Let's use this stupid hack to disguise it. */
+	if (Current_level_num==19 && segnum >= 512 && segnum <=528)
+		glDepthFunc(GL_ALWAYS);
+#endif
 
 #ifdef EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
@@ -1405,13 +1416,6 @@ int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *
 
 	*pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].type==3?1:0]]];
 	*pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].type==3?1:0]]];
-
-#ifdef OGL
-	/* ZICO - experimental HACK
-	   If edge_verts differ +/- 100 it's *mostly* an indication of overlapping rooms using the 4D effect. So we don't want GL_LEQUAL. Won't work always... */
-	if (((edge_verts[0] - edge_verts[1] >= 100) || (edge_verts[0] - edge_verts[1] <= -100)) && (seg0->sides[edgeside0].type==3))
-		glDepthFunc(GL_ALWAYS);
-#endif
 
 	return 1;
 }
