@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/automap.c: for OGL don't display background bitmap if screen height < 400 because it won't fit - just draw grey; adjusted level name alignment in secret levels
 main/render.c: removed inaccurate 4D hack
+d2x.ini, main/inferno.c: corrected -maxfps switch: MAX_FPS is 80, not 100
 
 20070119
 --------

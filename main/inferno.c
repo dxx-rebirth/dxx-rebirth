@@ -179,7 +179,7 @@ void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
 	printf( "  -fps               %s\n", "Enable FPS indicator by default"); // ZICO - would be good, right?
-	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-100)");
+	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
 	printf( "  -hogdir <dir>      %s\n", "set shared data directory to <dir>");
 #ifdef    __unix__
 	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
