@@ -72,10 +72,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "cntrlcen.h"
 
-#ifdef OGL
-#define AUTOMAP_DIRECT_RENDER
-#endif
-
 #define EF_USED     1   // This edge is used
 #define EF_DEFINING 2   // A structure defining edge that should always draw.
 #define EF_FRONTIER 4   // An edge between the known and the unknown.
@@ -160,9 +156,9 @@ static short DrawingListBright[MAX_EDGES];
 #define ROT_SPEED_DIVISOR		(115000)
 
 // Screen anvas variables
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 static int current_page=0;
-#endif /* AUTOMAP_DIRECT_RENDER */
+#endif /* OGL */
 static grs_canvas Pages[2];
 static grs_canvas DrawingPages[2];
 
@@ -411,7 +407,7 @@ void draw_automap()
 	vms_vector viewer_position;
 	g3s_point sphere_point;
 
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 	gr_set_current_canvas(&DrawingPage);
 #endif
 
@@ -503,7 +499,7 @@ void draw_automap()
 #ifdef OGL
 	ogl_swap_buffers();
 #else
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 	gr_bm_ubitblt( Page.cv_bitmap.bm_w, Page.cv_bitmap.bm_h, Page.cv_bitmap.bm_x, Page.cv_bitmap.bm_y, 0, 0, &Page.cv_bitmap, &grd_curscreen->sc_canvas.cv_bitmap );
 	gr_update();
 #endif
@@ -588,7 +584,10 @@ void create_name_canv()
 	gr_set_curfont(SMALL_FONT);
 	gr_printf(((MenuHires)?10:5),((MenuHires)?10:5),"%s", name_level_left);
 	gr_get_string_size(system_name[(Current_level_num-1)/4],&wr1,&h,&aw);
-	gr_get_string_size(Current_level_name,&wr2,&h,&aw);
+	if (Current_level_num <= 0)
+		wr2 = 0;
+	else
+		gr_get_string_size(Current_level_name,&wr2,&h,&aw);
 	gr_printf(grd_curcanv->cv_bitmap.bm_w-(wr1+wr2)-FONTSCALE_X(((MenuHires)?35:18)),((MenuHires)?10:5),"%s", name_level_right);
 }
 
@@ -619,7 +618,7 @@ void do_automap( int key_code )	{
 	int leave_mode=0;
 	int first_time=1;
 	int pcx_error;
-#if !defined(AUTOMAP_DIRECT_RENDER) || !defined(NDEBUG)
+#if !defined(OGL) || !defined(NDEBUG)
 	int i;
 #endif
 	int c, marker_num;
@@ -670,7 +669,7 @@ void do_automap( int key_code )	{
 	gr_palette_clear();
 
 
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 	if (VR_render_buffer[0].cv_w >= automap_width && VR_render_buffer[0].cv_h >= automap_height)
 		gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
 	else {
@@ -748,7 +747,10 @@ void do_automap( int key_code )	{
 #ifdef OGL
 		gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
 		gr_set_current_canvas(&Page);
-		ogl_ubitmapm_cs(0, 0, -1, -1, &Automap_background, -1, F1_0);
+		if (automap_height<400)
+			gr_clear_canvas( BM_XRGB(3,3,3) );
+		else
+			ogl_ubitmapm_cs(0, 0, -1, -1, &Automap_background, -1, F1_0);
 		gr_set_curfont(HUGE_FONT);
 		gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
 		gr_printf(RESCALE_X(80), RESCALE_Y(36), TXT_AUTOMAP);
@@ -874,13 +876,13 @@ void do_automap( int key_code )	{
 			  break;
 
 			case KEY_D+KEY_CTRLED:
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 				if (current_page)		//menu will only work on page 0
 					draw_automap();		//..so switch from 1 to 0
 #endif
  
 				if (HighlightMarker > -1 && MarkerObject[HighlightMarker] != -1) {
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 					gr_set_current_canvas(&Pages[current_page]);
 #endif
 					if (nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "Delete Marker?" ) == 0) {

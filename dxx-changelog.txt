@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070120
+--------
+main/automap.c: for OGL don't display background bitmap if screen height < 400 because it won't fit - just draw grey; adjusted level name alignment in secret levels
+
 20070119
 --------
 arch/ogl/gr.c: gr_upixelc now able to scale pixels to current resolution
