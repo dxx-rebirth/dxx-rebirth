@@ -72,10 +72,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "d_delay.h"
 #include "automap.h"
 
-#ifdef OGL
-#define AUTOMAP_DIRECT_RENDER
-#endif
-
 #define EF_USED     1   // This edge is used
 #define EF_DEFINING 2   // A structure defining edge that should always draw.
 #define EF_FRONTIER 4   // An edge between the known and the unknown.
@@ -155,9 +151,9 @@ static short DrawingListBright[MAX_EDGES];
 #define ROT_SPEED_DIVISOR	(115000)
 
 // Screen anvas variables
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 static int current_page=0;
-#endif /* AUTOMAP_DIRECT_RENDER */
+#endif /* OGL */
 static grs_canvas Pages[2];
 static grs_canvas DrawingPages[2];
 
@@ -242,13 +238,13 @@ void modex_printf(int x,int y,char *s,grs_font *font,int color)
 void modex_print_message(int x, int y, char *str)
 {
 
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 	int	i;
 	for (i=0; i<2; i++ )	{
 		gr_set_current_canvas(&Pages[i]);
 #endif
 		modex_printf(x, y, str, (grs_font *)GFONT_MEDIUM_1,Green_31);
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 	}
 
 	gr_set_current_canvas(&DrawingPages[current_page]);
@@ -310,7 +306,7 @@ void draw_automap()
 	vms_vector viewer_position;
 	g3s_point sphere_point;
 
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 		gr_set_current_canvas(&DrawingPage);
 #endif
 
@@ -387,7 +383,7 @@ void draw_automap()
 #ifdef OGL
 	ogl_swap_buffers();
 #else
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 	gr_bm_ubitblt( Page.cv_bitmap.bm_w, Page.cv_bitmap.bm_h, Page.cv_bitmap.bm_x, Page.cv_bitmap.bm_y, 0, 0, &Page.cv_bitmap, &grd_curscreen->sc_canvas.cv_bitmap );
 	gr_update();
 #endif
@@ -417,7 +413,7 @@ void do_automap( int key_code )	{
 	int leave_mode=0;
 	int first_time=1;
 	int pcx_error;
-#if !defined(AUTOMAP_DIRECT_RENDER) || !defined(NDEBUG)
+#if !defined(OGL) || !defined(NDEBUG)
 	int i;
 #endif
 	int c;
@@ -431,7 +427,7 @@ void do_automap( int key_code )	{
 	int Max_segments_away = 0;
 	int SegmentLimit = 1;
 	ubyte pal[256*3];
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 	int must_free_canvas=0;
 #endif
 	
@@ -462,7 +458,7 @@ void do_automap( int key_code )	{
 
 	gr_palette_clear();
 
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 	gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
 
 	gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
@@ -524,7 +520,10 @@ void do_automap( int key_code )	{
 #ifdef OGL
 		gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
 		gr_set_current_canvas(&Page);
-		ogl_ubitmapm_cs(0, 0, -1, -1, &Automap_background, -1, F1_0 );
+		if (automap_height<400)
+			gr_clear_canvas( BM_XRGB(3,3,3) );
+		else
+			ogl_ubitmapm_cs(0, 0, -1, -1, &Automap_background, -1, F1_0 );
 		gr_set_curfont((Gamefonts[GFONT_BIG_1]));
 		gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
 		gr_printf(RESCALE_X(80), RESCALE_Y(30), TXT_AUTOMAP);
@@ -675,7 +674,7 @@ void do_automap( int key_code )	{
 		t1 = t2;
 	}
 
-#ifndef AUTOMAP_DIRECT_RENDER
+#ifndef OGL
 	if (must_free_canvas)
 		free(Page.cv_bitmap.bm_data);
 #else
