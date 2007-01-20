@@ -140,7 +140,7 @@ int 	Network_socket = 0;
 //int	  Network_allow_socket_changes = 0;
 //fix	  Network_packet_interval = F1_0 / 10;
 int	Network_initial_pps = 10;
-int	Network_initial_shortpackets = 0;
+int	Network_initial_shortpackets = 1;
 int	Network_enable_ignore_ghost = 0;
 
 //added on 8/4/98 by Matt Mueller for short packets
