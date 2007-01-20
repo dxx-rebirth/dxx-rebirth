@@ -662,7 +662,7 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 	}
 
 
-#ifdef GOL
+#ifdef OGL
 	/* ZICO - experimental HACK
  	   Level 19 has an unwanted 4D room. Let's use this stupid hack to disguise it. */
 	if (Current_level_num==19 && segnum >= 512 && segnum <=528)
