@@ -6,6 +6,7 @@ main/automap.c: for OGL don't display background bitmap if screen height < 400 b
 main/render.c: removed inaccurate 4D hack
 d2x.ini, main/inferno.c: corrected -maxfps switch: MAX_FPS is 80, not 100
 d2x.ini, main/inferno.c, main/network.c: made short packets default on. long packets are still available but in general cause more problems than short
+main/network.c: additional newline line in netgame menu - looks better
 
 20070119
 --------
