@@ -241,7 +241,6 @@ void print_commandline_help()
 	printf( "\n Multiplayer:\n\n");
 	printf( "  -norankings        %s\n", "Disable multiplayer ranking system");
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multi");
-	printf( "  -shortpackets      %s\n", "Set shortpackets to default as on");
 	printf( "  -packets <num>     %s\n", "Specifies the number of packets per second\n");
 	printf( "  -ipxnetwork <num>  %s\n", "Use IPX network number <num>");
 	printf( "  -kali              %s\n", "Use Kali for networking");

@@ -438,11 +438,10 @@ network_init(void)
       Netgame.PacketsPerSec=20;
      mprintf ((0,"Will send %d packets per second",Netgame.PacketsPerSec));
     }
-   if (FindArg("-shortpackets"))
-    {
+
      Netgame.ShortPackets=1;
      mprintf ((0,"Will send short packets.\n"));
-    }
+
 }
 
 int
@@ -3011,7 +3010,7 @@ int network_get_game_params( char * game_name, int *mode, int *game_flags, int *
     if (!select_mission(1, TXT_MULTI_MISSION))
         return -1;
 
-	if (!(FindArg ("-packets") && FindArg ("-shortpackets")))
+	if (!(FindArg ("-packets") && Netgame.ShortPackets))
 		if (!network_choose_connect ())
 			return -1;
 
