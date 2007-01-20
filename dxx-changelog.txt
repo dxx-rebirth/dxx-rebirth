@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/automap.c: for OGL don't display background bitmap if screen height < 400 because it won't fit - just draw grey
 main/render.c: removed inaccurate 4D hack, use GL_ALWAYS for special segments in level 19 only
 main/network.c: made short packets default on. long packets are still available but in general cause more problems than short
+arch/ogl/ogl.c: in g3_draw_sphere align rad according to canvas so it is always in round shape
 
 20070119
 --------
