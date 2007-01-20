@@ -730,7 +730,8 @@ int g3_draw_sphere(g3s_point *pnt,fix rad){
 //	glEnd();
 	glPushMatrix();
 	glTranslatef(f2glf(pnt->p3_vec.x),f2glf(pnt->p3_vec.y),-f2glf(pnt->p3_vec.z));
-	glScalef(f2glf(rad),f2glf(rad),f2glf(rad));
+	rad/=((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h);
+	glScalef(f2glf(rad),f2glf(rad*((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h)),f2glf(rad));
 	if (!sphereh) sphereh=circle_list_init(20,GL_POLYGON,GL_COMPILE_AND_EXECUTE);
 	else glCallList(sphereh);
 	glPopMatrix();
