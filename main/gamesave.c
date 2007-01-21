@@ -752,7 +752,7 @@ static short read_fixang(CFILE *file)
 	return b;
 }
 
-static void read_vector(vms_vector *v,CFILE *file)
+/*static */void read_vector(vms_vector *v,CFILE *file)
 {
 	v->x = read_fix(file);
 	v->y = read_fix(file);

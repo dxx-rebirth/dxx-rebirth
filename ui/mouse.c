@@ -293,7 +293,7 @@ void ui_mouse_init()
 	w = grd_curscreen->sc_w;
 	h = grd_curscreen->sc_h;
 
-	mouse_set_limits( 0,0, w-1, h-1 );
+// 	mouse_set_limits( 0,0, w-1, h-1 );
 
 	Mouse.x = w/2;
 	Mouse.y = h/2;

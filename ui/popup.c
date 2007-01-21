@@ -140,7 +140,7 @@ int PopupMenu( int NumButtons, char * text[] )
 
 	wnd = ui_open_window( x, y, width, height, WIN_DIALOG );
 
-	mouse_set_pos( Mouse.x, Mouse.y );
+// 	mouse_set_pos( Mouse.x, Mouse.y );
 
 	x = MENU_BORDER+3;
 	y = MENU_BORDER+3;

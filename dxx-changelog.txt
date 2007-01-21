@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070121
+--------
+main/gamesave.c, ui/mouse.c, ui/popup.c, ui/window.c: fixed EDITOR build
+
 20070120
 --------
 main/automap.c: for OGL don't display background bitmap if screen height < 400 because it won't fit - just draw grey
