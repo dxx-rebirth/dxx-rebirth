@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070121
 --------
 main/gamesave.c, ui/mouse.c, ui/popup.c, ui/window.c: fixed EDITOR build
+d1x.ini, main/inferno.c: re-added missing command-line switches for SUPPORTS_NET_IP
 
 20070120
 --------

@@ -266,6 +266,12 @@ void show_commandline_help()
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi");
 	printf( "  -handicap <n>      %s\n", "Start game with <n> shields. Must be < 100 for multi");
 	printf( "  -hudlog_multi      %s\n", "Start hudlog upon entering multiplayer games");
+#ifdef    SUPPORTS_NET_IP
+        printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
+        printf( "  -ip_myaddr <a>     %s\n", "Use <a> as local ip address");
+        printf( "  -ip_bind_addr <a>  %s\n", "Bind to <a> instead of INADDR_ANY");
+        printf( "  -ip_baseport <p>   %s\n", "Use <p> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
+#endif // SUPPORTS_NET_IP
 #endif // NETWORK
 
 #ifndef   NDEBUG
