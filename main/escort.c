@@ -443,7 +443,7 @@ void thief_message(char * format, ... )
 	gb_str[1] = BM_XRGB(28, 0, 0);
 	strcpy(&gb_str[2], "THIEF:");
 	gb_str[8] = 1;
-	gb_str[9] = BM_XRGB(0, 31, 0);
+	gb_str[9] = gr_find_closest_color_current(0, 31, 0);
 	gb_str[10] = 0;
 
 	HUD_init_message("%s %s", gb_str, new_format);

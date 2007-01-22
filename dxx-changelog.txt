@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 SConstruct, arch/linux/ipx_udp.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/win32/init.c, arch/win32/ipx_udp.c, include/pstypes.h: cfile/cfile.c: special WINDOWS fixes and cleanups, corrected automated UDP broadcast
 arch/include/key.h, main/game.c: fixed PRINTSCREEN key for WINDOWS
 main/kmatrix.c: fixed multi summary reactor lifetime refresh
+main/escort.c: made thief messages brighter
 
 20070120
 --------
