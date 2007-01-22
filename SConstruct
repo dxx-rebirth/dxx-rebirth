@@ -312,9 +312,9 @@ if sys.platform == 'win32':
 	osdef = '_WIN32'
 	osasmdef = 'win32'
 	sharepath = ''
-	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
-	env.Append(CPPPATH = ['arch/win32/include'])
-	ogldefines = ['SDL_GL_VIDEO', 'OGL']
+	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
+	env.Append(CPPPATH = ['arch/win32/include', '/msys/1.0/MinGW/include/SDL'])
+	ogldefines = ['SDL_GL_VIDEO', 'OGL', 'OGL_RUNTIME_LOAD']
 	common_sources += arch_win32_sources
 	ogllibs = ''
 	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
@@ -325,6 +325,7 @@ else:
 	print "compiling on *NIX"
 	osdef = '__LINUX__'
 	osasmdef = 'elf'
+	sharepath += '/'
 	env.Append(CPPDEFINES = ['__LINUX__', 'KALINIX', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL_VIDEO', 'OGL']
@@ -413,7 +414,7 @@ if (console == 1):
 
 print '\n'
 
-env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(sharepath) + '/\\"')])
+env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(sharepath) + '\\"')])
 # finally building program...
 env.Program(target=str(target), source = common_sources, LIBS = libs, LINKFLAGS = str(lflags), LIBPATH = str(lpath))
 env.Install(BIN_DIR, str(target))

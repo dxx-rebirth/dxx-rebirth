@@ -366,7 +366,7 @@ char *s,*s2,*ns;
 	if (!have_empty_address())
 		return 0;
 
-	if (!((i=FindArg("-udp")) && (s=Args[i+1]) && (*s=='=' || *s=='+' || *s=='@'))) s="=255.255.255.255"; // ZICO - using broadcast instead of NULL as default
+	if (!((i=FindArg("-udp")) && (s=Args[i+1]) && (*s=='=' || *s=='+' || *s=='@'))) s="255.255.255.255"; // ZICO - using broadcast instead of NULL as default
 
 	if (gethostname(buf,sizeof(buf))) FAIL("Error getting my hostname");
 	if (!(queryhost(buf))) FAIL("Querying my own hostname \"%s\"",buf);

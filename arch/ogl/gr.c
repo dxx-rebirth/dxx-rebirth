@@ -53,7 +53,7 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
 #undef GL_ARB_multitexture // hack!
-#elif defined(_WIN32)
+#elif defined(_WIN32) // HACK - REMOVE ASAP
 #undef GL_ARB_multitexture
 #undef GL_NV_register_combiners
 #undef GL_EXT_paletted_texture

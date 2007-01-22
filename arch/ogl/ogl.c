@@ -68,8 +68,7 @@
 #define sinf(a) sin(a)
 #endif
 
-#if defined(_WIN32)
-#undef GL_ARB_multitexture
+#if defined(_WIN32) // HACK - REMOVE ASAP
 #undef GL_EXT_paletted_texture
 #endif
 

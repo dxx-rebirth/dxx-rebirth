@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070122
+--------
+SConstruct, arch/linux/ipx_udp.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/win32/init.c, arch/win32/ipx_udp.c, include/pstypes.h: cfile/cfile.c: special WINDOWS fixes and cleanups, corrected automated UDP broadcast
+
 20070120
 --------
 main/automap.c: for OGL don't display background bitmap if screen height < 400 because it won't fit - just draw grey; adjusted level name alignment in secret levels
