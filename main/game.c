@@ -1531,11 +1531,7 @@ void show_help()
 	#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F9/F10\t  change screen size"; // ZICO - we changed keys - old: TXT_HELP_MINUSPLUS;
 	#ifndef MACINTOSH
-	#ifdef _WIN32
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT+P\t save screen shot"; // ZICO - make show ALT+P for windows
-	#else
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PRTSCN;
-	#endif
 	#else
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "printscrn (F13)\t  save screen shot";
 	#endif

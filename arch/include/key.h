@@ -216,11 +216,7 @@ extern char * key_text[256];
 #define KEY_LEFT        0xCB
 #define KEY_RIGHT       0xCD
 
-#ifdef _WIN32 // ZICO - make KEY_ALTED + KEY_P act as PRINTSCREEN in windows
-#define KEY_PRINT_SCREEN	KEY_ALTED + KEY_P
-#else
 #define KEY_PRINT_SCREEN	0xB7
-#endif
 
 #define KEY_PAUSE			0x61
 

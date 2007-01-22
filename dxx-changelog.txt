@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070122
 --------
 SConstruct, arch/linux/ipx_udp.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/win32/init.c, arch/win32/ipx_udp.c, include/pstypes.h: cfile/cfile.c: special WINDOWS fixes and cleanups, corrected automated UDP broadcast
+arch/include/key.h, main/game.c: fixed PRINTSCREEN key for WINDOWS
 
 20070120
 --------
