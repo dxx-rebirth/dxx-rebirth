@@ -365,6 +365,8 @@ void kmatrix_redraw()
   int i, color;
   int sorted[MAX_NUM_NET_PLAYERS];
 
+  load_stars();
+
   if (Game_mode & GM_MULTI_COOP)
   {
     kmatrix_redraw_coop();
