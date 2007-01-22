@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070122
+--------
+SConstruct, cfile/cfile.c: special WINDOWS fixes and cleanups
+
 20070121
 --------
 main/gamesave.c, ui/mouse.c, ui/popup.c, ui/window.c: fixed EDITOR build

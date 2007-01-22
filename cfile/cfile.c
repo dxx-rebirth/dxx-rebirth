@@ -199,7 +199,6 @@ char *cfile_find_file(const char *dirname, const char *filename)
 	closedir(d);
 	return NULL;
 }
-#endif
 
 // ifopen() is like fopen() but case-insensitive; if the
 // file is not found it will look for variations of the
@@ -246,6 +245,7 @@ FILE *ignorecase_fopen(const char *path, const char *mode)
 	}
 	return f;
 }
+#endif
 
 void cfile_use_alternate_hogdir( char * path )
 {

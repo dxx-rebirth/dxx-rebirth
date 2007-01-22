@@ -343,6 +343,7 @@ else:
 	print "compiling on *NIX"
 	osdef = '__LINUX__'
 	osasmdef = 'elf'
+	sharepath += '/'
 	env.Append(CPPDEFINES = ['__LINUX__', 'WANT_AWE32'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL', 'OGL']
@@ -434,7 +435,7 @@ if (shareware == 0) and (editor == 0):
 
 print '\n'
 
-env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"' + str(sharepath) + '/\\"')])
+env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"' + str(sharepath) + '\\"')])
 # finally building program...
 env.Program(target=str(target), source = common_sources, LIBS = libs, LINKFLAGS = str(lflags), LIBPATH = str(lpath))
 env.Install(BIN_DIR, str(target))
