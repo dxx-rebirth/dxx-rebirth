@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 SConstruct, cfile/cfile.c: special WINDOWS fixes and cleanups
 arch/sdl/include/key.h: fixed PRINTSCREEN key for WINDOWS
+main/network.c: fixed multi summary reactor lifetime refresh
 
 20070121
 --------

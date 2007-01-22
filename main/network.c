@@ -412,7 +412,7 @@ newmenu:
 menu:
 	sprintf(text, "%s\n%s", TXT_WAITING, TXT_ESC_ABORT);
 
-	choice=newmenu_do3(NULL, text, N_players+1, m, network_endlevel_poll, 0, "STARS.PCX", 300, 160);
+	choice=newmenu_do3(NULL, text, N_players+1, m, network_endlevel_poll, 0, "STARS.PCX", 300*(SWIDTH/320), 160*(SHEIGHT/200));
 
 	if (choice==-1) {
 		newmenu_item m2[2];
