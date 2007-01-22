@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070122
 --------
 SConstruct, cfile/cfile.c: special WINDOWS fixes and cleanups
+arch/sdl/include/key.h: fixed PRINTSCREEN key for WINDOWS
 
 20070121
 --------
