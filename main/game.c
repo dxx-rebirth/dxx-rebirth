@@ -25,8 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __unix__
 #include <sys/stat.h>
 #include <sys/types.h>
-#endif
-#ifdef _WIN32
+#else
 #include <dir.h>
 #endif
 #ifndef _MSC_VER
