@@ -97,11 +97,11 @@ char * Gamefont_filenames_l[] = { 	"font1-1.fnt",			// Font 0
 										};
 
 //large fonts from d2:
-char * Gamefont_filenames_h[] = { 	"font1-1h.fnt",			// Font 0
-											"font2-1h.fnt",			// Font 1
-											"font2-2h.fnt",			// Font 2
-											"font2-3h.fnt",			// Font 3
-											"font3-1h.fnt"			// Font 4
+char * Gamefont_filenames_h[] = { 	HIRES_DIR "font1-1h.fnt",			// Font 0
+											HIRES_DIR "font2-1h.fnt",			// Font 1
+											HIRES_DIR "font2-2h.fnt",			// Font 2
+											HIRES_DIR "font2-3h.fnt",			// Font 3
+											HIRES_DIR "font3-1h.fnt"			// Font 4
 										};
 
 grs_font *Gamefonts[MAX_FONTS];
@@ -207,6 +207,8 @@ void gamefont_init()
 	if (Gamefont_installed) return;
 	Gamefont_installed = 1;
 
+	
+
 	for (i=0;i<MAX_FONTS;i++){
 		Gamefonts[i]=NULL;
 
@@ -215,11 +217,11 @@ void gamefont_init()
 		// addfontconf(i,640,Gamefont_filenames_h[i]);
 
 		if (FindArg("-hiresfont")
-			&& cfexist(DESCENT_DATA_PATH "font1-1h.fnt")
-			&& cfexist(DESCENT_DATA_PATH "font2-1h.fnt")
-			&& cfexist(DESCENT_DATA_PATH "font2-2h.fnt")
-			&& cfexist(DESCENT_DATA_PATH "font2-3h.fnt")
-			&& cfexist(DESCENT_DATA_PATH "font3-1h.fnt")) {
+			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font1-1h.fnt")
+			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font2-1h.fnt")
+			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font2-2h.fnt")
+			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font2-3h.fnt")
+			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font3-1h.fnt")) {
 			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts
 			hiresfont=1;
 		}

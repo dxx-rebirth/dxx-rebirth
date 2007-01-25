@@ -1395,7 +1395,7 @@ void save_screen_shot(int automap_flag)
 	grs_font *save_font;
         static int savenum=0;
 	grs_canvas *temp_canv,*save_canv;
-	char savename[13];
+	char savename[13+sizeof(SCRNS_DIR)];
 	ubyte pal[768];
 	int w,h,aw,x,y;
 
@@ -1405,18 +1405,25 @@ void save_screen_shot(int automap_flag)
 
 	stop_time();
 
+	if (!cfexist(SCRNS_DIR))
+		mkdir(SCRNS_DIR
+#ifndef __WINDOWS__
+		, 0775
+#endif
+		); //try making directory
+
 	save_canv = grd_curcanv;
 	temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
 	gr_set_current_canvas(temp_canv);
 	gr_ubitmap(0,0,&screen_canv->cv_bitmap);
 
 	if ( savenum == 9999 ) savenum = 0;
-		sprintf(savename,"scrn%04d.pcx",savenum++);
+		sprintf(savename,"%sscrn%04d.pcx",SCRNS_DIR,savenum++);
 	
 	while(!access(savename,0))
 	{
 		if ( savenum == 9999 ) savenum = 0;
-		sprintf(savename,"scrn%04d.pcx",savenum++);
+		sprintf(savename,"%sscrn%04d.pcx",SCRNS_DIR,savenum++);
 	}
 	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
 

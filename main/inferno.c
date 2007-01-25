@@ -213,8 +213,8 @@ void show_commandline_help()
 {
 	printf( "\n System Options:\n\n");
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
-	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-100)");
-	printf( "  -missiondir <d>    %s\n", "Set alternate mission dir to <d>");
+	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
+	printf( "  -missiondir <d>    %s\n", "Set alternate mission dir to <d> instead of missions/");
 	printf( "  -hudlog            %s\n", "Start hudlog immediately");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 
@@ -374,7 +374,7 @@ int main(int argc,char **argv)
 	if ((t = FindArg( "-missiondir" )))
 		cfile_use_alternate_hogdir(Args[t+1]);
 	else
-		cfile_use_alternate_hogdir(DESCENT_DATA_PATH);
+		cfile_use_alternate_hogdir(DESCENT_DATA_PATH "missions/");
 
 	if ((t=FindArg("-tmap")))
 		select_tmap(Args[t+1]);

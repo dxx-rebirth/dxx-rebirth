@@ -621,7 +621,7 @@ void save_screen_shot(int automap_flag)
 {
 	char message[100];
 	static int savenum=0;
-	char savename[13];
+	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
 	
 	if (!ogl_readpixels_ok){
@@ -632,13 +632,20 @@ void save_screen_shot(int automap_flag)
 
 	stop_time();
 
+	if (!cfexist(SCRNS_DIR))
+		mkdir(SCRNS_DIR
+#ifndef __WINDOWS__
+		, 0775
+#endif
+		); //try making directory
+
 	if ( savenum == 9999 ) savenum = 0;
-	sprintf(savename,"scrn%04d.tga",savenum++);
+	sprintf(savename,"%sscrn%04d.tga",SCRNS_DIR,savenum++);
 
 	while(!access(savename,0))
 	{
 		if ( savenum == 9999 ) savenum = 0;
-		sprintf(savename,"scrn%04d.tga",savenum++);
+		sprintf(savename,"%sscrn%04d.tga",SCRNS_DIR,savenum++);
 	}
 	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
 

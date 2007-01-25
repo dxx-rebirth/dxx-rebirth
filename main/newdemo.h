@@ -185,6 +185,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ND_STATE_ONEFRAMEBACKWARD	7
 #define ND_STATE_PRINTSCREEN		8
 
+#define DEMO_DIR                "demos/"
+
 // Gives state of recorder
 extern int Newdemo_state;
 extern int NewdemoFrameCount;

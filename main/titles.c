@@ -159,7 +159,7 @@ typedef struct {
 #define	SHAREWARE_ENDING_LEVEL_NUM	0x7f
 #define	REGISTERED_ENDING_LEVEL_NUM	0x7e
 #ifdef OGL
-#define Briefing_screens_LH ((SWIDTH >= 640 && SHEIGHT >= 480 && cfexist(DESCENT_DATA_PATH "brief01h.pcx"))?Briefing_screens_h:Briefing_screens)
+#define Briefing_screens_LH ((SWIDTH >= 640 && SHEIGHT >= 480 && cfexist(DESCENT_DATA_PATH HIRES_DIR "brief01h.pcx"))?Briefing_screens_h:Briefing_screens)
 #else
 #define Briefing_screens_LH Briefing_screens
 #endif
@@ -228,64 +228,64 @@ briefing_screen Briefing_screens[] = {
 };
 
 briefing_screen Briefing_screens_h[] = { // ZICO - added for hires screens
-	{ "brief01h.pcx",   0,  1,  13, 140, 290,  59 },
-	{ "brief02h.pcx",   0,  2,  27,  34, 257, 177 },
-	{ "brief03h.pcx",   0,  3,  20,  22, 257, 177 },
-	{ "brief02h.pcx",   0,  4,  27,  34, 257, 177 },
+	{ HIRES_DIR "brief01h.pcx",   0,  1,  13, 140, 290,  59 },
+	{ HIRES_DIR "brief02h.pcx",   0,  2,  27,  34, 257, 177 },
+	{ HIRES_DIR "brief03h.pcx",   0,  3,  20,  22, 257, 177 },
+	{ HIRES_DIR "brief02h.pcx",   0,  4,  27,  34, 257, 177 },
 
-	{ "moon01h.pcx",    1,  5,  10,  10, 300, 170 },	// level 1
-	{ "moon01h.pcx",    2,  6,  10,  10, 300, 170 },	// level 2
-	{ "moon01h.pcx",    3,  7,  10,  10, 300, 170 },	// level 3
+	{ HIRES_DIR "moon01h.pcx",    1,  5,  10,  10, 300, 170 },	// level 1
+	{ HIRES_DIR "moon01h.pcx",    2,  6,  10,  10, 300, 170 },	// level 2
+	{ HIRES_DIR "moon01h.pcx",    3,  7,  10,  10, 300, 170 },	// level 3
 
-	{ "venus01h.pcx",   4,  8,  15,  15, 300, 200 },	// level 4
-	{ "venus01h.pcx",   5,  9,  15,  15, 300, 200 },	// level 5
+	{ HIRES_DIR "venus01h.pcx",   4,  8,  15,  15, 300, 200 },	// level 4
+	{ HIRES_DIR "venus01h.pcx",   5,  9,  15,  15, 300, 200 },	// level 5
 
-	{ "brief03h.pcx",   6, 10,  20,  22, 257, 177 },
-	{ "merc01h.pcx",    6, 11,  10,  15, 300, 200 },	// level 6
-	{ "merc01h.pcx",    7, 12,  10,  15, 300, 200 },	// level 7
+	{ HIRES_DIR "brief03h.pcx",   6, 10,  20,  22, 257, 177 },
+	{ HIRES_DIR "merc01h.pcx",    6, 11,  10,  15, 300, 200 },	// level 6
+	{ HIRES_DIR "merc01h.pcx",    7, 12,  10,  15, 300, 200 },	// level 7
 
 #ifndef SHAREWARE
-	{ "brief03h.pcx",   8, 13,  20,  22, 257, 177 },
-	{ "mars01h.pcx",    8, 14,  10, 100, 300, 200 },	// level 8
-	{ "mars01h.pcx",    9, 15,  10, 100, 300, 200 },	// level 9
-	{ "brief03h.pcx",  10, 16,  20,  22, 257, 177 },
-	{ "mars01h.pcx",   10, 17,  10, 100, 300, 200 },	// level 10
+	{ HIRES_DIR "brief03h.pcx",   8, 13,  20,  22, 257, 177 },
+	{ HIRES_DIR "mars01h.pcx",    8, 14,  10, 100, 300, 200 },	// level 8
+	{ HIRES_DIR "mars01h.pcx",    9, 15,  10, 100, 300, 200 },	// level 9
+	{ HIRES_DIR "brief03h.pcx",  10, 16,  20,  22, 257, 177 },
+	{ HIRES_DIR "mars01h.pcx",   10, 17,  10, 100, 300, 200 },	// level 10
 
-	{ "jup01h.pcx",    11, 18,  10,  40, 300, 200 },	// level 11
-	{ "jup01h.pcx",    12, 19,  10,  40, 300, 200 },	// level 12
-	{ "brief03h.pcx",  13, 20,  20,  22, 257, 177 },
-	{ "jup01h.pcx",    13, 21,  10,  40, 300, 200 },	// level 13
-	{ "jup01h.pcx",    14, 22,  10,  40, 300, 200 },	// level 14
+	{ HIRES_DIR "jup01h.pcx",    11, 18,  10,  40, 300, 200 },	// level 11
+	{ HIRES_DIR "jup01h.pcx",    12, 19,  10,  40, 300, 200 },	// level 12
+	{ HIRES_DIR "brief03h.pcx",  13, 20,  20,  22, 257, 177 },
+	{ HIRES_DIR "jup01h.pcx",    13, 21,  10,  40, 300, 200 },	// level 13
+	{ HIRES_DIR "jup01h.pcx",    14, 22,  10,  40, 300, 200 },	// level 14
 
-	{ "saturn01h.pcx", 15, 23,  10,  40, 300, 200 },	// level 15
-	{ "brief03h.pcx",  16, 24,  20,  22, 257, 177 },
-	{ "saturn01h.pcx", 16, 25,  10,  40, 300, 200 },	// level 16
-	{ "brief03h.pcx",  17, 26,  20,  22, 257, 177 },
-	{ "saturn01h.pcx", 17, 27,  10,  40, 300, 200 },	// level 17
+	{ HIRES_DIR "saturn01h.pcx", 15, 23,  10,  40, 300, 200 },	// level 15
+	{ HIRES_DIR "brief03h.pcx",  16, 24,  20,  22, 257, 177 },
+	{ HIRES_DIR "saturn01h.pcx", 16, 25,  10,  40, 300, 200 },	// level 16
+	{ HIRES_DIR "brief03h.pcx",  17, 26,  20,  22, 257, 177 },
+	{ HIRES_DIR "saturn01h.pcx", 17, 27,  10,  40, 300, 200 },	// level 17
 
-	{ "uranus01h.pcx", 18, 28, 100, 100, 300, 200 },	// level 18
-	{ "uranus01h.pcx", 19, 29, 100, 100, 300, 200 },	// level 19
-	{ "uranus01h.pcx", 20, 30, 100, 100, 300, 200 },	// level 20
-	{ "uranus01h.pcx", 21, 31, 100, 100, 300, 200 },	// level 21
+	{ HIRES_DIR "uranus01h.pcx", 18, 28, 100, 100, 300, 200 },	// level 18
+	{ HIRES_DIR "uranus01h.pcx", 19, 29, 100, 100, 300, 200 },	// level 19
+	{ HIRES_DIR "uranus01h.pcx", 20, 30, 100, 100, 300, 200 },	// level 20
+	{ HIRES_DIR "uranus01h.pcx", 21, 31, 100, 100, 300, 200 },	// level 21
 
-	{ "neptun01h.pcx", 22, 32,  10,  20, 300, 200 },	// level 22
-	{ "neptun01h.pcx", 23, 33,  10,  20, 300, 200 },	// level 23
-	{ "neptun01h.pcx", 24, 34,  10,  20, 300, 200 },	// level 24
+	{ HIRES_DIR "neptun01h.pcx", 22, 32,  10,  20, 300, 200 },	// level 22
+	{ HIRES_DIR "neptun01h.pcx", 23, 33,  10,  20, 300, 200 },	// level 23
+	{ HIRES_DIR "neptun01h.pcx", 24, 34,  10,  20, 300, 200 },	// level 24
 
-	{ "pluto01h.pcx",  25, 35,  10,  20, 300, 200 },	// level 25
-	{ "pluto01h.pcx",  26, 36,  10,  20, 300, 200 },	// level 26
-	{ "pluto01h.pcx",  27, 37,  10,  20, 300, 200 },	// level 27
+	{ HIRES_DIR "pluto01h.pcx",  25, 35,  10,  20, 300, 200 },	// level 25
+	{ HIRES_DIR "pluto01h.pcx",  26, 36,  10,  20, 300, 200 },	// level 26
+	{ HIRES_DIR "pluto01h.pcx",  27, 37,  10,  20, 300, 200 },	// level 27
 
-	{ "aster01h.pcx",  -1, 38,  10, 90, 300,  200 },	// secret level -1
-	{ "aster01h.pcx",  -2, 39,  10, 90, 300,  200 },	// secret level -2
-	{ "aster01h.pcx",  -3, 40,  10, 90, 300,  200 }, 	// secret level -3
+	{ HIRES_DIR "aster01h.pcx",  -1, 38,  10, 90, 300,  200 },	// secret level -1
+	{ HIRES_DIR "aster01h.pcx",  -2, 39,  10, 90, 300,  200 },	// secret level -2
+	{ HIRES_DIR "aster01h.pcx",  -3, 40,  10, 90, 300,  200 }, 	// secret level -3
 #endif
 
-	{ "end01h.pcx",   SHAREWARE_ENDING_LEVEL_NUM,   1,  23, 40, 320, 200 }, 	// shareware end
+	{ HIRES_DIR "end01h.pcx",   SHAREWARE_ENDING_LEVEL_NUM,   1,  23, 40, 320, 200 }, 	// shareware end
 #ifndef SHAREWARE
-	{ "end02h.pcx",   REGISTERED_ENDING_LEVEL_NUM,  1,   5,  5, 300, 200 }, 	// registered end
-	{ "end01h.pcx",   REGISTERED_ENDING_LEVEL_NUM,  2,  23, 40, 320, 200 }, 	// registered end
-	{ "end03h.pcx",   REGISTERED_ENDING_LEVEL_NUM,  3,   5,  5, 300, 200 }, 	// registered end
+	{ HIRES_DIR "end02h.pcx",   REGISTERED_ENDING_LEVEL_NUM,  1,   5,  5, 300, 200 }, 	// registered end
+	{ HIRES_DIR "end01h.pcx",   REGISTERED_ENDING_LEVEL_NUM,  2,  23, 40, 320, 200 }, 	// registered end
+	{ HIRES_DIR "end03h.pcx",   REGISTERED_ENDING_LEVEL_NUM,  3,   5,  5, 300, 200 }, 	// registered end
 #endif
 
 };
@@ -989,7 +989,7 @@ void ogl_init_robot_frame()
 	grs_bitmap backdrop;
 
 	backdrop.bm_data=NULL;
-	pcx_error = pcx_read_bitmap(((Briefing_screens_LH == Briefing_screens)?"brief03.pcx":"brief03h.pcx"),&backdrop, BM_LINEAR,New_pal);
+	pcx_error = pcx_read_bitmap(Briefing_screens_LH[2].bs_name,&backdrop, BM_LINEAR,New_pal);
 	if (pcx_error != PCX_ERROR_NONE)		{
 		cfclose(file);
 		return;

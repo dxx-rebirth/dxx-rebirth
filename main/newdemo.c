@@ -22,6 +22,12 @@ static char rcsid[] = "$Id: newdemo.c,v 1.1.1.1 2006/03/17 19:44:19 zicodxx Exp 
 #include <ctype.h>
 #include <malloc.h>
 #include <limits.h>
+#ifdef __unix__
+   #include <sys/types.h>
+   #include <sys/stat.h>
+#else
+    #include <dir.h>
+#endif
 
 #include "inferno.h"
 #include "game.h"
@@ -150,7 +156,7 @@ void DoJasonInterpolate (fix recorded_time);
 #define DEMO_VERSION				13
 #endif
 
-#define DEMO_FILENAME				"tmpdemo.dem"
+#define DEMO_FILENAME				DEMO_DIR "tmpdemo.dem"
 #define DEMO_MAX_LEVELS				29
 
 #ifdef SHAREWARE
@@ -2688,7 +2694,25 @@ void newdemo_start_recording()
 	Newdemo_no_space=0;
 	Newdemo_state = ND_STATE_RECORDING;
 	outfile = fopen( DEMO_FILENAME, "wb" );
-	newdemo_record_start_demo();
+
+	if (outfile == NULL) {
+		mkdir(DEMO_DIR
+#ifndef __WINDOWS__
+		, 0775
+#endif
+		); //try making directory
+		outfile = fopen(DEMO_FILENAME, "wb");
+	}
+
+	if (outfile == NULL)
+	{
+		nm_messagebox(NULL, 1, TXT_OK, "Cannot open demo temp file");
+		Newdemo_state = ND_STATE_NORMAL;
+	}
+	else
+	{
+		newdemo_record_start_demo();
+	}
 }
 
 char demoname_allowed_chars[] = "azAZ09__--";
@@ -2699,7 +2723,7 @@ void newdemo_stop_recording()
 	static char filename[9] = "", *s;
 	static ubyte tmpcnt = 0;
 	ubyte cloaked = 0;
-	char fullname[15];
+	char fullname[28] = DEMO_DIR;
 #ifndef SHAREWARE
 	unsigned short byte_count = 0;
 #endif
@@ -2807,13 +2831,14 @@ try_again:
 	Newmenu_allowed_chars = NULL;
 
 	if (exit == -2) { // got bumped out from network menu
-		char save_file[15];
+		char save_file[22];
 
 		if (filename[0] != '\0') {
-			strcpy(save_file, filename);
+			strcpy(save_file, DEMO_DIR);
+			strcat(save_file, filename);
 			strcat(save_file, ".dem");
 		} else 
-			sprintf (save_file, "tmp%d.dem", tmpcnt++);
+			sprintf (save_file, "%stmp%d.dem", DEMO_DIR, tmpcnt++);
 		remove(save_file);
 		rename(DEMO_FILENAME, save_file);
 		return;
@@ -2834,9 +2859,9 @@ try_again:
 		}
 
 	if (Newdemo_no_space)
-		strcpy(fullname, m[1].text);
+		strcat(fullname, m[1].text);
 	else
-		strcpy(fullname, m[0].text);
+		strcat(fullname, m[0].text);
 	strcat(fullname, ".dem");
 	remove(fullname);
 	rename(DEMO_FILENAME, fullname);

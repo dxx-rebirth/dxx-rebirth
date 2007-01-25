@@ -247,6 +247,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GR_ACTUAL_FADE_LEVELS 32
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 
+#define HIRES_DIR "hires/"
+#define SCRNS_DIR "screenshots/"
+
 extern int Gr_scanline_darkening_level;
 
 typedef struct _grs_point {

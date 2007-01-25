@@ -38,7 +38,7 @@ static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2006/03/17 19:44:42 zicodxx Exp 
 #include "palette.h"
 #include "game.h"
 #include "text.h"
-
+#include "newdemo.h"
 #include "newmenu.h"
 #include "gamefont.h"
 #include "network.h"
@@ -1480,7 +1480,7 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 	int dblclick_flag=0;
 #endif
 
-	filenames = malloc( MAX_FILES * 14 );
+	filenames = malloc( MAX_FILES * (14+sizeof(DEMO_DIR)) );
 	if (filenames==NULL) return 0;
 
 	citem = 0;
@@ -1490,7 +1490,7 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 
 	if (!strcasecmp( filespec, "*.plr" ))
 		player_mode = 1;
-	else if (!strcasecmp( filespec, "*.dem" ))
+	else if (!strcasecmp( filespec, DEMO_DIR "*.dem" ))
 		demo_mode = 1;
 
 ReadFileNames:
@@ -1507,9 +1507,19 @@ ReadFileNames:
 		for (j = 0; j < glob_ret.gl_pathc; j++) {
 			if (NumFiles >= MAX_FILES)
 				break;
-			strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
-			if (player_mode) {
+			if (demo_mode) { // special stuff for demos
+#ifdef __unix__
+				// increase our buffer so we have enough space for DEMO_DIR
+				strncpy(&filenames[NumFiles*(14+sizeof(DEMO_DIR))], glob_ret.gl_pathv[j], 13+sizeof(DEMO_DIR));
+				// now substract DEMO_DIR string so it does not display in menu and does not return. However DEMO_DIR passed later before calling newdemo_start_playback in menu.c
+				strncpy(filenames+(NumFiles*14),filenames+(NumFiles*14)+sizeof(DEMO_DIR)-1, 13+sizeof(DEMO_DIR));
+#elif __WINDOWS__		// while on Windows d_glob does not return the path, so we don't need that
+				strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
+#endif
+			}
+			else if (player_mode) {
 				char *p;
+				strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
 				p = strrchr(&filenames[NumFiles*14], '.');
 				if (p) *p = '\0';
 			}
@@ -1517,31 +1527,6 @@ ReadFileNames:
 		}
 		d_globfree(&glob_ret);
         }
-
-#ifdef USE_CD
-	// Seach CD for files if demo_mode and cd_mode
-	if ( strlen(destsat_cdpath) && demo_mode )	{
-		char temp_spec[128];
-		strcpy( temp_spec, destsat_cdpath );
-		strcat( temp_spec, filespec );
-
-		if (!d_glob(temp_spec, &glob_ret)) {
-			int j;
-			for (j = 0; j < glob_ret.gl_pathc; j++) {
-				if (NumFiles >= MAX_FILES)
-					break;
-				for (i=0; i<NumFiles; i++ )	{
-					if (!strcasecmp( &filenames[i*14], find.name ))
-						break;
-				}
-				if ( i < NumFiles ) continue;		// Don't use same demo twice!
-				strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
-				NumFiles++;
-			}
-			d_globfree(&glob_ret);
-		}
-	}
-#endif
 
 	if ( (NumFiles < 1) && demos_deleted )	{
 		exit_value = 0;
@@ -1689,11 +1674,17 @@ ReadFileNames:
  				if (x==0)	{
 					char * p;
 					char plxfile[256];
-					int ret;
+					int ret=0;
 					p = &filenames[(citem*14)+strlen(&filenames[citem*14])];
-					if (player_mode)
+					if (player_mode) {
 						*p = '.';
-					ret = unlink( &filenames[citem*14] );
+						ret = unlink( &filenames[citem*14] );
+					} else if (demo_mode) {
+						char demo_full[16 + sizeof(DEMO_DIR)];
+						strcpy(demo_full,DEMO_DIR);
+						strcat(demo_full,filenames+(citem*14));
+						ret = unlink( demo_full );
+					}
 					if (player_mode)
 						*p = 0;
 
