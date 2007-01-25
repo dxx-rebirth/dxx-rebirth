@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 d1x.ini, arch/ogl.gr.c, cfile/cfile.c: include/gr.h, main/game.c, main/gamefont.c, main/inferno.c, main/menu.c, main/ndewdemo.c, main/newdemo.h, main/newmenu.c, titles.c: read/save Hires fonts/briefings, demos, AddOn missions, screenshots from/to subdirectories
 main/inferno.c: improved resolution-check method - removed old code
+texmap/scanline.c: fixed c-texmap transparency
 
 20070122
 --------
