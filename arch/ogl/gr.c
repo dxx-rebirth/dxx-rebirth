@@ -813,7 +813,7 @@ void save_screen_shot(int automap_flag)
 //	fix t1;
 	char message[100];
 	static int savenum=0;
-	char savename[13];
+	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
 	
 	if (!ogl_readpixels_ok){
@@ -824,12 +824,15 @@ void save_screen_shot(int automap_flag)
 
 	stop_time();
 
+	if (!cfexist(SCRNS_DIR))
+		PHYSFS_mkdir(SCRNS_DIR); //try making directory
+
 //added/changed on 10/31/98 by Victor Rachels to fix overwrite each new game
 	do
 	{
 		if (savenum == 9999)
 			savenum = 0;
-		sprintf(savename, "scrn%04d.tga", savenum++);
+		sprintf(savename, "%sscrn%04d.tga",SCRNS_DIR, savenum++);
 	} while (PHYSFS_exists(savename));
 
 	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );

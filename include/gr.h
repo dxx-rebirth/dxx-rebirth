@@ -131,6 +131,12 @@ typedef struct _grs_bitmap {
 
 extern int fixedfont;
 
+#ifndef MACINTOSH
+#define SCRNS_DIR "screenshots/"
+#else
+#define SCRNS_DIR ":Screenshots:"
+#endif
+
 // ZICO - we use this defines to scale the font bitmaps itself, spacing between letters and rows
 #ifdef OGL
 #define FONTSCALE_X(x) ((fixedfont)?x:(x)*((SWIDTH/ ((FontHires&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))

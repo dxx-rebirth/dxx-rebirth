@@ -1006,7 +1006,7 @@ void save_screen_shot(int automap_flag)
 	static int savenum=0;
 	static int stereo_savenum=0;
 	grs_canvas *temp_canv,*temp_canv2,*save_canv;
-        char savename[FILENAME_LEN],savename2[FILENAME_LEN];
+        char savename[FILENAME_LEN+sizeof(SCRNS_DIR)],savename2[FILENAME_LEN];
 	ubyte pal[768];
 	int w,h,aw,x,y;
 	int modex_flag;
@@ -1019,6 +1019,9 @@ void save_screen_shot(int automap_flag)
 //		return;
 
 	stop_time();
+
+	if (!cfexist(SCRNS_DIR))
+		PHYSFS_mkdir(SCRNS_DIR); //try making directory
 
 	save_canv = grd_curcanv;
 
@@ -1053,7 +1056,7 @@ void save_screen_shot(int automap_flag)
 		sprintf( message, "%s '%s' & '%s'", TXT_DUMPING_SCREEN, savename, savename2 );
 	}
 	else {
-		sprintf(savename,"screen%02d.pcx",savenum++);
+		sprintf(savename,"%sscreen%02d.pcx",SCRNS_DIR,savenum++);
 		sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
 	}
 
