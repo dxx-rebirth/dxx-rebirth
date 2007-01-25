@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 arch/ogl/gr.c, include/gr.c, main/game.c: write screenshots to subdirectory
 main/inferno.c: improved resolution-check method - removed old code
+main/gauges.c: don't display lives and score if hud message is longer than 40 chars. preventing overlay of message and lives/score
 
 20070122
 --------
