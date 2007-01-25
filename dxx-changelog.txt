@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070126
+--------
+main/credits.c: improved credits scrolling - not that smooth anymore, but less CPU intense
+
 20070125
 --------
 arch/ogl/gr.c, include/gr.c, main/game.c: write screenshots to subdirectory
