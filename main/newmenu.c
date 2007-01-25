@@ -1508,12 +1508,12 @@ ReadFileNames:
 			if (NumFiles >= MAX_FILES)
 				break;
 			if (demo_mode) { // special stuff for demos
-#ifdef __unix__
+#ifndef __WINDOWS__
 				// increase our buffer so we have enough space for DEMO_DIR
 				strncpy(&filenames[NumFiles*(14+sizeof(DEMO_DIR))], glob_ret.gl_pathv[j], 13+sizeof(DEMO_DIR));
 				// now substract DEMO_DIR string so it does not display in menu and does not return. However DEMO_DIR passed later before calling newdemo_start_playback in menu.c
-				strncpy(filenames+(NumFiles*14),filenames+(NumFiles*14)+sizeof(DEMO_DIR)-1, 13+sizeof(DEMO_DIR));
-#elif __WINDOWS__		// while on Windows d_glob does not return the path, so we don't need that
+				strncpy(filenames+(NumFiles*14),filenames+(NumFiles*(14+sizeof(DEMO_DIR)))+sizeof(DEMO_DIR)-1, 13+sizeof(DEMO_DIR));
+#else				// while on Windows d_glob does not return the path, so we don't need that
 				strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
 #endif
 			}
