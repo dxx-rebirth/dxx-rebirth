@@ -615,35 +615,6 @@ int main(int argc, char *argv[])
 		int screen_height = 480;
 		int screen_flags = VRF_USE_PAGING;
 
-		if (FindResArg("", &screen_width, &screen_height))
-		{
-			/* stuff below mirrors values from display_mode_info in
-			 * menu.c which is used by set_display_mode. In fact,
-			 * set_display_mode should probably be rewritten to allow
-			 * arbitrary resolutions, and then we get rid of this
-			 * stuff here.
-			 */
-			switch (SM(screen_width, screen_height))
-			{
-			case SM(320, 200):
-			case SM(640, 480):
-				screen_flags = VRF_ALLOW_COCKPIT + VRF_COMPATIBLE_MENUS;
-				break;
-			case SM(320, 400):
-				screen_flags = VRF_USE_PAGING;
-				break;
-			case SM(640, 400):
-			case SM(800, 600):
-			case SM(1024, 768):
-			case SM(1280, 1024):
-			case SM(1600, 1200):
-				screen_flags = VRF_COMPATIBLE_MENUS;
-				break;
-			}
-
-			con_printf(CON_VERBOSE, "Using %ix%i ...\n", screen_width, screen_height);
-		}
-
 // added ifdef on 9/30/98 by Matt Mueller to fix high res in linux
 #ifdef __MSDOS__
 		if (FindArg("-nodoublebuffer"))
@@ -665,7 +636,7 @@ int main(int argc, char *argv[])
 // added/edited on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
 		int i, argnum = INT_MAX, w, h;
 // added on 9/30/98 by Matt Mueller for selectable automap modes - edited 11/21/99 whee, more fun with defines. - edited 03/31/02 to use new FindResArg.
-#define SMODE(V,VV,VG) if ((i=FindResArg(#V, &w, &h)) && (i < argnum)) { argnum = i; VV = SM(w, h); VG = 0; }
+#define SMODE(V,VV,VG) if ((i=FindResArg(#V, &w, &h)) && (i < argnum)) { argnum = i; VV = SM(w, h); VG = 0;  if(w<640||h<480) disable_high_res=1; }
 #define SMODE_GR(V,VG) if ((i=FindArg("-" #V "_gameres"))){if (i<argnum) VG=1;}
 #define SMODE_PRINT(V,VV,VG) if (VG) con_printf(CON_VERBOSE, #V " using game resolution ...\n"); else con_printf(CON_VERBOSE, #V " using %ix%i ...\n",SM_W(VV),SM_H(VV) );
 // aren't #defines great? :)
