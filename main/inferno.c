@@ -503,27 +503,8 @@ int main(int argc,char **argv)
 	else
 		serial_active = 0;
 #endif
-	{
-		int i, argnum=INT_MAX;
-
-#define SCREENMODE(X,Y,C) if ( (i=FindArg( "-" #X "x" #Y ))&&(i<argnum))  {argnum=i; screen_mode = SM( X , Y );if (Inferno_verbose) printf( "Using " #X "x" #Y " ...\n" );screen_width = X;screen_height = Y;}
-
-		SCREENMODE(320,100,0);
-		SCREENMODE(320,200,1);
-		SCREENMODE(320,240,0);
-		SCREENMODE(320,400,0);
-		SCREENMODE(640,400,0);
-		SCREENMODE(640,480,0);
-		SCREENMODE(800,600,0);
-		SCREENMODE(1024,768,0);
-		SCREENMODE(1152,864,0);
-		SCREENMODE(1280,960,0);
-		SCREENMODE(1280,1024,0);
-		SCREENMODE(1600,1200,0);
-
-		Game_screen_mode = screen_mode;
-		game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE);
-	}
+	Game_screen_mode = screen_mode;
+	game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE);
 
 	{
 		int i, argnum=INT_MAX, w, h;
