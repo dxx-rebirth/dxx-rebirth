@@ -3,8 +3,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef __unix__
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif
 #ifdef __WINDOWS__
 #include <windows.h>
+#include <dir.h>
 #endif
 #include <unistd.h>
 #include <sys/types.h>
