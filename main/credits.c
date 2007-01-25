@@ -105,7 +105,7 @@ void credits_show(char *credits_filename)
 	ubyte backdrop_palette[768];
 	ubyte *fade_values_scalled;
 	fix last_time;
-	fix time_delay = (2800/(SHEIGHT/200));
+	fix time_delay = 2800;
 	grs_canvas *CreditsOffscreenBuf=NULL;
 	grs_bitmap backdrop;
 	box dirty_box[NUM_LINES];
@@ -198,7 +198,7 @@ void credits_show(char *credits_filename)
 		} while (extra_inc--);
 		extra_inc = 0;
 
-		for (i=0; i<ROW_SPACING; i += 1 )	{
+		for (i=0; i<ROW_SPACING; i += (SHEIGHT/200) )	{
 			int y;
 			box	*new_box;
 			grs_bitmap *tempbmp;
@@ -254,7 +254,7 @@ void credits_show(char *credits_filename)
 					tempbmp = &(CreditsOffscreenBuf->cv_bitmap);
 
 					gr_bm_bitblt(	new_box->width+1,
-							new_box->height+4,
+							new_box->height+5,
 							new_box->left,
 							new_box->top,
 							new_box->left,
@@ -271,7 +271,7 @@ void credits_show(char *credits_filename)
 					tempbmp = &(CreditsOffscreenBuf->cv_bitmap);
 
 					gr_bm_bitblt(   new_box->width,
-							new_box->height+2,
+							new_box->height,
 							new_box->left,
 							new_box->top,
 							new_box->left,
