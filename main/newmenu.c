@@ -703,8 +703,9 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	   Also make use of MENSCALE_* so we are sure it does scale correct if font does scale or not */
 	if (w >= 320*MENSCALE_X-3)
 		w=318*MENSCALE_X;
-	if (h >= 200*MENSCALE_Y-3)
-		h=198*MENSCALE_Y;
+	// when using hiresfont we need to resize from a base of 240 since the font is made for 640x480
+	if (h >= ((hiresfont&&SHEIGHT>=480)?240:200)*MENSCALE_Y-3)
+		h=((hiresfont&&SHEIGHT>=480)?236:198)*MENSCALE_Y;
 
 	x = (GWIDTH-w)/2;
 	y = (GHEIGHT-h)/2;
