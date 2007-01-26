@@ -78,7 +78,8 @@ The windows package contains a set of HiRes fonts and briefing pictures
 D1X-Rebirth will use. If you don't want them, delete them, move them to 
 another directory, or whatever you want.
 [NOTE: for the source you need to download these HiRes sets from
-http://www.dxx-rebirth.de and store them into your data path]
+http://www.dxx-rebirth.de and store them into the subdirectory "hires/"
+in your data path]
 
 
 3. Running the game
@@ -97,19 +98,6 @@ or by starting it in a terminal [linux] or command line [windows].
 4. Known Issues
 ^^^^^^^^^^^^^^^
 
-Problem:  [LINUX] The game crashes while loading a personal level (RDL file).
-Reason:   No Bug in D1X. Linux reads input case sensitive. RDL file description
-          in MSN file has the wrong letter case.
-Solution: If you look in the MSN file of your level you will find the name of
-          the RDL file. This string should exactly named as the RDL file
-          itself.
-Example:  * In MYLEVEL.MSN - 'MyLevel.RDL'. RDL file is named 'mylevel.RDL'.
-            This won't work.
-          * In MYLEVEL.MSN - 'MYLEVEL.RDL'. RDL file is named 'MYLEVEL.RDL'.
-            This will work.
-          (NOTE: there is also a small shell script for download, that may help
-                 you correcting your addon levels)
-
 Problem:  The game looks like the old DOS version? Where are the OpenGL FX?
 Reason:   You just don't have activated them.
 Solution: Use the option '-gl_mipmap' or '-gl_trilinear' to activate
@@ -120,13 +108,12 @@ Reason:   The game is binaries are compiled for AWE support and should run with
           it very well. Hint for AWE cards: asfxload -V100 8mbgmsfx.sf2
 Solution: If you use an MPU401 card, just make the following changes in SConstruct:
           Look for WANT_AWE32 and change it to WANT_MPU401. Then compile again.
-          If you still use make, do the changes in config.linux
 
 Problem:  The mouse movement is too slow. Is there no way to control the ship
           like in other first person shooters?
 Reason:   The Pyro is no human, it can't turn that fast. ;)
           But there is a way indeed...
-Solution: To enable a mouselook styl control tye as you know it from other
+Solution: To enable a mouselook style control tye as you know it from other
           first person shooters. Just start the game with the
           command-line option '-mouselook' to enable this. But to be fair to
           oter players which do not use mouselook it will not work in a
@@ -137,9 +124,9 @@ Reason:   Probably you have more than one Joystick but only one connected now.
 Solution: Go to control center -> gamecontroller. There set your joystick as
           "preferred device".
 
-I'll try to find better solutions for these problems listed above if possible.
-If you find a new bug or a better workaround/fix for any existing problem, please
-submit it to zico@unixboard.de.
+If you find a new bug or a better workaround/fix for any existing problem or if
+you have a wish for a new feature, please submit it to zico@unixboard.de or
+create a thread in the DXX-Forum located on http://www.dxx-rebirth.de/
 
 
 5. LEGAL STUFF

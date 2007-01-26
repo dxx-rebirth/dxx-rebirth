@@ -6,6 +6,7 @@ To compile you´ll need:
 -mingw [windows]
 -nasm (optional, for sdl-build)
 -sdl
+-GLU/GL
 -scons
 
 
@@ -15,7 +16,7 @@ Building with SCons:
 * copy your data files to the SHAREPATH (default: /usr/local/share/games/d1x-rebirth)
 
 
-Building with make: 
+Building with make:
 *** [OBSOLETE!!! Please use SCons or fix on your own :)] ***
 * edit the "config" file and specify the output directory and the platform you´re running
 * edit the appropriate "config.linux" "config.mingw" or "config.other" file to chenge the options
@@ -25,3 +26,4 @@ Building with make:
 
 If you run into any problems do not hesitate to contact me.
 eMail is: zico@unixboard.de
+You can also use the DXX-Forum located on http://dxx-rebirth.de/
