@@ -233,6 +233,7 @@ void show_commandline_help()
 	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
 	printf( "  -cockpit <n>       %s\n", "Set initial cockpit. 0=full 2=status bar 3=full screen");
 	printf( "  -hud <h>           %s\n", "Set hud mode.  0=normal 1-3=new");
+        printf( "  -hudlines <l>      %s\n", "Number of hud messages to show");
 	printf( "  -hiresfont         %s\n", "use high resolution fonts if available");
 #ifdef    GR_SUPPORTS_FULLSCREEN_TOGGLE
 	printf( "  -window            %s\n", "Run the game in a window");
@@ -263,9 +264,10 @@ void show_commandline_help()
 	printf( "  -savebans          %s\n", "Automatically save new bans");
 	printf( "  -pingstats         %s\n", "Show pingstats on hud");
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multiplayer");
-	printf( "  -playermessages    %s\n", "View only messages from other players in multi");
+	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -handicap <n>      %s\n", "Start game with <n> shields. Must be < 100 for multi");
 	printf( "  -hudlog_multi      %s\n", "Start hudlog upon entering multiplayer games");
+        printf( "  -msgcolorlevel <c> %s\n", "Level of colorization for hud messages\n\t\t\t0=none(old style)\n\t\t\t1=color names in talk messages only(default)\n\t\t\t2=also color names in kill/join/etc messages\n\t\t\t3=talk messages are fully colored, not just names");
 #ifdef    SUPPORTS_NET_IP
         printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
         printf( "  -ip_myaddr <a>     %s\n", "Use <a> as local ip address");
@@ -392,7 +394,25 @@ int main(int argc,char **argv)
 		if(t>=0 && t<GAUGE_HUD_NUMMODES)
 			Gauge_hud_mode = t;
 	}
-		
+
+#ifdef NETWORK
+	if (FindArg("-pingstats"))
+		ping_stats_on = 1;
+#endif
+
+	if ((t=FindArg("-msgcolorlevel"))){
+		extern int gr_message_color_level;
+		t=atoi(Args[t+1]);
+		if(t>=0 && t<=3)
+                gr_message_color_level = t;
+	}
+		 
+	if ((t=FindArg("-hudlines"))){
+		t=atoi(Args[t+1]);
+		if(t>0 && t<=HUD_MAX_NUM)
+                HUD_max_num_disp = t;
+	}
+
 	if (FindArg("-hudlog_multi"))
 	HUD_log_multi_autostart = 1;
 	

@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070126
 --------
 main/credits.c: improved credits scrolling - not that smooth anymore, but less CPU intense
+d1x.ini, main/inferno.c: re-added -hudlines and -msgcolorlevel
 
 20070125
 --------
