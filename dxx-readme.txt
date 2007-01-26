@@ -99,11 +99,6 @@ Vertigo Series:
 To play the Vertigo missions, copy the following files to the current
 directory [NOTE: for source - the data directory, you know]:
 
-arcan01b.pcx
-arcan02b.pcx
-arcan03b.pcx
-arcan04b.pcx
-arcan05b.pcx
 d2x-h.mvl and/or d2x-l.mvl
 hoard.ham (if you want to use HOARD)
 
@@ -151,19 +146,6 @@ Reason:   The D2X Redbook only works with an analog signal.
 Solution: Make sure you have connected a audio cable from your CD drive to your
           soundcard.
 
-Problem:  The game crashes while loading a personal level (RL2 file).
-Reason:   No Bug in D2X. Linux reads input case sensitive. RL2 file description
-          in MN2 file has the wrong letter case.
-Solution: If you look in the MN2 file of your level you will find the name of
-          the RL2 file. This string should exactly named as the RL2 file 
-          itself.
-Example:  * In MYLEVEL.MN2 - 'MyLevel.RL2'. RL2 file is named 'mylevel.RL2'.
-            This won't work.
-          * In MYLEVEL.MN2 - 'MYLEVEL.RL2'. RL2 file is named 'MYLEVEL.RL2'.
-            This will work.
-          (NOTE: there is also a small shell script for download, that may help
-                 you correcting your addon levels)
-
 Problem:  D2X doesn't look better than the DOS version. Where are the GL FX?
 Reason:   You just don't have activated them.
 Solution: Use the option '-gl_mipmap' or '-gl_trilinear' to activate
@@ -189,9 +171,9 @@ Reason:   Probably you have more than one Joystick but only one connected now.
 Solution: Go to control center -> gamecontroller. There set your joystick as
           "preferred device".
 
-I'll try to find better solutions for these problems listed above if possible.
-If you find a new bug or a better workaround/fix for any existing problem, please
-submit it to zico@unixboard.de.
+If you find a new bug or a better workaround/fix for any existing problem or if
+you have a wish for a new feature, please submit it to zico@unixboard.de or
+create a thread in the DXX-Forum located on http://www.dxx-rebirth.de/
 
 
 5. LEGAL STUFF

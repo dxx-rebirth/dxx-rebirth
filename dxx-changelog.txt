@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070126
 --------
 main/credits.c: improved credits scrolling - not that smooth anymore, but less CPU intense
+dxx-readme.txt, dxx-compile.txt: improvements on dxx-readme's
 
 20070125
 --------

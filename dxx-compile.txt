@@ -1,8 +1,20 @@
 This file describes how to compile D2X-Rebirth from source.
 
-D2X needs SDL, GLU (optionally) and PhysicsFS.
-You can download PhysicsFS it from: http://icculus.org/physfs/ or http://www.dxx-rebirth.de
+-gcc/g++
+-mingw [windows]
+-nasm (optional, for sdl-build)
+-sdl(-devel)
+-GLU/GL
+-scons (recommended)
+-PhysFS
 
+Building with SCons:
+* run "scons" with desired command-line options (see "scons -h" for complete list of options)
+* you may want to run "scons install" to install the binary after it's build
+* copy your data files to the SHAREPATH (default: /usr/local/share/games/d2x-rebirth)
+
+
+Building with make:
 * run ./autogen.sh
 * run ./configure. Use '--help' for more information and parameters.
 * You also should use '--with-opengl' to compile the OpenGL build (recommended)
@@ -15,3 +27,4 @@ You can download PhysicsFS it from: http://icculus.org/physfs/ or http://www.dxx
 
 If you run into any problems do not hesitate to contact me.
 eMail is: zico@unixboard.de
+You can also use the DXX-Forum located on http://dxx-rebirth.de/
