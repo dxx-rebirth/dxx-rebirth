@@ -3461,9 +3461,9 @@ if (!keyd_pressed[ KEY_LALT ])
 
 // ZICO - remove clamp for pitch and heading if mouselook on and no multiplayer game
 if ((Config_control_type != 5) || !mouselook || (Game_mode & GM_MULTI) ) {
-	if (Controls.pitch_time > FrameTime/2 ) Controls.pitch_time = FrameTime/2;
+	if (Controls.pitch_time > FrameTime ) Controls.pitch_time = FrameTime;
 	if (Controls.heading_time > FrameTime ) Controls.heading_time = FrameTime;
-	if (Controls.pitch_time < -FrameTime/2 ) Controls.pitch_time = -FrameTime/2;
+	if (Controls.pitch_time < -FrameTime ) Controls.pitch_time = -FrameTime;
 	if (Controls.heading_time < -FrameTime ) Controls.heading_time = -FrameTime;
 }
 	if (Controls.vertical_thrust_time > FrameTime ) Controls.vertical_thrust_time = FrameTime;
