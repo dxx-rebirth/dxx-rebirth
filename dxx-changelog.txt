@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/credits: use ogl_ubitmapm_cs instead of show_fullscr in OGL to render faster
 main/kconfig.c: made pitching time as fast as heading time - compared with original Descent1 & 2
+main/game.c: corrected position of multi-message entry string
 
 20070126
 --------

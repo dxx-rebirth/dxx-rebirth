@@ -1152,14 +1152,14 @@ void game_draw_multi_message()
 		gr_set_curfont( GAME_FONT );    //GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
 		sprintf( temp_string, "%s: %s_", TXT_MESSAGE, Network_message );
-		draw_centered_text(grd_curcanv->cv_bitmap.bm_h/2-16, temp_string );
+		draw_centered_text(grd_curcanv->cv_bitmap.bm_h/2-(16*SHEIGHT/200), temp_string );
 	}
 
 	if ( (Game_mode&GM_MULTI) && (multi_defining_message))	{
 		gr_set_curfont( GAME_FONT );    //GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
 		sprintf( temp_string, "%s #%d: %s_", TXT_MACRO, multi_defining_message, Network_message );
-		draw_centered_text(grd_curcanv->cv_bitmap.bm_h/2-16, temp_string );
+		draw_centered_text(grd_curcanv->cv_bitmap.bm_h/2-(16*SHEIGHT/200), temp_string );
 	}
 }
 #endif
