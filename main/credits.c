@@ -185,7 +185,11 @@ void credits_show(char *credits_filename)
 	gr_remap_bitmap_good( &backdrop,backdrop_palette, -1, -1 );
 
 	gr_set_current_canvas(NULL);
+#ifdef OGL
+	ogl_ubitmapm_cs(0,0,-1,-1,&backdrop,-1,F1_0);
+#else
 	show_fullscr(&backdrop);
+#endif
 	gr_update();
 	gr_palette_fade_in( gr_palette, 32, 0 );
 
@@ -237,16 +241,20 @@ get_line:;
 
 		for (i=0; i<ROW_SPACING; i += (SHEIGHT/200))	{
 			int y;
+#ifndef OGL
 			box	*new_box;
 			grs_bitmap *tempbmp;
+#endif
 
 			y = first_line_offset - i;
 #ifdef OGL
 			ogl_start_offscreen_render(0,-2,GWIDTH,GHEIGHT);
+			ogl_ubitmapm_cs(0,0,-1,-1,&backdrop,-1,F1_0);
 #endif
 			gr_set_current_canvas(CreditsOffscreenBuf);
+#ifndef OGL
 			show_fullscr(&backdrop);
-
+#endif
 			for (j=0; j<NUM_LINES; j++ )	{
 				char *s;
 
@@ -281,7 +289,7 @@ get_line:;
 				gr_bitblt_fade_table = NULL;
 				y += ROW_SPACING;
 			}
-
+#ifndef OGL
 				// Wacky Fast Credits Thing
 				for (j=0; j<NUM_LINES; j++ )
 				{
@@ -299,7 +307,6 @@ get_line:;
 							&(grd_curscreen->sc_canvas.cv_bitmap) );
 				}
 
-#ifndef OGL
 				for (j=0; j<NUM_LINES; j++ )
 				{
 					new_box = &dirty_box[j];

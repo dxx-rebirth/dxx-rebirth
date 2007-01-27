@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070127
+--------
+main/credits: use ogl_ubitmapm_cs instead of show_fullscr in OGL to render faster
+
 20070126
 --------
 main/credits.c: improved credits scrolling - not that smooth anymore, but less CPU intense
