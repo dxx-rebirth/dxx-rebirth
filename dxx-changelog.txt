@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070128
+--------
+main/radar.c: corrected radar positions and gave it a grey background so it's better visible
+
 20070127
 --------
 main/credits: use ogl_ubitmapm_cs instead of show_fullscr in OGL to render faster

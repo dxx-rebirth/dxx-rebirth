@@ -91,22 +91,19 @@ void radar_render_frame()
 	int i,color;
 	object * objp;
 
+	Hostage_monitor_size = Game_window_w / 6;
+	Hostage_monitor_x = (SWIDTH/320);
+
 	switch (Cockpit_mode)
 	{
 		case CM_FULL_SCREEN:
-			Hostage_monitor_size = Game_window_w / 6;
-			Hostage_monitor_x = (grd_curscreen->sc_w - Game_window_w) / 2;
-			Hostage_monitor_y = (grd_curscreen->sc_h - Game_window_h) / 2;
+			Hostage_monitor_y = 35*(SHEIGHT/200);
 			break;
 		case CM_FULL_COCKPIT:
-			Hostage_monitor_size = Game_window_w / 6;
-			Hostage_monitor_x = (grd_curscreen->sc_w - Game_window_w) / 2;
-			Hostage_monitor_y = (grd_curscreen->sc_h) / 2.5;
+			Hostage_monitor_y = 15*(SHEIGHT/200); //(grd_curscreen->sc_h) / 2.2;
 			break;
 		case CM_STATUS_BAR:
-			Hostage_monitor_size = Game_window_w / 6;
-			Hostage_monitor_x = (grd_curscreen->sc_w - Game_window_w) / 2;
-			Hostage_monitor_y = (max_window_h - Game_window_h) / 2;
+			Hostage_monitor_y = (SHEIGHT/200);
 			break;
 		case CM_REAR_VIEW: //no radar in rear view or letterbox!
 		case CM_LETTERBOX:
@@ -117,6 +114,16 @@ void radar_render_frame()
 		return;
 
 	gr_set_current_canvas(NULL);
+
+	// Draw a box to get more contrast on the radar
+	gr_setcolor(BM_XRGB(200,200,200));
+	Gr_scanline_darkening_level = 2*7;
+	gr_rect(Hostage_monitor_x,
+		Hostage_monitor_y,
+		Hostage_monitor_x+Hostage_monitor_size,
+		Hostage_monitor_y+Hostage_monitor_size);
+	Gr_scanline_darkening_level = GR_FADE_LEVELS;
+
 
 	gr_setcolor( BM_XRGB( 0, 31, 0 ) );
 	
@@ -177,4 +184,23 @@ void radar_render_frame()
 		gr_setcolor( Blips[i].c );
 		gr_upixel( Blips[i].x, Blips[i].y );
 	}
+
+	// Draw a blue frame around the radar
+	gr_setcolor(BM_XRGB(0,0,255));
+	gr_rect(Hostage_monitor_x-(SWIDTH/640),
+		Hostage_monitor_y,
+		Hostage_monitor_x,
+		Hostage_monitor_y+Hostage_monitor_size);
+	gr_rect(Hostage_monitor_x+Hostage_monitor_size,
+		Hostage_monitor_y,
+		Hostage_monitor_x+Hostage_monitor_size+(SWIDTH/640),
+		Hostage_monitor_y+Hostage_monitor_size);
+	gr_rect(Hostage_monitor_x,
+		Hostage_monitor_y-(SHEIGHT/480),
+		Hostage_monitor_x+Hostage_monitor_size,
+		Hostage_monitor_y);
+	gr_rect(Hostage_monitor_x,
+		Hostage_monitor_y+Hostage_monitor_size,
+		Hostage_monitor_x+Hostage_monitor_size,
+		Hostage_monitor_y+Hostage_monitor_size+(SHEIGHT/480));
 }
