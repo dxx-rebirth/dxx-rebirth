@@ -47,6 +47,7 @@ int gl_initialized=0;
 int gl_reticle=0;
 int ogl_fullscreen=0;
 int ogl_scissor_ok=1;
+int glalpha_effects=0;
 
 int gr_check_fullscreen(void){
 	return ogl_fullscreen;
@@ -370,6 +371,9 @@ int gr_init(int mode)
 	if ((t=FindArg("-gl_reticle"))){
 		gl_reticle=atoi(Args[t+1]);
 	}
+	if (FindArg("-gl_transparency"))
+		glalpha_effects=1;
+	
 	
 	ogl_init();//platform specific initialization
 

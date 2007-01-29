@@ -493,14 +493,20 @@ void draw_object_blob(object *obj,bitmap_index bmi)
 	grs_bitmap * bm = &GameBitmaps[bmi.index];
 	PIGGY_PAGE_IN( bmi );
 
-	if (bm->bm_w > bm->bm_h)
-
-		g3_draw_bitmap(&obj->pos,obj->size,fixmuldiv(obj->size,bm->bm_h,bm->bm_w),bm);
-
-	else 
-
-		g3_draw_bitmap(&obj->pos,fixmuldiv(obj->size,bm->bm_w,bm->bm_h),obj->size,bm);
-
+	if (bm->bm_w > bm->bm_h) {
+		g3_draw_bitmap(&obj->pos,obj->size,fixmuldiv(obj->size,bm->bm_h,bm->bm_w),bm
+#ifdef OGL
+		,obj
+#endif
+		);
+	}
+	else {
+		g3_draw_bitmap(&obj->pos,fixmuldiv(obj->size,bm->bm_w,bm->bm_h),obj->size,bm
+#ifdef OGL
+		,obj
+#endif
+		);
+	}
 }
 
 //draw an object that is a texture-mapped rod

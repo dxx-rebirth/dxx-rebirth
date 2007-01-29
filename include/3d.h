@@ -41,6 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix.h"
 #include "vecmat.h"	//the vector/matrix library
 #include "gr.h"
+#include "object.h"
 
 extern int g3d_interp_outline;		//if on, polygon models outlined in white
 extern short highest_texture_num;
@@ -231,7 +232,11 @@ bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
-bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm);
+bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm
+#ifdef OGL
+	,object *obj
+#endif
+	);
 
 //specifies 2d drawing routines to use instead of defaults.  Passing
 //NULL for either or both restores defaults

@@ -75,6 +75,7 @@ int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
 int secondary_lh[5]={0,0,0,0,0};
 int bNoDepthTest=0;
+extern int glalpha_effects;
 extern GLubyte *pixels;
 extern GLubyte *texbuf;
 
@@ -822,7 +823,7 @@ bool g3_draw_tmap_2(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *b
 	return 0;
 }
 
-bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
+bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm,object *obj)
 {
 	vms_vector pv,v1;
 	int i;
@@ -836,7 +837,11 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 	glDisable(GL_DEPTH_TEST); // ZICO - disable to prevent sprites get cutted by polygons
 
 	glBegin(GL_QUADS);
-	glColor3f(1.0,1.0,1.0);
+	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
+	if (glalpha_effects && (obj->type==OBJ_FIREBALL || obj->type==OBJ_WEAPON || obj->id==POW_EXTRA_LIFE || obj->id==POW_ENERGY || obj->id==POW_SHIELD_BOOST || obj->id==POW_HOARD_ORB || obj->id==POW_CLOAK || obj->id==POW_INVULNERABILITY))
+		glColor4f(1.0,1.0,1.0,0.6);
+	else
+		glColor3f(1.0,1.0,1.0);
 	width = fixmul(width,Matrix_scale.x);	
 	height = fixmul(height,Matrix_scale.y);	
 	for (i=0;i<4;i++){
