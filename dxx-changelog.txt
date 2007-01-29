@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070130
+--------
+d2x.ini, arch/ogl/gr.c, arch/ogl/ogl.c, include/3d.h, main/inferno.c, main/object.c: added transparency effects for some bitmaps like explosions, powerups, weapons, etc. - to enable with -gl_transparency
+
 20070129
 --------
 main/gamecntl.c: fixed energy->shield transfer message output showing 'No transfer: Shields already at max' everytime if there is enough energy

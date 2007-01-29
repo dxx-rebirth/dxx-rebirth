@@ -67,6 +67,7 @@ int gl_initialized=0;
 int gl_reticle = 0;
 int ogl_fullscreen;
 int ogl_scissor_ok=1;
+int glalpha_effects=0;
 
 void gr_palette_clear(); // Function prototype for gr_init;
 
@@ -523,6 +524,8 @@ int gr_init()
 	if ((t=FindArg("-gl_reticle"))){
 		gl_reticle=atoi(Args[t+1]);
 	}
+	if (FindArg("-gl_transparency"))
+		glalpha_effects=1;
 	//printf("ogl_mem_target=%i\n",ogl_mem_target);
 	
 	ogl_init();//platform specific initialization
