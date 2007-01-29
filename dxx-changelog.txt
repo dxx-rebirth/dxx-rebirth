@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070129
+--------
+main/gamecntl.c: fixed energy->shield transfer message output showing 'No transfer: Shields already at max' everytime if there is enough energy
+
 20070127
 --------
 main/credits: use ogl_ubitmapm_cs instead of show_fullscr in OGL to render faster

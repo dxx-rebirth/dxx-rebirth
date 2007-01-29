@@ -236,10 +236,12 @@ void transfer_energy_to_shield(fix time)
 
 	if (e <= 0) {
 
-		if (Players[Player_num].energy <= INITIAL_ENERGY)
+		if (Players[Player_num].energy <= INITIAL_ENERGY) {
 			HUD_init_message("Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
-		else
+		}
+		else if (Players[Player_num].shields == 200) {
 			HUD_init_message("No transfer: Shields already at max");
+		}
 		return;
 	}
 
