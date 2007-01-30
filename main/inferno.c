@@ -664,7 +664,7 @@ int main(int argc, char *argv[])
 		MovieHires = MenuHires = MenuHiresAvailable = 0;
 	else
 		//NOTE LINK TO ABOVE!
-		MenuHires = MenuHiresAvailable = 1;
+		MovieHires = MenuHires = MenuHiresAvailable = 1;
 
 	if (FindArg( "-lowresmovies" ))
 		MovieHires = 0;
