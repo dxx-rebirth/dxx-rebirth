@@ -115,7 +115,7 @@ static int ipx_mcast4_OpenSocket(ipx_socket_t *sk, int port)
 	if((sk->fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
 	{
 		sk->fd = -1;
-		FAIL("socket() creation failed on port %d: %m", port);
+		FAIL("socket() creation failed on port %d:\n%m", port);
 	}
 
 	// Bind to the port
@@ -127,7 +127,7 @@ static int ipx_mcast4_OpenSocket(ipx_socket_t *sk, int port)
 		if (closesocket(sk->fd))
 			msg("close() failed during error recovery: %m");
 		sk->fd = -1;
-		FAIL("bind() to UDP port %d failed: %m", baseport);
+		FAIL("bind() to UDP port %d failed:\n%m", baseport);
 	}
 
 	// Set the TTL so the packets can get out of the local network.
@@ -137,14 +137,14 @@ static int ipx_mcast4_OpenSocket(ipx_socket_t *sk, int port)
 	// Disable multicast loopback
 	loop = 0;
 	if(setsockopt(sk->fd, IPPROTO_IP, IP_MULTICAST_LOOP, (const void*)&loop, sizeof(loop)) < 0)
-		FAIL("setsockopt() failed to disable multicast loopback: %m");
+		FAIL("setsockopt() failed to disable multicast\nloopback: %m");
 
 	// Subscribe to the game announcement address
 	memset(&mreq, 0, sizeof(mreq));
 	mreq.imr_multiaddr.s_addr = DESCENT2_ANNOUNCE_ADDR;
 	mreq.imr_interface.s_addr = INADDR_ANY;
 	if(setsockopt(sk->fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (const void*)&mreq, sizeof(mreq)) < 0)
-		FAIL("setsockopt() failed to subscribe to the game announcement multicast group");
+		FAIL("setsockopt() failed to subscribe to\nthe game announcement multicast group");
 
 	// We're not subscribed to a game address yet
 	game_addr.s_addr = 0;

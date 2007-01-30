@@ -161,7 +161,7 @@ static void chk(void *p)
 #ifdef _MSC_VER
 #define FAIL Warning
 #else
-#define FAIL(m...) do { msg(#m); return -1; } while (0)
+#define FAIL(m...) do { msg(m); return -1; } while (0)
 #endif
 
 /* Find as much as MAX_BRDINTERFACES during local iface autoconfiguration.
