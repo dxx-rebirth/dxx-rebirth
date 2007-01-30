@@ -396,7 +396,7 @@ void key_handler(SDL_KeyboardEvent *event)
 			state = key_state;
 		else
 			state = key->last_state;
-			
+
 		if ( key->last_state == state )	{
 			if (state) {
 				key->counter++;
@@ -438,6 +438,7 @@ void key_handler(SDL_KeyboardEvent *event)
 			}
 		}
 		key->last_state = state;
+
 	}
 }
 

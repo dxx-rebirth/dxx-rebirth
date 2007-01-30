@@ -10,7 +10,7 @@ PROGRAM_NAME = 'D1X-Rebirth'
 
 # version number
 D1XMAJOR = 0
-D1XMINOR = 50
+D1XMINOR = 51
 #D1XMICRO = int(SVN_REVISION)
 
 VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR)
