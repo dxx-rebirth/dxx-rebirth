@@ -48,7 +48,7 @@ static inline void msg(const char *fmt,...)
 	putchar('\n');
 }
 
-#define FAIL(m...) do { msg(#m); return -1; } while (0)
+#define FAIL(m...) do { msg(m); return -1; } while (0)
 
 static inline void chk(void *p){
 	if (p) return;

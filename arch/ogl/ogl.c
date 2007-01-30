@@ -838,7 +838,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm,object *
 
 	glBegin(GL_QUADS);
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
-	if (glalpha_effects && (obj->type==OBJ_FIREBALL || obj->type==OBJ_WEAPON || obj->id==POW_EXTRA_LIFE || obj->id==POW_ENERGY || obj->id==POW_SHIELD_BOOST || obj->id==POW_HOARD_ORB || obj->id==POW_CLOAK || obj->id==POW_INVULNERABILITY))
+	if (glalpha_effects && (obj->type==OBJ_FIREBALL || obj->type==OBJ_WEAPON || obj->id==POW_EXTRA_LIFE || obj->id==POW_ENERGY || obj->id==POW_SHIELD_BOOST || obj->id==POW_CLOAK || obj->id==POW_INVULNERABILITY))
 		glColor4f(1.0,1.0,1.0,0.6);
 	else
 		glColor3f(1.0,1.0,1.0);

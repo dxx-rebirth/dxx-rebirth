@@ -142,7 +142,7 @@ static void chk(void *p)
 	exit(EXIT_FAILURE);
 }
 
-#define FAIL(m...) do { msg(#m); return -1; } while (0)
+#define FAIL(m...) do { msg(m); return -1; } while (0)
 
 /* Find as much as MAX_BRDINTERFACES during local iface autoconfiguration.
  * Note that more interfaces can be added during manual configuration

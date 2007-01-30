@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070130
 --------
 d1x.ini, arch/ogl/gr.c, arch/ogl/ogl.c, include/3d.h, main/inferno.c, main/object.c: added transparency effects for some bitmaps like explosions, powerups, weapons, etc. - to enable with -gl_transparency
+arch/linux/ipx_udp.c, main/ipclient.h: corrected UDP/IP error output
 
 20070128
 --------
