@@ -9,7 +9,7 @@ PROGRAM_NAME = 'D2X-Rebirth'
 # version number
 D2XMAJOR = 0
 D2XMINOR = 5
-D2XMICRO = 0
+D2XMICRO = 1
 
 VERSION = str(D2XMAJOR) + '.' + str(D2XMINOR) + str(D2XMICRO)
 
