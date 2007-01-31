@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070131
+--------
+main/object.c: If bright ships are enabled cast F1_0*2 light instead of F1_0 which is too dark
+
 20070130
 --------
 d2x.ini, arch/ogl/gr.c, arch/ogl/ogl.c, include/3d.h, main/inferno.c, main/object.c: added transparency effects for some bitmaps like explosions, powerups, weapons, etc. - to enable with -gl_transparency

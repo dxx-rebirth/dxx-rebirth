@@ -431,7 +431,7 @@ void draw_polygon_object(object *obj)
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		if (Netgame.BrightPlayers)
-			light = F1_0;
+			light = F1_0*2;
 #endif
 
 	//make robots brighter according to robot glow field
