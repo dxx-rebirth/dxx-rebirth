@@ -1121,7 +1121,6 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 	ogl_texwrap(bm->gltexture,GL_CLAMP);
 
 	glDisable(GL_DEPTH_TEST); // ZICO - disable to prevent sprites get cutted by polygons
-printf("ID: %i, TYPE: %i\n",obj->id,obj->type);
 	glBegin(GL_QUADS);
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
 	if (glalpha_effects && // if -gl_transparency draw following bitmaps
