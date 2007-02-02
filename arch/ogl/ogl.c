@@ -25,6 +25,7 @@
 #include "powerup.h"
 #include "polyobj.h"
 #include "gamefont.h"
+#include "laser.h"
 
 //change to 1 for lots of spew.
 #if 0
@@ -837,9 +838,17 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm,object *
 	glDisable(GL_DEPTH_TEST); // ZICO - disable to prevent sprites get cutted by polygons
 
 	glBegin(GL_QUADS);
+printf("ID: %i, TYPE: %i\n",obj->id,obj->type);
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
-	if (glalpha_effects && (obj->type==OBJ_FIREBALL || obj->type==OBJ_WEAPON || obj->id==POW_EXTRA_LIFE || obj->id==POW_ENERGY || obj->id==POW_SHIELD_BOOST || obj->id==POW_CLOAK || obj->id==POW_INVULNERABILITY))
-		glColor4f(1.0,1.0,1.0,0.6);
+	if (glalpha_effects && // if -gl_transparency draw following bitmaps
+		(obj->type==OBJ_FIREBALL || // all types of explosions and energy-effects
+		(obj->type==OBJ_WEAPON && obj->id != PROXIMITY_ID) || // weapon fire except bombs
+		obj->id==POW_EXTRA_LIFE || // extra life
+		obj->id==POW_ENERGY || // energy powerup
+		obj->id==POW_SHIELD_BOOST || // shield boost
+		obj->id==POW_CLOAK || // cloak
+		obj->id==POW_INVULNERABILITY)) // invulnerability
+		glColor4f(1.0,1.0,1.0,0.6); // ... with 0.6 alpha
 	else
 		glColor3f(1.0,1.0,1.0);
 	width = fixmul(width,Matrix_scale.x);	
