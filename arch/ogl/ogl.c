@@ -838,7 +838,6 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm,object *
 	glDisable(GL_DEPTH_TEST); // ZICO - disable to prevent sprites get cutted by polygons
 
 	glBegin(GL_QUADS);
-printf("ID: %i, TYPE: %i\n",obj->id,obj->type);
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
 	if (glalpha_effects && // if -gl_transparency draw following bitmaps
 		(obj->type==OBJ_FIREBALL || // all types of explosions and energy-effects
