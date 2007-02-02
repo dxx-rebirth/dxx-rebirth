@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070202
+--------
+main/gauges.c: corrected Y alignment of hud_show_homing_warning
+
 20070131
 --------
 main/object.c: If bright ships are enabled cast F1_0*2 light instead of F1_0 which is too dark
