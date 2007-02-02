@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070202
+--------
+arch/ogl/ogl.c: let ogl_ubitblt not return alpha channel to ogl_ubitblt_i
+
 20070130
 --------
 d1x.ini, arch/ogl/gr.c, arch/ogl/ogl.c, include/3d.h, main/inferno.c, main/object.c: added transparency effects for some bitmaps like explosions, powerups, weapons, etc. - to enable with -gl_transparency

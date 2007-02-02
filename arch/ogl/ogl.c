@@ -1021,7 +1021,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	return 0;
 }
 bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
-	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,1);
+	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,0);
 }
 #endif
 bool ogl_ubitblt_tolinear(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
