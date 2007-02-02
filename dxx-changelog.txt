@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/gauges.c: corrected Y alignment of hud_show_homing_warning
 arch/ogl/ogl.c: don't draw bombs with transparency even if -gl_transparency is enabled
+main/state.c: complete removal of broken Autosave feature
 
 20070131
 --------

@@ -381,8 +381,6 @@ int state_get_restore_file(char * fname, int multi)
 
 	if (choice > 0) {
 		strcpy( fname, filename[choice-1] );
-		if (choice != NUM_SAVES+1)		//no new default when restore from autosave
-			state_default_item = choice - 1;
 		return choice;
 	}
 	return 0;
@@ -496,11 +494,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 		filename_override = filename;
 		sprintf(filename_override, SECRETC_FILENAME);
 	} else {
-		if (filename_override) {
-			strcpy( filename, filename_override);
-			sprintf(desc, "[autosave backup]");
-		}
-		else if (!(filenum = state_get_save_file(filename, desc, 0, blind_save)))
+		if (!(filenum = state_get_save_file(filename, desc, 0, blind_save)))
 		{
 			start_time();
 			return 0;
@@ -546,29 +540,6 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 		}
 	}
 
-	//	Save file we're going to save over in last slot and call "[autosave backup]"
-	if (!filename_override) {
-		PHYSFS_file *tfp;
-
-		tfp = PHYSFSX_openWriteBuffered(filename);
-
-		if ( tfp ) {
-			char	newname[128];
-
-			#ifndef MACINTOSH
-			sprintf( newname, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES );
-			#else
-			sprintf(newname, "Players/%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
-			#endif
-
-			PHYSFS_seek(tfp, DESC_OFFSET);
-			PHYSFS_write(tfp, "[autosave backup]", sizeof(char) * DESC_LENGTH, 1);
-			PHYSFS_close(tfp);
-			PHYSFS_delete(newname);
-			PHYSFSX_rename(filename, newname);
-		}
-	}
-	
 	rval = state_save_all_sub(filename, desc, between_levels);
 	if (rval && !secret_save)
 		HUD_init_message("Game saved.");
@@ -911,7 +882,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 
 	if (filename_override) {
 		strcpy(filename, filename_override);
-		filenum = NUM_SAVES+1;		//	So we don't trigger autosave
+		filenum = NUM_SAVES+1; // place outside of save slots
 	} else if (!(filenum = state_get_restore_file(filename, 0)))	{
 		start_time();
 		return 0;
@@ -947,18 +918,6 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 			} else
 				PHYSFS_delete(SECRETC_FILENAME);
 		}
-	}
-
-	//	Changed, 11/15/95, MK, don't to autosave if restoring from main menu.
-	if ((filenum != (NUM_SAVES+1)) && in_game) {
-		char	temp_filename[128];
-		mprintf((0, "Doing autosave, filenum = %i, != %i!\n", filenum, NUM_SAVES+1));
-		#ifndef MACINTOSH
-		sprintf( temp_filename, "%s.sg%x", Players[Player_num].callsign, NUM_SAVES );
-		#else
-		sprintf(temp_filename, "Players/%s.sg%x", Players[Player_num].callsign, NUM_SAVES);
-		#endif
-		state_save_all(!in_game, secret_restore, temp_filename, 0);
 	}
 
 	if ( !secret_restore && in_game ) {
