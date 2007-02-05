@@ -583,11 +583,11 @@ void create_name_canv()
 // 	name_canv_right = print_to_canvas(name_level_right,SMALL_FONT, Green_31, -1);
 	gr_set_curfont(SMALL_FONT);
 	gr_printf(((MenuHires)?10:5),((MenuHires)?10:5),"%s", name_level_left);
-	gr_get_string_size(system_name[(Current_level_num-1)/4],&wr1,&h,&aw);
 	if (Current_level_num <= 0)
-		wr2 = 0;
+		wr1=0;
 	else
-		gr_get_string_size(Current_level_name,&wr2,&h,&aw);
+		gr_get_string_size(system_name[(Current_level_num-1)/4],&wr1,&h,&aw);
+	gr_get_string_size(Current_level_name,&wr2,&h,&aw);
 	gr_printf(grd_curcanv->cv_bitmap.bm_w-(wr1+wr2)-FONTSCALE_X(((MenuHires)?35:18)),((MenuHires)?10:5),"%s", name_level_right);
 }
 

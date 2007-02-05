@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070205
 --------
 main/menu.h: make sure Menu_pcx_name gets loaded correctly if resolution is lowres
+main/automap.c: fixed secret level name canvas
 
 20070202
 --------
