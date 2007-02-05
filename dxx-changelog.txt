@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070205
+--------
+main/menu.h: make sure Menu_pcx_name gets loaded correctly if resolution is lowres
+
 20070202
 --------
 main/gauges.c: corrected Y alignment of hud_show_homing_warning
