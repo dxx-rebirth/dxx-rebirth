@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/inferno.c, main/menu.c, main/newdemo.c: fixed -demo and -autodemo switches to work with DEMO_DIR
 main/newmenu.c: use remove instead of unlink to delete plx-file safely
+2d/bitblt.c, include/gr.h, main/automap.c, main/credits.c, main/titles.c: force show_fullscreen to software drawing if image is bigger than screen, showing Automap background in low resolutions via software, removed obsolete robot briefing fix in OGL, code cleanup
 
 20070202
 --------

@@ -86,7 +86,7 @@ typedef struct box {
 	int left, top, width, height;
 } box;
 
-extern inline void scale_line(sbyte *in, sbyte *out, int ilen, int olen);
+extern inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen);
 extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 //if filename passed is NULL, show normal credits
@@ -118,7 +118,7 @@ void credits_show(char *credits_filename)
 	}
 
 	fade_values_scalled = malloc(SHEIGHT);
-	scale_line((sbyte*)fade_values_hires, (sbyte*)fade_values_scalled, 480, GHEIGHT);
+	scale_line(fade_values_hires, fade_values_scalled, 480, GHEIGHT);
 
 	sprintf(filename, "%s", CREDITS_FILE);
 	have_bin_file = 0;

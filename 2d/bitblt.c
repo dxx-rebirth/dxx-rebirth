@@ -1029,7 +1029,7 @@ void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 
 // rescalling bitmaps, 10/14/99 Jan Bobrowski jb@wizard.ae.krakow.pl
 
-inline void scale_line(sbyte *in, sbyte *out, int ilen, int olen)
+inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen)
 {
 	int a = olen/ilen, b = olen%ilen;
 	int c = 0, i;
@@ -1051,8 +1051,8 @@ inside:
 
 void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst)
 {
-	sbyte *s = src->bm_data;
-	sbyte *d = dst->bm_data;
+	unsigned char *s = src->bm_data;
+	unsigned char *d = dst->bm_data;
 	int h = src->bm_h;
 	int a = dst->bm_h/h, b = dst->bm_h%h;
 	int c = 0, i, y;
@@ -1078,7 +1078,9 @@ void show_fullscr(grs_bitmap *bm)
 	grs_bitmap * const scr = &grd_curcanv->cv_bitmap;
 
 #ifdef OGL
-	if(bm->bm_type == BM_LINEAR && scr->bm_type == BM_OGL) {
+	if(bm->bm_type == BM_LINEAR && scr->bm_type == BM_OGL && 
+		bm->bm_w <= grd_curscreen->sc_w && bm->bm_h <= grd_curscreen->sc_h) // only scale with OGL if bitmap is not bigger than screen size
+	{
 		ogl_ubitblt_i(scr->bm_w,scr->bm_h,0,0,bm->bm_w,bm->bm_h,0,0,bm,scr,0);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}

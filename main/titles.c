@@ -978,29 +978,6 @@ int show_briefing_text(int screen_num)
 	return show_briefing_message(screen_num, message_ptr);
 }
 
-#ifdef OGL
-// ZICO - this function will load the bitmap frame for spinning robots in the offscreen buffer.
-//        this way we can be sure the frame is shown when offscreen render is called in draw_model_picture().
-//        some GPU configurations seem (dunno why) to mess it up otherwise...
-void ogl_init_robot_frame()
-{
-	CFILE * file = NULL;
-	int pcx_error;
-	grs_bitmap backdrop;
-
-	backdrop.bm_data=NULL;
-	pcx_error = pcx_read_bitmap(Briefing_screens_LH[2].bs_name,&backdrop, BM_LINEAR,New_pal);
-	if (pcx_error != PCX_ERROR_NONE)		{
-		cfclose(file);
-		return;
-	}
-	ogl_start_offscreen_render(0, 0, SWIDTH, SHEIGHT);
-	show_fullscr(&backdrop);
-	ogl_end_offscreen_render();
-	gr_free_bitmap_data(&backdrop);
-}
-#endif
-
 //	-----------------------------------------------------------------------------
 //	Return true if screen got aborted by user, else return false.
 int show_briefing_screen( int screen_num, int allow_keys)
@@ -1027,9 +1004,6 @@ int show_briefing_screen( int screen_num, int allow_keys)
 // 	
 #ifdef OGL
 	gr_palette_load(New_pal);
-	
-	if (screen_num == 2)
-		ogl_init_robot_frame();
 #else
 	gr_palette_clear();
 #endif
@@ -1203,4 +1177,3 @@ void do_end_game(void)
 #endif
 
 }
-
