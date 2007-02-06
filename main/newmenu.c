@@ -1694,7 +1694,7 @@ ReadFileNames:
 						// also delete PLX file
 						sprintf(plxfile,"%.8s.plx",Players[Player_num].callsign);
 						if (cfexist(plxfile))
-							unlink(plxfile);
+							remove(plxfile);
 					}
 
 					if (ret) {

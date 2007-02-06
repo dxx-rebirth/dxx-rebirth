@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070206
 --------
 main/inferno.c, main/menu.c, main/newdemo.c: fixed -demo and -autodemo switches to work with DEMO_DIR
+main/newmenu.c: use remove instead of unlink to delete plx-file safely
 
 20070202
 --------
