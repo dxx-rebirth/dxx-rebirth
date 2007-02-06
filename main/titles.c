@@ -1337,28 +1337,6 @@ void DoBriefingColorStuff ()
 	Erase_color = gr_find_closest_color_current(0, 0, 0);
 }
 
-#ifdef OGL
-// ZICO - this function will load the bitmap frame for spinning robots in the offscreen buffer.
-//        this way we can be sure the frame is shown when offscreen render is called in draw_model_picture().
-//        some GPU configurations seem (dunno why) to mess it up otherwise...
-void ogl_init_robot_frame()
-{
-	CFILE * file;
-	int pcx_error;
-	grs_bitmap backdrop;
-
-	backdrop.bm_data=NULL;
-	pcx_error = pcx_read_bitmap("brief03.pcx",&backdrop, BM_LINEAR,New_pal);
-	if (pcx_error != PCX_ERROR_NONE)		{
-		cfclose(file);
-		return;
-	}
-	ogl_start_offscreen_render(0, 0, SWIDTH, SHEIGHT);
-	show_fullscr(&backdrop);
-	ogl_end_offscreen_render();
-}
-#endif
-
 //-----------------------------------------------------------------------------
 // Return true if screen got aborted by user, else return false.
 int show_briefing_screen( int screen_num, int allow_keys)
@@ -1379,10 +1357,11 @@ int show_briefing_screen( int screen_num, int allow_keys)
 		grs_bitmap briefing_bm;
 
 		gr_init_bitmap_data(&briefing_bm);
-		if ((pcx_error=pcx_read_bitmap(Briefing_screens[screen_num].bs_name, &briefing_bm, BM_LINEAR, New_pal))!=PCX_ERROR_NONE) {
+		if ((pcx_error=pcx_read_bitmap(Briefing_screens[screen_num].bs_name, &briefing_bm, BM_LINEAR, New_pal))!=PCX_ERROR_NONE)
 #else
-		if ((pcx_error=pcx_read_fullscr(Briefing_screens[screen_num].bs_name, New_pal))!=PCX_ERROR_NONE) {
+		if ((pcx_error=pcx_read_fullscr(Briefing_screens[screen_num].bs_name, New_pal))!=PCX_ERROR_NONE)
 #endif
+		{
 			printf("PCX load error: %s.  File '%s'\n\n", pcx_errormsg(pcx_error), Briefing_screens[screen_num].bs_name);
 			mprintf((0, "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n", Briefing_screens[screen_num].bs_name, pcx_errormsg(pcx_error), pcx_error));
 			Int3();
@@ -1396,9 +1375,6 @@ int show_briefing_screen( int screen_num, int allow_keys)
 		//vfx_set_palette_sub( New_pal );
 #ifdef OGL
 		gr_palette_load(New_pal);
-	
-		if (screen_num>1)
-			ogl_init_robot_frame();
 #else
 		gr_palette_clear();
 #endif

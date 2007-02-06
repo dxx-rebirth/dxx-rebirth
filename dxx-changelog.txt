@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070206
+--------
+2d/bitblt.c, main/automap.c, main/titles.c: force show_fullscreen to software drawing if image is bigger than screen, showing Automap background in low resolutions via software, removed obsolete robot briefing fix in OGL, code cleanup
+
 20070205
 --------
 main/menu.h: make sure Menu_pcx_name gets loaded correctly if resolution is lowres

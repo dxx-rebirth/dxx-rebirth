@@ -748,7 +748,7 @@ void do_automap( int key_code )	{
 		gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
 		gr_set_current_canvas(&Page);
 		if (automap_height<400)
-			gr_clear_canvas( BM_XRGB(3,3,3) );
+			show_fullscr(&Automap_background);
 		else
 			ogl_ubitmapm_cs(0, 0, -1, -1, &Automap_background, -1, F1_0);
 		gr_set_curfont(HUGE_FONT);
