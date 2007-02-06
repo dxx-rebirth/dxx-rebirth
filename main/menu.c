@@ -336,12 +336,8 @@ void do_option ( int select)
 		case MENU_DEMO_PLAY:
 			{ 
 				char demo_file[16];
-				char demo_full[16 + sizeof(DEMO_DIR)];
-				if (newmenu_get_filename( TXT_SELECT_DEMO, DEMO_DIR "*.dem", demo_file, 1 ))	{
-					strcpy(demo_full,DEMO_DIR);
-					strcat(demo_full,demo_file);
-					newdemo_start_playback(demo_full);
-				}
+				if (newmenu_get_filename( TXT_SELECT_DEMO, DEMO_DIR "*.dem", demo_file, 1 ))
+					newdemo_start_playback(demo_file);
 			}
 			break;
 		case MENU_LOAD_GAME:

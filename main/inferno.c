@@ -658,6 +658,7 @@ int main(int argc,char **argv)
 	Game_mode = GM_GAME_OVER;
 
 	if (Auto_demo)	{
+		printf("DEMO: %s\n",start_demo);
 		newdemo_start_playback((start_demo[0] ? start_demo : "descent.dem"));
 		if (Newdemo_state == ND_STATE_PLAYBACK )
 			Function_mode = FMODE_GAME;

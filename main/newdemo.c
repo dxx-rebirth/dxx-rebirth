@@ -2874,16 +2874,21 @@ void newdemo_start_playback(char * filename)
 #endif
         int rnd_demo = 0;
         d_glob_t glob_ret;
-	
+	char * fullname;
+
 	if (filename == NULL) {
 		rnd_demo = 1;
-		if (!d_glob("*.dem", &glob_ret) && glob_ret.gl_pathc) {
-			infile = fopen( glob_ret.gl_pathv[d_rand() % glob_ret.gl_pathc],
+		if (!d_glob(DEMO_DIR "*.dem", &glob_ret) && glob_ret.gl_pathc) {
+			infile = fopen(glob_ret.gl_pathv[d_rand() % glob_ret.gl_pathc],
 			    "rb" );
                         d_globfree(&glob_ret);
                 }
-	} else
-		infile = fopen( filename, "rb" );
+	} else {
+		strcpy(fullname,DEMO_DIR);
+		strcat(fullname,filename);
+		printf("FULLNAME: %s\n",fullname);
+		infile = fopen( fullname, "rb" );
+	}
 
 	if (infile == NULL)	  {
 		mprintf( (0, "Error reading '%s'\n", filename ));

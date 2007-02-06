@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070206
+--------
+main/inferno.c, main/menu.c, main/newdemo.c: fixed -demo and -autodemo switches to work with DEMO_DIR
+
 20070202
 --------
 arch/ogl/ogl.c: let ogl_ubitblt not return alpha channel to ogl_ubitblt_i
