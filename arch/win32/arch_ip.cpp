@@ -20,6 +20,7 @@ extern "C" {
 //static int dynamic_socket=0x402;
 
 static int mysock=-1;
+extern int nm_messagebox(char *title, int nchoices, ...);
 
 //static unsigned char qhbuf[6];
 
@@ -124,12 +125,12 @@ int arch_ip_open_socket(int port){
 
 	if ((mysock = socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP)) < 0) {
 		mysock = -1;
-		FAIL("socket() creation failed on port %d: %m",port);
+		FAIL("socket() creation failed on port %d:\n%m",port);
 	}
 	if (setsockopt(mysock,SOL_SOCKET,SO_BROADCAST,(char*)&val_one,sizeof(val_one))) {
 		if (close(mysock)) msg("close() failed during error recovery: %m");
 		mysock=-1;
-		FAIL("setsockopt(SO_BROADCAST) failed: %m");
+		FAIL("setsockopt(SO_BROADCAST) failed:\n%m");
 	}
 	sin.sin_family=AF_INET;
 	sin.sin_addr.s_addr=htonl(INADDR_ANY);
@@ -138,7 +139,7 @@ int arch_ip_open_socket(int port){
 	if (bind(mysock,(struct sockaddr *)&sin,sizeof(sin))) {
 		if (close(mysock)) msg("close() failed during error recovery: %m");
 		mysock=-1;
-		FAIL("bind() to UDP port %d failed: %m",port);
+		FAIL("bind() to UDP port %d failed:\n%m",port);
 	}
 
 	return 0;

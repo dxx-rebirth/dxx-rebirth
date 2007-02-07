@@ -22,6 +22,7 @@ extern "C" {
 #include "ipclient.h"
 
 static int mysock=-1;
+extern int nm_messagebox(char *title, int nchoices, ...);
 
 /* Do hostname resolve on name "buf" and return the address in buffer "qhbuf".
  */
@@ -115,7 +116,7 @@ int arch_ip_get_my_addr(u_short myport){
 	ip_addr addr;
 
 	if ((sock=socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP))<0)
-		FAIL("Creating socket() failure during broadcast detection: %m");
+		FAIL("Creating socket() failure during broadcast detection:\n%m");
 
 #ifdef SIOCGIFCOUNT
 	if (ioctl(sock,SIOCGIFCOUNT,&cnt))
@@ -127,7 +128,7 @@ int arch_ip_get_my_addr(u_short myport){
 	chk(ifconf.ifc_req=(struct ifreq *)alloca((ifconf.ifc_len=cnt*sizeof(struct ifreq))));
 	if (ioctl(sock,SIOCGIFCONF,&ifconf)||ifconf.ifc_len%sizeof(struct ifreq)) {
 		close(sock);
-		FAIL("ioctl(SIOCGIFCONF) failure during broadcast detection: %m");
+		FAIL("ioctl(SIOCGIFCONF) failure during broadcast detection:\n%m");
 	}
 	cnt=ifconf.ifc_len/sizeof(struct ifreq);
 	//	chk(broads=malloc(cnt*sizeof(*broads)));
@@ -135,14 +136,14 @@ int arch_ip_get_my_addr(u_short myport){
 	for (i=j=0;i<cnt;i++) {
 		if (ioctl(sock,SIOCGIFFLAGS,ifconf.ifc_req+i)) {
 			close(sock);
-			FAIL("ioctl(udp,\"%s\",SIOCGIFFLAGS) error: %m",ifconf.ifc_req[i].ifr_name);
+			FAIL("ioctl(udp,\"%s\",SIOCGIFFLAGS) error:\n%m",ifconf.ifc_req[i].ifr_name);
 		}
 		if (((ifconf.ifc_req[i].ifr_flags&IF_REQFLAGS)!=IF_REQFLAGS)||
 				(ifconf.ifc_req[i].ifr_flags&IF_NOTFLAGS))
 			continue;
 		if (ioctl(sock,SIOCGIFDSTADDR,ifconf.ifc_req+i)) {
 			close(sock);
-			FAIL("ioctl(udp,\"%s\",SIOCGIFDSTADDR) error: %m",ifconf.ifc_req[i].ifr_name);
+			FAIL("ioctl(udp,\"%s\",SIOCGIFDSTADDR) error:\n%m",ifconf.ifc_req[i].ifr_name);
 		}
 
 		sinp=(struct sockaddr_in *)&ifconf.ifc_req[i].ifr_netmask  ;
@@ -172,12 +173,12 @@ int arch_ip_open_socket(int port){
 	int val_one=1;
 	if ((mysock = socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP)) < 0) {
 		mysock = -1;
-		FAIL("socket() creation failed on port %d: %m",port);
+		FAIL("socket() creation failed on port %d:\n%m",port);
 	}
 	if (setsockopt(mysock,SOL_SOCKET,SO_BROADCAST,&val_one,sizeof(val_one))) {
 		if (close(mysock)) msg("close() failed during error recovery: %m");
 		mysock=-1;
-		FAIL("setsockopt(SO_BROADCAST) failed: %m");
+		FAIL("setsockopt(SO_BROADCAST) failed:\n%m");
 	}
 	sin.sin_family=AF_INET;
 	sin.sin_addr.s_addr=htonl(INADDR_ANY);
@@ -186,7 +187,7 @@ int arch_ip_open_socket(int port){
 	if (bind(mysock,(struct sockaddr *)&sin,sizeof(sin))) {
 		if (close(mysock)) msg("close() failed during error recovery: %m");
 		mysock=-1;
-		FAIL("bind() to UDP port %d failed: %m",port);
+		FAIL("bind() to UDP port %d failed:\n%m",port);
 	}
 
 	return 0;
