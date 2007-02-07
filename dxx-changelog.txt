@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070207
 --------
 main/game.c: expanded help menu and fixed d1x help
+iff/iff.c: amd64 fixes
 
 20070206
 --------
