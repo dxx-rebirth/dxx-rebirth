@@ -122,6 +122,9 @@ extern void write_player_file();
 #define	SHOW_EXIT_PATH	1
 #define FINAL_CHEATS 1
 
+#define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
+#define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL)
+
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -2229,6 +2232,40 @@ int ostate_s=0;
 extern int digi_volume;
 #endif
 
+void HandleDeathKey(int key)
+{
+	if (Player_exploded && !key_isfunc(key) && !key_ismod(key))
+		Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
+
+	if (key==KEY_PRINT_SCREEN) {
+//		save_screen_shot(0);
+		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
+	}
+
+	if (key == KEY_PAUSE)   {
+//		key = do_game_pause();		//so esc from pause will end level
+		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
+	}
+
+	if (key == KEY_ESC) {
+		if (ConsoleObject->flags & OF_EXPLODING)
+			Death_sequence_aborted = 1;
+	}
+
+	if (key == KEY_BACKSP)  {
+		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
+		Int3();
+	}
+
+	//don't abort death sequence for netgame join/refuse keys
+	if (	(key == KEY_ALTED + KEY_1) ||
+			(key == KEY_ALTED + KEY_2))
+		Death_sequence_aborted  = 0;
+
+	if (Death_sequence_aborted)
+		game_flush_inputs();
+}
+
 void ReadControls()
 {
 	int key;
@@ -2379,46 +2416,34 @@ void ReadControls()
 			}
                 }
 
-		if (Player_exploded) {
-			if (exploding_flag==0)	{
-				exploding_flag = 1; // When player starts exploding, clear all input devices...
-				game_flush_inputs();
-			} else if (key_down_count(KEY_PRINT_SCREEN))
-				save_screen_shot(0);
-#ifdef NETWORK
-			else if (!multi_sending_message && !multi_defining_message) {
-#else
-                        else {
-#endif
-				int i;
-				if (key_down_count(KEY_BACKSP))
-					Int3();
-				for (i=0; i<4; i++ )
-					if (isJoyRotationKey(i) != 1)
-					{
-						if (joy_get_button_down_cnt(i)>0) Death_sequence_aborted = 1;
-					}
+	if (Player_exploded) {
 
-				for (i=0; i<3; i++ )
-					if (isMouseRotationKey(i) != 1)
-					{
-						if (mouse_button_down_count(i)>0) Death_sequence_aborted = 1;
-					}
-
-				for (i=0; i<256; i++ ) {
-					if (isKeyboardRotationKey(i) != 1)
-					{
-						if (key_down_count(i)>0) Death_sequence_aborted = 1;
-					}
-					if (i == KEY_F1 - 1) // skip F.. keys
-						i = KEY_F12;
-				}
-				if (Death_sequence_aborted)
-					game_flush_inputs();
-			}
+		if (exploding_flag==0)  {
+			exploding_flag = 1;			// When player starts exploding, clear all input devices...
+			game_flush_inputs();
 		} else {
-			exploding_flag=0;
+			int i;
+
+			for (i=0; i<4; i++ )
+				if (isJoyRotationKey(i) != 1)
+				{
+					if (joy_get_button_down_cnt(i)>0) Death_sequence_aborted = 1;
+				}
+
+			for (i = 0; i < 3; i++)
+				// the following "if" added by WraithX, 4/17/00
+				if (isMouseRotationKey(i) != 1)
+				{
+					if (mouse_button_down_count(i) > 0)
+						Death_sequence_aborted = 1;
+				}// end "if" added by WraithX
+
+			if (Death_sequence_aborted)
+				game_flush_inputs();
 		}
+	} else {
+		exploding_flag=0;
+	}
 
 		if (Newdemo_state == ND_STATE_PLAYBACK )	{
 			if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_RIGHT])
@@ -2440,7 +2465,7 @@ void ReadControls()
 			#ifdef NETWORK
 			if ( (Game_mode&GM_MULTI) && (multi_sending_message || multi_defining_message ))	{
 				multi_message_input_sub( key );
-				key = 0;		// Wipe out key!
+				continue;		//get next key
 			}
 			#endif
 
@@ -2702,35 +2727,8 @@ void ReadControls()
 
 			john_cheat_func_4(key);
 
-			if (Player_is_dead) {
-				if (Player_exploded)
-					Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
-			
-				if (key==KEY_PRINT_SCREEN || key == KEY_PAUSE) {
-					Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-				}
-			
-				if (key == KEY_ESC) {
-					if (ConsoleObject->flags & OF_EXPLODING)
-						Death_sequence_aborted = 1;
-				}
-			
-				if (key == KEY_BACKSP)  {
-					Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-					Int3();
-				}
-
-				//don't abort death sequence for netgame join/refuse keys
-				if (	(key == KEY_ALTED + KEY_1) ||
-						(key == KEY_ALTED + KEY_2))
-					Death_sequence_aborted  = 0;
-
-				if (key < KEY_F1 || key > KEY_F12)
-					break;
-			
-				if (Death_sequence_aborted)
-					game_flush_inputs();
-			}
+			if (Player_is_dead)
+				HandleDeathKey(key);
 
 			if (Newdemo_state == ND_STATE_PLAYBACK )	{
 				switch (key) {

@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/game.c: expanded help menu and fixed d1x help
 iff/iff.c: amd64 fixes, code cleanup
 arch/linux/arch_ip.cpp, arch/linux/ipx_udp.c, arch/win32/arch_ip.cpp, main/ipclient.h: on-screen network error messages
+main/game.c: introducing HandleDeathKey - allows sending multi messages and options menu while dead
 
 20070206
 --------
