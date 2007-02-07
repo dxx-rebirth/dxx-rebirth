@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070207
+--------
+main/game.c: expanded help menu and fixed d1x help
+
 20070206
 --------
 main/inferno.c, main/menu.c, main/newdemo.c: fixed -demo and -autodemo switches to work with DEMO_DIR

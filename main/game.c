@@ -1505,11 +1505,16 @@ void show_d1x_help()
 {
      newmenu_item m[14];
 
-     m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "SHIFT-F3                Toggle Radar";
-     m[ 1].type = NM_TYPE_TEXT; m[ 1].text = "SHIFT-F5    (un)Pause demo recording";
-     m[ 2].type = NM_TYPE_TEXT; m[ 2].text = "ALT-F6             Accept new player";
-     m[ 3].type = NM_TYPE_TEXT; m[ 3].text = "CTRL-ALT-`        Start/Stop Logging";
-     m[ 4].type = NM_TYPE_TEXT; m[ 4].text = "CTRL-N              Game-Master Menu";
+     m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "SHIFT-F3\t  Toggle Radar";
+     m[ 1].type = NM_TYPE_TEXT; m[ 1].text = "SHIFT-F5\t  (un)Pause demo recording";
+     m[ 2].type = NM_TYPE_TEXT; m[ 2].text = "CTRL-ALT-`\t  Start/Stop Hud-Logging";
+     m[ 3].type = NM_TYPE_TEXT; m[ 3].text = "";
+     m[ 4].type = NM_TYPE_TEXT; m[ 4].text = "Multiplayer:";
+     m[ 5].type = NM_TYPE_TEXT; m[ 5].text = "F8\t  Send message";
+     m[ 6].type = NM_TYPE_TEXT; m[ 6].text = "ALT-F6\t  Accept new player";
+     m[ 7].type = NM_TYPE_TEXT; m[ 7].text = "CTRL-N\t  Game-Master Menu";
+
+     newmenu_do( NULL, TXT_KEYS, 8, m, NULL );
 }
 
 //put up the help message
@@ -1830,7 +1835,7 @@ int do_game_pause(int allow_menu)
 
 void show_help()
 {
-	newmenu_item m[13];
+	newmenu_item m[14];
 
 	if ( VR_render_mode != VR_NONE )	{
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_HELP_ESC;
@@ -1858,9 +1863,10 @@ void show_help()
 		m[ 8].type = NM_TYPE_TEXT; m[ 8].text = TXT_HELP_PRTSCN;
 		m[ 9].type = NM_TYPE_TEXT; m[ 9].text = TXT_HELP_1TO5;
 		m[10].type = NM_TYPE_TEXT; m[10].text = TXT_HELP_6TO10;
-		m[11].type = NM_TYPE_TEXT; m[11].text = "";
-		m[12].type = NM_TYPE_TEXT; m[12].text = TXT_HELP_TO_VIEW;
-		newmenu_do( NULL, TXT_KEYS, 13, m, NULL );
+		m[11].type = NM_TYPE_TEXT; m[11].text = "SHIFT F1\t  SHOW D1X HELP";
+		m[12].type = NM_TYPE_TEXT; m[12].text = "";
+		m[13].type = NM_TYPE_TEXT; m[13].text = TXT_HELP_TO_VIEW;
+		newmenu_do( NULL, TXT_KEYS, 14, m, NULL );
 	}
 
 }
