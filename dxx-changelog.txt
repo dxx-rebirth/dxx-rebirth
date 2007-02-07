@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070207
 --------
 main/movie.c: close EXTRA_ROBOT_LIB correctly
+iff/iff.c: amd64 fixes
 
 20070206
 --------

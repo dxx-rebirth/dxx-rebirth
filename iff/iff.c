@@ -86,7 +86,7 @@ typedef struct fake_file {
 	int length;
 } FFILE;
 
-#define MAKE_SIG(a,b,c,d) (((long)(a)<<24)+((long)(b)<<16)+((c)<<8)+(d))
+#define MAKE_SIG(a,b,c,d) (((int32_t)(a)<<24)+((int32_t)(b)<<16)+((c)<<8)+(d))
 
 #define form_sig MAKE_SIG('F','O','R','M')
 #define ilbm_sig MAKE_SIG('I','L','B','M')
@@ -100,7 +100,7 @@ typedef struct fake_file {
 #define dlta_sig MAKE_SIG('D','L','T','A')
 
 #ifndef NDEBUG
-//void printsig(long s)
+//void printsig(int32_t s)
 //{
 //	char *t=(char *) &s;
 //
@@ -109,7 +109,7 @@ typedef struct fake_file {
 //}
 #endif
 
-long get_sig(FFILE *f)
+int32_t get_sig(FFILE *f)
 {
 	char s[4];
 
@@ -138,10 +138,10 @@ long get_sig(FFILE *f)
 	s[3] = f->data[f->position++];
 #endif
 
-	return(*((long *) s));
+	return(*((int32_t *) s));
 }
 
-int put_sig(long sig,FILE *f)
+int put_sig(int32_t sig,FILE *f)
 {
 	char *s = (char *) &sig;
 
