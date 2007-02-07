@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/movie.c: close EXTRA_ROBOT_LIB correctly
 iff/iff.c: amd64 fixes
+arch/linux/ipx_udp.c, arch/win32/ipx_udp.c: on-screen network error messages
 
 20070206
 --------

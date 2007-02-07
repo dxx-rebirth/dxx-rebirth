@@ -87,6 +87,7 @@
 #include "args.h"
 
 extern unsigned char ipx_MyAddress[10];
+extern int nm_messagebox(char *title, int nchoices, ...);
 
 // #define UDPDEBUG
 
@@ -161,7 +162,7 @@ static void chk(void *p)
 #ifdef _MSC_VER
 #define FAIL Warning
 #else
-#define FAIL(m...) do { msg(m); return -1; } while (0)
+#define FAIL(m...) do{ nm_messagebox("Error", 1, "Ok", ##m); return -1; } while (0)
 #endif
 
 /* Find as much as MAX_BRDINTERFACES during local iface autoconfiguration.
@@ -213,7 +214,7 @@ static int addiflist(void)
 
 	free(broads);
 	if ((sock=socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP))<0)
-		FAIL("Creating socket() failure during broadcast detection: %m");
+		FAIL("Creating socket() failure during broadcast detection:\n%m");
 
 #ifdef SIOCGIFCOUNT
 	if (ioctl(sock,SIOCGIFCOUNT,&cnt))
@@ -227,7 +228,7 @@ static int addiflist(void)
 
 	if (wsaioctl(sock, SIO_GET_INTERFACE_LIST, NULL, 0, &ifo[0], cnt * sizeof(INTERFACE_INFO), &br, NULL, NULL)) != 0) {
 		closesocket(sock);
-		FAIL("ioctl(SIOCGIFCONF) failure during broadcast detection: %m");
+		FAIL("ioctl(SIOCGIFCONF) failure during broadcast detection:\n%m");
 		}
 #if 0
 	cnt=ifconf.ifc_len/sizeof(struct ifreq);
@@ -237,14 +238,14 @@ static int addiflist(void)
 	for (i=j=0;i<cnt;i++) {
 		if (ioctl(sock,SIOCGIFFLAGS,ifconf.ifc_req+i)) {
 			closesocket(sock);
-			FAIL("ioctl(udp,\"%s\",SIOCGIFFLAGS) error: %m",ifconf.ifc_req[i].ifr_name);
+			FAIL("ioctl(udp,\"%s\",SIOCGIFFLAGS) error:\n%m",ifconf.ifc_req[i].ifr_name);
 			}
 		if (((ifconf.ifc_req[i].ifr_flags&IF_REQFLAGS)!=IF_REQFLAGS)||
 				 (ifconf.ifc_req[i].ifr_flags&IF_NOTFLAGS))
 			continue;
 		if (ioctl(sock,(ifconf.ifc_req[i].ifr_flags&IFF_BROADCAST?SIOCGIFBRDADDR:SIOCGIFDSTADDR),ifconf.ifc_req+i)) {
 			closesocket(sock);
-			FAIL("ioctl(udp,\"%s\",SIOCGIF{DST/BRD}ADDR) error: %m",ifconf.ifc_req[i].ifr_name);
+			FAIL("ioctl(udp,\"%s\",SIOCGIF{DST/BRD}ADDR) error:\n%m",ifconf.ifc_req[i].ifr_name);
 			}
 
 		sinp = (struct sockaddr_in *)&ifconf.ifc_req[i].ifr_broadaddr;
@@ -253,7 +254,7 @@ static int addiflist(void)
 #else // portable code
 		if (ioctl(sock, SIOCGIFNETMASK, ifconf.ifc_req+i)) {
 			closesocket(sock);
-			FAIL("ioctl(udp,\"%s\",SIOCGIFNETMASK) error: %m", ifconf.ifc_req[i].ifr_name);
+			FAIL("ioctl(udp,\"%s\",SIOCGIFNETMASK) error:\n%m", ifconf.ifc_req[i].ifr_name);
 		}
 		sinmp = (struct sockaddr_in *)&ifconf.ifc_req[i].ifr_addr;
 #endif
@@ -446,12 +447,12 @@ static int ipx_udp_OpenSocket(ipx_socket_t *sk, int port) {
 
 	if ((sk->fd = socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP)) < 0) {
 		sk->fd = -1;
-		FAIL("socket() creation failed on port %d: %m",port);
+		FAIL("socket() creation failed on port %d:\n%m",port);
 		}
 	if (setsockopt(sk->fd, SOL_SOCKET, SO_BROADCAST, (char *)&val_one, sizeof(val_one))) {
 		if (closesocket(sk->fd)) msg("closesocket() failed during error recovery: %m");
 		sk->fd=-1;
-		FAIL("setsockopt(SO_BROADCAST) failed: %m");
+		FAIL("setsockopt(SO_BROADCAST) failed:\n%m");
 		}
 	sin.sin_family=AF_INET;
 	sin.sin_addr.s_addr=htonl(INADDR_ANY);
@@ -459,7 +460,7 @@ static int ipx_udp_OpenSocket(ipx_socket_t *sk, int port) {
 	if (bind(sk->fd,(struct sockaddr *)&sin,sizeof(sin))) {
 		if (closesocket(sk->fd)) msg("closesocket() failed during error recovery: %m");
 		sk->fd=-1;
-		FAIL("bind() to UDP port %d failed: %m",baseport);
+		FAIL("bind() to UDP port %d failed:\n%m",baseport);
 		}
 
 	open_sockets++;
