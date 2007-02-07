@@ -726,9 +726,14 @@ void init_movies()
 
 void close_extra_robot_movie(void)
 {
+	char filename[FILENAME_LEN];
+
 	if (strlen(movielib_files[EXTRA_ROBOT_LIB]))
-		if (!cfile_close(movielib_files[EXTRA_ROBOT_LIB]))
-			con_printf(CON_URGENT, "Can't close robot movielib: %s\n", PHYSFS_getLastError());
+	{
+		sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], MovieHires?"h":"l");
+		if (!cfile_close(filename))
+			con_printf(CON_URGENT, "Can't close robot movielib <%s>: %s\n", filename, PHYSFS_getLastError());
+	}
 }
 
 void init_extra_robot_movie(char *movielib)
