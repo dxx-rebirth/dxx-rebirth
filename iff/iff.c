@@ -772,7 +772,7 @@ int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 	for (y=0;y<bmheader->h;y++) {
 
-		rowptr = &bmheader->raw_data[y * bytes_per_row * bmheader->nplanes];
+		rowptr = (signed char *) &bmheader->raw_data[y * bytes_per_row * bmheader->nplanes];
 
 		for (x=0,checkmask=0x80;x<bmheader->w;x++) {
 
@@ -794,7 +794,7 @@ int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 	}
 
 	free(bmheader->raw_data);
-	bmheader->raw_data = new_data;
+	bmheader->raw_data = (unsigned char *) new_data;
 
 	bmheader->type = TYPE_PBM;
 
@@ -945,13 +945,10 @@ int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palett
 	FFILE ifile;
 
 	ret = open_fake_file(ifilename,&ifile);		//read in entire file
-	if (ret != IFF_NO_ERROR) goto done;
-
-	gr_init_bitmap_data (bm);
-
-	ret = iff_parse_bitmap(&ifile,bm,bitmap_type,palette,NULL);
-
-done:
+	if (ret == IFF_NO_ERROR) {
+		bm->bm_data = NULL;
+		ret = iff_parse_bitmap(&ifile,bm,bitmap_type,(signed char *) palette,NULL);
+	}
 
 	if (ifile.data) free(ifile.data);
 
@@ -1335,7 +1332,7 @@ int iff_read_animbrush(char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int 
 			bm_list[*n_bitmaps]=(grs_bitmap *)malloc(1*sizeof(grs_bitmap));
                         gr_init_bitmap_data ((grs_bitmap *) &bm_list[*n_bitmaps]);
 
-			ret = iff_parse_bitmap(&ifile,bm_list[*n_bitmaps],form_type,*n_bitmaps>0?NULL:palette,prev_bm);
+			ret = iff_parse_bitmap(&ifile,bm_list[*n_bitmaps],form_type,*n_bitmaps>0?NULL:(signed char *)palette,prev_bm);
 
 			if (ret != IFF_NO_ERROR)
 				goto done;
