@@ -115,6 +115,7 @@ char game_rcsid[] = "$Id: game.c,v 1.1.1.1 2006/03/17 19:55:53 zicodxx Exp $";
 #include "playsave.h"
 #include "fix.h"
 #include "hudmsg.h"
+#include "movie.h"
 
 int VGA_current_mode;
 
@@ -634,6 +635,14 @@ int set_screen_mode(int sm)
 		init_editor_screen();   //setup other editor stuff
 		break;
 	#endif
+	case SCREEN_MOVIE:
+		if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
+			if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
+			gr_palette_load( gr_palette );
+		}
+                gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, MOVIE_WIDTH,MOVIE_HEIGHT );
+		gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, MOVIE_WIDTH,MOVIE_HEIGHT );
+		break;
 	default:
 		Error("Invalid screen mode %d",sm);
 	}

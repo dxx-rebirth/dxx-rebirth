@@ -105,7 +105,6 @@ int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int dy);
 void decode_text_line(char *p);
 void draw_subtitles(int frame_num);
 
-
 // ----------------------------------------------------------------------
 void* MPlayAlloc(unsigned size)
 {
@@ -201,6 +200,7 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 
 	glEnable (GL_BLEND);
 
+	gr_update();
 #else
 	gr_bm_ubitblt(bufw,bufh,dstx,dsty,sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
 #endif
@@ -287,8 +287,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_ioCallbacks(FileRead);
 
 #ifdef OGL
-	gr_set_mode(SM(grd_curscreen->sc_w,grd_curscreen->sc_h));
-	set_screen_mode(SCREEN_MENU);
+// 	gr_set_mode(SM(grd_curscreen->sc_w,grd_curscreen->sc_h));
+	set_screen_mode(SCREEN_MOVIE);
 	gr_copy_palette(pal_save, gr_palette, 768);
 	memset(gr_palette, 0, 768);
 	gr_palette_load(gr_palette);
@@ -363,15 +363,16 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 int InitMovieBriefing()
 {
-#ifndef OGL // 0
-	if (MovieHires)
-		gr_set_mode(SM(640,480));
-	else
-		gr_set_mode(SM(320,200));
-
-	gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-	gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-#endif
+// #ifndef OGL // 0
+// 	if (MovieHires)
+// 		gr_set_mode(SM(640,480));
+// 	else
+// 		gr_set_mode(SM(320,200));
+// 
+// 	gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
+// 	gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
+// #endif
+	set_screen_mode(SCREEN_MOVIE);
 
 	return 1;
 }
