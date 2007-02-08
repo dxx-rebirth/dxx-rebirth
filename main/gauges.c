@@ -672,12 +672,19 @@ void show_homing_warning(void)
 
 void hud_show_homing_warning(void)
 {
+	int offsety=0;
+
 	if (Players[Player_num].homing_object_dist >= 0) {
+
+		if ((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING))
+			offsety = FONTSCALE_Y(GAME_FONT->ft_h+2);
+		else
+			offsety = 0;
 
 		if (GameTime & 0x4000) {
 			gr_set_curfont( GAME_FONT );
 			gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
-			gr_printf(0x8000, grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h+3),TXT_LOCK);
+			gr_printf(0x8000, grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h+2)-offsety,TXT_LOCK);
 		}
 	}
 }
