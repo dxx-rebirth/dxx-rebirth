@@ -1446,9 +1446,9 @@ void hud_show_weapons_mode1(int type,int vertical,int clear,int x,int y){
 				if (Cockpit_mode!=CM_FULL_SCREEN) {
 					sprintf(weapon_str,"V");
 					if (Primary_weapon != 6)
-					gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i(Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+					gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 				} else {
-					sprintf(weapon_str,(Gauge_hud_mode==1?"V%i":"V   %i"), f2i(Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+					sprintf(weapon_str,(Gauge_hud_mode==1?"V%i":"V   %i"), f2i((unsigned int) Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 				}
 				break;
 			  case 2:
@@ -1526,9 +1526,9 @@ void hud_show_weapons_mode2(int type,int vertical,int clear,int x,int y){
 				if (Cockpit_mode!=CM_FULL_SCREEN) {
 					sprintf(weapon_str,"G");
 					if (Primary_weapon != 1)
-					gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i(Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+					gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 				} else {
-					sprintf(weapon_str,"G%i", f2i(Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+					sprintf(weapon_str,"G%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 				}
 				break;
 			  case 7:
@@ -1609,9 +1609,9 @@ void hud_show_weapons(void)
 		gr_get_string_size("V1000", &w, &x1, &aw );
 		gr_get_string_size("0 ", &x2, &x1, &aw);
 		if (Gauge_hud_mode==2){
-			y=grd_curcanv->cv_h-(grd_curcanv->cv_h/3);
-			x1=grd_curcanv->cv_w/2-(w)-FONTSCALE_X(25);
-			x2=grd_curcanv->cv_w/2+x2+FONTSCALE_X(25);
+			y=grd_curcanv->cv_h-(grd_curcanv->cv_h/2.75);
+			x1=grd_curcanv->cv_w/2.1-(w)-FONTSCALE_X(25);
+			x2=grd_curcanv->cv_w/1.9+x2+FONTSCALE_X(20);
 		}else{
 			y=grd_curcanv->cv_h/1.75;
 			x1=grd_curcanv->cv_w/2.1-(FONTSCALE_X(40)+w);
@@ -3525,7 +3525,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 		dx = (win==0)?-(w+(w/10)):(w/10);
 
 		window_x = grd_curscreen->sc_w/2+dx;
-		window_y = grd_curscreen->sc_h-h-(h/10);
+		window_y = grd_curscreen->sc_h-h-FONTSCALE_Y(Current_display_mode?14:7);
 
 		//copy these vars so stereo code can get at them
 		SW_drawn[win]=1; SW_x[win] = window_x; SW_y[win] = window_y; SW_w[win] = w; SW_h[win] = h; 
