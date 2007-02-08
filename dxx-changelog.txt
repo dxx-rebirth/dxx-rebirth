@@ -4,7 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/newdemo.c: fixed demo playback Afterburner gauge and Primary weapon ammo info
 main/game.c, main/game.c, main/movie.c, main/movie.h: since Movies are initiated once in runtime, indroduced SCREEN_MOVIE to set desired movie resolutions seperatly from menu or game resolution
-main/gauges.c: position alignment for alt-hud2 to prevent overlay with extra views
+main/gauges.c: position alignment for alt-hud2 to prevent overlay with extra views; created offset for LOCK message string if demo record or playback
 
 20070207
 --------

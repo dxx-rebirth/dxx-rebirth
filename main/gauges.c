@@ -1206,18 +1206,37 @@ extern int SW_y[2];
 
 void hud_show_homing_warning(void)
 {
+// 	if (Players[Player_num].homing_object_dist >= 0) {
+// 		if (GameTime & 0x4000) {
+// 			int x=0x8000, y=grd_curcanv->cv_h-FONTSCALE_Y(Line_spacing);
+// 
+// 			if (Cockpit_mode == CM_FULL_SCREEN && (weapon_box_user[0] != WBU_WEAPON || weapon_box_user[1] != WBU_WEAPON)) {
+// 				int wy = (weapon_box_user[0] != WBU_WEAPON)?SW_y[0]:SW_y[1];
+// 				y = min(y,(wy - FONTSCALE_Y(Line_spacing) - Game_window_y));
+// 			}
+// 
+// 			gr_set_curfont( GAME_FONT );
+// 			gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
+// 			gr_printf(x,y,TXT_LOCK);
+// 		}
+// 	}
+	int offsety=0;
+
 	if (Players[Player_num].homing_object_dist >= 0) {
-		if (GameTime & 0x4000) {
-			int x=0x8000, y=grd_curcanv->cv_h-FONTSCALE_Y(Line_spacing);
 
 			if (Cockpit_mode == CM_FULL_SCREEN && (weapon_box_user[0] != WBU_WEAPON || weapon_box_user[1] != WBU_WEAPON)) {
-				int wy = (weapon_box_user[0] != WBU_WEAPON)?SW_y[0]:SW_y[1];
-				y = min(y,(wy - FONTSCALE_Y(Line_spacing) - Game_window_y));
+				offsety = grd_curscreen->sc_h/4+FONTSCALE_Y(2);
+			} else {
+				if ((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING))
+					offsety = FONTSCALE_Y(GAME_FONT->ft_h+2);
+				else
+					offsety = 0;
 			}
 
+		if (GameTime & 0x4000) {
 			gr_set_curfont( GAME_FONT );
 			gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
-			gr_printf(x,y,TXT_LOCK);
+			gr_printf(0x8000, grd_curcanv->cv_h-FONTSCALE_Y(GAME_FONT->ft_h+2)-offsety,TXT_LOCK);
 		}
 	}
 }
