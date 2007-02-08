@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070208
+--------
+main/newdemo.c: fixed demo playback Afterburner gauge and Primary weapon ammo info
+
 20070207
 --------
 main/movie.c: close EXTRA_ROBOT_LIB correctly

@@ -1893,48 +1893,50 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_PLAYER_ENERGY: {
-			sbyte energy;
-			sbyte old_energy;
+			ubyte energy;
+			ubyte old_energy;
 
-			nd_read_byte(&old_energy);
-			nd_read_byte(&energy);
+			nd_read_byte((sbyte *)&old_energy);
+			nd_read_byte((sbyte *)&energy);
+
 			if (nd_bad_read) {done = -1; break; }
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[Player_num].energy = i2f(energy);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				if (old_energy != -128)
+				if (old_energy != 255)
 					Players[Player_num].energy = i2f(old_energy);
 			}
 			break;
 		}
 
 		case ND_EVENT_PLAYER_AFTERBURNER: {
-			sbyte afterburner;
-			sbyte old_afterburner;
+			ubyte afterburner;
+			ubyte old_afterburner;
 
-			nd_read_byte(&old_afterburner);
-			nd_read_byte(&afterburner);
+			nd_read_byte((sbyte *)&old_afterburner);
+			nd_read_byte((sbyte *)&afterburner);
 			if (nd_bad_read) {done = -1; break; }
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Afterburner_charge = afterburner<<9;
+// 				if (Afterburner_charge < 0) Afterburner_charge=f1_0;
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				if (old_afterburner != -128)
+				if (old_afterburner != 255)
 					Afterburner_charge = old_afterburner<<9;
 			}
 			break;
 		}
 
 		case ND_EVENT_PLAYER_SHIELD: {
-			sbyte shield;
-			sbyte old_shield;
+			ubyte shield;
+			ubyte old_shield;
 
-			nd_read_byte(&old_shield);
-			nd_read_byte(&shield);
+			nd_read_byte((sbyte *)&old_shield);
+			nd_read_byte((sbyte *)&shield);
 			if (nd_bad_read) {done = -1; break; }
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[Player_num].shields = i2f(shield);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				if (old_shield != -128)
+				if (old_shield != 255)
 					Players[Player_num].shields = i2f(old_shield);
 			}
 			break;
@@ -1982,12 +1984,12 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_PLAYER_WEAPON: {
-			sbyte weapon_type, weapon_num;
-			sbyte old_weapon;
+			ubyte weapon_type, weapon_num;
+			ubyte old_weapon;
 
-			nd_read_byte(&weapon_type);
-			nd_read_byte(&weapon_num);
-			nd_read_byte(&old_weapon);
+			nd_read_byte((sbyte *)&weapon_type);
+			nd_read_byte((sbyte *)&weapon_num);
+			nd_read_byte((sbyte *)&old_weapon);
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				if (weapon_type == 0)
 					Primary_weapon = (int)weapon_num;
@@ -2263,15 +2265,19 @@ int newdemo_read_frame_information()
 
 
 		case ND_EVENT_PRIMARY_AMMO: {
-			short old_ammo, new_ammo;
+			unsigned short old_ammo, new_ammo;
 
-			nd_read_short(&old_ammo);
-			nd_read_short(&new_ammo);
+			nd_read_short((short *)&old_ammo);
+			nd_read_short((short *)&new_ammo);
 
+			// NOTE: Used (Primary_weapon==GAUSS_INDEX?VULCAN_INDEX:Primary_weapon) because game needs VULCAN_INDEX updated to show Gauss ammo
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[Player_num].primary_ammo[Primary_weapon] = old_ammo;
+				Players[Player_num].primary_ammo[(Primary_weapon==GAUSS_INDEX?VULCAN_INDEX:Primary_weapon)] = old_ammo;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[Player_num].primary_ammo[Primary_weapon] = new_ammo;
+				Players[Player_num].primary_ammo[(Primary_weapon==GAUSS_INDEX?VULCAN_INDEX:Primary_weapon)] = new_ammo;
+
+			if (Primary_weapon == OMEGA_INDEX) // If Omega cannon, we need to update Omega_charge - not stored in primary_ammo
+				Omega_charge = (Players[Player_num].primary_ammo[Primary_weapon]<=0?f1_0:Players[Player_num].primary_ammo[Primary_weapon]);
 			break;
 		}
 
