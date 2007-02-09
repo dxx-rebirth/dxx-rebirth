@@ -247,6 +247,7 @@ void show_commandline_help()
 	printf( "  -gl_transparency   %s\n", "Enable transparency effects");
 	printf( "  -gl_reticle <r>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
 	printf( "  -gl_scissor_ok <r> %s\n", "Set glScissor. 0=off 1=on (default)");
+	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
 	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
 #endif // OGL
 
@@ -290,7 +291,6 @@ void show_commandline_help()
 	printf( "  -gl_texminfilt <f> %s\n", "Set GL_TEXTURE_MIN_FILTER");
 	printf( "  -gl_alttexmerge    %s\n", "Use new texmerge, usually uses less ram (default)");
 	printf( "  -gl_stdtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
-	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
 	printf( "  -gl_16bittextures  %s\n", "Attempt to use 16bit textures");
 #ifdef    OGL_RUNTIME_LOAD
 	printf( "  -gl_library <l>    %s\n", "Use alternate opengl library");

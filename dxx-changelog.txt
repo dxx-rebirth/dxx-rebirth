@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070209
+--------
+d1x.ini, main/inferno.c: added -gl_voodoo to OpenGL command-line switches and INI
+
 20070208
 --------
 main/gauges.c: created offset for LOCK message string if demo record or playback
