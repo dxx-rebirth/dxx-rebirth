@@ -2886,7 +2886,6 @@ void newdemo_start_playback(char * filename)
 	} else {
 		strcpy(fullname,DEMO_DIR);
 		strcat(fullname,filename);
-		printf("FULLNAME: %s\n",fullname);
 		infile = fopen( fullname, "rb" );
 	}
 
