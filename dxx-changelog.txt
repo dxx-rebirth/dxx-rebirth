@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070209
 --------
 d1x.ini, main/inferno.c: added -gl_voodoo to OpenGL command-line switches and INI
+SConstruct: added default lflag path for *NIX build
 
 20070208
 --------
