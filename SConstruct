@@ -332,7 +332,7 @@ else:
 	common_sources += arch_linux_sources
 	ogllibs = ['GL', 'GLU']
 	libs = generic_libs
-	lflags = ''
+	lflags = '-L/usr/X11R6/lib'
 
 # GP2X test env
 if (gp2x == 1):

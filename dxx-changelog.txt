@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 arch/ogl/gr.c, arch/sdl/gr.c, include/gr.h, main/inferno.c: set MENU_SCREEN_MODE at init to set movie according to -menu parameter and also prevent unnecessary screen changes
 d2x.ini, main/inferno.c: added -gl_voodoo to OpenGL command-line switches and INI
+SConstruct: added default lflag path for *NIX build
 
 20070208
 --------
