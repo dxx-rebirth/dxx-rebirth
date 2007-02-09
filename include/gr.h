@@ -195,7 +195,7 @@ typedef struct _grs_screen {    // This is a video screen
 // grd_curscreen to point to it.  grs_curcanv points to this screen's
 // canvas.  Saves the current VGA state and screen mode.
 
-int gr_init(void);
+int gr_init(int mode);
 
 // This function sets up the main screen.  It should be called whenever
 // the video mode changes.

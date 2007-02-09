@@ -449,9 +449,9 @@ int ogl_init_load_library(void)
 }
 #endif
 
-int gr_init()
+int gr_init(int mode)
 {
-	int mode = SM(640,480);
+// 	int mode = SM(640,480);
 	int retcode, t, glt = 0;
 
  	// Only do this function once!

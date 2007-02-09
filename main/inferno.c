@@ -669,8 +669,10 @@ int main(int argc, char *argv[])
 	if (FindArg( "-lowresmovies" ))
 		MovieHires = 0;
 
-	if ((t=gr_init())!=0)				//doesn't do much
+	if ((t=gr_init(0))!=0)				//doesn't do much
 		Error(TXT_CANT_INIT_GFX,t);
+
+	gr_set_mode(MENU_SCREEN_MODE);
 
 	// Load the palette stuff. Returns non-zero if error.
 	con_printf(CON_DEBUG, "Initializing palette system...\n" );

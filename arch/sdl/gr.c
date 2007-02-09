@@ -251,7 +251,7 @@ int gr_toggle_fullscreen(void){
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 
-int gr_init(void)
+int gr_init(int mode)
 {
  	// Only do this function once!
 	if (gr_installed==1)
@@ -273,6 +273,12 @@ int gr_init(void)
 	if (FindArg("-hwsurface"))
 	     sdl_video_flags|=SDL_HWSURFACE;
 	//end addition -MM
+
+	// Set the mode.
+	if ((retcode=gr_set_mode(mode)))
+	{
+		return retcode;
+	}
 
 	grd_curscreen->sc_canvas.cv_color = 0;
 	grd_curscreen->sc_canvas.cv_drawmode = 0;
