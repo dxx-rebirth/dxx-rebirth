@@ -92,6 +92,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define STANDARD_EXPL_DELAY (f1_0/4)
 
+int persistent_debris=0;
+
 //##void collide_fireball_and_wall(object *fireball,fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
 //##	return; 
 //##}
@@ -967,8 +969,9 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 //##	return;
 //##}
 
-void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{	
-	explode_object(debris,0);
+void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
+	if (!PERSISTENT_DEBRIS)
+		explode_object(debris,0);
 	return;
 }
 
@@ -2646,6 +2649,8 @@ void collide_init()	{
 	ENABLE_COLLISION( OBJ_PLAYER, OBJ_CLUTTER )
 
 	ENABLE_COLLISION( OBJ_PLAYER, OBJ_MARKER );
+
+	ENABLE_COLLISION( OBJ_DEBRIS, OBJ_WALL );
 
 }
 

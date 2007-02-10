@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070211
+--------
+d2x.ini, main/collide.c, main/collide.h, main/fireball.c, main/inferno.c, main/object.c: improved debris random stuff, added -persistentdebris feature
+
 20070209
 --------
 arch/ogl/gr.c, arch/sdl/gr.c, include/gr.h, main/inferno.c: set MENU_SCREEN_MODE at init to set movie according to -menu parameter and also prevent unnecessary screen changes

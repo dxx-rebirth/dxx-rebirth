@@ -96,6 +96,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "mission.h"
 #include "movie.h"
 #include "playsave.h"
+#include "collide.h"
 
 // #  include "3dfx_des.h"
 
@@ -214,6 +215,7 @@ void print_commandline_help()
 	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
 	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
 	printf( "  -hud <h>           %s\n", "Set hud mode.  0=normal 1-3=new");
+	printf( "  -persistentdebris  %s\n", "Enable persistent debris");
 #ifdef    GR_SUPPORTS_FULLSCREEN_TOGGLE
 	printf( "  -window            %s\n", "Run the game in a window");
 #endif // GR_SUPPORTS_FULLSCREEN_TOGGLE
@@ -552,6 +554,9 @@ int main(int argc, char *argv[])
 		mouselook=1;
 	else
 		mouselook=0;
+
+	if (FindArg("-persistentdebris"))
+		persistent_debris=1;
 
 	if ( FindArg( "-fps" )) // ZICO - for the indicator
 		framerate_on = 1;

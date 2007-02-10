@@ -333,7 +333,7 @@ object *explode_badass_player(object *objp)
 }
 
 
-#define DEBRIS_LIFE (f1_0 * 2)		//lifespan in seconds
+#define DEBRIS_LIFE (f1_0 * (PERSISTENT_DEBRIS?60:2))		//lifespan in seconds
 
 object *object_create_debris(object *parent, int subobj_num)
 {
@@ -347,7 +347,7 @@ object *object_create_debris(object *parent, int subobj_num)
 				&parent->orient,Polygon_models[parent->rtype.pobj_info.model_num].submodel_rads[subobj_num],
 				CT_DEBRIS,MT_PHYSICS,RT_POLYOBJ);
 
-	if ((objnum < 0 ) && (Highest_object_index >= MAX_OBJECTS-1)) {
+	if ((objnum < 0 ) && (Highest_object_index >= MAX_OBJECTS-1) && !PERSISTENT_DEBRIS) {
 		mprintf((1, "Can't create object in object_create_debris.\n"));
 //		Int3(); // this happens often and is normal :-)
 		return NULL;
@@ -368,16 +368,19 @@ object *object_create_debris(object *parent, int subobj_num)
 
 	po = &Polygon_models[obj->rtype.pobj_info.model_num];
 
-	obj->mtype.phys_info.velocity.x = RAND_MAX/2 - d_rand();
-	obj->mtype.phys_info.velocity.y = RAND_MAX/2 - d_rand();
-	obj->mtype.phys_info.velocity.z = RAND_MAX/2 - d_rand();
+	obj->mtype.phys_info.velocity.x = D_RAND_MAX/2 - d_rand();
+	obj->mtype.phys_info.velocity.y = D_RAND_MAX/2 - d_rand();
+	obj->mtype.phys_info.velocity.z = D_RAND_MAX/2 - d_rand();
 	vm_vec_normalize_quick(&obj->mtype.phys_info.velocity);
-	vm_vec_scale(&obj->mtype.phys_info.velocity,i2f(10 + (30 * d_rand() / RAND_MAX)));
+	vm_vec_scale(&obj->mtype.phys_info.velocity,i2f(10 + (30 * d_rand() / D_RAND_MAX)));
 
 	vm_vec_add2(&obj->mtype.phys_info.velocity,&parent->mtype.phys_info.velocity);
 
 	// -- used to be: Notice, not random! vm_vec_make(&obj->mtype.phys_info.rotvel,10*0x2000/3,10*0x4000/3,10*0x7000/3);
-	vm_vec_make(&obj->mtype.phys_info.rotvel, d_rand() + 0x1000, d_rand()*2 + 0x4000, d_rand()*3 + 0x2000);
+	if (PERSISTENT_DEBRIS)
+		vm_vec_make(&obj->mtype.phys_info.rotvel, (d_rand() + 0x1000)/5, (d_rand()*2 + 0x4000)/5, (d_rand()*3 + 0x2000)/5);
+	else
+		vm_vec_make(&obj->mtype.phys_info.rotvel, d_rand() + 0x1000, d_rand()*2 + 0x4000, d_rand()*3 + 0x2000);
 	vm_vec_zero(&obj->mtype.phys_info.rotthrust);
 
 	obj->lifeleft = 3*DEBRIS_LIFE/4 + fixmul(d_rand(), DEBRIS_LIFE);	//	Some randomness, so they don't all go away at the same time.
