@@ -482,6 +482,8 @@ int Ugly_robot_texture = 0;
 
 #define STANDARD_EXPL_DELAY (f1_0/4)
 
+int persistent_debris=0;
+
 //##void collide_fireball_and_wall(object *fireball,fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
 //##	return; 
 //##}
@@ -994,8 +996,9 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 //##	return;
 //##}
 
-void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{	
-	explode_object(debris,0);
+void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
+	if (!PERSISTENT_DEBRIS)
+		explode_object(debris,0);
 	return;
 }
 
@@ -2161,8 +2164,7 @@ void collide_init()	{
 	ENABLE_COLLISION( OBJ_PLAYER, OBJ_CNTRLCEN )
 	ENABLE_COLLISION( OBJ_ROBOT, OBJ_CNTRLCEN )
 	ENABLE_COLLISION( OBJ_PLAYER, OBJ_CLUTTER )
-	
-
+	ENABLE_COLLISION( OBJ_DEBRIS, OBJ_WALL );
 }
 
 void collide_object_with_wall( object * A, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt )
@@ -2187,6 +2189,3 @@ void collide_object_with_wall( object * A, fix hitspeed, short hitseg, short hit
 		Error( "Unhandled object type hit wall in collide.c\n" );
 	}
 }
-
-
-

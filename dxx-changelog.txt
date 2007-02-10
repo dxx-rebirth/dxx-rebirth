@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070211
+--------
+d1x.ini, main/collide.c, main/collide.h, main/fireball.c, main/inferno.c, main/object.c: improved debris random stuff, added -persistentdebris feature
+
 20070209
 --------
 d1x.ini, main/inferno.c: added -gl_voodoo to OpenGL command-line switches and INI

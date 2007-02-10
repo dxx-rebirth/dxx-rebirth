@@ -135,6 +135,7 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "../texmap/scanline.h" //for select_tmap -MM
 #include "d_delay.h"
 #include "vers_id.h"
+#include "collide.h"
 
 void show_order_form();
 
@@ -235,6 +236,7 @@ void show_commandline_help()
 	printf( "  -hud <h>           %s\n", "Set hud mode.  0=normal 1-3=new");
         printf( "  -hudlines <l>      %s\n", "Number of hud messages to show");
 	printf( "  -hiresfont         %s\n", "use high resolution fonts if available");
+	printf( "  -persistentdebris  %s\n", "Enable persistent debris");
 #ifdef    GR_SUPPORTS_FULLSCREEN_TOGGLE
 	printf( "  -window            %s\n", "Run the game in a window");
 #endif // GR_SUPPORTS_FULLSCREEN_TOGGLE
@@ -461,6 +463,9 @@ int main(int argc,char **argv)
 		mouselook=1;
 	else
 		mouselook=0;
+
+	if (FindArg("-persistentdebris"))
+		persistent_debris=1;
 
 	if ( FindArg( "-fps" ))
 		framerate_on = 1;

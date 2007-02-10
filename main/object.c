@@ -1436,7 +1436,7 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 	Assert(ctype <= CT_CNTRLCEN);
 
-	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects)
+	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)
 		return -1;
 
         if (get_seg_masks(pos,segnum,0,__FILE__,__LINE__).centermask!=0)
