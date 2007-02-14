@@ -15,7 +15,7 @@
 #include "hmp2mid.h"
 #include "cfile.h"
 
-#define MIX_MUSIC_DEBUG 1
+#define MIX_MUSIC_DEBUG 0
 #define MUSIC_FADE_TIME 500 //milliseconds
 #define MUSIC_EXTENSION_ARG "-music_ext"
 
@@ -32,8 +32,8 @@ void convert_hmp(char *filename, char *mid_filename) {
   if (!PHYSFS_exists(mid_filename))
   {
     const char *err;
-    PHYSFS_File *hmp_in;
-    PHYSFS_File *mid_out = PHYSFSX_openWriteBuffered(mid_filename);
+    PHYSFS_file *hmp_in;
+    PHYSFS_file *mid_out = PHYSFSX_openWriteBuffered(mid_filename);
 
     if (!mid_out) {
       fprintf(stderr, "Error could not open: %s for writing: %s\n", mid_filename, PHYSFS_getLastError());

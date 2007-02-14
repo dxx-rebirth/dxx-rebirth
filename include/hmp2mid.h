@@ -27,6 +27,6 @@
 //  void *stream);
 
 /* Returns NULL on success, otherwise a c-string with an error message */
-const char *hmp2mid(/*hmp2mid_read_func_t read_func, */PHYSFS_File *hmp_in, PHYSFS_File* mid_out);
+const char *hmp2mid(/*hmp2mid_read_func_t read_func, */PHYSFS_file *hmp_in, PHYSFS_file* mid_out);
 
 #endif

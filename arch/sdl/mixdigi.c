@@ -32,7 +32,7 @@
 #include "newdemo.h"
 #include "kconfig.h"
 
-#define MIX_DIGI_DEBUG 1
+#define MIX_DIGI_DEBUG 0
 
 #define MIX_OUTPUT_FREQUENCY	44100	// in 2006, we can afford it! 
 #define MIX_OUTPUT_FORMAT	AUDIO_S16

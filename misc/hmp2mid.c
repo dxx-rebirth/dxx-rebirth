@@ -80,7 +80,7 @@ static const char midi_header1[10] = { 'M', 'T', 'h', 'd', 0, 0, 0, 6, 0, 1 };
 static const char midi_header2[21] = { 0, 0xC0, 'M', 'T', 'r', 'k', 0, 0, 0,
   0x0B, 0, 0xFF, 0x51, 0x03, 0x18, 0x80, 0, 0, 0xFF, 0x2F, 0 };
   
-const char *hmp2mid(PHYSFS_File *hmp_in, PHYSFS_File *mid_out)
+const char *hmp2mid(PHYSFS_file *hmp_in, PHYSFS_file *mid_out)
 {
   unsigned char last_com = 0, buf[0x300];
   unsigned int num_tracks, track_length = 0, i, t;

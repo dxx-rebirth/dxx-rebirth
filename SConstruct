@@ -8,10 +8,15 @@ PROGRAM_NAME = 'D2X-Rebirth'
 
 # version number
 D2XMAJOR = 0
-D2XMINOR = 5
-D2XMICRO = 1
+D2XMINOR = 51
 
-VERSION = str(D2XMAJOR) + '.' + str(D2XMINOR) + str(D2XMICRO)
+# optional micro revision: set it to SVN_REVISION if available, zero otherwise.
+D2XMICRO = 0
+
+VERSION = str(D2XMAJOR) + '.' + str(D2XMINOR)
+
+if (D2XMICRO):
+ VERSION += '.' + str(D2XMICRO)
 
 print '\n===== ' + PROGRAM_NAME + ' v' + VERSION + ' =====\n'
 
