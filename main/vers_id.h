@@ -18,9 +18,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define VERSION_NAME	"Registered v1.5 Jan 5, 1996"
 #define VERSION_TYPE	"REGISTERED"
-//edited on 10/04/98 by Matt Mueller to keep version info consistant
+
+// Optional micro versions -- MD 2211 (2007-02-14)
+#ifdef D1XMICRO
+#define D1X_VERSION "v" D1XMAJOR "." D1XMINOR "." D1XMICRO
+#else
 #define D1X_VERSION "v" D1XMAJOR "." D1XMINOR
-//end edit -MM
+#endif
+
 #define DESCENT_VERSION "D1X-Rebirth " D1X_VERSION
 
 //added 4/19/99 Mat Mueller - the atois are a bit ugly, but oh well
