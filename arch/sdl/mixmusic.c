@@ -18,7 +18,7 @@
 #include <errno.h>
 #include "cfile.h"
 
-#define MIX_MUSIC_DEBUG 1
+#define MIX_MUSIC_DEBUG 0
 #define MUSIC_FADE_TIME 500 //milliseconds
 #define MUSIC_EXTENSION_ARG "-music_ext"
 
