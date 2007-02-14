@@ -6,12 +6,15 @@ import os
 
 PROGRAM_NAME = 'D2X-Rebirth'
 
+#SVN_REVISION = os.popen('echo -n `LANG=C svn info | grep ^Revision | cut -d\  -f2`').read()
+
 # version number
 D2XMAJOR = 0
 D2XMINOR = 51
 
 # optional micro revision: set it to SVN_REVISION if available, zero otherwise.
 D2XMICRO = 0
+#D2XMICRO = int(SVN_REVISION)
 
 VERSION = str(D2XMAJOR) + '.' + str(D2XMINOR)
 
