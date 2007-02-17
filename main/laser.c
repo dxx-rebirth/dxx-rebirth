@@ -72,6 +72,7 @@ char laser_rcsid[] = "$Id: laser.c,v 1.1.1.1 2006/03/17 19:55:16 zicodxx Exp $";
 
 int Laser_rapid_fire = 0;
 
+int newhomers = 1;
 
 object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 int Guided_missile_sig[MAX_PLAYERS]={-1,-1,-1,-1,-1,-1,-1,-1};
@@ -1416,46 +1417,15 @@ void Flare_create(object *obj)
 
 #define	HOMING_MISSILE_SCALE	16
 
-#define LIMIT_HOMERS	1
-#define HOMER_MAX_FPS	30
-#define HOMER_MIN_DELAY (1000 / HOMER_MAX_FPS)
-
 //--------------------------------------------------------------------
 //	Set object *objp's orientation to (or towards if I'm ambitious) its velocity.
 void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_vel)
 {
 	vms_vector	new_fvec;
 
-#ifdef LIMIT_HOMERS
-	static time_t   last_time = -1;
-	static int nFrames = 1;
-	time_t this_time, delta_time;
-	fix frame_time;
-	int fps;
-	if (last_time == -1) {
-		last_time = clock ();
-		frame_time = FrameTime;
-	} else {
-		nFrames++;
-		this_time = clock ();
-		delta_time = this_time - last_time;
-		if (delta_time < HOMER_MIN_DELAY) {
-			return;
-		} else {
-			fps = (1000 + delta_time / 2) / delta_time;
-			frame_time = fps ? (f1_0 + fps / 2) / fps : f1_0;
-			//                     frame_time /= nFrames;
-			nFrames = 0;
-			last_time = this_time;
-		}
-	}
-#else
-	fix frame_time = FrameTime;
-#endif
-
 	new_fvec = *norm_vel;
 
-	vm_vec_scale(&new_fvec, frame_time * HOMING_MISSILE_SCALE);
+	vm_vec_scale(&new_fvec, FrameTime * HOMING_MISSILE_SCALE);
 	vm_vec_add2(&new_fvec, &objp->orient.fvec);
 	vm_vec_normalize_quick(&new_fvec);
 
@@ -1463,6 +1433,58 @@ void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_vel)
 //		return;
 
 	vm_vector_2_matrix(&objp->orient, &new_fvec, NULL, NULL);
+}
+
+// *a hack, because weapons must have physics; at least missiles must
+// *that this subroutine would be easy in use, here is used turn radius, and not something else
+// *give here normalized vectors; returns normalized vector too
+void Laser_TurnSpeedLimit(vms_vector* vec_forward, vms_vector* vec_to_target, fix speed, fix turn_radius)
+{
+	fixang allowed_angle;
+	fixang angle_delta;
+	fix temp;
+	fix circle_length;
+	vms_matrix view_mat;
+	vms_matrix rot_mat;
+
+	// get allowed angle
+	circle_length = (fix)(turn_radius * 2 * 3.14159);
+	// get gone distance
+	temp = fixmul(speed, FrameTime);
+	// look, which angle such distance will be on the circle
+	temp = fixdiv(temp, circle_length);
+	// however it will be, but not too much, for this one frame
+
+	allowed_angle = temp <= 0x1000 ? temp : 0x1000; // 0x1000: not more that 90 / 4 degrees
+
+	angle_delta = vm_vec_delta_ang_norm (vec_forward, vec_to_target, NULL);
+
+	if (angle_delta && angle_delta > allowed_angle)
+	{
+		vms_angvec tangles;
+		vms_matrix new_orient;
+
+		// imagine view matrix (which will not have anything common with real view matrix of weapon)
+		// matrix must be such, that we would rotate (home) at right side
+		view_mat.fvec = *vec_forward;
+		vm_vec_crossprod (&view_mat.uvec, vec_forward, vec_to_target);
+		vm_vec_normalize (&view_mat.uvec);
+		vm_vec_crossprod (&view_mat.rvec, &view_mat.uvec, vec_forward);
+		vm_vec_normalize (&view_mat.rvec);
+
+		tangles.p = 0;
+		// turn to the right, as we were arranged above
+		tangles.h = allowed_angle;
+		tangles.b  = 0;
+
+		// copied from 'do_physics_sim_rot ()'
+		vm_angles_2_matrix (&rot_mat, &tangles);
+		vm_matrix_x_matrix (&new_orient, &view_mat, &rot_mat);
+		*vec_forward = new_orient.fvec;
+	}
+	else
+		// time was enough to finish homing turn till the end
+		*vec_forward = *vec_to_target;
 }
 
 //-------------------------------------------------------------------------------------------
@@ -1565,43 +1587,87 @@ void Laser_do_weapon_sequence(object *obj)
 			}
 
 			if (track_goal != -1) {
-				vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
-
-				vm_vec_normalize_quick(&vector_to_object);
-				temp_vec = obj->mtype.phys_info.velocity;
-				speed = vm_vec_normalize_quick(&temp_vec);
-				max_speed = Weapon_info[obj->id].speed[Difficulty_level];
-				if (speed+F1_0 < max_speed) {
-					speed += fixmul(max_speed, FrameTime/2);
-					if (speed > max_speed)
-						speed = max_speed;
-				}
-
-				// -- dot = vm_vec_dot(&temp_vec, &vector_to_object);
-//mprintf((0, " dot=%5.2f ", f2fl(dot)));
-				vm_vec_add2(&temp_vec, &vector_to_object);
-				//	The boss' smart children track better...
-				if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
-					vm_vec_add2(&temp_vec, &vector_to_object);
-				vm_vec_normalize_quick(&temp_vec);
-				obj->mtype.phys_info.velocity = temp_vec;
-				vm_vec_scale(&obj->mtype.phys_info.velocity, speed);
-
-				//	Subtract off life proportional to amount turned.
-				//	For hardest turn, it will lose 2 seconds per second.
+				if (newhomers)
 				{
-					fix	lifelost, absdot;
-				
-					absdot = abs(F1_0 - dot);
-				
-					lifelost = fixmul(absdot*32, FrameTime);
-					obj->lifeleft -= lifelost;
-					// -- mprintf((0, "Missile %3i, dot = %7.3f life lost = %7.3f, life left = %7.3f\n", obj-Objects, f2fl(dot), f2fl(lifelost), f2fl(obj->lifeleft)));
-				}
+					fix turn_radius;
+	
+					turn_radius = 0x0014 * F1_0;
+					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
+			
+					// we need normalized exact vectors here
+					vm_vec_normalize (&vector_to_object);
+					temp_vec = obj->mtype.phys_info.velocity;
+					// gives magnitude
+					speed = vm_vec_normalize (&temp_vec);
+					// homing missile speeds : insane - 0x005a
+					max_speed = Weapon_info[obj->id].speed[Difficulty_level];
+		
+					if (speed + F1_0 < max_speed)
+					{
+						speed += fixmul(max_speed, FrameTime/2);
+						if (speed > max_speed)
+							speed = max_speed;
+					}
+	
+					dot = vm_vec_dot(&temp_vec, &vector_to_object);
+	
+					Laser_TurnSpeedLimit(&temp_vec, &vector_to_object, speed, turn_radius);
+					obj->mtype.phys_info.velocity = temp_vec;
+					// orient it directly by movement vector
+					vm_vector_2_matrix (&obj->orient, &temp_vec, NULL, NULL);
+					// apply speed
+					vm_vec_scale (&temp_vec, speed);
+					obj->mtype.phys_info.velocity = temp_vec;
+	
+	
+					//	Subtract off life proportional to amount turned.
+					//	For hardest turn, it will lose 2 seconds per second.
+					{
+						fix	lifelost, absdot;
+					
+						absdot = abs(F1_0 - dot);
+					
+						lifelost = fixmul(absdot*32, FrameTime);
+					}
+				} else {
+					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 
-				//	Only polygon objects have visible orientation, so only they should turn.
-				if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
-					homing_missile_turn_towards_velocity(obj, &temp_vec);		//	temp_vec is normalized velocity.
+					vm_vec_normalize_quick(&vector_to_object);
+					temp_vec = obj->mtype.phys_info.velocity;
+					speed = vm_vec_normalize_quick(&temp_vec);
+					max_speed = Weapon_info[obj->id].speed[Difficulty_level];
+					if (speed+F1_0 < max_speed) {
+						speed += fixmul(max_speed, FrameTime/2);
+						if (speed > max_speed)
+							speed = max_speed;
+					}
+	
+					// -- dot = vm_vec_dot(&temp_vec, &vector_to_object);
+	//mprintf((0, " dot=%5.2f ", f2fl(dot)));
+					vm_vec_add2(&temp_vec, &vector_to_object);
+					//	The boss' smart children track better...
+					if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
+						vm_vec_add2(&temp_vec, &vector_to_object);
+					vm_vec_normalize_quick(&temp_vec);
+					obj->mtype.phys_info.velocity = temp_vec;
+					vm_vec_scale(&obj->mtype.phys_info.velocity, speed);
+	
+					//	Subtract off life proportional to amount turned.
+					//	For hardest turn, it will lose 2 seconds per second.
+					{
+						fix	lifelost, absdot;
+					
+						absdot = abs(F1_0 - dot);
+					
+						lifelost = fixmul(absdot*32, FrameTime);
+						obj->lifeleft -= lifelost;
+						// -- mprintf((0, "Missile %3i, dot = %7.3f life lost = %7.3f, life left = %7.3f\n", obj-Objects, f2fl(dot), f2fl(lifelost), f2fl(obj->lifeleft)));
+					}
+	
+					//	Only polygon objects have visible orientation, so only they should turn.
+					if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
+						homing_missile_turn_towards_velocity(obj, &temp_vec);		//	temp_vec is normalized velocity.
+				}
 			}
 		}
 

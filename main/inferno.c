@@ -165,6 +165,7 @@ extern int Config_vr_type;
 extern int Config_vr_resolution;
 extern int Config_vr_tracking;
 extern int mouselook;
+extern int newhomers;
 #ifndef RELEASE
 extern int invulnerability;
 #endif
@@ -190,6 +191,7 @@ void print_commandline_help()
 	printf( "  -macdata           %s\n","Read (and, for editor, write) mac data files (swap colors)");
 #endif // defined(EDITOR) || !defined(MACDATA)
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
+	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics independent)");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -NoJoystick        %s\n", "Disables joystick support");
@@ -554,6 +556,9 @@ int main(int argc, char *argv[])
 		mouselook=1;
 	else
 		mouselook=0;
+
+	if (FindArg("-legacyhomers"))
+		newhomers = 0;
 
 	if (FindArg("-persistentdebris"))
 		persistent_debris=1;
