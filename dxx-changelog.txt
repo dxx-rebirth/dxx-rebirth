@@ -1,5 +1,13 @@
 D1X-Rebirth Changelog
 
+20070217
+--------
+d1x.ini, main/inferno.c, main/laser.c: added Alex' patch to add FPS independent and physics homing missiles - also implemented command-line to switch back to legacy homers
+
+20070214
+--------
+Makefile, SConstruct, arch/sdl/mixmusic.c, main/vers_id.h: Turning off sound debug flags; Optional micro versions (see SConstruct); Makefile emulation for SCons
+
 20070211
 --------
 d1x.ini, main/collide.c, main/collide.h, main/fireball.c, main/inferno.c, main/object.c: improved debris random stuff, added -persistentdebris feature

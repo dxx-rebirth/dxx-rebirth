@@ -218,6 +218,7 @@ void show_commandline_help()
 	printf( "  -missiondir <d>    %s\n", "Set alternate mission dir to <d> instead of missions/");
 	printf( "  -hudlog            %s\n", "Start hudlog immediately");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
+	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics independent)");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -NoJoystick        %s\n", "Disables joystick support");
@@ -322,6 +323,7 @@ extern fix fixed_frametime;
 extern int framerate_on;
 extern void vfx_set_palette_sub(ubyte *);
 extern int mouselook;
+extern int newhomers;
 #ifndef RELEASE
 extern int invulnerability;
 #endif
@@ -463,6 +465,9 @@ int main(int argc,char **argv)
 		mouselook=1;
 	else
 		mouselook=0;
+
+	if (FindArg("-legacyhomers"))
+		newhomers = 0;
 
 	if (FindArg("-persistentdebris"))
 		persistent_debris=1;
