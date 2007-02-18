@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070218
+--------
+cfile/cfile.c: added patch by The_Lion to improve file handling with AltHogDir
+
 20070217
 --------
 d1x.ini, main/inferno.c, main/laser.c: added Alex' patch to add FPS independent and physics homing missiles - also implemented command-line to switch back to legacy homers

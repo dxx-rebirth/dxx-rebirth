@@ -263,7 +263,7 @@ void cfile_use_alternate_hogdir( char * path )
 
 extern int descent_critical_error;
 
-FILE * cfile_get_filehandle( char * filename, char * mode, int ext_file )
+FILE * cfile_get_filehandle( char * filename, char * mode )
 {
 	FILE * fp;
 	char temp[128];
@@ -278,12 +278,11 @@ FILE * cfile_get_filehandle( char * filename, char * mode, int ext_file )
 		fclose(fp);
 		fp = NULL;
 	}
+
 	if ( (fp==NULL) && (AltHogdir_initialized) )	{
-		if (ext_file) // This flag should be set when NOT reading from a hog. This way we can read out external files like HiRes briefings/fonts from DESCENT_DATA_PATH or a subdirectory of it.
-			strcpy( temp, DESCENT_DATA_PATH );
-		else
-			strcpy( temp, AltHogDir );
+		strcpy( temp, AltHogDir );
 		strcat( temp, filename );
+
 		descent_critical_error = 0;
 #ifdef __WINDOWS__
 		fp = fopen( temp, mode );
@@ -293,6 +292,23 @@ FILE * cfile_get_filehandle( char * filename, char * mode, int ext_file )
 		if ( fp && descent_critical_error )	{
 			fclose(fp);
 			fp = NULL;
+		}
+
+		// we haven't found the file. let's look in DESCENT_DATA_PATH before giving up
+		if (fp == NULL)
+		{
+			strcpy(temp, DESCENT_DATA_PATH);
+			strcat(temp, filename);
+			descent_critical_error = 0;
+	#ifdef __WINDOWS__
+			fp = fopen( temp, mode );
+	#else
+			fp = ignorecase_fopen( temp, mode );
+	#endif
+			if ( fp && descent_critical_error )     {
+				fclose(fp);
+				fp = NULL;
+			}
 		}
 	}
 	return fp;
@@ -306,7 +322,7 @@ void cfile_init_hogfile(char *fname, hogfile * hog_files, int * nfiles )
 
 	*nfiles = 0;
 
-	fp = cfile_get_filehandle( fname, "rb", 0 );
+	fp = cfile_get_filehandle( fname, "rb" );
 	if ( fp == NULL ) return;
 
 	fread( id, 3, 1, fp );
@@ -348,7 +364,7 @@ FILE * cfile_find_libfile(char * name, int * length)
 	if ( AltHogfile_initialized )	{
 		for (i=0; i<AltNum_hogfiles; i++ )	{
 			if ( !stricmp( AltHogFiles[i].name, name ))	{
-				fp = cfile_get_filehandle( AltHogFilename, "rb", 0 );
+				fp = cfile_get_filehandle( AltHogFilename, "rb" );
 				if ( fp == NULL ) return NULL;
 				fseek( fp,  AltHogFiles[i].offset, SEEK_SET );
 				*length = AltHogFiles[i].length;
@@ -364,7 +380,7 @@ FILE * cfile_find_libfile(char * name, int * length)
 
 	for (i=0; i<Num_hogfiles; i++ )	{
 		if ( !stricmp( HogFiles[i].name, name ))	{
-			fp = cfile_get_filehandle(DESCENT_DATA_PATH "descent.hog", "rb", 0 );
+			fp = cfile_get_filehandle(DESCENT_DATA_PATH "descent.hog", "rb" );
 			if ( fp == NULL ) return NULL;
 			fseek( fp,  HogFiles[i].offset, SEEK_SET );
 			*length = HogFiles[i].length;
@@ -390,7 +406,7 @@ int cfexist( char * filename )
 	int length;
 	FILE *fp;
 
-	fp = cfile_get_filehandle( filename, "rb", 1 );		// Check for non-hog file first...
+	fp = cfile_get_filehandle( filename, "rb" );		// Check for non-hog file first...
 	if ( fp )	{
 		fclose(fp);
 		return 1;
@@ -417,7 +433,7 @@ CFILE * cfopen(char * filename, char * mode )
 		exit(1);
 	}
 
-	fp = cfile_get_filehandle( filename, mode, 1 );		// Check for non-hog file first...
+	fp = cfile_get_filehandle( filename, mode );		// Check for non-hog file first...
 	if ( !fp ) {
 		fp = cfile_find_libfile(filename, &length );
 		if ( !fp )
