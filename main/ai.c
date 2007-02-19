@@ -303,7 +303,7 @@ void make_nearby_robot_snipe(void)
 
 }
 
-int32_t Ai_last_missile_camera;
+int Ai_last_missile_camera;
 
 int Robots_kill_robots_cheat = 0;
 
@@ -1540,6 +1540,10 @@ void do_ai_frame_all(void)
 	set_player_awareness_all();
 
 	if (Ai_last_missile_camera != -1) {
+
+		if (Ai_last_missile_camera < -1) // this value can sometimes go wild
+			Ai_last_missile_camera = 0;
+
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
 		if (((FrameCount & 0x0f) == 0) || (Objects[Ai_last_missile_camera].type != OBJ_WEAPON)) {
 			int i;
