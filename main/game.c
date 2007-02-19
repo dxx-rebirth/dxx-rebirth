@@ -2009,8 +2009,6 @@ int	cheat_robotpause_index;
 DEFINE_CHEAT(frametime)={KEY_F, KEY_R, KEY_A, KEY_M, KEY_E, KEY_T, KEY_I, KEY_M, KEY_E};
 int	gr_renderstats=0;
 DEFINE_CHEAT(renderstats)={KEY_R, KEY_E, KEY_N, KEY_D, KEY_E, KEY_R, KEY_S, KEY_T, KEY_A, KEY_T, KEY_S};
-int	gr_badtexture=0;
-DEFINE_CHEAT(badtexture)={KEY_B, KEY_A, KEY_D, KEY_T, KEY_E, KEY_X, KEY_T, KEY_U, KEY_R, KEY_E};
 int	Cheats_enabled=0;
 
 extern	int Laser_rapid_fire, Ugly_robot_cheat;
@@ -2485,7 +2483,6 @@ void ReadControls()
 #ifdef FINAL_CHEATS
 			IMPLEMENT_CHEAT(frametime,framerate_on = !framerate_on;);
 			IMPLEMENT_CHEAT(renderstats,gr_renderstats = !gr_renderstats;);
-			IMPLEMENT_CHEAT(badtexture,gr_badtexture = !gr_badtexture;);
 		if (Cheats_enabled) {
 			if (!(Game_mode&GM_MULTI) && key == cheat_wowie[cheat_wowie_index]) {
 				if (++cheat_wowie_index == CHEAT_WOWIE_LENGTH) {

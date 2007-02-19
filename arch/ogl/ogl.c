@@ -54,7 +54,6 @@ int GL_TEXTURE_2D_enabled=-1;
 int GL_texclamp_enabled=-1;
 
 extern int gr_renderstats;
-extern int gr_badtexture;
 int ogl_alttexmerge=1;//merge textures by just printing the seperate textures?
 int ogl_rgba_format=4;
 int ogl_intensity4_ok=1;
@@ -84,8 +83,7 @@ extern GLubyte *texbuf;
 
 #define OGL_BINDTEXTURE(a) if(gr_badtexture>0) glBindTexture(GL_TEXTURE_2D, 0);\
 	else if(a!=lastbound) {glBindTexture(GL_TEXTURE_2D, a);lastbound=a;}*/
-#define OGL_BINDTEXTURE(a) if(gr_badtexture>0) glBindTexture(GL_TEXTURE_2D, 0);\
-	else glBindTexture(GL_TEXTURE_2D, a);
+#define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
 
 
 ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
@@ -1410,8 +1408,6 @@ int ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex, int
 	tex->tw=pow2ize(tex->w);tex->th=pow2ize(tex->h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
 //	tex->tw=tex->w;tex->th=tex->h;//feeling lucky?
 	
-	if(gr_badtexture>0) return 1;
-
 	if (tex_format_verify(tex))
 		return 1;
 	
