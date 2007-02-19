@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 arch/sdl/gr.c: SDL compile fix
 main/hud.c: block "You already have"-messages in HudLog output; make 'Press any key ...'- and 'Demo recording' messages not overlap
+main/ai.c: amd64 fix
 
 20070218
 --------

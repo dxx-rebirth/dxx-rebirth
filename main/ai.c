@@ -303,7 +303,7 @@ void make_nearby_robot_snipe(void)
 
 }
 
-int Ai_last_missile_camera;
+int32_t Ai_last_missile_camera;
 
 int Robots_kill_robots_cheat = 0;
 
