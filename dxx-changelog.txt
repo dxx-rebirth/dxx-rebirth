@@ -5,7 +5,8 @@ D1X-Rebirth Changelog
 main/network.c, main/network.h: fixed player restriction at robot-/coop-games - code cleanup
 main/hudlog.c: block "You already have"-messages in HudLog output
 arch/ogl/ogl.c, main/game.c: removed BADTEXTURE cheat
-main/game.c: seperated Controls-reading functions in HandleEndlevelKey, HandleEndlevelKey, FinalCheatsKey, HandleGamekey; improved Game-key handling is Player_is_dead
+main/game.c: seperated Controls-reading functions in HandleEndlevelKey, HandleEndlevelKey, FinalCheatsKey, HandleGamekey; improved Game-key handling if Player_is_dead
+main/inferno.c, main/newdemo.c: fixed memory corruption in Demo-Playback
 
 20070218
 --------

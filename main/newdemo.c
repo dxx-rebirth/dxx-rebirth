@@ -2884,9 +2884,10 @@ void newdemo_start_playback(char * filename)
                         d_globfree(&glob_ret);
                 }
 	} else {
-		strcpy(fullname,DEMO_DIR);
-		strcat(fullname,filename);
+		fullname=malloc(14+sizeof(DEMO_DIR));
+		snprintf(fullname,14+sizeof(DEMO_DIR),"%s%s",DEMO_DIR,filename);
 		infile = fopen( fullname, "rb" );
+		free(fullname);
 	}
 
 	if (infile == NULL)	  {
