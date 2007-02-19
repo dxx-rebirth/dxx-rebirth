@@ -2109,14 +2109,14 @@ void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 {
 #ifndef SHAREWARE
 #ifndef ROCKWELL_CODE
-// 	int i;
-// 	for (i = 0; i < 4; i++)
-// 		if (menus[opt_mode + i].value && last_mode != i) { // mode changed?
-// 			last_mode = i;
-// 			MaxNumNetPlayers = (i > 1) ? // robo-anarchy/cooperative
-// 				4 : 8;
-// 			cur_temp_game->max_numplayers = MaxNumNetPlayers;
-// 		}
+	int i;
+	for (i = 0; i < 4; i++)
+		if (menus[opt_mode + i].value && last_mode != i) { // mode changed?
+			last_mode = i;
+			MaxNumNetPlayers = (i > 1) ? // robo-anarchy/cooperative
+				4 : 8;
+			cur_temp_game->max_numplayers = MaxNumNetPlayers;
+		}
 	if (menus[opt_mode+1].value && !menus[opt_mode+5].value) {
 		menus[opt_mode+5].value = 1;
 		menus[opt_mode+5].redraw = 1;
