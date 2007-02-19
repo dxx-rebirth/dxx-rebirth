@@ -329,7 +329,7 @@ typedef struct frame_info {
 	ubyte				playernum;
 	ubyte				obj_render_type;
 	ubyte				level_num;
-	ubyte				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
+	char				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
 } __pack__ frame_info;
 #endif
 

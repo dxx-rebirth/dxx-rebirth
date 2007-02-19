@@ -11,10 +11,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/network.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:43:36 $
  * 
  * Routines for managing network play.
  * 
@@ -912,7 +908,7 @@ void network_stop_resync(sequence_packet *their)
 	}
 }
 
-sbyte object_buffer[IPX_MAX_DATA_SIZE];
+ubyte object_buffer[IPX_MAX_DATA_SIZE];
 
 void network_send_objects(void)
 {
@@ -1620,7 +1616,7 @@ void network_process_packet(ubyte *data, int length )
 	  case PID_DIRECTDATA:
 		if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) )) { 
 		    mprintf((0,"got DIRECTDATA, len=%i (%i)\n",length,data[1]));
-		    multi_process_bigdata( data+1, length-1);
+		    multi_process_bigdata( (char *)data+1, length-1);
 		}	    
 	    break;
 //end addition -MM
@@ -2113,14 +2109,14 @@ void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 {
 #ifndef SHAREWARE
 #ifndef ROCKWELL_CODE
-	int i;
-	for (i = 0; i < 4; i++)
-		if (menus[opt_mode + i].value && last_mode != i) { // mode changed?
-			last_mode = i;
-			MaxNumNetPlayers = (i > 1) ? // robo-anarchy/cooperative
-				4 : 8;
-			cur_temp_game->max_numplayers = MaxNumNetPlayers;
-		}
+// 	int i;
+// 	for (i = 0; i < 4; i++)
+// 		if (menus[opt_mode + i].value && last_mode != i) { // mode changed?
+// 			last_mode = i;
+// 			MaxNumNetPlayers = (i > 1) ? // robo-anarchy/cooperative
+// 				4 : 8;
+// 			cur_temp_game->max_numplayers = MaxNumNetPlayers;
+// 		}
 	if (menus[opt_mode+1].value && !menus[opt_mode+5].value) {
 		menus[opt_mode+5].value = 1;
 		menus[opt_mode+5].redraw = 1;
@@ -2428,6 +2424,9 @@ menu:
 		temp_game.required_subprotocol = 0;
 #endif
                 *netgame = temp_game;
+
+		if ((netgame->gamemode == 2 || netgame->gamemode == 3) && netgame->max_numplayers > 4) // restrict players in robo-anarchy/cooperative if player hasn't done so far...
+			netgame->max_numplayers = 4;
 	}
 	return i;
 }

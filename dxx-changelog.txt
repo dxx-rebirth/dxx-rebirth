@@ -1,5 +1,8 @@
 D1X-Rebirth Changelog
 
+20070219
+--------
+main/network.c, main/network.h: fixed player restriction at robot-/coop-games - code cleanup
 20070218
 --------
 cfile/cfile.c: added patch by The_Lion to improve file handling with AltHogDir
