@@ -104,27 +104,29 @@ void hud_log_message(char * message){
 	}
 	--recurse_flag;
 
-	time_t t;
-	struct tm *lt;
-	t=time(NULL);
-	lt=localtime(&t);
-//02/06/99 Matthew Mueller - added zero padding to hour
-	printf("%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
-	if (fhudlog)
-		fprintf(fhudlog,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
-	while (*message){
-		if (*message>=0x01 && *message<=0x03){//filter out color codes
+	if (strnicmp ("You already",message,11)) { // block those messages in hudlog output
+		time_t t;
+		struct tm *lt;
+		t=time(NULL);
+		lt=localtime(&t);
+		//02/06/99 Matthew Mueller - added zero padding to hour
+		printf("%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
+		if (fhudlog)
+			fprintf(fhudlog,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
+		while (*message){
+			if (*message>=0x01 && *message<=0x03){//filter out color codes
+				message++;
+				if (!*message)break;
+			}else if (*message>=0x04 && *message<=0x06){//filter out color reset code
+			}else{
+				printf("%c",*message);
+				if (fhudlog)
+					fprintf(fhudlog,"%c",*message);
+			}
 			message++;
-			if (!*message)break;
-		}else if (*message>=0x04 && *message<=0x06){//filter out color reset code
-		}else{
-			printf("%c",*message);
-			if (fhudlog)
-				fprintf(fhudlog,"%c",*message);
 		}
-		message++;
+		printf("\n");
 	}
-	printf("\n");
 	if (fhudlog){
 		fprintf(fhudlog,"\n");
 		//added 05/17/99 Matt Mueller - flush file to make sure it all gets out there

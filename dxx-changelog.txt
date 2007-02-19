@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070219
 --------
 main/network.c, main/network.h: fixed player restriction at robot-/coop-games - code cleanup
+main/hudlog.c: block "You already have"-messages in HudLog output
 
 20070218
 --------
