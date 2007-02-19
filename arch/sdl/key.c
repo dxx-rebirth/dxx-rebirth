@@ -230,7 +230,7 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
+{ "ENTER",   255,    255,    SDLK_RETURN      },//{ "",       255,    255,    -1                 },
 //edited 06/08/99 Matt Mueller - set to correct key_text
 { "PAD",   255,    255,    SDLK_KP_ENTER      },
 //end edit -MM

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070220
+--------
+arch/sdl/key.c: Added ENTER as Game key
+
 20070219
 --------
 arch/sdl/gr.c: SDL compile fix
