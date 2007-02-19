@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070220
+--------
+arch/sdl/key.c: Added ENTER as Game key
+
 20070219
 --------
 main/network.c, main/network.h: fixed player restriction at robot-/coop-games - code cleanup
