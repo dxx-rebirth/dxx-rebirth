@@ -2264,11 +2264,504 @@ void HandleDeathKey(int key)
 		game_flush_inputs();
 }
 
+void HandleEndlevelKey(int key)
+{
+	if (key==KEY_PRINT_SCREEN)
+		save_screen_shot(0);
+
+	if (key == KEY_PAUSE)
+		key = do_game_pause(0);		//so esc from pause will end level
+
+	if (key == KEY_ESC)	{
+		stop_endlevel_sequence();
+		last_drawn_cockpit[0]=-1;
+		last_drawn_cockpit[1]=-1;
+		return;
+	}
+
+	if (key == KEY_BACKSP)
+		Int3();
+}
+
+static fix newdemo_single_frame_time;
+
+void HandleDemoKey(int key)
+{
+	switch (key) {
+
+		case KEY_DEBUGGED + KEY_I:
+			Newdemo_do_interpolate = !Newdemo_do_interpolate;
+			if (Newdemo_do_interpolate)
+				mprintf ((0, "demo playback interpolation now on\n"));
+			else
+				mprintf ((0, "demo playback interpolation now off\n"));
+		break;
+#ifndef NDEBUG
+		case KEY_DEBUGGED + KEY_K: {
+			int how_many, c;
+			char filename[13], num[16];
+			newmenu_item m[6];
+
+			filename[0] = '\0';
+			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "output file name";
+			m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 8; m[1].text = filename;
+			c = newmenu_do( NULL, NULL, 2, m, NULL );
+			if (c == -2)
+				break;
+			strcat(filename, ".dem");
+			num[0] = '\0';
+			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "strip how many bytes";
+			m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 16; m[1].text = num;
+			c = newmenu_do( NULL, NULL, 2, m, NULL );
+			if (c == -2)
+				break;
+			how_many = atoi(num);
+			if (how_many <= 0)
+				break;
+			newdemo_strip_frames(filename, how_many);
+		}
+		break;
+#endif
+
+		case KEY_F3:			toggle_cockpit();	break;
+		case KEY_SHIFTED+KEY_MINUS:
+		case KEY_MINUS:
+		case KEY_ALTED+KEY_F9:
+#ifdef GP2X
+			digi_set_digi_volume( digi_volume-2048 );
+#else
+			shrink_window();
+#endif
+		break;
+		case KEY_SHIFTED+KEY_EQUAL:
+		case KEY_EQUAL:
+		case KEY_ALTED+KEY_F10:
+#ifdef GP2X
+			digi_set_digi_volume( digi_volume+2048 );
+#else
+			grow_window();
+#endif
+		break;
+		case KEY_F2:			Config_menu_flag = 1;	break;
+		case KEY_F7:
+#ifdef NETWORK
+			Show_kill_list = (Show_kill_list+1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
+#endif
+		break;
+		case KEY_BACKSP:
+			Int3();
+		break;
+		case KEY_ESC:
+			Function_mode = FMODE_MENU;
+		break;
+		case KEY_UP:
+			Newdemo_vcr_state = ND_STATE_PLAYBACK;
+		break;
+		case KEY_DOWN:
+			Newdemo_vcr_state = ND_STATE_PAUSED;
+		break;
+		case KEY_LEFT:
+			newdemo_single_frame_time = timer_get_fixed_seconds();
+			Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
+		break;
+		case KEY_RIGHT:
+			newdemo_single_frame_time = timer_get_fixed_seconds();
+			Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
+		break;
+		case KEY_CTRLED + KEY_RIGHT:
+			newdemo_goto_end();
+		break;
+		case KEY_CTRLED + KEY_LEFT:
+			newdemo_goto_beginning();
+		break;
+		case KEY_PAUSE:
+			do_game_pause(0);
+		break;
+		case KEY_PRINT_SCREEN: {
+			int old_state;
+			old_state = Newdemo_vcr_state;
+			Newdemo_vcr_state = ND_STATE_PRINTSCREEN;
+			game_do_render_frame();
+			save_screen_shot(0);
+			Newdemo_vcr_state = old_state;
+		break;
+		}
+	}
+}
+
+#ifndef FINAL_CHEATS
+void FinalCheatsKey(int key);
+{
+	if (Cheats_enabled && !(Game_mode&GM_MULTI))
+		switch (key) {
+			case KEY_ALTED+KEY_1: {
+				int i;
+
+				hud_message(MSGC_GAME_CHEAT, TXT_WOWIE_ZOWIE);
+#ifndef SHAREWARE
+				Players[Player_num].primary_weapon_flags = 0xff;
+				Players[Player_num].secondary_weapon_flags = 0xff;
+#else
+				Players[Player_num].primary_weapon_flags = 0xff ^ (HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
+				Players[Player_num].secondary_weapon_flags = 0xff ^ (HAS_SMART_FLAG | HAS_MEGA_FLAG);
+#endif
+
+				for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
+					Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
+
+				for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
+					Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
+
+				if (Newdemo_state == ND_STATE_RECORDING)
+					newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
+
+				Players[Player_num].energy = MAX_ENERGY;
+				Players[Player_num].laser_level = MAX_LASER_LEVEL;
+				Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
+				update_laser_weapon_info();
+
+				break;
+				}
+
+			case KEY_ALTED+KEY_2:
+				hud_message(MSGC_GAME_CHEAT, TXT_ALL_KEYS);
+				Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
+				break;
+
+			case KEY_ALTED+KEY_3:
+				Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
+				hud_message(MSGC_GAME_CHEAT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
+				Players[Player_num].invulnerable_time = GameTime+i2f(1000);
+				break;
+
+			case KEY_ALTED+KEY_4:
+				Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
+				hud_message(MSGC_GAME_CHEAT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
+				if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
+					ai_do_cloak_stuff();
+					Players[Player_num].cloak_time = GameTime;
+				}
+				break;
+
+			case KEY_ALTED+KEY_5:
+				hud_message(MSGC_GAME_CHEAT, TXT_FULL_SHIELDS);
+				Players[Player_num].shields = MAX_SHIELDS;
+				break;
+
+			case KEY_ALTED+KEY_6: {
+				newmenu_item m;
+				char text[10]="";
+				int new_level_num;
+				int item;
+				m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
+				item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, NULL );
+				if (item != -1) {
+					new_level_num = atoi(m.text);
+					if (new_level_num!=0 && new_level_num>=0 && new_level_num<=LAST_LEVEL)
+						StartNewLevel(new_level_num);
+				}
+				break;
+			}
+		}
+}
+#endif
+
+void HandleGameKey(int key)
+{
+	switch (key) {
+		//================================================================================================
+		//FIRST ARE ALL THE REAL GAME KEYS.  PUT TEST AND DEBUG KEYS LATER.
+
+		case KEY_ESC:
+			if (!Player_is_dead) {
+				Game_aborted=1;
+				Function_mode = FMODE_MENU;
+			}
+			break;
+		case KEY_F1:				do_show_help();         break;
+		case KEY_SHIFTED+KEY_F1:                show_d1x_help();        break;
+		case KEY_F2:				Config_menu_flag = 1;	break;
+		case KEY_F3:				toggle_cockpit();       break;
+		case KEY_SHIFTED+KEY_F3:		if(!(Game_mode & GM_MULTI)||Network_allow_radar||I_am_observer)
+								show_radar = !show_radar; break;
+		case KEY_SHIFTED+KEY_F5:
+					if (Newdemo_state == ND_STATE_RECORDING)
+					{
+						extern int mekh_demo_paused;
+						mekh_demo_paused = !mekh_demo_paused;
+					}
+		case KEY_F4:				palette_save(); joydefs_calibrate(); palette_restore(); break;
+		case KEY_F5:
+				if ( Newdemo_state == ND_STATE_RECORDING )
+					newdemo_stop_recording();
+				else if ( Newdemo_state == ND_STATE_NORMAL )
+					newdemo_start_recording();
+				break;
+		case KEY_F6:
+#ifdef NETWORK
+			Show_reticle_name = (Show_reticle_name+1)%2;
+#endif
+			break;
+		case KEY_F7:
+#ifdef NETWORK
+			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
+#endif
+			break;
+		case KEY_CTRLED + KEY_F7:
+#ifdef NETWORK
+			ping_stats_on = !ping_stats_on;
+#endif
+			break;
+		case KEY_ALTED+KEY_F7:
+			Gauge_hud_mode=(Gauge_hud_mode+1)%GAUGE_HUD_NUMMODES;
+			gauge_update_hud_mode=2;
+			break;
+		case KEY_F8:
+#ifdef NETWORK
+			multi_send_message_start();
+#endif
+			break;
+#ifdef NETWORK
+		case KEY_CTRLED + KEY_N:
+			lamer_do_netgame_menu();
+			break;
+		case KEY_ALTED + KEY_F6:
+			lamer_accept_joining_player();
+			break;
+		case KEY_SHIFTED + KEY_ALTED + KEY_F6:
+			lamer_dump_joining_player();
+			break;
+#endif
+	
+		case KEY_ALTED+KEY_MINUS:
+			cd_playprev();
+			break;
+		case KEY_ALTED+KEY_EQUAL:
+			cd_playnext();
+			break;
+		case KEY_ALTED+KEY_BACKSP:
+			cd_playtoggle();
+			break;
+		case KEY_ALTED+KEY_F8:
+#ifdef NETWORK
+			mekh_hud_recall_msgs();
+#endif
+			break;
+#ifdef NETWORK
+		case KEY_SHIFTED+KEY_F8:
+			mekh_resend_last();
+			break;
+#endif
+		case KEY_F9:
+		case KEY_F10:
+		case KEY_F11:
+		case KEY_F12:
+			#ifdef NETWORK
+			multi_send_macro(key);
+			#endif
+			break;		// send taunt macros
+		case KEY_SHIFTED + KEY_F9:
+		case KEY_SHIFTED + KEY_F10:
+		case KEY_SHIFTED + KEY_F11:
+		case KEY_SHIFTED + KEY_F12:
+			#ifdef NETWORK
+			multi_define_macro(key);
+			#endif
+			break;		// redefine taunt macros
+		case KEY_PAUSE:			do_game_pause(1); 	break;
+		case KEY_CTRLED + KEY_F12:
+		case KEY_PRINT_SCREEN: 		save_screen_shot(0);	break;
+
+		case KEY_SHIFTED+KEY_MINUS:
+		case KEY_MINUS:
+		case KEY_ALTED+KEY_F9:
+#ifdef GP2X
+			digi_set_digi_volume( digi_volume-2048 );
+#else
+			shrink_window();
+#endif
+			break;
+		case KEY_SHIFTED+KEY_EQUAL:
+		case KEY_EQUAL:
+		case KEY_ALTED+KEY_F10:
+#ifdef GP2X
+			digi_set_digi_volume( digi_volume+2048 );
+#else
+			grow_window();
+#endif
+			break;
+		case KEY_CTRLED+KEY_SHIFTED+KEY_PADMULTIPLY:
+		case KEY_ALTED+KEY_CTRLED+KEY_PADMULTIPLY:
+		case KEY_ALTED+KEY_SHIFTED+KEY_PADMULTIPLY:
+				change_res();
+				break;
+		case KEYS_GR_TOGGLE_FULLSCREEN:
+				gr_toggle_fullscreen_game();
+				break;
+		case KEY_CTRLED+KEY_ALTED+KEY_LAPOSTRO:
+			toggle_hud_log();
+			break;
+		case KEY_SHIFTED + KEY_ESC: //quick exit
+#ifdef EDITOR
+			if (! SafetyCheck()) break;
+			close_editor_screen();
+#endif
+			Game_aborted=1;
+			Function_mode=FMODE_EXIT;
+			break;
+#ifdef GP2X
+		case KEY_ALTED + KEY_ESC:
+#endif
+		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
+		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
+
+		//use function keys for window sizing
+
+		//	================================================================================================
+		//ALL KEYS BELOW HERE GO AWAY IN RELEASE VERSION
+
+#ifndef NDEBUG
+#ifndef RELEASE
+		case KEY_DEBUGGED+KEY_0:	show_weapon_status();	break;
+#ifdef SHOW_EXIT_PATH
+		case KEY_DEBUGGED+KEY_1:	create_special_path();	break;
+#endif
+		case KEY_DEBUGGED+KEY_Y:
+			do_controlcen_destroyed_stuff(NULL);
+			break;
+		case KEY_BACKSP:
+		case KEY_CTRLED+KEY_BACKSP:
+		case KEY_SHIFTED+KEY_BACKSP:
+		case KEY_SHIFTED+KEY_ALTED+KEY_BACKSP:
+		case KEY_CTRLED+KEY_ALTED+KEY_BACKSP:
+		case KEY_SHIFTED+KEY_CTRLED+KEY_BACKSP:
+		case KEY_SHIFTED+KEY_CTRLED+KEY_ALTED+KEY_BACKSP:
+				Int3(); break;
+		case KEY_DEBUGGED+KEY_S:
+				digi_reset(); break;
+		case KEY_DEBUGGED+KEY_P:
+			if (Game_suspended & SUSP_ROBOTS)
+				Game_suspended &= ~SUSP_ROBOTS;         //robots move
+			else
+				Game_suspended |= SUSP_ROBOTS;          //robots don't move
+			break;
+		case KEY_DEBUGGED+KEY_K:
+			Players[Player_num].shields = 1;
+			break; // a virtual kill
+		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:
+			Players[Player_num].shields = -1;
+			break; // an actual kill
+		case KEY_DEBUGGED+KEY_X:
+			Players[Player_num].lives++;
+			break; // Extra life cheat key.
+		case KEY_DEBUGGED+KEY_H:
+			Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
+			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
+#ifdef NETWORK
+				if (Game_mode & GM_MULTI)
+					multi_send_cloak();
+#endif
+				ai_do_cloak_stuff();
+				Players[Player_num].cloak_time = GameTime;
+				mprintf((0, "You are cloaked!\n"));
+			} else
+				mprintf((0, "You are DE-cloaked!\n"));
+			break;
+		case KEY_DEBUGGED+KEY_R:
+			Robot_firing_enabled = !Robot_firing_enabled;
+			break;
+
+#ifdef EDITOR //editor-specific functions
+		case KEY_E + KEY_DEBUGGED:
+			network_leave_game();
+			Function_mode = FMODE_EDITOR;
+			break;
+		case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:
+			if (!( Game_mode & GM_MULTI ))
+				move_player_2_segment(Cursegp,Curside);
+			break; //move eye to curseg
+		case KEY_DEBUGGED+KEY_W:
+			draw_world_from_game();
+			break;
+#endif	//#ifdef EDITOR
+		case KEY_DEBUGGED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
+		case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
+#ifndef NDEBUG
+		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
+#endif
+		case KEY_DEBUGGED+KEY_T:
+			*Toggle_var = !*Toggle_var;
+			mprintf((0, "Variable at %08x set to %i\n", Toggle_var, *Toggle_var));
+			break;
+		case KEY_DEBUGGED + KEY_L:
+			if (++Lighting_on >= 2) Lighting_on = 0; break;
+		case KEY_DEBUGGED + KEY_SHIFTED + KEY_L:
+			Beam_brightness=0x38000-Beam_brightness; break;
+		case KEY_PAD5: slew_stop(); break;
+		case KEY_DEBUGGED + KEY_F11: play_test_sound(); break;
+		case KEY_DEBUGGED + KEY_SHIFTED+KEY_F11: advance_sound(); play_test_sound(); break;
+		case KEY_DEBUGGED + KEY_M:
+			Debug_spew = !Debug_spew;
+			if (Debug_spew) {
+				mopen( 0, 8, 1, 78, 16, "Debug Spew");
+				hud_message( MSGC_GAME_FEEDBACK, "Debug Spew: ON" );
+			} else {
+				mclose( 0 );
+				hud_message( MSGC_GAME_FEEDBACK, "Debug Spew: OFF" );
+			}
+			break;
+		case KEY_DEBUGGED + KEY_C:
+			do_cheat_menu();
+			break;
+		case KEY_DEBUGGED + KEY_SHIFTED + KEY_A:
+			do_megawow_powerup(10);
+			break;
+		case KEY_DEBUGGED + KEY_A:	{
+			do_megawow_powerup(200);
+			break;
+		}
+		case KEY_DEBUGGED+KEY_F:
+			framerate_on = !framerate_on;
+			break;
+		case KEY_DEBUGGED+KEY_SPACEBAR: // Toggle physics flying
+			slew_stop();
+			game_flush_inputs();
+			if ( ConsoleObject->control_type != CT_FLYING ) {
+				fly_init(ConsoleObject);
+				Game_suspended &= ~SUSP_ROBOTS;         //robots move
+			} else {
+				slew_init(ConsoleObject);                                              //start player slewing
+				Game_suspended |= SUSP_ROBOTS;          //robots don't move
+			}
+			break;
+		case KEY_DEBUGGED+KEY_COMMA: Render_zoom = fixmul(Render_zoom,62259); break;
+		case KEY_DEBUGGED+KEY_PERIOD: Render_zoom = fixmul(Render_zoom,68985); break;
+		case KEY_DEBUGGED+KEY_P+KEY_SHIFTED: Debug_pause = 1; break;
+#ifndef NDEBUG
+		case KEY_DEBUGGED+KEY_F8: speedtest_init(); Speedtest_count = 1;	break;
+		case KEY_DEBUGGED+KEY_F9: speedtest_init(); Speedtest_count = 10;	break;
+		case KEY_DEBUGGED+KEY_D:
+			if ((Game_double_buffer = !Game_double_buffer)!=0)
+				init_cockpit();
+			break;
+#endif
+#ifdef EDITOR
+		case KEY_DEBUGGED+KEY_Q:
+			stop_time();
+			dump_used_textures_all();
+			start_time();
+			break;
+#endif
+#endif //#ifndef RELEASE
+#endif
+		default: break;
+	}
+}
+
 void ReadControls()
 {
 	int key;
 	fix key_time;
-	static fix newdemo_single_frame_time;
 
 		Player_fired_laser_this_frame=-1;
 
@@ -2701,498 +3194,21 @@ void ReadControls()
 			#endif
 			#endif
 
-			if (Endlevel_sequence) {
-
-	  			if (key==KEY_PRINT_SCREEN)
-					save_screen_shot(0);
-
-				if (key == KEY_PAUSE)
-					key = do_game_pause(0);		//so esc from pause will end level
-
-				if (key == KEY_ESC)	{
-					stop_endlevel_sequence();
-					last_drawn_cockpit[0]=-1;
-					last_drawn_cockpit[1]=-1;
-					return;
-				}
-
-				if (key == KEY_BACKSP)
-					Int3();
-
-				break;		//don't process any other keys
-			}
-
 			john_cheat_func_4(key);
 
 			if (Player_is_dead)
 				HandleDeathKey(key);
 
-			if (Newdemo_state == ND_STATE_PLAYBACK )	{
-				switch (key) {
-
-				case KEY_DEBUGGED + KEY_I:
-					Newdemo_do_interpolate = !Newdemo_do_interpolate;
-					if (Newdemo_do_interpolate)
-						mprintf ((0, "demo playback interpolation now on\n"));
-					else
-						mprintf ((0, "demo playback interpolation now off\n"));
-					break;
-#ifndef NDEBUG
-				case KEY_DEBUGGED + KEY_K: {
-					int how_many, c;
-					char filename[13], num[16];
-					newmenu_item m[6];
-
-					filename[0] = '\0';
-					m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "output file name";
-					m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 8; m[1].text = filename;
-					c = newmenu_do( NULL, NULL, 2, m, NULL );
-					if (c == -2)
-						break;
-					strcat(filename, ".dem");
-					num[0] = '\0';
-					m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "strip how many bytes";
-					m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 16; m[1].text = num;
-					c = newmenu_do( NULL, NULL, 2, m, NULL );
-					if (c == -2)
-						break;
-					how_many = atoi(num);
-					if (how_many <= 0)
-						break;
-					newdemo_strip_frames(filename, how_many);
-				}
-				break;
-#endif
-
-				case KEY_F3:			toggle_cockpit();	break;
- 				case KEY_SHIFTED+KEY_MINUS:
-				case KEY_MINUS:
-				case KEY_ALTED+KEY_F9:
-#ifdef GP2X
-						digi_set_digi_volume( digi_volume-2048 );
-#else
-						shrink_window();
-#endif
-						break;
-				case KEY_SHIFTED+KEY_EQUAL:
-				case KEY_EQUAL:
-				case KEY_ALTED+KEY_F10:
-#ifdef GP2X
-						digi_set_digi_volume( digi_volume+2048 );
-#else
-						grow_window();
-#endif
-						break;
-				case KEY_F2:			Config_menu_flag = 1;	break;
-				case KEY_F7:
-#ifdef NETWORK
-					Show_kill_list = (Show_kill_list+1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
-#endif
-					break;
-				case KEY_BACKSP:
-					Int3();
-					break;
-				case KEY_ESC:
-					Function_mode = FMODE_MENU;
-					break;
-				case KEY_UP:
-					Newdemo_vcr_state = ND_STATE_PLAYBACK;
-					break;
-				case KEY_DOWN:
-					Newdemo_vcr_state = ND_STATE_PAUSED;
-					break;
-				case KEY_LEFT:
-					newdemo_single_frame_time = timer_get_fixed_seconds();
-					Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
-					break;
-				case KEY_RIGHT:
-					newdemo_single_frame_time = timer_get_fixed_seconds();
-					Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
-					break;
-				case KEY_CTRLED + KEY_RIGHT:
-					newdemo_goto_end();
-					break;
-				case KEY_CTRLED + KEY_LEFT:
-					newdemo_goto_beginning();
-					break;
-				case KEY_PAUSE:
-					do_game_pause(0);
-					break;
-	  			case KEY_PRINT_SCREEN: {
-					int old_state;
-
-					old_state = Newdemo_vcr_state;
-					Newdemo_vcr_state = ND_STATE_PRINTSCREEN;
-                                        game_do_render_frame();
-				 	save_screen_shot(0);
-					Newdemo_vcr_state = old_state;
-					break;
-					}
-				}
-				break;
-	  		}
-
-
+			if (Endlevel_sequence)
+				HandleEndlevelKey(key);
+			else if (Newdemo_state == ND_STATE_PLAYBACK )
+				HandleDemoKey(key);
+			else
+			{
 #ifndef FINAL_CHEATS
-			if (Cheats_enabled && !(Game_mode&GM_MULTI))
-				switch (key) {
-					case KEY_ALTED+KEY_1: {
-						int i;
-
-						hud_message(MSGC_GAME_CHEAT, TXT_WOWIE_ZOWIE);
-
-#ifndef SHAREWARE
-							Players[Player_num].primary_weapon_flags = 0xff;
-							Players[Player_num].secondary_weapon_flags = 0xff;
-#else
-							Players[Player_num].primary_weapon_flags = 0xff ^ (HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
-							Players[Player_num].secondary_weapon_flags = 0xff ^ (HAS_SMART_FLAG | HAS_MEGA_FLAG);
+				FinalCheatsKey(key);
 #endif
-
-						for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-							Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
-
-						for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
-							Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
-
-						if (Newdemo_state == ND_STATE_RECORDING)
-							newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
-
-						Players[Player_num].energy = MAX_ENERGY;
-						Players[Player_num].laser_level = MAX_LASER_LEVEL;
-						Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
-						update_laser_weapon_info();
-
-						break;
-					}
-
-					case KEY_ALTED+KEY_2:
-						hud_message(MSGC_GAME_CHEAT, TXT_ALL_KEYS);
-						Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
-						break;
-
-					case KEY_ALTED+KEY_3:
-						Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
-						hud_message(MSGC_GAME_CHEAT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
-						Players[Player_num].invulnerable_time = GameTime+i2f(1000);
-						break;
-
-					case KEY_ALTED+KEY_4:
-						Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
-						hud_message(MSGC_GAME_CHEAT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
-						if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-							ai_do_cloak_stuff();
-							Players[Player_num].cloak_time = GameTime;
-						}
-						break;
-
-					case KEY_ALTED+KEY_5:
-						hud_message(MSGC_GAME_CHEAT, TXT_FULL_SHIELDS);
-						Players[Player_num].shields = MAX_SHIELDS;
-						break;
-
-					case KEY_ALTED+KEY_6: {
-						newmenu_item m;
-						char text[10]="";
-						int new_level_num;
-						int item;
-						m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
-						item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, NULL );
-						if (item != -1) {
-							new_level_num = atoi(m.text);
-							if (new_level_num!=0 && new_level_num>=0 && new_level_num<=LAST_LEVEL)
-								StartNewLevel(new_level_num);
-						}
-						break;
-					}
-				}
-#endif
-
-			switch (key) {
-				//================================================================================================
-				//FIRST ARE ALL THE REAL GAME KEYS.  PUT TEST AND DEBUG KEYS LATER.
-
-				case KEY_ESC:
-					Game_aborted=1;
-					Function_mode = FMODE_MENU;
-					break;
-				case KEY_F1:				do_show_help();         break;
-				case KEY_SHIFTED+KEY_F1:                show_d1x_help();        break;
-				case KEY_F2:				Config_menu_flag = 1;	break;
-				case KEY_F3:				toggle_cockpit();       break;
-				case KEY_SHIFTED+KEY_F3:		if(!(Game_mode & GM_MULTI)||Network_allow_radar||I_am_observer)
-										show_radar = !show_radar; break;
-				case KEY_SHIFTED+KEY_F5:
-							if (Newdemo_state == ND_STATE_RECORDING)
-							{
-								extern int mekh_demo_paused;
-								mekh_demo_paused = !mekh_demo_paused;
-							}
-				case KEY_F4:				palette_save(); joydefs_calibrate(); palette_restore(); break;
-				case KEY_F5:
-						if ( Newdemo_state == ND_STATE_RECORDING )
-							newdemo_stop_recording();
-						else if ( Newdemo_state == ND_STATE_NORMAL )
-							newdemo_start_recording();
-						break;
-				case KEY_F6:
-#ifdef NETWORK
-					Show_reticle_name = (Show_reticle_name+1)%2;
-#endif
-					break;
-				case KEY_F7:
-#ifdef NETWORK
-					Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
-#endif
-					break;
-				case KEY_CTRLED + KEY_F7:
-#ifdef NETWORK
-					ping_stats_on = !ping_stats_on;
-#endif
-break;
-				case KEY_ALTED+KEY_F7:
-					Gauge_hud_mode=(Gauge_hud_mode+1)%GAUGE_HUD_NUMMODES;
-					gauge_update_hud_mode=2;
-					break;
-				case KEY_F8:
-#ifdef NETWORK
-					multi_send_message_start();
-#endif
-					break;
-#ifdef NETWORK
-				case KEY_CTRLED + KEY_N:
-					lamer_do_netgame_menu();
-					break;
-				case KEY_ALTED + KEY_F6:
-					lamer_accept_joining_player();
-					break;
-				case KEY_SHIFTED + KEY_ALTED + KEY_F6:
-					lamer_dump_joining_player();
-					break;
-#endif
-	
-				case KEY_ALTED+KEY_MINUS:
-					cd_playprev();
-					break;
-				case KEY_ALTED+KEY_EQUAL:
-					cd_playnext();
-					break;
-				case KEY_ALTED+KEY_BACKSP:
-					cd_playtoggle();
-					break;
-				case KEY_ALTED+KEY_F8:
-#ifdef NETWORK
-					mekh_hud_recall_msgs();
-#endif
-					break;
-#ifdef NETWORK
-				case KEY_SHIFTED+KEY_F8:
-					mekh_resend_last();
-					break;
-#endif
-				case KEY_F9:
-				case KEY_F10:
-				case KEY_F11:
-				case KEY_F12:
-					#ifdef NETWORK
-					multi_send_macro(key);
-					#endif
-					break;		// send taunt macros
-				case KEY_SHIFTED + KEY_F9:
-				case KEY_SHIFTED + KEY_F10:
-				case KEY_SHIFTED + KEY_F11:
-				case KEY_SHIFTED + KEY_F12:
-					#ifdef NETWORK
-					multi_define_macro(key);
-					#endif
-					break;		// redefine taunt macros
-				case KEY_PAUSE:			do_game_pause(1); 	break;
-				case KEY_CTRLED + KEY_F12:
-				case KEY_PRINT_SCREEN: 		save_screen_shot(0);	break;
-
- 				case KEY_SHIFTED+KEY_MINUS:
-				case KEY_MINUS:
-				case KEY_ALTED+KEY_F9:
-#ifdef GP2X
-						digi_set_digi_volume( digi_volume-2048 );
-#else
-						shrink_window();
-#endif
-						break;
-				case KEY_SHIFTED+KEY_EQUAL:
-				case KEY_EQUAL:
-				case KEY_ALTED+KEY_F10:
-#ifdef GP2X
-						digi_set_digi_volume( digi_volume+2048 );
-#else
-						grow_window();
-#endif
-						break;
-				case KEY_CTRLED+KEY_SHIFTED+KEY_PADMULTIPLY:
-				case KEY_ALTED+KEY_CTRLED+KEY_PADMULTIPLY:
-				case KEY_ALTED+KEY_SHIFTED+KEY_PADMULTIPLY:
-						change_res();
-						break;
-				case KEYS_GR_TOGGLE_FULLSCREEN:
-						gr_toggle_fullscreen_game();
-						break;
-				case KEY_CTRLED+KEY_ALTED+KEY_LAPOSTRO:
-					toggle_hud_log();
-					break;
-				case KEY_SHIFTED + KEY_ESC: //quick exit
-#ifdef EDITOR
-					if (! SafetyCheck()) break;
-					close_editor_screen();
-#endif
-					Game_aborted=1;
-					Function_mode=FMODE_EXIT;
-					break;
-#ifdef GP2X
-				case KEY_ALTED + KEY_ESC:
-#endif
-				case KEY_ALTED+KEY_F2:	state_save_all( 0 );		break;	// 0 means not between levels.
-				case KEY_ALTED+KEY_F3:	state_restore_all(1);		break;
-
-                                //use function keys for window sizing
-
-				//	================================================================================================
-				//ALL KEYS BELOW HERE GO AWAY IN RELEASE VERSION
-
-#ifndef NDEBUG
-#ifndef RELEASE
-				case KEY_DEBUGGED+KEY_0:	show_weapon_status();	break;
-#ifdef SHOW_EXIT_PATH
-				case KEY_DEBUGGED+KEY_1:	create_special_path();	break;
-#endif
-				case KEY_DEBUGGED+KEY_Y:
-					do_controlcen_destroyed_stuff(NULL);
-					break;
-				case KEY_BACKSP:
-				case KEY_CTRLED+KEY_BACKSP:
-                                case KEY_SHIFTED+KEY_BACKSP:
-				case KEY_SHIFTED+KEY_ALTED+KEY_BACKSP:
-				case KEY_CTRLED+KEY_ALTED+KEY_BACKSP:
-				case KEY_SHIFTED+KEY_CTRLED+KEY_BACKSP:
-				case KEY_SHIFTED+KEY_CTRLED+KEY_ALTED+KEY_BACKSP:
- 						Int3(); break;
-				case KEY_DEBUGGED+KEY_S:
-						digi_reset(); break;
-				case KEY_DEBUGGED+KEY_P:
-					if (Game_suspended & SUSP_ROBOTS)
-						Game_suspended &= ~SUSP_ROBOTS;         //robots move
-					else
-						Game_suspended |= SUSP_ROBOTS;          //robots don't move
-					break;
-				case KEY_DEBUGGED+KEY_K:
-					Players[Player_num].shields = 1;
-					break; // a virtual kill
-				case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:
-					Players[Player_num].shields = -1;
-					break; // an actual kill
-				case KEY_DEBUGGED+KEY_X:
-					Players[Player_num].lives++;
-					break; // Extra life cheat key.
-				case KEY_DEBUGGED+KEY_H:
-					Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
-					if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-#ifdef NETWORK
-						if (Game_mode & GM_MULTI)
-							multi_send_cloak();
-#endif
-						ai_do_cloak_stuff();
-						Players[Player_num].cloak_time = GameTime;
-						mprintf((0, "You are cloaked!\n"));
-					} else
-						mprintf((0, "You are DE-cloaked!\n"));
-					break;
-				case KEY_DEBUGGED+KEY_R:
-					Robot_firing_enabled = !Robot_firing_enabled;
-					break;
-
-#ifdef EDITOR //editor-specific functions
-				case KEY_E + KEY_DEBUGGED:
-					network_leave_game();
-					Function_mode = FMODE_EDITOR;
-					break;
-				case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:
-					if (!( Game_mode & GM_MULTI ))
-						move_player_2_segment(Cursegp,Curside);
-					break; //move eye to curseg
-				case KEY_DEBUGGED+KEY_W:
-					draw_world_from_game();
-					break;
-#endif	//#ifdef EDITOR
-				case KEY_DEBUGGED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
-				case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
-#ifndef NDEBUG
-				case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
-#endif
-				case KEY_DEBUGGED+KEY_T:
-					*Toggle_var = !*Toggle_var;
-					mprintf((0, "Variable at %08x set to %i\n", Toggle_var, *Toggle_var));
-					break;
-				case KEY_DEBUGGED + KEY_L:
-					if (++Lighting_on >= 2) Lighting_on = 0; break;
-				case KEY_DEBUGGED + KEY_SHIFTED + KEY_L:
-					Beam_brightness=0x38000-Beam_brightness; break;
-				case KEY_PAD5: slew_stop(); break;
-				case KEY_DEBUGGED + KEY_F11: play_test_sound(); break;
-				case KEY_DEBUGGED + KEY_SHIFTED+KEY_F11: advance_sound(); play_test_sound(); break;
-				case KEY_DEBUGGED + KEY_M:
-					Debug_spew = !Debug_spew;
-					if (Debug_spew) {
-						mopen( 0, 8, 1, 78, 16, "Debug Spew");
-						hud_message( MSGC_GAME_FEEDBACK, "Debug Spew: ON" );
-					} else {
-						mclose( 0 );
-						hud_message( MSGC_GAME_FEEDBACK, "Debug Spew: OFF" );
-					}
-					break;
-				case KEY_DEBUGGED + KEY_C:
-					do_cheat_menu();
-					break;
-				case KEY_DEBUGGED + KEY_SHIFTED + KEY_A:
-					do_megawow_powerup(10);
-					break;
-				case KEY_DEBUGGED + KEY_A:	{
-					do_megawow_powerup(200);
-					break;
-				}
-				case KEY_DEBUGGED+KEY_F:
-					framerate_on = !framerate_on;
-					break;
-				case KEY_DEBUGGED+KEY_SPACEBAR: // Toggle physics flying
-					slew_stop();
-					game_flush_inputs();
-					if ( ConsoleObject->control_type != CT_FLYING ) {
-						fly_init(ConsoleObject);
-						Game_suspended &= ~SUSP_ROBOTS;         //robots move
-					} else {
-						slew_init(ConsoleObject);                                              //start player slewing
-						Game_suspended |= SUSP_ROBOTS;          //robots don't move
-					}
-					break;
-				case KEY_DEBUGGED+KEY_COMMA: Render_zoom = fixmul(Render_zoom,62259); break;
-				case KEY_DEBUGGED+KEY_PERIOD: Render_zoom = fixmul(Render_zoom,68985); break;
-				case KEY_DEBUGGED+KEY_P+KEY_SHIFTED: Debug_pause = 1; break;
-#ifndef NDEBUG
-				case KEY_DEBUGGED+KEY_F8: speedtest_init(); Speedtest_count = 1;	break;
-				case KEY_DEBUGGED+KEY_F9: speedtest_init(); Speedtest_count = 10;	break;
-				case KEY_DEBUGGED+KEY_D:
-					if ((Game_double_buffer = !Game_double_buffer)!=0)
-						init_cockpit();
-					break;
-#endif
-#ifdef EDITOR
-				case KEY_DEBUGGED+KEY_Q:
-					stop_time();
-					dump_used_textures_all();
-					start_time();
-					break;
-#endif
-#endif //#ifndef RELEASE
-#endif
-				default: break;
+				HandleGameKey(key);
 			}
 		}
 }
