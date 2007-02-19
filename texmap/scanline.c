@@ -1009,13 +1009,7 @@ void c_tmap_scanline_per()
 		for (x= fx_xright-fx_xleft+1 ; x > 0; --x ) {
 			c = (uint)pixptr[ ( (v/z)&(64*63) ) + ((u/z)&63) ];
 			if ( c!=TRANSPARENCY_COLOR)
-			{
-				if ((l&(0x7f00)) + c >= 34*256)	//gr_fade_table is only 34*256 bytes
-					Int3();
-				//edited 05/18/99 Matt Mueller - changed from 0xff00 to 0x7f00 to fix glitches
 				*dest = gr_fade_table[ (l&(0x7f00)) + c ];
-			//end edit -MM
-			}
 			dest++;
 			l += dldx;
 			u += dudx;

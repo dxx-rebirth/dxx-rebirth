@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070220
 --------
 arch/sdl/key.c: Added ENTER as Game key
+texmap/scanline.c: removed unreliable gr_fade_table check in c_tmap_scanline_per()
 
 20070219
 --------
