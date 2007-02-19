@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070219
+--------
+arch/sdl/gr.c: SDL compile fix
+
 20070218
 --------
 include/3d.h: use generic 'struct object' instead of including object.h, so gcc4.0 with Xcode doesn't complain about FSCALE being passed to CLIPLINE in 2d/line.c (strange indeed)

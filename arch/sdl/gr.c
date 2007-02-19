@@ -253,6 +253,7 @@ int gr_toggle_fullscreen(void){
 
 int gr_init(int mode)
 {
+	int retcode;
  	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
