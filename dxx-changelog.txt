@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 arch/sdl/key.c: Added ENTER as Game key
 texmap/scanline.c: removed unreliable gr_fade_table check in c_tmap_scanline_per()
+main/game.c: reset GameTime properly if needed
 
 20070219
 --------
