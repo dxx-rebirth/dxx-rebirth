@@ -565,24 +565,13 @@ int gr_ucircle(fix xc1,fix yc1,fix r1){//dunno if this really works, radar doesn
 	int c;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
-//	glPointSize(f2glf(rad));
 	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-//	glBegin(GL_POINTS);
-//	glVertex3f(f2glf(pnt->p3_vec.x),f2glf(pnt->p3_vec.y),-f2glf(pnt->p3_vec.z));
-//	glEnd();
 	glPushMatrix();
-	glmprintf((0,"circle: %f(%i),%f(%i),%f\n",(f2fl(xc1)+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,f2i(xc1),(f2fl(yc1)+grd_curcanv->cv_bitmap.bm_y)/(float)last_height,f2i(yc1),f2fl(r1)));
 	glTranslatef(
-			(f2fl(xc1)+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,
-			1.0-(f2fl(yc1)+grd_curcanv->cv_bitmap.bm_y)/(float)last_height,0);
-	glScalef(f2fl(r1),f2fl(r1),f2fl(r1));
-	if (r1<=i2f(5)){
-		if (!circleh5) circleh5=circle_list_init(5,GL_LINE_LOOP,GL_COMPILE_AND_EXECUTE);
-		else glCallList(circleh5);
-	}else{
-		if (!circleh10) circleh10=circle_list_init(10,GL_LINE_LOOP,GL_COMPILE_AND_EXECUTE);
-		else glCallList(circleh10);
-	}
+	             (f2fl(xc1) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width,
+	             1.0 - (f2fl(yc1) + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height,0);
+	glScalef(f2fl(r1) / last_width, f2fl(r1) / last_height, 1.0);
+	ogl_drawcircle(10 + 2 * (int)(M_PI * f2fl(r1) / 19), GL_LINE_LOOP);
 	glPopMatrix();
 	return 0;
 }

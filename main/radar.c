@@ -117,7 +117,9 @@ void radar_render_frame()
 
 	// Draw a box to get more contrast on the radar
 	gr_setcolor(BM_XRGB(200,200,200));
+#ifdef OGL
 	Gr_scanline_darkening_level = 2*7;
+#endif
 	gr_rect(Hostage_monitor_x,
 		Hostage_monitor_y,
 		Hostage_monitor_x+Hostage_monitor_size,
