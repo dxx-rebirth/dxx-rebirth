@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 arch/sdl/key.c: Added ENTER as Game key
 texmap/scanline.c: removed unreliable gr_fade_table check in c_tmap_scanline_per()
 arch/ogl/ogl.c, main/radar.c: don't show Radar box-fading in SDL; fixed OGL gr_ucircle()
+main/game.c: reset GameTime properly if needed
 
 20070219
 --------
