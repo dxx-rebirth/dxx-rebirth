@@ -519,7 +519,10 @@ void draw_polygon_object(object *obj)
 				if (obj->ctype.ai_info.behavior == AIB_SNIPE)
 					light = 2*light + F1_0;
 			}
-
+#ifdef OGL
+			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 ))
+				Gr_scanline_darkening_level = 1;
+#endif
 			draw_polygon_model(&obj->pos,
 					   &obj->orient,
 					   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
@@ -527,6 +530,9 @@ void draw_polygon_object(object *obj)
 					   light,
 					   engine_glow_value,
 					   alt_textures);
+#ifdef OGL
+			Gr_scanline_darkening_level = GR_FADE_LEVELS;
+#endif
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
