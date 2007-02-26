@@ -26,6 +26,7 @@
 #include "polyobj.h"
 #include "gamefont.h"
 #include "laser.h"
+#include "endlevel.h"
 
 //change to 1 for lots of spew.
 #if 0
@@ -74,7 +75,6 @@ int circleh10=0;
 int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
 int secondary_lh[5]={0,0,0,0,0};
-int bNoDepthTest=0;
 extern int glalpha_effects;
 extern GLubyte *pixels;
 extern GLubyte *texbuf;
@@ -584,11 +584,12 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	int c;
 	r_polyc++;
 	c=grd_curcanv->cv_color;
+
 	OGL_DISABLE(TEXTURE_2D);
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) {
 		glColor3f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c));
-		glDisable(GL_DEPTH_TEST); // ZICO - disable to show lasers correctly
 	}else{
+		glDepthMask(GL_FALSE);
 		glColor4f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
 	}
 	glBegin(GL_TRIANGLE_FAN);
@@ -596,7 +597,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 		glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 	}
 	glEnd();
-	glEnable(GL_DEPTH_TEST); // ZICO - enable it again to stay correct
+	glDepthMask(GL_TRUE);
 	return 0;
 }
 
@@ -639,8 +640,6 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 	}else{
 		mprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
 	}
-	if (!bNoDepthTest)
-		glEnable(GL_DEPTH_TEST); // ZICO - we need this so we do not run into any problems if lasers or sprites show up
 
 	return 0;
 }
@@ -822,9 +821,11 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm,object *
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP);
 
-	glDisable(GL_DEPTH_TEST); // ZICO - disable to prevent sprites get cutted by polygons
+	if (Endlevel_sequence)
+		glDepthFunc(GL_ALWAYS);
 
 	glBegin(GL_QUADS);
+
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
 	if (glalpha_effects && // if -gl_transparency draw following bitmaps
 		(obj->type==OBJ_FIREBALL || // all types of explosions and energy-effects
@@ -837,8 +838,9 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm,object *
 		glColor4f(1.0,1.0,1.0,0.6); // ... with 0.6 alpha
 	else
 		glColor3f(1.0,1.0,1.0);
-	width = fixmul(width,Matrix_scale.x);	
-	height = fixmul(height,Matrix_scale.y);	
+
+	width = fixmul(width,Matrix_scale.x);
+	height = fixmul(height,Matrix_scale.y);
 	for (i=0;i<4;i++){
 		vm_vec_sub(&v1,pos,&View_position);
 		vm_vec_rotate(&pv,&v1,&View_matrix);
@@ -864,11 +866,14 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm,object *
 				pv.y+=-height;
 				break;
 		}
+
+		if (obj->id == 5 && obj->type == 1) // create small z-Offset for missile explodihg effect - prevents ugly wall-clipping
+			pv.z -= F1_0;
+
 		glVertex3f(f2glf(pv.x),f2glf(pv.y),-f2glf(pv.z));
 	}
 	glEnd();
-	if (!bNoDepthTest) // ZICO - need this for escape seq
-		glEnable(GL_DEPTH_TEST);
+
 	return 0;
 }
 bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c)
@@ -1167,7 +1172,6 @@ void ogl_start_frame(void){
 	gluPerspective(90.0,1.0,0.01,1000000.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
-// 	printf("bNoDepthTest: %i\n", bNoDepthTest);
 }
 
 #ifndef NMONO

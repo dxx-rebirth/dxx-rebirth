@@ -698,7 +698,14 @@ void draw_polygon_object(object *obj)
 			else
 				draw_cloaked_object(obj,light,&engine_glow_value, GameTime-F1_0*10, GameTime+F1_0*10,alt_textures);
 		} else {
+#ifdef OGL
+			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 ))
+				Gr_scanline_darkening_level = 1;
+#endif
 			draw_polygon_model(&obj->pos,&obj->orient,obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,light,&engine_glow_value,alt_textures);
+#ifdef OGL
+			Gr_scanline_darkening_level = GR_FADE_LEVELS;
+#endif
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
@@ -708,7 +715,6 @@ void draw_polygon_object(object *obj)
 	}
 
 	Interpolation_method = imsave;
-
 }
 
 //------------------------------------------------------------------------------

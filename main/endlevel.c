@@ -415,9 +415,6 @@ vms_angvec exit_angles={-0xa00,0,0};
 vms_matrix surface_orient;
 
 int endlevel_data_loaded=0;
-#ifdef OGL
-extern int bNoDepthTest;
-#endif
 
 void start_endlevel_sequence()
 {
@@ -509,9 +506,7 @@ void start_endlevel_sequence()
 	#endif
 
 	Endlevel_sequence = EL_FLYTHROUGH;
-#ifdef OGL
-	bNoDepthTest=1;
-#endif
+
 	ConsoleObject->movement_type = MT_NONE;			//movement handled by flythrough
 	ConsoleObject->control_type = CT_NONE;
 
@@ -626,9 +621,6 @@ void stop_endlevel_sequence()
 	Endlevel_sequence = EL_OFF;
 
 	PlayerFinishedLevel(0);
-#ifdef OGL
-	bNoDepthTest=0;
-#endif
 }
 
 #define VCLIP_BIG_PLAYER_EXPLOSION	58
