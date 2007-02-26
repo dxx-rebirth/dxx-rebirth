@@ -2249,9 +2249,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		else
 			memset(&Controls, 0, sizeof(Controls));
 
-		if (GameTime < 0)
-			GameTime = 0;
-
 		GameTime += FrameTime;
 
 		if (f2i(GameTime)/10 != f2i(GameTime-FrameTime)/10)
