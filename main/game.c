@@ -3303,10 +3303,12 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		else
 			memset(&Controls, 0, sizeof(Controls));
 
-		if (GameTime < 0)
-			GameTime = 0;
-		
 		GameTime += FrameTime;
+
+		if (GameTime < 0 || GameTime > i2f(0x7fff - 600)) {
+			GameTime = FrameTime;	//wrap when goes negative, or gets within 10 minutes
+			mprintf((0,"GameTime reset to 0\n"));
+		}
 
 		digi_sync_sounds();
 
