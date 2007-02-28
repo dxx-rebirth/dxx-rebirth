@@ -1544,7 +1544,8 @@ void do_cloak_stuff(void)
 					if (Game_mode & GM_MULTI)
 						multi_send_play_sound(SOUND_CLOAK_OFF, F1_0);
 					maybe_drop_net_powerup(POW_CLOAK);
-					multi_send_decloak(); // For demo recording
+					if ( Newdemo_state == ND_STATE_RECORDING )
+						multi_send_decloak(); // For demo recording
 #endif
 				}
 			}
@@ -2099,7 +2100,13 @@ void game()
 			// GAME LOOP!
 			Automap_flag = 0;
 			Config_menu_flag = 0;
-			Assert( ConsoleObject == &Objects[Players[Player_num].objnum] );
+
+			if ( ConsoleObject != &Objects[Players[Player_num].objnum] )
+			  {
+			    mprintf ((0,"Player_num=%d objnum=%d",Player_num,Players[Player_num].objnum));
+			    //Assert( ConsoleObject == &Objects[Players[Player_num].objnum] );
+			  }
+
                         GameLoop( 1, 1 );               // Do game loop with rendering and reading controls.
 
 			if (Config_menu_flag)	{

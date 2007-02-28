@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070228
+--------
+main/game.c: newdemo-related fixes
+
 20070226
 --------
 arch/ogl/ogl.c, main/endlevel.c, main/object.c: improved DepthTest, fixing Clipping bugs
