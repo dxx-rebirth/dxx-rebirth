@@ -1208,7 +1208,8 @@ void do_cloak_stuff(void)
 					if (Game_mode & GM_MULTI)
 						multi_send_play_sound(SOUND_CLOAK_OFF, F1_0);
 					maybe_drop_net_powerup(POW_CLOAK);
-					multi_send_decloak(); // For demo recording
+					if ( Newdemo_state == ND_STATE_RECORDING )
+						multi_send_decloak(); // For demo recording
 					#endif
 //					mprintf((0, " --- You have been DE-CLOAKED! ---\n"));
 				}
