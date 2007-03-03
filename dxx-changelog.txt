@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070303
+--------
+d2x.ini, main/inferno.c, main/newmenu.c: some menu fixes
+
 20070228
 --------
 main/game.c: newdemo-related fixes

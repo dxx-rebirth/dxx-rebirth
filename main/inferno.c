@@ -239,7 +239,7 @@ void print_commandline_help()
 
 	printf( "\n Quickstart:\n\n");
 	printf( "  -ini <file>        %s\n", "Option file (alternate to command line), defaults to d2x.ini");
-	printf( "  -notitles          %s\n", "Do not show titlescreens on startup");
+	printf( "  -noscreens         %s\n","Skip briefing screens");
 	printf( "  -pilot <name>      %s\n", "Select this pilot automatically");
 	printf( "  -autodemo          %s\n", "Start in demo mode");
 
@@ -271,7 +271,6 @@ void print_commandline_help()
 #ifndef   RELEASE
 	printf( "  -invulnerability   %s\n","Make yourself invulnerable");
 	printf( "  -nomovies          %s\n","Don't play movies");
-	printf( "  -noscreens         %s\n","Skip briefing screens");
 #endif // RELEASE
 #ifdef    SDL_VIDEO
 	printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
@@ -700,10 +699,7 @@ int main(int argc, char *argv[])
 	gr_set_mode(MovieHires?SM(640,480):SM(320,200));
 #endif
 
-	if ( FindArg( "-notitles" ) )
-		songs_play_song( SONG_TITLE, 1);
-	else
-		show_titles();
+	show_titles();
 
 	con_printf( CON_DEBUG, "\nShowing loading screen..." );
 	show_loading_screen(title_pal); // title_pal is needed (see below)
@@ -869,8 +865,7 @@ int main(int argc, char *argv[])
 
 	WriteConfigFile();
 
-	if (!FindArg( "-notitles" ))
-		show_order_form();
+	show_order_form();
 
 	#ifndef NDEBUG
 	if ( FindArg( "-showmeminfo" ) )

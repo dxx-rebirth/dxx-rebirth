@@ -2619,21 +2619,10 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 	bg.saved = NULL;
 
-	if ( (VR_offscreen_buffer->cv_w >= total_width) && (VR_offscreen_buffer->cv_h >= total_height) )
-		bg.background = &VR_offscreen_buffer->cv_bitmap;
-	else
-		//bg.background = gr_create_bitmap( width, (height + title_height) );
-		bg.background = gr_create_bitmap(total_width,total_height);
-	Assert( bg.background != NULL );
-		
-	//gr_bm_bitblt(wx+width+border_size, wy+height+border_size, 0, 0, wx-border_size, wy-title_height-border_size, &grd_curcanv->cv_bitmap, bg.background );
-	gr_bm_bitblt(total_width,total_height, 0, 0, wx-border_size, wy-title_height-border_size, &grd_curcanv->cv_bitmap, bg.background );
-
-#if 0
-	gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_buffer->cv_bitmap) );
-#endif
-
-	nm_draw_background( wx-(border_size*MENSCALE_X),wy-title_height-(border_size*MENSCALE_Y),wx+width+((border_size-1)*MENSCALE_X),wy+height+((border_size-1)*MENSCALE_Y) );
+	bg.saved = NULL;
+	bg.background = gr_create_bitmap(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
+ 	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.background );
+ 	nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
 
 	gr_string( 0x8000, wy - title_height, title );
 
@@ -2935,14 +2924,10 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 	keyd_repeat = old_keyd_repeat;
 
-// 	gr_bm_bitblt(total_width,total_height, wx-border_size, wy-title_height-border_size, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
-
+	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
+ 
 	if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
 		gr_free_bitmap(bg.background);
-
-#if 0
-	gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(VR_offscreen_buffer->cv_bitmap), &(grd_curcanv->cv_bitmap) );
-#endif
 
 	return citem;
 }
