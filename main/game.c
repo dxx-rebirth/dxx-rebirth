@@ -1513,7 +1513,6 @@ void show_d1x_help()
      m[ 2].type = NM_TYPE_TEXT; m[ 2].text = "CTRL-ALT-`\t  Start/Stop Hud-Logging";
      m[ 3].type = NM_TYPE_TEXT; m[ 3].text = "";
      m[ 4].type = NM_TYPE_TEXT; m[ 4].text = "Multiplayer:";
-     m[ 5].type = NM_TYPE_TEXT; m[ 5].text = "F8\t  Send message";
      m[ 6].type = NM_TYPE_TEXT; m[ 6].text = "ALT-F6\t  Accept new player";
      m[ 7].type = NM_TYPE_TEXT; m[ 7].text = "CTRL-N\t  Game-Master Menu";
 
@@ -1867,7 +1866,7 @@ void show_help()
 		m[ 8].type = NM_TYPE_TEXT; m[ 8].text = TXT_HELP_PRTSCN;
 		m[ 9].type = NM_TYPE_TEXT; m[ 9].text = TXT_HELP_1TO5;
 		m[10].type = NM_TYPE_TEXT; m[10].text = TXT_HELP_6TO10;
-		m[11].type = NM_TYPE_TEXT; m[11].text = "SHIFT F1\t  SHOW D1X HELP";
+		m[11].type = NM_TYPE_TEXT; m[11].text = "SHIFT-F1\t  SHOW D1X HELP";
 		m[12].type = NM_TYPE_TEXT; m[12].text = "";
 		m[13].type = NM_TYPE_TEXT; m[13].text = TXT_HELP_TO_VIEW;
 		newmenu_do( NULL, TXT_KEYS, 14, m, NULL );

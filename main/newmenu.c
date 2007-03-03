@@ -901,8 +901,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		old_choice = choice;
 	
 		switch( k )	{
-		case KEY_V + KEY_CTRLED:
 #ifndef __WINDOWS__
+		case KEY_V + KEY_CTRLED:
 		case KEY_INSERT + KEY_SHIFTED:
                           if(item[choice].type==NM_TYPE_INPUT)
 			{
@@ -1976,6 +1976,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	int width, height, wx, wy, title_height;
 	int font_height,font_height1;
 	keyd_repeat = 1;
+	bkg bg;
 #ifdef NEWMENU_MOUSE
 	int mx, my, x1, x2, y1, y2, mouse_state, omouse_state;	//, dblclick_flag;
 	int close_x,close_y;
@@ -2013,8 +2014,10 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	if ( wy < title_height )
 		wy = title_height;
 
-	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_menu->cv_bitmap) );
-	nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
+	bg.saved = NULL;
+	bg.background = gr_create_bitmap(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
+ 	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.background );
+ 	nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
 
 	gr_string( 0x8000, wy - title_height, title );
 
@@ -2237,7 +2240,10 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	newmenu_hide_cursor();
 	keyd_repeat = old_keyd_repeat;
 
-	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &(VR_offscreen_menu->cv_bitmap), &(grd_curcanv->cv_bitmap) );
+	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
+ 
+	if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
+		gr_free_bitmap(bg.background);
 
 	return citem;
 }

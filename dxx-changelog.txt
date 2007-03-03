@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070303
+--------
+main/game.c, main/newmenu.c: some menu fixes
+
 20070228
 --------
 main/game.c: newdemo-related fixes
