@@ -1437,163 +1437,129 @@ void draw_primary_ammo_info(int ammo_count)
 		draw_ammo_info(PRIMARY_AMMO_X,PRIMARY_AMMO_Y,ammo_count,1);
 }
 
-void hud_show_weapons_mode1(int type,int vertical,int clear,int x,int y){
+void hud_show_weapons_mode(int type,int vertical,int mode,int x,int y){
 	int i,w,h,aw;
 	char weapon_str[10];
 	if (vertical){
              y=y+FONTSCALE_Y(GAME_FONT->ft_h*4+3);
-		if (type==0 && clear)
-		     x=x-3;
 	}
-	if (type==0){
-		for (i=4;i>=0;i--){
-			if (Primary_weapon==i)
-                             gr_set_fontcolor(gr_getcolor(20,0,0),-1);
-			else{
-				if (player_has_weapon(i,0) & HAS_WEAPON_FLAG)
-				     gr_set_fontcolor(gr_getcolor(0,15,0),-1);
-				else
-				     gr_set_fontcolor(gr_getcolor(3,3,3),-1);
-			}
-			switch(i){
-			  case 0:
-				sprintf(weapon_str,"%c%i",
-					  (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L',
-					  Players[Player_num].laser_level+1);
-				break;
-			  case 1:
-				if (Cockpit_mode!=CM_FULL_SCREEN) {
-					sprintf(weapon_str,"V");
-					if (Primary_weapon != 6)
-					gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
-				} else {
-					sprintf(weapon_str,(Gauge_hud_mode==1?"V%i":"V   %i"), f2i((unsigned int) Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+	if (mode == 1) {
+		if (type==0){
+			for (i=4;i>=0;i--){
+				if (Primary_weapon==i)
+					gr_set_fontcolor(gr_getcolor(20,0,0),-1);
+				else{
+					if (player_has_weapon(i,0) & HAS_WEAPON_FLAG)
+						gr_set_fontcolor(gr_getcolor(0,15,0),-1);
+					else
+						gr_set_fontcolor(gr_getcolor(3,3,3),-1);
 				}
-				break;
-			  case 2:
-				sprintf(weapon_str,"S");break;
-			  case 3:
-				sprintf(weapon_str,"P");break;
-			  case 4:
-				sprintf(weapon_str,"F");break;
-				
-			}
-			gr_get_string_size(weapon_str, &w, &h, &aw );
-			if (vertical){
-				y-=h+FONTSCALE_Y(2);
-			}else
-			     x-=w+FONTSCALE_X(3);
-			if (clear){
-                        gr_setcolor(BM_XRGB(0,0,0));
-				if (i==1)
-				     gr_rect(x-2,y-4,x+26,y+4);
-				else
-				     gr_rect(x-2,y-4,x+8,y+4);
-			}
-			gr_printf(x, y, weapon_str);
-		}
-	}else{
-		for (i=4;i>=0;i--){
-			if (Secondary_weapon==i)
-                             gr_set_fontcolor(gr_getcolor(20,0,0),-1);
-			else{
-				if (Players[Player_num].secondary_ammo[i]>0)
-				     gr_set_fontcolor(gr_getcolor(0,15,0),-1);
-				else
-				     gr_set_fontcolor(gr_getcolor(0,6,0),-1);
-			}
-			sprintf(weapon_str,"%i",Players[Player_num].secondary_ammo[i]);
-			gr_get_string_size(weapon_str, &w, &h, &aw );
-			if (vertical){
-				y-=h+FONTSCALE_Y(2);
-			}else
-			     x-=w+FONTSCALE_X(3);
-			if (clear){
-				gr_setcolor(BM_XRGB(0,0,0));
-				gr_rect(x-2,y-4,x+8,y+4);
-			}
-
-			gr_printf(x, y, weapon_str);
-		}
-	}
-	gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
-}
-
-void hud_show_weapons_mode2(int type,int vertical,int clear,int x,int y){
-	int i,w,h,aw;
-	char weapon_str[10];
-	if (vertical){
-             y=y+FONTSCALE_Y(GAME_FONT->ft_h*4+3);
-		if (type==0 && clear)
-		     x=x-3;
-	}
-	if (type==0){
-		for (i=9;i>=5;i--){
-			if (Primary_weapon==i)
-                             gr_set_fontcolor(gr_getcolor(20,0,0),-1);
-			else{
-				if (player_has_weapon(i,0) & HAS_WEAPON_FLAG)
-				     gr_set_fontcolor(gr_getcolor(0,15,0),-1);
-				else
-				     gr_set_fontcolor(gr_getcolor(3,3,3),-1);
-			}
-			switch(i){
-			  case 5:
-				sprintf(weapon_str," ");
-				break;
-			  case 6:
-				if (Cockpit_mode!=CM_FULL_SCREEN) {
-					sprintf(weapon_str,"G");
-					if (Primary_weapon != 1)
-					gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
-				} else {
-					sprintf(weapon_str,"G%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				switch(i){
+					case 0:
+						sprintf(weapon_str,"%c%i",
+							(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L',
+							Players[Player_num].laser_level+1);
+						break;
+					case 1:
+						if (Cockpit_mode!=CM_FULL_SCREEN) {
+							sprintf(weapon_str,"V");
+							if (Primary_weapon != 6)
+								gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+						} else {
+							sprintf(weapon_str,(Gauge_hud_mode==1?"V%i":"V   %i"), f2i((unsigned int) Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+						}
+						break;
+					case 2:
+						sprintf(weapon_str,"S");break;
+					case 3:
+						sprintf(weapon_str,"P");break;
+					case 4:
+						sprintf(weapon_str,"F");break;
+					
 				}
-				break;
-			  case 7:
-				sprintf(weapon_str,"H");break;
-			  case 8:
-				sprintf(weapon_str,"P");break;
-			  case 9:
-				sprintf(weapon_str,"O");break;
-				
+				gr_get_string_size(weapon_str, &w, &h, &aw );
+				if (vertical){
+					y-=h+FONTSCALE_Y(2);
+				}else
+					x-=w+FONTSCALE_X(3);
+				gr_printf(x, y, weapon_str);
 			}
-			gr_get_string_size(weapon_str, &w, &h, &aw );
-			if (vertical){
-				y-=h+FONTSCALE_Y(2);
-			}else
-			     x-=w+FONTSCALE_X(3);
-			if (clear){
-                        gr_setcolor(BM_XRGB(0,0,0));
-				if (i==1)
-				     gr_rect(x-2,y-4,x+26,y+4);
-				else
-				     gr_rect(x-2,y-4,x+8,y+4);
+		} else {
+			for (i=4;i>=0;i--){
+				if (Secondary_weapon==i)
+					gr_set_fontcolor(gr_getcolor(20,0,0),-1);
+				else{
+					if (Players[Player_num].secondary_ammo[i]>0)
+						gr_set_fontcolor(gr_getcolor(0,15,0),-1);
+					else
+						gr_set_fontcolor(gr_getcolor(0,6,0),-1);
+				}
+				sprintf(weapon_str,"%i",Players[Player_num].secondary_ammo[i]);
+				gr_get_string_size(weapon_str, &w, &h, &aw );
+				if (vertical){
+					y-=h+FONTSCALE_Y(2);
+				}else
+					x-=w+FONTSCALE_X(3);
+				gr_printf(x, y, weapon_str);
 			}
-			gr_printf(x, y, weapon_str);
 		}
-	}else{
-		for (i=9;i>=5;i--){
-			if (Secondary_weapon==i)
-                             gr_set_fontcolor(gr_getcolor(20,0,0),-1);
-			else{
-				if (Players[Player_num].secondary_ammo[i]>0)
-				     gr_set_fontcolor(gr_getcolor(0,15,0),-1);
-				else
-				     gr_set_fontcolor(gr_getcolor(0,6,0),-1);
+	} else if (mode == 2) {
+		if (type==0) {
+			for (i=9;i>=5;i--){
+				if (Primary_weapon==i)
+					gr_set_fontcolor(gr_getcolor(20,0,0),-1);
+				else{
+					if (player_has_weapon(i,0) & HAS_WEAPON_FLAG)
+						gr_set_fontcolor(gr_getcolor(0,15,0),-1);
+					else
+						gr_set_fontcolor(gr_getcolor(3,3,3),-1);
+				}
+				switch(i){
+					case 5:
+						sprintf(weapon_str," ");
+						break;
+					case 6:
+						if (Cockpit_mode!=CM_FULL_SCREEN) {
+							sprintf(weapon_str,"G");
+							if (Primary_weapon != 1)
+								gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+						} else {
+							sprintf(weapon_str,"G%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+						}
+						break;
+					case 7:
+						sprintf(weapon_str,"H");break;
+					case 8:
+						sprintf(weapon_str,"P");break;
+					case 9:
+						sprintf(weapon_str,"O");break;
+					
+				}
+				gr_get_string_size(weapon_str, &w, &h, &aw );
+				if (vertical){
+					y-=h+FONTSCALE_Y(2);
+				}else
+					x-=w+FONTSCALE_X(3);
+				gr_printf(x, y, weapon_str);
 			}
-			sprintf(weapon_str,"%i",Players[Player_num].secondary_ammo[i]);
-			gr_get_string_size(weapon_str, &w, &h, &aw );
-			if (vertical){
-				y-=h+FONTSCALE_Y(2);
-			}else
-			     x-=w+FONTSCALE_X(3);
-			if (clear){
-				gr_setcolor(BM_XRGB(0,0,0));
-				gr_rect(x-2,y-4,x+8,y+4);
+		} else {
+			for (i=9;i>=5;i--){
+				if (Secondary_weapon==i)
+					gr_set_fontcolor(gr_getcolor(20,0,0),-1);
+				else{
+					if (Players[Player_num].secondary_ammo[i]>0)
+						gr_set_fontcolor(gr_getcolor(0,15,0),-1);
+					else
+						gr_set_fontcolor(gr_getcolor(0,6,0),-1);
+				}
+				sprintf(weapon_str,"%i",Players[Player_num].secondary_ammo[i]);
+				gr_get_string_size(weapon_str, &w, &h, &aw );
+				if (vertical){
+					y-=h+FONTSCALE_Y(2);
+				}else
+					x-=w+FONTSCALE_X(3);
+				gr_printf(x, y, weapon_str);
 			}
-
-			gr_printf(x, y, weapon_str);
 		}
 	}
 	gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
@@ -1617,10 +1583,10 @@ void hud_show_weapons(void)
 
 // ZICO - new HUD modes
 	if (Gauge_hud_mode==1){
-		hud_show_weapons_mode1(0,0,0,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+(FontHires?39:21)));
-		hud_show_weapons_mode2(0,0,0,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+(FontHires?27:15)));
-		hud_show_weapons_mode1(1,0,0,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+(FontHires?15:9)));
-		hud_show_weapons_mode1(1,0,0,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+3));
+		hud_show_weapons_mode(0,0,1,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+(FontHires?39:21)));
+		hud_show_weapons_mode(0,0,2,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+(FontHires?27:15)));
+		hud_show_weapons_mode(1,0,1,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+(FontHires?15:9)));
+		hud_show_weapons_mode(1,0,2,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+3));
 	}
 	else if (Gauge_hud_mode==2 || Gauge_hud_mode==3){
 		int x1,x2;
@@ -1636,10 +1602,10 @@ void hud_show_weapons(void)
 			x1=grd_curcanv->cv_w/2.1-(FONTSCALE_X(40)+w);
 			x2=grd_curcanv->cv_w/1.9+(FONTSCALE_X(42)+x2);
 		}
-		hud_show_weapons_mode1(0,1,0,x1,y);
-		hud_show_weapons_mode2(0,1,0,x1+FONTSCALE_X(FontHires?24:12),y);
-		hud_show_weapons_mode1(1,1,0,x2,y);
-		hud_show_weapons_mode2(1,1,0,x2+FONTSCALE_X(FontHires?24:12),y);
+		hud_show_weapons_mode(0,1,1,x1,y);
+		hud_show_weapons_mode(0,1,2,x1+FONTSCALE_X(FontHires?24:12),y);
+		hud_show_weapons_mode(1,1,1,x2,y);
+		hud_show_weapons_mode(1,1,2,x2+FONTSCALE_X(FontHires?24:12),y);
 		gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
 		gr_printf(x2, y-FONTSCALE_Y(GAME_FONT->ft_h*4+4),"%i", f2ir(Players[Player_num].shields));
 		gr_set_fontcolor(gr_getcolor(25,18,6),-1 );
@@ -2491,12 +2457,12 @@ void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 	if (Gauge_hud_mode!=0)
 	{
 		if (weapon_box_user[0] == WBU_WEAPON) {
-			hud_show_weapons_mode1(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
-			hud_show_weapons_mode2(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X)+FONTSCALE_X(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
+			hud_show_weapons_mode(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
+			hud_show_weapons_mode(0,1,2,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X)+FONTSCALE_X(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
 		}
 		if (weapon_box_user[1] == WBU_WEAPON) {
-			hud_show_weapons_mode1(1,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
-			hud_show_weapons_mode2(1,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X)+FONTSCALE_X(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
+			hud_show_weapons_mode(1,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
+			hud_show_weapons_mode(1,1,2,(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X)+FONTSCALE_X(FontHires?24:12),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
 		}
 	}
 }

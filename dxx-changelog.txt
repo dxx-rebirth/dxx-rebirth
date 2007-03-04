@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070304
 --------
 main/mission.c: improved Error-handling for starting a mission, making the game not crash if Level file is not found
+main/automap.c, main/guages.c, main/menu.c, main/network.c: improved create_name_canv(); cleaned up hud_show_weapons_mode(); fixed palette loading in RegisterPlayer(); only show newline in network_get_game_params() if MenuHires
 
 20070303
 --------

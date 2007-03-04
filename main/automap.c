@@ -564,7 +564,7 @@ char *system_name[] = {
 void create_name_canv()
 {
 	char	name_level_left[128],name_level_right[128];
-	int wr1,wr2,h,aw;
+	int wr,h,aw;
 
 	if (Current_level_num > 0)
 		sprintf(name_level_left, "%s %i",TXT_LEVEL, Current_level_num);
@@ -579,16 +579,10 @@ void create_name_canv()
 	strcat(name_level_right, Current_level_name);
 
 	gr_set_fontcolor(Green_31,-1);
-// 	name_canv_left = print_to_canvas(name_level_left, SMALL_FONT, Green_31, -1);
-// 	name_canv_right = print_to_canvas(name_level_right,SMALL_FONT, Green_31, -1);
 	gr_set_curfont(SMALL_FONT);
 	gr_printf(((MenuHires)?10:5),((MenuHires)?10:5),"%s", name_level_left);
-	if (Current_level_num <= 0)
-		wr1=0;
-	else
-		gr_get_string_size(system_name[(Current_level_num-1)/4],&wr1,&h,&aw);
-	gr_get_string_size(Current_level_name,&wr2,&h,&aw);
-	gr_printf(grd_curcanv->cv_bitmap.bm_w-(wr1+wr2)-FONTSCALE_X(((MenuHires)?35:18)),((MenuHires)?10:5),"%s", name_level_right);
+	gr_get_string_size(name_level_right,&wr,&h,&aw);
+	gr_printf(grd_curcanv->cv_bitmap.bm_w-wr-FONTSCALE_X(((MenuHires)?10:5)),((MenuHires)?10:5),"%s", name_level_right);
 }
 
 extern void GameLoop(int, int );

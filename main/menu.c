@@ -313,12 +313,12 @@ int DoMenu()
 	newmenu_item m[25];
 	int num_options = 0;
 
-	load_palette(MENU_PALETTE,0,1);		//get correct palette
-
 	if ( Players[Player_num].callsign[0]==0 )       {
 		RegisterPlayer();
 		return 0;
 	}
+
+	load_palette(MENU_PALETTE,0,1);		//get correct palette
 	
 	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM)) {
 		do_option(MENU_START_SERIAL);
