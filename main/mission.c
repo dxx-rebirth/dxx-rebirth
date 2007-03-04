@@ -624,8 +624,14 @@ int add_alternate_hogfile(char *filename)
 	}
 
 	ok = cfile_init(filename);
-	if (!ok)
+
+	if (!ok) {
+		if (demo)
+			cfile_init("d2demo.hog");
+		else
+			cfile_init("descent2.hog");
 		return 0;
+	}
 	
 	if (demo)
 		ok = cfile_init("d2demo.hog");
@@ -723,13 +729,12 @@ int load_mission(mle *mission)
 
 		found_hogfile = add_alternate_hogfile(buf);
 
-#ifdef RELEASE				//for release, require mission to be in hogfile
+	//require mission to be in hogfile
         if (! found_hogfile) {
             cfclose(mfile);
             free_mission();
             return 0;
         }
-#endif
     }
 
     //init vars
