@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/mission.c: improved Error-handling for starting a mission, making the game not crash if Level file is not found
 main/automap.c, main/guages.c, main/menu.c, main/network.c: improved create_name_canv(); cleaned up hud_show_weapons_mode(); fixed palette loading in RegisterPlayer(); only show newline in network_get_game_params() if MenuHires
 arch/linux/hmiplay.c, main/hud.c: removed WANT_AWE32 flag - too buggy; scaled space between Hud-messages; block Hudlog output messages beginning with you (your ... maxed out, you already have ...)
+arch/sdl/joydefs.c, main/config.h, main/playsave.c: make Joystick Deadzone save in PLX file (Thanks xatmes)
 
 20070303
 --------

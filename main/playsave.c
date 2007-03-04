@@ -120,6 +120,7 @@ hli highest_levels[MAX_MISSIONS];
 #define WINDOWSIZE 1
 #define RESOLUTION 2
 #define MOUSE_SENSITIVITY 4
+#define JOY_DEADZONE 8
 
 int Default_leveling_on=1;
 extern ubyte SecondaryOrder[],PrimaryOrder[];
@@ -267,6 +268,7 @@ RetrySelection:
 	highest_levels[0].level_num = 1;				//was highest level in old struct
 	Config_joystick_sensitivity = 8;
 	Config_mouse_sensitivity = 8;
+        joy_deadzone = 0;
 	Cockpit_3d_view[0]=CV_NONE;
 	Cockpit_3d_view[1]=CV_NONE;
 
@@ -382,6 +384,27 @@ int read_player_d2x(char *filename)
 				strupr(word);
 			}
 		}
+		else if (strstr(word,"JOYSTICK"))
+		{
+			d_free(word);
+			cfgets(line,20,f);
+			word=splitword(line,'=');
+			strupr(word);
+	
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				if(!strcmp(word,"DEADZONE"))
+				{
+					int tmp;
+					sscanf(line,"%d",&tmp);
+					joy_deadzone = tmp;
+				}
+				d_free(word);
+				cfgets(line,20,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
 		else if (strstr(word,"END") || PHYSFS_eof(f))
 		{
 			Stop=1;
@@ -450,7 +473,12 @@ int write_player_d2x(char *filename)
 			PHYSFSX_puts(fout, str);
 			sprintf (str, "[end]\n");
 			PHYSFSX_puts(fout, str);
-
+			sprintf (str, "[joystick]\n");
+                        PHYSFSX_puts(fout, str);
+                        sprintf (str, "deadzone=%d\n", joy_deadzone);
+                        PHYSFSX_puts(fout, str);
+                        sprintf (str, "[end]\n");
+                        PHYSFSX_puts(fout, str);
 			sprintf (str, "[plx version]\n");
 			PHYSFSX_puts(fout, str);
 			sprintf (str, "plx version=%s\n", VERSION);
@@ -525,6 +553,21 @@ int write_player_d2x(char *filename)
 					}
 					printed |= MOUSE_SENSITIVITY;
 				}
+				else if (strstr(line,"JOYSTICK"))
+                                {
+					sprintf (str, "[joystick]\n");
+                        		PHYSFSX_puts(fout, str);
+                        		sprintf (str, "deadzone=%d\n", joy_deadzone);
+                        		PHYSFSX_puts(fout, str);
+                        		sprintf (str, "[end]\n");
+                        		PHYSFSX_puts(fout, str);
+					while(!strstr(line,"END")&&!PHYSFS_eof(fin))
+					{
+						cfgets(line,20,fin);
+						strupr(line);
+					}
+					printed |= JOY_DEADZONE;
+          			}
 				else if (strstr(line,"END"))
 				{
 					Stop=1;
@@ -574,6 +617,15 @@ int write_player_d2x(char *filename)
 				sprintf (str, "[mouse]\n");
 				PHYSFSX_puts(fout, str);
 				sprintf (str, "sensitivity=%d\n",Config_mouse_sensitivity);
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "[end]\n");
+				PHYSFSX_puts(fout, str);
+			}
+			if(!(printed&JOY_DEADZONE))
+			{
+				sprintf (str, "[joystick]\n");
+				PHYSFSX_puts(fout, str);
+				sprintf (str, "deadzone=%d\n",joy_deadzone);
 				PHYSFSX_puts(fout, str);
 				sprintf (str, "[end]\n");
 				PHYSFSX_puts(fout, str);

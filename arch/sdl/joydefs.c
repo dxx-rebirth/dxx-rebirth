@@ -18,7 +18,6 @@
 #include "kconfig.h"
 
 extern int num_joysticks;
-extern int joy_deadzone;
 
 int joydefs_calibrate_flag = 0;
 

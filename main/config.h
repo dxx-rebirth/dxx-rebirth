@@ -56,6 +56,7 @@ extern ubyte Config_control_type;
 extern ubyte Config_channels_reversed;
 extern ubyte Config_joystick_sensitivity;
 extern ubyte Config_mouse_sensitivity;
+extern int joy_deadzone;
 
 //values for Config_control_type
 #define CONTROL_NONE 0
