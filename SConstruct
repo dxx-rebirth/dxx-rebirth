@@ -352,7 +352,7 @@ else:
 	osdef = '__LINUX__'
 	osasmdef = 'elf'
 	sharepath += '/'
-	env.Append(CPPDEFINES = ['__LINUX__', 'WANT_AWE32'])
+	env.Append(CPPDEFINES = ['__LINUX__'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL', 'OGL']
 	common_sources += arch_linux_sources

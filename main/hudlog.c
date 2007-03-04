@@ -11,6 +11,7 @@
 #include "hudmsg.h"
 #include "multi.h"
 #include "hudlog.h"
+#include "strutil.h"
 
 //added on 9/5/99 by Victor Rachels for \ or / usage
 #include "d_slash.h"
@@ -104,7 +105,7 @@ void hud_log_message(char * message){
 	}
 	--recurse_flag;
 
-	if (strnicmp ("You already",message,11)) { // block those messages in hudlog output
+	if (strnicmp ("you",message,3)) { // block hudlog output messages beginning with you ("your ... maxed out", "you already have ...")
 		time_t t;
 		struct tm *lt;
 		t=time(NULL);

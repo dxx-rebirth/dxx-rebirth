@@ -324,7 +324,7 @@ void HUD_render_message_frame()
 				gr_get_string_size(HUD_messages[n], &w, &h, &aw );
 				gr_set_fontcolor( HUD_color, -1);
 				gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2,y, HUD_messages[n] );
-				y += h+1;
+				y += h+FONTSCALE_Y(1);
 			}
 		}
 	}
