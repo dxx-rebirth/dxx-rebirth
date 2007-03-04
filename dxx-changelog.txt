@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070304
+--------
+main/menu.c: improved Error-handling for starting a mission, making the game not crash if Level file is not found
+
 20070303
 --------
 main/game.c, main/newmenu.c: some menu fixes

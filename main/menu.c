@@ -669,6 +669,8 @@ void do_detail_level_menu_custom(void)
 	set_custom_detail_vars();
 }
 
+extern char *get_level_file(int level_num);
+
 void do_new_game_menu()
 {
 	int new_level_num,player_highest_level;
@@ -694,8 +696,8 @@ void do_new_game_menu()
 
 		strcpy(config_last_mission, m[new_mission_num]  );
 		
-		if (!load_mission(new_mission_num)) {
-			nm_messagebox( NULL, 1, TXT_OK, "Error in Mission file"); 
+		if (!load_mission(new_mission_num) || !cfexist(get_level_file(new_mission_num))) {
+			nm_messagebox( NULL, 1, TXT_OK, "Error loading Mission file"); 
 			return;
 		}
 	}
