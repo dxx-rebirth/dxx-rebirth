@@ -27,7 +27,7 @@
 
 #include <SDL_thread.h>
 
-#define WANT_AWE32 1
+#define WANT_AWE32 0
 
 #ifdef WANT_AWE32
 #include <linux/awe_voice.h>

@@ -231,7 +231,7 @@ void HUD_render_message_frame()
 				gr_set_fontcolor( HUD_color, -1);
 
 				gr_string((grd_curcanv->cv_bitmap.bm_w-w)/2,y, &HUD_messages[n][0] );
-				y += h+1;
+				y += h+FONTSCALE_Y(1);
 			}
 		}
 	}
@@ -302,7 +302,7 @@ int HUD_init_message_va(char * format, va_list args)
 		return 0;	// ignore since it is the same as the last one
 	}
 
-	if (strnicmp ("You already",message,11)) { // block those messages in hudlog output
+	if (strnicmp ("you",message,3)) { // block hudlog output messages beginning with you ("your ... maxed out", "you already have ...")
 		t=time(NULL);
 		lt=localtime(&t);
 	
