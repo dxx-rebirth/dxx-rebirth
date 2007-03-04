@@ -735,13 +735,11 @@ void hud_show_energy(void)
 	}
 }
 
-void hud_show_weapons_mode1(int type,int vertical,int clear,int x,int y){
+void hud_show_weapons_mode(int type,int vertical,int x,int y){
 	int i,w,h,aw;
 	char weapon_str[10];
 	if (vertical){
 		y=y+FONTSCALE_Y(GAME_FONT->ft_h*4);
-		if (type==0 && clear)
-		     x=x-3;//quick hack to prevent 10000 vulcan from going into the hud
 	}
 	if (type==0){
 		for (i=4;i>=0;i--){
@@ -794,11 +792,6 @@ void hud_show_weapons_mode1(int type,int vertical,int clear,int x,int y){
 				y-=h+FONTSCALE_X(2);
 			}else
 			     x-=w+FONTSCALE_Y(3);
-			if (clear){
-				gr_setcolor(BM_XRGB(0,0,0));
-				gr_rect(x-2,y-4,x+8,y+4);
-			}
-
 			gr_printf(x, y, weapon_str);
 		}
 	}
@@ -818,8 +811,8 @@ void hud_show_weapons(void)
 		y = grd_curcanv->cv_h;
 
 	if (Gauge_hud_mode==1){
-		hud_show_weapons_mode1(0,0,0,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h*2+3*2));
-		hud_show_weapons_mode1(1,0,0,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+3));
+		hud_show_weapons_mode(0,0,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h*2+3*2));
+		hud_show_weapons_mode(1,0,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+3));
 	}
 
 	else if (Gauge_hud_mode==2 || Gauge_hud_mode==3){
@@ -836,8 +829,8 @@ void hud_show_weapons(void)
 			x1=grd_curcanv->cv_w/2.1-(FONTSCALE_X(40)+w);
 			x2=grd_curcanv->cv_w/1.9+(FONTSCALE_X(42)+x2);
 		}
-		hud_show_weapons_mode1(0,1,0,x1,y);
-		hud_show_weapons_mode1(1,1,0,x2,y);
+		hud_show_weapons_mode(0,1,x1,y);
+		hud_show_weapons_mode(1,1,x2,y);
 		gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
 		gr_printf(x2, y-(FONTSCALE_Y(GAME_FONT->ft_h*4+4)),"%i", f2ir(Players[Player_num].shields));
 		gr_set_fontcolor(gr_getcolor(25,18,6),-1 );
@@ -1566,13 +1559,13 @@ void draw_weapon_info(int weapon_type,int weapon_num)
 	}
 	
 	if (Gauge_hud_mode!=0)
-		hud_show_weapons_mode1(weapon_type,1,1,x,y);
+		hud_show_weapons_mode(weapon_type,1,x,y);
 }
 
 void draw_ammo_info(int x,int y,int ammo_count,int primary)
 {
 	if (Gauge_hud_mode!=0)
-		hud_show_weapons_mode1(!primary,1,1,x,y);
+		hud_show_weapons_mode(!primary,1,x,y);
 	else
 	{
 		gr_setcolor(BM_XRGB(0,0,0));
