@@ -486,9 +486,9 @@ int Menu_Special = 0;
 ubyte Hack_DblClick_MenuMode=0;
 #endif
 
-#define CLOSE_X     (7*(SWIDTH/320))
-#define CLOSE_Y     (7*(SHEIGHT/200))
-#define CLOSE_SIZE  FONTSCALE_X(5)
+#define CLOSE_X     (7*MENSCALE_X)
+#define CLOSE_Y     (7*MENSCALE_Y)
+#define CLOSE_SIZE  FONTSCALE_X(hiresfont&&grd_curscreen->sc_w>=640&&grd_curscreen->sc_h>=480?10:5)
 
 void draw_close_box(int x,int y)
 {
@@ -2030,8 +2030,8 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 #ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;	//dblclick_flag = 0;
-	close_x = wx-(grd_curcanv->cv_font->ft_w);
-	close_y = wy-title_height-(grd_curcanv->cv_font->ft_w);
+	close_x = wx-(15*MENSCALE_X);
+	close_y = wy-title_height-(15*MENSCALE_Y);
 	draw_close_box(close_x,close_y);
 	newmenu_show_cursor();
 #endif

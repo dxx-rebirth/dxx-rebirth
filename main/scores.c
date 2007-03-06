@@ -307,6 +307,9 @@ char scores_filename[128];
 #define XX  (7)
 #define YY  (-3)
 
+#define LHX(x)		((x)*(hiresfont?FONTSCALE_X(2):FONTSCALE_X(1)))
+#define LHY(y)		((y)*(hiresfont?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
+
 char * get_scores_filename()
 {
 #ifndef RELEASE
@@ -476,7 +479,7 @@ void scores_maybe_add_player(int abort_flag)
 			if (strlen(Scores.cool_saying)<1)
 				sprintf( Scores.cool_saying, "No Comment" );
 #else
-			sprintf( Scores.cool_saying, "http://www.dxx-rebirth.de" );
+			sprintf( Scores.cool_saying, " " );
 #endif
 		} else {
 			nm_messagebox( TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, *(&TXT_1ST + position) );
@@ -499,10 +502,6 @@ void scores_maybe_add_player(int abort_flag)
 
 #define TEXT_FONT  		(Gamefonts[GFONT_MEDIUM_3])
 
-static float scale=1.0;
-#define scaley scale
-#define scalex scale
-
 void scores_rprintf(int x, int y, char * format, ... )
 {
 	va_list args;
@@ -520,7 +519,7 @@ void scores_rprintf(int x, int y, char * format, ... )
 
 	gr_get_string_size(buffer, &w, &h, &aw );
 
-	gr_string( x*scalex-w, y*scaley, buffer );
+	gr_string( LHX(x)-w, LHY(y), buffer );
 }
 
 
@@ -542,14 +541,14 @@ void scores_draw_item( int  i, stats_info * stats )
 		}
 
 		if (strlen(stats->name)==0) {
-			gr_printf( (26+33+XX)*scalex, (y+YY)*scaley, TXT_EMPTY );
+			gr_printf( LHX(26+33+XX), LHY(y+YY), TXT_EMPTY );
 			return;
 		}
-		gr_printf( (26+33+XX)*scalex, (y+YY)*scaley, "%s", stats->name );
+		gr_printf( LHX(26+33+XX), LHY(y+YY), "%s", stats->name );
 		int_to_string(stats->score, buffer);
 		scores_rprintf( 109+33+XX, y+YY, "%s", buffer );
 
-		gr_printf( (125+33+XX)*scalex, (y+YY)*scaley, "%s", MENU_DIFFICULTY_TEXT(stats->diff_level) );
+		gr_printf( LHX(125+33+XX), LHY(y+YY), "%s", MENU_DIFFICULTY_TEXT(stats->diff_level) );
 
 		if ( (stats->starting_level > 0 ) && (stats->ending_level > 0 ))
 			scores_rprintf( 192+33+XX, y+YY, "%d-%d", stats->starting_level, stats->ending_level );
@@ -587,34 +586,36 @@ ReshowScores:
 
 	set_screen_mode(SCREEN_MENU);
 
-// menu screen scaling, 10/14/99 Jan Bobrowski - scaling for different font sizes 11/18/99 Matt Mueller
-		scale=FONTSCALE_X(GAME_FONT->ft_h/5.0);//5 is the size of the standard font the menus were designed for.
-		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 200*scale)/2, 320*scale, 200*scale);
-		gr_set_current_canvas(&canvas);
+	if (hiresfont)
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
+	else
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));
+	gr_set_current_canvas(&canvas);
 	
-	nm_draw_background(0, 0, GWIDTH-1, GHEIGHT-1);//args are x,y,x2,y2 NOT x,y,w,h
+	nm_draw_background(0, 0, GWIDTH-1, GHEIGHT-1);
+	//nm_draw_background(0,0,grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
 
 	grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
 
-	gr_string( 0x8000, 15*scaley, TXT_HIGH_SCORES );
+	gr_string( 0x8000, LHY(15), TXT_HIGH_SCORES );
 
 	grd_curcanv->cv_font = Gamefonts[GFONT_SMALL];
 
 	gr_set_fontcolor( BM_XRGB(31,26,5), -1 );
-	gr_string( ( 31+33+XX)*scalex, (46+7+YY)*scaley, TXT_NAME );
-	gr_string( ( 82+33+XX)*scalex, (46+7+YY)*scaley, TXT_SCORE );
-	gr_string( (127+33+XX)*scalex, (46+7+YY)*scaley, TXT_SKILL );
-	gr_string( (170+33+XX)*scalex, (46+7+YY)*scaley, TXT_LEVELS );
+	gr_string(  LHX(31+33+XX), LHY(46+7+YY), TXT_NAME );
+	gr_string(  LHX(82+33+XX), LHY(46+7+YY), TXT_SCORE );
+	gr_string( LHX(127+33+XX), LHY(46+7+YY), TXT_SKILL );
+	gr_string( LHX(170+33+XX), LHY(46+7+YY), TXT_LEVELS );
 //	gr_string( 202, 46, "Kills" );
 //	gr_string( 234, 46, "Rescues" );
-	gr_string( (288-42+XX)*scalex, (46+7+YY)*scaley, TXT_TIME );
+	gr_string( LHX(288-42+XX), LHY(46+7+YY), TXT_TIME );
 
 	if ( citem < 0 )	
-		gr_string( 0x8000, 175*scaley, TXT_PRESS_CTRL_R );
+		gr_string( 0x8000, LHY(175), TXT_PRESS_CTRL_R );
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
-	gr_printf( 0x8000, 31*scaley, "%c%s%c  - %s", 34, Scores.cool_saying, 34, Scores.stats[0].name );
+	gr_printf( 0x8000, LHY(31), "%c%s%c  - %s", 34, Scores.cool_saying, 34, Scores.stats[0].name );
 	
 	for (i=0; i<MAX_HIGH_SCORES; i++ )		{
 		gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );

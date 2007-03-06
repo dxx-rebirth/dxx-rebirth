@@ -191,14 +191,9 @@ extern ubyte default_kconfig_d1x_settings[MAX_D1X_CONTROLS];
 //added/edited on 8/6/98 by Victor Rachels to add weapon cycle
 //changed back from 50,29 due to compatability problems.
 
-#define NUM_D1X_KEY_CONTROLS 0 //8
-#define NUM_D1X_OTHER_CONTROLS 0 //4
-
 #define NUM_KEY_CONTROLS 46
-#define NUM_OTHER_CONTROLS 27
-
-#define NUM_ALL_KEY_CONTROLS NUM_KEY_CONTROLS+NUM_D1X_KEY_CONTROLS
-#define NUM_ALL_OTHER_CONTROLS NUM_OTHER_CONTROLS+NUM_D1X_OTHER_CONTROLS
+#define NUM_JOYSTICK_CONTROLS 44
+#define NUM_MOUSE_CONTROLS 27
 
 //end this section edit - Victor Rachels
 

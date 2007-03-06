@@ -240,18 +240,6 @@ int read_player_d1x(const char *filename)
           kconfig_d1x_settings[i] = default_kconfig_d1x_settings[i];
         //end this section addition/kill - VR
 
-
-
-        //changed on 9/16/98 by adb to fix disappearing flare key
-        // change all joystick entries
-        for (i = 1; i < 5; i++)
-         {
-          kconfig_settings[i][27]=255;
-          kconfig_settings[i][28]=255;
-          kconfig_settings[i][29]=255;
-         }
-        //end changes - adb
-
         f = fopen(filename, "r");
          if(!f || feof(f) ) 
           return errno;
