@@ -196,7 +196,8 @@ extern ubyte default_kconfig_d2x_settings[MAX_D2X_CONTROLS];
 // end this section addition - VR
 
 #define NUM_KEY_CONTROLS    57
-#define NUM_OTHER_CONTROLS  31
+#define NUM_JOYSTICK_CONTROLS  56
+#define NUM_MOUSE_CONTROLS  31
 #define MAX_CONTROLS        60		// there are actually 48, so this leaves room for more
 
 extern ubyte kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];

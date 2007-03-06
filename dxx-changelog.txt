@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070306
+--------
+main/kconfig.c, main/kconfig.h, main/newmenu.c, main/scores.c: implemented expanded Joystick configuration panel (Thanks xatmes); corrected draw functions for kconfig_sub() and Scoreboard to show them correct in non 4/3 aspects; corrected Close-boxes for Mouse Menu control
+
 20070304
 --------
 main/mission.c: improved Error-handling for starting a mission, making the game not crash if Level file is not found

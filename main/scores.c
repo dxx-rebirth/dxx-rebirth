@@ -271,7 +271,7 @@ void scores_maybe_add_player(int abort_flag)
 			if (strlen(Scores.cool_saying)<1)
 				sprintf( Scores.cool_saying, "No Comment" );
 #else
-			sprintf( Scores.cool_saying, "http://www.dxx-rebirth.de" );
+			sprintf( Scores.cool_saying, " " );
 #endif
 		} else {
 			nm_messagebox( TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, *(&TXT_1ST + position) );
@@ -357,10 +357,6 @@ void scores_draw_item( int  i, stats_info * stats )
 		}
 }
 
-static float scale=1.0;
-#define scaley scale
-#define scalex scale
-
 void scores_view(int citem)
 {
 	fix t1;
@@ -380,11 +376,10 @@ ReshowScores:
  
 	gr_set_current_canvas(NULL);
 
-	scale=FONTSCALE_X(GAME_FONT->ft_h/5);//5 is the size of the standard font the menus were designed for.
 	if (MenuHires)
-		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 240*scale)/2, 320*scale, 240*scale);
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
 	else
-		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - 320*scale)/2, (SHEIGHT - 200*scale)/2, 320*scale, 200*scale);
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));
 	gr_set_current_canvas(&canvas);
 	
 	nm_draw_background(0, 0, GWIDTH-1, GHEIGHT-1);

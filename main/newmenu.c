@@ -279,13 +279,30 @@ void nm_restore_background( int x, int y, int w, int h )
 	if ( x1 < 0 ) x1 = 0;
 	if ( y1 < 0 ) y1 = 0;
 
-	if ( x2 >= nm_background.bm_w ) x2=nm_background.bm_w-1;
-	if ( y2 >= nm_background.bm_h ) y2=nm_background.bm_h-1;
+	if ( x2 >= GWIDTH ) x2=GWIDTH-1;
+	if ( y2 >= GHEIGHT ) y2=GHEIGHT-1;
 
 	w = x2 - x1 + 1;
 	h = y2 - y1 + 1;
 
-	gr_bm_bitblt(w, h, x1, y1, x1, y1, &nm_background, &(grd_curcanv->cv_bitmap) );
+	if ( GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h ) {
+		grs_bitmap sbg;
+		grs_canvas *tmp,*old;
+		old=grd_curcanv;
+		tmp=gr_create_sub_canvas(old,x1,y1,w,h);
+		if (MenuHires)
+			gr_init_sub_bitmap(&sbg,&nm_background,x1*(640.0/GWIDTH),y1*(480.0/GHEIGHT),w*(640.0/GWIDTH),h*(480.0/GHEIGHT));
+		else
+			gr_init_sub_bitmap(&sbg,&nm_background,x1*(320.0/GWIDTH),y1*(200.0/GHEIGHT),w*(320.0/GWIDTH),h*(200.0/GHEIGHT));
+		gr_set_current_canvas(tmp);
+		show_fullscr( &sbg );
+		gr_set_current_canvas(old);
+		gr_free_sub_canvas(tmp);
+	}
+	else
+	{
+		gr_bm_bitblt(w, h, x1, y1, x1, y1, &nm_background, &(grd_curcanv->cv_bitmap) );
+	}
 }
 
 // Draw a left justfied string
@@ -686,9 +703,9 @@ extern ubyte joydefs_calibrating;
 # define joydefs_calibrating 0
 #endif
 
-#define CLOSE_X     (MenuHires?(15*(SWIDTH/640)):(7*(SWIDTH/320)))
-#define CLOSE_Y     (MenuHires?(15*(SHEIGHT/480)):(7*(SHEIGHT/200)))
-#define CLOSE_SIZE  (MenuHires?FONTSCALE_X(10):5)
+#define CLOSE_X     ((MenuHires?15:7)*MENSCALE_X)
+#define CLOSE_Y     ((MenuHires?15:7)*MENSCALE_Y)
+#define CLOSE_SIZE  FONTSCALE_X(MenuHires?10:5)
 
 void draw_close_box(int x,int y)
 {
@@ -2421,14 +2438,14 @@ ReadFileNames:
 				if ( i >= NumFiles )	{
 
 					gr_setcolor( BM_XRGB(5,5,5));
-					gr_rect( box_x + box_w, y-1, box_x + box_w, y + FONTSCALE_Y(grd_curfont->ft_h + 1));
+					gr_rect( box_x + box_w, y-1, box_x + box_w, y + FONTSCALE_Y(grd_curfont->ft_h + 2));
 					//gr_rect( box_x, y + grd_curfont->ft_h + 2, box_x + box_w, y + grd_curfont->ft_h + 2);
 					
 					gr_setcolor( BM_XRGB(2,2,2));
-					gr_rect( box_x - 1, y - 1, box_x - 1, y + FONTSCALE_Y(grd_curfont->ft_h + 2) );
+					gr_rect( box_x - 1, y - 1, box_x - 1, y + FONTSCALE_Y(grd_curfont->ft_h + 1) );
 					
 					gr_setcolor( BM_XRGB(0,0,0));
-					gr_rect( box_x, y - 1, box_x + box_w - 1, y + FONTSCALE_Y(grd_curfont->ft_h + 1));
+					gr_rect( box_x, y - 1, box_x + box_w - 1, y + FONTSCALE_Y(grd_curfont->ft_h + 2));
 					
 				} else {
 					if ( i == citem )	
@@ -2445,7 +2462,7 @@ ReadFileNames:
 					gr_rect( box_x - 1, y - 1, box_x - 1, y + h + FONTSCALE_Y(1));
 					gr_setcolor( BM_XRGB(0,0,0));
 							
-					gr_rect( box_x, y-1, box_x + box_w - 1, y + h + FONTSCALE_Y(1) );
+					gr_rect( box_x, y-1, box_x + box_w - 1, y + h + FONTSCALE_Y(2) );
 					gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 				}
 			}	 
@@ -2618,8 +2635,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	total_height = height+2*border_size+title_height;
 
 	bg.saved = NULL;
-
-	bg.saved = NULL;
 	bg.background = gr_create_bitmap(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
  	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.background );
  	nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
@@ -2635,8 +2650,8 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 #ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;	//dblclick_flag = 0;
-	close_x = wx-border_size;
-	close_y = wy-title_height-border_size;
+	close_x = wx-(15*MENSCALE_X);
+	close_y = wy-title_height-(15*MENSCALE_Y);
 	draw_close_box(close_x,close_y);
 	newmenu_show_cursor();
 #endif
@@ -2855,7 +2870,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 					else	
 						grd_curcanv->cv_font = NORMAL_FONT;
 					gr_get_string_size(items[i], &w, &h, &aw  );
-					gr_rect( wx, y-1, wx+width-1, y+h+FONTSCALE_Y(1) );
+					gr_rect( wx, y-1, wx+width-1, y+h+FONTSCALE_Y(2) );
 					gr_string( wx+5, y, items[i]  );
 				}
 			}		
