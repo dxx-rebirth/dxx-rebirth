@@ -174,6 +174,7 @@ common_sources = [
 'misc/d_delay.c',
 'misc/d_io.c',
 'misc/d_slash.c',
+'misc/dl_list.c',
 'misc/error.c',
 'misc/strio.c',
 'misc/strutil.c',
@@ -259,7 +260,7 @@ arch_linux_sources = [
 
 # choosing a sound implementation for Linux
 common_sound_hmp2mid = [ 'main/hmp2mid.c' ]
-arch_linux_sound_sdlmixer = [ 'arch/sdl/mixdigi.c', 'arch/sdl/mixmusic.c' ]
+arch_linux_sound_sdlmixer = [ 'arch/sdl/mixdigi.c', 'arch/sdl/mixmusic.c', 'arch/sdl/jukebox.c' ]
 arch_linux_sound_old = [ 'arch/sdl/digi.c', 'arch/linux/hmiplay.c' ]
 
 if (sdlmixer == 1):

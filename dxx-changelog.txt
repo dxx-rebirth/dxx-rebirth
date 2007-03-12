@@ -1,5 +1,11 @@
 D1X-Rebirth Changelog
 
+20070312
+--------
+misc/dl_list.c, include/dl_list.h: doubly-linked list implementation
+main/game.c, arch/sdl/jukebox.c, arch/sdl/include/jukebox.h, arch/sdl/mixdigi.c, arch/sdl/include/mixdigi.h, SConstruct: new 
+in-game jukebox system
+
 20070306
 --------
 main/kconfig.c, main/kconfig.h, main/newmenu.c, main/playsave.c, main/scores.c: implemented expanded Joystick configuration panel (Thanks xatmes); corrected draw functions for kconfig_sub() and Scoreboard to show them correct in non 4/3 aspects; corrected Close-boxes for Mouse Menu control

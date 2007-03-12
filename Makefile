@@ -1,6 +1,6 @@
 # Makefile emulation for the SCons build system
 
-#SCONSFLAGS="sdlmixer=1"
+SCONSFLAGS="sdlmixer=1"
 
 all:	build
 

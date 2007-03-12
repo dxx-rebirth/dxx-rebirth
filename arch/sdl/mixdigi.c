@@ -27,6 +27,7 @@
 #include "digi.h"
 #include "sounds.h"
 #include "mixmusic.h"
+#include "jukebox.h"
 
 #define MIX_DIGI_DEBUG 0
 
@@ -88,6 +89,11 @@ int digi_init() {
 
   atexit(digi_close);
   digi_initialised = 1;
+
+  // Attempt to load jukebox
+  jukebox_load();
+  jukebox_list();
+
   return 0;
 }
 
@@ -206,9 +212,18 @@ void digi_set_midi_volume( int mvolume ) {
   midi_volume = mvolume;
   mix_set_music_volume(mvolume);
 }
-void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {
+void digi_play_midi_song(char * filename, char * melodic_bank, char * drum_bank, int loop ) {
   mix_set_music_volume(midi_volume);
-  mix_play_music(filename, loop);
+
+  // quick hack to check if filename begins with "game" -- MD2211
+  if (jukebox_is_loaded() && strstr(filename, "game") == filename) {
+    // use jukebox
+    jukebox_play();
+  }
+  else { 
+    // standard song playback
+    mix_play_music(filename, loop);
+  }
 }
 void digi_stop_current_song() {
   mix_stop_music();

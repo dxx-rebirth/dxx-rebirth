@@ -7,8 +7,9 @@
 #ifndef _SDLMIXER_MUSIC_H
 #define _SDLMIXER_MUSIC_H
 
-void mix_play_music(char *filename, int loop);
-void mix_set_music_volume(int vol);
+void mix_play_music(char *, int);
+void mix_play_file(char *, char *, int);
+void mix_set_music_volume(int);
 void mix_stop_music();
 
 #endif

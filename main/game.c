@@ -115,6 +115,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vlcnfire.h"
 #include "observer.h"
 #include "fvi.h"
+//MD2211
+#include "jukebox.h"
 
 extern void change_res();
 extern void write_player_file();
@@ -2540,9 +2542,11 @@ void HandleGameKey(int key)
 #endif
 	
 		case KEY_ALTED+KEY_MINUS:
+			printf("Play previous song\n");
 			cd_playprev();
 			break;
 		case KEY_ALTED+KEY_EQUAL:
+			printf("Play next song\n");
 			cd_playnext();
 			break;
 		case KEY_ALTED+KEY_BACKSP:
@@ -2620,6 +2624,25 @@ void HandleGameKey(int key)
 #endif
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
 		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
+
+		/*
+		 * Jukebox hotkeys -- MD2211, 2007
+		 * ==============================================
+		 */
+		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
+			jukebox_play();
+			break;
+		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
+			jukebox_stop();
+			break;
+		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
+			jukebox_prev();
+			break;
+		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
+			jukebox_next();
+			break;
+
+
 
 		//use function keys for window sizing
 

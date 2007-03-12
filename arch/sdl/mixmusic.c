@@ -11,6 +11,8 @@
 #include <string.h>
 #include "args.h"
 #include "hmp2mid.h"
+#include "mixmusic.h"
+#include "jukebox.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +30,7 @@ void music_done() {
   Mix_HaltMusic();
   Mix_FreeMusic(current_music);
   current_music = NULL;
+  jukebox_stop_hook();
 }
 
 void convert_hmp(char *filename, char *mid_filename) {
@@ -68,16 +71,14 @@ void convert_hmp(char *filename, char *mid_filename) {
   }
 }
 
+/* This function handles playback of the internal songs (or their external counterparts) */
 void mix_play_music(char *filename, int loop) {
 
   loop *= -1; 
   int i, t, got_end=0;
-  int fn_buf_len = strlen(DESCENT_DATA_PATH) + strlen(filename) + 16;
-
-  char real_filename[fn_buf_len];
+  char *basedir;
   char midi_filename[16];
   char music_title[16];
-  char music_file_extension[8];
 
   // Quick hack to filter out the .hmp extension
   for (i=0; !got_end; i++) {
@@ -95,19 +96,26 @@ void mix_play_music(char *filename, int loop) {
   // What is the extension of external files? If none, default to internal MIDI
   t = FindArg(MUSIC_EXTENSION_ARG);
   if (t > 0) {
-    sprintf(music_file_extension, "%.3s", Args[t+1]);
-    // Building absolute path to the file
-    sprintf(real_filename, "%s%s.%s", DESCENT_DATA_PATH, music_title, music_file_extension);
+    sprintf(midi_filename, "%s.%3s", music_title, Args[t+1]); // add extension
+    basedir = DESCENT_DATA_PATH;
   }
   else {
     sprintf(midi_filename, "%s.mid", music_title);
     convert_hmp(filename, midi_filename);
-    // Relative path for now (we're using $HOME/.d1x-rebirth/ as working dir)
-    strcpy(real_filename, midi_filename);
+    basedir = ""; // Relative path for now (we're using $HOME/.d1x-rebirth/ as working dir)
   }
 
+  mix_play_file(basedir, midi_filename, loop);
+}
+
+void mix_play_file(char *basedir, char *filename, int loop) {
+
+  int fn_buf_len = strlen(basedir) + strlen(filename) + 1;
+  char real_filename[fn_buf_len];
+  sprintf(real_filename, "%s%s", basedir, filename); // build absolute path
+
   if ((current_music = Mix_LoadMUS(real_filename))) {
-    printf("Now playing: %s\n", real_filename);
+    printf("Now playing: %s\n", filename);
     if (Mix_PlayingMusic()) {
       // Fade-in effect sounds cleaner if we're already playing something
       Mix_FadeInMusic(current_music, loop, MUSIC_FADE_TIME);
@@ -118,7 +126,7 @@ void mix_play_music(char *filename, int loop) {
     Mix_HookMusicFinished(music_done);
   }
   else {
-    printf("Music %s could not be loaded\n", real_filename);
+    printf("Music %s could not be loaded\n", filename);
     Mix_HaltMusic();
   }
 }
