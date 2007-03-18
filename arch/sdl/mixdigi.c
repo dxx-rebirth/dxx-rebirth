@@ -92,7 +92,7 @@ int digi_init() {
 
   // Attempt to load jukebox
   jukebox_load();
-  jukebox_list();
+  //jukebox_list();
 
   return 0;
 }
@@ -226,7 +226,7 @@ void digi_play_midi_song(char * filename, char * melodic_bank, char * drum_bank,
   }
 }
 void digi_stop_current_song() {
-  mix_stop_music();
+  jukebox_stop(); //stops jukebox as well as standard music
 }
 #endif
 

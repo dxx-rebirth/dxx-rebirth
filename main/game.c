@@ -2625,6 +2625,7 @@ void HandleGameKey(int key)
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
 		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
 
+#ifdef USE_SDLMIXER
 		/*
 		 * Jukebox hotkeys -- MD2211, 2007
 		 * ==============================================
@@ -2641,8 +2642,7 @@ void HandleGameKey(int key)
 		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
 			jukebox_next();
 			break;
-
-
+#endif
 
 		//use function keys for window sizing
 

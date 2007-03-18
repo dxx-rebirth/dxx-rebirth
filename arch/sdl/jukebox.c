@@ -16,6 +16,8 @@
 
 #define JUKEBOX_ARG "-jukebox"
 #define MUSIC_HUDMSG_MAXLEN 40
+#define JUKEBOX_HUDMSG_PLAYING "Now playing:"
+#define JUKEBOX_HUDMSG_STOPPED "Jukebox stopped"
 
 static int jukebox_loaded = 0;
 static int jukebox_playing = 0;
@@ -107,14 +109,14 @@ void jukebox_play() {
 		strcpy(hud_msg_buf, music_filename);
 	}
 
-	hud_message(MSGC_GAME_FEEDBACK, "Now playing: %s", hud_msg_buf);
+	hud_message(MSGC_GAME_FEEDBACK, "%s %s", JUKEBOX_HUDMSG_PLAYING, hud_msg_buf);
 	jukebox_playing = 1;
 }
 
 void jukebox_stop() {
 	if (!jukebox_loaded) return;
 	mix_stop_music();
-	hud_message(MSGC_GAME_FEEDBACK, "Jukebox stopped");
+	hud_message(MSGC_GAME_FEEDBACK, JUKEBOX_HUDMSG_STOPPED);
 	jukebox_playing = 0;
 }
 

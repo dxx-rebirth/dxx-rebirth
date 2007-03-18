@@ -6,11 +6,11 @@ import os
 
 PROGRAM_NAME = 'D1X-Rebirth'
 
-#SVN_REVISION = os.popen('echo -n `LANG=C svn info | grep ^Revision | cut -d\  -f2`').read()
-
 # version number
 D1XMAJOR = 0
 D1XMINOR = 51
+
+#SVN_REVISION = os.popen('echo -n `LANG=C svn info | grep ^Revision | cut -d\  -f2`').read()
 
 # optional micro revision: set it to SVN_REVISION if available, zero otherwise.
 D1XMICRO = 0
@@ -324,11 +324,13 @@ env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
-env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
 env.Append(CPPDEFINES = ['NMONO', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'SUPPORTS_NET_IP', '__SDL__', 'SDL_INPUT', 'SDL_AUDIO', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/sdl/include'])
 generic_libs = ['SDL']
 sdlmixerlib = ['SDL_mixer']
+
+if sdlmixer:
+	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
 
 if (D1XMICRO):
 	env.Append(CPPDEFINES = [('D1XMICRO', '\\"' + str(D1XMICRO) + '\\"')])

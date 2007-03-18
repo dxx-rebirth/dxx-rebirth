@@ -1,5 +1,11 @@
 D1X-Rebirth Changelog
 
+20070318
+--------
+SConstruct, main/game.c: fixed compiling without jukebox code if no SDL_mixer available
+arch/sdl/jukebox.c, arch/sdl/mixdigi.c, arch/sdl/mixmusic.c: slight music management improvements
+d1x.ini: typo fixed, sdl_mixer-related options added
+
 20070312
 --------
 misc/dl_list.c, include/dl_list.h: doubly-linked list implementation

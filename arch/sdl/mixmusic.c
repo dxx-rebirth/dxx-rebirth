@@ -76,7 +76,7 @@ void mix_play_music(char *filename, int loop) {
 
   loop *= -1; 
   int i, t, got_end=0;
-  char *basedir;
+  char *basedir = "";
   char midi_filename[16];
   char music_title[16];
 
@@ -126,7 +126,7 @@ void mix_play_file(char *basedir, char *filename, int loop) {
     Mix_HookMusicFinished(music_done);
   }
   else {
-    printf("Music %s could not be loaded\n", filename);
+    fprintf(stderr, "Music %s could not be loaded%s\n", filename, basedir);
     Mix_HaltMusic();
   }
 }
