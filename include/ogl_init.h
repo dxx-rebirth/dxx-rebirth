@@ -153,7 +153,6 @@ void ogl_start_offscreen_render(int x, int y, int w, int h);
 void ogl_end_offscreen_render(void);
 void ogl_start_frame(void);
 void ogl_end_frame(void);
-void ogl_swap_buffers(void);
 void ogl_set_screen_mode(void);
 void ogl_cache_level_textures(void);
 

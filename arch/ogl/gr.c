@@ -113,46 +113,27 @@ int arch_toggle_fullscreen_menu(void){
 	return ogl_fullscreen;
 }
 
+extern void ogl_init_pixel_buffers(int w, int h);
+extern void ogl_close_pixel_buffers(void);
+
 void ogl_init_state(void){
 	/* select clearing (background) color   */
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glShadeModel(GL_SMOOTH);
+//	glShadeModel(GL_SMOOTH);
 
 	/* initialize viewing values */
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
-	glScalef(1.0, -1.0, 1.0);
-	glTranslatef(0.0, -1.0, 0.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();//clear matrix
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//	glScalef(1.0, -1.0, 1.0);
+//	glTranslatef(0.0, -1.0, 0.0);
 	gr_palette_step_up(0,0,0);//in case its left over from in game
-}
 
-int last_screen_mode=-1;
-extern void ogl_init_pixel_buffers(int w, int h);
-extern void ogl_close_pixel_buffers(void);
-
-void ogl_set_screen_mode(void){
-	if (last_screen_mode==Screen_mode)
-		return;
-
-	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
-
-	if (Screen_mode==SCREEN_GAME){
-		glDrawBuffer(GL_BACK);
-	}else{
-		glClearColor(0.0, 0.0, 0.0, 0.0);
-		glDrawBuffer(GL_FRONT);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();//clear matrix
-		glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();//clear matrix
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
 	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
-	last_screen_mode=Screen_mode;
 }
 
 void gr_update()
@@ -163,6 +144,12 @@ void gr_update()
 			glFlush();
 		}
 	}
+}
+
+// Set the buffer to draw to. 0 is front, 1 is back
+void gr_set_draw_buffer(int buf)
+{
+	glDrawBuffer((buf == 0) ? GL_FRONT : GL_BACK);
 }
 
 const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
@@ -346,8 +333,6 @@ return 0;
 
 	//if (screen != NULL) gr_palette_clear();
 
-//	ogl_init_state();
-
 	if ((i=FindResArg("aspect", &ah, &aw)) && (i < argnum)) { argnum = i; awidth=aw; aheight=ah; }
 	
 	gr_bm_data=(char *)grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
@@ -375,8 +360,8 @@ return 0;
 
 	OGL_VIEWPORT(0,0,w,h);
 
-	ogl_set_screen_mode();
-
+	ogl_init_state();
+	
 	gr_update();
 
 //	gamefont_choose_game_font(w,h);

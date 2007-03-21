@@ -124,7 +124,6 @@ extern void WinDelay(int msecs);
 
 // misc functions
 extern void WErrorPrint(char *msg);
-extern dd_grs_canvas *get_current_game_screen();
 extern BOOL SOSInit();
 extern void SOSUnInit();
 

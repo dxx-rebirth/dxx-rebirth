@@ -162,8 +162,6 @@ extern void reset_time(void);       // called when starting level
 // If automap_flag == 1, then call automap routine to write message.
 extern void save_screen_shot(int automap_flag);
 
-extern grs_canvas * get_current_game_screen();
-
 //valid modes for cockpit
 #define CM_FULL_COCKPIT     0   // normal screen with cockput
 #define CM_REAR_VIEW        1   // looking back with bitmap

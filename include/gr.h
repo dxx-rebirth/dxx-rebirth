@@ -402,7 +402,6 @@ extern int gr_renderstats;
 
 extern unsigned int FixDivide( unsigned int x, unsigned int y );
 
-extern void gr_show_canvas( grs_canvas *canv );
 extern void gr_set_current_canvas( grs_canvas *canv );
 
 //flags for fonts
@@ -477,6 +476,8 @@ extern void gr_merge_textures_2( ubyte * lower, ubyte * upper, ubyte * dest );
 extern void gr_merge_textures_3( ubyte * lower, ubyte * upper, ubyte * dest );
 
 extern void gr_update(void);
+extern void gr_flip(void);
+extern void gr_set_draw_buffer(int buf);
 
 /*
  * currently SDL and OGL are the only things that supports toggling

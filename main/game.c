@@ -182,7 +182,6 @@ int			VR_use_reg_code 	= 0;
 grs_canvas  *VR_offscreen_buffer	= NULL;		// The offscreen data buffer
 grs_canvas	VR_render_buffer[2];					//  Two offscreen buffers for left/right eyes.
 grs_canvas	VR_render_sub_buffer[2];			//  Two sub buffers for left/right eyes.
-grs_canvas	VR_screen_pages[2];					//  Two pages of VRAM if paging is available
 grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
 
 //do menus work in 640x480 or 320x200?
@@ -553,7 +552,7 @@ int set_screen_mode(int sm)
 	}
 
 	if ( Screen_mode == sm && VGA_current_mode == VR_screen_mode) {
-		gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
+		gr_set_current_canvas(NULL);
 		return 1;
 	}
 
@@ -562,10 +561,8 @@ int set_screen_mode(int sm)
 			(grd_curscreen->sc_mode != Game_screen_mode)) &&
 		!((sm==SCREEN_MENU) &&
 			(grd_curscreen->sc_mode != MENU_SCREEN_MODE)) ) {
-		gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
-#ifdef OGL
-		ogl_set_screen_mode();
-#endif
+		gr_set_current_canvas(NULL);
+		gr_set_draw_buffer(0);	// Set to the front buffer
 		return 1;
 	}
 
@@ -582,8 +579,6 @@ int set_screen_mode(int sm)
 			if (gr_set_mode(MENU_SCREEN_MODE)) Error("Cannot set screen mode for game!");
 			gr_palette_load( gr_palette );
 		}
-                gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-		gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 		break;
 
 	case SCREEN_GAME:
@@ -601,15 +596,6 @@ int set_screen_mode(int sm)
 
 		max_window_w = grd_curscreen->sc_w;
 		max_window_h = grd_curscreen->sc_h;
-
-		// Define screen pages for game mode
-		// If we designate through screen_flags to use paging, then do so.
-		gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-
-		if ( VR_screen_flags&VRF_USE_PAGING )
-			gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, grd_curscreen->sc_h, grd_curscreen->sc_w, grd_curscreen->sc_h );
-		else
-			gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 
 		init_cockpit();
 
@@ -629,8 +615,6 @@ int set_screen_mode(int sm)
 
 		gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 		Canv_editor = &VR_editor_canvas;
-		gr_init_sub_canvas( &VR_screen_pages[0], Canv_editor, 0, 0, Canv_editor->cv_w, Canv_editor->cv_h );
-		gr_init_sub_canvas( &VR_screen_pages[1], Canv_editor, 0, 0, Canv_editor->cv_w, Canv_editor->cv_h );
 		gr_set_current_canvas( Canv_editor );
 		init_editor_screen();   //setup other editor stuff
 		break;
@@ -640,22 +624,14 @@ int set_screen_mode(int sm)
 			if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
 			gr_palette_load( gr_palette );
 		}
-                gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, MOVIE_WIDTH,MOVIE_HEIGHT );
-		gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, MOVIE_WIDTH,MOVIE_HEIGHT );
 		break;
 	default:
 		Error("Invalid screen mode %d",sm);
 	}
 
-	VR_current_page = 0;
+	gr_set_current_canvas(NULL);
 
-	gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
-
-	if ( VR_screen_flags&VRF_USE_PAGING )
-		gr_show_canvas( &VR_screen_pages[VR_current_page] );
-#ifdef OGL
-	ogl_set_screen_mode();
-#endif
+	gr_set_draw_buffer(((Screen_mode == SCREEN_GAME) && Game_double_buffer) ? 1 : 0); // Double buffering or 'front' buffer only
 
 	return 1;
 }
@@ -1069,11 +1045,8 @@ void save_screen_shot(int automap_flag)
 		sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
 	}
 
-	if (!automap_flag)		//if from automap, curcanv is already visible canv
-		gr_set_current_canvas(NULL);
+	gr_set_current_canvas(NULL);
 	modex_flag = (grd_curcanv->cv_bitmap.bm_type==BM_MODEX);
-	if (!automap_flag && modex_flag)
-		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 
 	save_font = grd_curcanv->cv_font;
 	gr_set_curfont(GAME_FONT);
@@ -1137,7 +1110,7 @@ void save_screen_shot(int automap_flag)
 		goto shot_done;
 	gr_set_current_canvas( temp_canv );
 	gr_ubitmap( 0, 0, &screen_canv->cv_bitmap );
-	gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
+	gr_set_current_canvas(NULL);
 
 	show_cursor();
 	key_close();
@@ -1947,11 +1920,6 @@ void close_game()
 	clear_warn_func(game_show_warning);     //don't use this func anymore
 }
 
-grs_canvas * get_current_game_screen()
-{
-	return &VR_screen_pages[VR_current_page];
-}
-
 
 extern void kconfig_center_headset();
 
@@ -2219,7 +2187,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			}
 			game_render_frame();
 // 			show_extra_views();		//missile view, buddy bot, etc.
-			gr_update();
 			#ifndef RELEASE
 			if (Saving_movie_frames)
 				save_movie_frame();

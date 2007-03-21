@@ -155,15 +155,8 @@ static short DrawingListBright[MAX_EDGES];
 #define ZOOM_SPEED_FACTOR		(500)	//(1500)
 #define ROT_SPEED_DIVISOR		(115000)
 
-// Screen anvas variables
-#ifndef OGL
-static int current_page=0;
-#endif /* OGL */
-static grs_canvas Pages[2];
-static grs_canvas DrawingPages[2];
-
-#define Page Pages[0]
-#define DrawingPage DrawingPages[0]
+// Screen canvas variables
+static grs_canvas Automap_view;
 
 // Flags
 static int Automap_cheat = 0; // If set, show everything
@@ -399,7 +392,7 @@ void draw_player( object * obj )
 
 void create_name_canv(void);
 
-void draw_automap()
+void draw_automap(int flip)
 {
 	int i;
 	int color;
@@ -408,7 +401,7 @@ void draw_automap()
 	g3s_point sphere_point;
 
 #ifndef OGL
-	gr_set_current_canvas(&DrawingPage);
+	gr_set_current_canvas(&Automap_view);
 #endif
 
 	gr_clear_canvas(BM_XRGB(0,0,0));
@@ -496,14 +489,10 @@ void draw_automap()
 // 	gr_bitmapm(grd_curcanv->cv_bitmap.bm_w-10-name_canv_right->cv_bitmap.bm_w,10,&name_canv_right->cv_bitmap);
 	create_name_canv();
 
-#ifdef OGL
-	ogl_swap_buffers();
-#else
-#ifndef OGL
-	gr_bm_ubitblt( Page.cv_bitmap.bm_w, Page.cv_bitmap.bm_h, Page.cv_bitmap.bm_x, Page.cv_bitmap.bm_y, 0, 0, &Page.cv_bitmap, &grd_curscreen->sc_canvas.cv_bitmap );
-	gr_update();
-#endif
-#endif
+	if (flip)
+		gr_flip();
+	else
+		gr_update();
 }
 
 #define LEAVE_TIME 0x4000
@@ -612,7 +601,7 @@ void do_automap( int key_code )	{
 	int leave_mode=0;
 	int first_time=1;
 	int pcx_error;
-#if !defined(OGL) || !defined(NDEBUG)
+#ifndef NDEBUG
 	int i;
 #endif
 	int c, marker_num;
@@ -627,7 +616,6 @@ void do_automap( int key_code )	{
 	int SegmentLimit = 1;
 	ubyte pal[256*3];
 	char maxdrop;
-	int must_free_canvas=0;
 	
 	Automap_active = 1;
 
@@ -664,18 +652,9 @@ void do_automap( int key_code )	{
 
 
 #ifndef OGL
-	if (VR_render_buffer[0].cv_w >= automap_width && VR_render_buffer[0].cv_h >= automap_height)
-		gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
-	else {
-		void *raw_data;
-		MALLOC(raw_data,ubyte,automap_width*automap_height);
-		gr_init_canvas(&Page,raw_data,BM_LINEAR,automap_width,automap_height);
-		must_free_canvas = 1;
-	}
+	gr_init_sub_canvas(&Automap_view, &grd_curscreen->sc_canvas, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
 
-	gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
-
-	gr_set_current_canvas(&Page);
+	gr_set_current_canvas(NULL);
 
 	pcx_error = pcx_read_fullscr(MAP_BACKGROUND_FILENAME, pal);
 	if ( pcx_error != PCX_ERROR_NONE )	{
@@ -693,7 +672,7 @@ void do_automap( int key_code )	{
 	gr_printf(RESCALE_X(60), RESCALE_Y(443), TXT_SLIDE_UPDOWN);
 	gr_printf(RESCALE_X(60), RESCALE_Y(460), TXT_VIEWING_DISTANCE);
 	
-	gr_set_current_canvas(&DrawingPage);
+	gr_set_current_canvas(&Automap_view);
 #endif
 
 	automap_build_edge_list();
@@ -726,21 +705,12 @@ void do_automap( int key_code )	{
 	if (pcx_error != PCX_ERROR_NONE)
 		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 	gr_remap_bitmap_good(&Automap_background, pal, -1, -1);
-
-	if (VR_render_buffer[0].cv_w >= automap_width && VR_render_buffer[0].cv_h >= automap_height)
-		gr_init_sub_canvas(&Page,&VR_render_buffer[0],0, 0, automap_width, automap_height);
-	else {
-		void *raw_data;
-		MALLOC(raw_data,ubyte,automap_width*automap_height);
-		gr_init_canvas(&Page,raw_data,BM_LINEAR,automap_width,automap_height);
-		must_free_canvas = 1;
-	}
+	gr_init_sub_canvas(&Automap_view, &grd_curscreen->sc_canvas, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
 #endif
 
 	while(!done)	{
 #ifdef OGL
-		gr_init_sub_canvas(&DrawingPage, &Page, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
-		gr_set_current_canvas(&Page);
+		gr_set_current_canvas(NULL);
 		if (automap_height<400)
 			show_fullscr(&Automap_background);
 		else
@@ -753,7 +723,7 @@ void do_automap( int key_code )	{
 		gr_printf(RESCALE_X(60), RESCALE_Y(426), TXT_TURN_SHIP);
 		gr_printf(RESCALE_X(60), RESCALE_Y(443), TXT_SLIDE_UPDOWN);
 		gr_printf(RESCALE_X(60), RESCALE_Y(460), TXT_VIEWING_DISTANCE);
-		gr_set_current_canvas(&DrawingPage);
+		gr_set_current_canvas(&Automap_view);
 #endif
 		if ( leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-entry_time)>LEAVE_TIME)
 			leave_mode = 1;
@@ -870,15 +840,8 @@ void do_automap( int key_code )	{
 			  break;
 
 			case KEY_D+KEY_CTRLED:
-#ifndef OGL
-				if (current_page)		//menu will only work on page 0
-					draw_automap();		//..so switch from 1 to 0
-#endif
- 
 				if (HighlightMarker > -1 && MarkerObject[HighlightMarker] != -1) {
-#ifndef OGL
-					gr_set_current_canvas(&Pages[current_page]);
-#endif
+					gr_set_current_canvas(NULL);
 					if (nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "Delete Marker?" ) == 0) {
 						obj_delete(MarkerObject[HighlightMarker]);
 						MarkerObject[HighlightMarker]=-1;
@@ -944,7 +907,7 @@ void do_automap( int key_code )	{
 		if ( ViewDist < ZOOM_MIN_VALUE ) ViewDist = ZOOM_MIN_VALUE;
 		if ( ViewDist > ZOOM_MAX_VALUE ) ViewDist = ZOOM_MAX_VALUE;
 
-		draw_automap();
+		draw_automap(Game_double_buffer);
 
 		if ( first_time )	{
 			first_time = 0;
@@ -967,13 +930,10 @@ void do_automap( int key_code )	{
 // 	gr_free_canvas(name_canv_left);  name_canv_left=NULL;
 // 	gr_free_canvas(name_canv_right);  name_canv_right=NULL;
 
-	if (must_free_canvas)
-		d_free(Page.cv_bitmap.bm_data);
 #ifdef OGL
-		gr_free_bitmap_data(&Automap_background);
+	gr_free_bitmap_data(&Automap_background);
+	mprintf( (0, "Automap background memory freed\n" ));
 #endif
-
-	mprintf( (0, "Automap memory freed\n" ));
 
 	game_flush_inputs();
 	

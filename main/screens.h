@@ -65,7 +65,6 @@ extern int			VR_sensitivity;
 extern grs_canvas	*VR_offscreen_buffer;		// The offscreen data buffer
 extern grs_canvas	VR_render_buffer[2];		// Two offscreen buffers for left/right eyes.
 extern grs_canvas	VR_render_sub_buffer[2];	// Two sub buffers for left/right eyes.
-extern grs_canvas	VR_screen_pages[2];			// Two pages of VRAM if paging is available
 extern grs_canvas	VR_screen_sub_pages[2];		// Two sub pages of VRAM if paging is available
 
 //values for VR_screen_flags

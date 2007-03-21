@@ -24,10 +24,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 #include "grdef.h"
-#ifdef __DJGPP__
-#include "modex.h"
-#include "vesa.h"
-#endif
 
 grs_canvas * grd_curcanv;    //active canvas
 grs_screen * grd_curscreen;  //active screen
@@ -100,22 +96,6 @@ void gr_free_canvas(grs_canvas *canv)
 void gr_free_sub_canvas(grs_canvas *canv)
 {
     d_free(canv);
-}
-
-int gr_wait_for_retrace = 1;
-
-void gr_show_canvas( grs_canvas *canv )
-{
-#ifdef __DJGPP__
-	if (canv->cv_bitmap.bm_type == BM_MODEX )
-		gr_modex_setstart( canv->cv_bitmap.bm_x, canv->cv_bitmap.bm_y, gr_wait_for_retrace );
-
-	else if (canv->cv_bitmap.bm_type == BM_SVGA )
-		gr_vesa_setstart( canv->cv_bitmap.bm_x, canv->cv_bitmap.bm_y );
-#endif
-		//	else if (canv->cv_bitmap.bm_type == BM_LINEAR )
-		// Int3();		// Get JOHN!
-		//gr_linear_movsd( canv->cv_bitmap.bm_data, (void *)gr_video_memory, 320*200);
 }
 
 void gr_set_current_canvas( grs_canvas *canv )

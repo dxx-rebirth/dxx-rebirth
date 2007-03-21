@@ -1174,7 +1174,7 @@ void show_homing_warning(void)
 		return;
 	}
 
-	gr_set_current_canvas( get_current_game_screen() );
+	gr_set_current_canvas( NULL );
 
 
 	if (Players[Player_num].homing_object_dist >= 0) {
@@ -2032,7 +2032,7 @@ void draw_energy_bar(int energy)
 				}
 			}
 		}
-	gr_set_current_canvas( get_current_game_screen() );
+	gr_set_current_canvas( NULL );
 	
 	// Draw right energy bar
 	PAGE_IN_GAUGE( GAUGE_ENERGY_RIGHT );
@@ -2067,7 +2067,7 @@ void draw_energy_bar(int energy)
 				}
 			}
 		}
-	gr_set_current_canvas( get_current_game_screen() );
+	gr_set_current_canvas( NULL );
 }
 
 ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = {
@@ -2203,7 +2203,7 @@ void draw_afterburner_bar(int afterburner)
 			}
 		}
 
-	gr_set_current_canvas( get_current_game_screen() );
+	gr_set_current_canvas( NULL );
 }
 
 void draw_shield_bar(int shield)
@@ -2296,7 +2296,7 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w), COCKPITSCALE_Y*(y+bm->bm_h));
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 
-	gr_set_current_canvas( get_current_game_screen() );
+	gr_set_current_canvas( NULL );
 
 	gr_bm_ubitbltm( bm->bm_w, bm->bm_h, x, y, x, y, &VR_render_buffer[0].cv_bitmap, &grd_curcanv->cv_bitmap);
 }
@@ -2322,13 +2322,13 @@ void draw_numerical_display(int shield, int energy)
 	gr_printf(	(grd_curscreen->sc_w/1.951)-(ew/2),
 			(grd_curscreen->sc_h/1.5),"%d",energy);
 	
-	gr_set_current_canvas( get_current_game_screen() );
+	gr_set_current_canvas( NULL );
 }
 
 
 void draw_keys()
 {
-	gr_set_current_canvas( get_current_game_screen() );
+	gr_set_current_canvas( NULL );
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY )	{
 		PAGE_IN_GAUGE( GAUGE_BLUE_KEY );
@@ -2569,7 +2569,7 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		Gr_scanline_darkening_level = GR_FADE_LEVELS;
 	}
 
-	gr_set_current_canvas(get_current_game_screen());
+	gr_set_current_canvas(NULL);
 	return drew_flag;
 }
 
@@ -2617,7 +2617,7 @@ void draw_static(int win)
 		draw_wbu_border(&gauge_boxes[boxofs+win]);
 #endif
 
-	gr_set_current_canvas(get_current_game_screen());
+	gr_set_current_canvas(NULL);
 
 	copy_gauge_box(&gauge_boxes[boxofs+win],&VR_render_buffer[0].cv_bitmap);
 }
@@ -2707,7 +2707,7 @@ void sb_draw_energy_bar(energy)
 	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
 	gr_printf((grd_curscreen->sc_w/3)-(ew/2),COCKPITSCALE_Y*(SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4)),"%d",energy);
 
-	gr_set_current_canvas(get_current_game_screen());
+	gr_set_current_canvas(NULL);
 }
 
 void sb_draw_afterburner()
@@ -2734,7 +2734,7 @@ void sb_draw_afterburner()
 
 	gr_get_string_size(ab_str, &w, &h, &aw );
 	gr_printf(COCKPITSCALE_X*(SB_AFTERBURNER_GAUGE_X+(SB_AFTERBURNER_GAUGE_W+1)/2)-(w/2), COCKPITSCALE_Y*(SB_AFTERBURNER_GAUGE_Y+(SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB");
-	gr_set_current_canvas(get_current_game_screen());
+	gr_set_current_canvas(NULL);
 }
 
 void sb_draw_shield_num(int shield)
@@ -2753,7 +2753,7 @@ void sb_draw_shield_bar(int shield)
 {
 	int bm_num = shield>=100?9:(shield / 10);
 
-	gr_set_current_canvas(get_current_game_screen());
+	gr_set_current_canvas(NULL);
 	PAGE_IN_GAUGE( GAUGE_SHIELDS+9-bm_num );
 	hud_bitblt( SB_SHIELD_GAUGE_X, SB_SHIELD_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(GAUGE_SHIELDS+9-bm_num) ], F1_0);
 }
@@ -2763,7 +2763,7 @@ void sb_draw_keys()
 	grs_bitmap * bm;
 	int flags = Players[Player_num].flags;
 
-	gr_set_current_canvas(get_current_game_screen());
+	gr_set_current_canvas(NULL);
 	bm = &GameBitmaps[ GET_GAUGE_INDEX((flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF) ];
 	PAGE_IN_GAUGE( (flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF );
 	hud_bitblt( SB_GAUGE_KEYS_X, SB_GAUGE_BLUE_KEY_Y, bm, F1_0);
@@ -2780,7 +2780,7 @@ void draw_invulnerable_ship()
 {
 	static fix time=0;
 
-	gr_set_current_canvas(get_current_game_screen());
+	gr_set_current_canvas(NULL);
 
 	if (((Players[Player_num].invulnerable_time + INVULNERABLE_TIME_MAX - GameTime) > F1_0*4) || (GameTime & 0x8000)) {
 
@@ -3312,7 +3312,7 @@ void render_gauges()
 
 	if (shields < 0 ) shields = 0;
 
-	gr_set_current_canvas(get_current_game_screen());
+	gr_set_current_canvas(NULL);
 	gr_set_curfont( GAME_FONT );
 
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -3486,7 +3486,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 		weapon_box_user[win] = user;
 
 		if (overlap_dirty[win]) {
-			gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+			gr_set_current_canvas(NULL);
 			fill_background();
 			overlap_dirty[win] = 0;
 		}
@@ -3515,7 +3515,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 		//copy these vars so stereo code can get at them
 		SW_drawn[win]=1; SW_x[win] = window_x; SW_y[win] = window_y; SW_w[win] = w; SW_h[win] = h; 
 
-		gr_init_sub_canvas(&window_canv,&VR_screen_pages[VR_current_page],window_x,window_y,w,h);
+		gr_init_sub_canvas(&window_canv,&grd_curscreen->sc_canvas,window_x,window_y,w,h);
 	}
 	else {
 		if (Cockpit_mode == CM_FULL_COCKPIT)
@@ -3568,10 +3568,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 			//the small window is completely outside the big 3d window, so
 			//copy it to the visible screen
 
-			if (VR_screen_flags & VRF_USE_PAGING)
-				gr_set_current_canvas(&VR_screen_pages[!VR_current_page]);
-			else
-				gr_set_current_canvas(get_current_game_screen());
+			gr_set_current_canvas(NULL);
 
 			gr_bitmap(window_x,window_y,&window_canv.cv_bitmap);
 
@@ -3587,10 +3584,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 			
 				gr_init_sub_canvas(&overlap_canv,&window_canv,0,window_canv.cv_bitmap.bm_h-extra_part_h,window_canv.cv_bitmap.bm_w,extra_part_h);
 
-				if (VR_screen_flags & VRF_USE_PAGING)
-					gr_set_current_canvas(&VR_screen_pages[!VR_current_page]);
-				else
-					gr_set_current_canvas(get_current_game_screen());
+				gr_set_current_canvas(NULL);
 
 				gr_bitmap(window_x,big_window_bottom+1,&overlap_canv.cv_bitmap);
 				
@@ -3600,7 +3594,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	}
 	else {
 	
-		gr_set_current_canvas(get_current_game_screen());
+		gr_set_current_canvas(NULL);
 		copy_gauge_box(box,&VR_render_buffer[0].cv_bitmap);
 	}
 

@@ -1474,11 +1474,12 @@ void ogl_end_frame(void){
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 }
-void ogl_swap_buffers(void){
+void gr_flip(void)
+{
 	ogl_clean_texture_cache();
 	if (gr_renderstats){
 		gr_printf(5,GAME_FONT->ft_h*13+3*13,"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc);
-//	glmprintf((0,"ogl_end_frame: %i polys, %i tmaps, %i sprites, %i bitmaps, %i bitblts, %i pixels\n",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc,r_ubitbltc,r_upixelc));//we need to do it here because some things get drawn after end_frame
+		//	glmprintf((0,"ogl_end_frame: %i polys, %i tmaps, %i sprites, %i bitmaps, %i bitblts, %i pixels\n",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc,r_ubitbltc,r_upixelc));//we need to do it here because some things get drawn after end_frame
 	}
 	ogl_do_palfx();
 	ogl_swap_buffers_internal();

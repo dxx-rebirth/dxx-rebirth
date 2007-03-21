@@ -185,7 +185,7 @@ extern void	check_rear_view(void);
 extern int	create_special_path(void);
 extern void move_player_2_segment(segment *seg, int side);
 extern void	kconfig_center_headset(void);
-extern void game_render_frame_mono(void);
+extern void game_render_frame_mono(int flip);
 extern void newdemo_strip_frames(char *, int);
 extern void toggle_cockpit(void);
 extern int  dump_used_textures_all(void);
@@ -821,7 +821,7 @@ void HandleDemoKey(int key)
 
 			old_state = Newdemo_vcr_state;
 			Newdemo_vcr_state = ND_STATE_PRINTSCREEN;
-			game_render_frame_mono();
+			game_render_frame_mono(Game_double_buffer);
 			save_screen_shot(0);
 			Newdemo_vcr_state = old_state;
 			break;

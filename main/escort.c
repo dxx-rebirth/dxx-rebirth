@@ -1949,7 +1949,7 @@ void show_escort_menu(char *msg)
 	int	x,y;
 
 
-	gr_set_current_canvas(&VR_screen_pages[0]);
+	gr_set_current_canvas(NULL);
 
 	gr_set_curfont( GAME_FONT );
 

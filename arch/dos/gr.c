@@ -310,6 +310,7 @@ void gr_close()
 	{
 		gr_installed = 0;
 		gr_restore_mode();
+		gr_free_bitmap_data(&grd_curscreen->sc_canvas.cv_bitmap);
 		free(grd_curscreen);
   		if( gr_saved_screen.video_memory ) {
 			free(gr_saved_screen.video_memory);
@@ -330,6 +331,13 @@ int gr_vesa_setmode( int mode )
 }
 #endif
 
+
+static int current_page=0;
+static grs_canvas Pages[2];
+static grs_canvas video_buffer;	// The VRAM is here, avoids complication (see below)
+static int must_free_canvas = 0;
+
+#define Page Pages[current_page]
 
 int gr_set_mode(u_int32_t mode)
 {
@@ -431,20 +439,44 @@ return 0;
 	}
 	gr_palette_clear();
 
+	if (must_free_canvas)
+		gr_free_bitmap_data(&grd_curscreen->sc_canvas.cv_bitmap);
 	memset( grd_curscreen, 0, sizeof(grs_screen));
+	memset(video_buffer, 0, sizeof(grs_canvas));
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-        grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*3,grd_curscreen->sc_h*4);
-	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_h = h;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = r;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_type = t;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_data = (unsigned char *)data;
-        VGA_current_mode = mode;
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*3,grd_curscreen->sc_h*4);
+	video_buffer.cv_bitmap.bm_x = 0;
+	video_buffer.cv_bitmap.bm_y = 0;
+	video_buffer.cv_bitmap.bm_w = w;
+	video_buffer.cv_bitmap.bm_h = h;
+	video_buffer.cv_bitmap.bm_rowsize = r;
+	video_buffer.cv_bitmap.bm_type = t;
+	video_buffer.cv_bitmap.bm_data = (unsigned char *)data;
+	video_buffer.cv_bitmap.bm_x = 0;
+	
+	// The 'screen' canvas is an offscreen buffer, this gets copied to the video RAM.
+	// It is possible to get it to draw directly to the video RAM, but this wouild be
+	// single buffering for most video modes and is more complicated after moving all
+	// the buffers here.
+	// In addition, there does not appear to be texture mapping functions that draw to
+	// non-LINEAR buffers, although this could possibly be done by using gr_pixel.
+	{
+		void *raw_data;
+		
+		MALLOC(raw_data,ubyte,w*h);
+		gr_init_canvas(&grd_curscreen->sc_canvas,raw_data,BM_LINEAR,w,h);
+		must_free_canvas = 1;
+	}
+	VGA_current_mode = mode;
 	gr_set_current_canvas(NULL);
+
+	if (mode == SM(320,400))	// paging is enabled for this video mode
+	{
+		gr_init_sub_canvas(&Pages[0], video_buffer, 0, 0, w, h);
+		gr_init_sub_canvas(&Pages[1], video_buffer, 0, h, w, h);
+	}
 
 	//gr_enable_default_palette_loading();
 //        gamefont_choose_game_font(w,h);
@@ -740,5 +772,56 @@ void gr_palette_read(ubyte * palette)
 	}
 }
 
+void set_video_scan_start( grs_canvas *canv, int wait_for_retrace )
+{
+	if (canv->cv_bitmap.bm_type == BM_MODEX )
+		gr_modex_setstart( canv->cv_bitmap.bm_x, canv->cv_bitmap.bm_y, wait_for_retrace );
+	
+	else if (canv->cv_bitmap.bm_type == BM_SVGA )
+		gr_vesa_setstart( canv->cv_bitmap.bm_x, canv->cv_bitmap.bm_y );
+
+	//	else if (canv->cv_bitmap.bm_type == BM_LINEAR )
+	// Int3();		// Get JOHN!
+	//gr_linear_movsd( canv->cv_bitmap.bm_data, (void *)gr_video_memory, 320*200);
+}
+
+#define sc_bitmap grd_curscreen->sc_canvas.cv_bitmap
+
 void gr_update(void)
-{ }
+{
+	if (grd_curscreen->sc_mode == SM(320, 400))	// no page flipping here
+	{
+		gr_bm_ubitblt( sc_bitmap.bm_w, sc_bitmap.bm_h, sc_bitmap.bm_x, sc_bitmap.bm_y, 0, 0, &sc_bitmap, &Page.cv_bitmap );
+		//set_video_scan_start( &Page, 1 );	// this doesn't seem to be necessary
+	}
+	else
+	{
+		gr_bm_ubitblt( sc_bitmap.bm_w, sc_bitmap.bm_h, sc_bitmap.bm_x, sc_bitmap.bm_y, 0, 0, &sc_bitmap, &Page.cv_bitmap );
+	}
+}
+
+void gr_flip(void)
+{
+	if (grd_curscreen->sc_mode == SM(320, 400))	// page flipping
+	{
+		gr_bm_ubitblt( sc_bitmap.bm_w, sc_bitmap.bm_h, sc_bitmap.bm_x, sc_bitmap.bm_y, 0, 0, &sc_bitmap, &Page.cv_bitmap );
+		set_video_scan_start( &Page, 0 );
+		current_page ^= 1;
+	}
+	else
+	{
+		gr_bm_ubitblt( sc_bitmap.bm_w, sc_bitmap.bm_h, sc_bitmap.bm_x, sc_bitmap.bm_y, 0, 0, &sc_bitmap, &Page.cv_bitmap );
+	}
+}
+
+// Set the buffer to draw to. 0 is front, 1 is back
+// Currently unused
+void gr_set_draw_buffer(int buf)
+{
+	if (buf == 0)
+	{
+		current_page = buf;
+		set_video_scan_start(&Page, 1);
+	}
+}
+

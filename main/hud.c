@@ -81,7 +81,7 @@ void clear_background_messages(void)
 	if (((Cockpit_mode == CM_STATUS_BAR) || (Cockpit_mode == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (VR_render_sub_buffer[0].cv_bitmap.bm_y >= 6)) {
 		grs_canvas	*canv_save = grd_curcanv;
 
-		gr_set_current_canvas(get_current_game_screen());
+		gr_set_current_canvas(NULL);
 
 		copy_background_rect(0, Last_msg_ycrd, grd_curcanv->cv_bitmap.bm_w, Last_msg_ycrd+Last_msg_height-1);
 
@@ -177,7 +177,7 @@ void HUD_render_message_frame()
 				if (ycrd < 0)
 					ycrd = 0;
 
-				gr_set_current_canvas(get_current_game_screen());
+				gr_set_current_canvas(NULL);
 
 				gr_set_curfont( SMALL_FONT );
 				gr_get_string_size(message, &w, &h, &aw );
@@ -235,7 +235,7 @@ void HUD_render_message_frame()
 			}
 		}
 	}
-	else if (get_current_game_screen()->cv_bitmap.bm_type == BM_MODEX) {
+	else if (grd_curscreen->sc_canvas.cv_bitmap.bm_type == BM_MODEX) {
 		if (Modex_hud_msg_count) {
 			int	temp = Last_msg_ycrd;
 			Modex_hud_msg_count--;
