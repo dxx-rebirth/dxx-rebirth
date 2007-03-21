@@ -62,7 +62,7 @@ fix HUD_message_timer = 0;      // Time, relative to Players[Player_num].time (i
 char  HUD_messages[HUD_MAX_NUM][HUD_MESSAGE_LENGTH+5];
 
 extern void copy_background_rect(int left,int top,int right,int bot);
-char Displayed_background_message[2][HUD_MESSAGE_LENGTH] = {"",""};
+char Displayed_background_message[HUD_MESSAGE_LENGTH] = "";
 int Last_msg_ycrd = -1;
 int Last_msg_height = 6;
 int HUD_color = -1;
@@ -90,7 +90,7 @@ void clear_background_messages(void)
 		Last_msg_ycrd = -1;
 	}
 
-	Displayed_background_message[VR_current_page][0] = 0;
+	Displayed_background_message[0] = 0;
 
 }
 
@@ -168,7 +168,7 @@ void HUD_render_message_frame()
 			// Only display the most recent message in this mode
 			char	*message = HUD_messages[(hud_first+HUD_nmessages-1) % HUD_MAX_NUM];
 
-			if (strcmp(Displayed_background_message[VR_current_page], message)) {
+			if (strcmp(Displayed_background_message, message)) {
 				int	ycrd;
 				grs_canvas	*canv_save = grd_curcanv;
 
@@ -190,13 +190,13 @@ void HUD_render_message_frame()
 					modex_hud_message((grd_curcanv->cv_bitmap.bm_w-w)/2, ycrd, message, SMALL_FONT, HUD_color);
 					if (Modex_hud_msg_count > 0) {
 						Modex_hud_msg_count--;
-						Displayed_background_message[VR_current_page][0] = '!';
+						Displayed_background_message[0] = '!';
 					} else
-						strcpy(Displayed_background_message[VR_current_page], message);
+						strcpy(Displayed_background_message, message);
 				} else {
 					gr_set_fontcolor( HUD_color, -1);
 					gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, ycrd, message );
-					strcpy(Displayed_background_message[VR_current_page], message);
+					strcpy(Displayed_background_message, message);
 				}
 
 				gr_set_current_canvas(canv_save);

@@ -166,7 +166,6 @@ int time_stopped,time_started;
 int			VR_screen_mode			= 0;
 
 ubyte			VR_screen_flags	= 0;		//see values in screens.h
-ubyte			VR_current_page	= 0;
 fix			VR_eye_width		= F1_0;
 int			VR_render_mode		= VR_NONE;
 int			VR_low_res 			= 3;				// Default to low res
@@ -1057,8 +1056,6 @@ void save_screen_shot(int automap_flag)
 		h *= 2;
 
 	//I changed how these coords were calculated for the high-res automap. -MT
-	//x = (VR_screen_pages[VR_current_page].cv_w-w)/2;
-	//y = (VR_screen_pages[VR_current_page].cv_h-h)/2;
 	x = (grd_curcanv->cv_w-w)/2;
 	y = (grd_curcanv->cv_h-h)/2;
 

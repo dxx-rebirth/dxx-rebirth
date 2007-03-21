@@ -140,9 +140,9 @@ void gr_update()
 {
 	if (gl_initialized){
 
-		if(Screen_mode != SCREEN_GAME){
+//		if(Screen_mode != SCREEN_GAME){
 			glFlush();
-		}
+//		}
 	}
 }
 

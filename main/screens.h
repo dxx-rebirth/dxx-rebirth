@@ -41,7 +41,6 @@ extern int set_screen_mode(int sm);		// True = editor screen
 
 //About the screen
 extern ubyte		VR_screen_flags;
-extern ubyte		VR_current_page;
 extern fix			VR_eye_width;
 extern int 			VR_eye_switch;
 
@@ -69,7 +68,7 @@ extern grs_canvas	VR_screen_sub_pages[2];		// Two sub pages of VRAM if paging is
 
 //values for VR_screen_flags
 
-#define VRF_USE_PAGING			1		// means page flips
+//#define VRF_USE_PAGING			1		// means page flips
 #define VRF_SWITCH_EYES			2
 #define VRF_COMPATIBLE_MENUS	4
 #define VRF_ALLOW_COCKPIT		8

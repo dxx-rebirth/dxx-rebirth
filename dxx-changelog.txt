@@ -1,8 +1,9 @@
 D2X-Rebirth Changelog
 
-20070320
+20070321
 --------
 2d/canvas.c, arch/dos/gr.c, arch/ggi/gr.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/sdl/gr.c, arch/svgalib/gr.c, arch/win32/gr.c, arch/win32/win32.c, include/gr.c, include/ogl_init.h, main/automap.c, main/desw.h, main/escort.c, main/game.c, main/game.h, main/gamecntl.c, main/gamerend.c, main/gauges.c, main/hud.c, main/screens.h: add gr_flip, allowing significant cleanup including the moving of gr_show_canvas, Pages and VR_screen_pages to arch/dos/gr.c
+arch/ogl/gr.c, main/game.c, main/gamerend.c, main/gauges.c, main/hud.c, main/inferno.c, main/screens.h: remove final remnants of VR_current_page and VRF_USE_PAGING, also allowing -nodoublebuffer switch for all platforms. Fix single buffering for d2xgl
 
 20070306
 --------

@@ -960,7 +960,7 @@ void shrink_window()
 	}
 }
 
-int last_drawn_cockpit[2] = { -1, -1 };
+int last_drawn_cockpit = -1;
 extern void ogl_loadbmtexture(grs_bitmap *bm);
 
 // This actually renders the new cockpit onto the screen.
@@ -1013,8 +1013,8 @@ void update_cockpits(int force_redraw)
 
 	gr_set_current_canvas(NULL);
 
-	if (Cockpit_mode != last_drawn_cockpit[VR_current_page] || force_redraw )
-		last_drawn_cockpit[VR_current_page] = Cockpit_mode;
+	if (Cockpit_mode != last_drawn_cockpit || force_redraw )
+		last_drawn_cockpit = Cockpit_mode;
 	else
 		return;
 

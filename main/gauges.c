@@ -360,21 +360,21 @@ inline void hud_bitblt (int x, int y, grs_bitmap *bm, int scale)
 #define LHX(x)		((x)*(MenuHires?2:1))
 #define LHY(y)		((y)*(MenuHires?2.4:1))
 
-static int score_display[2];
+static int score_display;
 static fix score_time;
 
-static int old_score[2]				= { -1, -1 };
-static int old_energy[2]			= { -1, -1 };
-static int old_shields[2]			= { -1, -1 };
-static int old_flags[2]				= { -1, -1 };
-static int old_weapon[2][2]		= {{ -1, -1 },{-1,-1}};
-static int old_ammo_count[2][2]	= {{ -1, -1 },{-1,-1}};
-static int Old_Omega_charge[2]	= { -1, -1 };
-static int old_laser_level[2]		= { -1, -1 };
-static int old_cloak[2]				= { 0, 0 };
-static int old_lives[2]				= { -1, -1 };
-static fix old_afterburner[2]		= { -1, -1 };
-static int old_bombcount[2]		= { 0, 0 };
+static int old_score				= -1;
+static int old_energy			= -1;
+static int old_shields			= -1;
+static int old_flags				= -1;
+static int old_weapon[2]		= {-1,-1};
+static int old_ammo_count[2]	= {-1,-1};
+static int Old_Omega_charge	= -1;
+static int old_laser_level		= -1;
+static int old_cloak				= 0;
+static int old_lives				= -1;
+static fix old_afterburner		= -1;
+static int old_bombcount		= 0;
 
 static int invulnerable_frame = 0;
 
@@ -989,7 +989,7 @@ void hud_show_score_added()
 	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ) 
 		return;
 
-	if (score_display[0] == 0)
+	if (score_display == 0)
 		return;
 
 	gr_set_curfont( GAME_FONT );
@@ -1006,14 +1006,14 @@ void hud_show_score_added()
 		if (Cheats_enabled)
 			sprintf(score_str, "%s", TXT_CHEATER);
 		else
-			sprintf(score_str, "%5d", score_display[0]);
+			sprintf(score_str, "%5d", score_display);
 
 		gr_get_string_size(score_str, &w, &h, &aw );
 		gr_set_fontcolor(gr_getcolor(0, color, 0),-1 );
 		gr_printf(grd_curcanv->cv_w-w-FONTSCALE_X(LHX(12)), FONTSCALE_Y(Line_spacing+4), score_str);
 	} else {
 		score_time = 0;
-		score_display[0] = 0;
+		score_display = 0;
 	}
 	
 }
@@ -1031,7 +1031,7 @@ void sb_show_score()
 	else
 		redraw_score = -1;
 
-	//if (old_score[VR_current_page] == redraw_score)
+	//if (old_score == redraw_score)
 	{
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,20,0),-1 );
@@ -1059,7 +1059,7 @@ void sb_show_score()
 	//erase old score
 	gr_setcolor(BM_XRGB(0,0,0));
 // #ifndef OGL
-// 	gr_rect(last_x[(Current_display_mode?2:0)+VR_current_page],y,SB_SCORE_RIGHT,(y+GAME_FONT->ft_h));
+// 	gr_rect(last_x[Current_display_mode],y,SB_SCORE_RIGHT,(y+GAME_FONT->ft_h));
 // #endif
 
 	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ) 
@@ -1069,7 +1069,7 @@ void sb_show_score()
  
  	gr_printf(x,y,score_str);
 
-	last_x[(Current_display_mode?2:0)+VR_current_page] = x;
+	last_x[Current_display_mode] = x;
 }
 
 void sb_show_score_added()
@@ -1078,25 +1078,25 @@ void sb_show_score_added()
 	int w, h, aw;
 	char	score_str[32];
 	int x;
-	static int last_x[4]={SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_H,SB_SCORE_RIGHT_H};
-	static	int last_score_display[2] = { -1, -1};
+	static int last_x[2]={SB_SCORE_RIGHT_L,SB_SCORE_RIGHT_H};
+	static	int last_score_display = -1;
 	
 	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ) 
 		return;
 
-	if (score_display[VR_current_page] == 0)
+	if (score_display == 0)
 		return;
 
 	gr_set_curfont( GAME_FONT );
 
 	score_time -= FrameTime;
 	if (score_time > 0) {
-		if (score_display[VR_current_page] != last_score_display[VR_current_page])
+		if (score_display != last_score_display)
 		{
 			gr_setcolor(BM_XRGB(0,0,0));
-			gr_rect(COCKPITSCALE_X*last_x[(Current_display_mode?2:0)+VR_current_page],COCKPITSCALE_Y*SB_SCORE_ADDED_Y,COCKPITSCALE_X*SB_SCORE_ADDED_RIGHT,COCKPITSCALE_Y*(SB_SCORE_ADDED_Y+GAME_FONT->ft_h));
+			gr_rect(COCKPITSCALE_X*last_x[Current_display_mode],COCKPITSCALE_Y*SB_SCORE_ADDED_Y,COCKPITSCALE_X*SB_SCORE_ADDED_RIGHT,COCKPITSCALE_Y*(SB_SCORE_ADDED_Y+GAME_FONT->ft_h));
 
-			last_score_display[VR_current_page] = score_display[VR_current_page];
+			last_score_display = score_display;
 		}
 
 		color = f2i(score_time * 20) + 10;
@@ -1107,7 +1107,7 @@ void sb_show_score_added()
 		if (Cheats_enabled)
 			sprintf(score_str, "%s", TXT_CHEATER);
 		else
-			sprintf(score_str, "%5d", score_display[VR_current_page]);
+			sprintf(score_str, "%5d", score_display);
 
 		gr_get_string_size(score_str, &w, &h, &aw );
 
@@ -1118,20 +1118,20 @@ void sb_show_score_added()
 		gr_printf(x, COCKPITSCALE_Y*SB_SCORE_ADDED_Y, score_str);
 
 
-		last_x[(Current_display_mode?2:0)+VR_current_page] = x;
+		last_x[Current_display_mode] = x;
 
 	} else {
 		//erase old score
 		gr_setcolor(BM_XRGB(0,0,0));
-		gr_rect(last_x[(Current_display_mode?2:0)+VR_current_page],SB_SCORE_ADDED_Y,SB_SCORE_ADDED_RIGHT,SB_SCORE_ADDED_Y+GAME_FONT->ft_h);
+		gr_rect(last_x[Current_display_mode],SB_SCORE_ADDED_Y,SB_SCORE_ADDED_RIGHT,SB_SCORE_ADDED_Y+GAME_FONT->ft_h);
 
 		score_time = 0;
-		score_display[VR_current_page] = 0;
+		score_display = 0;
 
 	}
 }
 
-fix	Last_warning_beep_time[2] = {0,0};		//	Time we last played homing missile warning beep.
+fix	Last_warning_beep_time = 0;		//	Time we last played homing missile warning beep.
 
 //	-----------------------------------------------------------------------------
 void play_homing_warning(void)
@@ -1148,28 +1148,28 @@ void play_homing_warning(void)
 		else if (beep_delay < F1_0/8)
 			beep_delay = F1_0/8;
 
-		if (Last_warning_beep_time[VR_current_page] > GameTime)
-			Last_warning_beep_time[VR_current_page] = 0;
+		if (Last_warning_beep_time > GameTime)
+			Last_warning_beep_time = 0;
 
-		if (GameTime - Last_warning_beep_time[VR_current_page] > beep_delay/2) {
+		if (GameTime - Last_warning_beep_time > beep_delay/2) {
 			digi_play_sample( SOUND_HOMING_WARNING, F1_0 );
-			Last_warning_beep_time[VR_current_page] = GameTime;
+			Last_warning_beep_time = GameTime;
 		}
 	}
 }
 
-int	Last_homing_warning_shown[2]={-1,-1};
+int	Last_homing_warning_shown = -1;
 
 //	-----------------------------------------------------------------------------
 void show_homing_warning(void)
 {
 	if ((Cockpit_mode == CM_STATUS_BAR) || (Endlevel_sequence)) {
-		if (Last_homing_warning_shown[VR_current_page] == 1) {
+		if (Last_homing_warning_shown == 1) {
 			PAGE_IN_GAUGE( GAUGE_HOMING_WARNING_OFF );
 
 			hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF) ], F1_0);
 
-			Last_homing_warning_shown[VR_current_page] = 0;
+			Last_homing_warning_shown = 0;
 		}
 		return;
 	}
@@ -1180,22 +1180,22 @@ void show_homing_warning(void)
 	if (Players[Player_num].homing_object_dist >= 0) {
 
 		if (GameTime & 0x4000) {
-			if (Last_homing_warning_shown[VR_current_page] != 1) {
+			if (Last_homing_warning_shown != 1) {
 				PAGE_IN_GAUGE( GAUGE_HOMING_WARNING_ON );
 				hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_ON) ], F1_0);
-				Last_homing_warning_shown[VR_current_page] = 1;
+				Last_homing_warning_shown = 1;
 			}
 		} else {
-			if (Last_homing_warning_shown[VR_current_page] != 0) {
+			if (Last_homing_warning_shown != 0) {
 				PAGE_IN_GAUGE( GAUGE_HOMING_WARNING_OFF );
 				hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF) ], F1_0);
-				Last_homing_warning_shown[VR_current_page] = 0;
+				Last_homing_warning_shown = 0;
 			}
 		}
-	} else if (Last_homing_warning_shown[VR_current_page] != 0) {
+	} else if (Last_homing_warning_shown != 0) {
 		PAGE_IN_GAUGE( GAUGE_HOMING_WARNING_OFF );
 		hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_OFF) ], F1_0);
-		Last_homing_warning_shown[VR_current_page] = 0;
+		Last_homing_warning_shown = 0;
 	}
 }
 
@@ -1357,9 +1357,9 @@ void hud_show_energy(void)
 	if (Newdemo_state==ND_STATE_RECORDING ) {
 		int energy = f2ir(Players[Player_num].energy);
 
-		if (energy != old_energy[VR_current_page]) {
-			newdemo_record_player_energy(old_energy[VR_current_page], energy);
-			old_energy[VR_current_page] = energy;
+		if (energy != old_energy) {
+			newdemo_record_player_energy(old_energy, energy);
+			old_energy = energy;
 	 	}
 	}
 }
@@ -1380,9 +1380,9 @@ void hud_show_afterburner(void)
 
 	if (Newdemo_state==ND_STATE_RECORDING ) {
 
-		if (Afterburner_charge != old_afterburner[VR_current_page]) {
-			newdemo_record_player_afterburner(old_afterburner[VR_current_page], Afterburner_charge);
-			old_afterburner[VR_current_page] = Afterburner_charge;
+		if (Afterburner_charge != old_afterburner) {
+			newdemo_record_player_afterburner(old_afterburner, Afterburner_charge);
+			old_afterburner = Afterburner_charge;
 	 	}
 	}
 }
@@ -1426,7 +1426,7 @@ void show_bomb_count(int x,int y,int bg_color,int always_show)
 
 	gr_string(x,y,txt);
 
-	old_bombcount[VR_current_page] = countx;
+	old_bombcount = countx;
 }
 
 void draw_primary_ammo_info(int ammo_count)
@@ -1654,18 +1654,18 @@ void hud_show_weapons(void)
 		gr_printf(grd_curcanv->cv_bitmap.bm_w-5-w, y-FONTSCALE_Y(2*Line_spacing), weapon_str);
 	
 		if (Primary_weapon == VULCAN_INDEX) {
-			if (Players[Player_num].primary_ammo[Primary_weapon] != old_ammo_count[0][VR_current_page]) {
+			if (Players[Player_num].primary_ammo[Primary_weapon] != old_ammo_count[0]) {
 				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(old_ammo_count[0][VR_current_page], Players[Player_num].primary_ammo[Primary_weapon]);
-				old_ammo_count[0][VR_current_page] = Players[Player_num].primary_ammo[Primary_weapon];
+					newdemo_record_primary_ammo(old_ammo_count[0], Players[Player_num].primary_ammo[Primary_weapon]);
+				old_ammo_count[0] = Players[Player_num].primary_ammo[Primary_weapon];
 			}
 		}
 	
 		if (Primary_weapon == OMEGA_INDEX) {
-			if (Omega_charge != Old_Omega_charge[VR_current_page]) {
+			if (Omega_charge != Old_Omega_charge) {
 				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(Old_Omega_charge[VR_current_page], Omega_charge);
-				Old_Omega_charge[VR_current_page] = Omega_charge;
+					newdemo_record_primary_ammo(Old_Omega_charge, Omega_charge);
+				Old_Omega_charge = Omega_charge;
 			}
 		}
 	
@@ -1675,10 +1675,10 @@ void hud_show_weapons(void)
 		gr_get_string_size(weapon_str, &w, &h, &aw );
 		gr_printf(grd_curcanv->cv_bitmap.bm_w-5-w, y-FONTSCALE_Y(Line_spacing), weapon_str);
 	
-		if (Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1][VR_current_page]) {
+		if (Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1]) {
 			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_secondary_ammo(old_ammo_count[1][VR_current_page], Players[Player_num].secondary_ammo[Secondary_weapon]);
-			old_ammo_count[1][VR_current_page] = Players[Player_num].secondary_ammo[Secondary_weapon];
+				newdemo_record_secondary_ammo(old_ammo_count[1], Players[Player_num].secondary_ammo[Secondary_weapon]);
+			old_ammo_count[1] = Players[Player_num].secondary_ammo[Secondary_weapon];
 		}
 	
 		show_bomb_count(grd_curcanv->cv_bitmap.bm_w-FONTSCALE_X(3*GAME_FONT->ft_w+(FontHires?0:2)), y-FONTSCALE_Y(3*Line_spacing),-1,1);
@@ -1738,9 +1738,9 @@ void hud_show_shield(void)
 	if (Newdemo_state==ND_STATE_RECORDING ) {
 		int shields = f2ir(Players[Player_num].shields);
 
-		if (shields != old_shields[VR_current_page]) {		// Draw the shield gauge
-			newdemo_record_player_shields(old_shields[VR_current_page], shields);
-			old_shields[VR_current_page] = shields;
+		if (shields != old_shields) {		// Draw the shield gauge
+			newdemo_record_player_shields(old_shields, shields);
+			old_shields = shields;
 		}
 	}
 }
@@ -1798,12 +1798,12 @@ void sb_show_lives()
 		gr_get_string_size(killed_str, &w, &h, &aw);
 		gr_setcolor(BM_XRGB(0,0,0));
 #ifndef OGL
-		gr_rect(last_x[(Current_display_mode?2:0)+VR_current_page], y+1, SB_SCORE_RIGHT, y+GAME_FONT->ft_h);
+		gr_rect(last_x[Current_display_mode], y+1, SB_SCORE_RIGHT, y+GAME_FONT->ft_h);
 #endif
 		gr_set_fontcolor(gr_getcolor(0,20,0),-1);
 		x = COCKPITSCALE_X*SB_SCORE_RIGHT-w-2;		
 		gr_printf(x, COCKPITSCALE_Y*(y+1), killed_str);
-		last_x[(Current_display_mode?2:0)+VR_current_page] = x;
+		last_x[Current_display_mode] = x;
 		return;
 	}
 
@@ -1866,8 +1866,7 @@ void add_points_to_score(int points)
 	int prev_score;
 
 	score_time += f1_0*2;
-	score_display[0] += points;
-	score_display[1] += points;
+	score_display += points;
 	if (score_time > f1_0*4) score_time = f1_0*4;
 
 	if (points == 0 || Cheats_enabled)
@@ -1959,28 +1958,24 @@ void close_gauge_canvases()
 
 void init_gauges()
 {
-	int i;
-
 	//draw_gauges_on 	= 1;
 
-	for (i=0; i<2; i++ )	{
-		if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) || ((Newdemo_state == ND_STATE_PLAYBACK) && (Newdemo_game_mode & GM_MULTI) && !(Newdemo_game_mode & GM_MULTI_COOP)) ) 
-			old_score[i] = -99;
-		else
-			old_score[i]			= -1;
-		old_energy[i]			= -1;
-		old_shields[i]			= -1;
-		old_flags[i]			= -1;
-		old_cloak[i]			= -1;
-		old_lives[i]			= -1;
-		old_afterburner[i]	= -1;
-		old_bombcount[i]		= 0;
-		old_laser_level[i]	= 0;
-	
-		old_weapon[0][i] = old_weapon[1][i] = -1;
-		old_ammo_count[0][i] = old_ammo_count[1][i] = -1;
-		Old_Omega_charge[i] = -1;
-	}
+	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) || ((Newdemo_state == ND_STATE_PLAYBACK) && (Newdemo_game_mode & GM_MULTI) && !(Newdemo_game_mode & GM_MULTI_COOP)) ) 
+		old_score = -99;
+	else
+		old_score			= -1;
+	old_energy			= -1;
+	old_shields			= -1;
+	old_flags			= -1;
+	old_cloak			= -1;
+	old_lives			= -1;
+	old_afterburner	= -1;
+	old_bombcount		= 0;
+	old_laser_level	= 0;
+
+	old_weapon[0] = old_weapon[1] = -1;
+	old_ammo_count[0] = old_ammo_count[1] = -1;
+	Old_Omega_charge = -1;
 
 	cloak_fade_state = 0;
 
@@ -2508,51 +2503,49 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 
 	gr_set_curfont( GAME_FONT );
 
-	laser_level_changed = (weapon_type==0 && weapon_num==LASER_INDEX && (Players[Player_num].laser_level != old_laser_level[VR_current_page]));
+	laser_level_changed = (weapon_type==0 && weapon_num==LASER_INDEX && (Players[Player_num].laser_level != old_laser_level));
 
-	if ((weapon_num != old_weapon[weapon_type][VR_current_page] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type][VR_current_page] != -1) && !Gauge_hud_mode)
+	if ((weapon_num != old_weapon[weapon_type] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !Gauge_hud_mode)
 	{
 		weapon_box_states[weapon_type] = WS_FADING_OUT;
 		weapon_box_fade_values[weapon_type]=i2f(GR_FADE_LEVELS-1);
 	}
 		
 	if (weapon_box_states[weapon_type] == WS_FADING_OUT) {
-		draw_weapon_info(weapon_type,old_weapon[weapon_type][VR_current_page],old_laser_level[VR_current_page]);
-		old_ammo_count[weapon_type][VR_current_page]=-1;
-		Old_Omega_charge[VR_current_page]=-1;
+		draw_weapon_info(weapon_type,old_weapon[weapon_type],old_laser_level);
+		old_ammo_count[weapon_type]=-1;
+		Old_Omega_charge=-1;
 		drew_flag=1;
 		weapon_box_fade_values[weapon_type] -= FrameTime * FADE_SCALE;
 		if (weapon_box_fade_values[weapon_type] <= 0) {
 			weapon_box_states[weapon_type] = WS_FADING_IN;
-			old_weapon[weapon_type][VR_current_page] = weapon_num;
-			old_weapon[weapon_type][!VR_current_page] = weapon_num;
-			old_laser_level[VR_current_page] = Players[Player_num].laser_level;
-			old_laser_level[!VR_current_page] = Players[Player_num].laser_level;
+			old_weapon[weapon_type] = weapon_num;
+			old_laser_level = Players[Player_num].laser_level;
 			weapon_box_fade_values[weapon_type] = 0;
 		}
 	}
 	else if (weapon_box_states[weapon_type] == WS_FADING_IN) {
-		if (weapon_num != old_weapon[weapon_type][VR_current_page]) {
+		if (weapon_num != old_weapon[weapon_type]) {
 			weapon_box_states[weapon_type] = WS_FADING_OUT;
 		}
 		else {
 			draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level);
-			old_ammo_count[weapon_type][VR_current_page]=-1;
-			Old_Omega_charge[VR_current_page]=-1;
+			old_ammo_count[weapon_type]=-1;
+			Old_Omega_charge=-1;
 			drew_flag=1;
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
-				old_weapon[weapon_type][!VR_current_page] = -1;		//force redraw (at full fade-in) of other page
+				old_weapon[weapon_type] = -1;
 			}
 		}
 	} else
 	{
 		draw_weapon_info(weapon_type, weapon_num, Players[Player_num].laser_level);
-		old_weapon[weapon_type][VR_current_page] = weapon_num;
-		old_ammo_count[weapon_type][VR_current_page] = -1;
-		Old_Omega_charge[VR_current_page] = -1;
-		old_laser_level[VR_current_page] = Players[Player_num].laser_level;
+		old_weapon[weapon_type] = weapon_num;
+		old_ammo_count[weapon_type] = -1;
+		Old_Omega_charge = -1;
+		old_laser_level = Players[Player_num].laser_level;
 		drew_flag = 1;
 	}
 
@@ -2636,19 +2629,19 @@ void draw_weapon_boxes()
 			if ((Primary_weapon == VULCAN_INDEX) || (Primary_weapon == GAUSS_INDEX))
 			{
 				if (Newdemo_state == ND_STATE_RECORDING &&
-		Players[Player_num].primary_ammo[VULCAN_INDEX] != old_ammo_count[0][VR_current_page])
-					newdemo_record_primary_ammo(old_ammo_count[0][VR_current_page], Players[Player_num].primary_ammo[VULCAN_INDEX]);
+		Players[Player_num].primary_ammo[VULCAN_INDEX] != old_ammo_count[0])
+					newdemo_record_primary_ammo(old_ammo_count[0], Players[Player_num].primary_ammo[VULCAN_INDEX]);
 				draw_primary_ammo_info(f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) Players[Player_num].primary_ammo[VULCAN_INDEX]));
-				old_ammo_count[0][VR_current_page] = Players[Player_num].primary_ammo[VULCAN_INDEX];
+				old_ammo_count[0] = Players[Player_num].primary_ammo[VULCAN_INDEX];
 			}
 
 			if (Primary_weapon == OMEGA_INDEX)
 			{
 				if (Newdemo_state == ND_STATE_RECORDING &&
-		Omega_charge != Old_Omega_charge[VR_current_page])
-					newdemo_record_primary_ammo(Old_Omega_charge[VR_current_page], Omega_charge);
+		Omega_charge != Old_Omega_charge)
+					newdemo_record_primary_ammo(Old_Omega_charge, Omega_charge);
 				draw_primary_ammo_info(Omega_charge * 100/MAX_OMEGA_CHARGE);
-				Old_Omega_charge[VR_current_page] = Omega_charge;
+				Old_Omega_charge = Omega_charge;
 			}
 		}
 	}
@@ -2662,12 +2655,12 @@ void draw_weapon_boxes()
 
 		if (weapon_box_states[1] == WS_SET)
 		{
-			old_bombcount[VR_current_page] = 0x7fff;	//force redraw
+			old_bombcount = 0x7fff;	//force redraw
 			if (Newdemo_state == ND_STATE_RECORDING &&
-	Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1][VR_current_page])
-				newdemo_record_secondary_ammo(old_ammo_count[1][VR_current_page], Players[Player_num].secondary_ammo[Secondary_weapon]);
+	Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1])
+				newdemo_record_secondary_ammo(old_ammo_count[1], Players[Player_num].secondary_ammo[Secondary_weapon]);
 			draw_secondary_ammo_info(Players[Player_num].secondary_ammo[Secondary_weapon]);
-			old_ammo_count[1][VR_current_page] = Players[Player_num].secondary_ammo[Secondary_weapon];
+			old_ammo_count[1] = Players[Player_num].secondary_ammo[Secondary_weapon];
 		}
 	}
 	else if (weapon_box_user[1] == WBU_STATIC)
@@ -3206,7 +3199,7 @@ void show_HUD_names()
 #endif
 
 
-extern int last_drawn_cockpit[2];
+extern int last_drawn_cockpit;
 
 //draw all the things on the HUD
 void draw_hud()
@@ -3237,9 +3230,9 @@ void draw_hud()
 				hud_show_keys();
 			hud_show_cloak_invuln();
 
-			if ( ( Newdemo_state==ND_STATE_RECORDING ) && ( Players[Player_num].flags != old_flags[VR_current_page] )) {
-				newdemo_record_player_flags(old_flags[VR_current_page], Players[Player_num].flags);
-				old_flags[VR_current_page] = Players[Player_num].flags;
+			if ( ( Newdemo_state==ND_STATE_RECORDING ) && ( Players[Player_num].flags != old_flags )) {
+				newdemo_record_player_flags(old_flags, Players[Player_num].flags);
+				old_flags = Players[Player_num].flags;
 			}
 		}
 
@@ -3320,49 +3313,49 @@ void render_gauges()
 			newdemo_record_homing_distance(Players[Player_num].homing_object_dist);
 
 	if (Cockpit_mode == CM_FULL_COCKPIT)
-		draw_player_ship(cloak, old_cloak[VR_current_page], SHIP_GAUGE_X, SHIP_GAUGE_Y);
+		draw_player_ship(cloak, old_cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
 	else
-		draw_player_ship(cloak, old_cloak[VR_current_page], SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
+		draw_player_ship(cloak, old_cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 
-	old_cloak[VR_current_page] = cloak;
+	old_cloak = cloak;
 
 #ifdef OGL // draw now so draw_wbu_border does not overlap other gauges
 	draw_weapon_boxes();
 #endif
 
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
-		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy[VR_current_page]))
+		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy))
 		{
-			newdemo_record_player_energy(old_energy[VR_current_page], energy);
-			old_energy[VR_current_page] = energy;
+			newdemo_record_player_energy(old_energy, energy);
+			old_energy = energy;
 		}
 		draw_energy_bar(energy);
 		draw_numerical_display(shields, energy);
 
-		if (Newdemo_state == ND_STATE_RECORDING && (Afterburner_charge != old_afterburner[VR_current_page]))
+		if (Newdemo_state == ND_STATE_RECORDING && (Afterburner_charge != old_afterburner))
 		{
-			newdemo_record_player_afterburner(old_afterburner[VR_current_page], Afterburner_charge);
-			old_afterburner[VR_current_page] = Afterburner_charge;
+			newdemo_record_player_afterburner(old_afterburner, Afterburner_charge);
+			old_afterburner = Afterburner_charge;
 		}
 		draw_afterburner_bar(Afterburner_charge);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
 			draw_invulnerable_ship();
-			old_shields[VR_current_page] = shields ^ 1;
+			old_shields = shields ^ 1;
 		} else {		// Draw the shield gauge
-			if (Newdemo_state == ND_STATE_RECORDING && (shields != old_shields[VR_current_page]))
+			if (Newdemo_state == ND_STATE_RECORDING && (shields != old_shields))
 			{
-				newdemo_record_player_shields(old_shields[VR_current_page], shields);
-				old_shields[VR_current_page] = shields;
+				newdemo_record_player_shields(old_shields, shields);
+				old_shields = shields;
 			}
 			draw_shield_bar(shields);
 		}
 		draw_numerical_display(shields, energy);
 	
-		if (Newdemo_state == ND_STATE_RECORDING && (Players[Player_num].flags != old_flags[VR_current_page]))
+		if (Newdemo_state == ND_STATE_RECORDING && (Players[Player_num].flags != old_flags))
 		{
-			newdemo_record_player_flags(old_flags[VR_current_page], Players[Player_num].flags);
-			old_flags[VR_current_page] = Players[Player_num].flags;
+			newdemo_record_player_flags(old_flags, Players[Player_num].flags);
+			old_flags = Players[Player_num].flags;
 		}
 		draw_keys();
 
@@ -3370,40 +3363,40 @@ void render_gauges()
 
 	} else if (Cockpit_mode == CM_STATUS_BAR) {
 
-		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy[VR_current_page]))
+		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy))
 		{
-			newdemo_record_player_energy(old_energy[VR_current_page], energy);
-			old_energy[VR_current_page] = energy;
+			newdemo_record_player_energy(old_energy, energy);
+			old_energy = energy;
 		}
 		sb_draw_energy_bar(energy);
 
-		if (Newdemo_state == ND_STATE_RECORDING && (Afterburner_charge != old_afterburner[VR_current_page]))
+		if (Newdemo_state == ND_STATE_RECORDING && (Afterburner_charge != old_afterburner))
 		{
-			newdemo_record_player_afterburner(old_afterburner[VR_current_page], Afterburner_charge);
-			old_afterburner[VR_current_page] = Afterburner_charge;
+			newdemo_record_player_afterburner(old_afterburner, Afterburner_charge);
+			old_afterburner = Afterburner_charge;
 		}
 		sb_draw_afterburner();
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 		{
 			draw_invulnerable_ship();
-			old_shields[VR_current_page] = shields ^ 1;
+			old_shields = shields ^ 1;
 		} 
 		else
 		{		// Draw the shield gauge
-			if (Newdemo_state == ND_STATE_RECORDING && (shields != old_shields[VR_current_page]))
+			if (Newdemo_state == ND_STATE_RECORDING && (shields != old_shields))
 			{
-				newdemo_record_player_shields(old_shields[VR_current_page], shields);
-				old_shields[VR_current_page] = shields;
+				newdemo_record_player_shields(old_shields, shields);
+				old_shields = shields;
 			}
 			sb_draw_shield_bar(shields);
 		}
 		sb_draw_shield_num(shields);
 
-		if (Newdemo_state == ND_STATE_RECORDING && (Players[Player_num].flags != old_flags[VR_current_page]))
+		if (Newdemo_state == ND_STATE_RECORDING && (Players[Player_num].flags != old_flags))
 		{
-			newdemo_record_player_flags(old_flags[VR_current_page], Players[Player_num].flags);
-			old_flags[VR_current_page] = Players[Player_num].flags;
+			newdemo_record_player_flags(old_flags, Players[Player_num].flags);
+			old_flags = Players[Player_num].flags;
 		}
 		sb_draw_keys();
 	
@@ -3412,23 +3405,23 @@ void render_gauges()
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
 			sb_show_lives();
-			old_lives[VR_current_page] = Players[Player_num].net_killed_total;
+			old_lives = Players[Player_num].net_killed_total;
 		}
 		else
 		{
 			sb_show_lives();
-			old_lives[VR_current_page] = Players[Player_num].lives;
+			old_lives = Players[Player_num].lives;
 		}
 
 		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
 			sb_show_score();
-			old_score[VR_current_page] = Players[Player_num].net_kills_total;
+			old_score = Players[Player_num].net_kills_total;
 		}
 		else
 		{
 			sb_show_score();
-			old_score[VR_current_page] = Players[Player_num].score;
+			old_score = Players[Player_num].score;
 
 			//if (score_time)
 				sb_show_score_added();
@@ -3444,9 +3437,9 @@ void render_gauges()
 //	If laser is active, set old_weapon[0] to -1 to force redraw.
 void update_laser_weapon_info(void)
 {
-	if (old_weapon[0][VR_current_page] == 0)
-		if (! (Players[Player_num].laser_level > MAX_LASER_LEVEL && old_laser_level[VR_current_page] <= MAX_LASER_LEVEL))
-			old_weapon[0][VR_current_page] = -1;
+	if (old_weapon[0] == 0)
+		if (! (Players[Player_num].laser_level > MAX_LASER_LEVEL && old_laser_level <= MAX_LASER_LEVEL))
+			old_weapon[0] = -1;
 }
 
 extern int Game_window_y;
@@ -3599,7 +3592,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	}
 
 	//force redraw when done
-	old_weapon[win][VR_current_page] = old_ammo_count[win][VR_current_page] = -1;
+	old_weapon[win] = old_ammo_count[win] = -1;
 
 abort:;
 
