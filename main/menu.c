@@ -143,7 +143,6 @@ ubyte do_auto_demo = 1;                 // Flag used to enable auto demo startin
 int Player_default_difficulty; // Last difficulty level chosen by the player
 int Auto_leveling_on = 1;
 int Guided_in_big_window = 0;
-int Menu_draw_copyright = 0;
 int EscortHotKeys=1;
 
 // Function Prototypes added after LINTING
@@ -155,11 +154,10 @@ void do_multi_player_menu(void);
 void ipx_set_driver(int ipx_driver);
 #endif //NETWORK
 void do_cpu_menu();
+extern void newmenu_close();
 
 //returns the number of demo files on the disk
 int newdemo_count_demos();
-extern ubyte Version_major,Version_minor;
-extern int Menu_Special;
 
 // ------------------------------------------------------------------------
 void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int citem )
@@ -170,45 +168,6 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 	items=items;
 	citem = citem;
 
-	//draw copyright message
-	if ( Menu_draw_copyright )              {
-		int w,h,aw;
-
-		Menu_draw_copyright = 0;
-		gr_set_current_canvas(NULL);
-		gr_set_curfont(GAME_FONT);
-		gr_set_fontcolor(BM_XRGB(6,6,6),-1);
-
-		gr_get_string_size("V2.2", &w, &h, &aw );
-	
-			gr_printf(0x8000,grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,TXT_COPYRIGHT);
-			#ifdef MACINTOSH	// print out fix level as well if it exists
-				if (Version_fix != 0)
-				{
-					gr_get_string_size("V2.2.2", &w, &h, &aw );
-					gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2,
-							  grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,
-							  "V%d.%d.%d",
-							  Version_major,Version_minor,Version_fix);
-				}
-				else
-				{
-					gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2,
-							  grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,
-							  "V%d.%d",
-							  Version_major,Version_minor);
-				}
-			#else
-				gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2,grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,"V%d.%d",Version_major,Version_minor);
-			#endif
-
-		//say this is vertigo version
-		if (cfexist(MISSION_DIR "d2x.hog")) {
-			gr_set_curfont(MEDIUM2_FONT);
-			gr_printf(MenuHires?495*((double)SWIDTH/640):248*((double)SWIDTH/320), MenuHires?88*((double)SHEIGHT/480):37*((double)SHEIGHT/200), "Vertigo");
-		}
-	}
-	
 	// Don't allow them to hit ESC in the main menu.
 	if (*last_key==KEY_ESC) *last_key = 0;
 
@@ -225,7 +184,6 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 			n_demos = newdemo_count_demos();
 
 try_again:;
-
 			if ((d_rand() % (n_demos+1)) == 0)
 			{
 				#ifndef SHAREWARE
@@ -331,8 +289,6 @@ int DoMenu()
 		keyd_time_when_last_pressed = timer_get_fixed_seconds();                // .. 20 seconds from now!
 		if (main_menu_choice < 0 )
 			main_menu_choice = 0;
-		Menu_draw_copyright = 1;
-		Menu_Special = 1;
 		main_menu_choice = newmenu_do2( "", NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
 		if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
 	} while( Function_mode==FMODE_MENU );
@@ -1099,6 +1055,8 @@ void change_res()
 	if (Game_screen_mode == screen_mode)
 		return;
 	// end section - OE
+
+	newmenu_close();
 
 	Game_screen_mode = screen_mode;
 	VR_render_buffer[0].cv_bitmap.bm_w = Game_window_w = screen_width;

@@ -54,6 +54,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pcx.h"
 #include "network.h"
 
+#ifdef OGL
+#include "ogl_init.h"
+#endif
+
 #define CENTERING_OFFSET(x) ((300 - (70 + (x)*25 ))/2)
 #define CENTERSCREEN (SWIDTH/2)
 
@@ -486,7 +490,6 @@ void kmatrix_view(int network)
     load_stars();
 
   WaitingForOthers=0;
-  kmatrix_redraw();
 
   game_flush_inputs();
 
@@ -500,6 +503,8 @@ void kmatrix_view(int network)
 
   while(!done)
   {
+		timer_delay(5);
+		kmatrix_redraw();
       kmatrix_kills_changed = 0;
       for (i=0; i<4; i++ )
         if (joy_get_button_down_cnt(i)>0)
@@ -686,6 +691,9 @@ void kmatrix_view(int network)
           kmatrix_kills_changed=0;
         }
       }
+#ifdef OGL
+		gr_flip();
+#endif
   }
 
   Players[Player_num].connected=7;

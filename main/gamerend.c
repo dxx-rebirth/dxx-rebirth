@@ -1076,6 +1076,10 @@ void show_boxed_message(char *msg)
 	int w,h,aw;
 	int x,y;
 
+#ifdef OGL
+	gr_clear_canvas(0);
+#endif
+
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( MEDIUM1_FONT );
 
@@ -1100,6 +1104,9 @@ void show_boxed_message(char *msg)
 	gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
 	gr_ustring( 0x8000, y, msg );
         gr_update();
+#ifdef OGL
+	gr_flip();
+#endif
 }
 
 void clear_boxed_message()

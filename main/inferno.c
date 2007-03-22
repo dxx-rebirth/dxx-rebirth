@@ -166,6 +166,7 @@ extern int Config_vr_resolution;
 extern int Config_vr_tracking;
 extern int mouselook;
 extern int newhomers;
+extern int vertigo_present;
 #ifndef RELEASE
 extern int invulnerability;
 #endif
@@ -466,8 +467,10 @@ int main(int argc, char *argv[])
 	#if 1	//def VERSION_NAME
 	con_printf(CON_NORMAL, "  %s", DESCENT_VERSION);	// D2X version
 	#endif
-	if (cfexist(MISSION_DIR "d2x.hog"))
+	if (cfexist(MISSION_DIR "d2x.hog")) {
 		con_printf(CON_NORMAL, "  Vertigo Enhanced");
+		vertigo_present = 1;
+	}
 
 	con_printf(CON_NORMAL, "  %s %s\n", __DATE__,__TIME__);
 	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);

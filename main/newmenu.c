@@ -27,11 +27,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+#include <math.h>
 #if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
 #endif
 #include <limits.h>
-
 #include <physfs.h>
 
 #include "error.h"
@@ -57,7 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "joy.h"
 #include "digi.h"
-
 #include "multi.h"
 #include "endlevel.h"
 #include "screens.h"
@@ -67,9 +66,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "strutil.h"
 #include "vers_id.h"
+#include "timer.h"
 
 #ifdef MACINTOSH
 #include <Events.h>
+#endif
+
+#ifdef OGL
+#include "ogl_init.h"
 #endif
 
 #if defined (TACTILE)
@@ -103,7 +107,7 @@ typedef struct bkg {
 	grs_bitmap * background;
 } bkg;
 
-grs_bitmap nm_background,nm_background_save;
+grs_bitmap nm_background,nm_background1,nm_background_save;
 
 #define MESSAGEBOX_TEXT_SIZE 2176   // How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
 #define MAX_TEXT_WIDTH 	((MenuHires)?FONTSCALE_X(200):100)				// How many pixels wide a input box can be
@@ -115,15 +119,47 @@ ubyte MenuReordering=0;
 ubyte SurfingNet=0;
 char Pauseable_menu=0;
 char already_showing_info=0;
-
+int vertigo_present=0;
+extern ubyte Version_major,Version_minor;
 
 void newmenu_close()	{
-	if ( nm_background.bm_data )
+	if (nm_background.bm_data)
 		d_free(nm_background.bm_data);
+	if (nm_background1.bm_data)
+		d_free(nm_background1.bm_data);
+}
 
-	if ( nm_background_save.bm_data )
-		d_free(nm_background_save.bm_data);
-	Newmenu_first_time = 1;
+// Draw Copyright and Version strings
+void nm_draw_copyright()
+{
+	int w,h,aw;
+
+	grd_curcanv->cv_font = GAME_FONT;
+	gr_set_fontcolor(BM_XRGB(6,6,6),-1);
+	gr_printf(0x8000,grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,TXT_COPYRIGHT);
+
+	gr_get_string_size("V2.2", &w, &h, &aw );
+#ifdef MACINTOSH	// print out fix level as well if it exists
+	if (Version_fix != 0)
+	{
+		gr_get_string_size("V2.2.2", &w, &h, &aw );
+		gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2, grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2, "V%d.%d.%d", Version_major,Version_minor,Version_fix);
+	}
+	else
+	{
+		gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2, grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2, "V%d.%d", Version_major,Version_minor);
+	}
+#else
+	gr_printf(grd_curcanv->cv_bitmap.bm_w-w-2,grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,"V%d.%d",Version_major,Version_minor);
+#endif
+
+	gr_set_fontcolor( GR_GETCOLOR(25,0,0), -1);
+	gr_printf(0x8000,GHEIGHT-FONTSCALE_Y(grd_curcanv->cv_font->ft_h*3),DESCENT_VERSION);
+	//say this is vertigo version
+	if (vertigo_present) {
+		gr_set_curfont(MEDIUM2_FONT);
+		gr_printf(MenuHires?495*((double)SWIDTH/640):248*((double)SWIDTH/320), MenuHires?88*((double)SHEIGHT/480):37*((double)SHEIGHT/200), "Vertigo");
+	}
 }
 
 ubyte background_palette[768];
@@ -141,55 +177,44 @@ void nm_remap_background()
 	}
 }
 
-#include <math.h>
-
-extern char last_palette_loaded[];
-
+// Draws the background of menus (i.e. Descent Logo screen)
 void nm_draw_background1(char * filename)
 {
 	int pcx_error;
-	grs_bitmap *bmp;
-	ubyte pal[256*3];
-	int width, height;
 
-	//@@//I think this only gets called to fill the whole screen
-	//@@Assert(grd_curcanv->cv_bitmap.bm_w == 320);
-	//@@Assert(grd_curcanv->cv_bitmap.bm_h == 200);
+#ifndef OGL
+	if (nm_background1.bm_data)
+		d_free(nm_background1.bm_data);
 
-	pcx_error = pcx_get_dimensions(filename, &width, &height);
-	if (pcx_error != PCX_ERROR_NONE)
-		Error("Could not open pcx file <%s>\n", filename);
+#else
+	if (filename == NULL && Function_mode == FMODE_MENU)
+		filename = Menu_pcx_name;
+	if (filename != NULL)
 
-	bmp = gr_create_bitmap(width, height);
-
-	pcx_error = pcx_read_bitmap(filename,bmp,bmp->bm_type,pal);
-	Assert(pcx_error == PCX_ERROR_NONE);
-
-	//@@gr_remap_bitmap_good( bmp, pal, -1, -1 );
-
-
-	{	//remap stuff. this code is kindof a hack
-
-		//now, before we bring up the menu, we need to
-		//do some stuff to make sure the palette is ok.  First, we need to
-		//get our current palette into the 2d's array, so the remapping will
-		//work.  Second, we need to remap the fonts.  Third, we need to fill
-		//in part of the fade tables so the darkening of the menu edges works
-
-		gr_copy_palette(gr_palette, pal, sizeof(gr_palette));
-#ifdef OGL
-		gr_palette_load(gr_palette);
+	{
+		if (nm_background1.bm_data == NULL)
 #endif
-		remap_fonts_and_menus(1);
+		{
+			ubyte newpal[768];
+			atexit( newmenu_close );
+			gr_init_bitmap_data (&nm_background1);
+			pcx_error = pcx_read_bitmap( filename, &nm_background1, BM_LINEAR, newpal );
+			Assert(pcx_error == PCX_ERROR_NONE);
+			gr_copy_palette(gr_palette, newpal, sizeof(gr_palette));
+			remap_fonts_and_menus(1);
+		}
+#ifndef OGL
+		show_fullscr(&nm_background1);
+#else
+		gr_palette_load( gr_palette );
+		ogl_ubitmapm_cs(0,0,-1,-1,&nm_background1,-1,F1_0);
+#endif
 
+		if (!strcmp(filename,Menu_pcx_name) && Function_mode != FMODE_GAME)
+			nm_draw_copyright();
+#ifdef OGL
 	}
-
-	show_fullscr(bmp);
-
-	gr_free_bitmap(bmp);
-
-	strcpy(last_palette_loaded,"");		//force palette load next time
-
+#endif
 }
 
 #define MENU_BACKGROUND_BITMAP_HIRES (cfexist("scoresb.pcx")?"scoresb.pcx":"scores.pcx")
@@ -197,36 +222,24 @@ void nm_draw_background1(char * filename)
 
 #define MENU_BACKGROUND_BITMAP (MenuHires?MENU_BACKGROUND_BITMAP_HIRES:MENU_BACKGROUND_BITMAP_LORES)
 
-int Background_hires;
-int No_darkening=0;
-
+// Draws the frame background for menus
 void nm_draw_background(int x1, int y1, int x2, int y2 )
 {
 	int w,h;
 
-	if (Newmenu_first_time || MenuHires!=Background_hires)	{
+#ifndef OGL
+	if (nm_background.bm_data)
+		d_free(nm_background.bm_data);
+#else
+	if (nm_background.bm_data == NULL)
+#endif
+	{
 		int pcx_error;
-
-		if (Newmenu_first_time) {
-			atexit( newmenu_close );
-			Newmenu_first_time = 0;
-			nm_background_save.bm_data=NULL;		
-		}
-		else {
-			if (nm_background_save.bm_data)
-				d_free(nm_background_save.bm_data);
-			if (nm_background.bm_data)
-				d_free(nm_background.bm_data);
-		}
-
-		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP,&nm_background_save,BM_LINEAR,background_palette);
+		atexit( newmenu_close );
+		gr_init_bitmap_data (&nm_background);		
+		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP,&nm_background,BM_LINEAR,background_palette);
 		Assert(pcx_error == PCX_ERROR_NONE);
-
-		nm_background = nm_background_save;
-		nm_background.bm_data=NULL;		
-		nm_remap_background();
-
-		Background_hires = MenuHires;
+		gr_remap_bitmap_good( &nm_background, background_palette, -1, -1 );
 	}
 
 	if ( x1 < 0 ) x1 = 0;
@@ -235,74 +248,35 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	w = x2-x1+1;
 	h = y2-y1+1;
 
-	x2 = x1 + w - 1;
-	y2 = y1 + h - 1;
-
-	if ( GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h ){//Resize background to fit.  Resize so that the original aspect is preserved. -MPM
-		grs_canvas *tmp,*old;
-		grs_bitmap bg;
-		old=grd_curcanv;
-		tmp=gr_create_sub_canvas(old,x1,y1,w,h);
-		gr_init_sub_bitmap(&bg,&nm_background,0,0,w/MENSCALE_X,h/MENSCALE_Y);//note that we haven't replaced current_canvas yet, so these macros are still ok.
-		gr_set_current_canvas(tmp);
+	grs_canvas *tmp,*old;
+	grs_bitmap bg;
+	old=grd_curcanv;
+	tmp=gr_create_sub_canvas(old,x1,y1,w,h);
+	gr_init_sub_bitmap(&bg,&nm_background,0,0,w/MENSCALE_X,h/MENSCALE_Y);//note that we haven't replaced current_canvas yet, so these macros are still ok.
+	gr_set_current_canvas(tmp);
+#ifdef OGL
+	if (ogl_scissor_ok) {
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(0,y1,x2,SHEIGHT);
+		ogl_ubitmapm_cs(0,0,SWIDTH,SHEIGHT,&nm_background,-1,F1_0);
+		glDisable(GL_SCISSOR_TEST);
+	} else
+#endif
 		show_fullscr( &bg );
-		gr_set_current_canvas(old);
-		gr_free_sub_canvas(tmp);
-	}else{
-		if (No_darkening)
-			gr_bm_bitblt(w, h, x1, y1, LHX(10), LHY(10), &nm_background, &(grd_curcanv->cv_bitmap) );
-		else
-			gr_bm_bitblt(w, h, x1, y1, 0, 0, &nm_background, &(grd_curcanv->cv_bitmap) );
-	}
+	gr_set_current_canvas(old);
+	gr_free_sub_canvas(tmp);
 
-	if (!No_darkening) {
-		Gr_scanline_darkening_level = 2*7;
+	Gr_scanline_darkening_level = 2*7;
 
-		gr_setcolor( BM_XRGB(0,0,0) );
-	
-		for (w=5*(GWIDTH/((MenuHires)?640.0:320.0));w>=0;w--)
-			gr_urect( x2-w, y1+w*((GHEIGHT/((MenuHires)?480.0:200.0))/(GWIDTH/((MenuHires)?640.0:320.0))), x2-w, y2-(GHEIGHT/((MenuHires)?480.0:200.0)) );//right edge
-		for (h=5*(GHEIGHT/((MenuHires)?480.0:200.0));h>=0;h--)
-			gr_urect( x1+h*((GWIDTH/((MenuHires)?640.0:320.0))/(GHEIGHT/((MenuHires)?480.0:200.0))), y2-h, x2, y2-h );//bottom edge
-		}
+	//scale the bevels to the res.
+	gr_setcolor( BM_XRGB(0,0,0) );
+
+	for (w=5*(SWIDTH/((MenuHires)?640.0:320.0));w>=0;w--)
+		gr_urect( x2-w, y1+w*((SHEIGHT/((MenuHires)?480.0:200.0))/(SWIDTH/((MenuHires)?640.0:320.0))), x2-w, y2-(SHEIGHT/((MenuHires)?480.0:200.0)) );//right edge
+	for (h=5*(SHEIGHT/((MenuHires)?480.0:200.0));h>=0;h--)
+		gr_urect( x1+h*((SWIDTH/((MenuHires)?640.0:320.0))/(SHEIGHT/((MenuHires)?480.0:200.0))), y2-h, x2, y2-h );//bottom edge
 
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
-}
-
-void nm_restore_background( int x, int y, int w, int h )
-{
-	int x1, x2, y1, y2;
-
-	x1 = x; x2 = x+w-1;
-	y1 = y; y2 = y+h-1;
-
-	if ( x1 < 0 ) x1 = 0;
-	if ( y1 < 0 ) y1 = 0;
-
-	if ( x2 >= GWIDTH ) x2=GWIDTH-1;
-	if ( y2 >= GHEIGHT ) y2=GHEIGHT-1;
-
-	w = x2 - x1 + 1;
-	h = y2 - y1 + 1;
-
-	if ( GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h ) {
-		grs_bitmap sbg;
-		grs_canvas *tmp,*old;
-		old=grd_curcanv;
-		tmp=gr_create_sub_canvas(old,x1,y1,w,h);
-		if (MenuHires)
-			gr_init_sub_bitmap(&sbg,&nm_background,x1*(640.0/GWIDTH),y1*(480.0/GHEIGHT),w*(640.0/GWIDTH),h*(480.0/GHEIGHT));
-		else
-			gr_init_sub_bitmap(&sbg,&nm_background,x1*(320.0/GWIDTH),y1*(200.0/GHEIGHT),w*(320.0/GWIDTH),h*(200.0/GHEIGHT));
-		gr_set_current_canvas(tmp);
-		show_fullscr( &sbg );
-		gr_set_current_canvas(old);
-		gr_free_sub_canvas(tmp);
-	}
-	else
-	{
-		gr_bm_bitblt(w, h, x1, y1, x1, y1, &nm_background, &(grd_curcanv->cv_bitmap) );
-	}
 }
 
 // Draw a left justfied string
@@ -311,12 +285,12 @@ void nm_string( bkg * b, int w1,int x, int y, char * s)
 	int w,h,aw,tx=0,t=0,i;
 	char *p,*s1,*s2,measure[2];
 	int XTabs[]={15,87,124,162,228,253};
-   
+
 	p=s1=NULL;
 	s2 = d_strdup(s);
 
 	for (i=0;i<6;i++) {
-		XTabs[i]=(LHX(XTabs[i]))*MENSCALE_X; // ZICO - we need this to get TABS right in netgames
+		XTabs[i]=(LHX(XTabs[i]))*MENSCALE_X;
 		XTabs[i]+=x;
 	}
  
@@ -335,9 +309,9 @@ void nm_string( bkg * b, int w1,int x, int y, char * s)
 	if (w1 > 0)
 		w = w1;
 
-	// CHANGED
+#ifndef OGL
 	gr_bm_bitblt(b->background->bm_w-(15*MENSCALE_X), h+2, 5, y-1, 5, y-1, b->background, &(grd_curcanv->cv_bitmap) );
-	//gr_bm_bitblt(w, h, x, y, x, y, b->background, &(grd_curcanv->cv_bitmap) );
+#endif
 
 	if (SurfingNet) {
 		for (i=0;i<strlen(s2);i++) {
@@ -380,25 +354,21 @@ void nm_string_slider( bkg * b, int w1,int x, int y, char * s )
 	}
 
 	gr_get_string_size(s, &w, &h, &aw  );
-	// CHANGED
+#ifndef OGL
+	gr_bm_bitblt(b->background->bm_w-(15*MENSCALE_X), h, 5, y, 5, y, b->background, &(grd_curcanv->cv_bitmap) );
+#endif
+	gr_string( x, y, s );
 
-		gr_bm_bitblt(b->background->bm_w-(15*MENSCALE_X), h, 5, y, 5, y, b->background, &(grd_curcanv->cv_bitmap) );
-		//gr_bm_bitblt(w, h, x, y, x, y, b->background, &(grd_curcanv->cv_bitmap) );
+	if (p)	{
+		gr_get_string_size(s1, &w, &h, &aw  );
+#ifndef OGL
+		gr_bm_bitblt(w, 1, x+w1-w, y, x+w1-w, y, b->background, &(grd_curcanv->cv_bitmap) );
+		gr_bm_bitblt(w, 1, x+w1-w, y+h-1, x+w1-w, y, b->background, &(grd_curcanv->cv_bitmap) );
+#endif
+		gr_string( x+w1-w, y, s1 );
 
-		gr_string( x, y, s );
-
-		if (p)	{
-			gr_get_string_size(s1, &w, &h, &aw  );
-
-			// CHANGED
-			gr_bm_bitblt(w, 1, x+w1-w, y, x+w1-w, y, b->background, &(grd_curcanv->cv_bitmap) );
-			// CHANGED
-			gr_bm_bitblt(w, 1, x+w1-w, y+h-1, x+w1-w, y, b->background, &(grd_curcanv->cv_bitmap) );
-
-			gr_string( x+w1-w, y, s1 );
-
-			*p = '\t';
-		}
+		*p = '\t';
+	}
 }
 
 
@@ -410,19 +380,18 @@ void nm_string_black( bkg * b, int w1,int x, int y, char * s )
 	b = b;					
 	if (w1 == 0) w1 = w;
 
-		gr_setcolor( BM_XRGB(2,2,2) );
-		gr_rect( x-1, y-1, x-1, y+h-1 );
-		gr_rect( x-1, y-1, x+w1-1, y-1 );
+	gr_setcolor( BM_XRGB(2,2,2) );
+	gr_rect( x-1, y-1, x-1, y+h-1 );
+	gr_rect( x-1, y-1, x+w1-1, y-1 );
 
-	 
-		gr_setcolor( BM_XRGB(5,5,5) );
-		gr_rect( x, y+h, x+w1, y+h);
-		gr_rect( x+w1, y-1, x+w1, y+h );
+	gr_setcolor( BM_XRGB(5,5,5) );
+	gr_rect( x, y+h, x+w1, y+h);
+	gr_rect( x+w1, y-1, x+w1, y+h );
 
-		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect( x, y, x+w1-1, y+h-1 );
+	gr_setcolor( BM_XRGB(0,0,0) );
+	gr_rect( x, y, x+w1-1, y+h-1 );
 	
-		gr_string( x+1, y+1, s );
+	gr_string( x+1, y+1, s );
 }
 
 
@@ -434,15 +403,11 @@ void nm_rstring( bkg * b,int w1,int x, int y, char * s )
 	x -= 3;
 
 	if (w1 == 0) w1 = w;
-
-	//mprintf( 0, "Width = %d, string='%s'\n", w, s );
-
-	// CHANGED
+#ifndef OGL
 	gr_bm_bitblt(w1, h, x-w1, y, x-w1, y, b->background, &(grd_curcanv->cv_bitmap) );
+#endif
 	gr_string( x-w, y, s );
 }
-
-#include "timer.h"
 
 //for text items, constantly redraw cursor (to achieve flash)
 void update_cursor( newmenu_item *item)
@@ -487,7 +452,7 @@ void nm_string_inputbox( bkg *b, int w, int x, int y, char * text, int current )
 	if ( *text == 0 )
 		w1 = 0;
 
-   nm_string_black( b, w, x, y, text );
+	nm_string_black( b, w, x, y, text );
 		
 	if ( current )	{
 		gr_string( x+w1+1, y, CURSOR_STRING );
@@ -512,18 +477,10 @@ void draw_item( bkg * b, newmenu_item *item, int is_current,int tiny )
 			grd_curcanv->cv_font = SELECTED_FONT;
 		else
 			grd_curcanv->cv_font = NORMAL_FONT;
-
-		#ifdef WINDOWS
-			if (is_current && item->type == NM_TYPE_TEXT) 
-				grd_curcanv->cv_font = NORMAL_FONT;
-		#endif
         }
 
 	switch( item->type )	{
 	case NM_TYPE_TEXT:
-      // grd_curcanv->cv_font=TEXT_FONT;
-		// fall through on purpose
-
 	case NM_TYPE_MENU:
 		nm_string( b, item->w, item->x, item->y, item->text );
 		break;
@@ -671,14 +628,10 @@ int check_button_press()
 		break;
 #endif
 	case	CONTROL_WINJOYSTICK:
-	#ifdef WINDOWS	
-		for (i=0; i<4; i++ )	
-	 		if (joy_get_button_down_cnt(i)>0) return 1;
-	#endif	
 		break;
-	case	CONTROL_NONE:		//keyboard only
+	case	CONTROL_NONE: //keyboard only
 		#ifdef APPLE_DEMO
-			if (key_checkch())	return 1;			
+			if (key_checkch())	return 1;
 		#endif
 
 		break;
@@ -689,7 +642,6 @@ int check_button_press()
 	return 0;
 }
 
-int Menu_Special = 0;
 extern int network_request_player_names(int);
 extern int RestoringMenu;
 
@@ -731,7 +683,9 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	int dont_restore=0;
 	int MaxOnMenu=MAXDISPLAYABLEITEMS;
 	grs_canvas *save_canvas;
+#ifndef OGL
 	int background_is_sub;
+#endif
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, dblclick_flag=0;
 	int mx=0, my=0, x1 = 0, x2, y1, y2;
@@ -892,21 +846,20 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		h += string_height+1;		// Find the height of all strings
 	}
 
-   // Big hack for allowing the netgame options menu to spill over
-
-   MaxOnMenu=MAXDISPLAYABLEITEMS;
-   if (ExtGameStatus==GAMESTAT_NETGAME_OPTIONS || ExtGameStatus==GAMESTAT_MORE_NETGAME_OPTIONS)
+	// Big hack for allowing the netgame options menu to spill over
+	MaxOnMenu=MAXDISPLAYABLEITEMS;
+	if (ExtGameStatus==GAMESTAT_NETGAME_OPTIONS || ExtGameStatus==GAMESTAT_MORE_NETGAME_OPTIONS)
 		MaxOnMenu++;
 
-   if (!TinyMode && (h>((MaxOnMenu+1)*(string_height+1))+(LHY(8))))
-    {
-     IsScrollBox=1;
-     h=(MaxOnMenu*(string_height+1)+LHY(8));
-     MaxDisplayable=MaxOnMenu;
-     mprintf ((0,"Hey, this is a scroll box!\n"));
-    }
-   else
-    IsScrollBox=0;
+	if (!TinyMode && (h>((MaxOnMenu+1)*(string_height+1))+(LHY(8))))
+	{
+		IsScrollBox=1;
+		h=(MaxOnMenu*(string_height+1)+LHY(8));
+		MaxDisplayable=MaxOnMenu;
+		mprintf ((0,"Hey, this is a scroll box!\n"));
+	}
+	else
+		IsScrollBox=0;
 
 	right_offset=0;
 
@@ -928,15 +881,14 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 	w += right_offset;
 
-
 	twidth = 0;
 	if ( tw > w )	{
 		twidth = ( tw - w )/2;
 		w = tw;
 	}
 
-   if (RestoringMenu)
-	 { right_offset=0; twidth=0;}
+	if (RestoringMenu)
+		{ right_offset=0; twidth=0;}
 
 	mprintf(( 0, "Right offset = %d\n", right_offset ));
 
@@ -945,8 +897,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	w += (MenuHires?60:30)*MENSCALE_X;
 	h += (MenuHires?60:30)*MENSCALE_Y;
 
-// 	if ( w > grd_curcanv->cv_bitmap.bm_w ) w = grd_curcanv->cv_bitmap.bm_w;
-// 	if ( h > grd_curcanv->cv_bitmap.bm_h ) h = grd_curcanv->cv_bitmap.bm_h;
 	/* If window is as or almost as big as screen define hard size so it fits (with borders and stuff).
 	   Also make use of MENSCALE_* so we are sure it does scale correct if font does scale or not */
 	if (w >= (MenuHires?640:320)*MENSCALE_X-3)
@@ -960,15 +910,20 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	if ( x < 0 ) x = 0;
 	if ( y < 0 ) y = 0;
 
+#ifndef OGL
 	if ( filename != NULL )	{
 		nm_draw_background1( filename );
 		gr_palette_load(gr_palette);
 	}
+#endif
 
 // Save the background of the display
 	bg.menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w+MENSCALE_X, h+MENSCALE_Y );
 	gr_set_current_canvas(bg.menu_canvas);
 
+	ty = (MenuHires?30:15)*MENSCALE_Y;
+
+#ifndef OGL
 	if ( filename == NULL )	{
 		// Save the background under the menu...
 		#ifdef TACTILE
@@ -1007,19 +962,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		gr_bm_bitblt(w, h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.background );
 	}
 
-	ty = (MenuHires?30:15)*MENSCALE_Y;
-
-        if(Menu_Special==1)
-	{
-		grs_canvas *saved_canvas = grd_curcanv;
-		grd_curcanv = &grd_curscreen->sc_canvas;
-		grd_curcanv->cv_font = GAME_FONT;
-		gr_set_fontcolor( GR_GETCOLOR(25,0,0), -1);
-		gr_printf(0x8000,GHEIGHT-FONTSCALE_Y(grd_curcanv->cv_font->ft_h*3),DESCENT_VERSION);
-		grd_curcanv = saved_canvas;
-		Menu_Special = 0;
-	}
-
 	if ( title )	{
 		grd_curcanv->cv_font = TITLE_FONT;
 		gr_set_fontcolor( GR_GETCOLOR(31,31,31), -1 );
@@ -1027,23 +969,22 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		tw = string_width;
 		th = string_height;
 		gr_printf( 0x8000, ty, title );
-		ty += th;
 	}
-
+	
 	if ( subtitle )	{
 		grd_curcanv->cv_font = SUBTITLE_FONT;
 		gr_set_fontcolor( GR_GETCOLOR(21,21,21), -1 );
 		gr_get_string_size(subtitle,&string_width,&string_height,&average_width );
 		tw = string_width;
-		th = string_height;
-		gr_printf( 0x8000, ty, subtitle );
-		ty += th;
+		th = (title?th:0);
+		gr_printf( 0x8000, ty+th, subtitle );
 	}
 
-  	if (TinyMode)
-    	grd_curcanv->cv_font = SMALL_FONT;
- 	else 
-    	grd_curcanv->cv_font = NORMAL_FONT;
+	if (TinyMode)
+		grd_curcanv->cv_font = SMALL_FONT;
+	else 
+		grd_curcanv->cv_font = NORMAL_FONT;
+#endif
 	
 	// Update all item's x & y values.
 	for (i=0; i<nitems; i++ )	{
@@ -1100,41 +1041,71 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 #ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;
-	if (filename == NULL && !MenuReordering) {
-		draw_close_box(0,0);
-		close_box = 1;
-	}
 
 	if (!MenuReordering && !joydefs_calibrating)
 	{
 		newmenu_show_cursor();
-# ifdef WINDOWS
-		SetCursor(LoadCursor(NULL,IDC_ARROW));
-# endif
 	}
 #endif
 
-   mprintf ((0,"Set to true!\n"));
+	mprintf ((0,"Set to true!\n"));
 
 	while(!done)	{
+		timer_delay(5);
+
+#ifdef OGL
+		gr_flip();
+
+		gr_set_current_canvas( NULL );
+		nm_draw_background1(filename);
+		if (filename == NULL)
+			nm_draw_background(x,y,x+w,y+h);
+
+		gr_set_current_canvas( bg.menu_canvas );
+
+		if ( title )	{
+			grd_curcanv->cv_font = TITLE_FONT;
+			gr_set_fontcolor( GR_GETCOLOR(31,31,31), -1 );
+			gr_get_string_size(title,&string_width,&string_height,&average_width );
+			tw = string_width;
+			th = string_height;
+			gr_printf( 0x8000, ty, title );
+		}
+	
+		if ( subtitle )	{
+			grd_curcanv->cv_font = SUBTITLE_FONT;
+			gr_set_fontcolor( GR_GETCOLOR(21,21,21), -1 );
+			gr_get_string_size(subtitle,&string_width,&string_height,&average_width );
+			tw = string_width;
+			th = (title?th:0);
+			gr_printf( 0x8000, ty+th, subtitle );
+		}
+
+		if (TinyMode)
+			grd_curcanv->cv_font = SMALL_FONT;
+		else 
+			grd_curcanv->cv_font = NORMAL_FONT;
+#endif
+
 #ifdef NEWMENU_MOUSE
 		if (!joydefs_calibrating)
 			newmenu_show_cursor();      // possibly hidden
 		omouse_state = mouse_state;
 		if (!MenuReordering)
 			mouse_state = mouse_button_state(0);
-//@@      mprintf ((0,"mouse state:%d\n",mouse_state));
+		if (filename == NULL && !MenuReordering) {
+			draw_close_box(0,0);
+			close_box = 1;
+		}
 #endif
 
 		//see if redbook song needs to be restarted
 		songs_check_redbook_repeat();
 
-		//network_listen();
-
 		k = key_inkey();
 
-	if (subfunction)
-	(*subfunction)(nitems,item,&k,choice);
+		if (subfunction)
+			(*subfunction)(nitems,item,&k,choice);
 
 #ifdef NETWORK
 		if (!time_stopped)	{
@@ -1152,9 +1123,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		}
 		if (check_button_press())
 			done = 1;
-
-//		if ( (nmenus<2) && (k>0) && (nothers==0) )
-//			done=1;
 
 		old_choice = choice;
 	
@@ -1473,16 +1441,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 						if (IsScrollBox)
 							LastScrollCheck=-1;
-#if 0
-						if (IsScrollBox)
-						 {
-							if (choice==(MaxOnMenu+ScrollOffset-1) || choice==ScrollOffset)
-							 {
-							   mprintf ((0,"Special redraw!\n"));
-								LastScrollCheck=-1;					
-							 }
-						 }
-#endif
 						break;
 					case NM_TYPE_RADIO:
 						for (i=0; i<nitems; i++ )	{
@@ -1758,55 +1716,61 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 		gr_set_current_canvas(bg.menu_canvas);
 
-	// Redraw everything...
-	for (i=ScrollOffset; i<MaxDisplayable+ScrollOffset; i++ )
-	{
-		if (item[i].redraw) // warning! ugly hack below
-        	{
-			item[i].y-=((string_height+1)*ScrollOffset);
-			newmenu_hide_cursor();
-			draw_item( &bg, &item[i], (i==choice && !all_text),TinyMode );
-			item[i].redraw=0;
-#ifdef NEWMENU_MOUSE
-			if (!MenuReordering && !joydefs_calibrating)
-				newmenu_show_cursor();
-#endif
-			item[i].y+=((string_height+1)*ScrollOffset);
-		}
-		if (i==choice && (item[i].type==NM_TYPE_INPUT || (item[i].type==NM_TYPE_INPUT_MENU && item[i].group)))
-			update_cursor( &item[i]);
-	}
-	gr_update();
-
-	if (IsScrollBox)
-	{
-		//grd_curcanv->cv_font = NORMAL_FONT;
-		
-		if (LastScrollCheck!=ScrollOffset)
+		// Redraw everything...
+		for (i=ScrollOffset; i<MaxDisplayable+ScrollOffset; i++ )
 		{
-			LastScrollCheck=ScrollOffset;
-			grd_curcanv->cv_font = SELECTED_FONT;
-					
-			sy=item[ScrollOffset].y-((string_height+1)*ScrollOffset);
-			sx=item[ScrollOffset].x-(MenuHires?24:12);
-					
-		
-			if (ScrollOffset!=0)
-				nm_rstring( &bg, (MenuHires?20:10), sx, sy, UP_ARROW_MARKER );
-			else
-				nm_rstring( &bg, (MenuHires?20:10), sx, sy, "  " );
-	
-			sy=item[ScrollOffset+MaxDisplayable-1].y-((string_height+1)*ScrollOffset);
-			sx=item[ScrollOffset+MaxDisplayable-1].x-(MenuHires?24:12);
-		
-			if (ScrollOffset+MaxDisplayable<nitems)
-				nm_rstring( &bg, (MenuHires?20:10), sx, sy, DOWN_ARROW_MARKER );
-			else
-			nm_rstring( &bg, (MenuHires?20:10), sx, sy, "  " );
-	
+#ifndef OGL
+			if (item[i].redraw) // warning! ugly hack below
+#endif
+			{
+				item[i].y-=((string_height+1)*ScrollOffset);
+#ifndef OGL
+				newmenu_hide_cursor();
+#endif
+				draw_item( &bg, &item[i], (i==choice && !all_text),TinyMode );
+#ifndef OGL
+				item[i].redraw=0;
+#endif
+#ifdef NEWMENU_MOUSE
+				if (!MenuReordering && !joydefs_calibrating)
+					newmenu_show_cursor();
+#endif
+				item[i].y+=((string_height+1)*ScrollOffset);
+			}
+			if (i==choice && (item[i].type==NM_TYPE_INPUT || (item[i].type==NM_TYPE_INPUT_MENU && item[i].group)))
+				update_cursor( &item[i]);
 		}
-	
-	}
+		gr_update();
+
+		if (IsScrollBox)
+		{
+			//grd_curcanv->cv_font = NORMAL_FONT;
+			
+			if (LastScrollCheck!=ScrollOffset)
+			{
+				LastScrollCheck=ScrollOffset;
+				grd_curcanv->cv_font = SELECTED_FONT;
+						
+				sy=item[ScrollOffset].y-((string_height+1)*ScrollOffset);
+				sx=item[ScrollOffset].x-(MenuHires?24:12);
+						
+			
+				if (ScrollOffset!=0)
+					nm_rstring( &bg, (MenuHires?20:10), sx, sy, UP_ARROW_MARKER );
+				else
+					nm_rstring( &bg, (MenuHires?20:10), sx, sy, "  " );
+		
+				sy=item[ScrollOffset+MaxDisplayable-1].y-((string_height+1)*ScrollOffset);
+				sx=item[ScrollOffset+MaxDisplayable-1].x-(MenuHires?24:12);
+			
+				if (ScrollOffset+MaxDisplayable<nitems)
+					nm_rstring( &bg, (MenuHires?20:10), sx, sy, DOWN_ARROW_MARKER );
+				else
+				nm_rstring( &bg, (MenuHires?20:10), sx, sy, "  " );
+		
+			}
+		
+		}
 
 		if ( !dont_restore && gr_palette_faded_out ) {
 			gr_palette_fade_in( gr_palette, 32, 0 );
@@ -1815,8 +1779,8 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 	newmenu_hide_cursor();
 
+#ifndef OGL
 	// Restore everything...
-
 	gr_set_current_canvas(bg.menu_canvas);
 
 	if ( filename == NULL )	{
@@ -1827,15 +1791,14 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			gr_free_sub_bitmap( bg.background );
 		else
 			gr_free_bitmap( bg.background );
-// 		d_free( bg.background );
 	} else {
 		if (!dont_restore)	//info passed back from subfunction
 			gr_bitmap(0, 0, bg.background);
 		gr_free_bitmap(bg.background);
 	}
+#endif
 
 	gr_free_sub_canvas( bg.menu_canvas );
-
 	gr_set_current_canvas(save_canvas);
 	grd_curcanv->cv_font	= save_font;
 	keyd_repeat = old_keyd_repeat;
@@ -1843,19 +1806,18 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	game_flush_inputs();
 
 	if (time_stopped) 
-     {
+	{
 		start_time();
 		#ifdef TACTILE
 			if (TactileStick)
 				EnableForces();
 		#endif
-	  }
+	}
 
 	if ( sound_stopped )
 		digi_resume_digi_sounds();
 
 	return choice;
-	
 }
 
 
@@ -1913,19 +1875,16 @@ int nm_messagebox( char *title, int nchoices, ... )
 	return newmenu_do( title, nm_text, nchoices, nm_message_items, NULL );
 }
 
-
-
-
 void newmenu_file_sort( int n, char *list )
 {
 	int i, j, incr;
 	char t[14];
 
 	incr = n / 2;
-	while( incr > 0 )		{
-		for (i=incr; i<n; i++ )		{
+	while( incr > 0 ) {
+		for (i=incr; i<n; i++ ) {
 			j = i - incr;
-			while (j>=0 )			{
+			while (j>=0 ) {
 				if (strncmp(&list[j*14], &list[(j+incr)*14], 12) > 0){
 					memcpy( t, &list[j*14], FILENAME_LEN );
 					memcpy( &list[j*14], &list[(j+incr)*14], FILENAME_LEN );
@@ -1976,15 +1935,13 @@ int newmenu_get_filename(char *title, char *type, char *filename, int allow_abor
 	int exit_value = 0;
 	int w_x, w_y, w_w, w_h, title_height;
 	int box_x, box_y, box_w, box_h;
+#ifndef OGL
 	bkg bg;		// background under listbox
+#endif
 #ifdef NEWMENU_MOUSE
 	int mx, my, x1, x2, y1, y2, mouse_state, omouse_state;
 	int mouse2_state, omouse2_state;
 	int dblclick_flag=0;
-# ifdef WINDOWS
-	int simukey=0;
-	int show_up_arrow=0, show_down_arrow=0;
-# endif
 #endif
 
 	w_x=w_y=w_w=w_h=title_height=0;
@@ -2067,7 +2024,6 @@ ReadFileNames:
 	}
 
 	if (!initialized) {	
-//		set_screen_mode(SCREEN_MENU);
 		set_popup_screen();
 
 		gr_set_current_canvas(NULL);
@@ -2109,8 +2065,8 @@ ReadFileNames:
 		box_x = w_x + FONTSCALE_X(grd_curfont->ft_w)*2;			// must be in sync with w_w!!!
 		box_y = w_y + title_height;
 
-// save the screen behind the menu.
-
+#ifndef OGL
+		// save the screen behind the menu.
 		bg.saved = NULL;
 
 		if ( (VR_offscreen_buffer->cv_w >= w_w) && (VR_offscreen_buffer->cv_h >= w_h) ) 
@@ -2120,17 +2076,12 @@ ReadFileNames:
 
 		Assert( bg.background != NULL );
 
-
 		gr_bm_bitblt(w_w, w_h, 0, 0, w_x, w_y, &grd_curcanv->cv_bitmap, bg.background );
-
-#if 0
-		gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_buffer->cv_bitmap) );
-#endif
 
 		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h-1 );
 		
 		gr_string( 0x8000, w_y+(10*MENSCALE_Y), title );
-	 
+#endif
 		initialized = 1;
 	}
 
@@ -2155,20 +2106,30 @@ ReadFileNames:
 #ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;
 	mouse2_state = omouse2_state = 0;
-	draw_close_box(w_x,w_y);
 	newmenu_show_cursor();
 #endif
 
 	while(!done)	{
+		timer_delay(5);
+
 		ocitem = citem;
 		ofirst_item = first_item;
 		gr_update();
+
+#ifdef OGL
+		gr_flip();
+		nm_draw_background1(NULL);
+		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h );
+		grd_curcanv->cv_font = SUBTITLE_FONT;
+		gr_string( 0x8000, w_y+(10*MENSCALE_Y), title );
+#endif
 
 #ifdef NEWMENU_MOUSE
 		omouse_state = mouse_state;
 		omouse2_state = mouse2_state;
 		mouse_state = mouse_button_state(0);
 		mouse2_state = mouse_button_state(1);
+		draw_close_box(w_x,w_y);
 #endif
 
 		//see if redbook song needs to be restarted
@@ -2301,7 +2262,6 @@ ReadFileNames:
 		
 		default:	
 			{
-
 				int ascii = key_to_ascii(key);
 				if ( ascii < 255 )	{
 					int cc,cc1;
@@ -2338,18 +2298,6 @@ ReadFileNames:
 		{
 			first_item = citem-NumFiles_displayed+1;
 		}
-
-#ifdef WINDOWS
-		if (NumFiles>first_item+NumFiles_displayed)
-			show_down_arrow=1;
-		else 
-			show_down_arrow=0;
-		if (first_item>0)
-			show_up_arrow=1;
-		else	
-			show_up_arrow=0;
-#endif
-			
 
 		if (NumFiles <= NumFiles_displayed )
 			 first_item = 0;
@@ -2408,28 +2356,16 @@ ReadFileNames:
 				citem = -1;
 				done = 1;
 			}
-		   #ifdef WINDOWS
-			x1 = box_x-LHX(10);
-			x2 = x1 + LHX(10);
-			y1 = box_y;
-			y2 = box_y+LHY(7);
-			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && show_up_arrow ) 
-				simukey = -1;
-			y1 = box_y+box_h-LHY(7);
-			y2 = box_y+box_h;
-			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && show_down_arrow) 
-				simukey = 1;
-		   #endif
 		}
 
 #endif
-  
-		gr_setcolor( BM_XRGB(2,2,2));
-		//gr_rect( box_x - 1, box_y-2, box_x + box_w, box_y-2 );
+
+#ifndef OGL
 		gr_setcolor( BM_XRGB( 0,0,0)  );
 
 		if (ofirst_item != first_item)	{
 			newmenu_hide_cursor();
+#endif
 			gr_setcolor( BM_XRGB( 0,0,0)  );
 			for (i=first_item; i<first_item+NumFiles_displayed; i++ )	{
 				int w, h, aw, y;
@@ -2439,7 +2375,6 @@ ReadFileNames:
 
 					gr_setcolor( BM_XRGB(5,5,5));
 					gr_rect( box_x + box_w, y-1, box_x + box_w, y + FONTSCALE_Y(grd_curfont->ft_h + 2));
-					//gr_rect( box_x, y + grd_curfont->ft_h + 2, box_x + box_w, y + grd_curfont->ft_h + 2);
 					
 					gr_setcolor( BM_XRGB(2,2,2));
 					gr_rect( box_x - 1, y - 1, box_x - 1, y + FONTSCALE_Y(grd_curfont->ft_h + 1) );
@@ -2455,7 +2390,6 @@ ReadFileNames:
 					gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
 
 					gr_setcolor( BM_XRGB(5,5,5));
-				//	gr_rect( box_x, y + h + 2, box_x + box_w, y + h + 2);
 					gr_rect( box_x + box_w, y - 1, box_x + box_w, y + h + FONTSCALE_Y(1));
 					
 					gr_setcolor( BM_XRGB(2,2,2));
@@ -2465,7 +2399,8 @@ ReadFileNames:
 					gr_rect( box_x, y-1, box_x + box_w - 1, y + h + FONTSCALE_Y(2) );
 					gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 				}
-			}	 
+			}
+#ifndef OGL
 			newmenu_show_cursor();
 		} else if ( citem != ocitem )	{
 			int w, h, aw, y;
@@ -2490,33 +2425,12 @@ ReadFileNames:
 				else	
 					grd_curcanv->cv_font = NORMAL_FONT;
 				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
-// 				gr_rect( box_x, y-1, box_x + box_x - 1, y + h + FONTSCALE_Y(1) );
 				gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 			}
 			newmenu_show_cursor();
 		}
+#endif
 
-	#ifdef WINDOWS   
-			grd_curcanv->cv_font = NORMAL_FONT;
-			if (show_up_arrow)
-	 	  		gr_string( box_x-LHX(10), box_y ,UP_ARROW_MARKER );
-			else
-			{
-				No_darkening=1;
-				nm_draw_background (box_x-LHX(10),box_y,box_x-2,box_y+LHY(7));
-				No_darkening=0;
-			}
-
-			if (show_down_arrow)
-	     		gr_string( box_x-LHX(10), box_y+box_h-LHY(7) ,DOWN_ARROW_MARKER );
-			else
-			{
-				No_darkening=1;
-				nm_draw_background (box_x-LHX(10),box_y+box_h-LHY(7),box_x-2,box_y+box_h);
-				No_darkening=0;
-			}
-
-	#endif
 	}
 
 ExitFileMenuEarly:
@@ -2526,20 +2440,10 @@ ExitFileMenuEarly:
 		exit_value = 1;
 	} else {
 		exit_value = 0;
-	}											 
+	}
 
 ExitFileMenu:
 	keyd_repeat = old_keyd_repeat;
-
-	if ( initialized )	{
-		if (Newdemo_state != ND_STATE_PLAYBACK)	//horrible hack to prevent restore when screen has been cleared
-			gr_bm_bitblt(w_w, w_h, w_x, w_y, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
-		if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
-			gr_free_bitmap(bg.background);
-#if 0
-		gr_bm_bitblt(grd_curcanv->cv_w, grd_curcanv->cv_h, 0, 0, 0, 0, &(VR_offscreen_buffer->cv_bitmap), &(grd_curcanv->cv_bitmap) )
-#endif
-	}
 
 	if ( filenames )
 		d_free(filenames);
@@ -2588,14 +2492,10 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 #ifdef NEWMENU_MOUSE
 	int mx, my, x1, x2, y1, y2, mouse_state, omouse_state;	//, dblclick_flag;
 	int close_x,close_y;
-# ifdef WINDOWS
-   int simukey=0,show_up_arrow=0,show_down_arrow=0;
-# endif
 #endif
 
 	keyd_repeat = 1;
 
-//	set_screen_mode(SCREEN_MENU);
 	set_popup_screen();
 
 	gr_set_current_canvas(NULL);
@@ -2636,11 +2536,12 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 	bg.saved = NULL;
 	bg.background = gr_create_bitmap(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
- 	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.background );
- 	nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
+#ifndef OGL
+	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.background );
+	nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
 
 	gr_string( 0x8000, wy - title_height, title );
-
+#endif
 	done = 0;
 	citem = default_item;
 	if ( citem < 0 ) citem = 0;
@@ -2652,16 +2553,25 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	mouse_state = omouse_state = 0;	//dblclick_flag = 0;
 	close_x = wx-(15*MENSCALE_X);
 	close_y = wy-title_height-(15*MENSCALE_Y);
-	draw_close_box(close_x,close_y);
 	newmenu_show_cursor();
 #endif
 
 	while(!done)	{
+		timer_delay(5);
+#ifdef OGL
+		gr_flip();
+		nm_draw_background1(NULL);
+		nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
+		grd_curcanv->cv_font = SUBTITLE_FONT;
+		gr_string( 0x8000, wy - title_height, title );
+#endif
+
 		ocitem = citem;
 		ofirst_item = first_item;
 #ifdef NEWMENU_MOUSE
 		omouse_state = mouse_state;
 		mouse_state = mouse_button_state(0);
+		draw_close_box(close_x,close_y);
 #endif
 		//see if redbook song needs to be restarted
 		songs_check_redbook_repeat();
@@ -2679,15 +2589,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			done = 1;
 		}
 
-
-	#ifdef WINDOWS
-		if (simukey==-1)
-			key=KEY_UP;
-		else if (simukey==1)
-		   key=KEY_DOWN;
-		simukey=0;
-	#endif
-		
 		switch(key)	{
 		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_3:)
 		case KEY_PRINT_SCREEN: 		
@@ -2790,17 +2691,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			first_item = nitems-LB_ITEMS_ON_SCREEN;
 		if (first_item < 0 ) first_item = 0;
 
-#ifdef WINDOWS
-		if (nitems>first_item+LB_ITEMS_ON_SCREEN)
-			show_down_arrow=1;
-		else 
-			show_down_arrow=0;
-		if (first_item>0)
-			show_up_arrow=1;
-		else	
-			show_up_arrow=0;
-#endif
-
 
 #ifdef NEWMENU_MOUSE
 		if (mouse_state) {
@@ -2838,25 +2728,13 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 				citem = -1;
 				done = 1;
 			}
-
-#ifdef WINDOWS
-			x1 = wx-LHX(10);
-			x2 = x1 + LHX(10);
-			y1 = wy;
-			y2 = wy+LHY(7);
-			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && show_up_arrow) 
-				simukey = -1;
-			y1 = total_height-LHY(7);
-			y2 = total_height;
-			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && show_down_arrow ) 
-				simukey = 1;
-#endif
 		}
 #endif
 
+#ifndef OGL
 		if ( (ofirst_item != first_item) || redraw)	{
 			newmenu_hide_cursor();
-
+#endif
 			gr_setcolor( BM_XRGB( 0,0,0)  );
 			for (i=first_item; i<first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 				int w, h, aw, y;
@@ -2873,33 +2751,8 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 					gr_rect( wx, y-1, wx+width-1, y+h+FONTSCALE_Y(2) );
 					gr_string( wx+5, y, items[i]  );
 				}
-			}		
-
-				
-			// If Win95 port, draw up/down arrows on left side of menu
-			#ifdef WINDOWS
-				grd_curcanv->cv_font = NORMAL_FONT;
-			if (show_up_arrow)
-				gr_string( wx-LHX(10), wy ,UP_ARROW_MARKER );
-			else
-			{
-				No_darkening=1;
-				nm_draw_background (wx-LHX(10),wy,wx-2,wy+LHY(7));
-				No_darkening=0;
 			}
-
-			if (show_down_arrow)
-			gr_string( wx-LHX(10), wy+total_height-LHY(7) ,DOWN_ARROW_MARKER );
-			else
-			{
-				No_darkening=1;
-				nm_draw_background (wx-LHX(10),wy+total_height-LHY(7),wx-2,wy+total_height);
-				No_darkening=0;
-			}
-
-			#endif
-
-
+#ifndef OGL
 			newmenu_show_cursor();
 			gr_update();
 		} else if ( citem != ocitem )	{
@@ -2908,6 +2761,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			newmenu_hide_cursor();
 
 			i = ocitem;
+			gr_setcolor( BM_XRGB(0,0,0));
 			if ( (i>=0) && (i<nitems) )	{
 				y = (i-first_item)*FONTSCALE_Y(grd_curfont->ft_h+2)+wy;
 				if ( i == citem )	
@@ -2934,49 +2788,19 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			newmenu_show_cursor();
 			gr_update();
 		}
+#endif
 	}
 	newmenu_hide_cursor();
 
 	keyd_repeat = old_keyd_repeat;
-
+#ifndef OGL
 	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
- 
+#endif 
 	if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
 		gr_free_bitmap(bg.background);
 
 	return citem;
 }
-
-#if 0
-int newmenu_filelist( char * title, char * filespec, char * filename )
-{
-	int i, NumFiles;
-	char * Filenames[MAX_FILES];
-	char FilenameText[MAX_FILES][14];
-	FILEFINDSTRUCT find;
-
-	NumFiles = 0;
-	if( !FileFindFirst( filespec, &find ) )	{
-		do	{
-			if (NumFiles<MAX_FILES)	{
-                                strncpy( FilenameText[NumFiles], find.name, FILENAME_LEN);
-				Filenames[NumFiles] = FilenameText[NumFiles];
-				NumFiles++;
-			} else {
-				break;
-			}
-		} while( !FileFindNext( &find ) );
-		FileFindClose();
-	}
-
-	i = newmenu_listbox( title, NumFiles, Filenames, 1, NULL );
-	if ( i > -1 )	{
-		strcpy( filename, Filenames[i] );
-		return 1;
-	} 
-	return 0;
-}
-#endif
 
 //added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
 int nm_messagebox_fixedfont( char *title, int nchoices, ... )

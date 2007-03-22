@@ -138,12 +138,6 @@ void ogl_init_state(void){
 
 void gr_update()
 {
-	if (gl_initialized){
-
-//		if(Screen_mode != SCREEN_GAME){
-			glFlush();
-//		}
-	}
 }
 
 // Set the buffer to draw to. 0 is front, 1 is back
@@ -296,7 +290,7 @@ void ogl_get_verinfo(void)
 	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i(%i units) gl_sgis_multitexture:%i(%i units) gl_nv_texture_env_combine4:%i\n", ogl_arb_multitexture_ok, arb_max_textures, ogl_sgis_multitexture_ok, sgi_max_textures, ogl_nv_texture_env_combine4_ok); // ZICO - moved this to this ifdef
 	con_printf(CON_VERBOSE, "gl_nv_register_combiners:%i(%i stages)\n", ogl_nv_register_combiners_ok, nv_register_combiners);
 #endif
-	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i gl_ext_texture_filter_anisotropic:%i(%f max) gl_scissor_ok:%i\n", ogl_intensity4_ok, ogl_luminance4_alpha4_ok, ogl_rgba2_ok, ogl_readpixels_ok, ogl_gettexlevelparam_ok, ogl_setgammaramp_ok, ogl_ext_texture_filter_anisotropic_ok, anisotropic_max,ogl_scissor_ok);
+	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i gl_ext_texture_filter_anisotropic:%i(%f max) gl_scissor:%i\n", ogl_intensity4_ok, ogl_luminance4_alpha4_ok, ogl_rgba2_ok, ogl_readpixels_ok, ogl_gettexlevelparam_ok, ogl_setgammaramp_ok, ogl_ext_texture_filter_anisotropic_ok, anisotropic_max,ogl_scissor_ok);
 }
 
 

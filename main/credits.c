@@ -196,7 +196,7 @@ void credits_show(char *credits_filename)
 #ifndef OGL
 	CreditsOffscreenBuf = gr_create_canvas(GWIDTH,GHEIGHT);
 #else
-	CreditsOffscreenBuf = gr_create_sub_canvas(grd_curcanv,0,-1,GWIDTH,GHEIGHT);
+	CreditsOffscreenBuf = gr_create_sub_canvas(grd_curcanv,0,0,GWIDTH,GHEIGHT);
 #endif
 
 	if (!CreditsOffscreenBuf)
@@ -248,7 +248,7 @@ get_line:;
 
 			y = first_line_offset - i;
 #ifdef OGL
-			ogl_start_offscreen_render(0,-2,GWIDTH,GHEIGHT);
+			gr_flip();
 			ogl_ubitmapm_cs(0,0,-1,-1,&backdrop,-1,F1_0);
 #endif
 			gr_set_current_canvas(CreditsOffscreenBuf);
@@ -359,15 +359,11 @@ get_line:;
 					gr_palette_load( gr_palette );
 #ifdef OGL
 					gr_free_sub_canvas(CreditsOffscreenBuf);
-					ogl_end_offscreen_render();
 #else
 					gr_free_canvas(CreditsOffscreenBuf);
 #endif
 				return;
 			}
-#ifdef OGL
-		ogl_end_offscreen_render();
-#endif
 		}
 	}
 }

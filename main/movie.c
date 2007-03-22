@@ -201,6 +201,7 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 	glEnable (GL_BLEND);
 
 	gr_update();
+	gr_flip();
 #else
 	gr_bm_ubitblt(bufw,bufh,dstx,dsty,sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
 #endif
@@ -252,6 +253,9 @@ void show_pause_message(char *msg)
 	gr_ustring( 0x8000, y, msg );
 
 	gr_update();
+#ifdef OGL
+	gr_flip();
+#endif
 }
 
 void clear_pause_message()

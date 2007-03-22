@@ -149,10 +149,9 @@ void ogl_close(void);//one time shutdown
 void ogl_loadbmtexture_f(grs_bitmap *bm, int flags);
 void ogl_freebmtexture(grs_bitmap *bm);
 
-void ogl_start_offscreen_render(int x, int y, int w, int h);
-void ogl_end_offscreen_render(void);
 void ogl_start_frame(void);
 void ogl_end_frame(void);
+void ogl_swap_buffers_internal(void);
 void ogl_set_screen_mode(void);
 void ogl_cache_level_textures(void);
 

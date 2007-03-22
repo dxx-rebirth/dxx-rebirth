@@ -64,6 +64,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
+#ifdef OGL
+#include "ogl_init.h"
+#endif
+
 extern void multi_send_stolen_items();
 void say_escort_goal(int goal_num);
 void show_escort_menu(char *msg);
@@ -1864,7 +1868,11 @@ void do_escort_menu(void)
 	show_escort_menu(msg);		//TXT_PAUSE);
 
 	while (paused) {
-		key = key_getch();
+#ifdef OGL
+		gr_flip();
+		show_escort_menu(msg);		//TXT_PAUSE);
+#endif
+		key = key_inkey();
 
 		switch (key) {
 			case KEY_0:
@@ -1889,13 +1897,6 @@ void do_escort_menu(void)
 				clear_boxed_message();
 				paused=0;
 				break;
-
-//--10/08/95-- Screwed up font, background.  Why needed, anyway?
-//--10/08/95--			case KEY_F1:
-//--10/08/95-- 				clear_boxed_message();
-//--10/08/95--				do_show_help();
-//--10/08/95--				show_boxed_message(msg);
-//--10/08/95--				break;
 
 			case KEY_PRINT_SCREEN:
 				save_screen_shot(0);
@@ -1929,7 +1930,6 @@ void do_escort_menu(void)
 				break;
 
 		}
-
 	}
 
 	game_flush_inputs();
@@ -1956,13 +1956,13 @@ void show_escort_menu(char *msg)
 	gr_get_string_size(msg,&w,&h,&aw);
 
 	x = (grd_curscreen->sc_w-w)/2;
-	y = (grd_curscreen->sc_h-h)/4;
+	y = (grd_curscreen->sc_h-h)/2;
 
 	gr_set_fontcolor( gr_getcolor(0, 28, 0), -1 );
-   
-   nm_draw_background(x-15,y-15,x+w+15-1,y+h+15-1);
 
-  	gr_ustring( x, y, msg );
+	nm_draw_background(x-15,y-15,x+w+15,y+h+15);
+
+	gr_ustring( x, y, msg );
 	gr_update();
 
 	reset_cockpit();

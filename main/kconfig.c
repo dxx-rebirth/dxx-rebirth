@@ -80,6 +80,10 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:57:17 zicodxx Exp 
 #include "gp2x.h"
 #endif
 
+#ifdef OGL
+#include "ogl_init.h"
+#endif
+
 ubyte ExtGameStatus=1;
 
 vms_vector ExtForceVec;
@@ -193,6 +197,7 @@ extern void transfer_energy_to_shield(fix);
 extern void CyclePrimary(),CycleSecondary(),InitMarkerInput();
 extern ubyte DefiningMarkerMessage;
 extern char CybermouseActive;
+extern void nm_draw_background1(char * filename);
 
 #ifdef WINDOWS
 extern int joydefsw_do_button();
@@ -990,9 +995,12 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 {
 	grs_font * save_font;
 	int old_keyd_repeat;
+	int w = LHX(290), h = LHY(170);
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, mx, my, x1, x2, y1, y2;
-	int close_x, close_y, close_size;
+	int close_x    = (SWIDTH/2)-(w/2)-8*(SWIDTH/320);
+	int close_y    = (SHEIGHT/2)-(h/2)-8*(SHEIGHT/200);
+	int close_size = FONTSCALE_X(MenuHires?10:5);
 #endif
 
 	int i,k,ocitem,citem;
@@ -1018,118 +1026,11 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	save_font = grd_curcanv->cv_font;
 
-#ifdef WINDOWS
-KConfigPaint:
-#endif
 	game_flush_inputs();
 	old_keyd_repeat = keyd_repeat;
 	keyd_repeat = 1;
 
-	//gr_clear_canvas( BM_XRGB(0,0,0) );
-	
-	nm_draw_background(0, 0, grd_curcanv->cv_bitmap.bm_w - 1, grd_curcanv->cv_bitmap.bm_h - 1);
-	gr_palette_load (gr_palette);
-
-	grd_curcanv->cv_font = MEDIUM3_FONT;
-
-	{
-		char * p;
-		p = strchr( title, '\n' );
-		if ( p ) *p = 32;
-		gr_string( 0x8000, LHY(8), title );
-		if ( p ) *p = '\n';
-	}
-
-#ifdef NEWMENU_MOUSE
-	close_x    = FONTSCALE_X(MenuHires?15:7);
-	close_y    = FONTSCALE_Y(MenuHires?15:7);
-	close_size = FONTSCALE_X(MenuHires?10:5);
-	gr_setcolor( BM_XRGB(0, 0, 0) );
-	gr_rect(close_x, close_y, close_x + close_size, close_y + close_size);
-	gr_setcolor( BM_XRGB(21, 21, 21) );
-	gr_rect(close_x + LHX(1), close_y + LHX(1), close_x + close_size - LHX(1), close_y + close_size - LHX(1));
-#endif
-
-	grd_curcanv->cv_font = GAME_FONT;
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-
-	#ifndef MACINTOSH
-	gr_string( 0x8000, LHY(20), TXT_KCONFIG_STRING_1 );
-	#else
-	gr_string( 0x8000, LHY(20), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
-	#endif
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-	if ( items == kc_keyboard )	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
-		
-		gr_rect( LHX( 98), LHY(42), LHX(106), LHY(42) ); // horiz/left
-		gr_rect( LHX(120), LHY(42), LHX(128), LHY(42) ); // horiz/right
-		gr_rect( LHX( 98), LHY(42), LHX( 98), LHY(44) ); // vert/left
-		gr_rect( LHX(128), LHY(42), LHX(128), LHY(44) ); // vert/right
-		
-		gr_string( LHX(109), LHY(40), "OR" );
-
-		gr_rect( LHX(253), LHY(42), LHX(261), LHY(42) ); // horiz/left
-		gr_rect( LHX(275), LHY(42), LHX(283), LHY(42) ); // horiz/right
-		gr_rect( LHX(253), LHY(42), LHX(253), LHY(44) ); // vert/left
-		gr_rect( LHX(283), LHY(42), LHX(283), LHY(44) ); // vert/right
-
-		gr_string( LHX(264), LHY(40), "OR" );
-
-	} if ( items == kc_joystick )	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
-		gr_string( 0x8000, LHY(28), TXT_BUTTONS );
-		gr_string( 0x8000,LHY(135), TXT_AXES );
-		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string( LHX( 81), LHY(145), TXT_AXIS );
-		gr_string( LHX(111), LHY(145), TXT_INVERT );
-		gr_string( LHX(230), LHY(145), TXT_AXIS );
-		gr_string( LHX(260), LHY(145), TXT_INVERT );
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
-
-		gr_rect( LHX(115), LHY(40), LHX(123), LHY(40) ); // horiz/left
-		gr_rect( LHX(137), LHY(40), LHX(145), LHY(40) ); // horiz/right
-		gr_rect( LHX(115), LHY(40), LHX(115), LHY(42) ); // vert/left
-		gr_rect( LHX(145), LHY(40), LHX(145), LHY(42) ); // vert/right
-
-		gr_string( LHX(126), LHY(38), "OR" );
-
-		gr_rect( LHX(261), LHY(40), LHX(269), LHY(40) ); // horiz/left
-		gr_rect( LHX(283), LHY(40), LHX(291), LHY(40) ); // horiz/right
-		gr_rect( LHX(261), LHY(40), LHX(261), LHY(42) ); // vert/left
-		gr_rect( LHX(291), LHY(40), LHX(291), LHY(42) ); // vert/right
-
-		gr_string( LHX(272), LHY(38), "OR" );
-
-	} else if ( items == kc_mouse )	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
-		gr_string( 0x8000, LHY(35), TXT_BUTTONS );
-		gr_string( 0x8000,LHY(122), TXT_AXES );
-		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string( LHX(169), LHY(129), TXT_AXIS );
-		gr_string( LHX(199), LHY(129), TXT_INVERT );
-	}
-#ifdef D2X_KEYS
-	else if ( items == kc_d2x )
-	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
-
-		gr_string(LHX( 94), LHY(40), "KB");
-		gr_string(LHX(121), LHY(40), "JOY");
-	}
-#endif
-
-	for (i=0; i<nitems; i++ )	{
-		kc_drawitem( &items[i], 0 );
-	}
-
 	citem = 0;
-	kc_drawitem( &items[citem], 1 );
 
 	newmenu_show_cursor();
 
@@ -1138,7 +1039,114 @@ KConfigPaint:
 #endif
 
 	while(1)		{
-	//	Windows addendum to allow for kconfig input.
+
+		timer_delay(5);
+
+		gr_set_current_canvas(NULL);
+#ifdef OGL
+		gr_flip();
+		nm_draw_background1(NULL);
+#endif
+		nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
+	
+#ifdef NEWMENU_MOUSE
+		gr_setcolor( BM_XRGB(0, 0, 0) );
+		gr_rect(close_x, close_y, close_x + close_size, close_y + close_size);
+		gr_setcolor( BM_XRGB(21, 21, 21) );
+		gr_rect(close_x + LHX(1), close_y + LHX(1), close_x + close_size - LHX(1), close_y + close_size - LHX(1));
+#endif
+		gr_set_current_canvas(&canvas);
+	
+		grd_curcanv->cv_font = MEDIUM3_FONT;
+	
+		{
+			char * p;
+			p = strchr( title, '\n' );
+			if ( p ) *p = 32;
+			gr_string( 0x8000, LHY(8), title );
+			if ( p ) *p = '\n';
+		}
+	
+		grd_curcanv->cv_font = GAME_FONT;
+		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+	
+#ifndef MACINTOSH
+		gr_string( 0x8000, LHY(20), TXT_KCONFIG_STRING_1 );
+#else
+		gr_string( 0x8000, LHY(20), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
+#endif
+		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+		if ( items == kc_keyboard )	{
+			gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+			gr_setcolor( BM_XRGB(31,27,6) );
+			
+			gr_rect( LHX( 98), LHY(42), LHX(106), LHY(42) ); // horiz/left
+			gr_rect( LHX(120), LHY(42), LHX(128), LHY(42) ); // horiz/right
+			gr_rect( LHX( 98), LHY(42), LHX( 98), LHY(44) ); // vert/left
+			gr_rect( LHX(128), LHY(42), LHX(128), LHY(44) ); // vert/right
+			
+			gr_string( LHX(109), LHY(40), "OR" );
+	
+			gr_rect( LHX(253), LHY(42), LHX(261), LHY(42) ); // horiz/left
+			gr_rect( LHX(275), LHY(42), LHX(283), LHY(42) ); // horiz/right
+			gr_rect( LHX(253), LHY(42), LHX(253), LHY(44) ); // vert/left
+			gr_rect( LHX(283), LHY(42), LHX(283), LHY(44) ); // vert/right
+	
+			gr_string( LHX(264), LHY(40), "OR" );
+	
+		} if ( items == kc_joystick )	{
+			gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+			gr_setcolor( BM_XRGB(31,27,6) );
+			gr_string( 0x8000, LHY(28), TXT_BUTTONS );
+			gr_string( 0x8000,LHY(135), TXT_AXES );
+			gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+			gr_string( LHX( 81), LHY(145), TXT_AXIS );
+			gr_string( LHX(111), LHY(145), TXT_INVERT );
+			gr_string( LHX(230), LHY(145), TXT_AXIS );
+			gr_string( LHX(260), LHY(145), TXT_INVERT );
+			gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+			gr_setcolor( BM_XRGB(31,27,6) );
+	
+			gr_rect( LHX(115), LHY(40), LHX(123), LHY(40) ); // horiz/left
+			gr_rect( LHX(137), LHY(40), LHX(145), LHY(40) ); // horiz/right
+			gr_rect( LHX(115), LHY(40), LHX(115), LHY(42) ); // vert/left
+			gr_rect( LHX(145), LHY(40), LHX(145), LHY(42) ); // vert/right
+	
+			gr_string( LHX(126), LHY(38), "OR" );
+	
+			gr_rect( LHX(261), LHY(40), LHX(269), LHY(40) ); // horiz/left
+			gr_rect( LHX(283), LHY(40), LHX(291), LHY(40) ); // horiz/right
+			gr_rect( LHX(261), LHY(40), LHX(261), LHY(42) ); // vert/left
+			gr_rect( LHX(291), LHY(40), LHX(291), LHY(42) ); // vert/right
+	
+			gr_string( LHX(272), LHY(38), "OR" );
+	
+		} else if ( items == kc_mouse )	{
+			gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+			gr_setcolor( BM_XRGB(31,27,6) );
+			gr_string( 0x8000, LHY(35), TXT_BUTTONS );
+			gr_string( 0x8000,LHY(122), TXT_AXES );
+			gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+			gr_string( LHX(169), LHY(129), TXT_AXIS );
+			gr_string( LHX(199), LHY(129), TXT_INVERT );
+		}
+#ifdef D2X_KEYS
+		else if ( items == kc_d2x )
+		{
+			gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+			gr_setcolor( BM_XRGB(31,27,6) );
+	
+			gr_string(LHX( 94), LHY(40), "KB");
+			gr_string(LHX(121), LHY(40), "JOY");
+		}
+#endif
+	
+		for (i=0; i<nitems; i++ )	{
+			kc_drawitem( &items[i], 0 );
+		}
+	
+		kc_drawitem( &items[citem], 1 );
+
 		gr_update();
 
 		//see if redbook song needs to be restarted
@@ -1165,7 +1173,7 @@ KConfigPaint:
 		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_3:)
 		case KEY_PRINT_SCREEN:
 			save_screen_shot(0);
-			break;							
+			break;
 		case KEY_CTRLED+KEY_D:
 			items[citem].value = 255;
 			kc_drawitem( &items[citem], 1 );
@@ -1434,7 +1442,7 @@ void kc_drawitem( kc_item *item, int is_current )
 		gr_set_fontcolor( BM_XRGB(20,20,29), -1 );
 	else
 		gr_set_fontcolor( BM_XRGB(15,15,24), -1 );
-   gr_string( LHX(item->x), LHY(item->y), item->text );
+	gr_string( LHX(item->x), LHY(item->y), item->text );
 
 	if (item->value==255) {
 		strcpy( btext, "" );
@@ -1533,9 +1541,9 @@ void kc_drawquestion( kc_item *item )
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
 	x = LHX(item->w1+item->x)+((LHX(item->w2)-w)/2);
-   
+
 	gr_string( x, LHY(item->y), "?" );
-gr_update();
+	gr_update();
 }
 
 void kc_change_key( kc_item * item )
@@ -1573,6 +1581,9 @@ void kc_change_key( kc_item * item )
 					keycode=i;
 			}
 		}
+#ifdef OGL
+		ogl_swap_buffers_internal();
+#endif
 	}
 
 	if (k!=KEY_ESC)	{
@@ -1588,8 +1599,6 @@ void kc_change_key( kc_item * item )
 	kc_drawitem( item, 1 );
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
-
-	nm_restore_background( 0, LHY(INFO_Y), GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 
 	game_flush_inputs();
 
@@ -1658,6 +1667,9 @@ void kc_change_joybutton( kc_item * item )
 			}
 		}
 #endif
+#ifdef OGL
+		ogl_swap_buffers_internal();
+#endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1670,7 +1682,7 @@ void kc_change_joybutton( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
+
 	game_flush_inputs();
 }
 
@@ -1708,6 +1720,9 @@ void kc_change_mousebutton( kc_item * item )
 			if ( b & (1<<i) )	
 				code = i;
 		}
+#ifdef OGL
+		ogl_swap_buffers_internal();
+#endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1720,7 +1735,7 @@ void kc_change_mousebutton( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
+
 	game_flush_inputs();
 
 }
@@ -1760,7 +1775,7 @@ void kc_next_joyaxis(kc_item *item)
 	}//end if
 
 	kc_drawitem(item, 1);
-	nm_restore_background(0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h));
+
 	game_flush_inputs();
 
 }//method kc_next_joyaxis
@@ -1828,6 +1843,9 @@ void kc_change_joyaxis( kc_item * item )
 				code = 255;
 		}
 */
+#ifdef OGL
+		ogl_swap_buffers_internal();
+#endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1841,7 +1859,7 @@ void kc_change_joyaxis( kc_item * item )
 		item->value = code;					 
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
+
 	game_flush_inputs();
 
 }
@@ -1891,6 +1909,9 @@ void kc_change_mouseaxis( kc_item * item )
 #ifdef SDL_INPUT
 		if ( abs(dz)>20 ) code = 2;
 #endif
+#ifdef OGL
+		ogl_swap_buffers_internal();
+#endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1903,7 +1924,7 @@ void kc_change_mouseaxis( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, LHY(INFO_Y), LHX(310), FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
+
 	game_flush_inputs();
 
 }
@@ -2683,9 +2704,9 @@ void controls_read_all_win()
         if ((Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && keyd_pressed[kc_keyboard[55].value])
                 transfer_energy_to_shield(key_down_time(kc_keyboard[55].value));
 
-	if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_superjoy[52].value < 255))
-                transfer_energy_to_shield(joy_get_button_down_time(kc_superjoy[52].value));
-        if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_superjoy[53].value < 255))
+		if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_superjoy[52].value < 255) && joy_get_button_state(kc_superjoy[52].value))
+                 transfer_energy_to_shield(joy_get_button_down_time(kc_superjoy[52].value));
+                if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_superjoy[53].value < 255) && joy_get_button_state(kc_superjoy[53].value))
                 transfer_energy_to_shield(joy_get_button_down_time(kc_superjoy[53].value));
 
 //----------- Read fire_primary_down_count
@@ -3542,9 +3563,9 @@ if (!Player_is_dead)
                 transfer_energy_to_shield(key_down_time(kc_keyboard[54].value));
         if ((Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && keyd_pressed[kc_keyboard[55].value])
                 transfer_energy_to_shield(key_down_time(kc_keyboard[55].value));
-	if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_joystick[52].value < 255))
+	 	if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_joystick[52].value < 255) && joy_get_button_state(kc_joystick[52].value))
                 transfer_energy_to_shield(joy_get_button_down_time(kc_joystick[52].value));
-        if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_joystick[53].value < 255))
+        if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_joystick[53].value < 255) && joy_get_button_state(kc_joystick[53].value))
                 transfer_energy_to_shield(joy_get_button_down_time(kc_joystick[53].value));
 //----------- Read fire_primary_down_count
 #ifdef GP2X // deny these controls for GP2X combo actions with SELECT

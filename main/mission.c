@@ -625,13 +625,8 @@ int add_alternate_hogfile(char *filename)
 
 	ok = cfile_init(filename);
 
-	if (!ok) {
-		if (demo)
-			cfile_init("d2demo.hog");
-		else
-			cfile_init("descent2.hog");
+	if (!ok)
 		return 0;
-	}
 	
 	if (demo)
 		ok = cfile_init("d2demo.hog");

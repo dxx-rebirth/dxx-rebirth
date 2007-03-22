@@ -561,7 +561,9 @@ int set_screen_mode(int sm)
 		!((sm==SCREEN_MENU) &&
 			(grd_curscreen->sc_mode != MENU_SCREEN_MODE)) ) {
 		gr_set_current_canvas(NULL);
+#ifndef OGL
 		gr_set_draw_buffer(0);	// Set to the front buffer
+#endif
 		return 1;
 	}
 
@@ -630,7 +632,9 @@ int set_screen_mode(int sm)
 
 	gr_set_current_canvas(NULL);
 
+#ifndef OGL
 	gr_set_draw_buffer(((Screen_mode == SCREEN_GAME) && Game_double_buffer) ? 1 : 0); // Double buffering or 'front' buffer only
+#endif
 
 	return 1;
 }
