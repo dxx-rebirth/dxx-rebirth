@@ -417,6 +417,7 @@ else:
 # profiler?
 if (profiler == 1):
 	env.Append(CPPFLAGS = ['-pg'])
+	lflags += ' -pg'
 
 # assembler code?
 if (no_asm == 0) and (sdl_only == 1):

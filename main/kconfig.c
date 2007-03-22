@@ -65,6 +65,11 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:44:27 zicodxx Exp 
 #include "d_delay.h"
 #include "physics.h"
 #include "vlcnfire.h"
+#include "d_delay.h"
+
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 #ifdef GP2X
 #include "gp2x.h"
@@ -86,6 +91,7 @@ ubyte system_keys[] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6,
 
 //extern void GameLoop(int, int );
 extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
+extern void nm_draw_background1(char * filename);
 
 control_info Controls;
 
@@ -103,8 +109,8 @@ int Allow_secondary_cycle=1;
 int mouselook=0;
 extern int Automap_flag;
 
-#define LHX(x)		((x)*(hiresfont?FONTSCALE_X(2):FONTSCALE_X(1)))
-#define LHY(y)		((y)*(hiresfont?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
+#define LHX(x)		((x)*(hiresfont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_X(2):FONTSCALE_X(1)))
+#define LHY(y)		((y)*(hiresfont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
 
 #define BT_KEY                  0
 #define BT_MOUSE_BUTTON 	1
@@ -591,13 +597,16 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	grs_canvas * save_canvas, canvas;
 	grs_font * save_font;
 	int old_keyd_repeat;
-#ifdef NEWMENU_MOUSE
-	int mouse_state, omouse_state, mx, my, x1, x2, y1, y2;
-	int close_x, close_y, close_size;
-#endif
 	int i,k,ocitem,citem;
 	int time_stopped = 0;
 	char * p;
+	int w = LHX(290), h = LHY(170);
+#ifdef NEWMENU_MOUSE
+	int mouse_state, omouse_state, mx, my, x1, x2, y1, y2;
+	int close_x    = (SWIDTH/2)-(w/2)-8*(SWIDTH/320);
+	int close_y    = (SHEIGHT/2)-(h/2)-8*(SHEIGHT/200);
+	int close_size = FONTSCALE_X(hiresfont && SWIDTH>=640 && SHEIGHT>=480?10:5);
+#endif
 
 	All_items = items;
 	Num_items = nitems;
@@ -614,114 +623,18 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	save_canvas = grd_curcanv;
 
-	if (hiresfont)
+	if (hiresfont && SWIDTH>=640 && SHEIGHT>=480) {
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
-	else
+	} else {
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));
-	gr_set_current_canvas(&canvas);
+	}
 
 	save_font = grd_curcanv->cv_font;
 	game_flush_inputs();
 	old_keyd_repeat = keyd_repeat;
 	keyd_repeat = 1;
 
-	nm_draw_background(0,0,grd_curcanv->cv_bitmap.bm_w-1, grd_curcanv->cv_bitmap.bm_h-1 );//args are x,y,x2,y2 NOT x,y,w,h
-
-	grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
-
-
-	p = strchr( title, '\n' );
-	if ( p ) *p = 32;
-	gr_string( 0x8000, LHY(8), title );
-	if ( p ) *p = '\n';
-
-#ifdef NEWMENU_MOUSE
-	close_x    = FONTSCALE_X(hiresfont?15:7);
-	close_y    = FONTSCALE_Y(hiresfont?15:7);
-	close_size = FONTSCALE_X(hiresfont?10:5);
-	gr_setcolor( BM_XRGB(0, 0, 0) );
-	gr_rect(close_x, close_y, close_x + close_size, close_y + close_size);
-	gr_setcolor( BM_XRGB(21, 21, 21) );
-	gr_rect(close_x + 1, close_y + 1, close_x + close_size - 1, close_y + close_size - 1);
-#endif
-
-	grd_curcanv->cv_font = GAME_FONT;
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-	gr_string( 0x8000, LHY(28), TXT_KCONFIG_STRING_1 );
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-
-	if ( items == kc_keyboard )
-	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
-		
-		gr_rect( LHX( 98), LHY(42), LHX(106), LHY(42) ); // horiz/left
-		gr_rect( LHX(120), LHY(42), LHX(128), LHY(42) ); // horiz/right
-		gr_rect( LHX( 98), LHY(42), LHX( 98), LHY(44) ); // vert/left
-		gr_rect( LHX(128), LHY(42), LHX(128), LHY(44) ); // vert/right
-		
-		gr_string( LHX(109), LHY(40), "OR" );
-
-		gr_rect( LHX(253), LHY(42), LHX(261), LHY(42) ); // horiz/left
-		gr_rect( LHX(275), LHY(42), LHX(283), LHY(42) ); // horiz/right
-		gr_rect( LHX(253), LHY(42), LHX(253), LHY(44) ); // vert/left
-		gr_rect( LHX(283), LHY(42), LHX(283), LHY(44) ); // vert/right
-
-		gr_string( LHX(264), LHY(40), "OR" );
-	}
-	else if ( items == kc_joystick )
-	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
-		gr_string( 0x8000, LHY(36), TXT_BUTTONS );
-		gr_string( 0x8000,LHY(127), TXT_AXES );
-		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string( LHX(81), LHY(137), TXT_AXIS );
-		gr_string( LHX(111), LHY(137), TXT_INVERT );
-		gr_string( LHX(230), LHY(137), TXT_AXIS );
-		gr_string( LHX(260), LHY(137), TXT_INVERT );
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
-
-		gr_rect( LHX(115), LHY(45), LHX(123), LHY(45) ); // horiz/left
-		gr_rect( LHX(137), LHY(45), LHX(145), LHY(45) ); // horiz/right
-		gr_rect( LHX(115), LHY(45), LHX(115), LHY(47) ); // vert/left
-		gr_rect( LHX(145), LHY(45), LHX(145), LHY(47) ); // vert/right
-
-		gr_string( LHX(126), LHY(43), "OR" );
-
-		gr_rect( LHX(250), LHY(45), LHX(258), LHY(45) ); // horiz/left
-		gr_rect( LHX(272), LHY(45), LHX(280), LHY(45) ); // horiz/right
-		gr_rect( LHX(250), LHY(45), LHX(250), LHY(47) ); // vert/left
-		gr_rect( LHX(280), LHY(45), LHX(280), LHY(47) ); // vert/right
-
-		gr_string( LHX(261), LHY(43), "OR" );
-	}
-	else if ( items == kc_mouse )
-	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
-		gr_string( 0x8000, LHY(35), TXT_BUTTONS );
-		gr_string( 0x8000,LHY(122), TXT_AXES );
-		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string( LHX(169), LHY(129), TXT_AXIS );
-		gr_string( LHX(199), LHY(129), TXT_INVERT );
-	}
-	else if ( items == kc_d1x )
-	{
-		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
-		gr_setcolor( BM_XRGB(31,27,6) );
-
-		gr_string(LHX( 94), LHY(40), "KB");
-		gr_string(LHX(121), LHY(40), "JOY");
-	}
-	
-	for (i=0; i<nitems; i++ )
-		kc_drawitem( &items[i], 0 );
-
-
 	citem = 0;
-	kc_drawitem( &items[citem], 1 );
 
 	newmenu_show_cursor();
 
@@ -731,6 +644,108 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	while(1)
 	{
+		d_delay(5);
+
+		gr_set_current_canvas(NULL);
+#ifdef OGL
+		ogl_swap_buffers();
+		nm_draw_background1(NULL);
+#endif
+		nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
+
+#ifdef NEWMENU_MOUSE
+		gr_setcolor( BM_XRGB(0, 0, 0) );
+		gr_rect(close_x, close_y, close_x + close_size, close_y + close_size);
+		gr_setcolor( BM_XRGB(21, 21, 21) );
+		gr_rect(close_x + 1, close_y + 1, close_x + close_size - 1, close_y + close_size - 1);
+#endif
+		gr_set_current_canvas(&canvas);
+	
+		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
+
+
+		p = strchr( title, '\n' );
+		if ( p ) *p = 32;
+		gr_string( 0x8000, LHY(8), title );
+		if ( p ) *p = '\n';
+
+		grd_curcanv->cv_font = GAME_FONT;
+		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+		gr_string( 0x8000, LHY(28), TXT_KCONFIG_STRING_1 );
+		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+	
+		if ( items == kc_keyboard )
+		{
+			gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+			gr_setcolor( BM_XRGB(31,27,6) );
+			
+			gr_rect( LHX( 98), LHY(42), LHX(106), LHY(42) ); // horiz/left
+			gr_rect( LHX(120), LHY(42), LHX(128), LHY(42) ); // horiz/right
+			gr_rect( LHX( 98), LHY(42), LHX( 98), LHY(44) ); // vert/left
+			gr_rect( LHX(128), LHY(42), LHX(128), LHY(44) ); // vert/right
+			
+			gr_string( LHX(109), LHY(40), "OR" );
+	
+			gr_rect( LHX(253), LHY(42), LHX(261), LHY(42) ); // horiz/left
+			gr_rect( LHX(275), LHY(42), LHX(283), LHY(42) ); // horiz/right
+			gr_rect( LHX(253), LHY(42), LHX(253), LHY(44) ); // vert/left
+			gr_rect( LHX(283), LHY(42), LHX(283), LHY(44) ); // vert/right
+	
+			gr_string( LHX(264), LHY(40), "OR" );
+		}
+		else if ( items == kc_joystick )
+		{
+			gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+			gr_setcolor( BM_XRGB(31,27,6) );
+			gr_string( 0x8000, LHY(36), TXT_BUTTONS );
+			gr_string( 0x8000,LHY(127), TXT_AXES );
+			gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+			gr_string( LHX(81), LHY(137), TXT_AXIS );
+			gr_string( LHX(111), LHY(137), TXT_INVERT );
+			gr_string( LHX(230), LHY(137), TXT_AXIS );
+			gr_string( LHX(260), LHY(137), TXT_INVERT );
+			gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+			gr_setcolor( BM_XRGB(31,27,6) );
+	
+			gr_rect( LHX(115), LHY(45), LHX(123), LHY(45) ); // horiz/left
+			gr_rect( LHX(137), LHY(45), LHX(145), LHY(45) ); // horiz/right
+			gr_rect( LHX(115), LHY(45), LHX(115), LHY(47) ); // vert/left
+			gr_rect( LHX(145), LHY(45), LHX(145), LHY(47) ); // vert/right
+	
+			gr_string( LHX(126), LHY(43), "OR" );
+	
+			gr_rect( LHX(250), LHY(45), LHX(258), LHY(45) ); // horiz/left
+			gr_rect( LHX(272), LHY(45), LHX(280), LHY(45) ); // horiz/right
+			gr_rect( LHX(250), LHY(45), LHX(250), LHY(47) ); // vert/left
+			gr_rect( LHX(280), LHY(45), LHX(280), LHY(47) ); // vert/right
+	
+			gr_string( LHX(261), LHY(43), "OR" );
+		}
+		else if ( items == kc_mouse )
+		{
+			gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+			gr_setcolor( BM_XRGB(31,27,6) );
+			gr_string( 0x8000, LHY(35), TXT_BUTTONS );
+			gr_string( 0x8000,LHY(122), TXT_AXES );
+			gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+			gr_string( LHX(169), LHY(129), TXT_AXIS );
+			gr_string( LHX(199), LHY(129), TXT_INVERT );
+		}
+		else if ( items == kc_d1x )
+		{
+			gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
+			gr_setcolor( BM_XRGB(31,27,6) );
+	
+			gr_string(LHX( 94), LHY(40), "KB");
+			gr_string(LHX(121), LHY(40), "JOY");
+		}
+		
+		for (i=0; i<nitems; i++ )
+			kc_drawitem( &items[i], 0 );
+	
+		kc_drawitem( &items[citem], 1 );
+
+
 		gr_update();
 		k = key_inkey();
 
@@ -1092,12 +1107,12 @@ void kc_change_key( kc_item * item )
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
-	gr_string( 0x8000, INFO_Y, TXT_PRESS_NEW_KEY );
-	
 	game_flush_inputs();
 	keycode=255;
 	k=255;
-	while( (k!=KEY_ESC) && (keycode==255) )	{				
+	while( (k!=KEY_ESC) && (keycode==255) )	{
+
+		gr_string( 0x8000, INFO_Y, TXT_PRESS_NEW_KEY );
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1120,6 +1135,9 @@ void kc_change_key( kc_item * item )
 					keycode=i;
 			}
 		}
+#ifdef OGL
+		ogl_swap_buffers_internal();
+#endif
 	}
 
 	if (k!=KEY_ESC)	{
@@ -1135,8 +1153,6 @@ void kc_change_key( kc_item * item )
 	kc_drawitem( item, 1 );
 	gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
 
-	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
-
 	game_flush_inputs();
 
 }
@@ -1147,13 +1163,14 @@ void kc_change_joybutton( kc_item * item )
 	ubyte code;
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-	
-	gr_string( 0x8000, INFO_Y, TXT_PRESS_NEW_JBUTTON );
-	
+
 	game_flush_inputs();
 	code=255;
 	k=255;
         while( (k!=KEY_ESC) && (code==255))     {
+	
+		gr_string( 0x8000, INFO_Y, TXT_PRESS_NEW_JBUTTON );
+	
 		#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1198,6 +1215,9 @@ void kc_change_joybutton( kc_item * item )
 					code = i;
 			}
 		}
+#ifdef OGL
+		ogl_swap_buffers_internal();
+#endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1210,7 +1230,6 @@ void kc_change_joybutton( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 }
 
@@ -1220,13 +1239,14 @@ void kc_change_mousebutton( kc_item * item )
 	ubyte code;
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-	
-	gr_string( 0x8000, INFO_Y, TXT_PRESS_NEW_MBUTTON );
-	
+
 	game_flush_inputs();
 	code=255;
 	k=255;
-	while( (k!=KEY_ESC) && (code==255))	{				
+	while( (k!=KEY_ESC) && (code==255))	{
+	
+		gr_string( 0x8000, INFO_Y, TXT_PRESS_NEW_MBUTTON );
+	
 		#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1248,6 +1268,9 @@ void kc_change_mousebutton( kc_item * item )
 			if ( b & (1<<i) )	
 				code = i;
 		}
+#ifdef OGL
+		ogl_swap_buffers_internal();
+#endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1260,7 +1283,6 @@ void kc_change_mousebutton( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 
 }
@@ -1299,7 +1321,6 @@ void kc_next_joyaxis(kc_item *item)
 	}//end if
 
 	kc_drawitem(item, 1);
-	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 
 }//method kc_next_joyaxis
@@ -1314,8 +1335,6 @@ void kc_change_joyaxis( kc_item * item )
 	ubyte code;
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-	
-	gr_string( 0x8000, INFO_Y, TXT_MOVE_NEW_JOY_AXIS );
 
 	game_flush_inputs();
 	code=255;
@@ -1325,6 +1344,9 @@ void kc_change_joyaxis( kc_item * item )
 
 	while( (k!=KEY_ESC) && (code==255))	
 	{				
+	
+		gr_string( 0x8000, INFO_Y, TXT_MOVE_NEW_JOY_AXIS );
+
 		#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1358,6 +1380,9 @@ void kc_change_joyaxis( kc_item * item )
 				code = 255;
 		}
 */
+#ifdef OGL
+		ogl_swap_buffers_internal();
+#endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1372,7 +1397,6 @@ void kc_change_joyaxis( kc_item * item )
 	}
 
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
 
 }
@@ -1388,8 +1412,6 @@ void kc_change_mouseaxis( kc_item * item )
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
-	gr_string( 0x8000, INFO_Y, TXT_MOVE_NEW_MSE_AXIS );
-	
 	game_flush_inputs();
 	code=255;
 	k=255;
@@ -1397,6 +1419,8 @@ void kc_change_mouseaxis( kc_item * item )
 	mouse_get_delta( &dx, &dy );
 
 	while( (k!=KEY_ESC) && (code==255))	{
+	
+		gr_string( 0x8000, INFO_Y, TXT_MOVE_NEW_MSE_AXIS );
 		#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
@@ -1423,6 +1447,9 @@ void kc_change_mouseaxis( kc_item * item )
 #ifdef SDL_INPUT
 		if ( abs(dz)>20 ) code = 2;
 #endif
+#ifdef OGL
+		ogl_swap_buffers_internal();
+#endif
 	}
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
@@ -1435,9 +1462,7 @@ void kc_change_mouseaxis( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-	nm_restore_background( 0, INFO_Y, GWIDTH-10, FONTSCALE_Y(grd_curcanv->cv_font->ft_h) );
 	game_flush_inputs();
-
 }
 
 

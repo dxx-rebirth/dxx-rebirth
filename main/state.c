@@ -258,13 +258,17 @@ int state_save_old_game(int slotnum, char * sg_name, player * sg_player,
                         int sg_difficulty_level, int sg_primary_weapon, 
                         int sg_secondary_weapon, int sg_next_level_num  	)
 {
-	int i;
+	int i,j;
 	int temp_int;
 	ubyte temp_byte;
 	char desc[DESC_LENGTH+1];
 	char filename[128];
 	grs_canvas * cnv;
 	FILE * fp;
+	ubyte *pal;
+#ifdef OGL
+	GLint gl_draw_buffer;
+#endif
 
 	sprintf( filename, "%s.sg%d", sg_player->callsign, slotnum );
 //added on 9/30/98 by Matt Mueller to fix savegames in linux
@@ -286,34 +290,45 @@ int state_save_old_game(int slotnum, char * sg_name, player * sg_player,
 	
 // Save the current screen shot...
 	cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
-	if ( cnv )	{
-		char * pcx_file;
-		ubyte pcx_palette[768];
+	if ( cnv )
+	{
+#ifdef OGL
+		ubyte *buf;
+		int k;
+#endif
+		grs_canvas * cnv_save;
+		cnv_save = grd_curcanv;
 
 		gr_set_current_canvas( cnv );
 
-		gr_clear_canvas( BM_XRGB(0,0,0) );
-		pcx_file = get_briefing_screen( sg_next_level_num );
-		if ( pcx_file != NULL )	{
-			grs_bitmap bmp;
-			gr_init_bitmap_data (&bmp);
-			if (pcx_read_bitmap( pcx_file, &bmp, BM_LINEAR, pcx_palette )==PCX_ERROR_NONE)	{
-				grs_point vertbuf[3];
-				gr_clear_canvas( 255 );
-				vertbuf[0].x = vertbuf[0].y = -F1_0*6;		// -6 pixel rows for ascpect
-				vertbuf[1].x = vertbuf[1].y = 0;
-				vertbuf[2].x = i2f(THUMBNAIL_W); vertbuf[2].y = i2f(THUMBNAIL_H+7);	// + 7 pixel rows for ascpect
-				scale_bitmap(&bmp, vertbuf );
-				gr_remap_bitmap_good( &cnv->cv_bitmap, pcx_palette, -1, -1 );
-			}
-			gr_free_bitmap_data( &bmp );
+		render_frame(0);
+
+#ifdef OGL
+		buf = malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
+		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
+		glReadBuffer(gl_draw_buffer);
+		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGB, GL_UNSIGNED_BYTE, buf);
+		k = THUMBNAIL_H;
+		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {
+			if (!(j = i % THUMBNAIL_W))
+				k--;
+			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
+				gr_find_closest_color(buf[3*i]/4, buf[3*i+1]/4, buf[3*i+2]/4);
 		}
-		fwrite( cnv->cv_bitmap.bm_data, THUMBNAIL_W*THUMBNAIL_H, 1, fp );
+		free(buf);
+#endif
+		pal = gr_palette;
+
+		fwrite(cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1, fp);
+
+		gr_set_current_canvas(cnv_save);
 		gr_free_canvas( cnv );
-	} else {
+	}
+	else
+	{
 	 	ubyte color = 0;
 	 	for ( i=0; i<THUMBNAIL_W*THUMBNAIL_H; i++ )
-	 		fwrite( &color, sizeof(ubyte), 1, fp );		
+			fwrite(&color, sizeof(ubyte), 1, fp);		
 	}
 
 // Save the Between levels flag...
@@ -402,6 +417,10 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	int i,j;
 	FILE * fp;
 	grs_canvas * cnv;
+	ubyte *pal;
+#ifdef OGL
+	GLint gl_draw_buffer;
+#endif
 
 #ifndef SHAREWARE
 	if ( Game_mode & GM_MULTI )	{
@@ -430,41 +449,45 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	
 // Save the current screen shot...
 	cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
-	if ( cnv )	{
-		gr_set_current_canvas( cnv );
-		if ( between_levels )	{
-			char * pcx_file;
-			ubyte pcx_palette[768];
-
-			gr_clear_canvas( BM_XRGB(0,0,0) );
-			pcx_file = get_briefing_screen( Next_level_num );
-			if ( pcx_file != NULL )	{
-				grs_bitmap bmp;
-				gr_init_bitmap_data (&bmp);
-				if (pcx_read_bitmap( pcx_file, &bmp, BM_LINEAR, pcx_palette )==PCX_ERROR_NONE)	{
-					grs_point vertbuf[3];
-					gr_clear_canvas( 255 );
-					vertbuf[0].x = vertbuf[0].y = -F1_0*6;		// -6 pixel rows for ascpect
-					vertbuf[1].x = vertbuf[1].y = 0;
-					vertbuf[2].x = i2f(THUMBNAIL_W); vertbuf[2].y = i2f(THUMBNAIL_H+7);	// + 7 pixel rows for ascpect
-					scale_bitmap(&bmp, vertbuf );
-					gr_remap_bitmap_good( &cnv->cv_bitmap, pcx_palette, -1, -1 );
-				}
-				gr_free_bitmap_data (&bmp);
-				free(pcx_file);
-			}
-		} else {
-			render_frame(0);
+	if ( cnv )
+	{
 #ifdef OGL
-			ogl_ubitblt_tolinear(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curscreen->sc_canvas.cv_bitmap, &grd_curcanv->cv_bitmap);
+		ubyte *buf;
+		int k;
 #endif
+		grs_canvas * cnv_save;
+		cnv_save = grd_curcanv;
+
+		gr_set_current_canvas( cnv );
+
+		render_frame(0);
+
+#ifdef OGL
+		buf = malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
+		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
+		glReadBuffer(gl_draw_buffer);
+		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGB, GL_UNSIGNED_BYTE, buf);
+		k = THUMBNAIL_H;
+		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {
+			if (!(j = i % THUMBNAIL_W))
+				k--;
+			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
+				gr_find_closest_color(buf[3*i]/4, buf[3*i+1]/4, buf[3*i+2]/4);
 		}
-		fwrite( cnv->cv_bitmap.bm_data, THUMBNAIL_W*THUMBNAIL_H, 1, fp );
+		free(buf);
+#endif
+		pal = gr_palette;
+
+		fwrite(cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1, fp);
+
+		gr_set_current_canvas(cnv_save);
 		gr_free_canvas( cnv );
-	} else {
+	}
+	else
+	{
 	 	ubyte color = 0;
 	 	for ( i=0; i<THUMBNAIL_W*THUMBNAIL_H; i++ )
-	 		fwrite( &color, sizeof(ubyte), 1, fp );		
+			fwrite(&color, sizeof(ubyte), 1, fp);		
 	}
 
 // Save the Between levels flag...

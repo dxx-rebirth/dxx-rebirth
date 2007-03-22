@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070322
+--------
+SConstruct, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, main/credits.c, main/game.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/netlist.c, main/newmenu.c, main.polyobj.c, main/scores.c, main/state.c, main/titles.c: Use Doublebuffer in OGL for all parts of the game and properly redraw elements, fixed Profiler build
+
 20070318
 --------
 SConstruct, main/game.c: fixed compiling without jukebox code if no SDL_mixer available

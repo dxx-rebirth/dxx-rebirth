@@ -140,10 +140,12 @@ static char rcsid[] = "$Id: kmatrix.c,v 1.1.1.1 2006/03/17 19:44:38 zicodxx Exp 
 #include "gauges.h"
 #include "pcx.h"
 #include "network.h"
-
-//added 11/01/98 Matt Mueller
 #include "hudlog.h"
-//end addition -MM
+#include "d_delay.h"
+
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 static int rescale_x(int x)
 {
@@ -290,14 +292,6 @@ void kmatrix_redraw()
 	kmatrix_draw_deaths(sorted);
 
         gr_update();
-
-//added 11/01/98 Matthew Mueller - loggable score grid 
-	kmatrix_log(0);
-//end addition -MM
-
-//added 03/07/99 Matt Mueller - fix black screen instead of endlevel scores.
-    gr_update();
-//end addition -MM
 }
 
 #define MAX_VIEW_TIME	F1_0*60
@@ -313,14 +307,14 @@ void kmatrix_view(int network)
 
 	set_screen_mode( SCREEN_MENU );
 
-	kmatrix_redraw();
-
 	gr_palette_fade_in( gr_palette,32, 0);
 	game_flush_inputs();
 
 	done = 0;
 
 	while(!done)	{
+		d_delay(5);
+		kmatrix_redraw();
 
 		for (i=0; i<4; i++ )	
 			if (joy_get_button_down_cnt(i)>0) done=1;
@@ -356,11 +350,16 @@ void kmatrix_view(int network)
 			if (key < -1)
 				done = 1;
 		}
+#ifdef OGL
+		ogl_swap_buffers();
+#endif
 	}
 
 // Restore background and exit
 	gr_palette_fade_out( gr_palette, 32, 0 );
 
 	game_flush_inputs();
+
+	kmatrix_log(0);
 }
 #endif

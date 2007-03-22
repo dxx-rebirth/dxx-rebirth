@@ -863,7 +863,7 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	Assert(mn>=0 && mn<N_polygon_models);
 
 #ifdef OGL
-	ogl_start_offscreen_render(0,0,grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h);
+	gr_use_palette_table( "palette.256" );
 #else
 	temp_canv = gr_create_canvas(save_canv->cv_bitmap.bm_w,save_canv->cv_bitmap.bm_h);
 	gr_set_current_canvas(temp_canv);
@@ -881,9 +881,7 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,f1_0,NULL,NULL);
 	g3_end_frame();
 
-#ifdef OGL
-	ogl_end_offscreen_render();
-#else
+#ifndef OGL
 	gr_set_current_canvas(save_canv);
 	gr_bitmap(0,0,&temp_canv->cv_bitmap);
 	gr_free_canvas(temp_canv);

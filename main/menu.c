@@ -174,15 +174,6 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 	items=items;
 	citem = citem;
 
-	//draw copyright message
-	if ( Menu_draw_copyright )		{
-		Menu_draw_copyright = 0;
-		gr_set_current_canvas(NULL);
-		gr_set_curfont(GAME_FONT);
-		gr_set_fontcolor(BM_XRGB(6,6,6),-1);
-		gr_printf(0x8000,grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,TXT_COPYRIGHT);
-	}
-	
 	// Don't allow them to hit ESC in the main menu.
 	if (*last_key==KEY_ESC) *last_key = 0;
 
@@ -305,8 +296,6 @@ int DoMenu()
                  else
                   {
                 //end this section addition - VR
-                   extern int Menu_Special;
-                    Menu_Special = 1;
                     main_menu_choice = newmenu_do2(NULL, NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
                     if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
                   }

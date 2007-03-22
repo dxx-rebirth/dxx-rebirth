@@ -140,8 +140,6 @@ int ogl_loadtexture(unsigned char * data, int dxo,int dyo, ogl_texture *tex, int
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_freebmtexture(grs_bitmap *bm);
 void ogl_do_palfx(void);
-void ogl_start_offscreen_render(int x, int y, int w, int h);
-void ogl_end_offscreen_render(void);
 void ogl_start_frame(void);
 void ogl_end_frame(void);
 void ogl_swap_buffers(void);

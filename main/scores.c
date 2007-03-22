@@ -272,8 +272,14 @@ static char rcsid[] = "$Id: scores.c,v 1.1.1.1 2006/03/17 19:42:39 zicodxx Exp $
 #include "timer.h"
 #include "text.h"
 #include "d_io.h"
+#include "d_delay.h"
+
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 void scores_view(int citem);
+extern void nm_draw_background1(char * filename);
 
 #define VERSION_NUMBER 		1
 #define SCORES_FILENAME 	"descent.hi"//"DESCENT.HI"
@@ -307,8 +313,8 @@ char scores_filename[128];
 #define XX  (7)
 #define YY  (-3)
 
-#define LHX(x)		((x)*(hiresfont?FONTSCALE_X(2):FONTSCALE_X(1)))
-#define LHY(y)		((y)*(hiresfont?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
+#define LHX(x)		((x)*(hiresfont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_X(2):FONTSCALE_X(1)))
+#define LHY(y)		((y)*(hiresfont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
 
 char * get_scores_filename()
 {
@@ -576,6 +582,7 @@ void scores_view(int citem)
 	int k;
 	sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 	grs_canvas canvas;
+	int w = LHX(290), h = LHY(170);
 
 #ifdef OGL
 	gr_palette_load( gr_palette ); // ZICO - added to be sure right palette is loaded after endgame
@@ -586,45 +593,10 @@ ReshowScores:
 
 	set_screen_mode(SCREEN_MENU);
 
-	if (hiresfont)
+	if (hiresfont && SWIDTH>=640 && SHEIGHT>=480)
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
 	else
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));
-	gr_set_current_canvas(&canvas);
-	
-	nm_draw_background(0, 0, GWIDTH-1, GHEIGHT-1);
-	//nm_draw_background(0,0,grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
-
-	grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
-
-	gr_string( 0x8000, LHY(15), TXT_HIGH_SCORES );
-
-	grd_curcanv->cv_font = Gamefonts[GFONT_SMALL];
-
-	gr_set_fontcolor( BM_XRGB(31,26,5), -1 );
-	gr_string(  LHX(31+33+XX), LHY(46+7+YY), TXT_NAME );
-	gr_string(  LHX(82+33+XX), LHY(46+7+YY), TXT_SCORE );
-	gr_string( LHX(127+33+XX), LHY(46+7+YY), TXT_SKILL );
-	gr_string( LHX(170+33+XX), LHY(46+7+YY), TXT_LEVELS );
-//	gr_string( 202, 46, "Kills" );
-//	gr_string( 234, 46, "Rescues" );
-	gr_string( LHX(288-42+XX), LHY(46+7+YY), TXT_TIME );
-
-	if ( citem < 0 )	
-		gr_string( 0x8000, LHY(175), TXT_PRESS_CTRL_R );
-
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-
-	gr_printf( 0x8000, LHY(31), "%c%s%c  - %s", 34, Scores.cool_saying, 34, Scores.stats[0].name );
-	
-	for (i=0; i<MAX_HIGH_SCORES; i++ )		{
-		gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );
-		scores_draw_item( i, &Scores.stats[i] );
-	}
-
-	gr_palette_fade_in( gr_palette,32, 0);
-
-        gr_update();
 
 	game_flush_inputs();
 
@@ -632,6 +604,43 @@ ReshowScores:
 	looper = 0;
 
 	while(!done)	{
+		d_delay(5);
+		gr_set_current_canvas(NULL);
+#ifdef OGL
+		ogl_swap_buffers();
+		nm_draw_background1(NULL);
+#endif
+		nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
+		gr_set_current_canvas(&canvas);
+
+		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
+	
+		gr_string( 0x8000, LHY(15), TXT_HIGH_SCORES );
+	
+		grd_curcanv->cv_font = Gamefonts[GFONT_SMALL];
+	
+		gr_set_fontcolor( BM_XRGB(31,26,5), -1 );
+		gr_string(  LHX(31+33+XX), LHY(46+7+YY), TXT_NAME );
+		gr_string(  LHX(82+33+XX), LHY(46+7+YY), TXT_SCORE );
+		gr_string( LHX(127+33+XX), LHY(46+7+YY), TXT_SKILL );
+		gr_string( LHX(170+33+XX), LHY(46+7+YY), TXT_LEVELS );
+		gr_string( LHX(288-42+XX), LHY(46+7+YY), TXT_TIME );
+	
+		if ( citem < 0 )	
+			gr_string( 0x8000, LHY(175), TXT_PRESS_CTRL_R );
+	
+		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+	
+		gr_printf( 0x8000, LHY(31), "%c%s%c  - %s", 34, Scores.cool_saying, 34, Scores.stats[0].name );
+		
+		for (i=0; i<MAX_HIGH_SCORES; i++ )		{
+			gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );
+			scores_draw_item( i, &Scores.stats[i] );
+		}
+	
+		gr_palette_fade_in( gr_palette,32, 0);
+	
+		gr_update();
 		if ( citem > -1 )	{
 	
 			t1	= timer_get_fixed_seconds();
@@ -660,8 +669,8 @@ ReshowScores:
 				if ( nm_messagebox( NULL, 2,  TXT_NO, TXT_YES, TXT_RESET_HIGH_SCORES )==1 )	{
 					remove( get_scores_filename() );
 					gr_palette_fade_out( gr_palette, 32, 0 );
-					goto ReshowScores;
 				}
+				goto ReshowScores;
 			}
 			break;
 		case KEY_BACKSP:				Int3(); k = 0; break;

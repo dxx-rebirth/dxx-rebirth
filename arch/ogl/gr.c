@@ -92,11 +92,9 @@ void ogl_set_screen_mode(void){
 
 	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
 
-	if (Screen_mode==SCREEN_GAME){
-		glDrawBuffer(GL_BACK);
-	}else{
+	if (Screen_mode!=SCREEN_GAME)
+	{
 		glClearColor(0.0, 0.0, 0.0, 0.0);
-		glDrawBuffer(GL_FRONT);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();//clear matrix
@@ -111,12 +109,6 @@ void ogl_set_screen_mode(void){
 }
 void gr_update()
 {
-	if (gl_initialized){
-
-		if(Screen_mode != SCREEN_GAME){
-			glFlush();
-		}
-	}
 }
 
 const char *gl_vendor,*gl_renderer,*gl_version,*gl_extensions;
@@ -198,7 +190,7 @@ void ogl_get_verinfo(void){
 
 #ifndef NDEBUG
 	printf("gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
-	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i gl_scissor_ok:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok,ogl_scissor_ok);
+	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i gl_scissor:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok,ogl_scissor_ok);
 #endif
 }
 

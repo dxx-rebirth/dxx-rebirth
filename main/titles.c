@@ -47,6 +47,7 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include "newmenu.h"
 #include "state.h"
 #include "gameseq.h"
+#include "d_delay.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -128,7 +129,9 @@ int show_title_screen( char * filename, int allow_keys )
         //added on 9/13/98 by adb to make update-needing arch's work
         gr_update();
         //end addition - adb
-
+#ifdef OGL
+	ogl_swap_buffers();
+#endif
 	gr_free_bitmap_data (&title_bm);
 
 	if (allow_keys > 2 || gr_palette_fade_in( New_pal, 32, allow_keys ) || allow_keys > 1) {
@@ -331,6 +334,15 @@ void show_bitmap_frame(void)
 
 	// Only plot every nth frame.
 	if (Door_div_count) {
+#ifdef OGL
+		if (Bitmap_name[0] != 0) {
+			bitmap_index bi;
+			bi = piggy_find_bitmap(Bitmap_name);
+			bitmap_ptr = &GameBitmaps[bi.index];
+			PIGGY_PAGE_IN( bi );
+			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),(bitmap_ptr->bm_w*(SWIDTH/320)),(bitmap_ptr->bm_h*(SHEIGHT/200)),bitmap_ptr,255,F1_0);
+		}
+#endif
 		Door_div_count--;
 		return;
 	}
@@ -349,10 +361,10 @@ void show_bitmap_frame(void)
 			New_pal[254*3+2] = 0;
 		}
 
-	switch (Animating_bitmap_type) {
-		case 0:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
-		case 1:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
-		default:	Int3(); // Impossible, illegal value for Animating_bitmap_type
+		switch (Animating_bitmap_type) {
+			case 0:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
+			case 1:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
+			default:	Int3(); // Impossible, illegal value for Animating_bitmap_type
 		}
 
 		curcanv_save = grd_curcanv;
@@ -429,14 +441,12 @@ void show_bitmap_frame(void)
 void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save, *bitmap_canv;
-	if (!(Briefing_screens_LH == Briefing_screens_h)) {
-		bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220*((double)SWIDTH/320), 45*((double)SHEIGHT/200), 166, 138);
-		curcanv_save = grd_curcanv;
-		grd_curcanv = bitmap_canv;	
-		gr_bitmapm(0, 0, bmp);
-		grd_curcanv = curcanv_save;
-		free(bitmap_canv);
-	}
+	bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220*((double)SWIDTH/320), 45*((double)SHEIGHT/200), 166, 138);
+	curcanv_save = grd_curcanv;
+	grd_curcanv = bitmap_canv;	
+	gr_bitmapm(0, 0, bmp);
+	grd_curcanv = curcanv_save;
+	free(bitmap_canv);
 }
 
 //	-----------------------------------------------------------------------------
@@ -633,6 +643,31 @@ void flash_cursor(int cursor_flag)
 
 }
 
+#ifdef OGL
+typedef struct msgstream {
+	int x;
+	int y;
+	int color;
+	int ch;
+} __pack__ msgstream;
+
+msgstream messagestream[2048];
+
+void redraw_messagestream(int count)
+{
+	char msgbuf[2];
+	int i;
+
+	for (i=0; i<count; i++) {
+		msgbuf[0] = messagestream[i].ch;
+		msgbuf[1] = 0;
+		if (messagestream[i-1].color != messagestream[i].color)
+			gr_set_fontcolor(messagestream[i].color,-1);
+		gr_printf(messagestream[i].x+1,messagestream[i].y,"%s",msgbuf);
+	}
+}
+#endif
+
 //	-----------------------------------------------------------------------------
 //	Return true if message got aborted by user (pressed ESC), else return false.
 int show_briefing_message(int screen_num, char *message)
@@ -649,6 +684,14 @@ int show_briefing_message(int screen_num, char *message)
 	int	new_page=0;
 	int text_ulx = rescale_x(bsp->text_ulx);
 	int text_uly = rescale_y(bsp->text_uly);
+	grs_bitmap	guy_bitmap;
+#ifdef OGL
+	int streamcount=0, guy_bitmap_show=0;
+	grs_bitmap briefing_bm;
+
+	gr_init_bitmap_data (&briefing_bm);
+	pcx_read_bitmap( Briefing_screens_LH[screen_num].bs_name, &briefing_bm, BM_LINEAR, gr_palette );
+#endif
 
 	Bitmap_name[0] = 0;
 
@@ -699,21 +742,25 @@ int show_briefing_message(int screen_num, char *message)
 				prev_ch = 10;
 			} else if (ch == 'B') {
 				char		bitmap_name[32];
-				grs_bitmap	guy_bitmap;
 				ubyte		temp_palette[768];
 				int		iff_error;
 
 				if (Robot_canv != NULL)
 					{free(Robot_canv); Robot_canv=NULL;}
 
-				get_message_name(&message, bitmap_name);
-				strcat(bitmap_name, ".bbm");
-				gr_init_bitmap_data (&guy_bitmap);
-				iff_error = iff_read_bitmap(bitmap_name, &guy_bitmap, BM_LINEAR, temp_palette);
-				Assert(iff_error == IFF_NO_ERROR);
-
-				show_briefing_bitmap(&guy_bitmap);
-				gr_free_bitmap_data (&guy_bitmap);
+					get_message_name(&message, bitmap_name);
+					strcat(bitmap_name, ".bbm");
+				if (Briefing_screens_LH != Briefing_screens_h) {
+					gr_init_bitmap_data (&guy_bitmap);
+					iff_error = iff_read_bitmap(bitmap_name, &guy_bitmap, BM_LINEAR, temp_palette);
+					Assert(iff_error == IFF_NO_ERROR);
+					show_briefing_bitmap(&guy_bitmap);
+#ifndef OGL
+					gr_free_bitmap_data (&guy_bitmap);
+#else
+					guy_bitmap_show=1;
+#endif
+				}
 				prev_ch = 10;
 			} else if (ch == 'S') {
 				int	keypress;
@@ -735,6 +782,15 @@ int show_briefing_message(int screen_num, char *message)
 					}
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
+					d_delay(5);
+#ifdef OGL
+					ogl_swap_buffers();
+					gr_clear_canvas(255);
+					ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
+					redraw_messagestream(streamcount);
+					if (guy_bitmap_show)
+						show_briefing_bitmap(&guy_bitmap);
+#endif
 					flash_cursor(flashing_cursor);
 					show_spinning_robot_frame(robot_num);
 					show_bitmap_frame();
@@ -756,6 +812,7 @@ int show_briefing_message(int screen_num, char *message)
 				flashing_cursor = 0;
 				done = 1;
 			} else if (ch == 'P') { // New page.
+
 				new_page = 1;
 				while (*message != 10) {
 					message++; // drop carriage return after special escape sequence
@@ -783,7 +840,9 @@ int show_briefing_message(int screen_num, char *message)
 				Briefing_text_y += FONTSCALE_Y(GAME_FONT->ft_h)+FONTSCALE_Y(GAME_FONT->ft_h)*3/5;
 				Briefing_text_x = text_ulx;
 				if (Briefing_text_y > text_uly + rescale_y(bsp->text_height)) {
+#ifndef OGL
 					load_briefing_screen(screen_num);
+#endif
 					Briefing_text_x = text_ulx;
 					Briefing_text_y = text_uly;
 				}
@@ -793,8 +852,26 @@ int show_briefing_message(int screen_num, char *message)
 				prev_ch = ch;
 			}
 		} else {
+#ifdef OGL
+			messagestream[streamcount].x = Briefing_text_x;
+			messagestream[streamcount].y = Briefing_text_y;
+			messagestream[streamcount].color = Briefing_foreground_colors[Current_color];
+			messagestream[streamcount].ch = ch;
+			if (delay_count) {
+				ogl_swap_buffers();
+				gr_clear_canvas(255);
+				ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
+				redraw_messagestream(streamcount);
+				if (flashing_cursor)
+					gr_printf(Briefing_text_x + FONTSCALE_X(GAME_FONT->ft_w),Briefing_text_y,"_");
+			}
+			if (guy_bitmap_show)
+				show_briefing_bitmap(&guy_bitmap);
+			streamcount++;
+#endif
 			prev_ch = ch;
 			Briefing_text_x += show_char_delay(ch, delay_count, robot_num, flashing_cursor);
+
 		}
 
 // added/changed on 9/13/98 by adb to speed up briefings after pressing a key with SDL
@@ -840,6 +917,15 @@ int show_briefing_message(int screen_num, char *message)
 				}
 				while (timer_get_approx_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
+				d_delay(15);
+#ifdef OGL
+				ogl_swap_buffers();
+				gr_clear_canvas(255);
+				ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
+				redraw_messagestream(streamcount);
+				if (guy_bitmap_show)
+					show_briefing_bitmap(&guy_bitmap);
+#endif
 				flash_cursor(flashing_cursor);
 				show_spinning_robot_frame(robot_num);
 				show_bitmap_frame();
@@ -865,9 +951,22 @@ int show_briefing_message(int screen_num, char *message)
 			load_briefing_screen(screen_num);
 			Briefing_text_x = text_ulx;
 			Briefing_text_y = text_uly;
+#ifdef OGL
+			streamcount=0;
+			if (guy_bitmap_show) {
+				gr_free_bitmap_data (&guy_bitmap);
+				guy_bitmap_show=0;
+			}
+#endif
 			delay_count = KEY_DELAY_DEFAULT;
 		}
 	}
+
+
+#ifdef OGL
+	gr_free_bitmap_data (&briefing_bm);
+	gr_use_palette_table( "palette.256" );
+#endif
 
 	if (Robot_canv != NULL)
 		{free(Robot_canv); Robot_canv=NULL;}
@@ -1008,9 +1107,7 @@ int show_briefing_screen( int screen_num, int allow_keys)
 	gr_palette_clear();
 #endif
 
-		
         show_fullscr(&briefing_bm );
-
 //added on 9/13/98 by adb to make arch's requiring updates work
 	gr_update();
 //end changes by adb

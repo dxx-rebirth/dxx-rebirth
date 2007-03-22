@@ -1723,6 +1723,10 @@ void show_boxed_message(char *msg)
 	int w,h,aw;
 	int x,y;
 
+#ifdef OGL
+	gr_clear_canvas(0);
+#endif
+
 	gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
 	gr_set_curfont( HELP_FONT );
 
@@ -1747,6 +1751,9 @@ void show_boxed_message(char *msg)
 	gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
 	gr_ustring( (grd_curscreen->sc_w-w)/2, y, msg );
         gr_update();
+#ifdef OGL
+	ogl_swap_buffers();
+#endif
 }
 
 void clear_boxed_message()
@@ -1789,8 +1796,11 @@ int do_game_pause(int allow_menu)
 	    SDL_WM_GrabInput(SDL_GRAB_OFF);
 
 	while (paused) {
-
-		key = key_getch();
+		d_delay(1);
+#ifdef OGL
+		show_boxed_message(TXT_PAUSE);
+#endif
+		key = key_inkey();
 		
 		switch (key) {
 			case 0:

@@ -22,23 +22,16 @@
 #include "game.h"
 #include "multi.h"
 #include "text.h"
-//added 4/18/99 Matt Mueller - show radar in game info
 #include "multipow.h"
-//end addition -MM
-
 #include "gamefont.h"
 #include "u_mem.h"
-
 #include "string.h"
-
-//added on 1/5/99 by Victor Rachels for missiondir
 #include "cfile.h"
-//end this section addition
-
-//added on 11/20/99 by Victor Rachels for observer mode
 #include "observer.h"
-//end this section addition
 
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 #define LINE_ITEMS 8
 #define MAX_TEXT_LEN 25
@@ -143,7 +136,9 @@ char *network_menu_title[LINE_ITEMS] = { "", "", "Game", "Mode", "#Plrs", "Missi
 static int selected_game;
 
 static void draw_back(bkg *b, int x, int y, int w, int h) {
+#ifndef OGL
        gr_bm_bitblt(b->background->bm_w-15, h, 5, y, 5, y, b->background, &(grd_curcanv->cv_bitmap) );
+#endif
 }
 
 static void draw_item(bkg *b, struct line_item *li, int is_current) {
@@ -186,12 +181,15 @@ static void init_background(bkg *bg, int x, int y, int w, int h) {
 	bg->menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w, h );
 	gr_set_current_canvas( bg->menu_canvas );
 
+#ifndef OGL
 	// Save the background under the menu...
 	bg->saved = gr_create_bitmap( w, h );
 	Assert( bg->saved != NULL );
 	gr_bm_bitblt(w, h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg->saved );
+#endif
 	gr_set_current_canvas( NULL );
 	nm_draw_background(x,y,x+w-1,y+h-1);
+#ifndef OGL
 	if (w > nm_background.bm_w || h > nm_background.bm_h){
 		bg->background=gr_create_bitmap(w,h);
 		gr_bitmap_scale_to(&nm_background,bg->background);
@@ -200,17 +198,20 @@ static void init_background(bkg *bg, int x, int y, int w, int h) {
 		bg->background = gr_create_sub_bitmap(&nm_background,0,0,w,h);
 		bg->background_is_sub=1;
 	}
+#endif
 	gr_set_current_canvas( bg->menu_canvas );
 }
 
 static void done_background(bkg *bg) {
 	gr_set_current_canvas(bg->menu_canvas);
+#ifndef OGL
 	gr_bitmap(0, 0, bg->saved); 	
 	gr_free_bitmap(bg->saved);
 	if (bg->background_is_sub)
 		gr_free_sub_bitmap( bg->background );
 	else
 		gr_free_bitmap( bg->background );
+#endif
 	gr_free_sub_canvas( bg->menu_canvas );
 }
 
@@ -495,14 +496,14 @@ void netlist_redraw(bkg bg,
         init_background(&bg, 0, 7, grd_curcanv->cv_bitmap.bm_w,
          grd_curcanv->cv_bitmap.bm_h - 14);
 
-	yp=22;
+	yp=10*(SHEIGHT/200);
 	gr_set_curfont(Gamefonts[GFONT_BIG_1]);
 	gr_string(0x8000, yp, "Netgames");//yp was 22
 	yp+=grd_curcanv->cv_font->ft_h+network_menu_hskip*3+Gamefonts[GFONT_SMALL]->ft_h;//need to account for size of current socket, drawn elsewhere
 	// draw titles
 	gr_set_curfont(Gamefonts[GFONT_SMALL]);
 	gr_set_fontcolor(BM_XRGB(27, 27, 27), -1);
-	k = 15;
+	k = 15*(SWIDTH/320);
 	for (j = 0; j < LINE_ITEMS; j++) {
 		gr_ustring(k, yp, network_menu_title[j]);//yp was 61
 		k += network_menu_width[j];
@@ -511,7 +512,7 @@ void netlist_redraw(bkg bg,
 
 	for (i = 0; i < MAX_ACTIVE_NETGAMES; i++) {
 		struct line_item *li = lis[i];
-		k=15;
+		k=15*(SWIDTH/320);
 
 		yp+=grd_curcanv->cv_font->ft_h+network_menu_hskip;
 		for (j = 0; j < LINE_ITEMS; j++) {
@@ -546,16 +547,14 @@ int network_join_game_menu() {
 	
 	for (k=0;k<LINE_ITEMS;k++)//scale columns to fit screen res.
 		network_menu_width[k]=ref_network_menu_width[k]*grd_curcanv->cv_bitmap.bm_w/320;
-	network_menu_hskip=(grd_curcanv->cv_bitmap.bm_h-Gamefonts[GFONT_BIG_1]->ft_h-22-Gamefonts[GFONT_SMALL]->ft_h*17)/17;
+	network_menu_hskip=(grd_curcanv->cv_bitmap.bm_h-Gamefonts[GFONT_BIG_1]->ft_h-10-Gamefonts[GFONT_SMALL]->ft_h*17)/17;
 
 	init_background(&bg, 0, 7, grd_curcanv->cv_bitmap.bm_w,
 	 grd_curcanv->cv_bitmap.bm_h - 14);
 
 	game_flush_inputs();
 
-//added/changed on 9/17/98 by Victor Rachels for netgame info screen redraw
         netlist_redraw(bg,menu_text,lis);
-//end this section addition - Victor Rachels
 
 	Network_games_changed = 1;
         old_socket = -32768;
@@ -568,10 +567,14 @@ int network_join_game_menu() {
 	done = 0;
 
 	while (!done) {
+#ifdef OGL
+		ogl_swap_buffers();
+        	netlist_redraw(bg,menu_text,lis);
+#endif
 		if (Network_socket != old_socket) {
 			gr_set_fontcolor(BM_XRGB(27, 27, 27), -1);
-			draw_back(&bg, 30, 22+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, 250, Gamefonts[GFONT_SMALL]->ft_h+4);//was 52,250,9
-			gr_printf(30, 22+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, "Current IPX socket is %+d "
+			draw_back(&bg, 30*(SWIDTH/320), (10*SHEIGHT/200)+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, 250, Gamefonts[GFONT_SMALL]->ft_h+4);//was 52,250,9
+			gr_printf(30*(SWIDTH/320), (10*SHEIGHT/200)+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, "Current IPX socket is %+d "
 					"(PgUp/PgDn to change)", Network_socket);
 			if (old_socket != -32768) { /* changed by user? */
 				network_listen();
@@ -581,6 +584,15 @@ int network_join_game_menu() {
 			req_timer -= F1_0 * 5; /* force send request */
 			Network_games_changed = 1;
 		}
+#ifdef OGL
+		else {
+			gr_set_fontcolor(BM_XRGB(27, 27, 27), -1);
+			gr_printf(30*(SWIDTH/320), (10*SHEIGHT/200)+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, "Current IPX socket is %+d "
+					"(PgUp/PgDn to change)", Network_socket);
+			draw_list(&bg, lis);
+		}
+#endif
+
 		if (Network_games_changed) {
 			if (num_active_games > last_num_games) /* new game? */
 				digi_play_sample(SOUND_HUD_MESSAGE, F1_0);

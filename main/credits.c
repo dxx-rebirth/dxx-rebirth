@@ -211,7 +211,7 @@ void credits_show(char *credits_filename)
 
 			y = first_line_offset - i;
 #ifdef OGL
-			ogl_start_offscreen_render(0,-2,GWIDTH,GHEIGHT);
+			ogl_swap_buffers();
 			ogl_ubitmapm_cs(0,0,-1,-1,&backdrop,-1,F1_0);
 #endif
 			gr_set_current_canvas(CreditsOffscreenBuf);
@@ -321,15 +321,11 @@ void credits_show(char *credits_filename)
 					gr_palette_load( gr_palette );
 #ifdef OGL
 					gr_free_sub_canvas(CreditsOffscreenBuf);
-					ogl_end_offscreen_render();
 #else
 					gr_free_canvas(CreditsOffscreenBuf);
 #endif
 				return;
 			}
-#ifdef OGL
-		ogl_end_offscreen_render();
-#endif
 		}
 	}
 }

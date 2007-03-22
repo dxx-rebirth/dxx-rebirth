@@ -29,7 +29,6 @@ static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2006/03/17 19:44:42 zicodxx Exp 
 #include <ctype.h>
 
 #include "clipboard.h"
-
 #include "error.h"
 #include "types.h"
 #include "gr.h"
@@ -57,20 +56,21 @@ static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2006/03/17 19:44:42 zicodxx Exp 
 #include "d_io.h"
 #include "timer.h"
 #include "vers_id.h"
+#include "d_delay.h"
+
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 #ifdef GP2X
 #include "gp2x.h"
 #endif
 
 #define TITLE_FONT  	(Gamefonts[GFONT_BIG_1])
-
 #define SUBTITLE_FONT	(Gamefonts[GFONT_MEDIUM_3])
 #define CURRENT_FONT  	(Gamefonts[GFONT_MEDIUM_2])
 #define NORMAL_FONT  	(Gamefonts[GFONT_MEDIUM_1])
 #define TEXT_FONT  	(Gamefonts[GFONT_MEDIUM_3])
-
-int Newmenu_first_time = 1;
-//--unused-- int Newmenu_fade_in = 1;
 
 typedef struct bkg {
 	grs_canvas * menu_canvas;
@@ -80,9 +80,10 @@ typedef struct bkg {
 } bkg;
 
 grs_bitmap nm_background;
+grs_bitmap nm_background1;
 
 #define MESSAGEBOX_TEXT_SIZE 2176		// How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
-#define MAX_TEXT_WIDTH 	FONTSCALE_X(200)			// How many pixels wide a input box can be
+#define MAX_TEXT_WIDTH 	FONTSCALE_X(200)	// How many pixels wide a input box can be
 
 // ZICO - since the background is rescaled the bevels do the same. because of this we need bigger borders or the fonts would be printed inside the bevels...
 #define MENSCALE_X ((double)(SWIDTH/320))
@@ -92,34 +93,61 @@ extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 
 void newmenu_close()	{
 	gr_free_bitmap_data ( &nm_background );
-	Newmenu_first_time = 1;
+	gr_free_bitmap_data ( &nm_background1 );
 }
 
+// Draw Copyright and Version strings
+void nm_draw_copyright()
+{
+	grd_curcanv->cv_font = GAME_FONT;
+	gr_set_fontcolor(BM_XRGB(6,6,6),-1);
+	gr_printf(0x8000,grd_curcanv->cv_bitmap.bm_h-FONTSCALE_Y(GAME_FONT->ft_h)-2,TXT_COPYRIGHT);
+	gr_set_fontcolor( GR_GETCOLOR(25,0,0), -1);
+	gr_printf(0x8000,GHEIGHT-FONTSCALE_Y(grd_curcanv->cv_font->ft_h*3),DESCENT_VERSION);
+}
+
+// Draws the background of menus (i.e. Descent Logo screen)
 void nm_draw_background1(char * filename)
 {
 	int pcx_error;
-	gr_clear_canvas( BM_XRGB(0,0,0) );
-	pcx_error = pcx_read_fullscr(filename, NULL);
-	Assert(pcx_error == PCX_ERROR_NONE);
+
 #ifdef OGL
-	gr_palette_load(gr_palette);
+	if (filename == NULL && Function_mode == FMODE_MENU)
+		filename = Menu_pcx_name;
+	if (filename != NULL)
 #endif
+	{
+		if (nm_background1.bm_data == NULL) {
+			ubyte newpal[768];
+			atexit( newmenu_close );
+			gr_init_bitmap_data (&nm_background1);
+			pcx_error = pcx_read_bitmap( filename, &nm_background1, BM_LINEAR, newpal );
+			Assert(pcx_error == PCX_ERROR_NONE);
+			gr_remap_bitmap_good( &nm_background, newpal, -1, -1 );
+		}
+#ifndef OGL
+		show_fullscr(&nm_background1);
+#else
+		ogl_ubitmapm_cs(0,0,-1,-1,&nm_background1,-1,F1_0);
+#endif
+
+		if (!strcmp(filename,Menu_pcx_name) && Function_mode != FMODE_GAME)
+			nm_draw_copyright();
+	}
 }
 
+// Draws the frame background for menus
 void nm_draw_background(int x1, int y1, int x2, int y2 )
 {
 	int w,h;
 
-	if (Newmenu_first_time)	{
+	if (nm_background.bm_data == NULL) {
 		int pcx_error;
 		ubyte newpal[768];
 		atexit( newmenu_close );
-		Newmenu_first_time = 0;
-
 		gr_init_bitmap_data (&nm_background);		
 		pcx_error = pcx_read_bitmap("SCORES.PCX",&nm_background,BM_LINEAR,newpal);
 		Assert(pcx_error == PCX_ERROR_NONE);
-
 		gr_remap_bitmap_good( &nm_background, newpal, -1, -1 );
 	}
 
@@ -129,77 +157,35 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	w = x2-x1+1;
 	h = y2-y1+1;
 
-	if ( GWIDTH >= nm_background.bm_w || GHEIGHT >= nm_background.bm_h ){//Resize background to fit.  Resize so that the original aspect is preserved. -MPM
-		grs_canvas *tmp,*old;
-		grs_bitmap bg;
-		old=grd_curcanv;
-		tmp=gr_create_sub_canvas(old,x1,y1,w,h);
-		gr_init_sub_bitmap(&bg,&nm_background,0,0,w*(320.0/GWIDTH),h*(200.0/GHEIGHT));//note that we haven't replaced current_canvas yet, so these macros are still ok.
-		gr_set_current_canvas(tmp);
+	grs_canvas *tmp,*old;
+	grs_bitmap bg;
+	old=grd_curcanv;
+	tmp=gr_create_sub_canvas(old,x1,y1,w,h);
+	gr_init_sub_bitmap(&bg,&nm_background,0,0,w*(320.0/SWIDTH),h*(200.0/SHEIGHT));//note that we haven't replaced current_canvas yet, so these macros are still ok.
+	gr_set_current_canvas(tmp);
+#ifdef OGL
+	if (ogl_scissor_ok) {
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(0,y1,x2,SHEIGHT);
+		ogl_ubitmapm_cs(0,0,SWIDTH,SHEIGHT,&nm_background,-1,F1_0);
+		glDisable(GL_SCISSOR_TEST);
+	} else
+#endif
 		show_fullscr( &bg );
-		gr_set_current_canvas(old);
-		gr_free_sub_canvas(tmp);
-	}
-	else
-	{
-		gr_bm_bitblt(w, h, x1, y1, 0, 0, &nm_background, &(grd_curcanv->cv_bitmap) );
-	}
+	gr_set_current_canvas(old);
+	gr_free_sub_canvas(tmp);
 
 	Gr_scanline_darkening_level = 2*7;
 
-	//scale the bevels to the res too.  All the gwidth/height stuff is needed so that the corners have the correct angles at odd resolutions like 320x400 where the ratios are different for x and y
-
-// #ifdef OGL
-// 	gr_setcolor( BM_XRGB(1,1,1) );
-// 
-// 	for (w=5*(GWIDTH/320.0);w>=0;w--)
-// 		gr_urect( x2-w+1, y1+w*((GHEIGHT/200.0)/(GWIDTH/320.0)), x2+1, y2-(GHEIGHT/200.0) );//right edge
-// 	for (h=5*(GHEIGHT/200.0);h>=0;h--)
-// 		gr_urect( x1+h*((GWIDTH/320.0)/(GHEIGHT/200.0)), y2+1, x2+1, y2-h+1 );//bottom edge
-// #else
+	//scale the bevels to the res.
 	gr_setcolor( BM_XRGB(0,0,0) );
 
-	for (w=5*(GWIDTH/320.0);w>=0;w--)
-		gr_urect( x2-w, y1+w*((GHEIGHT/200.0)/(GWIDTH/320.0)), x2-w, y2-(GHEIGHT/200.0) );//right edge
-	for (h=5*(GHEIGHT/200.0);h>=0;h--)
-		gr_urect( x1+h*((GWIDTH/320.0)/(GHEIGHT/200.0)), y2-h, x2, y2-h );//bottom edge
-// #endif
-
+	for (w=5*(SWIDTH/320.0);w>=0;w--)
+		gr_urect( x2-w, y1+w*((SHEIGHT/200.0)/(SWIDTH/320.0)), x2-w, y2 );//right edge
+	for (h=5*(SHEIGHT/200.0);h>=0;h--)
+		gr_urect( x1+h*((SWIDTH/320.0)/(SHEIGHT/200.0)), y2-h, x2, y2-h );//bottom edge
 
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
-}
-
-void nm_restore_background( int x, int y, int w, int h )
-{
-	int x1, x2, y1, y2;
-
-	x1 = x; x2 = x+w-1;
-	y1 = y; y2 = y+h-1;
-
-	if ( x1 < 0 ) x1 = 0;
-	if ( y1 < 0 ) y1 = 0;
-
-	if ( x2 >= GWIDTH ) x2=GWIDTH-1;
-	if ( y2 >= GHEIGHT ) y2=GHEIGHT-1;
-
-	w = x2 - x1 + 1;
-	h = y2 - y1 + 1;
-
-	if ( GWIDTH > nm_background.bm_w || GHEIGHT > nm_background.bm_h ) {
-		grs_bitmap sbg;
-		grs_canvas *tmp,*old;
-		old=grd_curcanv;
-		tmp=gr_create_sub_canvas(old,x1,y1,w,h);
-		gr_init_sub_bitmap(&sbg,&nm_background,x1*(320.0/GWIDTH),y1*(200.0/GHEIGHT),w*(320.0/GWIDTH),h*(200.0/GHEIGHT));//use the correctly resized portion of the background. -MPM
-		gr_set_current_canvas(tmp);
-		show_fullscr( &sbg );
-		gr_set_current_canvas(old);
-		gr_free_sub_canvas(tmp);
-	}
-	else
-	{
-		gr_bm_bitblt(w, h, x1, y1, x1, y1, &nm_background, &(grd_curcanv->cv_bitmap) );
-	}
 }
 
 // Draw a left justfied string
@@ -222,11 +208,9 @@ void nm_string( bkg * b, int w1,int x, int y, char * _s )
 
 	if (w1 > 0)
 		w = w1;
-
-	// CHANGED
+#ifndef OGL
 	gr_bm_bitblt(b->background->bm_w-(15*MENSCALE_X), h, 5, y, 5, y, b->background, &(grd_curcanv->cv_bitmap) );
-	//gr_bm_bitblt(w, h, x, y, x, y, b->background, &(grd_curcanv->cv_bitmap) );
-	
+#endif
 	gr_string( x, y, s );
 
 	if (s1)	{
@@ -251,18 +235,17 @@ void nm_string_slider( bkg * b, int w1,int x, int y, char * s )
 	}
 
 	gr_get_string_size(s, &w, &h, &aw  );
-	// CHANGED
+#ifndef OGL
 	gr_bm_bitblt(b->background->bm_w-(15*MENSCALE_X), h, 5, y, 5, y, b->background, &(grd_curcanv->cv_bitmap) );
-	//gr_bm_bitblt(w, h, x, y, x, y, b->background, &(grd_curcanv->cv_bitmap) );
-
+#endif
 	gr_string( x, y, s );
 
 	if (p)	{
 		gr_get_string_size(s1, &w, &h, &aw  );
-		// CHANGED
+#ifndef OGL
 		gr_bm_bitblt(w, 1, x+w1-w, y, x+w1-w, y, b->background, &(grd_curcanv->cv_bitmap) );
-		// CHANGED
 		gr_bm_bitblt(w, 1, x+w1-w, y+h-1, x+w1-w, y, b->background, &(grd_curcanv->cv_bitmap) );
+#endif
 		gr_string( x+w1-w, y, s1 );
 		*p = '\t';
 	}
@@ -290,11 +273,9 @@ void nm_rstring( bkg * b,int w1,int x, int y, char * s )
 	x -= 3;
 
 	if (w1 == 0) w1 = w;
-
-	//mprintf( 0, "Width = %d, string='%s'\n", w, s );
-
-	// CHANGED
+#ifndef OGL
 	gr_bm_bitblt(w1, h, x-w1, y, x-w1, y, b->background, &(grd_curcanv->cv_bitmap) );
+#endif
 	gr_string( x-w, y, s );
 }
 
@@ -469,7 +450,7 @@ int check_button_press()
 			if (mouse_button_down_count(i)>0) return 1;
 		break;
 #endif
-	case	CONTROL_NONE:		//keyboard only
+	case	CONTROL_NONE: //keyboard only
 		break;
 	default:
 		Error("Bad control type (Config_control_type):%i",Config_control_type);
@@ -477,10 +458,6 @@ int check_button_press()
 
 	return 0;
 }
-
-//added on 11/31/98 by Victor Rachels for different way to do ver
-int Menu_Special = 0;
-//end this section addition - VR
 
 #ifdef NEWMENU_MOUSE
 ubyte Hack_DblClick_MenuMode=0;
@@ -525,7 +502,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	int string_width, string_height, average_width;
 	int ty;
 	bkg bg;
-	int all_text=0;		//set true if all text items
+	int all_text=0; //set true if all text items
 	int sound_stopped=0, time_stopped=0;
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, dblclick_flag=0;
@@ -535,8 +512,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 	if (nitems < 1 )
 		return -1;
-
-//	set_screen_mode(SCREEN_MENU);// caller is responsible for setting screen mode first, else fonts can get screwed up.  Not a big deal since (at the moment) only the 2 funcs below call this one directly.
 
 	if ( Function_mode == FMODE_GAME )	{
 		digi_pause_all();
@@ -570,7 +545,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	}
 
 
-	th += 8*MENSCALE_Y;		//put some space between titles & body
+	th += 8*MENSCALE_Y; //put some space between titles & body
 
 	grd_curcanv->cv_font = normal_font;
 
@@ -681,10 +656,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	if (right_offset > 0 )
 		right_offset += 3;
 	
-	//mprintf( 0, "Right offset = %d\n", right_offset );
-
-	//gr_get_string_size("",&string_width,&string_height,&average_width );
-
 	w += right_offset;
 
 	twidth = 0;
@@ -697,8 +668,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	w += 30*MENSCALE_X;
 	h += 30*MENSCALE_Y;
 
-// 	if ( w > SWIDTH ) w = SWIDTH;
-// 	if ( h > SHEIGHT ) h = SHEIGHT;
 	/* If window is as or almost as big as screen define hard size so it fits (with borders and stuff).
 	   Also make use of MENSCALE_* so we are sure it does scale correct if font does scale or not */
 	if (w >= 320*MENSCALE_X-3)
@@ -713,15 +682,20 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	if ( x < 0 ) x = 0;
 	if ( y < 0 ) y = 0;
 
+#ifndef OGL
 	if ( filename != NULL )	{
 		nm_draw_background1( filename );
 		gr_palette_load(gr_palette);
 	}
+#endif
 
 	// Save the background of the display
 	bg.menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w+MENSCALE_X, h+MENSCALE_Y );
 	gr_set_current_canvas( bg.menu_canvas );
 
+	ty = (15*MENSCALE_Y);
+
+#ifndef OGL
 	if ( filename == NULL )	{
 		// Save the background under the menu...
 		bg.saved = gr_create_bitmap( w+MENSCALE_X+10, h+MENSCALE_Y );
@@ -750,26 +724,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		gr_bm_bitblt(w, h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.background );
 	}
 
-// ty = 15 + (yborder/4);
-	ty = (15*MENSCALE_Y);
-
-        //added on 11/20/98 by Victor Rachels for d1x ver
-//added/changed on 11/31/98 by Victor Rachels for different way to do ver
-        if(Menu_Special==1)
-//-killed-        title && !strcmp(title,"MAIN MENU"))
-//end this section change - VR
-	{
-		grs_canvas *saved_canvas = grd_curcanv;
-		grd_curcanv = &grd_curscreen->sc_canvas;
-		grd_curcanv->cv_font = GAME_FONT;
-		gr_set_fontcolor( GR_GETCOLOR(25,0,0), -1);
-		gr_printf(0x8000,GHEIGHT-FONTSCALE_Y(grd_curcanv->cv_font->ft_h*3),DESCENT_VERSION);
-		grd_curcanv = saved_canvas;
-		Menu_Special = 0;
-	}
-        //end this section addition - VR
-
-
 	if ( title )	{
 		grd_curcanv->cv_font = title_font;
 		gr_set_fontcolor( GR_GETCOLOR(31,31,31), -1 );
@@ -777,19 +731,17 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		tw = string_width;
 		th = string_height;
 		gr_printf( 0x8000, ty, title );
-		ty += th;
 	}
-
+	
 	if ( subtitle )	{
 		grd_curcanv->cv_font = subtitle_font;
 		gr_set_fontcolor( GR_GETCOLOR(21,21,21), -1 );
 		gr_get_string_size(subtitle,&string_width,&string_height,&average_width );
 		tw = string_width;
-		th = string_height;
-		gr_printf( 0x8000, ty, subtitle );
-		ty += th;
+		th = (title?th:0);
+		gr_printf( 0x8000, ty+th, subtitle );
 	}
-
+#endif
 	grd_curcanv->cv_font = normal_font;
 	
 	// Update all item's x & y values.
@@ -837,7 +789,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 				break; 
 			}
 		}
-	} 
+	}
 	done = 0;
         gr_update();
 	// Clear mouse, joystick to clear button presses.
@@ -845,17 +797,45 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 #ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;
-	if (filename == NULL) {
-		draw_close_box(0,0);
-		close_box = 1;
-	}
-
 	newmenu_show_cursor();
 #endif
 
 	while(!done)	{
-		//network_listen();
+		d_delay(5);
+#ifdef OGL
+		ogl_swap_buffers();
+
+		gr_set_current_canvas( NULL );
+		nm_draw_background1(filename);
+		if (filename == NULL)
+			nm_draw_background(x,y,x+w,y+h);
+
+		gr_set_current_canvas( bg.menu_canvas );
+
+		if ( title )	{
+			grd_curcanv->cv_font = title_font;
+			gr_set_fontcolor( GR_GETCOLOR(31,31,31), -1 );
+			gr_get_string_size(title,&string_width,&string_height,&average_width );
+			tw = string_width;
+			th = string_height;
+			gr_printf( 0x8000, ty, title );
+		}
 	
+		if ( subtitle )	{
+			grd_curcanv->cv_font = subtitle_font;
+			gr_set_fontcolor( GR_GETCOLOR(21,21,21), -1 );
+			gr_get_string_size(subtitle,&string_width,&string_height,&average_width );
+			tw = string_width;
+			th = (title?th:0);
+			gr_printf( 0x8000, ty+th, subtitle );
+		}
+
+#endif
+		if (filename == NULL) {
+			draw_close_box(0,0);
+			close_box = 1;
+		}
+
 #ifdef NEWMENU_MOUSE
 		newmenu_show_cursor();      // possibly hidden
 		omouse_state = mouse_state;
@@ -1297,6 +1277,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		}
 
 		gr_set_current_canvas(bg.menu_canvas);
+
+#ifndef OGL
 		// Redraw everything...
 		for (i=0; i<nitems; i++ )	{
 			if (item[i].redraw)	{
@@ -1309,6 +1291,17 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			else if (i==choice && (item[i].type==NM_TYPE_INPUT || (item[i].type==NM_TYPE_INPUT_MENU && item[i].group)))
 				update_cursor( &item[i]);
 		}
+#else
+		// Redraw everything...
+		for (i=0; i<nitems; i++ )	{
+			draw_item( &bg, &item[i], (i==choice && !all_text) );
+#ifdef NEWMENU_MOUSE
+			newmenu_show_cursor();
+#endif
+			if (i==choice && (item[i].type==NM_TYPE_INPUT || (item[i].type==NM_TYPE_INPUT_MENU && item[i].group)))
+				update_cursor( &item[i]);
+		}
+#endif
 		gr_update();
 
 		if ( gr_palette_faded_out )	{
@@ -1318,6 +1311,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 	newmenu_hide_cursor();
 
+#ifndef OGL
 	// Restore everything...
 	gr_set_current_canvas(bg.menu_canvas);
 	if ( filename == NULL )	{
@@ -1328,17 +1322,16 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			gr_free_sub_bitmap( bg.background );
 		else
 			gr_free_bitmap( bg.background );
-//		free( bg.background );
 	} else {
 		gr_bitmap(0, 0, bg.background); 	
 		gr_free_bitmap(bg.background);
 	}
+#endif
 
 	gr_free_sub_canvas( bg.menu_canvas );
-
-	gr_set_current_canvas( NULL );			
+	gr_set_current_canvas( NULL );
 	grd_curcanv->cv_font	= save_font;
-	gr_set_current_canvas( save_canvas );			
+	gr_set_current_canvas( save_canvas );
 	keyd_repeat = old_keyd_repeat;
 
 	game_flush_inputs();
@@ -1425,11 +1418,11 @@ void newmenu_file_sort( int n, char *list )
 	char t[14];
 
 	incr = n / 2;
-	while( incr > 0 )		{
-		for (i=incr; i<n; i++ )		{
+	while( incr > 0 ) {
+		for (i=incr; i<n; i++ ) {
 			j = i - incr;
-			while (j>=0 )			{
-				if (strncmp(&list[j*14], &list[(j+incr)*14], 12) > 0)				{
+			while (j>=0 ) {
+				if (strncmp(&list[j*14], &list[(j+incr)*14], 12) > 0) {
 					memcpy( t, &list[j*14], 13 );
 					memcpy( &list[j*14], &list[(j+incr)*14], 13 );
 					memcpy( &list[(j+incr)*14], t, 13 );
@@ -1474,7 +1467,9 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 	int exit_value = 0;
 	int w_x, w_y, w_w, w_h, title_height;
 	int box_x, box_y, box_w, box_h;
-	bkg bg;		// background under listbox
+#ifndef OGL
+	bkg bg; // background under listbox
+#endif
 #ifdef NEWMENU_MOUSE
 	int mx, my, x1, x2, y1, y2, mouse_state, omouse_state;
 	int mouse2_state, omouse2_state;
@@ -1571,7 +1566,9 @@ ReadFileNames:
 			gr_get_string_size( title, &w, &h, &aw );		
 			if ( w > w_w )
 				w_w = w;
+#ifdef OGL
 			if (fixedfont)
+#endif
 				h += 10*MENSCALE_Y;
 			title_height = h + FONTSCALE_Y(grd_curcanv->cv_font->ft_h*2);		// add a little space at the bottom of the title
 		}
@@ -1601,8 +1598,8 @@ ReadFileNames:
 		box_y = w_y + title_height;
 
 
-// save the screen behind the menu.
-
+#ifndef OGL
+		// save the screen behind the menu.
 		bg.saved = NULL;
 
 		if ( (GWIDTH >= w_w) && (GHEIGHT >= w_h) ) 
@@ -1612,17 +1609,12 @@ ReadFileNames:
 
 		Assert( bg.background != NULL );
 
-
-// 		gr_bm_bitblt(w_w, w_h, 0, 0, w_x, w_y, &grd_curcanv->cv_bitmap, bg.background );
-
-// #if 0
 		gr_bm_bitblt(GWIDTH, GHEIGHT, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_buffer->cv_bitmap) );
-// #endif
 
-		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h-1 );
+		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h );
 		
 		gr_string( 0x8000, w_y+(10*MENSCALE_Y), title );
-	 
+#endif
 		initialized = 1;
 	}
 
@@ -1643,16 +1635,25 @@ ReadFileNames:
 #ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;
 	mouse2_state = omouse2_state = 0;
-	draw_close_box(w_x,w_y);
 	newmenu_show_cursor();
 #endif
 
 	while(!done)	{
+		d_delay(5);
 		ocitem = citem;
 		ofirst_item = first_item;
                 gr_update();
 
+#ifdef OGL
+		ogl_swap_buffers();
+		nm_draw_background1(NULL);
+		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h );
+		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
+		gr_string( 0x8000, w_y+(10*MENSCALE_Y), title );
+#endif
+
 #ifdef NEWMENU_MOUSE
+		draw_close_box(w_x,w_y);
 		omouse_state = mouse_state;
 		omouse2_state = mouse2_state;
 		mouse_state = mouse_button_state(0);
@@ -1842,10 +1843,12 @@ ReadFileNames:
 
 #endif
 
+#ifndef OGL
 		gr_setcolor( BM_XRGB( 0,0,0)  );
 
 		if (ofirst_item != first_item)	{
 			newmenu_hide_cursor();
+#endif
 			gr_setcolor( BM_XRGB( 0,0,0)  );
 			for (i=first_item; i<first_item+NumFiles_displayed; i++ )	{
 				int w, h, aw, y;
@@ -1855,7 +1858,6 @@ ReadFileNames:
 
 					gr_setcolor( BM_XRGB(5,5,5));
 					gr_rect( box_x + box_w, y-1, box_x + box_w, y + FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2));
-					//gr_rect( box_x, y + grd_curcanv->cv_font->ft_h + 2, box_x + box_w, y + grd_curcanv->cv_font->ft_h + 2);
 					
 					gr_setcolor( BM_XRGB(2,2,2));
 					gr_rect( box_x - 1, y - 1, box_x - 1, y + FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2) );
@@ -1871,7 +1873,6 @@ ReadFileNames:
 					gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
 
 					gr_setcolor( BM_XRGB(5,5,5));
-				//	gr_rect( box_x, y + h + 2, box_x + box_w, y + h + 2);
 					gr_rect( box_x + box_w, y - 1, box_x + box_w, y + h + FONTSCALE_Y(2));
 					
 					gr_setcolor( BM_XRGB(2,2,2));
@@ -1882,6 +1883,7 @@ ReadFileNames:
 					gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 				}
 			}
+#ifndef OGL
 			newmenu_show_cursor();
 		} else if ( citem != ocitem )	{
 			int w, h, aw, y;
@@ -1906,12 +1908,11 @@ ReadFileNames:
 				else	
 					grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_1];
 				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
-// 				gr_rect( box_x, y-1, box_x + box_x - 1, y + h + FONTSCALE_Y(2) );
 				gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 			}
 			newmenu_show_cursor();
 		}
-
+#endif
 		if ( gr_palette_faded_out )	{
 			gr_palette_fade_in( gr_palette, 32, 0 );
 		}
@@ -1923,7 +1924,7 @@ ExitFileMenuEarly:
 		exit_value = 1;
 	} else {
 		exit_value = 0;
-	}											 
+	}
 
 ExitFileMenu:
 	keyd_repeat = old_keyd_repeat;
@@ -1989,7 +1990,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	width = 0;
 	for (i=0; i<nitems; i++ )	{
 		int w, h, aw;
-		gr_get_string_size( items[i], &w, &h, &aw );		
+		gr_get_string_size( items[i], &w, &h, &aw );
 		if ( w > width )
 			width = w;
 	}
@@ -1999,7 +2000,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 	{
 		int w, h, aw;
-		gr_get_string_size( title, &w, &h, &aw );		
+		gr_get_string_size( title, &w, &h, &aw );
 		if ( w > width )
 			width = w;
 		title_height = h + 5;
@@ -2016,10 +2017,12 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 	bg.saved = NULL;
 	bg.background = gr_create_bitmap(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
+#ifndef OGL
  	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, bg.background );
  	nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
 
 	gr_string( 0x8000, wy - title_height, title );
+#endif
 
 	done = 0;
 	citem = default_item;
@@ -2029,18 +2032,27 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	first_item = -1;
 
 #ifdef NEWMENU_MOUSE
-	mouse_state = omouse_state = 0;	//dblclick_flag = 0;
+	mouse_state = omouse_state = 0;
 	close_x = wx-(15*MENSCALE_X);
 	close_y = wy-title_height-(15*MENSCALE_Y);
-	draw_close_box(close_x,close_y);
 	newmenu_show_cursor();
 #endif
 
 	while(!done)	{
+		d_delay(5);
+#ifdef OGL
+		ogl_swap_buffers();
+		nm_draw_background1(NULL);
+		nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
+		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
+		gr_string( 0x8000, wy - title_height, title );
+#endif
+
 		ocitem = citem;
 		ofirst_item = first_item;
 
 #ifdef NEWMENU_MOUSE
+		draw_close_box(close_x,close_y);
 		omouse_state = mouse_state;
 		mouse_state = mouse_button_state(0);
 #endif
@@ -2157,10 +2169,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 				y1 = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h+2)+wy;
 				y2 = y1+h+1;
 				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
-					//if (i == citem) {
-					//	break;
-					//}
-					//dblclick_flag= 0;
 					citem = i;
 					done = 1;
 					break;
@@ -2182,8 +2190,11 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		}
 #endif
 
-		if ( (ofirst_item != first_item) || redraw)	{
+#ifndef OGL
+		if ((ofirst_item != first_item) || redraw)
+		{
 			newmenu_hide_cursor();
+#endif
 			gr_setcolor( BM_XRGB( 0,0,0)  );
 			for (i=first_item; i<first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 				int w, h, aw, y;
@@ -2201,15 +2212,15 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 					gr_string( wx+5, y, items[i]  );
 				}
 			}		
+#ifndef OGL
 			newmenu_show_cursor();
-			//added on 9/13/98 by adb to make update-needing arch's work
 			gr_update();
-			//end addition - adb
 		} else if ( citem != ocitem )	{
 			int w, h, aw, y;
 
 			newmenu_hide_cursor();
 			i = ocitem;
+			gr_setcolor( BM_XRGB(0,0,0));
 			if ( (i>=0) && (i<nitems) )	{
 				y = (i-first_item)*font_height+wy;//was *12
 				if ( i == citem )	
@@ -2231,17 +2242,17 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 				gr_rect( wx, y-1, wx+width-1, y+font_height1 );//was +11
 				gr_string( wx+5, y, items[i]  );
 				newmenu_show_cursor();
-				//added on 9/13/98 by adb to make update-needing arch's work
 				gr_update();
-				//end addition - adb
 			}
 		}
+#endif
 	}
 	newmenu_hide_cursor();
 	keyd_repeat = old_keyd_repeat;
 
+#ifndef OGL
 	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, bg.background, &grd_curcanv->cv_bitmap );
- 
+#endif 
 	if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
 		gr_free_bitmap(bg.background);
 
