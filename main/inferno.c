@@ -570,7 +570,6 @@ int main(int argc,char **argv)
 	{
  		int old_screen_mode = Screen_mode;
 		Screen_mode = MENU_SCREEN_MODE;
-		ogl_set_screen_mode();
 		Screen_mode = old_screen_mode;
 	}
 #endif	

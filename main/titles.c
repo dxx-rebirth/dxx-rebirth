@@ -130,7 +130,7 @@ int show_title_screen( char * filename, int allow_keys )
         gr_update();
         //end addition - adb
 #ifdef OGL
-	ogl_swap_buffers();
+	gr_flip();
 #endif
 	gr_free_bitmap_data (&title_bm);
 
@@ -784,7 +784,7 @@ int show_briefing_message(int screen_num, char *message)
 						;
 					d_delay(5);
 #ifdef OGL
-					ogl_swap_buffers();
+					gr_flip();
 					gr_clear_canvas(255);
 					ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
 					redraw_messagestream(streamcount);
@@ -858,7 +858,7 @@ int show_briefing_message(int screen_num, char *message)
 			messagestream[streamcount].color = Briefing_foreground_colors[Current_color];
 			messagestream[streamcount].ch = ch;
 			if (delay_count) {
-				ogl_swap_buffers();
+				gr_flip();
 				gr_clear_canvas(255);
 				ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
 				redraw_messagestream(streamcount);
@@ -919,7 +919,7 @@ int show_briefing_message(int screen_num, char *message)
 					;
 				d_delay(15);
 #ifdef OGL
-				ogl_swap_buffers();
+				gr_flip();
 				gr_clear_canvas(255);
 				ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
 				redraw_messagestream(streamcount);

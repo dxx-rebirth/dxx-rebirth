@@ -211,7 +211,7 @@ void credits_show(char *credits_filename)
 
 			y = first_line_offset - i;
 #ifdef OGL
-			ogl_swap_buffers();
+			gr_flip();
 			ogl_ubitmapm_cs(0,0,-1,-1,&backdrop,-1,F1_0);
 #endif
 			gr_set_current_canvas(CreditsOffscreenBuf);

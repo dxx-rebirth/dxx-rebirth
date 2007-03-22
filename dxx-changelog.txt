@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070322
 --------
 SConstruct, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, main/credits.c, main/game.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/netlist.c, main/newmenu.c, main.polyobj.c, main/scores.c, main/state.c, main/titles.c: Use Doublebuffer in OGL for all parts of the game and properly redraw elements, fixed Profiler build
+2d/canvas.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, arch/sdl/gr.c, arch/win32/gr.c, include/gr.h, main/automap.c, main/credits.c, main/inferno.c, main/game.c, main/game.h, main/gauges.c, main/hud.c, main/kconfig.c, main/kmatrix.c, main/netlist.c, main/newmenu.c, main/scores.c, main/titles.c: add gr_flip, allowing significant cleanup; remove final remnants of VR_current_page, also allowing -nodoublebuffer switch for all platforms
 
 20070318
 --------

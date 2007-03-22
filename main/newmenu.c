@@ -803,7 +803,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	while(!done)	{
 		d_delay(5);
 #ifdef OGL
-		ogl_swap_buffers();
+		gr_flip();
 
 		gr_set_current_canvas( NULL );
 		nm_draw_background1(filename);
@@ -1645,7 +1645,7 @@ ReadFileNames:
                 gr_update();
 
 #ifdef OGL
-		ogl_swap_buffers();
+		gr_flip();
 		nm_draw_background1(NULL);
 		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h );
 		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
@@ -2041,7 +2041,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	while(!done)	{
 		d_delay(5);
 #ifdef OGL
-		ogl_swap_buffers();
+		gr_flip();
 		nm_draw_background1(NULL);
 		nm_draw_background( wx-(15*MENSCALE_X),wy-title_height-(15*MENSCALE_Y),wx+width+(15*MENSCALE_X),wy+height+(15*MENSCALE_Y) );
 		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];

@@ -568,7 +568,7 @@ int network_join_game_menu() {
 
 	while (!done) {
 #ifdef OGL
-		ogl_swap_buffers();
+		gr_flip();
         	netlist_redraw(bg,menu_text,lis);
 #endif
 		if (Network_socket != old_socket) {

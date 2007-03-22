@@ -216,7 +216,7 @@ void clear_background_messages(void)
 {
 	if ((Cockpit_mode == CM_STATUS_BAR) && (Last_msg_ycrd != -1) && (VR_render_sub_buffer[0].cv_bitmap.bm_y >= 6)) {
 		grs_canvas	*canv_save = grd_curcanv;
-		gr_set_current_canvas(get_current_game_screen());
+		gr_set_current_canvas(NULL);
 		copy_background_rect(0, Last_msg_ycrd, grd_curcanv->cv_bitmap.bm_w, Last_msg_ycrd+Last_msg_height-1);
 		gr_set_current_canvas(canv_save);
 		Displayed_background_message[0] = 0;
@@ -298,7 +298,7 @@ void HUD_render_message_frame()
 				if (ycrd < 0)
 					ycrd = 0;
 
-				gr_set_current_canvas(get_current_game_screen());
+				gr_set_current_canvas(NULL);
 
 				gr_get_string_size(message, &w, &h, &aw );
 				clear_background_messages();

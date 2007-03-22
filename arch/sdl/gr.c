@@ -64,6 +64,18 @@ void gr_update()
  SDL_UpdateRect(screen,0,0,0,0);
 }
 
+void gr_flip(void)
+{
+	gr_update();    //FIXME: Add double buffer support to remove cockpit/status bar flicker
+}
+
+// Set the buffer to draw to. 0 is front, 1 is back
+// With SDL, can't use it without resetting the video mode
+void gr_set_draw_buffer(int buf)
+{
+	buf = buf;
+}
+
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;

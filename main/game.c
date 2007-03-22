@@ -164,7 +164,6 @@ ubyte new_cheats[]= {	KEY_B^0xaa, KEY_B^0xaa, KEY_B^0xaa, KEY_F^0xaa, KEY_A^0xaa
 			KEY_N^0xaa, KEY_D^0xaa, KEY_X^0xaa, KEY_X^0xaa, KEY_A^0xaa };
 
 ubyte			VR_use_paging = 0;
-ubyte			VR_current_page = 0;
 u_int32_t		VR_screen_mode = 0;
 int			VR_render_width = 0;
 int			VR_render_height = 0;
@@ -175,7 +174,6 @@ int			VR_sensitivity = 1; // 0 - 2
 grs_canvas		*VR_offscreen_buffer = NULL; // The offscreen data buffer
 grs_canvas		VR_render_buffer[2]; //  Two offscreen buffers for left/right eyes.
 grs_canvas		VR_render_sub_buffer[2]; //  Two sub buffers for left/right eyes.
-grs_canvas		VR_screen_pages[2]; //  Two pages of VRAM if paging is available
 grs_canvas		VR_editor_canvas; //  The canvas that the editor writes to.
 
 //added 07/11/99 by adb:
@@ -336,7 +334,7 @@ int Game_window_h = 0;
 int max_window_w = 0;
 int max_window_h = 0;
 
-int last_drawn_cockpit[2] = { -1, -1 };
+int last_drawn_cockpit = -1;
 extern void ogl_loadbmtexture(grs_bitmap *bm);
 extern void write_player_file();
 extern int Rear_view;
@@ -352,7 +350,7 @@ void update_cockpits(int force_redraw)
 	switch( Cockpit_mode )	{
 	case CM_FULL_COCKPIT:
 	case CM_REAR_VIEW:
-		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+		gr_set_current_canvas(NULL);
 
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
 #ifdef OGL
@@ -367,7 +365,7 @@ void update_cockpits(int force_redraw)
 		fill_background(Game_window_x,Game_window_y,Game_window_w,Game_window_h,Game_window_x,Game_window_y);
 		break;
 	case CM_STATUS_BAR:
-		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+		gr_set_current_canvas(NULL);
 		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
 #ifdef OGL
 		ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0);
@@ -381,14 +379,14 @@ void update_cockpits(int force_redraw)
 		fill_background(x,y,w,h,x,y);
 		break;
 	case CM_LETTERBOX:
-		gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+		gr_set_current_canvas(NULL);
 		break;
 	}
 
-	gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+	gr_set_current_canvas(NULL);
 
-	if (Cockpit_mode != last_drawn_cockpit[VR_current_page] || force_redraw )
-		last_drawn_cockpit[VR_current_page] = Cockpit_mode;
+	if (Cockpit_mode != last_drawn_cockpit || force_redraw )
+		last_drawn_cockpit = Cockpit_mode;
 	else
 		return;
 
@@ -494,8 +492,7 @@ void select_cockpit(int mode)
 void reset_cockpit()
 {
 	force_cockpit_redraw=1;
-	last_drawn_cockpit[0] = -1;
-	last_drawn_cockpit[1] = -1;
+	last_drawn_cockpit = -1;
 }
 
 void HUD_clear_messages();
@@ -633,7 +630,7 @@ void copy_background_rect(int left,int top,int right,int bot)
 
 void fill_background(int x,int y,int w,int h,int dx,int dy)
 {
-	gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+	gr_set_current_canvas(NULL);
 	copy_background_rect(x-dx,y-dy,x-1,y+h+dy-1);
 	copy_background_rect(x+w,y-dy,x+w+dx-1,y+h+dy-1);
 	copy_background_rect(x,y-dy,x+w-1,y-1);
@@ -765,9 +762,9 @@ int set_screen_mode(int sm)
 			(grd_curscreen->sc_mode != Game_screen_mode)) &&
 		!((sm==SCREEN_MENU) &&
 			(grd_curscreen->sc_mode != MENU_SCREEN_MODE)) ) {
-		gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
-#ifdef OGL
-		ogl_set_screen_mode();
+		gr_set_current_canvas(NULL);
+#ifndef OGL
+		gr_set_draw_buffer(0);  // Set to the front buffer
 #endif
 		return 1;
 	}
@@ -784,8 +781,6 @@ int set_screen_mode(int sm)
 			if (gr_set_mode(MENU_SCREEN_MODE)) Error("Cannot set screen mode for game!");
 			gr_palette_load( gr_palette );
 		}
-                gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-		gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 		break;
 	case SCREEN_GAME:
 		if  (grd_curscreen->sc_mode != Game_screen_mode)
@@ -794,11 +789,6 @@ int set_screen_mode(int sm)
 		reset_cockpit();
 		max_window_w = grd_curscreen->sc_w;
 		max_window_h = grd_curscreen->sc_h;
-		gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-		if ( VR_use_paging )
-			gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, grd_curscreen->sc_h, grd_curscreen->sc_w, grd_curscreen->sc_h );
-		else
-			gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 		init_cockpit();
 		break;
 #ifdef EDITOR
@@ -814,8 +804,6 @@ int set_screen_mode(int sm)
 
 		gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
 		Canv_editor = &VR_editor_canvas;
-		gr_init_sub_canvas( &VR_screen_pages[0], Canv_editor, 0, 0, Canv_editor->cv_w, Canv_editor->cv_h );
-		gr_init_sub_canvas( &VR_screen_pages[1], Canv_editor, 0, 0, Canv_editor->cv_w, Canv_editor->cv_h );
 		gr_set_current_canvas( Canv_editor );
 		init_editor_screen(); //setup other editor stuff
 		break;
@@ -824,13 +812,12 @@ int set_screen_mode(int sm)
 		Error("Invalid screen mode %d",sm);
 	}
 
-	VR_current_page = 0;
+	gr_set_current_canvas(NULL);
 
-	gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
-	if ( VR_use_paging )	gr_show_canvas( &VR_screen_pages[VR_current_page] );
-#ifdef OGL
-	ogl_set_screen_mode();
+#ifndef OGL
+	gr_set_draw_buffer(((Screen_mode == SCREEN_GAME) && Game_double_buffer) ? 1 : 0); // Double buffering or 'front' buffer only
 #endif
+
 	return 1;
 }
 
@@ -1319,18 +1306,18 @@ void game_draw_hud_stuff()
 }
 
 extern int gr_bitblt_dest_step_shift;
-extern int gr_wait_for_retrace;
 extern int gr_bitblt_double;
 
 //render a frame for the game
-void game_do_render_frame(void)
+void game_do_render_frame(int flip)
 {
 	grs_canvas Screen_3d_window;
 
-	gr_init_sub_canvas( &Screen_3d_window, &VR_screen_pages[0],
-			VR_render_sub_buffer[0].cv_bitmap.bm_x, VR_render_sub_buffer[0].
-			cv_bitmap.bm_y, VR_render_sub_buffer[0].cv_bitmap.bm_w,
-			VR_render_sub_buffer[0].cv_bitmap.bm_h);
+	gr_init_sub_canvas( &Screen_3d_window, &grd_curscreen->sc_canvas, 
+		VR_render_sub_buffer[0].cv_bitmap.bm_x, 
+		VR_render_sub_buffer[0].cv_bitmap.bm_y, 
+		VR_render_sub_buffer[0].cv_bitmap.bm_w, 
+		VR_render_sub_buffer[0].cv_bitmap.bm_h);
 
 	if ( Game_double_buffer )
 		gr_set_current_canvas(&VR_render_sub_buffer[0]);
@@ -1342,22 +1329,13 @@ void game_do_render_frame(void)
 	game_draw_hud_stuff();
 
 	if ( Game_double_buffer ) {		//copy to visible screen
-		if ( VR_use_paging )	{
-			VR_current_page = !VR_current_page;
-			gr_set_current_canvas( &VR_screen_pages[VR_current_page] );
-			gr_bm_ubitblt( VR_render_sub_buffer[0].cv_w, VR_render_sub_buffer[0].cv_h, VR_render_sub_buffer[0].cv_bitmap.bm_x, VR_render_sub_buffer[0].cv_bitmap.bm_y, 0, 0, &VR_render_sub_buffer[0].cv_bitmap, &VR_screen_pages[VR_current_page].cv_bitmap );
-			gr_wait_for_retrace = 0;
-			gr_show_canvas( &VR_screen_pages[VR_current_page] );
-			gr_wait_for_retrace = 1;
-		} else {
-			gr_bm_ubitblt( VR_render_sub_buffer[0].cv_w, 
-					VR_render_sub_buffer[0].cv_h, 
-					VR_render_sub_buffer[0].cv_bitmap.bm_x, 
-					VR_render_sub_buffer[0].cv_bitmap.bm_y, 
-					0, 0, 
-					&VR_render_sub_buffer[0].cv_bitmap, 
-					&VR_screen_pages[0].cv_bitmap );
-		}
+		gr_bm_ubitblt( VR_render_sub_buffer[0].cv_w, 
+				VR_render_sub_buffer[0].cv_h, 
+				VR_render_sub_buffer[0].cv_bitmap.bm_x, 
+				VR_render_sub_buffer[0].cv_bitmap.bm_y, 
+				0, 0, 
+				&VR_render_sub_buffer[0].cv_bitmap, 
+				&grd_curscreen->sc_canvas.cv_bitmap );
 	}
 
 	update_cockpits(0);
@@ -1379,16 +1357,17 @@ void game_do_render_frame(void)
 	if(show_radar && !Endlevel_sequence)
 		radar_render_frame();
 
-#ifdef OGL
-	ogl_swap_buffers();
-#endif
+	if (flip)
+		gr_flip();
+	else
+		gr_update();
 }
 
 void game_render_frame()
 {
 	set_screen_mode( SCREEN_GAME );
 	play_homing_warning();
-        game_do_render_frame();
+        game_do_render_frame(Game_double_buffer);
 	stop_time();
 	gr_palette_fade_in( gr_palette, 32, 0 );
 	start_time();
@@ -1438,13 +1417,13 @@ void save_screen_shot(int automap_flag)
 	}
 	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
 
-	gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+	gr_set_current_canvas(NULL);
 	save_font = grd_curcanv->cv_font;
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(gr_find_closest_color_current(0,31,0),-1);
 	gr_get_string_size(message,&w,&h,&aw);
-	x = (VR_screen_pages[VR_current_page].cv_w-w)/2;
-	y = (VR_screen_pages[VR_current_page].cv_h-h)/2;
+	x = (grd_curcanv->cv_w-w)/2;
+	y = (grd_curcanv->cv_h-h)/2;
 
 	if (automap_flag) {
 		modex_print_message(32, y, message);
@@ -1727,7 +1706,7 @@ void show_boxed_message(char *msg)
 	gr_clear_canvas(0);
 #endif
 
-	gr_set_current_canvas(&VR_screen_pages[VR_current_page]);
+	gr_set_current_canvas(NULL);
 	gr_set_curfont( HELP_FONT );
 
 	gr_get_string_size(msg,&w,&h,&aw);
@@ -1752,7 +1731,7 @@ void show_boxed_message(char *msg)
 	gr_ustring( (grd_curscreen->sc_w-w)/2, y, msg );
         gr_update();
 #ifdef OGL
-	ogl_swap_buffers();
+	gr_flip();
 #endif
 }
 
@@ -2045,8 +2024,7 @@ void game()
 	do_lunacy_on();			// Copy values for insane into copy buffer in ai.c
 	do_lunacy_off();		// Restore true insane mode.
 	Game_aborted = 0;
-	last_drawn_cockpit[0] = -1;	// Force cockpit to redraw next time a frame renders.
-	last_drawn_cockpit[1] = -1;	// Force cockpit to redraw next time a frame renders.
+	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
 	cheat_enable_index = 0;
 
@@ -2133,8 +2111,7 @@ void game()
 				Screen_mode=-1; set_screen_mode(SCREEN_GAME);
 				Game_window_w=save_w; Game_window_h=save_h;
 				init_cockpit();
-				last_drawn_cockpit[0] = -1;
-				last_drawn_cockpit[1] = -1;
+				last_drawn_cockpit = -1;
 				if (VR_screen_mode != SCREEN_MENU)
 					vr_reset_display();
 				game_flush_inputs();
@@ -2235,11 +2212,6 @@ void close_game()
 	clear_warn_func(game_show_warning);     //don't use this func anymore
 }
 
-grs_canvas * get_current_game_screen()
-{
-	return &VR_screen_pages[VR_current_page];
-}
-
 ubyte exploding_flag = 0;
 extern void dump_used_textures_all();
 int ostate_p=0;
@@ -2292,8 +2264,7 @@ void HandleEndlevelKey(int key)
 
 	if (key == KEY_ESC)	{
 		stop_endlevel_sequence();
-		last_drawn_cockpit[0]=-1;
-		last_drawn_cockpit[1]=-1;
+		last_drawn_cockpit=-1;
 		return;
 	}
 
@@ -2399,7 +2370,7 @@ void HandleDemoKey(int key)
 			int old_state;
 			old_state = Newdemo_vcr_state;
 			Newdemo_vcr_state = ND_STATE_PRINTSCREEN;
-			game_do_render_frame();
+			game_do_render_frame(Game_double_buffer);
 			save_screen_shot(0);
 			Newdemo_vcr_state = old_state;
 		break;
@@ -3324,9 +3295,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 				force_cockpit_redraw=0;
 			}
 			game_render_frame();
-#ifndef D1XD3D
-			gr_update();
-#endif
 		}
 
 //		mprintf(0,"Velocity %2.2f\n", f2fl(vm_vec_mag(&ConsoleObject->phys_info.velocity)));

@@ -351,7 +351,7 @@ void kmatrix_view(int network)
 				done = 1;
 		}
 #ifdef OGL
-		ogl_swap_buffers();
+		gr_flip();
 #endif
 	}
 

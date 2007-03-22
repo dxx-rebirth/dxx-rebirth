@@ -142,7 +142,6 @@ void ogl_freebmtexture(grs_bitmap *bm);
 void ogl_do_palfx(void);
 void ogl_start_frame(void);
 void ogl_end_frame(void);
-void ogl_swap_buffers(void);
 void ogl_set_screen_mode(void);
 void ogl_cache_level_textures(void);
 

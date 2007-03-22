@@ -659,7 +659,6 @@ extern unsigned char Test_bitmap_data[64*64];
 
 extern unsigned int FixDivide( unsigned int x, unsigned int y );
 
-extern void gr_show_canvas( grs_canvas *canv );
 extern void gr_set_current_canvas( grs_canvas *canv );
 
 //flags for fonts
@@ -737,6 +736,8 @@ extern void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq )
 //extern void decode_data_asm(ubyte *data, int num_pixels, ubyte *colormap, int *count);
 
 extern void gr_update();
+extern void gr_flip(void);
+extern void gr_set_draw_buffer(int buf);
 
 //added 05/19/99 Matt Mueller - graphics locking stuff
 #if (defined(TEST_GR_LOCK) || defined(GR_LOCK))
