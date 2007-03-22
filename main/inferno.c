@@ -630,7 +630,7 @@ int main(int argc, char *argv[])
 		int screen_flags = 0;
 
 // added ifdef on 9/30/98 by Matt Mueller to fix high res in linux
-#ifndef NDEBUG
+#if !defined (NDEBUG) && !defined (OGL)
 		if (FindArg("-nodoublebuffer"))
 // end addition -MM
 // later modified by kreatordxx to allow double buffering to be disabled for any supported platform
