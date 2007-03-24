@@ -627,7 +627,7 @@ int main(int argc, char *argv[])
 	{
 		int screen_width = 640;
 		int screen_height = 480;
-		int screen_flags = 0;
+//		int screen_flags = 0;
 
 // added ifdef on 9/30/98 by Matt Mueller to fix high res in linux
 #if !defined (NDEBUG) && !defined (OGL)
@@ -643,7 +643,7 @@ int main(int argc, char *argv[])
 		// added 3/24/99 by Owen Evans for screen res changing
 		Game_screen_mode = SM(screen_width, screen_height);
 		// end added -OE
-		game_init_render_buffers(Game_screen_mode, screen_width, screen_height, VR_NONE, screen_flags);
+//		game_init_render_buffers(Game_screen_mode, screen_width, screen_height, VR_NONE, screen_flags);
 
 	}
 

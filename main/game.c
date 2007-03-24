@@ -178,6 +178,7 @@ int			VR_eye_switch		 = 0;
 int			VR_eye_offset_changed = 0;
 int			VR_use_reg_code 	= 0;
 
+grs_canvas	Screen_3d_window;							// The rectangle for rendering the mine to
 grs_canvas  *VR_offscreen_buffer	= NULL;		// The offscreen data buffer
 grs_canvas	VR_render_buffer[2];					//  Two offscreen buffers for left/right eyes.
 grs_canvas	VR_render_sub_buffer[2];			//  Two sub buffers for left/right eyes.
@@ -463,6 +464,7 @@ void VR_reset_params()
 
 void game_init_render_sub_buffers( int x, int y, int w, int h )
 {
+	gr_init_sub_canvas(&Screen_3d_window, &grd_curscreen->sc_canvas, x, y, w, h);
 	gr_init_sub_canvas( &VR_render_sub_buffer[0], &VR_render_buffer[0], x, y, w, h );
 	gr_init_sub_canvas( &VR_render_sub_buffer[1], &VR_render_buffer[1], x, y, w, h );
 }

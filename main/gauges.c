@@ -2281,7 +2281,7 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 		refade = 1;
 	}
 
-	gr_set_current_canvas(&VR_render_buffer[0]);
+	gr_set_current_canvas(NULL);
 #ifndef OGL
 	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w), COCKPITSCALE_Y*(y+bm->bm_h));
 #endif
@@ -2293,7 +2293,7 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 
 	gr_set_current_canvas( NULL );
 
-	gr_bm_ubitbltm( bm->bm_w, bm->bm_h, x, y, x, y, &VR_render_buffer[0].cv_bitmap, &grd_curcanv->cv_bitmap);
+	//gr_bm_ubitbltm( bm->bm_w, bm->bm_h, x, y, x, y, &VR_render_buffer[0].cv_bitmap, &grd_curcanv->cv_bitmap);
 }
 
 #define INV_FRAME_TIME	(f1_0/10)		//how long for each frame
@@ -2497,9 +2497,7 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 	int drew_flag=0;
 	int laser_level_changed;
 
-#ifndef OGL
-	gr_set_current_canvas(&VR_render_buffer[0]);
-#endif
+	gr_set_current_canvas(NULL);
 
 	gr_set_curfont( GAME_FONT );
 
@@ -2590,7 +2588,7 @@ void draw_static(int win)
 
 	bmp = &GameBitmaps[vc->frames[framenum].index];
 
-	gr_set_current_canvas(&VR_render_buffer[0]);
+	gr_set_current_canvas(NULL);
 #ifndef OGL
 	for (x=gauge_boxes[boxofs+win].left;x<gauge_boxes[boxofs+win].right;x+=bmp->bm_w)
 		for (y=gauge_boxes[boxofs+win].top;y<gauge_boxes[boxofs+win].bot;y+=bmp->bm_h)
@@ -2612,18 +2610,18 @@ void draw_static(int win)
 
 	gr_set_current_canvas(NULL);
 
-	copy_gauge_box(&gauge_boxes[boxofs+win],&VR_render_buffer[0].cv_bitmap);
+	//copy_gauge_box(&gauge_boxes[boxofs+win],&VR_render_buffer[0].cv_bitmap);
 }
 
 void draw_weapon_boxes()
 {
-	int boxofs = (Cockpit_mode==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
+//	int boxofs = (Cockpit_mode==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 	int drew;
 
 	if (weapon_box_user[0] == WBU_WEAPON) {
 		drew = draw_weapon_box(0,Primary_weapon);
-		if (drew) 
-			copy_gauge_box(&gauge_boxes[boxofs+0],&VR_render_buffer[0].cv_bitmap);
+		//if (drew) 
+		//	copy_gauge_box(&gauge_boxes[boxofs+0],&VR_render_buffer[0].cv_bitmap);
 
 		if (weapon_box_states[0] == WS_SET) {
 			if ((Primary_weapon == VULCAN_INDEX) || (Primary_weapon == GAUSS_INDEX))
@@ -2650,8 +2648,8 @@ void draw_weapon_boxes()
 
 	if (weapon_box_user[1] == WBU_WEAPON) {
 		drew = draw_weapon_box(1,Secondary_weapon);
-		if (drew)
-			copy_gauge_box(&gauge_boxes[boxofs+1],&VR_render_buffer[0].cv_bitmap);
+		//if (drew)
+		//	copy_gauge_box(&gauge_boxes[boxofs+1],&VR_render_buffer[0].cv_bitmap);
 
 		if (weapon_box_states[1] == WS_SET)
 		{
@@ -3519,7 +3517,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 			goto abort;
 
 		box = &gauge_boxes[boxnum];
-		gr_init_sub_canvas(&window_canv,&VR_render_buffer[0],COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*(box->right-box->left+1),COCKPITSCALE_Y*(box->bot-box->top+1));
+		gr_init_sub_canvas(&window_canv,&grd_curscreen->sc_canvas,COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*(box->right-box->left+1),COCKPITSCALE_Y*(box->bot-box->top+1));
 	}
 
 	gr_set_current_canvas(&window_canv);
@@ -3588,7 +3586,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	else {
 	
 		gr_set_current_canvas(NULL);
-		copy_gauge_box(box,&VR_render_buffer[0].cv_bitmap);
+	//	copy_gauge_box(box,&VR_render_buffer[0].cv_bitmap);
 	}
 
 	//force redraw when done

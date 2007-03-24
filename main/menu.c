@@ -724,7 +724,7 @@ void set_display_mode(int mode)
 
 	if (Current_display_mode != -1) {
 
-		game_init_render_buffers(dmi->VGA_mode,dmi->w,dmi->h,dmi->render_method,dmi->flags);
+//		game_init_render_buffers(dmi->VGA_mode,dmi->w,dmi->h,dmi->render_method,dmi->flags);
 		Default_display_mode = Current_display_mode;
 	}
 

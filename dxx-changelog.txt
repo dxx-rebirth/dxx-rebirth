@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070324
+--------
+main/game.c, main/gamerend.c, main/gauges.c, main/hud.c, main/inferno.c, main/menu.c, main/newmenu.c, main/screens.h: draw mine view directly to screen with SDL Video, no using an offscreen buffer (will use SDL_Flip later)
+
 20070322
 --------
 SConstruct, arch/ogl/gr.c, arch/ogl/ogl.c, include/ogl_init.h, main/credits.c, main/escort.c, main/game.c, main/gamecntl.c, main/gamerend.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/movie.c, main/netlist.c, main/newmenu.c, main.polyobj.c, main/scores.c, main/state.c, main/titles.c: Use Doublebuffer in OGL for all parts of the game and properly redraw elements, fixed Profiler build

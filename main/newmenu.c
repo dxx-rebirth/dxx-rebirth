@@ -2069,10 +2069,11 @@ ReadFileNames:
 		// save the screen behind the menu.
 		bg.saved = NULL;
 
-		if ( (VR_offscreen_buffer->cv_w >= w_w) && (VR_offscreen_buffer->cv_h >= w_h) ) 
-			bg.background = &VR_offscreen_buffer->cv_bitmap;
-		else
-			bg.background = gr_create_bitmap( w_w, w_h );
+		bg.background = gr_create_bitmap( w_w, w_h );
+
+#ifdef OGL
+		bg.background->bm_type = BM_OGL;	// glReadPixels isn't supported on all configurations, so just make it redraw (blitting BM_OGL to BM_OGL does nothing currently)
+#endif
 
 		Assert( bg.background != NULL );
 

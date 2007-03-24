@@ -644,20 +644,9 @@ void update_cockpits(int force_redraw);
 //render a frame for the game
 void game_render_frame_mono(int flip)
 {
-	grs_canvas Screen_3d_window;
 	int no_draw_hud=0;
 	
-
-	gr_init_sub_canvas( &Screen_3d_window, &grd_curscreen->sc_canvas, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_x, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_y, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_w, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_h);
-
-	if ( Game_double_buffer )
-		gr_set_current_canvas(&VR_render_sub_buffer[0]);
-	else
-		gr_set_current_canvas(&Screen_3d_window);
+	gr_set_current_canvas(&Screen_3d_window);
 	
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window) {
 		char *msg = "Guided Missile View";
@@ -707,22 +696,10 @@ void game_render_frame_mono(int flip)
 		render_frame(0, 0);
 	 }
 
-	if ( Game_double_buffer )
-		gr_set_current_canvas(&VR_render_sub_buffer[0]);
-	else
-		gr_set_current_canvas(&Screen_3d_window);
+	gr_set_current_canvas(&Screen_3d_window);
 
 	if (!no_draw_hud)
 		game_draw_hud_stuff();
-
-	if (Game_double_buffer)
-		gr_bm_ubitblt( VR_render_sub_buffer[0].cv_w, 
-					   VR_render_sub_buffer[0].cv_h, 
-					   VR_render_sub_buffer[0].cv_bitmap.bm_x, 
-					   VR_render_sub_buffer[0].cv_bitmap.bm_y, 
-					   0, 0, 
-					   &VR_render_sub_buffer[0].cv_bitmap, 
-					   &grd_curscreen->sc_canvas.cv_bitmap );
 
 	if (Game_paused) {		//render pause message over off-screen 3d (to minimize flicker)
 		extern char *Pause_msg;
