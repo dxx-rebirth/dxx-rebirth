@@ -2,6 +2,10 @@ D2X-Rebirth Changelog
 
 20070324
 --------
+main/mission.c: remove add_alternate_hogfile because it couldn't close the main hog file (it's normally in use)
+
+20070324
+--------
 main/game.c, main/gamerend.c, main/gauges.c, main/hud.c, main/inferno.c, main/menu.c, main/newmenu.c, main/screens.h: draw mine view directly to screen with SDL Video, no using an offscreen buffer (will use SDL_Flip later)
 
 20070322

@@ -608,37 +608,6 @@ void free_mission_list(mle *mission_list)
 
 void init_extra_robot_movie(char *filename);
 
-//Adds a hogfile, making sure it's looked in to open a file after directories but before the built-in hogfile.
-int add_alternate_hogfile(char *filename)
-{
-	int demo = 0;
-	int ok;
-
-	if (!cfile_close("descent2.hog"))
-	{
-		demo = 1;
-		if (!cfile_close("d2demo.hog"))
-		{
-			Int3();	// shouldn't happen, built-in hog should have been loaded
-		}
-	}
-
-	ok = cfile_init(filename);
-
-	if (!ok)
-		return 0;
-	
-	if (demo)
-		ok = cfile_init("d2demo.hog");
-	else
-		ok = cfile_init("descent2.hog");
-
-	if (!ok)	// be naive, user probably moved it ;)
-		Error("%s cannot be found. For help on where to put it, restart D2X.", demo? "d2demo.hog" : "descent2.hog");
-
-	return 1;
-}
-
 //values for built-in mission
 
 //loads the specfied mission from the mission list.
@@ -659,7 +628,7 @@ int load_mission(mle *mission)
 
     // for Descent 1 missions, load descent.hog
     if (EMULATING_D1) {
-        if (!add_alternate_hogfile("descent.hog"))
+        if (!cfile_init("descent.hog"))
             Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
         if (!stricmp(Current_mission_filename, D1_MISSION_FILENAME))
             return load_mission_d1();
@@ -722,7 +691,7 @@ int load_mission(mle *mission)
 
 		PHYSFSEXT_locateCorrectCase(buf);
 
-		found_hogfile = add_alternate_hogfile(buf);
+		found_hogfile = cfile_init(buf);
 
 	//require mission to be in hogfile
         if (! found_hogfile) {
@@ -764,7 +733,7 @@ int load_mission(mle *mission)
 				while (*(++bufp) == ' ')
 					;
 
-			add_alternate_hogfile(bufp);
+			cfile_init(bufp);
 			mprintf((0, "Hog file override = [%s]\n", bufp));
 		}
 		else if (istok(buf,"briefing")) {
