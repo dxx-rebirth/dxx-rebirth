@@ -69,7 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "network.h" 
 #include "newmenu.h"
 #include "cntrlcen.h"
-#include "d_delay.h"
+#include "timer.h"
 #include "automap.h"
 
 #define EF_USED     1   // This edge is used
@@ -648,7 +648,7 @@ void do_automap( int key_code )	{
 		while (t2 - t1 < F1_0 / 100) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 		{
 			if (nice_automap)
-				d_delay(1);
+				timer_delay(1);
 
 			t2 = timer_get_fixed_seconds();
 		}

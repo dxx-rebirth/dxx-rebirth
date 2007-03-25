@@ -77,6 +77,7 @@ common_sources = [
 'arch/sdl/joydefs.c',
 'arch/sdl/key.c',
 'arch/sdl/mouse.c',
+'arch/sdl/timer.c',
 'cfile/cfile.c',
 'iff/iff.c',
 'main/ai.c',
@@ -171,7 +172,6 @@ common_sources = [
 'mem/mem.c',
 'misc/compare.c',
 'misc/d_glob.c',
-'misc/d_delay.c',
 'misc/d_io.c',
 'misc/d_slash.c',
 'misc/dl_list.c',
@@ -253,7 +253,6 @@ arch_linux_sources = [
 'arch/linux/linuxnet.c',
 'arch/linux/mono.c',
 'arch/linux/serial.c',
-'arch/linux/timer.c',
 'arch/linux/ukali.c',
 'arch/sdl/clipboard.c'
 ]
@@ -278,7 +277,6 @@ arch_win32_sources = [
 'arch/win32/midi.c',
 'arch/win32/mono.c',
 'arch/win32/serial.c',
-'arch/win32/timer.c',
 'arch/win32/winnet.c',
 'arch/sdl/digi.c'
 ]

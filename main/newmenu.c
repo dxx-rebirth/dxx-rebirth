@@ -56,7 +56,6 @@ static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2006/03/17 19:44:42 zicodxx Exp 
 #include "d_io.h"
 #include "timer.h"
 #include "vers_id.h"
-#include "d_delay.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -801,7 +800,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 #endif
 
 	while(!done)	{
-		d_delay(5);
+		timer_delay(5);
 #ifdef OGL
 		gr_flip();
 
@@ -1642,7 +1641,7 @@ ReadFileNames:
 #endif
 
 	while(!done)	{
-		d_delay(5);
+		timer_delay(5);
 		ocitem = citem;
 		ofirst_item = first_item;
                 gr_update();
@@ -2042,7 +2041,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 #endif
 
 	while(!done)	{
-		d_delay(5);
+		timer_delay(5);
 #ifdef OGL
 		gr_flip();
 		nm_draw_background1(NULL);

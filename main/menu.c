@@ -79,21 +79,10 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:43:27 zicodxx Exp $";
 #include "config.h"
 #include "reorder.h"
 #include "d_glob.h"
-
 #include "cfile.h"
-
-//added on 9/20/98 by Victor Rachels in attempt to add screnres changing
 #include "gauges.h"
-//end this section addition - Victor Rachels
-
-//add on 2/2/99 by Victor Rachels
 #include "ban.h"
-//end this section addition
-
 #include "hudmsg.h" //for HUD_max_num_disp
-
-#include "d_delay.h" //for SUPPORTS_NICEFPS
-
 #include "ipx.h"
 
 

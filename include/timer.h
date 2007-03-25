@@ -1,3 +1,4 @@
+/* $Id: timer.h,v 1.1.1.1 2006/03/17 20:01:31 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,54 +8,13 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/include/timer.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:46:29 $
  *
  * Header for timer functions
- *
- * $Log: timer.h,v $
- * Revision 1.1.1.1  2006/03/17 19:46:29  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:02:21  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.8  1994/12/10  12:27:23  john
- * Added timer_get_approx_seconds.
- * 
- * Revision 1.7  1994/12/10  12:10:25  john
- * Added types.h.
- * 
- * 
- * 
- * 
- * Revision 1.6  1994/12/10  12:07:06  john
- * Added tick counter variable.
- * 
- * Revision 1.5  1994/11/15  12:04:15  john
- * Cleaned up timer code a bit... took out unused functions
- * like timer_get_milliseconds, etc.
- * 
- * Revision 1.4  1994/04/28  23:50:08  john
- * Changed calling for init_timer.  Made the function that the
- * timer calls be a far function. All of this was done to make
- * our timer system compatible with the HMI sound stuff.
- * 
- * Revision 1.3  1994/02/17  15:57:12  john
- * Changed key libary to C.
- * 
- * Revision 1.2  1994/01/18  10:58:34  john
- * Added timer_get_fixed_seconds
- * 
- * Revision 1.1  1993/07/10  13:10:41  matt
- * Initial revision
- * 
  *
  */
 
@@ -74,11 +34,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // interrupt rate.
 
 #define TIMER_FREQUENCY 1193180
-#if !defined (__MSDOS__) || defined(__GNUC__)
 #define _far
 #define __far
 #define __interrupt
-#endif
 
 extern void timer_init();
 extern void timer_close();
@@ -94,13 +52,14 @@ extern void timer_set_function( void _far * function );
 // 1 hr, respectively.
 
 extern fix timer_get_fixed_seconds();   // Rolls about every 9 hours...
-#ifdef __MSDOS__
+#ifdef __DJGPP__
 extern fix timer_get_fixed_secondsX(); // Assume interrupts already disabled
 extern fix timer_get_approx_seconds();		// Returns time since program started... accurate to 1/120th of a second
 extern void timer_set_joyhandler( void (*joy_handler)() );
 #else
 #define timer_get_fixed_secondsX timer_get_fixed_seconds
-#define timer_get_approx_seconds timer_get_fixed_seconds
+//#define timer_get_approx_seconds timer_get_fixed_seconds
+extern fix timer_get_approx_seconds();
 #endif
 
 //NOT_USED extern unsigned int timer_get_microseconds();
@@ -109,13 +68,15 @@ extern void timer_set_joyhandler( void (*joy_handler)() );
 //NOT_USED extern unsigned int timer_get_milliseconds();
 //NOT_USED extern unsigned int timer_get_millisecondsX();	// Assume interrupts disabled
 
+void timer_delay(fix seconds);
+
 //==========================================================================
 // Use to access the BIOS ticker... ie...   i = TICKER
-#ifdef __LINUX__
+#ifndef __DJGPP__
 #define TICKER (timer_get_fixed_seconds())
 #endif
 
-#ifdef __MSDOS__
+#ifdef __DJGPP__
 
 #ifndef __GNUC__
 #define TICKER (*(volatile int *)0x46C)
@@ -126,5 +87,11 @@ extern void timer_set_joyhandler( void (*joy_handler)() );
 #endif
 #define USECS_PER_READING( start, stop, frames ) (((stop-start)*54945)/frames)
 #endif
+
+
+#define approx_usec_to_fsec(usec) ((usec) >> 4)
+#define approx_fsec_to_usec(fsec) ((fsec) << 4)
+#define approx_msec_to_fsec(msec) ((msec) << 6)
+#define approx_fsec_to_msec(fsec) ((fsec) >> 6)
 
 #endif

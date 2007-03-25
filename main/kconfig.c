@@ -62,10 +62,8 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:44:27 zicodxx Exp 
 #include "key.h"
 #include "gr.h"
 #include "reorder.h"
-#include "d_delay.h"
 #include "physics.h"
 #include "vlcnfire.h"
-#include "d_delay.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -644,7 +642,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	while(1)
 	{
-		d_delay(5);
+		timer_delay(5);
 
 		gr_set_current_canvas(NULL);
 #ifdef OGL
@@ -1121,7 +1119,7 @@ void kc_change_key( kc_item * item )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
 //added/changed on 9/2/98 by Matt Mueller
-                d_delay(10);
+                timer_delay(f0_1/10);
 //end change -MM
 		kc_drawquestion( item );
 	
@@ -1179,7 +1177,7 @@ void kc_change_joybutton( kc_item * item )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
 //added/changed on 9/2/98 by Matt Mueller
-                d_delay(10);
+                timer_delay(f0_1/10);
 //end change -MM
 
 		if (k == KEY_PRINT_SCREEN)
@@ -1255,7 +1253,7 @@ void kc_change_mousebutton( kc_item * item )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
 //added/changed on 9/2/98 by Matt Mueller
-                d_delay(10);
+                timer_delay(f0_1/10);
 //end change -MM
 
 		if (k == KEY_PRINT_SCREEN)
@@ -1354,7 +1352,7 @@ void kc_change_joyaxis( kc_item * item )
 //		if ( Game_mode & GM_MULTI )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
-                d_delay(10);
+                timer_delay(f0_1/10);
 
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
@@ -1429,7 +1427,7 @@ void kc_change_mouseaxis( kc_item * item )
 //			GameLoop( 0, 0 );				// Continue
 		k = key_inkey();
 //added/changed on 9/2/98 by Matt Mueller
-                d_delay(10);
+                timer_delay(f0_1/10);
 //end change -MM
 
 		if (k == KEY_PRINT_SCREEN)

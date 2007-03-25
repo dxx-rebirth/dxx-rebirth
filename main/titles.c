@@ -47,7 +47,7 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include "newmenu.h"
 #include "state.h"
 #include "gameseq.h"
-#include "d_delay.h"
+
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -782,7 +782,7 @@ int show_briefing_message(int screen_num, char *message)
 					}
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
-					d_delay(5);
+					timer_delay(5);
 #ifdef OGL
 					gr_flip();
 					gr_clear_canvas(255);
@@ -917,7 +917,7 @@ int show_briefing_message(int screen_num, char *message)
 				}
 				while (timer_get_approx_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
-				d_delay(5);
+				timer_delay(5);
 #ifdef OGL
 				gr_flip();
 				gr_clear_canvas(255);

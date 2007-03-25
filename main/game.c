@@ -102,7 +102,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "reorder.h"
 #include "hudmsg.h"
-#include "d_delay.h"
+#include "timer.h"
 #include "cdplay.h"
 #include "hudlog.h"
 #ifdef NETWORK
@@ -995,12 +995,15 @@ void calc_frame_time()
 	_last_frametime = last_frametime;
 #endif
 
-	do {
+	timer_value = timer_get_fixed_seconds();
+	FrameTime = timer_value - last_timer_value;
+
+	while (FrameTime < f1_0 / maxfps)
+	{
+		timer_delay(f1_0 / maxfps - FrameTime);
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
-		if (use_nice_fps && FrameTime<F1_0/maxfps)
-			d_delay(1);
-	} while (FrameTime<F1_0/maxfps);
+	}
 
 #if defined(TIMER_TEST) && !defined(NDEBUG)
 	_timer_value = timer_value;
@@ -1775,7 +1778,7 @@ int do_game_pause(int allow_menu)
 	    SDL_WM_GrabInput(SDL_GRAB_OFF);
 
 	while (paused) {
-		d_delay(1);
+		timer_delay(1);
 #ifdef OGL
 		show_boxed_message(TXT_PAUSE);
 #endif

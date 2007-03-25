@@ -272,7 +272,6 @@ static char rcsid[] = "$Id: scores.c,v 1.1.1.1 2006/03/17 19:42:39 zicodxx Exp $
 #include "timer.h"
 #include "text.h"
 #include "d_io.h"
-#include "d_delay.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -604,7 +603,7 @@ ReshowScores:
 	looper = 0;
 
 	while(!done)	{
-		d_delay(5);
+		timer_delay(5);
 		gr_set_current_canvas(NULL);
 #ifdef OGL
 		gr_flip();

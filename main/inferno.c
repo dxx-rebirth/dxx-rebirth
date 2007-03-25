@@ -133,7 +133,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "strutil.h"
 #include "altsound.h"
 #include "../texmap/scanline.h" //for select_tmap -MM
-#include "d_delay.h"
 #include "vers_id.h"
 #include "collide.h"
 

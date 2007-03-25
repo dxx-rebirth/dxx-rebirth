@@ -19,7 +19,6 @@
 #include "error.h"
 #include "key.h"
 #include "timer.h"
-#include "d_delay.h"
 
 #define KEY_BUFFER_SIZE 16
 
@@ -525,7 +524,7 @@ int key_inkey()
 		key_data.keyhead = add_one(key_data.keyhead);
 	}
 //added 9/3/98 by Matt Mueller to free cpu time instead of hogging during menus and such
-	else d_delay(1);
+	else timer_delay(1);
 //end addition - Matt Mueller
 	     
         return key;
