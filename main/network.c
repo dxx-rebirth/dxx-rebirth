@@ -4129,8 +4129,10 @@ menu:
 	{
 		// User aborted
 		choice = nm_messagebox(NULL, 3, TXT_YES, TXT_NO, TXT_START_NOWAIT, TXT_QUITTING_NOW);
-		if (choice == 2)
+		if (choice == 2) {
+			N_players = 1;
 			return;
+		}
 		if (choice != 0)
 			goto menu;
 		

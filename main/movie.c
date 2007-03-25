@@ -291,7 +291,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_ioCallbacks(FileRead);
 
 #ifdef OGL
-// 	gr_set_mode(SM(grd_curscreen->sc_w,grd_curscreen->sc_h));
 	set_screen_mode(SCREEN_MOVIE);
 	gr_copy_palette(pal_save, gr_palette, 768);
 	memset(gr_palette, 0, 768);
@@ -367,15 +366,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 int InitMovieBriefing()
 {
-// #ifndef OGL // 0
-// 	if (MovieHires)
-// 		gr_set_mode(SM(640,480));
-// 	else
-// 		gr_set_mode(SM(320,200));
-// 
-// 	gr_init_sub_canvas( &VR_screen_pages[0], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-// 	gr_init_sub_canvas( &VR_screen_pages[1], &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-// #endif
 	set_screen_mode(SCREEN_MOVIE);
 
 	return 1;
@@ -606,92 +596,31 @@ void draw_subtitles(int frame_num)
 		}
 }
 
+// void close_movie(char *movielib)
+// {
+// 	char filename[FILENAME_LEN];
+// 
+// 	sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"h":"l");
+// 
+// 	if (!cfile_close(filename))
+// 	{
+// 		con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
+// 		sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"l":"h");
+// 
+// 		if (!cfile_close(filename))
+// 			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
+// 	}
+// }
 
-void close_movie(char *movielib)
-{
-	char filename[FILENAME_LEN];
-
-	sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"h":"l");
-
-	if (!cfile_close(filename))
-	{
-		con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
-		sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"l":"h");
-
-		if (!cfile_close(filename))
-			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
-	}
-}
-
-void close_movies()
-{
-	int i;
-
-	for (i = 0 ; i < N_BUILTIN_MOVIE_LIBS ; i++)
-	{
-		close_movie(movielib_files[i]);
-	}
-}
-
-
-//ask user to put the D2 CD in.
-//returns -1 if ESC pressed, 0 if OK chosen
-//CD may not have been inserted
-int request_cd(void)
-{
-#if 0
-	ubyte save_pal[256*3];
-	grs_canvas *save_canv,*tcanv;
-	int ret,was_faded=gr_palette_faded_out;
-
-	gr_palette_clear();
-
-	save_canv = grd_curcanv;
-	tcanv = gr_create_canvas(grd_curcanv->cv_w,grd_curcanv->cv_h);
-
-	gr_set_current_canvas(tcanv);
-	gr_ubitmap(0,0,&save_canv->cv_bitmap);
-	gr_set_current_canvas(save_canv);
-
-	gr_clear_canvas(BM_XRGB(0,0,0));
-
-	memcpy(save_pal,gr_palette,sizeof(save_pal));
-
-	memcpy(gr_palette,last_palette_for_color_fonts,sizeof(gr_palette));
-
- try_again:;
-
-	ret = nm_messagebox( "CD ERROR", 1, "Ok", "Please insert your Descent II CD");
-
-	if (ret == -1) {
-		int ret2;
-
-		ret2 = nm_messagebox( "CD ERROR", 2, "Try Again", "Leave Game", "You must insert your\nDescent II CD to Continue");
-
-		if (ret2 == -1 || ret2 == 0)
-			goto try_again;
-	}
-
-	force_rb_register = 1;  //disc has changed; force register new CD
-
-	gr_palette_clear();
-
-	memcpy(gr_palette,save_pal,sizeof(save_pal));
-
-	gr_ubitmap(0,0,&tcanv->cv_bitmap);
-
-	if (!was_faded)
-		gr_palette_load(gr_palette);
-
-	gr_free_canvas(tcanv);
-
-	return ret;
-#else
-	con_printf(CON_DEBUG, "STUB: movie: request_cd\n");
-	return 0;
-#endif
-}
-
+// void close_movies()
+// {
+// 	int i;
+// 
+// 	for (i = 0 ; i < N_BUILTIN_MOVIE_LIBS ; i++)
+// 	{
+// 		close_movie(movielib_files[i]);
+// 	}
+// }
 
 void init_movie(char *movielib, int required)
 {
@@ -712,7 +641,6 @@ void init_movie(char *movielib, int required)
 	}
 }
 
-
 //find and initialize the movie libraries
 void init_movies()
 {
@@ -725,29 +653,24 @@ void init_movies()
 		init_movie(movielib_files[i], 1);
 	}
 
-	atexit(close_movies);
+// 	atexit(close_movies);
 }
 
 
-void close_extra_robot_movie(void)
-{
-	char filename[FILENAME_LEN];
-
-	if (strlen(movielib_files[EXTRA_ROBOT_LIB]))
-	{
-		sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], MovieHires?"h":"l");
-		if (!cfile_close(filename))
-			con_printf(CON_URGENT, "Can't close robot movielib <%s>: %s\n", filename, PHYSFS_getLastError());
-	}
-}
+// void close_extra_robot_movie(void)
+// {
+// 	if (strlen(movielib_files[EXTRA_ROBOT_LIB]))
+// 		if (!cfile_close(movielib_files[EXTRA_ROBOT_LIB]))
+// 			con_printf(CON_URGENT, "Can't close robot movielib: %s\n", PHYSFS_getLastError());
+// }
 
 void init_extra_robot_movie(char *movielib)
 {
 	if (FindArg("-nomovies"))
 		return;
 
-	close_extra_robot_movie();
+// 	close_extra_robot_movie();
 	init_movie(movielib, 0);
 	strcpy(movielib_files[EXTRA_ROBOT_LIB], movielib);
-	atexit(close_extra_robot_movie);
+// 	atexit(close_extra_robot_movie);
 }

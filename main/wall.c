@@ -1139,7 +1139,9 @@ void wall_toggle(segment *seg, int side)
 
 	if (seg - Segments > Highest_segment_index)
 	{
-		Warning("Can't toggle side %d of segment %d - nonexistent segment!\n", side, seg-Segments);
+#ifndef NDEBUG
+		Warning("Can't toggle side %d of\nsegment %d - nonexistent segment!\n", side, seg-Segments);
+#endif
 		return;
 	}
 	Assert( side < MAX_SIDES_PER_SEGMENT );

@@ -660,7 +660,7 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	if (RobotPlaying && (delay != 0))
 		RotateRobot();
 
-	while (timer_get_fixed_seconds() < (start_time + delay)) {
+	while (timer_get_fixed_seconds() < (start_time + delay/2)) {
 		if (RobotPlaying && delay != 0)
 			RotateRobot();
 	}
@@ -1002,6 +1002,11 @@ int show_briefing_message(int screen_num, char *message)
 						load_new_briefing_screen (fname2);
 					else
 						load_new_briefing_screen (fname);
+					if (init_briefing_bm) {
+						gr_init_bitmap_data (&briefing_bm);
+						pcx_read_bitmap( bname, &briefing_bm, BM_LINEAR, EMULATING_D1?gr_palette:New_pal );
+						init_briefing_bm=0;
+					}
 				}
 				//load_new_briefing_screen (MenuHires?"end01b.pcx":"end01.pcx");
 
@@ -1212,7 +1217,7 @@ int show_briefing_message(int screen_num, char *message)
 			while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
-				timer_delay(15);
+				timer_delay(5);
 #ifdef OGL
 				if (!RobotPlaying)
 					gr_flip();

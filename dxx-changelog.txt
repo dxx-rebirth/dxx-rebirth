@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070325
+--------
+main/movie.c, main/network.c, main/titles.c, main/wall.c: do not close movies for now to prevent leaks (PhysFS should do that); fixed crash with malformed N_players if Netgame start is forced in DEBUG; improved briefing screen loading and delay; made wall warning-message not show up in NDEBUG (non-critical)
+
 20070324
 --------
 main/mission.c: remove add_alternate_hogfile because it couldn't close the main hog file (it's normally in use)

@@ -181,7 +181,6 @@ void nm_remap_background()
 void nm_draw_background1(char * filename)
 {
 	int pcx_error;
-
 #ifndef OGL
 	if (nm_background1.bm_data)
 		d_free(nm_background1.bm_data);
@@ -189,6 +188,7 @@ void nm_draw_background1(char * filename)
 #else
 	if (filename == NULL && Function_mode == FMODE_MENU)
 		filename = Menu_pcx_name;
+
 	if (filename != NULL)
 
 	{
@@ -206,7 +206,7 @@ void nm_draw_background1(char * filename)
 #ifndef OGL
 		show_fullscr(&nm_background1);
 #else
-		gr_palette_load( gr_palette );
+		gr_palette_load(gr_palette);
 		ogl_ubitmapm_cs(0,0,-1,-1,&nm_background1,-1,F1_0);
 #endif
 
@@ -1805,6 +1805,8 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 	game_flush_inputs();
 
+	newmenu_close();
+
 	if (time_stopped) 
 	{
 		start_time();
@@ -2434,6 +2436,8 @@ ReadFileNames:
 
 	}
 
+	newmenu_close();
+
 ExitFileMenuEarly:
 	MAC(newmenu_hide_cursor());
 	if ( citem > -1 )	{
@@ -2799,6 +2803,8 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 #endif 
 	if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
 		gr_free_bitmap(bg.background);
+
+	newmenu_close();
 
 	return citem;
 }
