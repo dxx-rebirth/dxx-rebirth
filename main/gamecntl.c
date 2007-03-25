@@ -1054,6 +1054,15 @@ int HandleSystemKey(int key)
 				}
 				break;
 
+			case KEY_SHIFTED + KEY_ESC: //quick exit
+#ifdef EDITOR
+				if (! SafetyCheck()) break;
+				close_editor_screen();
+#endif
+				Game_aborted=1;
+				Function_mode=FMODE_EXIT;
+				break;
+
 // fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
 			MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)

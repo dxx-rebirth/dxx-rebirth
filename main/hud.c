@@ -302,7 +302,7 @@ int HUD_init_message_va(char * format, va_list args)
 		return 0;	// ignore since it is the same as the last one
 	}
 
-	if (strnicmp ("you",message,3)) { // block hudlog output messages beginning with you ("your ... maxed out", "you already have ...")
+	if (strnicmp ("you",message,3) && strcmp ("SUPER LASER MAXED OUT!",message)) { // block hudlog output messages beginning with you ("your ... maxed out", "you already have ...")
 		t=time(NULL);
 		lt=localtime(&t);
 	

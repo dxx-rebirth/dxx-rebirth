@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070325
 --------
 main/movie.c, main/network.c, main/titles.c, main/wall.c: do not close movies for now to prevent leaks (PhysFS should do that); fixed crash with malformed N_players if Netgame start is forced in DEBUG; improved briefing screen loading and delay; made wall warning-message not show up in NDEBUG (non-critical)
+main/gamecntl.c, main/hud.c: allow Quick-Exit with SHIFT+ESC; blocking "SUPER LASER MAXED OUT!" redundancy in stdout
 
 20070324
 --------
