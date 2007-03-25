@@ -320,8 +320,6 @@ void cfile_init_hogfile(char *fname, hogfile * hog_files, int * nfiles )
 	FILE * fp;
 	int i, len;
 
-	*nfiles = 0;
-
 	fp = cfile_get_filehandle( fname, "rb" );
 	if ( fp == NULL ) return;
 
@@ -330,6 +328,8 @@ void cfile_init_hogfile(char *fname, hogfile * hog_files, int * nfiles )
 		fclose(fp);
 		return;
 	}
+
+	*nfiles = 0;
 
 	while( 1 )	
 	{	

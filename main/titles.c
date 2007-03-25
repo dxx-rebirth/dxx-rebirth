@@ -917,7 +917,7 @@ int show_briefing_message(int screen_num, char *message)
 				}
 				while (timer_get_approx_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
-				d_delay(15);
+				d_delay(5);
 #ifdef OGL
 				gr_flip();
 				gr_clear_canvas(255);

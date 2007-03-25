@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070335
+--------
+cfile/cfile.c, main/titles.c: fixed possible corrpution with nfiles cin cfile_init_hogfile; improved briefing delay usage
+
 20070322
 --------
 SConstruct, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, main/credits.c, main/game.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/netlist.c, main/newmenu.c, main.polyobj.c, main/scores.c, main/state.c, main/titles.c: Use Doublebuffer in OGL for all parts of the game and properly redraw elements, fixed Profiler build
