@@ -2316,8 +2316,6 @@ void HandleDemoKey(int key)
 #endif
 
 		case KEY_F3:			toggle_cockpit();	break;
-		case KEY_SHIFTED+KEY_MINUS:
-		case KEY_MINUS:
 		case KEY_ALTED+KEY_F9:
 #ifdef GP2X
 			digi_set_digi_volume( digi_volume-2048 );
@@ -2325,8 +2323,6 @@ void HandleDemoKey(int key)
 			shrink_window();
 #endif
 		break;
-		case KEY_SHIFTED+KEY_EQUAL:
-		case KEY_EQUAL:
 		case KEY_ALTED+KEY_F10:
 #ifdef GP2X
 			digi_set_digi_volume( digi_volume+2048 );

@@ -1,8 +1,13 @@
 D1X-Rebirth Changelog
 
-20070335
+20070326
+--------
+main/game.c, main/menu.c: unbind Minus/Equal from Shrink/Grow-window - only use ALT-F9/F10 to get richt with all keyboard layouts; Always allow screen resolution switching, even if selected is not supported to ensure Multi-Monitor support
+
+20070325
 --------
 cfile/cfile.c, main/titles.c: fixed possible corrpution with nfiles cin cfile_init_hogfile; improved briefing delay usage
+SConstruct, arch/linux/init.c, arch/sdl/key.c, arch/sdl/timer.c, arch/win32/init.c, include/timer.h, main/automap.c, main/game.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/multi.c, main/newmenu.c, main/scores.c, main/titles.c: removed d_delay, now using timer_delay as wrapper for SDL_Delay
 
 20070322
 --------
