@@ -171,6 +171,7 @@ int			VR_render_mode = VR_NONE;
 int			VR_low_res = 3; // Default to low res
 int 			VR_show_hud = 1;
 int			VR_sensitivity = 1; // 0 - 2
+grs_canvas		Screen_3d_window; // The rectangle for rendering the mine to
 grs_canvas		*VR_offscreen_buffer = NULL; // The offscreen data buffer
 grs_canvas		VR_render_buffer[2]; //  Two offscreen buffers for left/right eyes.
 grs_canvas		VR_render_sub_buffer[2]; //  Two sub buffers for left/right eyes.
@@ -699,6 +700,7 @@ void shrink_window()
 
 void game_init_render_sub_buffers( int x, int y, int w, int h )
 {
+	gr_init_sub_canvas( &Screen_3d_window, &grd_curscreen->sc_canvas, x, y, w, h );
 	gr_init_sub_canvas( &VR_render_sub_buffer[0], &VR_render_buffer[0], x, y, w, h );
 	gr_init_sub_canvas( &VR_render_sub_buffer[1], &VR_render_buffer[1], x, y, w, h );
 }
@@ -1314,32 +1316,11 @@ extern int gr_bitblt_double;
 //render a frame for the game
 void game_do_render_frame(int flip)
 {
-	grs_canvas Screen_3d_window;
-
-	gr_init_sub_canvas( &Screen_3d_window, &grd_curscreen->sc_canvas, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_x, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_y, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_w, 
-		VR_render_sub_buffer[0].cv_bitmap.bm_h);
-
-	if ( Game_double_buffer )
-		gr_set_current_canvas(&VR_render_sub_buffer[0]);
-	else	
-		gr_set_current_canvas(&Screen_3d_window);
+	gr_set_current_canvas(&Screen_3d_window);
 	
 	render_frame(0);
 
 	game_draw_hud_stuff();
-
-	if ( Game_double_buffer ) {		//copy to visible screen
-		gr_bm_ubitblt( VR_render_sub_buffer[0].cv_w, 
-				VR_render_sub_buffer[0].cv_h, 
-				VR_render_sub_buffer[0].cv_bitmap.bm_x, 
-				VR_render_sub_buffer[0].cv_bitmap.bm_y, 
-				0, 0, 
-				&VR_render_sub_buffer[0].cv_bitmap, 
-				&grd_curscreen->sc_canvas.cv_bitmap );
-	}
 
 	update_cockpits(0);
 

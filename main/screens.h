@@ -107,6 +107,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SCREEN_GAME				1	//viewing the menu screen
 #define SCREEN_EDITOR			2	//viewing the editor screen
 
+extern grs_canvas       Screen_3d_window;                               // The rectangle for rendering the mine to
+
 //from editor.c
 extern grs_canvas *Canv_editor;			//the full on-scrren editor canvas
 extern grs_canvas *Canv_editor_game;	//the game window on the editor screen

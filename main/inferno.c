@@ -334,8 +334,8 @@ int main(int argc,char **argv)
 {
 	int i,t;
 	char start_demo[13];
-	int screen_width = 640;
-	int screen_height = 480;
+// 	int screen_width = 640;
+// 	int screen_height = 480;
 	u_int32_t screen_mode = SM(640,480);
 
 	error_init(NULL);
@@ -534,7 +534,7 @@ int main(int argc,char **argv)
 		serial_active = 0;
 #endif
 	Game_screen_mode = screen_mode;
-	game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE);
+// 	game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE);
 
 	{
 		int i, argnum=INT_MAX, w, h;
