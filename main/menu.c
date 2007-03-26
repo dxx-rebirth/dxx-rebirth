@@ -1044,8 +1044,8 @@ void change_res()
 	screen_height = SM_H(screen_mode);
 
 	if (screen_width > sdlmode[0]->w || screen_height > sdlmode[0]->h) {
-		nm_messagebox( TXT_WARNING, 1, TXT_OK, "Could not set requested\nscreen resolution" );
-		return;
+		if (!nm_messagebox( TXT_WARNING, 2, "NO", "YES", "Could not verify selected\nscreen resolution.\nThe game may crash.\nDo you really want to proceed?" ))
+			return;
 	}
 
 	if (screen_height <= 0 || screen_width <= 0)

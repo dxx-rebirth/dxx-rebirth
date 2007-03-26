@@ -773,12 +773,8 @@ void HandleDemoKey(int key)
 				toggle_cockpit();
 			 break;
 
-		case KEY_SHIFTED+KEY_MINUS:
-		case KEY_ALTED+KEY_F9:
 		case KEY_MINUS:		shrink_window(); break;
 
-		case KEY_SHIFTED+KEY_EQUAL:
-		case KEY_ALTED+KEY_F10:
 		case KEY_EQUAL:		grow_window(); break;
 
 		MAC(case KEY_COMMAND+KEY_2:)
