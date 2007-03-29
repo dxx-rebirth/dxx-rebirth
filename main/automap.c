@@ -230,18 +230,7 @@ void modex_printf(int x,int y,char *s,grs_font *font,int color)
 
 void modex_print_message(int x, int y, char *str)
 {
-
-#ifndef OGL
-	int	i;
-	for (i=0; i<2; i++ )	{
-		gr_set_current_canvas(&Pages[i]);
-#endif
-		modex_printf(x, y, str, (grs_font *)GFONT_MEDIUM_1,Green_31);
-#ifndef OGL
-	}
-
-	gr_set_current_canvas(&DrawingPages[current_page]);
-#endif
+	modex_printf(x, y, str, (grs_font *)GFONT_MEDIUM_1,Green_31);
 }
 
 //name for each group.  maybe move somewhere else

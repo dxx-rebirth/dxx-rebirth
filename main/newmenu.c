@@ -91,8 +91,10 @@ grs_bitmap nm_background1;
 extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 void newmenu_close()	{
-	gr_free_bitmap_data ( &nm_background );
-	gr_free_bitmap_data ( &nm_background1 );
+	if (nm_background.bm_data)
+		free(nm_background.bm_data);
+	if (nm_background1.bm_data)
+		free(nm_background1.bm_data);
 }
 
 // Draw Copyright and Version strings
@@ -110,7 +112,11 @@ void nm_draw_background1(char * filename)
 {
 	int pcx_error;
 
-#ifdef OGL
+#ifndef OGL
+	if (nm_background1.bm_data)
+		free(nm_background1.bm_data);
+
+#else
 	if (filename == NULL && Function_mode == FMODE_MENU)
 		filename = Menu_pcx_name;
 	if (filename != NULL)
@@ -122,7 +128,7 @@ void nm_draw_background1(char * filename)
 			gr_init_bitmap_data (&nm_background1);
 			pcx_error = pcx_read_bitmap( filename, &nm_background1, BM_LINEAR, newpal );
 			Assert(pcx_error == PCX_ERROR_NONE);
-			gr_remap_bitmap_good( &nm_background, newpal, -1, -1 );
+// 			gr_remap_bitmap_good( &nm_background, newpal, -1, -1 );
 		}
 #ifndef OGL
 		show_fullscr(&nm_background1);
@@ -140,7 +146,13 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 {
 	int w,h;
 
-	if (nm_background.bm_data == NULL) {
+#ifndef OGL
+	if (nm_background.bm_data)
+		free(nm_background.bm_data);
+#else
+	if (nm_background.bm_data == NULL)
+#endif
+	{
 		int pcx_error;
 		ubyte newpal[768];
 		atexit( newmenu_close );
@@ -1333,6 +1345,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	gr_set_current_canvas( save_canvas );
 	keyd_repeat = old_keyd_repeat;
 
+	newmenu_close();
+
 	game_flush_inputs();
 
 	if (time_stopped)
@@ -1606,13 +1620,9 @@ ReadFileNames:
 
 		bg.background = gr_create_bitmap( w_w, w_h );
 
-#ifdef OGL
-		bg.background->bm_type = BM_OGL;	// glReadPixels isn't supported on all configurations, so just make it redraw (blitting BM_OGL to BM_OGL does nothing currently)
-#endif
-
 		Assert( bg.background != NULL );
 
-		gr_bm_bitblt(GWIDTH, GHEIGHT, 0, 0, 0, 0, &(grd_curcanv->cv_bitmap), &(VR_offscreen_buffer->cv_bitmap) );
+		gr_bm_bitblt(w_w, w_h, 0, 0, w_x, w_y, &grd_curcanv->cv_bitmap, bg.background );
 
 		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h );
 		
@@ -1920,6 +1930,8 @@ ReadFileNames:
 			gr_palette_fade_in( gr_palette, 32, 0 );
 		}
         }
+
+	newmenu_close();
 
 ExitFileMenuEarly:
 	if ( citem > -1 )	{
@@ -2254,6 +2266,8 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 #endif 
 	if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
 		gr_free_bitmap(bg.background);
+
+	newmenu_close();
 
 	return citem;
 }

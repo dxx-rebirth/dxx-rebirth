@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070329
+--------
+main/automap.c, main/game.c, main/newmenu.c: palette-related fixes for Doublebuffered menus; fixes for SDL-build
+
 20070326
 --------
 main/game.c, main/menu.c: unbind Minus/Equal from Shrink/Grow-window - only use ALT-F9/F10 to get richt with all keyboard layouts; Always allow screen resolution switching, even if selected is not supported to ensure Multi-Monitor support
