@@ -121,6 +121,7 @@ char Pauseable_menu=0;
 char already_showing_info=0;
 int vertigo_present=0;
 extern ubyte Version_major,Version_minor;
+extern char last_palette_loaded[];
 
 void newmenu_close()	{
 	if (nm_background.bm_data)
@@ -181,6 +182,7 @@ void nm_remap_background()
 void nm_draw_background1(char * filename)
 {
 	int pcx_error;
+
 #ifndef OGL
 	if (nm_background1.bm_data)
 		d_free(nm_background1.bm_data);
@@ -188,7 +190,6 @@ void nm_draw_background1(char * filename)
 #else
 	if (filename == NULL && Function_mode == FMODE_MENU)
 		filename = Menu_pcx_name;
-
 	if (filename != NULL)
 
 	{
@@ -206,7 +207,7 @@ void nm_draw_background1(char * filename)
 #ifndef OGL
 		show_fullscr(&nm_background1);
 #else
-		gr_palette_load(gr_palette);
+		gr_palette_load( gr_palette );
 		ogl_ubitmapm_cs(0,0,-1,-1,&nm_background1,-1,F1_0);
 #endif
 
@@ -215,6 +216,8 @@ void nm_draw_background1(char * filename)
 #ifdef OGL
 	}
 #endif
+
+	strcpy(last_palette_loaded,"");		//force palette load next time
 }
 
 #define MENU_BACKGROUND_BITMAP_HIRES (cfexist("scoresb.pcx")?"scoresb.pcx":"scores.pcx")
@@ -254,7 +257,10 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	tmp=gr_create_sub_canvas(old,x1,y1,w,h);
 	gr_init_sub_bitmap(&bg,&nm_background,0,0,w/MENSCALE_X,h/MENSCALE_Y);//note that we haven't replaced current_canvas yet, so these macros are still ok.
 	gr_set_current_canvas(tmp);
+
 #ifdef OGL
+	gr_palette_load( gr_palette );
+
 	if (ogl_scissor_ok) {
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(0,y1,x2,SHEIGHT);
@@ -2072,10 +2078,6 @@ ReadFileNames:
 		bg.saved = NULL;
 
 		bg.background = gr_create_bitmap( w_w, w_h );
-
-#ifdef OGL
-		bg.background->bm_type = BM_OGL;	// glReadPixels isn't supported on all configurations, so just make it redraw (blitting BM_OGL to BM_OGL does nothing currently)
-#endif
 
 		Assert( bg.background != NULL );
 

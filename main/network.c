@@ -4100,7 +4100,7 @@ network_request_poll( int nitems, newmenu_item * menus, int * key, int citem )
 		*key = -2;
 	}
 }
-
+#include "gamepal.h"
 void
 network_wait_for_requests(void)
 {
@@ -4131,6 +4131,9 @@ menu:
 		choice = nm_messagebox(NULL, 3, TXT_YES, TXT_NO, TXT_START_NOWAIT, TXT_QUITTING_NOW);
 		if (choice == 2) {
 			N_players = 1;
+			// LoadLevel() has passed but we are still in the menu ... we need to make sure, the palette is right again
+			load_palette(Current_level_palette,1,1);
+			gr_palette_load(gr_palette);
 			return;
 		}
 		if (choice != 0)

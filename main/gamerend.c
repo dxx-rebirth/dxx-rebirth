@@ -1053,10 +1053,6 @@ void show_boxed_message(char *msg)
 	int w,h,aw;
 	int x,y;
 
-#ifdef OGL
-	gr_clear_canvas(0);
-#endif
-
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( MEDIUM1_FONT );
 
