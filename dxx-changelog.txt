@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070230
+--------
+main/game.c, main/newmenu.c, main/newmenu.h: introduced newmenu_dotiny() from D2X to show menus with GAME_FONT; extended Help-menu and removed D1X-Help-menu
+
 20070329
 --------
 main/automap.c, main/game.c, main/newmenu.c: palette-related fixes for Doublebuffered menus; fixes for SDL-build

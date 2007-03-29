@@ -1469,21 +1469,6 @@ void advance_sound()
 
 void test_anim_states();
 
-void show_d1x_help()
-{
-     newmenu_item m[14];
-
-     m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "SHIFT-F3\t  Toggle Radar";
-     m[ 1].type = NM_TYPE_TEXT; m[ 1].text = "SHIFT-F5\t  (un)Pause demo recording";
-     m[ 2].type = NM_TYPE_TEXT; m[ 2].text = "CTRL-ALT-`\t  Start/Stop Hud-Logging";
-     m[ 3].type = NM_TYPE_TEXT; m[ 3].text = "";
-     m[ 4].type = NM_TYPE_TEXT; m[ 4].text = "Multiplayer:";
-     m[ 6].type = NM_TYPE_TEXT; m[ 6].text = "ALT-F6\t  Accept new player";
-     m[ 7].type = NM_TYPE_TEXT; m[ 7].text = "CTRL-N\t  Game-Master Menu";
-
-     newmenu_do( NULL, TXT_KEYS, 8, m, NULL );
-}
-
 //put up the help message
 void do_show_help()
 {
@@ -1806,43 +1791,36 @@ int do_game_pause(int allow_menu)
 	return key;
 }
 
-
 void show_help()
 {
-	newmenu_item m[14];
+	newmenu_item m[25];
+	int mc = 0;
 
-	if ( VR_render_mode != VR_NONE )	{
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_HELP_ESC;
-		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_HELP_ALT_F2;
-		m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_HELP_ALT_F3;
-		m[ 3].type = NM_TYPE_TEXT; m[ 3].text = TXT_HELP_F2;
-		m[ 4].type = NM_TYPE_TEXT; m[ 4].text = TXT_HELP_F4;
-		m[ 5].type = NM_TYPE_TEXT; m[ 5].text = TXT_HELP_F5;
-		m[ 6].type = NM_TYPE_TEXT; m[ 6].text = TXT_HELP_PAUSE;
-		m[ 7].type = NM_TYPE_TEXT; m[ 7].text = TXT_HELP_1TO5;
-		m[ 8].type = NM_TYPE_TEXT; m[ 8].text = TXT_HELP_6TO10;
-		m[ 9].type = NM_TYPE_TEXT; m[ 9].text = "";
-		m[10].type = NM_TYPE_TEXT; m[10].text = TXT_HELP_TO_VIEW;
-		newmenu_do( NULL, TXT_KEYS, 11, m, NULL );
-	} else {
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_HELP_ESC;
-		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_HELP_ALT_F2;
-		m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_HELP_ALT_F3;
-		m[ 3].type = NM_TYPE_TEXT; m[ 3].text = TXT_HELP_F2;
-		m[ 4].type = NM_TYPE_TEXT; m[ 4].text = TXT_HELP_F3;
-// 		m[ 5].type = NM_TYPE_TEXT; m[ 5].text = TXT_HELP_F4;
-		m[ 5].type = NM_TYPE_TEXT; m[ 5].text = TXT_HELP_F5;
-		m[ 6].type = NM_TYPE_TEXT; m[ 6].text = TXT_HELP_PAUSE;
-		m[ 7].type = NM_TYPE_TEXT; m[ 7].text = "ALT-F9/F10\t  change screen size"; // ZICO - we changed keys - old: TXT_HELP_MINUSPLUS;
-		m[ 8].type = NM_TYPE_TEXT; m[ 8].text = TXT_HELP_PRTSCN;
-		m[ 9].type = NM_TYPE_TEXT; m[ 9].text = TXT_HELP_1TO5;
-		m[10].type = NM_TYPE_TEXT; m[10].text = TXT_HELP_6TO10;
-		m[11].type = NM_TYPE_TEXT; m[11].text = "SHIFT-F1\t  SHOW D1X HELP";
-		m[12].type = NM_TYPE_TEXT; m[12].text = "";
-		m[13].type = NM_TYPE_TEXT; m[13].text = TXT_HELP_TO_VIEW;
-		newmenu_do( NULL, TXT_KEYS, 14, m, NULL );
-	}
-
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_ESC; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_ALT_F2; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_ALT_F3; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F2; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F3; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-F3\t  TOGGLE RADAR"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F5; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-F5\t  (UN)PAUSE DEMO RECORDING"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F7\t  switch hud-mode"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F9/F10\t  change screen size"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_PAUSE; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_PRTSCN; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_1TO5; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_6TO10; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "MULTIPLAYER:"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-N\t  GAME-MASTER MENU"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F7\t  SHOW KILL LIST"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-F7\t  SHOW PING STATS"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F8\t  SEND MESSAGE"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F6\t  ACCEPT JOINING PLAYER"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-ALT-F6\t  DUMP JOINING PLAYER"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F8 to F12\t  SEND MACRO"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-F8 to SHIFT-F12\t  DEFINE MACRO"; mc++;
+	newmenu_dotiny( NULL, TXT_KEYS, mc, m, NULL );
 }
 
 //temp function until Matt cleans up game sequencing
@@ -2444,7 +2422,6 @@ void HandleGameKey(int key)
 			}
 			break;
 		case KEY_F1:				do_show_help();         break;
-		case KEY_SHIFTED+KEY_F1:                show_d1x_help();        break;
 		case KEY_F2:				Config_menu_flag = 1;	break;
 		case KEY_F3:				toggle_cockpit();       break;
 		case KEY_SHIFTED+KEY_F3:		if(!(Game_mode & GM_MULTI)||Network_allow_radar||I_am_observer)
@@ -2536,11 +2513,8 @@ void HandleGameKey(int key)
 			#endif
 			break;		// redefine taunt macros
 		case KEY_PAUSE:			do_game_pause(1); 	break;
-		case KEY_CTRLED + KEY_F12:
 		case KEY_PRINT_SCREEN: 		save_screen_shot(0);	break;
 
-		case KEY_SHIFTED+KEY_MINUS:
-		case KEY_MINUS:
 		case KEY_ALTED+KEY_F9:
 #ifdef GP2X
 			digi_set_digi_volume( digi_volume-2048 );
@@ -2548,8 +2522,6 @@ void HandleGameKey(int key)
 			shrink_window();
 #endif
 			break;
-		case KEY_SHIFTED+KEY_EQUAL:
-		case KEY_EQUAL:
 		case KEY_ALTED+KEY_F10:
 #ifdef GP2X
 			digi_set_digi_volume( digi_volume+2048 );
@@ -2557,11 +2529,6 @@ void HandleGameKey(int key)
 			grow_window();
 #endif
 			break;
-		case KEY_CTRLED+KEY_SHIFTED+KEY_PADMULTIPLY:
-		case KEY_ALTED+KEY_CTRLED+KEY_PADMULTIPLY:
-		case KEY_ALTED+KEY_SHIFTED+KEY_PADMULTIPLY:
-				change_res();
-				break;
 		case KEYS_GR_TOGGLE_FULLSCREEN:
 				gr_toggle_fullscreen_game();
 				break;

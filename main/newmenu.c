@@ -340,68 +340,79 @@ void nm_string_inputbox( bkg *b, int w, int x, int y, char * text, int current )
 	}
 }
 
-void draw_item( bkg * b, newmenu_item *item, int is_current )
+void draw_item( bkg * b, newmenu_item *item, int is_current, int tiny )
 {
-	if (is_current)
-		grd_curcanv->cv_font = CURRENT_FONT;
+	if (tiny)
+	{
+		if (is_current)
+			gr_set_fontcolor(gr_find_closest_color_current(57,49,20),-1);
+		else
+			gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
+	
+		if (item->text[0]=='\t')
+			gr_set_fontcolor (gr_find_closest_color_current(63,63,63),-1);
+	}
 	else
-		grd_curcanv->cv_font = NORMAL_FONT;
+	{
+		if (is_current)
+			grd_curcanv->cv_font = CURRENT_FONT;
+		else
+			grd_curcanv->cv_font = NORMAL_FONT;
+        }
 	
 	switch( item->type )	{
-	case NM_TYPE_TEXT:
-		grd_curcanv->cv_font=TEXT_FONT;
-		// fall through on purpose
-	case NM_TYPE_MENU:
-		nm_string( b, item->w, item->x, item->y, item->text );
-		break;
-	case NM_TYPE_SLIDER:	{
-		int i,j;
-		if (item->value < item->min_value) item->value=item->min_value;
-		if (item->value > item->max_value) item->value=item->max_value;
-		i = sprintf( item->saved_text, "%s\t%s", item->text, SLIDER_LEFT );
-		for (j=0; j<(item->max_value-item->min_value+1); j++ )	{
-			i += sprintf( item->saved_text + i, "%s", SLIDER_MIDDLE );
-		}
-		sprintf( item->saved_text + i, "%s", SLIDER_RIGHT );
-		
-		item->saved_text[item->value+1+strlen(item->text)+1] = SLIDER_MARKER[0];
-		
-		nm_string_slider( b, item->w, item->x, item->y, item->saved_text );
-		}
-		break;
-	case NM_TYPE_INPUT_MENU:
-		if ( item->group==0 )		{
+		case NM_TYPE_TEXT:
+		case NM_TYPE_MENU:
 			nm_string( b, item->w, item->x, item->y, item->text );
-		} else {
+			break;
+		case NM_TYPE_SLIDER:	{
+			int i,j;
+			if (item->value < item->min_value) item->value=item->min_value;
+			if (item->value > item->max_value) item->value=item->max_value;
+			i = sprintf( item->saved_text, "%s\t%s", item->text, SLIDER_LEFT );
+			for (j=0; j<(item->max_value-item->min_value+1); j++ )	{
+				i += sprintf( item->saved_text + i, "%s", SLIDER_MIDDLE );
+			}
+			sprintf( item->saved_text + i, "%s", SLIDER_RIGHT );
+			
+			item->saved_text[item->value+1+strlen(item->text)+1] = SLIDER_MARKER[0];
+			
+			nm_string_slider( b, item->w, item->x, item->y, item->saved_text );
+			}
+			break;
+		case NM_TYPE_INPUT_MENU:
+			if ( item->group==0 )		{
+				nm_string( b, item->w, item->x, item->y, item->text );
+			} else {
+				nm_string_inputbox( b, item->w, item->x, item->y, item->text, is_current );
+			}
+			break;
+		case NM_TYPE_INPUT:
 			nm_string_inputbox( b, item->w, item->x, item->y, item->text, is_current );
-		}
-		break;
-	case NM_TYPE_INPUT:
-		nm_string_inputbox( b, item->w, item->x, item->y, item->text, is_current );
-		break;
-	case NM_TYPE_CHECK:
-		nm_string( b, item->w, item->x, item->y, item->text );
-		if (item->value)
-			nm_rstring( b,item->right_offset,item->x, item->y, CHECKED_CHECK_BOX );
-		else														  
-			nm_rstring( b,item->right_offset,item->x, item->y, NORMAL_CHECK_BOX );
-		break;
-	case NM_TYPE_RADIO:
-		nm_string( b, item->w, item->x, item->y, item->text );
-		if (item->value)
-			nm_rstring( b,item->right_offset, item->x, item->y, CHECKED_RADIO_BOX );
-		else
-			nm_rstring( b,item->right_offset, item->x, item->y, NORMAL_RADIO_BOX );
-		break;
-	case NM_TYPE_NUMBER:	{
-		char text[10];
-		if (item->value < item->min_value) item->value=item->min_value;
-		if (item->value > item->max_value) item->value=item->max_value;
-		nm_string( b, item->w, item->x, item->y, item->text );
-		sprintf( text, "%d", item->value );
-		nm_rstring( b,item->right_offset,item->x, item->y, text );
-		}
-		break;
+			break;
+		case NM_TYPE_CHECK:
+			nm_string( b, item->w, item->x, item->y, item->text );
+			if (item->value)
+				nm_rstring( b,item->right_offset,item->x, item->y, CHECKED_CHECK_BOX );
+			else														  
+				nm_rstring( b,item->right_offset,item->x, item->y, NORMAL_CHECK_BOX );
+			break;
+		case NM_TYPE_RADIO:
+			nm_string( b, item->w, item->x, item->y, item->text );
+			if (item->value)
+				nm_rstring( b,item->right_offset, item->x, item->y, CHECKED_RADIO_BOX );
+			else
+				nm_rstring( b,item->right_offset, item->x, item->y, NORMAL_RADIO_BOX );
+			break;
+		case NM_TYPE_NUMBER:	{
+			char text[10];
+			if (item->value < item->min_value) item->value=item->min_value;
+			if (item->value > item->max_value) item->value=item->max_value;
+			nm_string( b, item->w, item->x, item->y, item->text );
+			sprintf( text, "%d", item->value );
+			nm_rstring( b,item->right_offset,item->x, item->y, text );
+			}
+			break;
 	}
 
 }
@@ -486,6 +497,8 @@ void draw_close_box(int x,int y)
 	gr_rect(x + CLOSE_X + (1), y + CLOSE_Y + (1), x + CLOSE_X + CLOSE_SIZE - (1), y + CLOSE_Y + CLOSE_SIZE - (1));
 }
 
+int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode);
+
 int newmenu_do( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) )
 {
 	return newmenu_do3( title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1 );
@@ -502,8 +515,23 @@ int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item,
 	return newmenu_do3( title, subtitle, nitems, item, subfunction, citem, filename, -1, -1 );
 }
 
+int newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height){
+	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
+	return newmenu_do3_real( title, subtitle, nitems, item, subfunction, citem, filename, width,height, 0);
+}
+
+int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height){
+	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
+	return newmenu_do3_real( title, subtitle, nitems, item, subfunction, citem, filename, width,height, 0);
+}
+
+int newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) )
+{
+        return newmenu_do3_real( title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1, 1 );
+}
+
 //Edited 2000/10/27 Matthew Mueller - made newmenu_do3 allow you to set the fonts used, thus allowing newmenu_do_fixedfont to be removed, saving a lot of duplication.
-int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, grs_font *title_font, grs_font *subtitle_font, grs_font *menu_font, grs_font *normal_font)
+int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode)
 {
 	int old_keyd_repeat, done;
 	int  choice,old_choice,i,j,x,y,w,h,aw, tw, th, twidth,fm,right_offset;
@@ -542,13 +570,13 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	tw = th = 0;
 
 	if ( title )	{
-		grd_curcanv->cv_font = title_font;
+		grd_curcanv->cv_font = TITLE_FONT;
 		gr_get_string_size(title,&string_width,&string_height,&average_width );
 		tw = string_width;
 		th = string_height;
 	}
 	if ( subtitle )	{
-		grd_curcanv->cv_font = subtitle_font;
+		grd_curcanv->cv_font = SUBTITLE_FONT;
 		gr_get_string_size(subtitle,&string_width,&string_height,&average_width );
 		if (string_width > tw )
 			tw = string_width;
@@ -558,7 +586,10 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 	th += 8*MENSCALE_Y; //put some space between titles & body
 
-	grd_curcanv->cv_font = normal_font;
+	if (TinyMode)
+		grd_curcanv->cv_font = GAME_FONT;
+	else 
+		grd_curcanv->cv_font = NORMAL_FONT;
 
 	w = aw = 0;
 	h = th;
@@ -736,7 +767,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	}
 
 	if ( title )	{
-		grd_curcanv->cv_font = title_font;
+		grd_curcanv->cv_font = TITLE_FONT;
 		gr_set_fontcolor( GR_GETCOLOR(31,31,31), -1 );
 		gr_get_string_size(title,&string_width,&string_height,&average_width );
 		tw = string_width;
@@ -745,16 +776,20 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	}
 	
 	if ( subtitle )	{
-		grd_curcanv->cv_font = subtitle_font;
+		grd_curcanv->cv_font = SUBTITLE_FONT;
 		gr_set_fontcolor( GR_GETCOLOR(21,21,21), -1 );
 		gr_get_string_size(subtitle,&string_width,&string_height,&average_width );
 		tw = string_width;
 		th = (title?th:0);
 		gr_printf( 0x8000, ty+th, subtitle );
 	}
+
+	if (TinyMode)
+		grd_curcanv->cv_font = GAME_FONT;
+	else 
+		grd_curcanv->cv_font = NORMAL_FONT;
 #endif
-	grd_curcanv->cv_font = normal_font;
-	
+
 	// Update all item's x & y values.
 	for (i=0; i<nitems; i++ )	{
 		item[i].x = (15*MENSCALE_X) + twidth + right_offset;
@@ -824,7 +859,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		gr_set_current_canvas( bg.menu_canvas );
 
 		if ( title )	{
-			grd_curcanv->cv_font = title_font;
+			grd_curcanv->cv_font = TITLE_FONT;
 			gr_set_fontcolor( GR_GETCOLOR(31,31,31), -1 );
 			gr_get_string_size(title,&string_width,&string_height,&average_width );
 			tw = string_width;
@@ -833,7 +868,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		}
 	
 		if ( subtitle )	{
-			grd_curcanv->cv_font = subtitle_font;
+			grd_curcanv->cv_font = SUBTITLE_FONT;
 			gr_set_fontcolor( GR_GETCOLOR(21,21,21), -1 );
 			gr_get_string_size(subtitle,&string_width,&string_height,&average_width );
 			tw = string_width;
@@ -841,7 +876,12 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			gr_printf( 0x8000, ty+th, subtitle );
 		}
 
+		if (TinyMode)
+			grd_curcanv->cv_font = GAME_FONT;
+		else 
+			grd_curcanv->cv_font = NORMAL_FONT;
 #endif
+
 		if (filename == NULL) {
 			draw_close_box(0,0);
 			close_box = 1;
@@ -895,7 +935,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 #ifndef __WINDOWS__
 		case KEY_V + KEY_CTRLED:
 		case KEY_INSERT + KEY_SHIFTED:
-                          if(item[choice].type==NM_TYPE_INPUT)
+                        if(item[choice].type==NM_TYPE_INPUT)
 			{
 				char cbtext[MAX_PASTE_SIZE+1];
 				memset(cbtext,0,MAX_PASTE_SIZE+1);
@@ -1288,12 +1328,11 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		}
 
 		gr_set_current_canvas(bg.menu_canvas);
-
 #ifndef OGL
 		// Redraw everything...
 		for (i=0; i<nitems; i++ )	{
 			if (item[i].redraw)	{
-                                draw_item( &bg, &item[i], (i==choice && !all_text) );
+                                draw_item( &bg, &item[i], (i==choice && !all_text), TinyMode );
 				item[i].redraw=0;
 #ifdef NEWMENU_MOUSE
 				newmenu_show_cursor();
@@ -1305,7 +1344,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 #else
 		// Redraw everything...
 		for (i=0; i<nitems; i++ )	{
-			draw_item( &bg, &item[i], (i==choice && !all_text) );
+			draw_item( &bg, &item[i], (i==choice && !all_text), TinyMode );
 #ifdef NEWMENU_MOUSE
 			newmenu_show_cursor();
 #endif
@@ -1358,18 +1397,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	return choice;
 
 }
-
-int newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height){
-	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
-	return newmenu_do3_real( title, subtitle, nitems, item, subfunction, citem, filename, width,height, GAME_FONT, GAME_FONT, GAME_FONT, GAME_FONT);
-}
-
-int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height){
-	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
-	return newmenu_do3_real( title, subtitle, nitems, item, subfunction, citem, filename, width,height, TITLE_FONT, SUBTITLE_FONT, MENU_FONT, NORMAL_FONT);
-}
-
-
 
 int nm_messagebox1( char *title, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int nchoices, ... )
 {
