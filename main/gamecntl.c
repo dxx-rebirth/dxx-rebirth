@@ -773,9 +773,9 @@ void HandleDemoKey(int key)
 				toggle_cockpit();
 			 break;
 
-		case KEY_MINUS:		shrink_window(); break;
+		case KEY_ALTED+KEY_F9:		shrink_window(); break;
 
-		case KEY_EQUAL:		grow_window(); break;
+		case KEY_ALTED+KEY_F10:		grow_window(); break;
 
 		MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:		Config_menu_flag = 1; break;
@@ -1126,8 +1126,6 @@ int HandleSystemKey(int key)
 		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_7:)
 		case KEY_F7+KEY_SHIFTED: palette_save(); joydefs_calibrate(); palette_restore(); break;
 
-		case KEY_SHIFTED+KEY_MINUS:
-		case KEY_MINUS:
 		case KEY_ALTED+KEY_F9:	
 #ifdef GP2X
 						digi_set_digi_volume( digi_volume-2048 );
@@ -1137,8 +1135,6 @@ int HandleSystemKey(int key)
 #endif
 			break;
 
-		case KEY_SHIFTED+KEY_EQUAL:
-		case KEY_EQUAL:
 		case KEY_ALTED+KEY_F10:	
 #ifdef GP2X
 						digi_set_digi_volume( digi_volume+2048 );
