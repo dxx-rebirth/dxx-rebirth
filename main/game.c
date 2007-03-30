@@ -2432,6 +2432,7 @@ void HandleGameKey(int key)
 						extern int mekh_demo_paused;
 						mekh_demo_paused = !mekh_demo_paused;
 					}
+					break;
 		case KEY_F4:				palette_save(); joydefs_calibrate(); palette_restore(); break;
 		case KEY_F5:
 				if ( Newdemo_state == ND_STATE_RECORDING )

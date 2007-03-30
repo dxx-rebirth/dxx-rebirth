@@ -314,6 +314,7 @@ FILE * cfile_get_filehandle( char * filename, char * mode )
 	return fp;
 }
 
+#if 0
 void cfile_init_hogfile(char *fname, hogfile * hog_files, int * nfiles )
 {
 	char id[4];
@@ -400,6 +401,99 @@ void cfile_use_alternate_hogfile( char * name )
 		AltHogfile_initialized = 0;
 	}
 }
+#else
+int cfile_init_hogfile(char *fname, hogfile * hog_files )
+{
+	char id[4];
+	FILE * fp;
+	int i, len;
+	int nfiles=0;
+
+	fp = cfile_get_filehandle( fname, "rb" );
+	if ( fp == NULL ) return 0;
+
+	fread( id, 3, 1, fp );
+	if ( strncmp( id, "DHF", 3 ) )	{
+		fclose(fp);
+		return 0;
+	}
+
+	while( 1 )	
+	{	
+		if ( nfiles >= MAX_HOGFILES ) {
+			printf( "ERROR: HOGFILE IS LIMITED TO %d FILES\n",  MAX_HOGFILES );
+			fclose(fp);
+			exit(1);
+		}
+		i = fread( hog_files[nfiles].name, 13, 1, fp );
+		if ( i != 1 )	{
+			fclose(fp);
+#ifndef NDEBUG
+			printf("Got %i files in %s\n",nfiles,fname);
+#endif
+			return nfiles;
+		}
+		i = fread( &len, 4, 1, fp );
+		if ( i != 1 )	{
+			fclose(fp);
+#ifndef NDEBUG
+			printf("Got %i files in %s\n",nfiles,fname);
+#endif
+			return nfiles;
+		}
+		hog_files[nfiles].length = len;
+		hog_files[nfiles].offset = ftell( fp );
+		nfiles = (nfiles) + 1;
+		// Skip over
+		i = fseek( fp, len, SEEK_CUR );
+	}
+}
+
+FILE * cfile_find_libfile(char * name, int * length)
+{
+	FILE * fp;
+	int i;
+
+	if ( AltHogfile_initialized )	{
+		for (i=0; i<AltNum_hogfiles; i++ )	{
+			if ( !stricmp( AltHogFiles[i].name, name ))	{
+				fp = cfile_get_filehandle( AltHogFilename, "rb" );
+				if ( fp == NULL ) return NULL;
+				fseek( fp,  AltHogFiles[i].offset, SEEK_SET );
+				*length = AltHogFiles[i].length;
+				return fp;
+			}
+		}
+	}
+
+	if ( !Hogfile_initialized ) 	{
+                Num_hogfiles = cfile_init_hogfile(DESCENT_DATA_PATH "descent.hog", HogFiles );
+		Hogfile_initialized = 1;
+	}
+
+	for (i=0; i<Num_hogfiles; i++ )	{
+		if ( !stricmp( HogFiles[i].name, name ))	{
+			fp = cfile_get_filehandle(DESCENT_DATA_PATH "descent.hog", "rb" );
+			if ( fp == NULL ) return NULL;
+			fseek( fp,  HogFiles[i].offset, SEEK_SET );
+			*length = HogFiles[i].length;
+			return fp;
+		}
+	}
+	return NULL;
+}
+
+void cfile_use_alternate_hogfile( char * name )
+{
+	if ( name )	{
+		strcpy( AltHogFilename, name );
+		AltNum_hogfiles = cfile_init_hogfile( AltHogFilename, AltHogFiles );
+		AltHogfile_initialized = 1;
+	} else {
+		AltHogfile_initialized = 0;
+	}
+}
+#endif
 
 int cfexist( char * filename )
 {
