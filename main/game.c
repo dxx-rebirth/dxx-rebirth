@@ -1236,11 +1236,7 @@ void game_draw_hud_stuff()
 			}
 		} else {
 			extern int Newdemo_num_written;
-			extern int mekh_demo_paused;
-			if ((mekh_demo_paused) && (GameTime & 0x8000))
-				sprintf(message, "*PAUSED*");
-			else
-				sprintf (message, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
+			sprintf (message, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
 		}
 		gr_set_curfont( GAME_FONT );    //GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(27,0,0), -1 );
@@ -1803,7 +1799,6 @@ void show_help()
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F3; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-F3\t  TOGGLE RADAR"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F5; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-F5\t  (UN)PAUSE DEMO RECORDING"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F7\t  switch hud-mode"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F9/F10\t  change screen size"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_PAUSE; mc++;
@@ -2426,13 +2421,6 @@ void HandleGameKey(int key)
 		case KEY_F3:				toggle_cockpit();       break;
 		case KEY_SHIFTED+KEY_F3:		if(!(Game_mode & GM_MULTI)||Network_allow_radar||I_am_observer)
 								show_radar = !show_radar; break;
-		case KEY_SHIFTED+KEY_F5:
-					if (Newdemo_state == ND_STATE_RECORDING)
-					{
-						extern int mekh_demo_paused;
-						mekh_demo_paused = !mekh_demo_paused;
-					}
-					break;
 		case KEY_F4:				palette_save(); joydefs_calibrate(); palette_restore(); break;
 		case KEY_F5:
 				if ( Newdemo_state == ND_STATE_RECORDING )

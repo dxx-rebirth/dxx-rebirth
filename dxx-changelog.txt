@@ -3,7 +3,8 @@ D1X-Rebirth Changelog
 20070230
 --------
 main/game.c, main/newmenu.c, main/newmenu.h: introduced newmenu_dotiny() from D2X to show menus with GAME_FONT; extended Help-menu and removed D1X-Help-menu
-cfile/cfile.c, main/game.c: Error-proof cfile_init_hogfile(), added forgotten break statement for Pause/Unpause Demo
+cfile/cfile.c: Error-proof cfile_init_hogfile()
+main/game.c, main/newdemo.c: dropped Newdemo Un/pause feature - unreliable, creates corrupt data
 
 20070329
 --------

@@ -89,11 +89,6 @@ static char rcsid[] = "$Id: newdemo.c,v 1.1.1.1 2006/03/17 19:44:19 zicodxx Exp 
 
 //Does demo start automatically?
 int Auto_demo = 0;
-
-//Added 11/16/98 by Geoff Coovert for demo record pause
-int mekh_demo_paused = 0;
-//End add -GC
-
 void DoJasonInterpolate (fix recorded_time);
 
 #define ND_EVENT_EOF				0	// EOF
@@ -259,11 +254,6 @@ int newdemo_find_object( int signature )
 int newdemo_write( void *buffer, int elsize, int nelem )
 {
 	int num_written, total_size;
-
-//Added 11/16/98 by Geoff Coovert for demo record pause
-        if (mekh_demo_paused)
-                return 0;
-//End add -GC
 
 	total_size = elsize * nelem;
 	frame_bytes_written += total_size;
