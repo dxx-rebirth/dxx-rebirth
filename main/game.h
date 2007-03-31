@@ -245,5 +245,6 @@ void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
 
 #define MAX_FPS 80
 extern int maxfps;
+extern int use_nice_fps;
 
 #endif /* _GAME_H */

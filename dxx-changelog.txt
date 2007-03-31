@@ -4,7 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/gamecntl.c, main/newmenu.c, main/titles.c: move variable declarations to the top for non-gcc compilers (like MrC for MPW)
 main/mission.c, main/movie.c: improved HAM support with enhanced-flag detection and fixed Extra-Movie init in load_mission(); close Extra-Movies according to movielib_files
-d2x.ini, main/game.c, main/inferno.c: a switch to disable timer_delay in calc_frame_time - may be used if game runs a bit choppy
+d2x.ini, main/game.c, main/game.h, main/inferno.c: a switch to disable timer_delay in calc_frame_time - may be used if game runs a bit choppy
 
 20070329
 --------
