@@ -493,6 +493,7 @@ void show_bitmap_frame(void)
 	if (Bitmap_name[0] != 0) {
 		char		*pound_signp;
 		int		num, dig1, dig2;
+		bitmap_index bi;
 
 		// Set supertransparency color to black
 		if (!New_pal_254_bash) {
@@ -549,7 +550,6 @@ void show_bitmap_frame(void)
 			*(pound_signp+2) = 0;
 		}
 
-		bitmap_index bi;
 		bi = piggy_find_bitmap(Bitmap_name);
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );

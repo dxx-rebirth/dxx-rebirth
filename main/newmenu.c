@@ -229,6 +229,8 @@ void nm_draw_background1(char * filename)
 void nm_draw_background(int x1, int y1, int x2, int y2 )
 {
 	int w,h;
+	grs_canvas *tmp,*old;
+	grs_bitmap bg;
 
 #ifndef OGL
 	if (nm_background.bm_data)
@@ -251,8 +253,6 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	w = x2-x1+1;
 	h = y2-y1+1;
 
-	grs_canvas *tmp,*old;
-	grs_bitmap bg;
 	old=grd_curcanv;
 	tmp=gr_create_sub_canvas(old,x1,y1,w,h);
 	gr_init_sub_bitmap(&bg,&nm_background,0,0,w/MENSCALE_X,h/MENSCALE_Y);//note that we haven't replaced current_canvas yet, so these macros are still ok.

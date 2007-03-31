@@ -514,11 +514,12 @@ int do_game_pause()
 
 	while (Game_paused) 
 	{
+		int screen_changed;
+
 		timer_delay(1);
 #ifdef OGL
 		show_boxed_message(Pause_msg=msg);		  //TXT_PAUSE);
 #endif
-		int screen_changed;
 
 		key = key_inkey();
 
