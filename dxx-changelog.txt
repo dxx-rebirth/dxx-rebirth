@@ -1,10 +1,11 @@
 D1X-Rebirth Changelog
 
-20070231
+20070331
 --------
 main/menu.c: improved Error-handling for loading missions
+d1x.ini, main/game.c, main/inferno.c: a switch to disable timer_delay in calc_frame_time - may be used if game runs a bit choppy
 
-20070230
+20070330
 --------
 main/game.c, main/newmenu.c, main/newmenu.h: introduced newmenu_dotiny() from D2X to show menus with GAME_FONT; extended Help-menu and removed D1X-Help-menu
 cfile/cfile.c: Error-proof cfile_init_hogfile()

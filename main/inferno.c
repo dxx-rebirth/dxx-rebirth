@@ -213,6 +213,7 @@ void show_commandline_help()
 {
 	printf( "\n System Options:\n\n");
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
+	printf( "  -nonicefps         %s\n", "Disable CPU cycle freeing. Higher CPU load, but game may be smoother");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
 	printf( "  -missiondir <d>    %s\n", "Set alternate mission dir to <d> instead of missions/");
 	printf( "  -hudlog            %s\n", "Start hudlog immediately");
@@ -473,6 +474,9 @@ int main(int argc,char **argv)
 
 	if ( FindArg( "-fps" ))
 		framerate_on = 1;
+
+	if ( FindArg( "-nonicefps" ))
+		use_nice_fps = 0;
 
 	if ((t = FindArg( "-demo" ))) {
 		int j;

@@ -1002,7 +1002,8 @@ void calc_frame_time()
 
 	while (FrameTime < f1_0 / maxfps)
 	{
-		timer_delay(f1_0 / maxfps - FrameTime);
+		if (use_nice_fps)
+			timer_delay(f1_0 / maxfps - FrameTime);
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
 	}
