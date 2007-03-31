@@ -257,7 +257,7 @@ int DoMenu()
 		RegisterPlayer();
 		return 0;
 	}
-	
+
 	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM)) {
 		do_option(MENU_START_SERIAL);
 		return 0;

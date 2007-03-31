@@ -174,6 +174,9 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	tmp=gr_create_sub_canvas(old,x1,y1,w,h);
 	gr_init_sub_bitmap(&bg,&nm_background,0,0,w*(320.0/SWIDTH),h*(200.0/SHEIGHT));//note that we haven't replaced current_canvas yet, so these macros are still ok.
 	gr_set_current_canvas(tmp);
+
+	gr_palette_load( gr_palette );
+
 #ifdef OGL
 	if (ogl_scissor_ok) {
 		glEnable(GL_SCISSOR_TEST);
