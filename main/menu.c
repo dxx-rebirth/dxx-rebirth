@@ -673,8 +673,8 @@ void do_new_game_menu()
 			return;		//abort!
 
 		strcpy(config_last_mission, m[new_mission_num]  );
-		
-		if (!load_mission(new_mission_num) || !cfexist(get_level_file(new_mission_num))) {
+
+		if (!load_mission(new_mission_num) || (strcmp(get_level_file(new_mission_num),"")?!cfexist(get_level_file(new_mission_num)):0)) {
 			nm_messagebox( NULL, 1, TXT_OK, "Error loading Mission file"); 
 			return;
 		}

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070231
+--------
+main/menu.c: improved Error-handling for loading missions
+
 20070230
 --------
 main/game.c, main/newmenu.c, main/newmenu.h: introduced newmenu_dotiny() from D2X to show menus with GAME_FONT; extended Help-menu and removed D1X-Help-menu

@@ -474,6 +474,9 @@ int main(int argc,char **argv)
 	if ( FindArg( "-fps" ))
 		framerate_on = 1;
 
+	if ( FindArg( "-nonicefps" ))
+		use_nice_fps = 0;
+
 	if ((t = FindArg( "-demo" ))) {
 		int j;
 		snprintf(start_demo, 12, Args[t+1]);
