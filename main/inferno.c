@@ -182,6 +182,7 @@ void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
 	printf( "  -fps               %s\n", "Enable FPS indicator by default"); // ZICO - would be good, right?
+	printf( "  -nonicefps         %s\n", "Disable CPU cycle freeing. Higher CPU load, but game may be smoother");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
 	printf( "  -hogdir <dir>      %s\n", "set shared data directory to <dir>");
 #ifdef    __unix__
@@ -192,7 +193,7 @@ void print_commandline_help()
 	printf( "  -macdata           %s\n","Read (and, for editor, write) mac data files (swap colors)");
 #endif // defined(EDITOR) || !defined(MACDATA)
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
-	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics independent)");
+	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -NoJoystick        %s\n", "Disables joystick support");
@@ -567,6 +568,9 @@ int main(int argc, char *argv[])
 
 	if ( FindArg( "-fps" )) // ZICO - for the indicator
 		framerate_on = 1;
+
+	if ( FindArg( "-nonicefps" ))
+		use_nice_fps = 0;
 
 	if (FindArg("-renderstats"))
 		gr_renderstats = 1;
