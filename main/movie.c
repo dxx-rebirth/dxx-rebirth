@@ -596,32 +596,6 @@ void draw_subtitles(int frame_num)
 		}
 }
 
-// void close_movie(char *movielib)
-// {
-// 	char filename[FILENAME_LEN];
-// 
-// 	sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"h":"l");
-// 
-// 	if (!cfile_close(filename))
-// 	{
-// 		con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
-// 		sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"l":"h");
-// 
-// 		if (!cfile_close(filename))
-// 			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
-// 	}
-// }
-
-// void close_movies()
-// {
-// 	int i;
-// 
-// 	for (i = 0 ; i < N_BUILTIN_MOVIE_LIBS ; i++)
-// 	{
-// 		close_movie(movielib_files[i]);
-// 	}
-// }
-
 void init_movie(char *movielib, int required)
 {
 	char filename[FILENAME_LEN];
@@ -652,25 +626,32 @@ void init_movies()
 	for (i=0;i<N_BUILTIN_MOVIE_LIBS;i++) {
 		init_movie(movielib_files[i], 1);
 	}
-
-// 	atexit(close_movies);
 }
 
 
-// void close_extra_robot_movie(void)
-// {
-// 	if (strlen(movielib_files[EXTRA_ROBOT_LIB]))
-// 		if (!cfile_close(movielib_files[EXTRA_ROBOT_LIB]))
-// 			con_printf(CON_URGENT, "Can't close robot movielib: %s\n", PHYSFS_getLastError());
-// }
+void close_extra_robot_movie(void)
+{
+	char filename[FILENAME_LEN];
+
+	if (strcmp(movielib_files[EXTRA_ROBOT_LIB],"")) {
+		sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], MovieHires?"h":"l");
+	
+		if (!cfile_close(filename))
+		{
+			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
+			sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], MovieHires?"l":"h");
+	
+			if (!cfile_close(filename))
+				con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
+		}
+	}
+}
 
 void init_extra_robot_movie(char *movielib)
 {
 	if (FindArg("-nomovies"))
 		return;
 
-// 	close_extra_robot_movie();
+	close_extra_robot_movie();
 	init_movie(movielib, 0);
-	strcpy(movielib_files[EXTRA_ROBOT_LIB], movielib);
-// 	atexit(close_extra_robot_movie);
 }

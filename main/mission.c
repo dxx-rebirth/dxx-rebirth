@@ -706,18 +706,18 @@ int load_mission(mle *mission)
 	Last_secret_level = 0;
 	Briefing_text_filename[0] = 0;
 	Ending_text_filename[0] = 0;
+	Current_mission->enhanced = 0;
 
 	while (cfgets(buf,80,mfile)) {
-
-		if (istok(buf,"name")) {
+		if (istok(buf,"name") && !Current_mission->enhanced) {
 			Current_mission->enhanced = 0;
 			continue;						//already have name, go to next line
 		}
-		if (istok(buf,"xname")) {
+		if (istok(buf,"xname") && !Current_mission->enhanced) {
 			Current_mission->enhanced = 1;
 			continue;						//already have name, go to next line
 		}
-		if (istok(buf,"zname")) {
+		if (istok(buf,"zname") && !Current_mission->enhanced) {
 			Current_mission->enhanced = 2;
 			continue;						//already have name, go to next line
 		}
@@ -815,8 +815,7 @@ int load_mission(mle *mission)
 		extern void bm_read_extra_robots();
 		sprintf(t,"%s.ham",Current_mission_filename);
 		bm_read_extra_robots(t, Current_mission->enhanced);
-		strncpy(t,Current_mission_filename,6);
-		init_extra_robot_movie(t);
+		init_extra_robot_movie(Current_mission_filename);
 	}
 
 	return 1;

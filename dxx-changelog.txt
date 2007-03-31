@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070331
 --------
 main/gamecntl.c, main/newmenu.c, main/titles.c: move variable declarations to the top for non-gcc compilers (like MrC for MPW)
+main/mission.c, main/movie.c: improved HAM support with enhanced-flag detection and fixed Extra-Movie init in load_mission(); close Extra-Movies according to movielib_files
 
 20070329
 --------
