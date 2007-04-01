@@ -158,6 +158,8 @@ static short DrawingListBright[MAX_EDGES];
 // Screen canvas variables
 static grs_canvas Automap_view;
 
+grs_bitmap Automap_background;
+
 // Flags
 static int Automap_cheat = 0; // If set, show everything
 
@@ -390,6 +392,12 @@ void draw_player( object * obj )
 	automap_draw_line(&sphere_point, &arrow_point);
 }
 
+int automap_width = 640;
+int automap_height = 480;
+
+#define RESCALE_X(x) ((x) * automap_width / 640)
+#define RESCALE_Y(y) ((y) * automap_height / 480)
+
 void create_name_canv(void);
 
 void draw_automap(int flip)
@@ -400,9 +408,23 @@ void draw_automap(int flip)
 	vms_vector viewer_position;
 	g3s_point sphere_point;
 
-#ifndef OGL
-	gr_set_current_canvas(&Automap_view);
+	gr_set_current_canvas(NULL);
+#ifdef OGL
+	if (automap_height >= 400)
+		ogl_ubitmapm_cs(0, 0, -1, -1, &Automap_background, -1, F1_0);
+	else
 #endif
+		show_fullscr(&Automap_background);
+	gr_set_curfont(HUGE_FONT);
+	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+	gr_printf(RESCALE_X(80), RESCALE_Y(36), TXT_AUTOMAP);
+	gr_set_curfont(SMALL_FONT);
+	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+	gr_printf(RESCALE_X(60), RESCALE_Y(426), TXT_TURN_SHIP);
+	gr_printf(RESCALE_X(60), RESCALE_Y(443), TXT_SLIDE_UPDOWN);
+	gr_printf(RESCALE_X(60), RESCALE_Y(460), TXT_VIEWING_DISTANCE);
+
+	gr_set_current_canvas(&Automap_view);
 
 	gr_clear_canvas(BM_XRGB(0,0,0));
 
@@ -579,8 +601,6 @@ extern int set_segment_depths(int start_seg, ubyte *segbuf);
 extern int MenuHiresAvailable;
 extern int Current_display_mode;
 u_int32_t automap_mode = SM(640,480);
-int automap_width = 640;
-int automap_height = 480;
 int automap_use_game_res=1; // ZICO - should be better
 int nice_automap = 1; // ZICO - should be better (command-line switches deactivated)
 int Automap_active = 0;
@@ -591,8 +611,6 @@ int Automap_always_hires; // ZICO - dummy
 #else
 #define MAP_BACKGROUND_FILENAME (((MenuHires) && cfexist("mapb.pcx"))?"MAPB.PCX":"MAP.PCX")
 #endif
-#define RESCALE_X(x) ((x) * automap_width / 640)
-#define RESCALE_Y(y) ((y) * automap_height / 480)
 
 void do_automap( int key_code )	{
 	int done=0;
@@ -609,9 +627,6 @@ void do_automap( int key_code )	{
 	int pause_game=1; // Set to 1 if everything is paused during automap...No pause during net.
 	fix t1, t2;
 	control_info saved_control_info;
-#ifdef OGL
-	grs_bitmap Automap_background;
-#endif
 	int Max_segments_away = 0;
 	int SegmentLimit = 1;
 	ubyte pal[256*3];
@@ -651,30 +666,6 @@ void do_automap( int key_code )	{
 	gr_palette_clear();
 
 
-#ifndef OGL
-	gr_init_sub_canvas(&Automap_view, &grd_curscreen->sc_canvas, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
-
-	gr_set_current_canvas(NULL);
-
-	pcx_error = pcx_read_fullscr(MAP_BACKGROUND_FILENAME, pal);
-	if ( pcx_error != PCX_ERROR_NONE )	{
-		Error("File %s - PCX error: %s",MAP_BACKGROUND_FILENAME,pcx_errormsg(pcx_error));
-		return;
-	}
-	gr_remap_bitmap_good( &(grd_curcanv->cv_bitmap), pal, -1, -1 );
-	
-	gr_set_curfont(HUGE_FONT);
-	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-	gr_printf(RESCALE_X(80), RESCALE_Y(36), TXT_AUTOMAP);
-	gr_set_curfont(SMALL_FONT);
-	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-	gr_printf(RESCALE_X(60), RESCALE_Y(426), TXT_TURN_SHIP);
-	gr_printf(RESCALE_X(60), RESCALE_Y(443), TXT_SLIDE_UPDOWN);
-	gr_printf(RESCALE_X(60), RESCALE_Y(460), TXT_VIEWING_DISTANCE);
-	
-	gr_set_current_canvas(&Automap_view);
-#endif
-
 	automap_build_edge_list();
 
 	if ( ViewDist==0 )
@@ -698,33 +689,16 @@ void do_automap( int key_code )	{
 
 	adjust_segment_limit(SegmentLimit);
 
-#ifdef OGL
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
+	// KREATOR - Now applies to all platforms so double buffering is supported
 	gr_init_bitmap_data (&Automap_background);
 	pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, &Automap_background, BM_LINEAR, pal);
 	if (pcx_error != PCX_ERROR_NONE)
 		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 	gr_remap_bitmap_good(&Automap_background, pal, -1, -1);
 	gr_init_sub_canvas(&Automap_view, &grd_curscreen->sc_canvas, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
-#endif
 
 	while(!done)	{
-#ifdef OGL
-		gr_set_current_canvas(NULL);
-		if (automap_height<400)
-			show_fullscr(&Automap_background);
-		else
-			ogl_ubitmapm_cs(0, 0, -1, -1, &Automap_background, -1, F1_0);
-		gr_set_curfont(HUGE_FONT);
-		gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-		gr_printf(RESCALE_X(80), RESCALE_Y(36), TXT_AUTOMAP);
-		gr_set_curfont(SMALL_FONT);
-		gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-		gr_printf(RESCALE_X(60), RESCALE_Y(426), TXT_TURN_SHIP);
-		gr_printf(RESCALE_X(60), RESCALE_Y(443), TXT_SLIDE_UPDOWN);
-		gr_printf(RESCALE_X(60), RESCALE_Y(460), TXT_VIEWING_DISTANCE);
-		gr_set_current_canvas(&Automap_view);
-#endif
 		if ( leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-entry_time)>LEAVE_TIME)
 			leave_mode = 1;
 
