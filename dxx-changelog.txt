@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070401
 --------
 main/newmenu.c: moved gr_palette_load() in nm_draw_background so it always does apply and resets step-ups properly
+main/game.h, main/gauges.c, main/menu.c: remove 'extern int last_drawn_cockpit[2]' since it's now a single int (not an array), fixing memory corruption (whoops!!)
 
 20070331
 --------

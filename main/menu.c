@@ -877,8 +877,6 @@ void change_res_poll()
 {
 }
 
-extern int last_drawn_cockpit[2];
-
 void change_res()
 {
 	// edited 05/27/99 Matt Mueller - ingame fullscreen changing
@@ -973,8 +971,7 @@ void change_res()
  
 	reset_palette_add();
 	init_cockpit();
-	last_drawn_cockpit[0]=-1;
-	last_drawn_cockpit[1]=-1;
+	last_drawn_cockpit=-1;
 	vr_reset_display();
 
 	if (menu_use_game_res) {

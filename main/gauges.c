@@ -2144,8 +2144,6 @@ void hud_show_kill_list()
 
 //draw all the things on the HUD
 
-extern int last_drawn_cockpit[2];
-
 void draw_hud()
 {
 	// Show score so long as not in rearview
