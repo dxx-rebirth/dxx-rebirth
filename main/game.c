@@ -442,14 +442,11 @@ void select_cockpit(int mode)
 	}
 }
 
-extern int last_drawn_cockpit[2];
-
 //force cockpit redraw next time. call this if you've trashed the screen
 void reset_cockpit()
 {
 	force_cockpit_redraw=1;
-	last_drawn_cockpit[0] = -1;
-	last_drawn_cockpit[1] = -1;
+	last_drawn_cockpit = -1;
 }
 
 // void HUD_clear_messages();				//Already declared in gauges.h
@@ -1700,8 +1697,7 @@ void game_setup(void)
 	do_lunacy_off();		//	Restore true insane mode.
 
 	Game_aborted = 0;
-	last_drawn_cockpit[0] = -1;				// Force cockpit to redraw next time a frame renders.
-	last_drawn_cockpit[1] = -1;				// Force cockpit to redraw next time a frame renders.
+	last_drawn_cockpit = -1;				// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
 
 	set_screen_mode(SCREEN_GAME);
@@ -1806,8 +1802,7 @@ void game()
 				Screen_mode=-1; set_screen_mode(SCREEN_GAME);
 				Game_window_w=save_w; Game_window_h=save_h;
 				init_cockpit();
-				last_drawn_cockpit[0] = -1;
-				last_drawn_cockpit[1] = -1;
+				last_drawn_cockpit = -1;
 				game_flush_inputs();
 			}
 

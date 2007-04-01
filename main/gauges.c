@@ -3197,8 +3197,6 @@ void show_HUD_names()
 #endif
 
 
-extern int last_drawn_cockpit;
-
 //draw all the things on the HUD
 void draw_hud()
 {

@@ -154,6 +154,7 @@ extern int Playing_game;    // True if playing game
 extern int Auto_flythrough; // if set, start flythough automatically
 extern int Mark_count;      // number of debugging marks set
 extern char faded_in;
+extern int last_drawn_cockpit;
 
 extern void stop_time(void);
 extern void start_time(void);
