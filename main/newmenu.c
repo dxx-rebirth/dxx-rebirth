@@ -128,6 +128,9 @@ void newmenu_close()	{
 		d_free(nm_background.bm_data);
 	if (nm_background1.bm_data)
 		d_free(nm_background1.bm_data);
+
+	load_palette(Current_level_palette,1,1);
+	gr_palette_load(gr_palette);
 }
 
 // Draw Copyright and Version strings
