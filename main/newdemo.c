@@ -3233,6 +3233,7 @@ void newdemo_start_playback(char * filename)
 	Function_mode = FMODE_GAME;
 	Cockpit_3d_view[0] = CV_NONE;       //turn off 3d views on cockpit
 	Cockpit_3d_view[1] = CV_NONE;       //turn off 3d views on cockpit
+	HUD_clear_messages();
 	newdemo_playback_one_frame();       // this one loads new level
 	newdemo_playback_one_frame();       // get all of the objects to renderb game
 }

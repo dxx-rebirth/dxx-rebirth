@@ -207,6 +207,7 @@ void nm_draw_background1(char * filename)
 			gr_copy_palette(gr_palette, newpal, sizeof(gr_palette));
 			remap_fonts_and_menus(1);
 		}
+		gr_palette_load( gr_palette );
 #ifndef OGL
 		show_fullscr(&nm_background1);
 #else

@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070404
 --------
 main/gauges.c: fixing Alt-HUD Y-Offset for Multi-Games
+main/newdemo.c, main/newmenu.c: clear HUD-Messages if a Demo starts so old messages do not appear; also set gr_palette_load() in nm_draw_background1 so palette resets if Demo-playback is cancelled
 
 20070403
 --------
