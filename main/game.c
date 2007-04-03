@@ -1491,7 +1491,7 @@ extern int newmenu_dotiny2( char * title, char * subtitle, int nitems, newmenu_i
 void show_help()
 {
 	int nitems = 0;
-	newmenu_item m[25];
+	newmenu_item m[30];
 	#ifdef MACINTOSH
 	char command_help[64], pixel_double_help[64], save_help[64], restore_help[64];
 	#endif
@@ -1543,6 +1543,11 @@ void show_help()
 	sprintf(command_help, "(Use %c-# for F#. i.e. %c-1 for F1)", 133, 133);
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = command_help;
 	#endif
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "MULTIPLAYER:"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "F8\t  SEND MESSAGE"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "F8 to F12\t  SEND MACRO"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "SHIFT-F8 to SHIFT-F12\t  DEFINE MACRO"; nitems++;
 
 	full_palette_save();
 
