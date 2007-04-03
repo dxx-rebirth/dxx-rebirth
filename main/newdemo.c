@@ -2909,6 +2909,7 @@ void newdemo_start_playback(char * filename)
 	Newdemo_players_cloaked = 0;
 	playback_style = NORMAL_PLAYBACK;
 	Function_mode = FMODE_GAME;
+	HUD_clear_messages();
 	newdemo_playback_one_frame(); // this one loads new level
 	newdemo_playback_one_frame(); // get all of the objects to renderb game
 }

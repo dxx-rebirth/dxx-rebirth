@@ -130,6 +130,7 @@ void nm_draw_background1(char * filename)
 			Assert(pcx_error == PCX_ERROR_NONE);
 // 			gr_remap_bitmap_good( &nm_background, newpal, -1, -1 );
 		}
+		gr_palette_load( gr_palette );
 #ifndef OGL
 		show_fullscr(&nm_background1);
 #else
