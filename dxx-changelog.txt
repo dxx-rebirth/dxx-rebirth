@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070404
+--------
+main/gauges.c: fixing Alt-HUD Y-Offset for Multi-Games
+
 20070403
 --------
 main/newdemo.c: fixed seek errors and data types in newdemo_goto_end()

@@ -1437,6 +1437,8 @@ void draw_primary_ammo_info(int ammo_count)
 		draw_ammo_info(PRIMARY_AMMO_X,PRIMARY_AMMO_Y,ammo_count,1);
 }
 
+extern int Game_window_x;
+
 void hud_show_weapons_mode(int type,int vertical,int mode,int x,int y){
 	int i,w,h,aw;
 	char weapon_str[10];
@@ -1463,8 +1465,16 @@ void hud_show_weapons_mode(int type,int vertical,int mode,int x,int y){
 					case 1:
 						if (Cockpit_mode!=CM_FULL_SCREEN) {
 							sprintf(weapon_str,"V");
-							if (Primary_weapon != 6)
-								gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+							if (Primary_weapon != 6) {
+								int y;
+								if (Cockpit_mode == CM_STATUS_BAR)
+									y = Game_window_h - 18;
+								else
+									y = grd_curscreen->sc_h/1.6;
+								if (Game_mode & GM_MULTI)
+									y -= FONTSCALE_Y(4*Line_spacing);
+								gr_printf(Game_window_x + 3, y, "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+							}
 						} else {
 							sprintf(weapon_str,(Gauge_hud_mode==1?"V%i":"V   %i"), f2i((unsigned int) Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 						}
@@ -1521,8 +1531,16 @@ void hud_show_weapons_mode(int type,int vertical,int mode,int x,int y){
 					case 6:
 						if (Cockpit_mode!=CM_FULL_SCREEN) {
 							sprintf(weapon_str,"G");
-							if (Primary_weapon != 1)
-								gr_printf(3, (Cockpit_mode==CM_STATUS_BAR?Game_window_h-15:(grd_curscreen->sc_h/1.6)), "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+							if (Primary_weapon != 1) {
+								int y;
+								if (Cockpit_mode == CM_STATUS_BAR)
+									y = Game_window_h - 18;
+								else
+									y = grd_curscreen->sc_h/1.6;
+								if (Game_mode & GM_MULTI)
+									y -= FONTSCALE_Y(4*Line_spacing);
+								gr_printf(Game_window_x + 3, y, "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+							}
 						} else {
 							sprintf(weapon_str,"G%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 						}
@@ -1581,6 +1599,9 @@ void hud_show_weapons(void)
 
 	y = grd_curcanv->cv_h;
 
+	if (Game_mode & GM_MULTI)
+		y -= FONTSCALE_Y(4*Line_spacing);
+
 // ZICO - new HUD modes
 	if (Gauge_hud_mode==1){
 		hud_show_weapons_mode(0,0,1,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+(FontHires?39:21)));
@@ -1614,9 +1635,6 @@ void hud_show_weapons(void)
 	else
 	{
 // ZICO - new HUD modes addition END
-		if (Game_mode & GM_MULTI)
-			y -= FONTSCALE_Y(4*Line_spacing);
-	
 		weapon_name = PRIMARY_WEAPON_NAMES_SHORT(Primary_weapon);
 	
 		switch (Primary_weapon) {
