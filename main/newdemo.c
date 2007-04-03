@@ -2494,11 +2494,11 @@ void newdemo_goto_beginning()
 void newdemo_goto_end()
 {
 	short frame_length, byte_count, bshort;
-	sbyte level, bbyte, laser_level;
-	sbyte energy, shield, c;
+	sbyte level, bbyte, laser_level, c;
+	ubyte energy, shield;
 	int i, loc, bint;
 
-	PHYSFS_seek(infile, PHYSFS_tell(infile) - 2);
+	cfseek(infile, -2, SEEK_END);
 	nd_read_byte(&level);
 
 	if ((level < Last_secret_level) || (level > Last_level)) {
@@ -2514,12 +2514,12 @@ void newdemo_goto_end()
 	if (level != Current_level_num)
 		LoadLevel(level,1);
 
-	PHYSFS_seek(infile, PHYSFS_tell(infile) - 4);
+	cfseek(infile, -4, SEEK_END);
 	nd_read_short(&byte_count);
-	PHYSFS_seek(infile, PHYSFS_tell(infile) - 2 - byte_count);
+	cfseek(infile, -2 - byte_count, SEEK_CUR);
 
 	nd_read_short(&frame_length);
-	loc = PHYSFS_tell(infile);
+	loc = cftell(infile);
 	if (Newdemo_game_mode & GM_MULTI)
 		nd_read_byte(&Newdemo_players_cloaked);
 	else
@@ -2528,8 +2528,8 @@ void newdemo_goto_end()
 	nd_read_short(&bshort);
 	nd_read_int(&bint);
 
-	nd_read_byte(&energy);
-	nd_read_byte(&shield);
+	nd_read_byte((sbyte *)&energy);
+	nd_read_byte((sbyte *)&shield);
 	Players[Player_num].energy = i2f(energy);
 	Players[Player_num].shields = i2f(shield);
 	nd_read_int((int *)&(Players[Player_num].flags));
@@ -2571,11 +2571,11 @@ void newdemo_goto_end()
 		nd_read_int(&(Players[Player_num].score));
 	}
 
-	PHYSFS_seek(infile, loc);
-	PHYSFS_seek(infile, PHYSFS_tell(infile) - frame_length);
+	cfseek(infile, loc, SEEK_SET);
+	cfseek(infile, -frame_length, SEEK_CUR);
 	nd_read_int(&NewdemoFrameCount);            // get the frame count
 	NewdemoFrameCount--;
-	PHYSFS_seek(infile, PHYSFS_tell(infile) + 4);
+	cfseek(infile, 4, SEEK_CUR);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	newdemo_read_frame_information();           // then the frame information
 	Newdemo_vcr_state = ND_STATE_PAUSED;
