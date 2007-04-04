@@ -134,6 +134,7 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "../texmap/scanline.h" //for select_tmap -MM
 #include "vers_id.h"
 #include "collide.h"
+#include "newdemo.h"
 
 void show_order_form();
 

@@ -120,6 +120,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern void change_res();
 extern void write_player_file();
+extern void newmenu_close();
 
 #define	SHOW_EXIT_PATH	1
 #define FINAL_CHEATS 1
@@ -1699,13 +1700,13 @@ void show_boxed_message(char *msg)
 
 void clear_boxed_message()
 {
-
 	if (bg.bmp) {
 		gr_bitmap(bg.x-(15*(SWIDTH/320)), bg.y-(15*(SHEIGHT/200)), bg.bmp);
 		gr_free_bitmap(bg.bmp);
 		bg.bmp = NULL;
 		gr_update();
 	}
+	newmenu_close();
 }
 
 extern int Death_sequence_aborted;
