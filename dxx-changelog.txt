@@ -6,6 +6,7 @@ main/gauges.c: fixing Alt-HUD Y-Offset for Multi-Games
 main/newdemo.c, main/newmenu.c: clear HUD-Messages if a Demo starts so old messages do not appear; also set gr_palette_load() in nm_draw_background1 so palette resets if Demo-playback is cancelled
 arch/linux/ipx_udp.c, arch/win32/ipx_udp.c: fixed typo in default broadcast
 main/game.c: extend show_help() with some netgame commands
+main/mission.c: set enhaced-flag a bit earlier so D1 missions do not get messed up after an enhanced mission had been played
 
 20070403
 --------

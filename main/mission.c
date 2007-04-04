@@ -626,6 +626,8 @@ int load_mission(mle *mission)
     *(mle *) Current_mission = *mission;
 	Current_mission->filename = d_strdup(mission->filename); // don't want to lose it
 
+	Current_mission->enhanced = 0;
+
     // for Descent 1 missions, load descent.hog
     if (EMULATING_D1) {
         if (!cfile_init("descent.hog"))
@@ -706,7 +708,6 @@ int load_mission(mle *mission)
 	Last_secret_level = 0;
 	Briefing_text_filename[0] = 0;
 	Ending_text_filename[0] = 0;
-	Current_mission->enhanced = 0;
 
 	while (cfgets(buf,80,mfile)) {
 		if (istok(buf,"name") && !Current_mission->enhanced) {
