@@ -920,7 +920,7 @@ extern int state_default_item;
 //starts a new game on the given level
 void StartNewGame(int start_level)
 {
-	state_default_item = -2;	// for first blind save, pick slot to save in
+// 	state_default_item = -2;	// for first blind save, pick slot to save in
 
 	Game_mode = GM_NORMAL;
 	Function_mode = FMODE_GAME;
@@ -1839,6 +1839,10 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	Control_center_destroyed = 0;
 
 	set_screen_mode(SCREEN_GAME);
+
+	load_palette(Current_level_palette,1,1);
+	gr_palette_load(gr_palette);
+
 	init_cockpit();
 	init_robots_for_level();
 	init_ai_objects();

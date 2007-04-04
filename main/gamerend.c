@@ -83,6 +83,8 @@ extern int Saving_movie_frames;
 #define Saving_movie_frames 0
 #endif
 
+extern void newmenu_close();
+
 // Returns the length of the first 'n' characters of a string.
 int string_width( char * s, int n )
 {
@@ -1084,11 +1086,11 @@ void show_boxed_message(char *msg)
 
 void clear_boxed_message()
 {
-
 	if (bg.bmp) {
 
 		gr_bitmap(bg.x-(15*(SWIDTH/320)), bg.y-(15*(SHEIGHT/200)), bg.bmp);
 		gr_free_bitmap(bg.bmp);
 		bg.bmp = NULL;
 	}
+	newmenu_close();
 }
