@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070404
 --------
 main/newdemo.c, main/newmenu.c: clear HUD-Messages if a Demo starts so old messages do not appear; also set gr_palette_load() in nm_draw_background1 so palette resets if Demo-playback is cancelled
+d1x.ini, main/inferno.c, main/menu.c, main/newdemo.c: improved Autodemo-feature - less code, activate AFTER pilot is selected to make sure resolution and player-file operations do not mess up
 
 20070401
 --------

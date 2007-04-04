@@ -99,7 +99,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "titles.h"
 #include "text.h"
 #include "ipx.h"
-#include "newdemo.h"
 #include "network.h"
 #include "modem.h"
 #include "gamefont.h"
@@ -258,7 +257,7 @@ void show_commandline_help()
 	printf( "  -ini <file>        %s\n", "Option file (alternate to command line), defaults to d1x.ini");
 	printf( "  -notitles          %s\n", "Do not show titlescreens on startup");
 	printf( "  -pilot <pilot>     %s\n", "Select this pilot-file automatically");
-	printf( "  -demo <f>          %s\n", "Start playing demo <f>");
+	printf( "  -autodemo          %s\n", "Start in demo mode");
 
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
@@ -334,9 +333,6 @@ int start_net_immediately = 0;
 int main(int argc,char **argv)
 {
 	int i,t;
-	char start_demo[13];
-// 	int screen_width = 640;
-// 	int screen_height = 480;
 	u_int32_t screen_mode = SM(640,480);
 
 	error_init(NULL);
@@ -478,21 +474,6 @@ int main(int argc,char **argv)
 	if ( FindArg( "-nonicefps" ))
 		use_nice_fps = 0;
 
-	if ((t = FindArg( "-demo" ))) {
-		int j;
-		snprintf(start_demo, 12, Args[t+1]);
-		for (j=0; start_demo[j] != '\0'; j++) {
-			switch (start_demo[j]) {
-				case ' ':
-					start_demo[j] = '\0';
-			}
-		}
-		start_demo[12] = 0;
-		Auto_demo = 1;
-	} 
-	else
-		start_demo[0] = 0;
-
 	if ( FindArg( "-autodemo" ))
 		Auto_demo = 1;
 
@@ -627,53 +608,46 @@ int main(int argc,char **argv)
 	set_detail_level_parameters(Detail_level);
 
 	Players[Player_num].callsign[0] = '\0';
-	if (!Auto_demo) 	{
-		key_flush();
+
+	key_flush();
 #ifdef QUICKSTART
-		strcpy(Players[Player_num].callsign, config_last_player);
-		read_player_file();
-		Auto_leveling_on = Default_leveling_on;
-		write_player_file();
+	strcpy(Players[Player_num].callsign, config_last_player);
+	read_player_file();
+	Auto_leveling_on = Default_leveling_on;
+	write_player_file();
 #else
-		if((i=FindArg("-pilot")))
-		{
-			char filename[15];
-			int j;
-			snprintf(filename, 12, Args[i+1]);
-			for (j=0; filename[j] != '\0'; j++) {
-				switch (filename[j]) {
-					case ' ':
-						filename[j] = '\0';
-				}
+	if((i=FindArg("-pilot")))
+	{
+		char filename[15];
+		int j;
+		snprintf(filename, 12, Args[i+1]);
+		for (j=0; filename[j] != '\0'; j++) {
+			switch (filename[j]) {
+				case ' ':
+					filename[j] = '\0';
 			}
-			strlwr(filename);
-			if(!access(filename,4))
-			{
-				strcpy(strstr(filename,".plr"),"\0");
-				strcpy(Players[Player_num].callsign,filename);
-				read_player_file();
-				Auto_leveling_on = Default_leveling_on;
-				WriteConfigFile();
-			}
-			else //pilot doesn't exist. get pilot.
-				if(!RegisterPlayer())
-					Function_mode = FMODE_EXIT;
 		}
-		else
+		strlwr(filename);
+		if(!access(filename,4))
+		{
+			strcpy(strstr(filename,".plr"),"\0");
+			strcpy(Players[Player_num].callsign,filename);
+			read_player_file();
+			Auto_leveling_on = Default_leveling_on;
+			WriteConfigFile();
+		}
+		else //pilot doesn't exist. get pilot.
 			if(!RegisterPlayer())
 				Function_mode = FMODE_EXIT;
-#endif
 	}
+	else
+		if(!RegisterPlayer())
+			Function_mode = FMODE_EXIT;
+#endif
 
 	gr_palette_fade_out( NULL, 32, 0 );
 
 	Game_mode = GM_GAME_OVER;
-
-	if (Auto_demo)	{
-		newdemo_start_playback((start_demo[0] ? start_demo : "descent.dem"));
-		if (Newdemo_state == ND_STATE_PLAYBACK )
-			Function_mode = FMODE_GAME;
-	}
 
 #ifndef SHAREWARE
 	t = build_mission_list(0); // This also loads mission 0.
@@ -700,27 +674,14 @@ int main(int argc,char **argv)
 	{
 		switch( Function_mode ) {
 		case FMODE_MENU:
-			if ( Auto_demo < 0 ) {
-				show_title_screen( "descent.pcx", 3 ); // show w/o fade,keywait
-                                RegisterPlayer(); //get player's name
-				Auto_demo = 0;
-			} else if ( Auto_demo )        {
-				if (start_demo[0])
-					newdemo_start_playback(start_demo);
-				else
-					newdemo_start_playback(NULL); // Randomly pick a file
-				if (Newdemo_state != ND_STATE_PLAYBACK)	
-					Error("No demo files were found for autodemo mode!");
-			} else {
-				DoMenu();
+			DoMenu();
 #ifdef EDITOR
-				if ( Function_mode == FMODE_EDITOR ) {
-					create_new_mine();
-					SetPlayerFromCurseg();
-				}
-#endif
+			if ( Function_mode == FMODE_EDITOR ) {
+				create_new_mine();
+				SetPlayerFromCurseg();
 			}
-			break;
+#endif
+		break;
 		case FMODE_GAME:
 			#ifdef EDITOR
 				keyd_editor_mode = 0;

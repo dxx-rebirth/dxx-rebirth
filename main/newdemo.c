@@ -2869,8 +2869,14 @@ void newdemo_start_playback(char * filename)
 	if (filename == NULL) {
 		rnd_demo = 1;
 		if (!d_glob(DEMO_DIR "*.dem", &glob_ret) && glob_ret.gl_pathc) {
-			infile = fopen(glob_ret.gl_pathv[d_rand() % glob_ret.gl_pathc],
-			    "rb" );
+#ifdef __WINDOWS__
+			fullname=malloc(14+sizeof(DEMO_DIR));
+			snprintf(fullname,14+sizeof(DEMO_DIR),"%s%s",DEMO_DIR,glob_ret.gl_pathv[d_rand() % glob_ret.gl_pathc]);
+			infile = fopen(fullname,"rb" );
+			free(fullname);
+#else
+			infile = fopen(glob_ret.gl_pathv[d_rand() % glob_ret.gl_pathc],"rb" );
+#endif
                         d_globfree(&glob_ret);
                 }
 	} else {
