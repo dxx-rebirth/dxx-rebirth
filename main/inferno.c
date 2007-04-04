@@ -74,7 +74,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "titles.h"
 #include "player.h"
 #include "text.h"
-#include "newdemo.h"
 #include "gauges.h" // ZICO - new HUD modes
 #ifdef NETWORK
 #include "network.h"
@@ -97,6 +96,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "movie.h"
 #include "playsave.h"
 #include "collide.h"
+#include "newdemo.h"
 
 // #  include "3dfx_des.h"
 
@@ -380,22 +380,18 @@ void do_register_player(ubyte *title_pal)
 {
 	Players[Player_num].callsign[0] = '\0';
 
-	if (!Auto_demo) 	{
+	key_flush();
 
-		key_flush();
+	//now, before we bring up the register player menu, we need to
+	//do some stuff to make sure the palette is ok.  First, we need to
+	//get our current palette into the 2d's array, so the remapping will
+	//work.  Second, we need to remap the fonts.  Third, we need to fill
+	//in part of the fade tables so the darkening of the menu edges works
 
-		//now, before we bring up the register player menu, we need to
-		//do some stuff to make sure the palette is ok.  First, we need to
-		//get our current palette into the 2d's array, so the remapping will
-		//work.  Second, we need to remap the fonts.  Third, we need to fill
-		//in part of the fade tables so the darkening of the menu edges works
-
-		memcpy(gr_palette,title_pal,sizeof(gr_palette));
-		remap_fonts_and_menus(1);
-		RegisterPlayer();		//get player's name
-		read_player_file(); // read out now so we are able to use game resolution in menu
-	}
-
+	memcpy(gr_palette,title_pal,sizeof(gr_palette));
+	remap_fonts_and_menus(1);
+	RegisterPlayer();		//get player's name
+	read_player_file(); // read out now so we are able to use game resolution in menu
 }
 
 #define PROGNAME argv[0]
@@ -790,45 +786,29 @@ int main(int argc, char *argv[])
 
 	Game_mode = GM_GAME_OVER;
 
-	if (Auto_demo)	{
-		newdemo_start_playback("descent.dem");		
-		if (Newdemo_state == ND_STATE_PLAYBACK )
-			Function_mode = FMODE_GAME;
-	}
-
-	//do this here because the demo code can do a longjmp when trying to
-	//autostart a demo from the main menu, never having gone into the game
-	setjmp(LeaveGame);
-
 	while (Function_mode != FMODE_EXIT)
 	{
 		switch( Function_mode )	{
 		case FMODE_MENU:
 			set_screen_mode(SCREEN_MENU);
-			if ( Auto_demo )	{
-				newdemo_start_playback(NULL);		// Randomly pick a file
-				if (Newdemo_state != ND_STATE_PLAYBACK)	
-					Error("No demo files were found for autodemo mode!");
-			} else {
-				#ifdef EDITOR
-				if (Auto_exit) {
-					strcpy((char *)&Level_names[0], Auto_file);
-					LoadLevel(1, 1);
-					Function_mode = FMODE_EXIT;
-					break;
-				}
-				#endif
-
-				gr_palette_clear();		//I'm not sure why we need this, but we do
-				DoMenu();
-				#ifdef EDITOR
-				if ( Function_mode == FMODE_EDITOR )	{
-					create_new_mine();
-					SetPlayerFromCurseg();
-					load_palette(NULL,1,0);
-				}
-				#endif
+			#ifdef EDITOR
+			if (Auto_exit) {
+				strcpy((char *)&Level_names[0], Auto_file);
+				LoadLevel(1, 1);
+				Function_mode = FMODE_EXIT;
+				break;
 			}
+			#endif
+
+			gr_palette_clear();		//I'm not sure why we need this, but we do
+			DoMenu();
+			#ifdef EDITOR
+			if ( Function_mode == FMODE_EDITOR )	{
+				create_new_mine();
+				SetPlayerFromCurseg();
+				load_palette(NULL,1,0);
+			}
+			#endif
 			break;
 		case FMODE_GAME:
 			#ifdef EDITOR

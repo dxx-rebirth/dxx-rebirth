@@ -7,6 +7,7 @@ main/newdemo.c, main/newmenu.c: clear HUD-Messages if a Demo starts so old messa
 arch/linux/ipx_udp.c, arch/win32/ipx_udp.c: fixed typo in default broadcast
 main/game.c: extend show_help() with some netgame commands
 main/mission.c: set enhaced-flag a bit earlier so D1 missions do not get messed up after an enhanced mission had been played
+main/inferno.c, main/menu.c: improved Autodemo-feature - less code, activate AFTER pilot is selected to make sure resolution and player-file operations do not mess up
 
 20070403
 --------
