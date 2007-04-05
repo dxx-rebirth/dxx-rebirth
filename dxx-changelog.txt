@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070405
 --------
 arch/dos/gr.c, arch/ogl/gr.c, arch/sdl/gr.c, main/game.c, main/gameseq.c, main/inferno.c, main/menu.c, main/playsave.c, main/screens.h: resolution variable cleanup - remove VGA_current_mode, VR_screen_mode and VR_render_buffer[0].cv_bitmap.bm_w/h (Game_screen_mode is the actual resolution put in an int, not an index) 
+SConstruct: BINARY_SUBDIR should be bin/, not games/
 
 20070404
 --------
@@ -12,7 +13,7 @@ arch/linux/ipx_udp.c, arch/win32/ipx_udp.c: fixed typo in default broadcast
 main/game.c: extend show_help() with some netgame commands
 main/mission.c: set enhaced-flag a bit earlier so D1 missions do not get messed up after an enhanced mission had been played
 main/inferno.c, main/menu.c: improved Autodemo-feature - less code, activate AFTER pilot is selected to make sure resolution and player-file operations do not mess up
-main/gamerend.c, main/gameseq.c, main/newmenu.c, main/state.c: close menu with boxed message; improved palette reloading; fixed selected item for restore game dialog
+main/gamerend.c, main/gameseq.c, main/newmenu.c: close menu with boxed message; improved palette reloading; fixed selected item for restore game dialog
 
 20070403
 --------

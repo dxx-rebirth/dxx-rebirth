@@ -25,7 +25,7 @@ print '\n===== ' + PROGRAM_NAME + ' v' + VERSION + ' =====\n'
 
 # installation path
 PREFIX = '/usr/local/'
-BIN_SUBDIR = 'games/'
+BIN_SUBDIR = 'bin/'
 DATA_SUBDIR = 'share/games/d2x-rebirth'
 BIN_DIR = PREFIX + BIN_SUBDIR
 DATA_DIR = PREFIX + DATA_SUBDIR
