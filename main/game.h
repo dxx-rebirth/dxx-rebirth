@@ -224,13 +224,8 @@ extern int Game_turbo_mode;
 #define VR_AREA_DET		1	//viewing with the stereo area determined method
 #define VR_INTERLACED	        2	//viewing with the stereo interlaced method
 
-extern ubyte VR_use_paging;
-extern ubyte VR_current_page;
 extern ubyte VR_switch_eyes;
 extern fix VR_eye_width;
-extern u_int32_t VR_screen_mode;
-extern int VR_render_width;
-extern int VR_render_height;
 extern int VR_render_mode;
 extern int VR_compatible_menus;
 extern grs_canvas *VR_offscreen_buffer;		// The offscreen data buffer
@@ -240,7 +235,7 @@ extern grs_canvas VR_screen_pages[2];	//  Two pages of VRAM if paging is availab
 extern grs_canvas VR_screen_sub_pages[2];	//  Two sub pages of VRAM if paging is available
 extern grs_canvas *VR_offscreen_menu;		// The offscreen data buffer for menus
 
-void game_init_render_buffers (u_int32_t screen_mode, int render_max_w, int render_max_h, int render_method);
+void game_init_render_buffers (int render_max_w, int render_max_h, int render_method);
 extern int maxfps;
 extern int use_nice_fps;
 extern int Allow_primary_cycle;

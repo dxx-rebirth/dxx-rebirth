@@ -520,7 +520,7 @@ int main(int argc,char **argv)
 		serial_active = 0;
 #endif
 	Game_screen_mode = screen_mode;
-// 	game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE);
+// 	game_init_render_buffers(screen_width, screen_height, VR_NONE);
 
 	{
 		int i, argnum=INT_MAX, w, h;

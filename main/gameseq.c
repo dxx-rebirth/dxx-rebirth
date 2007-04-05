@@ -955,7 +955,7 @@ do_menu_again:
 	Auto_leveling_on = Default_leveling_on;
 
 	if (menu_use_game_res) { // ZICO - set players resolution after player is selected
-		gr_set_mode(SM(VR_render_width,VR_render_height));
+		gr_set_mode(Game_screen_mode);
 		set_screen_mode(SCREEN_GAME);
 	}
 
@@ -1779,7 +1779,7 @@ void StartLevel(int random)
 
 	Robot_firing_enabled = 1;
 
-	if (VR_screen_mode == SCREEN_MENU)
+	if (Game_screen_mode == SCREEN_MENU)
 		vr_reset_display();
 }
 

@@ -812,8 +812,8 @@ int write_player_d1x(const char *filename)
           fprintf(fout,"height=%d\n", Game_window_h);
           fprintf(fout,"[end]\n");
           fprintf(fout,"[resolution]\n");
-          fprintf(fout,"width=%d\n", VR_render_width);
-          fprintf(fout,"height=%d\n", VR_render_height);
+          fprintf(fout,"width=%d\n", SM_W(Game_screen_mode));
+          fprintf(fout,"height=%d\n", SM_H(Game_screen_mode));
           fprintf(fout,"[end]\n");
           fprintf(fout,"[mouse]\n");
           fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
@@ -974,8 +974,8 @@ int write_player_d1x(const char *filename)
                else if (strstr(line,"RESOLUTION"))
                 {
 		  fprintf(fout,"[resolution]\n");
-		  fprintf(fout,"width=%d\n", VR_render_width);
-		  fprintf(fout,"height=%d\n", VR_render_height);
+		  fprintf(fout,"width=%d\n", SM_W(Game_screen_mode));
+		  fprintf(fout,"height=%d\n", SM_H(Game_screen_mode));
 		  fprintf(fout,"[end]\n");
                    while(!strstr(line,"END")&&!feof(fin))
                     {
@@ -1095,8 +1095,8 @@ int write_player_d1x(const char *filename)
            if(!(printed&RESOLUTION))
             {
 	      fprintf(fout,"[resolution]\n");
-	      fprintf(fout,"width=%d\n", VR_render_width);
-	      fprintf(fout,"height=%d\n", VR_render_height);
+	      fprintf(fout,"width=%d\n", SM_W(Game_screen_mode));
+	      fprintf(fout,"height=%d\n", SM_H(Game_screen_mode));
 	      fprintf(fout,"[end]\n");
 	    }
            if(!(printed&MOUSE_SENSITIVITY))
@@ -1381,7 +1381,6 @@ int read_player_file()
 	{
 		Game_screen_mode = SM(Player_render_width,Player_render_height);
 		game_init_render_buffers(
-			SM(Player_render_width,Player_render_height),
 			Player_render_width,
 			Player_render_height, VR_NONE);
 	}

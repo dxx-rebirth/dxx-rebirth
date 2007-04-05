@@ -1770,7 +1770,7 @@ void sb_draw_shield_num(int shield)
 
 	//erase old one
 	PIGGY_PAGE_IN( cockpit_bitmap[Cockpit_mode] );
-	gr_setcolor(gr_gpixel(bm,SB_SHIELD_NUM_X,SB_SHIELD_NUM_Y-(VR_render_height-bm->bm_h)));
+	gr_setcolor(gr_gpixel(bm,SB_SHIELD_NUM_X,SB_SHIELD_NUM_Y-(SM_H(Game_screen_mode)-bm->bm_h)));
 	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
 	gr_printf((grd_curscreen->sc_w/2.267)-(sw/2),COCKPITSCALE_Y*SB_SHIELD_NUM_Y,"%d",shield);
 }

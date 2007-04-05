@@ -960,9 +960,9 @@ void change_res()
 		return;
 
 	Game_screen_mode = screen_mode;
-	VR_render_width  = Game_window_w = screen_width;
-	VR_render_height = Game_window_h = screen_height;
-	game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE);
+	Game_window_w = screen_width;
+	Game_window_h = screen_height;
+	game_init_render_buffers(screen_width, screen_height, VR_NONE);
  
 	mprintf( (0, "\nInitializing palette system..." ));
 	gr_use_palette_table( "PALETTE.256" );
@@ -975,7 +975,7 @@ void change_res()
 	vr_reset_display();
 
 	if (menu_use_game_res) {
-		gr_set_mode(SM(VR_render_width,VR_render_height));
+		gr_set_mode(Game_screen_mode);
 		set_screen_mode(SCREEN_GAME);
 	}
 }

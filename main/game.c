@@ -164,10 +164,6 @@ ubyte new_cheats[]= {	KEY_B^0xaa, KEY_B^0xaa, KEY_B^0xaa, KEY_F^0xaa, KEY_A^0xaa
 			KEY_I^0xaa, KEY_E^0xaa, KEY_N^0xaa, KEY_H^0xaa, KEY_S^0xaa,
 			KEY_N^0xaa, KEY_D^0xaa, KEY_X^0xaa, KEY_X^0xaa, KEY_A^0xaa };
 
-ubyte			VR_use_paging = 0;
-u_int32_t		VR_screen_mode = 0;
-int			VR_render_width = 0;
-int			VR_render_height = 0;
 int			VR_render_mode = VR_NONE;
 int			VR_low_res = 3; // Default to low res
 int 			VR_show_hud = 1;
@@ -376,7 +372,7 @@ void update_cockpits(int force_redraw)
 #endif
 		w = Game_window_w;
 		h = Game_window_h;
-		x = (VR_render_width - w)/2;
+		x = (SM_W(Game_screen_mode) - w)/2;
 		y = (max_window_h - h)/2;
 		fill_background(x,y,w,h,x,y);
 		break;
@@ -413,7 +409,7 @@ void init_cockpit()
 		Cockpit_mode = CM_FULL_SCREEN;
 
 #ifndef OGL
-	if ( VR_screen_mode != SM(320,200) && Cockpit_mode != CM_LETTERBOX) {
+	if ( Game_screen_mode != SM(320,200) && Cockpit_mode != CM_LETTERBOX) {
 		Cockpit_mode = CM_FULL_SCREEN;
 	}
 #endif
@@ -437,11 +433,11 @@ void init_cockpit()
 
 	case CM_FULL_SCREEN:
 #ifndef OGL
-		if (Game_window_h > max_window_h || (VR_screen_mode == SM(320,200)) || !Game_window_h)
+		if (Game_window_h > max_window_h || (Game_screen_mode == SM(320,200)) || !Game_window_h)
 #endif
 			Game_window_h = max_window_h;
 #ifndef OGL
-		if (Game_window_w > max_window_w || (VR_screen_mode == SM(320,200)) || !Game_window_w)
+		if (Game_window_w > max_window_w || (Game_screen_mode == SM(320,200)) || !Game_window_w)
 #endif
 			Game_window_w = max_window_w;
 
@@ -460,19 +456,19 @@ void init_cockpit()
 
 		x = (max_window_w - Game_window_w)/2;
 		y = (max_window_h - Game_window_h)/2;
-		gr_rect(0,Game_window_h,VR_render_width,VR_render_height);
+		gr_rect(0,Game_window_h,SM_W(Game_screen_mode),SM_H(Game_screen_mode));
 		game_init_render_sub_buffers( x, y, Game_window_w, Game_window_h );
 		break;
 
 	case CM_LETTERBOX:	{
 		int x,y,w,h;
 
-		x = 0; w = VR_render_width;
-		h = (VR_render_height * 3) / 4; // true letterbox size (16:9)
-		y = (VR_render_height-h)/2;
+		x = 0; w = SM_W(Game_screen_mode);
+		h = (SM_H(Game_screen_mode) * 3) / 4; // true letterbox size (16:9)
+		y = (SM_H(Game_screen_mode)-h)/2;
 
-		gr_rect(x,0,w,VR_render_height-h);
-		gr_rect(x,VR_render_height-h,w,VR_render_height);
+		gr_rect(x,0,w,SM_H(Game_screen_mode)-h);
+		gr_rect(x,SM_H(Game_screen_mode)-h,w,SM_H(Game_screen_mode));
 
 		game_init_render_sub_buffers( x, y, w, h );
 		break;
@@ -547,7 +543,7 @@ void grow_window()
 
 	if ((Cockpit_mode != CM_STATUS_BAR)
 #ifndef OGL
-		&& (VR_screen_mode == SM(320,200))
+		&& (Game_screen_mode == SM(320,200))
 #endif
 	)
 		return;
@@ -645,7 +641,7 @@ void shrink_window()
  
 	if (Cockpit_mode == CM_FULL_COCKPIT
 #ifndef OGL
-		&& (VR_screen_mode == SM(320,200))
+		&& (Game_screen_mode == SM(320,200))
 #endif
 ) {
 		Game_window_h = max_window_h;
@@ -658,7 +654,7 @@ void shrink_window()
 
 	if (Cockpit_mode == CM_FULL_SCREEN
 #ifndef OGL
-		&& (VR_screen_mode == SM(320,200))
+		&& (Game_screen_mode == SM(320,200))
 #endif
 	)
 	{
@@ -669,7 +665,7 @@ void shrink_window()
 
 	if (Cockpit_mode != CM_STATUS_BAR
 #ifndef OGL
-		&& (VR_screen_mode == SM(320,200))
+		&& (Game_screen_mode == SM(320,200))
 #endif
 	)
 		return;
@@ -708,14 +704,10 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 
 
 // Sets up the canvases we will be rendering to
-void game_init_render_buffers(u_int32_t screen_mode, int render_w, int render_h, int render_method )
+void game_init_render_buffers(int render_w, int render_h, int render_method )
 {
 // 	if (!VR_offscreen_buffer)	{
-	VR_use_paging 		= FindArg("-doublebuffer");
-	VR_screen_mode		= screen_mode;
 	VR_render_mode		= render_method;
-	VR_render_width		= render_w;
-	VR_render_height	= render_h;
 
 	if (VR_offscreen_buffer) {
 		gr_free_canvas(VR_offscreen_buffer);
@@ -750,9 +742,6 @@ void game_init_render_buffers(u_int32_t screen_mode, int render_w, int render_h,
 //mode if cannot init requested mode)
 int set_screen_mode(int sm)
 {
-	// ZICO - since we use variable resolutions we can't store them in modes. Game_window_w/h is used to scale the window for STATUSBAR and shrink/grow_window so we can't use it to store the current resolution. So we store it in the VR_render variables. If we are going to remove this VR stuff we need to create new variables.
-	VR_screen_mode = Game_screen_mode = SM(VR_render_width,VR_render_height);
-
 #ifdef EDITOR
 	if ( (sm==SCREEN_MENU) && (Screen_mode==SCREEN_EDITOR) )	{
 		gr_set_current_canvas( Canv_editor );
@@ -2037,7 +2026,7 @@ void game()
 
 	if ( setjmp(LeaveGame)==0 ) {
 
-		if (VR_screen_mode != SCREEN_MENU)
+		if (Game_screen_mode != SCREEN_MENU)
 			vr_reset_display();
 
 		while (1) {
@@ -2067,7 +2056,7 @@ void game()
 				Game_window_w=save_w; Game_window_h=save_h;
 				init_cockpit();
 				last_drawn_cockpit = -1;
-				if (VR_screen_mode != SCREEN_MENU)
+				if (Game_screen_mode != SCREEN_MENU)
 					vr_reset_display();
 				game_flush_inputs();
 			}
@@ -3162,7 +3151,7 @@ void vr_reset_display()
 {
 	if (VR_render_mode == VR_NONE ) return;
 
-	if (VR_screen_mode == SCREEN_MENU)	// low res 320x200 (overall) mode
+	if (Game_screen_mode == SCREEN_MENU)	// low res 320x200 (overall) mode
 		gr_set_mode( SM(320,400) );
 	set_screen_mode (SCREEN_MENU);
 	set_screen_mode (SCREEN_GAME);
