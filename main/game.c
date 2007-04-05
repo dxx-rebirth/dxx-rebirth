@@ -117,8 +117,6 @@ char game_rcsid[] = "$Id: game.c,v 1.1.1.1 2006/03/17 19:55:53 zicodxx Exp $";
 #include "hudmsg.h"
 #include "movie.h"
 
-int VGA_current_mode;
-
 #ifdef MWPROFILER
 #include <profiler.h>
 #endif
@@ -162,8 +160,6 @@ fix _timer_value,actual_last_timer_value,_last_frametime;
 int stop_count,start_count;
 int time_stopped,time_started;
 #endif
-
-int			VR_screen_mode			= 0;
 
 ubyte			VR_screen_flags	= 0;		//see values in screens.h
 fix			VR_eye_width		= F1_0;
@@ -468,10 +464,9 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 
 
 // Sets up the canvases we will be rendering to (NORMAL VERSION)
-void game_init_render_buffers(int screen_mode, int render_w, int render_h, int render_method, int flags )
+void game_init_render_buffers(int render_w, int render_h, int render_method, int flags )
 {
 
-	VR_screen_mode	=	screen_mode;
 	VR_screen_flags	=	flags;
 
 	VR_reset_params();
@@ -540,16 +535,13 @@ int set_screen_mode(int sm)
 	}
 #endif
 
-	// ZICO - since we use variable resolutions we can't store them in modes. Game_window_w/h is used to scale the window for STATUSBAR and shrink/grow_window so we can't use it to store the current resolution. So we store it in the VR_render variables. If we are going to remove this VR stuff we need to create new variables.
-	VR_screen_mode = Game_screen_mode = SM(VR_render_buffer[0].cv_bitmap.bm_w, VR_render_buffer[0].cv_bitmap.bm_h);
-
 	if (MenuHiresAvailable && FontHiresAvailable && (grd_curscreen->sc_w >= 640) && (grd_curscreen->sc_h >= 480)) {
 		Current_display_mode = MenuHires = FontHires = 1;
 	} else {
 		Current_display_mode = MenuHires = FontHires = 0;
 	}
 
-	if ( Screen_mode == sm && VGA_current_mode == VR_screen_mode) {
+	if ( Screen_mode == sm && grd_curscreen->sc_mode == Game_screen_mode) {
 		gr_set_current_canvas(NULL);
 		return 1;
 	}
@@ -582,8 +574,8 @@ int set_screen_mode(int sm)
 		break;
 
 	case SCREEN_GAME:
-		if (VGA_current_mode != VR_screen_mode) {
-			if (gr_set_mode(VR_screen_mode))	{
+		if (grd_curscreen->sc_mode != Game_screen_mode) {
+			if (gr_set_mode(Game_screen_mode))	{
 				Error("Cannot set desired screen mode for game!");
 				//we probably should do something else here, like select a standard mode
 			}

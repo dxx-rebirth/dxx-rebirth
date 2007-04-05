@@ -724,7 +724,7 @@ void set_display_mode(int mode)
 
 	if (Current_display_mode != -1) {
 
-//		game_init_render_buffers(dmi->VGA_mode,dmi->w,dmi->h,dmi->render_method,dmi->flags);
+//		game_init_render_buffers(dmi->w,dmi->h,dmi->render_method,dmi->flags);
 		Default_display_mode = Current_display_mode;
 	}
 
@@ -754,7 +754,7 @@ void do_screen_res_menu()
 	m[3].type=NM_TYPE_RADIO; m[3].value=0; m[3].group=0; m[3].text=" 800x600";
 	n_items = 4;
 
-	odisplay_mode = VGA_current_mode;
+	odisplay_mode = Game_screen_mode;
 	citem = Current_display_mode;
 	if (Current_display_mode >= 2)
 		citem--;
@@ -1059,12 +1059,12 @@ void change_res()
 	newmenu_close();
 
 	Game_screen_mode = screen_mode;
-	VR_render_buffer[0].cv_bitmap.bm_w = Game_window_w = screen_width;
-	VR_render_buffer[0].cv_bitmap.bm_h = Game_window_h = screen_height;
-	game_init_render_buffers(screen_mode, screen_width, screen_height, VR_NONE, 0);
+	Game_window_w = screen_width;
+	Game_window_h = screen_height;
+	game_init_render_buffers(screen_width, screen_height, VR_NONE, 0);
 
 	if (menu_use_game_res) {
-		gr_set_mode(SM(VR_render_buffer[0].cv_bitmap.bm_w,VR_render_buffer[0].cv_bitmap.bm_h));
+		gr_set_mode(Game_screen_mode);
 		set_screen_mode(SCREEN_GAME);
 	}
 }

@@ -643,7 +643,7 @@ int main(int argc, char *argv[])
 		// added 3/24/99 by Owen Evans for screen res changing
 		Game_screen_mode = SM(screen_width, screen_height);
 		// end added -OE
-//		game_init_render_buffers(Game_screen_mode, screen_width, screen_height, VR_NONE, screen_flags);
+//		game_init_render_buffers(screen_width, screen_height, VR_NONE, screen_flags);
 
 	}
 

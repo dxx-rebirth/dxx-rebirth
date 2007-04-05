@@ -72,7 +72,6 @@ typedef struct screen_save {
 screen_save gr_saved_screen;
 
 int gr_show_screen_info = 0;
-extern int VGA_current_mode;
 
 void gr_set_cellheight( ubyte height )
 {
@@ -469,7 +468,6 @@ return 0;
 		gr_init_canvas(&grd_curscreen->sc_canvas,raw_data,BM_LINEAR,w,h);
 		must_free_canvas = 1;
 	}
-	VGA_current_mode = mode;
 	gr_set_current_canvas(NULL);
 
 	if (mode == SM(320,400))	// paging is enabled for this video mode

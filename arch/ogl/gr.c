@@ -304,8 +304,6 @@ int gr_check_mode(u_int32_t mode)
 }
 
 
-extern int VGA_current_mode; // DPH: kludge - remove at all costs
-
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;
@@ -323,7 +321,6 @@ return 0;
 
 	w=SM_W(mode);
 	h=SM_H(mode);
-	VGA_current_mode = mode;
 
 	//if (screen != NULL) gr_palette_clear();
 

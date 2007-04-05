@@ -461,9 +461,9 @@ int write_player_d2x(char *filename)
 			PHYSFSX_puts(fout, str);
 			sprintf (str, "[resolution]\n");
 			PHYSFSX_puts(fout, str);
-			sprintf (str, "width=%i\n", VR_render_buffer[0].cv_bitmap.bm_w);
+			sprintf (str, "width=%i\n", SM_W(Game_screen_mode));
 			PHYSFSX_puts(fout, str);
-			sprintf (str, "height=%d\n", VR_render_buffer[0].cv_bitmap.bm_h);
+			sprintf (str, "height=%d\n", SM_H(Game_screen_mode));
 			PHYSFSX_puts(fout, str);
 			sprintf (str, "[end]\n");
 			PHYSFSX_puts(fout, str);
@@ -525,9 +525,9 @@ int write_player_d2x(char *filename)
 				{
 					sprintf (str, "[resolution]\n");
 					PHYSFSX_puts(fout, str);
-					sprintf (str, "width=%i\n", VR_render_buffer[0].cv_bitmap.bm_w);
+					sprintf (str, "width=%i\n", SM_W(Game_screen_mode));
 					PHYSFSX_puts(fout, str);
-					sprintf (str, "height=%d\n", VR_render_buffer[0].cv_bitmap.bm_h);
+					sprintf (str, "height=%d\n", SM_H(Game_screen_mode));
 					PHYSFSX_puts(fout, str);
 					sprintf (str, "[end]\n");
 					PHYSFSX_puts(fout, str);
@@ -605,9 +605,9 @@ int write_player_d2x(char *filename)
 			{
 				sprintf (str, "[resolution]\n");
 				PHYSFSX_puts(fout, str);
-				sprintf (str, "width=%i\n", VR_render_buffer[0].cv_bitmap.bm_w);
+				sprintf (str, "width=%i\n", SM_W(Game_screen_mode));
 				PHYSFSX_puts(fout, str);
-				sprintf (str, "height=%d\n", VR_render_buffer[0].cv_bitmap.bm_h);
+				sprintf (str, "height=%d\n", SM_H(Game_screen_mode));
 				PHYSFSX_puts(fout, str);
 				sprintf (str, "[end]\n");
 				PHYSFSX_puts(fout, str);
@@ -920,7 +920,6 @@ int read_player_file()
 	{
 		Game_screen_mode = SM(Player_render_width,Player_render_height);
 		game_init_render_buffers(
-			SM(Player_render_width,Player_render_height),
 			Player_render_width,
 			Player_render_height, VR_NONE, 0);
 	}
