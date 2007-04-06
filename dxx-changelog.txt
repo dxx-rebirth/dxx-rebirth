@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070406
+--------
+SConstruct: some help correction
+
 20070405
 --------
 main/game.c, main/game.h, main/gameseq.c, main/gauges.c, main/inferno.c, main/menu.c, main/playsave.c: remove final remains of VR_current_page and VR_use_paging, resolution variable cleanup - remove VR_screen_mode and VR_render_width/height (Game_screen_mode is the actual resolution put in an int, not an index)
