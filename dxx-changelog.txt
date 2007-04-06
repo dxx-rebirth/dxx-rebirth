@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070406
+--------
+SConstruct: some help correction
+
 20070405
 --------
 arch/dos/gr.c, arch/ogl/gr.c, arch/sdl/gr.c, main/game.c, main/gameseq.c, main/inferno.c, main/menu.c, main/playsave.c, main/screens.h: resolution variable cleanup - remove VGA_current_mode, VR_screen_mode and VR_render_buffer[0].cv_bitmap.bm_w/h (Game_screen_mode is the actual resolution put in an int, not an index) 

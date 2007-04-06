@@ -439,16 +439,16 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	
 	Extra options (add them to command line, like 'scons extraoption=value'):
 	
-	'sharepath=DIR'	 (*NIX only) use DIR for shared game data. Must end with a slash.
-	'sdl_only=1'	 don't include OpenGL, use SDL-only instead
-	'sdlmixer=1'	 (*NIX only) use SDL_Mixer for sound (includes external music support)
-	'no_asm=1'	 don't use ASSEMBLER (only with sdl_only=1)
-	'debug=1' 	 build DEBUG binary which includes asserts, debugging output, cheats and more output
-	'profiler=1' 	 do profiler build
-	'console=1'	 build with console support !EXPERIMENTAL!
-	'editor=1' 	 build editor !EXPERIMENTAL!
-	'arm=1'		 compile for ARM architecture
-	'gp2x=1'	 compile for GP2X handheld
+	'sharepath=DIR'   (*NIX only) use DIR for shared game data. (default: /usr/local/share/games/d2x-rebirth)
+	'sdl_only=1'      don't include OpenGL, use SDL-only instead
+	'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
+	'no_asm=1'        don't use ASSEMBLER (only with sdl_only=1)
+	'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
+	'profiler=1'      do profiler build
+	'console=1'       build with console support !EXPERIMENTAL!
+	'editor=1'        build editor !EXPERIMENTAL!
+	'arm=1'           compile for ARM architecture
+	'gp2x=1'          compile for GP2X handheld
 	
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + '\n')
