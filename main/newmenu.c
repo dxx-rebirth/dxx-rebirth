@@ -1964,6 +1964,10 @@ ReadFileNames:
 
 	newmenu_close();
 
+#ifdef NEWMENU_MOUSE
+	newmenu_hide_cursor();
+#endif
+
 ExitFileMenuEarly:
 	if ( citem > -1 )	{
 		strncpy( filename, (&filenames[citem*14])+((player_mode && filenames[citem*14]=='$')?1:0), 13 );

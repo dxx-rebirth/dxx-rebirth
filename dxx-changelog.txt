@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070407
+--------
+main/newmenu.c: hide cursor after newmenu_get_filename()
+
 20070406
 --------
 SConstruct: some help correction
