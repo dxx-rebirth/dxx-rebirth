@@ -2441,6 +2441,10 @@ ReadFileNames:
 
 	newmenu_close();
 
+#ifdef NEWMENU_MOUSE
+	newmenu_hide_cursor();
+#endif
+
 ExitFileMenuEarly:
 	MAC(newmenu_hide_cursor());
 	if ( citem > -1 )	{
