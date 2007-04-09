@@ -21,7 +21,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
 #include "hmp2mid.h"
 
 /* Some convience macros to keep the code below more readable */

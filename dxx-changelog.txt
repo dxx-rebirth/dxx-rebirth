@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070409
 --------
 arch/carbon/conf.h, include/pstypes.h: move determination of WORDS_BIG_ENDIAN to pstypes.h as SCons can't do it (as far as I know). SCons doesn't make conf.h
+arch/carbon/SDL_main.c, arch/cocoa/SDLMain.m, arch/dos/digimm.c, arch/include/gp2x.h, arch/ogl/sdlgl.c, arch/sdl/digi.c, arch/sdl/event.c, arch/sdl/gr.c, arch/sdl/init.c, arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, arch/sdl/rbaudio.c, arch/sdl/timer.c, include/cfile.h, include/error.h, include/hmp2mid.h, include/physfsrwops.h, include/physfsx.h, libmve/mve_main.c, libmve/mveplay.c, main/config.c, main/console.c, main/gamecntl.c, main/inferno.c, main/newdemo.c, main/newmenu.c, main/newmenu.h, main/playsave.c, misc/hmp2mid.c, misc/ignorecase.c, ui/file.c: include SDL/SDL.h for all platforms and physfs/physfs.h for Mac OS X to avoid having to add some hard-coded include paths
 
 20070407
 --------

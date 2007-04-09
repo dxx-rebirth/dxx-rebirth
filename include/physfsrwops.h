@@ -23,8 +23,12 @@
 #ifndef _INCLUDE_PHYSFSRWOPS_H_
 #define _INCLUDE_PHYSFSRWOPS_H_
 
-#include "physfs.h"
-#include "SDL.h"
+#if !(defined(__APPLE__) && defined(__MACH__))
+#include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
+#include <SDL/SDL.h>
 
 #ifdef __cplusplus
 extern "C" {

@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <SDL.h>
+#include <SDL/SDL.h>
 #ifdef SDL_IMAGE
 #include <SDL_image.h>
 #endif

@@ -12,7 +12,7 @@
 
 #include <string.h>
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #include "fix.h"
 #include "timer.h"

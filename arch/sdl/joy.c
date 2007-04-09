@@ -11,7 +11,7 @@
 #endif
 
 #include <string.h>   // for memset
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #include "joy.h"
 #include "error.h"

@@ -155,7 +155,7 @@ extern void nm_remap_background(void);
 #  define newmenu_show_cursor() ShowCursorW()
 #  define newmenu_hide_cursor() HideCursorW()
 # elif defined(SDL_INPUT)
-#  include <SDL.h>
+#  include <SDL/SDL.h>
 #  define newmenu_show_cursor() SDL_ShowCursor(SDL_ENABLE)
 #  define newmenu_hide_cursor() SDL_ShowCursor(SDL_DISABLE)
 # else

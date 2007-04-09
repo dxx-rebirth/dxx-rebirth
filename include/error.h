@@ -56,7 +56,7 @@ extern void Debugger(void);	// Avoids some name clashes
 
 #ifdef __GNUC__
 #ifdef SDL_INPUT
-#include <SDL.h>
+#include <SDL/SDL.h>
 #endif
 #include "args.h"
 static inline void _Int3()

@@ -5,7 +5,11 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "physfs.h"
+#if !(defined(__APPLE__) && defined(__MACH__))
+#include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
 #include "ignorecase.h"
 
 /**

@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #include "text.h"
 #include "event.h"

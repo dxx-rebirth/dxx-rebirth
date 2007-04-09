@@ -27,7 +27,7 @@
 #endif // _WIN32
 
 #if defined(AUDIO)
-#include <SDL.h>
+#include <SDL/SDL.h>
 #endif
 
 #include "mvelib.h"

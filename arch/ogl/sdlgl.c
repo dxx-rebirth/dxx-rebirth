@@ -10,7 +10,7 @@
 #include <conf.h>
 #endif
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 #ifdef SDL_IMAGE
 #include <SDL_image.h>
 #endif

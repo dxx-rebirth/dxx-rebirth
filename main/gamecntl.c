@@ -123,7 +123,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #ifdef SDL_INPUT
-#include <SDL.h>
+#include <SDL/SDL.h>
 #endif
 
 extern void full_palette_save(void);

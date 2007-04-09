@@ -19,7 +19,7 @@
 #endif
 #include <ctype.h>
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 #ifdef CONSOLE
 #include "CON_console.h"
 #endif

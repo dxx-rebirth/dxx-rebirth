@@ -21,7 +21,11 @@
 #ifndef __HMP2MID_H
 #define __HMP2MID_H
 //#include <stdio.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
 
 //typedef size_t (*hmp2mid_read_func_t)(void *ptr, size_t size, size_t nmemb,
 //  void *stream);

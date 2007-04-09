@@ -13,7 +13,7 @@
 # define LANDSCAPE
 #endif
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 #include "libmve.h"
 

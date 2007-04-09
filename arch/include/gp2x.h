@@ -1,7 +1,7 @@
 #ifndef _GP2X_H_
 #define _GP2X_H_
 
-#include <SDL.h>
+#include <SDL/SDL.h>
 
 
 extern SDL_Joystick *gp2xJoystick;

@@ -7,7 +7,7 @@
 #include "mm_drv.h"
 #include "timer.h"
 
-//#include "SDL.h"
+//#include <SDL/SDL.h>
 //#include "SDL_audio.h"
 
 #include "error.h"

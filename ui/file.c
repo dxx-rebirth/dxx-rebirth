@@ -18,7 +18,11 @@ static char rcsid[] = "$Id: file.c,v 1.1.1.1 2006/03/17 19:52:17 zicodxx Exp $";
 
 #include <stdlib.h>
 #include <string.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
 
 #include "fix.h"
 #include "pstypes.h"

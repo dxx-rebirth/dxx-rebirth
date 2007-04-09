@@ -5,7 +5,7 @@
     Feel free to customize this file to suit your needs
 */
 
-#import "SDL.h"
+#import <SDL/SDL.h>
 #import "SDLMain.h"
 #import <sys/param.h> /* for MAXPATHLEN */
 #import <unistd.h>

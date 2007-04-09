@@ -32,7 +32,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <unistd.h>
 #endif
 #include <limits.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
 
 #include "error.h"
 #include "pstypes.h"

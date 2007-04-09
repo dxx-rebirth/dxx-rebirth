@@ -41,7 +41,11 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <sys/types.h>
 #endif
 
+#if !(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
 
 #include "pstypes.h"
 #include "strutil.h"
@@ -113,7 +117,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #endif
 
 #ifndef __MSDOS__
-#include <SDL.h>
+#include <SDL/SDL.h>
 #endif
 
 #include "vers_id.h"
