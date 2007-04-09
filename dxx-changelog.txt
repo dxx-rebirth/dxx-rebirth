@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070409
+--------
+arch/carbon/conf.h, include/pstypes.h: move determination of WORDS_BIG_ENDIAN to pstypes.h as SCons can't do it (as far as I know). SCons doesn't make conf.h
+
 20070407
 --------
 main/newmenu.c: hide cursor after newmenu_get_filename()

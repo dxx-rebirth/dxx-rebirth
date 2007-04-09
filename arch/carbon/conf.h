@@ -103,14 +103,6 @@
 /* Version number of package */
 #define VERSION "0.5.0"
 
-/* Define to 1 if your processor stores words with the most significant byte
-   first (like Motorola and SPARC, unlike Intel and VAX). */
-#ifdef __LITTLE_ENDIAN__	// Intel Macs
-# define WORDS_BIGENDIAN 0
-#else
-# define WORDS_BIGENDIAN 1
-#endif
-
 /* Define if your processor needs data to be word-aligned */
 /* #undef WORDS_NEED_ALIGNMENT */
 
