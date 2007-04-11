@@ -2691,6 +2691,119 @@ void HandleGameKey(int key)
 	}
 }
 
+void do_weapon_stuff()
+{
+	if (Controls.fire_flare_down_count)
+		if (allowed_to_fire_flare())
+			Flare_create(ConsoleObject);
+
+	if (allowed_to_fire_missile())
+		Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[Secondary_weapon]].fire_count * (Controls.fire_secondary_state || Controls.fire_secondary_down_count);
+
+	if (Global_missile_firing_count) {
+		do_missile_firing();
+		Global_missile_firing_count--;
+	}
+
+	if (Global_missile_firing_count < 0)
+		Global_missile_firing_count = 0;
+
+	//	Drop proximity bombs.
+	if (Controls.drop_bomb_down_count) {
+		//changed on 9/16/98 by adb to distinguish between drop bomb and secondary fire
+		while (Controls.drop_bomb_down_count--)
+			do_drop_bomb();
+		//end changes - adb
+	}
+
+	if (Controls.cycle_primary_down_count||Controls.cycle_primary_state!=ostate_p)
+	{
+		if((Controls.cycle_primary_state!=ostate_p)&&(Controls.cycle_primary_state==0))
+		{
+			ostate_p=Controls.cycle_primary_state;
+		}
+		else      //if(ostate_p!=Controls.cycle_primary_state)
+		{
+			int next_weapon;
+			int weap_val=0;
+			int i=0;
+
+			if(LaserPowSelected&&Primary_weapon==0)
+				next_weapon=LaserPowSelected;
+			else
+				next_weapon=Primary_weapon;
+			weap_val=primary_order[next_weapon];
+			if(highest_primary > 0)
+			{
+				do
+				{
+					if(highest_primary==1&&primary_order[next_weapon]==1)
+					{
+					maybe_select_primary(next_weapon);
+					break;
+					}
+					weap_val--;
+					if(weap_val < 1)
+					weap_val=highest_primary;
+					do
+					{
+					next_weapon++;
+					if(next_weapon >= MAX_PRIMARY_WEAPONS + NEWPRIMS)
+					next_weapon = 0;
+					} while(primary_order[next_weapon]!=weap_val);
+					i++;
+				} while(player_has_weapon(next_weapon,0)!=7&&i<highest_primary);
+			}
+			if((next_weapon!=Primary_weapon)&&(player_has_weapon(next_weapon,0)==7))
+				do_weapon_select(next_weapon,0);
+			Controls.cycle_primary_down_count = 0;
+			ostate_p=Controls.cycle_primary_state;
+		}
+	}
+	if (Controls.cycle_secondary_down_count||Controls.cycle_secondary_state!=ostate_s)
+	{
+		if((Controls.cycle_secondary_state!=ostate_s)&&(Controls.cycle_secondary_state==0))
+		{
+			ostate_s=Controls.cycle_secondary_state;
+		}
+		else
+		{
+			int next_weapon;
+			int weap_val=0;
+			int i=0;
+
+			next_weapon=Secondary_weapon;
+			weap_val=secondary_order[next_weapon];
+
+			if(highest_secondary > 0)
+			{
+				do
+				{
+					if(highest_secondary==1&&secondary_order[next_weapon]==1)
+					{
+						maybe_select_secondary(next_weapon);
+						break;
+					}
+					weap_val--;
+					if(weap_val < 1)
+						weap_val=highest_secondary;
+					do
+					{
+						next_weapon++;
+						if(next_weapon >= 5)
+							next_weapon = 0;
+					} while(secondary_order[next_weapon]!=weap_val);
+					i++;
+				} while(player_has_weapon(next_weapon,1)!=7&&i<highest_secondary);
+			}
+			if(next_weapon!=Secondary_weapon)
+				do_weapon_select(next_weapon,1);
+			Controls.cycle_secondary_down_count = 0;
+			ostate_s=Controls.cycle_secondary_state;
+		}
+	}
+}
+
 void ReadControls()
 {
 	int key;
@@ -2724,120 +2837,11 @@ void ReadControls()
 			}
 			check_rear_view();
 
-
 			// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
 			if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Fuelcen_control_center_destroyed && (Fuelcen_seconds_left < 10)))
 				Automap_flag = 1;
 
-			if (Controls.fire_flare_down_count)
-				if (allowed_to_fire_flare())
-					Flare_create(ConsoleObject);
-
-			if (allowed_to_fire_missile())
-				Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[Secondary_weapon]].fire_count * (Controls.fire_secondary_state || Controls.fire_secondary_down_count);
-
-			if (Global_missile_firing_count) {
-				do_missile_firing();
-				Global_missile_firing_count--;
-			}
-
-			if (Global_missile_firing_count < 0)
-				Global_missile_firing_count = 0;
-
-			//	Drop proximity bombs.
-			if (Controls.drop_bomb_down_count) {
-				//changed on 9/16/98 by adb to distinguish between drop bomb and secondary fire
-				while (Controls.drop_bomb_down_count--)
-					do_drop_bomb();
-				//end changes - adb
-			}
-
-			if (Controls.cycle_primary_down_count||Controls.cycle_primary_state!=ostate_p)
-			{
-				if((Controls.cycle_primary_state!=ostate_p)&&(Controls.cycle_primary_state==0))
-				{
-					ostate_p=Controls.cycle_primary_state;
-				}
-				else      //if(ostate_p!=Controls.cycle_primary_state)
-				{
-					int next_weapon;
-					int weap_val=0;
-					int i=0;
-		
-					if(LaserPowSelected&&Primary_weapon==0)
-						next_weapon=LaserPowSelected;
-					else
-						next_weapon=Primary_weapon;
-					weap_val=primary_order[next_weapon];
-					if(highest_primary > 0)
-					{
-						do
-						{
-							if(highest_primary==1&&primary_order[next_weapon]==1)
-							{
-							maybe_select_primary(next_weapon);
-							break;
-							}
-							weap_val--;
-							if(weap_val < 1)
-							weap_val=highest_primary;
-							do
-							{
-							next_weapon++;
-							if(next_weapon >= MAX_PRIMARY_WEAPONS + NEWPRIMS)
-							next_weapon = 0;
-							} while(primary_order[next_weapon]!=weap_val);
-							i++;
-						} while(player_has_weapon(next_weapon,0)!=7&&i<highest_primary);
-					}
-					if((next_weapon!=Primary_weapon)&&(player_has_weapon(next_weapon,0)==7))
-						do_weapon_select(next_weapon,0);
-					Controls.cycle_primary_down_count = 0;
-					ostate_p=Controls.cycle_primary_state;
-				}
-			}
-			if (Controls.cycle_secondary_down_count||Controls.cycle_secondary_state!=ostate_s)
-			{
-				if((Controls.cycle_secondary_state!=ostate_s)&&(Controls.cycle_secondary_state==0))
-				{
-					ostate_s=Controls.cycle_secondary_state;
-				}
-				else
-				{
-					int next_weapon;
-					int weap_val=0;
-					int i=0;
-		
-					next_weapon=Secondary_weapon;
-					weap_val=secondary_order[next_weapon];
-		
-					if(highest_secondary > 0)
-					{
-						do
-						{
-							if(highest_secondary==1&&secondary_order[next_weapon]==1)
-							{
-								maybe_select_secondary(next_weapon);
-								break;
-							}
-							weap_val--;
-							if(weap_val < 1)
-								weap_val=highest_secondary;
-							do
-							{
-								next_weapon++;
-								if(next_weapon >= 5)
-									next_weapon = 0;
-							} while(secondary_order[next_weapon]!=weap_val);
-							i++;
-						} while(player_has_weapon(next_weapon,1)!=7&&i<highest_secondary);
-					}
-					if(next_weapon!=Secondary_weapon)
-						do_weapon_select(next_weapon,1);
-					Controls.cycle_secondary_down_count = 0;
-					ostate_s=Controls.cycle_secondary_state;
-				}
-			}
+			do_weapon_stuff();
                 }
 
 	if (Player_exploded) {

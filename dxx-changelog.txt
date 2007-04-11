@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070412
 --------
 main/game.c, main/gameseq.c, main/reorder.c: removed some code from Weapon Ordering which broke primary cycling
+main/game.c: introduced do_weapon_stuff() to abstract code from ReadControls()
 
 20070407
 --------
