@@ -61,12 +61,12 @@ void reorder(int primaries, int *weapon_order, char **names)
 
    if(primaries)
     {
-     n=MAX_PRIMARY_WEAPONS + NEWPRIMS;
+     n=MAX_PRIMARY_WEAPONS/* + NEWPRIMS*/;
      sprintf(title,"Reorder primary\nShift+Up/Down to move item");
     }
    else //secondaries
     {
-     n=MAX_SECONDARY_WEAPONS + NEWSECS;
+     n=MAX_SECONDARY_WEAPONS/* + NEWSECS*/;
      sprintf(title,"Reorder secondary\nShift+Up/Down to move item");
     }
 
@@ -84,21 +84,7 @@ void reorder(int primaries, int *weapon_order, char **names)
      j = order_items[i];
      m[i].type = NM_TYPE_MENU;
 
-      if(primaries && j>=MAX_PRIMARY_WEAPONS)
-       {
-         switch(j-MAX_PRIMARY_WEAPONS)
-          {
-           case 0 : m[i].text = "Laser L1"; break;
-           case 1 : m[i].text = "Laser L2"; break;
-           case 2 : m[i].text = "Laser L3"; break;
-           case 3 : m[i].text = "Laser L4"; break;
-           case 4 : m[i].text = "Quad Laser L1"; break;
-           case 5 : m[i].text = "Quad Laser L2"; break;
-           case 6 : m[i].text = "Quad Laser L3"; break;
-           case 7 : m[i].text = "Quad Laser L4"; break;
-          }
-       }
-      else if(!primaries && j>=MAX_SECONDARY_WEAPONS) //secondaries
+   if(!primaries && j>=MAX_SECONDARY_WEAPONS) //secondaries
        {
          switch(j-MAX_SECONDARY_WEAPONS)
           {

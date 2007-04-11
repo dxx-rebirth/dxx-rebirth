@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070412
+--------
+main/game.c, main/gameseq.c, main/reorder.c: removed some code from Weapon Ordering which broke primary cycling
+
 20070407
 --------
 main/newmenu.c: hide cursor after newmenu_get_filename()

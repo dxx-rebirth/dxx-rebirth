@@ -659,10 +659,6 @@ void init_player_stats_new_ship()
           Players[Player_num].shields = MAX_SHIELDS;
 //end this section addition - VR
 
-//added on 3/15/99 by Victor Rachels to maybe fix a few probs in autoselect
-        LaserPowSelected=MAX_PRIMARY_WEAPONS;
-//end this section addition - VR
-
 //added on 3/15/99 by Victor Rachels to maybe fix respawn-shoot
         Global_laser_firing_count=0;
 //end this section addition - VR

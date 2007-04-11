@@ -2796,12 +2796,12 @@ void ReadControls()
 					ostate_p=Controls.cycle_primary_state;
 				}
 			}
-				if (Controls.cycle_secondary_down_count||Controls.cycle_secondary_state!=ostate_s)
+			if (Controls.cycle_secondary_down_count||Controls.cycle_secondary_state!=ostate_s)
+			{
+				if((Controls.cycle_secondary_state!=ostate_s)&&(Controls.cycle_secondary_state==0))
 				{
-					if((Controls.cycle_secondary_state!=ostate_s)&&(Controls.cycle_secondary_state==0))
-					{
-						ostate_s=Controls.cycle_secondary_state;
-					}
+					ostate_s=Controls.cycle_secondary_state;
+				}
 				else
 				{
 					int next_weapon;
