@@ -1355,8 +1355,18 @@ void EnterSecretLevel(void)
 		Next_level_num = Last_secret_level;
 
 	old_gametime = GameTime;
-
-	StartNewLevelSecret(Next_level_num, 1);
+	// NMN 04/09/07  Do a REAL start level routine if we are playing a D1 level so we have
+	//               briefings
+	if (EMULATING_D1)
+	{
+		gr_palette_fade_out(gr_palette, 32, 0);
+		set_screen_mode(SCREEN_MENU);
+		do_secret_message("Alternate Exit Found!\n\nProceeding to Secret Level!");
+		StartNewLevel(Next_level_num, 0);
+	} else {
+ 	   	StartNewLevelSecret(Next_level_num, 1);
+	}
+	// END NMN
 	
 	// do_cloak_invul_stuff();
 }
@@ -1521,9 +1531,15 @@ void AdvanceLevel(int secret_flag)
 		DoEndGame();
 
 	} else {
-
-		Next_level_num = Current_level_num+1;		//assume go to next normal level
-
+		//NMN 04/08/07 If we are in a secret level and playing a D1
+		// 	       level, then use Entered_from_level # instead
+		if (Current_level_num < 0 && EMULATING_D1) 
+		{
+		  Next_level_num = Entered_from_level+1;		//assume go to next normal level
+                } else {
+		  Next_level_num = Current_level_num+1;		//assume go to next normal level
+                }
+		// END NMN
 		if (!(Game_mode & GM_MULTI))
 			DoEndlevelMenu(); // Let use save their game
 
