@@ -421,7 +421,7 @@ void buddy_message(char * format, ... )
 			t = strlen(gb_str);
 			gb_str[t] = ':';
 			gb_str[t+1] = 1;
-			gb_str[t+2] = gr_find_closest_color_current(0, 255, 0);
+			gb_str[t+2] = BM_XRGB(28, 28, 28);
 			gb_str[t+3] = 0;
 
 			HUD_init_message("%s %s", gb_str, new_format);
@@ -447,7 +447,7 @@ void thief_message(char * format, ... )
 	gb_str[1] = BM_XRGB(28, 0, 0);
 	strcpy(&gb_str[2], "THIEF:");
 	gb_str[8] = 1;
-	gb_str[9] = gr_find_closest_color_current(0, 255, 0);
+	gb_str[9] = BM_XRGB(28, 28, 28);
 	gb_str[10] = 0;
 
 	HUD_init_message("%s %s", gb_str, new_format);
