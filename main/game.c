@@ -415,12 +415,12 @@ void init_cockpit()
 		break;
 
 	case CM_LETTERBOX:
-		x = 0; w = VR_render_buffer[0].cv_bitmap.bm_w;
-		h = (VR_render_buffer[0].cv_bitmap.bm_h*7)/10;
-		y = (VR_render_buffer[0].cv_bitmap.bm_h-h)/2;
+		x = 0; w = SM_W(Game_screen_mode);
+		h = (SM_H(Game_screen_mode) * 3) / 4; // true letterbox size (16:9)
+		y = (SM_H(Game_screen_mode)-h)/2;
 
-		gr_rect(x,0,w,VR_render_buffer[0].cv_bitmap.bm_h-h);
-		gr_rect(x,VR_render_buffer[0].cv_bitmap.bm_h-h,w,VR_render_buffer[0].cv_bitmap.bm_h);
+		gr_rect(x,0,w,SM_H(Game_screen_mode)-h);
+		gr_rect(x,SM_H(Game_screen_mode)-h,w,SM_H(Game_screen_mode));
 
 		game_init_render_sub_buffers( x, y, w, h );
 		break;

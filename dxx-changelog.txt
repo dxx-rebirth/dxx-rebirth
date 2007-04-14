@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/kconfig.c, main/kmatrix.c, main/newmenu.c, main/scores.c, main/titles.c: introducing kconfig_sub_draw_table() making it possible to redraw configuration tables with OGL swapping and clearing; increased timer_delay for menus and briefings to save more CPU usage
 main/escort.c: making GuideBot Text color palette independent
 main/gameseq.c, main/switch.c: fixing D1 Secret Level routines (thanks to xatmes)
+main/game.c, main/gauges.c: removed use of VR_render_buffer (almost completly)
 
 20070409
 --------

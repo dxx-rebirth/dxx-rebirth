@@ -3640,13 +3640,13 @@ abort:;
 				// note: this calculation is taken from do_cockpit_window_view for the full
 				// screen mode case
 		
-				w = (VR_render_buffer[0].cv_bitmap.bm_w) / 6;
+				w = (SM_W(Game_screen_mode)) / 6;
 				h = (i2f(w)) / (grd_curscreen->sc_aspect);
 		
 				dx = (inSubWindowNum==0)?-(w+(w/10)):(w/10);
 		
-				window_x = ((VR_render_buffer[0].cv_bitmap.bm_w) / 2) + dx;
-				window_y = (VR_render_buffer[0].cv_bitmap.bm_h) - h - (h/10);
+				window_x = ((SM_W(Game_screen_mode)) / 2) + dx;
+				window_y = (SM_H(Game_screen_mode)) - h - (h/10);
 				
 				outBoundsRect->top 		= window_x;
 				outBoundsRect->left		= window_y;
