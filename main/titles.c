@@ -1052,7 +1052,7 @@ int show_briefing_message(int screen_num, char *message)
 
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
-					timer_delay(5);
+					timer_delay(400);
 #ifdef OGL
 					if (!RobotPlaying)
 						gr_flip();
@@ -1219,7 +1219,7 @@ int show_briefing_message(int screen_num, char *message)
 			while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
-				timer_delay(5);
+				timer_delay(400);
 #ifdef OGL
 				if (!RobotPlaying)
 					gr_flip();

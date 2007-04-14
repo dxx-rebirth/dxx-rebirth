@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070414
+--------
+main/kconfig.c, main/kmatrix.c, main/newmenu.c, main/scores.c, main/titles.c: introducing kconfig_sub_draw_table() making it possible to redraw configuration tables with OGL swapping and clearing; increased timer_delay for menus and briefings to save more CPU usage
+
 20070409
 --------
 arch/carbon/conf.h, include/pstypes.h: move determination of WORDS_BIG_ENDIAN to pstypes.h as SCons can't do it (as far as I know). SCons doesn't make conf.h
