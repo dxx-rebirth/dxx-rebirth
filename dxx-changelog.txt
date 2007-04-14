@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070414
+--------
+main/kconfig.c, main/kmatrix.c, main/newmenu.c, main/scores.c, main/titles.c: introducing kconfig_sub_draw_table() making it possible to redraw configuration tables with OGL swapping and clearing; increased timer_delay for menus and briefings to save more CPU usage
+
 20070412
 --------
 main/game.c, main/gameseq.c, main/reorder.c: removed some code from Weapon Ordering which broke primary cycling
