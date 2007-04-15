@@ -1635,7 +1635,7 @@ void multi_message_input_sub( int key )
 	default:
 		if ( key > 0 )	{
 			int ascii = key_to_ascii(key);
-			if ((ascii < 255 ))	{
+			if ((ascii < 255 ) && (ascii != 37))	{
 				if (multi_message_index < MAX_MESSAGE_LEN-2 )	{
 					Network_message[multi_message_index++] = ascii;
 					Network_message[multi_message_index] = 0;
