@@ -216,7 +216,7 @@ void print_commandline_help()
 	printf( "  -nomixer           %s\n", "Don't crank music volume");
 #endif // !defined(MACINTOSH) && !defined(WINDOWS)
 #if       !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-	printf( "  -noredbook         %s\n", "Disable redbook audio");
+	printf( "  -redbook         %s\n", "Disable redbook audio");
 #endif //  !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
 
 	printf( "\n Graphics:\n\n");
@@ -309,7 +309,6 @@ void print_commandline_help()
 	printf( "  -logfile           %s\n", "FIXME: Undocumented");
 	printf( "  -memdbg            %s\n", "FIXME: Undocumented");
 	printf( "  -monodebug         %s\n", "FIXME: Undocumented");
-	printf( "  -nocdrom           %s\n", "FIXME: Undocumented");
 	printf( "  -nocyberman        %s\n", "FIXME: Undocumented");
 	printf( "  -nomatrixcheat     %s\n", "FIXME: Undocumented");
 	printf( "  -showaddress       %s\n", "FIXME: Undocumented");

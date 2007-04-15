@@ -484,7 +484,7 @@ int WriteConfigFile()
 	PHYSFSX_puts(infile, str);*/
 	sprintf (str, "%s=%d\n", midi_volume_str, Config_midi_volume);
 	PHYSFSX_puts(infile, str);
-	sprintf (str, "%s=%d\n", redbook_enabled_str, FindArg("-noredbook")?save_redbook_enabled:Redbook_enabled);
+	sprintf (str, "%s=%d\n", redbook_enabled_str, !FindArg("-redbook")?save_redbook_enabled:Redbook_enabled);
 	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", redbook_volume_str, Config_redbook_volume);
 	PHYSFSX_puts(infile, str);

@@ -1195,8 +1195,8 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 
 	if (items[4].value != (Redbook_playing!=0)) {
 
-		if (items[4].value && FindArg("-noredbook")) {
-			nm_messagebox (TXT_SORRY,1,TXT_OK,"Redbook audio has been disabled\non the command line");
+		if (items[4].value && !FindArg("-redbook")) {
+			nm_messagebox (TXT_SORRY,1,TXT_OK,"Redbook audio is disabled\nuse -redbook command to enable");
 			items[4].value = 0;
 			items[4].redraw = 1;
 		}
