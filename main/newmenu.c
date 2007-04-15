@@ -124,6 +124,7 @@ ubyte SurfingNet=0;
 char Pauseable_menu=0;
 char already_showing_info=0;
 int vertigo_present=0;
+int draw_copyright=0;
 extern ubyte Version_major,Version_minor;
 extern char last_palette_loaded[];
 
@@ -180,6 +181,7 @@ void nm_remap_background()
 
 		gr_remap_bitmap_good( &nm_background, background_palette, -1, -1 );
 	}
+	draw_copyright=0;
 }
 
 // Draws the background of menus (i.e. Descent Logo screen)
@@ -207,6 +209,8 @@ void nm_draw_background1(char * filename)
 			Assert(pcx_error == PCX_ERROR_NONE);
 			gr_copy_palette(gr_palette, newpal, sizeof(gr_palette));
 			remap_fonts_and_menus(1);
+			if (!strcmp(filename,Menu_pcx_name) && Function_mode != FMODE_GAME)
+				draw_copyright=1;
 		}
 		gr_palette_load( gr_palette );
 #ifndef OGL
@@ -216,7 +220,7 @@ void nm_draw_background1(char * filename)
 		ogl_ubitmapm_cs(0,0,-1,-1,&nm_background1,-1,F1_0);
 #endif
 
-		if (!strcmp(filename,Menu_pcx_name) && Function_mode != FMODE_GAME)
+		if (draw_copyright)
 			nm_draw_copyright();
 #ifdef OGL
 	}
