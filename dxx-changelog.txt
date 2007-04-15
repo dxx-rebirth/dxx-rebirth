@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/newmenu.c: only draw copyright stuff if there is really the menu background (not being changed by draw_stars())
 d2x.ini, arch/sdl/rbaudio.c, main/config.c, main/inferno.c, main/menu.c, main/songs.c: removed -nocdrom argument, only use Redbook audio if specified with -redbook
+main/multi.c: forbid % to read into multi messages to not mess up the string
 
 20070414
 --------
