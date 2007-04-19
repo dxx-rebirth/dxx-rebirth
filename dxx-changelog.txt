@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070420
+--------
+main/laser.c: made smart blobs easier to dodge
+
 20070415
 --------
 main/multi.c: forbid % to read into multi messages to not mess up the string

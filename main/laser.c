@@ -1091,8 +1091,12 @@ void Laser_do_weapon_sequence(object *obj)
 				if (newhomers)
 				{
 					fix turn_radius;
-	
-					turn_radius = 0x0014 * F1_0;
+
+					if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
+						turn_radius = 0x0014 * F1_0; // homing missiles, mega missiles
+					else
+						turn_radius = 0x0020 * F1_0; // smart missile blobs
+
 					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 			
 					// we need normalized exact vectors here
