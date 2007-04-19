@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070420
+--------
+main/laser.c: made smart blobs easier to dodge
+
 20070415
 --------
 main/newmenu.c: only draw copyright stuff if there is really the menu background (not being changed by draw_stars())
