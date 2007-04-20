@@ -1392,7 +1392,7 @@ void kc_change_joyaxis( kc_item * item )
 		joystick_read_raw_axis( JOY_ALL_AXIS, axis );
 
 		for (i=0; i<numaxis; i++ )	{
-  			if ( abs(axis[i]-old_axis[i])>1024 )
+  			if ( abs(axis[i]-old_axis[i])>4096 )
 			{
 				code = i;
 #ifndef NDEBUG

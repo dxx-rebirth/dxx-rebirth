@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070420
 --------
 main/laser.c: made smart blobs easier to dodge
+main/kconfig.c: increased offset to detect movement on Joystick axis for mapping function
 
 20070415
 --------
