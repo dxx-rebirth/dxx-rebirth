@@ -1863,7 +1863,7 @@ void kc_change_joyaxis( kc_item * item )
 #if defined (MACINTOSH)
 			if ( abs(axis[i]-old_axis[i])>100 )
 #else
-			if ( abs(axis[i]-old_axis[i])>1024 )
+			if ( abs(axis[i]-old_axis[i])>4096 )
 #endif
 			{
 				code = i;
