@@ -183,45 +183,52 @@ void HUD_init_message(char * format, va_list args)
 	if ( (hud_last < 0) || (hud_last >= HUD_MAX_NUM))
 		Int3(); // Get Rob!!
 
-		message = HUD_messages[hud_last];
-		vsprintf(message,format,args);
+	message = HUD_messages[hud_last];
+	vsprintf(message,format,args);
 
-		if (HUD_nmessages > 0)	{
-			if (hud_last==0)
-				last_message = HUD_messages[HUD_MAX_NUM-1];
-			else
-				last_message = HUD_messages[hud_last-1];
-		}
+	// clean message if necessary.
+	// using placeholders may mess up message string and crash game(s).
+	// block them also to prevent attacks from other clients.
+	for (i = 0; i <= strlen(message); i++)
+		if (message[i] == '%')
+			message [i] = ' ';
 
-		temp = (hud_last+1) % HUD_MAX_NUM;
-		if ( temp==hudlog_first )	{
-			hudlog_first= (hudlog_first+1) % HUD_MAX_NUM;
-			hudlog_num--;
-		}
-		if ( HUD_nmessages>=HUD_max_num_disp){
-			// If too many messages, remove oldest message to make room
-			hud_first = (hud_first+1) % HUD_MAX_NUM;
-			HUD_nmessages--;
-		}
+	if (HUD_nmessages > 0)	{
+		if (hud_last==0)
+			last_message = HUD_messages[HUD_MAX_NUM-1];
+		else
+			last_message = HUD_messages[hud_last-1];
+	}
 
-		if (last_message && (!strcmp(last_message, message))) {
-			HUD_message_timer = F1_0*3;		// 1 second per 5 characters
-			return;	// ignore since it is the same as the last one
-		}
+	temp = (hud_last+1) % HUD_MAX_NUM;
+	if ( temp==hudlog_first )	{
+		hudlog_first= (hudlog_first+1) % HUD_MAX_NUM;
+		hudlog_num--;
+	}
+	if ( HUD_nmessages>=HUD_max_num_disp){
+		// If too many messages, remove oldest message to make room
+		hud_first = (hud_first+1) % HUD_MAX_NUM;
+		HUD_nmessages--;
+	}
 
-		hud_last = temp;
-		// Check if memory has been overwritten at this point.
-		if (strlen(message) >= HUD_MESSAGE_LENGTH)
-			Error( "Your message to HUD is too long.  Limit is %i characters.\n", HUD_MESSAGE_LENGTH);
-		#ifdef NEWDEMO
-		if (Newdemo_state == ND_STATE_RECORDING )
-			newdemo_record_hud_message( message );
-		#endif
+	if (last_message && (!strcmp(last_message, message))) {
 		HUD_message_timer = F1_0*3;		// 1 second per 5 characters
-		HUD_nmessages++;
-		hudlog_num++;
+		return;	// ignore since it is the same as the last one
+	}
 
-		hud_log_message(message);
+	hud_last = temp;
+	// Check if memory has been overwritten at this point.
+	if (strlen(message) >= HUD_MESSAGE_LENGTH)
+		Error( "Your message to HUD is too long.  Limit is %i characters.\n", HUD_MESSAGE_LENGTH);
+	#ifdef NEWDEMO
+	if (Newdemo_state == ND_STATE_RECORDING )
+		newdemo_record_hud_message( message );
+	#endif
+	HUD_message_timer = F1_0*3;		// 1 second per 5 characters
+	HUD_nmessages++;
+	hudlog_num++;
+
+	hud_log_message(message);
 }
 
 
