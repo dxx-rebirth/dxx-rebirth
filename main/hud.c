@@ -176,7 +176,7 @@ void mekh_hud_recall_msgs()
 
 void HUD_init_message(char * format, va_list args)
 {
-	int temp;
+	int temp, i;
 	char *message = NULL;
 	char *last_message=NULL;
 
