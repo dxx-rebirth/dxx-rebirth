@@ -253,7 +253,7 @@ int PlayerMessage=1;
 // (message might not be drawn if previous message was same)
 int HUD_init_message_va(char * format, va_list args)
 {
-	int temp;
+	int temp, i;
 	char *message = NULL;
 	char *last_message=NULL;
 #if 0
@@ -272,6 +272,13 @@ int HUD_init_message_va(char * format, va_list args)
 	// -- mprintf((0, "message timer: %7.3f\n", f2fl(HUD_message_timer)));
 	message = &HUD_messages[hud_last][0];
 	vsprintf(message,format,args);
+
+	// clean message if necessary.
+	// using placeholders may mess up message string and crash game(s).
+	// block them also to prevent attacks from other clients.
+	for (i = 0; i <= strlen(message); i++)
+		if (message[i] == '%')
+			message [i] = ' ';
 
 	// Added by Leighton
 

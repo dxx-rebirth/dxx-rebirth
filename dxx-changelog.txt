@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070421
+--------
+main/hud.c: prevent string placeholders in HUD Messages which may crash the game
+
 20070420
 --------
 main/laser.c: made smart blobs easier to dodge
