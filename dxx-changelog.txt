@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070425
+--------
+arch/cocoa/tool_bundle.py, SConstruct: add Mac OS X support to SConstruct
+
 20070421
 --------
 main/hud.c: prevent string placeholders in HUD Messages which may crash the game

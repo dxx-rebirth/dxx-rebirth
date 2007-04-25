@@ -231,27 +231,33 @@ editor_sources = [
 'ui/window.c'
 ]
 
-# for linux
-arch_linux_sources = [
+# for *nix
+arch_unix_sources = [
 'arch/linux/init.c',
-'arch/linux/ipx_bsd.c',
-'arch/linux/ipx_kali.c',
 'arch/linux/ipx_mcast4.c',
 'arch/linux/ipx_udp.c',
 'arch/linux/linuxnet.c',
+]
+
+# for linux
+arch_linux_sources = [
+'arch/linux/ipx_bsd.c',
+'arch/linux/ipx_kali.c',
 'arch/linux/mono.c',
 'arch/linux/ukali.c',
 ]
 
-# choosing a sound implementation for Linux
+# choosing a sound implementation for *nix
 common_sound_hmp2mid = [ 'misc/hmp2mid.c' ]
-arch_linux_sound_sdlmixer = [ 'arch/sdl/mixdigi.c', 'arch/sdl/mixmusic.c' ]
-arch_linux_sound_old = [ 'arch/sdl/digi.c', 'arch/linux/hmiplay.c' ]
+arch_unix_sound_sdlmixer = [ 'arch/sdl/mixdigi.c', 'arch/sdl/mixmusic.c' ]
+arch_unix_sound_old = [ 'arch/sdl/digi.c'  ]
+arch_linux_sound_old = ['arch/linux/hmiplay.c' ]
 
 if (sdlmixer == 1):
 	common_sources += common_sound_hmp2mid
-	arch_linux_sources += arch_linux_sound_sdlmixer
+	arch_unix_sources += arch_unix_sound_sdlmixer
 else:
+	arch_unix_sources += arch_unix_sound_old
 	arch_linux_sources += arch_linux_sound_old
 
 # for windows
@@ -265,6 +271,11 @@ arch_win32_sources = [
 'arch/win32/mono.c',
 'arch/win32/winnet.c',
 'arch/sdl/digi.c',
+]
+
+# for Mac OS X
+arch_macosx_sources = [
+'arch/cocoa/SDLMain.m'
 ]
 
 # for opengl
@@ -309,7 +320,7 @@ env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('VERSION', '\\"' + str(VERSION) + '\\"')])
 env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
-env.Append(CPPDEFINES = ['NMONO', 'PIGGY_USE_PAGING', 'NETWORK', 'NATIVE_IPX', 'HAVE_NETIPX_IPX_H', 'NEWDEMO', 'SDL_INPUT', '_REENTRANT'])
+env.Append(CPPDEFINES = ['NMONO', 'PIGGY_USE_PAGING', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'NEWDEMO', 'SDL_INPUT', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 generic_libs = ['SDL', 'physfs']
 sdlmixerlib = ['SDL_mixer']
@@ -320,7 +331,7 @@ if sys.platform == 'win32':
 	osdef = '_WIN32'
 	osasmdef = 'win32'
 	sharepath = ''
-	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
+	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL', 'NATIVE_IPX'])
 	env.Append(CPPPATH = ['arch/win32/include', '/msys/1.0/MinGW/include/SDL'])
 	ogldefines = ['SDL_GL_VIDEO', 'OGL', 'OGL_RUNTIME_LOAD']
 	common_sources += arch_win32_sources
@@ -328,15 +339,37 @@ if sys.platform == 'win32':
 	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
 	libs = winlibs + generic_libs
 	lflags = '-mwindows'
-#elif sys.platform == 'darwin': #!!!TODO!!!#
+elif sys.platform == 'darwin':
+	print "compiling on Mac OS X"
+	osdef = '__APPLE__'
+	env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
+	no_asm = 1
+	env.Append(CPPPATH = ['arch/linux/include'])
+	ogldefines = ['SDL_GL_VIDEO', 'OGL']
+	common_sources += arch_unix_sources
+	common_sources += arch_macosx_sources
+	ogllibs = ''
+	libs = ''
+	# Ugly way of linking to frameworks, but kreator has seen uglier
+	lflags = '-framework Cocoa -framework SDL -framework physfs'
+	if (sdl_only == 0):
+		lflags += ' -framework OpenGL'
+	if (sdlmixer == 1):
+		print "including SDL_mixer"
+		lflags += ' -framework SDL_mixer'
+	sys.path += ['./arch/cocoa']
+	env['VERSION_NUM'] = VERSION
+	env['VERSION_NAME'] = PROGRAM_NAME + ' v' + VERSION
+	import tool_bundle
 else:
 	print "compiling on *NIX"
 	osdef = '__LINUX__'
 	osasmdef = 'elf'
 	sharepath += '/'
-	env.Append(CPPDEFINES = ['__LINUX__', 'KALINIX', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
+	env.Append(CPPDEFINES = ['__LINUX__', 'NATIVE_IPX', 'KALINIX', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL_VIDEO', 'OGL']
+	common_sources += arch_unix_sources
 	common_sources += arch_linux_sources
 	ogllibs = ['GL', 'GLU']
 	libs = generic_libs
@@ -349,7 +382,7 @@ if (gp2x == 1):
 	sharepath = ''
 	env.Replace(CC = '/gp2xsdk/Tools/bin/arm-gp2x-linux-gcc')
 	env.Replace(CXX = '/gp2xsdk/Tools/bin/arm-gp2x-linux-g++')
-	env.Append(CPPDEFINES = ['GP2X'])
+	env.Append(CPPDEFINES = ['GP2X', 'NATIVE_IPX'])
 	env.Append(CPPPATH = ['/gp2xdev/Tools/arm-gp2x-linux/include'])
 	#env.Append(CPPFLAGS = ' -ffast-math -fPIC -funroll-all-loops -fomit-frame-pointer -march=armv4t') # left for further optimisation/debugging
 	common_sources += ['main/clock.c']
@@ -381,7 +414,7 @@ else:
 	libs += ogllibs
 
 # SDL_mixer for sound? (*NIX only)
-if (sdlmixer == 1):
+if (sdlmixer == 1) and (sys.platform != 'darwin'):
 	print "including SDL_mixer"
 	libs += sdlmixerlib
 
@@ -426,8 +459,17 @@ print '\n'
 env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(sharepath) + '\\"')])
 # finally building program...
 env.Program(target=str(target), source = common_sources, LIBS = libs, LINKFLAGS = str(lflags), LIBPATH = str(lpath))
-env.Install(BIN_DIR, str(target))
-env.Alias('install', BIN_DIR)
+if (sys.platform != 'darwin'):
+	env.Install(BIN_DIR, str(target))
+	env.Alias('install', BIN_DIR)
+else:
+	tool_bundle.TOOL_BUNDLE(env)
+	env.MakeBundle(PROGRAM_NAME + '.app', target,
+                       'free.d2x-rebirth', 'd2xgl-Info.plist',
+                       typecode='APPL', creator='DCT2',
+                       icon_file='arch/cocoa/d2x-rebirth.icns',
+                       subst_dict={'d2xgl' : target},	# This is required; manually update version for Xcode compatibility
+                       resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
 
 # show some help when running scons -h
 Help(PROGRAM_NAME + ', SConstruct file help:' +
