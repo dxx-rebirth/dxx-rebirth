@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070427
+--------
+main/game.c: removed FrameTime limiter since it is only messing if 150FPS or more is reached
+
 20070425
 --------
 arch/cocoa/tool_bundle.py, SConstruct: add Mac OS X support to SConstruct

@@ -742,7 +742,7 @@ int Movie_fixed_frametime;
 #endif
 
 //added on 8/18/98 by Victor Rachels to add maximum framerate
-int maxfps = MAX_FPS;
+int maxfps = 80; //MAX_FPS;
 int use_nice_fps=1;
 
 void calc_frame_time()
@@ -784,11 +784,6 @@ void calc_frame_time()
 
 	if ( Game_turbo_mode )
 		FrameTime *= 2;
-
-	// Limit frametime to be between 5 and 150 fps.
-	RealFrameTime = FrameTime;
-	if ( FrameTime < F1_0/150 ) FrameTime = F1_0/150;
-	if ( FrameTime > F1_0/5 ) FrameTime = F1_0/5;
 
 	last_timer_value = timer_value;
 
