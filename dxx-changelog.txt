@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070502
 --------
 main/game.c, main/gauges.c: resolved some overlapping HUD elements
+main/args.c: improved INI-File parsing
 
 20070421
 --------

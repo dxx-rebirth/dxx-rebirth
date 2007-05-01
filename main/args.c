@@ -81,8 +81,9 @@ static char rcsid[] = "$Id: args.c,v 1.1.1.1 2006/03/17 19:42:49 zicodxx Exp $";
 #include "strutil.h"
 //end added - OE
 
+#define MAX_ARGS 200
 int Num_args=0;
-char * Args[200];
+char * Args[MAX_ARGS];
 
 int FindArg( char * s )	{
 	int i;
@@ -125,57 +126,55 @@ int FindResArg(char *prefix, int *sw, int *sh)
 
 }
 
-//added 7/11/99 by adb to free arguments (prevent memleak msg)
-void FreeArgs(void)
+void args_exit(void)
 {
-   int i;
-   for (i=0; i< Num_args; i++ )
-    free(Args[i]);
+	int i;
+	for (i=0; i< Num_args; i++ )
+		free(Args[i]);
 }
-//end additions - adb
+
+void AppendArgs(void)
+{
+	FILE *f;
+	char *line,*word;
+	int i;
+	
+	if((i=FindArg("-ini")))
+		f=fopen(Args[i+1],"rt");
+	else
+		f=fopen("d1x.ini","rt");
+	
+	if(f) {
+		while(!feof(f) && Num_args < MAX_ARGS)
+		{
+			line=fsplitword(f,'\n');
+			word=splitword(line,' ');
+			
+			Args[Num_args++] = strdup(word);
+			
+			if(line)
+				Args[Num_args++] = strdup(line);
+			
+			free(line); free(word);
+		}
+		fclose(f);
+	}
+}
 
 void InitArgs( int argc,char **argv )
 {
- int i;
- FILE *f;
- char *line,*word;
+	int i;
+	
+	Num_args=0;
+	
+	for (i=0; i<argc; i++ )
+		Args[Num_args++] = strdup( argv[i] );
 
-  Num_args=0;
+	for (i=0; i< Num_args; i++ ) {
+		if ( Args[i][0] == '-' )
+			strlwr( Args[i]  );  // Convert all args to lowercase
+	}
+	AppendArgs();
 
-   for (i=0; i<argc; i++ )
-    Args[Num_args++] = strdup( argv[i] );
-        
-
-   for (i=0; i< Num_args; i++ )
-    {
-//killed 02/06/99 Matthew Mueller - interferes with filename args which might start with /
-//     if ( Args[i][0] == '/' )  
-//      Args[i][0] = '-';
-//end kill -MM
-     if ( Args[i][0] == '-' )
-      strlwr( Args[i]  );             // Convert all args to lowercase
-    }
-  if((i=FindArg("-ini")))
-   f=fopen(Args[i+1],"rt");
-  else
-   f=fopen("d1x.ini","rt");
-
-     if(f)
-      {
-       while(!feof(f))
-        {
-         line=fsplitword(f,'\n');
-         word=splitword(line,' ');
-
-         Args[Num_args++] = strdup(word);
-
-          if(line)
-           Args[Num_args++] = strdup(line);
-
-         free(line); free(word);
-        }
-       fclose(f);
-      }
-   
-	atexit(FreeArgs);
+	atexit(args_exit);
 }
