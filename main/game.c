@@ -217,6 +217,7 @@ extern	void newdemo_strip_frames(char *, int);
 #ifndef RELEASE
 int invulnerability=0;
 #endif
+extern int HUD_nmessages;
 
 #define BACKGROUND_NAME "statback.pcx"
 
@@ -1117,17 +1118,18 @@ void draw_window_label()
 }
 #endif
 
-
 void render_countdown_gauge()
 {
 	if (!Endlevel_sequence && Fuelcen_control_center_destroyed  && (Fuelcen_seconds_left>-1) && (Fuelcen_seconds_left<127))	{
 		int	y;
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
-		y = FONTSCALE_Y(15 + GAME_FONT->ft_h);
+		y = FONTSCALE_Y(/*20 + */GAME_FONT->ft_h*5);
 		if (!((Cockpit_mode == CM_STATUS_BAR) && (Game_window_w >= 19)))
 			y += 5;
-		gr_printf(0x8000, y, "T-%d s", Fuelcen_seconds_left );
+
+		if (HUD_nmessages <= 4) // do not display if it may overlap with hud messages
+			gr_printf(0x8000, y, "T-%d s", Fuelcen_seconds_left );
 	}
 }
 

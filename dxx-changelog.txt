@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070502
+--------
+main/game.c, main/gauges.c: resolved some overlapping HUD elements
+
 20070421
 --------
 main/hud.c: prevent string placeholders in HUD Messages which may crash the game
