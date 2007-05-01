@@ -924,7 +924,7 @@ void hud_show_score()
 	char	score_str[20];
 	int	w, h, aw;
 
-	if ((HUD_nmessages > 0) && (strlen(HUD_messages[hud_first]) > 40))
+	if ((HUD_nmessages > 0) && (strlen(HUD_messages[hud_first]) > 38))
 		return;
 
 	gr_set_curfont( GAME_FONT );
@@ -1766,7 +1766,7 @@ void hud_show_shield(void)
 //draw the icons for number of lives
 void hud_show_lives()
 {
-	if ((HUD_nmessages > 0) && (strlen(HUD_messages[hud_first]) > 40))
+	if ((HUD_nmessages > 0) && (strlen(HUD_messages[hud_first]) > 38))
 		return;
 
 	if (Game_mode & GM_MULTI) {
