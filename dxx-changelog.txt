@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070502
 --------
 main/gauges.c: resolved some overlapping HUD elements
+main/game.c: rev432 revisited - do not send multi De-Cloak packet in Demo Playback
 
 20070427
 --------
