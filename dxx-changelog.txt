@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/game.c, main/gauges.c: resolved some overlapping HUD elements
 main/args.c: improved INI-File parsing
+main/game.c: rev432 revisited - do not send multi De-Cloak packet in Demo Playback
 
 20070421
 --------
