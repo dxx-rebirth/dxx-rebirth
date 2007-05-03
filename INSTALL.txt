@@ -1,0 +1,146 @@
+Compiling D1X-Rebirth Sourcecode on a *NIX System
+
+This file describes how to compile D1X-Rebirth from Source.
+
+
+Requirements
+
+   1.
+      C/C++ compiler (gcc/g++)
+   2.
+      SCons
+   3.
+      SDL(-devel)
+   4.
+      GLU/GL
+   5.
+      NASM (optional for Assembler-based Texture-mapper in non-OpenGL Build)
+
+
+Compiling
+
+The SConstruct file provides various options to compile this program.
+To get a full list of all available commands, type scons -h within the Source directory.
+
+Currently, the following variables are supported:
+
+'sharepath=DIR'   (*NIX only) use DIR for shared game data. (default: /usr/local/share/games/d1x-rebirth)
+'sdl_only=1'      don't include OpenGL, use SDL-only instead
+'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
+'shareware=1'     build SHAREWARE version
+'no_asm=1'        don't use ASSEMBLER (only with sdl_only=1)
+'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
+'profiler=1'      do profiler build
+'editor=1'        build editor !EXPERIMENTAL!
+'arm=1'           compile for ARM architecture
+'gp2x=1'          compile for GP2X handheld
+
+‘sdlmixer’ as well as ‘editor’ are currently *not* supported and may not work.
+
+To compile the source, type:
+
+scons
+
+
+If you wish to add additional commands, just add them to the scons command.
+Example:
+
+scons sdl_only=1 no_asm=1
+
+
+To install the compiled binary to your system (/usr/local/bin/), type (as root):
+
+scons install
+
+You can also add the ‘install’ command while compile-time. SCons will compile and install the binary right after that.
+
+To clean up the source directory after installation, type:
+
+scons -c
+
+
+Needed files
+
+Since D1X-Rebirth is a Sourceport of the Descent1-Engine you will need the Game-Content data files to run the game.
+
+Following files are needed to run the game:
+
+descent.hog
+descent.pig
+
+These files should be located on the Descent1 CD-Rom.
+Note that those files must be patched to version 1.4a.
+
+There is a patch suitable for *NIX systems (diff-files) available at:
+http://www.dxx-rebirth.de/download/dxx/res/descent1_patch14a-linux.tar.gz
+
+Patching can also be done from Windows/DOS using the DOS 1.4a-patch of Parallax, that will patch a common Descent1 installation.
+DOS 1.4a patch: http://www.dxx-rebirth.de/download/dxx/res/descent1_patch14a.exe
+
+Those files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d1x-rebirth/
+
+To play the Multiplayer levelset “Total Chaos”, also copy the files
+
+chaos.hog
+chaos.msn
+
+to the subdirectory ‘missions/’ in your Sharepath. These files should also be located on the Descent1 CD.
+
+
+Optional files
+
+D1X-Rebirth is expandable. You can add additional content to the game.
+
+Supported content:
+
+    *
+      HiRes Briefing Images and Fonts
+      Available at:
+      http://www.dxx-rebirth.de/download/dxx/res/d1x-rebirth_hires-briefings_v2.zip
+      http://www.dxx-rebirth.de/download/dxx/res/d1x-rebirth_hires-fonts.zip
+      To add those, copy them to subdirectory ‘hires/’ of the Sharepath.
+      HiRes Briefings will be used automatically, HiRes Fonts can be activated with command-line switch ‘-hiresfont’.
+
+    *
+      Custom/AddOn missions
+      Those can be found on several websites. Add them to the game by copying them to subdirectoy ‘missions/’ of the Sharepath.
+
+    *
+      Language Packs
+      German translation: http://www.dxx-rebirth.de/download/dxx/res/D1XBDE01.zip
+      Copy the txb-files to the Sharepath. Will be activated automatically
+
+
+Launching the program
+
+After compiling and installing, the program can be launched with the command
+
+d1x-rebirth-gl
+
+or - if it has been compiled with SCons parameter ‘sdl_only=1’ -
+
+d1x-rebirth-sdl
+
+To see a full list of available command-line options append ‘-h’, ‘-?’ to the command or refer file
+
+d1x.ini
+
+
+The game will create a config-directory in the Home directory of the user called ‘.d1x-rebirth’.
+It is used to read/save
+
+    *
+      Configuration files
+    *
+      Pilot profiles and Savegames
+    *
+      Demos
+    *
+      Screenshots
+    *
+      d1x.ini for parsing command-line arguments
+
+
+Appendix
+
+http://DXX-Rebirth.de
