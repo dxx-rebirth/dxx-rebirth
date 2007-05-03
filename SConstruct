@@ -8,7 +8,7 @@ PROGRAM_NAME = 'D1X-Rebirth'
 
 # version number
 D1XMAJOR = 0
-D1XMINOR = 51
+D1XMINOR = 52
 
 #SVN_REVISION = os.popen('echo -n `LANG=C svn info | grep ^Revision | cut -d\  -f2`').read()
 
