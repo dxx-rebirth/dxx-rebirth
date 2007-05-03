@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070503
 --------
 CHANGELOG.txt, COPYING.txt, INSTALL.txt, README.txt: updated docs
+SConstruct: Version-Tag 0.52
 
 20070502
 --------
