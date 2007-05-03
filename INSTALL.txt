@@ -1,0 +1,158 @@
+Compiling D2X-Rebirth Sourcecode on a *NIX System
+
+This file describes how to compile D2X-Rebirth from Source.
+
+
+Requirements
+
+   1.
+      C/C++ compiler (gcc/g++)
+   2.
+      SCons
+   3.
+      SDL(-devel)
+   4.
+      PhysFS(-devel)
+   5.
+      GLU/GL
+   6.
+      NASM (optional for Assembler-based Texture-mapper in non-OpenGL Build)
+
+
+Compiling
+
+The SConstruct file provides various options to compile this program.
+To get a full list of all available commands, type scons -h within the Source directory.
+
+Currently, the following variables are supported:
+
+'sharepath=DIR'   (*NIX only) use DIR for shared game data. (default: /usr/local/share/games/d2x-rebirth)
+'sdl_only=1'      don't include OpenGL, use SDL-only instead
+'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
+'no_asm=1'        don't use ASSEMBLER (only with sdl_only=1)
+'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
+'profiler=1'      do profiler build
+'console=1'       build with console support !EXPERIMENTAL!
+'editor=1'        build editor !EXPERIMENTAL!
+'arm=1'           compile for ARM architecture
+'gp2x=1'          compile for GP2X handheld
+
+‘sdlmixer’ as well as ‘editor’ are currently *not* supported and may not work.
+
+To compile the source, type:
+
+scons
+
+
+If you wish to add additional commands, just add them to the scons command.
+Example:
+
+scons sdl_only=1 no_asm=1
+
+
+To install the compiled binary to your system (/usr/local/bin/), type (as root):
+
+scons install
+
+You can also add the ‘install’ command while compile-time. SCons will compile and install the binary right after that.
+
+To clean up the source directory after installation, type:
+
+scons -c
+
+
+Needed files
+
+Since D2X-Rebirth is a Sourceport of the Descent2-Engine you will need the Game-Content data files to run the game.
+
+Following files are needed to run the game:
+
+descent2.ham
+descent2.hog
+descent2.s11
+descent2.s22
+alien1.pig
+alien2.pig
+fire.pig
+groupa.pig
+ice.pig
+water.pig
+intro-h.mvl and/or intro-l.mvl
+other-h.mvl and/or other-l.mvl
+robots-h.mvl and/or robots-l.mvl
+
+These files - except the Movies (*.mvl) - are archived in the file
+
+descent2.sow
+
+on the Descent2 CD-Rom.
+This is an ARJ-archive and can be extracted with an adapted archiver like ‘unarj’ or by installing the game on a Windows/DOS system.
+
+Those files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d2x-rebirth/
+
+
+Optional files
+
+D2X-Rebirth is expandable. You can add additional content to the game.
+
+Supported content:
+
+    *
+      Vertigo series AddOn
+      Can be added by copying the files
+
+      d2x-h.mvl and/or d2x-l.mvl
+      hoard.ham
+
+      to the Sharepath and
+
+      d2x.hog
+      d2x.mn2
+
+      to ‘missions/’ subdirectory in the Sharepath. All these files should be located on the ‘Vertigo Series’ CD-Rom
+
+    *
+      Custom/AddOn missions
+      Those can be found on several websites. Add them to the game by copying them to subdirectoy ‘missions/’ of the Sharepath.
+
+    *
+      Language Packs
+      German translation: http://www.dxx-rebirth.de/download/dxx/res/D2XBDE01.zip
+      Copy the txb-files to the Sharepath. Will be activated automatically
+
+
+Launching the program
+
+After compiling and installing, the program can be launched with the command
+
+d2x-rebirth-gl
+
+or - if it has been compiled with SCons parameter ‘sdl_only=1’ -
+
+d2x-rebirth-sdl
+
+To see a full list of available command-line options append ‘-h’, ‘-?’ to the command or refer file
+
+d2x.ini
+
+
+The game will create a config-directory in the Home directory of the user called ‘.d2x-rebirth’.
+It is used to read/save
+
+    *
+      Configuration files
+    *
+      Pilot profiles and Savegames
+    *
+      Demos
+    *
+      Screenshots
+    *
+      d2x.ini for parsing command-line arguments
+
+Thanks to PhysFS it can also be used as a replacement for Sharepath directory
+
+
+Appendix
+
+http://DXX-Rebirth.de
