@@ -1856,7 +1856,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 	set_screen_mode(SCREEN_GAME);
 
-	load_palette(Current_level_palette,1,1);
+	load_palette(Current_level_palette,0,1);
 	gr_palette_load(gr_palette);
 
 	init_cockpit();

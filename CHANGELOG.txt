@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070505
+--------
+main/gameseq.c: fixed broken Textures for Custom levels caused by load_palette() call
+
 20070503
 --------
 CHANGELOG.txt, COPYING.txt, INSTALL.txt, README.txt: updated docs
