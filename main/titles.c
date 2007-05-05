@@ -271,8 +271,6 @@ void show_titles(void)
 		{
 			char filename[FILENAME_LEN];
 
-			gr_set_mode(MenuHires?SM(640,480):SM(320,200));
-
 			con_printf( CON_DEBUG, "\nPlaying title song..." );
 			songs_play_song( SONG_TITLE, 1);
 			song_playing = 1;
