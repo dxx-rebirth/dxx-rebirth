@@ -824,6 +824,10 @@ void HandleDemoKey(int key)
 			Newdemo_vcr_state = old_state;
 			break;
 		}
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
+			gr_toggle_fullscreen();
+			break;
 
 		#ifdef MACINTOSH
 		case KEY_COMMAND+KEY_Q:

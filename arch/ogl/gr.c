@@ -88,6 +88,18 @@ void gr_do_fullscreen(int f){
 int gr_toggle_fullscreen(void){
 	gr_do_fullscreen(!ogl_fullscreen);
 	//	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
+
+	if (Screen_mode != SCREEN_GAME) // update viewing values for menus
+	{
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();//clear matrix
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
 	return ogl_fullscreen;
 }
 

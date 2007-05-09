@@ -1342,6 +1342,11 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				done = 1;
 			break;
 
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
+			gr_toggle_fullscreen();
+			break;
+
 		case KEY_ESC:
 			if ( (choice>-1) && (item[choice].type==NM_TYPE_INPUT_MENU) && (item[choice].group==1))	{
 				item[choice].group=0;
@@ -2273,6 +2278,11 @@ ReadFileNames:
 			break;
 		}
 		#endif
+
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
+			gr_toggle_fullscreen();
+			break;
 		
 		default:	
 			{
@@ -2667,6 +2677,11 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			break;
 		}
 		#endif
+
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
+			gr_toggle_fullscreen();
+			break;
 
 		default:	
 			if ( key > 0 )	{

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070509
+--------
+arch/ogl/gr.c, main/gamecntl.c, main/newmenu.c: update viewing values at Fullscreen Toggle; added Fullscreen Toggle to Menus and Demo Playback
+
 20070506
 --------
 main/titles.c: removed unnecessary gr_set_mode() call causing annoying resolution change (hopefully)
