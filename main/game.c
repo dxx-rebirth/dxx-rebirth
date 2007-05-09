@@ -2315,6 +2315,9 @@ void HandleDemoKey(int key)
 			game_do_render_frame(Game_double_buffer);
 			save_screen_shot(0);
 			Newdemo_vcr_state = old_state;
+		case KEYS_GR_TOGGLE_FULLSCREEN:
+			gr_toggle_fullscreen_game();
+			break;
 		break;
 		}
 	}

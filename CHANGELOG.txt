@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070509
+--------
+arch/ogl/gr.c, arch/sdl/gr.c, main/game.c, main/newmenu.c: update viewing values at Fullscreen Toggle; added Fullscreen Toggle to Menus and Demo Playback
+
 20070503
 --------
 CHANGELOG.txt, COPYING.txt, INSTALL.txt, README.txt: updated docs

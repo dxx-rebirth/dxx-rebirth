@@ -159,7 +159,7 @@ int gr_check_fullscreen(void){
 }
 int gr_toggle_fullscreen(void){
 	sdl_video_flags^=SDL_FULLSCREEN;
-	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
+	SDL_WM_ToggleFullScreen(screen);
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 

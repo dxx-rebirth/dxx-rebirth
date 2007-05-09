@@ -1063,6 +1063,10 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 				done = 1;
 			break;
 
+		case KEYS_GR_TOGGLE_FULLSCREEN:
+			gr_toggle_fullscreen();
+			break;
+
 		case KEY_ESC:
 			if ( (choice>-1) && (item[choice].type==NM_TYPE_INPUT_MENU) && (item[choice].group==1))	{
 				item[choice].group=0;
@@ -1792,6 +1796,10 @@ ReadFileNames:
 			done = 1;
 			break;
 
+		case KEYS_GR_TOGGLE_FULLSCREEN:
+			gr_toggle_fullscreen();
+			break;
+
 		default:	
 			{
 				int ascii = key_to_ascii(key);
@@ -2156,6 +2164,10 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		case GP2X_BUTTON_B:
 #endif
 			done = 1;
+			break;
+
+		case KEYS_GR_TOGGLE_FULLSCREEN:
+			gr_toggle_fullscreen();
 			break;
 
 		default:	
