@@ -29,7 +29,7 @@ global gr_merge_textures, gr_merge_textures_1, gr_merge_textures_2, gr_merge_tex
 ;    for (y=0; y<64; y++ )
 ;       for (x=0; x<64; x++ )   {
 ;          c = top_data[ 64*x+(63-y) ];      
-;          if (c==TRANSPARENCY_COLOR)
+;          if (c==255)
 ;             c = bottom_data[ 64*y+x ];
 ;          *dest_data++ = c;
 ;       }
@@ -39,7 +39,7 @@ global gr_merge_textures, gr_merge_textures_1, gr_merge_textures_2, gr_merge_tex
 ;    for (y=0; y<64; y++ )
 ;       for (x=0; x<64; x++ )   {
 ;          c = top_data[ 64*(63-y)+(63-x) ];
-;          if (c==TRANSPARENCY_COLOR)
+;          if (c==255)
 ;             c = bottom_data[ 64*y+x ];
 ;          *dest_data++ = c;
 ;       }
@@ -49,7 +49,7 @@ global gr_merge_textures, gr_merge_textures_1, gr_merge_textures_2, gr_merge_tex
 ;    for (y=0; y<64; y++ )
 ;       for (x=0; x<64; x++ )   {
 ;          c = top_data[ 64*(63-x)+y  ];
-;          if (c==TRANSPARENCY_COLOR)
+;          if (c==255)
 ;             c = bottom_data[ 64*y+x ];
 ;          *dest_data++ = c;
 ;       }
@@ -72,7 +72,7 @@ gr_merge_textures:
 
 	mov	ebp, edx
 	mov	edi, ebx
-	mov	bl, TRANSPARENCY_COLOR
+	mov	bl, 255
 	mov	bh, bl
 	and	ebx, 0ffffh
 	and	edx, 0ffffh
@@ -141,7 +141,7 @@ gr_merge_textures_1:
 	mov	edx, [esp+24]
         mov     ebx, [esp+28]
 
-	mov	ch, TRANSPARENCY_COLOR ; transparent color, stick in a register, is this faster?
+	mov	ch, 255 ; transparent color, stick in a register, is this faster?
 
 	mov	esi, 63	; esi will be the offset to the current pixel
 	mov	[row_count], esi
@@ -193,7 +193,7 @@ gr_merge_textures_2:
 	mov	edx, [esp+24]
         mov     ebx, [esp+28]
 
-	mov	ch, TRANSPARENCY_COLOR	; transparent color, stick in a register, is this faster?
+	mov	ch, 255	; transparent color, stick in a register, is this faster?
 
 	mov	esi, 63 + 64*63	; esi will be the offset to the current pixel
 
@@ -235,7 +235,7 @@ gr_merge_textures_3:
 	mov	edx, [esp+24]
         mov     ebx, [esp+28]
 
-	mov	ch, TRANSPARENCY_COLOR	; transparent color, stick in a register, is this faster?
+	mov	ch, 255	; transparent color, stick in a register, is this faster?
 
 	mov	esi, 64*63	; esi will be the offset to the current pixel
 	mov	dword [row_count], 64

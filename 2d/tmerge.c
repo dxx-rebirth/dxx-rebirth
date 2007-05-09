@@ -10,6 +10,8 @@
 #include <conf.h>
 #endif
 
+#ifdef NO_ASM
+
 #include "gr.h"
 
 void gr_merge_textures( ubyte * lower, ubyte * upper, ubyte * dest )
@@ -62,3 +64,4 @@ void gr_merge_textures_3( ubyte * lower, ubyte * upper, ubyte * dest )
 			*dest++ = c;
 		}
 }
+#endif
