@@ -1834,6 +1834,9 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 #endif
 	init_player_stats_level(secret_flag);
 
+	load_palette(Current_level_palette,0,1);
+	gr_palette_load(gr_palette);
+
 #ifdef NETWORK
 	if ((Game_mode & GM_MULTI_COOP) && Network_rejoined)
 	{
@@ -1855,9 +1858,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	Control_center_destroyed = 0;
 
 	set_screen_mode(SCREEN_GAME);
-
-	load_palette(Current_level_palette,0,1);
-	gr_palette_load(gr_palette);
 
 	init_cockpit();
 	init_robots_for_level();

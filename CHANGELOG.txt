@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 arch/ogl/gr.c, main/gamecntl.c, main/newmenu.c: update viewing values at Fullscreen Toggle; added Fullscreen Toggle to Menus and Demo Playback
 2d/tmerge.c, tmerge_a.asm: fixed Assembler Compile Build error
+main/gameseq.c: moved load_palette() call in StartNewLevelSub() to show HOARD textures and bitmaps correctly in OGL
 
 20070506
 --------
