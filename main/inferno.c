@@ -629,6 +629,8 @@ int main(int argc,char **argv)
 			}
 		}
 		strlwr(filename);
+		if(!strstr(filename,".plr")) // if player hasn't specified .plr extension in argument, add it
+			strcat(filename,".plr");
 		if(!access(filename,4))
 		{
 			strcpy(strstr(filename,".plr"),"\0");

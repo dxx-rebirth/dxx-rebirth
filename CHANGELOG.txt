@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070510
+--------
+main/inferno.c: read -pilot arg with and without filename extension
+
 20070509
 --------
 arch/ogl/gr.c, arch/sdl/gr.c, main/game.c, main/newmenu.c: update viewing values at Fullscreen Toggle; added Fullscreen Toggle to Menus and Demo Playback
