@@ -1,10 +1,14 @@
 D2X-Rebirth Changelog
 
+20070510
+--------
+main/gameseq.c: moved load_palette() call in StartNewLevelSub() to show HOARD textures and bitmaps correctly in OGL
+main/inferno.c: read -pilot arg with and without filename extension
+
 20070509
 --------
 arch/ogl/gr.c, main/gamecntl.c, main/newmenu.c: update viewing values at Fullscreen Toggle; added Fullscreen Toggle to Menus and Demo Playback
 2d/tmerge.c, tmerge_a.asm: fixed Assembler Compile Build error
-main/gameseq.c: moved load_palette() call in StartNewLevelSub() to show HOARD textures and bitmaps correctly in OGL
 
 20070506
 --------
