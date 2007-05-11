@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070511
+--------
+main/movie.c: if movielib isn't found in requested resolution, do NOT select other version, since the game is unable to determinate to switch correctly - instead skip playback in that case
+
 20070510
 --------
 main/gameseq.c: moved load_palette() call in StartNewLevelSub() to show HOARD textures and bitmaps correctly in OGL
