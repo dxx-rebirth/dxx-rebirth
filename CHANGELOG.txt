@@ -1,5 +1,10 @@
 D2X-Rebirth Changelog
 
+20070512
+--------
+main/endlevel.c: Changed RAND_MAX to D_RAND_MAX in vector multipler so that resulting scale equals something logical.  Fixes explosions/attached sound when chasing player during endlevel tunnel exit
+main/switch.c: Added condition so that sounds keep playing through exit sequence when exiting a D1 level
+
 20070511
 --------
 main/movie.c: if movielib isn't found in requested resolution, do NOT select other version, since the game is unable to determinate to switch correctly - instead skip playback in that case

@@ -438,7 +438,8 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (pnum!=Player_num)
 			  break;
 
-			digi_stop_all();		//kill the sounds
+                        if (!EMULATING_D1)
+			  digi_stop_all();  //Sound shouldn't cut out when exiting a D1 lvl 
 			
 			if (Current_level_num > 0) {
 				start_endlevel_sequence();
