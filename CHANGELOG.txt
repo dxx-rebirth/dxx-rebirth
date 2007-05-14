@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 SConstruct, arch/sdl/init.c, arch/sdl/joydefs.c, arch/sdl/mouse.c, arch/include/mouse.h, include/error.h, main/config.h main/game.c, main/gamecntl.c, main/inferno.c, main/kconfig.c, main/kconfig.h, main/newmenu.c, main/newmenu.h, main/playsave.c, main/text.h: Added config field to map a Mouse Axis/Wheel to cycle Primary and Secondary weapons; lots of controls-related code cleaning
 main/laser.c: fixed speeding bug in homing system
+main/game.c: make sure Game_window_w/h is always set to a valid value in every cockpit mode
 
 20070512
 --------
