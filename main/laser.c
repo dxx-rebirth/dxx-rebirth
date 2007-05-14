@@ -1107,7 +1107,7 @@ void Laser_do_weapon_sequence(object *obj)
 					// homing missile speeds : insane - 0x005a
 					max_speed = Weapon_info[obj->id].speed[Difficulty_level];
 		
-					if (speed /*+ F1_0*/ < max_speed)
+					if (speed < max_speed)
 					{
 						speed += fixmul(max_speed, FrameTime/2);
 						if (speed > max_speed)
