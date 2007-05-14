@@ -964,11 +964,11 @@ void start_time()
 
 void game_flush_inputs()
 {
-	int dx,dy;
+	int dx,dy,dz;
 	key_flush();
 	joy_flush();
 	mouse_flush();
-	mouse_get_delta( &dx, &dy );	// Read mouse
+	mouse_get_delta( &dx, &dy, &dz );	// Read mouse
 	memset(&Controls,0,sizeof(control_info));
 }
 
@@ -1790,7 +1790,7 @@ void show_help()
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_ALT_F3; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F2; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F3; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-F3\t  TOGGLE RADAR"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F4\t  TOGGLE RADAR"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F5; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F7\t  switch hud-mode"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F9/F10\t  change screen size"; mc++;
@@ -2415,9 +2415,9 @@ void HandleGameKey(int key)
 		case KEY_F1:				do_show_help();         break;
 		case KEY_F2:				Config_menu_flag = 1;	break;
 		case KEY_F3:				toggle_cockpit();       break;
+		case KEY_F4:
 		case KEY_SHIFTED+KEY_F3:		if(!(Game_mode & GM_MULTI)||Network_allow_radar||I_am_observer)
 								show_radar = !show_radar; break;
-		case KEY_F4:				palette_save(); joydefs_calibrate(); palette_restore(); break;
 		case KEY_F5:
 				if ( Newdemo_state == ND_STATE_RECORDING )
 					newdemo_stop_recording();

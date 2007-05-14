@@ -28,9 +28,9 @@ void arch_sdl_init()
 //end edit -MM
     Error("SDL library initialisation failed: %s.",SDL_GetError());
  }
-#ifdef SDL_INPUT
+
  if (!FindArg("-nomouse"))
   d_mouse_init();
-#endif
+
  atexit(sdl_close);
 }

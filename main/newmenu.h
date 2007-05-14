@@ -153,19 +153,10 @@ int nm_messagebox_fixedfont( char *title, int nchoices, ... );
 #define SLIDER_MIDDLE		"…"		// 133
 #define SLIDER_MARKER		"†"		// 134
 
-#if defined(__WINDOWS__) || defined(SDL_INPUT)
-# define NEWMENU_MOUSE
-#endif
+#define NEWMENU_MOUSE
 
-#ifdef NEWMENU_MOUSE
-# if defined(SDL_INPUT)
 #  include <SDL/SDL.h>
 #  define newmenu_show_cursor() SDL_ShowCursor(SDL_ENABLE)
 #  define newmenu_hide_cursor() SDL_ShowCursor(SDL_DISABLE)
-# else
-#  define newmenu_show_cursor()
-#  define newmenu_hide_cursor()
-# endif
-#endif
 
 

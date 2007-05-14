@@ -11,54 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/arch/sdl/mouse.h,v $
- * $Revision: 1.1 $
- * $Author: michaelstather $
- * $Date: 2006/03/19 16:03:36 $
  *
  * Header for mouse functions
- *
- * $Log: mouse.h,v $
- * Revision 1.1  2006/03/19 16:03:36  michaelstather
- * *** empty log message ***
- *
- * Revision 1.1.1.1  2006/03/17 19:40:44  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:02:02  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.10  1995/02/02  10:22:29  john
- * Added cyberman init parameter.
- * 
- * Revision 1.9  1994/11/18  23:18:09  john
- * Changed some shorts to ints.
- * 
- * Revision 1.8  1994/09/13  12:33:49  john
- * Added functions to get down count and state.
- * 
- * Revision 1.7  1994/08/29  20:52:20  john
- * Added better cyberman support; also, joystick calibration
- * value return funcctiionn,
- * 
- * Revision 1.6  1994/08/24  17:54:35  john
- * *** empty log message ***
- * 
- * Revision 1.5  1994/08/24  17:51:43  john
- * Added transparent cyberman support
- * 
- * Revision 1.4  1993/07/27  09:32:22  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/07/26  10:46:44  john
- * added definition for mouse_set_pos
- * 
- * Revision 1.2  1993/07/22  13:07:59  john
- * added header for mousesetlimts
- * 
- * Revision 1.1  1993/07/10  13:10:40  matt
- * Initial revision
- * 
  *
  */
 
@@ -97,12 +51,11 @@ extern int mouse_set_limits( int x1, int y1, int x2, int y2 );
 extern void mouse_flush();	// clears all mice events...
 
 //========================================================================
-extern void mouse_get_pos( int *x, int *y);
-extern void mouse_get_delta( int *dx, int *dy );
-extern void mouse_get_delta_z( int *dx, int *dy, int *dz );
+extern void mouse_get_pos( int *x, int *y, int *dz);
+// extern void mouse_get_delta( int *dx, int *dy );
+extern void mouse_get_delta( int *dx, int *dy, int *dz );
 extern int mouse_get_btns();
 extern void mouse_set_pos( int x, int y);
-extern void mouse_get_cyberman_pos( int *x, int *y );
 
 // Returns how long this button has been down since last call.
 extern fix mouse_button_down_time(int button);
@@ -119,11 +72,10 @@ extern int mouse_button_state(int button);
 #define mouse_set_limits(a,b,c,d) -1
 #define mouse_flush()
 #define mouse_close()
-#define mouse_get_pos(a,b)
-#define mouse_get_delta(a,b)
+#define mouse_get_pos(a,b,c)
+#define mouse_get_delta(a,b,c)
 #define mouse_get_btns() 0
 #define mouse_set_pos(a,b)
-#define mouse_get_cyberman_pos(a,b)
 #define mouse_button_down_time(a) 0
 #define mouse_button_down_count(a) 0
 #define mouse_button_state(a) 0

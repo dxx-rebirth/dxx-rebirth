@@ -538,11 +538,6 @@ int main(int argc,char **argv)
 	control_invul_time = 0;
 #endif
 
-	i = FindArg( "-xcontrol" );
-	if ( i > 0 ) {
-		kconfig_init_external_controls( strtol(Args[i+1], NULL, 0), strtol(Args[i+2], NULL, 0) );
-	}
-
 	if (Inferno_verbose)
 		printf( "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
 	if ((t=gr_init( SM_ORIGINAL ))!=0)

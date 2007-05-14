@@ -1,8 +1,6 @@
-/* $Id: joydefs.c,v 1.1.1.1 2006/03/17 19:53:43 zicodxx Exp $ */
 /*
  *
  * SDL joystick support
- *
  *
  */
 
@@ -19,21 +17,6 @@
 
 extern int num_joysticks;
 extern int joy_deadzone;
-
-int joydefs_calibrate_flag = 0;
-
-void joydefs_calibrate()
-{
-	joydefs_calibrate_flag = 0;
-
-	if (!num_joysticks) {
-		nm_messagebox( NULL, 1, TXT_OK, TXT_NO_JOYSTICK );
-		return;
-	}
-
-	//Actual calibration if necessary
-
-}
 
 //this change was made in DESCENT.TEX, but since we're not including that
 //file in the v1.1 update, we're making the change in the code here also
@@ -57,22 +40,7 @@ void joydef_menuset_1(int nitems, newmenu_item * items, int *last_key, int citem
         if (Config_control_type == 2) Config_control_type = CONTROL_MOUSE;
         if (Config_control_type == 3) Config_control_type = CONTROL_JOYMOUSE;
 
-	if ( (oc_type != Config_control_type) && (Config_control_type == CONTROL_THRUSTMASTER_FCS ) ) {
-		nm_messagebox( TXT_IMPORTANT_NOTE, 1, TXT_OK, TXT_FCS );
-	}
-
 	if (oc_type != Config_control_type) {
-		switch (Config_control_type) {
-	//		case	CONTROL_NONE:
-			case	CONTROL_JOYSTICK:
-			case	CONTROL_FLIGHTSTICK_PRO:
-			case	CONTROL_THRUSTMASTER_FCS:
-			case	CONTROL_GRAVIS_GAMEPAD:
-	//		case	CONTROL_MOUSE:
-	//		case	CONTROL_CYBERMAN:
-			case	CONTROL_JOYMOUSE:
-				joydefs_calibrate_flag = 1;
-		}
 		kc_set_controls();
 	}
 }

@@ -98,23 +98,7 @@ void mouse_flush()	// clears all mice events...
 }
 
 //========================================================================
-void mouse_get_pos( int *x, int *y)
-{
-	event_poll();
-	*x=Mouse.x;
-	*y=Mouse.y;
-}
-
-void mouse_get_delta( int *dx, int *dy )
-{
-	event_poll();
-	*dx = Mouse.delta_x;
-	*dy = Mouse.delta_y;
-	Mouse.delta_x = 0;
-	Mouse.delta_y = 0;
-}
-
-void mouse_get_pos_z( int *x, int *y, int *z )
+void mouse_get_pos( int *x, int *y, int *z )
 {
 	event_poll();
 	*x=Mouse.x;
@@ -122,7 +106,7 @@ void mouse_get_pos_z( int *x, int *y, int *z )
 	*z=Mouse.z;
 }
 
-void mouse_get_delta_z( int *dx, int *dy, int *dz )
+void mouse_get_delta( int *dx, int *dy, int *dz )
 {
 	event_poll();
 	*dx = Mouse.delta_x;
@@ -148,12 +132,6 @@ int mouse_get_btns()
 		flag <<= 1;
 	}
 	return status;
-}
-
-void mouse_get_cyberman_pos( int *x, int *y )
-{
-	// Shrug...
-	event_poll();
 }
 
 // Returns how long this button has been down since last call.
@@ -193,5 +171,3 @@ int mouse_button_state(int button)
 	event_poll();
 	return Mouse.buttons[button].pressed;
 }
-
-

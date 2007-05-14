@@ -322,7 +322,7 @@ env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
-env.Append(CPPDEFINES = ['NMONO', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'SUPPORTS_NET_IP', '__SDL__', 'SDL_INPUT', 'SDL_AUDIO', '_REENTRANT'])
+env.Append(CPPDEFINES = ['NMONO', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'SUPPORTS_NET_IP', '__SDL__', 'SDL_AUDIO', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/sdl/include'])
 generic_libs = ['SDL']
 sdlmixerlib = ['SDL_mixer']

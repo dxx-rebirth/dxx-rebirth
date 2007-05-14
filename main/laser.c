@@ -1095,7 +1095,7 @@ void Laser_do_weapon_sequence(object *obj)
 					if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
 						turn_radius = 0x0014 * F1_0; // homing missiles, mega missiles
 					else
-						turn_radius = 0x0020 * F1_0; // smart missile blobs
+						turn_radius = 0x0030 * F1_0; // smart missile blobs
 
 					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 			
@@ -1107,15 +1107,15 @@ void Laser_do_weapon_sequence(object *obj)
 					// homing missile speeds : insane - 0x005a
 					max_speed = Weapon_info[obj->id].speed[Difficulty_level];
 		
-					if (speed + F1_0 < max_speed)
+					if (speed /*+ F1_0*/ < max_speed)
 					{
 						speed += fixmul(max_speed, FrameTime/2);
 						if (speed > max_speed)
 							speed = max_speed;
 					}
-	
+
 					dot = vm_vec_dot(&temp_vec, &vector_to_object);
-	
+
 					Laser_TurnSpeedLimit(&temp_vec, &vector_to_object, speed, turn_radius);
 					obj->mtype.phys_info.velocity = temp_vec;
 					// orient it directly by movement vector
@@ -1154,7 +1154,7 @@ void Laser_do_weapon_sequence(object *obj)
 						if (speed > max_speed)
 							speed = max_speed;
 					}
-	
+
 					dot = vm_vec_dot(&temp_vec, &vector_to_object);
 	
 					vm_vec_add2(&temp_vec, &vector_to_object);
