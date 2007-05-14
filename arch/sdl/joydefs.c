@@ -3,7 +3,6 @@
  *
  * SDL joystick support
  *
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -18,21 +17,6 @@
 #include "kconfig.h"
 
 extern int num_joysticks;
-
-int joydefs_calibrate_flag = 0;
-
-void joydefs_calibrate()
-{
-	joydefs_calibrate_flag = 0;
-
-	if (!num_joysticks) {
-		nm_messagebox( NULL, 1, TXT_OK, TXT_NO_JOYSTICK );
-		return;
-	}
-
-	//Actual calibration if necessary
-
-}
 
 void joydef_menuset_1(int nitems, newmenu_item * items, int *last_key, int citem )
 {
@@ -54,17 +38,6 @@ void joydef_menuset_1(int nitems, newmenu_item * items, int *last_key, int citem
 	}
 
 	if (oc_type != Config_control_type) {
-		switch (Config_control_type) {
-	//		case	CONTROL_NONE:
-			case	CONTROL_JOYSTICK:
-			case	CONTROL_FLIGHTSTICK_PRO:
-			case	CONTROL_THRUSTMASTER_FCS:
-			case	CONTROL_GRAVIS_GAMEPAD:
-	//		case	CONTROL_MOUSE:
-	//		case	CONTROL_CYBERMAN:
-			case	CONTROL_JOYMOUSE:
-				joydefs_calibrate_flag = 1;
-		}
 		kc_set_controls();
 	}
 }

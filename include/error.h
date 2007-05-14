@@ -55,16 +55,12 @@ extern void Debugger(void);	// Avoids some name clashes
 #else // NO_ASM
 
 #ifdef __GNUC__
-#ifdef SDL_INPUT
 #include <SDL/SDL.h>
-#endif
 #include "args.h"
 static inline void _Int3()
 {
 	if (FindArg("-debug")) {
-#ifdef SDL_INPUT
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
-#endif
 		asm("int $3");
 	}
 }

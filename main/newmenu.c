@@ -703,7 +703,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 #endif
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, dblclick_flag=0;
-	int mx=0, my=0, x1 = 0, x2, y1, y2;
+	int mx=0, my=0, mz=0, x1 = 0, x2, y1, y2;
 	int close_box=0;
 #endif
 #ifdef MACINTOSH
@@ -1438,7 +1438,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 #ifdef NEWMENU_MOUSE // for mouse selection of menu's etc.
 		if ( !done && mouse_state && !omouse_state && !all_text ) {
-			mouse_get_pos(&mx, &my);
+			mouse_get_pos(&mx, &my, &mz);
 			for (i=0; i<nitems; i++ )	{
 				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x - item[i].right_offset - 6;
 				x2 = x1 + item[i].w;
@@ -1483,7 +1483,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			done = 1;
 		
 		if ( !done && mouse_state && !all_text ) {
-			mouse_get_pos(&mx, &my);
+			mouse_get_pos(&mx, &my, &mz);
 			
 			// check possible scrollbar stuff first
 			if (IsScrollBox) {
@@ -1599,7 +1599,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		}
 		
 		if ( !done && !mouse_state && omouse_state && !all_text && (choice != -1) && (item[choice].type == NM_TYPE_MENU) ) {
-			mouse_get_pos(&mx, &my);
+			mouse_get_pos(&mx, &my, &mz);
 			x1 = grd_curcanv->cv_bitmap.bm_x + item[choice].x;
 			x2 = x1 + item[choice].w;
 			y1 = grd_curcanv->cv_bitmap.bm_y + item[choice].y;
@@ -1625,7 +1625,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		}
 		
 		if ( !done && !mouse_state && omouse_state && close_box ) {
-			mouse_get_pos(&mx, &my);
+			mouse_get_pos(&mx, &my, &mz);
 			x1 = grd_curcanv->cv_bitmap.bm_x + CLOSE_X;
 			x2 = x1 + CLOSE_SIZE;
 			y1 = grd_curcanv->cv_bitmap.bm_y + CLOSE_Y;
@@ -1961,7 +1961,7 @@ int newmenu_get_filename(char *title, char *type, char *filename, int allow_abor
 	bkg bg;		// background under listbox
 #endif
 #ifdef NEWMENU_MOUSE
-	int mx, my, x1, x2, y1, y2, mouse_state, omouse_state;
+	int mx, my, mz, x1, x2, y1, y2, mouse_state, omouse_state;
 	int mouse2_state, omouse2_state;
 	int dblclick_flag=0;
 #endif
@@ -2337,7 +2337,7 @@ ReadFileNames:
 		if (mouse_state || mouse2_state) {
 			int w, h, aw;
 
-			mouse_get_pos(&mx, &my);
+			mouse_get_pos(&mx, &my, &mz);
 			for (i=first_item; i<first_item+NumFiles_displayed; i++ )	{
 				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
 				x1 = box_x;
@@ -2359,7 +2359,7 @@ ReadFileNames:
 			int w, h, aw;
 
 			gr_get_string_size(&filenames[citem*14], &w, &h, &aw  );
-			mouse_get_pos(&mx, &my);
+			mouse_get_pos(&mx, &my, &mz);
 			x1 = box_x;
 			x2 = box_x + box_w - 1;
 			y1 = (citem-first_item)*FONTSCALE_Y(grd_curfont->ft_h + 2) + box_y;
@@ -2371,7 +2371,7 @@ ReadFileNames:
 		}
 
 		if ( !mouse_state && omouse_state ) {
-			mouse_get_pos(&mx, &my);
+			mouse_get_pos(&mx, &my, &mz);
 			x1 = w_x + CLOSE_X + 2;
 			x2 = x1 + CLOSE_SIZE - 2;
 			y1 = w_y + CLOSE_Y + 2;
@@ -2520,7 +2520,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	int total_width,total_height;
 	bkg bg;
 #ifdef NEWMENU_MOUSE
-	int mx, my, x1, x2, y1, y2, mouse_state, omouse_state;	//, dblclick_flag;
+	int mx, my, mz, x1, x2, y1, y2, mouse_state, omouse_state;	//, dblclick_flag;
 	int close_x,close_y;
 #endif
 
@@ -2731,7 +2731,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		if (mouse_state) {
 			int w, h, aw;
 
-			mouse_get_pos(&mx, &my);
+			mouse_get_pos(&mx, &my, &mz);
 			for (i=first_item; i<first_item+LB_ITEMS_ON_SCREEN; i++ )	{
 				if (i > nitems)
 					break;
@@ -2754,7 +2754,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 		//check for close box clicked
 		if ( !mouse_state && omouse_state ) {
-			mouse_get_pos(&mx, &my);
+			mouse_get_pos(&mx, &my, &mz);
 			x1 = close_x + CLOSE_X + 2;
 			x2 = x1 + CLOSE_SIZE - 2;
 			y1 = close_y + CLOSE_Y + 2;

@@ -716,14 +716,11 @@ MAC(extern ubyte joydefs_calibrating;)
 
 void game_flush_inputs()
 {
-	int dx,dy;
+	int dx,dy,dz;
 	key_flush();
 	joy_flush();
 	mouse_flush();
-	#ifdef MACINTOSH
-	if ( (Function_mode != FMODE_MENU) && !joydefs_calibrating )		// only reset mouse when not in menu or not calibrating
-	#endif
-		mouse_get_delta( &dx, &dy );	// Read mouse
+	mouse_get_delta( &dx, &dy, &dz );	// Read mouse
 	memset(&Controls,0,sizeof(control_info));
 }
 

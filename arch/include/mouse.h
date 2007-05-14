@@ -12,28 +12,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * $Source: /cvsroot/dxx-rebirth/d2x-rebirth/arch/include/mouse.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:54:32 $
  *
  * Header for mouse functions
- *
- * $Log: mouse.h,v $
- * Revision 1.1.1.1  2006/03/17 19:54:32  zicodxx
- * initial import
- *
- * Revision 1.4  2001/11/14 11:02:55  bradleyb
- * use mouse wheel to emulate 3rd axis
- *
- * Revision 1.3  2001/10/12 00:18:37  bradleyb
- * Switched from Cygwin to mingw32 on MS boxes.  Vastly improved compilability.
- *
- * Revision 1.2  2001/01/31 16:31:13  bradleyb
- * OpenGL support under Cygwin/SDL
- *
- * Revision 1.1  2001/01/28 05:46:33  bradleyb
- * Unified arch headers
  *
  */
 
@@ -81,12 +61,8 @@ extern void mouse_close();
 #endif
 
 //========================================================================
-extern void mouse_get_pos( int *x, int *y );
-extern void mouse_get_delta( int *dx, int *dy );
-#ifdef SDL_INPUT
-extern void mouse_get_pos_z( int *x, int *y, int *z );
-extern void mouse_get_delta_z( int *dx, int *dy, int *dz );
-#endif
+extern void mouse_get_pos( int *x, int *y, int *z );
+extern void mouse_get_delta( int *dx, int *dy, int *dz );
 extern int mouse_get_btns();
 extern void mouse_set_pos( int x, int y);
 extern void mouse_get_cyberman_pos( int *x, int *y );

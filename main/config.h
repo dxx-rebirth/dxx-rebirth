@@ -61,15 +61,16 @@ extern int joy_deadzone;
 //values for Config_control_type
 #define CONTROL_NONE 0
 #define CONTROL_JOYSTICK 1
+#define CONTROL_MOUSE 5
+#define CONTROL_MAX_TYPES 8
+#define CONTROL_JOYMOUSE 9
+
+// old stuff - kept for compability reasons
 #define CONTROL_FLIGHTSTICK_PRO 2
 #define CONTROL_THRUSTMASTER_FCS 3
 #define CONTROL_GRAVIS_GAMEPAD 4
-#define CONTROL_MOUSE 5
 #define CONTROL_CYBERMAN 6
 #define CONTROL_WINJOYSTICK 7
-
-#define CONTROL_MAX_TYPES 8
-#define CONTROL_JOYMOUSE 9
 
 #define D2X_KEYS 1
 

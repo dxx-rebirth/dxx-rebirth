@@ -22,11 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef WINDOWS
-#include "desw.h"
-#include <mmsystem.h>
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #if !defined(_MSC_VER) && !defined(macintosh)
@@ -73,14 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define SAVE_FILE_ID			MAKE_SIG('D','P','L','R')
 
-#ifdef MACINTOSH
-	#include <Files.h>
-	#include <Errors.h>			// mac doesn't have "normal" error numbers -- must use mac equivs
-	#ifndef ENOENT
-		#define ENOENT fnfErr
-	#endif
-	#include "isp.h"
-#elif defined(_WIN32_WCE)
+#if defined(_WIN32_WCE)
 # define errno -1
 # define ENOENT -1
 # define strerror(x) "Unknown Error"
@@ -130,11 +118,6 @@ int Default_leveling_on=1;
 extern ubyte SecondaryOrder[],PrimaryOrder[];
 extern void InitWeaponOrdering();
 
-#ifdef MACINTOSH
-extern ubyte default_firebird_settings[];
-extern ubyte default_mousestick_settings[];
-#endif
-
 static int Player_Game_window_w = 0;
 static int Player_Game_window_h = 0;
 static int Player_render_width = 0;
@@ -142,129 +125,24 @@ static int Player_render_height = 0;
 
 int new_player_config()
 {
-	int nitems;
 	int i,j,control_choice;
-	newmenu_item m[8];
-   int mct=CONTROL_MAX_TYPES;
+	int mct=CONTROL_MAX_TYPES;
  
-   #ifndef WINDOWS
- 	 mct--;
-	#endif
+	mct--;
 
-   InitWeaponOrdering ();		//setup default weapon priorities 
+	InitWeaponOrdering ();		//setup default weapon priorities 
 
-#if defined(MACINTOSH) && defined(USE_ISP)
-	if (!ISpEnabled())
-	{
-#endif
-RetrySelection:
-		#if !defined(MACINTOSH) && !defined(WINDOWS)
-		for (i=0; i<mct; i++ )	{
-			m[i].type = NM_TYPE_MENU; m[i].text = CONTROL_TEXT(i);
-		}
-		#elif defined(WINDOWS)
-			m[0].type = NM_TYPE_MENU; m[0].text = CONTROL_TEXT(0);
-	 		m[1].type = NM_TYPE_MENU; m[1].text = CONTROL_TEXT(5);
-			m[2].type = NM_TYPE_MENU; m[2].text = CONTROL_TEXT(7);
-		 	i = 3;
-		#else
-		for (i = 0; i < 6; i++) {
-			m[i].type = NM_TYPE_MENU; m[i].text = CONTROL_TEXT(i);
-		}
-		m[4].text = "Gravis Firebird/Mousetick II";
-		m[3].text = "Thrustmaster";
-		#endif
-		
-		nitems = i;
-		m[0].text = TXT_CONTROL_KEYBOARD;
-	
-		#ifdef WINDOWS
-			if (Config_control_type==CONTROL_NONE) control_choice = 0;
-			else if (Config_control_type == CONTROL_MOUSE) control_choice = 1;
-			else if (Config_control_type == CONTROL_WINJOYSTICK) control_choice = 2;
-			else control_choice = 0;
-		#else
-			control_choice = Config_control_type;				// Assume keyboard
-		#endif
-	
-		#ifndef APPLE_DEMO
-			control_choice = newmenu_do1( NULL, TXT_CHOOSE_INPUT, i, m, NULL, control_choice );
-		#else
-			control_choice = 0;
-		#endif
-		
-		if ( control_choice < 0 )
-			return 0;
-
-#if defined(MACINTOSH) && defined(USE_ISP)
-	}
-	else	// !!!!NOTE ... link to above if (!ISpEnabled()), this is a really crappy function
-	{
-		control_choice = 0;
-	}
-#endif
+	control_choice = Config_control_type;	// Assume keyboard
 
 	for (i=0;i<CONTROL_MAX_TYPES; i++ )
 		for (j=0;j<MAX_CONTROLS; j++ )
 			kconfig_settings[i][j] = default_kconfig_settings[i][j];
-	//added on 2/4/99 by Victor Rachels for new keys
 	for(i=0; i < MAX_D2X_CONTROLS; i++)
 		kconfig_d2x_settings[i] = default_kconfig_d2x_settings[i];
-	//end this section addition - VR
 	kc_set_controls();
 
 	Config_control_type = control_choice;
 
-#ifdef WINDOWS
-	if (control_choice == 1) Config_control_type = CONTROL_MOUSE;
-	else if (control_choice == 2) Config_control_type = CONTROL_WINJOYSTICK;
-
-//	if (Config_control_type == CONTROL_WINJOYSTICK) 
-//		joydefs_calibrate();
-#else
-	#ifndef MACINTOSH
-	if ( Config_control_type==CONTROL_THRUSTMASTER_FCS)	{
-		i = nm_messagebox( TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, TXT_FCS );
-		if (i==0) goto RetrySelection;
-	}
-	
-	if ( (Config_control_type>0) && 	(Config_control_type<5))	{
-		joydefs_calibrate();
-	}
-	#else		// some macintosh only stuff here
-	if ( Config_control_type==CONTROL_THRUSTMASTER_FCS)	{
-		extern char *tm_warning;
-		
-		i = nm_messagebox( TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, tm_warning );
-		if (i==0) goto RetrySelection;
-	} else 	if ( Config_control_type==CONTROL_FLIGHTSTICK_PRO )	{
-		extern char *ch_warning;
-
-		i = nm_messagebox( TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, ch_warning );
-		if (i==0) goto RetrySelection;
-	} else 	if ( Config_control_type==CONTROL_GRAVIS_GAMEPAD )	{
-		extern char *ms_warning;
-
-		i = nm_messagebox( TXT_IMPORTANT_NOTE, 2, "Choose another", TXT_OK, ms_warning );
-		if (i==0) goto RetrySelection;
-		// stupid me -- get real default setting for either mousestick or firebird
-		joydefs_set_type( Config_control_type );
-		if (joy_have_firebird())
-			for (i=0; i<NUM_OTHER_CONTROLS; i++ )
-				kconfig_settings[Config_control_type][i] = default_firebird_settings[i];
-		else
-			for (i=0; i<NUM_OTHER_CONTROLS; i++ )
-				kconfig_settings[Config_control_type][i] = default_mousestick_settings[i];
-		kc_set_controls();		// reset the joystick control
-	}
-	if ( (Config_control_type>0) && (Config_control_type<5)  ) {
-		joydefs_set_type( Config_control_type );
-		joydefs_calibrate();
-	}
-
-	#endif
-#endif
-	
 	Player_default_difficulty = 1;
 	Auto_leveling_on = Default_leveling_on = 1;
 	n_highest_levels = 1;
@@ -675,11 +553,7 @@ ubyte control_type_dos,control_type_win;
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
 {
-	#ifdef MACINTOSH
-	char filename[FILENAME_LEN+15];
-	#else
 	char filename[FILENAME_LEN];
-	#endif
 	PHYSFS_file *file;
 	int id, i;
 	short player_file_version;
@@ -688,28 +562,11 @@ int read_player_file()
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
-#ifndef MACINTOSH
 	sprintf(filename,"%.8s.plr",Players[Player_num].callsign);
-#else
-	sprintf(filename, "Players/%.8s.plr",Players[Player_num].callsign);
-#endif
-
 	if (!PHYSFS_exists(filename))
 		return ENOENT;
 
 	file = PHYSFSX_openReadBuffered(filename);
-
-#if 0
-#ifndef MACINTOSH
-	//check filename
-	if (file && isatty(fileno(file))) {
-		//if the callsign is the name of a tty device, prepend a char
-		PHYSFS_close(file);
-		sprintf(filename,"$%.7s.plr",Players[Player_num].callsign);
-		file = PHYSFSX_openReadBuffered(filename);
-	}
-#endif
-#endif
 
 	if (!file)
 		goto read_player_file_failed;
@@ -800,16 +657,8 @@ int read_player_file()
 		else if (PHYSFS_read(file, &Config_joystick_sensitivity, sizeof(ubyte), 1) !=1 )
 			goto read_player_file_failed;
 
-		#ifdef WINDOWS
-		Config_control_type = control_type_win;
-		#else
 		Config_control_type = control_type_dos;
-		#endif
-		
-		#ifdef MACINTOSH
-		joydefs_set_type(Config_control_type);
-		#endif
-
+	
 		for (i=0;i<11;i++)
 		{
 			PrimaryOrder[i] = cfile_read_byte(file);
@@ -882,25 +731,8 @@ int read_player_file()
 	{
 		char buf[128];
 
-	#ifdef WINDOWS
-		joy95_get_name(JOYSTICKID1, buf, 127);
-		if (player_file_version >= 24) 
-			PHYSFSX_readString(file, win95_current_joyname);
-		else
-			strcpy(win95_current_joyname, "Old Player File");
-		
-		mprintf((0, "Detected joystick: %s\n", buf));
-		mprintf((0, "Player's joystick: %s\n", win95_current_joyname));
-
-		if (strcmp(win95_current_joyname, buf)) {
-			for (i = 0; i < MAX_CONTROLS; i++)
-				kconfig_settings[CONTROL_WINJOYSTICK][i] = 
-					default_kconfig_settings[CONTROL_WINJOYSTICK][i];
-		}	 
-	#else
 		if (player_file_version >= 24) 
 			PHYSFSX_readString(file, buf);			// Just read it in fpr DPS.
-	#endif
 	}
 
 	if (player_file_version >= 25)
@@ -1007,41 +839,17 @@ extern int Cockpit_mode_save;
 //write out player's saved games.  returns errno (0 == no error)
 int write_player_file()
 {
-	#ifdef MACINTOSH
-	char filename[FILENAME_LEN+15];
-	#else
 	char filename[FILENAME_LEN];		// because of ":Players:" path
-	#endif
 	PHYSFS_file *file;
 	int i;
-
-//	#ifdef APPLE_DEMO		// no saving of player files in Apple OEM version
-//	return 0;
-//	#endif
 
 	WriteConfigFile();
 
         sprintf(filename,"%s.plx",Players[Player_num].callsign);
         strlwr(filename);
 	write_player_d2x(filename);
-#ifndef MACINTOSH
 	sprintf(filename,"%s.plr",Players[Player_num].callsign);
-#else
-	sprintf(filename, ":Players:%.8s.plr",Players[Player_num].callsign);
-#endif
 	file = PHYSFSX_openWriteBuffered(filename);
-
-#if 0 //ndef MACINTOSH
-	//check filename
-	if (file && isatty(fileno(file))) {
-
-		//if the callsign is the name of a tty device, prepend a char
-
-		PHYSFS_close(file);
-		sprintf(filename,"$%.7s.plr",Players[Player_num].callsign);
-		file = PHYSFSX_openWriteBuffered(filename);
-	}
-#endif
 
 	if (!file)
 		return -1;
@@ -1083,11 +891,7 @@ int write_player_file()
 	//write kconfig info
 	{
 
-		#ifdef WINDOWS
-		control_type_win = Config_control_type;
-		#else
 		control_type_dos = Config_control_type;
-		#endif
 
 		if (PHYSFS_write(file, kconfig_settings, MAX_CONTROLS*CONTROL_MAX_TYPES, 1) != 1)
 			goto write_player_file_failed;
@@ -1125,11 +929,7 @@ int write_player_file()
 
 	{
 		char buf[128];
-		#ifdef WINDOWS
-		joy95_get_name(JOYSTICKID1, buf, 127);
-		#else
 		strcpy(buf, "DOS joystick");
-		#endif
 		PHYSFSX_writeString(file, buf);		// Write out current joystick for player.
 	}
 
@@ -1137,21 +937,6 @@ int write_player_file()
 
 	if (!PHYSFS_close(file))
 		goto write_player_file_failed;
-
-	#ifdef MACINTOSH		// set filetype and creator for playerfile
-	{
-		FInfo finfo;
-		Str255 pfilename;
-		OSErr err;
-
-		strcpy(pfilename, filename);
-		c2pstr(pfilename);
-		err = HGetFInfo(0, 0, pfilename, &finfo);
-		finfo.fdType = 'PLYR';
-		finfo.fdCreator = 'DCT2';
-		err = HSetFInfo(0, 0, pfilename, &finfo);
-	}
-	#endif
 
 	return EZERO;
 

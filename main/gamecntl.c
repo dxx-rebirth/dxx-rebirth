@@ -122,9 +122,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #endif
 
-#ifdef SDL_INPUT
 #include <SDL/SDL.h>
-#endif
 
 extern void full_palette_save(void);
 extern void object_goto_prev_viewer(void);
@@ -504,11 +502,9 @@ int do_game_pause()
 	show_boxed_message(Pause_msg=msg);		  //TXT_PAUSE);
 	gr_update();
 
-#ifdef SDL_INPUT
 	/* give control back to the WM */
 	if (FindArg("-grabmouse"))
 	    SDL_WM_GrabInput(SDL_GRAB_OFF);
-#endif
 
 	while (Game_paused) 
 	{
@@ -539,11 +535,9 @@ int do_game_pause()
 		}
 	}
 
-#ifdef SDL_INPUT
 	/* keep the mouse from wandering in SDL */
 	if (FindArg("-grabmouse"))
 	    SDL_WM_GrabInput(SDL_GRAB_ON);
-#endif
 
 	clear_boxed_message();
 
@@ -1124,9 +1118,6 @@ int HandleSystemKey(int key)
 				toggle_cockpit();	screen_changed=1;
 			}
 			break;
-
-		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_7:)
-		case KEY_F7+KEY_SHIFTED: palette_save(); joydefs_calibrate(); palette_restore(); break;
 
 		case KEY_ALTED+KEY_F9:	
 #ifdef GP2X

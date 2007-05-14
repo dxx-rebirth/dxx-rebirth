@@ -202,9 +202,7 @@ void print_commandline_help()
 	printf( "\n Controls:\n\n");
 	printf( "  -NoJoystick        %s\n", "Disables joystick support");
 	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
-#ifdef    SDL_INPUT
 	printf( "  -grabmouse         %s\n", "Keeps the mouse from wandering out of the window");
-#endif // SDL_INPUT
 
 	printf( "\n Sound:\n\n");
 	printf( "  -Volume <v>        %s\n", "Sets sound volume to v, where v is between 0 and 100");
@@ -323,7 +321,6 @@ void print_commandline_help()
 	printf( "  -tsengdebug2       %s\n", "FIXME: Undocumented");
 	printf( "  -tsengdebug3       %s\n", "FIXME: Undocumented");
 	printf( "  -vidram            %s\n", "FIXME: Undocumented");
-	printf( "  -xcontrol          %s\n", "FIXME: Undocumented");
 	printf( "  -xname             %s\n", "FIXME: Undocumented");
 	printf( "  -xver              %s\n", "FIXME: Undocumented");
 	printf( "  -gl_intensity4_ok  %s\n", "FIXME: Undocumented");
@@ -667,11 +664,6 @@ int main(int argc, char *argv[])
 	 }
 //end addition -MM
 
-	i = FindArg( "-xcontrol" );
-	if ( i > 0 )	{
-		kconfig_init_external_controls( strtol(Args[i+1], NULL, 0), strtol(Args[i+2], NULL, 0) );
-	}
-
 	con_printf(CON_VERBOSE, "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
 	if (FindArg("-nofade"))
 		grd_fades_disabled=1;
@@ -820,19 +812,15 @@ int main(int argc, char *argv[])
 				keyd_editor_mode = 0;
 			#endif
 
-#ifdef SDL_INPUT
 			/* keep the mouse from wandering in SDL */
 			if (FindArg("-grabmouse"))
 			    SDL_WM_GrabInput(SDL_GRAB_ON);
-#endif
 
 			game();
 
-#ifdef SDL_INPUT
 			/* give control back to the WM */
 			if (FindArg("-grabmouse"))
 			    SDL_WM_GrabInput(SDL_GRAB_OFF);
-#endif
 
 			if ( Function_mode == FMODE_MENU )
 				songs_play_song( SONG_TITLE, 1 );

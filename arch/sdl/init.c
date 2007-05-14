@@ -36,10 +36,8 @@ void arch_sdl_init()
 		Error("SDL library video initialisation failed: %s.",SDL_GetError());
 	}
 #endif
-#ifdef SDL_INPUT
 	if (!FindArg("-nomouse"))
 		d_mouse_init();
-#endif
 	if (!FindArg("-nosound"))
 		digi_init();
 	atexit(sdl_close);
