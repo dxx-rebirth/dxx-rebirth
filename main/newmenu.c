@@ -1487,7 +1487,7 @@ void delete_player_saved_games(char * name)
 	
 	for (i=0;i<10; i++)	{
 		sprintf( filename, "%s.sg%d", name, i );
-		unlink( filename );
+		remove( filename );
 	}
 }
 
@@ -1719,7 +1719,7 @@ ReadFileNames:
 				newmenu_show_cursor();
  				if (x==0)	{
 					char * p;
-					char plxfile[256];
+					char plxfile[256], efffile[256];
 					int ret=0;
 					p = &filenames[(citem*14)+strlen(&filenames[citem*14])];
 					if (player_mode) {
@@ -1736,10 +1736,13 @@ ReadFileNames:
 
 					if ((!ret) && player_mode)	{
 						delete_player_saved_games( &filenames[citem*14] );
-						// also delete PLX file
-						sprintf(plxfile,"%.8s.plx",Players[Player_num].callsign);
+						// delete PLX and EFF files
+						sprintf(plxfile,"%.8s.plx",&filenames[citem*14]);
 						if (cfexist(plxfile))
 							remove(plxfile);
+						sprintf(efffile,"%.8s.eff",&filenames[citem*14]);
+						if (cfexist(efffile))
+							remove(efffile);
 					}
 
 					if (ret) {

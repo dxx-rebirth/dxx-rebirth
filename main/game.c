@@ -1772,7 +1772,7 @@ int do_game_pause(int allow_menu)
 	}
 
 	/* keep the mouse from wandering in SDL */
-	if (FindArg("-grabmouse"))
+	if (FindArg("-grabmouse") && (Newdemo_state != ND_STATE_PLAYBACK))
 	    SDL_WM_GrabInput(SDL_GRAB_ON);
 
 	game_flush_inputs();
