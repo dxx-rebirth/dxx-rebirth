@@ -2211,8 +2211,8 @@ ReadFileNames:
 
 					if ((!ret) && player_mode)	{
 						delete_player_saved_games( &filenames[citem*14] );
-						// also delete PLX file
-						sprintf(plxfile,"%.8s.plx",Players[Player_num].callsign);
+						// delete PLX file
+						sprintf(plxfile,"%.8s.plx",&filenames[citem*14]);
 						if (cfexist(plxfile))
 							PHYSFS_delete(plxfile);
 					}
