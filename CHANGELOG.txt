@@ -2,6 +2,10 @@ D2X-Rebirth Changelog
 
 20070516
 --------
+include/cfile.h, include/physfsx.h, main/bm.c, main/mission.c, main/piggy.c: allow built-in data files to go in the 'Data' directory, like original Mac D2 folder layout
+
+20070516
+--------
 main/game.c, main/inferno.c, main/newmenu.c: free grabbed mouse in Demo Playback; improved Player-files deletion
 
 20070514
