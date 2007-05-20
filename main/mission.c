@@ -378,10 +378,9 @@ void add_d1_builtin_mission_to_list(mle *mission)
 {
     int size;
     
-	if (!cfexist("descent.hog"))
-		return;
-
 	size = cfile_size("descent.hog");
+	if (size == -1)
+		return;
 
 	switch (size) {
 	case D1_SHAREWARE_MISSION_HOGSIZE:

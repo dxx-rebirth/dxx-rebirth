@@ -79,8 +79,6 @@ static char rcsid[] = "$Id: piggy.c,v 1.1.1.1 2006/03/17 19:57:23 zicodxx Exp $"
 
 #define D1_PALETTE "palette.256"
 
-#define DEFAULT_PIGFILE (cfexist(DEFAULT_PIGFILE_REGISTERED)?DEFAULT_PIGFILE_REGISTERED:DEFAULT_PIGFILE_SHAREWARE)
-#define DEFAULT_HAMFILE (cfexist(DEFAULT_HAMFILE_REGISTERED)?DEFAULT_HAMFILE_REGISTERED:DEFAULT_HAMFILE_SHAREWARE)
 #define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
 
 #define MAC_ALIEN1_PIGSIZE      5013035
@@ -617,38 +615,14 @@ void piggy_init_pigfile(char *filename)
 	char temp_name_read[16];
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_size, data_start;
-	#ifdef MACINTOSH
-	char name[255];		// filename + path for the mac
-	#endif
 
 	piggy_close_file();             //close old pig if still open
 
-	//rename pigfile for shareware
-	if (stricmp(DEFAULT_PIGFILE, DEFAULT_PIGFILE_SHAREWARE) == 0 && !cfexist(filename))
-		filename = DEFAULT_PIGFILE_SHAREWARE;
-
-	#ifndef MACINTOSH
-		Piggy_fp = cfopen( filename, "rb" );
-	#else
-		sprintf(name, ":Data:%s", filename);
-		Piggy_fp = cfopen( name, "rb" );
-
-		#ifdef SHAREWARE	// if we are in the shareware version, we must have the pig by now.
-			if (Piggy_fp == NULL)
-			{
-				Error("Cannot load required file <%s>",name);
-			}
-		#endif	// end of if def shareware
-
-	#endif
-
-	if (!Piggy_fp) {
-		#ifdef EDITOR
-			return;         //if editor, ok to not have pig, because we'll build one
-		#else
-			Piggy_fp = copy_pigfile_from_cd(filename);
-		#endif
-	}
+	Piggy_fp = datafile_open(filename);
+	
+	//try pigfile for shareware
+	if (!Piggy_fp)
+		Piggy_fp = datafile_open(DEFAULT_PIGFILE_SHAREWARE);
 
 	if (Piggy_fp) {                         //make sure pig is valid type file & is up-to-date
 		int pig_id,pig_version;
@@ -747,15 +721,8 @@ void piggy_new_pigfile(char *pigname)
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_size, data_start;
 	int must_rewrite_pig = 0;
-	#ifdef MACINTOSH
-	char name[255];
-	#endif
 
 	strlwr(pigname);
-
-	//rename pigfile for shareware
-	if (stricmp(DEFAULT_PIGFILE, DEFAULT_PIGFILE_SHAREWARE) == 0 && !cfexist(pigname))
-		pigname = DEFAULT_PIGFILE_SHAREWARE;
 
 	if (strnicmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0 // correct pig already loaded
 	    && !Bitmap_replacement_data) // no need to reload: no bitmaps were altered
@@ -772,25 +739,12 @@ void piggy_new_pigfile(char *pigname)
 
 	strncpy(Current_pigfile,pigname,sizeof(Current_pigfile));
 
-	#ifndef MACINTOSH
-		Piggy_fp = cfopen( pigname, "rb" );
-	#else
-		sprintf(name, ":Data:%s", pigname);
-		Piggy_fp = cfopen( name, "rb" );
+	Piggy_fp = datafile_open(pigname);
 
-		#ifdef SHAREWARE	// if we are in the shareware version, we must have the pig by now.
-			if (Piggy_fp == NULL)
-			{
-				Error("Cannot load required file <%s>",name);
-			}
-		#endif	// end of if def shareware
-	#endif
-
-	#ifndef EDITOR
+	//try pigfile for shareware
 	if (!Piggy_fp)
-		Piggy_fp = copy_pigfile_from_cd(pigname);
-	#endif
-
+		Piggy_fp = datafile_open(DEFAULT_PIGFILE_SHAREWARE);
+	
 	if (Piggy_fp) {  //make sure pig is valid type file & is up-to-date
 		int pig_id,pig_version;
 
@@ -1022,16 +976,11 @@ int read_hamfile()
 	CFILE * ham_fp = NULL;
 	int ham_id;
 	int sound_offset = 0;
-	#ifdef MACINTOSH
-	char name[255];
-	#endif
 
-	#ifndef MACINTOSH
-	ham_fp = cfopen( DEFAULT_HAMFILE, "rb" );
-	#else
-	sprintf(name, ":Data:%s", DEFAULT_HAMFILE );
-	ham_fp = cfopen( name, "rb" );
-	#endif
+	ham_fp = datafile_open(DEFAULT_HAMFILE_REGISTERED);
+	
+	if (!ham_fp)
+		ham_fp = datafile_open(DEFAULT_HAMFILE_SHAREWARE);
 
 	if (ham_fp == NULL) {
 		Must_write_hamfile = 1;
@@ -1042,7 +991,7 @@ int read_hamfile()
 	ham_id = cfile_read_int(ham_fp);
 	Piggy_hamfile_version = cfile_read_int(ham_fp);
 	if (ham_id != HAMFILE_ID)
-		Error("Cannot open ham file %s\n", DEFAULT_HAMFILE);
+		Error("Cannot open ham file %s or %s\n", DEFAULT_HAMFILE_REGISTERED, DEFAULT_HAMFILE_SHAREWARE);
 #if 0
 	if (ham_id != HAMFILE_ID || Piggy_hamfile_version != HAMFILE_VERSION) {
 		Must_write_hamfile = 1;
@@ -1130,16 +1079,8 @@ int read_sndfile()
 	digi_sound temp_sound;
 	char temp_name_read[16];
 	int sbytes = 0;
-	#ifdef MACINTOSH
-	char name[255];
-	#endif
 
-	#ifndef MACINTOSH
-	snd_fp = cfopen( DEFAULT_SNDFILE, "rb" );
-	#else
-	sprintf( name, ":Data:%s", DEFAULT_SNDFILE );
-	snd_fp = cfopen( name, "rb");
-	#endif
+	snd_fp = datafile_open(DEFAULT_SNDFILE);
 	
 	if (snd_fp == NULL)
 		return 0;
@@ -1246,7 +1187,7 @@ int piggy_init(void)
 		gr_printf( 0x8000, grd_curcanv->cv_h-20, "%s...", TXT_LOADING_DATA );
 
 #if 1 //def EDITOR //need for d1 mission briefings
-	piggy_init_pigfile(DEFAULT_PIGFILE);
+	piggy_init_pigfile(DEFAULT_PIGFILE_REGISTERED);
 #endif
 
 	snd_ok = ham_ok = read_hamfile();
@@ -1279,19 +1220,11 @@ void piggy_read_sounds(void)
 	CFILE * fp = NULL;
 	ubyte * ptr;
 	int i, sbytes;
-	#ifdef MACINTOSH
-	char name[255];
-	#endif
 
 	ptr = SoundBits;
 	sbytes = 0;
 
-	#ifndef MACINTOSH
-	fp = cfopen( DEFAULT_SNDFILE, "rb" );
-	#else
-	sprintf( name, ":Data:%s", DEFAULT_SNDFILE );
-	fp = cfopen( name, "rb");
-	#endif
+	fp = datafile_open(DEFAULT_SNDFILE);
 
 	if (fp == NULL)
 		return;
@@ -1674,9 +1607,9 @@ void piggy_dump_all()
 
 	if (Must_write_hamfile || Num_bitmap_files_new) {
 
-		mprintf( (0, "Creating %s...",DEFAULT_HAMFILE));
+		mprintf( (0, "Creating %s...",DEFAULT_HAMFILE_REGISTERED));
 	
-		ham_fp = fopen( DEFAULT_HAMFILE, "wb" );                       //open HAM file
+		ham_fp = fopen( DEFAULT_HAMFILE_REGISTERED, "wb" );                       //open HAM file
 		Assert( ham_fp!=NULL );
 	
 		write_int(HAMFILE_ID,ham_fp);
@@ -1688,7 +1621,7 @@ void piggy_dump_all()
 		//Dump bitmaps
 	
 		if (Num_bitmap_files_new)
-			piggy_write_pigfile(DEFAULT_PIGFILE);
+			piggy_write_pigfile(DEFAULT_PIGFILE_REGISTERED);
 	
 		//free up memeory used by new bitmaps
 		for (i=Num_bitmap_files-Num_bitmap_files_new;i<Num_bitmap_files;i++)
@@ -1704,7 +1637,7 @@ void piggy_dump_all()
 	
 	if (Num_sound_files_new) {
 
-		mprintf( (0, "Creating %s...",DEFAULT_HAMFILE));
+		mprintf( (0, "Creating %s...",DEFAULT_HAMFILE_REGISTERED));
 		// Now dump sound file
 		ham_fp = fopen( DEFAULT_SNDFILE, "wb" );
 		Assert( ham_fp!=NULL );

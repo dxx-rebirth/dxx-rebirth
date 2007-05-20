@@ -657,11 +657,8 @@ int load_exit_models()
 		return 0;
 	}
 
-#ifndef MACINTOSH
-	exit_hamfile = cfopen("exit.ham","rb");
-#else
-	exit_hamfile = cfopen(":Data:exit.ham","rb");
-#endif
+	exit_hamfile = datafile_open("exit.ham");
+
 	if (exit_hamfile) {
 		exit_modelnum = N_polygon_models++;
 		destroyed_exit_modelnum = N_polygon_models++;
