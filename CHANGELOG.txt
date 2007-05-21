@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070521
+--------
+ui/window.c: use new 3 argument mouse_get_delta to avoid compiler errors
+
 20070516
 --------
 include/cfile.h, include/physfsx.h, main/bm.c, main/mission.c, main/piggy.c: allow built-in data files to go in the 'Data' directory, like original Mac D2 folder layout
