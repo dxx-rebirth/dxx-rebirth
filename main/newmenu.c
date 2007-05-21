@@ -66,6 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "config.h"
 #include "player.h"
+#include "state.h"
 #include "newdemo.h"
 #include "kconfig.h"
 #include "strutil.h"
@@ -1926,12 +1927,10 @@ void delete_player_saved_games(char * name)
 	int i;
 	char filename[16];
 
-	for (i=0;i<10; i++)	{
-#ifndef MACINTOSH
-		sprintf( filename, "%s.sg%d", name, i );
-#else
-		sprintf(filename, "Players/%s.sg%d", name, i);
-#endif
+	for (i=0;i<10; i++)
+	{
+		sprintf( filename, Use_players_dir? "Players/%s.sg%x" : "%s.sg%x", name, i );
+
 		PHYSFS_delete(filename);
 	}
 }
@@ -1991,7 +1990,7 @@ ReadFileNames:
 	}
 #endif
 
-	find = PHYSFS_enumerateFiles(demo_mode?DEMO_DIR:"");
+	find = PHYSFS_enumerateFiles(demo_mode ? DEMO_DIR : ((player_mode && Use_players_dir) ? "Players/" : ""));
 	for (f = find; *f != NULL; f++)
 	{
 		if (player_mode)
@@ -2189,7 +2188,7 @@ ReadFileNames:
 					if (player_mode)
 						*p = '.';
 
-					strcpy(name, demo_mode?DEMO_DIR:"");
+					strcpy(name, demo_mode ? DEMO_DIR : ((player_mode && Use_players_dir) ? "Players/" : ""));
 					strcat(name,&filenames[citem*14]);
 					
 					#ifdef MACINTOSH
@@ -2212,7 +2211,7 @@ ReadFileNames:
 					if ((!ret) && player_mode)	{
 						delete_player_saved_games( &filenames[citem*14] );
 						// delete PLX file
-						sprintf(plxfile,"%.8s.plx",&filenames[citem*14]);
+						sprintf(plxfile, Use_players_dir? "Players/%.8s.plx" : "%.8s.plx", &filenames[citem*14]);
 						if (cfexist(plxfile))
 							PHYSFS_delete(plxfile);
 					}

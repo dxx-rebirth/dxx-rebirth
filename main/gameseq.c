@@ -134,18 +134,6 @@ void DoEndGame(void);
 void AdvanceLevel(int secret_flag);
 void filter_objects_from_level();
 
-// From allender -- you'll find these defines in state.c and cntrlcen.c
-// since I couldn't think of a good place to put them and i wanted to
-// fix this stuff fast!  Sorry about that...
-
-#ifndef MACINTOSH
-#define SECRETB_FILENAME	"secret.sgb"
-#define SECRETC_FILENAME	"secret.sgc"
-#else
-#define SECRETB_FILENAME	":Players:secret.sgb"
-#define SECRETC_FILENAME	":Players:secret.sgc"
-#endif
-
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
 //0 means not a real level loaded
@@ -711,7 +699,7 @@ try_again:
 
 	if (text[0]==0)	//null string
 		goto try_again;
-	sprintf( filename, "%s.plr", text );
+	sprintf( filename, Use_players_dir? "Players/%s.plr" : "%s.plr", text );
 
 	if (PHYSFS_exists(filename))
 	{
@@ -760,18 +748,8 @@ int RegisterPlayer()
 do_menu_again:
 	;
 
-#ifndef MACINTOSH
 	if (!newmenu_get_filename(TXT_SELECT_PILOT, "plr", filename, allow_abort_flag))
 		goto do_menu_again; //return 0;		// They hit Esc in file selector
-#else
-	#ifndef APPLE_DEMO
-	if (!newmenu_get_filename( TXT_SELECT_PILOT, ".\\Players\\*.plr", filename, allow_abort_flag ))	{
-		goto do_menu_again;		// They hit Esc in file selector
-	}
-	#else
-	newmenu_get_filename( "Select Pilot", ".\\Players\\*.plr", filename, 0 );		// no abort allowed ever -- and change title of menubox
-	#endif
-#endif
 	if ( filename[0] == '<' )	{
 		// They selected 'create new pilot'
 		if (!MakeNewPlayerFile(allow_abort_flag))

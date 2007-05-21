@@ -230,17 +230,9 @@ int state_get_save_file(char * fname, char * dsc, int multi, int blind_save)
 	for (i=0;i<NUM_SAVES+1; i++ )	{
 		sc_bmp[i] = NULL;
 		if ( !multi )
-			#ifndef MACINTOSH
-			sprintf( filename[i], "%s.sg%x", Players[Player_num].callsign, i );
-			#else
-			sprintf( filename[i], ":Players:%s.sg%x", Players[Player_num].callsign, i );
-			#endif
+			sprintf( filename[i], Use_players_dir? "Players/%s.sg%x" : "%s.sg%x", Players[Player_num].callsign, i );
 		else
-			#ifndef MACINTOSH
-			sprintf( filename[i], "%s.mg%x", Players[Player_num].callsign, i );
-			#else
-			sprintf( filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i );
-			#endif
+			sprintf( filename[i], Use_players_dir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, i );
 		valid = 0;
 		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
@@ -302,17 +294,9 @@ int state_get_restore_file(char * fname, int multi)
 	for (i=0;i<NUM_SAVES+1; i++ )	{
 		sc_bmp[i] = NULL;
 		if (!multi)
-			#ifndef MACINTOSH
-			sprintf( filename[i], "%s.sg%x", Players[Player_num].callsign, i );
-			#else
-			sprintf( filename[i], ":Players:%s.sg%x", Players[Player_num].callsign, i );
-			#endif
+			sprintf( filename[i], Use_players_dir? "Players/%s.sg%x" : "%s.sg%x", Players[Player_num].callsign, i );
 		else
-			#ifndef MACINTOSH
-			sprintf( filename[i], "%s.mg%x", Players[Player_num].callsign, i );
-			#else
-			sprintf( filename[i], ":Players:%s.mg%x", Players[Player_num].callsign, i );
-			#endif
+			sprintf( filename[i], Use_players_dir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, i );
 		valid = 0;
 		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
@@ -440,14 +424,6 @@ int copy_file(char *old_file, char *new_file)
 	return 0;
 }
 
-#ifndef MACINTOSH
-#define SECRETB_FILENAME	"secret.sgb"
-#define SECRETC_FILENAME	"secret.sgc"
-#else
-#define SECRETB_FILENAME	":Players:secret.sgb"
-#define SECRETC_FILENAME	":Players:secret.sgc"
-#endif
-
 extern int Final_boss_is_dead;
 
 //	-----------------------------------------------------------------------------------
@@ -516,11 +492,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 			else
 				fc = '0' + filenum;
 
-			#ifndef MACINTOSH
-			sprintf(temp_fname, "%csecret.sgc", fc);
-			#else
-			sprintf(temp_fname, ":Players:%csecret.sgc", fc);
-			#endif
+			sprintf(temp_fname, Use_players_dir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
 
 			mprintf((0, "Trying to copy secret.sgc to %s.\n", temp_fname));
 
@@ -569,8 +541,8 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		}
 	}*/
 
-	#if defined(MACINTOSH) && !defined(NDEBUG)
-	if ( strncmp(filename, ":Players:", 9) )
+	#ifndef NDEBUG
+	if (Use_players_dir && strncmp(filename, "Players/", 8))
 		Int3();
 	#endif
 
@@ -902,11 +874,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 			else
 				fc = '0' + filenum;
 			
-			#ifndef MACINTOSH
-			sprintf(temp_fname, "%csecret.sgc", fc);
-			#else
-			sprintf(temp_fname, "Players/%csecret.sgc", fc);
-			#endif
+			sprintf(temp_fname, Use_players_dir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
 
 			mprintf((0, "Trying to copy %s to secret.sgc.\n", temp_fname));
 
@@ -960,8 +928,8 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 #endif
 	fix	old_gametime = GameTime;
 
-	#if defined(MACINTOSH) && !defined(NDEBUG)
-	if (strncmp(filename, "Players/", 9))
+	#ifndef NDEBUG
+	if (Use_players_dir && strncmp(filename, "Players/", 8))
 		Int3();
 	#endif
 

@@ -189,10 +189,9 @@ void print_commandline_help()
 	printf( "  -nonicefps         %s\n", "Disable CPU cycle freeing. Higher CPU load, but game may be smoother");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
 	printf( "  -hogdir <dir>      %s\n", "set shared data directory to <dir>");
-#ifdef    __unix__
 	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
 	printf( "  -userdir <dir>     %s\n", "set user dir to <dir> instead of $HOME/.d2x-rebirth");
-#endif // __unix__
+	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
 #if       defined(EDITOR) || !defined(MACDATA)
 	printf( "  -macdata           %s\n","Read (and, for editor, write) mac data files (swap colors)");
 #endif // defined(EDITOR) || !defined(MACDATA)
@@ -439,14 +438,6 @@ int main(int argc, char *argv[])
 	else if (FindArg("-verbose"))
 		con_threshold.value = (float)1;
 
-	//tell cfile where hogdir is
-	if ((t=FindArg("-hogdir")))
-		PHYSFS_addToSearchPath(Args[t + 1], 1);
-#ifdef __unix__
-	else if (!FindArg("-nohogdir"))
-		PHYSFS_addToSearchPath(SHAREPATH, 1);
-#endif
-
 	if (! cfile_init("descent2.hog"))
 		if (! cfile_init("d2demo.hog"))
 			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
@@ -601,6 +592,9 @@ int main(int argc, char *argv[])
                  Gauge_hud_mode = t;
 	}
 
+	if ( FindArg("-use_players_dir") )
+		Use_players_dir = 1;
+	
 	Lighting_on = 1;
 
 //	if (init_graphics()) return 1;
@@ -752,10 +746,14 @@ int main(int argc, char *argv[])
 // 		do_register_player(title_pal);
 		if((i = FindArg( "-pilot" )))
 		{
-			char filename[15];
+			char filename[32] = "";
 			int j;
-			strncpy(filename, Args[i+1], 12);
-			for (j=0; filename[j] != '\0'; j++) {
+
+			if (Use_players_dir)
+				strcpy(filename, "Players/");
+			strncat(filename, Args[i+1], 12);
+			filename[8 + 12] = '\0';	// unfortunately strncat doesn't put the terminating 0 on the end if it reaches 'n' 
+			for (j = Use_players_dir? 8 : 0; filename[j] != '\0'; j++) {
 				switch (filename[j]) {
 					case ' ':
 						filename[j] = '\0';
@@ -767,7 +765,7 @@ int main(int argc, char *argv[])
 			if(cfexist(filename))
 			{
 				strcpy(strstr(filename,".plr"),"\0");
-				strcpy(Players[Player_num].callsign,filename);
+				strcpy(Players[Player_num].callsign, Use_players_dir? &filename[8] : filename);
 				read_player_file();
 				WriteConfigFile();
 				remap_fonts_and_menus(1);

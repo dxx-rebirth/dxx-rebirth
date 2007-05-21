@@ -51,6 +51,7 @@ static char rcsid[] = "$Id: cntrlcen.c,v 1.1.1.1 2006/03/17 19:55:32 zicodxx Exp
 #include "vclip.h"
 #include "fireball.h"
 #include "endlevel.h"
+#include "state.h"
 
 //@@vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
 //@@vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
@@ -259,11 +260,9 @@ void do_controlcen_destroyed_stuff(object *objp)
 	//	If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
 	if (Current_level_num < 0) {
 		int	rval;
-		#ifndef MACINTOSH
-		rval = !PHYSFS_delete("secret.sgc");
-		#else
-		rval = !PHYSFS_delete("Players/secret.sgc");
-		#endif
+
+		rval = !PHYSFS_delete(SECRETC_FILENAME);
+
 		mprintf((0, "Deleting secret.sgc, return value = %i\n", rval));
 	}
 

@@ -312,6 +312,8 @@ int read_player_d2x(char *filename)
 	return rc;
 }
 
+int Use_players_dir = 0;
+
 int write_player_d2x(char *filename)
 {
 	PHYSFS_file *fin, *fout;
@@ -325,6 +327,12 @@ int write_player_d2x(char *filename)
 	tempfile[strlen(tempfile)-4]=0;
 	strcat(tempfile,".pl$");
 	fout=PHYSFSX_openWriteBuffered(tempfile);
+	
+	if (!fout && Use_players_dir)
+	{
+		PHYSFS_mkdir("Players/");	//try making directory
+		fout=PHYSFSX_openWriteBuffered(tempfile);
+	}
 	
 	if(fout)
 	{
@@ -562,7 +570,7 @@ int read_player_file()
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
-	sprintf(filename,"%.8s.plr",Players[Player_num].callsign);
+	sprintf(filename, Use_players_dir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	if (!PHYSFS_exists(filename))
 		return ENOENT;
 
@@ -839,16 +847,16 @@ extern int Cockpit_mode_save;
 //write out player's saved games.  returns errno (0 == no error)
 int write_player_file()
 {
-	char filename[FILENAME_LEN];		// because of ":Players:" path
+	char filename[FILENAME_LEN];
 	PHYSFS_file *file;
 	int i;
 
 	WriteConfigFile();
 
-        sprintf(filename,"%s.plx",Players[Player_num].callsign);
-        strlwr(filename);
+	sprintf(filename, Use_players_dir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
+	strlwr(filename);
 	write_player_d2x(filename);
-	sprintf(filename,"%s.plr",Players[Player_num].callsign);
+	sprintf(filename, Use_players_dir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	file = PHYSFSX_openWriteBuffered(filename);
 
 	if (!file)
