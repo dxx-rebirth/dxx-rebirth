@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070522
+--------
+SConstruct: Added conditions to add compiler/linker flags from user's environemnt if they have any set.
+
 20070521
 --------
 ui/window.c: use new 3 argument mouse_get_delta to avoid compiler errors
