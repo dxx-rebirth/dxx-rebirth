@@ -898,7 +898,7 @@ extern int state_default_item;
 //starts a new game on the given level
 void StartNewGame(int start_level)
 {
-// 	state_default_item = -2;	// for first blind save, pick slot to save in
+ 	state_default_item = -2;	// for first blind save, pick slot to save in
 
 	Game_mode = GM_NORMAL;
 	Function_mode = FMODE_GAME;

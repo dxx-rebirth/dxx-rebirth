@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070522
 --------
 SConstruct: Added conditions to add compiler/linker flags from user's environemnt if they have any set.
+main/gameseq.c, main/state.c: make sure the right slot is saved to, and it shows the save screen if appropriate, when using fast save (F6)
 
 20070521
 --------

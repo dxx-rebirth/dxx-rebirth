@@ -153,7 +153,7 @@ grs_bitmap *sc_bmp[NUM_SAVES+1];
 
 char dgss_id[4] = "DGSS";
 
-int state_default_item = 0;
+int state_default_item = -2;
 
 uint state_game_id;
 
@@ -260,7 +260,7 @@ int state_get_save_file(char * fname, char * dsc, int multi, int blind_save)
 	if (blind_save && state_default_item >= 0)
 		choice = state_default_item;
 	else
-		choice = newmenu_do3(NULL, "Save Game", NUM_SAVES+1, m, state_callback, state_default_item, NULL, FONTSCALE_X(MenuHires?385:190), -1 );
+		choice = newmenu_do3(NULL, "Save Game", NUM_SAVES+1, m, state_callback, (state_default_item >= 0) ? state_default_item : 0, NULL, FONTSCALE_X(MenuHires?385:190), -1 );
 
 	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )
@@ -347,7 +347,7 @@ int state_get_restore_file(char * fname, int multi)
 #endif
 
    RestoringMenu=1;
-	choice = newmenu_do3( NULL, "Select Game to Restore", NUM_SAVES+2, m, state_callback, state_default_item+1, NULL, 190, -1 );
+	choice = newmenu_do3( NULL, "Select Game to Restore", NUM_SAVES+2, m, state_callback, (state_default_item >= 0) ? state_default_item + 1 : 1, NULL, 190, -1 );
    RestoringMenu=0;
 
 #if defined(WINDOWS) || defined(MACINTOSH)
@@ -365,6 +365,7 @@ int state_get_restore_file(char * fname, int multi)
 
 	if (choice > 0) {
 		strcpy( fname, filename[choice-1] );
+		state_default_item = choice - 1;
 		return choice;
 	}
 	return 0;
