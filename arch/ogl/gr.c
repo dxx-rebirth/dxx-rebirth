@@ -89,7 +89,7 @@ int gr_toggle_fullscreen(void){
 	gr_do_fullscreen(!ogl_fullscreen);
 	//	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
 
-	if (Screen_mode != SCREEN_GAME) // update viewing values for menus
+	if (gl_initialized && Screen_mode != SCREEN_GAME) // update viewing values for menus
 	{
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();

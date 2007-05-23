@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070523
+--------
+arch/ogl/gr.c: make sure gl functions are not called before OpenGL is initialised, when fullscreen switching
+
 20070522
 --------
 SConstruct: Added conditions to add compiler/linker flags from user's environemnt if they have any set.
