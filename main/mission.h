@@ -68,6 +68,7 @@ typedef struct {
 	char	mission_name[MISSION_NAME_LEN+1];
 	ubyte	descent_version;	// descent 1 or descent 2?
 	ubyte   anarchy_only_flag;  // if true, mission is only for anarchy
+	char	*path;				// relative file path
 	ubyte	enhanced;	// 0: mission has "name", 1:"xname", 2:"zname"
 	char	briefing_text_filename[FILENAME_LEN]; // name of briefing file
 	char	ending_text_filename[FILENAME_LEN]; // name of ending file

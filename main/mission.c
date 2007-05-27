@@ -522,8 +522,16 @@ void promote (mle *mission_list, char * mission_name, int * top_place)
 void free_mission(void)
 {
     // May become more complex with the editor
-    if (Current_mission) {
-		d_free(Current_mission->filename);
+    if (Current_mission)
+	{
+		if (!PLAYING_BUILTIN_MISSION)
+		{
+			char hogpath[PATH_MAX];
+
+			sprintf(hogpath, MISSION_DIR "%s.hog", Current_mission->path);
+			cfile_close(hogpath);
+		}
+		d_free(Current_mission->path);
         d_free(Current_mission);
     }
 }
@@ -623,7 +631,8 @@ int load_mission(mle *mission)
     Current_mission = d_malloc(sizeof(Mission));
     if (!Current_mission) return 0;
     *(mle *) Current_mission = *mission;
-	Current_mission->filename = d_strdup(mission->filename); // don't want to lose it
+	Current_mission->path = d_strdup(mission->path);
+	Current_mission->filename = Current_mission->path + (mission->filename - mission->path);
 
 	Current_mission->enhanced = 0;
 
