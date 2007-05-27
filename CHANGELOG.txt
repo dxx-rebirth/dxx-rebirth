@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070527
 --------
 include/cfile.h, main/inferno.c, main/mission.c, main/movie.c: add add_to_end parameter to cfile_init, allowing custom MIDI music to be found in an add-on hog
+arch/sdl/mixmusic.c: look for music files in "Music" dir, store MIDI's in "Music/<hogfile>" to better support custom MIDI music 
 
 20070523
 --------

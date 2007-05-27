@@ -72,7 +72,7 @@ void mix_play_music(char *filename, int loop) {
   int i, t, got_end=0;
 
   char real_filename[PATH_MAX];
-  char rel_filename[16];	// just the filename of the actual music file used
+  char rel_filename[32];	// just the filename of the actual music file used
   char music_title[16];
   char music_file_extension[8];
 
@@ -89,14 +89,48 @@ void mix_play_music(char *filename, int loop) {
     }
   }
 
+  if (!PHYSFS_isDirectory("Music"))
+	  PHYSFS_mkdir("Music");	// tidy up those files
+
   // What is the extension of external files? If none, default to internal MIDI
   t = FindArg(MUSIC_EXTENSION_ARG);
-  if (t > 0) {
+  if (t > 0) {					// will look directly in 'Music' dir even if 'mid' is specified
     sprintf(music_file_extension, "%.3s", Args[t+1]);
-	sprintf(rel_filename, "%s.%s", music_title, music_file_extension);
+	sprintf(rel_filename, "Music/%s.%s", music_title, music_file_extension);
   }
   else {
-    sprintf(rel_filename, "%s.mid", music_title);
+	char dir[32] = "Music/";	// put the midi files in 'Music/<hogname>' to fully support custom midi files
+	char const *hogpath = PHYSFS_getRealDir(filename);
+	char *hogfile;
+	char const *sep = PHYSFS_getDirSeparator();
+	char *p;
+
+	if (!hogpath)
+	{
+		printf("Music %s could not be loaded\n", filename);
+		Mix_HaltMusic();
+		return;
+	}
+
+	hogfile = strrchr(hogpath, *sep);
+	if (hogfile)	// be paranoid about multi-character dir separators
+	{
+		while (strncmp(hogfile, sep, strlen(sep)) && (hogfile != hogpath))
+			hogfile--;
+		if (hogfile != hogpath)
+			hogfile += strlen(sep);
+	}
+	else
+		hogfile = (char*) hogpath;	// unlikely it won't find the separator
+
+	p = dir + strlen(dir);
+	strncpy(p, hogfile, 8);
+	if ((p = strchr(p, '.')))	// get rid of the '.hog' extension
+		*p = 0;
+	if (!PHYSFS_isDirectory(dir))
+		PHYSFS_mkdir(dir);		// make it
+
+    sprintf(rel_filename, "%s/%s.mid", dir, music_title);
     convert_hmp(filename, rel_filename);
   }
 
