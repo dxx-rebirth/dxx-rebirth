@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070527
+--------
+include/cfile.h, main/inferno.c, main/mission.c, main/movie.c: add add_to_end parameter to cfile_init, allowing custom MIDI music to be found in an add-on hog
+
 20070523
 --------
 arch/ogl/gr.c: make sure gl functions are not called before OpenGL is initialised, when fullscreen switching

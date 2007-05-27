@@ -629,7 +629,7 @@ int load_mission(mle *mission)
 
     // for Descent 1 missions, load descent.hog
     if (EMULATING_D1) {
-        if (!cfile_init("descent.hog"))
+        if (!cfile_init("descent.hog", 1))
             Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
         if (!stricmp(Current_mission_filename, D1_MISSION_FILENAME))
             return load_mission_d1();
@@ -692,7 +692,7 @@ int load_mission(mle *mission)
 
 		PHYSFSEXT_locateCorrectCase(buf);
 
-		found_hogfile = cfile_init(buf);
+		found_hogfile = cfile_init(buf, 0);
 
 	//require mission to be in hogfile
         if (! found_hogfile) {
@@ -733,7 +733,7 @@ int load_mission(mle *mission)
 				while (*(++bufp) == ' ')
 					;
 
-			cfile_init(bufp);
+			cfile_init(bufp, 0);
 			mprintf((0, "Hog file override = [%s]\n", bufp));
 		}
 		else if (istok(buf,"briefing")) {

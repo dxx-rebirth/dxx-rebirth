@@ -602,7 +602,7 @@ void init_movie(char *movielib, int required)
 
 	sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"h":"l");
 
-	if (!cfile_init(filename))
+	if (!cfile_init(filename, 0))
 	{
 		if (required)
 			con_printf(CON_URGENT, "Can't open movielib <%s>: %s\n", filename, PHYSFS_getLastError());

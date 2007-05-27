@@ -50,14 +50,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //}
 
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
-static inline int cfile_init(char *hogname)
+static inline int cfile_init(char *hogname, int add_to_end)
 {
 	char pathname[PATH_MAX];
 
 	if (!PHYSFSX_getRealPath(hogname, pathname))
 		return 0;
 
-	if (!PHYSFS_addToSearchPath(pathname, 1))
+	if (!PHYSFS_addToSearchPath(pathname, add_to_end))
 	{	// try the 'Data' directory for old Mac Descent directories compatibility
 		char std_path[PATH_MAX] = "Data/";
 
@@ -67,7 +67,7 @@ static inline int cfile_init(char *hogname)
 		if (!PHYSFSX_getRealPath(std_path, pathname))
 			return 0;
 		
-		return PHYSFS_addToSearchPath(pathname, 1);
+		return PHYSFS_addToSearchPath(pathname, add_to_end);
 	}
 	
 	return 1;

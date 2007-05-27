@@ -438,8 +438,8 @@ int main(int argc, char *argv[])
 	else if (FindArg("-verbose"))
 		con_threshold.value = (float)1;
 
-	if (! cfile_init("descent2.hog"))
-		if (! cfile_init("d2demo.hog"))
+	if (! cfile_init("descent2.hog", 1))
+		if (! cfile_init("d2demo.hog", 1))
 			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
 #ifdef __unix__
 			      "\t$HOME/.d2x-rebirth\n"
