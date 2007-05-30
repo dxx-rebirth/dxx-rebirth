@@ -3,6 +3,7 @@
 # needed imports
 import sys
 import os
+import SCons.Util
 
 PROGRAM_NAME = 'D1X-Rebirth'
 
@@ -333,6 +334,17 @@ if sdlmixer:
 if (D1XMICRO):
 	env.Append(CPPDEFINES = [('D1XMICRO', '\\"' + str(D1XMICRO) + '\\"')])
 
+# Get traditional compiler environment variables
+if os.environ.has_key('CC'):
+	env['CC'] = os.environ['CC']
+if os.environ.has_key('CFLAGS'):
+	env['CCFLAGS'] += SCons.Util.CLVar(os.environ['CFLAGS'])
+if os.environ.has_key('CXX'):
+	env['CXX'] = os.environ['CXX']
+if os.environ.has_key('CXXFLAGS'):
+	env['CXXFLAGS'] += SCons.Util.CLVar(os.environ['CXXFLAGS'])
+if os.environ.has_key('LDFLAGS'):
+	env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
 
 # windows or *nix?
 if sys.platform == 'win32':
@@ -473,6 +485,16 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'gp2x=1'          compile for GP2X handheld
 	
 	Default values:
-	""" + ' sharepath = ' + DATA_DIR + '\n')
+	""" + ' sharepath = ' + DATA_DIR + """
+
+	Some influential environment variables:
+	  CC          C compiler command
+	  CFLAGS      C compiler flags
+	  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
+                      nonstandard directory <lib dir>
+                      <include dir>
+	  CXX         C++ compiler command
+	  CXXFLAGS    C++ compiler flags
+        """)
 
 #EOF

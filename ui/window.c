@@ -386,7 +386,7 @@ int ui_get_idle_seconds()
 
 void ui_mega_process()
 {
-	int mx, my;
+	int mx, my, mz;
 	unsigned char k;
 
 #ifdef __LINUX__
@@ -395,7 +395,7 @@ void ui_mega_process()
 	switch( Record )
 	{
 	case 0:
-		mouse_get_delta( &mx, &my );
+		mouse_get_delta( &mx, &my, &mz );
 		Mouse.new_dx = mx;
 		Mouse.new_dy = my;
 		Mouse.new_buttons = mouse_get_btns();
@@ -426,7 +426,7 @@ void ui_mega_process()
 			ui_event_counter++;
 		}
 
-		mouse_get_delta( &mx, &my );
+		mouse_get_delta( &mx, &my, &mz );
 		MouseDX = mx;
 		MouseDY = my;
 		MouseButtons = mouse_get_btns();
