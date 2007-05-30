@@ -121,8 +121,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MENU_JOIN_UDP_NETGAME           31
 #define MENU_START_KALI_NETGAME         32 // Kali support copied from d1x
 #define MENU_JOIN_KALI_NETGAME          33
-#define MENU_START_MCAST4_NETGAME       34 // UDP/IP over multicast networks
-#define MENU_JOIN_MCAST4_NETGAME        35
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
 //ADD_ITEM("Send net message...", MENU_SEND_NET_MESSAGE, -1 );
@@ -151,6 +149,8 @@ void do_detail_level_menu_custom(void);
 void do_new_game_menu(void);
 #ifdef NETWORK
 void do_multi_player_menu(void);
+void do_ip_manual_join_menu();
+void ip_connect_manual();
 void ipx_set_driver(int ipx_driver);
 #endif //NETWORK
 void do_cpu_menu();
@@ -392,27 +392,17 @@ void do_option ( int select)
 
 
 #ifdef NETWORK
-		//case MENU_START_TCP_NETGAME:
-		//case MENU_JOIN_TCP_NETGAME:
 		case MENU_START_IPX_NETGAME:
 		case MENU_JOIN_IPX_NETGAME:
-		case MENU_START_UDP_NETGAME:
-		case MENU_JOIN_UDP_NETGAME:
 		case MENU_START_KALI_NETGAME:
 		case MENU_JOIN_KALI_NETGAME:
-		case MENU_START_MCAST4_NETGAME:
-		case MENU_JOIN_MCAST4_NETGAME:
-//			load_mission(Builtin_mission_num);
 #ifdef MACINTOSH
 			Network_game_type = IPX_GAME;
 #endif
-//			WIN(ipx_create_read_thread());
 			switch (select & ~0x1) {
-			case MENU_START_IPX_NETGAME: ipx_set_driver(IPX_DRIVER_IPX); break;
-			case MENU_START_UDP_NETGAME: ipx_set_driver(IPX_DRIVER_UDP); break;
-			case MENU_START_KALI_NETGAME: ipx_set_driver(IPX_DRIVER_KALI); break;
-			case MENU_START_MCAST4_NETGAME: ipx_set_driver(IPX_DRIVER_MCAST4); break;
-			default: Int3();
+				case MENU_START_IPX_NETGAME: ipx_set_driver(IPX_DRIVER_IPX); break;
+				case MENU_START_KALI_NETGAME: ipx_set_driver(IPX_DRIVER_KALI); break;
+				default: Int3();
 			}
 
 			if ((select & 0x1) == 0) // MENU_START_*_NETGAME
@@ -421,30 +411,15 @@ void do_option ( int select)
 				network_join_game();
 			break;
 
-#ifdef MACINTOSH
-		case MENU_START_APPLETALK_NETGAME:
-//			load_mission(Builtin_mission_num);
-			#ifdef MACINTOSH
-			Network_game_type = APPLETALK_GAME;
-			#endif
+		case MENU_START_UDP_NETGAME:
+			ipx_set_driver(IPX_DRIVER_UDP);
 			network_start_game();
 			break;
+		case MENU_JOIN_UDP_NETGAME:
+			ipx_set_driver(IPX_DRIVER_UDP);
+			do_ip_manual_join_menu();
+			break;
 
-		case MENU_JOIN_APPLETALK_NETGAME:
-//			load_mission(Builtin_mission_num);
-			#ifdef MACINTOSH
-			Network_game_type = APPLETALK_GAME;
-			#endif
-			network_join_game();
-			break;
-#endif
-#if 0
-		case MENU_START_TCP_NETGAME:
-		case MENU_JOIN_TCP_NETGAME:
-			nm_messagebox (TXT_SORRY,1,TXT_OK,"Not available in shareware version!");
-			// DoNewIPAddress();
-			break;
-#endif
 		case MENU_START_SERIAL:
 			com_main_menu();
 			break;
@@ -1365,8 +1340,6 @@ void do_multi_player_menu()
 	int old_game_mode;
 
 	do {
-//		WIN(ipx_destroy_read_thread());
-
 		old_game_mode = Game_mode;
 		num_options = 0;
 
@@ -1374,27 +1347,16 @@ void do_multi_player_menu()
 		ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_IPX_NETGAME, -1);
 		ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_IPX_NETGAME, -1);
 #endif //NATIVE_IPX
-		//ADD_ITEM(TXT_START_TCP_NET_GAME, MENU_START_TCP_NETGAME, -1);
-		//ADD_ITEM(TXT_JOIN_TCP_NET_GAME, MENU_JOIN_TCP_NETGAME, -1);
 		ADD_ITEM("Start UDP/IP Netgame", MENU_START_UDP_NETGAME, -1);
 		ADD_ITEM("Join UDP/IP Netgame\n", MENU_JOIN_UDP_NETGAME, -1);
-		ADD_ITEM("Start Multicast UDP/IP Netgame", MENU_START_MCAST4_NETGAME, -1);
-		ADD_ITEM("Join Multicast UDP/IP Netgame\n", MENU_JOIN_MCAST4_NETGAME, -1);
 #ifdef KALINIX
 		ADD_ITEM("Start Kali Netgame", MENU_START_KALI_NETGAME, -1);
 		ADD_ITEM("Join Kali Netgame\n", MENU_JOIN_KALI_NETGAME, -1);
 #endif // KALINIX
 
-#ifdef MACINTOSH
-		ADD_ITEM("Start Appletalk Netgame", MENU_START_APPLETALK_NETGAME, -1 );
-		ADD_ITEM("Join Appletalk Netgame\n", MENU_JOIN_APPLETALK_NETGAME, -1 );
-#endif
-
-//		ADD_ITEM(TXT_MODEM_GAME, MENU_START_SERIAL, -1);
-
 		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
 		
-		if ( choice > -1 )      
+		if ( choice > -1 )
 			do_option(menu_choice[choice]);
 	
 		if (old_game_mode != Game_mode)
@@ -1429,44 +1391,45 @@ void ipx_set_driver(int ipx_driver)
 			Network_active = 1;
 		} else {
 			switch(ipx_error) {
-			case IPX_NOT_INSTALLED: con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK); break;
-			case IPX_SOCKET_TABLE_FULL: con_printf(CON_VERBOSE, "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET+socket); break;
-			case IPX_NO_LOW_DOS_MEM: con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX ); break;
-			default: con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, ipx_error );
+				case IPX_NOT_INSTALLED: con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK); break;
+				case IPX_SOCKET_TABLE_FULL: con_printf(CON_VERBOSE, "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET+socket); break;
+				case IPX_NO_LOW_DOS_MEM: con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX ); break;
+				default: con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, ipx_error );
 			}
 			con_printf(CON_VERBOSE, "%s\n",TXT_NETWORK_DISABLED);
-			Network_active = 0;		// Assume no network
+			Network_active = 0; // Assume no network
 		}
 		ipx_read_user_file("descent.usr");
 		ipx_read_network_file("descent.net");
-		//@@if (FindArg("-dynamicsockets"))
-		//@@	Network_allow_socket_changes = 1;
-		//@@else
-		//@@	Network_allow_socket_changes = 0;
 	} else {
 		con_printf(CON_VERBOSE, "%s\n", TXT_NETWORK_DISABLED);
-		Network_active = 0;		// Assume no network
+		Network_active = 0; // Assume no network
 	}
 }
 
-void DoNewIPAddress ()
- {
-  newmenu_item m[4];
-  char IPText[30];
-  int choice;
+void do_ip_manual_join_menu()
+{
+	int menu_choice[3];
+	newmenu_item m[3];
+	int choice = 0, num_options = 0;
+	int old_game_mode;
+	char buf[128]="";
 
-  m[0].type=NM_TYPE_TEXT; m[0].text = "Enter an address or hostname:";
-  m[1].type=NM_TYPE_INPUT; m[1].text_len = 50; m[1].text = IPText;
-  IPText[0]=0;
+	do {
+		old_game_mode = Game_mode;
+		num_options = 0;
 
-  choice = newmenu_do( NULL, "Join a TCPIP game", 2, m, NULL );
+		m[num_options].type = NM_TYPE_INPUT; m[num_options].text=buf; m[num_options].text_len=128;menu_choice[num_options]=-1; num_options++;
 
-  if (choice==-1 || m[1].text[0]==0)
-   return;
+		choice = newmenu_do1( NULL, "ENTER IP OR HOSTNAME", num_options, m, NULL, choice );
 
-  nm_messagebox (TXT_SORRY,1,TXT_OK,"That address is not valid!");
- }
+		if ( choice > -1 )
+			ip_connect_manual(buf);
 
+		if (old_game_mode != Game_mode)
+			break; // leave menu
+	} while( choice > -1 );
+}
 #endif // NETWORK
 
 #ifdef GP2X

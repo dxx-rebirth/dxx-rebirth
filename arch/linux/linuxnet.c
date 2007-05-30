@@ -44,8 +44,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef KALINIX
 #include "ipx_kali.h"
 #endif
-#include "ipx_udp.h"
-#include "ipx_mcast4.h"
 #include "error.h"
 #include "../../main/player.h"	/* for Players */
 #include "../../main/multi.h"	/* for NetPlayers */
@@ -92,7 +90,8 @@ int ipx_general_PacketReady(ipx_socket_t *s) {
 		return 0;
 }
 
-struct ipx_driver *driver = &ipx_udp;
+struct ipx_driver *driver;
+extern struct ipx_driver ipx_ip;
 
 ubyte * ipx_get_my_server_address()
 {
@@ -113,8 +112,7 @@ void arch_ipx_set_driver(int ipx_driver)
 #ifdef KALINIX
 	case IPX_DRIVER_KALI: driver = &ipx_kali; break;
 #endif
-	case IPX_DRIVER_UDP: driver = &ipx_udp; break;
-	case IPX_DRIVER_MCAST4: driver = &ipx_mcast4; break;
+	case IPX_DRIVER_UDP: driver = &ipx_ip; break;
 	default: Int3();
 	}
 }
@@ -188,6 +186,7 @@ void ipx_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *ad
 	Assert(datasize <= MAX_IPX_DATA+4);
 	
 	memcpy(ipx_header.Destination.Network, network, 4);
+
 	memcpy(ipx_header.Destination.Node, immediate_address, 6);
 	*(u_short *)ipx_header.Destination.Socket = htons(ipx_socket_data.socket);
 	ipx_header.PacketType = 4; /* Packet Exchange */

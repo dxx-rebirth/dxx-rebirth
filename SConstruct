@@ -17,12 +17,11 @@ D2XMINOR = 52
 D2XMICRO = 0
 #D2XMICRO = int(SVN_REVISION)
 
-VERSION = str(D2XMAJOR) + '.' + str(D2XMINOR)
-
+VERSION_STRING = ' v' + str(D2XMAJOR) + '.' + str(D2XMINOR)
 if (D2XMICRO):
- VERSION += '.' + str(D2XMICRO)
+	VERSION_STRING += '.' + str(D2XMICRO)
 
-print '\n===== ' + PROGRAM_NAME + ' v' + VERSION + ' =====\n'
+print '\n===== ' + PROGRAM_NAME + VERSION_STRING + ' =====\n'
 
 # installation path
 PREFIX = '/usr/local/'
@@ -168,7 +167,10 @@ common_sources = [
 'misc/strio.c',
 'misc/strutil.c',
 'texmap/ntmap.c',
-'texmap/scanline.c'
+'texmap/scanline.c',
+'main/ip_base.cpp',
+'main/ipclienc.c',
+'main/ipclient.cpp',
 ]
 
 # for editor
@@ -235,9 +237,8 @@ editor_sources = [
 # for *nix
 arch_unix_sources = [
 'arch/linux/init.c',
-'arch/linux/ipx_mcast4.c',
-'arch/linux/ipx_udp.c',
 'arch/linux/linuxnet.c',
+'arch/linux/arch_ip.cpp'
 ]
 
 # for linux
@@ -266,12 +267,11 @@ arch_win32_sources = [
 'arch/win32/hmpfile.c',
 'arch/win32/init.c',
 'arch/win32/ipx_win.c',
-'arch/win32/ipx_mcast4.c',
-'arch/win32/ipx_udp.c',
 'arch/win32/midi.c',
 'arch/win32/mono.c',
 'arch/win32/winnet.c',
 'arch/sdl/digi.c',
+'arch/win32/arch_ip.cpp'
 ]
 
 # for Mac OS X
@@ -319,7 +319,8 @@ env = Environment(ENV = os.environ)
 env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
-env.Append(CPPDEFINES = [('VERSION', '\\"' + str(VERSION) + '\\"')])
+env.Append(CPPDEFINES = [('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"')])
+#env.Append(CPPDEFINES = [('VERSION', '\\"' + str(VERSION) + '\\"')])
 env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
 env.Append(CPPDEFINES = ['NMONO', 'PIGGY_USE_PAGING', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'NEWDEMO', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
@@ -509,12 +510,12 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	""" + ' sharepath = ' + DATA_DIR + """
 
 	Some influential environment variables:
-     	  CC          C compiler command
-  	  CFLAGS      C compiler flags
-  	  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
+	  CC          C compiler command
+	  CFLAGS      C compiler flags
+	  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
                       nonstandard directory <lib dir>
                       <include dir>
-          CXX         C++ compiler command
-          CXXFLAGS    C++ compiler flags
+	  CXX         C++ compiler command
+	  CXXFLAGS    C++ compiler flags
         """)
 #EOF

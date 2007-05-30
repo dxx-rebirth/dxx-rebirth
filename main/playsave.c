@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "strio.h"
 #include "physfsx.h"
+#include "vers_id.h"
 
 #define SAVE_FILE_ID			MAKE_SIG('D','P','L','R')
 

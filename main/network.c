@@ -363,6 +363,10 @@ void network_release_registered_game(void);
 
 #endif
 
+// ugly global fellows for the big wait in directIP connection
+ubyte *Ext_server=NULL;
+ubyte *Ext_node=NULL;
+
 void
 network_init(void)
 {
@@ -1695,8 +1699,12 @@ void network_send_all_info_request(char type,int which_security)
 	if (Network_game_type == IPX_GAME) {
 		memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
 		memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
-
-		send_broadcast_sequence_packet(me);
+		if (Ext_server==NULL || Ext_node==NULL){
+			send_broadcast_sequence_packet(me);
+		}
+		else {
+			send_internetwork_sequence_packet( me, Ext_server,Ext_node);
+		}
 	#ifdef MACINTOSH
 	} else {
 		me.player.network.appletalk.node = appletalk_get_my_node();
@@ -1765,7 +1773,10 @@ void
 network_send_endlevel_sub(int player_num)
 {
 	endlevel_info end;
-	int i, j;
+	int i;
+#ifdef WORDS_BIGENDIAN
+	int j;
+#endif
 
 	// Send an endlevel packet for a player
 	end.type                = PID_ENDLEVEL;
@@ -1778,8 +1789,6 @@ network_send_endlevel_sub(int player_num)
 	for (i = 0; i < MAX_PLAYERS; i++)
 		for (j = 0; j < MAX_PLAYERS; j++)
 			end.kill_matrix[i][j] = INTEL_SHORT(end.kill_matrix[i][j]);
-#else
-	j = j;          // to satisfy compiler
 #endif
 
 	if (Players[player_num].connected == 1) // Still playing
@@ -2329,9 +2338,7 @@ void network_process_packet(ubyte *data, int length )
 				network_send_lite_info(their);
 		break;
 
-
 	case PID_SEND_ALL_GAMEINFO:
-
 	   if (length != SEQUENCE_PACKET_SIZE)
 		 {
 		  mprintf ((0,"WARNING! Recieved invalid size for PID_SEND_ALL_GAMEINFO\n"));
@@ -4638,11 +4645,10 @@ void network_do_big_wait(int choice)
 		else
 		#endif
 			data = packet;
-  
+
 	 switch (data[0])
      {  
 		case PID_GAME_INFO:
-
 		if (Network_game_type == IPX_GAME) {
 			receive_full_netgame_packet(data, &TempNetInfo);
 		} else {
@@ -4687,7 +4693,6 @@ void network_do_big_wait(int choice)
 	break;
       case PID_PLAYERSINFO:
 	       mprintf ((0,"Got a PID_PLAYERSINFO!\n"));
-
 			if (Network_game_type == IPX_GAME) {
 #ifndef WORDS_BIGENDIAN
 				temp_info=(AllNetPlayers_info *)data;
@@ -4804,7 +4809,7 @@ void network_listen()
 	NetSecurityFlag=NETSECURITY_OFF;
 
 	i=1;
-	if (Network_game_type == IPX_GAME) {
+// 	if (Network_game_type == IPX_GAME) {
 		size = ipx_get_packet_data( packet );
 		while ( size > 0)       {
 			network_process_packet( packet, size );
@@ -4812,17 +4817,17 @@ void network_listen()
 			 break;
 			size = ipx_get_packet_data( packet );
 		}
-	#ifdef MACINTOSH
-	} else {
-		size = appletalk_get_packet_data( apacket );
-		while ( size > 0)       {
-			network_process_packet( apacket, size );
-			if (++i>loopmax)
-			 break;
-			size = appletalk_get_packet_data( apacket );
-		}
-	#endif
-	}
+// 	#ifdef MACINTOSH
+// 	} else {
+// 		size = appletalk_get_packet_data( apacket );
+// 		while ( size > 0)       {
+// 			network_process_packet( apacket, size );
+// 			if (++i>loopmax)
+// 			 break;
+// 			size = appletalk_get_packet_data( apacket );
+// 		}
+// 	#endif
+// 	}
 }
 
 int network_wait_for_playerinfo()
@@ -6488,4 +6493,142 @@ int HoardEquipped()
 			checked=0;
 	}
 	return (checked);
+}
+
+int network_do_join_game()
+{
+	if (Active_games[0].game_status == NETSTAT_ENDLEVEL)
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
+		return 0;
+	}
+
+	// Check for valid mission name
+	if (!load_mission_by_name(Active_games[0].mission_name))
+	{
+		nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
+		return 0;
+	}
+
+	if (!network_wait_for_all_info (0))
+	{
+		nm_messagebox (TXT_SORRY,1,TXT_OK,"There was a join error!");
+		Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+		Ext_server=NULL;
+		Ext_node=NULL;
+		return 0;
+	}
+
+	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+	Ext_server=NULL;
+	Ext_node=NULL;
+
+	if (!can_join_netgame(&Active_games[0], &ActiveNetPlayers[0]))
+	{
+		if (Active_games[0].numplayers == Active_games[0].max_numplayers)
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
+		else
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
+		return 0;
+	}
+
+	// Choice is valid, prepare to join in
+
+	memcpy (&Netgame, &Active_games[0], sizeof(netgame_info));
+	memcpy (&NetPlayers,TempPlayersInfo,sizeof(AllNetPlayers_info));
+
+	Difficulty_level = Netgame.difficulty;
+	MaxNumNetPlayers = Netgame.max_numplayers;
+	change_playernum_to(1);
+
+	network_set_game_mode(Netgame.gamemode);
+
+	StartNewLevel(Netgame.levelnum, 0);
+
+	return 1;     // look ma, we're in a game!!!
+}
+
+int show_game_stats(netgame_info game)
+{
+	char rinfo[512],*info=rinfo;
+	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
+	int c;
+
+	memset(info,0,sizeof(char)*256);
+
+	info+=sprintf(info,"\nConnected to\n\"%s\"\n",game.game_name);
+
+	if(!game.mission_title)
+		info+=sprintf(info,"Level: Descent2: CounterStrike");
+	else
+		info+=sprintf(info,game.mission_title);
+
+	info+=sprintf (info," - Lvl %i",game.levelnum);
+	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(game.difficulty));
+	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[game.gamemode]);
+	info+=sprintf (info,"\nPlayers: %i/%i",game.numconnected,game.max_numplayers);
+
+	while (1){
+		c=nm_messagebox("WELCOME", 1, "JOIN GAME", rinfo);
+		if (c==0)
+			return 1;
+		else
+			return 0;
+	}
+}
+
+int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
+	sequence_packet me;
+	fix nextsend;
+	int numsent;
+	fix curtime;
+
+	if (setjmp(LeaveGame))
+		return 0;
+
+	num_active_games = 0;
+	Network_games_changed = 0;
+	Network_status = NETSTAT_BROWSING;
+	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
+
+	nextsend=0;numsent=0;
+
+	while (1){
+		curtime=timer_get_fixed_seconds();
+		if (nextsend<curtime){
+			if (numsent>=5)
+				return 0;//timeout
+			nextsend=curtime+F1_0*3;
+			numsent++;
+			mprintf((0, "Sending game_list request.\n"));
+			memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
+			memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
+			memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
+			me.type = PID_GAME_LIST; //get GAME_LIST - more infos follow later while big wait!
+			if (net_address != NULL)
+				send_sequence_packet( me, server,node,net_address);
+			else
+				send_internetwork_sequence_packet(me, server, node);
+		}
+
+		network_listen();
+
+		if (Network_games_changed){
+			if (num_active_games<1){
+				Network_games_changed=0;
+				continue;
+			}
+			if (show_game_stats(Active_games[0])) {
+				Ext_server=server;
+				Ext_node=node;
+				return (network_do_join_game());
+			}
+			else
+				return 0;
+		}
+		if (key_inkey()==KEY_ESC)
+			return 0;
+
+	}
+	return 0;
 }

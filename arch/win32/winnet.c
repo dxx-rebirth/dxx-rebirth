@@ -32,8 +32,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "ipx.h"
 #include "ipx_drv.h"
-#include "ipx_udp.h"
-#include "ipx_mcast4.h"
 #include "../../main/player.h"	/* for Players */
 #include "../../main/multi.h"	/* for NetPlayers */
 
@@ -77,6 +75,7 @@ int ipx_general_PacketReady(ipx_socket_t *s) {
 }
 
 struct ipx_driver *driver = &ipx_win;
+extern struct ipx_driver ipx_ip;
 
 ubyte * ipx_get_my_server_address()
 {
@@ -92,8 +91,7 @@ void arch_ipx_set_driver(int ipx_driver)
 {
 	switch(ipx_driver) {
 	case IPX_DRIVER_IPX: driver = &ipx_win; break;
-	case IPX_DRIVER_UDP: driver = &ipx_udp; break;
-	case IPX_DRIVER_MCAST4: driver = &ipx_mcast4; break;
+	case IPX_DRIVER_UDP: driver = &ipx_ip; break;
 	default: Int3();
 	}
 }

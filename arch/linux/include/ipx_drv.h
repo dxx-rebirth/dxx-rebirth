@@ -12,24 +12,25 @@
 #ifndef _IPX_DRV_H
 #define _IPX_DRV_H
 #include <sys/types.h>
+#include "pstypes.h"
 
 #define IPX_MANUAL_ADDRESS
 
 #define MAX_PACKET_DATA		1500
 
 typedef struct IPXAddressStruct {
-	u_char Network[4] __attribute__((packed));
-	u_char Node[6] __attribute__((packed));
-	u_char Socket[2] __attribute__((packed));
+	u_char Network[4];
+	u_char Node[6];
+	u_char Socket[2];
 } IPXAddress_t;
 
 typedef struct IPXPacketStructure {
-	u_short Checksum __attribute__((packed));
-	u_short Length __attribute__((packed));
-	u_char TransportControl __attribute__((packed));
-	u_char PacketType __attribute__((packed));
-	IPXAddress_t Destination __attribute__((packed));
-	IPXAddress_t Source __attribute__((packed));
+	u_short Checksum;
+	u_short Length;
+	u_char TransportControl;
+	u_char PacketType;
+	IPXAddress_t Destination;
+	IPXAddress_t Source;
 } IPXPacket_t;
 
 typedef struct ipx_socket_struct {
@@ -67,6 +68,8 @@ struct ipx_driver {
 	int (*HandleNetgameAuxData)(ipx_socket_t *s, const u_char buf[]);
 	void (*HandleLeaveGame)(ipx_socket_t *s);
 	int (*SendGamePacket)(ipx_socket_t *s, u_char *data, int dataLen);
+	int (*CheckReadyToJoin)(unsigned char *server, unsigned char *node);
+	int usepacketnum;//we can save 4 bytes
 };
 
 int ipx_general_PacketReady(ipx_socket_t *s);

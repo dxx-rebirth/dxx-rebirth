@@ -26,9 +26,9 @@
 #endif
 
 typedef struct IPXAddressStruct {
-	u_char Network[4] __pack__;
-	u_char Node[6] __pack__;
-	u_char Socket[2] __pack__;
+	u_char Network[4];
+	u_char Node[6];
+	u_char Socket[2];
 } IPXAddress_t;
 
 typedef struct IPXPacketStructure {
@@ -71,6 +71,8 @@ struct ipx_driver {
 	int (*HandleNetgameAuxData)(ipx_socket_t *s, const u_char buf[]);
 	void (*HandleLeaveGame)(ipx_socket_t *s);
 	int (*SendGamePacket)(ipx_socket_t *s, u_char *data, int dataLen);
+	int (*CheckReadyToJoin)(unsigned char *server, unsigned char *node);
+	int usepacketnum;//we can save 4 bytes
 };
 
 int ipx_general_PacketReady(ipx_socket_t *s);

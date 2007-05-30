@@ -253,13 +253,10 @@ void print_commandline_help()
 	printf( "  -packets <num>     %s\n", "Specifies the number of packets per second\n");
 	printf( "  -ipxnetwork <num>  %s\n", "Use IPX network number <num>");
 	printf( "  -kali              %s\n", "Use Kali for networking");
-	printf( "  -udp               %s\n", "Specify options for udp/ip:");
-	printf( "    @<shift>         %s\n", "  Shift udp port base offset");
-	printf( "    =<HOST_LIST>     %s\n", "  Broadcast both local and to HOST_LIST");
-	printf( "    +<HOST_LIST>     %s\n", "  Broadcast only to HOST_LIST");
-	printf( "                     %s\n", "  HOSTS can be any IP or hostname");
-	printf( "                     %s\n", "  HOSTS can also be in the form of <address>:<shift>");
-	printf( "                     %s\n", "  Separate multiple HOSTS with a ,");
+        printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
+        printf( "  -ip_myaddr <a>     %s\n", "Use <a> as local ip address");
+        printf( "  -ip_bind_addr <a>  %s\n", "Bind to <a> instead of INADDR_ANY");
+        printf( "  -ip_baseport <p>   %s\n", "Use <p> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
 #endif // NETWORK
 
 #ifndef   NDEBUG

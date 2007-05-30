@@ -24,6 +24,8 @@
 //added 05/17/99 Matt Mueller - needed to redefine FD_* so that no asm is used
 #include "checker.h"
 //end addition -MM
+#include "vers_id.h"
+
 int g_sockfd = -1;
 struct sockaddr_in kalinix_addr;
 char g_mynodenum[6];
