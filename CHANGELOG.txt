@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070601
+--------
+main/menu.c, main/netmisc.h, main/network.c, main/newmenu.c: improved pixel-correct (almost) scaling of menus; new Netgame info screen which can show up necessary game rules
+
 20070530
 --------
 d2x.ini, SConstruct, arch/linux/arch_ip.cpp, arch/linux/linuxnet.c arch/linux/ukali.c, arch/linux/include/ipx_drv.h, arch/win32/arch_ip.cpp, arch/win32/winnet.c, arch/win32/ipx_drv.h, arch/win32/include/ipx_drv.h, main/ip_base.cpp, main/ip_basec.h, main/inferno.c, main/ipbase.h, main/ipclient.cpp, main/ipclienc.c, main/ipclient.h, main/menu.c, main/network.c, main/playsave.c, main/vers_id.h: Removed old UDP/IP and MCAST4 code; Implemented online-capable UDP/IP interface

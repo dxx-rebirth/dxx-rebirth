@@ -73,6 +73,8 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:56:24 zicodxx Exp 
 #include "kconfig.h"
 #include "playsave.h"
 #include "cfile.h"
+#include "gamefont.h"
+#include "songs.h"
 
 #ifdef MACINTOSH
 #include <Events.h>
@@ -80,8 +82,8 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:56:24 zicodxx Exp 
 #include "appltalk.h"
 #endif
 
-#define LHX(x)          ((x)*(MenuHires?2:1))
-#define LHY(y)          ((y)*(MenuHires?2.4:1))
+#define LHX(x)          (FONTSCALE_X((x)*(MenuHires?2:1)))
+#define LHY(y)          (FONTSCALE_Y((y)*(MenuHires?2.4:1)))
 
 /* the following are the possible packet identificators.
  * they are stored in the "type" field of the packet structs.
@@ -110,7 +112,9 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:56:24 zicodxx Exp 
 #define PID_NAKED_PDATA     62
 #define PID_GAME_PLAYERS    63
 #define PID_NAMES_RETURN    64 // 0x40
-
+// new packet types to get a little bit more information about the netgame so we can show up some rules/flags - uses netgame_info instead of lite_info
+#define PID_LITE_INFO_D2X   65 // like PID_LITE_INFO
+#define PID_GAME_LIST_D2X   66 // like PID_GAME_LIST
 
 #define NETGAME_ANARCHY         0
 #define NETGAME_TEAM_ANARCHY    1
@@ -1916,7 +1920,7 @@ network_send_game_info(sequence_packet *their)
 	Netgame.game_status = old_status;
 }       
 
-void network_send_lite_info(sequence_packet *their)
+void network_send_lite_info(sequence_packet *their,int extended)
 {
 	// Send game info to someone who requested it
 
@@ -1929,7 +1933,10 @@ void network_send_lite_info(sequence_packet *their)
 	old_type = Netgame.type;
 	old_status = Netgame.game_status;
 
-	Netgame.type = PID_LITE_INFO;
+	if (extended)
+		Netgame.type = PID_LITE_INFO_D2X;
+	else
+		Netgame.type = PID_LITE_INFO;
 
 	if (Endlevel_sequence || Control_center_destroyed)
 		Netgame.game_status = NETSTAT_ENDLEVEL;
@@ -1955,7 +1962,7 @@ void network_send_lite_info(sequence_packet *their)
 		}               // nothing to do for appletalk I think....
 	} else {
 		if (Network_game_type == IPX_GAME) {
-			send_internetwork_lite_netgame_packet(their->player.network.ipx.server, their->player.network.ipx.node);
+			send_internetwork_lite_netgame_packet(their->player.network.ipx.server, their->player.network.ipx.node,extended);
 		#ifdef MACINTOSH
 		} else {
 			appletalk_send_packet_data( (ubyte *)&Netgame, sizeof(lite_info), their->player.network.appletalk.node,
@@ -2126,7 +2133,7 @@ void network_process_gameinfo(ubyte *data)
 	}
 }
 
-void network_process_lite_info(ubyte *data)
+void network_process_lite_info(ubyte *data, int extended)
 {
 	int i, j;
 	lite_info *new = (lite_info *)data;
@@ -2158,7 +2165,7 @@ void network_process_lite_info(ubyte *data)
 		return;
 	}
 	
-	memcpy(&Active_games[i], (ubyte *)new, sizeof(lite_info));
+	memcpy(&Active_games[i], (ubyte *)new, (extended?sizeof(netgame_info):sizeof(lite_info)));
 
 // See if this is really a Hoard game
 // If so, adjust all the data accordingly
@@ -2313,14 +2320,26 @@ void network_process_packet(ubyte *data, int length )
 
    case PID_LITE_INFO:
 
-	 if (length != LITE_INFO_SIZE)
+	 if (length != LITE_INFO_SIZE) // probably we get extended info
 		 {
 		  mprintf ((0,"WARNING! Recieved invalid size for PID_LITE_INFO\n"));
 		  return;
 		 }
  
 	 if (Network_status == NETSTAT_BROWSING)
-		network_process_lite_info (data);
+		network_process_lite_info (data,0);
+    break;
+
+   case PID_LITE_INFO_D2X:
+
+	 if (length != sizeof(netgame_info)) // probably we get extended info
+		 {
+		  mprintf ((0,"WARNING! Recieved invalid size for PID_LITE_INFO\n"));
+		  return;
+		 }
+ 
+	 if (Network_status == NETSTAT_BROWSING)
+		network_process_lite_info (data,1);
     break;
 
 	case PID_GAME_LIST:
@@ -2335,7 +2354,21 @@ void network_process_packet(ubyte *data, int length )
 		mprintf((0, "Got a PID_GAME_LIST!\n"));
 		if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
 			if (network_i_am_master())
-				network_send_lite_info(their);
+				network_send_lite_info(their,0);
+		break;
+
+	case PID_GAME_LIST_D2X:
+		// Someone wants a list of games
+
+	   if (length != SEQUENCE_PACKET_SIZE)
+		 {
+		  mprintf ((0,"WARNING! Recieved invalid size for PID_GAME_LIST\n"));
+		  return;
+		 }
+			
+		if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
+			if (network_i_am_master())
+				network_send_lite_info(their,1);
 		break;
 
 	case PID_SEND_ALL_GAMEINFO:
@@ -6548,6 +6581,135 @@ int network_do_join_game()
 	return 1;     // look ma, we're in a game!!!
 }
 
+void show_game_rules(netgame_info game)
+{
+	int done,k;
+	grs_canvas canvas;
+	int w = LHX(290), h = LHY(170);
+
+	gr_set_current_canvas(NULL);
+
+	if (MenuHires)
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
+	else
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));
+
+	game_flush_inputs();
+
+	done = 0;
+
+	while(!done)	{
+		timer_delay(400);
+		gr_set_current_canvas(NULL);
+#ifdef OGL
+		gr_flip();
+		nm_draw_background1(NULL);
+#endif
+		nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
+
+		gr_set_current_canvas(&canvas);
+		
+		grd_curcanv->cv_font = MEDIUM3_FONT;
+	
+		gr_string( 0x8000, LHY(15), "NETGAME RULES" );
+	
+		grd_curcanv->cv_font = SMALL_FONT;
+	
+		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
+		gr_printf( LHX( 25),LHY( 35), "Invulnerable when reappearing:");
+		gr_printf( LHX(250),LHY( 35), game.invul?"ON":"OFF");
+		gr_printf( LHX( 25),LHY( 41), "Allow camera view from markers:");
+		gr_printf( LHX(250),LHY( 41), game.Allow_marker_view?"ON":"OFF");
+		gr_printf( LHX( 25),LHY( 47), "Indestructible lights:");
+		gr_printf( LHX(250),LHY( 47), game.AlwaysLighting?"ON":"OFF");
+		gr_printf( LHX( 25),LHY( 53), "Bright player ships:");
+		gr_printf( LHX(250),LHY( 53), game.BrightPlayers?"ON":"OFF");
+		gr_printf( LHX( 25),LHY( 59), "Show enemy names on hud:");
+		gr_printf( LHX(250),LHY( 59), game.ShowAllNames?"ON":"OFF");
+		gr_printf( LHX( 25),LHY( 65), "Show all players on automap:");
+		gr_printf( LHX(250),LHY( 65), game.game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+
+		gr_printf( LHX( 25),LHY( 80), "Allowed Objects");
+
+		gr_printf( LHX( 25),LHY( 90), "Laser Upgrade:");
+		gr_printf( LHX(130),LHY( 90), game.DoLaserUpgrade==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY( 96), "Super Laser:");
+		gr_printf( LHX(130),LHY( 96), game.DoSuperLaser==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(102), "Quad Laser:");
+		gr_printf( LHX(130),LHY(102), game.DoQuadLasers==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(108), "Vulcan Cannon:");
+		gr_printf( LHX(130),LHY(108), game.DoVulcan==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(114), "Gauss Cannon:");
+		gr_printf( LHX(130),LHY(114), game.DoGauss==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(120), "Spreadfire Cannon:");
+		gr_printf( LHX(130),LHY(120), game.DoSpread==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(126), "Helix Cannon:");
+		gr_printf( LHX(130),LHY(126), game.DoHelix==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(132), "Plasma Cannon:");
+		gr_printf( LHX(130),LHY(132), game.DoPlasma==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(138), "Phoenix Cannon:");
+		gr_printf( LHX(130),LHY(138), game.DoPhoenix==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(144), "Fusion Cannon:");
+		gr_printf( LHX(130),LHY(144), game.DoFusions==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(150), "Omega Cannon:");
+		gr_printf( LHX(130),LHY(150), game.DoOmega==0?"NO":"YES");
+
+		gr_printf( LHX(170),LHY( 90), "Flash Missile:");
+		gr_printf( LHX(275),LHY( 90), game.DoFlash==0?"NO":"YES");
+		gr_printf( LHX(170),LHY( 96), "Homing Missile:");
+		gr_printf( LHX(275),LHY( 96), game.DoHoming==0?"NO":"YES");
+		gr_printf( LHX(170),LHY(102), "Guided Missile:");
+		gr_printf( LHX(275),LHY(102), game.DoGuided==0?"NO":"YES");
+		gr_printf( LHX(170),LHY(108), "Proximity Bomb:");
+		gr_printf( LHX(275),LHY(108), game.DoProximity==0?"NO":"YES");
+		gr_printf( LHX(170),LHY(114), "Smart Mine:");
+		gr_printf( LHX(275),LHY(114), game.DoSmartMine==0?"NO":"YES");
+		gr_printf( LHX(170),LHY(120), "Smart Missile:");
+		gr_printf( LHX(275),LHY(120), game.DoSmarts==0?"NO":"YES");
+		gr_printf( LHX(170),LHY(126), "Mercury Missile:");
+		gr_printf( LHX(275),LHY(126), game.DoMercury==0?"NO":"YES");
+		gr_printf( LHX(170),LHY(132), "Mega Missile:");
+		gr_printf( LHX(275),LHY(132), game.DoMegas==0?"NO":"YES");
+		gr_printf( LHX(170),LHY(138), "Earthshaker Missile:");
+		gr_printf( LHX(275),LHY(138), game.DoEarthShaker==0?"NO":"YES");
+
+		gr_printf( LHX( 25),LHY(160), "Afterburner:");
+		gr_printf( LHX(130),LHY(160), game.DoAfterburner==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(166), "Headlight:");
+		gr_printf( LHX(130),LHY(166), game.DoHeadlight==0?"NO":"YES");
+		gr_printf( LHX( 25),LHY(172), "Energy->Shield Conv:");
+		gr_printf( LHX(130),LHY(172), game.DoConverter==0?"NO":"YES");
+		gr_printf( LHX(170),LHY(160), "Invulnerability:");
+		gr_printf( LHX(275),LHY(160), game.DoInvulnerability==0?"NO":"YES");
+		gr_printf( LHX(170),LHY(166), "Cloaking Device:");
+		gr_printf( LHX(275),LHY(166), game.DoCloak==0?"NO":"YES");
+		gr_printf( LHX(170),LHY(172), "Ammo Rack:");
+		gr_printf( LHX(275),LHY(172), game.DoAmmoRack==0?"NO":"YES");
+
+		//see if redbook song needs to be restarted
+		songs_check_redbook_repeat();
+
+		k = key_inkey();
+		switch( k )	{
+		case KEY_PRINT_SCREEN:
+			save_screen_shot(0); k = 0;
+			break;
+		case KEY_ENTER:
+		case KEY_SPACEBAR:
+		case KEY_ESC:
+			done=1;
+			break;
+		}
+	}
+
+// Restore background and exit
+	gr_palette_fade_out( gr_palette, 32, 0 );
+
+	gr_set_current_canvas(NULL);
+
+	game_flush_inputs();
+}
+
 int show_game_stats(netgame_info game)
 {
 	char rinfo[512],*info=rinfo;
@@ -6559,7 +6721,7 @@ int show_game_stats(netgame_info game)
 	info+=sprintf(info,"\nConnected to\n\"%s\"\n",game.game_name);
 
 	if(!game.mission_title)
-		info+=sprintf(info,"Level: Descent2: CounterStrike");
+		info+=sprintf(info,"Descent2: CounterStrike");
 	else
 		info+=sprintf(info,game.mission_title);
 
@@ -6569,8 +6731,10 @@ int show_game_stats(netgame_info game)
 	info+=sprintf (info,"\nPlayers: %i/%i",game.numconnected,game.max_numplayers);
 
 	while (1){
-		c=nm_messagebox("WELCOME", 1, "JOIN GAME", rinfo);
+		c=nm_messagebox("WELCOME", 2, "GAME RULES", "JOIN GAME", rinfo);
 		if (c==0)
+			show_game_rules(game);
+		else if (c==1)
 			return 1;
 		else
 			return 0;
@@ -6604,7 +6768,7 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
 			memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 			memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
 			memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
-			me.type = PID_GAME_LIST; //get GAME_LIST - more infos follow later while big wait!
+			me.type = PID_GAME_LIST_D2X; //get GAME_LIST - more infos follow later while big wait!
 			if (net_address != NULL)
 				send_sequence_packet( me, server,node,net_address);
 			else

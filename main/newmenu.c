@@ -91,8 +91,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAXDISPLAYABLEITEMS 15
 
-#define LHX(x)      ((x)*(MenuHires?2:1))
-#define LHY(y)      ((y)*(MenuHires?2.4:1))
+#define LHX(x)      (FONTSCALE_X((x)*(MenuHires?2:1)))
+#define LHY(y)      (FONTSCALE_Y((y)*(MenuHires?2.4:1)))
 
 #define TITLE_FONT      HUGE_FONT
 #define NORMAL_FONT     MEDIUM1_FONT    //normal, non-highlighted item
@@ -859,7 +859,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			w = string_width;		// Save maximum width
 		if ( average_width > aw )
 			aw = average_width;
-		h += string_height+1;		// Find the height of all strings
+		h += string_height+FONTSCALE_Y(1);		// Find the height of all strings
 	}
 
 	// Big hack for allowing the netgame options menu to spill over
@@ -867,10 +867,10 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	if (ExtGameStatus==GAMESTAT_NETGAME_OPTIONS || ExtGameStatus==GAMESTAT_MORE_NETGAME_OPTIONS)
 		MaxOnMenu++;
 
-	if (!TinyMode && (h>((MaxOnMenu+1)*(string_height+1))+(LHY(8))))
+	if (!TinyMode && (h>((MaxOnMenu+FONTSCALE_Y(1))*(string_height+1))+(LHY(8))))
 	{
 		IsScrollBox=1;
-		h=(MaxOnMenu*(string_height+1)+LHY(8));
+		h=(MaxOnMenu*(string_height+FONTSCALE_Y(1))+LHY(8));
 		MaxDisplayable=MaxOnMenu;
 		mprintf ((0,"Hey, this is a scroll box!\n"));
 	}
@@ -907,7 +907,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		{ right_offset=0; twidth=0;}
 
 	mprintf(( 0, "Right offset = %d\n", right_offset ));
-
 
 	// Find min point of menu border
 	w += (MenuHires?60:30)*MENSCALE_X;
@@ -1744,7 +1743,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			if (item[i].redraw) // warning! ugly hack below
 #endif
 			{
-				item[i].y-=((string_height+1)*ScrollOffset);
+				item[i].y-=((string_height+FONTSCALE_Y(1))*ScrollOffset);
 #ifndef OGL
 				newmenu_hide_cursor();
 #endif
@@ -1756,7 +1755,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				if (!MenuReordering && !joydefs_calibrating)
 					newmenu_show_cursor();
 #endif
-				item[i].y+=((string_height+1)*ScrollOffset);
+				item[i].y+=((string_height+FONTSCALE_Y(1))*ScrollOffset);
 			}
 			if (i==choice && (item[i].type==NM_TYPE_INPUT || (item[i].type==NM_TYPE_INPUT_MENU && item[i].group)))
 				update_cursor( &item[i]);
@@ -1766,13 +1765,14 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		if (IsScrollBox)
 		{
 			//grd_curcanv->cv_font = NORMAL_FONT;
-			
+#ifndef OGL
 			if (LastScrollCheck!=ScrollOffset)
+#endif
 			{
 				LastScrollCheck=ScrollOffset;
 				grd_curcanv->cv_font = SELECTED_FONT;
 						
-				sy=item[ScrollOffset].y-((string_height+1)*ScrollOffset);
+				sy=item[ScrollOffset].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
 				sx=item[ScrollOffset].x-(MenuHires?24:12);
 						
 			
@@ -1781,7 +1781,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				else
 					nm_rstring( &bg, (MenuHires?20:10), sx, sy, "  " );
 		
-				sy=item[ScrollOffset+MaxDisplayable-1].y-((string_height+1)*ScrollOffset);
+				sy=item[ScrollOffset+MaxDisplayable-1].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
 				sx=item[ScrollOffset+MaxDisplayable-1].x-(MenuHires?24:12);
 			
 				if (ScrollOffset+MaxDisplayable<nitems)
@@ -2545,7 +2545,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		gr_get_string_size( title, &w, &h, &aw );		
 		if ( w > width )
 			width = w;
-		title_height = h + 5;
+		title_height = h + (5*MENSCALE_Y);
 	}
 
 	border_size = (grd_curfont->ft_w);
@@ -2775,15 +2775,15 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 				y = (i-first_item)*FONTSCALE_Y(grd_curfont->ft_h+2)+wy;
 				if ( i >= nitems )	{
 					gr_setcolor( BM_XRGB(0,0,0));
-					gr_rect( wx, y-1, wx+width-1, y+FONTSCALE_Y(grd_curfont->ft_h + 1) );
+					gr_rect( wx, y-FONTSCALE_Y(1), wx+width-FONTSCALE_X(1), y+FONTSCALE_Y(grd_curfont->ft_h + 1) );
 				} else {
 					if ( i == citem )	
 						grd_curcanv->cv_font = SELECTED_FONT;
 					else	
 						grd_curcanv->cv_font = NORMAL_FONT;
 					gr_get_string_size(items[i], &w, &h, &aw  );
-					gr_rect( wx, y-1, wx+width-1, y+h+FONTSCALE_Y(2) );
-					gr_string( wx+5, y, items[i]  );
+					gr_rect( wx, y-FONTSCALE_Y(1), wx+width-FONTSCALE_X(1), y+h+FONTSCALE_Y(2) );
+					gr_string( wx+FONTSCALE_X(5), y, items[i]  );
 				}
 			}
 #ifndef OGL

@@ -1344,14 +1344,14 @@ void do_multi_player_menu()
 		num_options = 0;
 
 #ifdef NATIVE_IPX
-		ADD_ITEM(TXT_START_IPX_NET_GAME, MENU_START_IPX_NETGAME, -1);
-		ADD_ITEM(TXT_JOIN_IPX_NET_GAME, MENU_JOIN_IPX_NETGAME, -1);
+		ADD_ITEM("Start IPX Netgame", MENU_START_IPX_NETGAME, -1);
+		ADD_ITEM("Join IPX Netgame\n", MENU_JOIN_IPX_NETGAME, -1);
 #endif //NATIVE_IPX
 		ADD_ITEM("Start UDP/IP Netgame", MENU_START_UDP_NETGAME, -1);
 		ADD_ITEM("Join UDP/IP Netgame\n", MENU_JOIN_UDP_NETGAME, -1);
 #ifdef KALINIX
 		ADD_ITEM("Start Kali Netgame", MENU_START_KALI_NETGAME, -1);
-		ADD_ITEM("Join Kali Netgame\n", MENU_JOIN_KALI_NETGAME, -1);
+		ADD_ITEM("Join Kali Netgame", MENU_JOIN_KALI_NETGAME, -1);
 #endif // KALINIX
 
 		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );

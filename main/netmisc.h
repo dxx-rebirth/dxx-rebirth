@@ -97,8 +97,8 @@ void swap_object(object *obj);
 	ipx_send_packet_data((ubyte *)&Netgame, sizeof(lite_info), server, node, net_address)
 #define send_internetwork_full_netgame_packet(server, node) \
 	ipx_send_internetwork_packet_data((ubyte *)&Netgame, sizeof(netgame_info), server, node)
-#define send_internetwork_lite_netgame_packet(server, node) \
-	ipx_send_internetwork_packet_data((ubyte *)&Netgame, sizeof(lite_info), server, node)
+#define send_internetwork_lite_netgame_packet(server, node, extended) \
+	ipx_send_internetwork_packet_data((ubyte *)&Netgame, (extended?sizeof(netgame_info):sizeof(lite_info)), server, node)
 #define send_broadcast_full_netgame_packet() \
 	ipx_send_broadcast_packet_data((ubyte *)&Netgame, sizeof(netgame_info))
 #define send_broadcast_lite_netgame_packet() \
