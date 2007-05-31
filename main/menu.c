@@ -93,11 +93,7 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:43:27 zicodxx Exp $";
 void do_option(int select);
 void do_detail_level_menu_custom(void);
 void do_multi_player_menu();
-void do_ipx_multi_player_menu();
-void do_kali_multi_player_menu();
-void do_ip_multi_player_menu();
 void do_ip_manual_join_menu();
-void do_ip_serv_connect_menu();
 void do_new_game_menu();
 void do_load_game_menu();
 void do_cpu_menu();
@@ -130,11 +126,12 @@ void do_cpu_menu();
 #define MENU_ORDER_INFO         24
 #define MENU_PLAY_SONG          25
 #ifdef NETWORK
-#define MENU_IPX_MULTIPLAYER    26
-#define MENU_KALI_MULTIPLAYER   27
-#define MENU_IP_MULTIPLAYER     28
-#define	MENU_IP_SERV_CONNECT    29
-#define MENU_MANUAL_IP_JOIN     30
+#define MENU_START_IPX_NETGAME  26
+#define MENU_JOIN_IPX_NETGAME   27
+#define MENU_START_UDP_NETGAME  28 // UDP/IP support
+#define MENU_JOIN_UDP_NETGAME   29
+#define MENU_START_KALI_NETGAME 30 // Kali support
+#define MENU_JOIN_KALI_NETGAME  31
 #endif
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
@@ -387,50 +384,32 @@ void do_option ( int select)
 		}
                 #endif
 
+#ifdef NETWORK
+		case MENU_START_IPX_NETGAME:
+		case MENU_JOIN_IPX_NETGAME:
+		case MENU_START_KALI_NETGAME:
+		case MENU_JOIN_KALI_NETGAME:
+			netgame_d1x_only=0;
+			switch (select & ~0x1) {
+				case MENU_START_IPX_NETGAME: ipx_set_driver("ipx"); break;
+				case MENU_START_KALI_NETGAME: ipx_set_driver("kali"); break;
+				default: Int3();
+			}
+			if ((select & 0x1) == 0) // MENU_START_*_NETGAME
+				network_start_game();
+			else // MENU_JOIN_*_NETGAME
+				network_join_game();
+			break;
 
-		case MENU_START_NETGAME:
-#ifdef NETWORK
-//temp!
-#ifndef SHAREWARE
-			load_mission(0);
-#endif
-                        read_player_file();
-			network_start_game();
-#endif
-			break;
-		case MENU_JOIN_NETGAME:
-//temp!
-#ifdef NETWORK
-#ifndef SHAREWARE
-			load_mission(0);
-#endif
-                        read_player_file();
-			network_join_game();
-#endif
-			break;
-#ifdef NETWORK
-		case MENU_IPX_MULTIPLAYER:
-			netgame_d1x_only=0;
-			do_ipx_multi_player_menu();
-			break;
-		case MENU_KALI_MULTIPLAYER:
-			netgame_d1x_only=0;
-			do_kali_multi_player_menu();
-			break;
-#ifdef SUPPORTS_NET_IP
-		case MENU_IP_MULTIPLAYER:
+		case MENU_START_UDP_NETGAME:
 			netgame_d1x_only=1;
-			do_ip_multi_player_menu();
+			ipx_set_driver("ip");
+			network_start_game();
 			break;
-		case MENU_IP_SERV_CONNECT:
-			do_ip_serv_connect_menu();
-			break;
-		case MENU_MANUAL_IP_JOIN:
+		case MENU_JOIN_UDP_NETGAME:
+			netgame_d1x_only=1;
+			ipx_set_driver("ip");
 			do_ip_manual_join_menu();
-			break;
-#endif
-		case MENU_START_SERIAL:
-			com_main_menu();
 			break;
 		case MENU_MULTIPLAYER:
 			do_multi_player_menu();
@@ -811,65 +790,6 @@ void do_save_game_menu()
 
 extern void GameLoop(int, int );
 
-/*
-//added/killed on 9/7/98 by Victor Rachels to attempt dir browse.  failed.
-int build_dir_list(char currdir[64], char dirs[20][64])
-{
- int count=0;
- char dirspec[256];
- d_glob_t glob_ret;
-
-  strcpy(dirspec, currdir);
-  strcat(dirspec, "*");
-//something is wrong. dunno about linux, but doesn't return dirs in dos.
-//fix sometime.  Tired of it for now.
-   if( !d_glob(dirspec, &glob_ret) && glob_ret.gl_pathc)
-    {
-     int j;
-      for (j = 0; j < glob_ret.gl_pathc && (count < 20); j++)
-       {
-//        char *t;
-//        if((t=strrchr(glob_ret.gl_pathv[j],'/')))
-         {
-           strcpy(dirs[j],glob_ret.gl_pathv[j]);
-           count++;
-         }
-       }
-     d_globfree(&glob_ret);
-    }
-  return count;
-}
-
-void Directory_browse(char *currhogdir)
-{
- char newhogdir[64];
- char dirs[20][64];
- int n_dirs,newdirnum;
-
- strcpy(newhogdir,currhogdir);
-
- n_dirs=build_dir_list(newhogdir, dirs);
-
-  if(n_dirs>0)
-   {
-    char *m[20];
-    int i;
-
-      for(i=0;i<n_dirs;i++)
-       m[i]=dirs[i];
-
-     newdirnum = newmenu_listbox1("Select Directory:",n_dirs,m,1,0,NULL);
-
-      if(newdirnum == -1)
-       return;
-    
-     strcat(currhogdir,dirs[newdirnum]);
-     cfile_use_alternate_hogdir(currhogdir);
-   }
-}
-*/
-
-
 //added on 9/20/98 by Victor Rachels to attempt to add screen res change ingame
 //Changed on 3/24/99 by Owen Evans to make it work  =)
 void change_res_poll()
@@ -1071,8 +991,8 @@ void do_options_menu()
 #ifdef NETWORK
 void do_multi_player_menu()
 {
-	int menu_choice[4];
-	newmenu_item m[4];
+	int menu_choice[9];
+	newmenu_item m[9];
 	int choice = 0, num_options = 0;
 	int old_game_mode;
 
@@ -1080,80 +1000,26 @@ void do_multi_player_menu()
 		old_game_mode = Game_mode;
 		num_options = 0;
 
-		ADD_ITEM("IPX", MENU_IPX_MULTIPLAYER, -1 );
-#ifdef SUPPORTS_NET_IP
-		ADD_ITEM("udp/ip", MENU_IP_MULTIPLAYER, -1 );
-#endif
+#ifdef HAVE_NETIPX_IPX_H
+		ADD_ITEM("Start IPX Netgame", MENU_START_IPX_NETGAME, -1);
+		ADD_ITEM("Join IPX Netgame\n", MENU_JOIN_IPX_NETGAME, -1);
+#endif //HAVE_NETIPX_IPX_H
+		ADD_ITEM("Start UDP/IP Netgame", MENU_START_UDP_NETGAME, -1);
+		ADD_ITEM("Join UDP/IP Netgame\n", MENU_JOIN_UDP_NETGAME, -1);
 #ifdef __LINUX__
-		ADD_ITEM("Kalinix", MENU_KALI_MULTIPLAYER, -1 );
-#endif
-//		ADD_ITEM(TXT_MODEM_GAME, MENU_START_SERIAL, -1); // ZICO - outdated
+		ADD_ITEM("Start Kali Netgame", MENU_START_KALI_NETGAME, -1);
+		ADD_ITEM("Join Kali Netgame", MENU_JOIN_KALI_NETGAME, -1);
+#endif // __LINUX__
 
 		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
 		
-		if ( choice > -1 )	
+		if ( choice > -1 )
 			do_option(menu_choice[choice]);
 	
 		if (old_game_mode != Game_mode)
-			break;		// leave menu
+			break;          // leave menu
 
 	} while( choice > -1 );
-
-}
-void do_ipx_multi_player_menu()
-{
-	int menu_choice[3];
-	newmenu_item m[3];
-	int choice = 0, num_options = 0;
-	int old_game_mode;
-
-	if (ipx_set_driver("ipx")) return;
-
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
-
-		ADD_ITEM(TXT_START_NET_GAME, MENU_START_NETGAME, -1 );
-		ADD_ITEM(TXT_JOIN_NET_GAME, MENU_JOIN_NETGAME, -1 );
-
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
-		
-		if ( choice > -1 )	
-			do_option(menu_choice[choice]);
-	
-		if (old_game_mode != Game_mode)
-			break;		// leave menu
-
-	} while( choice > -1 );
-
-}
-void do_kali_multi_player_menu()
-{
-#ifdef __LINUX__
-	int menu_choice[3];
-	newmenu_item m[3];
-	int choice = 0, num_options = 0;
-	int old_game_mode;
-
-	if (ipx_set_driver("kali"))return;
-
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
-
-		ADD_ITEM(TXT_START_NET_GAME, MENU_START_NETGAME, -1 );
-		ADD_ITEM(TXT_JOIN_NET_GAME, MENU_JOIN_NETGAME, -1 );
-
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
-		
-		if ( choice > -1 )	
-			do_option(menu_choice[choice]);
-	
-		if (old_game_mode != Game_mode)
-			break;		// leave menu
-
-	} while( choice > -1 );
-#endif
 }
 
 #ifdef SUPPORTS_NET_IP
@@ -1183,63 +1049,6 @@ void do_ip_manual_join_menu()
 		if (old_game_mode != Game_mode)
 			break;		// leave menu
 	} while( choice > -1 );
-}
-
-void do_ip_serv_connect_menu()
-{
-	int menu_choice[3];
-	newmenu_item m[3];
-	int choice = 0, num_options = 0;
-	int old_game_mode;
-
-	return;
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
-
-		ADD_ITEM("Connect to game list server",MENU_IP_SERV_CONNECT, -1 );
-		ADD_ITEM(TXT_START_NET_GAME, MENU_START_NETGAME, -1 );
-		ADD_ITEM(TXT_JOIN_NET_GAME, MENU_MANUAL_IP_JOIN, -1 );
-
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
-		
-		if ( choice > -1 )	
-			do_option(menu_choice[choice]);
-	
-		if (old_game_mode != Game_mode)
-			break;		// leave menu
-
-	} while( choice > -1 );
-
-}
-
-void do_ip_multi_player_menu()
-{
-	int menu_choice[3];
-	newmenu_item m[3];
-	int choice = 0, num_options = 0;
-	int old_game_mode;
-
-	if (ipx_set_driver("ip"))return;
-
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
-
-//		ADD_ITEM("Connect to game list server",MENU_IP_SERV_CONNECT, -1 );
-		ADD_ITEM(TXT_START_NET_GAME, MENU_START_NETGAME, -1 );
-		ADD_ITEM(TXT_JOIN_NET_GAME, MENU_MANUAL_IP_JOIN, -1 );
-
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
-
-		if ( choice > -1 )
-			do_option(menu_choice[choice]);
-
-		if (old_game_mode != Game_mode)
-			break;		// leave menu
-
-	} while( choice > -1 );
-
 }
 #endif //NETWORK
 #endif

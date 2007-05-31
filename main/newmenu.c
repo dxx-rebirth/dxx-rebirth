@@ -679,7 +679,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			w = string_width;		// Save maximum width
 		if ( average_width > aw )
 			aw = average_width;
-		h += string_height+1;		// Find the height of all strings
+		h += string_height+(FONTSCALE_Y(1));		// Find the height of all strings
 	}
 
 	right_offset=0;
@@ -2056,7 +2056,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		gr_get_string_size( title, &w, &h, &aw );
 		if ( w > width )
 			width = w;
-		title_height = h + 5;
+		title_height = h + (5*MENSCALE_Y);
 	}
 		
 	width += 10;
@@ -2258,15 +2258,15 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 				y = (i-first_item)*font_height+wy;//was *12
 				if ( i >= nitems )	{
 					gr_setcolor( BM_XRGB(0,0,0));
-					gr_rect( wx, y-1, wx+width-1, y+font_height1 );//was +11
+					gr_rect( wx, y-FONTSCALE_Y(1), wx+width-FONTSCALE_X(1), y+font_height1 );//was +11
 				} else {
 					if ( i == citem )	
 						grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_2];
 					else	
 						grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_1];
 					gr_get_string_size(items[i], &w, &h, &aw  );
-					gr_rect( wx, y-1, wx+width-1, y+font_height1 );//was +11
-					gr_string( wx+5, y, items[i]  );
+					gr_rect( wx, y-FONTSCALE_Y(1), wx+width-FONTSCALE_X(1), y+font_height1 );//was +11
+					gr_string( wx+FONTSCALE_X(5), y, items[i]  );
 				}
 			}		
 #ifndef OGL

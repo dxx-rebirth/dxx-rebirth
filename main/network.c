@@ -2233,7 +2233,7 @@ int network_get_game_params( netgame_info *netgame, int *new_socket )
         m[opt_mode+3].value = multivalues[3];
         //end this section addition - Victor
 #endif
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_OPTIONS; opt++;
+// 	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_OPTIONS; opt++;
 
 	opt_closed = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_CLOSED_GAME; m[opt].value=0; opt++;

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070601
+--------
+main/menu.c, main/netlist.c, main/network.c, main/newmenu.c: improved pixel-correct (almost) scaling of menus; new Netgame info screen which can show up necessary game rules
+
 20070530
 --------
 SConstruct, arch/ogl/gr.c, ui/window.c: Added conditions to add compiler/linker flags from user's environemnt if they have any set; make sure gl functions are not called before OpenGL is initialised, when fullscreen switching; use new 3 argument mouse_get_delta to avoid compiler errors

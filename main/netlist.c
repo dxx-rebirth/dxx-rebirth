@@ -35,11 +35,16 @@
 
 #define LINE_ITEMS 8
 #define MAX_TEXT_LEN 25
+
+#define LHX(x)		((x)*(hiresfont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_X(2):FONTSCALE_X(1)))
+#define LHY(y)		((y)*(hiresfont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
+
 // from network.c
 extern int Network_games_changed;
 extern netgame_info Active_games[MAX_ACTIVE_NETGAMES];
 extern int num_active_games;
 extern int Network_socket;
+extern void nm_draw_background1(char * filename);
 void network_listen();
 void network_send_game_list_request();
 // bitblt.c
@@ -215,198 +220,182 @@ static void done_background(bkg *bg) {
 	gr_free_sub_canvas( bg->menu_canvas );
 }
 
-
-//added on 9/16-18/98 by Victor Rachels to add info boxes to netgameslist
-void show_game_players(netgame_info game)
+void show_game_rules(netgame_info game)
 {
- char pilots[(CALLSIGN_LEN+2)*MAX_PLAYERS];
- int i;
+#if 0
+	int nitems = 0;
+	char robj_list[2048],*obj_list=robj_list;
+	newmenu_item m[30];
 
-  memset(pilots,0,sizeof(char)*(CALLSIGN_LEN+2)*MAX_PLAYERS);
+	memset(obj_list,0,sizeof(char)*1024);
 
-   for(i=0;i<game.numplayers;i++)
-    if(game.players[i].connected)
-     {
-      strcat(pilots,game.players[i].callsign);
-      strcat(pilots,"\n");
-     }
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = (game.game_flags&NETGAME_FLAG_SHOW_MAP?"Show all players on automap: ON":"Show all players on automap: OFF");
+	if (game.protocol_version==MULTI_PROTO_D1X_VER 
+#ifndef SHAREWARE
+		&& game.subprotocol>=1
+#endif
+	){
+#ifndef SHAREWARE
+		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = (game.flags&NETFLAG_ENABLE_RADAR?"Radar: ON":"Radar: OFF");
+		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = (game.flags&NETFLAG_ENABLE_ALT_VULCAN?"Short Vulcan Fire: ON":"Short Vulcan Fire: OFF");
 
-  nm_messagebox("Players", 1, TXT_OK, pilots);
+		obj_list+=sprintf(obj_list,"laser upgrade: %s , quad lasers: %s\n",(game.flags&NETFLAG_DOLASER?"YES":"NO "),(game.flags&NETFLAG_DOQUAD?"YES":"NO "));
+		obj_list+=sprintf(obj_list,"vulcan cannon: %s , spreadfire cannon: %s\n",(game.flags&NETFLAG_DOVULCAN?"YES":"NO "),(game.flags&NETFLAG_DOSPREAD?"YES":"NO "));
+		obj_list+=sprintf(obj_list,"plasma cannon: %s , fusion cannon: %s\n",(game.flags&NETFLAG_DOPLASMA?"YES":"NO "),(game.flags&NETFLAG_DOFUSION?"YES":"NO "));
+		obj_list+=sprintf(obj_list,"homing missile: %s , proximity bomb: %s\n",(game.flags&NETFLAG_DOHOMING?"YES":"NO "),(game.flags&NETFLAG_DOPROXIM?"YES":"NO "));
+		obj_list+=sprintf(obj_list,"smart missile: %s , mega missile: %s\n",(game.flags&NETFLAG_DOSMART?"YES":"NO "),(game.flags&NETFLAG_DOMEGA?"YES":"NO "));
+		obj_list+=sprintf(obj_list,"invulnerability: %s , cloak: %s\n",(game.flags&NETFLAG_DOINVUL?"YES":"NO "),(game.flags&NETFLAG_DOCLOAK?"YES":"NO "));
+	
+		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Allowed Objects";
+		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = robj_list;
+#endif /* ! SHAREWARE */
+	}
+
+	newmenu_dotiny( NULL, "GAME RULES", nitems, m, NULL );
+#endif
+	int done,k;
+	grs_canvas canvas;
+	int w = LHX(290), h = LHY(170);
+
+	gr_set_current_canvas(NULL);
+
+	if (hiresfont && SWIDTH>=640 && SHEIGHT>=480)
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
+	else
+		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));
+
+	game_flush_inputs();
+
+	done = 0;
+
+	while(!done)	{
+		timer_delay(400);
+		gr_set_current_canvas(NULL);
+#ifdef OGL
+		gr_flip();
+		nm_draw_background1(NULL);
+#endif
+		nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
+
+		gr_set_current_canvas(&canvas);
+		
+		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
+	
+		gr_string( 0x8000, LHY(15), "NETGAME RULES" );
+	
+		grd_curcanv->cv_font = Gamefonts[GFONT_SMALL];
+	
+		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
+		gr_printf( LHX( 25),LHY( 35), "Show All Players On Automap:");
+		gr_printf( LHX(250),LHY( 35), game.game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+		if (game.protocol_version==MULTI_PROTO_D1X_VER 
+#ifndef SHAREWARE
+			&& game.subprotocol>=1
+#endif
+		){
+			gr_printf( LHX( 25),LHY( 41), "Radar:");
+			gr_printf( LHX(250),LHY( 41), game.flags&NETFLAG_ENABLE_RADAR?"ON":"OFF");
+			gr_printf( LHX( 25),LHY( 47), "Short Vulcan Fire:");
+			gr_printf( LHX(250),LHY( 47), game.flags&NETFLAG_ENABLE_ALT_VULCAN?"ON":"OFF");
+	
+			gr_printf( LHX( 25),LHY( 80), "Allowed Objects");
+	
+			gr_printf( LHX( 25),LHY( 90), "Laser Upgrade:");
+			gr_printf( LHX(130),LHY( 90), game.flags&NETFLAG_DOLASER?"YES":"NO");
+			gr_printf( LHX( 25),LHY( 96), "Quad Laser:");
+			gr_printf( LHX(130),LHY( 96), game.flags&NETFLAG_DOQUAD?"YES":"NO");
+			gr_printf( LHX( 25),LHY(102), "Vulcan Cannon:");
+			gr_printf( LHX(130),LHY(102), game.flags&NETFLAG_DOVULCAN?"YES":"NO");
+			gr_printf( LHX( 25),LHY(108), "Spreadfire Cannon:");
+			gr_printf( LHX(130),LHY(108), game.flags&NETFLAG_DOSPREAD?"YES":"NO");
+			gr_printf( LHX( 25),LHY(114), "Plasma Cannon:");
+			gr_printf( LHX(130),LHY(114), game.flags&NETFLAG_DOPLASMA?"YES":"NO");
+			gr_printf( LHX( 25),LHY(120), "Fusion Cannon:");
+			gr_printf( LHX(130),LHY(120), game.flags&NETFLAG_DOFUSION?"YES":"NO");
+	
+			gr_printf( LHX(170),LHY( 90), "Homing Missile:");
+			gr_printf( LHX(275),LHY( 90), game.flags&NETFLAG_DOHOMING?"YES":"NO");
+			gr_printf( LHX(170),LHY( 96), "Proximity Bomb:");
+			gr_printf( LHX(275),LHY( 96), game.flags&NETFLAG_DOPROXIM?"YES":"NO");
+			gr_printf( LHX(170),LHY(102), "Smart Missile:");
+			gr_printf( LHX(275),LHY(102), game.flags&NETFLAG_DOSMART?"YES":"NO");
+			gr_printf( LHX(170),LHY(108), "Mega Missile:");
+			gr_printf( LHX(275),LHY(108), game.flags&NETFLAG_DOMEGA?"YES":"NO");
+	
+			gr_printf( LHX( 25),LHY(130), "Invulnerability:");
+			gr_printf( LHX(130),LHY(130), game.flags&NETFLAG_DOINVUL?"YES":"NO");
+			gr_printf( LHX( 25),LHY(136), "Cloak:");
+			gr_printf( LHX(130),LHY(136), game.flags&NETFLAG_DOCLOAK?"YES":"NO");
+		}
+		else
+			gr_printf( LHX( 25),LHY( 80), "This is not a D1X Game. No further rules are defined.");
+
+		k = key_inkey();
+		switch( k )	{
+		case KEY_PRINT_SCREEN:
+			save_screen_shot(0); k = 0;
+			break;
+		case KEY_ENTER:
+		case KEY_SPACEBAR:
+		case KEY_ESC:
+			done=1;
+			break;
+		}
+	}
+
+// Restore background and exit
+	gr_palette_fade_out( gr_palette, 32, 0 );
+
+	gr_set_current_canvas(NULL);
+
+	game_flush_inputs();
 }
 
-void show_game_score(netgame_info game);
-
-int show_game_stats(netgame_info game,int awesomeflag)
+int show_game_stats(netgame_info game)
 {
- //edited 4/18/99 Matt Mueller - show radar flag and banned stuff too
- //switched to the info/rinfo mode to 1)allow sprintf easily 2) save some
- //cpu cycles not seeking to the end of the string each time.
- char rinfo[512],*info=rinfo;
+#if 0
+// keep it if someone still needs it...
+	switch(game.protocol_version)
+	{
+		case 1 : info+=sprintf(info,"\nPrtcl: Shareware"); break;
+		case 2 : info+=sprintf(info,"\nPrtcl: Normal"); break;
+		case 3 : info+=sprintf(info,"\nPrtcl: D1X only"); break;
+		case 0 : info+=sprintf(info,"\nPrtcl: D1X hybrid"); break;
+		default: info+=sprintf(info,"\nPrtcl: Unknown"); break;
+	}
 
-  memset(info,0,sizeof(char)*256);
-
-#ifndef SHAREWARE
-   if(!game.mission_name)
 #endif
-    info+=sprintf(info,"Level: Descent: First Strike");
-#ifndef SHAREWARE
-   else
-    info+=sprintf(info,game.mission_name);
-#endif
+	char rinfo[512],*info=rinfo;
+	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Unknown"};
+	int c;
 
-   switch(game.gamemode)
-    {
-     case 0 : info+=sprintf(info,"\nMode:  Anarchy"); break;
-     case 1 : info+=sprintf(info,"\nMode:  Team"); break;
-     case 2 : info+=sprintf(info,"\nMode:  Robo"); break;
-     case 3 : info+=sprintf(info,"\nMode:  Coop"); break;
-     default: info+=sprintf(info,"\nMode:  Unknown"); break;
-    }
+	memset(info,0,sizeof(char)*256);
 
-   switch(game.difficulty)
-    {
-     case 0 : info+=sprintf(info,"\nDiff:  Trainee"); break;
-     case 1 : info+=sprintf(info,"\nDiff:  Rookie"); break;
-     case 2 : info+=sprintf(info,"\nDiff:  Hotshot"); break;
-     case 3 : info+=sprintf(info,"\nDiff:  Ace"); break;
-     case 4 : info+=sprintf(info,"\nDiff:  Insane"); break;
-     default: info+=sprintf(info,"\nDiff:  Unknown"); break;
-    }
+	info+=sprintf(info,"\nConnected to\n\"%s\"\n",game.game_name);
 
-   switch(game.protocol_version)
-    {
-     case 1 : info+=sprintf(info,"\nPrtcl: Shareware"); break;
-     case 2 : info+=sprintf(info,"\nPrtcl: Normal"); break;
-     case 3 : info+=sprintf(info,"\nPrtcl: D1X only"); break;
-     case 0 : info+=sprintf(info,"\nPrtcl: D1X hybrid"); break;
-     default: info+=sprintf(info,"\nPrtcl: Unknown"); break;
-    }
+	if(!game.mission_title)
+		info+=sprintf(info,"Descent: First Strike");
+	else
+		info+=sprintf(info,game.mission_title);
 
-   if(game.game_flags & NETGAME_FLAG_SHOW_MAP)
-	   info+=sprintf(info,"\n Players on Map");
-   //edited 04/19/99 Matt Mueller - check protocol_ver too.
-   if (game.protocol_version==MULTI_PROTO_D1X_VER 
-#ifndef SHAREWARE
-&& game.subprotocol>=1
-#endif
-){
-#ifndef SHAREWARE
-           int i=0,b=0;
-           char sep0=':';
-	   if(game.flags & NETFLAG_ENABLE_RADAR)
-		   info+=sprintf(info,"\n Radar");
-           if(game.flags & NETFLAG_ENABLE_ALT_VULCAN)
-                   info+=sprintf(info,"\n Alt Vulcan");
-	   info+=sprintf(info,"\n Banned");
-#define NETFLAG_SHOW_BANNED(D,V) if (!(game.flags&NETFLAG_DO ## D)) {if (i>3) i=0; else i++; info+=sprintf(info,"%c " #V,i?sep0:'\n');b++;sep0=',';}
-	   NETFLAG_SHOW_BANNED(LASER,laser);
-	   NETFLAG_SHOW_BANNED(QUAD,quad);
-	   NETFLAG_SHOW_BANNED(VULCAN,vulcan);
-	   NETFLAG_SHOW_BANNED(SPREAD,spread);
-	   NETFLAG_SHOW_BANNED(PLASMA,plasma);
-	   NETFLAG_SHOW_BANNED(FUSION,fusion);
-	   NETFLAG_SHOW_BANNED(HOMING,homing);
-	   NETFLAG_SHOW_BANNED(SMART,smart);
-	   NETFLAG_SHOW_BANNED(MEGA,mega);
-	   NETFLAG_SHOW_BANNED(PROXIM,proxim);
-	   NETFLAG_SHOW_BANNED(CLOAK,cloak);
-	   NETFLAG_SHOW_BANNED(INVUL,invuln);
-	   if (b==0) info+=sprintf(info,": none");
-#endif /* ! SHAREWARE */
-   }
-   //end edit -MM
- //end edit -MM
-	if (awesomeflag){
-		int c;
-		while (1){
-			c=nm_messagebox("Stats", 3, "Players","Scores","Join Game", rinfo);
-			if (c==0)
-				show_game_players(game);
-			else if (c==1)
-				show_game_score(game);
-			else if (c==2)
-				return 1;
-			else
-				return 0;
-		}
-	}else{
-	   nm_messagebox("Stats", 1, TXT_OK, rinfo);
-	   return 0;
+	info+=sprintf (info," - Lvl %i",game.levelnum);
+	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(game.difficulty));
+	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[game.gamemode]);
+	info+=sprintf (info,"\nPlayers: %i/%i",game.numplayers,game.max_numplayers);
+
+	while (1){
+		c=nm_messagebox("WELCOME", 2, "GAME RULES", "JOIN GAME", rinfo);
+		if (c==0)
+			show_game_rules(game);
+		else if (c==1)
+			return 1;
+		else
+			return 0;
 	}
 }
-//end this section addition - Victor Rachels
 
-//added on 11/12/98 by Victor Rachels to maybe fix some bugs
-void alphanumize(char *string, int length);
-
-void alphanumize(char *string, int length)
-{
- int i=0;
-  while(i<length && string[i])
-   {
-     if(!((string[i]<=122&&string[i]>=97) ||
-          (string[i]<=90 &&string[i]>=65) ||
-          (string[i]<=57 &&string[i]>=48) ||
-          (string[i]=='\n') ||
-          (string[i]==' ')  ||
-          (string[i]=='-')
-          ) )
-      string[i] = '_';
-    i++;
-   }
-}
-
-//added on 10/12/98 by Victor Rachels to show netgamelist scores
-void show_game_score(netgame_info game)
-{
- char scores[2176]="",info[2048]="",deaths[128]="",tmp[10];
- int i,j,k;
-
-  strcat(scores,"Pilots ");
-  strcat(deaths,"    ");
-
-   for(i=0;i<game.numplayers;i++)
-    if(game.players[i].connected)
-     {
-       strcat(scores,"     ");
-       sprintf(tmp,"%c",game.players[i].callsign[0]);
-       strcat(scores,tmp);
-       strcat(info,game.players[i].callsign);
-        for(k=strlen(game.players[i].callsign);k<9;k++)
-         strcat(info," ");
-        for(j=0;j<game.numplayers;j++)
-         if(game.players[j].connected)
-          {
-           if(i==j&&game.kills[i][j]>0)
-            {
-             strcat(info,"  ");
-             sprintf(tmp,"-%i",game.kills[i][j]);
-            }
-           else
-            {
-             strcat(info,"   ");
-             sprintf(tmp,"%i",game.kills[i][j]);
-            }
-           strcat(info,tmp);
-            for(k=strlen(tmp);k<3;k++)
-             strcat(info," ");
-          }
-       sprintf(tmp,"     %i",game.player_kills[i]);
-       strcat(info,tmp);
-       strcat(info,"\n\n");
-       sprintf(tmp,"     %i",game.killed[i]);
-       strcat(deaths,tmp);
-     }
-  strcat(scores,"   Total\n\n");
-  strcat(scores,info);
-  strcat(deaths,"   \n\n");
-  strcat(scores,deaths);
-  alphanumize(scores,sizeof(scores));
-  nm_messagebox_fixedfont("Score\n", 1, TXT_OK, scores);
-}
-//end this section addition - Victor Rachels
-
-//added on 2000/01/29 by Matt Mueller for direct ip join.
+// for direct ip join.
 #include "netpkt.h"
 int network_do_join_game(netgame_info *jgame);
 int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
@@ -417,10 +406,10 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
 
 	if (setjmp(LeaveGame))
 		return 0;
-    num_active_games = 0;
+	num_active_games = 0;
 	Network_games_changed = 0;
 	Network_status = NETSTAT_BROWSING;
-    memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
+	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
 
 	nextsend=0;numsent=0;
 
@@ -447,7 +436,7 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
 				Network_games_changed=0;
 				continue;
 			}
-			if (show_game_stats(Active_games[0],1))
+			if (show_game_stats(Active_games[0]))
 				return (network_do_join_game(&Active_games[0]));
 			else
 				return 0;
@@ -458,7 +447,6 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
 	}
 	return 0;
 }
-//end addition -MM
 
 //added on 1/5/99 by Victor Rachels for missiondir
 void change_missiondir()
@@ -622,46 +610,15 @@ int network_join_game_menu() {
 
 		k = key_inkey();
 		switch (k) {
-//added 9/16-17/98 by Victor Rachels for netgamelist info
-	//edit 4/18/99 Matt Mueller - use KEY_? defines so it actually works on non-dos
-                        case KEY_U: //U = 0x16
-                                if(selected_game<num_active_games)
-                                 {
-                                   show_game_players(Active_games[selected_game]);
-                                   netlist_redraw(bg,menu_text,lis);
-                                   old_socket = -32768;
-                                   old_select = -1;
-                                 }
-                                break;
                         case KEY_I: //I = 0x17
                                 if(selected_game<num_active_games)
                                  {
-                                   show_game_stats(Active_games[selected_game],0);
+                                   show_game_stats(Active_games[selected_game]);
                                    netlist_redraw(bg,menu_text,lis);
                                    old_socket = -32768;
                                    old_select = -1;
                                  }
                                 break;
-//end this section addition - Victor
-//added 10/12/98 by Victor Rachels for netgamelist scores
-                        case  KEY_S: //S = 0x1f
-                                if(selected_game<num_active_games)
-                                 {
-                                  show_game_score(Active_games[selected_game]);
-                                  netlist_redraw(bg,menu_text,lis);
-                                  old_socket = -32768;
-                                  old_select = -1;
-                                 }
-                                break;
-//end this section addition - Victor
-                        case KEY_M: //M = 0x32
-	//end edit -MM
-                                 {
-                                  change_missiondir();
-                                  netlist_redraw(bg,menu_text,lis);
-                                  old_socket = -32768;
-                                  old_select = -1;
-                                 }
 			case KEY_PAGEUP:
 			case KEY_PAD9:
 				if (Network_socket < 99) Network_socket++;
