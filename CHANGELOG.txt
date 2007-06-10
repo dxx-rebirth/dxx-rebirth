@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070610
+--------
+arch/carbon/conf.h, SConstruct: fix Mac errors involving use of 'VERSION'
+
 20070601
 --------
 main/menu.c, main/netmisc.h, main/network.c, main/newmenu.c: improved pixel-correct (almost) scaling of menus; new Netgame info screen which can show up necessary game rules

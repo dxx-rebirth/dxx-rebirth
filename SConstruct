@@ -372,6 +372,9 @@ elif sys.platform == 'darwin':
 		print "including SDL_mixer"
 		lflags += ' -framework SDL_mixer'
 	sys.path += ['./arch/cocoa']
+	VERSION = str(D2XMAJOR) + '.' + str(D2XMINOR)
+	if (D2XMICRO):
+		VERSION += '.' + str(D2XMICRO)
 	env['VERSION_NUM'] = VERSION
 	env['VERSION_NAME'] = PROGRAM_NAME + ' v' + VERSION
 	import tool_bundle

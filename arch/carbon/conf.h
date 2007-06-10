@@ -5,16 +5,14 @@
 /* Define to enable console */
 /* #undef CONSOLE */
 
-// Used only in vers_id.h:D2X_IVER, which is unused (may be useful for external utilities that use D2X source)
-
 /* d2x major version */
-#define D2XMAJOR 0
+#define D2XMAJOR "0"
 
 /* d2x minor version */
-#define D2XMINOR 5
+#define D2XMINOR "5"
 
 /* d2x micro version */
-#define D2XMICRO 0
+#define D2XMICRO "2"
 
 /* Define if you want to build the editor */
 /* #undef EDITOR */
@@ -101,7 +99,7 @@
 /* #undef USE_LINUX_JOY */
 
 /* Version number of package */
-#define VERSION "0.5.0"
+//#define VERSION "0.5.0"
 
 /* Define if your processor needs data to be word-aligned */
 /* #undef WORDS_NEED_ALIGNMENT */
