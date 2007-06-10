@@ -33,20 +33,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "u_mem.h"
-
 #include "gr.h"
 #include "grdef.h"
 #include "error.h"
-
 #include "cfile.h"
 #include "mono.h"
 #include "byteswap.h"
 #include "bitmap.h"
-
 #include "makesig.h"
 
 #define MAX_OPEN_FONTS	50
-#define FILENAME_LEN		13
+#define FILENAME_LEN	13
 
 typedef struct openfont {
 	char filename[FILENAME_LEN];

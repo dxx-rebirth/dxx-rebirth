@@ -16,11 +16,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  * Routines for bitblt's.
  *
- */
+ */ 
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
+
+#include <string.h>
 
 #include "u_mem.h"
 #include "gr.h"
@@ -128,38 +130,7 @@ ubyte test_byteblit = 0;
 
 void gr_linear_movsd(ubyte * src, ubyte * dest, unsigned int num_pixels )
 {
-	int i;
-	uint n, r;
-	double *d, *s;
-	ubyte *d1, *s1;
-
-// check to see if we are starting on an even byte boundry
-// if not, move appropriate number of bytes to even
-// 8 byte boundry
-
-	if ( (num_pixels < THRESHOLD) || (((int)src & 0x7) != ((int)dest & 0x7)) || test_byteblit ) {
-		for (i = 0; i < num_pixels; i++)
-			*dest++ = *src++;
-		return;
-	}
-
-	i = 0;
-	if ((r = (int)src & 0x7)) {
-		for (i = 0; i < 8 - r; i++)
-			*dest++ = *src++;
-	}
-	num_pixels -= i;
-
-	n = num_pixels / 8;
-	r = num_pixels % 8;
-	s = (double *)src;
-	d = (double *)dest;
-	for (i = 0; i < n; i++)
-		*d++ = *s++;
-	s1 = (ubyte *)s;
-	d1 = (ubyte *)d;
-	for (i = 0; i < r; i++)
-		*d1++ = *s1++;
+	memcpy(dest,src,num_pixels);
 }
 
 #endif	//#ifdef NO_ASM
@@ -1357,7 +1328,7 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 
 	// No interlacing, copy the whole buffer.
 	for (i=0; i < h; i++ )    {
-		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1 );
+		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1, (src->bm_flags & BM_FLAG_COCKPIT_TRANSPARENT) );
 		if ( src->bm_flags & BM_FLAG_RLE_BIG )
 			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((i+sy)*data_offset)])));
 		else
@@ -1477,7 +1448,6 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))
 	{
-		ogl_ubitblt_copy(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
 #endif
@@ -1689,7 +1659,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))
 	{
-		ogl_ubitblt_copy(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
 #endif

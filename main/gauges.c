@@ -168,16 +168,11 @@ static inline void _page_in_gauge(int x)
 
 //Coordinats for gauges
 
-// ZICO - needed for scaling gauges
+// scaling gauges
 #ifdef OGL
-#define COCKPITSCALE_X (Current_display_mode?(double)grd_curscreen->sc_w/640:(double)grd_curscreen->sc_w/320)
-#define COCKPITSCALE_Y (Current_display_mode?(double)grd_curscreen->sc_h/480:(double)grd_curscreen->sc_h/200)
-#define HUD_SCALE(v,s)	((int) ((double) (v) * (s) + 0.5))
-#define HUD_SCALE_X(v)	HUD_SCALE(v,COCKPITSCALE_X)
-#define HUD_SCALE_Y(v)	HUD_SCALE(v,COCKPITSCALE_Y)
+#define HUD_SCALE_X(v)	((int) ((double) (v) * (Current_display_mode?(double)grd_curscreen->sc_w/640:(double)grd_curscreen->sc_w/320) + 0.5))
+#define HUD_SCALE_Y(v)	((int) ((double) (v) * (Current_display_mode?(double)grd_curscreen->sc_h/480:(double)grd_curscreen->sc_h/200) + 0.5))
 #else
-#define COCKPITSCALE_X 1
-#define COCKPITSCALE_Y 1
 #define HUD_SCALE_X(v)	(v)
 #define HUD_SCALE_Y(v)	(v)
 #endif
@@ -248,7 +243,7 @@ inline void hud_bitblt (int x, int y, grs_bitmap *bm, int scale)
 #define LEFT_ENERGY_GAUGE_W_L 	64
 #define LEFT_ENERGY_GAUGE_H_L 	8
 
-#define LEFT_ENERGY_GAUGE_X_H 	137
+#define LEFT_ENERGY_GAUGE_X_H 	138
 #define LEFT_ENERGY_GAUGE_Y_H 	314
 #define LEFT_ENERGY_GAUGE_W_H 	133
 #define LEFT_ENERGY_GAUGE_H_H 	21
@@ -258,7 +253,7 @@ inline void hud_bitblt (int x, int y, grs_bitmap *bm, int scale)
 #define LEFT_ENERGY_GAUGE_W 	(Current_display_mode?LEFT_ENERGY_GAUGE_W_H:LEFT_ENERGY_GAUGE_W_L)
 #define LEFT_ENERGY_GAUGE_H 	(Current_display_mode?LEFT_ENERGY_GAUGE_H_H:LEFT_ENERGY_GAUGE_H_L)
 
-#define RIGHT_ENERGY_GAUGE_X 	(Current_display_mode?380:190)
+#define RIGHT_ENERGY_GAUGE_X 	(Current_display_mode?379:190)
 #define RIGHT_ENERGY_GAUGE_Y 	(Current_display_mode?314:131)
 #define RIGHT_ENERGY_GAUGE_W 	(Current_display_mode?133:64)
 #define RIGHT_ENERGY_GAUGE_H 	(Current_display_mode?21:8)
@@ -283,14 +278,14 @@ inline void hud_bitblt (int x, int y, grs_bitmap *bm, int scale)
 // sb energy gauge
 
 #define SB_ENERGY_GAUGE_X 		(Current_display_mode?196:98)
-#define SB_ENERGY_GAUGE_Y 		(Current_display_mode?382:(155-2))
+#define SB_ENERGY_GAUGE_Y 		(Current_display_mode?381:(155-2))
 #define SB_ENERGY_GAUGE_W 		(Current_display_mode?32:16)
 #define SB_ENERGY_GAUGE_H 		(Current_display_mode?60:29)
 
 // sb afterburner gauge
 
 #define SB_AFTERBURNER_GAUGE_X 		(Current_display_mode?196:98)
-#define SB_AFTERBURNER_GAUGE_Y 		(Current_display_mode?446:184)
+#define SB_AFTERBURNER_GAUGE_Y 		(Current_display_mode?445:184)
 #define SB_AFTERBURNER_GAUGE_W 		(Current_display_mode?32:16)
 #define SB_AFTERBURNER_GAUGE_H 		(Current_display_mode?29:13)
 
@@ -315,23 +310,23 @@ inline void hud_bitblt (int x, int y, grs_bitmap *bm, int scale)
 #define SB_SHIELD_NUM_Y 		(SB_SHIELD_GAUGE_Y-(Current_display_mode?16:8))			//156 -- MWA used to be hard coded to 156
 
 #define NUMERICAL_GAUGE_X		(Current_display_mode?308:154)
-#define NUMERICAL_GAUGE_Y		(Current_display_mode?316:130)
+#define NUMERICAL_GAUGE_Y		(Current_display_mode?314:130)
 #define NUMERICAL_GAUGE_W		(Current_display_mode?38:19)
 #define NUMERICAL_GAUGE_H		(Current_display_mode?55:22)
 
 #define PRIMARY_W_PIC_X			(Current_display_mode?(135-10):64)
 #define PRIMARY_W_PIC_Y			(Current_display_mode?370:154)
-#define PRIMARY_W_TEXT_X		COCKPITSCALE_X*(Current_display_mode?182:87)
-#define PRIMARY_W_TEXT_Y		COCKPITSCALE_Y*(Current_display_mode?400:157)
-#define PRIMARY_AMMO_X			COCKPITSCALE_X*(Current_display_mode?186:(96-3))
-#define PRIMARY_AMMO_Y			COCKPITSCALE_Y*(Current_display_mode?420:171)
+#define PRIMARY_W_TEXT_X		HUD_SCALE_X(Current_display_mode?182:87)
+#define PRIMARY_W_TEXT_Y		HUD_SCALE_Y(Current_display_mode?400:157)
+#define PRIMARY_AMMO_X			HUD_SCALE_X(Current_display_mode?186:(96-3))
+#define PRIMARY_AMMO_Y			HUD_SCALE_Y(Current_display_mode?420:171)
 
 #define SECONDARY_W_PIC_X		(Current_display_mode?466:234)
 #define SECONDARY_W_PIC_Y		(Current_display_mode?374:154)
-#define SECONDARY_W_TEXT_X		COCKPITSCALE_X*(Current_display_mode?413:207)
-#define SECONDARY_W_TEXT_Y		COCKPITSCALE_Y*(Current_display_mode?378:157)
-#define SECONDARY_AMMO_X		COCKPITSCALE_X*(Current_display_mode?428:213)
-#define SECONDARY_AMMO_Y		COCKPITSCALE_Y*(Current_display_mode?407:171)
+#define SECONDARY_W_TEXT_X		HUD_SCALE_X(Current_display_mode?413:207)
+#define SECONDARY_W_TEXT_Y		HUD_SCALE_Y(Current_display_mode?378:157)
+#define SECONDARY_AMMO_X		HUD_SCALE_X(Current_display_mode?428:213)
+#define SECONDARY_AMMO_Y		HUD_SCALE_Y(Current_display_mode?407:171)
 
 #define SB_LIVES_X			(Current_display_mode?(550-10-3):266)
 #define SB_LIVES_Y			(Current_display_mode?450-3:185)
@@ -390,346 +385,17 @@ fix weapon_box_fade_values[2];
 
 #define FADE_SCALE	(2*i2f(GR_FADE_LEVELS)/REARM_TIME)		// fade out and back in REARM_TIME, in fade levels per seconds (int)
 
-typedef struct span {
-	sbyte l,r;
-} span;
-
-//store delta x values from left of box
-span weapon_window_left[] = {		//first span 67,151
-		{8,51},
-		{6,53},
-		{5,54},
-		{4-1,53+2},
-		{4-1,53+3},
-		{4-1,53+3},
-		{4-2,53+3},
-		{4-2,53+3},
-		{3-1,53+3},
-		{3-1,53+3},
-		{3-1,53+3},
-		{3-1,53+3},
-		{3-1,53+3},
-		{3-1,53+3},
-		{3-1,53+3},
-		{3-2,53+3},
-		{2-1,53+3},
-		{2-1,53+3},
-		{2-1,53+3},
-		{2-1,53+3},
-		{2-1,53+3},
-		{2-1,53+3},
-		{2-1,53+3},
-		{2-1,53+3},
-		{1-1,53+3},
-		{1-1,53+2},
-		{1-1,53+2},
-		{1-1,53+2},
-		{1-1,53+2},
-		{1-1,53+2},
-		{1-1,53+2},
-		{1-1,53+2},
-		{0,53+2},
-		{0,53+2},
-		{0,53+2},
-		{0,53+2},
-		{0,52+3},
-		{1-1,52+2},
-		{2-2,51+3},
-		{3-2,51+2},
-		{4-2,50+2},
-		{5-2,50},
-		{5-2+2,50-2},
-	};
-
-
-//store delta x values from left of box
-span weapon_window_right[] = {		//first span 207,154
-		{208-202,255-202},
-		{206-202,257-202},
-		{205-202,258-202},
-		{204-202,259-202},
-		{203-202,260-202},
-		{203-202,260-202},
-		{203-202,260-202},
-		{203-202,260-202},
-		{203-202,260-202},
-		{203-202,261-202},
-		{203-202,261-202},
-		{203-202,261-202},
-		{203-202,261-202},
-		{203-202,261-202},
-		{203-202,261-202},
-		{203-202,261-202},
-		{203-202,261-202},
-		{203-202,261-202},
-		{203-202,262-202},
-		{203-202,262-202},
-		{203-202,262-202},
-		{203-202,262-202},
-		{203-202,262-202},
-		{203-202,262-202},
-		{203-202,262-202},
-		{203-202,262-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{204-202,263-202},
-		{205-202,263-202},
-		{206-202,262-202},
-		{207-202,261-202},
-		{208-202,260-202},
-		{211-202,255-202},
-	};
-
-//store delta x values from left of box
-span weapon_window_left_hires[] = {		//first span 67,154
-	{20,110},
-	{18,113},
-	{16,114},
-	{15,116},
-	{14,117},
-	{13,118},
-	{12,119},
-	{11,119},
-	{10,120},
-	{10,120},
-	{9,121},
-	{8,121},
-	{8,121},
-	{8,122},
-	{7,122},
-	{7,122},
-	{7,122},
-	{7,122},
-	{7,122},
-	{6,122},
-	{6,122},
-	{6,122},
-	{6,122},
-	{6,122},
-	{6,122},
-	{6,122},
-	{6,122},
-	{6,122},
-	{6,122},
-	{5,122},
-	{5,122},
-	{5,122},
-	{5,122},
-	{5,121},
-	{5,121},
-	{5,121},
-	{5,121},
-	{5,121},
-	{5,121},
-	{4,121},
-	{4,121},
-	{4,121},
-	{4,121},
-	{4,121},
-	{4,121},
-	{4,121},
-	{4,121},
-	{4,121},
-	{4,121},
-	{3,121},
-	{3,121},
-	{3,120},
-	{3,120},
-	{3,120},
-	{3,120},
-	{3,120},
-	{3,120},
-	{3,120},
-	{3,120},
-	{3,120},
-	{2,120},
-	{2,120},
-	{2,120},
-	{2,120},
-	{2,120},
-	{2,120},
-	{2,120},
-	{2,120},
-	{2,120},
-	{2,120},
-	{2,120},
-	{2,120},
-	{1,120},
-	{1,120},
-	{1,119},
-	{1,119},
-	{1,119},
-	{1,119},
-	{1,119},
-	{1,119},
-	{1,119},
-	{1,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,118},
-	{0,118},
-	{0,118},
-	{0,117},
-	{0,117},
-	{0,117},
-	{1,116},
-	{1,116},
-	{2,115},
-	{2,114},
-	{3,113},
-	{4,112},
-	{5,111},
-	{5,110},
-	{7,109},
-	{9,107},
-	{10,105},
-	{12,102},
-};
-
-
-//store delta x values from left of box
-span weapon_window_right_hires[] = {		//first span 207,154
-	{12,105},
-	{9,107},
-	{8,109},
-	{6,110},
-	{5,111},
-	{4,112},
-	{3,113},
-	{3,114},
-	{2,115},
-	{2,115},
-	{1,116},
-	{1,117},
-	{1,117},
-	{0,117},
-	{0,118},
-	{0,118},
-	{0,118},
-	{0,118},
-	{0,118},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,119},
-	{0,120},
-	{0,120},
-	{0,120},
-	{0,120},
-	{1,120},
-	{1,120},
-	{1,120},
-	{1,120},
-	{1,120},
-	{1,120},
-	{1,121},
-	{1,121},
-	{1,121},
-	{1,121},
-	{1,121},
-	{1,121},
-	{1,121},
-	{1,121},
-	{1,121},
-	{1,121},
-	{1,122},
-	{1,122},
-	{2,122},
-	{2,122},
-	{2,122},
-	{2,122},
-	{2,122},
-	{2,122},
-	{2,122},
-	{2,122},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,123},
-	{2,124},
-	{2,124},
-	{3,124},
-	{3,124},
-	{3,124},
-	{3,124},
-	{3,124},
-	{3,124},
-	{3,124},
-	{3,125},
-	{3,125},
-	{3,125},
-	{3,125},
-	{3,125},
-	{3,125},
-	{3,125},
-	{3,125},
-	{4,125},
-	{4,125},
-	{4,125},
-	{5,125},
-	{5,125},
-	{5,125},
-	{6,125},
-	{6,124},
-	{7,123},
-	{8,123},
-	{9,122},
-	{10,121},
-	{11,120},
-	{12,120},
-	{13,118},
-	{15,117},
-	{18,115},
-	{20,114},
-};
-
-											
-#define N_LEFT_WINDOW_SPANS  (sizeof(weapon_window_left)/sizeof(*weapon_window_left))
-#define N_RIGHT_WINDOW_SPANS (sizeof(weapon_window_right)/sizeof(*weapon_window_right))
-
-#define N_LEFT_WINDOW_SPANS_H  (sizeof(weapon_window_left_hires)/sizeof(*weapon_window_left_hires))
-#define N_RIGHT_WINDOW_SPANS_H (sizeof(weapon_window_right_hires)/sizeof(*weapon_window_right_hires))
-
 // defining box boundries for weapon pictures
 
 #define PRIMARY_W_BOX_LEFT_L		63
 #define PRIMARY_W_BOX_TOP_L		151		//154
 #define PRIMARY_W_BOX_RIGHT_L		(PRIMARY_W_BOX_LEFT_L+58)
-#define PRIMARY_W_BOX_BOT_L		(PRIMARY_W_BOX_TOP_L+N_LEFT_WINDOW_SPANS-1)
+#define PRIMARY_W_BOX_BOT_L		(PRIMARY_W_BOX_TOP_L+42)
 											
 #define PRIMARY_W_BOX_LEFT_H		121
 #define PRIMARY_W_BOX_TOP_H		364
 #define PRIMARY_W_BOX_RIGHT_H		242
-#define PRIMARY_W_BOX_BOT_H		(PRIMARY_W_BOX_TOP_H+N_LEFT_WINDOW_SPANS_H-1)		//470
+#define PRIMARY_W_BOX_BOT_H		(PRIMARY_W_BOX_TOP_H+106)		//470
 						
 #define PRIMARY_W_BOX_LEFT		(Current_display_mode?PRIMARY_W_BOX_LEFT_H:PRIMARY_W_BOX_LEFT_L)
 #define PRIMARY_W_BOX_TOP		(Current_display_mode?PRIMARY_W_BOX_TOP_H:PRIMARY_W_BOX_TOP_L)
@@ -739,12 +405,12 @@ span weapon_window_right_hires[] = {		//first span 207,154
 #define SECONDARY_W_BOX_LEFT_L		202	//207
 #define SECONDARY_W_BOX_TOP_L		151
 #define SECONDARY_W_BOX_RIGHT_L		263	//(SECONDARY_W_BOX_LEFT+54)
-#define SECONDARY_W_BOX_BOT_L		(SECONDARY_W_BOX_TOP_L+N_RIGHT_WINDOW_SPANS-1)
+#define SECONDARY_W_BOX_BOT_L		(SECONDARY_W_BOX_TOP_L+42)
 
 #define SECONDARY_W_BOX_LEFT_H		404
 #define SECONDARY_W_BOX_TOP_H		363
 #define SECONDARY_W_BOX_RIGHT_H		529
-#define SECONDARY_W_BOX_BOT_H		(SECONDARY_W_BOX_TOP_H+N_RIGHT_WINDOW_SPANS_H-1)		//470
+#define SECONDARY_W_BOX_BOT_H		(SECONDARY_W_BOX_TOP_H+106)		//470
 
 #define SECONDARY_W_BOX_LEFT		(Current_display_mode?SECONDARY_W_BOX_LEFT_H:SECONDARY_W_BOX_LEFT_L)
 #define SECONDARY_W_BOX_TOP		(Current_display_mode?SECONDARY_W_BOX_TOP_H:SECONDARY_W_BOX_TOP_L)
@@ -783,41 +449,40 @@ span weapon_window_right_hires[] = {		//first span 207,154
 
 #define SB_PRIMARY_W_PIC_X		(SB_PRIMARY_W_BOX_LEFT+1)	//51
 #define SB_PRIMARY_W_PIC_Y		(Current_display_mode?382:154)
-#define SB_PRIMARY_W_TEXT_X		COCKPITSCALE_X*(SB_PRIMARY_W_BOX_LEFT+(Current_display_mode?50:24))	//(51+23)
-#define SB_PRIMARY_W_TEXT_Y		COCKPITSCALE_Y*(Current_display_mode?390:157)
-#define SB_PRIMARY_AMMO_X		COCKPITSCALE_X*(SB_PRIMARY_W_BOX_LEFT+(Current_display_mode?(38+20):30))	//((SB_PRIMARY_W_BOX_LEFT+33)-3)	//(51+32)
-#define SB_PRIMARY_AMMO_Y		COCKPITSCALE_Y*(Current_display_mode?410:171)
+#define SB_PRIMARY_W_TEXT_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+(Current_display_mode?50:24))	//(51+23)
+#define SB_PRIMARY_W_TEXT_Y		HUD_SCALE_Y(Current_display_mode?390:157)
+#define SB_PRIMARY_AMMO_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+(Current_display_mode?(38+20):30))	//((SB_PRIMARY_W_BOX_LEFT+33)-3)	//(51+32)
+#define SB_PRIMARY_AMMO_Y		HUD_SCALE_Y(Current_display_mode?410:171)
 
 #define SB_SECONDARY_W_PIC_X		(Current_display_mode?385:(SB_SECONDARY_W_BOX_LEFT+27))	//(212+27)
 #define SB_SECONDARY_W_PIC_Y		(Current_display_mode?382:154)
-#define SB_SECONDARY_W_TEXT_X		COCKPITSCALE_X*(SB_SECONDARY_W_BOX_LEFT+2)	//212
-#define SB_SECONDARY_W_TEXT_Y		COCKPITSCALE_Y*(Current_display_mode?389:157)
-#define SB_SECONDARY_AMMO_X		COCKPITSCALE_X*(SB_SECONDARY_W_BOX_LEFT+(Current_display_mode?(14-4):11))	//(212+9)
-#define SB_SECONDARY_AMMO_Y		COCKPITSCALE_Y*(Current_display_mode?414:171)
+#define SB_SECONDARY_W_TEXT_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+2)	//212
+#define SB_SECONDARY_W_TEXT_Y		HUD_SCALE_Y(Current_display_mode?389:157)
+#define SB_SECONDARY_AMMO_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+(Current_display_mode?(14-4):11))	//(212+9)
+#define SB_SECONDARY_AMMO_Y		HUD_SCALE_Y(Current_display_mode?414:171)
 
 typedef struct gauge_box {
 	int left,top;
 	int right,bot;		//maximal box
-	span *spanlist;	//list of left,right spans for copy
 } gauge_box;
 
 gauge_box gauge_boxes[] = {
 
 // primary left/right low res
-		{PRIMARY_W_BOX_LEFT_L,PRIMARY_W_BOX_TOP_L,PRIMARY_W_BOX_RIGHT_L,PRIMARY_W_BOX_BOT_L,weapon_window_left},
-		{SECONDARY_W_BOX_LEFT_L,SECONDARY_W_BOX_TOP_L,SECONDARY_W_BOX_RIGHT_L,SECONDARY_W_BOX_BOT_L,weapon_window_right},
+		{PRIMARY_W_BOX_LEFT_L,PRIMARY_W_BOX_TOP_L,PRIMARY_W_BOX_RIGHT_L,PRIMARY_W_BOX_BOT_L},
+		{SECONDARY_W_BOX_LEFT_L,SECONDARY_W_BOX_TOP_L,SECONDARY_W_BOX_RIGHT_L,SECONDARY_W_BOX_BOT_L},
 
 //sb left/right low res
-		{SB_PRIMARY_W_BOX_LEFT_L,SB_PRIMARY_W_BOX_TOP_L,SB_PRIMARY_W_BOX_RIGHT_L,SB_PRIMARY_W_BOX_BOT_L,NULL},
-		{SB_SECONDARY_W_BOX_LEFT_L,SB_SECONDARY_W_BOX_TOP_L,SB_SECONDARY_W_BOX_RIGHT_L,SB_SECONDARY_W_BOX_BOT_L,NULL},
+		{SB_PRIMARY_W_BOX_LEFT_L,SB_PRIMARY_W_BOX_TOP_L,SB_PRIMARY_W_BOX_RIGHT_L,SB_PRIMARY_W_BOX_BOT_L},
+		{SB_SECONDARY_W_BOX_LEFT_L,SB_SECONDARY_W_BOX_TOP_L,SB_SECONDARY_W_BOX_RIGHT_L,SB_SECONDARY_W_BOX_BOT_L},
 
 // primary left/right hires
-		{PRIMARY_W_BOX_LEFT_H,PRIMARY_W_BOX_TOP_H,PRIMARY_W_BOX_RIGHT_H,PRIMARY_W_BOX_BOT_H,weapon_window_left_hires},
-		{SECONDARY_W_BOX_LEFT_H,SECONDARY_W_BOX_TOP_H,SECONDARY_W_BOX_RIGHT_H,SECONDARY_W_BOX_BOT_H,weapon_window_right_hires},
+		{PRIMARY_W_BOX_LEFT_H,PRIMARY_W_BOX_TOP_H,PRIMARY_W_BOX_RIGHT_H,PRIMARY_W_BOX_BOT_H},
+		{SECONDARY_W_BOX_LEFT_H,SECONDARY_W_BOX_TOP_H,SECONDARY_W_BOX_RIGHT_H,SECONDARY_W_BOX_BOT_H},
 
 // sb left/right hires
-		{SB_PRIMARY_W_BOX_LEFT_H,SB_PRIMARY_W_BOX_TOP_H,SB_PRIMARY_W_BOX_RIGHT_H,SB_PRIMARY_W_BOX_BOT_H,NULL},
-		{SB_SECONDARY_W_BOX_LEFT_H,SB_SECONDARY_W_BOX_TOP_H,SB_SECONDARY_W_BOX_RIGHT_H,SB_SECONDARY_W_BOX_BOT_H,NULL},
+		{SB_PRIMARY_W_BOX_LEFT_H,SB_PRIMARY_W_BOX_TOP_H,SB_PRIMARY_W_BOX_RIGHT_H,SB_PRIMARY_W_BOX_BOT_H},
+		{SB_SECONDARY_W_BOX_LEFT_H,SB_SECONDARY_W_BOX_TOP_H,SB_SECONDARY_W_BOX_RIGHT_H,SB_SECONDARY_W_BOX_BOT_H},
 	};
 
 // these macros refer to arrays above
@@ -828,69 +493,6 @@ gauge_box gauge_boxes[] = {
 #define SB_SECONDARY_BOX		(!Current_display_mode?3:7)
 
 int	Color_0_31_0 = -1;
-
-//copy a box from the off-screen buffer to the visible page
-void copy_gauge_box(gauge_box *box,grs_bitmap *bm)
-{
-	if (box->spanlist) {
-		int n_spans = box->bot-box->top+1;
-		int cnt,y;
-
-//gr_setcolor(BM_XRGB(31,0,0));
-
-		for (cnt=0,y=box->top;cnt<n_spans;cnt++,y++) {
-			gr_bm_ubitblt(box->spanlist[cnt].r-box->spanlist[cnt].l+1,1,
-						box->left+box->spanlist[cnt].l,y,box->left+box->spanlist[cnt].l,y,bm,&grd_curcanv->cv_bitmap);
-
-			//gr_scanline(box->left+box->spanlist[cnt].l,box->left+box->spanlist[cnt].r,y);
-	 	}
- 	}
-	else
-	 {
-		gr_bm_ubitblt(box->right-box->left+1,box->bot-box->top+1,
-						box->left,box->top,box->left,box->top,
-						bm,&grd_curcanv->cv_bitmap);
-	 }
-}
-
-#ifdef OGL
-void draw_wbu_border(gauge_box *box)
-{
-	int n_spans = box->bot-box->top+1;
-	int cnt,y;
-
-	for (cnt=0,y=(Current_display_mode?117:48);cnt<n_spans;cnt++,y--) {
-		glEnable(GL_SCISSOR_TEST);
-		glScissor(
-				COCKPITSCALE_X*(box->left+box->spanlist[cnt].l-(Current_display_mode?22:10)),
-				COCKPITSCALE_Y*y-1,
-				COCKPITSCALE_X*(Current_display_mode?22:10)+1,
-				COCKPITSCALE_Y*2
-			); // left wbu border
-		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0);
-		glDisable(GL_SCISSOR_TEST);
-
-		glEnable(GL_SCISSOR_TEST);
-		glScissor(
-				COCKPITSCALE_X*(box->left+box->spanlist[cnt].r),
-				COCKPITSCALE_Y*y-1,
-				COCKPITSCALE_X*(Current_display_mode?22:10),
-				COCKPITSCALE_Y*2
-			); // right border
-		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0);
-		glDisable(GL_SCISSOR_TEST);
-	}
-	glEnable(GL_SCISSOR_TEST);
-	glScissor(
-			COCKPITSCALE_X*(box->left+box->spanlist[cnt].r),
-			COCKPITSCALE_Y*y-1,
-			COCKPITSCALE_X*(Current_display_mode?130:65),
-			COCKPITSCALE_Y*2
-		); // bottom line
-	ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0);
-	glDisable(GL_SCISSOR_TEST);
-}
-#endif
 
 //fills in the coords of the hostage video window
 void get_hostage_window_coords(int *x,int *y,int *w,int *h)
@@ -1038,11 +640,11 @@ void sb_show_score()
 
 		if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ) 
 			{
-			 gr_printf(COCKPITSCALE_X*SB_SCORE_LABEL_X,COCKPITSCALE_Y*SB_SCORE_Y,"%s:", TXT_KILLS);
+			 gr_printf(HUD_SCALE_X(SB_SCORE_LABEL_X),HUD_SCALE_Y(SB_SCORE_Y),"%s:", TXT_KILLS);
 			}
 		else
 		  {
-			gr_printf(COCKPITSCALE_X*SB_SCORE_LABEL_X,COCKPITSCALE_Y*SB_SCORE_Y,"%s:", TXT_SCORE);
+			gr_printf(HUD_SCALE_X(SB_SCORE_LABEL_X),HUD_SCALE_Y(SB_SCORE_Y),"%s:", TXT_SCORE);
 		  }
 	}
 
@@ -1053,14 +655,14 @@ void sb_show_score()
 		sprintf(score_str, "%5d", Players[Player_num].score);
 	gr_get_string_size(score_str, &w, &h, &aw );
 
-	x = COCKPITSCALE_X*SB_SCORE_RIGHT-w-LHX(2);
-	y = COCKPITSCALE_Y*SB_SCORE_Y;
+	x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-LHX(2);
+	y = HUD_SCALE_Y(SB_SCORE_Y);
 	
 	//erase old score
 	gr_setcolor(BM_XRGB(0,0,0));
-// #ifndef OGL
-// 	gr_rect(last_x[Current_display_mode],y,SB_SCORE_RIGHT,(y+GAME_FONT->ft_h));
-// #endif
+#ifndef OGL
+	gr_rect(last_x[Current_display_mode],y,SB_SCORE_RIGHT,(y+GAME_FONT->ft_h));
+#endif
 
 	if ( (Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) ) 
 		gr_set_fontcolor(gr_getcolor(0,20,0),-1 );
@@ -1093,9 +695,6 @@ void sb_show_score_added()
 	if (score_time > 0) {
 		if (score_display != last_score_display)
 		{
-			gr_setcolor(BM_XRGB(0,0,0));
-			gr_rect(COCKPITSCALE_X*last_x[Current_display_mode],COCKPITSCALE_Y*SB_SCORE_ADDED_Y,COCKPITSCALE_X*SB_SCORE_ADDED_RIGHT,COCKPITSCALE_Y*(SB_SCORE_ADDED_Y+GAME_FONT->ft_h));
-
 			last_score_display = score_display;
 		}
 
@@ -1111,11 +710,11 @@ void sb_show_score_added()
 
 		gr_get_string_size(score_str, &w, &h, &aw );
 
-		x = COCKPITSCALE_X*SB_SCORE_ADDED_RIGHT-w-LHX(2);
+		x = HUD_SCALE_X(SB_SCORE_ADDED_RIGHT)-w-LHX(2);
 
 		gr_set_fontcolor(gr_getcolor(0, color, 0),-1 );
 
-		gr_printf(x, COCKPITSCALE_Y*SB_SCORE_ADDED_Y, score_str);
+		gr_printf(x, HUD_SCALE_Y(SB_SCORE_ADDED_Y), score_str);
 
 
 		last_x[Current_display_mode] = x;
@@ -1123,11 +722,11 @@ void sb_show_score_added()
 	} else {
 		//erase old score
 		gr_setcolor(BM_XRGB(0,0,0));
+#ifndef OGL
 		gr_rect(last_x[Current_display_mode],SB_SCORE_ADDED_Y,SB_SCORE_ADDED_RIGHT,SB_SCORE_ADDED_Y+GAME_FONT->ft_h);
-
+#endif
 		score_time = 0;
 		score_display = 0;
-
 	}
 }
 
@@ -1276,18 +875,18 @@ void hud_show_orbs (void)
 		x=y=0;
 
 		if (Cockpit_mode == CM_FULL_COCKPIT) {
-			y = COCKPITSCALE_Y*(2*Line_spacing);
-			x = COCKPITSCALE_X*(4*GAME_FONT->ft_w);
+			y = HUD_SCALE_Y(2*Line_spacing);
+			x = HUD_SCALE_X(4*GAME_FONT->ft_w);
 		}
 		else if (Cockpit_mode == CM_STATUS_BAR) {
-			y = COCKPITSCALE_Y*(Line_spacing);
-			x = COCKPITSCALE_X*(GAME_FONT->ft_w);
+			y = HUD_SCALE_Y(Line_spacing);
+			x = HUD_SCALE_X(GAME_FONT->ft_w);
 		}
 		else if (Cockpit_mode == CM_FULL_SCREEN) {
-			y = COCKPITSCALE_Y*(5*Line_spacing);
-			x = COCKPITSCALE_X*(GAME_FONT->ft_w);
+			y = HUD_SCALE_Y(5*Line_spacing);
+			x = HUD_SCALE_X(GAME_FONT->ft_w);
 			if (FontHires)
-				y += COCKPITSCALE_Y*(Line_spacing);
+				y += HUD_SCALE_Y(Line_spacing);
 		}
 		else
 			Int3();		//what sort of cockpit?
@@ -1801,9 +1400,9 @@ void sb_show_lives()
 	gr_set_curfont( GAME_FONT );
 	gr_set_fontcolor(gr_getcolor(0,20,0),-1 );
 	if (Game_mode & GM_MULTI)
-		gr_printf(COCKPITSCALE_X*SB_LIVES_LABEL_X,COCKPITSCALE_Y*SB_LIVES_LABEL_Y,"%s:", TXT_DEATHS);
+		gr_printf(HUD_SCALE_X(SB_LIVES_LABEL_X),HUD_SCALE_Y(SB_LIVES_LABEL_Y),"%s:", TXT_DEATHS);
 	else
-		gr_printf(COCKPITSCALE_X*SB_LIVES_LABEL_X,COCKPITSCALE_Y*SB_LIVES_LABEL_Y,"%s:", TXT_LIVES);
+		gr_printf(HUD_SCALE_X(SB_LIVES_LABEL_X),HUD_SCALE_Y(SB_LIVES_LABEL_Y),"%s:", TXT_LIVES);
 
 	if (Game_mode & GM_MULTI)
 	{
@@ -1819,8 +1418,8 @@ void sb_show_lives()
 		gr_rect(last_x[Current_display_mode], y+1, SB_SCORE_RIGHT, y+GAME_FONT->ft_h);
 #endif
 		gr_set_fontcolor(gr_getcolor(0,20,0),-1);
-		x = COCKPITSCALE_X*SB_SCORE_RIGHT-w-2;		
-		gr_printf(x, COCKPITSCALE_Y*(y+1), killed_str);
+		x = HUD_SCALE_X(SB_SCORE_RIGHT)-w-2;		
+		gr_printf(x, HUD_SCALE_Y(y+1), killed_str);
 		last_x[Current_display_mode] = x;
 		return;
 	}
@@ -1829,7 +1428,7 @@ void sb_show_lives()
 	//erase old icons
 	gr_setcolor(BM_XRGB(0,0,0));
 
-	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*SB_SCORE_RIGHT, COCKPITSCALE_Y*(y+bm->bm_h));
+	gr_rect(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(SB_SCORE_RIGHT), HUD_SCALE_Y(y+bm->bm_h));
 
 	if (Players[Player_num].lives-1 > 0) {
 		gr_set_curfont( GAME_FONT );
@@ -1837,11 +1436,11 @@ void sb_show_lives()
 		PAGE_IN_GAUGE( GAUGE_LIVES );
 
 #ifndef OGL
-	gr_ubitmapm(COCKPITSCALE_X*x,COCKPITSCALE_Y*y,bm);
+	gr_ubitmapm(HUD_SCALE_X(x),HUD_SCALE_Y(y),bm);
 #else
-	ogl_ubitmapm_cs(x*COCKPITSCALE_X,y*COCKPITSCALE_Y,FONTSCALE_X((FontHires)?16:8),FONTSCALE_Y((FontHires)?14:7),bm,255,F1_0);
+	ogl_ubitmapm_cs(HUD_SCALE_X(x),HUD_SCALE_Y(y),FONTSCALE_X((FontHires)?16:8),FONTSCALE_Y((FontHires)?14:7),bm,255,F1_0);
 #endif
-	gr_printf(COCKPITSCALE_X*(x+bm->bm_w+GAME_FONT->ft_w), COCKPITSCALE_Y*y, "x %d", Players[Player_num].lives-1);
+	gr_printf(HUD_SCALE_X(x+bm->bm_w+GAME_FONT->ft_w), HUD_SCALE_Y(y), "x %d", Players[Player_num].lives-1);
 	}
 }
 
@@ -2011,11 +1610,15 @@ void draw_energy_bar(int energy)
 	int w1 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_W - 1);
 	int w2 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_W - 2);
 	int w3 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_W - 3);
-	double eBarScale = (100.0 - (double) energy) * COCKPITSCALE_X * (Current_display_mode?0.15:0.075) / (double) HUD_SCALE_Y (LEFT_ENERGY_GAUGE_H);
+	double eBarScale = HUD_SCALE_X(100.0 - (double) energy) * (Current_display_mode?0.15:0.075) / (double) HUD_SCALE_Y (LEFT_ENERGY_GAUGE_H);
 
 	// Draw left energy bar
 	PAGE_IN_GAUGE( GAUGE_ENERGY_LEFT );
 	bm = GameBitmaps + GET_GAUGE_INDEX(GAUGE_ENERGY_LEFT);
+	gr_rect(	HUD_SCALE_X(LEFT_ENERGY_GAUGE_X-1),
+			HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y-1),
+			HUD_SCALE_X(LEFT_ENERGY_GAUGE_X+LEFT_ENERGY_GAUGE_W+1),
+			HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y+LEFT_ENERGY_GAUGE_H+1));
 	hud_bitblt (LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, bm, F1_0);
 
 	gr_setcolor(BM_XRGB(0,0,0));
@@ -2041,7 +1644,7 @@ void draw_energy_bar(int energy)
 						x2 = w3;
 					}
 				if (x2 > x1)
-					gr_rect(HUD_SCALE_X (LEFT_ENERGY_GAUGE_X) + x1, HUD_SCALE_Y (LEFT_ENERGY_GAUGE_Y) +y , HUD_SCALE_X (LEFT_ENERGY_GAUGE_X) + x2, HUD_SCALE_Y (LEFT_ENERGY_GAUGE_Y) +y/* +1*/);
+					gr_rect(HUD_SCALE_X (LEFT_ENERGY_GAUGE_X-1) + x1, HUD_SCALE_Y (LEFT_ENERGY_GAUGE_Y) +y , HUD_SCALE_X (LEFT_ENERGY_GAUGE_X) + x2, HUD_SCALE_Y (LEFT_ENERGY_GAUGE_Y) +y/* +1*/);
 				}
 			}
 		}
@@ -2050,6 +1653,10 @@ void draw_energy_bar(int energy)
 	// Draw right energy bar
 	PAGE_IN_GAUGE( GAUGE_ENERGY_RIGHT );
 	bm = GameBitmaps + GET_GAUGE_INDEX(GAUGE_ENERGY_RIGHT);
+	gr_rect(	HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X-1),
+			HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y-1),
+			HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X+RIGHT_ENERGY_GAUGE_W+1),
+			HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y+RIGHT_ENERGY_GAUGE_H+1));
 	hud_bitblt (RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, bm, F1_0);
 
 	gr_setcolor(BM_XRGB(0,0,0));
@@ -2076,127 +1683,17 @@ void draw_energy_bar(int energy)
 						x1 = w2;
 					}
 				if (x2 > x1) 
-					gr_rect(HUD_SCALE_X (RIGHT_ENERGY_GAUGE_X) + x1, HUD_SCALE_Y (RIGHT_ENERGY_GAUGE_Y) +y , HUD_SCALE_X (RIGHT_ENERGY_GAUGE_X) + x2, HUD_SCALE_Y (RIGHT_ENERGY_GAUGE_Y) +y/* +1*/);
+					gr_rect(HUD_SCALE_X (RIGHT_ENERGY_GAUGE_X) + x1, HUD_SCALE_Y (RIGHT_ENERGY_GAUGE_Y) +y , HUD_SCALE_X (RIGHT_ENERGY_GAUGE_X+1) + x2, HUD_SCALE_Y (RIGHT_ENERGY_GAUGE_Y) +y/* +1*/);
 				}
 			}
 		}
 	gr_set_current_canvas( NULL );
 }
 
-ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = {
-			3,11,
-			3,11,
-			3,11,
-			3,11,
-			3,11,
-			3,11,
-			2,11,
-			2,10,
-			2,10,
-			2,10,
-			2,10,
-			2,10,
-			2,10,
-			1,10,
-			1,10,
-			1,10,
-			1,9,
-			1,9,
-			1,9,
-			1,9,
-			0,9,
-			0,9,
-			0,8,
-			0,8,
-			0,8,
-			0,8,
-			1,8,
-			2,8,
-			3,8,
-			4,8,
-			5,8,
-			6,7,
-};
-
-ubyte afterburner_bar_table_hires[AFTERBURNER_GAUGE_H_H*2] = {
-	5,20,
-	5,20,
-	5,19,
-	5,19,
-	5,19,
-	5,19,
-	4,19,
-	4,19,
-	4,19,
-	4,19,
-
-	4,19,
-	4,18,
-	4,18,
-	4,18,
-	4,18,
-	3,18,
-	3,18,
-	3,18,
-	3,18,
-	3,18,
-
-	3,18,
-	3,17,
-	3,17,
-	2,17,
-	2,17,
-	2,17,
-	2,17,
-	2,17,
-	2,17,
-	2,17,
-
-	2,17,
-	2,16,
-	2,16,
-	1,16,
-	1,16,
-	1,16,
-	1,16,
-	1,16,
-	1,16,
-	1,16,
-
-	1,16,
-	1,15,
-	1,15,
-	1,15,
-	0,15,
-	0,15,
-	0,15,
-	0,15,
-	0,15,
-	0,15,
-
-	0,14,
-	0,14,
-	0,14,
-	1,14,
-	2,14,
-	3,14,
-	4,14,
-	5,14,
-	6,13,
-	7,13,
-
-	8,13,
-	9,13,
-	10,13,
-	11,13,
-	12,13
-};
-
 void draw_afterburner_bar(int afterburner)
 {
 	int not_afterburner;
 	int i, j, y, yMax;
-	ubyte *pabt = Current_display_mode ? afterburner_bar_table_hires : afterburner_bar_table;
 
 	// Draw afterburner bar
 	PAGE_IN_GAUGE( GAUGE_AFTERBURNER );
@@ -2209,9 +1706,9 @@ void draw_afterburner_bar(int afterburner)
 	for (y = 0; y < not_afterburner; y++) {
 		for (i = HUD_SCALE_Y (y), j = HUD_SCALE_Y (y + 1); i < j; i++) {
 			gr_rect (
-				HUD_SCALE_X (AFTERBURNER_GAUGE_X + pabt [y * 2]), 
+				HUD_SCALE_X (AFTERBURNER_GAUGE_X-1), 
 				HUD_SCALE_Y (AFTERBURNER_GAUGE_Y-1) + i,
-				HUD_SCALE_X (AFTERBURNER_GAUGE_X + pabt [y * 2 + 1] + 1), 
+				HUD_SCALE_X (AFTERBURNER_GAUGE_X + AFTERBURNER_GAUGE_W),
 				HUD_SCALE_Y (AFTERBURNER_GAUGE_Y) + i);
 			}
 		}
@@ -2300,13 +1797,11 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 	}
 
 	gr_set_current_canvas(NULL);
-#ifndef OGL
-	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w), COCKPITSCALE_Y*(y+bm->bm_h));
-#endif
+
 	hud_bitblt( x, y, bm, F1_0);
 
 	Gr_scanline_darkening_level = cloak_fade_value;
-	gr_rect(COCKPITSCALE_X*x, COCKPITSCALE_Y*y, COCKPITSCALE_X*(x+bm->bm_w), COCKPITSCALE_Y*(y+bm->bm_h));
+	gr_rect(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(x+bm->bm_w), HUD_SCALE_Y(y+bm->bm_h));
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 
 	gr_set_current_canvas( NULL );
@@ -2376,11 +1871,8 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 
 	//clear the window
 	gr_setcolor(BM_XRGB(0,0,0));
-	gr_rect(COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*box->right,COCKPITSCALE_Y*box->bot);
-#ifdef OGL
-	if (Cockpit_mode == CM_FULL_COCKPIT && ogl_scissor_ok)
-		draw_wbu_border(box);
-#endif
+	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot));
+
 	if (Piggy_hamfile_version >= 3 // !SHAREWARE
 		&& Current_display_mode)
 	{
@@ -2414,11 +1906,11 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	
 			temp_str[5] = Players[Player_num].laser_level+1 + '0';
 	
-			gr_printf(text_x,text_y+COCKPITSCALE_Y*Line_spacing, temp_str);
+			gr_printf(text_x,text_y+HUD_SCALE_Y(Line_spacing), temp_str);
 	
 			if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS) {
 				strcpy(temp_str, TXT_QUAD);
-				gr_printf(text_x,text_y+COCKPITSCALE_Y*(2*Line_spacing), temp_str);
+				gr_printf(text_x,text_y+HUD_SCALE_Y(2*Line_spacing), temp_str);
 	
 			}
 	
@@ -2570,11 +2062,8 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		int boxofs = (Cockpit_mode==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 		
 		Gr_scanline_darkening_level = fade_value;
-		gr_rect(COCKPITSCALE_X*gauge_boxes[boxofs+weapon_type].left,COCKPITSCALE_Y*gauge_boxes[boxofs+weapon_type].top,COCKPITSCALE_X*gauge_boxes[boxofs+weapon_type].right,COCKPITSCALE_Y*gauge_boxes[boxofs+weapon_type].bot);
-#ifdef OGL
-		if (Cockpit_mode == CM_FULL_COCKPIT && ogl_scissor_ok)
-			draw_wbu_border(&gauge_boxes[boxofs+weapon_type]);
-#endif
+		gr_rect(HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].left),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].top),HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].right),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].bot));
+
 		Gr_scanline_darkening_level = GR_FADE_LEVELS;
 	}
 
@@ -2613,7 +2102,7 @@ void draw_static(int win)
 			gr_bitmap(x,y,bmp);
 #else
 	if (!Current_display_mode)
-		ogl_ubitmapm_cs(COCKPITSCALE_X*gauge_boxes[boxofs+win].left,COCKPITSCALE_Y*gauge_boxes[boxofs+win].top,COCKPITSCALE_X*bmp->bm_w,COCKPITSCALE_Y*bmp->bm_h/1.5,bmp,255,F1_0);
+		ogl_ubitmapm_cs(HUD_SCALE_X(gauge_boxes[boxofs+win].left),HUD_SCALE_Y(gauge_boxes[boxofs+win].top),HUD_SCALE_X(bmp->bm_w),HUD_SCALE_Y(bmp->bm_h/1.5),bmp,255,F1_0);
 	else
 	{
 		hud_bitblt(gauge_boxes[boxofs+win].left,gauge_boxes[boxofs+win].top,bmp,F1_0);
@@ -2622,13 +2111,9 @@ void draw_static(int win)
 		hud_bitblt(gauge_boxes[boxofs+win].right-bmp->bm_w,gauge_boxes[boxofs+win].bot-bmp->bm_h,bmp,F1_0);
 	}
 
-	if (Cockpit_mode == CM_FULL_COCKPIT && ogl_scissor_ok)
-		draw_wbu_border(&gauge_boxes[boxofs+win]);
 #endif
 
 	gr_set_current_canvas(NULL);
-
-	//copy_gauge_box(&gauge_boxes[boxofs+win],&VR_render_buffer[0].cv_bitmap);
 }
 
 void draw_weapon_boxes()
@@ -2638,8 +2123,6 @@ void draw_weapon_boxes()
 
 	if (weapon_box_user[0] == WBU_WEAPON) {
 		drew = draw_weapon_box(0,Primary_weapon);
-		//if (drew) 
-		//	copy_gauge_box(&gauge_boxes[boxofs+0],&VR_render_buffer[0].cv_bitmap);
 
 		if (weapon_box_states[0] == WS_SET) {
 			if ((Primary_weapon == VULCAN_INDEX) || (Primary_weapon == GAUSS_INDEX))
@@ -2666,8 +2149,6 @@ void draw_weapon_boxes()
 
 	if (weapon_box_user[1] == WBU_WEAPON) {
 		drew = draw_weapon_box(1,Secondary_weapon);
-		//if (drew)
-		//	copy_gauge_box(&gauge_boxes[boxofs+1],&VR_render_buffer[0].cv_bitmap);
 
 		if (weapon_box_states[1] == WS_SET)
 		{
@@ -2684,9 +2165,9 @@ void draw_weapon_boxes()
 
 	if (Cockpit_mode == CM_STATUS_BAR) {
 		if (!Gauge_hud_mode && weapon_box_user[1] == WBU_WEAPON)
-			show_bomb_count(COCKPITSCALE_X*SB_BOMB_COUNT_X, COCKPITSCALE_Y*SB_BOMB_COUNT_Y, gr_find_closest_color(0, 0, 0), 0);
+			show_bomb_count(HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0);
 	} else {
-		show_bomb_count(COCKPITSCALE_X*BOMB_COUNT_X, COCKPITSCALE_Y*BOMB_COUNT_Y, gr_find_closest_color(0, 0, 0), 0);
+		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0);
 	}
 }
 
@@ -2706,7 +2187,7 @@ void sb_draw_energy_bar(energy)
 
 	if (erase_height > 0) {
 		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect(COCKPITSCALE_X*SB_ENERGY_GAUGE_X,COCKPITSCALE_Y*SB_ENERGY_GAUGE_Y,COCKPITSCALE_X*(SB_ENERGY_GAUGE_X+SB_ENERGY_GAUGE_W),COCKPITSCALE_Y*(SB_ENERGY_GAUGE_Y+(erase_height-1)));
+		gr_rect(HUD_SCALE_X(SB_ENERGY_GAUGE_X),HUD_SCALE_Y(SB_ENERGY_GAUGE_Y),HUD_SCALE_X(SB_ENERGY_GAUGE_X+SB_ENERGY_GAUGE_W),HUD_SCALE_Y(SB_ENERGY_GAUGE_Y+(erase_height-1)));
 	}
 	
 	//draw numbers
@@ -2714,7 +2195,7 @@ void sb_draw_energy_bar(energy)
 	gr_get_string_size(energy_str, &w, &h, &aw );
 	gr_set_fontcolor(gr_getcolor(25,18,6),-1 );
 	gr_get_string_size((energy>199)?"200":(energy>99)?"100":(energy>9)?"00":"0",&ew,&eh,&eaw);
-	gr_printf((grd_curscreen->sc_w/3)-(ew/2),COCKPITSCALE_Y*(SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4)),"%d",energy);
+	gr_printf((grd_curscreen->sc_w/3)-(ew/2),HUD_SCALE_Y(SB_ENERGY_GAUGE_Y + SB_ENERGY_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4)),"%d",energy);
 
 	gr_set_current_canvas(NULL);
 }
@@ -2732,7 +2213,7 @@ void sb_draw_afterburner()
 
 	if (erase_height > 0) {
 		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect(COCKPITSCALE_X*SB_AFTERBURNER_GAUGE_X,COCKPITSCALE_Y*SB_AFTERBURNER_GAUGE_Y,COCKPITSCALE_X*(SB_AFTERBURNER_GAUGE_X+SB_AFTERBURNER_GAUGE_W),COCKPITSCALE_Y*(SB_AFTERBURNER_GAUGE_Y+(erase_height-1)));
+		gr_rect(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X),HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y),HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X+SB_AFTERBURNER_GAUGE_W),HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y+(erase_height-1)));
 	}
 
 	//draw legend
@@ -2742,7 +2223,7 @@ void sb_draw_afterburner()
 		gr_set_fontcolor(gr_getcolor(12,12,12),-1 );
 
 	gr_get_string_size(ab_str, &w, &h, &aw );
-	gr_printf(COCKPITSCALE_X*(SB_AFTERBURNER_GAUGE_X+(SB_AFTERBURNER_GAUGE_W+1)/2)-(w/2), COCKPITSCALE_Y*(SB_AFTERBURNER_GAUGE_Y+(SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB");
+	gr_printf(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X+(SB_AFTERBURNER_GAUGE_W+1)/2)-(w/2), HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y+(SB_AFTERBURNER_GAUGE_H - GAME_FONT->ft_h - (GAME_FONT->ft_h / 4))), "AB");
 	gr_set_current_canvas(NULL);
 }
 
@@ -2755,7 +2236,7 @@ void sb_draw_shield_num(int shield)
 	gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
 
 	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
-	gr_printf((grd_curscreen->sc_w/2.266)-(sw/2),COCKPITSCALE_Y*SB_SHIELD_NUM_Y,"%d",shield);
+	gr_printf((grd_curscreen->sc_w/2.266)-(sw/2),HUD_SCALE_Y(SB_SHIELD_NUM_Y),"%d",shield);
 }
 
 void sb_draw_shield_bar(int shield)
@@ -2896,26 +2377,26 @@ void show_reticle(int force_big_one)
 		{
 			gauge_index = (small_reticle?SML_RETICLE_CROSS:RETICLE_CROSS) + cross_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
-			ogl_ubitmapm_cs(x+COCKPITSCALE_X*(cross_offsets[ofs].x),
-					y+COCKPITSCALE_Y*(cross_offsets[ofs].y),
-					((!small_reticle)?18:9)*COCKPITSCALE_X,
-					((!small_reticle)?17:7)*COCKPITSCALE_Y,
+			ogl_ubitmapm_cs(x+HUD_SCALE_X(cross_offsets[ofs].x),
+					y+HUD_SCALE_Y(cross_offsets[ofs].y),
+					HUD_SCALE_X((!small_reticle)?18:9),
+					HUD_SCALE_Y((!small_reticle)?17:7),
 					&GameBitmaps[GET_GAUGE_INDEX(gauge_index)],255,F1_0 );
 		
 			gauge_index = (small_reticle?SML_RETICLE_PRIMARY:RETICLE_PRIMARY) + primary_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
-			ogl_ubitmapm_cs(x+COCKPITSCALE_X*(primary_offsets[ofs].x),
-					y+COCKPITSCALE_Y*(primary_offsets[ofs].y),
-					((!small_reticle)?62:31)*COCKPITSCALE_X,
-					((!small_reticle)?12:5)*COCKPITSCALE_Y,
+			ogl_ubitmapm_cs(x+HUD_SCALE_X(primary_offsets[ofs].x),
+					y+HUD_SCALE_Y(primary_offsets[ofs].y),
+					HUD_SCALE_X((!small_reticle)?62:31),
+					HUD_SCALE_Y((!small_reticle)?12:5),
 					&GameBitmaps[GET_GAUGE_INDEX(gauge_index)],255,F1_0 );
 		
 			gauge_index = (small_reticle?SML_RETICLE_SECONDARY:RETICLE_SECONDARY) + secondary_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
-			ogl_ubitmapm_cs(x+COCKPITSCALE_X*(secondary_offsets[ofs].x),
-					y+COCKPITSCALE_Y*(secondary_offsets[ofs].y),
-					((!small_reticle)?50:25)*COCKPITSCALE_X,
-					((!small_reticle)?22:10)*COCKPITSCALE_Y,
+			ogl_ubitmapm_cs(x+HUD_SCALE_X(secondary_offsets[ofs].x),
+					y+HUD_SCALE_Y(secondary_offsets[ofs].y),
+					HUD_SCALE_X((!small_reticle)?50:25),
+					HUD_SCALE_Y((!small_reticle)?22:10),
 					&GameBitmaps[GET_GAUGE_INDEX(gauge_index)],255,F1_0 );
 		}
 		else // ... otherwise ...
@@ -2977,7 +2458,7 @@ void hud_show_kill_list()
 	if (Game_mode & GM_MULTI_COOP)
 		x1 = LHX(31);
 
-	save_y = y = grd_curcanv->cv_h - n_left*(fth+(COCKPITSCALE_Y*1));
+	save_y = y = grd_curcanv->cv_h - n_left*(fth+(HUD_SCALE_Y(1)));
 
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
 		save_y = y -= LHX(6);
@@ -3286,13 +2767,14 @@ void draw_hud()
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 		if (Newdemo_state == ND_STATE_PLAYBACK)
-			gr_printf(0x8000,grd_curcanv->cv_h-(COCKPITSCALE_Y*14),TXT_REAR_VIEW);
+			gr_printf(0x8000,grd_curcanv->cv_h-(HUD_SCALE_Y(14)),TXT_REAR_VIEW);
 		else
-			gr_printf(0x8000,grd_curcanv->cv_h-(COCKPITSCALE_Y*10),TXT_REAR_VIEW);
+			gr_printf(0x8000,grd_curcanv->cv_h-(HUD_SCALE_Y(10)),TXT_REAR_VIEW);
 	}
 }
 
 extern short *BackBuffer;
+extern int max_window_h;
 
 //print out some player statistics
 void render_gauges()
@@ -3326,16 +2808,7 @@ void render_gauges()
 		if (Players[Player_num].homing_object_dist >= 0)
 			newdemo_record_homing_distance(Players[Player_num].homing_object_dist);
 
-	if (Cockpit_mode == CM_FULL_COCKPIT)
-		draw_player_ship(cloak, old_cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
-	else
-		draw_player_ship(cloak, old_cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
-
-	old_cloak = cloak;
-
-#ifdef OGL // draw now so draw_wbu_border does not overlap other gauges
 	draw_weapon_boxes();
-#endif
 
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
 		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy))
@@ -3352,6 +2825,10 @@ void render_gauges()
 			old_afterburner = Afterburner_charge;
 		}
 		draw_afterburner_bar(Afterburner_charge);
+
+		hud_bitblt (0, 0, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],F1_0);
+
+		draw_player_ship(cloak, old_cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
 			draw_invulnerable_ship();
@@ -3390,6 +2867,10 @@ void render_gauges()
 			old_afterburner = Afterburner_charge;
 		}
 		sb_draw_afterburner();
+#ifdef OGL
+		hud_bitblt (0, (Current_display_mode?370:146), &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],F1_0);
+#endif
+		draw_player_ship(cloak, old_cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 		{
@@ -3441,9 +2922,8 @@ void render_gauges()
 				sb_show_score_added();
 		}
 	}
-#ifndef OGL
-	draw_weapon_boxes();
-#endif
+
+	old_cloak = cloak;
 }
 
 //	---------------------------------------------------------------------------------------------------------
@@ -3533,7 +3013,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 			goto abort;
 
 		box = &gauge_boxes[boxnum];
-		gr_init_sub_canvas(&window_canv,&grd_curscreen->sc_canvas,COCKPITSCALE_X*box->left,COCKPITSCALE_Y*box->top,COCKPITSCALE_X*(box->right-box->left+1),COCKPITSCALE_Y*(box->bot-box->top+1));
+		gr_init_sub_canvas(&window_canv,&grd_curscreen->sc_canvas,HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right-box->left+1),HUD_SCALE_Y(box->bot-box->top+1));
 	}
 
 	gr_set_current_canvas(&window_canv);
@@ -3602,7 +3082,6 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	else {
 	
 		gr_set_current_canvas(NULL);
-	//	copy_gauge_box(box,&VR_render_buffer[0].cv_bitmap);
 	}
 
 	//force redraw when done
@@ -3613,11 +3092,6 @@ abort:;
 	Viewer = viewer_save;
 
 	Rear_view = rear_view_save;
-
-#ifdef OGL
-	if (Cockpit_mode == CM_FULL_COCKPIT && ogl_scissor_ok)
-		draw_wbu_border(box);
-#endif
 }
 
 #ifdef MACINTOSH

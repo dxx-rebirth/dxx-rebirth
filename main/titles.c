@@ -1054,7 +1054,6 @@ int show_briefing_message(int screen_num, char *message)
 #ifdef OGL
 					if (!RobotPlaying)
 						gr_flip();
-					gr_clear_canvas(255);
 					ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
 					redraw_messagestream(streamcount);
 					if (guy_bitmap_show)
@@ -1149,7 +1148,6 @@ int show_briefing_message(int screen_num, char *message)
 			if (delay_count) {
 				if (!RobotPlaying)
 					gr_flip();
-				gr_clear_canvas(255);
 				ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
 				redraw_messagestream(streamcount);
 			}
@@ -1221,7 +1219,6 @@ int show_briefing_message(int screen_num, char *message)
 #ifdef OGL
 				if (!RobotPlaying)
 					gr_flip();
-				gr_clear_canvas(255);
 				ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
 				redraw_messagestream(streamcount);
 				if (guy_bitmap_show)

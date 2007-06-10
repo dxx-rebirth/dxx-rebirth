@@ -69,10 +69,6 @@
 #define sinf(a) sin(a)
 #endif
 
-#if defined(_WIN32) // HACK - REMOVE ASAP
-#undef GL_EXT_paletted_texture
-#endif
-
 unsigned char *ogl_pal=gr_palette;
 
 int GL_texmagfilt=GL_NEAREST;
@@ -84,7 +80,6 @@ int last_width=-1,last_height=-1;
 int GL_TEXTURE_2D_enabled=-1;
 int GL_texclamp_enabled=-1;
 
-extern int gr_badtexture;
 int r_texcount = 0, r_cachedtexcount = 0;
 int ogl_alttexmerge=1;//merge textures by just printing the seperate textures?
 int ogl_rgba_internalformat = GL_RGBA8;
@@ -94,50 +89,26 @@ int ogl_luminance4_alpha4_ok=1;
 int ogl_rgba2_ok=1;
 int ogl_readpixels_ok=1;
 int ogl_gettexlevelparam_ok=1;
-#ifdef GL_ARB_multitexture
-int ogl_arb_multitexture_ok=0;
-#endif
-#ifdef GL_SGIS_multitexture
-int ogl_sgis_multitexture_ok=0;
-#endif
-int ogl_nv_texture_env_combine4_ok = 0;
-#ifdef GL_NV_register_combiners
-int ogl_nv_register_combiners_ok = 0;
-#endif
 int ogl_ext_texture_filter_anisotropic_ok = 0;
-#ifdef GL_EXT_paletted_texture
-int ogl_shared_palette_ok = 0;
-int ogl_paletted_texture_ok = 0;
-#endif
-
 int sphereh=0;
 int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
 int secondary_lh[5]={0,0,0,0,0};
 extern int glalpha_effects;
-/*int lastbound=-1;
 
-#define OGL_BINDTEXTURE(a) if(gr_badtexture>0) glBindTexture(GL_TEXTURE_2D, 0);\
-	else if(a!=lastbound) {glBindTexture(GL_TEXTURE_2D, a);lastbound=a;}*/
-#define OGL_BINDTEXTURE(a) if(gr_badtexture>0) glBindTexture(GL_TEXTURE_2D, 0);\
-	else glBindTexture(GL_TEXTURE_2D, a);
+#define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
 
 
 ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
 int ogl_texture_list_cur;
-int bLegacyZBuf = 0;
 
 /* some function prototypes */
 
-//#define OGLTEXBUFSIZE (1024*1024*4)
-//#define OGLTEXBUFSIZE (4096*4096*4)
 #define GL_TEXTURE0_ARB 0x84C0
 extern GLubyte *pixels;
 extern GLubyte *texbuf;
-//void ogl_filltexbuf(unsigned char *data,GLubyte *texp,int width,int height,int  twidth,int theight);
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format);
 void ogl_loadbmtexture(grs_bitmap *bm);
-//void ogl_loadtexture(unsigned char * data, int width, int height,int dxo,intdyo , int *texid,float *u,float *v,char domipmap,float prio);
 int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format);
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_do_palfx(void);
@@ -147,6 +118,7 @@ void ogl_init_texture_stats(ogl_texture* t){
 	t->lastrend=0;
 	t->numrend=0;
 }
+
 void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 {
 	t->handle = 0;
@@ -196,8 +168,7 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 			t->format = GL_RGB;
 		}
 	}
-	t->wrapstate[0] = -1;
-	t->wrapstate[1] = -1;
+	t->wrapstate = -1;
 	t->lw = t->w = w;
 	t->h = h;
 	t->wantmip = flags & OGL_FLAG_MIPMAP;
@@ -216,12 +187,14 @@ void ogl_reset_texture_stats_internal(void){
 			ogl_init_texture_stats(&ogl_texture_list[i]);
 		}
 }
+
 void ogl_init_texture_list_internal(void){
 	int i;
 	ogl_texture_list_cur=0;
 	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++)
 		ogl_reset_texture(&ogl_texture_list[i]);
 }
+
 void ogl_smash_texture_list_internal(void){
 	int i;
 	sphereh=0;
@@ -233,20 +206,8 @@ void ogl_smash_texture_list_internal(void){
 			glDeleteTextures( 1, &ogl_texture_list[i].handle );
 			ogl_texture_list[i].handle=0;
 		}
-		ogl_texture_list[i].wrapstate[0] = -1;
-		ogl_texture_list[i].wrapstate[1] = -1;
+		ogl_texture_list[i].wrapstate = -1;
 	}
-}
-void ogl_vivify_texture_list_internal(void){
-/*
-   int i;
-	ogl_texture* t;
-	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
-		t=&ogl_texture_list[i];
-		if (t->w>0){//erk, realised this can't be done since we'd need the texture bm_data too. hmmm.
-			ogl_loadbmtexture(t);
-	}
-*/
 }
 
 ogl_texture* ogl_get_free_texture(void){
@@ -258,13 +219,12 @@ ogl_texture* ogl_get_free_texture(void){
 			ogl_texture_list_cur=0;
 	}
 	Error("OGL: texture list full!\n");
-//	return NULL;
 }
+
 int ogl_texture_stats(void){
 	int used = 0, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
 	int databytes = 0, truebytes = 0, datatexel = 0, truetexel = 0, i;
 	int prio0=0,prio1=0,prio2=0,prio3=0,prioh=0;
-//	int grabbed=0;
 	ogl_texture* t;
 	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
 		t=&ogl_texture_list[i];
@@ -288,8 +248,6 @@ int ogl_texture_stats(void){
 			else
 				usedother++;
 		}
-//		else if(t->w!=0)
-//			grabbed++;
 	}
 	if (gr_renderstats)
 	{
@@ -313,9 +271,10 @@ int ogl_texture_stats(void){
 		gr_printf(5, GAME_FONT->ft_h * 15 + 3 * 15, "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
 		gr_printf(5, GAME_FONT->ft_h * 16 + 3 * 16, "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 	}
-//	glmprintf((0,"ogl tex stats: %i(%i,%i|%i,%i,%i,%i,%i) %i(%i)b (%i(%i)wasted)\n",used,usedrgba,usedl4a4,prio0,prio1,prio2,prio3,prioh,truebytes,truetexel,truebytes-databytes,truetexel-datatexel));
+
 	return truebytes;
 }
+
 int ogl_mem_target=-1;
 void ogl_clean_texture_cache(void){
 	ogl_texture* t;
@@ -345,29 +304,24 @@ void ogl_clean_texture_cache(void){
 			Error("not enough mem?");
 		time=time/2;
 	}
-	
 }
+
 void ogl_bindbmtex(grs_bitmap *bm){
 	if (bm->gltexture==NULL || bm->gltexture->handle<=0)
 		ogl_loadbmtexture(bm);
 	OGL_BINDTEXTURE(bm->gltexture->handle);
 	bm->gltexture->lastrend=GameTime;
 	bm->gltexture->numrend++;
-////	if (bm->gltexture->numrend==80 || bm->gltexture->numrend==4000 || bm->gltexture->numrend==80000){
-//	if (bm->gltexture->numrend==100){
-//		bm->gltexture->prio+=0.1;
-////		glTexParameterf(GL_TEXTURE_2D,GL_TEXTURE_PRIORITY,bm->gltexture->prio);
-//		glPrioritizeTextures(1,&bm->gltexture->handle,&bm->gltexture->prio);
-//	}
 }
+
 //gltexture MUST be bound first
 void ogl_texwrap(ogl_texture *gltexture,int state)
 {
-	if (gltexture->wrapstate[active_texture_unit] != state || gltexture->numrend < 1)
+	if (gltexture->wrapstate != state || gltexture->numrend < 1)
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, state);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, state);
-		gltexture->wrapstate[active_texture_unit] = state;
+		gltexture->wrapstate = state;
 	}
 }
 
@@ -386,10 +340,10 @@ void ogl_cache_polymodel_textures(int model_num)
 		return;
 	po = &Polygon_models[model_num];
 	for (i=0;i<po->n_textures;i++)  {
-//		texture_list_index[i] = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]];
 		ogl_loadbmtexture(&GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index]);
 	}
 }
+
 void ogl_cache_vclip_textures(vclip *vc){
 	int i;
 	for (i=0;i<vc->num_frames;i++){
@@ -446,8 +400,6 @@ void ogl_cache_level_textures(void)
 		for (i=0,ec=Effects;i<Num_effects;i++,ec++) {
 			if ((Effects[i].changing_wall_texture == -1) && (Effects[i].changing_object_texture==-1) )
 				continue;
-//			if (ec->vc.num_frames>max_efx)
-//				max_efx=ec->vc.num_frames;
 			ec->time_left=-1;
 		}
 		do_special_effects();
@@ -467,12 +419,11 @@ void ogl_cache_level_textures(void)
 				if (tmap2 != 0){
 					PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
 					bm2 = &GameBitmaps[Textures[tmap2&0x3FFF].index];
-					if (ogl_alttexmerge == 0 || (!OGL_SUPER_TRANSPARENT_OK && (bm2->bm_flags & BM_FLAG_SUPER_TRANSPARENT)))
+					if (ogl_alttexmerge == 0 || (bm2->bm_flags & BM_FLAG_SUPER_TRANSPARENT))
 						bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
 					else {
 						ogl_loadbmtexture(bm2);
 					}
-					//				glmprintf((0,"ogl_cache_level_textures seg %i side %i t1 %i t2 %x bm %p NT %i\n",seg,side,tmap1,tmap2,bm,NumTextures));
 				}
 				ogl_loadbmtexture(bm);
 			}
@@ -482,8 +433,6 @@ void ogl_cache_level_textures(void)
 	reset_special_effects();
 	init_special_effects();
 	{
-//		int laserlev=1;
-
 		// always have lasers, concs, flares.  Always shows player appearance, and at least concs are always available to disappear.
 		ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[LASER_INDEX]);
 		ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]);
@@ -497,11 +446,6 @@ void ogl_cache_level_textures(void)
 			if(Objects[i].render_type==RT_POWERUP){
 				ogl_cache_vclipn_textures(Objects[i].rtype.vclip_info.vclip_num);
 				switch (Objects[i].id){
-/*					case POW_LASER:
-						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[LASER_INDEX]);
-//						if (laserlev<4)
-//							laserlev++;
-						break;*/
 					case POW_VULCAN_WEAPON:
 						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[VULCAN_INDEX]);
 						break;
@@ -514,10 +458,6 @@ void ogl_cache_level_textures(void)
 					case POW_FUSION_WEAPON:
 						ogl_cache_weapon_textures(Primary_weapon_to_weapon_info[FUSION_INDEX]);
 						break;
-/*					case POW_MISSILE_1:
-					case POW_MISSILE_4:
-						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[CONCUSSION_INDEX]);
-						break;*/
 					case POW_PROXIMITY_WEAPON:
 						ogl_cache_weapon_textures(Secondary_weapon_to_weapon_info[PROXIMITY_INDEX]);
 						break;
@@ -534,7 +474,6 @@ void ogl_cache_level_textures(void)
 				}
 			}
 			else if(Objects[i].render_type==RT_POLYOBJ){
-				//printf("robot %i model %i rmodel %i\n", Objects[i].id, Objects[i].rtype.pobj_info.model_num, Robot_info[Objects[i].id].model_num);
 				if (Objects[i].type == OBJ_ROBOT)
 				{
 					ogl_cache_vclipn_textures(Robot_info[Objects[i].id].exp1_vclip_num);
@@ -568,6 +507,7 @@ bool g3_draw_line(g3s_point *p0,g3s_point *p1)
 	glEnd();
 	return 1;
 }
+
 void ogl_drawcircle2(int nsides,int type,float xsc,float xo,float ysc,float yo){
 	int i;
 	float ang;
@@ -578,6 +518,7 @@ void ogl_drawcircle2(int nsides,int type,float xsc,float xo,float ysc,float yo){
 	}
 	glEnd();
 }
+
 void ogl_drawcircle(int nsides,int type){
 	int i;
 	float ang;
@@ -588,6 +529,7 @@ void ogl_drawcircle(int nsides,int type){
 	}
 	glEnd();
 }
+
 int circle_list_init(int nsides,int type,int mode) {
 	int hand=glGenLists(1);
 	glNewList(hand, mode);
@@ -596,13 +538,14 @@ int circle_list_init(int nsides,int type,int mode) {
 	glEndList();
 	return hand;
 }
+
 float bright_g[4]={	32.0/256,	252.0/256,	32.0/256};
 float dark_g[4]={	32.0/256,	148.0/256,	32.0/256};
 float darker_g[4]={	32.0/256,	128.0/256,	32.0/256};
+
 void ogl_draw_reticle(int cross,int primary,int secondary){
 	float scale=(float)Canvas_height/(float)grd_curscreen->sc_h;
 	glPushMatrix();
-//	glTranslatef(0.5,0.5,0);
 	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/(float)last_height,0);
 	glScalef(scale/320.0,scale/200.0,scale);//the positions are based upon the standard reticle at 320x200 res.
 	
@@ -650,8 +593,6 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 	}else
 		glCallList(cross_lh[cross]);
 
-//	if (Canvas_height>200)
-//		glLineWidth(Canvas_height/(float)200);
 	if (!primary_lh[primary]){
 		primary_lh[primary]=glGenLists(1);
 		glNewList(primary_lh[primary], GL_COMPILE_AND_EXECUTE);
@@ -685,8 +626,6 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 		glEndList();
 	}else
 		glCallList(primary_lh[primary]);
-//	if (Canvas_height>200)
-//		glLineWidth(1);
 
 	if (!secondary_lh[secondary]){
 		secondary_lh[secondary]=glGenLists(1);
@@ -718,16 +657,13 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 
 	glPopMatrix();
 }
+
 int g3_draw_sphere(g3s_point *pnt,fix rad){
 	int c;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
-	glDisable(GL_CULL_FACE); // ZICO - to draw sheres on automap correctly
-//	glPointSize(f2glf(rad));
+	glDisable(GL_CULL_FACE);
 	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-//	glBegin(GL_POINTS);
-//	glVertex3f(f2glf(pnt->p3_vec.x),f2glf(pnt->p3_vec.y),-f2glf(pnt->p3_vec.z));
-//	glEnd();
 	glPushMatrix();
 	glTranslatef(f2glf(pnt->p3_vec.x),f2glf(pnt->p3_vec.y),-f2glf(pnt->p3_vec.z));
 	rad/=((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h);
@@ -736,8 +672,8 @@ int g3_draw_sphere(g3s_point *pnt,fix rad){
 	else glCallList(sphereh);
 	glPopMatrix();
 	return 0;
-
 }
+
 int gr_ucircle(fix xc1, fix yc1, fix r1)
 {
 	int c;
@@ -753,6 +689,7 @@ int gr_ucircle(fix xc1, fix yc1, fix r1)
 	glPopMatrix();
 	return 0;
 }
+
 int gr_circle(fix xc1,fix yc1,fix r1){
 	return gr_ucircle(xc1,yc1,r1);
 }
@@ -781,9 +718,11 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 void gr_upoly_tmap(int nverts, int *vert ){
 		mprintf((0,"gr_upoly_tmap: unhandled\n"));//should never get called
 }
+
 void draw_tmap_flat(grs_bitmap *bm,int nv,g3s_point **vertlist){
 		mprintf((0,"draw_tmap_flat: unhandled\n"));//should never get called
 }
+
 extern void (*tmap_drawer_ptr)(grs_bitmap *bm,int nv,g3s_point **vertlist);
 bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 {
@@ -821,295 +760,53 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 	return 0;
 }
 
-int active_texture_unit = 0;
-
-void ogl_setActiveTexture(int t)
-{
-	if (ogl_arb_multitexture_ok)
-	{
-#ifdef GL_ARB_multitexture
-		if (t == 0)
-			glActiveTextureARB(GL_TEXTURE0_ARB);
-		else
-			glActiveTextureARB(GL_TEXTURE1_ARB);
-#endif
-	}
-	else if (ogl_sgis_multitexture_ok)
-	{
-#ifdef GL_SGIS_multitexture
-		if (t == 0)
-			glSelectTextureSGIS(GL_TEXTURE0_SGIS);
-		else
-			glSelectTextureSGIS(GL_TEXTURE1_SGIS);
-#endif
-	}
-	active_texture_unit = t;
-}
-
-void ogl_MultiTexCoord2f(int t, float u, float v)
-{
-	if (ogl_arb_multitexture_ok)
-	{
-#ifdef GL_ARB_multitexture
-		if (t == 0)
-			glMultiTexCoord2fARB(GL_TEXTURE0_ARB, u, v);
-		else
-			glMultiTexCoord2fARB(GL_TEXTURE1_ARB, u, v);
-#endif
-	}
-	else if (ogl_sgis_multitexture_ok)
-	{
-#ifdef GL_SGIS_multitexture
-		if (t == 0)
-			glMultiTexCoord2fSGIS(GL_TEXTURE0_SGIS, u, v);
-		else
-			glMultiTexCoord2fSGIS(GL_TEXTURE1_SGIS, u, v);
-#endif
-	}
-}
-
 bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
-#if ((defined(GL_NV_register_combiners) || defined(GL_NV_texture_env_combine4)) && (defined(GL_ARB_multitexture) || defined(GL_SGIS_multitexture)))
-	if ((/*ogl_nv_register_combiners_ok ||*/ ogl_nv_texture_env_combine4_ok) && (ogl_arb_multitexture_ok || ogl_sgis_multitexture_ok))
-	{
-		int c;
-		float l, u1, v1;
+	int c;
+	float l,u1,v1;
 
-		if (tmap_drawer_ptr != draw_tmap)
-			Error("WTFF\n");
+	g3_draw_tmap(nv,pointlist,uvl_list,bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 
-		r_tpolyc+=2;
-
-		//ogl_setActiveTexture(0);
-		OGL_ENABLE(TEXTURE_2D);
-		ogl_bindbmtex(bmbot);
-		ogl_texwrap(bmbot->gltexture, GL_REPEAT);
-		// GL_MODULATE is fine for texture 0
-
-		ogl_setActiveTexture(1);
-		glEnable(GL_TEXTURE_2D);
-		ogl_bindbmtex(bm);
-		ogl_texwrap(bm->gltexture,GL_REPEAT);
-
-#ifdef GL_NV_register_combiners
-		if (ogl_nv_register_combiners_ok)
-		{
-			glEnable(GL_REGISTER_COMBINERS_NV);
-			glCombinerParameteriNV(GL_NUM_GENERAL_COMBINERS_NV, 1);
-			// spare0 = tex0 * (1-alpha1) + tex1 * alpha1
-			glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_A_NV, GL_TEXTURE0_ARB, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-			glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_B_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
-			glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_C_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-			glCombinerInputNV(GL_COMBINER0_NV, GL_RGB, GL_VARIABLE_D_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
-			glCombinerOutputNV(
-			                   GL_COMBINER0_NV,   //GLenum stage
-			                   GL_RGB,            //GLenum portion,
-			                   GL_DISCARD_NV,     //GLenum abOutput,
-			                   GL_DISCARD_NV,     //GLenum cdOutput,
-			                   GL_SPARE0_NV,      //GLenum sumOutput,
-			                   GL_NONE,           //GLenum scale,
-			                   GL_NONE,           //GLenum bias,
-			                   GL_FALSE,          //GLboolean abDotProduct,
-			                   GL_FALSE,          //GLboolean cdDotProduct,
-			                   GL_FALSE           //GLboolean muxSum
-			                   );
-			// out = spare0 * color
-			// ( out = AB + (1-A)C + D )
-			glFinalCombinerInputNV(GL_VARIABLE_A_NV, GL_SPARE0_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-			glFinalCombinerInputNV(GL_VARIABLE_B_NV, GL_PRIMARY_COLOR_NV, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-			glFinalCombinerInputNV(GL_VARIABLE_C_NV, GL_ZERO, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-			glFinalCombinerInputNV(GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_IDENTITY_NV, GL_RGB);
-
-			if (bm->bm_flags & BM_FLAG_SUPER_TRANSPARENT)
-			{
-				// out = alpha0*(1-tex1) + alpha1
-				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_A_NV, GL_TEXTURE0_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
-				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_B_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_INVERT_NV, GL_BLUE);
-				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_C_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
-				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
-			}
-			else
-			{
-				// out = alpha0 + alpha1
-				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_A_NV, GL_TEXTURE0_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
-				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_B_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
-				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_C_NV, GL_TEXTURE1_ARB, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
-				glCombinerInputNV(GL_COMBINER0_NV, GL_ALPHA, GL_VARIABLE_D_NV, GL_ZERO, GL_UNSIGNED_INVERT_NV, GL_ALPHA);
-			}
-			glCombinerOutputNV(
-			                   GL_COMBINER0_NV,   //GLenum stage
-			                   GL_ALPHA,          //GLenum portion,
-			                   GL_DISCARD_NV,     //GLenum abOutput,
-			                   GL_DISCARD_NV,     //GLenum cdOutput,
-			                   GL_SPARE0_NV,      //GLenum sumOutput,
-			                   GL_NONE,           //GLenum scale,
-			                   GL_NONE,           //GLenum bias,
-			                   GL_FALSE,          //GLboolean abDotProduct,
-			                   GL_FALSE,          //GLboolean cdDotProduct,
-			                   GL_FALSE           //GLboolean muxSum
-			                   );
-			glFinalCombinerInputNV(GL_VARIABLE_G_NV, GL_SPARE0_NV, GL_UNSIGNED_IDENTITY_NV, GL_ALPHA);
+	r_tpolyc++;
+	OGL_ENABLE(TEXTURE_2D);
+	ogl_bindbmtex(bm);
+	ogl_texwrap(bm->gltexture,GL_REPEAT);
+	glBegin(GL_TRIANGLE_FAN);
+	for (c=0;c<nv;c++){
+		switch(orient){
+			case 1:
+				u1=1.0-f2glf(uvl_list[c].v);
+				v1=f2glf(uvl_list[c].u);
+				break;
+			case 2:
+				u1=1.0-f2glf(uvl_list[c].u);
+				v1=1.0-f2glf(uvl_list[c].v);
+				break;
+			case 3:
+				u1=f2glf(uvl_list[c].v);
+				v1=1.0-f2glf(uvl_list[c].u);
+				break;
+			default:
+				u1=f2glf(uvl_list[c].u);
+				v1=f2glf(uvl_list[c].v);
+				break;
 		}
-		else
-#endif
-		{
-			//http://oss.sgi.com/projects/ogl-sample/registry/NV/texture_env_combine4.txt
-			//only GL_NV_texture_env_combine4 lets us do what we need:
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE4_NV);
-
-			//multiply top texture by color(vertex lighting) and add bottom texture(where alpha says to)
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_EXT, GL_ADD);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_EXT, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_EXT, GL_PRIMARY_COLOR_EXT);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_EXT, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE3_RGB_NV, GL_PREVIOUS_EXT);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB_EXT, GL_SRC_COLOR);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB_EXT, GL_SRC_COLOR);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB_EXT, GL_ONE_MINUS_SRC_ALPHA);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND3_RGB_NV, GL_SRC_COLOR);
-
-			//add up alpha channels
-			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_EXT, GL_ADD);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_EXT, GL_TEXTURE);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_EXT, GL_ZERO);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_ALPHA_EXT, GL_PREVIOUS_EXT);
-			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE3_ALPHA_NV, GL_ZERO);
-
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_EXT, GL_SRC_ALPHA);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_ALPHA_EXT, GL_ONE_MINUS_SRC_ALPHA);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_ALPHA_EXT, GL_SRC_ALPHA);
-			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND3_ALPHA_NV, GL_ONE_MINUS_SRC_ALPHA);
+		if (bm->bm_flags&BM_FLAG_NO_LIGHTING){
+			l=1.0;
+		}else{
+			l=f2fl(uvl_list[c].l);
 		}
-
-		// GL_DECAL works sorta ok but the top texture is fullbright.
-		//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-
-		// GL_ARB_texture_env_combine comes close, but doesn't quite make it.
-		//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-
-		//// this gives effect like GL_DECAL:
-		//glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_INTERPOLATE);
-		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_TEXTURE);
-		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_PREVIOUS_ARB);
-		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_TEXTURE);
-
-
-		// this properly shades the top texture, but the bottom texture doesn't get through.
-		//glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
-		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PRIMARY_COLOR_ARB);
-		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
-
-
-		// add up alpha
-		//glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_ADD);
-		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
-		//glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_ALPHA_ARB, GL_PREVIOUS_ARB);
-
-		glBegin(GL_TRIANGLE_FAN);
-		for (c=0;c<nv;c++){
-			switch(orient){
-				case 1:
-					u1=1.0-f2glf(uvl_list[c].v);
-					v1=f2glf(uvl_list[c].u);
-					break;
-				case 2:
-					u1=1.0-f2glf(uvl_list[c].u);
-					v1=1.0-f2glf(uvl_list[c].v);
-					break;
-				case 3:
-					u1=f2glf(uvl_list[c].v);
-					v1=1.0-f2glf(uvl_list[c].u);
-					break;
-				default:
-					u1=f2glf(uvl_list[c].u);
-					v1=f2glf(uvl_list[c].v);
-					break;
-			}
-			if (bm->bm_flags&BM_FLAG_NO_LIGHTING){
-				l=1.0;
-			}else{
-				l=f2fl(uvl_list[c].l);
-			}
-			glColor3f(l,l,l);
-			ogl_MultiTexCoord2f(0, f2glf(uvl_list[c].u), f2glf(uvl_list[c].v));
-			ogl_MultiTexCoord2f(1, u1, v1);
-			//glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
-			//glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
-			glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
-		}
-		glEnd();
-		//ogl_setActiveTexture(1); // still the active texture
-#ifdef GL_NV_register_combiners
-		if (ogl_nv_register_combiners_ok)
-		{
-			glDisable(GL_REGISTER_COMBINERS_NV);
-		}
-		else
-#endif
-		{
-			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		}
-		glDisable(GL_TEXTURE_2D);
-		ogl_setActiveTexture(0);
+		glColor3f(l,l,l);
+		glTexCoord2f(u1,v1);
+		glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 	}
-	else
-#endif
-	{
-		int c;
-		float l,u1,v1;
-
-		g3_draw_tmap(nv,pointlist,uvl_list,bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
-
-		r_tpolyc++;
-		/*	if (bm->bm_w !=64||bm->bm_h!=64)
-			printf("g3_draw_tmap w %i h %i\n",bm->bm_w,bm->bm_h);*/
-		OGL_ENABLE(TEXTURE_2D);
-		ogl_bindbmtex(bm);
-		ogl_texwrap(bm->gltexture,GL_REPEAT);
-		glBegin(GL_TRIANGLE_FAN);
-		for (c=0;c<nv;c++){
-			switch(orient){
-				case 1:
-					u1=1.0-f2glf(uvl_list[c].v);
-					v1=f2glf(uvl_list[c].u);
-					break;
-				case 2:
-					u1=1.0-f2glf(uvl_list[c].u);
-					v1=1.0-f2glf(uvl_list[c].v);
-					break;
-				case 3:
-					u1=f2glf(uvl_list[c].v);
-					v1=1.0-f2glf(uvl_list[c].u);
-					break;
-				default:
-					u1=f2glf(uvl_list[c].u);
-					v1=f2glf(uvl_list[c].v);
-					break;
-			}
-			if (bm->bm_flags&BM_FLAG_NO_LIGHTING){
-				l=1.0;
-			}else{
-				//l=f2fl(uvl_list[c].l)+gr_palette_gamma/63.0;
-				l=f2fl(uvl_list[c].l);
-			}
-			glColor3f(l,l,l);
-			glTexCoord2f(u1,v1);
-			//glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
-			//glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),f2glf(pointlist[c]->p3_vec.z));
-			glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
-		}
-		glEnd();
-	}
+	glEnd();
 	return 0;
 }
 
 bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int orientation, object *obj)
 {
-	vms_vector pv,v1;//,v2;
+	vms_vector pv,v1;
 	int i;
 	r_bitmapc++;
 	v1.z=0;
@@ -1185,12 +882,6 @@ bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c)
 	yo=1.0-y/(float)last_height;
 	yf=1.0-(bm->bm_h+y)/(float)last_height;
 
-//	printf("g3_draw_bitmap: %f,%f,%f - ",f2glf(pos->x),f2glf(pos->y),-f2glf(pos->z));
-//	printf("(%f,%f,%f) ",f2glf(View_position.x),f2glf(View_position.y),-f2glf(View_position.z));
-
-/*		glEnABLE(ALPHA_TEST);
-	glAlphaFunc(GL_GREATER,0.0);*/
-
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP);
@@ -1226,42 +917,12 @@ bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c)
 	glTexCoord2f(u2, v2); glVertex2f(xf, yf);
 	glTexCoord2f(u1, v2); glVertex2f(xo, yf);
 	glEnd();
-//	glDisABLE(ALPHA_TEST);
 	
 	return 0;
 }
 bool ogl_ubitmapm(int x, int y,grs_bitmap *bm){
 	return ogl_ubitmapm_c(x,y,bm,-1);
-//	return ogl_ubitblt(bm->bm_w,bm->bm_h,x,y,0,0,bm,NULL);
 }
-#if 0
-//also upsidedown, currently.
-bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-{
-	GLfloat xo,yo;//,xs,ys;
-	glmprintf((0,"ogl_ubitblt(w=%i,h=%i,dx=%i,dy=%i,sx=%i,sy=%i,src=%p,dest=%p\n",w,h, dx, dy,sx, sy,  src,dest));
-	
-	dx+=dest->bm_x;
-	dy+=dest->bm_y;
-	
-	xo=dx/(float)last_width;
-//	xo=dx/(float)grd_curscreen->sc_w;
-//	xs=w/(float)last_width;
-	//yo=1.0-dy/(float)last_height;
-	yo=1.0-(dy+h)/(float)last_height;
-//	ys=h/(float)last_height;
-	
-//	OGL_ENABLE(TEXTURE_2D);
-	
-	OGL_DISABLE(TEXTURE_2D);
-	glRasterPos2f(xo,yo);
-	ogl_filltexbuf(src->bm_data,texbuf,src->bm_w,w,h,sx,sy,w,h,GL_RGBA);
-	glDrawPixels(w,h,GL_RGBA,GL_UNSIGNED_BYTE,texbuf);
-	glRasterPos2f(0,0);
-	
-	return 0;
-}
-#else
 
 bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int mipmap)
 {
@@ -1306,26 +967,22 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	ogl_freetexture(&tex);
 	return 0;
 }
+
 bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
 	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,0);
 }
-#endif
+
 bool ogl_ubitblt_tolinear(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
-#if 1
 	unsigned char *d,*s;
 	int i,j;
 	int w1,h1;
-//	w1=w;h1=h;
+
 	w1=grd_curscreen->sc_w;h1=grd_curscreen->sc_h;
-//	if (w1*h1*3>OGLTEXBUFSIZE)
-//		Error("ogl_ubitblt_tolinear: screen res larger than OGLTEXBUFSIZE\n");
 
 	if (ogl_readpixels_ok>0){
 		OGL_DISABLE(TEXTURE_2D);
 		glReadBuffer(GL_FRONT);
 		glReadPixels(0,0,w1,h1,GL_RGB,GL_UNSIGNED_BYTE,texbuf);
-//		glReadPixels(sx,grd_curscreen->sc_h-(sy+h),w,h,GL_RGB,GL_UNSIGNED_BYTE,texbuf);
-//		glReadPixels(sx,sy,w+sx,h+sy,GL_RGB,GL_UNSIGNED_BYTE,texbuf);
 	}else
 		memset(texbuf,0,w1*h1*3);
 	sx+=src->bm_x;
@@ -1339,68 +996,7 @@ bool ogl_ubitblt_tolinear(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap 
 			d++;
 		}
 	}
-#else
-	int i,j,c=0;
-	unsigned char *d,*s,*e;
-	if (w*h*3>OGLTEXBUFSIZE)
-		Error("ogl_ubitblt_tolinear: size larger than OGLTEXBUFSIZE\n");
-	sx+=src->bm_x;
-	sy+=src->bm_y;
-#if 1//also seems to cause a mess.  need to look into it a bit more..
-	if (ogl_readpixels_ok>0){
-		OGL_DISABLE(TEXTURE_2D);
-		glReadBuffer(GL_FRONT);
-//		glReadPixels(0,0,w,h,GL_RGB,GL_UNSIGNED_BYTE,texbuf);
-		glReadPixels(sx,grd_curscreen->sc_h-(sy+h),w,h,GL_RGB,GL_UNSIGNED_BYTE,texbuf);
-	}else
-#endif
-		memset(texbuf,0,w*h*3);
-//	d=dest->bm_data+dx+(dy+i)*dest->bm_rowsize;
-	d=dest->bm_data+dx+dy*dest->bm_rowsize;
-	for (i=0;i<h;i++){
-		s=texbuf+w*(h-(i+1))*3;
-//		s=texbuf+w*i*3;
-		if (s<texbuf){Error("blah1\n");}
-		if (d<dest->bm_data){Error("blah3\n");}
-//		d=dest->bm_data+(i*dest->bm_rowsize);
 
-		e=d;
-		for (j=0;j<w;j++){
-			if (s>texbuf+w*h*3-3){Error("blah2\n");}
-			if (d>dest->bm_data+dest->bm_rowsize*(h+dy)+dx	){Error("blah4\n");}
-			*d=gr_find_closest_color(s[0]/4,s[1]/4,s[2]/4);
-			s+=3;
-			d++;
-			c++;
-		}
-		d=e;
-		d+=dest->bm_rowsize;
-	}
-	glmprintf((0,"c=%i w*h=%i\n",c,w*h));
-#endif
-	return 0;
-}
-
-bool ogl_ubitblt_copy(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
-#if 0 //just seems to cause a mess.
-	GLfloat xo,yo;//,xs,ys;
-	
-	dx+=dest->bm_x;
-	dy+=dest->bm_y;
-	
-//	xo=dx/(float)last_width;
-	xo=dx/(float)grd_curscreen->sc_w;
-//	yo=1.0-(dy+h)/(float)last_height;
-	yo=1.0-(dy+h)/(float)grd_curscreen->sc_h;
-	sx+=src->bm_x;
-	sy+=src->bm_y;
-	OGL_DISABLE(TEXTURE_2D);
-	glReadBuffer(GL_FRONT);
-	glRasterPos2f(xo,yo);
-//	glReadPixels(0,0,w,h,GL_RGB,GL_UNSIGNED_BYTE,texbuf);
-	glCopyPixels(sx,grd_curscreen->sc_h-(sy+h),w,h,GL_COLOR);
-	glRasterPos2f(0,0);
-#endif
 	return 0;
 }
 
@@ -1411,7 +1007,6 @@ void ogl_start_frame(void){
 
 	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,Canvas_width,Canvas_height);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1436,6 +1031,7 @@ void ogl_start_frame(void){
 #ifndef NMONO
 void merge_textures_stats(void);
 #endif
+
 void ogl_end_frame(void){
 	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
 	glMatrixMode(GL_PROJECTION);
@@ -1446,55 +1042,17 @@ void ogl_end_frame(void){
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 }
+
 void gr_flip(void)
 {
 	ogl_clean_texture_cache();
 	if (gr_renderstats){
 		gr_printf(5,GAME_FONT->ft_h*13+3*13,"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc);
-		//	glmprintf((0,"ogl_end_frame: %i polys, %i tmaps, %i sprites, %i bitmaps, %i bitblts, %i pixels\n",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc,r_ubitbltc,r_upixelc));//we need to do it here because some things get drawn after end_frame
 	}
+
 	ogl_do_palfx();
 	ogl_swap_buffers_internal();
 	glClear(GL_COLOR_BUFFER_BIT);
-}
-
-void ogl_init_shared_palette(void)
-{
-#ifdef GL_EXT_paletted_texture
-	if (ogl_shared_palette_ok)
-	{
-		int i;
-
-		glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
-		//glColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGB, 256, GL_RGB, GL_UNSIGNED_BYTE, ogl_pal);
-
-		for (i = 0; i < 256; i++)
-		{
-			if (i == 254)
-			{
-				texbuf[i * 4] = 255;
-				texbuf[i * 4 + 1] = 255;
-				texbuf[i * 4 + 2] = 255;
-				texbuf[i * 4 + 3] = 0;
-			}
-			else if (i == 255)
-			{
-				texbuf[i * 4] = 0;
-				texbuf[i * 4 + 1] = 0;
-				texbuf[i * 4 + 2] = 0;
-				texbuf[i * 4 + 3] = 0;
-			}
-			else
-			{
-				texbuf[i * 4] = gr_current_pal[i * 3] * 4;
-				texbuf[i * 4 + 1] = gr_current_pal[i * 3 + 1] * 4;
-				texbuf[i * 4 + 2] = gr_current_pal[i * 3 + 2] * 4;
-				texbuf[i * 4 + 3] = 255;
-			}
-		}
-		glColorTableEXT(GL_SHARED_TEXTURE_PALETTE_EXT, GL_RGBA, 256, GL_RGBA, GL_UNSIGNED_BYTE, texbuf);
-	}
-#endif
 }
 
 int tex_format_supported(int iformat,int format){
@@ -1525,10 +1083,6 @@ int pow2ize(int x){
 	return i;
 }
 
-
-
-//GLubyte texbuf[512*512*4];
-//GLubyte texbuf[OGLTEXBUFSIZE];
 GLubyte *texbuf = NULL;
 
 // Allocate the pixel buffers 'pixels' and 'texbuf' based on current screen resolution
@@ -1557,9 +1111,8 @@ void ogl_close_pixel_buffers(void)
 
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format)
 {
-//	GLushort *tex=(GLushort *)texp;
 	int x,y,c,i;
-//	if (twidth*theight*4>sizeof(texbuf))//shouldn't happen, descent never uses textures that big.
+
 	if ((width > max(grd_curscreen->sc_w, 1024)) || (height > max(grd_curscreen->sc_h, 256)))
 		Error("Texture is too big: %ix%i", width, height);
 
@@ -1603,7 +1156,8 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 					break;
 				}
 			}
-			else if ((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256)
+			else if (((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256) || 
+				((c==0 || c==54 || c==119) && (bm_flags & BM_FLAG_COCKPIT_TRANSPARENT)))
 			{
 				switch (type){
 					case GL_LUMINANCE:
@@ -1646,14 +1200,10 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 						(*(texp++)) = ogl_pal[c * 3 + 2] * 4;
 						break;
 					case GL_RGBA:
-						//(*(texp++))=gr_palette[c*3]*4;
-						//(*(texp++))=gr_palette[c*3+1]*4;
-						//(*(texp++))=gr_palette[c*3+2]*4;
 						(*(texp++))=ogl_pal[c*3]*4;
 						(*(texp++))=ogl_pal[c*3+1]*4;
 						(*(texp++))=ogl_pal[c*3+2]*4;
 						(*(texp++))=255;//not transparent
-						//				(*(tex++))=(ogl_pal[c*3]>>1) + ((ogl_pal[c*3+1]>>1)<<5) + ((ogl_pal[c*3+2]>>1)<<10) + (1<<15);
 						break;
 					case GL_COLOR_INDEX:
 						(*(texp++)) = c;
@@ -1698,6 +1248,7 @@ int tex_format_verify(ogl_texture *tex){
 	}
 	return 0;
 }
+
 void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
 	int u;
 	if (tex->tw!=w || tex->th!=h){
@@ -1714,6 +1265,7 @@ void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
 	}
 	glmprintf((0,"tex_set_size1: %ix%i, %ib(%i) %iB\n",w,h,bits,dbits,tex->bytes));
 }
+
 void tex_set_size(ogl_texture *tex){
 	GLint w,h;
 	int bi=16,a=0;
@@ -1727,13 +1279,6 @@ void tex_set_size(ogl_texture *tex){
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_GREEN_SIZE,&t);a+=t;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_BLUE_SIZE,&t);a+=t;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_ALPHA_SIZE,&t);a+=t;
-#ifdef GL_EXT_paletted_texture
-		if (ogl_paletted_texture_ok)
-		{
-			glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_INDEX_SIZE_EXT, &t);
-			a += t;
-		}
-#endif
 	}else{
 		w=tex->tw;
 		h=tex->th;
@@ -1758,6 +1303,7 @@ void tex_set_size(ogl_texture *tex){
 	}
 	tex_set_size1(tex,bi,a,w,h);
 }
+
 //loads a palettized bitmap into a ogl RGBA texture.
 //Sizes and pads dimensions to multiples of 2 if necessary.
 //In theory this could be a problem for repeating textures, but all real
@@ -1769,14 +1315,6 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 	tex->tw = pow2ize (tex->w);
 	tex->th = pow2ize (tex->h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
 
-	if (gr_badtexture > 0) 
-		return 1;
-
-#ifndef MACINTOSH
-	if (tex_format_verify (tex))
-		return 1;
-#endif
-
 	//calculate u/v values that would make the resulting texture correctly sized
 	tex->u = (float) ((double) tex->w / (double) tex->tw);
 	tex->v = (float) ((double) tex->h / (double) tex->th);
@@ -1786,9 +1324,6 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 			ogl_filltexbuf (data, texbuf, tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, 
 								 tex->format, bm_flags, data_format);
 		else {
-#if 0
-			memcpy (bufP = texbuf, data, tex->w * tex->h * 4);
-#else
 			if (!dxo && !dyo && (tex->w == tex->tw) && (tex->h == tex->th))
 				bufP = data;
 			else {
@@ -1809,7 +1344,6 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 				memset (bufP, 0, tex->th * tw - (bufP - texbuf));
 				bufP = texbuf;
 				}
-#endif
 			}
 	}
 	// Generate OpenGL texture IDs.
@@ -1944,10 +1478,6 @@ void ogl_freebmtexture(grs_bitmap *bm){
 	if (bm->gltexture){
 		ogl_freetexture(bm->gltexture);
 		bm->gltexture=NULL;
-//		r_texcount--;
-//		glmprintf((0,"ogl_freebmtexture(%p,%p):%i (%i left)\n",bm->bm_data,&bm->gltexture,bm->gltexture,r_texcount));
-//		glDeleteTextures( 1, &bm->gltexture );
-//		bm->gltexture=-1;
 	}
 }
 

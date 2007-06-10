@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 arch/carbon/conf.h, SConstruct: fix Mac errors involving use of 'VERSION'
 arch/linux/arch_ip.cpp, main/ip_base.cpp, main/ipclient.cpp, main/netmisc.h: fix more Mac errors for new UDP/IP
+2d/bitblt.c, 2d/font.c, 2/rle.c, arch/ogl/gr.c, arch/ogl/internal.h, arch/ogl/ogl.c, include/gr.h, include/ogl_init.h, include/rle.h, main/game.c, main/gamerend.c, main/gauges.c, main/render.c, main/titles.c: introduced new bitmap flag to draw cockpit bitmap with transparency; draw transparent cockpit bitmap over gauges to make it more pixel-correct; code cleanups
 
 20070601
 --------

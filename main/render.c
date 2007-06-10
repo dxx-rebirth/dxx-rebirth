@@ -345,12 +345,11 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 			PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
 			bm2 = &GameBitmaps[Textures[tmap2&0x3FFF].index];
 		}
-		if (!OGL_SUPER_TRANSPARENT_OK && bm2 && (bm2->bm_flags & BM_FLAG_SUPER_TRANSPARENT))
-		{
+		if (bm2 && (bm2->bm_flags&BM_FLAG_SUPER_TRANSPARENT)){
 			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
 			bm2 = NULL;
 		}
-	} else
+	}else
 #endif
 
 		// New code for overlapping textures...

@@ -947,46 +947,51 @@ void update_cockpits(int force_redraw)
 {
 	//int x, y, w, h;
 
+	grs_bitmap *bm;
+
+	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
+	bm=&GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index];
+
 	//Redraw the on-screen cockpit bitmaps
 	if (VR_render_mode != VR_NONE )	return;
 
 	switch( Cockpit_mode )	{
-	case CM_FULL_COCKPIT:
-	case CM_REAR_VIEW:
-		gr_set_current_canvas(NULL);
-		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
-#ifdef OGL // ZICO - scalable
-		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0);
+		case CM_FULL_COCKPIT:
+		case CM_REAR_VIEW:
+			gr_set_current_canvas(NULL);
+			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
+#ifdef OGL
+			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
 #else
-		gr_ubitmapm(0,0, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index]);
+			gr_ubitmapm(0,0, bm);
 #endif
-		break;
-
-	case CM_FULL_SCREEN:
-		Game_window_x = (max_window_w - Game_window_w)/2;
-		Game_window_y = (max_window_h - Game_window_h)/2;
-		fill_background();
-		break;
-
-	case CM_STATUS_BAR:
-
-		gr_set_current_canvas(NULL);
-
-		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
-#ifdef OGL // ZICO - scalable
-		ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],255, F1_0);
+			break;
+	
+		case CM_FULL_SCREEN:
+			Game_window_x = (max_window_w - Game_window_w)/2;
+			Game_window_y = (max_window_h - Game_window_h)/2;
+			fill_background();
+			break;
+	
+		case CM_STATUS_BAR:
+	
+			gr_set_current_canvas(NULL);
+#ifdef OGL
+			bm->bm_flags |= BM_FLAG_TRANSPARENT;
+			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
+			ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, bm, 255, F1_0);
 #else
-		gr_ubitmapm(0,max_window_h,&GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index]);
+			gr_ubitmapm(0,max_window_h,bm);
 #endif
 	
-		Game_window_x = (max_window_w - Game_window_w)/2;
-		Game_window_y = (max_window_h - Game_window_h)/2;
-		fill_background();
-		break;
-
-	case CM_LETTERBOX:
-		gr_set_current_canvas(NULL);
-		break;
+			Game_window_x = (max_window_w - Game_window_w)/2;
+			Game_window_y = (max_window_h - Game_window_h)/2;
+			fill_background();
+			break;
+	
+		case CM_LETTERBOX:
+			gr_set_current_canvas(NULL);
+			break;
 
 	}
 

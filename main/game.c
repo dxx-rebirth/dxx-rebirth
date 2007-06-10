@@ -461,6 +461,7 @@ void VR_reset_params()
 
 void game_init_render_sub_buffers( int x, int y, int w, int h )
 {
+	gr_clear_canvas(0);
 	gr_init_sub_canvas(&Screen_3d_window, &grd_curscreen->sc_canvas, x, y, w, h);
 	gr_init_sub_canvas( &VR_render_sub_buffer[0], &VR_render_buffer[0], x, y, w, h );
 	gr_init_sub_canvas( &VR_render_sub_buffer[1], &VR_render_buffer[1], x, y, w, h );
@@ -1634,8 +1635,6 @@ jmp_buf LeaveGame;
 
 int gr_renderstats = 0;
 // need to define "cheat" for renderstats
-int gr_badtexture = 0;
-// need to define "cheat" for badtexture
 
 int Cheats_enabled=0;
 

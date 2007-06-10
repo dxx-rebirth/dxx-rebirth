@@ -24,20 +24,8 @@ void ogl_do_fullscreen_internal(void);
 
 extern int ogl_voodoohack;
 
-#ifdef GL_ARB_multitexture
-extern int ogl_arb_multitexture_ok;
-#else
-#define ogl_arb_multitexture_ok 0
-#endif
-#ifdef GL_SGIS_multitexture
-extern int ogl_sgis_multitexture_ok;
-#else
-#define ogl_sgis_multitexture_ok 0
-#endif
 
 extern int GL_TEXTURE_2D_enabled;
-//extern int GL_texclamp_enabled;
-//extern int GL_TEXTURE_ENV_MODE_state,GL_TEXTURE_MAG_FILTER_state,GL_TEXTURE_MIN_FILTER_state;
 #define OGL_ENABLE2(a,f) {if (a ## _enabled!=1) {f;a ## _enabled=1;}}
 #define OGL_DISABLE2(a,f) {if (a ## _enabled!=0) {f;a ## _enabled=0;}}
 

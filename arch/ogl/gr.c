@@ -38,25 +38,20 @@
 #include "palette.h"
 #include "u_mem.h"
 #include "error.h"
-
 #include "inferno.h"
 #include "screens.h"
-
 #include "strutil.h"
 #include "mono.h"
 #include "args.h"
 #include "key.h"
 #include "physfsx.h"
+#include "internal.h"
+
 
 #define DECLARE_VARS
-#include "internal.h"
+
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
-#undef GL_ARB_multitexture // hack!
-#elif defined(_WIN32) // HACK - REMOVE ASAP
-#undef GL_ARB_multitexture
-#undef GL_NV_register_combiners
-#undef GL_EXT_paletted_texture
 #else
 #include <GL/glu.h>
 #endif
@@ -87,7 +82,6 @@ void gr_do_fullscreen(int f){
 
 int gr_toggle_fullscreen(void){
 	gr_do_fullscreen(!ogl_fullscreen);
-	//	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
 
 	if (gl_initialized && Screen_mode != SCREEN_GAME) // update viewing values for menus
 	{
@@ -115,12 +109,10 @@ int arch_toggle_fullscreen_menu(void){
 	gr_do_fullscreen(!ogl_fullscreen);
 
 	if (ogl_readpixels_ok){
-//		glWritePixels(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
 		glRasterPos2f(0,0);
 		glDrawPixels(grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
 		free(buf);
 	}
-	//	grd_curscreen->sc_mode=0;//hack to get it to reset screen mode
 
 	return ogl_fullscreen;
 }
@@ -131,7 +123,6 @@ extern void ogl_close_pixel_buffers(void);
 void ogl_init_state(void){
 	/* select clearing (background) color   */
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-//	glShadeModel(GL_SMOOTH);
 
 	/* initialize viewing values */
 	glMatrixMode(GL_PROJECTION);
@@ -141,8 +132,6 @@ void ogl_init_state(void){
 	glLoadIdentity();//clear matrix
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//	glScalef(1.0, -1.0, 1.0);
-//	glTranslatef(0.0, -1.0, 0.0);
 	gr_palette_step_up(0,0,0);//in case its left over from in game
 
 	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
@@ -163,15 +152,6 @@ const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 void ogl_get_verinfo(void)
 {
 	long t;
-#ifdef GL_NV_register_combiners
-	long nv_register_combiners = -1;
-#endif
-#if defined(GL_NV_register_combiners) || defined(GL_SGIS_multitexture)
-	GLint sgi_max_textures;
-#endif
-#ifdef GL_ARB_multitexture
-	GLint arb_max_textures;
-#endif
 
 	float anisotropic_max = 0;
 
@@ -188,39 +168,17 @@ void ogl_get_verinfo(void)
 	ogl_gettexlevelparam_ok = 1;
 	ogl_setgammaramp_ok = 0;
 
-#ifdef WGL_VIDEO
+#ifdef _WIN32
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
 	dglActiveTextureARB = (glActiveTextureARB_fp)wglGetProcAddress("glActiveTextureARB");
 	dglMultiTexCoord2fSGIS = (glMultiTexCoord2fSGIS_fp)wglGetProcAddress("glMultiTexCoord2fSGIS");
 	dglSelectTextureSGIS = (glSelectTextureSGIS_fp)wglGetProcAddress("glSelectTextureSGIS");
-	dglColorTableEXT = (glColorTableEXT_fp)wglGetProcAddress("glColorTableEXT");
-	dglCombinerParameteriNV = (glCombinerParameteriNV_fp)wglGetProcAddress("glCombinerParameteriNV");
-	dglCombinerInputNV = (glCombinerInputNV_fp)wglGetProcAddress("glCombinerInputNV");
-	dglCombinerOutputNV = (glCombinerOutputNV_fp)wglGetProcAddress("glCombinerOutputNV");
-	dglFinalCombinerInputNV = (glFinalCombinerInputNV_fp)wglGetProcAddress("glFinalCombinerInputNV");
-#endif
-
-#ifdef GL_ARB_multitexture
-	ogl_arb_multitexture_ok = (strstr(gl_extensions, "GL_ARB_multitexture") != 0 && glActiveTextureARB != 0);
-	mprintf((0,"c:%p d:%p e:%p\n",strstr(gl_extensions,"GL_ARB_multitexture"),glActiveTextureARB,glBegin));
-#endif
-#ifdef GL_SGIS_multitexture
-	ogl_sgis_multitexture_ok = (strstr(gl_extensions, "GL_SGIS_multitexture") != 0 && glSelectTextureSGIS != 0);
-	mprintf((0,"a:%p b:%p\n",strstr(gl_extensions,"GL_SGIS_multitexture"),glSelectTextureSGIS));
-#endif
-	ogl_nv_texture_env_combine4_ok = (strstr(gl_extensions, "GL_NV_texture_env_combine4") != 0);
-#ifdef GL_NV_register_combiners
-	ogl_nv_register_combiners_ok=(strstr(gl_extensions,"GL_NV_register_combiners")!=0 && glCombinerOutputNV!=0);
 #endif
 
 	ogl_ext_texture_filter_anisotropic_ok = (strstr(gl_extensions, "GL_EXT_texture_filter_anisotropic") != 0);
 	if (ogl_ext_texture_filter_anisotropic_ok)
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropic_max);
 
-#ifdef GL_EXT_paletted_texture
-	ogl_paletted_texture_ok = (strstr(gl_extensions, "GL_EXT_paletted_texture") != 0 && glColorTableEXT != 0);
-	ogl_shared_palette_ok = (strstr(gl_extensions, "GL_EXT_shared_texture_palette") != 0 && ogl_paletted_texture_ok);
-#endif
 	//add driver specific hacks here.  whee.
 	if ((stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && stricmp(gl_version,"1.2 Mesa 3.0")==0){
 		ogl_intensity4_ok=0;//ignores alpha, always black background instead of transparent.
@@ -240,40 +198,6 @@ void ogl_get_verinfo(void)
 #endif
 
 	//allow overriding of stuff.
-#ifdef GL_ARB_multitexture
-	if ((t=FindArg("-gl_arb_multitexture_ok"))){
-		ogl_arb_multitexture_ok=atoi(Args[t+1]);
-	}
-	if (ogl_arb_multitexture_ok)
-		glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &arb_max_textures);
-#endif
-#ifdef GL_SGIS_multitexture
-	if ((t=FindArg("-gl_sgis_multitexture_ok"))){
-		ogl_sgis_multitexture_ok=atoi(Args[t+1]);
-	}
-	if (ogl_sgis_multitexture_ok)
-		glGetIntegerv(GL_MAX_TEXTURES_SGIS, &sgi_max_textures);
-#endif
-#ifdef GL_NV_register_combiners
-	if ((t = FindArg("-gl_nv_register_combiners_ok")))
-	{
-		ogl_nv_register_combiners_ok=atoi(Args[t + 1]);
-	}
-	if (ogl_nv_register_combiners_ok)
-		glGetIntegerv(GL_MAX_GENERAL_COMBINERS_NV, &nv_register_combiners);
-#endif
-#ifdef GL_EXT_paletted_texture
-	if ((t = FindArg("-gl_paletted_texture_ok")))
-	{
-		ogl_paletted_texture_ok = atoi(Args[t + 1]);
-	}
-	if ((t = FindArg("-gl_shared_palette_ok")))
-	{
-		ogl_shared_palette_ok = atoi(Args[t + 1]);
-	}
-	ogl_shared_palette_ok = ogl_shared_palette_ok && ogl_paletted_texture_ok; // shared palettes require palette support in the first place, obviously ;)
-	printf("gl_paletted_texture: %i  gl_shared_palette: %i  (using paletted textures: %i)\n", ogl_paletted_texture_ok, ogl_shared_palette_ok, ogl_shared_palette_ok);
-#endif
 	if ((t=FindArg("-gl_intensity4_ok"))){
 		ogl_intensity4_ok=atoi(Args[t+1]);
 	}
@@ -298,10 +222,6 @@ void ogl_get_verinfo(void)
 		ogl_scissor_ok = atoi(Args[t + 1]);
 	}
 
-#ifdef GL_NV_register_combiners
-	con_printf(CON_VERBOSE, "gl_arb_multitexture:%i(%i units) gl_sgis_multitexture:%i(%i units) gl_nv_texture_env_combine4:%i\n", ogl_arb_multitexture_ok, arb_max_textures, ogl_sgis_multitexture_ok, sgi_max_textures, ogl_nv_texture_env_combine4_ok); // ZICO - moved this to this ifdef
-	con_printf(CON_VERBOSE, "gl_nv_register_combiners:%i(%i stages)\n", ogl_nv_register_combiners_ok, nv_register_combiners);
-#endif
 	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i gl_ext_texture_filter_anisotropic:%i(%f max) gl_scissor:%i\n", ogl_intensity4_ok, ogl_luminance4_alpha4_ok, ogl_rgba2_ok, ogl_readpixels_ok, ogl_gettexlevelparam_ok, ogl_setgammaramp_ok, ogl_ext_texture_filter_anisotropic_ok, anisotropic_max,ogl_scissor_ok);
 }
 
@@ -325,16 +245,14 @@ int gr_set_mode(u_int32_t mode)
 	int i, argnum = INT_MAX;
 
 #ifdef NOGRAPH
-return 0;
+	return 0;
 #endif
-//	mode=0;
+
 	if (mode<=0)
 		return 0;
 
 	w=SM_W(mode);
 	h=SM_H(mode);
-
-	//if (screen != NULL) gr_palette_clear();
 
 	if ((i=FindResArg("aspect", &ah, &aw)) && (i < argnum)) { argnum = i; awidth=aw; aheight=ah; }
 	
@@ -348,14 +266,10 @@ return 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_h = h;
-	//grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = screen->pitch;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = w;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_OGL;
-	//grd_curscreen->sc_canvas.cv_bitmap.bm_data = (unsigned char *)screen->pixels;
-//	mprintf((0,"ogl/gr.c: reallocing %p to %i\n",grd_curscreen->sc_canvas.cv_bitmap.bm_data,w*h));
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = d_realloc(gr_bm_data,w*h);
 	gr_set_current_canvas(NULL);
-	//gr_enable_default_palette_loading();
 	
 	ogl_init_window(w,h);//platform specific code
 
@@ -367,8 +281,7 @@ return 0;
 	
 	gr_update();
 
-//	gamefont_choose_game_font(w,h);
-	
+
 	return 0;
 }
 
@@ -383,8 +296,8 @@ int ogl_atotexfilti(char *a,int min){
 		GLstrcmptestr(a,LINEAR_MIPMAP_LINEAR);
 	}
 	Error("unknown/invalid texture filter %s\n",a);
-//	return GL_NEAREST;
 }
+
 int ogl_testneedmipmaps(int i){
 	switch (i){
 		case GL_NEAREST:
@@ -397,8 +310,8 @@ int ogl_testneedmipmaps(int i){
 			return 1;
 	}
 	Error("unknown texture filter %x\n",i);
-//	return -1;
 }
+
 #ifdef OGL_RUNTIME_LOAD
 #ifdef _WIN32
 char *OglLibPath="opengl32.dll";
@@ -439,13 +352,11 @@ int ogl_init_load_library(void)
 
 int gr_init(int mode)
 {
-// 	int mode = SM(640,480);
 	int retcode, t, glt = 0;
 
  	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
-
 
 #ifdef OGL_RUNTIME_LOAD
 	ogl_init_load_library();
@@ -456,8 +367,8 @@ int gr_init(int mode)
 		ogl_voodoohack=1;
 		gr_toggle_fullscreen();
 	}
-//	if (FindArg("-fullscreen"))
-	if (!(FindArg("-window"))) // ZICO - from window to fullscreen
+
+	if (!(FindArg("-window")))
 		gr_toggle_fullscreen();
 #endif
 	if ((glt=FindArg("-gl_alttexmerge")))
@@ -514,8 +425,7 @@ int gr_init(int mode)
 	}
 	if (FindArg("-gl_transparency"))
 		glalpha_effects=1;
-	//printf("ogl_mem_target=%i\n",ogl_mem_target);
-	
+
 	ogl_init();//platform specific initialization
 
 	ogl_init_texture_list_internal();
@@ -548,7 +458,6 @@ int gr_init(int mode)
 
 void gr_close()
 {
-//	mprintf((0,"ogl init: %s %s %s - %s\n",glGetString(GL_VENDOR),glGetString(GL_RENDERER),glGetString(GL_VERSION),glGetString,(GL_EXTENSIONS)));
 	ogl_brightness_r = ogl_brightness_g = ogl_brightness_b = 0;
 	ogl_setbrightness_internal();
 
@@ -567,22 +476,14 @@ void gr_close()
 extern int r_upixelc;
 void ogl_upixelc(int x, int y, int c){
 	r_upixelc++;
-//	printf("gr_upixelc(%i,%i,%i)%i\n",x,y,c,Function_mode==FMODE_GAME);
-//	if(Function_mode != FMODE_GAME){
-//		grd_curcanv->cv_bitmap.bm_data[y*grd_curscreen->sc_canvas.cv_bitmap.bm_w+x]=c;
-//	}else{
-		OGL_DISABLE(TEXTURE_2D);
-		glPointSize(grd_curscreen->sc_w/320);
-		glBegin(GL_POINTS);
-//		glBegin(GL_LINES);
-//	ogl_pal=gr_current_pal;
-		glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-//	ogl_pal=gr_palette;
-		glVertex2f((x + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width, 1.0 - (y + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height);
-//		glVertex2f(x/((float)last_width+1),1.0-y/((float)last_height+1));
-		glEnd();
-//	}
+	OGL_DISABLE(TEXTURE_2D);
+	glPointSize(grd_curscreen->sc_w/320);
+	glBegin(GL_POINTS);
+	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
+	glVertex2f((x + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width, 1.0 - (y + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height);
+	glEnd();
 }
+
 void ogl_urect(int left,int top,int right,int bot){
 	GLfloat xo,yo,xf,yf;
 	int c=COLOR;
@@ -604,6 +505,7 @@ void ogl_urect(int left,int top,int right,int bot){
 	glVertex2f(xf,yo);
 	glEnd();
 }
+
 void ogl_ulinec(int left,int top,int right,int bot,int c){
 	GLfloat xo,yo,xf,yf;
 
@@ -623,21 +525,16 @@ void ogl_ulinec(int left,int top,int right,int bot,int c){
 
 GLfloat last_r=0, last_g=0, last_b=0;
 int do_pal_step=0;
+
 void ogl_do_palfx(void){
-//	GLfloat r,g,b,a;
 	OGL_DISABLE(TEXTURE_2D);
 	if (gr_palette_faded_out){
-/*		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
 		glColor3f(0,0,0);
-//		r=g=b=0.0;a=1.0;
 	}else{
 		if (do_pal_step){
-			//glBlendFunc(GL_SRC_COLOR, GL_DST_COLOR);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_ONE,GL_ONE);
 			glColor3f(last_r,last_g,last_b);
-//			r=f2fl(last_r);g=f2fl(last_g);b=f2fl(last_b);a=0.5;
 		}else
 			return;
 	}
@@ -698,32 +595,24 @@ void gr_palette_step_up(int r, int g, int b)
 	}
 }
 
-//added on 980913 by adb to fix palette problems
-// need a min without side effects...
 #undef min
 static inline int min(int x, int y) { return x < y ? x : y; }
-//end changes by adb
 
-void gr_palette_load( ubyte *pal )	
+void gr_palette_load( ubyte *pal )
 {
- int i;//, j;
+	int i;
 
- for (i=0; i<768; i++ ) {
-     gr_current_pal[i] = pal[i];
-     if (gr_current_pal[i] > 63) gr_current_pal[i] = 63;
- }
- //palette = screen->format->palette;
+	for (i=0; i<768; i++ ) {
+		gr_current_pal[i] = pal[i];
+		if (gr_current_pal[i] > 63) gr_current_pal[i] = 63;
+	}
 
- gr_palette_faded_out=0;
+	gr_palette_faded_out=0;
 
 	gr_palette_step_up(0, 0, 0); // make ogl_setbrightness_internal get run so that menus get brightened too.
 
- init_computed_colors();
-
-	ogl_init_shared_palette();
+	init_computed_colors();
 }
-
-
 
 int gr_palette_fade_out(ubyte *pal, int nsteps, int allow_keys)
 {
@@ -731,15 +620,11 @@ int gr_palette_fade_out(ubyte *pal, int nsteps, int allow_keys)
 	return 0;
 }
 
-
-
 int gr_palette_fade_in(ubyte *pal, int nsteps, int allow_keys)
 {
 	gr_palette_faded_out=0;
 	return 0;
 }
-
-
 
 void gr_palette_read(ubyte * pal)
 {
@@ -801,7 +686,6 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){
 
 void save_screen_shot(int automap_flag)
 {
-//	fix t1;
 	char message[100];
 	static int savenum=0;
 	char savename[13+sizeof(SCRNS_DIR)];
@@ -818,7 +702,6 @@ void save_screen_shot(int automap_flag)
 	if (!cfexist(SCRNS_DIR))
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
 
-//added/changed on 10/31/98 by Victor Rachels to fix overwrite each new game
 	do
 	{
 		if (savenum == 9999)
@@ -827,7 +710,6 @@ void save_screen_shot(int automap_flag)
 	} while (PHYSFS_exists(savename));
 
 	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
-//end this section addition/change - Victor Rachels
 
 	if (automap_flag) {
 	} else {
@@ -836,7 +718,6 @@ void save_screen_shot(int automap_flag)
 	
 	buf = malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
 	glReadBuffer(GL_FRONT);
-//	glReadPixels(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h,GL_RGB,GL_UNSIGNED_BYTE,buf);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
 	free(buf);
 

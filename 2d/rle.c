@@ -254,7 +254,7 @@ __inline void rle_stosb (unsigned char *dest, int len, int color)
 
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
-void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
+void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2, int cockpit_transparent  )
 {
 	int i = 0;
 	ubyte count;
@@ -301,12 +301,26 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 		}
 		// we know have '*count' pixels of 'color'.
 		if ( i+count <= x2 )	{
-			if ( color != TRANSPARENCY_COLOR )rle_stosb( dest, count, color );
+			if (cockpit_transparent) {
+				if ( color != TRANSPARENCY_COLOR && color != 0 && color != 54 && color != 119)
+					rle_stosb( dest, count, color );
+			}
+			else {
+				if ( color != TRANSPARENCY_COLOR)
+					rle_stosb( dest, count, color );
+			}
 			i += count;
 			dest += count;
 		} else {
 			count = x2-i+1;
-			if ( color != TRANSPARENCY_COLOR )rle_stosb( dest, count, color );
+			if (cockpit_transparent) {
+				if ( color != TRANSPARENCY_COLOR && color != 0 && color != 54 && color != 119)
+					rle_stosb( dest, count, color );
+			}
+			else {
+				if ( color != TRANSPARENCY_COLOR)
+					rle_stosb( dest, count, color );
+			}
 			i += count;
 			dest += count;
 		}
@@ -775,137 +789,6 @@ void gr_rle_expand_scanline_generic_masked( grs_bitmap * dest, int dx, int dy, u
 		}
 	}
 }
-
-
-#ifdef __MSDOS__
-void gr_rle_expand_scanline_svga_masked( grs_bitmap * dest, int dx, int dy, ubyte *src, int x1, int x2  )
-{
-	int i = 0, j;
-	int count;
-	ubyte color;
-	ubyte * vram = (ubyte *)0xA0000;
-	int VideoLocation,page,offset;
-
-	if ( x2 < x1 ) return;
-
-	VideoLocation = (unsigned int)dest->bm_data + (dest->bm_rowsize * dy) + dx;
-	page    = VideoLocation >> 16;
-	offset  = VideoLocation & 0xFFFF;
-
-	gr_vesa_setpage( page );
-
-	if ( (offset + (x2-x1+1)) < 65536 )	{
-		// We don't cross a svga page, so blit it fast!
-		gr_rle_expand_scanline_masked( &vram[offset], src, x1, x2 );
-		return;
-	}
-
-	count = 0;
-	while ( i < x1 )	{
-		color = *src++;
-		if ( color == RLE_CODE ) return;
-		if ( IS_RLE_CODE(color) )	{
-			count = color & NOT_RLE_CODE;
-			color = *src++;
-		} else {
-			// unique
-			count = 1;
-		}
-		i += count;
-	}
-	count = i - x1;
-	i = x1;
-	// we know have '*count' pixels of 'color'.
-
-	if ( x1+count > x2 )	{
-		count = x2-x1+1;
-		if (color != TRANSPARENCY_COLOR) {
-			for ( j=0; j<count; j++ )	{
-				vram[offset++] = color;
-				if ( offset >= 65536 ) {
-					offset -= 65536;
-					page++;
-					gr_vesa_setpage(page);
-				}
-			}
-		}
-		return;
-	}
-
-	if ( color != TRANSPARENCY_COLOR ) {
-		for ( j=0; j<count; j++ )	{
-			vram[offset++] = color;
-			if ( offset >= 65536 ) {
-				offset -= 65536;
-				page++;
-				gr_vesa_setpage(page);
-			}
-		}
-	} else	{
-		offset += count;
-		if ( offset >= 65536 ) {
-			offset -= 65536;
-			page++;
-			gr_vesa_setpage(page);
-		}
-	}
-	i += count;
-
-	while( i <= x2 )		{
-		color = *src++;
-		if ( color == RLE_CODE ) return;
-		if ( IS_RLE_CODE(color) )	{
-			count = color & NOT_RLE_CODE;
-			color = *src++;
-		} else {
-			// unique
-			count = 1;
-		}
-		// we know have '*count' pixels of 'color'.
-		if ( i+count <= x2 )	{
-			if ( color != TRANSPARENCY_COLOR ) {
-				for ( j=0; j<count; j++ )	{
-					vram[offset++] = color;
-					if ( offset >= 65536 ) {
-						offset -= 65536;
-						page++;
-						gr_vesa_setpage(page);
-					}
-				}
-			} else	{
-				offset += count;
-				if ( offset >= 65536 ) {
-					offset -= 65536;
-					page++;
-					gr_vesa_setpage(page);
-				}
-			}
-			i += count;
-		} else {
-			count = x2-i+1;
-			if ( color != TRANSPARENCY_COLOR ) {
-				for ( j=0; j<count; j++ )	{
-					vram[offset++] = color;
-					if ( offset >= 65536 ) {
-						offset -= 65536;
-						page++;
-						gr_vesa_setpage(page);
-					}
-				}
-			} else	{
-				offset += count;
-				if ( offset >= 65536 ) {
-					offset -= 65536;
-					page++;
-					gr_vesa_setpage(page);
-				}
-			}
-			i += count;
-		}
-	}
-}
-#endif // __MSDOS__
-
 
 /*
  * swaps entries 0 and 255 in an RLE bitmap without uncompressing it
