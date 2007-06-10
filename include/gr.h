@@ -256,6 +256,7 @@ typedef struct _grs_point {
 	fix	x,y;
 } grs_point;
 
+extern int gr_renderstats;
 extern int fixedfont;
 extern int hiresfont;
 
@@ -290,7 +291,8 @@ old_grs_font;
 #define BM_FLAG_NO_LIGHTING		4
 #define BM_FLAG_RLE			8	// A run-length encoded bitmap.
 #define BM_FLAG_PAGED_OUT		16	// This bitmap's data is paged out.
-#define BM_FLAG_INITIALIZED 32
+#define BM_FLAG_INITIALIZED 		32
+#define BM_FLAG_COCKPIT_TRANSPARENT	64      // for cockpit - render black parts as alpha
 
 #ifdef D1XD3D
 #define BM_MAGIC_NUMBER 0x13579bdf

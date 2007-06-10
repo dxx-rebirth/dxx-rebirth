@@ -117,6 +117,7 @@ void ogl_get_verinfo(void){
 	gl_renderer=(const char *)glGetString(GL_RENDERER);
 	gl_version=(const char *)glGetString(GL_VERSION);
 	gl_extensions=(const char *)glGetString(GL_EXTENSIONS);
+	float anisotropic_max = 0;
 
 #ifndef NDEBUG
 	printf("gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
@@ -135,15 +136,9 @@ void ogl_get_verinfo(void){
 	dglSelectTextureSGIS = (glSelectTextureSGIS_fp)wglGetProcAddress("glSelectTextureSGIS");
 #endif
 
-	//multitexturing doesn't work yet.
-#ifdef GL_ARB_multitexture
-	ogl_arb_multitexture_ok=0;
-	mprintf((0,"c:%p d:%p e:%p\n",strstr(gl_extensions,"GL_ARB_multitexture"),glActiveTextureARB,glBegin));
-#endif
-#ifdef GL_SGIS_multitexture
-	ogl_sgis_multitexture_ok=0;
-	mprintf((0,"a:%p b:%p\n",strstr(gl_extensions,"GL_SGIS_multitexture"),glSelectTextureSGIS));
-#endif
+	ogl_ext_texture_filter_anisotropic_ok = (strstr(gl_extensions, "GL_EXT_texture_filter_anisotropic") != 0);
+	if (ogl_ext_texture_filter_anisotropic_ok)
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropic_max);
 
 	//add driver specific hacks here.  whee.
 	if ((stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && stricmp(gl_version,"1.2 Mesa 3.0")==0){
@@ -153,16 +148,6 @@ void ogl_get_verinfo(void){
 	}
 
 	//allow overriding of stuff.
-#ifdef GL_ARB_multitexture
-	if ((t=FindArg("-gl_arb_multitexture_ok"))){
-		ogl_arb_multitexture_ok=atoi(Args[t+1]);
-	}
-#endif
-#ifdef GL_SGIS_multitexture
-	if ((t=FindArg("-gl_sgis_multitexture_ok"))){
-		ogl_sgis_multitexture_ok=atoi(Args[t+1]);
-	}
-#endif
 	if ((t=FindArg("-gl_intensity4_ok"))){
 		ogl_intensity4_ok=atoi(Args[t+1]);
 	}
@@ -188,8 +173,7 @@ void ogl_get_verinfo(void){
 	}
 
 #ifndef NDEBUG
-	printf("gl_arb_multitexture:%i gl_sgis_multitexture:%i\n",ogl_arb_multitexture_ok,ogl_sgis_multitexture_ok);
-	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i gl_scissor:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok,ogl_scissor_ok);
+	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i gl_ext_texture_filter_anisotropic:%i(%f max) gl_scissor:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok,ogl_ext_texture_filter_anisotropic_ok,anisotropic_max,ogl_scissor_ok);
 #endif
 }
 
@@ -302,12 +286,11 @@ int ogl_init_load_library(void)
 
 int gr_init(int mode)
 {
- int retcode,t,glt=0;
- 	// Only do this function once!
+	int retcode,t,glt=0;
+
+	// Only do this function once!
 	if (gr_installed==1)
-
 		return -1;
-
 
 #ifdef OGL_RUNTIME_LOAD
 	ogl_init_load_library();
@@ -327,9 +310,6 @@ int gr_init(int mode)
 		if (t>=glt)//allow overriding of earlier args
 			ogl_alttexmerge=0;
 			
-	if ((glt=FindArg("-gl_16bittextures")))
-		ogl_rgba_format=GL_RGB5_A1;
-
 	if ((glt=FindArg("-gl_mipmap"))){
 		GL_texmagfilt=GL_LINEAR;
 		GL_texminfilt=GL_LINEAR_MIPMAP_NEAREST;
@@ -355,7 +335,13 @@ int gr_init(int mode)
 			GL_texminfilt=ogl_atotexfilti(Args[t+1],1);
 	}
 	GL_needmipmaps=ogl_testneedmipmaps(GL_texminfilt);
-	mprintf((0,"gr_init: texmagfilt:%x texminfilt:%x needmipmaps=%i\n",GL_texmagfilt,GL_texminfilt,GL_needmipmaps));
+
+	if ((t = FindArg("-gl_anisotropy")) || (t = FindArg("-gl_anisotropic")))
+	{
+		GL_texanisofilt=atof(Args[t + 1]);
+	}
+
+	mprintf((0,"gr_init: texmagfilt:%x texminfilt:%x needmipmaps=%i anisotropic:%f\n",GL_texmagfilt,GL_texminfilt,GL_needmipmaps,GL_texanisofilt));
 	
 	if ((t=FindArg("-gl_vidmem"))){
 		ogl_mem_target=atoi(Args[t+1])*1024*1024;
@@ -365,7 +351,6 @@ int gr_init(int mode)
 	}
 	if (FindArg("-gl_transparency"))
 		glalpha_effects=1;
-	
 	
 	ogl_init();//platform specific initialization
 
@@ -410,6 +395,7 @@ void gr_close()
 		OpenGL_LoadLibrary(false);
 #endif
 }
+
 extern int r_upixelc;
 void ogl_upixelc(int x, int y, int c){
 	r_upixelc++;
@@ -458,7 +444,6 @@ void ogl_ulinec(int left,int top,int right,int bot,int c){
 	glVertex2f(xf,yf);
 	glEnd();
 }
-	
 
 GLfloat last_r=0, last_g=0, last_b=0;
 int do_pal_step=0;
@@ -475,8 +460,7 @@ void ogl_do_palfx(void){
 		}else
 			return;
 	}
-	
-	
+
 	glBegin(GL_QUADS);
 	glVertex2f(0,0);
 	glVertex2f(0,1);
@@ -536,7 +520,7 @@ static inline int min(int x, int y) { return x < y ? x : y; }
 
 void gr_palette_load( ubyte *pal )	
 {
-	int i;//, j;
+	int i;
 	
 	for (i=0; i<768; i++ ) {
 		gr_current_pal[i] = pal[i];

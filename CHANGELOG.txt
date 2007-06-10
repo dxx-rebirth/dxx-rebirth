@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070610
+--------
+2d/bitblt.c, 2d/font.c, 2/rle.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, include/gr.h, include/rle.h, main/game.c, main/gauges.c, main/titles.c: introduced new bitmap flag to draw cockpit bitmap with transparency; draw transparent cockpit bitmap over gauges to make it more pixel-correct; code cleanups
+
 20070601
 --------
 main/menu.c, main/netlist.c, main/network.c, main/newmenu.c: improved pixel-correct (almost) scaling of menus; new Netgame info screen which can show up necessary game rules

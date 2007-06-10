@@ -11,133 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/2d/bitblt.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:38:50 $
  *
  * Routines for bitblt's.
- *
- * $Log: bitblt.c,v $
- * Revision 1.1.1.1  2006/03/17 19:38:50  zicodxx
- * initial import
- *
- * Revision 1.9  2000/10/27 09:23:00  donut
- * make show_fullscr accelerate scaling with OGL if possible
- *
- * Revision 1.8  1999/11/20 10:05:16  donut
- * variable size menu patch from Jan Bobrowski.  Variable menu font size support and a bunch of fixes for menus that didn't work quite right, by me (MPM).
- *
- * Revision 1.7  1999/10/18 07:26:38  donut
- * beginning work on bitblt with source==BM_OGL, fixes squished bitblts, better support for alternate texture formats, support for driver specific hacks, etc
- *
- * Revision 1.6  1999/10/07 02:27:13  donut
- * OGL includes to remove warnings
- *
- * Revision 1.5  1999/09/30 23:02:26  donut
- * opengl direct support for ingame and normal menus, fonts as textures, and automap support
- *
- * Revision 1.4  1999/09/21 07:28:58  donut
- * fixed undefined variable, oops
- *
- * Revision 1.3  1999/09/21 06:51:11  donut
- * OpenGL: fixed corrupted textures, added bitmap display (reticle, etc)
- *
- * Revision 1.2  1999/08/05 22:53:40  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.1.1.1  1999/06/14 21:57:14  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.29  1995/03/14  12:14:28  john
- * Added code to double horz/vert bitblts.
- * 
- * Revision 1.28  1995/03/13  09:01:48  john
- * Fixed bug with VFX1 screen not tall enough.
- * 
- * Revision 1.27  1995/03/01  15:38:10  john
- * Better ModeX support.
- * 
- * Revision 1.26  1994/12/15  12:19:00  john
- * Added gr_bm_bitblt (clipped!) function.
- * 
- * Revision 1.25  1994/12/09  18:58:42  matt
- * Took out include of 3d.h
- * 
- * Revision 1.24  1994/11/28  17:08:32  john
- * Took out some unused functions in linear.asm, moved
- * gr_linear_movsd from linear.asm to bitblt.c, made sure that
- * the code in ibiblt.c sets the direction flags before rep movsing.
- * 
- * Revision 1.22  1994/11/23  16:04:00  john
- * Fixed generic rle'ing to use new bit method.
- * 
- * Revision 1.21  1994/11/18  22:51:03  john
- * Changed a bunch of shorts to ints in calls.
- * 
- * Revision 1.20  1994/11/10  15:59:48  john
- * Fixed bugs with canvas's being created with bogus bm_flags.
- * 
- * Revision 1.19  1994/11/09  21:03:35  john
- * Added RLE for svga gr_ubitmap.
- * 
- * Revision 1.18  1994/11/09  17:41:29  john
- * Made a slow version of rle bitblt to svga, modex.
- * 
- * Revision 1.17  1994/11/09  16:35:15  john
- * First version with working RLE bitmaps.
- * 
- * Revision 1.16  1994/11/04  10:06:58  john
- * Added fade table for fading fonts. Made font that partially clips
- * not print a warning message.
- * 
- * Revision 1.15  1994/09/22  16:08:38  john
- * Fixed some palette stuff.
- * 
- * Revision 1.14  1994/09/19  11:44:27  john
- * Changed call to allocate selector to the dpmi module.
- * 
- * Revision 1.13  1994/08/08  13:03:00  john
- * Fixed bug in gr_bitmap in modex 
- * 
- * Revision 1.12  1994/07/13  19:47:23  john
- * Fixed bug with modex bitblt to page 2 not working.
- * 
- * Revision 1.11  1994/05/31  11:10:52  john
- * *** empty log message ***
- * 
- * Revision 1.10  1994/03/18  15:24:34  matt
- * Removed interlace stuff
- * 
- * Revision 1.9  1994/02/18  15:32:20  john
- * *** empty log message ***
- * 
- * Revision 1.8  1994/02/01  13:22:54  john
- * *** empty log message ***
- * 
- * Revision 1.7  1994/01/13  08:28:25  mike
- * Modify rect copy to copy alternate scanlines when in interlaced mode.
- * 
- * Revision 1.6  1993/12/28  12:09:46  john
- * added lbitblt.asm
- * 
- * Revision 1.5  1993/10/26  13:18:09  john
- * *** empty log message ***
- * 
- * Revision 1.4  1993/10/15  16:23:30  john
- * y
- * 
- * Revision 1.3  1993/09/13  17:52:58  john
- * Fixed bug in BitBlt linear to SVGA
- * 
- * Revision 1.2  1993/09/08  14:47:00  john
- * Made bitmap00 add rowsize instead of bitmap width.
- * Other routines might have this problem too.
- * 
- * Revision 1.1  1993/09/08  11:43:01  john
- * Initial revision
- * 
  *
  */
 
@@ -737,7 +612,6 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))
 	{
-		ogl_ubitblt_copy(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
 #endif
@@ -856,7 +730,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))
 	{
-		ogl_ubitblt_copy(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
 #endif
@@ -995,7 +868,7 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 
 	// No interlacing, copy the whole buffer.
 	for (i=0; i < h; i++ )    {
-		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1 );
+		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1, (src->bm_flags & BM_FLAG_COCKPIT_TRANSPARENT) );
 		sbits += (int)src->bm_data[4+i+sy];
 		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
 	}
@@ -1033,7 +906,7 @@ inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen
 {
 	int a = olen/ilen, b = olen%ilen;
 	int c = 0, i;
-	sbyte *end = out + olen;
+	unsigned char *end = out + olen;
 	while(out<end) {
 		i = a;
 		c += b;

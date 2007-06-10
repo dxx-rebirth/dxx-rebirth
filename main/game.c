@@ -343,43 +343,47 @@ void update_cockpits(int force_redraw)
 {
 	int x, y, w, h;
 
+	grs_bitmap * bm;
+	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
+	bm = &GameBitmaps[cockpit_bitmap[Cockpit_mode].index];
+
 	//Redraw the on-screen cockpit bitmaps
 	if (VR_render_mode != VR_NONE )	return;
 
 	switch( Cockpit_mode )	{
-	case CM_FULL_COCKPIT:
-	case CM_REAR_VIEW:
-		gr_set_current_canvas(NULL);
-
-		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
+		case CM_FULL_COCKPIT:
+		case CM_REAR_VIEW:
+			gr_set_current_canvas(NULL);
+			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
 #ifdef OGL
-		ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0);
+			ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, bm,255, F1_0);
 #else
-		gr_ubitmapm(0,0, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index]);
+			gr_ubitmapm(0,0, bm);
 #endif
-		break;
-	case CM_FULL_SCREEN:
-		Game_window_x = (max_window_w - Game_window_w)/2;
-		Game_window_y = (max_window_h - Game_window_h)/2;
-		fill_background(Game_window_x,Game_window_y,Game_window_w,Game_window_h,Game_window_x,Game_window_y);
-		break;
-	case CM_STATUS_BAR:
-		gr_set_current_canvas(NULL);
-		PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
+			break;
+		case CM_FULL_SCREEN:
+			Game_window_x = (max_window_w - Game_window_w)/2;
+			Game_window_y = (max_window_h - Game_window_h)/2;
+			fill_background(Game_window_x,Game_window_y,Game_window_w,Game_window_h,Game_window_x,Game_window_y);
+			break;
+		case CM_STATUS_BAR:
+			gr_set_current_canvas(NULL);
 #ifdef OGL
-		ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],255, F1_0);
+			bm->bm_flags |= BM_FLAG_TRANSPARENT;
+			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
+			ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, bm,255, F1_0);
 #else
-		gr_ubitmapm(0,max_window_h,&GameBitmaps[cockpit_bitmap[Cockpit_mode].index]);
+			gr_ubitmapm(0,max_window_h,bm);
 #endif
-		w = Game_window_w;
-		h = Game_window_h;
-		x = (SM_W(Game_screen_mode) - w)/2;
-		y = (max_window_h - h)/2;
-		fill_background(x,y,w,h,x,y);
-		break;
-	case CM_LETTERBOX:
-		gr_set_current_canvas(NULL);
-		break;
+			w = Game_window_w;
+			h = Game_window_h;
+			x = (SM_W(Game_screen_mode) - w)/2;
+			y = (max_window_h - h)/2;
+			fill_background(x,y,w,h,x,y);
+			break;
+		case CM_LETTERBOX:
+			gr_set_current_canvas(NULL);
+			break;
 	}
 
 	gr_set_current_canvas(NULL);
@@ -701,6 +705,7 @@ void shrink_window()
 
 void game_init_render_sub_buffers( int x, int y, int w, int h )
 {
+	gr_clear_canvas(0);
 	gr_init_sub_canvas( &Screen_3d_window, &grd_curscreen->sc_canvas, x, y, w, h );
 	gr_init_sub_canvas( &VR_render_sub_buffer[0], &VR_render_buffer[0], x, y, w, h );
 	gr_init_sub_canvas( &VR_render_sub_buffer[1], &VR_render_buffer[1], x, y, w, h );

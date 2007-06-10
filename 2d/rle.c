@@ -301,12 +301,12 @@ void gr_rle_decode( ubyte * src, ubyte * dest )
 
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
-void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
+void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2, int cockpit_transparent )
 {
 	int i = 0;
         ubyte count=0;
         ubyte color=0;
-
+// printf("we are here at least -> %i\n",cockpit_transparent);
 	if ( x2 < x1 ) return;
 
 	while ( i < x1 )	{
@@ -346,13 +346,38 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 			count = 1;
 		}
 		// we know have '*count' pixels of 'color'.
+// 		if ( i+count <= x2 )	{
+// 			if ( color != 255 )rle_stosb( dest, count, color );
+// 			i += count;
+// 			dest += count;
+// 		} else {
+// 			count = x2-i+1;
+// 			if ( color != 255 )rle_stosb( dest, count, color );
+// 			i += count;
+// 			dest += count;
+// 		}
 		if ( i+count <= x2 )	{
-			if ( color != 255 )rle_stosb( dest, count, color );
+			if (cockpit_transparent) {
+// printf("color: %i\n",color);
+				if ( color != TRANSPARENCY_COLOR && color != 0)
+					rle_stosb( dest, count, color );
+			}
+			else {
+				if ( color != TRANSPARENCY_COLOR)
+					rle_stosb( dest, count, color );
+			}
 			i += count;
 			dest += count;
 		} else {
 			count = x2-i+1;
-			if ( color != 255 )rle_stosb( dest, count, color );
+			if (cockpit_transparent) {
+				if ( color != TRANSPARENCY_COLOR && color != 0)
+					rle_stosb( dest, count, color );
+			}
+			else {
+				if ( color != TRANSPARENCY_COLOR)
+					rle_stosb( dest, count, color );
+			}
 			i += count;
 			dest += count;
 		}

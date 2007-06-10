@@ -11,148 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /* $Source: /cvsroot/dxx-rebirth/d1x-rebirth/2d/font.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:38:59 $
  *
  * Graphical routines for drawing fonts.
- *
- * $Log: font.c,v $
- * Revision 1.1.1.1  2006/03/17 19:38:59  zicodxx
- * initial import
- *
- * Revision 1.13  2000/02/07 07:47:44  donut
- * ogl font memleak fix
- *
- * Revision 1.12  1999/12/15 06:07:20  donut
- * added font->ft_aw field (average width) since ft_w is usually too large on proportional fonts
- *
- * Revision 1.11  1999/10/20 06:22:37  donut
- * use 0 gap for ogl texture fonts handling
- *
- * Revision 1.10  1999/10/18 07:26:38  donut
- * beginning work on bitblt with source==BM_OGL, fixes squished bitblts, better support for alternate texture formats, support for driver specific hacks, etc
- *
- * Revision 1.9  1999/10/15 05:36:00  donut
- * byteswap stuff for font loading
- *
- * Revision 1.8  1999/10/14 04:48:21  donut
- * alpha fixes, and gl_font args
- *
- * Revision 1.7  1999/10/12 05:21:10  donut
- * made colored messages work even with fonts that have chars in the 0-6 range
- *
- * Revision 1.6  1999/10/07 21:19:00  donut
- * new ogl font handling, single texture for entire font
- *
- * Revision 1.5  1999/09/30 23:02:26  donut
- * opengl direct support for ingame and normal menus, fonts as textures, and automap support
- *
- * Revision 1.4  1999/09/21 04:05:54  donut
- * mostly complete OGL implementation (still needs bitmap handling (reticle), and door/fan textures are corrupt)
- *
- * Revision 1.3  1999/08/31 21:22:07  donut
- * added variable colorization level, and colorization for kill/join/quit messages
- *
- * Revision 1.2  1999/08/31 10:43:13  donut
- * added colorization to multiplayer names in user messages
- *
- * Revision 1.1.1.1  1999/06/14 21:57:22  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.30  1995/01/25  20:02:03  john
- * Fixed bug with mono clipped fonts only drawing 1 row.
- * 
- * Revision 1.29  1994/12/08  19:03:54  john
- * Made functions use cfile.
- * 
- * Revision 1.28  1994/11/27  23:08:22  matt
- * Changes for new mprintf calling convention
- * 
- * Revision 1.27  1994/11/18  23:54:50  john
- * Made centering work on x = 0x8000 not -0x8000.
- * 
- * Revision 1.26  1994/11/18  22:50:23  john
- * Changed shorts to ints in parameters.
- * 
- * Revision 1.25  1994/11/04  11:10:31  john
- * Took the & out of string sizing.
- * 
- * Revision 1.24  1994/11/04  10:06:36  john
- * Added fade table for fading fonts. Made font that partially clips
- * not print a warning message.
- * 
- * Revision 1.23  1994/09/29  10:09:06  john
- * Added real clipping to text.
- * 
- * Revision 1.22  1994/09/12  19:27:51  john
- * Fixed bug with unclipped fonts clipping.
- * 
- * Revision 1.21  1994/09/12  17:16:59  john
- * Added clipping.
- * 
- * Revision 1.20  1994/08/28  16:43:01  matt
- * Added centering if x==0x8000
- * 
- * Revision 1.19  1994/08/15  15:01:11  matt
- * Close font file after reading
- * 
- * Revision 1.18  1994/08/12  18:17:42  matt
- * Fixed stupid bug that cause first char in font not to print
- * 
- * Revision 1.17  1994/08/11  18:00:17  matt
- * Cleaned up code, fixed string width bug.
- * 
- * Revision 1.16  1994/08/10  18:46:11  matt
- * Fixed a couple of little things
- * 
- * Revision 1.15  1994/08/10  18:36:20  matt
- * Changed font file format.  Made chars not in font plot as spaces.  Font file
- * now stores palette for color font & remaps on load.
- * 
- * Revision 1.14  1994/08/10  12:27:27  matt
- * Took out unneeded int3
- * 
- * Revision 1.13  1994/08/10  12:25:26  matt
- * Added support for colors fonts & kerned fonts
- * Made our own font file format
- * 
- * Revision 1.12  1994/07/22  17:19:00  john
- * made proportional font width be the max width.
- * 
- * Revision 1.11  1994/05/06  12:50:26  john
- * Added supertransparency; neatend things up; took out warnings.
- * 
- * Revision 1.10  1994/01/31  11:08:12  john
- * fixed bug with order of frees.
- * 
- * Revision 1.9  1994/01/31  10:36:40  john
- * Free'd variable size font data.
- * 
- * Revision 1.8  1994/01/27  17:17:40  john
- * Made error if font file doesn't exist.
- * 
- * Revision 1.7  1993/10/26  13:17:48  john
- * *** empty log message ***
- * 
- * Revision 1.6  1993/10/15  16:23:25  john
- * y
- * 
- * Revision 1.5  1993/09/28  19:05:50  john
- * added support for \n in gr_string and gr_get_string_size
- * 
- * Revision 1.4  1993/09/28  12:46:49  matt
- * On error, now call Error() instead of exit().
- * 
- * Revision 1.3  1993/09/20  11:35:31  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/09/08  15:54:39  john
- * renamed ReadFile to readfontfile to prevent conflicts with others.
- * 
- * Revision 1.1  1993/09/08  11:43:34  john
- * Initial revision
- * 
  *
  */
 
@@ -160,18 +20,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <fcntl.h>
 
 #include "u_mem.h"
-
 #include "gr.h"
 #include "grdef.h"
 #include "error.h"
-
 #include "cfile.h"
 #include "mono.h"
-
 #include "byteswap.h"
 
 #ifdef __MSDOS__
@@ -300,7 +156,7 @@ int gr_message_color_level=1;
 int gr_internal_string0(int x, int y, char *s )
 {
 	unsigned char * fp;
-	ubyte * text_ptr, * next_row, * text_ptr1;
+	char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 
 	unsigned int VideoOffset, VideoOffset1;
@@ -397,7 +253,7 @@ int gr_internal_string0(int x, int y, char *s )
 int gr_internal_string0m(int x, int y, char *s )
 {
 	unsigned char * fp;
-	ubyte * text_ptr, * next_row, * text_ptr1;
+	char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 
 	unsigned int VideoOffset, VideoOffset1;
@@ -1029,19 +885,23 @@ void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 }
 
 void ogl_init_font(grs_font * font){
+	int oglflags = OGL_FLAG_ALPHA;
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int i,w,h,tw,th,x,y,curx=0,cury=0;
-	char *fp;
+	unsigned char *fp;
 	//	char data[32*32*4];
-	char *data;
+	ubyte *data;
 	int gap=0;//having a gap just wastes ram, since we don't filter text textures at all.
 	//	char s[2];
 	ogl_font_choose_size(font,gap,&tw,&th);
 	data=malloc(tw*th);
 	memset(data, 0, tw * th);
 	gr_init_bitmap(&font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
+	gr_set_transparent(&font->ft_parent_bitmap, 1);
 
-	font->ft_parent_bitmap.gltexture=ogl_get_free_texture();
+	if (!(font->ft_flags & FT_COLOR))
+		oglflags |= OGL_FLAG_NOCOLOR;
+	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
 	font->ft_bitmaps=(grs_bitmap*)malloc( nchars * sizeof(grs_bitmap));
 	mprintf((0,"ogl_init_font %s, %s, nchars=%i, (%ix%i tex)\n",(font->ft_flags & FT_PROPORTIONAL)?"proportional":"fixedwidth",(font->ft_flags & FT_COLOR)?"color":"mono",nchars,tw,th));
@@ -1106,28 +966,12 @@ void ogl_init_font(grs_font * font){
 
 		curx+=w+gap;
 	}
-	if (!(font->ft_flags & FT_COLOR)) {
-		//use GL_INTENSITY instead of GL_RGB
-		if (ogl_intensity4_ok){
-			font->ft_parent_bitmap.gltexture->internalformat=GL_INTENSITY4;
-			font->ft_parent_bitmap.gltexture->format=GL_LUMINANCE;
-		}else if (ogl_luminance4_alpha4_ok){
-			font->ft_parent_bitmap.gltexture->internalformat=GL_LUMINANCE4_ALPHA4;
-			font->ft_parent_bitmap.gltexture->format=GL_LUMINANCE_ALPHA;
-		}else if (ogl_rgba2_ok){
-			font->ft_parent_bitmap.gltexture->internalformat=GL_RGBA2;
-			font->ft_parent_bitmap.gltexture->format=GL_RGBA;
-		}else{
-			font->ft_parent_bitmap.gltexture->internalformat=ogl_rgba_format;
-			font->ft_parent_bitmap.gltexture->format=GL_RGBA;
-		}
-	}
-	ogl_loadbmtexture_m(&font->ft_parent_bitmap,0);
+	ogl_loadbmtexture_f(&font->ft_parent_bitmap, oglflags);
 }
 
 int ogl_internal_string(int x, int y, char *s )
 {
-	ubyte * text_ptr, * next_row, * text_ptr1;
+	char * text_ptr, * next_row, * text_ptr1;
 	int width, spacing,letter;
 	int xx,yy;
 	int orig_color=FG_COLOR;//to allow easy reseting to default string color with colored strings -MPM
@@ -1469,7 +1313,7 @@ grs_font * gr_init_font( char * fontname )
 
 		cfread(palette,3,256,fontfile);		//read the palette
 
-		build_colormap_good( (char *)&palette, colormap, freq );
+		build_colormap_good( (ubyte *)&palette, colormap, freq );
 	
 		colormap[255] = 255;
 
