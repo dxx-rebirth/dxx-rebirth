@@ -3,6 +3,10 @@
  * added 2000/02/07 Matt Mueller (some code borrowed from ipx_udp.c)
  */
 
+#ifdef HAVE_CONFIG_H
+# include "conf.h"
+#endif
+
 #include <string.h>
 #include <netinet/in.h> /* for htons & co. */
 #include <unistd.h>
@@ -19,6 +23,10 @@ extern "C" {
 
 #include "ip_base.h"
 #include "ipclient.h"
+
+#ifdef __APPLE__
+# define ifr_netmask ifr_addr
+#endif
 
 static int mysock=-1;
 extern int nm_messagebox(char *title, int nchoices, ...);

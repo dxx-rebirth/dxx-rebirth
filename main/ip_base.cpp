@@ -2,6 +2,10 @@
  * ip_base.cpp - base for NAT-compatible udp/ip code.
  * added 2000/02/07 Matt Mueller
  */
+#ifdef HAVE_CONFIG_H
+# include "conf.h"
+#endif
+
 extern "C" {
 #include "timer.h"
 #include "mono.h"

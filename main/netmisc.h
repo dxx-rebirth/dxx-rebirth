@@ -61,8 +61,8 @@ void send_netgame_packet(ubyte *server, ubyte *node, ubyte *net_address, int lit
 	send_netgame_packet(server, node, net_address, 1)
 #define send_internetwork_full_netgame_packet(server, node) \
 	send_netgame_packet(server, node, NULL, 0)
-#define send_internetwork_lite_netgame_packet(server, node) \
-	send_netgame_packet(server, node, NULL, 1)
+#define send_internetwork_lite_netgame_packet(server, node, extended) \
+	send_netgame_packet(server, node, NULL, !extended)
 #define send_broadcast_full_netgame_packet() \
 	send_netgame_packet(NULL, NULL, NULL, 0)
 #define send_broadcast_lite_netgame_packet() \

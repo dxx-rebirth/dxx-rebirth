@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070610
 --------
 arch/carbon/conf.h, SConstruct: fix Mac errors involving use of 'VERSION'
+arch/linux/arch_ip.cpp, main/ip_base.cpp, main/ipclient.cpp, main/netmisc.h: fix more Mac errors for new UDP/IP
 
 20070601
 --------

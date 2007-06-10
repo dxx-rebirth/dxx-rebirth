@@ -2,6 +2,10 @@
  * ipclient.cpp - udp/ip client code
  * added 2000/02/07 Matt Mueller
  */
+#ifdef HAVE_CONFIG_H
+# include "conf.h"
+#endif
+
 extern "C"{
 #include <stdlib.h>
 #ifdef __WINDOWS__
