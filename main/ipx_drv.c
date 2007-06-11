@@ -192,7 +192,7 @@ int ipx_get_packet_data( ubyte * data )
 		if (driver->usepacketnum)
 			buf=alloca(MAX_IPX_DATA);
 		else
-			buf=data;
+			buf=(char *)data;
 		//edited 04/12/99 Matt Mueller - duh, we don't want to throw all that data away!
 		while (driver->PacketReady()) {
 			if ((size =	driver->ReceivePacket(buf, MAX_IPX_DATA, &rd)) > 4) {

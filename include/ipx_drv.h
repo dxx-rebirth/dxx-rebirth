@@ -24,18 +24,18 @@
 #endif
 
 typedef struct IPXAddressStruct {
-  ubyte Network[4] __pack__;
-  ubyte Node[6] __pack__;
-  ubyte Socket[2] __pack__;
+  ubyte Network[4];
+  ubyte Node[6];
+  ubyte Socket[2];
 } IPXAddress_t;
 
 typedef struct IPXPacketStructure {
-  ushort Checksum __pack__;
-  ushort Length __pack__;
-  ubyte TransportControl __pack__;
-  ubyte PacketType __pack__;
-  IPXAddress_t Destination __pack__;
-  IPXAddress_t Source __pack__;
+  ushort Checksum;
+  ushort Length;
+  ubyte TransportControl;
+  ubyte PacketType;
+  IPXAddress_t Destination;
+  IPXAddress_t Source;
 } IPXPacket_t;
 
 #ifdef _MSC_VER

@@ -11,214 +11,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#define NEW_FVI_STUFF 1
-
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/fvi.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:03 $
- * 
+ *
  * New home for find_vector_intersection()
- * 
- * $Log: fvi.c,v $
- * Revision 1.1.1.1  2006/03/17 19:42:03  zicodxx
- * initial import
  *
- * Revision 1.3  2000/06/25 08:34:29  sekmu
- * file-line for segfault info
- *
- * Revision 1.2  2000/01/19 04:48:36  sekmu
- * added debug info for illegal side type
- *
- * Revision 1.1.1.1  1999/06/14 22:06:35  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.3  1995/03/24  14:49:04  john
- * Added cheat for player to go thru walls.
- * 
- * Revision 2.2  1995/03/21  17:58:32  john
- * Fixed bug with normals..
- * 
- * 
- * Revision 2.1  1995/03/20  18:15:37  john
- * Added code to not store the normals in the segment structure.
- * 
- * Revision 2.0  1995/02/27  11:27:41  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.49  1995/02/22  14:45:47  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.48  1995/02/22  13:24:50  john
- * Removed the vecmat anonymous unions.
- * 
- * Revision 1.47  1995/02/07  16:17:26  matt
- * Disabled all robot-robot collisions except those involving two green
- * guys.  Used to do collisions if either robot was green guy.
- * 
- * Revision 1.46  1995/02/02  14:07:53  matt
- * Fixed confusion about which segment you are touching when you're 
- * touching a wall.  This manifested itself in spurious lava burns.
- * 
- * Revision 1.45  1995/02/02  13:45:53  matt
- * Made a bunch of lint-inspired changes
- * 
- * Revision 1.44  1995/01/24  12:10:17  matt
- * Fudged collisions for player/player, and player weapon/other player in
- * coop games.
- * 
- * Revision 1.43  1995/01/14  19:16:45  john
- * First version of new bitmap paging code.
- * 
- * Revision 1.42  1994/12/15  12:22:40  matt
- * Small change which may or may not help
- * 
- * Revision 1.41  1994/12/14  11:45:51  matt
- * Fixed (hopefully) little bug with invalid segnum
- * 
- * Revision 1.40  1994/12/13  17:12:01  matt
- * Increased edge tolerance a bunch more
- * 
- * Revision 1.39  1994/12/13  14:37:59  matt
- * Fixed another stupid little bug
- * 
- * Revision 1.38  1994/12/13  13:25:44  matt
- * Increased tolerance massively to avoid catching on corners
- * 
- * Revision 1.37  1994/12/13  12:02:20  matt
- * Fixed small bug
- * 
- * Revision 1.36  1994/12/13  11:17:35  matt
- * Lots of changes to hopefully fix objects leaving the mine.  Note that
- * this code should be considered somewhat experimental - one problem I
- * know about is that you can get stuck on edges more easily than before.
- * There may be other problems I don't know about yet.
- * 
- * Revision 1.35  1994/12/12  01:20:57  matt
- * Added hack in object-object collisions that treats claw guys as
- * if they have 3/4 of their actual radius.
- * 
- * Revision 1.34  1994/12/04  22:48:39  matt
- * Physics & FVI now only build seglist for player objects, and they 
- * responsilby deal with buffer full conditions
- * 
- * Revision 1.33  1994/12/04  22:07:05  matt
- * Added better handing of buffer full condition
- * 
- * Revision 1.32  1994/12/01  21:06:33  matt
- * Several important changes:
- *  (1) Checking against triangulated sides has been standardized a bit
- *  (2) Code has been added to de-triangulate some sides
- *  (3) BIG ONE: the tolerance for checking a point against a plane has
- *      been drastically relaxed
- * 
- * 
- * Revision 1.31  1994/11/27  23:15:03  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.30  1994/11/19  15:20:30  mike
- * rip out unused code and data
- * 
- * Revision 1.29  1994/11/16  12:18:17  mike
- * hack for green_guy:green_guy collision detection.
- * 
- * Revision 1.28  1994/11/10  13:08:54  matt
- * Added support for new run-length-encoded bitmaps
- * 
- * Revision 1.27  1994/10/31  12:27:51  matt
- * Added new function object_intersects_wall()
- * 
- * Revision 1.26  1994/10/20  13:59:27  matt
- * Added assert
- * 
- * Revision 1.25  1994/10/09  23:51:09  matt
- * Made find_hitpoint_uv() work with triangulated sides
- * 
- * Revision 1.24  1994/09/25  00:39:29  matt
- * Took out mprintf's
- * 
- * Revision 1.23  1994/09/25  00:37:53  matt
- * Made the 'find the point in the bitmap where something hit' system
- * publicly accessible.
- * 
- * Revision 1.22  1994/09/21  16:58:22  matt
- * Fixed bug in trans wall check that was checking against verically 
- * flipped bitmap (i.e., the y coord was negative when checking).
- * 
- * Revision 1.21  1994/09/02  11:31:40  matt
- * Fixed object/object collisions, so you can't fly through robots anymore.
- * Cleaned up object damage system.
- * 
- * Revision 1.20  1994/08/26  09:42:03  matt
- * Increased the size of a buffer
- * 
- * Revision 1.19  1994/08/11  18:57:53  mike
- * Convert shorts to ints for optimization.
- * 
- * Revision 1.18  1994/08/08  21:38:24  matt
- * Put in small optimization
- * 
- * Revision 1.17  1994/08/08  12:21:52  yuan
- * Fixed assert
- * 
- * Revision 1.16  1994/08/08  11:47:04  matt
- * Cleaned up fvi and physics a little
- * 
- * Revision 1.15  1994/08/04  00:21:04  matt
- * Cleaned up fvi & physics error handling; put in code to make sure objects
- * are in correct segment; simplified segment finding for objects and points
- * 
- * Revision 1.14  1994/08/02  19:04:26  matt
- * Cleaned up vertex list functions
- * 
- * Revision 1.13  1994/08/02  09:56:28  matt
- * Put in check for bad value find_plane_line_intersection()
- * 
- * Revision 1.12  1994/08/01  17:27:26  matt
- * Added support for triangulated walls in trans point check
- * 
- * Revision 1.11  1994/08/01  13:30:40  matt
- * Made fvi() check holes in transparent walls, and changed fvi() calling
- * parms to take all input data in query structure.
- * 
- * Revision 1.10  1994/07/13  21:47:17  matt
- * FVI() and physics now keep lists of segments passed through which the
- * trigger code uses.
- * 
- * Revision 1.9  1994/07/09  21:21:40  matt
- * Fixed, hopefull, bugs in sphere-to-vector intersection code
- * 
- * Revision 1.8  1994/07/08  14:26:42  matt
- * Non-needed powerups don't get picked up now; this required changing FVI to
- * take a list of ingore objects rather than just one ignore object.
- * 
- * Revision 1.7  1994/07/06  20:02:37  matt
- * Made change to match gameseg that uses lowest point number as reference
- * point when checking against a plane
- * 
- * Revision 1.6  1994/06/29  15:43:58  matt
- * When computing intersection of vector and sphere, use the radii of both
- * objects.
- * 
- * Revision 1.5  1994/06/14  15:57:58  matt
- * Took out asserts, and added other hacks, pending real bug fixes
- * 
- * Revision 1.4  1994/06/13  23:10:08  matt
- * Fixed problems with triangulated sides
- * 
- * Revision 1.3  1994/06/09  12:11:14  matt
- * Fixed confusing use of two variables, hit_objnum & fvi_hit_object, to
- * keep the same information in different ways.
- * 
- * Revision 1.2  1994/06/09  09:58:38  matt
- * Moved find_vector_intersection() from physics.c to new file fvi.c
- * 
- * Revision 1.1  1994/06/09  09:25:57  matt
- * Initial revision
- * 
- * 
  */
 
 
@@ -227,6 +23,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static char rcsid[] = "$Id: fvi.c,v 1.1.1.1 2006/03/17 19:42:03 zicodxx Exp $";
 #pragma on (unreferenced)
 #endif
+
+#define NEW_FVI_STUFF 1
 
 #include <stdlib.h>
 #include <string.h>
@@ -896,7 +694,7 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 	vms_vector hit_pnt;
 	int i;
 
-	Assert((int)fq->ignore_obj_list != -1);
+	Assert(fq->ignore_obj_list != (int *)(-1));
 	Assert((fq->startseg <= Highest_segment_index) && (fq->startseg >= 0));
 
 	fvi_hit_seg = -1;

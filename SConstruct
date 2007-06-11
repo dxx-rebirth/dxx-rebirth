@@ -129,7 +129,6 @@ common_sources = [
 'main/mglobal.c',
 'main/mission.c',
 'main/mlticntl.c',
-'main/modem.c',
 'main/morph.c',
 'main/multi.c',
 'main/multibot.c',
@@ -253,9 +252,7 @@ arch_linux_sources = [
 'arch/linux/ipx_kali.c',
 'arch/linux/linuxnet.c',
 'arch/linux/mono.c',
-'arch/linux/serial.c',
 'arch/linux/ukali.c',
-'arch/sdl/clipboard.c'
 ]
 
 # choosing a sound implementation for Linux
@@ -277,7 +274,6 @@ arch_win32_sources = [
 'arch/win32/ipx_win.c',
 'arch/win32/midi.c',
 'arch/win32/mono.c',
-'arch/win32/serial.c',
 'arch/win32/winnet.c',
 'arch/sdl/digi.c'
 ]

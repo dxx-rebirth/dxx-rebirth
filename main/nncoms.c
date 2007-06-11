@@ -424,7 +424,7 @@ void ping_by_player_num(int pl,int noisy)
 //		    multi_send_message();
 		  multibuf[0] = (char)MULTI_MESSAGE;
 		  multibuf[1] = (char)Player_num;
-		  sprintf(multibuf+2, "PING:%u %i", timer_get_fixed_seconds(),pl);
+		  sprintf((char*)multibuf+2, "PING:%u %i", timer_get_fixed_seconds(),pl);
 		  //edit 04/19/99 Matt Mueller - use direct sending
 		  //--killed-- multi_send_data(multibuf,message_length[MULTI_MESSAGE],1);
 		  mekh_send_direct_packet(multibuf,message_length[MULTI_MESSAGE],pl);

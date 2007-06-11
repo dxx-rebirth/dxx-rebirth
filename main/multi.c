@@ -69,7 +69,6 @@ static char rcsid[] = "$Id: multi.c,v 1.1.1.1 2006/03/17 19:43:22 zicodxx Exp $"
 #include "multipow.h"
 #include "hudmsg.h"
 #include "ctype.h"  // for isalpha
-#include "serial.h"
 #include "command.h"
 #include "vers_id.h"
 
@@ -951,14 +950,7 @@ void multi_do_frame(void)
 	}
 #endif	
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		com_do_frame();
-	}
-	else
-	{
-		network_do_frame(0, 1);
-	}
+	network_do_frame(0, 1);
 
 //added/killed on 10/2/98 by Victor Rachels to fix non-quitting
 //-killed-        if (multi_quit_game && !multi_in_menu)
@@ -1001,9 +993,7 @@ multi_send_data_real(unsigned char *buf, int len, int repeat,char *file,char *fu
     }
 //======================================================
 
-    if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	   com_send_data(buf, len, repeat);
-    else if (Game_mode & GM_NETWORK)
+	if (Game_mode & GM_NETWORK)
 	{
 //edit 03/04/99 Matt Mueller - use direct mode for most packets. (pos_fire is handled elsewhere, so checking here might be redundant..)
          if(buf[0]!=MULTI_FIRE && buf[0]!=MULTI_REAPPEAR)
@@ -1042,8 +1032,6 @@ multi_leave_game(void)
 	mprintf((1, "Sending leave game.\n"));
 	multi_send_quit(MULTI_QUIT);
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		serial_leave_game();
 	if (Game_mode & GM_NETWORK)
 		network_leave_game();
 
@@ -1080,9 +1068,7 @@ multi_endlevel(int *secret)
 {
 	int result = 0;
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		com_endlevel(secret);          // an opportunity to re-sync or whatever
-	else if (Game_mode & GM_NETWORK)
+	if (Game_mode & GM_NETWORK)
 		result = network_endlevel(secret);
 	
 	return(result);		
@@ -1097,7 +1083,6 @@ int
 multi_menu_poll(void)
 {
 	fix old_shields;
-	int t1;		
 	int was_fuelcen_alive;
 
 	was_fuelcen_alive = Fuelcen_control_center_destroyed;
@@ -1140,13 +1125,7 @@ multi_menu_poll(void)
 		multi_leave_menu = 1;
 		return(-1);
 	}
-#ifdef __LINUX__
-	if ((Game_mode & GM_MODEM) && (!com_getdcd()))
-	{
-		multi_leave_menu = 1;
-		return(-1);
-	}
-#endif
+
 	return(0);
 }
 
@@ -1832,7 +1811,7 @@ multi_do_message(char *buf)
                           {
                            multibuf[0] = (char)MULTI_MESSAGE;
                            multibuf[1] = (char)Player_num;
-                           sprintf(multibuf+2, "pong:%ul %i", atoi(colon + 1), buf[1]);
+                           sprintf((char*)multibuf+2, "pong:%ul %i", atoi(colon + 1), buf[1]);
                            multi_send_data(multibuf,message_length[MULTI_MESSAGE],1);
                           }
 //                         Network_message_reciever = buf[1];  // Send to the player who pinged you
@@ -2205,7 +2184,7 @@ void multi_do_controlcen_destroy(char *buf)
 }
 
 void 
-multi_do_escape(unsigned char *buf)
+multi_do_escape(char *buf)
 {
 	int objnum;
 
@@ -2217,7 +2196,7 @@ multi_do_escape(unsigned char *buf)
 		hud_message(MSGC_MULTI_INFO, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_ESCAPED);
 #ifndef SHAREWARE
 		if (Game_mode & GM_NETWORK)
-			Players[buf[1]].connected = CONNECT_ESCAPE_TUNNEL;
+			Players[(int)buf[1]].connected = CONNECT_ESCAPE_TUNNEL;
 #endif
 		if (!multi_goto_secret)
 			multi_goto_secret = 2;
@@ -2240,7 +2219,7 @@ multi_do_escape(unsigned char *buf)
 
 
 void
-multi_do_remobj(unsigned char *buf)
+multi_do_remobj(char *buf)
 {
 	short objnum; // which object to remove
 	short local_objnum;
@@ -2281,7 +2260,7 @@ multi_do_remobj(unsigned char *buf)
 }
 
 void
-multi_do_quit(unsigned char *buf)
+multi_do_quit(char *buf)
 {
 	
 	if (Game_mode & GM_NETWORK)
@@ -2291,8 +2270,8 @@ multi_do_quit(unsigned char *buf)
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
 
 		hud_message( MSGC_MULTI_INFO, "\002%c%s\004 %s", 
-			gr_getcolor(player_rgb[buf[1]].r,player_rgb[buf[1]].g,player_rgb[buf[1]].b)+1,
-				Players[buf[1]].callsign, TXT_HAS_LEFT_THE_GAME);
+			gr_getcolor(player_rgb[(int)buf[1]].r,player_rgb[(int)buf[1]].g,player_rgb[(int)buf[1]].b)+1,
+				Players[(int)buf[1]].callsign, TXT_HAS_LEFT_THE_GAME);
 		
 		network_disconnect_player(buf[1]);
 
@@ -2312,15 +2291,6 @@ multi_do_quit(unsigned char *buf)
 
 	}
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		Function_mode = FMODE_MENU;
-		multi_quit_game = 1;
-		multi_leave_menu = 1;
-		nm_messagebox(NULL, 1, TXT_OK, TXT_OPPONENT_LEFT);
-		Function_mode = FMODE_GAME;
-		multi_reset_stuff();
-	}
 	return;
 }
 
@@ -2856,7 +2826,7 @@ multi_process_data(char *buf, int len)
                                 break;
                 //added on 6/7/99 by Victor Rachels for ingame reconfig
                 case MULTI_INGAME_CONFIG:
-                                reconfig_receive(buf,len);
+                                reconfig_receive((ubyte*)buf,len);
                                 break;
 		default:
 			mprintf((1, "Invalid type in multi_process_input().\n"));
@@ -3179,7 +3149,7 @@ multi_send_message(void)
 #ifdef SHAREWARE
                 loc += 1; // Dummy space for reciever (Which isn't used)
 #endif
-		strncpy(multibuf+loc, Network_message, MAX_MESSAGE_LEN); loc += MAX_MESSAGE_LEN;
+		strncpy((char*)multibuf+loc, Network_message, MAX_MESSAGE_LEN); loc += MAX_MESSAGE_LEN;
 		multibuf[loc-1] = '\0';
 		multi_send_data(multibuf, loc, 1);
 		Network_message_reciever = -1;

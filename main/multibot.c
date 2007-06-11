@@ -402,7 +402,7 @@ multi_send_robot_frame(int sent)
 			if (robot_fired[sending])
 			{
 				robot_fired[sending] = 0;
-				multi_send_data(robot_fire_buf[sending], 18, 0);
+				multi_send_data((unsigned char*)robot_fire_buf[sending], 18, 0);
 			}
 
 			if (!(Game_mode & GM_NETWORK))

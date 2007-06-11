@@ -258,7 +258,7 @@ int state_save_old_game(int slotnum, char * sg_name, player * sg_player,
                         int sg_difficulty_level, int sg_primary_weapon, 
                         int sg_secondary_weapon, int sg_next_level_num  	)
 {
-	int i,j;
+	int i;
 	int temp_int;
 	ubyte temp_byte;
 	char desc[DESC_LENGTH+1];
@@ -267,6 +267,7 @@ int state_save_old_game(int slotnum, char * sg_name, player * sg_player,
 	FILE * fp;
 	ubyte *pal;
 #ifdef OGL
+	int j;
 	GLint gl_draw_buffer;
 #endif
 

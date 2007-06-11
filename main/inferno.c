@@ -309,8 +309,6 @@ void show_commandline_help()
 	printf( "\n Unused / Obsolete:\n\n");
 	printf( "  -nocdaudio         %s\n", "Disable cd audio");
 	printf( "  -playlist \"...\"    %s\n", "Set the cd audio playlist to tracks \"a b c ... f g\"");
-	printf( "  -serialdevice <s>  %s\n", "Set serial/modem device to <s>");
-	printf( "  -serialread <r>    %s\n", "Set serial/modem to read from <r>");
 */
 #endif // NDEBUG
 
@@ -513,12 +511,6 @@ int main(int argc,char **argv)
 		if (Inferno_verbose) printf( "\n%s",TXT_SOUND_DISABLED );
 	}
 
-#ifdef NETWORK
-	if (!FindArg("-noserial"))
-		serial_active = 1;
-	else
-		serial_active = 0;
-#endif
 	Game_screen_mode = screen_mode;
 // 	game_init_render_buffers(screen_width, screen_height, VR_NONE);
 

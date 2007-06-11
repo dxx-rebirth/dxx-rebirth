@@ -36,13 +36,6 @@ mekh_send_direct_packet(ubyte *buffer, int len, int plnum)
     //edited 03/04/99 Matt Mueller - new DIRECTDATA sending mode, and modem code.
    if (/*(Players[plnum].connected) && */(plnum!=Player_num)) 
 	{
-//	    mprintf((0,"mekh_send_direct_packet %i len=%i (%i)\n",buffer[0],len,plnum));
-//	    mprintf((0,"*\n"));
-	    if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM)){
-                    mprintf((0,"sending com data, len=%i (%i)\n",len,buffer[0]));
-	  		com_send_data(buffer, len, 0);		//this will be needed for pings and
-		  return;				//req'd packets and such to work on serial connects.
-	    }
           //edited 03/05/99 Matt Mueller - quick hack for multi_fire.. maybe should have a force_long flag instead?
 	    if (Net_D1xPlayer[plnum].iver>=D1X_DIRECTDATA_IVER && buffer[0]!=MULTI_FIRE)
           //end edit -MM
@@ -52,7 +45,7 @@ mekh_send_direct_packet(ubyte *buffer, int len, int plnum)
 		    out_buffer[0]=PID_DIRECTDATA;
                 memcpy(&(out_buffer[1]), buffer, len);
 		    
-		    ipx_send_packet_data( out_buffer, len+1, Netgame.players[plnum].server, Netgame.players[plnum].node, Players[plnum].net_address);
+		    ipx_send_packet_data( (ubyte *)out_buffer, len+1, Netgame.players[plnum].server, Netgame.players[plnum].node, Players[plnum].net_address);
 		}
 	    else{
 		    mprintf((0,"sending concat to %i, len=%i (%i)\n",plnum,len,buffer[0]));
@@ -128,7 +121,7 @@ mekh_send_ack(mekh_ackedpacket_history p_info)
 //Check if it's in mekh_acks list.  If so, unflag that player.
 //======================================================
 void
-mekh_gotack(unsigned char *buf)
+mekh_gotack(char *buf)
 {
         int found, i, tmp;
         mekh_ackedpacket_history p_info;
@@ -249,7 +242,6 @@ mekh_send_reg_data_needver(compare_int32_func compare,int ver,unsigned char *buf
        {
            if ((Players[i].connected) && (i!=Player_num) && compare(Net_D1xPlayer[i].iver,ver))
             {
-		    //edited 03/06/99 Matt Mueller - add check for using acks serial games
 		    //edited 03/04/99 Matt Mueller - use new iver variable
                 //Check if other player is using D1x
                 if// ( (   ( (int)Net_D1xPlayer[i].ver[5] - (int)'0' ) * 10 +
@@ -290,7 +282,7 @@ mekh_send_reg_data_needver(compare_int32_func compare,int ver,unsigned char *buf
 //as a normal incoming message
 //======================================================
 void
-mekh_process_packet(unsigned char *buf) {
+mekh_process_packet(char *buf) {
 
       int   len;
       int   tmp;
@@ -331,7 +323,7 @@ mekh_process_packet(unsigned char *buf) {
 //--killed--      memcpy(packet, buf+7, len); //wasteful -MM
          //Copy the contents of the real message into 'packet'
 
-      multi_process_data(/*packet*/buf+7, len);//aaaah, much better -MM
+      multi_process_data(/*packet*/(char*)buf+7, len);//aaaah, much better -MM
 //end edit -MM
          //Feed the message to the rest of Descent's incoming protocols
 
@@ -481,7 +473,7 @@ void mekh_prep_concat_send(ubyte *extradata, int len, ubyte *server, ubyte *node
                 memcpy(&(out_buffer[loc]), extradata, len);
                 loc += len;
 	}
-		ipx_send_packet_data( out_buffer, loc, server, node, address);
+		ipx_send_packet_data( (ubyte *)out_buffer, loc, server, node, address);
 }
 
 #endif

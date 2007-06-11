@@ -430,8 +430,8 @@ mekh_ackedpacket_history mekh_packet_history[MEKH_PACKET_MEM];
         //Remember last regdpackets we've gotten in case ack is late/dropped
         //and the packet gets resent, so we can ignore it.
 
-extern void mekh_gotack(unsigned char *buf);
-extern void mekh_process_packet(unsigned char *buf);
+extern void mekh_gotack(char *buf);
+extern void mekh_process_packet(char *buf);
 extern void mekh_resend_needack();
 //extern void mekh_send_reg_data(unsigned char *buf, int len, int repeat);
 extern void mekh_send_ack(mekh_ackedpacket_history p_info);

@@ -731,7 +731,7 @@ grs_bitmap char_bm = {
 int gr_internal_color_string(int x, int y, char *s )
 {
 	unsigned char * fp;
-	ubyte * text_ptr, * next_row, * text_ptr1;
+	char * text_ptr, * next_row, * text_ptr1;
 	int width, spacing,letter;
 	int xx,yy;
 

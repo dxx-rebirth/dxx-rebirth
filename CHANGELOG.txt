@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070611
+--------
+SConstruct, 2d/font.c, arch/linux/hmiplay.c, arch/linux/init.c, arch/linux/ipx_bsd.c, arch/linux/ukali.c, arch/win32/init.c, include/ipx_drv.h, main/fvi.c, main/inferno.c, main/ipx_drv.c, main/gameseq.c, main/m_inspak.c, main/multibot.c, main/multi.c, main/multi.h, main/multiver.c, main/netpkt.h, main/newmenu.c, main/nncoms.c, main/render.c, main/state.c: fixed a bunch of compiler warnings
+
 20070610
 --------
 2d/bitblt.c, 2d/font.c, 2/rle.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, include/gr.h, include/rle.h, main/game.c, main/gauges.c, main/titles.c: introduced new bitmap flag to draw cockpit bitmap with transparency; draw transparent cockpit bitmap over gauges to make it more pixel-correct; code cleanups

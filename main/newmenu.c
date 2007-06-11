@@ -28,7 +28,6 @@ static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2006/03/17 19:44:42 zicodxx Exp 
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "clipboard.h"
 #include "error.h"
 #include "types.h"
 #include "gr.h"
@@ -932,47 +931,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		old_choice = choice;
 	
 		switch( k )	{
-#ifndef __WINDOWS__
-		case KEY_V + KEY_CTRLED:
-		case KEY_INSERT + KEY_SHIFTED:
-                        if(item[choice].type==NM_TYPE_INPUT)
-			{
-				char cbtext[MAX_PASTE_SIZE+1];
-				memset(cbtext,0,MAX_PASTE_SIZE+1);
-				int ret = getClipboardText(cbtext,MAX_PASTE_SIZE);
-				if(ret)
-				{
-					int idx;
-	
-					if (item[choice].value==-1)
-					{
-					item[choice].value = 0;
-					}
-	
-					for(idx = 0 ; (idx < ret) && (item[choice].value < item[choice].text_len ) ; idx++ )
-					{
-					int ascii = cbtext[idx];
-					int allowed;
-	
-					allowed = char_allowed(ascii);
-					if (!allowed && ascii==' ' && char_allowed('_'))
-					{
-						ascii = '_';
-						allowed=1;
-					}
-	
-					if (allowed)
-					{
-						item[choice].text[item[choice].value++] = ascii;
-						item[choice].text[item[choice].value] = 0;
-						item[choice].redraw=1;	
-					}
-					}
-					k = -1;
-				}
-			}
-                        break;
-#endif
 		case KEY_TAB + KEY_SHIFTED:
 		case KEY_UP:
 		case KEY_PAD8:

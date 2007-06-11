@@ -19,7 +19,6 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
-#define __USE_GNU //in recent glibc versions msgbuf is only defined if you have __USE_GNU defined
 #include <sys/msg.h>
 #include "music.h"
 #include "cfile.h"
@@ -668,8 +667,6 @@ void play_hmi (void * arg)
 	int qid;
 	int ipc_read = 0;
 	int k=0;
-	char t1;
-
 	
 	struct msgbuf *rcv;
 	

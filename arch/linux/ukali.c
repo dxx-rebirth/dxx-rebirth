@@ -53,7 +53,7 @@ int knix_Send(int hand, char *data, int len) {
 
 int knix_Recv(int hand, char *data, int len) {
 	struct sockaddr_in taddr;
-	int tlen;
+	socklen_t tlen;
 
 	tlen = sizeof(taddr);
 

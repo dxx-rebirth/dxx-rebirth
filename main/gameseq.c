@@ -1521,11 +1521,6 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 		if(network_level_sync()) // After calling this, Player_num is set
 			return;
 	}
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		if(com_level_sync())
-			return;
-	}
 #endif
 
 	Assert(Function_mode == FMODE_GAME);

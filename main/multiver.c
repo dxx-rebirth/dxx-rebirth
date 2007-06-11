@@ -122,7 +122,7 @@ void network_send_config_messages(int dest, int mode)
 //added/modified on 8/13/98 by Matt Mueller to fix messaging bugs
    multibuf[0] = (char)MULTI_MESSAGE;
    multibuf[1] = (char)Player_num;
-   sprintf(multibuf+2, "Nd1x:%i %i %i %i", dest, mode, Network_short_packets, Network_pps);
+   sprintf((char*)multibuf+2, "Nd1x:%i %i %i %i", dest, mode, Network_short_packets, Network_pps);
     
  //added 03/07/99 Matt Mueller - send directly when appropriate -- assumes messages are acked!
     if (dest==100)
@@ -130,7 +130,7 @@ void network_send_config_messages(int dest, int mode)
     else
 	   mekh_send_direct_reg_data(multibuf, message_length[MULTI_MESSAGE], dest);
 
-   sprintf(multibuf+2, "Vd1x:%s", DESCENT_VERSION);
+   sprintf((char*)multibuf+2, "Vd1x:%s", DESCENT_VERSION);
     if (dest==100)
 	   multi_send_data(multibuf, message_length[MULTI_MESSAGE], 1);
     else
