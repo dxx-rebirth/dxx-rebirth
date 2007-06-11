@@ -446,7 +446,9 @@ if (editor == 1):
 #shareware build?
 if (shareware == 1):
 	env.Append(CPPDEFINES = ['SHAREWARE'])
-	common_sources += ['main/gamesave.c', 'main/gamemine.c', 'main/snddecom.c']
+	common_sources += ['main/snddecom.c']
+	if (editor == 0):
+		common_sources += ['main/gamesave.c', 'main/gamemine.c']
 
 if (shareware == 0) and (editor == 0):
 	common_sources += ['main/loadrl2.c']

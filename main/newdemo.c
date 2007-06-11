@@ -1335,7 +1335,7 @@ JasonPlaybackTotal=0;
 	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);
 #ifdef SHAREWARE
 	if (Newdemo_game_mode & GM_TEAM)
-		nd_read_byte(&(Netgame.team_vector));
+		nd_read_byte((sbyte *)&(Netgame.team_vector));
 
 	for (i =0 ; i < MAX_PLAYERS; i++) {
  		Players[i].cloak_time = 0;

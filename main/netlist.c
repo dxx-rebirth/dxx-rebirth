@@ -289,11 +289,8 @@ void show_game_rules(netgame_info game)
 		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
 		gr_printf( LHX( 25),LHY( 35), "Show All Players On Automap:");
 		gr_printf( LHX(250),LHY( 35), game.game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
-		if (game.protocol_version==MULTI_PROTO_D1X_VER 
 #ifndef SHAREWARE
-			&& game.subprotocol>=1
-#endif
-		){
+		if (game.protocol_version==MULTI_PROTO_D1X_VER && game.subprotocol>=1){
 			gr_printf( LHX( 25),LHY( 41), "Radar:");
 			gr_printf( LHX(250),LHY( 41), game.flags&NETFLAG_ENABLE_RADAR?"ON":"OFF");
 			gr_printf( LHX( 25),LHY( 47), "Short Vulcan Fire:");
@@ -330,7 +327,7 @@ void show_game_rules(netgame_info game)
 		}
 		else
 			gr_printf( LHX( 25),LHY( 80), "This is not a D1X Game. No further rules are defined.");
-
+#endif
 		k = key_inkey();
 		switch( k )	{
 		case KEY_PRINT_SCREEN:
@@ -374,12 +371,14 @@ int show_game_stats(netgame_info game)
 
 	info+=sprintf(info,"\nConnected to\n\"%s\"\n",game.game_name);
 
+#ifndef SHAREWARE
 	if(!game.mission_title)
 		info+=sprintf(info,"Descent: First Strike");
 	else
 		info+=sprintf(info,game.mission_title);
 
 	info+=sprintf (info," - Lvl %i",game.levelnum);
+#endif
 	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(game.difficulty));
 	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[game.gamemode]);
 	info+=sprintf (info,"\nPlayers: %i/%i",game.numplayers,game.max_numplayers);

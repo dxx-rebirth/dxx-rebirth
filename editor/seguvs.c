@@ -966,7 +966,7 @@ void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base
 //	great confusion.
 void get_side_ids(segment *base_seg, segment *con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
 {
-	char		*base_vp,*con_vp;
+	sbyte		*base_vp,*con_vp;
 	int		v0,side;
 
 	*base_common_side = -1;
@@ -1178,7 +1178,7 @@ found1: ;
 //	segment to get the wall in the connected segment which shares the edge, and get tmap_num from there.
 void propagate_tmaps_to_segment_sides(segment *base_seg, int base_side, segment *con_seg, int con_side, int uv_only_flag)
 {
-	char		*base_vp,*con_vp;
+	sbyte		*base_vp,*con_vp;
 	short		abs_id1,abs_id2;
 	int		v;
 

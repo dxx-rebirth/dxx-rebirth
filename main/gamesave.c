@@ -1798,8 +1798,8 @@ int	Errors_in_mine;
 // Save game
 int save_game_data(FILE * SaveFile)
 {
-	int  player_offset, object_offset, walls_offset, doors_offset, triggers_offset, control_offset, matcen_offset; //, links_offset;
-	int start_offset,end_offset;
+	int  player_offset=0, object_offset=0, walls_offset=0, doors_offset=0, triggers_offset=0, control_offset=0, matcen_offset=0; //, links_offset;
+	int start_offset=0,end_offset=0;
 
 	start_offset = ftell(SaveFile);
 

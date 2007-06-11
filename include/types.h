@@ -73,28 +73,15 @@ typedef signed char sbyte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
-#ifndef __LINUX__
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
 
-//added 03/04/99 Matt Mueller - typedefs based on actual bit sizes.  Will be needed
-//in net code and stuff if porting to 64 bit sytsems ever happens
-//this should really be defined system specifically somehow,
-//as it is in linux's sys/types.h.. but I guess I'll leave that
-//to someone who needs it :)
-typedef unsigned long long int u_int64_t;
-typedef long long int int64_t;
-typedef unsigned int u_int32_t;
-typedef int int32_t;
-typedef unsigned short u_int16_t;
-typedef short int16_t;
-//end addition -MM
-//added on 980913 by adb to fix compile problems on linux
-#else
-#include <sys/types.h>
-//end changes by adb
-#endif
+#if defined(__WINDOWS__)
+# include <SDL/SDL_types.h>
+ typedef unsigned short ushort;
+ typedef unsigned int uint;
+ typedef Uint16 u_int16_t;
+ typedef Uint32 u_int32_t;
+ typedef Uint64 u_int64_t;
+#endif // defined(__WINDOWS__)
 
 #ifndef __cplusplus
 //define a boolean

@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070611
 --------
 SConstruct, 2d/font.c, arch/linux/hmiplay.c, arch/linux/init.c, arch/linux/ipx_bsd.c, arch/linux/ukali.c, arch/win32/init.c, include/ipx_drv.h, main/fvi.c, main/inferno.c, main/ipx_drv.c, main/gameseq.c, main/m_inspak.c, main/multibot.c, main/multi.c, main/multi.h, main/multiver.c, main/netpkt.h, main/newmenu.c, main/nncoms.c, main/render.c, main/state.c: fixed a bunch of compiler warnings
+SConstruct, arch/sdl/mouse.c, arch/sdl/include/mouse.h, arch/win32/include/mouse.h, arch/ogl/gr.c, editor/ksegsize.c, editor/segment.c, editor/seguvs.c, ui/mouse.c, include/types.h, main/gamesave.c, main/netlist.c, main/network.c, main/newdemo.c: fixed more compiler warnings
 
 20070610
 --------

@@ -1,5 +1,7 @@
 // OGL video functions. - Added 9/15/99 Matthew Mueller
 
+#define DECLARE_VARS
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -36,7 +38,6 @@
 #include "u_mem.h"
 #include "gamefont.h"
 
-#define DECLARE_VARS
 #include "ogl_init.h"
 #include <GL/glu.h>
 
