@@ -44,7 +44,7 @@ static int ipx_bsd_GetMyAddress(void)
 	int sock;
 	struct sockaddr_ipx ipxs;
 	struct sockaddr_ipx ipxs2;
-	int len;
+	socklen_t len;
 	int i;
 
 	sock=socket(AF_IPX,SOCK_DGRAM,PF_IPX);
@@ -88,7 +88,7 @@ static int ipx_bsd_OpenSocket(ipx_socket_t *sk, int port)
 	int sock;           /* sock here means Linux socket handle */
 	int opt;
 	struct sockaddr_ipx ipxs;
-	int len;
+	socklen_t len;
 	struct sockaddr_ipx ipxs2;
 
 	/* DANG_FIXTHIS - kludge to support broken linux IPX stack */
@@ -207,7 +207,8 @@ static int ipx_bsd_SendPacket(ipx_socket_t *mysock, IPXPacket_t *IPXHeader,
 
 static int ipx_bsd_ReceivePacket(ipx_socket_t *s, char *buffer, int bufsize,
 	                             struct ipx_recv_data *rd) {
-	int sz, size;
+	socklen_t sz;
+	int size;
 	struct sockaddr_ipx ipxs;
 
 	sz = sizeof(ipxs);

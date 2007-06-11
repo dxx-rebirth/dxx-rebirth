@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070611
+--------
+arch/linux/hmiplay.c, arch/linux/ipx_bsd.c, arch/linux/ukali.c, libmve/decorder16.c, main/fvi.c, main/gameseq.c, main/newdemo.c, main/newmenu.c, main/object.c, main/playsave.c, main/render.c: fixed a bunch of compiler warnings
+
 20070610
 --------
 arch/carbon/conf.h, SConstruct: fix Mac errors involving use of 'VERSION'

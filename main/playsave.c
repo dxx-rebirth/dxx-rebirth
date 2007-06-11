@@ -582,9 +582,7 @@ int read_player_file()
 
 	PHYSFS_readSLE32(file, &id);
 
-        // SWAPINT added here because old versions of d2x
-        // used the wrong byte order.
-	if (id!=SAVE_FILE_ID && id!=SWAPINT(SAVE_FILE_ID)) {
+	if (id!=SAVE_FILE_ID) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
 		PHYSFS_close(file);
 		return -1;

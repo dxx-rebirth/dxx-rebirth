@@ -700,7 +700,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	int MaxOnMenu=MAXDISPLAYABLEITEMS;
 	grs_canvas *save_canvas;
 #ifndef OGL
-	int background_is_sub;
+	int background_is_sub=0;
 #endif
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, dblclick_flag=0;

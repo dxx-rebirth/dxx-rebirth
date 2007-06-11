@@ -461,6 +461,8 @@ object *prev_obj=NULL;      //ptr to last object read in
 
 void nd_read_object(object *obj)
 {
+	int* sig = &(obj->signature);
+
 	memset(obj, 0, sizeof(object));
 
 	/*
@@ -474,7 +476,7 @@ void nd_read_object(object *obj)
 
 	nd_read_byte((sbyte *) &(obj->id));
 	nd_read_byte((sbyte *) &(obj->flags));
-	nd_read_short((short *)&(obj->signature));
+	nd_read_short((short *)sig);
 	nd_read_shortpos(obj);
 
 	if ((obj->type == OBJ_ROBOT) && (obj->id == SPECIAL_REACTOR_ROBOT))

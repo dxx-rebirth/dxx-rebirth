@@ -390,34 +390,16 @@ done:
 
 void gr_linear_rep_movsd_2x(ubyte *src, ubyte *dest, unsigned int num_pixels)
 {
-	double  *d = (double *)dest;
-	uint    *s = (uint *)src;
-	uint    doubletemp[2];
-	uint    temp, work;
-	int     i;
-
-	if (num_pixels & 0x3) {
-		// not a multiple of 4?  do single pixel at a time
-		for (i=0; i<num_pixels; i++) {
-			*dest++ = *src;
-			*dest++ = *src++;
+	register ubyte c;
+	while (num_pixels--) {
+		if (num_pixels&1)
+			*dest++=*src++;
+		else {
+		        unsigned short *sp=(unsigned short *)dest;
+			c=*src++;
+			*sp=((short)c<<8)|(short)c;
+			dest+=2;
 		}
-		return;
-	}
-
-	for (i = 0; i < num_pixels / 4; i++) {
-		temp = work = *s++;
-
-		temp = ((temp >> 8) & 0x00FFFF00) | (temp & 0xFF0000FF); // 0xABCDEFGH -> 0xABABCDEF
-		temp = ((temp >> 8) & 0x000000FF) | (temp & 0xFFFFFF00); // 0xABABCDEF -> 0xABABCDCD
-		doubletemp[0] = temp;
-
-		work = ((work << 8) & 0x00FFFF00) | (work & 0xFF0000FF); // 0xABCDEFGH -> 0xABEFGHGH
-		work = ((work << 8) & 0xFF000000) | (work & 0x00FFFFFF); // 0xABEFGHGH -> 0xEFEFGHGH
-		doubletemp[1] = work;
-
-		*d = *(double *) &(doubletemp[0]);
-		d++;
 	}
 }
 

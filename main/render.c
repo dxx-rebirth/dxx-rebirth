@@ -630,7 +630,7 @@ im_so_ashamed: ;
 #ifdef __DJGPP__
 				Error("Illegal side type in render_side, type = %i, segment # = %li, side # = %i\n", sidep->type, segp-Segments, sidenum);
 #else
-				Error("Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type, segp-Segments, sidenum);
+				Error("Illegal side type in render_side, type = %i, segment # = %li, side # = %i\n", sidep->type, segp-Segments, sidenum);
 #endif
 		}
 	}
