@@ -1444,7 +1444,7 @@ void DoEndGame(void)
 		gr_set_current_canvas( NULL );
 		gr_clear_canvas(BM_XRGB(0,0,0));
 		gr_palette_clear();
-		load_palette(DEFAULT_PALETTE,0,1);
+		load_palette(D2_DEFAULT_PALETTE,0,1);
 		scores_maybe_add_player(0);
 	}
 

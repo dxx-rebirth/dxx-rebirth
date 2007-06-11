@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "inferno.h"
 
-#define DEFAULT_PALETTE "default.256"
+#define D2_DEFAULT_PALETTE "default.256"
 #define MENU_PALETTE    "default.256"
 
 extern char Current_level_palette[FILENAME_LEN];

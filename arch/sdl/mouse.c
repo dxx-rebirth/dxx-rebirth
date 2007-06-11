@@ -50,17 +50,17 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	// to bad, SDL buttons use a different mapping as descent expects,
 	// this is at least true and tested for the first three buttons 
 	int button_remap[11] = {
-		MB_LEFT,
-		MB_MIDDLE,
-		MB_RIGHT,
-		MB_Z_UP,
-		MB_Z_DOWN,
-		MB_PITCH_BACKWARD,
-		MB_PITCH_FORWARD,
-		MB_BANK_LEFT,
-		MB_BANK_RIGHT,
-		MB_HEAD_LEFT,
-		MB_HEAD_RIGHT
+		MBTN_LEFT,
+		MBTN_MIDDLE,
+		MBTN_RIGHT,
+		MBTN_Z_UP,
+		MBTN_Z_DOWN,
+		MBTN_PITCH_BACKWARD,
+		MBTN_PITCH_FORWARD,
+		MBTN_BANK_LEFT,
+		MBTN_BANK_RIGHT,
+		MBTN_HEAD_LEFT,
+		MBTN_HEAD_RIGHT
 	};
 
 	int button = button_remap[mbe->button - 1]; // -1 since SDL seems to start counting at 1
@@ -70,10 +70,10 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		Mouse.buttons[button].time_went_down = timer_get_fixed_seconds();
 		Mouse.buttons[button].num_downs++;
 
-		if (button == MB_Z_UP) {
+		if (button == MBTN_Z_UP) {
 			Mouse.delta_z += Z_SENSITIVITY;
 			Mouse.z += Z_SENSITIVITY;
-		} else if (button == MB_Z_DOWN) {
+		} else if (button == MBTN_Z_DOWN) {
 			Mouse.delta_z -= Z_SENSITIVITY;
 			Mouse.z -= Z_SENSITIVITY;
 		}

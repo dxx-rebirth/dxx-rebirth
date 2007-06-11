@@ -44,21 +44,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MOUSE_MAX_BUTTONS       11
 
-#define MB_LEFT			0
-
-#ifdef MB_RIGHT
-#undef MB_RIGHT
-#endif
-#define MB_RIGHT		1
-#define MB_MIDDLE		2
-#define MB_Z_UP			3
-#define MB_Z_DOWN		4
-#define MB_PITCH_BACKWARD	5
-#define MB_PITCH_FORWARD        6
-#define MB_BANK_LEFT		7
-#define MB_BANK_RIGHT	        8
-#define MB_HEAD_LEFT		9
-#define MB_HEAD_RIGHT	        10
+#define MBTN_LEFT			0
+#define MBTN_RIGHT		1
+#define MBTN_MIDDLE		2
+#define MBTN_Z_UP			3
+#define MBTN_Z_DOWN		4
+#define MBTN_PITCH_BACKWARD	5
+#define MBTN_PITCH_FORWARD        6
+#define MBTN_BANK_LEFT		7
+#define MBTN_BANK_RIGHT	        8
+#define MBTN_HEAD_LEFT		9
+#define MBTN_HEAD_RIGHT	        10
 
 #define MOUSE_LBTN 1
 #define MOUSE_RBTN 2

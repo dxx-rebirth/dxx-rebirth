@@ -676,7 +676,7 @@ int main(int argc, char *argv[])
 
 	// Load the palette stuff. Returns non-zero if error.
 	con_printf(CON_DEBUG, "Initializing palette system...\n" );
-	gr_use_palette_table(DEFAULT_PALETTE );
+	gr_use_palette_table(D2_DEFAULT_PALETTE );
 
 	con_printf(CON_DEBUG, "Initializing font system...\n" );
 	gamefont_init();	// must load after palette data loaded.

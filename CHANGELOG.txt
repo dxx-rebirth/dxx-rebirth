@@ -2,7 +2,8 @@ D2X-Rebirth Changelog
 
 20070611
 --------
-arch/linux/hmiplay.c, arch/linux/ipx_bsd.c, arch/linux/ukali.c, libmve/decorder16.c, main/fvi.c, main/gameseq.c, main/newdemo.c, main/newmenu.c, main/object.c, main/playsave.c, main/render.c: fixed a bunch of compiler warnings
+2d/bitblt.c, arch/linux/hmiplay.c, arch/linux/ipx_bsd.c, arch/linux/ukali.c, libmve/decorder16.c, main/fvi.c, main/gameseq.c, main/newdemo.c, main/newmenu.c, main/object.c, main/playsave.c, main/render.c: fixed a bunch of compiler warnings
+arch/include/mouse.h, arch/sdl/mouse.c, arch/win32/include/mouse.h, arch/ogl/gr.c, main/bmread.c, main/credits.c, main/desw.h, main/gamepal.h, main/gamesave.c, main/gameseq.c, main/inferno.c: fixed more compiler warnings
 
 20070610
 --------

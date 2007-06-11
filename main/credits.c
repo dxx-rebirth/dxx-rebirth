@@ -351,7 +351,7 @@ get_line:;
 					gr_close_font(title_font);
 					gr_close_font(names_font);
 					gr_palette_fade_out( gr_palette, 32, 0 );
-					gr_use_palette_table( DEFAULT_PALETTE );
+					gr_use_palette_table( D2_DEFAULT_PALETTE );
 					d_free(backdrop.bm_data);
 					cfclose(file);
 					gr_set_current_canvas(save_canv);

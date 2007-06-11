@@ -681,7 +681,7 @@ int bm_init_use_tbl()
 	piggy_dump_all();
 	#endif
 
-	gr_use_palette_table(DEFAULT_PALETTE);
+	gr_use_palette_table(D2_DEFAULT_PALETTE);
 
 	return 0;
 }
