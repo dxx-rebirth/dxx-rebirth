@@ -323,15 +323,7 @@ void game_show_warning(char *s)
 #define cv_w  cv_bitmap.bm_w
 #define cv_h  cv_bitmap.bm_h
 
-//added 3/24/99 by Owen Evans for screen res changing
 u_int32_t Game_screen_mode = 0;
-//end added - OE
-int Game_window_x = 0;
-int Game_window_y = 0;
-int Game_window_w = 0;
-int Game_window_h = 0;
-int max_window_w = 0;
-int max_window_h = 0;
 
 int last_drawn_cockpit = -1;
 extern void ogl_loadbmtexture(grs_bitmap *bm);
@@ -341,8 +333,6 @@ extern int Rear_view;
 // This actually renders the new cockpit onto the screen.
 void update_cockpits(int force_redraw)
 {
-	int x, y, w, h;
-
 	grs_bitmap * bm;
 	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
 	bm = &GameBitmaps[cockpit_bitmap[Cockpit_mode].index];
@@ -362,24 +352,16 @@ void update_cockpits(int force_redraw)
 #endif
 			break;
 		case CM_FULL_SCREEN:
-			Game_window_x = (max_window_w - Game_window_w)/2;
-			Game_window_y = (max_window_h - Game_window_h)/2;
-			fill_background(Game_window_x,Game_window_y,Game_window_w,Game_window_h,Game_window_x,Game_window_y);
 			break;
 		case CM_STATUS_BAR:
 			gr_set_current_canvas(NULL);
 #ifdef OGL
 			bm->bm_flags |= BM_FLAG_TRANSPARENT;
 			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
-			ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, bm,255, F1_0);
+			ogl_ubitmapm_cs (0, (SHEIGHT*2)/2.72, -1, ((int) ((double) (bm->bm_h) * ((double)grd_curscreen->sc_h/200) + 0.5)), bm,255, F1_0);
 #else
-			gr_ubitmapm(0,max_window_h,bm);
+			gr_ubitmapm(0,146,bm);
 #endif
-			w = Game_window_w;
-			h = Game_window_h;
-			x = (SM_W(Game_screen_mode) - w)/2;
-			y = (max_window_h - h)/2;
-			fill_background(x,y,w,h,x,y);
 			break;
 		case CM_LETTERBOX:
 			gr_set_current_canvas(NULL);
@@ -403,8 +385,6 @@ extern void change_res_poll();
 //called every time the screen mode or cockpit changes
 void init_cockpit()
 {
-	int x, y;
-
 	//Initialize the on-screen canvases
 
 	if (Screen_mode != SCREEN_GAME)
@@ -428,10 +408,6 @@ void init_cockpit()
 	switch( Cockpit_mode )	{
 	case CM_FULL_COCKPIT:
 	case CM_REAR_VIEW:		{
-		if (!Game_window_h)
-			Game_window_h = max_window_h;
-		if (!Game_window_w)
-			Game_window_w = max_window_w;
 		if (Cockpit_mode == CM_FULL_COCKPIT)
 			game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w, (grd_curscreen->sc_h*2)/3);
 		else if (Cockpit_mode == CM_REAR_VIEW)
@@ -440,32 +416,11 @@ void init_cockpit()
 		}
 
 	case CM_FULL_SCREEN:
-#ifndef OGL
-		if (Game_window_h > max_window_h || (Game_screen_mode == SM(320,200)) || !Game_window_h)
-#endif
-			Game_window_h = max_window_h;
-#ifndef OGL
-		if (Game_window_w > max_window_w || (Game_screen_mode == SM(320,200)) || !Game_window_w)
-#endif
-			Game_window_w = max_window_w;
-
-		Game_window_x = (max_window_w - Game_window_w)/2;
-		Game_window_y = (max_window_h - Game_window_h)/2;
-		game_init_render_sub_buffers(Game_window_x, Game_window_y, Game_window_w, Game_window_h);
+		game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
 		break;
 
 	case CM_STATUS_BAR:
-		max_window_h = (grd_curscreen->sc_h*2)/2.72;
-
-		if (Game_window_h > max_window_h || (!Game_window_w || !Game_window_h)) {
-			Game_window_w = max_window_w;
-			Game_window_h = max_window_h;
-		}
-
-		x = (max_window_w - Game_window_w)/2;
-		y = (max_window_h - Game_window_h)/2;
-		gr_rect(0,Game_window_h,SM_W(Game_screen_mode),SM_H(Game_screen_mode));
-		game_init_render_sub_buffers( x, y, Game_window_w, Game_window_h );
+		game_init_render_sub_buffers( 0, 0, SWIDTH, (SHEIGHT*2)/2.72 );
 		break;
 
 	case CM_LETTERBOX:	{
@@ -507,201 +462,23 @@ void toggle_cockpit()
 {
 	int new_mode;
 
-	switch (Cockpit_mode) {
-
+	switch (Cockpit_mode)
+	{
 		case CM_FULL_COCKPIT:
-			if (Game_window_h > max_window_h) //too big for scalable
-				new_mode = CM_FULL_SCREEN;
-			else
-				new_mode = CM_STATUS_BAR;
+			new_mode = CM_STATUS_BAR;
 			break;
-
 		case CM_STATUS_BAR:
+			new_mode = CM_FULL_SCREEN;
+			break;
 		case CM_FULL_SCREEN:
-			if (Rear_view)
-				return;
 			new_mode = CM_FULL_COCKPIT;
 			break;
-
-		case CM_REAR_VIEW:
-		case CM_LETTERBOX:
-		default:
-			return; //do nothing
-			break;
 	}
+
 	select_cockpit(new_mode);
 	HUD_clear_messages();
-}
-
-#define WINDOW_W_DELTA	((max_window_w / 16)&~1)
-#define WINDOW_H_DELTA	((max_window_h / 16)&~1)
-#define WINDOW_MIN_W		(max_window_w-(WINDOW_W_DELTA*11))
-#define WINDOW_MIN_H		(max_window_h-(WINDOW_H_DELTA*11))
-
-void grow_window()
-{
-	if (Cockpit_mode == CM_FULL_COCKPIT) {
-		Game_window_h = max_window_h;
-		Game_window_w = max_window_w;
-		toggle_cockpit();
-		HUD_init_message("Press F3 to return to Cockpit mode");
-		write_player_file();
-		return;
-	}
-
-	if ((Cockpit_mode != CM_STATUS_BAR)
-#ifndef OGL
-		&& (Game_screen_mode == SM(320,200))
-#endif
-	)
-		return;
-
-	if (Game_window_h>=max_window_h || Game_window_w>=max_window_w) {
-		//Game_window_w = max_window_w;
-		//Game_window_h = max_window_h;
-		//Game_window_h = grd_curscreen->sc_h;
-		Game_window_h = max_window_h = grd_curscreen->sc_h;
-		select_cockpit(CM_FULL_SCREEN);
-	} else {
-		//int x,y;
-
-		Game_window_w += WINDOW_W_DELTA;
-		Game_window_h += WINDOW_H_DELTA;
-
-		if (Game_window_h > max_window_h)
-			Game_window_h = max_window_h;
-
-		if (Game_window_w > max_window_w)
-			Game_window_w = max_window_w;
-
-		Game_window_x = (max_window_w - Game_window_w)/2;
-		Game_window_y = (max_window_h - Game_window_h)/2;
-
-		game_init_render_sub_buffers( Game_window_x, Game_window_y, Game_window_w, Game_window_h );
-	}
-
-	HUD_clear_messages();	//	@mk, 11/11/94
-
 	write_player_file();
 }
-
-grs_bitmap background_bitmap;
-
-void copy_background_rect(int left,int top,int right,int bot)
-{
-	grs_bitmap *bm = &background_bitmap;
-	int x,y;
-	int tile_left,tile_right,tile_top,tile_bot;
-	int ofs_x,ofs_y;
-	int dest_x,dest_y;
-
-	if (right < left || bot < top)
-		return;
-
-	tile_left = left / bm->bm_w;
-	tile_right = right / bm->bm_w;
-	tile_top = top / bm->bm_h;
-	tile_bot = bot / bm->bm_h;
-
-	ofs_y = top % bm->bm_h;
-	dest_y = top;
-
-	for (y=tile_top;y<=tile_bot;y++) {
-		int w,h;
-
-		ofs_x = left % bm->bm_w;
-		dest_x = left;
-
-		h = min(bot-dest_y+1,bm->bm_h-ofs_y);
-
-		for (x=tile_left;x<=tile_right;x++) {
-
-			w = min(right-dest_x+1,bm->bm_w-ofs_x);
-#ifdef OGL
-			ogl_ubitmapm_cs (dest_x, dest_y, w, h, &background_bitmap,255, F1_0);
-#else
-			gr_bm_ubitblt(w,h,dest_x,dest_y,ofs_x,ofs_y,&background_bitmap,&grd_curcanv->cv_bitmap);
-#endif
-
-			ofs_x = 0;
-			dest_x += w;
-		}
-
-		ofs_y = 0;
-		dest_y += h;
-	}
-
-
-}
-
-void fill_background(int x,int y,int w,int h,int dx,int dy)
-{
-	gr_set_current_canvas(NULL);
-	copy_background_rect(x-dx,y-dy,x-1,y+h+dy-1);
-	copy_background_rect(x+w,y-dy,x+w+dx-1,y+h+dy-1);
-	copy_background_rect(x,y-dy,x+w-1,y-1);
-	copy_background_rect(x,y+h,x+w-1,y+h+dy-1);
-}
-
-void shrink_window()
-{
-	mprintf((0,"%d ",FrameCount));
- 
-	if (Cockpit_mode == CM_FULL_COCKPIT
-#ifndef OGL
-		&& (Game_screen_mode == SM(320,200))
-#endif
-) {
-		Game_window_h = max_window_h;
-		Game_window_w = max_window_w;
-		select_cockpit(CM_STATUS_BAR);
-		HUD_init_message("Press F3 to return to Cockpit mode");
-		write_player_file();
-		return;
-	}
-
-	if (Cockpit_mode == CM_FULL_SCREEN
-#ifndef OGL
-		&& (Game_screen_mode == SM(320,200))
-#endif
-	)
-	{
-		select_cockpit(CM_STATUS_BAR);
-		write_player_file();
-		return;
-	}
-
-	if (Cockpit_mode != CM_STATUS_BAR
-#ifndef OGL
-		&& (Game_screen_mode == SM(320,200))
-#endif
-	)
-		return;
-
-	mprintf ((0,"Cockpit mode=%d\n",Cockpit_mode));
-
-	if (Game_window_w > WINDOW_MIN_W) {
-		Game_window_w -= WINDOW_W_DELTA;
-		Game_window_h -= WINDOW_H_DELTA;
-
-		mprintf ((0,"NewW=%d NewH=%d VW=%d maxH=%d\n",Game_window_w,Game_window_h,max_window_w,max_window_h));
-
-		if ( Game_window_w < WINDOW_MIN_W )
-			Game_window_w = WINDOW_MIN_W;
-
-		if ( Game_window_h < WINDOW_MIN_H )
-			Game_window_h = WINDOW_MIN_H;
-			
-		Game_window_x = (max_window_w - Game_window_w)/2;
-		Game_window_y = (max_window_h - Game_window_h)/2;
-
-		fill_background(Game_window_x,Game_window_y,Game_window_w,Game_window_h,WINDOW_W_DELTA/2,WINDOW_H_DELTA/2);
-		game_init_render_sub_buffers( Game_window_x, Game_window_y, Game_window_w, Game_window_h );
-		HUD_clear_messages();
-		write_player_file();
-	}
-}
-
 
 void game_init_render_sub_buffers( int x, int y, int w, int h )
 {
@@ -777,40 +554,50 @@ int set_screen_mode(int sm)
 #endif
 
 	switch( Screen_mode )	{
-	case SCREEN_MENU:
-		if (grd_curscreen->sc_mode != MENU_SCREEN_MODE)	{
-			if (gr_set_mode(MENU_SCREEN_MODE)) Error("Cannot set screen mode for game!");
-			gr_palette_load( gr_palette );
-		}
-		break;
-	case SCREEN_GAME:
-		if  (grd_curscreen->sc_mode != Game_screen_mode)
-                        if (gr_set_mode(Game_screen_mode))
-                                Error("Cannot set screen mode.");
-		reset_cockpit();
-		max_window_w = grd_curscreen->sc_w;
-		max_window_h = grd_curscreen->sc_h;
-		init_cockpit();
-		break;
-#ifdef EDITOR
-	case SCREEN_EDITOR:
-		if (grd_curscreen->sc_mode != SM(800,600))	{
-			int gr_error;
-			if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
-				Warning("Cannot init editor screen (error=%d)",gr_error);
-				return 0;
-			}
-		}
-		gr_palette_load( gr_palette );
+		case SCREEN_MENU:
+			/* give control back to the WM */
+			if (FindArg("-grabmouse"))
+				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
-		gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-		Canv_editor = &VR_editor_canvas;
-		gr_set_current_canvas( Canv_editor );
-		init_editor_screen(); //setup other editor stuff
-		break;
+			if (grd_curscreen->sc_mode != MENU_SCREEN_MODE)	{
+				if (gr_set_mode(MENU_SCREEN_MODE)) Error("Cannot set screen mode for game!");
+				gr_palette_load( gr_palette );
+			}
+			break;
+		case SCREEN_GAME:
+			/* keep the mouse from wandering in SDL */
+			if (FindArg("-grabmouse") && (Newdemo_state != ND_STATE_PLAYBACK))
+				SDL_WM_GrabInput(SDL_GRAB_ON);
+
+			if  (grd_curscreen->sc_mode != Game_screen_mode)
+				if (gr_set_mode(Game_screen_mode))
+					Error("Cannot set screen mode.");
+			reset_cockpit();
+			init_cockpit();
+			break;
+#ifdef EDITOR
+		case SCREEN_EDITOR:
+			/* give control back to the WM */
+			if (FindArg("-grabmouse"))
+				SDL_WM_GrabInput(SDL_GRAB_OFF);
+
+			if (grd_curscreen->sc_mode != SM(800,600))	{
+				int gr_error;
+				if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
+					Warning("Cannot init editor screen (error=%d)",gr_error);
+					return 0;
+				}
+			}
+			gr_palette_load( gr_palette );
+	
+			gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
+			Canv_editor = &VR_editor_canvas;
+			gr_set_current_canvas( Canv_editor );
+			init_editor_screen(); //setup other editor stuff
+			break;
 #endif
-	default:
-		Error("Invalid screen mode %d",sm);
+		default:
+			Error("Invalid screen mode %d",sm);
 	}
 
 	gr_set_current_canvas(NULL);
@@ -1133,7 +920,7 @@ void render_countdown_gauge()
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
 		y = FONTSCALE_Y(/*20 + */GAME_FONT->ft_h*5);
-		if (!((Cockpit_mode == CM_STATUS_BAR) && (Game_window_w >= 19)))
+		if (!(Cockpit_mode == CM_STATUS_BAR))
 			y += 5;
 
 		if (HUD_nmessages <= 4) // do not display if it may overlap with hud messages
@@ -1732,10 +1519,6 @@ int do_game_pause(int allow_menu)
 	gr_palette_load( gr_palette );
 	show_boxed_message(TXT_PAUSE);
 
-	/* give control back to the WM */
-	if (FindArg("-grabmouse"))
-	    SDL_WM_GrabInput(SDL_GRAB_OFF);
-
 	while (paused) {
 		timer_delay(1);
 #ifdef OGL
@@ -1776,10 +1559,6 @@ int do_game_pause(int allow_menu)
 		}
 	}
 
-	/* keep the mouse from wandering in SDL */
-	if (FindArg("-grabmouse") && (Newdemo_state != ND_STATE_PLAYBACK))
-	    SDL_WM_GrabInput(SDL_GRAB_ON);
-
 	game_flush_inputs();
 	palette_restore();
 	start_time();
@@ -1797,11 +1576,10 @@ void show_help()
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_ALT_F2; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_ALT_F3; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F2; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F3; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F3\t  SWITCH COCKPIT MODES"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F4\t  TOGGLE RADAR"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F5; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F7\t  switch hud-mode"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F9/F10\t  change screen size"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F7\t  SWITCH HUD MODES"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_PAUSE; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_PRTSCN; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_1TO5; mc++;
@@ -2059,11 +1837,8 @@ void game()
 			}
 
 			if (Automap_flag) {
-				int save_w=Game_window_w,save_h=Game_window_h;
-
 				do_automap(0);
 				Screen_mode=-1; set_screen_mode(SCREEN_GAME);
-				Game_window_w=save_w; Game_window_h=save_h;
 				init_cockpit();
 				last_drawn_cockpit = -1;
 				if (Game_screen_mode != SCREEN_MENU)
@@ -2267,20 +2042,14 @@ void HandleDemoKey(int key)
 #endif
 
 		case KEY_F3:			toggle_cockpit();	break;
+#ifdef GP2X
 		case KEY_ALTED+KEY_F9:
-#ifdef GP2X
 			digi_set_digi_volume( digi_volume-2048 );
-#else
-			shrink_window();
-#endif
-		break;
+			break;
 		case KEY_ALTED+KEY_F10:
-#ifdef GP2X
 			digi_set_digi_volume( digi_volume+2048 );
-#else
-			grow_window();
+			break;
 #endif
-		break;
 		case KEY_F2:			Config_menu_flag = 1;	break;
 		case KEY_F7:
 #ifdef NETWORK
@@ -2508,20 +2277,14 @@ void HandleGameKey(int key)
 		case KEY_PAUSE:			do_game_pause(1); 	break;
 		case KEY_PRINT_SCREEN: 		save_screen_shot(0);	break;
 
-		case KEY_ALTED+KEY_F9:
 #ifdef GP2X
+		case KEY_ALTED+KEY_F9:
 			digi_set_digi_volume( digi_volume-2048 );
-#else
-			shrink_window();
-#endif
 			break;
 		case KEY_ALTED+KEY_F10:
-#ifdef GP2X
 			digi_set_digi_volume( digi_volume+2048 );
-#else
-			grow_window();
-#endif
 			break;
+#endif
 		case KEYS_GR_TOGGLE_FULLSCREEN:
 				gr_toggle_fullscreen_game();
 				break;

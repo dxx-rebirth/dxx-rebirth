@@ -2074,7 +2074,7 @@ void render_gauges()
 		}
 		sb_draw_energy_bar(energy);
 #ifdef OGL
-		hud_bitblt (0, 146, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],F1_0);
+		hud_bitblt (0, 147, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],F1_0);
 #endif
 		draw_player_ship(cloak, old_cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 

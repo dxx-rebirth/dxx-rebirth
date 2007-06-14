@@ -218,7 +218,7 @@ void show_commandline_help()
 	printf( "  -missiondir <d>    %s\n", "Set alternate mission dir to <d> instead of missions/");
 	printf( "  -hudlog            %s\n", "Start hudlog immediately");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
-	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics independent)");
+	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -NoJoystick        %s\n", "Disables joystick support");
@@ -233,7 +233,6 @@ void show_commandline_help()
 	printf( "\n Graphics:\n\n");
 	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
 	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
-	printf( "  -cockpit <n>       %s\n", "Set initial cockpit. 0=full 2=status bar 3=full screen");
 	printf( "  -hud <h>           %s\n", "Set hud mode.  0=normal 1-3=new");
         printf( "  -hudlines <l>      %s\n", "Number of hud messages to show");
 	printf( "  -hiresfont         %s\n", "use high resolution fonts if available");
@@ -382,12 +381,6 @@ int main(int argc,char **argv)
 		select_tmap(Args[t+1]);
 	else
 		select_tmap(NULL);
-
-	if ((t=FindArg("-cockpit"))){
-		t=atoi(Args[t+1]);
-		if(t==0 || t==2 || t==3)
-			Cockpit_mode = t;
-	}
 
 	if ((t=FindArg("-hud"))){
 		t=atoi(Args[t+1]);
@@ -677,15 +670,7 @@ int main(int argc,char **argv)
 				keyd_editor_mode = 0;
 			#endif
 
-			/* keep the mouse from wandering in SDL */
-			if (FindArg("-grabmouse") && (Newdemo_state != ND_STATE_PLAYBACK))
-				SDL_WM_GrabInput(SDL_GRAB_ON);
-
 			game();
-
-			/* give control back to the WM */
-			if (FindArg("-grabmouse"))
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
 			if ( Function_mode == FMODE_MENU )
 				songs_play_song( SONG_TITLE, 1 );

@@ -91,7 +91,7 @@ void radar_render_frame()
 	int i,color;
 	object * objp;
 
-	Hostage_monitor_size = Game_window_w / 6;
+	Hostage_monitor_size = (SWIDTH / 6);
 	Hostage_monitor_x = (SWIDTH/320);
 
 	switch (Cockpit_mode)

@@ -103,9 +103,9 @@ hli highest_levels[MAX_MISSIONS];
 #define JOYSTICK 8
 #define NEWER_KEYS 16
 #define WEAPON_ORDER 32
-#define WINDOWSIZE 64
-#define RESOLUTION 128
-#define MOUSE_SENSITIVITY 256
+#define RESOLUTION 64
+#define MOUSE_SENSITIVITY 128
+#define COCKPIT_MODE 256
 
 typedef struct saved_game {
 	char		name[GAME_NAME_LEN+1];		//extra char for terminating zero
@@ -123,8 +123,6 @@ saved_game saved_games[N_SAVE_SLOTS];
 
 int Default_leveling_on=1;
 
-static int Player_Game_window_w = 0;
-static int Player_Game_window_h = 0;
 static int Player_render_width = 0;
 static int Player_render_height = 0;
 
@@ -385,26 +383,6 @@ int read_player_d1x(const char *filename)
 			}
 			free(line);
 		}
-		else if (strstr(word,"WINDOWSIZE"))
-		{
-			free(line); free(word);
-			line=fsplitword(f,'\n');
-			word=splitword(line,'=');
-			strupr(word);
-	
-			while(!strstr(word,"END") && !feof(f))
-			{
-				if(!strcmp(word,"WIDTH"))
-					sscanf(line,"%i",&Player_Game_window_w);
-				if(!strcmp(word,"HEIGHT"))
-					sscanf(line,"%i",&Player_Game_window_h);
-				free(line); free(word);
-				line=fsplitword(f,'\n');
-				word=splitword(line,'=');
-				strupr(word);
-			}
-			free(line);
-		}
 		else if (strstr(word,"RESOLUTION"))
 		{
 			free(line); free(word);
@@ -439,6 +417,28 @@ int read_player_d1x(const char *filename)
 					int tmp;
 					sscanf(line,"%i",&tmp);
 					Config_mouse_sensitivity = (ubyte) tmp;
+				}
+				free(line); free(word);
+				line=fsplitword(f,'\n');
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		free(line);
+		}
+		else if (strstr(word,"COCKPIT"))
+		{
+			free(line); free(word);
+			line=fsplitword(f,'\n');
+			word=splitword(line,'=');
+			strupr(word);
+	
+			while(!strstr(word,"END") && !feof(f))
+			{
+				if(!strcmp(word,"MODE"))
+				{
+					int tmp;
+					sscanf(line,"%i",&tmp);
+					Cockpit_mode = (ubyte) tmp;
 				}
 				free(line); free(word);
 				line=fsplitword(f,'\n');
@@ -713,16 +713,15 @@ int write_player_d1x(const char *filename)
 			fprintf(fout,"9=0x%x,0x%x\n",kconfig_d1x_settings[16],kconfig_d1x_settings[17]);
 			fprintf(fout,"0=0x%x,0x%x\n",kconfig_d1x_settings[18],kconfig_d1x_settings[19]);
 			fprintf(fout,"[end]\n");
-			fprintf(fout,"[windowsize]\n");
-			fprintf(fout,"width=%d\n", Game_window_w);
-			fprintf(fout,"height=%d\n", Game_window_h);
-			fprintf(fout,"[end]\n");
 			fprintf(fout,"[resolution]\n");
 			fprintf(fout,"width=%d\n", SM_W(Game_screen_mode));
 			fprintf(fout,"height=%d\n", SM_H(Game_screen_mode));
 			fprintf(fout,"[end]\n");
 			fprintf(fout,"[mouse]\n");
 			fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
+			fprintf(fout,"[end]\n");
+			fprintf(fout,"[cockpit]\n");
+			fprintf(fout,"mode=%i\n",Cockpit_mode);
 			fprintf(fout,"[end]\n");
 			fprintf(fout,"[plx version]\n");
 			fprintf(fout,"plx version=%s\n",D1X_VERSION);
@@ -849,21 +848,6 @@ int write_player_d1x(const char *filename)
 					free(line);
 					printed |= JOYSTICK;
 				}
-				else if (strstr(line,"WINDOWSIZE"))
-				{
-					fprintf(fout,"[windowsize]\n");
-					fprintf(fout,"width=%d\n", Game_window_w);
-					fprintf(fout,"height=%d\n", Game_window_h);
-					fprintf(fout,"[end]\n");
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-					free(line);
-					printed |= WINDOWSIZE;
-				}
 				else if (strstr(line,"RESOLUTION"))
 				{
 					fprintf(fout,"[resolution]\n");
@@ -892,6 +876,20 @@ int write_player_d1x(const char *filename)
 					}
 					free(line);
 					printed |= MOUSE_SENSITIVITY;
+				}
+				else if (strstr(line,"COCKPIT"))
+				{
+					fprintf(fout,"[cockpit]\n");
+					fprintf(fout,"mode=%d\n",Cockpit_mode);
+					fprintf(fout,"[end]\n");
+					while(!strstr(line,"END")&&!feof(fin))
+					{
+						free(line);
+						line=fsplitword(fin,'\n');
+						strupr(line);
+					}
+					free(line);
+					printed |= COCKPIT_MODE;
 				}
 				else if (strstr(line,"END"))
 				{
@@ -966,13 +964,6 @@ int write_player_d1x(const char *filename)
 				fprintf(fout,"0=0x%x,0x%x\n",kconfig_d1x_settings[18],kconfig_d1x_settings[19]);
 				fprintf(fout,"[end]\n");
 			}
-			if(!(printed&WINDOWSIZE))
-			{
-				fprintf(fout,"[windowsize]\n");
-				fprintf(fout,"width=%d\n", Game_window_w);
-				fprintf(fout,"height=%d\n", Game_window_h);
-				fprintf(fout,"[end]\n");
-			}
 			if(!(printed&RESOLUTION))
 			{
 				fprintf(fout,"[resolution]\n");
@@ -984,6 +975,12 @@ int write_player_d1x(const char *filename)
 			{
 				fprintf(fout,"[mouse]\n");
 				fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
+				fprintf(fout,"[end]\n");
+			}
+			if(!(printed&COCKPIT_MODE))
+			{
+				fprintf(fout,"[cockpit]\n");
+				fprintf(fout,"mode=%d\n",Cockpit_mode);
 				fprintf(fout,"[end]\n");
 			}
 		
@@ -1263,8 +1260,6 @@ int read_player_file()
 			Player_render_width,
 			Player_render_height, VR_NONE);
 	}
-	Game_window_w = Player_Game_window_w;
-	Game_window_h = Player_Game_window_h;
 
 	return errno_ret;
 
@@ -1460,9 +1455,11 @@ int save_player_game(int slot_num,char *text)
 	saved_games[slot_num].auto_leveling_on	= Auto_leveling_on;
 	saved_games[slot_num].primary_weapon	= Primary_weapon;
 	saved_games[slot_num].secondary_weapon	= Secondary_weapon;
-	saved_games[slot_num].cockpit_mode		= Cockpit_mode;
-	saved_games[slot_num].window_w			= Game_window_w;
-	saved_games[slot_num].window_h			= Game_window_h;
+	// now saved in PLX file
+	saved_games[slot_num].cockpit_mode		= 0;
+	// here Game_window_w(h should follow, but we don't use it anymore
+	saved_games[slot_num].window_w			= 0;
+	saved_games[slot_num].window_h			= 0;
 	saved_games[slot_num].next_level_num	= Next_level_num;
 
 	return write_player_file();
@@ -1490,9 +1487,6 @@ int load_player_game(int slot_num)
 	Auto_leveling_on	= saved_games[slot_num].auto_leveling_on;
 	Primary_weapon		= saved_games[slot_num].primary_weapon;
 	Secondary_weapon	= saved_games[slot_num].secondary_weapon;
-	Cockpit_mode		= saved_games[slot_num].cockpit_mode;
-	Game_window_w		= saved_games[slot_num].window_w;
-	Game_window_h		= saved_games[slot_num].window_h;
 
 	Players[Player_num].level = saved_games[slot_num].next_level_num;
 

@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070614
 --------
 main/polyobj.c, main/render.c: using size_t when it comes to integer to pointer conversions
+d1x.ini, main/game.c, main/gauges.c, main/hud.c, main/inferno.c, main/kconfig.c, main/menu.c, main/playsave.c, main/radar.c: fixed axis direction for vertical and sideways thrust time; fixed y-Offset for mouse selection in kconfig_sub; removed (useless) Shrink/Grow window feature to clean code a bit; saving Cockpit mode in PLX file; improved grabmouse so mouse is always released in non-SCREEN_GAME modes
 
 20070611
 --------

@@ -888,7 +888,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 				x1 = grd_curcanv->cv_bitmap.bm_x + FONTSCALE_X(items[i].x) + FONTSCALE_X(items[i].w1);
 				x2 = x1 + FONTSCALE_X(items[i].w2);
 				y1 = grd_curcanv->cv_bitmap.bm_y + FONTSCALE_Y(items[i].y);
-				y2 = y1 + FONTSCALE_Y(item_height);
+				y2 = y1 + item_height;
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 					citem = i;
 					break;
@@ -903,7 +903,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 			x1 = grd_curcanv->cv_bitmap.bm_x + FONTSCALE_X(items[citem].x) + FONTSCALE_X(items[citem].w1);
 			x2 = x1 + FONTSCALE_X(items[citem].w2);
 			y1 = grd_curcanv->cv_bitmap.bm_y + FONTSCALE_Y(items[citem].y);
-			y2 = y1 + FONTSCALE_Y(item_height);
+			y2 = y1 + item_height;
 			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 				newmenu_hide_cursor();
 				switch( items[citem].type )	{
@@ -1709,13 +1709,12 @@ void controls_read_all()
 			if ( kc_keyboard[2].value < 255 ) Controls.vertical_thrust_time -= k2;
 			if ( kc_keyboard[3].value < 255 ) Controls.vertical_thrust_time -= k3;
 	
-
 			// From joystick...
 			if ((use_joystick)&&( kc_joystick[13].value < 255 ))	{
 				if ( !kc_joystick[14].value )		// If not inverted...
-					Controls.vertical_thrust_time += (joy_axis[kc_joystick[13].value]*Config_joystick_sensitivity)/8;
-				else
 					Controls.vertical_thrust_time -= (joy_axis[kc_joystick[13].value]*Config_joystick_sensitivity)/8;
+				else
+					Controls.vertical_thrust_time += (joy_axis[kc_joystick[13].value]*Config_joystick_sensitivity)/8;
 			}
 		
 			// From mouse...
@@ -1736,9 +1735,9 @@ void controls_read_all()
 		// From joystick...
 		if ((use_joystick)&&( kc_joystick[19].value < 255 ))	{
 			if ( !kc_joystick[20].value )		// If not inverted...
-				Controls.vertical_thrust_time += (joy_axis[kc_joystick[19].value]*Config_joystick_sensitivity)/8;
-			else
 				Controls.vertical_thrust_time -= (joy_axis[kc_joystick[19].value]*Config_joystick_sensitivity)/8;
+			else
+				Controls.vertical_thrust_time += (joy_axis[kc_joystick[19].value]*Config_joystick_sensitivity)/8;
 		}
 	
 		// From joystick buttons
@@ -1847,9 +1846,9 @@ void controls_read_all()
 		// From joystick...
 		if ( (use_joystick)&&(kc_joystick[17].value < 255 ))	{
 			if ( !kc_joystick[18].value )		// If not inverted...
-				Controls.sideways_thrust_time -= (joy_axis[kc_joystick[17].value]*Config_joystick_sensitivity)/8;
-			else
 				Controls.sideways_thrust_time += (joy_axis[kc_joystick[17].value]*Config_joystick_sensitivity)/8;
+			else
+				Controls.sideways_thrust_time -= (joy_axis[kc_joystick[17].value]*Config_joystick_sensitivity)/8;
 		}
 	
 		// From joystick buttons
