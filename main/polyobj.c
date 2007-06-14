@@ -866,7 +866,7 @@ extern void polymodel_read(polymodel *pm, CFILE *fp)
 
 	pm->n_models = cfile_read_int(fp);
 	pm->model_data_size = cfile_read_int(fp);
-	pm->model_data = (ubyte *)cfile_read_int(fp); // garbage, read it anyway just for consistency
+	pm->model_data = (ubyte *)(size_t)cfile_read_int(fp); // garbage, read it anyway just for consistency
 	for (i = 0; i < MAX_SUBMODELS; i++)
 		pm->submodel_ptrs[i] = cfile_read_int(fp);
 	for (i = 0; i < MAX_SUBMODELS; i++)
@@ -900,7 +900,7 @@ extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp)
 	for (i = 0; i < n; i++) {
 		pm[i].n_models = cfile_read_int(fp);
 		pm[i].model_data_size = cfile_read_int(fp);
-		pm->model_data = (ubyte *)cfile_read_int(fp); // garbage, read it anyway just for consistency
+		pm->model_data = (ubyte *)(size_t)cfile_read_int(fp); // garbage, read it anyway just for consistency
 		for (j = 0; j < MAX_SUBMODELS; j++)
 			pm[i].submodel_ptrs[j] = cfile_read_int(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)

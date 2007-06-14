@@ -1039,7 +1039,7 @@ int read_hamfile()
 		for (i=0; i<N_sounds; i++ ) {
 			DiskSoundHeader_read(&sndh, ham_fp);
 			temp_sound.length = sndh.length;
-			temp_sound.data = (ubyte *)(sndh.offset + header_size + sound_start);
+			temp_sound.data = (ubyte *)(size_t)(sndh.offset + header_size + sound_start);
 			SoundOffset[Num_sound_files] = sndh.offset + header_size + sound_start;
 			memcpy( temp_name_read, sndh.name, 8 );
 			temp_name_read[8] = 0;
@@ -1108,7 +1108,7 @@ int read_sndfile()
 		DiskSoundHeader_read(&sndh, snd_fp);
 		//size -= sizeof(DiskSoundHeader);
 		temp_sound.length = sndh.length;
-		temp_sound.data = (ubyte *)(sndh.offset + header_size + sound_start);
+		temp_sound.data = (ubyte *)(size_t)(sndh.offset + header_size + sound_start);
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + sound_start;
 		memcpy( temp_name_read, sndh.name, 8 );
 		temp_name_read[8] = 0;
@@ -1837,7 +1837,7 @@ void load_bitmap_replacements(char *level_name)
 			gr_set_bitmap_data(bm, NULL);	// free ogl texture
 			gr_init_bitmap(bm, 0, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
 			bm->avg_color = bmh.avg_color;
-			bm->bm_data = (ubyte *) bmh.offset;
+			bm->bm_data = (ubyte *) (size_t)bmh.offset;
 
 			gr_set_bitmap_flags(bm, bmh.flags & BM_FLAGS_TO_COPY);
 
@@ -1849,7 +1849,7 @@ void load_bitmap_replacements(char *level_name)
 		for (i = 0; i < n_bitmaps; i++)
 		{
 			grs_bitmap *bm = &GameBitmaps[indices[i]];
-			gr_set_bitmap_data(bm, Bitmap_replacement_data + (int) bm->bm_data);
+			gr_set_bitmap_data(bm, Bitmap_replacement_data + (size_t) bm->bm_data);
 		}
 
 		d_free(indices);

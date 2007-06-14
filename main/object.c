@@ -1999,7 +1999,7 @@ void object_move_one( object * obj )
 #ifdef __DJGPP__
 			Error("Unknown control type %d in object %li, sig/type/id = %i/%i/%i",obj->control_type, obj-Objects, obj->signature, obj->type, obj->id);
 #else
-			Error("Unknown control type %d in object %li, sig/type/id = %i/%i/%i",obj->control_type, obj-Objects, obj->signature, obj->type, obj->id);
+			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj-Objects), obj->signature, obj->type, obj->id);
 #endif
 
 			break;

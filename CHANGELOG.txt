@@ -1,9 +1,13 @@
 D2X-Rebirth Changelog
 
+20070614
+--------
+2d/font.c, libmve/decoder16.c, main/object.c, main/piggy.c, main/polyobj.c, main/render.c, mem/mem.c: using size_t when it comes to integer to pointer conversions
+
 20070611
 --------
 2d/bitblt.c, arch/linux/hmiplay.c, arch/linux/ipx_bsd.c, arch/linux/ukali.c, libmve/decorder16.c, main/fvi.c, main/gameseq.c, main/newdemo.c, main/newmenu.c, main/object.c, main/playsave.c, main/render.c: fixed a bunch of compiler warnings
-arch/include/mouse.h, arch/sdl/mouse.c, arch/win32/include/mouse.h, arch/ogl/gr.c, main/bmread.c, main/credits.c, main/desw.h, main/gamepal.h, main/gamesave.c, main/gameseq.c, main/inferno.c: fixed more compiler warnings
+arch/include/mouse.h, arch/sdl/mouse.c, arch/win32/include/mouse.h, arch/ogl/gr.c, include/palette.h, main/bmread.c, main/credits.c, main/desw.h, main/gamepal.h, main/gamesave.c, main/gameseq.c, main/inferno.c: fixed more compiler warnings
 
 20070610
 --------

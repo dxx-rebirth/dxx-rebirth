@@ -1364,10 +1364,10 @@ void grs_font_read(grs_font *gf, CFILE *fp)
 	gf->ft_minchar = cfile_read_byte(fp);
 	gf->ft_maxchar = cfile_read_byte(fp);
 	gf->ft_bytewidth = cfile_read_short(fp);
-	gf->ft_data = (ubyte *)cfile_read_int(fp);
-	gf->ft_chars = (ubyte **)cfile_read_int(fp);
-	gf->ft_widths = (short *)cfile_read_int(fp);
-	gf->ft_kerndata = (ubyte *)cfile_read_int(fp);
+	gf->ft_data = (ubyte *)(size_t)cfile_read_int(fp);
+	gf->ft_chars = (ubyte **)(size_t)cfile_read_int(fp);
+	gf->ft_widths = (short *)(size_t)cfile_read_int(fp);
+	gf->ft_kerndata = (ubyte *)(size_t)cfile_read_int(fp);
 }
 #endif
 
@@ -1425,16 +1425,16 @@ grs_font * gr_init_font( char * fontname )
 	open_font[fontnum].dataptr = font_data;
 
 	// make these offsets relative to font_data
-	font->ft_data = (ubyte *)((int)font->ft_data - GRS_FONT_SIZE);
-	font->ft_widths = (short *)((int)font->ft_widths - GRS_FONT_SIZE);
-	font->ft_kerndata = (ubyte *)((int)font->ft_kerndata - GRS_FONT_SIZE);
+	font->ft_data = (ubyte *)((size_t)font->ft_data - GRS_FONT_SIZE);
+	font->ft_widths = (short *)((size_t)font->ft_widths - GRS_FONT_SIZE);
+	font->ft_kerndata = (ubyte *)((size_t)font->ft_kerndata - GRS_FONT_SIZE);
 
 	nchars = font->ft_maxchar - font->ft_minchar + 1;
 
 	if (font->ft_flags & FT_PROPORTIONAL) {
 
-		font->ft_widths = (short *) &font_data[(int)font->ft_widths];
-		font->ft_data = (unsigned char *) &font_data[(int)font->ft_data];
+		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
+		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
 		font->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
 
 		ptr = font->ft_data;
@@ -1458,7 +1458,7 @@ grs_font * gr_init_font( char * fontname )
 	}
 
 	if (font->ft_flags & FT_KERNED)
-		font->ft_kerndata = (unsigned char *) &font_data[(int)font->ft_kerndata];
+		font->ft_kerndata = (unsigned char *) &font_data[(size_t)font->ft_kerndata];
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];
@@ -1466,29 +1466,6 @@ grs_font * gr_init_font( char * fontname )
 		int freq[256];
 
 		cfread(palette,3,256,fontfile);		//read the palette
-
-#ifdef SWAP_0_255			// swap the first and last palette entries (black and white)
-		{
-			int i;
-			ubyte c;
-
-			for (i = 0; i < 3; i++) {
-				c = palette[i];
-				palette[i] = palette[765+i];
-				palette[765+i] = c;
-			}
-
-//  we also need to swap the data entries as well.  black is white and white is black
-
-			for (i = 0; i < ptr-font->ft_data; i++) {
-				if (font->ft_data[i] == 0)
-					font->ft_data[i] = 255;
-				else if (font->ft_data[i] == 255)
-					font->ft_data[i] = 0;
-			}
-
-		}
-#endif
 
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
 
@@ -1506,19 +1483,11 @@ grs_font * gr_init_font( char * fontname )
 	FG_COLOR    = 0;
 	BG_COLOR    = 0;
 
-	{
-		int x,y,aw;
-		char tests[]="abcdefghij1234.A";
-		gr_get_string_size(tests,&x,&y,&aw);
-//		newfont->ft_aw=x/(float)strlen(tests);
-	}
-
 #ifdef OGL
 	ogl_init_font(font);
 #endif
 
 	return font;
-
 }
 
 //remap a font by re-reading its data & palette
@@ -1552,16 +1521,16 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 	cfread(font_data, 1, datasize, fontfile);  //read raw data
 
 	// make these offsets relative to font_data
-	font->ft_data = (ubyte *)((int)font->ft_data - GRS_FONT_SIZE);
-	font->ft_widths = (short *)((int)font->ft_widths - GRS_FONT_SIZE);
-	font->ft_kerndata = (ubyte *)((int)font->ft_kerndata - GRS_FONT_SIZE);
+	font->ft_data = (ubyte *)((size_t)font->ft_data - GRS_FONT_SIZE);
+	font->ft_widths = (short *)((size_t)font->ft_widths - GRS_FONT_SIZE);
+	font->ft_kerndata = (ubyte *)((size_t)font->ft_kerndata - GRS_FONT_SIZE);
 
 	nchars = font->ft_maxchar - font->ft_minchar + 1;
 
 	if (font->ft_flags & FT_PROPORTIONAL) {
 
-		font->ft_widths = (short *) &font_data[(int)font->ft_widths];
-		font->ft_data = (unsigned char *) &font_data[(int)font->ft_data];
+		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
+		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
 		font->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
 
 		ptr = font->ft_data;
@@ -1585,7 +1554,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 	}
 
 	if (font->ft_flags & FT_KERNED)
-		font->ft_kerndata = (unsigned char *) &font_data[(int)font->ft_kerndata];
+		font->ft_kerndata = (unsigned char *) &font_data[(size_t)font->ft_kerndata];
 
 	if (font->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];
@@ -1593,29 +1562,6 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 		int freq[256];
 
 		cfread(palette,3,256,fontfile);		//read the palette
-
-#ifdef SWAP_0_255			// swap the first and last palette entries (black and white)
-		{
-			int i;
-			ubyte c;
-
-			for (i = 0; i < 3; i++) {
-				c = palette[i];
-				palette[i] = palette[765+i];
-				palette[765+i] = c;
-			}
-
-//  we also need to swap the data entries as well.  black is white and white is black
-
-			for (i = 0; i < ptr-font->ft_data; i++) {
-				if (font->ft_data[i] == 0)
-					font->ft_data[i] = 255;
-				else if (font->ft_data[i] == 255)
-					font->ft_data[i] = 0;
-			}
-
-		}
-#endif
 
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
 
@@ -1631,7 +1577,6 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 	if (font->ft_bitmaps)
 		d_free( font->ft_bitmaps );
 	gr_free_bitmap_data(&font->ft_parent_bitmap);
-//	ogl_freebmtexture(&font->ft_parent_bitmap);
 
 	ogl_init_font(font);
 #endif

@@ -300,14 +300,16 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 #endif
 
 	fix			reflect;
-	uvl			uvl_copy[8];
+	g3s_uvl			uvl_copy[8];
 	int			i;
-	g3s_point	*pointlist[8];
+	g3s_point		*pointlist[8];
 
 	Assert(nv <= 8);
 
 	for (i=0; i<nv; i++) {
-		uvl_copy[i] = uvlp[i];
+		uvl_copy[i].u = uvlp[i].u;
+		uvl_copy[i].v = uvlp[i].v;
+		uvl_copy[i].l = uvlp[i].l;
 		pointlist[i] = &Segment_points[vp[i]];
 	}
 
@@ -396,16 +398,16 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 
 #ifdef EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
-		g3_draw_tmap(nv,pointlist,(g3s_uvl *) uvl_copy,&GameBitmaps[Textures[Bottom_bitmap_num].index]);
+		g3_draw_tmap(nv,pointlist,uvl_copy,&GameBitmaps[Textures[Bottom_bitmap_num].index]);
 	else
 #endif
 
 #ifdef OGL
 		if (bm2){
-			g3_draw_tmap_2(nv,pointlist,(g3s_uvl *) uvl_copy,bm,bm2,((tmap2&0xC000)>>14) & 3);
+			g3_draw_tmap_2(nv,pointlist,uvl_copy,bm,bm2,((tmap2&0xC000)>>14) & 3);
 		}else
 #endif
-			g3_draw_tmap(nv,pointlist,(g3s_uvl *) uvl_copy,bm);
+			g3_draw_tmap(nv,pointlist,uvl_copy,bm);
 
 #ifndef NDEBUG
 	if (Outline_mode) draw_outline(nv, pointlist);
@@ -423,7 +425,7 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tma
 	if (_search_mode) {
 		int save_lighting;
 		grs_bitmap *bm;
-		uvl uvl_copy[8];
+		g3s_uvl uvl_copy[8];
 		g3s_point *pointlist[4];
 
 		if (tmap2 > 0 )
@@ -432,7 +434,9 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tma
 			bm = &GameBitmaps[Textures[tmap1].index];
 
 		for (i=0; i<nv; i++) {
-			uvl_copy[i] = uvlp[i];
+			uvl_copy[i].u = uvlp[i].u;
+			uvl_copy[i].v = uvlp[i].v;
+			uvl_copy[i].l = uvlp[i].l;
 			pointlist[i] = &Segment_points[vp[i]];
 		}
 
@@ -442,7 +446,7 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tma
  save_lighting = Lighting_on;
  Lighting_on = 2;
 		//g3_draw_poly(nv,vp);
-		g3_draw_tmap(nv,pointlist, (g3s_uvl *)uvl_copy, bm);
+		g3_draw_tmap(nv,pointlist, uvl_copy, bm);
  Lighting_on = save_lighting;
 
 		if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
@@ -630,7 +634,7 @@ im_so_ashamed: ;
 #ifdef __DJGPP__
 				Error("Illegal side type in render_side, type = %i, segment # = %li, side # = %i\n", sidep->type, segp-Segments, sidenum);
 #else
-				Error("Illegal side type in render_side, type = %i, segment # = %li, side # = %i\n", sidep->type, segp-Segments, sidenum);
+				Error("Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type, (int)(segp-Segments), sidenum);
 #endif
 		}
 	}
