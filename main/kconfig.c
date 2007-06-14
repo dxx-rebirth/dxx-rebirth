@@ -957,7 +957,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 				x1 = grd_curcanv->cv_bitmap.bm_x + LHX(items[i].x) + LHX(items[i].w1);
 				x2 = x1 + LHX(items[i].w2);
 				y1 = grd_curcanv->cv_bitmap.bm_y + LHY(items[i].y);
-				y2 = y1 + LHX(item_height);
+				y2 = y1 + item_height;
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 					citem = i;
 					break;
@@ -972,7 +972,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 			x1 = grd_curcanv->cv_bitmap.bm_x + LHX(items[citem].x) + LHX(items[citem].w1);
 			x2 = x1 + LHX(items[citem].w2);
 			y1 = grd_curcanv->cv_bitmap.bm_y + LHY(items[citem].y);
-			y2 = y1 + LHY(item_height);
+			y2 = y1 + item_height;
 			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 				newmenu_hide_cursor();
 				switch( items[citem].type )	{
@@ -1744,9 +1744,9 @@ void controls_read_all()
 			// From joystick...
 			if ((use_joystick)&&( kc_joystick[13].value < 255 ))	{
 				if ( !kc_joystick[14].value )		// If not inverted...
-					Controls.vertical_thrust_time += (joy_axis[kc_joystick[13].value]*Config_joystick_sensitivity)/8;
-				else
 					Controls.vertical_thrust_time -= (joy_axis[kc_joystick[13].value]*Config_joystick_sensitivity)/8;
+				else
+					Controls.vertical_thrust_time += (joy_axis[kc_joystick[13].value]*Config_joystick_sensitivity)/8;
 			}
 		
 			// From mouse...
@@ -1767,9 +1767,9 @@ void controls_read_all()
 		// From joystick...
 		if ((use_joystick)&&( kc_joystick[19].value < 255 ))	{
 			if ( !kc_joystick[20].value )		// If not inverted...
-				Controls.vertical_thrust_time += (joy_axis[kc_joystick[19].value]*Config_joystick_sensitivity)/8;
-			else
 				Controls.vertical_thrust_time -= (joy_axis[kc_joystick[19].value]*Config_joystick_sensitivity)/8;
+			else
+				Controls.vertical_thrust_time += (joy_axis[kc_joystick[19].value]*Config_joystick_sensitivity)/8;
 		}
 	
 		// From joystick buttons
@@ -1879,9 +1879,9 @@ void controls_read_all()
 		// From joystick...
 		if ( (use_joystick)&&(kc_joystick[17].value < 255 ))	{
 			if ( !kc_joystick[18].value )		// If not inverted...
-				Controls.sideways_thrust_time -= (joy_axis[kc_joystick[17].value]*Config_joystick_sensitivity)/8;
-			else
 				Controls.sideways_thrust_time += (joy_axis[kc_joystick[17].value]*Config_joystick_sensitivity)/8;
+			else
+				Controls.sideways_thrust_time -= (joy_axis[kc_joystick[17].value]*Config_joystick_sensitivity)/8;
 		}
 	
 		// From joystick buttons

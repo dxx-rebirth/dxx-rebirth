@@ -257,13 +257,6 @@ void draw_window_label()
 }
 #endif
 
-extern int Game_window_x;
-extern int Game_window_y;
-extern int Game_window_w;
-extern int Game_window_h;
-extern int max_window_w;
-extern int max_window_h;
-
 void render_countdown_gauge()
 {
 	if (!Endlevel_sequence && Control_center_destroyed  && (Countdown_seconds_left>-1)) { // && (Countdown_seconds_left<127))	{
@@ -736,207 +729,22 @@ void toggle_cockpit()
 {
 	int new_mode;
 
-	switch (Cockpit_mode) {
-
-		case CM_FULL_COCKPIT: {
-			int max_h = grd_curscreen->sc_h - GameBitmaps[cockpit_bitmap[CM_STATUS_BAR+(Current_display_mode?(Num_cockpits/2):0)].index].bm_h;
-			if (Game_window_h > max_h)		//too big for statusbar
-				new_mode = CM_FULL_SCREEN;
-			else
-				new_mode = CM_STATUS_BAR;
+	switch (Cockpit_mode)
+	{
+		case CM_FULL_COCKPIT:
+			new_mode = CM_STATUS_BAR;
 			break;
-		}
-
 		case CM_STATUS_BAR:
+			new_mode = CM_FULL_SCREEN;
+			break;
 		case CM_FULL_SCREEN:
-			if (Rear_view)
-				return;
 			new_mode = CM_FULL_COCKPIT;
 			break;
-
-		case CM_REAR_VIEW:
-		case CM_LETTERBOX:
-	        default:
-			return;			//do nothing
-			break;
-
 	}
 
 	select_cockpit(new_mode);
 	HUD_clear_messages();
 	write_player_file();
-}
-
-#ifndef MACINTOSH
-#define WINDOW_W_DELTA	((max_window_w / 16)&~1)	//24	//20
-#define WINDOW_H_DELTA	((max_window_h / 16)&~1)	//12	//10
-#define WINDOW_MIN_W		((max_window_w * 10) / 22)	//160
-#define WINDOW_MIN_H		((max_window_h * 10) / 22)
-#else
-#define WINDOW_W_DELTA	((max_window_w / 16) & ~15)		// double word aligned
-#define WINDOW_H_DELTA	((max_window_h / 16) & ~15)		// double word aligned
-#define WINDOW_MIN_W		(max_window_w-(WINDOW_W_DELTA*11))
-#define WINDOW_MIN_H		(max_window_h-(WINDOW_H_DELTA*11))
-#endif
-
-void grow_window()
-{
-	if (Cockpit_mode == CM_FULL_COCKPIT) {
-		Game_window_h = max_window_h;
-		Game_window_w = max_window_w;
-		toggle_cockpit();
-		HUD_init_message("Press F3 to return to Cockpit mode");
-		write_player_file();
-		return;
-	}
-
-	if (Cockpit_mode != CM_STATUS_BAR && (VR_screen_flags & VRF_ALLOW_COCKPIT))
-		return;
-
-	if (Game_window_h>=max_window_h || Game_window_w>=max_window_w) {
-		max_window_h = grd_curscreen->sc_h;
-		select_cockpit(CM_FULL_SCREEN);
-	} else {
-		Game_window_w += WINDOW_W_DELTA;
-		Game_window_h += WINDOW_H_DELTA;
-
-		if (Game_window_h > max_window_h)
-			Game_window_h = max_window_h;
-
-		if (Game_window_w > max_window_w)
-			Game_window_w = max_window_w;
-
-		Game_window_x = (max_window_w - Game_window_w)/2;
-		Game_window_y = (max_window_h - Game_window_h)/2;
-
-		game_init_render_sub_buffers( Game_window_x, Game_window_y, Game_window_w, Game_window_h );
-	}
-
-	HUD_clear_messages();	//	@mk, 11/11/94
-
-	write_player_file();
-}
-
-// grs_bitmap background_bitmap;	already declared in line 434 (samir 4/10/94)
-
-extern grs_bitmap background_bitmap;
-
-void copy_background_rect(int left,int top,int right,int bot)
-{
-	grs_bitmap *bm = &background_bitmap;
-	int x,y;
-	int tile_left,tile_right,tile_top,tile_bot;
-	int ofs_x,ofs_y;
-	int dest_x,dest_y;
-
-	if (right < left || bot < top)
-		return;
-
-	tile_left = left / bm->bm_w;
-	tile_right = right / bm->bm_w;
-	tile_top = top / bm->bm_h;
-	tile_bot = bot / bm->bm_h;
-
-	ofs_y = top % bm->bm_h;
-	dest_y = top;
-
-	for (y=tile_top;y<=tile_bot;y++) {
-		int w,h;
-
-		ofs_x = left % bm->bm_w;
-		dest_x = left;
-
-		//h = (bot < dest_y+bm->bm_h)?(bot-dest_y+1):(bm->bm_h-ofs_y);
-		h = min(bot-dest_y+1,bm->bm_h-ofs_y);
-
-		for (x=tile_left;x<=tile_right;x++) {
-
-			//w = (right < dest_x+bm->bm_w)?(right-dest_x+1):(bm->bm_w-ofs_x);
-			w = min(right-dest_x+1,bm->bm_w-ofs_x);
-#ifdef OGL
-			ogl_ubitmapm_cs (dest_x, dest_y, w, h, &background_bitmap,255, F1_0);
-#else
-			gr_bm_ubitblt(w,h,dest_x,dest_y,ofs_x,ofs_y,&background_bitmap,&grd_curcanv->cv_bitmap);
-#endif
-
-			ofs_x = 0;
-			dest_x += w;
-		}
-
-		ofs_y = 0;
-		dest_y += h;
-	}
-}
-
-//fills int the background surrounding the 3d window
-void fill_background()
-{
-	int x,y,w,h,dx,dy;
-
-	x = Game_window_x;
-	y = Game_window_y;
-	w = Game_window_w;
-	h = Game_window_h;
-
-	dx = x;
-	dy = y;
-
-	gr_set_current_canvas(NULL);
-	copy_background_rect(x-dx,y-dy,x-1,y+h+dy-1);
-	copy_background_rect(x+w,y-dy,grd_curcanv->cv_w-1,y+h+dy-1);
-	copy_background_rect(x,y-dy,x+w-1,y-1);
-	copy_background_rect(x,y+h,x+w-1,y+h+dy-1);
-}
-
-void shrink_window()
-{
-	mprintf((0,"%d ",FrameCount));
-
-//  mprintf ((0,"W=%d H=%d\n",Game_window_w,Game_window_h));
- 
-	if (Cockpit_mode == CM_FULL_COCKPIT && (VR_screen_flags & VRF_ALLOW_COCKPIT)) {
-		Game_window_h = max_window_h;
-		Game_window_w = max_window_w;
-		//!!toggle_cockpit();
-		select_cockpit(CM_STATUS_BAR);
-		HUD_init_message("Press F3 to return to Cockpit mode");
-		write_player_file();
-		return;
-	}
-
-	if (Cockpit_mode == CM_FULL_SCREEN && (VR_screen_flags & VRF_ALLOW_COCKPIT))
-	{
-		select_cockpit(CM_STATUS_BAR);
-		write_player_file();
-		return;
-	}
-
-	if (Cockpit_mode != CM_STATUS_BAR && (VR_screen_flags & VRF_ALLOW_COCKPIT))
-		return;
-
-	mprintf ((0,"Cockpit mode=%d\n",Cockpit_mode));
-
-	if (Game_window_w > WINDOW_MIN_W) {
-		Game_window_w -= WINDOW_W_DELTA;
-		Game_window_h -= WINDOW_H_DELTA;
-
-		mprintf ((0,"NewW=%d NewH=%d VW=%d maxH=%d\n",Game_window_w,Game_window_h,max_window_w,max_window_h));
-
-		if ( Game_window_w < WINDOW_MIN_W )
-			Game_window_w = WINDOW_MIN_W;
-
-		if ( Game_window_h < WINDOW_MIN_H )
-			Game_window_h = WINDOW_MIN_H;
-			
-		Game_window_x = (max_window_w - Game_window_w)/2;
-		Game_window_y = (max_window_h - Game_window_h)/2;
-
-		fill_background();
-
-		game_init_render_sub_buffers( Game_window_x, Game_window_y, Game_window_w, Game_window_h );
-		HUD_clear_messages();
-		write_player_file();
-	}
 }
 
 int last_drawn_cockpit = -1;
@@ -968,9 +776,6 @@ void update_cockpits(int force_redraw)
 			break;
 	
 		case CM_FULL_SCREEN:
-			Game_window_x = (max_window_w - Game_window_w)/2;
-			Game_window_y = (max_window_h - Game_window_h)/2;
-			fill_background();
 			break;
 	
 		case CM_STATUS_BAR:
@@ -979,14 +784,10 @@ void update_cockpits(int force_redraw)
 #ifdef OGL
 			bm->bm_flags |= BM_FLAG_TRANSPARENT;
 			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
-			ogl_ubitmapm_cs (0, max_window_h, -1, grd_curcanv->cv_bitmap.bm_h - max_window_h, bm, 255, F1_0);
+			ogl_ubitmapm_cs (0, (Current_display_mode?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (Current_display_mode?(double)grd_curscreen->sc_h/480:(double)grd_curscreen->sc_h/200) + 0.5)), bm,255, F1_0);
 #else
-			gr_ubitmapm(0,max_window_h,bm);
+			gr_ubitmapm(0,grd_curscreen->sc_h-bm->bm_h,bm);
 #endif
-	
-			Game_window_x = (max_window_w - Game_window_w)/2;
-			Game_window_y = (max_window_h - Game_window_h)/2;
-			fill_background();
 			break;
 	
 		case CM_LETTERBOX:

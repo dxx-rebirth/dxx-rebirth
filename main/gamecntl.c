@@ -173,8 +173,6 @@ extern void CyclePrimary();
 extern void CycleSecondary();
 extern void InitMarkerInput();
 extern void MarkerInputMessage (int);
-extern void grow_window(void);
-extern void shrink_window(void);
 extern int	allowed_to_fire_missile(void);
 extern int	allowed_to_fire_flare(void);
 extern void	check_rear_view(void);
@@ -502,10 +500,6 @@ int do_game_pause()
 	show_boxed_message(Pause_msg=msg);		  //TXT_PAUSE);
 	gr_update();
 
-	/* give control back to the WM */
-	if (FindArg("-grabmouse"))
-	    SDL_WM_GrabInput(SDL_GRAB_OFF);
-
 	while (Game_paused) 
 	{
 		int screen_changed;
@@ -534,10 +528,6 @@ int do_game_pause()
 				render_gauges();
 		}
 	}
-
-	/* keep the mouse from wandering in SDL */
-	if (FindArg("-grabmouse") && (Newdemo_state != ND_STATE_PLAYBACK))
-	    SDL_WM_GrabInput(SDL_GRAB_ON);
 
 	clear_boxed_message();
 
@@ -764,10 +754,6 @@ void HandleDemoKey(int key)
 			 if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window))
 				toggle_cockpit();
 			 break;
-
-		case KEY_ALTED+KEY_F9:		shrink_window(); break;
-
-		case KEY_ALTED+KEY_F10:		grow_window(); break;
 
 		MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:		Config_menu_flag = 1; break;
@@ -1117,24 +1103,6 @@ int HandleSystemKey(int key)
 			{
 				toggle_cockpit();	screen_changed=1;
 			}
-			break;
-
-		case KEY_ALTED+KEY_F9:	
-#ifdef GP2X
-						digi_set_digi_volume( digi_volume-2048 );
-#else
-			shrink_window(); 
-			screen_changed=1; 
-#endif
-			break;
-
-		case KEY_ALTED+KEY_F10:	
-#ifdef GP2X
-						digi_set_digi_volume( digi_volume+2048 );
-#else
-			grow_window();  
-			screen_changed=1; 
-#endif
 			break;
 
 		MAC(case KEY_COMMAND+KEY_5:)
@@ -1534,6 +1502,9 @@ void HandleGameKey(int key)
 		case KEY_F6 + KEY_SHIFTED:
 	 DropSecondaryWeapon();
 	 break;
+		case KEY_ALTED+KEY_F7:
+			Gauge_hud_mode=(Gauge_hud_mode+1)%GAUGE_HUD_NUMMODES;
+			break;
 
 #ifdef NETWORK
 		case KEY_0 + KEY_ALTED:
@@ -1995,7 +1966,6 @@ char *RobotsKillRobotsCheat ="rT6xD__S"; // New for 1.1 / silkwing
 char *AhimsaCheat       ="!Uscq_yc";    // New for 1.1 / im-agespace 
 
 char *AccessoryCheat    ="dWdz[kCK";    // al-ifalafel
-char *JohnHeadCheat     ="ou]];H:%";    // p-igfarmer
 char *AcidCheat         ="qPmwxz\"S";   // bit-tersweet
 char *FramerateCheat    ="rQ60#ZBN";    // f-rametime
 
@@ -2016,13 +1986,10 @@ void do_cheat_penalty ()
 
 char BounceCheat=0;
 char HomingCheat=0;
-char john_head_on=0;
 char AcidCheatOn=0;
 char old_IntMethod;
 char OldHomingState[20];
 extern char Monster_mode;
-
-void fill_background();
 void load_background_bitmap();
 
 extern int Robots_kill_robots_cheat;
@@ -2057,13 +2024,6 @@ void FinalCheats(int key)
 			HUD_init_message ("Take that...cheater!");
 		}
 
-  if (!(strcmp (cryptstring,JohnHeadCheat)))
-		{
-				john_head_on = !john_head_on;
-				load_background_bitmap();
-				fill_background();
-				HUD_init_message (john_head_on?"Hi John!!":"Bye John!!");
-		}
   if (!(strcmp (cryptstring,AcidCheat)))
 		{
 				if (AcidCheatOn)

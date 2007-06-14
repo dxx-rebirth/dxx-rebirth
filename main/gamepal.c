@@ -55,8 +55,6 @@ typedef struct bkg {
 
 extern bkg bg;
 
-void load_background_bitmap(void);
-
 char last_palette_loaded[FILENAME_LEN]="";
 char last_palette_loaded_pig[FILENAME_LEN]="";
 
@@ -137,8 +135,6 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 
 		Color_0_31_0 = -1;		//for gauges
 		HUD_color = -1;
-
-		load_background_bitmap();
 
 		g3_remap_interp_colors();
 	}

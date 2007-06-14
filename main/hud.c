@@ -61,7 +61,6 @@ int HUD_nmessages = 0;
 fix HUD_message_timer = 0;      // Time, relative to Players[Player_num].time (int.frac seconds.frac), at which to erase gauge message
 char  HUD_messages[HUD_MAX_NUM][HUD_MESSAGE_LENGTH+5];
 
-extern void copy_background_rect(int left,int top,int right,int bot);
 char Displayed_background_message[HUD_MESSAGE_LENGTH] = "";
 int Last_msg_ycrd = -1;
 int Last_msg_height = 6;
@@ -82,8 +81,6 @@ void clear_background_messages(void)
 		grs_canvas	*canv_save = grd_curcanv;
 
 		gr_set_current_canvas(NULL);
-
-		copy_background_rect(0, Last_msg_ycrd, grd_curcanv->cv_bitmap.bm_w, Last_msg_ycrd+Last_msg_height-1);
 
 		gr_set_current_canvas(canv_save);
 
@@ -164,75 +161,28 @@ void HUD_render_message_frame()
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 
-		if ( (VR_render_mode==VR_NONE) && ((Cockpit_mode == CM_STATUS_BAR) || (Cockpit_mode == CM_FULL_SCREEN)) && (Screen_3d_window.cv_bitmap.bm_y >= (max_window_h/8))) {
-			// Only display the most recent message in this mode
-			char	*message = HUD_messages[(hud_first+HUD_nmessages-1) % HUD_MAX_NUM];
+		gr_set_curfont( SMALL_FONT );
 
-			if (strcmp(Displayed_background_message, message)) {
-				int	ycrd;
-				grs_canvas	*canv_save = grd_curcanv;
-
-				ycrd = grd_curcanv->cv_bitmap.bm_y - (SMALL_FONT->ft_h+2);
-
-				if (ycrd < 0)
-					ycrd = 0;
-
-				gr_set_current_canvas(NULL);
-
-				gr_set_curfont( SMALL_FONT );
-				gr_get_string_size(message, &w, &h, &aw );
-				clear_background_messages();
-
-
-				if (grd_curcanv->cv_bitmap.bm_type == BM_MODEX) {
-					ycrd -= h;
-					h *= 2;
-					modex_hud_message((grd_curcanv->cv_bitmap.bm_w-w)/2, ycrd, message, SMALL_FONT, HUD_color);
-					if (Modex_hud_msg_count > 0) {
-						Modex_hud_msg_count--;
-						Displayed_background_message[0] = '!';
-					} else
-						strcpy(Displayed_background_message, message);
-				} else {
-					gr_set_fontcolor( HUD_color, -1);
-					gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, ycrd, message );
-					strcpy(Displayed_background_message, message);
-				}
-
-				gr_set_current_canvas(canv_save);
-
-				Last_msg_ycrd = ycrd;
-				Last_msg_height = h;
-
-			}
-		} else {
-
-			gr_set_curfont( SMALL_FONT );
-
-			if ( (Cockpit_mode == CM_FULL_SCREEN) || (Cockpit_mode == CM_LETTERBOX) ) {
-				if (Game_window_w == max_window_w)
-					y = SMALL_FONT->ft_h/2;
-				else
-				 	y= SMALL_FONT->ft_h * 2;
-			} else
+		if ( (Cockpit_mode == CM_FULL_SCREEN) || (Cockpit_mode == CM_LETTERBOX) ) {
 				y = SMALL_FONT->ft_h/2;
+		} else
+			y = SMALL_FONT->ft_h/2;
 
-		  if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID &&
-		      Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window)
-			      y+=SMALL_FONT->ft_h+3;
+		if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID &&
+		Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window)
+			y+=SMALL_FONT->ft_h+3;
 
-		  	for (i=0; i<HUD_nmessages; i++ )	{
-				n = (hud_first+i) % HUD_MAX_NUM;
-				if ((n < 0) || (n >= HUD_MAX_NUM))
-					Int3(); // Get Rob!!
-				if (!strcmp(HUD_messages[n], "This is a bug."))
-					Int3(); // Get Rob!!
-				gr_get_string_size(&HUD_messages[n][0], &w, &h, &aw );
-				gr_set_fontcolor( HUD_color, -1);
+		for (i=0; i<HUD_nmessages; i++ )	{
+			n = (hud_first+i) % HUD_MAX_NUM;
+			if ((n < 0) || (n >= HUD_MAX_NUM))
+				Int3(); // Get Rob!!
+			if (!strcmp(HUD_messages[n], "This is a bug."))
+				Int3(); // Get Rob!!
+			gr_get_string_size(&HUD_messages[n][0], &w, &h, &aw );
+			gr_set_fontcolor( HUD_color, -1);
 
-				gr_string((grd_curcanv->cv_bitmap.bm_w-w)/2,y, &HUD_messages[n][0] );
-				y += h+FONTSCALE_Y(1);
-			}
+			gr_string((grd_curcanv->cv_bitmap.bm_w-w)/2,y, &HUD_messages[n][0] );
+			y += h+FONTSCALE_Y(1);
 		}
 	}
 	else if (grd_curscreen->sc_canvas.cv_bitmap.bm_type == BM_MODEX) {

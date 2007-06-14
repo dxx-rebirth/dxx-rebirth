@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070614
 --------
 2d/font.c, libmve/decoder16.c, main/object.c, main/piggy.c, main/polyobj.c, main/render.c, mem/mem.c: using size_t when it comes to integer to pointer conversions
+main/game.c, main/gamecntl.c, main/gamepal.c, main/gamerend.c, main/gauges.c, main/hud.c, main/inferno.c, main/kconfig.c, main/menu.c, main/playsave.c: fixed axis direction for vertical and sideways thrust time; fixed y-Offset for mouse selection in kconfig_sub; removed (useless) Shrink/Grow window feature to clean code a bit; improved grabmouse so mouse is always released in non-SCREEN_GAME modes
 
 20070611
 --------

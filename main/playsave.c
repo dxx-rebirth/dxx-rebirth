@@ -119,8 +119,6 @@ int Default_leveling_on=1;
 extern ubyte SecondaryOrder[],PrimaryOrder[];
 extern void InitWeaponOrdering();
 
-static int Player_Game_window_w = 0;
-static int Player_Game_window_h = 0;
 static int Player_render_width = 0;
 static int Player_render_height = 0;
 
@@ -201,26 +199,6 @@ int read_player_d2x(char *filename)
 					sscanf(line,"%i.%i",&maj,&min);
 					sprintf(plxver,"v%i.%d",maj,min);
 				}
-				d_free(word);
-				cfgets(line,20,f);
-				word=splitword(line,'=');
-				strupr(word);
-			}
-		}
-		else if (strstr(word,"WINDOWSIZE"))
-		{
-			d_free(word);
-			cfgets(line,20,f);
-			word=splitword(line,'=');
-			strupr(word);
-		
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
-			{
-				if(!strcmp(word,"WIDTH"))
-					sscanf(line,"%i",&Player_Game_window_w);
-				if(!strcmp(word,"HEIGHT"))
-					sscanf(line,"%i",&Player_Game_window_h);
-
 				d_free(word);
 				cfgets(line,20,f);
 				word=splitword(line,'=');
@@ -342,14 +320,6 @@ int write_player_d2x(char *filename)
 		{
 			sprintf (str, "[D2X OPTIONS]\n");
 			PHYSFSX_puts(fout, str);
-			sprintf (str, "[windowsize]\n");
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "width=%i\n", Game_window_w);
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "height=%d\n", Game_window_h);
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "[end]\n");
-			PHYSFSX_puts(fout, str);
 			sprintf (str, "[resolution]\n");
 			PHYSFSX_puts(fout, str);
 			sprintf (str, "width=%i\n", SM_W(Game_screen_mode));
@@ -394,23 +364,6 @@ int write_player_d2x(char *filename)
 						cfgets(line,20,fin);
 						strupr(line);
 					}
-				}
-				else if (strstr(line,"WINDOWSIZE"))
-				{
-					sprintf (str, "[windowsize]\n");
-					PHYSFSX_puts(fout, str);
-					sprintf (str, "width=%i\n", Game_window_w);
-					PHYSFSX_puts(fout, str);
-					sprintf (str, "height=%d\n", Game_window_h);
-					PHYSFSX_puts(fout, str);
-					sprintf (str, "[end]\n");
-					PHYSFSX_puts(fout, str);
-					while(!strstr(line,"END")&&!PHYSFS_eof(fin))
-					{
-						cfgets(line,20,fin);
-						strupr(line);
-					}
-					printed |= WINDOWSIZE;
 				}
 				else if (strstr(line,"RESOLUTION"))
 				{
@@ -479,17 +432,6 @@ int write_player_d2x(char *filename)
 			
 				if(!Stop&&PHYSFS_eof(fin))
 					Stop=1;
-			}
-			if(!(printed&WINDOWSIZE))
-			{
-				sprintf (str, "[windowsize]\n");
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "width=%i\n", Game_window_w);
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "height=%d\n", Game_window_h);
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "[end]\n");
-				PHYSFSX_puts(fout, str);
 			}
 		
 			if(!(printed&RESOLUTION))
@@ -602,13 +544,8 @@ int read_player_file()
 		return -1;
 	}
 
-	Game_window_w = cfile_read_short(file);
-	Game_window_h = cfile_read_short(file);
-
-	if (swap) {
-		Game_window_w = SWAPSHORT(Game_window_w);
-		Game_window_h = SWAPSHORT(Game_window_h);
-	}
+	//skip Game_window_w,Game_window_h
+	PHYSFS_seek(file,PHYSFS_tell(file)+2*sizeof(short));
 
 	Player_default_difficulty = cfile_read_byte(file);
 	Default_leveling_on       = cfile_read_byte(file);
@@ -766,8 +703,6 @@ int read_player_file()
 			Player_render_width,
 			Player_render_height, VR_NONE, 0);
 	}
-	Game_window_w = Player_Game_window_w;
-	Game_window_h = Player_Game_window_h;
 
 	return EZERO;
 
@@ -865,8 +800,8 @@ int write_player_file()
 	PHYSFS_writeULE32(file, SAVE_FILE_ID);
 	PHYSFS_writeULE16(file, PLAYER_FILE_VERSION);
 
-	PHYSFS_writeULE16(file, Game_window_w);
-	PHYSFS_writeULE16(file, Game_window_h);
+	// skip Game_window_w, Game_window_h
+	PHYSFS_seek(file,PHYSFS_tell(file)+2*(sizeof(PHYSFS_uint16)));
 
 	PHYSFSX_writeU8(file, Player_default_difficulty);
 	PHYSFSX_writeU8(file, Auto_leveling_on);

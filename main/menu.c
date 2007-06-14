@@ -1034,8 +1034,6 @@ void change_res()
 	newmenu_close();
 
 	Game_screen_mode = screen_mode;
-	Game_window_w = screen_width;
-	Game_window_h = screen_height;
 	game_init_render_buffers(screen_width, screen_height, VR_NONE, 0);
 
 	if (menu_use_game_res) {

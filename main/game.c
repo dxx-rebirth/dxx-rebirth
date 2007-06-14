@@ -249,11 +249,6 @@ void powerup_grab_cheat_all(void);
 extern void multi_check_for_killgoal_winner();
 extern void RestoreGameSurfaces();
 
-// window functions
-
-void grow_window(void);
-void shrink_window(void);
-
 // text functions
 
 void fill_background();
@@ -267,24 +262,6 @@ extern ubyte DefiningMarkerMessage;
 extern char Marker_input[];
 
 //	==============================================================================================
-
-extern char john_head_on;
-
-void load_background_bitmap()
-{
-	ubyte pal[256*3];
-	int pcx_error;
-
-	if (background_bitmap.bm_data)
-		d_free(background_bitmap.bm_data);
-
-	background_bitmap.bm_data=NULL;
-	pcx_error = pcx_read_bitmap(john_head_on?"johnhead.pcx":BACKGROUND_NAME,&background_bitmap,BM_LINEAR,pal);
-	if (pcx_error != PCX_ERROR_NONE)
-		Error("File %s - PCX error: %s",BACKGROUND_NAME,pcx_errormsg(pcx_error));
-	gr_remap_bitmap_good( &background_bitmap, pal, -1, -1 );
-}
-
 
 //this is called once per game
 void init_game()
@@ -300,8 +277,6 @@ void init_game()
 	init_gauge_canvases();
 
 	init_exploding_walls();
-
-	load_background_bitmap();
 
 	Clear_window = 2;		//	do portal only window clear.
 
@@ -339,15 +314,7 @@ void game_show_warning(char *s)
 #define cv_w  cv_bitmap.bm_w
 #define cv_h  cv_bitmap.bm_h
 
-//added 3/24/99 by Owen Evans for screen res changing
 u_int32_t Game_screen_mode = 0;
-//end added - OE
-int Game_window_x = 0;
-int Game_window_y = 0;
-int Game_window_w = 0;
-int Game_window_h = 0;
-int max_window_w = 0;
-int max_window_h = 0;
 
 extern void newdemo_record_cockpit_change(int);
 
@@ -377,10 +344,6 @@ void init_cockpit()
 	switch( Cockpit_mode ) {
 	case CM_FULL_COCKPIT:
 	case CM_REAR_VIEW:
-		if (!Game_window_h)
-			Game_window_h = max_window_h;
-		if (!Game_window_w)
-			Game_window_w = max_window_w;
 		if (Cockpit_mode == CM_FULL_COCKPIT) {
 			game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w,(grd_curscreen->sc_h*2)/3); 
 		}
@@ -390,32 +353,11 @@ void init_cockpit()
 		break;
 
 	case CM_FULL_SCREEN:
-		if (Game_window_h > max_window_h || VR_screen_flags&VRF_ALLOW_COCKPIT || !Game_window_h)
-			Game_window_h = max_window_h;
-
-		if (Game_window_w > max_window_w || VR_screen_flags&VRF_ALLOW_COCKPIT || !Game_window_w)
-			Game_window_w = max_window_w;
-
-		Game_window_x = (max_window_w - Game_window_w)/2;
-		Game_window_y = (max_window_h - Game_window_h)/2;
-
-		game_init_render_sub_buffers(Game_window_x, Game_window_y, Game_window_w, Game_window_h);
+		game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
 		break;
 
 	case CM_STATUS_BAR:
-		if (Current_display_mode)
-			max_window_h = (grd_curscreen->sc_h*2)/2.6;
-		else
-			max_window_h = (grd_curscreen->sc_h*2)/2.72;
-		if (Game_window_h > max_window_h || (!Game_window_w || !Game_window_h)) {
-			Game_window_w = max_window_w;
-			Game_window_h = max_window_h;
-		}
-
-		x = (max_window_w - Game_window_w)/2;
-		y = (max_window_h - Game_window_h)/2;
-
-		game_init_render_sub_buffers( x, y, Game_window_w, Game_window_h );
+		game_init_render_sub_buffers( 0, 0, SWIDTH, (Current_display_mode?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
 		break;
 
 	case CM_LETTERBOX:
@@ -571,59 +513,68 @@ int set_screen_mode(int sm)
 
 	switch( Screen_mode )
 	{
-	case SCREEN_MENU:
-		if (grd_curscreen->sc_mode != MENU_SCREEN_MODE)	{
-			if (gr_set_mode(MENU_SCREEN_MODE)) Error("Cannot set screen mode for game!");
-			gr_palette_load( gr_palette );
-		}
-		break;
+		case SCREEN_MENU:
+			/* give control back to the WM */
+			if (FindArg("-grabmouse"))
+				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
-	case SCREEN_GAME:
-		if (grd_curscreen->sc_mode != Game_screen_mode) {
-			if (gr_set_mode(Game_screen_mode))	{
-				Error("Cannot set desired screen mode for game!");
-				//we probably should do something else here, like select a standard mode
+			if (grd_curscreen->sc_mode != MENU_SCREEN_MODE)	{
+				if (gr_set_mode(MENU_SCREEN_MODE)) Error("Cannot set screen mode for game!");
+				gr_palette_load( gr_palette );
 			}
-			#ifdef MACINTOSH
-			if ( (Config_control_type == 1) && (Function_mode == FMODE_GAME) )
-				joydefs_calibrate();
-			#endif
-			reset_cockpit();
-		}
+			break;
+	
+		case SCREEN_GAME:
+			/* keep the mouse from wandering in SDL */
+			if (FindArg("-grabmouse") && (Newdemo_state != ND_STATE_PLAYBACK))
+				SDL_WM_GrabInput(SDL_GRAB_ON);
 
-		max_window_w = grd_curscreen->sc_w;
-		max_window_h = grd_curscreen->sc_h;
-
-		init_cockpit();
-
-		con_resize();
-
-		break;
-	#ifdef EDITOR
-	case SCREEN_EDITOR:
-		if (grd_curscreen->sc_mode != SM(800,600))	{
-			int gr_error;
-			if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
-				Warning("Cannot init editor screen (error=%d)",gr_error);
-				return 0;
+			if (grd_curscreen->sc_mode != Game_screen_mode) {
+				if (gr_set_mode(Game_screen_mode))	{
+					Error("Cannot set desired screen mode for game!");
+					//we probably should do something else here, like select a standard mode
+				}
+				reset_cockpit();
 			}
-		}
-		gr_palette_load( gr_palette );
+	
+			init_cockpit();
+	
+			con_resize();
+	
+			break;
+#ifdef EDITOR
+		case SCREEN_EDITOR:
+			/* give control back to the WM */
+			if (FindArg("-grabmouse"))
+				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
-		gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
-		Canv_editor = &VR_editor_canvas;
-		gr_set_current_canvas( Canv_editor );
-		init_editor_screen();   //setup other editor stuff
-		break;
-	#endif
-	case SCREEN_MOVIE:
-		if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
-			if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
+			if (grd_curscreen->sc_mode != SM(800,600))	{
+				int gr_error;
+				if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
+					Warning("Cannot init editor screen (error=%d)",gr_error);
+					return 0;
+				}
+			}
 			gr_palette_load( gr_palette );
-		}
-		break;
-	default:
-		Error("Invalid screen mode %d",sm);
+	
+			gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
+			Canv_editor = &VR_editor_canvas;
+			gr_set_current_canvas( Canv_editor );
+			init_editor_screen();   //setup other editor stuff
+			break;
+#endif
+		case SCREEN_MOVIE:
+			/* give control back to the WM */
+			if (FindArg("-grabmouse"))
+				SDL_WM_GrabInput(SDL_GRAB_OFF);
+
+			if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
+				if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
+				gr_palette_load( gr_palette );
+			}
+			break;
+		default:
+			Error("Invalid screen mode %d",sm);
 	}
 
 	gr_set_current_canvas(NULL);
@@ -1498,16 +1449,17 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = restore_help;
 	#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F2;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F3;
+// 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F3;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F3\t  SWITCH COCKPIT MODES";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F4;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F6\t Fast Save";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F7\t  SWITCH HUD MODES";
 	#ifndef MACINTOSH
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PAUSE;
 	#else
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Pause (F15)\t  Pause";
 	#endif
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F9/F10\t  change screen size"; // ZICO - we changed keys - old: TXT_HELP_MINUSPLUS;
 	#ifndef MACINTOSH
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PRTSCN;
 	#else
@@ -1791,10 +1743,8 @@ void game()
 			}
 
 			if (Automap_flag) {
-				int save_w=Game_window_w,save_h=Game_window_h;
 				do_automap(0);
 				Screen_mode=-1; set_screen_mode(SCREEN_GAME);
-				Game_window_w=save_w; Game_window_h=save_h;
 				init_cockpit();
 				last_drawn_cockpit = -1;
 				game_flush_inputs();

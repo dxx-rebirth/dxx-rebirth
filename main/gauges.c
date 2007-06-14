@@ -800,25 +800,10 @@ void show_homing_warning(void)
 
 #define MAX_SHOWN_LIVES 4
 
-extern int Game_window_y;
 extern int SW_y[2];
 
 void hud_show_homing_warning(void)
 {
-// 	if (Players[Player_num].homing_object_dist >= 0) {
-// 		if (GameTime & 0x4000) {
-// 			int x=0x8000, y=grd_curcanv->cv_h-FONTSCALE_Y(Line_spacing);
-// 
-// 			if (Cockpit_mode == CM_FULL_SCREEN && (weapon_box_user[0] != WBU_WEAPON || weapon_box_user[1] != WBU_WEAPON)) {
-// 				int wy = (weapon_box_user[0] != WBU_WEAPON)?SW_y[0]:SW_y[1];
-// 				y = min(y,(wy - FONTSCALE_Y(Line_spacing) - Game_window_y));
-// 			}
-// 
-// 			gr_set_curfont( GAME_FONT );
-// 			gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
-// 			gr_printf(x,y,TXT_LOCK);
-// 		}
-// 	}
 	int offsety=0;
 
 	if (Players[Player_num].homing_object_dist >= 0) {
@@ -1036,8 +1021,6 @@ void draw_primary_ammo_info(int ammo_count)
 		draw_ammo_info(PRIMARY_AMMO_X,PRIMARY_AMMO_Y,ammo_count,1);
 }
 
-extern int Game_window_x;
-
 void hud_show_weapons_mode(int type,int vertical,int mode,int x,int y){
 	int i,w,h,aw;
 	char weapon_str[10];
@@ -1062,19 +1045,7 @@ void hud_show_weapons_mode(int type,int vertical,int mode,int x,int y){
 							Players[Player_num].laser_level+1);
 						break;
 					case 1:
-						if (Cockpit_mode!=CM_FULL_SCREEN) {
-							sprintf(weapon_str,"V");
-							if (Primary_weapon != 6) {
-								int y;
-								if (Cockpit_mode == CM_STATUS_BAR)
-									y = Game_window_h - 18;
-								else
-									y = grd_curscreen->sc_h/1.6;
-								if (Game_mode & GM_MULTI)
-									y -= FONTSCALE_Y(4*Line_spacing);
-								gr_printf(Game_window_x + 3, y, "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
-							}
-						} else {
+						if (Cockpit_mode==CM_FULL_SCREEN) {
 							sprintf(weapon_str,(Gauge_hud_mode==1?"V%i":"V   %i"), f2i((unsigned int) Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 						}
 						break;
@@ -1128,19 +1099,7 @@ void hud_show_weapons_mode(int type,int vertical,int mode,int x,int y){
 						sprintf(weapon_str," ");
 						break;
 					case 6:
-						if (Cockpit_mode!=CM_FULL_SCREEN) {
-							sprintf(weapon_str,"G");
-							if (Primary_weapon != 1) {
-								int y;
-								if (Cockpit_mode == CM_STATUS_BAR)
-									y = Game_window_h - 18;
-								else
-									y = grd_curscreen->sc_h/1.6;
-								if (Game_mode & GM_MULTI)
-									y -= FONTSCALE_Y(4*Line_spacing);
-								gr_printf(Game_window_x + 3, y, "%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
-							}
-						} else {
+						if (Cockpit_mode==CM_FULL_SCREEN) {
 							sprintf(weapon_str,"G%i", f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 						}
 						break;
@@ -2311,7 +2270,6 @@ rgb player_rgb[] = {
 						};
 
 extern ubyte Newdemo_flying_guided;
-extern int max_window_w;
 
 typedef struct {
 	sbyte x, y;
@@ -2328,7 +2286,7 @@ void show_reticle(int force_big_one)
 	int x,y;
 	int laser_ready,missile_ready,laser_ammo,missile_ammo;
 	int cross_bm_num,primary_bm_num,secondary_bm_num;
-	int use_hires_reticle,small_reticle,ofs,gauge_index;
+	int use_hires_reticle,ofs,gauge_index;
 
 	if (Newdemo_state==ND_STATE_PLAYBACK && Newdemo_flying_guided)
 	{
@@ -2370,47 +2328,46 @@ void show_reticle(int force_big_one)
 	{
 #endif
 		use_hires_reticle = (FontHires != 0);
-		small_reticle = !(grd_curcanv->cv_bitmap.bm_w*3 > max_window_w*2 || force_big_one);
-		ofs = (use_hires_reticle?0:2) + small_reticle;
+		ofs = (use_hires_reticle?0:2);
 #ifdef OGL // ... scale reticle bitmaps ...
 		if (use_hires_reticle) // ... if we are in 640x480 or higher ...
 		{
-			gauge_index = (small_reticle?SML_RETICLE_CROSS:RETICLE_CROSS) + cross_bm_num;
+			gauge_index = RETICLE_CROSS + cross_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
 			ogl_ubitmapm_cs(x+HUD_SCALE_X(cross_offsets[ofs].x),
 					y+HUD_SCALE_Y(cross_offsets[ofs].y),
-					HUD_SCALE_X((!small_reticle)?18:9),
-					HUD_SCALE_Y((!small_reticle)?17:7),
+					HUD_SCALE_X(18),
+					HUD_SCALE_Y(17),
 					&GameBitmaps[GET_GAUGE_INDEX(gauge_index)],255,F1_0 );
 		
-			gauge_index = (small_reticle?SML_RETICLE_PRIMARY:RETICLE_PRIMARY) + primary_bm_num;
+			gauge_index = RETICLE_PRIMARY + primary_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
 			ogl_ubitmapm_cs(x+HUD_SCALE_X(primary_offsets[ofs].x),
 					y+HUD_SCALE_Y(primary_offsets[ofs].y),
-					HUD_SCALE_X((!small_reticle)?62:31),
-					HUD_SCALE_Y((!small_reticle)?12:5),
+					HUD_SCALE_X(62),
+					HUD_SCALE_Y(12),
 					&GameBitmaps[GET_GAUGE_INDEX(gauge_index)],255,F1_0 );
 		
-			gauge_index = (small_reticle?SML_RETICLE_SECONDARY:RETICLE_SECONDARY) + secondary_bm_num;
+			gauge_index = RETICLE_SECONDARY + secondary_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
 			ogl_ubitmapm_cs(x+HUD_SCALE_X(secondary_offsets[ofs].x),
 					y+HUD_SCALE_Y(secondary_offsets[ofs].y),
-					HUD_SCALE_X((!small_reticle)?50:25),
-					HUD_SCALE_Y((!small_reticle)?22:10),
+					HUD_SCALE_X(50),
+					HUD_SCALE_Y(22),
 					&GameBitmaps[GET_GAUGE_INDEX(gauge_index)],255,F1_0 );
 		}
 		else // ... otherwise ...
 		{
 #endif // ... use non scaled reticle as well as in SDL
-			gauge_index = (small_reticle?SML_RETICLE_CROSS:RETICLE_CROSS) + cross_bm_num;
+			gauge_index = RETICLE_CROSS + cross_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
 			gr_ubitmapm(x+cross_offsets[ofs].x,y+cross_offsets[ofs].y,&GameBitmaps[GET_GAUGE_INDEX(gauge_index)] );
 		
-			gauge_index = (small_reticle?SML_RETICLE_PRIMARY:RETICLE_PRIMARY) + primary_bm_num;
+			gauge_index = RETICLE_PRIMARY + primary_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
 			gr_ubitmapm(x+primary_offsets[ofs].x,y+primary_offsets[ofs].y,&GameBitmaps[GET_GAUGE_INDEX(gauge_index)] );
 		
-			gauge_index = (small_reticle?SML_RETICLE_SECONDARY:RETICLE_SECONDARY) + secondary_bm_num;
+			gauge_index = RETICLE_SECONDARY + secondary_bm_num;
 			PAGE_IN_GAUGE( gauge_index );
 			gr_ubitmapm(x+secondary_offsets[ofs].x,y+secondary_offsets[ofs].y,&GameBitmaps[GET_GAUGE_INDEX(gauge_index)] );
 #ifdef OGL
@@ -2774,7 +2731,6 @@ void draw_hud()
 }
 
 extern short *BackBuffer;
-extern int max_window_h;
 
 //print out some player statistics
 void render_gauges()
@@ -2868,7 +2824,7 @@ void render_gauges()
 		}
 		sb_draw_afterburner();
 #ifdef OGL
-		hud_bitblt (0, (Current_display_mode?370:146), &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],F1_0);
+		hud_bitblt (0, (Current_display_mode?370:147), &GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index],F1_0);
 #endif
 		draw_player_ship(cloak, old_cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 
@@ -2936,9 +2892,6 @@ void update_laser_weapon_info(void)
 			old_weapon[0] = -1;
 }
 
-extern int Game_window_y;
-void fill_background(void);
-
 int SW_drawn[2], SW_x[2], SW_y[2], SW_w[2], SW_h[2];
 
 //draws a 3d view into one of the cockpit windows.  win is 0 for left,
@@ -2974,7 +2927,6 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 		if (overlap_dirty[win]) {
 			gr_set_current_canvas(NULL);
-			fill_background();
 			overlap_dirty[win] = 0;
 		}
 
@@ -3048,7 +3000,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 		//if the window only partially overlaps the big 3d window, copy
 		//the extra part to the visible screen
 
-		big_window_bottom = Game_window_y + Game_window_h - 1;
+		big_window_bottom = SHEIGHT - 1;
 
 		if (window_y > big_window_bottom) {
 

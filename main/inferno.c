@@ -807,15 +807,7 @@ int main(int argc, char *argv[])
 				keyd_editor_mode = 0;
 			#endif
 
-			/* keep the mouse from wandering in SDL */
-			if (FindArg("-grabmouse") && (Newdemo_state != ND_STATE_PLAYBACK))
-			    SDL_WM_GrabInput(SDL_GRAB_ON);
-
 			game();
-
-			/* give control back to the WM */
-			if (FindArg("-grabmouse"))
-			    SDL_WM_GrabInput(SDL_GRAB_OFF);
 
 			if ( Function_mode == FMODE_MENU )
 				songs_play_song( SONG_TITLE, 1 );
