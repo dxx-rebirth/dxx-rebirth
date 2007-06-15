@@ -253,14 +253,14 @@ arch_linux_sources = [
 common_sound_hmp2mid = [ 'misc/hmp2mid.c' ]
 arch_unix_sound_sdlmixer = [ 'arch/sdl/mixdigi.c', 'arch/sdl/mixmusic.c' ]
 arch_unix_sound_old = [ 'arch/sdl/digi.c'  ]
-arch_linux_sound_old = ['arch/linux/hmiplay.c' ]
+#arch_linux_sound_old = ['arch/linux/hmiplay.c' ]
 
 if (sdlmixer == 1):
 	common_sources += common_sound_hmp2mid
 	arch_unix_sources += arch_unix_sound_sdlmixer
 else:
 	arch_unix_sources += arch_unix_sound_old
-	arch_linux_sources += arch_linux_sound_old
+#	arch_linux_sources += arch_linux_sound_old
 
 # for windows
 arch_win32_sources = [

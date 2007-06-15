@@ -448,10 +448,9 @@ void digi_end_sound(int channel)
 
 #ifndef _WIN32
 // MIDI stuff follows.
-#if defined(__APPLE__) || defined(macintosh)
 void digi_set_midi_volume( int mvolume ) { }
 void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {}
-#endif
+
 void digi_stop_current_song()
 {
 #ifdef HMIPLAY

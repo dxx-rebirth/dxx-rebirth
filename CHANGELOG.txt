@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070615
+--------
+SConstruct, arch/sdl/digi.c: complete removal of hmiplay-code usage
+
 20070614
 --------
 2d/font.c, libmve/decoder16.c, main/object.c, main/piggy.c, main/polyobj.c, main/render.c, mem/mem.c: using size_t when it comes to integer to pointer conversions
