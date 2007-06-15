@@ -1425,7 +1425,6 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_LINEAR ))
 	{
-		ogl_ubitblt_tolinear(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))
@@ -1438,26 +1437,6 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest );
 		return;
 	}
-
-#ifdef __MSDOS__
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_SVGA ))
-	{
-		gr_bm_ubitblt02( w, h, dx, dy, sx, sy, src, dest );
-		return;
-	}
-
-	if ( (src->bm_type == BM_SVGA) && (dest->bm_type == BM_LINEAR ))
-	{
-		gr_bm_ubitblt20( w, h, dx, dy, sx, sy, src, dest );
-		return;
-	}
-
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_MODEX ))
-	{
-		gr_bm_ubitblt01( w, h, dx+XOFFSET, dy+YOFFSET, sx, sy, src, dest );
-		return;
-	}
-#endif
 
 	for (y1=0; y1 < h; y1++ )    {
 		for (x1=0; x1 < w; x1++ )    {
@@ -1636,7 +1615,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_LINEAR ))
 	{
-		ogl_ubitblt_tolinear(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))

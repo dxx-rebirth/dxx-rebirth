@@ -115,8 +115,6 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 bool ogl_ubitmapm(int x, int y, grs_bitmap *bm);
 bool ogl_ubitblt_i(int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int mipmap);
 bool ogl_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
-bool ogl_ubitblt_tolinear(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
-bool ogl_ubitblt_copy(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void ogl_upixelc(int x, int y, int c);
 void ogl_ulinec(int left, int top, int right, int bot, int c);
 

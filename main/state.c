@@ -582,7 +582,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		render_frame(0, 0);
 
 #if defined(OGL)
-# if 1
 		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
 		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
 		glReadBuffer(gl_draw_buffer);
@@ -595,9 +594,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 				gr_find_closest_color(buf[3*i]/4, buf[3*i+1]/4, buf[3*i+2]/4);
 		}
 		d_free(buf);
-# else // simpler d1x method, not tested yet
-		ogl_ubitblt_tolinear(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curscreen->sc_canvas.cv_bitmap, &grd_curcanv->cv_bitmap);
-# endif
 #endif
 
 		pal = gr_palette;

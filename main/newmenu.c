@@ -130,6 +130,10 @@ extern ubyte Version_major,Version_minor;
 extern char last_palette_loaded[];
 
 void newmenu_close()	{
+#ifdef OGL
+	ogl_freebmtexture(&nm_background);
+	ogl_freebmtexture(&nm_background1);
+#endif
 	if (nm_background.bm_data)
 		d_free(nm_background.bm_data);
 	if (nm_background1.bm_data)

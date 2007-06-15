@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070615
 --------
 SConstruct, arch/sdl/digi.c: complete removal of hmiplay-code usage
+2d/bitblt.c, arch/ogl/ogl.c, ogl_init.h, main/gamerend.c, main/newmenu.c, main/state.c: small code cleanup; improved texture caching in menus to save RAM
 
 20070614
 --------
