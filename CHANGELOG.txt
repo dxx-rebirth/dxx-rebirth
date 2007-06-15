@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 SConstruct, arch/sdl/digi.c: complete removal of hmiplay-code usage
 main/text.c: fixed memleak
+2d/bitblt.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, main/game.c, main/newmenu.c: small code cleanup; improved texture caching in menus to save RAM
 
 20070614
 --------

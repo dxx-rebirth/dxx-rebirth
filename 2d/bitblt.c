@@ -607,27 +607,9 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_LINEAR ))
 	{
-		ogl_ubitblt_tolinear(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))
-	{
-		return;
-	}
-#endif
-
-#ifdef D1XD3D
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_DIRECTX ))
-	{
-		Assert ((int)dest->bm_data == BM_D3D_RENDER || (int)dest->bm_data == BM_D3D_DISPLAY);
-		Win32_BlitLinearToDirectX_bm (src, sx, sy, w, h, dx, dy, 0);
-		return;
-	}
-	if ( (src->bm_type == BM_DIRECTX) && (dest->bm_type == BM_LINEAR ))
-	{
-		return;
-	}
-	if ( (src->bm_type == BM_DIRECTX) && (dest->bm_type == BM_DIRECTX ))
 	{
 		return;
 	}
@@ -637,25 +619,7 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest, 0 );
 	 	return;
 	}
-#ifdef __MSDOS__
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_SVGA ))
-	{
-		gr_bm_ubitblt02( w, h, dx, dy, sx, sy, src, dest );
-		return;
-	}
 
-	if ( (src->bm_type == BM_SVGA) && (dest->bm_type == BM_LINEAR ))
-	{
-		gr_bm_ubitblt20( w, h, dx, dy, sx, sy, src, dest );
-		return;
-	}
-
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_MODEX ))
-	{
-		gr_bm_ubitblt01( w, h, dx+XOFFSET, dy+YOFFSET, sx, sy, src, dest );
-		return;
-	}
-#endif
 	for (y1=0; y1 < h; y1++ )    {
 		for (x1=0; x1 < w; x1++ )    {
 			gr_bm_pixel( dest, dx+x1, dy+y1, gr_gpixel(src,sx+x1,sy+y1) );
@@ -725,7 +689,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_LINEAR ))
 	{
-		ogl_ubitblt_tolinear(w, h, dx, dy, sx, sy, src, dest);
 		return;
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_OGL ))

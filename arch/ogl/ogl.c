@@ -313,8 +313,6 @@ void ogl_bindbmtex(grs_bitmap *bm){
 	OGL_BINDTEXTURE(bm->gltexture->handle);
 	bm->gltexture->lastrend=GameTime;
 	bm->gltexture->numrend++;
-
-
 }
 
 //gltexture MUST be bound first
@@ -974,34 +972,6 @@ bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, gr
 	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,0);
 }
 
-bool ogl_ubitblt_tolinear(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
-	unsigned char *d,*s;
-	int i,j;
-	int w1,h1;
-
-	w1=grd_curscreen->sc_w;h1=grd_curscreen->sc_h;
-
-	if (ogl_readpixels_ok>0){
-		OGL_DISABLE(TEXTURE_2D);
-		glReadBuffer(GL_FRONT);
-		glReadPixels(0,0,w1,h1,GL_RGB,GL_UNSIGNED_BYTE,texbuf);
-	}else
-		memset(texbuf,0,w1*h1*3);
-	sx+=src->bm_x;
-	sy+=src->bm_y;
-	for (i=0;i<h;i++){
-		d=dest->bm_data+dx+(dy+i)*dest->bm_rowsize;
-		s=texbuf+((h1-(i+sy+1))*w1+sx)*3;
-		for (j=0;j<w;j++){
-			*d=gr_find_closest_color(s[0]/4,s[1]/4,s[2]/4);
-			s+=3;
-			d++;
-		}
-	}
-
-	return 0;
-}
-
 GLubyte *pixels = NULL;
 
 void ogl_start_frame(void){
@@ -1376,7 +1346,7 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 			GL_UNSIGNED_BYTE, // imageData is a GLubyte pointer.
 			bufP);
 	tex_set_size (tex);
-	r_texcount++; 
+	r_texcount++;
 	return 0;
 }
 

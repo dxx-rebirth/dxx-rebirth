@@ -90,6 +90,10 @@ grs_bitmap nm_background1;
 extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 void newmenu_close()	{
+#ifdef OGL
+	ogl_freebmtexture(&nm_background);
+	ogl_freebmtexture(&nm_background1);
+#endif
 	if (nm_background.bm_data)
 		free(nm_background.bm_data);
 	if (nm_background1.bm_data)
