@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070615
 --------
 SConstruct, arch/sdl/digi.c: complete removal of hmiplay-code usage
+main/text.c: fixed memleak
 
 20070614
 --------

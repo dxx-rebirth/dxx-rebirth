@@ -204,6 +204,7 @@ void load_text()
 			strcpy(buf,p+2);
 			strcpy(p+1,buf);
 			p++;
+			free(buf);
 		}
 
           switch(i) {
