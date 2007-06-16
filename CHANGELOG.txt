@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070616
+--------
+main/newmenu.c: adjusted size of Inputbox; code cleanup for saving/restoring state; also display savegame thumbnail when saving game
+
 20070615
 --------
 SConstruct, arch/sdl/digi.c: complete removal of hmiplay-code usage

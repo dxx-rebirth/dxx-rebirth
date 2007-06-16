@@ -3621,7 +3621,7 @@ void multi_initiate_save_game()
 
 	//stop_time();
 
-	slot = state_get_save_file(filename, desc, 1, 0);
+	slot = state_get_save_file(filename, desc, 1/*, 0*/);
 	if (!slot)      {
 		//start_time();
 		return;

@@ -1121,24 +1121,6 @@ int HandleSystemKey(int key)
 			#endif
 			break;
 
-		MAC(case KEY_COMMAND + KEY_6:)
-		case KEY_F6:
-			if (!Player_is_dead && !(Game_mode & GM_MULTI))
-			{
-				int rsave, gsave, bsave;
-				rsave = PaletteRedAdd;
-				gsave = PaletteGreenAdd;
-				bsave = PaletteBlueAdd;
-
-				full_palette_save();
-				PaletteRedAdd = rsave;
-				PaletteGreenAdd = gsave;
-				PaletteBlueAdd = bsave;
-				state_save_all(0, 0, NULL, 1); // 0 means not between levels.
-				palette_restore();
-			}
-			break;
-
 		MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 			#ifdef NETWORK
@@ -1220,7 +1202,7 @@ int HandleSystemKey(int key)
 				PaletteRedAdd = rsave;
 				PaletteGreenAdd = gsave;
 				PaletteBlueAdd = bsave;
-				state_save_all(0, 0, NULL, 0); // 0 means not between levels.
+				state_save_all(0, 0, NULL); // 0 means not between levels.
 				palette_restore();
 			}
 			break;

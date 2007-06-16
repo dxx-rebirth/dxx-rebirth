@@ -129,7 +129,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 20- First_secret_visit
 // 22- Omega_charge
 
-#define NUM_SAVES 9
+#define NUM_SAVES 10
 #define THUMBNAIL_W 100
 #define THUMBNAIL_H 50
 #define DESC_LENGTH 20
@@ -149,11 +149,11 @@ extern void do_lunacy_off(void);
 extern int First_secret_visit;
 
 int sc_last_item= 0;
-grs_bitmap *sc_bmp[NUM_SAVES+1];
+grs_bitmap *sc_bmp[NUM_SAVES];
 
 char dgss_id[4] = "DGSS";
 
-int state_default_item = -2;
+int state_default_item = 0;
 
 uint state_game_id;
 
@@ -217,81 +217,25 @@ void rpad_string( char * string, int max_chars )
 	*string = 0;		// NULL terminate
 }
 
-int state_get_save_file(char * fname, char * dsc, int multi, int blind_save)
+/* Present a menu for selection of a savegame filename.
+ * For saving, dsc should be a pre-allocated buffer into which the new
+ * savegame description will be stored.
+ * For restoring, dsc should be NULL, in which case empty slots will not be
+ * selectable and savagames descriptions will not be editable.
+ */
+int state_get_savegame_filename(char * fname, char * dsc, int multi, char * caption )
 {
-	PHYSFS_file *fp;
-	int i, choice, version;
-	newmenu_item m[NUM_SAVES+2];
-	char filename[NUM_SAVES+1][30];
-	char desc[NUM_SAVES+1][DESC_LENGTH+16];
-	char id[5];
-	int valid=0;
-	
-	for (i=0;i<NUM_SAVES+1; i++ )	{
-		sc_bmp[i] = NULL;
-		if ( !multi )
-			sprintf( filename[i], Use_players_dir? "Players/%s.sg%x" : "%s.sg%x", Players[Player_num].callsign, i );
-		else
-			sprintf( filename[i], Use_players_dir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, i );
-		valid = 0;
-		fp = PHYSFSX_openReadBuffered(filename[i]);
-		if ( fp ) {
-			//Read id
-			//FIXME: check for swapped file, react accordingly...
-			PHYSFS_read(fp, id, sizeof(char) * 4, 1);
-			if ( !memcmp( id, dgss_id, 4 )) {
-				//Read version
-				PHYSFS_read(fp, &version, sizeof(int), 1);
-				if (version >= STATE_COMPATIBLE_VERSION)	{
-					// Read description
-					PHYSFS_read(fp, desc[i], sizeof(char) * DESC_LENGTH, 1);
-					valid = 1;
-				}
-			} 
-			PHYSFS_close(fp);
-		}
-		if (!valid) {
-			strcpy( desc[i], TXT_EMPTY );
-		}
-		m[i].type = NM_TYPE_INPUT_MENU; m[i].text = desc[i]; m[i].text_len = DESC_LENGTH-1;
-	}
-
-	sc_last_item = -1;
-	if (blind_save && state_default_item >= 0)
-		choice = state_default_item;
-	else
-		choice = newmenu_do3(NULL, "Save Game", NUM_SAVES+1, m, state_callback, (state_default_item >= 0) ? state_default_item : 0, NULL, FONTSCALE_X(MenuHires?385:190), -1 );
-
-	for (i=0; i<NUM_SAVES; i++ )	{
-		if ( sc_bmp[i] )
-			gr_free_bitmap( sc_bmp[i] );
-	}
-
-	if (choice > -1) {
-		strcpy( fname, filename[choice] );
-		strcpy( dsc, desc[choice] );
-		state_default_item = choice;
-		return choice+1;
-	}
-	return 0;
-}
-
-int RestoringMenu=0;
-extern int Current_display_mode;
-
-int state_get_restore_file(char * fname, int multi)
-{
-	PHYSFS_file *fp;
+	PHYSFS_file * fp;
 	int i, choice, version, nsaves;
-	newmenu_item m[NUM_SAVES+2];
-	char filename[NUM_SAVES+1][30];
-	char desc[NUM_SAVES+1][DESC_LENGTH + 16];
+	newmenu_item m[NUM_SAVES+1];
+	char filename[NUM_SAVES][20];
+	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	char id[5];
 	int valid;
 
 	nsaves=0;
-	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";	
-	for (i=0;i<NUM_SAVES+1; i++ )	{
+	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
+	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
 		if (!multi)
 			sprintf( filename[i], Use_players_dir? "Players/%s.sg%x" : "%s.sg%x", Players[Player_num].callsign, i );
@@ -301,16 +245,15 @@ int state_get_restore_file(char * fname, int multi)
 		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
 			//Read id
-			//FIXME: check for swapped file, react accordingly...
 			PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 			if ( !memcmp( id, dgss_id, 4 )) {
 				//Read version
 				PHYSFS_read(fp, &version, sizeof(int), 1);
-				if (version >= STATE_COMPATIBLE_VERSION)	{
+				if (version >= STATE_COMPATIBLE_VERSION) {
 					// Read description
 					PHYSFS_read(fp, desc[i], sizeof(char) * DESC_LENGTH, 1);
 					//rpad_string( desc[i], DESC_LENGTH-1 );
-					m[i+1].type = NM_TYPE_MENU; m[i+1].text = desc[i];
+					if (dsc == NULL) m[i+1].type = NM_TYPE_MENU;
 					// Read thumbnail
 					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
 					PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
@@ -324,51 +267,49 @@ int state_get_restore_file(char * fname, int multi)
 				}
 			}
 			PHYSFS_close(fp);
-		}
+		} 
 		if (!valid) {
 			strcpy( desc[i], TXT_EMPTY );
 			//rpad_string( desc[i], DESC_LENGTH-1 );
-			m[i+1].type = NM_TYPE_TEXT; m[i+1].text = desc[i];
+			if (dsc == NULL) m[i+1].type = NM_TYPE_TEXT;
 		}
+		if (dsc != NULL) {
+			m[i+1].type = NM_TYPE_INPUT_MENU;
+		}
+		m[i+1].text_len = DESC_LENGTH-1;
+		m[i+1].text = desc[i];
 	}
 
-	if ( nsaves < 1 )	{
+	if ( dsc == NULL && nsaves < 1 )	{
 		nm_messagebox( NULL, 1, "Ok", "No saved games were found!" );
 		return 0;
 	}
 
-	if (Current_display_mode == 3)	//restore menu won't fit on 640x400
-		VR_screen_flags ^= VRF_COMPATIBLE_MENUS;
-
 	sc_last_item = -1;
+	choice = newmenu_do3( NULL, caption, NUM_SAVES+1, m, state_callback, state_default_item + 1, NULL, -1, -1 );
 
-#if defined(WINDOWS) || defined(MACINTOSH)
-	Hack_DblClick_MenuMode = 1;
-#endif
-
-   RestoringMenu=1;
-	choice = newmenu_do3( NULL, "Select Game to Restore", NUM_SAVES+2, m, state_callback, (state_default_item >= 0) ? state_default_item + 1 : 1, NULL, 190, -1 );
-   RestoringMenu=0;
-
-#if defined(WINDOWS) || defined(MACINTOSH)
-	Hack_DblClick_MenuMode = 0;
-#endif
-
-	if (Current_display_mode == 3)	//set flag back
-		VR_screen_flags ^= VRF_COMPATIBLE_MENUS;
-
-
-	for (i=0; i<NUM_SAVES+1; i++ )	{
+	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )
 			gr_free_bitmap( sc_bmp[i] );
 	}
 
 	if (choice > 0) {
 		strcpy( fname, filename[choice-1] );
+		if ( dsc != NULL ) strcpy( dsc, desc[choice-1] );
 		state_default_item = choice - 1;
 		return choice;
 	}
 	return 0;
+}
+
+int state_get_save_file(char * fname, char * dsc, int multi )
+{
+	return state_get_savegame_filename(fname, dsc, multi, "Save Game");
+}
+
+int state_get_restore_file(char * fname, int multi )
+{
+	return state_get_savegame_filename(fname, NULL, multi, "Select Game to Restore");
 }
 
 #define	DESC_OFFSET	8
@@ -428,8 +369,7 @@ int copy_file(char *old_file, char *new_file)
 extern int Final_boss_is_dead;
 
 //	-----------------------------------------------------------------------------------
-//	blind_save means don't prompt user for any info.
-int state_save_all(int between_levels, int secret_save, char *filename_override, int blind_save)
+int state_save_all(int between_levels, int secret_save, char *filename_override)
 {
 	int	rval, filenum = -1;
 
@@ -471,7 +411,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 		filename_override = filename;
 		sprintf(filename_override, SECRETC_FILENAME);
 	} else {
-		if (!(filenum = state_get_save_file(filename, desc, 0, blind_save)))
+		if (!(filenum = state_get_save_file(filename, desc, 0)))
 		{
 			start_time();
 			return 0;

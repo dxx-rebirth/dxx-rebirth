@@ -115,7 +115,7 @@ typedef struct bkg {
 grs_bitmap nm_background,nm_background1,nm_background_save;
 
 #define MESSAGEBOX_TEXT_SIZE 2176   // How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
-#define MAX_TEXT_WIDTH 	((MenuHires)?FONTSCALE_X(200):100)				// How many pixels wide a input box can be
+#define MAX_TEXT_WIDTH 	FONTSCALE_X((MenuHires)?240:120)				// How many pixels wide a input box can be
 
 #define MENSCALE_X ((MenuHires)?(SWIDTH/640):(SWIDTH/320))
 #define MENSCALE_Y ((MenuHires)?(SHEIGHT/480):(SHEIGHT/200))
@@ -663,7 +663,7 @@ int check_button_press()
 }
 
 extern int network_request_player_names(int);
-extern int RestoringMenu;
+// extern int RestoringMenu;
 
 #ifdef NEWMENU_MOUSE
 ubyte Hack_DblClick_MenuMode=0;
@@ -841,7 +841,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			Assert( strlen(item[i].text) < NM_MAX_TEXT_LEN );
 			strcpy(item[i].saved_text, item[i].text );
 			nothers++;
-			string_width = item[i].text_len*FONTSCALE_X(grd_curcanv->cv_font->ft_w+((MenuHires?3:1))*item[i].text_len);
+			string_width = item[i].text_len*FONTSCALE_X(grd_curcanv->cv_font->ft_w)+item[i].text_len;
 			if ( string_width > MAX_TEXT_WIDTH ) 
 				string_width = MAX_TEXT_WIDTH;
 			item[i].value = -1;
@@ -851,7 +851,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			Assert( strlen(item[i].text) < NM_MAX_TEXT_LEN );
 			strcpy(item[i].saved_text, item[i].text );
 			nmenus++;
-			string_width = item[i].text_len*FONTSCALE_X(grd_curcanv->cv_font->ft_w+((MenuHires?3:1))*item[i].text_len);
+			string_width = item[i].text_len*FONTSCALE_X(grd_curcanv->cv_font->ft_w)+item[i].text_len;
 			item[i].value = -1;
 			item[i].group = 0;
 		}
@@ -907,8 +907,8 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		w = tw;
 	}
 
-	if (RestoringMenu)
-		{ right_offset=0; twidth=0;}
+// 	if (RestoringMenu)
+// 		{ right_offset=0; twidth=0;}
 
 	mprintf(( 0, "Right offset = %d\n", right_offset ));
 
@@ -1641,7 +1641,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		}
 
 //	 HACK! Don't redraw loadgame preview
-		if (RestoringMenu) item[0].redraw = 0;
+// 		if (RestoringMenu) item[0].redraw = 0;
 #endif // NEWMENU_MOUSE
 
 		if ( choice > -1 )	{
