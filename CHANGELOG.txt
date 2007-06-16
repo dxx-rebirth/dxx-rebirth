@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070616
+--------
+main/newmenu.c: adjusted size of Inputbox
+
 20070615
 --------
 SConstruct, arch/sdl/digi.c: complete removal of hmiplay-code usage
