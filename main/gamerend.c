@@ -727,7 +727,7 @@ void game_render_frame_mono(int flip)
 
 void toggle_cockpit()
 {
-	int new_mode;
+	int new_mode=CM_FULL_SCREEN;
 
 	switch (Cockpit_mode)
 	{

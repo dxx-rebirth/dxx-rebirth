@@ -111,6 +111,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 void DoJasonInterpolate (fix recorded_time);
+extern int init_hoard_data();
 
 //#include "nocfile.h"
 
@@ -2424,9 +2425,17 @@ int newdemo_read_frame_information()
 					nd_read_short (&seg->sides[side].tmap_num);
 					nd_read_short (&seg->sides[side].tmap_num2);
 				}
+
 #ifdef NETWORK
-				if (Newdemo_game_mode & GM_CAPTURE)
+				Game_mode = Newdemo_game_mode; // more a HACK to get hoard textures working, but not bad to have it anyways
+
+				if (Newdemo_game_mode & GM_HOARD)
+					init_hoard_data();
+
+				if (Newdemo_game_mode & GM_CAPTURE || Newdemo_game_mode & GM_HOARD)
 					multi_apply_goal_textures ();
+
+				Game_mode = 0;
 #endif
 				JustStartedPlayback=0;
 			}
