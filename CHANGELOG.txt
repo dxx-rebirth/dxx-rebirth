@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070628
+--------
+main/game.c, main/newdemo.c: fixing compiler warning, handle *SOUND_TO_OBJ events correctly in demo playback
+
 20070616
 --------
 main/newmenu.c: adjusted size of Inputbox

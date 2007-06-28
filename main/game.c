@@ -460,7 +460,7 @@ void HUD_clear_messages();
 
 void toggle_cockpit()
 {
-	int new_mode;
+	int new_mode=CM_FULL_SCREEN;
 
 	switch (Cockpit_mode)
 	{

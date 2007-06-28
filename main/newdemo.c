@@ -184,6 +184,8 @@ sbyte playback_style;
 sbyte First_time_playback=1;
 fix JasonPlaybackTotal=0;
 
+extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
+
 FILE *infile;
 FILE *outfile;
 
@@ -2189,6 +2191,34 @@ int newdemo_read_frame_information()
 			NewdemoFrameCount++;
 			break;
 		}
+
+		case ND_EVENT_LINK_SOUND_TO_OBJ:
+			{
+				int soundno, objnum, max_volume, max_distance, loop_start, loop_end;
+				int signature;
+				nd_read_int( &soundno );
+				nd_read_int( &signature );
+				nd_read_int( &max_volume );
+				nd_read_int( &max_distance );
+				nd_read_int( &loop_start );
+				nd_read_int( &loop_end );
+				objnum = newdemo_find_object( signature );
+				if ( objnum > -1 )  {   //  @mk, 2/22/96, John told me to.
+					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, max_distance, loop_start, loop_end );
+				}
+			}
+			break;
+
+		case ND_EVENT_KILL_SOUND_TO_OBJ:
+			{
+				int objnum, signature;
+				nd_read_int( &signature );
+				objnum = newdemo_find_object( signature );
+				if ( objnum > -1 )  {   //  @mk, 2/22/96, John told me to.
+					digi_kill_sound_linked_to_object(objnum);
+				}
+			}
+			break;
 
 		default:
 			Int3();
