@@ -1086,31 +1086,31 @@ int read_player_file()
 			break;
 		case 7:
 			/* version 7 doesn't have the saved games array */
-			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == (2212 - sizeof(saved_games)))
+			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == (2212 - sizeof(saved_games)))
 				shareware_file = 1;
-			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == (2252 - sizeof(saved_games)))
+			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == (2252 - sizeof(saved_games)))
 				shareware_file = 0;
 			break;
 		case 8:
-			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == 2212)
+			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == 2212)
 				shareware_file = 1;
-			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == 2252)
+			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == 2252)
 				shareware_file = 0;
 			/* d1x-rebirth v0.31 to v0.42 broke things by adding stuff to the
 			   player struct without thinking (sigh) */
-			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == (2212 + 2*sizeof(int)))
+			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == (2212 + 2*sizeof(int)))
 			{
+
 				shareware_file = 1;
 				/* skip the cruft added to the player_info struct */
 				fseek(file, 2*sizeof(int), SEEK_CUR);
 			}
-			if ((player_file_size - (sizeof(hli)*n_highest_levels)) == (2252 + 2*sizeof(int)))
+			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == (2252 + 2*sizeof(int)))
 			{
 				shareware_file = 0;
 				/* skip the cruft added to the player_info struct */
 				fseek(file, 2*sizeof(int), SEEK_CUR);
 			}
-			shareware_file=0;
 	}
 
 	if (shareware_file == -1) {

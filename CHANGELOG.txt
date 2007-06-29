@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070629
+--------
+main/playsave.c, main/titles.c: fixing playerfile size detection, using gr_flip() with title screens
+
 20070628
 --------
 main/game.c, main/newdemo.c: fixing compiler warning, handle *SOUND_TO_OBJ events correctly in demo playback

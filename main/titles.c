@@ -119,33 +119,34 @@ int show_title_screen( char * filename, int allow_keys )
 		return 0;
 	}
 
-#ifdef OGL
-	gr_palette_load(New_pal);
-#else
-	gr_palette_clear();	
-#endif
 	gr_set_current_canvas( NULL );
-	show_fullscr(&title_bm);
-        //added on 9/13/98 by adb to make update-needing arch's work
-        gr_update();
-        //end addition - adb
-#ifdef OGL
-	gr_flip();
-#endif
-	gr_free_bitmap_data (&title_bm);
 
-	if (allow_keys > 2 || gr_palette_fade_in( New_pal, 32, allow_keys ) || allow_keys > 1) {
-		return 1;
-	}
+	timer = timer_get_fixed_seconds() + i2f(3);
 
 	gr_palette_load( New_pal );
-	timer = timer_get_fixed_seconds() + i2f(3);
+
 	while (1) {
+		show_fullscr(&title_bm);
+		gr_update();
+#ifdef OGL
+		gr_flip();
+#endif
+
+		if (allow_keys > 2 || gr_palette_fade_in( New_pal, 32, allow_keys ) || allow_keys > 1) {
+			return 1;
+		}
+
 		if ( local_key_inkey() && allow_keys ) break;
 		if ( timer_get_fixed_seconds() > timer ) break;
+
+		timer_delay(400);
         }
+
+	gr_free_bitmap_data (&title_bm);
+
 	if (gr_palette_fade_out( New_pal, 32, allow_keys ))
 		return 1;
+
 	return 0;
 }
 
