@@ -170,13 +170,12 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	fix timer;
 	int pcx_error;
 	grs_bitmap title_bm;
-	ubyte	palette_save[768];
 	char new_filename[FILENAME_LEN+1] = "";
 
-	#ifdef RELEASE
+#ifdef RELEASE
 	if (from_hog_only)
 		strcpy(new_filename,"\x01");	//only read from hog file
-	#endif
+#endif
 
 	strcat(new_filename,filename);
 	filename = new_filename;
@@ -188,36 +187,34 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
 
-	memcpy(palette_save,gr_palette,sizeof(palette_save));
-
-	//vfx_set_palette_sub( New_pal );
-#ifdef OGL
-	gr_palette_load( New_pal );
-#else
-	gr_palette_clear();
-#endif
-
 	gr_set_current_canvas( NULL );
-	show_fullscr(&title_bm);
 
-#ifdef OGL
-	gr_flip();
-#endif
-
-	if (gr_palette_fade_in( New_pal, 32, allow_keys ))
-		return 1;
-	gr_copy_palette(gr_palette, New_pal, sizeof(gr_palette));
+	timer = timer_get_fixed_seconds() + i2f(3);
 
 	gr_palette_load( New_pal );
-	timer	= timer_get_fixed_seconds() + i2f(3);
+
 	while (1) {
+		show_fullscr(&title_bm);
+		gr_update();
+#ifdef OGL
+		gr_flip();
+#endif
+
+		if (allow_keys > 2 || gr_palette_fade_in( New_pal, 32, allow_keys ) || allow_keys > 1) {
+			return 1;
+		}
+
 		if ( local_key_inkey() && allow_keys ) break;
 		if ( timer_get_fixed_seconds() > timer ) break;
-	}
+
+		timer_delay(400);
+        }
+
+	gr_free_bitmap_data (&title_bm);
+
 	if (gr_palette_fade_out( New_pal, 32, allow_keys ))
 		return 1;
-	gr_copy_palette(gr_palette, palette_save, sizeof(palette_save));
-	d_free(title_bm.bm_data);
+
 	return 0;
 }
 
@@ -1624,9 +1621,6 @@ int get_new_message_num(char **message)
 void show_order_form()
 {
 #ifndef EDITOR
-
-	int pcx_error;
-	unsigned char title_pal[768];
 	char    exit_screen[16];
 
 	gr_set_current_canvas( NULL );
@@ -1644,17 +1638,7 @@ void show_order_form()
 	if (! cfexist(exit_screen))
 		return; // D2 registered
 
-	if ((pcx_error=pcx_read_fullscr( exit_screen, title_pal ))==PCX_ERROR_NONE) {
-		//vfx_set_palette_sub( title_pal );
-		gr_palette_fade_in( title_pal, 32, 0 );
-		gr_update();
-		while (!key_inkey() && !mouse_button_state(0)) {} //key_getch();
-		gr_palette_fade_out( title_pal, 32, 0 );
-	}
-	else
-		Int3();         //can't load order screen
-
-	key_flush();
+	show_title_screen(exit_screen,1,0);
 
 #endif
 }

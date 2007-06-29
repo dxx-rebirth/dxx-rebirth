@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070629
+--------
+main/playsave.c, main/titles.c: using gr_flip() with title screens
+
 20070628
 --------
 main/game.c, main/newdemo.c: fixing compiler warning, show up HOARD textures in demo playback
