@@ -1154,8 +1154,8 @@ void do_invulnerable_stuff(void)
 ubyte	Last_afterburner_state = 0;
 fix Last_afterburner_charge = 0;
 
-#define AFTERBURNER_LOOP_START	((digi_sample_rate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
-#define AFTERBURNER_LOOP_END		((digi_sample_rate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
+#define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
+#define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
 
 int	Ab_scale = 4;
 

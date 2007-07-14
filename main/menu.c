@@ -923,8 +923,6 @@ try_again:
 
 extern void GameLoop(int, int );
 
-extern int Redbook_enabled;
-
 void options_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 {
 	if ( citem==4)
@@ -1163,7 +1161,7 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 
 	if (items[4].value != (Redbook_playing!=0)) {
 
-		if (items[4].value && !FindArg("-redbook")) {
+		if (items[4].value && !GameArg.SndEnableRedbook) {
 			nm_messagebox (TXT_SORRY,1,TXT_OK,"Redbook audio is disabled\nuse -redbook command to enable");
 			items[4].value = 0;
 			items[4].redraw = 1;

@@ -2204,8 +2204,8 @@ int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, sbyte 
 	objp->mtype.phys_info.rotvel.y = (GameTime - start_time)/5;
 	objp->mtype.phys_info.rotvel.z = (GameTime - start_time)/7;
 
-	if (digi_sample_rate)
-		sound_duration = fixdiv(GameSounds[digi_xlat_sound(death_sound)].length,digi_sample_rate);
+	if (GameArg.SndDigiSampleRate)
+		sound_duration = fixdiv(GameSounds[digi_xlat_sound(death_sound)].length,GameArg.SndDigiSampleRate);
 	else
 		sound_duration = F1_0;
 

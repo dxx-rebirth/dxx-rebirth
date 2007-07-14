@@ -29,8 +29,6 @@
 #include "newdemo.h"
 #include "kconfig.h"
 
-int digi_sample_rate = SAMPLE_RATE_11K;
-
 //edited 05/17/99 Matt Mueller - added ifndef NO_ASM
 //added on 980905 by adb to add inline fixmul for mixer on i386
 #ifndef NO_ASM
@@ -201,7 +199,7 @@ int digi_init()
 		Error("SDL audio initialisation failed: %s.",SDL_GetError());
 	}
 	
-	WaveSpec.freq = digi_sample_rate;
+	WaveSpec.freq = GameArg.SndDigiSampleRate;
 	//added/changed by Sam Lantinga on 12/01/98 for new SDL version
 	WaveSpec.format = AUDIO_U8;
 	WaveSpec.channels = 2;

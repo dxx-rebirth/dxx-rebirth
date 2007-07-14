@@ -56,8 +56,6 @@ extern int digi_midi_type;
 extern int digi_midi_port;
 #endif
 
-extern int digi_sample_rate;
-
 extern int digi_get_settings();
 extern int digi_init();
 extern void digi_reset();

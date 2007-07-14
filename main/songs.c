@@ -86,13 +86,6 @@ void songs_init()
 
 	if ( Songs_initialized ) return;
 
-
-	#if !defined(MACINTOSH) && !defined(WINDOWS)  	// don't crank it if on a macintosh!!!!!
-		if (!FindArg("-nomixer"))
-			CD_blast_mixer();   // Crank it!
-	#endif
-
-
 	if (cfexist("descent.sng")) {   // mac (demo?) datafiles don't have the .sng file
 		fp = cfopen( "descent.sng", "rb" );
 		if ( fp == NULL )
@@ -123,19 +116,11 @@ void songs_init()
 
 	//	RBA Hook
 	#if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-		if (!FindArg("-redbook"))
+		if (GameArg.SndEnableRedbook)
 		{
-			Redbook_enabled = 0;
-		}
-		else	// use redbook
-		{
-			#ifndef __MSDOS__ // defined(WINDOWS) || defined(MACINTOSH)
-				RBAInit();
-			#else
-				RBAInit(toupper(CDROM_dir[0]) - 'A');
-			#endif
+			RBAInit();
 
-				if (RBAEnabled())
+			if (RBAEnabled())
 			{
 				set_redbook_volume(Config_redbook_volume);
 				RBARegisterCD();
@@ -188,11 +173,7 @@ int force_rb_register=0;
 
 void reinit_redbook()
 {
-	#ifndef __MSDOS__ // defined(WINDOWS) || defined(MACINTOSH)
-		RBAInit();
-	#else
-		RBAInit(toupper(CDROM_dir[0]) - 'A');
-	#endif
+	RBAInit();
 
 	if (RBAEnabled())
 	{
@@ -210,7 +191,7 @@ int play_redbook_track(int tracknum,int keep_playing)
 {
 	Redbook_playing = 0;
 
-	if (!RBAEnabled() && Redbook_enabled && FindArg("-redbook"))
+	if (!RBAEnabled() && Redbook_enabled && GameArg.SndEnableRedbook)
 		reinit_redbook();
 
 	if (force_rb_register) {
@@ -361,7 +342,7 @@ void songs_play_level_song( int levelnum )
 
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
-	if (!RBAEnabled() && Redbook_enabled && FindArg("-redbook"))
+	if (!RBAEnabled() && Redbook_enabled && GameArg.SndEnableRedbook)
 		reinit_redbook();
 
 	if (force_rb_register) {

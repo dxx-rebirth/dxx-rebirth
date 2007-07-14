@@ -321,7 +321,7 @@ int ds_load( char * filename )	{
 #endif
 
 	removeext(filename, fname);
-	sprintf(rawname, "%s.%s", fname, (digi_sample_rate==SAMPLE_RATE_22K) ? "r22" : "raw");
+	sprintf(rawname, "%s.%s", fname, (GameArg.SndDigiSampleRate==SAMPLE_RATE_22K) ? "r22" : "raw");
 
 	i=piggy_find_sound( fname );
 	if (i!=255)	{

@@ -166,12 +166,6 @@ int RBAPeekPlayStatus()
 	return (SDL_CDStatus(s_cd) == CD_PLAYING);
 }
 
-int CD_blast_mixer()
-{
-	return 0;
-}
-
-
 static int cddb_sum(int n)
 {
 	int ret;

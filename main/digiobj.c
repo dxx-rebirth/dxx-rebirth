@@ -349,7 +349,7 @@ void digi_start_sound_object(int i)
 }
 
 //sounds longer than this get their 3d aspects updated
-#define SOUND_3D_THRESHHOLD  (digi_sample_rate * 3 / 2)	//1.5 seconds
+#define SOUND_3D_THRESHHOLD  (GameArg.SndDigiSampleRate * 3 / 2)	//1.5 seconds
 
 int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end )
 {

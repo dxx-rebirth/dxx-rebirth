@@ -79,7 +79,7 @@ static char rcsid[] = "$Id: piggy.c,v 1.1.1.1 2006/03/17 19:57:23 zicodxx Exp $"
 
 #define D1_PALETTE "palette.256"
 
-#define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(digi_sample_rate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
+#define DEFAULT_SNDFILE ((Piggy_hamfile_version < 3)?DEFAULT_HAMFILE_SHAREWARE:(GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?"descent2.s22":"descent2.s11")
 
 #define MAC_ALIEN1_PIGSIZE      5013035
 #define MAC_ALIEN2_PIGSIZE      4909916

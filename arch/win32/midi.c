@@ -48,7 +48,7 @@ void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, in
 		return;
 #endif
 
-	if (FindArg("-nosound"))
+	if (GameArg.SndNoMusic)
 		return;
 
 	digi_stop_current_song();

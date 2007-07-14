@@ -159,14 +159,14 @@ int PlayMovie(const char *filename, int must_have)
 	digi_close();
 
 	// Start sound
-	if (!FindArg("-nosound"))
+	if (!GameArg.SndNoSound)
 		MVE_sndInit(1);
 	else
 		MVE_sndInit(-1);
 
 	ret = RunMovie(name,MovieHires,must_have,-1,-1);
 
-	if (!FindArg("-nosound"))
+	if (!GameArg.SndNoSound)
 		digi_init();
 
 	Screen_mode = -1;		//force screen reset

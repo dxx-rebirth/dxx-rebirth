@@ -41,8 +41,6 @@
 //MD2211 - added 2006/12/12 to correctly remember music volume
 static int midi_volume = F1_0;
 
-int digi_sample_rate = SAMPLE_RATE_22K;
-
 //edited 05/17/99 Matt Mueller - added ifndef NO_ASM
 //added on 980905 by adb to add inline fixmul for mixer on i386
 #ifndef NO_ASM
@@ -111,7 +109,7 @@ void mixdigi_convert_sound(int i) {
   SDL_AudioCVT cvt;
   Uint8 *data = GameSounds[i].data;
   Uint32 dlen = GameSounds[i].length;
-  int freq = digi_sample_rate; //FIXME: assuming 22 KHz for now, but Descent 2 supports multiple sampling rates
+  int freq = GameArg.SndDigiSampleRate; //FIXME: assuming 22 KHz for now, but Descent 2 supports multiple sampling rates
   //int bits = GameSounds[i].bits;
 
   if (SoundChunks[i].abuf) return; //proceed only if not converted yet

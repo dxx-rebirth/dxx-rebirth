@@ -37,6 +37,7 @@ extern int Inferno_verbose;
 //   Gfx - Graphics Options
 //   Ogl - OpenGL Options
 //   Mpl - Multiplayer Options
+//   Edi - Editor Options
 //   Dbg - Debugging/Undocumented Options
 typedef struct Arg
 {
@@ -47,13 +48,20 @@ typedef struct Arg
 	int SysNoHogDir;
 	char *SysUserDir;
 	int SysUsePlayersDir;
-	int SysMacData;
 	int SysLowMem;
 	int SysLegacyHomers;
 	char *SysPilot;
 	int SysAutoDemo;
+	int CtlNoMouse;
+	int CtlNoJoystick;
 	int CtlMouselook;
 	int CtlGrabMouse;
+	int SndNoSound;
+	int SndNoMusic;
+	int SndDigiSampleRate;
+	int SndEnableRedbook;
+
+	int EdiMacData;
 } __attribute__ ((packed)) Arg;
 
 extern struct Arg GameArg;

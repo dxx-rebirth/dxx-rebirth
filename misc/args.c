@@ -34,6 +34,7 @@ static char rcsid[] = "$Id: args.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $";
 #include "u_mem.h"
 #include "strio.h"
 #include "strutil.h"
+#include "digi.h"
 
 #define MAX_ARGS 200
 
@@ -156,11 +157,6 @@ void ReadCmdArgs(void)
 	else
 		GameArg.SysUsePlayersDir = 0;
 
-	if (FindArg("-macdata"))
-		GameArg.SysMacData = 1;
-	else
-		GameArg.SysMacData = 0;
-
 	if (FindArg("-lowmem"))
 		GameArg.SysLowMem = 1;
 	else
@@ -178,6 +174,16 @@ void ReadCmdArgs(void)
 
 	// Control Options
 
+	if (FindArg("-nomouse"))
+		GameArg.CtlNoMouse = 1;
+	else
+		GameArg.CtlNoMouse = 0;
+
+	if (FindArg("-nojoystick"))
+		GameArg.CtlNoJoystick = 1;
+	else
+		GameArg.CtlNoJoystick = 0;
+
 	if (FindArg("-mouselook"))
 		GameArg.CtlMouselook = 1;
 	else
@@ -187,6 +193,35 @@ void ReadCmdArgs(void)
 		GameArg.CtlGrabMouse = 1;
 	else
 		GameArg.CtlGrabMouse = 0;
+
+	// Sound Options
+
+	if (FindArg("-nosound"))
+		GameArg.SndNoSound = 1;
+	else
+		GameArg.SndNoSound = 0;
+
+	if (FindArg("-nomusic"))
+		GameArg.SndNoMusic = 1;
+	else
+		GameArg.SndNoMusic = 0;
+
+	if (FindArg("-sound11k"))
+		GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
+	else
+		GameArg.SndDigiSampleRate = SAMPLE_RATE_22K;
+
+	if (FindArg("-redbook"))
+		GameArg.SndEnableRedbook = 1;
+	else
+		GameArg.SndEnableRedbook = 0;
+
+	// Editor Options
+
+	if (FindArg("-macdata"))
+		GameArg.EdiMacData = 1;
+	else
+		GameArg.EdiMacData = 0;
 }
 
 void args_exit(void)

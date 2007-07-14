@@ -100,6 +100,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "playsave.h"
 #include "collide.h"
 #include "newdemo.h"
+#include "joy.h"
 
 // #  include "3dfx_des.h"
 
@@ -115,14 +116,11 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "ui.h"
 #endif
 
-#ifndef __MSDOS__
 #include <SDL/SDL.h>
-#endif
 
 #include "vers_id.h"
 
 void mem_init(void);
-extern void arch_sdl_init(void);
 
 //Current version number
 
@@ -167,6 +165,7 @@ extern int vertigo_present;
 #ifndef NDEBUG
 extern int checktime;
 #endif
+extern void d_mouse_init(void);
 
 #define LINE_LEN	100
 
@@ -181,28 +180,23 @@ void print_commandline_help()
 	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
 	printf( "  -userdir <dir>     %s\n", "set user dir to <dir> instead of $HOME/.d2x-rebirth");
 	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
-#if       defined(EDITOR)
-	printf( "  -macdata           %s\n", "Read and write mac data files in editor (swap colors)");
-#endif // defined(EDITOR)
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
 	printf( "  -pilot <name>      %s\n", "Select this pilot automatically");
 	printf( "  -autodemo          %s\n", "Start in demo mode");
 
 	printf( "\n Controls:\n\n");
+	printf( "  -nomouse           %s\n", "Deactivate mouse");
+	printf( "  -nojoystick        %s\n", "Deactivate joystick");
 	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
 	printf( "  -grabmouse         %s\n", "Keeps the mouse from wandering out of the window");
 
 	printf( "\n Sound:\n\n");
-	printf( "  -nosound           %s\n", "Disables sound drivers");
-	printf( "  -nomusic           %s\n", "Disables music; sound effects remain enabled");
-	printf( "  -DisableSound      %s\n", "Completely disable sound system (also disables movies)");
-	printf( "  -Sound11K          %s\n", "Use 11KHz sounds");
-#if       !defined(MACINTOSH) && !defined(WINDOWS)
-	printf( "  -nomixer           %s\n", "Don't crank music volume");
-#endif // !defined(MACINTOSH) && !defined(WINDOWS)
+	printf( "  -nosound           %s\n", "Disables sound output");
+	printf( "  -nomusic           %s\n", "Disables music output");
+	printf( "  -sound11k          %s\n", "Use 11KHz sounds");
 #if       !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-	printf( "  -redbook         %s\n", "Disable redbook audio");
+	printf( "  -redbook           %s\n", "Enable redbook audio support");
 #endif //  !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
 
 	printf( "\n Graphics:\n\n");
@@ -261,7 +255,8 @@ void print_commandline_help()
 #ifdef    EDITOR
 	printf( "\n Editor:\n\n");
 	printf( "  -autoload <file>   %s\n", "Autoload a level in the editor");
-	printf( "  -hoarddata         %s\n","Make the hoard ham file from some files, then exit");
+	printf( "  -macdata           %s\n", "Read and write mac data files in editor (swap colors)");
+	printf( "  -hoarddata         %s\n", "Make the hoard ham file from some files, then exit");
 #endif // EDITOR
 
 /*	KEPT FOR FURTHER REFERENCE
@@ -324,6 +319,11 @@ void print_commandline_help()
 	printf( "\n Help:\n\n");
 	printf( "  -help, -h, -?, ?   %s\n", "View this help screen");
 	printf( "\n\n");
+}
+
+void sdl_close()
+{
+	SDL_Quit();
 }
 
 //set this to force game to run in low res
@@ -453,16 +453,21 @@ int main(int argc, char *argv[])
 		PHYSFS_freeList(list);
 	}
 
-	if(FindArg("-sound11k"))
-	{
-		digi_sample_rate = SAMPLE_RATE_11K;
-	}
-	else
-	{
-		digi_sample_rate = SAMPLE_RATE_22K;
-	}
+	if (SDL_Init(SDL_INIT_VIDEO)<0)
+		Error("SDL library initialisation failed: %s.",SDL_GetError());
 
-	arch_sdl_init();
+	key_init();
+
+	if (!GameArg.SndNoSound)
+		digi_init();
+	
+	if (!GameArg.CtlNoMouse)
+		d_mouse_init();
+
+	if (!GameArg.CtlNoJoystick)
+		joy_init();
+	
+	atexit(sdl_close);
 
 	//con_printf(CON_VERBOSE, "\n%s...", "Checking for Descent 2 CD-ROM");
 
@@ -496,8 +501,6 @@ int main(int argc, char *argv[])
 	}
 
 	Lighting_on = 1;
-
-//	if (init_graphics()) return 1;
 
 	#ifdef EDITOR
 	if (gr_check_mode(SM(800, 600)) != 0)

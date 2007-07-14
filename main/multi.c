@@ -5203,7 +5203,7 @@ void init_hoard_data()
 
 			len = cfile_read_int(ifile);        //get 11k len
 
-			if (digi_sample_rate == SAMPLE_RATE_22K) {
+			if (GameArg.SndDigiSampleRate == SAMPLE_RATE_22K) {
 				cfseek(ifile,len,SEEK_CUR);     //skip over 11k sample
 				len = cfile_read_int(ifile);    //get 22k len
 			}
@@ -5212,7 +5212,7 @@ void init_hoard_data()
 			GameSounds[Num_sound_files+i].data = d_malloc(len);
 			cfread(GameSounds[Num_sound_files+i].data,1,len,ifile);
 
-			if (digi_sample_rate == SAMPLE_RATE_11K) {
+			if (GameArg.SndDigiSampleRate == SAMPLE_RATE_11K) {
 				len = cfile_read_int(ifile);    //get 22k len
 				cfseek(ifile,len,SEEK_CUR);     //skip over 22k sample
 			}
