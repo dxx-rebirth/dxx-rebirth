@@ -232,9 +232,6 @@ int	Global_missile_firing_count = 0;
 grs_bitmap background_bitmap;
 
 int Game_aborted;
-#ifndef RELEASE
-int invulnerability=0;
-#endif
 
 #define BACKGROUND_NAME "statback.pcx"
 
@@ -515,7 +512,7 @@ int set_screen_mode(int sm)
 	{
 		case SCREEN_MENU:
 			/* give control back to the WM */
-			if (FindArg("-grabmouse"))
+			if (GameArg.CtlGrabMouse)
 				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
 			if (grd_curscreen->sc_mode != MENU_SCREEN_MODE)	{
@@ -526,7 +523,7 @@ int set_screen_mode(int sm)
 	
 		case SCREEN_GAME:
 			/* keep the mouse from wandering in SDL */
-			if (FindArg("-grabmouse") && (Newdemo_state != ND_STATE_PLAYBACK))
+			if (GameArg.CtlGrabMouse && (Newdemo_state != ND_STATE_PLAYBACK))
 				SDL_WM_GrabInput(SDL_GRAB_ON);
 
 			if (grd_curscreen->sc_mode != Game_screen_mode) {
@@ -545,7 +542,7 @@ int set_screen_mode(int sm)
 #ifdef EDITOR
 		case SCREEN_EDITOR:
 			/* give control back to the WM */
-			if (FindArg("-grabmouse"))
+			if (GameArg.CtlGrabMouse)
 				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
 			if (grd_curscreen->sc_mode != SM(800,600))	{
@@ -565,7 +562,7 @@ int set_screen_mode(int sm)
 #endif
 		case SCREEN_MOVIE:
 			/* give control back to the WM */
-			if (FindArg("-grabmouse"))
+			if (GameArg.CtlGrabMouse)
 				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
 			if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
@@ -694,10 +691,6 @@ int Movie_fixed_frametime;
 #define Movie_fixed_frametime	0
 #endif
 
-//added on 8/18/98 by Victor Rachels to add maximum framerate
-int maxfps = 80; //MAX_FPS;
-int use_nice_fps=1;
-
 void calc_frame_time()
 {
 	fix timer_value,last_frametime = FrameTime;
@@ -709,10 +702,10 @@ void calc_frame_time()
 	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
 
-	while (FrameTime < f1_0 / maxfps)
+	while (FrameTime < f1_0 / GameArg.SysMaxFPS)
 	{
-		if (use_nice_fps)
-			timer_delay(f1_0 / maxfps - FrameTime);
+		if (GameArg.SysUseNiceFPS)
+			timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
 	}
@@ -1750,7 +1743,7 @@ void game()
 				game_flush_inputs();
 			}
 
-			if ( (Function_mode != FMODE_GAME) && Auto_demo && (Newdemo_state != ND_STATE_NORMAL) )	{
+			if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
 				int choice, fmode;
 				fmode = Function_mode;
 				Function_mode = FMODE_GAME;
@@ -1762,7 +1755,7 @@ void game()
 				palette_restore();
 				Function_mode = fmode;
 				if (choice==0)	{
-					Auto_demo = 0;
+					GameArg.SysAutoDemo = 0;
 					newdemo_stop_playback();
 					Function_mode = FMODE_MENU;
 				} else {
@@ -2063,12 +2056,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 				j += i;
 	}
 	#endif
-
-		#ifndef RELEASE
-		if (invulnerability)
-			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-		#endif
-
 
 		update_player_stats();
 		diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.

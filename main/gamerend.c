@@ -75,8 +75,6 @@ extern cvar_t r_framerate;
 extern int Debug_pause;				//John's debugging pause system
 #endif
 
-int framerate_on=0;
-
 #ifndef RELEASE
 extern int Saving_movie_frames;
 #else
@@ -376,7 +374,7 @@ mprintf((0,"line_spacing=%d ",line_spacing));
 	}
 
 //	if (r_framerate.value) // ZICO - wtf?
-	if (framerate_on) // ZICO - should be better
+	if (GameArg.SysFPSIndicator) // ZICO - should be better
 		show_framerate();
 
 	if ( (Newdemo_state == ND_STATE_PLAYBACK) )

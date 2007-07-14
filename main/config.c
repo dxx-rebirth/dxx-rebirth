@@ -205,7 +205,6 @@ int ReadConfigFile()
 	int joy_axis_min[7];
 	int joy_axis_center[7];
 	int joy_axis_max[7];
-	int i;
 
 	strcpy( config_last_player, "" );
 
@@ -349,17 +348,6 @@ int ReadConfigFile()
 #else
 	joy_set_cal_vals(joy_axis_min, joy_axis_center, joy_axis_max);
 #endif
-
-	i = FindArg( "-volume" );
-	
-	if ( i > 0 )	{
-		i = atoi( Args[i+1] );
-		if ( i < 0 ) i = 0;
-		if ( i > 100 ) i = 100;
-		Config_digi_volume = (i*8)/100;
-		Config_midi_volume = (i*8)/100;
-		Config_redbook_volume = (i*8)/100;
-	}
 
 	if ( Config_digi_volume > 8 ) Config_digi_volume = 8;
 	if ( Config_midi_volume > 8 ) Config_midi_volume = 8;

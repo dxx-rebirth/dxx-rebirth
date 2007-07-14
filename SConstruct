@@ -236,7 +236,6 @@ editor_sources = [
 
 # for *nix
 arch_unix_sources = [
-'arch/linux/init.c',
 'arch/linux/linuxnet.c',
 'arch/linux/arch_ip.cpp'
 ]
@@ -265,7 +264,6 @@ else:
 # for windows
 arch_win32_sources = [
 'arch/win32/hmpfile.c',
-'arch/win32/init.c',
 'arch/win32/ipx_win.c',
 'arch/win32/midi.c',
 'arch/win32/mono.c',

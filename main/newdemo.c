@@ -115,9 +115,6 @@ extern int init_hoard_data();
 
 //#include "nocfile.h"
 
-//Does demo start automatically?
-int Auto_demo = 0;
-
 sbyte WasRecorded [MAX_OBJECTS];
 sbyte ViewWasRecorded[MAX_OBJECTS];
 sbyte RenderingWasRecorded[32];

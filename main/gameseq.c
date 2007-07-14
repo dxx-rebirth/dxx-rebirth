@@ -699,7 +699,7 @@ try_again:
 
 	if (text[0]==0)	//null string
 		goto try_again;
-	sprintf( filename, Use_players_dir? "Players/%s.plr" : "%s.plr", text );
+	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
 
 	if (PHYSFS_exists(filename))
 	{

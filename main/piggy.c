@@ -120,8 +120,6 @@ static SoundFile AllSounds[ MAX_SOUND_FILES ];
 
 int Piggy_hamfile_version = 0;
 
-int piggy_low_memory = 0;
-
 int Piggy_bitmap_cache_size = 0;
 int Piggy_bitmap_cache_next = 0;
 ubyte * Piggy_bitmap_cache_data = NULL;
@@ -133,7 +131,7 @@ int macdata = 0;
 #define PIGGY_BUFFER_SIZE (2400*1024)
 
 #ifdef MACINTOSH
-#define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when piggy_low_memory is set
+#define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when GameArg.SysLowMem is set
 
 #ifdef SHAREWARE
 #undef PIGGY_BUFFER_SIZE
@@ -267,7 +265,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 
 	if (!in_file)   {
 #ifdef EDITOR
-		if ( macdata )
+		if ( GameArg.SysMacData )
 			swap_0_255( bmp );
 #endif
 		if ( !BigPig )  gr_bitmap_rle_compress( bmp );
@@ -686,7 +684,7 @@ void piggy_init_pigfile(char *filename)
 #else
 	Piggy_bitmap_cache_size = PIGGY_BUFFER_SIZE;
 	#ifdef MACINTOSH
-	if (piggy_low_memory)
+	if (GameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 	#endif
 #endif
@@ -1173,13 +1171,7 @@ int piggy_init(void)
 	if ( FindArg( "-bigpig" ))
 		BigPig = 1;
 
-	if ( FindArg( "-lowmem" ))
-		piggy_low_memory = 1;
-
-	if ( FindArg( "-nolowmem" ))
-		piggy_low_memory = 0;
-
-	if (piggy_low_memory)
+	if (GameArg.SysLowMem)
 		digi_lomem = 1;
 
 		gr_set_curfont( SMALL_FONT );
@@ -1298,7 +1290,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 
 	if ( GameBitmapOffset[i] == 0 ) return;		// A read-from-disk bitmap!!!
 
-	if ( piggy_low_memory ) {
+	if ( GameArg.SysLowMem ) {
 		org_i = i;
 		i = GameBitmapXlat[i];          // Xlat for low-memory settings!
 	}
@@ -1413,7 +1405,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		start_time();
 	}
 
-	if ( piggy_low_memory ) {
+	if ( GameArg.SysLowMem ) {
 		if ( org_i != i )
 			GameBitmaps[org_i] = GameBitmaps[i];
 	}

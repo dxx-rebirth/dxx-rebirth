@@ -1933,7 +1933,7 @@ void delete_player_saved_games(char * name)
 
 	for (i=0;i<10; i++)
 	{
-		sprintf( filename, Use_players_dir? "Players/%s.sg%x" : "%s.sg%x", name, i );
+		sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", name, i );
 
 		PHYSFS_delete(filename);
 	}
@@ -1994,7 +1994,7 @@ ReadFileNames:
 	}
 #endif
 
-	find = PHYSFS_enumerateFiles(demo_mode ? DEMO_DIR : ((player_mode && Use_players_dir) ? "Players/" : ""));
+	find = PHYSFS_enumerateFiles(demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
 	for (f = find; *f != NULL; f++)
 	{
 		if (player_mode)
@@ -2192,7 +2192,7 @@ ReadFileNames:
 					if (player_mode)
 						*p = '.';
 
-					strcpy(name, demo_mode ? DEMO_DIR : ((player_mode && Use_players_dir) ? "Players/" : ""));
+					strcpy(name, demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
 					strcat(name,&filenames[citem*14]);
 					
 					#ifdef MACINTOSH
@@ -2215,7 +2215,7 @@ ReadFileNames:
 					if ((!ret) && player_mode)	{
 						delete_player_saved_games( &filenames[citem*14] );
 						// delete PLX file
-						sprintf(plxfile, Use_players_dir? "Players/%.8s.plx" : "%.8s.plx", &filenames[citem*14]);
+						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", &filenames[citem*14]);
 						if (cfexist(plxfile))
 							PHYSFS_delete(plxfile);
 					}

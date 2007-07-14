@@ -72,8 +72,6 @@ char laser_rcsid[] = "$Id: laser.c,v 1.1.1.1 2006/03/17 19:55:16 zicodxx Exp $";
 
 int Laser_rapid_fire = 0;
 
-int newhomers = 1;
-
 object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 int Guided_missile_sig[MAX_PLAYERS]={-1,-1,-1,-1,-1,-1,-1,-1};
 
@@ -1587,7 +1585,7 @@ void Laser_do_weapon_sequence(object *obj)
 			}
 
 			if (track_goal != -1) {
-				if (newhomers)
+				if (!GameArg.SysLegacyHomers)
 				{
 					fix turn_radius;
 	

@@ -291,8 +291,6 @@ int read_player_d2x(char *filename)
 	return rc;
 }
 
-int Use_players_dir = 0;
-
 int write_player_d2x(char *filename)
 {
 	PHYSFS_file *fin, *fout;
@@ -307,7 +305,7 @@ int write_player_d2x(char *filename)
 	strcat(tempfile,".pl$");
 	fout=PHYSFSX_openWriteBuffered(tempfile);
 	
-	if (!fout && Use_players_dir)
+	if (!fout && GameArg.SysUsePlayersDir)
 	{
 		PHYSFS_mkdir("Players/");	//try making directory
 		fout=PHYSFSX_openWriteBuffered(tempfile);
@@ -513,7 +511,7 @@ int read_player_file()
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
-	sprintf(filename, Use_players_dir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
+	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	if (!PHYSFS_exists(filename))
 		return ENOENT;
 
@@ -787,10 +785,10 @@ int write_player_file()
 
 	WriteConfigFile();
 
-	sprintf(filename, Use_players_dir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
+	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
 	strlwr(filename);
 	write_player_d2x(filename);
-	sprintf(filename, Use_players_dir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
+	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	file = PHYSFSX_openWriteBuffered(filename);
 
 	if (!file)

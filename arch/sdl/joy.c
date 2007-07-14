@@ -427,7 +427,3 @@ int joy_get_scaled_reading( int raw, int axis_num )
 	return x;
 #endif
 }
-
-void joy_set_slow_reading( int flag )
-{
-}

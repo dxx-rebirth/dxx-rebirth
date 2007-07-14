@@ -87,8 +87,6 @@ char RobotPlaying=0;
 
 #define	SHAREWARE_ENDING_FILENAME	"ending.tex"
 
-//	Can be set by -noscreens command line option.  Causes bypassing of all briefing screens.
-int	Skip_briefing_screens=0;
 int	Briefing_foreground_colors[MAX_BRIEFING_COLORS], Briefing_background_colors[MAX_BRIEFING_COLORS];
 int	Current_color = 0;
 int	Erase_color;
@@ -1437,11 +1435,6 @@ int show_briefing_screen( int screen_num, int allow_keys)
 
 	New_pal_254_bash = 0;
 
-	if (Skip_briefing_screens) {
-		mprintf((0, "Skipping briefing screen [%s]\n", &Briefing_screens[screen_num].bs_name));
-		return 0;
-	}
-
 	if (EMULATING_D1) {
 		int pcx_error;
 #if 1
@@ -1506,11 +1499,6 @@ void do_briefing_screens(char *filename,int level_num)
 {
 	int	abort_briefing_screens = 0;
 	int	cur_briefing_screen = 0;
-
-	if (Skip_briefing_screens) {
-		mprintf((0, "Skipping all briefing screens.\n"));
-		return;
-	}
 
 	#ifdef APPLE_DEMO
 	return;			// no briefing screens at all for demo

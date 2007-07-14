@@ -25,8 +25,37 @@ extern int Num_args;
 extern char *Args[];
 extern int FindArg(char *s);
 extern int FindResArg(char *prefix, int *sw, int *sh);
-extern void AppendArgs(void);
+extern void AppendIniArgs(void);
 extern void InitArgs(int argc, char **argv);
 extern int Inferno_verbose;
+
+// Struct that keeps all variables used by FindArg
+// Prefixes are:
+//   Sys - System Options
+//   Ctl - Control Options
+//   Snd - Sound Options
+//   Gfx - Graphics Options
+//   Ogl - OpenGL Options
+//   Mpl - Multiplayer Options
+//   Dbg - Debugging/Undocumented Options
+typedef struct Arg
+{
+	int SysFPSIndicator;
+	int SysUseNiceFPS;
+	int SysMaxFPS;
+	char *SysHogDir;
+	int SysNoHogDir;
+	char *SysUserDir;
+	int SysUsePlayersDir;
+	int SysMacData;
+	int SysLowMem;
+	int SysLegacyHomers;
+	char *SysPilot;
+	int SysAutoDemo;
+	int CtlMouselook;
+	int CtlGrabMouse;
+} __attribute__ ((packed)) Arg;
+
+extern struct Arg GameArg;
 
 #endif

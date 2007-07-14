@@ -29,8 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EZERO 0
 #endif
 
-extern int Use_players_dir;
-
 extern int Default_leveling_on;
 
 // update the player's highest level.  returns errno (0 == no error)

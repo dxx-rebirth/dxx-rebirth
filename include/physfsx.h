@@ -51,7 +51,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 #endif
 	InitArgs( argc,argv );
 
-	if ((t = FindArg("-userdir"))
+	if (GameArg.SysUserDir
 #if defined(__unix__) && !defined(GP2X)
 		|| 1    // or if it's a unix platform
 #endif
@@ -59,7 +59,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	{
 		// This stuff below seems overly complicated - brad
 
-		char *path = Args[t+1];
+		char *path = GameArg.SysUserDir;
 		char fullPath[PATH_MAX + 5];
 
 #if defined(__unix__) && !defined(GP2X)
@@ -110,7 +110,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 		}
 
 		PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 1);
-		AppendArgs();
+		AppendIniArgs();
 	}
 
 	if (!PHYSFS_getWriteDir())
@@ -123,10 +123,10 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	}
 
 	//tell cfile where hogdir is
-	if ((t=FindArg("-hogdir")))
-		PHYSFS_addToSearchPath(Args[t + 1], 1);
-#if defined(__unix__) && !defined(GP2X)
-	else if (!FindArg("-nohogdir"))
+	if (GameArg.SysHogDir)
+		PHYSFS_addToSearchPath(GameArg.SysHogDir,1);
+#if defined(__unix__)
+	else if (!GameArg.SysNoHogDir)
 		PHYSFS_addToSearchPath(SHAREPATH, 1);
 #endif
 }

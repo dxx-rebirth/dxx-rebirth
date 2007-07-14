@@ -30,12 +30,12 @@ void sdl_close()
 
 void arch_sdl_init()
 {
-#if defined(SDL_VIDEO) || defined(SDL_GL_VIDEO)
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
-	{
-		Error("SDL library video initialisation failed: %s.",SDL_GetError());
-	}
-#endif
+	if (SDL_Init(SDL_INIT_VIDEO)<0)
+		Error("SDL library initialisation failed: %s.",SDL_GetError());
+
+	key_init();
+	joy_init();
+
 	if (!FindArg("-nomouse"))
 		d_mouse_init();
 	if (!FindArg("-nosound"))

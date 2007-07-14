@@ -173,12 +173,7 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 
 	if ( do_auto_demo )     {
 		curtime = timer_get_approx_seconds();
-		//if ( ((keyd_time_when_last_pressed+i2f(20)) < curtime) && ((last_joy_time+i2f(20)) < curtime) && (!Speedtest_on)  ) {
-		#ifndef MACINTOSH		// for now only!!!!
-		if ( (((keyd_time_when_last_pressed+i2f(25)) < curtime) && (!Speedtest_on)) || Auto_demo == 1  ) {
-		#else
-		if ( ((keyd_time_when_last_pressed+i2f(40)) < curtime) || Auto_demo == 1 ) {
-		#endif
+		if ( (((keyd_time_when_last_pressed+i2f(25)) < curtime) && (!Speedtest_on)) || GameArg.SysAutoDemo == 1  ) {
 			int n_demos;
 
 			n_demos = newdemo_count_demos();

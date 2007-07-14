@@ -86,7 +86,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "gamefont.h"
 #include "kconfig.h"
 #include "mouse.h"
-#include "joy.h"
 #include "newmenu.h"
 #include "desc_id.h"
 #include "config.h"
@@ -123,8 +122,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "vers_id.h"
 
 void mem_init(void);
-void arch_init(void);
-void arch_init_start(void);
+extern void arch_sdl_init(void);
 
 //Current version number
 
@@ -152,9 +150,6 @@ void show_order_form(void);
 
 //--------------------------------------------------------------------------
 
-extern int piggy_low_memory;
-
-
 int descent_critical_error = 0;
 unsigned descent_critical_deverror = 0;
 unsigned descent_critical_errcode = 0;
@@ -168,16 +163,10 @@ extern int VR_low_res;
 extern int Config_vr_type;
 extern int Config_vr_resolution;
 extern int Config_vr_tracking;
-extern int mouselook;
-extern int newhomers;
 extern int vertigo_present;
-#ifndef RELEASE
-extern int invulnerability;
-#endif
 #ifndef NDEBUG
 extern int checktime;
 #endif
-extern int macdata;
 
 #define LINE_LEN	100
 
@@ -185,28 +174,28 @@ extern int macdata;
 void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
-	printf( "  -fps               %s\n", "Enable FPS indicator by default"); // ZICO - would be good, right?
+	printf( "  -fps               %s\n", "Enable FPS indicator by default");
 	printf( "  -nonicefps         %s\n", "Disable CPU cycle freeing. Higher CPU load, but game may be smoother");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
 	printf( "  -hogdir <dir>      %s\n", "set shared data directory to <dir>");
 	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
 	printf( "  -userdir <dir>     %s\n", "set user dir to <dir> instead of $HOME/.d2x-rebirth");
 	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
-#if       defined(EDITOR) || !defined(MACDATA)
-	printf( "  -macdata           %s\n","Read (and, for editor, write) mac data files (swap colors)");
-#endif // defined(EDITOR) || !defined(MACDATA)
+#if       defined(EDITOR)
+	printf( "  -macdata           %s\n", "Read and write mac data files in editor (swap colors)");
+#endif // defined(EDITOR)
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
+	printf( "  -pilot <name>      %s\n", "Select this pilot automatically");
+	printf( "  -autodemo          %s\n", "Start in demo mode");
 
 	printf( "\n Controls:\n\n");
-	printf( "  -NoJoystick        %s\n", "Disables joystick support");
 	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
 	printf( "  -grabmouse         %s\n", "Keeps the mouse from wandering out of the window");
 
 	printf( "\n Sound:\n\n");
-	printf( "  -Volume <v>        %s\n", "Sets sound volume to v, where v is between 0 and 100");
-	printf( "  -NoSound           %s\n", "Disables sound drivers");
-	printf( "  -NoMusic           %s\n", "Disables music; sound effects remain enabled");
+	printf( "  -nosound           %s\n", "Disables sound drivers");
+	printf( "  -nomusic           %s\n", "Disables music; sound effects remain enabled");
 	printf( "  -DisableSound      %s\n", "Completely disable sound system (also disables movies)");
 	printf( "  -Sound11K          %s\n", "Use 11KHz sounds");
 #if       !defined(MACINTOSH) && !defined(WINDOWS)
@@ -240,12 +229,6 @@ void print_commandline_help()
 	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
 #endif // OGL
 
-	printf( "\n Quickstart:\n\n");
-	printf( "  -ini <file>        %s\n", "Option file (alternate to command line), defaults to d2x.ini");
-	printf( "  -noscreens         %s\n","Skip briefing screens");
-	printf( "  -pilot <name>      %s\n", "Select this pilot automatically");
-	printf( "  -autodemo          %s\n", "Start in demo mode");
-
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
 	printf( "  -norankings        %s\n", "Disable multiplayer ranking system");
@@ -269,7 +252,6 @@ void print_commandline_help()
 	printf( "  -norun             %s\n","Bail out after initialization");
 	printf( "  -text <file>       %s\n","Specify alternate .tex file");
 #ifndef   RELEASE
-	printf( "  -invulnerability   %s\n","Make yourself invulnerable");
 	printf( "  -nomovies          %s\n","Don't play movies");
 #endif // RELEASE
 #ifdef    SDL_VIDEO
@@ -344,31 +326,6 @@ void print_commandline_help()
 	printf( "\n\n");
 }
 
-void do_joystick_init()
-{
-
-	if (!FindArg( "-nojoystick" ))	{
-		con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_6);
-		joy_init();
-		if ( FindArg( "-joyslow" ))	{
-			con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_7);
-			joy_set_slow_reading(JOY_SLOW_READINGS);
-		}
-		if ( FindArg( "-joypolled" ))	{
-			con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_8);
-			joy_set_slow_reading(JOY_POLLED_READINGS);
-		}
-		if ( FindArg( "-joybios" ))	{
-			con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_9);
-			joy_set_slow_reading(JOY_BIOS_READINGS);
-		}
-
-	//	Added from Descent v1.5 by John.  Adapted by Samir.
-	} else {
-		con_printf(CON_VERBOSE, "\n%s", TXT_VERBOSE_10);
-	}
-}
-
 //set this to force game to run in low res
 int disable_high_res=0;
 
@@ -398,7 +355,6 @@ extern char Language[];
 extern int MenuHiresAvailable;
 
 int Inferno_verbose = 0;
-extern int framerate_on;
 
 //added on 11/18/98 by Victor Rachels to add -mission and -startgame
 int start_net_immediately = 0;
@@ -421,7 +377,7 @@ char	Auto_file[128] = "";
 
 int main(int argc, char *argv[])
 {
-	int i, t;
+	int t;
 	ubyte title_pal[768];
 
 	con_init();  // Initialise the console
@@ -497,12 +453,6 @@ int main(int argc, char *argv[])
 		PHYSFS_freeList(list);
 	}
 
-	//(re)added Mar 30, 2003 Micah Lieske - Allow use of 22K sound samples again.
-// 	if(FindArg("-sound22k"))
-// 	{
-// 		digi_sample_rate = SAMPLE_RATE_22K;
-// 	}
-
 	if(FindArg("-sound11k"))
 	{
 		digi_sample_rate = SAMPLE_RATE_11K;
@@ -512,9 +462,7 @@ int main(int argc, char *argv[])
 		digi_sample_rate = SAMPLE_RATE_22K;
 	}
 
-	arch_init_start();
-
-	arch_init();
+	arch_sdl_init();
 
 	//con_printf(CON_VERBOSE, "\n%s...", "Checking for Descent 2 CD-ROM");
 
@@ -525,58 +473,16 @@ int main(int argc, char *argv[])
 	}
 	con_printf(CON_VERBOSE, "Rear_view_leave_time=0x%x (%f sec)\n", Rear_view_leave_time, Rear_view_leave_time / (float)f1_0);
 
-	//added/edited 8/18/98 by Victor Rachels to set maximum fps <= 100
-	if ((t = FindArg( "-maxfps" ))) {
-		t=atoi(Args[t+1]);
-		if (t > 0 && t <= MAX_FPS)
-			maxfps=t;
-	}
-	//end addition - Victor Rachels
-
-#ifdef SUPPORTS_NICEFPS
-	if (FindArg("-nicefps"))
-		use_nice_fps = 1;
-	if (FindArg("-niceautomap"))
-		nice_automap = 1;
-#endif
-	if (FindArg("-mouselook"))
-		mouselook=1;
-	else
-		mouselook=0;
-
-	if (FindArg("-legacyhomers"))
-		newhomers = 0;
-
 	if (FindArg("-persistentdebris"))
 		persistent_debris=1;
 
-	if ( FindArg( "-fps" )) // ZICO - for the indicator
-		framerate_on = 1;
-
-	if ( FindArg( "-nonicefps" ))
-		use_nice_fps = 0;
-
 	if (FindArg("-renderstats"))
 		gr_renderstats = 1;
-
-	if ( FindArg( "-autodemo" ))
-		Auto_demo = 1;
-
-#ifndef RELEASE
-	if ( FindArg( "-noscreens" ) )
-		Skip_briefing_screens = 1;
-
-	if ( FindArg( "-invulnerability") )
-		invulnerability = 1;
-#endif
 
 	#ifndef NDEBUG
 	if ( FindArg( "-checktime") )
 		checktime = 1;
 	#endif
-
-	if ( FindArg("-macdata") )
-		macdata = 1;
 
 	if ((t=FindArg("-tmap"))){
 		select_tmap(Args[t+1]);
@@ -589,9 +495,6 @@ int main(int argc, char *argv[])
                  Gauge_hud_mode = t;
 	}
 
-	if ( FindArg("-use_players_dir") )
-		Use_players_dir = 1;
-	
 	Lighting_on = 1;
 
 //	if (init_graphics()) return 1;
@@ -609,8 +512,6 @@ int main(int argc, char *argv[])
 
 	con_printf (CON_VERBOSE, "%s", TXT_VERBOSE_1);
 	ReadConfigFile();
-
-	do_joystick_init();
 
 	if (!VR_offscreen_buffer)	//if hasn't been initialied (by headset init)
 		set_display_mode(0);		//..then set default display mode
@@ -741,16 +642,16 @@ int main(int argc, char *argv[])
 	#endif
 	{
 // 		do_register_player(title_pal);
-		if((i = FindArg( "-pilot" )))
+		if(GameArg.SysPilot)
 		{
 			char filename[32] = "";
 			int j;
 
-			if (Use_players_dir)
+			if (GameArg.SysUsePlayersDir)
 				strcpy(filename, "Players/");
-			strncat(filename, Args[i+1], 12);
+			strncat(filename, GameArg.SysPilot, 12);
 			filename[8 + 12] = '\0';	// unfortunately strncat doesn't put the terminating 0 on the end if it reaches 'n' 
-			for (j = Use_players_dir? 8 : 0; filename[j] != '\0'; j++) {
+			for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
 				switch (filename[j]) {
 					case ' ':
 						filename[j] = '\0';
@@ -762,7 +663,7 @@ int main(int argc, char *argv[])
 			if(cfexist(filename))
 			{
 				strcpy(strstr(filename,".plr"),"\0");
-				strcpy(Players[Player_num].callsign, Use_players_dir? &filename[8] : filename);
+				strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir? &filename[8] : filename);
 				read_player_file();
 				WriteConfigFile();
 				remap_fonts_and_menus(1);

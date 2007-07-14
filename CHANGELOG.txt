@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070714
+--------
+SConstruct, d2x.ini, arch/sdl/init.c, arch/sdl/joy.c, include/args.h, include/physfsx.h, main/config.c, main/game.c, main/game.h, main/gamerend.c, main/gameseq.c, main/hud.c, main/inferno.c, main/kconfig.c, main/laser.c, main/menu.c, main/multi.c, main/newdemo.c, main/newmenu.c, main/piggy.c, main/playsave.c, main/playsave.h, main/state.c, main/state.h, main/titles.c, misc/args.c: Placing FindArg calls to seperated function, putting variables to a struct - frist step, not finished, yet; Large code cleanup
+
 20070629
 --------
 main/playsave.c, main/titles.c: using gr_flip() with title screens
