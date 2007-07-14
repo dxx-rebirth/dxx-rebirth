@@ -89,7 +89,6 @@ common_sources = [
 'main/ban.c',
 'main/bm.c',
 'main/bmread.c',
-'main/cdplay.c',
 'main/cntrlcen.c',
 'main/collide.c',
 'main/command.c',

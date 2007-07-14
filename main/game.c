@@ -1878,7 +1878,7 @@ void game()
 
 	handicap=MAX_SHIELDS;
 	Lhandicap=0;
-	cd_stop();
+
 	show_radar = 0;
 	Network_allow_radar = 0;
 #ifdef NETWORK
@@ -2226,17 +2226,6 @@ void HandleGameKey(int key)
 			break;
 #endif
 	
-		case KEY_ALTED+KEY_MINUS:
-			printf("Play previous song\n");
-			cd_playprev();
-			break;
-		case KEY_ALTED+KEY_EQUAL:
-			printf("Play next song\n");
-			cd_playnext();
-			break;
-		case KEY_ALTED+KEY_BACKSP:
-			cd_playtoggle();
-			break;
 		case KEY_ALTED+KEY_F8:
 #ifdef NETWORK
 			mekh_hud_recall_msgs();
@@ -2936,7 +2925,6 @@ extern	void player_follow_path(object *objp);
 extern	void check_create_player_path(void);
 #endif
 extern	int Do_appearance_effect;
-int	cd_timer=0;
 
 void GameLoop(int RenderFlag, int ReadControlsFlag )
 {
@@ -2974,12 +2962,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		if (Game_mode & GM_MULTI)
 			multi_do_frame();
 #endif
-
-                if(cd_timer < GameTime)
-		{
-			cd_timer = GameTime + F1_0*10;
-			cd_cycle();
-		}
 
 		if (RenderFlag) {
 			if (force_cockpit_redraw) {    //screen need redrawing?

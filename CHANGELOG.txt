@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070714
+--------
+SConstruct, main/game.c, main/inferno.c: removed old CD-Play code
+
 20070629
 --------
 main/playsave.c, main/titles.c: fixing playerfile size detection, using gr_flip() with title screens

@@ -482,8 +482,6 @@ int main(int argc,char **argv)
 
 	arch_init();
 
-        cd_init();
-
 	if (init_graphics()) return 1;
 
 	//------------ Init sound ---------------
