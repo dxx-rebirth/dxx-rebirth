@@ -241,7 +241,6 @@ int ReadConfigFile()
 	int joy_axis_min[JOY_NUM_AXES];
 	int joy_axis_center[JOY_NUM_AXES];
 	int joy_axis_max[JOY_NUM_AXES];
-	int i;
 
 	strcpy( config_last_player, "" );
 
@@ -380,16 +379,6 @@ int ReadConfigFile()
 	digi_driver_board = 1;
 	digi_midi_type = 1;
 #endif
-
-        i = FindArg( "-volume" );
-	
-	if ( i > 0 )	{
-		i = atoi( Args[i+1] );
-		if ( i < 0 ) i = 0;
-		if ( i > 100 ) i = 100;
-		Config_digi_volume = (i*8)/100;
-		Config_midi_volume = (i*8)/100;
-	}
 
         if ( Config_digi_volume > 8 ) Config_digi_volume = 8;
 

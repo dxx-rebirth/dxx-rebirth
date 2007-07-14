@@ -68,8 +68,6 @@ int Laser_rapid_fire = 0;
 
 int Laser_drop_vulcan_ammo = 0;
 
-int newhomers = 1;
-
 int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_obj_type1, int track_obj_type2);
 
 //---------------------------------------------------------------------------------
@@ -1088,7 +1086,7 @@ void Laser_do_weapon_sequence(object *obj)
 			}
 
 			if (track_goal != -1) {
-				if (newhomers)
+				if (!GameArg.SysLegacyHomers)
 				{
 					fix turn_radius;
 

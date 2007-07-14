@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070714
 --------
 SConstruct, main/game.c, main/inferno.c: removed old CD-Play code
+SConstruct, d1x.ini, arch/sdl/init.c, arch/sdl/joy.c, main/args.c, main/args.h, main/config.c, main/game.c, main/game.h, main/gauges.c, main/hud.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/laser.c, main/menu.c, main/multi.c, main/newdemo.c, main/newdemo.h, main/piggy.c, main/titles.c: Placing FindArg calls to seperated function, putting variables to a struct - frist step, not finished, yet; Large code cleanup
 
 20070629
 --------

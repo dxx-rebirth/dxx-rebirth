@@ -6,6 +6,8 @@
 #include "event.h"
 #include "error.h"
 #include "args.h"
+#include "key.h"
+#include "joy.h"
 
 extern void d_mouse_init();
 
@@ -16,21 +18,14 @@ void sdl_close()
 
 void arch_sdl_init()
 {
- // Initialise the library
-//edited on 01/03/99 by Matt Mueller - if we use SDL_INIT_EVERYTHING, cdrom is initialized even if -nocdaudio is used
- if (SDL_Init(
-#if SDL_VIDEO || SDL_GL
-	SDL_INIT_VIDEO
-#else
-	0
-#endif
-	)<0) {
-//end edit -MM
-    Error("SDL library initialisation failed: %s.",SDL_GetError());
- }
+	if (SDL_Init(SDL_INIT_VIDEO)<0)
+		Error("SDL library initialisation failed: %s.",SDL_GetError());
 
- if (!FindArg("-nomouse"))
-  d_mouse_init();
-
- atexit(sdl_close);
+	key_init();
+	joy_init();
+	
+	if (!FindArg("-nomouse"))
+		d_mouse_init();
+	
+	atexit(sdl_close);
 }

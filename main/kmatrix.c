@@ -116,6 +116,7 @@ static char rcsid[] = "$Id: kmatrix.c,v 1.1.1.1 2006/03/17 19:44:38 zicodxx Exp 
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <time.h>
 
 #include "error.h"
 #include "types.h"
@@ -140,7 +141,6 @@ static char rcsid[] = "$Id: kmatrix.c,v 1.1.1.1 2006/03/17 19:44:38 zicodxx Exp 
 #include "gauges.h"
 #include "pcx.h"
 #include "network.h"
-#include "hudlog.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -358,7 +358,5 @@ void kmatrix_view(int network)
 	gr_palette_fade_out( gr_palette, 32, 0 );
 
 	game_flush_inputs();
-
-	kmatrix_log(0);
 }
 #endif

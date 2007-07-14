@@ -11,11 +11,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: newdemo.c,v 1.1.1.1 2006/03/17 19:44:19 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>	// for memset
@@ -87,8 +82,6 @@ static char rcsid[] = "$Id: newdemo.c,v 1.1.1.1 2006/03/17 19:44:19 zicodxx Exp 
 #include "editor/editor.h"
 #endif
 
-//Does demo start automatically?
-int Auto_demo = 0;
 void DoJasonInterpolate (fix recorded_time);
 
 #define ND_EVENT_EOF				0	// EOF

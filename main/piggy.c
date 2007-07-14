@@ -435,8 +435,6 @@ int Num_sound_files_new = 0;
 static BitmapFile AllBitmaps[ MAX_BITMAP_FILES ];
 static SoundFile AllSounds[ MAX_SOUND_FILES ];
 
-int piggy_low_memory = 0;
-
 #define DBM_FLAG_LARGE 	128		// Flags added onto the flags struct in b
 #define DBM_FLAG_ABM		64
 
@@ -726,13 +724,7 @@ int piggy_init()
 	if ( FindArg( "-bigpig" ))
 		BigPig = 1;
 
-	if ( FindArg( "-lowmem" ))
-		piggy_low_memory = 1;
-
-	if ( FindArg( "-nolowmem" ))
-		piggy_low_memory = 0;
-
-	if (piggy_low_memory)
+	if (GameArg.SysLowMem)
 		digi_lomem = 1;
 
 	if ( (i=FindArg( "-piggy" )) )	{
@@ -968,7 +960,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 
 	if ( GameBitmapOffset[i] == 0 ) return;		// A read-from-disk bitmap!!!
 
-	if ( piggy_low_memory )	{
+	if ( GameArg.SysLowMem )	{
 		org_i = i;
 		i = GameBitmapXlat[i];		// Xlat for low-memory settings!
 	}
@@ -1036,7 +1028,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		start_time();
 	}
 
-	if ( piggy_low_memory )	{
+	if ( GameArg.SysLowMem )	{
 		if ( org_i != i )
 			GameBitmaps[org_i] = GameBitmaps[i];
 	}

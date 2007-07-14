@@ -112,7 +112,6 @@ common_sources = [
 'main/hash.c',
 'main/hostage.c',
 'main/hud.c',
-'main/hudlog.c',
 'main/ignore.c',
 'main/inferno.c',
 'main/ip_base.cpp',
@@ -246,7 +245,6 @@ editor_sources = [
 # for linux
 arch_linux_sources = [
 'arch/linux/arch_ip.cpp',
-'arch/linux/init.c',
 'arch/linux/ipx_bsd.c',
 'arch/linux/ipx_kali.c',
 'arch/linux/linuxnet.c',
@@ -269,7 +267,6 @@ else:
 arch_win32_sources = [
 'arch/win32/arch_ip.cpp',
 'arch/win32/hmpfile.c',
-'arch/win32/init.c',
 'arch/win32/ipx_win.c',
 'arch/win32/midi.c',
 'arch/win32/mono.c',

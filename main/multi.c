@@ -78,10 +78,6 @@ static char rcsid[] = "$Id: multi.c,v 1.1.1.1 2006/03/17 19:43:22 zicodxx Exp $"
 //End addition by GRiM FisH
 
 //added 11/01/98 Matt Mueller
-#include "hudlog.h"
-//end addition -MM
-
-//added 11/01/98 Matt Mueller
 #include "pingstat.h"
 //end addition -MM
 
@@ -1014,10 +1010,6 @@ multi_leave_game(void)
 
 	if (!(Game_mode & GM_MULTI))
 		return;
-
-        //added 11/01/98 by Matthew Mueller
-        kmatrix_log(0);
-        //end addition -MM
 
 	if (Game_mode & GM_NETWORK)
 	{

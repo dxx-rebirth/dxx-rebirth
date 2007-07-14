@@ -11,85 +11,31 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/args.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:49 $
- * 
+ *
  * Functions for accessing arguments.
- * 
- * $Log: args.c,v $
- * Revision 1.1.1.1  2006/03/17 19:42:49  zicodxx
- * initial import
  *
- * Revision 1.3  1999/08/05 22:53:41  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.2  1999/06/14 23:44:11  donut
- * Orulz' svgalib/ggi/noerror patches.
- *
- * Revision 1.1.1.1  1999/06/14 22:05:15  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:31:22  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.9  1994/11/29  01:07:57  john
- * Took out some unused vars.
- * 
- * Revision 1.8  1994/11/29  01:04:30  john
- * Took out descent.ini stuff.
- * 
- * Revision 1.7  1994/09/20  19:29:15  matt
- * Made args require exact (not substring), though still case insensitive.
- * 
- * Revision 1.6  1994/07/25  12:33:11  john
- * Network "pinging" in.
- * 
- * Revision 1.5  1994/06/17  18:07:50  matt
- * Took out printf
- * 
- * Revision 1.4  1994/05/11  19:45:33  john
- * *** empty log message ***
- * 
- * Revision 1.3  1994/05/11  18:42:11  john
- * Added Descent.ini config file.
- * 
- * Revision 1.2  1994/05/09  17:03:30  john
- * Split command line parameters into arg.c and arg.h.
- * Also added /dma, /port, /irq to digi.c
- * 
- * Revision 1.1  1994/05/09  16:49:11  john
- * Initial revision
- * 
- * 
  */
-
-
-#ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.1.1.1 2006/03/17 19:42:49 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "u_mem.h"
 #include "strio.h"
-//added 6/15/99 - Owen Evans
 #include "strutil.h"
-//end added - OE
+#include "args.h"
+#include "game.h"
 
 #define MAX_ARGS 200
 int Num_args=0;
 char * Args[MAX_ARGS];
 
+struct Arg GameArg;
+
 int FindArg( char * s )	{
 	int i;
 
 #ifndef NDEBUG
-	printf("FindArg call: %s\n",s);
+	printf("FindArg: %s\n",s);
 #endif
 
 	for (i=0; i<Num_args; i++ )
@@ -126,23 +72,12 @@ int FindResArg(char *prefix, int *sw, int *sh)
 
 }
 
-void args_exit(void)
-{
-	int i;
-	for (i=0; i< Num_args; i++ )
-		free(Args[i]);
-}
-
-void AppendArgs(void)
+void AppendIniArgs(void)
 {
 	FILE *f;
 	char *line,*word;
-	int i;
-	
-	if((i=FindArg("-ini")))
-		f=fopen(Args[i+1],"rt");
-	else
-		f=fopen("d1x.ini","rt");
+
+	f=fopen("d1x.ini","rt");
 	
 	if(f) {
 		while(!feof(f) && Num_args < MAX_ARGS)
@@ -161,6 +96,78 @@ void AppendArgs(void)
 	}
 }
 
+// All FindArg calls should be here to keep the code clean
+void ReadCmdArgs(void)
+{
+	int t;
+
+	// System Options
+
+	if (FindArg("-fps"))
+		GameArg.SysFPSIndicator = 1;
+	else
+		GameArg.SysFPSIndicator = 0;
+
+	if (FindArg("-nonicefps"))
+		GameArg.SysUseNiceFPS = 0;
+	else
+		GameArg.SysUseNiceFPS = 1;
+
+	if ((t = FindArg("-maxfps"))) {
+		t=atoi(Args[t+1]);
+		if (t>0&&t<=80)
+			GameArg.SysMaxFPS=t;
+		else
+			GameArg.SysMaxFPS=80;
+	}
+	else
+		GameArg.SysMaxFPS=80;
+
+	if ((t = FindArg("-missiondir")))
+		GameArg.SysMissionDir = Args[t+1];
+	else
+		GameArg.SysMissionDir = DESCENT_DATA_PATH "missions/";
+
+	if (FindArg("-lowmem"))
+		GameArg.SysLowMem = 1;
+	else
+		GameArg.SysLowMem = 0;
+
+	if (FindArg("-legacyhomers"))
+		GameArg.SysLegacyHomers = 1;
+	else
+		GameArg.SysLegacyHomers = 0;
+
+	if ((t = FindArg("-pilot")))
+		GameArg.SysPilot = Args[t+1];
+	else
+		GameArg.SysPilot = NULL;
+
+	if (FindArg("-autodemo"))
+		GameArg.SysAutoDemo = 1;
+	else
+		GameArg.SysAutoDemo = 0;
+
+	// Control Options
+
+	if (FindArg("-mouselook"))
+		GameArg.CtlMouselook = 1;
+	else
+		GameArg.CtlMouselook = 0;
+
+	if (FindArg("-grabmouse"))
+		GameArg.CtlGrabMouse = 1;
+	else
+		GameArg.CtlGrabMouse = 0;
+}
+
+void args_exit(void)
+{
+	int i;
+	for (i=0; i< Num_args; i++ )
+		free(Args[i]);
+}
+
 void InitArgs( int argc,char **argv )
 {
 	int i;
@@ -174,7 +181,9 @@ void InitArgs( int argc,char **argv )
 		if ( Args[i][0] == '-' )
 			strlwr( Args[i]  );  // Convert all args to lowercase
 	}
-	AppendArgs();
+
+	AppendIniArgs();
+	ReadCmdArgs();
 
 	atexit(args_exit);
 }

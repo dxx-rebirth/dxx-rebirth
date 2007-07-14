@@ -1661,18 +1661,12 @@ rgb player_rgb[] = {	{15,15,23},
 			{14,21,12},
 			{29,29,0}, };
 
-extern int hud_display_all;
-
 //draw the reticle
 void show_reticle(int force_big_one)
 {
 	int x,y;
 	int laser_ready,missile_ready,laser_ammo,missile_ammo;
 	int cross_bm_num,primary_bm_num,secondary_bm_num;
-
-
-	if (hud_display_all)
-		return;
 
 	x = grd_curcanv->cv_w/2;
 	y = grd_curcanv->cv_h/2;

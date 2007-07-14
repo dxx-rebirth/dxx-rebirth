@@ -10,28 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/* $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/inferno.c,v $
- * $Revision: 1.3 $
- * $Author: michaelstather $
- * $Date: 2006/03/19 14:41:26 $
+
+/*
  *
  * main() for Inferno  
  *
- * $Log: inferno.c,v $
- * Revision 1.3  2006/03/19 14:41:26  michaelstather
- * Cleaned up command line arguments
- * Reformatting
- *
- * Revision 1.2  2006/03/18 23:08:13  michaelstather
- * New build system by KyroMaster
- *
- * Revision 1.1.1.1  2006/03/17 19:44:36  zicodxx
- * initial import
  */
-
-#ifdef RCS
-static char rcsid[] = "$Id: inferno.c,v 1.3 2006/03/19 14:41:26 michaelstather Exp $";
-#endif
 
 #ifdef __GNUC__
 static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORATION";
@@ -112,19 +96,15 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "cfile.h"
 #include "gameseq.h"
 #include "timer.h"
-#include "joy.h"
 #include "key.h"
 #include "mono.h"
 #include "palette.h"
 #include "bm.h"
 #include "screens.h"
-#include "arch.h"
 #include "hudmsg.h"
 #include "playsave.h"
 #include "d_io.h"
 #include "automap.h"
-#include "hudlog.h"
-#include "cdplay.h"
 #include "ban.h"
 #include "gauges.h"
 #include "pingstat.h"
@@ -136,7 +116,7 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "collide.h"
 #include "newdemo.h"
 
-void show_order_form();
+extern void arch_sdl_init(void);
 
 static const char desc_id_checksum_str[] = DESC_ID_CHKSUM;
 char desc_id_exit_num = 0;
@@ -216,19 +196,18 @@ void show_commandline_help()
 	printf( "  -nonicefps         %s\n", "Disable CPU cycle freeing. Higher CPU load, but game may be smoother");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
 	printf( "  -missiondir <d>    %s\n", "Set alternate mission dir to <d> instead of missions/");
-	printf( "  -hudlog            %s\n", "Start hudlog immediately");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
+	printf( "  -pilot <pilot>     %s\n", "Select this pilot-file automatically");
+	printf( "  -autodemo          %s\n", "Start in demo mode");
 
 	printf( "\n Controls:\n\n");
-	printf( "  -NoJoystick        %s\n", "Disables joystick support");
 	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
 	printf( "  -grabmouse         %s\n", "Keeps the mouse from wandering out of the window");
 
 	printf( "\n Sound:\n\n");
-	printf( "  -Volume <v>        %s\n", "Sets sound volume to v, where v is between 0 and 100");
-	printf( "  -NoSound           %s\n", "Disables sound drivers");
-	printf( "  -NoMusic           %s\n", "Disables music; sound effects remain enabled");
+	printf( "  -nosound           %s\n", "Disables sound drivers");
+	printf( "  -nomusic           %s\n", "Disables music; sound effects remain enabled");
 
 	printf( "\n Graphics:\n\n");
 	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
@@ -253,12 +232,6 @@ void show_commandline_help()
 	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
 #endif // OGL
 
-	printf( "\n Quickstart:\n\n");
-	printf( "  -ini <file>        %s\n", "Option file (alternate to command line), defaults to d1x.ini");
-	printf( "  -notitles          %s\n", "Do not show titlescreens on startup");
-	printf( "  -pilot <pilot>     %s\n", "Select this pilot-file automatically");
-	printf( "  -autodemo          %s\n", "Start in demo mode");
-
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
 	printf( "  -mprofile <f>      %s\n", "Use multi game profile <f>");
@@ -270,7 +243,6 @@ void show_commandline_help()
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multiplayer");
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -handicap <n>      %s\n", "Start game with <n> shields. Must be < 100 for multi");
-	printf( "  -hudlog_multi      %s\n", "Start hudlog upon entering multiplayer games");
         printf( "  -msgcolorlevel <c> %s\n", "Level of colorization for hud messages\n\t\t\t0=none(old style)\n\t\t\t1=color names in talk messages only(default)\n\t\t\t2=also color names in kill/join/etc messages\n\t\t\t3=talk messages are fully colored, not just names");
 #ifdef    SUPPORTS_NET_IP
         printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
@@ -317,20 +289,14 @@ void show_commandline_help()
 }
 
 extern fix fixed_frametime;
-extern int framerate_on;
 extern void vfx_set_palette_sub(ubyte *);
-extern int mouselook;
-extern int newhomers;
-#ifndef RELEASE
-extern int invulnerability;
-#endif
 
 int Inferno_verbose = 0;
 int start_net_immediately = 0;
 
 int main(int argc,char **argv)
 {
-	int i,t;
+	int t;
 	u_int32_t screen_mode = SM(640,480);
 
 	error_init(NULL);
@@ -343,9 +309,6 @@ int main(int argc,char **argv)
 
 	if ( FindArg( "-verbose" ) )
 		Inferno_verbose = 1;
-
-	// Things to initialize before anything else
-	arch_init_start();
 
 	if (!cfexist(DESCENT_DATA_PATH "descent.hog") || !cfexist(DESCENT_DATA_PATH "descent.pig"))
 		Error("Could not find valid descent.hog and/or descent.pig in\n"
@@ -372,10 +335,7 @@ int main(int argc,char **argv)
 
 	printf("\nType 'd1x-rebirth-gl/sdl -help' for a list of command-line options.\n");
 
-	if ((t = FindArg( "-missiondir" )))
-		cfile_use_alternate_hogdir(Args[t+1]);
-	else
-		cfile_use_alternate_hogdir(DESCENT_DATA_PATH "missions/");
+	cfile_use_alternate_hogdir(GameArg.SysMissionDir);
 
 	if ((t=FindArg("-tmap")))
 		select_tmap(Args[t+1]);
@@ -406,12 +366,6 @@ int main(int argc,char **argv)
                 HUD_max_num_disp = t;
 	}
 
-	if (FindArg("-hudlog_multi"))
-	HUD_log_multi_autostart = 1;
-	
-	if (FindArg("-hudlog"))
-	HUD_log_autostart = 1;
-
 	if (FindArg("-noredundancy"))
 		MSG_Noredundancy = 1;
 
@@ -425,12 +379,6 @@ int main(int argc,char **argv)
 		else if (t > F1_0*200)
 			t = F1_0*200;
 		handicap=t;
-	}
-
-	if ((t = FindArg( "-maxfps" ))) {
-		t=atoi(Args[t+1]);
-		if (t>0&&t<=80)
-			maxfps=t;
 	}
 
 #ifdef NETWORK
@@ -449,38 +397,13 @@ int main(int argc,char **argv)
 	if(FindArg( "-fastext" ))
 		extfaster=1;
 
-	if (FindArg("-mouselook"))
-		mouselook=1;
-	else
-		mouselook=0;
-
-	if (FindArg("-legacyhomers"))
-		newhomers = 0;
-
 	if (FindArg("-persistentdebris"))
 		persistent_debris=1;
-
-	if ( FindArg( "-fps" ))
-		framerate_on = 1;
-
-	if ( FindArg( "-nonicefps" ))
-		use_nice_fps = 0;
-
-	if ( FindArg( "-autodemo" ))
-		Auto_demo = 1;
-
-	#ifndef RELEASE
-	if ( FindArg( "-noscreens" ) )
-		Skip_briefing_screens = 1;
-
-	if ( FindArg( "-invulnerability") )
-		invulnerability = 1;
-	#endif
 
 	if (Inferno_verbose)
 		printf ("%s", TXT_VERBOSE_1);
 
-	arch_init();
+	arch_sdl_init();
 
 	if (init_graphics()) return 1;
 
@@ -542,16 +465,8 @@ int main(int argc,char **argv)
 	gamefont_init(); // must load after palette data loaded.
 	songs_play_song( SONG_TITLE, 1 );
 
-#ifndef QUICKSTART
-#ifndef SHAREWARE
-	if ( !FindArg( "-notitles" ) ) 
-#endif
-	{
-		show_title_screen( "iplogo1.pcx", 1 );
-		show_title_screen( "logo.pcx", 1 );
-	}
-#endif
-
+	show_title_screen( "iplogo1.pcx", 1 );
+	show_title_screen( "logo.pcx", 1 );
 	show_title_screen( "descent.pcx", 2 );
 
 #ifdef SHAREWARE
@@ -573,10 +488,8 @@ int main(int argc,char **argv)
 	mprintf( (0, "\nInitializing 3d system..." ));
 	g3_init();
 	mprintf( (0, "\nInitializing texture caching system..." ));
-	if (FindArg( "-lowmem" ))
-		texmerge_init( 10 ); // if we are low on mem, only use 10 cache bitmaps
-	else
-		texmerge_init( 9999 ); // otherwise, use as much as possible (its still limited by the #define in texmerge.c, so it won't actually use 9999) -MM
+	texmerge_init( 10 );		// 10 cache bitmaps
+
 	mprintf( (0, "\nRunning game...\n" ));
 #ifdef SCRIPT
 	script_init();
@@ -589,17 +502,12 @@ int main(int argc,char **argv)
 	Players[Player_num].callsign[0] = '\0';
 
 	key_flush();
-#ifdef QUICKSTART
-	strcpy(Players[Player_num].callsign, config_last_player);
-	read_player_file();
-	Auto_leveling_on = Default_leveling_on;
-	write_player_file();
-#else
-	if((i=FindArg("-pilot")))
+
+	if(GameArg.SysPilot)
 	{
 		char filename[15];
 		int j;
-		snprintf(filename, 12, Args[i+1]);
+		snprintf(filename, 12, GameArg.SysPilot);
 		for (j=0; filename[j] != '\0'; j++) {
 			switch (filename[j]) {
 				case ' ':
@@ -624,7 +532,6 @@ int main(int argc,char **argv)
 	else
 		if(!RegisterPlayer())
 			Function_mode = FMODE_EXIT;
-#endif
 
 	gr_palette_fade_out( NULL, 32, 0 );
 
@@ -634,23 +541,6 @@ int main(int argc,char **argv)
 	t = build_mission_list(0); // This also loads mission 0.
 #endif
 
-
-#ifdef QUICKSTART
-	Difficulty_level = Player_default_difficulty;
-	Skip_briefing_screens = 1;
-
-	{
-		int default_mission = 0;
-		for (i=0;i<t;i++) {
-			if ( !strcasecmp( Mission_list[i].mission_name, config_last_mission ) )
-				default_mission = i;
-                }
-		load_mission(default_mission);
-	}
-	Function_mode = FMODE_GAME;
-	StartNewGame(1);
-	game();
-#endif
 	while (Function_mode != FMODE_EXIT)
 	{
 		switch( Function_mode ) {

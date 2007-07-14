@@ -429,10 +429,6 @@ int joy_get_scaled_reading( int raw, int axis_num )
 #endif
 }
 
-void joy_set_slow_reading( int flag )
-{
-}
-
 typedef struct Button_info {
 	ubyte		ignore;
 	ubyte		state;

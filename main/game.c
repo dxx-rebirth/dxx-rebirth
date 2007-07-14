@@ -103,8 +103,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "reorder.h"
 #include "hudmsg.h"
 #include "timer.h"
-#include "cdplay.h"
-#include "hudlog.h"
 #ifdef NETWORK
 #include "mlticntl.h"
 #endif
@@ -184,7 +182,6 @@ int	Debug_pause=0; //John's debugging pause system
 int	Cockpit_mode=CM_FULL_COCKPIT; //set game.h for values
 int	old_cockpit_mode=-1;
 int	force_cockpit_redraw=0;
-int	framerate_on=0;
 int	netplayerinfo_on=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 int	Dummy_var;
@@ -214,9 +211,6 @@ grs_bitmap background_bitmap;
 int	Game_aborted;
 void	update_cockpits(int force_redraw);
 extern	void newdemo_strip_frames(char *, int);
-#ifndef RELEASE
-int invulnerability=0;
-#endif
 extern int HUD_nmessages;
 
 #define BACKGROUND_NAME "statback.pcx"
@@ -556,7 +550,7 @@ int set_screen_mode(int sm)
 	switch( Screen_mode )	{
 		case SCREEN_MENU:
 			/* give control back to the WM */
-			if (FindArg("-grabmouse"))
+			if (GameArg.CtlGrabMouse)
 				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
 			if (grd_curscreen->sc_mode != MENU_SCREEN_MODE)	{
@@ -566,7 +560,7 @@ int set_screen_mode(int sm)
 			break;
 		case SCREEN_GAME:
 			/* keep the mouse from wandering in SDL */
-			if (FindArg("-grabmouse") && (Newdemo_state != ND_STATE_PLAYBACK))
+			if (GameArg.CtlGrabMouse && (Newdemo_state != ND_STATE_PLAYBACK))
 				SDL_WM_GrabInput(SDL_GRAB_ON);
 
 			if  (grd_curscreen->sc_mode != Game_screen_mode)
@@ -578,7 +572,7 @@ int set_screen_mode(int sm)
 #ifdef EDITOR
 		case SCREEN_EDITOR:
 			/* give control back to the WM */
-			if (FindArg("-grabmouse"))
+			if (GameArg.CtlGrabMouse)
 				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
 			if (grd_curscreen->sc_mode != SM(800,600))	{
@@ -773,7 +767,6 @@ void reset_time()
 }
 
 int maxfps=80;
-int use_nice_fps=1;
 
 void calc_frame_time()
 {
@@ -788,7 +781,7 @@ void calc_frame_time()
 
 	while (FrameTime < f1_0 / maxfps)
 	{
-		if (use_nice_fps)
+		if (GameArg.SysUseNiceFPS)
 			timer_delay(f1_0 / maxfps - FrameTime);
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
@@ -1070,7 +1063,7 @@ void game_draw_hud_stuff()
 		}
 	}
 
-	if (framerate_on)
+	if (GameArg.SysFPSIndicator)
 		show_framerate();
 
 #ifdef NETWORK
@@ -1835,14 +1828,14 @@ void game()
 				game_flush_inputs();
 			}
 
-			if ( (Function_mode != FMODE_GAME) && Auto_demo && (Newdemo_state != ND_STATE_NORMAL) )	{
+			if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
 				int choice, fmode;
 				fmode = Function_mode;
 				Function_mode = FMODE_GAME;
 				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
 				Function_mode = fmode;
 				if (choice==0)	{
-					Auto_demo = -1;
+					GameArg.SysAutoDemo = 0;
 					newdemo_stop_playback();
 					Function_mode = FMODE_MENU;
 				} else {
@@ -1917,8 +1910,6 @@ extern void john_cheat_func_4(int);
 //called at the end of the program
 void close_game()
 {
-	close_hud_log();
-
 	if (VR_offscreen_buffer)	{
 		gr_free_canvas(VR_offscreen_buffer);
 		VR_offscreen_buffer = NULL;
@@ -2226,11 +2217,6 @@ void HandleGameKey(int key)
 			break;
 #endif
 	
-		case KEY_ALTED+KEY_F8:
-#ifdef NETWORK
-			mekh_hud_recall_msgs();
-#endif
-			break;
 #ifdef NETWORK
 		case KEY_SHIFTED+KEY_F8:
 			mekh_resend_last();
@@ -2266,9 +2252,6 @@ void HandleGameKey(int key)
 		case KEYS_GR_TOGGLE_FULLSCREEN:
 				gr_toggle_fullscreen_game();
 				break;
-		case KEY_CTRLED+KEY_ALTED+KEY_LAPOSTRO:
-			toggle_hud_log();
-			break;
 		case KEY_SHIFTED + KEY_ESC: //quick exit
 #ifdef EDITOR
 			if (! SafetyCheck()) break;
@@ -2408,7 +2391,7 @@ void HandleGameKey(int key)
 			break;
 		}
 		case KEY_DEBUGGED+KEY_F:
-			framerate_on = !framerate_on;
+			GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;
 			break;
 		case KEY_DEBUGGED+KEY_SPACEBAR: // Toggle physics flying
 			slew_stop();
@@ -2665,7 +2648,7 @@ void ReadControls()
 			john_cheat_func_2(key);
 
 #ifdef FINAL_CHEATS
-			IMPLEMENT_CHEAT(frametime,framerate_on = !framerate_on;);
+			IMPLEMENT_CHEAT(frametime,GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;);
 			IMPLEMENT_CHEAT(renderstats,gr_renderstats = !gr_renderstats;);
 		if (Cheats_enabled) {
 			if (!(Game_mode&GM_MULTI) && key == cheat_wowie[cheat_wowie_index]) {
@@ -2943,11 +2926,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			if (!(--desc_dead_countdown))	// if so, at zero, then pull the plug
 				Error ("Loading overlay -- error number: %d\n", (int)desc_id_exit_num);
 		}
-
-		#ifndef RELEASE
-		if (invulnerability)
-			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-		#endif
 
 		update_player_stats();
 		diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.

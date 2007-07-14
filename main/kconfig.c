@@ -96,7 +96,6 @@ fix Cruise_speed=0;
 
 int Allow_primary_cycle=1;
 int Allow_secondary_cycle=1;
-int mouselook=0;
 extern int Automap_flag;
 
 #define LHX(x)		((x)*(hiresfont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_X(2):FONTSCALE_X(1)))
@@ -2098,7 +2097,7 @@ void controls_read_all()
 		mprintf( (1, "Bogus frame time of %.2f seconds\n", f2fl(FrameTime) ));
 
 	// ZICO - remove clamp for pitch and heading if mouselook on and no multiplayer game
-	if ((Config_control_type != 5) || !mouselook || (Game_mode & GM_MULTI) ) {
+	if ((Config_control_type != 5) || !GameArg.CtlMouselook || (Game_mode & GM_MULTI) ) {
 		if (Controls.pitch_time > FrameTime/2 ) Controls.pitch_time = FrameTime/2;
 		if (Controls.heading_time > FrameTime ) Controls.heading_time = FrameTime;
 		if (Controls.pitch_time < -FrameTime/2 ) Controls.pitch_time = -FrameTime/2;

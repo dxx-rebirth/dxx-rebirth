@@ -11,38 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/include/args.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:46:29 $
- * 
+ *
  * Prototypes for accessing arguments.
- * 
- * $Log: args.h,v $
- * Revision 1.1.1.1  2006/03/17 19:46:29  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:02:08  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:33:09  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.4  1994/07/11  16:27:28  matt
- * Took out prototypes for netipx funcs
- * 
- * Revision 1.3  1994/05/11  19:45:34  john
- * *** empty log message ***
- * 
- * Revision 1.2  1994/05/09  17:02:55  john
- * Split command line parameters into arg.c and arg.h.
- * Also added /dma, /port, /irq to digi.c
- * 
- * Revision 1.1  1994/05/09  16:47:49  john
- * Initial revision
- * 
- * 
  */
 
 
@@ -50,15 +21,35 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _ARGS_H
 #define _ARGS_H
 
-extern int Num_args;						
-extern char * Args[];						
+extern int Num_args;
+extern char * Args[];
 extern int FindArg( char * s );
 extern int FindResArg(char *prefix, int *sw, int *sh);
-//added/edited on 1/11/99 by dph
 extern void InitArgs( int argc, char **argv );
-//end this section addition/change -dph
-//added on 01/03/99 by Matt Mueller
 extern int Inferno_verbose;
-//end addition -MM
+
+// Struct that keeps all variables used by FindArg
+//   Sys - System Options
+//   Ctl - Control Options
+//   Snd - Sound Options
+//   Gfx - Graphics Options
+//   Ogl - OpenGL Options
+//   Mpl - Multiplayer Options
+//   Dbg - Debugging/Undocumented Options
+typedef struct Arg
+{
+	int SysFPSIndicator;
+	int SysUseNiceFPS;
+	int SysMaxFPS;
+	char *SysMissionDir;
+	int SysLowMem;
+	int SysLegacyHomers;
+	char *SysPilot;
+	int SysAutoDemo;
+	int CtlMouselook;
+	int CtlGrabMouse;
+} __attribute__ ((packed)) Arg;
+
+extern struct Arg GameArg;
 
 #endif

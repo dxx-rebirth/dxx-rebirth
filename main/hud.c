@@ -25,8 +25,8 @@ static char rcsid[] = "$Id: hud.c,v 1.1.1.1 2006/03/17 19:42:04 zicodxx Exp $";
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <time.h>
 
-#include "hudlog.h"
 #include "hudmsg.h"
 #include "inferno.h"
 #include "game.h"
@@ -44,117 +44,154 @@ static char rcsid[] = "$Id: hud.c,v 1.1.1.1 2006/03/17 19:42:04 zicodxx Exp $";
 #include "screens.h"
 #include "text.h"
 #include "args.h"
+#include "strutil.h"
 
 int hud_first = 0;
 int hud_last = 0;
-int HUD_max_num_disp = 4; //max to display normally
-int hudlog_first = 0;
-int hudlog_num = 0;
-int hud_display_all = 0;
-int 	HUD_nmessages = 0;
-fix	HUD_message_timer = 0;		// Time, relative to Players[Player_num].time (int.frac seconds.frac), at which to erase gauge message
-char    HUD_messages[HUD_MAX_NUM][HUD_MESSAGE_LENGTH+5];
+int HUD_max_num_disp = 3; //max to display normally
+int HUD_nmessages = 0;
+fix HUD_message_timer = 0;      // Time, relative to Players[Player_num].time (int.frac seconds.frac), at which to erase gauge message
+char  HUD_messages[HUD_MAX_NUM][HUD_MESSAGE_LENGTH+5];
+
 char Displayed_background_message[HUD_MESSAGE_LENGTH] = "";
-int	Last_msg_ycrd = -1;
-int	Last_msg_height = 6;
-int	HUD_color = -1;
+int Last_msg_ycrd = -1;
+int Last_msg_height = 6;
+int HUD_color = -1;
+
 int     MSG_Playermessages = 0;
 int     MSG_Noredundancy = 0;
 
-//	-----------------------------------------------------------------------------
+int Modex_hud_msg_count;
+
+// ----------------------------------------------------------------------------
 void clear_background_messages(void)
 {
-	if ((Cockpit_mode == CM_STATUS_BAR) && (Last_msg_ycrd != -1) && (Screen_3d_window.cv_bitmap.bm_y >= 6)) {
+	if (((Cockpit_mode == CM_STATUS_BAR) || (Cockpit_mode == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (Screen_3d_window.cv_bitmap.bm_y >= 6)) {
 		grs_canvas	*canv_save = grd_curcanv;
+
 		gr_set_current_canvas(NULL);
+
 		gr_set_current_canvas(canv_save);
-		Displayed_background_message[0] = 0;
+
 		Last_msg_ycrd = -1;
 	}
+
+	Displayed_background_message[0] = 0;
 
 }
 
 void HUD_clear_messages()
 {
+	int i;
 	HUD_nmessages = 0;
-	hud_first = hud_last;
+	hud_first = hud_last = 0;
 	HUD_message_timer = 0;
 	clear_background_messages();
+	for (i = 0; i < HUD_MAX_NUM; i++)
+		sprintf(HUD_messages[i], "SlagelSlagel!!");
 }
 
+
+extern int max_window_h;
+
+extern grs_canvas *print_to_canvas(char *s,grs_font *font, int fc, int bc, int double_flag);
+
 //	-----------------------------------------------------------------------------
+//	print to buffer, double heights, and blit bitmap to screen
+void modex_hud_message(int x, int y, char *s, grs_font *font, int color)
+{
+	grs_canvas *temp_canv;
+
+	temp_canv = print_to_canvas(s, font, color, -1, 1);
+
+	gr_bitmapm(x,y,&temp_canv->cv_bitmap);
+
+	gr_free_canvas(temp_canv);
+}
+
+extern int max_window_w;
+
+// ----------------------------------------------------------------------------
 //	Writes a message on the HUD and checks its timer.
 void HUD_render_message_frame()
 {
 	int i, y,n;
 	int h,w,aw;
-	int first,num;
-	if (hud_display_all){
-		first=hudlog_first;
-		num=hudlog_num;
-	}else{
-		first=hud_first;
-		num=HUD_nmessages;
-	}
 
 	if (( HUD_nmessages < 0 ) || (HUD_nmessages > HUD_MAX_NUM))
 		Int3(); // Get Rob!
 
-	if ( num < 1 ) return;
+	if ( (HUD_nmessages < 1 ) && (Modex_hud_msg_count == 0))
+		return;
 
-	if (HUD_nmessages > 0 )	{
-		HUD_message_timer -= FrameTime;
+	HUD_message_timer -= FrameTime;
 
-		if ( HUD_message_timer < 0 )	{
-			// Timer expired... get rid of oldest message...
-			if (hud_last!=hud_first)	{
-				hud_first = (hud_first+1) % HUD_MAX_NUM;
-				HUD_message_timer = F1_0*2;
-				HUD_nmessages--;
-				clear_background_messages(); // If in status bar mode and no messages, then erase.
-			}
+	if ( HUD_message_timer < 0 )	{
+		// Timer expired... get rid of oldest message...
+		if (hud_last!=hud_first)	{
+			int	temp;
+
+			//&HUD_messages[hud_first][0] is deing deleted...;
+			hud_first = (hud_first+1) % HUD_MAX_NUM;
+			HUD_message_timer = F1_0*2;
+			HUD_nmessages--;
+			if (HUD_nmessages == 0)
+				Modex_hud_msg_count = 2;
+			temp = Last_msg_ycrd;
+			clear_background_messages();			//	If in status bar mode and no messages, then erase.
+			if (Modex_hud_msg_count)
+				Last_msg_ycrd = temp;
 		}
 	}
 
-	if (num > 0 )	{
+	if (HUD_nmessages > 0 )	{
 
-		gr_set_curfont( GAME_FONT );    
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 
-		y = 3;
-		gr_get_string_size("0", &w, &h, &aw );
-		i= num - (grd_curcanv->cv_bitmap.bm_h-y)/(h+1);//fit as many as possible
-		if (i<0) i=0;
-		for (; i<num; i++ )	{	
-			n = (first+i) % HUD_MAX_NUM;
+		gr_set_curfont( GAME_FONT );
+
+		if ( (Cockpit_mode == CM_FULL_SCREEN) || (Cockpit_mode == CM_LETTERBOX) ) {
+				y = GAME_FONT->ft_h/2;
+		} else
+			y = GAME_FONT->ft_h/2;
+
+		for (i=0; i<HUD_nmessages; i++ )	{
+			n = (hud_first+i) % HUD_MAX_NUM;
 			if ((n < 0) || (n >= HUD_MAX_NUM))
 				Int3(); // Get Rob!!
 			if (!strcmp(HUD_messages[n], "This is a bug."))
 				Int3(); // Get Rob!!
-			gr_get_string_size(HUD_messages[n], &w, &h, &aw );
+			gr_get_string_size(&HUD_messages[n][0], &w, &h, &aw );
 			gr_set_fontcolor( HUD_color, -1);
-			gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2,y, HUD_messages[n] );
+
+			gr_string((grd_curcanv->cv_bitmap.bm_w-w)/2,y, &HUD_messages[n][0] );
 			y += h+FONTSCALE_Y(1);
 		}
 	}
+
+	gr_set_curfont( GAME_FONT );
 }
 
-void mekh_hud_recall_msgs()
-{
-	hud_display_all = !hud_display_all;
-}
+int PlayerMessage=1;
 
-void HUD_init_message(char * format, va_list args)
+// Call to flash a message on the HUD.  Returns true if message drawn.
+// (message might not be drawn if previous message was same)
+int HUD_init_message_va(char * format, va_list args)
 {
 	int temp, i;
 	char *message = NULL;
 	char *last_message=NULL;
+	time_t t;
+	struct tm *lt;
+
+	Modex_hud_msg_count = 2;
 
 	if ( (hud_last < 0) || (hud_last >= HUD_MAX_NUM))
 		Int3(); // Get Rob!!
 
-	message = HUD_messages[hud_last];
+	// -- mprintf((0, "message timer: %7.3f\n", f2fl(HUD_message_timer)));
+	message = &HUD_messages[hud_last][0];
 	vsprintf(message,format,args);
 
 	// clean message if necessary.
@@ -164,17 +201,26 @@ void HUD_init_message(char * format, va_list args)
 		if (message[i] == '%')
 			message [i] = ' ';
 
+	// Added by Leighton
+
+   if ((Game_mode & GM_MULTI) && FindArg("-noredundancy"))
+	 if (!strnicmp ("You already",message,11))
+		return 0;
+
+   if ((Game_mode & GM_MULTI) && FindArg("-PlayerMessages") && PlayerMessage==0)
+		return 0;
+
 	if (HUD_nmessages > 0)	{
 		if (hud_last==0)
-			last_message = HUD_messages[HUD_MAX_NUM-1];
+			last_message = &HUD_messages[HUD_MAX_NUM-1][0];
 		else
-			last_message = HUD_messages[hud_last-1];
+			last_message = &HUD_messages[hud_last-1][0];
 	}
 
 	temp = (hud_last+1) % HUD_MAX_NUM;
-	if ( temp==hudlog_first )	{
-		hudlog_first= (hudlog_first+1) % HUD_MAX_NUM;
-		hudlog_num--;
+	if ( temp==hud_first )	{
+		hud_first= (hud_first+1) % HUD_MAX_NUM;
+		hud_last--;
 	}
 	if ( HUD_nmessages>=HUD_max_num_disp){
 		// If too many messages, remove oldest message to make room
@@ -184,7 +230,14 @@ void HUD_init_message(char * format, va_list args)
 
 	if (last_message && (!strcmp(last_message, message))) {
 		HUD_message_timer = F1_0*3;		// 1 second per 5 characters
-		return;	// ignore since it is the same as the last one
+		return 0;	// ignore since it is the same as the last one
+	}
+
+	if (strnicmp ("you",message,3)) { // block hudlog output messages beginning with you ("your ... maxed out", "you already have ...")
+		t=time(NULL);
+		lt=localtime(&t);
+	
+		printf("%02i:%02i:%02i %s\n",lt->tm_hour,lt->tm_min,lt->tm_sec,message);
 	}
 
 	hud_last = temp;
@@ -197,45 +250,59 @@ void HUD_init_message(char * format, va_list args)
 	#endif
 	HUD_message_timer = F1_0*3;		// 1 second per 5 characters
 	HUD_nmessages++;
-	hudlog_num++;
 
-	hud_log_message(message);
+	return 1;
 }
 
 
+int HUD_init_message(char * format, ... )
+{
+	int ret;
+	va_list args;
+
+	va_start(args, format);
+	ret = HUD_init_message_va(format, args);
+	va_end(args);
+
+	return ret;
+}
+
 void player_dead_message(void)
 {
-	if (Player_exploded) {
-		if ( Players[Player_num].lives < 2 )    {
-			int x, y, w, h, aw;
-			gr_set_curfont(Gamefonts[GFONT_BIG_1]);
-			gr_get_string_size( TXT_GAME_OVER, &w, &h, &aw );
-			w += 20;
-			h += 8;
-			x = (GWIDTH - w ) / 2;
-			y = (GHEIGHT - h ) / 2;
-			Gr_scanline_darkening_level = 2*7;
-			gr_setcolor( BM_XRGB(0,0,0) );
-			gr_rect( x, y, x+w, y+h );
-			Gr_scanline_darkening_level = GR_FADE_LEVELS;
-		
-			gr_string(0x8000, (GHEIGHT - FONTSCALE_Y(grd_curcanv->cv_font->ft_h))/2 + h/8, TXT_GAME_OVER );
-        	}
-		gr_set_curfont( GAME_FONT );
-		if (HUD_color == -1)
-		HUD_color = BM_XRGB(0,28,0);
-		gr_set_fontcolor( HUD_color, -1);
-		gr_string(0x8000, GHEIGHT-FONTSCALE_Y(grd_curcanv->cv_font->ft_h+3)*((Newdemo_state == ND_STATE_RECORDING)?2:1), TXT_PRESS_ANY_KEY);
-	}
+    if (Player_exploded) {
+        if ( Players[Player_num].lives < 2 )    {
+            int x, y, w, h, aw;
+            gr_set_curfont( Gamefonts[GFONT_BIG_1] );
+            gr_get_string_size( TXT_GAME_OVER, &w, &h, &aw );
+            w += 20;
+            h += 8;
+            x = (GWIDTH - w ) / 2;
+            y = (GHEIGHT - h ) / 2;
+
+            Gr_scanline_darkening_level = 2*7;
+            gr_setcolor( BM_XRGB(0,0,0) );
+            gr_rect( x, y, x+w, y+h );
+            Gr_scanline_darkening_level = GR_FADE_LEVELS;
+
+            gr_string(0x8000, (GHEIGHT - FONTSCALE_Y(grd_curcanv->cv_font->ft_h))/2 + h/8, TXT_GAME_OVER );
+
+        }
+        gr_set_curfont( GAME_FONT );
+        if (HUD_color == -1)
+            HUD_color = BM_XRGB(0,28,0);
+        gr_set_fontcolor( HUD_color, -1);
+        gr_string(0x8000, GHEIGHT-FONTSCALE_Y(grd_curcanv->cv_font->ft_h+3)*((Newdemo_state == ND_STATE_RECORDING)?2:1), TXT_PRESS_ANY_KEY);
+    }
 }
 
 void hud_message(int class, char *format, ...)
 {
- va_list vp;
- va_start(vp, format);
-  if ((!MSG_Noredundancy || (class & MSGC_NOREDUNDANCY)) &&
-      (!MSG_Playermessages || !(Game_mode & GM_MULTI) ||
-      (class & MSGC_PLAYERMESSAGES)))
-   HUD_init_message(format, vp);
- va_end(vp);
+	va_list vp;
+
+	va_start(vp, format);
+	if ((!MSG_Noredundancy || (class & MSGC_NOREDUNDANCY)) &&
+	    (!MSG_Playermessages || !(Game_mode & GM_MULTI) ||
+	     (class & MSGC_PLAYERMESSAGES)))
+		HUD_init_message_va(format, vp);
+	va_end(vp);
 }
