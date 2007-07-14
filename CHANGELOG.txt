@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070715
+--------
+Sconstruct, d1x.ini, arch/win32/midi.c, main/args.h, main/args.c, main/inferno.c: Cleaned up more FindArg's - Sound Options
+
 20070714
 --------
 SConstruct, main/game.c, main/inferno.c: removed old CD-Play code

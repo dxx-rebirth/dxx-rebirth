@@ -73,7 +73,6 @@ common_sources = [
 '3d/rod.c',
 '3d/setup.c',
 'arch/sdl/event.c',
-'arch/sdl/init.c',
 'arch/sdl/joy.c',
 'arch/sdl/joydefs.c',
 'arch/sdl/key.c',

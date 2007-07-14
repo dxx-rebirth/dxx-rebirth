@@ -150,6 +150,16 @@ void ReadCmdArgs(void)
 
 	// Control Options
 
+	if (FindArg("-nomouse"))
+		GameArg.CtlNoMouse = 1;
+	else
+		GameArg.CtlNoMouse = 0;
+
+	if (FindArg("-nojoystick"))
+		GameArg.CtlNoJoystick = 1;
+	else
+		GameArg.CtlNoJoystick = 0;
+
 	if (FindArg("-mouselook"))
 		GameArg.CtlMouselook = 1;
 	else
@@ -159,6 +169,18 @@ void ReadCmdArgs(void)
 		GameArg.CtlGrabMouse = 1;
 	else
 		GameArg.CtlGrabMouse = 0;
+
+	// Sound Options
+
+	if (FindArg("-nosound"))
+		GameArg.SndNoSound = 1;
+	else
+		GameArg.SndNoSound = 0;
+
+	if (FindArg("-nomusic"))
+		GameArg.SndNoMusic = 1;
+	else
+		GameArg.SndNoMusic = 0;
 }
 
 void args_exit(void)

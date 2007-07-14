@@ -115,8 +115,8 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "vers_id.h"
 #include "collide.h"
 #include "newdemo.h"
+#include "joy.h"
 
-extern void arch_sdl_init(void);
 
 static const char desc_id_checksum_str[] = DESC_ID_CHKSUM;
 char desc_id_exit_num = 0;
@@ -131,63 +131,7 @@ int menu_use_game_res=1;
 #ifdef EDITOR
 int Inferno_is_800x600_available = 0;
 #endif
-
-int init_graphics()
-{
-#ifdef __MSDOS__
-	int result;
-	result=gr_check_mode(SM(320,200));
-
-#ifdef EDITOR
-	if ( result==0 )	
-		result=gr_check_mode(SM(800,600));
-#endif
-
-	switch( result )	{
-		case  0:		//Mode set OK
-#ifdef EDITOR
-						Inferno_is_800x600_available = 1;
-#endif
-						break;
-		case  1:		//No VGA adapter installed
-						printf("%s\n", TXT_REQUIRES_VGA );
-						return 1;
-		case 10:		//Error allocating selector for A0000h
-						printf( "%s\n",TXT_ERROR_SELECTOR );
-						return 1;
-		case 11:		//Not a valid mode support by gr.lib
-						printf( "%s\n", TXT_ERROR_GRAPHICS );
-						return 1;
-#ifdef EDITOR
-		case  3:		//Monitor doesn't support that VESA mode.
-		case  4:		//Video card doesn't support that VESA mode.
-
-						printf( "Your VESA driver or video hardware doesn't support 800x600 256-color mode.\n" );
-						break;
-		case  5:		//No VESA driver found.
-						printf( "No VESA driver detected.\n" );
-						break;
-		case  2:		//Program doesn't support this VESA granularity
-		case  6:		//Bad Status after VESA call/
-		case  7:		//Not enough DOS memory to call VESA functions.
-                case  8:                //Error using DPMI.
-		case  9:		//Error setting logical line width.
-		default:
-						printf( "Error %d using 800x600 256-color VESA mode.\n", result );
-						break;
-#endif
-	}
-
-	#ifdef EDITOR
-	if (!Inferno_is_800x600_available)	{
-		printf( "The editor will not be available, press any key to start game...\n" );
-		Function_mode = FMODE_MENU;
-		getch();
-	}
-	#endif
-#endif
-	return 0;
-}
+extern void d_mouse_init(void);
 
 void show_commandline_help()
 {
@@ -202,12 +146,14 @@ void show_commandline_help()
 	printf( "  -autodemo          %s\n", "Start in demo mode");
 
 	printf( "\n Controls:\n\n");
+	printf( "  -nomouse           %s\n", "Deactivate mouse");
+	printf( "  -nojoystick        %s\n", "Deactivate joystick");
 	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
 	printf( "  -grabmouse         %s\n", "Keeps the mouse from wandering out of the window");
 
 	printf( "\n Sound:\n\n");
-	printf( "  -nosound           %s\n", "Disables sound drivers");
-	printf( "  -nomusic           %s\n", "Disables music; sound effects remain enabled");
+	printf( "  -nosound           %s\n", "Disables sound output");
+	printf( "  -nomusic           %s\n", "Disables music output");
 
 	printf( "\n Graphics:\n\n");
 	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
@@ -286,6 +232,11 @@ void show_commandline_help()
 	printf( "\n Help:\n\n");
 	printf( "  -help, -h, -?, ?   %s\n", "View this help screen");
 	printf( "\n\n");
+}
+
+void sdl_close()
+{
+	SDL_Quit();
 }
 
 extern fix fixed_frametime;
@@ -403,27 +354,21 @@ int main(int argc,char **argv)
 	if (Inferno_verbose)
 		printf ("%s", TXT_VERBOSE_1);
 
-	arch_sdl_init();
+	if (SDL_Init(SDL_INIT_VIDEO)<0)
+		Error("SDL library initialisation failed: %s.",SDL_GetError());
 
-	if (init_graphics()) return 1;
+	key_init();
 
-	//------------ Init sound ---------------
-	if (!FindArg( "-nosound" ))	{
-		if (digi_init())	{
-#ifdef ALLEGRO
-			printf( "\nFailure initializing sound: %s\n", allegro_error);
-                        printf( "Make sure your soundcard is installed and not in use. \nIf the problem persists, check your allegro.cfg.\n");
-#else
-			printf( "\nFailure initializing sound.\n");
-#endif
-#ifndef __linux__
-			key_getch();
-#endif
-		}
-	} 
-	else {
-		if (Inferno_verbose) printf( "\n%s",TXT_SOUND_DISABLED );
-	}
+	if (!GameArg.SndNoSound)
+		digi_init();
+	
+	if (!GameArg.CtlNoMouse)
+		d_mouse_init();
+
+	if (!GameArg.CtlNoJoystick)
+		joy_init();
+	
+	atexit(sdl_close);
 
 	Game_screen_mode = screen_mode;
 // 	game_init_render_buffers(screen_width, screen_height, VR_NONE);
