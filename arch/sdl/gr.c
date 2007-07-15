@@ -169,9 +169,7 @@ int gr_check_mode(u_int32_t mode)
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;
-	int aw, ah;
-	float awidth = 3, aheight = 4;
-	int i, argnum = INT_MAX;
+
 #ifdef NOGRAPH
 	return 0;
 #endif
@@ -183,8 +181,6 @@ int gr_set_mode(u_int32_t mode)
 	h=SM_H(mode);
 	
 	if (screen != NULL) gr_palette_clear();
-
-	if ((i=FindResArg("aspect", &ah, &aw)) && (i < argnum)) { argnum = i; awidth=aw; aheight=ah; }
 
 //added on 11/06/98 by Matt Mueller to set the title bar. (moved from below)
 //sekmu: might wanna copy this litte blurb to one of the text files or something
@@ -228,7 +224,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*awidth,grd_curscreen->sc_h*aheight);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameArg.GfxAspectX,grd_curscreen->sc_h*GameArg.GfxAspectY);
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;

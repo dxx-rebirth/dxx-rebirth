@@ -487,7 +487,9 @@ int write_player_d2x(char *filename)
 
 }
 
-extern int Guided_in_big_window,Automap_always_hires;
+extern int Guided_in_big_window;
+
+int Automap_always_hires=0; // FIXME: unused - remove me
 
 //this length must match the value in escort.c
 #define GUIDEBOT_NAME_LEN 9

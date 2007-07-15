@@ -79,7 +79,6 @@ grs_canvas *Canv_NumericalGauge = NULL;
 
 //Flags for gauges/hud stuff
 ubyte Reticle_on=1;
-int Gauge_hud_mode=0; // ZICO - new HUD modes
 
 //bitmap numbers for gauges
 
@@ -929,7 +928,7 @@ void hud_show_flag(void)
 void hud_show_energy(void)
 {
 	//gr_set_current_canvas(&VR_render_sub_buffer[0]);	//render off-screen
-	if (Gauge_hud_mode<2) {
+	if (GameArg.GfxGaugeHudMode<2) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 		if (Game_mode & GM_MULTI)
@@ -1046,7 +1045,7 @@ void hud_show_weapons_mode(int type,int vertical,int mode,int x,int y){
 						break;
 					case 1:
 						if (Cockpit_mode==CM_FULL_SCREEN) {
-							sprintf(weapon_str,(Gauge_hud_mode==1?"V%i":"V   %i"), f2i((unsigned int) Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+							sprintf(weapon_str,(GameArg.GfxGaugeHudMode==1?"V%i":"V   %i"), f2i((unsigned int) Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 						}
 						break;
 					case 2:
@@ -1161,18 +1160,18 @@ void hud_show_weapons(void)
 		y -= FONTSCALE_Y(4*Line_spacing);
 
 // ZICO - new HUD modes
-	if (Gauge_hud_mode==1){
+	if (GameArg.GfxGaugeHudMode==1){
 		hud_show_weapons_mode(0,0,1,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+(FontHires?39:21)));
 		hud_show_weapons_mode(0,0,2,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+(FontHires?27:15)));
 		hud_show_weapons_mode(1,0,1,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+(FontHires?15:9)));
 		hud_show_weapons_mode(1,0,2,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+3));
 	}
-	else if (Gauge_hud_mode==2 || Gauge_hud_mode==3){
+	else if (GameArg.GfxGaugeHudMode==2 || GameArg.GfxGaugeHudMode==3){
 		int x1,x2;
 		int	w, aw;
 		gr_get_string_size("V1000", &w, &x1, &aw );
 		gr_get_string_size("0 ", &x2, &x1, &aw);
-		if (Gauge_hud_mode==2){
+		if (GameArg.GfxGaugeHudMode==2){
 			y=grd_curcanv->cv_h-(grd_curcanv->cv_h/2.75);
 			x1=grd_curcanv->cv_w/2.1-(w)-FONTSCALE_X(25);
 			x2=grd_curcanv->cv_w/1.9+x2+FONTSCALE_X(20);
@@ -1294,7 +1293,7 @@ void hud_show_cloak_invuln(void)
 void hud_show_shield(void)
 {
 //	gr_set_current_canvas(&VR_render_sub_buffer[0]);	//render off-screen
-	if (Gauge_hud_mode<2) {
+	if (GameArg.GfxGaugeHudMode<2) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 	
@@ -1846,7 +1845,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 
 	hud_bitblt(pic_x,pic_y,bm, F1_0);
 	
-	if (Gauge_hud_mode == 0) {
+	if (GameArg.GfxGaugeHudMode == 0) {
 		gr_set_fontcolor(gr_getcolor(0,20,0),-1 );
 	
 		if ((p=strchr(name,'\n'))!=NULL) {
@@ -1918,7 +1917,7 @@ void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 				SECONDARY_WEAPON_NAMES_SHORT(weapon_num),
 				SECONDARY_W_TEXT_X,SECONDARY_W_TEXT_Y);
 	}
-	if (Gauge_hud_mode!=0)
+	if (GameArg.GfxGaugeHudMode!=0)
 	{
 		if (weapon_box_user[0] == WBU_WEAPON) {
 			hud_show_weapons_mode(0,1,1,(Cockpit_mode==CM_STATUS_BAR?SB_PRIMARY_AMMO_X:PRIMARY_AMMO_X),(Cockpit_mode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
@@ -1933,7 +1932,7 @@ void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 
 void draw_ammo_info(int x,int y,int ammo_count,int primary)
 {
-	if (!Gauge_hud_mode)
+	if (!GameArg.GfxGaugeHudMode)
 	{
 		int w;
 		char str[16];
@@ -1972,7 +1971,7 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 
 	laser_level_changed = (weapon_type==0 && weapon_num==LASER_INDEX && (Players[Player_num].laser_level != old_laser_level));
 
-	if ((weapon_num != old_weapon[weapon_type] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !Gauge_hud_mode)
+	if ((weapon_num != old_weapon[weapon_type] || laser_level_changed) && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !GameArg.GfxGaugeHudMode)
 	{
 		weapon_box_states[weapon_type] = WS_FADING_OUT;
 		weapon_box_fade_values[weapon_type]=i2f(GR_FADE_LEVELS-1);
@@ -2123,7 +2122,7 @@ void draw_weapon_boxes()
 		draw_static(1);
 
 	if (Cockpit_mode == CM_STATUS_BAR) {
-		if (!Gauge_hud_mode && weapon_box_user[1] == WBU_WEAPON)
+		if (!GameArg.GfxGaugeHudMode && weapon_box_user[1] == WBU_WEAPON)
 			show_bomb_count(HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0);
 	} else {
 		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0);

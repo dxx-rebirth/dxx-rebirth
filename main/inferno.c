@@ -101,13 +101,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "collide.h"
 #include "newdemo.h"
 #include "joy.h"
-
-// #  include "3dfx_des.h"
-
-//added on 9/30/98 by Matt Mueller for selectable automap modes
-#include "automap.h"
-//end addition -MM
-
 #include "../texmap/scanline.h" //for select_tmap -MM
 
 #ifdef EDITOR
@@ -209,7 +202,6 @@ void print_commandline_help()
 #endif // GR_SUPPORTS_FULLSCREEN_TOGGLE
 	printf( "  -lowresmovies      %s\n","Play low resolution movies if available (for slow machines)");
 	printf( "  -subtitles         %s\n","Turn on movie subtitles (English-only)");
-	printf( "  -rearviewtime t    %s\n", "Time holding rearview key to use toggle mode (default 0.0625 seconds)");
 
 #ifdef    OGL
 	printf( "\n OpenGL:\n\n");
@@ -471,16 +463,6 @@ int main(int argc, char *argv[])
 
 	//con_printf(CON_VERBOSE, "\n%s...", "Checking for Descent 2 CD-ROM");
 
-	if ((t = FindArg("-rearviewtime")))
-	{
-		float f = atof(Args[t + 1]);
-		Rear_view_leave_time = f * f1_0;
-	}
-	con_printf(CON_VERBOSE, "Rear_view_leave_time=0x%x (%f sec)\n", Rear_view_leave_time, Rear_view_leave_time / (float)f1_0);
-
-	if (FindArg("-persistentdebris"))
-		persistent_debris=1;
-
 	if (FindArg("-renderstats"))
 		gr_renderstats = 1;
 
@@ -493,12 +475,6 @@ int main(int argc, char *argv[])
 		select_tmap(Args[t+1]);
 	}else
 		select_tmap(NULL);
-
-	if ((t=FindArg("-hud"))){ // ZICO - new HUD modes
-		t=atoi(Args[t+1]);
-		if(t>=0 && t<GAUGE_HUD_NUMMODES)
-                 Gauge_hud_mode = t;
-	}
 
 	Lighting_on = 1;
 
@@ -543,21 +519,13 @@ int main(int argc, char *argv[])
 	}
 
 	{
-// added/edited on 12/14/98 by Matt Mueller - override res in d1x.ini with command line args
 		int i, argnum = INT_MAX, w, h;
-// added on 9/30/98 by Matt Mueller for selectable automap modes - edited 11/21/99 whee, more fun with defines. - edited 03/31/02 to use new FindResArg.
 #define SMODE(V,VV,VG) if ((i=FindResArg(#V, &w, &h)) && (i < argnum)) { argnum = i; VV = SM(w, h); VG = 0;  if(w<640||h<480) disable_high_res=1; }
-#define SMODE_GR(V,VG) if ((i=FindArg("-" #V "_gameres"))){if (i<argnum) VG=1;}
 #define SMODE_PRINT(V,VV,VG) if (VG) con_printf(CON_VERBOSE, #V " using game resolution ...\n"); else con_printf(CON_VERBOSE, #V " using %ix%i ...\n",SM_W(VV),SM_H(VV) );
-// aren't #defines great? :)
-// end addition/edit -MM
-#define S_MODE(V,VV,VG) argnum = INT_MAX; SMODE(V, VV, VG); SMODE_GR(V, VG); SMODE_PRINT(V, VV, VG);
+#define S_MODE(V,VV,VG) argnum = INT_MAX; SMODE(V, VV, VG); SMODE_PRINT(V, VV, VG);
 
-
-		S_MODE(automap,automap_mode,automap_use_game_res);
 		S_MODE(menu,MENU_HIRES_MODE,menu_use_game_res);
 	 }
-//end addition -MM
 
 	con_printf(CON_VERBOSE, "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
 	if (FindArg("-nofade"))
@@ -565,13 +533,10 @@ int main(int argc, char *argv[])
 
 	//determine whether we're using high-res menus & movies
 	if (FindArg("-nohires") || FindArg("-nohighres") || (gr_check_mode(MENU_HIRES_MODE) != 0) || disable_high_res)
-		MovieHires = MenuHires = MenuHiresAvailable = 0;
+		GameArg.GfxMovieHires = MenuHires = MenuHiresAvailable = 0;
 	else
 		//NOTE LINK TO ABOVE!
-		MovieHires = MenuHires = MenuHiresAvailable = 1;
-
-	if (FindArg( "-lowresmovies" ))
-		MovieHires = 0;
+		GameArg.GfxMovieHires = MenuHires = MenuHiresAvailable = 1;
 
 	if ((t=gr_init(0))!=0)				//doesn't do much
 		Error(TXT_CANT_INIT_GFX,t);

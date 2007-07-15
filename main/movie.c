@@ -95,8 +95,6 @@ char movielib_files[4][FILENAME_LEN] = {"intro","other","robots"};
 #define N_BUILTIN_MOVIE_LIBS (N_MOVIE_LIBS - 1)
 #define EXTRA_ROBOT_LIB N_BUILTIN_MOVIE_LIBS
 
-int MovieHires = 1;   //default is highres
-
 SDL_RWops *RoboFile;
 
 // Function Prototypes
@@ -164,7 +162,7 @@ int PlayMovie(const char *filename, int must_have)
 	else
 		MVE_sndInit(-1);
 
-	ret = RunMovie(name,MovieHires,must_have,-1,-1);
+	ret = RunMovie(name,GameArg.GfxMovieHires,must_have,-1,-1);
 
 	if (!GameArg.SndNoSound)
 		digi_init();
@@ -191,10 +189,10 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 #ifdef OGL
 	glDisable (GL_BLEND);
 
-	ogl_ubitblt_i(	w*((double)grd_curscreen->sc_w/(MovieHires?640:320)),
-			h*((double)grd_curscreen->sc_h/(MovieHires?480:200)),
-			dstx*((double)grd_curscreen->sc_w/(MovieHires?640:320)),
-			dsty*((double)grd_curscreen->sc_h/(MovieHires?480:200)),
+	ogl_ubitblt_i(	w*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),
+			h*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),
+			dstx*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),
+			dsty*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),
 			bufw, bufh, sx, sy,
 			&source_bm,&grd_curcanv->cv_bitmap,0);
 
@@ -384,7 +382,7 @@ int RotateRobot()
 	if (err == MVE_ERR_EOF)     //end of movie, so reset
 	{
 		SDL_RWseek(RoboFile, 0, SEEK_SET);
-		if (MVE_rmPrepMovie(RoboFile, MovieHires?280:140, MovieHires?200:80, 0))
+		if (MVE_rmPrepMovie(RoboFile, GameArg.GfxMovieHires?280:140, GameArg.GfxMovieHires?200:80, 0))
 		{
 			Int3();
 			return 0;
@@ -425,7 +423,7 @@ int InitRobotMovie(char *filename)
 
 	Vid_State = VID_PLAY;
 
-	if (MVE_rmPrepMovie((void *)RoboFile, MovieHires?280:140, MovieHires?200:80, 0)) {
+	if (MVE_rmPrepMovie((void *)RoboFile, GameArg.GfxMovieHires?280:140, GameArg.GfxMovieHires?200:80, 0)) {
 		Int3();
 		return 0;
 	}
@@ -469,7 +467,7 @@ int init_subtitles(char *filename)
 
 	Num_subtitles = 0;
 
-	if (! FindArg("-subtitles"))
+	if (!GameArg.GfxMovieSubtitles)
 		return 0;
 
 	ifile = cfopen(filename,"rb");		//try text version
@@ -600,7 +598,7 @@ void init_movie(char *movielib, int required)
 {
 	char filename[FILENAME_LEN];
 
-	sprintf(filename, "%s-%s.mvl", movielib, MovieHires?"h":"l");
+	sprintf(filename, "%s-%s.mvl", movielib, GameArg.GfxMovieHires?"h":"l");
 
 	if (!cfile_init(filename, 0))
 	{
@@ -628,12 +626,12 @@ void close_extra_robot_movie(void)
 	char filename[FILENAME_LEN];
 
 	if (strcmp(movielib_files[EXTRA_ROBOT_LIB],"")) {
-		sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], MovieHires?"h":"l");
+		sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"h":"l");
 	
 		if (!cfile_close(filename))
 		{
 			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
-			sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], MovieHires?"l":"h");
+			sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"l":"h");
 	
 			if (!cfile_close(filename))
 				con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());

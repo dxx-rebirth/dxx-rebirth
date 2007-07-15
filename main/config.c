@@ -170,32 +170,9 @@ void CrystalLakeSetWSS()
 	CrystalLakeWriteMCP( CL_MC1, tmp );
 }
 */
-//MovieHires might be changed by -nohighres, so save a "real" copy of it
+//GameArg.GfxMovieHires might be changed by -nohighres, so save a "real" copy of it
 int SaveMovieHires;
 int save_redbook_enabled;
-
-#ifdef WINDOWS
-void CheckMovieAttributes()
-{
-		HKEY hKey;
-		DWORD len, type, val;
-		long lres;
- 
-		lres = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Parallax\\Descent II\\1.1\\INSTALL",
-							0, KEY_READ, &hKey);
-		if (lres == ERROR_SUCCESS) {
-			len = sizeof(val);
-			lres = RegQueryValueEx(hKey, "HIRES", NULL, &type, &val, &len);
-			if (lres == ERROR_SUCCESS) {
-				MovieHires = val;
-				logentry("HIRES=%d\n", val);
-			}
-			RegCloseKey(hKey);
-		}
-}
-#endif
-
-
 
 int ReadConfigFile()
 {
@@ -236,7 +213,7 @@ int ReadConfigFile()
 	Config_channels_reversed = 0;
 
 	//set these here in case no cfg file
-	SaveMovieHires = MovieHires;
+	SaveMovieHires = GameArg.GfxMovieHires;
 	save_redbook_enabled = Redbook_enabled;
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
@@ -331,7 +308,7 @@ int ReadConfigFile()
 			} else if (!strcmp(token, config_vr_tracking_str)) {
 				Config_vr_tracking = strtol(value, NULL, 10);
 			} else if (!strcmp(token, movie_hires_str)) {
-				SaveMovieHires = MovieHires = strtol(value, NULL, 10);
+				SaveMovieHires = GameArg.GfxMovieHires = strtol(value, NULL, 10);
 			}
 		}
 	}
@@ -504,7 +481,7 @@ int WriteConfigFile()
 	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", config_vr_tracking_str, Config_vr_tracking );
 	PHYSFSX_puts(infile, str);
-	sprintf (str, "%s=%d\n", movie_hires_str, (FindArg("-nohires") || FindArg("-nohighres") || FindArg("-lowresmovies"))?SaveMovieHires:MovieHires);
+	sprintf (str, "%s=%d\n", movie_hires_str, (FindArg("-nohires") || FindArg("-nohighres") || FindArg("-lowresmovies"))?SaveMovieHires:GameArg.GfxMovieHires);
 	PHYSFSX_puts(infile, str);
 
 	PHYSFS_close(infile);

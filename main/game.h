@@ -175,7 +175,6 @@ extern int Game_window_w,       // width and height of player's game window
            Game_window_h;
 
 extern int Rear_view;           // if true, looking back.
-extern fix Rear_view_leave_time;// how long until we decide key is down
 
 // initalize flying
 void fly_init(object *obj);

@@ -27,7 +27,6 @@ extern void do_automap(int key_code);
 extern void automap_clear_visited();
 extern ubyte Automap_visited[MAX_SEGMENTS];
 void DropBuddyMarker(object *objp);
-
 extern int Automap_active;
 
 #define NUM_MARKERS         16
@@ -36,14 +35,5 @@ extern int Automap_active;
 extern char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
 extern char MarkerOwner[NUM_MARKERS][CALLSIGN_LEN+1];
 extern int  MarkerObject[NUM_MARKERS];
-
-//added on 9/30/98 by Matt Mueller for selectable automap modes
-extern u_int32_t automap_mode;
-#define AUTOMAP_MODE (automap_use_game_res?grd_curscreen->sc_mode:automap_mode)
-//extern int automap_width;
-//extern int automap_height;
-//end addition -MM
-extern int automap_use_game_res;
-extern int nice_automap;
 
 #endif

@@ -1485,7 +1485,7 @@ void HandleGameKey(int key)
 	 DropSecondaryWeapon();
 	 break;
 		case KEY_ALTED+KEY_F7:
-			Gauge_hud_mode=(Gauge_hud_mode+1)%GAUGE_HUD_NUMMODES;
+			GameArg.GfxGaugeHudMode=(GameArg.GfxGaugeHudMode+1)%GAUGE_HUD_NUMMODES;
 			break;
 
 #ifdef NETWORK

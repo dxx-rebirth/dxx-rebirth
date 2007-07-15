@@ -92,8 +92,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define STANDARD_EXPL_DELAY (f1_0/4)
 
-int persistent_debris=0;
-
 //##void collide_fireball_and_wall(object *fireball,fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
 //##	return; 
 //##}

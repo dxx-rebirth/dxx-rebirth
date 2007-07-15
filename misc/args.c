@@ -35,6 +35,7 @@ static char rcsid[] = "$Id: args.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $";
 #include "strio.h"
 #include "strutil.h"
 #include "digi.h"
+#include "gauges.h"
 
 #define MAX_ARGS 200
 
@@ -112,7 +113,7 @@ void AppendIniArgs(void)
 // All FindArg calls should be here to keep the code clean
 void ReadCmdArgs(void)
 {
-	int t;
+	int t = 0, x = 0, y = 0;
 
 	// System Options
 
@@ -215,6 +216,44 @@ void ReadCmdArgs(void)
 		GameArg.SndEnableRedbook = 1;
 	else
 		GameArg.SndEnableRedbook = 0;
+
+	// Graphics Options
+
+	if ((t=FindResArg("aspect", &y, &x)))
+	{
+		GameArg.GfxAspectY = y;
+		GameArg.GfxAspectX = x;
+	}
+	else
+	{
+		GameArg.GfxAspectY = 4;
+		GameArg.GfxAspectX = 3;
+	}
+
+	if ((t=FindArg("-hud"))){
+		t=atoi(Args[t+1]);
+		if(t>=0 && t<GAUGE_HUD_NUMMODES)
+			GameArg.GfxGaugeHudMode = t;
+		else
+			GameArg.GfxGaugeHudMode = 0;
+	}
+	else
+		GameArg.GfxGaugeHudMode = 0;
+
+	if (FindArg("-persistentdebris"))
+		GameArg.GfxPersistentDebris = 1;
+	else
+		GameArg.GfxPersistentDebris = 0;
+
+	if (FindArg( "-lowresmovies" ))
+		GameArg.GfxMovieHires = 0;
+	else
+		GameArg.GfxMovieHires = 1;
+
+	if (FindArg("-subtitles"))
+		GameArg.GfxMovieSubtitles = 1;
+	else
+		GameArg.GfxMovieSubtitles = 0;
 
 	// Editor Options
 

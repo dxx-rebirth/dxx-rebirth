@@ -32,8 +32,7 @@ extern int apply_damage_to_robot(object *robot, fix damage, int killer_objnum);
 
 extern int Immaterial;
 
-extern int persistent_debris;
-#define PERSISTENT_DEBRIS (persistent_debris && !(Game_mode & GM_MULTI)) // no persistent debris in multi
+#define PERSISTENT_DEBRIS (GameArg.GfxPersistentDebris && !(Game_mode & GM_MULTI)) // no persistent debris in multi
 
 extern void collide_player_and_weapon(object * player, object * weapon, vms_vector *collision_point);
 extern void collide_player_and_materialization_center(object *objp);

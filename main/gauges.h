@@ -100,9 +100,6 @@ void do_cockpit_window_view(int win, object *viewer, int rear_view_flag, int use
 void calculate_sub_view_window_bounds(int inSubWindowNum, TQARect* outBoundsRect);
 #endif
 
-// ZICO - new HUD modes
-extern int Gauge_hud_mode;
 #define GAUGE_HUD_NUMMODES 4
-extern int gauge_update_hud_mode;
 
 #endif /* _GAUGES_H */

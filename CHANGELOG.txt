@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 Sconstruct, d2x.ini, arch/sdl/mixdigi.c, arch/sdl/rbaudio.c, arch/win32/midi.c, include/args.h, include/physfsx.h, main/ai2.c, main/bmread.c, main/config.c, main/digi.h, main/digiobj.c, main/game.c, main/inferno.c, main/menu.c, main/movie.c, main/multi.c, main/piggy.c, main/songs.c, misc/args.c: Cleaned up more FindArg's - Sound Options
 main/piggy.c: use EdiMacData, not SysMacData (compiler error)
+d2x.ini, arch/sdl/gr.c, arch/ogl/gr.c, include/args.h, main/automap.c, main/automap.h, main/collide.c, main/collide.h, main/config.c, main/game.h, main/gamecntl.c, main/gauges.c, main/gauges.h, main/inferno.c, main/movie.c, main/movie.h, main/playsave.c, main/args.c: Cleaned up more FindArg's - Graphics Options
 
 20070714
 --------

@@ -60,6 +60,12 @@ typedef struct Arg
 	int SndNoMusic;
 	int SndDigiSampleRate;
 	int SndEnableRedbook;
+	float GfxAspectX;
+	float GfxAspectY;
+	int GfxGaugeHudMode;
+	int GfxPersistentDebris;
+	int GfxMovieHires;
+	int GfxMovieSubtitles;
 
 	int EdiMacData;
 } __attribute__ ((packed)) Arg;
