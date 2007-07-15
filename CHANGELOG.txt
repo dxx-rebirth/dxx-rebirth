@@ -2,12 +2,13 @@ D1X-Rebirth Changelog
 
 20070715
 --------
-Sconstruct, d1x.ini, arch/win32/midi.c, main/args.h, main/args.c, main/inferno.c: Cleaned up more FindArg's - Sound Options
+Sconstruct, d1x.ini, arch/win32/midi.c, include/args.h, main/args.c, main/inferno.c: Cleaned up more FindArg's - Sound Options
+d1x.ini, arch/sdl/gr.c, arch/ogl/gr.c, include/args.h, main/automap.c, main/automap.h, main/collide.c, main/collide.h, main/game.c, main/gamefont.c, main/gauges.c, main/gauges.h, main/hud.c, main/inferno.c, main/kconfig.c, main/netlist.c, main/newmenu.c, main/powerup.c, main/scores.c, main/weapon.c: Cleaned up more FindArg's - Graphics Options
 
 20070714
 --------
 SConstruct, main/game.c, main/inferno.c: removed old CD-Play code
-SConstruct, d1x.ini, arch/sdl/init.c, arch/sdl/joy.c, main/args.c, main/args.h, main/config.c, main/game.c, main/game.h, main/gauges.c, main/hud.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/laser.c, main/menu.c, main/multi.c, main/newdemo.c, main/newdemo.h, main/piggy.c, main/titles.c: Placing FindArg calls to seperated function, putting variables to a struct - frist step, not finished, yet; Large code cleanup
+SConstruct, d1x.ini, arch/sdl/init.c, arch/sdl/joy.c, include/args.h, main/args.c, main/config.c, main/game.c, main/game.h, main/gauges.c, main/hud.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/laser.c, main/menu.c, main/multi.c, main/newdemo.c, main/newdemo.h, main/piggy.c, main/titles.c: Placing FindArg calls to seperated function, putting variables to a struct - frist step, not finished, yet; Large code cleanup
 
 20070629
 --------

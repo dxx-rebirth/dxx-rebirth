@@ -201,8 +201,6 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 
 	if (print_message)
 		hud_message(MSGC_WEAPON_SELECT, "%s %s", weapon_name, TXT_SELECTED);
-
-	gauge_update_hud_mode=1;
 }
 
 //	------------------------------------------------------------------------------------
@@ -397,7 +395,6 @@ int pick_up_secondary(int weapon_index,int count)
 		hud_message(MSGC_PICKUP_OK, "%s!",SECONDARY_WEAPON_NAMES(weapon_index));
 	}
 
-	gauge_update_hud_mode=1;
 	return 1;
 }
 
@@ -423,7 +420,7 @@ int pick_up_primary(int weapon_index)
 
 	PALETTE_FLASH_ADD(7,14,21);
 	hud_message(MSGC_PICKUP_OK, "%s!",PRIMARY_WEAPON_NAMES(weapon_index));
-	gauge_update_hud_mode=1;
+
 	return 1;
 }
 
@@ -449,6 +446,5 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 		if(Allow_primary_cycle) //since this function is vulcan only anyway
 			maybe_select_primary(weapon_index);
 
-	gauge_update_hud_mode=1;
 	return 1;
 }

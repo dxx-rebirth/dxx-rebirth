@@ -81,7 +81,7 @@ grs_bitmap nm_background;
 grs_bitmap nm_background1;
 
 #define MESSAGEBOX_TEXT_SIZE 2176		// How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
-#define MAX_TEXT_WIDTH 	FONTSCALE_X((hiresfont)?240:120)	// How many pixels wide a input box can be
+#define MAX_TEXT_WIDTH 	FONTSCALE_X((GameArg.GfxUseHiresFont)?240:120)	// How many pixels wide a input box can be
 
 // ZICO - since the background is rescaled the bevels do the same. because of this we need bigger borders or the fonts would be printed inside the bevels...
 #define MENSCALE_X ((double)(SWIDTH/320))
@@ -490,7 +490,7 @@ ubyte Hack_DblClick_MenuMode=0;
 
 #define CLOSE_X     (7*MENSCALE_X)
 #define CLOSE_Y     (7*MENSCALE_Y)
-#define CLOSE_SIZE  FONTSCALE_X(hiresfont&&grd_curscreen->sc_w>=640&&grd_curscreen->sc_h>=480?10:5)
+#define CLOSE_SIZE  FONTSCALE_X(GameArg.GfxUseHiresFont&&grd_curscreen->sc_w>=640&&grd_curscreen->sc_h>=480?10:5)
 
 void draw_close_box(int x,int y)
 {
@@ -717,9 +717,9 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	   Also make use of MENSCALE_* so we are sure it does scale correct if font does scale or not */
 	if (w >= 320*MENSCALE_X-3)
 		w=318*MENSCALE_X;
-	// when using hiresfont we need to resize from a base of 240 since the font is made for 640x480
-	if (h >= ((hiresfont&&SHEIGHT>=480)?240:200)*MENSCALE_Y-3)
-		h=((hiresfont&&SHEIGHT>=480)?236:198)*MENSCALE_Y;
+	// when using GameArg.GfxUseHiresFont we need to resize from a base of 240 since the font is made for 640x480
+	if (h >= ((GameArg.GfxUseHiresFont&&SHEIGHT>=480)?240:200)*MENSCALE_Y-3)
+		h=((GameArg.GfxUseHiresFont&&SHEIGHT>=480)?236:198)*MENSCALE_Y;
 
 	x = (GWIDTH-w)/2;
 	y = (GHEIGHT-h)/2;

@@ -282,11 +282,8 @@ void draw_player( object * obj )
 	automap_draw_line(&sphere_point, &arrow_point);
 }
 
-int automap_width = 640;
-int automap_height = 480;
-
-#define RESCALE_X(x) ((x) * automap_width / 640)
-#define RESCALE_Y(y) ((y) * automap_height / 480)
+#define RESCALE_X(x) ((x) * grd_curscreen->sc_canvas.cv_bitmap.bm_w / 640)
+#define RESCALE_Y(y) ((y) * grd_curscreen->sc_canvas.cv_bitmap.bm_h / 480)
 
 void draw_automap(int flip)
 {
@@ -298,7 +295,7 @@ void draw_automap(int flip)
 
 	gr_set_current_canvas(NULL);
 #ifdef OGL
-	if (automap_height >= 400)
+	if (grd_curscreen->sc_canvas.cv_bitmap.bm_h >= 400)
 		ogl_ubitmapm_cs(0, 0, -1, -1, &Automap_background, -1, F1_0);
 	else
 #endif
@@ -395,9 +392,6 @@ void draw_automap(int flip)
 
 extern void GameLoop(int, int );
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
-u_int32_t automap_mode = SM(640,480);
-int automap_use_game_res=1;
-int nice_automap = 1;
 int Automap_active = 0;
 
 #define MAP_BACKGROUND_FILENAME "MAP.PCX"
@@ -438,13 +432,7 @@ void do_automap( int key_code )	{
 	mprintf( (0, "Num_vertices=%d, Max_edges=%d, (MAX:%d)\n", Num_vertices, Max_edges, MAX_EDGES ));
 	mprintf( (0, "Allocated %d K for automap edge list\n", (sizeof(Edge_info)+sizeof(short))*Max_edges/1024 ));
 
-	if (grd_curscreen->sc_mode != AUTOMAP_MODE)
-		gr_set_mode( AUTOMAP_MODE );
-	else
-		gr_set_current_canvas(NULL);
-	//end edit -MM
-	automap_width=grd_curscreen->sc_canvas.cv_bitmap.bm_w;
-	automap_height=grd_curscreen->sc_canvas.cv_bitmap.bm_h;
+	gr_set_current_canvas(NULL);
 
 	gr_palette_clear();
 
@@ -612,9 +600,6 @@ void do_automap( int key_code )	{
 		t2 = timer_get_fixed_seconds();
 		while (t2 - t1 < F1_0 / 100) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 		{
-			if (nice_automap)
-				timer_delay(1);
-
 			t2 = timer_get_fixed_seconds();
 		}
 		if (pause_game)

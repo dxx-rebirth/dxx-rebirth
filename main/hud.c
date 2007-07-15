@@ -48,7 +48,6 @@ static char rcsid[] = "$Id: hud.c,v 1.1.1.1 2006/03/17 19:42:04 zicodxx Exp $";
 
 int hud_first = 0;
 int hud_last = 0;
-int HUD_max_num_disp = 3; //max to display normally
 int HUD_nmessages = 0;
 fix HUD_message_timer = 0;      // Time, relative to Players[Player_num].time (int.frac seconds.frac), at which to erase gauge message
 char  HUD_messages[HUD_MAX_NUM][HUD_MESSAGE_LENGTH+5];
@@ -222,7 +221,7 @@ int HUD_init_message_va(char * format, va_list args)
 		hud_first= (hud_first+1) % HUD_MAX_NUM;
 		hud_last--;
 	}
-	if ( HUD_nmessages>=HUD_max_num_disp){
+	if ( HUD_nmessages>=GameArg.GfxHudMaxNumDisp){
 		// If too many messages, remove oldest message to make room
 		hud_first = (hud_first+1) % HUD_MAX_NUM;
 		HUD_nmessages--;

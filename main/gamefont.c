@@ -11,62 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/gamefont.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:43:52 $
- * 
+ *
  * Fonts for the game.
- * 
- * $Log: gamefont.c,v $
- * Revision 1.1.1.1  2006/03/17 19:43:52  zicodxx
- * initial import
  *
- * Revision 1.5  1999/11/20 10:05:17  donut
- * variable size menu patch from Jan Bobrowski.  Variable menu font size support and a bunch of fixes for menus that didn't work quite right, by me (MPM).
- *
- * Revision 1.4  1999/10/08 09:00:47  donut
- * fixed undefined error on mingw
- *
- * Revision 1.3  1999/10/08 04:14:02  donut
- * added default usage of larger fonts at highres, added checks for font existance before trying to load
- *
- * Revision 1.2  1999/10/08 00:57:03  donut
- * variable GAME_FONT
- *
- * Revision 1.1.1.1  1999/06/14 22:06:59  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:30:14  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.8  1994/11/18  16:41:39  adam
- * trimmed some meat
- * 
- * Revision 1.7  1994/11/17  13:07:11  adam
- * removed unused font
- * 
- * Revision 1.6  1994/11/03  21:36:12  john
- * Added code for credit fonts.
- * 
- * Revision 1.5  1994/08/17  20:20:02  matt
- * Took out alternate-color versions of font3, since this is a mono font
- * 
- * Revision 1.4  1994/08/12  12:03:44  adam
- * tweaked fonts.
- * 
- * Revision 1.3  1994/08/11  12:43:40  adam
- * changed font filenames
- * 
- * Revision 1.2  1994/08/10  19:57:15  john
- * Changed font stuff; Took out old menu; messed up lots of
- * other stuff like game sequencing messages, etc.
- * 
- * Revision 1.1  1994/08/10  17:20:09  john
- * Initial revision
- * 
- * 
  */
 
 
@@ -108,7 +55,6 @@ grs_font *Gamefonts[MAX_FONTS];
 
 int Gamefont_installed=0;
 int fixedfont=0;
-int hiresfont=0;
 
 //code to allow variable GAME_FONT, added 10/7/99 Matt Mueller - updated 11/18/99 to handle all fonts, not just GFONT_SMALL
 //	take scry into account? how/when?
@@ -216,29 +162,21 @@ void gamefont_init()
 		// d1data files since they are d2 files
 		// addfontconf(i,640,Gamefont_filenames_h[i]);
 
-		if (FindArg("-hiresfont")
+		if (GameArg.GfxUseHiresFont
 			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font1-1h.fnt")
 			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font2-1h.fnt")
 			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font2-2h.fnt")
 			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font2-3h.fnt")
-			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font3-1h.fnt")) {
-			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts
-			hiresfont=1;
-		}
+			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font3-1h.fnt"))
+			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
+		else
+			GameArg.GfxUseHiresFont = 0;
 
-		addfontconf(i,0,0,Gamefont_filenames_l[i]); // ZICO - but not in small resolutions...
+		addfontconf(i,0,0,Gamefont_filenames_l[i]);
 	}
 	// HDG: uncommented, these addon files can be easily added
 //	addfontconf(4, 640,"pc6x8.fnt");
 //	addfontconf(4, 1024,"pc8x16.fnt");
-	if ((i=FindArg("-font320")))
-		addfontconf(4,320,200,Args[i+1]);
-	if ((i=FindArg("-font640")))
-		addfontconf(4,640,480,Args[i+1]);
-	if ((i=FindArg("-font800")))
-		addfontconf(4,800,600,Args[i+1]);
-	if ((i=FindArg("-font1024")))
-		addfontconf(4,1024,768,Args[i+1]);
 
 	gamefont_choose_game_font(grd_curscreen->sc_canvas.cv_bitmap.bm_w,grd_curscreen->sc_canvas.cv_bitmap.bm_h);
 	

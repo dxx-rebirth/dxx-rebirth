@@ -24,6 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "args.h"
 #include "game.h"
+#include "gauges.h"
 
 #define MAX_ARGS 200
 int Num_args=0;
@@ -99,7 +100,7 @@ void AppendIniArgs(void)
 // All FindArg calls should be here to keep the code clean
 void ReadCmdArgs(void)
 {
-	int t;
+	int t = 0, x = 0, y = 0;
 
 	// System Options
 
@@ -181,6 +182,50 @@ void ReadCmdArgs(void)
 		GameArg.SndNoMusic = 1;
 	else
 		GameArg.SndNoMusic = 0;
+
+	// Graphics Options
+
+	if ((t=FindResArg("aspect", &y, &x)))
+	{
+		GameArg.GfxAspectY = y;
+		GameArg.GfxAspectX = x;
+	}
+	else
+	{
+		GameArg.GfxAspectY = 4;
+		GameArg.GfxAspectX = 3;
+	}
+
+	if ((t=FindArg("-hud"))){
+		t=atoi(Args[t+1]);
+		if(t>=0 && t<GAUGE_HUD_NUMMODES)
+			GameArg.GfxGaugeHudMode = t;
+		else
+			GameArg.GfxGaugeHudMode = 0;
+	}
+	else
+		GameArg.GfxGaugeHudMode = 0;
+
+	if ((t=FindArg("-hudlines")))
+	{
+		t=atoi(Args[t+1]);
+		if(t>0 && t<=HUD_MAX_NUM)
+			GameArg.GfxHudMaxNumDisp = t;
+		else
+			GameArg.GfxHudMaxNumDisp = 3;
+	}
+	else
+		GameArg.GfxHudMaxNumDisp = 3;
+
+	if (FindArg("-hiresfont"))
+		GameArg.GfxUseHiresFont = 1;
+	else
+		GameArg.GfxUseHiresFont = 0;
+
+	if (FindArg("-persistentdebris"))
+		GameArg.GfxPersistentDebris = 1;
+	else
+		GameArg.GfxPersistentDebris = 0;
 }
 
 void args_exit(void)

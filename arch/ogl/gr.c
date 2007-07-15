@@ -181,10 +181,7 @@ void ogl_get_verinfo(void){
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;
-	int aw, ah;
 	char *gr_bm_data;
-	float awidth = 3, aheight = 4;
-	int i, argnum = INT_MAX;
 
 #ifdef NOGRAPH
 	return 0;
@@ -194,15 +191,13 @@ int gr_set_mode(u_int32_t mode)
 
 	w=SM_W(mode);
 	h=SM_H(mode);
-
-	if ((i=FindResArg("aspect", &ah, &aw)) && (i < argnum)) { argnum = i; awidth=aw; aheight=ah; }
 	
 	gr_bm_data=(char *)grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*awidth,grd_curscreen->sc_h*aheight);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameArg.GfxAspectX,grd_curscreen->sc_h*GameArg.GfxAspectY);
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;

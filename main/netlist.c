@@ -36,8 +36,8 @@
 #define LINE_ITEMS 8
 #define MAX_TEXT_LEN 25
 
-#define LHX(x)		((x)*(hiresfont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_X(2):FONTSCALE_X(1)))
-#define LHY(y)		((y)*(hiresfont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
+#define LHX(x)		((x)*(GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_X(2):FONTSCALE_X(1)))
+#define LHY(y)		((y)*(GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
 
 // from network.c
 extern int Network_games_changed;
@@ -260,7 +260,7 @@ void show_game_rules(netgame_info game)
 
 	gr_set_current_canvas(NULL);
 
-	if (hiresfont && SWIDTH>=640 && SHEIGHT>=480)
+	if (GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
 	else
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));

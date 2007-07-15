@@ -2197,8 +2197,7 @@ void HandleGameKey(int key)
 #endif
 			break;
 		case KEY_ALTED+KEY_F7:
-			Gauge_hud_mode=(Gauge_hud_mode+1)%GAUGE_HUD_NUMMODES;
-			gauge_update_hud_mode=2;
+			GameArg.GfxGaugeHudMode=(GameArg.GfxGaugeHudMode+1)%GAUGE_HUD_NUMMODES;
 			break;
 		case KEY_F8:
 #ifdef NETWORK

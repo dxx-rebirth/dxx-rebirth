@@ -11,98 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/collide.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:41:33 $
- * 
- * .
- * 
- * $Log: collide.h,v $
- * Revision 1.1.1.1  2006/03/17 19:41:33  zicodxx
- * initial import
+ * Header for collide.c
  *
- * Revision 1.1.1.1  1999/06/14 22:12:14  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:28:59  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.23  1995/01/26  22:11:47  mike
- * Purple chromo-blaster (ie, fusion cannon) spruce up (chromification)
- * 
- * Revision 1.22  1994/12/21  19:03:24  rob
- * Fixing score accounting for multiplayer robots
- * 
- * Revision 1.21  1994/12/21  11:34:56  mike
- * make control center take badass damage.
- * 
- * Revision 1.20  1994/10/29  16:53:16  allender
- * added check_effect_blowup for demo recording to record monitor explosions
- * 
- * Revision 1.19  1994/10/09  13:46:48  mike
- * Make public collide_player_and_powerup.
- * 
- * Revision 1.18  1994/10/05  14:54:29  rob
- * Added serial game support in control center sequence..
- * 
- * Revision 1.17  1994/09/15  16:32:12  mike
- * Prototype collide_player_and_nasty_robot.
- * 
- * Revision 1.16  1994/09/11  15:49:04  mike
- * Prototype for maybe_detonate_weapon.
- * 
- * Revision 1.15  1994/09/09  14:20:07  matt
- * Added prototype for scrape function
- * 
- * Revision 1.14  1994/09/02  14:00:44  matt
- * Simplified explode_object() & mutliple-stage explosions
- * 
- * Revision 1.13  1994/08/18  10:47:35  john
- * Cleaned up game sequencing and player death stuff
- * in preparation for making the player explode into
- * pieces when dead.
- * 
- * Revision 1.12  1994/08/17  16:50:08  john
- * Added damaging fireballs, missiles.
- * 
- * Revision 1.11  1994/08/03  16:45:31  mike
- * Prototype a function.
- * 
- * Revision 1.10  1994/08/03  15:17:41  mike
- * make matcen whack on you if it's ready to make a robot.
- * 
- * Revision 1.9  1994/07/22  12:08:03  mike
- * Make robot hit vclip and sound weapon-based until robot dies, then robot-based.
- * 
- * Revision 1.8  1994/07/09  17:36:31  mike
- * Prototype apply_damage_to_robot.
- * 
- * Revision 1.7  1994/07/09  13:20:36  mike
- * Prototype apply_damage_to_player.
- * 
- * Revision 1.6  1994/06/20  23:35:52  john
- * Bunch of stuff.
- * 
- * Revision 1.5  1994/06/17  18:04:03  yuan
- * Added Immaterialization...
- * Fixed Invulnerability to allow being hit.
- * 
- * Revision 1.4  1994/05/13  20:28:02  john
- * Version II of John's new object code.
- * 
- * Revision 1.3  1994/05/13  12:20:35  john
- * Fixed some potential problems with code using global variables
- * that are set in fvi. 
- * 
- * Revision 1.2  1994/05/12  23:20:32  john
- * Moved all object collision handling into collide.c.
- * 
- * Revision 1.1  1994/05/12  20:39:09  john
- * Initial revision
- * 
- * 
  */
 
 
@@ -120,8 +30,7 @@ extern int apply_damage_to_robot(object *robot, fix damage, int killer_objnum);
 
 extern int Immaterial;
 
-extern int persistent_debris;
-#define PERSISTENT_DEBRIS (persistent_debris && !(Game_mode & GM_MULTI)) // no persistent debris in multi
+#define PERSISTENT_DEBRIS (GameArg.GfxPersistentDebris && !(Game_mode & GM_MULTI)) // no persistent debris in multi
 
 extern void collide_player_and_weapon( object * player, object * weapon, vms_vector *collision_point );
 extern void collide_player_and_materialization_center(object *objp);

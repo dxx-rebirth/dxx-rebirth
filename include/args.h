@@ -53,6 +53,12 @@ typedef struct Arg
 	int CtlGrabMouse;
 	int SndNoSound;
 	int SndNoMusic;
+	float GfxAspectX;
+	float GfxAspectY;
+	int GfxGaugeHudMode;
+	int GfxHudMaxNumDisp;
+	int GfxUseHiresFont;
+	int GfxPersistentDebris;
 } __attribute__ ((packed)) Arg;
 
 extern struct Arg GameArg;

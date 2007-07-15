@@ -104,7 +104,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "hudmsg.h"
 #include "playsave.h"
 #include "d_io.h"
-#include "automap.h"
 #include "ban.h"
 #include "gauges.h"
 #include "pingstat.h"
@@ -222,11 +221,6 @@ void show_commandline_help()
 	printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
 #endif // __SDL__
 
-/*	KEPT FOR FURTHER REFERENCE
-	printf( "\n Unused / Obsolete:\n\n");
-	printf( "  -nocdaudio         %s\n", "Disable cd audio");
-	printf( "  -playlist \"...\"    %s\n", "Set the cd audio playlist to tracks \"a b c ... f g\"");
-*/
 #endif // NDEBUG
 
 	printf( "\n Help:\n\n");
@@ -293,12 +287,6 @@ int main(int argc,char **argv)
 	else
 		select_tmap(NULL);
 
-	if ((t=FindArg("-hud"))){
-		t=atoi(Args[t+1]);
-		if(t>=0 && t<GAUGE_HUD_NUMMODES)
-			Gauge_hud_mode = t;
-	}
-
 #ifdef NETWORK
 	if (FindArg("-pingstats"))
 		ping_stats_on = 1;
@@ -309,12 +297,6 @@ int main(int argc,char **argv)
 		t=atoi(Args[t+1]);
 		if(t>=0 && t<=3)
                 gr_message_color_level = t;
-	}
-		 
-	if ((t=FindArg("-hudlines"))){
-		t=atoi(Args[t+1]);
-		if(t>0 && t<=HUD_MAX_NUM)
-                HUD_max_num_disp = t;
 	}
 
 	if (FindArg("-noredundancy"))
@@ -348,9 +330,6 @@ int main(int argc,char **argv)
 	if(FindArg( "-fastext" ))
 		extfaster=1;
 
-	if (FindArg("-persistentdebris"))
-		persistent_debris=1;
-
 	if (Inferno_verbose)
 		printf ("%s", TXT_VERBOSE_1);
 
@@ -371,19 +350,15 @@ int main(int argc,char **argv)
 	atexit(sdl_close);
 
 	Game_screen_mode = screen_mode;
-// 	game_init_render_buffers(screen_width, screen_height, VR_NONE);
 
 	{
 		int i, argnum=INT_MAX, w, h;
 #define SMODE(V,VV,VG) if ((i=FindResArg(#V, &w, &h)) && (i < argnum)) { argnum = i; VV = SM(w, h); VG = 0; }
-#define SMODE_GR(V,VG) if ((i=FindArg("-" #V "_gameres"))){if (i<argnum) VG=1;}
 #define SMODE_PRINT(V,VV,VG) if (Inferno_verbose) { if (VG) printf( #V " using game resolution ...\n"); else printf( #V " using %ix%i ...\n",SM_W(VV),SM_H(VV) ); }
-#define S_MODE(V,VV,VG) argnum = INT_MAX; SMODE(V, VV, VG); SMODE_GR(V, VG); SMODE_PRINT(V, VV, VG);
+#define S_MODE(V,VV,VG) argnum = INT_MAX; SMODE(V, VV, VG); SMODE_PRINT(V, VV, VG);
 
-		S_MODE(automap,automap_mode,automap_use_game_res);
 		S_MODE(menu,menu_screen_mode,menu_use_game_res);
 	}
-//end addition -MM
 	
 #ifdef NETWORK
 	control_invul_time = 0;

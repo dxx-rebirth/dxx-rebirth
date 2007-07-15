@@ -56,7 +56,6 @@ static char rcsid[] = "$Id: gauges.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include "ogl_init.h"
 #endif
 
-int Gauge_hud_mode=0;
 bitmap_index Gauges[MAX_GAUGE_BMS]; // Array of all gauge bitmaps.
 grs_canvas *Canv_LeftEnergyGauge;
 grs_canvas *Canv_SBEnergyGauge;
@@ -555,7 +554,7 @@ void hud_show_keys(void)
 
 void hud_show_energy(void)
 {
-	if (Gauge_hud_mode<2){
+	if (GameArg.GfxGaugeHudMode<2){
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 		if (Game_mode & GM_MULTI)
@@ -653,17 +652,17 @@ void hud_show_weapons(void)
 	else
 		y = grd_curcanv->cv_h;
 
-	if (Gauge_hud_mode==1){
+	if (GameArg.GfxGaugeHudMode==1){
 		hud_show_weapons_mode(0,0,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h*2+3*2));
 		hud_show_weapons_mode(1,0,grd_curcanv->cv_w,y-FONTSCALE_Y(GAME_FONT->ft_h+3));
 	}
 
-	else if (Gauge_hud_mode==2 || Gauge_hud_mode==3){
+	else if (GameArg.GfxGaugeHudMode==2 || GameArg.GfxGaugeHudMode==3){
 		int x1,x2;
 		int	w, aw;
 		gr_get_string_size("V1000", &w, &x1, &aw );
 		gr_get_string_size("0 ", &x2, &x1, &aw);
-		if (Gauge_hud_mode==2){
+		if (GameArg.GfxGaugeHudMode==2){
 			y=grd_curcanv->cv_h-(grd_curcanv->cv_h/4);
 			x1=grd_curcanv->cv_w/2-(w);
 			x2=grd_curcanv->cv_w/2+x2;//originally /2+10
@@ -782,7 +781,7 @@ void hud_show_cloak_invuln(void)
 
 void hud_show_shield(void)
 {
-	if (Gauge_hud_mode<2){
+	if (GameArg.GfxGaugeHudMode<2){
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 		if ( Players[Player_num].shields >= 0 )	{
@@ -831,8 +830,8 @@ void hud_show_lives()
 		gr_ubitmapm(10,3,&GameBitmaps[Gauges[GAUGE_LIVES].index]);
 		gr_printf(22, 3, "x %d", Players[Player_num].lives-1);
 #else
-		ogl_ubitmapm_cs(FONTSCALE_X(10),3,FONTSCALE_X((hiresfont && SWIDTH >= 640)?16:8),FONTSCALE_Y((hiresfont && SWIDTH >= 640)?14:7),&GameBitmaps[Gauges[GAUGE_LIVES].index],255,F1_0);
-		gr_printf(FONTSCALE_X((hiresfont && SWIDTH >= 640)?35:22), 3, "x %d", Players[Player_num].lives-1);
+		ogl_ubitmapm_cs(FONTSCALE_X(10),3,FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH >= 640)?16:8),FONTSCALE_Y((GameArg.GfxUseHiresFont && SWIDTH >= 640)?14:7),&GameBitmaps[Gauges[GAUGE_LIVES].index],255,F1_0);
+		gr_printf(FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH >= 640)?35:22), 3, "x %d", Players[Player_num].lives-1);
 #endif
 	}
 }
@@ -882,7 +881,7 @@ void sb_show_lives()
 #ifndef OGL
 		gr_ubitmapm(x,y,&GameBitmaps[Gauges[GAUGE_LIVES].index]);
 #else
-		ogl_ubitmapm_cs(HUD_SCALE_X(x),HUD_SCALE_Y(y),FONTSCALE_X((hiresfont && SWIDTH >= 640)?16:8),FONTSCALE_Y((hiresfont && SWIDTH >= 640)?14:7),bm,255,F1_0);
+		ogl_ubitmapm_cs(HUD_SCALE_X(x),HUD_SCALE_Y(y),FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH >= 640)?16:8),FONTSCALE_Y((GameArg.GfxUseHiresFont && SWIDTH >= 640)?14:7),bm,255,F1_0);
 #endif
 		gr_printf(HUD_SCALE_X(x)+HUD_SCALE_X(12), HUD_SCALE_Y(y), "x %d", Players[Player_num].lives-1);
 	}
@@ -1277,7 +1276,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	PIGGY_PAGE_IN( Weapon_info[info_index].picture );
 	hud_bitblt (pic_x, pic_y, bm, (Cockpit_mode == CM_FULL_SCREEN) ? 2 * F1_0 : F1_0);
 
-	if (Gauge_hud_mode==0)
+	if (GameArg.GfxGaugeHudMode==0)
 	{
 		gr_set_fontcolor(gr_getcolor(0,20,0),-1 );
 		
@@ -1351,13 +1350,13 @@ void draw_weapon_info(int weapon_type,int weapon_num)
 	w = 8;
 	}
 	
-	if (Gauge_hud_mode!=0)
+	if (GameArg.GfxGaugeHudMode!=0)
 		hud_show_weapons_mode(weapon_type,1,x,y);
 }
 
 void draw_ammo_info(int x,int y,int ammo_count,int primary)
 {
-	if (Gauge_hud_mode!=0)
+	if (GameArg.GfxGaugeHudMode!=0)
 		hud_show_weapons_mode(!primary,1,x,y);
 	else
 	{
@@ -1407,13 +1406,13 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 
 	gr_set_curfont( GAME_FONT );
 
-	if (weapon_num != old_weapon[weapon_type] && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !Gauge_hud_mode)
+	if (weapon_num != old_weapon[weapon_type] && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !GameArg.GfxGaugeHudMode)
 	{
 		weapon_box_states[weapon_type] = WS_FADING_OUT;
 		weapon_box_fade_values[weapon_type]=i2f(GR_FADE_LEVELS-1);
 	}
 			
-	if ((old_weapon[weapon_type] == -1) || gauge_update_hud_mode==2)
+	if (old_weapon[weapon_type] == -1)
 	{
 		draw_weapon_info(weapon_type,weapon_num);
 		old_weapon[weapon_type] = weapon_num;
@@ -1478,8 +1477,6 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 	return drew_flag;
 }
 
-int gauge_update_hud_mode=0;
-
 void draw_weapon_boxes()
 {
 // 	int boxofs = (Cockpit_mode==CM_STATUS_BAR)?2:0;
@@ -1518,17 +1515,12 @@ void draw_weapon_boxes()
 			old_ammo_count[1] = Players[Player_num].secondary_ammo[Secondary_weapon];
 		}
 	
-	if(gauge_update_hud_mode)
+	if(GameArg.GfxGaugeHudMode!=0)
 	{
-		if(Gauge_hud_mode!=0)
-		{
 			draw_primary_ammo_info(f2i(VULCAN_AMMO_SCALE * Players[Player_num].primary_ammo[Primary_weapon]));
 			draw_secondary_ammo_info(Players[Player_num].secondary_ammo[Secondary_weapon]);
-			gauge_update_hud_mode=0;
-		}
 	}
 }
-
 
 void sb_draw_energy_bar(int energy)
 {
