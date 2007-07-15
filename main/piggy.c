@@ -265,7 +265,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 
 	if (!in_file)   {
 #ifdef EDITOR
-		if ( GameArg.SysMacData )
+		if ( GameArg.EdiMacData )
 			swap_0_255( bmp );
 #endif
 		if ( !BigPig )  gr_bitmap_rle_compress( bmp );
