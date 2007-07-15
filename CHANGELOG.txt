@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070716
 --------
 d1x.ini, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, arch/sdl/gr.c, include/args.h, include/gr.h, main/args.c, main/automap.c, main/game.c, main/gamefont.c, main/gauges.c, main/inferno.c, main/menu.c, main/newmenu.c: Cleaned up more FindArg's - (most important) OpenGL Options
+main/automap.c, main/game.c: Fixing duplicated gr_toggle_fullscreen()
 
 20070715
 --------

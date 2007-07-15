@@ -161,7 +161,7 @@ void show_commandline_help()
 	printf( "  -hud <n>           %s\n", "Set hud mode.  0=normal 1-3=new");
         printf( "  -hudlines <n>      %s\n", "Number of hud messages to show");
 	printf( "  -hiresfont         %s\n", "use high resolution fonts if available");
-	printf( "  -persistentdebris  %s\n", "Enable persistent debris");
+	printf( "  -persistentdebris  %s\n", "Enable persistent debris. Works in singleplayer only");
 
 #ifdef    OGL
 	printf( "\n OpenGL:\n\n");
