@@ -583,14 +583,6 @@ int set_screen_mode(int sm)
 	return 1;
 }
 
-
-int gr_toggle_fullscreen(void){
-	int i;
-	hud_message(MSGC_GAME_FEEDBACK, "toggling fullscreen mode %s",(i=gr_toggle_fullscreen())?"on":"off" );
-	key_flush();
-	return i;
-}
-
 static int timer_paused=0;
 
 void stop_time()

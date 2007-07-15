@@ -197,9 +197,9 @@ void print_commandline_help()
 	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
 	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
 	printf( "  -hud <n>           %s\n", "Set hud mode.  0=normal 1-3=new");
-	printf( "  -persistentdebris  %s\n", "Enable persistent debris");
-	printf( "  -lowresmovies      %s\n","Play low resolution movies if available (for slow machines)");
-	printf( "  -subtitles         %s\n","Turn on movie subtitles (English-only)");
+	printf( "  -persistentdebris  %s\n", "Enable persistent debris. Works in singleplayer only");
+	printf( "  -lowresmovies      %s\n", "Play low resolution movies if available (for slow machines)");
+	printf( "  -subtitles         %s\n", "Turn on movie subtitles");
 
 #ifdef    OGL
 	printf( "\n OpenGL:\n\n");
@@ -227,15 +227,15 @@ void print_commandline_help()
 
 #ifndef   NDEBUG
 	printf( "\n Debug:\n\n");
-	printf( "  -debug             %s\n","Enable very verbose output");
+	printf( "  -debug             %s\n", "Enable very verbose output");
 	printf( "  -Verbose           %s\n", "Shows initialization steps for tech support");
 	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
-	printf( "  -norun             %s\n","Bail out after initialization");
-	printf( "  -nofade            %s\n","Disable fades");
-	printf( "  -norun             %s\n","Bail out after initialization");
-	printf( "  -text <file>       %s\n","Specify alternate .tex file");
+	printf( "  -norun             %s\n", "Bail out after initialization");
+	printf( "  -nofade            %s\n", "Disable fades");
+	printf( "  -norun             %s\n", "Bail out after initialization");
+	printf( "  -text <file>       %s\n", "Specify alternate .tex file");
 #ifndef   RELEASE
-	printf( "  -nomovies          %s\n","Don't play movies");
+	printf( "  -nomovies          %s\n", "Don't play movies");
 #endif // RELEASE
 #ifdef    SDL_VIDEO
 	printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
