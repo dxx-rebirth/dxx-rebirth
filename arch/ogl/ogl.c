@@ -71,8 +71,6 @@
 
 unsigned char *ogl_pal=gr_palette;
 
-int GL_texmagfilt=GL_NEAREST;
-int GL_texminfilt=GL_NEAREST;
 float GL_texanisofilt = 0;
 int GL_needmipmaps=0;
 
@@ -94,7 +92,6 @@ int sphereh=0;
 int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
 int secondary_lh[5]={0,0,0,0,0};
-extern int glalpha_effects;
 
 #define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
 
@@ -821,7 +818,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 	glBegin(GL_QUADS);
 
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
-	if (glalpha_effects && // if -gl_transparency draw following bitmaps
+	if (GameArg.OglAlphaEffects && // if -gl_transparency draw following bitmaps
 		(obj->type==OBJ_FIREBALL || // all types of explosions and energy-effects
 		(obj->type==OBJ_WEAPON && (obj->id != PROXIMITY_ID && obj->id != SUPERPROX_ID)) || // weapon fire except bombs
 		obj->id==POW_EXTRA_LIFE || // extra life
@@ -1326,8 +1323,8 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 	OGL_BINDTEXTURE(tex->handle);
 	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	if (tex->wantmip){
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_texmagfilt);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_texminfilt);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GameArg.OglTexMagFilt);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GameArg.OglTexMinFilt);
 		}
 	else{
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

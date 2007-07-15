@@ -2319,9 +2319,9 @@ void show_reticle(int force_big_one)
 	Assert(secondary_bm_num <= 4);
 	Assert(cross_bm_num <= 1);
 #ifdef OGL // scale reticle in OGL ...
-	if (gl_reticle==2 || (gl_reticle && grd_curcanv->cv_bitmap.bm_w > 320))
+	if (GameArg.OglReticle==2 || (GameArg.OglReticle && grd_curcanv->cv_bitmap.bm_w > 320))
 	{
-		ogl_draw_reticle(cross_bm_num,primary_bm_num,secondary_bm_num); // ... using the gl_reticle or ...
+		ogl_draw_reticle(cross_bm_num,primary_bm_num,secondary_bm_num); // ... using the GameArg.OglReticle or ...
 	}
 	else
 	{

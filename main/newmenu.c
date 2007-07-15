@@ -275,7 +275,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	gr_palette_load( gr_palette );
 
 #ifdef OGL
-	if (ogl_scissor_ok) {
+	if (GameArg.OglScissorOk) {
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(0,y1,x2,SHEIGHT);
 		ogl_ubitmapm_cs(0,0,SWIDTH,SHEIGHT,&nm_background,-1,F1_0);

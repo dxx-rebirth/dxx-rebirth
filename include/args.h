@@ -51,6 +51,7 @@ typedef struct Arg
 	int SysLowMem;
 	int SysLegacyHomers;
 	char *SysPilot;
+	int SysWindow;
 	int SysAutoDemo;
 	int CtlNoMouse;
 	int CtlNoJoystick;
@@ -66,8 +67,18 @@ typedef struct Arg
 	int GfxPersistentDebris;
 	int GfxMovieHires;
 	int GfxMovieSubtitles;
-
+#ifdef OGL
+	int OglTexMagFilt;
+	int OglTexMinFilt;
+	int OglAlphaEffects;
+	int OglReticle;
+	int OglScissorOk;
+	int OglVoodooHack;
+	int OglFixedFont;
+#endif
+#ifdef EDITOR
 	int EdiMacData;
+#endif
 } __attribute__ ((packed)) Arg;
 
 extern struct Arg GameArg;

@@ -169,13 +169,13 @@ void print_commandline_help()
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
 	printf( "  -nonicefps         %s\n", "Disable CPU cycle freeing. Higher CPU load, but game may be smoother");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
-	printf( "  -hogdir <dir>      %s\n", "set shared data directory to <dir>");
+	printf( "  -hogdir <s>        %s\n", "set shared data directory to <dir>");
 	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
-	printf( "  -userdir <dir>     %s\n", "set user dir to <dir> instead of $HOME/.d2x-rebirth");
+	printf( "  -userdir <s>       %s\n", "set user dir to <dir> instead of $HOME/.d2x-rebirth");
 	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
-	printf( "  -pilot <name>      %s\n", "Select this pilot automatically");
+	printf( "  -pilot <s>         %s\n", "Select this pilot automatically");
 	printf( "  -autodemo          %s\n", "Start in demo mode");
 
 	printf( "\n Controls:\n\n");
@@ -183,6 +183,7 @@ void print_commandline_help()
 	printf( "  -nojoystick        %s\n", "Deactivate joystick");
 	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
 	printf( "  -grabmouse         %s\n", "Keeps the mouse from wandering out of the window");
+	printf( "  -window            %s\n", "Run the game in a window");
 
 	printf( "\n Sound:\n\n");
 	printf( "  -nosound           %s\n", "Disables sound output");
@@ -195,22 +196,18 @@ void print_commandline_help()
 	printf( "\n Graphics:\n\n");
 	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
 	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
-	printf( "  -hud <h>           %s\n", "Set hud mode.  0=normal 1-3=new");
+	printf( "  -hud <n>           %s\n", "Set hud mode.  0=normal 1-3=new");
 	printf( "  -persistentdebris  %s\n", "Enable persistent debris");
-#ifdef    GR_SUPPORTS_FULLSCREEN_TOGGLE
-	printf( "  -window            %s\n", "Run the game in a window");
-#endif // GR_SUPPORTS_FULLSCREEN_TOGGLE
 	printf( "  -lowresmovies      %s\n","Play low resolution movies if available (for slow machines)");
 	printf( "  -subtitles         %s\n","Turn on movie subtitles (English-only)");
 
 #ifdef    OGL
 	printf( "\n OpenGL:\n\n");
-	printf( "  -gl_simple         %s\n", "Set gl texture filters to gl_nearest for \"original\" look. (default)");
 	printf( "  -gl_mipmap         %s\n", "Set gl texture filters to \"standard\" options for mipmapping");
 	printf( "  -gl_trilinear      %s\n", "Set gl texture filters to trilinear mipmapping");
 	printf( "  -gl_transparency   %s\n", "Enable transparency effects");
-	printf( "  -gl_reticle <r>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
-	printf( "  -gl_scissor_ok <r> %s\n", "Set glScissor. 0=off 1=on (default)");
+	printf( "  -gl_reticle <n>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
+	printf( "  -gl_scissor_ok <n> %s\n", "Set glScissor. 0=off 1=on (default)");
 	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
 	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
 #endif // OGL
@@ -219,13 +216,13 @@ void print_commandline_help()
 	printf( "\n Multiplayer:\n\n");
 	printf( "  -norankings        %s\n", "Disable multiplayer ranking system");
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multi");
-	printf( "  -packets <num>     %s\n", "Specifies the number of packets per second\n");
-	printf( "  -ipxnetwork <num>  %s\n", "Use IPX network number <num>");
+	printf( "  -packets <n>       %s\n", "Specifies the number of packets per second\n");
+	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <num>");
 	printf( "  -kali              %s\n", "Use Kali for networking");
         printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
-        printf( "  -ip_myaddr <a>     %s\n", "Use <a> as local ip address");
-        printf( "  -ip_bind_addr <a>  %s\n", "Bind to <a> instead of INADDR_ANY");
-        printf( "  -ip_baseport <p>   %s\n", "Use <p> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
+        printf( "  -ip_myaddr <n>     %s\n", "Use <a> as local ip address");
+        printf( "  -ip_bind_addr <n>  %s\n", "Bind to <a> instead of INADDR_ANY");
+        printf( "  -ip_baseport <n>   %s\n", "Use <p> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
 #endif // NETWORK
 
 #ifndef   NDEBUG

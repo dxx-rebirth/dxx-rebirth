@@ -1183,11 +1183,9 @@ int show_briefing_message(int screen_num, char *message)
 		if ((key_check == KEY_SPACEBAR) || (key_check == KEY_ENTER))
 			delay_count = 0;
 
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 		if ((key_check == KEY_ALTED+KEY_ENTER) ||
 			(key_check == KEY_ALTED+KEY_PADENTER))
 			gr_toggle_fullscreen();
-#endif
 
 		if (Briefing_text_x > bsp->text_ulx + bsp->text_width) {
 			Briefing_text_x = bsp->text_ulx;

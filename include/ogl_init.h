@@ -71,7 +71,6 @@ extern int ogl_luminance4_alpha4_ok;
 extern int ogl_rgba2_ok;
 extern int ogl_readpixels_ok;
 extern int ogl_gettexlevelparam_ok;
-extern int ogl_scissor_ok;
 
 #ifndef GL_EXT_texture_filter_anisotropic
 #define GL_EXT_texture_filter_anisotropic 1
@@ -83,9 +82,8 @@ extern int ogl_ext_texture_filter_anisotropic_ok;
 void ogl_init_shared_palette(void);
 
 extern int gl_initialized;
-extern int GL_texmagfilt,GL_texminfilt,GL_needmipmaps;
+extern int GL_needmipmaps;
 extern float GL_texanisofilt;
-extern int gl_reticle;
 
 extern int active_texture_unit;
 void ogl_setActiveTexture(int t);

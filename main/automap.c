@@ -826,7 +826,7 @@ void do_automap( int key_code )	{
 
 			case KEY_ALTED+KEY_ENTER:
 			case KEY_ALTED+KEY_PADENTER:
-				gr_toggle_fullscreen_game();
+				gr_toggle_fullscreen();
 				break;
 //end addition -MM
 

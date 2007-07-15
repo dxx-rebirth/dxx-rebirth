@@ -37,6 +37,14 @@ static char rcsid[] = "$Id: args.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $";
 #include "digi.h"
 #include "gauges.h"
 
+#ifdef OGL
+#if defined(__APPLE__) && defined(__MACH__)
+#include <OpenGL/glu.h>
+#else
+#include <GL/glu.h>
+#endif
+#endif
+
 #define MAX_ARGS 200
 
 int Num_args=0;
@@ -173,6 +181,11 @@ void ReadCmdArgs(void)
 	else
 		GameArg.SysPilot = NULL;
 
+	if (FindArg("-window"))
+		GameArg.SysWindow = 1;
+	else
+		GameArg.SysWindow = 0;
+
 	// Control Options
 
 	if (FindArg("-nomouse"))
@@ -255,12 +268,63 @@ void ReadCmdArgs(void)
 	else
 		GameArg.GfxMovieSubtitles = 0;
 
+#ifdef OGL
+	// OpenGL Options
+
+	if (FindArg("-gl_mipmap"))
+	{
+		GameArg.OglTexMagFilt = GL_LINEAR;
+		GameArg.OglTexMinFilt = GL_LINEAR_MIPMAP_NEAREST;
+	}
+	else if (FindArg("-gl_trilinear"))
+	{
+		GameArg.OglTexMagFilt = GL_LINEAR;
+		GameArg.OglTexMinFilt = GL_LINEAR_MIPMAP_LINEAR;
+	}
+	else
+	{
+		GameArg.OglTexMagFilt = GL_NEAREST;
+		GameArg.OglTexMinFilt = GL_NEAREST;
+	}
+
+	if (FindArg("-gl_transparency"))
+		GameArg.OglAlphaEffects = 1;
+	else
+		GameArg.OglAlphaEffects = 0;
+
+	if ((t=FindArg("-gl_reticle")))
+	{
+		GameArg.OglReticle = atoi(Args[t+1]);
+	}
+	else
+		GameArg.OglReticle = 0;
+
+	if ((t=FindArg("-gl_scissor_ok")))
+	{
+		GameArg.OglScissorOk = atoi(Args[t + 1]);
+	}
+	else
+		GameArg.OglScissorOk = 1;
+
+	if (FindArg("-gl_voodoo"))
+		GameArg.OglVoodooHack = 1;
+	else
+		GameArg.OglVoodooHack = 0;
+
+	if (FindArg("-fixedfont"))
+		GameArg.OglFixedFont = 1;
+	else
+		GameArg.OglFixedFont = 0;
+#endif
+
+#ifdef EDITOR
 	// Editor Options
 
 	if (FindArg("-macdata"))
 		GameArg.EdiMacData = 1;
 	else
 		GameArg.EdiMacData = 0;
+#endif
 }
 
 void args_exit(void)

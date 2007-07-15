@@ -335,11 +335,9 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 			clear_pause_message();
 		}
 
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 		if ((key == KEY_ALTED+KEY_ENTER) ||
 		    (key == KEY_ALTED+KEY_PADENTER))
 			gr_toggle_fullscreen();
-#endif
 
 		frame_num++;
 	}

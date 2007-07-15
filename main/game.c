@@ -584,38 +584,11 @@ int set_screen_mode(int sm)
 }
 
 
-int gr_toggle_fullscreen_game(void){
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
+int gr_toggle_fullscreen(void){
 	int i;
 	hud_message(MSGC_GAME_FEEDBACK, "toggling fullscreen mode %s",(i=gr_toggle_fullscreen())?"on":"off" );
-	//added 2000/06/19 Matthew Mueller - hack to fix "infinite toggle" problem
-	//it seems to be that the screen mode change takes long enough that the key has already sent repeat codes, or that its unpress event gets dropped, etc.  This is a somewhat ugly fix, but it works.
-//	generic_key_handler(KEY_PADENTER,0);
-//	generic_key_handler(KEY_ENTER, 0);
 	key_flush();
-	//end addition -MM
 	return i;
-#else
-	hud_message(MSGC_GAME_FEEDBACK, "fullscreen toggle not supported by this target");
-	return -1;
-#endif
-}
-
-int arch_toggle_fullscreen_menu(void);
-
-int gr_toggle_fullscreen_menu(void){
-#ifdef GR_SUPPORTS_FULLSCREEN_MENU_TOGGLE
-	int i;
-	i=arch_toggle_fullscreen_menu();
-
-//	generic_key_handler(KEY_PADENTER,0);
-//	generic_key_handler(KEY_ENTER, 0);
-	key_flush();
-
-	return i;
-#else
-	return -1;
-#endif
 }
 
 static int timer_paused=0;

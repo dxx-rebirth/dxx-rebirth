@@ -769,12 +769,8 @@ void do_screen_res_menu()
 
 void do_screen_res_menu()
 {
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
-#define N_SCREENRES_ITEMS 11 // ZICO - old: 10
+#define N_SCREENRES_ITEMS 11
 	int fullscreenc;
-#else
-        #define N_SCREENRES_ITEMS 10 // ZICO - 9
-#endif
 	newmenu_item m[N_SCREENRES_ITEMS];
 	int citem;
 	int i;
@@ -803,11 +799,9 @@ void do_screen_res_menu()
 		n_items += 3;
 	}
 
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	m[n_items].type = NM_TYPE_CHECK; m[n_items].text = "Fullscreen";
 	m[n_items].value = gr_check_fullscreen();
 	fullscreenc=n_items++;
-#endif
 
 	citem = Current_display_mode+1;
 	
@@ -821,12 +815,10 @@ void do_screen_res_menu()
 
 	newmenu_do1( NULL, "Select screen mode", n_items, m, NULL, citem);
 
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	if (m[fullscreenc].value != gr_check_fullscreen()){
 		gr_toggle_fullscreen();
 		Game_screen_mode = -1;
 	}
-#endif
 
 	for (i=0;i<n_items;i++)
 		if (m[i].value)
@@ -943,15 +935,11 @@ void change_res_poll()
 
 void change_res()
 {
-	// edited 05/27/99 Matt Mueller - ingame fullscreen changing
 	newmenu_item m[12];
 	u_int32_t modes[12];
 	int i = 0, mc = 0, num_presets = 0;
 	char customres[16];
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	int fullscreenc;
-#endif
-	//end edit -MM
 	u_int32_t screen_mode = 0;
 	int screen_width = 0;
 	int screen_height = 0;
@@ -976,23 +964,14 @@ void change_res()
 	sprintf(customres, "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 	m[mc].type = NM_TYPE_INPUT; m[mc].text = customres; m[mc].text_len = 11; modes[mc] = 0; mc++;
 
-	// added 05/27/99 Matt Mueller - ingame fullscreen changing
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	fullscreenc = mc; m[mc].type = NM_TYPE_CHECK; m[mc].text = "Fullscreen"; m[mc].value = gr_check_fullscreen(); mc++;
-#endif
-	// end addition -MM
-
 	i = newmenu_do1( NULL, "Screen Resolution", mc, m, &change_res_poll, 0 );
 
-	// added 05/27/99 Matt Mueller - ingame fullscreen changing
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	if (m[fullscreenc].value != gr_check_fullscreen())
 	{
 		gr_toggle_fullscreen();
 		Game_screen_mode = -1;
 	}
-#endif
-	// end addition -MM
 
 	for (i = 0; (m[i].value == 0) && (i < num_presets); i++);
 
