@@ -46,6 +46,7 @@ typedef struct Arg
 	int SysLowMem;
 	int SysLegacyHomers;
 	char *SysPilot;
+	int SysWindow;
 	int SysAutoDemo;
 	int CtlNoMouse;
 	int CtlNoJoystick;
@@ -59,6 +60,15 @@ typedef struct Arg
 	int GfxHudMaxNumDisp;
 	int GfxUseHiresFont;
 	int GfxPersistentDebris;
+#ifdef OGL
+	int OglTexMagFilt;
+	int OglTexMinFilt;
+	int OglAlphaEffects;
+	int OglReticle;
+	int OglScissorOk;
+	int OglVoodooHack;
+	int OglFixedFont;
+#endif
 } __attribute__ ((packed)) Arg;
 
 extern struct Arg GameArg;

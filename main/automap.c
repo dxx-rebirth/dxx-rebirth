@@ -175,7 +175,7 @@ void automap_build_edge_list(void);
 
 extern vms_vector Matrix_scale;		//how the matrix is currently scaled
 
-extern void gr_toggle_fullscreen_game();
+extern void gr_toggle_fullscreen();
 
 # define automap_draw_line g3_draw_line
 
@@ -550,7 +550,7 @@ void do_automap( int key_code )	{
 				break;
 			case KEY_ALTED+KEY_ENTER:
 			case KEY_ALTED+KEY_PADENTER:
-				gr_toggle_fullscreen_game();
+				gr_toggle_fullscreen();
 				break;
 			}
 		}

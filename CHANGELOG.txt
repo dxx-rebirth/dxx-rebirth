@@ -1,9 +1,13 @@
 D1X-Rebirth Changelog
 
+20070716
+--------
+d1x.ini, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, arch/sdl/gr.c, include/args.h, include/gr.h, main/args.c, main/automap.c, main/game.c, main/gamefont.c, main/gauges.c, main/inferno.c, main/menu.c, main/newmenu.c: Cleaned up more FindArg's - (most important) OpenGL Options
+
 20070715
 --------
 Sconstruct, d1x.ini, arch/win32/midi.c, include/args.h, main/args.c, main/inferno.c: Cleaned up more FindArg's - Sound Options
-d1x.ini, arch/sdl/gr.c, arch/ogl/gr.c, include/args.h, main/automap.c, main/automap.h, main/collide.c, main/collide.h, main/game.c, main/gamefont.c, main/gauges.c, main/gauges.h, main/hud.c, main/inferno.c, main/kconfig.c, main/netlist.c, main/newmenu.c, main/powerup.c, main/scores.c, main/weapon.c: Cleaned up more FindArg's - Graphics Options
+arch/sdl/gr.c, arch/ogl/gr.c, include/args.h, main/automap.c, main/automap.h, main/collide.c, main/collide.h, main/game.c, main/gamefont.c, main/gauges.c, main/gauges.h, main/hud.c, main/inferno.c, main/kconfig.c, main/netlist.c, main/newmenu.c, main/powerup.c, main/scores.c, main/weapon.c: Cleaned up more FindArg's - Graphics Options
 
 20070714
 --------

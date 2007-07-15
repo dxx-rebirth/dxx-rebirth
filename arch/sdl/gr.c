@@ -167,11 +167,9 @@ int gr_init(int mode)
 	MALLOC( grd_curscreen,grs_screen,1 );
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 
-//added 10/05/98 by Matt Mueller - make fullscreen mode optional
-//	if (FindArg("-fullscreen"))
-	if (!(FindArg("-window"))) // ZICO - from window to fullscreen
+	if (!GameArg.SysWindow)
 	     sdl_video_flags|=SDL_FULLSCREEN;
-//end addition -MM
+
 	//added 05/19/99 Matt Mueller - make HW surface optional
 	if (FindArg("-hwsurface"))
 	     sdl_video_flags|=SDL_HWSURFACE;

@@ -48,12 +48,11 @@ typedef struct _grs_point {
 } grs_point;
 
 extern int gr_renderstats;
-extern int fixedfont;
 
 // ZICO - we use this defines to scale the fon bitmaps itself, spacing between letters and rows
 #ifdef OGL
-#define FONTSCALE_X(x) ((fixedfont)?x:(x)*((SWIDTH/ ((GameArg.GfxUseHiresFont&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))
-#define FONTSCALE_Y(x) ((fixedfont)?x:(x)*((SHEIGHT/((GameArg.GfxUseHiresFont&&SWIDTH>=640&&SHEIGHT>=480)?480:200))))
+#define FONTSCALE_X(x) ((GameArg.OglFixedFont)?x:(x)*((SWIDTH/ ((GameArg.GfxUseHiresFont&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))
+#define FONTSCALE_Y(x) ((GameArg.OglFixedFont)?x:(x)*((SHEIGHT/((GameArg.GfxUseHiresFont&&SWIDTH>=640&&SHEIGHT>=480)?480:200))))
 #else // without OGL we don't scale. But instead of defining out eery single FONTSCALE_* call we just do not scale
 #define FONTSCALE_X(x) (x)
 #define FONTSCALE_Y(x) (x)
@@ -562,12 +561,8 @@ inline void gr_dounlock(void);
 
 #endif //!_GR_H
 
-//currently SDL and OGL are the only things that supports toggling fullscreen.  otherwise add other checks to the #if -MPM
-#if (defined(SDL_VIDEO) || defined(OGL))
-#define GR_SUPPORTS_FULLSCREEN_TOGGLE
 int gr_check_fullscreen(void);//must return 0 if windowed, 1 if fullscreen
 int gr_toggle_fullscreen(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)
-#endif
 
 //make this a define, since its used in several places
 #define KEYS_GR_TOGGLE_FULLSCREEN KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER: case KEY_ALTED+KEY_CTRLED+KEY_PADENTER: case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER: case KEY_ALTED+KEY_ENTER

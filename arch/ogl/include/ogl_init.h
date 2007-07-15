@@ -65,7 +65,6 @@ int ogl_setbrightness_internal(void);
 
 void ogl_do_fullscreen_internal(void);
 
-extern int ogl_voodoohack;
 extern int ogl_alttexmerge;//merge textures by just printing the seperate textures?
 extern int ogl_rgba_format;
 extern int ogl_intensity4_ok;
@@ -74,9 +73,7 @@ extern int ogl_rgba2_ok;
 extern int ogl_readpixels_ok;
 extern int ogl_gettexlevelparam_ok;
 extern int gl_initialized;
-extern int GL_texmagfilt,GL_texminfilt,GL_needmipmaps;
-extern int gl_reticle;
-extern int ogl_scissor_ok;
+extern int GL_needmipmaps;
 
 #ifndef GL_EXT_texture_filter_anisotropic
 #define GL_EXT_texture_filter_anisotropic 1

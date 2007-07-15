@@ -603,16 +603,12 @@ int set_screen_mode(int sm)
 	return 1;
 }
 
-int gr_toggle_fullscreen_game(void) {
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
+int gr_toggle_fullscreen(void) {
+
 	int i;
 	hud_message(MSGC_GAME_FEEDBACK, "toggling fullscreen mode %s",(i=gr_toggle_fullscreen())?"on":"off" );
 	key_flush();
 	return i;
-#else
-	hud_message(MSGC_GAME_FEEDBACK, "fullscreen toggle not supported by this target");
-	return -1;
-#endif
 }
 
 fix frame_time_list[8] = {0,0,0,0,0,0,0,0};
@@ -2073,7 +2069,7 @@ void HandleDemoKey(int key)
 			save_screen_shot(0);
 			Newdemo_vcr_state = old_state;
 		case KEYS_GR_TOGGLE_FULLSCREEN:
-			gr_toggle_fullscreen_game();
+			gr_toggle_fullscreen();
 			break;
 		break;
 		}
@@ -2249,7 +2245,7 @@ void HandleGameKey(int key)
 			break;
 #endif
 		case KEYS_GR_TOGGLE_FULLSCREEN:
-				gr_toggle_fullscreen_game();
+				gr_toggle_fullscreen();
 				break;
 		case KEY_SHIFTED + KEY_ESC: //quick exit
 #ifdef EDITOR

@@ -182,7 +182,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	gr_palette_load( gr_palette );
 
 #ifdef OGL
-	if (ogl_scissor_ok) {
+	if (GameArg.OglScissorOk) {
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(0,y1,x2,SHEIGHT);
 		ogl_ubitmapm_cs(0,0,SWIDTH,SHEIGHT,&nm_background,-1,F1_0);
@@ -1576,7 +1576,7 @@ ReadFileNames:
 			if ( w > w_w )
 				w_w = w;
 #ifdef OGL
-			if (fixedfont)
+			if (GameArg.OglFixedFont)
 #endif
 				h += 10*MENSCALE_Y;
 			title_height = h + FONTSCALE_Y(grd_curcanv->cv_font->ft_h*2);		// add a little space at the bottom of the title
@@ -1585,10 +1585,14 @@ ReadFileNames:
 		box_w = w_w;
 		box_h = ((FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2)) * NumFiles_displayed);
 
-		if (fixedfont)
+#ifdef OGL
+		if (GameArg.OglFixedFont)
+#endif
 			w_w += (grd_curcanv->cv_font->ft_w * 2)*MENSCALE_X;
+#ifdef OGL
 		else
 			w_w += FONTSCALE_X(grd_curcanv->cv_font->ft_w * 4);
+#endif
 		w_h = title_height + box_h + FONTSCALE_Y(grd_curcanv->cv_font->ft_h * 2)+(5*MENSCALE_Y);		// more space at bottom
 
 		if ( w_w > GWIDTH ) w_w = GWIDTH;
@@ -1600,10 +1604,14 @@ ReadFileNames:
 		if ( w_x < 0 ) w_x = 0;
 		if ( w_y < 0 ) w_y = 0;
 
-		if (fixedfont)
+#ifdef OGL
+		if (GameArg.OglFixedFont)
+#endif
 			box_x = w_x + (grd_curcanv->cv_font->ft_w)*MENSCALE_X;
+#ifdef OGL
 		else
 			box_x = w_x + FONTSCALE_X(grd_curcanv->cv_font->ft_w)*2;			// must be in sync with w_w!!!
+#endif
 		box_y = w_y + title_height;
 
 

@@ -797,21 +797,15 @@ void change_res_poll()
 
 void change_res()
 {
-	// edited 05/27/99 Matt Mueller - ingame fullscreen changing
 	newmenu_item m[12];
 	u_int32_t modes[12];
 	int i = 0, mc = 0, num_presets = 0;
 	char customres[16];
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	int fullscreenc;
-#endif
-	//end edit -MM
 	u_int32_t screen_mode = 0;
 	int screen_width = 0;
 	int screen_height = 0;
-#ifdef __SDL__
 	SDL_Rect **sdlmode = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
-#endif
 
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x200"; m[mc].value = (Game_screen_mode == SM(320,200)); m[mc].group = 0; modes[mc] = SM(320,200); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x480"; m[mc].value = (Game_screen_mode == SM(640,480)); m[mc].group = 0; modes[mc] = SM(640,480); mc++;
@@ -831,24 +825,15 @@ void change_res()
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "custom:"; m[mc].value = (i == mc); m[mc].group = 0; modes[mc] = 0; mc++;
 	sprintf(customres, "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 	m[mc].type = NM_TYPE_INPUT; m[mc].text = customres; m[mc].text_len = 11; modes[mc] = 0; mc++;
-
-	// added 05/27/99 Matt Mueller - ingame fullscreen changing
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	fullscreenc = mc; m[mc].type = NM_TYPE_CHECK; m[mc].text = "Fullscreen"; m[mc].value = gr_check_fullscreen(); mc++;
-#endif
-	// end addition -MM
-
 
 	i = newmenu_do1(NULL, "Screen Resolution", mc, m, &change_res_poll, 0);
 
-	// added 05/27/99 Matt Mueller - ingame fullscreen changing
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
 	if (m[fullscreenc].value != gr_check_fullscreen())
 	{
 		gr_toggle_fullscreen();
 		Game_screen_mode = -1;
 	}
-#endif
 
 	for (i = 0; (m[i].value == 0) && (i < num_presets); i++);
 
@@ -867,12 +852,10 @@ void change_res()
 	screen_width = SM_W(screen_mode);
 	screen_height = SM_H(screen_mode);
 
-#ifdef __SDL__
 	if (screen_width > sdlmode[0]->w || screen_height > sdlmode[0]->h) {
 		if (!nm_messagebox( TXT_WARNING, 2, "NO", "YES", "Could not verify selected\nscreen resolution.\nThe game may crash.\nDo you really want to proceed?" ))
 			return;
 	}
-#endif
 
 	if (screen_height <= 0 || screen_width <= 0)
 		return;

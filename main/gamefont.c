@@ -54,7 +54,6 @@ char * Gamefont_filenames_h[] = { 	HIRES_DIR "font1-1h.fnt",			// Font 0
 grs_font *Gamefonts[MAX_FONTS];
 
 int Gamefont_installed=0;
-int fixedfont=0;
 
 //code to allow variable GAME_FONT, added 10/7/99 Matt Mueller - updated 11/18/99 to handle all fonts, not just GFONT_SMALL
 //	take scry into account? how/when?
@@ -147,13 +146,10 @@ void gamefont_init()
 {
 	int i;
 
-	if (FindArg("-fixedfont"))
-		fixedfont=1;
+	if (Gamefont_installed)
+		return;
 
-	if (Gamefont_installed) return;
 	Gamefont_installed = 1;
-
-	
 
 	for (i=0;i<MAX_FONTS;i++){
 		Gamefonts[i]=NULL;

@@ -41,21 +41,17 @@
 #include "ogl_init.h"
 #include <GL/glu.h>
 
-int ogl_voodoohack=0;
 int gr_installed = 0;
 void gr_palette_clear(); // Function prototype for gr_init;
 int gl_initialized=0;
-int gl_reticle=0;
 int ogl_fullscreen=0;
-int ogl_scissor_ok=1;
-int glalpha_effects=0;
 
 int gr_check_fullscreen(void){
 	return ogl_fullscreen;
 }
 
 void gr_do_fullscreen(int f){
-	if (ogl_voodoohack)
+	if (GameArg.OglVoodooHack)
 		ogl_fullscreen=1;//force fullscreen mode on voodoos.
 	else
 		ogl_fullscreen=f;
@@ -168,13 +164,9 @@ void ogl_get_verinfo(void){
 	{
 		ogl_setgammaramp_ok = atoi(Args[t + 1]);
 	}
-	if ((t=FindArg("-gl_scissor_ok")))
-	{
-		ogl_scissor_ok = atoi(Args[t + 1]);
-	}
 
 #ifndef NDEBUG
-	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i gl_ext_texture_filter_anisotropic:%i(%f max) gl_scissor:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok,ogl_ext_texture_filter_anisotropic_ok,anisotropic_max,ogl_scissor_ok);
+	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i gl_ext_texture_filter_anisotropic:%i(%f max) gl_scissor:%i\n",ogl_intensity4_ok,ogl_luminance4_alpha4_ok,ogl_rgba2_ok,ogl_readpixels_ok,ogl_gettexlevelparam_ok,ogl_setgammaramp_ok,ogl_ext_texture_filter_anisotropic_ok,anisotropic_max,GameArg.OglScissorOk);
 #endif
 }
 
@@ -292,61 +284,27 @@ int gr_init(int mode)
 	ogl_init_load_library();
 #endif
 
-#ifdef GR_SUPPORTS_FULLSCREEN_TOGGLE
-	if (FindArg("-gl_voodoo")){
-		ogl_voodoohack=1;
+	if (!GameArg.SysWindow || GameArg.OglVoodooHack)
 		gr_toggle_fullscreen();
-	}
-	if (!(FindArg("-window")))
-		gr_toggle_fullscreen();
-#endif
+
 	if ((glt=FindArg("-gl_alttexmerge")))
 		ogl_alttexmerge=1;
 	if ((t=FindArg("-gl_stdtexmerge")))
 		if (t>=glt)//allow overriding of earlier args
 			ogl_alttexmerge=0;
 			
-	if ((glt=FindArg("-gl_mipmap"))){
-		GL_texmagfilt=GL_LINEAR;
-		GL_texminfilt=GL_LINEAR_MIPMAP_NEAREST;
-	}
-	if ((glt=FindArg("-gl_trilinear")))
-	{
-		GL_texmagfilt = GL_LINEAR;
-		GL_texminfilt = GL_LINEAR_MIPMAP_LINEAR;
-	}
-	if ((t=FindArg("-gl_simple"))){
-		if (t>=glt){//allow overriding of earlier args
-			glt=t;
-			GL_texmagfilt=GL_NEAREST;
-			GL_texminfilt=GL_NEAREST;
-		}
-	}
-	if ((t=FindArg("-gl_texmagfilt")) || (t=FindArg("-gl_texmagfilter"))){
-		if (t>=glt)//allow overriding of earlier args
-			GL_texmagfilt=ogl_atotexfilti(Args[t+1],0);
-	}
-	if ((t=FindArg("-gl_texminfilt")) || (t=FindArg("-gl_texminfilter"))){
-		if (t>=glt)//allow overriding of earlier args
-			GL_texminfilt=ogl_atotexfilti(Args[t+1],1);
-	}
-	GL_needmipmaps=ogl_testneedmipmaps(GL_texminfilt);
+	GL_needmipmaps=ogl_testneedmipmaps(GameArg.OglTexMinFilt);
 
 	if ((t = FindArg("-gl_anisotropy")) || (t = FindArg("-gl_anisotropic")))
 	{
 		GL_texanisofilt=atof(Args[t + 1]);
 	}
 
-	mprintf((0,"gr_init: texmagfilt:%x texminfilt:%x needmipmaps=%i anisotropic:%f\n",GL_texmagfilt,GL_texminfilt,GL_needmipmaps,GL_texanisofilt));
+	mprintf((0,"gr_init: texmagfilt:%x texminfilt:%x needmipmaps=%i anisotropic:%f\n",GameArg.OglTexMagFilt,GameArg.OglTexMinFilt,GL_needmipmaps,GL_texanisofilt));
 	
 	if ((t=FindArg("-gl_vidmem"))){
 		ogl_mem_target=atoi(Args[t+1])*1024*1024;
 	}
-	if ((t=FindArg("-gl_reticle"))){
-		gl_reticle=atoi(Args[t+1]);
-	}
-	if (FindArg("-gl_transparency"))
-		glalpha_effects=1;
 	
 	ogl_init();//platform specific initialization
 

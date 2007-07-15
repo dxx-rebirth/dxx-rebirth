@@ -138,11 +138,12 @@ void show_commandline_help()
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
 	printf( "  -nonicefps         %s\n", "Disable CPU cycle freeing. Higher CPU load, but game may be smoother");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
-	printf( "  -missiondir <d>    %s\n", "Set alternate mission dir to <d> instead of missions/");
+	printf( "  -missiondir <s>    %s\n", "Set alternate mission dir to <d> instead of missions/");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
-	printf( "  -pilot <pilot>     %s\n", "Select this pilot-file automatically");
+	printf( "  -pilot <s>         %s\n", "Select this pilot-file automatically");
 	printf( "  -autodemo          %s\n", "Start in demo mode");
+	printf( "  -window            %s\n", "Run the game in a window");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -nomouse           %s\n", "Deactivate mouse");
@@ -157,29 +158,25 @@ void show_commandline_help()
 	printf( "\n Graphics:\n\n");
 	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
 	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
-	printf( "  -hud <h>           %s\n", "Set hud mode.  0=normal 1-3=new");
-        printf( "  -hudlines <l>      %s\n", "Number of hud messages to show");
+	printf( "  -hud <n>           %s\n", "Set hud mode.  0=normal 1-3=new");
+        printf( "  -hudlines <n>      %s\n", "Number of hud messages to show");
 	printf( "  -hiresfont         %s\n", "use high resolution fonts if available");
 	printf( "  -persistentdebris  %s\n", "Enable persistent debris");
-#ifdef    GR_SUPPORTS_FULLSCREEN_TOGGLE
-	printf( "  -window            %s\n", "Run the game in a window");
-#endif // GR_SUPPORTS_FULLSCREEN_TOGGLE
 
 #ifdef    OGL
 	printf( "\n OpenGL:\n\n");
-	printf( "  -gl_simple         %s\n", "Set gl texture filters to gl_nearest for \"original\" look. (default)");
 	printf( "  -gl_mipmap         %s\n", "Set gl texture filters to \"standard\" options for mipmapping");
 	printf( "  -gl_trilinear      %s\n", "Set gl texture filters to trilinear mipmapping");
 	printf( "  -gl_transparency   %s\n", "Enable transparency effects");
-	printf( "  -gl_reticle <r>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
-	printf( "  -gl_scissor_ok <r> %s\n", "Set glScissor. 0=off 1=on (default)");
+	printf( "  -gl_reticle <n>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
+	printf( "  -gl_scissor_ok <n> %s\n", "Set glScissor. 0=off 1=on (default)");
 	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
 	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
 #endif // OGL
 
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
-	printf( "  -mprofile <f>      %s\n", "Use multi game profile <f>");
+	printf( "  -mprofile <s>      %s\n", "Use multi game profile <f>");
 	printf( "  -startnetgame      %s\n", "Start an IPX network game immediately");
 	printf( "  -joinnetgame       %s\n", "Skip to join IPX menu screen");
 	printf( "  -nobans            %s\n", "Don't use saved bans");
@@ -188,12 +185,12 @@ void show_commandline_help()
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multiplayer");
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -handicap <n>      %s\n", "Start game with <n> shields. Must be < 100 for multi");
-        printf( "  -msgcolorlevel <c> %s\n", "Level of colorization for hud messages\n\t\t\t0=none(old style)\n\t\t\t1=color names in talk messages only(default)\n\t\t\t2=also color names in kill/join/etc messages\n\t\t\t3=talk messages are fully colored, not just names");
+        printf( "  -msgcolorlevel <n> %s\n", "Level of colorization for hud messages\n\t\t\t0=none(old style)\n\t\t\t1=color names in talk messages only(default)\n\t\t\t2=also color names in kill/join/etc messages\n\t\t\t3=talk messages are fully colored, not just names");
 #ifdef    SUPPORTS_NET_IP
         printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
-        printf( "  -ip_myaddr <a>     %s\n", "Use <a> as local ip address");
-        printf( "  -ip_bind_addr <a>  %s\n", "Bind to <a> instead of INADDR_ANY");
-        printf( "  -ip_baseport <p>   %s\n", "Use <p> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
+        printf( "  -ip_myaddr <n>     %s\n", "Use <n> as local ip address");
+        printf( "  -ip_bind_addr <n>  %s\n", "Bind to <n> instead of INADDR_ANY");
+        printf( "  -ip_baseport <n>   %s\n", "Use <n> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
 #endif // SUPPORTS_NET_IP
 #endif // NETWORK
 
@@ -201,13 +198,13 @@ void show_commandline_help()
 	printf( "\n Debug:\n\n");
 	printf( "  -Verbose           %s\n", "Shows initialization steps for tech support");
 	printf( "  -norun             %s\n", "Bail out after initialization");
-	printf( "  -font320 <f>       %s\n", "Font to use for res 320x* and above (default font3-1.fnt)");
-	printf( "  -font640 <f>       %s\n", "Font to use for res 640x* and above");
-	printf( "  -font800 <f>       %s\n", "Font to use for res 800x* and above");
-	printf( "  -font1024 <f>      %s\n", "Font to use for res 1024x* and above");
+	printf( "  -font320 <s>       %s\n", "Font to use for res 320x* and above (default font3-1.fnt)");
+	printf( "  -font640 <s>       %s\n", "Font to use for res 640x* and above");
+	printf( "  -font800 <s>       %s\n", "Font to use for res 800x* and above");
+	printf( "  -font1024 <s>      %s\n", "Font to use for res 1024x* and above");
 #ifdef    OGL
-	printf( "  -gl_texmaxfilt <f> %s\n", "Set GL_TEXTURE_MAX_FILTER");
-	printf( "  -gl_texminfilt <f> %s\n", "Set GL_TEXTURE_MIN_FILTER");
+	printf( "  -gl_texmaxfilt <s> %s\n", "Set GL_TEXTURE_MAX_FILTER");
+	printf( "  -gl_texminfilt <s> %s\n", "Set GL_TEXTURE_MIN_FILTER");
 	printf( "  -gl_alttexmerge    %s\n", "Use new texmerge, usually uses less ram (default)");
 	printf( "  -gl_stdtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
 	printf( "  -gl_16bittextures  %s\n", "Attempt to use 16bit textures");
@@ -215,7 +212,7 @@ void show_commandline_help()
 	printf( "  -gl_library <l>    %s\n", "Use alternate opengl library");
 #endif // OGL_RUNTIME_LOAD
 #else  // ifndef OGL
-	printf( "  -tmap <t>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
+	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
 #endif // OGL
 #ifdef    __SDL__
 	printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
