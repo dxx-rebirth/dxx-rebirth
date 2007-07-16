@@ -69,6 +69,16 @@ typedef struct Arg
 	int OglVoodooHack;
 	int OglFixedFont;
 #endif
+	char *MplGameProfile;
+	int MplNoBans;
+	int MplSaveBans;
+	int MplNoRedundancy;
+	int MplPlayerMessages;
+	int MplMsgColorLevel;
+	const char *MplIpxNetwork;
+	int MplIpNoGetMyAddr;
+	char *MplIpMyAddr;
+	int MplIpBasePort;
 } __attribute__ ((packed)) Arg;
 
 extern struct Arg GameArg;

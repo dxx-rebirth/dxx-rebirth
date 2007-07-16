@@ -106,7 +106,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "d_io.h"
 #include "ban.h"
 #include "gauges.h"
-#include "pingstat.h"
 #include "physics.h"
 #include "strutil.h"
 #include "altsound.h"
@@ -136,7 +135,7 @@ void show_commandline_help()
 {
 	printf( "\n System Options:\n\n");
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
-	printf( "  -nonicefps         %s\n", "Disable CPU cycle freeing. Higher CPU load, but game may be smoother");
+	printf( "  -nicefps           %s\n", "Free CPU-cycles. Less CPU load, but game may become choppy");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
 	printf( "  -missiondir <s>    %s\n", "Set alternate mission dir to <d> instead of missions/");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
@@ -177,21 +176,15 @@ void show_commandline_help()
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
 	printf( "  -mprofile <s>      %s\n", "Use multi game profile <f>");
-	printf( "  -startnetgame      %s\n", "Start an IPX network game immediately");
-	printf( "  -joinnetgame       %s\n", "Skip to join IPX menu screen");
 	printf( "  -nobans            %s\n", "Don't use saved bans");
 	printf( "  -savebans          %s\n", "Automatically save new bans");
-	printf( "  -pingstats         %s\n", "Show pingstats on hud");
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multiplayer");
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
-	printf( "  -handicap <n>      %s\n", "Start game with <n> shields. Must be < 100 for multi");
         printf( "  -msgcolorlevel <n> %s\n", "Level of colorization for hud messages\n\t\t\t0=none(old style)\n\t\t\t1=color names in talk messages only(default)\n\t\t\t2=also color names in kill/join/etc messages\n\t\t\t3=talk messages are fully colored, not just names");
-#ifdef    SUPPORTS_NET_IP
+	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
         printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
         printf( "  -ip_myaddr <n>     %s\n", "Use <n> as local ip address");
-        printf( "  -ip_bind_addr <n>  %s\n", "Bind to <n> instead of INADDR_ANY");
         printf( "  -ip_baseport <n>   %s\n", "Use <n> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
-#endif // SUPPORTS_NET_IP
 #endif // NETWORK
 
 #ifndef   NDEBUG
@@ -234,7 +227,6 @@ extern fix fixed_frametime;
 extern void vfx_set_palette_sub(ubyte *);
 
 int Inferno_verbose = 0;
-int start_net_immediately = 0;
 
 int main(int argc,char **argv)
 {
@@ -285,39 +277,6 @@ int main(int argc,char **argv)
 		select_tmap(NULL);
 
 #ifdef NETWORK
-	if (FindArg("-pingstats"))
-		ping_stats_on = 1;
-#endif
-
-	if ((t=FindArg("-msgcolorlevel"))){
-		extern int gr_message_color_level;
-		t=atoi(Args[t+1]);
-		if(t>=0 && t<=3)
-                gr_message_color_level = t;
-	}
-
-	if (FindArg("-noredundancy"))
-		MSG_Noredundancy = 1;
-
-	if (FindArg("-playermessages"))
-		MSG_Playermessages = 1;
-
-	if ((t = FindArg( "-handicap" ))) {
-		t = i2f(atoi(Args[t+1]));
-		if(t < F1_0)
-			t= F1_0;
-		else if (t > F1_0*200)
-			t = F1_0*200;
-		handicap=t;
-	}
-
-#ifdef NETWORK
-	if(FindArg( "-startnetgame" ))
-		start_net_immediately = 1;
-
-	if(FindArg( "-joinnetgame" ))
-		start_net_immediately = 2;
-
 	if(FindArg( "-ackmsg" ))
 		ackdebugmsg = 1;
 

@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <GL/glu.h>
 #endif
 
-#define MAX_ARGS 200
+#define MAX_ARGS 1000
 int Num_args=0;
 char * Args[MAX_ARGS];
 
@@ -113,10 +113,10 @@ void ReadCmdArgs(void)
 	else
 		GameArg.SysFPSIndicator = 0;
 
-	if (FindArg("-nonicefps"))
-		GameArg.SysUseNiceFPS = 0;
-	else
+	if (FindArg("-nicefps"))
 		GameArg.SysUseNiceFPS = 1;
+	else
+		GameArg.SysUseNiceFPS = 0;
 
 	if ((t = FindArg("-maxfps"))) {
 		t=atoi(Args[t+1]);
@@ -269,7 +269,7 @@ void ReadCmdArgs(void)
 
 	if ((t=FindArg("-gl_scissor_ok")))
 	{
-		GameArg.OglScissorOk = atoi(Args[t + 1]);
+		GameArg.OglScissorOk = atoi(Args[t+1]);
 	}
 	else
 		GameArg.OglScissorOk = 1;
@@ -284,6 +284,64 @@ void ReadCmdArgs(void)
 	else
 		GameArg.OglFixedFont = 0;
 #endif
+
+	// Multiplayer Options
+
+	if ((t=FindArg("-mprofile")))
+		GameArg.MplGameProfile = Args[t+1];
+	else
+		GameArg.MplGameProfile = NULL;
+
+	if (FindArg("-nobans"))
+		GameArg.MplNoBans = 1;
+	else
+		GameArg.MplNoBans = 0;
+
+	if (FindArg("-savebans"))
+		GameArg.MplSaveBans = 1;
+	else
+		GameArg.MplSaveBans = 0;
+
+	if (FindArg("-noredundancy"))
+		GameArg.MplNoRedundancy = 1;
+	else
+		GameArg.MplNoRedundancy = 0;
+
+	if (FindArg("-playermessages"))
+		GameArg.MplPlayerMessages = 1;
+	else
+		GameArg.MplPlayerMessages = 0;
+
+	if ((t=FindArg("-msgcolorlevel")))
+	{
+		t=atoi(Args[t+1]);
+		if (t>=0 && t<=3)
+                	GameArg.MplMsgColorLevel = t;
+		else
+			GameArg.MplMsgColorLevel = 1;
+	}
+	else
+		GameArg.MplMsgColorLevel = 1;
+
+	if ((t=FindArg("-ipxnetwork")) && Args[t+1])
+		GameArg.MplIpxNetwork = Args[t+1];
+	else
+		GameArg.MplIpxNetwork = NULL;
+
+	if (FindArg("-ip_nogetmyaddr"))
+		GameArg.MplIpNoGetMyAddr = 1;
+	else
+		GameArg.MplIpNoGetMyAddr = 0;
+
+	if ((t=FindArg("-ip_myaddr")))
+		GameArg.MplIpMyAddr = Args[t+1];
+	else
+		GameArg.MplIpMyAddr = NULL;
+
+	if ((t=FindArg("-ip_baseport")))
+		GameArg.MplIpBasePort = atoi(Args[t+1]);
+	else
+		GameArg.MplIpBasePort = 0;
 }
 
 void args_exit(void)

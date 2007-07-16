@@ -54,7 +54,6 @@ extern char Menu_pcx_name[13];
 extern char destsat_cdpath[128];
 #endif
 
-extern int start_net_immediately;
 extern int start_with_mission;
 extern char *start_with_mission_name;
 

@@ -274,7 +274,7 @@ int readbans()
 
   clearbans();
 
-   if(FindArg("-nobans"))
+   if(GameArg.MplNoBans)
     return 0;
 
    if(!(f=fopen("bans.d1x","rt")))

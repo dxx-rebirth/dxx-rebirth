@@ -95,11 +95,11 @@ ubyte * ipx_get_my_local_address()
 //				-5 if error with getting internetwork address
 int ipx_init( int socket_number )
 {
-	int i;
 	if (!driver) return -1;
 	memset(ipx_MyAddress,0,10);
-	if ((i = FindArg("-ipxnetwork")) && Args[i + 1]) {
-		unsigned long n = strtol(Args[i + 1], NULL, 16);
+	if (GameArg.MplIpxNetwork)
+	{
+		unsigned long n = strtol(GameArg.MplIpxNetwork, NULL, 16);
 		ipx_MyAddress[0] = n >> 24; ipx_MyAddress[1] = (n >> 16) & 255;
 		ipx_MyAddress[2] = (n >> 8) & 255; ipx_MyAddress[3] = n & 255;
 		printf("IPX: Using network %08x\n", (unsigned int)n);

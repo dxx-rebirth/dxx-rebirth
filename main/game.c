@@ -1836,7 +1836,7 @@ void game()
 #ifdef NETWORK
 	vulcan_init();
 
-	if(FindArg("-savebans"))
+	if(GameArg.MplSaveBans)
 		writebans();
 
 	restrict_mode = 0;

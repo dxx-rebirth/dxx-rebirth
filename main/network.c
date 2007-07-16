@@ -2193,8 +2193,8 @@ int network_get_game_params( netgame_info *netgame, int *new_socket )
         //added on 10/18/98 by Victor Rachels to add multiplayer profiles
         putto_multivalues(multivalues,&temp_game,new_socket);
 
-         if((i=FindArg("-mprofile")))
-          get_multi_profile(multivalues,Args[i+1]);
+         if(GameArg.MplGameProfile)
+          get_multi_profile(multivalues,GameArg.MplGameProfile);
         //end this section addition - Victor
 
 	opt = 0;
@@ -2283,13 +2283,6 @@ int network_get_game_params( netgame_info *netgame, int *new_socket )
 
 	Assert(opt <= 16);
 
-//added on 11/18/98 bu Victor Rachels to add -startnetgame       
-       i = 0;
-
-        if(start_net_immediately)
-         start_net_immediately = 0;
-        else
-//end this section addition
 menu:
        
 	do  {

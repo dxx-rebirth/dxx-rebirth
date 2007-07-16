@@ -265,25 +265,8 @@ int DoMenu()
 		keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
 		if (main_menu_choice < 0 )	main_menu_choice = 0;		
 		Menu_draw_copyright = 1;
-                //added on 11/19/98 by Victor Rachels to add immediate join/start
-                 if(start_net_immediately == 1){
-					if ( gr_palette_faded_out )	{//fix black screen with -startnetgame
-						gr_palette_fade_in( gr_palette, 32, 0 );
-					}
-                    do_option(MENU_START_NETGAME);
-                    start_net_immediately = 0;
-				 }
-                 else if(start_net_immediately == 2)
-                  {
-                    do_option(MENU_JOIN_NETGAME);
-                    start_net_immediately = 0;
-                  }
-                 else
-                  {
-                //end this section addition - VR
                     main_menu_choice = newmenu_do2(NULL, NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
                     if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
-                  }
 		create_main_menu(m, menu_choice, &num_options);	//	may have to change, eg, maybe selected pilot and no save games.
 	} while( Function_mode==FMODE_MENU );
 
