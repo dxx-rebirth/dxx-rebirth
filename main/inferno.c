@@ -167,7 +167,7 @@ void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
-	printf( "  -nonicefps         %s\n", "Disable CPU cycle freeing. Higher CPU load, but game may be smoother");
+	printf( "  -nicefps           %s\n", "Free CPU-cycles. Less CPU load, but game may become choppy");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
 	printf( "  -hogdir <s>        %s\n", "set shared data directory to <dir>");
 	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
@@ -216,12 +216,11 @@ void print_commandline_help()
 	printf( "\n Multiplayer:\n\n");
 	printf( "  -norankings        %s\n", "Disable multiplayer ranking system");
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multi");
+	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -packets <n>       %s\n", "Specifies the number of packets per second\n");
-	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <num>");
-	printf( "  -kali              %s\n", "Use Kali for networking");
+	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
         printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
         printf( "  -ip_myaddr <n>     %s\n", "Use <a> as local ip address");
-        printf( "  -ip_bind_addr <n>  %s\n", "Bind to <a> instead of INADDR_ANY");
         printf( "  -ip_baseport <n>   %s\n", "Use <p> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
 #endif // NETWORK
 
@@ -345,12 +344,6 @@ extern int MenuHiresAvailable;
 
 int Inferno_verbose = 0;
 
-//added on 11/18/98 by Victor Rachels to add -mission and -startgame
-int start_net_immediately = 0;
-//int start_with_mission = 0;
-//char *start_with_mission_name;
-//end this section addition
-
 u_int32_t MENU_HIRES_MODE=SM(640,480); //#define MENU_HIRES_MODE SM(640,480)
 int menu_use_game_res=1;
 
@@ -374,7 +367,7 @@ int main(int argc, char *argv[])
 
 	error_init(NULL, NULL);
 	PHYSFSX_init(argc, argv);
-	
+
 	if (FindArg("-debug"))
 		con_threshold.value = (float)2;
 	else if (FindArg("-verbose"))

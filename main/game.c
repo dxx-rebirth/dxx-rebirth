@@ -695,8 +695,6 @@ void calc_frame_time()
 	if ( Game_turbo_mode )
 		FrameTime *= 2;
 
-	RealFrameTime = FrameTime; // should be removed some day...
-
 	last_timer_value = timer_value;
 
 	if (FrameTime < 0)						//if bogus frametime...

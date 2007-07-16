@@ -79,10 +79,8 @@ int ip_connect_manual(char *textaddr) {
 
 
 static int ipx_ip_OpenSocket(ipx_socket_t * socket, int oport) {
-	int i;
-	if ((i=FindArg("-ip_baseport"))){
-		baseport=UDP_BASEPORT+atoi(Args[i+1]);
-	}
+	if (GameArg.MplIpBasePort)
+		baseport=UDP_BASEPORT+GameArg.MplIpBasePort;
 
 	myport=baseport+(oport - IPX_DEFAULT_SOCKET);
 	if (arch_ip_open_socket(myport)) return -1;

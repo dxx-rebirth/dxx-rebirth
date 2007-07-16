@@ -232,11 +232,11 @@ int HUD_init_message_va(char * format, va_list args)
 
 	// Added by Leighton
 
-   if ((Game_mode & GM_MULTI) && FindArg("-noredundancy"))
+   if ((Game_mode & GM_MULTI) && GameArg.MplNoRedundancy)
 	 if (!strnicmp ("You already",message,11))
 		return 0;
 
-   if ((Game_mode & GM_MULTI) && FindArg("-PlayerMessages") && PlayerMessage==0)
+   if ((Game_mode & GM_MULTI) && GameArg.MplPlayerMessages && PlayerMessage==0)
 		return 0;
 
 	if (HUD_nmessages > 0)	{

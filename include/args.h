@@ -76,6 +76,14 @@ typedef struct Arg
 	int OglVoodooHack;
 	int OglFixedFont;
 #endif
+	int MplNoRankings;
+	int MplNoRedundancy;
+	int MplPlayerMessages;
+	int MplPacketsPerSec;
+	const char *MplIpxNetwork;
+	int MplIpNoGetMyAddr;
+	char *MplIpMyAddr;
+	int MplIpBasePort;
 #ifdef EDITOR
 	int EdiMacData;
 #endif

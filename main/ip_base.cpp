@@ -400,19 +400,18 @@ void ip_receive_cfg(ubyte *buf,int buflen,ip_addr fromaddr){
 
 int ipx_ip_GetMyAddress(void) {
 
-	int i;
 	u_int32_t myhandshakeid;
 
 	d_srand( timer_get_approx_seconds() );
 
 	ip_my_addrs.clear();
 
-	if (!FindArg("-ip_nogetmyaddr"))
+	if (!GameArg.MplIpNoGetMyAddr)
 		arch_ip_get_my_addr(myport);//if we can't get an addr, then we can still probably play, just some NAT configs might not work.
 
-	if ((i=FindArg("-ip_myaddr"))){
+	if (GameArg.MplIpMyAddr){
 		ip_addr ip;
-		if (!ip.dns(Args[i+1],myport)){
+		if (!ip.dns(GameArg.MplIpMyAddr,myport)){
 			ip_my_addrs.add(ip);
 		}
 	}

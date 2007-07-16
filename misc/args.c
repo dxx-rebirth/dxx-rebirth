@@ -45,7 +45,7 @@ static char rcsid[] = "$Id: args.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $";
 #endif
 #endif
 
-#define MAX_ARGS 200
+#define MAX_ARGS 1000
 
 int Num_args=0;
 char * Args[MAX_ARGS];
@@ -130,10 +130,10 @@ void ReadCmdArgs(void)
 	else
 		GameArg.SysFPSIndicator = 0;
 
-	if (FindArg("-nonicefps"))
-		GameArg.SysUseNiceFPS = 0;
-	else
+	if (FindArg("-nicefps"))
 		GameArg.SysUseNiceFPS = 1;
+	else
+		GameArg.SysUseNiceFPS = 0;
 
 	if ((t = FindArg("-maxfps"))) {
 		t=atoi(Args[t+1]);
@@ -301,7 +301,7 @@ void ReadCmdArgs(void)
 
 	if ((t=FindArg("-gl_scissor_ok")))
 	{
-		GameArg.OglScissorOk = atoi(Args[t + 1]);
+		GameArg.OglScissorOk = atoi(Args[t+1]);
 	}
 	else
 		GameArg.OglScissorOk = 1;
@@ -316,6 +316,48 @@ void ReadCmdArgs(void)
 	else
 		GameArg.OglFixedFont = 0;
 #endif
+
+	// Multiplayer Options
+
+	if (FindArg("-norankings"))
+		GameArg.MplNoRankings = 1;
+	else
+		GameArg.MplNoRankings = 0;
+
+	if (FindArg("-noredundancy"))
+		GameArg.MplNoRedundancy = 1;
+	else
+		GameArg.MplNoRedundancy = 0;
+
+	if (FindArg("-playermessages"))
+		GameArg.MplPlayerMessages = 1;
+	else
+		GameArg.MplPlayerMessages = 0;
+
+	if ((t=FindArg("-packets")))
+		GameArg.MplPacketsPerSec = atoi(Args[t+1]);
+	else
+		GameArg.MplPacketsPerSec = 10;
+
+	if ((t=FindArg("-ipxnetwork")) && Args[t+1])
+		GameArg.MplIpxNetwork = Args[t+1];
+	else
+		GameArg.MplIpxNetwork = NULL;
+
+	if (FindArg("-ip_nogetmyaddr"))
+		GameArg.MplIpNoGetMyAddr = 1;
+	else
+		GameArg.MplIpNoGetMyAddr = 0;
+
+	if ((t=FindArg("-ip_myaddr")))
+		GameArg.MplIpMyAddr = Args[t+1];
+	else
+		GameArg.MplIpMyAddr = NULL;
+
+	if ((t=FindArg("-ip_baseport")))
+		GameArg.MplIpBasePort = atoi(Args[t+1]);
+	else
+		GameArg.MplIpBasePort = 0;
 
 #ifdef EDITOR
 	// Editor Options

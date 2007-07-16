@@ -98,8 +98,6 @@ void arch_ipx_set_driver(int ipx_driver)
 
 int ipx_init(int socket_number)
 {
-	int i;
-
         WORD wVersionRequested;
         WSADATA wsaData;
 
@@ -118,8 +116,9 @@ int ipx_init(int socket_number)
         }
 #endif
 
-	if ((i = FindArg("-ipxnetwork")) && Args[i + 1]) {
-		unsigned long n = strtol(Args[i + 1], NULL, 16);
+	if (GameArg.MplIpxNetwork)
+	{
+		unsigned long n = strtol(GameArg.MplIpxNetwork, NULL, 16);
 		ipx_MyAddress[0] = (unsigned char)n >> 24; ipx_MyAddress[1] = (unsigned char)(n >> 16) & 255;
 		ipx_MyAddress[2] = (unsigned char)(n >> 8) & 255; ipx_MyAddress[3] = (unsigned char)n & 255;
                 printf("IPX: Using network %08x\n", (int) n);

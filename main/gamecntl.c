@@ -602,7 +602,7 @@ void do_show_netgame_help()
    for (i=0;i<N_players;i++)
      if (Players[i].connected)
 	  {		  
-      if (!FindArg ("-norankings"))
+      if (!GameArg.MplNoRankings)
 		 {
 			if (i==Player_num)
 				sprintf (mtext[num],"%s%s (%d/%d)",RankStrings[NetPlayers.players[i].rank],Players[i].callsign,Netlife_kills,Netlife_killed); 
@@ -631,7 +631,7 @@ void do_show_netgame_help()
 		 sprintf (mtext[num],"%s has the record at %d points.",Players[PhallicMan].callsign,PhallicLimit); 
 	num++;
 	}
-  else if (!FindArg ("-norankings"))
+  else if (!GameArg.MplNoRankings)
 	{
 	  if (eff<60)
 	   {

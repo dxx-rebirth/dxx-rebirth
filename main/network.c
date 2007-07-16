@@ -435,20 +435,16 @@ network_init(void)
 	Control_center_destroyed = 0;
 	network_flush();
 
-	Netgame.PacketsPerSec=10;
+	Netgame.PacketsPerSec=GameArg.MplPacketsPerSec;
 
-   if ((t=FindArg("-packets")))
-    {
-     Netgame.PacketsPerSec=atoi(Args[t+1]);
-     if (Netgame.PacketsPerSec<1)
-      Netgame.PacketsPerSec=1;
-     else if (Netgame.PacketsPerSec>20)
-      Netgame.PacketsPerSec=20;
-     mprintf ((0,"Will send %d packets per second",Netgame.PacketsPerSec));
-    }
+	if (Netgame.PacketsPerSec<1)
+		Netgame.PacketsPerSec=1;
+	else if (Netgame.PacketsPerSec>20)
+		Netgame.PacketsPerSec=20;
+	mprintf ((0,"Will send %d packets per second",Netgame.PacketsPerSec));
 
-     Netgame.ShortPackets=1;
-     mprintf ((0,"Will send short packets.\n"));
+	Netgame.ShortPackets=1;
+	mprintf ((0,"Will send short packets.\n"));
 
 }
 
@@ -843,7 +839,7 @@ network_new_player(sequence_packet *their)
 
    ClipRank (&their->player.rank);
    
-   if (FindArg("-norankings"))
+   if (GameArg.MplNoRankings)
 	  HUD_init_message("'%s' %s\n",their->player.callsign, TXT_JOINING);
    else   
      HUD_init_message("%s'%s' %s\n",RankStrings[their->player.rank],their->player.callsign, TXT_JOINING);
@@ -1037,7 +1033,7 @@ void network_welcome_player(sequence_packet *their)
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 		
-		if (FindArg("-norankings"))
+		if (GameArg.MplNoRankings)
 			HUD_init_message("'%s' %s", Players[player_num].callsign, TXT_REJOIN);
 		else
 			HUD_init_message("%s'%s' %s", RankStrings[NetPlayers.players[player_num].rank],Players[player_num].callsign, TXT_REJOIN);
@@ -2894,7 +2890,7 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 		digi_play_sample (SOUND_HUD_MESSAGE,F1_0);
 
       mprintf ((0,"More players are printed!"));
-		if (FindArg("-norankings"))
+		if (GameArg.MplNoRankings)
 	      sprintf( menus[N_players-1].text, "%d. %-20s", N_players,NetPlayers.players[N_players-1].callsign );
 		else
 	      sprintf( menus[N_players-1].text, "%d. %s%-20s", N_players, RankStrings[NetPlayers.players[N_players-1].rank],NetPlayers.players[N_players-1].callsign );
@@ -2914,7 +2910,7 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 		for (i=0; i<N_players; i++ )    
 		{
 	 
-	 if (FindArg("-norankings"))	
+	 if (GameArg.MplNoRankings)	
 		 sprintf( menus[i].text, "%d. %-20s", i+1, NetPlayers.players[i].callsign );
 	 else
 		 sprintf( menus[i].text, "%d. %s%-20s", i+1, RankStrings[NetPlayers.players[i].rank],NetPlayers.players[i].callsign );
@@ -3593,7 +3589,7 @@ network_select_players(void)
 
 	m[0].value = 1;                         // Assume server will play...
 
-   if (FindArg("-norankings"))
+   if (GameArg.MplNoRankings)
 		sprintf( text[0], "%d. %-20s", 1, Players[Player_num].callsign );
 	else
 		sprintf( text[0], "%d. %s%-20s", 1, RankStrings[NetPlayers.players[Player_num].rank],Players[Player_num].callsign );
@@ -5475,7 +5471,7 @@ void network_read_pdata_packet(frame_info *pd )
 		
 		ClipRank (&NetPlayers.players[TheirPlayernum].rank);
 
-		if (FindArg("-norankings"))      
+		if (GameArg.MplNoRankings)      
 			HUD_init_message( "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
 		else
 			HUD_init_message( "%s'%s' %s", RankStrings[NetPlayers.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
@@ -5635,7 +5631,7 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
 		ClipRank (&NetPlayers.players[TheirPlayernum].rank);
 		
-		if (FindArg("-norankings"))
+		if (GameArg.MplNoRankings)
 			HUD_init_message( "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
 		else
 			HUD_init_message( "%s'%s' %s", RankStrings[NetPlayers.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
@@ -6031,7 +6027,7 @@ void DoRefuseStuff (sequence_packet *their)
 		 {
 	
 					
-      if (!FindArg("-norankings"))
+      if (!GameArg.MplNoRankings)
 	      HUD_init_message ("%s %s wants to join",RankStrings[their->player.rank],their->player.callsign);
      	#ifndef MACINTOSH
 		HUD_init_message ("%s joining. Alt-1 assigns to team %s. Alt-2 to team %s",their->player.callsign,Netgame.team_name[0],Netgame.team_name[1]);
@@ -6434,7 +6430,7 @@ void network_process_names_return (ubyte *data)
 
 	  for (t=0;t<CALLSIGN_LEN+1;t++)
 		 temp[t]=data[count++];	  
-     if (FindArg("-norankings"))	
+     if (GameArg.MplNoRankings)	
 	     sprintf (mtext[num],"%s",temp);
 	  else
 	     sprintf (mtext[num],"%s%s",RankStrings[l],temp);
