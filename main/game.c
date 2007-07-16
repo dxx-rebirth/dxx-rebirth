@@ -198,7 +198,6 @@ fix	fixed_frametime=0; //if non-zero, set frametime to this
 int	Game_suspended=0; //if non-zero, nothing moves but player
 int	create_special_path(void);
 void	fill_background(int x,int y,int w,int h,int dx,int dy);
-fix	RealFrameTime;
 fix	Auto_fire_fusion_cannon_time = 0;
 fix	Fusion_charge = 0;
 fix	Fusion_next_sound_time = 0;
@@ -624,8 +623,8 @@ void show_framerate()
 	char temp[50];
 	fix rate;
 
-	frame_time_total += RealFrameTime - frame_time_list[frame_time_cntr];
-	frame_time_list[frame_time_cntr] = RealFrameTime;
+	frame_time_total += FrameTime - frame_time_list[frame_time_cntr];
+	frame_time_list[frame_time_cntr] = FrameTime;
 	frame_time_cntr = (frame_time_cntr+1)%8;
 
 	if (frame_time_total) { // prevent division by zero
@@ -754,8 +753,6 @@ void reset_time()
 	last_timer_value = timer_get_fixed_seconds();
 }
 
-int maxfps=80;
-
 void calc_frame_time()
 {
 	fix timer_value,last_frametime = FrameTime;
@@ -767,10 +764,10 @@ void calc_frame_time()
 	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
 
-	while (FrameTime < f1_0 / maxfps)
+	while (FrameTime < f1_0 / GameArg.SysMaxFPS)
 	{
 		if (GameArg.SysUseNiceFPS)
-			timer_delay(f1_0 / maxfps - FrameTime);
+			timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
 	}
@@ -796,8 +793,6 @@ void calc_frame_time()
 
 	if ( Game_turbo_mode )
 		FrameTime *= 2;
-
-	RealFrameTime = FrameTime;
 
 	last_timer_value = timer_value;
 
@@ -827,16 +822,6 @@ void calc_frame_time()
 #if defined(TIMER_TEST) && !defined(NDEBUG)
 	stop_count = start_count = 0;
 #endif
-
-	//	Set value to determine whether homing missile can see target.
-	//	The lower frametime is, the more likely that it can see its target.
-	if (FrameTime <= F1_0/16)
-		Min_trackable_dot = 3*(F1_0 - MIN_TRACKABLE_DOT)/4 + MIN_TRACKABLE_DOT;
-	else if (FrameTime < F1_0/4)
-		Min_trackable_dot = fixmul(F1_0 - MIN_TRACKABLE_DOT, F1_0-4*FrameTime) + MIN_TRACKABLE_DOT;
-	else
-		Min_trackable_dot = MIN_TRACKABLE_DOT;
-
 }
 
 void move_player_2_segment(segment *seg,int side)
