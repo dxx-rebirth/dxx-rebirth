@@ -215,7 +215,6 @@ int checktime = 0;
 
 int Game_suspended=0;           //if non-zero, nothing moves but player
 
-fix 	RealFrameTime;
 fix	Auto_fire_fusion_cannon_time = 0;
 fix	Fusion_charge = 0;
 fix	Fusion_next_sound_time = 0;
@@ -730,18 +729,6 @@ void calc_frame_time()
 	#if defined(TIMER_TEST) && !defined(NDEBUG)
 	stop_count = start_count = 0;
 	#endif
-
-	//	Set value to determine whether homing missile can see target.
-	//	The lower frametime is, the more likely that it can see its target.
-	if (FrameTime <= F1_0/64)
-		Min_trackable_dot = MIN_TRACKABLE_DOT;	// -- 3*(F1_0 - MIN_TRACKABLE_DOT)/4 + MIN_TRACKABLE_DOT;
-	else if (FrameTime < F1_0/32)
-		Min_trackable_dot = MIN_TRACKABLE_DOT + F1_0/64 - 2*FrameTime;	// -- fixmul(F1_0 - MIN_TRACKABLE_DOT, F1_0-4*FrameTime) + MIN_TRACKABLE_DOT;
-	else if (FrameTime < F1_0/4)
-		Min_trackable_dot = MIN_TRACKABLE_DOT + F1_0/64 - F1_0/16 - FrameTime;	// -- fixmul(F1_0 - MIN_TRACKABLE_DOT, F1_0-4*FrameTime) + MIN_TRACKABLE_DOT;
-	else
-		Min_trackable_dot = MIN_TRACKABLE_DOT + F1_0/64 - F1_0/8;
-
 }
 
 //--unused-- int Auto_flythrough=0;  //if set, start flythough automatically

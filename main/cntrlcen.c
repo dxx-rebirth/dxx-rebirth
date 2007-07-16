@@ -191,7 +191,7 @@ void do_countdown_frame()
 	//	Hook in the rumble sound effect here.
 
 	old_time = Countdown_timer;
-	Countdown_timer -= RealFrameTime;
+	Countdown_timer -= FrameTime;
 	Countdown_seconds_left = f2i(Countdown_timer + F1_0*7/8);
 
 	if ( (old_time > COUNTDOWN_VOICE_TIME ) && (Countdown_timer <= COUNTDOWN_VOICE_TIME) )	{

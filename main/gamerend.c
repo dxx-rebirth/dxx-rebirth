@@ -181,14 +181,14 @@ void ftoa(char *string, fix f)
 	sprintf( string, "%d.%02d", decimal, fractional );
 }
 
-void show_framerate() // ZICO - function modified
+void show_framerate()
 {
 	char temp[50];
 	fix rate;
 	int x = 8, y = 5;
 
-	frame_time_total += RealFrameTime - frame_time_list[frame_time_cntr];
-	frame_time_list[frame_time_cntr] = RealFrameTime;
+	frame_time_total += FrameTime - frame_time_list[frame_time_cntr];
+	frame_time_list[frame_time_cntr] = FrameTime;
 	frame_time_cntr = (frame_time_cntr+1)%8;
 
 	if (frame_time_total) {

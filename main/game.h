@@ -30,7 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // from mglobal.c
 extern fix FrameTime;               // time in seconds since last frame
-extern fix RealFrameTime;           // time in seconds since last frame
 extern fix GameTime;                // time in game (sum of FrameTime)
 extern int FrameCount;              // how many frames rendered
 extern fix Next_laser_fire_time;    // Time at which player can next fire his selected laser.

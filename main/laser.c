@@ -875,7 +875,7 @@ int object_to_object_visibility(object *obj1, object *obj2, int trans_type)
 	return 0;
 }
 
-fix	Min_trackable_dot = MIN_TRACKABLE_DOT;
+fix	Min_trackable_dot = 3*(F1_0 - MIN_TRACKABLE_DOT)/4 + MIN_TRACKABLE_DOT; //MIN_TRACKABLE_DOT;
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Return true if weapon *tracker is able to track object Objects[track_goal], else return false.
