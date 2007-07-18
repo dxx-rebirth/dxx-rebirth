@@ -397,8 +397,6 @@ extern unsigned char Test_bitmap_data[64*64];
 //shortcut to look at current font
 #define grd_curfont grd_curcanv->cv_font
 
-extern int gr_renderstats;
-
 extern unsigned int FixDivide( unsigned int x, unsigned int y );
 
 extern void gr_set_current_canvas( grs_canvas *canv );

@@ -1528,9 +1528,6 @@ int Config_menu_flag;
 
 jmp_buf LeaveGame;
 
-int gr_renderstats = 0;
-// need to define "cheat" for renderstats
-
 int Cheats_enabled=0;
 
 extern int Laser_rapid_fire;

@@ -125,6 +125,11 @@ void ReadCmdArgs(void)
 
 	// System Options
 
+	if (FindArg( "-help" ) || FindArg( "-h" ) || FindArg( "-?" ) || FindArg( "?" ))
+		GameArg.SysShowCmdHelp = 1;
+	else
+		GameArg.SysShowCmdHelp = 0;
+
 	if (FindArg("-fps"))
 		GameArg.SysFPSIndicator = 1;
 	else
@@ -293,16 +298,12 @@ void ReadCmdArgs(void)
 		GameArg.OglAlphaEffects = 0;
 
 	if ((t=FindArg("-gl_reticle")))
-	{
 		GameArg.OglReticle = atoi(Args[t+1]);
-	}
 	else
 		GameArg.OglReticle = 0;
 
 	if ((t=FindArg("-gl_scissor_ok")))
-	{
 		GameArg.OglScissorOk = atoi(Args[t+1]);
-	}
 	else
 		GameArg.OglScissorOk = 1;
 
@@ -362,11 +363,60 @@ void ReadCmdArgs(void)
 #ifdef EDITOR
 	// Editor Options
 
+	if ((t=FindArg( "-autoload" )))
+		GameArg.EdiAutoLoad = Args[t+1];
+	else
+		GameArg.EdiAutoLoad = NULL;
+
 	if (FindArg("-macdata"))
 		GameArg.EdiMacData = 1;
 	else
 		GameArg.EdiMacData = 0;
+
+	if (FindArg("-hoarddata"))
+		GameArg.EdiSaveHoardData = 1;
+	else
+		GameArg.EdiSaveHoardData = 0;
 #endif
+
+	// Debug Options
+
+	if (FindArg("-debug"))
+		GameArg.DbgVerbose = 2;
+	else if (FindArg("-verbose"))
+		GameArg.DbgVerbose = 1;
+	else
+		GameArg.DbgVerbose = 0;
+
+	if (FindArg("-norun"))
+		GameArg.DbgNoRun = 1;
+	else
+		GameArg.DbgNoRun = 0;
+
+	if (FindArg("-renderstats"))
+		GameArg.DbgRenderStats = 1;
+	else
+		GameArg.DbgRenderStats = 0;
+
+	if ((t=FindArg("-text")))
+		GameArg.DbgAltTex = Args[t+1];
+	else
+		GameArg.DbgAltTex = NULL;
+
+	if ((t=FindArg("-tmap")))
+		GameArg.DbgTexMap = Args[t+1];
+	else
+		GameArg.DbgTexMap = NULL;
+
+	if (FindArg("-nomovies"))
+		GameArg.DbgNoMovies = 1;
+	else
+		GameArg.DbgNoMovies = 0;
+
+	if (FindArg("-gl_oldtexmerge"))
+		GameArg.DbgAltTexMerge = 0;
+	else
+		GameArg.DbgAltTexMerge = 1;
 }
 
 void args_exit(void)

@@ -13,16 +13,11 @@
 # define MAC(x)
 #endif
 
-#ifdef _MSC_VER //_WIN32
-#define OGL_RUNTIME_LOAD
-#endif
-
-#ifdef OGL_RUNTIME_LOAD
+#ifdef _WIN32
 #include "loadgl.h"
 int ogl_init_load_library(void);
 #else
 #define GL_GLEXT_LEGACY
-#undef GL_ARB_multitexture
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -62,7 +57,6 @@ typedef struct _ogl_texture {
 extern ogl_texture* ogl_get_free_texture();
 void ogl_init_texture(ogl_texture* t, int w, int h, int flags);
 
-extern int ogl_alttexmerge;//merge textures by just printing the seperate textures?
 extern int ogl_rgba_internalformat;
 extern int ogl_rgb_internalformat;
 extern int ogl_setgammaramp_ok;

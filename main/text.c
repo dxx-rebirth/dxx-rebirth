@@ -105,8 +105,8 @@ void load_text()
 	char *tptr;
 	char *filename="descent.tex";
 
-	if ((i=FindArg("-text"))!=0)
-		filename = Args[i+1];
+	if (GameArg.DbgAltTex)
+		filename = GameArg.DbgAltTex;
 
 	if ((tfile = cfopen(filename,"rb")) == NULL) {
 		filename="descent.txb";

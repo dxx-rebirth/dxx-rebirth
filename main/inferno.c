@@ -224,48 +224,32 @@ void print_commandline_help()
         printf( "  -ip_baseport <n>   %s\n", "Use <p> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
 #endif // NETWORK
 
-#ifndef   NDEBUG
-	printf( "\n Debug:\n\n");
-	printf( "  -debug             %s\n", "Enable very verbose output");
-	printf( "  -Verbose           %s\n", "Shows initialization steps for tech support");
-	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
-	printf( "  -norun             %s\n", "Bail out after initialization");
-	printf( "  -nofade            %s\n", "Disable fades");
-	printf( "  -norun             %s\n", "Bail out after initialization");
-	printf( "  -text <file>       %s\n", "Specify alternate .tex file");
-#ifndef   RELEASE
-	printf( "  -nomovies          %s\n", "Don't play movies");
-#endif // RELEASE
-#ifdef    SDL_VIDEO
-	printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
-#endif // SDL_VIDEO
-
 #ifdef    EDITOR
 	printf( "\n Editor:\n\n");
-	printf( "  -autoload <file>   %s\n", "Autoload a level in the editor");
+	printf( "  -autoload <s>      %s\n", "Autoload a level in the editor");
 	printf( "  -macdata           %s\n", "Read and write mac data files in editor (swap colors)");
 	printf( "  -hoarddata         %s\n", "Make the hoard ham file from some files, then exit");
 #endif // EDITOR
 
+#ifndef   NDEBUG
+	printf( "\n Debug:\n\n");
+	printf( "  -debug             %s\n", "Enable very verbose output");
+	printf( "  -verbose           %s\n", "Shows initialization steps for tech support");
+	printf( "  -norun             %s\n", "Bail out after initialization");
+	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
+	printf( "  -text <s>          %s\n", "Specify alternate .tex file");
+	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
+	printf( "  -nomovies          %s\n", "Don't play movies");
+#ifdef    OGL
+	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
+#endif
+
 /*	KEPT FOR FURTHER REFERENCE
 	printf( "\n Unused / Obsolete:\n\n");
-	printf( "  -nobm              %s\n", "FIXME: Undocumented");
 	printf( "  -bigpig            %s\n", "FIXME: Undocumented");
 	printf( "  -bspgen            %s\n", "FIXME: Undocumented");
-	printf( "  -cdproxy           %s\n", "FIXME: Undocumented");
 	printf( "  -checktime         %s\n", "FIXME: Undocumented");
-	printf( "  -showmeminfo       %s\n", "FIXME: Undocumented");
-	printf( "  -codereadonly      %s\n", "FIXME: Undocumented");
-	printf( "  -cyberimpact       %s\n", "FIXME: Undocumented");
-	printf( "  -debugmode         %s\n", "FIXME: Undocumented");
-	printf( "  -disallowgfx       %s\n", "FIXME: Undocumented");
-	printf( "  -disallowreboot    %s\n", "FIXME: Undocumented");
-	printf( "  -dynamicsockets    %s\n", "FIXME: Undocumented");
-	printf( "  -forcegfx          %s\n", "FIXME: Undocumented");
-	printf( "  -hw_3dacc          %s\n", "FIXME: Undocumented");
 	printf( "  -jasen             %s\n", "FIXME: Undocumented");
-	printf( "  -joyslow           %s\n", "FIXME: Undocumented");
-	printf( "  -logfile           %s\n", "FIXME: Undocumented");
 	printf( "  -memdbg            %s\n", "FIXME: Undocumented");
 	printf( "  -monodebug         %s\n", "FIXME: Undocumented");
 	printf( "  -nocyberman        %s\n", "FIXME: Undocumented");
@@ -273,7 +257,6 @@ void print_commandline_help()
 	printf( "  -showaddress       %s\n", "FIXME: Undocumented");
 	printf( "  -socket            %s\n", "FIXME: Undocumented");
 	printf( "  -nomodex           %s\n", "FIXME: Undocumented");
-	printf( "  -ordinaljoy        %s\n", "FIXME: Undocumented");
 	printf( "  -specialdevice     %s\n", "FIXME: Undocumented");
 	printf( "  -stickmag          %s\n", "FIXME: Undocumented");
 	printf( "  -stopwatch         %s\n", "FIXME: Undocumented");
@@ -293,14 +276,7 @@ void print_commandline_help()
 	printf( "  -gl_vidmem         %s\n", "FIXME: Undocumented");
 	printf( "  -hwsurface         %s\n", "FIXME: Undocumented");
 	printf( "  -gl_library <l>    %s\n", "use alternate opengl library");
-	printf( "  -emul              %s\n", "Certain video cards need this option in order to run game");
-	printf( "  -ddemul            %s\n", "If -emul doesn't work, use this option");
-	printf( "  -rtscts            %s\n", "Same as -ctsrts");
-	printf( "  -semiwin           %s\n", "Use non-fullscreen mode");
-	printf( "  -ihaveabrokenmouse %s\n", "try to make mouse work if it is not currently");
-	printf( "  -joy209            %s\n", "Use alternate port 209 for joystick");
-	printf( "  -serialdevice <s>  %s\n", "Set serial/modem device to <s>");
-	printf( "  -serialread <r>    %s\n", "Set serial/modem to read from <r>");
+
 */
 #endif // NDEBUG
 
@@ -353,7 +329,6 @@ int menu_use_game_res=1;
 //extern ubyte gr_current_pal[];
 
 #ifdef	EDITOR
-int	Auto_exit = 0;
 char	Auto_file[128] = "";
 #endif
 
@@ -368,10 +343,7 @@ int main(int argc, char *argv[])
 	error_init(NULL, NULL);
 	PHYSFSX_init(argc, argv);
 
-	if (FindArg("-debug"))
-		con_threshold.value = (float)2;
-	else if (FindArg("-verbose"))
-		con_threshold.value = (float)1;
+	con_threshold.value = (float)GameArg.DbgVerbose;
 
 	if (! cfile_init("descent2.hog", 1))
 		if (! cfile_init("d2demo.hog", 1))
@@ -402,13 +374,10 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL, "                                         Copyright (c) 2005 Christian Beckhaeuser\n");
 
 
-	if (FindArg( "-help" ) || FindArg( "-h" ) || FindArg( "-?" ) || FindArg( "?" ) ) {
+	if (GameArg.SysShowCmdHelp) {
 		print_commandline_help();
 		set_exit_message("");
 
-#ifdef __MINGW32__
-		exit(0);  /* mingw hangs on this return.  dunno why */
-#endif
 		return(0);
 	}
 
@@ -451,20 +420,12 @@ int main(int argc, char *argv[])
 	
 	atexit(sdl_close);
 
-	//con_printf(CON_VERBOSE, "\n%s...", "Checking for Descent 2 CD-ROM");
-
-	if (FindArg("-renderstats"))
-		gr_renderstats = 1;
-
 	#ifndef NDEBUG
 	if ( FindArg( "-checktime") )
 		checktime = 1;
 	#endif
 
-	if ((t=FindArg("-tmap"))){
-		select_tmap(Args[t+1]);
-	}else
-		select_tmap(NULL);
+	select_tmap(GameArg.DbgTexMap);
 
 	Lighting_on = 1;
 
@@ -518,8 +479,6 @@ int main(int argc, char *argv[])
 	 }
 
 	con_printf(CON_VERBOSE, "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
-	if (FindArg("-nofade"))
-		grd_fades_disabled=1;
 
 	//determine whether we're using high-res menus & movies
 	if (FindArg("-nohires") || FindArg("-nohighres") || (gr_check_mode(MENU_HIRES_MODE) != 0) || disable_high_res)
@@ -560,7 +519,7 @@ int main(int argc, char *argv[])
 		bm_init();
 
 	#ifdef EDITOR
-	if (FindArg("-hoarddata") != 0) {
+	if (GameArg.EdiSaveHoardData) {
 		save_hoard_data();
 		exit(1);
 	}
@@ -569,7 +528,7 @@ int main(int argc, char *argv[])
 	//the bitmap loading code changes gr_palette, so restore it
 	memcpy(gr_palette,title_pal,sizeof(gr_palette));
 
-	if ( FindArg( "-norun" ) )
+	if (GameArg.DbgNoRun)
 		return(0);
 
 	con_printf( CON_DEBUG, "\nInitializing 3d system..." );
@@ -586,15 +545,9 @@ int main(int argc, char *argv[])
 	//	If built with editor, option to auto-load a level and quit game
 	//	to write certain data.
 	#ifdef	EDITOR
-	{	int t;
-	if ( (t = FindArg( "-autoload" )) ) {
-		Auto_exit = 1;
-		strcpy(Auto_file, Args[t+1]);
-	}
-		
-	}
-
-	if (Auto_exit) {
+	{
+	if (GameArg.EdiAutoLoad) {
+		strcpy(Auto_file, GameArg.EdiAutoLoad);
 		strcpy(Players[0].callsign, "dummy");
 	} else
 	#endif
@@ -643,7 +596,7 @@ int main(int argc, char *argv[])
 		case FMODE_MENU:
 			set_screen_mode(SCREEN_MENU);
 			#ifdef EDITOR
-			if (Auto_exit) {
+			if (GameArg.EdiAutoLoad) {
 				strcpy((char *)&Level_names[0], Auto_file);
 				LoadLevel(1, 1);
 				Function_mode = FMODE_EXIT;

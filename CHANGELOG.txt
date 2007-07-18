@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070718
+--------
+SCsonstruct, 2d/palette.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/sdl/gr.c, include/args.h, include/gr.h, include/ogl_init.h, include/palette.h, main/game.c, main/inferno.c, main/movie.c, main/render.c, main/text.c, misc/args.c: Cleaned up more FindArg's - general Debug Options; Cleanups
+
 20070716
 --------
 d2x.ini, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/internal.h, arch/sdl/gr.c, include/args.h, include/gr.h, include/ogl_init.h, main/automap.c, main/game.c, main/game.h, main/gamecntl.c, main/gamefont.c, main/gauges.c, main/inferno.c, main/menu.c, main/movie.c, main/newmenu.c, main/titles.c, misc/args.c: Cleaned up more FindArg's - (most important) OpenGL Options

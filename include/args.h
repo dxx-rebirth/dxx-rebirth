@@ -41,6 +41,7 @@ extern int Inferno_verbose;
 //   Dbg - Debugging/Undocumented Options
 typedef struct Arg
 {
+	int SysShowCmdHelp;
 	int SysFPSIndicator;
 	int SysUseNiceFPS;
 	int SysMaxFPS;
@@ -85,7 +86,18 @@ typedef struct Arg
 	char *MplIpMyAddr;
 	int MplIpBasePort;
 #ifdef EDITOR
+	char *EdiAutoLoad;
 	int EdiMacData;
+	int EdiSaveHoardData;
+#endif
+	int DbgVerbose;
+	int DbgNoRun;
+	int DbgRenderStats;
+	char *DbgAltTex;
+	char *DbgTexMap;
+	int DbgNoMovies;
+#ifdef OGL
+	int DbgAltTexMerge;
 #endif
 } __attribute__ ((packed)) Arg;
 

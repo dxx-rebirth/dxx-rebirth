@@ -280,26 +280,14 @@ int ogl_testneedmipmaps(int i){
 	Error("unknown texture filter %x\n",i);
 }
 
-#ifdef OGL_RUNTIME_LOAD
 #ifdef _WIN32
 char *OglLibPath="opengl32.dll";
-#endif
-#ifdef __unix__
-char *OglLibPath="libGL.so";
-#endif
-#ifdef macintosh
-char *OglLibPath = NULL;
-#endif
 
 int ogl_rt_loaded=0;
 int ogl_init_load_library(void)
 {
 	int retcode=0;
 	if (!ogl_rt_loaded){
-		int t;
-		if ((t=FindArg("-gl_library")))
-			OglLibPath=Args[t+1];
-
 		retcode = OpenGL_LoadLibrary(true);
 		if(retcode)
 		{
@@ -320,30 +308,18 @@ int ogl_init_load_library(void)
 
 int gr_init(int mode)
 {
-	int retcode, t, glt = 0;
+	int retcode, t;
 
  	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
 
-#ifdef OGL_RUNTIME_LOAD
+#ifdef _WIN32
 	ogl_init_load_library();
 #endif
 
 	if (!GameArg.SysWindow)
 		gr_toggle_fullscreen();
-
-	if ((glt=FindArg("-gl_alttexmerge")))
-		ogl_alttexmerge=1;
-	if ((t=FindArg("-gl_stdtexmerge")))
-		if (t>=glt)//allow overriding of earlier args
-			ogl_alttexmerge=0;
-
-	if ((glt = FindArg("-gl_16bittextures")))
-	{
-		ogl_rgba_internalformat = GL_RGB5_A1;
-		ogl_rgb_internalformat = GL_RGB5;
-	}
 
 	GL_needmipmaps=ogl_testneedmipmaps(GameArg.OglTexMinFilt);
 
@@ -401,7 +377,7 @@ void gr_close()
 		d_free(grd_curscreen);
 	}
 	ogl_close_pixel_buffers();
-#ifdef OGL_RUNTIME_LOAD
+#ifdef _WIN32
 	if (ogl_rt_loaded)
 		OpenGL_LoadLibrary(false);
 #endif

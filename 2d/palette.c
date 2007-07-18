@@ -61,8 +61,6 @@ ubyte gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
 ubyte gr_palette_faded_out = 1;
 
-int grd_fades_disabled=0;   // Used to skip fading for development
-
 void gr_palette_set_gamma( int gamma )
 {
 	if ( gamma < 0 ) gamma = 0;

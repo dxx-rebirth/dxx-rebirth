@@ -425,13 +425,6 @@ int gr_palette_fade_out(ubyte *pal, int nsteps, int allow_keys)
 
  if (gr_palette_faded_out) return 0;
 
-#if 1 //ifndef NDEBUG
-	if (grd_fades_disabled) {
-		gr_palette_clear();
-		return 0;
-	}
-#endif
-
  palette = screen->format->palette;
  if (palette == NULL) {
     return -1; // Display is not palettised
@@ -491,13 +484,6 @@ int gr_palette_fade_in(ubyte *pal, int nsteps, int allow_keys)
  SDL_Color fade_colors[256];
 
  if (!gr_palette_faded_out) return 0;
-
-#if 1 //ifndef NDEBUG
-	if (grd_fades_disabled) {
-		gr_palette_load(pal);
-		return 0;
-	}
-#endif
 
  palette = screen->format->palette;
 

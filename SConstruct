@@ -344,7 +344,7 @@ if sys.platform == 'win32':
 	sharepath = ''
 	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL', 'NATIVE_IPX'])
 	env.Append(CPPPATH = ['arch/win32/include', '/msys/1.0/MinGW/include/SDL'])
-	ogldefines = ['SDL_GL_VIDEO', 'OGL', 'OGL_RUNTIME_LOAD']
+	ogldefines = ['SDL_GL_VIDEO', 'OGL']
 	common_sources += arch_win32_sources
 	ogllibs = ''
 	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
