@@ -1684,9 +1684,6 @@ int	cheat_robotpause_index;
 #define DEFINE_CHEAT(name) int cheat_ ## name ## _index;\
 	ubyte cheat_ ## name []
 
-DEFINE_CHEAT(frametime)={KEY_F, KEY_R, KEY_A, KEY_M, KEY_E, KEY_T, KEY_I, KEY_M, KEY_E};
-int	gr_renderstats=0;
-DEFINE_CHEAT(renderstats)={KEY_R, KEY_E, KEY_N, KEY_D, KEY_E, KEY_R, KEY_S, KEY_T, KEY_A, KEY_T, KEY_S};
 int	Cheats_enabled=0;
 
 extern	int Laser_rapid_fire, Ugly_robot_cheat;
@@ -2620,8 +2617,6 @@ void ReadControls()
 			john_cheat_func_2(key);
 
 #ifdef FINAL_CHEATS
-			IMPLEMENT_CHEAT(frametime,GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;);
-			IMPLEMENT_CHEAT(renderstats,gr_renderstats = !gr_renderstats;);
 		if (Cheats_enabled) {
 			if (!(Game_mode&GM_MULTI) && key == cheat_wowie[cheat_wowie_index]) {
 				if (++cheat_wowie_index == CHEAT_WOWIE_LENGTH) {

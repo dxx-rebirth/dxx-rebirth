@@ -7,7 +7,7 @@
 #include <stddef.h>
 #endif
 
-#ifdef OGL_RUNTIME_LOAD
+#ifdef __WINDOWS__
 #include "loadgl.h"
 int ogl_init_load_library(void);
 #else
@@ -65,7 +65,6 @@ int ogl_setbrightness_internal(void);
 
 void ogl_do_fullscreen_internal(void);
 
-extern int ogl_alttexmerge;//merge textures by just printing the seperate textures?
 extern int ogl_rgba_format;
 extern int ogl_intensity4_ok;
 extern int ogl_luminance4_alpha4_ok;

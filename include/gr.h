@@ -47,8 +47,6 @@ typedef struct _grs_point {
 	fix	x,y;
 } grs_point;
 
-extern int gr_renderstats;
-
 // ZICO - we use this defines to scale the fon bitmaps itself, spacing between letters and rows
 #ifdef OGL
 #define FONTSCALE_X(x) ((GameArg.OglFixedFont)?x:(x)*((SWIDTH/ ((GameArg.GfxUseHiresFont&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))

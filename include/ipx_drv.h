@@ -81,9 +81,6 @@ extern ubyte null_addr[];
 extern u_int32_t ipx_network;
 
 struct ipx_driver * arch_ipx_set_driver(char *arg);
-
-#ifdef SUPPORTS_NET_IP
 extern struct ipx_driver ipx_ip;
-#endif
 
 #endif /* _IPX_DRV_H */

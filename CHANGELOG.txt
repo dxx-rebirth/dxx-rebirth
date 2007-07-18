@@ -1,11 +1,15 @@
 D1X-Rebirth Changelog
 
+20070718
+--------
+SCsonstruct, arch/ogl/gr.c, arch/ogl/include/ogl_init.h, arch/ogl/ogl.c, include/args.h, include/gr.h, include/ipx_drv.h, main/args.c, main/game.c, main/inferno.c, main/ipx_drv.c, main/menu.c, main/piggy.c, main/render.c, main/text.c: Cleaned up more FindArg's - general Debug Options; Cleanups
+
 20070716
 --------
 d1x.ini, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, arch/sdl/gr.c, include/args.h, include/gr.h, main/args.c, main/automap.c, main/game.c, main/gamefont.c, main/gauges.c, main/inferno.c, main/menu.c, main/newmenu.c: Cleaned up more FindArg's - (most important) OpenGL Options
 main/automap.c, main/game.c: Fixing duplicated gr_toggle_fullscreen()
 main/fuelcen.c, main/game.c, main/game.h, main/laser.c: Removed unused RealFrameTime; Removed FPS-dependent Homing-tracking code
-d1x.ini, include/args.h, main/args.c, main/ban.c, main/game.c, main/hud.c, main/inferno.c, main/inferno.h, main/ip_base.cpp, main/ipclient.cpp, main/ipx_drv.c, main/menu.c, main/network.c: Cleaned up more FindArg's - Networking Options; Some fixes
+d1x.ini, 2d/font.c, include/args.h, main/args.c, main/ban.c, main/game.c, main/hud.c, main/inferno.c, main/inferno.h, main/ip_base.cpp, main/ipclient.cpp, main/ipx_drv.c, main/menu.c, main/network.c: Cleaned up more FindArg's - Networking Options; Some fixes
 
 
 20070715

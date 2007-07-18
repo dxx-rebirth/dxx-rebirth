@@ -137,7 +137,7 @@ int ipx_set_driver(char *arg)
 		int socket=0;
 		int ipx_error;
 		int t;
-		if (Inferno_verbose) printf( "\n%s ", TXT_INITIALIZING_NETWORK);
+		if (GameArg.DbgVerbose) printf( "\n%s ", TXT_INITIALIZING_NETWORK);
 		if ((t=FindArg("-socket")))
 			socket = atoi( Args[t+1] );
 
@@ -147,34 +147,29 @@ int ipx_set_driver(char *arg)
 		if ( FindArg("-shortpackets") )
 			Network_initial_shortpackets = 1;
 
-#ifdef SUPPORTS_NET_IP
 		if (strcmp(arg,"ip")==0){
 			driver=&ipx_ip;
 		}else
-#endif
                         driver=arch_ipx_set_driver(arg);
+
 		if ((ipx_error=ipx_init(IPX_DEFAULT_SOCKET+socket))==0)	{
-			if (Inferno_verbose) printf( "%s %d.\n", TXT_IPX_CHANNEL, socket );
+			if (GameArg.DbgVerbose) printf( "%s %d.\n", TXT_IPX_CHANNEL, socket );
 			Network_active = 1;
 		} else {
 			switch( ipx_error )	{
-				case 3: 	if (Inferno_verbose) printf( "%s\n", TXT_NO_NETWORK); break;
-				case -2: if (Inferno_verbose) printf( "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET+socket); break;
-				case -4: if (Inferno_verbose) printf( "%s\n", TXT_MEMORY_IPX ); break;
+				case 3: 	if (GameArg.DbgVerbose) printf( "%s\n", TXT_NO_NETWORK); break;
+				case -2: if (GameArg.DbgVerbose) printf( "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET+socket); break;
+				case -4: if (GameArg.DbgVerbose) printf( "%s\n", TXT_MEMORY_IPX ); break;
 				default:
-							 if (Inferno_verbose) printf( "%s %d", TXT_ERROR_IPX, ipx_error );
+							 if (GameArg.DbgVerbose) printf( "%s %d", TXT_ERROR_IPX, ipx_error );
 			}
-			if (Inferno_verbose) printf( "%s\n",TXT_NETWORK_DISABLED);
+			if (GameArg.DbgVerbose) printf( "%s\n",TXT_NETWORK_DISABLED);
 			Network_active = 0;		// Assume no network
 		}
                 ipx_read_user_file( "descent.usr" );
                 ipx_read_network_file( "descent.net" );
-		//if ( FindArg( "-dynamicsockets" ))
-		//	  Network_allow_socket_changes = 1;
-		//else
-		//	  Network_allow_socket_changes = 0;
 	} else {
-		if (Inferno_verbose) printf( "%s\n", TXT_NETWORK_DISABLED);
+		if (GameArg.DbgVerbose) printf( "%s\n", TXT_NETWORK_DISABLED);
 		Network_active = 0;		// Assume no network
 	}
 

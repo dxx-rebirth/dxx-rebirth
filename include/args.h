@@ -26,7 +26,6 @@ extern char * Args[];
 extern int FindArg( char * s );
 extern int FindResArg(char *prefix, int *sw, int *sh);
 extern void InitArgs( int argc, char **argv );
-extern int Inferno_verbose;
 
 // Struct that keeps all variables used by FindArg
 //   Sys - System Options
@@ -39,6 +38,7 @@ extern int Inferno_verbose;
 //   Dbg - Debugging/Undocumented Options
 typedef struct Arg
 {
+	int SysShowCmdHelp;
 	int SysFPSIndicator;
 	int SysUseNiceFPS;
 	int SysMaxFPS;
@@ -79,6 +79,14 @@ typedef struct Arg
 	int MplIpNoGetMyAddr;
 	char *MplIpMyAddr;
 	int MplIpBasePort;
+	int DbgVerbose;
+	int DbgNoRun;
+	int DbgRenderStats;
+	char *DbgAltTex;
+	char *DbgTexMap;
+#ifdef OGL
+	int DbgAltTexMerge;
+#endif
 } __attribute__ ((packed)) Arg;
 
 extern struct Arg GameArg;

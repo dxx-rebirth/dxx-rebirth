@@ -19,7 +19,6 @@
 #include "args.h"
 
 int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE;
-char checkvidmodeok=1;
 //end addition -MM
 
 SDL_Surface *screen;
@@ -105,7 +104,7 @@ int gr_set_mode(u_int32_t mode)
 //edited 10/05/98 by Matt Mueller - make fullscreen mode optional
 	  // changed by adb on 980913: added SDL_HWPALETTE (should be option?)
         // changed by someone on 980923 to add SDL_FULLSCREEN
-	if(!checkvidmodeok || SDL_VideoModeOK(w,h,8,sdl_video_flags)){
+	if(SDL_VideoModeOK(w,h,8,sdl_video_flags)){
 #ifdef GP2X
 	  screen = SDL_SetVideoMode(w, 240, 8, sdl_video_flags);
 #else
@@ -174,8 +173,6 @@ int gr_init(int mode)
 	if (FindArg("-hwsurface"))
 	     sdl_video_flags|=SDL_HWSURFACE;
 	//end addition -MM
-	if (FindArg("-nosdlvidmodecheck"))
-		checkvidmodeok=0;
 	
 	// Set the mode.
 	if ((retcode=gr_set_mode(mode)))

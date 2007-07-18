@@ -985,8 +985,6 @@ void do_multi_player_menu()
 	} while( choice > -1 );
 }
 
-#ifdef SUPPORTS_NET_IP
-
 int ip_connect_manual(char *addr);
 void do_ip_manual_join_menu()
 {
@@ -1013,7 +1011,6 @@ void do_ip_manual_join_menu()
 			break;		// leave menu
 	} while( choice > -1 );
 }
-#endif //NETWORK
 #endif
 
 #ifdef GP2X

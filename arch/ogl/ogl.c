@@ -80,7 +80,6 @@ int GL_TEXTURE_2D_enabled=-1;
 int GL_texclamp_enabled=-1;
 
 int r_texcount = 0, r_cachedtexcount = 0;
-int ogl_alttexmerge=1;//merge textures by just printing the seperate textures?
 int ogl_rgba_internalformat = GL_RGBA8;
 int ogl_rgb_internalformat = GL_RGB8;
 int ogl_intensity4_ok=1;
@@ -247,7 +246,7 @@ int ogl_texture_stats(void){
 				usedother++;
 		}
 	}
-	if (gr_renderstats)
+	if (GameArg.DbgRenderStats)
 	{
 		GLint idx, r, g, b, a, dbl, depth;
 		int res, colorsize, depthsize;
@@ -265,9 +264,9 @@ int ogl_texture_stats(void){
 		gr_set_fontcolor(gr_getcolor(31,0,0),-1 );
 		colorsize = (idx * res * dbl) / 8;
 		depthsize = res * depth / 8;
-		gr_printf(5, GAME_FONT->ft_h * 14 + 3 * 14, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
-		gr_printf(5, GAME_FONT->ft_h * 15 + 3 * 15, "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
-		gr_printf(5, GAME_FONT->ft_h * 16 + 3 * 16, "total=%iK", (colorsize + depthsize + truebytes) / 1024);
+		gr_printf(5, FONTSCALE_Y(GAME_FONT->ft_h * 14 + 3 * 14), "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
+		gr_printf(5, FONTSCALE_Y(GAME_FONT->ft_h * 15 + 3 * 15), "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
+		gr_printf(5, FONTSCALE_Y(GAME_FONT->ft_h * 16 + 3 * 16), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 	}
 
 	return truebytes;
@@ -280,7 +279,7 @@ void ogl_clean_texture_cache(void){
 	int time=120;
 	
 	if (ogl_mem_target<0){
-		if (gr_renderstats)
+		if (GameArg.DbgRenderStats)
 			ogl_texture_stats();
 		return;
 	}
@@ -416,7 +415,7 @@ void ogl_cache_level_textures(void)
 				if (tmap2 != 0){
 					PIGGY_PAGE_IN(Textures[tmap2&0x3FFF]);
 					bm2 = &GameBitmaps[Textures[tmap2&0x3FFF].index];
-					if (ogl_alttexmerge == 0 || (bm2->bm_flags & BM_FLAG_SUPER_TRANSPARENT))
+					if (GameArg.DbgAltTexMerge == 0 || (bm2->bm_flags & BM_FLAG_SUPER_TRANSPARENT))
 						bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
 					else {
 						ogl_loadbmtexture(bm2);
@@ -1016,9 +1015,9 @@ void ogl_end_frame(void){
 void gr_flip(void)
 {
 	ogl_clean_texture_cache();
-	if (gr_renderstats){
-		gr_printf(5,GAME_FONT->ft_h*13+3*13,"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc);
-	}
+	if (GameArg.DbgRenderStats)
+		gr_printf(5,FONTSCALE_Y(GAME_FONT->ft_h*13+3*13),"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc);
+
 	ogl_do_palfx();
 	ogl_swap_buffers_internal();
 	glClear(GL_COLOR_BUFFER_BIT);

@@ -189,27 +189,14 @@ void show_commandline_help()
 
 #ifndef   NDEBUG
 	printf( "\n Debug:\n\n");
-	printf( "  -Verbose           %s\n", "Shows initialization steps for tech support");
+	printf( "  -verbose           %s\n", "Shows initialization steps for tech support");
 	printf( "  -norun             %s\n", "Bail out after initialization");
-	printf( "  -font320 <s>       %s\n", "Font to use for res 320x* and above (default font3-1.fnt)");
-	printf( "  -font640 <s>       %s\n", "Font to use for res 640x* and above");
-	printf( "  -font800 <s>       %s\n", "Font to use for res 800x* and above");
-	printf( "  -font1024 <s>      %s\n", "Font to use for res 1024x* and above");
-#ifdef    OGL
-	printf( "  -gl_texmaxfilt <s> %s\n", "Set GL_TEXTURE_MAX_FILTER");
-	printf( "  -gl_texminfilt <s> %s\n", "Set GL_TEXTURE_MIN_FILTER");
-	printf( "  -gl_alttexmerge    %s\n", "Use new texmerge, usually uses less ram (default)");
-	printf( "  -gl_stdtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
-	printf( "  -gl_16bittextures  %s\n", "Attempt to use 16bit textures");
-#ifdef    OGL_RUNTIME_LOAD
-	printf( "  -gl_library <l>    %s\n", "Use alternate opengl library");
-#endif // OGL_RUNTIME_LOAD
-#else  // ifndef OGL
+	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
+	printf( "  -text <s>          %s\n", "Specify alternate .tex file");
 	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
+#ifdef    OGL
+	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
 #endif // OGL
-#ifdef    __SDL__
-	printf( "  -nosdlvidmodecheck %s\n", "Some X servers don't like checking vidmode first, so just switch");
-#endif // __SDL__
 
 #endif // NDEBUG
 
@@ -226,8 +213,6 @@ void sdl_close()
 extern fix fixed_frametime;
 extern void vfx_set_palette_sub(ubyte *);
 
-int Inferno_verbose = 0;
-
 int main(int argc,char **argv)
 {
 	int t;
@@ -240,9 +225,6 @@ int main(int argc,char **argv)
 	ReadConfigFile();
 
 	InitArgs( argc,argv );
-
-	if ( FindArg( "-verbose" ) )
-		Inferno_verbose = 1;
 
 	if (!cfexist(DESCENT_DATA_PATH "descent.hog") || !cfexist(DESCENT_DATA_PATH "descent.pig"))
 		Error("Could not find valid descent.hog and/or descent.pig in\n"
@@ -261,7 +243,7 @@ int main(int argc,char **argv)
 	printf("Based on: DESCENT   %s\n", VERSION_NAME);
 	printf("%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 
-	if (FindArg( "-help" ) || FindArg( "-h" ) || FindArg( "-?" ) || FindArg( "?" ) ) {
+	if (GameArg.SysShowCmdHelp) {
 		show_commandline_help();
                 set_exit_message("");
 		return 0;
@@ -271,10 +253,7 @@ int main(int argc,char **argv)
 
 	cfile_use_alternate_hogdir(GameArg.SysMissionDir);
 
-	if ((t=FindArg("-tmap")))
-		select_tmap(Args[t+1]);
-	else
-		select_tmap(NULL);
+	select_tmap(GameArg.DbgTexMap);
 
 #ifdef NETWORK
 	if(FindArg( "-ackmsg" ))
@@ -286,7 +265,7 @@ int main(int argc,char **argv)
 	if(FindArg( "-fastext" ))
 		extfaster=1;
 
-	if (Inferno_verbose)
+	if (GameArg.DbgVerbose)
 		printf ("%s", TXT_VERBOSE_1);
 
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
@@ -310,7 +289,7 @@ int main(int argc,char **argv)
 	{
 		int i, argnum=INT_MAX, w, h;
 #define SMODE(V,VV,VG) if ((i=FindResArg(#V, &w, &h)) && (i < argnum)) { argnum = i; VV = SM(w, h); VG = 0; }
-#define SMODE_PRINT(V,VV,VG) if (Inferno_verbose) { if (VG) printf( #V " using game resolution ...\n"); else printf( #V " using %ix%i ...\n",SM_W(VV),SM_H(VV) ); }
+#define SMODE_PRINT(V,VV,VG) if (GameArg.DbgVerbose) { if (VG) printf( #V " using game resolution ...\n"); else printf( #V " using %ix%i ...\n",SM_W(VV),SM_H(VV) ); }
 #define S_MODE(V,VV,VG) argnum = INT_MAX; SMODE(V, VV, VG); SMODE_PRINT(V, VV, VG);
 
 		S_MODE(menu,menu_screen_mode,menu_use_game_res);
@@ -320,7 +299,7 @@ int main(int argc,char **argv)
 	control_invul_time = 0;
 #endif
 
-	if (Inferno_verbose)
+	if (GameArg.DbgVerbose)
 		printf( "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
 	if ((t=gr_init( SM_ORIGINAL ))!=0)
 		Error(TXT_CANT_INIT_GFX,t);
@@ -358,7 +337,7 @@ int main(int argc,char **argv)
 #endif
 #endif
 
-	if ( FindArg( "-norun" ) )
+	if (GameArg.DbgNoRun)
 		return(0);
 
 	mprintf( (0, "\nInitializing 3d system..." ));
