@@ -23,14 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-// Warning( "MEM: Too many malloc's!" );
-// Warning( "MEM: Malloc returnd an already alloced block!" );
-// Warning( "MEM: Malloc Failed!" );
-// Warning( "MEM: Freeing the NULL pointer!" );
-// Warning( "MEM: Freeing a non-malloced pointer!" );
-// Warning( "MEM: %d/%d check bytes were overwritten at the end of %8x", ec, CHECKSIZE, buffer  );
-// Warning( "MEM: %d blocks were left allocated!", numleft );
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,31 +33,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "mono.h"
 #include "error.h"
+#include "args.h"
 
-#ifdef MACINTOSH
-
-	#include <Gestalt.h>
-	#include <Memory.h>
-	#include <Processes.h>
-	ubyte virtual_memory_on = 0;
-
-	#if defined(RELEASE) || defined(NDEBUG)
-		#define MEMSTATS	0
-	#else
-		#define MEMSTATS	1
-	#endif
-
-	
-	#if MEMSTATS
-		static 	int		sMemStatsFileInitialized	= false;
-		static 	FILE* 	sMemStatsFile 				= NULL;
-		static	char  	sMemStatsFileName[32]		= "memstats.txt";
-	#endif	// end of if MEMSTATS
-	
-#else	// no memstats on pc
-	#define MEMSTATS 0
-#endif
-
+#define MEMSTATS 0
 #define FULL_MEM_CHECKING 1
 
 #if defined(FULL_MEM_CHECKING) && !defined(NDEBUG)
@@ -83,8 +53,6 @@ static char * Varname[MAX_INDEX];
 static int LineNum[MAX_INDEX];
 static int BytesMalloced = 0;
 
-int show_mem_info = 1;
-
 static int free_list[MAX_INDEX];
 
 static int num_blocks = 0;
@@ -100,7 +68,7 @@ void mem_display_blocks();
 void mem_init()
 {
 	int i;
-	
+
 	Initialized = 1;
 
 	for (i=0; i<MAX_INDEX; i++ )
@@ -118,45 +86,6 @@ void mem_init()
 	LargestIndex = 0;
 
 	atexit(mem_display_blocks);
-	
-#ifdef MACINTOSH
-
-// need to check for virtual memory since we will need to do some
-// tricks based on whether it is on or not
-
-	{
-		int 			mem_type;
-		THz				theD2PartionPtr = nil;
-		unsigned long	thePartitionSize = 0;
-		
-		MaxApplZone();
-		MoreMasters();			// allocate 240 more master pointers (mainly for snd handles)
-		MoreMasters();
-		MoreMasters();
-		MoreMasters();
-		virtual_memory_on = 0;
-		if(Gestalt(gestaltVMAttr, &mem_type) == noErr)
-			if (mem_type & 0x1)
-				virtual_memory_on = 1;
-				
-		#if MEMSTATS
-			sMemStatsFile = fopen(sMemStatsFileName, "wt");
-	
-			if (sMemStatsFile != NULL)
-			{
-				sMemStatsFileInitialized = true;
-	
-				theD2PartionPtr = ApplicationZone();
-				thePartitionSize =  ((unsigned long) theD2PartionPtr->bkLim) - ((unsigned long) theD2PartionPtr);
-				fprintf(sMemStatsFile, "\nMemory Stats File Initialized.");
-				fprintf(sMemStatsFile, "\nDescent 2 launched in partition of %u bytes.\n",
-						thePartitionSize);
-			}
-		#endif	// end of ifdef MEMSTATS
-	}
-
-#endif	// end of ifdef macintosh
-
 }
 
 void PrintInfo( int id )
@@ -209,24 +138,7 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 		Error( "MEM_OUT_OF_SLOTS" );
 	}
 
-#ifndef MACINTOSH
 	ptr = malloc( size+CHECKSIZE );
-#else
-	ptr = (void *)NewPtrClear( size+CHECKSIZE );
-#endif
-
-	/*
-	for (j=0; j<=LargestIndex; j++ )
-	{
-		if (Present[j] && MallocBase[j] == (unsigned int)ptr )
-		{
-			fprintf( stderr,"\nMEM_SPACE_USED: Malloc returned a block that is already marked as preset.\n" );
-			fprintf( stderr, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], Line[id] );
-			Warning( "MEM_SPACE_USED" );
-			Int3();
-			}
-	}
-	*/
 
 	if (ptr==NULL)
 	{
@@ -339,13 +251,8 @@ void mem_free( void * buffer )
 	
 	BytesMalloced -= MallocSize[id];
 
-#ifndef MACINTOSH
 	free( buffer );
-#else
-	DisposePtr( (Ptr)buffer );
-#endif
-	
-	
+
 	Present[id] = 0;
 	MallocBase[id] = 0;
 	MallocSize[id] = 0;
@@ -417,7 +324,7 @@ void mem_display_blocks()
 		if (Present[i]==1 &&  (!out_of_memory))
 		{
 			numleft++;
-			if (show_mem_info)	{
+			if (GameArg.DbgShowMemInfo)	{
 				fprintf( stderr, "\nMEM_LEAKAGE: Memory block has not been freed.\n" );
 				PrintInfo( i );
 			}
@@ -470,8 +377,6 @@ void mem_display_blocks();
 #define CHECKSIZE 16
 #define CHECKBYTE 0xFC
 
-int show_mem_info = 0;
-
 void mem_init()
 {
 	Initialized = 1;
@@ -480,45 +385,6 @@ void mem_init()
 	LargestAddress = 0x0;
 
 	atexit(mem_display_blocks);
-
-#ifdef MACINTOSH
-
-	// need to check for virtual memory since we will need to do some
-	// tricks based on whether it is on or not
-	
-	{
-		int 			mem_type;
-		THz				theD2PartionPtr = nil;
-		unsigned long	thePartitionSize = 0;
-		
-		MaxApplZone();
-		MoreMasters();		// allocate 240 more master pointers (mainly for snd handles)
-		MoreMasters();
-		MoreMasters();
-		MoreMasters();
-		virtual_memory_on = 0;
-		if(Gestalt(gestaltVMAttr, &mem_type) == noErr)
-			if (mem_type & 0x1)
-				virtual_memory_on = 1;
-				
-		#if MEMSTATS
-			sMemStatsFile = fopen(sMemStatsFileName, "wt");
-
-			if (sMemStatsFile != NULL)
-			{
-				sMemStatsFileInitialized = true;
-
-				theD2PartionPtr = ApplicationZone();
-				thePartitionSize =  ((unsigned long) theD2PartionPtr->bkLim) - ((unsigned long) theD2PartionPtr);
-				fprintf(sMemStatsFile, "\nMemory Stats File Initialized.");
-				fprintf(sMemStatsFile, "\nDescent 2 launched in partition of %u bytes.\n",
-						thePartitionSize);
-			}
-		#endif	// end of ifdef memstats
-	}
-	
-#endif	// end of ifdef macintosh
-
 }
 
 void * mem_malloc( unsigned int size, char * var, char * filename, int line, int fill_zero )
@@ -553,11 +419,7 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 		Int3();
 	}
 
-#ifndef MACINTOSH
 	ptr = malloc( size + CHECKSIZE );
-#else
-	ptr = (void *)NewPtrClear( size+CHECKSIZE );
-#endif
 
 	if (ptr==NULL)	{
 		fprintf( stderr, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL\n" );
@@ -612,11 +474,7 @@ void mem_free( void * buffer )
 
 	BytesMalloced -= *psize;
 
-#ifndef MACINTOSH
 	free( buffer );
-#else
-	DisposePtr( (Ptr)buffer );
-#endif
 }
 
 void mem_display_blocks()
@@ -643,7 +501,7 @@ void mem_display_blocks()
 		fprintf( stderr, "\nMEM_LEAKAGE: %d bytes of memory have not been freed.\n", BytesMalloced );
 	}
 
-	if (show_mem_info)	{
+	if (GameArg.DbgShowMemInfo)	{
 		fprintf( stderr, "\n\nMEMORY USAGE:\n" );
 		fprintf( stderr, "  %u Kbytes dynamic data\n", (LargestAddress-SmallestAddress+512)/1024 );
 		fprintf( stderr, "  %u Kbytes code/static data.\n", (SmallestAddress-(4*1024*1024)+512)/1024 );
@@ -658,40 +516,6 @@ void mem_validate_heap()
 
 void mem_print_all()
 {
-}
-
-#endif
-
-
-#ifdef MACINTOSH
-
-// routine to try and compact and purge the process manager zone to squeeze
-// some temporary memory out of it for QT purposes.
-
-void PurgeTempMem()
-{
-	OSErr err;
-	Handle tempHandle;
-	THz appZone, processZone;
-	Size heapSize;
-	
-	// compact the system zone to try and squeeze some temporary memory out of it
-	MaxMemSys(&heapSize);
-	
-	// compact the Process Manager zone to get more temporary memory
-	appZone = ApplicationZone();
-	tempHandle = TempNewHandle(10, &err);		// temporary allocation may fail
-	if (!err && (tempHandle != NULL) ) {
-		processZone = HandleZone(tempHandle);
-		if ( MemError() || (processZone == NULL) ) {
-			DisposeHandle(tempHandle);
-			return;
-		}
-		SetZone(processZone);
-		MaxMem(&heapSize);				// purge and compact the Process Manager Zone.
-		SetZone(appZone);
-		DisposeHandle(tempHandle);
-	}
 }
 
 #endif

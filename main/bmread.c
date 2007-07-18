@@ -475,10 +475,6 @@ int bm_init_use_tbl()
 
 	piggy_init();		//don't care about error, since no pig is ok for editor
 
-//	if ( FindArg( "-nobm" ) )	{
-//		piggy_read_sounds();
-//		return 0;
-//	}
 	linenum = 0;
 	
 	cfseek( InfoFile, 0L, SEEK_SET);

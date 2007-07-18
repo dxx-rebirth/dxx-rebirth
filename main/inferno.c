@@ -155,9 +155,6 @@ extern int Config_vr_type;
 extern int Config_vr_resolution;
 extern int Config_vr_tracking;
 extern int vertigo_present;
-#ifndef NDEBUG
-extern int checktime;
-#endif
 extern void d_mouse_init(void);
 
 #define LINE_LEN	100
@@ -239,6 +236,7 @@ void print_commandline_help()
 	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
 	printf( "  -text <s>          %s\n", "Specify alternate .tex file");
 	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
+	printf( "  -showmeminfo       %s\n", "Show memory statistics");
 	printf( "  -nomovies          %s\n", "Don't play movies");
 #ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
@@ -420,11 +418,6 @@ int main(int argc, char *argv[])
 	
 	atexit(sdl_close);
 
-	#ifndef NDEBUG
-	if ( FindArg( "-checktime") )
-		checktime = 1;
-	#endif
-
 	select_tmap(GameArg.DbgTexMap);
 
 	Lighting_on = 1;
@@ -545,7 +538,6 @@ int main(int argc, char *argv[])
 	//	If built with editor, option to auto-load a level and quit game
 	//	to write certain data.
 	#ifdef	EDITOR
-	{
 	if (GameArg.EdiAutoLoad) {
 		strcpy(Auto_file, GameArg.EdiAutoLoad);
 		strcpy(Players[0].callsign, "dummy");
@@ -646,16 +638,6 @@ int main(int argc, char *argv[])
 	WriteConfigFile();
 
 	show_order_form();
-
-	#ifndef NDEBUG
-	if ( FindArg( "-showmeminfo" ) )
-		show_mem_info = 1;		// Make memory statistics show
-	#endif
-
-#ifdef _WIN32
-	digi_stop_current_song(); // ZICO - stop all midis // hack for some onboard soundcards
-	digi_close(); // ZICO - stop all sounds // hack for some onboard soundcards
-#endif
 
 	return(0);		//presumably successful exit
 }

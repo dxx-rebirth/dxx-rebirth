@@ -95,6 +95,7 @@ typedef struct Arg
 	int DbgRenderStats;
 	char *DbgAltTex;
 	char *DbgTexMap;
+	int DbgShowMemInfo;
 	int DbgNoMovies;
 #ifdef OGL
 	int DbgAltTexMerge;

@@ -209,7 +209,6 @@ char faded_in;
 
 int Game_double_buffer = 1;     //double buffer by default
 fix fixed_frametime=0;          //if non-zero, set frametime to this
-int checktime = 0;
 
 #endif
 
@@ -2103,12 +2102,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			GameTime = FrameTime;	//wrap when goes negative, or gets within 10 minutes
 			mprintf((0,"GameTime reset to 0\n"));
 		}
-
-		#ifndef NDEBUG
-		if (checktime)
-			if (GameTime >= i2f(600))		//wrap after 10 minutes
-				GameTime = FrameTime;
-		#endif
 
 #ifdef NETWORK
       if ((Game_mode & GM_MULTI) && Netgame.PlayTimeAllowed)

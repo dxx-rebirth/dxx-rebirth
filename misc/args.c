@@ -408,6 +408,11 @@ void ReadCmdArgs(void)
 	else
 		GameArg.DbgTexMap = NULL;
 
+	if (FindArg( "-showmeminfo" ))
+		GameArg.DbgShowMemInfo = 1;
+	else
+		GameArg.DbgShowMemInfo = 0;
+
 	if (FindArg("-nomovies"))
 		GameArg.DbgNoMovies = 1;
 	else
