@@ -27,7 +27,6 @@
 #include "u_mem.h"
 #include "string.h"
 #include "cfile.h"
-#include "observer.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -645,12 +644,6 @@ int network_join_game_menu() {
 			case KEY_PADENTER:
 				done = 1;
 				break;
-        //added on 11/20/99 by Victor Rachels to add observer mode
-                        case KEY_O:
-                                I_am_observer=1;
-                                done = 1;
-                                break;
-        //end this section addition - VR
 			case KEY_ESC:
 				selected_game = -1;
 				done = 1;

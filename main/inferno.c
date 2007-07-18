@@ -256,14 +256,8 @@ int main(int argc,char **argv)
 	select_tmap(GameArg.DbgTexMap);
 
 #ifdef NETWORK
-	if(FindArg( "-ackmsg" ))
-		ackdebugmsg = 1;
-
 	readbans();
 #endif
-
-	if(FindArg( "-fastext" ))
-		extfaster=1;
 
 	if (GameArg.DbgVerbose)
 		printf ("%s", TXT_VERBOSE_1);

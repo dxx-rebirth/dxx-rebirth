@@ -11,58 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/physics.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:32 $
- * 
+ *
  * Headers for physics functions and data
- * 
- * $Log: physics.h,v $
- * Revision 1.1.1.1  2006/03/17 19:42:32  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:12:58  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:33:06  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.29  1995/02/06  19:47:18  matt
- * New function (untested), set_thrust_from_velocity()
- * 
- * Revision 1.28  1994/12/04  22:14:20  mike
- * apply instantaneous rotation to an object due to a force blow.
- * 
- * Revision 1.27  1994/08/01  13:29:42  matt
- * Made fvi() check holes in transparent walls, and changed fvi() calling
- * parms to take all input data in query structure.
- * 
- * Revision 1.26  1994/07/28  12:35:22  matt
- * Added prototype
- * 
- * Revision 1.25  1994/07/13  21:48:05  matt
- * FVI() and physics now keep lists of segments passed through which the
- * trigger code uses.
- * 
- * Revision 1.24  1994/06/30  19:01:55  matt
- * Moved flying controls code from physics.c to controls.c
- * 
- * Revision 1.23  1994/06/16  14:14:20  mike
- * Change physics_lookahead to return hit_info.
- * 
- * Revision 1.22  1994/06/09  09:58:43  matt
- * Moved find_vector_intersection() from physics.c to new file fvi.c
- * 
- * Revision 1.21  1994/05/20  16:11:07  matt
- * Added new parm, ignore_obj, to find_vector_intersection()
- * 
- * Revision 1.20  1994/05/20  15:16:58  matt
- * Added new fvi return type; took out some troublesome (and troubling) asserts
- * 
- * 
- * 
  */
 
 #ifndef _PHYSICS_H
@@ -102,7 +53,4 @@ void phys_apply_rot(object *obj,vms_vector *force_vec);
 //this routine will set the thrust for an object to a value that will
 //(hopefully) maintain the object's current velocity
 void set_thrust_from_velocity(object *obj);
-
-extern fix externalctrlp,externalctrlh,externalctrlb;
-extern int extfaster;
 #endif

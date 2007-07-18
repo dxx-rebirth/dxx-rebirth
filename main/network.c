@@ -16,10 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:43:36 zicodxx Exp $";
-#endif
-
 #ifdef NETWORK
 
 #include <stdio.h>
@@ -89,10 +85,6 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:43:36 zicodxx Exp 
 
 //added 04/23/99 Victor Rachels for alt vulcan fire
 #include "vlcnfire.h"
-//end addition -MM
-
-//added 11/28/99 Victor Rachels for observer mode
-#include "observer.h"
 //end addition -MM
 
 #include "vers_id.h"
@@ -599,11 +591,6 @@ network_new_player(sequence_packet *their)
 #endif
 
 	network_get_player_settings(pnum);
-
-//added on 11/24/99 by Victor Rachels to make observer ghosted
-        multi_send_observerghost(pnum); // function checks I_am_observer
-//end this section addition - VR
-//	create_player_appearance_effect(&Objects[objnum]);
 }
 
 void network_welcome_player(sequence_packet *their)
@@ -3532,10 +3519,6 @@ void network_timeout_player(int playernum)
 fix last_send_time = 0;
 fix last_timeout_check = 0;
 
-//added on 11/29/99 by Victor Rachels to resend ghosting
-fix last_observer_send_time = 0;
-//end this section addition - VR
-
 void network_do_frame(int force, int listen)
 {
 	int i;
@@ -3551,22 +3534,8 @@ void network_do_frame(int force, int listen)
 	last_send_time += FrameTime;
 	last_timeout_check += FrameTime;
 
-//added on 11/29/99 by Victor Rachels to resend ghosting
-         if(I_am_observer)
-          {
-            last_observer_send_time += FrameTime;
-             if(last_observer_send_time > (OBSERVER_RESEND_DELAY*F1_0))
-              {
-                multi_send_observerghost(100);
-                last_observer_send_time = 0;
-              }
-          }
-//end this section addition - VR
-
-
 	// Send out packet 10 times per second maximum... unless they fire, then send more often...
-//added/edited on 11/28/99 by Victor Rachels to use less bandwidth for observer
-        if ( (last_send_time > (F1_0 / (I_am_observer?1:Network_pps))) ||
+        if ( (last_send_time > (F1_0 / Network_pps)) ||
 	     (Network_laser_fired) || force || PacketUrgent )	    {
 		if ( Players[Player_num].connected )	{
 //		    printf(",");//####

@@ -11,12 +11,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: physics.c,v 1.1.1.1 2006/03/17 19:42:32 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -202,11 +196,6 @@ int	Dont_move_ai_objects=0;
 
 extern int disable_new_fvi_stuff;
 
-//added on 3/12/99 by Victor Rachels for sporb faster turning
-fix externalctrlp,externalctrlh,externalctrlb;
-int extfaster=0;
-//end this section addition - VR
-
 //	-----------------------------------------------------------------------------------------------------------
 // add rotational velocity & acceleration
 void do_physics_sim_rot(object *obj)
@@ -283,18 +272,6 @@ void do_physics_sim_rot(object *obj)
 	tangles.p = fixmul(obj->mtype.phys_info.rotvel.x,FrameTime);
 	tangles.h = fixmul(obj->mtype.phys_info.rotvel.y,FrameTime);
 	tangles.b = fixmul(obj->mtype.phys_info.rotvel.z,FrameTime);
-
-        //added on 3/12/99 for sporb faster turning
-         if(extfaster)
-          {
-           if(externalctrlp)
-            tangles.p += fixmul(externalctrlp,64*FrameTime);
-           if(externalctrlh)
-            tangles.h += fixmul(externalctrlh,64*FrameTime);
-           if(externalctrlb)
-            tangles.b += fixmul(externalctrlb,64*FrameTime);
-          }
-        //end this section addition - VR
 
 	vm_angles_2_matrix(&rotmat,&tangles);
 	vm_matrix_x_matrix(&new_orient,&obj->orient,&rotmat);

@@ -11,13 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/multi.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:43:22 $
- * 
+ *
  * Multiplayer code shared by serial and network play.
- * 
+ *
  */
 
 #ifdef NETWORK
@@ -101,10 +97,6 @@ static char rcsid[] = "$Id: multi.c,v 1.1.1.1 2006/03/17 19:43:22 zicodxx Exp $"
 //added on 6/15/99 by Owen Evans
 #include "strutil.h"
 //end added - OE
-
-//added on 11/20/99 by Victor Rachels to add observer mode
-#include "observer.h"
-//end this section addition - VR
 
 
 //
@@ -2971,26 +2963,6 @@ multi_send_endlevel_start(int secret)
 	}
 }
 
-//added on 11/9/98 by Victor Rachels to add observer mode
-void multi_send_observerghost(int pl)
-{
-   if(!I_am_observer)
-    return;
-
-  multibuf[0] = (char)MULTI_ENDLEVEL_START;
-  multibuf[1] = Player_num;
-  multibuf[2] = '9';
-
-//added/edited on 11/24/99 by Victor Rachels to make sending right
-   if(pl==100)
-    mekh_send_direct_broadcast(multibuf,3);
-   else
-    mekh_send_direct_packet(multibuf,3,pl);
-//end this section addition/change - VR
-
-}
-//end this section addition - VR
-
 void
 multi_send_powerup_count(char type, int *pow_count)
 {
@@ -3151,11 +3123,6 @@ multi_send_message(void)
 void
 multi_send_reappear()
 {
-        //added on 11/20/99 by Victor Rachels to add observer mode
-         if(I_am_observer)
-          return;
-        //end this section addition - VR
-
 	multibuf[0] = (char)MULTI_REAPPEAR;
 	*(short *)(multibuf+1) = Players[Player_num].objnum;
 	
@@ -3283,13 +3250,6 @@ multi_send_decloak(void)
 void
 multi_send_door_open(int segnum, int side)
 {
-	// When we open a door make sure everyone else opens that door
-
-        //added on 11/20/99 by Victor Rachels to add observer mode
-         if(I_am_observer)
-          return;
-        //end this section addition - VR
-
 	multibuf[0] = MULTI_DOOR_OPEN;
 #ifdef SHAREWARE
 	*(int *)(multibuf+1) = segnum;
@@ -3371,11 +3331,6 @@ void
 multi_send_play_sound(int sound_num, fix volume)
 {
 	int count = 0;
-
-        //added on 11/20/99 by Victor Rachels to add observer mode
-         if(I_am_observer)
-          return;
-        //end this section addition - VR
 
 	multibuf[count] = MULTI_PLAY_SOUND;			count += 1;
         multibuf[count] = Player_num;                           count += 1;
@@ -3477,11 +3432,6 @@ multi_send_trigger(int triggernum)
         // Send an event to trigger something in the mine
 	
 	int count = 0;
-
-        //added on 11/20/99 by Victor Rachels to add observer mode
-         if(I_am_observer)
-          return;
-        //end this section addition - VR
 
 	multibuf[count] = MULTI_TRIGGER;				count += 1;
 	multibuf[count] = Player_num;					count += 1;

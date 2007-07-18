@@ -111,7 +111,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ban.h"
 #include "pingstat.h"
 #include "vlcnfire.h"
-#include "observer.h"
 #include "fvi.h"
 //MD2211
 #include "jukebox.h"
@@ -135,7 +134,6 @@ void draw_centered_text( int y, char * s );
 void GameLoop(int RenderFlag, int ReadControlsFlag );
 void powerup_grab_cheat_all(void);
 
-int	I_am_observer = 0;
 int	Speedtest_on = 0;
 #if !defined(NDEBUG) || defined(EDITOR)
 int	Mark_count = 0; // number of debugging marks set
@@ -1755,11 +1753,6 @@ void game()
 			Players[Player_num].shields = MAX_SHIELDS;
 
 #ifdef NETWORK
-	if(I_am_observer)
-	{
-		Physics_cheat_flag = 0xBADA55;
-		multi_send_observerghost(100);
-	}
 	readbans();
 	ping_stats_init();
 #endif
@@ -1827,8 +1820,6 @@ void game()
 				longjmp(LeaveGame,1);
 		}
 	}
-
-	I_am_observer = 0;
 
 #ifdef NETWORK
 	vulcan_init();
@@ -2143,7 +2134,7 @@ void HandleGameKey(int key)
 		case KEY_F2:				Config_menu_flag = 1;	break;
 		case KEY_F3:				toggle_cockpit();       break;
 		case KEY_F4:
-		case KEY_SHIFTED+KEY_F3:		if(!(Game_mode & GM_MULTI)||Network_allow_radar||I_am_observer)
+		case KEY_SHIFTED+KEY_F3:		if(!(Game_mode & GM_MULTI)||Network_allow_radar)
 								show_radar = !show_radar; break;
 		case KEY_F5:
 				if ( Newdemo_state == ND_STATE_RECORDING )
@@ -2532,15 +2523,7 @@ void ReadControls()
 					memset( &Controls, 0, sizeof(control_info) );
 				else
 					controls_read_all();		//NOTE LINK TO ABOVE!!!
-			if(I_am_observer)
-			{
-				Controls.fire_flare_down_count = 0;
-				Controls.fire_primary_state = 0;
-				Controls.fire_primary_down_count = 0;
-				Controls.fire_secondary_state = 0;
-				Controls.fire_secondary_down_count = 0;
-				Controls.drop_bomb_down_count = 0;
-			}
+
 			check_rear_view();
 
 			// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left

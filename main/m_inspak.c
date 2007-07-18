@@ -28,8 +28,6 @@ mekh_ackedpacket_history mekh_packet_history[MEKH_PACKET_MEM];
         //and the packet gets resent, so we can ignore it.
 fix     MEKH_RESEND_DELAY = F1_0;
 
-int ackdebugmsg=0;
-
 void
 mekh_send_direct_packet(ubyte *buffer, int len, int plnum)
 {
@@ -111,9 +109,6 @@ mekh_send_ack(mekh_ackedpacket_history p_info)
       *(fix *)&ackpacket[tmp]     = p_info.timestamp;   tmp+=4;
 
       mekh_send_direct_packet(ackpacket, tmp, dest);
-
-     if(ackdebugmsg)
-      hud_message(MSGC_MULTI_INFO, "Sent ack for %d of %d to %s", (int)p_info.timestamp, p_info.packet_type, Players[dest].callsign);
 }
 
 //======================================================
@@ -138,8 +133,6 @@ mekh_gotack(char *buf)
                 (mekh_acks[i].timestamp == p_info.timestamp))
          {
            mekh_acks[i].players_left[p_info.player_num] = 0;
-            if(ackdebugmsg)
-             hud_message(MSGC_MULTI_INFO, "Got ack: %d of %d from %s", (int)p_info.timestamp, p_info.packet_type, Players[p_info.player_num].callsign);
            found = i;
             for(tmp=0; tmp<MAX_NUM_NET_PLAYERS; tmp++)
              {
@@ -156,8 +149,6 @@ mekh_gotack(char *buf)
        mekh_acks[i] = mekh_acks[i+1]; //drop down everything in list above ack we got in
       }
    }
-  else if(ackdebugmsg)//We've got an ack for a message we're not expecting to be acked
-     hud_message(MSGC_DEBUG, "Weirdack! %d of %d from %s", (int)p_info.timestamp, p_info.packet_type, Players[p_info.player_num].callsign);
 }
 
 //added 03/07/99 Matt Mueller - moved to its own func to avoid duplication
@@ -205,8 +196,6 @@ mekh_send_direct_reg_data(unsigned char *buf, int len,int plnum)
 	   //edit 04/19/99 Matt Mueller - fixed a rather dumb bug, was using i instead of plnum 
 	    if (((Game_mode & GM_NETWORK) && Net_D1xPlayer[plnum].iver<1200)||(!(Game_mode & GM_NETWORK) && Net_D1xPlayer[plnum].iver<1350))
 		{
-		    if(ackdebugmsg)
-			   hud_message(MSGC_MULTI_INFO, "No ackdpkt, %s ! d1x 1.2+", Players[plnum].callsign);
 		    mekh_send_direct_packet(buf, len, plnum);
 		    mekh_acks[0].players_left[plnum] = 0;
 		    //Add newest to top
@@ -250,8 +239,6 @@ mekh_send_reg_data_needver(compare_int32_func compare,int ver,unsigned char *buf
                  {
 		     //end edit -MM
 		     //end edit -MM
-                                if(ackdebugmsg)
-                                 hud_message(MSGC_MULTI_INFO, "No ackdpkt, %s ! d1x 1.2+", Players[i].callsign);
                                 mekh_send_direct_packet(buf, len, i);
                                 mekh_acks[0].players_left[i] = 0;
                                         //Add newest to top
@@ -268,11 +255,6 @@ mekh_send_reg_data_needver(compare_int32_func compare,int ver,unsigned char *buf
             }else
 		    mekh_acks[0].players_left[i] = 0;//just making sure -MM
        }
-
-//    if(ackdebugmsg)
-//     hud_message(MSGC_MULTI_INFO, "Sent ackreq for %d of %d is %d", (int)GameTime, buf[0], mekh_waitingack);
-//    hud_message(MSGC_MULTI_INFO, "Size of packet is %d, total %d", len, tmp);
-//    multi_send_data(packet, tmp, repeat);
 }
 //end edit -MM
 
@@ -303,8 +285,6 @@ mekh_process_packet(char *buf) {
                 (mekh_packet_history[tmp].packet_type == p_info.packet_type))
             {
                 mekh_send_ack(p_info);
-                 if(ackdebugmsg)
-                  hud_message(MSGC_DEBUG, "Ignored AR for %d of %d", (int)p_info.timestamp, p_info.packet_type);
                 return; //We've already gotten this packet, so ack it and abort processing
                         //Ack must have been late or dropped
             }
@@ -315,13 +295,6 @@ mekh_process_packet(char *buf) {
       }
       mekh_packet_history[0] = p_info;
                         //Insert the newest at the top
-
-       if(ackdebugmsg)
-        hud_message(MSGC_MULTI_INFO, "Ackreq for %d of %d from %s(%i)", (int)p_info.timestamp, p_info.packet_type, Players[p_info.player_num].callsign,p_info.player_num);
-//    hud_message(MSGC_MULTI_INFO, "Size should be %d, is %d", message_length[p_info.packet_type], len);
-
-//--killed--      memcpy(packet, buf+7, len); //wasteful -MM
-         //Copy the contents of the real message into 'packet'
 
       multi_process_data(/*packet*/(char*)buf+7, len);//aaaah, much better -MM
 //end edit -MM
@@ -370,8 +343,6 @@ mekh_resend_needack() {
         if (mekh_acks[pos].players_left[i]==1) {
             if( mekh_acks[pos].send_time[i] < GameTime) {
                         mekh_send_direct_packet(packet, tmp, i);
-                         if(ackdebugmsg)
-                          hud_message(MSGC_DEBUG, "Resent reqack %d of %d to %s (%i)", (int)timestamp, mekh_acks[pos].packet_contents[0], Players[i].callsign,i);
                         mekh_acks[pos].send_time[i] = GameTime + MEKH_RESEND_DELAY;
             }
         }

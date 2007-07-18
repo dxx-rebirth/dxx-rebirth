@@ -11,102 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/cntrlcen.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:32 $
- * 
+ *
  * Code for the control center
- * 
- * $Log: cntrlcen.c,v $
- * Revision 1.1.1.1  2006/03/17 19:42:32  zicodxx
- * initial import
  *
- * Revision 1.2  1999/11/21 14:05:00  sekmu
- * observer mode
- *
- * Revision 1.1.1.1  1999/06/14 22:05:34  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.1  1995/03/21  14:40:25  john
- * Ifdef'd out the NETWORK code.
- * 
- * Revision 2.0  1995/02/27  11:31:25  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.22  1995/02/11  01:56:14  mike
- * robots don't fire cheat.
- * 
- * Revision 1.21  1995/02/05  13:39:39  mike
- * fix stupid bug in control center firing timing.
- * 
- * Revision 1.20  1995/02/03  17:41:21  mike
- * fix control cen next fire time in multiplayer.
- * 
- * Revision 1.19  1995/01/29  13:46:41  mike
- * adapt to new create_small_fireball_on_object prototype.
- * 
- * Revision 1.18  1995/01/18  16:12:13  mike
- * Make control center aware of a cloaked playerr when he fires.
- * 
- * Revision 1.17  1995/01/12  12:53:44  rob
- * Trying to fix a bug with having cntrlcen in robotarchy games.
- * 
- * Revision 1.16  1994/12/11  12:37:22  mike
- * make control center smarter about firing at cloaked player, don't fire through self, though
- * it still looks that way due to prioritization problems.
- * 
- * Revision 1.15  1994/12/01  11:34:33  mike
- * fix control center shield strength in multiplayer team games.
- * 
- * Revision 1.14  1994/11/30  15:44:29  mike
- * make cntrlcen harder at higher levels.
- * 
- * Revision 1.13  1994/11/29  22:26:23  yuan
- * Fixed boss bug.
- * 
- * Revision 1.12  1994/11/27  23:12:31  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.11  1994/11/23  17:29:38  mike
- * deal with peculiarities going between net and regular game on boss level.
- * 
- * Revision 1.10  1994/11/18  18:27:15  rob
- * Fixed some bugs with the last version.
- * 
- * Revision 1.9  1994/11/18  17:13:59  mike
- * special case handling for level 8.
- * 
- * Revision 1.8  1994/11/15  12:45:28  mike
- * don't let cntrlcen know where a cloaked player is.
- * 
- * Revision 1.7  1994/11/08  12:18:37  mike
- * small explosions on control center.
- * 
- * Revision 1.6  1994/11/02  17:59:18  rob
- * Changed control centers so they can find people in network games.
- * Side effect of this is that control centers can find cloaked players.
- * (see in-code comments for explanation).  
- * Also added network hooks so control center shots 'sync up'.
- * 
- * Revision 1.5  1994/10/22  14:13:21  mike
- * Make control center stop firing shortly after player dies.
- * Fix bug: If play from editor and die, tries to initialize non-control center object.
- * 
- * Revision 1.4  1994/10/20  15:17:30  mike
- * Hack for control center inside boss robot.
- * 
- * Revision 1.3  1994/10/20  09:47:46  mike
- * lots stuff.
- * 
- * Revision 1.2  1994/10/17  21:35:09  matt
- * Added support for new Control Center/Main Reactor
- * 
- * Revision 1.1  1994/10/17  20:24:01  matt
- * Initial revision
- * 
- * 
  */
 
 #ifdef RCS
@@ -129,11 +36,6 @@ static char rcsid[] = "$Id: cntrlcen.c,v 1.1.1.1 2006/03/17 19:42:32 zicodxx Exp
 #include "wall.h"
 #include "object.h"
 #include "robot.h"
-
-//added on 11/20/99 by Victor Rachels to add observer mode
-#include "observer.h"
-//end this section addition - VR
-
 
 vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
 vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
@@ -251,12 +153,6 @@ void do_controlcen_frame(object *obj)
 	//	If a boss level, then Control_center_present will be 0.
 	if (!Control_center_present)
 		return;
-
-        //added on 11/20/99 by Victor Rachels to add observer mode
-         if(I_am_observer)
-          return;
-        //end this section addition - VR
-
 
 #ifndef NDEBUG
 	if (!Robot_firing_enabled || (Game_suspended & SUSP_ROBOTS))
