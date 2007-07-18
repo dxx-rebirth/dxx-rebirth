@@ -344,6 +344,13 @@ void ReadCmdArgs(void)
 	else
 		GameArg.MplIpBasePort = 0;
 
+	// Editor Options
+
+	if (FindArg("-nobm"))
+		GameArg.EdiNoBm = 1;
+	else
+		GameArg.EdiNoBm = 0;
+
 	// Debug Options
 
 	if (FindArg("-verbose"))
@@ -370,6 +377,11 @@ void ReadCmdArgs(void)
 		GameArg.DbgTexMap = Args[t+1];
 	else
 		GameArg.DbgTexMap = NULL;
+
+	if (FindArg( "-showmeminfo" ))
+		GameArg.DbgShowMemInfo = 1;
+	else
+		GameArg.DbgShowMemInfo = 0;
 
 	if (FindArg("-gl_oldtexmerge"))
 		GameArg.DbgAltTexMerge = 0;

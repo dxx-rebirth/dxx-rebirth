@@ -125,6 +125,7 @@ unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
 u_int32_t menu_screen_mode=SM(640,480);
 int menu_use_game_res=1;
+void mem_init(void);
 
 #ifdef EDITOR
 int Inferno_is_800x600_available = 0;
@@ -187,6 +188,11 @@ void show_commandline_help()
         printf( "  -ip_baseport <n>   %s\n", "Use <n> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
 #endif // NETWORK
 
+#ifdef    EDITOR
+	printf( "\n Editor:\n\n");
+	printf( "  -nobm              %s\n", "Don't load BITMAPS.TBL and BITMAPS.BIN - use internal data");
+#endif // EDITOR
+
 #ifndef   NDEBUG
 	printf( "\n Debug:\n\n");
 	printf( "  -verbose           %s\n", "Shows initialization steps for tech support");
@@ -194,6 +200,7 @@ void show_commandline_help()
 	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
 	printf( "  -text <s>          %s\n", "Specify alternate .tex file");
 	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
+	printf( "  -showmeminfo       %s\n", "Show memory statistics");
 #ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
 #endif // OGL
@@ -217,6 +224,8 @@ int main(int argc,char **argv)
 {
 	int t;
 	u_int32_t screen_mode = SM(640,480);
+
+	mem_init();
 
 	error_init(NULL);
 
@@ -322,7 +331,7 @@ int main(int argc,char **argv)
 	bm_init_use_tbl();
 #else
 #ifdef EDITOR
-	if ( !FindArg("-nobm") )
+	if (!GameArg.EdiNoBm)
 		bm_init_use_tbl();
 	else
 		bm_init();

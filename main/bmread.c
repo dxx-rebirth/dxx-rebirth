@@ -11,51 +11,11 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/bmread.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:43:41 $
- * 
+ *
  * Routines to parse bitmaps.tbl
- * 
- * $Log: bmread.c,v $
- * Revision 1.1.1.1  2006/03/17 19:43:41  zicodxx
- * initial import
  *
- * Revision 1.2  1999/09/02 13:23:11  sekmu
- * remove warning in editor compile
- *
- * Revision 1.1.1.1  1999/06/14 22:05:30  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.4  1995/03/28  18:05:29  john
- * Fixed it so you don't have to delete pig after changing bitmaps.tbl
- * 
- * Revision 2.3  1995/03/07  16:52:03  john
- * Fixed robots not moving without edtiro bug.
- * 
- * Revision 2.2  1995/03/06  16:10:20  mike
- * Fix compile errors if building without editor.
- * 
- * Revision 2.1  1995/03/02  14:55:40  john
- * Fixed bug with EDITOR never defined.
- * 
- * Revision 2.0  1995/02/27  11:33:10  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.1  1995/02/25  14:02:36  john
- * Initial revision
- * 
- * 
  */
 
-
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: bmread.c,v 1.1.1.1 2006/03/17 19:43:41 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
 
 #include "settings.h"
 
@@ -474,7 +434,7 @@ int bm_init_use_tbl()
 
 	piggy_init();
 
-	if ( FindArg( "-nobm" ) )	{
+	if (GameArg.EdiNoBm)	{
 		piggy_read_sounds();
 		return 0;
 	}

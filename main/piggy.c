@@ -388,7 +388,7 @@ int piggy_init()
 #else
 	cfread( &Pigdata_start, sizeof(int), 1, Piggy_fp );
 #ifdef EDITOR
-	if ( FindArg("-nobm") )
+	if (GameArg.EdiNoBm)
 #endif
 	{
 		bm_read_all( Piggy_fp );	// Note connection to above if!!!

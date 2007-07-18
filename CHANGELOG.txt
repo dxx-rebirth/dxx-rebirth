@@ -3,7 +3,8 @@ D1X-Rebirth Changelog
 20070718
 --------
 SCsonstruct, arch/ogl/gr.c, arch/ogl/include/ogl_init.h, arch/ogl/ogl.c, include/args.h, include/gr.h, include/ipx_drv.h, main/args.c, main/game.c, main/inferno.c, main/ipx_drv.c, main/menu.c, main/piggy.c, main/render.c, main/text.c: Cleaned up more FindArg's - general Debug Options; Cleanups
-include/args.h, main/args.c, main/cntrlcen.c, main/controls.c, main/game.c, main/gameseq.c, main/inferno.c, main/m_inspak.c, main/multi.c, main/multi.h, main/netlist.c, main/network.c, main/object.c, main/physics.c, main/physics.h: FindArg cleanup; Removed remnants of Observer-mode
+main/cntrlcen.c, main/controls.c, main/game.c, main/gameseq.c, main/inferno.c, main/m_inspak.c, main/multi.c, main/multi.h, main/netlist.c, main/network.c, main/object.c, main/physics.c, main/physics.h: FindArg cleanup; Removed remnants of Observer-mode
+include/args.h, main/args.c, main/bmread.c, main/inferno.c, main/piggy.c, main/render.c, mem/mem.c: Cleanups
 
 20070716
 --------

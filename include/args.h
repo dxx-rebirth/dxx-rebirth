@@ -69,6 +69,7 @@ typedef struct Arg
 	int OglVoodooHack;
 	int OglFixedFont;
 #endif
+	int EdiNoBm;
 	char *MplGameProfile;
 	int MplNoBans;
 	int MplSaveBans;
@@ -84,6 +85,7 @@ typedef struct Arg
 	int DbgRenderStats;
 	char *DbgAltTex;
 	char *DbgTexMap;
+	int DbgShowMemInfo;
 #ifdef OGL
 	int DbgAltTexMerge;
 #endif

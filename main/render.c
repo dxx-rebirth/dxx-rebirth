@@ -423,7 +423,7 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tma
 		save_lighting = Lighting_on;
 		Lighting_on = 2;
 		//g3_draw_poly(nv,vp);
-		g3_draw_tmap(nv,&pointlist[0], uvl_copy[0], bm);
+		g3_draw_tmap(nv,&pointlist[0], uvl_copy, bm);
 		Lighting_on = save_lighting;
 
 		if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
