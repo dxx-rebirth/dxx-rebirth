@@ -49,10 +49,12 @@ extern int Network_DOS_compability;
 #endif
 #define MULTI_PROTO_D1X_VER	(Network_DOS_compability?3:MULTI_PROTO_VERSION)
 
-//edit 4/18/99 Matt Mueller - Needed to add data onto netgame_lite packet for flags.
 //Incrementing this seems the only way possible.  Still stays backwards compitible.
 #define MULTI_PROTO_D1X_MINOR	1
-//end edit -MM
+
+// Save multiplayer games?
+
+// #define MULTI_SAVE
 
 // How many simultaneous network players do we support?
 

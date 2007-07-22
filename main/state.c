@@ -392,11 +392,8 @@ int state_save_all(int between_levels)
 #ifndef SHAREWARE
 	if ( Game_mode & GM_MULTI )	{
 #ifdef MULTI_SAVE
-		if ( FindArg( "-multisave" ) )
 			multi_initiate_save_game();
-		else
-#endif  
-			hud_message( MSGC_GAME_FEEDBACK, "Can't save in a multiplayer game!" );
+#endif
 		return 0;
 	}
 #endif
@@ -421,15 +418,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	ubyte *pal;
 #ifdef OGL
 	GLint gl_draw_buffer;
-#endif
-
-#ifndef SHAREWARE
-	if ( Game_mode & GM_MULTI )	{
-#ifdef MULTI_SAVE
-		if ( !FindArg( "-multisave" ) ) 
-#endif  
-			return 0;
-	}
 #endif
 
 	fp = fopen( filename, "wb" );
@@ -613,15 +601,14 @@ int state_restore_all(int in_game)
 {
 	char filename[128];
 
+#ifndef SHAREWARE
 	if ( Game_mode & GM_MULTI )	{
 #ifdef MULTI_SAVE
-		if ( FindArg( "-multisave" ) )
 			multi_initiate_restore_game();
-		else	
 #endif
-			hud_message( MSGC_GAME_FEEDBACK, "Can't restore in a multiplayer game!" );
 		return 0;
 	}
+#endif
 
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_stop_recording();
@@ -662,13 +649,6 @@ int state_restore_all_sub(char *filename, int multi)
 	char desc[DESC_LENGTH+1];
 	char id[5];
 	char org_callsign[CALLSIGN_LEN+16];
-
-	if ( Game_mode & GM_MULTI )	{
-#ifdef MULTI_SAVE
-		if ( !FindArg( "-multisave" ) ) 
-#endif
-			return 0;
-	}
 
 	fp = fopen( filename, "rb" );
 	if ( !fp ) return 0;
