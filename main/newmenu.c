@@ -89,7 +89,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gp2x.h"
 #endif
 
-#define MAXDISPLAYABLEITEMS 15
+#define MAXDISPLAYABLEITEMS (MenuHires?15:14)
 
 #define LHX(x)      (FONTSCALE_X((x)*(MenuHires?2:1)))
 #define LHY(y)      (FONTSCALE_Y((y)*(MenuHires?2.4:1)))
@@ -430,7 +430,7 @@ void nm_rstring( bkg * b,int w1,int x, int y, char * s )
 }
 
 //for text items, constantly redraw cursor (to achieve flash)
-void update_cursor( newmenu_item *item)
+void update_cursor( newmenu_item *item, int ScrollOffset)
 {
 	int w,h,aw;
 	fix time = timer_get_approx_seconds();
@@ -448,7 +448,7 @@ void update_cursor( newmenu_item *item)
 	}
 	if (*text==0) 
 		w = 0;
-	x = item->x+w; y = item->y;
+	x = item->x+w; y = item->y -FONTSCALE_Y(grd_curcanv->cv_font->ft_h+1)*ScrollOffset;
 
 	if (time & 0x8000)
 		gr_string( x, y, CURSOR_STRING );
@@ -667,12 +667,6 @@ extern int network_request_player_names(int);
 
 #ifdef NEWMENU_MOUSE
 ubyte Hack_DblClick_MenuMode=0;
-#endif
-
-#ifdef MACINTOSH
-extern ubyte joydefs_calibrating;
-#else
-# define joydefs_calibrating 0
 #endif
 
 #define CLOSE_X     ((MenuHires?15:7)*MENSCALE_X)
@@ -1061,7 +1055,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 #ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;
 
-	if (!MenuReordering && !joydefs_calibrating)
+	if (!MenuReordering)
 	{
 		newmenu_show_cursor();
 	}
@@ -1107,8 +1101,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 #endif
 
 #ifdef NEWMENU_MOUSE
-		if (!joydefs_calibrating)
-			newmenu_show_cursor();      // possibly hidden
+		newmenu_show_cursor();      // possibly hidden
 		omouse_state = mouse_state;
 		if (!MenuReordering)
 			mouse_state = mouse_button_state(0);
@@ -1424,8 +1417,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			
 			if ( !(Game_mode & GM_MULTI) )
 				macintosh_quit();
-			if (!joydefs_calibrating)
-				newmenu_show_cursor();
+			newmenu_show_cursor();
 			k = -1;		// force key not to register
 			break;
 		}
@@ -1756,13 +1748,13 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				item[i].redraw=0;
 #endif
 #ifdef NEWMENU_MOUSE
-				if (!MenuReordering && !joydefs_calibrating)
+				if (!MenuReordering)
 					newmenu_show_cursor();
 #endif
 				item[i].y+=((string_height+FONTSCALE_Y(1))*ScrollOffset);
 			}
 			if (i==choice && (item[i].type==NM_TYPE_INPUT || (item[i].type==NM_TYPE_INPUT_MENU && item[i].group)))
-				update_cursor( &item[i]);
+				update_cursor( &item[i],ScrollOffset);
 		}
 		gr_update();
 

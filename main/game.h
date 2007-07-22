@@ -99,8 +99,6 @@ extern int gauge_message_on;
 #ifndef NDEBUG      // if debugging, these are variables
 
 extern int Slew_on;                 // in slew or sim mode?
-extern int Game_double_buffer;      // double buffering?
-
 
 #else               // if not debugging, these are constants
 

@@ -96,6 +96,7 @@ typedef struct Arg
 	char *DbgAltTex;
 	char *DbgTexMap;
 	int DbgShowMemInfo;
+	int DbgUseDoubleBuffer;
 	int DbgNoMovies;
 #ifdef OGL
 	int DbgAltTexMerge;

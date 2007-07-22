@@ -799,7 +799,7 @@ void HandleDemoKey(int key)
 
 			old_state = Newdemo_vcr_state;
 			Newdemo_vcr_state = ND_STATE_PRINTSCREEN;
-			game_render_frame_mono(Game_double_buffer);
+			game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
 			save_screen_shot(0);
 			Newdemo_vcr_state = old_state;
 			break;
@@ -1867,7 +1867,7 @@ void HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_F9: speedtest_init(); Speedtest_count = 10;	 break;
 
 		case KEY_DEBUGGED+KEY_D:
-			if ((Game_double_buffer = !Game_double_buffer)!=0)
+			if ((GameArg.DbgUseDoubleBuffer = !GameArg.DbgUseDoubleBuffer)!=0)
 				init_cockpit();
 			break;
 		#endif

@@ -813,7 +813,7 @@ void game_render_frame()
 	play_homing_warning();
 
 	if (VR_render_mode == VR_NONE )
-		game_render_frame_mono(Game_double_buffer);	 
+		game_render_frame_mono(GameArg.DbgUseDoubleBuffer);	 
 
 	// Make sure palette is faded in
 	stop_time();

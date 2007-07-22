@@ -418,10 +418,17 @@ void ReadCmdArgs(void)
 	else
 		GameArg.DbgNoMovies = 0;
 
+	if (FindArg("-nodoublebuffer"))
+		GameArg.DbgUseDoubleBuffer = 0;
+	else
+		GameArg.DbgUseDoubleBuffer = 1;
+
+#ifdef OGL
 	if (FindArg("-gl_oldtexmerge"))
 		GameArg.DbgAltTexMerge = 0;
 	else
 		GameArg.DbgAltTexMerge = 1;
+#endif
 }
 
 void args_exit(void)

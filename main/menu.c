@@ -675,9 +675,6 @@ void set_display_mode(int mode)
 	if ((Current_display_mode == -1)||(VR_render_mode != VR_NONE))	//special VR mode
 		return;								//...don't change
 
-	if (0) // (mode >= 5 && !FindArg("-superhires"))
-		mode = 4;
-
 	if (!MenuHiresAvailable && (mode != 2))
 		mode = 0;
 
@@ -791,13 +788,10 @@ void do_screen_res_menu()
 	m[4].type=NM_TYPE_RADIO; m[4].value=0; m[4].group=0; m[4].text=" 320x400";
 	m[5].type=NM_TYPE_RADIO; m[5].value=0; m[5].group=0; m[5].text=" 640x400";
 	m[6].type=NM_TYPE_RADIO; m[6].value=0; m[6].group=0; m[6].text=" 800x600";
-	n_items = 7;
-	if (1) { //(FindArg("-superhires")) {
-		m[7].type=NM_TYPE_RADIO; m[7].value=0; m[7].group=0; m[7].text=" 1024x768";
-		m[8].type=NM_TYPE_RADIO; m[8].value=0; m[8].group=0; m[8].text=" 1280x1024";
-		m[9].type=NM_TYPE_RADIO; m[9].value=0; m[9].group=0; m[9].text=" 1600x1200"; // ZICO - added
-		n_items += 3;
-	}
+	m[7].type=NM_TYPE_RADIO; m[7].value=0; m[7].group=0; m[7].text=" 1024x768";
+	m[8].type=NM_TYPE_RADIO; m[8].value=0; m[8].group=0; m[8].text=" 1280x1024";
+	m[9].type=NM_TYPE_RADIO; m[9].value=0; m[9].group=0; m[9].text=" 1600x1200";
+	n_items = 10;
 
 	m[n_items].type = NM_TYPE_CHECK; m[n_items].text = "Fullscreen";
 	m[n_items].value = gr_check_fullscreen();
@@ -1345,36 +1339,27 @@ void ipx_set_driver(int ipx_driver)
 {
 	ipx_close();
 
-	if (!FindArg("-nonetwork")) {
-		int ipx_error;
-		int socket = 0, t;
+	int ipx_error;
 
-		con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
+	con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
 
-		if ((t = FindArg("-socket")))
-			socket = atoi(Args[t + 1]);
+	arch_ipx_set_driver(ipx_driver);
 
-		arch_ipx_set_driver(ipx_driver);
-
-		if ((ipx_error = ipx_init(IPX_DEFAULT_SOCKET + socket)) == IPX_INIT_OK) {
-			con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, socket );
-			Network_active = 1;
-		} else {
-			switch(ipx_error) {
-				case IPX_NOT_INSTALLED: con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK); break;
-				case IPX_SOCKET_TABLE_FULL: con_printf(CON_VERBOSE, "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET+socket); break;
-				case IPX_NO_LOW_DOS_MEM: con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX ); break;
-				default: con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, ipx_error );
-			}
-			con_printf(CON_VERBOSE, "%s\n",TXT_NETWORK_DISABLED);
-			Network_active = 0; // Assume no network
-		}
-		ipx_read_user_file("descent.usr");
-		ipx_read_network_file("descent.net");
+	if ((ipx_error = ipx_init(IPX_DEFAULT_SOCKET)) == IPX_INIT_OK) {
+		con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, IPX_DEFAULT_SOCKET );
+		Network_active = 1;
 	} else {
-		con_printf(CON_VERBOSE, "%s\n", TXT_NETWORK_DISABLED);
+		switch(ipx_error) {
+			case IPX_NOT_INSTALLED: con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK); break;
+			case IPX_SOCKET_TABLE_FULL: con_printf(CON_VERBOSE, "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET); break;
+			case IPX_NO_LOW_DOS_MEM: con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX ); break;
+			default: con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, ipx_error );
+		}
+		con_printf(CON_VERBOSE, "%s\n",TXT_NETWORK_DISABLED);
 		Network_active = 0; // Assume no network
 	}
+	ipx_read_user_file("descent.usr");
+	ipx_read_network_file("descent.net");
 }
 
 void do_ip_manual_join_menu()

@@ -59,7 +59,7 @@ extern void Debugger(void);	// Avoids some name clashes
 #include "args.h"
 static inline void _Int3()
 {
-	if (FindArg("-debug")) {
+	if (GameArg.DbgVerbose == 2) {
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 		asm("int $3");
 	}

@@ -237,6 +237,7 @@ void print_commandline_help()
 	printf( "  -text <s>          %s\n", "Specify alternate .tex file");
 	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
 	printf( "  -showmeminfo       %s\n", "Show memory statistics");
+	printf( "  -nodoublebuffer    %s\n", "Disable Doublebuffering");
 	printf( "  -nomovies          %s\n", "Don't play movies");
 #ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
@@ -443,17 +444,6 @@ int main(int argc, char *argv[])
 		int screen_width = 640;
 		int screen_height = 480;
 //		int screen_flags = 0;
-
-// added ifdef on 9/30/98 by Matt Mueller to fix high res in linux
-#if !defined (NDEBUG) && !defined (OGL)
-		if (FindArg("-nodoublebuffer"))
-// end addition -MM
-// later modified by kreatordxx to allow double buffering to be disabled for any supported platform
-		{
-			con_printf(CON_VERBOSE, "Double-buffering disabled...\n");
-			Game_double_buffer = 0;
-		}
-#endif
 
 		// added 3/24/99 by Owen Evans for screen res changing
 		Game_screen_mode = SM(screen_width, screen_height);

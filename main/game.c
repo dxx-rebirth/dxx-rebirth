@@ -207,7 +207,6 @@ char faded_in;
 
 #ifndef NDEBUG                          //these only exist if debugging
 
-int Game_double_buffer = 1;     //double buffer by default
 fix fixed_frametime=0;          //if non-zero, set frametime to this
 
 #endif
@@ -627,8 +626,6 @@ void start_time()
 	start_count++;
 	#endif
 }
-
-MAC(extern ubyte joydefs_calibrating;)
 
 void game_flush_inputs()
 {
