@@ -88,8 +88,10 @@ typedef struct Arg
 	char *DbgTexMap;
 	int DbgShowMemInfo;
 	int DbgUseDoubleBuffer;
+	int DbgBigPig;
 #ifdef OGL
 	int DbgAltTexMerge;
+	int DbgBpp;
 #endif
 } __attribute__ ((packed)) Arg;
 

@@ -60,10 +60,7 @@ int main(int argc,char **argv){
 	error_init(NULL);
 	signal(SIGINT,int_handler);//make ctrl-c do cleanup stuff.
 	InitArgs(argc,argv);
-#ifndef NDEBUG
-	if ( FindArg( "-showmeminfo" ) )
-		show_mem_info = 1;              // Make memory statistics show
-#endif
+
 	myport=UDP_SERV_BASEPORT;
 	if(arch_ip_open_socket(myport))
 		return 1;

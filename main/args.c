@@ -393,11 +393,21 @@ void ReadCmdArgs(void)
 	else
 		GameArg.DbgUseDoubleBuffer = 1;
 
+	if (FindArg("-bigpig"))
+		GameArg.DbgBigPig = 0;
+	else
+		GameArg.DbgBigPig = 1;
+
 #ifdef OGL
 	if (FindArg("-gl_oldtexmerge"))
 		GameArg.DbgAltTexMerge = 0;
 	else
 		GameArg.DbgAltTexMerge = 1;
+
+	if (FindArg("-gl_16bpp"))
+		GameArg.GlBpp = 16;
+	else
+		GameArg.GlBpp = 32;
 #endif
 }
 

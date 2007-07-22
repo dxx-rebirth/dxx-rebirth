@@ -118,8 +118,6 @@ typedef struct DiskSoundHeader {
 	int offset;
 } __pack__ DiskSoundHeader;
 
-ubyte BigPig = 0;
-
 #ifdef SHAREWARE
 static int SoundCompressed[ MAX_SOUND_FILES ];
 #endif
@@ -196,7 +194,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 
 
 	if (!in_file)	{
-		if ( !BigPig )	gr_bitmap_rle_compress( bmp );
+		if ( !GameArg.DbgBigPig )	gr_bitmap_rle_compress( bmp );
 		Num_bitmap_files_new++;
 	}
 
@@ -370,16 +368,6 @@ int piggy_init()
 
         filename = DESCENT_DATA_PATH "descent.pig";
 	
-	if ( FindArg( "-bigpig" ))
-		BigPig = 1;
-
-	if (GameArg.SysLowMem)
-		digi_lomem = 1;
-
-	if ( (i=FindArg( "-piggy" )) )	{
-		filename	= Args[i+1];
-		mprintf( (0, "Using alternate pigfile, '%s'\n", filename ));
-	}
 	Piggy_fp = cfopen( filename, "rb" );
 	if (Piggy_fp==NULL) return 0;
 
@@ -505,7 +493,7 @@ int piggy_is_needed(int soundnum)
 {
 	int i;
 
-	if ( !digi_lomem ) return 1;
+	if ( !GameArg.SysLowMem ) return 1;
 
 	for (i=0; i<MAX_SOUNDS; i++ )	{
 		if ( (AltSounds[i] < 255) && (Sounds[AltSounds[i]] == soundnum) )
@@ -786,10 +774,7 @@ void piggy_dump_all()
 
 	mprintf( (0, "Creating DESCENT.PIG..." ));
         filename = DESCENT_DATA_PATH "descent.pig";
-	if ( (i=FindArg( "-piggy" )) )	{
-		filename	= Args[i+1];
-		mprintf( (0, "Dumping alternate pigfile, '%s'\n", filename ));
-	} 
+
 	mprintf( (0, "\nDumping bitmaps..." ));
 
 	fp = fopen( filename, "wb" );

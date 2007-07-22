@@ -202,8 +202,10 @@ void show_commandline_help()
 	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
 	printf( "  -showmeminfo       %s\n", "Show memory statistics");
 	printf( "  -nodoublebuffer    %s\n", "Disable Doublebuffering");
+	printf( "  -bigpig            %s\n", "Use uncompressed RLE bitmaps");
 #ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
+	printf( "  -gl_16bpp          %s\n", "Use 16Bpp Color Depth");
 #endif // OGL
 
 #endif // NDEBUG

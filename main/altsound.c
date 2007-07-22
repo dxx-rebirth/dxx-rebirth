@@ -21,7 +21,7 @@ int digi_xlat_sound(int soundnum)
 	if (soundnum < 0)
 		return -1;
 
-	if (digi_lomem)
+	if (GameArg.SysLowMem)
 	{
 		soundnum = AltSounds[soundnum];
 		if (soundnum == 255)

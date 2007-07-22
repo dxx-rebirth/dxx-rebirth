@@ -46,7 +46,7 @@ int ogl_init_window(int x, int y){
 	}
 	SDL_WM_SetCaption(DESCENT_VERSION, "Descent");
 
-        if (!SDL_SetVideoMode(x,y, 16, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0))) {
+        if (!SDL_SetVideoMode(x,y, GameArg.GlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0))) {
            Error("Could not set %dx%dx16 opengl video mode\n",x,y);
         }
 	
@@ -68,18 +68,6 @@ void ogl_destroy_window(void){
 }
 
 void ogl_init(void){
-	int t;
-	if ((t=FindArg("-gl_red")))
-		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, atoi(Args[t+1]) );
-	if ((t=FindArg("-gl_green")))
-		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, atoi(Args[t+1]) );
-	if ((t=FindArg("-gl_blue")))
-		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, atoi(Args[t+1]) );
-	if ((t=FindArg("-gl_alpha")))
-		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, atoi(Args[t+1]) );
-	if ((t=FindArg("-gl_buffer")))
-		SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, atoi(Args[t+1]) );
-
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,0);

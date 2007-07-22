@@ -11,129 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/digi.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:52 $
- * 
+ *
  * Include file for sound hardware.
- * 
- * $Log: digi.h,v $
- * Revision 1.1.1.1  2006/03/17 19:42:52  zicodxx
- * initial import
  *
- * Revision 1.2  1999/11/15 10:43:15  sekmu
- * added freq/br to digi_sound struct for alt sounds
- *
- * Revision 1.1.1.1  1999/06/14 22:12:14  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:28:40  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.29  1995/02/11  12:42:00  john
- * Added new song method, with FM bank switching..
- * 
- * Revision 1.28  1995/02/03  17:08:26  john
- * Changed sound stuff to allow low memory usage.
- * Also, changed so that Sounds isn't an array of digi_sounds, it
- * is a ubyte pointing into GameSounds, this way the digi.c code that
- * locks sounds won't accidentally unlock a sound that is already playing, but
- * since it's Sounds[soundno] is different, it would erroneously be unlocked.
- * 
- * Revision 1.27  1995/02/01  22:20:31  john
- * Added digi_is_sound_playing.
- * 
- * Revision 1.26  1994/12/20  18:03:51  john
- * Added loop midi flag.
- * 
- * Revision 1.25  1994/12/13  00:46:14  john
- * Split digi and midi volume into 2 seperate functions.
- * 
- * Revision 1.24  1994/12/10  20:34:53  john
- * Added digi_kill_sound_linked_to_object.
- * 
- * Revision 1.23  1994/12/10  15:59:39  mike
- * Fixed bug.
- * 
- * Revision 1.22  1994/12/10  15:44:35  john
- * Added max_distance passing for sound objects.
- * 
- * Revision 1.21  1994/12/05  12:17:40  john
- * Added code that locks/unlocks digital sounds on demand.
- * 
- * Revision 1.20  1994/11/28  18:34:57  john
- * Made the digi_max_channels cut of an old sound instead of
- * not playing a new sound.
- * 
- * Revision 1.19  1994/11/14  17:53:56  allender
- * made some digi variables extern
- * 
- * Revision 1.18  1994/10/28  14:42:58  john
- * Added sound volumes to all sound calls.
- * 
- * Revision 1.17  1994/10/11  15:25:37  john
- * Added new function to play a sound once...
- * 
- * Revision 1.16  1994/10/03  20:51:44  john
- * Started added pause sound function; for the network I changed to 
- * packet structure a bit; never tested, though.
- * 
- * 
- * Revision 1.15  1994/10/03  13:09:43  john
- * Added Pause function, but never tested it yet.
- * 
- * Revision 1.14  1994/09/30  10:09:24  john
- * Changed sound stuff... made it so the reseting card doesn't hang, 
- * made volume change only if sound is installed.
- * 
- * Revision 1.13  1994/09/29  21:13:43  john
- * Added Master volumes for digi and midi. Also took out panning,
- * because it doesn't work with MasterVolume stuff. 
- * 
- * Revision 1.12  1994/09/29  12:42:34  john
- * Added sidenum to keep track of sound pos. Made sound functions
- * not do anything if nosound. Made sounds_init delete currently
- * playing sounds.
- * 
- * Revision 1.11  1994/09/29  12:23:42  john
- * Added digi_kill_sound_linked_to_segment function.
- * 
- * Revision 1.10  1994/09/29  11:59:04  john
- * Added digi_kill_sound
- * 
- * Revision 1.9  1994/09/29  10:37:38  john
- * Added sound objects that dynamicaly change volume,pan.
- * 
- * Revision 1.8  1994/09/28  16:18:37  john
- * Added capability to play midi song.
- * 
- * Revision 1.7  1994/06/17  18:01:41  john
- * A bunch of new stuff by John
- * 
- * Revision 1.6  1994/06/15  19:00:58  john
- * Added the capability to make 3d sounds play just once for the
- * laser hit wall effects.
- * 
- * Revision 1.5  1994/06/07  10:54:30  john
- * Made key S reinit the sound system.
- * 
- * Revision 1.4  1994/05/09  21:11:39  john
- * Sound changes; pass index instead of pointer to digi routines.
- * Made laser sound cut off the last laser sound.
- * 
- * Revision 1.3  1994/04/27  11:44:25  john
- * First version of sound! Yay!
- * 
- * Revision 1.2  1994/04/20  21:58:50  john
- * First version of sound stuff... hopefully everything
- * is commented out because it hangs..
- * 
- * Revision 1.1  1994/04/15  14:25:02  john
- * Initial revision
- * 
- * 
  */
 
 
@@ -206,8 +86,6 @@ extern void digi_stop_all();
 
 extern void digi_set_max_channels(int n);
 extern int digi_get_max_channels();
-
-extern int digi_lomem;
 
 extern int digi_xlat_sound(int soundno);
 
