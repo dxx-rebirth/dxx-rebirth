@@ -379,7 +379,9 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 
 #ifdef NETWORK
 	if ( Game_mode & GM_MULTI )	{
+#ifdef MULTI_SAVE
 			multi_initiate_save_game();
+#endif
 		return 0;
 	}
 #endif

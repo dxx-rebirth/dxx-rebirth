@@ -43,7 +43,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // Save multiplayer games?
 
-#define MULTI_SAVE
+// #define MULTI_SAVE
 
 // How many simultaneous network players do we support?
 

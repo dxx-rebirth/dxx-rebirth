@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 include/args.h, include/error.h, main/newmenu.c, main/network.c, main/inferno.c, main/menu.c, main/gamerend.c, main/automap.c, main/game.c, main/game.h, main/gamecntl.c, misc/args.c: Code cleanup and small fixes
 main/collide.c, main/newmenu.c, main/object.c, main/physics.c, main/weapon.c, main/weapon.h, main/gameseq.c, main/laser.c, main/kconfig.c, main/gamecntl.c: Removed old Tactile-code since ForceFeedback is currently out of question
+main/multi.h, main/state.c: Deactivated Multisave feature as default (multi.h define) - broken, not sure if it's worth to fix
 
 20070718
 --------
