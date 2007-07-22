@@ -46,7 +46,7 @@ int ogl_init_window(int x, int y){
 	}
 	SDL_WM_SetCaption(DESCENT_VERSION, "Descent");
 
-        if (!SDL_SetVideoMode(x,y, GameArg.GlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0))) {
+        if (!SDL_SetVideoMode(x,y, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0))) {
            Error("Could not set %dx%dx16 opengl video mode\n",x,y);
         }
 	

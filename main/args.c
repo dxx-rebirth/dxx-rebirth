@@ -405,9 +405,9 @@ void ReadCmdArgs(void)
 		GameArg.DbgAltTexMerge = 1;
 
 	if (FindArg("-gl_16bpp"))
-		GameArg.GlBpp = 16;
+		GameArg.DbgGlBpp = 16;
 	else
-		GameArg.GlBpp = 32;
+		GameArg.DbgGlBpp = 32;
 #endif
 }
 
