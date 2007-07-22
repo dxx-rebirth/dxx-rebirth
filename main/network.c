@@ -2164,7 +2164,6 @@ int network_get_game_params( netgame_info *netgame, int *new_socket )
 	m[opt_mode+1].value = multivalues[1];
 	m[opt_mode+2].value = multivalues[2];
 	m[opt_mode+3].value = multivalues[3];
-#endif
 
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_OPTIONS; opt++;
 	opt_closed = opt;
