@@ -78,10 +78,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "gameseq.h"
 
-#ifdef TACTILE
-#include "tactile.h"
-#endif
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -1639,12 +1635,6 @@ void dead_player_frame(void)
 			else
 				HUD_init_message(TXT_SHIP_DESTROYED_0);
 
-				#ifdef TACTILE
-					if (TactileStick)
-					 {
-					  ClearForces();
-					 }
-				#endif
 				Player_exploded = 1;
 #ifdef NETWORK
 				if (Game_mode & GM_NETWORK)
@@ -1770,10 +1760,6 @@ void start_player_death_sequence(object *player)
 	
 	PaletteRedAdd = 40;
 	Player_is_dead = 1;
-   #ifdef TACTILE
-    if (TactileStick)
-	  Buffeting (70);
-	#endif
 
 	//Players[Player_num].flags &= ~(PLAYER_FLAGS_AFTERBURNER);
 

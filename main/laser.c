@@ -66,10 +66,6 @@ char laser_rcsid[] = "$Id: laser.c,v 1.1.1.1 2006/03/17 19:55:16 zicodxx Exp $";
 #include "physics.h"
 #include "multi.h"
 
-#ifdef TACTILE
-#include "tactile.h"
-#endif
-
 int Laser_rapid_fire = 0;
 
 object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};

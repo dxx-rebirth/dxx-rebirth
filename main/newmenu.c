@@ -81,10 +81,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-#if defined (TACTILE)
- #include "tactile.h"
-#endif
-
 #ifdef GP2X
 #include "gp2x.h"
 #endif
@@ -731,10 +727,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	{
 		time_stopped = 1;
 		stop_time();
-		#ifdef TACTILE 
-		  if (TactileStick)	
-			  DisableForces();	
-		#endif
 	}
 
 	save_canvas = grd_curcanv;
@@ -939,11 +931,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 #ifndef OGL
 	if ( filename == NULL )	{
 		// Save the background under the menu...
-		#ifdef TACTILE
-			if (TactileStick)
-				DisableForces();
-		#endif
-		
+	
 		bg.saved = gr_create_bitmap( w+MENSCALE_X, h+MENSCALE_Y );
 		Assert( bg.saved != NULL );
 
@@ -1827,10 +1815,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	if (time_stopped) 
 	{
 		start_time();
-		#ifdef TACTILE
-			if (TactileStick)
-				EnableForces();
-		#endif
 	}
 
 	if ( sound_stopped )

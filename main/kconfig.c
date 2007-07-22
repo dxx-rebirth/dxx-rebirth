@@ -62,9 +62,6 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:57:17 zicodxx Exp 
 #include "lighting.h"
 #include "ai.h"
 #include "cntrlcen.h"
-#if defined (TACTILE)
- #include "tactile.h"
-#endif
 #include "collide.h"
 
 #ifdef GP2X

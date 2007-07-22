@@ -47,10 +47,6 @@ static char rcsid[] = "$Id: weapon.c,v 1.1.1.1 2006/03/17 19:57:36 zicodxx Exp $
 #include "ai.h"
 #include "args.h"
 
-#if defined (TACTILE)
-#include "tactile.h"
-#endif
-
 int POrderList (int num);
 int SOrderList (int num);
 //	Note, only Vulcan cannon requires ammo.
@@ -290,10 +286,6 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 		}
 		Primary_weapon = weapon_num;
 		weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
-      #if defined (TACTILE)
- 		tactile_set_button_jolt();
-		#endif
-
 
 		//save flag for whether was super version
 		Primary_last_was_super[weapon_num % SUPER_WEAPON] = (weapon_num >= SUPER_WEAPON);
@@ -433,10 +425,6 @@ void auto_select_weapon(int weapon_type)
 						if (!Cycling)
 						{
 							HUD_init_message(TXT_NO_PRIMARY);
-							#ifdef TACTILE
-							if (TactileStick)
-							 ButtonReflexClear(0);
-							#endif
 							select_weapon(0, 0, 0, 1);
 						}
 						else
@@ -462,11 +450,6 @@ void auto_select_weapon(int weapon_type)
 					if (!Cycling)
 					{
 						HUD_init_message(TXT_NO_PRIMARY);
-						#ifdef TACTILE
-						if (TactileStick)
-						 ButtonReflexClear(0);
-						#endif
-
 						//	if (POrderList(0)<POrderList(255))
 						select_weapon(0, 0, 0, 1);
 					}
@@ -641,7 +624,7 @@ void ReorderPrimary ()
 	{
 		m[i].type=NM_TYPE_MENU;
 		if (PrimaryOrder[i]==255)
-			m[i].text="ˆˆˆˆˆˆˆ Never autoselect ˆˆˆˆˆˆˆ";
+			m[i].text="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Never autoselect ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
 		else
 			m[i].text=(char *)PRIMARY_WEAPON_NAMES(PrimaryOrder[i]);
 		m[i].value=PrimaryOrder[i];
@@ -663,7 +646,7 @@ void ReorderSecondary ()
 	{
 		m[i].type=NM_TYPE_MENU;
 		if (SecondaryOrder[i]==255)
-			m[i].text="ˆˆˆˆˆˆˆ Never autoselect ˆˆˆˆˆˆˆ";
+			m[i].text="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Never autoselect ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½";
 		else
 			m[i].text=(char *)SECONDARY_WEAPON_NAMES(SecondaryOrder[i]);
 		m[i].value=SecondaryOrder[i];
@@ -1269,46 +1252,6 @@ void do_seismic_stuff(void)
 	}
 
 }
-
-int tactile_fire_duration[]={120,80,150,250,150,200,100,180,280,100};
-int tactile_fire_repeat[]={260,90,160,160,160,210,110,191,291,111};
-
-void tactile_set_button_jolt ()
- {
-  #ifdef TACTILE
-
-  FILE *infile;
-  int t,i;
-  static int stickmag=-1;
-  int dur,rep;
-
-  dur=tactile_fire_duration[Primary_weapon];
-  rep=tactile_fire_repeat[Primary_weapon];
-
-  if (TactileStick)
-   {
-  	 if (stickmag==-1)
-	  {
-	   if (t=FindArg("-stickmag"))
-	 		stickmag=atoi (Args[t+1]);
-	   else
-	   	stickmag=50;
-
-      infile=(FILE *)fopen ("stick.val","rt");
-		if (infile!=NULL)
-		 {
-			for (i=0;i<10;i++)
-			 {
-			  fscanf (infile,"%d %d\n",&tactile_fire_duration[i],&tactile_fire_repeat[i]);
-			  mprintf ((0,"scan value[%d]=%d\n",i,tactile_fire_duration[i]));
-			 }
-	 		fclose (infile);
-		 }
-	  }
-    ButtonReflexJolt (0,stickmag,0,dur,rep);
-   }
-  #endif
- }
 
 /*
  * reads n weapon_info structs from a CFILE

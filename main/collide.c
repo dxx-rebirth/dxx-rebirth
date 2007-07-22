@@ -79,10 +79,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "gameseq.h"
 
-#ifdef TACTILE
-#include "tactile.h"
-#endif 
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -332,11 +328,6 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 		force.z = 40*(d_rand() - 16384);
 		phys_apply_rot(playerobj, &force);
 
-#ifdef TACTILE
-		if (TactileStick)
-		 Tactile_apply_force (&force,&playerobj->orient);
-#endif
-
 		//make sound
 		digi_link_sound_to_pos( SOUND_FORCEFIELD_BOUNCE_PLAYER, hitseg, 0, hitpt, 0, f1_0 );
 #ifdef NETWORK
@@ -346,16 +337,6 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 		ForceFieldHit=1;
 	} 
 	else {
-
-	#ifdef TACTILE
-		vms_vector force;
-		if (TactileStick) {
-			force.x = -playerobj->mtype.phys_info.velocity.x;
-			force.y = -playerobj->mtype.phys_info.velocity.y;
-			force.z = -playerobj->mtype.phys_info.velocity.z;
-			Tactile_do_collide(&force, &playerobj->orient);
-		}
-	#endif
 
     	wall_hit_process( &Segments[hitseg], hitwall, 20, playerobj->id, playerobj );
 	}
@@ -439,11 +420,6 @@ int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt)
 				if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
 					apply_damage_to_player( obj, obj, damage );
 
-#ifdef TACTILE
-				if (TactileStick)
-				 Tactile_Xvibrate (50,25);
-#endif
-
 				PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
 			}
 
@@ -455,11 +431,6 @@ int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt)
 	}
 	else
 	 {
-#ifdef TACTILE
-		if (TactileStick && !(FrameCount & 15))
-		 Tactile_Xvibrate_clear ();
-#endif
-
 		return 0;
 	 }
 }

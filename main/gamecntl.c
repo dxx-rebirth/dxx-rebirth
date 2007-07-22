@@ -88,10 +88,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #endif
 
-#if defined (TACTILE)
-#include "tactile.h"
-#endif
-
 #include "multi.h"
 #include "desc_id.h"
 #include "cntrlcen.h"
@@ -443,10 +439,6 @@ int do_game_pause()
 
 	if (Game_paused) {		//unpause!
 		Game_paused=0;
-#if defined (TACTILE)
-			if (TactileStick)
-			  EnableForces();
-#endif
 		return KEY_PAUSE;
 	}
 
@@ -479,11 +471,6 @@ int do_game_pause()
 	game_flush_inputs();
 
 	Game_paused=1;
-
-   #if defined (TACTILE)
-	if (TactileStick)
-		  DisableForces();
-	#endif
 
 //	set_screen_mode( SCREEN_MENU );
 	set_popup_screen();

@@ -226,7 +226,6 @@ extern int spit_powerup(object *spitter, int id, int seed);
 extern void rock_the_mine_frame(void);
 extern void smega_rock_stuff(void);
 extern void init_smega_detonates(void);
-extern void tactile_set_button_jolt (void);
 
 /*
  * reads n weapon_info structs from a CFILE

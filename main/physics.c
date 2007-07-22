@@ -50,10 +50,6 @@ static char rcsid[] = "$Id: physics.c,v 1.1.1.1 2006/03/17 19:55:30 zicodxx Exp 
 #include "bm.h"
 #include "player.h"
 
-#ifdef TACTILE
-#include "tactile.h"
-#endif
-
 //Global variables for physics system
 
 #define ROLL_RATE 	0x2000
@@ -805,10 +801,6 @@ void do_physics_sim(object *obj)
 				break;
 			}	
 			case HIT_NONE:		
-#ifdef TACTILE
-				if (TactileStick && obj==ConsoleObject && !(FrameCount & 15))
-				 Tactile_Xvibrate_clear ();
-#endif
 				break;
 
 #ifndef NDEBUG
@@ -958,11 +950,6 @@ void phys_apply_force(object *obj,vms_vector *force_vec)
 
 	if (obj->movement_type != MT_PHYSICS)
 		return;
-
-#ifdef TACTILE
-	if (TactileStick && obj==&Objects[Players[Player_num].objnum])
-		Tactile_apply_force (force_vec,&obj->orient);
-#endif
 
 	//Add in acceleration due to force
 	vm_vec_scale_add2(&obj->mtype.phys_info.velocity,force_vec,fixdiv(f1_0,obj->mtype.phys_info.mass));

@@ -113,10 +113,6 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.1.1.1 2006/03/17 19:57:54 zicodxx Exp
 #include "credits.h"
 #include "gamemine.h"
 
-#if defined (TACTILE)
- #include "tactile.h"
-#endif
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -435,11 +431,6 @@ void init_player_stats_level(int secret_flag)
 
 	init_gauges();
 
-   #ifdef TACTILE
-		if (TactileStick)
-		  tactile_set_button_jolt();
-	#endif
-
 	Missile_viewer = NULL;
 }
 
@@ -505,14 +496,6 @@ void init_player_stats_new_ship()
 	digi_kill_sound_linked_to_object(Players[Player_num].objnum);
 
 	Missile_viewer=NULL;		///reset missile camera if out there
-
-   #ifdef TACTILE
-		if (TactileStick)
-		 {
-		  tactile_set_button_jolt();
-		 }
-	#endif
-
 
 	init_ai_for_ship();
 }
@@ -967,11 +950,6 @@ void DoEndLevelScoreGlitz(int network)
 	int				mine_level;
 
 	set_screen_mode(SCREEN_MENU);		//go into menu mode
-
-   #ifdef TACTILE
-		if (TactileStick)
-		  ClearForces();
-	#endif
 
 	mprintf((0,"DoEndLevelScoreGlitz\n"));
 
