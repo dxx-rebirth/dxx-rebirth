@@ -3081,7 +3081,7 @@ int network_get_game_params( char * game_name, int *mode, int *game_flags, int *
 
 	opt_level = opt;
 	m[opt].type = NM_TYPE_INPUT; m[opt].text = slevel; m[opt].text_len=4; opt++;
-// 	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_OPTIONS; opt++;
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_OPTIONS; opt++;
 	
 	opt_mode = opt;
 	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY; m[opt].value=1; m[opt].group=0; opt++;
@@ -3104,7 +3104,7 @@ int network_get_game_params( char * game_name, int *mode, int *game_flags, int *
    opt_refuse = opt;
    m[opt].type = NM_TYPE_RADIO; m[opt].text = "Restricted Game              "; m[opt].group=1; m[opt].value=Netgame.RefusePlayers; opt++;
 
-     m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_IDS; m[opt].value=0; opt++;
+//      m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_IDS; m[opt].value=0; opt++;
 
    opt_maxnet = opt;
    sprintf( srmaxnet, "Maximum players: %d", MaxNumNetPlayers);
