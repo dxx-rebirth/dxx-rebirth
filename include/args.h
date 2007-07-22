@@ -76,6 +76,7 @@ typedef struct Arg
 	int MplNoRedundancy;
 	int MplPlayerMessages;
 	int MplMsgColorLevel;
+	int MplPacketsPerSec;
 	const char *MplIpxNetwork;
 	int MplIpNoGetMyAddr;
 	char *MplIpMyAddr;
@@ -86,6 +87,7 @@ typedef struct Arg
 	char *DbgAltTex;
 	char *DbgTexMap;
 	int DbgShowMemInfo;
+	int DbgUseDoubleBuffer;
 #ifdef OGL
 	int DbgAltTexMerge;
 #endif

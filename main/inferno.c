@@ -201,6 +201,7 @@ void show_commandline_help()
 	printf( "  -text <s>          %s\n", "Specify alternate .tex file");
 	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
 	printf( "  -showmeminfo       %s\n", "Show memory statistics");
+	printf( "  -nodoublebuffer    %s\n", "Disable Doublebuffering");
 #ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
 #endif // OGL

@@ -588,7 +588,7 @@ void do_automap( int key_code )	{
 		if ( ViewDist < ZOOM_MIN_VALUE ) ViewDist = ZOOM_MIN_VALUE;
 		if ( ViewDist > ZOOM_MAX_VALUE ) ViewDist = ZOOM_MAX_VALUE;
 
-		draw_automap(Game_double_buffer);
+		draw_automap(GameArg.DbgUseDoubleBuffer);
 
 		if ( first_time )	{
 			first_time = 0;

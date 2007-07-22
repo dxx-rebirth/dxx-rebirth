@@ -189,7 +189,6 @@ char	faded_in;
 #endif
 
 #ifndef NDEBUG //these only exist if debugging
-int	Game_double_buffer = 1; //double buffer by default
 fix	fixed_frametime=0; //if non-zero, set frametime to this
 #endif
 
@@ -594,7 +593,7 @@ int set_screen_mode(int sm)
 	gr_set_current_canvas(NULL);
 
 #ifndef OGL
-	gr_set_draw_buffer(((Screen_mode == SCREEN_GAME) && Game_double_buffer) ? 1 : 0); // Double buffering or 'front' buffer only
+	gr_set_draw_buffer(((Screen_mode == SCREEN_GAME) && GameArg.DbgUseDoubleBuffer) ? 1 : 0); // Double buffering or 'front' buffer only
 #endif
 
 	return 1;
@@ -1099,7 +1098,7 @@ void game_render_frame()
 {
 	set_screen_mode( SCREEN_GAME );
 	play_homing_warning();
-        game_do_render_frame(Game_double_buffer);
+        game_do_render_frame(GameArg.DbgUseDoubleBuffer);
 	stop_time();
 	gr_palette_fade_in( gr_palette, 32, 0 );
 	start_time();
@@ -2030,7 +2029,7 @@ void HandleDemoKey(int key)
 			int old_state;
 			old_state = Newdemo_vcr_state;
 			Newdemo_vcr_state = ND_STATE_PRINTSCREEN;
-			game_do_render_frame(Game_double_buffer);
+			game_do_render_frame(GameArg.DbgUseDoubleBuffer);
 			save_screen_shot(0);
 			Newdemo_vcr_state = old_state;
 		case KEYS_GR_TOGGLE_FULLSCREEN:
@@ -2371,7 +2370,7 @@ void HandleGameKey(int key)
 		case KEY_DEBUGGED+KEY_F8: speedtest_init(); Speedtest_count = 1;	break;
 		case KEY_DEBUGGED+KEY_F9: speedtest_init(); Speedtest_count = 10;	break;
 		case KEY_DEBUGGED+KEY_D:
-			if ((Game_double_buffer = !Game_double_buffer)!=0)
+			if ((GameArg.DbgUseDoubleBuffer = !GameArg.DbgUseDoubleBuffer)!=0)
 				init_cockpit();
 			break;
 #endif

@@ -38,7 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compare.h"
 //end addition -MM
 
-extern int netgame_d1x_only;
+extern int Network_DOS_compability;
 
 // What version of the multiplayer protocol is this?
 
@@ -47,7 +47,7 @@ extern int netgame_d1x_only;
 #else
 #define MULTI_PROTO_VERSION	2
 #endif
-#define MULTI_PROTO_D1X_VER	(netgame_d1x_only?MULTI_PROTO_VERSION:3)
+#define MULTI_PROTO_D1X_VER	(Network_DOS_compability?3:MULTI_PROTO_VERSION)
 
 //edit 4/18/99 Matt Mueller - Needed to add data onto netgame_lite packet for flags.
 //Incrementing this seems the only way possible.  Still stays backwards compitible.
@@ -372,6 +372,7 @@ typedef struct netgame_info {
 	ubyte					subprotocol; // constant for given version
 	ubyte					required_subprotocol; // depends on game mode etc.
 #endif
+	char					*Driver;
 } __pack__ netgame_info;
 
 extern struct netgame_info Netgame;

@@ -133,45 +133,35 @@ int ipx_set_driver(char *arg)
 {
 	ipx_close();
 
-	if (!FindArg( "-nonetwork" ))	{
-		int socket=0;
-		int ipx_error;
-		int t;
-		if (GameArg.DbgVerbose) printf( "\n%s ", TXT_INITIALIZING_NETWORK);
-		if ((t=FindArg("-socket")))
-			socket = atoi( Args[t+1] );
+	int ipx_error;
 
-		if ((t=FindArg("-pps")) && (t = atoi(Args[t+1])) && (t >= 2) && (t <= 20)) {
-			Network_initial_pps = t;
-		}
-		if ( FindArg("-shortpackets") )
-			Network_initial_shortpackets = 1;
+	if (GameArg.DbgVerbose) printf( "\n%s ", TXT_INITIALIZING_NETWORK);
 
-		if (strcmp(arg,"ip")==0){
-			driver=&ipx_ip;
-		}else
-                        driver=arch_ipx_set_driver(arg);
+	if (GameArg.MplPacketsPerSec<1)
+		GameArg.MplPacketsPerSec=1;
+	else if (GameArg.MplPacketsPerSec>20)
+		GameArg.MplPacketsPerSec=20;
 
-		if ((ipx_error=ipx_init(IPX_DEFAULT_SOCKET+socket))==0)	{
-			if (GameArg.DbgVerbose) printf( "%s %d.\n", TXT_IPX_CHANNEL, socket );
-			Network_active = 1;
-		} else {
-			switch( ipx_error )	{
-				case 3: 	if (GameArg.DbgVerbose) printf( "%s\n", TXT_NO_NETWORK); break;
-				case -2: if (GameArg.DbgVerbose) printf( "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET+socket); break;
-				case -4: if (GameArg.DbgVerbose) printf( "%s\n", TXT_MEMORY_IPX ); break;
-				default:
-							 if (GameArg.DbgVerbose) printf( "%s %d", TXT_ERROR_IPX, ipx_error );
-			}
-			if (GameArg.DbgVerbose) printf( "%s\n",TXT_NETWORK_DISABLED);
-			Network_active = 0;		// Assume no network
-		}
-                ipx_read_user_file( "descent.usr" );
-                ipx_read_network_file( "descent.net" );
+	Network_initial_shortpackets = 1;
+
+	driver=arch_ipx_set_driver(arg);
+
+	if ((ipx_error=ipx_init(IPX_DEFAULT_SOCKET))==0)	{
+		if (GameArg.DbgVerbose) printf( "%s %d.\n", TXT_IPX_CHANNEL, IPX_DEFAULT_SOCKET );
+		Network_active = 1;
 	} else {
-		if (GameArg.DbgVerbose) printf( "%s\n", TXT_NETWORK_DISABLED);
+		switch( ipx_error )	{
+			case 3: 	if (GameArg.DbgVerbose) printf( "%s\n", TXT_NO_NETWORK); break;
+			case -2: if (GameArg.DbgVerbose) printf( "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET); break;
+			case -4: if (GameArg.DbgVerbose) printf( "%s\n", TXT_MEMORY_IPX ); break;
+			default:
+							if (GameArg.DbgVerbose) printf( "%s %d", TXT_ERROR_IPX, ipx_error );
+		}
+		if (GameArg.DbgVerbose) printf( "%s\n",TXT_NETWORK_DISABLED);
 		Network_active = 0;		// Assume no network
 	}
+	ipx_read_user_file( "descent.usr" );
+	ipx_read_network_file( "descent.net" );
 
 	return ipx_installed?0:-1;
 }

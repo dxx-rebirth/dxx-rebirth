@@ -171,19 +171,7 @@ void putfrom_multivalues(int multivalues[40], netgame_info *temp_game, int *sock
   if(multivalues[10])
    temp_game->flags |= NETFLAG_SHORTPACKETS;
  temp_game->packets_per_sec = multivalues[11];
- {
-  int t;
-   if((t=FindArg("-socket")))
-    {
-     t=atoi(Args[t+1]);
-      if(t>-100 && t<100)
-       *socket = t;
-      else
-       *socket = multivalues[12];
-    }
-   else
     *socket = multivalues[12];
- }
 
 
  temp_game->protocol_version = (multivalues[13] ? MULTI_PROTO_D1X_VER : MULTI_PROTO_VERSION);

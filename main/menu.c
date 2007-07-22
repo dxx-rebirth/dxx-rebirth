@@ -279,7 +279,6 @@ int DoMenu()
 }
 
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
-int netgame_d1x_only=0;
 
 //returns flag, true means quit menu
 void do_option ( int select) 
@@ -371,7 +370,6 @@ void do_option ( int select)
 		case MENU_JOIN_IPX_NETGAME:
 		case MENU_START_KALI_NETGAME:
 		case MENU_JOIN_KALI_NETGAME:
-			netgame_d1x_only=0;
 			switch (select & ~0x1) {
 				case MENU_START_IPX_NETGAME: ipx_set_driver("ipx"); break;
 				case MENU_START_KALI_NETGAME: ipx_set_driver("kali"); break;
@@ -384,12 +382,10 @@ void do_option ( int select)
 			break;
 
 		case MENU_START_UDP_NETGAME:
-			netgame_d1x_only=1;
 			ipx_set_driver("ip");
 			network_start_game();
 			break;
 		case MENU_JOIN_UDP_NETGAME:
-			netgame_d1x_only=1;
 			ipx_set_driver("ip");
 			do_ip_manual_join_menu();
 			break;

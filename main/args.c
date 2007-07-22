@@ -324,6 +324,11 @@ void ReadCmdArgs(void)
 	else
 		GameArg.MplMsgColorLevel = 1;
 
+	if ((t=FindArg("-packets")))
+		GameArg.MplPacketsPerSec = atoi(Args[t+1]);
+	else
+		GameArg.MplPacketsPerSec = 10;
+
 	if ((t=FindArg("-ipxnetwork")) && Args[t+1])
 		GameArg.MplIpxNetwork = Args[t+1];
 	else
@@ -383,10 +388,17 @@ void ReadCmdArgs(void)
 	else
 		GameArg.DbgShowMemInfo = 0;
 
+	if (FindArg("-nodoublebuffer"))
+		GameArg.DbgUseDoubleBuffer = 0;
+	else
+		GameArg.DbgUseDoubleBuffer = 1;
+
+#ifdef OGL
 	if (FindArg("-gl_oldtexmerge"))
 		GameArg.DbgAltTexMerge = 0;
 	else
 		GameArg.DbgAltTexMerge = 1;
+#endif
 }
 
 void args_exit(void)

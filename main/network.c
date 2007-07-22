@@ -125,9 +125,6 @@ int  	Network_status = 0;
 int 	Network_games_changed = 0;
 
 int 	Network_socket = 0;
-//int	  Network_allow_socket_changes = 0;
-//fix	  Network_packet_interval = F1_0 / 10;
-int	Network_initial_pps = 10;
 int	Network_initial_shortpackets = 1;
 int	Network_enable_ignore_ghost = 0;
 
@@ -159,6 +156,8 @@ int 	PacketUrgent = 0;
 frame_info 	MySyncPack;
 ubyte		MySyncPackInitialized = 0;		// Set to 1 if the MySyncPack is zeroed.
 ushort 		my_segments_checksum = 0;
+
+int Network_DOS_compability = 0; // ugly, yes - D1X ONLY or do we also play with DOS versions?
 
 sequence_packet My_Seq;
 
@@ -1966,123 +1965,86 @@ void network_d1x_param_poll(int nitems, newmenu_item * menus, int * key, int cit
 
 void network_get_d1x_params(netgame_info *temp_game, int *new_socket, int multivalues[40])   {
 	int i, pps, socket;
-//        uint flags;
 	int opt;
 	newmenu_item m[16];
 	char spps[10];
-//        char smaxplayers[32];
 	char ssocket[10];
-//added 11/01/98  Matthew Mueller
         char smaxplayers[30];
-//end addition -MM
 
-//        flags = temp_game->flags;
-        last_maxplayers = -1;
+	last_maxplayers = -1;
 
-        sprintf(spps, "%d", multivalues[11]); //
-        sprintf(ssocket, "%d", multivalues[12]);  //*new_socket
-//        sprintf(smaxplayers, "Maximum players: %d", multivalues[14]);
+	sprintf(spps, "%d", multivalues[11]);
+	sprintf(ssocket, "%d", multivalues[12]);
 
-         {
-          m[0].value  = multivalues[10];
-          m[2].text   = spps;
-          m[4].text   = ssocket;
-          m[6].value  = multivalues[13];
-          m[7].value  = multivalues[14]-2;
-//added 11/01/98  Matthew Mueller
-        sprintf(smaxplayers,"Maximum players: %d",multivalues[14]);
-//end addition -MM
-          m[9].value  = multivalues[15];
-          m[10].value = multivalues[16];
-//added on 11/12/98 by Victor Rachels for radar
-          m[11].value = multivalues[17];
-//end this section addition - VR
-//added on 11/12/98 by Victor Rachels for alt vulcanfire
-          m[12].value = multivalues[18];
-//end this section addition - VR
-         }
+	m[0].value  = multivalues[10];
+	m[2].text   = spps;
+	m[4].text   = ssocket;
+	m[6].value  = multivalues[13];
+	m[7].value  = multivalues[14]-2;
+	sprintf(smaxplayers,"Maximum players: %d",multivalues[14]);
+	m[9].value  = multivalues[15];
+	m[10].value = multivalues[16];
+	m[11].value = multivalues[17];
+	m[12].value = multivalues[18];
 
 	opt = 0;
-        /* 0*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short packets"; opt++;
+	/* 0*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short packets"; opt++;
 	/* 1*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = "Packets per second (2 to 20)"; opt++;
-        /* 2*/ m[opt].type = NM_TYPE_INPUT; m[opt].text_len = 2; opt++;
+	/* 2*/ m[opt].type = NM_TYPE_INPUT; m[opt].text_len = 2; opt++;
 	/* 3*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network socket (-99 to 99)"; opt++;
-        /* 4*/ m[opt].type = NM_TYPE_INPUT; m[opt].text_len = 3; opt++;
+	/* 4*/ m[opt].type = NM_TYPE_INPUT; m[opt].text_len = 3; opt++;
 
-	/* 5*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = "Options below need D1X only games"; opt++;
-       /* 6*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "D1X only game"; opt++;
-//added/edited on 11/1/98 by Matthew Mueller
+	if (Network_DOS_compability)
+	{
+		/* 5*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = "Options below need D1X only games"; opt++;
+		/* 6*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "D1X only game"; opt++;
+	}
+	else
+	{
+		/* 5*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
+		/* 6*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
+	}
         /* 7*/ m[opt].type = NM_TYPE_SLIDER; m[opt].text = smaxplayers; m[opt].min_value = 0; m[opt].max_value = MaxNumNetPlayers - 2; opt++;
-//end edit -MM
 	/* 8*/ m[opt].type = NM_TYPE_MENU; m[opt].text = "Set objects allowed..."; opt++;
         /* 9*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Drop vulcan ammo"; opt++;
         /*10*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Enable ignore/ghost"; opt++;
-
-//added on 11/12/98 by Victor Rachels for radar
         /*11*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Enable radar"; opt++;
-//end this section addition -VR
         /*12*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short Vulcanfire"; opt++;
 
 	i = 0;
 	for (;;) {
-		i = newmenu_do1( NULL, "D1X options", opt, m, &network_d1x_param_poll, i );
+		i = newmenu_do1( NULL, "More options", opt, m, &network_d1x_param_poll, i );
 		if (i == 8) {
-                        network_get_allowed_objects(multivalues); //&flags);
+                        network_get_allowed_objects(multivalues);
 			continue;
                 } else {// if (i > -1) {
 			pps = atoi(spps);
 			if (pps < 2 || pps > 20) {
-			    nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for packets per second");
-			    i = 2; // select pps field
-                            sprintf(spps, "10");
-			    continue;
+				nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for packets per second");
+				i = 2; // select pps field
+				sprintf(spps, "10");
+				continue;
 			}
 			socket = atoi(ssocket);
 			if (socket < -99 || socket > 99) {
-			    nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for network socket");
-			    i = 4; // select socket field
-                            sprintf(ssocket, "0");
-			    continue;
+				nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for network socket");
+				i = 4; // select socket field
+				sprintf(ssocket, "0");
+				continue;
 			}
-                } 
-               
-               break;
+                }
+		break;
 	}
-//        if (i > -1) {
 
-         {
-          multivalues[10] = m[0].value;
-          multivalues[11] = atoi(spps);
-          multivalues[12] = atoi(ssocket);
-          multivalues[13] = m[6].value;
-          multivalues[14] = m[7].value + 2;
-          multivalues[15] = m[9].value;
-          multivalues[16] = m[10].value;
-//added on 11/12/98 by Victor Rachels for radar
-          multivalues[17] = m[11].value;
-//end this section addition - VR
-//added on 11/12/98 by Victor Rachels for alt vulcanfire
-          multivalues[18] = m[12].value;
-//end this section addition - VR
-
-         }
-
-/*                flags &= ~NETFLAG_SHORTPACKETS;
-		if (m[0].value)
-			flags |= NETFLAG_SHORTPACKETS;
-                temp_game->packets_per_sec = pps;
-		*new_socket = socket;
-		temp_game->protocol_version = (m[6].value ?
-			MULTI_PROTO_D1X_VER : MULTI_PROTO_VERSION);
-		temp_game->max_numplayers = m[7].value + 2;
-                flags &= ~NETFLAG_DROP_VULCAN_AMMO;
-		if (m[9].value)
-                        flags |= NETFLAG_DROP_VULCAN_AMMO;
-                flags &= ~NETFLAG_ENABLE_IGNORE_GHOST;
-		if (m[10].value)
-                        flags |= NETFLAG_ENABLE_IGNORE_GHOST;
-                temp_game->flags = flags;*/
-//        }
+	multivalues[10] = m[0].value;
+	multivalues[11] = atoi(spps);
+	multivalues[12] = atoi(ssocket);
+	multivalues[13] = m[6].value;
+	multivalues[14] = m[7].value + 2;
+	multivalues[15] = m[9].value;
+	multivalues[16] = m[10].value;
+	multivalues[17] = m[11].value;
+	multivalues[18] = m[12].value;
 }
 #endif
 
@@ -2120,40 +2082,35 @@ void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
                 sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
                 last_cinvul = menus[opt_cinvul].value;
                 menus[opt_cinvul].redraw = 1;
-        }               
+        }
 #endif
 }
 
 int network_get_game_params( netgame_info *netgame, int *new_socket )
 {
 	int i;
-        int opt, opt_name, opt_level, opt_closed, opt_difficulty;
+	int opt, opt_name, opt_level, opt_closed, opt_difficulty;
 	newmenu_item m[16];
 	netgame_info temp_game;
-	//char name[NETGAME_NAME_LEN+1];
 	char slevel[5];
 	char level_text[32];
 #ifndef SHAREWARE
-        int opt_showmap;
+	int opt_showmap;
 	char srinvul[32];
-
 	int new_mission_num;
 	int anarchy_only;
 #endif
+	int multivalues[40];
 
-        //added on 10/18/98 by Victor Rachels to add multiplayer profiles
-        int multivalues[40];
-
-        memset(multivalues,0,sizeof(int) * 40);
-        //end this section addition - Victor
+	memset(multivalues,0,sizeof(int) * 40);
 
 #ifndef SHAREWARE
-        new_mission_num = multi_choose_mission(&anarchy_only);
+	new_mission_num = multi_choose_mission(&anarchy_only);
 
 	if (new_mission_num < 0)
 		return -1;
 #endif
-        restrict_mode = 0;
+	restrict_mode = 0;
 
 	cur_temp_game = &temp_game;
 	memset(&temp_game, 0, sizeof(temp_game));
@@ -2161,28 +2118,22 @@ int network_get_game_params( netgame_info *netgame, int *new_socket )
         temp_game.difficulty = Player_default_difficulty;
 #ifndef SHAREWARE
 	strcpy(temp_game.mission_name, Mission_list[new_mission_num].filename);
-        strcpy(temp_game.mission_title, Mission_list[new_mission_num].mission_name);
-        temp_game.control_invul_time = control_invul_time;
-        temp_game.flags = NETFLAG_DOPOWERUP | // enable all powerups
-            (Network_initial_shortpackets ? NETFLAG_SHORTPACKETS : 0) |
-	    NETFLAG_ENABLE_IGNORE_GHOST;
-	temp_game.packets_per_sec = Network_initial_pps;
+	strcpy(temp_game.mission_title, Mission_list[new_mission_num].mission_name);
+	temp_game.control_invul_time = control_invul_time;
+	temp_game.flags = NETFLAG_DOPOWERUP | // enable all powerups
+		(Network_initial_shortpackets ? NETFLAG_SHORTPACKETS : 0) |
+		NETFLAG_ENABLE_IGNORE_GHOST;
+	temp_game.packets_per_sec = GameArg.MplPacketsPerSec;
 #endif
-	temp_game.max_numplayers = 8;
 
+	temp_game.max_numplayers = 8;
 	sprintf( temp_game.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
 	sprintf( slevel, "1" );
 	last_mode = -1;
+	putto_multivalues(multivalues,&temp_game,new_socket);
 
-//         if((i=FindArg("-mpg")))
-//          read_profile(gameinfo);
-
-        //added on 10/18/98 by Victor Rachels to add multiplayer profiles
-        putto_multivalues(multivalues,&temp_game,new_socket);
-
-         if(GameArg.MplGameProfile)
-          get_multi_profile(multivalues,GameArg.MplGameProfile);
-        //end this section addition - Victor
+	if(GameArg.MplGameProfile)
+		get_multi_profile(multivalues,GameArg.MplGameProfile);
 
 	opt = 0;
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_DESCRIPTION; opt++;
@@ -2203,106 +2154,70 @@ int network_get_game_params( netgame_info *netgame, int *new_socket )
 	opt_level = opt;
 	m[opt].type = NM_TYPE_INPUT; m[opt].text = slevel; m[opt].text_len=4; opt++;
 
-#ifdef ROCKWELL_CODE	
-	opt_mode = 0;
-#else
-	//m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_MODE; opt++;
 	opt_mode = opt;
-        m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY; m[opt].value=1; m[opt].group=0; opt++;
-        m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_TEAM_ANARCHY; m[opt].value=0; m[opt].group=0; opt++;
-        m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY_W_ROBOTS; m[opt].value=0; m[opt].group=0; opt++;
-        m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_COOPERATIVE; m[opt].value=0; m[opt].group=0; opt++;
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY; m[opt].value=1; m[opt].group=0; opt++;
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_TEAM_ANARCHY; m[opt].value=0; m[opt].group=0; opt++;
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY_W_ROBOTS; m[opt].value=0; m[opt].group=0; opt++;
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_COOPERATIVE; m[opt].value=0; m[opt].group=0; opt++;
 
-        //added on 10/18/98 by Victor Rachels to add multiplayer profiles
-        m[opt_mode].value = multivalues[0];
-        m[opt_mode+1].value = multivalues[1];
-        m[opt_mode+2].value = multivalues[2];
-        m[opt_mode+3].value = multivalues[3];
-        //end this section addition - Victor
+	m[opt_mode].value = multivalues[0];
+	m[opt_mode+1].value = multivalues[1];
+	m[opt_mode+2].value = multivalues[2];
+	m[opt_mode+3].value = multivalues[3];
 #endif
-// 	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_OPTIONS; opt++;
 
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_OPTIONS; opt++;
 	opt_closed = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_CLOSED_GAME; m[opt].value=0; opt++;
-        //added on 11/16/98 by Victor Rachels for restricted games
-        m[opt].type = NM_TYPE_CHECK; m[opt].text = "Restricted Game"; m[opt].value=multivalues[8]; opt++;
-        //end this section addition - Victor
-        //added on 10/18/98 by Victor Rachels to add multiplayer profiles
-         m[opt_closed].value = multivalues[4];
-        //end this section addition - Victor
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Restricted Game"; m[opt].value=multivalues[8]; opt++;
+	m[opt_closed].value = multivalues[4];
 
 #ifndef SHAREWARE
-//	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_IDS; m[opt].value=0; opt++;
-        opt_showmap = opt;
+	opt_showmap = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=0; opt++;
-        //added on 10/18/98 by Victor Rachels to add multiplayer profiles
-         m[opt_showmap].value = multivalues[5];
-        //end this section addition - Victor
-
+	m[opt_showmap].value = multivalues[5];
 #endif
 
 	opt_difficulty = opt;
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Player_default_difficulty; m[opt].text=TXT_DIFFICULTY; m[opt].min_value=0; m[opt].max_value=(NDL-1); opt++;
-        //added on 10/18/98 by Victor Rachels to add multiplayer profiles
-         m[opt_difficulty].value = multivalues[6];
-        //end this section addition - Victor
+	m[opt_difficulty].value = multivalues[6];
 
-//	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Reactor Invulnerability (mins)"; opt++;
-//	opt_cinvul = opt;
-//	sprintf( srinvul, "%d", control_invul_time );
-//	m[opt].type = NM_TYPE_INPUT; m[opt].text = srinvul; m[opt].text_len=2; opt++;
-		
 #ifndef SHAREWARE
 	opt_cinvul = opt;
 	sprintf( srinvul, "%s: %d %s", TXT_REACTOR_LIFE, 5*control_invul_time, TXT_MINUTES_ABBREV );
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value=control_invul_time; m[opt].text= srinvul; m[opt].min_value=0; m[opt].max_value=15; opt++;
-        //added/changed on 10/18/98 by Victor Rachels to add multiplayer profiles
-        m[opt_cinvul].value = multivalues[7];
-        last_cinvul = multivalues[7];
-        //end this section addition - Victor
-
-	//m[opt].type = NM_TYPE_CHECK; m[opt].text = "D1X only"; m[opt].value=0; opt++;
-	m[opt].type = NM_TYPE_MENU; m[opt].text = "D1X options..."; opt++;
-        //added/changed on 10/18/98 by Victor Rachels to add multiplayer profiles
-        m[opt].type = NM_TYPE_MENU; m[opt].text = "Multi Profile..."; opt++;
-        //end this section addition - Victor
+	m[opt_cinvul].value = multivalues[7];
+	last_cinvul = multivalues[7];
+	m[opt].type = NM_TYPE_MENU; m[opt].text = "More options..."; opt++;
+	m[opt].type = NM_TYPE_MENU; m[opt].text = "Multi Profile..."; opt++;
 #endif
 
 	Assert(opt <= 16);
 
 menu:
-       
+
 	do  {
-		i = newmenu_do1( NULL, NULL /*TXT_NETGAME_SETUP*/, opt, m, network_game_param_poll, 1 );
-		#ifndef SHAREWARE
+		i = newmenu_do1( NULL, NULL, opt, m, network_game_param_poll, 1 );
+#ifndef SHAREWARE
                 if (i == 14) {
-			//if (!m[13].value)
-			//	  nm_messagebox(TXT_ERROR, 1, TXT_OK, "You can only set D1X options\nfor D1X only games");
-			//else
-                        network_get_d1x_params(&temp_game, new_socket, multivalues);
+			network_get_d1x_params(&temp_game, new_socket, multivalues);
 		}
-        //added/changed on 10/18/98 by Victor Rachels to add multiplayer profiles
-                if (i == 15) {
-                        if (do_multi_profile(multivalues))
-                         {
-                           m[opt_mode].value = multivalues[0];
-                           m[opt_mode+1].value = multivalues[1];
-                           m[opt_mode+2].value = multivalues[2];
-                           m[opt_mode+3].value = multivalues[3];
-                           m[opt_closed].value = multivalues[4];
-                           #ifndef SHAREWARE
-                           m[opt_showmap].value = multivalues[5];
-                           #endif
-                           m[opt_difficulty].value = multivalues[6];
-                           #ifndef SHAREWARE
-                           m[opt_cinvul].value = multivalues[7];
-                           #endif
-                           m[opt_closed+1].value = multivalues[8];
-                         }
-                }
-        //end this section addition - Victor
-		#endif
-        } while (i > 13);
+		if (i == 15) {
+			if (do_multi_profile(multivalues))
+			{
+				m[opt_mode].value = multivalues[0];
+				m[opt_mode+1].value = multivalues[1];
+				m[opt_mode+2].value = multivalues[2];
+				m[opt_mode+3].value = multivalues[3];
+				m[opt_closed].value = multivalues[4];
+				m[opt_showmap].value = multivalues[5];
+				m[opt_difficulty].value = multivalues[6];
+				m[opt_cinvul].value = multivalues[7];
+				m[opt_closed+1].value = multivalues[8];
+			}
+		}
+#endif
+	} while (i > 13);
 
 	if ( i > -1 )	{
 		int j;
@@ -2314,21 +2229,17 @@ menu:
 				goto menu;
 			}
 
-		//strcpy( game_name, name );
-
-    //added/changed on 10/23/98 by Victor Rachels to add multiplayer profiles
-                 multivalues[0] = m[opt_mode].value;
-                 multivalues[1] = m[opt_mode+1].value;
-                 multivalues[2] = m[opt_mode+2].value;
-                 multivalues[3] = m[opt_mode+3].value;
-                 multivalues[4] = m[opt_closed].value;
-                 multivalues[6] = m[opt_difficulty].value;
-    #ifndef SHAREWARE
-                 multivalues[5] = m[opt_showmap].value;
-                 multivalues[7] = m[opt_cinvul].value;
-    #endif
-                 multivalues[8] = m[opt_closed+1].value;
-    //end this section addition - Victor Rachels
+		multivalues[0] = m[opt_mode].value;
+		multivalues[1] = m[opt_mode+1].value;
+		multivalues[2] = m[opt_mode+2].value;
+		multivalues[3] = m[opt_mode+3].value;
+		multivalues[4] = m[opt_closed].value;
+		multivalues[6] = m[opt_difficulty].value;
+#ifndef SHAREWARE
+		multivalues[5] = m[opt_showmap].value;
+		multivalues[7] = m[opt_cinvul].value;
+#endif
+		multivalues[8] = m[opt_closed+1].value;
 
 		if (!strncasecmp(slevel, "s", 1))
 			temp_game.levelnum = -atoi(slevel+1);
@@ -2341,69 +2252,15 @@ menu:
 			sprintf(slevel, "1");
 			goto menu;
 		}
-//added/killed on 10/18/98 by Victor Rachels to add multiplayer profiles
-//-killed- #ifdef ROCKWELL_CODE
-//-killed-                 temp_game.mode = NETGAME_COOPERATIVE;
-//-killed- #else
-//-killed-                 if ( m[opt_mode].value )
-//-killed-                         temp_game.gamemode = NETGAME_ANARCHY;
-//-killed- #ifndef SHAREWARE
-//-killed-                 else if (m[opt_mode+1].value)
-//-killed-                         temp_game.gamemode = NETGAME_TEAM_ANARCHY;
-//-killed-                 else if (anarchy_only) {
-//-killed-                         nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
-//-killed-                         m[opt_mode+2].value = 0;
-//-killed-                         m[opt_mode+3].value = 0;
-//-killed-                         m[opt_mode].value = 1;
-//-killed-                         goto menu;
-//-killed-                 } else if ( m[opt_mode+2].value )
-//-killed-                         temp_game.gamemode = NETGAME_ROBOT_ANARCHY;
-//-killed-                 else if ( m[opt_mode+3].value )
-//-killed-                         temp_game.gamemode = NETGAME_COOPERATIVE;
-//-killed-                 else Int3(); // Invalid mode -- see Rob
-//-killed- #else
-//-killed-                 else {
-//-killed-                         nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_REGISTERED_ONLY);
-//-killed-                         m[opt_mode+2].value = 0;
-//-killed-                         m[opt_mode+3].value = 0;
-//-killed-                         m[opt_mode].value = 1;
-//-killed-                         goto menu;
-//-killed-                 }
-//-killed- #endif
-//-killed- #endif  // ifdef ROCKWELL
-//-killed- 
-//-killed-                 temp_game.game_flags = 0;
-//-killed-                 if (m[opt_closed].value)
-//-killed-                         temp_game.game_flags |= NETGAME_FLAG_CLOSED;
-//-killed- #ifndef SHAREWARE
-//-killed- //              if (m[opt_closed+1].value)
-//-killed- //                      temp_game.game_flags |= NETGAME_FLAG_SHOW_ID;
-//-killed-                 if (m[opt_showmap].value)
-//-killed-                         temp_game.game_flags |= NETGAME_FLAG_SHOW_MAP;
-//-killed- #endif
-//-killed- 
-//-killed-                 temp_game.difficulty = Difficulty_level = m[opt_difficulty].value;
 
-//-killed- #ifndef SHAREWARE
-		//control_invul_time = atoi( srinvul )*60*F1_0;
-//-killed                control_invul_time = m[opt_cinvul].value;
-//-killed                temp_game.control_invul_time = control_invul_time*5*F1_0*60;
-		//temp_game.protocol_version = (m[13].value ?
-		//	  MULTI_PROTO_D1X_VER : MULTI_PROTO_VERSION);
-
-//end this section kill - Victor
-
- //added/changed on 10/18/98 by Victor Rachels to add multiplayer profiles
-                putfrom_multivalues(multivalues,&temp_game,new_socket);
+		putfrom_multivalues(multivalues,&temp_game,new_socket);
 #ifndef SHAREWARE
-                control_invul_time = temp_game.control_invul_time;
-                temp_game.control_invul_time = control_invul_time*5*F1_0*60;
- //end this section addition - Victor
-
+		control_invul_time = temp_game.control_invul_time;
+		temp_game.control_invul_time = control_invul_time*5*F1_0*60;
 		temp_game.subprotocol = MULTI_PROTO_D1X_MINOR;
 		temp_game.required_subprotocol = 0;
 #endif
-                *netgame = temp_game;
+		*netgame = temp_game;
 
 		if ((netgame->gamemode == 2 || netgame->gamemode == 3) && netgame->max_numplayers > 4) // restrict players in robo-anarchy/cooperative if player hasn't done so far...
 			netgame->max_numplayers = 4;
