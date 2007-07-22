@@ -96,15 +96,13 @@ int N_active_sound_objects=0;
 
 int digi_sounds_initialized=0;
 
-int digi_lomem 						= 0;
-
 /* Find the sound which actually equates to a sound number */
 int digi_xlat_sound(int soundno)
 {
 	if (soundno < 0)
 		return -1;
 
-	if (digi_lomem)
+	if (GameArg.SysLowMem)
 	{
 		soundno = AltSounds[soundno];
 		if (soundno == 255)
@@ -119,7 +117,7 @@ int digi_xlat_sound(int soundno)
 int digi_unxlat_sound(int soundno)
 {
 	int i;
-	ubyte *table = (digi_lomem?AltSounds:Sounds);
+	ubyte *table = (GameArg.SysLowMem?AltSounds:Sounds);
 
 	if ( soundno < 0 ) return -1;
 

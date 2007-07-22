@@ -126,7 +126,6 @@ ubyte * Piggy_bitmap_cache_data = NULL;
 static int GameBitmapOffset[MAX_BITMAP_FILES];
 static ubyte GameBitmapFlags[MAX_BITMAP_FILES];
 ushort GameBitmapXlat[MAX_BITMAP_FILES];
-int macdata = 0;
 
 #define PIGGY_BUFFER_SIZE (2400*1024)
 
@@ -217,8 +216,6 @@ void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, CFILE *fp)
 	dbh->offset = cfile_read_int(fp);
 }
 
-ubyte BigPig = 0;
-
 #ifdef MACINTOSH
 	extern short 	cd_VRefNum;
 	extern void		ConcatPStr(StringPtr dst, StringPtr src);
@@ -268,7 +265,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 		if ( GameArg.EdiMacData )
 			swap_0_255( bmp );
 #endif
-		if ( !BigPig )  gr_bitmap_rle_compress( bmp );
+		if ( !GameArg.DbgBigPig )  gr_bitmap_rle_compress( bmp );
 		Num_bitmap_files_new++;
 	}
 
@@ -860,10 +857,10 @@ void piggy_new_pigfile(char *pigname)
 					bm[fnum]->avg_color = compute_average_pixel(bm[fnum]);
 
 #ifdef EDITOR
-					if ( macdata )
+					if ( GameArg.EdiMacData )
 						swap_0_255( bm[fnum] );
 #endif
-					if ( !BigPig ) gr_bitmap_rle_compress( bm[fnum] );
+					if ( !GameArg.DbgBigPig ) gr_bitmap_rle_compress( bm[fnum] );
 
 					if (bm[fnum]->bm_flags & BM_FLAG_RLE)
 						size = *((int *) bm[fnum]->bm_data);
@@ -913,10 +910,10 @@ void piggy_new_pigfile(char *pigname)
 				new->avg_color = compute_average_pixel(new);
 
 #ifdef EDITOR
-				if ( macdata )
+				if ( GameArg.EdiMacData )
 					swap_0_255( new );
 #endif
-				if ( !BigPig )  gr_bitmap_rle_compress( new );
+				if ( !GameArg.DbgBigPig )  gr_bitmap_rle_compress( new );
 
 				if (new->bm_flags & BM_FLAG_RLE)
 					size = *((int *) new->bm_data);
@@ -1168,12 +1165,7 @@ int piggy_init(void)
 		GameBitmapOffset[0] = 0;
 	}
 
-	if ( FindArg( "-bigpig" ))
-		BigPig = 1;
-
 	if (GameArg.SysLowMem)
-		digi_lomem = 1;
-
 		gr_set_curfont( SMALL_FONT );
 		gr_set_fontcolor(gr_find_closest_color_current( 20, 20, 20 ),-1 );
 		gr_printf( 0x8000, grd_curcanv->cv_h-20, "%s...", TXT_LOADING_DATA );
@@ -1197,7 +1189,7 @@ int piggy_is_needed(int soundnum)
 {
 	int i;
 
-	if ( !digi_lomem ) return 1;
+	if ( !GameArg.SysLowMem ) return 1;
 
 	for (i=0; i<MAX_SOUNDS; i++ )   {
 		if ( (AltSounds[i] < 255) && (Sounds[AltSounds[i]] == soundnum) )
@@ -1338,7 +1330,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 #ifndef MACDATA
 			switch (pigsize) {
 			default:
-				if (!macdata)
+				if (!GameArg.EdiMacData)
 					break;
 				// otherwise, fall through...
 			case MAC_ALIEN1_PIGSIZE:
@@ -1380,7 +1372,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 #ifndef MACDATA
 			switch (pigsize) {
 			default:
-				if (!macdata)
+				if (!GameArg.EdiMacData)
 					break;
 				// otherwise, fall through...
 			case MAC_ALIEN1_PIGSIZE:

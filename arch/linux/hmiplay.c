@@ -816,7 +816,7 @@ void play_hmi (void * arg)
 
 void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, int loop)
 {
-	if (FindArg("-nomusic"))
+	if (GameArg.SndNoMusic)
 		return;
 
 	if (!filename)
@@ -831,7 +831,7 @@ void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, in
 
 void digi_set_midi_volume( int mvolume ) { 
 	char buf[128];
-	if(FindArg("-nomusic"))
+	if (GameArg.SndNoMusic)
 		return;
 
 	sprintf(buf,"v%i",mvolume);

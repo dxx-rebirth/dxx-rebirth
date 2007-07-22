@@ -865,15 +865,6 @@ void network_welcome_player(sequence_packet *their)
 
    WaitForRefuseAnswer=0;
 
-	if (FindArg("-NoMatrixCheat"))
-	{
-		if ((their->player.version_minor & 0x0F) < 3)
-		{
-					network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_DORK);
-					return;
-		}
-	}
-
 	if (HoardEquipped())
 	{
    // If hoard game, and this guy isn't D2 Christmas (v1.2), dump him
@@ -3046,7 +3037,7 @@ int network_get_game_params( char * game_name, int *mode, int *game_flags, int *
     if (!select_mission(1, TXT_MULTI_MISSION))
         return -1;
 
-	if (!(FindArg ("-packets") && Netgame.ShortPackets))
+	if (!Netgame.ShortPackets)
 		if (!network_choose_connect ())
 			return -1;
 

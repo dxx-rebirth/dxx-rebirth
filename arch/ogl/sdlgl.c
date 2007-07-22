@@ -54,14 +54,12 @@ void ogl_swap_buffers_internal(void)
 
 int ogl_check_mode(int x, int y)
 {
-	return !SDL_VideoModeOK(x, y, 16, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)); // ZICO - use bpp instead of 16
+	return !SDL_VideoModeOK(x, y, GameArg.GlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0));
 }
 
 
 int ogl_init_window(int x, int y)
 {
-	int bpp = FindArg("-gl_16bpp") ? 16 : 32;
-	
 	if (gl_initialized){
 		if (x==curx && y==cury && curfull==ogl_fullscreen)
 			return 0;
@@ -79,7 +77,7 @@ int ogl_init_window(int x, int y)
 	}
 #endif
 
-	if (!SDL_SetVideoMode(x, y, bpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
+	if (!SDL_SetVideoMode(x, y, GameArg.GlBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
 	{
 		Error("Could not set %dx%dx%d opengl video mode\n", x, y, bpp);
 	}
@@ -102,18 +100,6 @@ void ogl_destroy_window(void){
 }
 
 void ogl_init(void){
-	int t;
-	if ((t=FindArg("-gl_red")))
-		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, atoi(Args[t+1]) );
-	if ((t=FindArg("-gl_green")))
-		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, atoi(Args[t+1]) );
-	if ((t=FindArg("-gl_blue")))
-		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, atoi(Args[t+1]) );
-	if ((t=FindArg("-gl_alpha")))
-		SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, atoi(Args[t+1]) );
-	if ((t=FindArg("-gl_buffer")))
-		SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, atoi(Args[t+1]) );
-
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,0);

@@ -96,8 +96,6 @@ extern void digi_stop_all();
 extern void digi_set_max_channels(int n);
 extern int digi_get_max_channels();
 
-extern int digi_lomem;
-
 extern int digi_xlat_sound(int soundno);
 
 extern void digi_stop_sound( int channel );

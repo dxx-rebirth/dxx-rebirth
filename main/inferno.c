@@ -238,27 +238,15 @@ void print_commandline_help()
 	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
 	printf( "  -showmeminfo       %s\n", "Show memory statistics");
 	printf( "  -nodoublebuffer    %s\n", "Disable Doublebuffering");
+	printf( "  -bigpig            %s\n", "Use uncompressed RLE bitmaps");
 	printf( "  -nomovies          %s\n", "Don't play movies");
 #ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
+	printf( "  -gl_16bpp          %s\n", "Use 16Bpp Color Depth");
 #endif
 
 /*	KEPT FOR FURTHER REFERENCE
 	printf( "\n Unused / Obsolete:\n\n");
-	printf( "  -bigpig            %s\n", "FIXME: Undocumented");
-	printf( "  -bspgen            %s\n", "FIXME: Undocumented");
-	printf( "  -checktime         %s\n", "FIXME: Undocumented");
-	printf( "  -jasen             %s\n", "FIXME: Undocumented");
-	printf( "  -memdbg            %s\n", "FIXME: Undocumented");
-	printf( "  -monodebug         %s\n", "FIXME: Undocumented");
-	printf( "  -nocyberman        %s\n", "FIXME: Undocumented");
-	printf( "  -nomatrixcheat     %s\n", "FIXME: Undocumented");
-	printf( "  -showaddress       %s\n", "FIXME: Undocumented");
-	printf( "  -socket            %s\n", "FIXME: Undocumented");
-	printf( "  -nomodex           %s\n", "FIXME: Undocumented");
-	printf( "  -specialdevice     %s\n", "FIXME: Undocumented");
-	printf( "  -stickmag          %s\n", "FIXME: Undocumented");
-	printf( "  -stopwatch         %s\n", "FIXME: Undocumented");
 	printf( "  -sysram            %s\n", "FIXME: Undocumented");
 	printf( "  -tsengdebug1       %s\n", "FIXME: Undocumented");
 	printf( "  -tsengdebug2       %s\n", "FIXME: Undocumented");

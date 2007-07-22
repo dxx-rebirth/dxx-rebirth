@@ -413,21 +413,31 @@ void ReadCmdArgs(void)
 	else
 		GameArg.DbgShowMemInfo = 0;
 
-	if (FindArg("-nomovies"))
-		GameArg.DbgNoMovies = 1;
-	else
-		GameArg.DbgNoMovies = 0;
-
 	if (FindArg("-nodoublebuffer"))
 		GameArg.DbgUseDoubleBuffer = 0;
 	else
 		GameArg.DbgUseDoubleBuffer = 1;
+
+	if (FindArg("-bigpig"))
+		GameArg.DbgBigPig = 0;
+	else
+		GameArg.DbgBigPig = 1;
+
+	if (FindArg("-nomovies"))
+		GameArg.DbgNoMovies = 1;
+	else
+		GameArg.DbgNoMovies = 0;
 
 #ifdef OGL
 	if (FindArg("-gl_oldtexmerge"))
 		GameArg.DbgAltTexMerge = 0;
 	else
 		GameArg.DbgAltTexMerge = 1;
+
+	if (FindArg("-gl_16bpp"))
+		GameArg.GlBpp = 16;
+	else
+		GameArg.GlBpp = 32;
 #endif
 }
 

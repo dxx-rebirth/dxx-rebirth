@@ -315,9 +315,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	if (version < PM_COMPATIBLE_VERSION || version > PM_OBJFILE_VERSION)
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
-	if ( FindArg( "-bspgen" ))
-		printf( "bspgen -c1" );
-
 	while (new_pof_read_int(id,model_buf) == 1) {
 		id = INTEL_INT(id);
 		//id  = pof_read_int(model_buf);
@@ -338,18 +335,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 
 				pof_read_vecs(&pmmin,1,model_buf);
 				pof_read_vecs(&pmmax,1,model_buf);
-
-				if ( FindArg( "-bspgen" ))	{
-					vms_vector v;
-					fix l;
-				
-					vm_vec_sub(&v, &pmmax, &pmmin );
-					l = v.x;
-					if ( v.y > l ) l = v.y;					
-					if ( v.z > l ) l = v.z;					
-													
-					printf( " -l%.3f", f2fl(l) );
-				}
 
 				break;
 			}
@@ -482,20 +467,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 			pof_cfseek(model_buf,next_chunk,SEEK_SET);
 	}
 
-//	for (i=0;i<pm->n_models;i++)
-//		pm->submodel_ptrs[i] += (int) pm->model_data;
-
-	if ( FindArg( "-bspgen" )) {
-		char *p = strchr( filename, '.' );
-		*p = 0;
-
-		if ( anim_flag > 1 )
-			printf( " -a" );
-
-		printf( " %s.3ds\n", filename );
-		*p = '.';
-	}
-	
 	d_free(model_buf);
 
 #ifdef WORDS_NEED_ALIGNMENT

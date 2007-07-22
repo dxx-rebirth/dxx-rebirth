@@ -85,11 +85,9 @@ typedef struct Arg
 	int MplIpNoGetMyAddr;
 	char *MplIpMyAddr;
 	int MplIpBasePort;
-#ifdef EDITOR
 	char *EdiAutoLoad;
-	int EdiMacData;
 	int EdiSaveHoardData;
-#endif
+	int EdiMacData; // also used for some read routines in non-editor build
 	int DbgVerbose;
 	int DbgNoRun;
 	int DbgRenderStats;
@@ -97,9 +95,11 @@ typedef struct Arg
 	char *DbgTexMap;
 	int DbgShowMemInfo;
 	int DbgUseDoubleBuffer;
+	int DbgBigPig;
 	int DbgNoMovies;
 #ifdef OGL
 	int DbgAltTexMerge;
+	int DbgBpp
 #endif
 } __attribute__ ((packed)) Arg;
 

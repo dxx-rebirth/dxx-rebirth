@@ -100,18 +100,12 @@ int do_slew_movement(object *obj, int check_keys, int check_joy )
 
 	if (check_keys) {
 		if (Function_mode == FMODE_EDITOR) {
-			if (FindArg("-jasen"))
-				obj->mtype.phys_info.velocity.x += VEL_SPEED * (key_down_time(KEY_PAD3) - key_down_time(KEY_PAD1));
-			else
-				obj->mtype.phys_info.velocity.x += VEL_SPEED * (key_down_time(KEY_PAD9) - key_down_time(KEY_PAD7));
+			obj->mtype.phys_info.velocity.x += VEL_SPEED * (key_down_time(KEY_PAD9) - key_down_time(KEY_PAD7));
 			obj->mtype.phys_info.velocity.y += VEL_SPEED * (key_down_time(KEY_PADMINUS) - key_down_time(KEY_PADPLUS));
 			obj->mtype.phys_info.velocity.z += VEL_SPEED * (key_down_time(KEY_PAD8) - key_down_time(KEY_PAD2));
 
 			rotang.p = (key_down_time(KEY_LBRACKET) - key_down_time(KEY_RBRACKET))/ROT_SPEED ;
-			if (FindArg("-jasen"))
-				rotang.b  = (key_down_time(KEY_PAD7) - key_down_time(KEY_PAD9))/ROT_SPEED;
-			else
-				rotang.b  = (key_down_time(KEY_PAD1) - key_down_time(KEY_PAD3))/ROT_SPEED;
+			rotang.b  = (key_down_time(KEY_PAD1) - key_down_time(KEY_PAD3))/ROT_SPEED;
 			rotang.h  = (key_down_time(KEY_PAD6) - key_down_time(KEY_PAD4))/ROT_SPEED;
 		}
 		else {
