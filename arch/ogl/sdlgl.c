@@ -54,7 +54,7 @@ void ogl_swap_buffers_internal(void)
 
 int ogl_check_mode(int x, int y)
 {
-	return !SDL_VideoModeOK(x, y, GameArg.GlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0));
+	return !SDL_VideoModeOK(x, y, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0));
 }
 
 
@@ -77,9 +77,9 @@ int ogl_init_window(int x, int y)
 	}
 #endif
 
-	if (!SDL_SetVideoMode(x, y, GameArg.GlBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
+	if (!SDL_SetVideoMode(x, y, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
 	{
-		Error("Could not set %dx%dx%d opengl video mode\n", x, y, bpp);
+		Error("Could not set %dx%dx%d opengl video mode\n", x, y, GameArg.DbgGlBpp);
 	}
 	SDL_ShowCursor(0);
 

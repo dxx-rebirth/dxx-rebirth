@@ -99,7 +99,7 @@ typedef struct Arg
 	int DbgNoMovies;
 #ifdef OGL
 	int DbgAltTexMerge;
-	int DbgBpp
+	int DbgGlBpp;
 #endif
 } __attribute__ ((packed)) Arg;
 
