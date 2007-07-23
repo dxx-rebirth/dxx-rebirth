@@ -127,22 +127,12 @@ const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
 void ogl_get_verinfo(void)
 {
-	long t;
-
-	float anisotropic_max = 0;
-
 	gl_vendor = (const char *) glGetString (GL_VENDOR);
 	gl_renderer = (const char *) glGetString (GL_RENDERER);
 	gl_version = (const char *) glGetString (GL_VERSION);
 	gl_extensions = (const char *) glGetString (GL_EXTENSIONS);
 
 	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s\n",gl_vendor,gl_renderer,gl_version);
-
-	ogl_intensity4_ok = 1;
-	ogl_luminance4_alpha4_ok = 1;
-	ogl_rgba2_ok = 1;
-	ogl_gettexlevelparam_ok = 1;
-	ogl_setgammaramp_ok = 0;
 
 #ifdef _WIN32
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
@@ -151,50 +141,25 @@ void ogl_get_verinfo(void)
 	dglSelectTextureSGIS = (glSelectTextureSGIS_fp)wglGetProcAddress("glSelectTextureSGIS");
 #endif
 
-	ogl_ext_texture_filter_anisotropic_ok = (strstr(gl_extensions, "GL_EXT_texture_filter_anisotropic") != 0);
-	if (ogl_ext_texture_filter_anisotropic_ok)
-		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anisotropic_max);
-
 	//add driver specific hacks here.  whee.
 	if ((stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && stricmp(gl_version,"1.2 Mesa 3.0")==0){
-		ogl_intensity4_ok=0;//ignores alpha, always black background instead of transparent.
-		ogl_readpixels_ok=0;//either just returns all black, or kills the X server entirely
-		ogl_gettexlevelparam_ok=0;//returns random data..
+		GameArg.DbgGlIntensity4Ok=0;//ignores alpha, always black background instead of transparent.
+		GameArg.DbgGlReadPixelsOk=0;//either just returns all black, or kills the X server entirely
+		GameArg.DbgGlGetTexLevelParamOk=0;//returns random data..
 	}
 	if (stricmp(gl_vendor,"Matrox Graphics Inc.")==0){
 		//displays garbage. reported by
 		//  redomen@crcwnet.com (render="Matrox G400" version="1.1.3 5.52.015")
 		//  orulz (Matrox G200)
-		ogl_intensity4_ok=0;
+		GameArg.DbgGlIntensity4Ok=0;
 	}
 #ifdef macintosh
 	if (stricmp(gl_renderer,"3dfx Voodoo 3")==0){ // strangely, includes Voodoo 2
-		ogl_gettexlevelparam_ok=0; // Always returns 0
+		GameArg.DbgGlGetTexLevelParamOk=0; // Always returns 0
 	}
 #endif
 
-	//allow overriding of stuff.
-	if ((t=FindArg("-gl_intensity4_ok"))){
-		ogl_intensity4_ok=atoi(Args[t+1]);
-	}
-	if ((t=FindArg("-gl_luminance4_alpha4_ok"))){
-		ogl_luminance4_alpha4_ok=atoi(Args[t+1]);
-	}
-	if ((t=FindArg("-gl_rgba2_ok"))){
-		ogl_rgba2_ok=atoi(Args[t+1]);
-	}
-	if ((t=FindArg("-gl_readpixels_ok"))){
-		ogl_readpixels_ok=atoi(Args[t+1]);
-	}
-	if ((t=FindArg("-gl_gettexlevelparam_ok"))){
-		ogl_gettexlevelparam_ok=atoi(Args[t+1]);
-	}
-	if ((t=FindArg("-gl_setgammaramp_ok")))
-	{
-		ogl_setgammaramp_ok = atoi(Args[t + 1]);
-	}
-
-	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i gl_ext_texture_filter_anisotropic:%i(%f max) gl_scissor:%i\n", ogl_intensity4_ok, ogl_luminance4_alpha4_ok, ogl_rgba2_ok, ogl_readpixels_ok, ogl_gettexlevelparam_ok, ogl_setgammaramp_ok, ogl_ext_texture_filter_anisotropic_ok, anisotropic_max,GameArg.OglScissorOk);
+	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i  gl_scissor:%i\n", GameArg.DbgGlIntensity4Ok, GameArg.DbgGlLuminance4Alpha4Ok, GameArg.DbgGlRGBA2Ok, GameArg.DbgGlReadPixelsOk, GameArg.DbgGlGetTexLevelParamOk, GameArg.DbgGlSetGammaRampOk, GameArg.OglScissorOk);
 }
 
 
@@ -308,7 +273,7 @@ int ogl_init_load_library(void)
 
 int gr_init(int mode)
 {
-	int retcode, t;
+	int retcode;
 
  	// Only do this function once!
 	if (gr_installed==1)
@@ -323,17 +288,7 @@ int gr_init(int mode)
 
 	GL_needmipmaps=ogl_testneedmipmaps(GameArg.OglTexMinFilt);
 
-	if ((t = FindArg("-gl_anisotropy")) || (t = FindArg("-gl_anisotropic")))
-	{
-		GL_texanisofilt=atof(Args[t + 1]);
-	}
-
-	mprintf((0,"gr_init: texmagfilt:%x texminfilt:%x needmipmaps=%i anisotropic:%f\n",GameArg.OglTexMagFilt,GameArg.OglTexMinFilt,GL_needmipmaps,GL_texanisofilt));
-
-	
-	if ((t=FindArg("-gl_vidmem"))){
-		ogl_mem_target=atoi(Args[t+1])*1024*1024;
-	}
+	mprintf((0,"gr_init: texmagfilt:%x texminfilt:%x needmipmaps=%i\n",GameArg.OglTexMagFilt,GameArg.OglTexMinFilt,GL_needmipmaps));
 
 	ogl_init();//platform specific initialization
 
@@ -467,7 +422,6 @@ void gr_palette_clear()
 
 
 int ogl_brightness_ok = 0;
-int ogl_setgammaramp_ok = 0;
 int ogl_brightness_r = 0, ogl_brightness_g = 0, ogl_brightness_b = 0;
 static int old_b_r = 0, old_b_g = 0, old_b_b = 0;
 
@@ -484,13 +438,13 @@ void gr_palette_step_up(int r, int g, int b)
 	ogl_brightness_g = max(g + gr_palette_gamma, 0);
 	ogl_brightness_b = max(b + gr_palette_gamma, 0);
 
-	if (ogl_setgammaramp_ok &&
+	if (GameArg.DbgGlSetGammaRampOk &&
 	    (old_b_r != ogl_brightness_r ||
 	     old_b_g != ogl_brightness_g ||
 	     old_b_b != ogl_brightness_b))
 		ogl_brightness_ok = !ogl_setbrightness_internal();
 
-	if (!ogl_setgammaramp_ok || !ogl_brightness_ok)
+	if (!GameArg.DbgGlSetGammaRampOk || !ogl_brightness_ok)
 	{
 		last_r = ogl_brightness_r / 63.0;
 		last_g = ogl_brightness_g / 63.0;
@@ -600,7 +554,7 @@ void save_screen_shot(int automap_flag)
 	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
 	
-	if (!ogl_readpixels_ok){
+	if (!GameArg.DbgGlReadPixelsOk){
 		if (!automap_flag)
 			hud_message(MSGC_GAME_FEEDBACK,"glReadPixels not supported on your configuration");
 		return;

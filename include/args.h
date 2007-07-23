@@ -100,6 +100,15 @@ typedef struct Arg
 #ifdef OGL
 	int DbgAltTexMerge;
 	int DbgGlBpp;
+	int DbgGlIntensity4Ok;
+	int DbgGlLuminance4Alpha4Ok;
+	int DbgGlRGBA2Ok;
+	int DbgGlReadPixelsOk;
+	int DbgGlGetTexLevelParamOk;
+	int DbgGlSetGammaRampOk;
+	int DbgGlMemTarget;
+#else
+	int DbgSdlHWSurface;
 #endif
 } __attribute__ ((packed)) Arg;
 

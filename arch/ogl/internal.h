@@ -10,8 +10,6 @@
 
 extern ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
 
-extern int ogl_mem_target;
-
 void ogl_init_texture_list_internal(void);
 void ogl_smash_texture_list_internal(void);
 void ogl_vivify_texture_list_internal(void);

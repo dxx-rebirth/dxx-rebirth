@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070723
+--------
+arch/ogl/gr.c, arch/include/internal.h, arch/ogl/ogl.c, arch/sdl/gr.c, include/args.h, include/ogl_init.h, main/inferno.c, main/args.c: FindArg cleanup - GL-Debug and SDL arguments
+
 20070722
 --------
 include/args.h, include/error.h, main/newmenu.c, main/network.c, main/inferno.c, main/menu.c, main/gamerend.c, main/automap.c, main/game.c, main/game.h, main/gamecntl.c, misc/args.c: Code cleanup and small fixes

@@ -438,6 +438,46 @@ void ReadCmdArgs(void)
 		GameArg.DbgGlBpp = 16;
 	else
 		GameArg.DbgGlBpp = 32;
+
+	if ((t=FindArg("-gl_intensity4_ok")))
+		GameArg.DbgGlIntensity4Ok = atoi(Args[t+1]);
+	else
+		GameArg.DbgGlIntensity4Ok = 1;
+
+	if ((t=FindArg("-gl_luminance4_alpha4_ok")))
+		GameArg.DbgGlLuminance4Alpha4Ok = atoi(Args[t+1]);
+	else
+		GameArg.DbgGlLuminance4Alpha4Ok = 1;
+
+	if ((t=FindArg("-gl_rgba2_ok")))
+		GameArg.DbgGlRGBA2Ok = atoi(Args[t+1]);
+	else
+		GameArg.DbgGlRGBA2Ok = 1;
+
+	if ((t=FindArg("-gl_readpixels_ok")))
+		GameArg.DbgGlReadPixelsOk = atoi(Args[t+1]);
+	else
+		GameArg.DbgGlReadPixelsOk = 1;
+
+	if ((t=FindArg("-gl_gettexlevelparam_ok")))
+		GameArg.DbgGlGetTexLevelParamOk = atoi(Args[t+1]);
+	else
+		GameArg.DbgGlGetTexLevelParamOk = 1;
+
+	if ((t=FindArg("-gl_setgammaramp_ok")))
+		GameArg.DbgGlSetGammaRampOk = atoi(Args[t+1]);
+	else
+		GameArg.DbgGlSetGammaRampOk = 0;
+
+	if ((t=FindArg("-gl_vidmem")))
+		GameArg.DbgGlMemTarget = atoi(Args[t+1])*1024*1024;
+	else
+		GameArg.DbgGlMemTarget = -1;
+#else
+	if (FindArg("-hwsurface"))
+		GameArg.DbgSdlHWSurface = 1;
+	else
+		GameArg.DbgSdlHWSurface = 0;
 #endif
 }
 

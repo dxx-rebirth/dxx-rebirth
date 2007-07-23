@@ -59,25 +59,11 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags);
 
 extern int ogl_rgba_internalformat;
 extern int ogl_rgb_internalformat;
-extern int ogl_setgammaramp_ok;
-extern int ogl_intensity4_ok;
-extern int ogl_luminance4_alpha4_ok;
-extern int ogl_rgba2_ok;
-extern int ogl_readpixels_ok;
-extern int ogl_gettexlevelparam_ok;
-
-#ifndef GL_EXT_texture_filter_anisotropic
-#define GL_EXT_texture_filter_anisotropic 1
-#define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
-#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
-#endif
-extern int ogl_ext_texture_filter_anisotropic_ok;
 
 void ogl_init_shared_palette(void);
 
 extern int gl_initialized;
 extern int GL_needmipmaps;
-extern float GL_texanisofilt;
 
 extern int active_texture_unit;
 void ogl_setActiveTexture(int t);
