@@ -206,6 +206,15 @@ void show_commandline_help()
 #ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
 	printf( "  -gl_16bpp          %s\n", "Use 16Bpp Color Depth");
+	printf( "  -gl_intensity4_ok <n> %s\n", "Override DbgGlIntensity4Ok - Default: 1");
+	printf( "  -gl_luminance4_alpha4_ok <n> %s\n", "Override DbgGlLuminance4Alpha4Ok - Default: 1");
+	printf( "  -gl_rgba2_ok <n>   %s\n", "Override DbgGlRGBA2Ok - Default: 1");
+	printf( "  -gl_readpixels_ok <n> %s\n", "Override DbgGlReadPixelsOk - Default: 1");
+	printf( "  -gl_gettexlevelparam_ok <n> %s\n", "Override DbgGlGetTexLevelParamOk - Default: 1");
+	printf( "  -gl_setgammaramp_ok <n> %s\n", "Override DbgGlSetGammaRampOk - Default: 0");
+	printf( "  -gl_vidmem <n>     %s\n", "Limit Texture cache to <n> MB");
+#else
+	printf( "  -hwsurface         %s\n", "Use HW Surface");
 #endif // OGL
 
 #endif // NDEBUG

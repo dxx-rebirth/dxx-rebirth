@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070723
+--------
+arch/ogl/gr.c, arch/ogl/include/ogl_init.h, arch/ogl/ogl.c, arch/sdl/gr.c, include/args.h, main/args.c, main/inferno.c: FindArg cleanup - GL-Debug and SDL arguments
+
 20070722
 --------
 include/args.h, main/network.c, main/network.h, main/multi.h, main/inferno.c, main/menu.c, main/mprofile.c, main/automap.c, main/game.c, main/ipx_drv.c, main/game.h, main/args.c, arch/linux/linuxnet.c, arch/win32/winnet.c: Code cleanup and small fixes

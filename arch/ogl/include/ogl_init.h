@@ -49,7 +49,6 @@ typedef struct _ogl_texture {
 
 extern ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
 
-extern int ogl_mem_target;
 ogl_texture* ogl_get_free_texture(void);
 void ogl_init_texture(ogl_texture* t, int w, int h, int flags);
 void ogl_init_texture_list_internal(void);
@@ -58,7 +57,6 @@ void ogl_vivify_texture_list_internal(void);
 
 extern int ogl_fullscreen;
 
-extern int ogl_setgammaramp_ok;
 extern int ogl_brightness_ok;
 extern int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
 int ogl_setbrightness_internal(void);
@@ -66,21 +64,8 @@ int ogl_setbrightness_internal(void);
 void ogl_do_fullscreen_internal(void);
 
 extern int ogl_rgba_format;
-extern int ogl_intensity4_ok;
-extern int ogl_luminance4_alpha4_ok;
-extern int ogl_rgba2_ok;
-extern int ogl_readpixels_ok;
-extern int ogl_gettexlevelparam_ok;
 extern int gl_initialized;
 extern int GL_needmipmaps;
-
-#ifndef GL_EXT_texture_filter_anisotropic
-#define GL_EXT_texture_filter_anisotropic 1
-#define GL_TEXTURE_MAX_ANISOTROPY_EXT     0x84FE
-#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
-#endif
-extern int ogl_ext_texture_filter_anisotropic_ok;
-extern float GL_texanisofilt;
 
 extern int GL_TEXTURE_2D_enabled;
 #define OGL_ENABLE2(a,f) {if (a ## _enabled!=1) {f;a ## _enabled=1;}}

@@ -170,7 +170,7 @@ int gr_init(int mode)
 	     sdl_video_flags|=SDL_FULLSCREEN;
 
 	//added 05/19/99 Matt Mueller - make HW surface optional
-	if (FindArg("-hwsurface"))
+	if (GameArg.DbgSdlHWSurface)
 	     sdl_video_flags|=SDL_HWSURFACE;
 	//end addition -MM
 	

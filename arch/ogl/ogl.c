@@ -71,7 +71,6 @@
 
 unsigned char *ogl_pal=gr_palette;
 
-float GL_texanisofilt = 0;
 int GL_needmipmaps=0;
 int active_texture_unit=0;
 
@@ -82,12 +81,6 @@ int GL_texclamp_enabled=-1;
 int r_texcount = 0, r_cachedtexcount = 0;
 int ogl_rgba_internalformat = GL_RGBA8;
 int ogl_rgb_internalformat = GL_RGB8;
-int ogl_intensity4_ok=1;
-int ogl_luminance4_alpha4_ok=1;
-int ogl_rgba2_ok=1;
-int ogl_readpixels_ok=1;
-int ogl_gettexlevelparam_ok=1;
-int ogl_ext_texture_filter_anisotropic_ok = 0;
 int sphereh=0;
 int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
@@ -123,17 +116,17 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 		// use GL_INTENSITY instead of GL_RGB
 		if (flags & OGL_FLAG_ALPHA)
 		{
-			if (ogl_intensity4_ok)
+			if (GameArg.DbgGlIntensity4Ok)
 			{
 				t->internalformat = GL_INTENSITY4;
 				t->format = GL_LUMINANCE;
 			}
-			else if (ogl_luminance4_alpha4_ok)
+			else if (GameArg.DbgGlLuminance4Alpha4Ok)
 			{
 				t->internalformat = GL_LUMINANCE4_ALPHA4;
 				t->format = GL_LUMINANCE_ALPHA;
 			}
-			else if (ogl_rgba2_ok)
+			else if (GameArg.DbgGlRGBA2Ok)
 			{
 				t->internalformat = GL_RGBA2;
 				t->format = GL_RGBA;
@@ -272,27 +265,26 @@ int ogl_texture_stats(void){
 	return truebytes;
 }
 
-int ogl_mem_target=-1;
 void ogl_clean_texture_cache(void){
 	ogl_texture* t;
 	int i,bytes;
 	int time=120;
 	
-	if (ogl_mem_target<0){
+	if (GameArg.DbgGlMemTarget<0){
 		if (GameArg.DbgRenderStats)
 			ogl_texture_stats();
 		return;
 	}
 	
 	bytes=ogl_texture_stats();
-	while (bytes>ogl_mem_target){
+	while (bytes>GameArg.DbgGlMemTarget){
 		for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
 			t=&ogl_texture_list[i];
 			if (t->handle>0){
 				if (t->lastrend+f1_0*time<GameTime){
 					ogl_freetexture(t);
 					bytes-=t->bytes;
-					if (bytes<ogl_mem_target)
+					if (bytes<GameArg.DbgGlMemTarget)
 						return;
 				}
 			}
@@ -1026,13 +1018,13 @@ void gr_flip(void)
 int tex_format_supported(int iformat,int format){
 	switch (iformat){
 		case GL_INTENSITY4:
-			if (!ogl_intensity4_ok) return 0; break;
+			if (!GameArg.DbgGlIntensity4Ok) return 0; break;
 		case GL_LUMINANCE4_ALPHA4:
-			if (!ogl_luminance4_alpha4_ok) return 0; break;
+			if (!GameArg.DbgGlLuminance4Alpha4Ok) return 0; break;
 		case GL_RGBA2:
-			if (!ogl_rgba2_ok) return 0; break;
+			if (!GameArg.DbgGlRGBA2Ok) return 0; break;
 	}
-	if (ogl_gettexlevelparam_ok){
+	if (GameArg.DbgGlGetTexLevelParamOk){
 		GLint internalFormat;
 		glTexImage2D(GL_PROXY_TEXTURE_2D, 0, iformat, 64, 64, 0,
 				format, GL_UNSIGNED_BYTE, texbuf);//NULL?
@@ -1190,13 +1182,13 @@ int tex_format_verify(ogl_texture *tex){
 		glmprintf((0,"tex format %x not supported",tex->internalformat));
 		switch (tex->internalformat){
 			case GL_INTENSITY4:
-				if (ogl_luminance4_alpha4_ok){
+				if (GameArg.DbgGlLuminance4Alpha4Ok){
 					tex->internalformat=GL_LUMINANCE4_ALPHA4;
 					tex->format=GL_LUMINANCE_ALPHA;
 					break;
 				}//note how it will fall through here if the statement is false
 			case GL_LUMINANCE4_ALPHA4:
-				if (ogl_rgba2_ok){
+				if (GameArg.DbgGlRGBA2Ok){
 					tex->internalformat=GL_RGBA2;
 					tex->format=GL_RGBA;
 					break;
@@ -1237,7 +1229,7 @@ void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
 void tex_set_size(ogl_texture *tex){
 	GLint w,h;
 	int bi=16,a=0;
-	if (ogl_gettexlevelparam_ok){
+	if (GameArg.DbgGlGetTexLevelParamOk){
 		GLint t;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&w);
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&h);
