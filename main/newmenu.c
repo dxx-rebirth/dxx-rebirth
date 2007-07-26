@@ -85,10 +85,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gp2x.h"
 #endif
 
-#define MAXDISPLAYABLEITEMS (MenuHires?15:14)
+#define MAXDISPLAYABLEITEMS (HiresGFX?15:14)
 
-#define LHX(x)      (FONTSCALE_X((x)*(MenuHires?2:1)))
-#define LHY(y)      (FONTSCALE_Y((y)*(MenuHires?2.4:1)))
+#define LHX(x)      (FONTSCALE_X((x)*(HiresGFX?2:1)))
+#define LHY(y)      (FONTSCALE_Y((y)*(HiresGFX?2.4:1)))
 
 #define TITLE_FONT      HUGE_FONT
 #define NORMAL_FONT     MEDIUM1_FONT    //normal, non-highlighted item
@@ -111,10 +111,10 @@ typedef struct bkg {
 grs_bitmap nm_background,nm_background1,nm_background_save;
 
 #define MESSAGEBOX_TEXT_SIZE 2176   // How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
-#define MAX_TEXT_WIDTH 	FONTSCALE_X((MenuHires)?240:120)				// How many pixels wide a input box can be
+#define MAX_TEXT_WIDTH 	FONTSCALE_X((HiresGFX)?240:120)				// How many pixels wide a input box can be
 
-#define MENSCALE_X ((MenuHires)?(SWIDTH/640):(SWIDTH/320))
-#define MENSCALE_Y ((MenuHires)?(SHEIGHT/480):(SHEIGHT/200))
+#define MENSCALE_X ((HiresGFX)?(SWIDTH/640):(SWIDTH/320))
+#define MENSCALE_Y ((HiresGFX)?(SHEIGHT/480):(SHEIGHT/200))
 
 ubyte MenuReordering=0;
 ubyte SurfingNet=0;
@@ -165,7 +165,7 @@ void nm_draw_copyright()
 	//say this is vertigo version
 	if (vertigo_present) {
 		gr_set_curfont(MEDIUM2_FONT);
-		gr_printf(MenuHires?495*((double)SWIDTH/640):248*((double)SWIDTH/320), MenuHires?88*((double)SHEIGHT/480):37*((double)SHEIGHT/200), "Vertigo");
+		gr_printf(HiresGFX?495*((double)SWIDTH/640):248*((double)SWIDTH/320), HiresGFX?88*((double)SHEIGHT/480):37*((double)SHEIGHT/200), "Vertigo");
 	}
 }
 
@@ -233,7 +233,7 @@ void nm_draw_background1(char * filename)
 #define MENU_BACKGROUND_BITMAP_HIRES (cfexist("scoresb.pcx")?"scoresb.pcx":"scores.pcx")
 #define MENU_BACKGROUND_BITMAP_LORES (cfexist("scores.pcx")?"scores.pcx":"scoresb.pcx") // Mac datafiles only have scoresb.pcx
 
-#define MENU_BACKGROUND_BITMAP (MenuHires?MENU_BACKGROUND_BITMAP_HIRES:MENU_BACKGROUND_BITMAP_LORES)
+#define MENU_BACKGROUND_BITMAP (HiresGFX?MENU_BACKGROUND_BITMAP_HIRES:MENU_BACKGROUND_BITMAP_LORES)
 
 // Draws the frame background for menus
 void nm_draw_background(int x1, int y1, int x2, int y2 )
@@ -287,10 +287,10 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	//scale the bevels to the res.
 	gr_setcolor( BM_XRGB(0,0,0) );
 
-	for (w=5*(SWIDTH/((MenuHires)?640.0:320.0));w>=0;w--)
-		gr_urect( x2-w, y1+w*((SHEIGHT/((MenuHires)?480.0:200.0))/(SWIDTH/((MenuHires)?640.0:320.0))), x2-w, y2-(SHEIGHT/((MenuHires)?480.0:200.0)) );//right edge
-	for (h=5*(SHEIGHT/((MenuHires)?480.0:200.0));h>=0;h--)
-		gr_urect( x1+h*((SWIDTH/((MenuHires)?640.0:320.0))/(SHEIGHT/((MenuHires)?480.0:200.0))), y2-h, x2, y2-h );//bottom edge
+	for (w=5*(SWIDTH/((HiresGFX)?640.0:320.0));w>=0;w--)
+		gr_urect( x2-w, y1+w*((SHEIGHT/((HiresGFX)?480.0:200.0))/(SWIDTH/((HiresGFX)?640.0:320.0))), x2-w, y2-(SHEIGHT/((HiresGFX)?480.0:200.0)) );//right edge
+	for (h=5*(SHEIGHT/((HiresGFX)?480.0:200.0));h>=0;h--)
+		gr_urect( x1+h*((SWIDTH/((HiresGFX)?640.0:320.0))/(SHEIGHT/((HiresGFX)?480.0:200.0))), y2-h, x2, y2-h );//bottom edge
 
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 }
@@ -665,9 +665,9 @@ extern int network_request_player_names(int);
 ubyte Hack_DblClick_MenuMode=0;
 #endif
 
-#define CLOSE_X     ((MenuHires?15:7)*MENSCALE_X)
-#define CLOSE_Y     ((MenuHires?15:7)*MENSCALE_Y)
-#define CLOSE_SIZE  FONTSCALE_X(MenuHires?10:5)
+#define CLOSE_X     ((HiresGFX?15:7)*MENSCALE_X)
+#define CLOSE_Y     ((HiresGFX?15:7)*MENSCALE_Y)
+#define CLOSE_SIZE  FONTSCALE_X(HiresGFX?10:5)
 
 void draw_close_box(int x,int y)
 {
@@ -899,15 +899,15 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	mprintf(( 0, "Right offset = %d\n", right_offset ));
 
 	// Find min point of menu border
-	w += (MenuHires?60:30)*MENSCALE_X;
-	h += (MenuHires?60:30)*MENSCALE_Y;
+	w += (HiresGFX?60:30)*MENSCALE_X;
+	h += (HiresGFX?60:30)*MENSCALE_Y;
 
 	/* If window is as or almost as big as screen define hard size so it fits (with borders and stuff).
 	   Also make use of MENSCALE_* so we are sure it does scale correct if font does scale or not */
-	if (w >= (MenuHires?640:320)*MENSCALE_X-3)
-		w=(MenuHires?638:318)*MENSCALE_X;
-	if (h >= (MenuHires?480:200)*MENSCALE_Y-3)
-		h=(MenuHires?478:198)*MENSCALE_Y;
+	if (w >= (HiresGFX?640:320)*MENSCALE_X-3)
+		w=(HiresGFX?638:318)*MENSCALE_X;
+	if (h >= (HiresGFX?480:200)*MENSCALE_Y-3)
+		h=(HiresGFX?478:198)*MENSCALE_Y;
 
 	x = (grd_curcanv->cv_bitmap.bm_w-w)/2;
 	y = (grd_curcanv->cv_bitmap.bm_h-h)/2;
@@ -926,7 +926,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	bg.menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w+MENSCALE_X, h+MENSCALE_Y );
 	gr_set_current_canvas(bg.menu_canvas);
 
-	ty = (MenuHires?30:15)*MENSCALE_Y;
+	ty = (HiresGFX?30:15)*MENSCALE_Y;
 
 #ifndef OGL
 	if ( filename == NULL )	{
@@ -989,8 +989,8 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	
 	// Update all item's x & y values.
 	for (i=0; i<nitems; i++ )	{
-		item[i].x = (MenuHires?30:15)*MENSCALE_X + twidth + right_offset;
-		item[i].y += (MenuHires?30:15)*MENSCALE_Y;
+		item[i].x = (HiresGFX?30:15)*MENSCALE_X + twidth + right_offset;
+		item[i].y += (HiresGFX?30:15)*MENSCALE_Y;
 		if ( item[i].type==NM_TYPE_RADIO )	{
 			fm = -1;	// find first marked one
 			for ( j=0; j<nitems; j++ )	{
@@ -1475,7 +1475,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				
 				if (ScrollOffset != 0) {
 					gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset].x-(MenuHires?24:12);
+					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset].x-(HiresGFX?24:12);
 		          		y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset].y-((string_height+1)*ScrollOffset);
 					x1 = x1 - arrow_width;
 					y2 = y1 + arrow_height;
@@ -1495,7 +1495,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				}
 				if (ScrollOffset+MaxDisplayable<nitems) {
 					gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset+MaxDisplayable-1].x-(MenuHires?24:12);
+					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset+MaxDisplayable-1].x-(HiresGFX?24:12);
 					y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset+MaxDisplayable-1].y-((string_height+1)*ScrollOffset);
 					x1 = x1 - arrow_width;
 					y2 = y1 + arrow_height;
@@ -1757,21 +1757,21 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				grd_curcanv->cv_font = SELECTED_FONT;
 						
 				sy=item[ScrollOffset].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
-				sx=item[ScrollOffset].x-(MenuHires?24:12);
+				sx=item[ScrollOffset].x-(HiresGFX?24:12);
 						
 			
 				if (ScrollOffset!=0)
-					nm_rstring( &bg, (MenuHires?20:10), sx, sy, UP_ARROW_MARKER );
+					nm_rstring( &bg, (HiresGFX?20:10), sx, sy, UP_ARROW_MARKER );
 				else
-					nm_rstring( &bg, (MenuHires?20:10), sx, sy, "  " );
+					nm_rstring( &bg, (HiresGFX?20:10), sx, sy, "  " );
 		
 				sy=item[ScrollOffset+MaxDisplayable-1].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
-				sx=item[ScrollOffset+MaxDisplayable-1].x-(MenuHires?24:12);
+				sx=item[ScrollOffset+MaxDisplayable-1].x-(HiresGFX?24:12);
 			
 				if (ScrollOffset+MaxDisplayable<nitems)
-					nm_rstring( &bg, (MenuHires?20:10), sx, sy, DOWN_ARROW_MARKER );
+					nm_rstring( &bg, (HiresGFX?20:10), sx, sy, DOWN_ARROW_MARKER );
 				else
-				nm_rstring( &bg, (MenuHires?20:10), sx, sy, "  " );
+				nm_rstring( &bg, (HiresGFX?20:10), sx, sy, "  " );
 		
 			}
 		

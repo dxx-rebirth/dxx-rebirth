@@ -82,8 +82,8 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:56:24 zicodxx Exp 
 #include "appltalk.h"
 #endif
 
-#define LHX(x)          (FONTSCALE_X((x)*(MenuHires?2:1)))
-#define LHY(y)          (FONTSCALE_Y((y)*(MenuHires?2.4:1)))
+#define LHX(x)          (FONTSCALE_X((x)*(HiresGFX?2:1)))
+#define LHY(y)          (FONTSCALE_Y((y)*(HiresGFX?2.4:1)))
 
 /* the following are the possible packet identificators.
  * they are stored in the "type" field of the packet structs.
@@ -6573,7 +6573,7 @@ void show_game_rules(netgame_info game)
 
 	gr_set_current_canvas(NULL);
 
-	if (MenuHires)
+	if (HiresGFX)
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
 	else
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));

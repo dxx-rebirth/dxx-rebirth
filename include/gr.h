@@ -24,6 +24,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
+extern int HiresGFXAvailable;
+extern int HiresGFX;
+
 #if defined(MACINTOSH) || defined(MACDATA)
 #error native mac data currently not supported
 #define SWAP_0_255              // swap black and white
@@ -138,8 +141,8 @@ typedef struct _grs_bitmap {
 
 // ZICO - we use this defines to scale the font bitmaps itself, spacing between letters and rows
 #ifdef OGL
-#define FONTSCALE_X(x) ((GameArg.OglFixedFont)?x:(x)*((SWIDTH/ ((FontHires&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))
-#define FONTSCALE_Y(x) ((GameArg.OglFixedFont)?x:(x)*((SHEIGHT/((FontHires&&SWIDTH>=640&&SHEIGHT>=480)?480:200))))
+#define FONTSCALE_X(x) ((GameArg.OglFixedFont)?x:(x)*((SWIDTH/ ((HiresGFX&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))
+#define FONTSCALE_Y(x) ((GameArg.OglFixedFont)?x:(x)*((SHEIGHT/((HiresGFX&&SWIDTH>=640&&SHEIGHT>=480)?480:200))))
 #else // without OGL we don't scale. But instead of defining out eery single FONTSCALE_* call we just do not scale
 #define FONTSCALE_X(x) (x)
 #define FONTSCALE_Y(x) (x)

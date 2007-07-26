@@ -1116,7 +1116,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 				}
 			}
 			else if (((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256) || 
-				((c==0 || c==54 || c==119) && (bm_flags & BM_FLAG_COCKPIT_TRANSPARENT)))
+				((HiresGFX?(c==0 || c==54 || c==119):(c==0)) && (bm_flags & BM_FLAG_COCKPIT_TRANSPARENT)))
 			{
 				switch (type){
 					case GL_LUMINANCE:

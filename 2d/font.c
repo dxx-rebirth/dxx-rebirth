@@ -71,7 +71,6 @@ openfont open_font[MAX_OPEN_FONTS];
 
 int gr_internal_string_clipped(int x, int y, char *s );
 int gr_internal_string_clipped_m(int x, int y, char *s );
-extern int FontHires;
 
 ubyte *find_kern_entry(grs_font *font,ubyte first,ubyte second)
 {

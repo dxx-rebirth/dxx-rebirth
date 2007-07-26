@@ -33,10 +33,6 @@ static char rcsid[] = "$Id: gamefont.c,v 1.1.1.1 2006/03/17 19:56:39 zicodxx Exp
 #include "gamefont.h"
 #include "args.h"
 
-// if 1, use high-res versions of fonts
-int FontHires = 0;
-int FontHiresAvailable = 0;
-
 char * Gamefont_filenames[] = { "font1-1.fnt",      // Font 0
                                 "font1-1h.fnt",     // Font 0 High-res
                                 "font2-1.fnt",      // Font 1
@@ -61,7 +57,6 @@ void gamefont_init()
 		return;
 
 	Gamefont_installed = 1;
-	FontHiresAvailable = 1;
 
 	for (i = 0; i < MAX_FONTS; i += 2)
 		Gamefonts[i] = gr_init_font(Gamefont_filenames[i]);
@@ -69,7 +64,7 @@ void gamefont_init()
 	{
 		Gamefonts[i] = gr_init_font(Gamefont_filenames[i]);
 		if (!Gamefonts[i])
-			FontHiresAvailable = 0;
+			HiresGFXAvailable = 0;
 	}
 
 	atexit(gamefont_close);

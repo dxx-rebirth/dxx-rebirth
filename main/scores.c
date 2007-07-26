@@ -87,8 +87,8 @@ char scores_filename[128];
 #define XX  (7)
 #define YY  (-3)
 
-#define LHX(x)		((x)*(MenuHires?FONTSCALE_X(2):FONTSCALE_X(1)))
-#define LHY(y)		((y)*(MenuHires?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
+#define LHX(x)		((x)*(HiresGFX?FONTSCALE_X(2):FONTSCALE_X(1)))
+#define LHY(y)		((y)*(HiresGFX?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
 
 
 char * get_scores_filename()
@@ -378,7 +378,7 @@ ReshowScores:
  
 	gr_set_current_canvas(NULL);
 
-	if (MenuHires)
+	if (HiresGFX)
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
 	else
 		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));

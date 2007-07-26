@@ -71,8 +71,8 @@ int     MSG_Noredundancy = 0;
 
 int Modex_hud_msg_count;
 
-#define LHX(x)      ((x)*(FontHires?2:1))
-#define LHY(y)      ((y)*(FontHires?2.4:1))
+#define LHX(x)      ((x)*(HiresGFX?2:1))
+#define LHY(y)      ((y)*(HiresGFX?2.4:1))
 
 // ----------------------------------------------------------------------------
 void clear_background_messages(void)

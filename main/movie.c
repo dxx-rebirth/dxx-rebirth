@@ -63,7 +63,6 @@ static char rcsid[] = "$Id: movie.c,v 1.1.1.1 2006/03/17 19:55:55 zicodxx Exp $"
 #include "ogl_init.h"
 #endif
 
-extern int MenuHiresAvailable;
 extern char CDROM_dir[];
 
 #define VID_PLAY 0
@@ -227,7 +226,7 @@ void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
 }
 
 
-#define BOX_BORDER (MenuHires?40:20)
+#define BOX_BORDER (HiresGFX?40:20)
 
 
 void show_pause_message(char *msg)
@@ -309,7 +308,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	frame_num = 0;
 
-	FontHires = FontHiresAvailable && hires_flag;
+	HiresGFX = HiresGFXAvailable && hires_flag;
 
 	while((result = MVE_rmStepMovie()) == 0) {
 
@@ -551,7 +550,7 @@ void draw_subtitles(int frame_num)
 		num_active_subtitles = 0;
 		next_subtitle = 0;
 		gr_set_curfont( GAME_FONT );
-		line_spacing = grd_curcanv->cv_font->ft_h + (grd_curcanv->cv_font->ft_h >> 2);
+		line_spacing = FONTSCALE_Y(grd_curcanv->cv_font->ft_h + (grd_curcanv->cv_font->ft_h >> 2));
 		gr_set_fontcolor(255,-1);
 	}
 

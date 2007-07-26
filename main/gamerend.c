@@ -67,7 +67,6 @@ static char rcsid[] = "$Id: gamerend.c,v 1.1.1.1 2006/03/17 19:57:07 zicodxx Exp
 
 extern fix Cruise_speed;
 extern int LinearSVGABuffer;
-extern int Current_display_mode;
 extern cvar_t r_framerate;
 
 
@@ -755,8 +754,8 @@ void update_cockpits(int force_redraw)
 
 	grs_bitmap *bm;
 
-	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)]);
-	bm=&GameBitmaps[cockpit_bitmap[Cockpit_mode+(Current_display_mode?(Num_cockpits/2):0)].index];
+	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(HiresGFX?(Num_cockpits/2):0)]);
+	bm=&GameBitmaps[cockpit_bitmap[Cockpit_mode+(HiresGFX?(Num_cockpits/2):0)].index];
 
 	//Redraw the on-screen cockpit bitmaps
 	if (VR_render_mode != VR_NONE )	return;
@@ -782,7 +781,7 @@ void update_cockpits(int force_redraw)
 #ifdef OGL
 			bm->bm_flags |= BM_FLAG_TRANSPARENT;
 			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
-			ogl_ubitmapm_cs (0, (Current_display_mode?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (Current_display_mode?(double)grd_curscreen->sc_h/480:(double)grd_curscreen->sc_h/200) + 0.5)), bm,255, F1_0);
+			ogl_ubitmapm_cs (0, (HiresGFX?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HiresGFX?(double)grd_curscreen->sc_h/480:(double)grd_curscreen->sc_h/200) + 0.5)), bm,255, F1_0);
 #else
 			gr_ubitmapm(0,grd_curscreen->sc_h-bm->bm_h,bm);
 #endif

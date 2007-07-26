@@ -126,17 +126,6 @@ char desc_id_exit_num = 0;
 int Function_mode=FMODE_MENU;		//game or editor?
 int Screen_mode=-1;					//game screen or editor screen?
 
-//--unused-- grs_bitmap Inferno_bitmap_title;
-
-int WVIDEO_running=0;		//debugger can set to 1 if running
-
-//--unused-- int Cyberman_installed=0;			// SWIFT device present
-ubyte CybermouseActive=0;
-
-#ifdef __WATCOMC__
-int __far descent_critical_error_handler( unsigned deverr, unsigned errcode, unsigned __far * devhdr );
-#endif
-
 void show_order_form(void);
 
 //--------------------------------------------------------------------------
@@ -145,15 +134,13 @@ int descent_critical_error = 0;
 unsigned descent_critical_deverror = 0;
 unsigned descent_critical_errcode = 0;
 
+int HiresGFXAvailable = 1;
+int HiresGFX = 1;
+
 extern int Network_allow_socket_changes;
 
 extern void vfx_set_palette_sub(ubyte *);
 
-extern int VR_low_res;
-
-extern int Config_vr_type;
-extern int Config_vr_resolution;
-extern int Config_vr_tracking;
 extern int vertigo_present;
 extern void d_mouse_init(void);
 
@@ -254,23 +241,6 @@ void print_commandline_help()
 	printf( "  -hwsurface         %s\n", "Use HW Surface");
 #endif
 
-/*	KEPT FOR FURTHER REFERENCE
-	printf( "\n Unused / Obsolete:\n\n");
-	printf( "  -sysram            %s\n", "FIXME: Undocumented");
-	printf( "  -tsengdebug1       %s\n", "FIXME: Undocumented");
-	printf( "  -tsengdebug2       %s\n", "FIXME: Undocumented");
-	printf( "  -tsengdebug3       %s\n", "FIXME: Undocumented");
-	printf( "  -vidram            %s\n", "FIXME: Undocumented");
-	printf( "  -xname             %s\n", "FIXME: Undocumented");
-	printf( "  -xver              %s\n", "FIXME: Undocumented");
-
-	printf( "  -gl_test1          %s\n", "FIXME: Undocumented");
-	printf( "  -gl_test2          %s\n", "FIXME: Undocumented");
-	printf( "  -gl_vidmem         %s\n", "FIXME: Undocumented");
-	printf( "  -hwsurface         %s\n", "FIXME: Undocumented");
-	printf( "  -gl_library <l>    %s\n", "use alternate opengl library");
-
-*/
 #endif // NDEBUG
 
 	printf( "\n Help:\n\n");
@@ -308,13 +278,7 @@ void do_register_player(ubyte *title_pal)
 
 extern char Language[];
 
-//can we do highres menus?
-extern int MenuHiresAvailable;
-
 int Inferno_verbose = 0;
-
-u_int32_t MENU_HIRES_MODE=SM(640,480); //#define MENU_HIRES_MODE SM(640,480)
-int menu_use_game_res=1;
 
 //	DESCENT II by Parallax Software
 //		Descent Main
@@ -338,8 +302,9 @@ int main(int argc, char *argv[])
 
 	con_threshold.value = (float)GameArg.DbgVerbose;
 
-	if (! cfile_init("descent2.hog", 1))
+	if (! cfile_init("descent2.hog", 1)) {
 		if (! cfile_init("d2demo.hog", 1))
+		{
 			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
 #ifdef __unix__
 			      "\t$HOME/.d2x-rebirth\n"
@@ -348,6 +313,15 @@ int main(int argc, char *argv[])
 				  "\tCurrent directory\n"
 #endif
 				  "Or use the -hogdir option to specify an alternate location.");
+		}
+		else // deal with interactive demo
+		{
+			HiresGFXAvailable = 0;
+			GameArg.SysLowMem = 1;
+			GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
+		}
+	}
+
 	load_text();
 
 	//print out the banner title
@@ -425,49 +399,13 @@ int main(int argc, char *argv[])
 	}
 	#endif
 
-	if (!WVIDEO_running)
-		con_printf(CON_DEBUG,"WVIDEO_running = %d\n",WVIDEO_running);
-
 	con_printf (CON_VERBOSE, "%s", TXT_VERBOSE_1);
 	ReadConfigFile();
 
-	if (!VR_offscreen_buffer)	//if hasn't been initialied (by headset init)
-		set_display_mode(0);		//..then set default display mode
-
-	{
-		int screen_width = 640;
-		int screen_height = 480;
-//		int screen_flags = 0;
-
-		// added 3/24/99 by Owen Evans for screen res changing
-		Game_screen_mode = SM(screen_width, screen_height);
-		// end added -OE
-//		game_init_render_buffers(screen_width, screen_height, VR_NONE, screen_flags);
-
-	}
-
-	{
-		int i, argnum = INT_MAX, w, h;
-#define SMODE(V,VV,VG) if ((i=FindResArg(#V, &w, &h)) && (i < argnum)) { argnum = i; VV = SM(w, h); VG = 0;  if(w<640||h<480) disable_high_res=1; }
-#define SMODE_PRINT(V,VV,VG) if (VG) con_printf(CON_VERBOSE, #V " using game resolution ...\n"); else con_printf(CON_VERBOSE, #V " using %ix%i ...\n",SM_W(VV),SM_H(VV) );
-#define S_MODE(V,VV,VG) argnum = INT_MAX; SMODE(V, VV, VG); SMODE_PRINT(V, VV, VG);
-
-		S_MODE(menu,MENU_HIRES_MODE,menu_use_game_res);
-	 }
-
 	con_printf(CON_VERBOSE, "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
-
-	//determine whether we're using high-res menus & movies
-	if (FindArg("-nohires") || FindArg("-nohighres") || (gr_check_mode(MENU_HIRES_MODE) != 0) || disable_high_res)
-		GameArg.GfxMovieHires = MenuHires = MenuHiresAvailable = 0;
-	else
-		//NOTE LINK TO ABOVE!
-		GameArg.GfxMovieHires = MenuHires = MenuHiresAvailable = 1;
 
 	if ((t=gr_init(0))!=0)				//doesn't do much
 		Error(TXT_CANT_INIT_GFX,t);
-
-	gr_set_mode(MENU_SCREEN_MODE);
 
 	// Load the palette stuff. Returns non-zero if error.
 	con_printf(CON_DEBUG, "Initializing palette system...\n" );
@@ -479,10 +417,8 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
 	init_movies();		//init movie libraries
 
-#if 0
 	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
-	gr_set_mode(MovieHires?SM(640,480):SM(320,200));
-#endif
+	gr_set_mode(Game_screen_mode);
 
 	show_titles();
 
@@ -628,10 +564,5 @@ int main(int argc, char *argv[])
 
 void quit_request()
 {
-#ifdef NETWORK
-//	void network_abort_game();
-//	if(Network_status)
-//		network_abort_game();
-#endif
 	exit(0);
 }

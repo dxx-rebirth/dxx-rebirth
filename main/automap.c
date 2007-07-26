@@ -588,21 +588,19 @@ void create_name_canv()
 
 	gr_set_fontcolor(Green_31,-1);
 	gr_set_curfont(SMALL_FONT);
-	gr_printf(((MenuHires)?10:5),((MenuHires)?10:5),"%s", name_level_left);
+	gr_printf(((HiresGFX)?10:5),((HiresGFX)?10:5),"%s", name_level_left);
 	gr_get_string_size(name_level_right,&wr,&h,&aw);
-	gr_printf(grd_curcanv->cv_bitmap.bm_w-wr-FONTSCALE_X(((MenuHires)?10:5)),((MenuHires)?10:5),"%s", name_level_right);
+	gr_printf(grd_curcanv->cv_bitmap.bm_w-wr-FONTSCALE_X(((HiresGFX)?10:5)),((HiresGFX)?10:5),"%s", name_level_right);
 }
 
 extern void GameLoop(int, int );
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
-extern int MenuHiresAvailable;
-extern int Current_display_mode;
 int Automap_active = 0;
 
 #ifdef RELEASE
-#define MAP_BACKGROUND_FILENAME ((MenuHires)?"\x01MAPB.PCX":"\x01MAP.PCX")	//load only from hog file
+#define MAP_BACKGROUND_FILENAME ((HiresGFX)?"\x01MAPB.PCX":"\x01MAP.PCX")	//load only from hog file
 #else
-#define MAP_BACKGROUND_FILENAME (((MenuHires) && cfexist("mapb.pcx"))?"MAPB.PCX":"MAP.PCX")
+#define MAP_BACKGROUND_FILENAME (((HiresGFX) && cfexist("mapb.pcx"))?"MAPB.PCX":"MAP.PCX")
 #endif
 
 void do_automap( int key_code )	{
@@ -645,10 +643,6 @@ void do_automap( int key_code )	{
 	mprintf( (0, "Allocated %d K for automap edge list\n", (sizeof(Edge_info)+sizeof(short))*Max_edges/1024 ));
 
 	gr_set_current_canvas(NULL);
-
-	FontHires = MenuHires;
-
-// 	create_name_canv();
 
 	gr_palette_clear();
 
@@ -884,9 +878,6 @@ void do_automap( int key_code )	{
 			FrameTime=t2-t1;
 		t1 = t2;
 	}
-
-// 	gr_free_canvas(name_canv_left);  name_canv_left=NULL;
-// 	gr_free_canvas(name_canv_right);  name_canv_right=NULL;
 
 #ifdef OGL
 	gr_free_bitmap_data(&Automap_background);

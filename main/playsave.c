@@ -110,17 +110,10 @@ hli highest_levels[MAX_MISSIONS];
 //version 24 -> 25: add d2x keys array
 
 #define COMPATIBLE_PLAYER_FILE_VERSION          17
-#define WINDOWSIZE 1
-#define RESOLUTION 2
-#define MOUSE_SENSITIVITY 4
-#define JOY_DEADZONE 8
 
 int Default_leveling_on=1;
 extern ubyte SecondaryOrder[],PrimaryOrder[];
 extern void InitWeaponOrdering();
-
-static int Player_render_width = 0;
-static int Player_render_height = 0;
 
 int new_player_config()
 {
@@ -171,9 +164,6 @@ int read_player_d2x(char *filename)
 	int rc = 0;
 	char line[20],*word;
 	int Stop=0;
-	char plxver[6];
-
-	sprintf(plxver,"v0.00");
 
 	f = PHYSFSX_openReadBuffered(filename);
 
@@ -185,46 +175,7 @@ int read_player_d2x(char *filename)
 		cfgets(line,20,f);
 		word=splitword(line,':');
 		strupr(word);
-		if (strstr(word,"PLX VERSION"))
-		{
-			d_free(word);
-			cfgets(line,20,f);
-			word=splitword(line,'=');
-			strupr(word);
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
-			{
-				if(!strcmp(word,"PLX VERSION"))
-				{
-					int maj=0,min=0;
-					sscanf(line,"%i.%i",&maj,&min);
-					sprintf(plxver,"v%i.%d",maj,min);
-				}
-				d_free(word);
-				cfgets(line,20,f);
-				word=splitword(line,'=');
-				strupr(word);
-			}
-		}
-		else if (strstr(word,"RESOLUTION"))
-		{
-			d_free(word);
-			cfgets(line,20,f);
-			word=splitword(line,'=');
-			strupr(word);
-	
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
-			{
-				if(!strcmp(word,"WIDTH"))
-					sscanf(line,"%i",&Player_render_width);
-				if(!strcmp(word,"HEIGHT"))
-					sscanf(line,"%i",&Player_render_height);
-				d_free(word);
-				cfgets(line,20,f);
-				word=splitword(line,'=');
-				strupr(word);
-			}
-		}
-		else if (strstr(word,"MOUSE"))
+		if (strstr(word,"MOUSE"))
 		{
 			d_free(word);
 			cfgets(line,20,f);
@@ -293,10 +244,8 @@ int read_player_d2x(char *filename)
 
 int write_player_d2x(char *filename)
 {
-	PHYSFS_file *fin, *fout;
+	PHYSFS_file *fout;
 	int rc=0;
-	int Stop=0;
-	char line[20];
 	char tempfile[PATH_MAX];
 	char str[256];
 
@@ -313,166 +262,28 @@ int write_player_d2x(char *filename)
 	
 	if(fout)
 	{
-		fin=PHYSFSX_openReadBuffered(filename);
-		if(!fin)
-		{
-			sprintf (str, "[D2X OPTIONS]\n");
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "[resolution]\n");
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "width=%i\n", SM_W(Game_screen_mode));
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "height=%d\n", SM_H(Game_screen_mode));
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "[end]\n");
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "[mouse]\n");
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "sensitivity=%d\n",Config_mouse_sensitivity);
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "[end]\n");
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "[joystick]\n");
-                        PHYSFSX_puts(fout, str);
-                        sprintf (str, "deadzone=%d\n", joy_deadzone);
-                        PHYSFSX_puts(fout, str);
-                        sprintf (str, "[end]\n");
-                        PHYSFSX_puts(fout, str);
-			sprintf (str, "[plx version]\n");
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "plx version=%s\n", VERSION);
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "[end]\n");
-			PHYSFSX_puts(fout, str);
-			sprintf (str, "[end]\n");
-			PHYSFSX_puts(fout, str);
-		}
-		else
-		{
-			int printed=0;
-		
-			while(!Stop && !PHYSFS_eof(fin))
-			{
-				cfgets(line,20,fin);
-				strupr(line);
-				if (strstr(line,"PLX VERSION"))
-				{
-					while(!strstr(line,"END")&&!PHYSFS_eof(fin))
-					{
-						cfgets(line,20,fin);
-						strupr(line);
-					}
-				}
-				else if (strstr(line,"RESOLUTION"))
-				{
-					sprintf (str, "[resolution]\n");
-					PHYSFSX_puts(fout, str);
-					sprintf (str, "width=%i\n", SM_W(Game_screen_mode));
-					PHYSFSX_puts(fout, str);
-					sprintf (str, "height=%d\n", SM_H(Game_screen_mode));
-					PHYSFSX_puts(fout, str);
-					sprintf (str, "[end]\n");
-					PHYSFSX_puts(fout, str);
-					while(!strstr(line,"END")&&!PHYSFS_eof(fin))
-					{
-						cfgets(line,20,fin);
-						strupr(line);
-					}
-					printed |= RESOLUTION;
-				}
-				else if (strstr(line,"MOUSE"))
-				{
-					sprintf (str, "[mouse]\n");
-					PHYSFSX_puts(fout, str);
-					sprintf (str, "sensitivity=%d\n",Config_mouse_sensitivity);
-					PHYSFSX_puts(fout, str);
-					sprintf (str, "[end]\n");
-					PHYSFSX_puts(fout, str);
-					while(!strstr(line,"END")&&!PHYSFS_eof(fin))
-					{
-						cfgets(line,20,fin);
-						strupr(line);
-					}
-					printed |= MOUSE_SENSITIVITY;
-				}
-				else if (strstr(line,"JOYSTICK"))
-                                {
-					sprintf (str, "[joystick]\n");
-                        		PHYSFSX_puts(fout, str);
-                        		sprintf (str, "deadzone=%d\n", joy_deadzone);
-                        		PHYSFSX_puts(fout, str);
-                        		sprintf (str, "[end]\n");
-                        		PHYSFSX_puts(fout, str);
-					while(!strstr(line,"END")&&!PHYSFS_eof(fin))
-					{
-						cfgets(line,20,fin);
-						strupr(line);
-					}
-					printed |= JOY_DEADZONE;
-          			}
-				else if (strstr(line,"END"))
-				{
-					Stop=1;
-				}
-				else
-				{
-					if(line[0]=='['&&!strstr(line,"D2X OPTIONS"))
-						while(!strstr(line,"END") && !PHYSFS_eof(fin))
-						{
-							sprintf (str, "%s\n", line);
-							PHYSFSX_puts(fout, str);
-							cfgets(line,20,fin);
-							strupr(line);
-						}
-					sprintf (str, "%s\n", line);
-					PHYSFSX_puts(fout, str);
-				}
-			
-				if(!Stop&&PHYSFS_eof(fin))
-					Stop=1;
-			}
-		
-			if(!(printed&RESOLUTION))
-			{
-				sprintf (str, "[resolution]\n");
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "width=%i\n", SM_W(Game_screen_mode));
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "height=%d\n", SM_H(Game_screen_mode));
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "[end]\n");
-				PHYSFSX_puts(fout, str);
-			}
-			if(!(printed&MOUSE_SENSITIVITY))
-			{
-				sprintf (str, "[mouse]\n");
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "sensitivity=%d\n",Config_mouse_sensitivity);
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "[end]\n");
-				PHYSFSX_puts(fout, str);
-			}
-			if(!(printed&JOY_DEADZONE))
-			{
-				sprintf (str, "[joystick]\n");
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "deadzone=%d\n",joy_deadzone);
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "[end]\n");
-				PHYSFSX_puts(fout, str);
-			}
-		
-				sprintf (str, "[plx version]\n");
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "plx version=%s\n", VERSION);
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "[end]\n");
-				PHYSFSX_puts(fout, str);
-				sprintf (str, "[end]\n");
-				PHYSFSX_puts(fout, str);
-			
-				PHYSFS_close(fin);
-		}
+		sprintf (str, "[D2X OPTIONS]\n");
+		PHYSFSX_puts(fout, str);
+		sprintf (str, "[mouse]\n");
+		PHYSFSX_puts(fout, str);
+		sprintf (str, "sensitivity=%d\n",Config_mouse_sensitivity);
+		PHYSFSX_puts(fout, str);
+		sprintf (str, "[end]\n");
+		PHYSFSX_puts(fout, str);
+		sprintf (str, "[joystick]\n");
+		PHYSFSX_puts(fout, str);
+		sprintf (str, "deadzone=%d\n", joy_deadzone);
+		PHYSFSX_puts(fout, str);
+		sprintf (str, "[end]\n");
+		PHYSFSX_puts(fout, str);
+		sprintf (str, "[plx version]\n");
+		PHYSFSX_puts(fout, str);
+		sprintf (str, "plx version=%s\n", VERSION);
+		PHYSFSX_puts(fout, str);
+		sprintf (str, "[end]\n");
+		PHYSFSX_puts(fout, str);
+		sprintf (str, "[end]\n");
+		PHYSFSX_puts(fout, str);
 		
 		PHYSFS_close(fout);
 		if(rc==0)
@@ -489,14 +300,10 @@ int write_player_d2x(char *filename)
 
 extern int Guided_in_big_window;
 
-int Automap_always_hires=0; // FIXME: unused - remove me
-
 //this length must match the value in escort.c
 #define GUIDEBOT_NAME_LEN 9
 extern char guidebot_name[];
 extern char real_guidebot_name[];
-
-WIN(extern char win95_current_joyname[]);
 
 ubyte control_type_dos,control_type_win;
 
@@ -544,20 +351,17 @@ int read_player_file()
 		return -1;
 	}
 
-	//skip Game_window_w,Game_window_h
-	PHYSFS_seek(file,PHYSFS_tell(file)+2*sizeof(short));
-
+	PHYSFS_seek(file,PHYSFS_tell(file)+2*sizeof(short)); //skip Game_window_w,Game_window_h
 	Player_default_difficulty = cfile_read_byte(file);
 	Default_leveling_on       = cfile_read_byte(file);
 	Reticle_on                = cfile_read_byte(file);
 	Cockpit_mode              = cfile_read_byte(file);
-	Default_display_mode      = cfile_read_byte(file);
+	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); //skip Default_display_mode
 	Missile_view_enabled      = cfile_read_byte(file);
 	Headlight_active_default  = cfile_read_byte(file);
 	Guided_in_big_window      = cfile_read_byte(file);
-		
 	if (player_file_version >= 19)
-		Automap_always_hires = cfile_read_byte(file);
+		PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); //skip Automap_always_hires
 
 	Auto_leveling_on = Default_leveling_on;
 
@@ -696,14 +500,6 @@ int read_player_file()
         strlwr(filename);
 	read_player_d2x(filename);
 
-	if (Player_render_width && Player_render_height && Game_screen_mode != SM(Player_render_width, Player_render_height))
-	{
-		Game_screen_mode = SM(Player_render_width,Player_render_height);
-		game_init_render_buffers(
-			Player_render_width,
-			Player_render_height, VR_NONE, 0);
-	}
-
 	return EZERO;
 
  read_player_file_failed:
@@ -800,18 +596,17 @@ int write_player_file()
 	PHYSFS_writeULE32(file, SAVE_FILE_ID);
 	PHYSFS_writeULE16(file, PLAYER_FILE_VERSION);
 
-	// skip Game_window_w, Game_window_h
-	PHYSFS_seek(file,PHYSFS_tell(file)+2*(sizeof(PHYSFS_uint16)));
-
+	
+	PHYSFS_seek(file,PHYSFS_tell(file)+2*(sizeof(PHYSFS_uint16))); // skip Game_window_w, Game_window_h
 	PHYSFSX_writeU8(file, Player_default_difficulty);
 	PHYSFSX_writeU8(file, Auto_leveling_on);
 	PHYSFSX_writeU8(file, Reticle_on);
 	PHYSFSX_writeU8(file, (Cockpit_mode_save!=-1)?Cockpit_mode_save:Cockpit_mode);	//if have saved mode, write it instead of letterbox/rear view
-	PHYSFSX_writeU8(file, Default_display_mode);
+	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(PHYSFS_uint8)); // skip Default_display_mode
 	PHYSFSX_writeU8(file, Missile_view_enabled);
 	PHYSFSX_writeU8(file, Headlight_active_default);
 	PHYSFSX_writeU8(file, Guided_in_big_window);
-	PHYSFSX_writeU8(file, Automap_always_hires);
+	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(PHYSFS_uint8)); // skip Automap_always_hires
 
 	//write higest level info
 	PHYSFS_writeULE16(file, n_highest_levels);

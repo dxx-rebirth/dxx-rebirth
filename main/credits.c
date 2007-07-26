@@ -56,7 +56,6 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:56:57 zicodxx Exp 
 #include "cfile.h"
 #include "text.h"
 #include "songs.h"
-#include "menu.h"  // for MenuHires
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -65,9 +64,9 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:56:57 zicodxx Exp 
 #define NUM_LINES			20 //14
 #define CREDITS_FILE			(cfexist("mcredits.tex")?"mcredits.tex":cfexist("ocredits.tex")?"ocredits.tex":"credits.tex")
 #ifdef RELEASE
-#define CREDITS_BACKGROUND_FILENAME	(MenuHires?"\x01starsb.pcx":"\x01stars.pcx")	//only read from hog file
+#define CREDITS_BACKGROUND_FILENAME	(HiresGFX?"\x01starsb.pcx":"\x01stars.pcx")	//only read from hog file
 #else
-#define CREDITS_BACKGROUND_FILENAME	(MenuHires?"starsb.pcx":"stars.pcx")
+#define CREDITS_BACKGROUND_FILENAME	(HiresGFX?"starsb.pcx":"stars.pcx")
 #endif
 #ifdef SHAREWARE
 #define ALLOWED_CHAR			'S'
@@ -166,9 +165,9 @@ void credits_show(char *credits_filename)
 #ifdef OGL
 	gr_palette_load(gr_palette);
 #endif
-	header_font = gr_init_font( MenuHires?"font1-1h.fnt":"font1-1.fnt" );
-	title_font = gr_init_font( MenuHires?"font2-3h.fnt":"font2-3.fnt" );
-	names_font = gr_init_font( MenuHires?"font2-2h.fnt":"font2-2.fnt" );
+	header_font = gr_init_font( HiresGFX?"font1-1h.fnt":"font1-1.fnt" );
+	title_font = gr_init_font( HiresGFX?"font2-3h.fnt":"font2-3.fnt" );
+	names_font = gr_init_font( HiresGFX?"font2-2h.fnt":"font2-2.fnt" );
 	backdrop.bm_data=NULL;
 
 //MWA  Made backdrop bitmap linear since it should always be.  the current canvas may not

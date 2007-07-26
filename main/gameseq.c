@@ -748,12 +748,6 @@ do_menu_again:
 
 	Auto_leveling_on = Default_leveling_on;
 
-	if (menu_use_game_res) { // ZICO - set players resolution after player is selected
-		gr_set_mode(Game_screen_mode);
-		set_screen_mode(SCREEN_GAME);
-	} /*else 
-		set_display_mode(Default_display_mode);*/
-
 	WriteConfigFile();		// Update lastplr
 
 	return 1;
@@ -929,7 +923,7 @@ void StartNewGame(int start_level)
 extern int network_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem ); // network.c
 #endif
 
-#define STARS_BACKGROUND ((MenuHires && cfexist("starsb.pcx"))?"starsb.pcx":cfexist("stars.pcx")?"stars.pcx":"starsb.pcx")
+#define STARS_BACKGROUND ((HiresGFX && cfexist("starsb.pcx"))?"starsb.pcx":cfexist("stars.pcx")?"stars.pcx":"starsb.pcx")
 
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
@@ -1912,7 +1906,6 @@ struct {
 
 #define NUM_INTRO_MOVIES (sizeof(intro_movie) / sizeof(*intro_movie))
 
-extern int MenuHiresAvailable;
 extern int robot_movies;	//0 means none, 1 means lowres, 2 means hires
 extern int intro_played;	//true if big intro movie played
 
@@ -1953,26 +1946,7 @@ void ShowLevelIntro(int level_num)
 					}
 				}
 
-#if 0
-				if (robot_movies)
-				{
-					int hires_save=MenuHiresAvailable;
-
-					if (robot_movies == 1)		//lowres only
-					{
-						MenuHiresAvailable = 0;		//pretend we can't do highres
-
-						if (hires_save != MenuHiresAvailable)
-							Screen_mode = -1;		//force reset
-
-					}
-#endif
-					do_briefing_screens ("robot.tex",level_num);
-#if 0
-					MenuHiresAvailable = hires_save;
-				}
-#endif
-
+				do_briefing_screens ("robot.tex",level_num);
 			}
 		}
 		else {	//not the built-in mission.  check for add-on briefing

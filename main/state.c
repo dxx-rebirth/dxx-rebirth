@@ -181,7 +181,7 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 	
 		if ( citem > 0 )	{
 			if ( sc_bmp[citem-1] )	{
-				if (MenuHires) {
+				if (HiresGFX) {
 					grs_canvas *save_canv = grd_curcanv;
 					grs_canvas *temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
 					grs_point vertbuf[3] = {{0,0}, {0,0}, {i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)} };

@@ -138,7 +138,6 @@ char game_rcsid[] = "$Id: game.c,v 1.1.1.1 2006/03/17 19:55:53 zicodxx Exp $";
 
 
 extern void ReadControls(void);		// located in gamecntl.c
-extern int Current_display_mode;
 extern void do_final_boss_frame(void);
 
 int	Speedtest_on = 0;
@@ -179,11 +178,6 @@ grs_canvas  *VR_offscreen_buffer	= NULL;		// The offscreen data buffer
 grs_canvas	VR_render_buffer[2];					//  Two offscreen buffers for left/right eyes.
 grs_canvas	VR_render_sub_buffer[2];			//  Two sub buffers for left/right eyes.
 grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
-
-//do menus work in 640x480 or 320x200?
-//PC version sets this in main().  Mac versios is always high-res, so set to 1 here
-int MenuHiresAvailable = 1;		//can we do highres menus?
-int MenuHires = 1;				//are we currently in highres menus?
 
 int Debug_pause=0;				//John's debugging pause system
 
@@ -323,7 +317,7 @@ void init_cockpit()
 	}
 
 #ifndef OGL
-	if ((SWIDTH == 320 && SHEIGHT == 200) || (MenuHiresAvailable && (SWIDTH == 640 && SHEIGHT == 480)))
+	if ((SWIDTH == 320 && SHEIGHT == 200) || (HiresGFXAvailable && (SWIDTH == 640 && SHEIGHT == 480)))
 #endif
 	{
 		VR_screen_flags = VRF_ALLOW_COCKPIT;
@@ -351,7 +345,7 @@ void init_cockpit()
 		break;
 
 	case CM_STATUS_BAR:
-		game_init_render_sub_buffers( 0, 0, SWIDTH, (Current_display_mode?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
+		game_init_render_sub_buffers( 0, 0, SWIDTH, (HiresGFX?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
 		break;
 
 	case CM_LETTERBOX:
@@ -469,35 +463,12 @@ void set_popup_screen(void)
 //mode if cannot init requested mode)
 int set_screen_mode(int sm)
 {
-#if 0 //def EDITOR
-	if ( (sm==SCREEN_MENU) && (Screen_mode==SCREEN_EDITOR) )	{
-		gr_set_current_canvas( Canv_editor );
-		return 1;
-	}
-#endif
+	if (HiresGFXAvailable && grd_curscreen->sc_w >= 640 && grd_curscreen->sc_h >= 480)
+		HiresGFX = 1;
+	else
+		HiresGFX = 0;
 
-	if (MenuHiresAvailable && FontHiresAvailable && (grd_curscreen->sc_w >= 640) && (grd_curscreen->sc_h >= 480)) {
-		Current_display_mode = MenuHires = FontHires = 1;
-	} else {
-		Current_display_mode = MenuHires = FontHires = 0;
-	}
-
-	if ( Screen_mode == sm && grd_curscreen->sc_mode == Game_screen_mode) {
-		gr_set_current_canvas(NULL);
-		return 1;
-	}
-
-	if ( (Screen_mode == sm) &&
-		!((sm==SCREEN_GAME) &&
-			(grd_curscreen->sc_mode != Game_screen_mode)) &&
-		!((sm==SCREEN_MENU) &&
-			(grd_curscreen->sc_mode != MENU_SCREEN_MODE)) ) {
-		gr_set_current_canvas(NULL);
-#ifndef OGL
-		gr_set_draw_buffer(0);	// Set to the front buffer
-#endif
-		return 1;
-	}
+	gr_set_current_canvas(NULL);
 
 #ifdef EDITOR
 	Canv_editor = NULL;
@@ -512,10 +483,9 @@ int set_screen_mode(int sm)
 			if (GameArg.CtlGrabMouse)
 				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
-			if (grd_curscreen->sc_mode != MENU_SCREEN_MODE)	{
-				if (gr_set_mode(MENU_SCREEN_MODE)) Error("Cannot set screen mode for game!");
-				gr_palette_load( gr_palette );
-			}
+			if  (grd_curscreen->sc_mode != Game_screen_mode)
+				if (gr_set_mode(Game_screen_mode))
+					Error("Cannot set screen mode.");
 			break;
 	
 		case SCREEN_GAME:
@@ -523,14 +493,11 @@ int set_screen_mode(int sm)
 			if (GameArg.CtlGrabMouse && (Newdemo_state != ND_STATE_PLAYBACK))
 				SDL_WM_GrabInput(SDL_GRAB_ON);
 
-			if (grd_curscreen->sc_mode != Game_screen_mode) {
-				if (gr_set_mode(Game_screen_mode))	{
-					Error("Cannot set desired screen mode for game!");
-					//we probably should do something else here, like select a standard mode
-				}
-				reset_cockpit();
-			}
-	
+			if  (grd_curscreen->sc_mode != Game_screen_mode)
+				if (gr_set_mode(Game_screen_mode))
+					Error("Cannot set screen mode.");
+
+			reset_cockpit();
 			init_cockpit();
 	
 			con_resize();

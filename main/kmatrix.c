@@ -73,8 +73,8 @@ void kmatrix_reactor (char *message);
 void kmatrix_phallic ();
 void kmatrix_redraw_coop();
 
-#define LHX(x)  ((x)*(MenuHires?2*((double)SWIDTH/640):((double)SWIDTH/320)))
-#define LHY(y)  ((y)*(MenuHires?2.4*((double)SHEIGHT/480):((double)SHEIGHT/200)))
+#define LHX(x)  ((x)*(HiresGFX?2*((double)SWIDTH/640):((double)SWIDTH/320)))
+#define LHY(y)  ((y)*(HiresGFX?2.4*((double)SHEIGHT/480):((double)SHEIGHT/200)))
 
 void kmatrix_draw_item( int  i, int *sorted )
 {

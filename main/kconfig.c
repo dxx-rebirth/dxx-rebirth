@@ -115,8 +115,8 @@ extern int Automap_flag;
 
 // macros for drawing lo/hi res kconfig screens (see scores.c as well)
 
-#define LHX(x)		((x)*(MenuHires?FONTSCALE_X(2):FONTSCALE_X(1)))
-#define LHY(y)		((y)*(MenuHires?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
+#define LHX(x)		((x)*(HiresGFX?FONTSCALE_X(2):FONTSCALE_X(1)))
+#define LHY(y)		((y)*(HiresGFX?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
 
 #define BT_KEY 			0
 #define BT_MOUSE_BUTTON 	1
@@ -671,7 +671,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	int mouse_state, omouse_state, mx, my, mz, x1, x2, y1, y2;
 	int close_x    = 8*(SWIDTH/320);
 	int close_y    = 8*(SHEIGHT/200);
-	int close_size = FONTSCALE_X(MenuHires?10:5);
+	int close_size = FONTSCALE_X(HiresGFX?10:5);
 #endif
 
 	int i,k,ocitem,citem;
@@ -689,7 +689,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	save_canvas = grd_curcanv;
 
-	if (MenuHires)
+	if (HiresGFX)
 		gr_init_sub_canvas(&kconfig_sub_canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
 	else
 		gr_init_sub_canvas(&kconfig_sub_canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));
