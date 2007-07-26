@@ -123,8 +123,6 @@ int Screen_mode=-1; //game screen or editor screen?
 int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
-u_int32_t menu_screen_mode=SM(640,480);
-int menu_use_game_res=1;
 void mem_init(void);
 
 #ifdef EDITOR
@@ -156,7 +154,6 @@ void show_commandline_help()
 	printf( "  -nomusic           %s\n", "Disables music output");
 
 	printf( "\n Graphics:\n\n");
-	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
 	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
 	printf( "  -hud <n>           %s\n", "Set hud mode.  0=normal 1-3=new");
         printf( "  -hudlines <n>      %s\n", "Number of hud messages to show");
@@ -235,7 +232,6 @@ extern void vfx_set_palette_sub(ubyte *);
 int main(int argc,char **argv)
 {
 	int t;
-	u_int32_t screen_mode = SM(640,480);
 
 	mem_init();
 
@@ -299,17 +295,6 @@ int main(int argc,char **argv)
 	
 	atexit(sdl_close);
 
-	Game_screen_mode = screen_mode;
-
-	{
-		int i, argnum=INT_MAX, w, h;
-#define SMODE(V,VV,VG) if ((i=FindResArg(#V, &w, &h)) && (i < argnum)) { argnum = i; VV = SM(w, h); VG = 0; }
-#define SMODE_PRINT(V,VV,VG) if (GameArg.DbgVerbose) { if (VG) printf( #V " using game resolution ...\n"); else printf( #V " using %ix%i ...\n",SM_W(VV),SM_H(VV) ); }
-#define S_MODE(V,VV,VG) argnum = INT_MAX; SMODE(V, VV, VG); SMODE_PRINT(V, VV, VG);
-
-		S_MODE(menu,menu_screen_mode,menu_use_game_res);
-	}
-	
 #ifdef NETWORK
 	control_invul_time = 0;
 #endif
@@ -320,15 +305,8 @@ int main(int argc,char **argv)
 		Error(TXT_CANT_INIT_GFX,t);
 	// Load the palette stuff. Returns non-zero if error.
 	mprintf( (0, "Going into graphics mode..." ));
-	gr_set_mode(MENU_SCREEN_MODE);
-#ifdef OGL
-	/* hack to fix initial screens with ogl */
-	{
- 		int old_screen_mode = Screen_mode;
-		Screen_mode = MENU_SCREEN_MODE;
-		Screen_mode = old_screen_mode;
-	}
-#endif	
+	gr_set_mode(Game_screen_mode);
+
 	mprintf( (0, "\nInitializing palette system..." ));
 	gr_use_palette_table( "PALETTE.256" );
 	mprintf( (0, "\nInitializing font system..." ));

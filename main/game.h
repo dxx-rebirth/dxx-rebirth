@@ -237,7 +237,5 @@ void game_init_render_buffers (int render_max_w, int render_max_h, int render_me
 extern int Allow_primary_cycle;
 extern int Allow_secondary_cycle;
 
-void vr_reset_display();
-
 #endif
 

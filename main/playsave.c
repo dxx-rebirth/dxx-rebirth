@@ -97,16 +97,6 @@ hli highest_levels[MAX_MISSIONS];
 #define COMPATIBLE_SAVED_GAME_VERSION		4
 #define COMPATIBLE_PLAYER_STRUCT_VERSION	16
 
-#define ADV_WEAPON_ORDER 1
-#define NEW_KEYS 2
-#define WEAPON_KEYS 4
-#define JOYSTICK 8
-#define NEWER_KEYS 16
-#define WEAPON_ORDER 32
-#define RESOLUTION 64
-#define MOUSE_SENSITIVITY 128
-#define COCKPIT_MODE 256
-
 typedef struct saved_game {
 	char		name[GAME_NAME_LEN+1];		//extra char for terminating zero
 	player	player;
@@ -122,9 +112,6 @@ typedef struct saved_game {
 saved_game saved_games[N_SAVE_SLOTS];
 
 int Default_leveling_on=1;
-
-static int Player_render_width = 0;
-static int Player_render_height = 0;
 
 void init_game_list()
 {
@@ -181,9 +168,6 @@ int read_player_d1x(const char *filename)
 	char *line,*word;
 	int Stop=0;
 	int i;
-	char plxver[6];
-
-	sprintf(plxver,"v0.00");
 
 	plyr_read_stats();
 
@@ -200,15 +184,30 @@ int read_player_d1x(const char *filename)
 
 	while( !Stop && !feof(f) )
 	{
-		int Screwed=0;
-	
-		if(!Screwed)
-			line=fsplitword(f,'\n');
-		Screwed = 0;
-		
+		line=fsplitword(f,'\n');
 		word=splitword(line,':');
 		strupr(word);
-		if (strstr(word,"PLX VERSION"))
+
+		if (strstr(word,"ADVANCED ORDERING"))
+		{
+			free(line); free(word);
+			line=fsplitword(f,'\n');
+			word=splitword(line,'=');
+			strupr(word);
+			while(!strstr(word,"END") && !feof(f))
+			{
+				if(!strcmp(word,"PRIMARY"))
+					sscanf(line,"%d,%d,%d,%d,%d",&primary_order[0], &primary_order[1], &primary_order[2], &primary_order[3], &primary_order[4]);
+				else if(!strcmp(word,"SECONDARY"))
+					sscanf(line,"%d,%d,%d,%d,%d",&secondary_order[0], &secondary_order[1], &secondary_order[2], &secondary_order[3], &secondary_order[4]);
+				free(line); free(word);
+				line=fsplitword(f,'\n');
+				word=splitword(line,'=');
+				strupr(word);
+			}
+			free(line);
+		}
+		else if (strstr(word,"NEWER KEYS"))
 		{
 			free(line); free(word);
 			line=fsplitword(f,'\n');
@@ -216,11 +215,25 @@ int read_player_d1x(const char *filename)
 			strupr(word);
 				while(!strstr(word,"END") && !feof(f))
 				{
-					if(!strcmp(word,"PLX VERSION"))
+					if(!strcmp(word,"PRIMARY AUTOSELECT TOGGLE") ||
+						!strcmp(word,"SECONDARY AUTOSELECT TOGGLE") )
 					{
-						int maj,min;
-						sscanf(line,"v%i.%i",&maj,&min);
-						sprintf(plxver,"v%i.%i",maj,min);
+						int kc1, kc2, kc3;
+			
+						sscanf(line,"0x%x,0x%x,0x%x",&kc1,&kc2,&kc3);
+	
+						if(!strcmp(word,"PRIMARY AUTOSELECT TOGGLE"))
+							i=0;
+						else if(!strcmp(word,"SECONDARY AUTOSELECT TOGGLE"))
+							i=2;
+	
+						kconfig_d1x_settings[24+i] = kc2;
+	
+						if(kc1 != 255)
+							kconfig_d1x_settings[24+i] = kc1;
+	
+						if (Config_control_type != 0)
+							kconfig_d1x_settings[25+i] = kc3;
 					}
 					free(line); free(word);
 					line=fsplitword(f,'\n');
@@ -228,80 +241,6 @@ int read_player_d1x(const char *filename)
 					strupr(word);
 				}
 			free(line);
-		}
-	else if (strstr(word,"ADVANCED ORDERING"))
-	{
-		free(line); free(word);
-		line=fsplitword(f,'\n');
-		word=splitword(line,'=');
-		strupr(word);
-		while(!strstr(word,"END") && !feof(f))
-		{
-			if(!strcmp(word,"PRIMARY+"))
-				sscanf(line,"%d,%d,%d,%d,%d,%d,%d,%d",&primary_order[5],&primary_order[6],&primary_order[7],&primary_order[8],&primary_order[9],&primary_order[10],&primary_order[11],&primary_order[12]);
-			else if(!strcmp(word,"PRIMARY"))
-				sscanf(line,"%d,%d,%d,%d,%d",&primary_order[0], &primary_order[1], &primary_order[2], &primary_order[3], &primary_order[4]);
-			else if(!strcmp(word,"SECONDARY"))
-				sscanf(line,"%d,%d,%d,%d,%d",&secondary_order[0], &secondary_order[1], &secondary_order[2], &secondary_order[3], &secondary_order[4]);
-			free(line); free(word);
-			line=fsplitword(f,'\n');
-			if(line[0]=='['&&!strstr(line,"END"))
-				{ Screwed = 1; break; }
-			word=splitword(line,'=');
-			strupr(word);
-		}
-		free(line);
-	}
-	else if (strstr(word,"WEAPON ORDER")) //we don't want this info
-	{
-		free(line); free(word);
-		line=fsplitword(f,'\n');
-		word=splitword(line,'=');
-		strupr(word);
-
-		while(!strstr(word,"END") && !feof(f))
-		{
-			free(line); free(word);
-			line=fsplitword(f,'\n');
-			word=splitword(line,'=');
-			strupr(word);
-		}
-		free(line);
-	}
-	else if (strstr(word,"NEWER KEYS"))
-	{
-		free(line); free(word);
-		line=fsplitword(f,'\n');
-		word=splitword(line,'=');
-		strupr(word);
-			while(!strstr(word,"END") && !feof(f))
-			{
-				if(!strcmp(word,"PRIMARY AUTOSELECT TOGGLE") ||
-					!strcmp(word,"SECONDARY AUTOSELECT TOGGLE") )
-				{
-					int kc1, kc2, kc3;
-		
-					sscanf(line,"0x%x,0x%x,0x%x",&kc1,&kc2,&kc3);
-
-					if(!strcmp(word,"PRIMARY AUTOSELECT TOGGLE"))
-						i=0;
-					else if(!strcmp(word,"SECONDARY AUTOSELECT TOGGLE"))
-						i=2;
-
-					kconfig_d1x_settings[24+i] = kc2;
-
-					if(kc1 != 255)
-						kconfig_d1x_settings[24+i] = kc1;
-
-					if (Config_control_type != 0)
-						kconfig_d1x_settings[25+i] = kc3;
-				}
-				free(line); free(word);
-				line=fsplitword(f,'\n');
-				word=splitword(line,'=');
-				strupr(word);
-			}
-		free(line);
 		}
 		else if (strstr(word,"CYCLE KEYS")||strstr(word,"NEW KEYS"))
 		{
@@ -383,26 +322,6 @@ int read_player_d1x(const char *filename)
 			}
 			free(line);
 		}
-		else if (strstr(word,"RESOLUTION"))
-		{
-			free(line); free(word);
-			line=fsplitword(f,'\n');
-			word=splitword(line,'=');
-			strupr(word);
-	
-			while(!strstr(word,"END") && !feof(f))
-			{
-				if(!strcmp(word,"WIDTH"))
-					sscanf(line,"%i",&Player_render_width);
-				if(!strcmp(word,"HEIGHT"))
-					sscanf(line,"%i",&Player_render_height);
-				free(line); free(word);
-				line=fsplitword(f,'\n');
-				word=splitword(line,'=');
-				strupr(word);
-			}
-			free(line);
-		}
 		else if (strstr(word,"MOUSE"))
 		{
 			free(line); free(word);
@@ -423,7 +342,7 @@ int read_player_d1x(const char *filename)
 				word=splitword(line,'=');
 				strupr(word);
 			}
-		free(line);
+			free(line);
 		}
 		else if (strstr(word,"COCKPIT"))
 		{
@@ -445,7 +364,7 @@ int read_player_d1x(const char *filename)
 				word=splitword(line,'=');
 				strupr(word);
 			}
-		free(line);
+			free(line);
 		}
 		else if (strstr(word,"END") || feof(f))
 		{
@@ -653,11 +572,7 @@ int write_player_d1x(const char *filename)
 {
 	FILE *fin, *fout;
 	int rc=0;
-	int Stop=0;
-	char *line;
 	char tempfile[PATH_MAX];
-	
-	
 	
 	strcpy(tempfile,filename);
 	tempfile[strlen(tempfile)-4]=0;
@@ -677,324 +592,56 @@ int write_player_d1x(const char *filename)
 	if(fout)
 	{
 		fin=fopen(filename,"rt");
-		if(!fin)
-		{
-			fprintf(fout,"[D1X Options]\n");
-			fprintf(fout,"[new keys]\n");
-			fprintf(fout,"cycle primary=0x%x,0xff,0x%x\n",kconfig_d1x_settings[20],kconfig_d1x_settings[21]);
-			fprintf(fout,"cycle secondary=0x%x,0xff,0x%x\n",kconfig_d1x_settings[22],kconfig_d1x_settings[23]);
-			fprintf(fout,"autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[joystick]\n");
-			fprintf(fout,"deadzone=%i\n",joy_deadzone);
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[weapon order]\n");
-			fprintf(fout,"primary=1,2,3,4,5\n");
-			fprintf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[advanced ordering]\n");
-			fprintf(fout,"primary=%d,%d,%d,%d,%d\n",primary_order[0], primary_order[1], primary_order[2],primary_order[3], primary_order[4]);
-			fprintf(fout,"primary+=%d,%d,%d,%d,%d,%d,%d,%d\n",primary_order[5],primary_order[6],primary_order[7],primary_order[8],primary_order[9],primary_order[10],primary_order[11],primary_order[12]);
-			fprintf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[newer keys]\n");
-			fprintf(fout,"primary autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
-			fprintf(fout,"secondary autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[26],kconfig_d1x_settings[27]);
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[weapon keys]\n");
-			fprintf(fout,"1=0x%x,0x%x\n",kconfig_d1x_settings[0],kconfig_d1x_settings[1]);
-			fprintf(fout,"2=0x%x,0x%x\n",kconfig_d1x_settings[2],kconfig_d1x_settings[3]);
-			fprintf(fout,"3=0x%x,0x%x\n",kconfig_d1x_settings[4],kconfig_d1x_settings[5]);
-			fprintf(fout,"4=0x%x,0x%x\n",kconfig_d1x_settings[6],kconfig_d1x_settings[7]);
-			fprintf(fout,"5=0x%x,0x%x\n",kconfig_d1x_settings[8],kconfig_d1x_settings[9]);
-			fprintf(fout,"6=0x%x,0x%x\n",kconfig_d1x_settings[10],kconfig_d1x_settings[11]);
-			fprintf(fout,"7=0x%x,0x%x\n",kconfig_d1x_settings[12],kconfig_d1x_settings[13]);
-			fprintf(fout,"8=0x%x,0x%x\n",kconfig_d1x_settings[14],kconfig_d1x_settings[15]);
-			fprintf(fout,"9=0x%x,0x%x\n",kconfig_d1x_settings[16],kconfig_d1x_settings[17]);
-			fprintf(fout,"0=0x%x,0x%x\n",kconfig_d1x_settings[18],kconfig_d1x_settings[19]);
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[resolution]\n");
-			fprintf(fout,"width=%d\n", SM_W(Game_screen_mode));
-			fprintf(fout,"height=%d\n", SM_H(Game_screen_mode));
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[mouse]\n");
-			fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[cockpit]\n");
-			fprintf(fout,"mode=%i\n",Cockpit_mode);
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[plx version]\n");
-			fprintf(fout,"plx version=%s\n",D1X_VERSION);
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[end]\n");
-		}
-		else
-		{
-			int printed=0;
-	
-			while(!Stop && !feof(fin))
-			{
-				line=fsplitword(fin,'\n');
-				strupr(line);
-	
-				if (strstr(line,"PLX VERSION")) // we don't want to keep this
-				{
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-				free(line);
-				}
-				else if (strstr(line,"WEAPON ORDER"))
-				{
-					fprintf(fout,"[weapon order]\n");
-					fprintf(fout,"primary=1,2,3,4,5\n");
-					fprintf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
-					fprintf(fout,"[end]\n");
-			
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-					free(line);
-					printed |= WEAPON_ORDER;
-				}
-				else if (strstr(line,"WEAPON KEYS"))
-				{
-					fprintf(fout,"[weapon keys]\n");
-					fprintf(fout,"1=0x%x,0x%x\n",kconfig_d1x_settings[0],kconfig_d1x_settings[1]);
-					fprintf(fout,"2=0x%x,0x%x\n",kconfig_d1x_settings[2],kconfig_d1x_settings[3]);
-					fprintf(fout,"3=0x%x,0x%x\n",kconfig_d1x_settings[4],kconfig_d1x_settings[5]);
-					fprintf(fout,"4=0x%x,0x%x\n",kconfig_d1x_settings[6],kconfig_d1x_settings[7]);
-					fprintf(fout,"5=0x%x,0x%x\n",kconfig_d1x_settings[8],kconfig_d1x_settings[9]);
-					fprintf(fout,"6=0x%x,0x%x\n",kconfig_d1x_settings[10],kconfig_d1x_settings[11]);
-					fprintf(fout,"7=0x%x,0x%x\n",kconfig_d1x_settings[12],kconfig_d1x_settings[13]);
-					fprintf(fout,"8=0x%x,0x%x\n",kconfig_d1x_settings[14],kconfig_d1x_settings[15]);
-					fprintf(fout,"9=0x%x,0x%x\n",kconfig_d1x_settings[16],kconfig_d1x_settings[17]);
-					fprintf(fout,"0=0x%x,0x%x\n",kconfig_d1x_settings[18],kconfig_d1x_settings[19]);
-					fprintf(fout,"[end]\n");
-			
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-					free(line);
-					printed |= WEAPON_KEYS;
-				}
-				else if (strstr(line,"ADVANCED ORDERING"))
-				{
-					fprintf(fout,"[advanced ordering]\n");
-					fprintf(fout,"primary=%d,%d,%d,%d,%d\n",primary_order[0], primary_order[1], primary_order[2],primary_order[3], primary_order[4]);
-					fprintf(fout,"primary+=%d,%d,%d,%d,%d,%d,%d,%d\n",primary_order[5],primary_order[6],primary_order[7],primary_order[8],primary_order[9],primary_order[10],primary_order[11],primary_order[12]);
-					fprintf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
-					fprintf(fout,"[end]\n");
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-					free(line);
-					printed |= ADV_WEAPON_ORDER;
-				}
-				else if (strstr(line,"CYCLE KEYS")||strstr(line,"NEW KEYS"))
-				{
-					fprintf(fout,"[new keys]\n");
-					fprintf(fout,"cycle primary=0x%x,0xff,0x%x\n",kconfig_d1x_settings[20],kconfig_d1x_settings[21]);
-					fprintf(fout,"cycle secondary=0x%x,0xff,0x%x\n",kconfig_d1x_settings[22],kconfig_d1x_settings[23]);
-					fprintf(fout,"autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
-					fprintf(fout,"[end]\n");
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-					free(line);
-					printed |= NEW_KEYS;
-				}
-				else if (strstr(line,"NEWER KEYS"))
-				{
-					fprintf(fout,"[newer keys]\n");
-					fprintf(fout,"primary autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
-					fprintf(fout,"secondary autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[26],kconfig_d1x_settings[27]);
-					fprintf(fout,"[end]\n");
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-				free(line);
-				printed |= NEWER_KEYS;
-				}
-				else if (strstr(line,"JOYSTICK"))
-				{
-					fprintf(fout,"[joystick]\n");
-					fprintf(fout,"deadzone=%i\n",joy_deadzone);
-					fprintf(fout,"[end]\n");
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-					free(line);
-					printed |= JOYSTICK;
-				}
-				else if (strstr(line,"RESOLUTION"))
-				{
-					fprintf(fout,"[resolution]\n");
-					fprintf(fout,"width=%d\n", SM_W(Game_screen_mode));
-					fprintf(fout,"height=%d\n", SM_H(Game_screen_mode));
-					fprintf(fout,"[end]\n");
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-					free(line);
-					printed |= RESOLUTION;
-				}
-				else if (strstr(line,"MOUSE"))
-				{
-					fprintf(fout,"[mouse]\n");
-					fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
-					fprintf(fout,"[end]\n");
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-					free(line);
-					printed |= MOUSE_SENSITIVITY;
-				}
-				else if (strstr(line,"COCKPIT"))
-				{
-					fprintf(fout,"[cockpit]\n");
-					fprintf(fout,"mode=%d\n",Cockpit_mode);
-					fprintf(fout,"[end]\n");
-					while(!strstr(line,"END")&&!feof(fin))
-					{
-						free(line);
-						line=fsplitword(fin,'\n');
-						strupr(line);
-					}
-					free(line);
-					printed |= COCKPIT_MODE;
-				}
-				else if (strstr(line,"END"))
-				{
-					Stop=1;
-					free(line);
-				}
-				else
-				{
-					if(line[0]=='['&&!strstr(line,"D1X OPTIONS"))
-						while(!strstr(line,"END") && !feof(fin))
-						{
-							fprintf(fout,"%s\n",line);
-							free(line);
-							line=fsplitword(fin,'\n');
-							strupr(line);
-						}
-					fprintf(fout,"%s\n",line);
-					free(line);
-				}
-		
-				if(!Stop&&feof(fin))
-					Stop=1;
-			}
-	
-			if(!(printed&NEW_KEYS))
-			{
-				fprintf(fout,"[new keys]\n");
-				fprintf(fout,"cycle primary=0x%x,0xff,0x%x\n",kconfig_d1x_settings[20],kconfig_d1x_settings[21]);
-				fprintf(fout,"cycle secondary=0x%x,0xff,0x%x\n",kconfig_d1x_settings[22],kconfig_d1x_settings[23]);
-				fprintf(fout,"autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
-				fprintf(fout,"[end]\n");
-			}
-			if(!(printed&JOYSTICK))
-			{
-				fprintf(fout,"[joystick]\n");
-				fprintf(fout,"deadzone=%i\n",joy_deadzone);
-				fprintf(fout,"[end]\n");
-			}
-			if(!(printed&WEAPON_ORDER))
-			{
-				fprintf(fout,"[weapon order]\n");
-				fprintf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
-				fprintf(fout,"[end]\n");
-			}
-			if(!(printed&ADV_WEAPON_ORDER))
-			{
-				fprintf(fout,"[advanced ordering]\n");
-				fprintf(fout,"primary=%d,%d,%d,%d,%d\n",primary_order[0], primary_order[1], primary_order[2],primary_order[3],primary_order[4]);
-				fprintf(fout,"primary+=%d,%d,%d,%d,%d,%d,%d,%d\n",primary_order[5],primary_order[6],primary_order[7],primary_order[8],primary_order[9],primary_order[10],primary_order[11],primary_order[12]);
-				fprintf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
-				fprintf(fout,"[end]\n");
-			}
-			if(!(printed&NEWER_KEYS))
-			{
-				fprintf(fout,"[newer keys]\n");
-				fprintf(fout,"primary autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
-				fprintf(fout,"secondary autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[26],kconfig_d1x_settings[27]);
-				fprintf(fout,"[end]\n");
-			}
-			if(!(printed&WEAPON_KEYS))
-			{
-				fprintf(fout,"[weapon keys]\n");
-				fprintf(fout,"1=0x%x,0x%x\n",kconfig_d1x_settings[0],kconfig_d1x_settings[1]);
-				fprintf(fout,"2=0x%x,0x%x\n",kconfig_d1x_settings[2],kconfig_d1x_settings[3]);
-				fprintf(fout,"3=0x%x,0x%x\n",kconfig_d1x_settings[4],kconfig_d1x_settings[5]);
-				fprintf(fout,"4=0x%x,0x%x\n",kconfig_d1x_settings[6],kconfig_d1x_settings[7]);
-				fprintf(fout,"5=0x%x,0x%x\n",kconfig_d1x_settings[8],kconfig_d1x_settings[9]);
-				fprintf(fout,"6=0x%x,0x%x\n",kconfig_d1x_settings[10],kconfig_d1x_settings[11]);
-				fprintf(fout,"7=0x%x,0x%x\n",kconfig_d1x_settings[12],kconfig_d1x_settings[13]);
-				fprintf(fout,"8=0x%x,0x%x\n",kconfig_d1x_settings[14],kconfig_d1x_settings[15]);
-				fprintf(fout,"9=0x%x,0x%x\n",kconfig_d1x_settings[16],kconfig_d1x_settings[17]);
-				fprintf(fout,"0=0x%x,0x%x\n",kconfig_d1x_settings[18],kconfig_d1x_settings[19]);
-				fprintf(fout,"[end]\n");
-			}
-			if(!(printed&RESOLUTION))
-			{
-				fprintf(fout,"[resolution]\n");
-				fprintf(fout,"width=%d\n", SM_W(Game_screen_mode));
-				fprintf(fout,"height=%d\n", SM_H(Game_screen_mode));
-				fprintf(fout,"[end]\n");
-			}
-			if(!(printed&MOUSE_SENSITIVITY))
-			{
-				fprintf(fout,"[mouse]\n");
-				fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
-				fprintf(fout,"[end]\n");
-			}
-			if(!(printed&COCKPIT_MODE))
-			{
-				fprintf(fout,"[cockpit]\n");
-				fprintf(fout,"mode=%d\n",Cockpit_mode);
-				fprintf(fout,"[end]\n");
-			}
-		
-			fprintf(fout,"[plx version]\n");
-			fprintf(fout,"plx version=%s\n",D1X_VERSION);
-			fprintf(fout,"[end]\n");
-			fprintf(fout,"[end]\n");
 
-			fclose(fin);
-		}
+		fprintf(fout,"[D1X Options]\n");
+		fprintf(fout,"[new keys]\n");
+		fprintf(fout,"cycle primary=0x%x,0xff,0x%x\n",kconfig_d1x_settings[20],kconfig_d1x_settings[21]);
+		fprintf(fout,"cycle secondary=0x%x,0xff,0x%x\n",kconfig_d1x_settings[22],kconfig_d1x_settings[23]);
+		fprintf(fout,"autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
+		fprintf(fout,"[end]\n");
+		fprintf(fout,"[joystick]\n");
+		fprintf(fout,"deadzone=%i\n",joy_deadzone);
+		fprintf(fout,"[end]\n");
+		fprintf(fout,"[weapon order]\n");
+		fprintf(fout,"primary=1,2,3,4,5\n");
+		fprintf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
+		fprintf(fout,"[end]\n");
+		fprintf(fout,"[advanced ordering]\n");
+		fprintf(fout,"primary=%d,%d,%d,%d,%d\n",primary_order[0], primary_order[1], primary_order[2],primary_order[3], primary_order[4]);
+		fprintf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
+		fprintf(fout,"[end]\n");
+		fprintf(fout,"[newer keys]\n");
+		fprintf(fout,"primary autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
+		fprintf(fout,"secondary autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[26],kconfig_d1x_settings[27]);
+		fprintf(fout,"[end]\n");
+		fprintf(fout,"[weapon keys]\n");
+		fprintf(fout,"1=0x%x,0x%x\n",kconfig_d1x_settings[0],kconfig_d1x_settings[1]);
+		fprintf(fout,"2=0x%x,0x%x\n",kconfig_d1x_settings[2],kconfig_d1x_settings[3]);
+		fprintf(fout,"3=0x%x,0x%x\n",kconfig_d1x_settings[4],kconfig_d1x_settings[5]);
+		fprintf(fout,"4=0x%x,0x%x\n",kconfig_d1x_settings[6],kconfig_d1x_settings[7]);
+		fprintf(fout,"5=0x%x,0x%x\n",kconfig_d1x_settings[8],kconfig_d1x_settings[9]);
+		fprintf(fout,"6=0x%x,0x%x\n",kconfig_d1x_settings[10],kconfig_d1x_settings[11]);
+		fprintf(fout,"7=0x%x,0x%x\n",kconfig_d1x_settings[12],kconfig_d1x_settings[13]);
+		fprintf(fout,"8=0x%x,0x%x\n",kconfig_d1x_settings[14],kconfig_d1x_settings[15]);
+		fprintf(fout,"9=0x%x,0x%x\n",kconfig_d1x_settings[16],kconfig_d1x_settings[17]);
+		fprintf(fout,"0=0x%x,0x%x\n",kconfig_d1x_settings[18],kconfig_d1x_settings[19]);
+		fprintf(fout,"[end]\n");
+		fprintf(fout,"[mouse]\n");
+		fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
+		fprintf(fout,"[end]\n");
+		fprintf(fout,"[cockpit]\n");
+		fprintf(fout,"mode=%i\n",Cockpit_mode);
+		fprintf(fout,"[end]\n");
+		fprintf(fout,"[plx version]\n");
+		fprintf(fout,"plx version=%s\n",D1X_VERSION);
+		fprintf(fout,"[end]\n");
+		fprintf(fout,"[end]\n");
 	
 		if (ferror(fout))
 			rc = errno;
+
 		fclose(fout);
+
 		if(rc==0)
 		{
 			unlink(filename);
@@ -1005,9 +652,6 @@ int write_player_d1x(const char *filename)
 	else
 		return errno;
 }
-
-extern int screen_width;
-extern int screen_height;
 
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
@@ -1251,14 +895,6 @@ int read_player_file()
 
 	if (errno_ret==EZERO)	{
 		kc_set_controls();
-	}
-
-	if (Player_render_width && Player_render_height && Game_screen_mode != SM(Player_render_width, Player_render_height))
-	{
-		Game_screen_mode = SM(Player_render_width,Player_render_height);
-		game_init_render_buffers(
-			Player_render_width,
-			Player_render_height, VR_NONE);
 	}
 
 	return errno_ret;

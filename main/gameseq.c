@@ -687,11 +687,6 @@ do_menu_again:
 
 	Auto_leveling_on = Default_leveling_on;
 
-	if (menu_use_game_res) { // ZICO - set players resolution after player is selected
-		gr_set_mode(Game_screen_mode);
-		set_screen_mode(SCREEN_GAME);
-	}
-
 	WriteConfigFile();		// Update lastplr
 
         return 1;
@@ -1460,7 +1455,6 @@ void copy_defaults_to_robot_all(void)
 int	Do_appearance_effect=0;
 
 extern int Rear_view;
-extern void vr_reset_display();
 
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)
@@ -1506,9 +1500,6 @@ void StartLevel(int random)
 	Fusion_charge = 0;
 
 	Robot_firing_enabled = 1;
-
-	if (Game_screen_mode == SCREEN_MENU)
-		vr_reset_display();
 }
 
 

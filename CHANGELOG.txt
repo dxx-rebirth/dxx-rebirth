@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070727
+--------
+d1x.ini, main/config.c, main/inferno.c, main/game.c, main/game.h, main/gameseq.c, main/menu.c, main/playsave.c: Cleanup in Config- and PLX-code; Saving Resolution in Config file so it will apply directly at game-init; Removed seperated resolution mode for menus, SCREEN_MENU now always uses Game_screen_mode; Last FindArg cleanups
+
 20070723
 --------
 arch/ogl/gr.c, arch/ogl/include/ogl_init.h, arch/ogl/ogl.c, arch/sdl/gr.c, include/args.h, main/args.c, main/inferno.c: FindArg cleanup - GL-Debug and SDL arguments

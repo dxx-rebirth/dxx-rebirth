@@ -147,6 +147,8 @@ extern int last_joy_time;		//last time the joystick was used
 #define speedtest_on 0
 #endif
 
+extern void newmenu_close();
+
 ubyte do_auto_demo = 1;			// Flag used to enable auto demo starting in main menu.
 int Player_default_difficulty; // Last difficulty level chosen by the player
 int Auto_leveling_on = 0;
@@ -839,23 +841,14 @@ void change_res()
 	if (screen_height <= 0 || screen_width <= 0)
 		return;
 
-	Game_screen_mode = screen_mode;
-	game_init_render_buffers(screen_width, screen_height, VR_NONE);
- 
-	mprintf( (0, "\nInitializing palette system..." ));
-	gr_use_palette_table( "PALETTE.256" );
-	mprintf( (0, "\nInitializing font system..." ));
-	gamefont_init();        // must load after palette data loaded.
- 
-	reset_palette_add();
-	init_cockpit();
-	last_drawn_cockpit=-1;
-	vr_reset_display();
+	if (Game_screen_mode == screen_mode)
+		return;
 
-	if (menu_use_game_res) {
-		gr_set_mode(Game_screen_mode);
-		set_screen_mode(SCREEN_GAME);
-	}
+	newmenu_close();
+
+	Game_screen_mode = screen_mode;
+	set_screen_mode(SCREEN_MENU);
+	game_init_render_buffers(screen_width, screen_height, VR_NONE);
 }
 
 void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )

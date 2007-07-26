@@ -518,24 +518,7 @@ void game_init_render_buffers(int render_w, int render_h, int render_method )
 //mode if cannot init requested mode)
 int set_screen_mode(int sm)
 {
-#ifdef EDITOR
-	if ( (sm==SCREEN_MENU) && (Screen_mode==SCREEN_EDITOR) )	{
-		gr_set_current_canvas( Canv_editor );
-		return 1;
-	}
-#endif
-
-	if ( (Screen_mode == sm) &&
-		!((sm==SCREEN_GAME) &&
-			(grd_curscreen->sc_mode != Game_screen_mode)) &&
-		!((sm==SCREEN_MENU) &&
-			(grd_curscreen->sc_mode != MENU_SCREEN_MODE)) ) {
-		gr_set_current_canvas(NULL);
-#ifndef OGL
-		gr_set_draw_buffer(0);  // Set to the front buffer
-#endif
-		return 1;
-	}
+	gr_set_current_canvas(NULL);
 
 	Screen_mode = sm;
 
@@ -549,10 +532,10 @@ int set_screen_mode(int sm)
 			if (GameArg.CtlGrabMouse)
 				SDL_WM_GrabInput(SDL_GRAB_OFF);
 
-			if (grd_curscreen->sc_mode != MENU_SCREEN_MODE)	{
-				if (gr_set_mode(MENU_SCREEN_MODE)) Error("Cannot set screen mode for game!");
-				gr_palette_load( gr_palette );
-			}
+			if  (grd_curscreen->sc_mode != Game_screen_mode)
+				if (gr_set_mode(Game_screen_mode))
+					Error("Cannot set screen mode.");
+
 			break;
 		case SCREEN_GAME:
 			/* keep the mouse from wandering in SDL */
@@ -562,6 +545,7 @@ int set_screen_mode(int sm)
 			if  (grd_curscreen->sc_mode != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
+
 			reset_cockpit();
 			init_cockpit();
 			break;
@@ -1758,9 +1742,6 @@ void game()
 
 	if ( setjmp(LeaveGame)==0 ) {
 
-		if (Game_screen_mode != SCREEN_MENU)
-			vr_reset_display();
-
 		while (1) {
 			// GAME LOOP!
 			Automap_flag = 0;
@@ -1785,8 +1766,6 @@ void game()
 				Screen_mode=-1; set_screen_mode(SCREEN_GAME);
 				init_cockpit();
 				last_drawn_cockpit = -1;
-				if (Game_screen_mode != SCREEN_MENU)
-					vr_reset_display();
 				game_flush_inputs();
 			}
 
@@ -2835,18 +2814,6 @@ void ReadControls()
 			}
 		}
 }
-
-
-void vr_reset_display()
-{
-	if (VR_render_mode == VR_NONE ) return;
-
-	if (Game_screen_mode == SCREEN_MENU)	// low res 320x200 (overall) mode
-		gr_set_mode( SM(320,400) );
-	set_screen_mode (SCREEN_MENU);
-	set_screen_mode (SCREEN_GAME);
-}
-
 
 #ifndef	NDEBUG
 int	Debug_slowdown=0;
