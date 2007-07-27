@@ -52,10 +52,8 @@ int Num_songs;
 
 extern void digi_stop_current_song();
 
-int Redbook_enabled = 1;
-
 //0 if redbook is no playing, else the track number
-int Redbook_playing = 0;
+static int Redbook_playing = 0;
 
 #define NumLevelSongs (Num_songs - SONG_FIRST_LEVEL_SONG)
 
@@ -191,7 +189,7 @@ int play_redbook_track(int tracknum,int keep_playing)
 {
 	Redbook_playing = 0;
 
-	if (!RBAEnabled() && Redbook_enabled && GameArg.SndEnableRedbook)
+	if (!RBAEnabled() && GameArg.SndEnableRedbook)
 		reinit_redbook();
 
 	if (force_rb_register) {
@@ -199,7 +197,7 @@ int play_redbook_track(int tracknum,int keep_playing)
 		force_rb_register = 0;
 	}
 
-	if (Redbook_enabled && RBAEnabled()) {
+	if (RBAEnabled()) {
 		int num_tracks = RBAGetNumberOfTracks();
 		if (tracknum <= num_tracks)
 			if (RBAPlayTracks(tracknum,keep_playing?num_tracks:tracknum))  {
@@ -238,7 +236,7 @@ int songs_haved2_cd()
 {
 	int discid;
 
-	if (!Redbook_enabled)
+	if (!GameArg.SndEnableRedbook)
 		return 0;
 
 	discid = RBAGetDiscID();
@@ -342,7 +340,7 @@ void songs_play_level_song( int levelnum )
 
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
-	if (!RBAEnabled() && Redbook_enabled && GameArg.SndEnableRedbook)
+	if (!RBAEnabled() && GameArg.SndEnableRedbook)
 		reinit_redbook();
 
 	if (force_rb_register) {
@@ -350,7 +348,7 @@ void songs_play_level_song( int levelnum )
 		force_rb_register = 0;
 	}
 
-	if (Redbook_enabled && RBAEnabled() && (n_tracks = RBAGetNumberOfTracks()) > 1) {
+	if (GameArg.SndEnableRedbook && RBAEnabled() && (n_tracks = RBAGetNumberOfTracks()) > 1) {
 
 		//try to play redbook
 

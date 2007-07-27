@@ -49,10 +49,6 @@ extern song_info Songs[];
 extern int Num_songs;   //how many MIDI songs
 #endif
 
-//whether or not redbook audio should be played
-extern int Redbook_enabled;
-extern int Redbook_playing;     // track that is currently playing
-
 void songs_play_song( int songnum, int repeat );
 void songs_play_level_song( int levelnum );
 

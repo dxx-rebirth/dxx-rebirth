@@ -841,11 +841,7 @@ void do_options_menu()
 	write_player_file();
 }
 
-extern int Redbook_playing;
 void set_redbook_volume(int volume);
-
-WIN(extern int RBCDROM_State);
-WIN(static BOOL windigi_driver_off=FALSE);
 
 void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 {
@@ -854,184 +850,46 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 
 	if ( Config_digi_volume != items[0].value )     {
 		Config_digi_volume = items[0].value;
-
-		#ifdef WINDOWS
-			if (windigi_driver_off) {
-				digi_midi_wait();
-				digi_init_digi();
-				Sleep(500);
-				windigi_driver_off = FALSE;
-			}
-		#endif			
-		
-		#ifndef MACINTOSH
-			digi_set_digi_volume( (Config_digi_volume*32768)/8 );
-		#else
-			digi_set_digi_volume( (Config_digi_volume*256)/8 );
-		#endif
+		digi_set_digi_volume( (Config_digi_volume*32768)/8 );
 		digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
 	}
 
-#ifdef WINDOWS
-	if (!wmidi_support_volchange()) {
-		if (!items[1].value && Config_midi_volume) {
-			Config_midi_volume = 0;
-			digi_set_midi_volume(0);
-			digi_play_midi_song( NULL, NULL, NULL, 0 );
+	if (GameArg.SndEnableRedbook)
+	{
+		if (Config_redbook_volume != items[1].value )   {
+			Config_redbook_volume = items[1].value;
+			set_redbook_volume(Config_redbook_volume);
 		}
-		else if (Config_midi_volume == 0 && items[1].value) {
-			digi_set_midi_volume(64);
-			Config_midi_volume = 4;
-		}
+
 	}
-	else 	 // LINK TO BELOW IF
-#endif
-	if (Config_midi_volume != items[1].value )   {
- 		Config_midi_volume = items[1].value;
-		#ifdef WINDOWS
-			if (!windigi_driver_off) {
-				Sleep(200);
-				digi_close_digi();
-				Sleep(100);
-				windigi_driver_off = TRUE;
-			}
-		#endif
-		#ifndef MACINTOSH
+	else
+	{
+		if (Config_midi_volume != items[1].value )   {
+			Config_midi_volume = items[1].value;
 			digi_set_midi_volume( (Config_midi_volume*128)/8 );
-		#else
-			digi_set_midi_volume( (Config_midi_volume*256)/8 );
-		#endif
-	}
-#ifdef MACINTOSH
-	if (Config_master_volume != items[3].value ) {
-		Config_master_volume = items[3].value;
-		digi_set_master_volume( Config_master_volume );
-		digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
-	}
-#endif
-
-	// don't enable redbook for a non-apple demo version of the shareware demo
-	#if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-
-	if (Config_redbook_volume != items[2].value )   {
-		Config_redbook_volume = items[2].value;
-		set_redbook_volume(Config_redbook_volume);
-	}
-
-	if (items[4].value != (Redbook_playing!=0)) {
-
-		if (items[4].value && !GameArg.SndEnableRedbook) {
-			nm_messagebox (TXT_SORRY,1,TXT_OK,"Redbook audio is disabled\nuse -redbook command to enable");
-			items[4].value = 0;
-			items[4].redraw = 1;
-		}
-		else {
-			Redbook_enabled = items[4].value;
-
-			mprintf((1, "Redbook_enabled = %d\n", Redbook_enabled));
-
-			if (Function_mode == FMODE_MENU)
-				songs_play_song(SONG_TITLE,1);
-			else if (Function_mode == FMODE_GAME)
-				songs_play_level_song( Current_level_num );
-			else
-				Int3();
-
-			if (items[4].value && !Redbook_playing) {
-			#ifdef WINDOWS
-				if (RBCDROM_State == -1) 
-					nm_messagebox (TXT_SORRY,1,TXT_OK,"Cannot start CD Music.\nAnother application is\nusing the CD player.\n");
-				else // link to next code line!
-			#endif
-				nm_messagebox (TXT_SORRY,1,TXT_OK,"Cannot start CD Music.  Insert\nyour Descent II CD and try again");
-				items[4].value = 0;
-				items[4].redraw = 1;
-			}
-
-			items[1].type = (Redbook_playing?NM_TYPE_TEXT:NM_TYPE_SLIDER);
-			items[1].redraw = 1;
-			items[2].type = (Redbook_playing?NM_TYPE_SLIDER:NM_TYPE_TEXT);
-			items[2].redraw = 1;
-
 		}
 	}
-
-	#endif
 
 	citem++;		//kill warning
 }
 
 void do_sound_menu()
 {
-   newmenu_item m[6];
+   newmenu_item m[4];
 	int i = 0;
-
- #ifdef WINDOWS
- 	extern BOOL DIGIDriverInit;
- 	if (!DIGIDriverInit) windigi_driver_off = TRUE;
- 	else windigi_driver_off = FALSE;
- #endif
 
 	do {
 		m[ 0].type = NM_TYPE_SLIDER; m[ 0].text=TXT_FX_VOLUME; m[0].value=Config_digi_volume;m[0].min_value=0; m[0].max_value=8; 
-		m[ 1].type = (Redbook_playing?NM_TYPE_TEXT:NM_TYPE_SLIDER); m[ 1].text="MIDI music volume"; m[1].value=Config_midi_volume;m[1].min_value=0; m[1].max_value=8;
+		m[ 1].type = NM_TYPE_SLIDER; m[ 1].text=(GameArg.SndEnableRedbook?"CD music volume":"MIDI music volume"); m[1].value=(GameArg.SndEnableRedbook?Config_redbook_volume:Config_midi_volume);m[1].min_value=0; m[1].max_value=8;
+		m[ 2].type = NM_TYPE_TEXT; m[ 2].text="";
+		m[ 3].type = NM_TYPE_CHECK;  m[ 3].text=TXT_REVERSE_STEREO; m[3].value=Config_channels_reversed; 
 
-	#ifdef WINDOWS
-		if (!wmidi_support_volchange() && !Redbook_playing) {
-			m[1].type = NM_TYPE_CHECK;
-			m[1].text = "MIDI MUSIC";
-			if (Config_midi_volume) m[1].value = 1;
-		}
-	#endif
-
-		#ifdef SHAREWARE
-			m[ 2].type = NM_TYPE_TEXT; m[ 2].text="";
-			m[ 3].type = NM_TYPE_TEXT; m[ 3].text="";
-			m[ 4].type = NM_TYPE_TEXT; m[ 4].text="";
-			#ifdef MACINTOSH
-				m[ 3].type = NM_TYPE_SLIDER; m[ 3].text="Sound Manager Volume"; m[3].value=Config_master_volume;m[3].min_value=0; m[3].max_value=8;
-
-				#ifdef APPLE_DEMO
-					m[ 2].type = (Redbook_playing?NM_TYPE_SLIDER:NM_TYPE_TEXT); m[ 2].text="CD music volume"; m[2].value=Config_redbook_volume;m[2].min_value=0; m[2].max_value=8;
-					m[ 4].type = NM_TYPE_CHECK;  m[ 4].text="CD Music (Redbook) enabled"; m[4].value=(Redbook_playing!=0);
-				#endif
-
-			#endif
-
-		#else		// ifdef SHAREWARE
-			m[ 2].type = (Redbook_playing?NM_TYPE_SLIDER:NM_TYPE_TEXT); m[ 2].text="CD music volume"; m[2].value=Config_redbook_volume;m[2].min_value=0; m[2].max_value=8;
-
-			#ifndef MACINTOSH
-				m[ 3].type = NM_TYPE_TEXT; m[ 3].text="";
-			#else
-				m[ 3].type = NM_TYPE_SLIDER; m[ 3].text="Sound Manager Volume"; m[3].value=Config_master_volume;m[3].min_value=0; m[3].max_value=8; 
-			#endif
-		
-			m[ 4].type = NM_TYPE_CHECK;  m[ 4].text="CD Music (Redbook) enabled"; m[4].value=(Redbook_playing!=0);
-		#endif
-	
-		m[ 5].type = NM_TYPE_CHECK;  m[ 5].text=TXT_REVERSE_STEREO; m[5].value=Config_channels_reversed; 
-				
 		i = newmenu_do1( NULL, "Sound Effects & Music", sizeof(m)/sizeof(*m), m, sound_menuset, i );
 
-		Redbook_enabled = m[4].value;
-		Config_channels_reversed = m[5].value;
+		Config_channels_reversed = m[3].value;
 
 	} while( i>-1 );
-
-#ifdef WINDOWS
-	if (windigi_driver_off) {
-		digi_midi_wait();
-		Sleep(500);
-		digi_init_digi();
-		windigi_driver_off=FALSE;
-	}
-#endif
-
 }
-
-
-extern int Automap_always_hires;
 
 #define ADD_CHECK(n,txt,v)  do { m[n].type=NM_TYPE_CHECK; m[n].text=txt; m[n].value=v;} while (0)
 
@@ -1059,8 +917,6 @@ void do_toggles_menu()
 		ADD_CHECK(3, "Headlight on when picked up", Headlight_active_default );
 		ADD_CHECK(4, "Show guided missile in main display", Guided_in_big_window );
 		ADD_CHECK(5, "Escort robot hot keys",EscortHotKeys);
-		//ADD_CHECK(6, "Always use 640x480 or greater automap", Automap_always_hires);
-		//when adding more options, change N_TOGGLE_ITEMS above
 
 		i = newmenu_do1( NULL, "Toggles", N_TOGGLE_ITEMS, m, NULL, i );
 			

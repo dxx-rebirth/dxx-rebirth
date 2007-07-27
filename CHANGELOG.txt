@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070727
 --------
 2d/font.c, arch/ogl/ogl.c, include/gr.h, main/automap.c, main/config.c, main/credits.c, main/game.c, main/gamefont.c, main/gamefont.h, main/gamerend.c, main/gameseq.c, main/gauges.c, main/hud.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/menu.h, main/movie.c, main/network.c, main/newmenu.c, main/playsave.c, main/scores.c, main/state.c, main/titles.c: Cleanup in Config- and PLX-code; Saving Resolution in Config file so it will apply directly at game-init; Removed seperated resolution mode for menus, SCREEN_MENU now always uses Game_screen_mode; Last FindArg cleanups; Removed MenuHires(Available) and FontHires(Available) and replaced with HiresGFX(Available) to make a more common way to determinate if Hires data is used or not (interactive Demo); Improved support for Interactive Demo
+main/gamecntl.c, main/menu.c, main/songs.c, main/songs.h: Control Redbook activity with GameArg.SndEnableRedbook only
 
 20070723
 --------

@@ -425,7 +425,6 @@ void format_time(char *str, int secs_int)
 	sprintf(str, "%1d:%02d:%02d", h, m, s );
 }
 
-extern int Redbook_playing;
 void do_show_netgame_help();
 
 //Process selected keys until game unpaused. returns key that left pause (p or esc)
@@ -526,7 +525,7 @@ int do_game_pause()
 
 	start_time();
 
-	if (Redbook_playing)
+	if (GameArg.SndEnableRedbook)
 		RBAResume();
 	digi_resume_all();
 	
