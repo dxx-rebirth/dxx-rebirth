@@ -203,6 +203,7 @@ void print_commandline_help()
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -packets <n>       %s\n", "Specifies the number of packets per second\n");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
+	printf( "  -ip_hostaddr <n>   %s\n", "Use <n> as host ip address");
         printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
         printf( "  -ip_myaddr <n>     %s\n", "Use <a> as local ip address");
         printf( "  -ip_baseport <n>   %s\n", "Use <p> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");

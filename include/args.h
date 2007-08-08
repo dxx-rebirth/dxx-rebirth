@@ -82,6 +82,7 @@ typedef struct Arg
 	int MplPlayerMessages;
 	int MplPacketsPerSec;
 	const char *MplIpxNetwork;
+	char *MplIpHostAddr;
 	int MplIpNoGetMyAddr;
 	char *MplIpMyAddr;
 	int MplIpBasePort;
