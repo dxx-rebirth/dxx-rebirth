@@ -85,7 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gp2x.h"
 #endif
 
-#define MAXDISPLAYABLEITEMS (HiresGFX?15:14)
+#define MAXDISPLAYABLEITEMS 15
 
 #define LHX(x)      (FONTSCALE_X((x)*(HiresGFX?2:1)))
 #define LHY(y)      (FONTSCALE_Y((y)*(HiresGFX?2.4:1)))
@@ -852,12 +852,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		h += string_height+FONTSCALE_Y(1);		// Find the height of all strings
 	}
 
-	// Big hack for allowing the netgame options menu to spill over
-	MaxOnMenu=MAXDISPLAYABLEITEMS;
-	if (ExtGameStatus==GAMESTAT_NETGAME_OPTIONS || ExtGameStatus==GAMESTAT_MORE_NETGAME_OPTIONS)
-		MaxOnMenu++;
-
-	if (!TinyMode && (h>((MaxOnMenu+FONTSCALE_Y(1))*(string_height+1))+(LHY(8))))
+	if (!TinyMode && i > MaxOnMenu) //(h>((MaxOnMenu+FONTSCALE_Y(1))*(string_height+1))+(LHY(8))))
 	{
 		IsScrollBox=1;
 		h=(MaxOnMenu*(string_height+FONTSCALE_Y(1))+LHY(8));

@@ -422,6 +422,8 @@ int main(int argc, char *argv[])
 
 	show_titles();
 
+	set_screen_mode(SCREEN_MENU);
+
 	con_printf( CON_DEBUG, "\nShowing loading screen..." );
 	show_loading_screen(title_pal); // title_pal is needed (see below)
 
@@ -451,8 +453,6 @@ int main(int argc, char *argv[])
 	texmerge_init( 10 );		// 10 cache bitmaps
 
 	con_printf( CON_DEBUG, "\nRunning game...\n" );
-	set_screen_mode(SCREEN_MENU);
-
 	init_game();
 
 	//	If built with editor, option to auto-load a level and quit game

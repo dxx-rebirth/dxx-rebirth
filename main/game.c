@@ -463,12 +463,19 @@ void set_popup_screen(void)
 //mode if cannot init requested mode)
 int set_screen_mode(int sm)
 {
+	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->sc_mode != Game_screen_mode)) && !(sm==SCREEN_MENU) )
+	{
+		gr_set_current_canvas(NULL);
+#ifndef OGL
+		gr_set_draw_buffer(0);  // Set to the front buffer
+#endif
+		return 1;
+	}
+
 	if (HiresGFXAvailable && grd_curscreen->sc_w >= 640 && grd_curscreen->sc_h >= 480)
 		HiresGFX = 1;
 	else
 		HiresGFX = 0;
-
-	gr_set_current_canvas(NULL);
 
 #ifdef EDITOR
 	Canv_editor = NULL;

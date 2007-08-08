@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070808
 --------
 main/config.c, main/game.c, main/menu.c, main/movie.c, main/piggy.c, main/polyobj.c, main/titles.c, main/titles.h: Set default value for Game_screen_mode which is necessary if there's no config file yet; Made resolution switching more failsafe by not allowing resolutions below 320x200; Cleaned up briefings code (I hope so)
+main/game.c, main/inferno.c, main/menu.c, main/network.c, main/newmenu.c: Fixed excessive use of set_screen_mode; Menu fixes; Better way to determinate Scollboxes
 
 20070727
 --------

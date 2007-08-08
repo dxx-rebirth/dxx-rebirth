@@ -3086,8 +3086,8 @@ int network_get_game_params( char * game_name, int *mode, int *game_flags, int *
 		m[opt].type = NM_TYPE_RADIO; m[opt].text = "Hoard"; m[opt].value=0; m[opt].group=0; opt++;
 		m[opt].type = NM_TYPE_RADIO; m[opt].text = "Team Hoard"; m[opt].value=0; m[opt].group=0; opt_team_hoard=opt; opt++;
 	} 
-	else
-	 {  m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++; }
+
+	 m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
 
 	m[opt].type = NM_TYPE_RADIO; m[opt].text = "Open game"; m[opt].group=1; m[opt].value=0; opt++;
 	opt_closed = opt;
