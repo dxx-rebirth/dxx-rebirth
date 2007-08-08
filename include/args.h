@@ -78,6 +78,7 @@ typedef struct Arg
 	int MplMsgColorLevel;
 	int MplPacketsPerSec;
 	const char *MplIpxNetwork;
+	char *MplIpHostAddr;
 	int MplIpNoGetMyAddr;
 	char *MplIpMyAddr;
 	int MplIpBasePort;

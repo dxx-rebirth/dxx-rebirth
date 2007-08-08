@@ -334,6 +334,11 @@ void ReadCmdArgs(void)
 	else
 		GameArg.MplIpxNetwork = NULL;
 
+	if ((t=FindArg("-ip_hostaddr")))
+		GameArg.MplIpHostAddr = Args[t+1];
+	else
+		GameArg.MplIpHostAddr = "";
+
 	if (FindArg("-ip_nogetmyaddr"))
 		GameArg.MplIpNoGetMyAddr = 1;
 	else

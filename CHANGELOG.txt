@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070809
+--------
+d1x.ini, include/args.h, main/args.c, main/inferno.c, main/menu.c: Added -ip_hostaddr argument to specify a host IP address via command-line/INI
+
 20070808
 --------
 main/config.c, main/game.c, main/gameseq.c, main/menu.c, main/polyobj.c, main/titles.c, main/titles.h: Set default value for Game_screen_mode which is necessary if there's no config file yet; Made resolution switching more failsafe by not allowing resolutions below 320x200; Cleaned up briefings code (I hope so)

@@ -180,6 +180,7 @@ void show_commandline_help()
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
         printf( "  -msgcolorlevel <n> %s\n", "Level of colorization for hud messages\n\t\t\t0=none(old style)\n\t\t\t1=color names in talk messages only(default)\n\t\t\t2=also color names in kill/join/etc messages\n\t\t\t3=talk messages are fully colored, not just names");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
+	printf( "  -ip_hostaddr <n>   %s\n", "Use <n> as host ip address");
         printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
         printf( "  -ip_myaddr <n>     %s\n", "Use <n> as local ip address");
         printf( "  -ip_baseport <n>   %s\n", "Use <n> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");

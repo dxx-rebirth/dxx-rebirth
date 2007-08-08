@@ -983,18 +983,18 @@ void do_ip_manual_join_menu()
 	newmenu_item m[3];
 	int choice = 0, num_options = 0;
 	int old_game_mode;
-	char buf[128]="";
+// 	char buf[128]="";
 
 	do {
 		old_game_mode = Game_mode;
 		num_options = 0;
 
-		m[num_options].type = NM_TYPE_INPUT; m[num_options].text=buf; m[num_options].text_len=128;menu_choice[num_options]=-1; num_options++;
+		m[num_options].type = NM_TYPE_INPUT; m[num_options].text=GameArg.MplIpHostAddr; m[num_options].text_len=128;menu_choice[num_options]=-1; num_options++;
 
 		choice = newmenu_do1( NULL, "ENTER IP OR HOSTNAME", num_options, m, NULL, choice );
 
 		if ( choice > -1 ){
-			ip_connect_manual(buf);
+			ip_connect_manual(GameArg.MplIpHostAddr);
 //			do_option(menu_choice[choice]);
 		}
 
