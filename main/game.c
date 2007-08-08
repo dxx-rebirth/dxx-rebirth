@@ -518,7 +518,14 @@ void game_init_render_buffers(int render_w, int render_h, int render_method )
 //mode if cannot init requested mode)
 int set_screen_mode(int sm)
 {
-	gr_set_current_canvas(NULL);
+	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->sc_mode != Game_screen_mode)) && !(sm==SCREEN_MENU) )
+	{
+		gr_set_current_canvas(NULL);
+#ifndef OGL
+		gr_set_draw_buffer(0);  // Set to the front buffer
+#endif
+		return 1;
+	}
 
 	Screen_mode = sm;
 

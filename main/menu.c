@@ -833,16 +833,18 @@ void change_res()
 	screen_width = SM_W(screen_mode);
 	screen_height = SM_H(screen_mode);
 
+	if (Game_screen_mode == screen_mode)
+		return;
+
 	if (screen_width > sdlmode[0]->w || screen_height > sdlmode[0]->h) {
 		if (!nm_messagebox( TXT_WARNING, 2, "NO", "YES", "Could not verify selected\nscreen resolution.\nThe game may crash.\nDo you really want to proceed?" ))
 			return;
 	}
 
-	if (screen_height <= 320 || screen_width <= 200)
+	if (screen_width < 320 || screen_height < 200) {
+		nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
 		return;
-
-	if (Game_screen_mode == screen_mode)
-		return;
+	}
 
 	newmenu_close();
 
