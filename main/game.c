@@ -302,7 +302,7 @@ void game_show_warning(char *s)
 #define cv_w  cv_bitmap.bm_w
 #define cv_h  cv_bitmap.bm_h
 
-u_int32_t Game_screen_mode = 0;
+u_int32_t Game_screen_mode = SM(640,480);
 
 extern void newdemo_record_cockpit_change(int);
 
@@ -541,7 +541,7 @@ int set_screen_mode(int sm)
 	gr_set_current_canvas(NULL);
 
 #ifndef OGL
-	gr_set_draw_buffer(((Screen_mode == SCREEN_GAME) && Game_double_buffer) ? 1 : 0); // Double buffering or 'front' buffer only
+	gr_set_draw_buffer(((Screen_mode == SCREEN_GAME) && GameArg.DbgUseDoubleBuffer) ? 1 : 0); // Double buffering or 'front' buffer only
 #endif
 
 	return 1;

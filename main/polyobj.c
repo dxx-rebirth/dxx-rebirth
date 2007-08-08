@@ -796,16 +796,9 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 {
 	vms_vector	temp_pos=ZERO_VECTOR;
 	vms_matrix	temp_orient = IDENTITY_MATRIX;
-#ifndef OGL
-	grs_canvas	*save_canv = grd_curcanv,*temp_canv;
-#endif
+
 	Assert(mn>=0 && mn<N_polygon_models);
 
-	gr_use_palette_table( "groupa.256" );
-#ifndef OGL
-	temp_canv = gr_create_canvas(save_canv->cv_bitmap.bm_w,save_canv->cv_bitmap.bm_h);
-	gr_set_current_canvas(temp_canv);
-#endif
 	gr_clear_canvas( BM_XRGB(0,0,0) );
 	g3_start_frame();
 	g3_set_view_matrix(&temp_pos,&temp_orient,0x9000);
@@ -818,13 +811,6 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	vm_angles_2_matrix(&temp_orient, orient_angles);
 	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,f1_0,NULL,NULL);
 	g3_end_frame();
-
-#ifndef OGL
-	gr_set_current_canvas(save_canv);
-	gr_bitmap(0,0,&temp_canv->cv_bitmap);
-	gr_free_canvas(temp_canv);
-#endif
-	gr_use_palette_table( "default.256" );
 }
 
 #ifndef FAST_FILE_IO

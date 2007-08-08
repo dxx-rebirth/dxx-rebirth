@@ -200,7 +200,7 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 	gr_update();
 	gr_flip();
 #else
-	gr_bm_ubitblt(bufw,bufh,dstx,dsty,sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
+	gr_bm_ubitblt(bufw,bufh,dstx*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),dsty*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
 #endif
 }
 

@@ -168,10 +168,8 @@ int ReadConfigFile()
 
 	digi_set_volume( (Config_digi_volume*32768)/8, (Config_midi_volume*128)/8 );
 
-	if (Config_render_width && Config_render_height)
+	if (Config_render_width >= 320 && Config_render_height >= 200)
 		Game_screen_mode = SM(Config_render_width,Config_render_height);
-	else
-		Game_screen_mode = SM(640,480);
 
 	return 0;
 }

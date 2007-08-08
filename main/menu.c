@@ -271,6 +271,7 @@ int DoMenu()
 		return 0;
 	}
 
+	piggy_init_pigfile("groupa.pig");	//get correct pigfile
 	load_palette(MENU_PALETTE,0,1);		//get correct palette
 	
 	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM)) {
@@ -781,7 +782,7 @@ void change_res()
 			return;
 	}
 
-	if (screen_height <= 0 || screen_width <= 0)
+	if (screen_height <= 320 || screen_width <= 200)
 		return;
 
 	if (Game_screen_mode == screen_mode)

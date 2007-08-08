@@ -856,10 +856,9 @@ void piggy_new_pigfile(char *pigname)
 
 					bm[fnum]->avg_color = compute_average_pixel(bm[fnum]);
 
-#ifdef EDITOR
 					if ( GameArg.EdiMacData )
 						swap_0_255( bm[fnum] );
-#endif
+
 					if ( !GameArg.DbgBigPig ) gr_bitmap_rle_compress( bm[fnum] );
 
 					if (bm[fnum]->bm_flags & BM_FLAG_RLE)
@@ -909,10 +908,9 @@ void piggy_new_pigfile(char *pigname)
 
 				new->avg_color = compute_average_pixel(new);
 
-#ifdef EDITOR
 				if ( GameArg.EdiMacData )
 					swap_0_255( new );
-#endif
+
 				if ( !GameArg.DbgBigPig )  gr_bitmap_rle_compress( new );
 
 				if (new->bm_flags & BM_FLAG_RLE)
@@ -1165,14 +1163,9 @@ int piggy_init(void)
 		GameBitmapOffset[0] = 0;
 	}
 
-	if (GameArg.SysLowMem)
-		gr_set_curfont( SMALL_FONT );
-		gr_set_fontcolor(gr_find_closest_color_current( 20, 20, 20 ),-1 );
-		gr_printf( 0x8000, grd_curcanv->cv_h-20, "%s...", TXT_LOADING_DATA );
-
-#if 1 //def EDITOR //need for d1 mission briefings
-	piggy_init_pigfile(DEFAULT_PIGFILE_REGISTERED);
-#endif
+	gr_set_curfont( SMALL_FONT );
+	gr_set_fontcolor(gr_find_closest_color_current( 20, 20, 20 ),-1 );
+	gr_printf( 0x8000, grd_curcanv->cv_h-20, "%s...", TXT_LOADING_DATA );
 
 	snd_ok = ham_ok = read_hamfile();
 
