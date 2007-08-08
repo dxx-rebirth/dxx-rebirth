@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070808
+--------
+main/config.c, main/game.c, main/gameseq.c, main/menu.c, main/polyobj.c, main/titles.c, main/titles.h: Set default value for Game_screen_mode which is necessary if there's no config file yet; Made resolution switching more failsafe by not allowing resolutions below 320x200; Cleaned up briefings code (I hope so)
+
 20070727
 --------
 d1x.ini, main/config.c, main/inferno.c, main/game.c, main/game.h, main/gameseq.c, main/menu.c, main/playsave.c: Cleanup in Config- and PLX-code; Saving Resolution in Config file so it will apply directly at game-init; Removed seperated resolution mode for menus, SCREEN_MENU now always uses Game_screen_mode; Last FindArg cleanups

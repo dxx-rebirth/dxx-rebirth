@@ -53,24 +53,18 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #endif
 
 void title_save_game();
+void set_briefing_fontcolor ();
 
-ubyte New_pal[768];
-int New_pal_254_bash;
-
-char * Briefing_text;
-
-//Begin D1X modification
 #define MAX_BRIEFING_COLORS 7
-//End D1X modification
-
+#define	SHAREWARE_ENDING_FILENAME "ending.tex"
+ubyte New_pal[768];
+char * Briefing_text;
 char Ending_text_filename[13] = "endreg.tex";
 char Briefing_text_filename[13] = "briefing.tex";
-
-#define	SHAREWARE_ENDING_FILENAME "ending.tex"
-
 int	Briefing_foreground_colors[MAX_BRIEFING_COLORS], Briefing_background_colors[MAX_BRIEFING_COLORS];
 int	Current_color = 0;
 int	Erase_color;
+grs_bitmap briefing_bm;
 
 // added by Jan Bobrowski for variable-size menu screen
 static int rescale_x(int x)
@@ -229,7 +223,7 @@ briefing_screen Briefing_screens[] = {
 
 };
 
-briefing_screen Briefing_screens_h[] = { // ZICO - added for hires screens
+briefing_screen Briefing_screens_h[] = { // hires screens
 	{ HIRES_DIR "brief01h.pcx",   0,  1,  13, 140, 290,  59 },
 	{ HIRES_DIR "brief02h.pcx",   0,  2,  27,  34, 257, 177 },
 	{ HIRES_DIR "brief03h.pcx",   0,  3,  20,  22, 257, 177 },
@@ -326,7 +320,7 @@ char	Bitmap_name[32] = "";
 sbyte	Door_dir=1, Door_div_count=0, Animating_bitmap_type=0;
 
 //	-----------------------------------------------------------------------------
-void show_bitmap_frame(void)
+void show_animated_bitmap(void)
 {
         grs_canvas      *curcanv_save, *bitmap_canv=0;
 	grs_bitmap	*bitmap_ptr;
@@ -351,14 +345,6 @@ void show_bitmap_frame(void)
 	if (Bitmap_name[0] != 0) {
 		char		*pound_signp;
 		int		num, dig1, dig2;
-
-		// Set supertransparency color to black
-		if (!New_pal_254_bash) {
-			New_pal_254_bash = 1;
-			New_pal[254*3] = 0;
-			New_pal[254*3+1] = 0;
-			New_pal[254*3+2] = 0;
-		}
 
 		switch (Animating_bitmap_type) {
 			case 0:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
@@ -454,7 +440,9 @@ void show_spinning_robot_frame(int robot_num)
 	grs_canvas	*curcanv_save;
 
 	if (robot_num != -1) {
-		
+#ifdef OGL
+		gr_use_palette_table( "palette.256" );
+#endif
 		Robot_angles.h += 150;
 		curcanv_save = grd_curcanv;
 		grd_curcanv = Robot_canv;
@@ -466,8 +454,6 @@ void show_spinning_robot_frame(int robot_num)
 
 }
 
-
-
 //	-----------------------------------------------------------------------------
 void init_spinning_robot(void)
 {
@@ -477,12 +463,6 @@ void init_spinning_robot(void)
 	int h = rescale_y(134);
 
 	Robot_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
-}
-
-//	-----------------------------------------------------------------------------
-void init_briefing_bitmap(void)
-{
-	Robot_canv = gr_create_sub_canvas(grd_curcanv, 138, 55, 166, 138);
 }
 
 //	-----------------------------------------------------------------------------
@@ -516,7 +496,7 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	for (i=0; i<2; i++) {
                 if (robot_num != -1)
 			show_spinning_robot_frame(robot_num);
-                show_bitmap_frame();
+                show_animated_bitmap();
 
                 gr_update();
 
@@ -544,14 +524,25 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 }
 
 //	-----------------------------------------------------------------------------
+//	loads (and - in SDL mode - draws) a briefing screen
+//	for OGL, redrawing of briefing_bm is done in show_briefing
 int load_briefing_screen( int screen_num )
 {
 	int	pcx_error;
-	if ((pcx_error=pcx_read_fullscr( Briefing_screens_LH[screen_num].bs_name, New_pal ))!=PCX_ERROR_NONE) {
+	if ((pcx_error=/*pcx_read_fullscr( Briefing_screens_LH[screen_num].bs_name, New_pal )*/pcx_read_bitmap( Briefing_screens_LH[screen_num].bs_name, &briefing_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE) {
 		printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens_LH[screen_num].bs_name, pcx_errormsg(pcx_error));
 		Int3();
 		return 0;
 	}
+
+#ifdef OGL
+	ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
+#else
+	show_fullscr(&briefing_bm);
+#endif
+	gr_palette_load(gr_palette);
+
+	set_briefing_fontcolor();
 
 	return 0;
 }
@@ -669,7 +660,8 @@ void redraw_messagestream(int count)
 
 //	-----------------------------------------------------------------------------
 //	Return true if message got aborted by user (pressed ESC), else return false.
-int show_briefing_message(int screen_num, char *message)
+//	Draws text, images and bitmaps actually
+int show_briefing(int screen_num, char *message)
 {
 	int	prev_ch=-1;
 	int	ch, done=0;
@@ -686,10 +678,6 @@ int show_briefing_message(int screen_num, char *message)
 	grs_bitmap	guy_bitmap;
 #ifdef OGL
 	int streamcount=0, guy_bitmap_show=0;
-	grs_bitmap briefing_bm;
-
-	gr_init_bitmap_data (&briefing_bm);
-	pcx_read_bitmap( Briefing_screens_LH[screen_num].bs_name, &briefing_bm, BM_LINEAR, gr_palette );
 #endif
 
 	Bitmap_name[0] = 0;
@@ -770,9 +758,7 @@ int show_briefing_message(int screen_num, char *message)
 				start_time = timer_get_approx_seconds();
 				time_out_value = start_time + i2f(60*5); // Wait 1 minute...
 
-//added on 9/13/98 by adb to make arch's requiring updates work
 				gr_update();
-//end changes by adb
 
 				while ( (keypress = local_key_inkey()) == 0 ) { // Wait for a key
 					if ( timer_get_approx_seconds() > time_out_value ) {
@@ -791,11 +777,9 @@ int show_briefing_message(int screen_num, char *message)
 #endif
 					flash_cursor(flashing_cursor);
 					show_spinning_robot_frame(robot_num);
-					show_bitmap_frame();
+					show_animated_bitmap();
 
-//added on 9/13/98 by adb to make arch's requiring updates work
 					gr_update();
-//end changes by adb
 
 					start_time += KEY_DELAY_DEFAULT/2;
 				}
@@ -817,11 +801,9 @@ int show_briefing_message(int screen_num, char *message)
 				}
 				message++;
 				prev_ch = 10;
-//Begin D1X addition
 			} else if (ch == '$' || ch == ';') { // Print a $/;
 				prev_ch = ch;
 				Briefing_text_x += show_char_delay(ch, delay_count, robot_num, flashing_cursor);
-//End D1X addition
 			}
 		} else if (ch == '\t') {		//	Tab
 			if (Briefing_text_x - text_ulx < tab_stop)
@@ -838,9 +820,6 @@ int show_briefing_message(int screen_num, char *message)
 				Briefing_text_y += FONTSCALE_Y(GAME_FONT->ft_h)+FONTSCALE_Y(GAME_FONT->ft_h)*3/5;
 				Briefing_text_x = text_ulx;
 				if (Briefing_text_y > text_uly + rescale_y(bsp->text_height)) {
-#ifndef OGL
-					load_briefing_screen(screen_num);
-#endif
 					Briefing_text_x = text_ulx;
 					Briefing_text_y = text_uly;
 				}
@@ -871,13 +850,12 @@ int show_briefing_message(int screen_num, char *message)
 
 		}
 
-// added/changed on 9/13/98 by adb to speed up briefings after pressing a key with SDL
 // Check for Esc -> abort.
 		if(delay_count)
 			key_check=local_key_inkey();
 		else
 			key_check=0;
-//end change - adb
+
 		if ( key_check == KEY_ESC ) {
 			rval = 1;
 			done = 1;
@@ -903,9 +881,7 @@ int show_briefing_message(int screen_num, char *message)
 			start_time = timer_get_approx_seconds();
 			time_out_value = start_time + i2f(60*5); // Wait 1 minute...
 
-//added on 9/13/98 by adb to make arch's requiring updates work
 			gr_update();
-//end changes by adb
 
 			while ( (keypress = local_key_inkey()) == 0 ) { // Wait for a key
 				if ( timer_get_approx_seconds() > time_out_value ) {
@@ -924,11 +900,9 @@ int show_briefing_message(int screen_num, char *message)
 #endif
 				flash_cursor(flashing_cursor);
 				show_spinning_robot_frame(robot_num);
-				show_bitmap_frame();
+				show_animated_bitmap();
 
-//added on 9/13/98 by adb to make arch's requiring updates work
 				gr_update();
-//end changes by adb
 
 				start_time += KEY_DELAY_DEFAULT/2;
 			}
@@ -944,7 +918,9 @@ int show_briefing_message(int screen_num, char *message)
 				done = 1;
 			}
 
+#ifndef OGL
 			load_briefing_screen(screen_num);
+#endif
 			Briefing_text_x = text_ulx;
 			Briefing_text_y = text_uly;
 #ifdef OGL
@@ -959,10 +935,8 @@ int show_briefing_message(int screen_num, char *message)
 	}
 
 
-#ifdef OGL
-	gr_free_bitmap_data (&briefing_bm);
-	gr_use_palette_table( "palette.256" );
-#endif
+	if (briefing_bm.bm_data != NULL)
+		gr_free_bitmap_data (&briefing_bm);
 
 	if (Robot_canv != NULL)
 		{free(Robot_canv); Robot_canv=NULL;}
@@ -1036,11 +1010,32 @@ void load_screen_text(char *filename, char **buf)
 	}
 }
 
-//	-----------------------------------------------------------------------------
-//	Return true if message got aborted, else return false.
+//-----------------------------------------------------------------------------
+// Return true if message got aborted, else return false.
 int show_briefing_text(int screen_num)
 {
 	char	*message_ptr;
+
+	message_ptr = get_briefing_message(Briefing_screens[screen_num].message_num);
+
+	if (message_ptr==NULL)
+		return (0);
+
+	set_briefing_fontcolor();
+
+	return show_briefing(screen_num, message_ptr);
+}
+
+void set_briefing_fontcolor ()
+{
+	Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 40, 0);
+	Briefing_background_colors[0] = gr_find_closest_color_current( 0, 6, 0);
+
+	Briefing_foreground_colors[1] = gr_find_closest_color_current( 40, 33, 35);
+	Briefing_background_colors[1] = gr_find_closest_color_current( 5, 5, 5);
+
+	Briefing_foreground_colors[2] = gr_find_closest_color_current( 8, 31, 54);
+	Briefing_background_colors[2] = gr_find_closest_color_current( 1, 4, 7);
 
 	//green
 	Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 54, 0);
@@ -1048,10 +1043,12 @@ int show_briefing_text(int screen_num)
 	//white
 	Briefing_foreground_colors[1] = gr_find_closest_color_current( 42, 38, 32);
 	Briefing_background_colors[1] = gr_find_closest_color_current( 14, 14, 14);
-//Begin D1X addition
+
+	//Begin D1X addition
 	//red
 	Briefing_foreground_colors[2] = gr_find_closest_color_current( 63, 0, 0);
 	Briefing_background_colors[2] = gr_find_closest_color_current( 31, 0, 0);
+
 	//blue
 	Briefing_foreground_colors[3] = gr_find_closest_color_current( 0, 0, 54);
 	Briefing_background_colors[3] = gr_find_closest_color_current( 0, 0, 19);
@@ -1064,13 +1061,9 @@ int show_briefing_text(int screen_num)
 	//purple
 	Briefing_foreground_colors[6] = gr_find_closest_color_current( 0, 54, 54);
 	Briefing_background_colors[6] = gr_find_closest_color_current( 0, 19, 19);
-//End D1X addition
+	//End D1X addition
 
 	Erase_color = gr_find_closest_color_current(0, 0, 0);
-
-	message_ptr = get_briefing_message(Briefing_screens[screen_num].message_num);
-
-	return show_briefing_message(screen_num, message_ptr);
 }
 
 //	-----------------------------------------------------------------------------
@@ -1078,40 +1071,19 @@ int show_briefing_text(int screen_num)
 int show_briefing_screen( int screen_num, int allow_keys)
 {
 	int	rval=0;
-	int	pcx_error;
-	grs_bitmap briefing_bm;
-
-	New_pal_254_bash = 0;
 
 	gr_init_bitmap_data (&briefing_bm);
 
-	if ((pcx_error=pcx_read_bitmap( Briefing_screens_LH[screen_num].bs_name, &briefing_bm, BM_LINEAR, New_pal ))!=PCX_ERROR_NONE) {
-		printf( "PCX load error: %s.  File '%s'\n\n", pcx_errormsg(pcx_error), Briefing_screens_LH[screen_num].bs_name);
-		mprintf((0, "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens_LH[screen_num].bs_name, pcx_errormsg(pcx_error), pcx_error));
-		Int3();
-		return 0;
-	}
-// 	
-#ifdef OGL
-	gr_palette_load(New_pal);
-#else
+	load_briefing_screen(screen_num);
+
 	gr_palette_clear();
+#ifndef OGL
+	show_fullscr(&briefing_bm );
 #endif
-
-        show_fullscr(&briefing_bm );
-//added on 9/13/98 by adb to make arch's requiring updates work
+	gr_palette_load(gr_palette);
 	gr_update();
-//end changes by adb
-
-	gr_free_bitmap_data (&briefing_bm);
-
-	if (gr_palette_fade_in( New_pal, 32, allow_keys ))	
-		return 1;
 
 	rval = show_briefing_text(screen_num);
-
-	if (gr_palette_fade_out( New_pal, 32, allow_keys ))
-		return 1;
 
 	return rval;
 }

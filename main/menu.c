@@ -838,7 +838,7 @@ void change_res()
 			return;
 	}
 
-	if (screen_height <= 0 || screen_width <= 0)
+	if (screen_height <= 320 || screen_width <= 200)
 		return;
 
 	if (Game_screen_mode == screen_mode)
