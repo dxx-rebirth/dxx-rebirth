@@ -61,8 +61,10 @@ int ip_connect_manual(char *textaddr) {
 
 	while(hsi->state&STATE_VALID_STATES){
 		r=ipx_get_packet_data(buf);
+#ifndef NDEBUG
 		if (r>0)
-			mprintf((0,MSGHDR "ip_connect_manual: weird, someone sent us normal data\n"));
+			printf(MSGHDR "ip_connect_manual: weird, someone sent us normal data\n");
+#endif
 		if (key_inkey()==KEY_ESC)
 			return 0;
 	}
@@ -85,7 +87,7 @@ static int ipx_ip_OpenSocket(ipx_socket_t * socket, int oport) {
 	myport=baseport+(oport - IPX_DEFAULT_SOCKET);
 	if (arch_ip_open_socket(myport)) return -1;
 
-	if (ipx_ip_GetMyAddress() < 0) FAIL("Error getting my address");
+	if (ipx_ip_GetMyAddress() < 0) FAIL("Error getting my address"); 
 
 #ifdef UDPDEBUG
 	msg("OpenSocket on D1X socket port %d (%d : %+d) : %+d",myport,oport,oport-IPX_DEFAULT_SOCKET,baseport-UDP_BASEPORT);
@@ -165,7 +167,9 @@ static int ipx_ip_ReceivePacket(ipx_socket_t * socket, char *outbuf, int outbufs
 
 	if (memcmp(outbuf+0,D1Xid,2)) {
 		if (memcmp(outbuf+0,D1Xcfgid,4)) {
-			mprintf((0,MSGHDR"no valid header\n"));
+#ifndef NDEBUG
+			printf(MSGHDR "no valid header\n");
+#endif
 			return -1;
 		}
 		{

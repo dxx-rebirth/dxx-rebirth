@@ -116,7 +116,9 @@ class ip_addr {
 			if (l==6){
 				memcpy(addr,buf+1,6);alen=l;
 			}else{
-				mprintf((0,"ip_addr readbuf bad len %i\n",l));
+#ifndef NDEBUG
+				printf("ip_addr readbuf bad len %i\n",l);
+#endif
 				memset(addr,0,6);alen=0;
 			}
 			return l+1;

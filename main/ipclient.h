@@ -14,6 +14,7 @@ extern "C"{
 #include "ipx.h"
 #include "ipx_drv.h"
 #include "newmenu.h"
+#include "text.h"
 void ip_sendtoall(char *buf,int len);
 int ip_connect_manual(char *textaddr);//make it extern C so that it can be called from .c files.
 int arch_ip_get_my_addr(ushort myport);
@@ -47,7 +48,7 @@ static inline void msg(const char *fmt,...)
 	putchar('\n');
 }
 
-#define FAIL(m...) do{ nm_messagebox("Error", 1, "Ok", ##m); return -1; } while (0)
+#define FAIL(m...) do{ nm_messagebox(TXT_ERROR, 1, "Ok", ##m); return -1; } while (0)
 
 static inline void chk(void *p){
 	if (p) return;

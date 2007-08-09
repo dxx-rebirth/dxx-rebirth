@@ -3584,8 +3584,8 @@ int multi_delete_extra_objects()
 
 void change_playernum_to( int new_Player_num )
 {
-	if (Player_num > -1)
-		memcpy( Players[new_Player_num].callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
+// 	if (Player_num > -1)
+// 		memcpy( Players[new_Player_num].callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 	Player_num = new_Player_num;
 }
 
