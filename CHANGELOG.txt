@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070809
 --------
 d2x.ini, include/args.h, main/inferno.c, main/menu.c, misc/args.c: Added -ip_hostaddr argument to specify a host IP address via command-line/INI
+main/menu.c: Fixes and improvements on -ip_hostaddr
 
 20070808
 --------
