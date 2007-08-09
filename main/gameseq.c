@@ -759,9 +759,7 @@ void LoadLevel(int level_num)
 	if (!load_level(level_name))
 		Current_level_num=level_num;
 
-#ifdef OGL
 	gr_use_palette_table( "palette.256" );
-#endif
 
 	#ifdef NETWORK
 	my_segments_checksum = netmisc_calc_checksum(Segments, sizeof(segment)*(Highest_segment_index+1));
