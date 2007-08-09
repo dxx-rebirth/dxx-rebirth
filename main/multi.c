@@ -3586,6 +3586,15 @@ void change_playernum_to( int new_Player_num )
 {
 // 	if (Player_num > -1)
 // 		memcpy( Players[new_Player_num].callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
+	if (Player_num > -1)
+	{
+		char *buf;
+		MALLOC(buf,char,CALLSIGN_LEN+1);
+		memcpy( buf, Players[Player_num].callsign, CALLSIGN_LEN+1 );
+		strcpy(Players[new_Player_num].callsign,buf);
+		free(buf);
+	}
+
 	Player_num = new_Player_num;
 }
 
