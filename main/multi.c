@@ -3592,7 +3592,7 @@ void change_playernum_to( int new_Player_num )
 		MALLOC(buf,char,CALLSIGN_LEN+1);
 		memcpy( buf, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 		strcpy(Players[new_Player_num].callsign,buf);
-		free(buf);
+		d_free(buf);
 	}
 
 	Player_num = new_Player_num;
