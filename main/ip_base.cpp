@@ -54,7 +54,9 @@ void ip_handshake_base::setstate(int newstate){
 			if (newstate&STATE_NEED_RESEND)
 				peer_list.pendinghandshakes++;
 		}
-		mprintf((0,"peer_list.pendinghandshakes=%i\n",peer_list.pendinghandshakes));
+#ifndef NDEBUG
+		printf("peer_list.pendinghandshakes=%i\n",peer_list.pendinghandshakes);
+#endif
 	}
 	state=newstate;attempts=0;nextsend=0;
 }
@@ -197,7 +199,9 @@ ip_peer * ip_peer_list::add_full(ip_id id, u_int16_t iver,ip_addr_list &addrs){
 	}*/
 	n->addr.add(addrs);
 	n->iver=iver;
-	mprintf((0,"addfull %i addrs\n",n->addr.naddr));
+#ifndef NDEBUG
+	printf("addfull %i addrs\n",n->addr.naddr);
+#endif
 //	n->id=id;
 	return n;
 }
@@ -426,13 +430,17 @@ void ip_receive_cfg(ubyte *buf,int buflen,ip_addr fromaddr){
 #endif
 				p=peer_list.find_byid(hsr.id);
 				if (!p) {
-					mprintf((0,"relay from unknown peer\n"));
+#ifndef NDEBUG
+					printf("relay from unknown peer\n");
+#endif
 					break;//hrm.
 				}
 				rp=peer_list.find_byid(hsr.r_id);
 				if (hsr.state&STATE_RELAYREPLY){
 					if (!rp) {
-						mprintf((0,"relay reply for unknown peer\n"));
+#ifndef NDEBUG
+						printf("relay from unknown peer\n");
+#endif
 						break;//hrm.
 					}
 					ip_handshake_relay *rhsr=p->find_relay(rp->id);
@@ -453,14 +461,17 @@ void ip_receive_cfg(ubyte *buf,int buflen,ip_addr fromaddr){
 						rp->verify_addr(hsr.r_addr);
 
 					if (rp->addr.goodaddr==NULL){
-						mprintf((0,"sending relayed handshake\n"));
+#ifndef NDEBUG
+						printf("sending relayed handshake\n");
+#endif
 						//handshake with relayed peer
 						ip_handshake_info *lhsi=rp->find_handshake();
-//						lhsi->setstate(STATE_INEEDINFO);
 						if (lhsi->addstate(STATE_INEEDINFO));
 							rp->send_handshake(lhsi);
 					}else{
-						mprintf((0,"sending relayed reply\n"));
+#ifndef NDEBUG
+						printf("sending relayed reply\n");
+#endif
 						//reply to relayer
 						ip_handshake_relay rhsr(rp);
 						rhsr.setstate(STATE_RELAYREPLY);

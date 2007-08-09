@@ -57,8 +57,10 @@ int ip_connect_manual(char *textaddr) {
 //  ip_send_handshake(hsr,&hsr->reply);
     while(hsi->state&STATE_VALID_STATES){
         r=ipx_get_packet_data(buf);
-        if (r>0)
-            mprintf((0,MSGHDR "ip_connect_manual: weird, someone sent us normal data\n"));
+#ifndef NDEBUG
+		if (r>0)
+			printf(MSGHDR "ip_connect_manual: weird, someone sent us normal data\n");
+#endif
         if (key_inkey()==KEY_ESC)
             return 0;
     }
@@ -183,7 +185,9 @@ static int ipx_ip_ReceivePacket(char *outbuf, int outbufsize,
 
 	if (memcmp(outbuf+0,D1Xid,2)) {
 		if (memcmp(outbuf+0,D1Xcfgid,4)) {
-			mprintf((0,MSGHDR"no valid header\n"));
+#ifndef NDEBUG
+			printf(MSGHDR "no valid header\n");
+#endif
 			return -1;
 		}
 		{

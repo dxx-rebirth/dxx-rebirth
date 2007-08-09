@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 d1x.ini, include/args.h, main/args.c, main/inferno.c, main/menu.c: Added -ip_hostaddr argument to specify a host IP address via command-line/INI
 main/gameseq.c, main/menu.c: Fixes and improvements on -ip_hostaddr; Fixed paltte bug in SDL build
+main/ipbase.cpp, main/ipbase.h, main/ipclient.cpp, main/ipclient.h, main/multi.c: Some debugging-related cleanups, Fixed memleak
 
 20070808
 --------
