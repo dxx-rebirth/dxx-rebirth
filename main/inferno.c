@@ -408,6 +408,9 @@ int main(int argc, char *argv[])
 	if ((t=gr_init(0))!=0)				//doesn't do much
 		Error(TXT_CANT_INIT_GFX,t);
 
+	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
+	gr_set_mode(Game_screen_mode);
+
 	// Load the palette stuff. Returns non-zero if error.
 	con_printf(CON_DEBUG, "Initializing palette system...\n" );
 	gr_use_palette_table(D2_DEFAULT_PALETTE );
@@ -417,9 +420,6 @@ int main(int argc, char *argv[])
 
 	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
 	init_movies();		//init movie libraries
-
-	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
-	gr_set_mode(Game_screen_mode);
 
 	show_titles();
 
