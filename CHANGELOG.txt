@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070816
 --------
 main/inferno.c: moved first call of gr_set_mode to before font loading, so OpenGL is initialised before it tries to load textures
+main/fireball.c: doing pick_connected_segment in D1 way - more reliable
 
 20070809
 --------
