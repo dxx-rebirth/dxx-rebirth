@@ -24,6 +24,8 @@ class ip_addr;//prototype for arch_ip_queryhost
 #include "ipclient.h"
 #include <stdio.h>
 
+// #define UDPDEBUG // massive debugging output
+
 inline u_int32_t d_rand32(void) { return d_rand() + (d_rand()<<15) + (d_rand()<<30);}//d_rand() only returns 15 bits
 void ip_receive_cfg(ubyte *buf,int buflen,ip_addr fromaddr);
 extern unsigned char ipx_MyAddress[10];
@@ -61,16 +63,16 @@ unsigned short ip_portshift(unsigned short baseport, const char *cs);
 #include <stdio.h>
 inline char *ip_hs_statetoa(int state){
 	if (!state)
-		return "NOSTATE";
+		return (char*)"NOSTATE";
 	if (state&STATE_ERR)
-		return "ERR";
+		return (char*)"ERR";
 	if ((state&(STATE_INEEDINFO|STATE_SENDINGINFO))==(STATE_INEEDINFO|STATE_SENDINGINFO))
-		return "NEED+SEND";
+		return (char*)"NEED+SEND";
 	if (state&STATE_INEEDINFO)
-		return "NEED";
+		return (char*)"NEED";
 	if (state&STATE_SENDINGINFO)
-		return "SEND";
-	return "huh?";
+		return (char*)"SEND";
+	return (char*)"huh?";
 }
 
 inline void dumprid(const unsigned char *a)
