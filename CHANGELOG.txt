@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070821
+--------
+main/ip_base.h, main/ipclient.h: Fixed some compiler warnings
+
 20070809
 --------
 d1x.ini, include/args.h, main/args.c, main/inferno.c, main/menu.c: Added -ip_hostaddr argument to specify a host IP address via command-line/INI
