@@ -51,6 +51,8 @@ extern int ipx_init(int socket_number);
 
 extern void ipx_close(void);
 
+extern int ipx_check_ready_to_join(ubyte *server, ubyte *node);
+
 extern int ipx_change_default_socket( ushort socket_number );
 
 // Returns a pointer to 6-byte address

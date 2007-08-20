@@ -243,6 +243,12 @@ void ipx_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * serv
 	}
 }
 
+int ipx_check_ready_to_join(ubyte *server, ubyte *node){
+	if (!driver->CheckReadyToJoin)
+		return 1;
+	return driver->CheckReadyToJoin(server,node);
+}
+
 int ipx_change_default_socket( ushort socket_number )
 {
 	if ( !ipx_installed ) return -3;

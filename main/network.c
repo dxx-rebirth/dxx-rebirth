@@ -2390,6 +2390,10 @@ void network_process_packet(ubyte *data, int length )
 		 }
 
 		mprintf( (0, "Got REQUEST from '%s'\n", their->player.callsign ));
+
+		if (!ipx_check_ready_to_join(their->player.network.ipx.server,their->player.network.ipx.node))
+			break;
+
 		if (Network_status == NETSTAT_STARTING) 
 		{
 			// Someone wants to join our game!
