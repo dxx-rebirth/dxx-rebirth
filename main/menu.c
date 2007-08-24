@@ -155,7 +155,6 @@ void ipx_set_driver(int ipx_driver);
 #endif //NETWORK
 void do_cpu_menu();
 extern void newmenu_close();
-extern void piggy_init_pigfile(char *filename);
 
 //returns the number of demo files on the disk
 int newdemo_count_demos();
@@ -272,7 +271,6 @@ int DoMenu()
 		return 0;
 	}
 
-	piggy_init_pigfile("groupa.pig");	//get correct pigfile
 	load_palette(MENU_PALETTE,0,1);		//get correct palette
 	
 	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM)) {

@@ -143,7 +143,7 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
   int mix_loop = looping * -1;
 
   if (MIX_DIGI_DEBUG) printf("digi_start_sound %d, volume %d, pan %d (start=%d, end=%d)\n", soundnum, mix_vol, mix_pan, loop_start, loop_end);
-
+printf("%i, %i\n",(SoundChunks[soundnum]), mix_loop);
   int channel = Mix_PlayChannel(-1, &(SoundChunks[soundnum]), mix_loop);
   Mix_SetPanning(channel, 255-mix_pan, mix_pan);
   Mix_SetDistance(channel, 255-mix_vol);

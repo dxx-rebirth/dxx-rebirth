@@ -71,6 +71,8 @@ int num_missions = -1;
 
 Mission *Current_mission = NULL; // currently loaded mission
 
+extern void piggy_init_pigfile(char *filename);
+
 //
 //  Special versions of mission routines for d1 builtins
 //
@@ -78,6 +80,8 @@ Mission *Current_mission = NULL; // currently loaded mission
 int load_mission_d1(void)
 {
 	int i;
+
+	piggy_init_pigfile("groupa.pig");	//get correct pigfile
 
 	switch (cfile_size("descent.hog")) {
 	case D1_SHAREWARE_MISSION_HOGSIZE:

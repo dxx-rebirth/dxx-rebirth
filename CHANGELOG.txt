@@ -3,10 +3,12 @@ D2X-Rebirth Changelog
 20070824
 --------
 main/game.c, main/gamecntl.c, main/gamerend.c: allow framerate indicator to be toggled in-game again
+main/mission.c, main/menu.c: Moved piggy init loading for D1 missions to load_mission_d1
 
 20070822
 --------
 SConstruct: Removed hardcoded CPPPATH for MinGW environment - obsolete since r487
+
 20070821
 --------
 arch/linux/linuxnet.c, arch/win32/winnet.c, include/ipx.h, main/network.c: Added ipx_check_ready_to_join for driver element CheckReadyToJoin, making sure communication between UDP/IP clients
