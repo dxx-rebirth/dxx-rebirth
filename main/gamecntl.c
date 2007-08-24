@@ -156,7 +156,6 @@ extern int	Physics_cheat_flag;
 
 extern int	Debug_spew;
 extern int	Debug_pause;
-extern cvar_t   r_framerate;
 
 extern fix	Show_view_text_timer;
 
@@ -1400,7 +1399,7 @@ void HandleGameKey(int key)
 	switch (key) {
 
 		#if defined(MACINTOSH)  && !defined(RELEASE)
-		case KEY_COMMAND+KEY_F:	r_framerate.value = !r_framerate.value; break;
+		case KEY_COMMAND+KEY_F:	GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator; break;
 		#endif
 
 #ifndef D2X_KEYS // weapon selection handled in controls_read_all, d1x-style
@@ -1814,7 +1813,7 @@ void HandleTestKey(int key)
 						break;
 		}
 
-		case KEY_DEBUGGED+KEY_F:	r_framerate.value = !r_framerate.value; break;
+		case KEY_DEBUGGED+KEY_F:	GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator; break;
 
 		case KEY_DEBUGGED+KEY_SPACEBAR:		//KEY_F7:				// Toggle physics flying
 			slew_stop();
@@ -2012,7 +2011,7 @@ void FinalCheats(int key)
 
   if (!(strcmp (cryptstring,FramerateCheat)))
 		{
-			r_framerate.value = !r_framerate.value;
+			GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;
 		}
 
   if (Game_mode & GM_MULTI)

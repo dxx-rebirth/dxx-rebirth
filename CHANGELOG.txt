@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070824
+--------
+main/game.c, main/gamecntl.c, main/gamerend.c: allow framerate indicator to be toggled in-game again
+
 20070822
 --------
 SConstruct: Removed hardcoded CPPPATH for MinGW environment - obsolete since r487

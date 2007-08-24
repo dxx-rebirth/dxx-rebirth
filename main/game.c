@@ -186,8 +186,6 @@ int Cockpit_mode=CM_FULL_COCKPIT;		//set game.h for values
 int Cockpit_mode_save=-1;					//set while in letterbox or rear view, or -1
 int force_cockpit_redraw=0;
 
-cvar_t r_framerate = {"r_framerate","0"};
-
 int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 //	Toggle_var points at a variable which gets !ed on ctrl-alt-T press.
@@ -269,10 +267,6 @@ void init_game()
 	Clear_window = 2;		//	do portal only window clear.
 
 	set_detail_level_parameters(Detail_level);
-
-	/* Register cvars */
-	cvar_registervariable(&r_framerate);
-
 }
 
 

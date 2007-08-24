@@ -67,7 +67,6 @@ static char rcsid[] = "$Id: gamerend.c,v 1.1.1.1 2006/03/17 19:57:07 zicodxx Exp
 
 extern fix Cruise_speed;
 extern int LinearSVGABuffer;
-extern cvar_t r_framerate;
 
 
 #ifndef NDEBUG
@@ -372,8 +371,7 @@ mprintf((0,"line_spacing=%d ",line_spacing));
 		}
 	}
 
-//	if (r_framerate.value) // ZICO - wtf?
-	if (GameArg.SysFPSIndicator) // ZICO - should be better
+	if (GameArg.SysFPSIndicator) // ZICO - should be better than r_framerate
 		show_framerate();
 
 	if ( (Newdemo_state == ND_STATE_PLAYBACK) )
