@@ -1087,18 +1087,6 @@ multi_menu_poll(void)
 
 	multi_in_menu--;
 
-// //	t1 = timer_get_fixed_seconds();
-// //	while (timer_get_fixed_seconds() < t1+F1_0/20)
-// //		;
-// 	// only allow faster framerates if exploded to prevent
-// 	// possible cheating using the higher framerate -- adb
-//         //added/changed by ADB for getting rid of TICKER
-//         t1 = timer_get_fixed_seconds() + F1_0/20;
-//         while (timer_get_fixed_seconds() < t1 && (!Player_exploded || !key_checkch()))
-// 		;
-//         //end change - ADB 
-	timer_delay(f0_1); // 100 ms
-		
 	if (Endlevel_sequence || (Fuelcen_control_center_destroyed && !was_fuelcen_alive) || (Player_is_dead && !Player_exploded) || (Players[Player_num].shields < old_shields))
 	{
 		multi_leave_menu = 1;
