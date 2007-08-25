@@ -1020,8 +1020,6 @@ multi_menu_poll(void)
 
 	multi_in_menu--;
 
-	timer_delay(f0_1);   // delay 100 milliseconds
-
 	if (Endlevel_sequence || (Control_center_destroyed && !was_fuelcen_alive) || (Player_is_dead != player_was_dead) || (Players[Player_num].shields < old_shields))
 	{
 		multi_leave_menu = 1;

@@ -154,12 +154,6 @@ int	Speedtest_count=0;				//	number of times to do the debug test.
 static fix last_timer_value=0;
 fix ThisLevelTime=0;
 
-#if defined(TIMER_TEST) && !defined(NDEBUG)
-fix _timer_value,actual_last_timer_value,_last_frametime;
-int stop_count,start_count;
-int time_stopped,time_started;
-#endif
-
 ubyte			VR_screen_flags	= 0;		//see values in screens.h
 fix			VR_eye_width		= F1_0;
 int			VR_render_mode		= VR_NONE;
@@ -557,20 +551,10 @@ void stop_time()
 		time = timer_get_fixed_seconds();
 		last_timer_value = time - last_timer_value;
 		if (last_timer_value < 0) {
-			#if defined(TIMER_TEST) && !defined(NDEBUG)
-			Int3();		//get Matt!!!!
-			#endif
 			last_timer_value = 0;
 		}
-		#if defined(TIMER_TEST) && !defined(NDEBUG)
-		time_stopped = time;
-		#endif
 	}
 	timer_paused++;
-
-	#if defined(TIMER_TEST) && !defined(NDEBUG)
-	stop_count++;
-	#endif
 }
 
 void start_time()
@@ -580,19 +564,8 @@ void start_time()
 	if (timer_paused==0) {
 		fix time;
 		time = timer_get_fixed_seconds();
-		#if defined(TIMER_TEST) && !defined(NDEBUG)
-		if (last_timer_value < 0)
-			Int3();		//get Matt!!!!
-		#endif
 		last_timer_value = time - last_timer_value;
-		#if defined(TIMER_TEST) && !defined(NDEBUG)
-		time_started = time;
-		#endif
 	}
-
-	#if defined(TIMER_TEST) && !defined(NDEBUG)
-	start_count++;
-	#endif
 }
 
 void game_flush_inputs()
@@ -623,37 +596,37 @@ void calc_frame_time()
 {
 	fix timer_value,last_frametime = FrameTime;
 
-	#if defined(TIMER_TEST) && !defined(NDEBUG)
-	_last_frametime = last_frametime;
-	#endif
-
 	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
 
+	// sleep for one frame to free CPU cycles if GameArg.SysUseNiceFPS is active.
+	if (GameArg.SysUseNiceFPS)
+	{
+		// Timer which sleeps for the time between frames but substracts 10ms timer inaccuracy.
+		// CPU usage not optimized, but more reliable to get desired FPS and smooth gameplay.
+		// Should probably replaced by a better solution.
+		int FrameDelay = (1000/GameArg.SysMaxFPS)	// ms to pause between frames for desired FPS rate
+				 - FrameTime/(F1_0/1000)	// Substract the time the game needs to do it's operations
+				 - 10;				// Substract 10ms inaccuracy due to OS scheduling
+
+		if (FrameDelay > 0)
+			SDL_Delay(FrameDelay);
+	}
+
 	while (FrameTime < f1_0 / GameArg.SysMaxFPS)
 	{
-		if (GameArg.SysUseNiceFPS)
-			timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
+// 		if (GameArg.SysUseNiceFPS)
+// 			timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
 	}
-
-	#if defined(TIMER_TEST) && !defined(NDEBUG)
-	_timer_value = timer_value;
-	#endif
 
 	#ifndef NDEBUG
 	if (!(((FrameTime > 0) && (FrameTime <= F1_0)) || (Function_mode == FMODE_EDITOR) || (Newdemo_state == ND_STATE_PLAYBACK))) {
 		mprintf((1,"Bad FrameTime - value = %x\n",FrameTime));
 		if (FrameTime == 0)
 			Int3();	//	Call Mike or Matt or John!  Your interrupts are probably trashed!
-//		if ( !dpmi_virtual_memory )
-//			Int3();		//Get MATT if hit this!
 	}
-	#endif
-
-	#if defined(TIMER_TEST) && !defined(NDEBUG)
-	actual_last_timer_value = last_timer_value;
 	#endif
 
 	if ( Game_turbo_mode )
@@ -686,10 +659,6 @@ void calc_frame_time()
 
 	#if Arcade_mode
 		FrameTime /= 2;
-	#endif
-
-	#if defined(TIMER_TEST) && !defined(NDEBUG)
-	stop_count = start_count = 0;
 	#endif
 }
 
