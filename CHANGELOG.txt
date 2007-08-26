@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070826
 --------
 main/game.c, main/multi.c: Improved CPU cycles sleeping for -nicefps - moved out of main frame calc loop and taking care of 10ms timer inaccuracy
+main/hud.c: Preventing redundancy of doubled messages correctly
 
 20070821
 --------

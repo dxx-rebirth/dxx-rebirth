@@ -232,12 +232,16 @@ int HUD_init_message_va(char * format, va_list args)
 		return 0;	// ignore since it is the same as the last one
 	}
 
-	if (strnicmp ("you",message,3)) { // block hudlog output messages beginning with you ("your ... maxed out", "you already have ...")
-		t=time(NULL);
-		lt=localtime(&t);
-	
-		printf("%02i:%02i:%02i %s\n",lt->tm_hour,lt->tm_min,lt->tm_sec,message);
+	// also ignore the one before the previous (i.e. "vulcan ammo maxed" "already got vulcan cannon", "vulcan ammo maxed")
+	if (last_message && (!strcmp(&HUD_messages[hud_last-2][0], message))) {
+		HUD_message_timer = F1_0*3;
+		return 0;
 	}
+
+	t=time(NULL);
+	lt=localtime(&t);
+	
+	printf("%02i:%02i:%02i %s\n",lt->tm_hour,lt->tm_min,lt->tm_sec,message);
 
 	hud_last = temp;
 	// Check if memory has been overwritten at this point.
