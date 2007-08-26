@@ -259,20 +259,24 @@ int HUD_init_message_va(char * format, va_list args)
 		return 0;	// ignore since it is the same as the last one
 	}
 
-	if (strnicmp ("you",message,3) && strcmp ("SUPER LASER MAXED OUT!",message)) { // block hudlog output messages beginning with you ("your ... maxed out", "you already have ...")
-		t=time(NULL);
-		lt=localtime(&t);
-	
-		/* Produce a colorised version and send it to the console */
-		printf("%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
-		if (HUD_color == -1)
-			HUD_color = BM_XRGB(0,28,0);
-		con_message[0] = CC_COLOR;
-		con_message[1] = HUD_color;
-		con_message[2] = '\0';
-		strcat(con_message, message);
-		con_printf(CON_NORMAL, "%s\n", con_message);
+	// also ignore the one before the previous (i.e. "vulcan ammo maxed" "already got vulcan cannon", "vulcan ammo maxed")
+	if (last_message && (!strcmp(&HUD_messages[hud_last-2][0], message))) {
+		HUD_message_timer = F1_0*3;
+		return 0;
 	}
+
+	t=time(NULL);
+	lt=localtime(&t);
+
+	/* Produce a colorised version and send it to the console */
+	printf("%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
+	if (HUD_color == -1)
+		HUD_color = BM_XRGB(0,28,0);
+	con_message[0] = CC_COLOR;
+	con_message[1] = HUD_color;
+	con_message[2] = '\0';
+	strcat(con_message, message);
+	con_printf(CON_NORMAL, "%s\n", con_message);
 
 	hud_last = temp;
 	// Check if memory has been overwritten at this point.
