@@ -917,7 +917,7 @@ void show_fullscr(grs_bitmap *bm)
 	if(bm->bm_type == BM_LINEAR && scr->bm_type == BM_OGL && 
 		bm->bm_w <= grd_curscreen->sc_w && bm->bm_h <= grd_curscreen->sc_h) // only scale with OGL if bitmap is not bigger than screen size
 	{
-		ogl_ubitblt_i(scr->bm_w,scr->bm_h,0,0,bm->bm_w,bm->bm_h,0,0,bm,scr,0);//use opengl to scale, faster and saves ram. -MPM
+		ogl_ubitmapm_cs(0,0,-1,-1,bm,-1,F1_0);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}
 #endif

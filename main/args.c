@@ -270,11 +270,6 @@ void ReadCmdArgs(void)
 	else
 		GameArg.OglReticle = 0;
 
-	if ((t=FindArg("-gl_scissor_ok")))
-		GameArg.OglScissorOk = atoi(Args[t+1]);
-	else
-		GameArg.OglScissorOk = 1;
-
 	if (FindArg("-gl_voodoo"))
 		GameArg.OglVoodooHack = 1;
 	else

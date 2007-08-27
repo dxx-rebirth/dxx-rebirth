@@ -166,7 +166,6 @@ void show_commandline_help()
 	printf( "  -gl_trilinear      %s\n", "Set gl texture filters to trilinear mipmapping");
 	printf( "  -gl_transparency   %s\n", "Enable transparency effects");
 	printf( "  -gl_reticle <n>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
-	printf( "  -gl_scissor_ok <n> %s\n", "Set glScissor. 0=off 1=on (default)");
 	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
 	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
 #endif // OGL
@@ -229,6 +228,7 @@ void sdl_close()
 
 extern fix fixed_frametime;
 extern void vfx_set_palette_sub(ubyte *);
+#define PROGNAME argv[0]
 
 int main(int argc,char **argv)
 {
@@ -267,7 +267,7 @@ int main(int argc,char **argv)
 		return 0;
 	}
 
-	printf("\nType 'd1x-rebirth-gl/sdl -help' for a list of command-line options.\n");
+	printf("\nType %s -help' for a list of command-line options.\n", PROGNAME);
 
 	cfile_use_alternate_hogdir(GameArg.SysMissionDir);
 
@@ -316,7 +316,7 @@ int main(int argc,char **argv)
 
 	show_title_screen( "iplogo1.pcx", 1 );
 	show_title_screen( "logo.pcx", 1 );
-	show_title_screen( "descent.pcx", 2 );
+	show_title_screen( "descent.pcx", 1 );
 
 #ifdef SHAREWARE
 	bm_init_use_tbl();

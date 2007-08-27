@@ -57,7 +57,6 @@ void set_briefing_fontcolor ();
 
 #define MAX_BRIEFING_COLORS 7
 #define	SHAREWARE_ENDING_FILENAME "ending.tex"
-ubyte New_pal[768];
 char * Briefing_text;
 char Ending_text_filename[13] = "endreg.tex";
 char Briefing_text_filename[13] = "briefing.tex";
@@ -103,7 +102,7 @@ int show_title_screen( char * filename, int allow_keys )
 
 	gr_init_bitmap_data (&title_bm);
 
-	if ((pcx_error=pcx_read_bitmap( filename, &title_bm, BM_LINEAR, New_pal ))!=PCX_ERROR_NONE)	{
+	if ((pcx_error=pcx_read_bitmap( filename, &title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
 		printf( "File '%s', PCX load error: %s (%i)\n  (No big deal, just no title screen.)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 		mprintf((0, "File '%s', PCX load error: %s (%i)\n  (No big deal, just no title screen.)\n",filename, pcx_errormsg(pcx_error), pcx_error));
 		Int3();
@@ -115,16 +114,15 @@ int show_title_screen( char * filename, int allow_keys )
 
 	timer = timer_get_fixed_seconds() + i2f(3);
 
-	gr_palette_load( New_pal );
+	gr_palette_load( gr_palette );
 
 	while (1) {
+		gr_flip();
 		show_fullscr(&title_bm);
 		gr_update();
-#ifdef OGL
-		gr_flip();
-#endif
 
-		if (allow_keys > 2 || gr_palette_fade_in( New_pal, 32, allow_keys ) || allow_keys > 1) {
+		if (allow_keys) {
+			gr_free_bitmap_data (&title_bm);
 			return 1;
 		}
 
@@ -135,9 +133,6 @@ int show_title_screen( char * filename, int allow_keys )
         }
 
 	gr_free_bitmap_data (&title_bm);
-
-	if (gr_palette_fade_out( New_pal, 32, allow_keys ))
-		return 1;
 
 	return 0;
 }
@@ -529,17 +524,14 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 int load_briefing_screen( int screen_num )
 {
 	int	pcx_error;
-	if ((pcx_error=/*pcx_read_fullscr( Briefing_screens_LH[screen_num].bs_name, New_pal )*/pcx_read_bitmap( Briefing_screens_LH[screen_num].bs_name, &briefing_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE) {
+	if ((pcx_error=pcx_read_bitmap( Briefing_screens_LH[screen_num].bs_name, &briefing_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE) {
 		printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens_LH[screen_num].bs_name, pcx_errormsg(pcx_error));
 		Int3();
 		return 0;
 	}
 
-#ifdef OGL
-	ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
-#else
 	show_fullscr(&briefing_bm);
-#endif
+
 	gr_palette_load(gr_palette);
 
 	set_briefing_fontcolor();
@@ -770,7 +762,7 @@ int show_briefing(int screen_num, char *message)
 					timer_delay(400);
 #ifdef OGL
 					gr_flip();
-					ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
+					show_fullscr(&briefing_bm);
 					redraw_messagestream(streamcount);
 					if (guy_bitmap_show)
 						show_briefing_bitmap(&guy_bitmap);
@@ -836,7 +828,7 @@ int show_briefing(int screen_num, char *message)
 			messagestream[streamcount].ch = ch;
 			if (delay_count) {
 				gr_flip();
-				ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
+				show_fullscr(&briefing_bm);
 				redraw_messagestream(streamcount);
 				if (flashing_cursor)
 					gr_printf(Briefing_text_x + FONTSCALE_X(GAME_FONT->ft_w),Briefing_text_y,"_");
@@ -893,7 +885,7 @@ int show_briefing(int screen_num, char *message)
 				timer_delay(400);
 #ifdef OGL
 				gr_flip();
-				ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
+				show_fullscr(&briefing_bm);
 				redraw_messagestream(streamcount);
 				if (guy_bitmap_show)
 					show_briefing_bitmap(&guy_bitmap);

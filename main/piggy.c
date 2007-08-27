@@ -396,10 +396,6 @@ int piggy_init()
 
 	header_size = (N_bitmaps*sizeof(DiskBitmapHeader)) + (N_sounds*sizeof(DiskSoundHeader));
 
-	gr_set_curfont( Gamefonts[GFONT_SMALL] );
-	gr_set_fontcolor(gr_find_closest_color_current( 20, 20, 20 ),-1 );
-	gr_printf( 0x8000, SHEIGHT - 22, "%s...", TXT_LOADING_DATA );
-
 	for (i=0; i<N_bitmaps; i++ )	{
 		cfread( &bmh, sizeof(DiskBitmapHeader), 1, Piggy_fp );
 

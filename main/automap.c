@@ -292,12 +292,7 @@ void draw_automap(int flip)
 	g3s_point sphere_point;
 
 	gr_set_current_canvas(NULL);
-#ifdef OGL
-	if (grd_curscreen->sc_canvas.cv_bitmap.bm_h >= 400)
-		ogl_ubitmapm_cs(0, 0, -1, -1, &Automap_background, -1, F1_0);
-	else
-#endif
-		show_fullscr(&Automap_background);
+	show_fullscr(&Automap_background);
 	gr_set_curfont((Gamefonts[GFONT_BIG_1]));
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
 	gr_printf(RESCALE_X(80), RESCALE_Y(30), TXT_AUTOMAP);

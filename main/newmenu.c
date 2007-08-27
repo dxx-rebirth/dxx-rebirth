@@ -182,14 +182,10 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	gr_palette_load( gr_palette );
 
 #ifdef OGL
-	if (GameArg.OglScissorOk) {
-		glEnable(GL_SCISSOR_TEST);
-		glScissor(0,y1,x2,SHEIGHT);
-		ogl_ubitmapm_cs(0,0,SWIDTH,SHEIGHT,&nm_background,-1,F1_0);
-		glDisable(GL_SCISSOR_TEST);
-	} else
+	ogl_ubitblt_i(grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h,0,0, bg.bm_w, bg.bm_h, 0, 0, &bg, &grd_curcanv->cv_bitmap, 1);
+#else
+	show_fullscr( &bg );
 #endif
-		show_fullscr( &bg );
 	gr_set_current_canvas(old);
 	gr_free_sub_canvas(tmp);
 

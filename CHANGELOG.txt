@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070828
+--------
+d1x.ini, 2d/bitblt.c, include/args.h, main/args.c, main/automap.c, main/credits.c, main/inferno.c, main/newmenu.c, main/piggy.c, main/titles.c: Fixed some mem-leaks; Made show_fullscr() use ogl_ubitmapm_cs(); Removed use of glScissor for menus - using Blitting; Code cleanup
+
 20070826
 --------
 main/game.c, main/multi.c: Improved CPU cycles sleeping for -nicefps - moved out of main frame calc loop and taking care of 10ms timer inaccuracy
