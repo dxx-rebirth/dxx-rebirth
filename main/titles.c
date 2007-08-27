@@ -74,9 +74,6 @@ int DefineBriefingBox (char **buf);
 
 extern unsigned RobSX,RobSY,RobDX,RobDY; // Robot movie coords
 
-ubyte New_pal[768];
-int	New_pal_254_bash;
-
 char CurBriefScreenName[15]="brief03.pcx";
 char	* Briefing_text;
 char RobotPlaying=0;
@@ -180,7 +177,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	filename = new_filename;
 
 	title_bm.bm_data=NULL;
-	if ((pcx_error=pcx_read_bitmap( filename, &title_bm, BM_LINEAR, New_pal ))!=PCX_ERROR_NONE)	{
+	if ((pcx_error=pcx_read_bitmap( filename, &title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
 		printf( "File '%s', PCX load error: %s (%i)\n  (No big deal, just no title screen.)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 		mprintf((0, "File '%s', PCX load error: %s (%i)\n  (No big deal, just no title screen.)\n",filename, pcx_errormsg(pcx_error), pcx_error));
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
@@ -190,16 +187,15 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 
 	timer = timer_get_fixed_seconds() + i2f(3);
 
-	gr_palette_load( New_pal );
+	gr_palette_load( gr_palette );
 
 	while (1) {
+		gr_flip();
 		show_fullscr(&title_bm);
 		gr_update();
-#ifdef OGL
-		gr_flip();
-#endif
 
-		if (allow_keys > 2 || gr_palette_fade_in( New_pal, 32, allow_keys ) || allow_keys > 1) {
+		if (allow_keys) {
+			gr_free_bitmap_data (&title_bm);
 			return 1;
 		}
 
@@ -210,9 +206,6 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
         }
 
 	gr_free_bitmap_data (&title_bm);
-
-	if (gr_palette_fade_out( New_pal, 32, allow_keys ))
-		return 1;
 
 	return 0;
 }
@@ -320,33 +313,6 @@ void show_titles(void)
 
 	if (!song_playing)
 		songs_play_song( SONG_TITLE, 1);
-}
-
-void show_loading_screen(ubyte *title_pal)
-{
-	//grs_bitmap title_bm;
-	int pcx_error;
-	char filename[14];
-
-	strcpy(filename, HiresGFX?"descentb.pcx":"descent.pcx");
-	if (! cfexist(filename))
-		strcpy(filename, HiresGFX?"descntob.pcx":"descento.pcx"); // OEM
-	if (! cfexist(filename))
-		strcpy(filename, "descentd.pcx"); // SHAREWARE
-	if (! cfexist(filename))
-		strcpy(filename, "descentb.pcx"); // MAC SHAREWARE
-
-#if 1	//def OGL
-	set_screen_mode(SCREEN_MENU);
-#endif
-
-	if ((pcx_error=pcx_read_fullscr( filename, title_pal ))==PCX_ERROR_NONE)        {
-		//vfx_set_palette_sub( title_pal );
-		gr_palette_clear();
-		gr_palette_fade_in( title_pal, 32, 0 );
-		gr_update();
-	} else
-		Error( "Couldn't load pcx file '%s', PCX load error: %s\n",filename, pcx_errormsg(pcx_error));
 }
 
 typedef struct {
@@ -676,7 +642,6 @@ int load_briefing_screen( char *fname )
 
 	gr_init_bitmap_data(&briefing_bm);
 
-	mprintf ((0,"Loading new briefing <%s>\n",fname));
 	strcpy (CurBriefScreenName,fname);
 
 	if ((pcx_error = pcx_read_bitmap( fname, &briefing_bm, BM_LINEAR,gr_palette))!=PCX_ERROR_NONE)   {
@@ -692,11 +657,8 @@ int load_briefing_screen( char *fname )
 		gr_remap_bitmap_good( &briefing_bm, old_pal, -1, -1 );
 	}
 
-#ifdef OGL
-	ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
-#else
 	show_fullscr(&briefing_bm);
-#endif
+
 	gr_palette_load(gr_palette);
 
 	set_briefing_fontcolor();
@@ -802,7 +764,7 @@ int show_briefing(int screen_num, char *message)
 	int	flashing_cursor=0;
 	int	new_page=0,GotZ=0;
 	char spinRobotName[]="rba.mve",kludge;  // matt don't change this!
-	char *fname;
+	char fname[15];
 	char DumbAdjust=0;
 	char chattering=0;
 	int hum_channel=-1,printing_channel=-1;
@@ -812,10 +774,14 @@ int show_briefing(int screen_num, char *message)
 	int streamcount=0, guy_bitmap_show=0;
 #endif
 
+// 	if (EMULATING_D1)
+// 		fname = Briefing_screens[screen_num].bs_name;
+// 	else
+// 		fname = CurBriefScreenName;
 	if (EMULATING_D1)
-		fname = Briefing_screens[screen_num].bs_name;
+		strncpy(fname, Briefing_screens[screen_num].bs_name, 15);//fname = Briefing_screens[screen_num].bs_name;
 	else
-		fname = CurBriefScreenName;
+		strncpy(fname, CurBriefScreenName, 15);//fname = CurBriefScreenName;
 
 
 	Bitmap_name[0] = 0;
@@ -954,9 +920,8 @@ int show_briefing(int screen_num, char *message)
 					fname2[i++]=0;
 
 					if ((HiresGFX && cfexist(fname2)) || !cfexist(fname))
-						load_briefing_screen (fname2);
-					else
-						load_briefing_screen (fname);
+						strcpy(fname,fname2);
+					load_briefing_screen (fname);
 				}
 
 			} else if (ch == 'B') {
@@ -1002,7 +967,7 @@ int show_briefing(int screen_num, char *message)
 #ifdef OGL
 					if (!RobotPlaying)
 						gr_flip();
-					ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
+					show_fullscr(&briefing_bm);
 					redraw_messagestream(streamcount);
 					if (guy_bitmap_show)
 						show_briefing_bitmap(&guy_bitmap);
@@ -1090,7 +1055,7 @@ int show_briefing(int screen_num, char *message)
 			if (delay_count) {
 				if (!RobotPlaying)
 					gr_flip();
-				ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
+				show_fullscr(&briefing_bm);
 				redraw_messagestream(streamcount);
 			}
 			if (guy_bitmap_show)
@@ -1151,7 +1116,7 @@ int show_briefing(int screen_num, char *message)
 #ifdef OGL
 				if (!RobotPlaying)
 					gr_flip();
-				ogl_ubitmapm_cs(0,0,-1,-1,&briefing_bm,-1,F1_0);
+				show_fullscr(&briefing_bm);
 				redraw_messagestream(streamcount);
 				if (guy_bitmap_show)
 					show_briefing_bitmap(&guy_bitmap);

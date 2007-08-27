@@ -129,6 +129,7 @@ void advancing_to_level_message(void);
 void DoEndGame(void);
 void AdvanceLevel(int secret_flag);
 void filter_objects_from_level();
+void nm_draw_background1(char * filename);
 
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
@@ -707,6 +708,8 @@ int RegisterPlayer()
 	int i,j;
 	char filename[14];
 	int allow_abort_flag = 1;
+
+	nm_draw_background1(Menu_pcx_name);
 
 	if ( Players[Player_num].callsign[0] == 0 )	{
 		//---------------------------------------------------------------------
@@ -1529,8 +1532,6 @@ void load_stars_palette()
 	strcpy(last_palette_loaded,"");		//force palette load next time
 }
 #endif
-
-void nm_draw_background1(char * filename);
 
 void load_stars()
 {

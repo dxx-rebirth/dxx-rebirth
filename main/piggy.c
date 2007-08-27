@@ -1163,10 +1163,6 @@ int piggy_init(void)
 		GameBitmapOffset[0] = 0;
 	}
 
-	gr_set_curfont( SMALL_FONT );
-	gr_set_fontcolor(gr_find_closest_color_current( 20, 20, 20 ),-1 );
-	gr_printf( 0x8000, grd_curcanv->cv_h-20, "%s...", TXT_LOADING_DATA );
-
 	snd_ok = ham_ok = read_hamfile();
 
 	if (Piggy_hamfile_version >= 3)

@@ -271,14 +271,10 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	gr_palette_load( gr_palette );
 
 #ifdef OGL
-	if (GameArg.OglScissorOk) {
-		glEnable(GL_SCISSOR_TEST);
-		glScissor(0,y1,x2,SHEIGHT);
-		ogl_ubitmapm_cs(0,0,SWIDTH,SHEIGHT,&nm_background,-1,F1_0);
-		glDisable(GL_SCISSOR_TEST);
-	} else
+	ogl_ubitblt_i(grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h,0,0, bg.bm_w, bg.bm_h, 0, 0, &bg, &grd_curcanv->cv_bitmap, 1);
+#else
+	show_fullscr( &bg );
 #endif
-		show_fullscr( &bg );
 	gr_set_current_canvas(old);
 	gr_free_sub_canvas(tmp);
 
@@ -496,58 +492,61 @@ void draw_item( bkg * b, newmenu_item *item, int is_current,int tiny )
         }
 
 	switch( item->type )	{
-	case NM_TYPE_TEXT:
-	case NM_TYPE_MENU:
-		nm_string( b, item->w, item->x, item->y, item->text );
-		break;
-	case NM_TYPE_SLIDER:	{
-		int j;
-		if (item->value < item->min_value) item->value=item->min_value;
-		if (item->value > item->max_value) item->value=item->max_value;
-		sprintf( item->saved_text, "%s\t%s", item->text, SLIDER_LEFT );
-		for (j=0; j<(item->max_value-item->min_value+1); j++ )	{
-			sprintf( item->saved_text, "%s%s", item->saved_text,SLIDER_MIDDLE );
-		}
-		sprintf( item->saved_text, "%s%s", item->saved_text,SLIDER_RIGHT );
-		
-		item->saved_text[item->value+1+strlen(item->text)+1] = SLIDER_MARKER[0];
-		
-		nm_string_slider( b, item->w, item->x, item->y, item->saved_text );
-		}
-		break;
-	case NM_TYPE_INPUT_MENU:
-		if ( item->group==0 )		{
+		case NM_TYPE_TEXT:
+		case NM_TYPE_MENU:
 			nm_string( b, item->w, item->x, item->y, item->text );
-		} else {
+			break;
+		case NM_TYPE_SLIDER:
+		{
+			int i,j;
+			if (item->value < item->min_value) item->value=item->min_value;
+				if (item->value > item->max_value) item->value=item->max_value;
+					i = sprintf( item->saved_text, "%s\t%s", item->text, SLIDER_LEFT );
+			for (j=0; j<(item->max_value-item->min_value+1); j++ )	{
+				i += sprintf( item->saved_text + i, "%s", SLIDER_MIDDLE );
+			}
+			sprintf( item->saved_text + i, "%s", SLIDER_RIGHT );
+			
+			item->saved_text[item->value+1+strlen(item->text)+1] = SLIDER_MARKER[0];
+			
+			nm_string_slider( b, item->w, item->x, item->y, item->saved_text );
+		}
+			break;
+		case NM_TYPE_INPUT_MENU:
+			if ( item->group==0 )
+			{
+				nm_string( b, item->w, item->x, item->y, item->text );
+			} else {
+				nm_string_inputbox( b, item->w, item->x, item->y, item->text, is_current );
+			}
+			break;
+		case NM_TYPE_INPUT:
 			nm_string_inputbox( b, item->w, item->x, item->y, item->text, is_current );
+			break;
+		case NM_TYPE_CHECK:
+			nm_string( b, item->w, item->x, item->y, item->text );
+			if (item->value)
+				nm_rstring( b,item->right_offset,item->x, item->y, CHECKED_CHECK_BOX );
+			else
+				nm_rstring( b,item->right_offset,item->x, item->y, NORMAL_CHECK_BOX );
+			break;
+		case NM_TYPE_RADIO:
+			nm_string( b, item->w, item->x, item->y, item->text );
+			if (item->value)
+				nm_rstring( b,item->right_offset, item->x, item->y, CHECKED_RADIO_BOX );
+			else
+				nm_rstring( b,item->right_offset, item->x, item->y, NORMAL_RADIO_BOX );
+			break;
+		case NM_TYPE_NUMBER:
+		{
+			char text[10];
+			if (item->value < item->min_value) item->value=item->min_value;
+				if (item->value > item->max_value) item->value=item->max_value;
+					nm_string( b, item->w, item->x, item->y, item->text );
+			sprintf( text, "%d", item->value );
+			nm_rstring( b,item->right_offset,item->x, item->y, text );
 		}
-		break;
-	case NM_TYPE_INPUT:
-		nm_string_inputbox( b, item->w, item->x, item->y, item->text, is_current );
-		break;
-	case NM_TYPE_CHECK:
-		nm_string( b, item->w, item->x, item->y, item->text );
-		if (item->value)
-			nm_rstring( b,item->right_offset,item->x, item->y, CHECKED_CHECK_BOX );
-		else														  
-			nm_rstring( b,item->right_offset,item->x, item->y, NORMAL_CHECK_BOX );
-		break;
-	case NM_TYPE_RADIO:
-		nm_string( b, item->w, item->x, item->y, item->text );
-		if (item->value)
-			nm_rstring( b,item->right_offset, item->x, item->y, CHECKED_RADIO_BOX );
-		else
-			nm_rstring( b,item->right_offset, item->x, item->y, NORMAL_RADIO_BOX );
-		break;
-	case NM_TYPE_NUMBER:	{
-		char text[10];
-		if (item->value < item->min_value) item->value=item->min_value;
-		if (item->value > item->max_value) item->value=item->max_value;
-		nm_string( b, item->w, item->x, item->y, item->text );
-		sprintf( text, "%d", item->value );
-		nm_rstring( b,item->right_offset,item->x, item->y, text );
-		}
-		break;
+			break;
 	}
 }
 

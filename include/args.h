@@ -73,7 +73,6 @@ typedef struct Arg
 	int OglTexMinFilt;
 	int OglAlphaEffects;
 	int OglReticle;
-	int OglScissorOk;
 	int OglVoodooHack;
 	int OglFixedFont;
 #endif

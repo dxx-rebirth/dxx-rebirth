@@ -191,7 +191,6 @@ void print_commandline_help()
 	printf( "  -gl_trilinear      %s\n", "Set gl texture filters to trilinear mipmapping");
 	printf( "  -gl_transparency   %s\n", "Enable transparency effects");
 	printf( "  -gl_reticle <n>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
-	printf( "  -gl_scissor_ok <n> %s\n", "Set glScissor. 0=off 1=on (default)");
 	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
 	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
 #endif // OGL
@@ -254,27 +253,6 @@ void sdl_close()
 	SDL_Quit();
 }
 
-//set this to force game to run in low res
-int disable_high_res=0;
-
-void do_register_player(ubyte *title_pal)
-{
-	Players[Player_num].callsign[0] = '\0';
-
-	key_flush();
-
-	//now, before we bring up the register player menu, we need to
-	//do some stuff to make sure the palette is ok.  First, we need to
-	//get our current palette into the 2d's array, so the remapping will
-	//work.  Second, we need to remap the fonts.  Third, we need to fill
-	//in part of the fade tables so the darkening of the menu edges works
-
-	memcpy(gr_palette,title_pal,sizeof(gr_palette));
-	remap_fonts_and_menus(1);
-	RegisterPlayer();		//get player's name
-	read_player_file(); // read out now so we are able to use game resolution in menu
-}
-
 #define PROGNAME argv[0]
 
 extern char Language[];
@@ -293,7 +271,6 @@ char	Auto_file[128] = "";
 int main(int argc, char *argv[])
 {
 	int t;
-	ubyte title_pal[768];
 
 	con_init();  // Initialise the console
 	mem_init();
@@ -425,9 +402,6 @@ int main(int argc, char *argv[])
 
 	set_screen_mode(SCREEN_MENU);
 
-	con_printf( CON_DEBUG, "\nShowing loading screen..." );
-	show_loading_screen(title_pal); // title_pal is needed (see below)
-
 	con_printf( CON_DEBUG , "\nDoing bm_init..." );
 	#ifdef EDITOR
 	if (!bm_init_use_tbl())
@@ -440,9 +414,6 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 	#endif
-
-	//the bitmap loading code changes gr_palette, so restore it
-	memcpy(gr_palette,title_pal,sizeof(gr_palette));
 
 	if (GameArg.DbgNoRun)
 		return(0);
@@ -465,7 +436,7 @@ int main(int argc, char *argv[])
 	} else
 	#endif
 	{
-// 		do_register_player(title_pal);
+// 		RegisterPlayer();
 		if(GameArg.SysPilot)
 		{
 			char filename[32] = "";
@@ -493,13 +464,11 @@ int main(int argc, char *argv[])
 				remap_fonts_and_menus(1);
 			}
 			else //pilot doesn't exist. get pilot.
-				do_register_player(title_pal);
+				RegisterPlayer();
 		}
 		else
-			do_register_player(title_pal);
+			RegisterPlayer();
 	}
-
-	gr_palette_fade_out( title_pal, 32, 0 );
 
 	Game_mode = GM_GAME_OVER;
 

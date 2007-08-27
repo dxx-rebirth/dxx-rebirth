@@ -184,12 +184,7 @@ void credits_show(char *credits_filename)
 	gr_remap_bitmap_good( &backdrop,backdrop_palette, -1, -1 );
 
 	gr_set_current_canvas(NULL);
-#ifdef OGL
-	ogl_ubitmapm_cs(0,0,-1,-1,&backdrop,-1,F1_0);
-#else
 	show_fullscr(&backdrop);
-#endif
-	gr_update();
 	gr_palette_fade_in( gr_palette, 32, 0 );
 
 #ifndef OGL
@@ -246,14 +241,9 @@ get_line:;
 #endif
 
 			y = first_line_offset - i;
-#ifdef OGL
 			gr_flip();
-			ogl_ubitmapm_cs(0,0,-1,-1,&backdrop,-1,F1_0);
-#endif
 			gr_set_current_canvas(CreditsOffscreenBuf);
-#ifndef OGL
 			show_fullscr(&backdrop);
-#endif
 			for (j=0; j<NUM_LINES; j++ )	{
 				char *s;
 
