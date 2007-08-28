@@ -35,7 +35,7 @@ sharepath = str(ARGUMENTS.get('sharepath', DATA_DIR))
 debug = int(ARGUMENTS.get('debug', 0))
 profiler = int(ARGUMENTS.get('profiler', 0))
 sdl_only = int(ARGUMENTS.get('sdl_only', 0))
-no_asm = int(ARGUMENTS.get('no_asm', 0))
+asm = int(ARGUMENTS.get('asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
 shareware = int(ARGUMENTS.get('shareware', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
@@ -383,7 +383,7 @@ else:
 
 # arm architecture?
 if (arm == 1):
-	no_asm = 1
+	asm = 0
 	env.Append(CPPDEFINES = ['WORDS_NEED_ALIGNMENT'])
 	env.Append(CPPFLAGS = ['-mstructure-size-boundary=8'])
 
@@ -421,7 +421,7 @@ if (profiler == 1):
 	lflags += ' -pg'
 
 # assembler code?
-if (no_asm == 0) and (sdl_only == 1):
+if (asm == 1) and (sdl_only == 1):
 	print "including: ASSEMBLER"
 	env.Append(CPPDEFINES = ['ASM_VECMAT'])
 	Object(['texmap/tmappent.S', 'texmap/tmapppro.S'], AS='gcc', ASFLAGS='-D' + str(osdef) + ' -c ')
@@ -470,7 +470,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'sdl_only=1'      don't include OpenGL, use SDL-only instead
 	'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
 	'shareware=1'     build SHAREWARE version
-	'no_asm=1'        don't use ASSEMBLER (only with sdl_only=1)
+	'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
 	'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1'      do profiler build
 	'editor=1'        build editor !EXPERIMENTAL!
