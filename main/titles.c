@@ -933,6 +933,8 @@ int show_briefing(int screen_num, char *message)
 	if (Robot_canv != NULL)
 		{free(Robot_canv); Robot_canv=NULL;}
 
+	gr_use_palette_table("palette.256");
+
 	return rval;
 }
 
