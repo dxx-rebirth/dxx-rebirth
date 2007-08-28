@@ -35,7 +35,7 @@ sharepath = str(ARGUMENTS.get('sharepath', DATA_DIR))
 debug = int(ARGUMENTS.get('debug', 0))
 profiler = int(ARGUMENTS.get('profiler', 0))
 sdl_only = int(ARGUMENTS.get('sdl_only', 0))
-no_asm = int(ARGUMENTS.get('no_asm', 0))
+asm = int(ARGUMENTS.get('asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
 console = int(ARGUMENTS.get('console',0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
@@ -354,7 +354,7 @@ elif sys.platform == 'darwin':
 	print "compiling on Mac OS X"
 	osdef = '__APPLE__'
 	env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
-	no_asm = 1
+	asm = 0
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL_VIDEO', 'OGL']
 	common_sources += arch_unix_sources
@@ -408,7 +408,7 @@ else:
 
 # arm architecture?
 if (arm == 1):
-	no_asm = 1
+	asm = 0
 	env.Append(CPPDEFINES = ['WORDS_NEED_ALIGNMENT'])
 	env.Append(CPPFLAGS = ['-mstructure-size-boundary=8'])
 
@@ -446,7 +446,7 @@ if (profiler == 1):
 	lflags += ' -pg'
 
 # assembler code?
-if (no_asm == 0) and (sdl_only == 1):
+if (asm == 1) and (sdl_only == 1):
 	print "including: ASSEMBLER"
 	env.Append(CPPDEFINES = ['ASM_VECMAT'])
 	Object(['texmap/tmappent.S', 'texmap/tmapppro.S'], AS='gcc', ASFLAGS='-D' + str(osdef) + ' -c ')
@@ -498,7 +498,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'sharepath=DIR'   (*NIX only) use DIR for shared game data. (default: /usr/local/share/games/d2x-rebirth)
 	'sdl_only=1'      don't include OpenGL, use SDL-only instead
 	'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
-	'no_asm=1'        don't use ASSEMBLER (only with sdl_only=1)
+	'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
 	'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1'      do profiler build
 	'console=1'       build with console support !EXPERIMENTAL!

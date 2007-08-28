@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070828
 --------
 d2x.ini, 2d/bitblt.c, include/args.h, main/automap.c, main/credits.c, main/gameseq.c, main/inferno.c, main/newmenu.c, main/piggy.c, main/titles.c, misc/args.c: Fixed some mem-leaks; Made show_fullscr() use ogl_ubitmapm_cs(); Removed use of glScissor for menus - using Blitting; Code cleanup
+SConstruct, arch/ogl/gr.c: If sdl_only=1 do not use Assembly code by default because of poor portability - switch asm=1 necessary now; Removed final remnants of glScissor
 
 20070826
 --------
