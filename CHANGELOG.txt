@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20070829
 --------
 main/titles.c: Use right palette after briefings end to make sure nothing gets messed up
+main/physics.c: Apply BUMP_HACK on walls only
 
 20070828
 --------
