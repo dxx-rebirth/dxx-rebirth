@@ -839,7 +839,7 @@ void do_physics_sim(object *obj)
 
 #ifdef BUMP_HACK
 		if (obj==ConsoleObject && (obj->mtype.phys_info.velocity.x==0 && obj->mtype.phys_info.velocity.y==0 && obj->mtype.phys_info.velocity.z==0) &&
-			  !(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0)) {
+			  !(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0) && fate == HIT_WALL) {
 			vms_vector center,bump_vec;
 
 			//bump player a little towards center of segment to unstick

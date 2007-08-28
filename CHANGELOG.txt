@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070829
+--------
+main/physics.c: Apply BUMP_HACK on walls only
+
 20070828
 --------
 d2x.ini, 2d/bitblt.c, include/args.h, main/automap.c, main/credits.c, main/gameseq.c, main/inferno.c, main/newmenu.c, main/piggy.c, main/titles.c, misc/args.c: Fixed some mem-leaks; Made show_fullscr() use ogl_ubitmapm_cs(); Removed use of glScissor for menus - using Blitting; Code cleanup
