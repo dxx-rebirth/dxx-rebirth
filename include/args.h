@@ -60,6 +60,7 @@ typedef struct Arg
 	int GfxHudMaxNumDisp;
 	int GfxUseHiresFont;
 	int GfxPersistentDebris;
+	int GfxNoReticle;
 #ifdef OGL
 	int OglTexMagFilt;
 	int OglTexMinFilt;

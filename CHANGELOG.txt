@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070830
+--------
+d1x.ini, include/args.h, main/args.c, main/gauges.c, main/inferno.c: Added command-line option to disable reticle
+
 20070829
 --------
 main/titles.c: Use right palette after briefings end to make sure nothing gets messed up

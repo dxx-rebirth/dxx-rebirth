@@ -1956,7 +1956,7 @@ void draw_hud()
 			show_time();
 #endif
 #endif
-		if (Cockpit_mode != CM_LETTERBOX && (!Use_player_head_angles))
+		if (Cockpit_mode != CM_LETTERBOX && (!Use_player_head_angles) && !GameArg.GfxNoReticle)
 			show_reticle(0);
 		HUD_render_message_frame();
 

@@ -241,6 +241,11 @@ void ReadCmdArgs(void)
 	else
 		GameArg.GfxPersistentDebris = 0;
 
+	if (FindArg("-noreticle"))
+		GameArg.GfxNoReticle = 1;
+	else
+		GameArg.GfxNoReticle = 0;
+
 #ifdef OGL
 	// OpenGL Options
 
