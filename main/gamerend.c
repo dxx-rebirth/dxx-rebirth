@@ -183,7 +183,6 @@ void show_framerate()
 {
 	char temp[50];
 	fix rate;
-	int x = 8, y = 5;
 
 	frame_time_total += FrameTime - frame_time_list[frame_time_cntr];
 	frame_time_list[frame_time_cntr] = FrameTime;
@@ -196,7 +195,7 @@ void show_framerate()
 		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
 
 		ftoa( temp, rate );
-                gr_printf(grd_curcanv->cv_w-FONTSCALE_X(x*GAME_FONT->ft_w),grd_curcanv->cv_h-y*FONTSCALE_Y(GAME_FONT->ft_h+GAME_FONT->ft_h/4),"FPS: %s ", temp );
+                gr_printf(SWIDTH-FONTSCALE_X(6.5*GAME_FONT->ft_w),(SHEIGHT-FONTSCALE_Y(GAME_FONT->ft_h))/2,"FPS: %s ", temp );
 	}
 }
 

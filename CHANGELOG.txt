@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070831
+--------
+main/gamerend.c, main/gauges.c: HUD alignment improvements
+
 20070829
 --------
 main/physics.c: Apply BUMP_HACK on walls only
