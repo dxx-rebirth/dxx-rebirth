@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070831
+--------
+main/game.c, main/gauges.c: HUD alignment improvements
+
 20070830
 --------
 d1x.ini, include/args.h, main/args.c, main/gauges.c, main/inferno.c: Added command-line option to disable reticle

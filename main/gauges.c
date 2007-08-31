@@ -600,8 +600,10 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 					  Players[Player_num].laser_level+1);
 				break;
 			  case 1:
-				sprintf(weapon_str,"V%i",
-					  f2i(Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				if (Cockpit_mode==CM_FULL_SCREEN)
+					sprintf(weapon_str,"V%i", f2i(Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				else
+					sprintf(weapon_str,"V");
 				break;
 			  case 2:
 				sprintf(weapon_str,"S");break;
@@ -899,19 +901,12 @@ void show_time()
 	int mins = f2i(Players[Player_num].time_level) / 60;
 
 	gr_set_curfont( GAME_FONT );
+
 	if (Color_0_31_0 == -1)
 		Color_0_31_0 = gr_getcolor(0,31,0);
 	gr_set_fontcolor(Color_0_31_0, -1 );
-	gr_printf(grd_curcanv->cv_w-25,grd_curcanv->cv_h-28,"%d:%02d", mins, secs);
 
-#ifdef PIGGY_USE_PAGING
-	char text[25];
-	int w,h,aw;
-	sprintf( text, "%d KB", Piggy_bitmap_cache_next/1024 );
-	gr_get_string_size( text, &w, &h, &aw );	
-	gr_printf(grd_curcanv->cv_w-10-w,grd_curcanv->cv_h/2, text );
-#endif
-
+	gr_printf(SWIDTH-FONTSCALE_X(2.75*GAME_FONT->ft_w),(SHEIGHT-FONTSCALE_Y(GAME_FONT->ft_h))/2-FONTSCALE_Y(GAME_FONT->ft_h+1),"%d:%02d", mins, secs);
 }
 #endif
 
@@ -1852,9 +1847,10 @@ void hud_show_kill_list()
 				x1 = grd_curcanv->cv_w - GAME_FONT->ft_aw*6;
 			else
 				x1 = grd_curcanv->cv_w - GAME_FONT->ft_aw*3;
+
 			y = save_y;
 		}
-	
+
                 if (Show_kill_list == 3)
 			player_num = i;
 		else
@@ -1916,7 +1912,7 @@ void hud_show_kill_list()
 			gr_printf(x2,y,"%lu %i%%",
 			fixmuldiv(ping_stats_getping(player_num),1000,F1_0),(100-((ping_stats_getgot(player_num)*100)/ping_stats_getsent(player_num))) );
 		}
-		y += fth+1;
+		y += fth+FONTSCALE_Y(1);
 	}
 }
 #endif
