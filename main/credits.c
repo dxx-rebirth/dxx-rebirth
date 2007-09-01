@@ -62,7 +62,7 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:56:57 zicodxx Exp 
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
-#define CREDITS_FILE			(cfexist("mcredits.tex")?"mcredits.tex":cfexist("ocredits.tex")?"ocredits.tex":"credits.tex")
+#define CREDITS_FILE			(cfexist("credits.txb")?"credits.tex":(cfexist("ocredits.txb")?"ocredits.tex":"mcredits.tex"))
 #ifdef RELEASE
 #define CREDITS_BACKGROUND_FILENAME	(HiresGFX?"\x01starsb.pcx":"\x01stars.pcx")	//only read from hog file
 #else

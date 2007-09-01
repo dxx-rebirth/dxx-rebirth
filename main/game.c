@@ -460,11 +460,6 @@ int set_screen_mode(int sm)
 		return 1;
 	}
 
-	if (HiresGFXAvailable && grd_curscreen->sc_w >= 640 && grd_curscreen->sc_h >= 480)
-		HiresGFX = 1;
-	else
-		HiresGFX = 0;
-
 #ifdef EDITOR
 	Canv_editor = NULL;
 #endif
@@ -538,6 +533,11 @@ int set_screen_mode(int sm)
 #ifndef OGL
 	gr_set_draw_buffer(((Screen_mode == SCREEN_GAME) && GameArg.DbgUseDoubleBuffer) ? 1 : 0); // Double buffering or 'front' buffer only
 #endif
+
+	if (HiresGFXAvailable && grd_curscreen->sc_w >= 640 && grd_curscreen->sc_h >= 480)
+		HiresGFX = 1;
+	else
+		HiresGFX = 0;
 
 	return 1;
 }

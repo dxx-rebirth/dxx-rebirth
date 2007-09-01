@@ -709,6 +709,7 @@ int RegisterPlayer()
 	char filename[14];
 	int allow_abort_flag = 1;
 
+	set_screen_mode(SCREEN_MENU);
 	nm_draw_background1(Menu_pcx_name);
 
 	if ( Players[Player_num].callsign[0] == 0 )	{
