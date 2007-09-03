@@ -141,7 +141,7 @@ int get_centered_x(char *s)
 		text_ptr++; \
 		if (*text_ptr){ \
 			if (GameArg.MplMsgColorLevel >= *(text_ptr-1)) \
-				FG_COLOR = *text_ptr - 1; \
+				FG_COLOR = *text_ptr; \
 			text_ptr++; \
 		} \
 	} \

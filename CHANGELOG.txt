@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070903
+--------
+2d/font.c, main/multi.c: Fixed embedded color strings
+
 20070831
 --------
 main/game.c, main/gauges.c: HUD alignment improvements

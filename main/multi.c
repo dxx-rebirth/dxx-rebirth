@@ -796,7 +796,7 @@ void multi_compute_kill(int killer, int killed)
 					TXT_KILLED_BY_NONPLAY,reactor_kills_total);
 		else
 			hud_message(MSGC_MULTI_KILL, "\002%c%s\004(%i) %s %s(%i).", 
-					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b)+1,
+					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b),
 					killed_name,reactor_kills[killed_pnum],TXT_WAS, TXT_KILLED_BY_NONPLAY,reactor_kills_total );
 //end edit -MM    
 		return;		
@@ -855,7 +855,7 @@ void multi_compute_kill(int killer, int killed)
 					TXT_KILLED, TXT_YOURSELF,-kill_matrix[killed_pnum][killed_pnum]);
 		else
 			hud_message(MSGC_MULTI_KILL, "\002%c%s\004(%i) %s(%i)",
-					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b)+1,
+					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b),
 					killed_name,Players[killed_pnum].net_kills_total,TXT_SUICIDE,-kill_matrix[killed_pnum][killed_pnum]);
 //end edit -MM    
 	}
@@ -882,21 +882,21 @@ void multi_compute_kill(int killer, int killed)
 		if (killer_pnum == Player_num) {
 			hud_message(MSGC_MULTI_KILL, "%s(%i) %s \002%c%s\004(%i)!", 
 					TXT_YOU,Players[killer_pnum].net_kills_total,TXT_KILLED, 
-					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b)+1,
+					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b),
 					killed_name,kill_matrix[killer_pnum][killed_pnum]);
 			if ((Game_mode & GM_MULTI_COOP) && (Players[Player_num].score >= 1000))
 				add_points_to_score(-1000);
 		}
 		else if (killed_pnum == Player_num)
 			hud_message(MSGC_MULTI_KILL, "\002%c%s\004(%i) %s %s(%i)!", 
-					gr_getcolor(player_rgb[killer_pnum].r,player_rgb[killer_pnum].g,player_rgb[killer_pnum].b)+1,
+					gr_getcolor(player_rgb[killer_pnum].r,player_rgb[killer_pnum].g,player_rgb[killer_pnum].b),
 					killer_name,Players[killer_pnum].net_kills_total,
 					TXT_KILLED, TXT_YOU,kill_matrix[killer_pnum][killed_pnum]);
 		else
 			hud_message(MSGC_MULTI_KILL, "\002%c%s\004(%i) %s \002%c%s\004(%i)!", 
-					gr_getcolor(player_rgb[killer_pnum].r,player_rgb[killer_pnum].g,player_rgb[killer_pnum].b)+1,
+					gr_getcolor(player_rgb[killer_pnum].r,player_rgb[killer_pnum].g,player_rgb[killer_pnum].b),
 					killer_name,Players[killer_pnum].net_kills_total,TXT_KILLED,
-					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b)+1,
+					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b),
 					killed_name,kill_matrix[killer_pnum][killed_pnum]);
 //end edit -MM    
 	}
@@ -1719,7 +1719,7 @@ multi_do_message(char *buf)
 //added on 12/29/98 by Victor Rachels for irc style /me.
         if ((strlen(buf+loc) > 3) && !strnicmp("/ME",buf+loc,3))
         {
-				int col=gr_getcolor(player_rgb[pnum].r,player_rgb[pnum].g,player_rgb[pnum].b)+1;// note the +1 !
+				int col=gr_getcolor(player_rgb[pnum].r,player_rgb[pnum].g,player_rgb[pnum].b);
                 digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
                 //hud_message(MSGC_MULTI_USERMSG, "*%s%s", Players[pnum].callsign, buf+loc+3*sizeof(char));
                 hud_message(MSGC_MULTI_USERMSG, "\001%c*%s\004\003%c%s\006",
@@ -1728,7 +1728,7 @@ multi_do_message(char *buf)
 //end this addition - VR
         else if (((colon = strrchr(buf+loc, ':')) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
 	{
-				int col=gr_getcolor(player_rgb[pnum].r,player_rgb[pnum].g,player_rgb[pnum].b)+1;// note the +1 !
+				int col=gr_getcolor(player_rgb[pnum].r,player_rgb[pnum].g,player_rgb[pnum].b);
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
                 //hud_message(MSGC_MULTI_USERMSG, "%s %s '%s'", Players[(int)buf[1]].callsign, TXT_SAYS, buf+loc);
                 hud_message(MSGC_MULTI_USERMSG, "\001%c%s\004 \003%c%s '%s'\006", 
@@ -1766,7 +1766,7 @@ multi_do_message(char *buf)
 	else if ( (!strncasecmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) ||
 			  ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !strncasecmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
 	{
-		int col=gr_getcolor(player_rgb[pnum].r,player_rgb[pnum].g,player_rgb[pnum].b)+1;// note the +1 !
+		int col=gr_getcolor(player_rgb[pnum].r,player_rgb[pnum].g,player_rgb[pnum].b);
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 		//hud_message(MSGC_MULTI_USERMSG, "%s %s '%s'", Players[(int)buf[1]].callsign, TXT_TELLS_YOU, (colon+1));
 		hud_message(MSGC_MULTI_USERMSG, "\001%c%s\004 \003%c%s '%s'\006", 
@@ -2242,7 +2242,7 @@ multi_do_quit(char *buf)
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
 
 		hud_message( MSGC_MULTI_INFO, "\002%c%s\004 %s", 
-			gr_getcolor(player_rgb[(int)buf[1]].r,player_rgb[(int)buf[1]].g,player_rgb[(int)buf[1]].b)+1,
+			gr_getcolor(player_rgb[(int)buf[1]].r,player_rgb[(int)buf[1]].g,player_rgb[(int)buf[1]].b),
 				Players[(int)buf[1]].callsign, TXT_HAS_LEFT_THE_GAME);
 		
 		network_disconnect_player(buf[1]);
