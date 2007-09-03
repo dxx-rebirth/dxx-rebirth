@@ -162,7 +162,7 @@ int gr_message_color_level=1;
 		text_ptr++; \
 		if (*text_ptr){ \
 			if (gr_message_color_level >= *(text_ptr-1)) \
-				FG_COLOR = *text_ptr - 1; \
+				FG_COLOR = *text_ptr; \
 			text_ptr++; \
 		} \
 	} \

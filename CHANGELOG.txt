@@ -1,5 +1,13 @@
 D2X-Rebirth Changelog
 
+20070903
+--------
+2d/font.c, main/multi.c: Fixed embedded color strings
+
+20070901
+--------
+main/credits.c, main/game.c, main/gameseq.c, main/titles.c: Moved 'if' for HiresGFX to apply after gr_set_mode call; Fixed problems with HiresGFX=0 in Pilot selection and Briefings; Fixed define for CREDITS_FILE so cfexist checks for txb-, not tex-file
+
 20070831
 --------
 main/gamerend.c, main/gauges.c: HUD alignment improvements
