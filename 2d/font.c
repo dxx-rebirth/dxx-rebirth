@@ -137,16 +137,17 @@ int get_centered_x(char *s)
 //note we subtract one from color, since 255 is "transparent" so it'll never be used, and 0 would otherwise end the string.
 //function must already have orig_color var set (or they could be passed as args...)
 //perhaps some sort of recursive orig_color type thing would be better, but that would be way too much trouble for little gain
+int gr_message_color_level=1;
 #define CHECK_EMBEDDED_COLORS() if ((*text_ptr >= 0x01) && (*text_ptr <= 0x03)) { \
 		text_ptr++; \
 		if (*text_ptr){ \
-			if (GameArg.MplMsgColorLevel >= *(text_ptr-1)) \
+			if (gr_message_color_level >= *(text_ptr-1)) \
 				FG_COLOR = *text_ptr; \
 			text_ptr++; \
 		} \
 	} \
 	else if ((*text_ptr >= 0x04) && (*text_ptr <= 0x06)){ \
-		if (GameArg.MplMsgColorLevel >= *text_ptr - 3) \
+		if (gr_message_color_level >= *text_ptr - 3) \
 			FG_COLOR=orig_color; \
 		text_ptr++; \
 	}

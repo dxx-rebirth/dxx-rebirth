@@ -75,7 +75,6 @@ typedef struct Arg
 	int MplSaveBans;
 	int MplNoRedundancy;
 	int MplPlayerMessages;
-	int MplMsgColorLevel;
 	int MplPacketsPerSec;
 	const char *MplIpxNetwork;
 	char *MplIpHostAddr;

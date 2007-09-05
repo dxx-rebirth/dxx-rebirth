@@ -178,7 +178,6 @@ void show_commandline_help()
 	printf( "  -savebans          %s\n", "Automatically save new bans");
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multiplayer");
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
-        printf( "  -msgcolorlevel <n> %s\n", "Level of colorization for hud messages\n\t\t\t0=none(old style)\n\t\t\t1=color names in talk messages only(default)\n\t\t\t2=also color names in kill/join/etc messages\n\t\t\t3=talk messages are fully colored, not just names");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
 	printf( "  -ip_hostaddr <n>   %s\n", "Use <n> as host ip address");
         printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");

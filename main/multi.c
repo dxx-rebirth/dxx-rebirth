@@ -792,14 +792,10 @@ void multi_compute_kill(int killer, int killed)
 		reactor_kills[killed_pnum]++;
 		reactor_kills_total++;
 		if (killed_pnum == Player_num)
-			hud_message(MSGC_MULTI_KILL, "%s(%i) %s(%i).", TXT_YOU_WERE,reactor_kills[killed_pnum],
-					TXT_KILLED_BY_NONPLAY,reactor_kills_total);
+			HUD_init_message("%s %s.", TXT_YOU_WERE, TXT_KILLED_BY_NONPLAY);
 		else
-			hud_message(MSGC_MULTI_KILL, "\002%c%s\004(%i) %s %s(%i).", 
-					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b),
-					killed_name,reactor_kills[killed_pnum],TXT_WAS, TXT_KILLED_BY_NONPLAY,reactor_kills_total );
-//end edit -MM    
-		return;		
+			HUD_init_message("%s %s %s.", killed_name, TXT_WAS, TXT_KILLED_BY_NONPLAY );
+		return;
 	}
 
 #ifndef SHAREWARE
@@ -849,15 +845,10 @@ void multi_compute_kill(int killer, int killed)
 #endif
 
 		kill_matrix[killed_pnum][killed_pnum] += 1; // # of suicides
-//edited 02/26/99 Matt Mueller - add kill stats to messages
 		if (killer_pnum == Player_num)
-			hud_message(MSGC_MULTI_KILL, "%s(%i) %s %s(%i)!", TXT_YOU,Players[killed_pnum].net_kills_total,
-					TXT_KILLED, TXT_YOURSELF,-kill_matrix[killed_pnum][killed_pnum]);
+			HUD_init_message("%s %s %s!", TXT_YOU, TXT_KILLED, TXT_YOURSELF );
 		else
-			hud_message(MSGC_MULTI_KILL, "\002%c%s\004(%i) %s(%i)",
-					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b),
-					killed_name,Players[killed_pnum].net_kills_total,TXT_SUICIDE,-kill_matrix[killed_pnum][killed_pnum]);
-//end edit -MM    
+			HUD_init_message("%s %s", killed_name, TXT_SUICIDE);
 	}
 
 	else
@@ -878,27 +869,16 @@ void multi_compute_kill(int killer, int killed)
 
 		Players[killed_pnum].net_killed_total += 1;
 		kill_matrix[killer_pnum][killed_pnum] += 1;
-//edited 02/26/99 Matt Mueller - add kill stats to messages
+
 		if (killer_pnum == Player_num) {
-			hud_message(MSGC_MULTI_KILL, "%s(%i) %s \002%c%s\004(%i)!", 
-					TXT_YOU,Players[killer_pnum].net_kills_total,TXT_KILLED, 
-					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b),
-					killed_name,kill_matrix[killer_pnum][killed_pnum]);
+			HUD_init_message("%s %s %s!", TXT_YOU, TXT_KILLED, killed_name);
 			if ((Game_mode & GM_MULTI_COOP) && (Players[Player_num].score >= 1000))
 				add_points_to_score(-1000);
 		}
 		else if (killed_pnum == Player_num)
-			hud_message(MSGC_MULTI_KILL, "\002%c%s\004(%i) %s %s(%i)!", 
-					gr_getcolor(player_rgb[killer_pnum].r,player_rgb[killer_pnum].g,player_rgb[killer_pnum].b),
-					killer_name,Players[killer_pnum].net_kills_total,
-					TXT_KILLED, TXT_YOU,kill_matrix[killer_pnum][killed_pnum]);
+			HUD_init_message("%s %s %s!", killer_name, TXT_KILLED, TXT_YOU);
 		else
-			hud_message(MSGC_MULTI_KILL, "\002%c%s\004(%i) %s \002%c%s\004(%i)!", 
-					gr_getcolor(player_rgb[killer_pnum].r,player_rgb[killer_pnum].g,player_rgb[killer_pnum].b),
-					killer_name,Players[killer_pnum].net_kills_total,TXT_KILLED,
-					gr_getcolor(player_rgb[killed_pnum].r,player_rgb[killed_pnum].g,player_rgb[killed_pnum].b),
-					killed_name,kill_matrix[killer_pnum][killed_pnum]);
-//end edit -MM    
+			HUD_init_message("%s %s %s!", killer_name, TXT_KILLED, killed_name);
 	}
 	multi_sort_kill_list();
 	multi_show_player_list();
@@ -1285,264 +1265,6 @@ void multi_send_message_end()
     }
 //end this section addition
 
-//added/moved on 1/21/99 by Victor Rachels to command.c
-//-moved-        if((NMl>=5)&&!strnicmp("ping:", Network_message, 5))
-//-moved-        {
-//-moved-          //added/modified on 8/13/98 by Matt Mueller to fix ping bug, and allow ping all
-//-moved-           if (*(Network_message + 5))
-//-moved-            {
-//-moved-                //Send only to the recepient in the message..
-//-moved-                for(pl = 0; pl < MAX_NUM_NET_PLAYERS; pl++)
-//-moved-                        if (!strcasecmpbegin(Players[pl].callsign, Network_message + 5))
-//-moved-                        {
-//-moved-                                //send only to the specified user.
-//-moved-                                Network_message_reciever = pl;
-//-moved-                                sprintf(Network_message, "PING:%lu %i", timer_get_fixed_seconds(),pl);
-//-moved-                                multi_send_message();
-//-moved-                                hud_message(MSGC_GAME_FEEDBACK, "Pinging %s...", Players[pl].callsign);
-//-moved-                                return;
-//-moved-                        }
-//-moved-                //Bad username
-//-moved-                hud_message(MSGC_GAME_FEEDBACK, "PING: %s doesn't exist!", Network_message + 5);
-//-moved-            } else
-//-moved-            {
-//-moved-                Network_message_reciever = 100;
-//-moved-                sprintf(Network_message, "PING:%lu", timer_get_fixed_seconds());
-//-moved-                multi_send_message();
-//-moved-                hud_message(MSGC_GAME_FEEDBACK,"Pinging...");
-//-moved-            }
-//-moved-           //end modified section - Matt Mueller
-//-moved-           return;
-//-moved-        }
-//-moved-        //added on 10/31/98 by Matt Mueller to allow rechecking of version info in game.
-//-moved-        if((NMl>=4)&&!strnicmp("d1x:", Network_message, 4))
-//-moved-        {
-//-moved-           if (*(Network_message + 4))
-//-moved-            {
-//-moved-                        for(pl = 0; pl < MAX_NUM_NET_PLAYERS; pl++)
-//-moved-                                if (!strcasecmpbegin(Players[pl].callsign, Network_message + 4))
-//-moved-                                 {
-//-moved-                                        network_send_config_messages(pl,1);
-//-moved-                                        return;
-//-moved-                                 }
-//-moved-                        hud_message(MSGC_GAME_FEEDBACK, "d1x: %s doesn't exist!", Network_message + 4);
-//-moved-            }
-//-moved-             else
-//-moved-            {
-//-moved-                        network_send_config_messages(100,1);
-//-moved-            }
-//-moved-           return;
-//-moved-        }
-//-moved-        //end addition - Matt Mueller
-//-moved-        //added 11/09/98 by Matt Mueller/Victor Rachels
-//-moved-        if((NMl==13)&&!strnicmp(":shortpackets",Network_message,13))
-//-moved-        {
-//-moved-            if(!Network_short_packets){
-//-moved-                        hud_message(MSGC_GAME_FEEDBACK, "now using Short Packets");
-//-moved-                        Network_short_packets = 1;
-//-moved-                        network_send_config_messages(100,1);
-//-moved-                }else
-//-moved-                         hud_message(MSGC_GAME_FEEDBACK, "already using Short Packets");
-//-moved-                         
-//-moved-          return;
-//-moved-        }
-//-moved-        //end addition -MM
-//-moved-        //added 11/10/98 by Victor Rachels to add handicapping
-//-moved-        if((NMl>9)&&!strnicmp("handicap:",Network_message,9))
-//-moved-        {
-//-moved-         int t;
-//-moved-          t=atoi(Network_message+9);
-//-moved-           if(t==100)
-//-moved-            {
-//-moved-             handicap = MAX_SHIELDS;
-//-moved-             Network_message_reciever = 100;
-//-moved-             sprintf(Network_message,"I am no longer handicapped.");
-//-moved-             hud_message(MSGC_GAME_FEEDBACK, "Handicap reset. Other players notified");
-//-moved-             multi_send_message();
-//-moved-             multi_message_feedback();
-//-moved-            }
-//-moved-           else if(t>0 && (t<100 || (network_i_am_master()&&t<201)))
-//-moved-            {
-//-moved-             handicap = i2f(t);             
-//-moved-              if(network_i_am_master())
-//-moved-               Lhandicap = 1;
-//-moved-              else
-//-moved-               Lhandicap = 0;
-//-moved-             Network_message_reciever = 100;
-//-moved-             sprintf(Network_message,"I am using a handicap of %i.",t);
-//-moved-             hud_message(MSGC_GAME_FEEDBACK, "Handicap set. Other players notified");
-//-moved-             multi_send_message();
-//-moved-             multi_message_feedback();
-//-moved-            }
-//-moved-           else if(t > 100 && t <= 200)
-//-moved-            {
-//-moved-             handicap = i2f(t);
-//-moved-              if(Lhandicap)
-//-moved-               {
-//-moved-                Network_message_reciever = 100;
-//-moved-                sprintf(Network_message,"I am using handicap of %i.",t);
-//-moved-                hud_message(MSGC_GAME_FEEDBACK, "Handicap set. Other players notified");
-//-moved-                multi_send_message();
-//-moved-                multi_message_feedback();
-//-moved-               }
-//-moved-              else
-//-moved-               {
-//-moved-                int netmaster=network_whois_master();
-//-moved-                 hud_message(MSGC_GAME_FEEDBACK, "Master permission required. Requesting...");
-//-moved-                 Network_message_reciever = netmaster;
-//-moved-                 sprintf(Network_message,"%s requests handicap of %i",Players[Player_num].callsign,t);
-//-moved-                 multi_send_message();
-//-moved-                 multi_message_feedback();
-//-moved-                 Network_message_reciever = netmaster;
-//-moved-                 sprintf(Network_message,"Send %s:handicap %i to allow",Players[Player_num].callsign,t);
-//-moved-                 multi_send_message();
-//-moved-                 multi_message_feedback();
-//-moved-               }
-//-moved-            }
-//-moved-           else
-//-moved-            hud_message(MSGC_GAME_FEEDBACK, "Invalid handicap value");
-//-moved-         return;
-//-moved-        }
-//-moved-        //end addition - VR
-//-moved-        // Begin addition by GRiM FisH
-//-moved-        if((NMl>7)&&!strnicmp("ignore:",Network_message,7))
-//-moved-        {
-//-moved-                addignore(Network_message+7);
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>8)&&!strnicmp("ignoren:",Network_message,8))
-//-moved-        {
-//-moved-                if(!isdigit(Network_message[8]))
-//-moved-                {
-//-moved-                        hud_message(MSGC_GAME_FEEDBACK,"IGNOREN: Please use a number as input!");
-//-moved-                        return;
-//-moved-                }
-//-moved-       
-//-moved-                addignore_by_number(atoi(Network_message+8));
-//-moved-                return;
-//-moved-        }
-//-moved-
-//-moved-        if((NMl>9)&&!strnicmp("unignore:",Network_message,9))
-//-moved-        {
-//-moved-                eraseignore(Network_message+9);
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>10)&&!strnicmp("unignoren:",Network_message,10))
-//-moved-        {
-//-moved-                if(!isdigit(Network_message[10]))
-//-moved-                {
-//-moved-                        hud_message(MSGC_GAME_FEEDBACK,"UNIGNOREN: Please use a number as input!");
-//-moved-                        return;
-//-moved-                }
-//-moved-        
-//-moved-                eraseignore_by_number(atoi(Network_message+10));
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl==12)&&!strnicmp(":clearignore",Network_message,12))
-//-moved-        {
-//-moved-                clearignore();
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl==11)&&!strnicmp(":listignore",Network_message,11))
-//-moved-        {
-//-moved-                listignore();
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>5)&&!strnicmp("kick:",Network_message,5))
-//-moved-        {
-//-moved-                boot(Network_message+5);
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>6)&&!strnicmp("kickn:",Network_message,6))
-//-moved-        {
-//-moved-                if(!isdigit(Network_message[6]))
-//-moved-                {
-//-moved-                        hud_message(MSGC_GAME_FEEDBACK,"KICKN: Please use a number as input!");
-//-moved-                        return;
-//-moved-                }
-//-moved-
-//-moved-                boot_by_number(atoi(Network_message+6));
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>7)&&!strnicmp("discon:",Network_message,7))
-//-moved-        {
-//-moved-                discon(Network_message+7);
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>8)&&!strnicmp("disconn:",Network_message,8))
-//-moved-        {
-//-moved-                if(!isdigit(Network_message[8]))
-//-moved-                {
-//-moved-                        hud_message(MSGC_GAME_FEEDBACK,"DISCONN: Please use a number as input!");
-//-moved-                        return;
-//-moved-                }
-//-moved-       
-//-moved-                discon_by_number(atoi(Network_message+8));
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>6)&&!strnicmp("ghost:",Network_message,6))
-//-moved-        {
-//-moved-                ghost(Network_message+6);
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>7)&&!strnicmp("ghostn:",Network_message,7))
-//-moved-        {
-//-moved-                if(!isdigit(Network_message[7]))
-//-moved-                {
-//-moved-                        hud_message(MSGC_GAME_FEEDBACK,"GHOSTN: Please use a number as input!");
-//-moved-                        return;
-//-moved-                }
-//-moved-       
-//-moved-                ghost_by_number(atoi(Network_message+7));
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>8)&&!strnicmp("unghost:",Network_message,8))
-//-moved-        {
-//-moved-                unghost(Network_message+8);
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>9)&&!strnicmp("unghostn:",Network_message,9))
-//-moved-        {
-//-moved-                if(!isdigit(Network_message[9]))
-//-moved-                {
-//-moved-                        hud_message(MSGC_GAME_FEEDBACK,"UNGHOSTN: Please use a number as input!");
-//-moved-                        return;
-//-moved-                }
-//-moved-       
-//-moved-                unghost_by_number(atoi(Network_message+9));
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>6)&&!strnicmp("recon:",Network_message,6))
-//-moved-        {
-//-moved-                recon(Network_message+6);
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>7)&&!strnicmp("reconn:",Network_message,7))
-//-moved-        {
-//-moved-                if(!isdigit(Network_message[7]))
-//-moved-                {
-//-moved-                        hud_message(MSGC_GAME_FEEDBACK,"RECONN: Please use a number as input!");
-//-moved-                        return;
-//-moved-                }
-//-moved-
-//-moved-                recon_by_number(atoi(Network_message+7));
-//-moved-                return;
-//-moved-        }
-//-moved-        if((NMl>6)&&!strnicmp("pingn:",Network_message, 6))
-//-moved-        {
-//-moved-                if(!isdigit(Network_message[6]))
-//-moved-                {
-//-moved-                        hud_message(MSGC_GAME_FEEDBACK,"PINGN: Please use a number as input!");
-//-moved-                        return;
-//-moved-                }
-//-moved-       
-//-moved-                ping_by_number(atoi(Network_message+6));
-//-moved-                return;
-//-moved-        }
-//-moved-
-//-moved-        // End addition by GRiM FisH
-//-moved-        //end this section change - VR from GF
-//end this section move - VR
 	Network_message_reciever = 100;
 	hud_message(MSGC_GAME_FEEDBACK, "%s '%s'", TXT_SENDING, Network_message);
 	multi_send_message();
@@ -1707,8 +1429,8 @@ multi_do_fire(char *buf)
 void 
 multi_do_message(char *buf)
 {
-	char *colon;
-	int pnum = buf[1];
+	char *colon,mesbuf[100];
+	int t;
 
 #ifdef SHAREWARE
 	int loc = 3;
@@ -1716,106 +1438,84 @@ multi_do_message(char *buf)
 	int loc = 2;
 #endif
 
-//added on 12/29/98 by Victor Rachels for irc style /me.
-        if ((strlen(buf+loc) > 3) && !strnicmp("/ME",buf+loc,3))
-        {
-				int col=gr_getcolor(player_rgb[pnum].r,player_rgb[pnum].g,player_rgb[pnum].b);
-                digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-                //hud_message(MSGC_MULTI_USERMSG, "*%s%s", Players[pnum].callsign, buf+loc+3*sizeof(char));
-                hud_message(MSGC_MULTI_USERMSG, "\001%c*%s\004\003%c%s\006",
-						col, Players[pnum].callsign, col, buf+loc+3*sizeof(char));
-        }
-//end this addition - VR
-        else if (((colon = strrchr(buf+loc, ':')) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
+	if (((colon = strrchr(buf+loc, ':')) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
 	{
-				int col=gr_getcolor(player_rgb[pnum].r,player_rgb[pnum].g,player_rgb[pnum].b);
-		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-                //hud_message(MSGC_MULTI_USERMSG, "%s %s '%s'", Players[(int)buf[1]].callsign, TXT_SAYS, buf+loc);
-                hud_message(MSGC_MULTI_USERMSG, "\001%c%s\004 \003%c%s '%s'\006", 
-						col, Players[pnum].callsign, col, TXT_SAYS, buf+loc);
-	}
-//added on 11/10/98 by Victor Rachels to add handicapping
-        else if ( (!strncasecmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) &&
-                   !strncasecmp("handicap",colon+1,8))
-        {
-         char *p=strchr(colon,' ');
-         int t=atoi(p);
+		mesbuf[0] = 1;
+		int color = 0;
+		if (Game_mode & GM_TEAM)
+			color = get_team((int)buf[1]);
+		else
+			color = (int)buf[1];
+		mesbuf[1] = gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
+		strcpy(&mesbuf[2], Players[(int)buf[1]].callsign);
+		t = strlen(mesbuf);
+		mesbuf[t] = ':';
+		mesbuf[t+1] = 1;
+		mesbuf[t+2] = BM_XRGB(0, 31, 0);
+		mesbuf[t+3] = 0;
 
-          digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-           if(buf[1]!=network_whois_master())
-            hud_message(MSGC_GAME_FEEDBACK,"%s is trying to set your handicap",Players[(int)buf[1]].callsign);
-           else if(t>0 && t<201)
-            {
-             handicap = i2f(t);
-              if(t>100)
-               Lhandicap = 1;
-              else
-               Lhandicap = 0;
-             hud_message(MSGC_GAME_FEEDBACK, "Handicap set to %i by game master",t);
-             Network_message_reciever = 100;
-             snprintf(Network_message, MAX_MESSAGE_LEN, "Handicap set to %i by game master.",t);
-             multi_send_message();
-             multi_message_feedback();
-            }
-          else
-           {
-             hud_message(MSGC_GAME_FEEDBACK, "Invalid handicap by game master");
-           }
-        }
-//end this section addition
+		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
+		HUD_init_message("%s %s", mesbuf, buf+2);
+	}
 	else if ( (!strncasecmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) ||
 			  ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !strncasecmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
 	{
-		int col=gr_getcolor(player_rgb[pnum].r,player_rgb[pnum].g,player_rgb[pnum].b);
+		mesbuf[0] = 1;
+		int color = 0;
+		if (Game_mode & GM_TEAM)
+			color = get_team((int)buf[1]);
+		else
+			color = (int)buf[1];
+		mesbuf[1] = gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
+		strcpy(&mesbuf[2], Players[(int)buf[1]].callsign);
+		t = strlen(mesbuf);
+		mesbuf[t] = ':';
+		mesbuf[t+1] = 1;
+		mesbuf[t+2] = BM_XRGB(0, 31, 0);
+		mesbuf[t+3] = 0;
+
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		//hud_message(MSGC_MULTI_USERMSG, "%s %s '%s'", Players[(int)buf[1]].callsign, TXT_TELLS_YOU, (colon+1));
-		hud_message(MSGC_MULTI_USERMSG, "\001%c%s\004 \003%c%s '%s'\006", 
-				col, Players[pnum].callsign, col, TXT_TELLS_YOU, (colon+1));
+		HUD_init_message("%s %s", mesbuf, colon+1);
 	}
 	else if (colon - (buf + loc) == 4)
 	{
 		if (!strncasecmp("ping", buf+loc, 4))
 		{
-			 //Ping message, respond!
-//added/modified on 8/13/98 by Matt Mueller -- fix ping bugs
-                         char *p=strchr(colon,' ');
-                         if(!p || (atoi(p++)==Player_num))
-                          {
-                           multibuf[0] = (char)MULTI_MESSAGE;
-                           multibuf[1] = (char)Player_num;
-                           sprintf((char*)multibuf+2, "pong:%ul %i", atoi(colon + 1), buf[1]);
-                           multi_send_data(multibuf,message_length[MULTI_MESSAGE],1);
-                          }
-//                         Network_message_reciever = buf[1];  // Send to the player who pinged you
-//                         snprintf(Network_message, MAX_MESSAGE_LEN, "pong:%s", colon + 1);
-                         
+			//Ping message, respond!
+			//added/modified on 8/13/98 by Matt Mueller -- fix ping bugs
+			char *p=strchr(colon,' ');
+			if(!p || (atoi(p++)==Player_num))
+			{
+				multibuf[0] = (char)MULTI_MESSAGE;
+				multibuf[1] = (char)Player_num;
+				sprintf((char*)multibuf+2, "pong:%ul %i", atoi(colon + 1), buf[1]);
+				multi_send_data(multibuf,message_length[MULTI_MESSAGE],1);
+			}
 		}
 		if (!strncasecmp("pong", buf+loc, 4))
 		{
 			 //Pong message, print the results!
-                         char *p=strchr(colon,' ');
-                         if(!p || (atoi(p++)==Player_num))
-                          {
-                           int pingtime;
-                           pingtime = timer_get_fixed_seconds() - atoi(colon + 1);
-                            if(ping_stats_on)
-                             ping_stats_received((int)buf[1],pingtime);
-                            else
-                             hud_message(MSGC_GAME_FEEDBACK, "%s %s %ums", "Ping response from ",
-                              Players[(int)buf[1]].callsign, fixmuldiv(pingtime, 1000, F1_0));
-                          }
+			char *p=strchr(colon,' ');
+			if(!p || (atoi(p++)==Player_num))
+			{
+				int pingtime;
+				pingtime = timer_get_fixed_seconds() - atoi(colon + 1);
+				if(ping_stats_on)
+					ping_stats_received((int)buf[1],pingtime);
+				else
+					hud_message(MSGC_GAME_FEEDBACK, "%s %s %ums", "Ping response from ",Players[(int)buf[1]].callsign, fixmuldiv(pingtime, 1000, F1_0));
+			}
 		}
-//end modified section - Matt Mueller
-    //added on 8/6/98 by Matt Mueller, modified by adb, 08/15/98
+		//end modified section - Matt Mueller
+		//added on 8/6/98 by Matt Mueller, modified by adb, 08/15/98
 		if (!strncasecmp("Vd1x", buf+loc, 4)) {
-			if (!*Net_D1xPlayer[pnum].ver){
-				strncpy(Net_D1xPlayer[pnum].ver, colon+1, D1XPLAYER_VER_LENGTH);
-				Net_D1xPlayer[pnum].ver[D1XPLAYER_VER_LENGTH - 1] = 0;
-			    //added 03/04/99 Matt Mueller - new iver variable for easy version checking
-			    Net_D1xPlayer[pnum].iver=atoi(Net_D1xPlayer[pnum].ver+5)*1000+atoi(Net_D1xPlayer[pnum].ver+7)*10;
-				hud_message(MSGC_MULTI_INFO, "%s is using %s(%i)", Players[pnum].callsign, colon+1,Net_D1xPlayer[pnum].iver);
-			    //end edit -MM
-			    
+			if (!*Net_D1xPlayer[(int)buf[1]].ver){
+				strncpy(Net_D1xPlayer[(int)buf[1]].ver, colon+1, D1XPLAYER_VER_LENGTH);
+				Net_D1xPlayer[(int)buf[1]].ver[D1XPLAYER_VER_LENGTH - 1] = 0;
+				//added 03/04/99 Matt Mueller - new iver variable for easy version checking
+				Net_D1xPlayer[(int)buf[1]].iver=atoi(Net_D1xPlayer[(int)buf[1]].ver+5)*1000+atoi(Net_D1xPlayer[(int)buf[1]].ver+7)*10;
+				hud_message(MSGC_MULTI_INFO, "%s is using %s(%i)", Players[(int)buf[1]].callsign, colon+1,Net_D1xPlayer[(int)buf[1]].iver);
+				//end edit -MM
 			}
 		}
 		if (!strncasecmp("Nd1x", buf+loc, 4)) {
@@ -1839,73 +1539,7 @@ multi_do_message(char *buf)
 				else if (mode==2||mode==4)
 					network_send_config_messages(src,3);
 			}
-			//printf("a %s (dest=%i src=%i mode=%i shp=%i pps=%i)\n", buf+loc, dest, src, mode, shp, pps);
 		}
-    //end modified section - Matt Mueller (adb)
-//killed on 8/6/98 by Matt Mueller
-//added on 8/4/98 by Matt Mueller
-//changed on 8/5/98 by Matt Mueller
-//                if (!strnicmp("Npps", buf+loc, 4))
-//                {
-//                        //set pps to correct value
-//			int temp = atoi(colon + 1);
-//			if(temp!=Network_pps) {
-//	                        Network_pps =temp;
-//        	                HUD_init_message("setting pps to %i", Network_pps);
-////killed on 8/6/98 by Matt Mueller
-////                	        printf("setting pps to %i\n", Network_pps);
-////end modified section - Matt Mueller
-//                        	Network_packet_interval = F1_0 / Network_pps;
-//			}
-//                }
-//                if (!strnicmp("Mshp", buf+loc, 4))
-//                {
-//			int dest = atoi(colon + 1);
-//			if (dest==Player_num || dest==100) {
-//	                 //set short packets to correct value
-//	        	        Network_short_packets=1;
-//        	        	NetWantShort[buf[1]]=1;
-//	        	        Network_message_reciever = 100;
-//        	        	sprintf(Network_message, "Nshp:%i", Network_message_reciever);
-//	                	multi_send_message();
-//		                HUD_init_message("enabling short packets mode.");
-////killed on 8/6/98 by Matt Mueller
-////	        	        printf("enabling short packets mode.\n");
-////end modified section - Matt Mueller
-////added/changed on 8/6/98 by Matt Mueller
-//			}else {
-////		                HUD_init_message("defaulting to long packets for joining player %s",Players[dest].callsign);
-//	       	        	NetWantShort[dest]=0;//someone just joined, so be sure to default to long
-//			}
-////end modified section - Matt Mueller
-//		}
-//                if (!strnicmp("Nshp", buf+loc, 4))
-//                {
-//			int dest = atoi(colon + 1);
-//			if (dest==Player_num || dest==100) {
-//	                        NetWantShort[buf[1]]=1;
-//		                Network_message_reciever = buf[1];
-//                	        sprintf(Network_message, "Rshp:%i", Network_message_reciever);
-//                        	multi_send_message();
-//	                        HUD_init_message("enabling short packets for %s (N)", Players[(int)buf[1]].callsign);
-////killed on 8/6/98 by Matt Mueller
-////        	                printf("enabling short packets for %s (N)\n", Players[(int)buf[1]].callsign);
-////end modified section - Matt Mueller
-//			}
-//                }
-//                if (!strnicmp("Rshp", buf+loc, 4))
-//                {
-//			int dest = atoi(colon + 1);
-//			if (dest==Player_num || dest==100) {
-//	                        NetWantShort[buf[1]]=1;
-//        	                HUD_init_message("enabling short packets for %s (R)", Players[(int)buf[1]].callsign);
-////killed on 8/6/98 by Matt Mueller
-////                	        printf("enabling short packets for %s (R)\n", Players[(int)buf[1]].callsign);
-////end modified section - Matt Mueller
-//			}
-//                }
-////end modified section - Matt Mueller
-//end modified section - Matt Mueller
         }
 }
 
@@ -2241,9 +1875,7 @@ multi_do_quit(char *buf)
 
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
 
-		hud_message( MSGC_MULTI_INFO, "\002%c%s\004 %s", 
-			gr_getcolor(player_rgb[(int)buf[1]].r,player_rgb[(int)buf[1]].g,player_rgb[(int)buf[1]].b),
-				Players[(int)buf[1]].callsign, TXT_HAS_LEFT_THE_GAME);
+		HUD_init_message( "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_LEFT_THE_GAME);
 		
 		network_disconnect_player(buf[1]);
 

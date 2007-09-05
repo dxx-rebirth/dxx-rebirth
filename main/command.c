@@ -104,62 +104,6 @@ int Command_parse(char *command)
       eraseignore_by_number(atoi(command+10));
       return 1;
     }
-   if((cmdlng>9)&&!strnicmp("handicap:",command,9))
-    {
-     int t;
-      t=atoi(command+9);
-       if(t==100)
-        {
-          handicap = MAX_SHIELDS;
-          Network_message_reciever = 100;
-          snprintf(Network_message, MAX_MESSAGE_LEN, "I am no longer handicapped.");
-          hud_message(MSGC_GAME_FEEDBACK, "Handicap reset. Other players notified");
-          multi_send_message();
-          multi_message_feedback();
-        }
-       else
-        if(t>0 && (t<100 || (network_i_am_master()&&t<201)))
-         {
-           handicap = i2f(t);             
-            if(network_i_am_master())
-             Lhandicap = 1;
-            else
-             Lhandicap = 0;
-           Network_message_reciever = 100;
-           snprintf(Network_message, MAX_MESSAGE_LEN, "I am using a handicap of %i.",t);
-           hud_message(MSGC_GAME_FEEDBACK, "Handicap set. Other players notified");
-           multi_send_message();
-           multi_message_feedback();
-          }
-         else if(t > 100 && t <= 200)
-          {
-           handicap = i2f(t);
-            if(Lhandicap)
-             {
-               Network_message_reciever = 100;
-               snprintf(Network_message, MAX_MESSAGE_LEN, "I am using handicap of %i.",t);
-               hud_message(MSGC_GAME_FEEDBACK, "Handicap set. Other players notified");
-               multi_send_message();
-               multi_message_feedback();
-             }
-            else
-             {
-              int netmaster=network_whois_master();
-               hud_message(MSGC_GAME_FEEDBACK, "Master permission required. Requesting...");
-               Network_message_reciever = netmaster;
-               snprintf(Network_message, MAX_MESSAGE_LEN, "%s requests handicap of %i",Players[Player_num].callsign,t);
-               multi_send_message();
-               multi_message_feedback();
-               Network_message_reciever = netmaster;
-               snprintf(Network_message, MAX_MESSAGE_LEN, "Send %s:handicap %i to allow",Players[Player_num].callsign,t);
-               multi_send_message();
-               multi_message_feedback();
-             }
-          }
-         else
-          hud_message(MSGC_GAME_FEEDBACK, "Invalid handicap value");
-      return 1;
-    }
    if((cmdlng>9)&&!strnicmp("unignore:",command,9))
     {
       eraseignore(command+9);

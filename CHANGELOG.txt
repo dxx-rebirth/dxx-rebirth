@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070905
+--------
+d1x.ini, 2d/font.c, include/args.h, main/args.c, main/command.c, main/game.c, main/gameseq.c, main/gameseq.h, main/inferno.c, main/multi.c: Removed handicapping remnants, Removed -msgcolorlevel, color names in Multi-messages to Player- or Team-color
+
 20070903
 --------
 2d/font.c, main/multi.c: Fixed embedded color strings

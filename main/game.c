@@ -1708,12 +1708,6 @@ void game()
 	fix_object_segs();
 	game_flush_inputs();
 
-	if(Lhandicap)
-		Players[Player_num].shields = handicap;
-	if(Game_mode & GM_MULTI)
-		if(Players[Player_num].shields > MAX_SHIELDS && !Lhandicap)
-			Players[Player_num].shields = MAX_SHIELDS;
-
 #ifdef NETWORK
 	readbans();
 	ping_stats_init();
@@ -1788,9 +1782,6 @@ void game()
 
 	restrict_mode = 0;
 #endif
-
-	handicap=MAX_SHIELDS;
-	Lhandicap=0;
 
 	show_radar = 0;
 	Network_allow_radar = 0;

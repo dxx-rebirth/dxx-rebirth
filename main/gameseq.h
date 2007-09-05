@@ -269,8 +269,4 @@ extern void DoEndLevelScoreGlitz(int network);
 extern int MaxNumNetPlayers;
 extern int NumNetPlayerPositions;
 
-//added on 11/9/98 by Victor Rachels for shield handicap
-extern fix handicap;
-extern int Lhandicap;
-//end this section addition - VR
 #endif

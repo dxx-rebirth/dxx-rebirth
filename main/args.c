@@ -313,17 +313,6 @@ void ReadCmdArgs(void)
 	else
 		GameArg.MplPlayerMessages = 0;
 
-	if ((t=FindArg("-msgcolorlevel")))
-	{
-		t=atoi(Args[t+1]);
-		if (t>=0 && t<=3)
-                	GameArg.MplMsgColorLevel = t;
-		else
-			GameArg.MplMsgColorLevel = 1;
-	}
-	else
-		GameArg.MplMsgColorLevel = 1;
-
 	if ((t=FindArg("-packets")))
 		GameArg.MplPacketsPerSec = atoi(Args[t+1]);
 	else

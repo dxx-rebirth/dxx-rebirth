@@ -266,10 +266,6 @@ void gameseq_remove_unused_players()
 }
 
 // Setup player for new game
-//added on 11/9/98
-fix handicap=MAX_SHIELDS;
-int Lhandicap=0;
-
 void init_player_stats_game()
 {
 	Players[Player_num].score = 0;
@@ -387,14 +383,6 @@ void init_player_stats_new_ship()
 	Players[Player_num].energy = MAX_ENERGY;
 
         Players[Player_num].shields = MAX_SHIELDS;
-
-//added on 11/9/98 by Victor Rachels for handicapping
-         if(Lhandicap)
-          Players[Player_num].shields = handicap;
-        if(Game_mode & GM_MULTI)
-         if(Players[Player_num].shields > MAX_SHIELDS && !Lhandicap)
-          Players[Player_num].shields = MAX_SHIELDS;
-//end this section addition - VR
 
 //added on 3/15/99 by Victor Rachels to maybe fix respawn-shoot
         Global_laser_firing_count=0;
