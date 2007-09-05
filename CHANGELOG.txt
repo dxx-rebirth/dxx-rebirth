@@ -1,8 +1,12 @@
 D2X-Rebirth Changelog
 
+20070905
+--------
+main/multi.c: Color names in Multi-messages to Player- or Team-color
+
 20070903
 --------
-2d/font.c, main/multi.c: Fixed embedded color strings
+2d/font.c, main/escort.c: Fixed embedded color strings
 
 20070901
 --------

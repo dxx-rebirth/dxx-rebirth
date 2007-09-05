@@ -1577,7 +1577,12 @@ multi_do_message(char *buf)
 	if (((colon = strrchr(buf+loc, ':')) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
 	{
 		mesbuf[0] = 1;
-		mesbuf[1] = BM_XRGB(28, 0, 0);
+		int color = 0;
+		if (Game_mode & GM_TEAM)
+			color = get_team((int)buf[1]);
+		else
+			color = (int)buf[1];
+		mesbuf[1] = gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 		strcpy(&mesbuf[2], Players[(int)buf[1]].callsign);
 		t = strlen(mesbuf);
 		mesbuf[t] = ':';
@@ -1594,7 +1599,12 @@ multi_do_message(char *buf)
 			 ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !strnicmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
 		{
 			mesbuf[0] = 1;
-			mesbuf[1] = BM_XRGB(0, 32, 32);
+			int color = 0;
+			if (Game_mode & GM_TEAM)
+				color = get_team((int)buf[1]);
+			else
+				color = (int)buf[1];
+			mesbuf[1] = gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 			strcpy(&mesbuf[2], Players[(int)buf[1]].callsign);
 			t = strlen(mesbuf);
 			mesbuf[t] = ':';
