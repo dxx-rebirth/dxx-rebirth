@@ -1217,42 +1217,6 @@ void multi_send_message_end()
 	}
 	else if (!strnicmp (Network_message,"NoBombs",7))
 		Netgame.DoSmartMine=0;
-	else if (!strnicmp (Network_message,"Ping:",5))
-	{
-		if (Game_mode & GM_NETWORK)
-		{
-			int name_index=5;
-			if (strlen(Network_message) > 5)
-				while (Network_message[name_index] == ' ')
-					name_index++;
-
-			if (strlen(Network_message)<=name_index)
-			{
-				HUD_init_message ("You must specify a name to ping");
-				return;
-			}
-
-			for (i = 0; i < N_players; i++)
-				if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected))
-				{
-					PingLaunchTime=timer_get_fixed_seconds();
-					network_send_ping (i);
-					HUD_init_message("Pinging %s...",Players[i].callsign);
-					multi_message_index = 0;
-					multi_sending_message = 0;
-					return;
-				}
-		}
-		else // Modem/Serial ping
-		{
-			PingLaunchTime=timer_get_fixed_seconds();
-			multi_send_modem_ping ();
-			HUD_init_message("Pinging opponent...");
-		    multi_message_index = 0;
-			multi_sending_message = 0;
-			return;
-		}
-	}
 	else if (!strnicmp (Network_message,"move:",5))
 	{
 		mprintf ((0,"moving?\n"));

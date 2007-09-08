@@ -425,7 +425,7 @@ void format_time(char *str, int secs_int)
 }
 
 void do_show_netgame_help();
-
+extern int netplayerinfo_on;
 //Process selected keys until game unpaused. returns key that left pause (p or esc)
 int do_game_pause()
 {
@@ -441,16 +441,11 @@ int do_game_pause()
 	}
 
 #ifdef NETWORK
-	if (Game_mode & GM_NETWORK)
+	if (Game_mode & GM_MULTI)
 	{
-	 do_show_netgame_help();
-    return (KEY_PAUSE);
+		netplayerinfo_on= !netplayerinfo_on;
+		return(KEY_PAUSE);
 	}
-	else if (Game_mode & GM_MULTI)
-	 {
-	  HUD_init_message ("You cannot pause in a modem/serial game!");
-	  return (KEY_PAUSE);
-	 }
 #endif
 
 	digi_pause_all();
@@ -537,7 +532,7 @@ extern int newmenu_dotiny2( char * title, char * subtitle, int nitems, newmenu_i
 extern int network_who_is_master(),network_how_many_connected(),GetMyNetRanking();
 extern int TotalMissedPackets,TotalPacketsGot;
 extern char Pauseable_menu;
-char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
+// char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
 extern char *RankStrings[];
 extern int PhallicLimit,PhallicMan;
 
@@ -563,7 +558,7 @@ void do_show_netgame_help()
    sprintf (mtext[num],"Mission: %s",Netgame.mission_title); num++;
 	sprintf (mtext[num],"Current Level: %d",Netgame.levelnum); num++;
 	sprintf (mtext[num],"Difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty)); num++;
-	sprintf (mtext[num],"Game Mode: %s",NetworkModeNames[Netgame.gamemode]); num++;
+// 	sprintf (mtext[num],"Game Mode: %s",NetworkModeNames[Netgame.gamemode]); num++;
 	sprintf (mtext[num],"Game Master: %s",Players[network_who_is_master()].callsign); num++;
    sprintf (mtext[num],"Number of players: %d/%d",network_how_many_connected(),Netgame.max_numplayers); num++;
    sprintf (mtext[num],"Packets per second: %d",Netgame.PacketsPerSec); num++;

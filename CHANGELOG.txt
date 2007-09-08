@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070908
+--------
+main/gamecntl.c, main/gamerend.c, main/multi.c, main/network.c, /main/network.h: Added complex netgame information screen (key PAUSE), Removed ping commands because ping handled in new screen
+
 20070905
 --------
 main/multi.c: Color names in Multi-messages to Player- or Team-color

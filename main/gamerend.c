@@ -61,6 +61,10 @@ static char rcsid[] = "$Id: gamerend.c,v 1.1.1.1 2006/03/17 19:57:07 zicodxx Exp
 #include "mission.h"
 #include "gameseq.h"
 
+#ifdef NETWORK
+#include "network.h"
+#endif
+
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -80,6 +84,7 @@ extern int Saving_movie_frames;
 #endif
 
 extern void newmenu_close();
+int netplayerinfo_on=0;
 
 // Returns the length of the first 'n' characters of a string.
 int string_width( char * s, int n )
@@ -198,6 +203,139 @@ void show_framerate()
                 gr_printf(SWIDTH-FONTSCALE_X(6.5*GAME_FONT->ft_w),(SHEIGHT-FONTSCALE_Y(GAME_FONT->ft_h))/2,"FPS: %s ", temp );
 	}
 }
+
+#ifdef NETWORK
+void show_netplayerinfo()
+{
+	int x=0, y=0, i=0, color=0, eff=0;
+	int line_spacing=FONTSCALE_Y(GAME_FONT->ft_h+1), char_spacing=FONTSCALE_X(GAME_FONT->ft_w+1);
+	char *eff_strings[]={"trashing","really hurting","seriously effecting","hurting","effecting","tarnishing"};
+	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
+
+	if (HiresGFX)
+	{
+		x=SWIDTH/2-FONTSCALE_X(232);
+		y=SHEIGHT/2-FONTSCALE_Y(160);
+	}
+	else
+	{
+		x=SWIDTH/2-FONTSCALE_X(123);
+		y=SHEIGHT/2-FONTSCALE_Y(86);
+	}
+
+	Gr_scanline_darkening_level = 2*7;
+	gr_setcolor( BM_XRGB(0,0,0) );
+	gr_rect(x,y,SWIDTH-x,SHEIGHT-y);
+	Gr_scanline_darkening_level = GR_FADE_LEVELS;
+	gr_set_fontcolor(255,-1);
+	gr_set_curfont(GAME_FONT);
+
+	// general game information
+	y+=line_spacing;
+	gr_printf(0x8000,y,"%s by %s",Netgame.game_name,Players[network_who_is_master()].callsign);
+	y+=line_spacing;
+	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
+
+	x+=char_spacing;
+	y+=line_spacing*2;
+	gr_printf(x,y,"game mode: %s",NetworkModeNames[Netgame.gamemode]);
+	y+=line_spacing;
+	gr_printf(x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
+	y+=line_spacing;
+	gr_printf(x,y,"level time: %i:%02i:%02i",Players[Player_num].hours_level,f2i(Players[Player_num].time_level) / 60 % 60,f2i(Players[Player_num].time_level) % 60);
+	y+=line_spacing;
+	gr_printf(x,y,"total time: %i:%02i:%02i",Players[Player_num].hours_total,f2i(Players[Player_num].time_total) / 60 % 60,f2i(Players[Player_num].time_total) % 60);
+	y+=line_spacing;
+	if (Netgame.KillGoal)
+		gr_printf(x,y,"Kill goal: %d",Netgame.KillGoal*5);
+
+	// player information (name, kills, ping, game efficiency)
+	y+=line_spacing*2;
+	gr_printf(x,y,"player");
+	if (Game_mode & GM_MULTI_COOP)
+		gr_printf(x+char_spacing*7,y,"score");
+	else
+	{
+		gr_printf(x+char_spacing*7,y,"kills");
+		gr_printf(x+char_spacing*12,y,"deaths");
+	}
+	gr_printf(x+char_spacing*18,y,"ping");
+	gr_printf(x+char_spacing*23,y,"efficiency");
+
+	network_ping_all();
+
+	// process players table
+	for (i=0; i<=MAX_PLAYERS; i++)
+	{
+		y+=line_spacing;
+		if (!Players[i].callsign[0])
+			continue;
+		if (Game_mode & GM_TEAM)
+			color=get_team(i);
+		else
+			color=i;
+		gr_set_fontcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		gr_printf(x,y,"%s\n",Players[i].callsign);
+		if (Game_mode & GM_MULTI_COOP)
+			gr_printf(x+char_spacing*7,y,"%-6d",Players[i].score);
+		else
+		{
+			gr_printf(x+char_spacing*7,y,"%-6d",Players[i].net_kills_total);
+			gr_printf(x+char_spacing*12,y,"%-6d",Players[i].net_killed_total);
+		}
+
+		gr_printf(x+char_spacing*18,y,"%-6d",ping_table[i]);
+		gr_printf(x+char_spacing*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
+	}
+
+	y+=line_spacing*2;
+
+	// printf team scores
+	if (Game_mode & GM_TEAM)
+	{
+		gr_set_fontcolor(255,-1);
+		gr_printf(x,y,"team");
+		gr_printf(x+char_spacing*8,y,"score");
+		y+=line_spacing;
+		gr_set_fontcolor(gr_getcolor(player_rgb[get_team(0)].r,player_rgb[get_team(0)].g,player_rgb[get_team(0)].b),-1 );
+		gr_printf(x,y,"%s:",Netgame.team_name[0]);
+		gr_printf(x+char_spacing*8,y,"%i",team_kills[0]);
+		y+=line_spacing;
+		gr_set_fontcolor(gr_getcolor(player_rgb[get_team(1)].r,player_rgb[get_team(1)].g,player_rgb[get_team(1)].b),-1 );
+		gr_printf(x,y,"%s:",Netgame.team_name[1]);
+		gr_printf(x+char_spacing*8,y,"%i",team_kills[1]);
+		y+=line_spacing*2;
+	}
+	else
+		y+=line_spacing*4;
+
+	gr_set_fontcolor(255,-1);
+
+	// additional information about game - hoard, ranking
+	eff=(int)((float)((float)Netlife_kills/((float)Netlife_killed+(float)Netlife_kills))*100.0);
+	if (eff<0)
+		eff=0;
+
+	if (Game_mode & GM_HOARD)
+	{
+		if (PhallicMan==-1)
+			gr_printf(0x8000,y,"There is no record yet for this level."); 
+		else
+			gr_printf(0x8000,y,"%s has the record at %d points.",Players[PhallicMan].callsign,PhallicLimit);
+	}
+	else if (!GameArg.MplNoRankings)
+	{
+		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,Netlife_kills,Netlife_killed);
+		y+=line_spacing;
+		if (eff<60)
+			gr_printf(0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
+		else
+			gr_printf(0x8000,y,"is serving you well.");
+		y+=line_spacing;
+		gr_printf(0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
+	}
+}
+#endif
 
 #ifndef NDEBUG
 
@@ -370,7 +508,7 @@ mprintf((0,"line_spacing=%d ",line_spacing));
 		}
 	}
 
-	if (GameArg.SysFPSIndicator) // ZICO - should be better than r_framerate
+	if (GameArg.SysFPSIndicator)
 		show_framerate();
 
 	if ( (Newdemo_state == ND_STATE_PLAYBACK) )
@@ -710,6 +848,13 @@ void game_render_frame_mono(int flip)
 		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
 			Game_mode = GM_NORMAL;
 	}
+
+	gr_set_current_canvas(NULL);
+
+#ifdef NETWORK
+        if (netplayerinfo_on)
+		show_netplayerinfo();
+#endif
 
 	con_update();
 

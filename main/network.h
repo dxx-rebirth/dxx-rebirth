@@ -135,7 +135,11 @@ extern int Network_rejoined;
 extern int Network_new_game;
 extern int Network_status;
 
+extern int PhallicLimit,PhallicMan;
+
 extern fix LastPacketTime[MAX_PLAYERS];
+
+extern char *RankStrings[];
 
 extern ushort my_segments_checksum;
 // By putting an up-to-20-char-message into Network_message and
@@ -152,5 +156,9 @@ void network_send_data(ubyte * ptr, int len, int urgent);
 
 // returns 1 if hoard.ham available
 extern int HoardEquipped();
+
+extern int ping_table[MAX_PLAYERS];
+extern void network_ping_all();
+extern int network_who_is_master(void);
 
 #endif /* _NETWORK_H */
