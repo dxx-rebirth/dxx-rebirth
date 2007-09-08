@@ -2,8 +2,6 @@
 #define PINGSTAT_H
 
 #ifdef NETWORK
-extern int ping_stats_on;
-
 void ping_stats_frame();
 void ping_stats_received(int pl, int pingtime);
 void ping_stats_init();

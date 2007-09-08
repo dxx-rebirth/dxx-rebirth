@@ -155,6 +155,8 @@ extern int Network_short_packets; // short packets or not
 extern int Network_pps; // packets per second
 //end edit - Victor Rachels
 
+extern int network_who_is_master(void);
+
 // By putting an up-to-20-char-message into Network_message and 
 // setting Network_message_reciever to the player num you want to
 // send it to (100 for broadcast) the next frame the player will

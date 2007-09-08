@@ -3666,6 +3666,21 @@ int network_whois_master() {
 	Error("No players in netgame");
 }
 
+int network_who_is_master(void)
+{
+	// Who is the master of this game?
+
+	int i;
+
+	if (!(Game_mode & GM_NETWORK))
+		return (Player_num == 0);
+
+	for (i = 0; i < N_players; i++)
+		if (Players[i].connected)
+			return i;
+	return Player_num;
+}
+
 #if 0 // currently not used
 // compare two players
 // players are considered equal if they have the same callsign and

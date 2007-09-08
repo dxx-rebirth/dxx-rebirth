@@ -211,43 +211,11 @@ int Command_parse(char *command)
       boot_by_number(atoi(command+6));
       return 1;
     }
-   if((cmdlng>6)&&!strnicmp("pingn:",command, 6))
-     {
-       if(!isdigit(command[6]))
-        {
-          hud_message(MSGC_GAME_FEEDBACK,"PINGN: Please use a number as input!");
-          return 1;
-        }
-      ping_by_number(atoi(command+6));
-      return 1;
-    }
    if((cmdlng>5)&&!strnicmp("kick:",command,5))
     {
       boot(command+5);
       return 1;
     }
-   if(((cmdlng>=5)&&!strnicmp("ping:", command, 5) ) ||
-      ((cmdlng==4)&&!strnicmp("ping" , command, 4) ) )
-    {
-       //added/modified on 8/13/98 by Matt Mueller to fix ping bug, and allow ping all
-       if(*(command + 5) && *(command+4))
-        {
-		//edited 03/04/99 Matt Mueller - moved to seperate function
-		ping_by_name(command+5);
-        }
-       else
-        {
-		ping_all(1);
-		//end edit -MM
-        }
-       //end modified section - Matt Mueller
-      return 1;
-    }
-/*   if((cmdlng>5)&&!strnicmp("mute:",command,5))
-    {
-      addmute(command+5);
-      return 1;
-    }*/
    if((cmdlng>5)&&!strnicmp("bann:",command,5))
     {
        if(!isdigit(command[5]))
@@ -289,11 +257,6 @@ int Command_parse(char *command)
       return 1;
     }
 
-   if(!strnicmp(command,"me:",3))
-    {
-      sprintf(command,"me %s",command+3);
-      return 0;
-    }
 #endif //ifdef NETWORK
 
   hud_message(MSGC_GAME_FEEDBACK,"No such command");

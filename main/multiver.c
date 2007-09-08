@@ -30,7 +30,8 @@ void multi_do_d1x_ver_set(int src,int shp, int pps){
 	if(shp) {
 		if (shp>Network_short_packets)
 			Network_short_packets=shp;
-		hud_message(MSGC_MULTI_INFO, "enabling short packets for %s",Players[src].callsign);
+		if (GameArg.DbgVerbose)
+			hud_message(MSGC_MULTI_INFO, "enabling short packets for %s",Players[src].callsign);
 	}
 	Net_D1xPlayer[src].pps=pps;
 	if (pps!=Network_pps && pps>=2 && pps<=20){
@@ -49,7 +50,8 @@ void multi_do_d1x_ver(char * buf){
 	pps=buf[loc++];
 	multi_do_d1x_ver_set(pl,shp,pps);
 	sprintf(Net_D1xPlayer[pl].ver,"D1X v%i.%i",Net_D1xPlayer[pl].iver/1000,(Net_D1xPlayer[pl].iver%1000)/10);
-	hud_message(MSGC_MULTI_INFO, "%s is using %s (%i,%i,%i,%i)", Players[pl].callsign,Net_D1xPlayer[pl].ver,Net_D1xPlayer[pl].iver,shp,pps,mode);
+	if (GameArg.DbgVerbose)
+		hud_message(MSGC_MULTI_INFO, "%s is using %s (%i,%i,%i,%i)", Players[pl].callsign,Net_D1xPlayer[pl].ver,Net_D1xPlayer[pl].iver,shp,pps,mode);
 
 	//	if (mode==1 && d1x_ver_queue[pl].lastrecv+LASTTIMEOUT<GameTime)multi_d1x_ver_queue_init(MAX_NUM_NET_PLAYERS,2);
 	if (mode==1)

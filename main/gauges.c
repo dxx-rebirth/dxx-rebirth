@@ -1896,22 +1896,6 @@ void hud_show_kill_list()
 			gr_printf(x1,y,"%i/%i(%i%%)",Players[player_num].net_kills_total,Players[player_num].net_killed_total,(Players[player_num].net_killed_total+Players[player_num].net_kills_total)?(Players[player_num].net_kills_total*100)/(Players[player_num].net_killed_total+Players[player_num].net_kills_total):0);
 		else
 			gr_printf(x1,y,"%3d",Players[player_num].net_kills_total);
-		if(ping_stats_on && ping_stats_getping(player_num))
-		{
-			int x2;
-			if(i<n_left)
-			{
-				x2=x1 + GAME_FONT->ft_aw*4; //was +20;
-				if (Game_mode & GM_MULTI_COOP)
-				x2=x1 + GAME_FONT->ft_aw*7;//was +30;
-				if(Show_kill_list == 2)
-				x2=x1 + GAME_FONT->ft_aw*12;//was +25;
-			}
-			else
-				x2=x0 - GAME_FONT->ft_aw*9;//was -40;
-			gr_printf(x2,y,"%lu %i%%",
-			fixmuldiv(ping_stats_getping(player_num),1000,F1_0),(100-((ping_stats_getgot(player_num)*100)/ping_stats_getsent(player_num))) );
-		}
 		y += fth+FONTSCALE_Y(1);
 	}
 }

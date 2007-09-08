@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070908
+--------
+main/command.c, main/game.c, main/gauges.c, main/multi.c, main/multiver.c, main/network.c, /main/network.h: Added complex netgame information screen (key PAUSE), Removed ping commands because ping handled in new screen
+
 20070905
 --------
 d1x.ini, 2d/font.c, include/args.h, main/args.c, main/command.c, main/game.c, main/gameseq.c, main/gameseq.h, main/inferno.c, main/multi.c: Removed handicapping remnants, Removed -msgcolorlevel, color names in Multi-messages to Player- or Team-color

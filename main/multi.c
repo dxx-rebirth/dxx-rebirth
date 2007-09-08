@@ -896,11 +896,6 @@ void multi_do_frame(void)
 //Added 9/5 by Geoff Coovert to do ack resends
         mekh_resend_needack(); //All the time and player checks are done there
 //======================================================
-//added 2/9/99 by Victor Rachels for ping constantly
-        if(ping_stats_on)
-         ping_stats_frame();
-
-//end this section addition - VR
 
 	multi_send_message(); // Send any waiting messages
 
@@ -1479,34 +1474,6 @@ multi_do_message(char *buf)
 	}
 	else if (colon - (buf + loc) == 4)
 	{
-		if (!strncasecmp("ping", buf+loc, 4))
-		{
-			//Ping message, respond!
-			//added/modified on 8/13/98 by Matt Mueller -- fix ping bugs
-			char *p=strchr(colon,' ');
-			if(!p || (atoi(p++)==Player_num))
-			{
-				multibuf[0] = (char)MULTI_MESSAGE;
-				multibuf[1] = (char)Player_num;
-				sprintf((char*)multibuf+2, "pong:%ul %i", atoi(colon + 1), buf[1]);
-				multi_send_data(multibuf,message_length[MULTI_MESSAGE],1);
-			}
-		}
-		if (!strncasecmp("pong", buf+loc, 4))
-		{
-			 //Pong message, print the results!
-			char *p=strchr(colon,' ');
-			if(!p || (atoi(p++)==Player_num))
-			{
-				int pingtime;
-				pingtime = timer_get_fixed_seconds() - atoi(colon + 1);
-				if(ping_stats_on)
-					ping_stats_received((int)buf[1],pingtime);
-				else
-					hud_message(MSGC_GAME_FEEDBACK, "%s %s %ums", "Ping response from ",Players[(int)buf[1]].callsign, fixmuldiv(pingtime, 1000, F1_0));
-			}
-		}
-		//end modified section - Matt Mueller
 		//added on 8/6/98 by Matt Mueller, modified by adb, 08/15/98
 		if (!strncasecmp("Vd1x", buf+loc, 4)) {
 			if (!*Net_D1xPlayer[(int)buf[1]].ver){
@@ -2405,22 +2372,18 @@ multi_process_data(char *buf, int len)
 				    mekh_send_direct_packet(multibuf,2+4,buf[1]);
 				}break;
                 case MULTI_PONG:
-				if (!Endlevel_sequence) {
-				    int pingtime;
-				    mprintf((0,"got DIRECTPONG from %i\n",buf[1]));
-				    pingtime = timer_get_fixed_seconds() - (u_int32_t)swapint(*(u_int32_t*)(buf+2));
-				    if(ping_stats_on)
-					   ping_stats_received(buf[1],pingtime);
-				    else
-					   hud_message(MSGC_GAME_FEEDBACK, "%s %s %ums", "Ping response from ",
-							   Players[(int)buf[1]].callsign, fixmuldiv(pingtime, 1000, F1_0));
+			if (!Endlevel_sequence) {
+				int pingtime;
+				mprintf((0,"got DIRECTPONG from %i\n",buf[1]));
+				pingtime = timer_get_fixed_seconds() - (u_int32_t)swapint(*(u_int32_t*)(buf+2));
+				hud_message(MSGC_GAME_FEEDBACK, "%s %s %ums", "Ping response from ",Players[(int)buf[1]].callsign, fixmuldiv(pingtime, 1000, F1_0));
 
-				}break;
+			}break;
 		//end addition -MM
 				//added 04/19/99 Matt Mueller
-				case MULTI_D1X_VER_PACKET:
-					multi_do_d1x_ver(buf);break;
-				//end addition -MM
+		case MULTI_D1X_VER_PACKET:
+			multi_do_d1x_ver(buf);break;
+		//end addition -MM
 #endif
                 case MULTI_ALT_VULCAN_ON:
                                 got_vulcan_info(1,buf[1]);
