@@ -1484,10 +1484,10 @@ void HandleGameKey(int key)
 		MAC(case KEY_COMMAND+KEY_6:)
 		case KEY_F6:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && !(Game_mode & GM_TEAM))
-				{
-					RefuseThisPlayer=1;
-					HUD_init_message ("Player accepted!");
-				}
+			{
+				RefuseThisPlayer=1;
+				HUD_init_message ("Player accepted!");
+			}
 			break;
 		case KEY_ALTED + KEY_1:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))

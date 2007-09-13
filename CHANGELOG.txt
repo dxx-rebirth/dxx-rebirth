@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070913
+--------
+main/game.c, main/gamecntl.c, main/multi.c, main/network.c: Code Re-formatting; Preventing Redundancy in Restricted-game joining; Dumping refused player back to Join-menu; Expanded Game-help screen
+
 20070908
 --------
 main/gamecntl.c, main/gamerend.c, main/multi.c, main/network.c, /main/network.h: Added complex netgame information screen (key PAUSE), Removed ping commands because ping handled in new screen

@@ -2011,8 +2011,8 @@ void network_send_netgame_update()
 
 	Netgame.type = old_type;
 	Netgame.game_status = old_status;
-}       
-			  
+}
+
 int network_send_request(void)
 {
 	// Send a request to join a game 'Netgame'.  Returns 0 if we can join this
@@ -2199,11 +2199,15 @@ void network_process_dump(sequence_packet *their)
 
 	mprintf((0, "Dumped by player %s, type %d.\n", their->player.callsign, their->player.connected));
 
-   if (their->player.connected!=7)
+	if (their->player.connected!=7)
+	{
 		nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(their->player.connected));
+		Network_status = NETSTAT_MENU;
+	}
 	else
+	{
+		for (i=0;i<N_players;i++)
 		{
-		 for (i=0;i<N_players;i++)
 			if (!stricmp (their->player.callsign,Players[i].callsign))
 			{
 				if (i!=network_who_is_master())
@@ -2212,18 +2216,21 @@ void network_process_dump(sequence_packet *their)
 				}
 				else
 				{
-				  sprintf (temp,"%s has kicked you out!",their->player.callsign);
-				  nm_messagebox(NULL, 1, TXT_OK, &temp);
-			    if (Network_status==NETSTAT_PLAYING)
-				  {
-					IWasKicked=1;
-					multi_leave_game();     
-				  }
-				 else
-					Network_status = NETSTAT_MENU;
-		      }
-		   }
- 		}
+					sprintf (temp,"%s has kicked you out!",their->player.callsign);
+					nm_messagebox(NULL, 1, TXT_OK, &temp);
+					if (Network_status==NETSTAT_PLAYING)
+					{
+						IWasKicked=1;
+						multi_leave_game();
+					}
+					else
+					{
+						Network_status = NETSTAT_MENU;
+					}
+				}
+			}
+		}
+ 	}
 }	
 void network_process_request(sequence_packet *their)
 {
@@ -2408,8 +2415,8 @@ void network_process_packet(ubyte *data, int length )
 		{
 			// Someone wants to join a game in progress!
 			if (Netgame.RefusePlayers)
-		DoRefuseStuff (their);
-		   else 
+				DoRefuseStuff (their);
+			else
 				network_welcome_player(their);
 		}
 		break;
@@ -2816,7 +2823,7 @@ void network_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	if (Network_status != NETSTAT_WAITING)  // Status changed to playing, exit the menu
 		*key = -2;
 
-	if (!Network_rejoined && (timer_get_approx_seconds() > t1+F1_0*2))
+	if (Network_status != NETSTAT_MENU && !Network_rejoined && (timer_get_approx_seconds() > t1+F1_0*2))
 	{
 		int i;
 
@@ -4056,21 +4063,12 @@ network_wait_for_sync(void)
 
 	sprintf( m[0].text, "%s\n'%s' %s", TXT_NET_WAITING, NetPlayers.players[i].callsign, TXT_NET_TO_ENTER );
 
-menu:   
-	choice=newmenu_do( NULL, TXT_WAIT, 2, m, network_sync_poll );
-
-	if (choice > -1)
-		goto menu;
+	while (choice > -1)
+		choice=newmenu_do( NULL, TXT_WAIT, 2, m, network_sync_poll );
 
 	if (Network_status != NETSTAT_PLAYING)  
 	{
 		sequence_packet me;
-
-//              if (Network_status == NETSTAT_ENDLEVEL)
-//              {
-//                      network_send_endlevel_packet(0);
-//                      longjmp(LeaveGame, 0);
-//              }               
 
 		mprintf((0, "Aborting join.\n"));
 		me.type = PID_QUIT_JOINING;
@@ -4741,8 +4739,9 @@ void network_leave_game()
 { 
    int nsave;
 		
+
 	network_do_frame(1, 1);
-   
+
    #ifdef NETPROFILING
 	fclose (SendLogFile);
 	   fclose (RecieveLogFile);
@@ -4761,8 +4760,8 @@ void network_leave_game()
 		
 		mprintf ((0,"HEY! I'm master and I've left.\n"));
 	}
-	
-	Players[Player_num].connected = 0;
+
+	Players[Player_num].connected = 0;	
 	network_send_endlevel_packet();
 	change_playernum_to(0);
 	Game_mode = GM_GAME_OVER;
@@ -5011,7 +5010,8 @@ void network_timeout_player(int playernum)
 
 	if (n == 1)
 	{
-		nm_messagebox(NULL, 1, TXT_OK, TXT_YOU_ARE_ONLY);
+		HUD_init_message("You are the only person remaining in this netgame");
+		//nm_messagebox(NULL, 1, TXT_OK, TXT_YOU_ARE_ONLY);
 	}
 }
 
@@ -5254,6 +5254,11 @@ void network_do_frame(int force, int listen)
 				if ((approx_time - LastPacketTime[i]) > (15*F1_0))
 					network_timeout_player(i);
 			}
+                        if(Players[i].connected != 1 && Objects[Players[i].objnum].type != OBJ_GHOST)
+                         {
+                          HUD_init_message( "'%s' has left.", Players[i].callsign );
+                          multi_make_player_ghost(i);
+                         }
 		}
 		last_timeout_check = 0;
 	}
@@ -5775,7 +5780,7 @@ void network_more_game_options ()
   m[opt].type = NM_TYPE_CHECK; m[opt].text = "Bright player ships"; m[opt].value=Netgame.BrightPlayers; opt++;
   
   opt_show_names=opt;
-  m[opt].type = NM_TYPE_CHECK; m[opt].text = "Show enemy names on HUD"; m[opt].value=Netgame.ShowAllNames; opt++;
+  m[opt].type = NM_TYPE_CHECK; m[opt].text = "Show player names on HUD"; m[opt].value=Netgame.ShowAllNames; opt++;
 
   opt_show_on_map=opt;
   m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP); opt_show_on_map=opt; opt++;
@@ -6007,105 +6012,111 @@ void network_ping_all()
 }
 
 void DoRefuseStuff (sequence_packet *their)
- {
-  int i,new_player_num;
-
-  ClipRank (&their->player.rank);
+{
+	int i,new_player_num;
 	
-  for (i=0;i<MAX_PLAYERS;i++)
-	 if (!strcmp (their->player.callsign,Players[i].callsign))
-	{
-		network_welcome_player(their);
-			return;
-		}
-  
-   if (!WaitForRefuseAnswer)    
-    {
+	ClipRank (&their->player.rank);
+		
 	for (i=0;i<MAX_PLAYERS;i++)
-		 if (!strcmp (their->player.callsign,Players[i].callsign))
+	{
+		if (!strcmp (their->player.callsign,Players[i].callsign))
 		{
 			network_welcome_player(their);
 				return;
-			}
-   
-      digi_play_sample (SOUND_HUD_JOIN_REQUEST,F1_0*2);           
-  
-      if (Game_mode & GM_TEAM)
-		 {
-	
-					
-      if (!GameArg.MplNoRankings)
-	      HUD_init_message ("%s %s wants to join",RankStrings[their->player.rank],their->player.callsign);
-     	#ifndef MACINTOSH
-		HUD_init_message ("%s joining. Alt-1 assigns to team %s. Alt-2 to team %s",their->player.callsign,Netgame.team_name[0],Netgame.team_name[1]);
-		#else
-		HUD_init_message ("%s joining. Opt-1 assigns to team %s. Opt-2 to team %s",their->player.callsign,Netgame.team_name[0],Netgame.team_name[1]);
-		#endif
-//                      HUD_init_message ("Alt-1 to place on team %s!",Netgame.team_name[0]);
-//                      HUD_init_message ("Alt-2 to place on team %s!",Netgame.team_name[1]);
-		 }               
-		else    
-		HUD_init_message ("%s wants to join...press F6 to connect",their->player.callsign);
+		}
+	}
 
-	   strcpy (RefusePlayerName,their->player.callsign);
-	   RefuseTimeLimit=timer_get_approx_seconds();   
+	if (!WaitForRefuseAnswer)
+	{
+		for (i=0;i<MAX_PLAYERS;i++)
+		{
+			if (!strcmp (their->player.callsign,Players[i].callsign))
+			{
+				network_welcome_player(their);
+					return;
+			}
+		}
+	
+		digi_play_sample (SOUND_HUD_JOIN_REQUEST,F1_0*2);
+	
+		if (Game_mode & GM_TEAM)
+		{
+			if (!GameArg.MplNoRankings)
+			{
+				HUD_init_message ("%s %s wants to join",RankStrings[their->player.rank],their->player.callsign);
+			}
+			else
+			{
+				HUD_init_message ("%s wants to join",their->player.callsign);
+			}
+			HUD_init_message ("Alt-1 assigns to team %s. Alt-2 to team %s",their->player.callsign,Netgame.team_name[0],Netgame.team_name[1]);
+		}
+		else
+		{
+			HUD_init_message ("%s wants to join (accept: F6)",their->player.callsign);
+		}
+	
+		strcpy (RefusePlayerName,their->player.callsign);
+		RefuseTimeLimit=timer_get_approx_seconds();
 		RefuseThisPlayer=0;
 		WaitForRefuseAnswer=1;
-	 }
+	}
 	else
-	 {      
-	for (i=0;i<MAX_PLAYERS;i++)
-		 if (!strcmp (their->player.callsign,Players[i].callsign))
+	{
+		for (i=0;i<MAX_PLAYERS;i++)
 		{
-			network_welcome_player(their);
-				return;
+			if (!strcmp (their->player.callsign,Players[i].callsign))
+			{
+				network_welcome_player(their);
+					return;
 			}
-      
+		}
+	
 		if (strcmp(their->player.callsign,RefusePlayerName))
 			return;
-
+	
 		if (RefuseThisPlayer)
-		 {
-				RefuseTimeLimit=0;
-				RefuseThisPlayer=0;
-				WaitForRefuseAnswer=0;
-				if (Game_mode & GM_TEAM)
-				 {
-					new_player_num=GetNewPlayerNumber (their);
-					mprintf ((0,"Newplayernum=%d\n",new_player_num));
-		
-					Assert (RefuseTeam==1 || RefuseTeam==2);        
-				
-					if (RefuseTeam==1)      
-					Netgame.team_vector &=(~(1<<new_player_num));
-					else
-					Netgame.team_vector |=(1<<new_player_num);
-					network_welcome_player(their);
-					network_send_netgame_update (); 
-				 }
-				else
-					network_welcome_player(their);
-			   return;
-		 }
-					
-	  if ((timer_get_approx_seconds()) > RefuseTimeLimit+REFUSE_INTERVAL)
 		{
 			RefuseTimeLimit=0;
 			RefuseThisPlayer=0;
 			WaitForRefuseAnswer=0;
-			if (!strcmp (their->player.callsign,RefusePlayerName)) {
-				if (Network_game_type == IPX_GAME)
-					network_dump_player(their->player.network.ipx.server,their->player.network.ipx.node, DUMP_DORK);
-				#ifdef MACINTOSH
+			if (Game_mode & GM_TEAM)
+			{
+				new_player_num=GetNewPlayerNumber (their);
+				mprintf ((0,"Newplayernum=%d\n",new_player_num));
+	
+				Assert (RefuseTeam==1 || RefuseTeam==2);        
+			
+				if (RefuseTeam==1)      
+				Netgame.team_vector &=(~(1<<new_player_num));
 				else
-					network_dump_appletalk_player(their->player.network.appletalk.node,their->player.network.appletalk.net, their->player.network.appletalk.socket, DUMP_DORK);
-				#endif
+				Netgame.team_vector |=(1<<new_player_num);
+				network_welcome_player(their);
+				network_send_netgame_update (); 
+			}
+			else
+			{
+				network_welcome_player(their);
 			}
 			return;
 		}
-							
-    }
- }
+
+		if ((timer_get_approx_seconds()) > RefuseTimeLimit+REFUSE_INTERVAL)
+		{
+			RefuseTimeLimit=0;
+			RefuseThisPlayer=0;
+			WaitForRefuseAnswer=0;
+			if (!strcmp (their->player.callsign,RefusePlayerName))
+			{
+				if (Network_game_type == IPX_GAME)
+				{
+					network_dump_player(their->player.network.ipx.server,their->player.network.ipx.node, DUMP_DORK);
+				}
+			}
+			return;
+		}
+	}
+}
 
 int GetNewPlayerNumber (sequence_packet *their)
   {

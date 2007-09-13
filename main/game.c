@@ -1310,63 +1310,32 @@ void show_help()
 {
 	int nitems = 0;
 	newmenu_item m[30];
-	#ifdef MACINTOSH
-	char command_help[64], pixel_double_help[64], save_help[64], restore_help[64];
-	#endif
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ESC;
-	#ifndef MACINTOSH
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ALT_F2;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ALT_F3;
-	#else
-	sprintf(save_help, "OPT-F2 (%c-s)\t Save Game", 133);
-	sprintf(restore_help, "OPT-F3 (%c-o)\t Load Game", 133);
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = save_help;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = restore_help;
-	#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F2;
-// 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F3;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-F2/F3\t  SAVE/LOAD GAME";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F3\t  SWITCH COCKPIT MODES";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F4;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F5;
-// 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F6\t Fast Save";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F7\t  SWITCH HUD MODES";
-	#ifndef MACINTOSH
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PAUSE;
-	#else
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Pause (F15)\t  Pause";
-	#endif
-	#ifndef MACINTOSH
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PRTSCN;
-	#else
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "printscrn (F13)\t  save screen shot";
-	#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_1TO5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_6TO10;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F1\t  Cycle left window";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F2\t  Cycle right window";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F1/F2\t  Cycle left/right window";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F4\t  GuideBot menu";
-	#ifndef MACINTOSH
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F4\t  Rename GuideBot";
-	#else
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Opt-Shift-F4\t  Rename GuideBot";
-	#endif
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F5\t  Drop primary";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F6\t  Drop secondary";
-// 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F7\t  Calibrate joystick";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F5/F6\t  Drop primary/secondary";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-number\t  GuideBot commands";
-	#ifdef MACINTOSH
-	sprintf(pixel_double_help, "%c-D\t  Toggle Pixel Double Mode", 133);
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = pixel_double_help;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
-	sprintf(command_help, "(Use %c-# for F#. i.e. %c-1 for F1)", 133, 133);
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = command_help;
-	#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "MULTIPLAYER:"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "ALT-0\t  DROP FLAG"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "ALT-F4\t  SHOW RETICLE NAMES"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "F7\t  SHOW KILL LIST"; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "F8\t  SEND MESSAGE"; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "F8 to F12\t  SEND MACRO"; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "SHIFT-F8 to SHIFT-F12\t  DEFINE MACRO"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "PAUSE\t  SHOW NETGAME INFORMATION"; nitems++;
 
 	full_palette_save();
 

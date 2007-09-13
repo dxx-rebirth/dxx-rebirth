@@ -1917,7 +1917,8 @@ multi_do_quit(char *buf)
 			if (Players[i].connected) n++;
 		if (n == 1)
 		{
-			nm_messagebox(NULL, 1, TXT_OK, TXT_YOU_ARE_ONLY);
+			HUD_init_message("You are the only person remaining in this netgame");
+			//nm_messagebox(NULL, 1, TXT_OK, TXT_YOU_ARE_ONLY);
 		}
 	}
 
