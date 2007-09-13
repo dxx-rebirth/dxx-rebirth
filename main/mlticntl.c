@@ -154,39 +154,36 @@ void lamer_do_netgame_menu (void)  //This function brings up a menu that lets yo
 
 void lamer_do_restrict_alert (sequence_packet * their)  //This function lets you know that someone wants to join a restricted netgame.  Displays joining player's callsign and IP.
 {
-        ubyte ipaddress[6];
+	ubyte ipaddress[6];
 
-        if(!restrict_mode)
-                return;
+	if(!restrict_mode)
+		return;
 
-        if((dump_join) && (!stricmp(their->player.callsign, restricted_callsign)))
-        {
-                network_dump_player(their->player.server, their->player.node, DUMP_DORK);
-                dump_join = 0;
-                return;
-        }       
+	if((dump_join) && (!stricmp(their->player.callsign, restricted_callsign)))
+	{
+		network_dump_player(their->player.server, their->player.node, DUMP_DORK);
+		dump_join = 0;
+		return;
+	}
 
-        if((restrict_start_time+RESTRICT_WAIT > GameTime) && (waiting_to_join) && (!stricmp(restricted_callsign, their->player.callsign)))
-                return;
+	if((restrict_start_time+RESTRICT_WAIT > GameTime) && (waiting_to_join) && (!stricmp(restricted_callsign, their->player.callsign)))
+		return;
 
-        if(accept_join)
-                return;
+	if(accept_join)
+		return;
 
-        //if ( (*(uint *)their->player.server) != 0 )
-        //        ipx_get_local_target( their->player.server, their->player.node, ipaddress );
-        //else
-                memcpy(ipaddress, their->player.node, 6);
+	memcpy(ipaddress, their->player.node, 6);
 
-        digi_play_sample(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0*4);
-        hud_message(MSGC_GAME_FEEDBACK,"%s, ip %d.%d.%d.%d, wants to join the game!", their->player.callsign, /*(int)ipaddress[5], (int)ipaddress[4],*/ (int)ipaddress[3], (int)ipaddress[2], (int)ipaddress[1], (int)ipaddress[0]);
+	digi_play_sample(SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0*4);
+	hud_message(MSGC_GAME_FEEDBACK,"%s wants to join (ALT-F6: accept, SHIFT-ALT-F6: deny)", their->player.callsign /*, (int)ipaddress[5], (int)ipaddress[4], (int)ipaddress[3], (int)ipaddress[2], (int)ipaddress[1], (int)ipaddress[0]*/);
 
-        restrict_start_time = GameTime;
-        waiting_to_join = 1;
-        strcpy(restricted_callsign, their->player.callsign);
-        //accept_join = 0;
-        dump_join = 0;
+	restrict_start_time = GameTime;
+	waiting_to_join = 1;
+	strcpy(restricted_callsign, their->player.callsign);
+	//accept_join = 0;
+	dump_join = 0;
 
-        return;
+	return;
 }
 
 void lamer_do_restrict_frame (void)  //This function times out a request to join a restricted netgame if the time has been longer than RESTRICT_TIMEOUT.

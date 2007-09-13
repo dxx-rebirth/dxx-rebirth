@@ -71,10 +71,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "radar.h" //int Network_allow_radar = 0;
 //end this section addition - VR
 
-//added on 11/16/98 by Victor Rachels (from GF) for more multi-control
-#include "mlticntl.h"
-//end this section addition - VR (from GF)
-
 // Begin addition by GRiM FisH
 #include "ignore.h"
 // End addition by GRiM FisH
@@ -107,6 +103,7 @@ void network_flush();
 void network_listen();
 void network_read_pdata_packet( ubyte *data, int short_pos );
 int network_compare_players(netplayer_info *pl1, netplayer_info *pl2);
+void DoRefuseStuff(sequence_packet *their);
 
 #define NETWORK_NEW_LIST
 #ifdef NETWORK_NEW_LIST
@@ -114,6 +111,7 @@ extern int network_join_game_menu();
 #endif
 
 #define NETWORK_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
+#define REFUSE_INTERVAL F1_0 * 8
 
 netgame_info Active_games[MAX_ACTIVE_NETGAMES];
 int num_active_games = 0;
@@ -158,6 +156,8 @@ ubyte		MySyncPackInitialized = 0;		// Set to 1 if the MySyncPack is zeroed.
 ushort 		my_segments_checksum = 0;
 
 int Network_DOS_compability = 0; // ugly, yes - D1X ONLY or do we also play with DOS versions?
+
+int restrict_mode = 0;
 
 sequence_packet My_Seq;
 
@@ -579,9 +579,7 @@ network_new_player(sequence_packet *their)
 
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-	hud_message(MSGC_MULTI_INFO, "'\002%c%s\004' %s",//removed a \n here.. I don't think its supposed to be there. -MPM 
-			gr_getcolor(player_rgb[pnum].r,player_rgb[pnum].g,player_rgb[pnum].b)+1,
-			their->player.callsign, TXT_JOINING);
+	hud_message(MSGC_MULTI_INFO, "'%s' %s",their->player.callsign, TXT_JOINING);
 	
 	multi_make_ghost_player(pnum);
 
@@ -591,6 +589,10 @@ network_new_player(sequence_packet *their)
 
 	network_get_player_settings(pnum);
 }
+
+char RefuseThisPlayer=0,WaitForRefuseAnswer=0;
+char RefusePlayerName[12];
+fix RefuseTimeLimit=0;
 
 void network_welcome_player(sequence_packet *their)
 {
@@ -733,9 +735,7 @@ void network_welcome_player(sequence_packet *their)
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-		hud_message(MSGC_MULTI_INFO, "'\002%c%s\004' %s", 
-				gr_getcolor(player_rgb[player_num].r,player_rgb[player_num].g,player_rgb[player_num].b)+1,
-				Players[player_num].callsign, TXT_REJOIN);
+		hud_message(MSGC_MULTI_INFO, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
 	}
 
 	// Send updated Objects data to the new/returning player
@@ -1191,7 +1191,6 @@ network_dump_player(ubyte * server, ubyte *node, int why)
 {
 	// Remove player from game (not chosen, kicked, ...)
 
-	Assert(MySyncPackInitialized);
 	My_Seq.type = PID_DUMP;
 	My_Seq.player.connected = why;
 #ifdef NATIVE_PACKETS
@@ -1492,43 +1491,33 @@ void network_process_packet(ubyte *data, int length )
 	case PID_REQUEST:
 		mprintf( (0, "Got REQUEST from '%s'\n", their->player.callsign ));
 
-                if (!ipx_check_ready_to_join(their->player.server,their->player.node))
-                   break;
+		if (!ipx_check_ready_to_join(their->player.server,their->player.node))
+			break;
 
-                //added on 2/1/99 by Victor Rachels for bans
-                if(checkban(their->player.node))
-                 {
-                   network_dump_player(their->player.server, their->player.node, DUMP_DORK);
-                   hud_message(MSGC_GAME_FEEDBACK, "%s tried to join at banned ip %d.%d.%d.%d", their->player.callsign,their->player.node[3],their->player.node[2],their->player.node[1],their->player.node[0] );
-                 }
-                //end this section addition - VR
-
-
-                else if (Network_status == NETSTAT_STARTING)
-                 {
+		//added on 2/1/99 by Victor Rachels for bans
+		if(checkban(their->player.node))
+		{
+			network_dump_player(their->player.server, their->player.node, DUMP_DORK);
+			hud_message(MSGC_GAME_FEEDBACK, "%s tried to join at banned ip %d.%d.%d.%d", their->player.callsign,their->player.node[3],their->player.node[2],their->player.node[1],their->player.node[0] );
+		}
+		//end this section addition - VR
+		else if (Network_status == NETSTAT_STARTING)
+		{
 			// Someone wants to join our game!
-                  network_add_player(their);
-                 }
-                else if (Network_status == NETSTAT_WAITING)
-                 {
+			network_add_player(their);
+		}
+		else if (Network_status == NETSTAT_WAITING)
+		{
 			// Someone is ready to recieve a sync packet
 			network_process_request(their);
-                 }
+		}
 		else if (Network_status == NETSTAT_PLAYING)
-                 {
-
-                 //Begin addition by GF                  
-                 if(!restrict_mode)
-                    network_welcome_player(their);
-                 else if(restrict_mode)
-                    lamer_network_welcome_player_restricted(their);
-
-
-			// Someone wants to join a game in progress!
-                 //-killed-        network_welcome_player(their);
-                 //End addition by GF
-
-                 }
+		{
+			if (restrict_mode)
+				DoRefuseStuff (their);
+			else
+				network_welcome_player(their);
+		}
 		break;
 		// Begin addition by GF
 	case PID_DUMP:
@@ -1826,7 +1815,7 @@ void network_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	if (Network_status != NETSTAT_WAITING)	// Status changed to playing, exit the menu
 		*key = -2;
 
-	if (!Network_rejoined && (timer_get_approx_seconds() > t1+F1_0*2))
+	if (Network_status != NETSTAT_MENU && !Network_rejoined && (timer_get_approx_seconds() > t1+F1_0*2))
 	{
 		int i;
 
@@ -2966,21 +2955,13 @@ network_wait_for_sync(void)
 
 	sprintf( m[0].text, "%s\n'%s' %s", TXT_NET_WAITING, Netgame.players[i].callsign, TXT_NET_TO_ENTER );
 
-menu:	
-	choice=newmenu_do( NULL, TXT_WAIT, 2, m, network_sync_poll );
+	while (choice > -1)
+		choice=newmenu_do( NULL, TXT_WAIT, 2, m, network_sync_poll );
 
-	if (choice > -1)
-		goto menu;
 
 	if (Network_status != NETSTAT_PLAYING)	
 	{
 		sequence_packet me;
-
-//		if (Network_status == NETSTAT_ENDLEVEL)
-//		{
-//		 	network_send_endlevel_packet(0);
-//			longjmp(LeaveGame, 1);
-//		}		
 
 		mprintf((0, "Aborting join.\n"));
 		me.type = PID_QUIT_JOINING;
@@ -3271,7 +3252,7 @@ void network_leave_game()
 		N_players = Netgame.numplayers = 0;
 		network_send_game_info(NULL, 1);
 	}
-	
+
 	Players[Player_num].connected = 0;
 	network_send_endlevel_packet();
 	change_playernum_to(0);
@@ -3356,9 +3337,7 @@ void network_timeout_player(int playernum)
 
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-	hud_message(MSGC_MULTI_INFO, "\002%c%s\004 %s",
-			gr_getcolor(player_rgb[playernum].r,player_rgb[playernum].g,player_rgb[playernum].b)+1,
-			Players[playernum].callsign, TXT_DISCONNECTING);
+	hud_message(MSGC_MULTI_INFO, "%s %s", Players[playernum].callsign, TXT_DISCONNECTING);
 	for (i = 0; i < N_players; i++)
 		if (Players[i].connected) 
 			n++;
@@ -3367,7 +3346,7 @@ void network_timeout_player(int playernum)
 	{
 //added/changed on 10/11/98 by Victor Rachels cuz this is annoying as a box
 //-killed-                nm_messagebox(NULL, 1, TXT_OK, TXT_YOU_ARE_ONLY);
-          hud_message(MSGC_GAME_FEEDBACK, TXT_YOU_ARE_ONLY);
+          hud_message(MSGC_GAME_FEEDBACK, "You are the only person remaining in this netgame");
 //end this section change - VR
 	}
 }
@@ -3386,6 +3365,9 @@ void network_do_frame(int force, int listen)
 
 	if ((Network_status != NETSTAT_PLAYING) || (Endlevel_sequence)) // Don't send postion during escape sequence...
 		goto listen;
+
+	if (WaitForRefuseAnswer && timer_get_approx_seconds()>(RefuseTimeLimit+(F1_0*12)))
+		WaitForRefuseAnswer=0;
 
 	last_send_time += FrameTime;
 	last_timeout_check += FrameTime;
@@ -3469,9 +3451,7 @@ void network_do_frame(int force, int listen)
 //added on 11/18/98 by Victor Rachels to hack ghost disconnects
                         if(Players[i].connected != 1 && Objects[Players[i].objnum].type != OBJ_GHOST)
                          {
-                          hud_message(MSGC_MULTI_INFO, "\002%c%s\004 has left.", 
-								gr_getcolor(player_rgb[i].r,player_rgb[i].g,player_rgb[i].b)+1,
-								  Players[i].callsign);
+                          hud_message(MSGC_MULTI_INFO, "%s has left.", Players[i].callsign);
                           multi_make_player_ghost(i);
                          }
 //end this section addition - VR
@@ -3637,9 +3617,7 @@ void network_read_pdata_packet(ubyte *data, int short_packet)
 		create_player_appearance_effect(&Objects[TheirObjnum]);
 
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
-		hud_message( MSGC_MULTI_INFO, "'\002%c%s\004' %s",
-				gr_getcolor(player_rgb[TheirPlayernum].r,player_rgb[TheirPlayernum].g,player_rgb[TheirPlayernum].b)+1,
-				Players[TheirPlayernum].callsign, TXT_REJOIN );
+		hud_message( MSGC_MULTI_INFO, "'%s' %s",Players[TheirPlayernum].callsign, TXT_REJOIN );
 
 #ifndef SHAREWARE
 		multi_send_score();
@@ -3681,16 +3659,74 @@ int network_who_is_master(void)
 	return Player_num;
 }
 
-#if 0 // currently not used
-// compare two players
-// players are considered equal if they have the same callsign and
-// the same network address
-// returns 1 if equal, 0 if not.
-int network_compare_players(netplayer_info *pl1, netplayer_info *pl2) {
-	return ((strcasecmp(pl1->callsign, pl2->callsign) == 0) &&
-		(memcmp(pl1->node, pl2->node, 6) == 0) &&
-		(memcmp(pl1->server, pl2->server, 4) == 0));
+void DoRefuseStuff (sequence_packet *their)
+{
+	int i;
+
+	for (i=0;i<MAX_PLAYERS;i++)
+	{
+		if (!strcmp (their->player.callsign,Players[i].callsign))
+		{
+			network_welcome_player(their);
+				return;
+		}
+	}
+
+	if (!WaitForRefuseAnswer)
+	{
+		for (i=0;i<MAX_PLAYERS;i++)
+		{
+			if (!strcmp (their->player.callsign,Players[i].callsign))
+			{
+				network_welcome_player(their);
+					return;
+			}
+		}
+	
+		digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
+	
+		HUD_init_message ("%s wants to join (accept: F6)",their->player.callsign);
+	
+		strcpy (RefusePlayerName,their->player.callsign);
+		RefuseTimeLimit=timer_get_approx_seconds();
+		RefuseThisPlayer=0;
+		WaitForRefuseAnswer=1;
+	}
+	else
+	{
+		for (i=0;i<MAX_PLAYERS;i++)
+		{
+			if (!strcmp (their->player.callsign,Players[i].callsign))
+			{
+				network_welcome_player(their);
+					return;
+			}
+		}
+	
+		if (strcmp(their->player.callsign,RefusePlayerName))
+			return;
+
+		if (RefuseThisPlayer)
+		{
+			RefuseTimeLimit=0;
+			RefuseThisPlayer=0;
+			WaitForRefuseAnswer=0;
+			network_welcome_player(their);
+			return;
+		}
+
+		if ((timer_get_approx_seconds()) > RefuseTimeLimit+REFUSE_INTERVAL)
+		{
+			RefuseTimeLimit=0;
+			RefuseThisPlayer=0;
+			WaitForRefuseAnswer=0;
+			if (!strcmp (their->player.callsign,RefusePlayerName))
+			{
+				network_dump_player(their->player.server,their->player.node, DUMP_DORK);
+			}
+			return;
+		}
+	}
 }
-#endif
 
 #endif

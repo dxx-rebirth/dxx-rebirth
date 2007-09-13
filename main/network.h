@@ -135,6 +135,8 @@ extern int Network_rejoined;
 extern int Network_new_game;
 extern int Network_status;
 
+extern int restrict_mode;
+
 extern fix LastPacketTime[MAX_PLAYERS];
 
 //added on 8/6/98 by Matt Mueller

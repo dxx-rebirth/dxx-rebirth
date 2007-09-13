@@ -7,7 +7,6 @@
 #include "multipow.h"
 #include "network.h"
 #include "text.h"
-#include "mlticntl.h"
 #include "d_io.h"
 #include "args.h"
 //added 05/17/99 Matt Mueller 

@@ -445,10 +445,5 @@ int main(int argc,char **argv)
 
 void quit_request()
 {
-#ifdef NETWORK
-	void network_abort_game();
-	if(Network_status)
-		network_abort_game();
-#endif
 	exit(0);
 }

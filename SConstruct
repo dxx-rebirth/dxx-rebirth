@@ -125,7 +125,6 @@ common_sources = [
 'main/menu.c',
 'main/mglobal.c',
 'main/mission.c',
-'main/mlticntl.c',
 'main/morph.c',
 'main/multi.c',
 'main/multibot.c',

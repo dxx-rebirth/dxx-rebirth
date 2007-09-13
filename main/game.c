@@ -103,9 +103,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "reorder.h"
 #include "hudmsg.h"
 #include "timer.h"
-#ifdef NETWORK
-#include "mlticntl.h"
-#endif
 #include "radar.h"
 #include "vers_id.h"
 #include "ban.h"
@@ -202,6 +199,7 @@ int	Game_aborted;
 void	update_cockpits(int force_redraw);
 extern	void newdemo_strip_frames(char *, int);
 extern int HUD_nmessages;
+extern char WaitForRefuseAnswer,RefuseThisPlayer;
 
 #define BACKGROUND_NAME "statback.pcx"
 
@@ -1611,9 +1609,8 @@ void show_help()
 	int mc = 0;
 
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_ESC; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_ALT_F2; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_ALT_F3; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F2; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "Alt-F2/F3\t  SAVE/LOAD GAME"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F3\t  SWITCH COCKPIT MODES"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F4\t  TOGGLE RADAR"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F5; mc++;
@@ -1624,13 +1621,12 @@ void show_help()
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_6TO10; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "MULTIPLAYER:"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-N\t  GAME-MASTER MENU"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F4\t  SHOW RETICLE NAMES"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F7\t  SHOW KILL LIST"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F8\t  SEND MESSAGE"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F6\t  ACCEPT JOINING PLAYER"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-ALT-F6\t  DUMP JOINING PLAYER"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F8 to F12\t  SEND MACRO"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-F8 to SHIFT-F12\t  DEFINE MACRO"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "PAUSE\t  SHOW NETGAME INFORMATION"; mc++;
 	newmenu_dotiny( NULL, TXT_KEYS, mc, m, NULL );
 }
 
@@ -2207,66 +2203,54 @@ void HandleGameKey(int key)
 		case KEY_F1:				do_show_help();         break;
 		case KEY_F2:				Config_menu_flag = 1;	break;
 		case KEY_F3:				toggle_cockpit();       break;
-		case KEY_F4:
-		case KEY_SHIFTED+KEY_F3:		if(!(Game_mode & GM_MULTI)||Network_allow_radar)
+		case KEY_F4:				if(!(Game_mode & GM_MULTI)||Network_allow_radar)
 								show_radar = !show_radar; break;
+		case KEY_ALTED + KEY_F4:
+			Show_reticle_name = (Show_reticle_name+1)%2;
+			break;
 		case KEY_F5:
 				if ( Newdemo_state == ND_STATE_RECORDING )
 					newdemo_stop_recording();
 				else if ( Newdemo_state == ND_STATE_NORMAL )
 					newdemo_start_recording();
 				break;
-		case KEY_F6:
 #ifdef NETWORK
-			Show_reticle_name = (Show_reticle_name+1)%2;
-#endif
+		case KEY_F6:
+			if (restrict_mode && WaitForRefuseAnswer)
+			{
+				RefuseThisPlayer=1;
+				HUD_init_message ("Player accepted!");
+			}
 			break;
 		case KEY_F7:
-#ifdef NETWORK
 			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
-#endif
 			break;
+#endif
 		case KEY_ALTED+KEY_F7:
 			GameArg.GfxGaugeHudMode=(GameArg.GfxGaugeHudMode+1)%GAUGE_HUD_NUMMODES;
 			break;
+#ifdef NETWORK
 		case KEY_F8:
-#ifdef NETWORK
 			multi_send_message_start();
-#endif
 			break;
-#ifdef NETWORK
-		case KEY_CTRLED + KEY_N:
-			lamer_do_netgame_menu();
-			break;
-		case KEY_ALTED + KEY_F6:
-			lamer_accept_joining_player();
-			break;
-		case KEY_SHIFTED + KEY_ALTED + KEY_F6:
-			lamer_dump_joining_player();
-			break;
-#endif
 	
-#ifdef NETWORK
 		case KEY_SHIFTED+KEY_F8:
 			mekh_resend_last();
 			break;
-#endif
+
 		case KEY_F9:
 		case KEY_F10:
 		case KEY_F11:
 		case KEY_F12:
-			#ifdef NETWORK
 			multi_send_macro(key);
-			#endif
 			break;		// send taunt macros
 		case KEY_SHIFTED + KEY_F9:
 		case KEY_SHIFTED + KEY_F10:
 		case KEY_SHIFTED + KEY_F11:
 		case KEY_SHIFTED + KEY_F12:
-			#ifdef NETWORK
 			multi_define_macro(key);
-			#endif
 			break;		// redefine taunt macros
+#endif
 		case KEY_PAUSE:			do_game_pause(1); 	break;
 		case KEY_PRINT_SCREEN: 		save_screen_shot(0);	break;
 
@@ -3018,10 +3002,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			fuelcen_update_all();
 			do_ai_frame_all();
 
-#ifdef NETWORK
-			if(restrict_mode)
-				lamer_do_restrict_frame();
-#endif
 			if (allowed_to_fire_laser()) {
 				Global_laser_firing_count = Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
 				if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count)) {

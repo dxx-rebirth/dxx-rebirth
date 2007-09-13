@@ -959,7 +959,7 @@ multi_send_data_real(unsigned char *buf, int len, int repeat,char *file,char *fu
 	if (Game_mode & GM_NETWORK)
 	{
 //edit 03/04/99 Matt Mueller - use direct mode for most packets. (pos_fire is handled elsewhere, so checking here might be redundant..)
-         if(buf[0]!=MULTI_FIRE && buf[0]!=MULTI_REAPPEAR)
+         if(buf[0]!=MULTI_FIRE && buf[0]!=MULTI_REAPPEAR && buf[0]!=MULTI_QUIT)
            mekh_send_direct_broadcast(buf, len);
          else
            network_send_data(buf, len, repeat);
@@ -1856,7 +1856,7 @@ multi_do_quit(char *buf)
                 {
 //added/changed on 10/11/98 by Victor Rachels cuz this is annoying as a box
 //-killed-                        nm_messagebox(NULL, 1, TXT_OK, TXT_YOU_ARE_ONLY);
-               hud_message(MSGC_GAME_FEEDBACK, TXT_YOU_ARE_ONLY);
+               hud_message(MSGC_GAME_FEEDBACK, "You are the only person remaining in this netgame");
 //end this change - Victor Rachels
                 }
 

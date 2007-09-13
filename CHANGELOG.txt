@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070913
+--------
+Sconstruct, main/game.c, main/inferno.c, main/mlticntl.c, main/mprofile.c, main/multi.c, main/network.c, main/network.h: Code Re-formatting; Preventing Redundancy in Restricted-game joining and leaving players (packet redundancy); Removed Network master menu (and mlticntl code) due to compatibility to older games; Using D2X code for restricted games; Expanded Game-help screen
+
 20070908
 --------
 main/command.c, main/game.c, main/gauges.c, main/multi.c, main/multiver.c, main/network.c, /main/network.h: Added complex netgame information screen (key PAUSE), Removed ping commands because ping handled in new screen
