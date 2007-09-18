@@ -91,7 +91,7 @@ void jukebox_load() {
 			jukebox_loaded = 1;
 		}
 	}
-	else { printf("Jukebox already loaded"); }
+	else { printf("Jukebox already loaded\n"); }
 }
 
 void jukebox_play() {

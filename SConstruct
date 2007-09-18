@@ -7,7 +7,6 @@ import SCons.Util
 
 PROGRAM_NAME = 'D1X-Rebirth'
 
-# version number
 D1XMAJOR = 0
 D1XMINOR = 52
 
@@ -78,6 +77,8 @@ common_sources = [
 'arch/sdl/key.c',
 'arch/sdl/mouse.c',
 'arch/sdl/timer.c',
+'arch/sdl/digi.c',
+'arch/sdl/digi_audio.c',
 'cfile/cfile.c',
 'iff/iff.c',
 'main/ai.c',
@@ -248,18 +249,8 @@ arch_linux_sources = [
 'arch/linux/linuxnet.c',
 'arch/linux/mono.c',
 'arch/linux/ukali.c',
+
 ]
-
-# choosing a sound implementation for Linux
-common_sound_hmp2mid = [ 'main/hmp2mid.c' ]
-arch_linux_sound_sdlmixer = [ 'arch/sdl/mixdigi.c', 'arch/sdl/mixmusic.c', 'arch/sdl/jukebox.c' ]
-arch_linux_sound_old = [ 'arch/sdl/digi.c' ]
-
-if (sdlmixer == 1):
-	common_sources += common_sound_hmp2mid
-	arch_linux_sources += arch_linux_sound_sdlmixer
-else:
-	arch_linux_sources += arch_linux_sound_old
 
 # for windows
 arch_win32_sources = [
@@ -269,7 +260,6 @@ arch_win32_sources = [
 'arch/win32/midi.c',
 'arch/win32/mono.c',
 'arch/win32/winnet.c',
-'arch/sdl/digi.c'
 ]
 
 # for opengl
@@ -306,6 +296,18 @@ noasm_sources = [
 'maths/tables.c',
 'maths/vecmat.c'
 ]
+
+# SDL_mixer sound implementation
+arch_sdlmixer = [
+'misc/hmp2mid.c',
+'arch/sdl/digi_mixer.c',
+'arch/sdl/digi_mixer_music.c', 
+'arch/sdl/jukebox.c'
+]
+
+if (sdlmixer == 1):
+        arch_linux_sources += arch_sdlmixer
+
 
 # flags and stuff for all platforms
 env = Environment(ENV = os.environ)

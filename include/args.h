@@ -54,6 +54,9 @@ typedef struct Arg
 	int CtlGrabMouse;
 	int SndNoSound;
 	int SndNoMusic;
+	int SndSdlMixer;
+	char *SndExternalMusic;
+	char *SndJukebox;
 	float GfxAspectX;
 	float GfxAspectY;
 	int GfxGaugeHudMode;

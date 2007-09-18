@@ -11,7 +11,7 @@
 #include <string.h>
 #include "args.h"
 #include "hmp2mid.h"
-#include "mixmusic.h"
+#include "digi_mixer_music.h"
 #include "jukebox.h"
 
 #include <stdio.h>
@@ -115,7 +115,6 @@ void mix_play_file(char *basedir, char *filename, int loop) {
   sprintf(real_filename, "%s%s", basedir, filename); // build absolute path
 
   if ((current_music = Mix_LoadMUS(real_filename))) {
-    printf("Now playing: %s\n", filename);
     if (Mix_PlayingMusic()) {
       // Fade-in effect sounds cleaner if we're already playing something
       Mix_FadeInMusic(current_music, loop, MUSIC_FADE_TIME);
