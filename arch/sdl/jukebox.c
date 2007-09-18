@@ -11,7 +11,7 @@
 #include "args.h"
 #include "dl_list.h"
 #include "hudmsg.h"
-#include "mixmusic.h"
+#include "digi_mixer_music.h"
 #include "jukebox.h"
 
 #define JUKEBOX_ARG "-jukebox"
