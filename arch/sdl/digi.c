@@ -7,6 +7,19 @@
 #include <conf.h>
 #endif
 
+#include "types.h"
+#include "error.h"
+#include "mono.h" 	 
+#include "fix.h" 	 
+#include "vecmat.h" 	 
+#include "gr.h" 	 
+#include "piggy.h" 	 
+#include "digi.h" 	 
+#include "sounds.h" 	 
+#include "wall.h" 	 
+#include "newdemo.h" 	 
+#include "kconfig.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -95,6 +108,9 @@ void digi_select_system(int n) {
 
 /* Common digi functions */
 
+static int digi_initialised = 0;
+static int digi_max_channels = 16;
+
 int digi_sample_rate = SAMPLE_RATE_11K;
 int digi_volume = SOUND_MAX_VOLUME;
 int midi_volume = SOUND_MAX_VOLUME;
@@ -134,4 +150,23 @@ void digi_set_midi_volume(int mvolume) { fptr_set_midi_volume(mvolume); }
 void digi_stop_current_song() { fptr_stop_current_song(); }
 void digi_pause_midi() { fptr_pause_midi(); }
 void digi_resume_midi() { fptr_resume_midi(); }
+
+#ifndef NDEBUG 	 
+void digi_debug() 	 
+{ 	 
+	int i; 	 
+	int n_voices = 0; 	 
+	  	 
+	if (!digi_initialised) return; 	 
+	  	 
+	for (i = 0; i < digi_max_channels; i++) 	 
+	{ 	 
+		if (digi_is_channel_playing(i)) 	 
+			n_voices++; 	 
+        } 	 
+	  	 
+        mprintf_at((0, 2, 0, "DIGI: Active Sound Channels: %d/%d (HMI says %d/32)      ", n_voices, digi_max_channels, -1)); 	 
+	//mprintf_at((0, 3, 0, "DIGI: Number locked sounds:  %d                          ", digi_total_locks )); 	 
+} 	 
+#endif
 
