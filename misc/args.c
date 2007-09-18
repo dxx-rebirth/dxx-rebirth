@@ -235,6 +235,12 @@ void ReadCmdArgs(void)
 	else
 		GameArg.SndEnableRedbook = 0;
 
+#ifdef USE_SDLMIXER
+	GameArg.SndSdlMixer = FindArg("-sdlmixer");
+	GameArg.SndJukebox = (t = FindArg("-jukebox") ? Args[t+1] : NULL);
+	GameArg.SndExternalMusic = (t = FindArg("-music_ext") ? Args[t+1] : NULL);
+#endif
+
 	// Graphics Options
 
 	if ((t=FindResArg("aspect", &y, &x)))

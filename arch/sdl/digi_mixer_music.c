@@ -66,6 +66,10 @@ void convert_hmp(char *filename, char *mid_filename) {
   }
 }
 
+/*
+ *  Plays a music given its name (regular game songs)
+ */
+
 void mix_play_music(char *filename, int loop) {
 
   loop *= -1; 
@@ -148,6 +152,33 @@ void mix_play_music(char *filename, int loop) {
   }
   else {
     printf("Music %s could not be loaded\n", rel_filename);
+    Mix_HaltMusic();
+  }
+}
+
+
+/*
+ *  Plays a music file from an absolute path (used by jukebox)
+ */
+
+void mix_play_file(char *basedir, char *filename, int loop) {
+
+  int fn_buf_len = strlen(basedir) + strlen(filename) + 1;
+  char real_filename[fn_buf_len];
+  sprintf(real_filename, "%s%s", basedir, filename); // build absolute path
+
+  if ((current_music = Mix_LoadMUS(real_filename))) {
+    if (Mix_PlayingMusic()) {
+      // Fade-in effect sounds cleaner if we're already playing something
+      Mix_FadeInMusic(current_music, loop, MUSIC_FADE_TIME);
+    }
+    else {
+      Mix_PlayMusic(current_music, loop);
+    }
+    Mix_HookMusicFinished(music_done);
+  }
+  else {
+    fprintf(stderr, "Music %s could not be loaded%s\n", filename, basedir);
     Mix_HaltMusic();
   }
 }

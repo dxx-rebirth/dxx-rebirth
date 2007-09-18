@@ -99,6 +99,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rbaudio.h"
 #include "switch.h"
 #include "escort.h"
+//MD2211
+#include "jukebox.h"
 
 //#define TEST_TIMER    1		//if this is set, do checking on timer
 
@@ -1258,6 +1260,27 @@ int HandleSystemKey(int key)
 				macintosh_quit();
 			break;
 		#endif
+
+
+#ifdef USE_SDLMIXER
+		/*
+		 * Jukebox hotkeys -- MD2211, 2007
+		 * ==============================================
+		 */
+		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
+			jukebox_play();
+			break;
+		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
+			jukebox_stop();
+			break;
+		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
+			jukebox_prev();
+			break;
+		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
+			jukebox_next();
+			break;
+#endif
+
 
 //added 8/23/99 by Matt Mueller for hot key res/fullscreen changing, and menu access
 #if 0

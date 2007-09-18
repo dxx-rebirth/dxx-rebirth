@@ -354,8 +354,15 @@ int main(int argc, char *argv[])
 
 	key_init();
 
-	if (!GameArg.SndNoSound)
+	if (!GameArg.SndNoSound) {
+		digi_select_system(
+			GameArg.SndSdlMixer || GameArg.SndExternalMusic || GameArg.SndJukebox ?
+			SDLMIXER_SYSTEM : SDLAUDIO_SYSTEM
+		);
 		digi_init();
+	}
+
+	printf("trace 2\n");
 	
 	if (!GameArg.CtlNoMouse)
 		d_mouse_init();
@@ -395,12 +402,18 @@ int main(int argc, char *argv[])
 	con_printf(CON_DEBUG, "Initializing font system...\n" );
 	gamefont_init();	// must load after palette data loaded.
 
+	printf("trace 3\n");
+
 	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
 	init_movies();		//init movie libraries
+
+	printf("trace 4\n");
 
 	show_titles();
 
 	set_screen_mode(SCREEN_MENU);
+
+	printf("trace 5\n");
 
 	con_printf( CON_DEBUG , "\nDoing bm_init..." );
 	#ifdef EDITOR

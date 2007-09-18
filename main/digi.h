@@ -42,9 +42,6 @@ typedef struct digi_sound       {
 } digi_sound;
 #endif
 
-#define SAMPLE_RATE_11K         11025
-#define SAMPLE_RATE_22K         22050
-
 
 
 #ifdef __DJGPP__
@@ -124,5 +121,21 @@ extern void digi_stop_looping_sound();
 
 // Plays a queued voice sound.
 extern void digi_start_sound_queued( short soundnum, fix volume );
+
+// Following declarations are for the runtime switching system
+
+#define SAMPLE_RATE_11K 11025
+#define SAMPLE_RATE_22K 22050
+#define SAMPLE_RATE_44K 44100
+
+#define SDLMIXER_SYSTEM 1
+#define SDLAUDIO_SYSTEM 2
+
+#define SOUND_MAX_VOLUME F1_0 // was (F1_0 / 2)
+
+extern int digi_volume;
+extern int midi_volume;
+extern int digi_sample_rate;
+void digi_select_system(int);
 
 #endif

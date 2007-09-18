@@ -1,5 +1,11 @@
 D2X-Rebirth Changelog
 
+20070918
+--------
+SConstruct, main/inferno.c, main/digi.h, arch/sdl/include/digi_audio.h, arch/sdl/include/digi_mixer_music.h, arch/sdl/include/digi_mixer.h, arch/sdl/digi.c, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/digi_audio.c : huge refactoring of sound system using function pointers, to allow sound backend selection at runtime and provide a common interface (digi.c)
+include/args.h, main/args.c : handle SDL_mixer-specific args
+arch/sdl/jukebox.c, arch/sdl/jukebox.c, include/dl_list.h, misc/dl_list.c : added jukebox functionality
+
 20070913
 --------
 main/game.c, main/gamecntl.c, main/multi.c, main/network.c: Code Re-formatting; Preventing Redundancy in Restricted-game joining; Dumping refused player back to Join-menu; Expanded Game-help screen

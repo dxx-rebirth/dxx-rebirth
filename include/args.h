@@ -62,6 +62,9 @@ typedef struct Arg
 	int SndNoMusic;
 	int SndDigiSampleRate;
 	int SndEnableRedbook;
+	int SndSdlMixer;
+	char *SndExternalMusic;
+	char *SndJukebox;
 	float GfxAspectX;
 	float GfxAspectY;
 	int GfxGaugeHudMode;

@@ -79,6 +79,8 @@ common_sources = [
 'arch/sdl/mouse.c',
 'arch/sdl/rbaudio.c',
 'arch/sdl/timer.c',
+'arch/sdl/digi.c',
+'arch/sdl/digi_audio.c',
 'iff/iff.c',
 'libmve/decoder8.c',
 'libmve/decoder16.c',
@@ -159,6 +161,7 @@ common_sources = [
 'main/weapon.c',
 'mem/mem.c',
 'misc/args.c',
+'misc/dl_list.c',
 'misc/error.c',
 'misc/hash.c',
 'misc/ignorecase.c',
@@ -247,18 +250,16 @@ arch_linux_sources = [
 'arch/linux/ukali.c',
 ]
 
-# choosing a sound implementation for *nix
-common_sound_hmp2mid = [ 'misc/hmp2mid.c' ]
-arch_unix_sound_sdlmixer = [ 'arch/sdl/mixdigi.c', 'arch/sdl/mixmusic.c' ]
-arch_unix_sound_old = [ 'arch/sdl/digi.c'  ]
-#arch_linux_sound_old = ['arch/linux/hmiplay.c' ]
+# SDL_mixer sound implementation
+arch_sdlmixer = [
+'misc/hmp2mid.c',
+'arch/sdl/digi_mixer.c',
+'arch/sdl/digi_mixer_music.c', 
+'arch/sdl/jukebox.c'
+]
 
 if (sdlmixer == 1):
-	common_sources += common_sound_hmp2mid
-	arch_unix_sources += arch_unix_sound_sdlmixer
-else:
-	arch_unix_sources += arch_unix_sound_old
-#	arch_linux_sources += arch_linux_sound_old
+        arch_linux_sources += arch_sdlmixer
 
 # for windows
 arch_win32_sources = [
@@ -318,11 +319,18 @@ env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"')])
 #env.Append(CPPDEFINES = [('VERSION', '\\"' + str(VERSION) + '\\"')])
-env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
+#env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
 env.Append(CPPDEFINES = ['NMONO', 'PIGGY_USE_PAGING', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'NEWDEMO', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 generic_libs = ['SDL', 'physfs']
 sdlmixerlib = ['SDL_mixer']
+
+if sdlmixer:
+	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
+
+if (D2XMICRO):
+	env.Append(CPPDEFINES = [('D2XMICRO', '\\"' + str(D2XMICRO) + '\\"')])
+
 
 # Get traditional compiler environment variables
 if os.environ.has_key('CC'):
