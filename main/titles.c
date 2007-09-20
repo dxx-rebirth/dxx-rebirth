@@ -85,7 +85,7 @@ grs_bitmap briefing_bm;
 
 #define	SHAREWARE_ENDING_FILENAME	"ending.tex"
 
-int	Briefing_foreground_colors[MAX_BRIEFING_COLORS], Briefing_background_colors[MAX_BRIEFING_COLORS];
+int	Briefing_text_colors[MAX_BRIEFING_COLORS];
 int	Current_color = 0;
 int	Erase_color;
 
@@ -590,8 +590,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 	//	Draw cursor if there is some delay and caller says to draw cursor
 	if (cursor_flag && delay) {
-		gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
-		gr_printf(Briefing_text_x+1, Briefing_text_y, "_" );
+		gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
+		gr_printf(Briefing_text_x, Briefing_text_y, "_" );
 		gr_update();
 	}
 
@@ -613,14 +613,11 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	//	Erase cursor
 	if (cursor_flag && delay) {
 		gr_set_fontcolor(Erase_color, -1);
-		gr_printf(Briefing_text_x+1, Briefing_text_y, "_" );
+		gr_printf(Briefing_text_x, Briefing_text_y, "_" );
 	}
 
 	//	Draw the character
-	gr_set_fontcolor(Briefing_background_colors[Current_color], -1);
-	gr_printf(Briefing_text_x, Briefing_text_y, message );
-
-	gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
+	gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
 	gr_printf(Briefing_text_x+1, Briefing_text_y, message );
 
 	if (delay) gr_update();
@@ -715,11 +712,11 @@ void flash_cursor(int cursor_flag)
 		return;
 
 	if ((timer_get_fixed_seconds() % (F1_0/2) ) > (F1_0/4))
-		gr_set_fontcolor(Briefing_foreground_colors[Current_color], -1);
+		gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
 	else
 		gr_set_fontcolor(Erase_color, -1);
 
-	gr_printf(Briefing_text_x+1, Briefing_text_y, "_" );
+	gr_printf(Briefing_text_x, Briefing_text_y, "_" );
 	gr_update();
 }
 
@@ -1050,7 +1047,7 @@ int show_briefing(int screen_num, char *message)
 #ifdef OGL
 			messagestream[streamcount].x = Briefing_text_x;
 			messagestream[streamcount].y = Briefing_text_y;
-			messagestream[streamcount].color = Briefing_foreground_colors[Current_color];
+			messagestream[streamcount].color = Briefing_text_colors[Current_color];
 			messagestream[streamcount].ch = ch;
 			if (delay_count) {
 				if (!RobotPlaying)
@@ -1286,47 +1283,33 @@ int show_briefing_text(int screen_num)
 
 void set_briefing_fontcolor ()
 {
-	Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 40, 0);
-	Briefing_background_colors[0] = gr_find_closest_color_current( 0, 6, 0);
-
-	Briefing_foreground_colors[1] = gr_find_closest_color_current( 40, 33, 35);
-	Briefing_background_colors[1] = gr_find_closest_color_current( 5, 5, 5);
-
-	Briefing_foreground_colors[2] = gr_find_closest_color_current( 8, 31, 54);
-	Briefing_background_colors[2] = gr_find_closest_color_current( 1, 4, 7);
+	Briefing_text_colors[0] = gr_find_closest_color_current( 0, 40, 0);
+	Briefing_text_colors[1] = gr_find_closest_color_current( 40, 33, 35);
+	Briefing_text_colors[2] = gr_find_closest_color_current( 8, 31, 54);
 
 	if (EMULATING_D1) {
 		//green
-		Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 54, 0);
-		Briefing_background_colors[0] = gr_find_closest_color_current( 0, 19, 0);
+		Briefing_text_colors[0] = gr_find_closest_color_current( 0, 54, 0);
 		//white
-		Briefing_foreground_colors[1] = gr_find_closest_color_current( 42, 38, 32);
-		Briefing_background_colors[1] = gr_find_closest_color_current( 14, 14, 14);
-
+		Briefing_text_colors[1] = gr_find_closest_color_current( 42, 38, 32);
 		//Begin D1X addition
 		//red
-		Briefing_foreground_colors[2] = gr_find_closest_color_current( 63, 0, 0);
-		Briefing_background_colors[2] = gr_find_closest_color_current( 31, 0, 0);
+		Briefing_text_colors[2] = gr_find_closest_color_current( 63, 0, 0);
 	}
 
 	if (RobotPlaying)
 	{
-		Briefing_foreground_colors[0] = gr_find_closest_color_current( 0, 31, 0);
-		Briefing_background_colors[0] = gr_find_closest_color_current( 0, 19, 0);
+		Briefing_text_colors[0] = gr_find_closest_color_current( 0, 31, 0);
 	}
 
 	//blue
-	Briefing_foreground_colors[3] = gr_find_closest_color_current( 0, 0, 54);
-	Briefing_background_colors[3] = gr_find_closest_color_current( 0, 0, 19);
+	Briefing_text_colors[3] = gr_find_closest_color_current( 0, 0, 54);
 	//gray
-	Briefing_foreground_colors[4] = gr_find_closest_color_current( 14, 14, 14);
-	Briefing_background_colors[4] = gr_find_closest_color_current( 0, 0, 0);
+	Briefing_text_colors[4] = gr_find_closest_color_current( 14, 14, 14);
 	//yellow
-	Briefing_foreground_colors[5] = gr_find_closest_color_current( 54, 54, 0);
-	Briefing_background_colors[5] = gr_find_closest_color_current( 19, 19, 0);
+	Briefing_text_colors[5] = gr_find_closest_color_current( 54, 54, 0);
 	//purple
-	Briefing_foreground_colors[6] = gr_find_closest_color_current( 0, 54, 54);
-	Briefing_background_colors[6] = gr_find_closest_color_current( 0, 19, 19);
+	Briefing_text_colors[6] = gr_find_closest_color_current( 0, 54, 54);
 	//End D1X addition
 
 	Erase_color = gr_find_closest_color_current(0, 0, 0);

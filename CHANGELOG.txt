@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070920
 --------
 d2x.ini, SConstruct, include/args.h, main/newmenu.c, main/network.c, main/multi.c, main/network.h, main/multi.h, main/inferno.c, misc/args.c: Code-cleanup; Implemented new multi profile feature
+main/titles.c: Removed briefing text shadows code
 
 
 20070918

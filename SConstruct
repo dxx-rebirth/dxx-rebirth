@@ -130,7 +130,6 @@ common_sources = [
 'main/mission.c',
 'main/morph.c',
 'main/movie.c',
-'main/mprofile.c',
 'main/multi.c',
 'main/multibot.c',
 'main/netmisc.c',
