@@ -623,6 +623,9 @@ extern char *Text_string[];
 #define TXT_LUNACY "Robots move fast, fire seldom"
 #define TXT_ROBOT_PAINTING_OFF "Robot painting OFF"
 #define TXT_ROBOT_PAINTING_ON "Robot painting with texture %d"
+#define TXT_REACTOR_LIFE		"Reactor Lifetime"
+#define TXT_MINUTES_ABBREV		"min"
+#define TXT_SHOW_ON_MAP			"Show all players on automap"
 #else
 #define TXT_DONE			Text_string[514]
 #define TXT_I_AM_A			Text_string[515]

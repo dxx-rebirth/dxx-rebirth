@@ -173,12 +173,13 @@ void show_commandline_help()
 
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
-	printf( "  -mprofile <s>      %s\n", "Use multi game profile <f>");
+	printf( "  -mprofile          %s\n", "Enable multiplayer game profiles");
 	printf( "  -nobans            %s\n", "Don't use saved bans");
 	printf( "  -savebans          %s\n", "Automatically save new bans");
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multiplayer");
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
+	printf( "  -ipxbasesocket <n> %s\n", "Use <n> as offset from normal IPX socket");
 	printf( "  -ip_hostaddr <n>   %s\n", "Use <n> as host ip address");
         printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
         printf( "  -ip_myaddr <n>     %s\n", "Use <n> as local ip address");

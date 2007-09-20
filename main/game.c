@@ -695,8 +695,10 @@ void show_netplayerinfo(){
 	// general game information
 	y+=line_spacing;
 	gr_printf(0x8000,y,"%s by %s",Netgame.game_name,Players[network_who_is_master()].callsign);
+#ifndef SHAREWARE
 	y+=line_spacing;
 	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
+#endif
 
 	x+=char_spacing;
 	y+=line_spacing*2;

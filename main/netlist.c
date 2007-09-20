@@ -42,7 +42,6 @@
 extern int Network_games_changed;
 extern netgame_info Active_games[MAX_ACTIVE_NETGAMES];
 extern int num_active_games;
-extern int Network_socket;
 extern void nm_draw_background1(char * filename);
 void network_listen();
 void network_send_game_list_request();
@@ -557,14 +556,14 @@ int network_join_game_menu() {
 		gr_flip();
         	netlist_redraw(bg,menu_text,lis);
 #endif
-		if (Network_socket != old_socket) {
+		if (GameArg.MplIPXSocketOffset != old_socket) {
 			gr_set_fontcolor(BM_XRGB(27, 27, 27), -1);
 			draw_back(&bg, 30*(SWIDTH/320), (10*SHEIGHT/200)+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, 250, Gamefonts[GFONT_SMALL]->ft_h+4);//was 52,250,9
 			gr_printf(30*(SWIDTH/320), (10*SHEIGHT/200)+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, "Current IPX socket is %+d "
-					"(PgUp/PgDn to change)", Network_socket);
+					"(PgUp/PgDn to change)", GameArg.MplIPXSocketOffset);
 			if (old_socket != -32768) { /* changed by user? */
 				network_listen();
-				ipx_change_default_socket( IPX_DEFAULT_SOCKET + Network_socket );
+				ipx_change_default_socket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
 				num_active_games = 0;
 			}
 			req_timer -= F1_0 * 5; /* force send request */
@@ -574,7 +573,7 @@ int network_join_game_menu() {
 		else {
 			gr_set_fontcolor(BM_XRGB(27, 27, 27), -1);
 			gr_printf(30*(SWIDTH/320), (10*SHEIGHT/200)+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, "Current IPX socket is %+d "
-					"(PgUp/PgDn to change)", Network_socket);
+					"(PgUp/PgDn to change)", GameArg.MplIPXSocketOffset);
 			draw_list(&bg, lis);
 		}
 #endif
@@ -596,7 +595,7 @@ int network_join_game_menu() {
                         gr_update();
                         //end addition - adb
 		}
-		old_socket = Network_socket;
+		old_socket = GameArg.MplIPXSocketOffset;
 		old_select = selected_game;
 
 		t = timer_get_approx_seconds();
@@ -619,14 +618,14 @@ int network_join_game_menu() {
                                 break;
 			case KEY_PAGEUP:
 			case KEY_PAD9:
-				if (Network_socket < 99) Network_socket++;
+				if (GameArg.MplIPXSocketOffset < 99) GameArg.MplIPXSocketOffset++;
 				break;
 			case KEY_PAGEDOWN:
 			case KEY_PAD3:
-				if (Network_socket > -99) Network_socket--;
+				if (GameArg.MplIPXSocketOffset > -99) GameArg.MplIPXSocketOffset--;
 				break;
 			case KEY_PAD5:
-				Network_socket = 0;
+				GameArg.MplIPXSocketOffset = 0;
 				break;
 			case KEY_TAB + KEY_SHIFTED:
 			case KEY_UP:

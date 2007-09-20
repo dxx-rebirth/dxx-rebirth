@@ -294,10 +294,10 @@ void ReadCmdArgs(void)
 
 	// Multiplayer Options
 
-	if ((t=FindArg("-mprofile")))
-		GameArg.MplGameProfile = Args[t+1];
+	if (FindArg("-mprofile"))
+		GameArg.MplGameProfile = 1;
 	else
-		GameArg.MplGameProfile = NULL;
+		GameArg.MplGameProfile = 0;
 
 	if (FindArg("-nobans"))
 		GameArg.MplNoBans = 1;
@@ -319,15 +319,15 @@ void ReadCmdArgs(void)
 	else
 		GameArg.MplPlayerMessages = 0;
 
-	if ((t=FindArg("-packets")))
-		GameArg.MplPacketsPerSec = atoi(Args[t+1]);
-	else
-		GameArg.MplPacketsPerSec = 10;
-
 	if ((t=FindArg("-ipxnetwork")) && Args[t+1])
 		GameArg.MplIpxNetwork = Args[t+1];
 	else
 		GameArg.MplIpxNetwork = NULL;
+
+	if ((t=FindArg("-ipxbasesocket")) && Args[t+1])
+		GameArg.MplIPXSocketOffset = atoi(Args[t+1]);
+	else
+		GameArg.MplIPXSocketOffset = 0;
 
 	if ((t=FindArg("-ip_hostaddr")))
 		GameArg.MplIpHostAddr = Args[t+1];

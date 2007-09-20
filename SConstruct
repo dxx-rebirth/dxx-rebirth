@@ -131,7 +131,6 @@ common_sources = [
 'main/multibot.c',
 'main/multipow.c',
 'main/multiver.c',
-'main/mprofile.c',
 'main/netlist.c',
 'main/netmisc.c',
 'main/netpkt.c',

@@ -137,13 +137,6 @@ int ipx_set_driver(char *arg)
 
 	if (GameArg.DbgVerbose) printf( "\n%s ", TXT_INITIALIZING_NETWORK);
 
-	if (GameArg.MplPacketsPerSec<1)
-		GameArg.MplPacketsPerSec=1;
-	else if (GameArg.MplPacketsPerSec>20)
-		GameArg.MplPacketsPerSec=20;
-
-	Network_initial_shortpackets = 1;
-
 	driver=arch_ipx_set_driver(arg);
 
 	if ((ipx_error=ipx_init(IPX_DEFAULT_SOCKET))==0)	{

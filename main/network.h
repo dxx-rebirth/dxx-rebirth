@@ -146,8 +146,6 @@ extern network_d1xplayer_info Net_D1xPlayer[MAX_NUM_NET_PLAYERS];
 
 extern ushort my_segments_checksum;
 
-extern int Network_initial_shortpackets;
-extern int Network_enable_ignore_ghost;
 //extern int Network_allow_socket_changes;
 
 //added on 8/4/98 by Matt Mueller for global short packets declaration

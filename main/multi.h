@@ -47,7 +47,7 @@ extern int Network_DOS_compability;
 #else
 #define MULTI_PROTO_VERSION	2
 #endif
-#define MULTI_PROTO_D1X_VER	(Network_DOS_compability?3:MULTI_PROTO_VERSION)
+#define MULTI_PROTO_D1X_VER	3
 
 //Incrementing this seems the only way possible.  Still stays backwards compitible.
 #define MULTI_PROTO_D1X_MINOR	1
@@ -360,7 +360,6 @@ typedef struct netgame_info {
 	short					team_kills[2];
 	short					killed[MAX_PLAYERS];
 	short					player_kills[MAX_PLAYERS];
-#ifndef SHAREWARE
 	fix					level_time;
 	int					control_invul_time;
 	int 					monitor_vector;
@@ -373,8 +372,6 @@ typedef struct netgame_info {
 	uint					flags;
 	ubyte					subprotocol; // constant for given version
 	ubyte					required_subprotocol; // depends on game mode etc.
-#endif
-	char					*Driver;
 } __pack__ netgame_info;
 
 extern struct netgame_info Netgame;

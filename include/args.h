@@ -73,13 +73,13 @@ typedef struct Arg
 	int OglFixedFont;
 #endif
 	int EdiNoBm;
-	char *MplGameProfile;
+	int MplGameProfile;
 	int MplNoBans;
 	int MplSaveBans;
 	int MplNoRedundancy;
 	int MplPlayerMessages;
-	int MplPacketsPerSec;
 	const char *MplIpxNetwork;
+	int MplIPXSocketOffset;
 	char *MplIpHostAddr;
 	int MplIpNoGetMyAddr;
 	char *MplIpMyAddr;

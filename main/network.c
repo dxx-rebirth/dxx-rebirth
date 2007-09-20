@@ -22,6 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdlib.h>
 
+#include "strutil.h"
 #include "types.h"
 #include "args.h"
 #include "timer.h"
@@ -62,10 +63,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //added on 2/1/99 by Victor Rachels to add bans
 #include "ban.h"
 //end this section addition - VR
-
-//added on 10/18/98 by Victor Rachels to add multi profile stuff
-#include "mprofile.h"
-//end this section addition - Victor
 
 //added on 11/12/98 by Victor Rachels for network radar option
 #include "radar.h" //int Network_allow_radar = 0;
@@ -121,10 +118,6 @@ int	Network_active=0;
 
 int  	Network_status = 0;
 int 	Network_games_changed = 0;
-
-int 	Network_socket = 0;
-int	Network_initial_shortpackets = 1;
-int	Network_enable_ignore_ghost = 0;
 
 //added on 8/4/98 by Matt Mueller for short packets
 int	Network_short_packets = 0;
@@ -206,6 +199,8 @@ network_init(void)
 	Network_new_game = 1;
 	Fuelcen_control_center_destroyed = 0;
 	network_flush();
+
+	Netgame.packets_per_sec = 10;
 }
 
 // Change socket to new_socket, returns 1 if really changed
@@ -215,11 +210,11 @@ int network_change_socket(int new_socket)
                 new_socket  = 0x8000 - IPX_DEFAULT_SOCKET;
         if ( new_socket+IPX_DEFAULT_SOCKET < 0 )
                 new_socket  = IPX_DEFAULT_SOCKET;
-        if (new_socket != Network_socket) {
-                Network_socket = new_socket;
-                mprintf(( 0, "Changing to socket %d\n", Network_socket ));
+        if (new_socket != GameArg.MplIPXSocketOffset) {
+                GameArg.MplIPXSocketOffset = new_socket;
+                mprintf(( 0, "Changing to socket %d\n", GameArg.MplIPXSocketOffset ));
                 network_listen();
-                ipx_change_default_socket( IPX_DEFAULT_SOCKET + Network_socket );
+                ipx_change_default_socket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
                 return 1;
         }
         return 0;
@@ -1922,213 +1917,268 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
    }
 }
 
-#ifndef SHAREWARE
-void network_get_allowed_objects(int multivalues[40]) { //uint *flags) {
+void network_set_power (void)
+{
 	newmenu_item m[MULTI_ALLOW_POWERUP_MAX];
 	int i;
 
 	for (i = 0; i < MULTI_ALLOW_POWERUP_MAX; i++) {
-                m[i].type = NM_TYPE_CHECK; m[i].text = multi_allow_powerup_text[i]; m[i].value = multivalues[i+20];/*(*flags >> i) & 1;*/
+                m[i].type = NM_TYPE_CHECK; m[i].text = multi_allow_powerup_text[i]; m[i].value = (Netgame.flags >> i) & 1;
 	}
 	i = newmenu_do1( NULL, "Objects to allow", MULTI_ALLOW_POWERUP_MAX, m, NULL, 0 );
-//        if (i > -1) {
-//                *flags &= ~NETFLAG_DOPOWERUP;
+       if (i > -1) {
+               Netgame.flags &= ~NETFLAG_DOPOWERUP;
 		for (i = 0; i < MULTI_ALLOW_POWERUP_MAX; i++)
-                        multivalues[i+20] = m[i].value;
-                        /*if (m[i].value)
-                                *flags |= (1 << i);*/
-//        }
-}
-#endif
-
-#ifndef SHAREWARE
-int last_maxplayers;
-void network_d1x_param_poll(int nitems, newmenu_item * menus, int * key, int citem) {
-	if (last_maxplayers != menus[7].value) {
-		last_maxplayers = menus[7].value;
-		sprintf(menus[7].text, "Maximum players: %d", menus[7].value + 2);
-		menus[7].redraw = 1;
-	}
+                        if (m[i].value)
+                                Netgame.flags |= (1 << i);
+       }
 }
 
+static int opt_cinvul, opt_team_anarchy, opt_coop, opt_show_on_map, opt_closed, opt_refuse, opt_maxnet;
+static int opt_setpower,opt_show_on_map, opt_difficulty,opt_packets,opt_short_packets;
+static int last_maxnet, last_cinvul=0;
 
-void network_get_d1x_params(netgame_info *temp_game, int *new_socket, int multivalues[40])   {
-	int i, pps, socket;
-	int opt;
-	newmenu_item m[16];
-	char spps[10];
-	char ssocket[10];
-        char smaxplayers[30];
+void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int citem );
 
-	last_maxplayers = -1;
+void network_more_game_options ()
+{
+	int opt=0,i;
+	int opt_d1xonly=-1, opt_radar, opt_dropvulcan, opt_shortvulcan, opt_ghost;
+	char srinvul[50],packstring[5];
+	newmenu_item m[21];
 
-	sprintf(spps, "%d", multivalues[11]);
-	sprintf(ssocket, "%d", multivalues[12]);
+	sprintf (packstring,"%d",Netgame.packets_per_sec);
+	
+	opt_difficulty = opt;
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.difficulty; m[opt].text=TXT_DIFFICULTY; m[opt].min_value=0; m[opt].max_value=(NDL-1); opt++;
 
-	m[0].value  = multivalues[10];
-	m[2].text   = spps;
-	m[4].text   = ssocket;
-	m[6].value  = multivalues[13];
-	m[7].value  = multivalues[14]-2;
-	sprintf(smaxplayers,"Maximum players: %d",multivalues[14]);
-	m[9].value  = multivalues[15];
-	m[10].value = multivalues[16];
-	m[11].value = multivalues[17];
-	m[12].value = multivalues[18];
+	opt_cinvul = opt;
+	sprintf( srinvul, "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.control_invul_time/5/F1_0/60; m[opt].text= srinvul; m[opt].min_value=0; m[opt].max_value=10; opt++;
 
-	opt = 0;
-	/* 0*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short packets"; opt++;
-	/* 1*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = "Packets per second (2 to 20)"; opt++;
-	/* 2*/ m[opt].type = NM_TYPE_INPUT; m[opt].text_len = 2; opt++;
-	/* 3*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network socket (-99 to 99)"; opt++;
-	/* 4*/ m[opt].type = NM_TYPE_INPUT; m[opt].text_len = 3; opt++;
+	opt_show_on_map=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP); opt_show_on_map=opt; opt++;
+	
+	opt_short_packets=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short packets"; m[opt].value=(Netgame.flags & NETFLAG_SHORTPACKETS); opt++;
+	
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Packets per second (2 - 20)"; opt++;
+	opt_packets=opt;
+	m[opt].type = NM_TYPE_INPUT; m[opt].text=packstring; m[opt].text_len=2; opt++;
 
 	if (Network_DOS_compability)
 	{
-		/* 5*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = "Options below need D1X only games"; opt++;
-		/* 6*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "D1X only game"; opt++;
+		opt_d1xonly=opt;
+		m[opt].type = NM_TYPE_CHECK; m[opt].text = "D1X only game"; m[opt].value=(Netgame.protocol_version == MULTI_PROTO_D1X_VER); opt++;
+		m[opt].type = NM_TYPE_TEXT; m[opt].text = "Options below need D1X only game"; opt++;
 	}
-	else
+	opt_radar=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Enable radar"; m[opt].value=(Netgame.flags & NETFLAG_ENABLE_RADAR); opt++;
+	opt_dropvulcan=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Drop vulcan ammo"; m[opt].value=(Netgame.flags & NETFLAG_DROP_VULCAN_AMMO); opt++;
+	opt_shortvulcan=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short Vulcanfire"; m[opt].value=(Netgame.flags & NETFLAG_ENABLE_ALT_VULCAN); opt++;
+	opt_ghost=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Enable ignore/ghost"; m[opt].value=(Netgame.flags & NETFLAG_ENABLE_IGNORE_GHOST); opt++;
+	opt_setpower = opt;
+	m[opt].type = NM_TYPE_MENU; m[opt].text = "Set objects allowed..."; opt++;
+
+menu:
+	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, network_more_options_poll, 0 );
+
+	Netgame.control_invul_time = m[opt_cinvul].value*5*F1_0*60;
+
+	if (i==opt_setpower)
 	{
-		/* 5*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
-		/* 6*/ m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
-	}
-        /* 7*/ m[opt].type = NM_TYPE_SLIDER; m[opt].text = smaxplayers; m[opt].min_value = 0; m[opt].max_value = MaxNumNetPlayers - 2; opt++;
-	/* 8*/ m[opt].type = NM_TYPE_MENU; m[opt].text = "Set objects allowed..."; opt++;
-        /* 9*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Drop vulcan ammo"; opt++;
-        /*10*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Enable ignore/ghost"; opt++;
-        /*11*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Enable radar"; opt++;
-        /*12*/ m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short Vulcanfire"; opt++;
-
-	i = 0;
-	for (;;) {
-		i = newmenu_do1( NULL, "More options", opt, m, &network_d1x_param_poll, i );
-		if (i == 8) {
-                        network_get_allowed_objects(multivalues);
-			continue;
-                } else {// if (i > -1) {
-			pps = atoi(spps);
-			if (pps < 2 || pps > 20) {
-				nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for packets per second");
-				i = 2; // select pps field
-				sprintf(spps, "10");
-				continue;
-			}
-			socket = atoi(ssocket);
-			if (socket < -99 || socket > 99) {
-				nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid value for network socket");
-				i = 4; // select socket field
-				sprintf(ssocket, "0");
-				continue;
-			}
-                }
-		break;
+		network_set_power ();
+		goto menu;
 	}
 
-	multivalues[10] = m[0].value;
-	multivalues[11] = atoi(spps);
-	multivalues[12] = atoi(ssocket);
-	multivalues[13] = m[6].value;
-	multivalues[14] = m[7].value + 2;
-	multivalues[15] = m[9].value;
-	multivalues[16] = m[10].value;
-	multivalues[17] = m[11].value;
-	multivalues[18] = m[12].value;
+	Netgame.packets_per_sec=atoi(packstring);
+	
+	if (Netgame.packets_per_sec>20)
+	{
+		Netgame.packets_per_sec=20;
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to 20");
+	}
+
+	if (Netgame.packets_per_sec<2)
+	{
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to 2");
+		Netgame.packets_per_sec=2;
+	}
+
+	mprintf ((0,"Hey! Sending out %d packets per second\n",Netgame.PacketsPerSec));
+	
+	if (m[opt_short_packets].value)
+		Netgame.flags |= NETFLAG_SHORTPACKETS;
+	else
+		Netgame.flags &= ~NETFLAG_SHORTPACKETS;
+	Network_short_packets = m[opt_short_packets].value;
+
+	Netgame.difficulty=Difficulty_level = m[opt_difficulty].value;
+	if (m[opt_show_on_map].value)
+		Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
+	else
+		Netgame.game_flags &= ~NETGAME_FLAG_SHOW_MAP;
+
+	if (Network_DOS_compability)
+	{
+		if (m[opt_d1xonly].value)
+			Netgame.protocol_version = MULTI_PROTO_D1X_VER;
+		else
+			Netgame.protocol_version = MULTI_PROTO_VERSION;
+	}
+
+	if (m[opt_radar].value)
+		Netgame.flags |= NETFLAG_ENABLE_RADAR;
+	else
+		Netgame.flags &= ~NETFLAG_ENABLE_RADAR;
+
+	if (m[opt_dropvulcan].value)
+		Netgame.flags |= NETFLAG_DROP_VULCAN_AMMO;
+	else
+		Netgame.flags &= ~NETFLAG_DROP_VULCAN_AMMO;
+
+	if (m[opt_shortvulcan].value)
+		Netgame.flags |= NETFLAG_ENABLE_ALT_VULCAN;
+	else
+		Netgame.flags &= ~NETFLAG_ENABLE_ALT_VULCAN;
+
+	if (m[opt_ghost].value)
+		Netgame.flags |= NETFLAG_ENABLE_IGNORE_GHOST;
+	else
+		Netgame.flags &= ~NETFLAG_ENABLE_IGNORE_GHOST;
 }
-#endif
 
-int opt_cinvul;
-int last_cinvul=0;
-int opt_mode;
-int last_mode;
-netgame_info *cur_temp_game;
+void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int citem )
+{
+	menus = menus;
+	citem = citem;      // kills compile warnings
+	nitems = nitems;
+	key = key;
+
+	if ( last_cinvul != menus[opt_cinvul].value )   {
+		sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
+		last_cinvul = menus[opt_cinvul].value;
+		menus[opt_cinvul].redraw = 1;
+	}
+}
 
 void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int citem )
 {
-#ifndef SHAREWARE
-#ifndef ROCKWELL_CODE
-	int i;
-	for (i = 0; i < 4; i++)
-		if (menus[opt_mode + i].value && last_mode != i) { // mode changed?
-			last_mode = i;
-			MaxNumNetPlayers = (i > 1) ? // robo-anarchy/cooperative
-				4 : 8;
-			cur_temp_game->max_numplayers = MaxNumNetPlayers;
-		}
-	if (menus[opt_mode+1].value && !menus[opt_mode+5].value) {
-		menus[opt_mode+5].value = 1;
-		menus[opt_mode+5].redraw = 1;
-        }
-	if (menus[opt_mode+3].value) {
-                if (!menus[opt_mode+7].value) {
-                        menus[opt_mode+7].value = 1;
-                        menus[opt_mode+7].redraw = 1;
-                }
-        }
-#endif
+	static int oldmaxnet=0;
 
-	if ( last_cinvul != menus[opt_cinvul].value )	{
-                sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
-                last_cinvul = menus[opt_cinvul].value;
-                menus[opt_cinvul].redraw = 1;
-        }
-#endif
+	if (menus[opt_team_anarchy].value) 
+	{
+		menus[opt_closed].value = 1;
+		menus[opt_closed].redraw = 1;
+		menus[opt_closed-1].value = 0;
+		menus[opt_closed-1].redraw = 1;
+		menus[opt_closed+1].value = 0;
+		menus[opt_closed+1].redraw = 1;
+	}
+
+	if (menus[opt_coop].value)
+	{
+		oldmaxnet=1;
+
+		if (menus[opt_maxnet].value>2) 
+		{
+			menus[opt_maxnet].value=2;
+			menus[opt_maxnet].redraw=1;
+		}
+
+		if (menus[opt_maxnet].max_value>2)
+		{
+			menus[opt_maxnet].max_value=2;
+			menus[opt_maxnet].redraw=1;
+		}
+
+		if (!Netgame.game_flags & NETGAME_FLAG_SHOW_MAP) 
+			Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
+
+	}
+	else // if !Coop game
+	{
+		if (oldmaxnet)
+		{
+			oldmaxnet=0;
+			menus[opt_maxnet].value=6;
+			menus[opt_maxnet].max_value=6;
+		}
+	}
+
+	if ( last_maxnet != menus[opt_maxnet].value )   
+	{
+		sprintf( menus[opt_maxnet].text, "Maximum players: %d", menus[opt_maxnet].value+2 );
+		last_maxnet = menus[opt_maxnet].value;
+		menus[opt_maxnet].redraw = 1;
+	}
 }
 
-int network_get_game_params( netgame_info *netgame, int *new_socket )
+int network_get_game_params()
 {
 	int i;
-	int opt, opt_name, opt_level, opt_closed, opt_difficulty;
-	newmenu_item m[16];
-	netgame_info temp_game;
+	int opt, opt_name, opt_level, opt_mode,opt_moreopts;
+	newmenu_item m[20];
 	char slevel[5];
 	char level_text[32];
+	char srmaxnet[50];
 #ifndef SHAREWARE
-	int opt_showmap;
-	char srinvul[32];
-	int new_mission_num;
 	int anarchy_only;
 #endif
-	int multivalues[40];
 
-	memset(multivalues,0,sizeof(int) * 40);
+	for (i=0;i<MAX_PLAYERS;i++)
+		if (i!=Player_num)
+			Players[i].callsign[0]=0;
 
-#ifndef SHAREWARE
-	new_mission_num = multi_choose_mission(&anarchy_only);
-
-	if (new_mission_num < 0)
-		return -1;
-#endif
-	restrict_mode = 0;
-
-	cur_temp_game = &temp_game;
-	memset(&temp_game, 0, sizeof(temp_game));
-	temp_game.protocol_version = MULTI_PROTO_VERSION;
-        temp_game.difficulty = Player_default_difficulty;
-#ifndef SHAREWARE
-	strcpy(temp_game.mission_name, Mission_list[new_mission_num].filename);
-	strcpy(temp_game.mission_title, Mission_list[new_mission_num].mission_name);
-	temp_game.control_invul_time = control_invul_time;
-	temp_game.flags = NETFLAG_DOPOWERUP | // enable all powerups
-		(Network_initial_shortpackets ? NETFLAG_SHORTPACKETS : 0) |
+	restrict_mode=0;
+	MaxNumNetPlayers = MAX_NUM_NET_PLAYERS;
+	sprintf( Netgame.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
+	Netgame.difficulty=Player_default_difficulty;
+	Netgame.max_numplayers=MaxNumNetPlayers;
+	Netgame.protocol_version = MULTI_PROTO_VERSION;
+	Netgame.flags = NETFLAG_DOPOWERUP | // enable all powerups
+		NETFLAG_SHORTPACKETS |
 		NETFLAG_ENABLE_IGNORE_GHOST;
-	temp_game.packets_per_sec = GameArg.MplPacketsPerSec;
+	Netgame.protocol_version = MULTI_PROTO_D1X_VER;
+
+	if (GameArg.MplGameProfile)
+	{
+		if (!nm_messagebox(NULL, 2, TXT_YES,TXT_NO, "do you want to load\na multiplayer profile?"))
+		{
+			char mprofile_file[13]="";
+			if (newmenu_get_filename("Select profile\n<ESC> to abort", "*.mpx", mprofile_file, 1))
+			{
+				FILE *outfile;
+
+				outfile = fopen(mprofile_file,"rb");
+				fread(&Netgame,sizeof(netgame_info),1,outfile);
+				fread(&restrict_mode,sizeof(int),1,outfile);
+				fclose(outfile);
+			}
+		}
+	}
+
+#ifndef SHAREWARE
+	if (multi_choose_mission(&anarchy_only) < 0)
+		return -1;
+
+	strcpy(Netgame.mission_name, Current_mission_filename);
+	strcpy(Netgame.mission_title, Current_mission_longname);
+#else
+	strcpy(Netgame.mission_name, "");
+	strcpy(Netgame.mission_title, "");
 #endif
 
-	temp_game.max_numplayers = 8;
-	sprintf( temp_game.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
 	sprintf( slevel, "1" );
-	last_mode = -1;
-	putto_multivalues(multivalues,&temp_game,new_socket);
-
-	if(GameArg.MplGameProfile)
-		get_multi_profile(multivalues,GameArg.MplGameProfile);
 
 	opt = 0;
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_DESCRIPTION; opt++;
 
 	opt_name = opt;
-	m[opt].type = NM_TYPE_INPUT; m[opt].text = temp_game.game_name; m[opt].text_len = NETGAME_NAME_LEN; opt++;
+	m[opt].type = NM_TYPE_INPUT; m[opt].text = Netgame.game_name; m[opt].text_len = NETGAME_NAME_LEN; opt++;
 
 	sprintf(level_text, "%s (1-%d)", TXT_LEVEL_, Last_level);
 	if (Last_secret_level < -1)
@@ -2142,116 +2192,89 @@ int network_get_game_params( netgame_info *netgame, int *new_socket )
 
 	opt_level = opt;
 	m[opt].type = NM_TYPE_INPUT; m[opt].text = slevel; m[opt].text_len=4; opt++;
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_OPTIONS; opt++;
 
 	opt_mode = opt;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY; m[opt].value=1; m[opt].group=0; opt++;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_TEAM_ANARCHY; m[opt].value=0; m[opt].group=0; opt++;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY_W_ROBOTS; m[opt].value=0; m[opt].group=0; opt++;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_COOPERATIVE; m[opt].value=0; m[opt].group=0; opt++;
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY; m[opt].value=(Netgame.gamemode == NETGAME_ANARCHY); m[opt].group=0; opt++;
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_TEAM_ANARCHY; m[opt].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY); m[opt].group=0; opt_team_anarchy=opt; opt++;
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY_W_ROBOTS; m[opt].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[opt].group=0; opt++;
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_COOPERATIVE; m[opt].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[opt].group=0; opt_coop=opt; opt++;
 
-	m[opt_mode].value = multivalues[0];
-	m[opt_mode+1].value = multivalues[1];
-	m[opt_mode+2].value = multivalues[2];
-	m[opt_mode+3].value = multivalues[3];
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
 
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_OPTIONS; opt++;
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = "Open game"; m[opt].group=1; m[opt].value=(!restrict_mode && !Netgame.game_flags & NETGAME_FLAG_CLOSED); opt++;
 	opt_closed = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_CLOSED_GAME; m[opt].value=0; opt++;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Restricted Game"; m[opt].value=multivalues[8]; opt++;
-	m[opt_closed].value = multivalues[4];
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_CLOSED_GAME; m[opt].group=1; m[opt].value=Netgame.game_flags & NETGAME_FLAG_CLOSED; opt++;
+	opt_refuse = opt;
+	m[opt].type = NM_TYPE_RADIO; m[opt].text = "Restricted Game              "; m[opt].group=1; m[opt].value=restrict_mode; opt++;
 
-#ifndef SHAREWARE
-	opt_showmap = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=0; opt++;
-	m[opt_showmap].value = multivalues[5];
-#endif
+	opt_maxnet = opt;
+	sprintf( srmaxnet, "Maximum players: %d", MaxNumNetPlayers);
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.max_numplayers-2; m[opt].text= srmaxnet; m[opt].min_value=0; 
+	m[opt].max_value=MaxNumNetPlayers-2; opt++;
+	last_maxnet=MaxNumNetPlayers-2;
+	
+	opt_moreopts=opt;
+	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Advanced options"; opt++;
 
-	opt_difficulty = opt;
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Player_default_difficulty; m[opt].text=TXT_DIFFICULTY; m[opt].min_value=0; m[opt].max_value=(NDL-1); opt++;
-	m[opt_difficulty].value = multivalues[6];
-
-#ifndef SHAREWARE
-	opt_cinvul = opt;
-	sprintf( srinvul, "%s: %d %s", TXT_REACTOR_LIFE, 5*control_invul_time, TXT_MINUTES_ABBREV );
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value=control_invul_time; m[opt].text= srinvul; m[opt].min_value=0; m[opt].max_value=15; opt++;
-	m[opt_cinvul].value = multivalues[7];
-	last_cinvul = multivalues[7];
-	m[opt].type = NM_TYPE_MENU; m[opt].text = "More options..."; opt++;
-	m[opt].type = NM_TYPE_MENU; m[opt].text = "Multi Profile..."; opt++;
-#endif
-
-	Assert(opt <= 16);
+	Assert(opt <= 20);
 
 menu:
+	i = newmenu_do1( NULL, NULL, opt, m, network_game_param_poll, 1 );
 
-	do  {
-		i = newmenu_do1( NULL, NULL, opt, m, network_game_param_poll, 1 );
-#ifndef SHAREWARE
-                if (i == 14) {
-			network_get_d1x_params(&temp_game, new_socket, multivalues);
-		}
-		if (i == 15) {
-			if (do_multi_profile(multivalues))
-			{
-				m[opt_mode].value = multivalues[0];
-				m[opt_mode+1].value = multivalues[1];
-				m[opt_mode+2].value = multivalues[2];
-				m[opt_mode+3].value = multivalues[3];
-				m[opt_closed].value = multivalues[4];
-				m[opt_showmap].value = multivalues[5];
-				m[opt_difficulty].value = multivalues[6];
-				m[opt_cinvul].value = multivalues[7];
-				m[opt_closed+1].value = multivalues[8];
-			}
-		}
-#endif
-	} while (i > 13);
+	if (i==opt_moreopts)
+	{
+		if ( m[opt_mode+3].value )
+			Game_mode=GM_MULTI_COOP;
+		network_more_game_options();
+		Game_mode=0;
+		goto menu;
+	}
+	restrict_mode=m[opt_refuse].value;
 
-	if ( i > -1 )	{
+	if ( i > -1 )   {
 		int j;
 
+		MaxNumNetPlayers = m[opt_maxnet].value+2;
+		Netgame.max_numplayers=MaxNumNetPlayers;
+
 		for (j = 0; j < num_active_games; j++)
-			if (!strcasecmp(Active_games[j].game_name, temp_game.game_name))
+			if (!stricmp(Active_games[j].game_name, Netgame.game_name))
 			{
 				nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_DUPLICATE_NAME);
 				goto menu;
 			}
 
-		multivalues[0] = m[opt_mode].value;
-		multivalues[1] = m[opt_mode+1].value;
-		multivalues[2] = m[opt_mode+2].value;
-		multivalues[3] = m[opt_mode+3].value;
-		multivalues[4] = m[opt_closed].value;
-		multivalues[6] = m[opt_difficulty].value;
-#ifndef SHAREWARE
-		multivalues[5] = m[opt_showmap].value;
-		multivalues[7] = m[opt_cinvul].value;
-#endif
-		multivalues[8] = m[opt_closed+1].value;
+		Netgame.levelnum = atoi(slevel);
 
-		if (!strncasecmp(slevel, "s", 1))
-			temp_game.levelnum = -atoi(slevel+1);
-		else
-			temp_game.levelnum = atoi(slevel);
-
-		if ((temp_game.levelnum < Last_secret_level) || (temp_game.levelnum > Last_level) || (temp_game.levelnum == 0))
+		if ((Netgame.levelnum < 1) || (Netgame.levelnum > Last_level))
 		{
 			nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
 			sprintf(slevel, "1");
 			goto menu;
 		}
+		if ( m[opt_mode].value )
+			Netgame.gamemode = NETGAME_ANARCHY;
 
-		putfrom_multivalues(multivalues,&temp_game,new_socket);
-#ifndef SHAREWARE
-		control_invul_time = temp_game.control_invul_time;
-		temp_game.control_invul_time = control_invul_time*5*F1_0*60;
-		temp_game.subprotocol = MULTI_PROTO_D1X_MINOR;
-		temp_game.required_subprotocol = 0;
-#endif
-		*netgame = temp_game;
-
-		if ((netgame->gamemode == 2 || netgame->gamemode == 3) && netgame->max_numplayers > 4) // restrict players in robo-anarchy/cooperative if player hasn't done so far...
-			netgame->max_numplayers = 4;
+		else if (m[opt_mode+1].value) {
+			Netgame.gamemode = NETGAME_TEAM_ANARCHY;
+		}
+// 		else if (ANARCHY_ONLY_MISSION) {
+// 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
+// 			m[opt_mode+2].value = 0;
+// 			m[opt_mode+3].value = 0;
+// 			m[opt_mode].value = 1;
+// 			goto menu;
+// 		}
+		else if ( m[opt_mode+2].value ) 
+			Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
+		else if ( m[opt_mode+3].value ) 
+			Netgame.gamemode = NETGAME_COOPERATIVE;
+		else Int3(); // Invalid mode -- see Rob
+		if (m[opt_closed].value)
+			Netgame.game_flags |= NETGAME_FLAG_CLOSED;
+		else
+			Netgame.game_flags &= ~NETGAME_FLAG_CLOSED;
 	}
 	return i;
 }
@@ -2274,12 +2297,6 @@ network_set_game_mode(int gamemode)
 	}
 	else
 		Int3();
-	#if 0 // adb: now done elsewhere
-	if (Game_mode & GM_MULTI_ROBOTS)
-		MaxNumNetPlayers = 4;
-	else
-		MaxNumNetPlayers = 8;
-	#endif
 }
 
 int
@@ -2445,7 +2462,6 @@ void network_read_sync_packet( ubyte * data, int d1x )
 		Network_short_packets = (Netgame.flags & NETFLAG_SHORTPACKETS) ? 2 : 0;
                 Network_pps = Netgame.packets_per_sec;
                 Laser_drop_vulcan_ammo = (Netgame.flags & NETFLAG_DROP_VULCAN_AMMO) != 0;
-		Network_enable_ignore_ghost = (Netgame.flags & NETFLAG_ENABLE_IGNORE_GHOST) != 0;
 		// in D1X only games everybody has the same shp setting
                 //added on 11/12/98 by Victor Rachels to add radar
                 Network_allow_radar = (Netgame.flags & NETFLAG_ENABLE_RADAR) != 0;
@@ -2464,7 +2480,6 @@ void network_read_sync_packet( ubyte * data, int d1x )
 		}
 		multi_allow_powerup = NETFLAG_DOPOWERUP;
 		Laser_drop_vulcan_ammo = 0;
-		Network_enable_ignore_ghost = 1; // Might not be what everybody wants, but v0.08 does it too.
 	}
 	#endif
 
@@ -2752,9 +2767,7 @@ abort:
 
 void network_start_game(void)	
 {
-	int i, new_socket;
-	//char game_name[NETGAME_NAME_LEN+1];
-	//int chosen_game_mode, game_flags, level;
+	int i;
 
 	Assert( sizeof(frame_info) < IPX_MAX_DATA_SIZE );
 
@@ -2780,30 +2793,36 @@ void network_start_game(void)
 		return;
 	}
 
-	//game_flags = 0;
-	new_socket = Network_socket;
-	i = network_get_game_params( &Netgame, &new_socket );
+	i = network_get_game_params();
 
 	if (i<0) return;
 
-	network_change_socket(new_socket);
+	if (GameArg.MplIPXSocketOffset) {
+		ipx_change_default_socket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
+	}
 
 	N_players = 0;
 
-// LoadLevel(level); Old, no longer used.
-
-
-	//adb: this is now set in network_get_game_params
-	//Netgame.difficulty = Difficulty_level;
-	//Netgame.gamemode = chosen_game_mode;
-	//Netgame.levelnum = level;
-        //Netgame.game_flags = game_flags;
-        //Netgame.protocol_version = MULTI_PROTO_VERSION;
-        //strcpy(Netgame.game_name, game_name);
         Netgame.game_status = NETSTAT_STARTING;
 	Netgame.numplayers = 0;
 	network_set_game_mode(Netgame.gamemode);
 	MaxNumNetPlayers = Netgame.max_numplayers;
+
+	if (GameArg.MplGameProfile)
+	{
+		char mprofile_file[13]="";
+		newmenu_item m[1];
+		m[0].type=NM_TYPE_INPUT; m[0].text_len = 8; m[0].text = mprofile_file;
+		if (!newmenu_do( NULL, "save profile as", 1, &(m[0]), NULL))
+		{
+			strcat(mprofile_file,".mpx");
+			FILE *infile;
+			infile = fopen(mprofile_file,"wb");
+			fwrite(&Netgame,sizeof(netgame_info),1,infile);
+			fwrite(&restrict_mode,sizeof(int),1,infile);
+			fclose(infile);
+		}
+	}
 
 	Network_status = NETSTAT_STARTING;
 
@@ -2858,13 +2877,13 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	key = key;
 
 	if (Network_allow_socket_changes )	{
-		new_socket = Network_socket;
+		new_socket = GameArg.MplIPXSocketOffset;
 	
 		if ( *key==KEY_PAGEUP ) 	{ new_socket--; *key = 0; }
 		if ( *key==KEY_PAGEDOWN )	{ new_socket++; *key = 0; }
 	
 		if ( network_change_socket(new_socket) )	 {
-			sprintf( menus[0].text, "%s %+d", TXT_CURRENT_IPX_SOCKET, Network_socket );
+			sprintf( menus[0].text, "%s %+d", TXT_CURRENT_IPX_SOCKET, GameArg.MplIPXSocketOffset );
 			menus[0].redraw = 1;
 			restart_net_searching(menus);
 			network_send_game_list_request();
@@ -2942,7 +2961,7 @@ network_wait_for_sync(void)
 {
 	char text[60];
 	newmenu_item m[2];
-	int i, choice;
+	int i, choice=0;
 	
 	Network_status = NETSTAT_WAITING;
 	m[0].type=NM_TYPE_TEXT; m[0].text = text;
@@ -3193,7 +3212,7 @@ void network_join_game()
 	m[0].text = menu_text[0];
 	m[0].type = NM_TYPE_TEXT;
 	if (Network_allow_socket_changes)
-		sprintf( m[0].text, "Current IPX Socket is default%+d", Network_socket );
+		sprintf( m[0].text, "Current IPX Socket is default%+d", GameArg.MplIPXSocketOffset );
 	else
 		sprintf( m[0].text, "" );
 
@@ -3586,7 +3605,7 @@ void network_read_pdata_packet(ubyte *data, int short_packet)
 		// Begin addition by GF
 		//Check to see if we have this player on ignore.
 		//hud_message(MSGC_DEBUG, "Rejoining Player = %s",Players[TheirPlayernum].callsign);
-		if (Network_enable_ignore_ghost &&
+		if ((Netgame.flags & NETFLAG_ENABLE_IGNORE_GHOST) &&
 		    checkignore(Players[TheirPlayernum].callsign))
 		{
 			//network_disconnect_player(TheirPlayernum);

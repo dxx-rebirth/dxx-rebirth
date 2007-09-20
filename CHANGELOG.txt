@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070920
+--------
+d1x.ini, SConstruct, include/args.h, main/newmenu.c, main/network.c, main/text.h, main/network.h, main/multi.h, main/inferno.c, main/netlist.c,  main/game.c, main/ipx_drv.c, main/args.c: Code-cleanup; Implemented new multi profile feature
+
 20070918
 --------
 SConstruct, main/inferno.c, main/digi.h, arch/sdl/include/digi_audio.h, arch/sdl/include/digi_mixer_music.h, arch/sdl/include/digi_mixer.h, arch/sdl/jukebox.c, arch/sdl/digi.c, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/digi_audio.c : huge refactoring of sound system using function pointers, to allow sound backend selection at runtime and provide a common interface (digi.c)

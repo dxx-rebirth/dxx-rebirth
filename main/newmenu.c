@@ -1524,6 +1524,10 @@ ReadFileNames:
 				p = strrchr(&filenames[NumFiles*14], '.');
 				if (p) *p = '\0';
 			}
+			else
+			{
+				strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
+			}
 			NumFiles++;
 		}
 		d_globfree(&glob_ret);
