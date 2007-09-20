@@ -118,7 +118,6 @@ extern char MarkerMessage[16][40];
 extern char MarkerOwner[16][40];
 extern int MarkerObject[];
 
-int control_invul_time = 0;
 int who_killed_controlcen = -1;  // -1 = noone
 
 //do we draw the kill list on the HUD?

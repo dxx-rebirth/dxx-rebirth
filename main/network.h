@@ -54,6 +54,55 @@ extern int Network_game_type;
 #define Network_game_type IPX_GAME
 #endif
 
+/* the following are the possible packet identificators.
+ * they are stored in the "type" field of the packet structs.
+ * they are offset 4 bytes from the beginning of the raw IPX data
+ * because of the "driver's" ipx_packetnum (see linuxnet.c).
+ */
+#define PID_LITE_INFO       43 // 0x2B lite game info
+#define PID_SEND_ALL_GAMEINFO 44 // 0x2C plz send more than lite only
+#define PID_PLAYERSINFO     45 // 0x2D here's my name & personal data
+#define PID_REQUEST         46 // 0x2E may i join, plz send sync
+#define PID_SYNC            47 // 0x2F master says: enter mine now!
+#define PID_PDATA           48 // 0x30
+#define PID_ADDPLAYER       49
+
+#define PID_DUMP            51 // 0x33 you can't join this game
+#define PID_ENDLEVEL        52
+
+#define PID_QUIT_JOINING    54
+#define PID_OBJECT_DATA     55 // array of bots, players, powerups, ...
+#define PID_GAME_LIST       56 // 0x38 give me the list of your games
+#define PID_GAME_INFO       57 // 0x39 here's a game i've started
+#define PID_PING_SEND       58
+#define PID_PING_RETURN     59
+#define PID_GAME_UPDATE     60 // inform about new player/team change
+#define PID_ENDLEVEL_SHORT  61
+#define PID_NAKED_PDATA     62
+#define PID_GAME_PLAYERS    63
+#define PID_NAMES_RETURN    64 // 0x40
+// new packet types to get a little bit more information about the netgame so we can show up some rules/flags - uses netgame_info instead of lite_info
+#define PID_LITE_INFO_D2X   65 // like PID_LITE_INFO
+#define PID_GAME_LIST_D2X   66 // like PID_GAME_LIST
+
+#define NETGAME_ANARCHY         0
+#define NETGAME_TEAM_ANARCHY    1
+#define NETGAME_ROBOT_ANARCHY   2
+#define NETGAME_COOPERATIVE     3
+#define NETGAME_CAPTURE_FLAG    4
+#define NETGAME_HOARD           5
+#define NETGAME_TEAM_HOARD      6
+
+/* The following are values for NetSecurityFlag */
+#define NETSECURITY_OFF                 0
+#define NETSECURITY_WAIT_FOR_PLAYERS    1
+#define NETSECURITY_WAIT_FOR_GAMEINFO   2
+#define NETSECURITY_WAIT_FOR_SYNC       3
+/* The NetSecurityNum and the "Security" field of the network structs
+ * identifies a netgame. It is a random number chosen by the network master
+ * (the one that did "start netgame").
+ */
+
 typedef struct sequence_packet {
 	ubyte           type;
 	int             Security;

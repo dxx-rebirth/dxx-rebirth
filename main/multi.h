@@ -238,8 +238,6 @@ extern void multi_send_orb_bonus( char pnum );
 extern void multi_send_got_orb( char pnum );
 extern void multi_add_lifetime_kills(void);
 
-extern int control_invul_time;
-
 #define N_PLAYER_SHIP_TEXTURES 6
 
 extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];

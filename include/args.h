@@ -79,11 +79,12 @@ typedef struct Arg
 	int OglVoodooHack;
 	int OglFixedFont;
 #endif
+	int MplGameProfile;
 	int MplNoRankings;
 	int MplNoRedundancy;
 	int MplPlayerMessages;
-	int MplPacketsPerSec;
 	const char *MplIpxNetwork;
+	int MplIPXSocketOffset;
 	char *MplIpHostAddr;
 	int MplIpNoGetMyAddr;
 	char *MplIpMyAddr;

@@ -1917,7 +1917,7 @@ int newmenu_get_filename(char *title, char *type, char *filename, int allow_abor
 	int i;
 	char **find;
 	char **f;
-	char *ext;
+	char *ext, filespec[3]="";
 	int NumFiles=0, key,done, citem, ocitem;
 	char * filenames = NULL;
 	int NumFiles_displayed = 8;
@@ -1953,6 +1953,8 @@ int newmenu_get_filename(char *title, char *type, char *filename, int allow_abor
 	else if (!stricmp(type, "dem"))
 		demo_mode = 1;
 
+	sprintf(filespec,".%s",type);
+
 ReadFileNames:
 	done = 0;
 	NumFiles=0;
@@ -1967,12 +1969,12 @@ ReadFileNames:
 	find = PHYSFS_enumerateFiles(demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
 	for (f = find; *f != NULL; f++)
 	{
-		if (player_mode)
-		{
+// 		if (player_mode)
+// 		{
 			ext = strrchr(*f, '.');
-			if (!ext || strnicmp(ext, ".plr", 4))
+			if (!ext || strnicmp(ext, filespec, 4))
 				continue;
-		}
+// 		}
 		if (NumFiles < MAX_FILES)
 		{
 			strncpy(&filenames[NumFiles*14], *f, FILENAME_LEN);
