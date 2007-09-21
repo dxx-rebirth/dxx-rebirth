@@ -125,7 +125,7 @@ extern void digi_start_sound_queued( short soundnum, fix volume );
 #define SDLMIXER_SYSTEM 1
 #define SDLAUDIO_SYSTEM 2
 
-#define SOUND_MAX_VOLUME F1_0 // was (F1_0 / 2)
+#define SOUND_MAX_VOLUME F1_0 / 2
 
 extern int digi_volume;
 extern int midi_volume;

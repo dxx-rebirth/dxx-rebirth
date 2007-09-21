@@ -1,5 +1,10 @@
 D1X-Rebirth Changelog
 
+20070921
+--------
+most files: executable flag removed
+main/digi.h: restored previous value of SOUND_MAX_VOLUME
+
 20070920
 --------
 d1x.ini, SConstruct, include/args.h, main/newmenu.c, main/network.c, main/text.h, main/network.h, main/multi.h, main/inferno.c, main/netlist.c,  main/game.c, main/ipx_drv.c, main/args.c: Code-cleanup; Implemented new multi profile feature
