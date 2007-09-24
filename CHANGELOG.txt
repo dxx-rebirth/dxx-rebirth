@@ -1,5 +1,13 @@
 D2X-Rebirth Changelog
 
+20070925
+--------
+main/gamecntl.c: Moved some game keys to not apply if Player_is_dead flag is set
+
+20070924
+--------
+main/newmenu.c, main/weapons.c: Removed key shortcuts for menus; Correctly aligned ScrollBox arrows; ScrollOffset now increments earlier is scrolling is done with keys; Fixed width for menu mouse selections; Fxied mouse selector for submenus in ScrollBoxes; Using defines for Arrow-chars in Weapon reordering
+
 20070921
 --------
 most files: executable flag removed

@@ -1419,12 +1419,10 @@ void HandleGameKey(int key)
 		#if defined(MACINTOSH)  && !defined(RELEASE)
 		case KEY_COMMAND+KEY_F:	GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator; break;
 		#endif
-
 #ifndef D2X_KEYS // weapon selection handled in controls_read_all, d1x-style
-// MWA changed the weapon select cases to have each case call
-// do_weapon_select the macintosh keycodes aren't consecutive from 1
-// -- 0 on the keyboard -- boy is that STUPID!!!!
-
+		// MWA changed the weapon select cases to have each case call
+		// do_weapon_select the macintosh keycodes aren't consecutive from 1
+		// -- 0 on the keyboard -- boy is that STUPID!!!!
 		//	Select primary or secondary weapon.
 		case KEY_1:
 			do_weapon_select(0 , 0);
@@ -1458,7 +1456,7 @@ void HandleGameKey(int key)
 			do_weapon_select(4 , 1);
 			break;
 #endif
-
+	
 		case KEY_1 + KEY_SHIFTED:
 		case KEY_2 + KEY_SHIFTED:
 		case KEY_3 + KEY_SHIFTED:
@@ -1469,39 +1467,18 @@ void HandleGameKey(int key)
 		case KEY_8 + KEY_SHIFTED:
 		case KEY_9 + KEY_SHIFTED:
 		case KEY_0 + KEY_SHIFTED:
-		if (EscortHotKeys)
-		{
-			if (!(Game_mode & GM_MULTI))
-				set_escort_special_goal(key);
-			else
-				HUD_init_message ("No Guide-Bot in Multiplayer!");
-			break;
-		}
+			if (EscortHotKeys)
+			{
+				if (!(Game_mode & GM_MULTI))
+					set_escort_special_goal(key);
+				else
+					HUD_init_message ("No Guide-Bot in Multiplayer!");
+				break;
+			}
 
-		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
-		case KEY_F5 + KEY_SHIFTED:
-	 DropCurrentWeapon();
-			break;
-
-		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_6:)
-		case KEY_F6 + KEY_SHIFTED:
-	 DropSecondaryWeapon();
-	 break;
 		case KEY_ALTED+KEY_F7:
 			GameArg.GfxGaugeHudMode=(GameArg.GfxGaugeHudMode+1)%GAUGE_HUD_NUMMODES;
 			break;
-
-#ifdef NETWORK
-		case KEY_0 + KEY_ALTED:
-			DropFlag ();
-			break;
-#endif
-
-		MAC(case KEY_COMMAND+KEY_4:)
-		case KEY_F4:
-		if (!DefiningMarkerMessage)
-		  InitMarkerInput();
-		 break;
 
 #ifdef NETWORK
 		MAC(case KEY_COMMAND+KEY_6:)
@@ -1534,6 +1511,32 @@ void HandleGameKey(int key)
 			break;
 
 	}	 //switch (key)
+
+	if (!Player_is_dead)
+		switch (key)
+		{
+			MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
+			case KEY_F5 + KEY_SHIFTED:
+				DropCurrentWeapon();
+				break;
+	
+			MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_6:)
+			case KEY_F6 + KEY_SHIFTED:
+				DropSecondaryWeapon();
+				break;
+
+#ifdef NETWORK
+			case KEY_0 + KEY_ALTED:
+				DropFlag ();
+				break;
+#endif
+	
+			MAC(case KEY_COMMAND+KEY_4:)
+			case KEY_F4:
+				if (!DefiningMarkerMessage)
+					InitMarkerInput();
+				break;
+		}
 }
 
 void kill_all_robots(void)
