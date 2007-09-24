@@ -1229,30 +1229,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 						}
 					}
 				}
-			} else if ((item[choice].type!=NM_TYPE_INPUT) && (item[choice].type!=NM_TYPE_INPUT_MENU) ) {
-				ascii = key_to_ascii(k);
-				if (ascii < 255 ) {
-					int choice1 = choice;
-					ascii = toupper(ascii);
-					do {
-						int i,ch;
-						choice1++;
-						if (choice1 >= nitems ) choice1=0;
-						for (i=0;(ch=item[choice1].text[i])!=0 && ch==' ';i++);
-						if ( ( (item[choice1].type==NM_TYPE_MENU) ||
-								 (item[choice1].type==NM_TYPE_CHECK) ||
-								 (item[choice1].type==NM_TYPE_RADIO) ||
-								 (item[choice1].type==NM_TYPE_NUMBER) ||
-								 (item[choice1].type==NM_TYPE_SLIDER) )
-								&& (ascii==toupper(ch)) )	{
-							k = 0;
-							choice = choice1;
-							if (old_choice>-1)
-								item[old_choice].redraw=1;
-							item[choice].redraw=1;
-						}
-					} while (choice1 != choice );
-				}	
 			}
 
 			if ( (item[choice].type==NM_TYPE_NUMBER) || (item[choice].type==NM_TYPE_SLIDER)) 	{
