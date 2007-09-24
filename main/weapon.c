@@ -619,12 +619,15 @@ void ReorderPrimary ()
 {
 	newmenu_item m[MAX_PRIMARY_WEAPONS+1];
 	int i;
+	char never_autoselect[32]="";
+
+	sprintf(never_autoselect,"%s%s%s%s%s%s%s Never Autoselect %s%s%s%s%s%s%s",DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER);
 
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
 	{
 		m[i].type=NM_TYPE_MENU;
 		if (PrimaryOrder[i]==255)
-			m[i].text="������� Never autoselect �������";
+			m[i].text=never_autoselect;
 		else
 			m[i].text=(char *)PRIMARY_WEAPON_NAMES(PrimaryOrder[i]);
 		m[i].value=PrimaryOrder[i];
@@ -641,12 +644,15 @@ void ReorderSecondary ()
 {
 	newmenu_item m[MAX_SECONDARY_WEAPONS+1];
 	int i;
+	char never_autoselect[32]="";
+
+	sprintf(never_autoselect,"%s%s%s%s%s%s%s Never Autoselect %s%s%s%s%s%s%s",DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER,DOWN_ARROW_MARKER);
 
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 	{
 		m[i].type=NM_TYPE_MENU;
 		if (SecondaryOrder[i]==255)
-			m[i].text="������� Never autoselect �������";
+			m[i].text=never_autoselect;
 		else
 			m[i].text=(char *)SECONDARY_WEAPON_NAMES(SecondaryOrder[i]);
 		m[i].value=SecondaryOrder[i];

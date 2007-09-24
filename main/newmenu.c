@@ -1169,7 +1169,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				if (choice<TopChoice)
 					{ choice=TopChoice; break; }
 		
-				if (choice<ScrollOffset)
+				if (choice-4<ScrollOffset && ScrollOffset > 0)
 				{
 					for (i=0;i<nitems;i++)
 						item[i].redraw=1;
@@ -1210,7 +1210,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 					if (choice==nitems)
 						{ choice--; break; }
 		
-					if (choice>=MaxOnMenu+ScrollOffset)
+					if (choice+4>=MaxOnMenu+ScrollOffset && ScrollOffset < nitems-MaxOnMenu)
 					{
 						for (i=0;i<nitems;i++)
 								item[i].redraw=1;
@@ -1418,8 +1418,8 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		if ( !done && mouse_state && !omouse_state && !all_text ) {
 			mouse_get_pos(&mx, &my, &mz);
 			for (i=0; i<nitems; i++ )	{
-				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x - item[i].right_offset - 6;
-				x2 = x1 + item[i].w;
+				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X(HiresGFX?22:10) /*- item[i].right_offset - 6*/;
+				x2 = x1 + item[i].w-FONTSCALE_X(HiresGFX?22:10);
 				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
 				y2 = y1 + item[i].h;
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
@@ -1469,9 +1469,9 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				
 				if (ScrollOffset != 0) {
 					gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset].x-(HiresGFX?24:12);
-		          		y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset].y-((string_height+1)*ScrollOffset);
-					x1 = x1 - arrow_width;
+					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset].x-FONTSCALE_X(HiresGFX?22:10);
+		          		y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
+					x1 = x2 - arrow_width;
 					y2 = y1 + arrow_height;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 						choice--;
@@ -1489,9 +1489,9 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				}
 				if (ScrollOffset+MaxDisplayable<nitems) {
 					gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset+MaxDisplayable-1].x-(HiresGFX?24:12);
-					y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset+MaxDisplayable-1].y-((string_height+1)*ScrollOffset);
-					x1 = x1 - arrow_width;
+					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset+MaxDisplayable-1].x-FONTSCALE_X(HiresGFX?22:10);
+					y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset+MaxDisplayable-1].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
+					x1 = x2 - arrow_width;
 					y2 = y1 + arrow_height;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 						choice++;
@@ -1510,10 +1510,11 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			}
 			
 			for (i=0; i<nitems; i++ )	{
-				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x - item[i].right_offset - 6;
-				x2 = x1 + item[i].w;
+				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X(HiresGFX?22:10) /*- item[i].right_offset - 6*/;
+				x2 = x1 + item[i].w+FONTSCALE_X(HiresGFX?22:10);
 				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
 				y2 = y1 + item[i].h;
+
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (item[i].type != NM_TYPE_TEXT) ) {
 					if (i+ScrollOffset != choice) {
 						if(Hack_DblClick_MenuMode) dblclick_flag = 0; 
@@ -1578,16 +1579,18 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		
 		if ( !done && !mouse_state && omouse_state && !all_text && (choice != -1) && (item[choice].type == NM_TYPE_MENU) ) {
 			mouse_get_pos(&mx, &my, &mz);
-			x1 = grd_curcanv->cv_bitmap.bm_x + item[choice].x;
-			x2 = x1 + item[choice].w;
-			y1 = grd_curcanv->cv_bitmap.bm_y + item[choice].y;
-			y2 = y1 + item[choice].h;
-			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-				if (Hack_DblClick_MenuMode) {
-					if (dblclick_flag) done = 1;
-					else dblclick_flag = 1;
+			for (i=0; i<nitems; i++ )	{
+				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X(HiresGFX?22:10) /*- item[i].right_offset - 6*/;
+				x2 = x1 + item[i].w-FONTSCALE_X(HiresGFX?22:10);
+				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
+				y2 = y1 + item[i].h;
+				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+					if (Hack_DblClick_MenuMode) {
+						if (dblclick_flag) done = 1;
+						else dblclick_flag = 1;
+					}
+					else done = 1;
 				}
-				else done = 1;
 			}
 		}
 		
@@ -1652,30 +1655,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 						}
 					}
 				}
-			} else if ((item[choice].type!=NM_TYPE_INPUT) && (item[choice].type!=NM_TYPE_INPUT_MENU) ) {
-				ascii = key_to_ascii(k);
-				if (ascii < 255 ) {
-					int choice1 = choice;
-					ascii = toupper(ascii);
-					do {
-						int i,ch;
-						choice1++;
-						if (choice1 >= nitems ) choice1=0;
-						for (i=0;(ch=item[choice1].text[i])!=0 && ch==' ';i++);
-						if ( ( (item[choice1].type==NM_TYPE_MENU) ||
-								 (item[choice1].type==NM_TYPE_CHECK) ||
-								 (item[choice1].type==NM_TYPE_RADIO) ||
-								 (item[choice1].type==NM_TYPE_NUMBER) ||
-								 (item[choice1].type==NM_TYPE_SLIDER) )
-								&& (ascii==toupper(ch)) )	{
-							k = 0;
-							choice = choice1;
-							if (old_choice>-1)
-								item[old_choice].redraw=1;
-							item[choice].redraw=1;
-						}
-					} while (choice1 != choice );
-				}	
 			}
 
 			if ( (item[choice].type==NM_TYPE_NUMBER) || (item[choice].type==NM_TYPE_SLIDER)) 	{
@@ -1751,7 +1730,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				grd_curcanv->cv_font = SELECTED_FONT;
 						
 				sy=item[ScrollOffset].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
-				sx=item[ScrollOffset].x-(HiresGFX?24:12);
+				sx=item[ScrollOffset].x-FONTSCALE_X(HiresGFX?22:10);
 						
 			
 				if (ScrollOffset!=0)
@@ -1760,7 +1739,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 					nm_rstring( &bg, (HiresGFX?20:10), sx, sy, "  " );
 		
 				sy=item[ScrollOffset+MaxDisplayable-1].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
-				sx=item[ScrollOffset+MaxDisplayable-1].x-(HiresGFX?24:12);
+				sx=item[ScrollOffset+MaxDisplayable-1].x-FONTSCALE_X(HiresGFX?22:10);
 			
 				if (ScrollOffset+MaxDisplayable<nitems)
 					nm_rstring( &bg, (HiresGFX?20:10), sx, sy, DOWN_ARROW_MARKER );
