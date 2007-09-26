@@ -106,7 +106,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "radar.h"
 #include "vers_id.h"
 #include "ban.h"
-#include "pingstat.h"
 #include "vlcnfire.h"
 #include "fvi.h"
 //MD2211
@@ -619,54 +618,8 @@ void show_framerate()
 }
 
 #ifdef NETWORK
-void show_netplayerinfo(){
-// 	int j,x1,x2,x3,x4,x5,w,h,aw,y;
-// 	char buf[6];
-// 
-// 	y=FONTSCALE_Y(25);
-// 	gr_set_curfont( GAME_FONT );
-// 	gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
-//         gr_printf(0,y,"Lifetime Effeciency: %i%% (%i/%i)",
-//                   (multi_kills_stat+Players[Player_num].net_killed_total+multi_deaths_stat+Players[Player_num].net_kills_total)?((multi_kills_stat+Players[Player_num].net_kills_total)*100)/(multi_deaths_stat+Players[Player_num].net_killed_total+multi_kills_stat+Players[Player_num].net_kills_total):0,
-//                    multi_kills_stat+Players[Player_num].net_kills_total,
-//                    multi_deaths_stat+Players[Player_num].net_killed_total);
-// 	y+=FONTSCALE_Y(GAME_FONT->ft_h+2);
-// 	gr_printf(0,y,"pps: %i",Network_pps);
-// 	
-// 	gr_get_string_size("pps: 20 ", &x1, &h, &aw );
-// 	gr_printf(x1,y,"level: %i:%02i:%02i",Players[Player_num].hours_level,f2i(Players[Player_num].time_level) / 60 % 60,f2i(Players[Player_num].time_level) % 60);//w was 40
-// 
-// 	gr_get_string_size("level: 24:37:56 ", &w, &h, &aw );
-// 	gr_printf(x1+w,y,"total: %i:%02i:%02i",Players[Player_num].hours_total,f2i(Players[Player_num].time_total) / 60 % 60,f2i(Players[Player_num].time_total) % 60);//x1+w was 110
-// 	
-// 	gr_get_string_size("ABCDEFGH 999/", &x1, &h, &aw );
-// 	gr_get_string_size("999(", &x2, &h, &aw );x2+=x1;
-// 	gr_get_string_size("100%)", &x3, &h, &aw );x3+=x2;
-// 	gr_get_string_size(" ", &x4, &h, &aw );x4+=x3;
-// 	gr_get_string_size("shrt ", &x5, &h, &aw );x5+=x4;
-// 	for (j=0;j<MAX_PLAYERS;j++){
-// 		y+=FONTSCALE_Y(GAME_FONT->ft_h+2);
-// 		if (!Players[j].callsign[0]) continue;//don't print blank entries
-// 			if (Players[j].connected != 1)
-// 				gr_set_fontcolor(gr_getcolor(12, 12, 12), -1);
-// 			else
-// 				gr_set_fontcolor(gr_getcolor(player_rgb[j].r,player_rgb[j].g,player_rgb[j].b),-1 );
-// 		gr_printf(0,y,"%s",Players[j].callsign);
-// 
-// 		sprintf(buf,"%i/",Players[j].net_kills_total);
-// 		gr_get_string_size(buf, &w, &h, &aw );
-// 		gr_string(x1-w,y,buf);//was 62-w
-// 		sprintf(buf,"%i(",Players[j].net_killed_total);
-// 		gr_get_string_size(buf, &w, &h, &aw );
-// 		gr_string(x2-w,y,buf);//was 80-w
-//                 sprintf(buf,"%i%%)",(Players[j].net_killed_total+Players[j].net_kills_total)?(Players[j].net_kills_total*100)/(Players[j].net_killed_total+Players[j].net_kills_total):0);
-// 		gr_get_string_size(buf, &w, &h, &aw );
-// 		if(w>x3-x2) w=x3-x2;//was 22
-// 		gr_string(x3-w,y,buf);//was 103-w
-// 
-// 		gr_printf(x4,y,"%s",((j==Player_num)?Network_short_packets:Net_D1xPlayer[j].shp)?"shrt":"long");//x4 was 110
-// 		gr_printf(x5,y,"%s",(j==Player_num)?DESCENT_VERSION:Net_D1xPlayer[j].ver);//x5 was 136
-// 	}
+void show_netplayerinfo()
+{
 	int x=0, y=0, i=0, color=0;
 	int line_spacing=FONTSCALE_Y(GAME_FONT->ft_h+1), char_spacing=FONTSCALE_X(GAME_FONT->ft_w+1);
 	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
@@ -724,11 +677,13 @@ void show_netplayerinfo(){
 	gr_printf(x+char_spacing*18,y,"ping");
 	gr_printf(x+char_spacing*23,y,"efficiency");
 
+	network_ping_all();
+
 	// process players table
 	for (i=0; i<=MAX_PLAYERS; i++)
 	{
 		y+=line_spacing;
-		if (!Players[i].callsign[0])
+		if (!Players[i].connected)
 			continue;
 		if (Game_mode & GM_TEAM)
 			color=get_team(i);
@@ -744,7 +699,7 @@ void show_netplayerinfo(){
 			gr_printf(x+char_spacing*12,y,"%-6d",Players[i].net_killed_total);
 		}
 
-		gr_printf(x+char_spacing*18,y,"%-6d",fixmuldiv(ping_stats_getping(i),1000,F1_0));
+		gr_printf(x+char_spacing*18,y,"%-6d",PingTable[i]);
 		gr_printf(x+char_spacing*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
 	}
 
@@ -766,34 +721,6 @@ void show_netplayerinfo(){
 		gr_printf(x+char_spacing*8,y,"%i",team_kills[1]);
 		y+=line_spacing*2;
 	}
-// 	else
-// 		y+=line_spacing*4;
-// 
-// 	gr_set_fontcolor(255,-1);
-// 
-// 	// additional information about game - hoard, ranking
-// 	eff=(int)((float)((float)Netlife_kills/((float)Netlife_killed+(float)Netlife_kills))*100.0);
-// 	if (eff<0)
-// 		eff=0;
-// 
-// 	if (Game_mode & GM_HOARD)
-// 	{
-// 		if (PhallicMan==-1)
-// 			gr_printf(0x8000,y,"There is no record yet for this level."); 
-// 		else
-// 			gr_printf(0x8000,y,"%s has the record at %d points.",Players[PhallicMan].callsign,PhallicLimit);
-// 	}
-// 	else if (!GameArg.MplNoRankings)
-// 	{
-// 		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,Netlife_kills,Netlife_killed);
-// 		y+=line_spacing;
-// 		if (eff<60)
-// 			gr_printf(0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
-// 		else
-// 			gr_printf(0x8000,y,"is serving you well.");
-// 		y+=line_spacing;
-// 		gr_printf(0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
-// 	}
 }
 #endif
 
@@ -1832,7 +1759,6 @@ void game()
 
 #ifdef NETWORK
 	readbans();
-	ping_stats_init();
 #endif
 
 	if ( setjmp(LeaveGame)==0 ) {

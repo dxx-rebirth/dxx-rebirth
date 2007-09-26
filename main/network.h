@@ -157,6 +157,10 @@ extern int Network_pps; // packets per second
 
 extern int network_who_is_master(void);
 
+extern int PingTable[MAX_PLAYERS];
+extern void network_ping_all();
+extern void network_handle_ping_return (ubyte pnum);
+
 // By putting an up-to-20-char-message into Network_message and 
 // setting Network_message_reciever to the player num you want to
 // send it to (100 for broadcast) the next frame the player will

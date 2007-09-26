@@ -73,10 +73,6 @@ static char rcsid[] = "$Id: multi.c,v 1.1.1.1 2006/03/17 19:43:22 zicodxx Exp $"
 #include "ignore.h"
 //End addition by GRiM FisH
 
-//added 11/01/98 Matt Mueller
-#include "pingstat.h"
-//end addition -MM
-
 //added 03/04/99 Matt Mueller
 #include "byteswap.h"
 #include "types.h"
@@ -2373,10 +2369,8 @@ multi_process_data(char *buf, int len)
 				}break;
                 case MULTI_PONG:
 			if (!Endlevel_sequence) {
-				int pingtime;
 				mprintf((0,"got DIRECTPONG from %i\n",buf[1]));
-				pingtime = timer_get_fixed_seconds() - (u_int32_t)swapint(*(u_int32_t*)(buf+2));
-				hud_message(MSGC_GAME_FEEDBACK, "%s %s %ums", "Ping response from ",Players[(int)buf[1]].callsign, fixmuldiv(pingtime, 1000, F1_0));
+				network_handle_ping_return (buf[1]);
 
 			}break;
 		//end addition -MM

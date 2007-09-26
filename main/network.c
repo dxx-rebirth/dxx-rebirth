@@ -72,10 +72,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ignore.h"
 // End addition by GRiM FisH
 
-//added 03/04/99 Matt Mueller
-#include "pingstat.h"
-//end addition -MM
-
 //added 04/23/99 Victor Rachels for alt vulcan fire
 #include "vlcnfire.h"
 //end addition -MM
@@ -3653,15 +3649,15 @@ void network_read_pdata_packet(ubyte *data, int short_packet)
 
 }
 
-// get player number of master
-// (the lowest numbered connected player)
-int network_whois_master() {
-	int i;
-	for (i = 0; i < Netgame.numplayers; i++)
-		if (Netgame.players[i].connected)
-			return i;
-	Error("No players in netgame");
-}
+// // get player number of master
+// // (the lowest numbered connected player)
+// int network_whois_master() {
+// 	int i;
+// 	for (i = 0; i < Netgame.numplayers; i++)
+// 		if (Netgame.players[i].connected)
+// 			return i;
+// 	Error("No players in netgame");
+// }
 
 int network_who_is_master(void)
 {
@@ -3676,6 +3672,50 @@ int network_who_is_master(void)
 		if (Players[i].connected)
 			return i;
 	return Player_num;
+}
+
+static fix PingLaunchTime[MAX_PLAYERS],PingReturnTime[MAX_PLAYERS];
+fix PingTable[MAX_PLAYERS];
+
+void network_handle_ping_return (ubyte pnum)
+{
+	if (PingLaunchTime[pnum]==0 || pnum>=N_players)
+	{
+		mprintf ((0,"Got invalid PING RETURN from %s!\n",Players[pnum].callsign));
+		return;
+	}
+
+	PingReturnTime[pnum]=timer_get_fixed_seconds();
+	PingTable[pnum]=f2i(fixmul(PingReturnTime[pnum]-PingLaunchTime[pnum],i2f(1000)));
+	PingLaunchTime[pnum]=0;
+}
+	
+void network_send_ping (ubyte pnum)
+{
+		  multibuf[0]=MULTI_PING;
+		  multibuf[1]=Player_num;
+		  *(u_int32_t*)(multibuf+2)=swapint(timer_get_fixed_seconds());
+		  mekh_send_direct_packet(multibuf,2+4,pnum);
+}
+
+static int PingTime=0;
+// ping all connected players (except yourself) in 3sec interval and update ping_table
+void network_ping_all()
+{
+	int i;
+
+	if (PingTime+(F1_0*3)<GameTime)
+	{
+		for (i=0; i<=MAX_PLAYERS; i++)
+		{
+			if (Players[i].connected && i != Player_num)
+			{
+				PingLaunchTime[i]=timer_get_fixed_seconds();
+				network_send_ping(i);
+			}
+		}
+		PingTime=GameTime;
+	}
 }
 
 void DoRefuseStuff (sequence_packet *their)

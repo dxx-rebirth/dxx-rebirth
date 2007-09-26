@@ -51,7 +51,6 @@ static char rcsid[] = "$Id: gauges.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include "text.h"
 #include "render.h"
 #include "piggy.h"
-#include "pingstat.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070925
+--------
+main/SConstruct, main/game.c, main/gauges.c, main/multi.c, main/network.c, main/network.h, main/nncoms.c: Small fixes for new netgame info screen; Doing PING routines D2X-way while trying to keep compability to other D1X versions
+
 20070924
 --------
 main/newmenu.c: Removed key shortcuts for menus
