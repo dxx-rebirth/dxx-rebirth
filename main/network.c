@@ -5729,27 +5729,28 @@ void network_ping (ubyte flag,int pnum)
 	#endif
 }
 
-extern fix PingLaunchTime,PingReturnTime;
-int ping_table[MAX_PLAYERS];
+static fix PingLaunchTime[MAX_PLAYERS],PingReturnTime[MAX_PLAYERS];
+fix PingTable[MAX_PLAYERS];
 
 void network_handle_ping_return (ubyte pnum)
 {
-	if (PingLaunchTime==0 || pnum>=N_players)
+	if (PingLaunchTime[pnum]==0 || pnum>=N_players)
 	{
 		mprintf ((0,"Got invalid PING RETURN from %s!\n",Players[pnum].callsign));
 		return;
 	}
-	PingReturnTime=timer_get_fixed_seconds();
-	ping_table[pnum]=f2i(fixmul(PingReturnTime-PingLaunchTime,i2f(1000)));
-	PingLaunchTime=0;
+
+	PingReturnTime[pnum]=timer_get_fixed_seconds();
+	PingTable[pnum]=f2i(fixmul(PingReturnTime[pnum]-PingLaunchTime[pnum],i2f(1000)));
+	PingLaunchTime[pnum]=0;
 }
 	
 void network_send_ping (ubyte pnum)
- {
-  network_ping (PID_PING_SEND,pnum);
- }  
+{
+	network_ping (PID_PING_SEND,pnum);
+}
 
-int PingTime=0;
+static int PingTime=0;
 // ping all connected players (except yourself) in 3sec interval and update ping_table
 void network_ping_all()
 {
@@ -5759,8 +5760,11 @@ void network_ping_all()
 	{
 		for (i=0; i<=MAX_PLAYERS; i++)
 		{
-			if (Players[i].callsign[0] && i != Player_num)
+			if (Players[i].connected && i != Player_num)
+			{
+				PingLaunchTime[i]=timer_get_fixed_seconds();
 				network_send_ping(i);
+			}
 		}
 		PingTime=GameTime;
 	}

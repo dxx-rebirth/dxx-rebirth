@@ -1419,7 +1419,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			mouse_get_pos(&mx, &my, &mz);
 			for (i=0; i<nitems; i++ )	{
 				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X(HiresGFX?22:10) /*- item[i].right_offset - 6*/;
-				x2 = x1 + item[i].w-FONTSCALE_X(HiresGFX?22:10);
+				x2 = x1 + item[i].w+FONTSCALE_X(HiresGFX?22:10);
 				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
 				y2 = y1 + item[i].h;
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
@@ -1510,7 +1510,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			}
 			
 			for (i=0; i<nitems; i++ )	{
-				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X(HiresGFX?22:10) /*- item[i].right_offset - 6*/;
+				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X(HiresGFX?22:10);
 				x2 = x1 + item[i].w+FONTSCALE_X(HiresGFX?22:10);
 				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
 				y2 = y1 + item[i].h;
@@ -1580,8 +1580,8 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		if ( !done && !mouse_state && omouse_state && !all_text && (choice != -1) && (item[choice].type == NM_TYPE_MENU) ) {
 			mouse_get_pos(&mx, &my, &mz);
 			for (i=0; i<nitems; i++ )	{
-				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X(HiresGFX?22:10) /*- item[i].right_offset - 6*/;
-				x2 = x1 + item[i].w-FONTSCALE_X(HiresGFX?22:10);
+				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X(HiresGFX?22:10);
+				x2 = x1 + item[i].w+FONTSCALE_X(HiresGFX?22:10);
 				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
 				y2 = y1 + item[i].h;
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
@@ -1593,7 +1593,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				}
 			}
 		}
-		
+
 		if ( !done && !mouse_state && omouse_state && (choice>-1) && (item[choice].type==NM_TYPE_INPUT_MENU) && (item[choice].group==0))	{
 			item[choice].group = 1;
 			item[choice].redraw = 1;

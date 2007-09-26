@@ -206,7 +206,7 @@ void network_send_data(ubyte * ptr, int len, int urgent);
 // returns 1 if hoard.ham available
 extern int HoardEquipped();
 
-extern int ping_table[MAX_PLAYERS];
+extern int PingTable[MAX_PLAYERS];
 extern void network_ping_all();
 extern int network_who_is_master(void);
 

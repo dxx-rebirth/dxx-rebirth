@@ -268,7 +268,7 @@ void show_netplayerinfo()
 	for (i=0; i<=MAX_PLAYERS; i++)
 	{
 		y+=line_spacing;
-		if (!Players[i].callsign[0])
+		if (!Players[i].connected)
 			continue;
 		if (Game_mode & GM_TEAM)
 			color=get_team(i);
@@ -284,7 +284,7 @@ void show_netplayerinfo()
 			gr_printf(x+char_spacing*12,y,"%-6d",Players[i].net_killed_total);
 		}
 
-		gr_printf(x+char_spacing*18,y,"%-6d",ping_table[i]);
+		gr_printf(x+char_spacing*18,y,"%-6d",PingTable[i]);
 		gr_printf(x+char_spacing*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
 	}
 

@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070925
 --------
 main/gamecntl.c: Moved some game keys to not apply if Player_is_dead flag is set
+main/gamerend.c, main/multi.c, main/network.c, main/network.h: Small fixes for new netgame info screen; Fixed PING routines; Once again fixed some newmenu mouse actions
 
 20070924
 --------

@@ -80,7 +80,6 @@ void multi_add_lifetime_killed();
 void multi_add_lifetime_kills();
 void multi_send_play_by_play(int num,int spnum,int dpnum);
 void multi_send_heartbeat();
-void multi_send_modem_ping();
 void multi_cap_objects();
 void multi_adjust_remote_cap(int pnum);
 void multi_save_game(ubyte slot, uint id, char *desc);
@@ -1175,9 +1174,7 @@ multi_send_message_start()
 }
 
 extern fix StartingShields;
-fix PingLaunchTime,PingReturnTime;
 
-extern void network_send_ping (ubyte);
 extern int network_who_is_master();
 extern char NameReturning;
 extern int force_cockpit_redraw;
@@ -4968,31 +4965,6 @@ void multi_do_ranking (char *buf)
 	if (!GameArg.MplNoRankings)
 		HUD_init_message ("%s has been %s to %s!",Players[(int)pnum].callsign,rankstr,RankStrings[(int)rank]);
 }
-void multi_send_modem_ping ()
-{
-	multibuf[0]=MULTI_MODEM_PING;
-	multi_send_data (multibuf,1,1);
-}
-void multi_send_modem_ping_return ()
-{
-	multibuf[0]=MULTI_MODEM_PING_RETURN;
-	multi_send_data (multibuf,1,1);
-}
-
-void  multi_do_modem_ping_return ()
-{
-	if (PingLaunchTime==0)
-	{
-		mprintf ((0,"Got invalid PING RETURN from opponent!\n"));
-		return;
-	}
-
-	PingReturnTime=timer_get_fixed_seconds();
-
-	HUD_init_message ("Ping time for opponent is %d ms!",f2i(fixmul(PingReturnTime-PingLaunchTime,i2f(1000))));
-	PingLaunchTime=0;
-}
-
 
 void multi_quick_sound_hack (int num)
 {
@@ -5375,10 +5347,6 @@ multi_process_data(char *buf, int len)
 		if (!Endlevel_sequence) multi_do_play_by_play(buf); break;
 	case MULTI_RANK:
 		if (!Endlevel_sequence) multi_do_ranking (buf); break;
-	case MULTI_MODEM_PING:
-		if (!Endlevel_sequence) multi_send_modem_ping_return(); break;
-	case MULTI_MODEM_PING_RETURN:
-		if (!Endlevel_sequence) multi_do_modem_ping_return(); break;
 #ifndef SHAREWARE
 	case MULTI_FINISH_GAME:
 		multi_do_finish_game(buf); break;  // do this one regardless of endsequence
