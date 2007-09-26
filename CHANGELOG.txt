@@ -1,9 +1,16 @@
 D2X-Rebirth Changelog
 
+20070927
+--------
+main/gamerend.c: Removed line_spacing for not connected players in Netgame info screen
+
+20070926
+--------
+main/gamerend.c, main/multi.c, main/network.c, main/network.h: Small fixes for new netgame info screen; Fixed PING routines; Once again fixed some newmenu mouse actions
+
 20070925
 --------
 main/gamecntl.c: Moved some game keys to not apply if Player_is_dead flag is set
-main/gamerend.c, main/multi.c, main/network.c, main/network.h: Small fixes for new netgame info screen; Fixed PING routines; Once again fixed some newmenu mouse actions
 
 20070924
 --------
