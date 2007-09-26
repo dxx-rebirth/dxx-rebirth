@@ -1,6 +1,10 @@
 D1X-Rebirth Changelog
 
-20070925
+20070927
+--------
+main/game.c: Removed line_spacing for not connected players in Netgame info screen
+
+20070926
 --------
 main/SConstruct, main/game.c, main/gauges.c, main/multi.c, main/network.c, main/network.h, main/nncoms.c: Small fixes for new netgame info screen; Doing PING routines D2X-way while trying to keep compability to other D1X versions
 

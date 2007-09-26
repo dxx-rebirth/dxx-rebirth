@@ -682,9 +682,11 @@ void show_netplayerinfo()
 	// process players table
 	for (i=0; i<=MAX_PLAYERS; i++)
 	{
-		y+=line_spacing;
 		if (!Players[i].connected)
 			continue;
+
+		y+=line_spacing;
+
 		if (Game_mode & GM_TEAM)
 			color=get_team(i);
 		else
