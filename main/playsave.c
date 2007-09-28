@@ -27,6 +27,13 @@ static char rcsid[] = "$Id: playsave.c,v 1.1.1.1 2006/03/17 19:42:10 zicodxx Exp
 #include <errno.h>
 #include <limits.h>
 
+#ifdef __unix__
+#include <sys/stat.h>
+#include <sys/types.h>
+#else
+#include <dir.h>
+#endif
+
 #include "error.h"
 
 #include "gameseq.h"
@@ -430,17 +437,8 @@ void plyr_read_stats_v(int *k, int *d){
 	
 	*k=0;*d=0;//in case the file doesn't exist.
 		
-	sprintf(filename,"%s.eff",Players[Player_num].callsign);
-	strlwr(filename);
+	sprintf(filename,GameArg.SysUsePlayersDir?"Players/%s.eff":"%s.eff",Players[Player_num].callsign);
 	f=fopen(filename, "rt");
-
-	if(f && isatty(fileno(f)))
-	{
-		fclose(f);
-		sprintf(filename,"$%.7s.pl$",Players[Player_num].callsign);
-		strlwr(filename);
-		f=fopen(filename,"rt");
-	}
 
 	if(f)
 	{
@@ -508,19 +506,9 @@ void plyr_save_stats()
 	kills=multi_kills_stat;
 	deaths=multi_deaths_stat;
 	
-	sprintf(filename,"%s.eff",Players[Player_num].callsign);
-	strlwr(filename);
-	f=fopen(filename, "rt");
-	
-	if(f && isatty(fileno(f)))
-	{
-		fclose(f);
-		sprintf(filename,"$%.7s.pl$",Players[Player_num].callsign);
-		strlwr(filename);
-		f=fopen(filename,"rt");
-	}
-	
+	sprintf(filename,GameArg.SysUsePlayersDir?"Players/%s.eff":"%s.eff",Players[Player_num].callsign);
 	f=fopen(filename, "wt");
+
 	if(!f)
 	return; //broken!
 	
@@ -579,14 +567,15 @@ int write_player_d1x(const char *filename)
 	strcat(tempfile,".pl$");
 	
 	fout=fopen(tempfile,"wt");
-	
-	if (fout && isatty(fileno(fout)))
+
+	if (!fout && GameArg.SysUsePlayersDir)
 	{
-		//if the callsign is the name of a tty device, prepend a char
-		fclose(fout);
-		sprintf(tempfile,"$%.7s.pl$",Players[Player_num].callsign);
-		strlwr(tempfile);
-		fout = fopen(tempfile,"wt");
+		mkdir("Players/"
+#ifndef __WINDOWS__
+		, 0775
+#endif
+		); //try making directory
+		fout=fopen(tempfile,"wt");
 	}
 	
 	if(fout)
@@ -669,18 +658,8 @@ int read_player_file()
 	memcpy(primary_order, default_primary_order, sizeof(primary_order));
         memcpy(secondary_order, default_secondary_order, sizeof(secondary_order));
 
-	sprintf(filename,"%s.plr",Players[Player_num].callsign);
-        strlwr(filename);
+	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr",Players[Player_num].callsign);
 	file = fopen(filename,"rb");
-
-	//check filename
-	if (file && isatty(fileno(file))) {
-		//if the callsign is the name of a tty device, prepend a char
-		fclose(file);
-		sprintf(filename,"$%.7s.plr",Players[Player_num].callsign);
-                strlwr(filename);
-		file = fopen(filename,"rb");
-	}
 
 	if (!file) {
 		return errno;
@@ -878,7 +857,6 @@ int read_player_file()
 
 	filename[strlen(filename) - 4] = 0;
 	strcat(filename, ".plx");
-        strlwr(filename);
 	read_player_d1x(filename);
 
          {
@@ -986,24 +964,11 @@ int write_player_file()
 
 	info.n_highest_levels = n_highest_levels;
 
-        sprintf(filename,"%s.plx",Players[Player_num].callsign);
-        strlwr(filename);
+        sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
 	write_player_d1x(filename);
 
-	sprintf(filename,"%s.plr",Players[Player_num].callsign);
-        strlwr(filename);
+	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	file = fopen(filename,"wb");
-
-	//check filename
-	if (file && isatty(fileno(file))) {
-
-		//if the callsign is the name of a tty device, prepend a char
-
-		fclose(file);
-		sprintf(filename,"$%.7s.plr",Players[Player_num].callsign);
-                strlwr(filename);
-		file = fopen(filename,"wb");
-	}
 
 	if (!file)
 		return errno;
@@ -1160,30 +1125,4 @@ int update_player_file()
 			return ret;
 
 	return write_player_file();
-}
-
-// returns 1 if player exists (.plr file exists), 0 otherwise
-int player_exists(const char *callsign)
-{
-	char filename[14];
-	FILE *fp;
-	
-	sprintf(filename, "%s.plr", callsign);
-	
-	fp = fopen(filename, "rb");
-	
-	//if the callsign is the name of a tty device, prepend a char
-	if (fp && isatty(fileno(fp))) {
-		fclose(fp);
-		sprintf(filename, "$%.7s.plr", callsign );
-		fp = fopen(filename, "rb");
-	}
-		
-	if ( fp )
-	{
-		fclose(fp);
-		return 1;
-	}
-
-	return 0;
 }

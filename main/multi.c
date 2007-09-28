@@ -3314,7 +3314,7 @@ void multi_save_game(ubyte slot, uint id, char *desc)
 	if ((Endlevel_sequence) || (Fuelcen_control_center_destroyed))
 		return;
 
-	sprintf( filename, "%s.mg%d", Players[Player_num].callsign, slot );
+	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, slot );
 	mprintf(( 0, "Save game %x on slot %d\n", id, slot ));
 	hud_message( MSGC_GAME_FEEDBACK, "Saving game #%d, '%s'", slot, desc );
 	stop_time();
@@ -3332,7 +3332,7 @@ void multi_restore_game(ubyte slot, uint id)
 
 	mprintf(( 0, "Restore game %x from slot %d\n", id, slot ));
 	saved_player = Players[Player_num];
-	sprintf( filename, "%s.mg%d", Players[Player_num].callsign, slot );
+	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, slot );
 	state_game_id = 0;
 	state_restore_all_sub( filename, 1 );
 

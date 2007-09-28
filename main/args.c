@@ -138,6 +138,11 @@ void ReadCmdArgs(void)
 	else
 		GameArg.SysMissionDir = DESCENT_DATA_PATH "missions/";
 
+	if (FindArg("-use_players_dir"))
+		GameArg.SysUsePlayersDir = 1;
+	else
+		GameArg.SysUsePlayersDir = 0;
+
 	if (FindArg("-lowmem"))
 		GameArg.SysLowMem = 1;
 	else

@@ -137,6 +137,7 @@ void show_commandline_help()
 	printf( "  -nicefps           %s\n", "Free CPU-cycles. Less CPU load, but game may become choppy");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
 	printf( "  -missiondir <s>    %s\n", "Set alternate mission dir to <d> instead of missions/");
+	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
 	printf( "  -pilot <s>         %s\n", "Select this pilot-file automatically");
@@ -362,20 +363,22 @@ int main(int argc,char **argv)
 	{
 		char filename[15];
 		int j;
-		snprintf(filename, 12, GameArg.SysPilot);
-		for (j=0; filename[j] != '\0'; j++) {
+
+		if (GameArg.SysUsePlayersDir)
+			strcpy(filename, "Players/");
+		strncat(filename, GameArg.SysPilot, 12);
+		for (j=GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
 			switch (filename[j]) {
 				case ' ':
 					filename[j] = '\0';
 			}
 		}
-		strlwr(filename);
 		if(!strstr(filename,".plr")) // if player hasn't specified .plr extension in argument, add it
 			strcat(filename,".plr");
 		if(!access(filename,4))
 		{
 			strcpy(strstr(filename,".plr"),"\0");
-			strcpy(Players[Player_num].callsign,filename);
+			strcpy(Players[Player_num].callsign,GameArg.SysUsePlayersDir? &filename[8] : filename);
 			read_player_file();
 			Auto_leveling_on = Default_leveling_on;
 			WriteConfigFile();

@@ -585,6 +585,7 @@ char playername_allowed_chars[] = "azAZ09__--";
 int MakeNewPlayerFile(int allow_abort)
 {
 	int x;
+	char filename[14];
 	newmenu_item m;
 	char text[CALLSIGN_LEN+1]="";
 
@@ -605,7 +606,11 @@ try_again:
 	if (text[0]==0)	//null string
 		goto try_again;
 
-	if ( player_exists(text) ) {
+	strlwr(text);
+
+	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
+
+	if ( cfexist(filename) ) {
 		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS );
                 goto try_again;
 	}
@@ -657,7 +662,7 @@ int RegisterPlayer()
 do_menu_again:
 	;
 
-	if (!newmenu_get_filename( TXT_SELECT_PILOT, "*.plr", filename, allow_abort_flag ))	{
+	if (!newmenu_get_filename( TXT_SELECT_PILOT, GameArg.SysUsePlayersDir ? "Players/*.plr" : "*.plr", filename, allow_abort_flag ))	{
 		goto do_menu_again;		// They hit Esc in file selector
 	}
 

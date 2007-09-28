@@ -182,12 +182,9 @@ int state_get_savegame_filename(char * fname, char * dsc, int multi, char * capt
 	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
 		if (!multi)
-			sprintf( filename[i], "%s.sg%d", Players[Player_num].callsign, i );
+			sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", Players[Player_num].callsign, i );
 		else
-			sprintf( filename[i], "%s.mg%d", Players[Player_num].callsign, i );
-//added on 9/30/98 by Matt Mueller to fix savegames in linux
-		strlwr(filename[i]);
-//end addition -MM
+			sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, i );
 		valid = 0;
 		fp = fopen( filename[i], "rb" );
 		if ( fp ) {
@@ -271,10 +268,7 @@ int state_save_old_game(int slotnum, char * sg_name, player * sg_player,
 	GLint gl_draw_buffer;
 #endif
 
-	sprintf( filename, "%s.sg%d", sg_player->callsign, slotnum );
-//added on 9/30/98 by Matt Mueller to fix savegames in linux
-	strlwr(filename);
-//end addition -MM
+	sprintf( filename, (GameArg.SysUsePlayersDir?"Players/%s.sg%d":"%s.sg%d"), sg_player->callsign, slotnum );
 	fp = fopen( filename, "wb" );
 	if ( !fp ) return 0;
 

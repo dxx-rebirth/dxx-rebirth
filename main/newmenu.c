@@ -1420,7 +1420,7 @@ void delete_player_saved_games(char * name)
 	char filename[16];
 	
 	for (i=0;i<10; i++)	{
-		sprintf( filename, "%s.sg%d", name, i );
+		sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", name, i );
 		remove( filename );
 	}
 }
@@ -1454,7 +1454,7 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 	int dblclick_flag=0;
 #endif
 
-	filenames = malloc( MAX_FILES * (14+sizeof(DEMO_DIR)) );
+	filenames = malloc( MAX_FILES * 24 );
 	if (filenames==NULL) return 0;
 
 	citem = 0;
@@ -1462,7 +1462,7 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 	w_x=w_y=w_w=w_h=title_height=0;
 	box_x=box_y=box_w=box_h=0;
 
-	if (!strcasecmp( filespec, "*.plr" ))
+	if (!strcasecmp( filespec, GameArg.SysUsePlayersDir ? "Players/*.plr" : "*.plr"))
 		player_mode = 1;
 	else if (!strcasecmp( filespec, DEMO_DIR "*.dem" ))
 		demo_mode = 1;
@@ -1496,7 +1496,20 @@ ReadFileNames:
 			}
 			else if (player_mode) {
 				char *p;
-				strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
+#ifndef __WINDOWS__
+				if (GameArg.SysUsePlayersDir)
+				{
+					char * buf;
+					buf = malloc( MAX_FILES * (14+sizeof("Players/")) );
+					strncpy(buf, glob_ret.gl_pathv[j], 13+sizeof("Players/"));
+					strncpy(filenames+(NumFiles*14),buf+sizeof("Players/")-1, 13+sizeof("Players/"));
+					free(buf);
+				}
+				else
+#endif
+				{
+					strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
+				}
 				p = strrchr(&filenames[NumFiles*14], '.');
 				if (p) *p = '\0';
 			}
@@ -1666,27 +1679,28 @@ ReadFileNames:
  				if (x==0)	{
 					char * p;
 					char plxfile[256], efffile[256];
-					int ret=0;
+					int ret;
+					char name[256];
+
 					p = &filenames[(citem*14)+strlen(&filenames[citem*14])];
-					if (player_mode) {
+					if (player_mode)
 						*p = '.';
-						ret = unlink( &filenames[citem*14] );
-					} else if (demo_mode) {
-						char demo_full[16 + sizeof(DEMO_DIR)];
-						strcpy(demo_full,DEMO_DIR);
-						strcat(demo_full,filenames+(citem*14));
-						ret = unlink( demo_full );
-					}
+
+					strcpy(name, demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
+					strcat(name,&filenames[citem*14]);
+
+					ret = remove(name);
 					if (player_mode)
 						*p = 0;
 
 					if ((!ret) && player_mode)	{
 						delete_player_saved_games( &filenames[citem*14] );
-						// delete PLX and EFF files
-						sprintf(plxfile,"%.8s.plx",&filenames[citem*14]);
+						// delete PLX file
+						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx",&filenames[citem*14]);
 						if (cfexist(plxfile))
 							remove(plxfile);
-						sprintf(efffile,"%.8s.eff",&filenames[citem*14]);
+						// delete EFF file
+						sprintf(efffile, GameArg.SysUsePlayersDir? "Players/%.8s.eff" : "%.8s.eff",&filenames[citem*14]);
 						if (cfexist(efffile))
 							remove(efffile);
 					}
