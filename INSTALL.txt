@@ -29,13 +29,12 @@ Currently, the following variables are supported:
 'sharepath=DIR'   (*NIX only) use DIR for shared game data. (default: /usr/local/share/games/d2x-rebirth)
 'sdl_only=1'      don't include OpenGL, use SDL-only instead
 'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
-'no_asm=1'        don't use ASSEMBLER (only with sdl_only=1)
+'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
 'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
 'profiler=1'      do profiler build
 'console=1'       build with console support !EXPERIMENTAL!
 'editor=1'        build editor !EXPERIMENTAL!
 'arm=1'           compile for ARM architecture
-'gp2x=1'          compile for GP2X handheld
 
 ‘sdlmixer’ as well as ‘editor’ are currently *not* supported and may not work.
 

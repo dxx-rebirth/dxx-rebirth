@@ -50,7 +50,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	InitArgs( argc,argv );
 
 	if (GameArg.SysUserDir
-#if defined(__unix__) && !defined(GP2X)
+#if defined(__unix__)
 		|| 1    // or if it's a unix platform
 #endif
 		)
@@ -60,7 +60,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 		char *path = GameArg.SysUserDir;
 		char fullPath[PATH_MAX + 5];
 
-#if defined(__unix__) && !defined(GP2X)
+#if defined(__unix__)
 		if (!GameArg.SysUserDir)
 			path = "~/.d2x-rebirth";
 #endif

@@ -13,7 +13,7 @@ I spend much time to improve the Sourcecode, tried to fix bugs in there and adde
 
 I hope you enjoy the game as you did when you played it the first time.
 
-If you have something to say about my release, feel free to contact me at zico [at] unixboard [dot] de
+If you have something to say about my release, feel free to contact me at zicodxx [at] yahoo [dot] de
 
 - zico 20070407
 
@@ -57,4 +57,4 @@ See COPYING.txt
 4. Contact
 
 http://www.dxx-rebirth.de/
-zico [at] unixboard [dot] de
+zicodxx [at] yahoo [dot] de

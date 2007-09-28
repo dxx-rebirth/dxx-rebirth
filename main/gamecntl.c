@@ -204,10 +204,6 @@ void play_test_sound(void);
 extern void macintosh_quit(void);	// dialog-style quit function
 #endif
 
-#ifdef GP2X
-extern int digi_volume;
-#endif
-
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
 #define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL)
 
@@ -1026,9 +1022,6 @@ int HandleSystemKey(int key)
 // fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
 			MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
-#ifdef GP2X
-			case KEY_LALT+KEY_DOWN:
-#endif
 			case KEY_SHIFTED+KEY_F1:
 				screen_changed = select_next_window_function(0);
 				break;
@@ -1170,9 +1163,6 @@ int HandleSystemKey(int key)
 
 		MAC(case KEY_COMMAND+KEY_S:)
 		MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
-#ifdef GP2X
-		case KEY_ALTED + KEY_ESC:
-#endif
 		case KEY_ALTED+KEY_F2:
 			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 				int     rsave, gsave, bsave;

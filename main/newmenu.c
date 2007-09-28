@@ -81,10 +81,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-#ifdef GP2X
-#include "gp2x.h"
-#endif
-
 #define MAXDISPLAYABLEITEMS 15
 
 #define LHX(x)      (FONTSCALE_X((x)*(HiresGFX?2:1)))
@@ -1305,9 +1301,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
-#ifdef GP2X
-		case GP2X_BUTTON_B:
-#endif
 			if ( (choice>-1) && (item[choice].type==NM_TYPE_INPUT_MENU) && (item[choice].group==0))	{
 				item[choice].group = 1;
 				item[choice].redraw = 1;
@@ -2215,9 +2208,6 @@ ReadFileNames:
 			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
-#ifdef GP2X
-		case GP2X_BUTTON_B:
-#endif
 			done = 1;
 			break;
 			
@@ -2614,9 +2604,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
-#ifdef GP2X
-		case GP2X_BUTTON_B:
-#endif
 			done = 1;
 			break;
 

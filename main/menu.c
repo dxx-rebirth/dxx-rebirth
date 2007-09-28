@@ -224,7 +224,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
 	ADD_ITEM(TXT_LOAD_GAME,MENU_LOAD_GAME,KEY_L);
-#ifndef GP2X
 #ifdef NETWORK
 	ADD_ITEM(TXT_MULTIPLAYER_,MENU_MULTIPLAYER,-1);
 #endif
@@ -232,9 +231,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_OPTIONS_, MENU_CONFIG, -1 );
 	ADD_ITEM(TXT_CHANGE_PILOTS,MENU_NEW_PLAYER,unused);
 	ADD_ITEM(TXT_VIEW_DEMO,MENU_DEMO_PLAY,0);
-#else
-	ADD_ITEM("CPU SPEED",99,0);
-#endif
 	ADD_ITEM(TXT_VIEW_SCORES,MENU_VIEW_SCORES,KEY_V);
 	if (cfexist("orderd2.pcx")) /* SHAREWARE */
 		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
@@ -430,11 +426,6 @@ void do_option ( int select)
 			songs_stop_all();
 			credits_show(NULL); 
 			break;
-#ifdef GP2X
-		case 99:
-			do_cpu_menu();
-			break;
-#endif
 		default:
 			Error("Unknown option %d in do_option",select);
 			break;
@@ -652,7 +643,6 @@ void do_new_game_menu()
 
 	if (player_highest_level > Last_level)
 		player_highest_level = Last_level;
-#ifndef GP2X
 	if (player_highest_level > 1) {
 		newmenu_item m[4];
 		char info_text[80];
@@ -666,12 +656,6 @@ try_again:
 		m[0].type=NM_TYPE_TEXT; m[0].text = info_text;
 		m[1].type=NM_TYPE_INPUT; m[1].text_len = 10; m[1].text = num_text;
 		n_items = 2;
-
-		#ifdef WINDOWS
-		m[2].type = NM_TYPE_TEXT; m[2].text = "";
-		m[3].type = NM_TYPE_MENU; m[3].text = "          Ok";
-		n_items = 4;
-		#endif
 
 		strcpy(num_text,"1");
 
@@ -688,7 +672,7 @@ try_again:
 			goto try_again;
 		}
 	}
-#endif
+
 	Difficulty_level = Player_default_difficulty;
 
 	if (!do_difficulty_menu())
@@ -1036,42 +1020,3 @@ void do_ip_manual_join_menu()
 	} while( choice > -1 );
 }
 #endif // NETWORK
-
-#ifdef GP2X
-extern void SetClock(unsigned int MHZ);
-
-void change_cpu_poll()
-{
-}
-
-void do_cpu_menu()
-{
-	// edited 05/27/99 Matt Mueller - ingame fullscreen changing
-	newmenu_item m[12];
-	u_int32_t modes[12];
-	int i = 0, mc = 0, num_presets = 0;
-	//end edit -MM
-	unsigned int cpu_speed = 200;
-
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "200 Mhz"; m[mc].value = (cpu_speed == 200); m[mc].group = 0; modes[mc] = 200; mc++;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "233 Mhz"; m[mc].value = (cpu_speed == 233); m[mc].group = 0; modes[mc] = 233; mc++;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "250 Mhz"; m[mc].value = (cpu_speed == 250); m[mc].group = 0; modes[mc] = 250; mc++;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "266 Mhz"; m[mc].value = (cpu_speed == 266); m[mc].group = 0; modes[mc] = 266; mc++;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "275 Mhz"; m[mc].value = (cpu_speed == 275); m[mc].group = 0; modes[mc] = 275; mc++;
-
-	num_presets = mc;
-	m[mc].value=0; // make sure we count and reach the right selection
-	for (i = 0; i < mc; i++)
-		if (m[mc].value)
-			break;
-
-	i = newmenu_do1(NULL, "CPU SPEED", mc, m, &change_cpu_poll, 0);
-
-	cpu_speed = modes[i];
-
-	if (cpu_speed >= 200 && cpu_speed <= 275) {
-		printf("Set CPU Clock...(%i)\n",cpu_speed);
-		SetClock(cpu_speed);
-	}
-}
-#endif

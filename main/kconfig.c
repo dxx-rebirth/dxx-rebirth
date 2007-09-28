@@ -64,10 +64,6 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:57:17 zicodxx Exp 
 #include "cntrlcen.h"
 #include "collide.h"
 
-#ifdef GP2X
-#include "gp2x.h"
-#endif
-
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -2087,10 +2083,6 @@ void controls_read_all()
 		if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_joystick[53].value < 255) && joy_get_button_state(kc_joystick[53].value))
 			transfer_energy_to_shield(joy_get_button_down_time(kc_joystick[53].value));
 	//----------- Read fire_primary_down_count
-	#ifdef GP2X // deny these controls for GP2X combo actions with SELECT
-	if (!keyd_pressed[ KEY_LALT ])
-	#endif
-	{
 		if (kc_keyboard[24].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[24].value);
 		if (kc_keyboard[25].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[25].value);
 		if ((use_joystick)&&(kc_joystick[0].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_joystick[0].value);
@@ -2119,7 +2111,7 @@ void controls_read_all()
 		if ((use_joystick)&&(kc_joystick[1].value < 255 )) Controls.fire_secondary_state |= joy_get_button_state(kc_joystick[1].value);
 		if ((use_joystick)&&(kc_joystick[32].value < 255 )) Controls.fire_secondary_state |= joy_get_button_state(kc_joystick[32].value);
 		if ((use_mouse)&&(kc_mouse[1].value < 255) ) Controls.fire_secondary_state |= mouse_button_state(kc_mouse[1].value);
-	}
+
 	//----------- Read fire_flare_down_count
 		if (kc_keyboard[28].value < 255 ) Controls.fire_flare_down_count += key_down_count(kc_keyboard[28].value);
 		if (kc_keyboard[29].value < 255 ) Controls.fire_flare_down_count += key_down_count(kc_keyboard[29].value);
@@ -2207,61 +2199,6 @@ void controls_read_all()
 		memset( &Controls, 0, sizeof(control_info) );
 	}
 	#endif
-
-#ifdef GP2X
-	if (keyd_pressed[ KEY_LALT ] && key_down_count( KEY_R )) // SELECT + R = cycle primary
-		Controls.cycle_primary_count = 1;
-	if (keyd_pressed[ KEY_LALT ] && key_down_count( KEY_L )) // SELECT + L = cycle seconday
-		Controls.cycle_secondary_count = 1;
-	if (keyd_pressed[ KEY_A ] && keyd_pressed[ KEY_R ]) // A + R = fire flare
-		Controls.fire_flare_down_count = 1;
-	if (keyd_pressed[ KEY_A ] && keyd_pressed[ KEY_X ]) // A + X = automap
-		Controls.automap_down_count = 1;
-	if (keyd_pressed[ KEY_LALT ] && keyd_pressed[ KEY_LEFT ]) // SELECT + STICK LEFT = headlight
-		Controls.headlight_count = 1;
-	if ((Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && keyd_pressed[ KEY_LALT ] && keyd_pressed[ KEY_RIGHT ]) // SELECT + STICK RIGHT = energy->shield
-		transfer_energy_to_shield(keyd_pressed[ KEY_LALT ] && keyd_pressed[ KEY_RIGHT ]);
-	if (keyd_pressed[ KEY_PADENTER ] && keyd_pressed[ KEY_Y ]) // B + Y = afterburner
-		Controls.afterburner_state = 1;
-	if (keyd_pressed[ KEY_PADENTER ] && keyd_pressed[ KEY_A ]) // B + A = drop bomb
-		Controls.drop_bomb_down_count = 1;
-	if (!slide_on) {
-		if (keyd_pressed[ KEY_PAD1 ]) {
-			Controls.pitch_time = -FrameTime/2;
-			Controls.heading_time = -FrameTime/2;
-		}
-		if (keyd_pressed[ KEY_PAD3 ]) {
-			Controls.pitch_time = -FrameTime/2;
-			Controls.heading_time = FrameTime/2;
-		}
-		if (keyd_pressed[ KEY_PAD7 ]) {
-			Controls.pitch_time = FrameTime/2;
-			Controls.heading_time = -FrameTime/2;
-		}
-		if (keyd_pressed[ KEY_PAD9 ]) {
-			Controls.pitch_time = FrameTime/2;
-			Controls.heading_time = FrameTime/2;
-		}
-	} else {
-		if (keyd_pressed[ KEY_PAD1 ]) {
-			Controls.vertical_thrust_time = -FrameTime/2;
-			Controls.sideways_thrust_time = -FrameTime/2;
-		}
-		if (keyd_pressed[ KEY_PAD3 ]) {
-			Controls.vertical_thrust_time = -FrameTime/2;
-			Controls.sideways_thrust_time = FrameTime/2;
-		}
-		if (keyd_pressed[ KEY_PAD7 ]) {
-			Controls.vertical_thrust_time = FrameTime/2;
-			Controls.sideways_thrust_time = -FrameTime/2;
-		}
-		if (keyd_pressed[ KEY_PAD9 ]) {
-			Controls.vertical_thrust_time = FrameTime/2;
-			Controls.sideways_thrust_time = FrameTime/2;
-		}
-	}
-#endif
-
 }
 
 void reset_cruise(void)

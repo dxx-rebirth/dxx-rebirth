@@ -40,7 +40,6 @@ editor = int(ARGUMENTS.get('editor', 0))
 console = int(ARGUMENTS.get('console',0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 arm = int(ARGUMENTS.get('arm', 0))
-gp2x = int(ARGUMENTS.get('gp2x', 0))
 
 # general source files
 common_sources = [
@@ -397,23 +396,6 @@ else:
 	libs = generic_libs
 	lflags = '-L/usr/X11R6/lib'
 
-# GP2X test env
-if (gp2x == 1):
-	sdl_only = 1
-	arm = 1
-	sharepath = ''
-	env.Replace(CC = '/gp2xsdk/Tools/bin/arm-gp2x-linux-gcc')
-	env.Replace(CXX = '/gp2xsdk/Tools/bin/arm-gp2x-linux-g++')
-	env.Append(CPPDEFINES = ['GP2X', 'NATIVE_IPX'])
-	env.Append(CPPPATH = ['/gp2xdev/Tools/arm-gp2x-linux/include'])
-	#env.Append(CPPFLAGS = ' -ffast-math -fPIC -funroll-all-loops -fomit-frame-pointer -march=armv4t') # left for further optimisation/debugging
-	common_sources += ['main/clock.c']
-	libs += ['pthread']
-	lflags = '-static'
-	lpath = '/gp2xdev/Tools/arm-gp2x-linux/lib'
-else:
-	lpath = ''
-
 # arm architecture?
 if (arm == 1):
 	asm = 0
@@ -480,7 +462,7 @@ print '\n'
 
 env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(sharepath) + '\\"')])
 # finally building program...
-env.Program(target=str(target), source = common_sources, LIBS = libs, LINKFLAGS = str(lflags), LIBPATH = str(lpath))
+env.Program(target=str(target), source = common_sources, LIBS = libs, LINKFLAGS = str(lflags))
 if (sys.platform != 'darwin'):
 	env.Install(BIN_DIR, str(target))
 	env.Alias('install', BIN_DIR)
@@ -512,7 +494,6 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'console=1'       build with console support !EXPERIMENTAL!
 	'editor=1'        build editor !EXPERIMENTAL!
 	'arm=1'           compile for ARM architecture
-	'gp2x=1'          compile for GP2X handheld
 	
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """

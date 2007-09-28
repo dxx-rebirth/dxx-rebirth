@@ -15,12 +15,7 @@
 
 #include <SDL/SDL.h>
 
-#ifdef GP2X
-#include "gp2x.h"
-extern void key_handler(SDL_JoyButtonEvent *event);
-#else
 extern void key_handler(SDL_KeyboardEvent *event);
-#endif
 extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);
 extern void mouse_motion_handler(SDL_MouseMotionEvent *mme);
 #ifndef USE_LINUX_JOY // stpohle - so we can choose at compile time..
@@ -31,7 +26,6 @@ extern void joy_axis_handler(SDL_JoyAxisEvent *jae);
 
 static int initialised=0;
 
-#ifndef GP2X
 void event_poll()
 {
 	SDL_Event event;
@@ -70,53 +64,6 @@ void event_poll()
 		}
 	}
 }
-#else
-void event_poll()
-{
-	SDL_Event event;
-	
-	while(SDL_PollEvent(&event))
-	{
-		switch(event.type)
-		{
-			case SDL_JOYBUTTONDOWN:
-			case SDL_JOYBUTTONUP:
-			switch(event.jbutton.button)
-			{
-				case GP2X_BUTTON_X:
-				case GP2X_BUTTON_Y:
-				case GP2X_BUTTON_A:
-				case GP2X_BUTTON_B:
-				case GP2X_BUTTON_UP:
-				case GP2X_BUTTON_DOWN:
-				case GP2X_BUTTON_LEFT:
-				case GP2X_BUTTON_RIGHT:
-				case GP2X_BUTTON_UPLEFT:
-				case GP2X_BUTTON_UPRIGHT:
-				case GP2X_BUTTON_DOWNLEFT:
-				case GP2X_BUTTON_DOWNRIGHT:
-				case GP2X_BUTTON_L:
-				case GP2X_BUTTON_R:
-				case GP2X_BUTTON_CLICK:
-				case GP2X_BUTTON_START:
-				case GP2X_BUTTON_VOLUP:
-				case GP2X_BUTTON_VOLDOWN:
-				case GP2X_BUTTON_SELECT:
-			
-				key_handler((SDL_JoyButtonEvent *)&event);
-				break;
-			}
-			break;
-			case SDL_QUIT: 
-			{
-				void quit_request();
-				quit_request();
-			}
-			break;
-		}
-	}
-}
-#endif
 
 int event_init()
 {
