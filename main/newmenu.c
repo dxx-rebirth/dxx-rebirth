@@ -60,10 +60,6 @@ static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2006/03/17 19:44:42 zicodxx Exp 
 #include "ogl_init.h"
 #endif
 
-#ifdef GP2X
-#include "gp2x.h"
-#endif
-
 #define TITLE_FONT  	(Gamefonts[GFONT_BIG_1])
 #define SUBTITLE_FONT	(Gamefonts[GFONT_MEDIUM_3])
 #define CURRENT_FONT  	(Gamefonts[GFONT_MEDIUM_2])
@@ -1001,9 +997,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 		case KEY_ENTER:
 		case KEY_PADENTER:
-#ifdef GP2X
-		case GP2X_BUTTON_B:
-#endif
 			if ( (choice>-1) && (item[choice].type==NM_TYPE_INPUT_MENU) && (item[choice].group==0))	{
 				item[choice].group = 1;
 				item[choice].redraw = 1;
@@ -1749,9 +1742,6 @@ ReadFileNames:
 			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
-#ifdef GP2X
-		case GP2X_BUTTON_B:
-#endif
 			done = 1;
 			break;
 
@@ -2119,9 +2109,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
-#ifdef GP2X
-		case GP2X_BUTTON_B:
-#endif
 			done = 1;
 			break;
 

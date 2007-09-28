@@ -102,7 +102,7 @@ int ReadConfigFile()
 	Config_midi_volume = 4;
 	Config_control_type = 0;
 
-#if defined(__unix__) && !defined (GP2X)
+#if defined(__unix__)
 	/* we abuse the line buf here todo some unix specific stuff */
 	ptr = getenv("HOME");
 	snprintf(line, sizeof(line), "%s/.d1x-rebirth", ptr? ptr:".");

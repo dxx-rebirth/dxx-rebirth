@@ -1886,9 +1886,6 @@ ubyte exploding_flag = 0;
 extern void dump_used_textures_all();
 int ostate_p=0;
 int ostate_s=0;
-#ifdef GP2X
-extern int digi_volume;
-#endif
 
 void HandleDeathKey(int key)
 {
@@ -1983,14 +1980,6 @@ void HandleDemoKey(int key)
 #endif
 
 		case KEY_F3:			toggle_cockpit();	break;
-#ifdef GP2X
-		case KEY_ALTED+KEY_F9:
-			digi_set_digi_volume( digi_volume-2048 );
-			break;
-		case KEY_ALTED+KEY_F10:
-			digi_set_digi_volume( digi_volume+2048 );
-			break;
-#endif
 		case KEY_F2:			Config_menu_flag = 1;	break;
 		case KEY_F7:
 #ifdef NETWORK
@@ -2184,14 +2173,6 @@ void HandleGameKey(int key)
 		case KEY_PAUSE:			do_game_pause(1); 	break;
 		case KEY_PRINT_SCREEN: 		save_screen_shot(0);	break;
 
-#ifdef GP2X
-		case KEY_ALTED+KEY_F9:
-			digi_set_digi_volume( digi_volume-2048 );
-			break;
-		case KEY_ALTED+KEY_F10:
-			digi_set_digi_volume( digi_volume+2048 );
-			break;
-#endif
 		case KEYS_GR_TOGGLE_FULLSCREEN:
 				gr_toggle_fullscreen();
 				break;
@@ -2203,9 +2184,6 @@ void HandleGameKey(int key)
 			Game_aborted=1;
 			Function_mode=FMODE_EXIT;
 			break;
-#ifdef GP2X
-		case KEY_ALTED + KEY_ESC:
-#endif
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
 		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
 
