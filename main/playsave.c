@@ -497,7 +497,6 @@ int read_player_file()
 
 	filename[strlen(filename) - 4] = 0;
 	strcat(filename, ".plx");
-        strlwr(filename);
 	read_player_d2x(filename);
 
 	return EZERO;
@@ -584,7 +583,6 @@ int write_player_file()
 	WriteConfigFile();
 
 	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
-	strlwr(filename);
 	write_player_d2x(filename);
 	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	file = PHYSFSX_openWriteBuffered(filename);

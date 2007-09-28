@@ -683,6 +683,8 @@ try_again:
 
 	if (text[0]==0)	//null string
 		goto try_again;
+
+	strlwr(text);
 	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
 
 	if (PHYSFS_exists(filename))

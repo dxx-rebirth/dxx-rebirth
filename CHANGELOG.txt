@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20070928
+--------
+main/gameseq.c, main/inferno.c, main/playsave.c: Removed some strlwr calls for -use_players_dir since it uses Uppercase letters
+
 20070927
 --------
 main/gamerend.c: Removed line_spacing for not connected players in Netgame info screen

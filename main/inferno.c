@@ -458,7 +458,6 @@ int main(int argc, char *argv[])
 						filename[j] = '\0';
 				}
 			}
-			strlwr(filename);
 			if(!strstr(filename,".plr")) // if player hasn't specified .plr extension in argument, add it
 				strcat(filename,".plr");
 			if(cfexist(filename))
