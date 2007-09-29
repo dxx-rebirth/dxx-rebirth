@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070929
 --------
 INSTALL.txt, README.txt, SConstruct, arch/sdl/digi_audio.c, arch/sdl/event.c, arch/sdl/gr.c, arch/sdl/joy.c, arch/sdl/key.c, include/physfsx.h, main/gamecntl.c, main/kconfig.c, main/menu.c, main/newmenu.c, main/scores.c: Updated docs; Removed GP2X support since I won't support this device anymore
+include/pstypes.h: Changed define path for SDL_types header for win32
 
 20070928
 --------
