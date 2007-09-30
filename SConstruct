@@ -245,8 +245,7 @@ arch_linux_sources = [
 'arch/linux/ipx_kali.c',
 'arch/linux/linuxnet.c',
 'arch/linux/mono.c',
-'arch/linux/ukali.c',
-
+'arch/linux/ukali.c'
 ]
 
 # for windows
@@ -254,7 +253,6 @@ arch_win32_sources = [
 'arch/win32/arch_ip.cpp',
 'arch/win32/hmpfile.c',
 'arch/win32/ipx_win.c',
-'arch/win32/midi.c',
 'arch/win32/mono.c',
 'arch/win32/winnet.c',
 ]
