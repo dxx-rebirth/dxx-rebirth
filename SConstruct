@@ -264,10 +264,8 @@ if (sdlmixer == 1):
 arch_win32_sources = [
 'arch/win32/hmpfile.c',
 'arch/win32/ipx_win.c',
-'arch/win32/midi.c',
 'arch/win32/mono.c',
 'arch/win32/winnet.c',
-'arch/sdl/digi.c',
 'arch/win32/arch_ip.cpp'
 ]
 

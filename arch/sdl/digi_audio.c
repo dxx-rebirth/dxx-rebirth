@@ -17,6 +17,10 @@
 #include <SDL/SDL.h>
 #include <digi_audio.h>
 
+#ifdef _WIN32
+#include "hmpfile.h"
+#endif
+
 #include "pstypes.h"
 #include "error.h"
 #include "mono.h"
@@ -429,11 +433,56 @@ void digi_audio_end_sound(int channel)
 	SoundSlots[channel].persistent = 0;
 }
 
+#ifdef _WIN32
+hmp_file *hmp = NULL;
+static int digi_midi_song_playing = 0;
+#endif
 
-#ifndef _WIN32
 // MIDI stuff follows.
-void digi_audio_set_midi_volume( int mvolume ) { }
-void digi_audio_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {}
+void digi_audio_set_midi_volume( int mvolume )
+{
+#ifdef _WIN32
+	int mm_volume;
+
+	if (mvolume < 0)
+		midi_volume = 0;
+	else if (mvolume > 127)
+		midi_volume = 127;
+	else
+		midi_volume = mvolume;
+
+	// scale up from 0-127 to 0-0xffff
+	mm_volume = (midi_volume << 1) | (midi_volume & 1);
+	mm_volume |= (mm_volume << 8);
+
+	if (hmp)
+		midiOutSetVolume((HMIDIOUT)hmp->hmidi, mm_volume | mm_volume << 16);
+#endif
+}
+
+void digi_audio_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop )
+{
+#ifdef _WIN32
+	if (GameArg.SndNoMusic)
+		return;
+
+	digi_stop_current_song();
+
+	if (filename == NULL)
+		return;
+	if (midi_volume < 1)
+		return;
+
+	if ((hmp = hmp_open(filename)))
+	{
+		hmp_play(hmp,loop);
+		digi_midi_song_playing = 1;
+		digi_set_midi_volume(midi_volume);
+	}
+	else
+		printf("hmp_open failed\n");
+#endif
+}
 
 void digi_audio_stop_current_song()
 {
@@ -443,10 +492,17 @@ void digi_audio_stop_current_song()
         sprintf(buf,"s");
         send_ipc(buf);
 #endif
+#ifdef _WIN32
+	if (digi_midi_song_playing)
+	{
+		hmp_close(hmp);
+		hmp = NULL;
+		digi_midi_song_playing = 0;
+	}
+#endif
 }
 void digi_audio_pause_midi() {}
 void digi_audio_resume_midi() {}
-#endif
 
 #ifndef NDEBUG
 void digi_audio_debug()
