@@ -161,13 +161,14 @@ void print_commandline_help()
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
 	printf( "  -pilot <s>         %s\n", "Select this pilot automatically");
 	printf( "  -autodemo          %s\n", "Start in demo mode");
+	printf( "  -window            %s\n", "Run the game in a window");
+	printf( "  -nomovies          %s\n", "Don't play movies");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -nomouse           %s\n", "Deactivate mouse");
 	printf( "  -nojoystick        %s\n", "Deactivate joystick");
 	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
 	printf( "  -grabmouse         %s\n", "Keeps the mouse from wandering out of the window");
-	printf( "  -window            %s\n", "Run the game in a window");
 
 	printf( "\n Sound:\n\n");
 	printf( "  -nosound           %s\n", "Disables sound output");
@@ -227,7 +228,6 @@ void print_commandline_help()
 	printf( "  -showmeminfo       %s\n", "Show memory statistics");
 	printf( "  -nodoublebuffer    %s\n", "Disable Doublebuffering");
 	printf( "  -bigpig            %s\n", "Use uncompressed RLE bitmaps");
-	printf( "  -nomovies          %s\n", "Don't play movies");
 #ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
 	printf( "  -gl_16bpp          %s\n", "Use 16Bpp Color Depth");

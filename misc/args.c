@@ -191,6 +191,11 @@ void ReadCmdArgs(void)
 	else
 		GameArg.SysWindow = 0;
 
+	if (FindArg("-nomovies"))
+		GameArg.SysNoMovies = 1;
+	else
+		GameArg.SysNoMovies = 0;
+
 	// Control Options
 
 	if (FindArg("-nomouse"))
@@ -433,11 +438,6 @@ void ReadCmdArgs(void)
 		GameArg.DbgBigPig = 0;
 	else
 		GameArg.DbgBigPig = 1;
-
-	if (FindArg("-nomovies"))
-		GameArg.DbgNoMovies = 1;
-	else
-		GameArg.DbgNoMovies = 0;
 
 #ifdef OGL
 	if (FindArg("-gl_oldtexmerge"))

@@ -2,7 +2,8 @@ D2X-Rebirth Changelog
 
 20071001
 --------
-main/game.c, main/kconfig.c, main/titles.c: Added line_scpacing in netgame info screen for every not-connected player to keep strings below player table in fixed position; Fixed memleak in kconfig code; Fixed show_title_screen function to cycle correctly 3 seconds or until broken by keypress
+main/gamerend.c, main/kconfig.c, main/titles.c: Added line_scpacing in netgame info screen for every not-connected player to keep strings below player table in fixed position; Fixed memleak in kconfig code; Fixed show_title_screen function to cycle correctly 3 seconds or until broken by keypress
+d2x.ini, include/args.h, main/inferno.c, main/movie.c, misc/args.c: Moved -nomovies to System Options
 
 20070930
 --------

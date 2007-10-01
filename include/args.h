@@ -54,6 +54,7 @@ typedef struct Arg
 	char *SysPilot;
 	int SysWindow;
 	int SysAutoDemo;
+	int SysNoMovies;
 	int CtlNoMouse;
 	int CtlNoJoystick;
 	int CtlMouselook;
@@ -100,7 +101,6 @@ typedef struct Arg
 	int DbgShowMemInfo;
 	int DbgUseDoubleBuffer;
 	int DbgBigPig;
-	int DbgNoMovies;
 #ifdef OGL
 	int DbgAltTexMerge;
 	int DbgGlBpp;

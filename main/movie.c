@@ -134,7 +134,7 @@ int PlayMovie(const char *filename, int must_have)
 	char name[FILENAME_LEN],*p;
 	int c, ret;
 
-	if (GameArg.DbgNoMovies)
+	if (GameArg.SysNoMovies)
 		return MOVIE_NOT_PLAYED;
 
 	strcpy(name,filename);
@@ -403,7 +403,7 @@ void DeInitRobotMovie(void)
 
 int InitRobotMovie(char *filename)
 {
-	if (GameArg.DbgNoMovies)
+	if (GameArg.SysNoMovies)
 		return 0;
 
 	con_printf(CON_DEBUG, "RoboFile=%s\n", filename);
@@ -609,7 +609,7 @@ void init_movies()
 {
 	int i;
 
-	if (GameArg.DbgNoMovies)
+	if (GameArg.SysNoMovies)
 		return;
 
 	for (i=0;i<N_BUILTIN_MOVIE_LIBS;i++) {
@@ -638,7 +638,7 @@ void close_extra_robot_movie(void)
 
 void init_extra_robot_movie(char *movielib)
 {
-	if (GameArg.DbgNoMovies)
+	if (GameArg.SysNoMovies)
 		return;
 
 	close_extra_robot_movie();
