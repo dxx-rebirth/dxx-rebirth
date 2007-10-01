@@ -1392,18 +1392,21 @@ void kc_change_invert( kc_item * item )
 void kconfig(int n, char * title)
 {
 	int i;
+#ifndef OGL
 	grs_bitmap *save_bm;
+#endif
 
 	set_screen_mode( SCREEN_MENU );
 
 	kc_set_controls();
 
+#ifndef OGL
 	//save screen
 	save_bm = gr_create_bitmap( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
 	Assert( save_bm != NULL );
 	
-	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 
-					0, 0, 0, 0, &grd_curcanv->cv_bitmap, save_bm );
+	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, save_bm );
+#endif
 
 	switch(n)	{
 		case 0:kconfig_sub( kc_keyboard, NUM_KEY_CONTROLS, title );break;
@@ -1424,9 +1427,11 @@ void kconfig(int n, char * title)
 			return;
 	}
 
+#ifndef OGL
 	//restore screen
-	gr_bitmap(0, 0, save_bm);
+	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, save_bm );
 	gr_free_bitmap(save_bm);
+#endif
 
 	// Update save values...
 	for (i=0; i<NUM_KEY_CONTROLS; i++ )	
