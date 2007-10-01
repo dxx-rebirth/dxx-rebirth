@@ -121,14 +121,11 @@ int show_title_screen( char * filename, int allow_keys )
 		show_fullscr(&title_bm);
 		gr_update();
 
-		if (allow_keys) {
+		if (( local_key_inkey() && allow_keys ) || ( timer_get_fixed_seconds() > timer ))
+		{
 			gr_free_bitmap_data (&title_bm);
-			return 1;
+			break;
 		}
-
-		if ( local_key_inkey() && allow_keys ) break;
-		if ( timer_get_fixed_seconds() > timer ) break;
-
 		timer_delay(400);
         }
 

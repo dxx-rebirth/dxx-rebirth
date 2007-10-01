@@ -705,7 +705,7 @@ void show_netplayerinfo()
 		gr_printf(x+char_spacing*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
 	}
 
-	y+=line_spacing*2;
+	y+=line_spacing*2+(line_spacing*(MAX_PLAYERS-N_players));
 
 	// printf team scores
 	if (Game_mode & GM_TEAM)

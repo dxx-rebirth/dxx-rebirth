@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071001
+--------
+main/game.c, main/kconfig.c, main/titles.c: Added line_scpacing in netgame info screen for every not-connected player to keep strings below player table in fixed position; Fixed memleak in kconfig code; Fixed show_title_screen function to cycle correctly 3 seconds or until broken by keypress
+
 20070930
 --------
 SConstruct, arch/sdl/digi_audio.c: Moved Windows midi functions to digi_audio_* functions
