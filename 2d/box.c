@@ -71,16 +71,16 @@ void gr_box0(int left,int top,int right,int bot)
 void gr_ubox12(int left,int top,int right,int bot)
 {
 	int i;
-
+printf("BOX\n");
 	for (i=top; i<=bot; i++ )
 	{
 		gr_upixel( left, i );
 		gr_upixel( right, i );
 	}
 
-	gr_uscanline( left, right, top );
+	gr_rect(left,top-(SHEIGHT/320),right,top);
 
-	gr_uscanline( left, right, bot );
+	gr_rect(left,bot,right,bot+(SHEIGHT/320));
 }
 
 void gr_box12(int left,int top,int right,int bot)

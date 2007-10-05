@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071006
+--------
+2d/box.c, arch/ogl/ogl.c, main/game.c, main/gamerend.c, main/gauges.c, main/gauges.h: Not rendering additional transparency cockpit display anymore to ensure compability with custom cockpits; Improved overlay functions for cockpit elements
+
 20071001
 --------
 main/gamerend.c, main/kconfig.c, main/titles.c: Added line_scpacing in netgame info screen for every not-connected player to keep strings below player table in fixed position; Fixed memleak in kconfig code; Fixed show_title_screen function to cycle correctly 3 seconds or until broken by keypress

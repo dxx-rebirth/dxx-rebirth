@@ -102,4 +102,14 @@ void calculate_sub_view_window_bounds(int inSubWindowNum, TQARect* outBoundsRect
 
 #define GAUGE_HUD_NUMMODES 4
 
+typedef struct span {
+	int l,r;
+} span;
+
+extern span weapon_window_left[],weapon_window_left_hires[],weapon_window_right[],weapon_window_right_hires[];
+
+
+#define WB_LEFT (HiresGFX?weapon_window_left_hires:weapon_window_left)
+#define WB_RIGHT (HiresGFX?weapon_window_right_hires:weapon_window_right)
+
 #endif /* _GAUGES_H */

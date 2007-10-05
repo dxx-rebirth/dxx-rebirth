@@ -906,9 +906,16 @@ void update_cockpits(int force_redraw)
 
 	switch( Cockpit_mode )	{
 		case CM_FULL_COCKPIT:
-		case CM_REAR_VIEW:
 			gr_set_current_canvas(NULL);
 			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
+#ifdef OGL
+			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
+#else
+			gr_ubitmapm(0,0, bm);
+#endif
+			break;
+		case CM_REAR_VIEW:
+			gr_set_current_canvas(NULL);
 #ifdef OGL
 			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
 #else
@@ -923,8 +930,6 @@ void update_cockpits(int force_redraw)
 	
 			gr_set_current_canvas(NULL);
 #ifdef OGL
-			bm->bm_flags |= BM_FLAG_TRANSPARENT;
-			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
 			ogl_ubitmapm_cs (0, (HiresGFX?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HiresGFX?(double)grd_curscreen->sc_h/480:(double)grd_curscreen->sc_h/200) + 0.5)), bm,255, F1_0);
 #else
 			gr_ubitmapm(0,grd_curscreen->sc_h-bm->bm_h,bm);

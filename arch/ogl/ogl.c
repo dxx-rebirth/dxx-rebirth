@@ -52,6 +52,7 @@
 #include "gamefont.h"
 #include "byteswap.h"
 #include "endlevel.h"
+#include "gauges.h"
 
 //change to 1 for lots of spew.
 #if 0
@@ -1116,7 +1117,13 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 				}
 			}
 			else if (((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256) || 
-				((HiresGFX?(c==0 || c==54 || c==119):(c==0)) && (bm_flags & BM_FLAG_COCKPIT_TRANSPARENT)))
+				//((HiresGFX?(c==0 || c==54 || c==119):(c==0)) && (bm_flags & BM_FLAG_COCKPIT_TRANSPARENT)))
+					((bm_flags & BM_FLAG_COCKPIT_TRANSPARENT) && 
+						(y >= (HiresGFX?364:151) && y <= (HiresGFX?469:193) && 
+						((x >= WB_LEFT[y-(HiresGFX?364:151)].l && x <= WB_LEFT[y-(HiresGFX?364:151)].r) ||  (x >= WB_RIGHT[y-(HiresGFX?364:151)].l && x <= WB_RIGHT[y-(HiresGFX?364:151)].r))
+						)
+					)
+				)
 			{
 				switch (type){
 					case GL_LUMINANCE:

@@ -319,15 +319,10 @@ void init_cockpit()
 
 	switch( Cockpit_mode ) {
 	case CM_FULL_COCKPIT:
-	case CM_REAR_VIEW:
-		if (Cockpit_mode == CM_FULL_COCKPIT) {
-			game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w,(grd_curscreen->sc_h*2)/3); 
-		}
-		else if (Cockpit_mode == CM_REAR_VIEW) {
-			game_init_render_sub_buffers((16*grd_curscreen->sc_w)/640,(89*grd_curscreen->sc_h)/480, (604*grd_curscreen->sc_w)/640, (209*grd_curscreen->sc_h)/480);
-		}
+		game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w,(grd_curscreen->sc_h*2)/3); 
 		break;
 
+	case CM_REAR_VIEW:
 	case CM_FULL_SCREEN:
 		game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
 		break;

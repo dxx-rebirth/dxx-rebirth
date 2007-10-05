@@ -263,7 +263,7 @@ inline void hud_bitblt (int x, int y, grs_bitmap *bm, int scale)
 #define AFTERBURNER_GAUGE_H_L	32
 
 #define AFTERBURNER_GAUGE_X_H	88
-#define AFTERBURNER_GAUGE_Y_H	377
+#define AFTERBURNER_GAUGE_Y_H	378
 #define AFTERBURNER_GAUGE_W_H	21
 #define AFTERBURNER_GAUGE_H_H	65
 
@@ -283,7 +283,7 @@ inline void hud_bitblt (int x, int y, grs_bitmap *bm, int scale)
 
 #define SB_AFTERBURNER_GAUGE_X 		(HiresGFX?196:98)
 #define SB_AFTERBURNER_GAUGE_Y 		(HiresGFX?445:184)
-#define SB_AFTERBURNER_GAUGE_W 		(HiresGFX?32:16)
+#define SB_AFTERBURNER_GAUGE_W 		(HiresGFX?33:16)
 #define SB_AFTERBURNER_GAUGE_H 		(HiresGFX?29:13)
 
 #define SB_ENERGY_NUM_X 		(SB_ENERGY_GAUGE_X+(HiresGFX?4:2))
@@ -488,6 +488,324 @@ gauge_box gauge_boxes[] = {
 #define COCKPIT_SECONDARY_BOX		(!HiresGFX?1:5)
 #define SB_PRIMARY_BOX			(!HiresGFX?2:6)
 #define SB_SECONDARY_BOX		(!HiresGFX?3:7)
+
+//store delta x values from left of box
+span weapon_window_left[] = {
+		{71,114},
+		{69,116},
+		{68,117},
+		{66,118},
+		{66,119},
+		{66,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{63,119},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,117},
+		{63,117},
+		{64,116},
+		{65,115},
+		{66,113},
+		{68,111},
+	};
+
+
+//store delta x values from left of box
+span weapon_window_right[] = {
+		{208,255},
+		{206,257},
+		{205,258},
+		{204,259},
+		{203,260},
+		{203,260},
+		{203,260},
+		{203,260},
+		{203,260},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,262},
+		{203,262},
+		{203,262},
+		{203,262},
+		{203,262},
+		{203,262},
+		{203,262},
+		{203,262},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{205,263},
+		{206,262},
+		{207,261},
+		{208,260},
+		{211,255},
+	};
+
+//store delta x values from left of box
+span weapon_window_left_hires[] = {
+	{141,231},
+	{139,234},
+	{137,235},
+	{136,237},
+	{135,238},
+	{134,239},
+	{133,240},
+	{132,240},
+	{131,241},
+	{131,241},
+	{130,242},
+	{129,242},
+	{129,242},
+	{129,243},
+	{128,243},
+	{128,243},
+	{128,243},
+	{128,243},
+	{128,243},
+	{127,243},
+	{127,243},
+	{127,243},
+	{127,243},
+	{127,243},
+	{127,243},
+	{127,243},
+	{127,243},
+	{127,243},
+	{127,243},
+	{126,243},
+	{126,243},
+	{126,243},
+	{126,243},
+	{126,242},
+	{126,242},
+	{126,242},
+	{126,242},
+	{126,242},
+	{126,242},
+	{125,242},
+	{125,242},
+	{125,242},
+	{125,242},
+	{125,242},
+	{125,242},
+	{125,242},
+	{125,242},
+	{125,242},
+	{125,242},
+	{124,242},
+	{124,242},
+	{124,241},
+	{124,241},
+	{124,241},
+	{124,241},
+	{124,241},
+	{124,241},
+	{124,241},
+	{124,241},
+	{124,241},
+	{123,241},
+	{123,241},
+	{123,241},
+	{123,241},
+	{123,241},
+	{123,241},
+	{123,241},
+	{123,241},
+	{123,241},
+	{123,241},
+	{123,241},
+	{123,241},
+	{122,241},
+	{122,241},
+	{122,240},
+	{122,240},
+	{122,240},
+	{122,240},
+	{122,240},
+	{122,240},
+	{122,240},
+	{122,240},
+	{121,240},
+	{121,240},
+	{121,240},
+	{121,240},
+	{121,240},
+	{121,240},
+	{121,240},
+	{121,239},
+	{121,239},
+	{121,239},
+	{121,238},
+	{121,238},
+	{121,238},
+	{122,237},
+	{122,237},
+	{123,236},
+	{123,235},
+	{124,234},
+	{125,233},
+	{126,232},
+	{126,231},
+	{128,230},
+	{130,228},
+	{131,226},
+	{133,223},
+};
+
+
+//store delta x values from left of box
+span weapon_window_right_hires[] = {
+	{416,509},
+	{413,511},
+	{412,513},
+	{410,514},
+	{409,515},
+	{408,516},
+	{407,517},
+	{407,518},
+	{406,519},
+	{406,519},
+	{405,520},
+	{405,521},
+	{405,521},
+	{404,521},
+	{404,522},
+	{404,522},
+	{404,522},
+	{404,522},
+	{404,522},
+	{404,523},
+	{404,523},
+	{404,523},
+	{404,523},
+	{404,523},
+	{404,523},
+	{404,523},
+	{404,523},
+	{404,523},
+	{404,523},
+	{404,524},
+	{404,524},
+	{404,524},
+	{404,524},
+	{405,524},
+	{405,524},
+	{405,524},
+	{405,524},
+	{405,524},
+	{405,524},
+	{405,525},
+	{405,525},
+	{405,525},
+	{405,525},
+	{405,525},
+	{405,525},
+	{405,525},
+	{405,525},
+	{405,525},
+	{405,525},
+	{405,526},
+	{405,526},
+	{406,526},
+	{406,526},
+	{406,526},
+	{406,526},
+	{406,526},
+	{406,526},
+	{406,526},
+	{406,526},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,527},
+	{406,528},
+	{406,528},
+	{407,528},
+	{407,528},
+	{407,528},
+	{407,528},
+	{407,528},
+	{407,528},
+	{407,528},
+	{407,529},
+	{407,529},
+	{407,529},
+	{407,529},
+	{407,529},
+	{407,529},
+	{407,529},
+	{407,529},
+	{408,529},
+	{408,529},
+	{408,529},
+	{409,529},
+	{409,529},
+	{409,529},
+	{410,529},
+	{410,528},
+	{411,527},
+	{412,527},
+	{413,526},
+	{414,525},
+	{415,524},
+	{416,524},
+	{417,522},
+	{419,521},
+	{422,519},
+	{424,518},
+};
 
 int	Color_0_31_0 = -1;
 
@@ -1552,92 +1870,44 @@ void init_gauges()
 
 void draw_energy_bar(int energy)
 {
-	grs_bitmap *bm;
-	int energy0;
-	int x1, x2, y, yMax, i;
-	int h0 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_H - 1);
-	int h1 = HUD_SCALE_Y (LEFT_ENERGY_GAUGE_H / 4);
-	int h2 = HUD_SCALE_Y ((LEFT_ENERGY_GAUGE_H * 3) / 4);
-	int w1 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_W - 1);
-	int w2 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_W - 2);
-	int w3 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_W - 3);
-	double eBarScale = HUD_SCALE_X(100.0 - (double) energy) * (HiresGFX?0.15:0.075) / (double) HUD_SCALE_Y (LEFT_ENERGY_GAUGE_H);
+	int x1, x2, y;
+	int not_energy = (HiresGFX?(HUD_SCALE_X(125 - (energy*125)/100)):(HUD_SCALE_X(63 - (energy*63)/100)));
+	double aplitscale=((double)(HUD_SCALE_X(65)/HUD_SCALE_Y(8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
 
 	// Draw left energy bar
 	PAGE_IN_GAUGE( GAUGE_ENERGY_LEFT );
-	bm = GameBitmaps + GET_GAUGE_INDEX(GAUGE_ENERGY_LEFT);
-	gr_rect(	HUD_SCALE_X(LEFT_ENERGY_GAUGE_X-1),
-			HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y-1),
-			HUD_SCALE_X(LEFT_ENERGY_GAUGE_X+LEFT_ENERGY_GAUGE_W+1),
-			HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y+LEFT_ENERGY_GAUGE_H+1));
-	hud_bitblt (LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, bm, F1_0);
+	hud_bitblt (LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_ENERGY_LEFT) ], F1_0);
 
 	gr_setcolor(BM_XRGB(0,0,0));
 
-	energy0 = HUD_SCALE_X (HiresGFX?112:56);
-	energy0 = energy0 - (energy * energy0) / 100;
-	if (energy < 100) {
-		for (i = 0; i < LEFT_ENERGY_GAUGE_H; i++) {
-			yMax = HUD_SCALE_Y (i + 1);
-			for (y = i; y <= yMax; y++) {
-				x1 = h0 - y;
-				x2 = x1 + energy0 + (int) ((double) y * eBarScale);
-				if (y < h1) {
-					if (x2 > w1) 
-						x2 = w1;
-					}
-				else if (y < h2) {
-					if (x2 > w2)
-						x2 = w2;
-					}
-				else {
-					if (x2 > w3) 
-						x2 = w3;
-					}
-				if (x2 > x1)
-					gr_rect(HUD_SCALE_X (LEFT_ENERGY_GAUGE_X-1) + x1, HUD_SCALE_Y (LEFT_ENERGY_GAUGE_Y) +y , HUD_SCALE_X (LEFT_ENERGY_GAUGE_X) + x2, HUD_SCALE_Y (LEFT_ENERGY_GAUGE_Y) +y/* +1*/);
-				}
-			}
+	if (energy < 100)
+		for (y=0; y < HUD_SCALE_Y(LEFT_ENERGY_GAUGE_H); y++) {
+			x1 = HUD_SCALE_X(LEFT_ENERGY_GAUGE_H - 2) - y*(aplitscale);
+			x2 = HUD_SCALE_X(LEFT_ENERGY_GAUGE_H - 2) - y*(aplitscale) + not_energy;
+
+			if (x2 > HUD_SCALE_X(LEFT_ENERGY_GAUGE_W) - (y*aplitscale)/3)
+				x2 = HUD_SCALE_X(LEFT_ENERGY_GAUGE_W) - (y*aplitscale)/3;
+			
+			if (x2 > x1) gr_uline( i2f(x1+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)) ); 
 		}
+
 	gr_set_current_canvas( NULL );
-	
+
 	// Draw right energy bar
 	PAGE_IN_GAUGE( GAUGE_ENERGY_RIGHT );
-	bm = GameBitmaps + GET_GAUGE_INDEX(GAUGE_ENERGY_RIGHT);
-	gr_rect(	HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X-1),
-			HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y-1),
-			HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X+RIGHT_ENERGY_GAUGE_W+1),
-			HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y+RIGHT_ENERGY_GAUGE_H+1));
-	hud_bitblt (RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, bm, F1_0);
+	hud_bitblt (RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_ENERGY_RIGHT) ], F1_0);
 
-	gr_setcolor(BM_XRGB(0,0,0));
-	h0 = HUD_SCALE_X (RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H);
-	w1 = HUD_SCALE_X (1);
-	w2 = HUD_SCALE_X (2);
-	if (energy < 100) {
-		yMax = HUD_SCALE_Y (RIGHT_ENERGY_GAUGE_H);
-		for (i = 0; i < RIGHT_ENERGY_GAUGE_H; i++) {
-			yMax = HUD_SCALE_Y (i + 1);
-			for (y = i; y <= yMax; y++) {
-				x2 = h0 + y;
-				x1 = x2 - energy0 - (int) ((double) y * eBarScale);
-				if (y < h1) {
-					if (x1 < 0) 
-						x1 = 0;
-					}
-				else if (y < h2) {
-					if (x1 < w1) 
-						x1 = w1;
-					}
-				else {
-					if (x1 < w2) 
-						x1 = w2;
-					}
-				if (x2 > x1) 
-					gr_rect(HUD_SCALE_X (RIGHT_ENERGY_GAUGE_X) + x1, HUD_SCALE_Y (RIGHT_ENERGY_GAUGE_Y) +y , HUD_SCALE_X (RIGHT_ENERGY_GAUGE_X+1) + x2, HUD_SCALE_Y (RIGHT_ENERGY_GAUGE_Y) +y/* +1*/);
-				}
-			}
+	if (energy < 100)
+		for (y=0; y < HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_H); y++) {
+			x1 = HUD_SCALE_X(RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 2 ) + y*(aplitscale) - not_energy;
+			x2 = HUD_SCALE_X(RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 2 ) + y*(aplitscale);
+
+			if (x1 < (y*aplitscale)/3)
+				x1 = (y*aplitscale)/3;
+			
+			if (x2 > x1) gr_uline( i2f(x1+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)) ); 
 		}
+
 	gr_set_current_canvas( NULL );
 }
 
@@ -1645,25 +1915,26 @@ void draw_afterburner_bar(int afterburner)
 {
 	int not_afterburner;
 	int i, j, y, yMax;
+	ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = { 3,11, 3,11, 3,11, 3,11, 3,11, 3,11, 2,11, 2,10, 2,10, 2,10, 2,10, 2,10, 2,10, 1,10, 1,10, 1,10, 1,9, 1,9, 1,9, 1,9, 0,9, 0,9, 0,8, 0,8, 0,8, 0,8, 1,8, 2,8, 3,8, 4,8, 5,8, 6,7 };
+	ubyte afterburner_bar_table_hires[AFTERBURNER_GAUGE_H_H*2] = { 5,20, 5,20, 5,19, 5,19, 5,19, 5,19, 4,19, 4,19, 4,19, 4,19, 4,19, 4,18, 4,18, 4,18, 4,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,17, 3,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,16, 2,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,15, 1,15, 1,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,14, 0,14, 0,14, 1,14, 2,14, 3,14, 4,14, 5,14, 6,13, 7,13, 8,13, 9,13, 10,13, 11,13, 12,13 };
+	ubyte *pabt = (HiresGFX ? afterburner_bar_table_hires : afterburner_bar_table);
 
 	// Draw afterburner bar
 	PAGE_IN_GAUGE( GAUGE_AFTERBURNER );
 	hud_bitblt( AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_AFTERBURNER) ], F1_0);
 	gr_setcolor( BM_XRGB(0,0,0) );
 	not_afterburner = fixmul(f1_0 - afterburner,AFTERBURNER_GAUGE_H);
-
 	yMax = HUD_SCALE_Y (not_afterburner);
 
 	for (y = 0; y < not_afterburner; y++) {
 		for (i = HUD_SCALE_Y (y), j = HUD_SCALE_Y (y + 1); i < j; i++) {
 			gr_rect (
-				HUD_SCALE_X (AFTERBURNER_GAUGE_X-1), 
+				HUD_SCALE_X (AFTERBURNER_GAUGE_X + pabt [y * 2]), 
 				HUD_SCALE_Y (AFTERBURNER_GAUGE_Y-1) + i,
-				HUD_SCALE_X (AFTERBURNER_GAUGE_X + AFTERBURNER_GAUGE_W),
+				HUD_SCALE_X (AFTERBURNER_GAUGE_X + pabt [y * 2 + 1] + 1), 
 				HUD_SCALE_Y (AFTERBURNER_GAUGE_Y) + i);
 			}
 		}
-
 	gr_set_current_canvas( NULL );
 }
 
@@ -1768,8 +2039,8 @@ void draw_numerical_display(int shield, int energy)
 
 	//gr_set_current_canvas( Canv_NumericalGauge );
 	gr_set_curfont( GAME_FONT );
-	PAGE_IN_GAUGE( GAUGE_NUMERICAL );
-	hud_bitblt( NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_NUMERICAL) ], F1_0);
+// 	PAGE_IN_GAUGE( GAUGE_NUMERICAL );
+// 	hud_bitblt( NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_NUMERICAL) ], F1_0);
 
 	gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
 	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
@@ -2125,7 +2396,7 @@ void draw_weapon_boxes()
 
 void sb_draw_energy_bar(energy)
 {
-	int erase_height, w, h, aw;
+	int erase_height, w, h, aw, i;
 	int ew, eh, eaw;
 	char energy_str[20];
 
@@ -2134,12 +2405,10 @@ void sb_draw_energy_bar(energy)
 	PAGE_IN_GAUGE( SB_GAUGE_ENERGY );
 	hud_bitblt(SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_ENERGY)], F1_0);
 
-	erase_height = (100 - energy) * SB_ENERGY_GAUGE_H / 100;
-
-	if (erase_height > 0) {
-		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect(HUD_SCALE_X(SB_ENERGY_GAUGE_X),HUD_SCALE_Y(SB_ENERGY_GAUGE_Y),HUD_SCALE_X(SB_ENERGY_GAUGE_X+SB_ENERGY_GAUGE_W),HUD_SCALE_Y(SB_ENERGY_GAUGE_Y+(erase_height-1)));
-	}
+	erase_height = HUD_SCALE_Y((100 - energy) * SB_ENERGY_GAUGE_H / 100);
+	gr_setcolor( 0 );
+	for (i=0;i<=erase_height;i++)
+		gr_uline( i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X)), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X+(SB_ENERGY_GAUGE_W))), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i) );
 	
 	//draw numbers
 	sprintf(energy_str, "%d", energy);
@@ -2153,19 +2422,17 @@ void sb_draw_energy_bar(energy)
 
 void sb_draw_afterburner()
 {
-	int erase_height, w, h, aw;
+	int erase_height, w, h, aw, i;
 	char ab_str[3] = "AB";
 
 	//gr_set_current_canvas( Canv_SBAfterburnerGauge );
 	PAGE_IN_GAUGE( SB_GAUGE_AFTERBURNER );
 	hud_bitblt(SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_AFTERBURNER)], F1_0);
 
-	erase_height = fixmul((f1_0 - Afterburner_charge),SB_AFTERBURNER_GAUGE_H);
-
-	if (erase_height > 0) {
-		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X),HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y),HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X+SB_AFTERBURNER_GAUGE_W),HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y+(erase_height-1)));
-	}
+	erase_height = HUD_SCALE_Y(fixmul((f1_0 - Afterburner_charge),SB_AFTERBURNER_GAUGE_H-1));
+	gr_setcolor( 0 );
+	for (i=0;i<=erase_height;i++)
+		gr_uline( i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X)), i2f(HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X+(SB_AFTERBURNER_GAUGE_W))), i2f(HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y)+i) );
 
 	//draw legend
 	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
@@ -2759,6 +3026,8 @@ void render_gauges()
 	draw_weapon_boxes();
 
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
+		hud_bitblt (0, 0, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(HiresGFX?(Num_cockpits/2):0)].index],F1_0);
+
 		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy))
 		{
 			newdemo_record_player_energy(old_energy, energy);
@@ -2773,8 +3042,6 @@ void render_gauges()
 			old_afterburner = Afterburner_charge;
 		}
 		draw_afterburner_bar(Afterburner_charge);
-
-		hud_bitblt (0, 0, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(HiresGFX?(Num_cockpits/2):0)].index],F1_0);
 
 		draw_player_ship(cloak, old_cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
 
@@ -2815,9 +3082,7 @@ void render_gauges()
 			old_afterburner = Afterburner_charge;
 		}
 		sb_draw_afterburner();
-#ifdef OGL
-		hud_bitblt (0, (HiresGFX?370:147), &GameBitmaps[cockpit_bitmap[Cockpit_mode+(HiresGFX?(Num_cockpits/2):0)].index],F1_0);
-#endif
+
 		draw_player_ship(cloak, old_cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
