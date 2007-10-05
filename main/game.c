@@ -323,9 +323,16 @@ void update_cockpits(int force_redraw)
 
 	switch( Cockpit_mode )	{
 		case CM_FULL_COCKPIT:
-		case CM_REAR_VIEW:
 			gr_set_current_canvas(NULL);
 			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
+#ifdef OGL
+			ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, bm,255, F1_0);
+#else
+			gr_ubitmapm(0,0, bm);
+#endif
+			break;
+		case CM_REAR_VIEW:
+			gr_set_current_canvas(NULL);
 #ifdef OGL
 			ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, bm,255, F1_0);
 #else
@@ -337,8 +344,6 @@ void update_cockpits(int force_redraw)
 		case CM_STATUS_BAR:
 			gr_set_current_canvas(NULL);
 #ifdef OGL
-			bm->bm_flags |= BM_FLAG_TRANSPARENT;
-			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
 			ogl_ubitmapm_cs (0, (SHEIGHT*2)/2.72, -1, ((int) ((double) (bm->bm_h) * ((double)grd_curscreen->sc_h/200) + 0.5)), bm,255, F1_0);
 #else
 			gr_ubitmapm(0,146,bm);
@@ -388,14 +393,10 @@ void init_cockpit()
 
 	switch( Cockpit_mode )	{
 	case CM_FULL_COCKPIT:
-	case CM_REAR_VIEW:		{
-		if (Cockpit_mode == CM_FULL_COCKPIT)
-			game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w, (grd_curscreen->sc_h*2)/3);
-		else if (Cockpit_mode == CM_REAR_VIEW)
-			game_init_render_sub_buffers((16*grd_curscreen->sc_w)/640, (89*grd_curscreen->sc_h)/480, (604*grd_curscreen->sc_w)/640, (209*grd_curscreen->sc_h)/480);
+		game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w, (grd_curscreen->sc_h*2)/3);
 		break;
-		}
 
+	case CM_REAR_VIEW:
 	case CM_FULL_SCREEN:
 		game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
 		break;

@@ -120,7 +120,7 @@ grs_canvas *Canv_NumericalGauge;
 #define RIGHT_ENERGY_GAUGE_H		8
 #define SB_ENERGY_GAUGE_X 		98
 #define SB_ENERGY_GAUGE_Y 		155
-#define SB_ENERGY_GAUGE_W 		17
+#define SB_ENERGY_GAUGE_W 		16
 #define SB_ENERGY_GAUGE_H 		41
 #define SB_ENERGY_NUM_X 		(SB_ENERGY_GAUGE_X+2)
 #define SB_ENERGY_NUM_Y 		190
@@ -255,6 +255,101 @@ gauge_box gauge_boxes[] = {
 
 		{SB_PRIMARY_W_BOX_LEFT,SB_PRIMARY_W_BOX_TOP,SB_PRIMARY_W_BOX_RIGHT,SB_PRIMARY_W_BOX_BOT},
 		{SB_SECONDARY_W_BOX_LEFT,SB_SECONDARY_W_BOX_TOP,SB_SECONDARY_W_BOX_RIGHT,SB_SECONDARY_W_BOX_BOT}
+	};
+
+//store delta x values from left of box
+span weapon_window_left[] = {
+		{71,114},
+		{69,116},
+		{68,117},
+		{66,118},
+		{66,119},
+		{66,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{65,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{64,119},
+		{63,119},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,118},
+		{63,117},
+		{63,117},
+		{64,116},
+		{65,115},
+		{66,113},
+		{68,111},
+	};
+
+
+//store delta x values from left of box
+span weapon_window_right[] = {
+		{208,255},
+		{206,257},
+		{205,258},
+		{204,259},
+		{203,260},
+		{203,260},
+		{203,260},
+		{203,260},
+		{203,260},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,261},
+		{203,262},
+		{203,262},
+		{203,262},
+		{203,262},
+		{203,262},
+		{203,262},
+		{203,262},
+		{203,262},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{204,263},
+		{205,263},
+		{206,262},
+		{207,261},
+		{208,260},
+		{211,255},
 	};
 
 
@@ -1019,92 +1114,46 @@ void init_gauges()
 void draw_energy_bar(int energy)
 {
 	grs_bitmap *bm;
-	int energy0;
-	int x1, x2, y, yMax, i;
-	int h0 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_H - 1);
-	int h1 = HUD_SCALE_Y (LEFT_ENERGY_GAUGE_H / 4);
-	int h2 = HUD_SCALE_Y ((LEFT_ENERGY_GAUGE_H * 3) / 4);
-	int w1 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_W - 1);
-	int w2 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_W - 2);
-	int w3 = HUD_SCALE_X (LEFT_ENERGY_GAUGE_W - 3);
-	double eBarScale = HUD_SCALE_X(100.0 - (double) energy) * 0.075 / (double) HUD_SCALE_Y (LEFT_ENERGY_GAUGE_H);
+	int x1, x2, y;
+	int not_energy = HUD_SCALE_X(63 - (energy*63)/100);
+	double aplitscale=((double)(HUD_SCALE_X(65)/HUD_SCALE_Y(8))/(65/8)); //scale aplitude of energy bar to current resolution aspect
 
 	// Draw left energy bar
 	PIGGY_PAGE_IN(Gauges[GAUGE_ENERGY_LEFT]);
 	bm = &GameBitmaps[Gauges[GAUGE_ENERGY_LEFT].index];
-	gr_rect(	HUD_SCALE_X(LEFT_ENERGY_GAUGE_X-1),
-			HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y-1),
-			HUD_SCALE_X(LEFT_ENERGY_GAUGE_X+LEFT_ENERGY_GAUGE_W+1),
-			HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y+LEFT_ENERGY_GAUGE_H+1));
 	hud_bitblt (LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, bm, F1_0);
 
 	gr_setcolor(BM_XRGB(0,0,0));
 
-	energy0 = HUD_SCALE_X (56);
-	energy0 = energy0 - (energy * energy0) / 100;
-	if (energy < 100) {
-		for (i = 0; i < LEFT_ENERGY_GAUGE_H; i++) {
-			yMax = HUD_SCALE_Y (i + 1);
-			for (y = i; y <= yMax; y++) {
-				x1 = h0 - y;
-				x2 = x1 + energy0 + (int) ((double) y * eBarScale);
-				if (y < h1) {
-					if (x2 > w1) 
-						x2 = w1;
-					}
-				else if (y < h2) {
-					if (x2 > w2)
-						x2 = w2;
-					}
-				else {
-					if (x2 > w3) 
-						x2 = w3;
-					}
-				if (x2 > x1)
-					gr_rect(HUD_SCALE_X (LEFT_ENERGY_GAUGE_X-1) + x1, HUD_SCALE_Y (LEFT_ENERGY_GAUGE_Y) +y , HUD_SCALE_X (LEFT_ENERGY_GAUGE_X) + x2, HUD_SCALE_Y (LEFT_ENERGY_GAUGE_Y) +y +1);
-				}
-			}
+	if (energy < 100)
+		for (y=0; y < HUD_SCALE_Y(LEFT_ENERGY_GAUGE_H); y++) {
+			x1 = HUD_SCALE_X(LEFT_ENERGY_GAUGE_H - 2) - y*(aplitscale);
+			x2 = HUD_SCALE_X(LEFT_ENERGY_GAUGE_H - 2) - y*(aplitscale) + not_energy;
+
+			if (x2 > HUD_SCALE_X(LEFT_ENERGY_GAUGE_W) - (y*aplitscale)/3)
+				x2 = HUD_SCALE_X(LEFT_ENERGY_GAUGE_W) - (y*aplitscale)/3;
+			
+			if (x2 > x1) gr_uline( i2f(x1+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)+1), i2f(x2+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)+1) ); 
 		}
+
 	gr_set_current_canvas( NULL );
 
 	// Draw right energy bar
 	PIGGY_PAGE_IN(Gauges[GAUGE_ENERGY_RIGHT]);
 	bm = &GameBitmaps[Gauges[GAUGE_ENERGY_RIGHT].index];
-	gr_rect(	HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X-1),
-			HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y-1),
-			HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X+RIGHT_ENERGY_GAUGE_W+1),
-			HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y+RIGHT_ENERGY_GAUGE_H+1));
-	hud_bitblt (RIGHT_ENERGY_GAUGE_X-1, RIGHT_ENERGY_GAUGE_Y, bm, F1_0);
+	hud_bitblt (RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, bm, F1_0);
 
-	gr_setcolor(BM_XRGB(0,0,0));
+	if (energy < 100)
+		for (y=0; y < HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_H); y++) {
+			x1 = HUD_SCALE_X(RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 2 ) + y*(aplitscale) - not_energy;
+			x2 = HUD_SCALE_X(RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H + 2 ) + y*(aplitscale);
 
-	h0 = HUD_SCALE_X (RIGHT_ENERGY_GAUGE_W - RIGHT_ENERGY_GAUGE_H);
-	w1 = HUD_SCALE_X (1);
-	w2 = HUD_SCALE_X (2);
-	if (energy < 100) {
-		yMax = HUD_SCALE_Y (RIGHT_ENERGY_GAUGE_H);
-		for (i = 0; i < RIGHT_ENERGY_GAUGE_H; i++) {
-			yMax = HUD_SCALE_Y (i + 1);
-			for (y = i; y <= yMax; y++) {
-				x2 = h0 + y;
-				x1 = x2 - energy0 - (int) ((double) y * eBarScale);
-				if (y < h1) {
-					if (x1 < 0) 
-						x1 = 0;
-					}
-				else if (y < h2) {
-					if (x1 < w1) 
-						x1 = w1;
-					}
-				else {
-					if (x1 < w2) 
-						x1 = w2;
-					}
-				if (x2 > x1) 
-					gr_rect(HUD_SCALE_X (RIGHT_ENERGY_GAUGE_X) + x1, HUD_SCALE_Y (RIGHT_ENERGY_GAUGE_Y) +y , HUD_SCALE_X (RIGHT_ENERGY_GAUGE_X+1) + x2, HUD_SCALE_Y (RIGHT_ENERGY_GAUGE_Y) +y +1);
-				}
-			}
+			if (x1 < (y*aplitscale)/3)
+				x1 = (y*aplitscale)/3;
+			
+			if (x2 > x1) gr_uline( i2f(x1+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)+1), i2f(x2+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)+1) ); 
 		}
+
 	gr_set_current_canvas( NULL );
 }
 
@@ -1203,12 +1252,11 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 
 void draw_numerical_display(int shield, int energy)
 {
-	int dx = NUMERICAL_GAUGE_X, dy = NUMERICAL_GAUGE_Y+1;
 	int sw,sh,saw,ew,eh,eaw;
 
-	gr_set_curfont( GAME_FONT );
-	PIGGY_PAGE_IN(Gauges[GAUGE_NUMERICAL]);
-	hud_bitblt (dx, dy, &GameBitmaps[Gauges[GAUGE_NUMERICAL].index], F1_0);
+// 	gr_set_curfont( GAME_FONT );
+// 	PIGGY_PAGE_IN(Gauges[GAUGE_NUMERICAL]);
+// 	hud_bitblt (dx, dy, &GameBitmaps[Gauges[GAUGE_NUMERICAL].index], F1_0);
 	// cockpit is not 100% geometric so we need to divide shield and energy X position by 1.951 which should be most accurate
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
 	gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
@@ -1518,17 +1566,16 @@ void draw_weapon_boxes()
 
 void sb_draw_energy_bar(int energy)
 {
-	int erase_height;
+	int erase_height,i;
 	int ew,eh,eaw;
 
 	PIGGY_PAGE_IN(Gauges[SB_GAUGE_ENERGY]);
 	hud_bitblt( SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, &GameBitmaps[Gauges[SB_GAUGE_ENERGY].index], F1_0);
-	erase_height = (100 - energy) * SB_ENERGY_GAUGE_H / 100;
 
-	if (erase_height > 0) {
-		gr_setcolor( 0 );
-		gr_rect(HUD_SCALE_X(SB_ENERGY_GAUGE_X),HUD_SCALE_Y(SB_ENERGY_GAUGE_Y),HUD_SCALE_X(SB_ENERGY_GAUGE_X+SB_ENERGY_GAUGE_W)-1,HUD_SCALE_Y(SB_ENERGY_GAUGE_Y+(erase_height-1)));
-	}
+	erase_height = HUD_SCALE_Y((100 - energy) * SB_ENERGY_GAUGE_H / 100);
+	gr_setcolor( 0 );
+	for (i=0;i<=erase_height;i++)
+		gr_uline( i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X)), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X+(SB_ENERGY_GAUGE_W))), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i) );
 
 	gr_set_current_canvas( NULL );
 
@@ -1983,6 +2030,8 @@ void render_gauges()
 	draw_weapon_boxes();
 
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
+		hud_bitblt (0, 0, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],F1_0);
+
 		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy))
 		{
 			newdemo_record_player_energy(
@@ -1993,8 +2042,6 @@ void render_gauges()
 			old_energy = energy;
 		}
 		draw_energy_bar(energy);
-
-		hud_bitblt (0, 0, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],F1_0);
 
 		draw_numerical_display(shields, energy);
 
@@ -2038,9 +2085,7 @@ void render_gauges()
 			old_energy = energy;
 		}
 		sb_draw_energy_bar(energy);
-#ifdef OGL
-		hud_bitblt (0, 147, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],F1_0);
-#endif
+
 		draw_player_ship(cloak, old_cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)

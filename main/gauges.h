@@ -74,5 +74,11 @@ extern rgb player_rgb[];
 
 #define GAUGE_HUD_NUMMODES 4
 
+typedef struct span {
+	int l,r;
+} span;
+
+extern span weapon_window_left[],weapon_window_right[];
+
 #endif
  

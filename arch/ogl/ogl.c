@@ -52,6 +52,7 @@
 #include "byteswap.h"
 #include "endlevel.h"
 #include "ogl_init.h"
+#include "gauges.h"
 
 //change to 1 for lots of spew.
 #if 0
@@ -1117,7 +1118,12 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 				}
 			}
 			else if (((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256) || 
-				(c==0 && (bm_flags & BM_FLAG_COCKPIT_TRANSPARENT)))
+					((bm_flags & BM_FLAG_COCKPIT_TRANSPARENT) && 
+						(y >= 151 && y <= 193 && 
+						((x >= weapon_window_left[y-151].l && x <= weapon_window_left[y-151].r) ||  (x >= weapon_window_right[y-151].l && x <= weapon_window_right[y-151].r))
+						)
+					)
+				)
 			{
 				switch (type){
 					case GL_LUMINANCE:
