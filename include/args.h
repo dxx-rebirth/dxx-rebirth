@@ -49,6 +49,7 @@ typedef struct Arg
 	char *SysPilot;
 	int SysWindow;
 	int SysAutoDemo;
+	int SysNoTitles;
 	int CtlNoMouse;
 	int CtlNoJoystick;
 	int CtlMouselook;

@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20071006
 --------
 arch/ogl/ogl.c, main/game.c, main/gauges.c, main/gauges.h: Not rendering additional transparency cockpit display anymore to ensure compability with custom cockpits; Improved overlay functions for cockpit elements
+d1x.ini, include/args.h, main/args.c, main/inferno.c, main/playsave.c: Readded -notitles switch; Removed use of tempfile for PLX writing
 
 20071001
 --------

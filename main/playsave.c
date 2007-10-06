@@ -560,13 +560,8 @@ int write_player_d1x(const char *filename)
 {
 	FILE *fin, *fout;
 	int rc=0;
-	char tempfile[PATH_MAX];
 	
-	strcpy(tempfile,filename);
-	tempfile[strlen(tempfile)-4]=0;
-	strcat(tempfile,".pl$");
-	
-	fout=fopen(tempfile,"wt");
+	fout=fopen(filename,"wt");
 
 	if (!fout && GameArg.SysUsePlayersDir)
 	{
@@ -575,7 +570,7 @@ int write_player_d1x(const char *filename)
 		, 0775
 #endif
 		); //try making directory
-		fout=fopen(tempfile,"wt");
+		fout=fopen(filename,"wt");
 	}
 	
 	if(fout)
@@ -631,11 +626,6 @@ int write_player_d1x(const char *filename)
 
 		fclose(fout);
 
-		if(rc==0)
-		{
-			unlink(filename);
-			rc = rename(tempfile,filename);
-		}
 		return rc;
 	}
 	else

@@ -163,6 +163,11 @@ void ReadCmdArgs(void)
 	else
 		GameArg.SysAutoDemo = 0;
 
+	if (FindArg("-notitles"))
+		GameArg.SysNoTitles = 1;
+	else
+		GameArg.SysNoTitles = 0;
+
 	if (FindArg("-window"))
 		GameArg.SysWindow = 1;
 	else

@@ -142,6 +142,7 @@ void show_commandline_help()
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
 	printf( "  -pilot <s>         %s\n", "Select this pilot-file automatically");
 	printf( "  -autodemo          %s\n", "Start in demo mode");
+	printf( "  -notitles          %s\n", "Skip title screens");
 	printf( "  -window            %s\n", "Run the game in a window");
 
 	printf( "\n Controls:\n\n");
@@ -321,9 +322,12 @@ int main(int argc,char **argv)
 	gamefont_init(); // must load after palette data loaded.
 	songs_play_song( SONG_TITLE, 1 );
 
-	show_title_screen( "iplogo1.pcx", 1 );
-	show_title_screen( "logo.pcx", 1 );
-	show_title_screen( "descent.pcx", 1 );
+	if (!GameArg.SysNoTitles)
+	{
+		show_title_screen( "iplogo1.pcx", 1 );
+		show_title_screen( "logo.pcx", 1 );
+		show_title_screen( "descent.pcx", 1 );
+	}
 
 #ifdef SHAREWARE
 	bm_init_use_tbl();
