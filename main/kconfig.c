@@ -559,7 +559,10 @@ void kconfig_sub_draw_table(kc_item * items,int nitems, char * title)
 #ifdef OGL
 	nm_draw_background1(NULL);
 #endif
-	nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
+	if (HiresGFX)
+		nm_draw_background((SWIDTH/2)-(w/2)-30*(SWIDTH/640), (SHEIGHT/2)-(h/2)-30*(SHEIGHT/480), (SWIDTH/2)+(w/2)+30*(SWIDTH/640), (SHEIGHT/2)+(h/2)+30*(SHEIGHT/480));
+	else
+		nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
 
 	if (kc_d2x_flag) {
 		items = kc_d2x;

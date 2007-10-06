@@ -71,7 +71,7 @@ void gr_box0(int left,int top,int right,int bot)
 void gr_ubox12(int left,int top,int right,int bot)
 {
 	int i;
-printf("BOX\n");
+
 	for (i=top; i<=bot; i++ )
 	{
 		gr_upixel( left, i );

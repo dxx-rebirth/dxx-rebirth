@@ -68,6 +68,7 @@ char WaitingForOthers=0;
 int Kmatrix_nomovie_message=0;
 
 extern char MaxPowerupsAllowed[],PowerupsInMine[];
+extern void newmenu_close();
 
 void kmatrix_reactor (char *message);
 void kmatrix_phallic ();
@@ -706,4 +707,6 @@ void kmatrix_view(int network)
   game_flush_inputs();
 
   Kmatrix_nomovie_message=0;
+
+	newmenu_close();
 }

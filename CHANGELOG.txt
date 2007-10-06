@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20071006
 --------
 2d/box.c, arch/ogl/ogl.c, main/game.c, main/gamerend.c, main/gauges.c, main/gauges.h: Not rendering additional transparency cockpit display anymore to ensure compability with custom cockpits; Improved overlay functions for cockpit elements
+main/kconfig.c, main/kmatrix.c, main/newmenu.c: Fixed size of kconfig_sub_table background; Fixed problems caused by use of load_stars()
 
 20071001
 --------
