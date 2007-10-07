@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071007
+--------
+main/collide.c, main/laser.c: Changed collision handling between robots and controlcen; Aligned constant sounds to GameTime; Using turn radius of 0x0024*F1_0 for all homing objects while not aligning smart blobs to movement vector
+
 20071006
 --------
 arch/ogl/ogl.c, main/game.c, main/gauges.c, main/gauges.h: Not rendering additional transparency cockpit display anymore to ensure compability with custom cockpits; Improved overlay functions for cockpit elements

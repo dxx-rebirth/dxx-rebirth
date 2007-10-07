@@ -1090,22 +1090,19 @@ void Laser_do_weapon_sequence(object *obj)
 				{
 					fix turn_radius;
 
-					if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
-						turn_radius = 0x0014 * F1_0; // homing missiles, mega missiles
-					else
-						turn_radius = 0x0030 * F1_0; // smart missile blobs
+					turn_radius = 0x0024 * F1_0;
 
 					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 			
 					// we need normalized exact vectors here
-					vm_vec_normalize (&vector_to_object);
+					vm_vec_normalize_quick (&vector_to_object);
 					temp_vec = obj->mtype.phys_info.velocity;
 					// gives magnitude
-					speed = vm_vec_normalize (&temp_vec);
+					speed = vm_vec_normalize_quick (&temp_vec);
 					// homing missile speeds : insane - 0x005a
 					max_speed = Weapon_info[obj->id].speed[Difficulty_level];
 		
-					if (speed < max_speed)
+					if (speed+F1_0 < max_speed)
 					{
 						speed += fixmul(max_speed, FrameTime/2);
 						if (speed > max_speed)
@@ -1117,7 +1114,8 @@ void Laser_do_weapon_sequence(object *obj)
 					Laser_TurnSpeedLimit(&temp_vec, &vector_to_object, speed, turn_radius);
 					obj->mtype.phys_info.velocity = temp_vec;
 					// orient it directly by movement vector
-					vm_vector_2_matrix (&obj->orient, &temp_vec, NULL, NULL);
+					if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
+						vm_vector_2_matrix (&obj->orient, &temp_vec, NULL, NULL);
 					// apply speed
 					vm_vec_scale (&temp_vec, speed);
 					obj->mtype.phys_info.velocity = temp_vec;
