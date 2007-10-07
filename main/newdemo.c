@@ -1281,6 +1281,8 @@ int newdemo_read_demo_start(int rnd_demo)
         sbyte i, laser_level;
         char current_mission[9];
 
+	Rear_view=0;
+
 	nd_read_byte((sbyte *)&c);
 	if ((c != ND_EVENT_START_DEMO) || nd_bad_read) {
 		newmenu_item m[1];
@@ -2952,6 +2954,7 @@ void newdemo_stop_playback()
 	#endif
 	strncpy(Players[Player_num].callsign, nd_save_callsign, CALLSIGN_LEN);
 	Cockpit_mode = Newdemo_old_cockpit;
+	Rear_view=0;
 	Game_mode = GM_GAME_OVER;
 	Function_mode = FMODE_MENU;
 	longjmp(LeaveGame,1); // Exit game loop
