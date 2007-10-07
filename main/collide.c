@@ -991,16 +991,16 @@ void collide_robot_and_robot( object * robot1, object * robot2, vms_vector *coll
 void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vector *collision_point )
 {
 
-	if (obj1->type == OBJ_ROBOT) {
-		vms_vector	hitvec;
-		vm_vec_normalize_quick(vm_vec_sub(&hitvec, &obj2->pos, &obj1->pos));
-		bump_one_object(obj1, &hitvec, 0);
-	} else {
-		vms_vector	hitvec;
-		vm_vec_normalize_quick(vm_vec_sub(&hitvec, &obj1->pos, &obj2->pos));
-		bump_one_object(obj2, &hitvec, 0);
-	}
-
+// 	if (obj1->type == OBJ_ROBOT) {
+// 		vms_vector	hitvec;
+// 		vm_vec_normalize_quick(vm_vec_sub(&hitvec, &obj2->pos, &obj1->pos));
+// 		bump_one_object(obj1, &hitvec, 0);
+// 	} else {
+// 		vms_vector	hitvec;
+// 		vm_vec_normalize_quick(vm_vec_sub(&hitvec, &obj1->pos, &obj2->pos));
+// 		bump_one_object(obj2, &hitvec, 0);
+// 	}
+	bump_two_objects(obj1, obj2, 0);
 }
 
 //##void collide_robot_and_hostage( object * robot, object * hostage, vms_vector *collision_point ) { 
@@ -1013,6 +1013,7 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 { 
 	int	steal_attempt = 0;
 	int	collision_seg;
+	static int next_sound_time=0;
 
 	if (robot->flags&OF_EXPLODING)
 		return;
@@ -1055,7 +1056,10 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 	// A "steal" sound was added and it was getting obscured by the bump. -AP 10/3/95
 	//	Changed by MK to make this sound unless the robot stole.
 	if ((!steal_attempt) && !Robot_info[robot->id].energy_drain)
-		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
+		if (GameTime >= next_sound_time && (GameTime < 0 || GameTime + (F1_0/10) > 0)) {
+			next_sound_time = GameTime + (F1_0/10);
+			digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
+		}
 
 	bump_two_objects(robot, playerobj, 1);
 	return; 
@@ -1139,12 +1143,18 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 void collide_player_and_controlcen( object * controlcen, object * playerobj, vms_vector *collision_point )
 { 
+	static int next_sound_time=0;
+
 	if (playerobj->id == Player_num) {
 		Control_center_been_hit = 1;
 		ai_do_cloak_stuff();				//	In case player cloaked, make control center know where he is.
 	}
 
-	digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
+	if (GameTime >= next_sound_time && (GameTime < 0 || GameTime + (F1_0/10) > 0)) {
+		next_sound_time = GameTime + (F1_0/10);
+		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
+	}
+
 	bump_two_objects(controlcen, playerobj, 1);
 
 	return; 
@@ -1781,8 +1791,12 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 //##	return; 
 //##}
 
-void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point ) { 
-	digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, collision_point, 0, F1_0 );
+void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point ) {
+	static int next_sound_time=0;
+	if (GameTime >= next_sound_time && (GameTime < 0 || GameTime + (F1_0/10) > 0)) {
+		next_sound_time = GameTime + (F1_0/10);
+		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, collision_point, 0, F1_0 );
+	}
 	bump_two_objects(player1, player2, 1);
 	return;
 }

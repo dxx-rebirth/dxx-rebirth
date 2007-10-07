@@ -526,6 +526,7 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 	int			lock_objnum, firing_segnum;
 	vms_vector	goal_pos;
 	int			pnum = parent_objp->id;
+	static int next_sound_time=0;
 
 	if (pnum == Player_num) {
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
@@ -553,10 +554,13 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 	firing_segnum = find_point_seg(firing_pos, parent_objp->segnum);
 
 	//	Play sound.
-	if ( parent_objp == Viewer )
-		digi_play_sample( Weapon_info[weapon_objp->id].flash_sound, F1_0 );
-	else
-		digi_link_sound_to_pos( Weapon_info[weapon_objp->id].flash_sound, weapon_objp->segnum, 0, &weapon_objp->pos, 0, F1_0 );
+	if (GameTime >= next_sound_time && (GameTime < 0 || GameTime + (F1_0/50) > 0)) {
+		next_sound_time = GameTime + (F1_0/50);
+		if ( parent_objp == Viewer )
+			digi_play_sample( Weapon_info[weapon_objp->id].flash_sound, F1_0 );
+		else
+			digi_link_sound_to_pos( Weapon_info[weapon_objp->id].flash_sound, weapon_objp->segnum, 0, &weapon_objp->pos, 0, F1_0 );
+	}
 
 	// -- if ((Last_omega_muzzle_flash_time + F1_0/4 < GameTime) || (Last_omega_muzzle_flash_time > GameTime)) {
 	// -- 	do_muzzle_stuff(firing_segnum, firing_pos);
@@ -1585,10 +1589,7 @@ void Laser_do_weapon_sequence(object *obj)
 				{
 					fix turn_radius;
 	
-					if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
-						turn_radius = 0x0014 * F1_0; // homing missiles, mega missiles
-					else
-						turn_radius = 0x0030 * F1_0; // smart missile/bomb blobs
+					turn_radius = 0x0024 * F1_0;
 
 					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 			
@@ -1600,7 +1601,7 @@ void Laser_do_weapon_sequence(object *obj)
 					// homing missile speeds : insane - 0x005a
 					max_speed = Weapon_info[obj->id].speed[Difficulty_level];
 		
-					if (speed < max_speed)
+					if (speed+F1_0 < max_speed)
 					{
 						speed += fixmul(max_speed, FrameTime/2);
 						if (speed > max_speed)
@@ -1612,7 +1613,8 @@ void Laser_do_weapon_sequence(object *obj)
 					Laser_TurnSpeedLimit(&temp_vec, &vector_to_object, speed, turn_radius);
 					obj->mtype.phys_info.velocity = temp_vec;
 					// orient it directly by movement vector
-					vm_vector_2_matrix (&obj->orient, &temp_vec, NULL, NULL);
+					if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
+						vm_vector_2_matrix (&obj->orient, &temp_vec, NULL, NULL);
 					// apply speed
 					vm_vec_scale (&temp_vec, speed);
 					obj->mtype.phys_info.velocity = temp_vec;
