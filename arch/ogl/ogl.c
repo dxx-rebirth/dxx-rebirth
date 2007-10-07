@@ -1120,7 +1120,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 				//((HiresGFX?(c==0 || c==54 || c==119):(c==0)) && (bm_flags & BM_FLAG_COCKPIT_TRANSPARENT)))
 					((bm_flags & BM_FLAG_COCKPIT_TRANSPARENT) && 
 						(y >= (HiresGFX?364:151) && y <= (HiresGFX?469:193) && 
-						((x >= WB_LEFT[y-(HiresGFX?364:151)].l && x <= WB_LEFT[y-(HiresGFX?364:151)].r) ||  (x >= WB_RIGHT[y-(HiresGFX?364:151)].l && x <= WB_RIGHT[y-(HiresGFX?364:151)].r))
+						((x >= WinBoxLeft[y-(HiresGFX?364:151)].l && x <= WinBoxLeft[y-(HiresGFX?364:151)].r) ||  (x >= WinBoxRight[y-(HiresGFX?364:151)].l && x <= WinBoxRight[y-(HiresGFX?364:151)].r))
 						)
 					)
 				)

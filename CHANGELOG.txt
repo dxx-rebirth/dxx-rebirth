@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20071007
 --------
 main/collide.c, main/laser.c: Changed collision handling between robots and controlcen; Aligned constant sounds to GameTime; Using turn radius of 0x0024*F1_0 for all homing objects while not aligning smart blobs to movement vector
+arch/ogl/ogl.c, main/gauges.h: Changed name for Window Boxes - preventing redundancy in Windows build
 
 20071006
 --------
