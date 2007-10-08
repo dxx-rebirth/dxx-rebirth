@@ -365,12 +365,13 @@ int main(int argc,char **argv)
 
 	if(GameArg.SysPilot)
 	{
-		char filename[15];
+		char filename[32];
 		int j;
 
 		if (GameArg.SysUsePlayersDir)
 			strcpy(filename, "Players/");
-		strncat(filename, GameArg.SysPilot, 12);
+		strlwr(GameArg.SysPilot);
+		sprintf(filename,"%s", GameArg.SysPilot);
 		for (j=GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
 			switch (filename[j]) {
 				case ' ':

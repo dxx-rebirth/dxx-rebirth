@@ -168,7 +168,7 @@ grs_canvas		*VR_offscreen_menu = NULL; // The offscreen data buffer for menus
 
 int	Debug_pause=0; //John's debugging pause system
 int	Cockpit_mode=CM_FULL_COCKPIT; //set game.h for values
-int	old_cockpit_mode=-1;
+static int	old_cockpit_mode=-1;
 int	force_cockpit_redraw=0;
 int	netplayerinfo_on=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
@@ -447,13 +447,14 @@ void toggle_cockpit()
 	switch (Cockpit_mode)
 	{
 		case CM_FULL_COCKPIT:
+		case CM_REAR_VIEW:
 			new_mode = CM_STATUS_BAR;
 			break;
 		case CM_STATUS_BAR:
 			new_mode = CM_FULL_SCREEN;
 			break;
 		case CM_FULL_SCREEN:
-			new_mode = CM_FULL_COCKPIT;
+			new_mode = (Rear_view?CM_REAR_VIEW:CM_FULL_COCKPIT);
 			break;
 	}
 

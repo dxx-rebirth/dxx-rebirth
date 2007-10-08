@@ -614,7 +614,7 @@ int write_player_d1x(const char *filename)
 		fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
 		fprintf(fout,"[end]\n");
 		fprintf(fout,"[cockpit]\n");
-		fprintf(fout,"mode=%i\n",Cockpit_mode);
+		fprintf(fout,"mode=%i\n",(Cockpit_mode==1?0:Cockpit_mode));
 		fprintf(fout,"[end]\n");
 		fprintf(fout,"[plx version]\n");
 		fprintf(fout,"plx version=%s\n",D1X_VERSION);

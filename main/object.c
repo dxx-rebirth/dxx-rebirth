@@ -1283,7 +1283,8 @@ int		Death_sequence_aborted=0;
 int		Player_eggs_dropped=0;
 fix		Camera_to_player_dist_goal=F1_0*4;
 
-ubyte		Control_type_save, Render_type_save, cockpit_mode_save;
+ubyte		Control_type_save, Render_type_save;
+static int cockpit_mode_save;	//set while in letterbox
 
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_end(void)
