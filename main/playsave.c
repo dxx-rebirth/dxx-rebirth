@@ -570,9 +570,6 @@ int get_highest_level(void)
 	return i;
 }
 
-extern int Cockpit_mode_save;
-
-
 //write out player's saved games.  returns errno (0 == no error)
 int write_player_file()
 {
@@ -599,7 +596,7 @@ int write_player_file()
 	PHYSFSX_writeU8(file, Player_default_difficulty);
 	PHYSFSX_writeU8(file, Auto_leveling_on);
 	PHYSFSX_writeU8(file, Reticle_on);
-	PHYSFSX_writeU8(file, (Cockpit_mode_save!=-1)?Cockpit_mode_save:Cockpit_mode);	//if have saved mode, write it instead of letterbox/rear view
+	PHYSFSX_writeU8(file, (Cockpit_mode==1?0:Cockpit_mode));
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(PHYSFS_uint8)); // skip Default_display_mode
 	PHYSFSX_writeU8(file, Missile_view_enabled);
 	PHYSFSX_writeU8(file, Headlight_active_default);

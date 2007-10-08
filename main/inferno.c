@@ -450,8 +450,8 @@ int main(int argc, char *argv[])
 
 			if (GameArg.SysUsePlayersDir)
 				strcpy(filename, "Players/");
-			strncat(filename, GameArg.SysPilot, 12);
-			filename[8 + 12] = '\0';	// unfortunately strncat doesn't put the terminating 0 on the end if it reaches 'n' 
+			strlwr(GameArg.SysPilot);
+			sprintf(filename,"%s", GameArg.SysPilot);
 			for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
 				switch (filename[j]) {
 					case ' ':

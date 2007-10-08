@@ -176,8 +176,8 @@ grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
 int Debug_pause=0;				//John's debugging pause system
 
 int Cockpit_mode=CM_FULL_COCKPIT;		//set game.h for values
+static int	old_cockpit_mode=-1;
 
-int Cockpit_mode_save=-1;					//set while in letterbox or rear view, or -1
 int force_cockpit_redraw=0;
 
 int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
@@ -1355,8 +1355,7 @@ void check_rear_view()
 		if (Rear_view) {
 			Rear_view = 0;
 			if (Cockpit_mode==CM_REAR_VIEW) {
-				select_cockpit(Cockpit_mode_save);
-				Cockpit_mode_save = -1;
+				select_cockpit(old_cockpit_mode);
 			}
 			if (Newdemo_state == ND_STATE_RECORDING)
 				newdemo_record_restore_rearview();
@@ -1373,7 +1372,7 @@ void check_rear_view()
 				entry_time = timer_get_fixed_seconds();
 			}
 			if (Cockpit_mode == CM_FULL_COCKPIT) {
-				Cockpit_mode_save = Cockpit_mode;
+				old_cockpit_mode = Cockpit_mode;
 				select_cockpit(CM_REAR_VIEW);
 			}
 			if (Newdemo_state == ND_STATE_RECORDING)
@@ -1393,8 +1392,7 @@ void check_rear_view()
 			if (leave_mode==1 && Rear_view) {
 				Rear_view = 0;
 				if (Cockpit_mode==CM_REAR_VIEW) {
-					select_cockpit(Cockpit_mode_save);
-					Cockpit_mode_save = -1;
+					select_cockpit(old_cockpit_mode);
 				}
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_restore_rearview();
@@ -1412,10 +1410,9 @@ void reset_rear_view(void)
 	Rear_view = 0;
 
 	if (!(Cockpit_mode == CM_FULL_COCKPIT || Cockpit_mode == CM_STATUS_BAR || Cockpit_mode == CM_FULL_SCREEN)) {
-		if (!(Cockpit_mode_save == CM_FULL_COCKPIT || Cockpit_mode_save == CM_STATUS_BAR || Cockpit_mode_save == CM_FULL_SCREEN))
-			Cockpit_mode_save = CM_FULL_COCKPIT;
-		select_cockpit(Cockpit_mode_save);
-		Cockpit_mode_save	= -1;
+		if (!(old_cockpit_mode == CM_FULL_COCKPIT || old_cockpit_mode == CM_STATUS_BAR || old_cockpit_mode == CM_FULL_SCREEN))
+			old_cockpit_mode = CM_FULL_COCKPIT;
+		select_cockpit(old_cockpit_mode);
 	}
 
 }
@@ -1655,12 +1652,6 @@ void game()
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
  		newdemo_stop_playback();
-
-   if (Cockpit_mode_save!=-1)
-	 {
-		Cockpit_mode=Cockpit_mode_save;
-		Cockpit_mode_save=-1;		
-	 }
 
 	if (Function_mode != FMODE_EDITOR)
 		gr_palette_fade_out(gr_palette,32,0);			// Fade out before going to menu

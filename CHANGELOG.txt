@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071008
+--------
+main/game.c, main/gamerend.c, main/inferno.c, main/object.c, main/playsave.c: Improvements for Cockpit mode save; Fixed -pilot switch
+
 20071007
 --------
 main/collide.c, main/laser.c: Changed collision handling between robots and controlcen; Aligned constant sounds to GameTime; Using turn radius of 0x0024*F1_0 for all homing objects while not aligning smart blobs to movement vector

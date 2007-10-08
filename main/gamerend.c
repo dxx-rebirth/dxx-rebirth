@@ -873,13 +873,14 @@ void toggle_cockpit()
 	switch (Cockpit_mode)
 	{
 		case CM_FULL_COCKPIT:
+		case CM_REAR_VIEW:
 			new_mode = CM_STATUS_BAR;
 			break;
 		case CM_STATUS_BAR:
 			new_mode = CM_FULL_SCREEN;
 			break;
 		case CM_FULL_SCREEN:
-			new_mode = CM_FULL_COCKPIT;
+			new_mode = (Rear_view?CM_REAR_VIEW:CM_FULL_COCKPIT);
 			break;
 	}
 
