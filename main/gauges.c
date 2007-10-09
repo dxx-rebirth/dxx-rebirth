@@ -2384,13 +2384,6 @@ void draw_weapon_boxes()
 	}
 	else if (weapon_box_user[1] == WBU_STATIC)
 		draw_static(1);
-
-	if (Cockpit_mode == CM_STATUS_BAR) {
-		if (!GameArg.GfxGaugeHudMode && weapon_box_user[1] == WBU_WEAPON)
-			show_bomb_count(HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0);
-	} else {
-		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0);
-	}
 }
 
 
@@ -3035,6 +3028,7 @@ void render_gauges()
 		}
 		draw_energy_bar(energy);
 		draw_numerical_display(shields, energy);
+		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0);
 
 		if (Newdemo_state == ND_STATE_RECORDING && (Afterburner_charge != old_afterburner))
 		{
@@ -3075,6 +3069,8 @@ void render_gauges()
 			old_energy = energy;
 		}
 		sb_draw_energy_bar(energy);
+		if (!GameArg.GfxGaugeHudMode && weapon_box_user[1] == WBU_WEAPON)
+			show_bomb_count(HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0);
 
 		if (Newdemo_state == ND_STATE_RECORDING && (Afterburner_charge != old_afterburner))
 		{
