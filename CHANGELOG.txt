@@ -1,5 +1,10 @@
 D2X-Rebirth Changelog
 
+20071011
+--------
+main/movie.c, arch/sdl/digi_mixer.c, libmve/mveplay.c: enabled SDL_mixer sound backend for movie playback. When 
+using it, audio is no longer closed/re-opened with each movie -- hence does not crash with SDL_mixer 1.2.8.
+
 20071009
 --------
 main/gauges.c, main/network.c, main/scores.c: Moved show_bomb_count() to work with new transparency cockpit layer; Fixed nm_draw_background() for scores and show_game_rules()

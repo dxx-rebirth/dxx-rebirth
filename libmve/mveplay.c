@@ -28,14 +28,15 @@
 
 #if defined(AUDIO)
 #include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
+#include "digi.h"
 #endif
 
 #include "mvelib.h"
 #include "mve_audio.h"
-
 #include "decoders.h"
-
 #include "libmve.h"
+#include "args.h"
 
 #define MVE_OPCODE_ENDOFSTREAM          0x00
 #define MVE_OPCODE_ENDOFCHUNK           0x01
@@ -374,16 +375,26 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 	mve_audio_spec->samples = 4096;
 	mve_audio_spec->callback = mve_audio_callback;
 	mve_audio_spec->userdata = NULL;
-	if (SDL_OpenAudio(mve_audio_spec, NULL) >= 0)
-	{
-		fprintf(stderr, "   success\n");
+
+	// MD2211: if using SDL_Mixer, we never reinit the sound system
+	if (!GameArg.SndSdlMixer) {
+		if (SDL_OpenAudio(mve_audio_spec, NULL) >= 0) {
+			fprintf(stderr, "   success\n");
+			mve_audio_canplay = 1;
+		}
+		else {
+			fprintf(stderr, "   failure : %s\n", SDL_GetError());
+			mve_audio_canplay = 0;
+		}
+	}
+
+#ifdef USE_SDLMIXER
+	else {
+		// MD2211: using the same old SDL audio callback as a postmixer in SDL_mixer
+		Mix_SetPostMix(mve_audio_spec->callback, mve_audio_spec->userdata);
 		mve_audio_canplay = 1;
 	}
-	else
-	{
-		fprintf(stderr, "   failure : %s\n", SDL_GetError());
-		mve_audio_canplay = 0;
-	}
+#endif
 
 	memset(mve_audio_buffers, 0, sizeof(mve_audio_buffers));
 	memset(mve_audio_buflens, 0, sizeof(mve_audio_buflens));
@@ -397,7 +408,12 @@ static int play_audio_handler(unsigned char major, unsigned char minor, unsigned
 #ifdef AUDIO
 	if (mve_audio_canplay  &&  !mve_audio_playing  &&  mve_audio_bufhead != mve_audio_buftail)
 	{
-		SDL_PauseAudio(0);
+		if (!GameArg.SndSdlMixer)
+			SDL_PauseAudio(0);
+#ifdef USE_SDLMIXER
+		else
+			Mix_Pause(0);
+#endif			
 		mve_audio_playing = 1;
 	}
 #endif
@@ -407,6 +423,15 @@ static int play_audio_handler(unsigned char major, unsigned char minor, unsigned
 static int audio_data_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
 #ifdef AUDIO
+
+	// MD2211: for audio conversion
+	SDL_AudioCVT cvt;
+	int clen;
+	int out_freq;
+	Uint16 out_format;
+	int out_channels;
+	// end MD2211
+
 	static const int selected_chan=1;
 	int chan;
 	int nsamp;
@@ -441,6 +466,33 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 
 				memset(mve_audio_buffers[mve_audio_buftail], 0, nsamp); /* XXX */
 			}
+
+			// MD2211: the following block does on-the-fly audio conversion for SDL_mixer
+#ifdef USE_SDLMIXER
+			if (GameArg.SndSdlMixer) {
+				// build converter: in = MVE format, out = SDL_mixer output
+				Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
+
+				SDL_BuildAudioCVT(&cvt, mve_audio_spec->format, mve_audio_spec->channels, mve_audio_spec->freq,
+					out_format, out_channels, out_freq);
+
+				clen = nsamp * cvt.len_mult;
+				cvt.buf = malloc(clen);
+				cvt.len = nsamp;
+
+				// read the audio buffer into the conversion buffer
+				memcpy(cvt.buf, mve_audio_buffers[mve_audio_buftail], nsamp);
+
+				// do the conversion
+				if (SDL_ConvertAudio(&cvt)) printf("audio conversion failed!\n");
+
+				// copy back to the audio buffer
+				mve_free(mve_audio_buffers[mve_audio_buftail]); // free the old audio buffer
+				mve_audio_buflens[mve_audio_buftail] = clen;
+				mve_audio_buffers[mve_audio_buftail] = (short *)mve_alloc(clen);
+				memcpy(mve_audio_buffers[mve_audio_buftail], cvt.buf, clen);
+			}
+#endif
 
 			if (++mve_audio_buftail == TOTAL_AUDIO_BUFFERS)
 				mve_audio_buftail = 0;
@@ -730,21 +782,26 @@ void MVE_rmEndMovie()
 
 #ifdef AUDIO
 	if (mve_audio_canplay) {
-		// only close audio if we opened it
-		SDL_CloseAudio();
+		// MD2211: if using SDL_Mixer, we never reinit sound, hence never close it
+		if (!GameArg.SndSdlMixer) {
+			SDL_CloseAudio();
+		}
 		mve_audio_canplay = 0;
 	}
 	for (i = 0; i < TOTAL_AUDIO_BUFFERS; i++)
 		if (mve_audio_buffers[i] != NULL)
 			mve_free(mve_audio_buffers[i]);
+
 	memset(mve_audio_buffers, 0, sizeof(mve_audio_buffers));
 	memset(mve_audio_buflens, 0, sizeof(mve_audio_buflens));
+
 	mve_audio_curbuf_curpos=0;
 	mve_audio_bufhead=0;
 	mve_audio_buftail=0;
 	mve_audio_playing=0;
 	mve_audio_canplay=0;
 	mve_audio_compressed=0;
+
 	if (mve_audio_spec)
 		mve_free(mve_audio_spec);
 	mve_audio_spec=NULL;
@@ -772,9 +829,6 @@ void MVE_rmHoldMovie()
 void MVE_sndInit(int x)
 {
 #ifdef AUDIO
-	if (x == -1)
-		mve_audio_enabled = 0;
-	else
-		mve_audio_enabled = 1;
+	mve_audio_enabled = (x == -1 ? 0 : 1);
 #endif
 }

@@ -92,6 +92,7 @@ int digi_mixer_init() {
 
 /* Shut down audio */
 void digi_mixer_close() {
+  if (MIX_DIGI_DEBUG) printf("digi_close (SDL_Mixer)\n");
   if (!digi_initialised) return;
   digi_initialised = 0;
   Mix_CloseAudio();
@@ -106,14 +107,17 @@ void mixdigi_convert_sound(int i) {
   SDL_AudioCVT cvt;
   Uint8 *data = GameSounds[i].data;
   Uint32 dlen = GameSounds[i].length;
-  int freq = GameArg.SndDigiSampleRate;
-  //int bits = GameSounds[i].bits;
+  int out_freq;
+  Uint16 out_format;
+  int out_channels;
+  
+  Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
 
   if (SoundChunks[i].abuf) return; //proceed only if not converted yet
 
   if (data) {
     if (MIX_DIGI_DEBUG) printf("converting %d (%d)\n", i, dlen);
-    SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, digi_sample_rate);
+    SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, GameArg.SndDigiSampleRate, out_format, out_channels, out_freq);
 
     cvt.buf = malloc(dlen * cvt.len_mult);
     cvt.len = dlen;
@@ -193,7 +197,9 @@ int digi_mixer_is_sound_playing(int soundno) { return 0; }
 int digi_mixer_is_channel_playing(int channel) { return 0; }
 
 void digi_mixer_reset() {}
-void digi_mixer_stop_all_channels() {}
+void digi_mixer_stop_all_channels() {
+	Mix_HaltChannel(-1);
+}
 
 extern void digi_end_soundobj(int channel);	
 int verify_sound_channel_free(int channel);
@@ -222,7 +228,8 @@ void digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum
   }
 }
 void digi_mixer_stop_current_song() {
-  jukebox_stop(); //stops jukebox as well as standard music
+  jukebox_stop();
+  mix_stop_music();
 }
 #endif
 
