@@ -8,7 +8,6 @@
 #endif
 
 #include <string.h>
-#include <netinet/in.h> /* for htons & co. */
 #include <unistd.h>
 #include <netdb.h>
 #include <stdlib.h>

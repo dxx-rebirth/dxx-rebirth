@@ -15,6 +15,11 @@ extern "C" {
 #include "mono.h"
 #include "vers_id.h"
 #include "timer.h"
+#ifdef _WIN32
+#include <winsock.h>
+#else
+#include <netinet/in.h> /* for htons & co. */
+#endif
 }
 
 using namespace std;

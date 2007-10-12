@@ -14,9 +14,6 @@ extern "C" {
 #include <string.h>
 #include "ip_base.h"
 #include <assert.h>
-#ifndef _WIN32
-#include <netinet/in.h>
-#endif
 
 int myport=-1;
 
@@ -125,6 +122,10 @@ void ip_peer::send_handshake(ip_handshake_base*hsb){
 	memcpy(buf+s,D1Xcfgid,4);s+=4;
 	s+=hsb->fillbuf(buf+s);
 	assert(s<256);
+
+	arch_ip_close_socket();
+	arch_ip_open_socket(UDP_BASEPORT+GameArg.MplIpBasePort);
+
 	if (addr.goodaddr==NULL){
 		ip_addr_list::iterator i;
 		for (i=addr.begin();i!=addr.end();i++)

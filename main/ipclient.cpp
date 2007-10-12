@@ -22,9 +22,6 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address);
 
 #include "ip_base.h"
 #include "ipclient.h"
-#ifndef _WIN32
-#include <netinet/in.h>
-#endif
 
 ubyte broadcast_addr[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 ubyte null_addr[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
