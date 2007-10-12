@@ -1342,7 +1342,7 @@ void show_help()
 //temp function until Matt cleans up game sequencing
 extern void temp_reset_stuff_on_level();
 
-fix Rear_view_leave_time = 0x1000;   // how long until we decide key is down (Used to be 0x4000)
+fix Rear_view_leave_time = 0x4000;   // how long until we decide key is down (Used to be 0x4000)
 
 //deal with rear view - switch it on, or off, or whatever
 void check_rear_view()
