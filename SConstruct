@@ -7,20 +7,9 @@ import SCons.Util
 
 PROGRAM_NAME = 'D1X-Rebirth'
 
+# version number
 D1XMAJOR = 0
 D1XMINOR = 52
-
-#SVN_REVISION = os.popen('echo -n `LANG=C svn info | grep ^Revision | cut -d\  -f2`').read()
-
-# optional micro revision: set it to SVN_REVISION if available, zero otherwise.
-D1XMICRO = 0
-#D1XMICRO = int(SVN_REVISION)
-
-VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR)
-if (D1XMICRO):
-	VERSION_STRING += '.' + str(D1XMICRO)
-
-print '\n===== ' + PROGRAM_NAME + VERSION_STRING + ' =====\n'
 
 # installation path
 PREFIX = '/usr/local/'
@@ -39,6 +28,18 @@ editor = int(ARGUMENTS.get('editor', 0))
 shareware = int(ARGUMENTS.get('shareware', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 arm = int(ARGUMENTS.get('arm', 0))
+micro = int(ARGUMENTS.get('micro', 0))
+
+if (micro > 0):
+	D1XMICRO = micro
+else:
+	D1XMICRO = 0
+
+VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR)
+if (D1XMICRO):
+	VERSION_STRING += '.' + str(D1XMICRO)
+
+print '\n===== ' + PROGRAM_NAME + VERSION_STRING + ' =====\n'
 
 # general source files
 common_sources = [
