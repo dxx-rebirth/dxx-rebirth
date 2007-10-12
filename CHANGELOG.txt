@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20070112
+--------
+main/ip_base.cpp: Fixed port deformation while sending handshake
+
 20071008
 --------
 main/game.c, main/inferno.c, main/object.c, main/playsave.c: Improvements for Cockpit mode save; Fixed -pilot switch
