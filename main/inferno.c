@@ -288,13 +288,12 @@ int main(int argc,char **argv)
 
 	key_init();
 
-	if (!GameArg.SndNoSound) {
-		digi_select_system(
-			GameArg.SndSdlMixer || GameArg.SndExternalMusic || GameArg.SndJukebox ?
-			SDLMIXER_SYSTEM : SDLAUDIO_SYSTEM
-		);
+	digi_select_system(
+		GameArg.SndSdlMixer || GameArg.SndExternalMusic || GameArg.SndJukebox ?
+		SDLMIXER_SYSTEM : SDLAUDIO_SYSTEM
+	);
+	if (!GameArg.SndNoSound)
 		digi_init();
-	}
 	
 	if (!GameArg.CtlNoMouse)
 		d_mouse_init();
