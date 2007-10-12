@@ -364,9 +364,11 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 		format = AUDIO_U8;
 	}
 
-	fprintf(stderr, "creating audio buffers:\n");
-	fprintf(stderr, "sample rate = %d, stereo = %d, bitsize = %d, compressed = %d\n",
-			sample_rate, stereo, bitsize ? 16 : 8, compressed);
+	if (!GameArg.SndSdlMixer) {
+		fprintf(stderr, "creating audio buffers:\n");
+		fprintf(stderr, "sample rate = %d, stereo = %d, bitsize = %d, compressed = %d\n",
+				sample_rate, stereo, bitsize ? 16 : 8, compressed);
+	}
 
 	mve_audio_spec = (SDL_AudioSpec *)mve_alloc(sizeof(SDL_AudioSpec));
 	mve_audio_spec->freq = sample_rate;

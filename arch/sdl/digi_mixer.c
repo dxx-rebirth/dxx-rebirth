@@ -66,12 +66,10 @@ Mix_Chunk SoundChunks[MAX_SOUNDS];
 
 /* Initialise audio */
 int digi_mixer_init() {
-  GameArg.SndDigiSampleRate = SAMPLE_RATE_44K;
-
   if (MIX_DIGI_DEBUG) printf("digi_init %d (SDL_Mixer)\n", MAX_SOUNDS);
   if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) Error("SDL audio initialisation failed: %s.", SDL_GetError());
 
-  if (Mix_OpenAudio(GameArg.SndDigiSampleRate, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, SOUND_BUFFER_SIZE)) {
+  if (Mix_OpenAudio(SAMPLE_RATE_44K, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, SOUND_BUFFER_SIZE)) {
     //edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
     printf("\nError: Couldn't open audio: %s\n", SDL_GetError());
     return 1;

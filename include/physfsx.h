@@ -57,12 +57,20 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	{
 		// This stuff below seems overly complicated - brad
 
+		/* MD2211 - 2007/10/12
+		 * Fully agreed. We could do much better.
+		 * First, PHYSFS_getUserDir() should be used for UNIX at least, instead of '~".
+		 * Second, the current sequence of reading, modifying search dir, then
+		 * re-reading args, is VERY confusing and was broken. It has temporarily been
+		 * fixed in misc/args.c, but the entire thing need to be revamped IMHO.
+		 */
+
 		char *path = GameArg.SysUserDir;
 		char fullPath[PATH_MAX + 5];
 
 #if defined(__unix__)
 		if (!GameArg.SysUserDir)
-			path = "~/.d2x-rebirth";
+			path = "~/.d2x-rebirth/";
 #endif
 		PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
 

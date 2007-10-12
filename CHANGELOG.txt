@@ -5,6 +5,9 @@ D2X-Rebirth Changelog
 arch/linux/arch_ip.cpp, main/ip_base.cpp, main/ip_base.h, main/ipclient.cpp: Fixed port deformation while sending handshake
 d2x.ini, arch/sdl/digi.c, arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c, main/inferno.c, main/menu.c, main/args.c: Fixed some command-line options
 main/game.c: Increased Rear_view_leave_time to 0x4000
+include/physfsx.h, main/args.c: Big code refactoring, fixed issue with userdir d2x.ini
+SConstruct: micro version now specified as the "micro" scons flag
+arch/sdl/digi_mixer.c, libmve/mveplay.c: various small fixes
 
 20071011
 --------
