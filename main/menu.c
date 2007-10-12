@@ -179,7 +179,7 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 			n_demos = newdemo_count_demos();
 
 try_again:;
-			if ((d_rand() % (n_demos+1)) == 0)
+			if (((d_rand() % (n_demos+1)) == 0) && !GameArg.SysAutoDemo)
 			{
 				#ifndef SHAREWARE
 #ifdef OGL

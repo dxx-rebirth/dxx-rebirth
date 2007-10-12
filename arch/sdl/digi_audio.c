@@ -196,7 +196,7 @@ int digi_audio_init()
 		Error("SDL audio initialisation failed: %s.",SDL_GetError());
 	}
 	
-	WaveSpec.freq = digi_sample_rate;
+	WaveSpec.freq = GameArg.SndDigiSampleRate;
 	//added/changed by Sam Lantinga on 12/01/98 for new SDL version
 	WaveSpec.format = AUDIO_U8;
 	WaveSpec.channels = 2;

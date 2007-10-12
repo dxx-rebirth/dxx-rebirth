@@ -110,7 +110,6 @@ void digi_select_system(int n) {
 static int digi_initialised = 0;
 static int digi_max_channels = 16;
 
-int digi_sample_rate = SAMPLE_RATE_22K;
 int digi_volume = SOUND_MAX_VOLUME;
 int midi_volume = SOUND_MAX_VOLUME;
 
@@ -121,7 +120,7 @@ void digi_set_volume(int dvolume, int mvolume) {
 	if (fptr_set_midi_volume) digi_set_midi_volume(mvolume);
 }
 
-void digi_set_sample_rate(int r) { digi_sample_rate = r; }
+void digi_set_sample_rate(int r) { GameArg.SndDigiSampleRate = r; }
 
 /* Stub functions */
 

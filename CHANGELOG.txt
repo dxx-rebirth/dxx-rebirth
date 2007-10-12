@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20070112
 --------
 arch/linux/arch_ip.cpp, main/ip_base.cpp, main/ip_base.h, main/ipclient.cpp: Fixed port deformation while sending handshake
+d2x.ini, arch/sdl/digi.c, arch/sdl/digi_audio.c, main/inferno.c, main/menu.c, main/args.c: Fixed some command-line options
 
 20071011
 --------

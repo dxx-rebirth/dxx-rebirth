@@ -186,6 +186,11 @@ void ReadCmdArgs(void)
 	else
 		GameArg.SysPilot = NULL;
 
+	if (FindArg("-autodemo"))
+		GameArg.SysAutoDemo = 1;
+	else
+		GameArg.SysAutoDemo = 0;
+
 	if (FindArg("-window"))
 		GameArg.SysWindow = 1;
 	else
