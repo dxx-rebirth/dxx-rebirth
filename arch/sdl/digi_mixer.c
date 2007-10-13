@@ -56,7 +56,7 @@ extern inline fix fixmul(fix x, fix y) { return do_fixmul(x,y); }
 //end edit -MM
 
 #define MAX_SOUND_SLOTS 64
-#define SOUND_BUFFER_SIZE 4096
+#define SOUND_BUFFER_SIZE 1024 //4096
 #define MIN_VOLUME 10
 
 static int digi_initialised = 0;

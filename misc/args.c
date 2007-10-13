@@ -35,6 +35,7 @@ static char rcsid[] = "$Id: args.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $";
 #include "strio.h"
 #include "strutil.h"
 #include "digi.h"
+#include "game.h"
 #include "gauges.h"
 
 #ifdef OGL
@@ -46,9 +47,7 @@ static char rcsid[] = "$Id: args.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $";
 #endif
 
 #define MAX_ARGS 1000
-
 #define INI_FILENAME "d2x.ini"
-#define MAXIMUM_FPS 80 //FIXME this is definitely not the place for such a constant
 
 int Num_args=0;
 char * Args[MAX_ARGS];
@@ -102,11 +101,11 @@ void AppendIniArgs(void)
 {
 	PHYSFS_file *f;
 	char *line,*word;
-	
+
 	f = PHYSFSX_openReadBuffered(INI_FILENAME);
 	
 	if(f) {
-		printf("Found %s\n", INI_FILENAME);
+printf("READING INI\n");
 		while(!PHYSFS_eof(f) && Num_args < MAX_ARGS)
 		{
 			line=fgets_unlimited(f);
@@ -121,13 +120,6 @@ void AppendIniArgs(void)
 		}
 		PHYSFS_close(f);
 	}
-
-	/* FIXME This was previously called in InitArgs, just after AppendIniArgs,
-	 * and broke the userdir d2x.ini.
-         * PHYSFSX_init() in include/physfx.h should be reorganized, in order to
-	 * fix this in a cleaner way.
-         */
-	ReadCmdArgs();
 }
 
 // Utility function to get an integer provided as argument
@@ -161,7 +153,6 @@ void ReadCmdArgs(void)
 	if (GameArg.SysHogDir == NULL)
 		GameArg.SysNoHogDir = FindArg("-nohogdir");
 
-	GameArg.SysUserDir 		= get_str_arg("-userdir", NULL);
 	GameArg.SysUsePlayersDir 	= FindArg("-use_players_dir");
 	GameArg.SysLowMem 		= FindArg("-lowmem");
 	GameArg.SysLegacyHomers 	= FindArg("-legacyhomers");
@@ -204,14 +195,8 @@ void ReadCmdArgs(void)
 		GameArg.GfxAspectX = 3;
 	}
 
-	if ((t=FindArg("-hud"))){
-		t=atoi(Args[t+1]);
-		if(t>=0 && t<GAUGE_HUD_NUMMODES)
-			GameArg.GfxGaugeHudMode = t;
-		else
-			GameArg.GfxGaugeHudMode = 0;
-	}
-	else
+	GameArg.GfxGaugeHudMode = get_int_arg("-hud", 0);
+	if (GameArg.GfxGaugeHudMode <= 0 || GameArg.GfxGaugeHudMode > GAUGE_HUD_NUMMODES-1)
 		GameArg.GfxGaugeHudMode = 0;
 
 	GameArg.GfxPersistentDebris 	= FindArg("-persistentdebris");
@@ -320,7 +305,7 @@ void InitArgs( int argc,char **argv )
 	}
 
 	AppendIniArgs();
-	//ReadCmdArgs();
+	ReadCmdArgs();
 
 	atexit(args_exit);
 }

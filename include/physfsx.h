@@ -40,6 +40,9 @@
 // in the same directory as D2X. A second one can be in the user directory.
 static inline void PHYSFSX_init(int argc, char *argv[])
 {
+	char *path = NULL;
+	char fullPath[PATH_MAX + 5];
+
 	PHYSFS_init(argv[0]);
 	PHYSFS_permitSymbolicLinks(1);
 
@@ -47,77 +50,56 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 #if defined(__APPLE__) && defined(__MACH__)	// others?
 	chdir(PHYSFS_getBaseDir());	// make sure relative hogdir and userdir paths work
 #endif
-	InitArgs( argc,argv );
 
-	if (GameArg.SysUserDir
 #if defined(__unix__)
-		|| 1    // or if it's a unix platform
+		path = "~/.d2x-rebirth/";
 #endif
-		)
+	PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
+
+	if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
 	{
-		// This stuff below seems overly complicated - brad
+		const char *home = PHYSFS_getUserDir();
 
-		/* MD2211 - 2007/10/12
-		 * Fully agreed. We could do much better.
-		 * First, PHYSFS_getUserDir() should be used for UNIX at least, instead of '~".
-		 * Second, the current sequence of reading, modifying search dir, then
-		 * re-reading args, is VERY confusing and was broken. It has temporarily been
-		 * fixed in misc/args.c, but the entire thing need to be revamped IMHO.
-		 */
-
-		char *path = GameArg.SysUserDir;
-		char fullPath[PATH_MAX + 5];
-
-#if defined(__unix__)
-		if (!GameArg.SysUserDir)
-			path = "~/.d2x-rebirth/";
-#endif
-		PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
-
-		if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
-		{
-			const char *home = PHYSFS_getUserDir();
-
-			strcpy(fullPath, home); // prepend home to the path
+		strcpy(fullPath, home); // prepend home to the path
+		path++;
+		if (*path == *PHYSFS_getDirSeparator())
 			path++;
-			if (*path == *PHYSFS_getDirSeparator())
-				path++;
-			strncat(fullPath, path, PATH_MAX + 5 - strlen(home));
-		}
-		else
-			strncpy(fullPath, path, PATH_MAX + 5);
+		strncat(fullPath, path, PATH_MAX + 5 - strlen(home));
+	}
+	else
+		strncpy(fullPath, path, PATH_MAX + 5);
 
-		PHYSFS_setWriteDir(fullPath);
-		if (!PHYSFS_getWriteDir())
-		{                                               // need to make it
-			char *p;
-			char ancestor[PATH_MAX + 5];    // the directory which actually exists
-			char child[PATH_MAX + 5];               // the directory relative to the above we're trying to make
+	PHYSFS_setWriteDir(fullPath);
+	if (!PHYSFS_getWriteDir())
+	{                                               // need to make it
+		char *p;
+		char ancestor[PATH_MAX + 5];    // the directory which actually exists
+		char child[PATH_MAX + 5];               // the directory relative to the above we're trying to make
 
-			strcpy(ancestor, fullPath);
-			while (!PHYSFS_getWriteDir() && ((p = strrchr(ancestor, *PHYSFS_getDirSeparator()))))
-			{
-				if (p[1] == 0)
-				{                                       // separator at the end (intended here, for safety)
-					*p = 0;                 // kill this separator
-					if (!((p = strrchr(ancestor, *PHYSFS_getDirSeparator()))))
-						break;          // give up, this is (usually) the root directory
-				}
-
-				p[1] = 0;                       // go to parent
-				PHYSFS_setWriteDir(ancestor);
+		strcpy(ancestor, fullPath);
+		while (!PHYSFS_getWriteDir() && ((p = strrchr(ancestor, *PHYSFS_getDirSeparator()))))
+		{
+			if (p[1] == 0)
+			{                                       // separator at the end (intended here, for safety)
+				*p = 0;                 // kill this separator
+				if (!((p = strrchr(ancestor, *PHYSFS_getDirSeparator()))))
+					break;          // give up, this is (usually) the root directory
 			}
 
-			strcpy(child, fullPath + strlen(ancestor));
-			for (p = child; (p = strchr(p, *PHYSFS_getDirSeparator())); p++)
-				*p = '/';
-			PHYSFS_mkdir(child);
-			PHYSFS_setWriteDir(fullPath);
+			p[1] = 0;                       // go to parent
+			PHYSFS_setWriteDir(ancestor);
 		}
 
-		PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 1);
-		AppendIniArgs();
+		strcpy(child, fullPath + strlen(ancestor));
+		for (p = child; (p = strchr(p, *PHYSFS_getDirSeparator())); p++)
+			*p = '/';
+		PHYSFS_mkdir(child);
+		PHYSFS_setWriteDir(fullPath);
 	}
+
+	PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 1);
+
+	InitArgs( argc,argv );
 
 	if (!PHYSFS_getWriteDir())
 	{

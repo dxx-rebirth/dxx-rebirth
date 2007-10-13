@@ -177,6 +177,11 @@ void print_commandline_help()
 #if       !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
 	printf( "  -redbook           %s\n", "Enable redbook audio support");
 #endif //  !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
+#ifdef    USE_SDLMIXER
+	printf( "  -sdlmixer          %s\n", "Sound output via SDL_mixer");
+	printf( "  -music_ext <s>     %s\n", "Play music files with extension <s> (i.e. mp3, ogg)");
+	printf( "  -jukebox <s>       %s\n", "Play music files out of path <s>");
+#endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
 	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");

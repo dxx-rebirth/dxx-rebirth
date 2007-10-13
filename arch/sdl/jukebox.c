@@ -72,14 +72,13 @@ int file_select_all(const struct dirent *entry) {
 
 /* Loads music file names from a given directory */
 void jukebox_load() {
-        int count, i, t;
+        int count, i;
         struct dirent **files;
         int (*file_select)(const struct dirent *) = file_select_all;
 
 	if (!jukebox_loaded) {
-		t = FindArg(JUKEBOX_ARG);
-		if (t > 0) {
-			jukebox_path = Args[t+1];
+		if (GameArg.SndJukebox) {
+			jukebox_path = GameArg.SndJukebox;
 
 			JukeboxSongs = dl_init();
 			count = scandir(jukebox_path, &files, file_select, alphasort);

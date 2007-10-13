@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "object.h"
 
-//#include "segment.h"
+#define MAXIMUM_FPS 80
 
 // from mglobal.c
 extern fix FrameTime;               // time in seconds since last frame

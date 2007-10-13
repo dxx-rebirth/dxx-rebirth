@@ -23,8 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern int Num_args;
 extern char *Args[];
-extern int FindArg(char *s);
-extern int FindResArg(char *prefix, int *sw, int *sh);
 extern void AppendIniArgs(void);
 extern void InitArgs(int argc, char **argv);
 extern int Inferno_verbose;
@@ -47,7 +45,6 @@ typedef struct Arg
 	int SysMaxFPS;
 	char *SysHogDir;
 	int SysNoHogDir;
-	char *SysUserDir;
 	int SysUsePlayersDir;
 	int SysLowMem;
 	int SysLegacyHomers;
