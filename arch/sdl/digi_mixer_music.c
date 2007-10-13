@@ -9,6 +9,14 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
 #include <string.h>
+#ifdef __unix__
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif
+#ifdef __WINDOWS__
+#include <windows.h>
+#include <dir.h>
+#endif
 #include "args.h"
 #include "hmp2mid.h"
 #include "digi_mixer_music.h"
@@ -35,7 +43,6 @@ void music_done() {
 
 void convert_hmp(char *filename, char *mid_filename) {
 
-  if (access(mid_filename, R_OK) != 0) {
     if (MIX_MUSIC_DEBUG) printf("convert_hmp: converting %s to %s\n", filename, mid_filename);
 
     const char *err;
@@ -65,19 +72,15 @@ void convert_hmp(char *filename, char *mid_filename) {
       unlink(mid_filename);
       return;
     }
-  }
-  else {
-    if (MIX_MUSIC_DEBUG) printf("convert_hmp: %s already exists\n", mid_filename);
-  }
 }
 
 /* This function handles playback of the internal songs (or their external counterparts) */
 void mix_play_music(char *filename, int loop) {
 
   loop *= -1; 
-  int i, t, got_end=0;
-  char *basedir = "";
-  char midi_filename[16];
+  int i, got_end=0;
+  char *basedir = "Music";
+  char rel_filename[32];
   char music_title[16];
 
   // Quick hack to filter out the .hmp extension
@@ -93,19 +96,23 @@ void mix_play_music(char *filename, int loop) {
     }
   }
 
+  if (!cfexist(basedir))
+    mkdir(basedir
+#ifndef __WINDOWS__
+    , 0775
+#endif
+    ); //try making directory
+
   // What is the extension of external files? If none, default to internal MIDI
-  t = FindArg(MUSIC_EXTENSION_ARG);
-  if (t > 0) {
-    sprintf(midi_filename, "%s.%3s", music_title, Args[t+1]); // add extension
-    basedir = DESCENT_DATA_PATH;
+  if (GameArg.SndExternalMusic) {
+    sprintf(rel_filename, "%s/%s.%3s", basedir, music_title, GameArg.SndExternalMusic); // add extension
   }
   else {
-    sprintf(midi_filename, "%s.mid", music_title);
-    convert_hmp(filename, midi_filename);
-    basedir = ""; // Relative path for now (we're using $HOME/.d1x-rebirth/ as working dir)
+    sprintf(rel_filename, "%s/%s.mid", basedir, music_title);
+    convert_hmp(filename, rel_filename);
   }
 
-  mix_play_file(basedir, midi_filename, loop);
+  mix_play_file("", rel_filename, loop);
 }
 
 void mix_play_file(char *basedir, char *filename, int loop) {
@@ -125,7 +132,7 @@ void mix_play_file(char *basedir, char *filename, int loop) {
     Mix_HookMusicFinished(music_done);
   }
   else {
-    fprintf(stderr, "Music %s could not be loaded%s\n", filename, basedir);
+    fprintf(stderr, "File %s%s could not be loaded\n", basedir, filename);
     Mix_HaltMusic();
   }
 }

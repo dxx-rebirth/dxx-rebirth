@@ -26,7 +26,7 @@
 #include "checker.h"
 //end addition -MM
 
-//#include "segment.h"
+#define MAXIMUM_FPS 80
 
 //from mglobal.c
 extern fix FrameTime;		//time in seconds since last frame

@@ -470,8 +470,6 @@ void digi_audio_play_midi_song( char * filename, char * melodic_bank, char * dru
 
 	if (filename == NULL)
 		return;
-	if (midi_volume < 1)
-		return;
 
 	if ((hmp = hmp_open(filename)))
 	{

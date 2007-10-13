@@ -154,6 +154,11 @@ void show_commandline_help()
 	printf( "\n Sound:\n\n");
 	printf( "  -nosound           %s\n", "Disables sound output");
 	printf( "  -nomusic           %s\n", "Disables music output");
+#ifdef    USE_SDLMIXER
+	printf( "  -sdlmixer          %s\n", "Sound output via SDL_mixer");
+	printf( "  -music_ext <s>     %s\n", "Play music files with extension <s> (i.e. mp3, ogg)");
+	printf( "  -jukebox <s>       %s\n", "Play music files out of path <s>");
+#endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
 	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");

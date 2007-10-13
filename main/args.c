@@ -31,6 +31,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #define MAX_ARGS 1000
+#define INI_FILENAME "d1x.ini"
+
 int Num_args=0;
 char * Args[MAX_ARGS];
 
@@ -82,7 +84,7 @@ void AppendIniArgs(void)
 	FILE *f;
 	char *line,*word;
 
-	f=fopen("d1x.ini","rt");
+	f=fopen(INI_FILENAME,"rt");
 	
 	if(f) {
 		while(!feof(f) && Num_args < MAX_ARGS)
@@ -101,6 +103,18 @@ void AppendIniArgs(void)
 	}
 }
 
+// Utility function to get an integer provided as argument
+int get_int_arg(char *arg_name, int default_value) {
+	int t;
+	return ((t = FindArg(arg_name)) ? atoi(Args[t+1]) : default_value);
+
+}
+// Utility function to get a string provided as argument
+char *get_str_arg(char *arg_name, char *default_value) {
+	int t;
+	return ((t = FindArg(arg_name)) ? Args[t+1] : default_value);
+}
+
 // All FindArg calls should be here to keep the code clean
 void ReadCmdArgs(void)
 {
@@ -108,109 +122,39 @@ void ReadCmdArgs(void)
 
 	// System Options
 
-	if (FindArg( "-help" ) || FindArg( "-h" ) || FindArg( "-?" ) || FindArg( "?" ))
-		GameArg.SysShowCmdHelp = 1;
-	else
-		GameArg.SysShowCmdHelp = 0;
+	GameArg.SysShowCmdHelp 		= (FindArg( "-help" ) || FindArg( "-h" ) || FindArg( "-?" ) || FindArg( "?" ));
+	GameArg.SysFPSIndicator 	= FindArg("-fps");
+	GameArg.SysUseNiceFPS 		= FindArg("-nicefps");
 
-	if (FindArg("-fps"))
-		GameArg.SysFPSIndicator = 1;
-	else
-		GameArg.SysFPSIndicator = 0;
+	GameArg.SysMaxFPS = get_int_arg("-maxfps", MAXIMUM_FPS);
+	if (GameArg.SysMaxFPS <= 0 || GameArg.SysMaxFPS > MAXIMUM_FPS)
+		GameArg.SysMaxFPS = MAXIMUM_FPS;
 
-	if (FindArg("-nicefps"))
-		GameArg.SysUseNiceFPS = 1;
-	else
-		GameArg.SysUseNiceFPS = 0;
-
-	if ((t = FindArg("-maxfps"))) {
-		t=atoi(Args[t+1]);
-		if (t>0&&t<=80)
-			GameArg.SysMaxFPS=t;
-		else
-			GameArg.SysMaxFPS=80;
-	}
-	else
-		GameArg.SysMaxFPS=80;
-
-	if ((t = FindArg("-missiondir")))
-		GameArg.SysMissionDir = Args[t+1];
-	else
-		GameArg.SysMissionDir = DESCENT_DATA_PATH "missions/";
-
-	if (FindArg("-use_players_dir"))
-		GameArg.SysUsePlayersDir = 1;
-	else
-		GameArg.SysUsePlayersDir = 0;
-
-	if (FindArg("-lowmem"))
-		GameArg.SysLowMem = 1;
-	else
-		GameArg.SysLowMem = 0;
-
-	if (FindArg("-legacyhomers"))
-		GameArg.SysLegacyHomers = 1;
-	else
-		GameArg.SysLegacyHomers = 0;
-
-	if ((t = FindArg("-pilot")))
-		GameArg.SysPilot = Args[t+1];
-	else
-		GameArg.SysPilot = NULL;
-
-	if (FindArg("-autodemo"))
-		GameArg.SysAutoDemo = 1;
-	else
-		GameArg.SysAutoDemo = 0;
-
-	if (FindArg("-notitles"))
-		GameArg.SysNoTitles = 1;
-	else
-		GameArg.SysNoTitles = 0;
-
-	if (FindArg("-window"))
-		GameArg.SysWindow = 1;
-	else
-		GameArg.SysWindow = 0;
+	GameArg.SysMissionDir 		= get_str_arg("-missiondir", DESCENT_DATA_PATH "missions/");
+	GameArg.SysUsePlayersDir 	= FindArg("-use_players_dir");
+	GameArg.SysLowMem 		= FindArg("-lowmem");
+	GameArg.SysLegacyHomers 	= FindArg("-legacyhomers");
+	GameArg.SysPilot 		= get_str_arg("-pilot", NULL);
+	GameArg.SysWindow 		= FindArg("-window");
+	GameArg.SysNoTitles 		= FindArg("-notitles");
+	GameArg.SysAutoDemo 		= FindArg("-autodemo");
 
 	// Control Options
 
-	if (FindArg("-nomouse"))
-		GameArg.CtlNoMouse = 1;
-	else
-		GameArg.CtlNoMouse = 0;
-
-	if (FindArg("-nojoystick"))
-		GameArg.CtlNoJoystick = 1;
-	else
-		GameArg.CtlNoJoystick = 0;
-
-	if (FindArg("-mouselook"))
-		GameArg.CtlMouselook = 1;
-	else
-		GameArg.CtlMouselook = 0;
-
-	if (FindArg("-grabmouse"))
-		GameArg.CtlGrabMouse = 1;
-	else
-		GameArg.CtlGrabMouse = 0;
+	GameArg.CtlNoMouse 		= FindArg("-nomouse");
+	GameArg.CtlNoJoystick 		= FindArg("-nojoystick");
+	GameArg.CtlMouselook 		= FindArg("-mouselook");
+	GameArg.CtlGrabMouse 		= FindArg("-grabmouse");
 
 	// Sound Options
 
-	if (FindArg("-nosound"))
-		GameArg.SndNoSound = 1;
-	else
-		GameArg.SndNoSound = 0;
-
-	if (FindArg("-nomusic"))
-		GameArg.SndNoMusic = 1;
-	else
-		GameArg.SndNoMusic = 0;
+	GameArg.SndNoSound 		= FindArg("-nosound");
+	GameArg.SndNoMusic 		= FindArg("-nomusic");
 
 #ifdef USE_SDLMIXER
-	GameArg.SndSdlMixer = FindArg("-sdlmixer");
-	GameArg.SndJukebox = (t = FindArg("-jukebox") ? Args[t+1] : NULL);
-	GameArg.SndExternalMusic = (t = FindArg("-music_ext") ? Args[t+1] : NULL);
+	GameArg.SndSdlMixer 		= FindArg("-sdlmixer");
+	GameArg.SndJukebox 		= get_str_arg("-jukebox", NULL);
+	GameArg.SndExternalMusic 	= get_str_arg("-music_ext", NULL);
 #endif
 
 	// Graphics Options
@@ -226,41 +170,17 @@ void ReadCmdArgs(void)
 		GameArg.GfxAspectX = 3;
 	}
 
-	if ((t=FindArg("-hud"))){
-		t=atoi(Args[t+1]);
-		if(t>=0 && t<GAUGE_HUD_NUMMODES)
-			GameArg.GfxGaugeHudMode = t;
-		else
-			GameArg.GfxGaugeHudMode = 0;
-	}
-	else
+	GameArg.GfxGaugeHudMode = get_int_arg("-hud", 0);
+	if (GameArg.GfxGaugeHudMode <= 0 || GameArg.GfxGaugeHudMode > GAUGE_HUD_NUMMODES-1)
 		GameArg.GfxGaugeHudMode = 0;
 
-	if ((t=FindArg("-hudlines")))
-	{
-		t=atoi(Args[t+1]);
-		if(t>0 && t<=HUD_MAX_NUM)
-			GameArg.GfxHudMaxNumDisp = t;
-		else
-			GameArg.GfxHudMaxNumDisp = 3;
-	}
-	else
+	GameArg.GfxHudMaxNumDisp = get_int_arg("-hudlines", 3);
+	if (GameArg.GfxHudMaxNumDisp <= 0 || GameArg.GfxHudMaxNumDisp > HUD_MAX_NUM)
 		GameArg.GfxHudMaxNumDisp = 3;
 
-	if (FindArg("-hiresfont"))
-		GameArg.GfxUseHiresFont = 1;
-	else
-		GameArg.GfxUseHiresFont = 0;
-
-	if (FindArg("-persistentdebris"))
-		GameArg.GfxPersistentDebris = 1;
-	else
-		GameArg.GfxPersistentDebris = 0;
-
-	if (FindArg("-noreticle"))
-		GameArg.GfxNoReticle = 1;
-	else
-		GameArg.GfxNoReticle = 0;
+	GameArg.GfxPersistentDebris 	= FindArg("-persistentdebris");
+	GameArg.GfxUseHiresFont		= FindArg("-hiresfont" );
+	GameArg.GfxNoReticle	 	= FindArg("-noreticle");
 
 #ifdef OGL
 	// OpenGL Options
@@ -281,183 +201,57 @@ void ReadCmdArgs(void)
 		GameArg.OglTexMinFilt = GL_NEAREST;
 	}
 
-	if (FindArg("-gl_transparency"))
-		GameArg.OglAlphaEffects = 1;
-	else
-		GameArg.OglAlphaEffects = 0;
+	GameArg.OglAlphaEffects 	= FindArg("-gl_transparency");
+	GameArg.OglVoodooHack 		= FindArg("-gl_voodoo");
+	GameArg.OglFixedFont 		= FindArg("-fixedfont");
+	GameArg.OglReticle		= get_int_arg("-gl_reticle", 0);
 
-	if ((t=FindArg("-gl_reticle")))
-		GameArg.OglReticle = atoi(Args[t+1]);
-	else
-		GameArg.OglReticle = 0;
-
-	if (FindArg("-gl_voodoo"))
-		GameArg.OglVoodooHack = 1;
-	else
-		GameArg.OglVoodooHack = 0;
-
-	if (FindArg("-fixedfont"))
-		GameArg.OglFixedFont = 1;
-	else
-		GameArg.OglFixedFont = 0;
 #endif
 
 	// Multiplayer Options
 
-	if (FindArg("-mprofile"))
-		GameArg.MplGameProfile = 1;
-	else
-		GameArg.MplGameProfile = 0;
-
-	if (FindArg("-nobans"))
-		GameArg.MplNoBans = 1;
-	else
-		GameArg.MplNoBans = 0;
-
-	if (FindArg("-savebans"))
-		GameArg.MplSaveBans = 1;
-	else
-		GameArg.MplSaveBans = 0;
-
-	if (FindArg("-noredundancy"))
-		GameArg.MplNoRedundancy = 1;
-	else
-		GameArg.MplNoRedundancy = 0;
-
-	if (FindArg("-playermessages"))
-		GameArg.MplPlayerMessages = 1;
-	else
-		GameArg.MplPlayerMessages = 0;
-
-	if ((t=FindArg("-ipxnetwork")) && Args[t+1])
-		GameArg.MplIpxNetwork = Args[t+1];
-	else
-		GameArg.MplIpxNetwork = NULL;
-
-	if ((t=FindArg("-ipxbasesocket")) && Args[t+1])
-		GameArg.MplIPXSocketOffset = atoi(Args[t+1]);
-	else
-		GameArg.MplIPXSocketOffset = 0;
-
-	if ((t=FindArg("-ip_hostaddr")))
-		GameArg.MplIpHostAddr = Args[t+1];
-	else
-		GameArg.MplIpHostAddr = "";
-
-	if (FindArg("-ip_nogetmyaddr"))
-		GameArg.MplIpNoGetMyAddr = 1;
-	else
-		GameArg.MplIpNoGetMyAddr = 0;
-
-	if ((t=FindArg("-ip_myaddr")))
-		GameArg.MplIpMyAddr = Args[t+1];
-	else
-		GameArg.MplIpMyAddr = NULL;
-
-	if ((t=FindArg("-ip_baseport")))
-		GameArg.MplIpBasePort = atoi(Args[t+1]);
-	else
-		GameArg.MplIpBasePort = 0;
+	GameArg.MplGameProfile 		= FindArg("-mprofile");
+	GameArg.MplNoBans 		= FindArg("-nobans");
+	GameArg.MplSaveBans 		= FindArg("-savebans");
+	GameArg.MplNoRedundancy 	= FindArg("-noredundancy");
+	GameArg.MplPlayerMessages 	= FindArg("-playermessages");
+	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
+	GameArg.MplIPXSocketOffset 	= get_int_arg("-ipxbasesocket", 0);
+	GameArg.MplIpHostAddr 		= get_str_arg("-ip_hostaddr", "");
+	GameArg.MplIpNoGetMyAddr 	= FindArg("-ip_nogetmyaddr");
+	GameArg.MplIpMyAddr 		= get_str_arg("-ip_myaddr", NULL);
+	GameArg.MplIpBasePort 		= get_int_arg("-ip_baseport", 0);
 
 	// Editor Options
 
-	if (FindArg("-nobm"))
-		GameArg.EdiNoBm = 1;
-	else
-		GameArg.EdiNoBm = 0;
+	GameArg.EdiNoBm 		= FindArg("-nobm");
 
 	// Debug Options
 
-	if (FindArg("-verbose"))
-		GameArg.DbgVerbose = 1;
-	else
-		GameArg.DbgVerbose = 0;
-
-	if (FindArg("-norun"))
-		GameArg.DbgNoRun = 1;
-	else
-		GameArg.DbgNoRun = 0;
-
-	if (FindArg("-renderstats"))
-		GameArg.DbgRenderStats = 1;
-	else
-		GameArg.DbgRenderStats = 0;
-
-	if ((t=FindArg("-text")))
-		GameArg.DbgAltTex = Args[t+1];
-	else
-		GameArg.DbgAltTex = NULL;
-
-	if ((t=FindArg("-tmap")))
-		GameArg.DbgTexMap = Args[t+1];
-	else
-		GameArg.DbgTexMap = NULL;
-
-	if (FindArg( "-showmeminfo" ))
-		GameArg.DbgShowMemInfo = 1;
-	else
-		GameArg.DbgShowMemInfo = 0;
-
-	if (FindArg("-nodoublebuffer"))
-		GameArg.DbgUseDoubleBuffer = 0;
-	else
-		GameArg.DbgUseDoubleBuffer = 1;
-
-	if (FindArg("-bigpig"))
-		GameArg.DbgBigPig = 0;
-	else
-		GameArg.DbgBigPig = 1;
+	GameArg.DbgVerbose 		= FindArg("-verbose");
+	GameArg.DbgNoRun 		= FindArg("-norun");
+	GameArg.DbgRenderStats 		= FindArg("-renderstats");
+	GameArg.DbgAltTex 		= get_str_arg("-text", NULL);
+	GameArg.DbgTexMap 		= get_str_arg("-tmap", NULL);
+	GameArg.DbgShowMemInfo 		= FindArg("-showmeminfo");
+	GameArg.DbgUseDoubleBuffer 	= !FindArg("-nodoublebuffer");
+	GameArg.DbgBigPig 		= !FindArg("-bigpig");
 
 #ifdef OGL
-	if (FindArg("-gl_oldtexmerge"))
-		GameArg.DbgAltTexMerge = 0;
-	else
-		GameArg.DbgAltTexMerge = 1;
+	GameArg.DbgAltTexMerge 		= !FindArg("-gl_oldtexmerge");
+	GameArg.DbgGlBpp 		= (FindArg("-gl_16bpp") ? 16 : 32);
+	GameArg.DbgGlIntensity4Ok 	= get_int_arg("-gl_intensity4_ok", 1);
+	GameArg.DbgGlLuminance4Alpha4Ok = get_int_arg("-gl_luminance4_alpha4_ok", 1);
+	GameArg.DbgGlRGBA2Ok 		= get_int_arg("-gl_rgba2_ok", 1);
+	GameArg.DbgGlReadPixelsOk 	= get_int_arg("-gl_readpixels_ok", 1);
+	GameArg.DbgGlGetTexLevelParamOk = get_int_arg("-gl_gettexlevelparam_ok", 1);
+	GameArg.DbgGlSetGammaRampOk 	= get_int_arg("-gl_setgammaramp_ok", 0);
 
-	if (FindArg("-gl_16bpp"))
-		GameArg.DbgGlBpp = 16;
-	else
-		GameArg.DbgGlBpp = 32;
-
-	if ((t=FindArg("-gl_intensity4_ok")))
-		GameArg.DbgGlIntensity4Ok = atoi(Args[t+1]);
-	else
-		GameArg.DbgGlIntensity4Ok = 1;
-
-	if ((t=FindArg("-gl_luminance4_alpha4_ok")))
-		GameArg.DbgGlLuminance4Alpha4Ok = atoi(Args[t+1]);
-	else
-		GameArg.DbgGlLuminance4Alpha4Ok = 1;
-
-	if ((t=FindArg("-gl_rgba2_ok")))
-		GameArg.DbgGlRGBA2Ok = atoi(Args[t+1]);
-	else
-		GameArg.DbgGlRGBA2Ok = 1;
-
-	if ((t=FindArg("-gl_readpixels_ok")))
-		GameArg.DbgGlReadPixelsOk = atoi(Args[t+1]);
-	else
-		GameArg.DbgGlReadPixelsOk = 1;
-
-	if ((t=FindArg("-gl_gettexlevelparam_ok")))
-		GameArg.DbgGlGetTexLevelParamOk = atoi(Args[t+1]);
-	else
-		GameArg.DbgGlGetTexLevelParamOk = 1;
-
-	if ((t=FindArg("-gl_setgammaramp_ok")))
-		GameArg.DbgGlSetGammaRampOk = atoi(Args[t+1]);
-	else
-		GameArg.DbgGlSetGammaRampOk = 0;
-
-	if ((t=FindArg("-gl_vidmem")))
-		GameArg.DbgGlMemTarget = atoi(Args[t+1])*1024*1024;
-	else
-		GameArg.DbgGlMemTarget = -1;
+	GameArg.DbgGlMemTarget 		= get_int_arg("-gl_vidmem", -1);
+	if (GameArg.DbgGlMemTarget > 0)
+		GameArg.DbgGlMemTarget *= 1024 * 1024;
 #else
-	if (FindArg("-hwsurface"))
-		GameArg.DbgSdlHWSurface = 1;
-	else
-		GameArg.DbgSdlHWSurface = 0;
+	GameArg.DbgSdlHWSurface = FindArg("-hwsurface");
 #endif
 }
 
