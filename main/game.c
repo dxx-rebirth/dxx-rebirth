@@ -1446,7 +1446,7 @@ void show_boxed_message(char *msg)
 	nm_draw_background(x-(15*(SWIDTH/320)),y-(15*(SHEIGHT/200)),x+w+(15*(SWIDTH/320))-1,y+h+(15*(SHEIGHT/200))-1);
 
 	gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
-	gr_ustring( (grd_curscreen->sc_w-w)/2, y, msg );
+	gr_ustring( 0x8000, y, msg );
         gr_update();
 #ifdef OGL
 	gr_flip();
@@ -1466,70 +1466,80 @@ void clear_boxed_message()
 
 extern int Death_sequence_aborted;
 
-//Process selected keys until game unpaused. returns key that left pause (p or esc)
-int do_game_pause(int allow_menu)
+void format_time(char *str, int secs_int)
 {
-	int paused;
-	int key;
+	int h, m, s;
 
+	h = secs_int/3600;
+	s = secs_int%3600;
+	m = s / 60;
+	s = s % 60;
+	sprintf(str, "%1d:%02d:%02d", h, m, s );
+}
+
+//Process selected keys until game unpaused. returns key that left pause (p or esc)
+int do_game_pause()
+{
+	int key;
+	char msg[1000];
+	char total_time[9],level_time[9];
+	int Game_paused;
+
+#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
 		netplayerinfo_on= !netplayerinfo_on;
 		return(KEY_PAUSE);
 	}
+#endif
 
 	digi_pause_all();
 	stop_time();
-	palette_save();
-	reset_palette_add();
 	game_flush_inputs();
-	paused=1;
-	set_screen_mode( SCREEN_MENU );
 	gr_palette_load( gr_palette );
-	show_boxed_message(TXT_PAUSE);
+	format_time(total_time, f2i(Players[Player_num].time_total) + Players[Player_num].hours_total*3600);
+	format_time(level_time, f2i(Players[Player_num].time_level) + Players[Player_num].hours_level*3600);
+	if (Newdemo_state!=ND_STATE_PLAYBACK)
+		sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board,level_time,total_time);
+	else
+	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
+	Game_paused=1;
+	show_boxed_message(msg);
+	gr_update();
 
-	while (paused) {
+	while (Game_paused) 
+	{
 		timer_delay(1);
 #ifdef OGL
-		show_boxed_message(TXT_PAUSE);
+		show_boxed_message(msg);
 #endif
+
 		key = key_inkey();
-		
+
 		switch (key) {
 			case 0:
 				break;
 			case KEY_ESC:
-				if (allow_menu)
-					Function_mode = FMODE_MENU;
+				Function_mode = FMODE_MENU;
 				clear_boxed_message();
-				paused=0;
+				Game_paused=0;
 				break;
 			case KEY_F1:
  				clear_boxed_message();
 				do_show_help();
 				show_boxed_message(TXT_PAUSE);
 				break;
-			case KEY_PRINT_SCREEN:
-				save_screen_shot(0);
+			case KEY_PAUSE:
+				Game_paused=0;
 				break;
-#ifndef RELEASE
-			case KEY_BACKSP: Int3(); break;
-#endif
 			default:
-				switch (key & 0xFF) {
-					case KEY_LALT:case KEY_RALT:case KEY_TAB:case KEY_LSHIFT: case KEY_RSHIFT:
-						break;//ignore (shift+)alt+tab while paused -MPM
-					default:
-						clear_boxed_message();
-						paused=0;
-						break;
-				}
 				break;
 		}
 	}
 
+	clear_boxed_message();
 	game_flush_inputs();
-	palette_restore();
+	reset_cockpit();
 	start_time();
 	digi_resume_all();
 
@@ -1895,12 +1905,10 @@ void HandleDeathKey(int key)
 		Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
 
 	if (key==KEY_PRINT_SCREEN) {
-//		save_screen_shot(0);
 		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
 	}
 
 	if (key == KEY_PAUSE)   {
-//		key = do_game_pause();		//so esc from pause will end level
 		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
 	}
 
@@ -1929,7 +1937,7 @@ void HandleEndlevelKey(int key)
 		save_screen_shot(0);
 
 	if (key == KEY_PAUSE)
-		key = do_game_pause(0);		//so esc from pause will end level
+		key = do_game_pause();		//so esc from pause will end level
 
 	if (key == KEY_ESC)	{
 		stop_endlevel_sequence();
@@ -2015,7 +2023,7 @@ void HandleDemoKey(int key)
 			newdemo_goto_beginning();
 		break;
 		case KEY_PAUSE:
-			do_game_pause(0);
+			do_game_pause();
 		break;
 		case KEY_PRINT_SCREEN: {
 			int old_state;
@@ -2172,7 +2180,7 @@ void HandleGameKey(int key)
 			multi_define_macro(key);
 			break;		// redefine taunt macros
 #endif
-		case KEY_PAUSE:			do_game_pause(1); 	break;
+		case KEY_PAUSE:			do_game_pause(); 	break;
 		case KEY_PRINT_SCREEN: 		save_screen_shot(0);	break;
 
 		case KEYS_GR_TOGGLE_FULLSCREEN:
