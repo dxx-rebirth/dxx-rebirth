@@ -830,12 +830,6 @@ void game_render_frame_mono(int flip)
 	if (!no_draw_hud)
 		game_draw_hud_stuff();
 
-	if (Game_paused) {		//render pause message over off-screen 3d (to minimize flicker)
-		extern char *Pause_msg;
-
-		show_boxed_message(Pause_msg);
-	}
-
 	update_cockpits(0);
 
 	show_extra_views();		//missile view, buddy bot, etc.

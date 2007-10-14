@@ -93,7 +93,6 @@ extern int Game_mode;
 extern u_int32_t Game_screen_mode;
 //end added - OE
 
-extern int Game_paused;
 extern int gauge_message_on;
 
 #ifndef NDEBUG      // if debugging, these are variables

@@ -349,9 +349,6 @@ void do_weapon_stuff(void)
 }
 
 
-int Game_paused;
-char *Pause_msg;
-
 extern void game_render_frame();
 extern void show_extra_views();
 extern fix Flash_effect;
@@ -430,13 +427,7 @@ int do_game_pause()
 	int key;
 	char msg[1000];
 	char total_time[9],level_time[9];
-
-	key=0;
-
-	if (Game_paused) {		//unpause!
-		Game_paused=0;
-		return KEY_PAUSE;
-	}
+	int Game_paused;
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
@@ -449,79 +440,59 @@ int do_game_pause()
 	digi_pause_all();
 	RBAPause();
 	stop_time();
-
 	palette_save();
 	apply_modified_palette();
 	reset_palette_add();
-
-// -- Matt: This is a hacked-in test for the stupid menu/flash problem.
-//	We need a new brightening primitive if we want to make this not horribly ugly.
-//		  Gr_scanline_darkening_level = 2;
-//		  gr_rect(0, 0, 319, 199);
-
 	game_flush_inputs();
-
-	Game_paused=1;
-
-//	set_screen_mode( SCREEN_MENU );
-	set_popup_screen();
 	gr_palette_load( gr_palette );
-
 	format_time(total_time, f2i(Players[Player_num].time_total) + Players[Player_num].hours_total*3600);
 	format_time(level_time, f2i(Players[Player_num].time_level) + Players[Player_num].hours_level*3600);
-
-   if (Newdemo_state!=ND_STATE_PLAYBACK)
+	if (Newdemo_state!=ND_STATE_PLAYBACK)
 		sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board,level_time,total_time);
-   else
+	else
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
-
-	show_boxed_message(Pause_msg=msg);		  //TXT_PAUSE);
+	Game_paused=1;
+	show_boxed_message(msg);
 	gr_update();
 
 	while (Game_paused) 
 	{
-		int screen_changed;
-
 		timer_delay(1);
 #ifdef OGL
-		show_boxed_message(Pause_msg=msg);		  //TXT_PAUSE);
+		show_boxed_message(msg);
 #endif
 
 		key = key_inkey();
 
-		#ifndef RELEASE
-		HandleTestKey(key);
-		#endif
-		
-		screen_changed = HandleSystemKey(key);
-
-		HandleVRKey(key);
-
-		if (screen_changed) {
-//			game_render_frame();
-			WIN(set_popup_screen());
-			show_boxed_message(msg);
-			//show_extra_views();
-			if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
-				render_gauges();
+		switch (key) {
+			case 0:
+				break;
+			case KEY_ESC:
+				Function_mode = FMODE_MENU;
+				clear_boxed_message();
+				Game_paused=0;
+				break;
+			case KEY_F1:
+ 				clear_boxed_message();
+				do_show_help();
+				show_boxed_message(TXT_PAUSE);
+				break;
+			case KEY_PAUSE:
+				Game_paused=0;
+				break;
+			default:
+				break;
 		}
 	}
 
 	clear_boxed_message();
-
 	game_flush_inputs();
-
 	reset_cockpit();
-
 	palette_restore();
-
 	start_time();
-
 	if (GameArg.SndEnableRedbook)
 		RBAResume();
 	digi_resume_all();
-	
-	MAC(delay(500);)	// delay 1/2 second because of dumb redbook problem
 
 	return key;
 }
@@ -896,8 +867,6 @@ int select_next_window_function(int w)
 	return 1;	 //screen_changed
 }
 
-extern int Game_paused;
-
 void songs_goto_next_song();
 void songs_goto_prev_song();
 
@@ -1002,12 +971,8 @@ int HandleSystemKey(int key)
 			#endif
 
 			case KEY_ESC:
-				if (Game_paused)
-					Game_paused=0;
-				else {
-					Game_aborted=1;
-					Function_mode = FMODE_MENU;
-				}
+				Game_aborted=1;
+				Function_mode = FMODE_MENU;
 				break;
 
 			case KEY_SHIFTED + KEY_ESC: //quick exit
@@ -1085,8 +1050,7 @@ int HandleSystemKey(int key)
 			if ( Newdemo_state == ND_STATE_RECORDING )
 				newdemo_stop_recording();
 			else if ( Newdemo_state == ND_STATE_NORMAL )
-				if (!Game_paused)		//can't start demo while paused
-					newdemo_start_recording();
+				newdemo_start_recording();
 			break;
 
 		MAC(case KEY_COMMAND+KEY_ALTED+KEY_4:)
@@ -1185,8 +1149,6 @@ int HandleSystemKey(int key)
 			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 				full_palette_save();
 				state_restore_all(1, 0, NULL);
-				if (Game_paused)
-					do_game_pause();
 			}
 			break;
 
