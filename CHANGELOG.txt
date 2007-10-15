@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 libmve/mveplay.c: Set defines for USE_SDLMIXER to fix issues while compiling
 d2x.ini, main/inferno.c: Removed -userdir switches from command-line and INI since it's not available anymore
+include/physfsx.h: Fixed define mistake in PHYSFSX_init
 
 20071014
 --------

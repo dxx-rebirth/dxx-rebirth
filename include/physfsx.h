@@ -40,8 +40,10 @@
 // in the same directory as D2X. A second one can be in the user directory.
 static inline void PHYSFSX_init(int argc, char *argv[])
 {
+#if defined(__unix__)
 	char *path = NULL;
 	char fullPath[PATH_MAX + 5];
+#endif
 
 	PHYSFS_init(argv[0]);
 	PHYSFS_permitSymbolicLinks(1);
@@ -52,8 +54,8 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 #endif
 
 #if defined(__unix__)
-		path = "~/.d2x-rebirth/";
-#endif
+	path = "~/.d2x-rebirth/";
+
 	PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
 
 	if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
@@ -98,6 +100,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	}
 
 	PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 1);
+#endif
 
 	InitArgs( argc,argv );
 
