@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071015
+--------
+libmve/mveplay.c: Set defines for USE_SDLMIXER to fix issues while compiling
+
 20071014
 --------
 d2x.ini, arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, include/args.h, include/physfsx.h, main/game.h, main/inferno.c, main/args.c: Set SOUND_BUFFER_SIZE for SDL_mixer to 1024 to minimize delay; Removed MIDI-existance check and store all music to Music/ subdirectory of writedir - keeps clean if user has tons of levels; Added SDL_mixer command-line help output; Reworked PHYSFSX_init and removed SysUserDir so we can finally read args without a hassle; Stored MAXIMUM_FPS in game.h - where it belongs to

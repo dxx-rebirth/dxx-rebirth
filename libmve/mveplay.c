@@ -28,7 +28,9 @@
 
 #if defined(AUDIO)
 #include <SDL/SDL.h>
+#ifdef USE_SDLMIXER
 #include <SDL/SDL_mixer.h>
+#endif
 #include "digi.h"
 #endif
 
@@ -426,6 +428,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 {
 #ifdef AUDIO
 
+#ifdef USE_SDLMIXER
 	// MD2211: for audio conversion
 	SDL_AudioCVT cvt;
 	int clen;
@@ -433,6 +436,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 	Uint16 out_format;
 	int out_channels;
 	// end MD2211
+#endif
 
 	static const int selected_chan=1;
 	int chan;
