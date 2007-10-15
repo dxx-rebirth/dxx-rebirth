@@ -155,7 +155,6 @@ void print_commandline_help()
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
 	printf( "  -hogdir <s>        %s\n", "set shared data directory to <dir>");
 	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
-	printf( "  -userdir <s>       %s\n", "set user dir to <dir> instead of $HOME/.d2x-rebirth");
 	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
