@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071018
+--------
+d1x.ini, 2d/bitblt.c, 2d/box.c, 2d/rle.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/args.h, include/rle.h, main/args.c, main/game.c, main/gauges.c, main/inferno.c, main/menu.c: Small fixes; Code cleanup; Implemented PR-Screenshot feature
+
 20071014
 --------
 arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, include/args.h, main/args.c, main/game.h, main/inferno.c: Set SOUND_BUFFER_SIZE for SDL_mixer to 1024 to minimize delay; Removed MIDI-existance check and store all music to Music/ subdirectory of writedir - keeps clean if user has tons of levels; Added SDL_mixer command-line help output; Implemented new way to read command-line args

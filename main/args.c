@@ -203,8 +203,9 @@ void ReadCmdArgs(void)
 
 	GameArg.OglAlphaEffects 	= FindArg("-gl_transparency");
 	GameArg.OglVoodooHack 		= FindArg("-gl_voodoo");
-	GameArg.OglFixedFont 		= FindArg("-fixedfont");
+	GameArg.OglFixedFont 		= FindArg("-gl_fixedfont");
 	GameArg.OglReticle		= get_int_arg("-gl_reticle", 0);
+	GameArg.OglPrShot		= FindArg("-gl_prshot");
 
 #endif
 

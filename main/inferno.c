@@ -175,7 +175,8 @@ void show_commandline_help()
 	printf( "  -gl_transparency   %s\n", "Enable transparency effects");
 	printf( "  -gl_reticle <n>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
 	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
-	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
+	printf( "  -gl_fixedfont      %s\n", "Do not scale fonts to current resolution");
+	printf( "  -gl_prshot         %s\n", "Take clean screenshots - no HUD and DXX-Rebirth writing");
 #endif // OGL
 
 #ifdef    NETWORK
@@ -369,14 +370,14 @@ int main(int argc,char **argv)
 
 	if(GameArg.SysPilot)
 	{
-		char filename[32];
+		char filename[32] = "";
 		int j;
 
 		if (GameArg.SysUsePlayersDir)
 			strcpy(filename, "Players/");
-		strlwr(GameArg.SysPilot);
-		sprintf(filename,"%s", GameArg.SysPilot);
-		for (j=GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
+		strncat(filename, GameArg.SysPilot, 12);
+		filename[8 + 12] = '\0';	// unfortunately strncat doesn't put the terminating 0 on the end if it reaches 'n'
+		for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
 			switch (filename[j]) {
 				case ' ':
 					filename[j] = '\0';
@@ -384,21 +385,19 @@ int main(int argc,char **argv)
 		}
 		if(!strstr(filename,".plr")) // if player hasn't specified .plr extension in argument, add it
 			strcat(filename,".plr");
-		if(!access(filename,4))
+		if(cfexist(filename))
 		{
 			strcpy(strstr(filename,".plr"),"\0");
-			strcpy(Players[Player_num].callsign,GameArg.SysUsePlayersDir? &filename[8] : filename);
+			strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir? &filename[8] : filename);
 			read_player_file();
-			Auto_leveling_on = Default_leveling_on;
 			WriteConfigFile();
 		}
 		else //pilot doesn't exist. get pilot.
-			if(!RegisterPlayer())
-				Function_mode = FMODE_EXIT;
+			RegisterPlayer();
 	}
 	else
-		if(!RegisterPlayer())
-			Function_mode = FMODE_EXIT;
+		RegisterPlayer();
+
 
 	gr_palette_fade_out( NULL, 32, 0 );
 

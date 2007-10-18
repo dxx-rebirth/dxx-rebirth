@@ -10,91 +10,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/2d/rle.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:38:54 $
- * 
+ *
  * Routines to do run length encoding/decoding
  * on bitmaps.
- * 
- * $Log: rle.c,v $
- * Revision 1.1.1.1  2006/03/17 19:38:54  zicodxx
- * initial import
  *
- * Revision 1.3  1999/11/18 11:40:39  donut
- * more gcc 2.95 invalid asm clobber fixes
- *
- * Revision 1.2  1999/08/05 22:53:40  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.1.1.1  1999/06/14 21:57:33  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.19  1995/01/14  19:18:31  john
- * Added assert to check for paged out bitmap.
- * 
- * Revision 1.18  1995/01/14  11:32:07  john
- * Added rle_cache_flush function.
- * 
- * Revision 1.17  1994/12/13  10:58:27  john
- * Fixed bug with 2 consecutive calls to get_expanded_Texture
- * with 2 different bitmaps, returning the same rle texture, 
- * causing doors to disapper.
- * 
- * Revision 1.16  1994/11/30  00:55:03  mike
- * optimization
- * 
- * Revision 1.15  1994/11/24  13:24:44  john
- * Made sure that some rep movs had the cld set first.
- * Took some unused functions out.
- * 
- * Revision 1.14  1994/11/23  16:03:46  john
- * Fixed generic rle'ing to use new bit method.
- * 
- * Revision 1.13  1994/11/23  15:45:51  john
- * Changed to a 3 bit rle scheme.
- * 
- * Revision 1.12  1994/11/18  22:50:24  john
- * Changed shorts to ints in parameters.
- * 
- * Revision 1.11  1994/11/14  17:06:13  john
- * Took out Key_f12.
- * 
- * Revision 1.10  1994/11/14  15:54:09  john
- * Put code in for maybe checking bogus rle data.
- * 
- * Revision 1.9  1994/11/14  15:51:58  john
- * Added rle_disable_caching variable to prove the stability of my rle caching code
- * to any non-believers.
- * 
- * Revision 1.8  1994/11/10  10:31:20  john
- * Reduce cache buffers to 16.
- * 
- * Revision 1.7  1994/11/09  19:53:43  john
- * Added texture rle caching.
- * 
- * Revision 1.6  1994/11/09  17:41:44  john
- * Made a slow version of rle bitblt to svga, modex.
- * 
- * Revision 1.5  1994/11/09  17:07:50  john
- * Fixed bug with bitmap that gets bigger with rle.
- * 
- * Revision 1.4  1994/11/09  16:35:17  john
- * First version with working RLE bitmaps.
- * 
- * Revision 1.3  1994/10/26  12:54:47  john
- * Fixed bug with decode that used rep movsd instead of 
- * rep stosd.
- * 
- * Revision 1.2  1994/10/06  17:05:25  john
- * First version of rle stuff.
- * 
- * Revision 1.1  1994/10/06  16:53:34  john
- * Initial revision
- * 
- * 
  */
 
 
@@ -105,19 +24,12 @@ static char rcsid[] = "$Id: rle.c,v 1.1.1.1 2006/03/17 19:38:54 zicodxx Exp $";
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-//#include <malloc.h>
-
 #include "u_mem.h"
 #include "mono.h"
-
-
 #include "gr.h"
 #include "grdef.h"
 #include "error.h"
-//#include "key.h"
 #include "rle.h"
-//#define RLE_CODE 		0xC0
-//#define NOT_RLE_CODE	63
 
 #define RLE_CODE 			0xE0
 #define NOT_RLE_CODE		31
@@ -267,12 +179,6 @@ __inline void rle_stosb(char *dest, int len, int color)
 #endif
 
 #ifdef NO_ASM
-/*void rle_stosb(ubyte *dest, int len, int color)
-{
-	int i;
-	for (i=0; i<len; i++ )
-		*dest++ = color;
-}*/
 #define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
 #endif
 
@@ -301,12 +207,12 @@ void gr_rle_decode( ubyte * src, ubyte * dest )
 
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
-void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2, int cockpit_transparent )
+void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2 )
 {
 	int i = 0;
         ubyte count=0;
         ubyte color=0;
-// printf("we are here at least -> %i\n",cockpit_transparent);
+
 	if ( x2 < x1 ) return;
 
 	while ( i < x1 )	{
@@ -335,7 +241,8 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2, int
 	dest += count;
 	i += count;
 
-	while( i <= x2 )		{
+	while( i <= x2 )
+	{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
 		if ( (color & RLE_CODE) == (RLE_CODE) )	{
@@ -346,43 +253,17 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2, int
 			count = 1;
 		}
 		// we know have '*count' pixels of 'color'.
-// 		if ( i+count <= x2 )	{
-// 			if ( color != 255 )rle_stosb( dest, count, color );
-// 			i += count;
-// 			dest += count;
-// 		} else {
-// 			count = x2-i+1;
-// 			if ( color != 255 )rle_stosb( dest, count, color );
-// 			i += count;
-// 			dest += count;
-// 		}
 		if ( i+count <= x2 )	{
-			if (cockpit_transparent) {
-// printf("color: %i\n",color);
-				if ( color != TRANSPARENCY_COLOR && color != 0)
-					rle_stosb( dest, count, color );
-			}
-			else {
-				if ( color != TRANSPARENCY_COLOR)
-					rle_stosb( dest, count, color );
-			}
+			if ( color != 255 )rle_stosb( dest, count, color );
 			i += count;
 			dest += count;
 		} else {
 			count = x2-i+1;
-			if (cockpit_transparent) {
-				if ( color != TRANSPARENCY_COLOR && color != 0)
-					rle_stosb( dest, count, color );
-			}
-			else {
-				if ( color != TRANSPARENCY_COLOR)
-					rle_stosb( dest, count, color );
-			}
+			if ( color != 255 )rle_stosb( dest, count, color );
 			i += count;
 			dest += count;
 		}
-
-	}	
+	}
 }
 
 void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )
@@ -674,10 +555,6 @@ void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 	unsigned char * dbits1;
 #endif
 
-#ifdef D1XD3D
-	Assert (bmp->iMagic == BM_MAGIC_NUMBER);
-#endif
-
 	sbits = &bmp->bm_data[4 + 64];
 	dbits = rle_temp_bitmap_1->bm_data;
 
@@ -695,9 +572,6 @@ void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 		Assert( dbits == dbits1 );		// Get John, bogus rle data!
 #endif
 	}
-#ifdef D1XD3D
-	gr_set_bitmap_data (rle_temp_bitmap_1, rle_temp_bitmap_1->bm_data);
-#endif
 }
 
 

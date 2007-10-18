@@ -11,29 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/2d/box.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:38:52 $
  *
  * Graphical routines for drawing boxes.
- *
- * $Log: box.c,v $
- * Revision 1.1.1.1  2006/03/17 19:38:52  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 21:57:16  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.3  1994/11/18  22:50:19  john
- * Changed shorts to ints in parameters.
- * 
- * Revision 1.2  1993/10/15  16:23:31  john
- * y
- * 
- * Revision 1.1  1993/09/08  11:43:11  john
- * Initial revision
- * 
  *
  */
 
@@ -99,9 +78,11 @@ void gr_ubox12(int left,int top,int right,int bot)
 		gr_upixel( right, i );
 	}
 
-	gr_uscanline( left, right, top );
-
-	gr_uscanline( left, right, bot );
+	for (i=left; i<=right; i++ )
+	{
+		gr_upixel( i, top );
+		gr_upixel( i, bot );
+	}
 }
 
 void gr_box12(int left,int top,int right,int bot)
@@ -124,12 +105,6 @@ void gr_ubox(int left,int top,int right,int bot)
 {
 	if (TYPE==BM_LINEAR)
 		gr_ubox0( left, top, right, bot );
-
-#ifdef __MSDOS__
-	else if ( TYPE == BM_MODEX )
-		gr_ubox12( left, top, right, bot );
-#endif
-
     else
 		gr_ubox12( left, top, right, bot );
 }
@@ -138,12 +113,6 @@ void gr_box(int left,int top,int right,int bot)
 {
 	if (TYPE==BM_LINEAR)
 		gr_box0( left, top, right, bot );
-
-#ifdef __MSDOS__
-	else if ( TYPE == BM_MODEX )
-		gr_box12( left, top, right, bot );
-#endif
-    
 	else
 		gr_ubox12( left, top, right, bot );
 }

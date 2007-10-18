@@ -167,7 +167,7 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 
 	if ( do_auto_demo )	{
 		curtime = timer_get_approx_seconds();
-		if ( (((keyd_time_when_last_pressed+i2f(45)) < curtime) && (!speedtest_on)) || GameArg.SysAutoDemo == 1  ) {
+		if ( (((keyd_time_when_last_pressed+i2f(45)) < curtime) && (!speedtest_on)) || GameArg.SysAutoDemo  ) {
 			keyd_time_when_last_pressed = curtime;			// Reset timer so that disk won't thrash if no demos.
 			newdemo_start_playback(NULL);		// Randomly pick a file
 			if (Newdemo_state == ND_STATE_PLAYBACK)	{

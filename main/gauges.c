@@ -1133,7 +1133,7 @@ void draw_energy_bar(int energy)
 			if (x2 > HUD_SCALE_X(LEFT_ENERGY_GAUGE_W) - (y*aplitscale)/3)
 				x2 = HUD_SCALE_X(LEFT_ENERGY_GAUGE_W) - (y*aplitscale)/3;
 			
-			if (x2 > x1) gr_uline( i2f(x1+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)+1), i2f(x2+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)+1) ); 
+			if (x2 > x1) gr_uline( i2f(x1+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(LEFT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(LEFT_ENERGY_GAUGE_Y)) ); 
 		}
 
 	gr_set_current_canvas( NULL );
@@ -1151,7 +1151,7 @@ void draw_energy_bar(int energy)
 			if (x1 < (y*aplitscale)/3)
 				x1 = (y*aplitscale)/3;
 			
-			if (x2 > x1) gr_uline( i2f(x1+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)+1), i2f(x2+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)+1) ); 
+			if (x2 > x1) gr_uline( i2f(x1+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)), i2f(x2+HUD_SCALE_X(RIGHT_ENERGY_GAUGE_X)), i2f(y+HUD_SCALE_Y(RIGHT_ENERGY_GAUGE_Y)) ); 
 		}
 
 	gr_set_current_canvas( NULL );
@@ -1254,9 +1254,11 @@ void draw_numerical_display(int shield, int energy)
 {
 	int sw,sh,saw,ew,eh,eaw;
 
-// 	gr_set_curfont( GAME_FONT );
-// 	PIGGY_PAGE_IN(Gauges[GAUGE_NUMERICAL]);
-// 	hud_bitblt (dx, dy, &GameBitmaps[Gauges[GAUGE_NUMERICAL].index], F1_0);
+	gr_set_curfont( GAME_FONT );
+#ifndef OGL
+	PIGGY_PAGE_IN(Gauges[GAUGE_NUMERICAL]);
+	hud_bitblt (HUD_SCALE_X(NUMERICAL_GAUGE_X), HUD_SCALE_Y(NUMERICAL_GAUGE_Y), &GameBitmaps[Gauges[GAUGE_NUMERICAL].index], F1_0);
+#endif
 	// cockpit is not 100% geometric so we need to divide shield and energy X position by 1.951 which should be most accurate
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
 	gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
@@ -1439,11 +1441,8 @@ void draw_secondary_ammo_info(int ammo_count)
                 draw_ammo_info(SECONDARY_AMMO_X,SECONDARY_AMMO_Y,ammo_count,0);
 }
 
-//returns true if drew picture
-int draw_weapon_box(int weapon_type,int weapon_num)
+void draw_weapon_box(int weapon_type,int weapon_num)
 {
-	int drew_flag=0;
-
 	gr_set_current_canvas(NULL);
 
 	gr_set_curfont( GAME_FONT );
@@ -1459,14 +1458,12 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		draw_weapon_info(weapon_type,weapon_num);
 		old_weapon[weapon_type] = weapon_num;
 		old_ammo_count[weapon_type]=-1;
-		drew_flag=1;
 		weapon_box_states[weapon_type] = WS_SET;
 	}
 	
 	if (weapon_box_states[weapon_type] == WS_FADING_OUT) {
 		draw_weapon_info(weapon_type,old_weapon[weapon_type]);
 		old_ammo_count[weapon_type]=-1;
-		drew_flag=1;
 		weapon_box_fade_values[weapon_type] -= FrameTime * FADE_SCALE;
 		if (weapon_box_fade_values[weapon_type] <= 0)
 		{
@@ -1486,7 +1483,6 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		{
 			draw_weapon_info(weapon_type,weapon_num);
 			old_ammo_count[weapon_type]=-1;
-			drew_flag=1;
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
@@ -1499,7 +1495,6 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		draw_weapon_info(weapon_type, weapon_num);
 		old_weapon[weapon_type] = weapon_num;
 		old_ammo_count[weapon_type] = -1;
-		drew_flag = 1;
 	}
 
 	
@@ -1515,18 +1510,12 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 	}
 	
 	gr_set_current_canvas(NULL);
-	
-	return drew_flag;
+
 }
 
 void draw_weapon_boxes()
 {
-// 	int boxofs = (Cockpit_mode==CM_STATUS_BAR)?2:0;
-	int drew;
-	
-	drew = draw_weapon_box(0,Primary_weapon);
-// 	if (drew)
-// 		copy_gauge_box(&gauge_boxes[boxofs+0],&VR_render_buffer[0].cv_bitmap);
+	draw_weapon_box(0,Primary_weapon);
 	
 	if (weapon_box_states[0] == WS_SET)
 		if (Players[Player_num].primary_ammo[Primary_weapon] != old_ammo_count[0])
@@ -1540,9 +1529,7 @@ void draw_weapon_boxes()
 				old_ammo_count[0] = Players[Player_num].primary_ammo[Primary_weapon];
 			}
 	
-	drew = draw_weapon_box(1,Secondary_weapon);
-// 	if (drew)
-// 		copy_gauge_box(&gauge_boxes[boxofs+1],&VR_render_buffer[0].cv_bitmap);
+	draw_weapon_box(1,Secondary_weapon);
 	
 	if (weapon_box_states[1] == WS_SET)
 		if (Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1] || Players[Player_num].secondary_ammo[2] != old_prox)
@@ -1664,16 +1651,12 @@ void draw_hostage_gauge()
 {
 	int drew;
 
-//        gr_set_current_canvas(Canv_game_offscrn);
         gr_set_current_canvas(NULL);
 
 	drew = do_hostage_effects();
 
 	if (drew) {
 		int boxofs = (Cockpit_mode==CM_STATUS_BAR)?2:0;
-
-//                gr_set_current_canvas(Canv_game);
-//                copy_gauge_box(&gauge_boxes[boxofs+1],&Canv_game_offscrn->cv_bitmap);
 
 		old_weapon[1] = old_ammo_count[1] = -1;
 	}
@@ -2030,7 +2013,9 @@ void render_gauges()
 	draw_weapon_boxes();
 
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
+#ifdef OGL
 		hud_bitblt (0, 0, &GameBitmaps[cockpit_bitmap[Cockpit_mode].index],F1_0);
+#endif
 
 		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy))
 		{

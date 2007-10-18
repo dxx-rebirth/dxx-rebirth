@@ -77,9 +77,6 @@ void gr_linear_rep_movsd_2x(ubyte * source, ubyte * dest, uint nbytes ) {
 	}
 }
 #endif
-#ifdef D1XD3D
-#include "d3dhelp.h"
-#endif
 
 void gr_ubitmap00( int x, int y, grs_bitmap *bm )
 {
@@ -131,103 +128,6 @@ void gr_ubitmap00m( int x, int y, grs_bitmap *bm )
 		}
 	}
 }
-
-//"             jmp     aligned4                                "       
-//"             mov     eax, edi                                "       
-//"             and     eax, 11b                                "       
-//"             jz              aligned4                        "       
-//"             mov     ebx, 4                                  "       
-//"             sub     ebx, eax                                "       
-//"             sub     ecx, ebx                                "       
-//"alignstart:                                                  "       
-//"             mov     al, [esi]                               "       
-//"             add     esi, 4                                  "       
-//"             mov     [edi], al                               "       
-//"             inc     edi                                     "       
-//"             dec     ebx                                     "       
-//"             jne     alignstart                              "       
-//"aligned4:                                                    "       
-
-#ifdef __MSDOS__
-// From Linear to ModeX
-void gr_bm_ubitblt01(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-{
-	ubyte * dbits;
-	ubyte * sbits;
-	int sstep,dstep;
-	int y,plane;
-	int w1;
-
-	if ( w < 4 ) return;
-
-	sstep = src->bm_rowsize;
-	dstep = dest->bm_rowsize << gr_bitblt_dest_step_shift;
-
-	if (!gr_bitblt_double)	{
-		for (plane=0; plane<4; plane++ )	{
-			gr_modex_setplane( (plane+dx)&3 );
-			sbits = src->bm_data + (src->bm_rowsize * sy) + sx + plane;
-			dbits = &gr_video_memory[(dest->bm_rowsize * dy) + ((plane+dx)/4) ];
-			w1 = w >> 2;
-			if ( (w&3) > plane ) w1++;
-			for (y=dy; y < dy+h; y++ )		{
-				modex_copy_scanline( sbits, dbits, w1 );		
-				dbits += dstep;
-				sbits += sstep;
-			}
-		}
-	} else {
-		for (plane=0; plane<4; plane++ )	{
-			gr_modex_setplane( (plane+dx)&3 );
-			sbits = src->bm_data + (src->bm_rowsize * sy) + sx + plane/2;
-			dbits = &gr_video_memory[(dest->bm_rowsize * dy) + ((plane+dx)/4) ];
-			w1 = w >> 2;
-			if ( (w&3) > plane ) w1++;
-			for (y=dy; y < dy+h; y++ )		{
-				modex_copy_scanline_2x( sbits, dbits, w1 );		
-				dbits += dstep;
-				sbits += sstep;
-			}
-		}
-	}
-}
-
-
-// From Linear to ModeX masked
-void gr_bm_ubitblt01m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-{
-	//ubyte * dbits1;
-	//ubyte * sbits1;
-	
-	ubyte * dbits;
-	ubyte * sbits;
-
-	int x;
-//	int y;
-
-	sbits =   src->bm_data  + (src->bm_rowsize * sy) + sx;
-	dbits =   &gr_video_memory[(dest->bm_rowsize * dy) + dx/4];
-
-	for (x=dx; x < dx+w; x++ )	{	
-		gr_modex_setplane( x&3 );
-
-		//sbits1 = sbits;
-		//dbits1 = dbits;
-		//for (y=0; y < h; y++ )    {
-		//	*dbits1 = *sbits1;
-		//	sbits1 += src_bm_rowsize;
-		//	dbits1 += dest_bm_rowsize;
-		//	}
-		modex_copy_column_m(sbits, dbits, h, src->bm_rowsize, dest->bm_rowsize << gr_bitblt_dest_step_shift );
-
-		sbits++;
-		if ( (x&3)==3 )
-			dbits++;
-	}
-}
-
-#endif
-
 
 void gr_ubitmap012( int x, int y, grs_bitmap *bm )
 {
@@ -311,23 +211,6 @@ void gr_ubitmap( int x, int y, grs_bitmap *bm )
 			ogl_ubitmapm(x,y,bm);
 			return;
 #endif
-#ifdef D1XD3D
-		case BM_DIRECTX:
-			Assert ((int)grd_curcanv->cv_bitmap.bm_data == BM_D3D_RENDER || (int)grd_curcanv->cv_bitmap.bm_data == BM_D3D_DISPLAY);
-			Win32_BlitLinearToDirectX_bm(bm, 0, 0, bm->bm_w, bm->bm_h, x, y, 0);
-			return;
-#endif
-#ifdef __MSDOS__
-		case BM_SVGA:
-			if ( bm->bm_flags & BM_FLAG_RLE )
-				gr_bm_ubitblt0x_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap, 0 );
-			else
-				gr_bm_ubitblt02( bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap);
-			return;
-		case BM_MODEX:
-			gr_bm_ubitblt01(bm->bm_w, bm->bm_h, x+XOFFSET, y+YOFFSET, 0, 0, bm, &grd_curcanv->cv_bitmap);
-			return;
-#endif
 		default:
 			gr_ubitmap012( x, y, bm );
 			return;
@@ -358,28 +241,6 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 			ogl_ubitmapm(x,y,bm);
 			return;
 #endif
-#ifdef D1XD3D
-		case BM_DIRECTX:
-			if (bm->bm_w < 35 && bm->bm_h < 35) {
-				// ugly hack needed for reticle
-				if ( bm->bm_flags & BM_FLAG_RLE )
-					gr_bm_ubitblt0x_rle(bm->bm_w, bm->bm_h, x, y, 0, 0, bm, &grd_curcanv->cv_bitmap, 1 );
-				else
-					gr_ubitmapGENERICm(x, y, bm);
-				return;
-			}
-			Assert ((int)grd_curcanv->cv_bitmap.bm_data == BM_D3D_RENDER || (int)grd_curcanv->cv_bitmap.bm_data == BM_D3D_DISPLAY);
-			Win32_BlitLinearToDirectX_bm(bm, 0, 0, bm->bm_w, bm->bm_h, x, y, 1);
-			return;
-#endif
-#ifdef __MSDOS__
-		case BM_SVGA:
-			gr_ubitmapGENERICm(x, y, bm);
-			return;
-		case BM_MODEX:
-			gr_bm_ubitblt01m(bm->bm_w, bm->bm_h, x+XOFFSET, y+YOFFSET, 0, 0, bm, &grd_curcanv->cv_bitmap);
-			return;
-#endif
 		default:
 			gr_ubitmap012m( x, y, bm );
 			return;
@@ -388,107 +249,6 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 		gr_ubitmapGENERICm(x, y, bm);
 	}
 }
-
-
-#ifdef __MSDOS__
-// From linear to SVGA
-void gr_bm_ubitblt02(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-{
-	unsigned char * sbits;
-
-	unsigned int offset, EndingOffset, VideoLocation;
-
-	int sbpr, dbpr, y1, page, BytesToMove;
-
-	sbpr = src->bm_rowsize;
-
-	dbpr = dest->bm_rowsize << gr_bitblt_dest_step_shift;
-
-	VideoLocation = (unsigned int)dest->bm_data + (dest->bm_rowsize * dy) + dx;
-
-	sbits = src->bm_data + ( sbpr*sy ) + sx;
-
-	for (y1=0; y1 < h; y1++ )    {
-
-		page    = VideoLocation >> 16;
-		offset  = VideoLocation & 0xFFFF;
-
-		gr_vesa_setpage( page );
-
-		EndingOffset = offset+w-1;
-
-		if ( EndingOffset <= 0xFFFF )
-		{
-			if ( gr_bitblt_double )
-				gr_linear_rep_movsd_2x( (void *)sbits, (void *)(offset+gr_video_memory), w );
-			else
-				gr_linear_movsd( (void *)sbits, (void *)(offset+gr_video_memory), w );
-
-			VideoLocation += dbpr;
-			sbits += sbpr;
-		}
-		else
-		{
-			BytesToMove = 0xFFFF-offset+1;
-
-			if ( gr_bitblt_double )
-				gr_linear_rep_movsd_2x( (void *)sbits, (void *)(offset+gr_video_memory), BytesToMove );
-			else
-				gr_linear_movsd( (void *)sbits, (void *)(offset+gr_video_memory), BytesToMove );
-
-			page++;
-			gr_vesa_setpage(page);
-
-			if ( gr_bitblt_double )
-				gr_linear_rep_movsd_2x( (void *)(sbits+BytesToMove/2), (void *)gr_video_memory, EndingOffset - 0xFFFF );
-			else
-				gr_linear_movsd( (void *)(sbits+BytesToMove), (void *)gr_video_memory, EndingOffset - 0xFFFF );
-
-			VideoLocation += dbpr;
-			sbits += sbpr;
-		}
-	}
-}
-
-// From SVGA to linear
-void gr_bm_ubitblt20(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-{
-	unsigned char * dbits;
-
-	unsigned int offset, offset1, offset2;
-
-	int sbpr, dbpr, y1, page;
-
-	dbpr = dest->bm_rowsize;
-
-	sbpr = src->bm_rowsize;
-
-	for (y1=0; y1 < h; y1++ )    {
-
-		offset2 =   (unsigned int)src->bm_data  + (sbpr * (y1+sy)) + sx;
-		dbits   =   dest->bm_data + (dbpr * (y1+dy)) + dx;
-
-		page = offset2 >> 16;
-		offset = offset2 & 0xFFFF;
-		offset1 = offset+w-1;
-		gr_vesa_setpage( page );
-
-		if ( offset1 > 0xFFFF )  {
-			// Overlaps two pages
-			while( offset <= 0xFFFF )
-				*dbits++ = gr_video_memory[offset++];
-			offset1 -= (0xFFFF+1);
-			offset = 0;
-			page++;
-			gr_vesa_setpage(page);
-		}
-		while( offset <= offset1 )
-			*dbits++ = gr_video_memory[offset++];
-
-	}
-}
-#endif // __MSDOS__
-//@extern int Interlacing_on;
 
 // From Linear to Linear
 void gr_bm_ubitblt00(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
@@ -696,22 +456,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 		return;
 	}
 #endif
-#ifdef D1XD3D
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_DIRECTX ))
-	{
-		Assert ((int)dest->bm_data == BM_D3D_RENDER || (int)dest->bm_data == BM_D3D_DISPLAY);
-		Win32_BlitLinearToDirectX_bm (src, sx, sy, w, h, dx, dy, 1);
-		return;
-	}
-	if ( (src->bm_type == BM_DIRECTX) && (dest->bm_type == BM_DIRECTX ))
-	{
-		Assert ((int)src->bm_data == BM_D3D_RENDER || (int)src->bm_data == BM_D3D_DISPLAY);
-//		Win32_BlitDirectXToDirectX (w, h, dx, dy, sx, sy, src->bm_data, dest->bm_data, 0);
-		return;
-	}
-#endif
-
-
 	for (y1=0; y1 < h; y1++ )    {
 		for (x1=0; x1 < w; x1++ )    {
 			if ((c=gr_gpixel(src,sx+x1,sy+y1))!=255)
@@ -720,80 +464,6 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 	}
 
 }
-
-//-NOT-used // From linear to SVGA
-//-NOT-used void gr_bm_ubitblt02_2x(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-//-NOT-used {
-//-NOT-used 	unsigned char * sbits;
-//-NOT-used 
-//-NOT-used 	unsigned int offset, EndingOffset, VideoLocation;
-//-NOT-used 
-//-NOT-used 	int sbpr, dbpr, y1, page, BytesToMove;
-//-NOT-used 
-//-NOT-used 	sbpr = src->bm_rowsize;
-//-NOT-used 
-//-NOT-used 	dbpr = dest->bm_rowsize << gr_bitblt_dest_step_shift;
-//-NOT-used 
-//-NOT-used 	VideoLocation = (unsigned int)dest->bm_data + (dest->bm_rowsize * dy) + dx;
-//-NOT-used 
-//-NOT-used 	sbits = src->bm_data + ( sbpr*sy ) + sx;
-//-NOT-used 
-//-NOT-used 	for (y1=0; y1 < h; y1++ )    {
-//-NOT-used 
-//-NOT-used 		page    = VideoLocation >> 16;
-//-NOT-used 		offset  = VideoLocation & 0xFFFF;
-//-NOT-used 
-//-NOT-used 		gr_vesa_setpage( page );
-//-NOT-used 
-//-NOT-used 		EndingOffset = offset+w-1;
-//-NOT-used 
-//-NOT-used 		if ( EndingOffset <= 0xFFFF )
-//-NOT-used 		{
-//-NOT-used 			gr_linear_rep_movsd_2x( (void *)sbits, (void *)(offset+gr_video_memory), w );
-//-NOT-used 
-//-NOT-used 			VideoLocation += dbpr;
-//-NOT-used 			sbits += sbpr;
-//-NOT-used 		}
-//-NOT-used 		else
-//-NOT-used 		{
-//-NOT-used 			BytesToMove = 0xFFFF-offset+1;
-//-NOT-used 
-//-NOT-used 			gr_linear_rep_movsd_2x( (void *)sbits, (void *)(offset+gr_video_memory), BytesToMove );
-//-NOT-used 
-//-NOT-used 			page++;
-//-NOT-used 			gr_vesa_setpage(page);
-//-NOT-used 
-//-NOT-used 			gr_linear_rep_movsd_2x( (void *)(sbits+BytesToMove/2), (void *)gr_video_memory, EndingOffset - 0xFFFF );
-//-NOT-used 
-//-NOT-used 			VideoLocation += dbpr;
-//-NOT-used 			sbits += sbpr;
-//-NOT-used 		}
-//-NOT-used 
-//-NOT-used 
-//-NOT-used 	}
-//-NOT-used }
-
-
-//-NOT-used // From Linear to Linear
-//-NOT-used void gr_bm_ubitblt00_2x(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-//-NOT-used {
-//-NOT-used 	unsigned char * dbits;
-//-NOT-used 	unsigned char * sbits;
-//-NOT-used 	//int	src_bm_rowsize_2, dest_bm_rowsize_2;
-//-NOT-used 
-//-NOT-used 	int i;
-//-NOT-used 
-//-NOT-used 	sbits =   src->bm_data  + (src->bm_rowsize * sy) + sx;
-//-NOT-used 	dbits =   dest->bm_data + (dest->bm_rowsize * dy) + dx;
-//-NOT-used 
-//-NOT-used 	// No interlacing, copy the whole buffer.
-//-NOT-used 	for (i=0; i < h; i++ )    {
-//-NOT-used 		gr_linear_rep_movsd_2x( sbits, dbits, w );
-//-NOT-used 
-//-NOT-used 		sbits += src->bm_rowsize;
-//-NOT-used 		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
-//-NOT-used 	}
-//-NOT-used }
 
 void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
 {
@@ -831,7 +501,7 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 
 	// No interlacing, copy the whole buffer.
 	for (i=0; i < h; i++ )    {
-		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1, (src->bm_flags & BM_FLAG_COCKPIT_TRANSPARENT) );
+		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1 );
 		sbits += (int)src->bm_data[4+i+sy];
 		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
 	}

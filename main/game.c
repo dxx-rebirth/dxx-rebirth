@@ -2032,6 +2032,7 @@ void HandleDemoKey(int key)
 			game_do_render_frame(GameArg.DbgUseDoubleBuffer);
 			save_screen_shot(0);
 			Newdemo_vcr_state = old_state;
+			break;
 		case KEYS_GR_TOGGLE_FULLSCREEN:
 			gr_toggle_fullscreen();
 			break;

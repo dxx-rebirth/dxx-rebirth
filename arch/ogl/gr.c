@@ -37,6 +37,7 @@
 #include "key.h"
 #include "u_mem.h"
 #include "gamefont.h"
+#include "render.h"
 
 #include "ogl_init.h"
 #include <GL/glu.h>
@@ -330,12 +331,12 @@ void ogl_urect(int left,int top,int right,int bot){
 
 void ogl_ulinec(int left,int top,int right,int bot,int c){
 	GLfloat xo,yo,xf,yf;
-	
-	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
-	xf=(right+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
-	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
-	yf=1.0-(bot+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
-	
+
+	xo = (left + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
+	xf = (right + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
+	yo = 1.0 - (top + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
+	yf = 1.0 - (bot + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
+
 	OGL_DISABLE(TEXTURE_2D);
 	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
 	glBegin(GL_LINES);
@@ -506,6 +507,7 @@ void save_screen_shot(int automap_flag)
 	static int savenum=0;
 	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
+	GLint gl_draw_buffer=0;
 	
 	if (!GameArg.DbgGlReadPixelsOk){
 		if (!automap_flag)
@@ -522,12 +524,14 @@ void save_screen_shot(int automap_flag)
 #endif
 		); //try making directory
 
-	if ( savenum == 9999 ) savenum = 0;
+	if ( savenum == 9999 )
+		savenum = 0;
 	sprintf(savename,"%sscrn%04d.tga",SCRNS_DIR,savenum++);
 
 	while(!access(savename,0))
 	{
-		if ( savenum == 9999 ) savenum = 0;
+		if ( savenum == 9999 )
+			savenum = 0;
 		sprintf(savename,"%sscrn%04d.tga",SCRNS_DIR,savenum++);
 	}
 	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
@@ -535,9 +539,19 @@ void save_screen_shot(int automap_flag)
 	if (!automap_flag) {
 		hud_message(MSGC_GAME_FEEDBACK,message);
 	}
-	
+
+	if (GameArg.OglPrShot)
+	{
+		render_frame(0);
+		gr_set_curfont(Gamefonts[GFONT_MEDIUM_2]);
+		gr_printf(0x8000,FONTSCALE_Y(10),"DXX-Rebirth\n");
+		glReadBuffer(gl_draw_buffer);
+	}
+	else
+	{
+		glReadBuffer(GL_FRONT);
+	}
 	buf = malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
-	glReadBuffer(GL_FRONT);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
 	free(buf);
 	key_flush();
