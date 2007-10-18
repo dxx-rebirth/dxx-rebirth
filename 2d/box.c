@@ -78,9 +78,11 @@ void gr_ubox12(int left,int top,int right,int bot)
 		gr_upixel( right, i );
 	}
 
-	gr_rect(left,top-(SHEIGHT/320),right,top);
-
-	gr_rect(left,bot,right,bot+(SHEIGHT/320));
+	for (i=left; i<=right; i++ )
+	{
+		gr_upixel( i, top );
+		gr_upixel( i, bot );
+	}
 }
 
 void gr_box12(int left,int top,int right,int bot)
@@ -103,12 +105,6 @@ void gr_ubox(int left,int top,int right,int bot)
 {
 	if (TYPE==BM_LINEAR)
 		gr_ubox0( left, top, right, bot );
-
-#ifdef __DJGPP__
-	else if ( TYPE == BM_MODEX )
-		gr_ubox12( left, top, right, bot );
-#endif
-
     else
 		gr_ubox12( left, top, right, bot );
 }
@@ -117,12 +113,6 @@ void gr_box(int left,int top,int right,int bot)
 {
 	if (TYPE==BM_LINEAR)
 		gr_box0( left, top, right, bot );
-
-#ifdef __DJGPP__
-	else if ( TYPE == BM_MODEX )
-		gr_box12( left, top, right, bot );
-#endif
-    
 	else
 		gr_ubox12( left, top, right, bot );
 }

@@ -197,7 +197,8 @@ void print_commandline_help()
 	printf( "  -gl_transparency   %s\n", "Enable transparency effects");
 	printf( "  -gl_reticle <n>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
 	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
-	printf( "  -fixedfont         %s\n", "Do not scale fonts to current resolution");
+	printf( "  -gl_fixedfont      %s\n", "Do not scale fonts to current resolution");
+	printf( "  -gl_prshot         %s\n", "Take clean screenshots - no HUD and DXX-Rebirth writing");
 #endif // OGL
 
 #ifdef    NETWORK
@@ -445,16 +446,15 @@ int main(int argc, char *argv[])
 	} else
 	#endif
 	{
-// 		RegisterPlayer();
 		if(GameArg.SysPilot)
 		{
 			char filename[32] = "";
 			int j;
-
+	
 			if (GameArg.SysUsePlayersDir)
 				strcpy(filename, "Players/");
-			strlwr(GameArg.SysPilot);
-			sprintf(filename,"%s", GameArg.SysPilot);
+			strncat(filename, GameArg.SysPilot, 12);
+			filename[8 + 12] = '\0';	// unfortunately strncat doesn't put the terminating 0 on the end if it reaches 'n'
 			for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
 				switch (filename[j]) {
 					case ' ':
@@ -469,7 +469,6 @@ int main(int argc, char *argv[])
 				strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir? &filename[8] : filename);
 				read_player_file();
 				WriteConfigFile();
-				remap_fonts_and_menus(1);
 			}
 			else //pilot doesn't exist. get pilot.
 				RegisterPlayer();

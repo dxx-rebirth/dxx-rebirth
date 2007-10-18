@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071018
+--------
+d2x.ini, 2d/bitblt.c, 2d/box.c, 2d/rle.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/args.h, include/rle.h, main/gauges.c, main/inferno.c, main/menu.c, mist/args.c: Small fixes; Code cleanup; Implemented PR-Screenshot feature
+
 20071015
 --------
 libmve/mveplay.c: Set defines for USE_SDLMIXER to fix issues while compiling

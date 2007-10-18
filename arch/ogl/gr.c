@@ -48,7 +48,7 @@
 #include "key.h"
 #include "physfsx.h"
 #include "internal.h"
-
+#include "render.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -553,6 +553,7 @@ void save_screen_shot(int automap_flag)
 	static int savenum=0;
 	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
+	GLint gl_draw_buffer=0;
 	
 	if (!GameArg.DbgGlReadPixelsOk){
 		if (!automap_flag)
@@ -574,13 +575,21 @@ void save_screen_shot(int automap_flag)
 
 	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
 
-	if (automap_flag) {
-	} else {
+	if (!automap_flag)
 		hud_message(MSGC_GAME_FEEDBACK,message);
+
+	if (GameArg.OglPrShot)
+	{
+		render_frame(0,0);
+		gr_set_curfont(MEDIUM2_FONT);
+		gr_printf(0x8000,FONTSCALE_Y(10),"DXX-Rebirth\n");
+		glReadBuffer(gl_draw_buffer);
 	}
-	
+	else
+	{
+		glReadBuffer(GL_FRONT);
+	}
 	buf = malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
-	glReadBuffer(GL_FRONT);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
 	free(buf);
 

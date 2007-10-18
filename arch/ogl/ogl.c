@@ -488,7 +488,6 @@ bool g3_draw_line(g3s_point *p0,g3s_point *p1)
 	int c;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
-	glLineWidth(grd_curscreen->sc_w/640);
 	glColor3f(PAL2Tr(c),PAL2Tg(c),PAL2Tb(c));
 	glBegin(GL_LINES);
 	glVertex3f(f2glf(p0->p3_vec.x),f2glf(p0->p3_vec.y),-f2glf(p0->p3_vec.z));
@@ -543,7 +542,6 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 	if (!cross_lh[cross]){
 		cross_lh[cross]=glGenLists(1);
 		glNewList(cross_lh[cross], GL_COMPILE_AND_EXECUTE);
-		glLineWidth(grd_curscreen->sc_w/640);
 		glBegin(GL_LINES);
 		//cross top left
 		glColor3fv(darker_g);
@@ -586,7 +584,6 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 		primary_lh[primary]=glGenLists(1);
 		glNewList(primary_lh[primary], GL_COMPILE_AND_EXECUTE);
 		glColor3fv(dark_g);
-		glLineWidth(grd_curscreen->sc_w/640);
 		glBegin(GL_LINES);
 		//left primary bar
 		glVertex2f(-14.0,-8.0);
@@ -969,6 +966,7 @@ void ogl_start_frame(void){
 	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,Canvas_width,Canvas_height);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
+	glLineWidth(SWIDTH<640?1:SWIDTH/640);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

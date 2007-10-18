@@ -2039,8 +2039,10 @@ void draw_numerical_display(int shield, int energy)
 
 	//gr_set_current_canvas( Canv_NumericalGauge );
 	gr_set_curfont( GAME_FONT );
-// 	PAGE_IN_GAUGE( GAUGE_NUMERICAL );
-// 	hud_bitblt( NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_NUMERICAL) ], F1_0);
+#ifndef OGL
+	PAGE_IN_GAUGE( GAUGE_NUMERICAL );
+	hud_bitblt( NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_NUMERICAL) ], F1_0);
+#endif
 
 	gr_set_fontcolor(gr_getcolor(14,14,23),-1 );
 	gr_get_string_size((shield>199)?"200":(shield>99)?"100":(shield>9)?"00":"0",&sw,&sh,&saw);
@@ -2223,10 +2225,8 @@ void draw_secondary_ammo_info(int ammo_count)
 		draw_ammo_info(SECONDARY_AMMO_X,SECONDARY_AMMO_Y,ammo_count,0);
 }
 
-//returns true if drew picture
-int draw_weapon_box(int weapon_type,int weapon_num)
+void draw_weapon_box(int weapon_type,int weapon_num)
 {
-	int drew_flag=0;
 	int laser_level_changed;
 
 	gr_set_current_canvas(NULL);
@@ -2245,7 +2245,6 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		draw_weapon_info(weapon_type,old_weapon[weapon_type],old_laser_level);
 		old_ammo_count[weapon_type]=-1;
 		Old_Omega_charge=-1;
-		drew_flag=1;
 		weapon_box_fade_values[weapon_type] -= FrameTime * FADE_SCALE;
 		if (weapon_box_fade_values[weapon_type] <= 0) {
 			weapon_box_states[weapon_type] = WS_FADING_IN;
@@ -2262,7 +2261,6 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 			draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level);
 			old_ammo_count[weapon_type]=-1;
 			Old_Omega_charge=-1;
-			drew_flag=1;
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
@@ -2276,7 +2274,6 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 		old_ammo_count[weapon_type] = -1;
 		Old_Omega_charge = -1;
 		old_laser_level = Players[Player_num].laser_level;
-		drew_flag = 1;
 	}
 
 	if (weapon_box_states[weapon_type] != WS_SET) {		//fade gauge
@@ -2290,7 +2287,6 @@ int draw_weapon_box(int weapon_type,int weapon_num)
 	}
 
 	gr_set_current_canvas(NULL);
-	return drew_flag;
 }
 
 fix static_time[2];
@@ -2340,11 +2336,8 @@ void draw_static(int win)
 
 void draw_weapon_boxes()
 {
-//	int boxofs = (Cockpit_mode==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
-	int drew;
-
 	if (weapon_box_user[0] == WBU_WEAPON) {
-		drew = draw_weapon_box(0,Primary_weapon);
+		draw_weapon_box(0,Primary_weapon);
 
 		if (weapon_box_states[0] == WS_SET) {
 			if ((Primary_weapon == VULCAN_INDEX) || (Primary_weapon == GAUSS_INDEX))
@@ -2370,7 +2363,7 @@ void draw_weapon_boxes()
 		draw_static(0);
 
 	if (weapon_box_user[1] == WBU_WEAPON) {
-		drew = draw_weapon_box(1,Secondary_weapon);
+		draw_weapon_box(1,Secondary_weapon);
 
 		if (weapon_box_states[1] == WS_SET)
 		{
@@ -3019,8 +3012,9 @@ void render_gauges()
 	draw_weapon_boxes();
 
 	if (Cockpit_mode == CM_FULL_COCKPIT) {
+#ifdef OGL
 		hud_bitblt (0, 0, &GameBitmaps[cockpit_bitmap[Cockpit_mode+(HiresGFX?(Num_cockpits/2):0)].index],F1_0);
-
+#endif
 		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy))
 		{
 			newdemo_record_player_energy(old_energy, energy);
@@ -3247,7 +3241,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 		
 		{
 			gr_setcolor(BM_XRGB(0,0,32));
-			gr_ubox(0,0,grd_curcanv->cv_bitmap.bm_w-1,grd_curcanv->cv_bitmap.bm_h-1);
+			gr_ubox(-1,0,grd_curcanv->cv_bitmap.bm_w-1,grd_curcanv->cv_bitmap.bm_h-1);
 		}
 
 		//if the window only partially overlaps the big 3d window, copy

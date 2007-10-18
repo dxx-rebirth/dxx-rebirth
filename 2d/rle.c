@@ -40,7 +40,6 @@ static char rcsid[] = "$Id: rle.c,v 1.1.1.1 2006/03/17 19:51:59 zicodxx Exp $";
 #include "gr.h"
 #include "grdef.h"
 #include "error.h"
-//#include "key.h"
 #include "rle.h"
 #include "byteswap.h"
 
@@ -172,21 +171,10 @@ done:
 
 #ifdef RLE_DECODE_ASM
 
-#if 0
-void gr_rle_decode( ubyte * src, ubyte * dest, int dest_len )
-{
-	ubyte *dest_end;
-
-	dest_end = (ubyte *)gr_rle_decode_asm( src, dest );
-
-	Assert(dest_end-src < dest_len);
-}
-#else
 void gr_rle_decode( ubyte * src, ubyte * dest )
 {
     gr_rle_decode_asm( src, dest );
 }
-#endif
 
 #else // NO_ASM or unknown compiler
 
@@ -243,18 +231,12 @@ __inline void rle_stosb (unsigned char *dest, int len, int color)
 
 #else // NO_ASM or unknown compiler
 
-/*void rle_stosb (unsigned char *dest, int len, int color)
-{
-	int i;
-	for (i=0; i<len; i++ )
-		*dest++ = color;
-}*/
 #define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
 #endif
 
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
-void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2, int cockpit_transparent  )
+void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2  )
 {
 	int i = 0;
 	ubyte count;
@@ -289,7 +271,8 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2, int
 	dest += count;
 	i += count;
 
-	while( i <= x2 )		{
+	while( i <= x2 )
+	{
 		color = *src++;
 		if ( color == RLE_CODE ) return;
 		if ( IS_RLE_CODE(color) )	{
@@ -301,31 +284,16 @@ void gr_rle_expand_scanline_masked( ubyte *dest, ubyte *src, int x1, int x2, int
 		}
 		// we know have '*count' pixels of 'color'.
 		if ( i+count <= x2 )	{
-			if (cockpit_transparent) {
-				if ( color != TRANSPARENCY_COLOR && color != 0 && color != 54 && color != 119)
-					rle_stosb( dest, count, color );
-			}
-			else {
-				if ( color != TRANSPARENCY_COLOR)
-					rle_stosb( dest, count, color );
-			}
+			if ( color != 255 )rle_stosb( dest, count, color );
 			i += count;
 			dest += count;
 		} else {
 			count = x2-i+1;
-			if (cockpit_transparent) {
-				if ( color != TRANSPARENCY_COLOR && color != 0 && color != 54 && color != 119)
-					rle_stosb( dest, count, color );
-			}
-			else {
-				if ( color != TRANSPARENCY_COLOR)
-					rle_stosb( dest, count, color );
-			}
+			if ( color != 255 )rle_stosb( dest, count, color );
 			i += count;
 			dest += count;
 		}
-
-	}	
+	}
 }
 
 void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )

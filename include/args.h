@@ -76,6 +76,7 @@ typedef struct Arg
 	int OglReticle;
 	int OglVoodooHack;
 	int OglFixedFont;
+	int OglPrShot;
 #endif
 	int MplGameProfile;
 	int MplNoRankings;

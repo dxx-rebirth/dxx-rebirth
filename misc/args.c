@@ -105,7 +105,6 @@ void AppendIniArgs(void)
 	f = PHYSFSX_openReadBuffered(INI_FILENAME);
 	
 	if(f) {
-printf("READING INI\n");
 		while(!PHYSFS_eof(f) && Num_args < MAX_ARGS)
 		{
 			line=fgets_unlimited(f);
@@ -224,9 +223,9 @@ void ReadCmdArgs(void)
 
 	GameArg.OglAlphaEffects 	= FindArg("-gl_transparency");
 	GameArg.OglVoodooHack 		= FindArg("-gl_voodoo");
-	GameArg.OglFixedFont 		= FindArg("-fixedfont");
+	GameArg.OglFixedFont 		= FindArg("-gl_fixedfont");
 	GameArg.OglReticle		= get_int_arg("-gl_reticle", 0);
-
+	GameArg.OglPrShot		= FindArg("-gl_prshot");
 #endif
 
 	// Multiplayer Options
