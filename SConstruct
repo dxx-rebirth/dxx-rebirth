@@ -9,7 +9,7 @@ PROGRAM_NAME = 'D1X-Rebirth'
 
 # version number
 D1XMAJOR = 0
-D1XMINOR = 52
+D1XMINOR = 53
 
 # installation path
 PREFIX = '/usr/local/'
