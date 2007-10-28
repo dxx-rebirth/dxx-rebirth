@@ -14,6 +14,7 @@
 #include "args.h"
 #include "hmp2mid.h"
 #include "digi_mixer_music.h"
+#include "jukebox.h"
 #include "cfile.h"
 
 #define MIX_MUSIC_DEBUG 0
@@ -26,6 +27,7 @@ void music_done() {
   Mix_HaltMusic();
   Mix_FreeMusic(current_music);
   current_music = NULL;
+  jukebox_stop_hook();
 }
 
 void convert_hmp(char *filename, char *mid_filename) {
