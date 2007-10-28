@@ -46,7 +46,7 @@ For example:
 
 2. Installation
 
-See COMPILE.txt.
+See INSTALL.txt.
 
 
 3. Legal stuff
