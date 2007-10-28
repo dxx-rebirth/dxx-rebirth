@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20071028
 --------
 arch/ogl/ogl.c, include/args.h, main/args.c, main/collide.c, main/fuelcen.c, main/game.c, main/gameseq.c, main/gauges.c, main/hud.c, main/inferno.c, main/laser.c, main/mglobal.c, main/network.c, main/powerup.c: Fixed problems with GameTime wraparound - delay sounds, cloak, invulnerability, ping; Added debug key to Reset GameTime for testing; Removed -gl_vidmem; Cheat-code cleanup; Some HUD message redundancy
+main/hud.c: For HUD messages redundancy check, compare all messages and check if message already printed and is a typical "ALREADY HAVE" message - waste them if so
 
 20071018
 --------
