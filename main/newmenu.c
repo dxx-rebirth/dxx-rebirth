@@ -299,7 +299,7 @@ void nm_string( bkg * b, int w1,int x, int y, char * s)
 	s2 = d_strdup(s);
 
 	for (i=0;i<6;i++) {
-		XTabs[i]=(LHX(XTabs[i]))*MENSCALE_X;
+		XTabs[i]=FONTSCALE_X(LHX(XTabs[i]));
 		XTabs[i]+=x;
 	}
  
