@@ -526,7 +526,7 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 	int			lock_objnum, firing_segnum;
 	vms_vector	goal_pos;
 	int			pnum = parent_objp->id;
-	static int next_sound_time=0;
+	static int last_play_time=0;
 
 	if (pnum == Player_num) {
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
@@ -554,8 +554,9 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 	firing_segnum = find_point_seg(firing_pos, parent_objp->segnum);
 
 	//	Play sound.
-	if (GameTime >= next_sound_time && (GameTime < 0 || GameTime + (F1_0/50) > 0)) {
-		next_sound_time = GameTime + (F1_0/50);
+	if (last_play_time + (F1_0/50) < GameTime || last_play_time > GameTime)
+	{
+		last_play_time = GameTime;
 		if ( parent_objp == Viewer )
 			digi_play_sample( Weapon_info[weapon_objp->id].flash_sound, F1_0 );
 		else

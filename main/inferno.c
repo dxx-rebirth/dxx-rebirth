@@ -242,7 +242,6 @@ void print_commandline_help()
 	printf( "  -gl_readpixels_ok <n> %s\n", "Override DbgGlReadPixelsOk - Default: 1");
 	printf( "  -gl_gettexlevelparam_ok <n> %s\n", "Override DbgGlGetTexLevelParamOk - Default: 1");
 	printf( "  -gl_setgammaramp_ok <n> %s\n", "Override DbgGlSetGammaRampOk - Default: 0");
-	printf( "  -gl_vidmem <n>     %s\n", "Limit Texture cache to <n> MB");
 #else
 	printf( "  -hwsurface         %s\n", "Use HW Surface");
 #endif

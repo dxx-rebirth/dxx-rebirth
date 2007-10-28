@@ -1667,7 +1667,7 @@ void HandleTestKey(int key)
 						multi_send_cloak();
 					#endif
 					ai_do_cloak_stuff();
-					Players[Player_num].cloak_time = GameTime;
+					Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
 					mprintf((0, "You are cloaked!\n"));
 				} else
 					mprintf((0, "You are DE-cloaked!\n"));
@@ -1868,6 +1868,10 @@ void HandleTestKey(int key)
 
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_B:
 			kill_and_so_forth();
+			break;
+		case KEY_DEBUGGED+KEY_G:
+			GameTime = i2f(0x7fff - 600) - (F1_0*10);
+			HUD_init_message("GameTime %i - Reset in 10 seconds!", GameTime);
 			break;
 	}
 }
@@ -2239,7 +2243,7 @@ void do_cheat_menu()
 				multi_send_cloak();
 			#endif
 			ai_do_cloak_stuff();
-			Players[Player_num].cloak_time = GameTime;
+			Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
 		}
 		else
 			Players[Player_num].flags &= ~PLAYER_FLAGS_CLOAKED;

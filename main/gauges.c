@@ -1062,10 +1062,7 @@ void play_homing_warning(void)
 		else if (beep_delay < F1_0/8)
 			beep_delay = F1_0/8;
 
-		if (Last_warning_beep_time > GameTime)
-			Last_warning_beep_time = 0;
-
-		if (GameTime - Last_warning_beep_time > beep_delay/2) {
+		if (GameTime - Last_warning_beep_time > beep_delay/2 || Last_warning_beep_time > GameTime) {
 			digi_play_sample( SOUND_HOMING_WARNING, F1_0 );
 			Last_warning_beep_time = GameTime;
 		}
@@ -1594,8 +1591,12 @@ void hud_show_cloak_invuln(void)
 		else
 			y -= FONTSCALE_Y(4*Line_spacing);
 
-		if ((Players[Player_num].cloak_time+CLOAK_TIME_MAX - GameTime > F1_0*3 ) || (GameTime & 0x8000))
+		if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime > F1_0*3 ||
+			Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime < 0 || 
+			GameTime & 0x8000)
+		{
 			gr_printf(2, y, "%s", TXT_CLOAKED);
+		}
 	}
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
@@ -1606,8 +1607,12 @@ void hud_show_cloak_invuln(void)
 		else
 			y -= FONTSCALE_Y(5*Line_spacing);
 
-		if (((Players[Player_num].invulnerable_time + INVULNERABLE_TIME_MAX - GameTime) > F1_0*4) || (GameTime & 0x8000))
+		if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime > F1_0*4 ||
+			Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime < 0 || 
+			GameTime & 0x8000)
+		{
 			gr_printf(2, y, "%s", TXT_INVULNERABLE);
+		}
 	}
 
 }
@@ -1981,9 +1986,13 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 	//else if (cloak_state==0 && old_cloak_state==1)
 	//	cloak_fade_state = 1;
 
-	if (cloak_state && GameTime > Players[Player_num].cloak_time + CLOAK_TIME_MAX - i2f(3))		//doing "about-to-uncloak" effect
+	if ((Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime < F1_0*3 && //doing "about-to-uncloak" effect
+		Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime > F1_0) &&
+		cloak_state)
+	{
 		if (cloak_fade_state==0)
 			cloak_fade_state = 2;
+	}
 	
 
 	if (cloak_fade_state)
@@ -2476,7 +2485,10 @@ void draw_invulnerable_ship()
 
 	gr_set_current_canvas(NULL);
 
-	if (((Players[Player_num].invulnerable_time + INVULNERABLE_TIME_MAX - GameTime) > F1_0*4) || (GameTime & 0x8000)) {
+	if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime > F1_0*4 ||
+		Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime < 0 || 
+		GameTime & 0x8000)
+	{
 
 		if (Cockpit_mode == CM_STATUS_BAR)	{
 			PAGE_IN_GAUGE( GAUGE_INVULNERABLE+invulnerable_frame );

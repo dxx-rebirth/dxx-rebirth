@@ -984,7 +984,9 @@ void do_cloak_stuff(void)
 	for (i = 0; i < N_players; i++)
 		if (Players[i].flags & PLAYER_FLAGS_CLOAKED) {
 			// mprintf(0, "Cloak time left: %7.3f\n", f2fl(CLOAK_TIME_MAX - (GameTime - Players[Player_num].cloak_time)));
-			if (GameTime - Players[i].cloak_time > CLOAK_TIME_MAX) {
+			if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime < 0 &&
+				Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime > -F1_0*2)
+			{
 				Players[i].flags &= ~PLAYER_FLAGS_CLOAKED;
 				if (i == Player_num) {
 					digi_play_sample( SOUND_CLOAK_OFF, F1_0);
@@ -1007,7 +1009,9 @@ int FakingInvul=0;
 void do_invulnerable_stuff(void)
 {
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-		if (GameTime - Players[Player_num].invulnerable_time > INVULNERABLE_TIME_MAX) {
+		if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime < 0 &&
+			Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime > -F1_0*2)
+		{
 			Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
 			if (FakingInvul==0)
 			{
@@ -1985,7 +1989,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			mprintf((0,"Gametime = %d secs\n",f2i(GameTime)));
 
 		if (GameTime < 0 || GameTime > i2f(0x7fff - 600)) {
-			GameTime = FrameTime;	//wrap when goes negative, or gets within 10 minutes
+			GameTime = FrameTime;	//wrap when goes negative, or ~9hrs
 			mprintf((0,"GameTime reset to 0\n"));
 		}
 

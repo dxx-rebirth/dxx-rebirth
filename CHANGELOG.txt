@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071028
+--------
+arch/ogl/ogl.c, include/args.h, main/collide.c, main/fuelcen.c, main/game.c, main/gamecntl.c, main/gameseq.c, main/gauges.c, main/hud.c, main/inferno.c, main/laser.c, main/network.c, main/powerup.c, misc/args.c: Fixed problems with GameTime wraparound - delay sounds, cloak, invulnerability, ping; Added debug key to Reset GameTime for testing; Removed -gl_vidmem; Some HUD message redundancy
+
 20071018
 --------
 d2x.ini, 2d/bitblt.c, 2d/box.c, 2d/rle.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/args.h, include/rle.h, main/gauges.c, main/inferno.c, main/menu.c, mist/args.c: Small fixes; Code cleanup; Implemented PR-Screenshot feature

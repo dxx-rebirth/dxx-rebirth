@@ -5750,13 +5750,13 @@ void network_send_ping (ubyte pnum)
 	network_ping (PID_PING_SEND,pnum);
 }
 
-static int PingTime=0;
 // ping all connected players (except yourself) in 3sec interval and update ping_table
 void network_ping_all()
 {
 	int i;
+	static fix PingTime=0;
 
-	if (PingTime+(F1_0*3)<GameTime)
+	if (PingTime+(F1_0*3)<GameTime || PingTime > GameTime)
 	{
 		for (i=0; i<=MAX_PLAYERS; i++)
 		{

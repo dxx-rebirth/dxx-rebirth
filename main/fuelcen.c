@@ -640,7 +640,7 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 {
 	segment2	*seg2p = &Segment2s[segp-Segments];
 
-	static fix last_play_time=0;
+	static fix last_play_time = 0;
 
 	Assert( segp != NULL );
 
@@ -679,18 +679,14 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //				Station[segp->value].Capacity -= amount;
 //			}
 
-		if (last_play_time > GameTime)
-			last_play_time = 0;
-
-		if (GameTime > last_play_time+FUELCEN_SOUND_DELAY) {
-
+		if (last_play_time + FUELCEN_SOUND_DELAY < GameTime || last_play_time > GameTime)
+		{
+			last_play_time = GameTime;
 			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
 #ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
 #endif
-
-			last_play_time = GameTime;
 		}
 
 
