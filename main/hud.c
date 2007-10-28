@@ -232,11 +232,11 @@ int HUD_init_message_va(char * format, va_list args)
 		return 0;	// ignore since it is the same as the last one
 	}
 
-	// also ignore the one before the previous (i.e. "vulcan ammo maxed" "already got vulcan cannon", "vulcan ammo maxed")
-	if (last_message && (!strcmp(&HUD_messages[hud_last-2][0], message))) {
-		HUD_message_timer = F1_0*3;
-		return 0;
-	}
+	// if many redundant messages at the same time, just block them all together
+	// we probably want at least all visible once, but this isn't worth the work
+	for (i=0; i<=HUD_nmessages; i++)
+		if (last_message && (!strcmp(&HUD_messages[i][0], message)))
+			return 0;
 
 	t=time(NULL);
 	lt=localtime(&t);

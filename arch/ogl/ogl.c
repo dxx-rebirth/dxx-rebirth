@@ -266,36 +266,6 @@ int ogl_texture_stats(void){
 	return truebytes;
 }
 
-void ogl_clean_texture_cache(void){
-	ogl_texture* t;
-	int i,bytes;
-	int time=120;
-	
-	if (GameArg.DbgGlMemTarget<0){
-		if (GameArg.DbgRenderStats)
-			ogl_texture_stats();
-		return;
-	}
-	
-	bytes=ogl_texture_stats();
-	while (bytes>GameArg.DbgGlMemTarget){
-		for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
-			t=&ogl_texture_list[i];
-			if (t->handle>0){
-				if (t->lastrend+f1_0*time<GameTime){
-					ogl_freetexture(t);
-					bytes-=t->bytes;
-					if (bytes<GameArg.DbgGlMemTarget)
-						return;
-				}
-			}
-		}
-		if (time==0)
-			Error("not enough mem?");
-		time=time/2;
-	}
-	
-}
 void ogl_bindbmtex(grs_bitmap *bm){
 	if (bm->gltexture==NULL || bm->gltexture->handle<=0)
 		ogl_loadbmtexture(bm);
@@ -1003,7 +973,6 @@ void ogl_end_frame(void){
 
 void gr_flip(void)
 {
-	ogl_clean_texture_cache();
 	if (GameArg.DbgRenderStats)
 		gr_printf(5,FONTSCALE_Y(GAME_FONT->ft_h*13+3*13),"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc);
 

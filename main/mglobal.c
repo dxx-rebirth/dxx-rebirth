@@ -192,7 +192,7 @@ static char rcsid[] = "$Id: mglobal.c,v 1.1.1.1 2006/03/17 19:44:55 zicodxx Exp 
 vms_vector Vertices[MAX_VERTICES];
 g3s_point Segment_points[MAX_VERTICES];
 
-fix FrameTime = 0;		// Time since last frame, in seconds
+fix FrameTime = 0x1000;		// Time since last frame, in seconds
 fix GameTime = 0;		//	Time in game, in seconds
 
 //How many frames we've rendered

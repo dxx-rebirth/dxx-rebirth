@@ -689,7 +689,7 @@ void fuelcen_update_all()
 //-------------------------------------------------------------
 fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 {
-	static fix next_sound_time = 0;
+	static fix last_play_time = 0;
         #define REFUEL_SOUND_DELAY (F1_0/3)
 
 	Assert( segp != NULL );
@@ -729,8 +729,9 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 
 		// check if sound should be played, and consider GameTime wraparound.
 		// (I hope I got this right -- adb)
-		if (GameTime >= next_sound_time && (GameTime < 0 || GameTime + REFUEL_SOUND_DELAY > 0)) {
-			next_sound_time = GameTime + REFUEL_SOUND_DELAY;
+		if (last_play_time + REFUEL_SOUND_DELAY < GameTime || last_play_time > GameTime)
+		{
+			last_play_time = GameTime;
 			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
 
 			#ifdef NETWORK

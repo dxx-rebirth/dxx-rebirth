@@ -1238,10 +1238,8 @@ int do_laser_firing_player(void)
 //        if (addval > F1_0)
 //                addval = F1_0;
 
-	if (Last_laser_fired_time + 2*FrameTime < GameTime)
+	if ((Last_laser_fired_time + 2*FrameTime < GameTime) || (GameTime < Last_laser_fired_time))
 		Next_laser_fire_time = GameTime;
-
-
 
         while (Next_laser_fire_time <= GameTime) {
 		if	((plp->energy >= energy_used) || ((Primary_weapon == VULCAN_INDEX) && (plp->primary_ammo[Primary_weapon] >= ammo_used)) ) {
