@@ -86,14 +86,10 @@ grs_bitmap nm_background1;
 extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
 void newmenu_close()	{
-#ifdef OGL
-	ogl_freebmtexture(&nm_background);
-	ogl_freebmtexture(&nm_background1);
-#endif
 	if (nm_background.bm_data)
-		free(nm_background.bm_data);
+		gr_free_bitmap_data (&nm_background);
 	if (nm_background1.bm_data)
-		free(nm_background1.bm_data);
+		gr_free_bitmap_data (&nm_background1);
 }
 
 // Draw Copyright and Version strings
@@ -113,7 +109,7 @@ void nm_draw_background1(char * filename)
 
 #ifndef OGL
 	if (nm_background1.bm_data)
-		free(nm_background1.bm_data);
+		gr_free_bitmap_data (&nm_background1);
 
 #else
 	if (filename == NULL && Function_mode == FMODE_MENU)
@@ -148,7 +144,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 
 #ifndef OGL
 	if (nm_background.bm_data)
-		free(nm_background.bm_data);
+		gr_free_bitmap_data (&nm_background);
 #else
 	if (nm_background.bm_data == NULL)
 #endif

@@ -54,7 +54,7 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:44:11 zicodxx Exp 
 #include "ogl_init.h"
 #endif
 
-#define ROW_SPACING			(GHEIGHT/17)
+#define ROW_SPACING			(SHEIGHT/17)
 #define NUM_LINES			20 //14
 #define CREDITS_BACKGROUND_FILENAME	"stars.pcx"
 #define CREDITS_FILE 			"credits.tex"
@@ -118,7 +118,7 @@ void credits_show(char *credits_filename)
 	}
 
 	fade_values_scalled = malloc(SHEIGHT);
-	scale_line(fade_values_hires, fade_values_scalled, 480, GHEIGHT);
+	scale_line(fade_values_hires, fade_values_scalled, 480, SHEIGHT);
 
 	sprintf(filename, "%s", CREDITS_FILE);
 	have_bin_file = 0;
@@ -159,9 +159,9 @@ void credits_show(char *credits_filename)
 	gr_palette_fade_in( gr_palette, 32, 0 );
 
 #ifndef OGL
-	CreditsOffscreenBuf = gr_create_canvas(GWIDTH,GHEIGHT);
+	CreditsOffscreenBuf = gr_create_canvas(SWIDTH,SHEIGHT);
 #else
-	CreditsOffscreenBuf = gr_create_sub_canvas(grd_curcanv,0,0,GWIDTH,GHEIGHT);
+	CreditsOffscreenBuf = gr_create_sub_canvas(grd_curcanv,0,0,SWIDTH,SHEIGHT);
 #endif
 
 	if (!CreditsOffscreenBuf)
@@ -237,7 +237,7 @@ void credits_show(char *credits_filename)
 					dirty_box[j].width = w;
         				dirty_box[j].height = h;
         				dirty_box[j].top = y;
-        				dirty_box[j].left = (GWIDTH - w) / 2;
+        				dirty_box[j].left = (SWIDTH - w) / 2;
 
 					gr_printf( 0x8000, y, s );
 				}
@@ -304,7 +304,7 @@ void credits_show(char *credits_filename)
 					gr_close_font(names_font);
 					gr_palette_fade_out( gr_palette, 32, 0 );
 					gr_use_palette_table( "palette.256" );
-					free(backdrop.bm_data);
+					gr_free_bitmap_data (&backdrop);
 					free(fade_values_scalled);
 					cfclose(file);
 					songs_play_song( SONG_TITLE, 1 );
