@@ -433,6 +433,8 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
 
+	piggy_init_pigfile("groupa.pig");	//get correct pigfile
+
 	con_printf( CON_DEBUG, "\nRunning game...\n" );
 	init_game();
 

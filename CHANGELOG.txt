@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20071029
 --------
 main/object.c: Fixed cockpit_mode_save usage for Death sequence
+main/credits.c, main/inferno.c, main/menu.c, main/mission.c, main/newmenu.c: Memory stuff
 
 20071028
 --------

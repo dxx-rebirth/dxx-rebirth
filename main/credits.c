@@ -134,8 +134,8 @@ void credits_show(char *credits_filename)
 		dirty_box[i].left = dirty_box[i].top = dirty_box[i].width = dirty_box[i].height = 0;
 	}
 
-	fade_values_scalled = malloc(SHEIGHT);
-	scale_line(fade_values_hires, fade_values_scalled, 480, GHEIGHT);
+	fade_values_scalled = d_malloc(SHEIGHT);
+	scale_line(fade_values_hires, fade_values_scalled, 480, SHEIGHT);
 
 	sprintf(filename, "%s", CREDITS_FILE);
 	have_bin_file = 0;
@@ -163,7 +163,7 @@ void credits_show(char *credits_filename)
 
 	gr_use_palette_table( "credits.256" );
 #ifdef OGL
-	gr_palette_load(gr_palette);
+// 	gr_palette_load(gr_palette);
 #endif
 	header_font = gr_init_font( HiresGFX?"font1-1h.fnt":"font1-1.fnt" );
 	title_font = gr_init_font( HiresGFX?"font2-3h.fnt":"font2-3.fnt" );
@@ -188,9 +188,9 @@ void credits_show(char *credits_filename)
 	gr_palette_fade_in( gr_palette, 32, 0 );
 
 #ifndef OGL
-	CreditsOffscreenBuf = gr_create_canvas(GWIDTH,GHEIGHT);
+	CreditsOffscreenBuf = gr_create_canvas(SWIDTH,SHEIGHT);
 #else
-	CreditsOffscreenBuf = gr_create_sub_canvas(grd_curcanv,0,0,GWIDTH,GHEIGHT);
+	CreditsOffscreenBuf = gr_create_sub_canvas(grd_curcanv,0,0,SWIDTH,SHEIGHT);
 #endif
 
 	if (!CreditsOffscreenBuf)
@@ -272,7 +272,7 @@ get_line:;
 					dirty_box[j].width = w;
 	        			dirty_box[j].height = h;
         				dirty_box[j].top = y;
-        				dirty_box[j].left = (GWIDTH - w) / 2;
+        				dirty_box[j].left = (SWIDTH - w) / 2;
 					gr_printf( 0x8000, y, s );
 				}
 				gr_bitblt_fade_table = NULL;
@@ -341,7 +341,8 @@ get_line:;
 					gr_close_font(names_font);
 					gr_palette_fade_out( gr_palette, 32, 0 );
 					gr_use_palette_table( D2_DEFAULT_PALETTE );
-					d_free(backdrop.bm_data);
+					gr_free_bitmap_data (&backdrop);
+					d_free(fade_values_scalled);
 					cfclose(file);
 					gr_set_current_canvas(save_canv);
 					songs_play_song( SONG_TITLE, 1 );

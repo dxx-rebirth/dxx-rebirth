@@ -81,70 +81,69 @@ int load_mission_d1(void)
 {
 	int i;
 
-	piggy_init_pigfile("groupa.pig");	//get correct pigfile
-
-	switch (cfile_size("descent.hog")) {
-	case D1_SHAREWARE_MISSION_HOGSIZE:
-	case D1_SHAREWARE_10_MISSION_HOGSIZE:
-		N_secret_levels = 0;
-
-		Last_level = 7;
-		Last_secret_level = 0;
-
-		//build level names
-		for (i=0;i<Last_level;i++)
-			sprintf(Level_names[i], "level%02d.sdl", i+1);
-
-		break;
-	case D1_MAC_SHARE_MISSION_HOGSIZE:
-		N_secret_levels = 0;
-
-		Last_level = 3;
-		Last_secret_level = 0;
-
-		//build level names
-		for (i=0;i<Last_level;i++)
-			sprintf(Level_names[i], "level%02d.sdl", i+1);
-
-		break;
-	case D1_OEM_MISSION_HOGSIZE:
-	case D1_OEM_10_MISSION_HOGSIZE:
-		N_secret_levels = 1;
-
-		Last_level = 15;
-		Last_secret_level = -1;
-
-		//build level names
-		for (i=0; i < Last_level - 1; i++)
-			sprintf(Level_names[i], "level%02d.rdl", i+1);
-		sprintf(Level_names[i], "saturn%02d.rdl", i+1);
-		for (i=0; i < -Last_secret_level; i++)
-			sprintf(Secret_level_names[i], "levels%1d.rdl", i+1);
-
-		Secret_level_table[0] = 10;
-
-		break;
-	default:
-		Int3(); // fall through
-	case D1_MISSION_HOGSIZE:
-	case D1_10_MISSION_HOGSIZE:
-	case D1_MAC_MISSION_HOGSIZE:
-		N_secret_levels = 3;
-
-		Last_level = BIM_LAST_LEVEL;
-		Last_secret_level = BIM_LAST_SECRET_LEVEL;
-
-		//build level names
-		for (i=0;i<Last_level;i++)
-			sprintf(Level_names[i], "level%02d.rdl", i+1);
-		for (i=0;i<-Last_secret_level;i++)
-			sprintf(Secret_level_names[i], "levels%1d.rdl", i+1);
-
-		Secret_level_table[0] = 10;
-		Secret_level_table[1] = 21;
-		Secret_level_table[2] = 24;
-
-		break;
+	switch (cfile_size("descent.hog"))
+	{
+		case D1_SHAREWARE_MISSION_HOGSIZE:
+		case D1_SHAREWARE_10_MISSION_HOGSIZE:
+			N_secret_levels = 0;
+	
+			Last_level = 7;
+			Last_secret_level = 0;
+	
+			//build level names
+			for (i=0;i<Last_level;i++)
+				sprintf(Level_names[i], "level%02d.sdl", i+1);
+	
+			break;
+		case D1_MAC_SHARE_MISSION_HOGSIZE:
+			N_secret_levels = 0;
+	
+			Last_level = 3;
+			Last_secret_level = 0;
+	
+			//build level names
+			for (i=0;i<Last_level;i++)
+				sprintf(Level_names[i], "level%02d.sdl", i+1);
+	
+			break;
+		case D1_OEM_MISSION_HOGSIZE:
+		case D1_OEM_10_MISSION_HOGSIZE:
+			N_secret_levels = 1;
+	
+			Last_level = 15;
+			Last_secret_level = -1;
+	
+			//build level names
+			for (i=0; i < Last_level - 1; i++)
+				sprintf(Level_names[i], "level%02d.rdl", i+1);
+			sprintf(Level_names[i], "saturn%02d.rdl", i+1);
+			for (i=0; i < -Last_secret_level; i++)
+				sprintf(Secret_level_names[i], "levels%1d.rdl", i+1);
+	
+			Secret_level_table[0] = 10;
+	
+			break;
+		default:
+			Int3(); // fall through
+		case D1_MISSION_HOGSIZE:
+		case D1_10_MISSION_HOGSIZE:
+		case D1_MAC_MISSION_HOGSIZE:
+			N_secret_levels = 3;
+	
+			Last_level = BIM_LAST_LEVEL;
+			Last_secret_level = BIM_LAST_SECRET_LEVEL;
+	
+			//build level names
+			for (i=0;i<Last_level;i++)
+				sprintf(Level_names[i], "level%02d.rdl", i+1);
+			for (i=0;i<-Last_secret_level;i++)
+				sprintf(Secret_level_names[i], "levels%1d.rdl", i+1);
+	
+			Secret_level_table[0] = 10;
+			Secret_level_table[1] = 21;
+			Secret_level_table[2] = 24;
+	
+			break;
 	}
 	strcpy(Briefing_text_filename,BIM_BRIEFING_FILE);
 	strcpy(Ending_text_filename,BIM_ENDING_FILE);
