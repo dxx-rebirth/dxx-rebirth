@@ -1496,7 +1496,6 @@ void dead_player_end(void)
 	obj_delete(Dead_player_camera-Objects);
 	Dead_player_camera = NULL;
 	select_cockpit(cockpit_mode_save);
-	cockpit_mode_save = -1;
 	Viewer = Viewer_save;
 	ConsoleObject->type = OBJ_PLAYER;
 	ConsoleObject->flags = Player_flags_save;
@@ -1779,8 +1778,7 @@ void start_player_death_sequence(object *player)
 		Dead_player_camera = Viewer;
 	}
 
-	if (cockpit_mode_save == -1)		//if not already saved
-		cockpit_mode_save = Cockpit_mode;
+	cockpit_mode_save = Cockpit_mode;
 	select_cockpit(CM_LETTERBOX);
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_letterbox();
