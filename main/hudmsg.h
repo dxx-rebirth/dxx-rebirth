@@ -49,6 +49,4 @@ extern void hud_message(int class, char *format, ...)
 extern void hud_message(int class, char *format, ...);
 #endif
 
-extern void mekh_resend_last();
-extern void mekh_hud_recall_msgs();
 #endif

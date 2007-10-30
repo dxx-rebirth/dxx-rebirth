@@ -71,8 +71,6 @@ int num_missions = -1;
 
 Mission *Current_mission = NULL; // currently loaded mission
 
-extern void piggy_init_pigfile(char *filename);
-
 //
 //  Special versions of mission routines for d1 builtins
 //

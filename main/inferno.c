@@ -143,6 +143,7 @@ extern void vfx_set_palette_sub(ubyte *);
 
 extern int vertigo_present;
 extern void d_mouse_init(void);
+extern void piggy_init_pigfile(char *filename);
 
 #define LINE_LEN	100
 
@@ -433,7 +434,7 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
 
-	piggy_init_pigfile("groupa.pig");	//get correct pigfile
+	piggy_init_pigfile("groupa.pig");	//get correct pigfile 
 
 	con_printf( CON_DEBUG, "\nRunning game...\n" );
 	init_game();
