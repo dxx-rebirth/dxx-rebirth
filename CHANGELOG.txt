@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20071031
 --------
 arch/ogl/gr.c, main/multi.c, main/multi.h, main/network.c, main/state.c, main/state.h: Improvements for -gl_prshot; Improved show_netgame_info(); Removed obsolete multisave code
+texmap/scanline.c: Fixed selection for default Texmapper
 
 20071029
 --------

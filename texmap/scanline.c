@@ -1026,12 +1026,7 @@ void select_tmap(char *type)
 	if (!type)
 	{
 #if !defined(NO_ASM) && !defined(OGL)
-#if defined(__pentiumpro__)
-		select_tmap("ppro");
-#elif defined(__pentium__)
-		select_tmap("pent");
 		select_tmap("i386");
-#endif
 #elif defined(macintosh) && !defined(OGL)
 		select_tmap("ppc");
 #else
