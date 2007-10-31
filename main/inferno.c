@@ -104,7 +104,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "hudmsg.h"
 #include "playsave.h"
 #include "d_io.h"
-#include "ban.h"
 #include "gauges.h"
 #include "physics.h"
 #include "strutil.h"
@@ -182,8 +181,6 @@ void show_commandline_help()
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
 	printf( "  -mprofile          %s\n", "Enable multiplayer game profiles");
-	printf( "  -nobans            %s\n", "Don't use saved bans");
-	printf( "  -savebans          %s\n", "Automatically save new bans");
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multiplayer");
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
@@ -280,10 +277,6 @@ int main(int argc,char **argv)
 	cfile_use_alternate_hogdir(GameArg.SysMissionDir);
 
 	select_tmap(GameArg.DbgTexMap);
-
-#ifdef NETWORK
-	readbans();
-#endif
 
 	if (GameArg.DbgVerbose)
 		printf ("%s", TXT_VERBOSE_1);

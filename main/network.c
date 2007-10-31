@@ -56,44 +56,20 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "effects.h"
 #include "physics.h"
-
 #include "netpkt.h"
 #include "multipow.h"
-
-//added on 2/1/99 by Victor Rachels to add bans
-#include "ban.h"
-//end this section addition - VR
-
-//added on 11/12/98 by Victor Rachels for network radar option
-#include "radar.h" //int Network_allow_radar = 0;
-//end this section addition - VR
-
-// Begin addition by GRiM FisH
-#include "ignore.h"
-// End addition by GRiM FisH
-
-//added 04/23/99 Victor Rachels for alt vulcan fire
-#include "vlcnfire.h"
-//end addition -MM
-
 #include "vers_id.h"
 
-//added 04/19/99 Matt Mueller
-#include "multiver.h"
-//end addition -MM
-
-//-moved- void network_send_objects(void);
 void network_send_rejoin_sync(int player_num);
-//-moved- void network_dump_player(ubyte * server, ubyte *node, int why);
 void network_update_netgame(void);
 void network_send_endlevel_sub(int player_num);
 void network_send_endlevel_packet(void);
-//-moved- void network_send_game_info(sequence_packet *their, int light);
 void network_read_endlevel_packet( ubyte *data );
 void network_read_object_packet( ubyte *data );
 void network_read_sync_packet( ubyte * sp, int d1x );
 void network_flush();
 void network_listen();
+void network_ping(ubyte flag, int pnum);
 void network_read_pdata_packet( ubyte *data, int short_pos );
 int network_compare_players(netplayer_info *pl1, netplayer_info *pl2);
 void DoRefuseStuff(sequence_packet *their);
@@ -144,7 +120,9 @@ frame_info 	MySyncPack;
 ubyte		MySyncPackInitialized = 0;		// Set to 1 if the MySyncPack is zeroed.
 ushort 		my_segments_checksum = 0;
 
-int Network_DOS_compability = 0; // ugly, yes - D1X ONLY or do we also play with DOS versions?
+// ugly, yes - Force Version checking or give option to do so?
+// We basically only need this because we want multi compability to other D1 versions
+int ForceVersionCheck = 0;
 
 int restrict_mode = 0;
 
@@ -183,9 +161,6 @@ network_init(void)
 	//added/changed 8/6/98 by Matt Mueller
 	memset( &Net_D1xPlayer, 0, sizeof(Net_D1xPlayer) );
 	//end modified section - Matt Mueller
-	//added 04/19/99 Matt Mueller
-	multi_d1x_ver_queue_init(0,0);
-	//end addition -MM
 
 	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
 		init_player_stats_game();
@@ -500,20 +475,12 @@ network_disconnect_player(int playernum)
 // initialize player settings
 // called after player joins
 void network_get_player_settings(int pnum) {
-	//added 8/6/98 by Matt Mueller
         memset( &Net_D1xPlayer[pnum], 0, sizeof(network_d1xplayer_info) );
-	//edit 04/19/99 Matt Mueller
-//--killed--        network_send_config_messages(pnum,4);
-		multi_d1x_ver_queue_send(pnum,4);
-	//end edit -MM
-	//end edit - Matt Mueller
-	//added 980815 by adb
 #ifndef SHAREWARE
 	if (Netgame.protocol_version == MULTI_PROTO_D1X_VER)
 		Net_D1xPlayer[pnum].shp =
 			(Netgame.flags & NETFLAG_SHORTPACKETS) ? 2 : 0;
 #endif
-	//end edit - adb
 }
 
 void
@@ -1485,14 +1452,7 @@ void network_process_packet(ubyte *data, int length )
 		if (!ipx_check_ready_to_join(their->player.server,their->player.node))
 			break;
 
-		//added on 2/1/99 by Victor Rachels for bans
-		if(checkban(their->player.node))
-		{
-			network_dump_player(their->player.server, their->player.node, DUMP_DORK);
-			hud_message(MSGC_GAME_FEEDBACK, "%s tried to join at banned ip %d.%d.%d.%d", their->player.callsign,their->player.node[3],their->player.node[2],their->player.node[1],their->player.node[0] );
-		}
-		//end this section addition - VR
-		else if (Network_status == NETSTAT_STARTING)
+		if (Network_status == NETSTAT_STARTING)
 		{
 			// Someone wants to join our game!
 			network_add_player(their);
@@ -1586,6 +1546,12 @@ void network_process_packet(ubyte *data, int length )
 		}	    
 	    break;
 //end addition -MM
+	case PID_PING_SEND:
+			network_ping (PID_PING_RETURN,data[1]);
+			break;
+	case PID_PING_RETURN:
+			network_handle_ping_return(data[1]);  // data[1] is player who told us of their ping time
+			break;
         default:
 		mprintf((0, "Ignoring invalid packet type.\n"));
 		Int3(); // Invalid network packet type, see ROB
@@ -1939,7 +1905,7 @@ void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int
 void network_more_game_options ()
 {
 	int opt=0,i;
-	int opt_d1xonly=-1, opt_radar, opt_dropvulcan, opt_shortvulcan, opt_ghost;
+	int opt_protover=-1;
 	char srinvul[50],packstring[5];
 	newmenu_item m[21];
 
@@ -1962,20 +1928,12 @@ void network_more_game_options ()
 	opt_packets=opt;
 	m[opt].type = NM_TYPE_INPUT; m[opt].text=packstring; m[opt].text_len=2; opt++;
 
-	if (Network_DOS_compability)
+	if (!ForceVersionCheck)
 	{
-		opt_d1xonly=opt;
-		m[opt].type = NM_TYPE_CHECK; m[opt].text = "D1X only game"; m[opt].value=(Netgame.protocol_version == MULTI_PROTO_D1X_VER); opt++;
-		m[opt].type = NM_TYPE_TEXT; m[opt].text = "Options below need D1X only game"; opt++;
+		opt_protover=opt;
+		m[opt].type = NM_TYPE_CHECK; m[opt].text = "VERSION CHECK"; m[opt].value=(Netgame.protocol_version == MULTI_PROTO_D1X_VER); opt++;
+		m[opt].type = NM_TYPE_TEXT; m[opt].text = "Option(s) below need version checking"; opt++;
 	}
-	opt_radar=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Enable radar"; m[opt].value=(Netgame.flags & NETFLAG_ENABLE_RADAR); opt++;
-	opt_dropvulcan=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Drop vulcan ammo"; m[opt].value=(Netgame.flags & NETFLAG_DROP_VULCAN_AMMO); opt++;
-	opt_shortvulcan=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short Vulcanfire"; m[opt].value=(Netgame.flags & NETFLAG_ENABLE_ALT_VULCAN); opt++;
-	opt_ghost=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Enable ignore/ghost"; m[opt].value=(Netgame.flags & NETFLAG_ENABLE_IGNORE_GHOST); opt++;
 	opt_setpower = opt;
 	m[opt].type = NM_TYPE_MENU; m[opt].text = "Set objects allowed..."; opt++;
 
@@ -2018,33 +1976,13 @@ menu:
 	else
 		Netgame.game_flags &= ~NETGAME_FLAG_SHOW_MAP;
 
-	if (Network_DOS_compability)
+	if (!ForceVersionCheck)
 	{
-		if (m[opt_d1xonly].value)
+		if (m[opt_protover].value)
 			Netgame.protocol_version = MULTI_PROTO_D1X_VER;
 		else
 			Netgame.protocol_version = MULTI_PROTO_VERSION;
 	}
-
-	if (m[opt_radar].value)
-		Netgame.flags |= NETFLAG_ENABLE_RADAR;
-	else
-		Netgame.flags &= ~NETFLAG_ENABLE_RADAR;
-
-	if (m[opt_dropvulcan].value)
-		Netgame.flags |= NETFLAG_DROP_VULCAN_AMMO;
-	else
-		Netgame.flags &= ~NETFLAG_DROP_VULCAN_AMMO;
-
-	if (m[opt_shortvulcan].value)
-		Netgame.flags |= NETFLAG_ENABLE_ALT_VULCAN;
-	else
-		Netgame.flags &= ~NETFLAG_ENABLE_ALT_VULCAN;
-
-	if (m[opt_ghost].value)
-		Netgame.flags |= NETFLAG_ENABLE_IGNORE_GHOST;
-	else
-		Netgame.flags &= ~NETFLAG_ENABLE_IGNORE_GHOST;
 }
 
 void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int citem )
@@ -2136,8 +2074,7 @@ int network_get_game_params()
 	Netgame.max_numplayers=MaxNumNetPlayers;
 	Netgame.protocol_version = MULTI_PROTO_VERSION;
 	Netgame.flags = NETFLAG_DOPOWERUP | // enable all powerups
-		NETFLAG_SHORTPACKETS |
-		NETFLAG_ENABLE_IGNORE_GHOST;
+		NETFLAG_SHORTPACKETS;
 	Netgame.protocol_version = MULTI_PROTO_D1X_VER;
 
 	if (GameArg.MplGameProfile)
@@ -2457,16 +2394,6 @@ void network_read_sync_packet( ubyte * data, int d1x )
 		multi_allow_powerup = Netgame.flags & NETFLAG_DOPOWERUP;
 		Network_short_packets = (Netgame.flags & NETFLAG_SHORTPACKETS) ? 2 : 0;
                 Network_pps = Netgame.packets_per_sec;
-                Laser_drop_vulcan_ammo = (Netgame.flags & NETFLAG_DROP_VULCAN_AMMO) != 0;
-		// in D1X only games everybody has the same shp setting
-                //added on 11/12/98 by Victor Rachels to add radar
-                Network_allow_radar = (Netgame.flags & NETFLAG_ENABLE_RADAR) != 0;
-                 if (Network_allow_radar)
-                  show_radar = 1;
-                //end this section addition - VR
-                //added on 4/23/99 by Victor Rachels to add altvlcnfire
-                use_alt_vulcanfire = (Netgame.flags & NETFLAG_ENABLE_ALT_VULCAN) != 0;
-                //end this section addition - VR
 		for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
 		    Net_D1xPlayer[i].shp = Network_short_packets;
 	} else {
@@ -2475,7 +2402,6 @@ void network_read_sync_packet( ubyte * data, int d1x )
 			Network_pps = 10;
 		}
 		multi_allow_powerup = NETFLAG_DOPOWERUP;
-		Laser_drop_vulcan_ammo = 0;
 	}
 	#endif
 
@@ -2831,12 +2757,6 @@ void network_start_game(void)
 	if(network_select_players())
 	{
 		StartNewLevel(Netgame.levelnum);
-		//added 8/5/98 by Matt Mueller- moved stuff to a function
-		//edited 04/19/99 Matt Mueller
-	//-killed-	network_send_config_messages(100,1);
-		multi_d1x_ver_queue_init(MaxNumNetPlayers,1);
-		//end edit -MM
-		//end modified section - Matt Mueller
         }
 	else
 		Game_mode = GM_GAME_OVER;
@@ -3598,27 +3518,7 @@ void network_read_pdata_packet(ubyte *data, int short_packet)
 
 	//------------ Welcome them back if reconnecting --------------
 	if (!Players[TheirPlayernum].connected)	{
-		// Begin addition by GF
-		//Check to see if we have this player on ignore.
-		//hud_message(MSGC_DEBUG, "Rejoining Player = %s",Players[TheirPlayernum].callsign);
-		if ((Netgame.flags & NETFLAG_ENABLE_IGNORE_GHOST) &&
-		    checkignore(Players[TheirPlayernum].callsign))
-		{
-			//network_disconnect_player(TheirPlayernum);
-			//hud_message(MSGC_DEBUG, "#2 ignore...");
-			return; //Player is on ignore.
-		}
-		// End addition by GF
-
-//added/changed on 8/6/98 by Matt Mueller
-//added on 8/5/98 by Matt Mueller to make sure someone doesn't accidentally get short packets
-//		  NetWantShort[TheirPlayernum]=0;
-	       //changed on 980815 by adb: don't remove version info for non shp games
-	       //-killed memset( &Net_D1xPlayer[TheirPlayernum], 0, sizeof(network_d1xplayer_info) );
-	       Net_D1xPlayer[TheirPlayernum].shp = 0;
-	       //end edit - adb
-//end edit - Matt Mueller
-//end edit - Matt Mueller
+		Net_D1xPlayer[TheirPlayernum].shp = 0;
 
 		Players[TheirPlayernum].connected = 1;
 
@@ -3649,16 +3549,6 @@ void network_read_pdata_packet(ubyte *data, int short_packet)
 
 }
 
-// // get player number of master
-// // (the lowest numbered connected player)
-// int network_whois_master() {
-// 	int i;
-// 	for (i = 0; i < Netgame.numplayers; i++)
-// 		if (Netgame.players[i].connected)
-// 			return i;
-// 	Error("No players in netgame");
-// }
-
 int network_who_is_master(void)
 {
 	// Who is the master of this game?
@@ -3672,6 +3562,16 @@ int network_who_is_master(void)
 		if (Players[i].connected)
 			return i;
 	return Player_num;
+}
+
+void network_ping (ubyte flag,int pnum)
+{
+	ubyte mybuf[2];
+
+	mybuf[0]=flag;
+	mybuf[1]=Player_num;
+	*(u_int32_t*)(multibuf+2)=swapint(timer_get_fixed_seconds());
+	ipx_send_packet_data( (ubyte *)mybuf, 7, Netgame.players[pnum].server, Netgame.players[pnum].node,Players[pnum].net_address );
 }
 
 static fix PingLaunchTime[MAX_PLAYERS],PingReturnTime[MAX_PLAYERS];
@@ -3689,14 +3589,6 @@ void network_handle_ping_return (ubyte pnum)
 	PingTable[pnum]=f2i(fixmul(PingReturnTime[pnum]-PingLaunchTime[pnum],i2f(1000)));
 	PingLaunchTime[pnum]=0;
 }
-	
-void network_send_ping (ubyte pnum)
-{
-		  multibuf[0]=MULTI_PING;
-		  multibuf[1]=Player_num;
-		  *(u_int32_t*)(multibuf+2)=swapint(timer_get_fixed_seconds());
-		  mekh_send_direct_packet(multibuf,2+4,pnum);
-}
 
 // ping all connected players (except yourself) in 3sec interval and update ping_table
 void network_ping_all()
@@ -3711,7 +3603,7 @@ void network_ping_all()
 			if (Players[i].connected && i != Player_num)
 			{
 				PingLaunchTime[i]=timer_get_fixed_seconds();
-				network_send_ping(i);
+				network_ping (PID_PING_SEND,i);
 			}
 		}
 		PingTime=GameTime;

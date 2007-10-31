@@ -38,8 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compare.h"
 //end addition -MM
 
-extern int Network_DOS_compability;
-
 // What version of the multiplayer protocol is this?
 
 #ifdef SHAREWARE
@@ -47,7 +45,7 @@ extern int Network_DOS_compability;
 #else
 #define MULTI_PROTO_VERSION	2
 #endif
-#define MULTI_PROTO_D1X_VER	3
+#define MULTI_PROTO_D1X_VER	4  // Increment everytime we change networking features
 
 //Incrementing this seems the only way possible.  Still stays backwards compitible.
 #define MULTI_PROTO_D1X_MINOR	1
@@ -96,8 +94,8 @@ extern int Network_DOS_compability;
 #define MULTI_HOSTAGE_DOOR		32
 #endif
 
-#define MULTI_SAVE_GAME			33
-#define MULTI_RESTORE_GAME		34
+#define MULTI_SAVE_GAME			33 // obsolete
+#define MULTI_RESTORE_GAME		34 // obsolete
 
 #define MULTI_REQ_PLAYER		35		// Someone requests my player structure
 #define MULTI_SEND_PLAYER		36		// Sending someone my player structure
@@ -105,87 +103,16 @@ extern int Network_DOS_compability;
 #define MULTI_PLAYER_POWERUP_COUNT	37
 #define MULTI_START_POWERUP_COUNT	38
 
-
-//======================================================
-//Added/changed 8/28/98 by Geoff Coovert to insure packet transmission
-#define MEKH_PACKET_NEEDACK             39
-#define MEKH_PACKET_ACK                 40
-
-//added 03/04/99 Matt Mueller - new ping method
-#define MULTI_PING                      41
-#define MULTI_PONG                      42
-//end addition -MM
-
-//added 03/05/99 Matt Mueller
-#define MULTI_POS_FIRE                  43
-#define MULTI_POS_PLAYER_EXPLODE	44
-//end addition -MM
-
-//added 04/19/99 Matt Mueller
-#define MULTI_D1X_VER_PACKET            45
-//end addition -MM
-
-//added on 4/22/99 by Victor Rachels for alt vulcanfire
-#define MULTI_ALT_VULCAN_ON             46
-#define MULTI_ALT_VULCAN_OFF            47
-//end this section addition - VR
-
-//added on 6/7/99 by Victor Rachels for ingame reconfig message
-#define MULTI_INGAME_CONFIG             48
+#define MULTI_POS_FIRE			39
+#define MULTI_POS_PLAYER_EXPLODE	40
 
 #ifndef SHAREWARE
-#define MULTI_MAX_TYPE                  48
+#define MULTI_MAX_TYPE                  40
 #else
 #define MULTI_MAX_TYPE                  25 //22
 #endif
 
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
-
-#define MEKH_PACKET_MEM  30
-
-typedef struct mekh_ackedpacket_history {
-        ubyte   packet_type;
-        int     player_num;
-        fix     timestamp;
-} mekh_ackedpacket_history;
-
-typedef struct mekh_packet_stats {
-        ubyte   packet_type;    
-        fix     timestamp;      // GameTime ID of packet
-        ubyte   packet_contents[MAX_MULTI_MESSAGE_LEN+4];
-        int     len;
-                                //Packet stuff to call send_data
-        int    players_left[MAX_NUM_NET_PLAYERS];
-                                //Playernums to get acks from
-        fix     send_time[MAX_NUM_NET_PLAYERS];
-                                //GameTime to resend this packet
-} mekh_packet_stats;
-
-mekh_packet_stats mekh_acks[MEKH_PACKET_MEM];
-        //Info for packets that need an ack to come back
-
-mekh_ackedpacket_history mekh_packet_history[MEKH_PACKET_MEM];
-        //Remember last regdpackets we've gotten in case ack is late/dropped
-        //and the packet gets resent, so we can ignore it.
-
-extern void mekh_gotack(char *buf);
-extern void mekh_process_packet(char *buf);
-extern void mekh_resend_needack();
-//extern void mekh_send_reg_data(unsigned char *buf, int len, int repeat);
-extern void mekh_send_ack(mekh_ackedpacket_history p_info);
-extern void mekh_prep_concat_send(ubyte *extradata, int len, ubyte *server, ubyte *node, ubyte *address, int short_packet);
-extern void mekh_send_direct_packet(ubyte *buffer, int len, int plnum);
-#define mekh_send_reg_data(buf,len,repeat) mekh_send_reg_data_needver(int32_greaterorequal,0,buf,len)
-//End add -GC
-//======================================================
-//added 03/04/99 Matt Mueller - new direct send stuff
-void mekh_send_direct_broadcast(ubyte *buffer, int len);//####
-void mekh_send_broadcast_needver(int ver, ubyte *buf1, int len1, ubyte *buf2,int len2);
-void mekh_send_reg_data_needver(compare_int32_func compare,int ver,unsigned char *buf, int len);
-//end addition -MM
-//added 03/07/99 Matt Mueller - new direct send stuff
-void mekh_send_direct_reg_data(unsigned char *buf, int len,int plnum);
-//end addition -MM
 
 #ifdef SHAREWARE
 #define MAX_NET_CREATE_OBJECTS 19 
@@ -271,7 +198,6 @@ extern int Network_laser_level;
 extern int Network_laser_flags;
 
 extern int message_length[MULTI_MAX_TYPE+1];
-extern int mekh_insured_packets[MULTI_MAX_TYPE+1];//#####
 
 extern unsigned char multibuf[MAX_MULTI_MESSAGE_LEN+4];
 extern short Network_laser_track;

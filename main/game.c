@@ -103,10 +103,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "reorder.h"
 #include "hudmsg.h"
 #include "timer.h"
-#include "radar.h"
 #include "vers_id.h"
-#include "ban.h"
-#include "vlcnfire.h"
 #include "fvi.h"
 //MD2211
 #include "jukebox.h"
@@ -1096,9 +1093,6 @@ void game_do_render_frame(int flip)
 #endif
 	}
 
-	if(show_radar && !Endlevel_sequence)
-		radar_render_frame();
-
 #ifdef NETWORK
         if (netplayerinfo_on)
 		show_netplayerinfo();
@@ -1559,7 +1553,6 @@ void show_help()
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F2; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "Alt-F2/F3\t  SAVE/LOAD GAME"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F3\t  SWITCH COCKPIT MODES"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F4\t  TOGGLE RADAR"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F5; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F7\t  SWITCH HUD MODES"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_PAUSE; mc++;
@@ -1768,10 +1761,6 @@ void game()
 	fix_object_segs();
 	game_flush_inputs();
 
-#ifdef NETWORK
-	readbans();
-#endif
-
 	if ( setjmp(LeaveGame)==0 ) {
 
 		while (1) {
@@ -1834,17 +1823,7 @@ void game()
 	}
 
 #ifdef NETWORK
-	vulcan_init();
-
-	if(GameArg.MplSaveBans)
-		writebans();
-
-	restrict_mode = 0;
-#endif
-
-	show_radar = 0;
-	Network_allow_radar = 0;
-#ifdef NETWORK
+	restrict_mode = 0; // FIXME: do we still need this?
 	netplayerinfo_on=0;
 
 	if(Game_mode & GM_MULTI)
@@ -2276,8 +2255,7 @@ void HandleGameKey(int key)
 		case KEY_F1:				do_show_help();         break;
 		case KEY_F2:				Config_menu_flag = 1;	break;
 		case KEY_F3:				toggle_cockpit();       break;
-		case KEY_F4:				if(!(Game_mode & GM_MULTI)||Network_allow_radar)
-								show_radar = !show_radar; break;
+
 		case KEY_ALTED + KEY_F4:
 			Show_reticle_name = (Show_reticle_name+1)%2;
 			break;
@@ -2307,10 +2285,6 @@ void HandleGameKey(int key)
 			multi_send_message_start();
 			break;
 	
-		case KEY_SHIFTED+KEY_F8:
-			mekh_resend_last();
-			break;
-
 		case KEY_F9:
 		case KEY_F10:
 		case KEY_F11:
@@ -2894,21 +2868,11 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 				}
 			}
 
-			if (Global_laser_firing_count) {
-				if(!(use_alt_vulcanfire && (Primary_weapon==VULCAN_INDEX))){
-					Global_laser_firing_count -= do_laser_firing_player();  //do_laser_firing(Players[Player_num].objnum, Primary_weapon);
-				}
-				else
-					Global_laser_firing_count = 0;
-			}
+			if (Global_laser_firing_count)
+				Global_laser_firing_count -= do_laser_firing_player();  //do_laser_firing(Players[Player_num].objnum, Primary_weapon);
 			if (Global_laser_firing_count < 0)
 				Global_laser_firing_count = 0;
 		}
-
-#ifdef NETWORK
-	if(use_alt_vulcanfire) //should only be active in multi games
-		vulcanframe();
-#endif
 
 	if (Do_appearance_effect) {
 		create_player_appearance_effect(ConsoleObject);

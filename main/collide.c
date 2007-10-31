@@ -71,10 +71,6 @@ static char rcsid[] = "$Id: collide.c,v 1.1.1.1 2006/03/17 19:41:32 zicodxx Exp 
 #include "maths.h"
 #include "multipow.h"
 
-//added on 04/19/99 by Victor Rachels for alt vulcan fire
-#include "vlcnfire.h"
-//end this section addition - VR
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -1355,13 +1351,6 @@ void apply_damage_to_player(object *player, object *killer, fix damage)
 //				Players[Player_num].killer_objnum = killer-Objects;
 
 			player->flags |= OF_SHOULD_BE_DEAD;
-
-//added on 04/19/99 by Victor Rachels for alt vulcan fire
-                 #ifdef NETWORK
-                         if(use_alt_vulcanfire)
-                          do_vulcan_fire(0);
-                 #endif
-//end this section addition - VR
 		}
 
 		player->shields = Players[Player_num].shields;		//mirror

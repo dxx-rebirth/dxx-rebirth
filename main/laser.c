@@ -66,8 +66,6 @@ static char rcsid[] = "$Id: laser.c,v 1.1.1.1 2006/03/17 19:42:14 zicodxx Exp $"
 
 int Laser_rapid_fire = 0;
 
-int Laser_drop_vulcan_ammo = 0;
-
 int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_obj_type1, int track_obj_type2);
 
 //---------------------------------------------------------------------------------
@@ -1214,7 +1212,6 @@ extern int Player_fired_laser_this_frame;
 
 int do_laser_firing_player(void)
 {
-        static int      vulcan_ammo_used = 0;
 	player	*plp = &Players[Player_num];
 	fix		energy_used;
 	int		ammo_used;
@@ -1273,17 +1270,6 @@ int do_laser_firing_player(void)
 			plp->energy -= (energy_used * rval) / Weapon_info[weapon_index].fire_count;
 			if (plp->energy < 0)
 				plp->energy = 0;
-
-                        if (Primary_weapon == VULCAN_INDEX && Laser_drop_vulcan_ammo)
-                            if ((vulcan_ammo_used += ammo_used) >= VULCAN_AMMO_AMOUNT)
-                             {
-                              vulcan_ammo_used = 0;
-                               if(plp->primary_ammo[VULCAN_INDEX] >= VULCAN_AMMO_AMOUNT*2){
-#ifdef NETWORK
-                                maybe_drop_net_powerup(POW_VULCAN_AMMO);
-#endif
-                               }
-                             }
 
                         if (ammo_used > plp->primary_ammo[Primary_weapon])
 				plp->primary_ammo[Primary_weapon] = 0;

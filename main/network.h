@@ -176,6 +176,8 @@ void network_send_data( ubyte * ptr, int len, int urgent );
 //added on 11/16/98 by Victor Rachels for use with mlticntrl
 extern sequence_packet Network_player_rejoining; // Who is rejoining now?
 extern int Network_player_added;
+extern int ForceVersionCheck;
+
 #define DUMP_CLOSED 0
 #define DUMP_FULL 1
 #define DUMP_ENDLEVEL 2
@@ -223,6 +225,8 @@ void network_send_game_info(sequence_packet *their, int light);
 //added 03/04/99 Matt Mueller - send multi data, without extra baggage
 #define PID_DIRECTDATA			72
 //end addition -MM 
+#define PID_PING_SEND       73
+#define PID_PING_RETURN     74
 
 #define NETGAME_ANARCHY                 0
 #define NETGAME_TEAM_ANARCHY            1

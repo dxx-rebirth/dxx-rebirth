@@ -212,8 +212,6 @@ void ReadCmdArgs(void)
 	// Multiplayer Options
 
 	GameArg.MplGameProfile 		= FindArg("-mprofile");
-	GameArg.MplNoBans 		= FindArg("-nobans");
-	GameArg.MplSaveBans 		= FindArg("-savebans");
 	GameArg.MplNoRedundancy 	= FindArg("-noredundancy");
 	GameArg.MplPlayerMessages 	= FindArg("-playermessages");
 	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);

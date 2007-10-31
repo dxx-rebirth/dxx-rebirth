@@ -61,12 +61,14 @@ static char rcsid[] = "$Id: state.c,v 1.1.1.1 2006/03/17 19:42:43 zicodxx Exp $"
 #include "mission.h"
 #include "pcx.h"
 #include "u_mem.h"
-#include "network.h"
 #include "args.h"
 //added 6/15/99 - Owen Evans
 #include "strutil.h"
 //end added
 #include "gamefont.h"
+#ifdef NETWORK
+#include "network.h"
+#endif
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -91,9 +93,6 @@ static char rcsid[] = "$Id: state.c,v 1.1.1.1 2006/03/17 19:42:43 zicodxx Exp $"
 extern int ai_save_state( FILE * fp );
 extern int ai_restore_state( FILE * fp );
 
-extern void multi_initiate_save_game();
-extern void multi_initiate_restore_game();
-
 extern int Do_appearance_effect;
 extern fix Fusion_next_sound_time;
 
@@ -104,7 +103,7 @@ extern void do_lunacy_on(void);
 extern void do_lunacy_off(void);
 
 int state_save_all_sub(char *filename, char *desc, int between_levels);
-int state_restore_all_sub(char *filename, int multi);
+int state_restore_all_sub(char *filename);
 
 int sc_last_item= 0;
 grs_bitmap *sc_bmp[NUM_SAVES];
@@ -167,7 +166,7 @@ void rpad_string( char * string, int max_chars )
  * For restoring, dsc should be NULL, in which case empty slots will not be
  * selectable and savagames descriptions will not be editable.
  */
-int state_get_savegame_filename(char * fname, char * dsc, int multi, char * caption )
+int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 {
 	FILE * fp;
 	int i, choice, version, nsaves;
@@ -181,10 +180,7 @@ int state_get_savegame_filename(char * fname, char * dsc, int multi, char * capt
 	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
 	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
-		if (!multi)
-			sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", Players[Player_num].callsign, i );
-		else
-			sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, i );
+		sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", Players[Player_num].callsign, i );
 		valid = 0;
 		fp = fopen( filename[i], "rb" );
 		if ( fp ) {
@@ -241,14 +237,14 @@ int state_get_savegame_filename(char * fname, char * dsc, int multi, char * capt
 	return 0;
 }
 
-int state_get_save_file(char * fname, char * dsc, int multi )
+int state_get_save_file(char * fname, char * dsc )
 {
-	return state_get_savegame_filename(fname, dsc, multi, "Save Game");
+	return state_get_savegame_filename(fname, dsc, "Save Game");
 }
 
-int state_get_restore_file(char * fname, int multi )
+int state_get_restore_file(char * fname )
 {
-	return state_get_savegame_filename(fname, NULL, multi, "Select Game to Restore");
+	return state_get_savegame_filename(fname, NULL, "Select Game to Restore");
 }
 
 int state_save_old_game(int slotnum, char * sg_name, player * sg_player, 
@@ -385,9 +381,6 @@ int state_save_all(int between_levels)
 
 #ifndef SHAREWARE
 	if ( Game_mode & GM_MULTI )	{
-#ifdef MULTI_SAVE
-			multi_initiate_save_game();
-#endif
 		return 0;
 	}
 #endif
@@ -396,7 +389,7 @@ int state_save_all(int between_levels)
 	
 	stop_time();
 
-	if (!state_get_save_file(filename,desc,0))	{
+	if (!state_get_save_file(filename,desc))	{
 		start_time();
 		return 0;
 	}
@@ -597,9 +590,6 @@ int state_restore_all(int in_game)
 
 #ifndef SHAREWARE
 	if ( Game_mode & GM_MULTI )	{
-#ifdef MULTI_SAVE
-			multi_initiate_restore_game();
-#endif
 		return 0;
 	}
 #endif
@@ -611,7 +601,7 @@ int state_restore_all(int in_game)
 		return 0;
 
 	stop_time();
-	if (!state_get_restore_file(filename,0))	{
+	if (!state_get_restore_file(filename))	{
 		start_time();
 		return 0;
 	}
@@ -627,10 +617,10 @@ int state_restore_all(int in_game)
 
 	start_time();
 
-	return state_restore_all_sub(filename, 0);
+	return state_restore_all_sub(filename);
 }
 
-int state_restore_all_sub(char *filename, int multi)
+int state_restore_all_sub(char *filename)
 {
 	int ObjectStartLocation;
 	int BogusSaturnShit = 0;
@@ -704,19 +694,16 @@ int state_restore_all_sub(char *filename, int multi)
 	fread( &GameTime, sizeof(fix), 1, fp );
 
 // Start new game....
-	if (!multi)	{
-		Game_mode = GM_NORMAL;
-		Function_mode = FMODE_GAME;
+	Game_mode = GM_NORMAL;
+	Function_mode = FMODE_GAME;
 #ifdef NETWORK
-		change_playernum_to(0);
+	change_playernum_to(0);
 #endif
-		strcpy( org_callsign, Players[0].callsign );
-		N_players = 1;
-		InitPlayerObject();				//make sure player's object set up
-		init_player_stats_game();		//clear all stats
-	} else {
-		strcpy( org_callsign, Players[Player_num].callsign );
-	}
+	strcpy( org_callsign, Players[0].callsign );
+	N_players = 1;
+	InitPlayerObject();				//make sure player's object set up
+	init_player_stats_game();		//clear all stats
+
 //Read player info
 
 	if ( between_levels )	{

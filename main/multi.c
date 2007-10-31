@@ -61,38 +61,13 @@ static char rcsid[] = "$Id: multi.c,v 1.1.1.1 2006/03/17 19:43:22 zicodxx Exp $"
 #include "gameseq.h"
 #include "physics.h"
 #include "config.h"
-#include "state.h"
 #include "multipow.h"
 #include "hudmsg.h"
 #include "ctype.h"  // for isalpha
-#include "command.h"
 #include "vers_id.h"
-
-//Begin addition by GRiM FisH
-#include "nncoms.h"
-#include "ignore.h"
-//End addition by GRiM FisH
-
-//added 03/04/99 Matt Mueller
 #include "byteswap.h"
 #include "types.h"
-//end addition -MM
-
-//added 04/19/99 Matt Mueller
-#include "multiver.h"
-//end addition -MM
-
-//added on 4/23/99 by Victor Rachels
-#include "vlcnfire.h"
-//end addition -VR
-
-//added on 6/7/99 by Victor Rachels
-#include "reconfig.h"
-//end addition -VR
-
-//added on 6/15/99 by Owen Evans
 #include "strutil.h"
-//end added - OE
 
 
 //
@@ -255,8 +230,8 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	10, // BOSS_ACTIONS	
 	27, // ROBOT_POWERUPS
 	7,  // HOSTAGE_DOOR
-	2+24,	//SAVE_GAME		(ubyte slot, uint id, char name[20])
-	2+4,	//RESTORE_GAME   (ubyte slot, uint id)
+	2+24,	//SAVE_GAME		(ubyte slot, uint id, char name[20]) // obsolete
+	2+4,	//RESTORE_GAME   (ubyte slot, uint id) // obsolete
 	1+1,	// MULTI_REQ_PLAYER
 	sizeof(netplayer_stats),								// MULTI_SEND_PLAYER
 	19, // PLAYER_POWERUP_COUNT
@@ -264,95 +239,10 @@ int message_length[MULTI_MAX_TYPE+1] = {
 #else
 	2,	 // MENU_CHOICE
 #endif
-
-#ifndef SHAREWARE
-//======================================================
-//Added 8/28/98 by Geoff Coovert for packet insurance
-        1+1+4+1+57+sizeof(shorterpos),  // MEKH_PACKET_NEEDACK   (int p_type, int plr_num, fix PacketID, int length, packet)
-                       // [57+shorterpos is the largest packet in the list, thus the biggest that can be sent]
-        1+1+1+4,      // MEKH_PACKET_ACK (int ptype, int ptype_we're_acking, int plnum, fix id)
-	  2+4,//PING
-	  2+4, //PONG
-        8+sizeof(shorterpos),//MULTI_POS_FIRE
-        57+sizeof(shorterpos),//MULTI_POS_PLAYER_EXPLODE
-        9,//MULTI_D1X_VER_PACKET
-
-//added 4/23/99 by Victor Rachels for vulcanfire
-        2, //VULCAN_ON
-        2, //VULCAN_OFF
-//added 6/7/99 by Victor Rachels for ingame config
-        1+1+1+64, //INGAME_CONFIG (p_type, player, version, data...)
-#endif
 };
-
-//These are just to allow us to easily modify what should be acked
-int mekh_insured_packets[MULTI_MAX_TYPE+1] = {
-        0,  // POSITION
-        0,  // REAPPEAR
-        0,  // FIRE  //1 for testing only
-        1,  // KILL
-        0,  // REMOVE_OBJECT
-        1,  // PLAYER_EXPLODE
-        1,  // MESSAGE (MAX_MESSAGE_LENGTH = 40)
-        0,  // QUIT
-        0,  // PLAY_SOUND
-        0,  // BEGIN_SYNC
-        1,  // CONTROLCEN
-        0,  // CLAIM ROBOT
-        0,  // END_SYNC
-        1,  // CLOAK
-        1,  // ENDLEVEL_START
-        1,  // DOOR_OPEN
-        0,  // CREATE_EXPLOSION
-        0,  // CONTROLCEN_FIRE
-        0,  // PLAYER_DROP
-        0,  // CREATE_POWERUP
-        1,  // MISSILE_TRACK
-#ifndef SHAREWARE
-        1,  // DE-CLOAK
-        0,  // MENU_CHOICE
-        0,  // ROBOT_POSITION  (shortpos_length (23) + 5 = 28)
-        0,  // ROBOT_EXPLODE
-        0,  // ROBOT_RELEASE
-        0,  // ROBOT_FIRE
-        1,  // SCORE
-        0,  // CREATE_ROBOT
-        1,  // TRIGGER
-        0,  // BOSS_ACTIONS 
-        0,  // ROBOT_POWERUPS
-        0,  // HOSTAGE_DOOR
-        0,  // SAVE_GAME             (ubyte slot, uint id, char name[20])
-        0,  // RESTORE_GAME   (ubyte slot, uint id)
-        0,  // MULTI_REQ_PLAYER
-        0,  // MULTI_SEND_PLAYER
-        1,  // PLAYER_POWERUP_COUNT
-        1,  // START_POWERUP_COUNT
-#else
-        0,  // MENU
-#endif
-#ifndef SHAREWARE
-// It would be a very bad idea to set these two :)
-        0,  // MEKH_PACKET_NEEDACK
-        0,   // MEKH_PACKET_ACK 
-	0, //PING
-	0, //PONG
-        0,//MULTI_POS_FIRE
-        1,//MULTI_POS_PLAYER_EXPLODE
-        1,//MULTI_D1X_VER_PACKET
-//added 4/23/99 by Victor Rachels for vulcanfire
-        0,//MULTI_ALT_VULCAN_ON
-        0,//MULTI_ALT_VULCAN_OFF
-//added 6/7/99 by Victor Rachels for ingame config
-        1,//INGAME_CONFIG
-#endif
-};
-//======================================================
-
 
 void multi_reset_player_object(object *objp);
 void multi_set_robot_ai(void);
-void multi_save_game(ubyte slot, uint id, char *desc);
-void multi_restore_game(ubyte slot, uint id);
 void extract_netplayer_stats( netplayer_stats *ps, player * pd );
 
 //
@@ -615,7 +505,6 @@ multi_new_game(void)
 	Dead_player_camera = 0;
 	multi_allow_powerup = NETFLAG_DOPOWERUP;
 	multi_got_pow_count = 0;
-	Laser_drop_vulcan_ammo = 0;
 }
 	
 void
@@ -888,16 +777,7 @@ void multi_do_frame(void)
 		return;
 	}
 
-//======================================================
-//Added 9/5 by Geoff Coovert to do ack resends
-        mekh_resend_needack(); //All the time and player checks are done there
-//======================================================
-
 	multi_send_message(); // Send any waiting messages
-
-//added on 4/17/99 by Matt Mueller
-	multi_d1x_ver_frame();
-//end this section addition - MM
 
 	if (!multi_in_menu)
 		multi_leave_menu = 0;
@@ -910,16 +790,8 @@ void multi_do_frame(void)
 #endif	
 
 	network_do_frame(0, 1);
-
-//added/killed on 10/2/98 by Victor Rachels to fix non-quitting
-//-killed-        if (multi_quit_game && !multi_in_menu)
-//-killed-        {
-//-killed-                multi_quit_game = 0;
-//-killed-                longjmp(LeaveGame, 1);
-//-killed-        }
-//end kill - Victor Rachels
 }
-		
+
 //edit 03/04/99 Matt Mueller - some debug code.. ignore if you wish.
 void
 multi_send_data_real(unsigned char *buf, int len, int repeat,char *file,char *func,int line)
@@ -936,32 +808,12 @@ multi_send_data_real(unsigned char *buf, int len, int repeat,char *file,char *fu
 	if (Game_mode & GM_NETWORK)
 		Assert(buf[0] > 0);
 
-//======================================================
-//Edit on 9/5 by Geoff Coovert - Keep from forced bloating of needack packs
-     if ((int)buf[0] == MEKH_PACKET_NEEDACK)
-        Assert(len == message_length[(int)buf[7]] + 7);
-     else
         Assert(len == message_length[(int)buf[0]]);
-
-//kill 03/05/99 Matt Mueller - allow ack'd packets to work on modem games
-//--killed--     if(Game_mode & GM_NETWORK)
-//end kill -MM
-    if (mekh_insured_packets[buf[0]]) {
-	  mekh_send_reg_data(buf, len, repeat);
-	  return;
-    }
-//======================================================
 
 	if (Game_mode & GM_NETWORK)
 	{
-//edit 03/04/99 Matt Mueller - use direct mode for most packets. (pos_fire is handled elsewhere, so checking here might be redundant..)
-         if(buf[0]!=MULTI_FIRE && buf[0]!=MULTI_REAPPEAR && buf[0]!=MULTI_QUIT)
-           mekh_send_direct_broadcast(buf, len);
-         else
            network_send_data(buf, len, repeat);
-//end edit -MM
 	}
-    
 }
 
 void
@@ -1217,44 +1069,73 @@ int strcasecmpbegin(const char *s1, const char *s2)
 	return strncasecmp(s1, s2, strlen(s2));
 }
 
-//======================================================
-//Added 8/28/98 by Geoff Coovert to do resend-last-message.
-char mekh_msg_last_sent[155]; // HUD_MESSAGE_LENGTH + 5 - cleaner than extern, etc
-
-void mekh_resend_last()
-{
-        snprintf(Network_message, MAX_MESSAGE_LEN, "%s", mekh_msg_last_sent);
-        multi_send_message_end();
-};
-//======================================================
-
-
 void multi_send_message_end()
 {
-//        int pl;
-
-
-//added/killed on 1/21/99 by Victor Rachels to move to command.c
-//-killed- //added on 11/10/98 by Victor Rachels to reduce computations
-//-killed- //all references to strlen(Network_message) are changed to this in this function
-//-killed-             int NMl=strlen(Network_message);
-//-killed- //end this section addition - VR
-//end this section kill - VR
-//======================================================
-//added on 8/28/98 by Geoff Coovert to do resend-last-message.
-         strcpy(&mekh_msg_last_sent[0], Network_message);
-//======================================================
+	int i;
 
   multi_message_index = 0;
   multi_sending_message = 0;
 
-//added on 1/10/99 by Victor Rachels to get command $ in msgs.
-   if(Network_message[0]=='$' || Network_message[0]=='/')
-    {
-       if(Command_parse(Network_message+1))
-        return;
-    }
-//end this section addition
+	if (!strnicmp (Network_message,"kick:",5) && (Game_mode & GM_NETWORK))
+	{
+		int name_index=5;
+		if (strlen(Network_message) > 5)
+			while (Network_message[name_index] == ' ')
+				name_index++;
+
+		if (!network_i_am_master())
+		{
+			HUD_init_message ("Only %s can kick others out!",Players[network_who_is_master()].callsign);
+			multi_message_index = 0;
+			multi_sending_message = 0;
+			return;
+		}
+		if (strlen(Network_message)<=name_index)
+		{
+			HUD_init_message ("You must specify a name to kick");
+			multi_message_index = 0;
+			multi_sending_message = 0;
+			return;
+		}
+
+		if (Network_message[name_index] == '#' && isdigit(Network_message[name_index+1])) {
+			int players[MAX_NUM_NET_PLAYERS];
+			int listpos = Network_message[name_index+1] - '0';
+
+			mprintf ((0,"Trying to kick %d , show_kill_list=%d\n",listpos,Show_kill_list));
+
+			if (Show_kill_list==1 || Show_kill_list==2) {
+				if (listpos == 0 || listpos >= N_players) {
+					HUD_init_message ("Invalid player number for kick.");
+					multi_message_index = 0;
+					multi_sending_message = 0;
+					return;
+				}
+				multi_get_kill_list(players);
+				i = players[listpos];
+				if ((i != Player_num) && (Players[i].connected))
+					goto kick_player;
+			}
+			else HUD_init_message ("You cannot use # kicking with in team display.");
+
+
+		    multi_message_index = 0;
+		    multi_sending_message = 0;
+			return;
+		}
+
+
+		for (i = 0; i < N_players; i++)
+		if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
+			kick_player:;
+				network_dump_player(Netgame.players[i].server,Netgame.players[i].node, 7);
+
+				HUD_init_message("Dumping %s...",Players[i].callsign);
+				multi_message_index = 0;
+				multi_sending_message = 0;
+				return;
+			}
+	}
 
 	Network_message_reciever = 100;
 	hud_message(MSGC_GAME_FEEDBACK, "%s '%s'", TXT_SENDING, Network_message);
@@ -1468,42 +1349,6 @@ multi_do_message(char *buf)
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 		HUD_init_message("%s %s", mesbuf, colon+1);
 	}
-	else if (colon - (buf + loc) == 4)
-	{
-		//added on 8/6/98 by Matt Mueller, modified by adb, 08/15/98
-		if (!strncasecmp("Vd1x", buf+loc, 4)) {
-			if (!*Net_D1xPlayer[(int)buf[1]].ver){
-				strncpy(Net_D1xPlayer[(int)buf[1]].ver, colon+1, D1XPLAYER_VER_LENGTH);
-				Net_D1xPlayer[(int)buf[1]].ver[D1XPLAYER_VER_LENGTH - 1] = 0;
-				//added 03/04/99 Matt Mueller - new iver variable for easy version checking
-				Net_D1xPlayer[(int)buf[1]].iver=atoi(Net_D1xPlayer[(int)buf[1]].ver+5)*1000+atoi(Net_D1xPlayer[(int)buf[1]].ver+7)*10;
-				hud_message(MSGC_MULTI_INFO, "%s is using %s(%i)", Players[(int)buf[1]].callsign, colon+1,Net_D1xPlayer[(int)buf[1]].iver);
-				//end edit -MM
-			}
-		}
-		if (!strncasecmp("Nd1x", buf+loc, 4)) {
-			int dest = atoi(colon + 1),src=buf[1];
-			int mode=0,shp=0,pps=0;
-			char *pos=colon;
-			while (*(pos++)!=' ') if (*pos==0)break;
-			mode=atoi(pos);
-			if (dest==Player_num || dest==100) {
-				//edit 4/19/99 Matt Mueller - move some stuff into the ver_set proc to reduce duplication
-				while (*(pos++)!=' ') if (*pos==0)break;
-				shp=atoi(pos);
-
-				while (*(pos++)!=' ') if (*pos==0)break;
-				pps=atoi(pos);
-				
-				multi_do_d1x_ver_set(src,shp,pps);
-				//end edit -MM
-				if (mode==1)
-					network_send_config_messages(100,2);
-				else if (mode==2||mode==4)
-					network_send_config_messages(src,3);
-			}
-		}
-        }
 }
 
 void
@@ -2117,32 +1962,6 @@ void multi_do_hostage_door_status(char *buf)
 		wall_damage(&Segments[Walls[wallnum].segnum], Walls[wallnum].sidenum, Walls[wallnum].hps - hps);
 }
 
-void multi_do_save_game(char *buf)
-{
-	int count = 1;
-	ubyte slot;
-	uint id;
-	char desc[25];
-
-	slot = *(ubyte *)(buf+count);		count += 1;
-	id = *(uint *)(buf+count);		count += 4;
-	memcpy( desc, &buf[count], 20 );	count += 20;
-
-	multi_save_game( slot, id, desc );
-}
-
-void multi_do_restore_game(char *buf)
-{
-	int count = 1;
-	ubyte slot;
-	uint id;
-
-	slot = *(ubyte *)(buf+count);		count += 1;
-	id = *(uint *)(buf+count);		count += 4;
-
-	multi_restore_game( slot, id );
-}
-
 // 
 void multi_do_req_player(char *buf)
 {
@@ -2339,10 +2158,6 @@ multi_process_data(char *buf, int len)
 			if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
 		case MULTI_HOSTAGE_DOOR:
 			if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
-		case MULTI_SAVE_GAME:
-			if (!Endlevel_sequence) multi_do_save_game(buf); break;
-		case MULTI_RESTORE_GAME:
-			if (!Endlevel_sequence) multi_do_restore_game(buf); break;
 		case MULTI_REQ_PLAYER:
 			if (!Endlevel_sequence) multi_do_req_player(buf); break;
 		case MULTI_SEND_PLAYER:
@@ -2350,45 +2165,7 @@ multi_process_data(char *buf, int len)
 		case MULTI_PLAYER_POWERUP_COUNT:
 		case MULTI_START_POWERUP_COUNT:
 			if (!Endlevel_sequence) multi_do_powerup_count(buf); break;
-
-//======================================================
-//Added 9/4/98 by Geoff Coovert - more packet ack stuff
-                case MEKH_PACKET_NEEDACK:
-                        if (!Endlevel_sequence) mekh_process_packet(buf); break;
-                case MEKH_PACKET_ACK:
-                        if (!Endlevel_sequence) mekh_gotack(buf); break;
-//======================================================
-	    //added 03/04/99 Matt Mueller - new ping method.  whee
-                case MULTI_PING:
-                        if (!Endlevel_sequence) {
-				    mprintf((0,"got DIRECTPING from %i\n",buf[1]));
-				    multibuf[0]=MULTI_PONG;
-				    multibuf[1]=Player_num;
-				    memcpy(multibuf+2,buf+2,4);
-				    mekh_send_direct_packet(multibuf,2+4,buf[1]);
-				}break;
-                case MULTI_PONG:
-			if (!Endlevel_sequence) {
-				mprintf((0,"got DIRECTPONG from %i\n",buf[1]));
-				network_handle_ping_return (buf[1]);
-
-			}break;
-		//end addition -MM
-				//added 04/19/99 Matt Mueller
-		case MULTI_D1X_VER_PACKET:
-			multi_do_d1x_ver(buf);break;
-		//end addition -MM
 #endif
-                case MULTI_ALT_VULCAN_ON:
-                                got_vulcan_info(1,buf[1]);
-                                break;
-                case MULTI_ALT_VULCAN_OFF:
-                                got_vulcan_info(0,buf[1]);
-                                break;
-                //added on 6/7/99 by Victor Rachels for ingame reconfig
-                case MULTI_INGAME_CONFIG:
-                                reconfig_receive((ubyte*)buf,len);
-                                break;
 		default:
 			mprintf((1, "Invalid type in multi_process_input().\n"));
 			Int3();
@@ -2412,13 +2189,7 @@ multi_process_bigdata(char *buf, int len)
 			return;
 		}
 
-//======================================================
-//Edit 9/5 by Geoff Coovert.  More hacks for needack sizing.  Dammit
-                if (type == MEKH_PACKET_NEEDACK) {
-                        sub_len = message_length[(int)buf[7]] + 7;
-                } else
-                        sub_len = message_length[type];
-//======================================================
+                sub_len = message_length[type];
 
 		Assert(sub_len > 0);
 
@@ -2439,10 +2210,8 @@ multi_process_bigdata(char *buf, int len)
 //          players of something we did.
 //
 
-//added/edited on 04/16/99 by Victor Rachels - add single send capability for alt vulcan
 void multi_send_fire(int pl)
 {
-//edited on 03/05/99 Matt Mueller - add POS_FIRE capability
    if (!Network_laser_fired)
     return;
 
@@ -2452,53 +2221,8 @@ void multi_send_fire(int pl)
   multibuf[4] = (char)Network_laser_flags;
   multibuf[5] = (char)Network_laser_fired;
   *(short *)(multibuf+6) = Network_laser_track;
-   if(Game_mode & GM_NETWORK)
-    {
-     int plnum;
-      create_shorterpos((shorterpos*)(multibuf+8),&Objects[Players[Player_num].objnum]);
-
-       if(pl<100)
-        {
-           if (Net_D1xPlayer[pl].iver<D1X_POS_FIRE_IVER)
-            {
-              mprintf((0,"sending MULTI_FIRE to %i\n",pl));
-              multibuf[0] = (char)MULTI_FIRE;
-              mekh_send_direct_packet(multibuf,8,pl);
-            }
-           else 
-            {                      
-              mprintf((0,"sending MULTI_POS_FIRE to %i\n",pl));
-              multibuf[0] = (char)MULTI_POS_FIRE;
-              mekh_send_direct_packet(multibuf,8+sizeof(shorterpos),pl);
-            }              
-
-        }
-       else
-        {
-           for (plnum=0;plnum<MAX_NUM_NET_PLAYERS;plnum++)
-            if ((Players[plnum].connected))
-             {
-                if (Net_D1xPlayer[plnum].iver<D1X_POS_FIRE_IVER)
-                 {
-                   mprintf((0,"sending MULTI_FIRE to %i\n",plnum));
-                   multibuf[0] = (char)MULTI_FIRE;
-                   mekh_send_direct_packet(multibuf,8,plnum);
-                 }
-                else 
-                 {                      
-                   mprintf((0,"sending MULTI_POS_FIRE to %i\n",plnum));
-                   multibuf[0] = (char)MULTI_POS_FIRE;
-                   mekh_send_direct_packet(multibuf,8+sizeof(shorterpos),plnum);
-                 }              
-             }    
-        }
-    }
-   else
-    {           
       multibuf[0] = (char)MULTI_FIRE;
       multi_send_data(multibuf, 8, 1);//don't do anything special for modem links.
-    }
-//end edit -MM
 
   Network_laser_fired = 0;
 }
@@ -2639,39 +2363,7 @@ multi_send_player_explode(char type)
 		Int3(); // See Rob
 	}
 
-//edited on 03/05/99 Matt Mueller - no more misplaced spew..
-    if(type == MULTI_PLAYER_EXPLODE)
-	{
-//	   int plnum;
-	    memcpy(multibuf2,multibuf,message_length[MULTI_PLAYER_EXPLODE]);
-	    multibuf2[0]=MULTI_POS_PLAYER_EXPLODE;
-	   create_shorterpos((shorterpos*)(multibuf2+message_length[MULTI_PLAYER_EXPLODE]),
-				   &Objects[Players[Player_num].objnum]);
-	    
-	    mekh_send_broadcast_needver(D1X_POS_EXPLODE_IVER, multibuf2,message_length[MULTI_POS_PLAYER_EXPLODE],
-						  multibuf,message_length[MULTI_PLAYER_EXPLODE]);
-//	   for (plnum=0;plnum<MAX_NUM_NET_PLAYERS;plnum++)
-//		  if ((Players[plnum].connected)){
-//			if (Net_D1xPlayer[plnum].iver<D1X_POS_EXPLODE_IVER)
-//			  {
-//				mprintf((0,"sending MULTI_PLAYER_EXPLODE to %i\n",plnum));
-//				multibuf[0] = (char)MULTI_PLAYER_EXPLODE;
-//				mekh_send_direct_packet(multibuf,message_length[MULTI_PLAYER_EXPLODE],plnum);
-//			  }
-//			else 
-//			  {			 
-//				mprintf((0,"sending MULTI_POS_PLAYER_EXPLODE to %i\n",plnum));
-//				multibuf[0] = (char)MULTI_POS_PLAYER_EXPLODE;
-//				mekh_send_direct_packet(multibuf,message_length[MULTI_POS_PLAYER_EXPLODE],plnum);
-//			  }		 
-//		  }    
-	}
-    else
-	{	    
-	    multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 1);//don't do anything special for DROP, not important.
-	}
-//end edit -MM
-//	multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 2);
+	multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 2);
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
 		multi_send_decloak();
 #ifndef SHAREWARE
@@ -2966,31 +2658,6 @@ multi_send_score(void)
 
 
 void
-multi_send_save_game(ubyte slot, uint id, char * desc)
-{
-	int count = 0;
-	
-	multibuf[count] = MULTI_SAVE_GAME;		count += 1;
-	multibuf[count] = slot;							count += 1;		// Save slot=0
-	*(uint *)(multibuf+count) = id; 	count += 4;		// Save id
-	memcpy( &multibuf[count], desc, 20 ); count += 20;
-
-	multi_send_data(multibuf, count, 2);
-}
-
-void
-multi_send_restore_game(ubyte slot, uint id)
-{
-	int count = 0;
-	
-	multibuf[count] = MULTI_RESTORE_GAME;	count += 1;
-	multibuf[count] = slot;							count += 1;		// Save slot=0
-	*(uint *)(multibuf+count) = id; 	count += 4;		// Save id
-
-	multi_send_data(multibuf, count, 2);
-}
-
-void
 multi_send_netplayer_stats_request(ubyte player_num)
 {
 	int count = 0;
@@ -3247,111 +2914,6 @@ void change_playernum_to( int new_Player_num )
 
 	Player_num = new_Player_num;
 }
-
-
-#ifndef SHAREWARE
-void multi_initiate_save_game()
-{
-	uint game_id;
-	int i, slot;
-	char filename[128];
-	char desc[24];
-
-	if ((Endlevel_sequence) || (Fuelcen_control_center_destroyed))
-		return;
-
-//	multi_send_netplayer_stats_request(255);
-//	return;
-
-	stop_time();
-	
-	slot = state_get_save_file(filename, desc, 1 );
-	if (!slot)	{
-		start_time();
-		return;
-	}
-	slot--;
-	start_time();
-
-	// Make a unique game id
-	game_id = timer_get_fixed_seconds();
-	game_id ^= N_players<<4;
-	for (i=0; i<N_players; i++ )
-		game_id ^= *(uint *)Players[i].callsign;
-	if ( game_id == 0 ) game_id = 1;		// 0 is invalid
-
-	mprintf(( 1, "Game_id = %8x\n", game_id));
-	multi_send_save_game(slot, game_id, desc );
-	multi_do_frame();
-	multi_save_game(slot,game_id, desc );
-}
-
-void multi_initiate_restore_game()
-{
-	int slot;
-	char filename[128];
-
-	if ((Endlevel_sequence) || (Fuelcen_control_center_destroyed))
-		return;
-
-	stop_time();
-	slot = state_get_restore_file(filename,1);
-	if (!slot)	{
-		start_time();
-		return;
-	}
-	slot--;
-	start_time();
-	multi_send_restore_game(slot,state_game_id);
-	multi_do_frame();
-	multi_restore_game(slot,state_game_id);
-}
-
-void multi_save_game(ubyte slot, uint id, char *desc)
-{
-	char filename[128];
-
-	if ((Endlevel_sequence) || (Fuelcen_control_center_destroyed))
-		return;
-
-	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, slot );
-	mprintf(( 0, "Save game %x on slot %d\n", id, slot ));
-	hud_message( MSGC_GAME_FEEDBACK, "Saving game #%d, '%s'", slot, desc );
-	stop_time();
-	state_game_id = id;
-	state_save_all_sub(filename, desc, 0 );
-}
-
-void multi_restore_game(ubyte slot, uint id)
-{
-	char filename[128];
-	player saved_player;
-
-	if ((Endlevel_sequence) || (Fuelcen_control_center_destroyed))
-		return;
-
-	mprintf(( 0, "Restore game %x from slot %d\n", id, slot ));
-	saved_player = Players[Player_num];
-	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, slot );
-	state_game_id = 0;
-	state_restore_all_sub( filename, 1 );
-
-	if (state_game_id != id )	{
-		// Game doesn't match!!!
-		nm_messagebox( "Error", 1, "Ok", "Cannot restore saved game" );
-		Game_mode |= GM_GAME_OVER;
-		Function_mode = FMODE_MENU;
-		longjmp(LeaveGame, 1);
-	}
-
-	memcpy( Players[Player_num].callsign, saved_player.callsign, CALLSIGN_LEN+1 );
-	memcpy( Players[Player_num].net_address, saved_player.net_address, 6 );
-	Players[Player_num].connected = saved_player.connected;
-	Players[Player_num].n_packets_got  = saved_player.n_packets_got;					
-	Players[Player_num].n_packets_sent = saved_player.n_packets_sent;				
-}
-#endif
-
 
 void extract_netplayer_stats( netplayer_stats *ps, player * pd )
 {

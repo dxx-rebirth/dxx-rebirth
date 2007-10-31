@@ -81,7 +81,6 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:43:27 zicodxx Exp $";
 #include "d_glob.h"
 #include "cfile.h"
 #include "gauges.h"
-#include "ban.h"
 #include "hudmsg.h" //for HUD_max_num_disp
 #include "ipx.h"
 
@@ -374,13 +373,17 @@ void do_option ( int select)
 				default: Int3();
 			}
 			if ((select & 0x1) == 0) // MENU_START_*_NETGAME
+			{
+				ForceVersionCheck=0;
 				network_start_game();
+			}
 			else // MENU_JOIN_*_NETGAME
 				network_join_game();
 			break;
 
 		case MENU_START_UDP_NETGAME:
 			ipx_set_driver("ip");
+			ForceVersionCheck=1;
 			network_start_game();
 			break;
 		case MENU_JOIN_UDP_NETGAME:

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071031
+--------
+d1x.ini, SConstruct, arch/linux/linuxnet.c, arch/ogl/gr.c, arch/win32/winnet.c, include/args.h, main/args.c, main/collide.c, main/game.c, main/hudmsg.c, main/inferno.c, main/kconfig.c, main/laser.c, main/menu.c, main/multi.c, main/multi.h, main/multipow.h, main/netlist.c, main/network.c, main/state.c, main/state.h: Improvements for -gl_prshot; Improved show_netgame_info(); Removed obsolete multisave code; Removed mekh stuff and wide cleanings in whole multi code; Incremented MULTI_PROTO_D1X_VER (for version checks in the future if needed); Renamed 'D1X-only game' to 'Version Check'
+
 20071029
 --------
 main/credits.c, main/newmenu.c: Memory stuff

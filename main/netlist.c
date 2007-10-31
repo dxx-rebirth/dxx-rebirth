@@ -220,38 +220,6 @@ static void done_background(bkg *bg) {
 
 void show_game_rules(netgame_info game)
 {
-#if 0
-	int nitems = 0;
-	char robj_list[2048],*obj_list=robj_list;
-	newmenu_item m[30];
-
-	memset(obj_list,0,sizeof(char)*1024);
-
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = (game.game_flags&NETGAME_FLAG_SHOW_MAP?"Show all players on automap: ON":"Show all players on automap: OFF");
-	if (game.protocol_version==MULTI_PROTO_D1X_VER 
-#ifndef SHAREWARE
-		&& game.subprotocol>=1
-#endif
-	){
-#ifndef SHAREWARE
-		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = (game.flags&NETFLAG_ENABLE_RADAR?"Radar: ON":"Radar: OFF");
-		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = (game.flags&NETFLAG_ENABLE_ALT_VULCAN?"Short Vulcan Fire: ON":"Short Vulcan Fire: OFF");
-
-		obj_list+=sprintf(obj_list,"laser upgrade: %s , quad lasers: %s\n",(game.flags&NETFLAG_DOLASER?"YES":"NO "),(game.flags&NETFLAG_DOQUAD?"YES":"NO "));
-		obj_list+=sprintf(obj_list,"vulcan cannon: %s , spreadfire cannon: %s\n",(game.flags&NETFLAG_DOVULCAN?"YES":"NO "),(game.flags&NETFLAG_DOSPREAD?"YES":"NO "));
-		obj_list+=sprintf(obj_list,"plasma cannon: %s , fusion cannon: %s\n",(game.flags&NETFLAG_DOPLASMA?"YES":"NO "),(game.flags&NETFLAG_DOFUSION?"YES":"NO "));
-		obj_list+=sprintf(obj_list,"homing missile: %s , proximity bomb: %s\n",(game.flags&NETFLAG_DOHOMING?"YES":"NO "),(game.flags&NETFLAG_DOPROXIM?"YES":"NO "));
-		obj_list+=sprintf(obj_list,"smart missile: %s , mega missile: %s\n",(game.flags&NETFLAG_DOSMART?"YES":"NO "),(game.flags&NETFLAG_DOMEGA?"YES":"NO "));
-		obj_list+=sprintf(obj_list,"invulnerability: %s , cloak: %s\n",(game.flags&NETFLAG_DOINVUL?"YES":"NO "),(game.flags&NETFLAG_DOCLOAK?"YES":"NO "));
-	
-		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
-		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Allowed Objects";
-		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = robj_list;
-#endif /* ! SHAREWARE */
-	}
-
-	newmenu_dotiny( NULL, "GAME RULES", nitems, m, NULL );
-#endif
 	int done,k;
 	grs_canvas canvas;
 	int w = LHX(290), h = LHY(170);
@@ -277,73 +245,60 @@ void show_game_rules(netgame_info game)
 		nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
 
 		gr_set_current_canvas(&canvas);
-		
+
+		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
 		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
 	
 		gr_string( 0x8000, LHY(15), "NETGAME RULES" );
 	
 		grd_curcanv->cv_font = Gamefonts[GFONT_SMALL];
 	
-		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
 		gr_printf( LHX( 25),LHY( 35), "Show All Players On Automap:");
-		gr_printf( LHX(250),LHY( 35), game.game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
-#ifndef SHAREWARE
-		if (game.protocol_version==MULTI_PROTO_D1X_VER && game.subprotocol>=1){
-			gr_printf( LHX( 25),LHY( 41), "Radar:");
-			gr_printf( LHX(250),LHY( 41), game.flags&NETFLAG_ENABLE_RADAR?"ON":"OFF");
-			gr_printf( LHX( 25),LHY( 47), "Short Vulcan Fire:");
-			gr_printf( LHX(250),LHY( 47), game.flags&NETFLAG_ENABLE_ALT_VULCAN?"ON":"OFF");
-	
-			gr_printf( LHX( 25),LHY( 80), "Allowed Objects");
-	
-			gr_printf( LHX( 25),LHY( 90), "Laser Upgrade:");
-			gr_printf( LHX(130),LHY( 90), game.flags&NETFLAG_DOLASER?"YES":"NO");
-			gr_printf( LHX( 25),LHY( 96), "Quad Laser:");
-			gr_printf( LHX(130),LHY( 96), game.flags&NETFLAG_DOQUAD?"YES":"NO");
-			gr_printf( LHX( 25),LHY(102), "Vulcan Cannon:");
-			gr_printf( LHX(130),LHY(102), game.flags&NETFLAG_DOVULCAN?"YES":"NO");
-			gr_printf( LHX( 25),LHY(108), "Spreadfire Cannon:");
-			gr_printf( LHX(130),LHY(108), game.flags&NETFLAG_DOSPREAD?"YES":"NO");
-			gr_printf( LHX( 25),LHY(114), "Plasma Cannon:");
-			gr_printf( LHX(130),LHY(114), game.flags&NETFLAG_DOPLASMA?"YES":"NO");
-			gr_printf( LHX( 25),LHY(120), "Fusion Cannon:");
-			gr_printf( LHX(130),LHY(120), game.flags&NETFLAG_DOFUSION?"YES":"NO");
-	
-			gr_printf( LHX(170),LHY( 90), "Homing Missile:");
-			gr_printf( LHX(275),LHY( 90), game.flags&NETFLAG_DOHOMING?"YES":"NO");
-			gr_printf( LHX(170),LHY( 96), "Proximity Bomb:");
-			gr_printf( LHX(275),LHY( 96), game.flags&NETFLAG_DOPROXIM?"YES":"NO");
-			gr_printf( LHX(170),LHY(102), "Smart Missile:");
-			gr_printf( LHX(275),LHY(102), game.flags&NETFLAG_DOSMART?"YES":"NO");
-			gr_printf( LHX(170),LHY(108), "Mega Missile:");
-			gr_printf( LHX(275),LHY(108), game.flags&NETFLAG_DOMEGA?"YES":"NO");
-	
-			gr_printf( LHX( 25),LHY(130), "Invulnerability:");
-			gr_printf( LHX(130),LHY(130), game.flags&NETFLAG_DOINVUL?"YES":"NO");
-			gr_printf( LHX( 25),LHY(136), "Cloak:");
-			gr_printf( LHX(130),LHY(136), game.flags&NETFLAG_DOCLOAK?"YES":"NO");
-		}
-		else
-			gr_printf( LHX( 25),LHY( 80), "This is not a D1X Game. No further rules are defined.");
-#endif
+		gr_printf( LHX( 25),LHY( 80), "Allowed Objects");
+		gr_printf( LHX( 25),LHY( 90), "Laser Upgrade:");
+		gr_printf( LHX( 25),LHY( 96), "Quad Laser:");
+		gr_printf( LHX( 25),LHY(102), "Vulcan Cannon:");
+		gr_printf( LHX( 25),LHY(108), "Spreadfire Cannon:");
+		gr_printf( LHX( 25),LHY(114), "Plasma Cannon:");
+		gr_printf( LHX( 25),LHY(120), "Fusion Cannon:");
+		gr_printf( LHX(170),LHY( 90), "Homing Missile:");
+		gr_printf( LHX(170),LHY( 96), "Proximity Bomb:");
+		gr_printf( LHX(170),LHY(102), "Smart Missile:");
+		gr_printf( LHX(170),LHY(108), "Mega Missile:");
+		gr_printf( LHX( 25),LHY(130), "Invulnerability:");
+		gr_printf( LHX( 25),LHY(136), "Cloak:");
+
+		gr_set_fontcolor(gr_find_closest_color_current(255,255,255),-1);
+		gr_printf( LHX(170),LHY( 35), game.game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+		gr_printf( LHX(130),LHY( 90), game.flags&NETFLAG_DOLASER?"YES":"NO");
+		gr_printf( LHX(130),LHY( 96), game.flags&NETFLAG_DOQUAD?"YES":"NO");
+		gr_printf( LHX(130),LHY(102), game.flags&NETFLAG_DOVULCAN?"YES":"NO");
+		gr_printf( LHX(130),LHY(108), game.flags&NETFLAG_DOSPREAD?"YES":"NO");
+		gr_printf( LHX(130),LHY(114), game.flags&NETFLAG_DOPLASMA?"YES":"NO");
+		gr_printf( LHX(130),LHY(120), game.flags&NETFLAG_DOFUSION?"YES":"NO");
+		gr_printf( LHX(275),LHY( 90), game.flags&NETFLAG_DOHOMING?"YES":"NO");
+		gr_printf( LHX(275),LHY( 96), game.flags&NETFLAG_DOPROXIM?"YES":"NO");
+		gr_printf( LHX(275),LHY(102), game.flags&NETFLAG_DOSMART?"YES":"NO");
+		gr_printf( LHX(275),LHY(108), game.flags&NETFLAG_DOMEGA?"YES":"NO");
+		gr_printf( LHX(130),LHY(130), game.flags&NETFLAG_DOINVUL?"YES":"NO");
+		gr_printf( LHX(130),LHY(136), game.flags&NETFLAG_DOCLOAK?"YES":"NO");
+
 		k = key_inkey();
 		switch( k )	{
-		case KEY_PRINT_SCREEN:
-			save_screen_shot(0); k = 0;
-			break;
-		case KEY_ENTER:
-		case KEY_SPACEBAR:
-		case KEY_ESC:
-			done=1;
-			break;
+			case KEY_PRINT_SCREEN:
+				save_screen_shot(0); k = 0;
+				break;
+			case KEY_ENTER:
+			case KEY_SPACEBAR:
+			case KEY_ESC:
+				done=1;
+				break;
 		}
 	}
 
 // Restore background and exit
 	gr_palette_fade_out( gr_palette, 32, 0 );
-
 	gr_set_current_canvas(NULL);
-
 	game_flush_inputs();
 }
 

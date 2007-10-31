@@ -58,7 +58,6 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:44:27 zicodxx Exp 
 #include "gr.h"
 #include "reorder.h"
 #include "physics.h"
-#include "vlcnfire.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -1976,35 +1975,6 @@ void controls_read_all()
 		if ((use_joystick)&&(kc_joystick[0].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_joystick[0].value);
 		if ((use_joystick)&&(kc_joystick[29].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_joystick[29].value);
 		if ((use_mouse)&&(kc_mouse[0].value < 255 )) Controls.fire_primary_down_count += mouse_button_down_count(kc_mouse[0].value);
-	#ifdef NETWORK
-		if(use_alt_vulcanfire)
-		{
-			if(Primary_weapon != VULCAN_INDEX)
-			{
-				Vulcan_jostate = 0;
-				Vulcan_kostate = 0;
-				Vulcan_mostate = 0;
-				do_vulcan_fire(0);
-			}
-			else
-			{
-				int Vulcan_jstate=0;
-				int Vulcan_kstate=0;
-				int Vulcan_mstate=0;
-				Vulcan_kstate = (keyd_pressed[kc_keyboard[24].value]||keyd_pressed[kc_keyboard[25].value]);
-				Vulcan_jstate = joy_get_button_state( kc_joystick[0].value);
-				Vulcan_mstate = mouse_button_state( kc_mouse[0].value);
-		
-				if (Vulcan_kstate!=Vulcan_kostate || Vulcan_jstate!=Vulcan_jostate || Vulcan_mstate!=Vulcan_mostate)
-				{
-					do_vulcan_fire(Vulcan_kstate||Vulcan_jstate||Vulcan_mstate);
-					Vulcan_kostate = Vulcan_kstate;
-					Vulcan_jostate = Vulcan_jstate;
-					Vulcan_mostate = Vulcan_mstate;
-				}
-			}
-		}
-	#endif
 	
 	//----------- Read fire_primary_state
 		if (kc_keyboard[24].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[24].value];

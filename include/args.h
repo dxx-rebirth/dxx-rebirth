@@ -75,8 +75,6 @@ typedef struct Arg
 #endif
 	int EdiNoBm;
 	int MplGameProfile;
-	int MplNoBans;
-	int MplSaveBans;
 	int MplNoRedundancy;
 	int MplPlayerMessages;
 	const char *MplIpxNetwork;
