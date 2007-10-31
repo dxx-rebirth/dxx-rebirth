@@ -90,17 +90,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "pcx.h"
 #include "u_mem.h"
-#ifdef NETWORK
-#include "network.h"
-#endif
 #include "args.h"
 #include "ai.h"
 #include "fireball.h"
 #include "controls.h"
 #include "laser.h"
-#include "multibot.h"
 #include "state.h"
-
+#ifdef NETWORK
+#include "network.h"
+#endif
 #ifdef OGL
 #include "gr.h"
 #endif
@@ -134,8 +132,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define THUMBNAIL_H 50
 #define DESC_LENGTH 20
 
-extern void multi_initiate_save_game();
-extern void multi_initiate_restore_game();
 extern void apply_all_changed_light(void);
 
 extern int Do_appearance_effect;
@@ -156,20 +152,6 @@ char dgss_id[4] = "DGSS";
 int state_default_item = 0;
 
 uint state_game_id;
-
-extern int robot_controlled[MAX_ROBOTS_CONTROLLED];
-extern int robot_agitation[MAX_ROBOTS_CONTROLLED];
-extern fix robot_controlled_time[MAX_ROBOTS_CONTROLLED];
-extern fix robot_last_send_time[MAX_ROBOTS_CONTROLLED];
-extern fix robot_last_message_time[MAX_ROBOTS_CONTROLLED];
-extern int robot_send_pending[MAX_ROBOTS_CONTROLLED];
-extern int robot_fired[MAX_ROBOTS_CONTROLLED];
-extern sbyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
-
-
-#if defined(WINDOWS) || defined(MACINTOSH)
-extern ubyte Hack_DblClick_MenuMode;
-#endif
 
 void compute_all_static_light(void);
 
@@ -223,7 +205,7 @@ void rpad_string( char * string, int max_chars )
  * For restoring, dsc should be NULL, in which case empty slots will not be
  * selectable and savagames descriptions will not be editable.
  */
-int state_get_savegame_filename(char * fname, char * dsc, int multi, char * caption )
+int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 {
 	PHYSFS_file * fp;
 	int i, choice, version, nsaves;
@@ -237,10 +219,7 @@ int state_get_savegame_filename(char * fname, char * dsc, int multi, char * capt
 	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
 	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
-		if (!multi)
-			sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", Players[Player_num].callsign, i );
-		else
-			sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, i );
+		sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", Players[Player_num].callsign, i );
 		valid = 0;
 		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
@@ -302,14 +281,14 @@ int state_get_savegame_filename(char * fname, char * dsc, int multi, char * capt
 	return 0;
 }
 
-int state_get_save_file(char * fname, char * dsc, int multi )
+int state_get_save_file(char * fname, char * dsc )
 {
-	return state_get_savegame_filename(fname, dsc, multi, "Save Game");
+	return state_get_savegame_filename(fname, dsc, "Save Game");
 }
 
-int state_get_restore_file(char * fname, int multi )
+int state_get_restore_file(char * fname )
 {
-	return state_get_savegame_filename(fname, NULL, multi, "Select Game to Restore");
+	return state_get_savegame_filename(fname, NULL, "Select Game to Restore");
 }
 
 #define	DESC_OFFSET	8
@@ -379,9 +358,6 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 
 #ifdef NETWORK
 	if ( Game_mode & GM_MULTI )	{
-#ifdef MULTI_SAVE
-			multi_initiate_save_game();
-#endif
 		return 0;
 	}
 #endif
@@ -413,7 +389,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 		filename_override = filename;
 		sprintf(filename_override, SECRETC_FILENAME);
 	} else {
-		if (!(filenum = state_get_save_file(filename, desc, 0)))
+		if (!(filenum = state_get_save_file(filename, desc)))
 		{
 			start_time();
 			return 0;
@@ -421,10 +397,10 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 	}
 		
 	//	MK, 1/1/96
-	//	If not in multiplayer, do special secret level stuff.
+	//	Do special secret level stuff.
 	//	If secret.sgc exists, then copy it to Nsecret.sgc (where N = filenum).
 	//	If it doesn't exist, then delete Nsecret.sgc
-	if (!secret_save && !(Game_mode & GM_MULTI)) {
+	if (!secret_save) {
 		int	rval;
 		char	temp_fname[32], fc;
 
@@ -477,13 +453,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 	Assert(between_levels == 0);	//between levels save ripped out
 
-/*	if ( Game_mode & GM_MULTI )	{
-		{
-		start_time();
-		return 0;
-		}
-	}*/
-
 	#ifndef NDEBUG
 	if (GameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
 		Int3();
@@ -491,8 +460,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 	fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
-		if ( !(Game_mode & GM_MULTI) )
-			nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
+		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
 		start_time();
 		return 0;
 	}
@@ -566,34 +534,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 //Save GameTime
 	PHYSFS_write(fp, &GameTime, sizeof(fix), 1);
-
-// If coop save, save all
-#ifdef NETWORK
-   if (Game_mode & GM_MULTI_COOP)
-	 {
-		PHYSFS_write(fp, &state_game_id,sizeof(int), 1);
-		PHYSFS_write(fp, &Netgame,sizeof(netgame_info), 1);
-		PHYSFS_write(fp, &NetPlayers,sizeof(AllNetPlayers_info), 1);
-		PHYSFS_write(fp, &N_players,sizeof(int), 1);
-		PHYSFS_write(fp, &Player_num,sizeof(int), 1);
-		for (i=0;i<N_players;i++)
-			PHYSFS_write(fp, &Players[i], sizeof(player), 1);
-
-#ifdef RISKY_PROPOSITION
-		PHYSFS_write(fp, &robot_controlled[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_write(fp, &robot_agitation[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_write(fp, &robot_controlled_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_write(fp, &robot_last_send_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_write(fp, &robot_last_message_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_write(fp, &robot_send_pending[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_write(fp, &robot_fired[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
- 
-      for (i=0;i<MAX_ROBOTS_CONTROLLED;i++)
-			PHYSFS_write(fp, robot_fire_buf[i][0], 18 + 3, 1);
-#endif
-
-	 }
-#endif
 
 //Save player info
 	PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
@@ -722,11 +662,9 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 	if (PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1) < 1)
 	{
-		if ( !(Game_mode & GM_MULTI) ) {
-			nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
-			PHYSFS_close(fp);
-			PHYSFS_delete(filename);
-		}
+		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
+		PHYSFS_close(fp);
+		PHYSFS_delete(filename);
 	} else  {
 		PHYSFS_close(fp);
 
@@ -771,9 +709,6 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 
 #ifdef NETWORK
 	if ( Game_mode & GM_MULTI )	{
-#ifdef MULTI_SAVE
-			multi_initiate_restore_game();
-#endif
 		return 0;
 	}
 #endif
@@ -794,16 +729,16 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 	if (filename_override) {
 		strcpy(filename, filename_override);
 		filenum = NUM_SAVES+1; // place outside of save slots
-	} else if (!(filenum = state_get_restore_file(filename, 0)))	{
+	} else if (!(filenum = state_get_restore_file(filename)))	{
 		start_time();
 		return 0;
 	}
 	
 	//	MK, 1/1/96
-	//	If not in multiplayer, do special secret level stuff.
+	//	Do special secret level stuff.
 	//	If Nsecret.sgc (where N = filenum) exists, then copy it to secret.sgc.
 	//	If it doesn't exist, then delete secret.sgc
-	if (!secret_restore && !(Game_mode & GM_MULTI)) {
+	if (!secret_restore) {
 		int	rval;
 		char	temp_fname[32], fc;
 
@@ -838,7 +773,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 
 	start_time();
 
-	return state_restore_all_sub(filename, 0, secret_restore);
+	return state_restore_all_sub(filename, secret_restore);
 }
 
 extern void init_player_stats_new_ship(void);
@@ -848,7 +783,7 @@ void ShowLevelIntro(int level_num);
 extern void do_cloak_invul_secret_stuff(fix old_gametime);
 extern void copy_defaults_to_robot(object *objp);
 
-int state_restore_all_sub(char *filename, int multi, int secret_restore)
+int state_restore_all_sub(char *filename, int secret_restore)
 {
 	int ObjectStartLocation;
 	int version,i, j, segnum;
@@ -860,11 +795,6 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	char desc[DESC_LENGTH+1];
 	char id[5];
 	char org_callsign[CALLSIGN_LEN+16];
-#ifdef NETWORK
-	int found;
-	int nplayers;	//,playid[12],mynum;
-	player restore_players[MAX_PLAYERS];
-#endif
 	fix	old_gametime = GameTime;
 
 	#ifndef NDEBUG
@@ -922,72 +852,17 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 	PHYSFS_read(fp, &GameTime, sizeof(fix), 1);
 
 // Start new game....
-	if (!multi)	{
-		Game_mode = GM_NORMAL;
-		Function_mode = FMODE_GAME;
+	Game_mode = GM_NORMAL;
+	Function_mode = FMODE_GAME;
 #ifdef NETWORK
-		change_playernum_to(0);
+	change_playernum_to(0);
 #endif
-		strcpy( org_callsign, Players[0].callsign );
-		N_players = 1;
-		if (!secret_restore) {
-			InitPlayerObject();				//make sure player's object set up
-			init_player_stats_game();		//clear all stats
-		}
-	} else {
-		strcpy( org_callsign, Players[Player_num].callsign );
+	strcpy( org_callsign, Players[0].callsign );
+	N_players = 1;
+	if (!secret_restore) {
+		InitPlayerObject();				//make sure player's object set up
+		init_player_stats_game();		//clear all stats
 	}
-
-#ifdef NETWORK
-   if (Game_mode & GM_MULTI)
-	 {
-		PHYSFS_read(fp, &state_game_id, sizeof(int), 1);
-		PHYSFS_read(fp, &Netgame, sizeof(netgame_info), 1);
-		PHYSFS_read(fp, &NetPlayers, sizeof(AllNetPlayers_info), 1);
-		PHYSFS_read(fp, &nplayers, sizeof(N_players), 1);
-		PHYSFS_read(fp, &Player_num, sizeof(Player_num), 1);
-		for (i=0;i<nplayers;i++)
-			PHYSFS_read(fp, &restore_players[i], sizeof(player), 1);
-#ifdef RISKY_PROPOSITION
-		PHYSFS_read(fp, &robot_controlled[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_read(fp, &robot_agitation[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_read(fp, &robot_controlled_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_read(fp, &robot_last_send_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_read(fp, &robot_last_message_time[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_read(fp, &robot_send_pending[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-		PHYSFS_read(fp, &robot_fired[0], 4 * MAX_ROBOTS_CONTROLLED, 1);
-
-      for (i=0;i<MAX_ROBOTS_CONTROLLED;i++)
-			PHYSFS_read(fp, &robot_fire_buf[i][0],21,1);
-#endif
-
-	   for (i=0;i<nplayers;i++)
-		 {
-		  found=0;
-		  for (j=0;j<nplayers;j++)
-			 {
-           if ((!strcmp (restore_players[i].callsign,Players[j].callsign)) && Players[j].connected==1)
-				 found=1;
-			 }
-		  restore_players[i].connected=found;
-	    }
-		memcpy (&Players,&restore_players,sizeof(player)*nplayers);
-		N_players=nplayers;
-
-      if (network_i_am_master())
-		 {
-		  for (i=0;i<N_players;i++)
-			{
-			 if (i==Player_num)
-				continue;
-   		 Players[i].connected=0;
-			}
-	 	 }
-
-	  	//Viewer = ConsoleObject = &Objects[Players[Player_num].objnum];
-	 }
-
-#endif
 
 //Read player info
 
@@ -1253,23 +1128,6 @@ int state_restore_all_sub(char *filename, int multi, int secret_restore)
 
 	PHYSFS_close(fp);
 
-#ifdef NETWORK
-   if (Game_mode & GM_MULTI)   // Get rid of ships that aren't
-	 {									 // connected in the restored game
-		for (i=0;i<nplayers;i++)
-		 {
-		  mprintf ((0,"Testing %s = %d\n",Players[i].callsign,Players[i].connected));
-		  if (Players[i].connected!=1)
-		   {
-		    network_disconnect_player (i);
-  	       create_player_appearance_effect(&Objects[Players[i].objnum]);
-			 mprintf ((0,"Killing player ship %s!\n",Players[i].callsign));
-	      }
-		 }
-			
-	 }
-#endif
-
 // Load in bitmaps, etc..
 //!!	piggy_load_level_data();	//already done by StartNewLevelSub()
 
@@ -1306,62 +1164,3 @@ void compute_all_static_light(void)
 	}
 
 }
-
-
-int state_get_game_id(char *filename)
-{
-	int version;
-	PHYSFS_file *fp;
-	int between_levels;
-	char mission[16];
-	char desc[DESC_LENGTH+1];
-	char id[5];
-	int dumbint;
-
-mprintf((0, "Restoring multigame from [%s]\n", filename));
-
-	fp = PHYSFS_openRead(filename);
-	if (!fp) return 0;
-
-//Read id
-	//FIXME: check for swapped file, react accordingly...
-	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
-	if ( memcmp( id, dgss_id, 4 )) {
-		PHYSFS_close(fp);
-		return 0;
-	}
-
-//Read version
-	PHYSFS_read(fp, &version, sizeof(int), 1);
-	if (version < STATE_COMPATIBLE_VERSION)	{
-		PHYSFS_close(fp);
-		return 0;
-	}
-
-// Read description
-	PHYSFS_read(fp, desc, sizeof(char) * DESC_LENGTH, 1);
-
-// Skip the current screen shot...
-	PHYSFS_seek(fp, PHYSFS_tell(fp) + THUMBNAIL_W * THUMBNAIL_H);
-
-// And now...skip the palette stuff that somebody forgot to add
-	PHYSFS_seek(fp, PHYSFS_tell(fp) + 768);
-
-// Read the Between levels flag...
-	PHYSFS_read(fp, &between_levels, sizeof(int), 1);
-
-	Assert(between_levels == 0);	//between levels save ripped out
-
-// Read the mission info...
-	PHYSFS_read(fp, mission, sizeof(char) * 9, 1);
-//Read level info
-	PHYSFS_read(fp, &dumbint, sizeof(int), 1);
-	PHYSFS_read(fp, &dumbint, sizeof(int), 1);
-
-//Restore GameTime
-	PHYSFS_read(fp, &dumbint, sizeof(fix), 1);
-
-	PHYSFS_read(fp, &state_game_id, sizeof(int), 1);
-
-	return (state_game_id);
- }

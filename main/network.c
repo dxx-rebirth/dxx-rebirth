@@ -6386,80 +6386,78 @@ void show_game_rules(netgame_info game)
 		gr_set_current_canvas(&canvas);
 		
 		grd_curcanv->cv_font = MEDIUM3_FONT;
-	
+
+		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);	
 		gr_string( 0x8000, LHY(15), "NETGAME RULES" );
 	
 		grd_curcanv->cv_font = SMALL_FONT;
 	
-		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
 		gr_printf( LHX( 25),LHY( 35), "Invulnerable when reappearing:");
-		gr_printf( LHX(250),LHY( 35), game.invul?"ON":"OFF");
 		gr_printf( LHX( 25),LHY( 41), "Allow camera view from markers:");
-		gr_printf( LHX(250),LHY( 41), game.Allow_marker_view?"ON":"OFF");
 		gr_printf( LHX( 25),LHY( 47), "Indestructible lights:");
-		gr_printf( LHX(250),LHY( 47), game.AlwaysLighting?"ON":"OFF");
 		gr_printf( LHX( 25),LHY( 53), "Bright player ships:");
-		gr_printf( LHX(250),LHY( 53), game.BrightPlayers?"ON":"OFF");
 		gr_printf( LHX( 25),LHY( 59), "Show enemy names on hud:");
-		gr_printf( LHX(250),LHY( 59), game.ShowAllNames?"ON":"OFF");
 		gr_printf( LHX( 25),LHY( 65), "Show all players on automap:");
-		gr_printf( LHX(250),LHY( 65), game.game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
-
 		gr_printf( LHX( 25),LHY( 80), "Allowed Objects");
-
 		gr_printf( LHX( 25),LHY( 90), "Laser Upgrade:");
-		gr_printf( LHX(130),LHY( 90), game.DoLaserUpgrade==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY( 96), "Super Laser:");
-		gr_printf( LHX(130),LHY( 96), game.DoSuperLaser==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(102), "Quad Laser:");
-		gr_printf( LHX(130),LHY(102), game.DoQuadLasers==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(108), "Vulcan Cannon:");
-		gr_printf( LHX(130),LHY(108), game.DoVulcan==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(114), "Gauss Cannon:");
-		gr_printf( LHX(130),LHY(114), game.DoGauss==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(120), "Spreadfire Cannon:");
-		gr_printf( LHX(130),LHY(120), game.DoSpread==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(126), "Helix Cannon:");
-		gr_printf( LHX(130),LHY(126), game.DoHelix==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(132), "Plasma Cannon:");
-		gr_printf( LHX(130),LHY(132), game.DoPlasma==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(138), "Phoenix Cannon:");
-		gr_printf( LHX(130),LHY(138), game.DoPhoenix==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(144), "Fusion Cannon:");
-		gr_printf( LHX(130),LHY(144), game.DoFusions==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(150), "Omega Cannon:");
-		gr_printf( LHX(130),LHY(150), game.DoOmega==0?"NO":"YES");
-
 		gr_printf( LHX(170),LHY( 90), "Flash Missile:");
-		gr_printf( LHX(275),LHY( 90), game.DoFlash==0?"NO":"YES");
 		gr_printf( LHX(170),LHY( 96), "Homing Missile:");
-		gr_printf( LHX(275),LHY( 96), game.DoHoming==0?"NO":"YES");
 		gr_printf( LHX(170),LHY(102), "Guided Missile:");
-		gr_printf( LHX(275),LHY(102), game.DoGuided==0?"NO":"YES");
 		gr_printf( LHX(170),LHY(108), "Proximity Bomb:");
-		gr_printf( LHX(275),LHY(108), game.DoProximity==0?"NO":"YES");
 		gr_printf( LHX(170),LHY(114), "Smart Mine:");
-		gr_printf( LHX(275),LHY(114), game.DoSmartMine==0?"NO":"YES");
 		gr_printf( LHX(170),LHY(120), "Smart Missile:");
-		gr_printf( LHX(275),LHY(120), game.DoSmarts==0?"NO":"YES");
 		gr_printf( LHX(170),LHY(126), "Mercury Missile:");
-		gr_printf( LHX(275),LHY(126), game.DoMercury==0?"NO":"YES");
 		gr_printf( LHX(170),LHY(132), "Mega Missile:");
-		gr_printf( LHX(275),LHY(132), game.DoMegas==0?"NO":"YES");
 		gr_printf( LHX(170),LHY(138), "Earthshaker Missile:");
-		gr_printf( LHX(275),LHY(138), game.DoEarthShaker==0?"NO":"YES");
-
 		gr_printf( LHX( 25),LHY(160), "Afterburner:");
-		gr_printf( LHX(130),LHY(160), game.DoAfterburner==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(166), "Headlight:");
-		gr_printf( LHX(130),LHY(166), game.DoHeadlight==0?"NO":"YES");
 		gr_printf( LHX( 25),LHY(172), "Energy->Shield Conv:");
-		gr_printf( LHX(130),LHY(172), game.DoConverter==0?"NO":"YES");
 		gr_printf( LHX(170),LHY(160), "Invulnerability:");
-		gr_printf( LHX(275),LHY(160), game.DoInvulnerability==0?"NO":"YES");
 		gr_printf( LHX(170),LHY(166), "Cloaking Device:");
-		gr_printf( LHX(275),LHY(166), game.DoCloak==0?"NO":"YES");
 		gr_printf( LHX(170),LHY(172), "Ammo Rack:");
+
+		gr_set_fontcolor(gr_find_closest_color_current(255,255,255),-1);
+		gr_printf( LHX(250),LHY( 35), game.invul?"ON":"OFF");
+		gr_printf( LHX(250),LHY( 41), game.Allow_marker_view?"ON":"OFF");
+		gr_printf( LHX(250),LHY( 47), game.AlwaysLighting?"ON":"OFF");
+		gr_printf( LHX(250),LHY( 53), game.BrightPlayers?"ON":"OFF");
+		gr_printf( LHX(250),LHY( 59), game.ShowAllNames?"ON":"OFF");
+		gr_printf( LHX(250),LHY( 65), game.game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+		gr_printf( LHX(130),LHY( 90), game.DoLaserUpgrade==0?"NO":"YES");
+		gr_printf( LHX(130),LHY( 96), game.DoSuperLaser==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(102), game.DoQuadLasers==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(108), game.DoVulcan==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(114), game.DoGauss==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(120), game.DoSpread==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(126), game.DoHelix==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(132), game.DoPlasma==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(138), game.DoPhoenix==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(144), game.DoFusions==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(150), game.DoOmega==0?"NO":"YES");
+		gr_printf( LHX(275),LHY( 90), game.DoFlash==0?"NO":"YES");
+		gr_printf( LHX(275),LHY( 96), game.DoHoming==0?"NO":"YES");
+		gr_printf( LHX(275),LHY(102), game.DoGuided==0?"NO":"YES");
+		gr_printf( LHX(275),LHY(108), game.DoProximity==0?"NO":"YES");
+		gr_printf( LHX(275),LHY(114), game.DoSmartMine==0?"NO":"YES");
+		gr_printf( LHX(275),LHY(120), game.DoSmarts==0?"NO":"YES");
+		gr_printf( LHX(275),LHY(126), game.DoMercury==0?"NO":"YES");
+		gr_printf( LHX(275),LHY(132), game.DoMegas==0?"NO":"YES");
+		gr_printf( LHX(275),LHY(138), game.DoEarthShaker==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(160), game.DoAfterburner==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(166), game.DoHeadlight==0?"NO":"YES");
+		gr_printf( LHX(130),LHY(172), game.DoConverter==0?"NO":"YES");
+		gr_printf( LHX(275),LHY(160), game.DoInvulnerability==0?"NO":"YES");
+		gr_printf( LHX(275),LHY(166), game.DoCloak==0?"NO":"YES");
 		gr_printf( LHX(275),LHY(172), game.DoAmmoRack==0?"NO":"YES");
 
 		//see if redbook song needs to be restarted
@@ -6467,14 +6465,14 @@ void show_game_rules(netgame_info game)
 
 		k = key_inkey();
 		switch( k )	{
-		case KEY_PRINT_SCREEN:
-			save_screen_shot(0); k = 0;
-			break;
-		case KEY_ENTER:
-		case KEY_SPACEBAR:
-		case KEY_ESC:
-			done=1;
-			break;
+			case KEY_PRINT_SCREEN:
+				save_screen_shot(0); k = 0;
+				break;
+			case KEY_ENTER:
+			case KEY_SPACEBAR:
+			case KEY_ESC:
+				done=1;
+				break;
 		}
 	}
 

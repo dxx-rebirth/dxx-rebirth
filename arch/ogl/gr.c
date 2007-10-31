@@ -553,7 +553,6 @@ void save_screen_shot(int automap_flag)
 	static int savenum=0;
 	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
-	GLint gl_draw_buffer=0;
 	
 	if (!GameArg.DbgGlReadPixelsOk){
 		if (!automap_flag)
@@ -578,20 +577,20 @@ void save_screen_shot(int automap_flag)
 	if (!automap_flag)
 		hud_message(MSGC_GAME_FEEDBACK,message);
 
-	if (GameArg.OglPrShot)
+	if (!automap_flag && GameArg.OglPrShot && Function_mode == FMODE_GAME)
 	{
 		render_frame(0,0);
 		gr_set_curfont(MEDIUM2_FONT);
 		gr_printf(0x8000,FONTSCALE_Y(10),"DXX-Rebirth\n");
-		glReadBuffer(gl_draw_buffer);
+		glReadBuffer(GL_BACK);
 	}
 	else
 	{
 		glReadBuffer(GL_FRONT);
 	}
-	buf = malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
+	buf = d_malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
-	free(buf);
+	d_free(buf);
 
 	key_flush();
 	start_time();

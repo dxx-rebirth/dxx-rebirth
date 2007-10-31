@@ -63,7 +63,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "physics.h"
 #include "config.h"
-#include "state.h"
 #include "ai.h"
 #include "switch.h"
 #include "textures.h"
@@ -82,15 +81,12 @@ void multi_send_play_by_play(int num,int spnum,int dpnum);
 void multi_send_heartbeat();
 void multi_cap_objects();
 void multi_adjust_remote_cap(int pnum);
-void multi_save_game(ubyte slot, uint id, char *desc);
-void multi_restore_game(ubyte slot, uint id);
 void multi_set_robot_ai(void);
 void multi_send_powerup_update();
 void bash_to_shield(int i,char *s);
 void init_hoard_data();
 void multi_apply_goal_textures();
 int  find_goal_texture(ubyte t);
-void multi_bad_restore();
 void multi_do_capture_bonus(char *buf);
 void multi_do_orb_bonus(char *buf);
 void multi_send_drop_flag(int objnum,int seed);
@@ -224,8 +220,8 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	10, // BOSS_ACTIONS
 	27, // ROBOT_POWERUPS
 	7,  // HOSTAGE_DOOR
-	2+24, // SAVE_GAME      (ubyte slot, uint id, char name[20])
-	2+4,  // RESTORE_GAME   (ubyte slot, uint id)
+	2+24, // SAVE_GAME      (ubyte slot, uint id, char name[20]) // obsolete
+	2+4,  // RESTORE_GAME   (ubyte slot, uint id) // obsolete
 	1+1,  // MULTI_REQ_PLAYER
 	sizeof(netplayer_stats), // MULTI_SEND_PLAYER
 	55, // MULTI_MARKER
@@ -2219,33 +2215,6 @@ void multi_do_hostage_door_status(char *buf)
 		wall_damage(&Segments[Walls[wallnum].segnum], Walls[wallnum].sidenum, Walls[wallnum].hps - hps);
 }
 
-void multi_do_save_game(char *buf)
-{
-	int count = 1;
-	ubyte slot;
-	uint id;
-	char desc[25];
-
-	slot = *(ubyte *)(buf+count);           count += 1;
-	id = GET_INTEL_INT(buf + count);        count += 4;
-	memcpy( desc, &buf[count], 20 );        count += 20;
-
-	multi_save_game( slot, id, desc );
-}
-
-void multi_do_restore_game(char *buf)
-{
-	int count = 1;
-	ubyte slot;
-	uint id;
-
-	slot = *(ubyte *)(buf+count);           count += 1;
-	id = GET_INTEL_INT(buf + count);        count += 4;
-
-	multi_restore_game( slot, id );
-}
-
-
 void multi_do_req_player(char *buf)
 {
 	netplayer_stats ps;
@@ -3105,32 +3074,6 @@ multi_send_score(void)
 	}
 }
 
-
-void
-multi_send_save_game(ubyte slot, uint id, char * desc)
-{
-	int count = 0;
-
-	multibuf[count] = MULTI_SAVE_GAME;              count += 1;
-	multibuf[count] = slot;                         count += 1;    // Save slot=0
-	PUT_INTEL_INT(multibuf+count, id );           count += 4;             // Save id
-	memcpy( &multibuf[count], desc, 20 ); count += 20;
-
-	multi_send_data(multibuf, count, 2);
-}
-
-void
-multi_send_restore_game(ubyte slot, uint id)
-{
-	int count = 0;
-
-	multibuf[count] = MULTI_RESTORE_GAME;   count += 1;
-	multibuf[count] = slot;                                                 count += 1;             // Save slot=0
-	PUT_INTEL_INT(multibuf+count, id);         count += 4;             // Save id
-
-	multi_send_data(multibuf, count, 2);
-}
-
 void
 multi_send_netplayer_stats_request(ubyte player_num)
 {
@@ -3577,147 +3520,6 @@ int multi_all_players_alive()
 	}
 	return (1);
 }
-
-void multi_initiate_save_game()
-{
-	uint game_id;
-	int i, slot;
-	char filename[128];
-	char desc[24];
-
-	if ((Endlevel_sequence) || (Control_center_destroyed))
-		return;
-
-	if (!multi_all_players_alive())
-	{
-		HUD_init_message ("Can't save...all players must be alive!");
-		return;
-	}
-
-	//multi_send_netplayer_stats_request(255);
-	//return;
-
-	//stop_time();
-
-	slot = state_get_save_file(filename, desc, 1/*, 0*/);
-	if (!slot)      {
-		//start_time();
-		return;
-	}
-	slot--;
-
-	//start_time();
-
-	// Make a unique game id
-	game_id = timer_get_fixed_seconds();
-	game_id ^= N_players<<4;
-	for (i=0; i<N_players; i++ )
-		game_id ^= *(uint *)Players[i].callsign;
-	if ( game_id == 0 ) game_id = 1;                // 0 is invalid
-
-	mprintf(( 1, "Game_id = %8x\n", game_id));
-	multi_send_save_game(slot, game_id, desc );
-	multi_do_frame();
-	multi_save_game(slot,game_id, desc );
-}
-
-extern int state_get_game_id(char *);
-
-void multi_initiate_restore_game()
-{
-	int slot;
-	char filename[128];
-
-	if ((Endlevel_sequence) || (Control_center_destroyed))
-		return;
-
-	if (!multi_all_players_alive())
-	{
-		HUD_init_message ("Can't restore...all players must be alive!");
-		return;
-	}
-
-	//stop_time();
-	slot = state_get_restore_file(filename,1);
-	if (!slot)      {
-		//start_time();
-		return;
-	}
-	state_game_id=state_get_game_id (filename);
-	if (!state_game_id)
-		return;
-
-	slot--;
-	//start_time();
-	multi_send_restore_game(slot,state_game_id);
-	multi_do_frame();
-	multi_restore_game(slot,state_game_id);
-}
-
-void multi_save_game(ubyte slot, uint id, char *desc)
-{
-	char filename[128];
-
-	if ((Endlevel_sequence) || (Control_center_destroyed))
-		return;
-
-	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, slot );
-
-	mprintf(( 0, "Save game %x on slot %d\n", id, slot ));
-	HUD_init_message( "Saving game #%d, '%s'", slot, desc );
-	stop_time();
-	state_game_id = id;
-	state_save_all_sub(filename, desc, 0 );
-}
-
-void multi_restore_game(ubyte slot, uint id)
-{
-	char filename[128];
-	player saved_player;
-	int pnum,i;
-	int thisid;
-
-	if ((Endlevel_sequence) || (Control_center_destroyed))
-		return;
-
-	mprintf(( 0, "Restore game %x from slot %d\n", id, slot ));
-	saved_player = Players[Player_num];
-	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", Players[Player_num].callsign, slot );
-
-	for (i=0;i<N_players;i++)
-		multi_strip_robots(i);
-
-	thisid=state_get_game_id (filename);
-	if (thisid!=id)
-	{
-		multi_bad_restore ();
-		return;
-	}
-
-	pnum=state_restore_all_sub( filename, 1, 0 );
-
-	mprintf ((0,"StateId=%d ThisID=%d\n",state_game_id,id));
-
-#if 0
-	if (state_game_id != id )       {
-		// Game doesn't match!!!
-		nm_messagebox( "Error", 1, "Ok", "Cannot restore saved game" );
-		Game_mode |= GM_GAME_OVER;
-		Function_mode = FMODE_MENU;
-		longjmp(LeaveGame, 0);
-	}
-
-	change_playernum_to(pnum-1);
-	memcpy( Players[Player_num].callsign, saved_player.callsign, CALLSIGN_LEN+1 );
-	memcpy( Players[Player_num].net_address, saved_player.net_address, 6 );
-	Players[Player_num].connected = saved_player.connected;
-	Players[Player_num].n_packets_got  = saved_player.n_packets_got;
-	Players[Player_num].n_packets_sent = saved_player.n_packets_sent;
-	Viewer = ConsoleObject = &Objects[pnum-1];
-#endif
-
-}
-
 
 void extract_netplayer_stats( netplayer_stats *ps, player * pd )
 {
@@ -4690,17 +4492,6 @@ void multi_do_drop_flag (char *buf)
 
 }
 
-void multi_bad_restore ()
-{
-	Function_mode = FMODE_MENU;
-	nm_messagebox(NULL, 1, TXT_OK,
-	              "A multi-save game was restored\nthat you are missing or does not\nmatch that of the others.\nYou must rejoin if you wish to\ncontinue.");
-	Function_mode = FMODE_GAME;
-	multi_quit_game = 1;
-	multi_leave_menu = 1;
-	multi_reset_stuff();
-}
-
 extern int robot_controlled[MAX_ROBOTS_CONTROLLED];
 extern int robot_agitation[MAX_ROBOTS_CONTROLLED];
 extern fix robot_controlled_time[MAX_ROBOTS_CONTROLLED];
@@ -5383,10 +5174,6 @@ multi_process_data(char *buf, int len)
 		if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
 	case MULTI_HOSTAGE_DOOR:
 		if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
-	case MULTI_SAVE_GAME:
-		if (!Endlevel_sequence) multi_do_save_game(buf); break;
-	case MULTI_RESTORE_GAME:
-		if (!Endlevel_sequence) multi_do_restore_game(buf); break;
 	case MULTI_REQ_PLAYER:
 		if (!Endlevel_sequence) multi_do_req_player(buf); break;
 	case MULTI_SEND_PLAYER:

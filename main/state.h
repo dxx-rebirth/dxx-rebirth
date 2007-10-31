@@ -29,11 +29,11 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 int state_restore_all(int in_game, int secret_restore, char *filename_override);
 
 int state_save_all_sub(char *filename, char *desc, int between_levels);
-int state_restore_all_sub(char *filename, int multi, int secret_restore);
+int state_restore_all_sub(char *filename, int secret_restore);
 
 extern uint state_game_id;
 
-int state_get_save_file(char *fname, char * dsc, int multi);
-int state_get_restore_file(char *fname, int multi);
+int state_get_save_file(char *fname, char * dsc);
+int state_get_restore_file(char *fname);
 
 #endif /* _STATE_H */

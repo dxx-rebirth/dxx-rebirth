@@ -83,8 +83,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MULTI_CREATE_ROBOT_POWERUPS 31
 #define MULTI_HOSTAGE_DOOR      32
 
-#define MULTI_SAVE_GAME         33
-#define MULTI_RESTORE_GAME      34
+#define MULTI_SAVE_GAME         33 // obsolete
+#define MULTI_RESTORE_GAME      34 // obsolete
 
 #define MULTI_REQ_PLAYER        35  // Someone requests my player structure
 #define MULTI_SEND_PLAYER       36  // Sending someone my player structure
@@ -121,6 +121,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_NET_CREATE_OBJECTS  40
 
 #define MAX_MULTI_MESSAGE_LEN   120
+
 
 // Exported functions
 
