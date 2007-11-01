@@ -1013,7 +1013,7 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 { 
 	int	steal_attempt = 0;
 	int	collision_seg;
-	static int last_play_time=0;
+	static fix last_play_time=0;
 
 	if (robot->flags&OF_EXPLODING)
 		return;
@@ -1143,7 +1143,7 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 void collide_player_and_controlcen( object * controlcen, object * playerobj, vms_vector *collision_point )
 { 
-	static int last_play_time=0;
+	static fix last_play_time=0;
 
 	if (playerobj->id == Player_num) {
 		Control_center_been_hit = 1;
@@ -1792,7 +1792,7 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 //##}
 
 void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point ) {
-	static int last_play_time=0;
+	static fix last_play_time=0;
 	if (last_play_time + (F1_0/50) < GameTime || last_play_time > GameTime) {
 		last_play_time = GameTime;
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, collision_point, 0, F1_0 );
