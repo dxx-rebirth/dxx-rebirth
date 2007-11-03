@@ -60,8 +60,14 @@ char *select_next_song(dl_list *list) {
 	return ret;
 }
 
+# if !(defined(__APPLE__) && defined(__MACH__))		// this is why scandir should be part of POSIX. Grrrr.
+# define DIRENT_PTR const struct dirent *
+#else
+# define DIRENT_PTR struct dirent *
+#endif
+
 /* Filter for scandir(); selects MP3 and OGG, files, rejects the rest */
-int file_select_all(const struct dirent *entry) {
+int file_select_all(DIRENT_PTR entry) {
 	char *fn = (char *) entry->d_name;
 	char *ext = strrchr(fn, '.');
 	int ext_ok = (ext != NULL && (!strcmp(ext, ".mp3") || !strcmp(ext, ".ogg")));
@@ -74,7 +80,7 @@ int file_select_all(const struct dirent *entry) {
 void jukebox_load() {
         int count, i;
         struct dirent **files;
-        int (*file_select)(const struct dirent *) = file_select_all;
+        int (*file_select)(DIRENT_PTR) = file_select_all;
 
 	if (!jukebox_loaded) {
 		if (GameArg.SndJukebox) {
