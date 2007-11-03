@@ -135,7 +135,7 @@ To see a full list of available command-line options append ‘-h’, ‘-?’ t
 d2x.ini
 
 
-The game will create a config-directory in the Home directory of the user called ‘.d2x-rebirth’.
+The game will create a config-directory in the Home directory of the user called ‘.d2x-rebirth’. On Mac OS X this directory will be called 'D2X Rebirth', in the Preferences folder in the user's Library.
 It is used to read/save
 
     *

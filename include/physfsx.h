@@ -54,7 +54,11 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 #endif
 
 #if defined(__unix__)
+# if !(defined(__APPLE__) && defined(__MACH__))
 	path = "~/.d2x-rebirth/";
+# else
+	path = "~/Library/Preferences/D2X Rebirth/";
+# endif
 
 	PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
 
