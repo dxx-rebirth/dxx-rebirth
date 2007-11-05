@@ -12,7 +12,7 @@
 #define D2XMINOR "5"
 
 /* d2x micro version */
-#define D2XMICRO "2"
+#define D2XMICRO "3"
 
 /* Define if you want to build the editor */
 /* #undef EDITOR */
@@ -87,7 +87,7 @@
 /* #undef SDL_IMAGE */
 
 /* Define this to be the shared game directory root */
-#define SHAREPATH "/Users/christaylor/share/games/d2x"
+#define SHAREPATH ""
 
 /* Define to 1 if you have the ANSI C header files. */
 //#define STDC_HEADERS 1

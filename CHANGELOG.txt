@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071105
+--------
+arch/carbon/conf.h, English.lproj/InfoPlist.strings, d2x-Info.plist, d2xgl-Info.plist: update Mac version info, set SHAREPATH to application folder for Mac OS X
+
 20071103
 --------
 arch/sdl/jukebox.c: hack to remove warning when compiling on Mac OS X (constant/variable dirent parameter of file selection callback for scandir)
