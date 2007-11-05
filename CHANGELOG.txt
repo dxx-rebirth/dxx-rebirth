@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071105
+--------
+arch/sdl/jukebox.c: Fixed crash on absent or invalid jukebox directory
+
 20071101
 --------
 main/collide.c: Data types correction
