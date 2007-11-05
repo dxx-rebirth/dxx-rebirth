@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20071105
 --------
 arch/carbon/conf.h, English.lproj/InfoPlist.strings, d2x-Info.plist, d2xgl-Info.plist: update Mac version info, set SHAREPATH to application folder for Mac OS X
+arch/sdl/jukebox.c: Fixed crash on absent or invalid jukebox directory
 
 20071103
 --------

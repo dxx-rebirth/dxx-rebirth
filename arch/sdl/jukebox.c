@@ -88,12 +88,13 @@ void jukebox_load() {
 
 			JukeboxSongs = dl_init();
 			count = scandir(jukebox_path, &files, file_select, alphasort);
-		 
-		        printf("Jukebox: %d music file(s) found in %s\n", count, jukebox_path);
 
-		        for (i=0; i<count; i++)	dl_add(JukeboxSongs, files[i]->d_name);
-
-			jukebox_loaded = 1;
+			if (count > 0) {
+				printf("Jukebox: %d music file(s) found in %s\n", count, jukebox_path);
+				for (i=0; i<count; i++)	dl_add(JukeboxSongs, files[i]->d_name);
+				jukebox_loaded = 1;
+			}
+			else { printf("Jukebox music could not be found!\n"); }
 		}
 	}
 	else { printf("Jukebox already loaded\n"); }
