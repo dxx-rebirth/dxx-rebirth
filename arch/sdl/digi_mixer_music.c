@@ -16,6 +16,7 @@
 #include "digi_mixer_music.h"
 #include "jukebox.h"
 #include "cfile.h"
+#include "u_mem.h"
 
 #define MIX_MUSIC_DEBUG 0
 #define MUSIC_FADE_TIME 500 //milliseconds
@@ -74,14 +75,13 @@ void convert_hmp(char *filename, char *mid_filename) {
  */
 
 void mix_play_music(char *filename, int loop) {
-
-  loop *= -1; 
   int i, got_end=0;
-
   char real_filename[PATH_MAX];
   char rel_filename[32];	// just the filename of the actual music file used
   char music_title[16];
   char *basedir = "Music";
+
+  loop *= -1; 
 
   // Quick hack to filter out the .hmp extension
   for (i=0; !got_end; i++) {
@@ -120,11 +120,12 @@ void mix_play_music(char *filename, int loop) {
 
 void mix_play_file(char *basedir, char *filename, int loop) {
 
-  int fn_buf_len = strlen(basedir) + strlen(filename) + 1;
-  char real_filename[fn_buf_len];
-  sprintf(real_filename, "%s%s", basedir, filename); // build absolute path
+  char *real_filename = d_malloc(strlen(basedir) + strlen(filename) + 1);
 
-  if ((current_music = Mix_LoadMUS(real_filename))) {
+  if (real_filename)
+	  sprintf(real_filename, "%s%s", basedir, filename); // build absolute path
+
+  if (real_filename && (current_music = Mix_LoadMUS(real_filename))) {
     if (Mix_PlayingMusic()) {
       // Fade-in effect sounds cleaner if we're already playing something
       Mix_FadeInMusic(current_music, loop, MUSIC_FADE_TIME);
@@ -138,6 +139,9 @@ void mix_play_file(char *basedir, char *filename, int loop) {
     fprintf(stderr, "Music %s could not be loaded%s\n", filename, basedir);
     Mix_HaltMusic();
   }
+
+  if (real_filename)
+	  d_free(real_filename);
 }
 
 void mix_set_music_volume(int vol) {

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071106
+--------
+arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, include/args.h, misc/hmp2mid.h: various fixes towards getting it to build for Mac OS 9 again
+
 20071105
 --------
 arch/carbon/conf.h, English.lproj/InfoPlist.strings, d2x-Info.plist, d2xgl-Info.plist: update Mac version info, set SHAREPATH to application folder for Mac OS X

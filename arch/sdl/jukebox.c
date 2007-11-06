@@ -101,8 +101,10 @@ void jukebox_load() {
 }
 
 void jukebox_play() {
+	char *music_filename;
+
 	if (!jukebox_loaded) return;
-	char *music_filename = (char *) JukeboxSongs->current->data;
+	music_filename = (char *) JukeboxSongs->current->data;
 
 	mix_play_file(jukebox_path, music_filename, 0);
 

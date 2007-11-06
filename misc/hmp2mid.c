@@ -53,8 +53,9 @@
   if (PHYSFS_write(mid_out, buf, 1, count) != (count)) \
   { \
     free(mid_track_buf); \
-    snprintf(hmp2mid_error, sizeof(hmp2mid_error), mid_write_error_templ, \
-      PHYSFS_getLastError); \
+	strncpy(hmp2mid_error, mid_write_error_templ, sizeof(hmp2mid_error)); \
+	strncat(hmp2mid_error, PHYSFS_getLastError(), \
+      sizeof(hmp2mid_error) - sizeof(mid_write_error_templ) + 1); \
     return hmp2mid_error; \
   }
 
