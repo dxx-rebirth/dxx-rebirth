@@ -60,6 +60,7 @@ ubyte Config_joystick_sensitivity = 8;
 static char *DigiVolumeStr = "DigiVolume";
 static char *MidiVolumeStr = "MidiVolume";
 static char *RedbookVolumeStr = "RedbookVolume";
+static char *ReverseStereoStr = "ReverseStereo";
 static char *DetailLevelStr = "DetailLevel";
 static char *GammaLevelStr = "GammaLevel";
 static char *LastPlayerStr = "LastPlayer";
@@ -119,6 +120,8 @@ int ReadConfigFile()
 				Config_midi_volume = strtol(value, NULL, 10);
 			else if (!strcmp(token, RedbookVolumeStr))
 				Config_redbook_volume = strtol(value, NULL, 10);
+			else if (!strcmp(token, ReverseStereoStr))
+				Config_channels_reversed = strtol(value, NULL, 10);
 			else if (!strcmp(token, GammaLevelStr)) {
 				gamma = strtol(value, NULL, 10);
 				gr_palette_set_gamma( gamma );
@@ -191,6 +194,8 @@ int WriteConfigFile()
 	sprintf (str, "%s=%d\n", MidiVolumeStr, Config_midi_volume);
 	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", RedbookVolumeStr, Config_redbook_volume);
+	PHYSFSX_puts(infile, str);
+	sprintf (str, "%s=%d\n", ReverseStereoStr, Config_channels_reversed);
 	PHYSFSX_puts(infile, str);
 	sprintf (str, "%s=%d\n", GammaLevelStr, gamma);
 	PHYSFSX_puts(infile, str);

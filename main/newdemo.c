@@ -200,7 +200,7 @@ sbyte Newdemo_players_cloaked;
 sbyte Newdemo_warning_given = 0;
 sbyte Newdemo_cntrlcen_destroyed = 0;
 static sbyte nd_bad_read;
-int NewdemoFrameCount;
+int NewdemoFrameCount, TotalFrames;
 short frame_bytes_written = 0;
 fix nd_playback_total;
 fix nd_recorded_total;
@@ -214,13 +214,7 @@ PHYSFS_file *infile;
 PHYSFS_file *outfile = NULL;
 
 int newdemo_get_percent_done() {
-	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
-		return (PHYSFS_tell(infile) * 100) / Newdemo_size;
-	}
-	if ( Newdemo_state == ND_STATE_RECORDING ) {
-		return PHYSFS_tell(outfile);
-	}
-	return 0;
+	return (NewdemoFrameCount*100)/TotalFrames;
 }
 
 #define VEL_PRECISION 12
@@ -835,9 +829,15 @@ void nd_write_object(object *obj)
 
 int JustStartedRecording=0,JustStartedPlayback=0;
 
+int RecordFrame=1;
+static fix last_rec_time=0;
+#define REC_DELAY F1_0/20
+
 void newdemo_record_start_demo()
 {
 	int i;
+
+	last_rec_time=GameTime-REC_DELAY; // make sure first frame is recorded!
 
 	stop_time();
 	nd_write_byte(ND_EVENT_START_DEMO);
@@ -912,36 +912,54 @@ void newdemo_record_start_frame(int frame_number, fix frame_time )
 		return;
 	}
 
-	stop_time();
+	// Make demo recording waste a bit less space.
+	// First check if if at least REC_DELAY has passed since last recorded frame. If yes, record frame and set RecordFrame true.
+	// RecordFrame will be used for various other frame-by-frame events to drop some unnecessary bytes.
+	// frame_time must be modified to get the right playback speed.
+	if (last_rec_time > GameTime)
+		last_rec_time=GameTime-REC_DELAY;
 
-	for (i=0;i<MAX_OBJECTS;i++)
+	if (last_rec_time + REC_DELAY <= GameTime || frame_time >= REC_DELAY)
 	{
-		WasRecorded[i]=0;
-		ViewWasRecorded[i]=0;
+		if (frame_time < REC_DELAY)
+			frame_time = REC_DELAY;
+		last_rec_time = GameTime-(GameTime-(last_rec_time + REC_DELAY));
+		RecordFrame=1;
+
+		stop_time();
+	
+		for (i=0;i<MAX_OBJECTS;i++)
+		{
+			WasRecorded[i]=0;
+			ViewWasRecorded[i]=0;
+		}
+		for (i=0;i<32;i++)
+			RenderingWasRecorded[i]=0;
+	
+		frame_number -= Newdemo_start_frame;
+	
+		Assert(frame_number >= 0 );
+	
+		nd_write_byte(ND_EVENT_START_FRAME);
+		nd_write_short(frame_bytes_written - 1);        // from previous frame
+		frame_bytes_written=3;
+		nd_write_int(frame_number);
+		nd_write_int(frame_time);
+		start_time();
 	}
-	for (i=0;i<32;i++)
-		RenderingWasRecorded[i]=0;
-
-	frame_number -= Newdemo_start_frame;
-
-	Assert(frame_number >= 0 );
-
-	nd_write_byte(ND_EVENT_START_FRAME);
-	nd_write_short(frame_bytes_written - 1);        // from previous frame
-	frame_bytes_written=3;
-	nd_write_int(frame_number);
-	nd_write_int(frame_time);
-	start_time();
+	else
+	{
+		RecordFrame=0;
+	}
 
 }
 
 void newdemo_record_render_object(object * obj)
 {
+	if (!RecordFrame)
+		return;
 	if (ViewWasRecorded[obj-Objects])
 		return;
-
-	//if (obj==&Objects[Players[Player_num].objnum] && !Player_is_dead)
-	//	return;
 
 	stop_time();
 	nd_write_byte(ND_EVENT_RENDER_OBJECT);
@@ -953,11 +971,10 @@ extern ubyte RenderingType;
 
 void newdemo_record_viewer_object(object * obj)
 {
-
+	if (!RecordFrame)
+		return;
 	if (ViewWasRecorded[obj-Objects] && (ViewWasRecorded[obj-Objects]-1)==RenderingType)
 		return;
-	//if (WasRecorded[obj-Objects])
-	//	return;
 	if (RenderingWasRecorded[RenderingType])
 		return;
 
@@ -1091,14 +1108,10 @@ void newdemo_record_hostage_rescued( int hostage_number ) {
 
 void newdemo_record_morph_frame(morph_data *md)
 {
+	if (!RecordFrame)
+		return;
 	stop_time();
-
 	nd_write_byte( ND_EVENT_MORPH_FRAME );
-#if 0
-	newdemo_write( md->morph_vecs, sizeof(md->morph_vecs), 1 );
-	newdemo_write( md->submodel_active, sizeof(md->submodel_active), 1 );
-	newdemo_write( md->submodel_startpoints, sizeof(md->submodel_startpoints), 1 );
-#endif
 	nd_write_object( md->obj );
 	start_time();
 }
@@ -1130,6 +1143,8 @@ void newdemo_record_hud_message( char * message )
 
 void newdemo_record_palette_effect(short r, short g, short b )
 {
+	if (!RecordFrame)
+		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_PALETTE_EFFECT );
 	nd_write_short( r );
@@ -1339,6 +1354,8 @@ void newdemo_record_multi_score(int pnum, int score)
 
 void newdemo_record_primary_ammo(int old_ammo, int new_ammo)
 {
+	if (!RecordFrame)
+		return;
 	stop_time();
 	nd_write_byte(ND_EVENT_PRIMARY_AMMO);
 	if (old_ammo < 0)
@@ -1351,6 +1368,8 @@ void newdemo_record_primary_ammo(int old_ammo, int new_ammo)
 
 void newdemo_record_secondary_ammo(int old_ammo, int new_ammo)
 {
+	if (!RecordFrame)
+		return;
 	stop_time();
 	nd_write_byte(ND_EVENT_SECONDARY_AMMO);
 	if (old_ammo < 0)
@@ -2505,7 +2524,7 @@ void newdemo_goto_beginning()
 	Newdemo_at_eof = 0;
 }
 
-void newdemo_goto_end()
+void newdemo_goto_end(int FrameCountOnly)
 {
 	short frame_length, byte_count, bshort;
 	sbyte level, bbyte, laser_level, c;
@@ -2515,17 +2534,18 @@ void newdemo_goto_end()
 	cfseek(infile, -2, SEEK_END);
 	nd_read_byte(&level);
 
-	if ((level < Last_secret_level) || (level > Last_level)) {
-		newmenu_item m[3];
-
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_CANT_PLAYBACK;
-		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_LEVEL_CANT_LOAD;
-		m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_DEMO_OLD_CORRUPT;
-		newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
-		newdemo_stop_playback();
-		return;
-	}
-	if (level != Current_level_num)
+	if (!FrameCountOnly)
+		if ((level < Last_secret_level) || (level > Last_level)) {
+			newmenu_item m[3];
+	
+			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_CANT_PLAYBACK;
+			m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_LEVEL_CANT_LOAD;
+			m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_DEMO_OLD_CORRUPT;
+			newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+			newdemo_stop_playback();
+			return;
+		}
+	if (level != Current_level_num && !FrameCountOnly)
 		LoadLevel(level,1);
 
 	cfseek(infile, -4, SEEK_END);
@@ -2870,16 +2890,24 @@ void newdemo_playback_one_frame()
 			nd_playback_total = nd_recorded_total;      // baseline total playback time
 		else
 			nd_playback_total += FrameTime;
-		if ((playback_style == NORMAL_PLAYBACK) && (NewdemoFrameCount > 10))
-			if ((nd_playback_total * INTERPOL_FACTOR) < nd_recorded_total) {
-				playback_style = INTERPOLATE_PLAYBACK;
-				nd_playback_total = nd_recorded_total + FrameTime;  // baseline playback time
-				base_interpol_time = nd_recorded_total;
-				d_recorded = nd_recorded_time;                      // baseline delta recorded
-			}
-		if ((playback_style == NORMAL_PLAYBACK) && (NewdemoFrameCount > 10))
+
+		if (playback_style == NORMAL_PLAYBACK)
+		{
 			if (nd_playback_total > nd_recorded_total)
 				playback_style = SKIP_PLAYBACK;
+
+			if ((nd_playback_total * INTERPOL_FACTOR) < nd_recorded_total) {
+				playback_style = INTERPOLATE_PLAYBACK;
+				nd_playback_total = nd_recorded_total + FrameTime; // baseline playback time
+				base_interpol_time = nd_recorded_total;
+				d_recorded = nd_recorded_time; // baseline delta recorded
+			}
+			else
+			{
+				if (NewdemoFrameCount > 0 && NewdemoFrameCount < 10)
+					newdemo_back_frames(1);
+			}
+		}
 
 
 		if ((playback_style == INTERPOLATE_PLAYBACK) && Newdemo_do_interpolate) {
@@ -3223,6 +3251,11 @@ void newdemo_start_playback(char * filename)
 		return;
 	}
 
+	// read last frame information and save last FrameCount
+	newdemo_goto_end(1);
+	TotalFrames=NewdemoFrameCount;
+	PHYSFS_seek(infile, 0);
+
 	nd_bad_read = 0;
 #ifdef NETWORK
 	change_playernum_to(0);                 // force playernum to 0
@@ -3301,7 +3334,7 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 		newdemo_stop_playback();
 		return;
 	}
-	newdemo_goto_end();
+	newdemo_goto_end(0);
 	trailer_start = PHYSFS_tell(infile);
 	PHYSFS_seek(infile, PHYSFS_tell(infile) + 11);
 	bytes_back = 0;

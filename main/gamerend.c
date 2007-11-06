@@ -462,8 +462,10 @@ void game_draw_hud_stuff()
 			} else {
 				sprintf (message, " ");
 			}
-		} else 
-			sprintf (message, TXT_DEMO_RECORDING);
+		} else {
+			extern int Newdemo_num_written;
+			sprintf (message, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
+		}
 
 		gr_set_curfont( GAME_FONT );    //GAME_FONT );
 		gr_set_fontcolor(gr_getcolor(27,0,0), -1 );

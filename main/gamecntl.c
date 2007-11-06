@@ -474,7 +474,7 @@ int do_game_pause()
 				break;
 			case KEY_F1:
  				clear_boxed_message();
-				do_show_help();
+				show_help();
 				show_boxed_message(TXT_PAUSE);
 				break;
 			case KEY_PAUSE:
@@ -697,7 +697,7 @@ void HandleDeathKey(int key)
 void HandleDemoKey(int key)
 {
 	switch (key) {
-
+		case KEY_F1:	show_newdemo_help();	break;
 		case KEY_F3:
 				
 			 if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window))
@@ -1024,7 +1024,7 @@ int HandleSystemKey(int key)
 		case KEY_PRINT_SCREEN:  save_screen_shot(0);		break;
 
 		MAC(case KEY_COMMAND+KEY_1:)
-		case KEY_F1:					do_show_help();			break;
+		case KEY_F1:					show_help();			break;
 
 		MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:					//Config_menu_flag = 1; break;

@@ -968,13 +968,6 @@ void test_anim_states();
 
 #include "fvi.h"
 
-//put up the help message
-void do_show_help()
-{
-	show_help();
-}
-
-
 extern int been_in_editor;
 
 //	------------------------------------------------------------------------------------
@@ -1337,6 +1330,24 @@ void show_help()
 
 	newmenu_dotiny2( NULL, TXT_KEYS, nitems, m, NULL );
 
+	palette_restore();
+}
+
+void show_newdemo_help()
+{
+	newmenu_item m[8];
+	int mc = 0;
+
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "UP\t  PLAY"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "DOWN\t  PAUSE"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "RIGHT\t  ONE FRAME FORWARD"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "LEFT\t  ONE FRAME BACKWARD"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-RIGHT\t  FAST FORWARD"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-LEFT\t  FAST BACKWARD"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-RIGHT\t  JUMP TO END"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-LEFT\t  JUMP TO START"; mc++;
+	full_palette_save();
+	newmenu_dotiny2( NULL, "DEMO PLAYBACK CONTROLS", mc, m, NULL );
 	palette_restore();
 }
 
