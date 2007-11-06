@@ -77,7 +77,7 @@
     
   
 static const char *hmp_read_error = "Error reading from hmp file";
-static const char *mid_write_error_templ = "Error writing to mid file: %s";
+static const char mid_write_error_templ[] = "Error writing to mid file: ";
 static char hmp2mid_error[512];
 /* The beginning of the midi header */
 static const char midi_header1[10] = { 'M', 'T', 'h', 'd', 0, 0, 0, 6, 0, 1 };
