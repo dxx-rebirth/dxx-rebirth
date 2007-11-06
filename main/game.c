@@ -1226,14 +1226,6 @@ void advance_sound()
 
 void test_anim_states();
 
-//put up the help message
-void do_show_help()
-{
-	show_help();
-}
-
-//--unused-- int save_newdemo_state;
-
 extern int been_in_editor;
 
 //	------------------------------------------------------------------------------------
@@ -1524,7 +1516,7 @@ int do_game_pause()
 				break;
 			case KEY_F1:
  				clear_boxed_message();
-				do_show_help();
+				show_help();
 				show_boxed_message(TXT_PAUSE);
 				break;
 			case KEY_PAUSE:
@@ -1568,6 +1560,22 @@ void show_help()
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-F8 to SHIFT-F12\t  DEFINE MACRO"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "PAUSE\t  SHOW NETGAME INFORMATION"; mc++;
 	newmenu_dotiny( NULL, TXT_KEYS, mc, m, NULL );
+}
+
+void show_newdemo_help()
+{
+	newmenu_item m[8];
+	int mc = 0;
+
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "UP\t  PLAY"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "DOWN\t  PAUSE"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "RIGHT\t  ONE FRAME FORWARD"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "LEFT\t  ONE FRAME BACKWARD"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-RIGHT\t  FAST FORWARD"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-LEFT\t  FAST BACKWARD"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-RIGHT\t  JUMP TO END"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-LEFT\t  JUMP TO START"; mc++;
+	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", mc, m, NULL );
 }
 
 //temp function until Matt cleans up game sequencing
@@ -1964,9 +1972,9 @@ void HandleDemoKey(int key)
 		}
 		break;
 #endif
-
-		case KEY_F3:			toggle_cockpit();	break;
-		case KEY_F2:			Config_menu_flag = 1;	break;
+		case KEY_F1:	show_newdemo_help();	break;
+		case KEY_F3:	toggle_cockpit();	break;
+		case KEY_F2:	Config_menu_flag = 1;	break;
 		case KEY_F7:
 #ifdef NETWORK
 			Show_kill_list = (Show_kill_list+1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
@@ -2252,7 +2260,7 @@ void HandleGameKey(int key)
 				Function_mode = FMODE_MENU;
 			}
 			break;
-		case KEY_F1:				do_show_help();         break;
+		case KEY_F1:				show_help();         break;
 		case KEY_F2:				Config_menu_flag = 1;	break;
 		case KEY_F3:				toggle_cockpit();       break;
 

@@ -35,6 +35,7 @@ char config_last_player[CALLSIGN_LEN+1] = "";
 char config_last_mission[MISSION_NAME_LEN+1] = "";
 static char *DigiVolumeStr="DigiVolume";
 static char *MidiVolumeStr="MidiVolume";
+static char *ReverseStereoStr="ReverseStereo";
 static char *GammaLevelStr="GammaLevelStr";
 static char *DetailLevelStr="DetailLevelStr";
 static char *LastPlayerStr="LastPlayerStr";
@@ -131,6 +132,8 @@ int ReadConfigFile()
 				Config_digi_volume = strtol(value, NULL, 10);
 			else if (!strcmp(token, MidiVolumeStr))
 				Config_midi_volume = strtol(value, NULL, 10);
+			else if (!strcmp(token, ReverseStereoStr))
+				Config_channels_reversed = strtol(value, NULL, 10);
 			else if (!strcmp(token, GammaLevelStr)) {
 				gamma = strtol(value, NULL, 10);
 				gr_palette_set_gamma( gamma );
@@ -200,6 +203,8 @@ int WriteConfigFile()
 	sprintf (str, "%s=%d\n", DigiVolumeStr, Config_digi_volume);
 	fputs(str, infile);
 	sprintf (str, "%s=%d\n", MidiVolumeStr, Config_midi_volume);
+	fputs(str, infile);
+	sprintf (str, "%s=%d\n", ReverseStereoStr, Config_channels_reversed);
 	fputs(str, infile);
 	sprintf (str, "%s=%d\n", GammaLevelStr, gamma);
 	fputs(str, infile);

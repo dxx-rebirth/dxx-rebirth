@@ -203,7 +203,7 @@ void reset_palette_add (void);
 void palette_restore (void);
 
 //put up the help message
-void do_show_help ();
+void show_help ();
 
 //show a message in a nice little box
 void show_boxed_message (char *msg);

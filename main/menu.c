@@ -322,10 +322,6 @@ void do_option ( int select)
 			RegisterPlayer();		//1 == allow escape out of menu
 			break;
 
-		case MENU_HELP:
-			do_show_help();
-			break;
-
                 #ifndef RELEASE
 
 		case MENU_PLAY_SONG:	{

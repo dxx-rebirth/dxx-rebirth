@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071106
+--------
+main/config.c, main/game.c, main/game.h, main/menu.c, main/newdemo.c: Correctly saving Reverse Stereo setting; Added Demo playback help keys; aligned Demo recording to 20 frames per second to save lots of hard drive space
+
 20071105
 --------
 arch/sdl/jukebox.c: Fixed crash on absent or invalid jukebox directory
