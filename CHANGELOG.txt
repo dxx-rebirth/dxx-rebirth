@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20071110
 --------
 arch/include/digi_mixer_music.h, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, include/physfsx.h: port the jukebox to PhysicsFS for Mac OS 9 compatibility
+arch/ogl/sdlgl.c: print a more meaningful message when SDL fails to initialise OpenGL
 
 20071106
 --------

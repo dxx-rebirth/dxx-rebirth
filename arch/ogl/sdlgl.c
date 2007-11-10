@@ -79,7 +79,7 @@ int ogl_init_window(int x, int y)
 
 	if (!SDL_SetVideoMode(x, y, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
 	{
-		Error("Could not set %dx%dx%d opengl video mode\n", x, y, GameArg.DbgGlBpp);
+		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgGlBpp, SDL_GetError());
 	}
 	SDL_ShowCursor(0);
 
