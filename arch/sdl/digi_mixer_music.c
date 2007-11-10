@@ -76,7 +76,6 @@ void convert_hmp(char *filename, char *mid_filename) {
 
 void mix_play_music(char *filename, int loop) {
   int i, got_end=0;
-  char real_filename[PATH_MAX];
   char rel_filename[32];	// just the filename of the actual music file used
   char music_title[16];
   char *basedir = "Music";
@@ -108,9 +107,7 @@ void mix_play_music(char *filename, int loop) {
     convert_hmp(filename, rel_filename);
   }
 
-  PHYSFSX_getRealPath(rel_filename, real_filename);
-
-  mix_play_file("", real_filename, loop);
+  mix_play_file(rel_filename, loop);
 }
 
 
@@ -118,14 +115,12 @@ void mix_play_music(char *filename, int loop) {
  *  Plays a music file from an absolute path (used by jukebox)
  */
 
-void mix_play_file(char *basedir, char *filename, int loop) {
+void mix_play_file(char *filename, int loop) {
+  char real_filename[PATH_MAX];
 
-  char *real_filename = d_malloc(strlen(basedir) + strlen(filename) + 1);
+  PHYSFSX_getRealPath(filename, real_filename); // build absolute path
 
-  if (real_filename)
-	  sprintf(real_filename, "%s%s", basedir, filename); // build absolute path
-
-  if (real_filename && (current_music = Mix_LoadMUS(real_filename))) {
+  if ((current_music = Mix_LoadMUS(real_filename))) {
     if (Mix_PlayingMusic()) {
       // Fade-in effect sounds cleaner if we're already playing something
       Mix_FadeInMusic(current_music, loop, MUSIC_FADE_TIME);
@@ -136,12 +131,9 @@ void mix_play_file(char *basedir, char *filename, int loop) {
     Mix_HookMusicFinished(music_done);
   }
   else {
-    fprintf(stderr, "Music %s could not be loaded%s\n", filename, basedir);
+    fprintf(stderr, "Music %s could not be loaded\n", real_filename);
     Mix_HaltMusic();
   }
-
-  if (real_filename)
-	  d_free(real_filename);
 }
 
 void mix_set_music_volume(int vol) {

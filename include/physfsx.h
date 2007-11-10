@@ -31,6 +31,8 @@
 #endif
 
 #include "pstypes.h"
+#include "strutil.h"
+#include "u_mem.h"
 #include "error.h"
 #include "vecmat.h"
 #include "args.h"
@@ -274,6 +276,34 @@ static inline int PHYSFSX_rename(char *oldpath, char *newpath)
 	PHYSFSX_getRealPath(oldpath, old);
 	PHYSFSX_getRealPath(newpath, new);
 	return (rename(old, new) == 0);
+}
+
+// Find files at path that have an extension listed in exts
+// The extension list exts must be NULL-terminated, with each ext beginning with a '.'
+static inline char **PHYSFSX_findFiles(char *path, char **exts)
+{
+	char **list = PHYSFS_enumerateFiles(path);
+	char **i, **j = list, **k;
+	char *ext;
+
+	if (list == NULL)
+		return NULL;	// out of memory: not so good
+
+	for (i = list; *i; i++)
+	{
+		ext = strrchr(*i, '.');
+		if (ext)
+			for (k = exts; *k != NULL && stricmp(ext, *k); k++) {}	// see if the file is of a type we want
+
+		if (ext && *k)
+			*j++ = *i;
+		else
+			free(*i);
+	}
+
+	*j = NULL;
+	list = realloc(list, (j - list + 1)*sizeof(char *));	// save a bit of memory (or a lot?)
+	return list;
 }
 
 

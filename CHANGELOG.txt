@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071110
+--------
+arch/include/digi_mixer_music.h, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, include/physfsx.h: port the jukebox to PhysicsFS for Mac OS 9 compatibility
+
 20071106
 --------
 main/config.c, main/game.c, main/game.h, main/gamecntl.c, main/gamerend.c, main/menu.c, main/newdemo.c: Correctly saving Reverse Stereo setting; Added Demo playback help keys; aligned Demo recording to 20 frames per second to save lots of hard drive space
