@@ -126,7 +126,7 @@ int show_title_screen( char * filename, int allow_keys )
 			gr_free_bitmap_data (&title_bm);
 			break;
 		}
-		timer_delay(400);
+		timer_delay2(20);
         }
 
 	gr_free_bitmap_data (&title_bm);
@@ -753,7 +753,7 @@ int show_briefing(int screen_num, char *message)
 					}
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
-					timer_delay(400);
+					timer_delay2(20);
 #ifdef OGL
 					gr_flip();
 					show_fullscr(&briefing_bm);
@@ -876,7 +876,7 @@ int show_briefing(int screen_num, char *message)
 				}
 				while (timer_get_approx_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
-				timer_delay(400);
+				timer_delay2(20);
 #ifdef OGL
 				gr_flip();
 				show_fullscr(&briefing_bm);

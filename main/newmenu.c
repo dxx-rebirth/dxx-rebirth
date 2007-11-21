@@ -838,7 +838,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 #endif
 
 	while(!done)	{
-		timer_delay(400);
+		timer_delay2(20);
 #ifdef OGL
 		gr_flip();
 
@@ -1631,7 +1631,7 @@ ReadFileNames:
 #endif
 
 	while(!done)	{
-		timer_delay(400);
+		timer_delay2(20);
 		ocitem = citem;
 		ofirst_item = first_item;
                 gr_update();
@@ -2038,7 +2038,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 #endif
 
 	while(!done)	{
-		timer_delay(400);
+		timer_delay2(20);
 #ifdef OGL
 		gr_flip();
 		nm_draw_background1(NULL);

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071121
+--------
+arch/sdl/key.c, arch/sdl/timer.c, include/timer.h, main/game.c, main/kconfig.c, main/kmatrix.c, main/netlist.c, main/newmenu.c, main/scores.c, main/titles.c: Introduced timer_delay2 as replacement for timer_delay to sleep according to given FPS rate considering calc time between frames
+
 20071106
 --------
 main/config.c, main/game.c, main/game.h, main/menu.c, main/newdemo.c: Correctly saving Reverse Stereo setting; Added Demo playback help keys; aligned Demo recording to 20 frames per second to save lots of hard drive space
