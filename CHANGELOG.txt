@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071121
+--------
+arch/sdl/key.c, arch/sdl/timer.c, include/timer.h, main/game.c, main/gamecntl.c, main/kconfig.c, main/kmatrix.c, main/network.c, main/newmenu.c, main/scores.c, main/titles.c: Introduced timer_delay2 as replacement for timer_delay to sleep according to given FPS rate considering calc time between frames
+
 20071110
 --------
 arch/include/digi_mixer_music.h, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, include/physfsx.h: port the jukebox to PhysicsFS for Mac OS 9 compatibility

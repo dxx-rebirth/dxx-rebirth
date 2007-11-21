@@ -1039,7 +1039,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	mprintf ((0,"Set to true!\n"));
 
 	while(!done)	{
-		timer_delay(400);
+		timer_delay2(20);
 
 #ifdef OGL
 		gr_flip();
@@ -1886,7 +1886,7 @@ int newmenu_get_filename(char *title, char *type, char *filename, int allow_abor
 	int i;
 	char **find;
 	char **f;
-	char *ext, filespec[3]="";
+	char *ext;
 	int NumFiles=0, key,done, citem, ocitem;
 	char * filenames = NULL;
 	int NumFiles_displayed = 8;
@@ -1917,12 +1917,10 @@ int newmenu_get_filename(char *title, char *type, char *filename, int allow_abor
 	citem = 0;
 	keyd_repeat = 1;
 
-	if (!stricmp(type, "plr"))
+	if (!stricmp(type, ".plr"))
 		player_mode = 1;
-	else if (!stricmp(type, "dem"))
+	else if (!stricmp(type, ".dem"))
 		demo_mode = 1;
-
-	sprintf(filespec,".%s",type);
 
 ReadFileNames:
 	done = 0;
@@ -1938,12 +1936,10 @@ ReadFileNames:
 	find = PHYSFS_enumerateFiles(demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
 	for (f = find; *f != NULL; f++)
 	{
-// 		if (player_mode)
-// 		{
-			ext = strrchr(*f, '.');
-			if (!ext || strnicmp(ext, filespec, 4))
-				continue;
-// 		}
+		ext = strrchr(*f, '.');
+		if (!ext || strnicmp(ext, type, 4))
+			continue;
+
 		if (NumFiles < MAX_FILES)
 		{
 			strncpy(&filenames[NumFiles*14], *f, FILENAME_LEN);
@@ -2073,7 +2069,7 @@ ReadFileNames:
 #endif
 
 	while(!done)	{
-		timer_delay(400);
+		timer_delay2(20);
 
 		ocitem = citem;
 		ofirst_item = first_item;
@@ -2528,7 +2524,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 #endif
 
 	while(!done)	{
-		timer_delay(400);
+		timer_delay2(20);
 #ifdef OGL
 		gr_flip();
 		nm_draw_background1(NULL);

@@ -737,7 +737,7 @@ int RegisterPlayer()
 do_menu_again:
 	;
 
-	if (!newmenu_get_filename(TXT_SELECT_PILOT, "plr", filename, allow_abort_flag))
+	if (!newmenu_get_filename(TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag))
 		goto do_menu_again; //return 0;		// They hit Esc in file selector
 	if ( filename[0] == '<' )	{
 		// They selected 'create new pilot'

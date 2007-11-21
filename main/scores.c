@@ -383,7 +383,7 @@ ReshowScores:
 	looper = 0;
 
 	while(!done)	{
-		timer_delay(400);
+		timer_delay2(20);
 		gr_set_current_canvas(NULL);
 #ifdef OGL
 		gr_flip();

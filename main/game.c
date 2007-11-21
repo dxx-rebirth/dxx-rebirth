@@ -596,22 +596,10 @@ void calc_frame_time()
 
 	// sleep for one frame to free CPU cycles if GameArg.SysUseNiceFPS is active.
 	if (GameArg.SysUseNiceFPS)
-	{
-		// Timer which sleeps for the time between frames but substracts 10ms timer inaccuracy.
-		// CPU usage not optimized, but more reliable to get desired FPS and smooth gameplay.
-		// Should probably replaced by a better solution.
-		int FrameDelay = (1000/GameArg.SysMaxFPS)	// ms to pause between frames for desired FPS rate
-				 - FrameTime/(F1_0/1000)	// Substract the time the game needs to do it's operations
-				 - 10;				// Substract 10ms inaccuracy due to OS scheduling
-
-		if (FrameDelay > 0)
-			SDL_Delay(FrameDelay);
-	}
+		timer_delay2(GameArg.SysMaxFPS);
 
 	while (FrameTime < f1_0 / GameArg.SysMaxFPS)
 	{
-// 		if (GameArg.SysUseNiceFPS)
-// 			timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
 	}

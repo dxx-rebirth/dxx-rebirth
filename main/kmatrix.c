@@ -504,7 +504,7 @@ void kmatrix_view(int network)
 
   while(!done)
   {
-		timer_delay(400);
+		timer_delay2(20);
 		kmatrix_redraw();
       kmatrix_kills_changed = 0;
       for (i=0; i<4; i++ )

@@ -457,7 +457,7 @@ int do_game_pause()
 
 	while (Game_paused) 
 	{
-		timer_delay(1);
+		timer_delay2(20);
 #ifdef OGL
 		show_boxed_message(msg);
 #endif

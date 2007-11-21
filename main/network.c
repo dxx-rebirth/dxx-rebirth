@@ -2898,7 +2898,7 @@ int network_get_game_params()
 		if (!nm_messagebox(NULL, 2, TXT_YES,TXT_NO, "do you want to load\na multiplayer profile?"))
 		{
 			char mprofile_file[13];
-			if (newmenu_get_filename("Select profile\n<ESC> to abort", "mpx", mprofile_file, 1))
+			if (newmenu_get_filename("Select profile\n<ESC> to abort", ".mpx", mprofile_file, 1))
 			{
 				PHYSFS_file *outfile;
 		
@@ -6372,7 +6372,7 @@ void show_game_rules(netgame_info game)
 	done = 0;
 
 	while(!done)	{
-		timer_delay(400);
+		timer_delay2(20);
 		gr_set_current_canvas(NULL);
 #ifdef OGL
 		gr_flip();

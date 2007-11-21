@@ -69,6 +69,7 @@ extern fix timer_get_approx_seconds();
 //NOT_USED extern unsigned int timer_get_millisecondsX();	// Assume interrupts disabled
 
 void timer_delay(fix seconds);
+void timer_delay2(int fps);
 
 //==========================================================================
 // Use to access the BIOS ticker... ie...   i = TICKER

@@ -199,7 +199,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 			gr_free_bitmap_data (&title_bm);
 			break;
 		}
-		timer_delay(400);
+		timer_delay2(20);
         }
 
 	gr_free_bitmap_data (&title_bm);
@@ -976,7 +976,7 @@ int show_briefing(int screen_num, char *message)
 					if (Bitmap_name[0] != 0)
 						show_animated_bitmap();
 					start_time += KEY_DELAY_DEFAULT/2;
-					timer_delay(400);
+					timer_delay2(20);
 				}
 
 #ifndef NDEBUG
@@ -1123,7 +1123,7 @@ int show_briefing(int screen_num, char *message)
 				if (Bitmap_name[0] != 0)
 					show_animated_bitmap();
 				start_time += KEY_DELAY_DEFAULT/2;
-				timer_delay(400);
+				timer_delay2(20);
 			}
 
 			if (RobotPlaying)

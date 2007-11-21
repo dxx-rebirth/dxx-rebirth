@@ -714,7 +714,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	while(1)		{
 
-		timer_delay(400);
+		timer_delay2(20);
 
 #ifdef OGL
 		gr_flip();
