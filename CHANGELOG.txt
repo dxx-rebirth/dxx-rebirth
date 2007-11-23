@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071124
+--------
+main/hud.c: Fixed new redundancy HUD messages check - made it more strictly
+
 20071123
 --------
 main/aipath.c, main/fireball.c, main/titles.c: Fixed some memory problems; Adjusted timer_delay2 for robot briefings
