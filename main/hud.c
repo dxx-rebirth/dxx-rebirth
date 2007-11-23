@@ -261,8 +261,8 @@ int HUD_init_message_va(char * format, va_list args)
 
 	// if many redundant messages at the same time, just block them all together
 	// we probably want at least all visible once, but this isn't worth the work
-	for (i=0; i<=HUD_nmessages; i++)
-		if (last_message && !strcmp(&HUD_messages[i][0],message) && (!strnicmp("You already",message,11) || !stricmp("super laser maxed out!",message)))
+	for (i=0; i<=HUD_MAX_NUM; i++)
+		if (last_message && !strcmp(&HUD_messages[i][0],message) && (!strnicmp("You already",message,11) || !stricmp("your laser is maxed out!",message) || !stricmp("super laser maxed out!",message)))
 			return 0;
 
 	t=time(NULL);
