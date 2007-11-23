@@ -440,13 +440,15 @@ int pick_connected_segment(object *objp, int max_depth)
 
 //	mprintf((0, "Finding a segment %i segments away from segment %i: ", max_depth, objp->segnum));
 
+	memset(visited, 0, Highest_segment_index+1);
+	memset(depth, 0, Highest_segment_index+1);
+	memset(seg_queue,0,QUEUE_SIZE*2);
+
 	start_seg = objp->segnum;
 	head = 0;
 	tail = 0;
 	seg_queue[head++] = start_seg;
 
-	memset(visited, 0, Highest_segment_index+1);
-	memset(depth, 0, Highest_segment_index+1);
 	cur_depth = 0;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
@@ -462,10 +464,11 @@ int pick_connected_segment(object *objp, int max_depth)
 		side_rand[i] = temp;
 	}
 
+
 	while (tail != head) {
-		int		sidenum;
+		int		sidenum, count;
 		segment	*segp;
-		sbyte		ind1, ind2, temp;
+		int		ind1, ind2, temp;
 
 		if (cur_depth >= max_depth) {
 //			mprintf((0, "selected segment %i\n", seg_queue[tail]));
@@ -482,11 +485,19 @@ int pick_connected_segment(object *objp, int max_depth)
 		side_rand[ind1] = side_rand[ind2];
 		side_rand[ind2] = temp;
 
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			int	snrand = side_rand[sidenum];
-			int	wall_num = segp->sides[snrand].wall_num;
+		count = 0;
+		for (sidenum=ind1; count<MAX_SIDES_PER_SEGMENT; count++) {
+			int	snrand, wall_num;
 
-			if (((wall_num == -1) && (segp->children[snrand] > -1)) || door_is_openable_by_player(segp, snrand)) {
+			if (sidenum == MAX_SIDES_PER_SEGMENT)
+				sidenum = 0;
+
+			snrand = side_rand[sidenum];
+			wall_num = segp->sides[snrand].wall_num;
+			sidenum++;
+
+			if ((wall_num == -1 || door_is_openable_by_player(segp, snrand)) && segp->children[snrand] > -1)
+			{
 				if (visited[segp->children[snrand]] == 0) {
 					seg_queue[head++] = segp->children[snrand];
 					visited[segp->children[snrand]] = 1;
@@ -501,10 +512,12 @@ int pick_connected_segment(object *objp, int max_depth)
 				}
 			}
 		}
+
 		if ((seg_queue[tail] < 0) || (seg_queue[tail] > Highest_segment_index)) {
 			// -- Int3();	//	Something bad has happened.  Queue is trashed.  --MK, 12/13/94
 			return -1;
 		}
+
 		cur_depth = depth[seg_queue[tail]];
 	}
 

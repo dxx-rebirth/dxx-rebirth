@@ -976,7 +976,7 @@ int show_briefing(int screen_num, char *message)
 					if (Bitmap_name[0] != 0)
 						show_animated_bitmap();
 					start_time += KEY_DELAY_DEFAULT/2;
-					timer_delay2(20);
+					timer_delay2(50);
 				}
 
 #ifndef NDEBUG
@@ -1123,7 +1123,7 @@ int show_briefing(int screen_num, char *message)
 				if (Bitmap_name[0] != 0)
 					show_animated_bitmap();
 				start_time += KEY_DELAY_DEFAULT/2;
-				timer_delay2(20);
+				timer_delay2(50);
 			}
 
 			if (RobotPlaying)

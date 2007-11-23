@@ -393,6 +393,9 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 dont_add: ;
 		}	//	for (sidenum...
 
+		if (qtail<=0)
+			return 0;
+
 		if (qhead >= qtail) {
 			//	Couldn't get to goal, return a path as far as we got, which probably acceptable to the unparticular caller.
 			end_seg = seg_queue[qtail-1].end;
@@ -405,6 +408,9 @@ dont_add: ;
 
 cpp_done1: ;
 	}	//	while (cur_seg ...
+
+	if (qtail<=0)
+		return 0;
 
 	//	Set qtail to the segment which ends at the goal.
 	while (seg_queue[--qtail].end != end_seg)
