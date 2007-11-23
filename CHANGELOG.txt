@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071123
+--------
+main/aipath.c, main/fireball.c, main/titles.c: Fixed some memory problems; Adjusted timer_delay2 for robot briefings
+
 20071121
 --------
 arch/sdl/key.c, arch/sdl/timer.c, include/timer.h, main/game.c, main/kconfig.c, main/kmatrix.c, main/netlist.c, main/newmenu.c, main/scores.c, main/titles.c: Introduced timer_delay2 as replacement for timer_delay to sleep according to given FPS rate considering calc time between frames

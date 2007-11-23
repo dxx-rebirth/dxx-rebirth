@@ -279,18 +279,16 @@ int create_path_points(object *objp, int start_seg, int end_seg, point_seg *pseg
 	validate_all_paths();
 #endif
 
-if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM)) {
-	random_flag = 1;
-	avoid_seg = ConsoleObject->segnum;
-	// Int3();
-}
+	if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM)) {
+		random_flag = 1;
+		avoid_seg = ConsoleObject->segnum;
+		// Int3();
+	}
 
 	if (max_depth == -1)
 		max_depth = MAX_PATH_LENGTH;
 
 	*num_points = 0;
-//random_flag = Random_flag_override; //!! debug!!
-//safety_flag = Safety_flag_override; //!! debug!!
 
 //	for (i=0; i<=Highest_segment_index; i++) {
 //		visited[i] = 0;
@@ -344,6 +342,9 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 			}
 		}	//	for (sidenum...
 
+		if (qtail<=0)
+			return 0;
+
 		if (qhead >= qtail) {
 			//	Couldn't get to goal, return a path as far as we got, which probably acceptable to the unparticular caller.
 			end_seg = seg_queue[qtail-1].end;
@@ -357,26 +358,25 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 cpp_done1: ;
 	}	//	while (cur_seg ...
 
+	if (qtail<=0)
+		return 0;
+
 	//	Set qtail to the segment which ends at the goal.
 	while (seg_queue[--qtail].end != end_seg)
 		if (qtail < 0) {
-			// mprintf((0, "\nNo path!\n"));
-			// printf("UNABLE TO FORM PATH");
-			// Int3();
 			return -1;
 		}
 
-	#ifdef EDITOR
+#ifdef EDITOR
 	N_selected_segs = 0;
-	#endif
-//printf("Object #%3i, start: %3i ", objp-Objects, psegs-Point_segs);
+#endif
+
 	while (qtail >= 0) {
 		int	parent_seg, this_seg;
 
 		this_seg = seg_queue[qtail].end;
 		parent_seg = seg_queue[qtail].start;
 		psegs->segnum = this_seg;
-//printf("%3i ", this_seg);
 		compute_segment_center(&psegs->point,&Segments[this_seg]);
 		psegs++;
 		(*num_points)++;
@@ -392,7 +392,6 @@ cpp_done1: ;
 	}
 
 	psegs->segnum = start_seg;
-//printf("%3i\n", start_seg);
 	compute_segment_center(&psegs->point,&Segments[start_seg]);
 	psegs++;
 	(*num_points)++;
@@ -416,46 +415,17 @@ cpp_done1: ;
 	//	way to do this is to start at the end of the list and go backwards.
 	if (safety_flag) {
 		if (psegs - Point_segs + *num_points + 2 > MAX_POINT_SEGS) {
-			//	Ouch!  Cannot insert center points in path.  So return unsafe path.
-//			Int3();	// Contact Mike:  This is impossible.
-//			force_dump_ai_objects_all("Error in create_path_points");
 			ai_reset_all_paths();
 			return -1;
 		} else {
-			//mprintf((0, "Old num_points = %i, new one should be %i. ", *num_points, 2 * (*num_points) - 1));
 			insert_center_points(original_psegs, num_points);
-			//mprintf((0, "New num_points = %i\n", *num_points));
 		}
 	}
 #ifndef NDEBUG
 	validate_path(3, original_psegs, *num_points);
-#endif
-
-#ifndef NDEBUG
-//--debug	if (objp == ConsoleObject) {
-//--debug		int	i;
-//--debug
-//--debug		for (i=0; i<*num_points; i++) {
-//--debug			mprintf((0, "%3i ", original_psegs[i].segnum));
-//--debug		}
-//--debug		mprintf((0, "\n"));
-//--debug	}
-
 	validate_path(0, original_psegs, *num_points);
-
-// mprintf((0, "Created path for object %3i at index %4i, length = %2i\n", objp-Objects, psegs-Point_segs, *num_points));
 	Assert(other_original_psegs == original_psegs);
-
-//--debug 01/18/95--	if (objp->ctype.ai_info.behavior == AIB_RUN_FROM) {
-//--debug 01/18/95--		int	i;
-//--debug 01/18/95--
-//--debug 01/18/95--		mprintf((0, "%3i: ", objp-Objects));
-//--debug 01/18/95--		for (i=0; i<*num_points; i++)
-//--debug 01/18/95--			mprintf((0, "%3i ", original_psegs[i].segnum));
-//--debug 01/18/95--		mprintf((0, "\n"));
-//--debug 01/18/95--	}
 #endif
-
 
 	return 0;
 }

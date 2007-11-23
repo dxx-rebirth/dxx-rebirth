@@ -437,13 +437,15 @@ int pick_connected_segment(object *objp, int max_depth)
 
 //	mprintf((0, "Finding a segment %i segments away from segment %i: ", max_depth, objp->segnum));
 
+	memset(visited, 0, Highest_segment_index+1);
+	memset(depth, 0, Highest_segment_index+1);
+	memset(seg_queue,0,QUEUE_SIZE*2);
+
 	start_seg = objp->segnum;
 	head = 0;
 	tail = 0;
-	seg_queue[head++] = start_seg;
 
-	memset(visited, 0, Highest_segment_index+1);
-	memset(depth, 0, Highest_segment_index+1);
+	seg_queue[head++] = start_seg;
 	cur_depth = 0;
 
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
@@ -473,7 +475,8 @@ int pick_connected_segment(object *objp, int max_depth)
 			int	snrand = side_rand[sidenum];
 			int	wall_num = segp->sides[snrand].wall_num;
 
-			if (((wall_num == -1) && (segp->children[snrand] > -1)) || door_is_openable_by_player(segp, snrand)) {
+			if ((wall_num == -1 || door_is_openable_by_player(segp, snrand)) && segp->children[snrand] > -1)
+			{
 				if (visited[segp->children[snrand]] == 0) {
 					seg_queue[head++] = segp->children[snrand];
 					visited[segp->children[snrand]] = 1;

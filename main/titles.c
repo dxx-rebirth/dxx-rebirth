@@ -753,7 +753,7 @@ int show_briefing(int screen_num, char *message)
 					}
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
-					timer_delay2(20);
+					timer_delay2(50);
 #ifdef OGL
 					gr_flip();
 					show_fullscr(&briefing_bm);
@@ -876,7 +876,7 @@ int show_briefing(int screen_num, char *message)
 				}
 				while (timer_get_approx_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
-				timer_delay2(20);
+				timer_delay2(50);
 #ifdef OGL
 				gr_flip();
 				show_fullscr(&briefing_bm);
