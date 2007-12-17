@@ -211,9 +211,8 @@ void print_commandline_help()
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
 	printf( "  -ipxbasesocket <n> %s\n", "Use <n> as offset from normal IPX socket");
 	printf( "  -ip_hostaddr <n>   %s\n", "Use <n> as host ip address");
-        printf( "  -ip_nogetmyaddr    %s\n", "Prevent autodetection of local ip address");
-        printf( "  -ip_myaddr <n>     %s\n", "Use <n> as local ip address");
-        printf( "  -ip_baseport <n>   %s\n", "Use <n> as offset from normal port");
+        printf( "  -ip_baseport <n>   %s\n", "Use <n> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
+	printf( "  -ip_norelay        %s\n", "Do not relay players with closed port over host and block them (saves traffic)");
 #endif // NETWORK
 
 #ifdef    EDITOR

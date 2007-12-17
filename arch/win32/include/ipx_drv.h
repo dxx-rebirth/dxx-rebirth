@@ -71,7 +71,6 @@ struct ipx_driver {
 	int (*HandleNetgameAuxData)(ipx_socket_t *s, const u_char buf[]);
 	void (*HandleLeaveGame)(ipx_socket_t *s);
 	int (*SendGamePacket)(ipx_socket_t *s, u_char *data, int dataLen);
-	int (*CheckReadyToJoin)(unsigned char *server, unsigned char *node);
 	int usepacketnum;//we can save 4 bytes
 };
 

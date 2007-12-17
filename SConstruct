@@ -28,6 +28,7 @@ editor = int(ARGUMENTS.get('editor', 0))
 console = int(ARGUMENTS.get('console',0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 arm = int(ARGUMENTS.get('arm', 0))
+ipv6 = int(ARGUMENTS.get('ipv6', 0))
 micro = int(ARGUMENTS.get('micro', 0))
 
 if (micro > 0):
@@ -155,6 +156,7 @@ common_sources = [
 'main/texmerge.c',
 'main/text.c',
 'main/titles.c',
+'main/udp.c',
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
@@ -168,10 +170,7 @@ common_sources = [
 'misc/strio.c',
 'misc/strutil.c',
 'texmap/ntmap.c',
-'texmap/scanline.c',
-'main/ip_base.cpp',
-'main/ipclienc.c',
-'main/ipclient.cpp',
+'texmap/scanline.c'
 ]
 
 # for editor
@@ -237,8 +236,7 @@ editor_sources = [
 
 # for *nix
 arch_unix_sources = [
-'arch/linux/linuxnet.c',
-'arch/linux/arch_ip.cpp'
+'arch/linux/linuxnet.c'
 ]
 
 # for linux
@@ -265,8 +263,7 @@ arch_win32_sources = [
 'arch/win32/hmpfile.c',
 'arch/win32/ipx_win.c',
 'arch/win32/mono.c',
-'arch/win32/winnet.c',
-'arch/win32/arch_ip.cpp'
+'arch/win32/winnet.c'
 ]
 
 # for Mac OS X
@@ -456,6 +453,10 @@ if (console == 1):
 	env.Append(CPPDEFINES = ['CONSOLE'])
 	common_sources += ['main/cmd.c', 'console/CON_console.c']
 
+# IPv6 compability?
+if (ipv6 == 1):
+	env.Append(CPPDEFINES = ['IPv6'])
+
 print '\n'
 
 env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(sharepath) + '\\"')])
@@ -492,6 +493,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'console=1'       build with console support !EXPERIMENTAL!
 	'editor=1'        build editor !EXPERIMENTAL!
 	'arm=1'           compile for ARM architecture
+	'ipv6=1'          enables IPv6 copability (not compatible to non-IPv6 build)
 	
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """

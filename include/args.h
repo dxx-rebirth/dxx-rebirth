@@ -87,9 +87,8 @@ typedef struct Arg
 	const char *MplIpxNetwork;
 	int MplIPXSocketOffset;
 	char *MplIpHostAddr;
-	int MplIpNoGetMyAddr;
-	char *MplIpMyAddr;
 	int MplIpBasePort;
+	int MplIpNoRelay;
 	char *EdiAutoLoad;
 	int EdiSaveHoardData;
 	int EdiMacData; // also used for some read routines in non-editor build

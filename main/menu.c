@@ -150,10 +150,9 @@ void do_new_game_menu(void);
 #ifdef NETWORK
 void do_multi_player_menu(void);
 void do_ip_manual_join_menu();
-void ip_connect_manual();
+int ipx_udp_ConnectManual(char *addr);
 void ipx_set_driver(int ipx_driver);
 #endif //NETWORK
-void do_cpu_menu();
 extern void newmenu_close();
 
 //returns the number of demo files on the disk
@@ -1008,7 +1007,7 @@ void do_ip_manual_join_menu()
 		choice = newmenu_do1( NULL, "ENTER IP OR HOSTNAME", num_options, m, NULL, choice );
 
 		if ( choice > -1 ){
-			ip_connect_manual(buf);
+			ipx_udp_ConnectManual(buf);
 		}
 
 		if (old_game_mode != Game_mode)

@@ -75,7 +75,7 @@ int ipx_general_PacketReady(ipx_socket_t *s) {
 }
 
 struct ipx_driver *driver = &ipx_win;
-extern struct ipx_driver ipx_ip;
+extern struct ipx_driver ipx_udp;
 
 ubyte * ipx_get_my_server_address()
 {
@@ -91,7 +91,7 @@ void arch_ipx_set_driver(int ipx_driver)
 {
 	switch(ipx_driver) {
 	case IPX_DRIVER_IPX: driver = &ipx_win; break;
-	case IPX_DRIVER_UDP: driver = &ipx_ip; break;
+	case IPX_DRIVER_UDP: driver = &ipx_udp; break;
 	default: Int3();
 	}
 }
@@ -115,7 +115,7 @@ int ipx_init(int socket_number)
            return IPX_SOCKET_TABLE_FULL;
         }
 #endif
-
+	memset(ipx_MyAddress,0,10);
 	if (GameArg.MplIpxNetwork)
 	{
 		unsigned long n = strtol(GameArg.MplIpxNetwork, NULL, 16);
@@ -155,6 +155,7 @@ int ipx_get_packet_data( ubyte * data )
 //end kill - OE
 	int size;
 	int best_size = 0;
+	memset(rd.src_network,1,4);
 //edited 04/12/99 Matt Mueller - duh, we don't want to throw all that data away!
 	//--killed-- Like the original, only take latest packet, throw away rest
 	//do _NOT_ throw them away!
@@ -241,12 +242,6 @@ void ipx_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * serv
 		// Old method, no server info.
 		ipx_send_packet_data( data, datasize, server, address, address );
 	}
-}
-
-int ipx_check_ready_to_join(ubyte *server, ubyte *node){
-	if (!driver->CheckReadyToJoin)
-		return 1;
-	return driver->CheckReadyToJoin(server,node);
 }
 
 int ipx_change_default_socket( ushort socket_number )

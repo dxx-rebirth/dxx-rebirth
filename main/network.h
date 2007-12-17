@@ -44,6 +44,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NETGAMEIPX                  1
 #define NETGAMETCP                  2
 
+#define NETWORK_TIMEOUT (15*F1_0) // 15 seconds disconnect timeout
+#define MAX_ACTIVE_NETGAMES     12
+
 // defines and other things for appletalk/ipx games on mac
 
 #define IPX_GAME        1

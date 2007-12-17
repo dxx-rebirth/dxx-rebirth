@@ -154,8 +154,6 @@ typedef struct lite_info {
 #define IPX_SHORT_INFO_SIZE     sizeof(short_frame_info)
 #endif
 
-#define MAX_ACTIVE_NETGAMES     12
-
 netgame_info Active_games[MAX_ACTIVE_NETGAMES];
 AllNetPlayers_info ActiveNetPlayers[MAX_ACTIVE_NETGAMES];
 AllNetPlayers_info *TempPlayersInfo,TempPlayersBase;
@@ -1558,7 +1556,7 @@ void network_send_all_info_request(char type,int which_security)
 	sequence_packet me;
 
 	mprintf((0, "Sending all_info request.\n"));
-   
+	memset(&me, 0, sizeof(sequence_packet));
 	me.Security=which_security;
 	me.type = type;
 	memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
@@ -1646,6 +1644,7 @@ network_send_endlevel_sub(int player_num)
 #endif
 
 	// Send an endlevel packet for a player
+	memset(&end,0,sizeof(endlevel_info));
 	end.type                = PID_ENDLEVEL;
 	end.player_num = player_num;
 	end.connected   = Players[player_num].connected;
@@ -2273,9 +2272,6 @@ void network_process_packet(ubyte *data, int length )
 		 }
 
 		mprintf( (0, "Got REQUEST from '%s'\n", their->player.callsign ));
-
-		if (!ipx_check_ready_to_join(their->player.network.ipx.server,their->player.network.ipx.node))
-			break;
 
 		if (Network_status == NETSTAT_STARTING) 
 		{
@@ -4900,6 +4896,7 @@ void network_do_frame(int force, int listen)
 				ubyte send_data[IPX_MAX_DATA_SIZE];
 				//int squished_size;
 #endif
+				memset(&ShortSyncPack,0,sizeof(short_frame_info));
 				create_shortpos(&ShortSyncPack.thepos, Objects+objnum, 0);
 				ShortSyncPack.type                                      = PID_PDATA;
 				ShortSyncPack.playernum                         = Player_num;
@@ -5041,7 +5038,7 @@ void network_do_frame(int force, int listen)
 					LastPacketTime[i] = approx_time;
 					continue;
 				}
-				if ((approx_time - LastPacketTime[i]) > (15*F1_0))
+				if ((approx_time - LastPacketTime[i]) > NETWORK_TIMEOUT)
 					network_timeout_player(i);
 			}
                         if(Players[i].connected != 1 && Objects[Players[i].objnum].type != OBJ_GHOST)
@@ -6354,6 +6351,34 @@ int network_do_join_game()
 	return 1;     // look ma, we're in a game!!!
 }
 
+// Send request for game information. Resend to keep connection alive.
+// Function arguments not used, but needed to call while nm_messagebox1
+void network_info_req( int nitems, newmenu_item * menus, int * key, int citem )
+{
+	sequence_packet me;
+	static fix nextsend, curtime;
+	ubyte null_addr[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+	menus = menus;
+	citem = citem;
+	nitems = nitems;
+	key = key;
+	curtime=timer_get_fixed_seconds();
+	
+	if (nextsend<curtime)
+	{
+		nextsend=curtime+F1_0*3;
+		mprintf((0, "Sending game_list request.\n"));
+		memset(&me, 0, sizeof(sequence_packet));
+		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
+		memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
+		memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
+		me.type = PID_GAME_LIST_D2X; //get GAME_LIST - more infos follow later while big wait!
+
+		send_internetwork_sequence_packet(me, null_addr, NetPlayers.players[0].network.ipx.node);
+	}
+}
+
 void show_game_rules(netgame_info game)
 {
 	int done,k;
@@ -6372,6 +6397,7 @@ void show_game_rules(netgame_info game)
 	done = 0;
 
 	while(!done)	{
+		network_info_req( 0, NULL, 0, 0 );
 		timer_delay2(20);
 		gr_set_current_canvas(NULL);
 #ifdef OGL
@@ -6379,9 +6405,9 @@ void show_game_rules(netgame_info game)
 		nm_draw_background1(NULL);
 #endif
 		if (HiresGFX)
-			nm_draw_background((SWIDTH/2)-(w/2)-30*(SWIDTH/640), (SHEIGHT/2)-(h/2)-30*(SHEIGHT/480), (SWIDTH/2)+(w/2)+30*(SWIDTH/640), (SHEIGHT/2)+(h/2)+30*(SHEIGHT/480));
+			nm_draw_background(((grd_curscreen->sc_w-w)/2)-(30*(SWIDTH/640)),((grd_curscreen->sc_h-h)/2)-(30*(SHEIGHT/480)),((grd_curscreen->sc_w-w)/2)+w+(30*(SWIDTH/640))-1,((grd_curscreen->sc_h-h)/2)+h+(30*(SHEIGHT/480))-1);
 		else
-			nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
+			nm_draw_background(((grd_curscreen->sc_w-w)/2)-(15*(SWIDTH/320)),((grd_curscreen->sc_h-h)/2)-(15*(SHEIGHT/200)),((grd_curscreen->sc_w-w)/2)+w+(15*(SWIDTH/320))-1,((grd_curscreen->sc_h-h)/2)+h+(15*(SHEIGHT/200))-1);
 
 		gr_set_current_canvas(&canvas);
 		
@@ -6505,7 +6531,7 @@ int show_game_stats(netgame_info game)
 	info+=sprintf (info,"\nPlayers: %i/%i",game.numconnected,game.max_numplayers);
 
 	while (1){
-		c=nm_messagebox("WELCOME", 2, "GAME RULES", "JOIN GAME", rinfo);
+		c=nm_messagebox1("WELCOME", network_info_req, 2, "GAME RULES", "JOIN GAME", rinfo);
 		if (c==0)
 			show_game_rules(game);
 		else if (c==1)
@@ -6515,12 +6541,8 @@ int show_game_stats(netgame_info game)
 	}
 }
 
-int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
-	sequence_packet me;
-	fix nextsend;
-	int numsent;
-	fix curtime;
-
+int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address)
+{
 	if (setjmp(LeaveGame))
 		return 0;
 
@@ -6529,25 +6551,8 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
 	Network_status = NETSTAT_BROWSING;
 	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
 
-	nextsend=0;numsent=0;
-
 	while (1){
-		curtime=timer_get_fixed_seconds();
-		if (nextsend<curtime){
-			if (numsent>=5)
-				return 0;//timeout
-			nextsend=curtime+F1_0*3;
-			numsent++;
-			mprintf((0, "Sending game_list request.\n"));
-			memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
-			memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
-			memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
-			me.type = PID_GAME_LIST_D2X; //get GAME_LIST - more infos follow later while big wait!
-			if (net_address != NULL)
-				send_sequence_packet( me, server,node,net_address);
-			else
-				send_internetwork_sequence_packet(me, server, node);
-		}
+		network_info_req( 0, NULL, 0, 0 );
 
 		network_listen();
 
@@ -6559,7 +6564,7 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
 			if (show_game_stats(Active_games[0])) {
 				Ext_server=server;
 				Ext_node=node;
-				return (network_do_join_game());
+				return 1; //(network_do_join_game());
 			}
 			else
 				return 0;
