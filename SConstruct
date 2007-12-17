@@ -28,6 +28,7 @@ editor = int(ARGUMENTS.get('editor', 0))
 shareware = int(ARGUMENTS.get('shareware', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 arm = int(ARGUMENTS.get('arm', 0))
+ipv6 = int(ARGUMENTS.get('ipv6', 0))
 micro = int(ARGUMENTS.get('micro', 0))
 
 if (micro > 0):
@@ -111,9 +112,6 @@ common_sources = [
 'main/hostage.c',
 'main/hud.c',
 'main/inferno.c',
-'main/ip_base.cpp',
-'main/ipclienc.c',
-'main/ipclient.cpp',
 'main/ipx_drv.c',
 'main/kconfig.c',
 'main/kmatrix.c',
@@ -151,6 +149,7 @@ common_sources = [
 'main/texmerge.c',
 'main/text.c',
 'main/titles.c',
+'main/udp.c',
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
@@ -231,7 +230,6 @@ editor_sources = [
 
 # for linux
 arch_linux_sources = [
-'arch/linux/arch_ip.cpp',
 'arch/linux/ipx_bsd.c',
 'arch/linux/ipx_kali.c',
 'arch/linux/linuxnet.c',
@@ -241,7 +239,6 @@ arch_linux_sources = [
 
 # for windows
 arch_win32_sources = [
-'arch/win32/arch_ip.cpp',
 'arch/win32/hmpfile.c',
 'arch/win32/ipx_win.c',
 'arch/win32/mono.c',
@@ -418,6 +415,10 @@ if (shareware == 1):
 if (shareware == 0) and (editor == 0):
 	common_sources += ['main/loadrl2.c']
 
+# IPv6 compability?
+if (ipv6 == 1):
+	env.Append(CPPDEFINES = ['IPv6'])
+
 print '\n'
 
 env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"' + str(sharepath) + '\\"')])
@@ -445,6 +446,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'profiler=1'      do profiler build
 	'editor=1'        build editor !EXPERIMENTAL!
 	'arm=1'           compile for ARM architecture
+	'ipv6=1'          enables IPv6 copability (not compatible to non-IPv6 build)
 	
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """

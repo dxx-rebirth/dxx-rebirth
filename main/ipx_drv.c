@@ -96,6 +96,16 @@ ubyte * ipx_get_my_local_address()
 int ipx_init( int socket_number )
 {
 	if (!driver) return -1;
+#ifdef __WINDOWS__
+	WORD wVersionRequested;
+	WSADATA wsaData;
+
+	wVersionRequested = MAKEWORD(2, 0);
+	if (WSAStartup( wVersionRequested, &wsaData))
+	{
+		return -1;
+	}
+#endif
 	memset(ipx_MyAddress,0,10);
 	if (GameArg.MplIpxNetwork)
 	{
@@ -171,6 +181,7 @@ int ipx_get_packet_data( ubyte * data )
 			buf=alloca(MAX_IPX_DATA);
 		else
 			buf=(char *)data;
+		memset(rd.src_network,1,4);
 		//edited 04/12/99 Matt Mueller - duh, we don't want to throw all that data away!
 		while (driver->PacketReady()) {
 			if ((size =	driver->ReceivePacket(buf, MAX_IPX_DATA, &rd)) > 4) {
@@ -266,13 +277,6 @@ void ipx_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * serv
 		ipx_send_packet_data( data, datasize, server, address, address );
 	}
 }
-
-int ipx_check_ready_to_join(ubyte *server, ubyte *node){
-	if (!driver->CheckReadyToJoin)
-		return 1;
-	return driver->CheckReadyToJoin(server,node);
-}
-
 
 int ipx_change_default_socket( ushort socket_number )
 {

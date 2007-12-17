@@ -65,7 +65,6 @@ struct ipx_driver {
 	int (*ReceivePacket)(char *buffer, int bufsize, 
 	 struct ipx_recv_data *rec);
 	int (*PacketReady)(void);
-	int (*CheckReadyToJoin)(unsigned char *server, unsigned char *node);
 	int usepacketnum;//we can save 4 bytes
 	void (*GetLocalTarget) ( ubyte * server, ubyte * node, ubyte * local_target );
 	int (*GetPacketData) ( ubyte * data );
@@ -81,6 +80,6 @@ extern ubyte null_addr[];
 extern u_int32_t ipx_network;
 
 struct ipx_driver * arch_ipx_set_driver(char *arg);
-extern struct ipx_driver ipx_ip;
+extern struct ipx_driver ipx_udp;
 
 #endif /* _IPX_DRV_H */

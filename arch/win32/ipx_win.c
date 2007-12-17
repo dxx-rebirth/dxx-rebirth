@@ -222,7 +222,6 @@ struct ipx_driver ipx_win = {
 	ipx_win_SendPacket,
 	ipx_win_ReceivePacket,
 	ipx_win_general_PacketReady,
-	NULL,
 	1,
 	NULL,
 	NULL,

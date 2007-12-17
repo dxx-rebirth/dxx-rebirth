@@ -114,7 +114,6 @@ struct ipx_driver ipx_kali = {
 	ipx_kali_SendPacket,
 	ipx_kali_ReceivePacket,
 	ipx_kali_general_PacketReady,
-	NULL,
 	1,
 	NULL,
 	NULL,

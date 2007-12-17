@@ -11,8 +11,8 @@ struct ipx_driver * arch_ipx_set_driver(char *arg)
 {
 	if (strcmp(arg,"kali")==0)
 		return &ipx_kali;
-	else if (strcmp(arg,"ip")==0)
-		return &ipx_ip;
+	else if (strcmp(arg,"udp")==0)
+		return &ipx_udp;
 	else
 		return &ipx_bsd;
 }

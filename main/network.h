@@ -185,6 +185,10 @@ extern int ForceVersionCheck;
 #define DUMP_ABORTED 4
 #define DUMP_CONNECTED 5
 #define DUMP_LEVEL 6
+
+#define NETWORK_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
+#define REFUSE_INTERVAL F1_0 * 8
+
 void network_send_objects(void);
 void network_dump_player(ubyte * server, ubyte *node, int why);
 void network_send_game_info(sequence_packet *their, int light);

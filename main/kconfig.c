@@ -525,7 +525,7 @@ void kconfig_sub_draw_table(kc_item * items,int nitems, char * title)
 #ifdef OGL
 	nm_draw_background1(NULL);
 #endif
-	nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
+	nm_draw_background(((grd_curscreen->sc_w-w)/2)-(15*(SWIDTH/320)),((grd_curscreen->sc_h-h)/2)-(15*(SHEIGHT/200)),((grd_curscreen->sc_w-w)/2)+w+(15*(SWIDTH/320))-1,((grd_curscreen->sc_h-h)/2)+h+(15*(SHEIGHT/200))-1);
 
 	if (kc_d1x_flag) {
 		items = kc_d1x;

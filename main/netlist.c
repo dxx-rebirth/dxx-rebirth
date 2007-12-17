@@ -218,6 +218,36 @@ static void done_background(bkg *bg) {
 	gr_free_sub_canvas( bg->menu_canvas );
 }
 
+#include "netpkt.h"
+// for direct ip join.
+
+// Send request for game information. Resend to keep connection alive.
+// Function arguments not used, but needed to call while nm_messagebox1
+void network_info_req( int nitems, newmenu_item * menus, int * key, int citem )
+{
+	sequence_packet me;
+	static fix nextsend, curtime;
+	ubyte null_addr[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+	menus = menus;
+	citem = citem;
+	nitems = nitems;
+	key = key;
+	curtime=timer_get_fixed_seconds();
+	
+	if (nextsend<curtime)
+	{
+		nextsend=curtime+F1_0*3;
+		memset(&me, 0, sizeof(sequence_packet));
+		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
+		memcpy( me.player.node, ipx_get_my_local_address(), 6 );
+		memcpy( me.player.server, ipx_get_my_server_address(), 4 );
+		me.type = PID_D1X_GAME_INFO_REQ;//get full info.
+
+		send_sequence_packet( me, null_addr,Active_games[0].players[0].node,NULL);
+	}
+}
+
 void show_game_rules(netgame_info game)
 {
 	int done,k;
@@ -236,13 +266,14 @@ void show_game_rules(netgame_info game)
 	done = 0;
 
 	while(!done)	{
+		network_info_req( 0, NULL, 0, 0 );
 		timer_delay2(20);
 		gr_set_current_canvas(NULL);
 #ifdef OGL
 		gr_flip();
 		nm_draw_background1(NULL);
 #endif
-		nm_draw_background((SWIDTH/2)-(w/2)-15*(SWIDTH/320), (SHEIGHT/2)-(h/2)-15*(SHEIGHT/200), (SWIDTH/2)+(w/2)+15*(SWIDTH/320), (SHEIGHT/2)+(h/2)+15*(SHEIGHT/200));
+		nm_draw_background(((grd_curscreen->sc_w-w)/2)-(15*(SWIDTH/320)),((grd_curscreen->sc_h-h)/2)-(15*(SHEIGHT/200)),((grd_curscreen->sc_w-w)/2)+w+(15*(SWIDTH/320))-1,((grd_curscreen->sc_h-h)/2)+h+(15*(SHEIGHT/200))-1);
 
 		gr_set_current_canvas(&canvas);
 
@@ -304,18 +335,6 @@ void show_game_rules(netgame_info game)
 
 int show_game_stats(netgame_info game)
 {
-#if 0
-// keep it if someone still needs it...
-	switch(game.protocol_version)
-	{
-		case 1 : info+=sprintf(info,"\nPrtcl: Shareware"); break;
-		case 2 : info+=sprintf(info,"\nPrtcl: Normal"); break;
-		case 3 : info+=sprintf(info,"\nPrtcl: D1X only"); break;
-		case 0 : info+=sprintf(info,"\nPrtcl: D1X hybrid"); break;
-		default: info+=sprintf(info,"\nPrtcl: Unknown"); break;
-	}
-
-#endif
 	char rinfo[512],*info=rinfo;
 	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Unknown"};
 	int c;
@@ -337,7 +356,7 @@ int show_game_stats(netgame_info game)
 	info+=sprintf (info,"\nPlayers: %i/%i",game.numplayers,game.max_numplayers);
 
 	while (1){
-		c=nm_messagebox("WELCOME", 2, "GAME RULES", "JOIN GAME", rinfo);
+		c=nm_messagebox1("WELCOME", network_info_req, 2, "GAME RULES", "JOIN GAME", rinfo);
 		if (c==0)
 			show_game_rules(game);
 		else if (c==1)
@@ -347,39 +366,19 @@ int show_game_stats(netgame_info game)
 	}
 }
 
-// for direct ip join.
-#include "netpkt.h"
 int network_do_join_game(netgame_info *jgame);
-int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
-	sequence_packet me;
-	fix nextsend;
-	int numsent;
-	fix curtime;
-
+int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address)
+{
 	if (setjmp(LeaveGame))
 		return 0;
+
 	num_active_games = 0;
 	Network_games_changed = 0;
 	Network_status = NETSTAT_BROWSING;
 	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
 
-	nextsend=0;numsent=0;
-
 	while (1){
-		curtime=timer_get_fixed_seconds();
-		if (nextsend<curtime){
-			if (numsent>=5)
-				return 0;//timeout
-			nextsend=curtime+F1_0*3;
-			numsent++;
-			mprintf((0, "Sending game_list request.\n"));
-			memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
-			memcpy( me.player.node, ipx_get_my_local_address(), 6 );
-			memcpy( me.player.server, ipx_get_my_server_address(), 4 );
-			me.type = PID_D1X_GAME_INFO_REQ;//get full info.
-
-			send_sequence_packet( me, server,node,net_address);
-		}
+		network_info_req( 0, NULL, 0, 0 );
 
 		network_listen();
 
@@ -389,7 +388,7 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
 				continue;
 			}
 			if (show_game_stats(Active_games[0]))
-				return (network_do_join_game(&Active_games[0]));
+				return 1;//return (network_do_join_game(&Active_games[0]));
 			else
 				return 0;
 		}
@@ -399,28 +398,6 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address){
 	}
 	return 0;
 }
-
-//added on 1/5/99 by Victor Rachels for missiondir
-void change_missiondir()
-{
- newmenu_item m[1];
- int i=1;
- char thogdir[64];
-
-  sprintf(thogdir,AltHogDir);
-
-  m[0].type = NM_TYPE_INPUT; m[0].text = thogdir; m[0].text_len = 64;
-
-  i=newmenu_do1(NULL, "Mission Directory", 1, m, NULL, 0);
-
-   if(i==0)
-    {
-     cfile_use_alternate_hogdir(thogdir);
-     sprintf(thogdir,AltHogDir);
-     m[0].text=thogdir;
-    }
-}
-//end this section addition - VR
 
 //added/changed on 9/17/98 by Victor Rachels for netgame info screen redraw
 //this was mostly a bunch of random moves and copies from the main function

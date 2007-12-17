@@ -79,9 +79,6 @@ void DoRefuseStuff(sequence_packet *their);
 extern int network_join_game_menu();
 #endif
 
-#define NETWORK_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
-#define REFUSE_INTERVAL F1_0 * 8
-
 netgame_info Active_games[MAX_ACTIVE_NETGAMES];
 int num_active_games = 0;
 
@@ -1448,9 +1445,6 @@ void network_process_packet(ubyte *data, int length )
 	case PID_D1X_REQUEST:
 	case PID_REQUEST:
 		mprintf( (0, "Got REQUEST from '%s'\n", their->player.callsign ));
-
-		if (!ipx_check_ready_to_join(their->player.server,their->player.node))
-			break;
 
 		if (Network_status == NETSTAT_STARTING)
 		{

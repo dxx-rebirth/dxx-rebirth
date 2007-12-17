@@ -80,9 +80,8 @@ typedef struct Arg
 	const char *MplIpxNetwork;
 	int MplIPXSocketOffset;
 	char *MplIpHostAddr;
-	int MplIpNoGetMyAddr;
-	char *MplIpMyAddr;
 	int MplIpBasePort;
+	int MplIpNoRelay;
 	int DbgVerbose;
 	int DbgNoRun;
 	int DbgRenderStats;

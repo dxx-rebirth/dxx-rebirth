@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071217
+--------
+d1x.ini, SConstruct, arch/linux/ipx_bsd.c, arch/linux/ipx_kali.c, arch/linux/linuxnet.c, arch/win32/ipx_win.c, arch/win32/winnet.c, include/args.h, include/ipx_drv.h, main/args.c, main/inferno.c, main/ipx_drv.c, main/kconfig.c, main/menu.c, main/netlist.c, main/network.c, main/network.h, main/scores.c, main/udp.c, main/udp.h: Implemented new UDP/IP interface with Server-Relay (for firewalled users) and IPv6 compability; Fixed memory issues; If arguments -gl_mipmap and -gl_trilinear used both, always select -gl_trilinear
+
 20071124
 --------
 main/hud.c: Fixed new redundancy HUD messages check - made it more strictly

@@ -224,13 +224,11 @@ static int ipx_bsd_general_PacketReady(void) {
 }
 
 struct ipx_driver ipx_bsd = {
-//	ipx_bsd_GetMyAddress,
 	ipx_bsd_OpenSocket,
 	ipx_bsd_CloseSocket,
 	ipx_bsd_SendPacket,
 	ipx_bsd_ReceivePacket,
 	ipx_bsd_general_PacketReady,
-	NULL,
 	1,
 	NULL,
 	NULL,

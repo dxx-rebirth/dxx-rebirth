@@ -92,10 +92,9 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:43:27 zicodxx Exp $";
 void do_option(int select);
 void do_detail_level_menu_custom(void);
 void do_multi_player_menu();
-void do_ip_manual_join_menu();
 void do_new_game_menu();
 void do_load_game_menu();
-void do_cpu_menu();
+void do_ip_manual_join_menu();
 
 //char *menu_difficulty_text[] = { "Trainee", "Rookie", "Fighter", "Hotshot", "Insane" };
 //char *menu_detail_text[] = { "Lowest", "Low", "Medium", "High", "Highest", "", "Custom..." };
@@ -378,12 +377,12 @@ void do_option ( int select)
 			break;
 
 		case MENU_START_UDP_NETGAME:
-			ipx_set_driver("ip");
+			ipx_set_driver("udp");
 			ForceVersionCheck=1;
 			network_start_game();
 			break;
 		case MENU_JOIN_UDP_NETGAME:
-			ipx_set_driver("ip");
+			ipx_set_driver("udp");
 			do_ip_manual_join_menu();
 			break;
 		case MENU_MULTIPLAYER:
@@ -966,7 +965,7 @@ void do_multi_player_menu()
 	} while( choice > -1 );
 }
 
-int ip_connect_manual(char *addr);
+int ipx_udp_ConnectManual(char *addr);
 void do_ip_manual_join_menu()
 {
 	int menu_choice[3];
@@ -995,7 +994,7 @@ void do_ip_manual_join_menu()
 		choice = newmenu_do1( NULL, "ENTER IP OR HOSTNAME", num_options, m, NULL, choice );
 
 		if ( choice > -1 ){
-			ip_connect_manual(buf);
+			ipx_udp_ConnectManual(buf);
 		}
 
 		if (old_game_mode != Game_mode)

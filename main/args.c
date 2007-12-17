@@ -185,15 +185,15 @@ void ReadCmdArgs(void)
 #ifdef OGL
 	// OpenGL Options
 
-	if (FindArg("-gl_mipmap"))
-	{
-		GameArg.OglTexMagFilt = GL_LINEAR;
-		GameArg.OglTexMinFilt = GL_LINEAR_MIPMAP_NEAREST;
-	}
-	else if (FindArg("-gl_trilinear"))
+	if (FindArg("-gl_trilinear"))
 	{
 		GameArg.OglTexMagFilt = GL_LINEAR;
 		GameArg.OglTexMinFilt = GL_LINEAR_MIPMAP_LINEAR;
+	}
+	else if (FindArg("-gl_mipmap"))
+	{
+		GameArg.OglTexMagFilt = GL_LINEAR;
+		GameArg.OglTexMinFilt = GL_LINEAR_MIPMAP_NEAREST;
 	}
 	else
 	{
@@ -217,9 +217,8 @@ void ReadCmdArgs(void)
 	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
 	GameArg.MplIPXSocketOffset 	= get_int_arg("-ipxbasesocket", 0);
 	GameArg.MplIpHostAddr 		= get_str_arg("-ip_hostaddr", "");
-	GameArg.MplIpNoGetMyAddr 	= FindArg("-ip_nogetmyaddr");
-	GameArg.MplIpMyAddr 		= get_str_arg("-ip_myaddr", NULL);
 	GameArg.MplIpBasePort 		= get_int_arg("-ip_baseport", 0);
+	GameArg.MplIpNoRelay	 	= FindArg("-ip_norelay");
 
 	// Editor Options
 
