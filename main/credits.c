@@ -104,8 +104,6 @@ void credits_show(char *credits_filename)
 	char buffer[NUM_LINES][80];
 	ubyte backdrop_palette[768];
 	ubyte *fade_values_scalled;
-	fix last_time;
-	fix time_delay = 2800;
 	grs_canvas *CreditsOffscreenBuf=NULL;
 	grs_bitmap backdrop;
 	box dirty_box[NUM_LINES];
@@ -169,7 +167,6 @@ void credits_show(char *credits_filename)
 
 	key_flush();
 
-	last_time = timer_get_fixed_seconds();
 	done = 0;
 
 	first_line_offset = 0;
@@ -281,8 +278,7 @@ void credits_show(char *credits_filename)
 #endif
 			gr_update();
 
-			while( timer_get_fixed_seconds() < last_time+time_delay );
-			last_time = timer_get_fixed_seconds();
+			timer_delay2(25);
 		
 			k = key_inkey();
 

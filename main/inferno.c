@@ -297,8 +297,6 @@ int main(int argc,char **argv)
 
 	if (!GameArg.CtlNoJoystick)
 		joy_init();
-	
-	atexit(sdl_close);
 
 #ifdef NETWORK
 	control_invul_time = 0;
@@ -317,13 +315,6 @@ int main(int argc,char **argv)
 	mprintf( (0, "\nInitializing font system..." ));
 	gamefont_init(); // must load after palette data loaded.
 	songs_play_song( SONG_TITLE, 1 );
-
-	if (!GameArg.SysNoTitles)
-	{
-		show_title_screen( "iplogo1.pcx", 1 );
-		show_title_screen( "logo.pcx", 1 );
-		show_title_screen( "descent.pcx", 1 );
-	}
 
 #ifdef SHAREWARE
 	bm_init_use_tbl();
@@ -356,6 +347,13 @@ int main(int argc,char **argv)
 	set_detail_level_parameters(Detail_level);
 
 	Players[Player_num].callsign[0] = '\0';
+
+	if (!GameArg.SysNoTitles)
+	{
+		show_title_screen( "iplogo1.pcx", 1 );
+		show_title_screen( "logo.pcx", 1 );
+		show_title_screen( "descent.pcx", 1 );
+	}
 
 	key_flush();
 
@@ -446,6 +444,9 @@ int main(int argc,char **argv)
                 show_order_form();
 	#endif
 #endif
+
+	piggy_close();
+	sdl_close();
 
 	return(0); //presumably successful exit
 

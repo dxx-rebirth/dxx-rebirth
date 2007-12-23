@@ -311,7 +311,7 @@ int piggy_init()
 	hashtable_init( &AllBitmapsNames, MAX_BITMAP_FILES );
 	hashtable_init( &AllDigiSndNames, MAX_SOUND_FILES );
 
-	atexit(piggy_close);
+// 	atexit(piggy_close);
 
 	if (GameArg.SndNoSound)
 	{

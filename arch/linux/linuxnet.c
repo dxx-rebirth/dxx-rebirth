@@ -5,7 +5,6 @@
 #include "ipx_drv.h"
 #include "ipx_bsd.h"
 #include "ipx_kali.h"
-#include "ipx_udp.h"
 
 struct ipx_driver * arch_ipx_set_driver(char *arg)
 {

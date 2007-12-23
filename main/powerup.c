@@ -249,6 +249,8 @@ int pick_up_vulcan_ammo(void)
 	return used;
 }
 
+extern int PlayerMessage;
+
 //	returns true if powerup consumed
 int do_powerup(object *obj)
 {
@@ -257,6 +259,8 @@ int do_powerup(object *obj)
 
 	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST))
 		return 0;
+
+	PlayerMessage=0;	//	Prevent messages from going to HUD if -PlayerMessages switch is set
 
 	switch (obj->id) {
 		case POW_EXTRA_LIFE:
@@ -476,6 +480,8 @@ int do_powerup(object *obj)
 		#endif
 		digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 	}
+
+	PlayerMessage=1;
 
 	return used;
 

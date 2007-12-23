@@ -86,46 +86,20 @@ typedef struct frame_info {
 } __pack__ frame_info;
 #endif
 
-//added/changed on 8/6/98 by Matt Mueller
-#define D1XPLAYER_VER_LENGTH 32
-typedef struct network_d1xplayer_info {
-        char ver[D1XPLAYER_VER_LENGTH];//version.. ex: "d1x v1.0 1998-08-06"
-        int shp;//support short packets? Possibly could be used for different versions of short packets
-        int pps;//support pps?  I don't even know why I'm putting this here, its never used for anything. heh.
-    	int iver;//int representation of version; v1.13=1130, v45.231=45231
-//      int rejoin_flag;//little kludge to fix sending multiple messages from master to new players
-} network_d1xplayer_info;
-//end modified section - Matt Mueller
-
-//moved on 04/19/99 by Victor Rachels to vers_id.h
-//- //added on 03/05/99 by Matt Mueller
-//- //minimum version needed to use these features:
-//- #define D1X_DIRECTDATA_IVER     1340
-//- #define D1X_DIRECTPING_IVER     1340
-//- #define D1X_POS_FIRE_IVER       1350
-//- #define D1X_POS_EXPLODE_IVER    1350
-//- //end addition -MM
-
 void network_start_game();
 void network_join_game();
 void network_rejoin_game();
 void network_leave_game();
 int network_endlevel(int *secret);
 void network_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
-
-
 int network_level_sync();
 void network_send_endlevel_packet();
-
 int network_delete_extra_objects();
 int network_find_max_net_players();
 int network_objnum_is_past(int objnum);
 char * network_get_player_name( int objnum );
-
 void network_disconnect_player(int playernum);
-//added/moved on 11/10/98 by Victor Rachels to make global
 int network_whois_master();
-//end this change -VR
 
 extern int Network_send_objects;
 extern int Network_send_objnum;
@@ -138,11 +112,6 @@ extern int Network_status;
 extern int restrict_mode;
 
 extern fix LastPacketTime[MAX_PLAYERS];
-
-//added on 8/6/98 by Matt Mueller
-//moved void network_send_config_messages(int dest, int mode); to multiver.c 4/19/99 Matt Mueller
-extern network_d1xplayer_info Net_D1xPlayer[MAX_NUM_NET_PLAYERS];
-//end modified section - Matt Mueller
 
 extern ushort my_segments_checksum;
 

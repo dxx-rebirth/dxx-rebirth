@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071223
+--------
+include/ipx.h, main/credits.c, main/inferno.c, main/laser.c, main/network.c, main/network.h, main/piggy.c, main/powerup.c: Fixed compiler error because of removed header file; Removed struct network_d1xplayer_info - obsolete; Allocated memory for all sequence_packet's; Moved piggy_close() and sdl_close() to end of main() - replacing atexit; Rendering credits with timer_delay2 at constant 25FPS and save CPU; Fixed -playermessages
+
 20071217
 --------
 d1x.ini, SConstruct, arch/linux/ipx_bsd.c, arch/linux/ipx_kali.c, arch/linux/linuxnet.c, arch/win32/ipx_win.c, arch/win32/winnet.c, include/args.h, include/ipx_drv.h, main/args.c, main/inferno.c, main/ipx_drv.c, main/kconfig.c, main/menu.c, main/netlist.c, main/network.c, main/network.h, main/scores.c, main/udp.c, main/udp.h: Implemented new UDP/IP interface with Server-Relay (for firewalled users) and IPv6 compability; Fixed memory issues; If arguments -gl_mipmap and -gl_trilinear used both, always select -gl_trilinear

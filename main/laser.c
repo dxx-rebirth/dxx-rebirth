@@ -264,18 +264,10 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 		if (weapon_type == FUSION_ID) {
 			int	fusion_scale;
 	
-//added/killed on 8/13/98 by Victor Rachels to make scale equivalant multi/single
-//added/readded/changed on 9/19/98 by Victor Rachels to screw descentr's
-                      fusion_scale = 4;
-                      #ifdef NETWORK
-                        if (Game_mode & GM_MULTI)
-                         if(!*Net_D1xPlayer[Objects[parent].id].ver)
-                          fusion_scale = 2;
-                      #endif
-//end this section edit - Victor Rachels
-
-
-
+			if (Game_mode & GM_MULTI)
+				fusion_scale = 2;
+			else
+				fusion_scale = 4;
 
 			if (Fusion_charge <= 0)
 				obj->ctype.laser_info.multiplier = F1_0;

@@ -88,12 +88,7 @@ int	Network_active=0;
 int  	Network_status = 0;
 int 	Network_games_changed = 0;
 
-//added on 8/4/98 by Matt Mueller for short packets
 int	Network_short_packets = 0;
-//added/changed on 8/6/98 by Matt Mueller
-network_d1xplayer_info Net_D1xPlayer[MAX_NUM_NET_PLAYERS];
-//end modified section - Matt Mueller
-//end modified section - Matt Mueller
 
 //added on 8/5/98 by Victor Rachels to make global pps setting
 int     Network_pps = 10;
@@ -154,10 +149,6 @@ network_init(void)
 	#ifndef SHAREWARE
 	My_Seq.player.sub_protocol = MULTI_PROTO_D1X_MINOR;
 	#endif
-
-	//added/changed 8/6/98 by Matt Mueller
-	memset( &Net_D1xPlayer, 0, sizeof(Net_D1xPlayer) );
-	//end modified section - Matt Mueller
 
 	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
 		init_player_stats_game();
@@ -467,19 +458,6 @@ network_disconnect_player(int playernum)
 #endif
 }
 
-//network_send_config_messages(int dest, int mode) moved to multiver.c 4/18/99 Matt Mueller
-                
-// initialize player settings
-// called after player joins
-void network_get_player_settings(int pnum) {
-        memset( &Net_D1xPlayer[pnum], 0, sizeof(network_d1xplayer_info) );
-#ifndef SHAREWARE
-	if (Netgame.protocol_version == MULTI_PROTO_D1X_VER)
-		Net_D1xPlayer[pnum].shp =
-			(Netgame.flags & NETFLAG_SHORTPACKETS) ? 2 : 0;
-#endif
-}
-
 void
 network_new_player(sequence_packet *their)
 {
@@ -541,8 +519,6 @@ network_new_player(sequence_packet *their)
 #ifndef SHAREWARE
 	multi_send_score();
 #endif
-
-	network_get_player_settings(pnum);
 }
 
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0;
@@ -1012,15 +988,7 @@ void network_send_rejoin_sync(int player_num)
 #endif
 			}
 		}
-//added/changed 8/6/98 by Matt Mueller
-	}else {
-		//changed 980815 by adb
-		//-killed memset( &Net_D1xPlayer[player_num], 0, sizeof(network_d1xplayer_info) );
-		//-killed network_send_config_messages(player_num,4);
-		network_get_player_settings(player_num);
-		//end edit - adb
 	}
-//end edit - Matt Mueller
 
 	// Send sync packet to the new guy
 
@@ -1163,6 +1131,7 @@ network_send_game_list_request(void)
 	sequence_packet me;
 
 	mprintf((0, "Sending game_list request.\n"));
+	memset(&me, 0, sizeof(sequence_packet));
 	memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 	memcpy( me.player.node, ipx_get_my_local_address(), 6 );
 	memcpy( me.player.server, ipx_get_my_server_address(), 4 );
@@ -2388,8 +2357,6 @@ void network_read_sync_packet( ubyte * data, int d1x )
 		multi_allow_powerup = Netgame.flags & NETFLAG_DOPOWERUP;
 		Network_short_packets = (Netgame.flags & NETFLAG_SHORTPACKETS) ? 2 : 0;
                 Network_pps = Netgame.packets_per_sec;
-		for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
-		    Net_D1xPlayer[i].shp = Network_short_packets;
 	} else {
 		if (data) { // adb: master does have this info
 			Network_short_packets = 0;
@@ -2893,6 +2860,7 @@ network_wait_for_sync(void)
 		sequence_packet me;
 
 		mprintf((0, "Aborting join.\n"));
+		memset(&me, 0, sizeof(sequence_packet));
 		me.type = PID_QUIT_JOINING;
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 		memcpy( me.player.node, ipx_get_my_local_address(), 6 );
@@ -3346,7 +3314,7 @@ void network_do_frame(int force, int listen)
 #ifdef NATIVE_PACKETS
 					ipx_send_packet_data( (ubyte *)&MySyncPack, sizeof(frame_info)-NET_XDATA_SIZE+MySyncPack.data_size, Netgame.players[i].server, Netgame.players[i].node,Players[i].net_address );
 #else
-					send_frameinfo_packet(Netgame.players[i].server, Netgame.players[i].node, Players[i].net_address, Net_D1xPlayer[i].shp);
+					send_frameinfo_packet(Netgame.players[i].server, Netgame.players[i].node, Players[i].net_address, (Netgame.flags & NETFLAG_SHORTPACKETS) ? 2 : 0);
 #endif
 				}
 			}
@@ -3512,8 +3480,6 @@ void network_read_pdata_packet(ubyte *data, int short_packet)
 
 	//------------ Welcome them back if reconnecting --------------
 	if (!Players[TheirPlayernum].connected)	{
-		Net_D1xPlayer[TheirPlayernum].shp = 0;
-
 		Players[TheirPlayernum].connected = 1;
 
 #ifndef SHAREWARE
