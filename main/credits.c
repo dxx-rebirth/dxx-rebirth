@@ -118,8 +118,6 @@ void credits_show(char *credits_filename)
 	char buffer[NUM_LINES][80];
 	ubyte *fade_values_scalled;
 	ubyte backdrop_palette[768];
-	fix last_time;
-	fix time_delay = 2800;
 	grs_bitmap backdrop;
 	grs_canvas *CreditsOffscreenBuf=NULL;
 	grs_canvas *save_canv;
@@ -198,7 +196,6 @@ void credits_show(char *credits_filename)
 
 	key_flush();
 
-	last_time = timer_get_fixed_seconds();
 	done = 0;
 
 	first_line_offset = 0;
@@ -315,8 +312,7 @@ get_line:;
 #endif
 			gr_update();	
 
-			while( timer_get_fixed_seconds() < last_time+time_delay );
-			last_time = timer_get_fixed_seconds();
+			timer_delay2(25);
 		
 			//see if redbook song needs to be restarted
 			songs_check_redbook_repeat();

@@ -372,8 +372,6 @@ int main(int argc, char *argv[])
 	if (!GameArg.CtlNoJoystick)
 		joy_init();
 	
-	atexit(sdl_close);
-
 	select_tmap(GameArg.DbgTexMap);
 
 	Lighting_on = 1;
@@ -536,6 +534,9 @@ int main(int argc, char *argv[])
 	WriteConfigFile();
 
 	show_order_form();
+
+	piggy_close();
+	sdl_close();
 
 	return(0);		//presumably successful exit
 }

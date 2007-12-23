@@ -388,16 +388,14 @@ void reset_network_objects()
 void
 multi_endlevel_score(void)
 {
-	int old_connect=0;
 	int i;
 
 	// Show a score list to end of net players
 
-	// Save connect state and change to new connect state
+	// Change to new connect state
 #ifdef NETWORK
 	if (Game_mode & GM_NETWORK)
 	{
-		old_connect = Players[Player_num].connected;
 		if (Players[Player_num].connected!=3)
 			Players[Player_num].connected = CONNECT_END_MENU;
 		Network_status = NETSTAT_ENDLEVEL;
@@ -412,13 +410,6 @@ multi_endlevel_score(void)
 	kmatrix_view(Game_mode & GM_NETWORK);
 
 	Function_mode = FMODE_GAME;
-
-	// Restore connect state
-
-	if (Game_mode & GM_NETWORK)
-	{
-		Players[Player_num].connected = old_connect;
-	}
 
 #ifndef SHAREWARE
 	if (Game_mode & GM_MULTI_COOP)

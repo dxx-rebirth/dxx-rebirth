@@ -1168,7 +1168,7 @@ int piggy_init(void)
 	if (Piggy_hamfile_version >= 3)
 		snd_ok = read_sndfile();
 
-	atexit(piggy_close);
+// 	atexit(piggy_close);
 
 	mprintf ((0,"HamOk=%d SndOk=%d\n",ham_ok,snd_ok));
 	return (ham_ok && snd_ok);               //read ok

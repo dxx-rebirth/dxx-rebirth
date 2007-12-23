@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071223
+--------
+include/ipx.h, main/credits.c, main/inferno.c, main/multi.c, main/network.c, main/piggy.c: Fixed compiler error because of removed header file; Removed connect state restore in multi_endlevel_score to make sure always state 7 is sent to other players while connect state is obviously restored later; Allocated memory for all sequence_packet's; Moved piggy_close() to main - replacing atexit; Rendering credits with timer_delay2 at constant 25FPS and save CPU
+
 20071217
 --------
 d2x.ini, SConstruct, arch/linux/include/ipx_drv.h, arch/linux/linuxnet.c, arch/win32/include/ipx_drv.h, arch/win32/ipx_drv.h, arch/win32/winnet.c, include/args.h, main/inferno.c, main/kconfig.c, main/menu.c, main/network.c, main/network.h, main/scores.c, main/udp.c, main/udp.h, misc/args.c: Implemented new UDP/IP interface with Server-Relay (for firewalled users) and IPv6 compability; Fixed memory issues; If arguments -gl_mipmap and -gl_trilinear used both, always select -gl_trilinear

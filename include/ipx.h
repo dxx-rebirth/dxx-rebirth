@@ -34,7 +34,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define IPX_DRIVER_IPX  1 // IPX "IPX driver" :-)
 #define IPX_DRIVER_KALI 2
 #define IPX_DRIVER_UDP  3 // UDP/IP, user datagrams protocol over the internet
-#define IPX_DRIVER_MCAST4 4 // UDP/IP, user datagrams protocol over multicast networks
 
 /* Sets the "IPX driver" (net driver).  Takes one of the above consts as argument. */
 extern void arch_ipx_set_driver(int ipx_driver);

@@ -1497,6 +1497,7 @@ network_dump_player(ubyte * server, ubyte *node, int why)
 
 	sequence_packet temp;
 
+	memset(&temp, 0, sizeof(sequence_packet));
 	temp.type = PID_DUMP;
 	memcpy(temp.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
 	temp.player.connected = why;
@@ -1507,22 +1508,6 @@ network_dump_player(ubyte * server, ubyte *node, int why)
 	}
 }
 
-#ifdef MACINTOSH
-void network_dump_appletalk_player(ubyte node, ushort net, ubyte socket, int why)
-{
-	sequence_packet temp;
-
-	temp.type = PID_DUMP;
-	memcpy(temp.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
-	temp.player.connected = why;
-	if (Network_game_type == APPLETALK_GAME) {
-		appletalk_send_packet_data( (ubyte *)&temp, sizeof(sequence_packet), node, net, socket );
-	} else {
-		Int3();
-	}
-}
-#endif
-
 void
 network_send_game_list_request()
 {
@@ -1531,6 +1516,7 @@ network_send_game_list_request()
 	sequence_packet me;
 
 	mprintf((0, "Sending game_list request.\n"));
+	memset(&me, 0, sizeof(sequence_packet));
 	me.type = PID_GAME_LIST;
 	memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 
@@ -2137,6 +2123,8 @@ void network_process_packet(ubyte *data, int length )
 	sequence_packet *their = (sequence_packet *)data;
 #ifdef WORDS_BIGENDIAN
 	sequence_packet tmp_packet;
+
+	memset(&tep_packet, 0, sizeof(sequence_packet));
 
 	if (Network_game_type == IPX_GAME) {
 		receive_sequence_packet(data, &tmp_packet);
@@ -3857,6 +3845,7 @@ network_wait_for_sync(void)
 		sequence_packet me;
 
 		mprintf((0, "Aborting join.\n"));
+		memset(&me, 0, sizeof(sequence_packet));
 		me.type = PID_QUIT_JOINING;
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 		if (Network_game_type == IPX_GAME) {
