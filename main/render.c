@@ -105,24 +105,8 @@ int	Bottom_bitmap_num = 9;
 
 fix	Face_reflectivity = (F1_0/2);
 
-#if 0		//this stuff could probably just be deleted
-
-int inc_render_depth(void)
-{
-	return ++Render_depth;
-}
-
-int dec_render_depth(void)
-{
-	return Render_depth==1?Render_depth:--Render_depth;
-}
-
-int reset_render_depth(void)
-{
-	return Render_depth = DEFAULT_RENDER_DEPTH;
-}
-
-#endif
+//Global vars for window clip test
+int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 
 #ifdef EDITOR
 int _search_mode = 0;			//true if looking for curseg,side,face

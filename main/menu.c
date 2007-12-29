@@ -58,9 +58,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "scores.h"
 #include "joydefs.h"
-#ifdef NETWORK
-#include "modem.h"
-#endif
 #include "playsave.h"
 #include "kconfig.h"
 #include "titles.h"
@@ -77,12 +74,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "strutil.h"
 #include "reorder.h"
-
-#ifdef MACINTOSH
-	#include "resource.h"
-	#include "isp.h"
-	#include <Dialogs.h>
-#endif
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -105,11 +96,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MENU_CONFIG                     13
 #define MENU_REJOIN_NETGAME             14
 #define MENU_DIFFICULTY                 15
-#define MENU_START_SERIAL               18
 #define MENU_HELP                       19
 #define MENU_NEW_PLAYER                 20
 #define MENU_MULTIPLAYER                21
-#define MENU_STOP_MODEM                 22
 #define MENU_SHOW_CREDITS               23
 #define MENU_ORDER_INFO                 24
 #define MENU_PLAY_SONG                  25
@@ -268,11 +257,6 @@ int DoMenu()
 
 	load_palette(MENU_PALETTE,0,1);		//get correct palette
 	
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM)) {
-		do_option(MENU_START_SERIAL);
-		return 0;
-	}
-
 	do {
 		create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 
@@ -382,9 +366,6 @@ void do_option ( int select)
 		case MENU_JOIN_IPX_NETGAME:
 		case MENU_START_KALI_NETGAME:
 		case MENU_JOIN_KALI_NETGAME:
-#ifdef MACINTOSH
-			Network_game_type = IPX_GAME;
-#endif
 			switch (select & ~0x1) {
 				case MENU_START_IPX_NETGAME: ipx_set_driver(IPX_DRIVER_IPX); break;
 				case MENU_START_KALI_NETGAME: ipx_set_driver(IPX_DRIVER_KALI); break;
@@ -406,9 +387,6 @@ void do_option ( int select)
 			do_ip_manual_join_menu();
 			break;
 
-		case MENU_START_SERIAL:
-			com_main_menu();
-			break;
 		case MENU_MULTIPLAYER:
 			do_multi_player_menu();
 			break;

@@ -78,10 +78,9 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "titles.h"
 #include "player.h"
 #include "text.h"
-#include "gauges.h" // ZICO - new HUD modes
+#include "gauges.h"
 #ifdef NETWORK
 #include "network.h"
-#include "modem.h"
 #endif
 #include "gamefont.h"
 #include "kconfig.h"
@@ -357,6 +356,8 @@ int main(int argc, char *argv[])
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
 
+	atexit(sdl_close);
+
 	key_init();
 
 	digi_select_system(
@@ -536,7 +537,6 @@ int main(int argc, char *argv[])
 	show_order_form();
 
 	piggy_close();
-	sdl_close();
 
 	return(0);		//presumably successful exit
 }

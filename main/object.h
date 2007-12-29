@@ -135,8 +135,7 @@ extern char Object_type_names[MAX_OBJECT_TYPES][9];
  * STRUCTURES
  */
 
-// A compressed form for sending crucial data about via slow devices,
-// such as modems and buggies.
+// A compressed form for sending crucial data
 typedef struct shortpos {
 	sbyte   bytemat[9];
 	short   xo,yo,zo;

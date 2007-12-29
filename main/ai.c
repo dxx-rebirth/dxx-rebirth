@@ -1013,12 +1013,6 @@ _exit_cheat:
 
 			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 
-			if (Game_mode & (GM_MODEM | GM_SERIAL))
-				if (!player_visibility && (dist_to_player > F1_0*70)) {
-					ailp->mode = AIM_STILL;
-					return;
-				}
-
 			if (!ai_multiplayer_awareness(obj, anger_level)) {
 				if (maybe_ai_do_actual_firing_stuff(obj, aip)) {
 					compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);

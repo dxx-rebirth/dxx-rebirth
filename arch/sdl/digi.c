@@ -106,10 +106,10 @@ void digi_select_system(int n) {
 }
 
 /* Common digi functions */
-
+#ifndef NDEBUG
 static int digi_initialised = 0;
 static int digi_max_channels = 16;
-
+#endif
 int digi_volume = SOUND_MAX_VOLUME;
 int midi_volume = SOUND_MAX_VOLUME;
 

@@ -58,9 +58,6 @@ char laser_rcsid[] = "$Id: laser.c,v 1.1.1.1 2006/03/17 19:55:16 zicodxx Exp $";
 #include "network.h"
 #endif
 #include "ai.h"
-#ifdef NETWORK
-#include "modem.h"
-#endif
 #include "powerup.h"
 #include "multi.h"
 #include "physics.h"

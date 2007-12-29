@@ -88,8 +88,7 @@ void kmatrix_draw_item( int  i, int *sorted )
 
   gr_printf( LHX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
 
-  if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
-    gr_printf (LHX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
+  gr_printf (LHX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
 
   for (j=0; j<N_players; j++) {
 
@@ -211,14 +210,12 @@ void kmatrix_draw_deaths(int *sorted)
     gr_set_fontcolor(gr_find_closest_color(63,20,0),-1);
     gr_get_string_size("P-Playing E-Escaped D-Died", &sw, &sh, &aw);
 
-    if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
-      gr_printf( CENTERSCREEN-(sw/2), y,"P-Playing E-Escaped D-Died");
+    gr_printf( CENTERSCREEN-(sw/2), y,"P-Playing E-Escaped D-Died");
 
     y+=(sh+5);
     gr_get_string_size("V-Viewing scores W-Waiting", &sw, &sh, &aw);
 
-    if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
-      gr_printf( CENTERSCREEN-(sw/2), y,"V-Viewing scores W-Waiting");
+    gr_printf( CENTERSCREEN-(sw/2), y,"V-Viewing scores W-Waiting");
 
   }
 
@@ -278,14 +275,12 @@ void kmatrix_draw_coop_deaths(int *sorted)
     gr_set_fontcolor(gr_find_closest_color(63,20,0),-1);
     gr_get_string_size("P-Playing E-Escaped D-Died", &sw, &sh, &aw);
 
-    if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
-      gr_printf( CENTERSCREEN-(sw/2), y,"P-Playing E-Escaped D-Died");
+    gr_printf( CENTERSCREEN-(sw/2), y,"P-Playing E-Escaped D-Died");
 
     y+=(sh+5);
     gr_get_string_size("V-Viewing scores W-Waiting", &sw, &sh, &aw);
 
-    if (!((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL)))
-      gr_printf( CENTERSCREEN-(sw/2), y,"V-Viewing scores W-Waiting");
+    gr_printf( CENTERSCREEN-(sw/2), y,"V-Viewing scores W-Waiting");
 
   }
 
@@ -322,9 +317,6 @@ void kmatrix_reactor (char *message)
   static char oldmessage[50]={0};
   int sw, sh, aw;
 
-  if ((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL))
-    return;
-
   grd_curcanv->cv_font = SMALL_FONT;
 
   if (oldmessage[0]!=0)
@@ -347,9 +339,6 @@ void kmatrix_phallic ()
   char message[80];
 
   if (!(Game_mode & GM_HOARD))
-    return;
-
-  if ((Game_mode & GM_MODEM) || (Game_mode & GM_SERIAL))
     return;
 
   if (PhallicMan==-1)
@@ -557,12 +546,6 @@ void kmatrix_view(int network)
       switch( k ) {
         case KEY_ENTER:
         case KEY_SPACEBAR:
-          if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-          {
-            done=1;
-            break;
-          }
-
           if (is_D2_OEM)
           {
             if (Current_level_num==8)
@@ -630,12 +613,6 @@ void kmatrix_view(int network)
             longjmp(LeaveGame, 0);
             return;
           }
-        }
-
-        if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))		
-        {
-          done=1;
-          break;
         }
 
         Players[Player_num].connected=7;

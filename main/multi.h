@@ -41,10 +41,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //   3 Descent II Shareware
 //   4 Descent II Commercial
 
-// Save multiplayer games?
-
-// #define MULTI_SAVE
-
 // How many simultaneous network players do we support?
 
 #define MAX_NUM_NET_PLAYERS     8

@@ -65,7 +65,6 @@ typedef struct mle {
 //values that describe where a mission is located
 #define ML_CURDIR       0
 #define ML_MISSIONDIR   1
-#define ML_CDROM        2
 
 int num_missions = -1;
 
@@ -280,8 +279,6 @@ int ml_sort_func(mle *e0,mle *e1)
 
 }
 
-extern char CDROM_dir[];
-
 //returns 1 if file read ok, else 0
 int read_mission_file(mle *mission, char *filename, int location)
 {
@@ -293,11 +290,6 @@ int read_mission_file(mle *mission, char *filename, int location)
 	switch (location) {
 		case ML_MISSIONDIR:
 			strcpy(filename2,MISSION_DIR);
-			break;
-
-		case ML_CDROM:
-			songs_stop_redbook();		//so we can read from the CD
-			strcpy(filename2,CDROM_dir);
 			break;
 
 		default:
@@ -542,12 +534,6 @@ void free_mission(void)
 //fills in the global list of missions.  Returns the number of missions
 //in the list.  If anarchy_mode is set, then also add anarchy-only missions.
 
-extern char CDROM_dir[];
-#if 0
-extern char AltHogDir[];
-extern char AltHogdir_initialized;
-#endif
-
 mle *build_mission_list(int anarchy_mode)
 {
 	mle *mission_list;
@@ -671,9 +657,6 @@ int load_mission(mle *mission)
 	switch (mission->location) {
 	case ML_MISSIONDIR:
 		strcpy(buf,MISSION_DIR);
-		break;
-	case ML_CDROM:
-		strcpy(buf,CDROM_dir);
 		break;
 	default:
 		Int3();							//fall through

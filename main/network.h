@@ -47,16 +47,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define NETWORK_TIMEOUT (15*F1_0) // 15 seconds disconnect timeout
 #define MAX_ACTIVE_NETGAMES     12
 
-// defines and other things for appletalk/ipx games on mac
-
-#define IPX_GAME        1
-#define APPLETALK_GAME  2
-#ifdef MACINTOSH
-extern int Network_game_type;
-#else
-#define Network_game_type IPX_GAME
-#endif
-
 /* the following are the possible packet identificators.
  * they are stored in the "type" field of the packet structs.
  * they are offset 4 bytes from the beginning of the raw IPX data

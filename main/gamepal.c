@@ -41,8 +41,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "strutil.h"
 
-extern void g3_remap_interp_colors();
-
 char Current_level_palette[FILENAME_LEN];
 
 extern int Color_0_31_0, HUD_color;
@@ -135,8 +133,6 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 
 		Color_0_31_0 = -1;		//for gauges
 		HUD_color = -1;
-
-		g3_remap_interp_colors();
 	}
 
 

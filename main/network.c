@@ -76,12 +76,6 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:56:24 zicodxx Exp 
 #include "gamefont.h"
 #include "songs.h"
 
-#ifdef MACINTOSH
-#include <Events.h>
-#include <Errors.h>     // for appletalk networking errors
-#include "appltalk.h"
-#endif
-
 #define LHX(x)          (FONTSCALE_X((x)*(HiresGFX?2:1)))
 #define LHY(y)          (FONTSCALE_Y((y)*(HiresGFX?2.4:1)))
 
@@ -134,25 +128,12 @@ typedef struct lite_info {
 	ubyte                           team_vector;
 } __pack__ lite_info;
 
-// IF YOU CHANGE THE SIZE OF ANY OF THE FOLLOWING STRUCTURES
-// MAKE THE MACINTOSH DEFINES BE THE SAME SIZE AS THE PC OR
-// I WILL HAVE TO HURT YOU VERY BADLY!!!  -- MWA
-
-#ifdef MACINTOSH
-#define NETGAME_INFO_SIZE       ( Network_game_type == IPX_GAME?355:sizeof(netgame_info) )
-#define ALLNETPLAYERSINFO_SIZE  ( Network_game_type == IPX_GAME?317:sizeof(AllNetPlayers_info) )
-#define LITE_INFO_SIZE          ( Network_game_type == IPX_GAME?72:sizeof(lite_info) )
-#define SEQUENCE_PACKET_SIZE    ( Network_game_type == IPX_GAME?34:sizeof(sequence_packet) )
-#define FRAME_INFO_SIZE         ( Network_game_type == IPX_GAME?541:sizeof(frame_info) )
-#define IPX_SHORT_INFO_SIZE     ( 490 )
-#else
 #define NETGAME_INFO_SIZE       sizeof(netgame_info)
 #define ALLNETPLAYERSINFO_SIZE  sizeof(AllNetPlayers_info)
 #define LITE_INFO_SIZE          sizeof(lite_info)
 #define SEQUENCE_PACKET_SIZE    sizeof(sequence_packet)
 #define FRAME_INFO_SIZE         sizeof(frame_info)
 #define IPX_SHORT_INFO_SIZE     sizeof(short_frame_info)
-#endif
 
 netgame_info Active_games[MAX_ACTIVE_NETGAMES];
 AllNetPlayers_info ActiveNetPlayers[MAX_ACTIVE_NETGAMES];
@@ -187,7 +168,6 @@ void network_ping(ubyte flat, int pnum);
 void network_handle_ping_return(ubyte pnum);
 void network_process_names_return(ubyte *data);
 void network_send_player_names(sequence_packet *their);
-int  network_choose_connect();
 void network_more_game_options();
 void network_count_powerups_in_mine();
 int  network_wait_for_all_info(int choice);
@@ -285,35 +265,7 @@ int TTSent[100],TTRecv[100];
 
 extern int Final_boss_is_dead;
 
-// following is network stuff for appletalk
-
-void network_dump_appletalk_player(ubyte node, ushort net, ubyte socket, int why);
-
 #define NETWORK_OEM 0x10
-
-#ifdef MACINTOSH
-
-int Network_game_type;                                  // used to tell IPX vs. appletalk games
-
-#define MAX_ZONES               255
-#define MAX_ZONE_LENGTH         33
-#define DEFAULT_ZONE_NAME       "\p*"
-#define MAX_REGISTER_TRIES      5                                       // maximum time we will try and register a netgame
-char Network_zone_name[MAX_ZONE_LENGTH];                // zone name game being played in for appletalk
-char Zone_names[MAX_ZONES][MAX_ZONE_LENGTH];    // total list of zones that we can see
-ubyte appletalk_use_broadcast = 0;
-ubyte Network_game_validated = 0;               // validates a game before being able to join
-ubyte Network_game_validate_choice = 0;
-ubyte Network_appletalk_type = 0;               // type of appletalk network game is being played on
-
-#define ETHERTALK_TYPE  0
-#define LOCALTALK_TYPE  1
-#define OTHERTALK_TYPE  2
-
-
-void network_release_registered_game(void);
-
-#endif
 
 // ugly global fellows for the big wait in directIP connection
 ubyte *Ext_server=NULL;
@@ -322,31 +274,28 @@ ubyte *Ext_node=NULL;
 void
 network_init(void)
 {
-  
-	// So you want to play a netgame, eh?  Let's a get a few things
-	// straight
-
-   int t;
+	// So you want to play a netgame, eh?  Let's a get a few things straight
+	int t;
 	int save_pnum = Player_num;
 
 	game_disable_cheats();
-   IWasKicked=0;
-   Final_boss_is_dead=0;
-   NamesInfoSecurity=-1;
+	IWasKicked=0;
+	Final_boss_is_dead=0;
+	NamesInfoSecurity=-1;
 
 
-   #ifdef NETPROFILING
-	   OpenSendLog();
-		OpenRecieveLog(); 
-	#endif
+#ifdef NETPROFILING
+	OpenSendLog();
+	OpenRecieveLog(); 
+#endif
 	
 	for (t=0;t<MAX_POWERUP_TYPES;t++)
-		{
-			MaxPowerupsAllowed[t]=0;
-			PowerupsInMine[t]=0;
-		}
+	{
+		MaxPowerupsAllowed[t]=0;
+		PowerupsInMine[t]=0;
+	}
 
-   TotalMissedPackets=0; TotalPacketsGot=0;
+	TotalMissedPackets=0; TotalPacketsGot=0;
 
 	memset(&Netgame, 0, sizeof(netgame_info));
 	memset(&NetPlayers,0,sizeof(AllNetPlayers_info));
@@ -356,28 +305,16 @@ network_init(void)
 
 	My_Seq.player.version_major=Version_major;
 	My_Seq.player.version_minor=Version_minor;
-   My_Seq.player.rank=GetMyNetRanking();	
- 
-	if (Network_game_type == IPX_GAME) {
-		memcpy(My_Seq.player.network.ipx.node, ipx_get_my_local_address(), 6);
-		memcpy(My_Seq.player.network.ipx.server, ipx_get_my_server_address(), 4 );
-	#ifdef MACINTOSH
-	} else {
-		My_Seq.player.network.appletalk.node = appletalk_get_my_node();
-		My_Seq.player.network.appletalk.net = appletalk_get_my_net();
-		My_Seq.player.network.appletalk.socket = appletalk_get_my_socket();
-	#endif
-	}
-#ifdef MACINTOSH
-	My_Seq.player.computer_type = MAC;
-#else
+	My_Seq.player.rank=GetMyNetRanking();	
+
+	memcpy(My_Seq.player.network.ipx.node, ipx_get_my_local_address(), 6);
+	memcpy(My_Seq.player.network.ipx.server, ipx_get_my_server_address(), 4 );
 	My_Seq.player.computer_type = DOS;
-#endif
 
 	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
 		init_player_stats_game();
 
-	Player_num = save_pnum;         
+	Player_num = save_pnum;
 	multi_new_game();
 	Network_new_game = 1;
 	Control_center_destroyed = 0;
@@ -549,25 +486,25 @@ can_join_netgame(netgame_info *game,AllNetPlayers_info *people)
 	int i, num_players;
 
 	if (game->game_status == NETSTAT_STARTING)
-     return 1;
+		return 1;
 
 	if (game->game_status != NETSTAT_PLAYING)
-    {
-      mprintf ((0,"Error: Can't join because game_status !=NETSTAT_PLAYING\n"));
+	{
+		mprintf ((0,"Error: Can't join because game_status !=NETSTAT_PLAYING\n"));
 		return 0;
-    }
+	}
 
-   if (game->version_major==0 && Version_major>0)
-    {
-	   mprintf ((0,"Error:Can't join because version majors don't match!\n"));
+	if (game->version_major==0 && Version_major>0)
+	{
+		mprintf ((0,"Error:Can't join because version majors don't match!\n"));
 		return (0);
-    }
+	}
 
 	if (game->version_major>0 && Version_major==0)
-    {
-	   mprintf ((0,"Error:Can't join because version majors2 don't match!\n"));
+	{
+		mprintf ((0,"Error:Can't join because version majors2 don't match!\n"));
 		return (0);
-    }
+	}
 
 	// Game is in progress, figure out if this guy can re-join it
 
@@ -577,47 +514,37 @@ can_join_netgame(netgame_info *game,AllNetPlayers_info *people)
 		// Look for player that is not connected
 		
 		if (game->numconnected==game->max_numplayers)
-		 return (2);
-
-//      mprintf ((0,"Refuse = %d\n",game->RefusePlayers));
+			return (2);
 		
 		if (game->RefusePlayers)
-		 return (3);
+			return (3);
 		
 		if (game->numplayers < game->max_numplayers)
 			return 1;
 
 		if (game->numconnected<num_players)
 			return 1;
-		     
 	}
 
 	if (people==NULL)
-    {
-      mprintf ((0,"Error! Can't join because people==NULL!\n"));
+	{
+		mprintf ((0,"Error! Can't join because people==NULL!\n"));
 		return 0;
-    }
+	}
 	
 	// Search to see if we were already in this closed netgame in progress
 
 	for (i = 0; i < num_players; i++) {
-		if (Network_game_type == IPX_GAME) {
-			if ( (!stricmp(Players[Player_num].callsign, people->players[i].callsign)) &&
-				  (!memcmp(My_Seq.player.network.ipx.node, people->players[i].network.ipx.node, 6)) &&
-				  (!memcmp(My_Seq.player.network.ipx.server, people->players[i].network.ipx.server, 4)) )
-				break;
-		} else {
-			if ( (!stricmp(Players[Player_num].callsign, people->players[i].callsign)) &&
-				  (My_Seq.player.network.appletalk.node == people->players[i].network.appletalk.node) &&
-				  (My_Seq.player.network.appletalk.net == people->players[i].network.appletalk.net) )
-				break;
-		}
+		if ( (!stricmp(Players[Player_num].callsign, people->players[i].callsign)) &&
+			  (!memcmp(My_Seq.player.network.ipx.node, people->players[i].network.ipx.node, 6)) &&
+			  (!memcmp(My_Seq.player.network.ipx.server, people->players[i].network.ipx.server, 4)) )
+			break;
 	}
 
 	if (i != num_players)
 		return 1;
  
-   mprintf ((0,"Error: Can't join because at end of list!\n"));
+	mprintf ((0,"Error: Can't join because at end of list!\n"));
 	return 0;
 }
 
@@ -656,7 +583,7 @@ network_new_player(sequence_packet *their)
 	pnum = their->player.connected;
 
 	Assert(pnum >= 0);
-	Assert(pnum < MaxNumNetPlayers);        
+	Assert(pnum < MaxNumNetPlayers);
 	
 	objnum = Players[pnum].objnum;
 
@@ -674,25 +601,19 @@ network_new_player(sequence_packet *their)
 	memcpy(NetPlayers.players[pnum].callsign, their->player.callsign, CALLSIGN_LEN+1);
 	
 
-   ClipRank (&their->player.rank);
-   NetPlayers.players[pnum].rank=their->player.rank;
+	ClipRank (&their->player.rank);
+	NetPlayers.players[pnum].rank=their->player.rank;
 	NetPlayers.players[pnum].version_major=their->player.version_major;
 	NetPlayers.players[pnum].version_minor=their->player.version_minor;
-   network_check_for_old_version(pnum);
+	network_check_for_old_version(pnum);
 
-	if (Network_game_type == IPX_GAME) {
-		if ( (*(uint *)their->player.network.ipx.server) != 0 )
-			ipx_get_local_target( their->player.network.ipx.server, their->player.network.ipx.node, Players[pnum].net_address );
-		else
-			memcpy(Players[pnum].net_address, their->player.network.ipx.node, 6);
-	
-		memcpy(NetPlayers.players[pnum].network.ipx.node, their->player.network.ipx.node, 6);
-		memcpy(NetPlayers.players[pnum].network.ipx.server, their->player.network.ipx.server, 4);
-	} else {
-		NetPlayers.players[pnum].network.appletalk.node = their->player.network.appletalk.node;
-		NetPlayers.players[pnum].network.appletalk.net = their->player.network.appletalk.net;
-		NetPlayers.players[pnum].network.appletalk.socket = their->player.network.appletalk.socket;
-	}
+	if ( (*(uint *)their->player.network.ipx.server) != 0 )
+		ipx_get_local_target( their->player.network.ipx.server, their->player.network.ipx.node, Players[pnum].net_address );
+	else
+		memcpy(Players[pnum].net_address, their->player.network.ipx.node, 6);
+
+	memcpy(NetPlayers.players[pnum].network.ipx.node, their->player.network.ipx.node, 6);
+	memcpy(NetPlayers.players[pnum].network.ipx.server, their->player.network.ipx.server, 4);
 
 	Players[pnum].n_packets_got = 0;
 	Players[pnum].connected = 1;
@@ -711,19 +632,17 @@ network_new_player(sequence_packet *their)
 
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-   ClipRank (&their->player.rank);
-   
-   if (GameArg.MplNoRankings)
-	  HUD_init_message("'%s' %s\n",their->player.callsign, TXT_JOINING);
-   else   
-     HUD_init_message("%s'%s' %s\n",RankStrings[their->player.rank],their->player.callsign, TXT_JOINING);
+	ClipRank (&their->player.rank);
+
+	if (GameArg.MplNoRankings)
+		HUD_init_message("'%s' %s\n",their->player.callsign, TXT_JOINING);
+	else
+		HUD_init_message("%s'%s' %s\n",RankStrings[their->player.rank],their->player.callsign, TXT_JOINING);
 	
 	multi_make_ghost_player(pnum);
 
 	multi_send_score();
 	multi_sort_kill_list();
-
-//      create_player_appearance_effect(&Objects[objnum]);
 }
 
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam;
@@ -737,20 +656,14 @@ void network_welcome_player(sequence_packet *their)
 	int player_num;
 	int i;
 
-   WaitForRefuseAnswer=0;
+	WaitForRefuseAnswer=0;
 
 	if (HoardEquipped())
 	{
-   // If hoard game, and this guy isn't D2 Christmas (v1.2), dump him
-
-	   if ((Game_mode & GM_HOARD) && ((their->player.version_minor & 0x0F)<2))
+		// If hoard game, and this guy isn't D2 Christmas (v1.2), dump him
+		if ((Game_mode & GM_HOARD) && ((their->player.version_minor & 0x0F)<2))
 		{
-			if (Network_game_type == IPX_GAME)
-				network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_DORK);
-			#ifdef MACINTOSH
-			else
-				network_dump_appletalk_player(their->player.network.appletalk.node, their->player.network.appletalk.net, their->player.network.appletalk.socket, DUMP_DORK);
-			#endif
+			network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_DORK);
 			return;
 		}
 	}
@@ -761,12 +674,7 @@ void network_welcome_player(sequence_packet *their)
 	if ((Endlevel_sequence) || (Control_center_destroyed))
 	{
 		mprintf((0, "Ignored request from new player to join during endgame.\n"));
-		if (Network_game_type == IPX_GAME)
-			network_dump_player(their->player.network.ipx.server,their->player.network.ipx.node, DUMP_ENDLEVEL);
-		#ifdef MACINTOSH
-		else
-			network_dump_appletalk_player(their->player.network.appletalk.node, their->player.network.appletalk.net, their->player.network.appletalk.socket, DUMP_ENDLEVEL);
-		#endif
+		network_dump_player(their->player.network.ipx.server,their->player.network.ipx.node, DUMP_ENDLEVEL);
 		return; 
 	}
 
@@ -781,12 +689,7 @@ void network_welcome_player(sequence_packet *their)
 	if (their->player.connected != Current_level_num)
 	{
 		mprintf((0, "Dumping player due to old level number.\n"));
-		if (Network_game_type == IPX_GAME)
-			network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_LEVEL);
-		#ifdef MACINTOSH
-		else
-			network_dump_appletalk_player(their->player.network.appletalk.node, their->player.network.appletalk.net, their->player.network.appletalk.socket, DUMP_LEVEL);
-		#endif
+		network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_LEVEL);
 		return;
 	}
 
@@ -794,28 +697,18 @@ void network_welcome_player(sequence_packet *their)
 	memset(&Network_player_rejoining, 0, sizeof(sequence_packet));
 	Network_player_added = 0;
 
-	if (Network_game_type == IPX_GAME) {
-		if ( (*(uint *)their->player.network.ipx.server) != 0 )
-			ipx_get_local_target( their->player.network.ipx.server, their->player.network.ipx.node, local_address );
-		else
-			memcpy(local_address, their->player.network.ipx.node, 6);
-	}
+	if ( (*(uint *)their->player.network.ipx.server) != 0 )
+		ipx_get_local_target( their->player.network.ipx.server, their->player.network.ipx.node, local_address );
+	else
+		memcpy(local_address, their->player.network.ipx.node, 6);
 
 	for (i = 0; i < N_players; i++)
 	{
-		if ( (Network_game_type == IPX_GAME) && (!stricmp(Players[i].callsign, their->player.callsign )) && (!memcmp(Players[i].net_address,local_address, 6)) ) 
+		if ( (!stricmp(Players[i].callsign, their->player.callsign )) && (!memcmp(Players[i].net_address,local_address, 6)) ) 
 		{
 			player_num = i;
 			break;
 		}
-#ifdef MACINTOSH                // note link to above if
-			else if ( (!stricmp(Players[i].callsign, their->player.callsign)) &&
-				    (NetPlayers.players[i].network.appletalk.node == their->player.network.appletalk.node) &&
-					(NetPlayers.players[i].network.appletalk.net == their->player.network.appletalk.net)) {
-			player_num = i;
-			break;
-		}
-#endif
 	}
 
 	if (player_num == -1)
@@ -832,13 +725,7 @@ void network_welcome_player(sequence_packet *their)
 		else if (Netgame.game_flags & NETGAME_FLAG_CLOSED)
 		{
 			// Slots are open but game is closed
-
-			if (Network_game_type == IPX_GAME)
-				network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_CLOSED);
-			#ifdef MACINTOSH
-			else
-				network_dump_appletalk_player(their->player.network.appletalk.node, their->player.network.appletalk.net, their->player.network.appletalk.socket, DUMP_CLOSED);
-			#endif
+			network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_CLOSED);
 			return;
 		}
 		else
@@ -863,17 +750,11 @@ void network_welcome_player(sequence_packet *their)
 			if (oldest_player == -1)
 			{
 				// Everyone is still connected 
-
-				if (Network_game_type == IPX_GAME)
-					network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_FULL);
-				#ifdef MACINTOSH
-				else
-					network_dump_appletalk_player(their->player.network.appletalk.node, their->player.network.appletalk.net, their->player.network.appletalk.socket, DUMP_FULL);
-				#endif
+				network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_FULL);
 				return;
 			}
 			else
-			{       
+			{
 				// Found a slot!
 
 				player_num = oldest_player;
@@ -881,7 +762,7 @@ void network_welcome_player(sequence_packet *their)
 			}
 		}
 	}
-	else 
+	else
 	{
 		// Player is reconnecting
 		
@@ -1077,30 +958,16 @@ int network_create_monitor_vector(void)
 
 void network_stop_resync(sequence_packet *their)
 {
-	if (Network_game_type == IPX_GAME) {
-		if ( (!memcmp(Network_player_rejoining.player.network.ipx.node, their->player.network.ipx.node, 6)) &&
-			  (!memcmp(Network_player_rejoining.player.network.ipx.server, their->player.network.ipx.server, 4)) &&
-		     (!stricmp(Network_player_rejoining.player.callsign, their->player.callsign)) )
-		{
-			mprintf((0, "Aborting resync for player %s.\n", their->player.callsign));
-			Network_send_objects = 0;
-			Network_sending_extras=0;
-			Network_rejoined=0;
-			Player_joining_extras=-1;
-			Network_send_objnum = -1;
-		}
-	} else {
-		if ( (Network_player_rejoining.player.network.appletalk.node == their->player.network.appletalk.node) &&
-			 (Network_player_rejoining.player.network.appletalk.net == their->player.network.appletalk.net) &&
-			 (!stricmp(Network_player_rejoining.player.callsign, their->player.callsign)) )
-		{
-			mprintf((0, "Aborting resync for player %s.\n", their->player.callsign));
-			Network_send_objects = 0;
-			Network_sending_extras=0;
-			Network_rejoined=0;
-			Player_joining_extras=-1;
-			Network_send_objnum = -1;
-		}
+	if ( (!memcmp(Network_player_rejoining.player.network.ipx.node, their->player.network.ipx.node, 6)) &&
+			(!memcmp(Network_player_rejoining.player.network.ipx.server, their->player.network.ipx.server, 4)) &&
+		(!stricmp(Network_player_rejoining.player.callsign, their->player.callsign)) )
+	{
+		mprintf((0, "Aborting resync for player %s.\n", their->player.callsign));
+		Network_send_objects = 0;
+		Network_sending_extras=0;
+		Network_rejoined=0;
+		Player_joining_extras=-1;
+		Network_send_objnum = -1;
 	}
 }
 
@@ -1129,18 +996,12 @@ void network_send_objects(void)
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
 
-		if (Network_game_type == IPX_GAME)
-			network_dump_player(Network_player_rejoining.player.network.ipx.server,Network_player_rejoining.player.network.ipx.node, DUMP_ENDLEVEL);
-		#ifdef MACINTOSH
-		else
-			network_dump_appletalk_player(Network_player_rejoining.player.network.appletalk.node,Network_player_rejoining.player.network.appletalk.net, Network_player_rejoining.player.network.appletalk.socket, DUMP_ENDLEVEL);
-		#endif
+		network_dump_player(Network_player_rejoining.player.network.ipx.server,Network_player_rejoining.player.network.ipx.node, DUMP_ENDLEVEL);
 		Network_send_objects = 0; 
 		return;
 	}
 
-	for (h = 0; h < OBJ_PACKETS_PER_FRAME; h++) // Do more than 1 per frame, try to speed it up without
-															  // over-stressing the receiver.
+	for (h = 0; h < OBJ_PACKETS_PER_FRAME; h++) // Do more than 1 per frame, try to speed it up without over-stressing the receiver.
 	{
 		obj_count_frame = 0;
 		memset(object_buffer, 0, IPX_MAX_DATA_SIZE);
@@ -1151,7 +1012,6 @@ void network_send_objects(void)
 		{
 			obj_count = 0;
 			Network_send_object_mode = 0;
-//       mprintf((0, "Sending object array to player %d.\n", player_num));
 			*(short *)(object_buffer+loc) = INTEL_SHORT(-1);            loc += 2;
 			object_buffer[loc] = player_num;                            loc += 1;
 			/* Placeholder for remote_objnum, not used here */          loc += 2;
@@ -1185,10 +1045,8 @@ void network_send_objects(void)
 			object_buffer[loc] = owner;                                 loc += 1;
 			*(short *)(object_buffer+loc) = INTEL_SHORT(remote_objnum); loc += 2;
 			memcpy(&object_buffer[loc], &Objects[i], sizeof(object));
-			if (Network_game_type == IPX_GAME)
-				swap_object((object *)&object_buffer[loc]);
+			swap_object((object *)&object_buffer[loc]);
 			loc += sizeof(object);
-//                      mprintf((0, "..packing object %d, remote %d\n", i, remote_objnum));
 		}
 
 		if (obj_count_frame) // Send any objects we've buffered
@@ -1197,20 +1055,10 @@ void network_send_objects(void)
 	
 			Network_send_objnum = i;
 			object_buffer[1] = obj_count_frame;  object_buffer[2] = frame_num;
-//       mprintf((0, "Object packet %d contains %d objects.\n", frame_num, obj_count_frame));
 
 			Assert(loc <= IPX_MAX_DATA_SIZE);
 
-			if (Network_game_type == IPX_GAME)
-				ipx_send_internetwork_packet_data( object_buffer, loc, Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node );
-			#ifdef MACINTOSH
-			else
-				appletalk_send_packet_data( object_buffer, loc, Network_player_rejoining.player.network.appletalk.node,
-					Network_player_rejoining.player.network.appletalk.net,
-					Network_player_rejoining.player.network.appletalk.socket);
-			#endif
-
-			// OLD ipx_send_packet_data(object_buffer, loc, &Network_player_rejoining.player.node);
+			ipx_send_internetwork_packet_data( object_buffer, loc, Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node );
 		}
 
 		if (i > Highest_object_index)
@@ -1226,24 +1074,14 @@ void network_send_objects(void)
 
 				frame_num++;
 				// Send count so other side can make sure he got them all
-//                              mprintf((0, "Sending end marker in packet #%d.\n", frame_num));
 				mprintf((0, "Sent %d objects.\n", obj_count));
 				object_buffer[0] = PID_OBJECT_DATA;
 				object_buffer[1] = 1;
 				object_buffer[2] = frame_num;
 				*(short *)(object_buffer+3) = INTEL_SHORT(-2);
 				*(short *)(object_buffer+6) = INTEL_SHORT(obj_count);
-				//OLD ipx_send_packet_data(object_buffer, 8, &Network_player_rejoining.player.node);
-				if (Network_game_type == IPX_GAME)
-					ipx_send_internetwork_packet_data(object_buffer, 8, Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
-				#ifdef MACINTOSH
-				else
-					appletalk_send_packet_data( object_buffer, 8, Network_player_rejoining.player.network.appletalk.node,
-												Network_player_rejoining.player.network.appletalk.net,
-												Network_player_rejoining.player.network.appletalk.socket);
-				#endif
-				
-			
+				ipx_send_internetwork_packet_data(object_buffer, 8, Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
+
 				// Send sync packet which tells the player who he is and to start!
 				network_send_rejoin_sync(player_num);
 				mprintf ((0,"VerfiyPlayerJoined is now set to %d\n",player_num));
@@ -1280,12 +1118,8 @@ void network_send_rejoin_sync(int player_num)
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
 
-		if (Network_game_type == IPX_GAME)
-			network_dump_player(Network_player_rejoining.player.network.ipx.server,Network_player_rejoining.player.network.ipx.node, DUMP_ENDLEVEL);
-		#ifdef MACINTOSH
-		else
-			network_dump_appletalk_player(Network_player_rejoining.player.network.appletalk.node,Network_player_rejoining.player.network.appletalk.net, Network_player_rejoining.player.network.appletalk.socket, DUMP_ENDLEVEL);
-		#endif
+		network_dump_player(Network_player_rejoining.player.network.ipx.server,Network_player_rejoining.player.network.ipx.node, DUMP_ENDLEVEL);
+
 		Network_send_objects = 0; 
 		Network_sending_extras=0;
 		return;
@@ -1300,16 +1134,9 @@ void network_send_rejoin_sync(int player_num)
 		for (i = 0; i < N_players; i++)
 		{
 			if ((i != player_num) && (i != Player_num) && (Players[i].connected))
-				if (Network_game_type == IPX_GAME) {
-					send_sequence_packet( Network_player_rejoining, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
-				#ifdef MACINTOSH
-				} else {
-					appletalk_send_packet_data( (ubyte *)&Network_player_rejoining, sizeof(sequence_packet), NetPlayers.players[i].network.appletalk.node,
-												NetPlayers.players[i].network.appletalk.net, NetPlayers.players[i].network.appletalk.socket);
-				#endif
-				}
+				send_sequence_packet( Network_player_rejoining, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
 		}
-	}       
+	}
 
 	// Send sync packet to the new guy
 
@@ -1323,34 +1150,25 @@ void network_send_rejoin_sync(int player_num)
 		Netgame.killed[j] = Players[j].net_killed_total;
 		Netgame.player_kills[j] = Players[j].net_kills_total;
 		Netgame.player_score[j] = Players[j].score;
-	}       
+	}
 
 	Netgame.level_time = Players[Player_num].time_level;
 	Netgame.monitor_vector = network_create_monitor_vector();
 
 	mprintf((0, "Sending rejoin sync packet!!!\n"));
 
-	if (Network_game_type == IPX_GAME) {
-		send_internetwork_full_netgame_packet(Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
-		send_netplayers_packet(Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
-	#ifdef MACINTOSH
-	} else {
-		appletalk_send_packet_data( (ubyte *)&Netgame, sizeof(netgame_info), Network_player_rejoining.player.network.appletalk.node,
-									Network_player_rejoining.player.network.appletalk.net,
-									Network_player_rejoining.player.network.appletalk.socket);
-		appletalk_send_packet_data( (ubyte *)&NetPlayers, sizeof(AllNetPlayers_info), Network_player_rejoining.player.network.appletalk.node,
-									Network_player_rejoining.player.network.appletalk.net,
-									Network_player_rejoining.player.network.appletalk.socket);
-	#endif
-	}
+	send_internetwork_full_netgame_packet(Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
+	send_netplayers_packet(Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
+
 	return;
 }
+
 void resend_sync_due_to_packet_loss_for_allender ()
 {
-   int i,j;
+	int i,j;
+	
+	mprintf ((0,"I'm resending a sync packet! VPJ=%d\n",VerifyPlayerJoined));
 
-   mprintf ((0,"I'm resending a sync packet! VPJ=%d\n",VerifyPlayerJoined));
-  
 	network_update_netgame();
 
 	// Fill in the kill list
@@ -1361,26 +1179,14 @@ void resend_sync_due_to_packet_loss_for_allender ()
 		Netgame.killed[j] = Players[j].net_killed_total;
 		Netgame.player_kills[j] = Players[j].net_kills_total;
 		Netgame.player_score[j] = Players[j].score;
-	}       
+	}
 
 	Netgame.level_time = Players[Player_num].time_level;
 	Netgame.monitor_vector = network_create_monitor_vector();
 
-	if (Network_game_type == IPX_GAME) {
-		send_internetwork_full_netgame_packet(Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
-		send_netplayers_packet(Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
-	#ifdef MACINTOSH
-	} else {
-		appletalk_send_packet_data( (ubyte *)&Netgame, sizeof(netgame_info), Network_player_rejoining.player.network.appletalk.node,
-									Network_player_rejoining.player.network.appletalk.net,
-									Network_player_rejoining.player.network.appletalk.socket);
-		appletalk_send_packet_data( (ubyte *)&NetPlayers, sizeof(AllNetPlayers_info), Network_player_rejoining.player.network.appletalk.node,
-									Network_player_rejoining.player.network.appletalk.net,
-									Network_player_rejoining.player.network.appletalk.socket);
-	#endif
-	}
+	send_internetwork_full_netgame_packet(Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
+	send_netplayers_packet(Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
 }
-
 
 char * network_get_player_name( int objnum )
 {
@@ -1392,7 +1198,6 @@ char * network_get_player_name( int objnum )
 	return Players[Objects[objnum].id].callsign;
 }
 
-
 void network_add_player(sequence_packet *p)
 {
 	int i;
@@ -1400,33 +1205,21 @@ void network_add_player(sequence_packet *p)
 	mprintf((0, "Got add player request!\n"));
 
 	for (i=0; i<N_players; i++ )    {
-		if (Network_game_type == IPX_GAME) {
-			if ( !memcmp( NetPlayers.players[i].network.ipx.node, p->player.network.ipx.node, 6) && !memcmp(NetPlayers.players[i].network.ipx.server, p->player.network.ipx.server, 4)) 
-				return;         // already got them
-		} else {
-			if ( (NetPlayers.players[i].network.appletalk.node == p->player.network.appletalk.node) &&
-				 (NetPlayers.players[i].network.appletalk.net == p->player.network.appletalk.net))
-					return;
-		}
+		if ( !memcmp( NetPlayers.players[i].network.ipx.node, p->player.network.ipx.node, 6) && !memcmp(NetPlayers.players[i].network.ipx.server, p->player.network.ipx.server, 4)) 
+			return;         // already got them
 	}
 
-	if (Network_game_type == IPX_GAME) {
-		memcpy( NetPlayers.players[N_players].network.ipx.node, p->player.network.ipx.node, 6 );
-		memcpy( NetPlayers.players[N_players].network.ipx.server, p->player.network.ipx.server, 4 );
-	} else {
-		NetPlayers.players[N_players].network.appletalk.node = p->player.network.appletalk.node;
-		NetPlayers.players[N_players].network.appletalk.net = p->player.network.appletalk.net;
-		NetPlayers.players[N_players].network.appletalk.socket = p->player.network.appletalk.socket;
-	}
-   
-   ClipRank (&p->player.rank);
-  
+	memcpy( NetPlayers.players[N_players].network.ipx.node, p->player.network.ipx.node, 6 );
+	memcpy( NetPlayers.players[N_players].network.ipx.server, p->player.network.ipx.server, 4 );
+
+	ClipRank (&p->player.rank);
+
 	memcpy( NetPlayers.players[N_players].callsign, p->player.callsign, CALLSIGN_LEN+1 );
 	NetPlayers.players[N_players].version_major=p->player.version_major;
 	NetPlayers.players[N_players].version_minor=p->player.version_minor;
-   NetPlayers.players[N_players].rank=p->player.rank;
+	NetPlayers.players[N_players].rank=p->player.rank;
 	NetPlayers.players[N_players].connected = 1;
-   network_check_for_old_version (N_players);
+	network_check_for_old_version (N_players);
 
 	Players[N_players].KillGoalCount=0;
 	Players[N_players].connected = 1;
@@ -1436,7 +1229,7 @@ void network_add_player(sequence_packet *p)
 
 	// Broadcast updated info
 
-   mprintf ((0,"sending_game_info!\n"));
+	mprintf ((0,"sending_game_info!\n"));
 	network_send_game_info(NULL);
 }
 
@@ -1448,37 +1241,24 @@ void network_remove_player(sequence_packet *p)
 	
 	pn = -1;
 	for (i=0; i<N_players; i++ )    {
-		if (Network_game_type == IPX_GAME) {
-			if (!memcmp(NetPlayers.players[i].network.ipx.node, p->player.network.ipx.node, 6) && !memcmp(NetPlayers.players[i].network.ipx.server, p->player.network.ipx.server, 4)) {
-				pn = i;
-				break;
-			}
-		} else {
-			if ( (NetPlayers.players[i].network.appletalk.node == p->player.network.appletalk.node) && (NetPlayers.players[i].network.appletalk.net == p->player.network.appletalk.net) ) {
-				pn = i;
-				break;
-			}
+		if (!memcmp(NetPlayers.players[i].network.ipx.node, p->player.network.ipx.node, 6) && !memcmp(NetPlayers.players[i].network.ipx.server, p->player.network.ipx.server, 4)) {
+			pn = i;
+			break;
 		}
 	}
 	
 	if (pn < 0 ) return;
 
 	for (i=pn; i<N_players-1; i++ ) {
-		if (Network_game_type == IPX_GAME) {
-			memcpy( NetPlayers.players[i].network.ipx.node, NetPlayers.players[i+1].network.ipx.node, 6 );
-			memcpy( NetPlayers.players[i].network.ipx.server, NetPlayers.players[i+1].network.ipx.server, 4 );
-		} else {
-			NetPlayers.players[i].network.appletalk.node = NetPlayers.players[i+1].network.appletalk.node;
-			NetPlayers.players[i].network.appletalk.net = NetPlayers.players[i+1].network.appletalk.net;
-			NetPlayers.players[i].network.appletalk.socket = NetPlayers.players[i+1].network.appletalk.socket;
-		}
+		memcpy( NetPlayers.players[i].network.ipx.node, NetPlayers.players[i+1].network.ipx.node, 6 );
+		memcpy( NetPlayers.players[i].network.ipx.server, NetPlayers.players[i+1].network.ipx.server, 4 );
 		memcpy( NetPlayers.players[i].callsign, NetPlayers.players[i+1].callsign, CALLSIGN_LEN+1 );
 		NetPlayers.players[i].version_major=NetPlayers.players[i+1].version_major;
 		NetPlayers.players[i].version_minor=NetPlayers.players[i+1].version_minor;
 
-	   NetPlayers.players[i].rank=NetPlayers.players[i+1].rank;
- 		ClipRank (&NetPlayers.players[i].rank);
-	   network_check_for_old_version(i);	
+		NetPlayers.players[i].rank=NetPlayers.players[i+1].rank;
+		ClipRank (&NetPlayers.players[i].rank);
+		network_check_for_old_version(i);	
 	}
 		
 	N_players--;
@@ -1501,11 +1281,7 @@ network_dump_player(ubyte * server, ubyte *node, int why)
 	temp.type = PID_DUMP;
 	memcpy(temp.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
 	temp.player.connected = why;
-	if (Network_game_type == IPX_GAME) {
-		send_internetwork_sequence_packet(temp, server, node);
-	} else {
-		Int3();
-	}
+	send_internetwork_sequence_packet(temp, server, node);
 }
 
 void
@@ -1520,19 +1296,10 @@ network_send_game_list_request()
 	me.type = PID_GAME_LIST;
 	memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 
-	if (Network_game_type == IPX_GAME) {
-		memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
-		memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
+	memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
+	memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
 
-		send_broadcast_sequence_packet(me);
-	#ifdef MACINTOSH
-	} else {
-		me.player.network.appletalk.node = appletalk_get_my_node();
-		me.player.network.appletalk.net = appletalk_get_my_net();
-		me.player.network.appletalk.socket = appletalk_get_my_socket();
-		appletalk_send_game_info( (ubyte *)&me, sizeof(sequence_packet), Network_zone_name );
-	#endif
-	}
+	send_broadcast_sequence_packet(me);
 }
 
 void network_send_all_info_request(char type,int which_security)
@@ -1547,22 +1314,13 @@ void network_send_all_info_request(char type,int which_security)
 	me.type = type;
 	memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 	
-	if (Network_game_type == IPX_GAME) {
-		memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
-		memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
-		if (Ext_server==NULL || Ext_node==NULL){
-			send_broadcast_sequence_packet(me);
-		}
-		else {
-			send_internetwork_sequence_packet( me, Ext_server,Ext_node);
-		}
-	#ifdef MACINTOSH
-	} else {
-		me.player.network.appletalk.node = appletalk_get_my_node();
-		me.player.network.appletalk.net = appletalk_get_my_net();
-		me.player.network.appletalk.socket = appletalk_get_my_socket();
-		appletalk_send_game_info( (ubyte *)&me, sizeof(sequence_packet), Network_zone_name );
-	#endif
+	memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
+	memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
+	if (Ext_server==NULL || Ext_node==NULL){
+		send_broadcast_sequence_packet(me);
+	}
+	else {
+		send_internetwork_sequence_packet( me, Ext_server,Ext_node);
 	}
 }
 
@@ -1649,23 +1407,14 @@ network_send_endlevel_sub(int player_num)
 		end.seconds_left = Countdown_seconds_left;
 	}
 
-//      mprintf((0, "Sending endlevel packet.\n"));
-
 	for (i = 0; i < N_players; i++)
-	{       
+	{
 		if ((i != Player_num) && (i!=player_num) && (Players[i].connected)) {
-		  if (Players[i].connected==1)
-			 network_send_endlevel_short_sub(player_num,i);
-		  else {
-			if (Network_game_type == IPX_GAME)
+			if (Players[i].connected==1) {
+				network_send_endlevel_short_sub(player_num,i);
+			} else {
 				ipx_send_packet_data((ubyte *)&end, sizeof(endlevel_info), NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
-			#ifdef MACINTOSH
-			else
-				appletalk_send_packet_data( (ubyte *)&end, sizeof(endlevel_info), NetPlayers.players[i].network.appletalk.node,
-											NetPlayers.players[i].network.appletalk.net,
-											NetPlayers.players[i].network.appletalk.socket);
-			#endif
-			}       
+			}
 		}
 	}
 }
@@ -1698,14 +1447,7 @@ network_send_endlevel_short_sub(int from_player_num,int to_player)
 	if ((to_player != Player_num) && (to_player!=from_player_num) && (Players[to_player].connected))
 	{
 		mprintf((0, "Sending short endlevel packet to %s.\n",Players[to_player].callsign));
-		if (Network_game_type == IPX_GAME)
-			ipx_send_packet_data((ubyte *)&end, sizeof(endlevel_info_short), NetPlayers.players[to_player].network.ipx.server, NetPlayers.players[to_player].network.ipx.node,Players[to_player].net_address);
-		#ifdef MACINTOSH
-		else
-			appletalk_send_packet_data( (ubyte *)&end, sizeof(endlevel_info_short), NetPlayers.players[to_player].network.appletalk.node,
-										NetPlayers.players[to_player].network.appletalk.net,
-										NetPlayers.players[to_player].network.appletalk.socket);
-		#endif
+		ipx_send_packet_data((ubyte *)&end, sizeof(endlevel_info_short), NetPlayers.players[to_player].network.ipx.server, NetPlayers.players[to_player].network.ipx.node,Players[to_player].net_address);
 	}
 }
 
@@ -1717,8 +1459,8 @@ network_send_game_info(sequence_packet *their)
 	// Send game info to someone who requested it
 
 	char old_type, old_status;
-   fix timevar;
-   int i;
+	fix timevar;
+	int i;
 
 	mprintf((0, "Sending game info.\n"));
 
@@ -1728,9 +1470,9 @@ network_send_game_info(sequence_packet *their)
 	old_status = Netgame.game_status;
 
 	Netgame.type = PID_GAME_INFO;
-   NetPlayers.type = PID_PLAYERSINFO;
+	NetPlayers.type = PID_PLAYERSINFO;
 
-   NetPlayers.Security=Netgame.Security;
+	NetPlayers.Security=Netgame.Security;
 	Netgame.version_major=Version_major;
 	Netgame.version_minor=Version_minor;
 
@@ -1738,35 +1480,24 @@ network_send_game_info(sequence_packet *their)
 		Netgame.game_status = NETSTAT_ENDLEVEL;
 
 	if (Netgame.PlayTimeAllowed)
-    {
+	{
 		timevar=i2f (Netgame.PlayTimeAllowed*5*60);
 		i=f2i(timevar-ThisLevelTime);
 		if (i<30)
 			Netgame.game_status=NETSTAT_ENDLEVEL;
-	}       
+	}
 
 	if (!their) {
-		if (Network_game_type == IPX_GAME) {
-			send_broadcast_full_netgame_packet();
-			send_broadcast_netplayers_packet();
-		} // nothing to do for appletalk games I think....
+		send_broadcast_full_netgame_packet();
+		send_broadcast_netplayers_packet();
 	} else {
-		if (Network_game_type == IPX_GAME) {
-			send_internetwork_full_netgame_packet(their->player.network.ipx.server, their->player.network.ipx.node);
-			send_netplayers_packet(their->player.network.ipx.server, their->player.network.ipx.node);
-		#ifdef MACINTOSH
-		} else {
-			appletalk_send_packet_data( (ubyte *)&Netgame, sizeof(netgame_info), their->player.network.appletalk.node,
-										their->player.network.appletalk.net, their->player.network.appletalk.socket );
-			appletalk_send_packet_data( (ubyte *)&NetPlayers, sizeof(AllNetPlayers_info), their->player.network.appletalk.node,
-										their->player.network.appletalk.net, their->player.network.appletalk.socket );
-		#endif
-		}
-	}  
+		send_internetwork_full_netgame_packet(their->player.network.ipx.server, their->player.network.ipx.node);
+		send_netplayers_packet(their->player.network.ipx.server, their->player.network.ipx.node);
+	}
 
 	Netgame.type = old_type;
 	Netgame.game_status = old_status;
-}       
+}
 
 void network_send_lite_info(sequence_packet *their,int extended)
 {
@@ -1789,8 +1520,8 @@ void network_send_lite_info(sequence_packet *their,int extended)
 	if (Endlevel_sequence || Control_center_destroyed)
 		Netgame.game_status = NETSTAT_ENDLEVEL;
 
-// If hoard mode, make this game look closed even if it isn't
-   if (HoardEquipped())
+	// If hoard mode, make this game look closed even if it isn't
+	if (HoardEquipped())
 	{
 		if (Game_mode & GM_HOARD)
 		{
@@ -1805,19 +1536,10 @@ void network_send_lite_info(sequence_packet *their,int extended)
 	}
 
 	if (!their) {
-		if (Network_game_type == IPX_GAME) {
-			send_broadcast_lite_netgame_packet();
-		}               // nothing to do for appletalk I think....
+		send_broadcast_lite_netgame_packet();
 	} else {
-		if (Network_game_type == IPX_GAME) {
-			send_internetwork_lite_netgame_packet(their->player.network.ipx.server, their->player.network.ipx.node,extended);
-		#ifdef MACINTOSH
-		} else {
-			appletalk_send_packet_data( (ubyte *)&Netgame, sizeof(lite_info), their->player.network.appletalk.node,
-										their->player.network.appletalk.net, their->player.network.appletalk.socket );
-		#endif
-		}
-	}  
+		send_internetwork_lite_netgame_packet(their->player.network.ipx.server, their->player.network.ipx.node,extended);
+	}
 
 	//  Restore the pre-hoard mode
 	if (HoardEquipped())
@@ -1825,9 +1547,9 @@ void network_send_lite_info(sequence_packet *their,int extended)
 		if (Game_mode & GM_HOARD)
 		{
 			if (!(Game_mode & GM_TEAM))
- 			   Netgame.gamemode=NETGAME_HOARD;
+				Netgame.gamemode=NETGAME_HOARD;
 			else
- 			   Netgame.gamemode=NETGAME_TEAM_HOARD;
+				Netgame.gamemode=NETGAME_TEAM_HOARD;
 			Netgame.game_flags&=~NETGAME_FLAG_REALLY_ENDLEVEL;
 			Netgame.game_flags&=~NETGAME_FLAG_REALLY_FORMING;
 			Netgame.game_flags&=~NETGAME_FLAG_TEAM_HOARD;
@@ -1837,7 +1559,7 @@ void network_send_lite_info(sequence_packet *their,int extended)
 	Netgame.type = old_type;
 	Netgame.game_status = old_status;
 
-}       
+}
 
 /* Send game info to all players in this game */
 void network_send_netgame_update()
@@ -1859,14 +1581,7 @@ void network_send_netgame_update()
  
 	for (i=0; i<N_players; i++ )    {
 		if ( (Players[i].connected) && (i!=Player_num ) )       {
-			if (Network_game_type == IPX_GAME) {
-				send_lite_netgame_packet(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
-			#ifdef MACINTOSH
-			} else {
-				appletalk_send_packet_data( (ubyte *)&Netgame, sizeof(lite_info), NetPlayers.players[i].network.appletalk.node,
-											NetPlayers.players[i].network.appletalk.net, NetPlayers.players[i].network.appletalk.socket );
-			#endif
-			}
+			send_lite_netgame_packet(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, Players[i].net_address);
 		}
 	}
 
@@ -1891,20 +1606,10 @@ int network_send_request(void)
 
 	mprintf((0, "Sending game enroll request to player %d (%s). Serv=%x Node=%x Level=%d\n", i, Players[i].callsign,NetPlayers.players[i].network.ipx.server,NetPlayers.players[i].network.ipx.node,Netgame.levelnum));
 
-//      segments_checksum = netmisc_calc_checksum( Segments, sizeof(segment)*(Highest_segment_index+1) );       
-
 	My_Seq.type = PID_REQUEST;
 	My_Seq.player.connected = Current_level_num;
 
-	if (Network_game_type == IPX_GAME) {
-		send_internetwork_sequence_packet(My_Seq, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node);
-	#ifdef MACINTOSH
-	} else {
-		appletalk_send_packet_data( (ubyte *)&My_Seq, sizeof(sequence_packet), NetPlayers.players[i].network.appletalk.node,
-									NetPlayers.players[i].network.appletalk.net,
-									NetPlayers.players[i].network.appletalk.socket);
-	#endif
-	}
+	send_internetwork_sequence_packet(My_Seq, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node);
 
 	return i;
 }
@@ -1918,35 +1623,28 @@ void network_process_gameinfo(ubyte *data)
 #ifdef WORDS_BIGENDIAN
 	netgame_info tmp_info;
 
-	if (Network_game_type == IPX_GAME)  {
-		receive_netgame_packet(data, &tmp_info, 0);                     // get correctly aligned structure
-		new = &tmp_info;
-	}
+	receive_netgame_packet(data, &tmp_info, 0);                     // get correctly aligned structure
+	new = &tmp_info;
 #endif
 	
 
-   WaitingForPlayerInfo=0;
-
-   if (new->Security !=TempPlayersInfo->Security)
-    {
-     Int3();     // Get Jason
-     return;     // If this first half doesn't go with the second half
-    }
+	WaitingForPlayerInfo=0;
+	
+	if (new->Security !=TempPlayersInfo->Security)
+	{
+		Int3();     // Get Jason
+		return;     // If this first half doesn't go with the second half
+	}
 
 	Network_games_changed = 1;
 
-   //mprintf((0, "Got game data for game %s.\n", new->game_name));
-
-   Assert (TempPlayersInfo!=NULL);
+	Assert (TempPlayersInfo!=NULL);
 
 	for (i = 0; i < num_active_games; i++)
-	 {
-	  //mprintf ((0,"GAMEINFO: Game %d is %s!\n",i,Active_games[i].game_name));
-	  
-	  if (!stricmp(Active_games[i].game_name, new->game_name) && 
-				  Active_games[i].Security==new->Security)
-	       break;
-	 }
+	{
+		if (!stricmp(Active_games[i].game_name, new->game_name) && Active_games[i].Security==new->Security)
+			break;
+	}
 
 	if (i == MAX_ACTIVE_NETGAMES)
 	{
@@ -1954,28 +1652,25 @@ void network_process_gameinfo(ubyte *data)
 		return;
 	}
 	
-// MWA  memcpy(&Active_games[i], data, sizeof(netgame_info));
 	memcpy(&Active_games[i], (ubyte *)new, sizeof(netgame_info));
 	memcpy (&ActiveNetPlayers[i],TempPlayersInfo,sizeof(AllNetPlayers_info));
 
-   if (SecurityCheck)
-	 if (Active_games[i].Security==SecurityCheck)
-		SecurityCheck=-1;
-
-	//mprintf ((0,"Recieved %d unique games...\n",i));
+	if (SecurityCheck)
+		if (Active_games[i].Security==SecurityCheck)
+			SecurityCheck=-1;
 
 	if (i == num_active_games)
 		num_active_games++;
 
 	if (Active_games[i].numplayers == 0)
 	{
-	 mprintf ((0,"DELETING THIS GAME!!!\n"));       
+		mprintf ((0,"DELETING THIS GAME!!!\n"));       
 		// Delete this game
 		for (j = i; j < num_active_games-1; j++)
-	{
-	     memcpy(&Active_games[j], &Active_games[j+1], sizeof(netgame_info));
-	   memcpy (&ActiveNetPlayers[j],&ActiveNetPlayers[j+1],sizeof(AllNetPlayers_info));
-	}
+		{
+			memcpy(&Active_games[j], &Active_games[j+1], sizeof(netgame_info));
+			memcpy (&ActiveNetPlayers[j],&ActiveNetPlayers[j+1],sizeof(AllNetPlayers_info));
+		}
 		num_active_games--;
 		SecurityCheck=0;
 	}
@@ -1988,24 +1683,17 @@ void network_process_lite_info(ubyte *data, int extended)
 #ifdef WORDS_BIGENDIAN
 	lite_info tmp_info;
 
-	if (Network_game_type == IPX_GAME) {
-		receive_netgame_packet(data, (netgame_info *)&tmp_info, 1);
-		new = &tmp_info;
-	}
+	receive_netgame_packet(data, (netgame_info *)&tmp_info, 1);
+	new = &tmp_info;
 #endif
 
 	Network_games_changed = 1;
 
-   //mprintf((0, "Got game data for game %s.\n", new->game_name));
-
 	for (i = 0; i < num_active_games; i++)
-    {
-      //mprintf ((0,"GAMEINFO: Game %d is %s!\n",i,Active_games[i].game_name));
-      
-      if ((!stricmp(Active_games[i].game_name, new->game_name)) && 
-			 Active_games[i].Security==new->Security)
-				break;
-    }
+	{
+		if ((!stricmp(Active_games[i].game_name, new->game_name)) && Active_games[i].Security==new->Security)
+			break;
+	}
 
 	if (i == MAX_ACTIVE_NETGAMES)
 	{
@@ -2015,18 +1703,17 @@ void network_process_lite_info(ubyte *data, int extended)
 	
 	memcpy(&Active_games[i], (ubyte *)new, (extended?sizeof(netgame_info):sizeof(lite_info)));
 
-// See if this is really a Hoard game
-// If so, adjust all the data accordingly
-
+	// See if this is really a Hoard game
+	// If so, adjust all the data accordingly
 	if (HoardEquipped())
 	{
 		if (Active_games[i].game_flags & NETGAME_FLAG_HOARD)
 		{
-			Active_games[i].gamemode=NETGAME_HOARD;					  
+			Active_games[i].gamemode=NETGAME_HOARD;
 			Active_games[i].game_status=NETSTAT_PLAYING;
 			
 			if (Active_games[i].game_flags & NETGAME_FLAG_TEAM_HOARD)
-				Active_games[i].gamemode=NETGAME_TEAM_HOARD;					  
+				Active_games[i].gamemode=NETGAME_TEAM_HOARD;
 			if (Active_games[i].game_flags & NETGAME_FLAG_REALLY_ENDLEVEL)
 				Active_games[i].game_status=NETSTAT_ENDLEVEL;
 			if (Active_games[i].game_flags & NETGAME_FLAG_REALLY_FORMING)
@@ -2034,19 +1721,17 @@ void network_process_lite_info(ubyte *data, int extended)
 		}
 	}
 
-   //mprintf ((0,"Recieved %d unique games...\n",i));
-
 	if (i == num_active_games)
 		num_active_games++;
 
 	if (Active_games[i].numplayers == 0)
-    {
-	   mprintf ((0,"DELETING THIS GAME!!!\n"));     
+	{
+		mprintf ((0,"DELETING THIS GAME!!!\n"));     
 		// Delete this game
 		for (j = i; j < num_active_games-1; j++)
-	{
-	     memcpy(&Active_games[j], &Active_games[j+1], sizeof(netgame_info));
-	}
+		{
+			memcpy(&Active_games[j], &Active_games[j+1], sizeof(netgame_info));
+		}
 		num_active_games--;
 	}
 }
@@ -2101,18 +1786,11 @@ void network_process_request(sequence_packet *their)
 	mprintf((0, "Player %s ready for sync.\n", their->player.callsign));
 
 	for (i = 0; i < N_players; i++) {
-		if (Network_game_type == IPX_GAME) {
-			if (!memcmp(their->player.network.ipx.server, NetPlayers.players[i].network.ipx.server, 4) && !memcmp(their->player.network.ipx.node, NetPlayers.players[i].network.ipx.node, 6) && (!stricmp(their->player.callsign, NetPlayers.players[i].callsign))) {
-				Players[i].connected = 1;
-				break;
-			}
-		} else {
-			if ( (their->player.network.appletalk.node == NetPlayers.players[i].network.appletalk.node) && (their->player.network.appletalk.net == NetPlayers.players[i].network.appletalk.net) && (!stricmp(their->player.callsign, NetPlayers.players[i].callsign)) ) {
-				Players[i].connected = 1;
-				break;
-			}
+		if (!memcmp(their->player.network.ipx.server, NetPlayers.players[i].network.ipx.server, 4) && !memcmp(their->player.network.ipx.node, NetPlayers.players[i].network.ipx.node, 6) && (!stricmp(their->player.callsign, NetPlayers.players[i].callsign))) {
+			Players[i].connected = 1;
+			break;
 		}
-	}                       
+	}
 }
 
 #define REFUSE_INTERVAL F1_0 * 8
@@ -2126,301 +1804,301 @@ void network_process_packet(ubyte *data, int length )
 
 	memset(&tep_packet, 0, sizeof(sequence_packet));
 
-	if (Network_game_type == IPX_GAME) {
-		receive_sequence_packet(data, &tmp_packet);
-		their = &tmp_packet;                                            // reassign their to point to correctly alinged structure
-	}
+	receive_sequence_packet(data, &tmp_packet);
+	their = &tmp_packet;                                            // reassign their to point to correctly alinged structure
 #endif
-
-   //mprintf( (0, "Got packet of length %d, type %d\n", length, their->type ));
-	
-//      if ( length < sizeof(sequence_packet) ) return;
 
 	length = length;
 
-	switch( data[0] )       {
+	switch( data[0] )
+	{
 	
-	 case PID_GAME_INFO:		// Jason L. says we can safely ignore this type.
-	 	break;
+		case PID_GAME_INFO:		// Jason L. says we can safely ignore this type.
+			break;
+
+		case PID_PLAYERSINFO:
+			mprintf ((0,"Got a PID_PLAYERSINFO!\n"));
 	
-     case PID_PLAYERSINFO:
-
-		mprintf ((0,"Got a PID_PLAYERSINFO!\n"));
-
-		if (Network_status==NETSTAT_WAITING)
-		{
-			if (Network_game_type == IPX_GAME)
-				receive_netplayers_packet(data, &TempPlayersBase);
-			else
-				memcpy (&TempPlayersBase,data,sizeof(AllNetPlayers_info));
-
-			if (TempPlayersBase.Security!=Netgame.Security)
-			 {
-			  mprintf ((0,"Bad security for PLAYERSINFO\n"));
-			  break;
-			 }	
-		
-			mprintf ((0,"Got a waiting PID_PLAYERSINFO!\n"));
-			if (length!=ALLNETPLAYERSINFO_SIZE)
+			if (Network_status==NETSTAT_WAITING)
 			{
-				mprintf ((0,"Invalid size for netplayers packet!\n"));
+				receive_netplayers_packet(data, &TempPlayersBase);
+	
+				if (TempPlayersBase.Security!=Netgame.Security)
+				{
+				mprintf ((0,"Bad security for PLAYERSINFO\n"));
+				break;
+				}	
+			
+				mprintf ((0,"Got a waiting PID_PLAYERSINFO!\n"));
+				if (length!=ALLNETPLAYERSINFO_SIZE)
+				{
+					mprintf ((0,"Invalid size for netplayers packet!\n"));
+					return;
+				}
+	
+				TempPlayersInfo=&TempPlayersBase;
+				WaitingForPlayerInfo=0;
+				NetSecurityNum=TempPlayersInfo->Security;
+				NetSecurityFlag=NETSECURITY_WAIT_FOR_SYNC;
+			}
+		
+			break;
+
+		case PID_LITE_INFO:
+			if (length != LITE_INFO_SIZE) // probably we get extended info
+				{
+				mprintf ((0,"WARNING! Recieved invalid size for PID_LITE_INFO\n"));
+				return;
+				}
+		
+			if (Network_status == NETSTAT_BROWSING)
+				network_process_lite_info (data,0);
+
+			break;
+
+		case PID_LITE_INFO_D2X:
+			if (length != sizeof(netgame_info)) // probably we get extended info
+				{
+				mprintf ((0,"WARNING! Recieved invalid size for PID_LITE_INFO\n"));
+				return;
+				}
+		
+			if (Network_status == NETSTAT_BROWSING)
+				network_process_lite_info (data,1);
+
+			break;
+
+		case PID_GAME_LIST:
+			// Someone wants a list of games
+			if (length != SEQUENCE_PACKET_SIZE)
+			{
+				mprintf ((0,"WARNING! Recieved invalid size for PID_GAME_LIST\n"));
+				return;
+			}
+					
+			mprintf((0, "Got a PID_GAME_LIST!\n"));
+			if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
+				if (network_i_am_master())
+					network_send_lite_info(their,0);
+	
+			break;
+
+		case PID_GAME_LIST_D2X:
+			// Someone wants a list of games
+			if (length != SEQUENCE_PACKET_SIZE)
+			{
+				mprintf ((0,"WARNING! Recieved invalid size for PID_GAME_LIST\n"));
+				return;
+			}
+				
+			if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
+				if (network_i_am_master())
+					network_send_lite_info(their,1);
+	
+			break;
+
+		case PID_SEND_ALL_GAMEINFO:
+			if (length != SEQUENCE_PACKET_SIZE)
+			{
+				mprintf ((0,"WARNING! Recieved invalid size for PID_SEND_ALL_GAMEINFO\n"));
+				return;
+			}
+	
+			if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
+				if (network_i_am_master() && their->Security==Netgame.Security)
+					network_send_game_info(their);
+			break;
+		
+		case PID_ADDPLAYER:
+			mprintf( (0, "Got NEWPLAYER message from %s.\n", their->player.callsign));
+			
+			if (length != SEQUENCE_PACKET_SIZE)
+			{
+				mprintf ((0,"WARNING! Recieved invalid size for PID_ADDPLAYER\n"));
 				return;
 			}
 
-			TempPlayersInfo=&TempPlayersBase;
-			WaitingForPlayerInfo=0;
-			NetSecurityNum=TempPlayersInfo->Security;
-			NetSecurityFlag=NETSECURITY_WAIT_FOR_SYNC;
-	   }
+			mprintf( (0, "Got NEWPLAYER message from %s.\n", their->player.callsign));
+			network_new_player(their);
 
-     break;
+			break;
+		case PID_REQUEST:
+			if (length != SEQUENCE_PACKET_SIZE)
+			{
+				mprintf ((0,"WARNING! Recieved invalid size for PID_REQUEST\n"));
+				return;
+			}
 
-   case PID_LITE_INFO:
-
-	 if (length != LITE_INFO_SIZE) // probably we get extended info
-		 {
-		  mprintf ((0,"WARNING! Recieved invalid size for PID_LITE_INFO\n"));
-		  return;
-		 }
- 
-	 if (Network_status == NETSTAT_BROWSING)
-		network_process_lite_info (data,0);
-    break;
-
-   case PID_LITE_INFO_D2X:
-
-	 if (length != sizeof(netgame_info)) // probably we get extended info
-		 {
-		  mprintf ((0,"WARNING! Recieved invalid size for PID_LITE_INFO\n"));
-		  return;
-		 }
- 
-	 if (Network_status == NETSTAT_BROWSING)
-		network_process_lite_info (data,1);
-    break;
-
-	case PID_GAME_LIST:
-		// Someone wants a list of games
-
-	   if (length != SEQUENCE_PACKET_SIZE)
-		 {
-		  mprintf ((0,"WARNING! Recieved invalid size for PID_GAME_LIST\n"));
-		  return;
-		 }
-			
-		mprintf((0, "Got a PID_GAME_LIST!\n"));
-		if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
-			if (network_i_am_master())
-				network_send_lite_info(their,0);
-		break;
-
-	case PID_GAME_LIST_D2X:
-		// Someone wants a list of games
-
-	   if (length != SEQUENCE_PACKET_SIZE)
-		 {
-		  mprintf ((0,"WARNING! Recieved invalid size for PID_GAME_LIST\n"));
-		  return;
-		 }
-			
-		if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
-			if (network_i_am_master())
-				network_send_lite_info(their,1);
-		break;
-
-	case PID_SEND_ALL_GAMEINFO:
-	   if (length != SEQUENCE_PACKET_SIZE)
-		 {
-		  mprintf ((0,"WARNING! Recieved invalid size for PID_SEND_ALL_GAMEINFO\n"));
-		  return;
-		 }
-
-		if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
-			if (network_i_am_master() && their->Security==Netgame.Security)
-				network_send_game_info(their);
-		break;
+			mprintf( (0, "Got REQUEST from '%s'\n", their->player.callsign ));
 	
-	case PID_ADDPLAYER:
+			if (Network_status == NETSTAT_STARTING) 
+			{
+				// Someone wants to join our game!
+				network_add_player(their);
+			}
+			else if (Network_status == NETSTAT_WAITING)
+			{
+				// Someone is ready to recieve a sync packet
+				network_process_request(their);
+			}
+			else if (Network_status == NETSTAT_PLAYING)
+			{
+				// Someone wants to join a game in progress!
+				if (Netgame.RefusePlayers)
+					DoRefuseStuff (their);
+				else
+					network_welcome_player(their);
+			}
 
-		mprintf( (0, "Got NEWPLAYER message from %s.\n", their->player.callsign));
-		
-	   if (length != SEQUENCE_PACKET_SIZE)
-		 {
-		  mprintf ((0,"WARNING! Recieved invalid size for PID_ADDPLAYER\n"));
-		  return;
-		 }
-		mprintf( (0, "Got NEWPLAYER message from %s.\n", their->player.callsign));
-		network_new_player(their);
-		break;                  
-	case PID_REQUEST:
-	   if (length != SEQUENCE_PACKET_SIZE)
-		 {
-		  mprintf ((0,"WARNING! Recieved invalid size for PID_REQUEST\n"));
-		  return;
-		 }
+			break;
 
-		mprintf( (0, "Got REQUEST from '%s'\n", their->player.callsign ));
+		case PID_DUMP:
+	
+			if (length != SEQUENCE_PACKET_SIZE)
+			{
+				mprintf ((0,"WARNING! Recieved invalid size for PID_DUMP\n"));
+				return;
+			}
+	
+			if (Network_status == NETSTAT_WAITING || Network_status==NETSTAT_PLAYING )
+				network_process_dump(their);
 
-		if (Network_status == NETSTAT_STARTING) 
-		{
-			// Someone wants to join our game!
-			network_add_player(their);
-		}
-		else if (Network_status == NETSTAT_WAITING)
-		{
-			// Someone is ready to recieve a sync packet
-			network_process_request(their);
-		}
-		else if (Network_status == NETSTAT_PLAYING)
-		{
-			// Someone wants to join a game in progress!
-			if (Netgame.RefusePlayers)
-				DoRefuseStuff (their);
-			else
-				network_welcome_player(their);
-		}
-		break;
-	case PID_DUMP:  
+			break;
+		case PID_QUIT_JOINING:
+	
+			if (length != SEQUENCE_PACKET_SIZE)
+			{
+				mprintf ((0,"WARNING! Recieved invalid size for PID_QUIT_JOINING\n"));
+				return;
+			}
+			if (Network_status == NETSTAT_STARTING)
+				network_remove_player( their );
+			else if ((Network_status == NETSTAT_PLAYING) && (Network_send_objects))
+				network_stop_resync( their );
 
-	   if (length != SEQUENCE_PACKET_SIZE)
-		 {
-		  mprintf ((0,"WARNING! Recieved invalid size for PID_DUMP\n"));
-		  return;
-		 }
-  
-		if (Network_status == NETSTAT_WAITING || Network_status==NETSTAT_PLAYING )
-			network_process_dump(their);
-		break;
-	case PID_QUIT_JOINING:
+			break;
 
-	   if (length != SEQUENCE_PACKET_SIZE)
-		 {
-		  mprintf ((0,"WARNING! Recieved invalid size for PID_QUIT_JOINING\n"));
-		  return;
-		 }
-		if (Network_status == NETSTAT_STARTING)
-			network_remove_player( their );
-		else if ((Network_status == NETSTAT_PLAYING) && (Network_send_objects))
-			network_stop_resync( their );
-		break;
-	case PID_SYNC:  
-
-		mprintf ((0,"Got a sync packet! Network_status=%d\n",NETSTAT_WAITING));
-
-		if (Network_status == NETSTAT_WAITING)  {
-
-			if (Network_game_type == IPX_GAME)
+		case PID_SYNC:
+	
+			mprintf ((0,"Got a sync packet! Network_status=%d\n",NETSTAT_WAITING));
+	
+			if (Network_status == NETSTAT_WAITING)
+			{
 				receive_full_netgame_packet(data, &TempNetInfo);
+	
+				if (TempNetInfo.Security!=Netgame.Security)
+				{
+					mprintf ((0,"Bad security on sync packet.\n"));
+					break;
+				}
+	
+				if (NetSecurityFlag==NETSECURITY_WAIT_FOR_SYNC)
+				{
+					if (TempNetInfo.Security==TempPlayersInfo->Security)
+					{
+						network_read_sync_packet (&TempNetInfo,0);
+						NetSecurityFlag=0;
+						NetSecurityNum=0;
+					}
+				}
+				else
+				{
+					NetSecurityFlag=NETSECURITY_WAIT_FOR_PLAYERS;
+					NetSecurityNum=TempNetInfo.Security;
+		
+					if ( network_wait_for_playerinfo())
+						network_read_sync_packet((netgame_info *)data,0);
+		
+					NetSecurityFlag=0;
+					NetSecurityNum=0;
+				}
+			}
+			break;
+	
+		case PID_PDATA: 
+			if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) || Network_status==NETSTAT_WAITING)) { 
+				network_process_pdata((char *)data);
+			}
+			break;
+
+		case PID_NAKED_PDATA:
+			if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) || Network_status==NETSTAT_WAITING)) 
+				network_process_naked_pdata((char *)data,length);
+			break;
+	
+		case PID_OBJECT_DATA:
+			if (Network_status == NETSTAT_WAITING) 
+				network_read_object_packet(data);
+			break;
+
+		case PID_ENDLEVEL:
+			if ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING))
+				network_read_endlevel_packet(data);
 			else
-				memcpy((ubyte *)&(TempNetInfo), data, sizeof(netgame_info));
+				mprintf((0, "Junked endlevel packet.\n"));
+			break;
 
-			if (TempNetInfo.Security!=Netgame.Security)
-			 {
-				mprintf ((0,"Bad security on sync packet.\n"));
-				break;
-			 }
-
-			if (NetSecurityFlag==NETSECURITY_WAIT_FOR_SYNC)
-			 {
-			  if (TempNetInfo.Security==TempPlayersInfo->Security)
-			  {
-				network_read_sync_packet (&TempNetInfo,0);
-				NetSecurityFlag=0;
-				NetSecurityNum=0;
-			  }	
-			 }
+		case PID_ENDLEVEL_SHORT:
+			if ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING))
+				network_read_endlevel_short_packet(data);
 			else
-			 {	
-			NetSecurityFlag=NETSECURITY_WAIT_FOR_PLAYERS;
-			NetSecurityNum=TempNetInfo.Security;
-
-			if ( network_wait_for_playerinfo())
-				network_read_sync_packet((netgame_info *)data,0);
- 
-			NetSecurityFlag=0;
-			NetSecurityNum=0;
-			 }
-		}
-		break;
-
-	case PID_PDATA: 
-		if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) || Network_status==NETSTAT_WAITING)) { 
-			network_process_pdata((char *)data);
-		}
-		break;
-   case PID_NAKED_PDATA:
-		if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) || Network_status==NETSTAT_WAITING)) 
-			network_process_naked_pdata((char *)data,length);
-	   break;
-
-	case PID_OBJECT_DATA:
-		if (Network_status == NETSTAT_WAITING) 
-			network_read_object_packet(data);
-		break;
-	case PID_ENDLEVEL:
-		if ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING))
-			network_read_endlevel_packet(data);
-		else
-			mprintf((0, "Junked endlevel packet.\n"));
-		break;
-	case PID_ENDLEVEL_SHORT:
-		if ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING))
-			network_read_endlevel_short_packet(data);
-		else
-			mprintf((0, "Junked short endlevel packet!\n"));
-		break;
-
-	case PID_GAME_UPDATE:
-		mprintf ((0,"Got a GAME_UPDATE!\n"));
-			
-		if (Network_status==NETSTAT_PLAYING)
-		 {
-			if (Network_game_type == IPX_GAME)
+				mprintf((0, "Junked short endlevel packet!\n"));
+			break;
+	
+		case PID_GAME_UPDATE:
+			mprintf ((0,"Got a GAME_UPDATE!\n"));
+				
+			if (Network_status==NETSTAT_PLAYING)
+			{
 				receive_lite_netgame_packet(data, &TempNetInfo);
-			else
-				memcpy((ubyte *)&TempNetInfo, data, sizeof(lite_info) );
-		  if (TempNetInfo.Security==Netgame.Security)
-			 memcpy (&Netgame,(ubyte *)&TempNetInfo,sizeof(lite_info));
-		 }
-		if (Game_mode & GM_TEAM)
-		 {
-			int i;
 
-			for (i=0;i<N_players;i++)
-			 if (Players[i].connected)
-		    	multi_reset_object_texture (&Objects[Players[i].objnum]);
-		    reset_cockpit();
-		 }
-	   break;
-   case PID_PING_SEND:
-		network_ping (PID_PING_RETURN,data[1]);
-		break;
-   case PID_PING_RETURN:
-		network_handle_ping_return(data[1]);  // data[1] is player who told us of their ping time
-		break;
-   case PID_NAMES_RETURN:
-		if (Network_status==NETSTAT_BROWSING && NamesInfoSecurity!=-1)
-		  network_process_names_return ((ubyte *) data);
-		break;
-	case PID_GAME_PLAYERS:
-		// Someone wants a list of players in this game
+				if (TempNetInfo.Security==Netgame.Security)
+					memcpy (&Netgame,(ubyte *)&TempNetInfo,sizeof(lite_info));
+			}
 
-	   if (length != SEQUENCE_PACKET_SIZE)
-		 {
-		  mprintf ((0,"WARNING! Recieved invalid size for PID_GAME_PLAYERS\n"));
-		  return;
-		 }
-			
-		mprintf((0, "Got a PID_GAME_PLAYERS!\n"));
-		if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
-			if (network_i_am_master() && their->Security==Netgame.Security)
-				network_send_player_names(their);
-		break;
+			if (Game_mode & GM_TEAM)
+			{
+				int i;
+	
+				for (i=0;i<N_players;i++)
+				if (Players[i].connected)
+				multi_reset_object_texture (&Objects[Players[i].objnum]);
+				reset_cockpit();
+			}
+			break;
 
-	default:
-		mprintf((0, "Ignoring invalid packet type.\n"));
-		Int3(); // Invalid network packet type, see ROB
-	   break;
+		case PID_PING_SEND:
+			network_ping (PID_PING_RETURN,data[1]);
+			break;
+
+		case PID_PING_RETURN:
+			network_handle_ping_return(data[1]);  // data[1] is player who told us of their ping time
+			break;
+
+		case PID_NAMES_RETURN:
+			if (Network_status==NETSTAT_BROWSING && NamesInfoSecurity!=-1)
+			network_process_names_return ((ubyte *) data);
+			break;
+
+		case PID_GAME_PLAYERS:
+			// Someone wants a list of players in this game
+	
+			if (length != SEQUENCE_PACKET_SIZE)
+			{
+				mprintf ((0,"WARNING! Recieved invalid size for PID_GAME_PLAYERS\n"));
+				return;
+			}
+				
+			mprintf((0, "Got a PID_GAME_PLAYERS!\n"));
+			if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
+				if (network_i_am_master() && their->Security==Netgame.Security)
+					network_send_player_names(their);
+			break;
+	
+		default:
+			mprintf((0, "Ignoring invalid packet type.\n"));
+			Int3(); // Invalid network packet type, see ROB
+			break;
 	}
 }
 
@@ -2647,8 +2325,7 @@ network_read_object_packet( ubyte *data )
 				Assert(obj->segnum == -1);
 				Assert(objnum < MAX_OBJECTS);
 				memcpy(obj, &data[loc], sizeof(object));
-				if (Network_game_type == IPX_GAME)
-					swap_object(obj);
+				swap_object(obj);
 				loc += sizeof(object);
 				segnum = obj->segnum;
 				obj->next = obj->prev = obj->segnum = -1;
@@ -2897,10 +2574,6 @@ int network_get_game_params()
 	if (!select_mission(1, TXT_MULTI_MISSION))
 		return -1;
 
-	if (!Netgame.ShortPackets)
-		if (!network_choose_connect ())
-			return -1;
-
 	strcpy(Netgame.mission_name, Current_mission_filename);
 	strcpy(Netgame.mission_title, Current_mission_longname);
 
@@ -3105,32 +2778,24 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 #ifdef WORDS_BIGENDIAN
 	netgame_info tmp_info;
 
-	if ( (Network_game_type == IPX_GAME) && (sp != &Netgame) ) {                            // for macintosh -- get the values unpacked to our structure format
-		receive_full_netgame_packet((ubyte *)sp, &tmp_info);
-		sp = &tmp_info;
-	}
+	receive_full_netgame_packet((ubyte *)sp, &tmp_info);
+	sp = &tmp_info;
 #endif
 
-   if (rsinit)
-     TempPlayersInfo=&NetPlayers;
+	if (rsinit)
+		TempPlayersInfo=&NetPlayers;
 	
 	// This function is now called by all people entering the netgame.
 
-	// mprintf( (0, "%s %d\n", TXT_STARTING_NETGAME, sp->levelnum ));
-
 	if (sp != &Netgame)
-	 {
-	  memcpy( &Netgame, sp, sizeof(netgame_info) );
-	  memcpy (&NetPlayers,TempPlayersInfo,sizeof (AllNetPlayers_info));
-	 }
+	{
+		memcpy( &Netgame, sp, sizeof(netgame_info) );
+		memcpy (&NetPlayers,TempPlayersInfo,sizeof (AllNetPlayers_info));
+	}
 
 	N_players = sp->numplayers;
 	Difficulty_level = sp->difficulty;
 	Network_status = sp->game_status;
-
-   //Assert(Function_mode != FMODE_GAME);
-
-	// New code, 11/27
 
 	mprintf((1, "Netgame.checksum = %d, calculated checksum = %d.\n", Netgame.segments_checksum, my_segments_checksum));
 
@@ -3151,46 +2816,32 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 
 	for (i=0; i<MAX_NUM_NET_PLAYERS; i++ )  {
 		Players[i].net_kills_total = 0;
-//              Players[i].net_killed_total = 0;
 	}
 
 	for (i=0; i<N_players; i++ )    {
-		if (Network_game_type == IPX_GAME) {
-			if ( (!memcmp( TempPlayersInfo->players[i].network.ipx.node, My_Seq.player.network.ipx.node, 6 )) && (!stricmp( TempPlayersInfo->players[i].callsign, temp_callsign)) ) {
-				if (Player_num!=-1) {
-					Int3(); // Hey, we've found ourselves twice
-					mprintf ((0,"Hey, we've found ourselves twice!\n"));
-					Network_status = NETSTAT_MENU;
-					return; 
-				}
-				change_playernum_to(i);
+		if ( (!memcmp( TempPlayersInfo->players[i].network.ipx.node, My_Seq.player.network.ipx.node, 6 )) && (!stricmp( TempPlayersInfo->players[i].callsign, temp_callsign)) ) {
+			if (Player_num!=-1) {
+				Int3(); // Hey, we've found ourselves twice
+				mprintf ((0,"Hey, we've found ourselves twice!\n"));
+				Network_status = NETSTAT_MENU;
+				return; 
 			}
-		} else {
-			if ( (TempPlayersInfo->players[i].network.appletalk.node == My_Seq.player.network.appletalk.node) && (!stricmp( TempPlayersInfo->players[i].callsign, temp_callsign)) ) {
-				if (Player_num!=-1) {
-					Int3(); // Hey, we've found ourselves twice
-					Network_status = NETSTAT_MENU;
-					return; 
-				}
-				change_playernum_to(i);
-			}
+			change_playernum_to(i);
 		}
 		memcpy( Players[i].callsign, TempPlayersInfo->players[i].callsign, CALLSIGN_LEN+1 );
 
-		if (Network_game_type == IPX_GAME) {
 #ifdef WORDS_NEED_ALIGNMENT
-			uint server;
-			memcpy(&server, TempPlayersInfo->players[i].network.ipx.server, 4);
-			if (server != 0)
-				ipx_get_local_target((ubyte *)&server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
+		uint server;
+		memcpy(&server, TempPlayersInfo->players[i].network.ipx.server, 4);
+		if (server != 0)
+			ipx_get_local_target((ubyte *)&server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
 #else // WORDS_NEED_ALIGNMENT
-			if ((*(uint *)TempPlayersInfo->players[i].network.ipx.server) != 0)
-				ipx_get_local_target(TempPlayersInfo->players[i].network.ipx.server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
+		if ((*(uint *)TempPlayersInfo->players[i].network.ipx.server) != 0)
+			ipx_get_local_target(TempPlayersInfo->players[i].network.ipx.server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
 #endif // WORDS_NEED_ALIGNMENT
-			else
-				memcpy( Players[i].net_address, TempPlayersInfo->players[i].network.ipx.node, 6 );
-		}
-				
+		else
+			memcpy( Players[i].net_address, TempPlayersInfo->players[i].network.ipx.node, 6 );
+
 		Players[i].n_packets_got=0;                             // How many packets we got from them
 		Players[i].n_packets_sent=0;                            // How many packets we sent to them
 		Players[i].connected = TempPlayersInfo->players[i].connected;
@@ -3223,8 +2874,8 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 	team_kills[1] = sp->team_kills[1];
 	
 	Players[Player_num].connected = 1;
-   NetPlayers.players[Player_num].connected = 1;
-   NetPlayers.players[Player_num].rank=GetMyNetRanking();
+	NetPlayers.players[Player_num].connected = 1;
+	NetPlayers.players[Player_num].rank=GetMyNetRanking();
 
 	if (!Network_rejoined)
 		for (i=0; i<NumNetPlayerPositions; i++) {
@@ -3235,7 +2886,7 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 
 	Objects[Players[Player_num].objnum].type = OBJ_PLAYER;
 
-   mprintf ((0,"Changing to NETSTAT_PLAYING!\n"));
+	mprintf ((0,"Changing to NETSTAT_PLAYING!\n"));
 	Network_status = NETSTAT_PLAYING;
 	Function_mode = FMODE_GAME;
 	multi_sort_kill_list();
@@ -3254,6 +2905,7 @@ network_send_sync(void)
 	{
 		if (Players[i].connected)
 			Players[i].connected = 1; // Get rid of endlevel connect statuses
+
 		if (Game_mode & GM_MULTI_COOP)
 			Netgame.locations[i] = i;
 		else {
@@ -3271,7 +2923,6 @@ network_send_sync(void)
 			} while (np<0);
 			// np is a location that is not used anywhere else..
 			Netgame.locations[i]=np;
-//                      mprintf((0, "Player %d starting in location %d\n" ,i ,np ));
 		}
 	}
 
@@ -3286,21 +2937,9 @@ network_send_sync(void)
 		if ((!Players[i].connected) || (i == Player_num))
 			continue;
 
-		if (Network_game_type == IPX_GAME) {
 		// Send several times, extras will be ignored
-			send_internetwork_full_netgame_packet(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node);
-			send_netplayers_packet(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node);
-		#ifdef MACINTOSH
-		} else {
-				appletalk_send_packet_data( (ubyte *)&Netgame, sizeof(netgame_info), NetPlayers.players[i].network.appletalk.node,
-					NetPlayers.players[i].network.appletalk.net,
-					NetPlayers.players[i].network.appletalk.socket);
-				appletalk_send_packet_data( (ubyte *)&NetPlayers, sizeof(AllNetPlayers_info), NetPlayers.players[i].network.appletalk.node,
-					NetPlayers.players[i].network.appletalk.net,
-					NetPlayers.players[i].network.appletalk.socket);
-		#endif
-		}
-
+		send_internetwork_full_netgame_packet(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node);
+		send_netplayers_packet(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node);
 	}
 
 	network_read_sync_packet(&Netgame,1); // Read it myself, as if I had sent it
@@ -3389,8 +3028,8 @@ int
 network_select_players(void)
 {
 	int i, j;
-   newmenu_item m[MAX_PLAYERS+4];
-   char text[MAX_PLAYERS+4][45];
+	newmenu_item m[MAX_PLAYERS+4];
+	char text[MAX_PLAYERS+4][45];
 	char title[50];
 	int save_nplayers;              //how may people would like to join
 
@@ -3403,7 +3042,7 @@ network_select_players(void)
 
 	m[0].value = 1;                         // Assume server will play...
 
-   if (GameArg.MplNoRankings)
+	if (GameArg.MplNoRankings)
 		sprintf( text[0], "%d. %-20s", 1, Players[Player_num].callsign );
 	else
 		sprintf( text[0], "%d. %s%-20s", 1, RankStrings[NetPlayers.players[Player_num].rank],Players[Player_num].callsign );
@@ -3411,26 +3050,20 @@ network_select_players(void)
 	sprintf( title, "%s %d %s", TXT_TEAM_SELECT, MaxNumNetPlayers, TXT_TEAM_PRESS_ENTER );
 
 GetPlayersAgain:
-   ExtGameStatus=GAMESTAT_NETGAME_PLAYER_SELECT;
+	ExtGameStatus=GAMESTAT_NETGAME_PLAYER_SELECT;
 	j=newmenu_do1( NULL, title, MAX_PLAYERS+4, m, network_start_poll, 1 );
 
 	save_nplayers = N_players;
 
 	if (j<0) 
 	{
-		// Aborted!                                      
+		// Aborted!
 		// Dump all players and go back to menu mode
 
 abort:
 		for (i=1; i<save_nplayers; i++) {
-			if (Network_game_type == IPX_GAME)
-				network_dump_player(NetPlayers.players[i].network.ipx.server,NetPlayers.players[i].network.ipx.node, DUMP_ABORTED);
-			#ifdef MACINTOSH
-			else
-				network_dump_appletalk_player(NetPlayers.players[i].network.appletalk.node,NetPlayers.players[i].network.appletalk.net, NetPlayers.players[i].network.appletalk.socket, DUMP_ABORTED);
-			#endif
+			network_dump_player(NetPlayers.players[i].network.ipx.server,NetPlayers.players[i].network.ipx.node, DUMP_ABORTED);
 		}
-			
 
 		Netgame.numplayers = 0;
 		network_send_game_info(0); // Tell everyone we're bailing
@@ -3439,7 +3072,6 @@ abort:
 		Network_status = NETSTAT_MENU;
 		return(0);
 	}
-       
 	// Count number of players chosen
 
 	N_players = 0;
@@ -3450,11 +3082,7 @@ abort:
 	}
 	
 	if ( N_players > Netgame.max_numplayers) {
-		#ifndef MACINTOSH
 		nm_messagebox( TXT_ERROR, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, MaxNumNetPlayers, TXT_NETPLAYERS_IN );
-		#else
-		nm_messagebox( TXT_ERROR, 1, TXT_OK, "%s %d netplayers for this game.", TXT_SORRY_ONLY, MaxNumNetPlayers );
-		#endif
 		N_players = save_nplayers;
 		goto GetPlayersAgain;
 	}
@@ -3468,8 +3096,8 @@ abort:
 #endif
 
 #ifdef RELEASE
-	if ( (Netgame.gamemode == NETGAME_TEAM_ANARCHY ||
-		   Netgame.gamemode == NETGAME_CAPTURE_FLAG || Netgame.gamemode == NETGAME_TEAM_HOARD) && (N_players < 2) ) {
+	if ( (Netgame.gamemode == NETGAME_TEAM_ANARCHY || Netgame.gamemode == NETGAME_CAPTURE_FLAG || Netgame.gamemode == NETGAME_TEAM_HOARD) && (N_players < 2) )
+	{
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "You must select at least two\nplayers to start a team game" );
 		N_players = save_nplayers;
 		goto GetPlayersAgain;
@@ -3478,19 +3106,14 @@ abort:
 
 	// Remove players that aren't marked.
 	N_players = 0;
-	for (i=0; i<save_nplayers; i++ )        {
+	for (i=0; i<save_nplayers; i++ )
+	{
 		if (m[i].value) 
 		{
 			if (i > N_players)
 			{
-				if (Network_game_type == IPX_GAME) {
-					memcpy(NetPlayers.players[N_players].network.ipx.node, NetPlayers.players[i].network.ipx.node, 6);
-					memcpy(NetPlayers.players[N_players].network.ipx.server, NetPlayers.players[i].network.ipx.server, 4);
-				} else {
-					NetPlayers.players[N_players].network.appletalk.node = NetPlayers.players[i].network.appletalk.node;
-					NetPlayers.players[N_players].network.appletalk.net = NetPlayers.players[i].network.appletalk.net;
-					NetPlayers.players[N_players].network.appletalk.socket = NetPlayers.players[i].network.appletalk.socket;
-				}
+				memcpy(NetPlayers.players[N_players].network.ipx.node, NetPlayers.players[i].network.ipx.node, 6);
+				memcpy(NetPlayers.players[N_players].network.ipx.server, NetPlayers.players[i].network.ipx.server, 4);
 				memcpy(NetPlayers.players[N_players].callsign, NetPlayers.players[i].callsign, CALLSIGN_LEN+1);
 				NetPlayers.players[N_players].version_major=NetPlayers.players[i].version_major;
 				NetPlayers.players[N_players].version_minor=NetPlayers.players[i].version_minor;
@@ -3503,31 +3126,20 @@ abort:
 		}
 		else
 		{
-			if (Network_game_type == IPX_GAME)
-				network_dump_player(NetPlayers.players[i].network.ipx.server,NetPlayers.players[i].network.ipx.node, DUMP_DORK);
-			#ifdef MACINTOSH
-			else
-				network_dump_appletalk_player(NetPlayers.players[i].network.appletalk.node,NetPlayers.players[i].network.appletalk.net, NetPlayers.players[i].network.appletalk.socket, DUMP_DORK);
-			#endif
+			network_dump_player(NetPlayers.players[i].network.ipx.server,NetPlayers.players[i].network.ipx.node, DUMP_DORK);
 		}
 	}
 
 	for (i = N_players; i < MAX_NUM_NET_PLAYERS; i++) {
-		if (Network_game_type == IPX_GAME) {
 		memset(NetPlayers.players[i].network.ipx.node, 0, 6);
 		memset(NetPlayers.players[i].network.ipx.server, 0, 4);
-	    } else {
-		NetPlayers.players[i].network.appletalk.node = 0;
-		NetPlayers.players[i].network.appletalk.net = 0;
-		NetPlayers.players[i].network.appletalk.socket = 0;
-	    }
-	memset(NetPlayers.players[i].callsign, 0, CALLSIGN_LEN+1);
+		memset(NetPlayers.players[i].callsign, 0, CALLSIGN_LEN+1);
 		NetPlayers.players[i].version_major=0;
 		NetPlayers.players[i].version_minor=0;
 		NetPlayers.players[i].rank=0;
 	}
 
-   mprintf ((0,"Select teams: Game mode is %d\n",Netgame.gamemode));
+	mprintf ((0,"Select teams: Game mode is %d\n",Netgame.gamemode));
 
 	if (Netgame.gamemode == NETGAME_TEAM_ANARCHY ||
 	    Netgame.gamemode == NETGAME_CAPTURE_FLAG ||
@@ -3535,7 +3147,7 @@ abort:
 		 if (!network_select_teams())
 			goto abort;
 
-	return(1); 
+	return(1);
 }
 
 void 
@@ -3543,16 +3155,13 @@ network_start_game()
 {
 	int i;
 
-	if (Network_game_type == IPX_GAME) {
+	Assert( FRAME_INFO_SIZE < IPX_MAX_DATA_SIZE );
+	mprintf((0, "Using frame_info len %d, max %d.\n", FRAME_INFO_SIZE, IPX_MAX_DATA_SIZE));
 
-		Assert( FRAME_INFO_SIZE < IPX_MAX_DATA_SIZE );
-		mprintf((0, "Using frame_info len %d, max %d.\n", FRAME_INFO_SIZE, IPX_MAX_DATA_SIZE));
-		
-		if ( !Network_active )
-		{
-			nm_messagebox(NULL, 1, TXT_OK, TXT_IPX_NOT_FOUND );
-			return;
-		}
+	if ( !Network_active )
+	{
+		nm_messagebox(NULL, 1, TXT_OK, TXT_IPX_NOT_FOUND );
+		return;
 	}
 
 	network_init();
@@ -3568,10 +3177,8 @@ network_start_game()
 
 	if (i<0) return;
 
-	if (Network_game_type == IPX_GAME) {
-		if (GameArg.MplIPXSocketOffset) {
-			ipx_change_default_socket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
-		}
+	if (GameArg.MplIPXSocketOffset) {
+		ipx_change_default_socket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
 	}
 
 	if (is_D2_OEM)
@@ -3651,7 +3258,7 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	nitems = nitems;
 	key = key;
 
-	if ( (Network_game_type == IPX_GAME) && Network_allow_socket_changes ) {
+	if ( Network_allow_socket_changes ) {
 		osocket = GameArg.MplIPXSocketOffset;
 
 		if ( *key==KEY_PAGEDOWN )       { GameArg.MplIPXSocketOffset--; *key = 0; }
@@ -3686,21 +3293,9 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 	// send a request for game info every 3 seconds
 
-	if (Network_game_type == IPX_GAME) {
-		if (timer_get_approx_seconds() > t1+F1_0*3) {
-			t1 = timer_get_approx_seconds();
-			network_send_game_list_request();
-		}
-#ifdef MACINTOSH
-	} else if (timer_get_approx_seconds() > t1+F1_0*20) {
-		hide_cursor();
+	if (timer_get_approx_seconds() > t1+F1_0*3) {
 		t1 = timer_get_approx_seconds();
-		restart_net_searching(menus);
-		show_boxed_message("Requesting list of Netgames");
 		network_send_game_list_request();
-		clear_boxed_message();
-		show_cursor();
-#endif
 	}
 
 	temp=num_active_games;
@@ -3848,21 +3443,13 @@ network_wait_for_sync(void)
 		memset(&me, 0, sizeof(sequence_packet));
 		me.type = PID_QUIT_JOINING;
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
-		if (Network_game_type == IPX_GAME) {
-			memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
-			memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
-			send_internetwork_sequence_packet(me, NetPlayers.players[0].network.ipx.server, NetPlayers.players[0].network.ipx.node);
-		#ifdef MACINTOSH
-		} else {
-			me.player.network.appletalk.node = appletalk_get_my_node();
-			me.player.network.appletalk.net = appletalk_get_my_net();
-			me.player.network.appletalk.socket = appletalk_get_my_socket();
-		#endif
-		}
+		memcpy( me.player.network.ipx.node, ipx_get_my_local_address(), 6 );
+		memcpy( me.player.network.ipx.server, ipx_get_my_server_address(), 4 );
+		send_internetwork_sequence_packet(me, NetPlayers.players[0].network.ipx.server, NetPlayers.players[0].network.ipx.node);
 		N_players = 0;
 		Function_mode = FMODE_MENU;
 		Game_mode = GM_GAME_OVER;
-		return(-1);     // they cancelled               
+		return(-1);     // they cancelled
 	}
 	return(0);
 }
@@ -3941,19 +3528,9 @@ menu:
 		
 		for (i=0; i < N_players; i++) {
 			if ((Players[i].connected != 0) && (i != Player_num)) {
-				if (Network_game_type == IPX_GAME)
-					network_dump_player(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, DUMP_ABORTED);
-				#ifdef MACINTOSH
-				else
-					network_dump_appletalk_player(NetPlayers.players[i].network.appletalk.node, NetPlayers.players[i].network.appletalk.net, NetPlayers.players[i].network.appletalk.socket, DUMP_ABORTED);
-				#endif
+				network_dump_player(NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node, DUMP_ABORTED);
 			}
 		}
-
-		#ifdef MACINTOSH
-		if (Network_game_type == APPLETALK_GAME)
-			network_release_registered_game();
-		#endif
 		longjmp(LeaveGame, 0);  
 	}
 	else if (choice != -2)
@@ -3969,8 +3546,6 @@ network_level_sync(void)
 	mprintf((0, "Player %d entering network_level_sync.\n", Player_num));
 	
 	MySyncPackInitialized = 0;
-
-//      my_segments_checksum = netmisc_calc_checksum(Segments, sizeof(segment)*(Highest_segment_index+1));
 
 	network_flush(); // Flush any old packets
 
@@ -3991,10 +3566,6 @@ network_level_sync(void)
 	{
 		Players[Player_num].connected = 0;
 		network_send_endlevel_packet();
-		#ifdef MACINTOSH
-		if (Network_game_type == APPLETALK_GAME)
-			network_release_registered_game();
-		#endif
 		longjmp(LeaveGame, 0);
 	}
 	return(0);
@@ -4019,90 +3590,6 @@ void network_count_powerups_in_mine(void)
 		  
  }
 
-#ifdef MACINTOSH
-
-// code to release the NBP binding of an appletalk game
-
-void network_release_registered_game()
-{
-	if (Network_game_type == APPLETALK_GAME)
-		appletalk_remove_netgame();
-}
-
-// code to sort zone lists....
-
-int zone_sort_func(const char **e0, const char **e1)
-{
-	return strcmp(*e0, *e1);
-}
-
-void network_get_appletalk_zone()
-{
-	int num_zones, i, item, default_item;
-	char **zone_list;
-	char default_zone[MAX_ZONE_LENGTH];			// my zone
-
-	Network_zone_name[0] = '\0';
-	
-	show_boxed_message("Looking for AppleTalk Zones");
-	num_zones = appletalk_get_zone_names(&zone_list);
-	clear_boxed_message();
-
-	if (num_zones < 0)	{		// error in getting zone list...maybe no router available....
-		if ( (num_zones == tooManyReqs) || (num_zones == noDataArea) ){
-			nm_messagebox(NULL, 1, TXT_OK, "AppleTalk Network is too busy.\nPlease try again shortly.");
-			longjmp(LeaveGame,0);
-		}
-		num_zones = 0;
-	}
-	
-	if (num_zones == 0) {
-		strcpy(Network_zone_name, DEFAULT_ZONE_NAME);
-		return;
-	}
-	
-	if (num_zones == 1) {
-		Network_zone_name[0] = (char)(strlen(zone_list[0]));
-		memcpy( &(Network_zone_name[1]), zone_list[0], strlen(zone_list[0]) );
-		goto zone_done;
-	}
-	
-// sort the zone names
-
-	for (i = 0; i < num_zones; i++)
-		strlwr(zone_list[i]);
-
-	qsort(zone_list, num_zones, sizeof(char *), zone_sort_func);
-
-// get my current zone so we can highlight that one first
-
-	if (appletalk_get_my_zone(default_zone))
-		default_item = 0;
-	else {
-		for (i = 0; i < num_zones; i++) {
-			if ( !stricmp(zone_list[i], default_zone) ) {
-				default_item = i;
-				break;
-			}
-		}
-	}
-
-rezone:		
-	item = newmenu_listbox1("AppleTalk Zones", num_zones, zone_list, 0, default_item, NULL);
-	
-	if (item == -1)
-		goto rezone;
-		
-	Network_zone_name[0] = (char)(strlen(zone_list[item]));
-	memcpy( &(Network_zone_name[1]), zone_list[item], strlen(zone_list[item]) );
-	
-zone_done:
-	for (i = 0; i < num_zones; i++)
-		d_free(zone_list[i]);
-	d_free(zone_list);
-}
-#endif
-
 void nm_draw_background1(char * filename);
 
 void network_join_game()
@@ -4112,33 +3599,10 @@ void network_join_game()
 	
 	newmenu_item m[MAX_ACTIVE_NETGAMES+2];
 
-	if (Network_game_type == IPX_GAME) {
-		if ( !Network_active )
-		{
-			nm_messagebox(NULL, 1, TXT_OK, TXT_IPX_NOT_FOUND);
-			return;
-		}
-	#ifdef MACINTOSH
-	} else if (Appletalk_active <= 0) {
-		char buf[256];
-		
-		switch (Appletalk_active) {
-			case APPLETALK_NOT_OPEN:
-				sprintf(buf, "Appletalk is not currently active.\nPlease enable AppleTalk from the\nChooser and restart Descent.");
-				break;
-			case APPLETALK_BAD_LISTENER:
-				sprintf(buf, "The Resource Fork of Descent appears damaged.\nPlease re-install Descent or contact\nMacPlay technical support.");
-				break;
-			case APPLETALK_NO_LOCAL_ADDR:
-				sprintf(buf, "Wow! Strange!\n\nNo Local Address.");
-				break;
-			case APPLETALK_NO_SOCKET:
-				sprintf(buf, "All AppleTalk sockets are in use.\nTry shutting down other network\napplications and restarting Descent.\n");
-				break;
-		}
-		nm_messagebox(NULL, 1, TXT_OK, buf);
+	if ( !Network_active )
+	{
+		nm_messagebox(NULL, 1, TXT_OK, TXT_IPX_NOT_FOUND);
 		return;
-	#endif
 	}
 
 	network_init();
@@ -4147,48 +3611,31 @@ void network_join_game()
 
 	setjmp(LeaveGame);
 	
-	#ifdef MACINTOSH
-	if (Network_game_type == APPLETALK_GAME)
-		network_get_appletalk_zone();
-	#endif
-	
 	Network_send_objects = 0; 
 	Network_sending_extras=0;
 	Network_rejoined=0;
 	  
 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
 	
-   network_flush();
+	network_flush();
 	network_listen();  // Throw out old info
 
-	#ifdef MACINTOSH
-	if (Network_game_type == IPX_GAME)
-	#endif		// note link to if
-		network_send_game_list_request(); // broadcast a request for lists
+	network_send_game_list_request(); // broadcast a request for lists
 
 	num_active_games = 0;
 
-   memset(m, 0, sizeof(newmenu_item)*MAX_ACTIVE_NETGAMES);
-   memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
-   memset(ActiveNetPlayers,0,sizeof(AllNetPlayers_info)*MAX_ACTIVE_NETGAMES);
+	memset(m, 0, sizeof(newmenu_item)*MAX_ACTIVE_NETGAMES);
+	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
+	memset(ActiveNetPlayers,0,sizeof(AllNetPlayers_info)*MAX_ACTIVE_NETGAMES);
 	
 	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
 
 	m[0].text = menu_text[0];
 	m[0].type = NM_TYPE_TEXT;
-	if (Network_game_type == IPX_GAME) {
-		if (Network_allow_socket_changes)
-			sprintf( m[0].text, "\tCurrent IPX Socket is default %+d (PgUp/PgDn to change)", GameArg.MplIPXSocketOffset );
-		else
-			strcpy( m[0].text, "" ); //sprintf( m[0].text, "" );
-	#ifdef MACINTOSH
-	} else {
-		p2cstr(Network_zone_name);
-		if (strcmp(Network_zone_name, "*"))		// only print if there is a zone name
-			sprintf(m[0].text, "\tCurrent Zone is %s", Network_zone_name);		// is Network_zone_name a pascal string????
-		c2pstr(Network_zone_name);
-	#endif
-	}
+	if (Network_allow_socket_changes)
+		sprintf( m[0].text, "\tCurrent IPX Socket is default %+d (PgUp/PgDn to change)", GameArg.MplIPXSocketOffset );
+	else
+		strcpy( m[0].text, "" ); //sprintf( m[0].text, "" );
 
 	m[1].text=menu_text[1];
 	m[1].type=NM_TYPE_TEXT;
@@ -4201,20 +3648,20 @@ void network_join_game()
 		m[i+2].redraw = 1;
 	}
 
-	Network_games_changed = 1;      
+	Network_games_changed = 1;
 remenu:
 	SurfingNet=1;
 	nm_draw_background1(Menu_pcx_name);             //load this here so if we abort after loading level, we restore the palette
 	gr_palette_load(gr_palette);
-   ExtGameStatus=GAMESTAT_JOIN_NETGAME;
+	ExtGameStatus=GAMESTAT_JOIN_NETGAME;
 	choice=newmenu_dotiny("NETGAMES", NULL,MAX_ACTIVE_NETGAMES+2, m, network_join_poll);
 	SurfingNet=0;
 
 	if (choice==-1) {
 		Network_status = NETSTAT_MENU;
-		return; // they cancelled               
-	}               
-   choice-=2;
+		return; // they cancelled
+	}
+	choice-=2;
 
 	if (choice >=num_active_games)
 	{
@@ -4248,27 +3695,27 @@ remenu:
 	}
 
 #ifndef SHAREWARE
-	{       
+	{
 		// Check for valid mission name
-			mprintf((0, "Loading mission:%s.\n", Active_games[choice].mission_name));
-			if (!load_mission_by_name(Active_games[choice].mission_name))
-			{
-				nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
-				goto remenu;
-			}
-            
-            if (is_D2_OEM)
-                My_Seq.player.version_minor|=NETWORK_OEM;
-    }
+		mprintf((0, "Loading mission:%s.\n", Active_games[choice].mission_name));
+		if (!load_mission_by_name(Active_games[choice].mission_name))
+		{
+			nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
+			goto remenu;
+		}
+
+		if (is_D2_OEM)
+			My_Seq.player.version_minor|=NETWORK_OEM;
+	}
 #endif
 
 	if (is_D2_OEM)
 	{
 		if (Active_games[choice].levelnum>8)
-		 {
+		{
 				nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
 				goto remenu;
-		 }
+		}
 	}
 
 	if (is_MAC_SHARE)
@@ -4280,28 +3727,28 @@ remenu:
 		}
 	}
 
-     if (!network_wait_for_all_info (choice))
-		{
+	if (!network_wait_for_all_info (choice))
+	{
 		  nm_messagebox (TXT_SORRY,1,TXT_OK,"There was a join error!");
 		  Network_status = NETSTAT_BROWSING; // We are looking at a game menu
 		  goto remenu;
-		}       
-	  
-	  Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+	}
+
+	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
  
-     if (!can_join_netgame(&Active_games[choice],&ActiveNetPlayers[choice]))
-			{
-				if (Active_games[choice].numplayers == Active_games[choice].max_numplayers)
-					nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
-				else
-					nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
-				goto remenu;
-			}
+	if (!can_join_netgame(&Active_games[choice],&ActiveNetPlayers[choice]))
+	{
+		if (Active_games[choice].numplayers == Active_games[choice].max_numplayers)
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
+		else
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
+		goto remenu;
+	}
 
 	// Choice is valid, prepare to join in
 
 	memcpy(&Netgame, &Active_games[choice], sizeof(netgame_info));
-   memcpy (&NetPlayers,&ActiveNetPlayers[choice],sizeof(AllNetPlayers_info));
+	memcpy (&NetPlayers,&ActiveNetPlayers[choice],sizeof(AllNetPlayers_info));
 
 	Difficulty_level = Netgame.difficulty;
 	MaxNumNetPlayers = Netgame.max_numplayers;
@@ -4316,31 +3763,6 @@ remenu:
 		goto remenu;
 	}
 
-	#ifdef MACINTOSH
-
-// register the joining player with NBP.  This will have the nice effect of a player wanting to
-// join to be able to see the netgame if this player were to become the master.
-
-	if (Network_game_type == APPLETALK_GAME) {
-		OSErr err;
-		int count = 0;
-		fix t1;
-		
-		show_boxed_message("Registering Netgame");
-		do {
-			err = appletalk_register_netgame( Active_games[choice].game_name, TickCount() );
-			t1 = timer_get_fixed_seconds() + F1_0;
-			while ( timer_get_fixed_seconds() < t1 ) ;
-			count++;
-		} while ( (err == nbpDuplicate) && (count != MAX_REGISTER_TRIES) );
-		clear_boxed_message();
-		if ( (err == tooManyReqs) || (count == MAX_REGISTER_TRIES) ) {
-			nm_messagebox(NULL, 1, TXT_OK, "AppleTalk Network is too busy.\nPlease try again shortly.");
-			goto remenu;
-		}
-	}
-	#endif
-
 	network_set_game_mode(Netgame.gamemode);
 
 	network_AdjustMaxDataSize ();
@@ -4351,14 +3773,12 @@ remenu:
 }
 
 void network_AdjustMaxDataSize ()
- {
-	  
-   if (Netgame.ShortPackets)
-	MaxXDataSize=NET_XDATA_SIZE;
-   else
-      MaxXDataSize=NET_XDATA_SIZE;
- }
-  
+{
+	if (Netgame.ShortPackets)
+		MaxXDataSize=NET_XDATA_SIZE;
+	else
+		MaxXDataSize=NET_XDATA_SIZE;
+}
 
 fix StartWaitAllTime=0;
 int WaitAllChoice=0;
@@ -4420,116 +3840,99 @@ void network_do_big_wait(int choice)
 #ifdef WORDS_BIGENDIAN
 	AllNetPlayers_info info_struct;
 #endif
-#ifdef MACINTOSH
-	ubyte apacket[APPLETALK_MAX_DATA_SIZE];
-#endif
-  
-	#ifdef MACINTOSH
-	if (Network_game_type == APPLETALK_GAME)
-		size=appletalk_get_packet_data( apacket );
-	else
-	#endif
-		size=ipx_get_packet_data( packet );
+
+	size=ipx_get_packet_data( packet );
 	
-  if (size>0)
+	if (size>0)
 	{
-		#ifdef MACINTOSH
-		if (Network_game_type == APPLETALK_GAME)
-			data = apacket;
-		else
-		#endif
-			data = packet;
+		data = packet;
 
-	 switch (data[0])
-     {  
-		case PID_GAME_INFO:
-		if (Network_game_type == IPX_GAME) {
-			receive_full_netgame_packet(data, &TempNetInfo);
-		} else {
-			memcpy((ubyte *)&TempNetInfo, data, sizeof(netgame_info));
-		}
-		mprintf ((0,"This is %s game with a security of %d\n",TempNetInfo.game_name,TempNetInfo.Security));
+		switch (data[0])
+		{
+			case PID_GAME_INFO:
+				receive_full_netgame_packet(data, &TempNetInfo);
 
-      if (TempNetInfo.Security !=SecurityCheck)
-		 {
-		  mprintf ((0,"Bad security on big_wait...rejecting.\n"));	
-		  break;
-		 }
-		      
-      if (NetSecurityFlag==NETSECURITY_WAIT_FOR_GAMEINFO)
-	   {
-		   if (TempPlayersInfo->Security==TempNetInfo.Security)
-			{
-			  mprintf ((0,"EQUAL !: Game=%d Players=%d ",TempPlayersInfo->Security,TempNetInfo.Security));
-	        if (TempPlayersInfo->Security==SecurityCheck)
-			  {
-			  		memcpy (&Active_games[choice],(ubyte *)&TempNetInfo,sizeof(netgame_info));
-			  		memcpy (&ActiveNetPlayers[choice],TempPlayersInfo,sizeof(AllNetPlayers_info));
-			  		SecurityCheck=-1;
-			  }
-			}
-	   }
-	  	else
-	   {
-	      NetSecurityFlag=NETSECURITY_WAIT_FOR_PLAYERS;
-	      NetSecurityNum=TempNetInfo.Security;
-				    
-	      if (network_wait_for_playerinfo())
-			{
-			   mprintf ((0,"HUH? Game=%d Player=%d\n",NetSecurityNum,TempPlayersInfo->Security));
-				memcpy (&Active_games[choice],(ubyte *)&TempNetInfo,sizeof(netgame_info));
-				memcpy (&ActiveNetPlayers[choice],TempPlayersInfo,sizeof(AllNetPlayers_info));
-			  	SecurityCheck=-1;
-			}
-	      NetSecurityFlag=0;
-	      NetSecurityNum=0;
-	   }
-	break;
-      case PID_PLAYERSINFO:
-	       mprintf ((0,"Got a PID_PLAYERSINFO!\n"));
-			if (Network_game_type == IPX_GAME) {
+				mprintf ((0,"This is %s game with a security of %d\n",TempNetInfo.game_name,TempNetInfo.Security));
+		
+				if (TempNetInfo.Security !=SecurityCheck)
+				{
+					mprintf ((0,"Bad security on big_wait...rejecting.\n"));	
+					break;
+				}
+						
+				if (NetSecurityFlag==NETSECURITY_WAIT_FOR_GAMEINFO)
+				{
+					if (TempPlayersInfo->Security==TempNetInfo.Security)
+					{
+						mprintf ((0,"EQUAL !: Game=%d Players=%d ",TempPlayersInfo->Security,TempNetInfo.Security));
+	
+						if (TempPlayersInfo->Security==SecurityCheck)
+						{
+							memcpy (&Active_games[choice],(ubyte *)&TempNetInfo,sizeof(netgame_info));
+							memcpy (&ActiveNetPlayers[choice],TempPlayersInfo,sizeof(AllNetPlayers_info));
+							SecurityCheck=-1;
+						}
+					}
+				}
+				else
+				{
+					NetSecurityFlag=NETSECURITY_WAIT_FOR_PLAYERS;
+					NetSecurityNum=TempNetInfo.Security;
+	
+					if (network_wait_for_playerinfo())
+					{
+						mprintf ((0,"HUH? Game=%d Player=%d\n",NetSecurityNum,TempPlayersInfo->Security));
+						memcpy (&Active_games[choice],(ubyte *)&TempNetInfo,sizeof(netgame_info));
+						memcpy (&ActiveNetPlayers[choice],TempPlayersInfo,sizeof(AllNetPlayers_info));
+						SecurityCheck=-1;
+					}
+	
+					NetSecurityFlag=0;
+					NetSecurityNum=0;
+				}
+				break;
+
+			case PID_PLAYERSINFO:
+				mprintf ((0,"Got a PID_PLAYERSINFO!\n"));
 #ifndef WORDS_BIGENDIAN
 				temp_info=(AllNetPlayers_info *)data;
 #else
 				receive_netplayers_packet(data, &info_struct);
 				temp_info = &info_struct;
 #endif
-			} else {
-				temp_info = (AllNetPlayers_info *)data;
-			}
-			if (temp_info->Security!=SecurityCheck) 
-				break;     // If this isn't the guy we're looking for, move on
 
-			memcpy (&TempPlayersBase,(ubyte *)&temp_info,sizeof(AllNetPlayers_info));
-			TempPlayersInfo=&TempPlayersBase;
-			WaitingForPlayerInfo=0;
-			NetSecurityNum=TempPlayersInfo->Security;
-			NetSecurityFlag=NETSECURITY_WAIT_FOR_GAMEINFO;
-			break;
-	   }
+				if (temp_info->Security!=SecurityCheck) 
+					break;     // If this isn't the guy we're looking for, move on
+	
+				memcpy (&TempPlayersBase,(ubyte *)&temp_info,sizeof(AllNetPlayers_info));
+				TempPlayersInfo=&TempPlayersBase;
+				WaitingForPlayerInfo=0;
+				NetSecurityNum=TempPlayersInfo->Security;
+				NetSecurityFlag=NETSECURITY_WAIT_FOR_GAMEINFO;
+				break;
+		}
 	}
 }
 
 void network_leave_game()
-{ 
-   int nsave;
-		
+{
+	int nsave;
 
 	network_do_frame(1, 1);
 
-   #ifdef NETPROFILING
+#ifdef NETPROFILING
 	fclose (SendLogFile);
-	   fclose (RecieveLogFile);
-	#endif
+	fclose (RecieveLogFile);
+#endif
 
 	if ((network_i_am_master()))
 	{
 		while (Network_sending_extras>1 && Player_joining_extras!=-1)
-		  network_send_extras();
-   
+			network_send_extras();
+
 		Netgame.numplayers = 0;
-	   nsave=N_players;
-	   N_players=0;
+		nsave=N_players;
+		N_players=0;
 		network_send_game_info(NULL);
 		N_players=nsave;
 		
@@ -4540,9 +3943,7 @@ void network_leave_game()
 	network_send_endlevel_packet();
 	change_playernum_to(0);
 	Game_mode = GM_GAME_OVER;
-   write_player_file();
-
-//	WIN(ipx_destroy_read_thread());
+	write_player_file();
 
 	// Tell the network driver we're done with the game.
 	// This is used by ipx_mcast4.c to unsubscribe from the game's
@@ -4554,48 +3955,25 @@ void network_leave_game()
 
 void network_flush()
 {
-	#ifdef MACINTOSH
-	ubyte apacket[APPLETALK_MAX_DATA_SIZE];
-	#endif
 	ubyte packet[IPX_MAX_DATA_SIZE];
 
-	#ifdef MACINTOSH
-	if ( (Network_game_type == APPLETALK_GAME) && (Appletalk_active <= 0) )
-		return;
-	#endif
-	
-	if ( Network_game_type == IPX_GAME )
-		if (!Network_active) return;
+	if (!Network_active) return;
 
-	#ifdef MACINTOSH
-	if (Network_game_type == APPLETALK_GAME)
-		while (appletalk_get_packet_data(apacket) > 0) ;
-	else
-	#endif
-		while (ipx_get_packet_data(packet) > 0) ;
+	while (ipx_get_packet_data(packet) > 0) ;
 }
 
 void network_listen()
 {
-	#ifdef MACINTOSH
-	ubyte apacket[APPLETALK_MAX_DATA_SIZE];
-	#endif
 	int size;
 	ubyte packet[IPX_MAX_DATA_SIZE];
 	int i,loopmax=999;
 
 	if (Network_status==NETSTAT_PLAYING && Netgame.ShortPackets && !Network_send_objects)
-	 {
+	{
 		loopmax=N_players*Netgame.PacketsPerSec;
-	 }
+	}
 	
-	#ifdef MACINTOSH
-	if ( (Network_game_type == APPLETALK_GAME) && (Appletalk_active <= 0) )
-		return;
-	#endif
-
-	if (Network_game_type == IPX_GAME)	
-		if (!Network_active) return;
+	if (!Network_active) return;
 
 	if (!(Game_mode & GM_NETWORK) && (Function_mode == FMODE_GAME))
 		mprintf((0, "Calling network_listen() when not in net game.\n"));
@@ -4604,25 +3982,13 @@ void network_listen()
 	NetSecurityFlag=NETSECURITY_OFF;
 
 	i=1;
-// 	if (Network_game_type == IPX_GAME) {
+	size = ipx_get_packet_data( packet );
+	while ( size > 0)       {
+		network_process_packet( packet, size );
+		if (++i>loopmax)
+			break;
 		size = ipx_get_packet_data( packet );
-		while ( size > 0)       {
-			network_process_packet( packet, size );
-			if (++i>loopmax)
-			 break;
-			size = ipx_get_packet_data( packet );
-		}
-// 	#ifdef MACINTOSH
-// 	} else {
-// 		size = appletalk_get_packet_data( apacket );
-// 		while ( size > 0)       {
-// 			network_process_packet( apacket, size );
-// 			if (++i>loopmax)
-// 			 break;
-// 			size = appletalk_get_packet_data( apacket );
-// 		}
-// 	#endif
-// 	}
+	}
 }
 
 int network_wait_for_playerinfo()
@@ -4635,93 +4001,69 @@ int network_wait_for_playerinfo()
 #ifdef WORDS_BIGENDIAN
 	AllNetPlayers_info info_struct;
 #endif
-#ifdef MACINTOSH
-	ubyte apacket[APPLETALK_MAX_DATA_SIZE];
-#endif
 
-	#ifdef MACINTOSH
-	if ( (Network_game_type == APPLETALK_GAME) && (Appletalk_active <= 0) )
-		return;
-	#endif
-
-	if ( Network_game_type == IPX_GAME)
-		if (!Network_active) return(0);
-		
-      //  if (!WaitingForPlayerInfo)
-	// return (1);
+	if (!Network_active) return(0);
 
 	if (!(Game_mode & GM_NETWORK) && (Function_mode == FMODE_GAME))
-		{
-	mprintf((0, "Calling network_wait_for_playerinfo() when not in net game.\n"));
-		}       
-	if (Network_status==NETSTAT_PLAYING)
-	 {
-		  Int3(); //MY GOD! Get Jason...this is the source of many problems
-	     return (0);
-	 }
-   basetime=timer_get_approx_seconds();
-
-   while (WaitingForPlayerInfo && retries<50 && (timer_get_approx_seconds()<(basetime+(F1_0*5))))
-      {
-		if (Network_game_type == IPX_GAME) {
-			size = ipx_get_packet_data( packet );
-			id = packet[0];
-		} else {
-			#ifdef MACINTOSH
-			size = appletalk_get_packet_data( apacket );
-			id = apacket[0];
-			#endif
-		}
-
-	if (size>0 && id==PID_PLAYERSINFO)
 	{
-#ifdef WORDS_BIGENDIAN
-#ifdef MACINTOSH
-		if (Network_game_type == APPLETALK_GAME) {
-			TempInfo = (AllNetPlayers_info *)apacket;
-		} else
-#endif
+		mprintf((0, "Calling network_wait_for_playerinfo() when not in net game.\n"));
+	}
+
+	if (Network_status==NETSTAT_PLAYING)
+	{
+		Int3(); //MY GOD! Get Jason...this is the source of many problems
+		return (0);
+	}
+
+	basetime=timer_get_approx_seconds();
+
+	while (WaitingForPlayerInfo && retries<50 && (timer_get_approx_seconds()<(basetime+(F1_0*5))))
+	{
+		size = ipx_get_packet_data( packet );
+		id = packet[0];
+
+		if (size>0 && id==PID_PLAYERSINFO)
 		{
+#ifdef WORDS_BIGENDIAN
 			receive_netplayers_packet(packet, &info_struct);
 			TempInfo = &info_struct;
-		}
 #else
-		TempInfo=(AllNetPlayers_info *)packet;
+			TempInfo=(AllNetPlayers_info *)packet;
 #endif
+			retries++;
+	
+			if (NetSecurityFlag==NETSECURITY_WAIT_FOR_PLAYERS)
+			{
+				if (NetSecurityNum==TempInfo->Security)
+				{
+					mprintf ((0,"HEYEQUAL: Player=%d Game=%d\n",TempInfo->Security,NetSecurityNum));
+					memcpy (&TempPlayersBase,(ubyte *)TempInfo,sizeof(AllNetPlayers_info));
+					TempPlayersInfo=&TempPlayersBase;
+					NetSecurityFlag=NETSECURITY_OFF;
+					NetSecurityNum=0;
+					WaitingForPlayerInfo=0;
+					return (1);
+				}
+				else
+					continue;
+			}
+			else
+			{
+				mprintf ((0,"I'm original!\n"));
+			
+				NetSecurityNum=TempInfo->Security;
+				NetSecurityFlag=NETSECURITY_WAIT_FOR_GAMEINFO;
+				
+				memcpy (&TempPlayersBase,(ubyte *)TempInfo,sizeof(AllNetPlayers_info));
+				TempPlayersInfo=&TempPlayersBase;
+				WaitingForPlayerInfo=0;
+				return (1);
+			}
+		}
+	}
 
-		retries++;
-
-	    if (NetSecurityFlag==NETSECURITY_WAIT_FOR_PLAYERS)
-	     {
-	      if (NetSecurityNum==TempInfo->Security)
-	       {
-		mprintf ((0,"HEYEQUAL: Player=%d Game=%d\n",TempInfo->Security,NetSecurityNum));
-		memcpy (&TempPlayersBase,(ubyte *)TempInfo,sizeof(AllNetPlayers_info));
-		TempPlayersInfo=&TempPlayersBase;
-		NetSecurityFlag=NETSECURITY_OFF;
-		NetSecurityNum=0;
-		WaitingForPlayerInfo=0;
-		return (1);
-	       }
-	      else
-	       continue;
-	     }
-	    else
-	     {
-	      mprintf ((0,"I'm original!\n"));
-
-	      NetSecurityNum=TempInfo->Security;
-	      NetSecurityFlag=NETSECURITY_WAIT_FOR_GAMEINFO;
-	   
-	      memcpy (&TempPlayersBase,(ubyte *)TempInfo,sizeof(AllNetPlayers_info));
-	      TempPlayersInfo=&TempPlayersBase;
-	      WaitingForPlayerInfo=0;
-	      return (1);
-	     }
-	   }
-	 }
-   return (0);
-  }
+	return (0);
+}
 
 
 void network_send_data( ubyte * ptr, int len, int urgent )
@@ -4846,28 +4188,23 @@ void network_do_frame(int force, int listen)
 	if ((Network_status != NETSTAT_PLAYING) || (Endlevel_sequence)) // Don't send postion during escape sequence...
 		goto listen;
 
-  if (NakedPacketLen)
+	if (NakedPacketLen)
 	{
 		Assert (NakedPacketDestPlayer>-1);
-//         mprintf ((0,"Sending a naked packet to %s (%d bytes)!\n",Players[NakedPacketDestPlayer].callsign,NakedPacketLen));
-		if (Network_game_type == IPX_GAME) 
-			ipx_send_packet_data( (ubyte *)NakedBuf, NakedPacketLen, NetPlayers.players[NakedPacketDestPlayer].network.ipx.server, NetPlayers.players[NakedPacketDestPlayer].network.ipx.node,Players[NakedPacketDestPlayer].net_address );
-		#ifdef MACINTOSH
-		else
-			appletalk_send_packet_data( (ubyte *)NakedBuf, NakedPacketLen, NetPlayers.players[NakedPacketDestPlayer].network.appletalk.node, NetPlayers.players[NakedPacketDestPlayer].network.appletalk.net,NetPlayers.players[NakedPacketDestPlayer].network.appletalk.socket );
-		#endif
+		ipx_send_packet_data( (ubyte *)NakedBuf, NakedPacketLen, NetPlayers.players[NakedPacketDestPlayer].network.ipx.server, NetPlayers.players[NakedPacketDestPlayer].network.ipx.node,Players[NakedPacketDestPlayer].net_address );
 		NakedPacketLen=0;
 		NakedPacketDestPlayer=-1;
-   }
-  
-   if (WaitForRefuseAnswer && timer_get_approx_seconds()>(RefuseTimeLimit+(F1_0*12)))
+	}
+
+	if (WaitForRefuseAnswer && timer_get_approx_seconds()>(RefuseTimeLimit+(F1_0*12)))
 		WaitForRefuseAnswer=0;
-			
+
 	last_send_time += FrameTime;
 	last_timeout_check += FrameTime;
 
-   // Send out packet PacksPerSec times per second maximum... unless they fire, then send more often...
-   if ( (last_send_time>F1_0/Netgame.PacketsPerSec) || (Network_laser_fired) || force || PacketUrgent )       {        
+	// Send out packet PacksPerSec times per second maximum... unless they fire, then send more often...
+	if ( (last_send_time>F1_0/Netgame.PacketsPerSec) || (Network_laser_fired) || force || PacketUrgent )
+	{
 		if ( Players[Player_num].connected )    {
 			int objnum = Players[Player_num].objnum;
 			PacketUrgent = 0;
@@ -4894,29 +4231,6 @@ void network_do_frame(int force, int listen)
 				ShortSyncPack.data_size                         = MySyncPack.data_size;
 				memcpy (&ShortSyncPack.data[0],&MySyncPack.data[0],MySyncPack.data_size);
 
-// -- killed -- 2003-10-11 by Aaron
-// Use ipx_send_game_packet instead to send packets to everyone in the game.
-// Define in arch/*/*net.c
-#if 0
-				for (i=0; i<N_players; i++ )    {
-					if ( (Players[i].connected) && (i!=Player_num ) )       {
-						MySyncPack.numpackets = Players[i].n_packets_sent++;
-						ShortSyncPack.numpackets=MySyncPack.numpackets;
-						if (Network_game_type == IPX_GAME) {
-#ifndef WORDS_BIGENDIAN
-							ipx_send_packet_data( (ubyte *)&ShortSyncPack, sizeof(short_frame_info)-MaxXDataSize+MySyncPack.data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address );
-#else
-							squish_short_frame_info(ShortSyncPack, send_data);
-							ipx_send_packet_data( (ubyte *)send_data, IPX_SHORT_INFO_SIZE-MaxXDataSize+MySyncPack.data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address );
-#endif
-						#ifdef MACINTOSH
-						} else {
-							appletalk_send_packet_data( (ubyte *)&ShortSyncPack, sizeof(short_frame_info)-MaxXDataSize+MySyncPack.data_size, NetPlayers.players[i].network.appletalk.node, NetPlayers.players[i].network.appletalk.net, NetPlayers.players[i].network.appletalk.socket );
-						#endif
-						}
-					}
-				}
-#else
 				MySyncPack.numpackets = INTEL_INT(Players[0].n_packets_sent++);
 				ShortSyncPack.numpackets = MySyncPack.numpackets;
 #ifndef WORDS_BIGENDIAN
@@ -4926,7 +4240,6 @@ void network_do_frame(int force, int listen)
 				ipx_send_game_packet((ubyte*)send_data, IPX_SHORT_INFO_SIZE-MaxXDataSize+MySyncPack.data_size);
 #endif
 
-#endif
 			}
 			else  // If long packets
 			{
@@ -4945,55 +4258,34 @@ void network_do_frame(int force, int listen)
 				send_data_size = MySyncPack.data_size;                  // do this so correct size data is sent
 
 #ifdef WORDS_BIGENDIAN                        // do the swap stuff
-				if (Network_game_type == IPX_GAME) {
-					MySyncPack.obj_segnum = INTEL_SHORT(MySyncPack.obj_segnum);
-					MySyncPack.obj_pos.x = INTEL_INT((int)MySyncPack.obj_pos.x);
-					MySyncPack.obj_pos.y = INTEL_INT((int)MySyncPack.obj_pos.y);
-					MySyncPack.obj_pos.z = INTEL_INT((int)MySyncPack.obj_pos.z);
-					
-					MySyncPack.obj_orient.rvec.x = INTEL_INT((int)MySyncPack.obj_orient.rvec.x);
-					MySyncPack.obj_orient.rvec.y = INTEL_INT((int)MySyncPack.obj_orient.rvec.y);
-					MySyncPack.obj_orient.rvec.z = INTEL_INT((int)MySyncPack.obj_orient.rvec.z);
-					MySyncPack.obj_orient.uvec.x = INTEL_INT((int)MySyncPack.obj_orient.uvec.x);
-					MySyncPack.obj_orient.uvec.y = INTEL_INT((int)MySyncPack.obj_orient.uvec.y);
-					MySyncPack.obj_orient.uvec.z = INTEL_INT((int)MySyncPack.obj_orient.uvec.z);
-					MySyncPack.obj_orient.fvec.x = INTEL_INT((int)MySyncPack.obj_orient.fvec.x);
-					MySyncPack.obj_orient.fvec.y = INTEL_INT((int)MySyncPack.obj_orient.fvec.y);
-					MySyncPack.obj_orient.fvec.z = INTEL_INT((int)MySyncPack.obj_orient.fvec.z);
-					
-					MySyncPack.phys_velocity.x = INTEL_INT((int)MySyncPack.phys_velocity.x);
-					MySyncPack.phys_velocity.y = INTEL_INT((int)MySyncPack.phys_velocity.y);
-					MySyncPack.phys_velocity.z = INTEL_INT((int)MySyncPack.phys_velocity.z);
+				MySyncPack.obj_segnum = INTEL_SHORT(MySyncPack.obj_segnum);
+				MySyncPack.obj_pos.x = INTEL_INT((int)MySyncPack.obj_pos.x);
+				MySyncPack.obj_pos.y = INTEL_INT((int)MySyncPack.obj_pos.y);
+				MySyncPack.obj_pos.z = INTEL_INT((int)MySyncPack.obj_pos.z);
 				
-					MySyncPack.phys_rotvel.x = INTEL_INT((int)MySyncPack.phys_rotvel.x);
-					MySyncPack.phys_rotvel.y = INTEL_INT((int)MySyncPack.phys_rotvel.y);
-					MySyncPack.phys_rotvel.z = INTEL_INT((int)MySyncPack.phys_rotvel.z);
-					
-					MySyncPack.data_size = INTEL_SHORT(MySyncPack.data_size);
-				}
+				MySyncPack.obj_orient.rvec.x = INTEL_INT((int)MySyncPack.obj_orient.rvec.x);
+				MySyncPack.obj_orient.rvec.y = INTEL_INT((int)MySyncPack.obj_orient.rvec.y);
+				MySyncPack.obj_orient.rvec.z = INTEL_INT((int)MySyncPack.obj_orient.rvec.z);
+				MySyncPack.obj_orient.uvec.x = INTEL_INT((int)MySyncPack.obj_orient.uvec.x);
+				MySyncPack.obj_orient.uvec.y = INTEL_INT((int)MySyncPack.obj_orient.uvec.y);
+				MySyncPack.obj_orient.uvec.z = INTEL_INT((int)MySyncPack.obj_orient.uvec.z);
+				MySyncPack.obj_orient.fvec.x = INTEL_INT((int)MySyncPack.obj_orient.fvec.x);
+				MySyncPack.obj_orient.fvec.y = INTEL_INT((int)MySyncPack.obj_orient.fvec.y);
+				MySyncPack.obj_orient.fvec.z = INTEL_INT((int)MySyncPack.obj_orient.fvec.z);
+				
+				MySyncPack.phys_velocity.x = INTEL_INT((int)MySyncPack.phys_velocity.x);
+				MySyncPack.phys_velocity.y = INTEL_INT((int)MySyncPack.phys_velocity.y);
+				MySyncPack.phys_velocity.z = INTEL_INT((int)MySyncPack.phys_velocity.z);
+			
+				MySyncPack.phys_rotvel.x = INTEL_INT((int)MySyncPack.phys_rotvel.x);
+				MySyncPack.phys_rotvel.y = INTEL_INT((int)MySyncPack.phys_rotvel.y);
+				MySyncPack.phys_rotvel.z = INTEL_INT((int)MySyncPack.phys_rotvel.z);
+				
+				MySyncPack.data_size = INTEL_SHORT(MySyncPack.data_size);
 #endif
 
-#if 0
-				for (i=0; i<N_players; i++ )    {
-					if ( (Players[i].connected) && (i!=Player_num ) )       {
-						if (Network_game_type == IPX_GAME)
-							MySyncPack.numpackets = INTEL_INT(Players[i].n_packets_sent);
-						else
-							MySyncPack.numpackets = Players[i].n_packets_sent;
-
-						Players[i].n_packets_sent++;
-						if (Network_game_type == IPX_GAME)
-							ipx_send_packet_data( (ubyte *)&MySyncPack, sizeof(frame_info)-MaxXDataSize+send_data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address );
-						#ifdef MACINTOSH
-						else
-							appletalk_send_packet_data( (ubyte *)&MySyncPack, sizeof(frame_info)-MaxXDataSize+send_data_size, NetPlayers.players[i].network.appletalk.node, NetPlayers.players[i].network.appletalk.net, NetPlayers.players[i].network.appletalk.socket);
-						#endif
-					}
-				}
-#else
 				MySyncPack.numpackets = INTEL_INT(Players[0].n_packets_sent++);
 				ipx_send_game_packet((ubyte*)&MySyncPack, sizeof(frame_info) - MaxXDataSize + send_data_size);
-#endif
 			}
 
 			MySyncPack.data_size = 0;               // Start data over at 0 length.
@@ -5007,10 +4299,9 @@ void network_do_frame(int force, int listen)
 					LastEndlevel=timer_get_approx_seconds();
 				}
 			}
-			//mprintf( (0, "Packet has %d bytes appended (TS=%d)\n", MySyncPack.data_size, sizeof(frame_info)-MaxXDataSize+MySyncPack.data_size ));
 		}
 	}
-   
+
 	if (!listen)
 		return;
 
@@ -5030,11 +4321,11 @@ void network_do_frame(int force, int listen)
 				if ((approx_time - LastPacketTime[i]) > NETWORK_TIMEOUT)
 					network_timeout_player(i);
 			}
-                        if(Players[i].connected != 1 && Objects[Players[i].objnum].type != OBJ_GHOST)
-                         {
-                          HUD_init_message( "'%s' has left.", Players[i].callsign );
-                          multi_make_player_ghost(i);
-                         }
+			if(Players[i].connected != 1 && Objects[Players[i].objnum].type != OBJ_GHOST)
+			{
+				HUD_init_message( "'%s' has left.", Players[i].callsign );
+				multi_make_player_ghost(i);
+			}
 		}
 		last_timeout_check = 0;
 	}
@@ -5047,17 +4338,17 @@ listen:
 	}
 	network_listen();
 
-   if (VerifyPlayerJoined!=-1 && !(FrameCount & 63))
-	  resend_sync_due_to_packet_loss_for_allender(); // This will resend to network_player_rejoining
+	if (VerifyPlayerJoined!=-1 && !(FrameCount & 63))
+		resend_sync_due_to_packet_loss_for_allender(); // This will resend to network_player_rejoining
  
 	if (Network_send_objects)
 		network_send_objects();
 
 	if (Network_sending_extras && VerifyPlayerJoined==-1)
 	{
-	  network_send_extras();
-	  return;
-    }
+		network_send_extras();
+		return;
+	}
 }
 
 int missed_packets = 0;
@@ -5070,11 +4361,7 @@ void network_consistency_error(void)
 		return;
 
 	Function_mode = FMODE_MENU;
-	#ifndef MACINTOSH
 	nm_messagebox(NULL, 1, TXT_OK, TXT_CONSISTENCY_ERROR);
-	#else
-	nm_messagebox(NULL, 1, TXT_OK, "Failed to join the netgame.\nYou are missing packets.  Check\nyour network connection and\ntry again.");
-	#endif
 	Function_mode = FMODE_GAME;
 	ConsistencyCount = 0;
 	multi_quit_game = 1;
@@ -5101,33 +4388,31 @@ void network_read_pdata_packet(frame_info *pd )
 	
 // frame_info should be aligned...for mac, make the necessary adjustments
 #ifdef WORDS_BIGENDIAN
-	if (Network_game_type == IPX_GAME) {
-		pd->numpackets = INTEL_INT(pd->numpackets);
-		pd->obj_pos.x = INTEL_INT(pd->obj_pos.x);
-		pd->obj_pos.y = INTEL_INT(pd->obj_pos.y);
-		pd->obj_pos.z = INTEL_INT(pd->obj_pos.z);
+	pd->numpackets = INTEL_INT(pd->numpackets);
+	pd->obj_pos.x = INTEL_INT(pd->obj_pos.x);
+	pd->obj_pos.y = INTEL_INT(pd->obj_pos.y);
+	pd->obj_pos.z = INTEL_INT(pd->obj_pos.z);
+
+	pd->obj_orient.rvec.x = (fix)INTEL_INT((int)pd->obj_orient.rvec.x);
+	pd->obj_orient.rvec.y = (fix)INTEL_INT((int)pd->obj_orient.rvec.y);
+	pd->obj_orient.rvec.z = (fix)INTEL_INT((int)pd->obj_orient.rvec.z);
+	pd->obj_orient.uvec.x = (fix)INTEL_INT((int)pd->obj_orient.uvec.x);
+	pd->obj_orient.uvec.y = (fix)INTEL_INT((int)pd->obj_orient.uvec.y);
+	pd->obj_orient.uvec.z = (fix)INTEL_INT((int)pd->obj_orient.uvec.z);
+	pd->obj_orient.fvec.x = (fix)INTEL_INT((int)pd->obj_orient.fvec.x);
+	pd->obj_orient.fvec.y = (fix)INTEL_INT((int)pd->obj_orient.fvec.y);
+	pd->obj_orient.fvec.z = (fix)INTEL_INT((int)pd->obj_orient.fvec.z);
+
+	pd->phys_velocity.x = (fix)INTEL_INT((int)pd->phys_velocity.x);
+	pd->phys_velocity.y = (fix)INTEL_INT((int)pd->phys_velocity.y);
+	pd->phys_velocity.z = (fix)INTEL_INT((int)pd->phys_velocity.z);
+
+	pd->phys_rotvel.x = (fix)INTEL_INT((int)pd->phys_rotvel.x);
+	pd->phys_rotvel.y = (fix)INTEL_INT((int)pd->phys_rotvel.y);
+	pd->phys_rotvel.z = (fix)INTEL_INT((int)pd->phys_rotvel.z);
 	
-		pd->obj_orient.rvec.x = (fix)INTEL_INT((int)pd->obj_orient.rvec.x);
-		pd->obj_orient.rvec.y = (fix)INTEL_INT((int)pd->obj_orient.rvec.y);
-		pd->obj_orient.rvec.z = (fix)INTEL_INT((int)pd->obj_orient.rvec.z);
-		pd->obj_orient.uvec.x = (fix)INTEL_INT((int)pd->obj_orient.uvec.x);
-		pd->obj_orient.uvec.y = (fix)INTEL_INT((int)pd->obj_orient.uvec.y);
-		pd->obj_orient.uvec.z = (fix)INTEL_INT((int)pd->obj_orient.uvec.z);
-		pd->obj_orient.fvec.x = (fix)INTEL_INT((int)pd->obj_orient.fvec.x);
-		pd->obj_orient.fvec.y = (fix)INTEL_INT((int)pd->obj_orient.fvec.y);
-		pd->obj_orient.fvec.z = (fix)INTEL_INT((int)pd->obj_orient.fvec.z);
-	
-		pd->phys_velocity.x = (fix)INTEL_INT((int)pd->phys_velocity.x);
-		pd->phys_velocity.y = (fix)INTEL_INT((int)pd->phys_velocity.y);
-		pd->phys_velocity.z = (fix)INTEL_INT((int)pd->phys_velocity.z);
-	
-		pd->phys_rotvel.x = (fix)INTEL_INT((int)pd->phys_rotvel.x);
-		pd->phys_rotvel.y = (fix)INTEL_INT((int)pd->phys_rotvel.y);
-		pd->phys_rotvel.z = (fix)INTEL_INT((int)pd->phys_rotvel.z);
-		
-		pd->obj_segnum = INTEL_SHORT(pd->obj_segnum);
-		pd->data_size = INTEL_SHORT(pd->data_size);
-	}
+	pd->obj_segnum = INTEL_SHORT(pd->obj_segnum);
+	pd->data_size = INTEL_SHORT(pd->data_size);
 #endif
 
 	TheirPlayernum = pd->playernum;
@@ -5138,34 +4423,36 @@ void network_read_pdata_packet(frame_info *pd )
 		return;
 	}
 
-   if (VerifyPlayerJoined!=-1 && TheirPlayernum==VerifyPlayerJoined)
-	 {
-	  // Hurray! Someone really really got in the game (I think).
-     mprintf ((0,"Hurray! VPJ (%d) reset!\n",VerifyPlayerJoined));
-     VerifyPlayerJoined=-1;
-	 }
+	if (VerifyPlayerJoined!=-1 && TheirPlayernum==VerifyPlayerJoined)
+	{
+		// Hurray! Someone really really got in the game (I think).
+		mprintf ((0,"Hurray! VPJ (%d) reset!\n",VerifyPlayerJoined));
+		VerifyPlayerJoined=-1;
+	}
  
-	if (!multi_quit_game && (TheirPlayernum >= N_players)) {
+	if (!multi_quit_game && (TheirPlayernum >= N_players))
+	{
 		if (Network_status!=NETSTAT_WAITING)
-		 {
+		{
 			Int3(); // We missed an important packet!
 			network_consistency_error();
 			return;
-		 }
+		}
 		else
-		 return;
+			return;
 	}
+
 	if (Endlevel_sequence || (Network_status == NETSTAT_ENDLEVEL) ) {
 		int old_Endlevel_sequence = Endlevel_sequence;
 		Endlevel_sequence = 1;
-		if ( pd->data_size>0 )  {
+		if ( pd->data_size>0 )
+		{
 			// pass pd->data to some parser function....
 			multi_process_bigdata( pd->data, pd->data_size );
 		}
 		Endlevel_sequence = old_Endlevel_sequence;
 		return;
 	}
-//      mprintf((0, "Gametime = %d, Frametime = %d.\n", GameTime, FrameTime));
 
 	if ((sbyte)pd->level_num != Current_level_num)
 	{
@@ -5191,26 +4478,6 @@ void network_read_pdata_packet(frame_info *pd )
 				mprintf(( 0, "Missed %d packets from player #%d (%d total)\n", pd->numpackets-Players[TheirPlayernum].n_packets_got, TheirPlayernum, missed_packets ));
 			else
 				mprintf( (0, "Got %d late packets from player #%d (%d total)\n", Players[TheirPlayernum].n_packets_got-pd->numpackets, TheirPlayernum, missed_packets ));
-
-		#ifdef MACINTOSH
-		#ifdef APPLETALK_DEBUG
-		if (Network_game_type == APPLETALK_GAME) {
-			if ( missed_packets > 0 )       
-				fprintf( at_fp, "Missed %d packets from player #%d (%d total)\n", pd->numpackets-Players[TheirPlayernum].n_packets_got, TheirPlayernum, missed_packets );
-			else
-				fprintf( at_fp, "Got %d late packets from player #%d (%d total)\n", Players[TheirPlayernum].n_packets_got-pd->numpackets, TheirPlayernum, missed_packets );
-		}
-		#endif
-		
-		#ifdef IPX_DEBUG
-		if (Network_game_type == IPX_GAME) {
-			if ( missed_packets > 0 )       
-				fprintf( ipx_fp, "Missed %d packets from player #%d (%d total)\n", pd->numpackets-Players[TheirPlayernum].n_packets_got, TheirPlayernum, missed_packets );
-			else
-				fprintf( ipx_fp, "Got %d late packets from player #%d (%d total)\n", Players[TheirPlayernum].n_packets_got-pd->numpackets, TheirPlayernum, missed_packets );
-		}
-		#endif
-		#endif
 
 		Players[TheirPlayernum].n_packets_got = pd->numpackets;
 	}
@@ -5309,11 +4576,7 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 // short frame info is not aligned because of shortpos.  The mac
 // will call totally hacked and gross function to fix this up.
 
-	if (Network_game_type == IPX_GAME) {
-		get_short_frame_info((ubyte *)pd, &new_pd);
-	} else {
-		memcpy(&new_pd, (ubyte *)pd, sizeof(short_frame_info));
-	}
+	get_short_frame_info((ubyte *)pd, &new_pd);
 
 	TheirPlayernum = new_pd.playernum;
 	TheirObjnum = Players[new_pd.playernum].objnum;
@@ -5333,12 +4596,12 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 		 return;
 	}
 
-   if (VerifyPlayerJoined!=-1 && TheirPlayernum==VerifyPlayerJoined)
-	 {
-	  // Hurray! Someone really really got in the game (I think).
-      mprintf ((0,"Hurray! VPJ (%d) reset!\n",VerifyPlayerJoined));
-      VerifyPlayerJoined=-1;
-	 }
+	if (VerifyPlayerJoined!=-1 && TheirPlayernum==VerifyPlayerJoined)
+	{
+		// Hurray! Someone really really got in the game (I think).
+		mprintf ((0,"Hurray! VPJ (%d) reset!\n",VerifyPlayerJoined));
+		VerifyPlayerJoined=-1;
+	}
 
 	if (Endlevel_sequence || (Network_status == NETSTAT_ENDLEVEL) ) {
 		int old_Endlevel_sequence = Endlevel_sequence;
@@ -5350,7 +4613,6 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 		Endlevel_sequence = old_Endlevel_sequence;
 		return;
 	}
-//      mprintf((0, "Gametime = %d, Frametime = %d.\n", GameTime, FrameTime));
 
 	if ((sbyte)new_pd.level_num != Current_level_num)
 	{
@@ -5707,12 +4969,7 @@ void network_ping (ubyte flag,int pnum)
 	mybuf[0]=flag;
 	mybuf[1]=Player_num;
 
-	if (Network_game_type == IPX_GAME)
-		ipx_send_packet_data( (ubyte *)mybuf, 2, NetPlayers.players[pnum].network.ipx.server, NetPlayers.players[pnum].network.ipx.node,Players[pnum].net_address );
-	#ifdef MACINTOSH
-	else
-		appletalk_send_packet_data( (ubyte *)mybuf, 2, NetPlayers.players[pnum].network.appletalk.node, NetPlayers.players[pnum].network.appletalk.net, NetPlayers.players[pnum].network.appletalk.socket);
-	#endif
+	ipx_send_packet_data( (ubyte *)mybuf, 2, NetPlayers.players[pnum].network.ipx.server, NetPlayers.players[pnum].network.ipx.node,Players[pnum].net_address );
 }
 
 static fix PingLaunchTime[MAX_PLAYERS],PingReturnTime[MAX_PLAYERS];
@@ -5853,10 +5110,7 @@ void DoRefuseStuff (sequence_packet *their)
 			WaitForRefuseAnswer=0;
 			if (!strcmp (their->player.callsign,RefusePlayerName))
 			{
-				if (Network_game_type == IPX_GAME)
-				{
-					network_dump_player(their->player.network.ipx.server,their->player.network.ipx.node, DUMP_DORK);
-				}
+				network_dump_player(their->player.network.ipx.server,their->player.network.ipx.node, DUMP_DORK);
 			}
 			return;
 		}
@@ -5936,35 +5190,28 @@ void network_send_naked_packet(char *buf, short len, int who)
 {
 	if (!(Game_mode&GM_NETWORK)) return;
 
-   if (NakedPacketLen==0)
-	 {
-	   NakedBuf[0]=PID_NAKED_PDATA;
-	   NakedBuf[1]=Player_num;
+	if (NakedPacketLen==0)
+	{
+		NakedBuf[0]=PID_NAKED_PDATA;
+		NakedBuf[1]=Player_num;
 		NakedPacketLen=2;
-	 }
+	}
 
-   if (len+NakedPacketLen>MaxXDataSize)
-    {
-//         mprintf ((0,"Sending a naked packet of %d bytes.\n",NakedPacketLen));
-		if (Network_game_type == IPX_GAME)
-			ipx_send_packet_data( (ubyte *)NakedBuf, NakedPacketLen, NetPlayers.players[who].network.ipx.server, NetPlayers.players[who].network.ipx.node,Players[who].net_address );
-		#ifdef MACINTOSH
-		else
-			appletalk_send_packet_data( (ubyte *)NakedBuf, NakedPacketLen, NetPlayers.players[who].network.appletalk.node, NetPlayers.players[who].network.appletalk.net, NetPlayers.players[who].network.appletalk.socket );
-		#endif
+	if (len+NakedPacketLen>MaxXDataSize)
+	{
+		ipx_send_packet_data( (ubyte *)NakedBuf, NakedPacketLen, NetPlayers.players[who].network.ipx.server, NetPlayers.players[who].network.ipx.node,Players[who].net_address );
 		NakedPacketLen=2;
 		memcpy (&NakedBuf[NakedPacketLen],buf,len);     
 		NakedPacketLen+=len;
 		NakedPacketDestPlayer=who;
-	 }
-   else
-	 {
+	}
+	else
+	{
 		memcpy (&NakedBuf[NakedPacketLen],buf,len);     
 		NakedPacketLen+=len;
 		NakedPacketDestPlayer=who;
-	 }
- }
-
+	}
+}
 
 void network_process_naked_pdata (char *data,int len)
  {
@@ -6000,86 +5247,6 @@ void network_process_naked_pdata (char *data,int len)
 
 	multi_process_bigdata( data+2, len-2 );
  }
-
-int ConnectionPacketLevel[]={0,1,1,1};
-int ConnectionSecLevel[]={12,3,5,7};
-
-int AppletalkConnectionPacketLevel[]={0,1,0};
-int AppletalkConnectionSecLevel[]={10,3,8};
-
-#if defined(RELEASE) && !defined(MACINTOSH)		// use the code below for mac appletalk games
-int network_choose_connect ()
- {
-  return (1);
- }
-#else
-int network_choose_connect ()
- {
-#if 0
-	newmenu_item m[16];
-	int choice,opt=0;
-#endif
-
-	if (Network_game_type == IPX_GAME) {  
-		#if 0
-	   m[opt].type = NM_TYPE_MENU;  m[opt].text = "Local Subnet"; opt++;
-	   m[opt].type = NM_TYPE_MENU;  m[opt].text = "14.4 modem over Internet"; opt++;
-	   m[opt].type = NM_TYPE_MENU;  m[opt].text = "28.8 modem over Internet"; opt++;
-	   m[opt].type = NM_TYPE_MENU;  m[opt].text = "ISDN or T1 over Internet"; opt++;
-
-	   choice = newmenu_do1( NULL, "Choose connection type", opt, m, NULL, 0 );
-
-		if (choice<0)
-		 return (NULL);
-
-	   Assert (choice>=0 && choice<=3);
-   
-		Netgame.ShortPackets=ConnectionPacketLevel[choice];
-		Netgame.PacketsPerSec=ConnectionSecLevel[choice];
-		#endif
-	   return (1);
-	#ifdef MACINTOSH
-	} else {
-	   m[opt].type = NM_TYPE_MENU;  m[opt].text = "EtherTalk"; opt++;
-	   m[opt].type = NM_TYPE_MENU;  m[opt].text = "LocalTalk"; opt++;
-	   m[opt].type = NM_TYPE_MENU;  m[opt].text = "Other"; opt++;
-	
-	   choice = newmenu_do1( NULL, "Choose connection type", opt, m, NULL, 0 );
-
-		if (choice<0)
-		 return (NULL);
-
-		Network_appletalk_type = choice;
-		
-		Assert (choice>=0 && choice<=2);
-   
-		Netgame.ShortPackets=AppletalkConnectionPacketLevel[choice];
-		Netgame.PacketsPerSec=AppletalkConnectionSecLevel[choice];
-	   return (1);
-	#endif
-	}
-  return (0);	
- }
-#endif
-
-
-
-#ifdef NETPROFILING
-void OpenSendLog ()
- {
-  int i;
-  SendLogFile=(FILE *)fopen ("sendlog.net","w");
-  for (i=0;i<100;i++)
-	TTSent[i]=0;
- }
-void OpenRecieveLog ()
- {
-  int i;
-  RecieveLogFile=(FILE *)fopen ("recvlog.net","w");
-  for (i=0;i<100;i++)
-	TTRecv[i]=0;
- }
-#endif
 
 int GetMyNetRanking ()
  {
@@ -6263,19 +5430,13 @@ void network_send_player_names (sequence_packet *their)
    						// statement below and kills the compiler when there is no
    						// statement following the label "sendit"
 	   
-   #ifndef MACINTOSH
 	   ipx_send_internetwork_packet_data((ubyte *)buf, count, their->player.network.ipx.server, their->player.network.ipx.node);
-	#endif
  }
 
 
 int HoardEquipped()
 {
 	static int checked=-1;
-
-#ifdef WINDOWS
-	return 0;
-#endif
 
 	if (checked==-1)
 	{

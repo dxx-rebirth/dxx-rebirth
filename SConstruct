@@ -121,7 +121,6 @@ common_sources = [
 'main/hud.c',
 'main/inferno.c',
 'main/kconfig.c',
-'main/kludge.c',
 'main/kmatrix.c',
 'main/laser.c',
 'main/lighting.c',

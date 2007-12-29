@@ -88,7 +88,6 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.1.1.1 2006/03/17 19:57:54 zicodxx Exp
 #  include "multi.h"
 #  include "network.h"
 #  include "netmisc.h"
-#  include "modem.h"
 #endif
 #include "playsave.h"
 #include "ctype.h"
@@ -1356,7 +1355,6 @@ void PlayerFinishedLevel(int secret_flag)
 #endif
 
 void show_order_form();
-extern void com_hangup(void);
 
 //called when the player has finished the last level
 void DoEndGame(void)
@@ -1428,10 +1426,7 @@ void DoEndGame(void)
 
 	Function_mode = FMODE_MENU;
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		Game_mode |= GM_GAME_OVER;		//preserve modem setting so go back into modem menu
-	else
-		Game_mode = GM_GAME_OVER;
+	Game_mode = GM_GAME_OVER;
 
 
 	longjmp( LeaveGame, 0 );		// Exit out of game loop
@@ -1762,18 +1757,9 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		if(network_level_sync()) // After calling this, Player_num is set
 			return;
 	}
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		if(com_level_sync())
-			return;
-	}
 #endif
 
 	Assert(Function_mode == FMODE_GAME);
-
-	#ifndef NDEBUG
-	//-- mprintf((0, "Player_num = %d, N_players = %d.\n", Player_num, N_players)); // DEBUG
-	#endif
 
 	HUD_clear_messages();
 

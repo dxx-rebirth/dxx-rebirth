@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20071229
+--------
+SConstruct, arch/sdl/digi.c, main/ai.c, main/game.h, main/gamepal.c, main/gameseq.c, main/inferno.c, main/kmatrix.c, main/laser.c, main/menu.c, main/mission.c, main/multi.c, main/multibot.c, main/network.c, main/network.h, main/object.c, main/object.h, main/physics.c, main/render.c: Code cleanup - old/unused/obsolete multiplayer code and more
+
 20071223
 --------
 include/ipx.h, main/credits.c, main/inferno.c, main/multi.c, main/network.c, main/piggy.c: Fixed compiler error because of removed header file; Removed connect state restore in multi_endlevel_score to make sure always state 7 is sent to other players while connect state is obviously restored later; Allocated memory for all sequence_packet's; Moved piggy_close() to main - replacing atexit; Rendering credits with timer_delay2 at constant 25FPS and save CPU

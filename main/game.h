@@ -64,26 +64,19 @@ extern int ft_preference;
 
 // The following bits define the game modes.
 #define GM_EDITOR       1       // You came into the game from the editor
-#define GM_SERIAL       2       // You are in serial mode
+// #define GM_SERIAL       2       // You are in serial mode // OBSOLETE
 #define GM_NETWORK      4       // You are in network mode
 #define GM_MULTI_ROBOTS 8       // You are in a multiplayer mode with robots.
 #define GM_MULTI_COOP   16      // You are in a multiplayer mode and can't hurt other players.
-#define GM_MODEM        32      // You are in a modem (serial) game
-
+// #define GM_MODEM        32      // You are in a modem (serial) game // OBSOLETE
 #define GM_UNKNOWN      64      // You are not in any mode, kind of dangerous...
 #define GM_GAME_OVER    128     // Game has been finished
-
 #define GM_TEAM         256     // Team mode for network play
 #define GM_CAPTURE      512     // Capture the flag mode for D2
 #define GM_HOARD        1024    // New hoard mode for D2 Christmas
-
 #define GM_NORMAL       0       // You are in normal play mode, no multiplayer stuff
 #define GM_MULTI        38      // You are in some type of multiplayer game
 
-// Examples:
-// Deathmatch mode on a network is GM_NETWORK
-// Deathmatch mode via modem with robots is GM_MODEM | GM_MULTI_ROBOTS
-// Cooperative mode via serial link is GM_SERIAL | GM_MULTI_COOP
 
 #define NDL 5       // Number of difficulty levels.
 #define NUM_DETAIL_LEVELS   6

@@ -14,7 +14,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * Multiplayer code shared by serial and network play.
+ * Multiplayer code for network play.
  *
  */
 
@@ -31,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "strutil.h"
 #include "game.h"
-#include "modem.h"
 #include "network.h"
 #include "multi.h"
 #include "object.h"
@@ -226,11 +225,7 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	sizeof(netplayer_stats), // MULTI_SEND_PLAYER
 	55, // MULTI_MARKER
 	12, // MULTI_DROP_WEAPON
-#ifndef MACINTOSH
 	3+sizeof(shortpos), // MULTI_GUIDED, IF SHORTPOS CHANGES, CHANGE MAC VALUE BELOW
-#else
-	26, // MULTI_GUIDED IF SIZE OF SHORTPOS CHANGES, CHANGE THIS VALUE AS WELL!!!!!!
-#endif
 	11, // MULTI_STOLEN_ITEMS
 	6,  // MULTI_WALL_STATUS
 	5,  // MULTI_HEARTBEAT
@@ -381,7 +376,7 @@ void reset_network_objects()
 
 //
 // Part 1 : functions whose main purpose in life is to divert the flow
-//          of execution to either network or serial specific code based
+//          of execution to either network  specific code based
 //          on the curretn Game_mode value.
 //
 
@@ -438,9 +433,6 @@ multi_endlevel_score(void)
 int
 get_team(int pnum)
 {
-	if ((Game_mode & GM_CAPTURE) && ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM)))
-		return pnum;
-
 	if (Netgame.team_vector & (1 << pnum))
 		return 1;
 	else
@@ -870,14 +862,7 @@ multi_do_frame(void)
 	}
 #endif
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		com_do_frame();
-	}
-	else
-	{
-		network_do_frame(0, 1);
-	}
+	network_do_frame(0, 1);
 
 	if (multi_quit_game && !multi_in_menu)
 	{
@@ -896,9 +881,7 @@ multi_send_data(char *buf, int len, int repeat)
 	if (Game_mode & GM_NETWORK)
 		Assert(buf[0] > 0);
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		com_send_data(buf, len, repeat);
-	else if (Game_mode & GM_NETWORK)
+	if (Game_mode & GM_NETWORK)
 		network_send_data((unsigned char *)buf, len, repeat);
 }
 
@@ -927,8 +910,6 @@ multi_leave_game(void)
 	mprintf((1, "Sending leave game.\n"));
 	multi_send_quit(MULTI_QUIT);
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		serial_leave_game();
 	if (Game_mode & GM_NETWORK)
 		network_leave_game();
 
@@ -962,22 +943,16 @@ multi_endlevel(int *secret)
 {
 	int result = 0;
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		com_endlevel(secret);          // an opportunity to re-sync or whatever
-	else if (Game_mode & GM_NETWORK)
+	if (Game_mode & GM_NETWORK)
 		result = network_endlevel(secret);
 
 	return(result);
 }
 
 //
-// Part 2 : functions that act on network/serial messages and change the
+// Part 2 : functions that act on network messages and change the
 //          the state of the game in some way.
 //
-
-#ifndef MACINTOSH
-//extern PORT *com_port;
-#endif
 
 int
 multi_menu_poll(void)
@@ -988,7 +963,7 @@ multi_menu_poll(void)
 
 	was_fuelcen_alive = Control_center_destroyed;
 
-	// Special polling function for in-game menus for multiplayer and serial
+	// Special polling function for in-game menus for multiplayer
 
 	if (! ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME)) )
 		return(0);
@@ -1015,14 +990,6 @@ multi_menu_poll(void)
 		multi_leave_menu = 1;
 		return(-1);
 	}
-
-#if 0
-	if ((Game_mode & GM_MODEM) && (!GetCd(com_port)))
-	{
-		multi_leave_menu = 1;
-		return(-1);
-	}
-#endif
 
 	return(0);
 }
@@ -1166,8 +1133,6 @@ extern int network_who_is_master();
 extern char NameReturning;
 extern int force_cockpit_redraw;
 
-void network_dump_appletalk_player(ubyte node, ushort net, ubyte socket, int why);
-
 void multi_send_message_end()
 {
 	char *mytempbuf;
@@ -1307,10 +1272,7 @@ void multi_send_message_end()
 		for (i = 0; i < N_players; i++)
 		if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
 			kick_player:;
-				if (Network_game_type == IPX_GAME)
-					network_dump_player(NetPlayers.players[i].network.ipx.server,NetPlayers.players[i].network.ipx.node, 7);
-				else
-					network_dump_appletalk_player(NetPlayers.players[i].network.appletalk.node,NetPlayers.players[i].network.appletalk.net, NetPlayers.players[i].network.appletalk.socket, 7);
+				network_dump_player(NetPlayers.players[i].network.ipx.server,NetPlayers.players[i].network.ipx.node, 7);
 
 				HUD_init_message("Dumping %s...",Players[i].callsign);
 				multi_message_index = 0;
@@ -1447,11 +1409,8 @@ multi_do_fire(char *buf)
 	// Act out the actual shooting
 	pnum = buf[1];
 
-#ifndef MACINTOSH
 	weapon = (int)buf[2];
-#else
-	weapon = buf[2];
-#endif
+
 	flags = buf[4];
 	Network_laser_track = GET_INTEL_SHORT(buf + 6);
 
@@ -1905,15 +1864,6 @@ multi_do_quit(char *buf)
 		}
 	}
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-	{
-		Function_mode = FMODE_MENU;
-		multi_quit_game = 1;
-		multi_leave_menu = 1;
-		nm_messagebox(NULL, 1, TXT_OK, TXT_OPPONENT_LEFT);
-		Function_mode = FMODE_GAME;
-		multi_reset_stuff();
-	}
 	return;
 }
 
@@ -2239,7 +2189,7 @@ multi_reset_stuff(void)
 {
 	// A generic, emergency function to solve problems that crop up
 	// when a player exits quick-out from the game because of a
-	// serial connection loss.  Fixes several weird bugs!
+	// connection loss.  Fixes several weird bugs!
 
 	dead_player_end();
 
@@ -3119,7 +3069,7 @@ int PhallicMan=-1;
 
 void multi_prep_level(void)
 {
-	// Do any special stuff to the level required for serial games
+	// Do any special stuff to the level required for games
 	// before we begin playing in it.
 
 	// Player_num MUST be set before calling this procedure.
