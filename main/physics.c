@@ -301,7 +301,7 @@ void do_physics_sim(object *obj)
 	int ignore_obj_list[MAX_IGNORE_OBJS],n_ignore_objs;
 	int iseg;
 	int try_again;
-	int fate;
+	int fate=0;
 	vms_vector frame_vec;			//movement in this frame
 	vms_vector new_pos,ipos;		//position after this frame
 	int count=0;
@@ -319,9 +319,6 @@ void do_physics_sim(object *obj)
 	vms_vector save_p0,save_p1;
 	physics_info *pi;
 	int orig_segnum = obj->segnum;
-
-	if (!Player_is_dead)			// ZICO - object can be none if player is dead
-		Assert(obj->type != OBJ_NONE);
 
 	Assert(obj->movement_type == MT_PHYSICS);
 

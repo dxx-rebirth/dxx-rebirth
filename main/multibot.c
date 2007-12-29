@@ -10,14 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/multibot.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:28 $
- * 
+ *
  * Multiplayer robot code
- * 
+ *
  */
 
 #ifdef RCS
@@ -34,7 +31,6 @@ static char rcsid[] = "$Id: multibot.c,v 1.1.1.1 2006/03/17 19:42:28 zicodxx Exp
 
 #include "vecmat.h"
 #include "game.h"
-#include "modem.h"
 #include "network.h"
 #include "multi.h"
 #include "object.h"

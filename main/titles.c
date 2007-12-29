@@ -1196,10 +1196,7 @@ void do_end_game(void)
 
 	Function_mode = FMODE_MENU;
 
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM))
-		Game_mode |= GM_GAME_OVER;
-	else
-		Game_mode = GM_GAME_OVER;
+	Game_mode = GM_GAME_OVER;
 
 #ifdef DEST_SAT
 	show_order_form();

@@ -65,7 +65,6 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:43:27 zicodxx Exp $";
 #include "network.h"
 #include "scores.h"
 #include "joydefs.h"
-#include "modem.h"
 #include "playsave.h"
 #include "multi.h"
 #include "kconfig.h"
@@ -96,9 +95,6 @@ void do_new_game_menu();
 void do_load_game_menu();
 void do_ip_manual_join_menu();
 
-//char *menu_difficulty_text[] = { "Trainee", "Rookie", "Fighter", "Hotshot", "Insane" };
-//char *menu_detail_text[] = { "Lowest", "Low", "Medium", "High", "Highest", "", "Custom..." };
-
 #define MENU_NEW_GAME            0
 #define MENU_GAME                1
 #define MENU_EDITOR              2
@@ -113,13 +109,11 @@ void do_ip_manual_join_menu();
 #define MENU_CONFIG             13
 #define MENU_REJOIN_NETGAME     14
 #define MENU_DIFFICULTY         15
-#define MENU_START_SERIAL       18
 #define MENU_HELP               19
 #define MENU_NEW_PLAYER         20
 #ifdef NETWORK
 #define MENU_MULTIPLAYER        21
 #endif
-#define MENU_STOP_MODEM         22
 #define MENU_SHOW_CREDITS       23
 #define MENU_ORDER_INFO         24
 #define MENU_PLAY_SONG          25
@@ -247,11 +241,6 @@ int DoMenu()
 
 	if ( Players[Player_num].callsign[0]==0 )	{
 		RegisterPlayer();
-		return 0;
-	}
-
-	if ((Game_mode & GM_SERIAL) || (Game_mode & GM_MODEM)) {
-		do_option(MENU_START_SERIAL);
 		return 0;
 	}
 

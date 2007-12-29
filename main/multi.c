@@ -12,7 +12,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
  *
- * Multiplayer code shared by serial and network play.
+ * Multiplayer code for network play.
  *
  */
 
@@ -30,7 +30,6 @@ static char rcsid[] = "$Id: multi.c,v 1.1.1.1 2006/03/17 19:43:22 zicodxx Exp $"
 #include <time.h>
 
 #include "game.h"
-#include "modem.h"
 #include "network.h"
 #include "multi.h"
 #include "object.h"
@@ -357,7 +356,7 @@ map_objnum_local_to_local(int local_objnum)
 
 //
 // Part 1 : functions whose main purpose in life is to divert the flow
-//          of execution to either network or serial specific code based
+//          of execution to either network specific code based
 //          on the curretn Game_mode value.
 //
 
@@ -882,7 +881,7 @@ multi_endlevel(int *secret)
 }
 
 //
-// Part 2 : functions that act on network/serial messages and change the
+// Part 2 : functions that act on network messages and change the
 //          the state of the game in some way.
 //
 
@@ -894,7 +893,7 @@ multi_menu_poll(void)
 
 	was_fuelcen_alive = Fuelcen_control_center_destroyed;
 
-	// Special polling function for in-game menus for multiplayer and serial
+	// Special polling function for in-game menus for multiplayer
 
 	if (! ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME)) )
 		return(0);
@@ -1353,10 +1352,7 @@ multi_do_message(char *buf)
 
 void
 multi_do_position(char *buf)
-{		
-	// This routine does only player positions, modem game only
-	//	mprintf((0, "Got position packet.\n"));
-
+{
 	int pnum = (Player_num+1)%2;
 
 	Assert(&Objects[Players[pnum].objnum] != ConsoleObject);
@@ -1998,7 +1994,7 @@ multi_reset_stuff(void)
 {
 	// A generic, emergency function to solve problems that crop up
 	// when a player exits quick-out from the game because of a 
-	// serial connection loss.  Fixes several weird bugs!
+	// connection loss.  Fixes several weird bugs!
 
 	dead_player_end();
 
@@ -2222,7 +2218,7 @@ void multi_send_fire(int pl)
   multibuf[5] = (char)Network_laser_fired;
   *(short *)(multibuf+6) = Network_laser_track;
       multibuf[0] = (char)MULTI_FIRE;
-      multi_send_data(multibuf, 8, 1);//don't do anything special for modem links.
+      multi_send_data(multibuf, 8, 1);
 
   Network_laser_fired = 0;
 }
@@ -2707,7 +2703,7 @@ multi_send_hostage_door_status(int wallnum)
 void
 multi_prep_level(void)
 {
-	// Do any special stuff to the level required for serial games
+	// Do any special stuff to the level required for games
 	// before we begin playing in it.
 
 	// Player_num MUST be set before calling this procedure.  

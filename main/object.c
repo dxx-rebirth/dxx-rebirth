@@ -1696,7 +1696,7 @@ void object_move_one( object * obj )
 
 		case CT_LIGHT: break;		//doesn't do anything
 
-		case CT_REMOTE: break;     //movement is handled in com_process_input
+		case CT_REMOTE: break;     //doesn't do anything
 
 		case CT_CNTRLCEN: do_controlcen_frame(obj); break;
 

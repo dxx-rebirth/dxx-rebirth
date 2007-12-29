@@ -84,7 +84,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "text.h"
 #include "ipx.h"
 #include "network.h"
-#include "modem.h"
 #include "gamefont.h"
 #include "kconfig.h"
 #include "newmenu.h"
@@ -283,6 +282,8 @@ int main(int argc,char **argv)
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
 
+	atexit(sdl_close);
+
 	key_init();
 
 	digi_select_system(
@@ -446,7 +447,6 @@ int main(int argc,char **argv)
 #endif
 
 	piggy_close();
-	sdl_close();
 
 	return(0); //presumably successful exit
 

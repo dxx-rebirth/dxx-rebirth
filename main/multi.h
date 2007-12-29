@@ -50,10 +50,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //Incrementing this seems the only way possible.  Still stays backwards compitible.
 #define MULTI_PROTO_D1X_MINOR	1
 
-// Save multiplayer games?
-
-// #define MULTI_SAVE
-
 // How many simultaneous network players do we support?
 
 #define MAX_NUM_NET_PLAYERS 8
@@ -119,6 +115,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #define MAX_NET_CREATE_OBJECTS 20
 #endif
+
+#define MISSILE_ADJUST 6
 
 
 // Exported functions

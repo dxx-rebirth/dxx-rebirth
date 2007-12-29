@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20071229
+--------
+arch/sdl/digi.c, main/ai.c, main/game.h, main/gameseq.c, main/inferno.c, main/laser.c, main/laser.h, main/menu.c, main/multi.c, main/multi.h, main/multibot.c, main/multibot.h, main/object.c, main/object.h, main/physics.c, main/titles.c, main/wall.c: Code cleanup - old/unused/obsolete multiplayer code and more
+
 20071223
 --------
 include/ipx.h, main/credits.c, main/inferno.c, main/laser.c, main/network.c, main/network.h, main/piggy.c, main/powerup.c: Fixed compiler error because of removed header file; Removed struct network_d1xplayer_info - obsolete; Allocated memory for all sequence_packet's; Moved piggy_close() and sdl_close() to end of main() - replacing atexit; Rendering credits with timer_delay2 at constant 25FPS and save CPU; Fixed -playermessages

@@ -85,7 +85,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "cntrlcen.h"
 #include "powerup.h"
-#include "modem.h"
 #include "text.h"
 #include "cfile.h"
 #include "piggy.h"
@@ -96,13 +95,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "netmisc.h"
 #include "joydefs.h"
-
-//added on 3/15/99 by Victor Rachels for LaserPowSelected
 #include "reorder.h"
-//end this section addition - VR
-//added 6/15/99 - Owen Evans
 #include "strutil.h"
-//end added
 
 #ifdef EDITOR
 #include "editor/editor.h"
