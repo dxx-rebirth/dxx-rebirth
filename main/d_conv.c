@@ -10,7 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "maths.h"
 #include "vecmat.h"
 #include "d_conv.h" // This must be the last include file.

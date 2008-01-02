@@ -55,7 +55,7 @@ static char rcsid[] = "$Id: bm.c,v 1.1.1.1 2006/03/17 19:41:41 zicodxx Exp $";
 #include <stdlib.h>
 #include <string.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "inferno.h"
 #include "gr.h"
 #include "bm.h"

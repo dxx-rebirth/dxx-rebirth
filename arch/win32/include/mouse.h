@@ -71,7 +71,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef MOUSE_H
 #define MOUSE_H
 
-#include "types.h"
+#include "pstypes.h"
 #include "fix.h"
 
 #define MOUSE_MAX_BUTTONS       11

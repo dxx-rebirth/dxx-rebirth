@@ -65,7 +65,7 @@ static char rcsid[] = "$Id: multi.c,v 1.1.1.1 2006/03/17 19:43:22 zicodxx Exp $"
 #include "ctype.h"  // for isalpha
 #include "vers_id.h"
 #include "byteswap.h"
-#include "types.h"
+#include "pstypes.h"
 #include "strutil.h"
 
 

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "newmenu.h"
 
 void console_main() {}

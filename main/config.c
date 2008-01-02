@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "game.h"
 #include "digi.h"
 #include "kconfig.h"

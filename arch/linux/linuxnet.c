@@ -1,5 +1,5 @@
 
-#include "types.h"
+#include "pstypes.h"
 #include <string.h>
 
 #include "ipx_drv.h"

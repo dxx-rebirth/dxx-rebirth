@@ -16,7 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef NETWORK
 
 #include <string.h>
-#include "types.h"
+#include "pstypes.h"
 #include "multi.h"
 #include "network.h"
 #include "object.h"

@@ -5,7 +5,7 @@
 
 #include "gr.h"
 #include "cfile.h"
-#include "types.h"
+#include "pstypes.h"
 #include "piggy.h"
 #include "textures.h"
 #include "polyobj.h"

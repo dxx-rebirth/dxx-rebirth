@@ -118,7 +118,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMESEG_H
 #define _GAMESEG_H
 
-#include "types.h"
+#include "pstypes.h"
 #include "fix.h"
 #include "vecmat.h"
 #include "segment.h"

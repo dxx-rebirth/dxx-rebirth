@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "cfile.h"
 
-#include "types.h"
+#include "pstypes.h"
 #include "fix.h"
 
 #ifdef __MSDOS__

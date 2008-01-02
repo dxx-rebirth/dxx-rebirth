@@ -227,7 +227,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
-#include "types.h"
+#include "pstypes.h"
 #include "vecmat.h"
 #include "segment.h"
 #include "gameseg.h"

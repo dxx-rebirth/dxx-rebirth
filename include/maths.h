@@ -6,7 +6,7 @@
 #define NO_FIX_INLINE 1
 
 #include <stdlib.h>		// for RAND_MAX
-#include "types.h"
+#include "pstypes.h"
 
 
 

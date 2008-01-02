@@ -1,7 +1,7 @@
 #ifndef _LOADRDL_H
 #define _LOADRDL_H
 
-#include "types.h"
+#include "pstypes.h"
 
 #define COMPILED_MINE_VERSION 0
 

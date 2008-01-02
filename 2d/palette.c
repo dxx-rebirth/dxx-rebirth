@@ -154,7 +154,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"

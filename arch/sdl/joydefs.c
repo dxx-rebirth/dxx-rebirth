@@ -9,7 +9,7 @@
 #endif
 
 #include "joydefs.h"
-#include "types.h"
+#include "pstypes.h"
 #include "newmenu.h"
 #include "config.h"
 #include "text.h"

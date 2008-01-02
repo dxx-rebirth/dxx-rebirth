@@ -29,7 +29,7 @@ static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2006/03/17 19:44:42 zicodxx Exp 
 #include <ctype.h>
 
 #include "error.h"
-#include "types.h"
+#include "pstypes.h"
 #include "gr.h"
 #include "mono.h"
 #include "key.h"

@@ -129,7 +129,7 @@ static char rcsid[] = "$Id: cfile.c,v 1.2 2006/03/18 23:07:34 michaelstather Exp
 #include <string.h>
 #include <dirent.h>
 
-#include "types.h"
+#include "pstypes.h"
 
 #include "cfile.h"
 

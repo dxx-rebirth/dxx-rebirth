@@ -4,7 +4,7 @@
 #ifndef _COMPARE_H
 #define _COMPARE_H
 
-#include "types.h"
+#include "pstypes.h"
 
 typedef int32_t compare_int32_func(int32_t a,int32_t b);
 

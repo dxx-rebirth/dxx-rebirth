@@ -9,7 +9,7 @@
 #define _IPX_DRV_H
 #define IPX_MANUAL_ADDRESS
 
-#include "types.h"
+#include "pstypes.h"
 
 #ifdef __WINDOWS__
 #include <winsock.h>

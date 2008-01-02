@@ -7,7 +7,7 @@
 #include <conf.h>
 #endif
 
-#include "types.h"
+#include "pstypes.h"
 #include "error.h"
 #include "mono.h" 	 
 #include "fix.h" 	 

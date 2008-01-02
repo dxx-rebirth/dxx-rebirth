@@ -29,7 +29,7 @@ static char rcsid[] = "$Id: scores.c,v 1.1.1.1 2006/03/17 19:42:39 zicodxx Exp $
 #include <stdarg.h>
 
 #include "error.h"
-#include "types.h"
+#include "pstypes.h"
 #include "gr.h"
 #include "mono.h"
 #include "key.h"

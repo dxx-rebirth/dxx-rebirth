@@ -51,7 +51,7 @@ static char rcsid[] = "$Id: songs.c,v 1.1.1.1 2006/03/17 19:42:37 zicodxx Exp $"
 #include <string.h>
 
 #include "error.h"
-#include "types.h"
+#include "pstypes.h"
 #include "songs.h"
 #include "mono.h"
 #include "cfile.h"

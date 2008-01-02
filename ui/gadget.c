@@ -55,7 +55,7 @@ static char rcsid[] = "$Id: gadget.c,v 1.1.1.1 2006/03/17 19:39:14 zicodxx Exp $
 
 #include "u_mem.h"
 #include "fix.h"
-#include "types.h"
+#include "pstypes.h"
 #include "gr.h"
 #include "ui.h"
 

@@ -24,7 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <malloc.h>
 #endif
 
-#include "types.h"
+#include "pstypes.h"
 #include "mono.h"
 #include "error.h"
 #include "args.h"

@@ -26,7 +26,7 @@ static char rcsid[] = "$Id: piggy.c,v 1.2 2006/03/18 23:08:13 michaelstather Exp
 #include <stdarg.h>
 #include <string.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "inferno.h"
 #include "gr.h"
 #include "u_mem.h"

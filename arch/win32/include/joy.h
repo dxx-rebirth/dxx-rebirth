@@ -14,7 +14,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _JOY_H
 #define _JOY_H
 
-#include "types.h"
+#include "pstypes.h"
 #include "fix.h"
 
 #define JOY_1_BUTTON_A	1

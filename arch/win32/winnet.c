@@ -1,5 +1,5 @@
 
-#include "types.h"
+#include "pstypes.h"
 #include "ipx_drv.h"
 
 extern struct ipx_driver ipx_win;

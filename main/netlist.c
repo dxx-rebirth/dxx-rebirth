@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "timer.h"
 #include "gr.h"
 #include "palette.h"

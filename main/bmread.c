@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "inferno.h"
 #include "gr.h"
 #include "bm.h"

@@ -48,7 +48,7 @@ static char rcsid[] = "$Id: netmisc.c,v 1.1.1.1 2006/03/17 19:42:53 zicodxx Exp 
 
 #include <string.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "mono.h"
 
 // Calculates the checksum of a block of memory.

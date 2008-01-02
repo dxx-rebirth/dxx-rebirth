@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "strio.h"
-#include "types.h"
+#include "pstypes.h"
 #include "d_io.h"
 #include "u_mem.h"
 #include "error.h"

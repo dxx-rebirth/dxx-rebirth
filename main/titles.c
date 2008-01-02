@@ -20,7 +20,7 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include <stdio.h>
 #include <string.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "timer.h"
 #include "key.h"
 #include "gr.h"

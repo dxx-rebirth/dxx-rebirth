@@ -16,7 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-#include "types.h"
+#include "pstypes.h"
 
 #ifndef _KCONFIG_H
 #define _KCONFIG_H

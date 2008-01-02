@@ -68,7 +68,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _IFF_H
 #define _IFF_H
 
-#include "types.h"
+#include "pstypes.h"
 #include "gr.h"
 
 //Prototypes for IFF library functions

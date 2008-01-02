@@ -105,7 +105,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SEGMENT_H
 #define _SEGMENT_H
 
-#include	"types.h"
+#include	"pstypes.h"
 #include	"fix.h"
 #include "vecmat.h"
 //#include "3d.h"

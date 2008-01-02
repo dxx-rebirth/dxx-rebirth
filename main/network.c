@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 
 #include "strutil.h"
-#include "types.h"
+#include "pstypes.h"
 #include "args.h"
 #include "timer.h"
 #include "mono.h"

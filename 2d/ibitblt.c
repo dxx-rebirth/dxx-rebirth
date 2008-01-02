@@ -44,7 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <string.h>
-#include "types.h"
+#include "pstypes.h"
 #include "gr.h"
 #include "grdef.h"
 #include "ibitblt.h"

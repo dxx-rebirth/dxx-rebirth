@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080102
+--------
+2d/ibitblt.c, 2d/palette.c, arch/linux/joystick.c, arch/linux/linuxnet.c, arch/sdl/digi.c, arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c, arch/sdl/include/joy.h, arch/sdl/include/key.h, arch/sdl/include/mouse.h, arch/sdl/joydefs.c, arch/win32/include/joy.h, arch/win32/include/mouse.h, arch/win32/winnet.c, cfile/cfile.c, include/compare.h, include/gr.h, include/iff.h, include/ipx_drv.h, include/maths.h, include/pstypes.h, include/rle.h, include/timer.h, include/u_dpmi.h, main/altsound.c, main/bm.c, main/bmread.c, main/config.c, main/console.c, main/credits.c, main/custom.c, main/d_conv.c, main/digi.h, main/gameseg.h, main/ipx_drv.c, main/kconfig.c, main/kconfig.h, main/kmatrix.c, main/loadrdl.h, main/multi.c, main/netlist.c, main/netmisc.c, main/netpkt.c, main/network.c, main/newmenu.c, main/object.h, main/piggy.c, main/scores.c, main/segment.h, main/songs.c, main/titles.c, mem/mem.c, ui/button.c, ui/checkbox.c, ui/file.c, ui/gadget.c, ui/icon.c, ui/inputbox.c, ui/keypad.c, ui/keypress.c, ui/keytrap.c, ui/lfile.c, ui/listbox.c, ui/menu.c, ui/menubar.c, ui/message.c, ui/mouse.c, ui/popup.c, ui/radio.c, ui/scroll.c, ui/ui.c, ui/uidraw.c, ui/userbox.c, ui/window.c: rename types.h to pstypes.h to avoid name conflict with Mac OS 9's MrC (it doesn't respect the difference between project and system headers)
+
 20080101
 --------
 arch/carbon/conf.h, arch/carbon/descent.r, arch/carbon/SDL_main.c, arch/cocoa/d1x-rebirth.icns, arch/cocoa/SDLMain.h, arch/cocoa/SDLMain.m, arch/cocoa/tool_bundle.py, d1x-Info.plist, d1xgl-Info.plist, English.lproj/InfoPlist.strings: add Mac source files

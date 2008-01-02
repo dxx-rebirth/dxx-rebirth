@@ -16,7 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <sys/types.h>
 #include <sys/time.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "config.h"
 #include "args.h"
 #include "text.h"

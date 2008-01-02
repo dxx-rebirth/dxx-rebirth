@@ -20,7 +20,7 @@
 #include <SDL/SDL_audio.h>
 #include <SDL/SDL_mixer.h>
 
-#include "types.h"
+#include "pstypes.h"
 #include "error.h"
 #include "mono.h"
 #include "sounds.h"
