@@ -22,7 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "powerup.h"
 #include "error.h"
-#include "ipx.h"
 #include "netpkt.h"
 
 void receive_netplayer_info(ubyte *data, netplayer_info *info, int d1x)
@@ -65,11 +64,11 @@ void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte
 	out_buffer[loc] = MULTI_PROTO_D1X_MINOR; loc++;
 
 	if (net_address != NULL)	
-		ipx_send_packet_data( out_buffer, loc, server, node, net_address);
+		NetDrvSendPacketData( out_buffer, loc, server, node, net_address);
 	else if ((server == NULL) && (node == NULL))
-		ipx_send_broadcast_packet_data( out_buffer, loc );
+		NetDrvSendBroadcastPacketData( out_buffer, loc );
 	else
-		ipx_send_internetwork_packet_data( out_buffer, loc, server, node);
+		NetDrvSendInternetworkPacketData( out_buffer, loc, server, node);
 }
 
 void receive_sequence_packet(ubyte *data, sequence_packet *seq)
@@ -94,7 +93,7 @@ void send_netgame_packet(ubyte *server, ubyte *node)
 		return;
 	}
 #endif
-	memset(out_buffer, 0, IPX_MAX_DATA_SIZE);
+	memset(out_buffer, 0, MAX_DATA_SIZE);
 	out_buffer[loc] = Netgame.type; loc++;
 	memcpy(&(out_buffer[loc]), Netgame.game_name, NETGAME_NAME_LEN+1); loc += (NETGAME_NAME_LEN+1);
 	memcpy(&(out_buffer[loc]), Netgame.team_name, 2*(CALLSIGN_LEN+1)); loc += 2*(CALLSIGN_LEN+1);
@@ -172,9 +171,9 @@ void send_netgame_packet(ubyte *server, ubyte *node)
 #endif
 
 	if (server == NULL)
-		ipx_send_broadcast_packet_data(out_buffer, loc);
+		NetDrvSendBroadcastPacketData(out_buffer, loc);
 	else
-		ipx_send_internetwork_packet_data( out_buffer, loc, server, node );
+		NetDrvSendInternetworkPacketData( out_buffer, loc, server, node );
 }
 
 void receive_netgame_packet(ubyte *data, netgame_info *netgame, int d1x)
@@ -293,7 +292,7 @@ void send_d1x_netgame_packet(ubyte *server, ubyte *node)
 	int i, j;
 	int loc = 0;
 	
-	memset(out_buffer, 0, IPX_MAX_DATA_SIZE);
+	memset(out_buffer, 0, MAX_DATA_SIZE);
 	out_buffer[loc] = Netgame.type; loc++;
 	out_buffer[loc] = MULTI_PROTO_D1X_VER; loc++;
 	out_buffer[loc] = Netgame.subprotocol; loc++;
@@ -374,9 +373,9 @@ void send_d1x_netgame_packet(ubyte *server, ubyte *node)
 	}
 
 	if (server == NULL)
-		ipx_send_broadcast_packet_data(out_buffer, loc);
+		NetDrvSendBroadcastPacketData(out_buffer, loc);
 	else
-		ipx_send_internetwork_packet_data(out_buffer, loc, server, node);
+		NetDrvSendInternetworkPacketData(out_buffer, loc, server, node);
 }
 
 void receive_d1x_netgame_packet(ubyte *data, netgame_info *netgame) {
@@ -480,7 +479,7 @@ void send_frameinfo_packet(ubyte *server, ubyte *node, ubyte *address, int short
 	object *pl_obj = &Objects[Players[Player_num].objnum];
 	
 	loc = 0;
-	memset(out_buffer, 0, IPX_MAX_DATA_SIZE);
+	memset(out_buffer, 0, MAX_DATA_SIZE);
 #ifdef SHAREWARE
 	out_buffer[0] = PID_PDATA;		loc++;
 	tmpi = swapint(MySyncPack.numpackets);
@@ -640,10 +639,10 @@ void send_frameinfo_packet(ubyte *server, ubyte *node, ubyte *address, int short
 #endif
 #if 0 // adb: not possible (always array passed)
 	if (address == NULL)
-                ipx_send_internetwork_packet_data( out_buffer, loc, server, node );
+                NetDrvSendInternetworkPacketData( out_buffer, loc, server, node );
 	else
 #endif
-		ipx_send_packet_data( out_buffer, loc, server, node, address);
+		NetDrvSendPacketData( out_buffer, loc, server, node, address);
 }
 
 void receive_frameinfo_packet(ubyte *data, frame_info *info, int short_packet)
@@ -828,7 +827,7 @@ void send_endlevel_packet(endlevel_info *info, ubyte *server, ubyte *node, ubyte
 	int loc = 0;
 	ushort tmps;
 	
-	memset(out_buffer, 0, IPX_MAX_DATA_SIZE);
+	memset(out_buffer, 0, MAX_DATA_SIZE);
 	out_buffer[loc] = info->type;			loc++;
 	out_buffer[loc] = info->player_num;		loc++;
 	out_buffer[loc] = info->connected;		loc++;
@@ -845,7 +844,7 @@ void send_endlevel_packet(endlevel_info *info, ubyte *server, ubyte *node, ubyte
 	memcpy(&(out_buffer[loc]), &tmps, 2);  loc += 2;
 	out_buffer[loc] = info->seconds_left; loc++;	
 
-	ipx_send_packet_data( out_buffer, loc, server, node, address);
+	NetDrvSendPacketData( out_buffer, loc, server, node, address);
 }
 
 void receive_endlevel_packet(ubyte *data, endlevel_info *info)

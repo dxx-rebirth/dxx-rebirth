@@ -23,7 +23,7 @@ int ogl_init_load_library(void);
 
 #include "gr.h"
 #include "palette.h"
-#include "types.h"
+#include "pstypes.h"
 
 
 #define OGL_TEXTURE_LIST_SIZE 20000

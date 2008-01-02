@@ -18,7 +18,7 @@
 #include "error.h"
 #include "netmisc.h"
 #include "network.h"
-#include "ipx.h"
+#include "netdrv.h"
 #include "game.h"
 #include "multi.h"
 #include "text.h"
@@ -240,8 +240,8 @@ void network_info_req( int nitems, newmenu_item * menus, int * key, int citem )
 		nextsend=curtime+F1_0*3;
 		memset(&me, 0, sizeof(sequence_packet));
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
-		memcpy( me.player.node, ipx_get_my_local_address(), 6 );
-		memcpy( me.player.server, ipx_get_my_server_address(), 4 );
+		memcpy( me.player.node, NetDrvGetMyLocalAddress(), 6 );
+		memcpy( me.player.server, NetDrvGetMyServerAddress(), 4 );
 		me.type = PID_D1X_GAME_INFO_REQ;//get full info.
 
 		send_sequence_packet( me, null_addr,Active_games[0].players[0].node,NULL);
@@ -495,7 +495,7 @@ int network_join_game_menu() {
 					"(PgUp/PgDn to change)", GameArg.MplIPXSocketOffset);
 			if (old_socket != -32768) { /* changed by user? */
 				network_listen();
-				ipx_change_default_socket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
+				NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
 				num_active_games = 0;
 			}
 			req_timer -= F1_0 * 5; /* force send request */

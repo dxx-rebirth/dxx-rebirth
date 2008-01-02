@@ -1,14 +1,10 @@
 #ifndef _NETPKTOR_H
 #define _NETPKTOR_H
 
-//Changed 9/19 -Geoff Coovert - moved from netpkt.c
-//edited 03/04/99 Matt Mueller - moved to byteswap.h
 #include "byteswap.h"
-//#define swapint(x) x
-//#define swapshort(x) x
-//end edit -MM
+#include "netdrv.h"
 
-ubyte out_buffer[IPX_MAX_DATA_SIZE];		// used for tmp netgame packets as well as sending object data
+ubyte out_buffer[MAX_DATA_SIZE];		// used for tmp netgame packets as well as sending object data
 extern frame_info 	MySyncPack;
 void send_d1x_netgame_packet(ubyte *server, ubyte *node);
 void receive_d1x_netgame_packet(ubyte *data, netgame_info *netgame);

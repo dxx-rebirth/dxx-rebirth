@@ -81,7 +81,7 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:43:27 zicodxx Exp $";
 #include "cfile.h"
 #include "gauges.h"
 #include "hudmsg.h" //for HUD_max_num_disp
-#include "ipx.h"
+#include "netdrv.h"
 
 
 #ifdef EDITOR
@@ -352,8 +352,8 @@ void do_option ( int select)
 		case MENU_START_KALI_NETGAME:
 		case MENU_JOIN_KALI_NETGAME:
 			switch (select & ~0x1) {
-				case MENU_START_IPX_NETGAME: ipx_set_driver("ipx"); break;
-				case MENU_START_KALI_NETGAME: ipx_set_driver("kali"); break;
+				case MENU_START_IPX_NETGAME: NetDrvSet(NETPROTO_IPX); break;
+				case MENU_START_KALI_NETGAME: NetDrvSet(NETPROTO_KALINIX); break;
 				default: Int3();
 			}
 			if ((select & 0x1) == 0) // MENU_START_*_NETGAME
@@ -366,12 +366,12 @@ void do_option ( int select)
 			break;
 
 		case MENU_START_UDP_NETGAME:
-			ipx_set_driver("udp");
+			NetDrvSet(NETPROTO_UDP);
 			ForceVersionCheck=1;
 			network_start_game();
 			break;
 		case MENU_JOIN_UDP_NETGAME:
-			ipx_set_driver("udp");
+			NetDrvSet(NETPROTO_UDP);
 			do_ip_manual_join_menu();
 			break;
 		case MENU_MULTIPLAYER:
@@ -954,7 +954,7 @@ void do_multi_player_menu()
 	} while( choice > -1 );
 }
 
-int ipx_udp_ConnectManual(char *addr);
+int UDPConnectManual(char *addr);
 void do_ip_manual_join_menu()
 {
 	int menu_choice[3];
@@ -983,7 +983,7 @@ void do_ip_manual_join_menu()
 		choice = newmenu_do1( NULL, "ENTER IP OR HOSTNAME", num_options, m, NULL, choice );
 
 		if ( choice > -1 ){
-			ipx_udp_ConnectManual(buf);
+			UDPConnectManual(buf);
 		}
 
 		if (old_game_mode != Game_mode)

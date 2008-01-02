@@ -112,7 +112,6 @@ common_sources = [
 'main/hostage.c',
 'main/hud.c',
 'main/inferno.c',
-'main/ipx_drv.c',
 'main/kconfig.c',
 'main/kmatrix.c',
 'main/laser.c',
@@ -124,6 +123,7 @@ common_sources = [
 'main/multi.c',
 'main/multibot.c',
 'main/multipow.c',
+'main/netdrv.c',
 'main/netlist.c',
 'main/netmisc.c',
 'main/netpkt.c',
@@ -230,9 +230,8 @@ editor_sources = [
 
 # for linux
 arch_linux_sources = [
-'arch/linux/ipx_bsd.c',
-'arch/linux/ipx_kali.c',
-'arch/linux/linuxnet.c',
+'arch/linux/netdrv_ipx.c',
+'arch/linux/netdrv_kali.c',
 'arch/linux/mono.c',
 'arch/linux/ukali.c'
 ]
@@ -240,9 +239,8 @@ arch_linux_sources = [
 # for windows
 arch_win32_sources = [
 'arch/win32/hmpfile.c',
-'arch/win32/ipx_win.c',
+'arch/win32/netdrv_ipx.c',
 'arch/win32/mono.c',
-'arch/win32/winnet.c',
 ]
 
 # for opengl
