@@ -80,29 +80,29 @@ void swap_object(object *obj);
 #define receive_netplayers_packet(data, pinfo) \
 	memcpy(pinfo, data, sizeof(AllNetPlayers_info))
 #define send_netplayers_packet(server, node) \
-	ipx_send_internetwork_packet_data((ubyte *)&NetPlayers, sizeof(AllNetPlayers_info), server, node)
+	NetDrvSendInternetworkPacketData((ubyte *)&NetPlayers, sizeof(AllNetPlayers_info), server, node)
 #define send_broadcast_netplayers_packet() \
-	ipx_send_broadcast_packet_data((ubyte *)&NetPlayers, sizeof(AllNetPlayers_info))
+	NetDrvSendBroadcastPacketData((ubyte *)&NetPlayers, sizeof(AllNetPlayers_info))
 
 #define send_sequence_packet(seq, server, node, net_address) \
-	ipx_send_packet_data((ubyte *)&seq, sizeof(sequence_packet), server, node, net_address)
+	NetDrvSendPacketData((ubyte *)&seq, sizeof(sequence_packet), server, node, net_address)
 #define send_internetwork_sequence_packet(seq, server, node) \
-	ipx_send_internetwork_packet_data((ubyte *)&seq, sizeof(sequence_packet), server, node)
+	NetDrvSendInternetworkPacketData((ubyte *)&seq, sizeof(sequence_packet), server, node)
 #define send_broadcast_sequence_packet(seq) \
-	ipx_send_broadcast_packet_data((ubyte *)&seq, sizeof(sequence_packet))
+	NetDrvSendBroadcastPacketData((ubyte *)&seq, sizeof(sequence_packet))
 
 #define send_full_netgame_packet(server, node, net_address) \
-	ipx_send_packet_data((ubyte *)&Netgame, sizeof(netgame_info), server, node, net_address)
+	NetDrvSendPacketData((ubyte *)&Netgame, sizeof(netgame_info), server, node, net_address)
 #define send_lite_netgame_packet(server, node, net_address) \
-	ipx_send_packet_data((ubyte *)&Netgame, sizeof(lite_info), server, node, net_address)
+	NetDrvSendPacketData((ubyte *)&Netgame, sizeof(lite_info), server, node, net_address)
 #define send_internetwork_full_netgame_packet(server, node) \
-	ipx_send_internetwork_packet_data((ubyte *)&Netgame, sizeof(netgame_info), server, node)
+	NetDrvSendInternetworkPacketData((ubyte *)&Netgame, sizeof(netgame_info), server, node)
 #define send_internetwork_lite_netgame_packet(server, node, extended) \
-	ipx_send_internetwork_packet_data((ubyte *)&Netgame, (extended?sizeof(netgame_info):sizeof(lite_info)), server, node)
+	NetDrvSendInternetworkPacketData((ubyte *)&Netgame, (extended?sizeof(netgame_info):sizeof(lite_info)), server, node)
 #define send_broadcast_full_netgame_packet() \
-	ipx_send_broadcast_packet_data((ubyte *)&Netgame, sizeof(netgame_info))
+	NetDrvSendBroadcastPacketData((ubyte *)&Netgame, sizeof(netgame_info))
 #define send_broadcast_lite_netgame_packet() \
-	ipx_send_broadcast_packet_data((ubyte *)&Netgame, sizeof(lite_info))
+	NetDrvSendBroadcastPacketData((ubyte *)&Netgame, sizeof(lite_info))
 #define receive_full_netgame_packet(data, netgame) \
 	memcpy((ubyte *)(netgame), data, sizeof(netgame_info))
 #define receive_lite_netgame_packet(data, netgame) \

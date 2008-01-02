@@ -131,6 +131,7 @@ common_sources = [
 'main/movie.c',
 'main/multi.c',
 'main/multibot.c',
+'main/netdrv.c',
 'main/netmisc.c',
 'main/network.c',
 'main/newdemo.c',
@@ -233,24 +234,19 @@ editor_sources = [
 'ui/window.c'
 ]
 
-# for *nix
-arch_unix_sources = [
-'arch/linux/linuxnet.c'
-]
-
 # for linux
 arch_linux_sources = [
-'arch/linux/ipx_bsd.c',
-'arch/linux/ipx_kali.c',
+'arch/linux/netdrv_ipx.c',
+'arch/linux/netdrv_kali.c',
 'arch/linux/mono.c',
-'arch/linux/ukali.c',
+'arch/linux/ukali.c'
 ]
 
 # SDL_mixer sound implementation
 arch_sdlmixer = [
 'misc/hmp2mid.c',
 'arch/sdl/digi_mixer.c',
-'arch/sdl/digi_mixer_music.c', 
+'arch/sdl/digi_mixer_music.c',
 'arch/sdl/jukebox.c'
 ]
 
@@ -260,9 +256,8 @@ if (sdlmixer == 1):
 # for windows
 arch_win32_sources = [
 'arch/win32/hmpfile.c',
-'arch/win32/ipx_win.c',
-'arch/win32/mono.c',
-'arch/win32/winnet.c'
+'arch/win32/netdrv_ipx.c',
+'arch/win32/mono.c'
 ]
 
 # for Mac OS X
@@ -358,7 +353,6 @@ elif sys.platform == 'darwin':
 	asm = 0
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL_VIDEO', 'OGL']
-	common_sources += arch_unix_sources
 	common_sources += arch_macosx_sources
 	ogllibs = ''
 	libs = ''
@@ -384,7 +378,6 @@ else:
 	env.Append(CPPDEFINES = ['__LINUX__', 'NATIVE_IPX', 'KALINIX', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['SDL_GL_VIDEO', 'OGL']
-	common_sources += arch_unix_sources
 	common_sources += arch_linux_sources
 	ogllibs = ['GL', 'GLU']
 	libs = generic_libs

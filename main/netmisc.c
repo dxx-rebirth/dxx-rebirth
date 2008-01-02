@@ -116,7 +116,6 @@ ushort netmisc_calc_checksum(void * vptr, int len)
 // structures send through the networking code.  The structures and
 // this code must be kept in total sync
 
-#include "ipx.h"
 #include "multi.h"
 #ifdef NETWORK
 #include "network.h"
@@ -168,9 +167,9 @@ void send_netplayers_packet(ubyte *server, ubyte *node)
 	}
 
 	if ((server == NULL) && (node == NULL))
-		ipx_send_broadcast_packet_data((unsigned char *)out_buffer, loc);
+		NetDrvSendBroadcastPacketData((unsigned char *)out_buffer, loc);
 	else
-		ipx_send_internetwork_packet_data((unsigned char *)out_buffer, loc, server, node);
+		NetDrvSendInternetworkPacketData((unsigned char *)out_buffer, loc, server, node);
 
 }
 
@@ -208,11 +207,11 @@ void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte
 	memcpy(&(out_buffer[loc]), &tmps, 2);                           loc += 2;
 	out_buffer[loc]=seq.player.rank;                                loc++;      // for pad byte
 	if (net_address != NULL)
-		ipx_send_packet_data((unsigned char *)out_buffer, loc, server, node, net_address);
+		NetDrvSendPacketData((unsigned char *)out_buffer, loc, server, node, net_address);
 	else if ((server == NULL) && (node == NULL))
-		ipx_send_broadcast_packet_data((unsigned char *)out_buffer, loc);
+		NetDrvSendBroadcastPacketData((unsigned char *)out_buffer, loc);
 	else
-		ipx_send_internetwork_packet_data((unsigned char *)out_buffer, loc, server, node);
+		NetDrvSendInternetworkPacketData((unsigned char *)out_buffer, loc, server, node);
 }
 
 void receive_sequence_packet(ubyte *data, sequence_packet *seq)
@@ -340,11 +339,11 @@ void send_netgame_packet(ubyte *server, ubyte *node, ubyte *net_address, int lit
 
 do_send:
 	if (net_address != NULL)
-		ipx_send_packet_data((unsigned char *)out_buffer, loc, server, node, net_address);
+		NetDrvSendPacketData((unsigned char *)out_buffer, loc, server, node, net_address);
 	else if ((server == NULL) && (node == NULL))
-		ipx_send_broadcast_packet_data((unsigned char *)out_buffer, loc);
+		NetDrvSendBroadcastPacketData((unsigned char *)out_buffer, loc);
 	else
-		ipx_send_internetwork_packet_data((unsigned char *)out_buffer, loc, server, node);
+		NetDrvSendInternetworkPacketData((unsigned char *)out_buffer, loc, server, node);
 }
 
 void receive_netgame_packet(ubyte *data, netgame_info *netgame, int lite_flag)

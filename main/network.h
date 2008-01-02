@@ -41,9 +41,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CONNECT_ESCAPE_TUNNEL       5
 #define CONNECT_END_MENU            6
 
-#define NETGAMEIPX                  1
-#define NETGAMETCP                  2
-
 #define NETWORK_TIMEOUT (15*F1_0) // 15 seconds disconnect timeout
 #define MAX_ACTIVE_NETGAMES     12
 

@@ -53,7 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #ifdef NETWORK
 #  include "network.h"
-#  include "ipx.h"
+#  include "netdrv.h"
 #  include "multi.h"
 #endif
 #include "scores.h"
@@ -139,8 +139,7 @@ void do_new_game_menu(void);
 #ifdef NETWORK
 void do_multi_player_menu(void);
 void do_ip_manual_join_menu();
-int ipx_udp_ConnectManual(char *addr);
-void ipx_set_driver(int ipx_driver);
+int UDPConnectManual(char *addr);
 #endif //NETWORK
 extern void newmenu_close();
 
@@ -367,8 +366,8 @@ void do_option ( int select)
 		case MENU_START_KALI_NETGAME:
 		case MENU_JOIN_KALI_NETGAME:
 			switch (select & ~0x1) {
-				case MENU_START_IPX_NETGAME: ipx_set_driver(IPX_DRIVER_IPX); break;
-				case MENU_START_KALI_NETGAME: ipx_set_driver(IPX_DRIVER_KALI); break;
+				case MENU_START_IPX_NETGAME: NetDrvSet(NETPROTO_IPX); break;
+				case MENU_START_KALI_NETGAME: NetDrvSet(NETPROTO_KALINIX); break;
 				default: Int3();
 			}
 
@@ -379,11 +378,11 @@ void do_option ( int select)
 			break;
 
 		case MENU_START_UDP_NETGAME:
-			ipx_set_driver(IPX_DRIVER_UDP);
+			NetDrvSet(NETPROTO_UDP);
 			network_start_game();
 			break;
 		case MENU_JOIN_UDP_NETGAME:
-			ipx_set_driver(IPX_DRIVER_UDP);
+			NetDrvSet(NETPROTO_UDP);
 			do_ip_manual_join_menu();
 			break;
 
@@ -925,38 +924,6 @@ void do_multi_player_menu()
 
 }
 
-/*
- * ipx_set_driver was called do_network_init and located in main/inferno
- * before the change which allows the user to choose the network driver
- * from the game menu instead of having to supply command line args.
- */
-void ipx_set_driver(int ipx_driver)
-{
-	ipx_close();
-
-	int ipx_error;
-
-	con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
-
-	arch_ipx_set_driver(ipx_driver);
-
-	if ((ipx_error = ipx_init(IPX_DEFAULT_SOCKET)) == IPX_INIT_OK) {
-		con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, IPX_DEFAULT_SOCKET );
-		Network_active = 1;
-	} else {
-		switch(ipx_error) {
-			case IPX_NOT_INSTALLED: con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK); break;
-			case IPX_SOCKET_TABLE_FULL: con_printf(CON_VERBOSE, "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET); break;
-			case IPX_NO_LOW_DOS_MEM: con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX ); break;
-			default: con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, ipx_error );
-		}
-		con_printf(CON_VERBOSE, "%s\n",TXT_NETWORK_DISABLED);
-		Network_active = 0; // Assume no network
-	}
-	ipx_read_user_file("descent.usr");
-	ipx_read_network_file("descent.net");
-}
-
 void do_ip_manual_join_menu()
 {
 	int menu_choice[3];
@@ -985,7 +952,7 @@ void do_ip_manual_join_menu()
 		choice = newmenu_do1( NULL, "ENTER IP OR HOSTNAME", num_options, m, NULL, choice );
 
 		if ( choice > -1 ){
-			ipx_udp_ConnectManual(buf);
+			UDPConnectManual(buf);
 		}
 
 		if (old_game_mode != Game_mode)

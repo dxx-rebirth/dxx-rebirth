@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080102
+--------
+SConstruct, arch/linux/netdrv_ipx.c, arch/linux/netdrv_kali.c, arch/win32/netdrv_ipx.c, main/menu.c, main/netdrv.c, main/netdrv.h, main/netmisc.c main/netmisc.h, main/network.c, main/network.h, main/udp.c, main/udp.h: Cleaned/Rewritten/Renamed lower level network layer to make it (look) less IPX-oriented
+
 20071229
 --------
 SConstruct, arch/sdl/digi.c, main/ai.c, main/game.h, main/gamepal.c, main/gameseq.c, main/inferno.c, main/kmatrix.c, main/laser.c, main/menu.c, main/mission.c, main/multi.c, main/multibot.c, main/network.c, main/network.h, main/object.c, main/object.h, main/physics.c, main/render.c: Code cleanup - old/unused/obsolete multiplayer code and more

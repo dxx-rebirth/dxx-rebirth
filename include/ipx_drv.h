@@ -1,5 +1,4 @@
-/* $Id: ipx_drv.h,v 1.1.1.1 2006/03/17 19:54:12 zicodxx Exp $ */
-
+/* $Id: ipx_drv.h,v 1.1.1.1 2006/03/17 19:53:51 zicodxx Exp $ */
 /*
  *
  * IPX driver interface
@@ -12,18 +11,17 @@
 
 #ifndef _IPX_DRV_H
 #define _IPX_DRV_H
+#include <sys/types.h>
+#ifdef _WIN32
+#include <winsock.h>
+#else
+#include <netinet/in.h> /* for htons & co. */
+#endif
+#include "pstypes.h"
 
 #define IPX_MANUAL_ADDRESS
 
-#include <winsock.h>
-
-#include "pstypes.h"
-
-#define MAX_PACKET_DATA 1500
-
-#ifdef _MSC_VER
-#pragma pack (push, 1)
-#endif
+#define MAX_PACKET_DATA		1500
 
 typedef struct IPXAddressStruct {
 	u_char Network[4];
@@ -39,10 +37,6 @@ typedef struct IPXPacketStructure {
 	IPXAddress_t Destination;
 	IPXAddress_t Source;
 } IPXPacket_t;
-
-#ifdef _MSC_VER
-#pragma pack (pop)
-#endif
 
 typedef struct ipx_socket_struct {
 	u_short socket;
