@@ -24,13 +24,12 @@ static char *__reference[2]={copyright,(char *)__reference};
 
 
 #include <stdio.h>
-#include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 #include <SDL/SDL.h>
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) || !defined(macintosh)
 #include <unistd.h>
 #endif
 

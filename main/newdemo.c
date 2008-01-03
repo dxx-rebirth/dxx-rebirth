@@ -15,7 +15,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>	// for memset
 #include <ctype.h>
-#include <malloc.h>
 #include <limits.h>
 #ifdef __unix__
    #include <sys/types.h>

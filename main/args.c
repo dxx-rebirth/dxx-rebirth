@@ -27,7 +27,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 
 #ifdef OGL
+#if defined(__APPLE__) && defined(__MACH__)
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
 #endif
 
 #define MAX_ARGS 1000

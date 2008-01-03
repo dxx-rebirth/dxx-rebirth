@@ -28,6 +28,10 @@ void   mem_validate_heap(); // Checks to see if any blocks are overwritten
 extern void * mem_malloc( unsigned int size, char * var, char * file, int line, int fill_zero );
 extern void * mem_realloc( void *ptr, unsigned int size, char * var, char * filename, int line, int fill_zero );
 extern void   mem_free( void * buffer );
+#else
+#ifdef macintosh
+extern char *strdup(const char *str);
+#endif
 #endif
 
 #define free(ptr)                  do{ free(ptr); ptr=NULL; } while(0)

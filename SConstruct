@@ -243,6 +243,11 @@ arch_win32_sources = [
 'arch/win32/mono.c',
 ]
 
+# for Mac OS X
+arch_macosx_sources = [
+'arch/cocoa/SDLMain.m'
+]
+
 # for opengl
 arch_ogl_sources = [
 'arch/ogl/gr.c',
@@ -288,6 +293,7 @@ arch_sdlmixer = [
 
 if (sdlmixer == 1):
         arch_linux_sources += arch_sdlmixer
+	arch_macosx_sources += arch_sdlmixer
 
 
 # flags and stuff for all platforms
@@ -333,6 +339,29 @@ if sys.platform == 'win32':
 	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
 	libs = winlibs + generic_libs
 	lflags = '-mwindows'
+elif sys.platform == 'darwin':
+	print "compiling on Mac OS X"
+	osdef = '__APPLE__'
+	env.Append(CPPDEFINES = ['__unix__'])
+	no_asm = 1
+	ogldefines = ['SDL_GL_VIDEO', 'OGL']
+	common_sources += arch_macosx_sources
+	ogllibs = ''
+	libs = ''
+	# Ugly way of linking to frameworks, but kreator has seen uglier
+	lflags = '-framework Cocoa -framework SDL -framework physfs'
+	if (sdl_only == 0):
+		lflags += ' -framework OpenGL'
+	if (sdlmixer == 1):
+		print "including SDL_mixer"
+		lflags += ' -framework SDL_mixer'
+	sys.path += ['./arch/cocoa']
+	VERSION = str(D1XMAJOR) + '.' + str(D1XMINOR)
+	if (D1XMICRO):
+		VERSION += '.' + str(D1XMICRO)
+	env['VERSION_NUM'] = VERSION
+	env['VERSION_NAME'] = PROGRAM_NAME + ' v' + VERSION
+	import tool_bundle
 else:
 	print "compiling on *NIX"
 	osdef = '__LINUX__'
@@ -368,7 +397,7 @@ else:
 	libs += ogllibs
 
 # SDL_mixer for sound? (*NIX only)
-if (sdlmixer == 1):
+if (sdlmixer == 1) and (sys.platform != 'darwin'):
 	print "including SDL_mixer"
 	libs += sdlmixerlib
 
@@ -422,8 +451,17 @@ print '\n'
 env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"' + str(sharepath) + '\\"')])
 # finally building program...
 env.Program(target=str(target), source = common_sources, LIBS = libs, LINKFLAGS = str(lflags))
-env.Install(BIN_DIR, str(target))
-env.Alias('install', BIN_DIR)
+if (sys.platform != 'darwin'):
+	env.Install(BIN_DIR, str(target))
+	env.Alias('install', BIN_DIR)
+else:
+	tool_bundle.TOOL_BUNDLE(env)
+	env.MakeBundle(PROGRAM_NAME + '.app', target,
+                       'free.d1x-rebirth', 'd1xgl-Info.plist',
+                       typecode='APPL', creator='DCNT',
+                       icon_file='arch/cocoa/d1x-rebirth.icns',
+                       subst_dict={'d1xgl' : target},	# This is required; manually update version for Xcode compatibility
+                       resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
 
 # show some help when running scons -h
 Help(PROGRAM_NAME + ', SConstruct file help:' +

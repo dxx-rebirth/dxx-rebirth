@@ -40,6 +40,7 @@
 
 /* Define this to be the shared game directory root */
 #define SHAREPATH ""
+#define DESCENT_DATA_PATH SHAREPATH
 
 /* Define if your processor needs data to be word-aligned */
 /* #undef WORDS_NEED_ALIGNMENT */
@@ -48,8 +49,6 @@
         /* General defines */
 //#define VERSION_NAME PACKAGE_STRING
 #define NMONO 1
-#define PIGGY_USE_PAGING 1
-#define NEWDEMO 1
 
 #if defined(__APPLE__) && defined(__MACH__)
 # define __unix__

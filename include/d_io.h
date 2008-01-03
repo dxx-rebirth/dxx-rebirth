@@ -5,7 +5,7 @@
 
 #if (defined(__MSDOS__) && !defined(__DJGPP__)) || defined(__WINDOWS__)
 #include <io.h>
-#else
+#elif !defined(macintosh)
 #include <unistd.h>
 #endif
 

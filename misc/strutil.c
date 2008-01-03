@@ -53,6 +53,59 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 
 
+#ifdef macintosh
+# if defined(NDEBUG)
+char *strdup(const char *str)
+{
+	char *newstr;
+	
+	newstr = malloc(strlen(str) + 1);
+	strcpy(newstr, str);
+	
+	return newstr;
+}
+# endif // NDEBUG
+
+// string compare without regard to case
+
+int stricmp( const char *s1, const char *s2 )
+{
+	int u1;
+	int u2;
+	
+	do {
+		u1 = toupper((int) *s1);
+		u2 = toupper((int) *s2);
+		if (u1 != u2)
+			return (u1 > u2) ? 1 : -1;
+		
+		s1++;
+		s2++;
+	} while (u1 && u2);
+	
+	return 0;
+}
+
+int strnicmp( const char *s1, const char *s2, int n )
+{
+	int u1;
+	int u2;
+	
+	do {
+		u1 = toupper((int) *s1);
+		u2 = toupper((int) *s2);
+		if (u1 != u2)
+			return (u1 > u2) ? 1 : -1;
+		
+		s1++;
+		s2++;
+		n--;
+	} while (u1 && u2 && n);
+	
+	return 0;
+}
+#endif // macintosh
+
 #ifdef _MSC_VER
 int strcasecmp( char *s1, char *s2 )
 { return _stricmp(s1,s2); }
@@ -62,36 +115,8 @@ int strncasecmp(char *s1, char *s2, int n)
 
 #endif
 
-#if ((!defined(__WINDOWS__) && !defined(__DJGPP__)) || defined(__LCC__))
-// string compare without regard to case
-
-#define strcmpi(a,b) stricmp(a,b)
-
-int stricmp( const char *s1, const char *s2 )
-{
-	while( *s1 && *s2 )	{
-		if ( tolower(*s1) != tolower(*s2) )	return 1;
-		s1++;
-		s2++;
-	}
-	if ( *s1 || *s2 ) return 1;
-	return 0;
-}
-
-
-#ifndef __LCC__
-
-int strnicmp( const char *s1, const char *s2, int n )
-{
-	while( *s1 && *s2 && n)	{
-		if ( tolower(*s1) != tolower(*s2) )	return 1;
-		s1++;
-		s2++;
-		n--;
-	}
-	return 0;
-}
-
+#ifndef __WINDOWS__
+#ifndef __DJGPP__
 void strlwr( char *s1 )
 {
 	while( *s1 )	{
@@ -112,15 +137,14 @@ void strupr( char *s1 )
 
 void strrev( char *s1 )
 {
-	int i,l;
-	char *s2;
-	
-        s2 = (char *) malloc(strlen(s1) + 1);
-	strcpy(s2, s1);
-	l = strlen(s2);
-	for (i = 0; i < l; i++)
-		s1[l-1-i] = s2[i];
-        free(s2);
+	char *h, *t;
+	h = s1;
+	t = s1 + strlen(s1) - 1;
+	while (h < t) {
+		char c;
+		c = *h;
+		*h++ = *t;
+		*t-- = c;
+	}
 }
-
 #endif

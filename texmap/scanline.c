@@ -1144,6 +1144,8 @@ void select_tmap(char *type){
 	if (!type){
 #ifndef NO_ASM
 		select_tmap("i386");
+#elif defined(macintosh)
+		select_tmap("ppc");
 #else
 		select_tmap("c");
 #endif
@@ -1174,6 +1176,16 @@ void select_tmap(char *type){
 		cur_tmap_scanline_flat=asm_tmap_scanline_flat;
 		cur_tmap_scanline_shaded=asm_tmap_scanline_shaded;
 	}
+	else
+#elif defined(macintosh)
+		if (stricmp(type,"ppc")==0){
+			cur_tmap_scanline_per=asm_tmap_scanline_per;
+			cur_tmap_scanline_per_nolight=asm_tmap_scanline_per;
+			cur_tmap_scanline_lin=c_tmap_scanline_lin;
+			cur_tmap_scanline_lin_nolight=c_tmap_scanline_lin_nolight;
+			cur_tmap_scanline_flat=c_tmap_scanline_flat;
+			cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
+		}
 	else
 #endif
 	if (stricmp(type,"fp")==0){

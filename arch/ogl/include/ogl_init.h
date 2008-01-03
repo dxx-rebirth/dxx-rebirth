@@ -11,7 +11,12 @@
 #include "loadgl.h"
 int ogl_init_load_library(void);
 #else
+#if defined(__APPLE__) && defined(__MACH__)
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
+#endif
 #endif
 
 #ifndef GL_VERSION_1_1

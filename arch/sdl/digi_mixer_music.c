@@ -24,7 +24,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef macintosh
 #include <unistd.h>
+#endif
 #include <errno.h>
 #include "cfile.h"
 

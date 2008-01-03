@@ -18,7 +18,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <stdio.h>
-#include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -31,8 +30,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MSC_VER
 #include <unistd.h>
 #else
+#ifndef macintosh
 #include <io.h>
 #define access(a,b) _access(a,b)
+#endif
 #endif
 #include <SDL/SDL.h>
 #ifdef OGL

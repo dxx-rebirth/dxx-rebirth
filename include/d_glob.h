@@ -4,7 +4,7 @@
 #define _D_GLOB
 
 #include <stdlib.h>
-#if defined(__DJGPP__) || defined(__LINUX__)
+#if defined(__DJGPP__) || defined(__unix__)
 #include <glob.h>
 typedef glob_t d_glob_t;
 #define d_glob(p,g) glob(p,0,NULL,g)

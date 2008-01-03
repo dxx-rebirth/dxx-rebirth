@@ -63,8 +63,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef long ssize_t;
 #endif
 
-#ifdef __DJGPP__
+#if defined(__DJGPP__) || defined(__unix__)
 #include <sys/types.h>
+#endif
+#ifdef __DJGPP__
 typedef unsigned char u_char;  // ehhh?
 #endif
 
@@ -73,15 +75,36 @@ typedef signed char sbyte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
+#if defined(__WINDOWS__) || defined(macintosh)
+typedef unsigned short ushort;
+typedef unsigned int uint;
+#endif
 
-#if defined(__WINDOWS__)
+#if defined(__WINDOWS__) || defined(__sun__) // platforms missing (u_)int??_t
 # include <SDL/SDL_types.h>
- typedef unsigned short ushort;
- typedef unsigned int uint;
- typedef Uint16 u_int16_t;
- typedef Uint32 u_int32_t;
- typedef Uint64 u_int64_t;
-#endif // defined(__WINDOWS__)
+#elif defined(macintosh) // misses (u_)int??_t and does not like SDL_types.h
+# include <MacTypes.h>
+typedef SInt16 int16_t;
+typedef SInt32 int32_t;
+typedef SInt64 int64_t;
+typedef UInt16 u_int16_t;
+typedef UInt32 u_int32_t;
+typedef UInt64 u_int64_t;
+#endif // macintosh
+#if defined(__WINDOWS__) || defined(__sun__) // platforms missing u_int??_t
+typedef Uint16 u_int16_t;
+typedef Uint32 u_int32_t;
+typedef Uint64 u_int64_t;
+#endif // defined(__WINDOWS__) || defined(__sun__)
+
+#ifndef min
+#define min(a,b) ((a) < (b) ? (a) : (b)) /* WARNING! sideeffect sensitive */
+#define max(a,b) ((a) > (b) ? (a) : (b)) /* WARNING! sideeffect sensitive */
+#endif
+#ifndef MIN
+#define MIN min
+#define MAX max
+#endif
 
 #ifndef __cplusplus
 //define a boolean
@@ -103,23 +126,20 @@ typedef ubyte bool;
 #endif
 
 #ifdef __GNUC__
-#define __pack__ __attribute__ ((packed))
+# define __pack__ __attribute__((packed))
+#elif defined(_MSC_VER)
+# pragma pack(push, packing)
+# pragma pack(1)
+# define __pack__
+#elif defined(macintosh)
+# pragma options align=packed
+# define __pack__
 #else
-#define __pack__
-#endif
-
-#ifndef min
-#define min(a,b) ((a) < (b) ? (a) : (b)) /* WARNING! sideeffect sensitive */
-#define max(a,b) ((a) > (b) ? (a) : (b)) /* WARNING! sideeffect sensitive */
-#endif
-#ifndef MIN
-#define MIN min
-#define MAX max
+# error d2x will not work without packed structures
 #endif
 
 
 #ifdef _MSC_VER
-#pragma pack (1)
 #pragma warning (disable: 4103)
 #ifndef inline
 #define inline _inline

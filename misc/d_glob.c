@@ -7,7 +7,7 @@
 #include "u_mem.h"
 //end addition -MM
 
-#if defined(__DJGPP__) || defined(__LINUX__)
+#if defined(__DJGPP__) || defined(__unix__)
 
 //nothing to do, but we don't want to fall into the #error below.
 

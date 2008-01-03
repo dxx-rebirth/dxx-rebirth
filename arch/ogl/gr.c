@@ -13,10 +13,12 @@
 #include <windows.h>
 #include <dir.h>
 #endif
+#ifndef macintosh
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#endif
 #include <errno.h>
 #include <limits.h>
 
@@ -40,7 +42,12 @@
 #include "render.h"
 
 #include "ogl_init.h"
+
+#if defined(__APPLE__) && defined(__MACH__)
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
 
 int gr_installed = 0;
 void gr_palette_clear(); // Function prototype for gr_init;
@@ -133,6 +140,12 @@ void ogl_get_verinfo(void){
 		GameArg.DbgGlReadPixelsOk=0;//either just returns all black, or kills the X server entirely
 		GameArg.DbgGlGetTexLevelParamOk=0;//returns random data..
 	}
+
+#ifdef macintosh
+	if (stricmp(gl_renderer,"3dfx Voodoo 3")==0){ // strangely, includes Voodoo 2
+		GameArg.DbgGlGetTexLevelParamOk=0; // Always returns 0
+	}
+#endif
 
 #ifndef NDEBUG
 	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp:%i\n",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk,GameArg.DbgGlSetGammaRampOk);

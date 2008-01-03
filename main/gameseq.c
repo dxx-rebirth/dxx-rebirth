@@ -18,7 +18,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #include <stdio.h>
-#include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
