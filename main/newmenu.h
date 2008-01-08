@@ -156,7 +156,10 @@ int nm_messagebox_fixedfont( char *title, int nchoices, ... );
 #define NEWMENU_MOUSE
 
 #  include <SDL/SDL.h>
-#  define newmenu_show_cursor() SDL_ShowCursor(SDL_ENABLE)
+#  define newmenu_show_cursor() if (!GameArg.CtlNoMouse) SDL_ShowCursor(SDL_ENABLE)
 #  define newmenu_hide_cursor() SDL_ShowCursor(SDL_DISABLE)
 
+
+#define UP_ARROW_MARKER     "+"  // 135
+#define DOWN_ARROW_MARKER   "+"  // 136
 

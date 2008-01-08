@@ -76,12 +76,15 @@ typedef struct bkg {
 grs_bitmap nm_background;
 grs_bitmap nm_background1;
 
+#define MAXDISPLAYABLEITEMS 15
 #define MESSAGEBOX_TEXT_SIZE 2176		// How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
 #define MAX_TEXT_WIDTH 	FONTSCALE_X((GameArg.GfxUseHiresFont)?240:120)	// How many pixels wide a input box can be
 
 // ZICO - since the background is rescaled the bevels do the same. because of this we need bigger borders or the fonts would be printed inside the bevels...
 #define MENSCALE_X ((double)(SWIDTH/320))
 #define MENSCALE_Y ((double)(SHEIGHT/200))
+#define LHX(x)      (FONTSCALE_X((x)*((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?2:1)))
+#define LHY(y)      (FONTSCALE_Y((y)*((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?2.4:1)))
 
 extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
@@ -286,7 +289,7 @@ void nm_rstring( bkg * b,int w1,int x, int y, char * s )
 }
 
 //for text items, constantly redraw cursor (to achieve flash)
-void update_cursor( newmenu_item *item)
+void update_cursor( newmenu_item *item, int ScrollOffset)
 {
 	int w,h,aw;
 	fix time = timer_get_approx_seconds();
@@ -304,7 +307,7 @@ void update_cursor( newmenu_item *item)
 	}
 	if (*text==0) 
 		w = 0;
-	x = item->x+w; y = item->y;
+	x = item->x+w; y = item->y - FONTSCALE_Y(grd_curcanv->cv_font->ft_h+1)*ScrollOffset;
 
 	if (time & 0x8000)
 		gr_string( x, y, CURSOR_STRING );
@@ -526,7 +529,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 {
 	int old_keyd_repeat, done;
 	int  choice,old_choice,i,j,x,y,w,h,aw, tw, th, twidth,fm,right_offset;
-	int k, nmenus, nothers;
+	int k, nmenus, nothers,ScrollOffset=0,LastScrollCheck=-1,MaxDisplayable,sx,sy;
 	grs_canvas * save_canvas;
 	grs_font * save_font;
 	int string_width, string_height, average_width;
@@ -534,6 +537,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	bkg bg;
 	int all_text=0; //set true if all text items
 	int sound_stopped=0, time_stopped=0;
+	int MaxOnMenu=MAXDISPLAYABLEITEMS;
+	int TopChoice,IsScrollBox=0;   // Is this a scrolling box? Set to false at init
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, dblclick_flag=0;
 	int mx=0, my=0, mz=0, x1 = 0, x2, y1, y2;
@@ -542,6 +547,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 	if (nitems < 1 )
 		return -1;
+
+        MaxDisplayable=nitems;
 
 	if ( Function_mode == FMODE_GAME )	{
 		digi_pause_all();
@@ -672,6 +679,16 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			aw = average_width;
 		h += string_height+(FONTSCALE_Y(1));		// Find the height of all strings
 	}
+
+	if (!TinyMode && i > MaxOnMenu) //(h>((MaxOnMenu+FONTSCALE_Y(1))*(string_height+1))+(LHY(8))))
+	{
+		IsScrollBox=1;
+		h=(MaxOnMenu*(string_height+FONTSCALE_Y(1))+LHY(8));
+		MaxDisplayable=MaxOnMenu;
+		mprintf ((0,"Hey, this is a scroll box!\n"));
+	}
+	else
+		IsScrollBox=0;
 
 	right_offset=0;
 
@@ -828,6 +845,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		}
 	}
 	done = 0;
+	TopChoice=choice;
         gr_update();
 	// Clear mouse, joystick to clear button presses.
 	game_flush_inputs();
@@ -929,8 +947,28 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			if (all_text) break;
 			do {
 				choice--;
-				if (choice >= nitems ) choice=0;
-				if (choice < 0 ) choice=nitems-1;
+
+				if (IsScrollBox)
+				{
+					LastScrollCheck=-1;
+					mprintf ((0,"Scrolling! Choice=%d\n",choice));
+						
+					if (choice<TopChoice)
+						{ choice=TopChoice; break; }
+			
+					if (choice-4<ScrollOffset && ScrollOffset > 0)
+					{
+						for (i=0;i<nitems;i++)
+							item[i].redraw=1;
+						ScrollOffset--;
+						mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
+					}
+				}
+				else
+				{
+					if (choice >= nitems ) choice=0;
+					if (choice < 0 ) choice=nitems-1;
+				}
 			} while ( item[choice].type==NM_TYPE_TEXT );
 			if ((item[choice].type==NM_TYPE_INPUT) && (choice!=old_choice))	
 				item[choice].value = -1;
@@ -948,9 +986,30 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		case KEY_PAD2:
 			if (all_text) break;
 			do {
-				choice++;
-				if (choice < 0 ) choice=nitems-1;
-				if (choice >= nitems ) choice=0;
+					choice++;
+	
+				if (IsScrollBox)
+				{
+					LastScrollCheck=-1;
+					mprintf ((0,"Scrolling! Choice=%d\n",choice));
+						
+					if (choice==nitems)
+						{ choice--; break; }
+		
+					if (choice+4>=MaxOnMenu+ScrollOffset && ScrollOffset < nitems-MaxOnMenu)
+					{
+						for (i=0;i<nitems;i++)
+								item[i].redraw=1;
+						ScrollOffset++;
+						mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
+					}
+				}
+				else
+				{
+					if (choice < 0 ) choice=nitems-1;
+						if (choice >= nitems ) choice=0;
+				}
+
 			} while ( item[choice].type==NM_TYPE_TEXT );
 			if ((item[choice].type==NM_TYPE_INPUT) && (choice!=old_choice))	
 				item[choice].value = -1;
@@ -975,6 +1034,16 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 						item[choice].value = 0;
 					else
 						item[choice].value = 1;
+					mprintf ((0,"ISB=%d MDI=%d SO=%d choice=%d\n",IsScrollBox,MAXDISPLAYABLEITEMS,ScrollOffset,choice));
+					if (IsScrollBox)
+					{
+						if (choice==(MaxOnMenu+ScrollOffset-1) || choice==ScrollOffset)
+						{
+							mprintf ((0,"Special redraw!\n"));
+							LastScrollCheck=-1;
+						}
+					}
+				
 					item[choice].redraw=1;
 					break;
 				case NM_TYPE_RADIO:
@@ -1037,16 +1106,16 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		if ( !done && mouse_state && !omouse_state && !all_text ) {
 			mouse_get_pos(&mx, &my, &mz);
 			for (i=0; i<nitems; i++ )	{
-				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x - item[i].right_offset - 6;
-				x2 = x1 + item[i].w;
+				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?22:10) /*- item[i].right_offset - 6*/;
+				x2 = x1 + item[i].w+FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?22:10);
 				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
 				y2 = y1 + item[i].h;
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-					if (i != choice) {
+					if (i+ScrollOffset != choice) {
 						if(Hack_DblClick_MenuMode) dblclick_flag = 0; 
 					}
 					
-					choice = i;
+					choice = i + ScrollOffset;
 
 					switch( item[choice].type )	{
 					case NM_TYPE_CHECK:
@@ -1055,6 +1124,9 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 						else
 							item[choice].value = 1;
 						item[choice].redraw=1;
+
+						if (IsScrollBox)
+							LastScrollCheck=-1;
 						break;
 					case NM_TYPE_RADIO:
 						for (i=0; i<nitems; i++ )	{
@@ -1078,18 +1150,65 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		
 		if ( !done && mouse_state && !all_text ) {
 			mouse_get_pos(&mx, &my, &mz);
-
+			
+			// check possible scrollbar stuff first
+			if (IsScrollBox) {
+				int arrow_width, arrow_height, aw;
+				
+				if (ScrollOffset != 0) {
+					gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
+					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset].x-FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?22:10);
+		          		y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
+					x1 = x2 - arrow_width;
+					y2 = y1 + arrow_height;
+					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+						choice--;
+						LastScrollCheck=-1;
+						mprintf ((0,"Scrolling! Choice=%d\n",choice));
+								
+						if (choice<ScrollOffset)
+						{
+							for (i=0;i<nitems;i++)
+								item[i].redraw=1;
+							ScrollOffset--;
+							mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
+						}
+					}
+				}
+				if (ScrollOffset+MaxDisplayable<nitems) {
+					gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
+					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset+MaxDisplayable-1].x-FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?22:10);
+					y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset+MaxDisplayable-1].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
+					x1 = x2 - arrow_width;
+					y2 = y1 + arrow_height;
+					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+						choice++;
+						LastScrollCheck=-1;
+						mprintf ((0,"Scrolling! Choice=%d\n",choice));
+								
+						if (choice>=MaxOnMenu+ScrollOffset)
+						{
+							for (i=0;i<nitems;i++)
+									item[i].redraw=1;
+							ScrollOffset++;
+							mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
+						}
+					}
+				}
+			}
+			
 			for (i=0; i<nitems; i++ )	{
-				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x - item[i].right_offset - 6;
-				x2 = x1 + item[i].w;
+				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?22:10);
+				x2 = x1 + item[i].w+FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?22:10);
 				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
 				y2 = y1 + item[i].h;
+
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (item[i].type != NM_TYPE_TEXT) ) {
-					if (i != choice) {
+					if (i+ScrollOffset != choice) {
 						if(Hack_DblClick_MenuMode) dblclick_flag = 0; 
 					}
 
-					choice = i;
+					choice = i + ScrollOffset;
 
 					if ( item[choice].type == NM_TYPE_SLIDER ) {
 						char slider_text[NM_MAX_TEXT_LEN+1], *p, *s1;
@@ -1148,23 +1267,25 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		
 		if ( !done && !mouse_state && omouse_state && !all_text && (choice != -1) && (item[choice].type == NM_TYPE_MENU) ) {
 			mouse_get_pos(&mx, &my, &mz);
-			x1 = grd_curcanv->cv_bitmap.bm_x + item[choice].x;
-			x2 = x1 + item[choice].w;
-			y1 = grd_curcanv->cv_bitmap.bm_y + item[choice].y;
-			y2 = y1 + item[choice].h;
-			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-				if (Hack_DblClick_MenuMode) {
-					if (dblclick_flag) done = 1;
-					else dblclick_flag = 1;
+			for (i=0; i<nitems; i++ )	{
+				x1 = grd_curcanv->cv_bitmap.bm_x + item[i].x-FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?22:10);
+				x2 = x1 + item[i].w+FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?22:10);
+				y1 = grd_curcanv->cv_bitmap.bm_y + item[i].y;
+				y2 = y1 + item[i].h;
+				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+					if (Hack_DblClick_MenuMode) {
+						if (dblclick_flag) done = 1;
+						else dblclick_flag = 1;
+					}
+					else done = 1;
 				}
-				else done = 1;
 			}
 		}
-		
+
 		if ( !done && !mouse_state && omouse_state && (choice>-1) && (item[choice].type==NM_TYPE_INPUT_MENU) && (item[choice].group==0))	{
 			item[choice].group = 1;
 			item[choice].redraw = 1;
-			if ( !/*strnicmp*/strncasecmp( item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
+			if ( !strncasecmp( item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
 				item[choice].text[0] = 0;
 				item[choice].value = -1;
 			} else {
@@ -1183,6 +1304,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 				done = 1;
 			}
 		}
+
 #endif // NEWMENU_MOUSE
 
 		if ( (choice > -1) && (k != -1))	{
@@ -1217,6 +1339,46 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 							item[choice].redraw=1;	
 						}
 					}
+				}
+			}
+			else if ((item[choice].type!=NM_TYPE_INPUT) && (item[choice].type!=NM_TYPE_INPUT_MENU) )
+			{
+				ascii = key_to_ascii(k);
+				if (ascii < 255 ) {
+					int choice1 = choice;
+					ascii = toupper(ascii);
+					do {
+						int i,ch;
+						choice1++;
+						if (choice1 >= nitems )
+							choice1=0;
+
+						for (i=0;(ch=item[choice1].text[i])!=0 && ch==' ';i++);
+
+						if ( ( (item[choice1].type==NM_TYPE_MENU) ||
+								(item[choice1].type==NM_TYPE_CHECK) ||
+								(item[choice1].type==NM_TYPE_RADIO) ||
+								(item[choice1].type==NM_TYPE_NUMBER) ||
+								(item[choice1].type==NM_TYPE_SLIDER) )
+								&& (ascii==toupper(ch)) )
+						{
+							k = 0;
+							choice = choice1;
+							if (old_choice>-1)
+								item[old_choice].redraw=1;
+							item[choice].redraw=1;
+						}
+
+						while (choice > ScrollOffset+MaxDisplayable-1)
+						{
+							ScrollOffset++;
+						}
+						while (choice < ScrollOffset)
+						{
+							ScrollOffset--;
+						}
+
+					} while (choice1 != choice );
 				}
 			}
 
@@ -1255,31 +1417,60 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		}
 
 		gr_set_current_canvas(bg.menu_canvas);
+		for (i=ScrollOffset; i<MaxDisplayable+ScrollOffset; i++ )
+		{
 #ifndef OGL
-		// Redraw everything...
-		for (i=0; i<nitems; i++ )	{
-			if (item[i].redraw)	{
-                                draw_item( &bg, &item[i], (i==choice && !all_text), TinyMode );
+			if (item[i].redraw) // warning! ugly hack below
+#endif
+			{
+				item[i].y-=((string_height+FONTSCALE_Y(1))*ScrollOffset);
+#ifndef OGL
+				newmenu_hide_cursor();
+#endif
+				draw_item( &bg, &item[i], (i==choice && !all_text),TinyMode );
+#ifndef OGL
 				item[i].redraw=0;
+#endif
 #ifdef NEWMENU_MOUSE
 				newmenu_show_cursor();
 #endif
+				item[i].y+=((string_height+FONTSCALE_Y(1))*ScrollOffset);
 			}
-			else if (i==choice && (item[i].type==NM_TYPE_INPUT || (item[i].type==NM_TYPE_INPUT_MENU && item[i].group)))
-				update_cursor( &item[i]);
-		}
-#else
-		// Redraw everything...
-		for (i=0; i<nitems; i++ )	{
-			draw_item( &bg, &item[i], (i==choice && !all_text), TinyMode );
-#ifdef NEWMENU_MOUSE
-			newmenu_show_cursor();
-#endif
 			if (i==choice && (item[i].type==NM_TYPE_INPUT || (item[i].type==NM_TYPE_INPUT_MENU && item[i].group)))
-				update_cursor( &item[i]);
+				update_cursor( &item[i],ScrollOffset);
 		}
-#endif
+
 		gr_update();
+
+		if (IsScrollBox)
+		{
+#ifndef OGL
+			if (LastScrollCheck!=ScrollOffset)
+#endif
+			{
+				LastScrollCheck=ScrollOffset;
+				grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_2];
+						
+				sy=item[ScrollOffset].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
+				sx=item[ScrollOffset].x-FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?22:10);
+						
+			
+				if (ScrollOffset!=0)
+					nm_rstring( &bg, ((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?20:10), sx, sy, UP_ARROW_MARKER );
+				else
+					nm_rstring( &bg, ((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?20:10), sx, sy, "  " );
+		
+				sy=item[ScrollOffset+MaxDisplayable-1].y-((string_height+FONTSCALE_Y(1))*ScrollOffset);
+				sx=item[ScrollOffset+MaxDisplayable-1].x-FONTSCALE_X((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?22:10);
+			
+				if (ScrollOffset+MaxDisplayable<nitems)
+					nm_rstring( &bg, ((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?20:10), sx, sy, DOWN_ARROW_MARKER );
+				else
+				nm_rstring( &bg, ((GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)?20:10), sx, sy, "  " );
+		
+			}
+		
+		}
 
 		if ( gr_palette_faded_out )	{
 			gr_palette_fade_in( gr_palette, 32, 0 );

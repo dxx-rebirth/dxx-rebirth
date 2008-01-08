@@ -1886,8 +1886,6 @@ void network_more_game_options ()
 
 	if (NetDrvType() != NETPROTO_UDP)
 	{
-		opt_short_packets=opt;
-		m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short packets"; m[opt].value=(Netgame.flags & NETFLAG_SHORTPACKETS); opt++;
 		opt_protover=opt;
 		m[opt].type = NM_TYPE_CHECK; m[opt].text = "VERSION CHECK"; m[opt].value=(Netgame.protocol_version == MULTI_PROTO_D1X_VER); opt++;
 		m[opt].type = NM_TYPE_TEXT; m[opt].text = "Option(s) below need version checking"; opt++;
@@ -1895,6 +1893,8 @@ void network_more_game_options ()
 		opt_socket = opt;
 		m[opt].type = NM_TYPE_INPUT; m[opt].text = socket_string; m[opt].text_len=4; opt++;
 	}
+	opt_short_packets=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short packets"; m[opt].value=(Netgame.flags & NETFLAG_SHORTPACKETS); opt++;
 	opt_setpower = opt;
 	m[opt].type = NM_TYPE_MENU; m[opt].text = "Set objects allowed..."; opt++;
 
