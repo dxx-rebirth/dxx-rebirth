@@ -159,12 +159,16 @@ int NetDrvSet(int arg)
 
 	switch (arg)
 	{
+#ifndef __APPLE__
 		case NETPROTO_IPX:
 			driver = &netdrv_ipx;
 			break;
+#endif
+#ifdef __LINUX__
 		case NETPROTO_KALINIX:
 			driver = &netdrv_kali;
 			break;
+#endif
 		case NETPROTO_UDP:
 			driver = &netdrv_udp;
 			break;
