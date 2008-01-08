@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "object.h"
 #include "error.h"
-#include "netmisc.h"
+#include "netpkt.h"
 #include "laser.h"
 #include "gamesave.h"
 #include "gamemine.h"
@@ -111,11 +111,9 @@ frame_info 	MySyncPack;
 ubyte		MySyncPackInitialized = 0;		// Set to 1 if the MySyncPack is zeroed.
 ushort 		my_segments_checksum = 0;
 
-// ugly, yes - Force Version checking or give option to do so?
-// We basically only need this because we want multi compability to other D1 versions
-int ForceVersionCheck = 0;
-
 int restrict_mode = 0;
+
+int IPX_Socket=0;
 
 sequence_packet My_Seq;
 
@@ -168,11 +166,11 @@ int network_change_socket(int new_socket)
                 new_socket  = 0x8000 - IPX_DEFAULT_SOCKET;
         if ( new_socket+IPX_DEFAULT_SOCKET < 0 )
                 new_socket  = IPX_DEFAULT_SOCKET;
-        if (new_socket != GameArg.MplIPXSocketOffset) {
-                GameArg.MplIPXSocketOffset = new_socket;
-                mprintf(( 0, "Changing to socket %d\n", GameArg.MplIPXSocketOffset ));
+        if (new_socket != IPX_Socket) {
+                IPX_Socket = new_socket;
+                mprintf(( 0, "Changing to socket %d\n", IPX_Socket ));
                 network_listen();
-                NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
+                NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
                 return 1;
         }
         return 0;
@@ -440,6 +438,17 @@ network_disconnect_player(int playernum)
 	if (playernum == Player_num) 
 	{
 		Int3(); // Weird, see Rob
+		return;
+	}
+
+	if (playernum==0 && NetDrvType() == NETPROTO_UDP) // Host has left - Quit game!
+	{
+		Function_mode = FMODE_MENU;
+		nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
+		multi_quit_game = 1;
+		multi_leave_menu = 1;
+		multi_reset_stuff();
+		longjmp(LeaveGame,1);  // because the other crap didn't work right
 		return;
 	}
 
@@ -1162,6 +1171,9 @@ network_send_endlevel_sub(int player_num)
 {
 	endlevel_info end;
 	int i;
+#ifdef WORDS_BIGENDIAN
+	int j;
+#endif
 
 	// Send an endlevel packet for a player
 	end.type 		= PID_ENDLEVEL;
@@ -1173,6 +1185,11 @@ network_send_endlevel_sub(int player_num)
 	//added 05/18/99 Matt Mueller - it doesn't use the rest, but we should at least initialize it :)
 	memset(end.kill_matrix[1], 0, (MAX_PLAYERS-1)*MAX_PLAYERS*sizeof(short));
 	//end addition -MM
+#ifdef WORDS_BIGENDIAN
+	for (i = 0; i < MAX_PLAYERS; i++)
+		for (j = 0; j < MAX_PLAYERS; j++)
+			end.kill_matrix[i][j] = INTEL_SHORT(end.kill_matrix[i][j]);
+#endif
 
 	if (Players[player_num].connected == 1) // Still playing
 	{
@@ -1347,6 +1364,15 @@ void network_process_packet(ubyte *data, int length )
 {
 	sequence_packet *their = (sequence_packet *)data;
 
+#ifdef WORDS_BIGENDIAN
+	sequence_packet tmp_packet;
+
+	memset(&tep_packet, 0, sizeof(sequence_packet));
+
+	receive_sequence_packet(data, &tmp_packet);
+	their = &tmp_packet;                                            // reassign their to point to correctly alinged structure
+#endif
+
 //	mprintf( (0, "Got packet of length %d, type %d\n", length, their->type ));
 	
 //	if ( length < sizeof(sequence_packet) ) return;
@@ -1503,7 +1529,16 @@ network_read_endlevel_packet( ubyte *data )
 	// Special packet for end of level syncing
 
 	int playernum;
-	endlevel_info *end;	
+	endlevel_info *end;
+#ifdef WORDS_BIGENDIAN
+	int i, j;
+
+	for (i = 0; i < MAX_PLAYERS; i++)
+		for (j = 0; j < MAX_PLAYERS; j++)
+			end->kill_matrix[i][j] = INTEL_SHORT(end->kill_matrix[i][j]);
+	end->kills = INTEL_SHORT(end->kills);
+	end->killed = INTEL_SHORT(end->killed);
+#endif
 
 	endlevel_info end_data;
 	end = &end_data;
@@ -1820,7 +1855,7 @@ void network_set_power (void)
 }
 
 static int opt_cinvul, opt_team_anarchy, opt_coop, opt_show_on_map, opt_closed, opt_refuse, opt_maxnet;
-static int opt_setpower,opt_show_on_map, opt_difficulty,opt_packets,opt_short_packets;
+static int opt_setpower,opt_show_on_map, opt_difficulty,opt_packets,opt_short_packets, opt_socket;
 static int last_maxnet, last_cinvul=0;
 
 void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int citem );
@@ -1829,9 +1864,10 @@ void network_more_game_options ()
 {
 	int opt=0,i;
 	int opt_protover=-1;
-	char srinvul[50],packstring[5];
+	char srinvul[50],packstring[5],socket_string[5];
 	newmenu_item m[21];
 
+	sprintf (socket_string,"%d",IPX_Socket);
 	sprintf (packstring,"%d",Netgame.packets_per_sec);
 	
 	opt_difficulty = opt;
@@ -1843,19 +1879,21 @@ void network_more_game_options ()
 
 	opt_show_on_map=opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP); opt_show_on_map=opt; opt++;
-	
-	opt_short_packets=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short packets"; m[opt].value=(Netgame.flags & NETFLAG_SHORTPACKETS); opt++;
-	
+
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Packets per second (2 - 20)"; opt++;
 	opt_packets=opt;
 	m[opt].type = NM_TYPE_INPUT; m[opt].text=packstring; m[opt].text_len=2; opt++;
 
-	if (!ForceVersionCheck)
+	if (NetDrvType() != NETPROTO_UDP)
 	{
+		opt_short_packets=opt;
+		m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short packets"; m[opt].value=(Netgame.flags & NETFLAG_SHORTPACKETS); opt++;
 		opt_protover=opt;
 		m[opt].type = NM_TYPE_CHECK; m[opt].text = "VERSION CHECK"; m[opt].value=(Netgame.protocol_version == MULTI_PROTO_D1X_VER); opt++;
 		m[opt].type = NM_TYPE_TEXT; m[opt].text = "Option(s) below need version checking"; opt++;
+		m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network socket"; opt++;
+		opt_socket = opt;
+		m[opt].type = NM_TYPE_INPUT; m[opt].text = socket_string; m[opt].text_len=4; opt++;
 	}
 	opt_setpower = opt;
 	m[opt].type = NM_TYPE_MENU; m[opt].text = "Set objects allowed..."; opt++;
@@ -1886,26 +1924,37 @@ menu:
 	}
 
 	mprintf ((0,"Hey! Sending out %d packets per second\n",Netgame.PacketsPerSec));
+
+	if (NetDrvType() != NETPROTO_UDP)
+	{
+		if (m[opt_protover].value)
+			Netgame.protocol_version = MULTI_PROTO_D1X_VER;
+		else
+			Netgame.protocol_version = MULTI_PROTO_VERSION;
+
+		if ((atoi(socket_string))!=IPX_Socket)
+		{
+			IPX_Socket=atoi(socket_string);
+			NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
+		}
+	}
 	
-	if (m[opt_short_packets].value)
+	if (m[opt_short_packets].value && Netgame.protocol_version == MULTI_PROTO_D1X_VER)
+	{
+		Network_short_packets = 1;
 		Netgame.flags |= NETFLAG_SHORTPACKETS;
+	}
 	else
+	{
+		Network_short_packets = 0;
 		Netgame.flags &= ~NETFLAG_SHORTPACKETS;
-	Network_short_packets = m[opt_short_packets].value;
+	}
 
 	Netgame.difficulty=Difficulty_level = m[opt_difficulty].value;
 	if (m[opt_show_on_map].value)
 		Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
 	else
 		Netgame.game_flags &= ~NETGAME_FLAG_SHOW_MAP;
-
-	if (!ForceVersionCheck)
-	{
-		if (m[opt_protover].value)
-			Netgame.protocol_version = MULTI_PROTO_D1X_VER;
-		else
-			Netgame.protocol_version = MULTI_PROTO_VERSION;
-	}
 }
 
 void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int citem )
@@ -2189,6 +2238,12 @@ void network_read_sync_packet( ubyte * data, int d1x )
 	netgame_info *sp = &Netgame;
 
 	char temp_callsign[CALLSIGN_LEN+1];
+#ifdef WORDS_BIGENDIAN
+	netgame_info tmp_info;
+
+	receive_d1x_netgame_packet((ubyte *)sp, &tmp_info);
+	sp = &tmp_info;
+#endif
 	
 	// This function is now called by all people entering the netgame.
 
@@ -2242,8 +2297,15 @@ void network_read_sync_packet( ubyte * data, int d1x )
 		memcpy( Players[i].callsign, sp->players[i].callsign, CALLSIGN_LEN+1 );
 
 #ifndef SHAREWARE
+#ifdef WORDS_NEED_ALIGNMENT
+		uint server;
+		memcpy(&server, TempPlayersInfo->players[i].server, 4);
+		if (server != 0)
+			NetDrvGetLocalTarget((ubyte *)&server, sp->players[i].node, Players[i].net_address);
+#else // WORDS_NEED_ALIGNMENT
 		if ( (*(uint *)sp->players[i].server) != 0 )
 			NetDrvGetLocalTarget( sp->players[i].server, sp->players[i].node, Players[i].net_address );
+#endif // WORDS_NEED_ALIGNMENT
 		else
 #endif
 			memcpy( Players[i].net_address, sp->players[i].node, 6 );
@@ -2629,8 +2691,8 @@ void network_start_game(void)
 
 	if (i<0) return;
 
-	if (GameArg.MplIPXSocketOffset) {
-		NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
+	if (IPX_Socket) {
+		NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
 	}
 
 	N_players = 0;
@@ -2661,7 +2723,7 @@ void network_start_game(void)
 	//adb: the following will be overwritten for D1X only games
 #ifndef SHAREWARE
 	Network_pps = Netgame.packets_per_sec;
-	Network_short_packets = (Netgame.flags & NETFLAG_SHORTPACKETS) ? 1 : 0;
+	Network_short_packets = (Netgame.flags & NETFLAG_SHORTPACKETS) ? 2 : 0;
 #endif
 
 	if(network_select_players())
@@ -2703,13 +2765,13 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	key = key;
 
 	if (Network_allow_socket_changes )	{
-		new_socket = GameArg.MplIPXSocketOffset;
+		new_socket = IPX_Socket;
 	
 		if ( *key==KEY_PAGEUP ) 	{ new_socket--; *key = 0; }
 		if ( *key==KEY_PAGEDOWN )	{ new_socket++; *key = 0; }
 	
 		if ( network_change_socket(new_socket) )	 {
-			sprintf( menus[0].text, "%s %+d", TXT_CURRENT_IPX_SOCKET, GameArg.MplIPXSocketOffset );
+			sprintf( menus[0].text, "%s %+d", TXT_CURRENT_IPX_SOCKET, IPX_Socket );
 			menus[0].redraw = 1;
 			restart_net_searching(menus);
 			network_send_game_list_request();
@@ -3035,7 +3097,7 @@ void network_join_game()
 	m[0].text = menu_text[0];
 	m[0].type = NM_TYPE_TEXT;
 	if (Network_allow_socket_changes)
-		sprintf( m[0].text, "Current IPX Socket is default%+d", GameArg.MplIPXSocketOffset );
+		sprintf( m[0].text, "Current IPX Socket is default%+d", IPX_Socket );
 	else
 		sprintf( m[0].text, "" );
 
@@ -3370,9 +3432,9 @@ void network_read_pdata_packet(ubyte *data, int short_packet)
 
 	//------------ Read the player's ship's object info ----------------------
 	if (short_packet == 1) {
-		extract_shortpos(TheirObj, (shortpos *)(data + 4));
+		extract_shortpos(TheirObj, (shortpos *)(data + 4),0);
 	} else if (short_packet == 2) {
-		extract_shortpos(TheirObj, (shortpos *)(data + 2));
+		extract_shortpos(TheirObj, (shortpos *)(data + 2),0);
 	} else {
 		TheirObj->pos				= pd->obj_pos;
 		TheirObj->orient			= pd->obj_orient;
@@ -3445,7 +3507,7 @@ void network_ping (ubyte flag,int pnum)
 
 	mybuf[0]=flag;
 	mybuf[1]=Player_num;
-	*(u_int32_t*)(multibuf+2)=swapint(timer_get_fixed_seconds());
+	*(u_int32_t*)(multibuf+2)=INTEL_INT(timer_get_fixed_seconds());
 	NetDrvSendPacketData( (ubyte *)mybuf, 7, Netgame.players[pnum].server, Netgame.players[pnum].node,Players[pnum].net_address );
 }
 

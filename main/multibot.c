@@ -53,6 +53,7 @@ static char rcsid[] = "$Id: multibot.c,v 1.1.1.1 2006/03/17 19:42:28 zicodxx Exp
 #include "effects.h"
 #include "physics.h" 
 #include "multibot.h"
+#include "byteswap.h"
 
 void multi_delete_controlled_robot(int objnum);
 void multi_send_robot_position_sub(int objnum);
@@ -416,6 +417,9 @@ void
 multi_send_robot_position_sub(int objnum)
 {
 	int loc = 0;
+#ifdef WORDS_BIGENDIAN
+	shortpos sp;
+#endif
 
 //	mprintf((0, "SENDPOS object %d, Gametime %d.\n", objnum, GameTime));
 
@@ -423,8 +427,15 @@ multi_send_robot_position_sub(int objnum)
 	multibuf[loc] = Player_num;								loc += 1;
 	*(short *)(multibuf+loc) = (short)objnum_local_to_remote(objnum, (sbyte *)&multibuf[loc+2]);
 																		loc += 3;
-	create_shortpos((shortpos *)(multibuf+loc), Objects+objnum);
-																		loc += sizeof(shortpos);
+#ifndef WORDS_BIGENDIAN
+	create_shortpos((shortpos *)(multibuf+loc), Objects+objnum,0);		loc += sizeof(shortpos);
+#else
+	create_shortpos(&sp, Objects+objnum, 1);
+	memcpy(&(multibuf[loc]), (ubyte *)(sp.bytemat), 9);
+	loc += 9;
+	memcpy(&(multibuf[loc]), (ubyte *)&(sp.xo), 14);
+	loc += 14;
+#endif
 	multi_send_data(multibuf, loc, 0);
 }
 
@@ -468,15 +479,26 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 {
 	// Send robot fire event
 	int loc = 0;
+#ifdef WORDS_BIGENDIAN
+	vms_vector swapped_vec;
+#endif
 
 	multibuf[loc] = MULTI_ROBOT_FIRE;						loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	*(short *)(multibuf+loc) = (short)objnum_local_to_remote(objnum, (sbyte *)&multibuf[loc+2]);
 																		loc += 3;
 	multibuf[loc] = gun_num;									loc += 1;
-	*(vms_vector *)(multibuf+loc) = *fire;					loc += sizeof(vms_vector); // 12
-	// 																--------------------------
-	//																 	Total = 18
+#ifndef WORDS_BIGENDIAN
+	memcpy(multibuf+loc, fire, sizeof(vms_vector));         loc += sizeof(vms_vector); // 12
+	// --------------------------
+	//      Total = 18
+#else
+	swapped_vec.x = (fix)INTEL_INT((int)fire->x);
+	swapped_vec.y = (fix)INTEL_INT((int)fire->y);
+	swapped_vec.z = (fix)INTEL_INT((int)fire->z);
+	memcpy(multibuf+loc, &swapped_vec, sizeof(vms_vector)); loc += sizeof(vms_vector);
+#endif
+
 	if (Objects[objnum].ctype.ai_info.REMOTE_OWNER == Player_num)
 	{
 		int slot = Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM;
@@ -571,14 +593,24 @@ multi_send_create_robot_powerups(object *del_obj)
 
 	int loc = 0;
 	int i;
+#ifdef WORDS_BIGENDIAN
+	vms_vector swapped_vec;
+#endif
 
 	multibuf[loc] = MULTI_CREATE_ROBOT_POWERUPS;			loc += 1;
 	multibuf[loc] = Player_num;								loc += 1;
 	multibuf[loc] = del_obj->contains_count;				loc += 1;
 	multibuf[loc] = del_obj->contains_type; 				loc += 1;
 	multibuf[loc] = del_obj->contains_id;					loc += 1;
-	*(short *)(multibuf+loc) = del_obj->segnum;			loc += 2;
-	*(vms_vector *)(multibuf+loc) = del_obj->pos;		loc += 12;
+	PUT_INTEL_SHORT(multibuf+loc, del_obj->segnum);		        loc += 2;
+#ifndef WORDS_BIGENDIAN
+	memcpy(multibuf+loc, &del_obj->pos, sizeof(vms_vector));	loc += 12;
+#else
+	swapped_vec.x = (fix)INTEL_INT((int)del_obj->pos.x);
+	swapped_vec.y = (fix)INTEL_INT((int)del_obj->pos.y);
+	swapped_vec.z = (fix)INTEL_INT((int)del_obj->pos.z);
+	memcpy(multibuf+loc, &swapped_vec, sizeof(vms_vector));     loc += 12;
+#endif
 
 	memset(multibuf+loc, -1, MAX_ROBOT_POWERUPS*sizeof(short));
 
@@ -684,6 +716,9 @@ multi_do_robot_position(char *buf)
 	short botnum;
 	char pnum;
 	int loc = 1;
+#ifdef WORDS_BIGENDIAN
+	shortpos sp;
+#endif
 
 	pnum = buf[loc];										loc += 1;
 
@@ -724,7 +759,13 @@ multi_do_robot_position(char *buf)
 	set_thrust_from_velocity(&Objects[botnum]); // Try to smooth out movement
 //	Objects[botnum].phys_info.drag = Robot_info[Objects[botnum].id].drag >> 4; // Set drag to low
 	
-	extract_shortpos(&Objects[botnum], (shortpos *)(buf+loc)); 
+#ifndef WORDS_BIGENDIAN
+	extract_shortpos(&Objects[botnum], (shortpos *)(buf+loc), 0);
+#else
+	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + loc), 9);		loc += 9;
+	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + loc), 14);
+	extract_shortpos(&Objects[botnum], &sp, 1);
+#endif
 }
 
 void

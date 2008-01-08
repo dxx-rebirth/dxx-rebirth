@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "fuelcen.h"
 #include "u_mem.h"     //for stackavail()
+#include "byteswap.h"
 
 #ifdef RCS
 static char rcsid[] = "$Id: gameseg.c,v 1.1.1.1 2006/03/17 19:45:01 zicodxx Exp $";
@@ -1085,18 +1086,14 @@ sbyte convert_to_byte(fix f)
 //	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
 //	Stuff segment in a short.
 //added/edited 03/05/99 Matt Mueller - newer shorterpos type
-void create_shortpos(shortpos *spp, object *objp)
-{
-    create_shorterpos((shorterpos*)spp,objp);
-
- 	spp->velx = (objp->mtype.phys_info.velocity.x) >> VEL_PRECISION;
-	spp->vely = (objp->mtype.phys_info.velocity.y) >> VEL_PRECISION;
-	spp->velz = (objp->mtype.phys_info.velocity.z) >> VEL_PRECISION;
-}
-void create_shorterpos(shorterpos *spp, object *objp)
+//	Create a shortpos struct from an object.
+//	Extract the matrix into byte values.
+//	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
+//	Stuff segment in a short.
+void create_shortpos(shortpos *spp, object *objp, int swap_bytes)
 {
 	// int	segnum;
-	sbyte	*sp;
+	sbyte   *sp;
 
 	sp = spp->bytemat;
 
@@ -1115,12 +1112,22 @@ void create_shorterpos(shorterpos *spp, object *objp)
 	spp->zo = (objp->pos.z - Vertices[Segments[objp->segnum].verts[0]].z) >> RELPOS_PRECISION;
 
 	spp->segment = objp->segnum;
-//moved 03/05/99 Matt Mueller - up to new create_shortpos
-// 	spp->velx = (objp->mtype.phys_info.velocity.x) >> VEL_PRECISION;
-//	spp->vely = (objp->mtype.phys_info.velocity.y) >> VEL_PRECISION;
-//	spp->velz = (objp->mtype.phys_info.velocity.z) >> VEL_PRECISION;
-//end move -MM
 
+ 	spp->velx = (objp->mtype.phys_info.velocity.x) >> VEL_PRECISION;
+	spp->vely = (objp->mtype.phys_info.velocity.y) >> VEL_PRECISION;
+	spp->velz = (objp->mtype.phys_info.velocity.z) >> VEL_PRECISION;
+
+// swap the short values for the big-endian machines.
+
+	if (swap_bytes) {
+		spp->xo = INTEL_SHORT(spp->xo);
+		spp->yo = INTEL_SHORT(spp->yo);
+		spp->zo = INTEL_SHORT(spp->zo);
+		spp->segment = INTEL_SHORT(spp->segment);
+		spp->velx = INTEL_SHORT(spp->velx);
+		spp->vely = INTEL_SHORT(spp->vely);
+		spp->velz = INTEL_SHORT(spp->velz);
+	}
 //	mprintf((0, "Matrix: %08x %08x %08x    %08x %08x %08x\n", objp->orient.m1,objp->orient.m2,objp->orient.m3,
 //					spp->bytemat[0] << MATRIX_PRECISION,spp->bytemat[1] << MATRIX_PRECISION,spp->bytemat[2] << MATRIX_PRECISION));
 //
@@ -1138,14 +1145,62 @@ void create_shorterpos(shorterpos *spp, object *objp)
 
 }
 
-void extract_shortpos(object *objp, shortpos *spp)
+void extract_shortpos(object *objp, shortpos *spp, int swap_bytes)
 {
-    objp->mtype.phys_info.velocity.x = (spp->velx << VEL_PRECISION);
-    objp->mtype.phys_info.velocity.y = (spp->vely << VEL_PRECISION);
-    objp->mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
-    
-    extract_shorterpos(objp,(shorterpos*)spp);
+	int	segnum;
+	sbyte   *sp;
+
+	sp = spp->bytemat;
+
+	objp->orient.rvec.x = *sp++ << MATRIX_PRECISION;
+	objp->orient.uvec.x = *sp++ << MATRIX_PRECISION;
+	objp->orient.fvec.x = *sp++ << MATRIX_PRECISION;
+	objp->orient.rvec.y = *sp++ << MATRIX_PRECISION;
+	objp->orient.uvec.y = *sp++ << MATRIX_PRECISION;
+	objp->orient.fvec.y = *sp++ << MATRIX_PRECISION;
+	objp->orient.rvec.z = *sp++ << MATRIX_PRECISION;
+	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
+	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
+
+	if (swap_bytes) {
+		spp->xo = INTEL_SHORT(spp->xo);
+		spp->yo = INTEL_SHORT(spp->yo);
+		spp->zo = INTEL_SHORT(spp->zo);
+		spp->segment = INTEL_SHORT(spp->segment);
+		spp->velx = INTEL_SHORT(spp->velx);
+		spp->vely = INTEL_SHORT(spp->vely);
+		spp->velz = INTEL_SHORT(spp->velz);
+	}
+
+	segnum = spp->segment;
+
+	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
+
+	objp->pos.x = (spp->xo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x;
+	objp->pos.y = (spp->yo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y;
+	objp->pos.z = (spp->zo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z;
+
+	objp->mtype.phys_info.velocity.x = (spp->velx << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.y = (spp->vely << VEL_PRECISION);
+	objp->mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
+
+	obj_relink(objp-Objects, segnum);
+
+//	mprintf((0, "Matrix: %08x %08x %08x    %08x %08x %08x\n", objp->orient.m1,objp->orient.m2,objp->orient.m3,
+//					spp->bytemat[0],spp->bytemat[1],spp->bytemat[2]));
+//
+//	mprintf((0, "        %08x %08x %08x    %08x %08x %08x\n", objp->orient.m4,objp->orient.m5,objp->orient.m6,
+//					spp->bytemat[3],spp->bytemat[4],spp->bytemat[5]));
+//
+//	mprintf((0, "        %08x %08x %08x    %08x %08x %08x\n", objp->orient.m7,objp->orient.m8,objp->orient.m9,
+//					spp->bytemat[6],spp->bytemat[7],spp->bytemat[8]));
+//
+//	mprintf((0, "Positn: %08x %08x %08x    %08x %08x %08x\n", objp->pos.x, objp->pos.y, objp->pos.z,
+//			(spp->xo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x, (spp->yo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y, (spp->zo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z));
+//	mprintf((0, "Segment: %3i    %3i\n", objp->segnum, spp->segment));
+
 }
+
 void extract_shorterpos(object *objp, shorterpos *spp)
 {
 	int	segnum;

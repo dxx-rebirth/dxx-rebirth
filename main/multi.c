@@ -1353,13 +1353,28 @@ multi_do_message(char *buf)
 void
 multi_do_position(char *buf)
 {
+#ifdef WORDS_BIGENDIAN
+	shortpos sp;
+#endif
+
 	int pnum = (Player_num+1)%2;
 
 	Assert(&Objects[Players[pnum].objnum] != ConsoleObject);
 
-	Assert(!(Game_mode & GM_NETWORK));
+	if (Game_mode & GM_NETWORK)
+	{
+		Int3(); // Get Jason, what the hell are we doing here?
+		return;
+	}
 
-	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos *)(buf+1));
+
+#ifndef WORDS_BIGENDIAN
+	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos *)(buf+1),0);
+#else
+	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + 1), 9);
+	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + 10), 14);
+	extract_shortpos(&Objects[Players[pnum].objnum], &sp, 1);
+#endif
 
 	if (Objects[Players[pnum].objnum].movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(&Objects[Players[pnum].objnum]);
@@ -1810,7 +1825,12 @@ multi_do_controlcen_fire(char *buf)
 	int count = 1;
 
 	memcpy(&to_target, buf+count, 12);	count += 12;
-	gun_num = buf[count];					count += 1;
+#ifdef WORDS_BIGENDIAN  // swap the vector to_target
+	to_target.x = (fix)INTEL_INT((int)to_target.x);
+	to_target.y = (fix)INTEL_INT((int)to_target.y);
+	to_target.z = (fix)INTEL_INT((int)to_target.z);
+#endif
+	gun_num = buf[count];			count += 1;
 	objnum = *(short *)(buf+count);		count += 2;
 
  	Laser_create_new_easy(&to_target, &Gun_pos[gun_num], objnum, CONTROLCEN_WEAPON_NUM, 1);
@@ -1844,6 +1864,11 @@ multi_do_create_powerup(char *buf)
 	new_pos = *(vms_vector *)(buf+count); count+=sizeof(vms_vector);
 #else
 	compute_segment_center(&new_pos, &Segments[segnum]);
+#endif
+#ifdef WORDS_BIGENDIAN
+	new_pos.x = (fix)SWAPINT((int)new_pos.x);
+	new_pos.y = (fix)SWAPINT((int)new_pos.y);
+	new_pos.z = (fix)SWAPINT((int)new_pos.z);
 #endif
 
 	if (!may_create_powerup(powerup_type))
@@ -2397,6 +2422,9 @@ multi_send_reappear()
 void
 multi_send_position(int objnum)
 {
+#ifdef WORDS_BIGENDIAN
+	shortpos sp;
+#endif
 	int count=0;
 
 	if (Game_mode & GM_NETWORK) {
@@ -2404,9 +2432,17 @@ multi_send_position(int objnum)
 	}
 
 	multibuf[count++] = (char)MULTI_POSITION;
-	create_shortpos((shortpos *)(multibuf+count), Objects+objnum);
+#ifndef WORDS_BIGENDIAN
+	create_shortpos((shortpos *)(multibuf+count), Objects+objnum,0);
 	count += sizeof(shortpos);
-	
+#else
+	create_shortpos(&sp, Objects+objnum, 1);
+	memcpy(&(multibuf[count]), (ubyte *)(sp.bytemat), 9);
+	count += 9;
+	memcpy(&(multibuf[count]), (ubyte *)&(sp.xo), 14);
+	count += 14;
+#endif
+
 	multi_send_data(multibuf, count, 0);
 }
 
@@ -2548,17 +2584,28 @@ multi_send_create_explosion(int pnum)
 
 	multi_send_data(multibuf, count, 0);
 }
-	
+
 void
 multi_send_controlcen_fire(vms_vector *to_goal, int best_gun_num, int objnum)
 {
+#ifdef WORDS_BIGENDIAN
+	vms_vector swapped_vec;
+#endif
 	int count = 0;
-	multibuf[count] = MULTI_CONTROLCEN_FIRE; 		count +=  1;
-	memcpy(multibuf+count, to_goal, 12);			count += 12;
-	multibuf[count] = (char)best_gun_num;			count +=  1;
-	*(short *)(multibuf+count) = (short)objnum;	count +=  2;
-	//															------------
-	//															Total  = 16
+
+	multibuf[count] = MULTI_CONTROLCEN_FIRE;                count +=  1;
+#ifndef WORDS_BIGENDIAN
+	memcpy(multibuf+count, to_goal, 12);                    count += 12;
+#else
+	swapped_vec.x = (fix)INTEL_INT( (int)to_goal->x );
+	swapped_vec.y = (fix)INTEL_INT( (int)to_goal->y );
+	swapped_vec.z = (fix)INTEL_INT( (int)to_goal->z );
+	memcpy(multibuf+count, &swapped_vec, 12);		count += 12;
+#endif
+	multibuf[count] = (char)best_gun_num;                   count +=  1;
+	PUT_INTEL_SHORT(multibuf+count, objnum );		count +=  2;
+	//							------------
+	//							Total  = 16
 	multi_send_data(multibuf, count, 0);
 }
 
@@ -2569,18 +2616,27 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 	// placement of used powerups like missiles and cloaking
 	// powerups.
 
-	int count = 0;
-	multibuf[count] = MULTI_CREATE_POWERUP;		count += 1;
-        multibuf[count] = Player_num;                                   count += 1;
-	multibuf[count] = powerup_type;					count += 1;
-	*(short *)(multibuf+count) = (short)segnum;	count += 2;
-	*(short *)(multibuf+count) = (short)objnum;	count += 2;
-#ifndef SHAREWARE
-	*(vms_vector *)(multibuf+count) = *pos;		count += sizeof(vms_vector);
+#ifdef WORDS_BIGENDIAN
+	vms_vector swapped_vec;
 #endif
-	//													      -----------
-	//													      Total =  19
-	multi_send_data(multibuf, count, 1);
+	int count = 0;
+
+	multibuf[count] = MULTI_CREATE_POWERUP;			count += 1;
+	multibuf[count] = Player_num;				count += 1;
+	multibuf[count] = powerup_type;				count += 1;
+	PUT_INTEL_SHORT(multibuf+count, segnum );		count += 2;
+	PUT_INTEL_SHORT(multibuf+count, objnum );		count += 2;
+#if !defined(WORDS_BIGENDIAN) && !defined(SHAREWARE)
+	memcpy(multibuf+count, pos, sizeof(vms_vector));	count += sizeof(vms_vector);
+#else
+	swapped_vec.x = (fix)INTEL_INT( (int)pos->x );
+	swapped_vec.y = (fix)INTEL_INT( (int)pos->y );
+	swapped_vec.z = (fix)INTEL_INT( (int)pos->z );
+	memcpy(multibuf+count, &swapped_vec, 12);		count += 12;
+#endif
+	//							-----------
+	//							Total =  19
+	multi_send_data(multibuf, count, 2);
 
 	if (Network_send_objects && network_objnum_is_past(objnum))
 	{
@@ -2590,7 +2646,7 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 
 	mprintf((0, "Creating powerup type %d in segment %i.\n", powerup_type, segnum));
 	map_objnum_local_to_local(objnum);
-}	
+}
 
 void
 multi_send_play_sound(int sound_num, fix volume)

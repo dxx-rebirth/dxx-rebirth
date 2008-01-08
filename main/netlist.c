@@ -16,7 +16,7 @@
 #include "mono.h"
 #include "key.h"
 #include "error.h"
-#include "netmisc.h"
+#include "netpkt.h"
 #include "network.h"
 #include "netdrv.h"
 #include "game.h"
@@ -488,14 +488,14 @@ int network_join_game_menu() {
 		gr_flip();
         	netlist_redraw(bg,menu_text,lis);
 #endif
-		if (GameArg.MplIPXSocketOffset != old_socket) {
+		if (IPX_Socket != old_socket) {
 			gr_set_fontcolor(BM_XRGB(27, 27, 27), -1);
 			draw_back(&bg, 30*(SWIDTH/320), (10*SHEIGHT/200)+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, 250, Gamefonts[GFONT_SMALL]->ft_h+4);//was 52,250,9
 			gr_printf(30*(SWIDTH/320), (10*SHEIGHT/200)+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, "Current IPX socket is %+d "
-					"(PgUp/PgDn to change)", GameArg.MplIPXSocketOffset);
+					"(PgUp/PgDn to change)", IPX_Socket);
 			if (old_socket != -32768) { /* changed by user? */
 				network_listen();
-				NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
+				NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
 				num_active_games = 0;
 			}
 			req_timer -= F1_0 * 5; /* force send request */
@@ -505,7 +505,7 @@ int network_join_game_menu() {
 		else {
 			gr_set_fontcolor(BM_XRGB(27, 27, 27), -1);
 			gr_printf(30*(SWIDTH/320), (10*SHEIGHT/200)+Gamefonts[GFONT_BIG_1]->ft_h+network_menu_hskip*2, "Current IPX socket is %+d "
-					"(PgUp/PgDn to change)", GameArg.MplIPXSocketOffset);
+					"(PgUp/PgDn to change)", IPX_Socket);
 			draw_list(&bg, lis);
 		}
 #endif
@@ -527,7 +527,7 @@ int network_join_game_menu() {
                         gr_update();
                         //end addition - adb
 		}
-		old_socket = GameArg.MplIPXSocketOffset;
+		old_socket = IPX_Socket;
 		old_select = selected_game;
 
 		t = timer_get_approx_seconds();
@@ -550,14 +550,14 @@ int network_join_game_menu() {
                                 break;
 			case KEY_PAGEUP:
 			case KEY_PAD9:
-				if (GameArg.MplIPXSocketOffset < 99) GameArg.MplIPXSocketOffset++;
+				if (IPX_Socket < 99) IPX_Socket++;
 				break;
 			case KEY_PAGEDOWN:
 			case KEY_PAD3:
-				if (GameArg.MplIPXSocketOffset > -99) GameArg.MplIPXSocketOffset--;
+				if (IPX_Socket > -99) IPX_Socket--;
 				break;
 			case KEY_PAD5:
-				GameArg.MplIPXSocketOffset = 0;
+				IPX_Socket = 0;
 				break;
 			case KEY_TAB + KEY_SHIFTED:
 			case KEY_UP:

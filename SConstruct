@@ -125,7 +125,6 @@ common_sources = [
 'main/multipow.c',
 'main/netdrv.c',
 'main/netlist.c',
-'main/netmisc.c',
 'main/netpkt.c',
 'main/network.c',
 'main/newdemo.c',

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080108
+--------
+SConstruct, 2d/font.c, include/args.h, include/byteswap.h, include/netdrv.h, main/args.c, main/gameseq.c, main/gameseg.c, main/menu.c, main/multi.c, main/multi.h, main/multibot.c, main/netdrv.c, main/netlist.c, main/netpkt.c, main/netpkt.h, main/network.c, main/network.h, main/newdemo.c, main/object.h, main/udp.c: Added BigEndian-related multiplayer/network code (unfinished); Re-Added IPX Socket option to Host menu for IPX games; Removed ForceVersionCheck global - conditions with driver->type; Merged netmisc.* and netpkt.*; Handling host disconnect for UDP games in network.c
+
 20080103
 --------
 2d/bitmap.c, 2d/font.c, arch/carbon/conf.h, arch/ogl/gr.c, arch/ogl/include/ogl_init.h, arch/sdl/digi_mixer_music.c, arch/sdl/include/music.h, arch/sdl/jukebox.c, iff/iff.c, include/d_glob.h, include/d_io.h, include/error.h, include/pstypes.h, include/strutil.h, include/u_mem.h, main/args.c, main/game.c, main/gameseq.c, main/inferno.c, main/newdemo.c, misc/d_glob.c, misc/strutil.c, texmap/scanline.c: get D1X to build for Mac OS X, conditionals for Mac OS 9

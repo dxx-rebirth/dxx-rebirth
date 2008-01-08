@@ -600,10 +600,10 @@ extern void dead_player_end(void);
 
 //	Extract information from an object (objp->orient, objp->pos, objp->segnum), stuff in a shortpos structure.
 // See typedef shortpos.
-extern void create_shortpos(shortpos *spp, object *objp);
+extern void create_shortpos(shortpos *spp, object *objp, int swap_bytes);
 
 //	Extract information from a shortpos, stuff in objp->orient (matrix), objp->pos, objp->segnum
-extern void extract_shortpos(object *objp, shortpos *spp);
+extern void extract_shortpos(object *objp, shortpos *spp, int swap_bytes);
 
 //added 03/05/99 Matt Mueller
 extern void extract_shorterpos(object *objp, shorterpos *spp);

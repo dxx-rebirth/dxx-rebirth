@@ -1253,9 +1253,9 @@ grs_font * gr_init_font( char * fontname )
 		Error( "Can't open font file %s", fontname );
 
 	cfread(&file_id,sizeof(file_id),1,fontfile);
-	file_id=swapint(file_id);
+	file_id=INTEL_INT(file_id);
 	cfread(&datasize,sizeof(datasize),1,fontfile);
-	datasize=swapint(datasize);
+	datasize=INTEL_INT(datasize);
 
 	if (file_id != 0x4e465350) /* 'NFSP' */
 		Error( "File %s is not a font file", fontname );
@@ -1266,21 +1266,21 @@ grs_font * gr_init_font( char * fontname )
 
 	cfread(font,1,datasize,fontfile);
 
-	newfont->ft_flags=swapint(font->ft_flags);
-	newfont->ft_w=swapshort(font->ft_w);
-	newfont->ft_h=swapshort(font->ft_h);
-	newfont->ft_baseline=swapshort(font->ft_baseline);
+	newfont->ft_flags=INTEL_INT(font->ft_flags);
+	newfont->ft_w=INTEL_SHORT(font->ft_w);
+	newfont->ft_h=INTEL_SHORT(font->ft_h);
+	newfont->ft_baseline=INTEL_SHORT(font->ft_baseline);
 	newfont->ft_maxchar=font->ft_maxchar;
 	newfont->ft_minchar=font->ft_minchar;
-	newfont->ft_bytewidth=swapshort(font->ft_bytewidth);
+	newfont->ft_bytewidth=INTEL_SHORT(font->ft_bytewidth);
 
 	nchars = newfont->ft_maxchar-newfont->ft_minchar+1;
 
 	if (newfont->ft_flags & FT_PROPORTIONAL) {
 
-		newfont->ft_widths = (short *) (swapint(font->ft_widths) + ((ubyte *) font));
+		newfont->ft_widths = (short *) (INTEL_INT(font->ft_widths) + ((ubyte *) font));
 
-		newfont->ft_data = (swapint(font->ft_data)) + ((ubyte *) font);
+		newfont->ft_data = (INTEL_INT(font->ft_data)) + ((ubyte *) font);
 
 		newfont->ft_chars = (unsigned char **)malloc( nchars * sizeof(unsigned char *));
 
@@ -1305,7 +1305,7 @@ grs_font * gr_init_font( char * fontname )
 	}
 
 	if (newfont->ft_flags & FT_KERNED) 
-		newfont->ft_kerndata = swapint(font->ft_kerndata) + ((ubyte *) font);
+		newfont->ft_kerndata = INTEL_INT(font->ft_kerndata) + ((ubyte *) font);
 
 
 	if (newfont->ft_flags & FT_COLOR) {		//remap palette

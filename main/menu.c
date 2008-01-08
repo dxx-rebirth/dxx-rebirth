@@ -358,7 +358,6 @@ void do_option ( int select)
 			}
 			if ((select & 0x1) == 0) // MENU_START_*_NETGAME
 			{
-				ForceVersionCheck=0;
 				network_start_game();
 			}
 			else // MENU_JOIN_*_NETGAME
@@ -367,7 +366,6 @@ void do_option ( int select)
 
 		case MENU_START_UDP_NETGAME:
 			NetDrvSet(NETPROTO_UDP);
-			ForceVersionCheck=1;
 			network_start_game();
 			break;
 		case MENU_JOIN_UDP_NETGAME:

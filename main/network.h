@@ -145,7 +145,7 @@ void network_send_data( ubyte * ptr, int len, int urgent );
 //added on 11/16/98 by Victor Rachels for use with mlticntrl
 extern sequence_packet Network_player_rejoining; // Who is rejoining now?
 extern int Network_player_added;
-extern int ForceVersionCheck;
+extern int IPX_Socket;
 
 #define DUMP_CLOSED 0
 #define DUMP_FULL 1

@@ -159,12 +159,16 @@ int NetDrvSet(int arg)
 
 	switch (arg)
 	{
+#ifndef __APPLE__
 		case NETPROTO_IPX:
 			driver = &netdrv_ipx;
 			break;
+#endif
+#ifdef __LINUX__
 		case NETPROTO_KALINIX:
 			driver = &netdrv_kali;
 			break;
+#endif
 		case NETPROTO_UDP:
 			driver = &netdrv_udp;
 			break;
@@ -337,4 +341,10 @@ int NetDrvChangeDefaultSocket( ushort socket_number )
 	}
 
 	return 0;
+}
+
+// Return type of net_driver
+int NetDrvType(void)
+{
+	return driver->type;
 }

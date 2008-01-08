@@ -315,7 +315,7 @@ void nd_write_shortpos(object *obj)
 	shortpos sp;
 	ubyte render_type;
 
-	create_shortpos(&sp, obj);
+	create_shortpos(&sp, obj, 0);
 
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {

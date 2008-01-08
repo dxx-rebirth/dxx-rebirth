@@ -78,7 +78,6 @@ typedef struct Arg
 	int MplNoRedundancy;
 	int MplPlayerMessages;
 	const char *MplIpxNetwork;
-	int MplIPXSocketOffset;
 	char *MplIpHostAddr;
 	int MplIpBasePort;
 	int MplIpNoRelay;

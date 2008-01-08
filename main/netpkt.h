@@ -3,6 +3,10 @@
 
 #include "byteswap.h"
 #include "netdrv.h"
+#include "network.h"
+
+//Returns a checksum of a block of memory.
+extern ushort netmisc_calc_checksum( void * vptr, int len );
 
 ubyte out_buffer[MAX_DATA_SIZE];		// used for tmp netgame packets as well as sending object data
 extern frame_info 	MySyncPack;

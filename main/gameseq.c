@@ -92,7 +92,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "state.h"
 #include "songs.h"
-#include "netmisc.h"
+#include "netpkt.h"
 #include "joydefs.h"
 #include "reorder.h"
 #include "strutil.h"
