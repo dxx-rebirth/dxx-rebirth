@@ -17,7 +17,7 @@
 #endif
 
 #include <GL/gl.h>
-#include "types.h"
+#include "pstypes.h"
 
 //gl extensions.
 #ifndef GL_ARB_multitexture

@@ -130,7 +130,7 @@ static int IPXReceivePacket(char *buffer, int bufsize, struct recv_data *rd)
 
 static int IPXgeneral_PacketReady(void)
 {
-	return NetDrvPacketReady(IPX_sock.fd);
+	return NetDrvGeneralPacketReady(IPX_sock.fd);
 }
 
 struct net_driver netdrv_ipx = {
