@@ -235,7 +235,6 @@ void ReadCmdArgs(void)
 	GameArg.MplNoRedundancy 	= FindArg("-noredundancy");
 	GameArg.MplPlayerMessages 	= FindArg("-playermessages");
 	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
-	GameArg.MplIPXSocketOffset 	= get_int_arg("-ipxbasesocket", 0);
 	GameArg.MplIpHostAddr 		= get_str_arg("-ip_hostaddr", "");
 	GameArg.MplIpBasePort 		= get_int_arg("-ip_baseport", 0);
 	GameArg.MplIpNoRelay	 	= FindArg("-ip_norelay");

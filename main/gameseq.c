@@ -87,7 +87,7 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.1.1.1 2006/03/17 19:57:54 zicodxx Exp
 #ifdef NETWORK
 #  include "multi.h"
 #  include "network.h"
-#  include "netmisc.h"
+#  include "netpkt.h"
 #endif
 #include "playsave.h"
 #include "ctype.h"

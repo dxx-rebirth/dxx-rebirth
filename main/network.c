@@ -68,7 +68,7 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:56:24 zicodxx Exp 
 #include "switch.h"
 #include "automap.h"
 #include "byteswap.h"
-#include "netmisc.h"
+#include "netpkt.h"
 #include "kconfig.h"
 #include "playsave.h"
 #include "cfile.h"
@@ -229,6 +229,8 @@ char WaitingForPlayerInfo=0;
 
 char *RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
+
+int IPX_Socket=0;
 
 extern obj_position Player_init[MAX_PLAYERS];
 
@@ -557,6 +559,17 @@ network_disconnect_player(int playernum)
 	if (playernum == Player_num) 
 	{
 		Int3(); // Weird, see Rob
+		return;
+	}
+
+	if (playernum==0 && NetDrvType() == NETPROTO_UDP) // Host has left - Quit game!
+	{
+		Function_mode = FMODE_MENU;
+		nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
+		multi_quit_game = 1;
+		multi_leave_menu = 1;
+		multi_reset_stuff();
+		longjmp(LeaveGame,1);  // because the other crap didn't work right
 		return;
 	}
 
@@ -3176,8 +3189,8 @@ network_start_game()
 
 	if (i<0) return;
 
-	if (GameArg.MplIPXSocketOffset) {
-		NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
+	if (IPX_Socket) {
+		NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
 	}
 
 	if (is_D2_OEM)
@@ -3252,29 +3265,29 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	key = key;
 
 	if ( Network_allow_socket_changes ) {
-		osocket = GameArg.MplIPXSocketOffset;
+		osocket = IPX_Socket;
 
-		if ( *key==KEY_PAGEDOWN )       { GameArg.MplIPXSocketOffset--; *key = 0; }
-		if ( *key==KEY_PAGEUP )         { GameArg.MplIPXSocketOffset++; *key = 0; }
+		if ( *key==KEY_PAGEDOWN )       { IPX_Socket--; *key = 0; }
+		if ( *key==KEY_PAGEUP )         { IPX_Socket++; *key = 0; }
 
-		if (GameArg.MplIPXSocketOffset>99)
-			GameArg.MplIPXSocketOffset=99;
-		if (GameArg.MplIPXSocketOffset<-99)
-			GameArg.MplIPXSocketOffset=-99;
+		if (IPX_Socket>99)
+			IPX_Socket=99;
+		if (IPX_Socket<-99)
+			IPX_Socket=-99;
 
-		if ( GameArg.MplIPXSocketOffset+IPX_DEFAULT_SOCKET > 0x8000 )
-			GameArg.MplIPXSocketOffset  = 0x8000 - IPX_DEFAULT_SOCKET;
+		if ( IPX_Socket+IPX_DEFAULT_SOCKET > 0x8000 )
+			IPX_Socket  = 0x8000 - IPX_DEFAULT_SOCKET;
 
-		if ( GameArg.MplIPXSocketOffset+IPX_DEFAULT_SOCKET < 0 )
-			GameArg.MplIPXSocketOffset  = IPX_DEFAULT_SOCKET;
+		if ( IPX_Socket+IPX_DEFAULT_SOCKET < 0 )
+			IPX_Socket  = IPX_DEFAULT_SOCKET;
 
-		if (GameArg.MplIPXSocketOffset != osocket )         {
-			sprintf( menus[0].text, "\t%s %+d (PgUp/PgDn to change)", TXT_CURRENT_IPX_SOCKET, GameArg.MplIPXSocketOffset );
+		if (IPX_Socket != osocket )         {
+			sprintf( menus[0].text, "\t%s %+d (PgUp/PgDn to change)", TXT_CURRENT_IPX_SOCKET, IPX_Socket );
 			menus[0].redraw = 1;
-			mprintf(( 0, "Changing to socket %d\n", GameArg.MplIPXSocketOffset ));
+			mprintf(( 0, "Changing to socket %d\n", IPX_Socket ));
 			network_listen();
 			mprintf ((0,"netgood 1!\n"));
-			NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + GameArg.MplIPXSocketOffset );
+			NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
 			mprintf ((0,"netgood 2!\n"));
 			restart_net_searching(menus);
 			mprintf ((0,"netgood 3!\n"));
@@ -3626,7 +3639,7 @@ void network_join_game()
 	m[0].text = menu_text[0];
 	m[0].type = NM_TYPE_TEXT;
 	if (Network_allow_socket_changes)
-		sprintf( m[0].text, "\tCurrent IPX Socket is default %+d (PgUp/PgDn to change)", GameArg.MplIPXSocketOffset );
+		sprintf( m[0].text, "\tCurrent IPX Socket is default %+d (PgUp/PgDn to change)", IPX_Socket );
 	else
 		strcpy( m[0].text, "" ); //sprintf( m[0].text, "" );
 
@@ -4776,7 +4789,7 @@ void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int
 void network_more_game_options ()
 {
 	int opt=0,i;
-	char PlayText[80],KillText[80],srinvul[50],packstring[5];
+	char PlayText[80],KillText[80],srinvul[50],packstring[5],socket_string[5];
 	newmenu_item m[21];
 
 	sprintf (packstring,"%d",Netgame.PacketsPerSec);
@@ -4822,6 +4835,13 @@ void network_more_game_options ()
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Packets per second (2 - 20)"; opt++;
 	opt_packets=opt;
 	m[opt].type = NM_TYPE_INPUT; m[opt].text=packstring; m[opt].text_len=2; opt++;
+
+	if (NetDrvType() != NETPROTO_UDP)
+	{
+		m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network socket"; opt++;
+		opt_socket = opt;
+		m[opt].type = NM_TYPE_INPUT; m[opt].text = socket_string; m[opt].text_len=4; opt++;
+	}
 	
 	LastKillGoal=Netgame.KillGoal;
 	LastPTA=Netgame.PlayTimeAllowed;
@@ -4853,6 +4873,15 @@ menu:
 	}
 
 	mprintf ((0,"Hey! Sending out %d packets per second\n",Netgame.PacketsPerSec));
+
+	if (NetDrvType() != NETPROTO_UDP)
+	{
+		if ((atoi(socket_string))!=IPX_Socket)
+		{
+			IPX_Socket=atoi(socket_string);
+			NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
+		}
+	}
 	
 	Netgame.invul=m[opt_start_invul].value;	
 	Netgame.BrightPlayers=m[opt_bright].value;

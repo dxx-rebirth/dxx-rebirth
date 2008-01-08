@@ -132,7 +132,7 @@ common_sources = [
 'main/multi.c',
 'main/multibot.c',
 'main/netdrv.c',
-'main/netmisc.c',
+'main/netpkt.c',
 'main/network.c',
 'main/newdemo.c',
 'main/newmenu.c',

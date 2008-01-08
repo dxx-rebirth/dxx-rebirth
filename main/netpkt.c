@@ -1,4 +1,3 @@
-/* $Id: netmisc.c,v 1.1.1.1 2006/03/17 19:55:46 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -32,6 +31,7 @@ static char rcsid[] = "$Id: netmisc.c,v 1.1.1.1 2006/03/17 19:55:46 zicodxx Exp 
 #include "inferno.h"
 #include "pstypes.h"
 #include "mono.h"
+#include "netdrv.h"
 
 #ifdef WORDS_BIGENDIAN
 
@@ -124,7 +124,7 @@ ushort netmisc_calc_checksum(void * vptr, int len)
 #include "powerup.h"
 #include "error.h"
 
-sbyte out_buffer[IPX_MAX_DATA_SIZE];    // used for tmp netgame packets as well as sending object data
+sbyte out_buffer[MAX_DATA_SIZE];    // used for tmp netgame packets as well as sending object data
 
 void receive_netplayer_info(ubyte *data, netplayer_info *info)
 {
@@ -231,7 +231,7 @@ void send_netgame_packet(ubyte *server, ubyte *node, ubyte *net_address, int lit
 	int i, j;
 	int loc = 0;
 
-	memset(out_buffer, 0, IPX_MAX_DATA_SIZE);
+	memset(out_buffer, 0, MAX_DATA_SIZE);
 	memcpy(&(out_buffer[loc]), &(Netgame.type), 1);                 loc++;
 	tmpi = INTEL_INT(Netgame.Security);
 	memcpy(&(out_buffer[loc]), &tmpi, 4);                           loc += 4;
@@ -268,25 +268,6 @@ void send_netgame_packet(ubyte *server, ubyte *node, ubyte *net_address, int lit
 	tmps = *(ushort *)((ubyte *)(&Netgame.team_vector) + 3);    // get the values for the second short bitfield
 	tmps = INTEL_SHORT(tmps);
 	memcpy(&(out_buffer[loc]), &tmps, 2);                           loc += 2;
-
-#if 0       // removed since I reordered bitfields on mac
-	p = *(ushort *)((ubyte *)(&Netgame.team_vector) + 1);       // get the values for the first short bitfield
-	tmps = 0;
-	for (i = 15; i >= 0; i--) {
-		if (p & (1 << i))
-			tmps |= (1 << (15 - i));
-	}
-	tmps = INTEL_SHORT(tmps);
-	memcpy(&(out_buffer[loc]), &tmps, 2);                           loc += 2;
-	p = *(ushort *)((ubyte *)(&Netgame.team_vector) + 3);       // get the values for the second short bitfield
-	tmps = 0;
-	for (i = 15; i >= 0; i--) {
-		if (p & (1 << i))
-			tmps |= (1 << (15 - i));
-	}
-	tmps = INTEL_SHORT(tmps);
-	memcpy(&(out_buffer[loc]), &tmps, 2);                           loc += 2;
-#endif
 
 	memcpy(&(out_buffer[loc]), Netgame.team_name, 2*(CALLSIGN_LEN+1)); loc += 2*(CALLSIGN_LEN+1);
 	for (i = 0; i < MAX_PLAYERS; i++) {
@@ -383,26 +364,6 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int lite_flag)
 	memcpy(&bitfield, &(data[loc]), 2);                             loc += 2;
 	bitfield = INTEL_SHORT(bitfield);
 	memcpy(((ubyte *)(&netgame->team_vector) + 3), &bitfield, 2);
-
-#if 0       // not used since reordering mac bitfields
-	memcpy(&bitfield, &(data[loc]), 2);                             loc += 2;
-	new_field = 0;
-	for (i = 15; i >= 0; i--) {
-		if (bitfield & (1 << i))
-			new_field |= (1 << (15 - i));
-	}
-	new_field = INTEL_SHORT(new_field);
-	memcpy(((ubyte *)(&netgame->team_vector) + 1), &new_field, 2);
-
-	memcpy(&bitfield, &(data[loc]), 2);                             loc += 2;
-	new_field = 0;
-	for (i = 15; i >= 0; i--) {
-		if (bitfield & (1 << i))
-			new_field |= (1 << (15 - i));
-	}
-	new_field = INTEL_SHORT(new_field);
-	memcpy(((ubyte *)(&netgame->team_vector) + 3), &new_field, 2);
-#endif
 
 	memcpy(netgame->team_name, &(data[loc]), 2*(CALLSIGN_LEN+1));   loc += 2*(CALLSIGN_LEN+1);
 	for (i = 0; i < MAX_PLAYERS; i++) {
@@ -626,118 +587,4 @@ ushort netmisc_calc_checksum(void * vptr, int len)
 
 #endif /* WORDS_BIGENDIAN */
 
-//--unused-- //Finds the difference between block1 and block2.  Fills in diff_buffer and
-//--unused-- //returns the size of diff_buffer.
-//--unused-- int netmisc_find_diff(void *block1, void *block2, int block_size, void *diff_buffer)
-//--unused-- {
-//--unused-- 	int mode;
-//--unused-- 	ushort *c1, *c2, *diff_start, *c3;
-//--unused-- 	int i, j, size, diff, n , same;
-//--unused--
-//--unused-- 	size=(block_size+1)/sizeof(ushort);
-//--unused-- 	c1 = (ushort *)block1;
-//--unused-- 	c2 = (ushort *)block2;
-//--unused-- 	c3 = (ushort *)diff_buffer;
-//--unused--
-//--unused-- 	mode = same = diff = n = 0;
-//--unused--
-//--unused-- 	//mprintf(0, "=================================\n");
-//--unused--
-//--unused-- 	for (i=0; i<size; i++, c1++, c2++) {
-//--unused-- 		if (*c1 != *c2) {
-//--unused-- 			if (mode==0) {
-//--unused-- 				mode = 1;
-//--unused-- 				//mprintf(0, "%ds ", same);
-//--unused-- 				c3[n++] = same;
-//--unused-- 				same=0; diff=0;
-//--unused-- 				diff_start = c2;
-//--unused-- 			}
-//--unused-- 			*c1 = *c2;
-//--unused-- 			diff++;
-//--unused-- 			if (diff==65535) {
-//--unused-- 				mode = 0;
-//--unused-- 				// send how many diff ones.
-//--unused-- 				//mprintf(0, "%dd ", diff);
-//--unused-- 				c3[n++]=diff;
-//--unused-- 				// send all the diff ones.
-//--unused-- 				for (j=0; j<diff; j++)
-//--unused-- 					c3[n++] = diff_start[j];
-//--unused-- 				same=0; diff=0;
-//--unused-- 				diff_start = c2;
-//--unused-- 			}
-//--unused-- 		} else {
-//--unused-- 			if (mode==1) {
-//--unused-- 				mode=0;
-//--unused-- 				// send how many diff ones.
-//--unused-- 				//mprintf(0, "%dd ", diff);
-//--unused-- 				c3[n++]=diff;
-//--unused-- 				// send all the diff ones.
-//--unused-- 				for (j=0; j<diff; j++)
-//--unused-- 					c3[n++] = diff_start[j];
-//--unused-- 				same=0; diff=0;
-//--unused-- 				diff_start = c2;
-//--unused-- 			}
-//--unused-- 			same++;
-//--unused-- 			if (same==65535) {
-//--unused-- 				mode=1;
-//--unused-- 				// send how many the same
-//--unused-- 				//mprintf(0, "%ds ", same);
-//--unused-- 				c3[n++] = same;
-//--unused-- 				same=0; diff=0;
-//--unused-- 				diff_start = c2;
-//--unused-- 			}
-//--unused-- 		}
-//--unused--
-//--unused-- 	}
-//--unused-- 	if (mode==0) {
-//--unused-- 		// send how many the same
-//--unused-- 		//mprintf(0, "%ds ", same);
-//--unused-- 		c3[n++] = same;
-//--unused-- 	} else {
-//--unused-- 		// send how many diff ones.
-//--unused-- 		//mprintf(0, "%dd ", diff);
-//--unused-- 		c3[n++]=diff;
-//--unused-- 		// send all the diff ones.
-//--unused-- 		for (j=0; j<diff; j++)
-//--unused-- 			c3[n++] = diff_start[j];
-//--unused-- 	}
-//--unused--
-//--unused-- 	//mprintf(0, "=================================\n");
-//--unused--
-//--unused-- 	return n*2;
-//--unused-- }
 
-//--unused-- //Applies diff_buffer to block1 to create a new block1.  Returns the final
-//--unused-- //size of block1.
-//--unused-- int netmisc_apply_diff(void *block1, void *diff_buffer, int diff_size)
-//--unused-- {
-//--unused-- 	unsigned int i, j, n, size;
-//--unused-- 	ushort *c1, *c2;
-//--unused--
-//--unused-- 	//mprintf(0, "=================================\n");
-//--unused-- 	c1 = (ushort *)diff_buffer;
-//--unused-- 	c2 = (ushort *)block1;
-//--unused--
-//--unused-- 	size = diff_size/2;
-//--unused--
-//--unused-- 	i=j=0;
-//--unused-- 	while (1) {
-//--unused-- 		j += c1[i];         // Same
-//--unused-- 		//mprintf(0, "%ds ", c1[i]);
-//--unused-- 		i++;
-//--unused-- 		if (i>=size) break;
-//--unused-- 		n = c1[i];          // ndiff
-//--unused-- 		//mprintf(0, "%dd ", c1[i]);
-//--unused-- 		i++;
-//--unused-- 		if (n>0) {
-//--unused-- 			//Assert(n* < 256);
-//--unused-- 			memcpy(&c2[j], &c1[i], n*2);
-//--unused-- 			i += n;
-//--unused-- 			j += n;
-//--unused-- 		}
-//--unused-- 		if (i>=size) break;
-//--unused-- 	}
-//--unused-- 	//mprintf(0, "=================================\n");
-//--unused--
-//--unused-- 	return j*2;
-//--unused-- }

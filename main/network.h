@@ -199,5 +199,6 @@ extern int HoardEquipped();
 extern int PingTable[MAX_PLAYERS];
 extern void network_ping_all();
 extern int network_who_is_master(void);
+extern int IPX_Socket;
 
 #endif /* _NETWORK_H */

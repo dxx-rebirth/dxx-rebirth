@@ -74,8 +74,11 @@ extern int NetDrvGetPacketData( ubyte * data );
 extern void NetDrvSendBroadcastPacketData( ubyte * data, int datasize );
 extern void NetDrvSendPacketData( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address );
 extern void NetDrvSendInternetworkPacketData( ubyte * data, int datasize, ubyte * server, ubyte *address );
+extern int NetDrvType(void);
 
+#ifndef __APPLE__
 extern struct net_driver netdrv_ipx;
+#endif
 #ifdef __LINUX__
 extern struct net_driver netdrv_kali;
 #endif

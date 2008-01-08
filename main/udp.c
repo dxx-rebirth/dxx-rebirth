@@ -243,16 +243,6 @@ void UDPCheckDisconnect(struct _sockaddr *sAddr, char *text)
 				memset(UDPPeers[i].hs_list,0,MAX_CONNECTIONS);
 				UDPPeers[i].hstimeout=0;
 				UDPPeers[i].relay=0;
-				if (i==0) // Host has left - Quit game!
-				{
-					Function_mode = FMODE_MENU;
-					nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
-					multi_quit_game = 1;
-					multi_leave_menu = 1;
-					multi_reset_stuff();
-					longjmp(LeaveGame,1);  // because the other crap didn't work right
-					return;
-				}
 			}
 			else
 			{
@@ -268,16 +258,6 @@ void UDPCheckDisconnect(struct _sockaddr *sAddr, char *text)
 			memset(UDPPeers[i].hs_list,0,MAX_CONNECTIONS);
 			UDPPeers[i].hstimeout=0;
 			UDPPeers[i].relay=0;
-			if (i==0) // Host has left - Quit game!
-			{
-				Function_mode = FMODE_MENU;
-				nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
-				multi_quit_game = 1;
-				multi_leave_menu = 1;
-				multi_reset_stuff();
-				longjmp(LeaveGame,1);  // because the other crap didn't work right
-				return;
-			}
 		}
 	}
 }

@@ -338,3 +338,10 @@ int NetDrvChangeDefaultSocket( ushort socket_number )
 
 	return 0;
 }
+
+// Return type of net_driver
+int NetDrvType(void)
+{
+	return driver->type;
+}
+
