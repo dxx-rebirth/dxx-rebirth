@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20080108
 --------
 SConstruct, include/args.h, include/netdrv.h, main/gameseq.c, main/netdrv.c, main/netpkt.c, main/netpkt.h, main/network.c, main/network.h, main/udp.c, misc/args.c: Fixing MAC compiling issues (hopefully); Re-Added IPX Socket option to Host menu for IPX games; Renamed netmisc.* to netpkt.*; Handling host disconnect for UDP games in network.c
+main/menu.c, main/newmenu.c, main/newmenu.h: Safe timer rollover in menu idle-demo function; Reintroduced menu shortcuts; Implemented support for menu scrolling if nitems > 15
 
 20080102
 --------

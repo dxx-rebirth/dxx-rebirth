@@ -433,7 +433,7 @@ void update_cursor( newmenu_item *item, int ScrollOffset)
 	}
 	if (*text==0) 
 		w = 0;
-	x = item->x+w; y = item->y -FONTSCALE_Y(grd_curcanv->cv_font->ft_h+1)*ScrollOffset;
+	x = item->x+w; y = item->y - FONTSCALE_Y(grd_curcanv->cv_font->ft_h+1)*ScrollOffset;
 
 	if (time & 0x8000)
 		gr_string( x, y, CURSOR_STRING );
@@ -1154,28 +1154,29 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			do {
 				choice--;
 
-			if (IsScrollBox)
-			{
-				LastScrollCheck=-1;
-				mprintf ((0,"Scrolling! Choice=%d\n",choice));
-					
-				if (choice<TopChoice)
-					{ choice=TopChoice; break; }
-		
-				if (choice-4<ScrollOffset && ScrollOffset > 0)
+				if (IsScrollBox)
 				{
-					for (i=0;i<nitems;i++)
-						item[i].redraw=1;
-					ScrollOffset--;
-					mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
+					LastScrollCheck=-1;
+					mprintf ((0,"Scrolling! Choice=%d\n",choice));
+						
+					if (choice<TopChoice)
+						{ choice=TopChoice; break; }
+			
+					if (choice-4<ScrollOffset && ScrollOffset > 0)
+					{
+						for (i=0;i<nitems;i++)
+							item[i].redraw=1;
+						ScrollOffset--;
+						mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
+					}
 				}
-			}
-			else
-			{
-				if (choice >= nitems ) choice=0;
-				if (choice < 0 ) choice=nitems-1;
-			}
-				} while ( item[choice].type==NM_TYPE_TEXT );
+				else
+				{
+					if (choice >= nitems ) choice=0;
+					if (choice < 0 ) choice=nitems-1;
+				}
+			} while ( item[choice].type==NM_TYPE_TEXT );
+
 			if ((item[choice].type==NM_TYPE_INPUT) && (choice!=old_choice))	
 				item[choice].value = -1;
 			if ((old_choice>-1) && (item[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=choice))	{
@@ -1192,7 +1193,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		case KEY_PAD2:
 		// ((0,"Pressing down! IsScrollBox=%d",IsScrollBox));
 			if (all_text) break;
-				do {
+			do {
 					choice++;
 	
 				if (IsScrollBox)
@@ -1211,13 +1212,13 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 						mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
 					}
 				}
-		else
-		{
-			if (choice < 0 ) choice=nitems-1;
-				if (choice >= nitems ) choice=0;
-		}
+				else
+				{
+					if (choice < 0 ) choice=nitems-1;
+						if (choice >= nitems ) choice=0;
+				}
 
-				} while ( item[choice].type==NM_TYPE_TEXT );
+			} while ( item[choice].type==NM_TYPE_TEXT );
 
 			if ((item[choice].type==NM_TYPE_INPUT) && (choice!=old_choice))	
 				item[choice].value = -1;
@@ -1244,13 +1245,13 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 						item[choice].value = 1;
 					mprintf ((0,"ISB=%d MDI=%d SO=%d choice=%d\n",IsScrollBox,MAXDISPLAYABLEITEMS,ScrollOffset,choice));
 					if (IsScrollBox)
-					 {
+					{
 						if (choice==(MaxOnMenu+ScrollOffset-1) || choice==ScrollOffset)
-						 {
-						   mprintf ((0,"Special redraw!\n"));
-							LastScrollCheck=-1;					
-						 }
-					 }
+						{
+							mprintf ((0,"Special redraw!\n"));
+							LastScrollCheck=-1;
+						}
+					}
 				
 					item[choice].redraw=1;
 					break;
@@ -1646,8 +1647,49 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 					}
 				}
 			}
+			else if ((item[choice].type!=NM_TYPE_INPUT) && (item[choice].type!=NM_TYPE_INPUT_MENU) )
+			{
+				ascii = key_to_ascii(k);
+				if (ascii < 255 ) {
+					int choice1 = choice;
+					ascii = toupper(ascii);
+					do {
+						int i,ch;
+						choice1++;
+						if (choice1 >= nitems )
+							choice1=0;
 
-			if ( (item[choice].type==NM_TYPE_NUMBER) || (item[choice].type==NM_TYPE_SLIDER)) 	{
+						for (i=0;(ch=item[choice1].text[i])!=0 && ch==' ';i++);
+
+						if ( ( (item[choice1].type==NM_TYPE_MENU) ||
+								(item[choice1].type==NM_TYPE_CHECK) ||
+								(item[choice1].type==NM_TYPE_RADIO) ||
+								(item[choice1].type==NM_TYPE_NUMBER) ||
+								(item[choice1].type==NM_TYPE_SLIDER) )
+								&& (ascii==toupper(ch)) )
+						{
+							k = 0;
+							choice = choice1;
+							if (old_choice>-1)
+								item[old_choice].redraw=1;
+							item[choice].redraw=1;
+						}
+
+						while (choice > ScrollOffset+MaxDisplayable-1)
+						{
+							ScrollOffset++;
+						}
+						while (choice < ScrollOffset)
+						{
+							ScrollOffset--;
+						}
+
+					} while (choice1 != choice );
+				}
+			}
+
+			if ( (item[choice].type==NM_TYPE_NUMBER) || (item[choice].type==NM_TYPE_SLIDER))
+			{
 				int ov=item[choice].value;
 				switch( k ) {
 				case KEY_PAD4:

@@ -160,7 +160,7 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 
 	if ( do_auto_demo )     {
 		curtime = timer_get_approx_seconds();
-		if ( (((keyd_time_when_last_pressed+i2f(25)) < curtime) && (!Speedtest_on)) || GameArg.SysAutoDemo  ) {
+		if ( (((keyd_time_when_last_pressed+i2f(25)) < curtime || curtime+i2f(25) < keyd_time_when_last_pressed) && (!Speedtest_on)) || GameArg.SysAutoDemo  ) {
 			int n_demos;
 
 			n_demos = newdemo_count_demos();
