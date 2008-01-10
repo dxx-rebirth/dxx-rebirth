@@ -126,7 +126,11 @@ void jukebox_stop() {
 	jukebox_playing = 0;
 }
 
-void jukebox_stop_hook() {
+void jukebox_hook_stop() {
+	if (!jukebox_loaded) return;
+}
+
+void jukebox_hook_next() {
 	if (!jukebox_loaded) return;
 	if (jukebox_playing)	jukebox_next();
 }

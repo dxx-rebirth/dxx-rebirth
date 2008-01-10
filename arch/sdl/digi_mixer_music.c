@@ -36,12 +36,8 @@
 
 Mix_Music *current_music = NULL;
 
-void music_done() {
-  Mix_HaltMusic();
-  Mix_FreeMusic(current_music);
-  current_music = NULL;
-  jukebox_stop_hook();
-}
+void music_hook_stop();
+void music_hook_next();
 
 void convert_hmp(char *filename, char *mid_filename) {
 
@@ -131,12 +127,26 @@ void mix_play_file(char *basedir, char *filename, int loop) {
     else {
       Mix_PlayMusic(current_music, loop);
     }
-    Mix_HookMusicFinished(music_done);
+    Mix_HookMusicFinished(loop == -1 ? music_hook_next : music_hook_stop);
   }
   else {
     fprintf(stderr, "File %s%s could not be loaded\n", basedir, filename);
     Mix_HaltMusic();
   }
+}
+
+// What to do when stopping song playback
+void music_hook_stop() {
+  Mix_HaltMusic();
+  Mix_FreeMusic(current_music);
+  current_music = NULL;
+  jukebox_hook_stop();
+}
+
+// What to do when going to next song / looping
+void music_hook_next() {
+  music_hook_stop();
+  jukebox_hook_next();
 }
 
 void mix_set_music_volume(int vol) {

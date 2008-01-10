@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080110
+--------
+arch/sdl/jukebox.c, arch/sdl/include/jukebox.h, arch/sdl/digi_mixer_music.c; fixed looping jukebox music when it shouldn't (at end of level)
+
 20080108
 --------
 SConstruct, 2d/font.c, include/args.h, include/byteswap.h, include/netdrv.h, main/args.c, main/gameseq.c, main/gameseg.c, main/menu.c, main/multi.c, main/multi.h, main/multibot.c, main/netdrv.c, main/netlist.c, main/netpkt.c, main/netpkt.h, main/network.c, main/network.h, main/newdemo.c, main/object.h, main/udp.c: Added BigEndian-related multiplayer/network code (unfinished); Re-Added IPX Socket option to Host menu for IPX games; Removed ForceVersionCheck global - conditions with driver->type; Merged netmisc.* and netpkt.*; Handling host disconnect for UDP games in network.c

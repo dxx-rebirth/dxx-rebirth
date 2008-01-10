@@ -4,7 +4,8 @@
 void jukebox_load();
 void jukebox_play();
 void jukebox_stop();
-void jukebox_stop_hook();
+void jukebox_hook_stop();
+void jukebox_hook_next();
 void jukebox_next();
 void jukebox_prev();
 char *jukebox_current();
