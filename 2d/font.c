@@ -1414,7 +1414,7 @@ grs_font * gr_init_font( char * fontname )
 	datasize = cfile_read_int(fontfile);
 	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
 
-	MALLOC(font, grs_font, sizeof(grs_font));
+	MALLOC(font, grs_font, 1);
 	grs_font_read(font, fontfile);
 
 	MALLOC(font_data, char, datasize);
