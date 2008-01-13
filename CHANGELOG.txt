@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/network.c: fix typo causing compiler error on bigendian computers
 2d/font.c, 2d/pcx.c, 3d/interp.c, cfile/cfile.c, include/cfile.h, include/pstypes.h, main/bm.c, main/cntrlcen.c, main/cntrlcen.h, main/custom.c, main/custom.h, main/effects.c, main/effects.h, main/fuelcen.c, main/fuelcen.h, main/gamemine.c, main/gamesave.c, main/loadrl2.c, main/newdemo.c, main/piggy.c, main/piggy.h, main/playsave.c, main/polyobj.c, main/powerup.c, main/powerup.h, main/robot.c, main/robot.h, main/scores.c, main/switch.c, main/switch.h, main/vclip.c, main/vclip.h, main/wall.c, main/wall.h, main/weapon.c, main/weapon.h: complete bigendian support, without touching network code
 2d/font.c: make special characters print for platforms where a char is signed by default
+arch/ogl/gr.c, arch/ogl/include/ogl_init.h, arch/ogl/sdlgl.c, include/args.h, main/args.c, main/inferno.c, main/menu.c, main/newdemo.c: Removed SDL Gammaramp code (obsolete); Improvements on Demo code
 
 20080110
 --------

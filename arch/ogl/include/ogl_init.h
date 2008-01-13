@@ -64,7 +64,6 @@ extern int ogl_fullscreen;
 
 extern int ogl_brightness_ok;
 extern int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
-int ogl_setbrightness_internal(void);
 
 void ogl_do_fullscreen_internal(void);
 

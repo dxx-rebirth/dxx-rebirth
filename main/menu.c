@@ -132,19 +132,10 @@ void do_ip_manual_join_menu();
 #define ADD_ITEM(t,value,key)  do { m[num_options].type=NM_TYPE_MENU; m[num_options].text=t; menu_choice[num_options]=value;num_options++; } while (0)
 
 extern int last_joy_time;		//last time the joystick was used
-#ifndef NDEBUG
-/* extern int speedtest_on; adb: not found...*/
-#define speedtest_on 0
-#else
-#define speedtest_on 0
-#endif
-
 extern void newmenu_close();
 
-ubyte do_auto_demo = 1;			// Flag used to enable auto demo starting in main menu.
 int Player_default_difficulty; // Last difficulty level chosen by the player
 int Auto_leveling_on = 0;
-int Menu_draw_copyright = 0;
 
 void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int citem )
 {
@@ -157,15 +148,16 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 	// Don't allow them to hit ESC in the main menu.
 	if (*last_key==KEY_ESC) *last_key = 0;
 
-	if ( do_auto_demo )	{
-		curtime = timer_get_approx_seconds();
-		if ( (((keyd_time_when_last_pressed+i2f(45)) < curtime || curtime+i2f(25) < keyd_time_when_last_pressed) && (!speedtest_on)) || GameArg.SysAutoDemo  ) {
-			keyd_time_when_last_pressed = curtime;			// Reset timer so that disk won't thrash if no demos.
-			newdemo_start_playback(NULL);		// Randomly pick a file
-			if (Newdemo_state == ND_STATE_PLAYBACK)	{
-				Function_mode = FMODE_GAME;
-				*last_key = -2;							  	
-			}
+	curtime = timer_get_approx_seconds();
+	if ( keyd_time_when_last_pressed+i2f(45) < curtime || GameArg.SysAutoDemo  )
+	{
+		if (curtime < 0) curtime = 0;
+		keyd_time_when_last_pressed = curtime;			// Reset timer so that disk won't thrash if no demos.
+		newdemo_start_playback(NULL);		// Randomly pick a file
+		if (Newdemo_state == ND_STATE_PLAYBACK)
+		{
+			Function_mode = FMODE_GAME;
+			*last_key = -2;
 		}
 	}
 }
@@ -249,7 +241,6 @@ int DoMenu()
 	do {
 		keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
 		if (main_menu_choice < 0 )	main_menu_choice = 0;		
-		Menu_draw_copyright = 1;
                     main_menu_choice = newmenu_do2(NULL, NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
                     if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
 		create_main_menu(m, menu_choice, &num_options);	//	may have to change, eg, maybe selected pilot and no save games.

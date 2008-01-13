@@ -97,7 +97,6 @@ typedef struct Arg
 	int DbgGlRGBA2Ok;
 	int DbgGlReadPixelsOk;
 	int DbgGlGetTexLevelParamOk;
-	int DbgGlSetGammaRampOk;
 #else
 	int DbgSdlHWSurface;
 #endif
