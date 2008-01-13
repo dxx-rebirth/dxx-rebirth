@@ -204,7 +204,7 @@ int gr_internal_string0(int x, int y, char *s )
 
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = *text_ptr-FMINCHAR;
+				letter = (unsigned char)*text_ptr-FMINCHAR;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					VideoOffset += spacing;
@@ -303,9 +303,9 @@ int gr_internal_string0m(int x, int y, char *s )
 
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = *text_ptr-FMINCHAR;
+				letter = (unsigned char)*text_ptr-FMINCHAR;
 
-				if (!INFONT(letter) || *text_ptr<=0x06) {	//not in font, draw as space
+				if (!INFONT(letter) || (unsigned char)*text_ptr<=0x06) {	//not in font, draw as space
 					CHECK_EMBEDDED_COLORS() else{
 						VideoOffset += spacing;
 						text_ptr++;
@@ -413,7 +413,7 @@ int gr_internal_string2(int x, int y, char *s )
 
 				Assert(width==spacing);		//no kerning support here
 
-				letter = *text_ptr-FMINCHAR;
+				letter = (unsigned char)*text_ptr-FMINCHAR;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					VideoOffset += spacing;
@@ -616,7 +616,7 @@ int gr_internal_string2m(int x, int y, char *s )
 
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = *text_ptr-FMINCHAR;
+				letter = (unsigned char)*text_ptr-FMINCHAR;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					VideoOffset += width;
@@ -764,7 +764,7 @@ int gr_internal_color_string(int x, int y, char *s )
 				break;
 			}
 
-			letter = *text_ptr-FMINCHAR;
+			letter = (unsigned char)*text_ptr-FMINCHAR;
 
 			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
@@ -1005,11 +1005,11 @@ int ogl_internal_string(int x, int y, char *s )
 				break;
 			}
 
-			letter = *text_ptr-FMINCHAR;
+			letter = (unsigned char)*text_ptr-FMINCHAR;
 
 			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-			if (!INFONT(letter) || *text_ptr<=0x06) {	//not in font, draw as space
+			if (!INFONT(letter) || (unsigned char)*text_ptr<=0x06) {	//not in font, draw as space
 				CHECK_EMBEDDED_COLORS() else{
 					xx += spacing;
 					text_ptr++;
@@ -1405,7 +1405,7 @@ int gr_internal_string_clipped(int x, int y, char *s )
 
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = *text_ptr-FMINCHAR;
+				letter = (unsigned char)*text_ptr-FMINCHAR;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					x += spacing;
@@ -1494,7 +1494,7 @@ int gr_internal_string_clipped_m(int x, int y, char *s )
 
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = *text_ptr-FMINCHAR;
+				letter = (unsigned char)*text_ptr-FMINCHAR;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					x += spacing;
