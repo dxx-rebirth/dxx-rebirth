@@ -125,6 +125,20 @@ typedef ubyte bool;
 #define _dos_getvect(int) NULL
 #endif
 
+// the following stuff has nothing to do with types but needed everywhere,
+// and since this file is included everywhere, it's here.
+#if  defined(__i386__) || defined(__ia64__) || defined(WIN32) || \
+(defined(__alpha__) || defined(__alpha)) || \
+defined(__arm__) || defined(ARM) || \
+(defined(__mips__) && defined(__MIPSEL__)) || \
+defined(__SYMBIAN32__) || \
+defined(__x86_64__) || \
+defined(__LITTLE_ENDIAN__)	// from physfs_internal.h
+//# define WORDS_BIGENDIAN 0
+#else
+# define WORDS_BIGENDIAN 1
+#endif
+
 #ifdef __GNUC__
 # define __pack__ __attribute__((packed))
 #elif defined(_MSC_VER)

@@ -72,6 +72,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "piggy.h"
 #include "d_glob.h"
+#include "byteswap.h"
 #include "d_io.h"
 //added 05/17/99 Matt Mueller 
 #include "u_mem.h"
@@ -271,12 +272,18 @@ static void nd_write_byte(sbyte b)
 
 static void nd_write_short(short s)
 {
-	newdemo_write(&s, 2, 1);
+	short ss;
+	
+	ss = INTEL_SHORT(s);
+	newdemo_write(&ss, 2, 1);
 }
 
 static void nd_write_int(int i)
 {
-	newdemo_write(&i, 4, 1);
+	int si;
+	
+	si = INTEL_INT(i);
+	newdemo_write(&si, 4, 1);
 }
 
 static void nd_write_string(char *str)
@@ -287,12 +294,18 @@ static void nd_write_string(char *str)
 
 static void nd_write_fix(fix f)
 {
-	newdemo_write(&f, sizeof(fix), 1);
+	int si;
+	
+	si = INTEL_INT((int)f);
+	newdemo_write(&si, sizeof(fix), 1);
 }
 
 static void nd_write_fixang(fixang f)
 {
-	newdemo_write(&f, sizeof(fixang), 1);
+	int si;
+	
+	si = INTEL_INT((int)f);
+	newdemo_write(&si, sizeof(fixang), 1);
 }
 
 static void nd_write_vector(vms_vector *v)
@@ -346,12 +359,16 @@ static void nd_read_byte(sbyte *b)
 
 static void nd_read_short(short *s)
 {
-	newdemo_read(s, 2, 1);
+	short ss;
+	newdemo_read(&ss, 2, 1);
+	*s = INTEL_SHORT(ss);
 }
 
 static void nd_read_int(int *i)
 {
-	newdemo_read(i, 4, 1);
+	int si;
+	newdemo_read(&si, 4, 1);
+	*i = INTEL_INT(si);
 }
 
 static void nd_read_string(char *str)
@@ -364,18 +381,22 @@ static void nd_read_string(char *str)
 
 static void nd_read_fix(fix *f)
 {
-	newdemo_read(f, sizeof(fix), 1);
+	int si;
+	newdemo_read(&si, sizeof(fix), 1);
+	*f = (fix)INTEL_INT(si);
 }
 
 static void nd_read_fixang(fixang *f)
 {
-	newdemo_read(f, sizeof(fixang), 1);
+	int si;
+	newdemo_read(&si, sizeof(fixang), 1);
+	*f = (fixang)INTEL_INT(si);
 }
 
 static void nd_read_vector(vms_vector *v)
 {
-  	nd_read_fix(&(v->x));
-   nd_read_fix(&(v->y));
+	nd_read_fix(&(v->x));
+	nd_read_fix(&(v->y));
 	nd_read_fix(&(v->z));
 }
 
@@ -416,8 +437,10 @@ object *prev_obj=NULL; //ptr to last object read in
 
 void nd_read_object(object *obj)
 {
+	sbyte b;
+	short s;
+	
 	memset(obj, 0, sizeof(object));
-	int* sig = &(obj->signature);
 /*
  *  Do render type first, since with render_type == RT_NONE, we
  *  blow by all other object information
@@ -429,7 +452,8 @@ void nd_read_object(object *obj)
 
 	nd_read_byte((sbyte *)&(obj->id));
 	nd_read_byte((sbyte *)&(obj->flags));
-	nd_read_short(/*(short *)&(obj->signature)*/(short*)sig);
+	nd_read_short(/*(short *)&(obj->signature)*/&s);	// for big endian machines
+	obj->signature = s;
 	nd_read_shortpos(obj);
 
 	obj->attached_obj = -1;
@@ -484,8 +508,8 @@ void nd_read_object(object *obj)
 	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
 		nd_read_fix(&(obj->lifeleft));
 	else {
-		nd_read_byte((sbyte *)&(obj->lifeleft));
-		obj->lifeleft = (fix)((int)obj->lifeleft << 12);
+		nd_read_byte(/*(sbyte *)&(obj->lifeleft)*/ &b);	// for big endian computers
+		obj->lifeleft = (fix)((int)b << 12);
 	}
 
 #ifndef SHAREWARE

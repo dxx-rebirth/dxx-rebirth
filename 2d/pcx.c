@@ -90,6 +90,37 @@ typedef struct	{
 } PCXHeader;
 
 
+#ifdef FAST_FILE_IO
+#define PCXHeader_read_n(ph, n, fp) cfread(ph, sizeof(PCXHeader), n, fp)
+#else
+/*
+ * reads n PCXHeader structs from a CFILE
+ */
+int PCXHeader_read_n(PCXHeader *ph, int n, CFILE *fp)
+{
+	int i;
+	
+	for (i = 0; i < n; i++) {
+		ph->Manufacturer = cfile_read_byte(fp);
+		ph->Version = cfile_read_byte(fp);
+		ph->Encoding = cfile_read_byte(fp);
+		ph->BitsPerPixel = cfile_read_byte(fp);
+		ph->Xmin = cfile_read_short(fp);
+		ph->Ymin = cfile_read_short(fp);
+		ph->Xmax = cfile_read_short(fp);
+		ph->Ymax = cfile_read_short(fp);
+		ph->Hdpi = cfile_read_short(fp);
+		ph->Vdpi = cfile_read_short(fp);
+		cfread(&ph->ColorMap, 16*3, 1, fp);
+		ph->Reserved = cfile_read_byte(fp);
+		ph->Nplanes = cfile_read_byte(fp);
+		ph->BytesPerLine = cfile_read_short(fp);
+		cfread(&ph->filler, 60, 1, fp);
+	}
+	return i;
+}
+#endif
+
 int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
 {
 	PCXHeader header;
@@ -102,11 +133,11 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 		return PCX_ERROR_OPENING;
 
 	// read 128 char PCX header
-	if (cfread( &header, sizeof(PCXHeader), 1, PCXfile )!=1)	{
+	if (PCXHeader_read_n( &header, 1, PCXfile )!=1)	{
 		cfclose( PCXfile );
 		return PCX_ERROR_NO_HEADER;
 	}
-
+	
 	// Is it a 256 color PCX file?
 	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
 		cfclose( PCXfile );
@@ -206,9 +237,9 @@ int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 	header.Nplanes = 1;
 	header.BitsPerPixel = 8;
 	header.Version = 5;
-	header.Xmax = bmp->bm_w-1;
-	header.Ymax = bmp->bm_h-1;
-	header.BytesPerLine = bmp->bm_w;
+	header.Xmax = (ushort)(bmp->bm_w-1);
+	header.Ymax = (ushort)(bmp->bm_h-1);
+	header.BytesPerLine = (ushort)bmp->bm_w;
 
 	PCXfile = fopen( filename , "wb" );
 	if ( !PCXfile )

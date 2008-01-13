@@ -172,5 +172,20 @@ do {                                                                            
 #define PIGGY_PAGE_IN(bmp)
 #endif // PIGGY_USE_PAGING
 
+#ifdef FAST_FILE_IO
+#define bitmap_index_read(bi, fp) cfread(bi, sizeof(bitmap_index), 1, fp)
+#define bitmap_index_read_n(bi, n, fp) cfread(bi, sizeof(bitmap_index), n, fp)
+#else
+/*
+ * reads a bitmap_index structure from a CFILE
+ */
+void bitmap_index_read(bitmap_index *bi, CFILE *fp);
+
+/*
+ * reads n bitmap_index structs from a CFILE
+ */
+int bitmap_index_read_n(bitmap_index *bi, int n, CFILE *fp);
+#endif // FAST_FILE_IO
+
 #endif // _PIGGY_H
 

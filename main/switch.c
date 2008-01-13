@@ -414,3 +414,23 @@ void triggers_frame_process()
 			Triggers[i].time -= FrameTime;
 }
 
+#ifndef FAST_FILE_IO
+/*
+ * reads a v29_trigger structure from a CFILE
+ */
+extern void trigger_read(trigger *t, CFILE *fp)
+{
+	int i;
+	
+	t->type = cfile_read_byte(fp);
+	t->flags = cfile_read_short(fp);
+	t->value = cfile_read_fix(fp);
+	t->time = cfile_read_fix(fp);
+	t->link_num = cfile_read_byte(fp);
+	t->num_links = cfile_read_short(fp);
+	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+		t->seg[i] = cfile_read_short(fp);
+	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+		t->side[i] = cfile_read_short(fp);
+}
+#endif

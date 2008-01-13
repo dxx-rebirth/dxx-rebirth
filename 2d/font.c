@@ -1244,7 +1244,7 @@ grs_font * gr_init_font( char * fontname )
 	unsigned char * ptr;
 	int nchars;
 	CFILE *fontfile;
-	u_int32_t file_id;
+	char file_id[4];
 	int32_t datasize;		//size up to (but not including) palette
 
 	fontfile = cfopen(fontname, "rb");
@@ -1252,40 +1252,43 @@ grs_font * gr_init_font( char * fontname )
 	if (!fontfile)
 		Error( "Can't open font file %s", fontname );
 
-	cfread(&file_id,sizeof(file_id),1,fontfile);
-	file_id=INTEL_INT(file_id);
-	cfread(&datasize,sizeof(datasize),1,fontfile);
-	datasize=INTEL_INT(datasize);
-
-	if (file_id != 0x4e465350) /* 'NFSP' */
-		Error( "File %s is not a font file", fontname );
+	cfread(file_id, 4, 1, fontfile);
+	if ( !strncmp( file_id, "NFSP", 4 ) ) {
+		mprintf((0, "File %s is not a font file\n", fontname ));
+		return NULL;
+	}
+	
+	datasize = cfile_read_int(fontfile);
 
 	font = (old_grs_font *) malloc(datasize);
 	newfont = (grs_font *) malloc(sizeof(grs_font));
 	newfont->oldfont=font;
 
 	cfread(font,1,datasize,fontfile);
-
-	newfont->ft_flags=INTEL_INT(font->ft_flags);
+	
+	newfont->ft_flags=INTEL_SHORT(font->ft_flags);
 	newfont->ft_w=INTEL_SHORT(font->ft_w);
 	newfont->ft_h=INTEL_SHORT(font->ft_h);
 	newfont->ft_baseline=INTEL_SHORT(font->ft_baseline);
 	newfont->ft_maxchar=font->ft_maxchar;
 	newfont->ft_minchar=font->ft_minchar;
 	newfont->ft_bytewidth=INTEL_SHORT(font->ft_bytewidth);
-
+	
 	nchars = newfont->ft_maxchar-newfont->ft_minchar+1;
 
 	if (newfont->ft_flags & FT_PROPORTIONAL) {
 
 		newfont->ft_widths = (short *) (INTEL_INT(font->ft_widths) + ((ubyte *) font));
-
+		
+		for (i = 0; i < nchars; i++)
+			newfont->ft_widths[i] = INTEL_SHORT(newfont->ft_widths[i]);
+		
 		newfont->ft_data = (INTEL_INT(font->ft_data)) + ((ubyte *) font);
-
+		
 		newfont->ft_chars = (unsigned char **)malloc( nchars * sizeof(unsigned char *));
-
+		
 		ptr = newfont->ft_data;
-
+		
 		for (i=0; i< nchars; i++ ) {
 			newfont->ft_chars[i] = ptr;
 			if (newfont->ft_flags & FT_COLOR)
@@ -1293,59 +1296,59 @@ grs_font * gr_init_font( char * fontname )
 			else
 				ptr += BITS_TO_BYTES(newfont->ft_widths[i]) * newfont->ft_h;
 		}
-
+		
 	} else  {
-
+		
 		newfont->ft_data = ((unsigned char *) font) + sizeof(*font);
-
+		
 		newfont->ft_chars	= NULL;
 		newfont->ft_widths = NULL;
-
+		
 		ptr = newfont->ft_data + (nchars * newfont->ft_w * newfont->ft_h);
 	}
-
+	
 	if (newfont->ft_flags & FT_KERNED) 
 		newfont->ft_kerndata = INTEL_INT(font->ft_kerndata) + ((ubyte *) font);
-
-
+	
+	
 	if (newfont->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];
 		ubyte colormap[256];
 		int freq[256];
-
+		
 		cfread(palette,3,256,fontfile);		//read the palette
-
+		
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
-	
+		
 		colormap[255] = 255;
-
+		
 		decode_data_asm(newfont->ft_data, ptr-newfont->ft_data, colormap, freq );
 	}
-
+	
 	cfclose(fontfile);
-
-//	memcpy(newfont,font,(ubyte*)&newfont->oldfont-(ubyte*)newfont);//fill in newfont data from oldfont struct
-//	mprintf((0,"%i %i %i\n",sizeof(grs_font),sizeof(old_grs_font),(ubyte*)&newfont->oldfont-(ubyte*)newfont));
-
+	
+	//	memcpy(newfont,font,(ubyte*)&newfont->oldfont-(ubyte*)newfont);//fill in newfont data from oldfont struct
+	//	mprintf((0,"%i %i %i\n",sizeof(grs_font),sizeof(old_grs_font),(ubyte*)&newfont->oldfont-(ubyte*)newfont));
+	
 	//set curcanv vars
-
+	
 	FONT        = newfont;
 	FG_COLOR    = 0;
 	BG_COLOR    = 0;
-
+	
 	{
 		int x,y,aw;
 		char tests[]="abcdefghij1234.A";
 		gr_get_string_size(tests,&x,&y,&aw);
 		newfont->ft_aw=x/(float)strlen(tests);
 	}
-
+	
 #ifdef OGL
 	ogl_init_font(newfont);
 #endif
-
+	
 	return newfont;
-
+	
 }
 
 

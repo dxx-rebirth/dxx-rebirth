@@ -122,6 +122,44 @@ bitmap_index		ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, since some are used twice.
 
 #ifndef SHAREWARE
+#ifdef FAST_FILE_IO
+#define tmap_info_read_n(ti, n, fp) cfread(ti, TMAP_INFO_SIZE, n, fp)
+#else
+/*
+ * reads n tmap_info structs from a CFILE
+ */
+int tmap_info_read_n(tmap_info *ti, int n, CFILE *fp)
+{
+	int i;
+	
+	for (i = 0; i < n; i++) {
+		cfread(TmapInfo[i].filename, 13, 1, fp);
+		ti[i].flags = cfile_read_byte(fp);
+		ti[i].lighting = cfile_read_fix(fp);
+		ti[i].damage = cfile_read_fix(fp);
+		ti[i].eclip_num = cfile_read_int(fp);
+	}
+	return i;
+}
+#endif
+
+int player_ship_read(player_ship *ps, CFILE *fp)
+{
+	int i;
+	ps->model_num = cfile_read_int(fp);
+	ps->expl_vclip_num = cfile_read_int(fp);
+	ps->mass = cfile_read_fix(fp);
+	ps->drag = cfile_read_fix(fp);
+	ps->max_thrust = cfile_read_fix(fp);
+	ps->reverse_thrust = cfile_read_fix(fp);
+	ps->brakes = cfile_read_fix(fp);
+	ps->wiggle = cfile_read_fix(fp);
+	ps->max_rotthrust = cfile_read_fix(fp);
+	for (i = 0; i < N_PLAYER_GUNS; i++)
+		cfile_read_vector(&ps->gun_points[i], fp);
+	return i;
+}
+
 //-----------------------------------------------------------------
 // Initializes all bitmaps from BITMAPS.TBL file.
 int bm_init()
@@ -136,70 +174,79 @@ int bm_init()
 void bm_read_all(CFILE * fp)
 {
 	int i;
-
-	cfread( &NumTextures, sizeof(int), 1, fp );
-	cfread( Textures, sizeof(bitmap_index), MAX_TEXTURES, fp );
-	cfread( TmapInfo, sizeof(tmap_info), MAX_TEXTURES, fp );
+	
+	//  bitmap_index is a short
+	
+	NumTextures = cfile_read_int(fp);
+	bitmap_index_read_n(Textures, MAX_TEXTURES, fp );
+	tmap_info_read_n(TmapInfo, MAX_TEXTURES, fp);
 	
 	cfread( Sounds, sizeof(ubyte), MAX_SOUNDS, fp );
 	cfread( AltSounds, sizeof(ubyte), MAX_SOUNDS, fp );
-
-	cfread( &Num_vclips, sizeof(int), 1, fp );
-	cfread( Vclip, sizeof(vclip), VCLIP_MAXNUM, fp );
-
-	cfread( &Num_effects, sizeof(int), 1, fp );
-	cfread( Effects, sizeof(eclip), MAX_EFFECTS, fp );
-
-	cfread( &Num_wall_anims, sizeof(int), 1, fp );
-	cfread( WallAnims, sizeof(wclip), MAX_WALL_ANIMS, fp );
-
-	cfread( &N_robot_types, sizeof(int), 1, fp );
-	cfread( Robot_info, sizeof(robot_info), MAX_ROBOT_TYPES, fp );
-
-	cfread( &N_robot_joints, sizeof(int), 1, fp );
-	cfread( Robot_joints, sizeof(jointpos), MAX_ROBOT_JOINTS, fp );
-
-	cfread( &N_weapon_types, sizeof(int), 1, fp );
-	cfread( Weapon_info, sizeof(weapon_info), MAX_WEAPON_TYPES, fp );
-
-	cfread( &N_powerup_types, sizeof(int), 1, fp );
-	cfread( Powerup_info, sizeof(powerup_type_info), MAX_POWERUP_TYPES, fp );
 	
-	cfread( &N_polygon_models, sizeof(int), 1, fp );
+	Num_vclips = cfile_read_int(fp);
+	vclip_read_n(Vclip, VCLIP_MAXNUM, fp);
+	
+	Num_effects = cfile_read_int(fp);
+	eclip_read_n(Effects, MAX_EFFECTS, fp);
+	
+	Num_wall_anims = cfile_read_int(fp);
+	wclip_read_n(WallAnims, MAX_WALL_ANIMS, fp);
+	
+	N_robot_types = cfile_read_int(fp);
+	robot_info_read_n(Robot_info, MAX_ROBOT_TYPES, fp);
+	
+	N_robot_joints = cfile_read_int(fp);
+	jointpos_read_n(Robot_joints, MAX_ROBOT_JOINTS, fp);
+	
+	N_weapon_types = cfile_read_int(fp);
+	weapon_info_read_n(Weapon_info, MAX_WEAPON_TYPES, fp);
+	
+	N_powerup_types = cfile_read_int(fp);
+	powerup_type_info_read_n(Powerup_info, MAX_POWERUP_TYPES, fp);
+	
+	N_polygon_models = cfile_read_int(fp);	
 	polymodel_read_n(Polygon_models, N_polygon_models, fp);
 
 	for (i=0; i<N_polygon_models; i++ )
 		polygon_model_data_read(&Polygon_models[i], fp);
 
-	cfread( Gauges, sizeof(bitmap_index), MAX_GAUGE_BMS, fp );
-
-	cfread( Dying_modelnums, sizeof(int), MAX_POLYGON_MODELS, fp );
-	cfread( Dead_modelnums, sizeof(int), MAX_POLYGON_MODELS, fp );
-
-	cfread( ObjBitmaps, sizeof(bitmap_index), MAX_OBJ_BITMAPS, fp );
-	cfread( ObjBitmapPtrs, sizeof(ushort), MAX_OBJ_BITMAPS, fp );
-
-	cfread( &only_player_ship, sizeof(player_ship), 1, fp );
-
-	cfread( &Num_cockpits, sizeof(int), 1, fp );
-	cfread( cockpit_bitmap, sizeof(bitmap_index), N_COCKPIT_BITMAPS, fp );
-
+	bitmap_index_read_n(Gauges, MAX_GAUGE_BMS, fp);
+	
+	for (i = 0; i < MAX_POLYGON_MODELS; i++)
+		Dying_modelnums[i] = cfile_read_int(fp);
+	for (i = 0; i < MAX_POLYGON_MODELS; i++)
+		Dead_modelnums[i] = cfile_read_int(fp);
+	
+	bitmap_index_read_n(ObjBitmaps, MAX_OBJ_BITMAPS, fp);
+	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
+		ObjBitmapPtrs[i] = cfile_read_short(fp);
+	
+	player_ship_read(&only_player_ship, fp);
+	
+	Num_cockpits = cfile_read_int(fp);
+	bitmap_index_read_n(cockpit_bitmap, N_COCKPIT_BITMAPS, fp);
+	
 	cfread( Sounds, sizeof(ubyte), MAX_SOUNDS, fp );
 	cfread( AltSounds, sizeof(ubyte), MAX_SOUNDS, fp );
-
-	cfread( &Num_total_object_types, sizeof(int), 1, fp );
-	cfread( ObjType, sizeof(sbyte), MAX_OBJTYPE, fp );
-	cfread( ObjId, sizeof(sbyte), MAX_OBJTYPE, fp );
-	cfread( ObjStrength, sizeof(fix), MAX_OBJTYPE, fp );
-
-	cfread( &First_multi_bitmap_num, sizeof(int), 1, fp );
-
-	cfread( &N_controlcen_guns, sizeof(int), 1, fp );
-	cfread( controlcen_gun_points, sizeof(vms_vector), MAX_CONTROLCEN_GUNS, fp );
-	cfread( controlcen_gun_dirs, sizeof(vms_vector), MAX_CONTROLCEN_GUNS, fp );
-	cfread( &exit_modelnum, sizeof(int), 1, fp );
-	cfread( &destroyed_exit_modelnum, sizeof(int), 1, fp );
-
+	
+	Num_total_object_types = cfile_read_int(fp);
+	cfread( ObjType, sizeof(ubyte), MAX_OBJTYPE, fp );
+	cfread( ObjId, sizeof(ubyte), MAX_OBJTYPE, fp );
+	for (i = 0; i < MAX_OBJTYPE; i++)
+		ObjStrength[i] = cfile_read_fix(fp);
+	
+	First_multi_bitmap_num = cfile_read_int(fp);
+	N_controlcen_guns = cfile_read_int(fp);
+	
+	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
+		cfile_read_vector(&controlcen_gun_points[i], fp);
+	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
+		cfile_read_vector(&controlcen_gun_dirs[i], fp);
+	
+	exit_modelnum = cfile_read_int(fp);	
+	destroyed_exit_modelnum = cfile_read_int(fp);
+	
         #ifdef EDITOR
         //Hardcoded flags
         TextureMetals = 156;

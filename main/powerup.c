@@ -687,3 +687,21 @@ void dump_pow_count(char *title, int *pow_count) {
     mprintf((1, "-- powerup count different: %d\n", j));
 }
 #endif
+
+#ifndef FAST_FILE_IO
+/*
+ * reads n powerup_type_info structs from a CFILE
+ */
+int powerup_type_info_read_n(powerup_type_info *pti, int n, CFILE *fp)
+{
+	int i;
+	
+	for (i = 0; i < n; i++) {
+		pti[i].vclip_num = cfile_read_int(fp);
+		pti[i].hit_sound = cfile_read_int(fp);
+		pti[i].size = cfile_read_fix(fp);
+		pti[i].light = cfile_read_fix(fp);
+	}
+	return i;
+}
+#endif

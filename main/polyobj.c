@@ -95,7 +95,7 @@ int pof_read_int(ubyte *bufp)
 
 	i = *((int *) &bufp[Pof_addr]);
 	Pof_addr += 4;
-	return i;
+	return INTEL_INT(i);
 
 //	if (cfread(&i,sizeof(i),1,f) != 1)
 //		Error("Unexpected end-of-file while reading object");
@@ -127,7 +127,7 @@ short pof_read_short(ubyte *bufp)
 
 	s = *((short *) &bufp[Pof_addr]);
 	Pof_addr += 2;
-	return s;
+	return INTEL_SHORT(s);
 //	if (cfread(&s,sizeof(s),1,f) != 1)
 //		Error("Unexpected end-of-file while reading object");
 //
@@ -178,12 +178,12 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 #ifdef WORDS_NEED_ALIGNMENT
 ubyte * old_dest(chunk o) // return where chunk is (in unaligned struct)
 {
-	return o.old_base + swapshort(*((short *)(o.old_base + o.offset)));
+	return o.old_base + INTEL_SHORT(*((short *)(o.old_base + o.offset)));
 }
 
 ubyte * new_dest(chunk o) // return where chunk is (in aligned struct)
 {
-	return o.new_base + swapshort(*((short *)(o.old_base + o.offset))) + o.correction;
+	return o.new_base + INTEL_SHORT(*((short *)(o.old_base + o.offset))) + o.correction;
 }
 
 /*
@@ -238,8 +238,8 @@ void align_polygon_model_data(polymodel *pm)
 		}
 		//write (corrected) chunk for current chunk:
 		*((short *)(cur_ch.new_base + cur_ch.offset))
-		  = swapshort(cur_ch.correction
-				+ swapshort(*((short *)(cur_ch.old_base + cur_ch.offset))));
+		  = INTEL_SHORT(cur_ch.correction
+				+ INTEL_SHORT(*((short *)(cur_ch.old_base + cur_ch.offset))));
 		//write (correctly aligned) chunk:
 		cur_old = old_dest(cur_ch);
 		cur_new = new_dest(cur_ch);
@@ -290,7 +290,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
 	while (new_pof_read_int(id,model_buf) == 1) {
-
+		id = INTEL_INT(id);
 		//id  = pof_read_int(model_buf);
 		len = pof_read_int(model_buf);
 		next_chunk = Pof_addr + len;
@@ -465,7 +465,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 		Error("Bad version (%d) in model file <%s>",version,filename);
 
 	while (new_pof_read_int(id,model_buf) == 1) {
-
+		id = INTEL_INT(id);
 		//id  = pof_read_int(model_buf);
 		len = pof_read_int(model_buf);
 
@@ -753,12 +753,6 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	g3_end_frame();
 }
 
-extern int read_int(CFILE *file);
-extern fix read_fix(CFILE *file);
-extern short read_short(CFILE *file);
-extern sbyte read_byte(CFILE *file);
-extern void read_vector(vms_vector *v,CFILE *file);
-
 /*
  * reads n polymodel structs from a CFILE
  */
@@ -767,30 +761,30 @@ extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp)
 	int i, j;
 
 	for (i = 0; i < n; i++) {
-		pm[i].n_models = read_int(fp);
-		pm[i].model_data_size = read_int(fp);
-		pm[i].model_data = (ubyte *) (size_t)read_int(fp);
+		pm[i].n_models = cfile_read_int(fp);
+		pm[i].model_data_size = cfile_read_int(fp);
+		pm[i].model_data = (ubyte *) (size_t)cfile_read_int(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			pm[i].submodel_ptrs[j] = read_int(fp);
+			pm[i].submodel_ptrs[j] = cfile_read_int(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			read_vector(&(pm[i].submodel_offsets[j]), fp);
+			cfile_read_vector(&(pm[i].submodel_offsets[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			read_vector(&(pm[i].submodel_norms[j]), fp);
+			cfile_read_vector(&(pm[i].submodel_norms[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			read_vector(&(pm[i].submodel_pnts[j]), fp);
+			cfile_read_vector(&(pm[i].submodel_pnts[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			pm[i].submodel_rads[j] = read_fix(fp);
+			pm[i].submodel_rads[j] = cfile_read_fix(fp);
 		cfread(pm[i].submodel_parents, MAX_SUBMODELS, 1, fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			read_vector(&(pm[i].submodel_mins[j]), fp);
+			cfile_read_vector(&(pm[i].submodel_mins[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			read_vector(&(pm[i].submodel_maxs[j]), fp);
-		read_vector(&(pm[i].mins), fp);
-		read_vector(&(pm[i].maxs), fp);
-		pm[i].rad = read_fix(fp);
-		pm[i].n_textures = read_byte(fp);
-		pm[i].first_texture = read_short(fp);
-		pm[i].simpler_model = read_byte(fp);
+			cfile_read_vector(&(pm[i].submodel_maxs[j]), fp);
+		cfile_read_vector(&(pm[i].mins), fp);
+		cfile_read_vector(&(pm[i].maxs), fp);
+		pm[i].rad = cfile_read_fix(fp);
+		pm[i].n_textures = cfile_read_byte(fp);
+		pm[i].first_texture = cfile_read_short(fp);
+		pm[i].simpler_model = cfile_read_byte(fp);
 	}
 	return i;
 }
@@ -806,5 +800,8 @@ void polygon_model_data_read(polymodel *pm, CFILE *fp)
 	cfread(pm->model_data, sizeof(ubyte), pm->model_data_size, fp );
 #ifdef WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);
+#endif
+#ifdef WORDS_BIGENDIAN
+	swap_polygon_model_data(pm->model_data);
 #endif
 }

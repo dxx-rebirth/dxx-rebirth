@@ -173,6 +173,38 @@ typedef struct stuckobj {
 	int	signature;
 } stuckobj;
 
+//Start old wall structures
+
+typedef struct v16_wall {
+	sbyte  type; 			  	// What kind of special wall.
+	sbyte	flags;				// Flags for the wall.		
+	fix   hps;				  	// "Hit points" of the wall. 
+	sbyte	trigger;				// Which trigger is associated with the wall.
+	sbyte	clip_num;			// Which	animation associated with the wall. 
+	sbyte	keys;
+} __pack__ v16_wall;
+
+typedef struct v19_wall {
+	int	segnum,sidenum;	// Seg & side for this wall
+	sbyte	type; 			  	// What kind of special wall.
+	sbyte	flags;				// Flags for the wall.		
+	fix   hps;				  	// "Hit points" of the wall. 
+	sbyte	trigger;				// Which trigger is associated with the wall.
+	sbyte	clip_num;			// Which	animation associated with the wall. 
+	sbyte	keys;
+	int	linked_wall;		// number of linked wall
+} __pack__ v19_wall;
+
+typedef struct v19_door {
+	int		n_parts;					// for linked walls
+	short 	seg[2]; 					// Segment pointer of door.
+	short 	side[2];					// Side number of door.
+	short 	type[2];					// What kind of door animation.
+	fix 		open;						//	How long it has been open.
+} __pack__ v19_door;
+
+//End old wall structures
+
 typedef struct wall {
 	int	segnum,sidenum;	// Seg & side for this wall
 	fix   hps;				  	// "Hit points" of the wall. 
@@ -283,5 +315,44 @@ extern void remove_obsolete_stuck_objects(void);
 
 //set the tmap_num or tmap_num2 field for a wall/door
 extern void wall_set_tmap_num(segment *seg,int side,segment *csegp,int cside,int anim_num,int frame_num);
+
+#ifdef FAST_FILE_IO
+#define wclip_read_n(wc, n, fp) cfread(wc, sizeof(wclip), n, fp)
+#define v16_wall_read(w, fp) cfread(w, sizeof(v16_wall), 1, fp)
+#define v19_wall_read(w, fp) cfread(w, sizeof(v19_wall), 1, fp)
+#define wall_read(w, fp) cfread(w, sizeof(wall), 1, fp)
+#define v19_door_read(d, fp) cfread(d, sizeof(v19_door), 1, fp)
+#define active_door_read(d, fp) cfread(d, sizeof(active_door), 1, fp)
+#else
+/*
+ * reads n wclip structs from a CFILE
+ */
+extern int wclip_read_n(wclip *wc, int n, CFILE *fp);
+
+/*
+ * reads a v16_wall structure from a CFILE
+ */
+extern void v16_wall_read(v16_wall *w, CFILE *fp);
+
+/*
+ * reads a v19_wall structure from a CFILE
+ */
+extern void v19_wall_read(v19_wall *w, CFILE *fp);
+
+/*
+ * reads a wall structure from a CFILE
+ */
+extern void wall_read(wall *w, CFILE *fp);
+
+/*
+ * reads a v19_door structure from a CFILE
+ */
+extern void v19_door_read(v19_door *d, CFILE *fp);
+
+/*
+ * reads an active_door structure from a CFILE
+ */
+extern void active_door_read(active_door *ad, CFILE *fp);
+#endif
 
 #endif

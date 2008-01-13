@@ -76,8 +76,6 @@ int Fuelcen_seconds_left = 0;
 matcen_info RobotCenters[MAX_ROBOT_CENTERS];
 int Num_robot_centers;
 
-control_center_triggers ControlCenterTriggers;
-
 FuelCenter Station[MAX_NUM_FUELCENS];
 int Num_fuelcenters = 0;
 
@@ -1123,3 +1121,17 @@ void init_all_matcens(void)
 #endif
 
 }
+
+#ifndef FAST_FILE_IO
+/*
+ * reads a matcen_info structure from a CFILE
+ */
+void matcen_info_read(matcen_info *mi, CFILE *fp)
+{
+	mi->robot_flags = cfile_read_int(fp);
+	mi->hit_points = cfile_read_fix(fp);
+	mi->interval = cfile_read_fix(fp);
+	mi->segnum = cfile_read_short(fp);
+	mi->fuelcen_num = cfile_read_short(fp);
+}
+#endif

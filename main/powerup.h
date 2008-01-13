@@ -268,5 +268,14 @@ extern void clip_player_pow_count(int *pow_count);
 // returns number of powerups left if true, otherwise 0.
 extern int may_create_powerup(int powerup);
 
+#ifdef FAST_FILE_IO
+#define powerup_type_info_read_n(pti, n, fp) cfread(pti, sizeof(powerup_type_info), n, fp)
+#else
+/*
+ * reads n powerup_type_info structs from a CFILE
+ */
+extern int powerup_type_info_read_n(powerup_type_info *pti, int n, CFILE *fp);
 #endif
+
+#endif /* _POWERUP_H */
  

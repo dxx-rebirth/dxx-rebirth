@@ -70,6 +70,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _CFILE_H
 
 #include <stdio.h>
+#include "pstypes.h"
+#include "maths.h"
+#include "vecmat.h"
 
 typedef struct CFILE {
 	FILE 				*file;
@@ -99,5 +102,29 @@ void cfile_use_alternate_hogdir( char * path );
 
 extern char AltHogDir[];
 extern char AltHogdir_initialized;
+
+// prototypes for reading basic types from cfile
+int cfile_read_int(CFILE *file);
+short cfile_read_short(CFILE *file);
+sbyte cfile_read_byte(CFILE *file);
+fix cfile_read_fix(CFILE *file);
+fixang cfile_read_fixang(CFILE *file);
+void cfile_read_vector(vms_vector *v, CFILE *file);
+void cfile_read_angvec(vms_angvec *v, CFILE *file);
+void cfile_read_matrix(vms_matrix *v, CFILE *file);
+
+// Reads variable length, null-termined string.   Will only read up
+// to n characters.
+void cfile_read_string(char *buf, int n, CFILE *file);
+
+#if 0	// unused
+// functions for writing cfiles
+int cfile_write_int(int i, CFILE *file);
+int cfile_write_short(short s, CFILE *file);
+int cfile_write_byte(sbyte u, CFILE *file);
+
+// writes variable length, null-termined string.
+int cfile_write_string(char *buf, CFILE *file);
+#endif
 
 #endif

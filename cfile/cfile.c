@@ -130,6 +130,8 @@ static char rcsid[] = "$Id: cfile.c,v 1.2 2006/03/18 23:07:34 michaelstather Exp
 #include <dirent.h>
 
 #include "pstypes.h"
+#include "byteswap.h"
+#include "error.h"
 
 #include "cfile.h"
 
@@ -350,6 +352,8 @@ void cfile_init_hogfile(char *fname, hogfile * hog_files, int * nfiles )
 			return;
 		}
 		hog_files[*nfiles].length = len;
+		if (hog_files[*nfiles].length < 0)
+			Warning ("Hogfile length < 0");
 		hog_files[*nfiles].offset = ftell( fp );
 		*nfiles = (*nfiles) + 1;
 		// Skip over
@@ -434,6 +438,7 @@ int cfile_init_hogfile(char *fname, hogfile * hog_files )
 			return nfiles;
 		}
 		i = fread( &len, 4, 1, fp );
+		len = INTEL_INT(len);
 		if ( i != 1 )	{
 			fclose(fp);
 #ifndef NDEBUG
@@ -642,5 +647,135 @@ void cfclose( CFILE * fp )
 	return;
 }
 
+// routines to read basic data types from CFILE's.  Put here to
+// simplify mac/pc reading from cfiles.
 
+int cfile_read_int(CFILE *file)
+{
+	int32_t i;
+	
+	if (cfread( &i, sizeof(i), 1, file) != 1)
+		Error( "Error reading int in cfile_read_int()" );
+	
+	i = INTEL_INT(i);
+	return i;
+}
+
+short cfile_read_short(CFILE *file)
+{
+	int16_t s;
+	
+	if (cfread( &s, sizeof(s), 1, file) != 1)
+		Error( "Error reading short in cfile_read_short()" );
+	
+	s = INTEL_SHORT(s);
+	return s;
+}
+
+sbyte cfile_read_byte(CFILE *file)
+{
+	sbyte b;
+	
+	if (cfread( &b, sizeof(b), 1, file) != 1)
+		Error( "Error reading byte in cfile_read_byte()" );
+	
+	return b;
+}
+
+fix cfile_read_fix(CFILE *file)
+{
+	fix f;
+	
+	if (cfread( &f, sizeof(f), 1, file) != 1)
+		Error( "Error reading fix in cfile_read_fix()" );
+	
+	f = (fix)INTEL_INT((int)f);
+	return f;
+}
+
+fixang cfile_read_fixang(CFILE *file)
+{
+	fixang f;
+	
+	if (cfread(&f, 2, 1, file) != 1)
+		Error("Error reading fixang in cfile_read_fixang()");
+	
+	f = (fixang) INTEL_SHORT((int) f);
+	return f;
+}
+
+void cfile_read_vector(vms_vector *v, CFILE *file)
+{
+	v->x = cfile_read_fix(file);
+	v->y = cfile_read_fix(file);
+	v->z = cfile_read_fix(file);
+}
+
+void cfile_read_angvec(vms_angvec *v, CFILE *file)
+{
+	v->p = cfile_read_fixang(file);
+	v->b = cfile_read_fixang(file);
+	v->h = cfile_read_fixang(file);
+}
+
+void cfile_read_matrix(vms_matrix *m,CFILE *file)
+{
+	cfile_read_vector(&m->rvec,file);
+	cfile_read_vector(&m->uvec,file);
+	cfile_read_vector(&m->fvec,file);
+}
+
+
+void cfile_read_string(char *buf, int n, CFILE *file)
+{
+	char c;
+	
+	do {
+		c = (char)cfile_read_byte(file);
+		if (n > 0)
+		{
+			*buf++ = c;
+			n--;
+		}
+	} while (c != 0);
+}
+
+
+#if 0
+// equivalent write functions of above read functions follow
+
+int cfile_write_int(int i, CFILE *file)
+{
+	i = INTEL_INT(i);
+	return cfwrite(&i, sizeof(i), 1, file);
+}
+
+
+int cfile_write_short(short s, CFILE *file)
+{
+	s = INTEL_SHORT(s);
+	return cfwrite(&s, sizeof(s), 1, file);
+}
+
+
+int cfile_write_byte(sbyte b, CFILE *file)
+{
+	return cfwrite(&b, sizeof(b), 1, file);
+}
+
+
+int cfile_write_string(char *buf, CFILE *file)
+{
+	int len;
+	
+	if ((!buf) || (buf && !buf[0]))
+		return cfile_write_byte(0, file);
+	
+	len = strlen(buf);
+	if (!cfwrite(buf, len, 1, file))
+		return 0;
+	
+	return cfile_write_byte(0, file);   // write out NULL termination
+}
+#endif
 

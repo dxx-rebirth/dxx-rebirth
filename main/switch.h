@@ -132,5 +132,14 @@ extern int check_trigger_sub(int trigger_num, int player_num);
 
 extern void triggers_frame_process();
 
+#ifdef FAST_FILE_IO
+#define trigger_read(t, fp) cfread(t, sizeof(trigger), 1, fp)
+#else
+/*
+ * reads a trigger structure from a CFILE
+ */
+extern void trigger_read(trigger *t, CFILE *fp);
+#endif
+
 #endif
  

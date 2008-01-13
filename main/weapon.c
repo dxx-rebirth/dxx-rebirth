@@ -448,3 +448,55 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 
 	return 1;
 }
+
+/*
+ * reads n weapon_info structs from a CFILE
+ */
+int weapon_info_read_n(weapon_info *wi, int n, CFILE *fp)
+{
+	int i, j;
+	
+	for (i = 0; i < n; i++) {
+		wi[i].render_type = cfile_read_byte(fp);
+		wi[i].model_num = cfile_read_byte(fp);
+		wi[i].model_num_inner = cfile_read_byte(fp);
+		wi[i].persistent = cfile_read_byte(fp);
+		wi[i].flash_vclip = cfile_read_byte(fp);
+		wi[i].flash_sound = cfile_read_short(fp);		
+		wi[i].robot_hit_vclip = cfile_read_byte(fp);
+		wi[i].robot_hit_sound = cfile_read_short(fp);		
+		wi[i].wall_hit_vclip = cfile_read_byte(fp);
+		wi[i].wall_hit_sound = cfile_read_short(fp);		
+		wi[i].fire_count = cfile_read_byte(fp);
+		wi[i].ammo_usage = cfile_read_byte(fp);
+		wi[i].weapon_vclip = cfile_read_byte(fp);
+		wi[i].destroyable = cfile_read_byte(fp);
+		wi[i].matter = cfile_read_byte(fp);
+		wi[i].bounce = cfile_read_byte(fp);
+		wi[i].homing_flag = cfile_read_byte(fp);
+		wi[i].dum1 = cfile_read_byte(fp);
+		wi[i].dum2 = cfile_read_byte(fp);
+		wi[i].dum3 = cfile_read_byte(fp);
+		wi[i].energy_usage = cfile_read_fix(fp);
+		wi[i].fire_wait = cfile_read_fix(fp);
+		wi[i].bitmap.index = cfile_read_short(fp);	// bitmap_index = short
+		wi[i].blob_size = cfile_read_fix(fp);
+		wi[i].flash_size = cfile_read_fix(fp);
+		wi[i].impact_size = cfile_read_fix(fp);
+		for (j = 0; j < NDL; j++)
+			wi[i].strength[j] = cfile_read_fix(fp);
+		for (j = 0; j < NDL; j++)
+			wi[i].speed[j] = cfile_read_fix(fp);
+		wi[i].mass = cfile_read_fix(fp);
+		wi[i].drag = cfile_read_fix(fp);
+		wi[i].thrust = cfile_read_fix(fp);
+		
+		wi[i].po_len_to_width_ratio = cfile_read_fix(fp);
+		wi[i].light = cfile_read_fix(fp);
+		wi[i].lifetime = cfile_read_fix(fp);
+		wi[i].damage_radius = cfile_read_fix(fp);
+		wi[i].picture.index = cfile_read_short(fp);		// bitmap_index is a short
+	}
+	return i;
+}
+

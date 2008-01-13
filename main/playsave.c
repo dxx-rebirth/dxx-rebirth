@@ -58,6 +58,7 @@ static char rcsid[] = "$Id: playsave.c,v 1.1.1.1 2006/03/17 19:42:10 zicodxx Exp
 #include "strutil.h"
 #include "strio.h"
 #include "vers_id.h"
+#include "byteswap.h"
 
 #ifndef PATH_MAX
 #define PATH_MAX 255
@@ -674,6 +675,12 @@ int read_player_file()
 		fclose(file);
 		return errno_ret;
 	}
+	info.id = INTEL_INT(info.id);
+	info.saved_game_version = INTEL_SHORT(info.saved_game_version);
+	info.player_struct_version = INTEL_SHORT(info.player_struct_version);
+	info.n_highest_levels = INTEL_INT(info.n_highest_levels);
+	info.default_difficulty_level = INTEL_INT(info.default_difficulty_level);
+	info.default_leveling_on = INTEL_INT(info.default_leveling_on);
 
 	if (info.id!=SAVE_FILE_ID) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
@@ -946,13 +953,13 @@ int write_player_file()
 
 	errno_ret = WriteConfigFile();
 
-	info.id = SAVE_FILE_ID;
-	info.saved_game_version = SAVED_GAME_VERSION;
-	info.player_struct_version = PLAYER_STRUCT_VERSION;
-	info.default_difficulty_level = Player_default_difficulty;
-	info.default_leveling_on = Auto_leveling_on;
+	info.id = INTEL_INT(SAVE_FILE_ID);
+	info.saved_game_version = INTEL_SHORT(SAVED_GAME_VERSION);
+	info.player_struct_version = INTEL_SHORT(PLAYER_STRUCT_VERSION);
+	info.default_difficulty_level = INTEL_INT(Player_default_difficulty);
+	info.default_leveling_on = INTEL_INT(Auto_leveling_on);
 
-	info.n_highest_levels = n_highest_levels;
+	info.n_highest_levels = INTEL_INT(n_highest_levels);
 
         sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
 	write_player_d1x(filename);

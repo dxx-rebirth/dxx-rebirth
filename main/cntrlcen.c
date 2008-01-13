@@ -39,6 +39,9 @@ static char rcsid[] = "$Id: cntrlcen.c,v 1.1.1.1 2006/03/17 19:42:32 zicodxx Exp
 
 vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
 vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
+
+control_center_triggers ControlCenterTriggers;
+
 int	N_controlcen_guns;
 int	Control_center_been_hit;
 int	Control_center_player_been_seen;
@@ -326,3 +329,22 @@ void init_controlcen_for_level(void)
 	Dead_controlcen_object_num = -1;
 }
 
+#ifndef FAST_FILE_IO
+/*
+ * reads a control_center_triggers structure from a CFILE
+ */
+extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp)
+{
+	int i, j;
+	
+	for (i = 0; i < n; i++)
+	{
+		cct->num_links = cfile_read_short(fp);
+		for (j = 0; j < MAX_WALLS_PER_LINK; j++)
+			cct->seg[j] = cfile_read_short(fp);
+		for (j = 0; j < MAX_WALLS_PER_LINK; j++)
+			cct->side[j] = cfile_read_short(fp);
+	}
+	return i;
+}
+#endif

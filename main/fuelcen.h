@@ -198,12 +198,6 @@ extern int Fuelcen_seconds_left;
 //--repair-- //if repairing, cut it short
 //--repair-- abort_repair_center();
 
-typedef struct control_center_triggers {
-	short		num_links;
-	short 	seg[MAX_WALLS_PER_LINK];
-	short		side[MAX_WALLS_PER_LINK];
-} __pack__ control_center_triggers;
-
 // An array of pointers to segments with fuel centers.
 typedef struct FuelCenter {
 	int			Type;
@@ -220,8 +214,6 @@ typedef struct FuelCenter {
 //	int 			last_created_sig;
 	vms_vector	Center;
 } __pack__ FuelCenter;
-
-extern control_center_triggers ControlCenterTriggers;
 
 // The max number of robot centers per mine.
 #define MAX_ROBOT_CENTERS  20	
@@ -254,6 +246,15 @@ extern int Num_fuelcenters;
 extern void init_all_matcens(void);
 
 extern fix EnergyToCreateOneRobot;
+
+#ifdef FAST_FILE_IO
+#define matcen_info_read(mi, fp) cfread(mi, sizeof(matcen_info), 1, fp)
+#else
+/*
+ * reads a matcen_info structure from a CFILE
+ */
+void matcen_info_read(matcen_info *ps, CFILE *fp);
+#endif
 
 #endif
  

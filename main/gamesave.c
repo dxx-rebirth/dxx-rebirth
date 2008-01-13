@@ -321,6 +321,7 @@ static char rcsid[] = "$Id: gamesave.c,v 1.1.1.1 2006/03/17 19:44:30 zicodxx Exp
 #include "menu.h"
 #include "switch.h"
 #include "fuelcen.h"
+#include "cntrlcen.h"
 #include "powerup.h"
 #include "hostage.h"
 #include "weapon.h"
@@ -396,38 +397,6 @@ char Gamesave_current_filename[128];
 #define MENU_CURSOR_X_MAX			MENU_X+6
 
 #define HOSTAGE_DATA_VERSION	0
-
-//Start old wall structures
-
-typedef struct v16_wall {
-	sbyte  type; 			  	// What kind of special wall.
-	sbyte	flags;				// Flags for the wall.		
-	fix   hps;				  	// "Hit points" of the wall. 
-	sbyte	trigger;				// Which trigger is associated with the wall.
-	sbyte	clip_num;			// Which	animation associated with the wall. 
-	sbyte	keys;
-	} __pack__ v16_wall;
-
-typedef struct v19_wall {
-	int	segnum,sidenum;	// Seg & side for this wall
-	sbyte	type; 			  	// What kind of special wall.
-	sbyte	flags;				// Flags for the wall.		
-	fix   hps;				  	// "Hit points" of the wall. 
-	sbyte	trigger;				// Which trigger is associated with the wall.
-	sbyte	clip_num;			// Which	animation associated with the wall. 
-	sbyte	keys;
-	int	linked_wall;		// number of linked wall
-	} __pack__ v19_wall;
-
-typedef struct v19_door {
-	int		n_parts;					// for linked walls
-	short 	seg[2]; 					// Segment pointer of door.
-	short 	side[2];					// Side number of door.
-	short 	type[2];					// What kind of door animation.
-	fix 		open;						//	How long it has been open.
-} __pack__ v19_door;
-
-//End old wall structures
 
 struct {
 	ushort 	fileinfo_signature;
@@ -702,190 +671,60 @@ void verify_object( object * obj )	{
 
 }
 
-/*static*/ int read_int(CFILE *file)
-{
-	int i;
-
-	if (cfread( &i, sizeof(i), 1, file) != 1)
-		Error( "Error reading int in gamesave.c" );
-
-	return i;
-}
-
-/*static*/ fix read_fix(CFILE *file)
-{
-	fix f;
-
-	if (cfread( &f, sizeof(f), 1, file) != 1)
-		Error( "Error reading fix in gamesave.c" );
-
-	return f;
-}
-
-/*static*/ short read_short(CFILE *file)
-{
-	short s;
-
-	if (cfread( &s, sizeof(s), 1, file) != 1)
-		Error( "Error reading short in gamesave.c" );
-
-	return s;
-}
-
-static short read_fixang(CFILE *file)
-{
-	fixang f;
-
-	if (cfread( &f, sizeof(f), 1, file) != 1)
-		Error( "Error reading fixang in gamesave.c" );
-
-	return f;
-}
-
-/*static*/ sbyte read_byte(CFILE *file)
-{
-	sbyte b;
-
-	if (cfread( &b, sizeof(b), 1, file) != 1)
-		Error( "Error reading byte in gamesave.c" );
-
-	return b;
-}
-
-/*static */void read_vector(vms_vector *v,CFILE *file)
-{
-	v->x = read_fix(file);
-	v->y = read_fix(file);
-	v->z = read_fix(file);
-}
-
-static void read_matrix(vms_matrix *m,CFILE *file)
-{
-	read_vector(&m->rvec,file);
-	read_vector(&m->uvec,file);
-	read_vector(&m->fvec,file);
-}
-
-static void read_angvec(vms_angvec *v,CFILE *file)
-{
-	v->p = read_fixang(file);
-	v->b = read_fixang(file);
-	v->h = read_fixang(file);
-}
-
 //static gs_skip(int len,CFILE *file)
 //{
 //
 //	cfseek(file,len,SEEK_CUR);
 //}
 
-#ifdef EDITOR
-static void gs_write_int(int i,FILE *file)
-{
-	if (fwrite( &i, sizeof(i), 1, file) != 1)
-		Error( "Error reading int in gamesave.c" );
-
-}
-
-static void gs_write_fix(fix f,FILE *file)
-{
-	if (fwrite( &f, sizeof(f), 1, file) != 1)
-		Error( "Error reading fix in gamesave.c" );
-
-}
-
-static void gs_write_short(short s,FILE *file)
-{
-	if (fwrite( &s, sizeof(s), 1, file) != 1)
-		Error( "Error reading short in gamesave.c" );
-
-}
-
-static void gs_write_fixang(fixang f,FILE *file)
-{
-	if (fwrite( &f, sizeof(f), 1, file) != 1)
-		Error( "Error reading fixang in gamesave.c" );
-
-}
-
-static void gs_write_byte(sbyte b,FILE *file)
-{
-	if (fwrite( &b, sizeof(b), 1, file) != 1)
-		Error( "Error reading byte in gamesave.c" );
-
-}
-
-static void gr_write_vector(vms_vector *v,FILE *file)
-{
-	gs_write_fix(v->x,file);
-	gs_write_fix(v->y,file);
-	gs_write_fix(v->z,file);
-}
-
-static void gs_write_matrix(vms_matrix *m,FILE *file)
-{
-	gr_write_vector(&m->rvec,file);
-	gr_write_vector(&m->uvec,file);
-	gr_write_vector(&m->fvec,file);
-}
-
-static void gs_write_angvec(vms_angvec *v,FILE *file)
-{
-	gs_write_fixang(v->p,file);
-	gs_write_fixang(v->b,file);
-	gs_write_fixang(v->h,file);
-}
-
-#endif
-
 //reads one object of the given version from the given file
 void read_object(object *obj,CFILE *f,int version)
 {
-	obj->type				= read_byte(f);
-	obj->id					= read_byte(f);
+	obj->type				= cfile_read_byte(f);
+	obj->id					= cfile_read_byte(f);
 
-	obj->control_type		= read_byte(f);
-	obj->movement_type	= read_byte(f);
-	obj->render_type		= read_byte(f);
-	obj->flags				= read_byte(f);
+	obj->control_type		= cfile_read_byte(f);
+	obj->movement_type	= cfile_read_byte(f);
+	obj->render_type		= cfile_read_byte(f);
+	obj->flags				= cfile_read_byte(f);
 
-	obj->segnum				= read_short(f);
+	obj->segnum				= cfile_read_short(f);
 	obj->attached_obj		= -1;
 
-	read_vector(&obj->pos,f);
-	read_matrix(&obj->orient,f);
+	cfile_read_vector(&obj->pos,f);
+	cfile_read_matrix(&obj->orient,f);
 
-	obj->size				= read_fix(f);
-	obj->shields			= read_fix(f);
+	obj->size				= cfile_read_fix(f);
+	obj->shields			= cfile_read_fix(f);
 
-	read_vector(&obj->last_pos,f);
+	cfile_read_vector(&obj->last_pos,f);
 
-	obj->contains_type	= read_byte(f);
-	obj->contains_id		= read_byte(f);
-	obj->contains_count	= read_byte(f);
+	obj->contains_type	= cfile_read_byte(f);
+	obj->contains_id		= cfile_read_byte(f);
+	obj->contains_count	= cfile_read_byte(f);
 
 	switch (obj->movement_type) {
 
 		case MT_PHYSICS:
 
-			read_vector(&obj->mtype.phys_info.velocity,f);
-			read_vector(&obj->mtype.phys_info.thrust,f);
+			cfile_read_vector(&obj->mtype.phys_info.velocity,f);
+			cfile_read_vector(&obj->mtype.phys_info.thrust,f);
 
-			obj->mtype.phys_info.mass		= read_fix(f);
-			obj->mtype.phys_info.drag		= read_fix(f);
-			obj->mtype.phys_info.brakes	= read_fix(f);
+			obj->mtype.phys_info.mass		= cfile_read_fix(f);
+			obj->mtype.phys_info.drag		= cfile_read_fix(f);
+			obj->mtype.phys_info.brakes		= cfile_read_fix(f);
 
-			read_vector(&obj->mtype.phys_info.rotvel,f);
-			read_vector(&obj->mtype.phys_info.rotthrust,f);
+			cfile_read_vector(&obj->mtype.phys_info.rotvel,f);
+			cfile_read_vector(&obj->mtype.phys_info.rotthrust,f);
 
-			obj->mtype.phys_info.turnroll	= read_fixang(f);
-			obj->mtype.phys_info.flags		= read_short(f);
+			obj->mtype.phys_info.turnroll	= cfile_read_fixang(f);
+			obj->mtype.phys_info.flags		= cfile_read_short(f);
 
 			break;
 
 		case MT_SPINNING:
 
-			read_vector(&obj->mtype.spin_rate,f);
+			cfile_read_vector(&obj->mtype.spin_rate,f);
 			break;
 
 		case MT_NONE:
@@ -900,27 +739,27 @@ void read_object(object *obj,CFILE *f,int version)
 		case CT_AI: {
 			int i;
 
-			obj->ctype.ai_info.behavior				= read_byte(f);
+			obj->ctype.ai_info.behavior				= cfile_read_byte(f);
 
 			for (i=0;i<MAX_AI_FLAGS;i++)
-				obj->ctype.ai_info.flags[i]			= read_byte(f);
+				obj->ctype.ai_info.flags[i]			= cfile_read_byte(f);
 
-			obj->ctype.ai_info.hide_segment			= read_short(f);
-			obj->ctype.ai_info.hide_index				= read_short(f);
-			obj->ctype.ai_info.path_length			= read_short(f);
-			obj->ctype.ai_info.cur_path_index		= read_short(f);
+			obj->ctype.ai_info.hide_segment			= cfile_read_short(f);
+			obj->ctype.ai_info.hide_index			= cfile_read_short(f);
+			obj->ctype.ai_info.path_length			= cfile_read_short(f);
+			obj->ctype.ai_info.cur_path_index		= cfile_read_short(f);
 
-			obj->ctype.ai_info.follow_path_start_seg	= read_short(f);
-			obj->ctype.ai_info.follow_path_end_seg		= read_short(f);
+			obj->ctype.ai_info.follow_path_start_seg	= cfile_read_short(f);
+			obj->ctype.ai_info.follow_path_end_seg		= cfile_read_short(f);
 
 			break;
 		}
 
 		case CT_EXPLOSION:
 
-			obj->ctype.expl_info.spawn_time		= read_fix(f);
-			obj->ctype.expl_info.delete_time		= read_fix(f);
-			obj->ctype.expl_info.delete_objnum	= read_short(f);
+			obj->ctype.expl_info.spawn_time		= cfile_read_fix(f);
+			obj->ctype.expl_info.delete_time	= cfile_read_fix(f);
+			obj->ctype.expl_info.delete_objnum	= cfile_read_short(f);
 			obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
 
 			break;
@@ -929,21 +768,21 @@ void read_object(object *obj,CFILE *f,int version)
 
 			//do I really need to read these?  Are they even saved to disk?
 
-			obj->ctype.laser_info.parent_type		= read_short(f);
-			obj->ctype.laser_info.parent_num			= read_short(f);
-			obj->ctype.laser_info.parent_signature	= read_int(f);
+			obj->ctype.laser_info.parent_type		= cfile_read_short(f);
+			obj->ctype.laser_info.parent_num		= cfile_read_short(f);
+			obj->ctype.laser_info.parent_signature	= cfile_read_int(f);
 
 			break;
 
 		case CT_LIGHT:
 
-			obj->ctype.light_info.intensity = read_fix(f);
+			obj->ctype.light_info.intensity = cfile_read_fix(f);
 			break;
 
 		case CT_POWERUP:
 
 			if (version >= 25)
-				obj->ctype.powerup_info.count = read_int(f);
+				obj->ctype.powerup_info.count = cfile_read_int(f);
 			else
 				obj->ctype.powerup_info.count = 1;
 
@@ -981,14 +820,14 @@ void read_object(object *obj,CFILE *f,int version)
 		case RT_POLYOBJ: {
 			int i,tmo;
 
-			obj->rtype.pobj_info.model_num		= read_int(f);
+			obj->rtype.pobj_info.model_num		= cfile_read_int(f);
 
 			for (i=0;i<MAX_SUBMODELS;i++)
-				read_angvec(&obj->rtype.pobj_info.anim_angles[i],f);
+				cfile_read_angvec(&obj->rtype.pobj_info.anim_angles[i],f);
 
-			obj->rtype.pobj_info.subobj_flags	= read_int(f);
+			obj->rtype.pobj_info.subobj_flags	= cfile_read_int(f);
 
-			tmo = read_int(f);
+			tmo = cfile_read_int(f);
 
 			#ifndef EDITOR
 			obj->rtype.pobj_info.tmap_override	= tmo;
@@ -1016,9 +855,9 @@ void read_object(object *obj,CFILE *f,int version)
 		case RT_POWERUP:
 		case RT_FIREBALL:
 
-			obj->rtype.vclip_info.vclip_num	= read_int(f);
-			obj->rtype.vclip_info.frametime	= read_fix(f);
-			obj->rtype.vclip_info.framenum	= read_byte(f);
+			obj->rtype.vclip_info.vclip_num	= cfile_read_int(f);
+			obj->rtype.vclip_info.frametime	= cfile_read_fix(f);
+			obj->rtype.vclip_info.framenum	= cfile_read_byte(f);
 
 			break;
 
@@ -1037,27 +876,27 @@ void read_object(object *obj,CFILE *f,int version)
 //writes one object to the given file
 void write_object(object *obj,FILE *f)
 {
-	gs_write_byte(obj->type,f);
-	gs_write_byte(obj->id,f);
+	cfile_write_byte(obj->type,f);
+	cfile_write_byte(obj->id,f);
 
-	gs_write_byte(obj->control_type,f);
-	gs_write_byte(obj->movement_type,f);
-	gs_write_byte(obj->render_type,f);
-	gs_write_byte(obj->flags,f);
+	cfile_write_byte(obj->control_type,f);
+	cfile_write_byte(obj->movement_type,f);
+	cfile_write_byte(obj->render_type,f);
+	cfile_write_byte(obj->flags,f);
 
-	gs_write_short(obj->segnum,f);
+	cfile_write_short(obj->segnum,f);
 
 	gr_write_vector(&obj->pos,f);
-	gs_write_matrix(&obj->orient,f);
+	cfile_write_matrix(&obj->orient,f);
 
-	gs_write_fix(obj->size,f);
-	gs_write_fix(obj->shields,f);
+	cfile_write_fix(obj->size,f);
+	cfile_write_fix(obj->shields,f);
 
 	gr_write_vector(&obj->last_pos,f);
 
-	gs_write_byte(obj->contains_type,f);
-	gs_write_byte(obj->contains_id,f);
-	gs_write_byte(obj->contains_count,f);
+	cfile_write_byte(obj->contains_type,f);
+	cfile_write_byte(obj->contains_id,f);
+	cfile_write_byte(obj->contains_count,f);
 
 	switch (obj->movement_type) {
 
@@ -1066,15 +905,15 @@ void write_object(object *obj,FILE *f)
 	 		gr_write_vector(&obj->mtype.phys_info.velocity,f);
 			gr_write_vector(&obj->mtype.phys_info.thrust,f);
 
-			gs_write_fix(obj->mtype.phys_info.mass,f);
-			gs_write_fix(obj->mtype.phys_info.drag,f);
-			gs_write_fix(obj->mtype.phys_info.brakes,f);
+			cfile_write_fix(obj->mtype.phys_info.mass,f);
+			cfile_write_fix(obj->mtype.phys_info.drag,f);
+			cfile_write_fix(obj->mtype.phys_info.brakes,f);
 
 			gr_write_vector(&obj->mtype.phys_info.rotvel,f);
 			gr_write_vector(&obj->mtype.phys_info.rotthrust,f);
 
-			gs_write_fixang(obj->mtype.phys_info.turnroll,f);
-			gs_write_short(obj->mtype.phys_info.flags,f);
+			cfile_write_fixang(obj->mtype.phys_info.turnroll,f);
+			cfile_write_short(obj->mtype.phys_info.flags,f);
 
 			break;
 
@@ -1095,27 +934,27 @@ void write_object(object *obj,FILE *f)
 		case CT_AI: {
 			int i;
 
-			gs_write_byte(obj->ctype.ai_info.behavior,f);
+			cfile_write_byte(obj->ctype.ai_info.behavior,f);
 
 			for (i=0;i<MAX_AI_FLAGS;i++)
-				gs_write_byte(obj->ctype.ai_info.flags[i],f);
+				cfile_write_byte(obj->ctype.ai_info.flags[i],f);
 
-			gs_write_short(obj->ctype.ai_info.hide_segment,f);
-			gs_write_short(obj->ctype.ai_info.hide_index,f);
-			gs_write_short(obj->ctype.ai_info.path_length,f);
-			gs_write_short(obj->ctype.ai_info.cur_path_index,f);
+			cfile_write_short(obj->ctype.ai_info.hide_segment,f);
+			cfile_write_short(obj->ctype.ai_info.hide_index,f);
+			cfile_write_short(obj->ctype.ai_info.path_length,f);
+			cfile_write_short(obj->ctype.ai_info.cur_path_index,f);
 
-			gs_write_short(obj->ctype.ai_info.follow_path_start_seg,f);
-			gs_write_short(obj->ctype.ai_info.follow_path_end_seg,f);
+			cfile_write_short(obj->ctype.ai_info.follow_path_start_seg,f);
+			cfile_write_short(obj->ctype.ai_info.follow_path_end_seg,f);
 
 			break;
 		}
 
 		case CT_EXPLOSION:
 
-			gs_write_fix(obj->ctype.expl_info.spawn_time,f);
-			gs_write_fix(obj->ctype.expl_info.delete_time,f);
-			gs_write_short(obj->ctype.expl_info.delete_objnum,f);
+			cfile_write_fix(obj->ctype.expl_info.spawn_time,f);
+			cfile_write_fix(obj->ctype.expl_info.delete_time,f);
+			cfile_write_short(obj->ctype.expl_info.delete_objnum,f);
 
 			break;
 
@@ -1123,9 +962,9 @@ void write_object(object *obj,FILE *f)
 
 			//do I really need to write these objects?
 
-			gs_write_short(obj->ctype.laser_info.parent_type,f);
-			gs_write_short(obj->ctype.laser_info.parent_num,f);
-			gs_write_int(obj->ctype.laser_info.parent_signature,f);
+			cfile_write_short(obj->ctype.laser_info.parent_type,f);
+			cfile_write_short(obj->ctype.laser_info.parent_num,f);
+			cfile_write_int(obj->ctype.laser_info.parent_signature,f);
 
 			break;
 
@@ -1133,12 +972,12 @@ void write_object(object *obj,FILE *f)
 
 		case CT_LIGHT:
 
-			gs_write_fix(obj->ctype.light_info.intensity,f);
+			cfile_write_fix(obj->ctype.light_info.intensity,f);
 			break;
 
 		case CT_POWERUP:
 
-			gs_write_int(obj->ctype.powerup_info.count,f);
+			cfile_write_int(obj->ctype.powerup_info.count,f);
 			break;
 
 		case CT_NONE:
@@ -1169,14 +1008,14 @@ void write_object(object *obj,FILE *f)
 		case RT_POLYOBJ: {
 			int i;
 
-			gs_write_int(obj->rtype.pobj_info.model_num,f);
+			cfile_write_int(obj->rtype.pobj_info.model_num,f);
 
 			for (i=0;i<MAX_SUBMODELS;i++)
-				gs_write_angvec(&obj->rtype.pobj_info.anim_angles[i],f);
+				cfile_write_angvec(&obj->rtype.pobj_info.anim_angles[i],f);
 
-			gs_write_int(obj->rtype.pobj_info.subobj_flags,f);
+			cfile_write_int(obj->rtype.pobj_info.subobj_flags,f);
 
-			gs_write_int(obj->rtype.pobj_info.tmap_override,f);
+			cfile_write_int(obj->rtype.pobj_info.tmap_override,f);
 
 			break;
 		}
@@ -1186,9 +1025,9 @@ void write_object(object *obj,FILE *f)
 		case RT_POWERUP:
 		case RT_FIREBALL:
 
-			gs_write_int(obj->rtype.vclip_info.vclip_num,f);
-			gs_write_fix(obj->rtype.vclip_info.frametime,f);
-			gs_write_byte(obj->rtype.vclip_info.framenum,f);
+			cfile_write_int(obj->rtype.vclip_info.vclip_num,f);
+			cfile_write_fix(obj->rtype.vclip_info.frametime,f);
+			cfile_write_byte(obj->rtype.vclip_info.framenum,f);
 
 			break;
 
@@ -1241,13 +1080,13 @@ int load_game_data(CFILE *LoadFile)
 	game_fileinfo.matcen_howmany		=	0;
 	game_fileinfo.matcen_sizeof		=	sizeof(matcen_info);
 
+	if (cfseek(LoadFile, start_offset, SEEK_SET))
+		Error("Error seeking in gamesave.c");
+		
 	// Read in game_top_fileinfo to get size of saved fileinfo.
-
-	if (cfseek( LoadFile, start_offset, SEEK_SET )) 
-		Error( "Error seeking in gamesave.c" ); 
-
-	if (cfread( &game_top_fileinfo, sizeof(game_top_fileinfo), 1, LoadFile) != 1)
-		Error( "Error reading game_top_fileinfo in gamesave.c" );
+	game_top_fileinfo.fileinfo_signature = cfile_read_short(LoadFile);
+	game_top_fileinfo.fileinfo_version = cfile_read_short(LoadFile);
+	game_top_fileinfo.fileinfo_sizeof = cfile_read_int(LoadFile);
 
 	// Check signature
 	if (game_top_fileinfo.fileinfo_signature != 0x6705)
@@ -1261,39 +1100,36 @@ int load_game_data(CFILE *LoadFile)
 	if (cfseek( LoadFile, start_offset, SEEK_SET )) 
 		Error( "Error seeking to game_fileinfo in gamesave.c" );
 
-	game_fileinfo.fileinfo_signature = read_short(LoadFile);
+	game_fileinfo.fileinfo_signature = cfile_read_short(LoadFile);
 
-	game_fileinfo.fileinfo_version = read_short(LoadFile);
-	game_fileinfo.fileinfo_sizeof = read_int(LoadFile);
+	game_fileinfo.fileinfo_version = cfile_read_short(LoadFile);
+	game_fileinfo.fileinfo_sizeof = cfile_read_int(LoadFile);
 	for(i=0; i<15; i++)
-		game_fileinfo.mine_filename[i] = read_byte(LoadFile);
-	game_fileinfo.level = read_int(LoadFile);
-	game_fileinfo.player_offset = read_int(LoadFile);				// Player info
-	game_fileinfo.player_sizeof = read_int(LoadFile);
-	game_fileinfo.object_offset = read_int(LoadFile);				// Object info
-	game_fileinfo.object_howmany = read_int(LoadFile);    	
-	game_fileinfo.object_sizeof = read_int(LoadFile);  
-	game_fileinfo.walls_offset = read_int(LoadFile);
-	game_fileinfo.walls_howmany = read_int(LoadFile);
-	game_fileinfo.walls_sizeof = read_int(LoadFile);
-	game_fileinfo.doors_offset = read_int(LoadFile);
-	game_fileinfo.doors_howmany = read_int(LoadFile);
-	game_fileinfo.doors_sizeof = read_int(LoadFile);
-	game_fileinfo.triggers_offset = read_int(LoadFile);
-	game_fileinfo.triggers_howmany = read_int(LoadFile);
-	game_fileinfo.triggers_sizeof = read_int(LoadFile);
-	game_fileinfo.links_offset = read_int(LoadFile);
-	game_fileinfo.links_howmany = read_int(LoadFile);
-	game_fileinfo.links_sizeof = read_int(LoadFile);
-	game_fileinfo.control_offset = read_int(LoadFile);
-	game_fileinfo.control_howmany = read_int(LoadFile);
-	game_fileinfo.control_sizeof = read_int(LoadFile);
-	game_fileinfo.matcen_offset = read_int(LoadFile);
-	game_fileinfo.matcen_howmany = read_int(LoadFile);
-	game_fileinfo.matcen_sizeof = read_int(LoadFile);
-
-//	if (cfread( &game_fileinfo, game_top_fileinfo.fileinfo_sizeof, 1, LoadFile )!=1)
-//		Error( "Error reading game_fileinfo in gamesave.c" );
+		game_fileinfo.mine_filename[i] = cfile_read_byte(LoadFile);
+	game_fileinfo.level = cfile_read_int(LoadFile);
+	game_fileinfo.player_offset = cfile_read_int(LoadFile);				// Player info
+	game_fileinfo.player_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.object_offset = cfile_read_int(LoadFile);				// Object info
+	game_fileinfo.object_howmany = cfile_read_int(LoadFile);    	
+	game_fileinfo.object_sizeof = cfile_read_int(LoadFile);  
+	game_fileinfo.walls_offset = cfile_read_int(LoadFile);
+	game_fileinfo.walls_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.walls_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.doors_offset = cfile_read_int(LoadFile);
+	game_fileinfo.doors_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.doors_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.triggers_offset = cfile_read_int(LoadFile);
+	game_fileinfo.triggers_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.triggers_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.links_offset = cfile_read_int(LoadFile);
+	game_fileinfo.links_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.links_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.control_offset = cfile_read_int(LoadFile);
+	game_fileinfo.control_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.control_sizeof = cfile_read_int(LoadFile);
+	game_fileinfo.matcen_offset = cfile_read_int(LoadFile);
+	game_fileinfo.matcen_howmany = cfile_read_int(LoadFile);
+	game_fileinfo.matcen_sizeof = cfile_read_int(LoadFile);
 
 	if (game_top_fileinfo.fileinfo_version >= 14) {	//load mine filename
 		char *p=Current_level_name;
@@ -1304,7 +1140,7 @@ int load_game_data(CFILE *LoadFile)
 		Current_level_name[0]=0;
 
 	if (game_top_fileinfo.fileinfo_version >= 19) {	//load pof names
-		cfread(&N_save_pof_names,2,1,LoadFile);
+		N_save_pof_names = cfile_read_short(LoadFile);
 		cfread(Save_pof_names,N_save_pof_names,13,LoadFile);
 	}
 
@@ -1321,7 +1157,7 @@ int load_game_data(CFILE *LoadFile)
 			Error( "Error seeking to object_offset in gamesave.c" );
 	
 		for (i=0;i<game_fileinfo.object_howmany;i++)	{
-
+			memset(&(Objects[i]), 0, sizeof(object));
 			read_object(&Objects[i],LoadFile,game_top_fileinfo.fileinfo_version);
 
 			Objects[i].signature = Object_next_signature++;
@@ -1342,16 +1178,14 @@ int load_game_data(CFILE *LoadFile)
 
 					Assert(sizeof(Walls[i]) == game_fileinfo.walls_sizeof);
 
-					if (cfread(&Walls[i], game_fileinfo.walls_sizeof, 1,LoadFile)!=1)
-						Error( "Error reading Walls[%d] in gamesave.c", i);
+					wall_read(&Walls[i], LoadFile);
 				}
 				else if (game_top_fileinfo.fileinfo_version >= 17) {
 					v19_wall w;
 
 					Assert(sizeof(w) == game_fileinfo.walls_sizeof);
 
-					if (cfread(&w, game_fileinfo.walls_sizeof, 1,LoadFile)!=1)
-						Error( "Error reading Walls[%d] in gamesave.c", i);
+					v19_wall_read(&w, LoadFile);
 
 					Walls[i].segnum		= w.segnum;
 					Walls[i].sidenum		= w.sidenum;
@@ -1371,8 +1205,7 @@ int load_game_data(CFILE *LoadFile)
 
 					Assert(sizeof(w) == game_fileinfo.walls_sizeof);
 
-					if (cfread(&w, game_fileinfo.walls_sizeof, 1,LoadFile)!=1)
-						Error( "Error reading Walls[%d] in gamesave.c", i);
+					v16_wall_read(&w, LoadFile);
 
 					Walls[i].segnum = Walls[i].sidenum = Walls[i].linked_wall = -1;
 
@@ -1400,8 +1233,7 @@ int load_game_data(CFILE *LoadFile)
 
 					Assert(sizeof(ActiveDoors[i]) == game_fileinfo.doors_sizeof);
 
-					if (cfread(&ActiveDoors[i], game_fileinfo.doors_sizeof,1,LoadFile)!=1)
-						Error( "Error reading ActiveDoors[%d] in gamesave.c", i);
+					active_door_read(&ActiveDoors[i], LoadFile);
 				}
 				else {
 					v19_door d;
@@ -1409,8 +1241,7 @@ int load_game_data(CFILE *LoadFile)
 
 					Assert(sizeof(d) == game_fileinfo.doors_sizeof);
 
-					if (cfread(&d, game_fileinfo.doors_sizeof, 1,LoadFile)!=1)
-						Error( "Error reading Doors[%d] in gamesave.c", i);
+					v19_door_read(&d, LoadFile);
 
 					ActiveDoors[i].n_parts = d.n_parts;
 
@@ -1434,19 +1265,8 @@ int load_game_data(CFILE *LoadFile)
 	if (game_fileinfo.triggers_offset > -1)		{
 		if (!cfseek( LoadFile, game_fileinfo.triggers_offset,SEEK_SET ))	{
 			for (i=0;i<game_fileinfo.triggers_howmany;i++)	{
-				//Assert( sizeof(Triggers[i]) == game_fileinfo.triggers_sizeof );
-				//if (cfread(&Triggers[i], game_fileinfo.triggers_sizeof,1,LoadFile)!=1)
-				//	Error( "Error reading Triggers[%d] in gamesave.c", i);
-				Triggers[i].type = read_byte(LoadFile);
-				Triggers[i].flags = read_short(LoadFile);
-				Triggers[i].value = read_int(LoadFile);
-				Triggers[i].time = read_int(LoadFile);
-				Triggers[i].link_num = read_byte(LoadFile);
-				Triggers[i].num_links = read_short(LoadFile);
-				for (j=0; j<MAX_WALLS_PER_LINK; j++ )	
-					Triggers[i].seg[j] = read_short(LoadFile);
-				for (j=0; j<MAX_WALLS_PER_LINK; j++ )
-					Triggers[i].side[j] = read_short(LoadFile);
+				Assert( sizeof(Triggers[i]) == game_fileinfo.triggers_sizeof );
+				trigger_read(&Triggers[i], LoadFile);
 			}
 		}
 	}
@@ -1458,14 +1278,14 @@ int load_game_data(CFILE *LoadFile)
 		if (!cfseek( LoadFile, game_fileinfo.control_offset,SEEK_SET ))	{
 			for (i=0;i<game_fileinfo.control_howmany;i++)
 				if ( sizeof(ControlCenterTriggers) == game_fileinfo.control_sizeof )	{
-					if (cfread(&ControlCenterTriggers, game_fileinfo.control_sizeof,1,LoadFile)!=1)
+					if (control_center_triggers_read_n(&ControlCenterTriggers, 1, LoadFile)!=1)
                                                 Error( "Error reading ControlCenterTriggers %i in gamesave.c", i);
 				} else {
-					ControlCenterTriggers.num_links = read_short( LoadFile );
+					ControlCenterTriggers.num_links = cfile_read_short( LoadFile );
 					for (j=0; j<MAX_WALLS_PER_LINK; j++ );
-						ControlCenterTriggers.seg[j] = read_short( LoadFile );
+						ControlCenterTriggers.seg[j] = cfile_read_short( LoadFile );
 					for (j=0; j<MAX_WALLS_PER_LINK; j++ );
-						ControlCenterTriggers.side[j] = read_short( LoadFile );
+						ControlCenterTriggers.side[j] = cfile_read_short( LoadFile );
 				}
 		}
 	}
@@ -1480,8 +1300,8 @@ int load_game_data(CFILE *LoadFile)
 			// mprintf((0, "Reading %i materialization centers.\n", game_fileinfo.matcen_howmany));
 			for (i=0;i<game_fileinfo.matcen_howmany;i++) {
 				Assert( sizeof(RobotCenters[i]) == game_fileinfo.matcen_sizeof );
-				if (cfread(&RobotCenters[i], game_fileinfo.matcen_sizeof,1,LoadFile)!=1)
-                                        Error("Error reading RobotCenters %i in gamesave.c", i);
+				matcen_info_read(&RobotCenters[i], LoadFile);
+				
 				//	Set links in RobotCenters to Station array
 				for (j=0; j<=Highest_segment_index; j++)
 					if (Segments[j].special == SEGMENT_IS_ROBOTMAKER)
@@ -1662,11 +1482,11 @@ int load_level(char * filename_passed)
 //		newdemo_record_start_demo();
 //	#endif
 
-	sig						= read_int(LoadFile);
-	version					= read_int(LoadFile);
-	minedata_offset		= read_int(LoadFile);
-	gamedata_offset		= read_int(LoadFile);
-	hostagetext_offset	= read_int(LoadFile);
+	sig					= cfile_read_int(LoadFile);
+	version				= cfile_read_int(LoadFile);
+	minedata_offset		= cfile_read_int(LoadFile);
+	gamedata_offset		= cfile_read_int(LoadFile);
+	hostagetext_offset	= cfile_read_int(LoadFile);
 
 	Assert(sig == 0x504c564c); /* 'PLVL' */
 
@@ -1981,13 +1801,13 @@ int save_level_sub(char * filename, int compiled_version)
 
 	//Write the header
 
-	gs_write_int(sig,SaveFile);
-	gs_write_int(version,SaveFile);
+	cfile_write_int(sig,SaveFile);
+	cfile_write_int(version,SaveFile);
 
 	//save placeholders
-	gs_write_int(minedata_offset,SaveFile);
-	gs_write_int(gamedata_offset,SaveFile);
-	gs_write_int(hostagetext_offset,SaveFile);
+	cfile_write_int(minedata_offset,SaveFile);
+	cfile_write_int(gamedata_offset,SaveFile);
+	cfile_write_int(hostagetext_offset,SaveFile);
 
 	//Now write the damn data
 
@@ -2005,9 +1825,9 @@ int save_level_sub(char * filename, int compiled_version)
 	#endif
 
 	fseek(SaveFile,sizeof(sig)+sizeof(version),SEEK_SET);
-	gs_write_int(minedata_offset,SaveFile);
-	gs_write_int(gamedata_offset,SaveFile);
-	gs_write_int(hostagetext_offset,SaveFile);
+	cfile_write_int(minedata_offset,SaveFile);
+	cfile_write_int(gamedata_offset,SaveFile);
+	cfile_write_int(hostagetext_offset,SaveFile);
 
 	//==================== CLOSE THE FILE =============================
 	fclose(SaveFile);
@@ -2056,10 +1876,10 @@ void save_hostage_data(FILE * fp)
 		}
 	}
 
-	gs_write_int(HOSTAGE_DATA_VERSION,fp);
+	cfile_write_int(HOSTAGE_DATA_VERSION,fp);
 
 	for (i=0; i<num_hostages; i++ )	{
-		gs_write_int(Hostages[i].vclip_num,fp);
+		cfile_write_int(Hostages[i].vclip_num,fp);
 		fputs(Hostages[i].text,fp);
 		fputc('\n',fp);		//fgets wants a newline
 	}
@@ -2153,13 +1973,13 @@ void load_hostage_data(CFILE * fp,int do_read)
 	}
 
 	if (do_read) {
-		version = read_int(fp);
+		version = cfile_read_int(fp);
 
 		for (i=0;i<num_hostages;i++) {
 
 			Assert(Hostages[i].objnum != -1);		//make sure slot filled in
 
-			Hostages[i].vclip_num = read_int(fp);
+			Hostages[i].vclip_num = cfile_read_int(fp);
 
 			#ifndef SHAREWARE
 			if (Hostages[i].vclip_num<0 || Hostages[i].vclip_num>=MAX_HOSTAGES || Hostage_face_clip[Hostages[i].vclip_num].num_frames<=0)

@@ -607,11 +607,17 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	//=============================== Reading part ==============================
 	cfread( &version, sizeof(ubyte), 1, LoadFile );						// 1 byte = compiled version
 	Assert( version==COMPILED_MINE_VERSION );
-	cfread( &Num_vertices, sizeof(int), 1, LoadFile );					// 4 bytes = Num_vertices
+//	cfread( &Num_vertices, sizeof(int), 1, LoadFile );					// 4 bytes = Num_vertices
+	Num_vertices = cfile_read_int(LoadFile);
 	Assert( Num_vertices <= MAX_VERTICES );
-	cfread( &Num_segments, sizeof(int), 1, LoadFile );					// 4 bytes = Num_segments
+//	cfread( &Num_segments, sizeof(int), 1, LoadFile );					// 4 bytes = Num_segments
+	Num_segments = cfile_read_int(LoadFile);
 	Assert( Num_segments <= MAX_SEGMENTS );
-	cfread( Vertices, sizeof(vms_vector), Num_vertices, LoadFile );
+//	cfread( Vertices, sizeof(vms_vector), Num_vertices, LoadFile );
+
+	for (i = 0; i < Num_vertices; i++)
+		cfile_read_vector(&Vertices[i], LoadFile);
+
 
 	for (segnum=0; segnum<Num_segments; segnum++ )	{
 		#ifdef EDITOR
@@ -620,9 +626,16 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		#endif
 
 		// Read short Segments[segnum].children[MAX_SIDES_PER_SEGMENT]
- 		cfread( Segments[segnum].children, sizeof(short), MAX_SIDES_PER_SEGMENT, LoadFile );
+// 		cfread( Segments[segnum].children, sizeof(short), MAX_SIDES_PER_SEGMENT, LoadFile );
+		for (i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
+			Segments[segnum].children[i] = cfile_read_short(LoadFile);
+
+
 		// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
-		cfread( Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, LoadFile );
+//		cfread( Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, LoadFile );
+		for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
+			Segments[segnum].verts[i] = cfile_read_short(LoadFile);
+
 		Segments[segnum].objects = -1;
 
 		// Read ubyte	Segments[segnum].special
@@ -630,10 +643,12 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		// Read byte	Segments[segnum].matcen_num
 		cfread( &Segments[segnum].matcen_num, sizeof(ubyte), 1, LoadFile );
 		// Read short	Segments[segnum].value
-		cfread( &Segments[segnum].value, sizeof(short), 1, LoadFile );
+//		cfread( &Segments[segnum].value, sizeof(short), 1, LoadFile );
+		Segments[segnum].value = cfile_read_short(LoadFile);
 
 		// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-		cfread( &temp_ushort, sizeof(temp_ushort), 1, LoadFile );
+//		cfread( &temp_ushort, sizeof(temp_ushort), 1, LoadFile );
+		temp_ushort = cfile_read_short(LoadFile);
 		Segments[segnum].static_light	= ((fix)temp_ushort) << 4;
 		//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
 	
@@ -652,18 +667,23 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
-				cfread( &Segments[segnum].sides[sidenum].tmap_num, sizeof(short), 1, LoadFile );
+//				cfread( &Segments[segnum].sides[sidenum].tmap_num, sizeof(short), 1, LoadFile );
+				Segments[segnum].sides[sidenum].tmap_num = cfile_read_short(LoadFile);
 				// Read short Segments[segnum].sides[sidenum].tmap_num2;
-				cfread( &Segments[segnum].sides[sidenum].tmap_num2, sizeof(short), 1, LoadFile );
+//				cfread( &Segments[segnum].sides[sidenum].tmap_num2, sizeof(short), 1, LoadFile );
+				Segments[segnum].sides[sidenum].tmap_num2 = cfile_read_short(LoadFile);
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				for (i=0; i<4; i++ )	{
-					cfread( &temp_short, sizeof(short), 1, LoadFile );
+//					cfread( &temp_short, sizeof(short), 1, LoadFile );
+					temp_short = cfile_read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].u = ((fix)temp_short) << 5;
-					cfread( &temp_short, sizeof(short), 1, LoadFile );
+//					cfread( &temp_short, sizeof(short), 1, LoadFile );
+					temp_short = cfile_read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].v = ((fix)temp_short) << 5;
-					cfread( &temp_ushort, sizeof(temp_ushort), 1, LoadFile );
+//					cfread( &temp_ushort, sizeof(temp_ushort), 1, LoadFile );
+					temp_ushort = cfile_read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].l = ((fix)temp_ushort) << 1;
-					//cfread( &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1, LoadFile );
+//					cfread( &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1, LoadFile );
 				}	
 			} else {
 				Segments[segnum].sides[sidenum].tmap_num = 0;
@@ -715,16 +735,15 @@ int load_mine_data_compiled_new(CFILE *LoadFile)
 	cfread( &version, sizeof(ubyte), 1, LoadFile );						// 1 byte = compiled version
 	Assert( version==COMPILED_MINE_VERSION );
 
-	cfread( &temp_ushort, sizeof(ushort), 1, LoadFile );					// 2 bytes = Num_vertices
-	Num_vertices = temp_ushort;
+	Num_vertices = cfile_read_short(LoadFile);
 	Assert( Num_vertices <= MAX_VERTICES );
 
-	cfread( &temp_ushort, sizeof(ushort), 1, LoadFile );					// 2 bytes = Num_segments
-	Num_segments = temp_ushort;
+	Num_segments = cfile_read_short(LoadFile);
 	Assert( Num_segments <= MAX_SEGMENTS );
 
-	cfread( Vertices, sizeof(vms_vector), Num_vertices, LoadFile );
-
+	for (i = 0; i < Num_vertices; i++)
+		cfile_read_vector(&Vertices[i], LoadFile);
+	
 	for (segnum=0; segnum<Num_segments; segnum++ )	{
 		int	bit;
 
@@ -733,26 +752,28 @@ int load_mine_data_compiled_new(CFILE *LoadFile)
 		Segments[segnum].group = 0;
 		#endif
 
- 		cfread( &bit_mask, sizeof(ubyte), 1, LoadFile );
+		bit_mask = cfile_read_byte(LoadFile);
 
 		for (bit=0; bit<MAX_SIDES_PER_SEGMENT; bit++) {
 			if (bit_mask & (1 << bit))
-		 		cfread( &Segments[segnum].children[bit], sizeof(short), 1, LoadFile );
+				Segments[segnum].children[bit] = cfile_read_short(LoadFile);
 			else
 				Segments[segnum].children[bit] = -1;
 		}
 
 		// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
-		cfread( Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, LoadFile );
+		for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
+			Segments[segnum].verts[i] = cfile_read_short(LoadFile);
+
 		Segments[segnum].objects = -1;
 
 		if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
 			// Read ubyte	Segments[segnum].special
-			cfread( &Segments[segnum].special, sizeof(ubyte), 1, LoadFile );
+			Segments[segnum].special = cfile_read_byte(LoadFile);
 			// Read byte	Segments[segnum].matcen_num
-			cfread( &Segments[segnum].matcen_num, sizeof(ubyte), 1, LoadFile );
+			Segments[segnum].matcen_num = cfile_read_byte(LoadFile);
 			// Read short	Segments[segnum].value
-			cfread( &Segments[segnum].value, sizeof(short), 1, LoadFile );
+			Segments[segnum].value = cfile_read_short(LoadFile);
 		} else {
 			Segments[segnum].special = 0;
 			Segments[segnum].matcen_num = -1;
@@ -760,21 +781,20 @@ int load_mine_data_compiled_new(CFILE *LoadFile)
 		}
 
 		// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-		cfread( &temp_ushort, sizeof(temp_ushort), 1, LoadFile );
+		temp_ushort = cfile_read_short(LoadFile);
 		Segments[segnum].static_light	= ((fix)temp_ushort) << 4;
-		//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
 	
 		// Read the walls as a 6 byte array
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
 			Segments[segnum].sides[sidenum].pad = 0;
 		}
 
- 		cfread( &bit_mask, sizeof(ubyte), 1, LoadFile );
+		bit_mask = cfile_read_byte(LoadFile);
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			ubyte byte_wallnum;
 
 			if (bit_mask & (1 << sidenum)) {
-				cfread( &byte_wallnum, sizeof(ubyte), 1, LoadFile );
+				byte_wallnum = cfile_read_byte(LoadFile);
 				if ( byte_wallnum == 255 )			
 					Segments[segnum].sides[sidenum].wall_num = -1;
 				else		
@@ -787,26 +807,24 @@ int load_mine_data_compiled_new(CFILE *LoadFile)
 
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
-				cfread( &temp_ushort, sizeof(ushort), 1, LoadFile );
-
+				temp_ushort = cfile_read_short(LoadFile);
 				Segments[segnum].sides[sidenum].tmap_num = temp_ushort & 0x7fff;
 
 				if (!(temp_ushort & 0x8000))
 					Segments[segnum].sides[sidenum].tmap_num2 = 0;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-					cfread( &Segments[segnum].sides[sidenum].tmap_num2, sizeof(short), 1, LoadFile );
+					Segments[segnum].sides[sidenum].tmap_num2 = cfile_read_short(LoadFile);
 				}
 
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				for (i=0; i<4; i++ )	{
-					cfread( &temp_short, sizeof(short), 1, LoadFile );
+					temp_short = cfile_read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].u = ((fix)temp_short) << 5;
-					cfread( &temp_short, sizeof(short), 1, LoadFile );
+					temp_short = cfile_read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].v = ((fix)temp_short) << 5;
-					cfread( &temp_ushort, sizeof(temp_ushort), 1, LoadFile );
+					temp_ushort = cfile_read_short(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].l = ((fix)temp_ushort) << 1;
-					//cfread( &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1, LoadFile );
 				}	
 			} else {
 				Segments[segnum].sides[sidenum].tmap_num = 0;

@@ -118,6 +118,36 @@ typedef struct DiskSoundHeader {
 	int offset;
 } __pack__ DiskSoundHeader;
 
+#ifdef FAST_FILE_IO
+#define DiskBitmapHeader_read(dbh, fp) cfread(dbh, sizeof(DiskBitmapHeader), 1, fp)
+#define DiskSoundHeader_read(dsh, fp) cfread(dsh, sizeof(DiskSoundHeader), 1, fp)
+#else
+/*
+ * reads a DiskBitmapHeader structure from a CFILE
+ */
+void DiskBitmapHeader_read(DiskBitmapHeader *dbh, CFILE *fp)
+{
+	cfread(dbh->name, 8, 1, fp);
+	dbh->dflags = cfile_read_byte(fp);
+	dbh->width = cfile_read_byte(fp);
+	dbh->height = cfile_read_byte(fp);
+	dbh->flags = cfile_read_byte(fp);
+	dbh->avg_color = cfile_read_byte(fp);
+	dbh->offset = cfile_read_int(fp);
+}
+
+/*
+ * reads a DiskSoundHeader structure from a CFILE
+ */
+void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
+{
+	cfread(dsh->name, 8, 1, fp);
+	dsh->length = cfile_read_int(fp);
+	dsh->data_length = cfile_read_int(fp);
+	dsh->offset = cfile_read_int(fp);
+}
+#endif // FAST_FILE_IO
+
 #ifdef SHAREWARE
 static int SoundCompressed[ MAX_SOUND_FILES ];
 #endif
@@ -374,13 +404,14 @@ int piggy_init()
 #ifdef SHAREWARE
 	Pigdata_start = 0;
 #else
-	cfread( &Pigdata_start, sizeof(int), 1, Piggy_fp );
+	Pigdata_start = cfile_read_int(Piggy_fp);
 #ifdef EDITOR
 	if (GameArg.EdiNoBm)
 #endif
 	{
 		bm_read_all( Piggy_fp );	// Note connection to above if!!!
-		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, Piggy_fp );
+		for (i = 0; i < MAX_BITMAP_FILES; i++)
+			GameBitmapXlat[i] = cfile_read_short(Piggy_fp);
 	}
 #endif
 
@@ -389,16 +420,16 @@ int piggy_init()
 	length = size;
 	mprintf( (0, "\nReading data (%d KB) ", size/1024 ));
 
-	cfread( &N_bitmaps, sizeof(int), 1, Piggy_fp );
+	N_bitmaps = cfile_read_int(Piggy_fp);
 	size -= sizeof(int);
-	cfread( &N_sounds, sizeof(int), 1, Piggy_fp );
+	N_sounds = cfile_read_int(Piggy_fp);
 	size -= sizeof(int);
 
 	header_size = (N_bitmaps*sizeof(DiskBitmapHeader)) + (N_sounds*sizeof(DiskSoundHeader));
 
 	for (i=0; i<N_bitmaps; i++ )	{
-		cfread( &bmh, sizeof(DiskBitmapHeader), 1, Piggy_fp );
-
+		DiskBitmapHeader_read(&bmh, Piggy_fp);
+		
 		GameBitmapFlags[i+1] = 0;
 		if ( bmh.flags & BM_FLAG_TRANSPARENT ) GameBitmapFlags[i+1] |= BM_FLAG_TRANSPARENT;
 		if ( bmh.flags & BM_FLAG_SUPER_TRANSPARENT ) GameBitmapFlags[i+1] |= BM_FLAG_SUPER_TRANSPARENT;
@@ -426,9 +457,9 @@ int piggy_init()
 		piggy_register_bitmap( &temp_bitmap, temp_name, 1 );
 	}
 
-        for (i=0; i<N_sounds; i++ )     {
-                cfread( &sndh, sizeof(DiskSoundHeader), 1, Piggy_fp );
-
+	for (i=0; i<N_sounds; i++ )     {
+		DiskSoundHeader_read(&sndh, Piggy_fp);
+		
 		//size -= sizeof(DiskSoundHeader);
 #ifdef ALLEGRO
 		temp_sound.len = sndh.length;
@@ -615,7 +646,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		if ( bmp->bm_flags & BM_FLAG_RLE )	{
 			int zsize = 0;
 			descent_critical_error = 0;
-			temp = cfread( &zsize, 1, sizeof(int), Piggy_fp );
+			zsize = cfile_read_int(Piggy_fp);
 			if ( descent_critical_error )	{
 				piggy_critical_error();
 				goto ReDoIt;
@@ -1018,3 +1049,24 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 	return 0;
 }
 
+#ifndef FAST_FILE_IO
+/*
+ * reads a bitmap_index structure from a CFILE
+ */
+void bitmap_index_read(bitmap_index *bi, CFILE *fp)
+{
+	bi->index = cfile_read_short(fp);
+}
+
+/*
+ * reads n bitmap_index structs from a CFILE
+ */
+int bitmap_index_read_n(bitmap_index *bi, int n, CFILE *fp)
+{
+	int i;
+	
+	for (i = 0; i < n; i++)
+		bi[i].index = cfile_read_short(fp);
+	return i;
+}
+#endif // FAST_FILE_IO

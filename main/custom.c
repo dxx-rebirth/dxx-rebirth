@@ -110,8 +110,8 @@ int load_pig1(CFILE *f, int num_bitmaps, int num_sounds, int *num_custom, struct
 	} else if (num_bitmaps > 0 && num_bitmaps < cfilelength(f)) { // >=v1.4 pig?
     	cfseek(f, num_bitmaps, SEEK_SET);
     	data_ofs = num_bitmaps + 8;
-	num_bitmaps = read_int(f);
-	num_sounds = read_int(f);
+	num_bitmaps = cfile_read_int(f);
+	num_sounds = cfile_read_int(f);
     } else
     	return -1; // invalid pig file
     if ((unsigned int)num_bitmaps >= MAX_BITMAP_FILES ||
@@ -168,10 +168,10 @@ int load_pog(CFILE *f, int pog_sig, int pog_ver, int *num_custom, struct custom_
     int *d2tmap = NULL;
     CFILE *f2 = NULL;
     if ((f2 = cfopen("d2tmap.bin", "rb"))) {
-	N_d2tmap = read_int(f2);
+	N_d2tmap = cfile_read_int(f2);
 	if ((d2tmap = malloc(N_d2tmap * sizeof(d2tmap[0]))))
 	    for (i = 0; i < N_d2tmap; i++)
-		d2tmap[i] = read_short(f2);
+		d2tmap[i] = cfile_read_short(f2);
 	cfclose(f2);
     }
     #endif
@@ -181,14 +181,14 @@ int load_pog(CFILE *f, int pog_sig, int pog_ver, int *num_custom, struct custom_
 	no_repl = 1;
     else if (pog_sig != 0x474f5044 || pog_ver != 1) /* DPOG */
 	return -1; // no pig2/pog file/unknown version
-    num_bitmaps = read_int(f);
+    num_bitmaps = cfile_read_int(f);
     if (!(*ci = cip = malloc(num_bitmaps * sizeof(struct custom_info))))
 	return -1; // out of memory
     data_ofs = 12 + num_bitmaps * sizeof(DiskBitmapHeader2);
     if (!no_repl) {
 	i = num_bitmaps;
 	while (i--)
-	    (cip++)->repl_idx = read_short(f);
+	    (cip++)->repl_idx = cfile_read_short(f);
 	cip = *ci;
 	data_ofs += num_bitmaps * 2;
     }
@@ -234,8 +234,8 @@ int load_pigpog(const char *pogname) {
 
     if (!(f = cfopen((char *)pogname, "rb")))
 	return -1; // pog file doesn't exist
-    i = read_int(f);
-    x = read_int(f);
+    i = cfile_read_int(f);
+    x = cfile_read_int(f);
     if (load_pog(f, i, x, &num_custom, &custom_info) &&
 	load_pig1(f, i, x, &num_custom, &custom_info))
 	goto err; // unknown format/read error
@@ -246,7 +246,7 @@ int load_pigpog(const char *pogname) {
 	if ((x = cip->repl_idx) >= 0) {
 	    cfseek( f, cip->offset, SEEK_SET );
 	    if ( cip->flags & BM_FLAG_RLE )
-                j = read_int(f);
+                j = cfile_read_int(f);
             else
 		j = cip->width * cip->height;
             if (!(p = malloc(j)))
@@ -328,87 +328,84 @@ int read_d2_robot_info(CFILE *fp, robot_info *ri)
 {
 	int j, k;
 
-	ri->model_num = read_int(fp);
-	for (j = 0; j < MAX_GUNS; j++) {
-		ri->gun_points[j].x = read_fix(fp);
-		ri->gun_points[j].y = read_fix(fp);
-		ri->gun_points[j].z = read_fix(fp);
-	}
+	ri->model_num = cfile_read_int(fp);
 	for (j = 0; j < MAX_GUNS; j++)
-		ri->gun_submodels[j] = read_byte(fp);
-	ri->exp1_vclip_num = read_short(fp);
-	ri->exp1_sound_num = read_short(fp);
-	ri->exp2_vclip_num = read_short(fp);
-	ri->exp2_sound_num = read_short(fp);
-	ri->weapon_type = read_byte(fp);
+		cfile_read_vector(&ri->gun_points[j], fp);
+	for (j = 0; j < MAX_GUNS; j++)
+		ri->gun_submodels[j] = cfile_read_byte(fp);
+	ri->exp1_vclip_num = cfile_read_short(fp);
+	ri->exp1_sound_num = cfile_read_short(fp);
+	ri->exp2_vclip_num = cfile_read_short(fp);
+	ri->exp2_sound_num = cfile_read_short(fp);
+	ri->weapon_type = cfile_read_byte(fp);
 	if (ri->weapon_type >= N_weapon_types)
 	    ri->weapon_type = 0;
-	/*ri->weapon_type2 =*/ read_byte(fp);
-	ri->n_guns = read_byte(fp);
-	ri->contains_id = read_byte(fp);
-	ri->contains_count = read_byte(fp);
-	ri->contains_prob = read_byte(fp);
-	ri->contains_type = read_byte(fp);
-	/*ri->kamikaze =*/ read_byte(fp);
-	ri->score_value = read_short(fp);
-	/*ri->badass =*/ read_byte(fp);
-	/*ri->energy_drain =*/ read_byte(fp);
-	ri->lighting = read_fix(fp);
-	ri->strength = read_fix(fp);
-	ri->mass = read_fix(fp);
-	ri->drag = read_fix(fp);
+	/*ri->weapon_type2 =*/ cfile_read_byte(fp);
+	ri->n_guns = cfile_read_byte(fp);
+	ri->contains_id = cfile_read_byte(fp);
+	ri->contains_count = cfile_read_byte(fp);
+	ri->contains_prob = cfile_read_byte(fp);
+	ri->contains_type = cfile_read_byte(fp);
+	/*ri->kamikaze =*/ cfile_read_byte(fp);
+	ri->score_value = cfile_read_short(fp);
+	/*ri->badass =*/ cfile_read_byte(fp);
+	/*ri->energy_drain =*/ cfile_read_byte(fp);
+	ri->lighting = cfile_read_fix(fp);
+	ri->strength = cfile_read_fix(fp);
+	ri->mass = cfile_read_fix(fp);
+	ri->drag = cfile_read_fix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->field_of_view[j] = read_fix(fp);
+		ri->field_of_view[j] = cfile_read_fix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->firing_wait[j] = read_fix(fp);
+		ri->firing_wait[j] = cfile_read_fix(fp);
 	for (j = 0; j < NDL; j++)
-		/*ri->firing_wait2[j] =*/ read_fix(fp);
+		/*ri->firing_wait2[j] =*/ cfile_read_fix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->turn_time[j] = read_fix(fp);
+		ri->turn_time[j] = cfile_read_fix(fp);
 #if 0 // not used in d1, removed in d2
 	for (j = 0; j < NDL; j++)
-		ri->fire_power[j] = read_fix(fp);
+		ri->fire_power[j] = cfile_read_fix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->shield[j] = read_fix(fp);
+		ri->shield[j] = cfile_read_fix(fp);
 #endif
 	for (j = 0; j < NDL; j++)
-		ri->max_speed[j] = read_fix(fp);
+		ri->max_speed[j] = cfile_read_fix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->circle_distance[j] = read_fix(fp);
+		ri->circle_distance[j] = cfile_read_fix(fp);
 	for (j = 0; j < NDL; j++)
-		ri->rapidfire_count[j] = read_byte(fp);
+		ri->rapidfire_count[j] = cfile_read_byte(fp);
 	for (j = 0; j < NDL; j++)
-		ri->evade_speed[j] = read_byte(fp);
-	ri->cloak_type = read_byte(fp);
-	ri->attack_type = read_byte(fp);
-	ri->see_sound = read_byte(fp);
-	ri->attack_sound = read_byte(fp);
-	ri->claw_sound = read_byte(fp);
-	/*ri->taunt_sound =*/ read_byte(fp);
-	ri->boss_flag = read_byte(fp);
-	/*ri->companion =*/ read_byte(fp);
-	/*ri->smart_blobs =*/ read_byte(fp);
-	/*ri->energy_blobs =*/ read_byte(fp);
-	/*ri->thief =*/ read_byte(fp);
-	/*ri->pursuit =*/ read_byte(fp);
-	/*ri->lightcast =*/ read_byte(fp);
-	/*ri->death_roll =*/ read_byte(fp);
-	/*ri->flags =*/ read_byte(fp);
-	/*ri->pad[0] =*/ read_byte(fp);
-	/*ri->pad[1] =*/ read_byte(fp);
-	/*ri->pad[2] =*/ read_byte(fp);
-	/*ri->deathroll_sound =*/ read_byte(fp);
-	/*ri->glow =*/ read_byte(fp);
-	/*ri->behavior =*/ read_byte(fp);
-	/*ri->aim =*/ read_byte(fp);
+		ri->evade_speed[j] = cfile_read_byte(fp);
+	ri->cloak_type = cfile_read_byte(fp);
+	ri->attack_type = cfile_read_byte(fp);
+	ri->see_sound = cfile_read_byte(fp);
+	ri->attack_sound = cfile_read_byte(fp);
+	ri->claw_sound = cfile_read_byte(fp);
+	/*ri->taunt_sound =*/ cfile_read_byte(fp);
+	ri->boss_flag = cfile_read_byte(fp);
+	/*ri->companion =*/ cfile_read_byte(fp);
+	/*ri->smart_blobs =*/ cfile_read_byte(fp);
+	/*ri->energy_blobs =*/ cfile_read_byte(fp);
+	/*ri->thief =*/ cfile_read_byte(fp);
+	/*ri->pursuit =*/ cfile_read_byte(fp);
+	/*ri->lightcast =*/ cfile_read_byte(fp);
+	/*ri->death_roll =*/ cfile_read_byte(fp);
+	/*ri->flags =*/ cfile_read_byte(fp);
+	/*ri->pad[0] =*/ cfile_read_byte(fp);
+	/*ri->pad[1] =*/ cfile_read_byte(fp);
+	/*ri->pad[2] =*/ cfile_read_byte(fp);
+	/*ri->deathroll_sound =*/ cfile_read_byte(fp);
+	/*ri->glow =*/ cfile_read_byte(fp);
+	/*ri->behavior =*/ cfile_read_byte(fp);
+	/*ri->aim =*/ cfile_read_byte(fp);
 
 	for (j = 0; j < MAX_GUNS + 1; j++) {
 		for (k = 0; k < N_ANIM_STATES; k++) {
-			ri->anim_states[j][k].n_joints = read_short(fp);
-			ri->anim_states[j][k].offset = read_short(fp);
+			ri->anim_states[j][k].n_joints = cfile_read_short(fp);
+			ri->anim_states[j][k].offset = cfile_read_short(fp);
 		}
 	}
-	ri->always_0xabcd = read_int(fp);
+	ri->always_0xabcd = cfile_read_int(fp);
 	return 1;
 }
 
@@ -420,15 +417,15 @@ void load_hxm(const char *hxmname) {
 
     if (!(f = cfopen((char *)hxmname, "rb")))
 	return; // hxm file doesn't exist
-    if (read_int(f) != 0x21584d48) /* HMX! */
+    if (cfile_read_int(f) != 0x21584d48) /* HMX! */
 	goto err; // invalid hxm file
-    if (read_int(f) != 1)
+    if (cfile_read_int(f) != 1)
         goto err; // unknown version
 
     // read robot info
-    if ((n_items = read_int(f)) != 0) {
+    if ((n_items = cfile_read_int(f)) != 0) {
 	for (i = 0; i < n_items; i++) {
-	    repl_num = read_int(f);
+	    repl_num = cfile_read_int(f);
 	    if (repl_num >= MAX_ROBOT_TYPES)
 		cfseek(f, 480, SEEK_CUR); /* sizeof d2_robot_info */
 	    else
@@ -438,9 +435,9 @@ void load_hxm(const char *hxmname) {
     }
 
     // read joint positions
-    if ((n_items = read_int(f)) != 0) {
+    if ((n_items = cfile_read_int(f)) != 0) {
 	for (i = 0; i < n_items; i++) {
-	    repl_num = read_int(f);
+	    repl_num = cfile_read_int(f);
 	    if (repl_num >= MAX_ROBOT_JOINTS)
 		cfseek(f, sizeof(jointpos), SEEK_CUR);
 	    else
@@ -450,14 +447,14 @@ void load_hxm(const char *hxmname) {
     }
 
     // read polygon models
-    if ((n_items = read_int(f)) != 0) {
+    if ((n_items = cfile_read_int(f)) != 0) {
 	for (i = 0; i < n_items; i++) {
 	    polymodel *pm;
 
-	    repl_num = read_int(f);
+	    repl_num = cfile_read_int(f);
 	    if (repl_num >= MAX_POLYGON_MODELS) {
-		read_int(f); // skip n_models
-		cfseek(f, 734 - 8 + read_int(f) + 8, SEEK_CUR);
+		cfile_read_int(f); // skip n_models
+		cfseek(f, 734 - 8 + cfile_read_int(f) + 8, SEEK_CUR);
 	    } else {
 		pm = &Polygon_models[repl_num];
 		if (pm->model_data)
@@ -472,20 +469,20 @@ void load_hxm(const char *hxmname) {
 		    pm->model_data = NULL;
 		    goto err;
 		}
-		Dying_modelnums[repl_num] = read_int(f);
-		Dead_modelnums[repl_num] = read_int(f);
+		Dying_modelnums[repl_num] = cfile_read_int(f);
+		Dead_modelnums[repl_num] = cfile_read_int(f);
 	    }
 	}
     }
 
     // read object bitmaps
-    if ((n_items = read_int(f)) != 0) {
+    if ((n_items = cfile_read_int(f)) != 0) {
 	for (i = 0; i < n_items; i++) {
-	    repl_num = read_int(f);
+	    repl_num = cfile_read_int(f);
 	    if (repl_num >= MAX_OBJ_BITMAPS)
 		cfseek(f, 2, SEEK_CUR);
 	    else {
-		ObjBitmaps[repl_num].index = read_short(f);
+		ObjBitmaps[repl_num].index = cfile_read_short(f);
 	    }
 	}
     }

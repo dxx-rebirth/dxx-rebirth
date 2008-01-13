@@ -90,6 +90,7 @@ void g3_set_interp_points(g3s_point *pointlist)
 
 #define w(p)  (*((short *) (p)))
 #define wp(p)  ((short *) (p))
+#define fp(p)  ((fix *) (p))
 #define vp(p)  ((vms_vector *) (p))
 
 void rotate_point_list(g3s_point *dest,vms_vector *src,int n)
@@ -525,6 +526,131 @@ void g3_init_polygon_model(void *model_ptr)
 	init_model_sub((ubyte *) model_ptr);
 }
 
+#ifdef WORDS_BIGENDIAN
+void short_swap(short *s)
+{
+	*s = SWAPSHORT(*s);
+}
+
+void fix_swap(fix *f)
+{
+	*f = (fix)SWAPINT((int)*f);
+}
+
+void vms_vector_swap(vms_vector *v)
+{
+	fix_swap(fp(&v->x));
+	fix_swap(fp(&v->y));
+	fix_swap(fp(&v->z));
+}
+
+void fixang_swap(fixang *f)
+{
+	*f = (fixang)SWAPSHORT((short)*f);
+}
+
+void vms_angvec_swap(vms_angvec *v)
+{
+	fixang_swap(&v->p);
+	fixang_swap(&v->b);
+	fixang_swap(&v->h);
+}
+
+void swap_polygon_model_data(ubyte *data)
+{
+	int i;
+	short n;
+	g3s_uvl *uvl_val;
+	ubyte *p = data;
+	
+	short_swap(wp(p));
+	
+	while (w(p) != OP_EOF) {
+		switch (w(p)) {
+			case OP_DEFPOINTS:
+				short_swap(wp(p + 2));
+				n = w(p+2);
+				for (i = 0; i < n; i++)
+					vms_vector_swap(vp((p + 4) + (i * sizeof(vms_vector))));
+					p += n*sizeof(struct vms_vector) + 4;
+				break;
+				
+			case OP_DEFP_START:
+				short_swap(wp(p + 2));
+				short_swap(wp(p + 4));
+				n = w(p+2);
+				for (i = 0; i < n; i++)
+					vms_vector_swap(vp((p + 8) + (i * sizeof(vms_vector))));
+					p += n*sizeof(struct vms_vector) + 8;
+				break;
+				
+			case OP_FLATPOLY:
+				short_swap(wp(p+2));
+				n = w(p+2);
+				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(vp(p + 16));
+				short_swap(wp(p+28));
+				for (i=0; i < n; i++)
+					short_swap(wp(p + 30 + (i * 2)));
+					p += 30 + ((n&~1)+1)*2;
+				break;
+				
+			case OP_TMAPPOLY:
+				short_swap(wp(p+2));
+				n = w(p+2);
+				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(vp(p + 16));
+				for (i=0;i<n;i++) {
+					uvl_val = (g3s_uvl *)((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
+					fix_swap(&uvl_val->u);
+					fix_swap(&uvl_val->v);
+				}
+					short_swap(wp(p+28));
+				for (i=0;i<n;i++)
+					short_swap(wp(p + 30 + (i * 2)));
+					p += 30 + ((n&~1)+1)*2 + n*12;
+				break;
+				
+			case OP_SORTNORM:
+				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(vp(p + 16));
+				short_swap(wp(p + 28));
+				short_swap(wp(p + 30));
+				swap_polygon_model_data(p + w(p+28));
+				swap_polygon_model_data(p + w(p+30));
+				p += 32;
+				break;
+				
+			case OP_RODBM:
+				vms_vector_swap(vp(p + 20));
+				vms_vector_swap(vp(p + 4));
+				short_swap(wp(p+2));
+				fix_swap(fp(p + 16));
+				fix_swap(fp(p + 32));
+				p+=36;
+				break;
+				
+			case OP_SUBCALL:
+				short_swap(wp(p+2));
+				vms_vector_swap(vp(p+4));
+				short_swap(wp(p+16));
+				swap_polygon_model_data(p + w(p+16));
+				p += 20;
+				break;
+				
+			case OP_GLOW:
+				short_swap(wp(p + 2));
+				p += 4;
+				break;
+				
+			default:
+				Error("invalid polygon model\n"); //Int3();
+		}
+		short_swap(wp(p));
+	}
+}
+#endif
+
 #ifdef WORDS_NEED_ALIGNMENT
 void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
 	       chunk *chunk_list, int *no_chunks)
@@ -545,42 +671,42 @@ int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no)
 {
 	short n;
 	ubyte *p = data;
-
-	while (swapshort(w(p)) != OP_EOF) {
-		switch (swapshort(w(p))) {
-		case OP_DEFPOINTS:
-			n = swapshort(w(p+2));
-			p += n*sizeof(struct vms_vector) + 4;
-			break;
-		case OP_DEFP_START:
-			n = swapshort(w(p+2));
-			p += n*sizeof(struct vms_vector) + 8;
-			break;
-		case OP_FLATPOLY:
-			n = swapshort(w(p+2));
-			p += 30 + ((n&~1)+1)*2;
-			break;
-		case OP_TMAPPOLY:
-			n = swapshort(w(p+2));
-			p += 30 + ((n&~1)+1)*2 + n*12;
-			break;
-		case OP_SORTNORM:
-			add_chunk(p, p - data + new_data, 28, list, no);
-			add_chunk(p, p - data + new_data, 30, list, no);
-			p += 32;
-			break;
-		case OP_RODBM:
-			p+=36;
-			break;
-		case OP_SUBCALL:
-			add_chunk(p, p - data + new_data, 16, list, no);
-			p+=20;
-			break;
-		case OP_GLOW:
-			p += 4;
-			break;
-		default:
-			Error("invalid polygon model\n");
+	
+	while (INTEL_SHORT(w(p)) != OP_EOF) {
+		switch (INTEL_SHORT(w(p))) {
+			case OP_DEFPOINTS:
+				n = INTEL_SHORT(w(p+2));
+				p += n*sizeof(struct vms_vector) + 4;
+				break;
+			case OP_DEFP_START:
+				n = INTEL_SHORT(w(p+2));
+				p += n*sizeof(struct vms_vector) + 8;
+				break;
+			case OP_FLATPOLY:
+				n = INTEL_SHORT(w(p+2));
+				p += 30 + ((n&~1)+1)*2;
+				break;
+			case OP_TMAPPOLY:
+				n = INTEL_SHORT(w(p+2));
+				p += 30 + ((n&~1)+1)*2 + n*12;
+				break;
+			case OP_SORTNORM:
+				add_chunk(p, p - data + new_data, 28, list, no);
+				add_chunk(p, p - data + new_data, 30, list, no);
+				p += 32;
+				break;
+			case OP_RODBM:
+				p+=36;
+				break;
+			case OP_SUBCALL:
+				add_chunk(p, p - data + new_data, 16, list, no);
+				p+=20;
+				break;
+			case OP_GLOW:
+				p += 4;
+				break;
+			default:
+				Error("invalid polygon model\n");
 		}
 	}
 	return p + 2 - data;

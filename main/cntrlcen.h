@@ -58,9 +58,20 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vecmat.h"
 #include "object.h"
+#include "wall.h"
+#include "switch.h"
 
-#define MAX_CONTROLCEN_GUNS 4
+#define MAX_CONTROLCEN_GUNS		4
+
 #define CONTROLCEN_WEAPON_NUM	6
+
+typedef struct control_center_triggers {
+	short		num_links;
+	short 	seg[MAX_WALLS_PER_LINK];
+	short		side[MAX_WALLS_PER_LINK];
+} __pack__ control_center_triggers;
+
+extern control_center_triggers ControlCenterTriggers;
 
 extern int	N_controlcen_guns;
 extern int	Control_center_been_hit;
@@ -85,6 +96,15 @@ extern void init_controlcen_for_level(void);
 
 extern void do_controlcen_destroyed_stuff(object *objp);
 extern void do_controlcen_dead_frame(void);
+
+#ifdef FAST_FILE_IO
+#define control_center_triggers_read_n(cct, n, fp) cfread(cct, sizeof(control_center_triggers), n, fp)
+#else
+/*
+ * reads n control_center_triggers structs from a CFILE
+ */
+extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp);
+#endif
 
 #endif
  
