@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080113
+--------
+main/network.c: fix typo causing compiler error on bigendian computers
+
 20080110
 --------
 arch/sdl/jukebox.c, arch/sdl/include/jukebox.h, arch/sdl/digi_mixer_music.c; fixed looping jukebox music when it shouldn't (at end of level)
@@ -11,7 +15,7 @@ main/menu.c, main/newmenu.c, main/newmenu.h: Safe timer rollover in menu idle-de
 
 20080103
 --------
-2d/bitmap.c, 2d/font.c, arch/carbon/conf.h, arch/ogl/gr.c, arch/ogl/include/ogl_init.h, arch/sdl/digi_mixer_music.c, arch/sdl/include/music.h, arch/sdl/jukebox.c, iff/iff.c, include/d_glob.h, include/d_io.h, include/error.h, include/pstypes.h, include/strutil.h, include/u_mem.h, main/args.c, main/game.c, main/gameseq.c, main/inferno.c, main/newdemo.c, misc/d_glob.c, misc/strutil.c, texmap/scanline.c: get D1X to build for Mac OS X, conditionals for Mac OS 9
+2d/bitmap.c, 2d/font.c, arch/carbon/conf.h, arch/ogl/gr.c, arch/ogl/include/ogl_init.h, arch/sdl/digi_mixer_music.c, arch/sdl/include/music.h, arch/sdl/jukebox.c, iff/iff.c, include/d_glob.h, include/d_io.h, include/error.h, include/pstypes.h, include/strutil.h, include/u_mem.h, main/args.c, main/game.c, main/gameseq.c, main/inferno.c, main/newdemo.c, misc/d_glob.c, misc/strutil.c, SConstruct, texmap/scanline.c: get D1X to build for Mac OS X, conditionals for Mac OS 9
 
 20080102
 --------

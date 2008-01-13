@@ -1367,7 +1367,7 @@ void network_process_packet(ubyte *data, int length )
 #ifdef WORDS_BIGENDIAN
 	sequence_packet tmp_packet;
 
-	memset(&tep_packet, 0, sizeof(sequence_packet));
+	memset(&tmp_packet, 0, sizeof(sequence_packet));
 
 	receive_sequence_packet(data, &tmp_packet);
 	their = &tmp_packet;                                            // reassign their to point to correctly alinged structure
