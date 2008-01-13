@@ -1953,7 +1953,7 @@ int newmenu_get_filename(char *title, char *type, char *filename, int allow_abor
 	w_x=w_y=w_w=w_h=title_height=0;
 	box_x=box_y=box_w=box_h=0;
 
-	filenames = d_malloc( MAX_FILES * 14 );
+	filenames = d_malloc( MAX_FILES * 140 );
 	if (filenames==NULL) return 0;
 
 	citem = 0;

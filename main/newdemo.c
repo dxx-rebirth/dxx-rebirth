@@ -206,7 +206,6 @@ fix nd_playback_total;
 fix nd_recorded_total;
 fix nd_recorded_time;
 sbyte playback_style;
-sbyte First_time_playback=1;
 fix JasonPlaybackTotal=0;
 
 
@@ -1449,8 +1448,8 @@ void newdemo_set_new_level(int level_num)
 
 int newdemo_read_demo_start(int rnd_demo)
 {
-	sbyte i, version, game_type, laser_level;
-	sbyte c, energy, shield;
+	sbyte i, version, game_type, laser_level, c;
+	ubyte energy, shield;
 	char text[128], current_mission[9];
 
 	Rear_view=0;
@@ -1564,8 +1563,8 @@ int newdemo_read_demo_start(int rnd_demo)
 
 	nd_recorded_total = 0;
 	nd_playback_total = 0;
-	nd_read_byte(&energy);
-	nd_read_byte(&shield);
+	nd_read_byte((sbyte*)&energy);
+	nd_read_byte((sbyte*)&shield);
 
 	nd_read_int((int *)&(Players[Player_num].flags));
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
@@ -2360,13 +2359,14 @@ int newdemo_read_frame_information()
 		}
 
 		case ND_EVENT_CLOAKING_WALL: {
-			sbyte back_wall_num,front_wall_num,type,state,cloak_value;
+			sbyte type,state,cloak_value;
+			ubyte back_wall_num,front_wall_num;
 			short l0,l1,l2,l3;
 			segment *segp;
 			int sidenum;
 
-			nd_read_byte(&front_wall_num);
-			nd_read_byte(&back_wall_num);
+			nd_read_byte((sbyte*)&front_wall_num);
+			nd_read_byte((sbyte*)&back_wall_num);
 			nd_read_byte(&type);
 			nd_read_byte(&state);
 			nd_read_byte(&cloak_value);
@@ -2690,7 +2690,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 				//  Some of this code taken from ai_turn_towards_vector
 				//  Don't do the interpolation on certain render types which don't use an orientation matrix
 
-				if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP))) {
+				if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP) || (render_type == RT_WEAPON_VCLIP))) {
 
 					vms_vector  fvec1, fvec2, rvec1, rvec2;
 					fix         mag1;
@@ -3207,8 +3207,8 @@ void newdemo_start_playback(char * filename)
 #ifdef NETWORK
 	change_playernum_to(0);
 #endif
-	First_time_playback=1;
 	JasonPlaybackTotal=0;
+	Newdemo_flying_guided=0;
 
 	if (filename)
 		strcat(filename2, filename);
@@ -3241,6 +3241,10 @@ void newdemo_start_playback(char * filename)
 		PHYSFS_freeList(find);
 
 		if (NumFiles > RandFileNum)
+			return;
+
+		// if in random mode, PhysFS may look for all possible files, so check if filename actually points to be a demo file...
+		if (strncasecmp(".dem",&filename2[strlen(filename2)-4],4))
 			return;
 	}
 
@@ -3289,6 +3293,7 @@ void newdemo_stop_playback()
 {
 	PHYSFS_close(infile);
 	Newdemo_state = ND_STATE_NORMAL;
+	Newdemo_flying_guided=0;
 #ifdef NETWORK
 	change_playernum_to(0);             //this is reality
 #endif
@@ -3407,12 +3412,11 @@ void DoJasonInterpolate (fix recorded_time)
 
 	JasonPlaybackTotal+=FrameTime;
 
-	if (!First_time_playback)
+	if (recorded_time > 0)
 	{
-		// get the difference between the recorded time and the playback time
 		the_delay=(recorded_time - FrameTime);
-		//mprintf ((0,"The delay=%d\n", f2i(the_delay)));
-		if (!the_delay >= f0_0)
+
+		if (the_delay < f0_0)
 		{
 			while (JasonPlaybackTotal > nd_recorded_total)
 				if (newdemo_read_frame_information() == -1)
@@ -3422,7 +3426,6 @@ void DoJasonInterpolate (fix recorded_time)
 				}
 		}
 	}
-	First_time_playback=0;
 }
 
 #ifdef MACINTOSH

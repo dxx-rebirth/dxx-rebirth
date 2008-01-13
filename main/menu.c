@@ -126,7 +126,6 @@ extern int Speedtest_on;
 void do_sound_menu();
 void do_toggles_menu();
 
-ubyte do_auto_demo = 1;                 // Flag used to enable auto demo starting in main menu.
 int Player_default_difficulty; // Last difficulty level chosen by the player
 int Auto_leveling_on = 1;
 int Guided_in_big_window = 0;
@@ -158,37 +157,37 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 	// Don't allow them to hit ESC in the main menu.
 	if (*last_key==KEY_ESC) *last_key = 0;
 
-	if ( do_auto_demo )     {
-		curtime = timer_get_approx_seconds();
-		if ( (((keyd_time_when_last_pressed+i2f(25)) < curtime || curtime+i2f(25) < keyd_time_when_last_pressed) && (!Speedtest_on)) || GameArg.SysAutoDemo  ) {
-			int n_demos;
-
-			n_demos = newdemo_count_demos();
+	curtime = timer_get_approx_seconds();
+	if ( keyd_time_when_last_pressed+i2f(25) < curtime || GameArg.SysAutoDemo  )
+	{
+		int n_demos;
+		n_demos = newdemo_count_demos();
 
 try_again:;
-			if (((d_rand() % (n_demos+1)) == 0) && !GameArg.SysAutoDemo)
-			{
-				#ifndef SHAREWARE
+		if (((d_rand() % (n_demos+1)) == 0) && !GameArg.SysAutoDemo)
+		{
+#ifndef SHAREWARE
 #ifdef OGL
-					Screen_mode = -1;
+			Screen_mode = -1;
 #endif
-					PlayMovie("intro.mve",0);
-					songs_play_song(SONG_TITLE,1);
-					*last_key = -3; //exit menu to force redraw even if not going to game mode. -3 tells menu system not to restore
-					set_screen_mode(SCREEN_MENU);
-				#endif // end of ifndef shareware
+			PlayMovie("intro.mve",0);
+			songs_play_song(SONG_TITLE,1);
+			*last_key = -3; //exit menu to force redraw even if not going to game mode. -3 tells menu system not to restore
+			set_screen_mode(SCREEN_MENU);
+#endif // end of ifndef shareware
+		}
+		else
+		{
+			WIN(HideCursorW());
+			if (curtime < 0) curtime = 0;
+			keyd_time_when_last_pressed = curtime;                  // Reset timer so that disk won't thrash if no demos.
+			newdemo_start_playback(NULL);           // Randomly pick a file
+			if (Newdemo_state == ND_STATE_PLAYBACK) {
+				Function_mode = FMODE_GAME;
+				*last_key = -3; //exit menu to get into game mode. -3 tells menu system not to restore
 			}
-			else {
-				WIN(HideCursorW());
-				keyd_time_when_last_pressed = curtime;                  // Reset timer so that disk won't thrash if no demos.
-				newdemo_start_playback(NULL);           // Randomly pick a file
-				if (Newdemo_state == ND_STATE_PLAYBACK) {
-					Function_mode = FMODE_GAME;
-					*last_key = -3; //exit menu to get into game mode. -3 tells menu system not to restore
-				}
-				else
-					goto try_again;	//keep trying until we get a demo that works
-			}
+			else
+				goto try_again;	//keep trying until we get a demo that works
 		}
 	}
 }

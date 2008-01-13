@@ -159,7 +159,7 @@ void ogl_get_verinfo(void)
 	}
 #endif
 
-	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i gl_setgammaramp_ok:%i\n", GameArg.DbgGlIntensity4Ok, GameArg.DbgGlLuminance4Alpha4Ok, GameArg.DbgGlRGBA2Ok, GameArg.DbgGlReadPixelsOk, GameArg.DbgGlGetTexLevelParamOk, GameArg.DbgGlSetGammaRampOk);
+	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n", GameArg.DbgGlIntensity4Ok, GameArg.DbgGlLuminance4Alpha4Ok, GameArg.DbgGlRGBA2Ok, GameArg.DbgGlReadPixelsOk, GameArg.DbgGlGetTexLevelParamOk);
 }
 
 
@@ -323,7 +323,6 @@ int gr_init(int mode)
 void gr_close()
 {
 	ogl_brightness_r = ogl_brightness_g = ogl_brightness_b = 0;
-	ogl_setbrightness_internal();
 
 	ogl_close();//platform specific code
 	if (grd_curscreen){
@@ -438,13 +437,7 @@ void gr_palette_step_up(int r, int g, int b)
 	ogl_brightness_g = max(g + gr_palette_gamma, 0);
 	ogl_brightness_b = max(b + gr_palette_gamma, 0);
 
-	if (GameArg.DbgGlSetGammaRampOk &&
-	    (old_b_r != ogl_brightness_r ||
-	     old_b_g != ogl_brightness_g ||
-	     old_b_b != ogl_brightness_b))
-		ogl_brightness_ok = !ogl_setbrightness_internal();
-
-	if (!GameArg.DbgGlSetGammaRampOk || !ogl_brightness_ok)
+	if (!ogl_brightness_ok)
 	{
 		last_r = ogl_brightness_r / 63.0;
 		last_g = ogl_brightness_g / 63.0;

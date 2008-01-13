@@ -269,7 +269,6 @@ void ReadCmdArgs(void)
 	GameArg.DbgGlRGBA2Ok 		= get_int_arg("-gl_rgba2_ok", 1);
 	GameArg.DbgGlReadPixelsOk 	= get_int_arg("-gl_readpixels_ok", 1);
 	GameArg.DbgGlGetTexLevelParamOk = get_int_arg("-gl_gettexlevelparam_ok", 1);
-	GameArg.DbgGlSetGammaRampOk 	= get_int_arg("-gl_setgammaramp_ok", 0);
 #else
 	GameArg.DbgSdlHWSurface = FindArg("-hwsurface");
 #endif
