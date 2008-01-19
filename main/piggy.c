@@ -613,11 +613,11 @@ void piggy_init_pigfile(char *filename)
 
 	piggy_close_file();             //close old pig if still open
 
-	Piggy_fp = datafile_open(filename);
+	Piggy_fp = PHYSFSX_openDataFile(filename);
 	
 	//try pigfile for shareware
 	if (!Piggy_fp)
-		Piggy_fp = datafile_open(DEFAULT_PIGFILE_SHAREWARE);
+		Piggy_fp = PHYSFSX_openDataFile(DEFAULT_PIGFILE_SHAREWARE);
 
 	if (Piggy_fp) {                         //make sure pig is valid type file & is up-to-date
 		int pig_id,pig_version;
@@ -734,11 +734,11 @@ void piggy_new_pigfile(char *pigname)
 
 	strncpy(Current_pigfile,pigname,sizeof(Current_pigfile));
 
-	Piggy_fp = datafile_open(pigname);
+	Piggy_fp = PHYSFSX_openDataFile(pigname);
 
 	//try pigfile for shareware
 	if (!Piggy_fp)
-		Piggy_fp = datafile_open(DEFAULT_PIGFILE_SHAREWARE);
+		Piggy_fp = PHYSFSX_openDataFile(DEFAULT_PIGFILE_SHAREWARE);
 	
 	if (Piggy_fp) {  //make sure pig is valid type file & is up-to-date
 		int pig_id,pig_version;
@@ -970,10 +970,10 @@ int read_hamfile()
 	int ham_id;
 	int sound_offset = 0;
 
-	ham_fp = datafile_open(DEFAULT_HAMFILE_REGISTERED);
+	ham_fp = PHYSFSX_openDataFile(DEFAULT_HAMFILE_REGISTERED);
 	
 	if (!ham_fp)
-		ham_fp = datafile_open(DEFAULT_HAMFILE_SHAREWARE);
+		ham_fp = PHYSFSX_openDataFile(DEFAULT_HAMFILE_SHAREWARE);
 
 	if (ham_fp == NULL) {
 		Must_write_hamfile = 1;
@@ -1073,7 +1073,7 @@ int read_sndfile()
 	char temp_name_read[16];
 	int sbytes = 0;
 
-	snd_fp = datafile_open(DEFAULT_SNDFILE);
+	snd_fp = PHYSFSX_openDataFile(DEFAULT_SNDFILE);
 	
 	if (snd_fp == NULL)
 		return 0;
@@ -1197,7 +1197,7 @@ void piggy_read_sounds(void)
 	ptr = SoundBits;
 	sbytes = 0;
 
-	fp = datafile_open(DEFAULT_SNDFILE);
+	fp = PHYSFSX_openDataFile(DEFAULT_SNDFILE);
 
 	if (fp == NULL)
 		return;

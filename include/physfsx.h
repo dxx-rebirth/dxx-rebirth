@@ -364,7 +364,7 @@ static inline PHYSFS_file *PHYSFSX_openWriteBuffered(char *filename)
 
 //Open a 'data' file for reading (a file that would go in the 'Data' folder for the original Mac Descent II)
 //Allows backwards compatibility with old Mac directories while retaining PhysicsFS flexibility
-static inline PHYSFS_file *datafile_open(char *filename)
+static inline PHYSFS_file *PHYSFSX_openDataFile(char *filename)
 {
 	PHYSFS_file *fp = PHYSFSX_openReadBuffered(filename);
 
