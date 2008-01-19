@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/network.c: fix typo causing compiler error on bigendian computers
 2d/font.c: make sure a font header only takes up sizeof(grs_font) memory, not sizeof(grs_font) squared
 arch/ogl/gr.c, arch/ogl/include/internal.h, arch/ogl/sdlgl.c, include/args.h, main/inferno.c, main/menu.c, main/newdemo.c, main/newmenu.c, misc/args.c: Removed SDL Gammaramp code (obsolete); Improvements on Demo code
+misc/strutil.c: fix potential bad memory access in change_filename_extension
 
 20080108
 --------

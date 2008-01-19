@@ -142,11 +142,13 @@ void change_filename_extension( char *dest, char *src, char *ext )
 	
 	p = strrchr(dest, '.');
 	if (!p) {
+		if (strlen(dest) > FILENAME_LEN - 5)
+			return;	// a non-opened file is better than a bad memory access
+		
 		p = dest + strlen(dest);
 		*p = '.';
 	}
 	
-	Assert((p + strlen(ext)) - dest < FILENAME_LEN);
 	strcpy(p+1,ext);
 }
 
