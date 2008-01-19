@@ -287,12 +287,13 @@ int main(int argc, char *argv[])
 		if (! cfile_init("d2demo.hog", 1))
 		{
 			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
-#ifdef __unix__
+#if defined(__unix__) && !defined(__APPLE__)
 			      "\t$HOME/.d2x-rebirth\n"
 			      "\t" SHAREPATH "\n"
 #else
-				  "\tCurrent directory\n"
+				  "\tDirectory containing D2X\n"
 #endif
+				  "\tIn a subdirectory called 'Data'\n"
 				  "Or use the -hogdir option to specify an alternate location.");
 		}
 		else // deal with interactive demo
