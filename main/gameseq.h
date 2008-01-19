@@ -193,7 +193,7 @@ extern int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
 //-1,-2,-3 are secret levels
 //0 means not a real level loaded
 extern int Current_level_num,Next_level_num;
-extern char Current_level_name[];
+extern char Current_level_name[LEVEL_NAME_LEN];
 extern obj_position	Player_init[MAX_PLAYERS];
 
 

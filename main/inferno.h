@@ -32,6 +32,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //	How close two points must be in all dimensions to be considered the same point.
 #define	FIX_EPSILON	10
 
+// the maximum length of a filename
+#define FILENAME_LEN 13
+
 //for Function_mode variable
 #define FMODE_EXIT		0		//leaving the program
 #define FMODE_MENU		1		//Using the menu

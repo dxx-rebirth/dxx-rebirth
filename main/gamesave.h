@@ -76,6 +76,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern char *Shareware_level_names[NUM_SHAREWARE_LEVELS];
 extern char *Registered_level_names[NUM_REGISTERED_LEVELS];
 
+int convert_tmap(int tmap);	// for gamemine.c
 void LoadGame(void);
 void SaveGame(void);
 int get_level_name(void);
@@ -90,6 +91,8 @@ extern int save_level(char *filename);
 //extern load_mine_only(char * filename);
 
 extern char Gamesave_current_filename[];
+
+extern int Gamesave_current_version;
 
 extern int Gamesave_num_org_robots;
 

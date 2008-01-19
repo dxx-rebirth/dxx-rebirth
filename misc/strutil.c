@@ -51,7 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 
 #include "u_mem.h"
-
+#include "inferno.h"
 
 #ifdef macintosh
 # if defined(NDEBUG)
@@ -148,3 +148,25 @@ void strrev( char *s1 )
 	}
 }
 #endif
+
+//give a filename a new extension
+void change_filename_extension( char *dest, char *src, char *ext )
+{
+	char *p;
+	
+	strcpy (dest, src);
+	
+	if (ext[0] == '.')
+		ext++;
+	
+	p = strrchr(dest, '.');
+	if (!p) {
+		if (strlen(dest) > FILENAME_LEN - 5)
+			return;	// a non-opened file is better than a bad memory access
+		
+		p = dest + strlen(dest);
+		*p = '.';
+	}
+	
+	strcpy(p+1,ext);
+}

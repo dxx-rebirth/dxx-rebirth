@@ -332,6 +332,7 @@ static char rcsid[] = "$Id: gamesave.c,v 1.1.1.1 2006/03/17 19:44:30 zicodxx Exp
 #include "text.h"
 #include "gamefont.h"
 #include "gamesave.h"
+#include "textures.h"
 #include "d_io.h"
 
 #ifndef NDEBUG
@@ -388,7 +389,9 @@ char *Registered_level_names[NUM_REGISTERED_LEVELS] = {
 };
 #endif
 
-char Gamesave_current_filename[128];
+char Gamesave_current_filename[PATH_MAX];
+
+int Gamesave_current_version;
 
 #define GAME_VERSION					25
 #define GAME_COMPATIBLE_VERSION	22
@@ -557,7 +560,26 @@ void convert_name_to_LVL( char *dest, char *src )
 int Gamesave_num_players=0;
 
 int N_save_pof_names=25;
-char Save_pof_names[MAX_POLYGON_MODELS][13];
+#define MAX_POLYGON_MODELS_NEW 167
+char Save_pof_names[MAX_POLYGON_MODELS_NEW][13];
+
+static int convert_vclip(int vc) {
+	if (vc < 0)
+		return vc;
+	if ((vc < VCLIP_MAXNUM) && (Vclip[vc].num_frames >= 0))
+		return vc;
+	return 0;
+}
+static int convert_wclip(int wc) {
+	return (wc < Num_wall_anims) ? wc : wc % Num_wall_anims;
+}
+int convert_tmap(int tmap)
+{
+    return (tmap >= NumTextures) ? tmap % NumTextures : tmap;
+}
+static int convert_polymod(int polymod) {
+    return (polymod >= N_polygon_models) ? polymod % N_polygon_models : polymod;
+}
 
 void check_and_fix_matrix(vms_matrix *m);
 
@@ -683,6 +705,10 @@ void read_object(object *obj,CFILE *f,int version)
 	obj->type				= cfile_read_byte(f);
 	obj->id					= cfile_read_byte(f);
 
+	if (obj->type == OBJ_ROBOT && obj->id > 23) {
+		obj->id = obj->id % 24;
+	}
+	
 	obj->control_type		= cfile_read_byte(f);
 	obj->movement_type	= cfile_read_byte(f);
 	obj->render_type		= cfile_read_byte(f);
@@ -749,9 +775,11 @@ void read_object(object *obj,CFILE *f,int version)
 			obj->ctype.ai_info.path_length			= cfile_read_short(f);
 			obj->ctype.ai_info.cur_path_index		= cfile_read_short(f);
 
-			obj->ctype.ai_info.follow_path_start_seg	= cfile_read_short(f);
-			obj->ctype.ai_info.follow_path_end_seg		= cfile_read_short(f);
-
+			if (version <= 25) {
+				obj->ctype.ai_info.follow_path_start_seg = cfile_read_short(f);
+				obj->ctype.ai_info.follow_path_end_seg	 = cfile_read_short(f);
+			}
+			
 			break;
 		}
 
@@ -820,7 +848,7 @@ void read_object(object *obj,CFILE *f,int version)
 		case RT_POLYOBJ: {
 			int i,tmo;
 
-			obj->rtype.pobj_info.model_num		= cfile_read_int(f);
+			obj->rtype.pobj_info.model_num		= convert_polymod(cfile_read_int(f));
 
 			for (i=0;i<MAX_SUBMODELS;i++)
 				cfile_read_angvec(&obj->rtype.pobj_info.anim_angles[i],f);
@@ -830,7 +858,7 @@ void read_object(object *obj,CFILE *f,int version)
 			tmo = cfile_read_int(f);
 
 			#ifndef EDITOR
-			obj->rtype.pobj_info.tmap_override	= tmo;
+			obj->rtype.pobj_info.tmap_override	= convert_tmap(tmo);
 			#else
 			if (tmo==-1)
 				obj->rtype.pobj_info.tmap_override	= -1;
@@ -855,7 +883,7 @@ void read_object(object *obj,CFILE *f,int version)
 		case RT_POWERUP:
 		case RT_FIREBALL:
 
-			obj->rtype.vclip_info.vclip_num	= cfile_read_int(f);
+			obj->rtype.vclip_info.vclip_num	= convert_vclip(cfile_read_int(f));
 			obj->rtype.vclip_info.frametime	= cfile_read_fix(f);
 			obj->rtype.vclip_info.framenum	= cfile_read_byte(f);
 
@@ -1131,7 +1159,10 @@ int load_game_data(CFILE *LoadFile)
 	game_fileinfo.matcen_howmany = cfile_read_int(LoadFile);
 	game_fileinfo.matcen_sizeof = cfile_read_int(LoadFile);
 
-	if (game_top_fileinfo.fileinfo_version >= 14) {	//load mine filename
+	if (game_top_fileinfo.fileinfo_version >= 31) //load mine filename
+		// read newline-terminated string, not sure what version this changed.
+		cfgets(Current_level_name,sizeof(Current_level_name),LoadFile);
+	else if (game_top_fileinfo.fileinfo_version >= 14) {	//load mine filename
 		char *p=Current_level_name;
 		//must do read one char at a time, since no cfgets()
 		do *p = cfgetc(LoadFile); while (*p++!=0);
@@ -1141,7 +1172,10 @@ int load_game_data(CFILE *LoadFile)
 
 	if (game_top_fileinfo.fileinfo_version >= 19) {	//load pof names
 		N_save_pof_names = cfile_read_short(LoadFile);
-		cfread(Save_pof_names,N_save_pof_names,13,LoadFile);
+		if (N_save_pof_names != 0x614d && N_save_pof_names != 0x5547) { // "Ma"de w/DMB beta/"GU"ILE
+			Assert(N_save_pof_names < MAX_POLYGON_MODELS);
+			cfread(Save_pof_names,N_save_pof_names,FILENAME_LEN,LoadFile);
+		}
 	}
 
 	//===================== READ PLAYER INFO ==========================
@@ -1179,6 +1213,7 @@ int load_game_data(CFILE *LoadFile)
 					Assert(sizeof(Walls[i]) == game_fileinfo.walls_sizeof);
 
 					wall_read(&Walls[i], LoadFile);
+					Walls[i].clip_num = convert_wclip(Walls[i].clip_num);
 				}
 				else if (game_top_fileinfo.fileinfo_version >= 17) {
 					v19_wall w;
@@ -1266,7 +1301,38 @@ int load_game_data(CFILE *LoadFile)
 		if (!cfseek( LoadFile, game_fileinfo.triggers_offset,SEEK_SET ))	{
 			for (i=0;i<game_fileinfo.triggers_howmany;i++)	{
 				Assert( sizeof(Triggers[i]) == game_fileinfo.triggers_sizeof );
-				trigger_read(&Triggers[i], LoadFile);
+				if (game_top_fileinfo.fileinfo_version <= 25) {
+					trigger_read(&Triggers[i], LoadFile);
+				} else {
+					int type;
+					switch (type = cfile_read_short(LoadFile)) {
+						case 0: // door
+							Triggers[i].type = 0;
+							Triggers[i].flags = TRIGGER_CONTROL_DOORS;
+							break;
+						case 2: // matcen
+							Triggers[i].type = 0;
+							Triggers[i].flags = TRIGGER_MATCEN;
+							break;
+						case 3: // exit
+							Triggers[i].type = 0;
+							Triggers[i].flags = TRIGGER_EXIT;
+							break;
+						case 9: // open wall
+							Triggers[i].type = 0;
+							Triggers[i].flags = TRIGGER_ILLUSION_OFF;
+							break;
+						default:
+							printf("Warning: unknown trigger type %d (%d)\n", type, i);
+					}
+					Triggers[i].num_links = cfile_read_short(LoadFile);
+					Triggers[i].value = cfile_read_int(LoadFile);
+					Triggers[i].time = cfile_read_int(LoadFile);
+					for (j=0; j<MAX_WALLS_PER_LINK; j++ )	
+						Triggers[i].seg[j] = cfile_read_short(LoadFile);
+					for (j=0; j<MAX_WALLS_PER_LINK; j++ )
+						Triggers[i].side[j] = cfile_read_short(LoadFile);
+				}
 			}
 		}
 	}
@@ -1299,8 +1365,8 @@ int load_game_data(CFILE *LoadFile)
 		if (!cfseek( LoadFile, game_fileinfo.matcen_offset,SEEK_SET ))	{
 			// mprintf((0, "Reading %i materialization centers.\n", game_fileinfo.matcen_howmany));
 			for (i=0;i<game_fileinfo.matcen_howmany;i++) {
-				Assert( sizeof(RobotCenters[i]) == game_fileinfo.matcen_sizeof );
-				matcen_info_read(&RobotCenters[i], LoadFile);
+				//Assert( sizeof(RobotCenters[i]) == game_fileinfo.matcen_sizeof );
+				matcen_info_read(&RobotCenters[i], LoadFile, game_top_fileinfo.fileinfo_version);
 				
 				//	Set links in RobotCenters to Station array
 				for (j=0; j<=Highest_segment_index; j++)
@@ -1422,9 +1488,9 @@ int load_level(char * filename_passed)
 	int use_compiled_level=1;
 	#endif
 	CFILE * LoadFile;
-	char filename[128];
-	int sig,version,minedata_offset,gamedata_offset,hostagetext_offset;
-	int mine_err,game_err;
+	char filename[PATH_MAX];
+	int sig, minedata_offset, gamedata_offset, hostagetext_offset;
+	int mine_err, game_err;
 
 	#ifdef COMPACT_SEGS
 	ncache_flush();
@@ -1436,45 +1502,37 @@ int load_level(char * filename_passed)
 
 	strcpy(filename,filename_passed);
 
-	#ifdef EDITOR
-	//check extension to see what file type this is
-	strupr(filename);
-
-	if (strstr(filename,".LVL"))
-		use_compiled_level = 0;
-		#ifdef SHAREWARE
-	else if (!strstr(filename,".SDL")) {
-		convert_name_to_CDL(filename,filename_passed);
-		use_compiled_level = 1;
-	}
-		#else
-	else if (!strstr(filename,".RDL")) {
-		convert_name_to_CDL(filename,filename_passed);
-		use_compiled_level = 1;
-	}
-		#endif
-
-	// If we're trying to load a CDL, and we can't find it, and we have
-	// the editor compiled in, then load the LVL.
-	if ( (!cfexist(filename)) && use_compiled_level )	{
-		convert_name_to_LVL(filename,filename_passed);
-		use_compiled_level = 0;
-	}		
-	#endif
-
-	LoadFile = cfopen( filename, "rb" );
-//CF_READ_MODE );
-
 #ifdef EDITOR
+	//if we have the editor, try the LVL first, no matter what was passed.
+	//if we don't have an LVL, try what was passed or SDL/RDL  
+	//if we don't have the editor, we just use what was passed
+	
+	change_filename_extension(filename,filename_passed,".lvl");
+	use_compiled_level = 0;
+	
+	if (!cfexist(filename))
+	{
+		char *p = strrchr(filename_passed, '.');
+		
+		if (stricmp(p, ".lvl"))
+			strcpy(filename, filename_passed);	// set to what was passed
+		else
+			convert_name_to_CDL(filename, filename);
+		use_compiled_level = 1;
+	}		
+#endif
+	
+	LoadFile = cfopen( filename, "rb" );
+
 	if (!LoadFile)	{
-		mprintf((0,"Can't open file <%s>\n", filename));
+#ifdef EDITOR
+		mprintf((0,"Can't open level file <%s>\n", filename));
 		return 1;
-	}
 #else
-	if (!LoadFile)
 		Error("Can't open file <%s>\n",filename);
 #endif
-
+	}
+	
 	strcpy( Gamesave_current_filename, filename );
 
 //	#ifdef NEWDEMO
@@ -1483,13 +1541,16 @@ int load_level(char * filename_passed)
 //	#endif
 
 	sig					= cfile_read_int(LoadFile);
-	version				= cfile_read_int(LoadFile);
+	Gamesave_current_version = cfile_read_int(LoadFile);
+	mprintf((0, "Gamesave_current_version = %d\n", Gamesave_current_version));
 	minedata_offset		= cfile_read_int(LoadFile);
 	gamedata_offset		= cfile_read_int(LoadFile);
-	hostagetext_offset	= cfile_read_int(LoadFile);
 
 	Assert(sig == 0x504c564c); /* 'PLVL' */
 
+	if (Gamesave_current_version < 5)
+		hostagetext_offset = cfile_read_int(LoadFile);
+	
 	cfseek(LoadFile,minedata_offset,SEEK_SET);
 	#ifdef EDITOR
 	if (!use_compiled_level)

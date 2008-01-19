@@ -125,6 +125,25 @@ typedef ubyte bool;
 #define _dos_getvect(int) NULL
 #endif
 
+#ifdef _WIN32
+# ifndef __MINGW32__
+#  define PATH_MAX _MAX_PATH
+# endif
+# define FNAME_MAX 256
+#elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+# include <sys/types.h>
+# ifndef PATH_MAX
+#  define PATH_MAX 1024
+# endif
+# define FNAME_MAX 256
+#elif defined __DJGPP__
+# include <sys/types.h>
+# define FNAME_MAX 9	// excluding extension
+#elif defined(macintosh)
+# define PATH_MAX 256
+# define FNAME_MAX 32
+#endif
+
 // the following stuff has nothing to do with types but needed everywhere,
 // and since this file is included everywhere, it's here.
 #if  defined(__i386__) || defined(__ia64__) || defined(WIN32) || \

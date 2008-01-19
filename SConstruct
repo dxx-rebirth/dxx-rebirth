@@ -105,6 +105,8 @@ common_sources = [
 'main/fvi.c',
 'main/game.c',
 'main/gamefont.c',
+'main/gamemine.c',
+'main/gamesave.c',
 'main/gameseg.c',
 'main/gameseq.c',
 'main/gauges.c',
@@ -202,8 +204,6 @@ editor_sources = [
 'editor/seguvs.c',
 'editor/texpage.c',
 'editor/texture.c',
-'main/gamemine.c',
-'main/gamesave.c',
 'ui/button.c',
 'ui/checkbox.c',
 'ui/gadget.c',
@@ -435,11 +435,6 @@ if (editor == 1):
 if (shareware == 1):
 	env.Append(CPPDEFINES = ['SHAREWARE'])
 	common_sources += ['main/snddecom.c']
-	if (editor == 0):
-		common_sources += ['main/gamesave.c', 'main/gamemine.c']
-
-if (shareware == 0) and (editor == 0):
-	common_sources += ['main/loadrl2.c']
 
 # IPv6 compability?
 if (ipv6 == 1):

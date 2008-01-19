@@ -1122,16 +1122,16 @@ void init_all_matcens(void)
 
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads a matcen_info structure from a CFILE
  */
-void matcen_info_read(matcen_info *mi, CFILE *fp)
+void matcen_info_read(matcen_info *mi, CFILE *fp, int version)
 {
 	mi->robot_flags = cfile_read_int(fp);
+	if (version > 25)
+		/*mi->robot_flags2 =*/ cfile_read_int(fp);
 	mi->hit_points = cfile_read_fix(fp);
 	mi->interval = cfile_read_fix(fp);
 	mi->segnum = cfile_read_short(fp);
 	mi->fuelcen_num = cfile_read_short(fp);
 }
-#endif

@@ -24,4 +24,8 @@ void strlwr( char *s1 );
 #endif
 
 void strrev( char *s1 );
+
+//give a filename a new extension
+extern void change_filename_extension( char *dest, char *src, char *new_ext );
+
 #endif

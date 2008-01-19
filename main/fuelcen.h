@@ -247,14 +247,10 @@ extern void init_all_matcens(void);
 
 extern fix EnergyToCreateOneRobot;
 
-#ifdef FAST_FILE_IO
-#define matcen_info_read(mi, fp) cfread(mi, sizeof(matcen_info), 1, fp)
-#else
 /*
  * reads a matcen_info structure from a CFILE
  */
-void matcen_info_read(matcen_info *ps, CFILE *fp);
-#endif
+void matcen_info_read(matcen_info *ps, CFILE *fp, int version);
 
 #endif
  
