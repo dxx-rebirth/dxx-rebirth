@@ -172,13 +172,13 @@ int read_player_d2x(char *filename)
 
 	while(!Stop && !PHYSFS_eof(f))
 	{
-		cfgets(line,20,f);
+		cfgets(line,50,f);
 		word=splitword(line,':');
 		strupr(word);
 		if (strstr(word,"MOUSE"))
 		{
 			d_free(word);
-			cfgets(line,20,f);
+			cfgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -191,7 +191,7 @@ int read_player_d2x(char *filename)
 					Config_mouse_sensitivity = (ubyte) tmp;
 				}
 				d_free(word);
-				cfgets(line,20,f);
+				cfgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -199,7 +199,7 @@ int read_player_d2x(char *filename)
 		else if (strstr(word,"JOYSTICK"))
 		{
 			d_free(word);
-			cfgets(line,20,f);
+			cfgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -212,7 +212,7 @@ int read_player_d2x(char *filename)
 					joy_deadzone = tmp;
 				}
 				d_free(word);
-				cfgets(line,20,f);
+				cfgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -227,7 +227,7 @@ int read_player_d2x(char *filename)
 			{
 				while(!strstr(line,"END") && !PHYSFS_eof(f))
 				{
-					cfgets(line,20,f);
+					cfgets(line,50,f);
 					strupr(line);
 				}
 			}
@@ -247,7 +247,6 @@ int write_player_d2x(char *filename)
 	PHYSFS_file *fout;
 	int rc=0;
 	char tempfile[PATH_MAX];
-	char str[256];
 
 	strcpy(tempfile,filename);
 	tempfile[strlen(tempfile)-4]=0;
@@ -262,28 +261,17 @@ int write_player_d2x(char *filename)
 	
 	if(fout)
 	{
-		sprintf (str, "[D2X OPTIONS]\n");
-		PHYSFSX_puts(fout, str);
-		sprintf (str, "[mouse]\n");
-		PHYSFSX_puts(fout, str);
-		sprintf (str, "sensitivity=%d\n",Config_mouse_sensitivity);
-		PHYSFSX_puts(fout, str);
-		sprintf (str, "[end]\n");
-		PHYSFSX_puts(fout, str);
-		sprintf (str, "[joystick]\n");
-		PHYSFSX_puts(fout, str);
-		sprintf (str, "deadzone=%d\n", joy_deadzone);
-		PHYSFSX_puts(fout, str);
-		sprintf (str, "[end]\n");
-		PHYSFSX_puts(fout, str);
-		sprintf (str, "[plx version]\n");
-		PHYSFSX_puts(fout, str);
-		sprintf (str, "plx version=%s\n", VERSION);
-		PHYSFSX_puts(fout, str);
-		sprintf (str, "[end]\n");
-		PHYSFSX_puts(fout, str);
-		sprintf (str, "[end]\n");
-		PHYSFSX_puts(fout, str);
+		PHYSFSX_printf(fout, "[D2X OPTIONS]\n");
+		PHYSFSX_printf(fout, "[mouse]\n");
+		PHYSFSX_printf(fout, "sensitivity=%d\n",Config_mouse_sensitivity);
+		PHYSFSX_printf(fout, "[end]\n");
+		PHYSFSX_printf(fout, "[joystick]\n");
+		PHYSFSX_printf(fout, "deadzone=%d\n", joy_deadzone);
+		PHYSFSX_printf(fout, "[end]\n");
+		PHYSFSX_printf(fout, "[plx version]\n");
+		PHYSFSX_printf(fout, "plx version=%s\n", VERSION);
+		PHYSFSX_printf(fout, "[end]\n");
+		PHYSFSX_printf(fout, "[end]\n");
 		
 		PHYSFS_close(fout);
 		if(rc==0)

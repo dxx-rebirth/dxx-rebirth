@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "physfsx.h"
 #include "strutil.h"
+#include "ignorecase.h"
 
 #define CFILE            PHYSFS_file
 #define cfopen(f,m)      PHYSFSX_openReadBuffered(f)

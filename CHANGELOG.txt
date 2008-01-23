@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080123
+--------
+d2x.ini, arch/sdl/joy.c, include/cfile.h, include/physfsx.h, main/config.c, main/gamesave.c, main/mission.c, main/mission.h, main/playsave.c: Fixed memory issue as Joystick freeing; Case-insensitive mission-loading; Added support for non-Hog'ed missions; Improved writing functions for config and player files
+
 20080119
 --------
 misc/strutil.c: fix potential bad memory access in change_filename_extension

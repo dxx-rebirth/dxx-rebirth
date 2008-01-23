@@ -1256,6 +1256,9 @@ int load_level(char * filename_passed)
 		}		
 	#endif
 
+	if (!cfexist(filename))
+		sprintf(filename,"%s%s",MISSION_DIR,filename_passed);
+
 	LoadFile = cfopen( filename, "rb" );
 
 	if (!LoadFile)	{

@@ -180,7 +180,6 @@ int ReadConfigFile()
 int WriteConfigFile()
 {
 	PHYSFS_file *infile;
-	char str[256];
 	ubyte gamma = gr_palette_get_gamma();
 	
 	infile = PHYSFSX_openWriteBuffered("descent.cfg");
@@ -189,30 +188,20 @@ int WriteConfigFile()
 		return 1;
 	}
 
-	sprintf (str, "%s=%d\n", DigiVolumeStr, Config_digi_volume);
-	PHYSFSX_puts(infile, str);
-	sprintf (str, "%s=%d\n", MidiVolumeStr, Config_midi_volume);
-	PHYSFSX_puts(infile, str);
-	sprintf (str, "%s=%d\n", RedbookVolumeStr, Config_redbook_volume);
-	PHYSFSX_puts(infile, str);
-	sprintf (str, "%s=%d\n", ReverseStereoStr, Config_channels_reversed);
-	PHYSFSX_puts(infile, str);
-	sprintf (str, "%s=%d\n", GammaLevelStr, gamma);
-	PHYSFSX_puts(infile, str);
+	PHYSFSX_printf(infile,"%s=%d\n", DigiVolumeStr, Config_digi_volume);
+	PHYSFSX_printf(infile,"%s=%d\n", MidiVolumeStr, Config_midi_volume);
+	PHYSFSX_printf(infile,"%s=%d\n", RedbookVolumeStr, Config_redbook_volume);
+	PHYSFSX_printf(infile,"%s=%d\n", ReverseStereoStr, Config_channels_reversed);
+	PHYSFSX_printf(infile,"%s=%d\n", GammaLevelStr, gamma);
 	if (Detail_level == NUM_DETAIL_LEVELS-1)
-		sprintf (str, "%s=%d,%d,%d,%d,%d,%d,%d\n", DetailLevelStr, Detail_level,
+		PHYSFSX_printf(infile,"%s=%d,%d,%d,%d,%d,%d,%d\n", DetailLevelStr, Detail_level,
 				Object_complexity,Object_detail,Wall_detail,Wall_render_depth,Debris_amount,SoundChannels);
 	else
-		sprintf (str, "%s=%d\n", DetailLevelStr, Detail_level);
-	PHYSFSX_puts(infile, str);
-	sprintf (str, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign );
-	PHYSFSX_puts(infile, str);
-	sprintf (str, "%s=%s\n", LastMissionStr, config_last_mission );
-	PHYSFSX_puts(infile, str);
-	sprintf (str, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
-	PHYSFSX_puts(infile, str);
-	sprintf (str, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
-	PHYSFSX_puts(infile, str);
+		PHYSFSX_printf(infile,"%s=%d\n", DetailLevelStr, Detail_level);
+	PHYSFSX_printf(infile,"%s=%s\n", LastPlayerStr, Players[Player_num].callsign );
+	PHYSFSX_printf(infile,"%s=%s\n", LastMissionStr, config_last_mission );
+	PHYSFSX_printf(infile,"%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
+	PHYSFSX_printf(infile,"%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
 
 	PHYSFS_close(infile);
 

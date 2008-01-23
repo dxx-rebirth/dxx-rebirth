@@ -225,11 +225,12 @@ int joy_init()
 
 void joy_close()
 {
-	int i;
-
 	SDL_JoystickClose(SDL_Joysticks[num_joysticks].handle);
-	for (i = 0; i < Joystick.n_buttons; i++)
-		d_free(joybutton_text[i]);
+
+	while (Joystick.n_axes--)
+		d_free(joyaxis_text[Joystick.n_axes]);
+	while (Joystick.n_buttons--)
+		d_free(joybutton_text[Joystick.n_buttons]);
 }
 
 void joy_get_pos(int *x, int *y)

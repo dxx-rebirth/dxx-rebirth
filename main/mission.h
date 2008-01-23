@@ -56,11 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAC_FULL_MISSION_HOGSIZE    7110007 // v1.1 - 1.2
 
 //where the missions go
-#if 1 // ndef EDITOR
 #define MISSION_DIR "missions/"
-#else
-#define MISSION_DIR "./"
-#endif
 
 typedef struct {
 	char    *filename;          // filename

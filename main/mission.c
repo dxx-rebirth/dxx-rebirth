@@ -611,27 +611,26 @@ int load_mission(mle *mission)
 {
 	CFILE *mfile;
 	char buf[PATH_MAX], *v;
-    int found_hogfile;
 
-    if (Current_mission)
-        free_mission();
-    Current_mission = d_malloc(sizeof(Mission));
-    if (!Current_mission) return 0;
-    *(mle *) Current_mission = *mission;
+	if (Current_mission)
+		free_mission();
+	Current_mission = d_malloc(sizeof(Mission));
+	if (!Current_mission) return 0;
+	*(mle *) Current_mission = *mission;
 	Current_mission->path = d_strdup(mission->path);
 	Current_mission->filename = Current_mission->path + (mission->filename - mission->path);
 
 	Current_mission->enhanced = 0;
 
-    // for Descent 1 missions, load descent.hog
-    if (EMULATING_D1) {
-        if (!cfile_init("descent.hog", 1))
-            Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
-        if (!stricmp(Current_mission_filename, D1_MISSION_FILENAME))
-            return load_mission_d1();
-    }
+	// for Descent 1 missions, load descent.hog
+	if (EMULATING_D1) {
+		if (!cfile_init("descent.hog", 1))
+			Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
+		if (!stricmp(Current_mission_filename, D1_MISSION_FILENAME))
+			return load_mission_d1();
+	}
 
-    if (PLAYING_BUILTIN_MISSION) {
+	if (PLAYING_BUILTIN_MISSION) {
 		switch (Current_mission->builtin_hogsize) {
 		case SHAREWARE_MISSION_HOGSIZE:
 		case MAC_SHARE_MISSION_HOGSIZE:
@@ -648,7 +647,7 @@ int load_mission(mle *mission)
 			// continue on... (use d2.mn2 from hogfile)
 			break;
 		}
-    }
+	}
 
 	mprintf(( 0, "Loading mission %s\n", Current_mission_filename ));
 
@@ -674,28 +673,20 @@ int load_mission(mle *mission)
 
 	mfile = cfopen(buf,"rb");
 	if (mfile == NULL) {
-        free_mission();
+		free_mission();
 		return 0;		//error!
 	}
 
-    //for non-builtin missions, load HOG
-    if (!PLAYING_BUILTIN_MISSION) {
-
-        strcpy(buf+strlen(buf)-4,".hog");		//change extension
-
+	//for non-builtin missions, load HOG
+	if (!PLAYING_BUILTIN_MISSION)
+	{
+		strcpy(buf+strlen(buf)-4,".hog");		//change extension
 		PHYSFSEXT_locateCorrectCase(buf);
+		if (cfexist(buf))
+			cfile_init(buf, 0);
+	}
 
-		found_hogfile = cfile_init(buf, 0);
-
-	//require mission to be in hogfile
-        if (! found_hogfile) {
-            cfclose(mfile);
-            free_mission();
-            return 0;
-        }
-    }
-
-    //init vars
+	//init vars
 	Last_level = 0;
 	Last_secret_level = 0;
 	Briefing_text_filename[0] = 0;
