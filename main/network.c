@@ -1514,11 +1514,11 @@ void network_process_packet(ubyte *data, int length )
 #ifndef NDEBUG
 void dump_segments()
 {
-	FILE * fp;
+	PHYSFS_file *fp;
 
-	fp = fopen( "TEST.DMP", "wb" );
-	fwrite( Segments, sizeof(segment)*(Highest_segment_index+1),1, fp ); 	
-	fclose(fp);
+	fp = PHYSFS_openWrite("test.dmp");
+	PHYSFS_write(fp, Segments, sizeof(segment), Highest_segment_index + 1);
+	PHYSFS_close(fp);
 	mprintf( (0, "SS=%d\n", sizeof(segment) ));
 }
 #endif
@@ -2031,9 +2031,6 @@ int network_get_game_params()
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
-#ifndef SHAREWARE
-	int anarchy_only;
-#endif
 
 	for (i=0;i<MAX_PLAYERS;i++)
 		if (i!=Player_num)
@@ -2054,20 +2051,19 @@ int network_get_game_params()
 		if (!nm_messagebox(NULL, 2, TXT_YES,TXT_NO, "do you want to load\na multiplayer profile?"))
 		{
 			char mprofile_file[13]="";
-			if (newmenu_get_filename("Select profile\n<ESC> to abort", "*.mpx", mprofile_file, 1))
+			if (newmenu_get_filename("Select profile\n<ESC> to abort", ".mpx", mprofile_file, 1))
 			{
-				FILE *outfile;
-
-				outfile = fopen(mprofile_file,"rb");
-				fread(&Netgame,sizeof(netgame_info),1,outfile);
-				fread(&restrict_mode,sizeof(int),1,outfile);
-				fclose(outfile);
+				PHYSFS_file *outfile;
+		
+				outfile = PHYSFSX_openReadBuffered(mprofile_file);
+				PHYSFS_read(outfile,&Netgame,sizeof(netgame_info),1);
+				PHYSFS_close(outfile);
 			}
 		}
 	}
 
 #ifndef SHAREWARE
-	if (multi_choose_mission(&anarchy_only) < 0)
+	if (!select_mission(1, TXT_MULTI_MISSION))
 		return -1;
 
 	strcpy(Netgame.mission_name, Current_mission_filename);
@@ -2710,11 +2706,10 @@ void network_start_game(void)
 		if (!newmenu_do( NULL, "save profile as", 1, &(m[0]), NULL))
 		{
 			strcat(mprofile_file,".mpx");
-			FILE *infile;
-			infile = fopen(mprofile_file,"wb");
-			fwrite(&Netgame,sizeof(netgame_info),1,infile);
-			fwrite(&restrict_mode,sizeof(int),1,infile);
-			fclose(infile);
+			PHYSFS_file *infile;
+			infile = PHYSFSX_openWriteBuffered(mprofile_file);
+			PHYSFS_write(infile,&Netgame,sizeof(netgame_info),1);
+			PHYSFS_close(infile);
 		}
 	}
 

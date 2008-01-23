@@ -19,8 +19,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TITLES_H
 #define _TITLES_H
 
-extern char Briefing_text_filename[13];
-extern char Ending_text_filename[13];
 extern int show_title_screen( char * filename, int allow_keys );
 extern int show_briefing_screen( char * filename, int allow_keys );
 extern void do_briefing_screens(int level_num);

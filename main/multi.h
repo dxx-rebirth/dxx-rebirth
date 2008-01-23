@@ -172,7 +172,6 @@ void multi_send_macro(int key);
 int multi_get_kill_list(int *plist);
 void multi_new_game(void);
 void multi_sort_kill_list(void);
-int multi_choose_mission(int *anarchy_only);
 void multi_reset_stuff(void);
 
 //edit 03/04/99 Matt Mueller - some debug code.. ignore if you wish.

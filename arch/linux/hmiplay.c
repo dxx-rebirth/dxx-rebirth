@@ -212,7 +212,7 @@ int seq_init()
 	else
 #endif
 	{
-		voices = malloc(sizeof(Voice_info)*card_info.nr_voices);
+		voices = d_malloc(sizeof(Voice_info)*card_info.nr_voices);
 		for (i=0;i<card_info.nr_voices;i++)
 		{
 			voices[i].note = -1;
@@ -228,7 +228,7 @@ void seq_close()
 	SEQ_DUMPBUF();
 	ioctl(seqfd,SNDCTL_SEQ_SYNC);
 	close(seqfd);
-	free(voices);
+	d_free(voices);
 }
 
 void set_program(int channel, int pgm)
@@ -566,7 +566,7 @@ void send_ipc(char *message)
 	{
 		ipc_queue_id=msgget ((key_t) ('l'<<24) | ('d'<<16) | ('e'<<8) | 's', 
 				     IPC_CREAT | 0660);
-		snd=malloc(sizeof(long) + 32);
+		snd=d_malloc(sizeof(long) + 32);
 		snd->mtype=1;
 		player_thread=SDL_CreateThread((int (*)(void *))play_hmi, NULL);
 	}
@@ -580,7 +580,7 @@ void send_ipc(char *message)
 void kill_ipc()
 {
 	msgctl( ipc_queue_id, IPC_RMID, 0);
-	free(snd);
+	d_free(snd);
 	ipc_queue_id = -1;
 }
 
@@ -633,7 +633,7 @@ int do_ipc(int qid, struct msgbuf *buf, int flags)
 			if(fptr != NULL)
 			{
 				l = cfilelength(fptr);
-				data=realloc(data,(size_t) l);
+				data=d_realloc(data,(size_t) l);
 				cfread(data, l, 1, fptr);
 				cfclose(fptr);
 				printf ("good. fpr=%p l=%i data=%p\n", fptr, l, data);//##########3
@@ -677,7 +677,7 @@ void play_hmi (void * arg)
 	stop = 0;
 	ipc_read=0;
 
-	rcv=malloc(sizeof(long) + 16);
+	rcv=d_malloc(sizeof(long) + 16);
 	
 	rcv->mtype=1;
 	rcv->mtext[0]='0';
@@ -701,7 +701,7 @@ void play_hmi (void * arg)
 	
 	n_chunks=data[0x30];
 	
-	t_info = malloc(sizeof(Track_info)*n_chunks);
+	t_info = d_malloc(sizeof(Track_info)*n_chunks);
 	
 	while(1)
 	{
@@ -789,7 +789,7 @@ void play_hmi (void * arg)
 			if((do_ipc(qid,rcv,IPC_NOWAIT) > 0) && (rcv->mtext[0]=='p'))
 			{
 				n_chunks=data[0x30];
-				t_info = realloc(t_info,sizeof(Track_info)*n_chunks);
+				t_info = d_realloc(t_info,sizeof(Track_info)*n_chunks);
 				stop = 1;
 				rcv->mtext[0] = '0';  
 				stop_all();
@@ -807,14 +807,14 @@ void play_hmi (void * arg)
 			while(rcv->mtext[0] != 'p');
 			rcv->mtext[0] = '0';
 			n_chunks=data[0x30];
-			t_info = realloc(t_info,sizeof(Track_info)*n_chunks);
+			t_info = d_realloc(t_info,sizeof(Track_info)*n_chunks);
 			stop = 0;
 		}
 		pos=0x308;
 	}
-	free(data);
-	free(t_info);
-	free(rcv);
+	d_free(data);
+	d_free(t_info);
+	d_free(rcv);
 	
 }
 

@@ -50,6 +50,7 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:44:11 zicodxx Exp 
 #include "cfile.h"
 #include "compbit.h"
 #include "songs.h"
+#include "text.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -115,7 +116,7 @@ void credits_show(char *credits_filename)
 		dirty_box[i].left = dirty_box[i].top = dirty_box[i].width = dirty_box[i].height = 0;
 	}
 
-	fade_values_scalled = malloc(SHEIGHT);
+	fade_values_scalled = d_malloc(SHEIGHT);
 	scale_line(fade_values_hires, fade_values_scalled, 480, SHEIGHT);
 
 	sprintf(filename, "%s", CREDITS_FILE);
@@ -178,13 +179,8 @@ void credits_show(char *credits_filename)
 			buffer_line = (buffer_line+1) % NUM_LINES;
 			if (cfgets( buffer[buffer_line], 80, file ))	{
 				char *p;
-				if (have_bin_file) { // is this a binary tbl file
-					for (i = 0; i < strlen(buffer[buffer_line]) - 1; i++) {
-						encode_rotate_left(&(buffer[buffer_line][i]));
-						buffer[buffer_line][i] ^= BITMAP_TBL_XOR;
-						encode_rotate_left(&(buffer[buffer_line][i]));
-					}
-				}
+				if (have_bin_file) // is this a binary tbl file
+					decode_text_line (buffer[buffer_line]);
 				p = strchr(&buffer[buffer_line][0],'\n');
 				if (p) *p = '\0';
 			} else	{
@@ -301,7 +297,7 @@ void credits_show(char *credits_filename)
 					gr_palette_fade_out( gr_palette, 32, 0 );
 					gr_use_palette_table( "palette.256" );
 					gr_free_bitmap_data (&backdrop);
-					free(fade_values_scalled);
+					d_free(fade_values_scalled);
 					cfclose(file);
 					songs_play_song( SONG_TITLE, 1 );
 					gr_palette_load( gr_palette );

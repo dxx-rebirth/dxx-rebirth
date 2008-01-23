@@ -44,7 +44,6 @@ static char rcsid[] = "$Id: fvi.c,v 1.1.1.1 2006/03/17 19:42:03 zicodxx Exp $";
 #include "player.h"
 #include "fix.h"
 #include "fvi_a.h"
-#include "u_mem.h" // stackavail()
 
 extern int Physics_cheat_flag;
 
@@ -847,12 +846,6 @@ int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p
 	int cur_nest_level = fvi_nest_count;
 
 	//fvi_hit_object = -1;
-
-	if ( stackavail() < 1024 )                      
-	{
-		mprintf( (0, "In fvi_sub, stack left is < 1k !\n" ));
-		Int3();
-	}
 
 	if (flags&FQ_GET_SEGLIST)
 		*seglist = startseg; 

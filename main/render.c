@@ -53,8 +53,6 @@ static char rcsid[] = "$Id: render.c,v 1.1.1.1 2006/03/17 19:41:54 zicodxx Exp $
 #include "u_mem.h"
 #include "piggy.h"
 
-#include "d_io.h"
-
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -1485,13 +1483,8 @@ void render_frame(fix eye_offset)
 #ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )	{
 		if (eye_offset >= 0 )	{
-                   //added 8/21/98 by Victor Rachels to prevent freeze if run out of HD while recording
-                        if( d_getdiskfree() > 100000) {
 			newdemo_record_start_frame(FrameCount, FrameTime );
 			newdemo_record_viewer_object(Viewer);
-                        } else
-                           newdemo_stop_recording();
-                   //end additions - Victor Rachels
 		}
 	}
 #endif

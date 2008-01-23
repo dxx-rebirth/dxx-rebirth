@@ -11,91 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/2d/bitmap.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:38:51 $
  *
  * Graphical routines for manipulating grs_bitmaps.
- *
- * $Log: bitmap.c,v $
- * Revision 1.1.1.1  2006/03/17 19:38:51  zicodxx
- * initial import
- *
- * Revision 1.7  1999/10/08 08:50:54  donut
- * fixed ogl sub bitmap support
- *
- * Revision 1.6  1999/10/07 20:48:17  donut
- * ogl fix for sub bitmaps and segv
- *
- * Revision 1.5  1999/10/07 02:27:14  donut
- * OGL includes to remove warnings
- *
- * Revision 1.4  1999/09/22 02:02:31  donut
- * ogl: gr_set_bitmap_data frees the texture rather than just resetting the gltexture flag
- *
- * Revision 1.3  1999/09/21 04:05:54  donut
- * mostly complete OGL implementation (still needs bitmap handling (reticle), and door/fan textures are corrupt)
- *
- * Revision 1.2  1999/08/05 22:53:40  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.1.1.1  1999/06/14 21:57:15  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.17  1994/11/18  22:50:25  john
- * Changed shorts to ints in parameters.
- * 
- * Revision 1.16  1994/11/10  15:59:46  john
- * Fixed bugs with canvas's being created with bogus bm_flags.
- * 
- * Revision 1.15  1994/10/26  23:55:53  john
- * Took out roller; Took out inverse table.
- * 
- * Revision 1.14  1994/09/19  14:40:21  john
- * Changed dpmi stuff.
- * 
- * Revision 1.13  1994/09/19  11:44:04  john
- * Changed call to allocate selector to the dpmi module.
- * 
- * Revision 1.12  1994/06/09  13:14:57  john
- * Made selectors zero our
- * out, I meant.
- * 
- * Revision 1.11  1994/05/06  12:50:07  john
- * Added supertransparency; neatend things up; took out warnings.
- * 
- * Revision 1.10  1994/04/08  16:59:39  john
- * Add fading poly's; Made palette fade 32 instead of 16.
- * 
- * Revision 1.9  1994/03/16  17:21:09  john
- * Added slow palette searching options.
- * 
- * Revision 1.8  1994/03/14  17:59:35  john
- * Added function to check bitmap's transparency.
- * 
- * Revision 1.7  1994/03/14  17:16:21  john
- * fixed bug with counting freq of pixels.
- * 
- * Revision 1.6  1994/03/14  16:55:47  john
- * Changed grs_bitmap structure to include bm_flags.
- * 
- * Revision 1.5  1994/02/18  15:32:22  john
- * *** empty log message ***
- * 
- * Revision 1.4  1993/10/15  16:22:49  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/09/08  17:37:11  john
- * Checking for errors with Yuan...
- * 
- * Revision 1.2  1993/09/08  14:46:27  john
- * looking for possible bugs...
- * 
- * Revision 1.1  1993/09/08  11:43:05  john
- * Initial revision
- * 
  *
  */
 
@@ -172,7 +89,7 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline)
 {
 	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, 0);
-	gr_set_bitmap_data(bm, malloc(MAX_BMP_SIZE(w, h)));
+	gr_set_bitmap_data(bm, d_malloc(MAX_BMP_SIZE(w, h)));
 }
 
 void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
@@ -193,7 +110,7 @@ void gr_free_bitmap(grs_bitmap *bm )
 {
 	gr_free_bitmap_data (bm);
 	if (bm!=NULL)
-		free(bm);
+		d_free(bm);
 }
 
 void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
@@ -210,7 +127,7 @@ void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 	ogl_freebmtexture(bm);
 #endif
 	if (bm->bm_data != NULL)
-		free (bm->bm_data);
+		d_free (bm->bm_data);
 	bm->bm_data = NULL;
 }
 
@@ -251,21 +168,21 @@ void gr_free_sub_bitmap(grs_bitmap *bm )
 #ifdef D1XD3D
 		bm->iMagic = 0;
 #endif
-		free(bm);
+		d_free(bm);
 	}
 }
 
 
 grs_bitmap *gr_create_bitmap(int w, int h )
 {
-	return gr_create_bitmap_raw (w, h, malloc(MAX_BMP_SIZE(w, h)));
+	return gr_create_bitmap_raw (w, h, d_malloc(MAX_BMP_SIZE(w, h)));
 }
 
 grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
 {
     grs_bitmap *new;
 
-    new = (grs_bitmap *)malloc( sizeof(grs_bitmap) );
+    new = (grs_bitmap *)d_malloc( sizeof(grs_bitmap) );
 	gr_init_bitmap (new, 0, 0, 0, w, h, w, raw_data);
 
     return new;
@@ -276,7 +193,7 @@ grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm, int x, int y, int w, int h )
 {
     grs_bitmap *new;
 
-    new = (grs_bitmap *)malloc( sizeof(grs_bitmap) );
+    new = (grs_bitmap *)d_malloc( sizeof(grs_bitmap) );
 	gr_init_sub_bitmap (new, bm, x, y, w, h);
 
 	return new;

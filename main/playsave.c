@@ -27,11 +27,10 @@ static char rcsid[] = "$Id: playsave.c,v 1.1.1.1 2006/03/17 19:42:10 zicodxx Exp
 #include <errno.h>
 #include <limits.h>
 
-#ifdef __unix__
-#include <sys/stat.h>
-#include <sys/types.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
+#include <physfs.h>
 #else
-#include <dir.h>
+#include <physfs/physfs.h>
 #endif
 
 #include "error.h"
@@ -52,17 +51,13 @@ static char rcsid[] = "$Id: playsave.c,v 1.1.1.1 2006/03/17 19:42:10 zicodxx Exp
 #include "mono.h"
 #include "state.h"
 #include "reorder.h"
-#include "d_io.h"
 #include "u_mem.h"
 #include "network.h"
 #include "strutil.h"
 #include "strio.h"
 #include "vers_id.h"
 #include "byteswap.h"
-
-#ifndef PATH_MAX
-#define PATH_MAX 255
-#endif
+#include "physfsx.h"
 
 #define SAVE_FILE_ID			0x44504c52 /* 'DPLR' */
 
@@ -169,11 +164,11 @@ int new_player_config()
 	return 1;
 }
 
-int read_player_d1x(const char *filename)
+int read_player_d1x(char *filename)
 {
-	FILE *f;
+	PHYSFS_file *f;
 	int rc = 0;
-	char *line,*word;
+	char line[60],*word;
 	int Stop=0;
 	int i;
 
@@ -186,115 +181,41 @@ int read_player_d1x(const char *filename)
 	for(i=0;i<MAX_D1X_CONTROLS;i++)
 		kconfig_d1x_settings[i] = default_kconfig_d1x_settings[i];
 
-	f = fopen(filename, "r");
-	if(!f || feof(f) ) 
+	f = PHYSFSX_openReadBuffered(filename);
+	if(!f || PHYSFS_eof(f) ) 
 		return errno;
 
-	while( !Stop && !feof(f) )
+	while( !Stop && !PHYSFS_eof(f) )
 	{
-		line=fsplitword(f,'\n');
+		cfgets(line,50,f);
 		word=splitword(line,':');
 		strupr(word);
 
 		if (strstr(word,"ADVANCED ORDERING"))
 		{
-			free(line); free(word);
-			line=fsplitword(f,'\n');
+			d_free(word);
+			cfgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
-			while(!strstr(word,"END") && !feof(f))
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"PRIMARY"))
 					sscanf(line,"%d,%d,%d,%d,%d",&primary_order[0], &primary_order[1], &primary_order[2], &primary_order[3], &primary_order[4]);
 				else if(!strcmp(word,"SECONDARY"))
 					sscanf(line,"%d,%d,%d,%d,%d",&secondary_order[0], &secondary_order[1], &secondary_order[2], &secondary_order[3], &secondary_order[4]);
-				free(line); free(word);
-				line=fsplitword(f,'\n');
+				d_free(word);
+				cfgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
-			free(line);
-		}
-		else if (strstr(word,"NEWER KEYS"))
-		{
-			free(line); free(word);
-			line=fsplitword(f,'\n');
-			word=splitword(line,'=');
-			strupr(word);
-				while(!strstr(word,"END") && !feof(f))
-				{
-					if(!strcmp(word,"PRIMARY AUTOSELECT TOGGLE") ||
-						!strcmp(word,"SECONDARY AUTOSELECT TOGGLE") )
-					{
-						int kc1, kc2, kc3;
-			
-						sscanf(line,"0x%x,0x%x,0x%x",&kc1,&kc2,&kc3);
-	
-						if(!strcmp(word,"PRIMARY AUTOSELECT TOGGLE"))
-							i=0;
-						else if(!strcmp(word,"SECONDARY AUTOSELECT TOGGLE"))
-							i=2;
-	
-						kconfig_d1x_settings[24+i] = kc2;
-	
-						if(kc1 != 255)
-							kconfig_d1x_settings[24+i] = kc1;
-	
-						if (Config_control_type != 0)
-							kconfig_d1x_settings[25+i] = kc3;
-					}
-					free(line); free(word);
-					line=fsplitword(f,'\n');
-					word=splitword(line,'=');
-					strupr(word);
-				}
-			free(line);
-		}
-		else if (strstr(word,"CYCLE KEYS")||strstr(word,"NEW KEYS"))
-		{
-			free(line); free(word);
-			line=fsplitword(f,'\n');
-			word=splitword(line,'=');
-			strupr(word);
-	
-			while(!strstr(word,"END") && !feof(f))
-			{
-				if(!strcmp(word,"CYCLE PRIMARY") ||
-					!strcmp(word,"CYCLE SECONDARY") ||
-					!strcmp(word,"AUTOSELECT TOGGLE"))
-				{
-					int kc1, kc2, kc3;
-					sscanf(line,"0x%x,0x%x,0x%x",&kc1,&kc2,&kc3);
-
-					if (!strcmp(word,"CYCLE PRIMARY"))
-						i = 0;
-					else if (!strcmp(word,"CYCLE SECONDARY"))
-						i = 2;
-					else if (!strcmp(word,"AUTOSELECT TOGGLE"))
-						i = 4;
-
-					kconfig_d1x_settings[20+i] = kc2;
-
-					if(kc1 != 255)
-						kconfig_d1x_settings[20+i] = kc1;
-
-					if (Config_control_type != 0)
-						kconfig_d1x_settings[21+i] = kc3;
-				}
-				free(line); free(word);
-				line=fsplitword(f,'\n');
-				word=splitword(line,'=');
-				strupr(word);
-			}
-			free(line);
 		}
 		else if (strstr(word,"WEAPON KEYS"))
 		{
-			free(line); free(word);
-			line=fsplitword(f,'\n');
+			d_free(word);
+			cfgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
-			while(!strstr(word,"END") && !feof(f))
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				int kc1,kc2;
 				int i=atoi(word);
@@ -305,39 +226,91 @@ int read_player_d1x(const char *filename)
 				sscanf(line,"0x%x,0x%x",&kc1,&kc2);
 				kconfig_d1x_settings[i]   = kc1;
 				kconfig_d1x_settings[i+1] = kc2;
-				free(line); free(word);
-				line=fsplitword(f,'\n');
+				d_free(word);
+				cfgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
-			free(line);
+		}
+		else if (strstr(word,"CYCLE KEYS"))
+		{
+			d_free(word);
+			cfgets(line,50,f);
+			word=splitword(line,'=');
+			strupr(word);
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				int kc1, kc2;
+				if(!strcmp(word,"CYCLE PRIMARY"))
+				{
+					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
+					kconfig_d1x_settings[20]=kc1;
+					kconfig_d1x_settings[21]=kc2;
+				}
+				else if(!strcmp(word,"CYCLE SECONDARY"))
+				{
+					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
+					kconfig_d1x_settings[22]=kc1;
+					kconfig_d1x_settings[23]=kc2;
+				}
+				d_free(word);
+				cfgets(line,50,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
+		else if (strstr(word,"AUTOSELECT KEYS"))
+		{
+			d_free(word);
+			cfgets(line,50,f);
+			word=splitword(line,'=');
+			strupr(word);
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				int kc1, kc2;
+				if(!strcmp(word,"PRIMARY AUTOSELECT TOGGLE"))
+				{
+					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
+					kconfig_d1x_settings[24]=kc1;
+					kconfig_d1x_settings[25]=kc2;
+				}
+				else if(!strcmp(word,"SECONDARY AUTOSELECT TOGGLE"))
+				{
+					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
+					kconfig_d1x_settings[26]=kc1;
+					kconfig_d1x_settings[27]=kc2;
+				}
+				d_free(word);
+				cfgets(line,50,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
 		}
 		else if (strstr(word,"JOYSTICK"))
 		{
-			free(line); free(word);
-			line=fsplitword(f,'\n');
+			d_free(word);
+			cfgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
-			while(!strstr(word,"END") && !feof(f))
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"DEADZONE"))
 					sscanf(line,"%i",&joy_deadzone);
-				free(line); free(word);
-				line=fsplitword(f,'\n');
+				d_free(word);
+				cfgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
-			free(line);
 		}
 		else if (strstr(word,"MOUSE"))
 		{
-			free(line); free(word);
-			line=fsplitword(f,'\n');
+			d_free(word);
+			cfgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
-			while(!strstr(word,"END") && !feof(f))
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"SENSITIVITY"))
 				{
@@ -345,21 +318,20 @@ int read_player_d1x(const char *filename)
 					sscanf(line,"%i",&tmp);
 					Config_mouse_sensitivity = (ubyte) tmp;
 				}
-				free(line); free(word);
-				line=fsplitword(f,'\n');
+				d_free(word);
+				cfgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
-			free(line);
 		}
 		else if (strstr(word,"COCKPIT"))
 		{
-			free(line); free(word);
-			line=fsplitword(f,'\n');
+			d_free(word);
+			cfgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
-			while(!strstr(word,"END") && !feof(f))
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"MODE"))
 				{
@@ -367,39 +339,33 @@ int read_player_d1x(const char *filename)
 					sscanf(line,"%i",&tmp);
 					Cockpit_mode = (ubyte) tmp;
 				}
-				free(line); free(word);
-				line=fsplitword(f,'\n');
+				d_free(word);
+				cfgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
-			free(line);
 		}
-		else if (strstr(word,"END") || feof(f))
+		else if (strstr(word,"END") || PHYSFS_eof(f))
 		{
 			Stop=1;
-			free(line);
 		}
 		else
 		{
 			if(word[0]=='['&&!strstr(word,"D1X OPTIONS"))
 			{
-				while(!strstr(line,"END") && !feof(f))
+				while(!strstr(line,"END") && !PHYSFS_eof(f))
 				{
-				free(line);
-				line=fsplitword(f,'\n');
-				strupr(line);
+					cfgets(line,50,f);
+					strupr(line);
 				}
 			}
-			free(line);
 		}
 	
 		if(word)
-		free(word);
+			d_free(word);
 	}
 
-	if (ferror(f))
-		rc = errno;
-	fclose(f);
+	PHYSFS_close(f);
 
 	return rc;
 }
@@ -434,35 +400,35 @@ unsigned char * decode_stat(unsigned char *p,int *v,char *effcode)
 void plyr_read_stats_v(int *k, int *d){
 	char filename[14];
 	int k1=-1,k2=0,d1=-1,d2=0;
-	FILE *f;
+	PHYSFS_file *f;
 	
 	*k=0;*d=0;//in case the file doesn't exist.
 		
 	sprintf(filename,GameArg.SysUsePlayersDir?"Players/%s.eff":"%s.eff",Players[Player_num].callsign);
-	f=fopen(filename, "rt");
+	f = PHYSFSX_openReadBuffered(filename);
 
 	if(f)
 	{
-		char *line,*word;
-		if(!feof(f))
+		char line[256],*word;
+		if(!PHYSFS_eof(f))
 		{
-			 line=fsplitword(f,'\n');
+			 cfgets(line,50,f);
 			 word=splitword(line,':');
 			 if(!strcmp(word,"kills"))
 				*k=atoi(line);
-			 free(line); free(word);
+			 d_free(word);
 		}
-		if(!feof(f))
+		if(!PHYSFS_eof(f))
                 {
-			 line=fsplitword(f,'\n');
+			 cfgets(line,50,f);
 			 word=splitword(line,':');
 			 if(!strcmp(word,"deaths"))
 				*d=atoi(line);
-			 free(line); free(word);
+			 d_free(word);
 		 }
-		if(!feof(f))
+		if(!PHYSFS_eof(f))
 		{
-			 line=fsplitword(f,'\n');
+			 cfgets(line,50,f);
 			 word=splitword(line,':');
 			 if(!strcmp(word,"key") && strlen(line)>10){
 				 unsigned char *p;
@@ -474,7 +440,7 @@ void plyr_read_stats_v(int *k, int *d){
 					 }
 				 }
 			 }
-			 free(line); free(word);
+			 d_free(word);
 		}
 		if (k1!=k2 || k1!=*k || d1!=d2 || d1!=*d)
 		{
@@ -483,7 +449,7 @@ void plyr_read_stats_v(int *k, int *d){
 	}
 
 	if(f)
-		fclose(f);
+		PHYSFS_close(f);
 }
 
 int multi_kills_stat=0;
@@ -500,7 +466,7 @@ void plyr_save_stats()
 	char filename[14];
 	unsigned char buf[16],buf2[16],a;
 	int i;
-	FILE *f;
+	PHYSFS_file *f;
 	kills=0;
 	deaths=0;
 	
@@ -508,14 +474,14 @@ void plyr_save_stats()
 	deaths=multi_deaths_stat;
 	
 	sprintf(filename,GameArg.SysUsePlayersDir?"Players/%s.eff":"%s.eff",Players[Player_num].callsign);
-	f=fopen(filename, "wt");
+	f = PHYSFSX_openWriteBuffered(filename);
 
 	if(!f)
 	return; //broken!
 	
-	fprintf(f,"kills:%i\n",kills);
-	fprintf(f,"deaths:%i\n",deaths);
-	fprintf(f,"key:01 ");
+	PHYSFSX_printf(f,"kills:%i\n",kills);
+	PHYSFSX_printf(f,"deaths:%i\n",deaths);
+	PHYSFSX_printf(f,"key:01 ");
 	if (kills<0){
 		neg=1;
 		kills*=-1;
@@ -533,7 +499,7 @@ void plyr_save_stats()
 	buf2[i*2]=0;
 	if (neg)i+='a';
 	else i+='A';
-	fprintf(f,"%c%s %c%s ",i,buf,i,buf2);
+	PHYSFSX_printf(f,"%c%s %c%s ",i,buf,i,buf2);
 
 	if (deaths<0){
 		neg=1;
@@ -552,81 +518,79 @@ void plyr_save_stats()
 	buf2[i*2]=0;
 	if (neg)i+='a';
 	else i+='A';
-	fprintf(f,"%c%s %c%s\n",i,buf,i,buf2);
+	PHYSFSX_printf(f,"%c%s %c%s\n",i,buf,i,buf2);
 	
-	fclose(f);
+	PHYSFS_close(f);
 }
 
-int write_player_d1x(const char *filename)
+int write_player_d1x(char *filename)
 {
-	FILE *fin, *fout;
+	PHYSFS_file *fout;
 	int rc=0;
+	char tempfile[PATH_MAX];
 	
-	fout=fopen(filename,"wt");
-
+	strcpy(tempfile,filename);
+	tempfile[strlen(tempfile)-4]=0;
+	strcat(tempfile,".pl$");
+	fout=PHYSFSX_openWriteBuffered(tempfile);
+	
 	if (!fout && GameArg.SysUsePlayersDir)
 	{
-		mkdir("Players/"
-#ifndef __WINDOWS__
-		, 0775
-#endif
-		); //try making directory
-		fout=fopen(filename,"wt");
+		PHYSFS_mkdir("Players/");	//try making directory
+		fout=PHYSFSX_openWriteBuffered(tempfile);
 	}
 	
 	if(fout)
 	{
-		fin=fopen(filename,"rt");
-
-		fprintf(fout,"[D1X Options]\n");
-		fprintf(fout,"[new keys]\n");
-		fprintf(fout,"cycle primary=0x%x,0xff,0x%x\n",kconfig_d1x_settings[20],kconfig_d1x_settings[21]);
-		fprintf(fout,"cycle secondary=0x%x,0xff,0x%x\n",kconfig_d1x_settings[22],kconfig_d1x_settings[23]);
-		fprintf(fout,"autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
-		fprintf(fout,"[end]\n");
-		fprintf(fout,"[joystick]\n");
-		fprintf(fout,"deadzone=%i\n",joy_deadzone);
-		fprintf(fout,"[end]\n");
-		fprintf(fout,"[weapon order]\n");
-		fprintf(fout,"primary=1,2,3,4,5\n");
-		fprintf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
-		fprintf(fout,"[end]\n");
-		fprintf(fout,"[advanced ordering]\n");
-		fprintf(fout,"primary=%d,%d,%d,%d,%d\n",primary_order[0], primary_order[1], primary_order[2],primary_order[3], primary_order[4]);
-		fprintf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
-		fprintf(fout,"[end]\n");
-		fprintf(fout,"[newer keys]\n");
-		fprintf(fout,"primary autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
-		fprintf(fout,"secondary autoselect toggle=0x%x,0xff,0x%x\n",kconfig_d1x_settings[26],kconfig_d1x_settings[27]);
-		fprintf(fout,"[end]\n");
-		fprintf(fout,"[weapon keys]\n");
-		fprintf(fout,"1=0x%x,0x%x\n",kconfig_d1x_settings[0],kconfig_d1x_settings[1]);
-		fprintf(fout,"2=0x%x,0x%x\n",kconfig_d1x_settings[2],kconfig_d1x_settings[3]);
-		fprintf(fout,"3=0x%x,0x%x\n",kconfig_d1x_settings[4],kconfig_d1x_settings[5]);
-		fprintf(fout,"4=0x%x,0x%x\n",kconfig_d1x_settings[6],kconfig_d1x_settings[7]);
-		fprintf(fout,"5=0x%x,0x%x\n",kconfig_d1x_settings[8],kconfig_d1x_settings[9]);
-		fprintf(fout,"6=0x%x,0x%x\n",kconfig_d1x_settings[10],kconfig_d1x_settings[11]);
-		fprintf(fout,"7=0x%x,0x%x\n",kconfig_d1x_settings[12],kconfig_d1x_settings[13]);
-		fprintf(fout,"8=0x%x,0x%x\n",kconfig_d1x_settings[14],kconfig_d1x_settings[15]);
-		fprintf(fout,"9=0x%x,0x%x\n",kconfig_d1x_settings[16],kconfig_d1x_settings[17]);
-		fprintf(fout,"0=0x%x,0x%x\n",kconfig_d1x_settings[18],kconfig_d1x_settings[19]);
-		fprintf(fout,"[end]\n");
-		fprintf(fout,"[mouse]\n");
-		fprintf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
-		fprintf(fout,"[end]\n");
-		fprintf(fout,"[cockpit]\n");
-		fprintf(fout,"mode=%i\n",(Cockpit_mode==1?0:Cockpit_mode));
-		fprintf(fout,"[end]\n");
-		fprintf(fout,"[plx version]\n");
-		fprintf(fout,"plx version=%s\n",D1X_VERSION);
-		fprintf(fout,"[end]\n");
-		fprintf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[D1X Options]\n");
+		PHYSFSX_printf(fout,"[weapon order]\n");
+		PHYSFSX_printf(fout,"primary=1,2,3,4,5\n");
+		PHYSFSX_printf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[advanced ordering]\n");
+		PHYSFSX_printf(fout,"primary=%d,%d,%d,%d,%d\n",primary_order[0], primary_order[1], primary_order[2],primary_order[3], primary_order[4]);
+		PHYSFSX_printf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[weapon keys]\n");
+		PHYSFSX_printf(fout,"1=0x%x,0x%x\n",kconfig_d1x_settings[0],kconfig_d1x_settings[1]);
+		PHYSFSX_printf(fout,"2=0x%x,0x%x\n",kconfig_d1x_settings[2],kconfig_d1x_settings[3]);
+		PHYSFSX_printf(fout,"3=0x%x,0x%x\n",kconfig_d1x_settings[4],kconfig_d1x_settings[5]);
+		PHYSFSX_printf(fout,"4=0x%x,0x%x\n",kconfig_d1x_settings[6],kconfig_d1x_settings[7]);
+		PHYSFSX_printf(fout,"5=0x%x,0x%x\n",kconfig_d1x_settings[8],kconfig_d1x_settings[9]);
+		PHYSFSX_printf(fout,"6=0x%x,0x%x\n",kconfig_d1x_settings[10],kconfig_d1x_settings[11]);
+		PHYSFSX_printf(fout,"7=0x%x,0x%x\n",kconfig_d1x_settings[12],kconfig_d1x_settings[13]);
+		PHYSFSX_printf(fout,"8=0x%x,0x%x\n",kconfig_d1x_settings[14],kconfig_d1x_settings[15]);
+		PHYSFSX_printf(fout,"9=0x%x,0x%x\n",kconfig_d1x_settings[16],kconfig_d1x_settings[17]);
+		PHYSFSX_printf(fout,"0=0x%x,0x%x\n",kconfig_d1x_settings[18],kconfig_d1x_settings[19]);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[cycle keys]\n");
+		PHYSFSX_printf(fout,"cycle primary=0x%x,0x%x\n",kconfig_d1x_settings[20],kconfig_d1x_settings[21]);
+		PHYSFSX_printf(fout,"cycle secondary=0x%x,0x%x\n",kconfig_d1x_settings[22],kconfig_d1x_settings[23]);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[autoselect keys]\n");
+		PHYSFSX_printf(fout,"primary autoselect toggle=0x%x,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
+		PHYSFSX_printf(fout,"secondary autoselect toggle=0x%x,0x%x\n",kconfig_d1x_settings[26],kconfig_d1x_settings[27]);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[joystick]\n");
+		PHYSFSX_printf(fout,"deadzone=%i\n",joy_deadzone);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[mouse]\n");
+		PHYSFSX_printf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[cockpit]\n");
+		PHYSFSX_printf(fout,"mode=%i\n",(Cockpit_mode==1?0:Cockpit_mode));
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[plx version]\n");
+		PHYSFSX_printf(fout,"plx version=%s\n",D1X_VERSION);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[end]\n");
 	
-		if (ferror(fout))
-			rc = errno;
-
-		fclose(fout);
-
+		PHYSFS_close(fout);
+		if(rc==0)
+		{
+			PHYSFS_delete(filename);
+			rc = PHYSFSX_rename(tempfile,filename);
+		}
 		return rc;
 	}
 	else
@@ -636,8 +600,8 @@ int write_player_d1x(const char *filename)
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
 {
-	char filename[13];
-	FILE *file;
+	char filename[32];
+	PHYSFS_file *file;
 	save_info info;
 	int errno_ret = EZERO;
 	int player_file_size;
@@ -649,8 +613,11 @@ int read_player_file()
 	memcpy(primary_order, default_primary_order, sizeof(primary_order));
         memcpy(secondary_order, default_secondary_order, sizeof(secondary_order));
 
-	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr",Players[Player_num].callsign);
-	file = fopen(filename,"rb");
+	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
+	if (!PHYSFS_exists(filename))
+		return ENOENT;
+
+	file = PHYSFSX_openReadBuffered(filename);
 
 	if (!file) {
 		return errno;
@@ -666,13 +633,12 @@ int read_player_file()
 	// reading of the player file to go wrong. Thus we now determine the
 	// sizeof the player file to determine what kinda player file we are
 	// dealing with so that we can do the right thing
-	fseek(file, 0, SEEK_END);
-	player_file_size = ftell(file);
-	rewind(file);
+	PHYSFS_seek(file, 0);
+	player_file_size = PHYSFS_fileLength(file);
 
-	if (fread(&info,sizeof(info),1,file) != 1) {
+	if (PHYSFS_read(file,&info,sizeof(info),1) != 1) {
 		errno_ret = errno;
-		fclose(file);
+		PHYSFS_close(file);
 		return errno_ret;
 	}
 	info.id = INTEL_INT(info.id);
@@ -684,13 +650,13 @@ int read_player_file()
 
 	if (info.id!=SAVE_FILE_ID) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
-		fclose(file);
+		PHYSFS_close(file);
 		return -1;
 	}
 
 	if (info.saved_game_version<COMPATIBLE_SAVED_GAME_VERSION || info.player_struct_version<COMPATIBLE_PLAYER_STRUCT_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
-		fclose(file);
+		PHYSFS_close(file);
 		return -1;
 	}
 
@@ -723,19 +689,19 @@ int read_player_file()
 
 				shareware_file = 1;
 				/* skip the cruft added to the player_info struct */
-				fseek(file, 2*sizeof(int), SEEK_CUR);
+				PHYSFS_seek(file, PHYSFS_tell(file)+2*sizeof(int));
 			}
 			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == (2252 + 2*sizeof(int)))
 			{
 				shareware_file = 0;
 				/* skip the cruft added to the player_info struct */
-				fseek(file, 2*sizeof(int), SEEK_CUR);
+				PHYSFS_seek(file, PHYSFS_tell(file)+2*sizeof(int));
 			}
 	}
 
 	if (shareware_file == -1) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Error invalid or unknown\nplayerfile-size");
-		fclose(file);
+		PHYSFS_close(file);
 		return -1;
 	}
 
@@ -760,9 +726,9 @@ int read_player_file()
 
 		n_highest_levels = info.n_highest_levels;
 
-		if (fread(highest_levels,sizeof(hli),n_highest_levels,file) != n_highest_levels) {
+		if (PHYSFS_read(file,highest_levels,sizeof(hli),n_highest_levels) != n_highest_levels) {
 			errno_ret = errno;
-			fclose(file);
+			PHYSFS_close(file);
 			return errno_ret;
 		}
 	}
@@ -771,9 +737,9 @@ int read_player_file()
 	Default_leveling_on = info.default_leveling_on;
 
 	if ( info.saved_game_version != 7 ) {	// Read old & SW saved games.
-		if (fread(saved_games,sizeof(saved_games),1,file) != 1) {
+		if (PHYSFS_read(file,saved_games,sizeof(saved_games),1) != 1) {
 			errno_ret = errno;
-			fclose(file);
+			PHYSFS_close(file);
 			return errno_ret;
 		}
 	}
@@ -784,7 +750,7 @@ int read_player_file()
 		#if defined SHAREWARE && defined NETWORK
 		for (i = 0; i < 4; i++)
 		{
-			if (fread(Network_message_macro[i], MAX_MESSAGE_LEN, 1, file) != 1)
+			if (PHYSFS_read(Network_message_macro[i], MAX_MESSAGE_LEN, 1) != 1)
 				{errno_ret = errno; break;}
 			/* if this is not a shareware file, make sure what we've
 			   read is 0 terminated and skip the 10 additional bytes
@@ -792,7 +758,7 @@ int read_player_file()
 			if (!shareware_file)
 			{
 				Network_message_macro[i][MAX_MESSAGE_LEN-1] = 0;
-				fseek(file, 10, SEEK_CUR);
+				PHYSFS_seek(file, PHYSFS_tell(file)+10);
 			}
 		}
 		#else
@@ -800,11 +766,11 @@ int read_player_file()
 
 		#ifdef NETWORK
 		for (i = 0; i < 4; i++)
-			if (fread(Network_message_macro[i], len, 1, file) != 1)
+			if (PHYSFS_read(file, Network_message_macro[i], len, 1) != 1)
 				{errno_ret = errno; break;}
 		#else
 		i = 0;
-		fseek( file, 4*len, SEEK_CUR );
+		PHYSFS_seek( file, PHYSFS_tell(file)+4*len );
 		#endif
 		#endif
 	}
@@ -818,18 +784,18 @@ int read_player_file()
                 int i,j;
                  for(i=0;i<CONTROL_MAX_TYPES;i++)
                   for(j=0;j<MAX_NOND1X_CONTROLS;j++)
-                   if(fread( &kconfig_settings[i][j], sizeof(ubyte),1,file)!=1)
+                   if(PHYSFS_read(file, &kconfig_settings[i][j], sizeof(ubyte),1)!=1)
                     errno_ret=errno;
                 if(errno_ret == EZERO)
                 {
-                if (fread(&Config_control_type, sizeof(ubyte), 1, file )!=1)
+                if (PHYSFS_read(file, &Config_control_type, sizeof(ubyte), 1 )!=1)
 			errno_ret=errno;
-		else if (fread(&Config_joystick_sensitivity, sizeof(ubyte), 1, file )!=1)
+		else if (PHYSFS_read(file, &Config_joystick_sensitivity, sizeof(ubyte), 1 )!=1)
 			errno_ret=errno;
                 }
 	}
 
-	if (fclose(file) && errno_ret==EZERO)
+	if (PHYSFS_close(file) && errno_ret==EZERO)
 		errno_ret = errno;
 
 	if ( info.saved_game_version != 7 ) 	{
@@ -880,13 +846,14 @@ int read_player_file()
 //empty entry.  If no empty entries, takes over last one 
 int find_hli_entry()
 {
+	int i;
+
 #ifdef SHAREWARE
 	return 0;
 #else
-	int i;
 
 	for (i=0;i<n_highest_levels;i++)
-		if (!strcasecmp(highest_levels[i].shortname,Mission_list[Current_mission_num].filename))
+		if (!stricmp(highest_levels[i].shortname, Current_mission_filename))
 			break;
 
 	if (i==n_highest_levels) {		//not found.  create entry
@@ -896,8 +863,8 @@ int find_hli_entry()
 		else
 			n_highest_levels++;
 
-		strcpy(highest_levels[i].shortname,Mission_list[Current_mission_num].filename);
-		highest_levels[i].level_num = 0;
+		strcpy(highest_levels[i].shortname, Current_mission_filename);
+		highest_levels[i].level_num			= 0;
 	}
 
 	return i;
@@ -925,20 +892,20 @@ void set_highest_level(int levelnum)
 int get_highest_level(void)
 {
 	int i;
-	int highest_saturn_level = 0;
+	int highest_saturn_level			= 0;
 	read_player_file();
 #ifndef SHAREWARE
-#ifndef DEST_SAT
-	if (strlen(Mission_list[Current_mission_num].filename)==0 )	{
+#ifndef SATURN
+	if (strlen(Current_mission_filename)==0 )	{
 		for (i=0;i<n_highest_levels;i++)
-			if (!strcasecmp(highest_levels[i].shortname, "DESTSAT")) 	//	Destination Saturn.
-		 		highest_saturn_level = highest_levels[i].level_num; 
+			if (!stricmp(highest_levels[i].shortname, "DESTSAT")) 	//	Destination Saturn.
+		 		highest_saturn_level			= highest_levels[i].level_num; 
 	}
 #endif
 #endif
-   i = highest_levels[find_hli_entry()].level_num;
+   i			= highest_levels[find_hli_entry()].level_num;
 	if ( highest_saturn_level > i )
-   	i = highest_saturn_level;
+   	i			= highest_saturn_level;
 	return i;
 }
 
@@ -946,8 +913,8 @@ int get_highest_level(void)
 //write out player's saved games.  returns errno (0 == no error)
 int write_player_file()
 {
-	char filename[13];
-	FILE *file;
+	char filename[32];
+	PHYSFS_file *file;
 	save_info info;
 	int errno_ret;
 
@@ -965,68 +932,68 @@ int write_player_file()
 	write_player_d1x(filename);
 
 	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
-	file = fopen(filename,"wb");
+	file = PHYSFSX_openWriteBuffered(filename);
 
 	if (!file)
 		return errno;
 
 	errno_ret = EZERO;
 
-	if (fwrite(&info,sizeof(info),1,file) != 1) {
+	if (PHYSFS_write( file, &info,sizeof(info),1) != 1) {
 		errno_ret = errno;
-		fclose(file);
+		PHYSFS_close(file);
 		return errno_ret;
 	}
 
 	//write higest level info
-	if ((fwrite(highest_levels, sizeof(hli), n_highest_levels, file) != n_highest_levels)) {
+	if ((PHYSFS_write( file, highest_levels, sizeof(hli), n_highest_levels) != n_highest_levels)) {
 		errno_ret = errno;
-		fclose(file);
+		PHYSFS_close(file);
 		return errno_ret;
 	}
 
-	if (fwrite(saved_games,sizeof(saved_games),1,file) != 1) {
+	if (PHYSFS_write( file, saved_games,sizeof(saved_games),1) != 1) {
 		errno_ret = errno;
-		fclose(file);
+		PHYSFS_close(file);
 		return errno_ret;
 	}
 
 	#ifdef NETWORK
-	if ((fwrite(Network_message_macro, MAX_MESSAGE_LEN, 4, file) != 4)) {
+	if ((PHYSFS_write( file, Network_message_macro, MAX_MESSAGE_LEN, 4) != 4)) {
 		errno_ret = errno;
-		fclose(file);
+		PHYSFS_close(file);
 		return errno_ret;
 	}
 	#else
-	fseek( file, MAX_MESSAGE_LEN * 4, SEEK_CUR );
+	PHYSFS_seek( file, PHYSFS_tell(file)+MAX_MESSAGE_LEN * 4 );
 	#endif
 
 	//write kconfig info
 	{
-//                if (fwrite( kconfig_settings, MAX_CONTROLS*CONTROL_MAX_TYPES, 1, file )!=1)
+//                if (PHYSFS_write( file,  kconfig_settings, MAX_CONTROLS*CONTROL_MAX_TYPES, 1, file )!=1)
 //                        errno_ret=errno;
 		int i,j;
 		for(i=0;i<CONTROL_MAX_TYPES;i++) {
 			for(j=0;j<MAX_NOND1X_CONTROLS;j++) {
-				if(fwrite( &kconfig_settings[i][j], sizeof(kconfig_settings[i][j]), 1, file)!=1)
+				if(PHYSFS_write( file,  &kconfig_settings[i][j], sizeof(kconfig_settings[i][j]), 1)!=1)
 					errno_ret=errno;
 			}
 		}
 	
 		if(errno_ret == EZERO)
 		{
-			if (fwrite( &Config_control_type, sizeof(ubyte), 1, file )!=1)
+			if (PHYSFS_write( file,  &Config_control_type, sizeof(ubyte), 1 )!=1)
 				errno_ret=errno;
-			else if (fwrite( &Config_joystick_sensitivity, sizeof(ubyte), 1, file )!=1)
+			else if (PHYSFS_write( file,  &Config_joystick_sensitivity, sizeof(ubyte), 1 )!=1)
 				errno_ret=errno;
 		}
 	}
 
-	if (fclose(file))
+	if (PHYSFS_close(file))
 		errno_ret = errno;
 
 	if (errno_ret != EZERO) {
-		remove(filename);			//delete bogus file
+		PHYSFS_delete(filename);			//delete bogus file
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s",TXT_ERROR_WRITING_PLR, strerror(errno_ret));
 	}
 

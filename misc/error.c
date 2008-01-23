@@ -1,3 +1,4 @@
+/* $Id: error.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,66 +8,21 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/misc/error.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:05 $
  *
  * Error handling/printing/exiting code
  *
- * $Log: error.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:05  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:13:48  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.12  1994/12/07  18:49:39  matt
- * error_init() can now take NULL as parm
- * 
- * Revision 1.11  1994/11/29  15:42:07  matt
- * Added newline before error message
- * 
- * Revision 1.10  1994/11/27  23:20:39  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.9  1994/06/20  21:20:56  matt
- * Allow NULL for warn func, to kill warnings
- * 
- * Revision 1.8  1994/05/20  15:11:35  mike
- * mprintf Warning message so you can actually see it.
- * 
- * Revision 1.7  1994/02/10  18:02:38  matt
- * Changed 'if DEBUG_ON' to 'ifndef NDEBUG'
- * 
- * Revision 1.6  1993/10/17  18:19:10  matt
- * If error_init() not called, Error() now prints the error message before
- * calling exit()
- * 
- * Revision 1.5  1993/10/14  15:29:11  matt
- * Added new function clear_warn_func()
- * 
- * Revision 1.4  1993/10/08  16:17:19  matt
- * Made Assert() call function _Assert(), rather to do 'if...' inline.
- * 
- * Revision 1.3  1993/09/28  12:45:25  matt
- * Fixed wrong print call, and made Warning() not append a CR to string
- * 
- * Revision 1.2  1993/09/27  11:46:35  matt
- * Added function set_warn_func()
- * 
- * Revision 1.1  1993/09/23  20:17:33  matt
- * Initial revision
- * 
- *
  */
 
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
+
 #ifdef RCS
-static char rcsid[] = "$Id: error.c,v 1.1.1.1 2006/03/17 19:45:05 zicodxx Exp $";
+static char rcsid[] = "$Id: error.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $";
 #endif
 
 #include <stdio.h>
@@ -74,6 +30,8 @@ static char rcsid[] = "$Id: error.c,v 1.1.1.1 2006/03/17 19:45:05 zicodxx Exp $"
 #include <stdarg.h>
 #include <string.h>
 
+#include "pstypes.h"
+#include "console.h"
 #include "mono.h"
 #include "error.h"
 
@@ -82,6 +40,8 @@ static char rcsid[] = "$Id: error.c,v 1.1.1.1 2006/03/17 19:45:05 zicodxx Exp $"
 //edited 05/17/99 Matt Mueller added err_ prefix to prevent conflicts with statically linking SDL
 int err_initialized=0;
 //end edit -MM
+
+static void (*ErrorPrintFunc)(char *);
 
 char exit_message[MAX_MSG_LEN]="";
 char warn_message[MAX_MSG_LEN];
@@ -121,14 +81,30 @@ void set_exit_message(char *fmt,...)
 
 void _Assert(int expr,char *expr_text,char *filename,int linenum)
 {
+	Int3();
 	if (!(expr)) Error("Assertion failed: %s, file %s, line %d",expr_text,filename,linenum);
-
 }
 
 void print_exit_message(void)
 {
 	if (*exit_message)
-		printf("%s\n",exit_message);
+	{
+		if (ErrorPrintFunc)
+		{
+			(*ErrorPrintFunc)(exit_message);
+		}
+		else
+		{
+#if (defined(MACINTOSH) && defined(NDEBUG) && defined(RELEASE))
+			c2pstr(exit_message);
+			ShowCursor();
+			ParamText(exit_message, "\p", "\p", "\p");
+			StopAlert(ERROR_ALERT, nil);
+#else
+			printf("%s\n",exit_message);
+#endif
+		}
+	}
 }
 
 //terminates with error code 1, printing message
@@ -136,18 +112,19 @@ void Error(char *fmt,...)
 {
 	va_list arglist;
 
+#if (defined(MACINTOSH) && defined(NDEBUG) && defined(RELEASE))
+	strcpy(exit_message,"Error: "); // don't put the new line in for dialog output
+#else
 	strcpy(exit_message,"\nError: ");
-
+#endif
 	va_start(arglist,fmt);
 	vsprintf(exit_message+strlen(exit_message),fmt,arglist);
 	va_end(arglist);
 
-	puts(exit_message);
+	Int3();
+
 	if (!err_initialized) print_exit_message();
 
-#ifndef NDEBUG
-	Int3();
-#endif
 	exit(1);
 }
 
@@ -165,18 +142,20 @@ void Warning(char *fmt,...)
 	vsprintf(warn_message+strlen(warn_message),fmt,arglist);
 	va_end(arglist);
 
-/*	  mprintf((0, "%s\n", warn_message));*/
+	mprintf((0, "%s\n", warn_message));
 	(*warn_func)(warn_message);
 
 }
 
 //initialize error handling system, and set default message. returns 0=ok
-int error_init(char *fmt,...)
+int error_init(void (*func)(char *), char *fmt, ...)
 {
 	va_list arglist;
 	int len;
 
 	atexit(print_exit_message);		//last thing at exit is print message
+
+	ErrorPrintFunc = func;          // Set Error Print Functions
 
 	if (fmt != NULL) {
 		va_start(arglist,fmt);

@@ -19,17 +19,23 @@
    Boston, MA 02111-1307, USA.
 */
 #include <string.h>
-#include <errno.h>
 #include <stdlib.h>
+#include <stdio.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
+#include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
 #include "hmp2mid.h"
+#include "u_mem.h"
 
 /* Some convience macros to keep the code below more readable */
 
 #define HMP_READ(buf, count) \
   {\
-    if (read_func(buf, 1, count, hmp_in) != (count)) \
+    if (PHYSFS_read(hmp_in, buf, 1, count) != (count)) \
     { \
-      free(mid_track_buf); \
+      d_free(mid_track_buf); \
       return hmp_read_error; \
     } \
     /* notice that when we are not actually in the track reading code this \
@@ -45,11 +51,12 @@
   }
 
 #define MID_WRITE(buf, count) \
-  if (fwrite(buf, 1, count, mid_out) != (count)) \
+  if (PHYSFS_write(mid_out, buf, 1, count) != (count)) \
   { \
-    free(mid_track_buf); \
-    snprintf(hmp2mid_error, sizeof(hmp2mid_error), mid_write_error_templ, \
-      strerror(errno)); \
+    d_free(mid_track_buf); \
+	strncpy(hmp2mid_error, mid_write_error_templ, sizeof(hmp2mid_error)); \
+	strncat(hmp2mid_error, PHYSFS_getLastError(), \
+      sizeof(hmp2mid_error) - sizeof(mid_write_error_templ) + 1); \
     return hmp2mid_error; \
   }
 
@@ -58,10 +65,10 @@
     if ((mid_track_buf_used + count) > mid_track_buf_size) \
     { \
       void *tmp = mid_track_buf; \
-      mid_track_buf = realloc(mid_track_buf, mid_track_buf_size + 65536); \
+      mid_track_buf = d_realloc(mid_track_buf, mid_track_buf_size + 65536); \
       if (!mid_track_buf) \
       { \
-        free(tmp); \
+        d_free(tmp); \
         return "Error could not allocate midi track memory"; \
       } \
     } \
@@ -71,7 +78,7 @@
     
   
 static const char *hmp_read_error = "Error reading from hmp file";
-static const char *mid_write_error_templ = "Error writing to mid file: %s";
+static const char mid_write_error_templ[] = "Error writing to mid file: ";
 static char hmp2mid_error[512];
 /* The beginning of the midi header */
 static const char midi_header1[10] = { 'M', 'T', 'h', 'd', 0, 0, 0, 6, 0, 1 };
@@ -79,7 +86,7 @@ static const char midi_header1[10] = { 'M', 'T', 'h', 'd', 0, 0, 0, 6, 0, 1 };
 static const char midi_header2[21] = { 0, 0xC0, 'M', 'T', 'r', 'k', 0, 0, 0,
   0x0B, 0, 0xFF, 0x51, 0x03, 0x18, 0x80, 0, 0, 0xFF, 0x2F, 0 };
   
-const char *hmp2mid(hmp2mid_read_func_t read_func, void *hmp_in, FILE* mid_out)
+const char *hmp2mid(PHYSFS_file *hmp_in, PHYSFS_file *mid_out)
 {
   unsigned char last_com = 0, buf[0x300];
   unsigned int num_tracks, track_length = 0, i, t;
@@ -126,7 +133,7 @@ const char *hmp2mid(hmp2mid_read_func_t read_func, void *hmp_in, FILE* mid_out)
     HMP_READ_DWORD(&t);
     if (t != i)
     {
-      free(mid_track_buf);
+      d_free(mid_track_buf);
       return "Error invalid hmp track number";
     }
     /* Read number of bytes in this track */
@@ -157,7 +164,7 @@ const char *hmp2mid(hmp2mid_read_func_t read_func, void *hmp_in, FILE* mid_out)
       
       if (n1 >= 4)
       {
-        free(mid_track_buf);
+        d_free(mid_track_buf);
         return "Error parsing hmp track";
       }
 
@@ -181,7 +188,7 @@ const char *hmp2mid(hmp2mid_read_func_t read_func, void *hmp_in, FILE* mid_out)
         {
           if (buf[2] != 0x00)
           {
-            free(mid_track_buf);
+            d_free(mid_track_buf);
             return "Error hmp meta end of track with non zero size";
           }
           break;
@@ -204,7 +211,7 @@ const char *hmp2mid(hmp2mid_read_func_t read_func, void *hmp_in, FILE* mid_out)
           t = 1;
           break;
         default:
-          free(mid_track_buf);
+          d_free(mid_track_buf);
           return "Error invalid hmp command";
       }
       if (buf[0] != last_com)
@@ -215,7 +222,7 @@ const char *hmp2mid(hmp2mid_read_func_t read_func, void *hmp_in, FILE* mid_out)
     }
     if (track_length != 0)
     {
-      free(mid_track_buf);
+      d_free(mid_track_buf);
       return "Error invalid track length";
     }
     /* write the midi track length */
@@ -227,6 +234,6 @@ const char *hmp2mid(hmp2mid_read_func_t read_func, void *hmp_in, FILE* mid_out)
     /* and the track itself */
     MID_WRITE(mid_track_buf, mid_track_buf_used);
   }
-  free (mid_track_buf);
+  d_free (mid_track_buf);
   return NULL;
 }

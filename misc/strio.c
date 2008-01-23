@@ -1,37 +1,34 @@
 /**strio.c: string/file manipulation functions by Victor Rachels **/
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "cfile.h"
 #include "strio.h"
 //added on 9/16/98 by adb to add memory tracking for this module
 #include "u_mem.h"
 //end additions - adb
 
-char* fsplitword(FILE *f, char splitchar)
+char *fgets_unlimited(PHYSFS_file *f)
 {
- int x,y,mem,memx;
- char *word,*buf;
-  memx=1;
-  mem=memx*256;
-  word=(char *) malloc(sizeof(char) * mem);
-  x=0;
-  word[x]=fgetc(f);
-   while(word[x]!=splitchar && !feof(f))
-    {
-     x++;
-      if(x==mem)
-       {
-	buf=word;
-	memx*=2;
-	mem=memx*256;
-	word=(char *) malloc(sizeof(char) * mem);
-	 for(y=0;y<x;y++)
-	  word[y]=buf[y];
-	free(buf);
-       }
-     word[x]=fgetc(f);
+    int		mem = 256;
+    char	*word, *buf, *p;
+
+    MALLOC(word, char, mem);
+    p = word;
+
+    while (word && cfgets(p, mem, f) == word + mem) {
+        int i;
+        
+        // Make a bigger buffer, because it read to the end of the buffer.
+        buf = word;
+        mem *= 2;
+        MALLOC(word, char, mem);
+        for (i = 0; i < mem/2; i++)
+            word[i] = buf[i];
+        d_free(buf);
+        p = word + mem/2;
     }
-  word[x]=0;
-  return word;
+    return word;
 }
 
 char* splitword(char *s, char splitchar)
@@ -43,7 +40,7 @@ char* splitword(char *s, char splitchar)
    for(x=0;s[x]!=splitchar&&x<l;x++);
   l2=x;
   s[x]=0;
-  word = (char *) malloc(sizeof(char) * (l2+1));
+  word = (char *) d_malloc(sizeof(char) * (l2+1));
    for(x=0;x<=l2;x++)
     word[x]=s[x];
 

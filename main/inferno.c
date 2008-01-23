@@ -45,6 +45,12 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include <crtdbg.h>
 #endif
 
+#if !(defined(__APPLE__) && defined(__MACH__))
+#include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
+
 #ifdef __MSDOS__
 #include <conio.h>
 #else
@@ -100,7 +106,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "screens.h"
 #include "hudmsg.h"
 #include "playsave.h"
-#include "d_io.h"
 #include "gauges.h"
 #include "physics.h"
 #include "strutil.h"
@@ -132,7 +137,8 @@ void show_commandline_help()
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
 	printf( "  -nicefps           %s\n", "Free CPU-cycles. Less CPU load, but game may become choppy");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
-	printf( "  -missiondir <s>    %s\n", "Set alternate mission dir to <d> instead of missions/");
+	printf( "  -hogdir <s>        %s\n", "set shared data directory to <dir>");
+	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
 	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
@@ -230,29 +236,30 @@ extern fix fixed_frametime;
 extern void vfx_set_palette_sub(ubyte *);
 #define PROGNAME argv[0]
 
-int main(int argc,char **argv)
+int main(int argc,char *argv[])
 {
 	int t;
 
 	mem_init();
 
-	error_init(NULL);
+	error_init(NULL, NULL);
+	PHYSFSX_init(argc, argv);
 
 	setbuf(stdout, NULL); // unbuffered output via printf
 
 	ReadConfigFile();
 
-	InitArgs( argc,argv );
-
-	if (!cfexist(DESCENT_DATA_PATH "descent.hog") || !cfexist(DESCENT_DATA_PATH "descent.pig"))
-		Error("Could not find valid descent.hog and/or descent.pig in\n"
-#ifdef __unix__
-				"\t" DESCENT_DATA_PATH "\n"
+	if (! cfile_init("descent.hog", 1))
+		Error("Could not find a valid hog file (descent.hog)\nPossible locations are:\n"
+#if defined(__unix__) && !defined(__APPLE__)
+			  "\t$HOME/.d1x-rebirth\n"
+			  "\t" SHAREPATH "\n"
 #else
-				"\tcurrent directory\n"
+			  "\tDirectory containing D1X\n"
 #endif
-				);
-
+			  "\tIn a subdirectory called 'Data'\n"
+			  "Or use the -hogdir option to specify an alternate location.");
+	
 	load_text();
 
 	printf(DESCENT_VERSION "\n"
@@ -269,12 +276,29 @@ int main(int argc,char **argv)
 
 	printf("\nType %s -help' for a list of command-line options.\n", PROGNAME);
 
-	cfile_use_alternate_hogdir(GameArg.SysMissionDir);
-
 	select_tmap(GameArg.DbgTexMap);
 
 	if (GameArg.DbgVerbose)
 		printf ("%s", TXT_VERBOSE_1);
+
+	{
+		char **i, **list;
+
+		list = PHYSFS_getSearchPath();
+		for (i = list; *i != NULL; i++)
+			printf("PHYSFS: [%s] is in the search path.\n", *i);
+		PHYSFS_freeList(list);
+
+		list = PHYSFS_getCdRomDirs();
+		for (i = list; *i != NULL; i++)
+			printf("PHYSFS: cdrom dir [%s] is available.\n", *i);
+		PHYSFS_freeList(list);
+
+		list = PHYSFS_enumerateFiles("");
+		for (i = list; *i != NULL; i++)
+			printf("PHYSFS: * We've got [%s].\n", *i);
+		PHYSFS_freeList(list);
+	}
 
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
@@ -389,10 +413,6 @@ int main(int argc,char **argv)
 	gr_palette_fade_out( NULL, 32, 0 );
 
 	Game_mode = GM_GAME_OVER;
-
-#ifndef SHAREWARE
-	t = build_mission_list(0); // This also loads mission 0.
-#endif
 
 	while (Function_mode != FMODE_EXIT)
 	{

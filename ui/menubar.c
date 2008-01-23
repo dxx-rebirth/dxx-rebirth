@@ -726,11 +726,11 @@ void menubar_init( char * file )
 		if (buf1[0] != '-' )
 		{
 			sprintf( buf2, " %s ", buf1 );
-			Menu[menu].Item[item].Text = strdup(buf2);
+			Menu[menu].Item[item].Text = d_strdup(buf2);
 		} else 
-			Menu[menu].Item[item].Text = strdup(buf1);
+			Menu[menu].Item[item].Text = d_strdup(buf1);
 		
-		Menu[menu].Item[item].InactiveText = strdup(Menu[menu].Item[item].Text);
+		Menu[menu].Item[item].InactiveText = d_strdup(Menu[menu].Item[item].Text);
 		
 		j= 0;
 		for (i=0; i<=strlen(Menu[menu].Item[item].Text); i++ )

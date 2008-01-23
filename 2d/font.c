@@ -10,7 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/* $Source: /cvsroot/dxx-rebirth/d1x-rebirth/2d/font.c,v $
+/*
  *
  * Graphical routines for drawing fonts.
  *
@@ -896,7 +896,7 @@ void ogl_init_font(grs_font * font){
 	int gap=0;//having a gap just wastes ram, since we don't filter text textures at all.
 	//	char s[2];
 	ogl_font_choose_size(font,gap,&tw,&th);
-	data=malloc(tw*th);
+	data=d_malloc(tw*th);
 	memset(data, 0, tw * th);
 	gr_init_bitmap(&font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
 	gr_set_transparent(&font->ft_parent_bitmap, 1);
@@ -905,7 +905,7 @@ void ogl_init_font(grs_font * font){
 		oglflags |= OGL_FLAG_NOCOLOR;
 	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
-	font->ft_bitmaps=(grs_bitmap*)malloc( nchars * sizeof(grs_bitmap));
+	font->ft_bitmaps=(grs_bitmap*)d_malloc( nchars * sizeof(grs_bitmap));
 	mprintf((0,"ogl_init_font %s, %s, nchars=%i, (%ix%i tex)\n",(font->ft_flags & FT_PROPORTIONAL)?"proportional":"fixedwidth",(font->ft_flags & FT_COLOR)?"color":"mono",nchars,tw,th));
 	//	s[1]=0;
 	h=font->ft_h;
@@ -1208,15 +1208,15 @@ void gr_close_font( grs_font * font )
 	if (font)
 	{
 		if ( font->ft_chars ) 
-			free( font->ft_chars );
-		free( font->oldfont );
+			d_free( font->ft_chars );
+		d_free( font->oldfont );
 #ifdef OGL
 		if (font->ft_bitmaps)
-			free( font->ft_bitmaps );
+			d_free( font->ft_bitmaps );
 		gr_free_bitmap_data(&font->ft_parent_bitmap);
 //		ogl_freebmtexture(&font->ft_parent_bitmap);
 #endif
-		free( font );
+		d_free( font );
 	}
 }
 
@@ -1260,8 +1260,8 @@ grs_font * gr_init_font( char * fontname )
 	
 	datasize = cfile_read_int(fontfile);
 
-	font = (old_grs_font *) malloc(datasize);
-	newfont = (grs_font *) malloc(sizeof(grs_font));
+	font = (old_grs_font *) d_malloc(datasize);
+	newfont = (grs_font *) d_malloc(sizeof(grs_font));
 	newfont->oldfont=font;
 
 	cfread(font,1,datasize,fontfile);
@@ -1285,7 +1285,7 @@ grs_font * gr_init_font( char * fontname )
 		
 		newfont->ft_data = (INTEL_INT(font->ft_data)) + ((ubyte *) font);
 		
-		newfont->ft_chars = (unsigned char **)malloc( nchars * sizeof(unsigned char *));
+		newfont->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
 		
 		ptr = newfont->ft_data;
 		

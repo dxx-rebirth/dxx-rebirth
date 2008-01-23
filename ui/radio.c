@@ -102,7 +102,7 @@ UI_GADGET_RADIO * ui_add_gadget_radio( UI_WINDOW * wnd, short x, short y, short 
 
 	radio = (UI_GADGET_RADIO *)ui_gadget_add( wnd, 4, x, y, x+w-1, y+h-1 );
 
-	radio->text = strdup(text);
+	radio->text = d_strdup(text);
 	radio->width = w;
 	radio->height = h;
 	radio->position = 0;

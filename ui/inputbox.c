@@ -126,7 +126,7 @@ UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_WINDOW * wnd, short x, short y, 
 
 	f = 0;
 
-	inputbox->text = malloc( length + 1);
+	inputbox->text = d_malloc( length + 1);
 	strncpy( inputbox->text, text, length );
 	inputbox->position = strlen(inputbox->text);
 	inputbox->oldposition = inputbox->position;

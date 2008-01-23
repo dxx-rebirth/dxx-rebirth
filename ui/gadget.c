@@ -67,7 +67,7 @@ UI_GADGET * ui_gadget_add( UI_WINDOW * wnd, short kind, short x1, short y1, shor
 {
 	UI_GADGET * gadget;
 
-	gadget = (UI_GADGET *)malloc( sizeof(UI_GADGET) );
+	gadget = (UI_GADGET *)d_malloc( sizeof(UI_GADGET) );
 	if (gadget==NULL) exit(1);
 
 	if (wnd->gadget == NULL )
@@ -128,29 +128,29 @@ void ui_gadget_delete_all( UI_WINDOW * wnd )
 		{
 			UI_GADGET_BUTTON * but1 = (UI_GADGET_BUTTON *)tmp;
 			if (but1->text)
-				free( but1->text );
+				d_free( but1->text );
 		}
 
 		if (tmp->kind == 6 )    // Inputbox
 		{
 			UI_GADGET_INPUTBOX * but1 = (UI_GADGET_INPUTBOX *)tmp;
-			free( but1->text );
+			d_free( but1->text );
 		}
 
 		if (tmp->kind == 5 )    // Checkbox
 		{
 			UI_GADGET_CHECKBOX * but1 = (UI_GADGET_CHECKBOX *)tmp;
-			free( but1->text );
+			d_free( but1->text );
 		}
 		
 		if (tmp->kind == 9 )    // Icon
 		{
 			UI_GADGET_ICON * but1 = (UI_GADGET_ICON *)tmp;
-			free( but1->text );
+			d_free( but1->text );
 		}
 
 
-		free( tmp );
+		d_free( tmp );
 	}
 }
 

@@ -80,12 +80,10 @@ common_sources = [
 'arch/sdl/timer.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
-'cfile/cfile.c',
 'iff/iff.c',
 'main/ai.c',
 'main/aipath.c',
 'main/digiobj.c',
-'main/args.c',
 'main/automap.c',
 'main/bm.c',
 'main/bmread.c',
@@ -155,12 +153,11 @@ common_sources = [
 'main/wall.c',
 'main/weapon.c',
 'mem/mem.c',
+'misc/args.c',
 'misc/compare.c',
-'misc/d_glob.c',
-'misc/d_io.c',
-'misc/d_slash.c',
 'misc/dl_list.c',
 'misc/error.c',
+'misc/ignorecase.c',
 'misc/strio.c',
 'misc/strutil.c',
 'texmap/ntmap.c',
@@ -303,7 +300,7 @@ env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
 env.Append(CPPDEFINES = ['NMONO', 'NETWORK', 'HAVE_NETIPX_IPX_H', '__SDL__', 'SDL_AUDIO', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/sdl/include'])
-generic_libs = ['SDL']
+generic_libs = ['SDL', 'physfs']
 sdlmixerlib = ['SDL_mixer']
 
 if sdlmixer:
@@ -442,7 +439,7 @@ if (ipv6 == 1):
 
 print '\n'
 
-env.Append(CPPDEFINES = [('DESCENT_DATA_PATH', '\\"' + str(sharepath) + '\\"')])
+env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(sharepath) + '\\"')])
 # finally building program...
 env.Program(target=str(target), source = common_sources, LIBS = libs, LINKFLAGS = str(lflags))
 if (sys.platform != 'darwin'):

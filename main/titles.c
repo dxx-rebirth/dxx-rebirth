@@ -58,8 +58,6 @@ void set_briefing_fontcolor ();
 #define MAX_BRIEFING_COLORS 7
 #define	SHAREWARE_ENDING_FILENAME "ending.tex"
 char * Briefing_text;
-char Ending_text_filename[13] = "endreg.tex";
-char Briefing_text_filename[13] = "briefing.tex";
 int	Briefing_text_colors[MAX_BRIEFING_COLORS];
 int	Current_color = 0;
 int	Erase_color;
@@ -147,7 +145,7 @@ typedef struct {
 #define	SHAREWARE_ENDING_LEVEL_NUM	0x7f
 #define	REGISTERED_ENDING_LEVEL_NUM	0x7e
 #ifdef OGL
-#define Briefing_screens_LH ((SWIDTH >= 640 && SHEIGHT >= 480 && cfexist(DESCENT_DATA_PATH HIRES_DIR "brief01h.pcx"))?Briefing_screens_h:Briefing_screens)
+#define Briefing_screens_LH ((SWIDTH >= 640 && SHEIGHT >= 480 && cfexist(HIRES_DIR "brief01h.pcx"))?Briefing_screens_h:Briefing_screens)
 #else
 #define Briefing_screens_LH Briefing_screens
 #endif
@@ -395,7 +393,7 @@ void show_animated_bitmap(void)
 		gr_bitmapm(0, 0, bitmap_ptr);
 #endif
 		grd_curcanv = curcanv_save;
-		free(bitmap_canv);
+		d_free(bitmap_canv);
 
 		switch (Animating_bitmap_type) {
 			case 0:
@@ -423,7 +421,7 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 	grd_curcanv = bitmap_canv;	
 	gr_bitmapm(0, 0, bmp);
 	grd_curcanv = curcanv_save;
-	free(bitmap_canv);
+	d_free(bitmap_canv);
 }
 
 //	-----------------------------------------------------------------------------
@@ -692,14 +690,14 @@ int show_briefing(int screen_num, char *message)
 				prev_ch = 10; // read to eoln
 			} else if (ch == 'R') {
 				if (Robot_canv != NULL)
-					{free(Robot_canv); Robot_canv=NULL;}
+					{d_free(Robot_canv); Robot_canv=NULL;}
 
 				init_spinning_robot();
 				robot_num = get_message_num(&message);
 				prev_ch = 10; // read to eoln
 			} else if (ch == 'N') {
 				if (Robot_canv != NULL)
-					{free(Robot_canv); Robot_canv=NULL;}
+					{d_free(Robot_canv); Robot_canv=NULL;}
 
 				get_message_name(&message, Bitmap_name);
 				strcat(Bitmap_name, "#0");
@@ -707,7 +705,7 @@ int show_briefing(int screen_num, char *message)
 				prev_ch = 10;
 			} else if (ch == 'O') {
 				if (Robot_canv != NULL)
-					{free(Robot_canv); Robot_canv=NULL;}
+					{d_free(Robot_canv); Robot_canv=NULL;}
 
 				get_message_name(&message, Bitmap_name);
 				strcat(Bitmap_name, "#0");
@@ -719,7 +717,7 @@ int show_briefing(int screen_num, char *message)
 				int		iff_error;
 
 				if (Robot_canv != NULL)
-					{free(Robot_canv); Robot_canv=NULL;}
+					{d_free(Robot_canv); Robot_canv=NULL;}
 
 					get_message_name(&message, bitmap_name);
 					strcat(bitmap_name, ".bbm");
@@ -925,7 +923,7 @@ int show_briefing(int screen_num, char *message)
 		gr_free_bitmap_data (&briefing_bm);
 
 	if (Robot_canv != NULL)
-		{free(Robot_canv); Robot_canv=NULL;}
+		{d_free(Robot_canv); Robot_canv=NULL;}
 
 	gr_use_palette_table("palette.256");
 
@@ -960,7 +958,7 @@ void load_screen_text(char *filename, char **buf)
 {
 	CFILE	*tfile;
 	CFILE *ifile;
-	int	len, i;
+	int	len;
 	int	have_binary = 0;
 
 	if ((tfile = cfopen(filename,"rb")) == NULL) {
@@ -985,17 +983,8 @@ void load_screen_text(char *filename, char **buf)
 		cfclose(tfile);
 	}
 
-	if (have_binary) {
-		char *ptr;
-
-		for (i = 0, ptr = *buf; i < len; i++, ptr++) {
-			if (*ptr != '\n') {
-				encode_rotate_left(ptr);
-				*ptr = *ptr ^ BITMAP_TBL_XOR;
-				encode_rotate_left(ptr);
-			}
-		}
-	}
+	if (have_binary)
+		decode_text(*buf, len);
 }
 
 //-----------------------------------------------------------------------------
@@ -1099,7 +1088,7 @@ void do_briefing_screens(int level_num)
 					break;
 	}
 
-	free(Briefing_text);
+	d_free(Briefing_text);
 
 	key_flush();
 }
@@ -1139,6 +1128,7 @@ void do_registered_end_game(void)
 			if (show_briefing_screen(cur_briefing_screen, 0))
 				break;
 
+	d_free(Briefing_text);
 }
 #endif
 
@@ -1168,6 +1158,7 @@ void do_shareware_end_game(void)
 			if (show_briefing_screen(cur_briefing_screen, 0))
 				break;
 
+	d_free(Briefing_text);
 }
 
 void do_end_game(void)
@@ -1188,7 +1179,7 @@ void do_end_game(void)
 	#endif
 
 	if (Briefing_text) {
-		free(Briefing_text);
+		d_free(Briefing_text);
 		Briefing_text = NULL;
 	}
 

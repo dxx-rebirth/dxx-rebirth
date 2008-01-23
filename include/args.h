@@ -41,6 +41,8 @@ typedef struct Arg
 	int SysUseNiceFPS;
 	int SysMaxFPS;
 	char *SysMissionDir;
+	char *SysHogDir;
+	int SysNoHogDir;
 	int SysUsePlayersDir;
 	int SysLowMem;
 	int SysLegacyHomers;

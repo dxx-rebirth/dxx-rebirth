@@ -46,7 +46,6 @@ static char rcsid[] = "$Id: scores.c,v 1.1.1.1 2006/03/17 19:42:39 zicodxx Exp $
 #include "joy.h"
 #include "timer.h"
 #include "text.h"
-#include "d_io.h"
 #include "byteswap.h"
 
 #ifdef OGL
@@ -110,13 +109,13 @@ char * get_scores_filename()
 
 void scores_read()
 {
-	FILE * fp;
-	int fsize, i;
+	PHYSFS_file *fp;
+	int fsize;
 
 	// clear score array...
 	memset( &Scores, 0, sizeof(all_scores) );
 
-	fp = fopen( get_scores_filename(), "rb" );
+	fp = PHYSFS_openRead(get_scores_filename());
 	if (fp==NULL) {
 		int i;
 
@@ -137,35 +136,16 @@ void scores_read()
 			Scores.stats[i].score = (10-i)*1000;
 		return;
 	}
-		
-	fsize = ffilelength( fp );
+
+	fsize = PHYSFS_fileLength(fp);
 
 	if ( fsize != sizeof(all_scores) )	{
-		fclose(fp);
+		PHYSFS_close(fp);
 		return;
 	}
-
 	// Read 'em in...
-	fread( Scores.signature, 3, 1, fp);
-	fread( &(Scores.version), 1, 1, fp);
-	fread( Scores.cool_saying, COOL_MESSAGE_LEN, 1, fp);
-	for (i = 0; i < MAX_HIGH_SCORES; i++) {
-		fread( Scores.stats[i].name, CALLSIGN_LEN+1, 1, fp);
-		fread( &(Scores.stats[i].score), 4, 1, fp);
-		fread( &(Scores.stats[i].starting_level), 1, 1, fp);
-		fread( &(Scores.stats[i].ending_level), 1, 1, fp);
-		fread( &(Scores.stats[i].diff_level), 1, 1, fp);
-		fread( &(Scores.stats[i].kill_ratio), 2, 1, fp);
-		fread( &(Scores.stats[i].hostage_ratio), 2, 1, fp);
-		fread( &(Scores.stats[i].seconds), 4, 1, fp);
-		
-		Scores.stats[i].score = INTEL_INT(Scores.stats[i].score);
-		Scores.stats[i].kill_ratio = INTEL_SHORT(Scores.stats[i].kill_ratio);
-		Scores.stats[i].hostage_ratio = INTEL_SHORT(Scores.stats[i].hostage_ratio);
-		Scores.stats[i].seconds = INTEL_INT(Scores.stats[i].seconds);
-	}
-
-	fclose(fp);
+	PHYSFS_read(fp, &Scores, sizeof(all_scores), 1);
+	PHYSFS_close(fp);
 
 	if ( (Scores.version!=VERSION_NUMBER)||(Scores.signature[0]!='D')||(Scores.signature[1]!='H')||(Scores.signature[2]!='S') )	{
 		memset( &Scores, 0, sizeof(all_scores) );

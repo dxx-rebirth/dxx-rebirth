@@ -10,12 +10,13 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Files for debugging memory allocator
  *
+ *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,7 +63,7 @@ void mem_display_blocks();
 void mem_init()
 {
 	int i;
-	
+
 	Initialized = 1;
 
 	for (i=0; i<MAX_INDEX; i++ )

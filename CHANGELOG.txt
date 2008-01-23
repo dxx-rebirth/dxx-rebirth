@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080123
+--------
+d1x.ini, INSTALL.txt, SConstruct, 2d/font.c, 2d/canvas.c, 2d/bitmap.c, 2d/rle.c, 2d/pcx.c, arch/linux/hmiplay.c, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/digi_mixer_music.c, arch/sdl/joy.c, arch/sdl/include/digi_mixer_music.h, arch/sdl/jukebox.c, arch/sdl/gr.c, arch/win32/hmpfile.c, editor/macro.c, editor/medsel.c, editor/med.c, editor/autosave.c, iff/iff.c, include/args.h, include/hmp2mid.h, include/pstypes.h, include/ignorecase.h, include/cfile.h, include/error.h, include/strio.h, include/u_mem.h, include/physfsx.h, main/gameseg.c, main/custom.c, main/newmenu.c, main/fvi.c, main/text.c, main/network.c, main/text.h, main/multi.c, main/multi.h, main/inferno.c, main/gamefont.c, main/menu.c, main/inferno.h, main/playsave.c, main/titles.c, main/titles.h, main/bmread.c, main/piggy.c, main/render.c, main/state.c, main/gamesave.c, main/newdemo.c, main/config.c, main/gameseq.c, main/hash.c, main/gameseq.h, main/altsound.c, main/ai.c, main/scores.c, main/endlevel.c, main/terrain.c, main/polyobj.c, main/game.c, main/mission.c, main/mission.h, main/credits.c, mem/mem.c, misc/ignorecase.c, misc/hmp2mid.c, misc/strio.c, misc/error.c, misc/dl_list.c, misc/args.c, ui/radio.c, ui/menu.c, ui/window.c, ui/inputbox.c, ui/keypad.c, ui/file.c, ui/checkbox.c, ui/menubar.c, ui/lfile.c, ui/gadget.c: Implemented PhysFS support; Implemended D2X memory functions; Code cleanups
+
 20080113
 --------
 main/network.c: fix typo causing compiler error on bigendian computers

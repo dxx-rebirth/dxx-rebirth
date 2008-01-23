@@ -76,7 +76,7 @@ void load_alt_sounds(char *soundfile_list)
               fseek(sound,40,SEEK_SET);
               fread(&(datsize),sizeof(u_int32_t),1,sound);
 
-              altsound_list[i].data = (void *)malloc(datsize);
+              altsound_list[i].data = (void *)d_malloc(datsize);
 
                if(altsound_list[i].data)
                 {
@@ -111,7 +111,7 @@ void load_alt_sounds(char *soundfile_list)
                 }
               fclose(sound);
             }
-          free(line);
+          d_free(line);
         }
     }
   fclose(list);
@@ -123,7 +123,7 @@ void free_alt_sounds()
    for(i=0;i<MAX_SOUNDS;i++)
     if(use_altsound[i] && altsound_list[i].data)
      {
-       free(altsound_list[i].data);
+       d_free(altsound_list[i].data);
        use_altsound[i]=0;
        use_alt_sounds--;
      }

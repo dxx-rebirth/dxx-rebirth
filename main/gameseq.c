@@ -117,9 +117,9 @@ void StartLevel(int random);
 int	Current_level_num=0,Next_level_num;
 char	Current_level_name[LEVEL_NAME_LEN];		
 
-#ifndef SHAREWARE
-int Last_level,Last_secret_level;
-#endif
+// #ifndef SHAREWARE
+// int Last_level,Last_secret_level;
+// #endif
 
 // Global variables describing the player
 int 				N_players=1;						// Number of players ( >1 means a net game, eh?)
@@ -462,7 +462,7 @@ void DoGameOver()
 // 	nm_messagebox1( TXT_GAME_OVER, DoEndLevelScoreGlitzPoll, 1, TXT_OK, "" );
 
 #ifndef SHAREWARE
-	if (Current_mission_num == 0)
+	if (PLAYING_BUILTIN_MISSION)
 #endif
 		scores_maybe_add_player(0);
 
@@ -603,9 +603,10 @@ try_again:
 
 	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
 
-	if ( cfexist(filename) ) {
+	if (PHYSFS_exists(filename))
+	{
 		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS );
-                goto try_again;
+		goto try_again;
 	}
 
 	if ( !new_player_config() )
@@ -655,7 +656,7 @@ int RegisterPlayer()
 do_menu_again:
 	;
 
-	if (!newmenu_get_filename( TXT_SELECT_PILOT, GameArg.SysUsePlayersDir ? "Players/*.plr" : "*.plr", filename, allow_abort_flag ))	{
+	if (!newmenu_get_filename( TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag ))	{
 		goto do_menu_again;		// They hit Esc in file selector
 	}
 
@@ -702,37 +703,6 @@ void LoadLevel(int level_num)
 {
 	char *level_name;
 	player save_player;
-
-#ifdef REQUIRE_CD
-	{
-		FILE *fp;
-		int i;
-		char fname[128];
-		strcpy( fname, destsat_cdpath );
-#ifdef DEST_SAT
-		strcat( fname, "saturn.hog" );
-#else
-		strcat( fname, "descent.hog" );
-#endif
-		do {
-			descent_critical_error = 0;
-			fp = fopen( fname, "rb" );
-			if ( fp==NULL || descent_critical_error )	{
-				if ( fp )	{
-					fclose(fp);
-					fp = NULL;
-				}
-				gr_set_current_canvas(NULL);
-				gr_clear_canvas( gr_find_closest_color_current(0,0,0) );
-				gr_palette_load( gr_palette );
-				i = nm_messagebox( "Insert CD", 2, "Retry", "Exit", "Please put the\nDescent CD\nin your CD-ROM drive!\n" );
-				if ( i==1 )
-					exit(0);
-			}
-		} while ( fp == NULL );
-		fclose( fp );
-	}
-#endif
 
 	save_player = Players[Player_num];	
 
@@ -1006,7 +976,7 @@ void PlayerFinishedLevel(int secret_flag)
 
 	if (!was_multi && rval) {
 #ifndef SHAREWARE
-		if (Current_mission_num == 0)
+		if (PLAYING_BUILTIN_MISSION)
 #endif
 			scores_maybe_add_player(0);
 		longjmp( LeaveGame, 1 );		// Exit out of game loop
@@ -1019,7 +989,7 @@ void PlayerFinishedLevel(int secret_flag)
 extern void do_end_game(void);
 
 //from which level each do you get to each secret level 
-int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
+// int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
 
 //called to go to the next level (if there is one)
 //if secret_flag is true, advance to secret level, else next normal one
@@ -1029,7 +999,7 @@ int AdvanceLevel(int secret_flag)
 	Fuelcen_control_center_destroyed = 0;
 
 	#ifdef EDITOR
-	if (Current_level_num == 0)
+	if (PLAYING_BUILTIN_MISSION)
 		return 0;		//not a real level
 	#endif
 
@@ -1194,7 +1164,7 @@ void DoPlayerDead()
 
 		if (rval) {
 #ifndef SHAREWARE
-			if (Current_mission_num == 0)
+			if (PLAYING_BUILTIN_MISSION)
 #endif
 				scores_maybe_add_player(0);
 			longjmp( LeaveGame, 1 );		// Exit out of game loop

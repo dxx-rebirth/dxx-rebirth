@@ -117,13 +117,13 @@ int load_pig1(CFILE *f, int num_bitmaps, int num_sounds, int *num_custom, struct
     if ((unsigned int)num_bitmaps >= MAX_BITMAP_FILES ||
 	(unsigned int)num_sounds >= MAX_SOUND_FILES)
 	return -1; // invalid pig file
-    if (!(*ci = cip = malloc((num_bitmaps + num_sounds) * sizeof(struct custom_info))))
+    if (!(*ci = cip = d_malloc((num_bitmaps + num_sounds) * sizeof(struct custom_info))))
 	return -1; // out of memory
     data_ofs += num_bitmaps * sizeof(DiskBitmapHeader) + num_sounds * sizeof(DiskSoundHeader);
     i = num_bitmaps;
     while (i--) {
 	if (cfread(&bmh, sizeof(DiskBitmapHeader), 1, f) < 1) {
-	    free(*ci);
+	    d_free(*ci);
 	    return -1;
 	}
 	memcpy( name, bmh.name, 8 );
@@ -141,7 +141,7 @@ int load_pig1(CFILE *f, int num_bitmaps, int num_sounds, int *num_custom, struct
     i = num_sounds;
     while (i--) {
 	if (cfread(&sndh, sizeof(DiskSoundHeader), 1, f) < 1) {
-	    free(*ci);
+	    d_free(*ci);
 	    return -1;
 	}
 	memcpy(name, sndh.name, 8);
@@ -169,7 +169,7 @@ int load_pog(CFILE *f, int pog_sig, int pog_ver, int *num_custom, struct custom_
     CFILE *f2 = NULL;
     if ((f2 = cfopen("d2tmap.bin", "rb"))) {
 	N_d2tmap = cfile_read_int(f2);
-	if ((d2tmap = malloc(N_d2tmap * sizeof(d2tmap[0]))))
+	if ((d2tmap = d_malloc(N_d2tmap * sizeof(d2tmap[0]))))
 	    for (i = 0; i < N_d2tmap; i++)
 		d2tmap[i] = cfile_read_short(f2);
 	cfclose(f2);
@@ -182,7 +182,7 @@ int load_pog(CFILE *f, int pog_sig, int pog_ver, int *num_custom, struct custom_
     else if (pog_sig != 0x474f5044 || pog_ver != 1) /* DPOG */
 	return -1; // no pig2/pog file/unknown version
     num_bitmaps = cfile_read_int(f);
-    if (!(*ci = cip = malloc(num_bitmaps * sizeof(struct custom_info))))
+    if (!(*ci = cip = d_malloc(num_bitmaps * sizeof(struct custom_info))))
 	return -1; // out of memory
     data_ofs = 12 + num_bitmaps * sizeof(DiskBitmapHeader2);
     if (!no_repl) {
@@ -207,7 +207,7 @@ int load_pog(CFILE *f, int pog_sig, int pog_ver, int *num_custom, struct custom_
     i = num_bitmaps;
     while (i--) {
 	if (cfread(&bmh, sizeof(DiskBitmapHeader2), 1, f) < 1) {
-	    free(*ci);
+	    d_free(*ci);
 	    return -1;
 	}
 	cip->offset = bmh.offset + data_ofs;
@@ -249,7 +249,7 @@ int load_pigpog(const char *pogname) {
                 j = cfile_read_int(f);
             else
 		j = cip->width * cip->height;
-            if (!(p = malloc(j)))
+            if (!(p = d_malloc(j)))
                 goto err;
 	    bmp = &GameBitmaps[x];
 	    if (BitmapOriginal[x].bm_flags & 0x80) // already customized?
@@ -293,10 +293,10 @@ int load_pigpog(const char *pogname) {
 	} else if ((x + 1) < 0) {
 	    cfseek( f, cip->offset, SEEK_SET );
 	    snd = &GameSounds[x & 0x7fffffff];
-	    if (!(p = malloc(j = cip->width)))
+	    if (!(p = d_malloc(j = cip->width)))
 		goto err;
 	    if (SoundOriginal[x].length & 0x80000000)  // already customized?
-		free(snd->data);
+		d_free(snd->data);
 	    else {
 #ifdef ALLEGRO
                 SoundOriginal[x].length = snd->len | 0x80000000;
@@ -319,7 +319,7 @@ int load_pigpog(const char *pogname) {
     }
     rc = 0;
 err:
-    if (num_custom) free(custom_info);
+    if (num_custom) d_free(custom_info);
     cfclose(f);
     return rc;
 }
@@ -458,12 +458,12 @@ void load_hxm(const char *hxmname) {
 	    } else {
 		pm = &Polygon_models[repl_num];
 		if (pm->model_data)
-		    free(pm->model_data);
+		    d_free(pm->model_data);
 		if (cfread(pm, sizeof(polymodel), 1, f) < 1) {
 		    pm->model_data = NULL;
 		    goto err;
 		}
-		if (!(pm->model_data = malloc(pm->model_data_size)))
+		if (!(pm->model_data = d_malloc(pm->model_data_size)))
 		    goto err;
 		if (cfread(pm->model_data, pm->model_data_size, 1, f) < 1) {
 		    pm->model_data = NULL;
@@ -519,7 +519,7 @@ void custom_remove() {
 	}
     for (i = 0; i < MAX_SOUND_FILES; i++)
 	if (SoundOriginal[i].length & 0x80000000) {
-	    free(GameSounds[i].data);
+	    d_free(GameSounds[i].data);
 	    GameSounds[i].data = SoundOriginal[i].data;
 #ifdef ALLEGRO
 	    GameSounds[i].len = SoundOriginal[i].length & 0x7fffffff;

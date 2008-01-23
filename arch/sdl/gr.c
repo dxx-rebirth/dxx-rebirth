@@ -195,7 +195,7 @@ void gr_close()
 	if (gr_installed==1)
 	{
 		gr_installed = 0;
-		free(grd_curscreen);
+		d_free(grd_curscreen);
 	}
 }
 

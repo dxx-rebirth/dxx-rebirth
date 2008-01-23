@@ -3,16 +3,15 @@
  * MD 2211 <md2211@users.sourceforge.net>, 2007
  */
 
-#include <sys/types.h>
-#include <sys/dir.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "physfsx.h"
 #include "args.h"
 #include "dl_list.h"
 #include "hudmsg.h"
 #include "digi_mixer_music.h"
 #include "jukebox.h"
+#include "error.h"
 
 #define JUKEBOX_ARG "-jukebox"
 #define MUSIC_HUDMSG_MAXLEN 40
@@ -21,7 +20,6 @@
 
 static int jukebox_loaded = 0;
 static int jukebox_playing = 0;
-static char *jukebox_path;
 static dl_list *JukeboxSongs;
 char hud_msg_buf[MUSIC_HUDMSG_MAXLEN+4];
 
@@ -60,51 +58,52 @@ char *select_next_song(dl_list *list) {
 	return ret;
 }
 
-# if !(defined(__APPLE__) && defined(__MACH__))		// this is why scandir should be part of POSIX. Grrrr.
-# define DIRENT_PTR const struct dirent *
-#else
-# define DIRENT_PTR struct dirent *
-#endif
-
-/* Filter for scandir(); selects MP3 and OGG, files, rejects the rest */
-int file_select_all(DIRENT_PTR entry) {
-	char *fn = (char *) entry->d_name;
-	char *ext = strrchr(fn, '.');
-	int ext_ok = (ext != NULL && (!strcmp(ext, ".mp3") || !strcmp(ext, ".ogg")));
-
-        return strcmp(fn, ".") && strcmp(entry->d_name, "..") && ext_ok;
-		
-}
-
 /* Loads music file names from a given directory */
 void jukebox_load() {
-        int count, i;
-        struct dirent **files;
-        int (*file_select)(DIRENT_PTR) = file_select_all;
+	int count = 0;
+	char **files;
+	char *music_exts[] = { ".mp3", ".ogg", ".wav", ".aif", NULL };
 
 	if (!jukebox_loaded) {
 		if (GameArg.SndJukebox) {
-			jukebox_path = GameArg.SndJukebox;
+			// Adding as a mount point is an option, but wouldn't work for older versions of PhysicsFS
+			PHYSFS_addToSearchPath(GameArg.SndJukebox, 1);
 
 			JukeboxSongs = dl_init();
-			count = scandir(jukebox_path, &files, file_select, alphasort);
+			files = PHYSFSX_findFiles("", music_exts);
 
-			if (count > 0) {
-				printf("Jukebox: %d music file(s) found in %s\n", count, jukebox_path);
-				for (i=0; i<count; i++)	dl_add(JukeboxSongs, files[i]->d_name);
-				jukebox_loaded = 1;
+			if (files != NULL && *files != NULL) {
+				char **i;
+
+				for (i=files; *i!=NULL; i++)
+				{
+					dl_add(JukeboxSongs, *i);
+					count++;
+				}
+				if (count)
+				{
+					printf("Jukebox: %d music file(s) found in %s\n", count, GameArg.SndJukebox);
+					jukebox_loaded = 1;
+				}
+				else { printf("Jukebox music could not be found!\n"); }
 			}
-			else { printf("Jukebox music could not be found!\n"); }
+			else
+				{ Int3(); }	// should at least find a directory in some search path, otherwise how did D2X load?
+
+			if (files != NULL)
+				free(files);
 		}
 	}
 	else { printf("Jukebox already loaded\n"); }
 }
 
 void jukebox_play() {
-	if (!jukebox_loaded) return;
-	char *music_filename = (char *) JukeboxSongs->current->data;
+	char *music_filename;
 
-	mix_play_file(jukebox_path, music_filename, 0);
+	if (!jukebox_loaded) return;
+	music_filename = (char *) JukeboxSongs->current->data;
+
+	mix_play_file(music_filename, 0);
 
 	// Formatting a pretty message
 	if (strlen(music_filename) >= MUSIC_HUDMSG_MAXLEN) {

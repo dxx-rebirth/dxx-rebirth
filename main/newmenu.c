@@ -27,6 +27,11 @@ static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2006/03/17 19:44:42 zicodxx Exp 
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
+#include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
 
 #include "error.h"
 #include "pstypes.h"
@@ -51,8 +56,6 @@ static char rcsid[] = "$Id: newmenu.c,v 1.1.1.1 2006/03/17 19:44:42 zicodxx Exp 
 #include "screens.h"
 #include "kconfig.h"
 #include "player.h"
-#include "d_glob.h"
-#include "d_io.h"
 #include "timer.h"
 #include "vers_id.h"
 
@@ -203,7 +206,7 @@ void nm_string( bkg * b, int w1,int x, int y, char * _s )
 	int w,h,aw;
         char *s, *p,*s1=0;
 
-	s = strdup(_s);
+	s = d_strdup(_s);
 	if (!s)
 		return;
 
@@ -227,7 +230,7 @@ void nm_string( bkg * b, int w1,int x, int y, char * _s )
 		gr_string( x+w1-w, y, s1 );
 		*p = '\t';
 	}
-	free(s);
+	d_free(s);
 }
 
 
@@ -1598,10 +1601,12 @@ void delete_player_saved_games(char * name)
 {
 	int i;
 	char filename[16];
-	
-	for (i=0;i<10; i++)	{
+
+	for (i=0;i<10; i++)
+	{
 		sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", name, i );
-		remove( filename );
+
+		PHYSFS_delete(filename);
 	}
 }
 
@@ -1609,10 +1614,12 @@ void delete_player_saved_games(char * name)
 
 int MakeNewPlayerFile(int allow_abort);
 
-int newmenu_get_filename( char * title, char * filespec, char * filename, int allow_abort_flag )
+int newmenu_get_filename( char * title, char * type, char * filename, int allow_abort_flag )
 {
 	int i;
-	d_glob_t glob_ret;
+	char **find;
+	char **f;
+	char *ext;
 	int NumFiles=0, key,done, citem, ocitem;
 	char * filenames = NULL;
 	int NumFiles_displayed = 8;
@@ -1626,7 +1633,7 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 	int w_x, w_y, w_w, w_h, title_height;
 	int box_x, box_y, box_w, box_h;
 #ifndef OGL
-	bkg bg; // background under listbox
+	bkg bg;		// background under listbox
 #endif
 #ifdef NEWMENU_MOUSE
 	int mx, my, mz, x1, x2, y1, y2, mouse_state, omouse_state;
@@ -1634,73 +1641,54 @@ int newmenu_get_filename( char * title, char * filespec, char * filename, int al
 	int dblclick_flag=0;
 #endif
 
-	filenames = malloc( MAX_FILES * 24 );
+	w_x=w_y=w_w=w_h=title_height=0;
+	box_x=box_y=box_w=box_h=0;
+
+	filenames = d_malloc( MAX_FILES * 14 );
 	if (filenames==NULL) return 0;
 
 	citem = 0;
 	keyd_repeat = 1;
-	w_x=w_y=w_w=w_h=title_height=0;
-	box_x=box_y=box_w=box_h=0;
 
-	if (!strcasecmp( filespec, GameArg.SysUsePlayersDir ? "Players/*.plr" : "*.plr"))
+	if (!stricmp(type, ".plr"))
 		player_mode = 1;
-	else if (!strcasecmp( filespec, DEMO_DIR "*.dem" ))
+	else if (!stricmp(type, ".dem"))
 		demo_mode = 1;
 
 ReadFileNames:
 	done = 0;
 	NumFiles=0;
-
+	
 	if (player_mode)	{
-		strncpy( &filenames[NumFiles*14], TXT_CREATE_NEW, 13 );
+		strncpy( &filenames[NumFiles*14], TXT_CREATE_NEW, FILENAME_LEN );
 		NumFiles++;
 	}
 
-	if (!d_glob(filespec, &glob_ret)) {
-		int j;
-		for (j = 0; j < glob_ret.gl_pathc; j++) {
-			if (NumFiles >= MAX_FILES)
-				break;
-			if (demo_mode) { // special stuff for demos
-#ifndef __WINDOWS__
-				char * buf;
-				buf = malloc( MAX_FILES * (14+sizeof(DEMO_DIR)) );
-				// increase our buffer so we have enough space for DEMO_DIR
-				strncpy(buf, glob_ret.gl_pathv[j], 13+sizeof(DEMO_DIR));
-				// now substract DEMO_DIR string so it does not display in menu and does not return. However DEMO_DIR passed later before calling newdemo_start_playback in menu.c
-				strncpy(filenames+(NumFiles*14),buf+sizeof(DEMO_DIR)-1, 13+sizeof(DEMO_DIR));
-				free(buf);
-#else				// while on Windows d_glob does not return the path, so we don't need that
-				strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
-#endif
-			}
-			else if (player_mode) {
-				char *p;
-#ifndef __WINDOWS__
-				if (GameArg.SysUsePlayersDir)
-				{
-					char * buf;
-					buf = malloc( MAX_FILES * (14+sizeof("Players/")) );
-					strncpy(buf, glob_ret.gl_pathv[j], 13+sizeof("Players/"));
-					strncpy(filenames+(NumFiles*14),buf+sizeof("Players/")-1, 13+sizeof("Players/"));
-					free(buf);
-				}
-				else
-#endif
-				{
-					strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
-				}
-				p = strrchr(&filenames[NumFiles*14], '.');
-				if (p) *p = '\0';
-			}
-			else
+	find = PHYSFS_enumerateFiles(demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
+	for (f = find; *f != NULL; f++)
+	{
+		ext = strrchr(*f, '.');
+		if (!ext || strnicmp(ext, type, 4))
+			continue;
+
+		if (NumFiles < MAX_FILES)
+		{
+			strncpy(&filenames[NumFiles*14], *f, FILENAME_LEN);
+			if (player_mode)
 			{
-				strncpy(&filenames[NumFiles*14], glob_ret.gl_pathv[j], 13);
+				char *p;
+
+				p = strchr(&filenames[NumFiles*14], '.');
+				if (p)
+					*p = '\0';
 			}
 			NumFiles++;
 		}
-		d_globfree(&glob_ret);
-        }
+		else
+			break;
+	}
+
+	PHYSFS_freeList(find);
 
 	if ( (NumFiles < 1) && demos_deleted )	{
 		exit_value = 0;
@@ -1718,17 +1706,15 @@ ReadFileNames:
 	}
 
 	if ( NumFiles<1 )	{
-		nm_messagebox( NULL, 1, "Ok", "%s\n '%s' %s", TXT_NO_FILES_MATCHING, filespec, TXT_WERE_FOUND);
+		nm_messagebox(NULL, 1, "Ok", "%s\n '%s' %s", TXT_NO_FILES_MATCHING, type, TXT_WERE_FOUND);
 		exit_value = 0;
 		goto ExitFileMenu;
 	}
 
 	if (!initialized) {	
-		set_screen_mode(SCREEN_MENU);
-
 		gr_set_current_canvas(NULL);
 
-		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
+		grd_curcanv->cv_font = SUBTITLE_FONT;
 
 		w_w = 0;
 		w_h = 0;
@@ -1744,25 +1730,14 @@ ReadFileNames:
 			gr_get_string_size( title, &w, &h, &aw );		
 			if ( w > w_w )
 				w_w = w;
-#ifdef OGL
-			if (GameArg.OglFixedFont)
-#endif
-				h += 10*MENSCALE_Y;
 			title_height = h + FONTSCALE_Y(grd_curcanv->cv_font->ft_h*2);		// add a little space at the bottom of the title
 		}
 
 		box_w = w_w;
 		box_h = ((FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2)) * NumFiles_displayed);
 
-#ifdef OGL
-		if (GameArg.OglFixedFont)
-#endif
-			w_w += (grd_curcanv->cv_font->ft_w * 2)*MENSCALE_X;
-#ifdef OGL
-		else
-			w_w += FONTSCALE_X(grd_curcanv->cv_font->ft_w * 4);
-#endif
-		w_h = title_height + box_h + FONTSCALE_Y(grd_curcanv->cv_font->ft_h * 2)+(5*MENSCALE_Y);		// more space at bottom
+		w_w += FONTSCALE_X(grd_curcanv->cv_font->ft_w * 4);
+		w_h = title_height + box_h + FONTSCALE_Y(grd_curcanv->cv_font->ft_h * 2);		// more space at bottom
 
 		if ( w_w > GWIDTH ) w_w = GWIDTH;
 		if ( w_h > GHEIGHT ) w_h = GHEIGHT;
@@ -1773,16 +1748,8 @@ ReadFileNames:
 		if ( w_x < 0 ) w_x = 0;
 		if ( w_y < 0 ) w_y = 0;
 
-#ifdef OGL
-		if (GameArg.OglFixedFont)
-#endif
-			box_x = w_x + (grd_curcanv->cv_font->ft_w)*MENSCALE_X;
-#ifdef OGL
-		else
-			box_x = w_x + FONTSCALE_X(grd_curcanv->cv_font->ft_w)*2;			// must be in sync with w_w!!!
-#endif
+		box_x = w_x + FONTSCALE_X(grd_curcanv->cv_font->ft_w)*2;			// must be in sync with w_w!!!
 		box_y = w_y + title_height;
-
 
 #ifndef OGL
 		// save the screen behind the menu.
@@ -1794,7 +1761,7 @@ ReadFileNames:
 
 		gr_bm_bitblt(w_w, w_h, 0, 0, w_x, w_y, &grd_curcanv->cv_bitmap, bg.background );
 
-		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h );
+		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h-1 );
 		
 		gr_string( 0x8000, w_y+(10*MENSCALE_Y), title );
 #endif
@@ -1806,13 +1773,13 @@ ReadFileNames:
 	} else {
 		newmenu_file_sort( NumFiles-1, &filenames[14] );		// Don't sort first one!
 		for ( i=0; i<NumFiles; i++ )	{
-			if (!strcasecmp(Players[Player_num].callsign, &filenames[i*14]) ) {
+			if (!stricmp(Players[Player_num].callsign, &filenames[i*14]) )	{
 #ifdef NEWMENU_MOUSE
 				dblclick_flag = 1;
 #endif
 				citem = i;
 			}
-		}
+	 	}
 	}
 
 #ifdef NEWMENU_MOUSE
@@ -1823,30 +1790,35 @@ ReadFileNames:
 
 	while(!done)	{
 		timer_delay2(20);
+
 		ocitem = citem;
 		ofirst_item = first_item;
-                gr_update();
+		gr_update();
 
 #ifdef OGL
 		gr_flip();
 		nm_draw_background1(NULL);
 		nm_draw_background( w_x,w_y,w_x+w_w-1,w_y+w_h );
-		grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
+		grd_curcanv->cv_font = SUBTITLE_FONT;
 		gr_string( 0x8000, w_y+(10*MENSCALE_Y), title );
 #endif
 
 #ifdef NEWMENU_MOUSE
-		draw_close_box(w_x,w_y);
 		omouse_state = mouse_state;
 		omouse2_state = mouse2_state;
 		mouse_state = mouse_button_state(0);
 		mouse2_state = mouse_button_state(1);
+		draw_close_box(w_x,w_y);
 #endif
 
 		key = key_inkey();
 
-		switch(key) {
-		case KEY_PRINT_SCREEN: 		save_screen_shot(0); break;
+		switch(key)	{
+		case KEY_PRINT_SCREEN:
+			save_screen_shot(0);
+			
+			break;
+
 		case KEY_CTRLED+KEY_D:
 			if ( ((player_mode)&&(citem>0)) || ((demo_mode)&&(citem>=0)) )	{
 				int x = 1;
@@ -1858,9 +1830,9 @@ ReadFileNames:
 				newmenu_show_cursor();
  				if (x==0)	{
 					char * p;
-					char plxfile[256], efffile[256];
+					char plxfile[PATH_MAX];
 					int ret;
-					char name[256];
+					char name[PATH_MAX];
 
 					p = &filenames[(citem*14)+strlen(&filenames[citem*14])];
 					if (player_mode)
@@ -1868,21 +1840,17 @@ ReadFileNames:
 
 					strcpy(name, demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
 					strcat(name,&filenames[citem*14]);
-
-					ret = remove(name);
+					
+					ret = !PHYSFS_delete(name);
 					if (player_mode)
 						*p = 0;
 
 					if ((!ret) && player_mode)	{
 						delete_player_saved_games( &filenames[citem*14] );
 						// delete PLX file
-						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx",&filenames[citem*14]);
+						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", &filenames[citem*14]);
 						if (cfexist(plxfile))
-							remove(plxfile);
-						// delete EFF file
-						sprintf(efffile, GameArg.SysUsePlayersDir? "Players/%.8s.eff" : "%.8s.eff",&filenames[citem*14]);
-						if (cfexist(efffile))
-							remove(efffile);
+							PHYSFS_delete(plxfile);
 					}
 
 					if (ret) {
@@ -1931,11 +1899,12 @@ ReadFileNames:
 		case KEY_PADENTER:
 			done = 1;
 			break;
-
-		case KEYS_GR_TOGGLE_FULLSCREEN:
+			
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
-
+		
 		default:	
 			{
 				int ascii = key_to_ascii(key);
@@ -1971,13 +1940,18 @@ ReadFileNames:
 			first_item = citem;
 
 		if (citem>=( first_item+NumFiles_displayed))
+		{
 			first_item = citem-NumFiles_displayed+1;
+		}
 
 		if (NumFiles <= NumFiles_displayed )
 			 first_item = 0;
 
 		if (first_item>NumFiles-NumFiles_displayed)
+		{
 			first_item = NumFiles-NumFiles_displayed;
+		}
+
 		if (first_item < 0 ) first_item = 0;
 
 #ifdef NEWMENU_MOUSE
@@ -2048,7 +2022,7 @@ ReadFileNames:
 					gr_rect( box_x + box_w, y-1, box_x + box_w, y + FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2));
 					
 					gr_setcolor( BM_XRGB(2,2,2));
-					gr_rect( box_x - 1, y - 1, box_x - 1, y + FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2) );
+					gr_rect( box_x - 1, y - 1, box_x - 1, y + FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 1) );
 					
 					gr_setcolor( BM_XRGB(0,0,0));
 					gr_rect( box_x, y - 1, box_x + box_w - 1, y + FONTSCALE_Y(grd_curcanv->cv_font->ft_h + 2));
@@ -2057,14 +2031,14 @@ ReadFileNames:
 					if ( i == citem )	
 						grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_2];
 					else	
-						grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_1];
+						grd_curcanv->cv_font = NORMAL_FONT;
 					gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
 
 					gr_setcolor( BM_XRGB(5,5,5));
-					gr_rect( box_x + box_w, y - 1, box_x + box_w, y + h + FONTSCALE_Y(2));
+					gr_rect( box_x + box_w, y - 1, box_x + box_w, y + h + FONTSCALE_Y(1));
 					
 					gr_setcolor( BM_XRGB(2,2,2));
-					gr_rect( box_x - 1, y - 1, box_x - 1, y + h + FONTSCALE_Y(2));
+					gr_rect( box_x - 1, y - 1, box_x - 1, y + h + FONTSCALE_Y(1));
 					gr_setcolor( BM_XRGB(0,0,0));
 							
 					gr_rect( box_x, y-1, box_x + box_w - 1, y + h + FONTSCALE_Y(2) );
@@ -2081,30 +2055,28 @@ ReadFileNames:
 			if ( (i>=0) && (i<NumFiles) )	{
 				y = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h+2)+box_y;
 				if ( i == citem )	
-					grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_2];
+					grd_curcanv->cv_font = SELECTED_FONT;
 				else	
-					grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_1];
+					grd_curcanv->cv_font = NORMAL_FONT;
 				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
-				gr_rect( box_x, y-1, box_x + box_w - 1, y + h + FONTSCALE_Y(2) );
+				gr_rect( box_x, y-1, box_x + box_w - 1, y + h + FONTSCALE_Y(1) );
 				gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 			}
 			i = citem;
 			if ( (i>=0) && (i<NumFiles) )	{
 				y = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h+2)+box_y;
 				if ( i == citem )	
-					grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_2];
+					grd_curcanv->cv_font = SELECTED_FONT;
 				else	
-					grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_1];
+					grd_curcanv->cv_font = NORMAL_FONT;
 				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
 				gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
 			}
 			newmenu_show_cursor();
 		}
 #endif
-		if ( gr_palette_faded_out )	{
-			gr_palette_fade_in( gr_palette, 32, 0 );
-		}
-        }
+
+	}
 
 	newmenu_close();
 
@@ -2114,7 +2086,7 @@ ReadFileNames:
 
 ExitFileMenuEarly:
 	if ( citem > -1 )	{
-		strncpy( filename, (&filenames[citem*14])+((player_mode && filenames[citem*14]=='$')?1:0), 13 );
+		strncpy( filename, (&filenames[citem*14])+((player_mode && filenames[citem*14]=='$')?1:0), FILENAME_LEN );
 		exit_value = 1;
 	} else {
 		exit_value = 0;
@@ -2124,7 +2096,7 @@ ExitFileMenu:
 	keyd_repeat = old_keyd_repeat;
 
 	if ( filenames )
-		free(filenames);
+		d_free(filenames);
 
 	return exit_value;
 
@@ -2450,32 +2422,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	newmenu_close();
 
 	return citem;
-}
-
-
-int newmenu_filelist( char * title, char * filespec, char * filename )
-{
-	int i, NumFiles;
-	char * Filenames[MAX_FILES];
-	char FilenameText[MAX_FILES][14];
-	d_glob_t glob_ret;
-
-	NumFiles = 0;
-	if ( !d_glob( filespec, &glob_ret ) ) {
-		NumFiles = glob_ret.gl_pathc < MAX_FILES ? glob_ret.gl_pathc : MAX_FILES;
-		for (i = 0; i < NumFiles; i++) {
-			strncpy( FilenameText[i], glob_ret.gl_pathv[i], 13 );
-			Filenames[i] = FilenameText[i];
-		}
-		d_globfree(&glob_ret);
-	}
-
-	i = newmenu_listbox( title, NumFiles, Filenames, 1, NULL );
-	if ( i > -1 )	{
-		strcpy( filename, Filenames[i] );
-		return 1;
-	} 
-	return 0;
 }
 
 //added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox

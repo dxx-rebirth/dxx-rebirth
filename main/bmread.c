@@ -229,7 +229,7 @@ bitmap_index bm_load_sub( char * filename )
 
 	mprintf( (0, "N" ));
 	bitmap_num = piggy_register_bitmap( new, fname, 0 );
-	free( new );
+	d_free( new );
 	return bitmap_num;
 }
 
@@ -287,7 +287,7 @@ void ab_load( char * filename, bitmap_index bmp[], int *nframes )
 		bm[i]->avg_color = compute_average_pixel(bm[i]);
 
 		new_bmp = piggy_register_bitmap( bm[i], tempname, 0 );
-		free( bm[i] );
+		d_free( bm[i] );
 		bmp[i] = new_bmp;
 		mprintf((0, "Registering frame %d, %s, in piggy file\n", i, tempname ));
 	}
@@ -459,13 +459,13 @@ int bm_init_use_tbl()
 		linenum++;
 
 		if (have_bin_tbl) {				// is this a binary tbl file
-			for (i = 0; i < strlen(inputline) - 1; i++) {
-				encode_rotate_left(&(inputline[i]));
-				inputline[i] = inputline[i] ^ BITMAP_TBL_XOR;
-				encode_rotate_left(&(inputline[i]));
-			}
+			decode_text_line (inputline);
 		} else {
 			while (inputline[(l=strlen(inputline))-2]=='\\') {
+				if (!isspace(inputline[l-3])) {		//if not space before backslash...
+					inputline[l-2] = ' ';				//add one
+					l++;
+				}
 				cfgets(inputline+l-2,LINEBUF_SIZE-(l-2), InfoFile);
 				linenum++;
 			}

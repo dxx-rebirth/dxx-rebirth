@@ -21,6 +21,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
+#include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
 
 #include "pstypes.h"
 #include "game.h"
@@ -30,6 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "player.h"
 #include "mission.h"
+#include "physfsx.h"
 
 char config_last_player[CALLSIGN_LEN+1] = "";
 char config_last_mission[MISSION_NAME_LEN+1] = "";
@@ -48,87 +54,37 @@ extern sbyte	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, D
 
 void set_custom_detail_vars(void);
 
-#ifdef __unix__
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-int check_and_create_dir(const char *name)
-{
-	struct stat stat_buffer;
-
-	if (stat(name, &stat_buffer))
-	{
-		/* error check if it doesn't exist or something else is wrong */
-		if (errno == ENOENT)
-		{
-			/* doesn't exist letts create it ;) */
-			if (mkdir(name, 0775))
-			{
-				fprintf(stderr, "Error creating dir %s", name);
-				perror(" ");
-				return -1;
-			}
-		}
-		else
-		{
-			/* something else went wrong yell about it */
-			fprintf(stderr, "Error opening %s", name);
-			perror(" ");
-			return -1;
-		}
-	}
-	else
-	{
-		/* file exists check it's a dir otherwise yell about it */
-		if (!(S_IFDIR & stat_buffer.st_mode))
-		{
-			fprintf(stderr,"Error %s exists but isn't a dir\n", name);
-			return -1;
-		}
-	}
-	return 0;
-}
-#endif
-
 int ReadConfigFile()
 {
-	FILE *infile;
+	PHYSFS_file *infile;
 	char line[80], *token, *value, *ptr;
 	ubyte gamma;
 
 	strcpy( config_last_player, "" );
 
-	Config_digi_volume = 4;
-	Config_midi_volume = 4;
+	Config_digi_volume = 8;
+	Config_midi_volume = 8;
 	Config_control_type = 0;
 
-#if defined(__unix__)
-	/* we abuse the line buf here todo some unix specific stuff */
-	ptr = getenv("HOME");
-	snprintf(line, sizeof(line), "%s/.d1x-rebirth", ptr? ptr:".");
-	/* If we succeed we do a chdir, because patching the file load/save
-	   code to use this path is easy, but then we also need to hack the
-	   file-selector, so just doing a chdir is easier. */
-	if (!check_and_create_dir(line))
-		chdir(line);
-#endif
+	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
-        infile = fopen("descent.cfg", "rt");
-
-	if (infile == NULL)
+	if (infile == NULL) {
 		return 1;
+	}
 
-	while (!feof(infile)) {
+	while (!PHYSFS_eof(infile))
+	{
 		memset(line, 0, 80);
-		if (!(ptr = fgets(line, 80, infile)))
-			break;
+		PHYSFSX_gets(infile, line);
+		ptr = &(line[0]);
 		while (isspace(*ptr))
 			ptr++;
 		if (*ptr != '\0') {
 			token = strtok(ptr, "=");
 			value = strtok(NULL, "=");
-                        if (!strcmp(token, DigiVolumeStr))
+			if (!value)
+				value = "";
+			if (!strcmp(token, DigiVolumeStr))
 				Config_digi_volume = strtol(value, NULL, 10);
 			else if (!strcmp(token, MidiVolumeStr))
 				Config_midi_volume = strtol(value, NULL, 10);
@@ -175,10 +131,9 @@ int ReadConfigFile()
 		}
 	}
 
-	fclose(infile);
+	PHYSFS_close(infile);
 
-        if ( Config_digi_volume > 8 ) Config_digi_volume = 8;
-
+	if ( Config_digi_volume > 8 ) Config_digi_volume = 8;
 	if ( Config_midi_volume > 8 ) Config_midi_volume = 8;
 
 	digi_set_volume( (Config_digi_volume*32768)/8, (Config_midi_volume*128)/8 );
@@ -191,39 +146,30 @@ int ReadConfigFile()
 
 int WriteConfigFile()
 {
-	FILE *infile;
-	char str[256];
+	PHYSFS_file *infile;
 	ubyte gamma = gr_palette_get_gamma();
 	
-	infile = fopen("descent.cfg", "wt");
+	infile = PHYSFSX_openWriteBuffered("descent.cfg");
 
 	if (infile == NULL) {
 		return 1;
 	}
-	sprintf (str, "%s=%d\n", DigiVolumeStr, Config_digi_volume);
-	fputs(str, infile);
-	sprintf (str, "%s=%d\n", MidiVolumeStr, Config_midi_volume);
-	fputs(str, infile);
-	sprintf (str, "%s=%d\n", ReverseStereoStr, Config_channels_reversed);
-	fputs(str, infile);
-	sprintf (str, "%s=%d\n", GammaLevelStr, gamma);
-	fputs(str, infile);
+
+	PHYSFSX_printf(infile, "%s=%d\n", DigiVolumeStr, Config_digi_volume);
+	PHYSFSX_printf(infile, "%s=%d\n", MidiVolumeStr, Config_midi_volume);
+	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, Config_channels_reversed);
+	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, gamma);
 	if (Detail_level == NUM_DETAIL_LEVELS-1)
-		sprintf (str, "%s=%d,%d,%d,%d,%d,%d,%d\n", DetailLevelStr, Detail_level,
+		PHYSFSX_printf(infile, "%s=%d,%d,%d,%d,%d,%d,%d\n", DetailLevelStr, Detail_level,
 				Object_complexity,Object_detail,Wall_detail,Wall_render_depth,Debris_amount,SoundChannels);
 	else
-		sprintf (str, "%s=%d\n", DetailLevelStr, Detail_level);
-	fputs(str, infile);
-	sprintf (str, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign );
-	fputs(str, infile);
-	sprintf (str, "%s=%s\n", LastMissionStr, config_last_mission );
-	fputs(str, infile);
-	sprintf (str, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
-	fputs(str, infile);
-	sprintf (str, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
-	fputs(str, infile);
+		PHYSFSX_printf(infile, "%s=%d\n", DetailLevelStr, Detail_level);
+	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign );
+	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, config_last_mission );
+	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
+	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
 
-	fclose(infile);
+	PHYSFS_close(infile);
 
 	return 0;
 }

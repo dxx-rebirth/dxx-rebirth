@@ -12,8 +12,10 @@ Requirements
    3.
       SDL(-devel)
    4.
-      GLU/GL
+      PhysFS(-devel)
    5.
+      GLU/GL
+   6.
       NASM (optional for Assembler-based Texture-mapper in non-OpenGL Build)
 
 
@@ -126,6 +128,7 @@ d1x.ini
 
 
 The game will create a config-directory in the Home directory of the user called ‘.d1x-rebirth’.
+On Mac OS X this directory will be called ‘D1X Rebirth’, in the Preferences folder in the user’s Library.
 It is used to read/save
 
     *
@@ -138,6 +141,8 @@ It is used to read/save
       Screenshots
     *
       d1x.ini for parsing command-line arguments
+
+Thanks to PhysFS it can also be used as a replacement for Sharepath directory
 
 
 Appendix

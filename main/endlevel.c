@@ -1540,7 +1540,7 @@ void load_endlevel_data(int level_num)
 	char line[LINE_LEN],*p;
 	CFILE *ifile;
 	int var,segnum,sidenum;
-        int exit_side=0, i;
+        int exit_side=0;
 	int have_binary = 0;
 
 	endlevel_data_loaded = 0;		//not loaded yet
@@ -1589,14 +1589,8 @@ try_again:
 
 	while (cfgets(line,LINE_LEN,ifile)) {
 
-		if (have_binary) {
-			for (i = 0; i < strlen(line) - 1; i++) {
-				encode_rotate_left(&(line[i]));
-				line[i] = line[i] ^ BITMAP_TBL_XOR;
-				encode_rotate_left(&(line[i]));
-			}
-			p = line;
-		}
+		if (have_binary)
+			decode_text_line (line);
 
 		if ((p=strchr(line,';'))!=NULL)
 			*p = 0;		//cut off comment

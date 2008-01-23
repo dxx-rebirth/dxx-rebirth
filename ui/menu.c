@@ -72,8 +72,8 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 
 	int choice;
 
-	ButtonG = (UI_GADGET_BUTTON **)malloc( sizeof(UI_GADGET_BUTTON *)*NumButtons );
-	Button = (char **)malloc( sizeof(char *)*NumButtons );
+	ButtonG = (UI_GADGET_BUTTON **)d_malloc( sizeof(UI_GADGET_BUTTON *)*NumButtons );
+	Button = (char **)d_malloc( sizeof(char *)*NumButtons );
 
 	button_width = button_height = 0;
 
@@ -148,8 +148,8 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 	}
 
 	ui_close_window(wnd);
-	free(Button);
-	free(ButtonG);
+	d_free(Button);
+	d_free(ButtonG);
 
 	return choice;
 

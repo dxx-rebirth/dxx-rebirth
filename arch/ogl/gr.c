@@ -5,13 +5,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef __unix__
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
 #ifdef __WINDOWS__
 #include <windows.h>
-#include <dir.h>
 #endif
 #ifndef macintosh
 #include <unistd.h>
@@ -40,8 +35,8 @@
 #include "u_mem.h"
 #include "gamefont.h"
 #include "render.h"
-
 #include "ogl_init.h"
+#include "physfsx.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -178,7 +173,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_canvas.cv_bitmap.bm_h = h;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = w;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_OGL;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_data = realloc(gr_bm_data,w*h);
+	grd_curscreen->sc_canvas.cv_bitmap.bm_data = d_realloc(gr_bm_data,w*h);
 	gr_set_current_canvas(NULL);
 	ogl_init_window(w,h);//platform specific code
 	ogl_get_verinfo();
@@ -301,8 +296,8 @@ void gr_close()
 	ogl_close();//platform specific code
 	if (grd_curscreen){
 		if (grd_curscreen->sc_canvas.cv_bitmap.bm_data)
-			free(grd_curscreen->sc_canvas.cv_bitmap.bm_data);
-		free(grd_curscreen);
+			d_free(grd_curscreen->sc_canvas.cv_bitmap.bm_data);
+		d_free(grd_curscreen);
 	}
 	ogl_close_pixel_buffers();
 #ifdef __WINDOWS__
@@ -470,8 +465,8 @@ typedef struct {
 
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
-void write_bmp(char *savename,int w,int h,unsigned char *buf){ // ZICO - modified for win32
-	FILE* TGAFile;
+void write_bmp(char *savename,int w,int h,unsigned char *buf){
+	PHYSFS_file* TGAFile;
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
 
@@ -479,7 +474,7 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){ // ZICO - modifie
 
 	glReadPixels(0,0,w,h,GL_BGR_EXT,GL_UNSIGNED_BYTE,buf);
 
-	TGAFile = fopen(savename, "wb");
+	TGAFile = PHYSFSX_openWriteBuffered(savename);
 
 	HeightH = (GLbyte)(h / 256);
 	HeightL = (GLbyte)(h % 256);
@@ -504,10 +499,10 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){ // ZICO - modifie
 	TGA.header[3] = (GLbyte) HeightH;
 	TGA.header[4] = (GLbyte) 24;
 	TGA.header[5] = 0;
-	fwrite(&TGA,sizeof(TGA_header),1,TGAFile);
-	fwrite(buf,w*h*3*sizeof(unsigned char),1,TGAFile);
-	fclose(TGAFile);
-	free(buf);
+	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
+	PHYSFS_write(TGAFile,buf,w*h*3*sizeof(unsigned char),1);
+	PHYSFS_close(TGAFile);
+	d_free(buf);
 }
 
 void save_screen_shot(int automap_flag)
@@ -526,27 +521,19 @@ void save_screen_shot(int automap_flag)
 	stop_time();
 
 	if (!cfexist(SCRNS_DIR))
-		mkdir(SCRNS_DIR
-#ifndef __WINDOWS__
-		, 0775
-#endif
-		); //try making directory
+		PHYSFS_mkdir(SCRNS_DIR); //try making directory
 
-	if ( savenum == 9999 )
-		savenum = 0;
-	sprintf(savename,"%sscrn%04d.tga",SCRNS_DIR,savenum++);
-
-	while(!access(savename,0))
+	do
 	{
-		if ( savenum == 9999 )
+		if (savenum == 9999)
 			savenum = 0;
-		sprintf(savename,"%sscrn%04d.tga",SCRNS_DIR,savenum++);
-	}
+		sprintf(savename, "%sscrn%04d.tga",SCRNS_DIR, savenum++);
+	} while (PHYSFS_exists(savename));
+
 	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
 
-	if (!automap_flag) {
+	if (!automap_flag)
 		hud_message(MSGC_GAME_FEEDBACK,message);
-	}
 
 	if (!automap_flag && GameArg.OglPrShot && Function_mode == FMODE_GAME)
 	{
@@ -559,9 +546,10 @@ void save_screen_shot(int automap_flag)
 	{
 		glReadBuffer(GL_FRONT);
 	}
-	buf = malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
+	buf = d_malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
-	free(buf);
+	d_free(buf);
+
 	key_flush();
 	start_time();
 }

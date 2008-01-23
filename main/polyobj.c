@@ -209,7 +209,7 @@ void align_polygon_model_data(polymodel *pm)
 	chunk ch_list[MAX_CHUNKS];
 	int no_chunks = 0;
 	int tmp_size = pm->model_data_size + SHIFT_SPACE;
-	ubyte *tmp = malloc(tmp_size); // where we build the aligned version of pm->model_data
+	ubyte *tmp = d_malloc(tmp_size); // where we build the aligned version of pm->model_data
 
 	Assert(tmp != NULL);
 	//start with first chunk (is always aligned!)
@@ -251,13 +251,13 @@ void align_polygon_model_data(polymodel *pm)
 			    && pm->model_data + pm->submodel_ptrs[i] < cur_old + chunk_len)
 				pm->submodel_ptrs[i] += (cur_new - tmp) - (cur_old - pm->model_data);
  	}
-	free(pm->model_data);
+	d_free(pm->model_data);
 	pm->model_data_size += total_correction;
 	pm->model_data = 
-	malloc(pm->model_data_size);
+	d_malloc(pm->model_data_size);
 	Assert(pm->model_data != NULL);
 	memcpy(pm->model_data, tmp, pm->model_data_size);
-	free(tmp);
+	d_free(tmp);
 }
 #endif //def WORDS_NEED_ALIGNMENT
 
@@ -273,7 +273,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	if ((ifile=cfopen(filename,"rb"))==NULL) 
 		Error("Can't open file <%s>",filename);
 
-	Assert(ifile->size <= MODEL_BUF_SIZE);
+	Assert(cfilelength(ifile) <= MODEL_BUF_SIZE);
 
 	Pof_addr = 0;
 	Pof_file_end = cfread(model_buf, 1, cfilelength(ifile), ifile);
@@ -409,7 +409,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 			case ID_IDTA:		//Interpreter data
 				//mprintf(0,"Got chunk IDTA, len=%d\n",len);
 
-				pm->model_data = malloc(len);
+				pm->model_data = d_malloc(len);
 				pm->model_data_size = len;
 			
 				pof_cfread(pm->model_data,1,len,model_buf);
@@ -446,10 +446,10 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 	if ((ifile=cfopen(filename,"rb"))==NULL) 
 		Error("Can't open file <%s>",filename);
 
-	Assert(ifile->size <= MODEL_BUF_SIZE);
+	Assert(cfilelength(ifile) <= MODEL_BUF_SIZE);
 
 	Pof_addr = 0;
-	Pof_file_end = cfread(model_buf, 1, ifile->size, ifile);
+	Pof_file_end = cfread(model_buf, 1, cfilelength(ifile), ifile);
 	cfclose(ifile);
 
 	id = pof_read_int(model_buf);
@@ -503,7 +503,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 //free up a model, getting rid of all its memory
 void free_model(polymodel *po)
 {
-	free(po->model_data);
+	d_free(po->model_data);
 }
 
 grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
@@ -795,7 +795,7 @@ extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp)
  */
 void polygon_model_data_read(polymodel *pm, CFILE *fp)
 {
-	pm->model_data = malloc(pm->model_data_size);
+	pm->model_data = d_malloc(pm->model_data_size);
 	Assert(pm->model_data != NULL);
 	cfread(pm->model_data, sizeof(ubyte), pm->model_data_size, fp );
 #ifdef WORDS_NEED_ALIGNMENT

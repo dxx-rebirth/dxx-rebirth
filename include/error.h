@@ -10,70 +10,17 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/include/error.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:46:29 $
  *
  * Header for error handling/printing/exiting code
  *
- * $Log: error.h,v $
- * Revision 1.1.1.1  2006/03/17 19:46:29  zicodxx
- * initial import
- *
- * Revision 1.4  2000/02/07 07:41:10  donut
- * fixed Int3 unused var warning
- *
- * Revision 1.3  1999/10/14 04:48:21  donut
- * alpha fixes, and gl_font args
- *
- * Revision 1.2  1999/08/05 22:53:41  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.1.1.1  1999/06/14 22:02:09  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.12  1994/06/17  15:22:46  matt
- * Added pragma for Error() for when NDEBUG
- * 
- * Revision 1.11  1994/03/07  13:22:14  matt
- * Since the Error() function has 'aborts' set in pragma, we do a jmp
- * to the function rather than call.
- * 
- * Revision 1.10  1994/02/17  12:37:15  matt
- * Combined two pragma's for Error(), since second superseded the first
- * 
- * Revision 1.9  1994/02/10  18:02:53  matt
- * Changed 'if DEBUG_ON' to 'ifndef NDEBUG'
- * 
- * Revision 1.8  1994/02/09  15:18:29  matt
- * Added pragma saying that Error() never returns
- * 
- * Revision 1.7  1993/10/19  12:57:53  matt
- * If DEBUG_ON not defined, define it to be 1
- * 
- * Revision 1.6  1993/10/15  21:40:39  matt
- * Made error functions generate int3's if debugging on
- * 
- * Revision 1.5  1993/10/14  15:29:22  matt
- * Added new function clear_warn_func()
- * 
- * Revision 1.4  1993/10/08  16:16:47  matt
- * Made Assert() call function _Assert(), rather to do 'if...' inline.
- * 
- * Revision 1.3  1993/09/29  11:39:07  matt
- * Added Assert() macro, like the system one, but calls Error()
- * 
- * Revision 1.2  1993/09/27  11:47:03  matt
- * Added function set_warn_func()
- * 
- * Revision 1.1  1993/09/23  20:17:46  matt
- * Initial revision
- * 
- *
  */
+
+#ifndef _ERROR_H
+#define _ERROR_H
+
+#include <stdio.h>
 
 #ifdef __GNUC__
 #define __noreturn __attribute__ ((noreturn))
@@ -83,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define __format
 #endif
 
-int error_init(char *fmt,...);			//init error system, set default message, returns 0=ok
+int error_init(void (*func)(char *), char *fmt,...);    //init error system, set default message, returns 0=ok
 void set_exit_message(char *fmt,...);	//specify message to print at exit
 void Warning(char *fmt,...);				//print out warning message to user
 void set_warn_func(void (*f)(char *s));//specifies the function to call with warning messages
@@ -171,3 +118,5 @@ static __inline void _Int3()
 #define Int3() ((void)0)
 //void Int3();
 #endif
+
+#endif /* _ERROR_H */

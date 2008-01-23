@@ -45,6 +45,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //circular dependencies involving object.h, aistruct.h, polyobj.h, & robot.h
 #define MAX_SUBMODELS 10			//how many animating sub-objects per model
 
+// the maximum length of a filename
+#define FILENAME_LEN 13
+
 /**
  **	Global variables
  **/
@@ -52,11 +55,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int Function_mode;			//in game or editor?
 extern int Screen_mode;				//editor screen or game screen?
 extern char Menu_pcx_name[13];
-
-#ifdef USE_CD
-extern char destsat_cdpath[128];
-#endif
-
 extern int start_with_mission;
 extern char *start_with_mission_name;
 

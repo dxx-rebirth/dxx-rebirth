@@ -11,277 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/gamesave.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:44:30 $
- * 
+ *
  * Save game information
- * 
- * $Log: gamesave.c,v $
- * Revision 1.1.1.1  2006/03/17 19:44:30  zicodxx
- * initial import
  *
- * Revision 1.2  1999/09/02 13:50:13  sekmu
- * remove warnings for editor compile
- *
- * Revision 1.1.1.1  1999/06/14 22:07:13  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.2  1995/04/23  14:53:12  john
- * Made some mine structures read in with no structure packing problems.
- * 
- * Revision 2.1  1995/03/20  18:15:43  john
- * Added code to not store the normals in the segment structure.
- * 
- * Revision 2.0  1995/02/27  11:29:50  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.207  1995/02/23  10:17:36  allender
- * fixed parameter mismatch with compute_segment_center
- * 
- * Revision 1.206  1995/02/22  14:51:17  allender
- * fixed some things that I missed
- * 
- * Revision 1.205  1995/02/22  13:31:38  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.204  1995/02/01  20:58:08  john
- * Made editor check hog.
- * 
- * Revision 1.203  1995/01/28  17:40:34  mike
- * correct level names (use rdl, sdl) for dumpmine stuff.
- * 
- * Revision 1.202  1995/01/25  20:03:46  matt
- * Moved matrix check to avoid orthogonalizing an uninitialize matrix
- * 
- * Revision 1.201  1995/01/20  16:56:53  mike
- * remove some mprintfs.
- * 
- * Revision 1.200  1995/01/15  19:42:13  matt
- * Ripped out hostage faces for registered version
- * 
- * Revision 1.199  1995/01/05  16:59:09  yuan
- * Make it so if editor is loaded, don't get error from typo
- * in filename.
- * 
- * Revision 1.198  1994/12/19  12:49:46  mike
- * Change fgets to cfgets.  fgets was getting a pointer mismatch warning.
- * 
- * Revision 1.197  1994/12/12  01:20:03  matt
- * Took out object size hack for green claw guys
- * 
- * Revision 1.196  1994/12/11  13:19:37  matt
- * Restored calls to fix_object_segs() when debugging is turned off, since
- * it's not a big routine, and could fix some possibly bad problems.
- * 
- * Revision 1.195  1994/12/10  16:17:24  mike
- * fix editor bug that was converting transparent walls into rock.
- * 
- * Revision 1.194  1994/12/09  14:59:27  matt
- * Added system to attach a fireball to another object for rendering purposes,
- * so the fireball always renders on top of (after) the object.
- * 
- * Revision 1.193  1994/12/08  17:19:02  yuan
- * Cfiling stuff.
- * 
- * Revision 1.192  1994/12/02  20:01:05  matt
- * Always give vulcan cannon powerup same amount of ammo, regardless of
- * how much it was saved with
- * 
- * Revision 1.191  1994/11/30  17:45:57  yuan
- * Saving files now creates RDL/SDLs instead of CDLs.
- * 
- * Revision 1.190  1994/11/30  17:22:14  matt
- * Ripped out hostage faces in shareware version
- * 
- * Revision 1.189  1994/11/28  00:09:30  allender
- * commented out call to newdemo_record_start_demo in load_level...what is
- * this doing here anyway?????
- * 
- * Revision 1.188  1994/11/27  23:13:48  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.187  1994/11/27  18:06:20  matt
- * Cleaned up LVL/CDL file loading
- * 
- * Revision 1.186  1994/11/25  22:46:29  matt
- * Allow ESC out of compiled/normal menu (esc=compiled).
- * 
- * Revision 1.185  1994/11/23  12:18:35  mike
- * move level names here...a more logical place than dumpmine.
- * 
- * Revision 1.184  1994/11/21  20:29:19  matt
- * If hostage info is bad, fix it.
- * 
- * Revision 1.183  1994/11/21  20:26:07  matt
- * Fixed bug, I hope
- * 
- * Revision 1.182  1994/11/21  20:20:37  matt
- * Fixed stupid mistake
- * 
- * Revision 1.181  1994/11/21  20:18:40  matt
- * Fixed (hopefully) totally bogus writing of hostage data
- * 
- * Revision 1.180  1994/11/20  14:11:56  matt
- * Gracefully handle two hostages having same id
- * 
- * Revision 1.179  1994/11/19  23:55:05  mike
- * remove Assert, put in comment for Matt.
- * 
- * Revision 1.178  1994/11/19  19:53:24  matt
- * Added code to full support different hostage head clip & message for
- * each hostage.
- * 
- * Revision 1.177  1994/11/19  15:15:21  mike
- * remove unused code and data
- * 
- * Revision 1.176  1994/11/19  10:28:28  matt
- * Took out write routines when editor compiled out
- * 
- * Revision 1.175  1994/11/17  20:38:25  john
- * Took out warning.
- * 
- * Revision 1.174  1994/11/17  20:36:34  john
- * Made it so that saving a mine will write the .cdl even
- * if .lvl gets error.
- * 
- * Revision 1.173  1994/11/17  20:26:19  john
- * Made the game load whichever of .cdl or .lvl exists,
- * and if they both exist, prompt the user for which one.
- * 
- * Revision 1.172  1994/11/17  20:11:20  john
- * Fixed warning.
- * 
- * Revision 1.171  1994/11/17  20:09:26  john
- * Added new compiled level format.
- * 
- * Revision 1.170  1994/11/17  14:57:21  mike
- * moved segment validation functions from editor to main.
- * 
- * Revision 1.169  1994/11/17  11:39:21  matt
- * Ripped out code to load old mines
- * 
- * Revision 1.168  1994/11/16  11:24:53  matt
- * Made attack-type robots have smaller radius, so they get closer to player
- * 
- * Revision 1.167  1994/11/15  21:42:47  mike
- * better error messages.
- * 
- * Revision 1.166  1994/11/15  15:30:41  matt
- * Save ptr to name of level being loaded
- * 
- * Revision 1.165  1994/11/14  20:47:46  john
- * Attempted to strip out all the code in the game 
- * directory that uses any ui code.
- * 
- * Revision 1.164  1994/11/14  14:34:23  matt
- * Fixed up handling when textures can't be found during remap
- * 
- * Revision 1.163  1994/11/10  14:02:49  matt
- * Hacked in support for player ships with different textures
- * 
- * Revision 1.162  1994/11/06  14:38:17  mike
- * Remove an apparently unnecessary mprintf.
- * 
- * Revision 1.161  1994/10/30  14:11:28  mike
- * ripout local segments stuff.
- * 
- * Revision 1.160  1994/10/28  12:10:41  matt
- * Check that was supposed to happen only when editor was in was happening
- * only when editor was out.
- * 
- * Revision 1.159  1994/10/27  11:25:32  matt
- * Only do connectivity error check when editor in
- * 
- * Revision 1.158  1994/10/27  10:54:00  matt
- * Made connectivity error checking put up warning if errors found
- * 
- * Revision 1.157  1994/10/25  10:50:54  matt
- * Vulcan cannon powerups now contain ammo count
- * 
- * Revision 1.156  1994/10/23  02:10:43  matt
- * Got rid of obsolete hostage_info stuff
- * 
- * Revision 1.155  1994/10/22  18:57:26  matt
- * Added call to check_segment_connections()
- * 
- * Revision 1.154  1994/10/21  12:19:23  matt
- * Clear transient objects when saving (& loading) games
- * 
- * Revision 1.153  1994/10/21  11:25:10  mike
- * Use new constant IMMORTAL_TIME.
- * 
- * Revision 1.152  1994/10/20  12:46:59  matt
- * Replace old save files (MIN/SAV/HOT) with new LVL files
- * 
- * Revision 1.151  1994/10/19  19:26:32  matt
- * Fixed stupid bug
- * 
- * Revision 1.150  1994/10/19  16:46:21  matt
- * Made tmap overrides for robots remap texture numbers
- * 
- * Revision 1.149  1994/10/18  08:50:27  yuan
- * Fixed correct variable this time.
- * 
- * Revision 1.148  1994/10/18  08:45:02  yuan
- * Oops. forgot load function.
- * 
- * Revision 1.147  1994/10/18  08:42:10  yuan
- * Avoid the int3.
- * 
- * Revision 1.146  1994/10/17  21:34:57  matt
- * Added support for new Control Center/Main Reactor
- * 
- * Revision 1.145  1994/10/15  19:06:34  mike
- * Fix bug, maybe, having to do with something or other, ...
- * 
- * Revision 1.144  1994/10/12  21:07:33  matt
- * Killed unused field in object structure
- * 
- * Revision 1.143  1994/10/06  14:52:55  mike
- * Put check in to detect possibly bogus walls in last segment which leaked through an earlier check
- * due to misuse of Highest_segment_index.
- * 
- * Revision 1.142  1994/10/05  22:12:44  mike
- * Put in cleanup for matcen/fuelcen links.
- * 
- * Revision 1.141  1994/10/03  11:30:05  matt
- * Make sure player in a valid segment before saving
- * 
- * Revision 1.140  1994/09/28  11:14:41  mike
- * Better error messaging on bogus mines: Only bring up dialog box if a "real" (level??.*) level.
- * 
- * Revision 1.139  1994/09/28  09:22:58  mike
- * Comment out a mprintf.
- * 
- * Revision 1.138  1994/09/27  17:08:36  mike
- * Message boxes when you load bogus mines.
- * 
- * Revision 1.137  1994/09/27  15:43:45  mike
- * Move the dump stuff to dumpmine.
- * 
- * Revision 1.136  1994/09/27  00:02:31  mike
- * Dump text files (".txm") when loading a mine, showing all kinds of useful mine info.
- * 
- * Revision 1.135  1994/09/26  11:30:41  matt
- * Took out code which loaded bogus player structure
- * 
- * Revision 1.134  1994/09/26  11:18:44  john
- * Fixed some conflicts with newseg.
- * 
- * Revision 1.133  1994/09/26  10:56:58  matt
- * Fixed inconsistancies in lifeleft for immortal objects
- * 
- * Revision 1.132  1994/09/25  23:41:10  matt
- * Changed the object load & save code to read/write the structure fields one
- * at a time (rather than the whole structure at once).  This mean that the
- * object structure can be changed without breaking the load/save functions.
- * As a result of this change, the local_object data can be and has been 
- * incorporated into the object array.  Also, timeleft is now a property 
- * of all objects, and the object structure has been otherwise cleaned up.
- * 
  */
 
 #ifdef RCS
@@ -333,7 +65,6 @@ static char rcsid[] = "$Id: gamesave.c,v 1.1.1.1 2006/03/17 19:44:30 zicodxx Exp
 #include "gamefont.h"
 #include "gamesave.h"
 #include "textures.h"
-#include "d_io.h"
 
 #ifndef NDEBUG
 void dump_mine_info(void);
@@ -440,7 +171,7 @@ struct {
 
 #ifdef EDITOR
 extern char mine_filename[];
-extern int save_mine_data_compiled(FILE * SaveFile);
+extern int save_mine_data_compiled(PHYSFS_file * SaveFile);
 //--unused-- #else
 //--unused-- char mine_filename[128];
 #endif
@@ -902,52 +633,52 @@ void read_object(object *obj,CFILE *f,int version)
 #ifdef EDITOR
 
 //writes one object to the given file
-void write_object(object *obj,FILE *f)
+void write_object(object *obj, PHYSFS_file *f)
 {
-	cfile_write_byte(obj->type,f);
-	cfile_write_byte(obj->id,f);
+	PHYSFSX_writeU8(f, obj->type);
+	PHYSFSX_writeU8(f, obj->id);
 
-	cfile_write_byte(obj->control_type,f);
-	cfile_write_byte(obj->movement_type,f);
-	cfile_write_byte(obj->render_type,f);
-	cfile_write_byte(obj->flags,f);
+	PHYSFSX_writeU8(f, obj->control_type);
+	PHYSFSX_writeU8(f, obj->movement_type);
+	PHYSFSX_writeU8(f, obj->render_type);
+	PHYSFSX_writeU8(f, obj->flags);
 
-	cfile_write_short(obj->segnum,f);
+	PHYSFS_writeSLE16(f, obj->segnum);
 
-	gr_write_vector(&obj->pos,f);
-	cfile_write_matrix(&obj->orient,f);
+	PHYSFSX_writeVector(f, &obj->pos);
+	PHYSFSX_writeMatrix(f, &obj->orient);
 
-	cfile_write_fix(obj->size,f);
-	cfile_write_fix(obj->shields,f);
+	PHYSFSX_writeFix(f, obj->size);
+	PHYSFSX_writeFix(f, obj->shields);
 
-	gr_write_vector(&obj->last_pos,f);
+	PHYSFSX_writeVector(f, &obj->last_pos);
 
-	cfile_write_byte(obj->contains_type,f);
-	cfile_write_byte(obj->contains_id,f);
-	cfile_write_byte(obj->contains_count,f);
+	PHYSFSX_writeU8(f, obj->contains_type);
+	PHYSFSX_writeU8(f, obj->contains_id);
+	PHYSFSX_writeU8(f, obj->contains_count);
 
 	switch (obj->movement_type) {
 
 		case MT_PHYSICS:
 
-	 		gr_write_vector(&obj->mtype.phys_info.velocity,f);
-			gr_write_vector(&obj->mtype.phys_info.thrust,f);
+	 		PHYSFSX_writeVector(f, &obj->mtype.phys_info.velocity);
+			PHYSFSX_writeVector(f, &obj->mtype.phys_info.thrust);
 
-			cfile_write_fix(obj->mtype.phys_info.mass,f);
-			cfile_write_fix(obj->mtype.phys_info.drag,f);
-			cfile_write_fix(obj->mtype.phys_info.brakes,f);
+			PHYSFSX_writeFix(f, obj->mtype.phys_info.mass);
+			PHYSFSX_writeFix(f, obj->mtype.phys_info.drag);
+			PHYSFSX_writeFix(f, obj->mtype.phys_info.brakes);
 
-			gr_write_vector(&obj->mtype.phys_info.rotvel,f);
-			gr_write_vector(&obj->mtype.phys_info.rotthrust,f);
+			PHYSFSX_writeVector(f, &obj->mtype.phys_info.rotvel);
+			PHYSFSX_writeVector(f, &obj->mtype.phys_info.rotthrust);
 
-			cfile_write_fixang(obj->mtype.phys_info.turnroll,f);
-			cfile_write_short(obj->mtype.phys_info.flags,f);
+			PHYSFSX_writeFixAng(f, obj->mtype.phys_info.turnroll);
+			PHYSFS_writeSLE16(f, obj->mtype.phys_info.flags);
 
 			break;
 
 		case MT_SPINNING:
 
-			gr_write_vector(&obj->mtype.spin_rate,f);
+			PHYSFSX_writeVector(f, &obj->mtype.spin_rate);
 			break;
 
 		case MT_NONE:
@@ -962,27 +693,26 @@ void write_object(object *obj,FILE *f)
 		case CT_AI: {
 			int i;
 
-			cfile_write_byte(obj->ctype.ai_info.behavior,f);
+			PHYSFSX_writeU8(f, obj->ctype.ai_info.behavior);
 
-			for (i=0;i<MAX_AI_FLAGS;i++)
-				cfile_write_byte(obj->ctype.ai_info.flags[i],f);
+			for (i = 0; i < MAX_AI_FLAGS; i++)
+				PHYSFSX_writeU8(f, obj->ctype.ai_info.flags[i]);
 
-			cfile_write_short(obj->ctype.ai_info.hide_segment,f);
-			cfile_write_short(obj->ctype.ai_info.hide_index,f);
-			cfile_write_short(obj->ctype.ai_info.path_length,f);
-			cfile_write_short(obj->ctype.ai_info.cur_path_index,f);
-
-			cfile_write_short(obj->ctype.ai_info.follow_path_start_seg,f);
-			cfile_write_short(obj->ctype.ai_info.follow_path_end_seg,f);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.hide_segment);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.hide_index);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.path_length);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.cur_path_index);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.follow_path_start_seg);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.follow_path_end_seg);
 
 			break;
 		}
 
 		case CT_EXPLOSION:
 
-			cfile_write_fix(obj->ctype.expl_info.spawn_time,f);
-			cfile_write_fix(obj->ctype.expl_info.delete_time,f);
-			cfile_write_short(obj->ctype.expl_info.delete_objnum,f);
+			PHYSFSX_writeFix(f, obj->ctype.expl_info.spawn_time);
+			PHYSFSX_writeFix(f, obj->ctype.expl_info.delete_time);
+			PHYSFS_writeSLE16(f, obj->ctype.expl_info.delete_objnum);
 
 			break;
 
@@ -990,22 +720,20 @@ void write_object(object *obj,FILE *f)
 
 			//do I really need to write these objects?
 
-			cfile_write_short(obj->ctype.laser_info.parent_type,f);
-			cfile_write_short(obj->ctype.laser_info.parent_num,f);
-			cfile_write_int(obj->ctype.laser_info.parent_signature,f);
-
-			break;
+			PHYSFS_writeSLE16(f, obj->ctype.laser_info.parent_type);
+			PHYSFS_writeSLE16(f, obj->ctype.laser_info.parent_num);
+			PHYSFS_writeSLE32(f, obj->ctype.laser_info.parent_signature);
 
 			break;
 
 		case CT_LIGHT:
 
-			cfile_write_fix(obj->ctype.light_info.intensity,f);
+			PHYSFSX_writeFix(f, obj->ctype.light_info.intensity);
 			break;
 
 		case CT_POWERUP:
 
-			cfile_write_int(obj->ctype.powerup_info.count,f);
+			PHYSFS_writeSLE32(f, obj->ctype.powerup_info.count);
 			break;
 
 		case CT_NONE:
@@ -1036,14 +764,14 @@ void write_object(object *obj,FILE *f)
 		case RT_POLYOBJ: {
 			int i;
 
-			cfile_write_int(obj->rtype.pobj_info.model_num,f);
+			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.model_num);
 
-			for (i=0;i<MAX_SUBMODELS;i++)
-				cfile_write_angvec(&obj->rtype.pobj_info.anim_angles[i],f);
+			for (i = 0; i < MAX_SUBMODELS; i++)
+				PHYSFSX_writeAngleVec(f, &obj->rtype.pobj_info.anim_angles[i]);
 
-			cfile_write_int(obj->rtype.pobj_info.subobj_flags,f);
+			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.subobj_flags);
 
-			cfile_write_int(obj->rtype.pobj_info.tmap_override,f);
+			PHYSFS_writeSLE32(f, obj->rtype.pobj_info.tmap_override);
 
 			break;
 		}
@@ -1053,9 +781,9 @@ void write_object(object *obj,FILE *f)
 		case RT_POWERUP:
 		case RT_FIREBALL:
 
-			cfile_write_int(obj->rtype.vclip_info.vclip_num,f);
-			cfile_write_fix(obj->rtype.vclip_info.frametime,f);
-			cfile_write_byte(obj->rtype.vclip_info.framenum,f);
+			PHYSFS_writeSLE32(f, obj->rtype.vclip_info.vclip_num);
+			PHYSFSX_writeFix(f, obj->rtype.vclip_info.frametime);
+			PHYSFSX_writeU8(f, obj->rtype.vclip_info.framenum);
 
 			break;
 
@@ -1521,6 +1249,9 @@ int load_level(char * filename_passed)
 		use_compiled_level = 1;
 	}		
 #endif
+
+	if (!cfexist(filename))
+		sprintf(filename,"%s%s",MISSION_DIR,filename_passed);
 	
 	LoadFile = cfopen( filename, "rb" );
 
@@ -1677,54 +1408,42 @@ int	Errors_in_mine;
 
 // -----------------------------------------------------------------------------
 // Save game
-int save_game_data(FILE * SaveFile)
+int save_game_data(PHYSFS_file * SaveFile)
 {
 	int  player_offset=0, object_offset=0, walls_offset=0, doors_offset=0, triggers_offset=0, control_offset=0, matcen_offset=0; //, links_offset;
 	int start_offset=0,end_offset=0;
 
-	start_offset = ftell(SaveFile);
-
 	//===================== SAVE FILE INFO ========================
 
-	game_fileinfo.fileinfo_signature =	0x6705;
-	game_fileinfo.fileinfo_version	=	GAME_VERSION;
-	game_fileinfo.level					=  Current_level_num;
-	game_fileinfo.fileinfo_sizeof		=	sizeof(game_fileinfo);
-	game_fileinfo.player_offset		=	-1;
-	game_fileinfo.player_sizeof		=	sizeof(player);
-	game_fileinfo.object_offset		=	-1;
-	game_fileinfo.object_howmany		=	Highest_object_index+1;
-	game_fileinfo.object_sizeof		=	sizeof(object);
-	game_fileinfo.walls_offset			=	-1;
-	game_fileinfo.walls_howmany		=	Num_walls;
-	game_fileinfo.walls_sizeof			=	sizeof(wall);
-	game_fileinfo.doors_offset			=	-1;
-	game_fileinfo.doors_howmany		=	Num_open_doors;
-	game_fileinfo.doors_sizeof			=	sizeof(active_door);
-	game_fileinfo.triggers_offset		=	-1;
-	game_fileinfo.triggers_howmany	=	Num_triggers;
-	game_fileinfo.triggers_sizeof		=	sizeof(trigger);
-	game_fileinfo.control_offset		=	-1;
-	game_fileinfo.control_howmany		=  1;
-	game_fileinfo.control_sizeof		=  sizeof(control_center_triggers);
- 	game_fileinfo.matcen_offset		=	-1;
-	game_fileinfo.matcen_howmany		=	Num_robot_centers;
-	game_fileinfo.matcen_sizeof		=	sizeof(matcen_info);
+	PHYSFS_writeSLE16(SaveFile, 0x6705);    // signature
+	PHYSFS_writeSLE16(SaveFile, GAME_VERSION);
+	PHYSFS_writeSLE32(SaveFile, sizeof(game_fileinfo));
+	PHYSFS_write(SaveFile, Current_level_name, 15, 1);
+	PHYSFS_writeSLE32(SaveFile, Current_level_num);
+	offset_offset = PHYSFS_tell(SaveFile);	// write the offsets later
+	PHYSFS_writeSLE32(SaveFile, -1);
+	PHYSFS_writeSLE32(SaveFile, sizeof(player));
 
-	// Write the fileinfo
-	fwrite( &game_fileinfo, sizeof(game_fileinfo), 1, SaveFile );
+#define WRITE_HEADER_ENTRY(t, n) do { PHYSFS_writeSLE32(SaveFile, -1); PHYSFS_writeSLE32(SaveFile, n); PHYSFS_writeSLE32(SaveFile, sizeof(t)); } while(0)
+
+	WRITE_HEADER_ENTRY(object, Highest_object_index + 1);
+	WRITE_HEADER_ENTRY(wall, Num_walls);
+	WRITE_HEADER_ENTRY(active_door, Num_open_doors);
+	WRITE_HEADER_ENTRY(trigger, Num_triggers);
+	WRITE_HEADER_ENTRY(0, 0);		// links (removed by Parallax)
+	WRITE_HEADER_ENTRY(control_center_triggers, 1);
+	WRITE_HEADER_ENTRY(matcen_info, Num_robot_centers);
 
 	// Write the mine name
-	fprintf(SaveFile,Current_level_name);
-	fputc(0,SaveFile);		//terminator for string
+	PHYSFSX_printf(SaveFile, "%s\n", Current_level_name);
 
-	fwrite(&N_save_pof_names,2,1,SaveFile);
-	fwrite(Pof_names,N_polygon_models,13,SaveFile);
+	PHYSFS_writeSLE16(SaveFile, N_polygon_models);
+	PHYSFS_write(SaveFile, Pof_names, sizeof(*Pof_names), N_polygon_models);
 
 	//==================== SAVE PLAYER INFO ===========================
 
-	player_offset = ftell(SaveFile);
-	fwrite( &Players[Player_num], sizeof(player), 1, SaveFile );
+	player_offset = PHYSFS_tell(SaveFile);
+	PHYSFS_write(SaveFile, &Players[Player_num], sizeof(player), 1);        // not endian friendly, but not used either
 
 	//==================== SAVE OBJECT INFO ===========================
 
@@ -1732,72 +1451,71 @@ int save_game_data(FILE * SaveFile)
 	//fwrite( &Objects, sizeof(object), game_fileinfo.object_howmany, SaveFile );
 	{
 		int i;
-		for (i=0;i<game_fileinfo.object_howmany;i++)
+		for (i=0;i<Highest_object_index;i++)
 			write_object(&Objects[i],SaveFile);
 	}
 
 	//==================== SAVE WALL INFO =============================
 
-	walls_offset = ftell(SaveFile);
-	fwrite( Walls, sizeof(wall), game_fileinfo.walls_howmany, SaveFile );
+	walls_offset = PHYSFS_tell(SaveFile);
+	for (i = 0; i < Num_walls; i++)
+		wall_write(&Walls[i], SaveFile);
 
 	//==================== SAVE DOOR INFO =============================
 
-	doors_offset = ftell(SaveFile);
-	fwrite( ActiveDoors, sizeof(active_door), game_fileinfo.doors_howmany, SaveFile );
+#if 0 // FIXME: okay to leave this out?
+	doors_offset = PHYSFS_tell(SaveFile);
+	for (i = 0; i < Num_open_doors; i++)
+		door_write(&ActiveDoors[i], game_top_fileinfo_version, SaveFile);
+#endif
 
 	//==================== SAVE TRIGGER INFO =============================
 
-	triggers_offset = ftell(SaveFile);
-	fwrite( Triggers, sizeof(trigger), game_fileinfo.triggers_howmany, SaveFile );
+	triggers_offset = PHYSFS_tell(SaveFile);
+	for (i = 0; i < Num_triggers; i++)
+		trigger_write(&Triggers[i], SaveFile);
 
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 
-	control_offset = ftell(SaveFile);
-	fwrite( &ControlCenterTriggers, sizeof(control_center_triggers), 1, SaveFile );
+	control_offset = PHYSFS_tell(SaveFile);
+	control_center_triggers_write(&ControlCenterTriggers, SaveFile);
 
 
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============
 
-	matcen_offset = ftell(SaveFile);
-	// mprintf((0, "Writing %i materialization centers\n", game_fileinfo.matcen_howmany));
-	// { int i;
-	// for (i=0; i<game_fileinfo.matcen_howmany; i++)
-	// 	mprintf((0, "   %i: robot_flags = %08x\n", i, RobotCenters[i].robot_flags));
-	// }
-	fwrite( RobotCenters, sizeof(matcen_info), game_fileinfo.matcen_howmany, SaveFile );
+	matcen_offset = PHYSFS_tell(SaveFile);
+	for (i = 0; i < Num_robot_centers; i++)
+		matcen_info_write(&RobotCenters[i], game_top_fileinfo_version, SaveFile);
 
 	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
 
+	end_offset = PHYSFS_tell(SaveFile);
+
 	// Update the offset fields
-	game_fileinfo.player_offset		=	player_offset;
-	game_fileinfo.object_offset		=	object_offset;
-	game_fileinfo.walls_offset			=	walls_offset;
-	game_fileinfo.doors_offset			=	doors_offset;
-	game_fileinfo.triggers_offset		=	triggers_offset;
-	game_fileinfo.control_offset		=	control_offset;
-	game_fileinfo.matcen_offset		=	matcen_offset;
 
+#define WRITE_OFFSET(o, n) do { PHYSFS_seek(SaveFile, offset_offset); PHYSFS_writeSLE32(SaveFile, o ## _offset); offset_offset += sizeof(int)*n; } while (0)
 
-	end_offset = ftell(SaveFile);
-
-	// Write the fileinfo
-	fseek(  SaveFile, start_offset, SEEK_SET );  // Move to TOF
-	fwrite( &game_fileinfo, sizeof(game_fileinfo), 1, SaveFile );
+	WRITE_OFFSET(player, 2);
+	WRITE_OFFSET(object, 3);
+	WRITE_OFFSET(walls, 3);
+	WRITE_OFFSET(doors, 3);
+	WRITE_OFFSET(triggers, 6);
+	WRITE_OFFSET(control, 3);
+	WRITE_OFFSET(matcen, 3);
 
 	// Go back to end of data
-	fseek(SaveFile,end_offset,SEEK_SET);
+	PHYSFS_seek(SaveFile, end_offset);
 
 	return 0;
 }
 
-int save_mine_data(FILE * SaveFile);
+int save_mine_data(PHYSFS_file * SaveFile);
 
 // -----------------------------------------------------------------------------
 // Save game
 int save_level_sub(char * filename, int compiled_version)
 {
-	FILE * SaveFile;
+	PHYSFS_file * SaveFile;
 	char temp_filename[128];
 	int sig = 0x504c564c /*'PLVL'*/,version=LEVEL_FILE_VERSION;
         int minedata_offset=0,gamedata_offset=0,hostagetext_offset=0;
@@ -1826,7 +1544,7 @@ int save_level_sub(char * filename, int compiled_version)
 		convert_name_to_CDL(temp_filename,filename);
 	}
 
-	SaveFile = fopen( temp_filename, "wb" );
+	SaveFile = PHYSFSX_openWriteBuffered(temp_filename);
 	if (!SaveFile)
 	{
 		char ErrorMessage[256];
@@ -1862,36 +1580,36 @@ int save_level_sub(char * filename, int compiled_version)
 
 	//Write the header
 
-	cfile_write_int(sig,SaveFile);
-	cfile_write_int(version,SaveFile);
+	PHYSFS_writeSLE32(SaveFile, sig);
+	PHYSFS_writeSLE32(SaveFile, version);
 
 	//save placeholders
-	cfile_write_int(minedata_offset,SaveFile);
-	cfile_write_int(gamedata_offset,SaveFile);
-	cfile_write_int(hostagetext_offset,SaveFile);
+	PHYSFS_writeSLE32(SaveFile, minedata_offset);
+	PHYSFS_writeSLE32(SaveFile, gamedata_offset);
+	PHYSFS_writeSLE32(SaveFile, hostagetext_offset);
 
 	//Now write the damn data
 
-	minedata_offset = ftell(SaveFile);
+	minedata_offset = PHYSFS_tell(SaveFile);
 	if ( !compiled_version )	
 		save_mine_data(SaveFile);
 	else
 		save_mine_data_compiled(SaveFile);
-	gamedata_offset = ftell(SaveFile);
+	gamedata_offset = PHYSFS_tell(SaveFile);
 	save_game_data(SaveFile);
-	hostagetext_offset = ftell(SaveFile);
+	hostagetext_offset = PHYSFS_tell(SaveFile);
 
 	#ifdef HOSTAGE_FACES
 	save_hostage_data(SaveFile);
 	#endif
 
-	fseek(SaveFile,sizeof(sig)+sizeof(version),SEEK_SET);
-	cfile_write_int(minedata_offset,SaveFile);
-	cfile_write_int(gamedata_offset,SaveFile);
-	cfile_write_int(hostagetext_offset,SaveFile);
+	PHYSFS_seek(SaveFile, sizeof(sig) + sizeof(version));
+	PHYSFS_writeSLE32(SaveFile, minedata_offset);
+	PHYSFS_writeSLE32(SaveFile, gamedata_offset);
+	PHYSFS_writeSLE32(SaveFile, hostagetext_offset);
 
 	//==================== CLOSE THE FILE =============================
-	fclose(SaveFile);
+	PHYSFS_close(SaveFile);
 
 	if ( !compiled_version )	{
 		if (Function_mode == FMODE_EDITOR)
@@ -1917,7 +1635,7 @@ int save_level(char * filename)
 
 
 #ifdef HOSTAGE_FACES
-void save_hostage_data(FILE * fp)
+void save_hostage_data(PHYSFS_file * fp)
 {
 	int i,num_hostages=0;
 
@@ -2050,9 +1768,6 @@ void load_hostage_data(CFILE * fp,int do_read)
 			#endif
 
 			cfgets(Hostages[i].text, HOSTAGE_MESSAGE_LEN, fp);
-
-			if (Hostages[i].text[strlen(Hostages[i].text)-1]=='\n')
-				Hostages[i].text[strlen(Hostages[i].text)-1] = 0;
 		}
 	}
 	else

@@ -69,8 +69,8 @@ void ui_pad_close()
 		if (KeyPad[i])
 		{
 			for (j=0; j<17; j++ )
-				free(KeyPad[i]->buttontext[j]);
-			free( KeyPad[i] );
+				d_free(KeyPad[i]->buttontext[j]);
+			d_free( KeyPad[i] );
 			KeyPad[i] = NULL;	
 		}
 

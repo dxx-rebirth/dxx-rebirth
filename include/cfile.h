@@ -1,3 +1,4 @@
+/* $Id: cfile.h,v 1.1.1.1 2006/03/17 20:01:40 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,124 +8,281 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/include/cfile.h,v $
- * $Revision: 1.2 $
- * $Author: michaelstather $
- * $Date: 2006/03/18 23:07:36 $
- * 
- * Prototypes for compressed file functions...
- * 
- * $Log: cfile.h,v $
- * Revision 1.2  2006/03/18 23:07:36  michaelstather
- * New build system by KyroMaster
  *
- * Revision 1.1.1.1  2006/03/17 19:46:39  zicodxx
- * initial import
+ * Wrappers for physfs abstraction layer
  *
- * Revision 1.1.1.1  1999/06/14 22:02:08  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.10  1995/03/13  15:16:47  john
- * Added alternate directory stuff.
- * 
- * Revision 1.9  1995/02/01  20:56:40  john
- * Added cfexist function
- * 
- * Revision 1.8  1995/01/21  17:53:41  john
- * Added alternate pig file thing.
- * 
- * Revision 1.7  1994/12/12  13:19:47  john
- * Made cfile work with fiellentth.
- * 
- * Revision 1.6  1994/12/08  19:02:52  john
- * Added cfgets.
- * 
- * Revision 1.5  1994/12/07  21:34:07  john
- * Stripped out compression stuff...
- * 
- * Revision 1.4  1994/07/13  00:16:53  matt
- * Added include
- * 
- * Revision 1.3  1994/02/17  17:36:19  john
- * Added CF_READ_MODE and CF_WRITE_MODE constants.
- * 
- * Revision 1.2  1994/02/15  12:52:08  john
- * Crappy inbetween version
- * 
- * Revision 1.1  1994/02/15  10:54:23  john
- * Initial revision
- * 
- * Revision 1.1  1994/02/10  15:50:54  john
- * Initial revision
- * 
- * 
  */
-
-
 
 #ifndef _CFILE_H
 #define _CFILE_H
 
 #include <stdio.h>
+#include <string.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
+#include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
+
 #include "pstypes.h"
 #include "maths.h"
 #include "vecmat.h"
+#include "physfsx.h"
+#include "strutil.h"
 
-typedef struct CFILE {
-	FILE 				*file;
-	int				size;
-	int				lib_offset;
-	int				raw_position;
-} CFILE;
+#define CFILE            PHYSFS_file
+#define cfopen(f,m)      PHYSFSX_openReadBuffered(f)
+#define cfread(p,s,n,fp) PHYSFS_read(fp,p,s,n)
+#define cfclose          PHYSFS_close
+#define cftell           PHYSFS_tell
+#define cfexist          PHYSFS_exists
+#define cfilelength      PHYSFS_fileLength
 
-CFILE * cfopen(char * filename, char * mode);
-int cfilelength( CFILE *fp );							// Returns actual size of file...
-size_t cfread( void * buf, size_t elsize, size_t nelem, CFILE * fp );
-void cfclose( CFILE * cfile );
-int cfgetc( CFILE * fp );
-int cfseek( CFILE *fp, long int offset, int where );
-int cftell( CFILE * fp );
-char * cfgets( char * buf, size_t n, CFILE * fp );
+//MD2211: hmp2mid needs a function pointer, so a macro won't do the job
+//Kreator: no longer needed, hmp2mid now uses PhysicsFS implicitly
+//static inline size_t cfread(void *p, size_t s, size_t n, CFILE *fp) {
+//  return PHYSFS_read(fp,p,s,n);
+//}
 
-int cfexist( char * filename );	// Returns true if file exists on disk (1) or in hog (2).
+//Specify the name of the hogfile.  Returns 1 if hogfile found & had files
+static inline int cfile_init(char *hogname, int add_to_end)
+{
+	char pathname[PATH_MAX];
 
-// Allows files to be gotten from an alternate hog file.
-// Passing NULL disables this.
-void cfile_use_alternate_hogfile( char * name );
+	if (!PHYSFSX_getRealPath(hogname, pathname))
+		return 0;
 
-// All cfile functions will check this directory if no file exists
-// in the current directory.
-void cfile_use_alternate_hogdir( char * path );
+	if (!PHYSFS_addToSearchPath(pathname, add_to_end))
+	{	// try the 'Data' directory for old Mac Descent directories compatibility
+		char std_path[PATH_MAX] = "Data/";
 
-extern char AltHogDir[];
-extern char AltHogdir_initialized;
+		strncat(std_path, hogname, PATH_MAX - 1 - strlen(std_path));
+		std_path[PATH_MAX - 1] = 0;
 
-// prototypes for reading basic types from cfile
-int cfile_read_int(CFILE *file);
-short cfile_read_short(CFILE *file);
-sbyte cfile_read_byte(CFILE *file);
-fix cfile_read_fix(CFILE *file);
-fixang cfile_read_fixang(CFILE *file);
-void cfile_read_vector(vms_vector *v, CFILE *file);
-void cfile_read_angvec(vms_angvec *v, CFILE *file);
-void cfile_read_matrix(vms_matrix *v, CFILE *file);
+		if (!PHYSFSX_getRealPath(std_path, pathname))
+			return 0;
+		
+		return PHYSFS_addToSearchPath(pathname, add_to_end);
+	}
+	
+	return 1;
+}
 
-// Reads variable length, null-termined string.   Will only read up
-// to n characters.
-void cfile_read_string(char *buf, int n, CFILE *file);
+static inline int cfile_close(char *hogname)
+{
+	char pathname[PATH_MAX];
 
-#if 0	// unused
-// functions for writing cfiles
-int cfile_write_int(int i, CFILE *file);
-int cfile_write_short(short s, CFILE *file);
-int cfile_write_byte(sbyte u, CFILE *file);
+	if (!PHYSFSX_getRealPath(hogname, pathname))
+		return 0;
 
-// writes variable length, null-termined string.
-int cfile_write_string(char *buf, CFILE *file);
-#endif
+	if (!PHYSFS_removeFromSearchPath(pathname))
+	{
+		char std_path[PATH_MAX] = "Data/";
+		
+		strncat(std_path, hogname, PATH_MAX - 1 - strlen(std_path));
+		std_path[PATH_MAX - 1] = 0;
+		
+		if (!PHYSFSX_getRealPath(std_path, pathname))
+			return 0;
+		
+		return PHYSFS_removeFromSearchPath(pathname);
+	}
+	
+	return 1;
+}
+
+
+static inline int cfile_size(char *hogname)
+{
+	PHYSFS_file *fp;
+	int size;
+
+	fp = PHYSFS_openRead(hogname);
+	if (fp == NULL)
+	{
+		char std_path[PATH_MAX] = "Data/";
+		
+		strncat(std_path, hogname, PATH_MAX - 1 - strlen(std_path));
+		std_path[PATH_MAX - 1] = 0;
+		
+		if (!(fp = PHYSFS_openRead(std_path)))
+			return -1;
+	}
+
+	size = PHYSFS_fileLength(fp);
+	cfclose(fp);
+
+	return size;
+}
+
+static inline int cfgetc(PHYSFS_file *const fp)
+{
+	unsigned char c;
+
+	if (PHYSFS_read(fp, &c, 1, 1) != 1)
+		return EOF;
+
+	return c;
+}
+
+static inline int cfseek(PHYSFS_file *fp, long int offset, int where)
+{
+	int c, goal_position;
+
+	switch(where)
+	{
+	case SEEK_SET:
+		goal_position = offset;
+		break;
+	case SEEK_CUR:
+		goal_position = PHYSFS_tell(fp) + offset;
+		break;
+	case SEEK_END:
+		goal_position = PHYSFS_fileLength(fp) + offset;
+		break;
+	default:
+		return 1;
+	}
+	c = PHYSFS_seek(fp, goal_position);
+	return !c;
+}
+
+static inline char * cfgets(char *buf, size_t n, PHYSFS_file *const fp)
+{
+	int i;
+	int c;
+
+	for (i = 0; i < n - 1; i++)
+	{
+		do
+		{
+			c = cfgetc(fp);
+			if (c == EOF)
+			{
+				*buf = 0;
+
+				return NULL;
+			}
+			if (c == 0 || c == 10)  // Unix line ending
+				break;
+			if (c == 13)            // Mac or DOS line ending
+			{
+				int c1;
+
+				c1 = cfgetc(fp);
+				if (c1 != EOF)  // The file could end with a Mac line ending
+					cfseek(fp, -1, SEEK_CUR);
+				if (c1 == 10) // DOS line ending
+					continue;
+				else            // Mac line ending
+					break;
+			}
+		} while (c == 13);
+		if (c == 13)    // because cr-lf is a bad thing on the mac
+			c = '\n';   // and anyway -- 0xod is CR on mac, not 0x0a
+		if (c == '\n')
+			break;
+		*buf++ = c;
+	}
+	*buf = 0;
+
+	return buf;
+}
+
+
+/*
+ * read some data types...
+ */
+
+static inline int cfile_read_int(PHYSFS_file *file)
+{
+	int i;
+
+	if (!PHYSFS_readSLE32(file, &i))
+	{
+		fprintf(stderr, "Error reading int in cfile_read_int()");
+		exit(1);
+	}
+
+	return i;
+}
+
+static inline short cfile_read_short(PHYSFS_file *file)
+{
+	int16_t s;
+
+	if (!PHYSFS_readSLE16(file, &s))
+	{
+		fprintf(stderr, "Error reading short in cfile_read_short()");
+		exit(1);
+	}
+
+	return s;
+}
+
+static inline sbyte cfile_read_byte(PHYSFS_file *file)
+{
+	sbyte b;
+
+	if (PHYSFS_read(file, &b, sizeof(b), 1) != 1)
+	{
+		fprintf(stderr, "Error reading byte in cfile_read_byte()");
+		exit(1);
+	}
+
+	return b;
+}
+
+static inline fix cfile_read_fix(PHYSFS_file *file)
+{
+	int f;  // a fix is defined as a long for Mac OS 9, and MPW can't convert from (long *) to (int *)
+
+	if (!PHYSFS_readSLE32(file, &f))
+	{
+		fprintf(stderr, "Error reading fix in cfile_read_fix()");
+		exit(1);
+	}
+
+	return f;
+}
+
+static inline fixang cfile_read_fixang(PHYSFS_file *file)
+{
+	fixang f;
+
+	if (!PHYSFS_readSLE16(file, &f))
+	{
+		fprintf(stderr, "Error reading fixang in cfile_read_fixang()");
+		exit(1);
+	}
+
+	return f;
+}
+
+static inline void cfile_read_vector(vms_vector *v, PHYSFS_file *file)
+{
+	v->x = cfile_read_fix(file);
+	v->y = cfile_read_fix(file);
+	v->z = cfile_read_fix(file);
+}
+
+static inline void cfile_read_angvec(vms_angvec *v, PHYSFS_file *file)
+{
+	v->p = cfile_read_fixang(file);
+	v->b = cfile_read_fixang(file);
+	v->h = cfile_read_fixang(file);
+}
+
+static inline void cfile_read_matrix(vms_matrix *m,PHYSFS_file *file)
+{
+	cfile_read_vector(&m->rvec,file);
+	cfile_read_vector(&m->uvec,file);
+	cfile_read_vector(&m->fvec,file);
+}
 
 #endif

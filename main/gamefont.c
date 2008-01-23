@@ -159,11 +159,11 @@ void gamefont_init()
 		// addfontconf(i,640,Gamefont_filenames_h[i]);
 
 		if (GameArg.GfxUseHiresFont
-			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font1-1h.fnt")
-			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font2-1h.fnt")
-			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font2-2h.fnt")
-			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font2-3h.fnt")
-			&& cfexist(DESCENT_DATA_PATH HIRES_DIR "font3-1h.fnt"))
+			&& cfexist(HIRES_DIR "font1-1h.fnt")
+			&& cfexist(HIRES_DIR "font2-1h.fnt")
+			&& cfexist(HIRES_DIR "font2-2h.fnt")
+			&& cfexist(HIRES_DIR "font2-3h.fnt")
+			&& cfexist(HIRES_DIR "font3-1h.fnt"))
 			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
 		else
 			GameArg.GfxUseHiresFont = 0;

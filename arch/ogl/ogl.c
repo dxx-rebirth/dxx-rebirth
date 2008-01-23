@@ -1018,12 +1018,12 @@ void ogl_init_pixel_buffers(int w, int h)
 	h = pow2ize(h);
 
 	if (pixels)
-		free(pixels);
-	pixels = malloc(w*h*4);
+		d_free(pixels);
+	pixels = d_malloc(w*h*4);
 
 	if (texbuf)
-		free(texbuf);
-	texbuf = malloc(max(w, 1024)*max(h, 256)*4);	// must also fit big font texture
+		d_free(texbuf);
+	texbuf = d_malloc(max(w, 1024)*max(h, 256)*4);	// must also fit big font texture
 
 	if ((pixels == NULL) || (texbuf == NULL))
 		Error("Not enough memory for current resolution");
@@ -1031,8 +1031,8 @@ void ogl_init_pixel_buffers(int w, int h)
 
 void ogl_close_pixel_buffers(void)
 {
-	free(pixels);
-	free(texbuf);
+	d_free(pixels);
+	d_free(texbuf);
 }
 
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format)
@@ -1338,17 +1338,17 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 				if (bm->gltexture == NULL)
 					ogl_init_texture(bm->gltexture = ogl_get_free_texture(), pdata.width, pdata.height, flags | ((pdata.alpha || bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
 				ogl_loadtexture(pdata.data, 0, 0, bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels);
-				free(pdata.data);
+				d_free(pdata.data);
 				if (pdata.palette)
-					free(pdata.palette);
+					d_free(pdata.palette);
 				return;
 			}
 			else
 			{
 				printf("%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8\n", filename);
-				free(pdata.data);
+				d_free(pdata.data);
 				if (pdata.palette)
-					free(pdata.palette);
+					d_free(pdata.palette);
 			}
 		}
 	}

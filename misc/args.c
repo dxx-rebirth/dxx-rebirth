@@ -20,6 +20,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include "u_mem.h"
+#include "physfsx.h"
 #include "strio.h"
 #include "strutil.h"
 #include "args.h"
@@ -42,7 +43,10 @@ char * Args[MAX_ARGS];
 
 struct Arg GameArg;
 
-int FindArg( char * s )	{
+void ReadCmdArgs(void);
+
+int FindArg(char * s)
+{
 	int i;
 
 #ifndef NDEBUG
@@ -80,30 +84,29 @@ int FindResArg(char *prefix, int *sw, int *sh)
 		}
 
 	return 0;
-
 }
 
 void AppendIniArgs(void)
 {
-	FILE *f;
+	PHYSFS_file *f;
 	char *line,*word;
 
-	f=fopen(INI_FILENAME,"rt");
+	f = PHYSFSX_openReadBuffered(INI_FILENAME);
 	
 	if(f) {
-		while(!feof(f) && Num_args < MAX_ARGS)
+		while(!PHYSFS_eof(f) && Num_args < MAX_ARGS)
 		{
-			line=fsplitword(f,'\n');
+			line=fgets_unlimited(f);
 			word=splitword(line,' ');
 			
-			Args[Num_args++] = strdup(word);
+			Args[Num_args++] = d_strdup(word);
 			
 			if(line)
-				Args[Num_args++] = strdup(line);
+				Args[Num_args++] = d_strdup(line);
 			
-			free(line); free(word);
+			d_free(line); d_free(word);
 		}
-		fclose(f);
+		PHYSFS_close(f);
 	}
 }
 
@@ -134,7 +137,12 @@ void ReadCmdArgs(void)
 	if (GameArg.SysMaxFPS <= 0 || GameArg.SysMaxFPS > MAXIMUM_FPS)
 		GameArg.SysMaxFPS = MAXIMUM_FPS;
 
-	GameArg.SysMissionDir 		= get_str_arg("-missiondir", DESCENT_DATA_PATH "missions/");
+	GameArg.SysMissionDir 		= get_str_arg("-missiondir", "missions/");
+
+	GameArg.SysHogDir = get_str_arg("-hogdir", NULL);
+	if (GameArg.SysHogDir == NULL)
+		GameArg.SysNoHogDir = FindArg("-nohogdir");
+
 	GameArg.SysUsePlayersDir 	= FindArg("-use_players_dir");
 	GameArg.SysLowMem 		= FindArg("-lowmem");
 	GameArg.SysLegacyHomers 	= FindArg("-legacyhomers");
@@ -255,7 +263,7 @@ void args_exit(void)
 {
 	int i;
 	for (i=0; i< Num_args; i++ )
-		free(Args[i]);
+		d_free(Args[i]);
 }
 
 void InitArgs( int argc,char **argv )
@@ -265,7 +273,8 @@ void InitArgs( int argc,char **argv )
 	Num_args=0;
 	
 	for (i=0; i<argc; i++ )
-		Args[Num_args++] = strdup( argv[i] );
+		Args[Num_args++] = d_strdup( argv[i] );
+
 
 	for (i=0; i< Num_args; i++ ) {
 		if ( Args[i][0] == '-' )

@@ -181,11 +181,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef SHAREWARE
 #define Last_level			7			//the number of the very last level for shareware
 #define Last_secret_level	0 			// No secret levels!
-#else
-extern int Last_level,Last_secret_level;	//set by mission code
+// #else
+// extern int Last_level,Last_secret_level;	//set by mission code
 #endif
 
-extern int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
+// extern int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
 
 #define LEVEL_NAME_LEN 36		//make sure this is multipe of 4!
 

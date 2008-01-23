@@ -3557,99 +3557,147 @@ void init_robots_for_level(void)
 	Overall_agitation = 0;
 }
 
-int ai_save_state( FILE * fp )
+// int ai_save_state( FILE * fp )
+// {
+//  char buffer[1024]; // That should be enough for us...
+//  char *ptr=buffer;
+//  int i;
+// 
+//  d_export_int(buffer, Ai_initialized);
+//  d_export_int(buffer+SIZEOF_INT, Overall_agitation);
+//  fwrite(buffer, SIZEOF_INT, 2, fp);
+// 
+//  for (i=0; i<MAX_OBJECTS; i++)
+//  {
+//    d_export_ai_local(buffer, &Ai_local_info[i]);
+//    fwrite(buffer, SIZEOF_AI_LOCAL, 1, fp);
+//  }
+//  for (i=0; i<MAX_POINT_SEGS; i++)
+//  {
+//    d_export_point_seg(buffer, &Point_segs[i]);
+//    fwrite(buffer, SIZEOF_POINT_SEG, 1, fp);
+//  }
+//  for (i=0; i<MAX_AI_CLOAK_INFO; i++)
+//  {
+//    d_export_fix(buffer,Ai_cloak_info[i].last_time);
+//    d_export_vms_vector(buffer + SIZEOF_FIX, &Ai_cloak_info[i].last_position);
+//    fwrite(buffer, SIZEOF_FIX + SIZEOF_VMS_VECTOR, 1, fp);
+//  }
+//  d_export_fix(ptr, Boss_cloak_start_time);      ptr+=SIZEOF_FIX;
+//  d_export_fix(ptr, Boss_cloak_end_time);        ptr+=SIZEOF_FIX;
+//  d_export_fix(ptr, Last_teleport_time);         ptr+=SIZEOF_FIX;
+//  d_export_fix(ptr, Boss_teleport_interval);     ptr+=SIZEOF_FIX;
+//  d_export_fix(ptr, Boss_cloak_interval);        ptr+=SIZEOF_FIX;
+//  d_export_fix(ptr, Boss_cloak_duration);        ptr+=SIZEOF_FIX;
+//  d_export_fix(ptr, Last_gate_time);             ptr+=SIZEOF_FIX;
+//  d_export_fix(ptr, Gate_interval);              ptr+=SIZEOF_FIX;
+//  d_export_fix(ptr, Boss_dying_start_time);      ptr+=SIZEOF_FIX;
+//  d_export_int(ptr, Boss_dying);                 ptr+=SIZEOF_INT;
+//  d_export_int(ptr, Boss_dying_sound_playing);   ptr+=SIZEOF_INT;
+//  d_export_int(ptr, Boss_hit_this_frame);        ptr+=SIZEOF_INT;
+//  d_export_int(ptr, Boss_been_hit);
+//  fwrite(buffer, (SIZEOF_FIX * 9) + (SIZEOF_INT * 4), 1, fp);
+// 
+//  return 1;
+// }
+
+int ai_save_state(PHYSFS_file *fp)
 {
- char buffer[1024]; // That should be enough for us...
- char *ptr=buffer;
- int i;
+	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
+	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
+	PHYSFS_write(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
+	PHYSFS_write(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
+	PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
+	PHYSFS_write(fp, &Boss_cloak_start_time, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_cloak_end_time, sizeof(fix), 1);
+	PHYSFS_write(fp, &Last_teleport_time, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_cloak_duration, sizeof(fix), 1);
+	PHYSFS_write(fp, &Last_gate_time, sizeof(fix), 1);
+	PHYSFS_write(fp, &Gate_interval, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_dying_start_time, sizeof(fix), 1);
+	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
+	PHYSFS_write(fp, &Boss_dying_sound_playing, sizeof(int), 1);
+	PHYSFS_write(fp, &Boss_hit_this_frame, sizeof(int), 1);
+	PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
 
- d_export_int(buffer, Ai_initialized);
- d_export_int(buffer+SIZEOF_INT, Overall_agitation);
- fwrite(buffer, SIZEOF_INT, 2, fp);
-
- for (i=0; i<MAX_OBJECTS; i++)
- {
-   d_export_ai_local(buffer, &Ai_local_info[i]);
-   fwrite(buffer, SIZEOF_AI_LOCAL, 1, fp);
- }
- for (i=0; i<MAX_POINT_SEGS; i++)
- {
-   d_export_point_seg(buffer, &Point_segs[i]);
-   fwrite(buffer, SIZEOF_POINT_SEG, 1, fp);
- }
- for (i=0; i<MAX_AI_CLOAK_INFO; i++)
- {
-   d_export_fix(buffer,Ai_cloak_info[i].last_time);
-   d_export_vms_vector(buffer + SIZEOF_FIX, &Ai_cloak_info[i].last_position);
-   fwrite(buffer, SIZEOF_FIX + SIZEOF_VMS_VECTOR, 1, fp);
- }
- d_export_fix(ptr, Boss_cloak_start_time);      ptr+=SIZEOF_FIX;
- d_export_fix(ptr, Boss_cloak_end_time);        ptr+=SIZEOF_FIX;
- d_export_fix(ptr, Last_teleport_time);         ptr+=SIZEOF_FIX;
- d_export_fix(ptr, Boss_teleport_interval);     ptr+=SIZEOF_FIX;
- d_export_fix(ptr, Boss_cloak_interval);        ptr+=SIZEOF_FIX;
- d_export_fix(ptr, Boss_cloak_duration);        ptr+=SIZEOF_FIX;
- d_export_fix(ptr, Last_gate_time);             ptr+=SIZEOF_FIX;
- d_export_fix(ptr, Gate_interval);              ptr+=SIZEOF_FIX;
- d_export_fix(ptr, Boss_dying_start_time);      ptr+=SIZEOF_FIX;
- d_export_int(ptr, Boss_dying);                 ptr+=SIZEOF_INT;
- d_export_int(ptr, Boss_dying_sound_playing);   ptr+=SIZEOF_INT;
- d_export_int(ptr, Boss_hit_this_frame);        ptr+=SIZEOF_INT;
- d_export_int(ptr, Boss_been_hit);
- fwrite(buffer, (SIZEOF_FIX * 9) + (SIZEOF_INT * 4), 1, fp);
-
- return 1;
+	return 1;
 }
 
-int ai_restore_state( FILE * fp )
+// int ai_restore_state( FILE * fp )
+// {
+//  // Enough storage space to last us.
+//  char buffer[1024];
+//  char *ptr=buffer;
+//  int i;
+// 
+//  fread(buffer,SIZEOF_INT,2,fp);
+//  Ai_initialized = d_import_int(buffer);
+//  Overall_agitation = d_import_int(buffer+SIZEOF_INT);
+// 
+//  for (i=0; i<MAX_OBJECTS; i++)
+//  {
+//    fread(buffer, SIZEOF_AI_LOCAL, 1, fp);
+//    d_import_ai_local(&Ai_local_info[i], buffer);
+//  }
+// 
+//  for (i=0; i<MAX_POINT_SEGS; i++)
+//  {
+//    fread(buffer, SIZEOF_POINT_SEG, 1, fp);
+//    d_import_point_seg(&Point_segs[i], buffer);
+//  }
+//  for (i=0; i<MAX_AI_CLOAK_INFO; i++)
+//  {
+//    // This struct is local to ai.c, so we handle it internally here.
+//    // It is only ever read here, and only ever stored above.
+//    fread(buffer, SIZEOF_FIX + SIZEOF_VMS_VECTOR, 1, fp);
+//    Ai_cloak_info[i].last_time = d_import_fix(buffer);
+//    d_import_vms_vector(&Ai_cloak_info[i].last_position, buffer + SIZEOF_FIX);
+//  }
+// 
+//  fread(buffer,SIZEOF_FIX,9,fp);
+//  Boss_cloak_start_time = d_import_fix(ptr);  ptr += SIZEOF_FIX;
+//  Boss_cloak_end_time = d_import_fix(ptr);    ptr += SIZEOF_FIX;
+//  Last_teleport_time = d_import_fix(ptr);     ptr += SIZEOF_FIX;
+//  Boss_teleport_interval = d_import_fix(ptr); ptr += SIZEOF_FIX;
+//  Boss_cloak_interval = d_import_fix(ptr);    ptr += SIZEOF_FIX;
+//  Boss_cloak_duration = d_import_fix(ptr);    ptr += SIZEOF_FIX;
+//  Last_gate_time = d_import_fix(ptr);         ptr += SIZEOF_FIX;
+//  Gate_interval = d_import_fix(ptr);          ptr += SIZEOF_FIX;
+//  Boss_dying_start_time = d_import_fix(ptr);  ptr = buffer;
+// 
+//  fread(buffer,SIZEOF_INT,4,fp);
+//  Boss_dying = d_import_int(ptr);                ptr+=SIZEOF_INT;
+//  Boss_dying_sound_playing = d_import_int(ptr);  ptr+=SIZEOF_INT;
+//  Boss_hit_this_frame = d_import_int(ptr);       ptr+=SIZEOF_INT;
+//  Boss_been_hit = d_import_int(ptr);
+// 
+//  return 1;
+// }
+
+int ai_restore_state(PHYSFS_file *fp, int version)
 {
- // Enough storage space to last us.
- char buffer[1024];
- char *ptr=buffer;
- int i;
+	PHYSFS_read(fp, &Ai_initialized, sizeof(int), 1);
+	PHYSFS_read(fp, &Overall_agitation, sizeof(int), 1);
+	PHYSFS_read(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
+	PHYSFS_read(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
+	PHYSFS_read(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
+	PHYSFS_read(fp, &Boss_cloak_start_time, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_cloak_end_time, sizeof(fix), 1);
+	PHYSFS_read(fp, &Last_teleport_time, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_teleport_interval, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_cloak_interval, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_cloak_duration, sizeof(fix), 1);
+	PHYSFS_read(fp, &Last_gate_time, sizeof(fix), 1);
+	PHYSFS_read(fp, &Gate_interval, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_dying_start_time, sizeof(fix), 1);
+	PHYSFS_read(fp, &Boss_dying, sizeof(int), 1);
+	PHYSFS_read(fp, &Boss_dying_sound_playing, sizeof(int), 1);
+	PHYSFS_read(fp, &Boss_hit_this_frame, sizeof(int), 1);
+	PHYSFS_read(fp, &Boss_been_hit, sizeof(int), 1);
 
- fread(buffer,SIZEOF_INT,2,fp);
- Ai_initialized = d_import_int(buffer);
- Overall_agitation = d_import_int(buffer+SIZEOF_INT);
-
- for (i=0; i<MAX_OBJECTS; i++)
- {
-   fread(buffer, SIZEOF_AI_LOCAL, 1, fp);
-   d_import_ai_local(&Ai_local_info[i], buffer);
- }
-
- for (i=0; i<MAX_POINT_SEGS; i++)
- {
-   fread(buffer, SIZEOF_POINT_SEG, 1, fp);
-   d_import_point_seg(&Point_segs[i], buffer);
- }
- for (i=0; i<MAX_AI_CLOAK_INFO; i++)
- {
-   // This struct is local to ai.c, so we handle it internally here.
-   // It is only ever read here, and only ever stored above.
-   fread(buffer, SIZEOF_FIX + SIZEOF_VMS_VECTOR, 1, fp);
-   Ai_cloak_info[i].last_time = d_import_fix(buffer);
-   d_import_vms_vector(&Ai_cloak_info[i].last_position, buffer + SIZEOF_FIX);
- }
-
- fread(buffer,SIZEOF_FIX,9,fp);
- Boss_cloak_start_time = d_import_fix(ptr);  ptr += SIZEOF_FIX;
- Boss_cloak_end_time = d_import_fix(ptr);    ptr += SIZEOF_FIX;
- Last_teleport_time = d_import_fix(ptr);     ptr += SIZEOF_FIX;
- Boss_teleport_interval = d_import_fix(ptr); ptr += SIZEOF_FIX;
- Boss_cloak_interval = d_import_fix(ptr);    ptr += SIZEOF_FIX;
- Boss_cloak_duration = d_import_fix(ptr);    ptr += SIZEOF_FIX;
- Last_gate_time = d_import_fix(ptr);         ptr += SIZEOF_FIX;
- Gate_interval = d_import_fix(ptr);          ptr += SIZEOF_FIX;
- Boss_dying_start_time = d_import_fix(ptr);  ptr = buffer;
-
- fread(buffer,SIZEOF_INT,4,fp);
- Boss_dying = d_import_int(ptr);                ptr+=SIZEOF_INT;
- Boss_dying_sound_playing = d_import_int(ptr);  ptr+=SIZEOF_INT;
- Boss_hit_this_frame = d_import_int(ptr);       ptr+=SIZEOF_INT;
- Boss_been_hit = d_import_int(ptr);
-
- return 1;
+	return 1;
 }
 
 // -- void show_path_and_other(object *objp )

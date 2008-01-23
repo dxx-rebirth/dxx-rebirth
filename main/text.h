@@ -756,6 +756,8 @@ extern char *Text_string[];
 #define MENU_DIFFICULTY_TEXT(difficulty) (*(&TXT_DIFFICULTY_1 + (difficulty)))
 #define MENU_DETAIL_TEXT(detail) (*(&TXT_DETAIL_1 + (detail)))
 
+void decode_text_line(char *text_line); // decryption for bitmaps.tbl
+void decode_text(char *text, int len);  // decryption for briefings, etc.
 //Load function
 void load_text(void);
 

@@ -11,54 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/medsel.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:54 $
- * 
+ *
  * Routines stripped from med.c for segment selection
- * 
- * $Log: medsel.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:54  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:03:57  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:20  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.10  1994/08/09  16:05:59  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.9  1994/05/23  14:56:27  mike
- * make current segment be add segment.
- * 
- * Revision 1.8  1994/05/14  18:00:50  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.7  1994/03/31  12:03:33  matt
- * Cleaned up includes
- * 
- * Revision 1.6  1994/02/17  12:52:13  yuan
- * Unbackdated
- * y
- * 
- * Revision 1.4  1994/02/17  09:46:53  matt
- * Removed include of slew.h
- * 
- * Revision 1.3  1994/01/05  10:54:23  john
- * New object code by John
- * 
- * Revision 1.2  1993/12/17  12:18:22  john
- * Moved selection stuff out of med.c
- * 
- * Revision 1.1  1993/12/17  09:29:34  john
- * Initial revision
- * 
- * 
  */
 
 
@@ -118,7 +73,7 @@ void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos)
 	int i;
 	sort_element *sortlist;
 
-	sortlist = calloc(n_segs,sizeof(*sortlist));
+	sortlist = d_calloc(n_segs,sizeof(*sortlist));
 
 	for (i=0;i<n_segs;i++) {
 		sortlist[i].segnum = segnumlist[i];
@@ -130,7 +85,7 @@ void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos)
 	for (i=0;i<n_segs;i++)
 		segnumlist[i] = sortlist[i].segnum;
 
-	free(sortlist);
+	d_free(sortlist);
 }
 
 int SortSelectedList(void)

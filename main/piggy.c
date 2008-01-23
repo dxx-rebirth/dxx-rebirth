@@ -97,6 +97,8 @@ ubyte * Piggy_bitmap_cache_data = NULL;
 /*static*/ ubyte GameBitmapFlags[MAX_BITMAP_FILES];
 ushort GameBitmapXlat[MAX_BITMAP_FILES];
 
+#define DEFAULT_PIGFILE_REGISTERED      "descent.pig"
+
 #define PIGGY_BUFFER_SIZE (2048*1024)
 
 int piggy_page_flushed = 0;
@@ -334,7 +336,6 @@ int piggy_init()
 	DiskSoundHeader sndh;
 	int header_size, N_bitmaps, N_sounds;
 	int i,size, length;
-	char * filename;
 	int read_sounds = 1;
 	int Pigdata_start;
 
@@ -395,10 +396,8 @@ int piggy_init()
 //end this section addition - VR
 		GameBitmapOffset[0] = 0;
 	}
-
-        filename = DESCENT_DATA_PATH "descent.pig";
 	
-	Piggy_fp = cfopen( filename, "rb" );
+	Piggy_fp = PHYSFSX_openDataFile(DEFAULT_PIGFILE_REGISTERED);
 	if (Piggy_fp==NULL) return 0;
 
 #ifdef SHAREWARE
@@ -484,7 +483,7 @@ int piggy_init()
 
 	}
 
-	SoundBits = malloc( sbytes + 16 );
+	SoundBits = d_malloc( sbytes + 16 );
          if ( SoundBits == NULL )
           Error( "Not enough memory to load DESCENT.PIG sounds\n");
 
@@ -494,7 +493,7 @@ int piggy_init()
 #else
 	Piggy_bitmap_cache_size = PIGGY_BUFFER_SIZE;
 #endif
-	BitmapBits = malloc( Piggy_bitmap_cache_size );
+	BitmapBits = d_malloc( Piggy_bitmap_cache_size );
 	if ( BitmapBits == NULL )
 		Error( "Not enough memory to load DESCENT.PIG bitmaps\n" );
 	Piggy_bitmap_cache_data = BitmapBits;	
@@ -560,8 +559,8 @@ void piggy_read_sounds()
 //Arne's decompress for shareware on all soundcards - Tim@Rikers.org
 #ifdef SHAREWARE
 				if (lastsize < SoundCompressed[i]) {
-					if (lastbuf) free(lastbuf);
-					lastbuf = malloc(SoundCompressed[i]);
+					if (lastbuf) d_free(lastbuf);
+					lastbuf = d_malloc(SoundCompressed[i]);
 				}
 				cfread( lastbuf, SoundCompressed[i], 1, Piggy_fp );
 				sound_decompress( lastbuf, SoundCompressed[i], snd->data );
@@ -578,7 +577,7 @@ void piggy_read_sounds()
         mprintf(( 0, "\nActual Sound usage: %d KB\n", sbytes/1024 ));
 #ifdef SHAREWARE
 	if (lastbuf)
-	  free(lastbuf);
+	  d_free(lastbuf);
 #endif
 }
 
@@ -800,7 +799,7 @@ void piggy_dump_all()
 	piggy_close_file();
 
 	mprintf( (0, "Creating DESCENT.PIG..." ));
-        filename = DESCENT_DATA_PATH "descent.pig";
+        filename = SHAREPATH "descent.pig";
 
 	mprintf( (0, "\nDumping bitmaps..." ));
 
@@ -985,10 +984,10 @@ void piggy_close()
 //added ifndef on 10/04/98 by Matt Mueller to fix crash on exit bug -- killed 2000/02/06 since they don't seem to cause crash anymore.  heh.
 //#ifndef __LINUX__
 	if (BitmapBits)
-		free(BitmapBits);
+		d_free(BitmapBits);
 
 	if ( SoundBits )
-		free( SoundBits );
+		d_free( SoundBits );
 //#endif
 //end addition -MM
 	

@@ -9,26 +9,14 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
 #include <string.h>
-#ifdef __unix__
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
-#ifdef __WINDOWS__
-#include <windows.h>
-#include <dir.h>
-#endif
+#include <stdlib.h>
+
 #include "args.h"
 #include "hmp2mid.h"
 #include "digi_mixer_music.h"
 #include "jukebox.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#ifndef macintosh
-#include <unistd.h>
-#endif
-#include <errno.h>
 #include "cfile.h"
+#include "u_mem.h"
 
 #define MIX_MUSIC_DEBUG 0
 #define MUSIC_FADE_TIME 500 //milliseconds
@@ -41,45 +29,54 @@ void music_hook_next();
 
 void convert_hmp(char *filename, char *mid_filename) {
 
-    if (MIX_MUSIC_DEBUG) printf("convert_hmp: converting %s to %s\n", filename, mid_filename);
-
+  if (!PHYSFS_exists(mid_filename))
+  {
     const char *err;
-    CFILE *hmp_in;
-    FILE *mid_out = fopen(mid_filename, "w");
+    PHYSFS_file *hmp_in;
+    PHYSFS_file *mid_out = PHYSFSX_openWriteBuffered(mid_filename);
 
     if (!mid_out) {
-      fprintf(stderr, "Error could not open: %s for writing: %s\n", mid_filename, strerror(errno));
+      fprintf(stderr, "Error could not open: %s for writing: %s\n", mid_filename, PHYSFS_getLastError());
       return;
     }
 
-    hmp_in = cfopen(filename, "rb");
+    if (MIX_MUSIC_DEBUG) printf("convert_hmp: converting %s to %s\n", filename, mid_filename);
+
+    hmp_in = PHYSFSX_openReadBuffered(filename);
 
     if (!hmp_in) {
       fprintf(stderr, "Error could not open: %s\n", filename);
-      fclose(mid_out);
+      PHYSFS_close(mid_out);
       return;
     }
 
-    err = hmp2mid((hmp2mid_read_func_t) cfread, hmp_in, mid_out);
+    err = hmp2mid(hmp_in, mid_out);
 
-    fclose(mid_out);
-    cfclose(hmp_in);
+    PHYSFS_close(mid_out);
+    PHYSFS_close(hmp_in);
 
     if (err) {
       fprintf(stderr, "%s\n", err);
-      unlink(mid_filename);
+      PHYSFS_delete(mid_filename);
       return;
     }
+  }
+  else {
+    if (MIX_MUSIC_DEBUG) printf("convert_hmp: %s already exists\n", mid_filename);
+  }
 }
 
-/* This function handles playback of the internal songs (or their external counterparts) */
+/*
+ *  Plays a music given its name (regular game songs)
+ */
+
 void mix_play_music(char *filename, int loop) {
+  int i, got_end=0;
+  char rel_filename[32];	// just the filename of the actual music file used
+  char music_title[16];
+  char *basedir = "Music";
 
   loop *= -1; 
-  int i, got_end=0;
-  char *basedir = "Music";
-  char rel_filename[32];
-  char music_title[16];
 
   // Quick hack to filter out the .hmp extension
   for (i=0; !got_end; i++) {
@@ -94,12 +91,8 @@ void mix_play_music(char *filename, int loop) {
     }
   }
 
-  if (!cfexist(basedir))
-    mkdir(basedir
-#ifndef __WINDOWS__
-    , 0775
-#endif
-    ); //try making directory
+  if (!PHYSFS_isDirectory(basedir))
+	  PHYSFS_mkdir(basedir);	// tidy up those files
 
   // What is the extension of external files? If none, default to internal MIDI
   if (GameArg.SndExternalMusic) {
@@ -110,14 +103,18 @@ void mix_play_music(char *filename, int loop) {
     convert_hmp(filename, rel_filename);
   }
 
-  mix_play_file("", rel_filename, loop);
+  mix_play_file(rel_filename, loop);
 }
 
-void mix_play_file(char *basedir, char *filename, int loop) {
 
-  int fn_buf_len = strlen(basedir) + strlen(filename) + 1;
-  char real_filename[fn_buf_len];
-  sprintf(real_filename, "%s%s", basedir, filename); // build absolute path
+/*
+ *  Plays a music file from an absolute path (used by jukebox)
+ */
+
+void mix_play_file(char *filename, int loop) {
+  char real_filename[PATH_MAX];
+
+  PHYSFSX_getRealPath(filename, real_filename); // build absolute path
 
   if ((current_music = Mix_LoadMUS(real_filename))) {
     if (Mix_PlayingMusic()) {
@@ -130,7 +127,7 @@ void mix_play_file(char *basedir, char *filename, int loop) {
     Mix_HookMusicFinished(loop == -1 ? music_hook_next : music_hook_stop);
   }
   else {
-    fprintf(stderr, "File %s%s could not be loaded\n", basedir, filename);
+    fprintf(stderr, "Music %s could not be loaded\n", real_filename);
     Mix_HaltMusic();
   }
 }
@@ -150,6 +147,7 @@ void music_hook_next() {
 }
 
 void mix_set_music_volume(int vol) {
+  //printf("mix_set_music_volume %d\n", vol);
   Mix_VolumeMusic(vol);
 }
 

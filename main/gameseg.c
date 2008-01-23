@@ -30,7 +30,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "wall.h"
 #include "fuelcen.h"
-#include "u_mem.h"     //for stackavail()
 #include "byteswap.h"
 
 #ifdef RCS
@@ -737,20 +736,6 @@ int trace_segs(vms_vector *p0,int oldsegnum)
 	fix side_dists[6];
 
 	Assert((oldsegnum <= Highest_segment_index) && (oldsegnum >= 0));
-
-	if (stackavail() < 1024) {		//if no debugging, we'll get past assert
-
-		#ifndef NDEBUG
-		if (!Doing_lighting_hack_flag)
-			Int3();	// Please get Matt, or if you cannot, then type 
-						// "?p0->xyz,segnum" at the DBG prompt, write down
-						// the values (a 3-element vector and a segment number), 
-						// and make a copy of the mine you are playing.
-		#endif
-
-		return oldsegnum;				//just say we're in this segment and be done with it
-	}
-
 
 	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
 

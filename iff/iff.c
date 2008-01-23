@@ -11,157 +11,8 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/iff/iff.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:19 $
  *
  * Routines for reading and writing IFF files
- *
- * $Log: iff.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:19  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:04:40  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.43  1994/12/08  19:03:17  john
- * Added code to use cfile.
- * 
- * Revision 1.42  1994/12/08  17:45:32  john
- * Put back in cfile stuff.
- * 
- * Revision 1.41  1994/11/19  16:41:06  matt
- * Took out unused code
- * 
- * Revision 1.40  1994/11/07  21:26:39  matt
- * Added new function iff_read_into_bitmap()
- * 
- * Revision 1.39  1994/10/27  00:12:03  john
- * Used nocfile
- * 
- * Revision 1.38  1994/08/10  19:49:58  matt
- * Fixed bitmaps in ILBM format with masking (stencil) on.
- * 
- * Revision 1.37  1994/06/02  18:53:17  matt
- * Clear flags & selector in new bitmap structure
- * 
- * Revision 1.36  1994/05/17  14:00:33  matt
- * Fixed bug with odd-width deltas & odd-length body chunks
- * 
- * Revision 1.35  1994/05/16  20:38:55  matt
- * Made anim brushes work when odd width
- * 
- * Revision 1.34  1994/05/06  19:37:26  matt
- * Improved error handling and checking
- * 
- * Revision 1.33  1994/04/27  20:57:07  matt
- * Fixed problem with RLE decompression and odd-width bitmap
- * Added more error checking
- * 
- * Revision 1.32  1994/04/16  21:44:19  matt
- * Fixed bug introduced last version
- * 
- * Revision 1.31  1994/04/16  20:12:40  matt
- * Made masked (stenciled) bitmaps work
- * 
- * Revision 1.30  1994/04/13  23:46:16  matt
- * Added function, iff_errormsg(), which returns ptr to error message.
- * 
- * Revision 1.29  1994/04/13  23:27:25  matt
- * Put in support for anim brushes (.abm files)
- * 
- * Revision 1.28  1994/04/13  16:33:31  matt
- * Cleaned up file read code, adding fake_file structure (FFILE), which
- * cleanly implements reading the entire file into a buffer and then reading
- * out of that buffer.
- * 
- * Revision 1.27  1994/04/06  23:07:43  matt
- * Cleaned up code; added prototype (but no new code) for anim brush read
- * 
- * Revision 1.26  1994/03/19  02:51:52  matt
- * Really did what I said I did last revision.
- * 
- * Revision 1.25  1994/03/19  02:16:07  matt
- * Made work ILBMs which didn't have 8 planes
- * 
- * Revision 1.24  1994/03/15  14:45:26  matt
- * When error, only free memory if has been allocated
- * 
- * Revision 1.23  1994/02/18  12:39:05  john
- * Made code read from buffer.
- * 
- * Revision 1.22  1994/02/15  18:15:26  john
- * Took out cfile attempt (too slow)
- * 
- * Revision 1.21  1994/02/15  13:17:48  john
- * added assert to cfseek.
- * 
- * Revision 1.20  1994/02/15  13:13:11  john
- * Made iff code work normally.
- * 
- * Revision 1.19  1994/02/15  12:51:07  john
- * crappy inbetween version.
- * 
- * Revision 1.18  1994/02/10  18:31:32  matt
- * Changed 'if DEBUG_ON' to 'ifndef NDEBUG'
- * 
- * Revision 1.17  1994/01/24  11:51:26  john
- * Made write routine write transparency info.
- * 
- * Revision 1.16  1994/01/22  14:41:11  john
- * Fixed bug with declareations.
- * 
- * Revision 1.15  1994/01/22  14:23:00  john
- * Added global vars to check transparency
- * 
- * Revision 1.14  1993/12/08  19:00:42  matt
- * Changed while loop to memset
- * 
- * Revision 1.13  1993/12/08  17:23:51  mike
- * Speedup by converting while...getc to fread.
- * 
- * Revision 1.12  1993/12/08  12:37:35  mike
- * Optimize parse_body.
- * 
- * Revision 1.11  1993/12/05  17:30:14  matt
- * Made bitmaps with width <= 64 not compress
- * 
- * Revision 1.10  1993/12/03  12:24:51  matt
- * Fixed TINY chunk when bitmap was part of a larger bitmap
- * 
- * Revision 1.9  1993/11/22  17:26:43  matt
- * iff write now writes out a tiny chunk
- * 
- * Revision 1.8  1993/11/21  22:04:13  matt
- * Fixed error with non-compressed bitmaps
- * Added Yuan's code to free raw data if we get an error parsing the body
- * 
- * Revision 1.7  1993/11/11  12:12:12  yuan
- * Changed mallocs to MALLOCs.
- * 
- * Revision 1.6  1993/11/01  19:02:23  matt
- * Fixed a couple bugs in rle compression
- * 
- * Revision 1.5  1993/10/27  12:47:39  john
- * *** empty log message ***
- * 
- * Revision 1.4  1993/10/27  12:37:31  yuan
- * Added mem.h
- * 
- * Revision 1.3  1993/09/22  19:16:57  matt
- * Added new error type, IFF_CORRUPT, for internally bad IFF files.
- * 
- * Revision 1.2  1993/09/08  19:24:16  matt
- * Fixed bug in RLE compression
- * Changed a bunch of unimportant values like aspect and page size when writing
- * Added new error condition, IFF_BAD_BM_TYPE
- * Make sub-bitmaps work correctly
- * Added compile flag to turn compression off (COMPRESS)
- * 
- * Revision 1.1  1993/09/08  14:24:15  matt
- * Initial revision
- * 
  *
  */
 
@@ -792,7 +643,7 @@ int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 	}
 
-	free(bmheader->raw_data);
+	d_free(bmheader->raw_data);
 	bmheader->raw_data = (unsigned char *) new_data;
 
 	bmheader->type = TYPE_PBM;
@@ -838,7 +689,7 @@ int open_fake_file(char *ifilename,FFILE *ffile)
 
 	MALLOC(ffile->data,ubyte,ffile->length);
 
-	if ((int)cfread(ffile->data, 1, ffile->length, ifile) < ffile->length)
+	if (cfread(ffile->data, 1, ffile->length, ifile) < ffile->length)
 		ret = IFF_READ_ERROR;
 	else
 		ret = IFF_NO_ERROR;
@@ -853,7 +704,7 @@ int open_fake_file(char *ifilename,FFILE *ffile)
 void close_fake_file(FFILE *f)
 {
 	if (f->data)
-		free(f->data);
+		d_free(f->data);
 
 	f->data = NULL;
 }
@@ -906,7 +757,7 @@ int iff_parse_bitmap(FFILE *ifile,grs_bitmap *bm,int bitmap_type,sbyte *palette,
 		ret = IFF_UNKNOWN_FORM;
 
 	if (ret != IFF_NO_ERROR) {		//got an error parsing
-		if (bmheader.raw_data) free(bmheader.raw_data); 
+		if (bmheader.raw_data) d_free(bmheader.raw_data); 
 		goto done;
 	}
 
@@ -949,7 +800,7 @@ int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palett
 		ret = iff_parse_bitmap(&ifile,bm,bitmap_type,(signed char *) palette,NULL);
 	}
 
-	if (ifile.data) free(ifile.data);
+	if (ifile.data) d_free(ifile.data);
 
 	close_fake_file(&ifile);
 
@@ -972,7 +823,7 @@ int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm,sbyte *palette)
 
 done:
 
-	if (ifile.data) free(ifile.data);
+	if (ifile.data) d_free(ifile.data);
 
 	close_fake_file(&ifile);
 
@@ -1139,7 +990,7 @@ int write_body(FILE *ofile,iff_bitmap_header *bitmap_header,int compression_on)
 		if (total_len&1) fputc(0,ofile);		//pad to even
 	}
 
-	free(new_span);
+	d_free(new_span);
 
 	return ((compression_on) ? (EVEN(total_len)+8) : (len+8));
 
@@ -1328,7 +1179,7 @@ int iff_read_animbrush(char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int 
 			prev_bm = *n_bitmaps>0?bm_list[*n_bitmaps-1]:NULL;
 
 			MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );
-			bm_list[*n_bitmaps]=(grs_bitmap *)malloc(1*sizeof(grs_bitmap));
+			bm_list[*n_bitmaps]=(grs_bitmap *)d_malloc(1*sizeof(grs_bitmap));
                         gr_init_bitmap_data ((grs_bitmap *) &bm_list[*n_bitmaps]);
 
 			ret = iff_parse_bitmap(&ifile,bm_list[*n_bitmaps],form_type,*n_bitmaps>0?NULL:(signed char *)palette,prev_bm);

@@ -11,46 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/2d/pcx.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:38:53 $
- * 
+ *
  * Routines to read/write pcx images.
- * 
- * $Log: pcx.c,v $
- * Revision 1.1.1.1  2006/03/17 19:38:53  zicodxx
- * initial import
  *
- * Revision 1.3  1999/11/20 10:05:16  donut
- * variable size menu patch from Jan Bobrowski.  Variable menu font size support and a bunch of fixes for menus that didn't work quite right, by me (MPM).
- *
- * Revision 1.2  1999/08/05 22:53:40  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.1.1.1  1999/06/14 21:57:32  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.6  1995/03/01  15:38:12  john
- * Better ModeX support.
- * 
- * Revision 1.5  1995/01/21  17:54:17  john
- * Added pcx reader for modes other than modex.
- * 
- * Revision 1.4  1994/12/08  19:03:56  john
- * Made functions use cfile.
- * 
- * Revision 1.3  1994/11/29  02:53:24  john
- * Added error messages; made call be more similiar to iff.
- * 
- * Revision 1.2  1994/11/28  20:03:50  john
- * Added PCX functions.
- * 
- * Revision 1.1  1994/11/28  19:57:56  john
- * Initial revision
- * 
- * 
  */
 
 
@@ -66,9 +29,12 @@ static char rcsid[] = "$Id: pcx.c,v 1.1.1.1 2006/03/17 19:38:53 zicodxx Exp $";
 #include "u_mem.h"
 #include "pcx.h"
 #include "cfile.h"
+#include "physfsx.h"
 
-int pcx_encode_byte(ubyte byt, ubyte cnt, FILE * fid);
-int pcx_encode_line(ubyte *inBuff, int inLen, FILE * fp);
+#define PCXHEADER_SIZE 128
+
+int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file * fid);
+int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file * fp);
 
 /* PCX Header data type */
 typedef struct	{
@@ -228,70 +194,72 @@ int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 	int i;
 	ubyte data;
 	PCXHeader header;
-	FILE * PCXfile;
+	PHYSFS_file *PCXfile;
 
-	memset( &header, 0, sizeof( PCXHeader ) );
+	memset( &header, 0, PCXHEADER_SIZE );
 
 	header.Manufacturer = 10;
 	header.Encoding = 1;
 	header.Nplanes = 1;
 	header.BitsPerPixel = 8;
 	header.Version = 5;
-	header.Xmax = (ushort)(bmp->bm_w-1);
-	header.Ymax = (ushort)(bmp->bm_h-1);
-	header.BytesPerLine = (ushort)bmp->bm_w;
+	header.Xmax = bmp->bm_w-1;
+	header.Ymax = bmp->bm_h-1;
+	header.BytesPerLine = bmp->bm_w;
 
-	PCXfile = fopen( filename , "wb" );
+	PCXfile = PHYSFSX_openWriteBuffered(filename);
 	if ( !PCXfile )
 		return PCX_ERROR_OPENING;
 
-	if ( fwrite( &header, sizeof( PCXHeader ), 1, PCXfile ) != 1 )	{
-		fclose( PCXfile );
+	if (PHYSFS_write(PCXfile, &header, PCXHEADER_SIZE, 1) != 1)
+	{
+		PHYSFS_close(PCXfile);
 		return PCX_ERROR_WRITING;
 	}
 
 	for (i=0; i<bmp->bm_h; i++ )	{
 		if (!pcx_encode_line( &bmp->bm_data[bmp->bm_rowsize*i], bmp->bm_w, PCXfile ))	{
-			fclose( PCXfile );
+			PHYSFS_close(PCXfile);
 			return PCX_ERROR_WRITING;
 		}
 	}
 
-	// Mark an extended palette	
+	// Mark an extended palette
 	data = 12;
-	if (fwrite( &data, 1, 1, PCXfile )!=1)	{
-		fclose( PCXfile );
+	if (PHYSFS_write(PCXfile, &data, 1, 1) != 1)
+	{
+		PHYSFS_close(PCXfile);
 		return PCX_ERROR_WRITING;
 	}
 
 	// Write the extended palette
-	for (i=0; i<768; i++ )	
+	for (i=0; i<768; i++ )
 		palette[i] <<= 2;
-	
-	retval = fwrite( palette, 768, 1, PCXfile );
 
-	for (i=0; i<768; i++ )	
+	retval = PHYSFS_write(PCXfile, palette, 768, 1);
+
+	for (i=0; i<768; i++ )
 		palette[i] >>= 2;
 
 	if (retval !=1)	{
-		fclose( PCXfile );
+		PHYSFS_close(PCXfile);
 		return PCX_ERROR_WRITING;
 	}
 
-	fclose( PCXfile );
+	PHYSFS_close(PCXfile);
 	return PCX_ERROR_NONE;
 
 }
 
-// returns number of bytes written into outBuff, 0 if failed 
-int pcx_encode_line(ubyte *inBuff, int inLen, FILE * fp)
-{  
+// returns number of bytes written into outBuff, 0 if failed
+int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp)
+{
 	ubyte this, last;
 	int srcIndex, i;
 	register int total;
 	register ubyte runCount; 	// max single runlength is 63
 	total = 0;
-	last = *(inBuff);		
+	last = *(inBuff);
 	runCount = 1;
 
 	for (srcIndex = 1; srcIndex < inLen; srcIndex++) {
@@ -313,7 +281,7 @@ int pcx_encode_line(ubyte *inBuff, int inLen, FILE * fp)
 			last = this;
 			runCount = 1;
 		}
-	}	
+	}
 
 	if (runCount)	{		// finish up
 		if (!(i=pcx_encode_byte(last, runCount, fp)))
@@ -323,19 +291,19 @@ int pcx_encode_line(ubyte *inBuff, int inLen, FILE * fp)
 	return total;
 }
 
-// subroutine for writing an encoded byte pair 
+// subroutine for writing an encoded byte pair
 // returns count of bytes written, 0 if error
-int pcx_encode_byte(ubyte byt, ubyte cnt, FILE * fid) 
+int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid)
 {
 	if (cnt) {
 		if ( (cnt==1) && (0xc0 != (0xc0 & byt)) )	{
-			if(EOF == putc((int)byt, fid))
+			if(EOF == PHYSFSX_putc(fid, (int)byt))
 				return 0; 	// disk write error (probably full)
 			return 1;
 		} else {
-			if(EOF == putc((int)0xC0 | cnt, fid))
+			if(EOF == PHYSFSX_putc(fid, (int)0xC0 | cnt))
 				return 0; 	// disk write error
-			if(EOF == putc((int)byt, fid))
+			if(EOF == PHYSFSX_putc(fid, (int)byt))
 				return 0; 	// disk write error
 			return 2;
 		}

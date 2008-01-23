@@ -11,62 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/macro.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:24 $
- * 
+ *
  * Routines for recording/playing/saving macros
- * 
- * $Log: macro.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:24  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:03:35  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:09  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.12  1993/11/15  14:46:37  john
- * Changed Menu to MenuX
- * 
- * Revision 1.11  1993/11/05  17:32:44  john
- * added funcs
- * .,
- * 
- * Revision 1.10  1993/10/28  16:23:20  john
- * *** empty log message ***
- * 
- * Revision 1.9  1993/10/28  13:03:12  john
- * ..
- * 
- * Revision 1.8  1993/10/25  16:02:35  john
- * *** empty log message ***
- * 
- * Revision 1.7  1993/10/22  13:35:29  john
- * *** empty log message ***
- * 
- * Revision 1.6  1993/10/21  17:10:09  john
- * Fixed bug w/ load macro.
- * 
- * Revision 1.5  1993/10/19  12:58:47  john
- * *** empty log message ***
- * 
- * Revision 1.4  1993/10/19  12:55:02  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/10/19  12:49:49  john
- * made EventBuffer dynamic, use ReadFile, WriteFile
- * 
- * Revision 1.2  1993/10/15  17:42:20  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/10/15  17:28:06  john
- * Initial revision
- * 
- * 
  */
 
 
@@ -113,7 +60,7 @@ int MacroRecordAll()
 {
 	if ( MacroStatus== UI_STATUS_NORMAL )
 	{
-		if (RecordBuffer) free( RecordBuffer );
+		if (RecordBuffer) d_free( RecordBuffer );
 		MALLOC( RecordBuffer, UI_EVENT, MAX_NUM_EVENTS );
 		ui_record_events( MAX_NUM_EVENTS, RecordBuffer, UI_RECORD_MOUSE | UI_RECORD_KEYS );
 		MacroStatus = UI_STATUS_RECORDING;
@@ -125,7 +72,7 @@ int MacroRecordKeys()
 {
 	if ( MacroStatus== UI_STATUS_NORMAL )
 	{
-		if (RecordBuffer) free( RecordBuffer );
+		if (RecordBuffer) d_free( RecordBuffer );
 		MALLOC( RecordBuffer, UI_EVENT, MAX_NUM_EVENTS );
 		ui_record_events( MAX_NUM_EVENTS, RecordBuffer, UI_RECORD_KEYS );
 		MacroStatus = UI_STATUS_RECORDING;
@@ -178,7 +125,7 @@ int MacroLoad()
 	int length;
 
 	if (ui_get_filename( filename, "*.MAC", "LOAD MACRO" ))   {
-		if (RecordBuffer) free( RecordBuffer );
+		if (RecordBuffer) d_free( RecordBuffer );
 		RecordBuffer = (UI_EVENT *)ReadFile( filename, &length );
 		MacroNumEvents = RecordBuffer[0].data;
 	}
@@ -188,7 +135,7 @@ int MacroLoad()
 void macro_free_buffer()
 {
 	if ( RecordBuffer ) 
-		free(RecordBuffer);
+		d_free(RecordBuffer);
 }
 
 int MacroMenu()

@@ -16,13 +16,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>	// for memset
 #include <ctype.h>
 #include <limits.h>
-#ifdef __unix__
-   #include <sys/types.h>
-   #include <sys/stat.h>
-#else
-    #include <dir.h>
-#endif
-
+#include <errno.h>
 #include "inferno.h"
 #include "game.h"
 #include "gr.h"
@@ -71,12 +65,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "aistruct.h"
 #include "mission.h"
 #include "piggy.h"
-#include "d_glob.h"
 #include "byteswap.h"
-#include "d_io.h"
-//added 05/17/99 Matt Mueller 
 #include "u_mem.h"
-//end addition -MM
+#include "physfsx.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -178,8 +169,8 @@ fix JasonPlaybackTotal=0;
 
 extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 
-FILE *infile;
-FILE *outfile;
+PHYSFS_file *infile;
+PHYSFS_file *outfile = NULL;
 
 int newdemo_get_percent_done()	{
 	return (NewdemoFrameCount*100)/TotalFrames;
@@ -189,8 +180,8 @@ int newdemo_get_percent_done()	{
 
 void my_extract_shortpos(object *objp, shortpos *spp)
 {
-	int	segnum;
-	sbyte	*sp;
+	int segnum;
+	sbyte *sp;
 
 	sp = spp->bytemat;
 	objp->orient.rvec.x = *sp++ << MATRIX_PRECISION;
@@ -220,8 +211,8 @@ void my_extract_shortpos(object *objp, shortpos *spp)
 int newdemo_read( void *buffer, int elsize, int nelem )
 {
 	int num_read;
-	num_read = fread( buffer,elsize,nelem, infile );
- 	if (ferror(infile) || feof(infile))
+	num_read = PHYSFS_read(infile, buffer, elsize, nelem);
+	if (num_read < nelem || PHYSFS_eof(infile))
 		nd_bad_read = -1;
 
 	return num_read;
@@ -246,11 +237,16 @@ int newdemo_write( void *buffer, int elsize, int nelem )
 	total_size = elsize * nelem;
 	frame_bytes_written += total_size;
 	Newdemo_num_written += total_size;
-	num_written = fwrite( buffer, elsize, nelem, outfile );
-
+	Assert(outfile != NULL);
+	num_written = PHYSFS_write(outfile, buffer, elsize, nelem);
+	//if ((Newdemo_num_written > Newdemo_size) && !Newdemo_no_space) {
+	//	Newdemo_no_space=1;
+	//	newdemo_stop_recording();
+	//	return -1;
+	//}
 	if ((Newdemo_num_written > Newdemo_size) && !Newdemo_no_space)
 		Newdemo_no_space=1;
-	if (num_written == nelem)
+	if (num_written == nelem && !Newdemo_no_space)
 		return num_written;
 
 	Newdemo_no_space=2;
@@ -271,18 +267,12 @@ static void nd_write_byte(sbyte b)
 
 static void nd_write_short(short s)
 {
-	short ss;
-	
-	ss = INTEL_SHORT(s);
-	newdemo_write(&ss, 2, 1);
+	newdemo_write(&s, 2, 1);
 }
 
 static void nd_write_int(int i)
 {
-	int si;
-	
-	si = INTEL_INT(i);
-	newdemo_write(&si, 4, 1);
+	newdemo_write(&i, 4, 1);
 }
 
 static void nd_write_string(char *str)
@@ -293,18 +283,12 @@ static void nd_write_string(char *str)
 
 static void nd_write_fix(fix f)
 {
-	int si;
-	
-	si = INTEL_INT((int)f);
-	newdemo_write(&si, sizeof(fix), 1);
+	newdemo_write(&f, sizeof(fix), 1);
 }
 
 static void nd_write_fixang(fixang f)
 {
-	int si;
-	
-	si = INTEL_INT((int)f);
-	newdemo_write(&si, sizeof(fixang), 1);
+	newdemo_write(&f, sizeof(fixang), 1);
 }
 
 static void nd_write_vector(vms_vector *v)
@@ -338,7 +322,7 @@ void nd_write_shortpos(object *obj)
 				break;
 		}
 		if (i == 9) {
-			Int3(); // contact Allender about this.
+			Int3();         // contact Allender about this.
 		}
 	}
 
@@ -358,16 +342,12 @@ static void nd_read_byte(sbyte *b)
 
 static void nd_read_short(short *s)
 {
-	short ss;
-	newdemo_read(&ss, 2, 1);
-	*s = INTEL_SHORT(ss);
+	newdemo_read(s, 2, 1);
 }
 
 static void nd_read_int(int *i)
 {
-	int si;
-	newdemo_read(&si, 4, 1);
-	*i = INTEL_INT(si);
+	newdemo_read(i, 4, 1);
 }
 
 static void nd_read_string(char *str)
@@ -380,16 +360,12 @@ static void nd_read_string(char *str)
 
 static void nd_read_fix(fix *f)
 {
-	int si;
-	newdemo_read(&si, sizeof(fix), 1);
-	*f = (fix)INTEL_INT(si);
+	newdemo_read(f, sizeof(fix), 1);
 }
 
 static void nd_read_fixang(fixang *f)
 {
-	int si;
-	newdemo_read(&si, sizeof(fixang), 1);
-	*f = (fixang)INTEL_INT(si);
+	newdemo_read(f, sizeof(fixang), 1);
 }
 
 static void nd_read_vector(vms_vector *v)
@@ -432,86 +408,89 @@ static void nd_read_shortpos(object *obj)
 
 }
 
-object *prev_obj=NULL; //ptr to last object read in
+object *prev_obj=NULL;      //ptr to last object read in
 
 void nd_read_object(object *obj)
 {
-	sbyte b;
-	short s;
-	
+	int* sig = &(obj->signature);
+
 	memset(obj, 0, sizeof(object));
-/*
- *  Do render type first, since with render_type == RT_NONE, we
- *  blow by all other object information
-*/
-	nd_read_byte((sbyte *)&(obj->render_type));
- 	nd_read_byte((sbyte *)&(obj->type));
+
+	/*
+	 * Do render type first, since with render_type == RT_NONE, we
+	 * blow by all other object information
+	 */
+	nd_read_byte((sbyte *) &(obj->render_type));
+	nd_read_byte((sbyte *) &(obj->type));
 	if ((obj->render_type == RT_NONE) && (obj->type != OBJ_CAMERA))
 		return;
 
-	nd_read_byte((sbyte *)&(obj->id));
-	nd_read_byte((sbyte *)&(obj->flags));
-	nd_read_short(/*(short *)&(obj->signature)*/&s);	// for big endian machines
-	obj->signature = s;
+	nd_read_byte((sbyte *) &(obj->id));
+	nd_read_byte((sbyte *) &(obj->flags));
+	nd_read_short((short *)sig);
 	nd_read_shortpos(obj);
 
 	obj->attached_obj = -1;
 
 	switch(obj->type) {
 
-		case OBJ_HOSTAGE:
-			obj->control_type = CT_POWERUP;	
-			obj->movement_type = MT_NONE;
-			obj->size = HOSTAGE_SIZE;
-			break;
+	case OBJ_HOSTAGE:
+		obj->control_type = CT_POWERUP;
+		obj->movement_type = MT_NONE;
+		obj->size = HOSTAGE_SIZE;
+		break;
 
-		case OBJ_ROBOT:
-			obj->control_type = CT_AI;
-			obj->movement_type = MT_PHYSICS;
-			obj->size = Polygon_models[Robot_info[obj->id].model_num].rad;
-			obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
-			obj->rtype.pobj_info.subobj_flags = 0;
-			obj->ctype.ai_info.CLOAKED = (Robot_info[obj->id].cloak_type?1:0);
-			break;
+	case OBJ_ROBOT:
+		obj->control_type = CT_AI;
+		obj->movement_type = MT_PHYSICS;
+		obj->size = Polygon_models[Robot_info[obj->id].model_num].rad;
+		obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
+		obj->rtype.pobj_info.subobj_flags = 0;
+		obj->ctype.ai_info.CLOAKED = (Robot_info[obj->id].cloak_type?1:0);
+		break;
 
-		case OBJ_POWERUP:
-			obj->control_type = CT_POWERUP;
-			nd_read_byte((sbyte *)&(obj->movement_type)); // might have physics movement
-			obj->size = Powerup_info[obj->id].size;
-			break;
+	case OBJ_POWERUP:
+		obj->control_type = CT_POWERUP;
+		nd_read_byte((sbyte *) &(obj->movement_type));        // might have physics movement
+		obj->size = Powerup_info[obj->id].size;
+		break;
 
-		case OBJ_PLAYER:
-			obj->control_type = CT_NONE;
-			obj->movement_type = MT_PHYSICS;
-			obj->size = Polygon_models[Player_ship->model_num].rad;
-			obj->rtype.pobj_info.model_num = Player_ship->model_num;
-			obj->rtype.pobj_info.subobj_flags = 0;
-			break;
+	case OBJ_PLAYER:
+		obj->control_type = CT_NONE;
+		obj->movement_type = MT_PHYSICS;
+		obj->size = Polygon_models[Player_ship->model_num].rad;
+		obj->rtype.pobj_info.model_num = Player_ship->model_num;
+		obj->rtype.pobj_info.subobj_flags = 0;
+		break;
 
-		case OBJ_CLUTTER:
-			obj->control_type = CT_NONE;
-			obj->movement_type = MT_NONE;
-			obj->size = Polygon_models[obj->id].rad;
-			obj->rtype.pobj_info.model_num = obj->id;
-			obj->rtype.pobj_info.subobj_flags = 0;
-			break;
+	case OBJ_CLUTTER:
+		obj->control_type = CT_NONE;
+		obj->movement_type = MT_NONE;
+		obj->size = Polygon_models[obj->id].rad;
+		obj->rtype.pobj_info.model_num = obj->id;
+		obj->rtype.pobj_info.subobj_flags = 0;
+		break;
 
-		default:
-			nd_read_byte((sbyte *)&(obj->control_type));
-			nd_read_byte((sbyte *)&(obj->movement_type));
-			nd_read_fix(&(obj->size));
-			break;	
+	default:
+		nd_read_byte((sbyte *) &(obj->control_type));
+		nd_read_byte((sbyte *) &(obj->movement_type));
+		nd_read_fix(&(obj->size));
+		break;
 	}
+
 
 	nd_read_vector(&(obj->last_pos));
 	if ((obj->type == OBJ_WEAPON) && (obj->render_type == RT_WEAPON_VCLIP))
 		nd_read_fix(&(obj->lifeleft));
 	else {
-		nd_read_byte(/*(sbyte *)&(obj->lifeleft)*/ &b);	// for big endian computers
-		obj->lifeleft = (fix)((int)b << 12);
+		sbyte b;
+
+		nd_read_byte(&b);
+		obj->lifeleft = (fix)b;
+		// MWA old way -- won't work with big endian machines       nd_read_byte((ubyte *)&(obj->lifeleft));
+		obj->lifeleft = (fix)((int)obj->lifeleft << 12);
 	}
 
-#ifndef SHAREWARE
 	if (obj->type == OBJ_ROBOT) {
 		if (Robot_info[obj->id].boss_flag) {
 			sbyte cloaked;
@@ -520,129 +499,129 @@ void nd_read_object(object *obj)
 			obj->ctype.ai_info.CLOAKED = cloaked;
 		}
 	}
-#endif
 
 	switch (obj->movement_type) {
 
-		case MT_PHYSICS:
-			nd_read_vector(&(obj->mtype.phys_info.velocity));
-			nd_read_vector(&(obj->mtype.phys_info.thrust));
-			break;
+	case MT_PHYSICS:
+		nd_read_vector(&(obj->mtype.phys_info.velocity));
+		nd_read_vector(&(obj->mtype.phys_info.thrust));
+		break;
 
-		case MT_SPINNING:
-			nd_read_vector(&(obj->mtype.spin_rate));
-			break;
+	case MT_SPINNING:
+		nd_read_vector(&(obj->mtype.spin_rate));
+		break;
 
-		case MT_NONE:
-			break;
+	case MT_NONE:
+		break;
 
-		default:
-			Int3();
+	default:
+		Int3();
 	}
 
 	switch (obj->control_type) {
 
-		case CT_EXPLOSION:
+	case CT_EXPLOSION:
 
-			nd_read_fix(&(obj->ctype.expl_info.spawn_time));
-			nd_read_fix(&(obj->ctype.expl_info.delete_time));
-			nd_read_short(&(obj->ctype.expl_info.delete_objnum));
+		nd_read_fix(&(obj->ctype.expl_info.spawn_time));
+		nd_read_fix(&(obj->ctype.expl_info.delete_time));
+		nd_read_short(&(obj->ctype.expl_info.delete_objnum));
 
-			obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
+		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
 
-			if (obj->flags & OF_ATTACHED) { //attach to previous object
-				Assert(prev_obj!=NULL);
-				if (prev_obj->control_type == CT_EXPLOSION) {
-					if (prev_obj->flags & OF_ATTACHED && prev_obj->ctype.expl_info.attach_parent!=-1)
-						obj_attach(&Objects[prev_obj->ctype.expl_info.attach_parent],obj);
-					else
-						obj->flags &= ~OF_ATTACHED;
-				}
+		if (obj->flags & OF_ATTACHED) {     //attach to previous object
+			Assert(prev_obj!=NULL);
+			if (prev_obj->control_type == CT_EXPLOSION) {
+				if (prev_obj->flags & OF_ATTACHED && prev_obj->ctype.expl_info.attach_parent!=-1)
+					obj_attach(&Objects[prev_obj->ctype.expl_info.attach_parent],obj);
 				else
-					obj_attach(prev_obj,obj);
+					obj->flags &= ~OF_ATTACHED;
 			}
+			else
+				obj_attach(prev_obj,obj);
+		}
 
-			break;
+		break;
 
-		case CT_LIGHT:
-			nd_read_fix(&(obj->ctype.light_info.intensity));
-			break;
+	case CT_LIGHT:
+		nd_read_fix(&(obj->ctype.light_info.intensity));
+		break;
 
-		case CT_AI:
-		case CT_WEAPON:
-		case CT_NONE:
-		case CT_FLYING:
-		case CT_DEBRIS:
-		case CT_POWERUP:
-		case CT_SLEW:
-		case CT_CNTRLCEN:
-		case CT_REMOTE:
-		case CT_MORPH:
-			break;
+	case CT_AI:
+	case CT_WEAPON:
+	case CT_NONE:
+	case CT_FLYING:
+	case CT_DEBRIS:
+	case CT_POWERUP:
+	case CT_SLEW:
+	case CT_CNTRLCEN:
+	case CT_REMOTE:
+	case CT_MORPH:
+		break;
 
-		case CT_FLYTHROUGH:
-		case CT_REPAIRCEN:
-		default:
-			Int3();
-	
+	case CT_FLYTHROUGH:
+	case CT_REPAIRCEN:
+	default:
+		Int3();
+
 	}
 
 	switch (obj->render_type) {
 
-		case RT_NONE:
-			break;
+	case RT_NONE:
+		break;
 
-		case RT_MORPH:
-		case RT_POLYOBJ: {
-			int i, tmo;
+	case RT_MORPH:
+	case RT_POLYOBJ: {
+		int i, tmo;
 
-			if ((obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_CLUTTER)) {
-			  	nd_read_int(&(obj->rtype.pobj_info.model_num));
-				nd_read_int(&(obj->rtype.pobj_info.subobj_flags));
-			}
-
-			if ((obj->type != OBJ_PLAYER) && (obj->type != OBJ_DEBRIS))
-#if 0
-				for (i=0;i<MAX_SUBMODELS;i++)
-					nd_read_angvec(&(obj->pobj_info.anim_angles[i]));
-#endif
-				for (i = 0; i < Polygon_models[obj->rtype.pobj_info.model_num].n_models; i++)
-					nd_read_angvec(&obj->rtype.pobj_info.anim_angles[i]);
-
-			nd_read_int(&tmo);
-
-			#ifndef EDITOR
-			obj->rtype.pobj_info.tmap_override	= tmo;
-			#else
-			if (tmo==-1)
-				obj->rtype.pobj_info.tmap_override	= -1;
-			else {
-				int xlated_tmo = tmap_xlate_table[tmo];
-				if (xlated_tmo < 0)	{
-					Int3();
-					xlated_tmo = 0;
-				}
-				obj->rtype.pobj_info.tmap_override	= xlated_tmo;
-			}
-			#endif
-
-			break;
+		if ((obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_CLUTTER)) {
+			nd_read_int(&(obj->rtype.pobj_info.model_num));
+			nd_read_int(&(obj->rtype.pobj_info.subobj_flags));
 		}
 
-		case RT_POWERUP:
-		case RT_WEAPON_VCLIP:
-		case RT_FIREBALL:
-		case RT_HOSTAGE:
-			nd_read_int(&(obj->rtype.vclip_info.vclip_num));
-			nd_read_fix(&(obj->rtype.vclip_info.frametime));
-			nd_read_byte(&(obj->rtype.vclip_info.framenum));
-			break;
+		if ((obj->type != OBJ_PLAYER) && (obj->type != OBJ_DEBRIS))
+#if 0
+			for (i=0;i<MAX_SUBMODELS;i++)
+				nd_read_angvec(&(obj->pobj_info.anim_angles[i]));
+#endif
+		for (i = 0; i < Polygon_models[obj->rtype.pobj_info.model_num].n_models; i++)
+			nd_read_angvec(&obj->rtype.pobj_info.anim_angles[i]);
 
-		case RT_LASER:
-			break;
+		nd_read_int(&tmo);
 
-		default:
-			Int3();
+#ifndef EDITOR
+		obj->rtype.pobj_info.tmap_override = tmo;
+#else
+		if (tmo==-1)
+			obj->rtype.pobj_info.tmap_override = -1;
+		else {
+			int xlated_tmo = tmap_xlate_table[tmo];
+			if (xlated_tmo < 0) {
+				//mprintf( (0, "Couldn't find texture for demo object, model_num = %d\n", obj->pobj_info.model_num));
+				Int3();
+				xlated_tmo = 0;
+			}
+			obj->rtype.pobj_info.tmap_override = xlated_tmo;
+		}
+#endif
+
+		break;
+	}
+
+	case RT_POWERUP:
+	case RT_WEAPON_VCLIP:
+	case RT_FIREBALL:
+	case RT_HOSTAGE:
+		nd_read_int(&(obj->rtype.vclip_info.vclip_num));
+		nd_read_fix(&(obj->rtype.vclip_info.frametime));
+		nd_read_byte(&(obj->rtype.vclip_info.framenum));
+		break;
+
+	case RT_LASER:
+		break;
+
+	default:
+		Int3();
 
 	}
 
@@ -653,10 +632,10 @@ void nd_write_object(object *obj)
 {
 	int life;
 
-/*
- *  Do render_type first so on read, we can make determination of
- *  what else to read in
-*/
+	/*
+	 * Do render_type first so on read, we can make determination of
+	 * what else to read in
+	 */
 	nd_write_byte(obj->render_type);
 	nd_write_byte(obj->type);
 	if ((obj->render_type == RT_NONE) && (obj->type != OBJ_CAMERA))
@@ -687,7 +666,6 @@ void nd_write_object(object *obj)
 		nd_write_byte((ubyte)life);
 	}
 
-#ifndef SHAREWARE
 	if (obj->type == OBJ_ROBOT) {
 		if (Robot_info[obj->id].boss_flag) {
 			if ((GameTime > Boss_cloak_start_time) && (GameTime < Boss_cloak_end_time))
@@ -696,104 +674,102 @@ void nd_write_object(object *obj)
 				nd_write_byte(0);
 		}
 	}
-#endif
 
 	switch (obj->movement_type) {
 
-		case MT_PHYSICS:
-	 		nd_write_vector(&obj->mtype.phys_info.velocity);
-			nd_write_vector(&obj->mtype.phys_info.thrust);
-			break;
+	case MT_PHYSICS:
+		nd_write_vector(&obj->mtype.phys_info.velocity);
+		nd_write_vector(&obj->mtype.phys_info.thrust);
+		break;
 
-		case MT_SPINNING:
-			nd_write_vector(&obj->mtype.spin_rate);
-			break;
+	case MT_SPINNING:
+		nd_write_vector(&obj->mtype.spin_rate);
+		break;
 
-		case MT_NONE:
-			break;
+	case MT_NONE:
+		break;
 
-		default:
-			Int3();
+	default:
+		Int3();
 	}
 
 	switch (obj->control_type) {
 
-		case CT_AI:
-			break;
+	case CT_AI:
+		break;
 
-		case CT_EXPLOSION:
-			nd_write_fix(obj->ctype.expl_info.spawn_time);
-			nd_write_fix(obj->ctype.expl_info.delete_time);
-			nd_write_short(obj->ctype.expl_info.delete_objnum);
-			break;
+	case CT_EXPLOSION:
+		nd_write_fix(obj->ctype.expl_info.spawn_time);
+		nd_write_fix(obj->ctype.expl_info.delete_time);
+		nd_write_short(obj->ctype.expl_info.delete_objnum);
+		break;
 
-		case CT_WEAPON:
-			break;
+	case CT_WEAPON:
+		break;
 
-		case CT_LIGHT:
+	case CT_LIGHT:
 
-			nd_write_fix(obj->ctype.light_info.intensity);
-			break;
+		nd_write_fix(obj->ctype.light_info.intensity);
+		break;
 
-		case CT_NONE:
-		case CT_FLYING:
-		case CT_DEBRIS:
-		case CT_POWERUP:
-		case CT_SLEW: //the player is generally saved as slew
-		case CT_CNTRLCEN:
-		case CT_REMOTE:
-		case CT_MORPH:
-			break;
+	case CT_NONE:
+	case CT_FLYING:
+	case CT_DEBRIS:
+	case CT_POWERUP:
+	case CT_SLEW:       //the player is generally saved as slew
+	case CT_CNTRLCEN:
+	case CT_REMOTE:
+	case CT_MORPH:
+		break;
 
-		case CT_REPAIRCEN:
-		case CT_FLYTHROUGH:
-		default:
-			Int3();
-	
+	case CT_REPAIRCEN:
+	case CT_FLYTHROUGH:
+	default:
+		Int3();
+
 	}
 
 	switch (obj->render_type) {
 
-		case RT_NONE:
-			break;
+	case RT_NONE:
+		break;
 
-		case RT_MORPH:
-		case RT_POLYOBJ: {
-			int i;
+	case RT_MORPH:
+	case RT_POLYOBJ: {
+		int i;
 
-			if ((obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_CLUTTER)) {
-				nd_write_int(obj->rtype.pobj_info.model_num);
-				nd_write_int(obj->rtype.pobj_info.subobj_flags);
-			}
-
-			if ((obj->type != OBJ_PLAYER) && (obj->type != OBJ_DEBRIS))
-#if 0
-				for (i=0;i<MAX_SUBMODELS;i++)
-					nd_write_angvec(&obj->pobj_info.anim_angles[i]);
-#endif
-				for (i = 0; i < Polygon_models[obj->rtype.pobj_info.model_num].n_models; i++)
-					nd_write_angvec(&obj->rtype.pobj_info.anim_angles[i]);
-
-
-			nd_write_int(obj->rtype.pobj_info.tmap_override);
-
-			break;
+		if ((obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_CLUTTER)) {
+			nd_write_int(obj->rtype.pobj_info.model_num);
+			nd_write_int(obj->rtype.pobj_info.subobj_flags);
 		}
 
-		case RT_POWERUP:
-		case RT_WEAPON_VCLIP:
-		case RT_FIREBALL:
-		case RT_HOSTAGE:
-			nd_write_int(obj->rtype.vclip_info.vclip_num);
-			nd_write_fix(obj->rtype.vclip_info.frametime);
-			nd_write_byte(obj->rtype.vclip_info.framenum);
-			break;
+		if ((obj->type != OBJ_PLAYER) && (obj->type != OBJ_DEBRIS))
+#if 0
+			for (i=0;i<MAX_SUBMODELS;i++)
+				nd_write_angvec(&obj->pobj_info.anim_angles[i]);
+#endif
+		for (i = 0; i < Polygon_models[obj->rtype.pobj_info.model_num].n_models; i++)
+			nd_write_angvec(&obj->rtype.pobj_info.anim_angles[i]);
 
-		case RT_LASER:
-			break;
+		nd_write_int(obj->rtype.pobj_info.tmap_override);
 
-		default:
-			Int3();
+		break;
+	}
+
+	case RT_POWERUP:
+	case RT_WEAPON_VCLIP:
+	case RT_FIREBALL:
+	case RT_HOSTAGE:
+		nd_write_int(obj->rtype.vclip_info.vclip_num);
+		nd_write_fix(obj->rtype.vclip_info.frametime);
+		nd_write_byte(obj->rtype.vclip_info.framenum);
+		break;
+
+	case RT_LASER:
+		break;
+
+	default:
+		Int3();
 
 	}
 
@@ -1321,8 +1297,8 @@ void newdemo_set_new_level(int level_num)
 
 int newdemo_read_demo_start(int rnd_demo)
 {
-        sbyte version, game_type;
-	char c, energy, shield;
+        sbyte version, game_type, c;
+	ubyte energy, shield;
         char text[128];
         sbyte i, laser_level;
         char current_mission[9];
@@ -2227,7 +2203,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_EOF: {
 			done=-1;
-			fseek(infile, -1, SEEK_CUR); // get back to the EOF marker
+			PHYSFS_seek(infile, PHYSFS_tell(infile) - 1); // get back to the EOF marker
 			Newdemo_at_eof = 1;
 			NewdemoFrameCount++;
 			break;
@@ -2278,9 +2254,9 @@ int newdemo_read_frame_information()
 
 void newdemo_goto_beginning()
 {
-	if (NewdemoFrameCount == 0)
-		return;
-	fseek(infile, 0, SEEK_SET);
+// 	if (NewdemoFrameCount == 0)
+// 		return;
+	PHYSFS_seek(infile, 0);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	if (newdemo_read_demo_start(0))
 		newdemo_stop_playback();
@@ -2299,7 +2275,7 @@ void newdemo_goto_end(int FrameCountOnly)
 	sbyte level;
 	int i;
 
-	fseek(infile, -2, SEEK_END);
+	cfseek(infile, -2, SEEK_END);
 	nd_read_byte(&level);
 
 	if (!FrameCountOnly)
@@ -2319,7 +2295,7 @@ void newdemo_goto_end(int FrameCountOnly)
 		piggy_load_level_data();
 	}
 	if (Newdemo_game_mode & GM_MULTI) {
-		fseek(infile, -10, SEEK_END);
+		cfseek(infile, -10, SEEK_END);
 		nd_read_byte(&Newdemo_players_cloaked);
 		for (i = 0; i < MAX_PLAYERS; i++) {
 			if ((1 << i) & Newdemo_players_cloaked)
@@ -2327,12 +2303,12 @@ void newdemo_goto_end(int FrameCountOnly)
 				Players[i].cloak_time = GameTime - (CLOAK_TIME_MAX / 2);
 		}
 	}
-	fseek(infile, -12, SEEK_END);
+	cfseek(infile, -12, SEEK_END);
 	nd_read_short(&frame_length);
-	fseek(infile, -frame_length, SEEK_CUR);
+	cfseek(infile, -frame_length, SEEK_CUR);
 	nd_read_int(&NewdemoFrameCount); // get the frame count
 	NewdemoFrameCount--;
-	fseek(infile, 4, SEEK_CUR);
+	cfseek(infile, 4, SEEK_CUR);
 	newdemo_read_frame_information(); // then the frame information
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	return;
@@ -2345,7 +2321,7 @@ void newdemo_goto_end(int FrameCountOnly)
 	ubyte energy, shield;
 	int i, loc, bint;
 
-	fseek(infile, -2, SEEK_END);
+	cfseek(infile, -2, SEEK_END);
 	nd_read_byte(&level);
 
 	if (!FrameCountOnly)
@@ -2364,12 +2340,12 @@ void newdemo_goto_end(int FrameCountOnly)
 		LoadLevel(level);
 		piggy_load_level_data();
 	}
-	fseek(infile, -4, SEEK_END);
+	cfseek(infile, -4, SEEK_END);
 	nd_read_short(&byte_count);
-	fseek(infile, -2 - byte_count, SEEK_CUR);
+	cfseek(infile, -2 - byte_count, SEEK_CUR);
 
 	nd_read_short(&frame_length);
-	loc = ftell(infile);
+	loc = cftell(infile);
 	if (Newdemo_game_mode & GM_MULTI)
 		nd_read_byte(&Newdemo_players_cloaked);
 	else
@@ -2417,11 +2393,11 @@ void newdemo_goto_end(int FrameCountOnly)
 		nd_read_int(&(Players[Player_num].score));
 	}
 
-	fseek(infile, loc, SEEK_SET);
-	fseek(infile, -frame_length, SEEK_CUR);
+	cfseek(infile, loc, SEEK_SET);
+	cfseek(infile, -frame_length, SEEK_CUR);
 	nd_read_int(&NewdemoFrameCount); // get the frame count
 	NewdemoFrameCount--;
-	fseek(infile, 4, SEEK_CUR);
+	cfseek(infile, 4, SEEK_CUR);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	newdemo_read_frame_information(); // then the frame information
 	Newdemo_vcr_state = ND_STATE_PAUSED;
@@ -2436,9 +2412,9 @@ void newdemo_back_frames(int frames)
 
 	for (i = 0; i < frames; i++)
 	{
-		fseek(infile, -10, SEEK_CUR);
+		PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
 		nd_read_short(&last_frame_length);			
-		fseek(infile, 8 - last_frame_length, SEEK_CUR);
+		PHYSFS_seek(infile, PHYSFS_tell(infile) + 8 - last_frame_length);
 
 		if (!Newdemo_at_eof && newdemo_read_frame_information() == -1) {
 			newdemo_stop_playback();
@@ -2447,9 +2423,9 @@ void newdemo_back_frames(int frames)
 		if (Newdemo_at_eof)
 			Newdemo_at_eof = 0;
 
-		fseek(infile, -10, SEEK_CUR);
+		PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
 		nd_read_short(&last_frame_length);			
-		fseek(infile, 8 - last_frame_length, SEEK_CUR);
+		PHYSFS_seek(infile, PHYSFS_tell(infile) + 8 - last_frame_length);
 	}
 
 }
@@ -2475,7 +2451,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 		factor = F1_0;
 
 	num_cur_objs = Highest_object_index;
-	cur_objs = (object *)malloc(sizeof(object) * (num_cur_objs + 1));
+	cur_objs = (object *)d_malloc(sizeof(object) * (num_cur_objs + 1));
 	if (cur_objs == NULL) {
 		mprintf((0,"Couldn't get %d bytes for cur_objs in interpolate_frame\n", sizeof(object) * num_cur_objs));
 		Int3();
@@ -2486,7 +2462,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	if (newdemo_read_frame_information() == -1) {
-		free(cur_objs);
+		d_free(cur_objs);
 		newdemo_stop_playback();
 		return;
 	}
@@ -2555,7 +2531,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 	for (i = 0; i <= num_cur_objs; i++)
 		memcpy(&(Objects[i]), &(cur_objs[i]), sizeof(object));
 	Highest_object_index = num_cur_objs;
-	free(cur_objs);
+	d_free(cur_objs);
 }
 
 void newdemo_playback_one_frame()
@@ -2596,9 +2572,9 @@ void newdemo_playback_one_frame()
 			frames_back = 1;
 		if (Newdemo_at_eof) {
 #ifdef SHAREWARE
-			fseek(infile, -2, SEEK_END);
+			PHYSFS_seek(infile, PHYSFS_tell(infile) - 2);
 #else
-			fseek(infile, 11, SEEK_CUR);
+			PHYSFS_seek(infile, PHYSFS_tell(infile) + 11);
 #endif
 		}
 		newdemo_back_frames(frames_back);
@@ -2688,7 +2664,7 @@ void newdemo_playback_one_frame()
 					int i, j, num_objs, level;
 
 					num_objs = Highest_object_index;
-					cur_objs = (object *)malloc(sizeof(object) * (num_objs + 1));
+					cur_objs = (object *)d_malloc(sizeof(object) * (num_objs + 1));
 					if (cur_objs == NULL) {
 						Warning ("Couldn't get %d bytes for objects in interpolate playback\n", sizeof(object) * num_objs);
 						break;
@@ -2698,12 +2674,12 @@ void newdemo_playback_one_frame()
 
 					level = Current_level_num;
 					if (newdemo_read_frame_information() == -1) {
-						free(cur_objs);
+						d_free(cur_objs);
 						newdemo_stop_playback();
 						return;
 					}
 					if (level != Current_level_num) {
-						free(cur_objs);
+						d_free(cur_objs);
 						if (newdemo_read_frame_information() == -1)
 							newdemo_stop_playback();
 						break;
@@ -2723,7 +2699,7 @@ void newdemo_playback_one_frame()
 							}
 						}
 					}
-					free(cur_objs);
+					d_free(cur_objs);
 					d_recorded += nd_recorded_time;
 					base_interpol_time = nd_playback_total - FrameTime;
 				}
@@ -2752,7 +2728,7 @@ void newdemo_playback_one_frame()
 
 void newdemo_start_recording()
 {
-	Newdemo_size = d_getdiskfree();
+	Newdemo_size = PHYSFSX_getFreeDiskSpace();
 
 	Newdemo_size -= 100000;
 
@@ -2766,15 +2742,11 @@ void newdemo_start_recording()
 	Newdemo_num_written = 0;
 	Newdemo_no_space=0;
 	Newdemo_state = ND_STATE_RECORDING;
-	outfile = fopen( DEMO_FILENAME, "wb" );
+	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 
-	if (outfile == NULL) {
-		mkdir(DEMO_DIR
-#ifndef __WINDOWS__
-		, 0775
-#endif
-		); //try making directory
-		outfile = fopen(DEMO_FILENAME, "wb");
+	if (outfile == NULL && errno == ENOENT) {   //dir doesn't exist?
+		PHYSFS_mkdir(DEMO_DIR); //try making directory
+		outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 	}
 
 	if (outfile == NULL)
@@ -2783,9 +2755,7 @@ void newdemo_start_recording()
 		Newdemo_state = ND_STATE_NORMAL;
 	}
 	else
-	{
 		newdemo_record_start_demo();
-	}
 }
 
 char demoname_allowed_chars[] = "azAZ09__--";
@@ -2793,10 +2763,10 @@ void newdemo_stop_recording()
 {
 	newmenu_item m[6];
 	int l, exit;
-	static char filename[9] = "", *s;
+	static char filename[15] = "", *s;
 	static ubyte tmpcnt = 0;
 	ubyte cloaked = 0;
-	char fullname[28] = DEMO_DIR;
+	char fullname[15+FILENAME_LEN] = DEMO_DIR;
 #ifndef SHAREWARE
 	unsigned short byte_count = 0;
 #endif
@@ -2862,8 +2832,9 @@ void newdemo_stop_recording()
 	nd_write_byte(Current_level_num);
 	nd_write_byte(ND_EVENT_EOF);
 
-	l = ftell(outfile);
-	fclose(outfile);
+	l = PHYSFS_tell(outfile);
+	PHYSFS_close(outfile);
+	outfile = NULL;
 	Newdemo_state = ND_STATE_NORMAL;
 	gr_palette_load( gr_palette );
 
@@ -2896,7 +2867,7 @@ try_again:
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_DEMO_SAVE_BAD;
 		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 8; m[1].text = filename;
 		exit = newmenu_do( NULL, NULL, 2, m, NULL );
-	} else /*if (Newdemo_no_space == 2)*/ {
+	} else if (Newdemo_no_space == 2) {
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_DEMO_SAVE_NOSPACE;
 		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 8; m[1].text = filename;
 		exit = newmenu_do( NULL, NULL, 2, m, NULL );
@@ -2904,7 +2875,7 @@ try_again:
 	Newmenu_allowed_chars = NULL;
 
 	if (exit == -2) { // got bumped out from network menu
-		char save_file[22];
+		char save_file[7+FILENAME_LEN];
 
 		if (filename[0] != '\0') {
 			strcpy(save_file, DEMO_DIR);
@@ -2913,11 +2884,11 @@ try_again:
 		} else 
 			sprintf (save_file, "%stmp%d.dem", DEMO_DIR, tmpcnt++);
 		remove(save_file);
-		rename(DEMO_FILENAME, save_file);
+		PHYSFSX_rename(DEMO_FILENAME, save_file);
 		return;
 	}
 	if (exit == -1) { // pressed ESC
-		remove(DEMO_FILENAME); // might as well remove the file
+		PHYSFS_delete(DEMO_FILENAME); // might as well remove the file
 		return; // return without doing anything
 	}
 	
@@ -2936,57 +2907,95 @@ try_again:
 	else
 		strcat(fullname, m[0].text);
 	strcat(fullname, ".dem");
-	remove(fullname);
-	rename(DEMO_FILENAME, fullname);
+	PHYSFS_delete(fullname);
+	PHYSFSX_rename(DEMO_FILENAME, fullname);
+}
+
+//returns the number of demo files on the disk
+int newdemo_count_demos()
+{
+	char **find, **i;
+	int NumFiles=0;
+
+	find = PHYSFS_enumerateFiles(DEMO_DIR);
+
+	for (i = find; *i != NULL; i++)
+		NumFiles++;
+
+	PHYSFS_freeList(find);
+
+	return NumFiles;
 }
 
 void newdemo_start_playback(char * filename)
 {
-#ifdef USE_CD
-#include "demos from CD no longer supported"
-#endif
-        int rnd_demo = 0;
-        d_glob_t glob_ret;
-	char * fullname;
+	char **find = NULL, **i;
+	int rnd_demo = 0;
+	char filename2[PATH_MAX+FILENAME_LEN] = DEMO_DIR;
 
-	if (filename == NULL) {
-		rnd_demo = 1;
-		if (!d_glob(DEMO_DIR "*.dem", &glob_ret) && glob_ret.gl_pathc) {
-#ifdef __WINDOWS__
-			fullname=malloc(14+sizeof(DEMO_DIR));
-			snprintf(fullname,14+sizeof(DEMO_DIR),"%s%s",DEMO_DIR,glob_ret.gl_pathv[d_rand() % glob_ret.gl_pathc]);
-			infile = fopen(fullname,"rb" );
-			free(fullname);
-#else
-			infile = fopen(glob_ret.gl_pathv[d_rand() % glob_ret.gl_pathc],"rb" );
+#ifdef NETWORK
+	change_playernum_to(0);
 #endif
-                        d_globfree(&glob_ret);
-                }
-	} else {
-		fullname=malloc(14+sizeof(DEMO_DIR));
-		snprintf(fullname,14+sizeof(DEMO_DIR),"%s%s",DEMO_DIR,filename);
-		infile = fopen( fullname, "rb" );
-		free(fullname);
+	JasonPlaybackTotal=0;
+
+	if (filename)
+		strcat(filename2, filename);
+	else
+	{
+		// Randomly pick a filename
+		int NumFiles = 0, RandFileNum;
+		rnd_demo = 1;
+
+		NumFiles = newdemo_count_demos();
+
+		if ( NumFiles == 0 ) {
+			return;     // No files found!
+		}
+		RandFileNum = d_rand() % NumFiles;
+		NumFiles = 0;
+
+		find = PHYSFS_enumerateFiles(DEMO_DIR);
+
+		for (i = find; *i != NULL; i++)
+		{
+			if (NumFiles == RandFileNum)
+			{
+				strcat(filename2, *i);
+
+				break;
+			}
+			NumFiles++;
+		}
+		PHYSFS_freeList(find);
+
+		if (NumFiles > RandFileNum)
+			return;
+
+		// if in random mode, PhysFS may look for all possible files, so check if filename actually points to be a demo file...
+		if (strncasecmp(".dem",&filename2[strlen(filename2)-4],4))
+			return;
 	}
 
-	if (infile == NULL)	  {
+	infile = PHYSFSX_openReadBuffered(filename2);
+
+	if (infile==NULL) {
 		mprintf( (0, "Error reading '%s'\n", filename ));
 		return;
 	}
 
+	// read last frame information and save last FrameCount
 	newdemo_goto_end(1);
 	TotalFrames=NewdemoFrameCount;
-	fseek(infile, 0, SEEK_SET);
+	PHYSFS_seek(infile, 0);
 
 	nd_bad_read = 0;
-	#ifdef NETWORK
-	change_playernum_to(0); // force playernum to 0
-	#endif
-	JasonPlaybackTotal=0;
+#ifdef NETWORK
+	change_playernum_to(0);                 // force playernum to 0
+#endif
 	strncpy(nd_save_callsign, Players[Player_num].callsign, CALLSIGN_LEN);
-	Viewer = ConsoleObject = &Objects[0]; // play properly as if console player
+	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
 	if (newdemo_read_demo_start(rnd_demo)) {
-		fclose(infile);
+		PHYSFS_close(infile);
 		return;
 	}
 
@@ -2994,7 +3003,7 @@ void newdemo_start_playback(char * filename)
 	Newdemo_state = ND_STATE_PLAYBACK;
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	Newdemo_old_cockpit = Cockpit_mode;
-	Newdemo_size = ffilelength(infile);
+	Newdemo_size = PHYSFS_fileLength(infile);
 	nd_bad_read = 0;
 	Newdemo_at_eof = 0;
 	NewdemoFrameCount = 0;
@@ -3002,13 +3011,13 @@ void newdemo_start_playback(char * filename)
 	playback_style = NORMAL_PLAYBACK;
 	Function_mode = FMODE_GAME;
 	HUD_clear_messages();
-	newdemo_playback_one_frame(); // this one loads new level
-	newdemo_playback_one_frame(); // get all of the objects to renderb game
+	newdemo_playback_one_frame();       // this one loads new level
+	newdemo_playback_one_frame();       // get all of the objects to renderb game
 }
 
 void newdemo_stop_playback()
 {
-	fclose( infile );
+	PHYSFS_close( infile );
 	Newdemo_state = ND_STATE_NORMAL;
 	#ifdef NETWORK
 	change_playernum_to(0); //this is reality
@@ -3018,7 +3027,7 @@ void newdemo_stop_playback()
 	Rear_view=0;
 	Game_mode = GM_GAME_OVER;
 	Function_mode = FMODE_MENU;
-	longjmp(LeaveGame,1); // Exit game loop
+	longjmp(LeaveGame,0); // Exit game loop
 }
 
 
@@ -3028,15 +3037,15 @@ void newdemo_stop_playback()
 
 void newdemo_strip_frames(char *outname, int bytes_to_strip)
 {
-	FILE *outfile;
+	PHYSFS_file *outfile;
 	char *buf;
 	int total_size, bytes_done, read_elems, bytes_back;
 	int trailer_start, loc1, loc2, stop_loc, bytes_to_read;
 	short last_frame_length;
 
 	bytes_done = 0;
-	total_size = ffilelength(infile);
-	outfile = fopen(outname, "wb");
+	total_size = PHYSFS_fileLength(infile);
+	outfile = PHYSFSX_openWriteBuffered(outname);
 	if (outfile == NULL) {
 		newmenu_item m[1];
 
@@ -3045,48 +3054,48 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 		newdemo_stop_playback();
 		return;
 	}
-	buf = malloc(BUF_SIZE);
+	buf = d_malloc(BUF_SIZE);
 	if (buf == NULL) {
 		newmenu_item m[1];
 
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "Can't malloc output buffer";
 		newmenu_do( NULL, NULL, 1, m, NULL );
-		fclose(outfile);
+		PHYSFS_close(outfile);
 		newdemo_stop_playback();
 		return;
 	}
 	newdemo_goto_end(0);
-	trailer_start = ftell(infile);
-	fseek(infile, 11, SEEK_CUR);
+	trailer_start = PHYSFS_tell(infile);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) + 11);
 	bytes_back = 0;
 	while (bytes_back < bytes_to_strip) {
-		loc1 = ftell(infile);
+		loc1 = PHYSFS_tell(infile);
 		newdemo_back_frames(1);
-		loc2 = ftell(infile);
+		loc2 = PHYSFS_tell(infile);
 		bytes_back += (loc1 - loc2);
 	}
-	fseek(infile, -10, SEEK_CUR);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
 	nd_read_short(&last_frame_length);
-	fseek(infile, -3, SEEK_CUR);
-	stop_loc = ftell(infile);
-	fseek(infile, 0, SEEK_SET);
+	PHYSFS_seek(infile, PHYSFS_tell(infile) - 3);
+	stop_loc = PHYSFS_tell(infile);
+	PHYSFS_seek(infile, 0);
 	while (stop_loc > 0) {
 		if (stop_loc < BUF_SIZE)
 			bytes_to_read = stop_loc;
 		else
 			bytes_to_read = BUF_SIZE;
-		read_elems = fread(buf, 1, bytes_to_read, infile);
-		fwrite(buf, 1, read_elems, outfile);
+		read_elems = PHYSFS_read(infile, buf, 1, bytes_to_read);
+		PHYSFS_write(outfile, buf, 1, read_elems);
 		stop_loc -= read_elems;
 	}
-	stop_loc = ftell(outfile);
-	fseek(infile, trailer_start, SEEK_SET);
-	while ((read_elems = fread(buf, 1, BUF_SIZE, infile)) != 0)
-		fwrite(buf, 1, read_elems, outfile);
-	fseek(outfile, stop_loc, SEEK_SET);
-	fseek(outfile, 1, SEEK_CUR);
-	fwrite(&last_frame_length, 2, 1, outfile);
-	fclose(outfile);
+	stop_loc = PHYSFS_tell(outfile);
+	PHYSFS_seek(infile, trailer_start);
+	while ((read_elems = PHYSFS_read(infile, buf, 1, BUF_SIZE)) != 0)
+		PHYSFS_write(outfile, buf, 1, read_elems);
+	PHYSFS_seek(outfile, stop_loc);
+	PHYSFS_seek(outfile, PHYSFS_tell(infile) + 1);
+	PHYSFS_write(outfile, &last_frame_length, 2, 1);
+	PHYSFS_close(outfile);
 	newdemo_stop_playback();
 
 }

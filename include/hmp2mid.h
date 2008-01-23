@@ -20,12 +20,17 @@
 */
 #ifndef __HMP2MID_H
 #define __HMP2MID_H
-#include <stdio.h>
+//#include <stdio.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
+#include <physfs.h>
+#else
+#include <physfs/physfs.h>
+#endif
 
-typedef size_t (*hmp2mid_read_func_t)(void *ptr, size_t size, size_t nmemb,
-  void *stream);
+//typedef size_t (*hmp2mid_read_func_t)(void *ptr, size_t size, size_t nmemb,
+//  void *stream);
 
 /* Returns NULL on success, otherwise a c-string with an error message */
-const char *hmp2mid(hmp2mid_read_func_t read_func, void *hmp_in, FILE* mid_out);
+const char *hmp2mid(/*hmp2mid_read_func_t read_func, */PHYSFS_file *hmp_in, PHYSFS_file* mid_out);
 
 #endif

@@ -478,7 +478,7 @@ int ui_get_file( char * filename, char * Filespec  )
        for (i=0; i< NumFiles; i++ )
        {
                //MALLOC( text[i], char, 15 );//Another compile hack -KRB
-               text[i]=(char *)malloc(15*sizeof(char));
+               text[i]=(char *)d_malloc(15*sizeof(char));
                strcpy(text[i], filename_list[i] );
        }
 
@@ -489,7 +489,7 @@ int ui_get_file( char * filename, char * Filespec  )
 
        for (i=0; i< NumFiles; i++ )
        {
-               free( text[i] );
+               d_free( text[i] );
        }
 
        if ( x>0 )
