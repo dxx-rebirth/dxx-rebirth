@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_MISSIONS                    5000 // ZICO - changed from 300 to get more levels in list
 #define MAX_LEVELS_PER_MISSION          30
 #define MAX_SECRET_LEVELS_PER_MISSION   6
-#define MISSION_NAME_LEN                25
+#define MISSION_NAME_LEN                21
 
 #define D1_MISSION_FILENAME             ""
 #define D1_MISSION_NAME                 "Descent: First Strike"

@@ -70,7 +70,7 @@ descent.hog
 descent.pig
 
 These files should be located on the Descent1 CD-Rom.
-Note that those files must be patched to version 1.4a.
+Note that those files must be lowercase and patched to version 1.4a.
 
 There is a patch suitable for *NIX systems (diff-files) available at:
 http://www.dxx-rebirth.de/download/dxx/res/descent1_patch14a-linux.tar.gz

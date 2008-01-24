@@ -3530,7 +3530,7 @@ void network_ping_all()
 
 	if (PingTime+(F1_0*3)<GameTime || PingTime > GameTime)
 	{
-		for (i=0; i<=MAX_PLAYERS; i++)
+		for (i=0; i<MAX_PLAYERS; i++)
 		{
 			if (Players[i].connected && i != Player_num)
 			{
