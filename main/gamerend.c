@@ -265,7 +265,7 @@ void show_netplayerinfo()
 	network_ping_all();
 
 	// process players table
-	for (i=0; i<=MAX_PLAYERS; i++)
+	for (i=0; i<MAX_PLAYERS; i++)
 	{
 		if (!Players[i].connected)
 			continue;

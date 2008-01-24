@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080114
+--------
+INSTALL.txt, main/gamerend.c, main/network.c, main/udp.c: Updated Docs - Data files mus bt lowercase; Fixed small Multiplayer issues
+
 20080123
 --------
 d2x.ini, arch/sdl/joy.c, include/cfile.h, include/physfsx.h, main/config.c, main/gamesave.c, main/mission.c, main/mission.h, main/playsave.c: Fixed memory issue as Joystick freeing; Case-insensitive mission-loading; Added support for non-Hog'ed missions; Improved writing functions for config and player files

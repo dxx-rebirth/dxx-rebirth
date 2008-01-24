@@ -4288,9 +4288,12 @@ void network_do_frame(int force, int listen)
 
 				MySyncPack.numpackets = INTEL_INT(Players[0].n_packets_sent++);
 // 				NetDrvSendGamePacket((ubyte*)&MySyncPack, sizeof(frame_info) - MaxXDataSize + send_data_size);
-				for(i=0; i<N_players; i++) {
+				for(i=0; i<N_players; i++)
+				{
 					if(Players[i].connected && (i != Player_num))
+					{
 						NetDrvSendPacketData((ubyte*)&MySyncPack, sizeof(frame_info) - MaxXDataSize + send_data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
+					}
 				}
 			}
 
@@ -4990,8 +4993,8 @@ void network_ping (ubyte flag,int pnum)
 
 	mybuf[0]=flag;
 	mybuf[1]=Player_num;
-
-	NetDrvSendPacketData( (ubyte *)mybuf, 2, NetPlayers.players[pnum].network.ipx.server, NetPlayers.players[pnum].network.ipx.node,Players[pnum].net_address );
+	*(u_int32_t*)(multibuf+2)=INTEL_INT(timer_get_fixed_seconds());
+	NetDrvSendPacketData( (ubyte *)mybuf, 7, NetPlayers.players[pnum].network.ipx.server, NetPlayers.players[pnum].network.ipx.node,Players[pnum].net_address );
 }
 
 static fix PingLaunchTime[MAX_PLAYERS],PingReturnTime[MAX_PLAYERS];
@@ -5023,7 +5026,7 @@ void network_ping_all()
 
 	if (PingTime+(F1_0*3)<GameTime || PingTime > GameTime)
 	{
-		for (i=0; i<=MAX_PLAYERS; i++)
+		for (i=0; i<MAX_PLAYERS; i++)
 		{
 			if (Players[i].connected && i != Player_num)
 			{

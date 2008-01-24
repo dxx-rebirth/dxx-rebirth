@@ -46,7 +46,7 @@ scons
 If you wish to add additional commands, just add them to the scons command.
 Example:
 
-scons sdl_only=1 no_asm=1
+scons sdl_only=1 asm=1
 
 
 To install the compiled binary to your system (/usr/local/bin/), type (as root):
@@ -87,7 +87,8 @@ descent2.sow
 on the Descent2 CD-Rom.
 This is an ARJ-archive and can be extracted with an adapted archiver like ‘unarj’ or by installing the game on a Windows/DOS system.
 
-Those files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d2x-rebirth/
+Those files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d2x-rebirth/.
+Note that those files must be lowercase.
 
 
 Optional files
@@ -135,7 +136,8 @@ To see a full list of available command-line options append ‘-h’, ‘-?’ t
 d2x.ini
 
 
-The game will create a config-directory in the Home directory of the user called ‘.d2x-rebirth’. On Mac OS X this directory will be called 'D2X Rebirth', in the Preferences folder in the user's Library.
+The game will create a config-directory in the Home directory of the user called ‘.d2x-rebirth’.
+On Mac OS X this directory will be called ‘D2X Rebirth’, in the Preferences folder in the user’s Library.
 It is used to read/save
 
     *

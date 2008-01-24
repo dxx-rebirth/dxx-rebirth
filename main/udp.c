@@ -236,7 +236,7 @@ void UDPCheckDisconnect(struct _sockaddr *sAddr, char *text)
 		if (!memcmp(sAddr,(struct _sockaddr *)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
 		{
 			// Player has left -> PID ENDLEVEL and !connected-flag
-			if ((text[4]==PID_ENDLEVEL || text[4]==PID_ENDLEVEL_SHORT) && text[6] == CONNECT_DISCONNECTED)
+			if ((text[0]==PID_ENDLEVEL || text[0]==PID_ENDLEVEL_SHORT) && text[2] == CONNECT_DISCONNECTED)
 			{
 				UDPPeers[i].valid=0;
 				UDPPeers[i].timestamp=0;
