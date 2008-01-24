@@ -358,7 +358,7 @@ int gr_line(fix a1, fix b1, fix a2, fix b2)
 	x2 = i2f(MAXX);
 	y2 = i2f(MAXY);
 
-	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return 2,clipped=1, FSCALE );
+	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return 2,clipped=1, FIXSCALE );
 
 	gr_uline( a1, b1, a2, b2 );
 

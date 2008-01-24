@@ -37,6 +37,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#ifndef _CLIP_H
+#define _CLIP_H
 
 /*#define MIN(a,b)	  (((a) < (b)) ? (a) : (b))
 #define MAX(a,b)        (((a) > (b)) ? (a) : (b))
@@ -60,7 +62,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 # define USCALE(var,arg,num,den)                                        \
 	((var) = ((unsigned)(arg) * (unsigned)(num)) / (unsigned)(den))
 
-# define FSCALE(var,arg,num,den) ((var) = fixmuldiv((arg),(num),(den)))
+# define FIXSCALE(var,arg,num,den) ((var) = fixmuldiv((arg),(num),(den)))
 
 #define CLIPDOT(xx,yy,WHEN_OUTSIDE,WHEN_CLIPPED) {                      \
     if((xx > XMAX) || (xx < XMIN)) { WHEN_OUTSIDE; }                    \
@@ -159,3 +161,5 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
         }                                                               \
     }                                                                   \
 } while(0)
+
+#endif
