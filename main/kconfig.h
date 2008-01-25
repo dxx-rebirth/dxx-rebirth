@@ -82,7 +82,6 @@ extern char *control_text[CONTROL_MAX_TYPES];
 extern void kc_set_controls();
 extern void reset_cruise(void);
 extern int kconfig_is_axes_used(int axis);
-extern void kconfig_init_external_controls(int intno, ssize_t address);
 extern void HUD_init_message(char * format, ...);
 extern int isJoyRotationKey(int test_key);       //tells if "test_key" is setup for rotation on the joy
 extern int isMouseRotationKey(int test_key);     //tells if "test_key" is setup for rotation on the mouse

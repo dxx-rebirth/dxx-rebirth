@@ -223,7 +223,7 @@ int load_pog(CFILE *f, int pog_sig, int pog_ver, int *num_custom, struct custom_
 
 // load custom textures/sounds from pog/pig file
 // returns 0 if ok, <0 on error
-int load_pigpog(const char *pogname) {
+int load_pigpog(char *pogname) {
     int num_custom;
     grs_bitmap *bmp;
     digi_sound *snd;
@@ -409,7 +409,7 @@ int read_d2_robot_info(CFILE *fp, robot_info *ri)
 	return 1;
 }
 
-void load_hxm(const char *hxmname) {
+void load_hxm(char *hxmname) {
     unsigned int repl_num;
     int i;
     CFILE *f;

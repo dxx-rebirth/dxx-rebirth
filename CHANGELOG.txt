@@ -1,8 +1,12 @@
 D1X-Rebirth Changelog
 
-20080114
+20080125
 --------
-INSTALL.txt, main/game.c, main/mission.h, main/network.c: Updated Docs - Data files mus bt lowercase; Fixed small Multiplayer issues
+main/collide.c, main/custom.c, main/kconfig.h, main/newdemo.c, main/powerup.c: Fixed small compiling issues
+
+20080124
+--------
+INSTALL.txt, main/game.c, main/mission.h, main/network.c: Updated Docs - Data files must be lowercase; Fixed small Multiplayer issues
 
 20080123
 --------

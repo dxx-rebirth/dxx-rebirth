@@ -667,7 +667,7 @@ int may_create_powerup(int powerup)
 	     powerup_start_level[powerup] - pow_count[powerup]));
 #endif
 //        if(powerup==POW_SHIELD_BOOST) return 1;
-	return MAX(powerup_start_level[powerup] - pow_count[powerup], 0);
+	return max(powerup_start_level[powerup] - pow_count[powerup], 0);
 #endif
         return -1;
 }

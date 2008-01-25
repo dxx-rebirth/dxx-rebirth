@@ -2771,6 +2771,8 @@ void newdemo_stop_recording()
 	unsigned short byte_count = 0;
 #endif
 
+	exit = 0;
+
 	nd_write_byte(ND_EVENT_EOF);
 	nd_write_short(frame_bytes_written - 1);
 	if (Game_mode & GM_MULTI) {

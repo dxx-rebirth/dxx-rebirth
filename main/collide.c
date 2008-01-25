@@ -1096,7 +1096,7 @@ void drop_pow_count(object *obj, int *pow_count)
                    mprintf((1, "want %d start %d now %d\n", count, powerup_start_level[i], powerup_in_level[i]));
                     if (multi_allow_powerup_mask[i])
                      { // only check 'important' powerups (no shield,energy,conc)
-                       int pow_max = MAX(powerup_start_level[i] - powerup_in_level[i], 0);
+                       int pow_max = max(powerup_start_level[i] - powerup_in_level[i], 0);
              
 //-killed-                     #ifdef NETWORK
                         while (count > pow_max)
