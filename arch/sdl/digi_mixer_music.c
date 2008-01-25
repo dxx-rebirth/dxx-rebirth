@@ -33,7 +33,7 @@ void music_done() {
 
 void convert_hmp(char *filename, char *mid_filename) {
 
-  if (!PHYSFS_exists(mid_filename))
+  if (1)	//!PHYSFS_exists(mid_filename))	// allow custom MIDI in add-on hogs to be used without caching everything
   {
     const char *err;
     PHYSFS_file *hmp_in;

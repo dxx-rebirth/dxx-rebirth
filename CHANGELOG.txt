@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080125
+--------
+arch/sdl/digi_mixer_music.c: allow custom MIDI in add-on hogs to be used without caching everything
+
 20080114
 --------
 INSTALL.txt, main/gamerend.c, main/network.c, main/udp.c: Updated Docs - Data files mus bt lowercase; Fixed small Multiplayer issues
