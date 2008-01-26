@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080126
+--------
+arch/sdl/digi_mixer_music.c: allow custom MIDI in add-on hogs to be used without caching everything
+
 20080125
 --------
 main/collide.c, main/custom.c, main/kconfig.h, main/newdemo.c, main/powerup.c: Fixed small compiling issues
