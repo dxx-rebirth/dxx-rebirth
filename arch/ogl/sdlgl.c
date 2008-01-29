@@ -1,6 +1,6 @@
 //opengl platform specific functions for SDL - Added 2000/06/19 Matthew Mueller
 #include <SDL/SDL.h>
-#include "ogl_init.h"
+#include "internal.h"
 #include "vers_id.h"
 #include "error.h"
 #include "u_mem.h"
@@ -8,11 +8,13 @@
 
 static int curx=-1,cury=-1,curfull=0;
 
-void ogl_do_fullscreen_internal(void){
+void ogl_do_fullscreen_internal(void)
+{
 	ogl_init_window(curx,cury);
 }
 
-void ogl_swap_buffers_internal(void){
+void ogl_swap_buffers_internal(void)
+{
 	SDL_GL_SwapBuffers();
 }
 int ogl_init_window(int x, int y){
@@ -37,7 +39,8 @@ int ogl_init_window(int x, int y){
 
 	return 0;
 }
-void ogl_destroy_window(void){
+void ogl_destroy_window(void)
+{
 	if (gl_initialized){
 		ogl_smash_texture_list_internal();
 		SDL_ShowCursor(1);
@@ -47,7 +50,8 @@ void ogl_destroy_window(void){
 	return;
 }
 
-void ogl_init(void){
+void ogl_init(void)
+{
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,0);
@@ -56,6 +60,8 @@ void ogl_init(void){
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
 }
-void ogl_close(void){
+
+void ogl_close(void)
+{
 	ogl_destroy_window();
 }

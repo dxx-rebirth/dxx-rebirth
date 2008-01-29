@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080129
+--------
+SConstruct, arch/include/digi_audio.h, arch/include/digi_mixer.h, arch/include/digi_mixer_music.h, arch/include/event.h, arch/include/joy.h, arch/include/joystick.h, arch/include/jukebox.h, arch/include/key.h, arch/include/mouse.h, arch/linux/include/music.h, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/sdlgl.c, arch/sdl/mouse.c, include/internal.h, include/loadgl.h, include/ogl_init.h, main/kconfig.c: Cleanung up arch/ a little bit; Added mouse delta time interval for more more accurate reading at high FPS
+
 20080126
 --------
 arch/sdl/digi_mixer_music.c: allow custom MIDI in add-on hogs to be used without caching everything

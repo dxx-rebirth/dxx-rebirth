@@ -35,7 +35,7 @@
 #include "u_mem.h"
 #include "gamefont.h"
 #include "render.h"
-#include "ogl_init.h"
+#include "internal.h"
 #include "physfsx.h"
 
 #if defined(__APPLE__) && defined(__MACH__)

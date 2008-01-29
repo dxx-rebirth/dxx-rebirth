@@ -1,5 +1,0 @@
-//vim generated resource script.
-//
-#include "resource.h"
-
-IDI_MAIN_ICON	ICON	"d1x.ico"

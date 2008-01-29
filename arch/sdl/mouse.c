@@ -1,11 +1,22 @@
-// SDL mouse driver.
+/*
+ *
+ * SDL mouse driver
+ *
+ */
+
+#ifdef HAVE_CONFIG_H
+#include <conf.h>
+#endif
 
 #include <string.h>
 #include <SDL/SDL.h>
+
 #include "fix.h"
 #include "timer.h"
 #include "event.h"
 #include "mouse.h"
+
+extern fix FrameTime;
 
 struct mousebutton {
 	ubyte pressed;
@@ -18,6 +29,7 @@ struct mousebutton {
 static struct mouseinfo {
 	struct mousebutton buttons[MOUSE_MAX_BUTTONS];
 	int delta_x, delta_y, delta_z;
+	int delta_time;
 	int x,y,z;
 } Mouse;
 
@@ -29,7 +41,7 @@ void d_mouse_init(void)
 void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 {
 	// to bad, SDL buttons use a different mapping as descent expects,
-	// this is atleast true and tested for the first three buttons 
+	// this is at least true and tested for the first three buttons 
 	int button_remap[11] = {
 		MBTN_LEFT,
 		MBTN_MIDDLE,
@@ -41,7 +53,8 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		MBTN_BANK_LEFT,
 		MBTN_BANK_RIGHT,
 		MBTN_HEAD_LEFT,
-		MBTN_HEAD_RIGHT };
+		MBTN_HEAD_RIGHT
+	};
 
 	int button = button_remap[mbe->button - 1]; // -1 since SDL seems to start counting at 1
 
@@ -49,6 +62,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		Mouse.buttons[button].pressed = 1;
 		Mouse.buttons[button].time_went_down = timer_get_fixed_seconds();
 		Mouse.buttons[button].num_downs++;
+
 		if (button == MBTN_Z_UP) {
 			Mouse.delta_z += Z_SENSITIVITY;
 			Mouse.z += Z_SENSITIVITY;
@@ -58,9 +72,8 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		}
 	} else {
 		Mouse.buttons[button].pressed = 0;
-		Mouse.buttons[button].time_held_down += timer_get_fixed_seconds() - Mouse.buttons[mbe->button].time_went_down;
+		Mouse.buttons[button].time_held_down += timer_get_fixed_seconds() - Mouse.buttons[button].time_went_down;
 		Mouse.buttons[button].num_ups++;
-
 	}
 }
 
@@ -76,12 +89,11 @@ void mouse_flush()	// clears all mice events...
 {
 	int i;
 	fix current_time;
-	
+
 	event_poll();
-	
+
 	current_time = timer_get_fixed_seconds();
-	for (i=0; i<MOUSE_MAX_BUTTONS; i++)
-	{
+	for (i=0; i<MOUSE_MAX_BUTTONS; i++) {
 		Mouse.buttons[i].pressed=0;
 		Mouse.buttons[i].time_went_down=current_time;
 		Mouse.buttons[i].time_held_down=0;
@@ -108,29 +120,35 @@ void mouse_get_pos( int *x, int *y, int *z )
 
 void mouse_get_delta( int *dx, int *dy, int *dz )
 {
+	Mouse.delta_time += FrameTime;
 	event_poll();
 	*dx = Mouse.delta_x;
 	*dy = Mouse.delta_y;
 	*dz = Mouse.delta_z;
-	Mouse.delta_x = 0;
-	Mouse.delta_y = 0;
-	Mouse.delta_z = 0;
+	// reset all ~33ms
+	if (Mouse.delta_time >= F1_0/30)
+	{
+		Mouse.delta_x = 0;
+		Mouse.delta_y = 0;
+		Mouse.delta_z = 0;
+		Mouse.delta_time = 0;
+	}
 }
 
 int mouse_get_btns()
 {
 	int i;
-        uint flag=1;
+	uint flag=1;
 	int status = 0;
 
-        event_poll();
-	
-	for (i=0; i<MOUSE_MAX_BUTTONS; i++ )
-        {
+	event_poll();
+
+	for (i=0; i<MOUSE_MAX_BUTTONS; i++ ) {
 		if (Mouse.buttons[i].pressed)
 			status |= flag;
 		flag <<= 1;
 	}
+
 	return status;
 }
 
@@ -138,9 +156,9 @@ int mouse_get_btns()
 fix mouse_button_down_time(int button)
 {
 	fix time_down, time;
-	
+
 	event_poll();
-	
+
 	if (!Mouse.buttons[button].pressed) {
 		time_down = Mouse.buttons[button].time_held_down;
 		Mouse.buttons[button].time_held_down = 0;
@@ -156,12 +174,12 @@ fix mouse_button_down_time(int button)
 int mouse_button_down_count(int button)
 {
 	int count;
-	
+
 	event_poll();
-	
+
 	count = Mouse.buttons[button].num_downs;
 	Mouse.buttons[button].num_downs = 0;
-	
+
 	return count;
 }
 

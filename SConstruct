@@ -299,7 +299,7 @@ env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
 env.Append(CPPDEFINES = ['NMONO', 'NETWORK', 'HAVE_NETIPX_IPX_H', '__SDL__', 'SDL_AUDIO', '_REENTRANT'])
-env.Append(CPPPATH = ['include', 'main', 'arch/sdl/include'])
+env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 generic_libs = ['SDL', 'physfs']
 sdlmixerlib = ['SDL_mixer']
 
@@ -382,13 +382,11 @@ if (sdl_only == 1):
 	print "building with SDL"
 	target = 'd1x-rebirth-sdl'
 	env.Append(CPPDEFINES = ['SDL_VIDEO'])
-	env.Append(CPPPATH = ['arch/sdl/include'])
 	common_sources += arch_sdl_sources
 else:
 	print "building with OpenGL"
 	target = 'd1x-rebirth-gl'
 	env.Append(CPPDEFINES = ogldefines)
-	env.Append(CPPPATH = ['arch/ogl/include'])
 	common_sources += arch_ogl_sources
 	libs += ogllibs
 

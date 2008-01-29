@@ -1,4 +1,6 @@
+#ifndef macintosh
 #include <unistd.h>
+#endif
 
 #define SEQ_DEV "/dev/sequencer"
 

@@ -51,7 +51,7 @@
 #include "gamefont.h"
 #include "byteswap.h"
 #include "endlevel.h"
-#include "ogl_init.h"
+#include "internal.h"
 #include "gauges.h"
 
 //change to 1 for lots of spew.
