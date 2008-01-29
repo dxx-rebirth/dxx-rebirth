@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20080129
 --------
 SConstruct, arch/include/mouse.h, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/sdlgl.c, arch/sdl/mouse.c, include/internal.h, main/kconfig.c: Cleanung up arch/ a little bit; Added mouse delta time interval for more more accurate reading at high FPS
+SConstruct, main/netdrv_udp.c, main/netdrv_udp.h, main/newmenu.c: Renaming udp.* to netdrv_udp.* to fit naming convention; Small menu ui fixes
 
 20080125
 --------

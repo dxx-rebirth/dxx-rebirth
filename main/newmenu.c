@@ -109,8 +109,8 @@ grs_bitmap nm_background,nm_background1,nm_background_save;
 #define MESSAGEBOX_TEXT_SIZE 2176   // How many characters in messagebox (changed form 300 (fixes crash from show_game_score and friends) - 2000/01/18 Matt Mueller)
 #define MAX_TEXT_WIDTH 	FONTSCALE_X((HiresGFX)?240:120)				// How many pixels wide a input box can be
 
-#define MENSCALE_X ((HiresGFX)?(SWIDTH/640):(SWIDTH/320))
-#define MENSCALE_Y ((HiresGFX)?(SHEIGHT/480):(SHEIGHT/200))
+#define MENSCALE_X ((HiresGFX)?((float)SWIDTH/640):((float)SWIDTH/320))
+#define MENSCALE_Y ((HiresGFX)?((float)SHEIGHT/480):((float)SHEIGHT/200))
 
 ubyte MenuReordering=0;
 ubyte SurfingNet=0;
@@ -295,7 +295,7 @@ void nm_string( bkg * b, int w1,int x, int y, char * s)
 	s2 = d_strdup(s);
 
 	for (i=0;i<6;i++) {
-		XTabs[i]=FONTSCALE_X(LHX(XTabs[i]));
+		XTabs[i]=LHX(XTabs[i]);
 		XTabs[i]+=x;
 	}
  
