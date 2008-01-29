@@ -25,7 +25,7 @@
 #include "netdrv.h"
 #include "network.h"
 #include "timer.h"
-#include "udp.h"
+#include "netdrv_udp.h"
 #include "key.h"
 #include "text.h"
 
