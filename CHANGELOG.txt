@@ -1,12 +1,16 @@
 D2X-Rebirth Changelog
 
+20080129
+--------
+SConstruct, arch/include/mouse.h, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/sdlgl.c, arch/sdl/mouse.c, include/internal.h, main/kconfig.c: Cleanung up arch/ a little bit; Added mouse delta time interval for more more accurate reading at high FPS
+
 20080125
 --------
 arch/sdl/digi_mixer_music.c: allow custom MIDI in add-on hogs to be used without caching everything
 
-20080114
+20080124
 --------
-INSTALL.txt, main/gamerend.c, main/network.c, main/udp.c: Updated Docs - Data files mus bt lowercase; Fixed small Multiplayer issues
+INSTALL.txt, main/gamerend.c, main/network.c, main/udp.c: Updated Docs - Data files must be lowercase; Fixed small Multiplayer issues
 
 20080123
 --------

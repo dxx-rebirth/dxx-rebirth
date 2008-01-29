@@ -394,13 +394,11 @@ if (sdl_only == 1):
 	print "building with SDL"
 	target = 'd2x-rebirth-sdl'
 	env.Append(CPPDEFINES = ['SDL_VIDEO'])
-	env.Append(CPPPATH = ['arch/sdl/include'])
 	common_sources += arch_sdl_sources
 else:
 	print "building with OpenGL"
 	target = 'd2x-rebirth-gl'
 	env.Append(CPPDEFINES = ogldefines)
-	env.Append(CPPPATH = ['arch/ogl/include'])
 	common_sources += arch_ogl_sources
 	libs += ogllibs
 

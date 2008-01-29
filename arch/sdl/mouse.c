@@ -1,7 +1,6 @@
-/* $Id: mouse.c,v 1.1.1.1 2006/03/17 19:53:41 zicodxx Exp $ */
 /*
  *
- * SDL mouse driver.
+ * SDL mouse driver
  *
  */
 
@@ -10,7 +9,6 @@
 #endif
 
 #include <string.h>
-
 #include <SDL/SDL.h>
 
 #include "fix.h"
@@ -18,13 +16,7 @@
 #include "event.h"
 #include "mouse.h"
 
-#ifdef _WIN32_WCE
-# define LANDSCAPE
-#endif
-
-#define MOUSE_MAX_BUTTONS       8
-
-#define Z_SENSITIVITY 100
+extern fix FrameTime;
 
 struct mousebutton {
 	ubyte pressed;
@@ -37,6 +29,7 @@ struct mousebutton {
 static struct mouseinfo {
 	struct mousebutton buttons[MOUSE_MAX_BUTTONS];
 	int delta_x, delta_y, delta_z;
+	int delta_time;
 	int x,y,z;
 } Mouse;
 
@@ -86,17 +79,10 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 
 void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 {
-#ifdef LANDSCAPE
-	Mouse.delta_y += mme->xrel;
-	Mouse.delta_x += mme->yrel;
-	Mouse.y += mme->xrel;
-	Mouse.x += mme->yrel;
-#else
 	Mouse.delta_x += mme->xrel;
 	Mouse.delta_y += mme->yrel;
 	Mouse.x += mme->xrel;
 	Mouse.y += mme->yrel;
-#endif
 }
 
 void mouse_flush()	// clears all mice events...
@@ -134,13 +120,19 @@ void mouse_get_pos( int *x, int *y, int *z )
 
 void mouse_get_delta( int *dx, int *dy, int *dz )
 {
+	Mouse.delta_time += FrameTime;
 	event_poll();
 	*dx = Mouse.delta_x;
 	*dy = Mouse.delta_y;
 	*dz = Mouse.delta_z;
-	Mouse.delta_x = 0;
-	Mouse.delta_y = 0;
-	Mouse.delta_z = 0;
+	// reset all ~33ms
+	if (Mouse.delta_time >= F1_0/30)
+	{
+		Mouse.delta_x = 0;
+		Mouse.delta_y = 0;
+		Mouse.delta_z = 0;
+		Mouse.delta_time = 0;
+	}
 }
 
 int mouse_get_btns()
