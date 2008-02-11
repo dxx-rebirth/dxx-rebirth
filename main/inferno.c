@@ -410,11 +410,8 @@ int main(int argc, char *argv[])
 
 	set_screen_mode(SCREEN_MENU);
 
-	con_printf( CON_DEBUG , "\nDoing bm_init..." );
-	#ifdef EDITOR
-	if (!bm_init_use_tbl())
-	#endif
-		bm_init();
+	con_printf( CON_DEBUG, "\nDoing gamedata_init..." );
+	gamedata_init();
 
 	#ifdef EDITOR
 	if (GameArg.EdiSaveHoardData) {

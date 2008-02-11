@@ -134,18 +134,24 @@ int tmap_info_read_n_d1(tmap_info *ti, int n, CFILE *fp)
 
 
 //-----------------------------------------------------------------
-// Read data from piggy.
-// This is called when the editor is OUT.
-// If editor is in, bm_init_use_table() is called.
-int bm_init()
+// Initializes game properties data (including texture caching system) and sound data.
+int gamedata_init()
 {
 	init_polygon_models();
-	if (! piggy_init())				// This calls bm_read_all
-		Error("Cannot open pig and/or ham file");
+	init_endlevel();
+	if (! properties_init())				// This calls properties_read_cmp
+#ifdef EDITOR
+		// The pc_shareware argument is currently unused for Descent 2,
+		// but *may* be useful for loading Descent 1 Shareware texture properties.
+		if (!gamedata_read_tbl(0))
+#endif
+			Error("Cannot open ham file");
+
+#ifdef EDITOR
+	gamedata_read_tbl(0);	// doesn't matter if it doesn't find it, given the ham file exists
+#endif
 
 	piggy_read_sounds();
-
-	init_endlevel();		//this is in bm_init_use_tbl(), so I gues it goes here
 
 	return 0;
 }

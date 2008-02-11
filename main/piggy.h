@@ -55,7 +55,7 @@ typedef struct bitmap_index {
 	ushort index;
 } __pack__ bitmap_index;
 
-int piggy_init();
+int properties_init();
 void piggy_close();
 void piggy_dump_all();
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file );

@@ -71,7 +71,7 @@ extern int Dead_modelnums[];
 extern int Marker_model_num;
 
 // Initializes the palette, bitmap system...
-int bm_init();
+int gamedata_init();
 void bm_close();
 
 // Initializes the Texture[] array of bmd_bitmap structures.
@@ -86,7 +86,7 @@ extern ushort ObjBitmapPtrs[MAX_OBJ_BITMAPS];
 extern int First_multi_bitmap_num;
 
 // Initializes all bitmaps from BITMAPS.TBL file.
-int bm_init_use_tbl(void);
+int gamedata_read_tbl(int pc_shareware);
 
 extern void bm_read_all(CFILE * fp);
 

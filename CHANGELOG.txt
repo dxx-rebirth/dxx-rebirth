@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080211
+--------
+main/bm.c, main/bm.h, main/bmread.c, main/inferno.c, main/piggy.c, main/piggy.h: support PC shareware files in full version build, make game data loading code easier to follow
+
 20080129
 --------
 SConstruct, arch/include/mouse.h, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/sdlgl.c, arch/sdl/mouse.c, include/internal.h, main/kconfig.c: Cleanung up arch/ a little bit; Added mouse delta time interval for more more accurate reading at high FPS

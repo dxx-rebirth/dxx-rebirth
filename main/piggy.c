@@ -1126,7 +1126,7 @@ int read_sndfile()
 	return 1;
 }
 
-int piggy_init(void)
+int properties_init(void)
 {
 	int ham_ok=0,snd_ok=0;
 	int i;
@@ -1980,7 +1980,7 @@ int get_d1_bm_index(char *filename, CFILE *d1_pig) {
 	return -1;
 }
 
-// imitate the algorithm of bm_init_use_tbl in main/bmread.c
+// imitate the algorithm of gamedata_read_tbl in main/bmread.c
 void read_d1_tmap_nums_from_hog(CFILE *d1_pig)
 {
 #define LINEBUF_SIZE 600
@@ -2110,7 +2110,7 @@ void load_d1_bitmap_replacements()
 	case D1_10_BIG_PIGSIZE:
 	case D1_10_PIGSIZE:
 		pig_data_start = 0;
-		// OK, now we need to read d1_tmap_nums by emulating d1's bm_init_use_tbl()
+		// OK, now we need to read d1_tmap_nums by emulating d1's gamedata_read_tbl()
 		read_d1_tmap_nums_from_hog(d1_Piggy_fp);
 		break;
 	default:
