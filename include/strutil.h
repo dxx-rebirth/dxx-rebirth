@@ -25,6 +25,9 @@ void strlwr( char *s1 );
 
 void strrev( char *s1 );
 
+// remove extension from filename, doesn't work with paths.
+void removeext(const char *filename, char *out);
+
 //give a filename a new extension
 extern void change_filename_extension( char *dest, char *src, char *new_ext );
 

@@ -338,18 +338,7 @@ int main(int argc,char *argv[])
 	gamefont_init(); // must load after palette data loaded.
 	songs_play_song( SONG_TITLE, 1 );
 
-#ifdef SHAREWARE
-	bm_init_use_tbl();
-#else
-#ifdef EDITOR
-	if (!GameArg.EdiNoBm)
-		bm_init_use_tbl();
-	else
-		bm_init();
-#else
-		bm_init();
-#endif
-#endif
+	gamedata_init();
 
 	if (GameArg.DbgNoRun)
 		return(0);

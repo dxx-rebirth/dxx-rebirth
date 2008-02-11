@@ -25,7 +25,6 @@ profiler = int(ARGUMENTS.get('profiler', 0))
 sdl_only = int(ARGUMENTS.get('sdl_only', 0))
 asm = int(ARGUMENTS.get('asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
-shareware = int(ARGUMENTS.get('shareware', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 arm = int(ARGUMENTS.get('arm', 0))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
@@ -142,6 +141,7 @@ common_sources = [
 'main/robot.c',
 'main/scores.c',
 'main/slew.c',
+'main/snddecom.c',
 'main/songs.c',
 'main/state.c',
 'main/switch.c',
@@ -426,11 +426,6 @@ if (editor == 1):
 	env.Append(CPPPATH = ['include/editor'])
 	common_sources += editor_sources
 
-#shareware build?
-if (shareware == 1):
-	env.Append(CPPDEFINES = ['SHAREWARE'])
-	common_sources += ['main/snddecom.c']
-
 # IPv6 compability?
 if (ipv6 == 1):
 	env.Append(CPPDEFINES = ['IPv6'])
@@ -465,7 +460,6 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'sharepath=DIR'   (*NIX only) use DIR for shared game data. (default: /usr/local/share/games/d1x-rebirth)
 	'sdl_only=1'      don't include OpenGL, use SDL-only instead
 	'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
-	'shareware=1'     build SHAREWARE version
 	'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
 	'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1'      do profiler build

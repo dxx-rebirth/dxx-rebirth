@@ -542,7 +542,6 @@ extern char *Text_string[];
 #define TXT_NET_SYNC_FAILED		Text_string[513]
 
 #ifdef SHAREWARE
-#define N_TEXT_STRINGS 514
 #define TXT_DONE "Done"
 #define TXT_I_AM_A "I am a"
 #define TXT_CHEATER "CHEATER!"
@@ -735,9 +734,10 @@ extern char *Text_string[];
 #define TXT_ROBOT_PAINTING_OFF 		Text_string[619]
 #define TXT_ROBOT_PAINTING_ON 		Text_string[620]
 
-#define N_TEXT_STRINGS                  621
-
 #endif
+
+#define N_TEXT_STRINGS_SHAREWARE		514
+#define N_TEXT_STRINGS                  621
 
 // Weapon names.
 #define PRIMARY_WEAPON_NAMES(weapon_num) (*(&TXT_W_LASER + (weapon_num)))

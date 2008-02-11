@@ -121,7 +121,6 @@ int					First_multi_bitmap_num=-1;
 bitmap_index		ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, since some are used twice.
 
-#ifndef SHAREWARE
 #ifdef FAST_FILE_IO
 #define tmap_info_read_n(ti, n, fp) cfread(ti, TMAP_INFO_SIZE, n, fp)
 #else
@@ -161,17 +160,24 @@ int player_ship_read(player_ship *ps, CFILE *fp)
 }
 
 //-----------------------------------------------------------------
-// Initializes all bitmaps from BITMAPS.TBL file.
-int bm_init()
+// Initializes game properties data (including texture caching system) and sound data.
+int gamedata_init()
 {
+	int retval;
+	
 	init_polygon_models();
-	init_endlevel();//adb: added, is also in bm_init_use_tbl
-	piggy_init();				// This calls bm_read_all
-	piggy_read_sounds();
+	init_endlevel();//adb: added, is also in bm_init_use_tbl (Chris: *Was* in bm_init_use_tbl)
+	retval = properties_init();				// This calls properties_read_cmp if appropriate
+	if (retval)
+		gamedata_read_tbl(retval == PIGGY_PC_SHAREWARE);
+
+	piggy_read_sounds(retval == PIGGY_PC_SHAREWARE);
+	
 	return 0;
 }
 
-void bm_read_all(CFILE * fp)
+// Read compiled properties data from descent.pig
+void properties_read_cmp(CFILE * fp)
 {
 	int i;
 	
@@ -262,5 +268,4 @@ void bm_read_all(CFILE * fp)
         #endif
 }
 
-#endif
 

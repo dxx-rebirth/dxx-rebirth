@@ -149,13 +149,28 @@ void pof_read_string(char *buf,int max, ubyte *bufp)
 
 void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 {
+	int i;
 //	cfread(vecs,sizeof(vms_vector),n,f);
 
-	memcpy(vecs, &bufp[Pof_addr], n*sizeof(*vecs));
-	Pof_addr += n*sizeof(*vecs);
+	for (i = 0; i < n; i++)
+	{
+		vecs[i].x = pof_read_int(bufp);
+		vecs[i].y = pof_read_int(bufp);
+		vecs[i].z = pof_read_int(bufp);
+	}
+}
+
+void pof_read_angvecs(vms_angvec *vecs,int n,ubyte *bufp)
+{
+	int i;
+	//	cfread(vecs,sizeof(vms_vector),n,f);
 	
-	if (Pof_addr > MODEL_BUF_SIZE)
-		Int3();
+	for (i = 0; i < n; i++)
+	{
+		vecs[i].p = pof_read_short(bufp);
+		vecs[i].b = pof_read_short(bufp);
+		vecs[i].h = pof_read_short(bufp);
+	}
 }
 
 #define ID_OHDR 0x5244484f // 'RDHO'  //Object header
@@ -379,7 +394,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 
 					for (m=0;m<pm->n_models;m++)
 						for (f=0;f<n_frames;f++)
-							pof_cfread(&anim_angs[f][m],1,sizeof(vms_angvec),model_buf);
+							pof_read_angvecs(&anim_angs[f][m], 1, model_buf);
 
 					robot_set_angles(r,pm,anim_angs);
 				
@@ -429,7 +444,10 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 #ifdef WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);
 #endif
-
+#ifdef WORDS_BIGENDIAN
+	swap_polygon_model_data(pm->model_data);
+#endif
+	
 	return pm;
 }
 

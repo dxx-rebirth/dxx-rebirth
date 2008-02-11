@@ -263,15 +263,9 @@ extern tmap_info TmapInfo[MAX_TEXTURES];
 extern int Dying_modelnums[];
 extern int Dead_modelnums[];
 
-// Initializes the palette, bitmap system...
-#ifdef SHAREWARE
-int bm_init_use_tbl();
-#else
-int bm_init();
-#ifdef EDITOR
-int bm_init_use_tbl();
-#endif
-#endif
+// Initializes properties, bitmap system, sounds...
+int gamedata_read_tbl(int pc_shareware);
+int gamedata_init();
 void bm_close();
 
 // Initializes the Texture[] array of bmd_bitmap structures.

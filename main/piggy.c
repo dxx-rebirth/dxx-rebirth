@@ -44,9 +44,7 @@ static char rcsid[] = "$Id: piggy.c,v 1.2 2006/03/18 23:08:13 michaelstather Exp
 #include "u_dpmi.h"
 #endif
 
-#ifdef SHAREWARE
 #include "snddecom.h"
-#endif
 
 #include "piggy.h"
 #include "texmerge.h"
@@ -150,9 +148,7 @@ void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
 }
 #endif // FAST_FILE_IO
 
-#ifdef SHAREWARE
 static int SoundCompressed[ MAX_SOUND_FILES ];
-#endif
 
 //#define BUILD_PSX_DATA 1
 
@@ -320,13 +316,15 @@ grs_bitmap bogus_bitmap;
 ubyte bogus_bitmap_initialized=0;
 digi_sound bogus_sound;
 
-extern void bm_read_all(CFILE * fp);
+extern void properties_read_cmp(CFILE * fp);
+void piggy_read_sounds(int pc_shareware);
 #ifdef EDITOR
 extern void bm_write_all(FILE * fp);
 #endif
 
-int piggy_init()
+int properties_init()
 {
+	int pcshare = 0;
 	int sbytes = 0;
 	char temp_name_read[16];
 	char temp_name[16];
@@ -338,6 +336,8 @@ int piggy_init()
 	int i,size, length;
 	int read_sounds = 1;
 	int Pigdata_start;
+	int pigsize;
+	int retval;
 
 	hashtable_init( &AllBitmapsNames, MAX_BITMAP_FILES );
 	hashtable_init( &AllDigiSndNames, MAX_SOUND_FILES );
@@ -398,21 +398,46 @@ int piggy_init()
 	}
 	
 	Piggy_fp = PHYSFSX_openDataFile(DEFAULT_PIGFILE_REGISTERED);
-	if (Piggy_fp==NULL) return 0;
-
-#ifdef SHAREWARE
-	Pigdata_start = 0;
-#else
-	Pigdata_start = cfile_read_int(Piggy_fp);
-#ifdef EDITOR
-	if (GameArg.EdiNoBm)
-#endif
+	if (Piggy_fp==NULL)
 	{
-		bm_read_all( Piggy_fp );	// Note connection to above if!!!
+		if (!cfexist("BITMAPS.TBL") && !cfexist("BITMAPS.BIN"))
+			Error("Cannot find " DEFAULT_PIGFILE_REGISTERED " or BITMAPS.TBL");
+		return 1;	// need to run gamedata_read_tbl
+	}
+
+	pigsize = cfilelength(Piggy_fp);
+	switch (pigsize) {
+		case D1_SHARE_BIG_PIGSIZE:
+		case D1_SHARE_10_PIGSIZE:
+		case D1_SHARE_PIGSIZE:
+		case D1_10_BIG_PIGSIZE:
+		case D1_10_PIGSIZE:
+			pcshare = 1;
+			Pigdata_start = 0;
+			break;
+		default:
+			Warning("Unknown size for " DEFAULT_PIGFILE_REGISTERED);
+			Int3();
+			// fall through
+		case D1_MAC_PIGSIZE:
+		case D1_MAC_SHARE_PIGSIZE:
+		case D1_PIGSIZE:
+		case D1_OEM_PIGSIZE:
+			Pigdata_start = cfile_read_int(Piggy_fp );
+			break;
+	}
+	
+	if (pcshare)
+		retval = PIGGY_PC_SHAREWARE;	// run gamedata_read_tbl in shareware mode
+	else if (GameArg.EdiNoBm || (!cfexist("BITMAPS.TBL") && !cfexist("BITMAPS.BIN")))
+	{
+		properties_read_cmp( Piggy_fp );	// Note connection to above if!!!
 		for (i = 0; i < MAX_BITMAP_FILES; i++)
 			GameBitmapXlat[i] = cfile_read_short(Piggy_fp);
+		retval = 0;	// don't run gamedata_read_tbl
 	}
-#endif
+	else
+		retval = 1;	// run gamedata_read_tbl
 
 	cfseek( Piggy_fp, Pigdata_start, SEEK_SET );
 	size = cfilelength(Piggy_fp) - Pigdata_start;
@@ -472,9 +497,8 @@ int piggy_init()
 //end this section addition - VR
 		temp_sound.data = (ubyte *)(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start);
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start;
-#ifdef SHAREWARE
-		SoundCompressed[Num_sound_files] = sndh.data_length;
-#endif
+		if (pcshare)
+			SoundCompressed[Num_sound_files] = sndh.data_length;
 		memcpy( temp_name_read, sndh.name, 8 );
 		temp_name_read[8] = 0;
 		piggy_register_sound( &temp_sound, temp_name_read, 1 );
@@ -484,10 +508,10 @@ int piggy_init()
 	}
 
 	SoundBits = d_malloc( sbytes + 16 );
-         if ( SoundBits == NULL )
-          Error( "Not enough memory to load DESCENT.PIG sounds\n");
+	if ( SoundBits == NULL )
+		Error( "Not enough memory to load DESCENT.PIG sounds\n");
 
-#ifdef EDITOR
+#if 1	//def EDITOR
 	Piggy_bitmap_cache_size	= size - header_size - sbytes + 16;
 	Assert( Piggy_bitmap_cache_size > 0 );
 #else
@@ -512,7 +536,7 @@ int piggy_init()
 //	mprintf( (0, "\n (USed %d / %d KB)\n", Piggy_bitmap_cache_next/1024, (size - header_size - sbytes + 16)/1024 ));
 //	key_getch();
 
-	return 0;
+	return retval;
 }
 
 int piggy_is_needed(int soundnum)
@@ -528,25 +552,26 @@ int piggy_is_needed(int soundnum)
 	return 0;
 }
 
-void piggy_read_sounds()
+void piggy_read_sounds(int pc_shareware)
 {
 	ubyte * ptr;
 	int i, sbytes;
-#ifdef SHAREWARE
 	int lastsize = 0;
 	ubyte * lastbuf = NULL;
-#endif
 
 	ptr = SoundBits;
 	sbytes = 0;
 
-	for (i=0; i<Num_sound_files; i++ )	{
+	for (i=0; i<Num_sound_files; i++ )
+	{
 		digi_sound *snd = &GameSounds[i];
 
-                if ( SoundOffset[i] > 0 )       {
-                        if ( piggy_is_needed(i) )       {
+		if ( SoundOffset[i] > 0 )
+		{
+			if ( piggy_is_needed(i) )
+			{
 				cfseek( Piggy_fp, SoundOffset[i], SEEK_SET );
-	
+
 				// Read in the sound data!!!
 				snd->data = ptr;
 #ifdef ALLEGRO
@@ -556,29 +581,28 @@ void piggy_read_sounds()
 				ptr += snd->length;
 				sbytes += snd->length;
 #endif
-//Arne's decompress for shareware on all soundcards - Tim@Rikers.org
-#ifdef SHAREWARE
-				if (lastsize < SoundCompressed[i]) {
-					if (lastbuf) d_free(lastbuf);
-					lastbuf = d_malloc(SoundCompressed[i]);
+		//Arne's decompress for shareware on all soundcards - Tim@Rikers.org
+				if (pc_shareware)
+				{
+					if (lastsize < SoundCompressed[i]) {
+						if (lastbuf) d_free(lastbuf);
+						lastbuf = d_malloc(SoundCompressed[i]);
+					}
+					cfread( lastbuf, SoundCompressed[i], 1, Piggy_fp );
+					sound_decompress( lastbuf, SoundCompressed[i], snd->data );
 				}
-				cfread( lastbuf, SoundCompressed[i], 1, Piggy_fp );
-				sound_decompress( lastbuf, SoundCompressed[i], snd->data );
-#else
+				else
 #ifdef ALLEGRO
-				cfread( snd->data, snd->len, 1, Piggy_fp );
+					cfread( snd->data, snd->len, 1, Piggy_fp );
 #else
-				cfread( snd->data, snd->length, 1, Piggy_fp );
-#endif
+					cfread( snd->data, snd->length, 1, Piggy_fp );
 #endif
 			}
-                }
+		}
 	}
         mprintf(( 0, "\nActual Sound usage: %d KB\n", sbytes/1024 ));
-#ifdef SHAREWARE
 	if (lastbuf)
 	  d_free(lastbuf);
-#endif
 }
 
 extern int descent_critical_error;
@@ -682,7 +706,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 		}
 	
-		#ifdef BITMAP_SELECTOR
+#ifdef BITMAP_SELECTOR
 		if ( bmp->bm_selector ) {
 			if (!dpmi_modify_selector_base( bmp->bm_selector, bmp->bm_data ))
 				Error( "Error modifying selector base in piggy.c\n" );

@@ -64,18 +64,6 @@ int cGameSongsAvailable = 0;
 void songs_init()
 {
 #ifdef SHAREWARE
-	int i;
-
-	for (i = 0; i < SONG_LEVEL_MUSIC + NUM_GAME_SONGS; i++) {
-	    strcpy(Songs[i].melodic_bank_file, "melodic.bnk");
-	    strcpy(Songs[i].drum_bank_file, "drum.bnk");
-	    if (i >= SONG_LEVEL_MUSIC)
-		sprintf(Songs[i].filename, "game%d.hmp", i - SONG_LEVEL_MUSIC);
-	}
-	strcpy(Songs[SONG_TITLE].filename, "descent.hmp");
-	strcpy(Songs[SONG_BRIEFING].filename, "briefing.hmp");
-	strcpy(Songs[SONG_CREDITS].filename, "credits.hmp");
-	cGameSongsAvailable = NUM_GAME_SONGS;
 #else
 	int i;
 	char inputline[80+1];
@@ -85,7 +73,22 @@ void songs_init()
 
 	fp = cfopen( "descent.sng", "rb" );
 	if ( fp == NULL )	{
-		Error( "Couldn't open descent.sng" );
+		int i;
+		
+		printf("Using Shareware songs only\n");
+		for (i = 0; i < SONG_LEVEL_MUSIC + NUM_GAME_SONGS; i++) {
+			strcpy(Songs[i].melodic_bank_file, "melodic.bnk");
+			strcpy(Songs[i].drum_bank_file, "drum.bnk");
+			if (i >= SONG_LEVEL_MUSIC)
+				sprintf(Songs[i].filename, "game%d.hmp", i - SONG_LEVEL_MUSIC);
+		}
+		strcpy(Songs[SONG_TITLE].filename, "descent.hmp");
+		strcpy(Songs[SONG_BRIEFING].filename, "briefing.hmp");
+		strcpy(Songs[SONG_CREDITS].filename, "credits.hmp");
+		strcpy(Songs[SONG_ENDLEVEL].filename, "endlevel.hmp");	// can't find it? give a warning
+		strcpy(Songs[SONG_ENDGAME].filename, "endgame.hmp");	// ditto
+		cGameSongsAvailable = NUM_GAME_SONGS;
+		return;
 	}
 
 	i = 0;

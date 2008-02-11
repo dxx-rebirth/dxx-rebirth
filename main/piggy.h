@@ -83,6 +83,16 @@
 #include "sounds.h"
 #include "settings.h"
 
+#define D1_SHARE_BIG_PIGSIZE    5092871 // v1.0 - 1.4 before RLE compression
+#define D1_SHARE_10_PIGSIZE     2529454 // v1.0 - 1.2
+#define D1_SHARE_PIGSIZE        2509799 // v1.4
+#define D1_10_BIG_PIGSIZE       7640220 // v1.0 before RLE compression
+#define D1_10_PIGSIZE           4520145 // v1.0
+#define D1_PIGSIZE              4920305 // v1.4 - 1.5 (Incl. OEM v1.4a)
+#define D1_OEM_PIGSIZE          5039735 // v1.0
+#define D1_MAC_PIGSIZE          3975533
+#define D1_MAC_SHARE_PIGSIZE    2714487
+
 typedef struct bitmap_index
   {
     ushort index;
@@ -99,7 +109,7 @@ extern ubyte bogus_bitmap_initialized;
 extern digi_sound bogus_sound;
 
 
-int piggy_init ();
+int properties_init ();
 
 void piggy_close ();
 
@@ -131,12 +141,12 @@ void piggy_load_level_data ();
 #endif	/* 
  */
 
+#define PIGGY_PC_SHAREWARE 2
+
 //moved to sounds.h - extern digi_sound GameSounds[MAX_SOUND_FILES];
 
 extern grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
 
-
-void piggy_read_sounds ();
 
 #ifdef PIGGY_USE_PAGING
 extern void piggy_bitmap_page_in (bitmap_index bmp);
