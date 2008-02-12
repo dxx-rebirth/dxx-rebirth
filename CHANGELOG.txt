@@ -1,8 +1,12 @@
 D1X-Rebirth Changelog
 
+20080212
+--------
+main/endlevel.c: make sure a briefing isn't interpreted as an endlevel sequence file, preventing an in-game warning
+
 20080211
 --------
-d1x-rebirth.xcodeproj, include/strutil.h, main/bm.c, main/bm.h, main/bmread.c, main/digiobj.c, main/inferno.c, main/piggy.c, main/piggy.h, main/polyobj.c, main/songs.c, main/text.c, main/text.h, misc/strutil.c, SConstruct: support PC shareware files in full version build
+d1x-rebirth.xcodeproj, include/strutil.h, main/bm.c, main/bm.h, main/bmread.c, main/digiobj.c, main/inferno.c, main/piggy.c, main/piggy.h, main/polyobj.c, main/songs.c, main/text.c, main/text.h, misc/strutil.c, SConstruct: support PC shareware files in full version build, make game data loading code easier to follow
 
 20080129
 --------
