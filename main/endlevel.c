@@ -74,6 +74,7 @@ static char rcsid[] = "$Id: endlevel.c,v 1.1.1.1 2006/03/17 19:55:20 zicodxx Exp
 #include "songs.h"
 #include "movie.h"
 #include "render.h"
+#include "titles.h"
 
 typedef struct flythrough_data {
 	object		*obj;
@@ -1486,6 +1487,9 @@ try_again:
 	if (!ifile) {
 
 		convert_ext(filename,"txb");
+                if (!strcmp(filename, Briefing_text_filename) || 
+                !strcmp(filename, Ending_text_filename))
+                    return;	// Don't want to interpret the briefing as an end level sequence!
 
 		ifile = cfopen(filename,"rb");
 

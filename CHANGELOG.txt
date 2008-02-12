@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080212
+--------
+main/endlevel.c: make sure a briefing isn't interpreted as an endlevel sequence file, preventing an in-game warning
+
 20080211
 --------
 main/bm.c, main/bm.h, main/bmread.c, main/inferno.c, main/piggy.c, main/piggy.h: support PC shareware files in full version build, make game data loading code easier to follow
