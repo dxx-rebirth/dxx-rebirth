@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20080212
 --------
 main/endlevel.c: make sure a briefing isn't interpreted as an endlevel sequence file, preventing an in-game warning
+iff/iff.c: remove redundant iff functions
 
 20080211
 --------
