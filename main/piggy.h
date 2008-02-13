@@ -182,6 +182,8 @@ do {                                                                            
 #define PIGGY_PAGE_IN(bmp)
 #endif // PIGGY_USE_PAGING
 
+void piggy_read_sounds(int pc_shareware);
+
 #ifdef FAST_FILE_IO
 #define bitmap_index_read(bi, fp) cfread(bi, sizeof(bitmap_index), 1, fp)
 #define bitmap_index_read_n(bi, n, fp) cfread(bi, sizeof(bitmap_index), n, fp)

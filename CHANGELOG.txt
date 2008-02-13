@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080213
+--------
+main/piggy.c, main/piggy.h: fix undefined function warning with piggy_read_sounds (whoops)
+
 20080212
 --------
 main/endlevel.c: make sure a briefing isn't interpreted as an endlevel sequence file, preventing an in-game warning

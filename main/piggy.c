@@ -317,7 +317,6 @@ ubyte bogus_bitmap_initialized=0;
 digi_sound bogus_sound;
 
 extern void properties_read_cmp(CFILE * fp);
-void piggy_read_sounds(int pc_shareware);
 #ifdef EDITOR
 extern void bm_write_all(FILE * fp);
 #endif
