@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20080213
 --------
 main/piggy.c, main/piggy.h: fix undefined function warning with piggy_read_sounds (whoops)
+iff/iff.c: remove redundant iff functions
 
 20080212
 --------
