@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20080217
 --------
 d1x-rebirth.xcodeproj, main/game.c, main/newmenu.c: get SDL Video build to work again
+misc/hmp2mid.c: don't try and free mid_track_buf if it isn't allocated, if midi conversion doesn't work
 
 20080213
 --------

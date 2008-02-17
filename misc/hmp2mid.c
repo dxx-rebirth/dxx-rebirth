@@ -35,7 +35,8 @@
   {\
     if (PHYSFS_read(hmp_in, buf, 1, count) != (count)) \
     { \
-      d_free(mid_track_buf); \
+	  if (mid_track_buf) \
+       d_free(mid_track_buf); \
       return hmp_read_error; \
     } \
     /* notice that when we are not actually in the track reading code this \
@@ -53,7 +54,8 @@
 #define MID_WRITE(buf, count) \
   if (PHYSFS_write(mid_out, buf, 1, count) != (count)) \
   { \
-    d_free(mid_track_buf); \
+	if (mid_track_buf) \
+	  d_free(mid_track_buf); \
 	strncpy(hmp2mid_error, mid_write_error_templ, sizeof(hmp2mid_error)); \
 	strncat(hmp2mid_error, PHYSFS_getLastError(), \
       sizeof(hmp2mid_error) - sizeof(mid_write_error_templ) + 1); \
