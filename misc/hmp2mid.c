@@ -27,6 +27,7 @@
 #include <physfs/physfs.h>
 #endif
 #include "hmp2mid.h"
+#include "u_mem.h"
 
 /* Some convience macros to keep the code below more readable */
 
@@ -66,10 +67,10 @@
     if ((mid_track_buf_used + count) > mid_track_buf_size) \
     { \
       void *tmp = mid_track_buf; \
-      mid_track_buf = realloc(mid_track_buf, mid_track_buf_size + 65536); \
+      mid_track_buf = d_realloc(mid_track_buf, mid_track_buf_size + 65536); \
       if (!mid_track_buf) \
       { \
-        free(tmp); \
+        d_free(tmp); \
         return "Error could not allocate midi track memory"; \
       } \
     } \
@@ -134,7 +135,7 @@ const char *hmp2mid(PHYSFS_file *hmp_in, PHYSFS_file *mid_out)
     HMP_READ_DWORD(&t);
     if (t != i)
     {
-      free(mid_track_buf);
+      d_free(mid_track_buf);
       return "Error invalid hmp track number";
     }
     /* Read number of bytes in this track */
@@ -165,7 +166,7 @@ const char *hmp2mid(PHYSFS_file *hmp_in, PHYSFS_file *mid_out)
       
       if (n1 >= 4)
       {
-        free(mid_track_buf);
+        d_free(mid_track_buf);
         return "Error parsing hmp track";
       }
 
@@ -189,7 +190,7 @@ const char *hmp2mid(PHYSFS_file *hmp_in, PHYSFS_file *mid_out)
         {
           if (buf[2] != 0x00)
           {
-            free(mid_track_buf);
+            d_free(mid_track_buf);
             return "Error hmp meta end of track with non zero size";
           }
           break;
@@ -212,7 +213,7 @@ const char *hmp2mid(PHYSFS_file *hmp_in, PHYSFS_file *mid_out)
           t = 1;
           break;
         default:
-          free(mid_track_buf);
+          d_free(mid_track_buf);
           return "Error invalid hmp command";
       }
       if (buf[0] != last_com)
@@ -223,7 +224,7 @@ const char *hmp2mid(PHYSFS_file *hmp_in, PHYSFS_file *mid_out)
     }
     if (track_length != 0)
     {
-      free(mid_track_buf);
+      d_free(mid_track_buf);
       return "Error invalid track length";
     }
     /* write the midi track length */
@@ -235,6 +236,6 @@ const char *hmp2mid(PHYSFS_file *hmp_in, PHYSFS_file *mid_out)
     /* and the track itself */
     MID_WRITE(mid_track_buf, mid_track_buf_used);
   }
-  free (mid_track_buf);
+  d_free (mid_track_buf);
   return NULL;
 }

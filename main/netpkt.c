@@ -317,6 +317,7 @@ void send_netgame_packet(ubyte *server, ubyte *node, ubyte *net_address, int lit
 	tmps = INTEL_SHORT(Netgame.PacketsPerSec);
 	memcpy(&(out_buffer[loc]), &tmps, 2);                   loc += 2;
 	memcpy(&(out_buffer[loc]), &(Netgame.ShortPackets), 1); loc ++;
+	memcpy(&(out_buffer[loc]), Netgame.AuxData, NETGAME_AUX_SIZE); loc += NETGAME_AUX_SIZE;
 
 do_send:
 	if (net_address != NULL)
@@ -413,6 +414,7 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int lite_flag)
 	memcpy(&(netgame->PacketsPerSec), &(data[loc]), 2);             loc += 2;
 	netgame->PacketsPerSec = INTEL_SHORT(netgame->PacketsPerSec);
 	memcpy(&(netgame->ShortPackets), &(data[loc]), 1);              loc ++;
+	memcpy(netgame->AuxData, &(data[loc]), NETGAME_AUX_SIZE);		loc += NETGAME_AUX_SIZE;
 
 }
 

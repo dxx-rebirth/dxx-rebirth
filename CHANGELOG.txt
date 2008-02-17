@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20080217
 --------
 misc/hmp2mid.c: don't try and free mid_track_buf if it isn't allocated, if midi conversion doesn't work
+misc/hmp2mid.c: use d_ memory functions in hmp2mid, since I already started to erroneously
 
 20080212
 --------
