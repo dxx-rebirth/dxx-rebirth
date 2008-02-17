@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080217
+--------
+d1x-rebirth.xcodeproj, main/game.c, main/newmenu.c: get SDL Video build to work again
+
 20080213
 --------
 main/piggy.c, main/piggy.h: fix undefined function warning with piggy_read_sounds (whoops)

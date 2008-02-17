@@ -1113,7 +1113,6 @@ void save_screen_shot(int automap_flag)
         char savename[FILENAME_LEN+sizeof(SCRNS_DIR)],savename2[FILENAME_LEN];
 	ubyte pal[768];
 	int w,h,aw,x,y;
-	int modex_flag;
 	int stereo=0;
 
 	temp_canv2=NULL;
@@ -1151,7 +1150,7 @@ void save_screen_shot(int automap_flag)
 	if ( stereo ) {
 		sprintf(savename,"left%02d.pcx",stereo_savenum);
 		sprintf(savename2,"right%02d.pcx",stereo_savenum);
-		if (VR_eye_switch) {char t[FILENAME_LEN]; strcpy(t,savename); strcpy(savename,savename2); strcpy(savename2,t);}
+		//if (VR_eye_switch) {char t[FILENAME_LEN]; strcpy(t,savename); strcpy(savename,savename2); strcpy(savename2,t);}
 		stereo_savenum++;
 		sprintf( message, "%s '%s' & '%s'", TXT_DUMPING_SCREEN, savename, savename2 );
 	}
@@ -1161,24 +1160,17 @@ void save_screen_shot(int automap_flag)
 	}
 
 	gr_set_current_canvas(NULL);
-	modex_flag = (grd_curcanv->cv_bitmap.bm_type==BM_MODEX);
 
 	save_font = grd_curcanv->cv_font;
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(gr_find_closest_color_current(0,31,0),-1);
 	gr_get_string_size(message,&w,&h,&aw);
 
-	if (modex_flag)
-		h *= 2;
-
 	//I changed how these coords were calculated for the high-res automap. -MT
 	x = (grd_curcanv->cv_w-w)/2;
 	y = (grd_curcanv->cv_h-h)/2;
 
-	if (modex_flag) {
-		modex_clear_box(x-2,y-2,w+4,h+4);
-		modex_printf(x, y, message,GAME_FONT,gr_find_closest_color_current(0,31,0));
-	} else {
+	{
 		gr_setcolor(gr_find_closest_color_current(0,0,0));
 		gr_rect(x-2,y-2,x+w+2,y+h+2);
 		gr_printf(x,y,message);
@@ -1195,7 +1187,7 @@ void save_screen_shot(int automap_flag)
 
 	gr_set_current_canvas(screen_canv);
 
-	if (grd_curcanv->cv_bitmap.bm_type!=BM_MODEX && !stereo)
+	if (!stereo)
 		gr_ubitmap(0,0,&temp_canv->cv_bitmap);
 
 	gr_free_canvas(temp_canv);

@@ -2054,9 +2054,11 @@ ReadFileNames:
 			i = ocitem;
 			if ( (i>=0) && (i<NumFiles) )	{
 				y = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h+2)+box_y;
+#if 0
 				if ( i == citem )	
 					grd_curcanv->cv_font = SELECTED_FONT;
 				else	
+#endif
 					grd_curcanv->cv_font = NORMAL_FONT;
 				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
 				gr_rect( box_x, y-1, box_x + box_w - 1, y + h + FONTSCALE_Y(1) );
@@ -2065,9 +2067,11 @@ ReadFileNames:
 			i = citem;
 			if ( (i>=0) && (i<NumFiles) )	{
 				y = (i-first_item)*FONTSCALE_Y(grd_curcanv->cv_font->ft_h+2)+box_y;
+#if 0
 				if ( i == citem )	
 					grd_curcanv->cv_font = SELECTED_FONT;
 				else	
+#endif
 					grd_curcanv->cv_font = NORMAL_FONT;
 				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
 				gr_string( box_x + 5, y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
