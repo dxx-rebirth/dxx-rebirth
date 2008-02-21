@@ -361,7 +361,15 @@ int main(int argc,char *argv[])
 
 	if (!GameArg.SysNoTitles)
 	{
-		show_title_screen( "iplogo1.pcx", 1 );
+		char    publisher[16];
+
+		strcpy(publisher, "macplay.pcx");	// Mac Shareware
+		if (!PHYSFS_exists(publisher))
+			strcpy(publisher, "mplaycd.pcx");	// Mac Registered
+		if (!PHYSFS_exists(publisher))
+			strcpy(publisher, "iplogo1.pcx");	// PC. Only down here because it's lowres ;-)
+		
+		show_title_screen( publisher, 1 );
 		show_title_screen( "logo.pcx", 1 );
 		show_title_screen( "descent.pcx", 1 );
 	}

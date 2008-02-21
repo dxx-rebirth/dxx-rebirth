@@ -174,7 +174,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	grs_bitmap bg;
 	old=grd_curcanv;
 	tmp=gr_create_sub_canvas(old,x1,y1,w,h);
-	gr_init_sub_bitmap(&bg,&nm_background,0,0,w*(320.0/SWIDTH),h*(200.0/SHEIGHT));//note that we haven't replaced current_canvas yet, so these macros are still ok.
+	gr_init_sub_bitmap(&bg,&nm_background,0,0,w*(((float) nm_background.bm_w)/SWIDTH),h*(((float) nm_background.bm_h)/SHEIGHT));//note that we haven't replaced current_canvas yet, so these macros are still ok.
 	gr_set_current_canvas(tmp);
 
 	gr_palette_load( gr_palette );

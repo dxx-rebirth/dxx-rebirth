@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080221
+--------
+main/inferno.c, main/newmenu.c, main/titles.c: add support for Macintosh splash screens and menu backgrounds in descent.hog, but not fonts (yet)
+
 20080217
 --------
 d1x-rebirth.xcodeproj, main/game.c, main/newmenu.c: get SDL Video build to work again
