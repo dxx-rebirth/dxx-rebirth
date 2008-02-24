@@ -28,8 +28,8 @@ extern void d2x_options_menu();
 
 #define MENU_PCX_MAC_SHARE ("menub.pcx")
 #define MENU_PCX_SHAREWARE ("menud.pcx")
-#define MENU_PCX_OEM (HiresGFX?"menuob.pcx":"menuo.pcx")
-#define MENU_PCX_FULL (HiresGFX?"menub.pcx":"menu.pcx")
+#define MENU_PCX_OEM (HIRESMODE?"menuob.pcx":"menuo.pcx")
+#define MENU_PCX_FULL (HIRESMODE?"menub.pcx":"menu.pcx")
 
 // name of background bitmap
 #define Menu_pcx_name (cfexist(MENU_PCX_FULL)?MENU_PCX_FULL:(cfexist(MENU_PCX_OEM)?MENU_PCX_OEM:cfexist(MENU_PCX_SHAREWARE)?MENU_PCX_SHAREWARE:MENU_PCX_MAC_SHARE))

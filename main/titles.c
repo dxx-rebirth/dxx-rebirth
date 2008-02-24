@@ -230,7 +230,7 @@ void show_titles(void)
 		played = PlayMovie("pre_i.mve",0);
 
 		if (!played) {
-			strcpy(filename,HiresGFX?"pre_i1b.pcx":"pre_i1.pcx");
+			strcpy(filename,HIRESMODE?"pre_i1b.pcx":"pre_i1.pcx");
 
 			while (PHYSFS_exists(filename))
 			{
@@ -262,7 +262,7 @@ void show_titles(void)
 			song_playing = 1;
 			con_printf( CON_DEBUG, "\nShowing logo screens..." );
 
-			strcpy(filename, HiresGFX?"iplogo1b.pcx":"iplogo1.pcx"); // OEM
+			strcpy(filename, HIRESMODE?"iplogo1b.pcx":"iplogo1.pcx"); // OEM
 			if (! cfexist(filename))
 				strcpy(filename, "iplogo1.pcx"); // SHAREWARE
 			if (! cfexist(filename))
@@ -270,7 +270,7 @@ void show_titles(void)
 			if (cfexist(filename))
 				show_title_screen(filename, 1, 1);
 
-			strcpy(filename, HiresGFX?"logob.pcx":"logo.pcx"); // OEM
+			strcpy(filename, HIRESMODE?"logob.pcx":"logo.pcx"); // OEM
 			if (! cfexist(filename))
 				strcpy(filename, "logo.pcx"); // SHAREWARE
 			if (! cfexist(filename))
@@ -298,7 +298,7 @@ void show_titles(void)
 
 		if (!played)
 		{
-			strcpy(filename,HiresGFX?"oem1b.pcx":"oem1.pcx");
+			strcpy(filename,HIRESMODE?"oem1b.pcx":"oem1.pcx");
 
 			while (PHYSFS_exists(filename))
 			{
@@ -800,7 +800,7 @@ int show_briefing(int screen_num, char *message)
 		init_char_pos(bsp->text_ulx, bsp->text_uly);
 	} else {
 		bsp=&Briefing_screens[0];
-		init_char_pos(bsp->text_ulx, bsp->text_uly-(8*(1+HiresGFX)));
+		init_char_pos(bsp->text_ulx, bsp->text_uly-(8*(1+HIRESMODE)));
 	}
 
 	while (!done) {
@@ -829,7 +829,7 @@ int show_briefing(int screen_num, char *message)
 					;
 			} else if (ch == 'T') {
 				tab_stop = get_message_num(&message);
-				tab_stop*=(1+HiresGFX);
+				tab_stop*=(1+HIRESMODE);
 				prev_ch = 10;							//	read to eoln
 			} else if (ch == 'R') {
 				if (Robot_canv != NULL) {
@@ -913,7 +913,7 @@ int show_briefing(int screen_num, char *message)
 					fname2[i++]='x';
 					fname2[i++]=0;
 
-					if ((HiresGFX && cfexist(fname2)) || !cfexist(fname))
+					if ((HIRESMODE && cfexist(fname2)) || !cfexist(fname))
 						strcpy(fname,fname2);
 					load_briefing_screen (fname);
 				}
@@ -992,7 +992,7 @@ int show_briefing(int screen_num, char *message)
 				if (!GotZ) {
 					Int3(); // Hey ryan!!!! You gotta load a screen before you start
 					        // printing to it! You know, $Z !!!
-		  		    load_briefing_screen (HiresGFX?"end01b.pcx":"end01.pcx");
+		  		    load_briefing_screen (HIRESMODE?"end01b.pcx":"end01.pcx");
 				}
 
 				new_page = 1;
@@ -1017,7 +1017,7 @@ int show_briefing(int screen_num, char *message)
 			if (prev_ch != '\\') {
 				prev_ch = ch;
 				if (DumbAdjust==0)
-					Briefing_text_y += FONTSCALE_Y(8*(HiresGFX+1));
+					Briefing_text_y += FSPACY(5)+FSPACY(5)*3/5;
 				else
 					DumbAdjust--;
 				Briefing_text_x = bsp->text_ulx;
@@ -1038,7 +1038,7 @@ int show_briefing(int screen_num, char *message)
 			if (!GotZ) {
 				Int3(); // Hey ryan!!!! You gotta load a screen before you start
 				        // printing to it! You know, $Z !!!
-				load_briefing_screen (HiresGFX?"end01b.pcx":"end01.pcx");
+				load_briefing_screen (HIRESMODE?"end01b.pcx":"end01.pcx");
 			}
 
 #ifdef OGL
@@ -1051,6 +1051,8 @@ int show_briefing(int screen_num, char *message)
 					gr_flip();
 				show_fullscr(&briefing_bm);
 				redraw_messagestream(streamcount);
+				if (flashing_cursor)
+					gr_printf(Briefing_text_x + FSPACX(7),Briefing_text_y,"_");
 			}
 			if (guy_bitmap_show)
 				show_briefing_bitmap(&guy_bitmap);
@@ -1459,13 +1461,13 @@ void show_order_form()
 
 	key_flush();
 
-	strcpy(exit_screen, HiresGFX?"ordrd2ob.pcx":"ordrd2o.pcx"); // OEM
+	strcpy(exit_screen, HIRESMODE?"ordrd2ob.pcx":"ordrd2o.pcx"); // OEM
 	if (! cfexist(exit_screen))
-		strcpy(exit_screen, HiresGFX?"orderd2b.pcx":"orderd2.pcx"); // SHAREWARE, prefer mac if hires
+		strcpy(exit_screen, HIRESMODE?"orderd2b.pcx":"orderd2.pcx"); // SHAREWARE, prefer mac if hires
 	if (! cfexist(exit_screen))
-		strcpy(exit_screen, HiresGFX?"orderd2.pcx":"orderd2b.pcx"); // SHAREWARE, have to rescale
+		strcpy(exit_screen, HIRESMODE?"orderd2.pcx":"orderd2b.pcx"); // SHAREWARE, have to rescale
 	if (! cfexist(exit_screen))
-		strcpy(exit_screen, HiresGFX?"warningb.pcx":"warning.pcx"); // D1
+		strcpy(exit_screen, HIRESMODE?"warningb.pcx":"warning.pcx"); // D1
 	if (! cfexist(exit_screen))
 		return; // D2 registered
 

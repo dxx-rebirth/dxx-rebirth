@@ -161,27 +161,23 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 	nitems = nitems;
 	last_key = last_key;
 	
-		if ( citem > 0 )	{
-			if ( sc_bmp[citem-1] )	{
-				if (HiresGFX) {
-					grs_canvas *save_canv = grd_curcanv;
-					grs_canvas *temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
-					grs_point vertbuf[3] = {{0,0}, {0,0}, {i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)} };
-					gr_set_current_canvas(temp_canv);
-					scale_bitmap(sc_bmp[citem-1], vertbuf, 0 );
-					gr_set_current_canvas( save_canv );
+	if ( citem > 0 )
+	{
+		if ( sc_bmp[citem-1] )	{
+			grs_canvas *save_canv = grd_curcanv;
+			grs_canvas *temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
+			grs_point vertbuf[3] = {{0,0}, {0,0}, {i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)} };
+			gr_set_current_canvas(temp_canv);
+			scale_bitmap(sc_bmp[citem-1], vertbuf, 0 );
+			gr_set_current_canvas( save_canv );
 #ifndef OGL
-					gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W*2)/2,items[0].y-10, &temp_canv->cv_bitmap);
+			gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W*2)/2,items[0].y-3, &temp_canv->cv_bitmap);
 #else
-					ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w/2)-FONTSCALE_X(grd_curcanv->cv_font->ft_h*5),items[0].y-10,FONTSCALE_X(grd_curcanv->cv_font->ft_h*10),FONTSCALE_Y(grd_curcanv->cv_font->ft_h*5),&temp_canv->cv_bitmap,255,F1_0);
+			ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),THUMBNAIL_W*FSPACX(1),THUMBNAIL_H*FSPACY(1),&temp_canv->cv_bitmap,255,F1_0);
 #endif
-					gr_free_canvas(temp_canv);
-				}
-				else	{
-					gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W)/2,items[0].y-5, sc_bmp[citem-1] );
-				}
-			}
+			gr_free_canvas(temp_canv);
 		}
+	}
 }
 
 void rpad_string( char * string, int max_chars )

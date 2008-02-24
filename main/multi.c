@@ -1488,7 +1488,7 @@ multi_do_message(char *buf)
 			color = get_team((int)buf[1]);
 		else
 			color = (int)buf[1];
-		mesbuf[1] = gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
+		mesbuf[1] = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 		strcpy(&mesbuf[2], Players[(int)buf[1]].callsign);
 		t = strlen(mesbuf);
 		mesbuf[t] = ':';
@@ -1510,7 +1510,7 @@ multi_do_message(char *buf)
 				color = get_team((int)buf[1]);
 			else
 				color = (int)buf[1];
-			mesbuf[1] = gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
+			mesbuf[1] = BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b);
 			strcpy(&mesbuf[2], Players[(int)buf[1]].callsign);
 			t = strlen(mesbuf);
 			mesbuf[t] = ':';

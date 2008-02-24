@@ -57,7 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #  include "multi.h"
 #endif
 #include "scores.h"
-#include "joydefs.h"
 #include "playsave.h"
 #include "kconfig.h"
 #include "titles.h"
@@ -393,9 +392,8 @@ void do_option ( int select)
 			do_options_menu();
 			break;
 		case MENU_SHOW_CREDITS:
-			gr_palette_fade_out( gr_palette,32,0);
 			songs_stop_all();
-			credits_show(NULL); 
+			credits_show();
 			break;
 		default:
 			Error("Unknown option %d in do_option",select);
@@ -752,6 +750,86 @@ void change_res()
 }
 //End changed section (OE)
 
+void input_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
+{
+	int i;
+	int oc_type = Config_control_type;
+
+	nitems = nitems;
+	last_key = last_key;
+	citem = citem;		
+
+	for (i=0; i<4; i++ )
+		if (items[i].value) Config_control_type = i;
+
+        if (Config_control_type == 2) Config_control_type = CONTROL_MOUSE;
+        if (Config_control_type == 3) Config_control_type = CONTROL_JOYMOUSE;
+
+	if (oc_type != Config_control_type) {
+		kc_set_controls();
+	}
+}
+
+void input_config()
+{
+	newmenu_item m[14];
+	int i, i1 = 5, j;
+	int nitems = 14;
+
+	m[0].type = NM_TYPE_RADIO;  m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
+	m[1].type = NM_TYPE_RADIO;  m[1].text = "JOYSTICK"; m[1].value = 0; m[1].group = 0;
+	m[2].type = NM_TYPE_RADIO;  m[2].text = "MOUSE";    m[2].value = 0; m[2].group = 0;
+	m[3].type = NM_TYPE_RADIO;  m[3].text = "JOYSTICK & MOUSE"; m[3].value = 0; m[3].group = 0;
+	m[4].type = NM_TYPE_TEXT;   m[4].text = "";
+	m[5].type = NM_TYPE_MENU;   m[5].text = TXT_CUST_ABOVE;
+	m[6].type = NM_TYPE_MENU;   m[6].text = TXT_CUST_KEYBOARD;
+	m[7].type = NM_TYPE_MENU;   m[7].text = "CUSTOMIZE WEAPON KEYS";
+	m[8].type = NM_TYPE_TEXT;   m[8].text = "";
+	m[9].type = NM_TYPE_TEXT;   m[9].text = "Joystick";
+	m[10].type = NM_TYPE_SLIDER; m[10].text="Sensitivity"; m[10].value=Config_joystick_sensitivity; m[10].min_value = 0; m[10].max_value = 16;
+	m[11].type = NM_TYPE_SLIDER; m[11].text="Joystick Deadzone"; m[11].value=joy_deadzone; m[11].min_value=0; m[11].max_value = 16;
+	m[12].type = NM_TYPE_TEXT;   m[12].text = "Mouse";
+	m[13].type = NM_TYPE_SLIDER; m[13].text="Sensitivity"; m[13].value=Config_mouse_sensitivity; m[13].min_value = 0; m[13].max_value = 16;
+
+
+	do {
+
+		i = Config_control_type;
+		if (i == CONTROL_MOUSE) i = 2;
+		if (i==CONTROL_JOYMOUSE) i = 3;
+		m[i].value = 1;
+
+		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, i1);
+
+		Config_joystick_sensitivity = m[10].value;
+		joy_deadzone = m[11].value;
+		Config_mouse_sensitivity = m[13].value;
+
+		for (j = 0; j <= 3; j++)
+			if (m[j].value)
+				Config_control_type = j;
+		i = Config_control_type;
+		if (Config_control_type == 2)
+			Config_control_type = CONTROL_MOUSE;
+		if (Config_control_type == 3)
+			Config_control_type = CONTROL_JOYMOUSE;
+
+		switch (i1) {
+		case 5:
+			kconfig(i, m[i].text);
+			break;
+		case 6:
+			kconfig(0, "KEYBOARD");
+			break;
+		case 7:
+			kconfig(4, "WEAPON KEYS");
+			break;
+		}
+
+	} while (i1>-1);
+
+}
+
 void do_options_menu()
 {
 	newmenu_item m[11];
@@ -785,7 +863,7 @@ void do_options_menu()
 			
 		switch(i)       {
 			case  0: do_sound_menu();		break;
-			case  2: joydefs_config();		break;
+			case  2: input_config();		break;
 			case  5: do_detail_level_menu(); 	break;
 			case  6: change_res();			break;
 			case  8: ReorderPrimary();		break;

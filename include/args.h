@@ -69,6 +69,8 @@ typedef struct Arg
 	float GfxAspectY;
 	int GfxGaugeHudMode;
 	int GfxPersistentDebris;
+	int GfxHiresGFXAvailable;
+	int GfxHiresFNTAvailable;
 	int GfxMovieHires;
 	int GfxMovieSubtitles;
 #ifdef OGL

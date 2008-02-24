@@ -74,25 +74,22 @@ void kmatrix_reactor (char *message);
 void kmatrix_phallic ();
 void kmatrix_redraw_coop();
 
-#define LHX(x)  ((x)*(HiresGFX?2*((double)SWIDTH/640):((double)SWIDTH/320)))
-#define LHY(y)  ((y)*(HiresGFX?2.4*((double)SHEIGHT/480):((double)SHEIGHT/200)))
-
 void kmatrix_draw_item( int  i, int *sorted )
 {
   int j, x, y;
   char temp[10];
 
-  y = LHY(50+i*9);
+  y = FSPACY(50+i*9);
 
   // Print player name.
 
-  gr_printf( LHX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
+  gr_printf( FSPACX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
 
-  gr_printf (LHX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
+  gr_printf (FSPACX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
 
   for (j=0; j<N_players; j++) {
 
-    x = LHX(70 + CENTERING_OFFSET(N_players) + j*25);
+    x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
 
     if (sorted[i]==sorted[j]) {
       if (kill_matrix[sorted[i]][sorted[j]] == 0) {
@@ -118,7 +115,7 @@ void kmatrix_draw_item( int  i, int *sorted )
   else
    sprintf (temp,"%d%%",(int)((float)((float)Players[sorted[i]].net_kills_total/((float)Players[sorted[i]].net_killed_total+(float)Players[sorted[i]].net_kills_total))*100.0));
 
-  x = LHX(60 + CENTERING_OFFSET(N_players) + N_players*25);
+  x = FSPACX(60 + CENTERING_OFFSET(N_players) + N_players*25);
   gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
   gr_printf( x ,y,"%4d/%s",Players[sorted[i]].net_kills_total,temp);
 }
@@ -127,19 +124,19 @@ void kmatrix_draw_coop_item( int  i, int *sorted )
 {
   int  x, y;
 
-  y = LHY(50+i*9);
+  y = FSPACY(50+i*9);
 
   // Print player name.
 
-  gr_printf( LHX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
-  gr_printf (LHX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
+  gr_printf( FSPACX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
+  gr_printf (FSPACX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
 
   x = CENTERSCREEN;
 
   gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
   gr_printf( x, y, "%d", Players[sorted[i]].score );
 
-  x = CENTERSCREEN+LHX(50);
+  x = CENTERSCREEN+FSPACX(50);
 
   gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
   gr_printf( x, y, "%d", Players[sorted[i]].net_killed_total);
@@ -153,7 +150,7 @@ void kmatrix_draw_names(int *sorted)
   if (Kmatrix_nomovie_message)
   {
     gr_set_fontcolor( BM_XRGB(63,0,0),-1 );
-    gr_printf( CENTERSCREEN-LHX(40), LHY(20), "(Movie not played)");
+    gr_printf( CENTERSCREEN-FSPACX(40), FSPACY(20), "(Movie not played)");
   }
 
   for (j=0; j<N_players; j++) {
@@ -162,19 +159,19 @@ void kmatrix_draw_names(int *sorted)
     else
       color = sorted[j];
 
-    x = LHX (70 + CENTERING_OFFSET(N_players) + j*25);
+    x = FSPACX (70 + CENTERING_OFFSET(N_players) + j*25);
 
     if (Players[sorted[j]].connected==0)
       gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
     else
-      gr_set_fontcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+      gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 
-    gr_printf( x, LHY(40), "%c", Players[sorted[j]].callsign[0] );
+    gr_printf( x, FSPACY(40), "%c", Players[sorted[j]].callsign[0] );
   }
 
-  x = LHX(72 + CENTERING_OFFSET(N_players) + N_players*25);
+  x = FSPACX(72 + CENTERING_OFFSET(N_players) + N_players*25);
   gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
-  gr_printf( x, LHY(40), "K/E");
+  gr_printf( x, FSPACY(40), "K/E");
 }
 
 void kmatrix_draw_coop_names(int *sorted)
@@ -184,13 +181,13 @@ void kmatrix_draw_coop_names(int *sorted)
   if (Kmatrix_nomovie_message)
   {
     gr_set_fontcolor( BM_XRGB(63,0,0),-1 );
-    gr_printf( CENTERSCREEN-LHX(40), LHY(20), "(Movie not played)");
+    gr_printf( CENTERSCREEN-FSPACX(40), FSPACY(20), "(Movie not played)");
   }
 
   gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-  gr_printf( CENTERSCREEN, LHY(40), "SCORE");
+  gr_printf( CENTERSCREEN, FSPACY(40), "SCORE");
   gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-  gr_printf( CENTERSCREEN+LHX(50), LHY(40), "DEATHS");
+  gr_printf( CENTERSCREEN+FSPACX(50), FSPACY(40), "DEATHS");
 }
 
 
@@ -201,8 +198,8 @@ void kmatrix_draw_deaths(int *sorted)
 
   sorted=sorted;
 
-  y = LHY(55 + 72 + 35);
-  x = LHX(35);
+  y = FSPACY(55 + 72 + 35);
+  x = FSPACX(35);
 
   {
     int sw, sh, aw;
@@ -219,7 +216,7 @@ void kmatrix_draw_deaths(int *sorted)
 
   }
 
-  y+=LHY(20);
+  y+=FSPACY(20);
 
   {
     int sw, sh, aw;
@@ -254,20 +251,20 @@ void kmatrix_draw_coop_deaths(int *sorted)
   int j, x, y;
   char reactor_message[50];
 
-  y = LHY(55 + N_players * 9);
+  y = FSPACY(55 + N_players * 9);
 
   gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
 
-  x = CENTERSCREEN+LHX(50);
+  x = CENTERSCREEN+FSPACX(50);
   gr_printf( x, y, TXT_DEATHS );
 
   for (j=0; j<N_players; j++) {
-    x = CENTERSCREEN+LHX(50);
+    x = CENTERSCREEN+FSPACX(50);
     gr_printf( x, y, "%d", Players[sorted[j]].net_killed_total );
   }
 
-  y = LHY(55 + 72 + 35);
-  x = LHX(35);
+  y = FSPACY(55 + 72 + 35);
+  x = FSPACX(35);
 
   {
     int sw, sh, aw;
@@ -284,7 +281,7 @@ void kmatrix_draw_coop_deaths(int *sorted)
 
   }
 
-  y+=LHY(20);
+  y+=FSPACY(20);
 
   {
     int sw, sh, aw;
@@ -317,7 +314,7 @@ void kmatrix_reactor (char *message)
   static char oldmessage[50]={0};
   int sw, sh, aw;
 
-  grd_curcanv->cv_font = SMALL_FONT;
+  grd_curcanv->cv_font = GAME_FONT;
 
   if (oldmessage[0]!=0)
   {
@@ -327,7 +324,7 @@ void kmatrix_reactor (char *message)
 
   gr_set_fontcolor(gr_find_closest_color(0,32,63),-1);
   gr_get_string_size(message, &sw, &sh, &aw);
-  gr_printf( CENTERSCREEN-(sw/2), LHY(55+72+12), message);
+  gr_printf( CENTERSCREEN-(sw/2), FSPACY(55+72+12), message);
   strcpy ((char *)&oldmessage,message);
 }
 
@@ -346,10 +343,10 @@ void kmatrix_phallic ()
   else
     sprintf (message,"%s had the best record at %d points.",Players[PhallicMan].callsign,PhallicLimit);
 
-  grd_curcanv->cv_font = SMALL_FONT;
+  grd_curcanv->cv_font = GAME_FONT;
   gr_set_fontcolor(gr_find_closest_color(63,63,63),-1);
   gr_get_string_size(message, &sw, &sh, &aw);
-  gr_printf( CENTERSCREEN-(sw/2), LHY(55+72+3), message);
+  gr_printf( CENTERSCREEN-(sw/2), FSPACY(55+72+3), message);
 }
 
 void load_stars(void);
@@ -374,13 +371,13 @@ void kmatrix_redraw()
   grd_curcanv->cv_font = MEDIUM3_FONT;
 
   if (Game_mode & GM_CAPTURE)
-    gr_string( 0x8000, LHY(10), "CAPTURE THE FLAG SUMMARY");
+    gr_string( 0x8000, FSPACY(10), "CAPTURE THE FLAG SUMMARY");
   else if (Game_mode & GM_HOARD)
-    gr_string( 0x8000, LHY(10), "HOARD SUMMARY");
+    gr_string( 0x8000, FSPACY(10), "HOARD SUMMARY");
   else
-    gr_string( 0x8000, LHY(10), TXT_KILL_MATRIX_TITLE);
+    gr_string( 0x8000, FSPACY(10), TXT_KILL_MATRIX_TITLE);
 
-  grd_curcanv->cv_font = SMALL_FONT;
+  grd_curcanv->cv_font = GAME_FONT;
 
   multi_get_kill_list(sorted);
 
@@ -395,7 +392,7 @@ void kmatrix_redraw()
     if (Players[sorted[i]].connected==0)
       gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
     else
-      gr_set_fontcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+      gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 
     kmatrix_draw_item( i, sorted );
   }
@@ -417,9 +414,9 @@ void kmatrix_redraw_coop()
   gr_set_current_canvas(NULL);
 
   grd_curcanv->cv_font = MEDIUM3_FONT;
-  gr_string( 0x8000, LHY(10), "COOPERATIVE SUMMARY");
+  gr_string( 0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
 
-  grd_curcanv->cv_font = SMALL_FONT;
+  grd_curcanv->cv_font = GAME_FONT;
 
   multi_get_kill_list(sorted);
 
@@ -432,7 +429,7 @@ void kmatrix_redraw_coop()
     if (Players[sorted[i]].connected==0)
       gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
     else
-      gr_set_fontcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+      gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 
     kmatrix_draw_coop_item( i, sorted );
   }

@@ -270,7 +270,7 @@ void CON_UpdateConsole(ConsoleInformation *console) {
 	if(!CON_isVisible(console))
 		return;
 
-	Screenlines = console->ConsoleSurface->cv_h / (CON_LINE_SPACE + console->ConsoleSurface->cv_font->ft_h);
+	Screenlines = console->ConsoleSurface->cv_bitmap.bm_h / (CON_LINE_SPACE + console->ConsoleSurface->cv_font->ft_h);
 
 	canv_save = grd_curcanv;
 	gr_set_current_canvas(console->ConsoleSurface);
@@ -340,8 +340,8 @@ void CON_UpdateOffset(ConsoleInformation* console) {
 		break;
 	case CON_OPENING:
 		console->RaiseOffset += CON_OPENCLOSE_SPEED;
-		if(console->RaiseOffset >= console->ConsoleSurface->cv_h) {
-			console->RaiseOffset = console->ConsoleSurface->cv_h;
+		if(console->RaiseOffset >= console->ConsoleSurface->cv_bitmap.bm_h) {
+			console->RaiseOffset = console->ConsoleSurface->cv_bitmap.bm_h;
 			console->Visible = CON_OPEN;
 		}
 		break;
@@ -379,7 +379,7 @@ void CON_DrawConsole(ConsoleInformation *console) {
 	canv_save = grd_curcanv;
 	gr_set_current_canvas(&console->OutputScreen->sc_canvas);
 
-	clip = gr_create_sub_bitmap(&console->ConsoleSurface->cv_bitmap, 0, console->ConsoleSurface->cv_h - console->RaiseOffset, console->ConsoleSurface->cv_w, console->RaiseOffset);
+	clip = gr_create_sub_bitmap(&console->ConsoleSurface->cv_bitmap, 0, console->ConsoleSurface->cv_bitmap.bm_h - console->RaiseOffset, console->ConsoleSurface->cv_bitmap.bm_w, console->RaiseOffset);
 
 	gr_bitmap(console->DispX, console->DispY, clip);
 	gr_free_sub_bitmap(clip);
@@ -451,7 +451,7 @@ ConsoleInformation *CON_Init(grs_font *Font, grs_screen *DisplayScreen, int line
 		canv_save = grd_curcanv;
 		gr_set_current_canvas(newinfo->ConsoleSurface);
 		gr_set_curfont(Font);
-		gr_set_fontcolor(gr_getcolor(63,63,63), -1);
+		gr_set_fontcolor(BM_XRGB(63,63,63), -1);
 		gr_set_current_canvas(canv_save);
 	}
 
@@ -656,11 +656,11 @@ void DrawCommandLine() {
 	gr_set_current_canvas(Topmost->ConsoleSurface);
 
 	//first of all restore InputBackground
-	gr_bitmap(0, Topmost->ConsoleSurface->cv_h - Topmost->ConsoleSurface->cv_font->ft_h, Topmost->InputBackground);
+	gr_bitmap(0, Topmost->ConsoleSurface->cv_bitmap.bm_h - Topmost->ConsoleSurface->cv_font->ft_h, Topmost->InputBackground);
 
 	//now add the text
 	orig_color = FG_COLOR;
-	gr_string(CON_CHAR_BORDER, Topmost->ConsoleSurface->cv_h - Topmost->ConsoleSurface->cv_font->ft_h, Topmost->VCommand);
+	gr_string(CON_CHAR_BORDER, Topmost->ConsoleSurface->cv_bitmap.bm_h - Topmost->ConsoleSurface->cv_font->ft_h, Topmost->VCommand);
 	FG_COLOR = orig_color;
 
 	//at last add the cursor
@@ -688,9 +688,9 @@ void DrawCommandLine() {
 		x = CON_CHAR_BORDER + prompt_width + cmd_width;
 		orig_color = FG_COLOR;
 		if(Topmost->InsMode)
-			gr_string(x, Topmost->ConsoleSurface->cv_h - Topmost->ConsoleSurface->cv_font->ft_h, CON_INS_CURSOR);
+			gr_string(x, Topmost->ConsoleSurface->cv_bitmap.bm_h - Topmost->ConsoleSurface->cv_font->ft_h, CON_INS_CURSOR);
 		else
-			gr_string(x, Topmost->ConsoleSurface->cv_h - Topmost->ConsoleSurface->cv_font->ft_h, CON_OVR_CURSOR);
+			gr_string(x, Topmost->ConsoleSurface->cv_bitmap.bm_h - Topmost->ConsoleSurface->cv_font->ft_h, CON_OVR_CURSOR);
 		FG_COLOR = orig_color;
 	}
 
@@ -787,13 +787,13 @@ int CON_Background(ConsoleInformation *console, grs_bitmap *image)
 	/* Load a new background */
 	if (console->BackgroundImage)
 		gr_free_bitmap(console->BackgroundImage);
-	console->BackgroundImage = gr_create_bitmap(console->ConsoleSurface->cv_w, console->ConsoleSurface->cv_h);
+	console->BackgroundImage = gr_create_bitmap(console->ConsoleSurface->cv_bitmap.bm_w, console->ConsoleSurface->cv_bitmap.bm_h);
 	gr_bitmap_scale_to(image, console->BackgroundImage);
 
 #if 0
 	SDL_FillRect(console->InputBackground, NULL, SDL_MapRGBA(console->ConsoleSurface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
 #endif
-	gr_bm_bitblt(console->BackgroundImage->bm_w, console->InputBackground->bm_h, 0, 0, 0, console->ConsoleSurface->cv_h - console->ConsoleSurface->cv_font->ft_h, console->BackgroundImage, console->InputBackground);
+	gr_bm_bitblt(console->BackgroundImage->bm_w, console->InputBackground->bm_h, 0, 0, 0, console->ConsoleSurface->cv_bitmap.bm_h - console->ConsoleSurface->cv_font->ft_h, console->BackgroundImage, console->InputBackground);
 
 	return 0;
 }
@@ -815,12 +815,12 @@ void CON_Position(ConsoleInformation *console, int x, int y) {
 	if(!console)
 		return;
 
-	if(x < 0 || x > console->OutputScreen->sc_w - console->ConsoleSurface->cv_w)
+	if(x < 0 || x > console->OutputScreen->sc_w - console->ConsoleSurface->cv_bitmap.bm_w)
 		console->DispX = 0;
 	else
 		console->DispX = x;
 
-	if(y < 0 || y > console->OutputScreen->sc_h - console->ConsoleSurface->cv_h)
+	if(y < 0 || y > console->OutputScreen->sc_h - console->ConsoleSurface->cv_bitmap.bm_h)
 		console->DispY = 0;
 	else
 		console->DispY = y;
@@ -864,7 +864,7 @@ int CON_Resize(ConsoleInformation *console, int x, int y, int w, int h)
 #if 0
 		SDL_FillRect(console->InputBackground, NULL, SDL_MapRGBA(console->ConsoleSurface->format, 0, 0, 0, SDL_ALPHA_OPAQUE));
 #endif
-		gr_bm_bitblt(console->BackgroundImage->bm_w, console->InputBackground->bm_h, 0, 0, 0, console->ConsoleSurface->cv_h - console->ConsoleSurface->cv_font->ft_h, console->BackgroundImage, console->InputBackground);
+		gr_bm_bitblt(console->BackgroundImage->bm_w, console->InputBackground->bm_h, 0, 0, 0, console->ConsoleSurface->cv_bitmap.bm_h - console->ConsoleSurface->cv_font->ft_h, console->BackgroundImage, console->InputBackground);
 	}
 
 #if 0
@@ -898,9 +898,9 @@ void CON_Topmost(ConsoleInformation *console) {
 		canv_save = grd_curcanv;
 		gr_set_current_canvas(Topmost->ConsoleSurface);
 
-		gr_bitmap(0, Topmost->ConsoleSurface->cv_h - Topmost->ConsoleSurface->cv_font->ft_h, Topmost->InputBackground);
+		gr_bitmap(0, Topmost->ConsoleSurface->cv_bitmap.bm_h - Topmost->ConsoleSurface->cv_font->ft_h, Topmost->InputBackground);
 		orig_color = FG_COLOR;
-		gr_string(CON_CHAR_BORDER, Topmost->ConsoleSurface->cv_h - Topmost->ConsoleSurface->cv_font->ft_h, Topmost->VCommand);
+		gr_string(CON_CHAR_BORDER, Topmost->ConsoleSurface->cv_bitmap.bm_h - Topmost->ConsoleSurface->cv_font->ft_h, Topmost->VCommand);
 		FG_COLOR = orig_color;
 
 		gr_set_current_canvas(canv_save);

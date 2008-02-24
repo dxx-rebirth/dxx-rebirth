@@ -37,7 +37,6 @@ static char rcsid[] = "$Id: slew.c,v 1.1.1.1 2006/03/17 19:56:35 zicodxx Exp $";
 #include "object.h"
 #include "error.h"
 #include "physics.h"
-#include "joydefs.h"
 #include "kconfig.h"
 #include "args.h"
 

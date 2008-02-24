@@ -1,4 +1,3 @@
-/* $Id: scores.c,v 1.1.1.1 2006/03/17 19:55:37 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -42,7 +41,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "player.h"
 #include "screens.h"
-#include "gamefont.h"
 #include "mouse.h"
 #include "joy.h"
 #include "timer.h"
@@ -79,17 +77,8 @@ typedef struct all_scores {
 extern void nm_draw_background1(char * filename);
 
 static all_scores Scores;
-
 stats_info Last_game;
-
 char scores_filename[128];
-
-#define XX  (7)
-#define YY  (-3)
-
-#define LHX(x)		((x)*(HiresGFX?FONTSCALE_X(2):FONTSCALE_X(1)))
-#define LHY(y)		((y)*(HiresGFX?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
-
 
 char * get_scores_filename()
 {
@@ -211,26 +200,24 @@ void int_to_string( int number, char *dest )
 
 void scores_fill_struct(stats_info * stats)
 {
-		strcpy( stats->name, Players[Player_num].callsign );
-		stats->score = Players[Player_num].score;
-		stats->ending_level = Players[Player_num].level;
-		if (Players[Player_num].num_robots_total > 0 )	
-			stats->kill_ratio = (Players[Player_num].num_kills_total*100)/Players[Player_num].num_robots_total;
-		else
-			stats->kill_ratio = 0;
+	strcpy( stats->name, Players[Player_num].callsign );
+	stats->score = Players[Player_num].score;
+	stats->ending_level = Players[Player_num].level;
+	if (Players[Player_num].num_robots_total > 0 )	
+		stats->kill_ratio = (Players[Player_num].num_kills_total*100)/Players[Player_num].num_robots_total;
+	else
+		stats->kill_ratio = 0;
 
-		if (Players[Player_num].hostages_total > 0 )	
-			stats->hostage_ratio = (Players[Player_num].hostages_rescued_total*100)/Players[Player_num].hostages_total;
-		else
-			stats->hostage_ratio = 0;
+	if (Players[Player_num].hostages_total > 0 )	
+		stats->hostage_ratio = (Players[Player_num].hostages_rescued_total*100)/Players[Player_num].hostages_total;
+	else
+		stats->hostage_ratio = 0;
 
-		stats->seconds = f2i(Players[Player_num].time_total)+(Players[Player_num].hours_total*3600);
+	stats->seconds = f2i(Players[Player_num].time_total)+(Players[Player_num].hours_total*3600);
 
-		stats->diff_level = Difficulty_level;
-		stats->starting_level = Players[Player_num].starting_level;
+	stats->diff_level = Difficulty_level;
+	stats->starting_level = Players[Player_num].starting_level;
 }
-
-//char * score_placement[10] = { TXT_1ST, TXT_2ND, TXT_3RD, TXT_4TH, TXT_5TH, TXT_6TH, TXT_7TH, TXT_8TH, TXT_9TH, TXT_10TH };
 
 void scores_maybe_add_player(int abort_flag)
 {
@@ -302,54 +289,55 @@ void scores_rprintf(int x, int y, char * format, ... )
 
 	gr_get_string_size(buffer, &w, &h, &aw );
 
-	gr_string( LHX(x)-w, LHY(y), buffer );
+	gr_string( FSPACX(x)-w, FSPACY(y), buffer );
 }
 
 
-void scores_draw_item( int  i, stats_info * stats )
+void scores_draw_item( int i, stats_info * stats )
 {
 	char buffer[20];
 
-		int y;
+	int y;
 
-		y = 7+70+i*9;
+	y = 77+i*9;
 
-		if (i==0) y -= 8;
+	if (i==0)
+		y -= 8;
 
-		if ( i==MAX_HIGH_SCORES ) 	{
-			y += 8;
-			//scores_rprintf( 17+33+XX, y+YY, "" );
-		} else {
-			scores_rprintf( 17+33+XX, y+YY, "%d.", i+1 );
-		}
+	if ( i==MAX_HIGH_SCORES )
+		y += 8;
+	else
+		scores_rprintf( 57, y-3, "%d.", i+1 );
 
-		if (strlen(stats->name)==0) {
-			gr_printf( LHX(26+33+XX), LHY(y+YY), TXT_EMPTY );
-			return;
-		}
-		gr_printf( LHX(26+33+XX), LHY(y+YY), "%s", stats->name );
-		int_to_string(stats->score, buffer);
-		scores_rprintf( 109+33+XX, y+YY, "%s", buffer );
+	y -= 3;
 
-		gr_printf( LHX(125+33+XX), LHY(y+YY), "%s", MENU_DIFFICULTY_TEXT(stats->diff_level) );
+	if (strlen(stats->name)==0) {
+		gr_printf( FSPACX(66), FSPACY(y), TXT_EMPTY );
+		return;
+	}
+	gr_printf( FSPACX(66), FSPACY(y), "%s", stats->name );
+	int_to_string(stats->score, buffer);
+	scores_rprintf( 149, y, "%s", buffer );
 
-		if ( (stats->starting_level > 0 ) && (stats->ending_level > 0 ))
-			scores_rprintf( 192+33+XX, y+YY, "%d-%d", stats->starting_level, stats->ending_level );
-		else if ( (stats->starting_level < 0 ) && (stats->ending_level > 0 ))
-			scores_rprintf( 192+33+XX, y+YY, "S%d-%d", -stats->starting_level, stats->ending_level );
-		else if ( (stats->starting_level < 0 ) && (stats->ending_level < 0 ))
-			scores_rprintf( 192+33+XX, y+YY, "S%d-S%d", -stats->starting_level, -stats->ending_level );
-		else if ( (stats->starting_level > 0 ) && (stats->ending_level < 0 ))
-			scores_rprintf( 192+33+XX, y+YY, "%d-S%d", stats->starting_level, -stats->ending_level );
+	gr_printf( FSPACX(166), FSPACY(y), "%s", MENU_DIFFICULTY_TEXT(stats->diff_level) );
 
-		{
-			int h, m, s;
-			h = stats->seconds/3600;
-			s = stats->seconds%3600;
-			m = s / 60;
-			s = s % 60;
-			scores_rprintf( 311-42+XX, y+YY, "%d:%02d:%02d", h, m, s );
-		}
+	if ( (stats->starting_level > 0 ) && (stats->ending_level > 0 ))
+		scores_rprintf( 232, y, "%d-%d", stats->starting_level, stats->ending_level );
+	else if ( (stats->starting_level < 0 ) && (stats->ending_level > 0 ))
+		scores_rprintf( 232, y, "S%d-%d", -stats->starting_level, stats->ending_level );
+	else if ( (stats->starting_level < 0 ) && (stats->ending_level < 0 ))
+		scores_rprintf( 232, y, "S%d-S%d", -stats->starting_level, -stats->ending_level );
+	else if ( (stats->starting_level > 0 ) && (stats->ending_level < 0 ))
+		scores_rprintf( 232, y, "%d-S%d", stats->starting_level, -stats->ending_level );
+
+	{
+		int h, m, s;
+		h = stats->seconds/3600;
+		s = stats->seconds%3600;
+		m = s / 60;
+		s = s % 60;
+		scores_rprintf( 276, y, "%d:%02d:%02d", h, m, s );
+	}
 }
 
 void scores_view(int citem)
@@ -359,11 +347,9 @@ void scores_view(int citem)
 	int k;
 	sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 	grs_canvas canvas;
-	int w = LHX(290), h = LHY(170);
+	int w = FSPACX(290), h = FSPACY(170);
 
-#ifdef OGL
-	gr_palette_load( gr_palette ); // ZICO - added to be sure right palette is loaded after endgame
-#endif
+	gr_palette_load( gr_palette );
 
 ReshowScores:
 	scores_read();
@@ -372,10 +358,7 @@ ReshowScores:
  
 	gr_set_current_canvas(NULL);
 
-	if (HiresGFX)
-		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
-	else
-		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));
+	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200));
 
 	game_flush_inputs();
 
@@ -385,52 +368,44 @@ ReshowScores:
 	while(!done)	{
 		timer_delay2(20);
 		gr_set_current_canvas(NULL);
-#ifdef OGL
 		gr_flip();
+#ifdef OGL
 		nm_draw_background1(NULL);
 #endif
-		if (HiresGFX)
-			nm_draw_background(((grd_curscreen->sc_w-w)/2)-(30*(SWIDTH/640)),((grd_curscreen->sc_h-h)/2)-(30*(SHEIGHT/480)),((grd_curscreen->sc_w-w)/2)+w+(30*(SWIDTH/640))-1,((grd_curscreen->sc_h-h)/2)+h+(30*(SHEIGHT/480))-1);
-		else
-			nm_draw_background(((grd_curscreen->sc_w-w)/2)-(15*(SWIDTH/320)),((grd_curscreen->sc_h-h)/2)-(15*(SHEIGHT/200)),((grd_curscreen->sc_w-w)/2)+w+(15*(SWIDTH/320))-1,((grd_curscreen->sc_h-h)/2)+h+(15*(SHEIGHT/200))-1);
+		nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 
 		gr_set_current_canvas(&canvas);
 		
 		grd_curcanv->cv_font = MEDIUM3_FONT;
 	
-		gr_string( 0x8000, LHY(15), TXT_HIGH_SCORES );
+		gr_string( 0x8000, FSPACY(15), TXT_HIGH_SCORES );
 	
-		grd_curcanv->cv_font = SMALL_FONT;
+		grd_curcanv->cv_font = GAME_FONT;
 	
 		gr_set_fontcolor( BM_XRGB(31,26,5), -1 );
-		gr_string(  LHX(31+33+XX), LHY(46+7+YY), TXT_NAME );
-		gr_string(  LHX(82+33+XX), LHY(46+7+YY), TXT_SCORE );
-		gr_string( LHX(127+33+XX), LHY(46+7+YY), TXT_SKILL );
-		gr_string( LHX(170+33+XX), LHY(46+7+YY), TXT_LEVELS );
-		gr_string( LHX(288-42+XX), LHY(46+7+YY), TXT_TIME );
+		gr_string( FSPACX( 71), FSPACY(50), TXT_NAME );
+		gr_string( FSPACX(122), FSPACY(50), TXT_SCORE );
+		gr_string( FSPACX(167), FSPACY(50), TXT_SKILL );
+		gr_string( FSPACX(210), FSPACY(50), TXT_LEVELS );
+		gr_string( FSPACX(253), FSPACY(50), TXT_TIME );
 	
 		if ( citem < 0 )	
-			gr_string( 0x8000, LHY(175), TXT_PRESS_CTRL_R );
+			gr_string( 0x8000, FSPACY(175), TXT_PRESS_CTRL_R );
 	
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
-		gr_printf( 0x8000, LHY(31), "%c%s%c  - %s", 34, Scores.cool_saying, 34, Scores.stats[0].name );
+		gr_printf( 0x8000, FSPACY(31), "%c%s%c  - %s", 34, Scores.cool_saying, 34, Scores.stats[0].name );
 	
 		for (i=0; i<MAX_HIGH_SCORES; i++ )		{
 			gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );
 			scores_draw_item( i, &Scores.stats[i] );
 		}
 	
-		gr_palette_fade_in( gr_palette,32, 0);
-	
-		gr_update();
-
 		if ( citem > -1 )	{
 	
 			t1	= timer_get_fixed_seconds();
 			while ( timer_get_fixed_seconds() < t1+F1_0/128 );	
 
-			//@@gr_set_fontcolor( gr_fade_table[fades[looper]*256+BM_XRGB(28,28,28)], -1 );
 			gr_set_fontcolor( BM_XRGB(7+fades[looper],7+fades[looper],7+fades[looper]), -1 );
 			looper++;
 			if (looper>63) looper=0;
@@ -438,7 +413,6 @@ ReshowScores:
 				scores_draw_item( MAX_HIGH_SCORES, &Last_game );
 			else
 				scores_draw_item( citem, &Scores.stats[citem] );
-			gr_update();
 		}
 
 		for (i=0; i<4; i++ )	
@@ -472,11 +446,6 @@ ReshowScores:
 		}
 	}
 
-// Restore background and exit
-	gr_palette_fade_out( gr_palette, 32, 0 );
-
 	gr_set_current_canvas(NULL);
-
 	game_flush_inputs();
-	
 }

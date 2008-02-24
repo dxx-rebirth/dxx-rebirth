@@ -86,44 +86,6 @@ extern int Saving_movie_frames;
 extern void newmenu_close();
 int netplayerinfo_on=0;
 
-// Returns the length of the first 'n' characters of a string.
-int string_width( char * s, int n )
-{
-	int w,h,aw;
-	char p;
-	p = s[n];
-	s[n] = 0;
-	gr_get_string_size( s, &w, &h, &aw );
-	s[n] = p;
-	return w;
-}
-
-// Draw string 's' centered on a canvas... if wider than
-// canvas, then wrap it.
-void draw_centered_text( int y, char * s )
-{
-	int i, l;
-	char p;
-
-	l = strlen(s);
-
-	if ( string_width( s, l ) < grd_curcanv->cv_bitmap.bm_w )	{
-		gr_string( 0x8000, y, s );
-		return;
-	}
-
-	for (i=0; i<l; i++ )	{
-		if ( string_width(s,i) > (grd_curcanv->cv_bitmap.bm_w - 16) )	{
-			p = s[i];
-			s[i] = 0;
-			gr_string( 0x8000, y, s );
-			s[i] = p;
-			gr_string( 0x8000, y+grd_curcanv->cv_font->ft_h+1, &s[i] );
-			return;
-		}
-	}
-}
-
 extern ubyte DefiningMarkerMessage;
 extern char Marker_input[];
 
@@ -132,13 +94,13 @@ void game_draw_marker_message()
 {
 	char temp_string[MAX_MARKER_MESSAGE_LEN+25];
 
-        if ( DefiningMarkerMessage)
-          {
-                gr_set_curfont( GAME_FONT );    //GAME_FONT 
-		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
-                sprintf( temp_string, "Marker: %s_", Marker_input );
-		draw_centered_text(grd_curcanv->cv_bitmap.bm_h/2-16, temp_string );
-          }
+	if ( DefiningMarkerMessage)
+	{
+		gr_set_curfont(GAME_FONT);
+		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
+		sprintf( temp_string, "Marker: %s_", Marker_input );
+		gr_printf(0x8000, (SHEIGHT/5.555), temp_string );
+	}
 
 }
 
@@ -148,25 +110,20 @@ void game_draw_multi_message()
 	char temp_string[MAX_MULTI_MESSAGE_LEN+25];
 
 	if ( (Game_mode&GM_MULTI) && (multi_sending_message))	{
-		gr_set_curfont( GAME_FONT );    //GAME_FONT );
-		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
+		gr_set_curfont(GAME_FONT);
+		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 		sprintf( temp_string, "%s: %s_", TXT_MESSAGE, Network_message );
-		draw_centered_text(grd_curcanv->cv_bitmap.bm_h/2-(16*SHEIGHT/200), temp_string );
-
+		gr_printf(0x8000, (SHEIGHT/5.555), temp_string );
 	}
 
 	if ( (Game_mode&GM_MULTI) && (multi_defining_message))	{
-		gr_set_curfont( GAME_FONT );    //GAME_FONT );
-		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
+		gr_set_curfont(GAME_FONT);
+		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 		sprintf( temp_string, "%s #%d: %s_", TXT_MACRO, multi_defining_message, Network_message );
-		draw_centered_text(grd_curcanv->cv_bitmap.bm_h/2-(16*SHEIGHT/200), temp_string );
+		gr_printf(0x8000, (SHEIGHT/5.555), temp_string );
 	}
 }
 #endif
-
-//these should be in gr.h 
-#define cv_w  cv_bitmap.bm_w
-#define cv_h  cv_bitmap.bm_h
 
 fix frame_time_list[8] = {0,0,0,0,0,0,0,0};
 fix frame_time_total=0;
@@ -181,26 +138,46 @@ void ftoa(char *string, fix f)
 	if (fractional < 0 )
 		fractional *= -1;
 	if (fractional > 99 ) fractional = 99;
-	sprintf( string, "%d.%02d", decimal, fractional );
+	sprintf( string, "FPS: %d.%02d", decimal, fractional );
 }
 
 void show_framerate()
 {
-	char temp[50];
+	char temp[13];
 	fix rate;
+	int aw,w,h;
 
 	frame_time_total += FrameTime - frame_time_list[frame_time_cntr];
 	frame_time_list[frame_time_cntr] = FrameTime;
 	frame_time_cntr = (frame_time_cntr+1)%8;
 
 	if (frame_time_total) {
+		int y=GHEIGHT;
+		if (Cockpit_mode==CM_FULL_SCREEN) {
+			if (Game_mode & GM_MULTI)
+				y -= LINE_SPACING * 9;
+			else
+				y -= LINE_SPACING * 5;
+		} else if (Cockpit_mode == CM_STATUS_BAR) {
+			if (Game_mode & GM_MULTI)
+				y -= LINE_SPACING * 5;
+			else
+				y -= LINE_SPACING * 1;
+		} else {
+			if (Game_mode & GM_MULTI)
+				y -= LINE_SPACING * 6;
+			else
+				y -= LINE_SPACING * 2;
+		}
+
 		rate = fixdiv(f1_0*8,frame_time_total);
 
-		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
+		gr_set_curfont(GAME_FONT);
+		gr_set_fontcolor(BM_XRGB(0,31,0),-1);
 
 		ftoa( temp, rate );
-                gr_printf(SWIDTH-FONTSCALE_X(6.5*GAME_FONT->ft_w),(SHEIGHT-FONTSCALE_Y(GAME_FONT->ft_h))/2,"FPS: %s ", temp );
+		gr_get_string_size(temp,&w,&h,&aw);
+		gr_printf(SWIDTH-w-FSPACX(1),y,"%s", temp );
 	}
 }
 
@@ -208,59 +185,51 @@ void show_framerate()
 void show_netplayerinfo()
 {
 	int x=0, y=0, i=0, color=0, eff=0;
-	int line_spacing=FONTSCALE_Y(GAME_FONT->ft_h+1), char_spacing=FONTSCALE_X(GAME_FONT->ft_w+1);
 	char *eff_strings[]={"trashing","really hurting","seriously effecting","hurting","effecting","tarnishing"};
 	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
 
-	if (HiresGFX)
-	{
-		x=SWIDTH/2-FONTSCALE_X(232);
-		y=SHEIGHT/2-FONTSCALE_Y(160);
-	}
-	else
-	{
-		x=SWIDTH/2-FONTSCALE_X(123);
-		y=SHEIGHT/2-FONTSCALE_Y(86);
-	}
+	gr_set_curfont(GAME_FONT);
+	gr_set_fontcolor(255,-1);
+
+	x=(SWIDTH/2)-FSPACX(120);
+	y=(SHEIGHT/2)-FSPACY(84);
 
 	Gr_scanline_darkening_level = 2*7;
 	gr_setcolor( BM_XRGB(0,0,0) );
-	gr_rect(x,y,SWIDTH-x,SHEIGHT-y);
+	gr_rect((SWIDTH/2)-FSPACX(120),(SHEIGHT/2)-FSPACY(84),(SWIDTH/2)+FSPACX(120),(SHEIGHT/2)+FSPACY(84));
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
-	gr_set_fontcolor(255,-1);
-	gr_set_curfont(GAME_FONT);
 
 	// general game information
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	gr_printf(0x8000,y,"%s by %s",Netgame.game_name,Players[network_who_is_master()].callsign);
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
 
-	x+=char_spacing;
-	y+=line_spacing*2;
+	x+=FSPACX(8);
+	y+=LINE_SPACING*2;
 	gr_printf(x,y,"game mode: %s",NetworkModeNames[Netgame.gamemode]);
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	gr_printf(x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	gr_printf(x,y,"level time: %i:%02i:%02i",Players[Player_num].hours_level,f2i(Players[Player_num].time_level) / 60 % 60,f2i(Players[Player_num].time_level) % 60);
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	gr_printf(x,y,"total time: %i:%02i:%02i",Players[Player_num].hours_total,f2i(Players[Player_num].time_total) / 60 % 60,f2i(Players[Player_num].time_total) % 60);
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	if (Netgame.KillGoal)
 		gr_printf(x,y,"Kill goal: %d",Netgame.KillGoal*5);
 
 	// player information (name, kills, ping, game efficiency)
-	y+=line_spacing*2;
+	y+=LINE_SPACING*2;
 	gr_printf(x,y,"player");
 	if (Game_mode & GM_MULTI_COOP)
-		gr_printf(x+char_spacing*7,y,"score");
+		gr_printf(x+FSPACX(8)*7,y,"score");
 	else
 	{
-		gr_printf(x+char_spacing*7,y,"kills");
-		gr_printf(x+char_spacing*12,y,"deaths");
+		gr_printf(x+FSPACX(8)*7,y,"kills");
+		gr_printf(x+FSPACX(8)*12,y,"deaths");
 	}
-	gr_printf(x+char_spacing*18,y,"ping");
-	gr_printf(x+char_spacing*23,y,"efficiency");
+	gr_printf(x+FSPACX(8)*18,y,"ping");
+	gr_printf(x+FSPACX(8)*23,y,"efficiency");
 
 	network_ping_all();
 
@@ -270,46 +239,46 @@ void show_netplayerinfo()
 		if (!Players[i].connected)
 			continue;
 
-		y+=line_spacing;
+		y+=LINE_SPACING;
 
 		if (Game_mode & GM_TEAM)
 			color=get_team(i);
 		else
 			color=i;
-		gr_set_fontcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		gr_set_fontcolor( BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 		gr_printf(x,y,"%s\n",Players[i].callsign);
 		if (Game_mode & GM_MULTI_COOP)
-			gr_printf(x+char_spacing*7,y,"%-6d",Players[i].score);
+			gr_printf(x+FSPACX(8)*7,y,"%-6d",Players[i].score);
 		else
 		{
-			gr_printf(x+char_spacing*7,y,"%-6d",Players[i].net_kills_total);
-			gr_printf(x+char_spacing*12,y,"%-6d",Players[i].net_killed_total);
+			gr_printf(x+FSPACX(8)*7,y,"%-6d",Players[i].net_kills_total);
+			gr_printf(x+FSPACX(8)*12,y,"%-6d",Players[i].net_killed_total);
 		}
 
-		gr_printf(x+char_spacing*18,y,"%-6d",PingTable[i]);
-		gr_printf(x+char_spacing*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
+		gr_printf(x+FSPACX(8)*18,y,"%-6d",PingTable[i]);
+		gr_printf(x+FSPACX(8)*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
 	}
 
-	y+=line_spacing*2+(line_spacing*(MAX_PLAYERS-N_players));
+	y+=(LINE_SPACING*2)+(LINE_SPACING*(MAX_PLAYERS-N_players));
 
 	// printf team scores
 	if (Game_mode & GM_TEAM)
 	{
 		gr_set_fontcolor(255,-1);
 		gr_printf(x,y,"team");
-		gr_printf(x+char_spacing*8,y,"score");
-		y+=line_spacing;
-		gr_set_fontcolor(gr_getcolor(player_rgb[get_team(0)].r,player_rgb[get_team(0)].g,player_rgb[get_team(0)].b),-1 );
+		gr_printf(x+FSPACX(8)*8,y,"score");
+		y+=LINE_SPACING;
+		gr_set_fontcolor(BM_XRGB(player_rgb[get_team(0)].r,player_rgb[get_team(0)].g,player_rgb[get_team(0)].b),-1 );
 		gr_printf(x,y,"%s:",Netgame.team_name[0]);
-		gr_printf(x+char_spacing*8,y,"%i",team_kills[0]);
-		y+=line_spacing;
-		gr_set_fontcolor(gr_getcolor(player_rgb[get_team(1)].r,player_rgb[get_team(1)].g,player_rgb[get_team(1)].b),-1 );
+		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[0]);
+		y+=LINE_SPACING;
+		gr_set_fontcolor(BM_XRGB(player_rgb[get_team(1)].r,player_rgb[get_team(1)].g,player_rgb[get_team(1)].b),-1 );
 		gr_printf(x,y,"%s:",Netgame.team_name[1]);
-		gr_printf(x+char_spacing*8,y,"%i",team_kills[1]);
-		y+=line_spacing*2;
+		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[1]);
+		y+=LINE_SPACING*2;
 	}
 	else
-		y+=line_spacing*4;
+		y+=LINE_SPACING*4;
 
 	gr_set_fontcolor(255,-1);
 
@@ -328,12 +297,12 @@ void show_netplayerinfo()
 	else if (!GameArg.MplNoRankings)
 	{
 		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,Netlife_kills,Netlife_killed);
-		y+=line_spacing;
+		y+=LINE_SPACING;
 		if (eff<60)
 			gr_printf(0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
 		else
 			gr_printf(0x8000,y,"is serving you well.");
-		y+=line_spacing;
+		y+=LINE_SPACING;
 		gr_printf(0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
 	}
 }
@@ -350,7 +319,6 @@ void draw_window_label()
 		char *viewer_name,*control_name;
 		char	*viewer_id;
 		Show_view_text_timer -= FrameTime;
-		gr_set_curfont( GAME_FONT );
 
 		viewer_id = "";
 		switch( Viewer->type )
@@ -385,8 +353,9 @@ void draw_window_label()
 			default:					control_name = "Unknown"; break;
 		}
 
-		gr_set_fontcolor( gr_getcolor(31, 0, 0), -1 );
-		gr_printf( 0x8000, 45, "%i: %s [%s] View - %s",Viewer-Objects, viewer_name, viewer_id, control_name );
+		gr_set_curfont(GAME_FONT);
+		gr_set_fontcolor(BM_XRGB(31,0,0),-1);
+		gr_printf( 0x8000, (SHEIGHT/10), "%i: %s [%s] View - %s",Viewer-Objects, viewer_name, viewer_id, control_name );
 
 	}
 }
@@ -395,7 +364,6 @@ void draw_window_label()
 void render_countdown_gauge()
 {
 	if (!Endlevel_sequence && Control_center_destroyed  && (Countdown_seconds_left>-1)) { // && (Countdown_seconds_left<127))	{
-		int	y;
 
 		if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)    // no countdown on registered only
 		{
@@ -409,18 +377,9 @@ void render_countdown_gauge()
 			}
 		}
 
-		gr_set_curfont( SMALL_FONT );
-		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
-		y = FONTSCALE_Y(SMALL_FONT->ft_h*4);
-		if (Cockpit_mode == CM_FULL_SCREEN)
-			y += FONTSCALE_Y(SMALL_FONT->ft_h*2);
-
-		if (Player_is_dead)
-			y += FONTSCALE_Y(SMALL_FONT->ft_h*2);
-
-		//if (!((Cockpit_mode == CM_STATUS_BAR) && (Game_window_y >= 19)))
-		//	y += 5;
-		gr_printf(0x8000, y, "T-%d s", Countdown_seconds_left );
+		gr_set_curfont(GAME_FONT);
+		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
+		gr_printf(0x8000, (SHEIGHT/6.666), "T-%d s", Countdown_seconds_left );
 	}
 }
 
@@ -430,9 +389,9 @@ void game_draw_hud_stuff()
 	
 	#ifndef NDEBUG
 	if (Debug_pause) {
-		gr_set_curfont( MEDIUM1_FONT );
-		gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 ); // gr_getcolor(31,0,0));
-		gr_ustring( 0x8000, 85/2, "Debug Pause - Press P to exit" );
+		gr_set_curfont( MEDIUM1_FONT);
+		gr_set_fontcolor(BM_XRGB(31, 31, 31), -1 );
+		gr_printf( 0x8000, (SHEIGHT/10), "Debug Pause - Press P to exit" );
 	}
 	#endif
 
@@ -444,17 +403,11 @@ void game_draw_hud_stuff()
 	game_draw_multi_message();
 #endif
 
-   game_draw_marker_message();
-
-//   if (Game_mode & GM_MULTI)
-//    {
-//     if (Netgame.PlayTimeAllowed)
-//       game_draw_time_left ();
-//  }
+	game_draw_marker_message();
 
 	if ((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) {
 		char message[128];
-		int h,w,aw,y;
+		int y;
 
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			if (Newdemo_vcr_state != ND_STATE_PRINTSCREEN) {
@@ -467,45 +420,41 @@ void game_draw_hud_stuff()
 			sprintf (message, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
 		}
 
-		gr_set_curfont( GAME_FONT );    //GAME_FONT );
-		gr_set_fontcolor(gr_getcolor(27,0,0), -1 );
+		gr_set_curfont( GAME_FONT );
+		gr_set_fontcolor( BM_XRGB(27,0,0), -1 );
 
-		gr_get_string_size(message, &w, &h, &aw );
-
-		y = grd_curcanv->cv_bitmap.bm_h;
+		y = GHEIGHT-(LINE_SPACING*2);
 
 		if (Cockpit_mode == CM_FULL_COCKPIT)
-			y = grd_curcanv->cv_bitmap.bm_h / 1.15;
+			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
 		if (Cockpit_mode != CM_REAR_VIEW)
-			gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2,y - h - 2, message );
+			gr_printf(0x8000, y, message );
 	}
 
 	render_countdown_gauge();
 
 	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num )	{
-		int	x = 3;
+		int	x = FSPACX(1);
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor( gr_getcolor(0, 31, 0), -1 );
+		gr_set_fontcolor( BM_XRGB(0, 31, 0), -1 );
 		if (Cruise_speed > 0) {
-			int line_spacing = FONTSCALE_Y(GAME_FONT->ft_h + GAME_FONT->ft_h/4);
-
-mprintf((0,"line_spacing=%d ",line_spacing));
-
 			if (Cockpit_mode==CM_FULL_SCREEN) {
 				if (Game_mode & GM_MULTI)
-					y -= line_spacing * 11;	//64
+					y -= LINE_SPACING * 11;
 				else
-					y -= line_spacing * 6;	//32
+					y -= LINE_SPACING * 6;
 			} else if (Cockpit_mode == CM_STATUS_BAR) {
 				if (Game_mode & GM_MULTI)
-					y -= line_spacing * 8;	//48
+					y -= LINE_SPACING * 5;
 				else
-					y -= line_spacing * 4;	//24
+					y -= LINE_SPACING * 1;
 			} else {
-				y = line_spacing * 2;	//12
-				x = FONTSCALE_X(22);
+				if (Game_mode & GM_MULTI)
+					y -= LINE_SPACING * 6;
+				else
+					y -= LINE_SPACING * 2;
 			}
 
 			gr_printf( x, y, "%s %2d%%", TXT_CRUISE, f2i(Cruise_speed) );
@@ -801,11 +750,11 @@ void game_render_frame_mono(int flip)
 			wake_up_rendered_objects(Viewer, 0);
 			Viewer = viewer_save;
 
-			gr_set_curfont( GAME_FONT );    //GAME_FONT );
-			gr_set_fontcolor(gr_getcolor(27,0,0), -1 );
+			gr_set_curfont( GAME_FONT );
+			gr_set_fontcolor( BM_XRGB(27,0,0), -1 );
 			gr_get_string_size(msg, &w, &h, &aw );
 
-			gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2, 3, msg );
+			gr_printf(0x8000, FSPACY(1), msg );
 
 			draw_guided_crosshair();
 		}
@@ -829,9 +778,6 @@ void game_render_frame_mono(int flip)
 
 	gr_set_current_canvas(&Screen_3d_window);
 
-	if (!no_draw_hud)
-		game_draw_hud_stuff();
-
 	update_cockpits(0);
 
 	show_extra_views();		//missile view, buddy bot, etc.
@@ -846,6 +792,10 @@ void game_render_frame_mono(int flip)
 		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
 			Game_mode = GM_NORMAL;
 	}
+
+	gr_set_current_canvas(&Screen_3d_window);
+	if (!no_draw_hud)
+		game_draw_hud_stuff();
 
 	gr_set_current_canvas(NULL);
 
@@ -866,17 +816,19 @@ void toggle_cockpit()
 {
 	int new_mode=CM_FULL_SCREEN;
 
+	if (Rear_view)
+		return;
+
 	switch (Cockpit_mode)
 	{
 		case CM_FULL_COCKPIT:
-		case CM_REAR_VIEW:
 			new_mode = CM_STATUS_BAR;
 			break;
 		case CM_STATUS_BAR:
 			new_mode = CM_FULL_SCREEN;
 			break;
 		case CM_FULL_SCREEN:
-			new_mode = (Rear_view?CM_REAR_VIEW:CM_FULL_COCKPIT);
+			new_mode = CM_FULL_COCKPIT;
 			break;
 	}
 
@@ -895,8 +847,8 @@ void update_cockpits(int force_redraw)
 
 	grs_bitmap *bm;
 
-	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(HiresGFX?(Num_cockpits/2):0)]);
-	bm=&GameBitmaps[cockpit_bitmap[Cockpit_mode+(HiresGFX?(Num_cockpits/2):0)].index];
+	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(HIRESMODE?(Num_cockpits/2):0)]);
+	bm=&GameBitmaps[cockpit_bitmap[Cockpit_mode+(HIRESMODE?(Num_cockpits/2):0)].index];
 
 	//Redraw the on-screen cockpit bitmaps
 	if (VR_render_mode != VR_NONE )	return;
@@ -927,9 +879,9 @@ void update_cockpits(int force_redraw)
 	
 			gr_set_current_canvas(NULL);
 #ifdef OGL
-			ogl_ubitmapm_cs (0, (HiresGFX?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HiresGFX?(double)grd_curscreen->sc_h/480:(double)grd_curscreen->sc_h/200) + 0.5)), bm,255, F1_0);
+			ogl_ubitmapm_cs (0, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HIRESMODE?(double)SHEIGHT/480:(double)SHEIGHT/200) + 0.5)), bm,255, F1_0);
 #else
-			gr_ubitmapm(0,grd_curscreen->sc_h-bm->bm_h,bm);
+			gr_ubitmapm(0,SHEIGHT-bm->bm_h,bm);
 #endif
 			break;
 	
@@ -977,14 +929,14 @@ void draw_guided_crosshair(void)
 
 	gr_setcolor(Color_0_31_0);
 
-	w = grd_curcanv->cv_w>>5;
+	w = grd_curcanv->cv_bitmap.bm_w>>5;
 	if (w < 5)
 		w = 5;
 
 	h = i2f(w) / grd_curscreen->sc_aspect;
 
-	x = grd_curcanv->cv_w / 2;
-	y = grd_curcanv->cv_h / 2;
+	x = grd_curcanv->cv_bitmap.bm_w / 2;
+	y = grd_curcanv->cv_bitmap.bm_h / 2;
 
 	gr_scanline(x-w/2,x+w/2,y);
 	gr_uline(i2f(x),i2f(y-h/2),i2f(x),i2f(y+h/2));
@@ -999,23 +951,24 @@ typedef struct bkg {
 bkg bg = {0,0,0,0,NULL};
 
 //show a message in a nice little box
-void show_boxed_message(char *msg)
+void show_boxed_message(char *msg, int RenderFlag)
 {
 	int w,h,aw;
 	int x,y;
 
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( MEDIUM1_FONT );
-
+	gr_set_fontcolor( BM_XRGB(31, 31, 31), -1 );
 	gr_get_string_size(msg,&w,&h,&aw);
 
-	x = (grd_curscreen->sc_w-w)/2;
-	y = (grd_curscreen->sc_h-h)/2;
+	x = (SWIDTH-w)/2;
+	y = (SHEIGHT-h)/2;
 
-	nm_draw_background(x-(15*(SWIDTH/320)),y-(15*(SHEIGHT/200)),x+w+(15*(SWIDTH/320))-1,y+h+(15*(SHEIGHT/200))-1);
+	if (Function_mode==FMODE_GAME && RenderFlag)
+		game_render_frame_mono(0);
+	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
-	gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
-	gr_ustring( 0x8000, y, msg );
+	gr_printf( 0x8000, y, msg );
         gr_update();
 #ifdef OGL
 	gr_flip();
@@ -1024,9 +977,9 @@ void show_boxed_message(char *msg)
 
 void clear_boxed_message()
 {
-	if (bg.bmp) {
-
-		gr_bitmap(bg.x-(15*(SWIDTH/320)), bg.y-(15*(SHEIGHT/200)), bg.bmp);
+	if (bg.bmp)
+	{
+		gr_bitmap(bg.x-BORDERX, bg.y-BORDERY, bg.bmp);
 		gr_free_bitmap(bg.bmp);
 		bg.bmp = NULL;
 	}

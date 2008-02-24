@@ -1790,8 +1790,6 @@ void do_escort_menu(void)
 
 	paused = 1;
 
-//	set_screen_mode( SCREEN_MENU );
-	set_popup_screen();
 	gr_palette_load( gr_palette );
 
 	//	This prevents the buddy from coming back if you've told him to scram.
@@ -1850,7 +1848,7 @@ void do_escort_menu(void)
 	else
 		sprintf(tstr, "Enable");
 
-	sprintf(msg,	"Select Guide-Bot Command:\n\n"
+	sprintf(msg,	"Select Guide-Bot Command:\n\n\n"
 						"0.  Next Goal: %s" CC_LSPACING_S "3\n\n"
 						"\x84.  Find Energy Powerup" CC_LSPACING_S "3\n\n"
 						"2.  Find Energy Center" CC_LSPACING_S "3\n\n"
@@ -1861,7 +1859,7 @@ void do_escort_menu(void)
 						"7.  Stay Away From Me" CC_LSPACING_S "3\n\n"
 						"8.  Find My Powerups" CC_LSPACING_S "3\n\n"
 						"9.  Find the exit\n\n"
-						"T.  %s Messages\n"
+						"T.  %s Messages"
 						// -- "9.	Find the exit" CC_LSPACING_S "3\n"
 				, goal_str, tstr);
 
@@ -1955,12 +1953,12 @@ void show_escort_menu(char *msg)
 
 	gr_get_string_size(msg,&w,&h,&aw);
 
-	x = (grd_curscreen->sc_w-w)/2;
-	y = (grd_curscreen->sc_h-h)/2;
+	x = (SWIDTH-w)/2;
+	y = (SHEIGHT-h)/2;
 
-	gr_set_fontcolor( gr_getcolor(0, 28, 0), -1 );
+	gr_set_fontcolor( BM_XRGB(0, 28, 0), -1 );
 
-	nm_draw_background(x-15,y-15,x+w+15,y+h+15);
+	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
 	gr_ustring( x, y, msg );
 	gr_update();

@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/newdemo.c: make sure the right error message is shown if it can't open a demo
 main/network.c: fix bug where a Mac host crashes on starting a game
+include/args.h, include/gr.h, main/credits.h, main/console.c, main/screens.h, main/newmenu.c, main/newmenu.h, main/network.c, main/multi.c, main/inferno.c, main/gamefont.c, main/menu.c, main/gamefont.h, main/menu.h, main/netdrv_udp.c, main/movie.c, main/playsave.c, main/titles.c, main/kmatrix.c, main/controls.c, main/hud.c, main/state.c, main/slew.c, main/gamerend.c, main/gameseq.c, main/escort.c, main/scores.c, main/automap.c, main/game.c, main/gauges.c, main/game.h, main/kconfig.c, main/gauges.h, main/gamecntl.c, main/credits.c, misc/args.c, console/CON_console.c, 2d/font.c, SConstruct, d2x.ini, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/gr.c: Reworked fonts routines - makes easier to expand and scale correctly; Reworked menus with better border scaling, improved rendering and cleanups; Improved font priniting ingame, better alignment; Reworked Netgame list; Real Doublebuffering in SDL-mode; Removed old and unused sources
 
 20080217
 --------

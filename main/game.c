@@ -95,7 +95,6 @@ char game_rcsid[] = "$Id: game.c,v 1.1.1.1 2006/03/17 19:55:53 zicodxx Exp $";
 #endif
 #include "gamefont.h"
 #include "endlevel.h"
-#include "joydefs.h"
 #include "kconfig.h"
 #include "mouse.h"
 #include "switch.h"
@@ -233,11 +232,6 @@ extern void RestoreGameSurfaces();
 
 void fill_background();
 
-#ifndef RELEASE
-void show_framerate(void);
-void ftoa(char *string, fix f);
-#endif
-
 extern ubyte DefiningMarkerMessage;
 extern char Marker_input[];
 
@@ -286,10 +280,6 @@ void game_show_warning(char *s)
 }
 
 
-//these should be in gr.h
-#define cv_w  cv_bitmap.bm_w
-#define cv_h  cv_bitmap.bm_h
-
 u_int32_t Game_screen_mode = SM(640,480);
 
 extern void newdemo_record_cockpit_change(int);
@@ -305,7 +295,7 @@ void init_cockpit()
 	}
 
 #ifndef OGL
-	if ((SWIDTH == 320 && SHEIGHT == 200) || (HiresGFXAvailable && (SWIDTH == 640 && SHEIGHT == 480)))
+	if ((SWIDTH == 320 && SHEIGHT == 200) || (GameArg.GfxHiresGFXAvailable && (SWIDTH == 640 && SHEIGHT == 480)))
 #endif
 	{
 		VR_screen_flags = VRF_ALLOW_COCKPIT;
@@ -315,7 +305,6 @@ void init_cockpit()
 		Cockpit_mode = CM_FULL_SCREEN;
 
 	gr_set_current_canvas(NULL);
-	gr_set_curfont( GAME_FONT );
 
 	switch( Cockpit_mode ) {
 	case CM_FULL_COCKPIT:
@@ -328,7 +317,7 @@ void init_cockpit()
 		break;
 
 	case CM_STATUS_BAR:
-		game_init_render_sub_buffers( 0, 0, SWIDTH, (HiresGFX?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
+		game_init_render_sub_buffers( 0, 0, SWIDTH, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
 		break;
 
 	case CM_LETTERBOX:
@@ -426,21 +415,6 @@ void game_init_render_buffers(int render_w, int render_h, int render_method, int
 	game_init_render_sub_buffers( 0, 0, render_w, render_h );
 }
 
-//called to get the screen in a mode compatible with popup menus.
-//if we can't have popups over the game screen, switch to menu mode.
-void set_popup_screen(void)
-{
-	//WIN(LoadCursorWin(MOUSE_DEFAULT_CURSOR));
-
-#ifndef OGL // always have to switch to menu mode
-	if (! (VR_screen_flags & VRF_COMPATIBLE_MENUS))
-#endif
-	{
-		set_screen_mode(SCREEN_MENU);		//must switch to menu mode
-	}
-
-}
-
 //called to change the screen mode. Parameter sm is the new mode, one of
 //SMODE_GAME or SMODE_EDITOR. returns mode acutally set (could be other
 //mode if cannot init requested mode)
@@ -528,11 +502,6 @@ int set_screen_mode(int sm)
 #ifndef OGL
 	gr_set_draw_buffer(((Screen_mode == SCREEN_GAME) && GameArg.DbgUseDoubleBuffer) ? 1 : 0); // Double buffering or 'front' buffer only
 #endif
-
-	if (HiresGFXAvailable && grd_curscreen->sc_w >= 640 && grd_curscreen->sc_h >= 480)
-		HiresGFX = 1;
-	else
-		HiresGFX = 0;
 
 	return 1;
 }
@@ -660,45 +629,8 @@ void move_player_2_segment(segment *seg,int side)
 
 }
 
-#ifdef NETWORK
-void game_draw_time_left()
-{
-        char temp_string[30];
-        fix timevar;
-        int i;
-
-        gr_set_curfont( GAME_FONT );    //GAME_FONT
-        gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
-
-        timevar=i2f (Netgame.PlayTimeAllowed*5*60);
-        i=f2i(timevar-ThisLevelTime);
-        i++;
-
-        sprintf( temp_string, "Time left: %d secs", i );
-
-        if (i>=0)
-         gr_string(0, 32, temp_string );
-}
-#endif
-
 void do_photos();
 void level_with_floor();
-
-void modex_clear_box(int x,int y,int w,int h)
-{
-	grs_canvas *temp_canv,*save_canv;
-
-	save_canv = grd_curcanv;
-	temp_canv = gr_create_canvas(w,h);
-	gr_set_current_canvas(temp_canv);
-	gr_clear_canvas(BM_XRGB(0,0,0));
-	gr_set_current_canvas(save_canv);
-	gr_bitmapm(x,y,&temp_canv->cv_bitmap);
-	gr_free_canvas(temp_canv);
-
-}
-
-extern void modex_printf(int x,int y,char *s,grs_font *font,int color);
 
 // mac routine to drop contents of screen to a pict file using copybits
 // save a PICT to a file
@@ -784,7 +716,6 @@ end:
 #ifndef OGL
 void save_screen_shot(int automap_flag)
 {
-#if !defined(MACINTOSH)
 	fix t1;
 	char message[100];
 	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
@@ -795,14 +726,9 @@ void save_screen_shot(int automap_flag)
         char savename[FILENAME_LEN+sizeof(SCRNS_DIR)],savename2[FILENAME_LEN];
 	ubyte pal[768];
 	int w,h,aw,x,y;
-	int modex_flag;
 	int stereo=0;
 
 	temp_canv2=NULL;
-
-//	// Can't do screen shots in VR modes.
-//	if ( VR_render_mode != VR_NONE )
-//		return;
 
 	stop_time();
 
@@ -847,29 +773,20 @@ void save_screen_shot(int automap_flag)
 	}
 
 	gr_set_current_canvas(NULL);
-	modex_flag = (grd_curcanv->cv_bitmap.bm_type==BM_MODEX);
-
 	save_font = grd_curcanv->cv_font;
 	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(gr_find_closest_color_current(0,31,0),-1);
+	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
 	gr_get_string_size(message,&w,&h,&aw);
 
-	if (modex_flag)
-		h *= 2;
-
 	//I changed how these coords were calculated for the high-res automap. -MT
-	x = (grd_curcanv->cv_w-w)/2;
-	y = (grd_curcanv->cv_h-h)/2;
+	x = (GWIDTH-w)/2;
+	y = (GHEIGHT-h)/2;
 
-	if (modex_flag) {
-		modex_clear_box(x-2,y-2,w+4,h+4);
-		modex_printf(x, y, message,GAME_FONT,gr_find_closest_color_current(0,31,0));
-	} else {
-		gr_setcolor(gr_find_closest_color_current(0,0,0));
-		gr_rect(x-2,y-2,x+w+2,y+h+2);
-		gr_printf(x,y,message);
-		gr_set_curfont(save_font);
-	}
+	gr_setcolor(gr_find_closest_color_current(0,0,0));
+	gr_rect(x-2,y-2,x+w+2,y+h+2);
+	gr_printf(x,y,message);
+	gr_set_curfont(save_font);
+
 	t1 = timer_get_fixed_seconds() + F1_0;
 
 	gr_palette_read(pal);		//get actual palette from the hardware
@@ -891,46 +808,6 @@ void save_screen_shot(int automap_flag)
 	gr_set_current_canvas(save_canv);
 	key_flush();
 	start_time();
-	
-#else
-
-	grs_canvas *screen_canv = &grd_curscreen->sc_canvas;
-	grs_canvas *temp_canv, *save_canv;
-	
-	// Can't do screen shots in VR modes.
-	if ( VR_render_mode != VR_NONE )
-		return;
-
-	stop_time();
-
-	save_canv = grd_curcanv;	
-	temp_canv = gr_create_canvas( screen_canv->cv_bitmap.bm_w, screen_canv->cv_bitmap.bm_h );
-	if (!temp_canv)
-		goto shot_done;
-	gr_set_current_canvas( temp_canv );
-	gr_ubitmap( 0, 0, &screen_canv->cv_bitmap );
-	gr_set_current_canvas(NULL);
-
-	show_cursor();
-	key_close();
-	if (Game_mode & GM_MULTI)
-		SavePictScreen(1);
-	else
-		SavePictScreen(0);
-	key_init();
-	hide_cursor();
-
-	gr_set_current_canvas(screen_canv);
-	
-//	if (!automap_flag)
-		gr_ubitmap( 0, 0, &temp_canv->cv_bitmap);
-
-	gr_free_canvas(temp_canv);
-shot_done:
-	gr_set_current_canvas(save_canv);
-	key_flush();
-	start_time();
-	#endif
 }
 
 #endif

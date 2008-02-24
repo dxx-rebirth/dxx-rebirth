@@ -110,7 +110,7 @@ void con_background(char *filename)
 
 void con_init_real(void)
 {
-	Console = CON_Init(SMALL_FONT, grd_curscreen, CON_NUM_LINES, 0, 0, SWIDTH, SHEIGHT / 2);
+	Console = CON_Init(GAME_FONT, grd_curscreen, CON_NUM_LINES, 0, 0, SWIDTH, SHEIGHT / 2);
 
 	Assert(Console);
 
@@ -131,7 +131,7 @@ void con_resize(void)
 	if (!con_initialized)
 		con_init_real();
 
-	CON_Font(Console, SMALL_FONT, gr_getcolor(63, 63, 63), -1);
+	CON_Font(Console, GAME_FONT, BM_XRGB(63, 63, 63), -1);
 	CON_Resize(Console, 0, 0, SWIDTH, SHEIGHT / 2);
 	con_background(CON_BG);
 #endif

@@ -209,9 +209,9 @@ int gr_set_mode(u_int32_t mode)
 	OGL_VIEWPORT(0,0,w,h);
 
 	ogl_init_state();
-	
-	gr_update();
+	gamefont_choose_game_font(w,h);
 
+	gr_update();
 
 	return 0;
 }
@@ -572,7 +572,7 @@ void save_screen_shot(int automap_flag)
 	{
 		render_frame(0,0);
 		gr_set_curfont(MEDIUM2_FONT);
-		gr_printf(0x8000,FONTSCALE_Y(10),"DXX-Rebirth\n");
+		gr_printf(SWIDTH-FSPACX(3),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
 		glReadBuffer(GL_BACK);
 	}
 	else

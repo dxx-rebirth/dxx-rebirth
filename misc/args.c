@@ -199,6 +199,8 @@ void ReadCmdArgs(void)
 		GameArg.GfxGaugeHudMode = 0;
 
 	GameArg.GfxPersistentDebris 	= FindArg("-persistentdebris");
+	GameArg.GfxHiresGFXAvailable	= !FindArg("-lowresgraphics");
+	GameArg.GfxHiresFNTAvailable	= !FindArg("-lowresfont");
 	GameArg.GfxMovieHires 		= !FindArg( "-lowresmovies" );
 	GameArg.GfxMovieSubtitles 	= FindArg("-subtitles");
 

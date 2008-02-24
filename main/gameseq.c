@@ -790,10 +790,10 @@ void LoadLevel(int level_num,int page_in_textures)
 
 #if 1 //def OGL
     gr_palette_load(gr_palette);
-    show_boxed_message(TXT_LOADING);
+    show_boxed_message(TXT_LOADING, 0);
 	gr_update();
 #else
-	show_boxed_message(TXT_LOADING);
+	show_boxed_message(TXT_LOADING, 0);
 	gr_palette_load(gr_palette);
 #endif
 
@@ -928,7 +928,7 @@ void StartNewGame(int start_level)
 extern int network_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem ); // network.c
 #endif
 
-#define STARS_BACKGROUND ((HiresGFX && cfexist("starsb.pcx"))?"starsb.pcx":cfexist("stars.pcx")?"stars.pcx":"starsb.pcx")
+#define STARS_BACKGROUND ((HIRESMODE && cfexist("starsb.pcx"))?"starsb.pcx":cfexist("stars.pcx")?"stars.pcx":"starsb.pcx")
 
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.

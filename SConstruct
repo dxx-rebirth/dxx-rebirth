@@ -74,7 +74,6 @@ common_sources = [
 '3d/setup.c',
 'arch/sdl/event.c',
 'arch/sdl/joy.c',
-'arch/sdl/joydefs.c',
 'arch/sdl/key.c',
 'arch/sdl/mouse.c',
 'arch/sdl/rbaudio.c',

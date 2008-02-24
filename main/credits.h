@@ -23,6 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _CREDITS_H
 
 //if filename passed is NULL, show normal credits
-void credits_show(char *credits_filename);
+void credits_show();
 
 #endif /* _CREDITS_H */

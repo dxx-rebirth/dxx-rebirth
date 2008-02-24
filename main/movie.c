@@ -226,24 +226,18 @@ void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
 }
 
 
-#define BOX_BORDER (HiresGFX?40:20)
-
-
 void show_pause_message(char *msg)
 {
 	int w,h,aw;
 	int x,y;
 
 	gr_set_current_canvas(NULL);
-	gr_set_curfont( SMALL_FONT );
+	gr_set_curfont( GAME_FONT );
 
 	gr_get_string_size(msg,&w,&h,&aw);
 
 	x = (grd_curscreen->sc_w-w)/2;
 	y = (grd_curscreen->sc_h-h)/2;
-
-	gr_setcolor(0);
-	gr_rect(x-BOX_BORDER/2,y-BOX_BORDER/2,x+w+BOX_BORDER/2-1,y+h+BOX_BORDER/2-1);
 
 	gr_set_fontcolor( 255, -1 );
 
@@ -307,8 +301,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_palCallbacks(MovieSetPalette);
 
 	frame_num = 0;
-
-	HiresGFX = HiresGFXAvailable && hires_flag;
 
 	while((result = MVE_rmStepMovie()) == 0) {
 
@@ -542,7 +534,7 @@ void close_subtitles()
 void draw_subtitles(int frame_num)
 {
 	static int active_subtitles[MAX_ACTIVE_SUBTITLES];
-	static int num_active_subtitles,next_subtitle,line_spacing;
+	static int num_active_subtitles,next_subtitle;
 	int t,y;
 	int must_erase=0;
 
@@ -550,7 +542,6 @@ void draw_subtitles(int frame_num)
 		num_active_subtitles = 0;
 		next_subtitle = 0;
 		gr_set_curfont( GAME_FONT );
-		line_spacing = FONTSCALE_Y(grd_curcanv->cv_font->ft_h + (grd_curcanv->cv_font->ft_h >> 2));
 		gr_set_fontcolor(255,-1);
 	}
 
@@ -575,7 +566,7 @@ void draw_subtitles(int frame_num)
 	}
 
 	//find y coordinate for first line of subtitles
-	y = grd_curcanv->cv_bitmap.bm_h-((line_spacing+1)*MAX_ACTIVE_SUBTITLES+2);
+	y = grd_curcanv->cv_bitmap.bm_h-((LINE_SPACING)*(MAX_ACTIVE_SUBTITLES+2));
 
 	//erase old subtitles if necessary
 	if (must_erase) {
@@ -587,7 +578,7 @@ void draw_subtitles(int frame_num)
 	for (t=0;t<num_active_subtitles;t++)
 		if (active_subtitles[t] != -1) {
 			gr_string(0x8000,y,Subtitles[active_subtitles[t]].msg);
-			y += line_spacing+1;
+			y += LINE_SPACING;
 		}
 }
 

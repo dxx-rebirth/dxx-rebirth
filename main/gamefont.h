@@ -1,4 +1,3 @@
-/* $Id: gamefont.h,v 1.1.1.1 2006/03/17 19:56:39 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * Font declarations for the game,.
+ * Font declarations for the game.
  *
  */
 
@@ -31,24 +30,30 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // font you say fontnum+flag where flag is 0 for lowres, 1 for hires
 
 #define GFONT_BIG_1     0
-#define GFONT_MEDIUM_1  2
-#define GFONT_MEDIUM_2  4
-#define GFONT_MEDIUM_3  6
-#define GFONT_SMALL     8
+#define GFONT_MEDIUM_1  1
+#define GFONT_MEDIUM_2  2
+#define GFONT_MEDIUM_3  3
+#define GFONT_SMALL     4
 
-#define SMALL_FONT      (Gamefonts[GFONT_SMALL + HiresGFX])
-#define MEDIUM1_FONT    (Gamefonts[GFONT_MEDIUM_1 + HiresGFX])
-#define MEDIUM2_FONT    (Gamefonts[GFONT_MEDIUM_2 + HiresGFX])
-#define MEDIUM3_FONT    (Gamefonts[GFONT_MEDIUM_3 + HiresGFX])
-#define HUGE_FONT       (Gamefonts[GFONT_BIG_1 + HiresGFX])
+#define GAME_FONT       (Gamefonts[GFONT_SMALL])
+#define MEDIUM1_FONT    (Gamefonts[GFONT_MEDIUM_1])
+#define MEDIUM2_FONT    (Gamefonts[GFONT_MEDIUM_2])
+#define MEDIUM3_FONT    (Gamefonts[GFONT_MEDIUM_3])
+#define HUGE_FONT       (Gamefonts[GFONT_BIG_1])
 
-#define GAME_FONT       SMALL_FONT
+#define MAX_FONTS 5
 
-#define MAX_FONTS 10
+extern int FNTScaleX, FNTScaleY;
+
+// add (scaled) spacing to given font coordinate
+#define FSPACX(x)	((x)*(FNTScaleX*(GAME_FONT->ft_w/7)))
+#define FSPACY(y)	((y)*(FNTScaleY*(GAME_FONT->ft_h/5)))
+#define LINE_SPACING    (FNTScaleY*(grd_curcanv->cv_font->ft_h+(GAME_FONT->ft_h/5)))
 
 extern grs_font *Gamefonts[MAX_FONTS];
 
 void gamefont_init();
 void gamefont_close();
+void gamefont_choose_game_font(int scrx,int scry);
 
 #endif /* _GAMEFONT_H */

@@ -76,9 +76,6 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:56:24 zicodxx Exp 
 #include "songs.h"
 #include "netdrv.h"
 
-#define LHX(x)          (FONTSCALE_X((x)*(HiresGFX?2:1)))
-#define LHY(y)          (FONTSCALE_Y((y)*(HiresGFX?2.4:1)))
-
 // MWA -- these structures are aligned -- please save me sanity and
 // headaches by keeping alignment if these are changed!!!!  Contact
 // me for info.
@@ -2399,13 +2396,11 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 
 	if (!menus[0].value) {
 			menus[0].value = 1;
-			menus[0].redraw = 1;
 	}
 
 	for (i=1; i<nitems; i++ )       {
 		if ( (i>= N_players) && (menus[i].value) )      {
 			menus[i].value = 0;
-			menus[i].redraw = 1;
 		}
 	}
 
@@ -2415,7 +2410,6 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 			nm++;
 			if ( nm > N_players )   {
 				menus[i].value = 0;
-				menus[i].redraw = 1;
 			}
 		}
 	}
@@ -2427,7 +2421,6 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 			if (menus[i].value == 1) 
 			{
 				menus[i].value = 0;
-				menus[i].redraw = 1;
 				break;
 			}
 	}
@@ -2447,7 +2440,6 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 		else
 	      sprintf( menus[N_players-1].text, "%d. %s%-20s", N_players, RankStrings[NetPlayers.players[N_players-1].rank],NetPlayers.players[N_players-1].callsign );
 
-		menus[N_players-1].redraw = 1;
 		if (N_players <= MaxNumNetPlayers)
 		{
 			menus[N_players-1].value = 1;
@@ -2470,13 +2462,11 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 				menus[i].value = 1;
 			else
 				menus[i].value = 0;
-			menus[i].redraw = 1;
 		}
 		for (i=N_players; i<n; i++ )    
 		{
 			sprintf( menus[i].text, "%d. ", i+1 );          // Clear out the deleted entries...
 			menus[i].value = 0;
-			menus[i].redraw = 1;
 		}
    }
 }
@@ -2492,11 +2482,8 @@ void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 	if (((HoardEquipped() && menus[opt_team_hoard].value) || (menus[opt_team_anarchy].value || menus[opt_capture].value)) && !menus[opt_closed].value && !menus[opt_refuse].value) 
 	{
 		menus[opt_refuse].value = 1;
-		menus[opt_refuse].redraw = 1;
 		menus[opt_refuse-1].value = 0;
-		menus[opt_refuse-1].redraw = 1;
 		menus[opt_refuse-2].value = 0;
-		menus[opt_refuse-2].redraw = 1;
 	}
 
 	if (menus[opt_coop].value)
@@ -2506,13 +2493,11 @@ void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 		if (menus[opt_maxnet].value>2) 
 		{
 		    menus[opt_maxnet].value=2;
-		    menus[opt_maxnet].redraw=1;
 		}
 
 		if (menus[opt_maxnet].max_value>2)
 		{
 		    menus[opt_maxnet].max_value=2;
-		    menus[opt_maxnet].redraw=1;
 		}
 
 		if (!Netgame.game_flags & NETGAME_FLAG_SHOW_MAP) 
@@ -2539,7 +2524,6 @@ void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 	{
 		sprintf( menus[opt_maxnet].text, "Maximum players: %d", menus[opt_maxnet].value+2 );
 		last_maxnet = menus[opt_maxnet].value;
-		menus[opt_maxnet].redraw = 1;
 	}
 }
 
@@ -2767,7 +2751,7 @@ network_find_game(void)
 
 	num_active_games = 0;
 
-	show_boxed_message(TXT_WAIT);
+	show_boxed_message(TXT_WAIT, 0);
 
 	network_send_game_list_request();
 	t1 = timer_get_approx_seconds() + F1_0*3;
@@ -3244,11 +3228,10 @@ void restart_net_searching(newmenu_item * m)
 
 	for (i = 0; i < MAX_ACTIVE_NETGAMES; i++)
 	{
-		sprintf(m[i+2].text, "%d.                                                     ",i+1);
-		m[i+2].redraw = 1;
+		sprintf(m[i+2].text, "%d.                                                         ",i+1);
 	}
-  
-   NamesInfoSecurity=-1;
+
+	NamesInfoSecurity=-1;
 	Network_games_changed = 1;      
 }
 
@@ -3286,7 +3269,6 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 		if (IPX_Socket != osocket )         {
 			sprintf( menus[0].text, "\t%s %+d (PgUp/PgDn to change)", TXT_CURRENT_IPX_SOCKET, IPX_Socket );
-			menus[0].redraw = 1;
 			mprintf(( 0, "Changing to socket %d\n", IPX_Socket ));
 			network_listen();
 			mprintf ((0,"netgood 1!\n"));
@@ -3340,7 +3322,7 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 			thold[0]=Active_games[i].mission_title[j];
 			gr_get_string_size (thold,&tx,&ty,&ta);
 
-			if ((x+=tx)>=LHX(55))
+			if ((x+=tx)>=FSPACX(55))
 			{
 				MissName[k]=MissName[k+1]=MissName[k+2]='.';
 				k+=3;
@@ -3358,7 +3340,7 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 			thold[0]=Active_games[i].game_name[j];
 			gr_get_string_size (thold,&tx,&ty,&ta);
 
-			if ((x+=tx)>=LHX(55))
+			if ((x+=tx)>=FSPACX(55))
 			{
 				GameName[k]=GameName[k+1]=GameName[k+2]='.';
 				k+=3;
@@ -3412,13 +3394,11 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 
 		Assert(strlen(menus[i+2].text) < 100);
-		menus[i+2].redraw = 1;
 	}
 
 	for (i = num_active_games; i < MAX_ACTIVE_NETGAMES; i++)
 	{
 		sprintf(menus[i+2].text, "%d.                                                     ",i+1);
-		menus[i+2].redraw = 1;
 	}
 }
 
@@ -3653,8 +3633,7 @@ void network_join_game()
 	for (i = 0; i < MAX_ACTIVE_NETGAMES; i++) {
 		m[i+2].text = menu_text[i+2];
 		m[i+2].type = NM_TYPE_MENU;
-		sprintf(m[i+2].text, "%d.                                                               ", i+1);
-		m[i+2].redraw = 1;
+		sprintf(m[i+2].text, "%d.                                                                   ", i+1);
 	}
 
 	Network_games_changed = 1;
@@ -3678,96 +3657,102 @@ remenu:
 		goto remenu;
 	}
 
+// 	// Choice has been made and looks legit
+// 	if (Active_games[choice].game_status == NETSTAT_ENDLEVEL)
+// 	{
+// 		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
+// 		goto remenu;
+// 	}
+// 
+// 	if (Active_games[choice].protocol_version != MULTI_PROTO_VERSION)
+// 	{
+// 		if (Active_games[choice].protocol_version == 3) {
+// 			#ifndef SHAREWARE
+// 				nm_messagebox(TXT_SORRY, 1, TXT_OK, "Your version of Descent 2\nis incompatible with the\nDemo version");
+// 			#endif
+// 		}
+// 		else if (Active_games[choice].protocol_version == 4) {
+// 			#ifdef SHAREWARE
+// 				nm_messagebox(TXT_SORRY, 1, TXT_OK, "This Demo version of\nDescent 2 is incompatible\nwith the full commercial version");
+// 			#endif
+// 		}
+// 		else
+// 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
+// 
+// 		goto remenu;
+// 	}
+// 
+// #ifndef SHAREWARE
+// 	{
+// 		// Check for valid mission name
+// 		mprintf((0, "Loading mission:%s.\n", Active_games[choice].mission_name));
+// 		if (!load_mission_by_name(Active_games[choice].mission_name))
+// 		{
+// 			nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
+// 			goto remenu;
+// 		}
+// 
+// 		if (is_D2_OEM)
+// 			My_Seq.player.version_minor|=NETWORK_OEM;
+// 	}
+// #endif
+// 
+// 	if (is_D2_OEM)
+// 	{
+// 		if (Active_games[choice].levelnum>8)
+// 		{
+// 				nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
+// 				goto remenu;
+// 		}
+// 	}
+// 
+// 	if (is_MAC_SHARE)
+// 	{
+// 		if (Active_games[choice].levelnum > 4)
+// 		{
+// 			nm_messagebox(NULL, 1, TXT_OK, "This SHAREWARE version only supports\nthe first 4 levels!");
+// 			goto remenu;
+// 		}
+// 	}
+// 
+// 	if (!network_wait_for_all_info (choice))
+// 	{
+// 		  nm_messagebox (TXT_SORRY,1,TXT_OK,"There was a join error!");
+// 		  Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+// 		  goto remenu;
+// 	}
+// 
+// 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+//  
+// 	if (!can_join_netgame(&Active_games[choice],&ActiveNetPlayers[choice]))
+// 	{
+// 		if (Active_games[choice].numplayers == Active_games[choice].max_numplayers)
+// 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
+// 		else
+// 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
+// 		goto remenu;
+// 	}
+// 
+// 	// Choice is valid, prepare to join in
+// 
+// 	memcpy(&Netgame, &Active_games[choice], sizeof(netgame_info));
+// 	memcpy (&NetPlayers,&ActiveNetPlayers[choice],sizeof(AllNetPlayers_info));
+// 
+// 	Difficulty_level = Netgame.difficulty;
+// 	MaxNumNetPlayers = Netgame.max_numplayers;
+// 	change_playernum_to(1);
+// 
+// 	network_set_game_mode(Netgame.gamemode);
+// 
+// 	network_AdjustMaxDataSize ();
+// 
+// 	StartNewLevel(Netgame.levelnum, 0);
+	if (show_game_stats(choice)==0)
+		goto remenu;
+
 	// Choice has been made and looks legit
-	if (Active_games[choice].game_status == NETSTAT_ENDLEVEL)
-	{
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
+	if (network_do_join_game(choice)==0)
 		goto remenu;
-	}
-
-	if (Active_games[choice].protocol_version != MULTI_PROTO_VERSION)
-	{
-		if (Active_games[choice].protocol_version == 3) {
-			#ifndef SHAREWARE
-				nm_messagebox(TXT_SORRY, 1, TXT_OK, "Your version of Descent 2\nis incompatible with the\nDemo version");
-			#endif
-		}
-		else if (Active_games[choice].protocol_version == 4) {
-			#ifdef SHAREWARE
-				nm_messagebox(TXT_SORRY, 1, TXT_OK, "This Demo version of\nDescent 2 is incompatible\nwith the full commercial version");
-			#endif
-		}
-		else
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
-
-		goto remenu;
-	}
-
-#ifndef SHAREWARE
-	{
-		// Check for valid mission name
-		mprintf((0, "Loading mission:%s.\n", Active_games[choice].mission_name));
-		if (!load_mission_by_name(Active_games[choice].mission_name))
-		{
-			nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
-			goto remenu;
-		}
-
-		if (is_D2_OEM)
-			My_Seq.player.version_minor|=NETWORK_OEM;
-	}
-#endif
-
-	if (is_D2_OEM)
-	{
-		if (Active_games[choice].levelnum>8)
-		{
-				nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
-				goto remenu;
-		}
-	}
-
-	if (is_MAC_SHARE)
-	{
-		if (Active_games[choice].levelnum > 4)
-		{
-			nm_messagebox(NULL, 1, TXT_OK, "This SHAREWARE version only supports\nthe first 4 levels!");
-			goto remenu;
-		}
-	}
-
-	if (!network_wait_for_all_info (choice))
-	{
-		  nm_messagebox (TXT_SORRY,1,TXT_OK,"There was a join error!");
-		  Network_status = NETSTAT_BROWSING; // We are looking at a game menu
-		  goto remenu;
-	}
-
-	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
- 
-	if (!can_join_netgame(&Active_games[choice],&ActiveNetPlayers[choice]))
-	{
-		if (Active_games[choice].numplayers == Active_games[choice].max_numplayers)
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
-		else
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
-		goto remenu;
-	}
-
-	// Choice is valid, prepare to join in
-
-	memcpy(&Netgame, &Active_games[choice], sizeof(netgame_info));
-	memcpy (&NetPlayers,&ActiveNetPlayers[choice],sizeof(AllNetPlayers_info));
-
-	Difficulty_level = Netgame.difficulty;
-	MaxNumNetPlayers = Netgame.max_numplayers;
-	change_playernum_to(1);
-
-	network_set_game_mode(Netgame.gamemode);
-
-	network_AdjustMaxDataSize ();
-
-	StartNewLevel(Netgame.levelnum, 0);
 
 	return;         // look ma, we're in a game!!!
 }
@@ -4819,7 +4804,7 @@ void network_more_game_options ()
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Invulnerable when reappearing"; m[opt].value=Netgame.invul; opt++;
 
 	opt_marker_view = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Allow camera views from Markers"; m[opt].value=Netgame.Allow_marker_view; opt++;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Allow Marker camera views"; m[opt].value=Netgame.Allow_marker_view; opt++;
 	opt_light = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Indestructible lights"; m[opt].value=Netgame.AlwaysLighting; opt++;
 
@@ -4914,7 +4899,6 @@ void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int
 	if ( last_cinvul != menus[opt_cinvul].value )   {
 		sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
 		last_cinvul = menus[opt_cinvul].value;
-		menus[opt_cinvul].redraw = 1;
 	}
 
 	if (menus[opt_playtime].value!=LastPTA)
@@ -4924,14 +4908,12 @@ void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int
 			LastPTA=0;
 			nm_messagebox ("Sorry",1,TXT_OK,"You can't change those for coop!");
 			menus[opt_playtime].value=0;
-			menus[opt_playtime].redraw=1;
 			return;
 		}
 		
 		Netgame.PlayTimeAllowed=menus[opt_playtime].value;
 		sprintf( menus[opt_playtime].text, "Max Time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
 		LastPTA=Netgame.PlayTimeAllowed;
-		menus[opt_playtime].redraw=1;
 	}
 
 	if (menus[opt_killgoal].value!=LastKillGoal)
@@ -4940,7 +4922,6 @@ void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int
 		{
 			nm_messagebox ("Sorry",1,TXT_OK,"You can't change those for coop!");
 			menus[opt_killgoal].value=0;
-			menus[opt_killgoal].redraw=1;
 			LastKillGoal=0;
 			return;
 		}
@@ -4948,7 +4929,6 @@ void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int
 		Netgame.KillGoal=menus[opt_killgoal].value;
 		sprintf( menus[opt_killgoal].text, "Kill Goal: %d kills", Netgame.KillGoal*5);
 		LastKillGoal=Netgame.KillGoal;
-		menus[opt_killgoal].redraw=1;
 	}
 }
 
@@ -5476,19 +5456,44 @@ int HoardEquipped()
 	return (checked);
 }
 
-int network_do_join_game()
+int network_do_join_game(int choice)
 {
-	if (Active_games[0].game_status == NETSTAT_ENDLEVEL)
+	if (Active_games[choice].protocol_version != MULTI_PROTO_VERSION)
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
+		return 0;
+	}
+
+	if (Active_games[choice].game_status == NETSTAT_ENDLEVEL)
 	{
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
 		return 0;
 	}
 
 	// Check for valid mission name
-	if (!load_mission_by_name(Active_games[0].mission_name))
+	if (!load_mission_by_name(Active_games[choice].mission_name))
 	{
 		nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
 		return 0;
+	}
+
+	if (is_D2_OEM)
+	{
+		My_Seq.player.version_minor|=NETWORK_OEM;
+		if (Active_games[choice].levelnum>8)
+		{
+			nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
+			return 0;
+		}
+	}
+
+	if (is_MAC_SHARE)
+	{
+		if (Active_games[choice].levelnum > 4)
+		{
+			nm_messagebox(NULL, 1, TXT_OK, "This SHAREWARE version only supports\nthe first 4 levels!");
+			return 0;
+		}
 	}
 
 	if (!network_wait_for_all_info (0))
@@ -5504,7 +5509,7 @@ int network_do_join_game()
 	Ext_server=NULL;
 	Ext_node=NULL;
 
-	if (!can_join_netgame(&Active_games[0], &ActiveNetPlayers[0]))
+	if (!can_join_netgame(&Active_games[choice], &ActiveNetPlayers[choice]))
 	{
 		if (Active_games[0].numplayers == Active_games[0].max_numplayers)
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
@@ -5514,8 +5519,7 @@ int network_do_join_game()
 	}
 
 	// Choice is valid, prepare to join in
-
-	memcpy (&Netgame, &Active_games[0], sizeof(netgame_info));
+	memcpy (&Netgame, &Active_games[choice], sizeof(netgame_info));
 	memcpy (&NetPlayers,TempPlayersInfo,sizeof(AllNetPlayers_info));
 
 	Difficulty_level = Netgame.difficulty;
@@ -5557,18 +5561,15 @@ void network_info_req( int nitems, newmenu_item * menus, int * key, int citem )
 	}
 }
 
-void show_game_rules(netgame_info game)
+void show_game_rules(int choice)
 {
 	int done,k;
 	grs_canvas canvas;
-	int w = LHX(290), h = LHY(170);
+	int w = FSPACX(280), h = FSPACY(170);
 
 	gr_set_current_canvas(NULL);
 
-	if (HiresGFX)
-		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
-	else
-		gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));
+	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200));
 
 	game_flush_inputs();
 
@@ -5582,87 +5583,93 @@ void show_game_rules(netgame_info game)
 		gr_flip();
 		nm_draw_background1(NULL);
 #endif
-		if (HiresGFX)
-			nm_draw_background(((grd_curscreen->sc_w-w)/2)-(30*(SWIDTH/640)),((grd_curscreen->sc_h-h)/2)-(30*(SHEIGHT/480)),((grd_curscreen->sc_w-w)/2)+w+(30*(SWIDTH/640))-1,((grd_curscreen->sc_h-h)/2)+h+(30*(SHEIGHT/480))-1);
-		else
-			nm_draw_background(((grd_curscreen->sc_w-w)/2)-(15*(SWIDTH/320)),((grd_curscreen->sc_h-h)/2)-(15*(SHEIGHT/200)),((grd_curscreen->sc_w-w)/2)+w+(15*(SWIDTH/320))-1,((grd_curscreen->sc_h-h)/2)+h+(15*(SHEIGHT/200))-1);
+		nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 
 		gr_set_current_canvas(&canvas);
 		
 		grd_curcanv->cv_font = MEDIUM3_FONT;
 
 		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);	
-		gr_string( 0x8000, LHY(15), "NETGAME RULES" );
+		gr_string( 0x8000, FSPACY(15), "NETGAME INFO");
 	
-		grd_curcanv->cv_font = SMALL_FONT;
-	
-		gr_printf( LHX( 25),LHY( 35), "Invulnerable when reappearing:");
-		gr_printf( LHX( 25),LHY( 41), "Allow camera view from markers:");
-		gr_printf( LHX( 25),LHY( 47), "Indestructible lights:");
-		gr_printf( LHX( 25),LHY( 53), "Bright player ships:");
-		gr_printf( LHX( 25),LHY( 59), "Show enemy names on hud:");
-		gr_printf( LHX( 25),LHY( 65), "Show all players on automap:");
-		gr_printf( LHX( 25),LHY( 80), "Allowed Objects");
-		gr_printf( LHX( 25),LHY( 90), "Laser Upgrade:");
-		gr_printf( LHX( 25),LHY( 96), "Super Laser:");
-		gr_printf( LHX( 25),LHY(102), "Quad Laser:");
-		gr_printf( LHX( 25),LHY(108), "Vulcan Cannon:");
-		gr_printf( LHX( 25),LHY(114), "Gauss Cannon:");
-		gr_printf( LHX( 25),LHY(120), "Spreadfire Cannon:");
-		gr_printf( LHX( 25),LHY(126), "Helix Cannon:");
-		gr_printf( LHX( 25),LHY(132), "Plasma Cannon:");
-		gr_printf( LHX( 25),LHY(138), "Phoenix Cannon:");
-		gr_printf( LHX( 25),LHY(144), "Fusion Cannon:");
-		gr_printf( LHX( 25),LHY(150), "Omega Cannon:");
-		gr_printf( LHX(170),LHY( 90), "Flash Missile:");
-		gr_printf( LHX(170),LHY( 96), "Homing Missile:");
-		gr_printf( LHX(170),LHY(102), "Guided Missile:");
-		gr_printf( LHX(170),LHY(108), "Proximity Bomb:");
-		gr_printf( LHX(170),LHY(114), "Smart Mine:");
-		gr_printf( LHX(170),LHY(120), "Smart Missile:");
-		gr_printf( LHX(170),LHY(126), "Mercury Missile:");
-		gr_printf( LHX(170),LHY(132), "Mega Missile:");
-		gr_printf( LHX(170),LHY(138), "Earthshaker Missile:");
-		gr_printf( LHX( 25),LHY(160), "Afterburner:");
-		gr_printf( LHX( 25),LHY(166), "Headlight:");
-		gr_printf( LHX( 25),LHY(172), "Energy->Shield Conv:");
-		gr_printf( LHX(170),LHY(160), "Invulnerability:");
-		gr_printf( LHX(170),LHY(166), "Cloaking Device:");
-		gr_printf( LHX(170),LHY(172), "Ammo Rack:");
+		grd_curcanv->cv_font = GAME_FONT;
+		gr_printf( FSPACX( 25),FSPACY( 35), "Reactor Life:");
+		gr_printf( FSPACX( 25),FSPACY( 41), "Max Time:");
+		gr_printf( FSPACX( 25),FSPACY( 47), "Kill Goal:");
+		gr_printf( FSPACX( 25),FSPACY( 53), "Short Packets:");
+		gr_printf( FSPACX( 25),FSPACY( 59), "Pakets per second:");
+		gr_printf( FSPACX(155),FSPACY( 35), "Invul when reappearing:");
+		gr_printf( FSPACX(155),FSPACY( 41), "Marker camera views:");
+		gr_printf( FSPACX(155),FSPACY( 47), "Indestructible lights:");
+		gr_printf( FSPACX(155),FSPACY( 53), "Bright player ships:");
+		gr_printf( FSPACX(155),FSPACY( 59), "Show enemy names on hud:");
+		gr_printf( FSPACX(155),FSPACY( 65), "Show players on automap:");
+		gr_printf( FSPACX( 25),FSPACY( 80), "Allowed Objects");
+		gr_printf( FSPACX( 25),FSPACY( 90), "Laser Upgrade:");
+		gr_printf( FSPACX( 25),FSPACY( 96), "Super Laser:");
+		gr_printf( FSPACX( 25),FSPACY(102), "Quad Laser:");
+		gr_printf( FSPACX( 25),FSPACY(108), "Vulcan Cannon:");
+		gr_printf( FSPACX( 25),FSPACY(114), "Gauss Cannon:");
+		gr_printf( FSPACX( 25),FSPACY(120), "Spreadfire Cannon:");
+		gr_printf( FSPACX( 25),FSPACY(126), "Helix Cannon:");
+		gr_printf( FSPACX( 25),FSPACY(132), "Plasma Cannon:");
+		gr_printf( FSPACX( 25),FSPACY(138), "Phoenix Cannon:");
+		gr_printf( FSPACX( 25),FSPACY(144), "Fusion Cannon:");
+		gr_printf( FSPACX( 25),FSPACY(150), "Omega Cannon:");
+		gr_printf( FSPACX(170),FSPACY( 90), "Flash Missile:");
+		gr_printf( FSPACX(170),FSPACY( 96), "Homing Missile:");
+		gr_printf( FSPACX(170),FSPACY(102), "Guided Missile:");
+		gr_printf( FSPACX(170),FSPACY(108), "Proximity Bomb:");
+		gr_printf( FSPACX(170),FSPACY(114), "Smart Mine:");
+		gr_printf( FSPACX(170),FSPACY(120), "Smart Missile:");
+		gr_printf( FSPACX(170),FSPACY(126), "Mercury Missile:");
+		gr_printf( FSPACX(170),FSPACY(132), "Mega Missile:");
+		gr_printf( FSPACX(170),FSPACY(138), "Earthshaker Missile:");
+		gr_printf( FSPACX( 25),FSPACY(160), "Afterburner:");
+		gr_printf( FSPACX( 25),FSPACY(166), "Headlight:");
+		gr_printf( FSPACX( 25),FSPACY(172), "Energy->Shield Conv:");
+		gr_printf( FSPACX(170),FSPACY(160), "Invulnerability:");
+		gr_printf( FSPACX(170),FSPACY(166), "Cloaking Device:");
+		gr_printf( FSPACX(170),FSPACY(172), "Ammo Rack:");
 
-		gr_set_fontcolor(gr_find_closest_color_current(255,255,255),-1);
-		gr_printf( LHX(250),LHY( 35), game.invul?"ON":"OFF");
-		gr_printf( LHX(250),LHY( 41), game.Allow_marker_view?"ON":"OFF");
-		gr_printf( LHX(250),LHY( 47), game.AlwaysLighting?"ON":"OFF");
-		gr_printf( LHX(250),LHY( 53), game.BrightPlayers?"ON":"OFF");
-		gr_printf( LHX(250),LHY( 59), game.ShowAllNames?"ON":"OFF");
-		gr_printf( LHX(250),LHY( 65), game.game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
-		gr_printf( LHX(130),LHY( 90), game.DoLaserUpgrade==0?"NO":"YES");
-		gr_printf( LHX(130),LHY( 96), game.DoSuperLaser==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(102), game.DoQuadLasers==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(108), game.DoVulcan==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(114), game.DoGauss==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(120), game.DoSpread==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(126), game.DoHelix==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(132), game.DoPlasma==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(138), game.DoPhoenix==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(144), game.DoFusions==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(150), game.DoOmega==0?"NO":"YES");
-		gr_printf( LHX(275),LHY( 90), game.DoFlash==0?"NO":"YES");
-		gr_printf( LHX(275),LHY( 96), game.DoHoming==0?"NO":"YES");
-		gr_printf( LHX(275),LHY(102), game.DoGuided==0?"NO":"YES");
-		gr_printf( LHX(275),LHY(108), game.DoProximity==0?"NO":"YES");
-		gr_printf( LHX(275),LHY(114), game.DoSmartMine==0?"NO":"YES");
-		gr_printf( LHX(275),LHY(120), game.DoSmarts==0?"NO":"YES");
-		gr_printf( LHX(275),LHY(126), game.DoMercury==0?"NO":"YES");
-		gr_printf( LHX(275),LHY(132), game.DoMegas==0?"NO":"YES");
-		gr_printf( LHX(275),LHY(138), game.DoEarthShaker==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(160), game.DoAfterburner==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(166), game.DoHeadlight==0?"NO":"YES");
-		gr_printf( LHX(130),LHY(172), game.DoConverter==0?"NO":"YES");
-		gr_printf( LHX(275),LHY(160), game.DoInvulnerability==0?"NO":"YES");
-		gr_printf( LHX(275),LHY(166), game.DoCloak==0?"NO":"YES");
-		gr_printf( LHX(275),LHY(172), game.DoAmmoRack==0?"NO":"YES");
+		gr_set_fontcolor(BM_XRGB(255,255,255),-1);
+		gr_printf( FSPACX(115),FSPACY( 35), "%i Min", Active_games[choice].control_invul_time/F1_0/60);
+		gr_printf( FSPACX(115),FSPACY( 41), "%i Min", Active_games[choice].PlayTimeAllowed*5);
+		gr_printf( FSPACX(115),FSPACY( 47), "%i", Active_games[choice].KillGoal);
+		gr_printf( FSPACX(115),FSPACY( 53), "%s", Active_games[choice].ShortPackets?"ON":"OFF");
+		gr_printf( FSPACX(115),FSPACY( 59), "%i", Active_games[choice].PacketsPerSec);
+		gr_printf( FSPACX(275),FSPACY( 35), Active_games[choice].invul?"ON":"OFF");
+		gr_printf( FSPACX(275),FSPACY( 41), Active_games[choice].Allow_marker_view?"ON":"OFF");
+		gr_printf( FSPACX(275),FSPACY( 47), Active_games[choice].AlwaysLighting?"ON":"OFF");
+		gr_printf( FSPACX(275),FSPACY( 53), Active_games[choice].BrightPlayers?"ON":"OFF");
+		gr_printf( FSPACX(275),FSPACY( 59), Active_games[choice].ShowAllNames?"ON":"OFF");
+		gr_printf( FSPACX(275),FSPACY( 65), Active_games[choice].game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+		gr_printf( FSPACX(130),FSPACY( 90), Active_games[choice].DoLaserUpgrade==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY( 96), Active_games[choice].DoSuperLaser==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(102), Active_games[choice].DoQuadLasers==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(108), Active_games[choice].DoVulcan==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(114), Active_games[choice].DoGauss==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(120), Active_games[choice].DoSpread==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(126), Active_games[choice].DoHelix==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(132), Active_games[choice].DoPlasma==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(138), Active_games[choice].DoPhoenix==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(144), Active_games[choice].DoFusions==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(150), Active_games[choice].DoOmega==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY( 90), Active_games[choice].DoFlash==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY( 96), Active_games[choice].DoHoming==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY(102), Active_games[choice].DoGuided==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY(108), Active_games[choice].DoProximity==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY(114), Active_games[choice].DoSmartMine==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY(120), Active_games[choice].DoSmarts==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY(126), Active_games[choice].DoMercury==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY(132), Active_games[choice].DoMegas==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY(138), Active_games[choice].DoEarthShaker==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(160), Active_games[choice].DoAfterburner==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(166), Active_games[choice].DoHeadlight==0?"NO":"YES");
+		gr_printf( FSPACX(130),FSPACY(172), Active_games[choice].DoConverter==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY(160), Active_games[choice].DoInvulnerability==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY(166), Active_games[choice].DoCloak==0?"NO":"YES");
+		gr_printf( FSPACX(275),FSPACY(172), Active_games[choice].DoAmmoRack==0?"NO":"YES");
 
 		//see if redbook song needs to be restarted
 		songs_check_redbook_repeat();
@@ -5688,7 +5695,7 @@ void show_game_rules(netgame_info game)
 	game_flush_inputs();
 }
 
-int show_game_stats(netgame_info game)
+int show_game_stats(int choice)
 {
 	char rinfo[512],*info=rinfo;
 	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
@@ -5696,24 +5703,24 @@ int show_game_stats(netgame_info game)
 
 	memset(info,0,sizeof(char)*256);
 
-	info+=sprintf(info,"\nConnected to\n\"%s\"\n",game.game_name);
+	info+=sprintf(info,"\nConnected to\n\"%s\"\n",Active_games[choice].game_name);
 
-	if(!game.mission_title)
+	if(!Active_games[choice].mission_title)
 		info+=sprintf(info,"Descent2: CounterStrike");
 	else
-		info+=sprintf(info,game.mission_title);
+		info+=sprintf(info,Active_games[choice].mission_title);
 
-	info+=sprintf (info," - Lvl %i",game.levelnum);
-	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(game.difficulty));
-	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[game.gamemode]);
-	info+=sprintf (info,"\nPlayers: %i/%i",game.numconnected,game.max_numplayers);
+	info+=sprintf (info," - Lvl %i",Active_games[choice].levelnum);
+	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(Active_games[choice].difficulty));
+	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[Active_games[choice].gamemode]);
+	info+=sprintf (info,"\nPlayers: %i/%i",Active_games[choice].numconnected,Active_games[choice].max_numplayers);
 
 	while (1){
-		c=nm_messagebox1("WELCOME", network_info_req, 2, "GAME RULES", "JOIN GAME", rinfo);
+		c=nm_messagebox1("WELCOME", network_info_req, 2, "JOIN GAME", "GAME INFO", rinfo);
 		if (c==0)
-			show_game_rules(game);
-		else if (c==1)
 			return 1;
+		else if (c==1)
+			show_game_rules(choice);
 		else
 			return 0;
 	}
@@ -5739,7 +5746,7 @@ int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address)
 				Network_games_changed=0;
 				continue;
 			}
-			if (show_game_stats(Active_games[0])) {
+			if (show_game_stats(0)) {
 				Ext_server=server;
 				Ext_node=node;
 				return 1; //(network_do_join_game());

@@ -48,7 +48,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kconfig.h"
 #include "digi.h"
 #include "newmenu.h"
-#include "joydefs.h"
 #include "palette.h"
 #include "multi.h"
 #include "menu.h"

@@ -76,7 +76,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "gamefont.h"
 #include "endlevel.h"
-#include "joydefs.h"
 #include "kconfig.h"
 #include "mouse.h"
 #include "titles.h"
@@ -452,14 +451,14 @@ int do_game_pause()
 	else
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
 	Game_paused=1;
-	show_boxed_message(msg);
+	show_boxed_message(msg, 1);
 	gr_update();
 
 	while (Game_paused) 
 	{
 		timer_delay2(20);
 #ifdef OGL
-		show_boxed_message(msg);
+		show_boxed_message(msg, 1);
 #endif
 
 		key = key_inkey();
@@ -475,7 +474,7 @@ int do_game_pause()
 			case KEY_F1:
  				clear_boxed_message();
 				show_help();
-				show_boxed_message(TXT_PAUSE);
+				show_boxed_message(TXT_PAUSE, 1);
 				break;
 			case KEY_PAUSE:
 				Game_paused=0;
@@ -1176,7 +1175,7 @@ int HandleSystemKey(int key)
 
 			key_close();		// no processing of keys with keyboard handler.. jeez				
 			stop_time();
-			show_boxed_message ("Mounting CD\nESC to quit");	
+			show_boxed_message ("Mounting CD\nESC to quit", 0);	
 			RBAMountDisk();		// OS has totaly control of the CD.
 			if (Function_mode == FMODE_MENU)
 				songs_play_song(SONG_TITLE,1);

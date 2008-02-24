@@ -24,9 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
-extern int HiresGFXAvailable;
-extern int HiresGFX;
-
 #if defined(MACINTOSH) || defined(MACDATA)
 #error native mac data currently not supported
 #define SWAP_0_255              // swap black and white
@@ -45,6 +42,7 @@ extern int HiresGFX;
 #define GHEIGHT grd_curcanv->cv_bitmap.bm_h
 #define SWIDTH  (grd_curscreen->sc_w)
 #define SHEIGHT (grd_curscreen->sc_h)
+#define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && GameArg.GfxHiresGFXAvailable)
 
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 #define BM_FLAG_TGA 128
@@ -75,29 +73,6 @@ typedef struct _grs_point {
 #ifdef OGL
 #define BM_OGL      5
 #endif /* def OGL */
-
-//@@// Define these modes for Gameplay too, since the game was developed under
-//@@// DOS, we will adapt these modes to other systems thru rendering.
-//@@#define SM_ORIGINAL		-1
-//@@#define SM_320x200C     0
-//@@#define SM_320x200U     1
-//@@#define SM_320x240U     2
-//@@#define SM_360x200U     3
-//@@#define SM_360x240U     4
-//@@#define SM_376x282U     5
-//@@#define SM_320x400U     6
-//@@#define SM_320x480U     7
-//@@#define SM_360x400U     8
-//@@#define SM_360x480U     9
-//@@#define SM_360x360U     10
-//@@#define SM_376x308U     11
-//@@#define SM_376x564U     12
-//@@#define SM_640x400V     13
-//@@#define SM_640x480V     14
-//@@#define SM_800x600V     15
-//@@#define SM_1024x768V    16
-//@@#define SM_640x480V15   17
-//@@#define SM_800x600V15   18
 
 #define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
 #define SM_W(m) (m>>16)
@@ -139,15 +114,6 @@ typedef struct _grs_bitmap {
 #define SCRNS_DIR ":Screenshots:"
 #endif
 
-// ZICO - we use this defines to scale the font bitmaps itself, spacing between letters and rows
-#ifdef OGL
-#define FONTSCALE_X(x) ((GameArg.OglFixedFont)?x:(x)*((SWIDTH/ ((HiresGFX&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))
-#define FONTSCALE_Y(x) ((GameArg.OglFixedFont)?x:(x)*((SHEIGHT/((HiresGFX&&SWIDTH>=640&&SHEIGHT>=480)?480:200))))
-#else // without OGL we don't scale. But instead of defining out eery single FONTSCALE_* call we just do not scale
-#define FONTSCALE_X(x) (x)
-#define FONTSCALE_Y(x) (x)
-#endif
-
 //font structure
 typedef struct _grs_font {
 	short       ft_w;           // Width in pixels
@@ -178,10 +144,6 @@ typedef struct _grs_canvas {
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
 } grs_canvas;
-
-//shortcuts
-#define cv_w cv_bitmap.bm_w
-#define cv_h cv_bitmap.bm_h
 
 typedef struct _grs_screen {    // This is a video screen
 	grs_canvas  sc_canvas;  // Represents the entire screen
@@ -376,8 +338,8 @@ void gr_remap_color_fonts();
 void gr_remap_mono_fonts();
 
 // Writes a string using current font. Returns the next column after last char.
-void gr_set_fontcolor( int fg, int bg );
 void gr_set_curfont( grs_font * new );
+void gr_set_fontcolor( int fg_color, int bg_color );
 int gr_string(int x, int y, char *s );
 int gr_ustring(int x, int y, char *s );
 int gr_printf( int x, int y, char * format, ... );
@@ -396,9 +358,6 @@ void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf, int orientation );
 extern grs_canvas *grd_curcanv;             //active canvas
 extern grs_screen *grd_curscreen;           //active screen
 extern unsigned char Test_bitmap_data[64*64];
-
-//shortcut to look at current font
-#define grd_curfont grd_curcanv->cv_font
 
 extern unsigned int FixDivide( unsigned int x, unsigned int y );
 
@@ -456,14 +415,8 @@ extern int get_selector( void * address, int size, unsigned int * selector );
 // this return value since there is a limited number of selectors!!!!!!!
 extern int gr_bitmap_assign_selector( grs_bitmap * bmp );
 
-//#define GR_GETCOLOR(r,g,b) (gr_inverse_table[( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )])
-//#define gr_getcolor(r,g,b) (gr_inverse_table[( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )])
-//#define BM_XRGB(r,g,b) (gr_inverse_table[( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )])
-
 #define BM_RGB(r,g,b) ( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )
 #define BM_XRGB(r,g,b) gr_find_closest_color( (r)*2,(g)*2,(b)*2 )
-#define GR_GETCOLOR(r,g,b) gr_find_closest_color( (r)*2,(g)*2,(b)*2 )
-#define gr_getcolor(r,g,b) gr_find_closest_color( (r)*2,(g)*2,(b)*2 )
 
 // Given: r,g,b, each in range of 0-63, return the color index that
 // best matches the input.

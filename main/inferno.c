@@ -88,7 +88,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "newmenu.h"
 #include "desc_id.h"
 #include "config.h"
-#include "joydefs.h"
 #include "multi.h"
 #include "songs.h"
 #include "cfile.h"
@@ -133,14 +132,9 @@ int descent_critical_error = 0;
 unsigned descent_critical_deverror = 0;
 unsigned descent_critical_errcode = 0;
 
-int HiresGFXAvailable = 1;
-int HiresGFX = 1;
-
 extern int Network_allow_socket_changes;
 
 extern void vfx_set_palette_sub(ubyte *);
-
-extern int vertigo_present;
 extern void d_mouse_init(void);
 extern void piggy_init_pigfile(char *filename);
 
@@ -187,6 +181,8 @@ void print_commandline_help()
 	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
 	printf( "  -hud <n>           %s\n", "Set hud mode.  0=normal 1-3=new");
 	printf( "  -persistentdebris  %s\n", "Enable persistent debris. Works in singleplayer only");
+	printf( "  -lowresfont        %s\n", "Force to use LowRes fonts");
+	printf( "  -lowresgraphics    %s\n", "Force to use LowRes graphics");
 	printf( "  -lowresmovies      %s\n", "Play low resolution movies if available (for slow machines)");
 	printf( "  -subtitles         %s\n", "Turn on movie subtitles");
 
@@ -298,7 +294,8 @@ int main(int argc, char *argv[])
 		}
 		else // deal with interactive demo
 		{
-			HiresGFXAvailable = 0;
+			GameArg.GfxHiresGFXAvailable = 0;
+			GameArg.GfxHiresFNTAvailable = 0;
 			GameArg.SysLowMem = 1;
 			GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
 		}
@@ -313,7 +310,6 @@ int main(int argc, char *argv[])
 	#endif
 	if (cfexist(MISSION_DIR "d2x.hog")) {
 		con_printf(CON_NORMAL, "  Vertigo Enhanced");
-		vertigo_present = 1;
 	}
 
 	con_printf(CON_NORMAL, "  %s %s\n", __DATE__,__TIME__);
