@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080224
+--------
+main/newdemo.c: make sure the right error message is shown if it can't open a demo
+
 20080221
 --------
 main/inferno.c, main/newmenu.c, main/titles.c: add support for Macintosh splash screens and menu backgrounds in descent.hog, but not fonts (yet)
