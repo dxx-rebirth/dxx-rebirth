@@ -794,7 +794,7 @@ int read_player_file()
                 }
 	}
 
-	if (PHYSFS_close(file) && errno_ret==EZERO)
+	if (!PHYSFS_close(file) && errno_ret==EZERO)
 		errno_ret = errno;
 
 	if ( info.saved_game_version != 7 ) 	{
@@ -988,7 +988,7 @@ int write_player_file()
 		}
 	}
 
-	if (PHYSFS_close(file))
+	if (!PHYSFS_close(file))
 		errno_ret = errno;
 
 	if (errno_ret != EZERO) {

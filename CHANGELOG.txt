@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/newdemo.c: make sure the right error message is shown if it can't open a demo
 include/args.h, include/gr.h, main/newmenu.c, main/newmenu.h, main/network.c, main/multi.c, main/inferno.c, main/gamefont.c, main/menu.c, main/gamefont.h, main/netdrv_udp.c, main/playsave.c, main/titles.c, main/kmatrix.c, main/controls.c, main/paging.c, main/hud.c, main/state.c, main/reorder.c, main/slew.c, main/gameseq.c, main/scores.c, main/automap.c, main/game.c, main/gauges.c, main/game.h, main/kconfig.c, main/credits.c, misc/args.c, 2d/font.c, SConstruct, d1x.ini, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/gr.c: Reworked fonts routines - makes easier to expand and scale correctly; Reworked menus with better border scaling, improved rendering and cleanups; Improved font priniting ingame, better alignment; Reworked Netgame list; Real Doublebuffering in SDL-mode; Removed old and unused sources
+main/playsave: Fixed error in writing PLR-file since PHYSFS_close returns non-zero in success instead of zero like fclose
 
 20080221
 --------
