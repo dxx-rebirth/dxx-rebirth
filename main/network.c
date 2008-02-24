@@ -2791,8 +2791,11 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 #ifdef WORDS_BIGENDIAN
 	netgame_info tmp_info;
 
-	receive_full_netgame_packet((ubyte *)sp, &tmp_info);
-	sp = &tmp_info;
+	if (sp != &Netgame)
+	{
+		receive_full_netgame_packet((ubyte *)sp, &tmp_info);
+		sp = &tmp_info;
+	}
 #endif
 
 	if (rsinit)

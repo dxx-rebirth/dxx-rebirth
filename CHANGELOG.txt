@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20080224
 --------
 main/newdemo.c: make sure the right error message is shown if it can't open a demo
+main/network.c: fix bug where a Mac host crashes on starting a game
 
 20080217
 --------
