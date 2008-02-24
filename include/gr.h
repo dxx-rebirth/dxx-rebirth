@@ -19,17 +19,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GR_H
 #define _GR_H
 
-// ZICO - for FONTSCALE_X/Y
-#include "args.h"
 #include "cfile.h"
 
 #include "pstypes.h"
 #include "fix.h"
-
-#ifdef __MSDOS__
-// selector is used to avoid keeping a base pointer around in the texture mapper
-#define BITMAP_SELECTOR
-#endif
 
 // #define SWAP_0_255		0			// swap black and white
 #define TRANSPARENCY_COLOR	255			// palette entry of transparency color -- 255 on the PC
@@ -38,7 +31,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GR_ACTUAL_FADE_LEVELS 32
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 
-#define HIRES_DIR "hires/"
 #define SCRNS_DIR "screenshots/"
 
 extern int Gr_scanline_darkening_level;
@@ -46,15 +38,6 @@ extern int Gr_scanline_darkening_level;
 typedef struct _grs_point {
 	fix	x,y;
 } grs_point;
-
-// ZICO - we use this defines to scale the fon bitmaps itself, spacing between letters and rows
-#ifdef OGL
-#define FONTSCALE_X(x) ((GameArg.OglFixedFont)?x:(x)*((SWIDTH/ ((GameArg.GfxUseHiresFont&&SWIDTH>=640&&SHEIGHT>=480)?640:320))))
-#define FONTSCALE_Y(x) ((GameArg.OglFixedFont)?x:(x)*((SHEIGHT/((GameArg.GfxUseHiresFont&&SWIDTH>=640&&SHEIGHT>=480)?480:200))))
-#else // without OGL we don't scale. But instead of defining out eery single FONTSCALE_* call we just do not scale
-#define FONTSCALE_X(x) (x)
-#define FONTSCALE_Y(x) (x)
-#endif
 
 //old font structure, could not add new items to it without screwing up gr_init_font
 typedef struct _grs_font {
@@ -81,16 +64,6 @@ old_grs_font;
 #define BM_FLAG_INITIALIZED 		32
 #define BM_FLAG_COCKPIT_TRANSPARENT	64      // for cockpit - render black parts as alpha
 
-#ifdef D1XD3D
-#define BM_MAGIC_NUMBER 0x13579bdf
-//changed BM_D3D constants to prevent system crash if accidentally accessed
-//(it would be nice if Win9x actually protected first pages...)
-//#define BM_D3D_RENDER   1
-//#define BM_D3D_DISPLAY  2
-#define BM_D3D_RENDER	0xf0000001
-#define BM_D3D_DISPLAY	0xf0000002
-#endif
-
 typedef struct _grs_bitmap {
 	short       bm_x,bm_y;      // Offset from parent's origin
 	short       bm_w,bm_h;      // width,height
@@ -110,10 +83,6 @@ typedef struct _grs_bitmap {
 	ubyte			avg_color;	//	Average color of all pixels in texture map.
 	sbyte			unused;		//	to 4-byte align.
 
-#ifdef D1XD3D
-	void		*pvSurface;
-	int			iMagic;
-#endif
 #ifdef OGL
 	struct _ogl_texture *gltexture;
 	struct _grs_bitmap *bm_parent;
@@ -156,70 +125,14 @@ typedef struct _grs_screen {     // This is a video screen
 	fix			sc_aspect;		//aspect ratio (w/h) for this screen
 } grs_screen;
 
-// Num Cols Rows Bpp Mode Pages Aspect
-// --- ---- ---- --- ---- ----- ------
-// 0   320  200  8   C    1.0   1.2:1
-// 1   320  200  8   U    4.0   1.2
-// 2   320  240  8   U    3.4   1.0
-// 3   360  200  8   U    3.6   1.4
-// 4   360  240  8   U    3.0   1.1
-// 5   376  282  8   U    2.5   1.0
-// 6   320  400  8   U    2.0   0.6
-// 7   320  480  8   U    1.7   0.5
-// 8   360  400  8   U    1.8   0.7
-// 9   360  480  8   U    1.5   0.6
-// 10  360  360  8   U    2.0   0.8
-// 11  376  308  8   U    2.3   0.9
-// 12  376  564  8   U    1.2   0.5
-// 13  640  400  8   V    4.1   1.2     (Assuming 1 Meg video RAM)
-// 14  640  480  8   V    3.4   1.0
-// 15  800  600  8   V    2.2   1.0
-// 16  1024 768  8   V    1.0   1.0
-// 17  640  480  15  V    1.0   1.0
-// 18  800  600  15  V    1.0   1.0
-
-//new more versatile res setting method.  added 11/21/99 Matt Mueller.
 #define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
 #define SM_W(m) (m>>16)
 #define SM_H(m) (m&0xFFFF)
 #define SM_ORIGINAL		0
-/*#define SM_ORIGINAL		-1
-#define SM_320x200C     0
-#define SM_320x200U     1
-#define SM_320x240U     2
-#define SM_360x200U     3
-#define SM_360x240U     4
-#define SM_376x282U     5
-#define SM_320x400U     6
-#define SM_320x480U     7
-#define SM_360x400U     8
-#define SM_360x480U     9
-#define SM_360x360U     10
-#define SM_376x308U     11
-#define SM_376x564U     12
-#define SM_640x400V     13
-#define SM_640x480V     14
-#define SM_800x600V     15
-#define SM_1024x768V    16
-#define SM_640x480V15   17
-#define SM_800x600V15   18
-
-#define SM_320x200x8	1
-#define SM_320x200x8UL	2
-#define SM_320x200x16	3*/
 
 #define BM_LINEAR   0
-#ifdef D1XD3D
-#define BM_DIRECTX	1
-#else
-#ifdef __MSDOS__
-#define BM_MODEX    1
-#define BM_SVGA     2
-#endif
-#endif
 #define BM_RGB15    3   //5 bits each r,g,b stored at 16 bits
 #define BM_SVGA15   4
-
 #ifdef OGL
 #define BM_OGL      5
 #endif
@@ -420,8 +333,8 @@ grs_font * gr_init_font( char * fontfile );
 void gr_close_font( grs_font * font );
 
 // Writes a string using current font. Returns the next column after last char.
-void gr_set_fontcolor( int fg, int bg );
 void gr_set_curfont( grs_font * New );
+void gr_set_fontcolor( int fg_color, int bg_color );
 int gr_string(int x, int y, char *s );
 int gr_ustring(int x, int y, char *s );
 int gr_printf( int x, int y, char * format, ... );
@@ -434,6 +347,10 @@ void rotate_bitmap(grs_bitmap *bp, grs_point *vertbuf, int light_value);
 
 // From scale.c
 void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf );
+
+// Reads in a font file... current font set to this one.
+grs_font * gr_init_font( char * fontfile );
+void gr_close_font( grs_font * font );
 
 //===========================================================================
 // Global variables
@@ -500,14 +417,8 @@ extern int get_selector( void * address, int size, unsigned int * selector );
 extern int gr_bitmap_assign_selector( grs_bitmap * bmp );
 #endif
 
-//#define GR_GETCOLOR(r,g,b) (gr_inverse_table[( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )])
-//#define gr_getcolor(r,g,b) (gr_inverse_table[( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )])
-//#define BM_XRGB(r,g,b) (gr_inverse_table[( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )])
-
 #define BM_RGB(r,g,b) ( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )
 #define BM_XRGB(r,g,b) gr_find_closest_color( (r)*2,(g)*2,(b)*2 )
-#define GR_GETCOLOR(r,g,b) gr_find_closest_color( (r)*2,(g)*2,(b)*2 )
-#define gr_getcolor(r,g,b) gr_find_closest_color( (r)*2,(g)*2,(b)*2 )
 
 // Given: r,g,b, each in range of 0-63, return the color index that
 // best matches the input.

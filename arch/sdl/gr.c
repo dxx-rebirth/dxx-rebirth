@@ -9,63 +9,30 @@
 #include "palette.h"
 #include "u_mem.h"
 #include "error.h"
-//added on 9/30/98 by Matt Mueller to set the title bar.  Woohoo!
 #include "vers_id.h"
-//end addition -MM
-
 #include "gamefont.h"
 
 //added 10/05/98 by Matt Mueller - make fullscreen mode optional
 #include "args.h"
 
-int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE;
+int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
 //end addition -MM
 
 SDL_Surface *screen;
 
 int gr_installed = 0;
 
-//added 05/19/99 Matt Mueller - locking stuff
-#ifdef GR_LOCK
-#include "checker.h"
-#ifdef TEST_GR_LOCK
-int gr_testlocklevel=0;
-#endif
-inline void gr_dolock(const char *file,int line) {
-	gr_dotestlock();
-	if ( gr_testlocklevel==1 && SDL_MUSTLOCK(screen) ) {
-#ifdef __CHECKER__
-		chcksetwritable(screen.pixels,screen->w*screen->h*screen->format->BytesPerPixel);
-#endif
-		if ( SDL_LockSurface(screen) < 0 )Error("could not lock screen (%s:%i)\n",file,line);
-	}
-}
-inline void gr_dounlock(void) {
-	gr_dotestunlock();
-	if (gr_testlocklevel==0 && SDL_MUSTLOCK(screen) ) {
-		SDL_UnlockSurface(screen);
-#ifdef __CHECKER__
-		chcksetunwritable(screen.pixels,screen->w*screen->h*screen->format->BytesPerPixel);
-#endif
-	}
-}
-#endif
-//end addition -MM
-
 void gr_palette_clear(); // Function prototype for gr_init;
 
 
 void gr_update()
 {
-	//added 05/19/99 Matt Mueller - locking stuff
-	gr_testunlock();
-	//end addition -MM
- SDL_UpdateRect(screen,0,0,0,0);
+	SDL_Flip(screen);
 }
 
 void gr_flip(void)
 {
-	gr_update();    //FIXME: Add double buffer support to remove cockpit/status bar flicker
+	gr_update();
 }
 
 // Set the buffer to draw to. 0 is front, 1 is back
@@ -139,6 +106,7 @@ int gr_set_mode(u_int32_t mode)
 //--moved up--end addition -MM
 
 	gamefont_choose_game_font(w,h);
+
 	return 0;
 }
 

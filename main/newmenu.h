@@ -43,7 +43,6 @@ typedef struct newmenu_item {
 	short	x, y;			
 	short w, h;
 	short right_offset;
-	ubyte redraw;
 	char	saved_text[NM_MAX_TEXT_LEN+1];
 } newmenu_item;
 
@@ -162,4 +161,7 @@ int nm_messagebox_fixedfont( char *title, int nchoices, ... );
 
 #define UP_ARROW_MARKER     "+"  // 135
 #define DOWN_ARROW_MARKER   "+"  // 136
+
+#define BORDERX (15*(SWIDTH/320))
+#define BORDERY (15*(SHEIGHT/200))
 

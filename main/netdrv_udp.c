@@ -395,7 +395,7 @@ int UDPConnectManual(char *textaddr)
 
 	
 	if (get_and_show_netgame_info(null_addr,node,NULL)) //  show netgame info and keep connection alive!
-		return network_do_join_game(&Active_games[0]); // join the game actually
+		return network_do_join_game(0); // join the game actually
 	else
 		return 0;
 }

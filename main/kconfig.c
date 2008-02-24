@@ -43,7 +43,6 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:44:27 zicodxx Exp 
 #include "mouse.h"
 #include "kconfig.h"
 #include "gauges.h"
-#include "joydefs.h"
 #include "render.h"
 #include "digi.h"
 #include "newmenu.h"
@@ -92,9 +91,6 @@ fix Cruise_speed=0;
 int Allow_primary_cycle=1;
 int Allow_secondary_cycle=1;
 extern int Automap_flag;
-
-#define LHX(x)		((x)*(GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_X(2):FONTSCALE_X(1)))
-#define LHY(y)		((y)*(GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480?FONTSCALE_Y(2.4):FONTSCALE_Y(1)))
 
 #define BT_KEY                  0
 #define BT_MOUSE_BUTTON 	1
@@ -243,21 +239,22 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{ 42, 22,108,111, 26, 32, 28, 25, 12,"Rear view", BT_JOY_BUTTON, 255 },
 	{ 43, 22, 76,111, 26, 33, 31, 26,  8,"Drop bomb", BT_JOY_BUTTON, 255 },
 };
+
 kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
 	{  0, 25, 46, 85, 26, 19,  1, 20,  5,"Fire primary", BT_MOUSE_BUTTON, 255 },
 	{  1, 25, 54, 85, 26,  0,  4,  5,  6,"Fire secondary", BT_MOUSE_BUTTON, 255 },
-	{  2, 25, 85, 85, 26, 26,  3,  9, 10,"Accelerate", BT_MOUSE_BUTTON, 255 },
-	{  3, 25, 93, 85, 26,  2, 25, 10, 11,"Reverse", BT_MOUSE_BUTTON, 255 },
+	{  2, 25, 78, 85, 26, 26,  3,  8,  9,"Accelerate", BT_MOUSE_BUTTON, 255 },
+	{  3, 25, 86, 85, 26,  2, 25,  9, 10,"Reverse", BT_MOUSE_BUTTON, 255 },
 	{  4, 25, 62, 85, 26,  1, 26,  6,  7,"Fire flare", BT_MOUSE_BUTTON, 255 },
 	{  5,180, 46, 59, 26, 27,  6,  0,  1,"Slide on", BT_MOUSE_BUTTON, 255 },
 	{  6,180, 54, 59, 26,  5,  7,  1,  4,"Slide left", BT_MOUSE_BUTTON, 255 },
 	{  7,180, 62, 59, 26,  6,  8,  4, 26,"Slide right", BT_MOUSE_BUTTON, 255 },
-	{  8,180, 70, 59, 26,  7,  9, 26,  9,"Slide up", BT_MOUSE_BUTTON, 255 },
-	{  9,180, 78, 59, 26,  8, 10,  8,  2,"Slide down", BT_MOUSE_BUTTON, 255 },
-	{ 10,180, 90, 59, 26,  9, 11,  2,  3,"Bank on", BT_MOUSE_BUTTON, 255 },
-	{ 11,180, 98, 59, 26, 10, 12,  3, 12,"Bank left", BT_MOUSE_BUTTON, 255 },
-	{ 12,180,106, 59, 26, 11, 22, 11, 25,"Bank right", BT_MOUSE_BUTTON, 255 },
-	{ 13, 25,138, 58, 26, 28, 15, 25, 14,"Pitch U/D", BT_MOUSE_AXIS, 255 },
+	{  8,180, 70, 59, 26,  7,  9, 26,  2,"Slide up", BT_MOUSE_BUTTON, 255 },
+	{  9,180, 78, 59, 26,  8, 10,  2,  3,"Slide down", BT_MOUSE_BUTTON, 255 },
+	{ 10,180, 86, 59, 26,  9, 11,  3, 25,"Bank on", BT_MOUSE_BUTTON, 255 },
+	{ 11,180, 94, 59, 26, 10, 12, 25, 12,"Bank left", BT_MOUSE_BUTTON, 255 },
+	{ 12,180,102, 59, 26, 11, 22, 11, 13,"Bank right", BT_MOUSE_BUTTON, 255 },
+	{ 13, 25,138, 58, 26, 28, 15, 12, 14,"Pitch U/D", BT_MOUSE_AXIS, 255 },
 	{ 14, 25,138,106,  8, 25, 16, 13, 21,"Pitch U/D", BT_INVERT, 255 },
 	{ 15, 25,146, 58, 26, 13, 17, 22, 16,"Turn L/R", BT_MOUSE_AXIS, 255 },
 	{ 16, 25,146,106,  8, 14, 18, 15, 23,"Turn L/R", BT_INVERT, 255 },
@@ -269,7 +266,7 @@ kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
 	{ 22,180,138,106,  8, 12, 24, 21, 15,"Bank L/R", BT_INVERT, 255 },
 	{ 23,180,146, 58, 26, 21, 27, 16, 24,"Throttle", BT_MOUSE_AXIS, 255 },
 	{ 24,180,146,106,  8, 22, 28, 23, 17,"Throttle", BT_INVERT, 255 },
-	{ 25, 25,109, 85, 26,  3, 14, 12, 13,"Rear view", BT_MOUSE_BUTTON, 255 },
+	{ 25, 25, 94, 85, 26,  3, 14, 10, 11,"Rear view", BT_MOUSE_BUTTON, 255 },
 	{ 26, 25, 70, 85, 26,  4,  2,  7,  8,"Drop bomb", BT_MOUSE_BUTTON, 255 },
 	{ 27,180,154, 58, 26, 23,  5, 18, 28,"Cycle P/S", BT_MOUSE_AXIS, 255 },
 	{ 28,180,154,106,  8, 24, 13, 27, 19,"Cycle P/S", BT_INVERT, 255 },
@@ -277,36 +274,36 @@ kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
 
 	//id,  x,  y, w1, w2,  u,  d,   l, r,     text,   type, value
 kc_item kc_d1x[NUM_D1X_CONTROLS] = {
-	{  0, 15, 49, 71, 26, 27,  2, 27,  1,"LASER", BT_KEY, 255},
-	{  1, 15, 49,100, 26, 26,  3,  0,  2,"LASER", BT_JOY_BUTTON, 255},
-	{  2, 15, 57, 71, 26,  0,  4,  1,  3,"VULCAN", BT_KEY, 255},
-	{  3, 15, 57,100, 26,  1,  5,  2,  4,"VULCAN", BT_JOY_BUTTON, 255},
-	{  4, 15, 65, 71, 26,  2,  6,  3,  5,"SPREAD", BT_KEY, 255},
-	{  5, 15, 65,100, 26,  3,  7,  4,  6,"SPREAD", BT_JOY_BUTTON, 255},
-	{  6, 15, 73, 71, 26,  4,  8,  5,  7,"PLASMA", BT_KEY, 255},
-	{  7, 15, 73,100, 26,  5,  9,  6,  8,"PLASMA", BT_JOY_BUTTON, 255},
-	{  8, 15, 81, 71, 26,  6, 10,  7,  9,"FUSION", BT_KEY, 255},
-	{  9, 15, 81,100, 26,  7, 11,  8, 10,"FUSION", BT_JOY_BUTTON, 255},
+	{  0, 15, 49,142, 26, 27,  2, 27,  1,"LASER CANNON", BT_KEY, 255},
+	{  1, 15, 49,200, 26, 26,  3,  0,  2,"LASER CANNON", BT_JOY_BUTTON, 255},
+	{  2, 15, 57,142, 26,  0,  4,  1,  3,"VULCAN CANNON", BT_KEY, 255},
+	{  3, 15, 57,200, 26,  1,  5,  2,  4,"VULCAN CANNON", BT_JOY_BUTTON, 255},
+	{  4, 15, 65,142, 26,  2,  6,  3,  5,"SPREADFIRE CANNON", BT_KEY, 255},
+	{  5, 15, 65,200, 26,  3,  7,  4,  6,"SPREADFIRE CANNON", BT_JOY_BUTTON, 255},
+	{  6, 15, 73,142, 26,  4,  8,  5,  7,"PLASMA CANNON", BT_KEY, 255},
+	{  7, 15, 73,200, 26,  5,  9,  6,  8,"PLASMA CANNON", BT_JOY_BUTTON, 255},
+	{  8, 15, 81,142, 26,  6, 10,  7,  9,"FUSION CANNON", BT_KEY, 255},
+	{  9, 15, 81,200, 26,  7, 11,  8, 10,"FUSION CNNON", BT_JOY_BUTTON, 255},
 
-	{ 10, 15, 89, 71, 26,  8, 12,  9, 11,"CONCSN", BT_KEY, 255},
-	{ 11, 15, 89,100, 26,  9, 13, 10, 12,"CONCSN", BT_JOY_BUTTON, 255},
-	{ 12, 15, 97, 71, 26, 10, 14, 11, 13,"HOMING", BT_KEY, 255},
-	{ 13, 15, 97,100, 26, 11, 15, 12, 14,"HOMING", BT_JOY_BUTTON, 255},
-	{ 14, 15,105, 71, 26, 12, 16, 13, 15,"PROX B", BT_KEY, 255},
-	{ 15, 15,105,100, 26, 13, 17, 14, 16,"PROX B", BT_JOY_BUTTON, 255},
-	{ 16, 15,113, 71, 26, 14, 18, 15, 17,"SMART", BT_KEY, 255},
-	{ 17, 15,113,100, 26, 15, 19, 16, 18,"SMART", BT_JOY_BUTTON, 255},
-	{ 18, 15,121, 71, 26, 16, 20, 17, 19,"MEGA", BT_KEY, 255},
-	{ 19, 15,121,100, 26, 17, 21, 18, 20,"MEGA", BT_JOY_BUTTON, 255},
+	{ 10, 15, 89,142, 26,  8, 12,  9, 11,"CONCUSSION MISSILE", BT_KEY, 255},
+	{ 11, 15, 89,200, 26,  9, 13, 10, 12,"CONCUSSION MISSILE", BT_JOY_BUTTON, 255},
+	{ 12, 15, 97,142, 26, 10, 14, 11, 13,"HOMING MISSILE", BT_KEY, 255},
+	{ 13, 15, 97,200, 26, 11, 15, 12, 14,"HOMING MISSILE", BT_JOY_BUTTON, 255},
+	{ 14, 15,105,142, 26, 12, 16, 13, 15,"PROXIMITY BOMB", BT_KEY, 255},
+	{ 15, 15,105,200, 26, 13, 17, 14, 16,"PROXIMITY BOMB", BT_JOY_BUTTON, 255},
+	{ 16, 15,113,142, 26, 14, 18, 15, 17,"SMART MISSILE", BT_KEY, 255},
+	{ 17, 15,113,200, 26, 15, 19, 16, 18,"SMART MISSILE", BT_JOY_BUTTON, 255},
+	{ 18, 15,121,142, 26, 16, 20, 17, 19,"MEGA MISSILE", BT_KEY, 255},
+	{ 19, 15,121,200, 26, 17, 21, 18, 20,"MEGA MISSILE", BT_JOY_BUTTON, 255},
 
-	{ 20, 15,131, 71, 26, 18, 22, 19, 21,"CYCLE PRI", BT_KEY, 255},
-	{ 21, 15,131,100, 26, 19, 23, 20, 22,"CYCLE PRI", BT_JOY_BUTTON, 255},
-	{ 22, 15,139, 71, 26, 20, 24, 21, 23,"CYCLE SEC", BT_KEY, 255},
-	{ 23, 15,139,100, 26, 21, 25, 22, 24,"CYCLE SEC", BT_JOY_BUTTON, 255},
-	{ 24,  8,147, 78, 26, 22, 26, 23, 25,"TOGGLE PRI AUTO", BT_KEY, 255},
-	{ 25,  8,147,107, 26, 23, 27, 24, 26,"TOGGLE PRI AUTO", BT_JOY_BUTTON, 255},
-	{ 26,  8,155, 78, 26, 24,  1, 25, 27,"TOGGLE SEC AUTO", BT_KEY, 255},
-	{ 27,  8,155,107, 26, 25,  0, 26,  0,"TOGGLE SEC AUTO", BT_JOY_BUTTON, 255},
+	{ 20, 15,131,142, 26, 18, 22, 19, 21,"CYCLE PRIMARY WEAPON", BT_KEY, 255},
+	{ 21, 15,131,200, 26, 19, 23, 20, 22,"CYCLE PRIMARY WEAPON", BT_JOY_BUTTON, 255},
+	{ 22, 15,139,142, 26, 20, 24, 21, 23,"CYCLE SECONDARY WEAPON", BT_KEY, 255},
+	{ 23, 15,139,200, 26, 21, 25, 22, 24,"CYCLE SECONDARY WEAPON", BT_JOY_BUTTON, 255},
+	{ 24, 15,147,142, 26, 22, 26, 23, 25,"TOGGLE PRIMARY AUTOSELECT", BT_KEY, 255},
+	{ 25, 15,147,200, 26, 23, 27, 24, 26,"TOGGLE PRIMARY AUTOSELECT", BT_JOY_BUTTON, 255},
+	{ 26, 15,155,142, 26, 24,  1, 25, 27,"TOGGLE SECONDARY AUTOSELECT", BT_KEY, 255},
+	{ 27, 15,155,200, 26, 25,  0, 26,  0,"TOGGLE SECONDARY AUTOSELECT", BT_JOY_BUTTON, 255},
 };
 
 void kc_drawitem( kc_item *item, int is_current );
@@ -519,13 +516,13 @@ void kconfig_sub_draw_table(kc_item * items,int nitems, char * title)
 {
 	char * p;
 	int i;
-	int w = LHX(290), h = LHY(170);
+	int w = FSPACX(290), h = FSPACY(170);
 
 	gr_set_current_canvas(NULL);
 #ifdef OGL
 	nm_draw_background1(NULL);
 #endif
-	nm_draw_background(((grd_curscreen->sc_w-w)/2)-(15*(SWIDTH/320)),((grd_curscreen->sc_h-h)/2)-(15*(SHEIGHT/200)),((grd_curscreen->sc_w-w)/2)+w+(15*(SWIDTH/320))-1,((grd_curscreen->sc_h-h)/2)+h+(15*(SHEIGHT/200))-1);
+	nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 
 	if (kc_d1x_flag) {
 		items = kc_d1x;
@@ -535,17 +532,16 @@ void kconfig_sub_draw_table(kc_item * items,int nitems, char * title)
 
 	gr_set_current_canvas(&kconfig_sub_canvas);
 
-	grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
-
+	grd_curcanv->cv_font = MEDIUM3_FONT;
 
 	p = strchr( title, '\n' );
 	if ( p ) *p = 32;
-	gr_string( 0x8000, LHY(8), title );
+	gr_string( 0x8000, FSPACY(8), title );
 	if ( p ) *p = '\n';
 
 	grd_curcanv->cv_font = GAME_FONT;
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-	gr_string( 0x8000, LHY(28), TXT_KCONFIG_STRING_1 );
+	gr_string( 0x8000, FSPACY(21), "Enter changes, ctrl-d deletes, ctrl-r resets defaults, ESC exits");
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
 	if ( items == kc_keyboard )
@@ -553,67 +549,67 @@ void kconfig_sub_draw_table(kc_item * items,int nitems, char * title)
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
 		
-		gr_rect( LHX( 98), LHY(42), LHX(106), LHY(42) ); // horiz/left
-		gr_rect( LHX(120), LHY(42), LHX(128), LHY(42) ); // horiz/right
-		gr_rect( LHX( 98), LHY(42), LHX( 98), LHY(44) ); // vert/left
-		gr_rect( LHX(128), LHY(42), LHX(128), LHY(44) ); // vert/right
+		gr_rect( FSPACX( 98), FSPACY(42), FSPACX(106), FSPACY(42) ); // horiz/left
+		gr_rect( FSPACX(120), FSPACY(42), FSPACX(128), FSPACY(42) ); // horiz/right
+		gr_rect( FSPACX( 98), FSPACY(42), FSPACX( 98), FSPACY(44) ); // vert/left
+		gr_rect( FSPACX(128), FSPACY(42), FSPACX(128), FSPACY(44) ); // vert/right
 		
-		gr_string( LHX(109), LHY(40), "OR" );
+		gr_string( FSPACX(109), FSPACY(40), "OR" );
 
-		gr_rect( LHX(253), LHY(42), LHX(261), LHY(42) ); // horiz/left
-		gr_rect( LHX(275), LHY(42), LHX(283), LHY(42) ); // horiz/right
-		gr_rect( LHX(253), LHY(42), LHX(253), LHY(44) ); // vert/left
-		gr_rect( LHX(283), LHY(42), LHX(283), LHY(44) ); // vert/right
+		gr_rect( FSPACX(253), FSPACY(42), FSPACX(261), FSPACY(42) ); // horiz/left
+		gr_rect( FSPACX(275), FSPACY(42), FSPACX(283), FSPACY(42) ); // horiz/right
+		gr_rect( FSPACX(253), FSPACY(42), FSPACX(253), FSPACY(44) ); // vert/left
+		gr_rect( FSPACX(283), FSPACY(42), FSPACX(283), FSPACY(44) ); // vert/right
 
-		gr_string( LHX(264), LHY(40), "OR" );
+		gr_string( FSPACX(264), FSPACY(40), "OR" );
 	}
 	else if ( items == kc_joystick )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
-		gr_string( 0x8000, LHY(36), TXT_BUTTONS );
-		gr_string( 0x8000,LHY(127), TXT_AXES );
+		gr_string( 0x8000, FSPACY(35), TXT_BUTTONS );
+		gr_string( 0x8000,FSPACY(127), TXT_AXES );
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string( LHX(81), LHY(137), TXT_AXIS );
-		gr_string( LHX(111), LHY(137), TXT_INVERT );
-		gr_string( LHX(230), LHY(137), TXT_AXIS );
-		gr_string( LHX(260), LHY(137), TXT_INVERT );
+		gr_string( FSPACX(81), FSPACY(137), TXT_AXIS );
+		gr_string( FSPACX(111), FSPACY(137), TXT_INVERT );
+		gr_string( FSPACX(230), FSPACY(137), TXT_AXIS );
+		gr_string( FSPACX(260), FSPACY(137), TXT_INVERT );
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
 
-		gr_rect( LHX(115), LHY(45), LHX(123), LHY(45) ); // horiz/left
-		gr_rect( LHX(137), LHY(45), LHX(145), LHY(45) ); // horiz/right
-		gr_rect( LHX(115), LHY(45), LHX(115), LHY(47) ); // vert/left
-		gr_rect( LHX(145), LHY(45), LHX(145), LHY(47) ); // vert/right
+		gr_rect( FSPACX(115), FSPACY(45), FSPACX(123), FSPACY(45) ); // horiz/left
+		gr_rect( FSPACX(137), FSPACY(45), FSPACX(145), FSPACY(45) ); // horiz/right
+		gr_rect( FSPACX(115), FSPACY(45), FSPACX(115), FSPACY(47) ); // vert/left
+		gr_rect( FSPACX(145), FSPACY(45), FSPACX(145), FSPACY(47) ); // vert/right
 
-		gr_string( LHX(126), LHY(43), "OR" );
+		gr_string( FSPACX(126), FSPACY(43), "OR" );
 
-		gr_rect( LHX(250), LHY(45), LHX(258), LHY(45) ); // horiz/left
-		gr_rect( LHX(272), LHY(45), LHX(280), LHY(45) ); // horiz/right
-		gr_rect( LHX(250), LHY(45), LHX(250), LHY(47) ); // vert/left
-		gr_rect( LHX(280), LHY(45), LHX(280), LHY(47) ); // vert/right
+		gr_rect( FSPACX(250), FSPACY(45), FSPACX(258), FSPACY(45) ); // horiz/left
+		gr_rect( FSPACX(272), FSPACY(45), FSPACX(280), FSPACY(45) ); // horiz/right
+		gr_rect( FSPACX(250), FSPACY(45), FSPACX(250), FSPACY(47) ); // vert/left
+		gr_rect( FSPACX(280), FSPACY(45), FSPACX(280), FSPACY(47) ); // vert/right
 
-		gr_string( LHX(261), LHY(43), "OR" );
+		gr_string( FSPACX(261), FSPACY(43), "OR" );
 	}
 	else if ( items == kc_mouse )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
-		gr_string( 0x8000, LHY(35), TXT_BUTTONS );
-		gr_string( 0x8000,LHY(122), TXT_AXES );
+		gr_string( 0x8000, FSPACY(35), TXT_BUTTONS );
+		gr_string( 0x8000,FSPACY(122), TXT_AXES );
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string( LHX(91), LHY(129), TXT_AXIS );
-		gr_string( LHX(121), LHY(129), TXT_INVERT );
-		gr_string( LHX(246), LHY(129), TXT_AXIS );
-		gr_string( LHX(276), LHY(129), TXT_INVERT );
+		gr_string( FSPACX(91), FSPACY(129), TXT_AXIS );
+		gr_string( FSPACX(121), FSPACY(129), TXT_INVERT );
+		gr_string( FSPACX(246), FSPACY(129), TXT_AXIS );
+		gr_string( FSPACX(276), FSPACY(129), TXT_INVERT );
 	}
 	else if ( items == kc_d1x )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
 
-		gr_string(LHX( 94), LHY(40), "KB");
-		gr_string(LHX(121), LHY(40), "JOY");
+		gr_string(FSPACX(152), FSPACY(40), "KEYBOARD");
+		gr_string(FSPACX(210), FSPACY(40), "JOYSTICK");
 	}
 	
 	for (i=0; i<nitems; i++ )	{
@@ -631,9 +627,6 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	int time_stopped = 0;
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, mx, my, mz, x1, x2, y1, y2;
-	int close_x    = 8*(SWIDTH/320);
-	int close_y    = 8*(SHEIGHT/200);
-	int close_size = FONTSCALE_X(GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480?10:5);
 #endif
 
 	All_items = items;
@@ -651,11 +644,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	save_canvas = grd_curcanv;
 
-	if (GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480) {
-		gr_init_sub_canvas(&kconfig_sub_canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(640))/2, (SHEIGHT - FONTSCALE_Y(480))/2, FONTSCALE_X(640), FONTSCALE_Y(480));
-	} else {
-		gr_init_sub_canvas(&kconfig_sub_canvas, &grd_curscreen->sc_canvas, (SWIDTH - FONTSCALE_X(320))/2, (SHEIGHT - FONTSCALE_Y(200))/2, FONTSCALE_X(320), FONTSCALE_Y(200));
-	}
+	gr_init_sub_canvas(&kconfig_sub_canvas, &grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200));
 
 	save_font = grd_curcanv->cv_font;
 	game_flush_inputs();
@@ -687,13 +676,6 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 			kc_d1x_flag=0;
 		kconfig_sub_draw_table(items,nitems,title);
 		kc_drawitem( &items[citem], 1 );
-#endif
-
-#ifdef NEWMENU_MOUSE
-		gr_setcolor( BM_XRGB(0, 0, 0) );
-		gr_rect(close_x, close_y, close_x + close_size, close_y + close_size);
-		gr_setcolor( BM_XRGB(21, 21, 21) );
-		gr_rect(close_x + LHX(1), close_y + LHX(1), close_x + close_size - LHX(1), close_y + close_size - LHX(1));
 #endif
 
 		gr_update();
@@ -806,7 +788,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 					start_time();
 				return;
 #ifdef TABLE_CREATION
-			case KEY_F12: { //KEY_DEBUGGED+KEY_F12:      {
+			case KEY_DEBUGGED+KEY_F12:      {
 				FILE * fp;
 				for (i=0; i<NUM_KEY_CONTROLS; i++ )     {
 					kc_keyboard[i].u = find_next_item_up( kc_keyboard,NUM_KEY_CONTROLS, i);
@@ -879,9 +861,9 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 			mouse_get_pos(&mx, &my, &mz);
 			for (i=0; i<nitems; i++ )	{
 				item_height = get_item_height( &items[i] );
-				x1 = grd_curcanv->cv_bitmap.bm_x + FONTSCALE_X(items[i].x) + FONTSCALE_X(items[i].w1);
-				x2 = x1 + FONTSCALE_X(items[i].w2);
-				y1 = grd_curcanv->cv_bitmap.bm_y + FONTSCALE_Y(items[i].y);
+				x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(items[i].x) + FSPACX(items[i].w1);
+				x2 = x1 + FSPACX(items[i].w2);
+				y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(items[i].y);
 				y2 = y1 + item_height;
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 					citem = i;
@@ -894,38 +876,22 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 			
 			mouse_get_pos(&mx, &my, &mz);
 			item_height = get_item_height( &items[citem] );
-			x1 = grd_curcanv->cv_bitmap.bm_x + FONTSCALE_X(items[citem].x) + FONTSCALE_X(items[citem].w1);
-			x2 = x1 + FONTSCALE_X(items[citem].w2);
-			y1 = grd_curcanv->cv_bitmap.bm_y + FONTSCALE_Y(items[citem].y);
+			x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(items[citem].x) + FSPACX(items[citem].w1);
+			x2 = x1 + FSPACX(items[citem].w2);
+			y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(items[citem].y);
 			y2 = y1 + item_height;
 			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
 				newmenu_hide_cursor();
 				switch( items[citem].type )	{
-					case BT_KEY:		kc_change_key( &items[citem] ); break;
-					case BT_MOUSE_BUTTON:	kc_change_mousebutton( &items[citem] ); break;
-					case BT_MOUSE_AXIS: 	kc_change_mouseaxis( &items[citem] ); break;
-					case BT_JOY_BUTTON: 	kc_change_joybutton( &items[citem] ); break;
-					case BT_JOY_AXIS: 	kc_change_joyaxis( &items[citem] ); break;
-					case BT_INVERT: 	kc_change_invert( &items[citem] ); break;
+				case BT_KEY:				kc_change_key( &items[citem] ); break;
+				case BT_MOUSE_BUTTON:	kc_change_mousebutton( &items[citem] ); break;
+				case BT_MOUSE_AXIS: 		kc_change_mouseaxis( &items[citem] ); break;
+				case BT_JOY_BUTTON: 		kc_change_joybutton( &items[citem] ); break;
+				case BT_JOY_AXIS: 		kc_change_joyaxis( &items[citem] ); break;
+				case BT_INVERT: 			kc_change_invert( &items[citem] ); break;
 				}
 				newmenu_show_cursor();
-			} else {
-				x1 = grd_curcanv->cv_bitmap.bm_x + close_x + FONTSCALE_X(1);
-				x2 = x1 + close_size - FONTSCALE_X(1);
-				y1 = grd_curcanv->cv_bitmap.bm_y + close_y + FONTSCALE_Y(1);
-				y2 = y1 + close_size - FONTSCALE_Y(1);
-				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
-					grd_curcanv->cv_font	= save_font;
-					gr_set_current_canvas( save_canvas );
-					keyd_repeat = old_keyd_repeat;
-					game_flush_inputs();
-					newmenu_hide_cursor();
-					if (time_stopped)
-						start_time();
-					return;
-				}
 			}
-
 		}
 #endif // NEWMENU_MOUSE
 
@@ -948,7 +914,7 @@ void kc_drawitem( kc_item *item, int is_current )
 	else
 		gr_set_fontcolor( BM_XRGB(15,15,24), -1 );
 
-	gr_string( LHX(item->x), LHY(item->y), item->text );
+	gr_string( FSPACX(item->x), FSPACY(item->y), item->text );
 
 	if (item->value==255) {
 		strcpy( btext, "" );
@@ -984,13 +950,13 @@ void kc_drawitem( kc_item *item, int is_current )
 		gr_setcolor( BM_XRGB(21,0,24) );
 	else
 		gr_setcolor( BM_XRGB(16,0,19) );
-	gr_urect( LHX(item->w1+item->x), LHY(item->y-1), LHX(item->w1+item->x+item->w2), LHY(item->y)+h );
+	gr_urect( FSPACX(item->w1+item->x), FSPACY(item->y-1), FSPACX(item->w1+item->x+item->w2), FSPACY(item->y)+h );
 	
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
-	x = LHX(item->w1+item->x)+((LHX(item->w2)-w)/2);
+	x = FSPACX(item->w1+item->x)+((FSPACX(item->w2)-w)/2);
 
-	gr_string( x, LHY(item->y), btext );
+	gr_string( x, FSPACY(item->y), btext );
 }
 
 
@@ -1008,13 +974,13 @@ void kc_drawquestion( kc_item *item )
 	looper++;
 	if (looper>63) looper=0;
 
-	gr_urect( LHX(item->w1+item->x), LHY(item->y-1), LHX(item->w1+item->x+item->w2), LHY(item->y)+h );
+	gr_urect( FSPACX(item->w1+item->x), FSPACY(item->y-1), FSPACX(item->w1+item->x+item->w2), FSPACY(item->y)+h );
 	
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 
-	x = LHX(item->w1+item->x)+((LHX(item->w2)-w)/2);
+	x = FSPACX(item->w1+item->x)+((FSPACX(item->w2)-w)/2);
 
-	gr_string( x, LHY(item->y), "?" );
+	gr_string( x, FSPACY(item->y), "?" );
 
         gr_update();
 }
@@ -1041,7 +1007,7 @@ void kc_change_key( kc_item * item )
 		gr_flip();
 		kconfig_sub_draw_table(kc_keyboard,NUM_KEY_CONTROLS,"KEYBOARD");
 #endif
-		gr_string( 0x8000, LHY(INFO_Y), TXT_PRESS_NEW_KEY );
+		gr_string( 0x8000, FSPACY(INFO_Y), TXT_PRESS_NEW_KEY );
 		kc_drawquestion( item );
 	
 		for (i=0; i<256; i++ )	{
@@ -1101,7 +1067,7 @@ void kc_change_joybutton( kc_item * item )
 		gr_flip();
 		kconfig_sub_draw_table(kc_joystick,NUM_JOYSTICK_CONTROLS,"JOYSTICK");
 #endif
-		gr_string( 0x8000, LHY(INFO_Y), TXT_PRESS_NEW_JBUTTON );
+		gr_string( 0x8000, FSPACY(INFO_Y), TXT_PRESS_NEW_JBUTTON );
 		kc_drawquestion( item );
 
 		for (i=0; i<JOY_MAX_BUTTONS; i++ )    {
@@ -1151,7 +1117,7 @@ void kc_change_mousebutton( kc_item * item )
 		gr_flip();
 		kconfig_sub_draw_table(kc_mouse,NUM_MOUSE_CONTROLS,"MOUSE");
 #endif
-		gr_string( 0x8000, LHY(INFO_Y), TXT_PRESS_NEW_MBUTTON );
+		gr_string( 0x8000, FSPACY(INFO_Y), TXT_PRESS_NEW_MBUTTON );
 		kc_drawquestion( item );
 
 		b = mouse_get_btns();
@@ -1210,7 +1176,7 @@ void kc_change_joyaxis( kc_item * item )
 		gr_flip();
 		kconfig_sub_draw_table(kc_joystick,NUM_JOYSTICK_CONTROLS,"JOYSTICK");
 #endif
-		gr_string( 0x8000, LHY(INFO_Y), TXT_MOVE_NEW_JOY_AXIS );
+		gr_string( 0x8000, FSPACY(INFO_Y), TXT_MOVE_NEW_JOY_AXIS );
 		kc_drawquestion( item );
 
 		joystick_read_raw_axis( JOY_ALL_AXIS, axis );
@@ -1274,7 +1240,7 @@ void kc_change_mouseaxis( kc_item * item )
 		gr_flip();
 		kconfig_sub_draw_table(kc_mouse,NUM_MOUSE_CONTROLS,"MOUSE");
 #endif
-		gr_string( 0x8000, LHY(INFO_Y), TXT_MOVE_NEW_MSE_AXIS );
+		gr_string( 0x8000, FSPACY(INFO_Y), TXT_MOVE_NEW_MSE_AXIS );
 		kc_drawquestion( item );
 
 		mouse_get_delta( &dx, &dy, &dz );

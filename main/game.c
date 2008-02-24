@@ -84,7 +84,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "network.h"
 #include "gamefont.h"
 #include "endlevel.h"
-#include "joydefs.h"
 #include "kconfig.h"
 #include "mouse.h"
 #include "multi.h"
@@ -117,7 +116,6 @@ extern void newmenu_close();
 #endif
 
 void game_init_render_sub_buffers( int x, int y, int w, int h );
-void draw_centered_text( int y, char * s );
 void GameLoop(int RenderFlag, int ReadControlsFlag );
 void powerup_grab_cheat_all(void);
 
@@ -290,11 +288,6 @@ void game_show_warning(char *s)
 		start_time();
 }
 
-
-//these should be in gr.h
-#define cv_w  cv_bitmap.bm_w
-#define cv_h  cv_bitmap.bm_h
-
 u_int32_t Game_screen_mode = SM(640,480);
 
 int last_drawn_cockpit = -1;
@@ -335,7 +328,7 @@ void update_cockpits(int force_redraw)
 		case CM_STATUS_BAR:
 			gr_set_current_canvas(NULL);
 #ifdef OGL
-			ogl_ubitmapm_cs (0, (SHEIGHT*2)/2.72, -1, ((int) ((double) (bm->bm_h) * ((double)grd_curscreen->sc_h/200) + 0.5)), bm,255, F1_0);
+			ogl_ubitmapm_cs (0, (SHEIGHT*2)/2.72, -1, ((int) ((double) (bm->bm_h) * ((double)SHEIGHT/200) + 0.5)), bm,255, F1_0);
 #else
 			gr_ubitmapm(0,146,bm);
 #endif
@@ -380,11 +373,10 @@ void init_cockpit()
 	Cockpit_mode = CM_STATUS_BAR;
 #endif
 	gr_set_current_canvas(NULL);
-	gr_set_curfont( GAME_FONT );
 
 	switch( Cockpit_mode )	{
 	case CM_FULL_COCKPIT:
-		game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w, (grd_curscreen->sc_h*2)/3);
+		game_init_render_sub_buffers(0, 0, SWIDTH, (SHEIGHT*2)/3);
 		break;
 
 	case CM_REAR_VIEW:
@@ -435,17 +427,19 @@ void toggle_cockpit()
 {
 	int new_mode=CM_FULL_SCREEN;
 
+	if (Rear_view)
+		return;
+
 	switch (Cockpit_mode)
 	{
 		case CM_FULL_COCKPIT:
-		case CM_REAR_VIEW:
 			new_mode = CM_STATUS_BAR;
 			break;
 		case CM_STATUS_BAR:
 			new_mode = CM_FULL_SCREEN;
 			break;
 		case CM_FULL_SCREEN:
-			new_mode = (Rear_view?CM_REAR_VIEW:CM_FULL_COCKPIT);
+			new_mode = CM_FULL_COCKPIT;
 			break;
 	}
 
@@ -555,7 +549,7 @@ int set_screen_mode(int sm)
 			}
 			gr_palette_load( gr_palette );
 	
-			gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, grd_curscreen->sc_w, grd_curscreen->sc_h );
+			gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT );
 			Canv_editor = &VR_editor_canvas;
 			gr_set_current_canvas( Canv_editor );
 			init_editor_screen(); //setup other editor stuff
@@ -587,26 +581,46 @@ void ftoa(char *string, fix f)
 	if (fractional < 0 )
 		fractional *= -1;
 	if (fractional > 99 ) fractional = 99;
-	sprintf( string, "%d.%02d", decimal, fractional );
+	sprintf( string, "FPS: %d.%02d", decimal, fractional );
 }
 
 void show_framerate()
 {
-	char temp[50];
+	char temp[13];
 	fix rate;
+	int aw,w,h;
 
 	frame_time_total += FrameTime - frame_time_list[frame_time_cntr];
 	frame_time_list[frame_time_cntr] = FrameTime;
 	frame_time_cntr = (frame_time_cntr+1)%8;
 
-	if (frame_time_total) { // prevent division by zero
+	if (frame_time_total) {
+		int y=GHEIGHT;
+		if (Cockpit_mode==CM_FULL_SCREEN) {
+			if (Game_mode & GM_MULTI)
+				y -= LINE_SPACING * 9;
+			else
+				y -= LINE_SPACING * 4;
+		} else if (Cockpit_mode == CM_STATUS_BAR) {
+			if (Game_mode & GM_MULTI)
+				y -= LINE_SPACING * 5;
+			else
+				y -= LINE_SPACING * 1;
+		} else {
+			if (Game_mode & GM_MULTI)
+				y -= LINE_SPACING * 6;
+			else
+				y -= LINE_SPACING * 2;
+		}
+
 		rate = fixdiv(f1_0*8,frame_time_total);
 
-		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor(gr_getcolor(0,31,0),-1 );
+		gr_set_curfont(GAME_FONT);
+		gr_set_fontcolor(BM_XRGB(0,31,0),-1);
 
-		ftoa( temp, rate );	// Convert fixed to string
-                gr_printf(SWIDTH-FONTSCALE_X(6.5*GAME_FONT->ft_w),(SHEIGHT-FONTSCALE_Y(GAME_FONT->ft_h))/2,"FPS: %s ", temp );
+		ftoa( temp, rate );
+		gr_get_string_size(temp,&w,&h,&aw);
+		gr_printf(SWIDTH-w-FSPACX(1),y,"%s", temp );
 	}
 }
 
@@ -614,61 +628,50 @@ void show_framerate()
 void show_netplayerinfo()
 {
 	int x=0, y=0, i=0, color=0;
-	int line_spacing=FONTSCALE_Y(GAME_FONT->ft_h+1), char_spacing=FONTSCALE_X(GAME_FONT->ft_w+1);
 	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
 
-	x=SWIDTH/2-FONTSCALE_X(123);
-	y=SHEIGHT/2-FONTSCALE_Y(74);
+	gr_set_curfont(GAME_FONT);
+	gr_set_fontcolor(255,-1);
 
-	if (GameArg.GfxUseHiresFont && SWIDTH>=640 && SHEIGHT>=480)
-	{
-		x=SWIDTH/2-FONTSCALE_X(232);
-		y=SHEIGHT/2-FONTSCALE_Y(138);
-	}
-	else
-	{
-		x=SWIDTH/2-FONTSCALE_X(123);
-		y=SHEIGHT/2-FONTSCALE_Y(74);
-	}
+	x=(SWIDTH/2)-FSPACX(120);
+	y=(SHEIGHT/2)-FSPACY(84);
 
 	Gr_scanline_darkening_level = 2*7;
 	gr_setcolor( BM_XRGB(0,0,0) );
-	gr_rect(x,y,SWIDTH-x,SHEIGHT-y);
+	gr_rect((SWIDTH/2)-FSPACX(120),(SHEIGHT/2)-FSPACY(84),(SWIDTH/2)+FSPACX(120),(SHEIGHT/2)+FSPACY(84));
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
-	gr_set_fontcolor(255,-1);
-	gr_set_curfont(GAME_FONT);
 
 	// general game information
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	gr_printf(0x8000,y,"%s by %s",Netgame.game_name,Players[network_who_is_master()].callsign);
 #ifndef SHAREWARE
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
 #endif
 
-	x+=char_spacing;
-	y+=line_spacing*2;
+	x+=FSPACX(8);
+	y+=LINE_SPACING*2;
 	gr_printf(x,y,"game mode: %s",NetworkModeNames[Netgame.gamemode]);
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	gr_printf(x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	gr_printf(x,y,"level time: %i:%02i:%02i",Players[Player_num].hours_level,f2i(Players[Player_num].time_level) / 60 % 60,f2i(Players[Player_num].time_level) % 60);
-	y+=line_spacing;
+	y+=LINE_SPACING;
 	gr_printf(x,y,"total time: %i:%02i:%02i",Players[Player_num].hours_total,f2i(Players[Player_num].time_total) / 60 % 60,f2i(Players[Player_num].time_total) % 60);
-	y+=line_spacing;
+	y+=LINE_SPACING;
 
 	// player information (name, kills, ping, game efficiency)
-	y+=line_spacing*2;
+	y+=LINE_SPACING*2;
 	gr_printf(x,y,"player");
 	if (Game_mode & GM_MULTI_COOP)
-		gr_printf(x+char_spacing*7,y,"score");
+		gr_printf(x+FSPACX(8)*7,y,"score");
 	else
 	{
-		gr_printf(x+char_spacing*7,y,"kills");
-		gr_printf(x+char_spacing*12,y,"deaths");
+		gr_printf(x+FSPACX(8)*7,y,"kills");
+		gr_printf(x+FSPACX(8)*12,y,"deaths");
 	}
-	gr_printf(x+char_spacing*18,y,"ping");
-	gr_printf(x+char_spacing*23,y,"efficiency");
+	gr_printf(x+FSPACX(8)*18,y,"ping");
+	gr_printf(x+FSPACX(8)*23,y,"efficiency");
 
 	network_ping_all();
 
@@ -678,43 +681,43 @@ void show_netplayerinfo()
 		if (!Players[i].connected)
 			continue;
 
-		y+=line_spacing;
+		y+=LINE_SPACING;
 
 		if (Game_mode & GM_TEAM)
 			color=get_team(i);
 		else
 			color=i;
-		gr_set_fontcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 		gr_printf(x,y,"%s\n",Players[i].callsign);
 		if (Game_mode & GM_MULTI_COOP)
-			gr_printf(x+char_spacing*7,y,"%-6d",Players[i].score);
+			gr_printf(x+FSPACX(8)*7,y,"%-6d",Players[i].score);
 		else
 		{
-			gr_printf(x+char_spacing*7,y,"%-6d",Players[i].net_kills_total);
-			gr_printf(x+char_spacing*12,y,"%-6d",Players[i].net_killed_total);
+			gr_printf(x+FSPACX(8)*7,y,"%-6d",Players[i].net_kills_total);
+			gr_printf(x+FSPACX(8)*12,y,"%-6d",Players[i].net_killed_total);
 		}
 
-		gr_printf(x+char_spacing*18,y,"%-6d",PingTable[i]);
-		gr_printf(x+char_spacing*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
+		gr_printf(x+FSPACX(8)*18,y,"%-6d",PingTable[i]);
+		gr_printf(x+FSPACX(8)*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
 	}
 
-	y+=line_spacing*2+(line_spacing*(MAX_PLAYERS-N_players));
+	y+=LINE_SPACING*2+(LINE_SPACING*(MAX_PLAYERS-N_players));
 
 	// printf team scores
 	if (Game_mode & GM_TEAM)
 	{
 		gr_set_fontcolor(255,-1);
 		gr_printf(x,y,"team");
-		gr_printf(x+char_spacing*8,y,"score");
-		y+=line_spacing;
-		gr_set_fontcolor(gr_getcolor(player_rgb[get_team(0)].r,player_rgb[get_team(0)].g,player_rgb[get_team(0)].b),-1 );
+		gr_printf(x+FSPACX(8)*8,y,"score");
+		y+=LINE_SPACING;
+		gr_set_fontcolor(BM_XRGB(player_rgb[get_team(0)].r,player_rgb[get_team(0)].g,player_rgb[get_team(0)].b),-1 );
 		gr_printf(x,y,"%s:",Netgame.team_name[0]);
-		gr_printf(x+char_spacing*8,y,"%i",team_kills[0]);
-		y+=line_spacing;
-		gr_set_fontcolor(gr_getcolor(player_rgb[get_team(1)].r,player_rgb[get_team(1)].g,player_rgb[get_team(1)].b),-1 );
+		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[0]);
+		y+=LINE_SPACING;
+		gr_set_fontcolor(BM_XRGB(player_rgb[get_team(1)].r,player_rgb[get_team(1)].g,player_rgb[get_team(1)].b),-1 );
 		gr_printf(x,y,"%s:",Netgame.team_name[1]);
-		gr_printf(x+char_spacing*8,y,"%i",team_kills[1]);
-		y+=line_spacing*2;
+		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[1]);
+		y+=LINE_SPACING*2;
 	}
 }
 #endif
@@ -841,7 +844,6 @@ void draw_window_label()
 		char *viewer_name,*control_name;
 
 		Show_view_text_timer -= FrameTime;
-		gr_set_curfont( GAME_FONT );
 
 		switch( Viewer->type )
 		{
@@ -866,8 +868,9 @@ void draw_window_label()
 			case CT_MORPH:		control_name = "Morphing"; break;
 			default:		control_name = "Unknown"; break;
 		}
-		gr_set_fontcolor( gr_getcolor(31, 0, 0), -1 );
-		gr_printf( 0x8000, 45, "%s View - %s",viewer_name,control_name );
+		gr_set_curfont( GAME_FONT );
+		gr_set_fontcolor( BM_XRGB(31, 0, 0), -1 );
+		gr_printf( 0x8000, (SHEIGHT/10), "%s View - %s",viewer_name,control_name );
 	}
 }
 #endif
@@ -875,15 +878,9 @@ void draw_window_label()
 void render_countdown_gauge()
 {
 	if (!Endlevel_sequence && Fuelcen_control_center_destroyed  && (Fuelcen_seconds_left>-1) && (Fuelcen_seconds_left<127))	{
-		int	y;
-		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
-		y = FONTSCALE_Y(/*20 + */GAME_FONT->ft_h*5);
-		if (!(Cockpit_mode == CM_STATUS_BAR))
-			y += 5;
-
-		if (HUD_nmessages <= 4) // do not display if it may overlap with hud messages
-			gr_printf(0x8000, y, "T-%d s", Fuelcen_seconds_left );
+		gr_set_curfont(GAME_FONT);
+		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
+		gr_printf(0x8000, (SHEIGHT/6.666), "T-%d s", Fuelcen_seconds_left );
 	}
 }
 
@@ -893,58 +890,20 @@ void game_draw_multi_message()
 	char temp_string[MAX_MULTI_MESSAGE_LEN+25];
 
 	if ( (Game_mode&GM_MULTI) && (multi_sending_message))	{
-		gr_set_curfont( GAME_FONT );    //GAME_FONT );
-		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
+		gr_set_curfont(GAME_FONT);
+		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 		sprintf( temp_string, "%s: %s_", TXT_MESSAGE, Network_message );
-		draw_centered_text(grd_curcanv->cv_bitmap.bm_h/2-(16*SHEIGHT/200), temp_string );
+		gr_printf(0x8000, (SHEIGHT/5.555), temp_string );
 	}
 
 	if ( (Game_mode&GM_MULTI) && (multi_defining_message))	{
-		gr_set_curfont( GAME_FONT );    //GAME_FONT );
-		gr_set_fontcolor(gr_getcolor(0,63,0), -1 );
+		gr_set_curfont(GAME_FONT);
+		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 		sprintf( temp_string, "%s #%d: %s_", TXT_MACRO, multi_defining_message, Network_message );
-		draw_centered_text(grd_curcanv->cv_bitmap.bm_h/2-(16*SHEIGHT/200), temp_string );
+		gr_printf(0x8000, (SHEIGHT/5.555), temp_string );
 	}
 }
 #endif
-
-// Returns the length of the first 'n' characters of a string.
-int string_width( char * s, int n )
-{
-	int w,h,aw;
-	char p;
-	p = s[n];
-	s[n] = 0;
-	gr_get_string_size( s, &w, &h, &aw );
-	s[n] = p;
-	return w;
-}
-
-// Draw string 's' centered on a canvas... if wider than
-// canvas, then wrap it.
-void draw_centered_text( int y, char * s )
-{
-	int i, l;
-	char p;
-
-	l = strlen(s);
-
-	if ( string_width( s, l ) < grd_curcanv->cv_bitmap.bm_w ) {
-		gr_string( 0x8000, y, s );
-		return;
-	}
-
-	for (i=0; i<l; i++ )	{
-		if ( string_width(s,i) > (grd_curcanv->cv_bitmap.bm_w - 16) ) {
-			p = s[i];
-			s[i] = 0;
-			gr_string( 0x8000, y, s );
-			s[i] = p;
-			gr_string( 0x8000, y+grd_curcanv->cv_font->ft_h+1, &s[i] );
-			return;
-		}
-	}
-}
 
 extern fix Cruise_speed;
 
@@ -952,9 +911,9 @@ void game_draw_hud_stuff()
 {
 	#ifndef NDEBUG
 	if (Debug_pause) {
-		gr_set_curfont( HELP_FONT );
-		gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
-		gr_ustring( 0x8000, 85/2, "Debug Pause - Press P to exit" );
+		gr_set_curfont( GAME_FONT );
+		gr_set_fontcolor( BM_XRGB(31, 31, 31), -1 );
+		gr_printf( 0x8000, (SHEIGHT/10), "Debug Pause - Press P to exit" );
 	}
 	#endif
 
@@ -973,58 +932,56 @@ void game_draw_hud_stuff()
 
 	if ((Newdemo_state == ND_STATE_PLAYBACK) || (Newdemo_state == ND_STATE_RECORDING)) {
 		char message[128];
-		int h,w,aw,y;
+		int y;
 
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			if (Newdemo_vcr_state != ND_STATE_PRINTSCREEN) {
 			  	sprintf(message, "%s (%d%%%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
 			} else {
-				strcpy(message, "");
+				sprintf (message, " ");
 			}
 		} else {
 			extern int Newdemo_num_written;
 			sprintf (message, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
 		}
-		gr_set_curfont( GAME_FONT );    //GAME_FONT );
-		gr_set_fontcolor(gr_getcolor(27,0,0), -1 );
 
-		gr_get_string_size(message, &w, &h, &aw );
+		gr_set_curfont( GAME_FONT );
+		gr_set_fontcolor( BM_XRGB(27,0,0), -1 );
 
-		y = grd_curcanv->cv_bitmap.bm_h;
+		y = GHEIGHT-(LINE_SPACING*2);
 
 		if (Cockpit_mode == CM_FULL_COCKPIT)
-			y = grd_curcanv->cv_bitmap.bm_h / 1.15;
+			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
 		if (Cockpit_mode != CM_REAR_VIEW)
-			gr_printf((grd_curcanv->cv_bitmap.bm_w-w)/2,y - h - 2, message );
+			gr_printf(0x8000, y, message );
 	}
 
 	render_countdown_gauge();
 
 	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num )	{
-		int	x = 3;
+		int	x = FSPACX(1);
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
 		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor( gr_getcolor(0, 31, 0), -1 );
-		if (Cruise_speed > 0)
-		{
+		gr_set_fontcolor( BM_XRGB(0, 31, 0), -1 );
+		if (Cruise_speed > 0) {
 			if (Cockpit_mode==CM_FULL_SCREEN) {
 				if (Game_mode & GM_MULTI)
-					y -= FONTSCALE_Y(64);
+					y -= LINE_SPACING * 11;
 				else
-					y -= FONTSCALE_Y(24);
+					y -= LINE_SPACING * 6;
+			} else if (Cockpit_mode == CM_STATUS_BAR) {
+				if (Game_mode & GM_MULTI)
+					y -= LINE_SPACING * 5;
+				else
+					y -= LINE_SPACING * 1;
 			} else {
-				if (Cockpit_mode == CM_STATUS_BAR)
-				{
-					if (Game_mode & GM_MULTI)
-						y -= FONTSCALE_Y(48);
-					else
-						y -= FONTSCALE_Y(24);
-				} else {
-					y = FONTSCALE_Y(12);
-					x = FONTSCALE_Y(20);
-				}
+				if (Game_mode & GM_MULTI)
+					y -= LINE_SPACING * 6;
+				else
+					y -= LINE_SPACING * 2;
 			}
+
 			gr_printf( x, y, "%s %2d%%", TXT_CRUISE, f2i(Cruise_speed) );
 		}
 	}
@@ -1058,8 +1015,6 @@ void game_do_render_frame(int flip)
 	
 	render_frame(0);
 
-	game_draw_hud_stuff();
-
 	update_cockpits(0);
 
 	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR) {
@@ -1075,12 +1030,13 @@ void game_do_render_frame(int flip)
 			Game_mode = GM_NORMAL;
 #endif
 	}
+	gr_set_current_canvas(&Screen_3d_window);
+	game_draw_hud_stuff();
 
 #ifdef NETWORK
         if (netplayerinfo_on)
 		show_netplayerinfo();
 #endif
-
 	if (flip)
 		gr_flip();
 	else
@@ -1163,19 +1119,18 @@ void save_screen_shot(int automap_flag)
 
 	save_font = grd_curcanv->cv_font;
 	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(gr_find_closest_color_current(0,31,0),-1);
+	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
 	gr_get_string_size(message,&w,&h,&aw);
 
 	//I changed how these coords were calculated for the high-res automap. -MT
-	x = (grd_curcanv->cv_w-w)/2;
-	y = (grd_curcanv->cv_h-h)/2;
+	x = (grd_curcanv->cv_bitmap.bm_w-w)/2;
+	y = (grd_curcanv->cv_bitmap.bm_h-h)/2;
 
-	{
-		gr_setcolor(gr_find_closest_color_current(0,0,0));
-		gr_rect(x-2,y-2,x+w+2,y+h+2);
-		gr_printf(x,y,message);
-		gr_set_curfont(save_font);
-	}
+	gr_setcolor(gr_find_closest_color_current(0,0,0));
+	gr_rect(x-2,y-2,x+w+2,y+h+2);
+	gr_printf(x,y,message);
+	gr_set_curfont(save_font);
+
 	t1 = timer_get_fixed_seconds() + F1_0;
 
 	gr_palette_read(pal);		//get actual palette from the hardware
@@ -1426,23 +1381,24 @@ typedef struct bkg {
 bkg bg = {0,0,0,0,NULL};
 
 //show a message in a nice little box
-void show_boxed_message(char *msg)
+void show_boxed_message(char *msg, int RenderFlag)
 {
 	int w,h,aw;
 	int x,y;
 
 	gr_set_current_canvas(NULL);
-	gr_set_curfont( HELP_FONT );
-
+	gr_set_curfont( MEDIUM1_FONT );
+	gr_set_fontcolor(BM_XRGB(31, 31, 31), -1);
 	gr_get_string_size(msg,&w,&h,&aw);
 
-	x = (grd_curscreen->sc_w-w)/2;
-	y = (grd_curscreen->sc_h-h)/2;
+	x = (SWIDTH-w)/2;
+	y = (SHEIGHT-h)/2;
 
-	nm_draw_background(x-(15*(SWIDTH/320)),y-(15*(SHEIGHT/200)),x+w+(15*(SWIDTH/320))-1,y+h+(15*(SHEIGHT/200))-1);
+	if (Function_mode==FMODE_GAME && RenderFlag)
+		game_do_render_frame(0);
+	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
-	gr_set_fontcolor( gr_getcolor(31, 31, 31), -1 );
-	gr_ustring( 0x8000, y, msg );
+	gr_printf( 0x8000, y, msg );
         gr_update();
 #ifdef OGL
 	gr_flip();
@@ -1451,8 +1407,9 @@ void show_boxed_message(char *msg)
 
 void clear_boxed_message()
 {
-	if (bg.bmp) {
-		gr_bitmap(bg.x-(15*(SWIDTH/320)), bg.y-(15*(SHEIGHT/200)), bg.bmp);
+	if (bg.bmp)
+	{
+		gr_bitmap(bg.x-BORDERX, bg.y-BORDERY, bg.bmp);
 		gr_free_bitmap(bg.bmp);
 		bg.bmp = NULL;
 		gr_update();
@@ -1500,14 +1457,14 @@ int do_game_pause()
 	else
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
 	Game_paused=1;
-	show_boxed_message(msg);
+	show_boxed_message(msg, 1);
 	gr_update();
 
 	while (Game_paused) 
 	{
 		timer_delay2(20);
 #ifdef OGL
-		show_boxed_message(msg);
+		show_boxed_message(msg, 1);
 #endif
 
 		key = key_inkey();
@@ -1523,7 +1480,7 @@ int do_game_pause()
 			case KEY_F1:
  				clear_boxed_message();
 				show_help();
-				show_boxed_message(TXT_PAUSE);
+				show_boxed_message(TXT_PAUSE, 1);
 				break;
 			case KEY_PAUSE:
 				Game_paused=0;

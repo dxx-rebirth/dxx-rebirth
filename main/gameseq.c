@@ -93,7 +93,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "songs.h"
 #include "netpkt.h"
-#include "joydefs.h"
 #include "reorder.h"
 #include "strutil.h"
 
@@ -710,7 +709,7 @@ void LoadLevel(int level_num)
 
 	level_name = get_level_file(level_num);
 
-	show_boxed_message(TXT_LOADING);
+	show_boxed_message(TXT_LOADING, 0);
 
 	if (!load_level(level_name))
 		Current_level_num=level_num;
@@ -1301,7 +1300,7 @@ void StartNewLevel(int level_num)
 {
 	GameTime = FrameTime;
 
-	show_boxed_message(TXT_LOADING);
+	show_boxed_message(TXT_LOADING, 0);
 
 	load_custom_data(get_level_file(level_num));
 

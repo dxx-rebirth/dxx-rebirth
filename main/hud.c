@@ -60,8 +60,6 @@ int HUD_color = -1;
 int     MSG_Playermessages = 0;
 int     MSG_Noredundancy = 0;
 
-int Modex_hud_msg_count;
-
 // ----------------------------------------------------------------------------
 void clear_background_messages(void)
 {
@@ -91,36 +89,18 @@ void HUD_clear_messages()
 }
 
 
-extern int max_window_h;
-
-extern grs_canvas *print_to_canvas(char *s,grs_font *font, int fc, int bc, int double_flag);
-
-//	-----------------------------------------------------------------------------
-//	print to buffer, double heights, and blit bitmap to screen
-void modex_hud_message(int x, int y, char *s, grs_font *font, int color)
-{
-	grs_canvas *temp_canv;
-
-	temp_canv = print_to_canvas(s, font, color, -1, 1);
-
-	gr_bitmapm(x,y,&temp_canv->cv_bitmap);
-
-	gr_free_canvas(temp_canv);
-}
-
-extern int max_window_w;
+extern int max_window_h, max_window_w;
 
 // ----------------------------------------------------------------------------
 //	Writes a message on the HUD and checks its timer.
 void HUD_render_message_frame()
 {
-	int i, y,n;
-	int h,w,aw;
+	int i,y,n;
 
 	if (( HUD_nmessages < 0 ) || (HUD_nmessages > HUD_MAX_NUM))
 		Int3(); // Get Rob!
 
-	if ( (HUD_nmessages < 1 ) && (Modex_hud_msg_count == 0))
+	if (HUD_nmessages < 1 )
 		return;
 
 	HUD_message_timer -= FrameTime;
@@ -134,26 +114,17 @@ void HUD_render_message_frame()
 			hud_first = (hud_first+1) % HUD_MAX_NUM;
 			HUD_message_timer = F1_0*2;
 			HUD_nmessages--;
-			if (HUD_nmessages == 0)
-				Modex_hud_msg_count = 2;
 			temp = Last_msg_ycrd;
 			clear_background_messages();			//	If in status bar mode and no messages, then erase.
-			if (Modex_hud_msg_count)
-				Last_msg_ycrd = temp;
 		}
 	}
 
 	if (HUD_nmessages > 0 )	{
-
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 
 		gr_set_curfont( GAME_FONT );
-
-		if ( (Cockpit_mode == CM_FULL_SCREEN) || (Cockpit_mode == CM_LETTERBOX) ) {
-				y = GAME_FONT->ft_h/2;
-		} else
-			y = GAME_FONT->ft_h/2;
+		y = FSPACY(1);
 
 		for (i=0; i<HUD_nmessages; i++ )	{
 			n = (hud_first+i) % HUD_MAX_NUM;
@@ -161,11 +132,10 @@ void HUD_render_message_frame()
 				Int3(); // Get Rob!!
 			if (!strcmp(HUD_messages[n], "This is a bug."))
 				Int3(); // Get Rob!!
-			gr_get_string_size(&HUD_messages[n][0], &w, &h, &aw );
 			gr_set_fontcolor( HUD_color, -1);
 
-			gr_string((grd_curcanv->cv_bitmap.bm_w-w)/2,y, &HUD_messages[n][0] );
-			y += h+FONTSCALE_Y(1);
+			gr_printf(0x8000,y, &HUD_messages[n][0] );
+			y += LINE_SPACING;
 		}
 	}
 
@@ -183,8 +153,6 @@ int HUD_init_message_va(char * format, va_list args)
 	char *last_message=NULL;
 	time_t t;
 	struct tm *lt;
-
-	Modex_hud_msg_count = 2;
 
 	if ( (hud_last < 0) || (hud_last >= HUD_MAX_NUM))
 		Int3(); // Get Rob!!
@@ -272,30 +240,30 @@ int HUD_init_message(char * format, ... )
 
 void player_dead_message(void)
 {
-    if (Player_exploded) {
-        if ( Players[Player_num].lives < 2 )    {
-            int x, y, w, h, aw;
-            gr_set_curfont( Gamefonts[GFONT_BIG_1] );
-            gr_get_string_size( TXT_GAME_OVER, &w, &h, &aw );
-            w += 20;
-            h += 8;
-            x = (GWIDTH - w ) / 2;
-            y = (GHEIGHT - h ) / 2;
-
-            Gr_scanline_darkening_level = 2*7;
-            gr_setcolor( BM_XRGB(0,0,0) );
-            gr_rect( x, y, x+w, y+h );
-            Gr_scanline_darkening_level = GR_FADE_LEVELS;
-
-            gr_string(0x8000, (GHEIGHT - FONTSCALE_Y(grd_curcanv->cv_font->ft_h))/2 + h/8, TXT_GAME_OVER );
-
-        }
-        gr_set_curfont( GAME_FONT );
-        if (HUD_color == -1)
-            HUD_color = BM_XRGB(0,28,0);
-        gr_set_fontcolor( HUD_color, -1);
-        gr_string(0x8000, GHEIGHT-FONTSCALE_Y(grd_curcanv->cv_font->ft_h+3)*((Newdemo_state == ND_STATE_RECORDING)?2:1), TXT_PRESS_ANY_KEY);
-    }
+	if (Player_exploded) {
+		if ( Players[Player_num].lives < 2 )    {
+			int x, y, w, h, aw;
+			gr_set_curfont( HUGE_FONT );
+			gr_get_string_size( TXT_GAME_OVER, &w, &h, &aw );
+			w += 20;
+			h += 8;
+			x = (grd_curcanv->cv_bitmap.bm_w - w ) / 2;
+			y = (grd_curcanv->cv_bitmap.bm_h - h ) / 2;
+		
+			Gr_scanline_darkening_level = 2*7;
+			gr_setcolor( BM_XRGB(0,0,0) );
+			gr_rect( x, y, x+w, y+h );
+			Gr_scanline_darkening_level = GR_FADE_LEVELS;
+		
+			gr_printf(0x8000, (GHEIGHT - h)/2 + h/8, TXT_GAME_OVER );
+		}
+	
+		gr_set_curfont( GAME_FONT );
+		if (HUD_color == -1)
+			HUD_color = BM_XRGB(0,28,0);
+		gr_set_fontcolor( HUD_color, -1);
+		gr_printf(0x8000, GHEIGHT-LINE_SPACING, TXT_PRESS_ANY_KEY);
+	}
 }
 
 void hud_message(int class, char *format, ...)

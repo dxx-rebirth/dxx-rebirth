@@ -178,9 +178,9 @@ int gr_set_mode(u_int32_t mode)
 	ogl_init_window(w,h);//platform specific code
 	ogl_get_verinfo();
 	OGL_VIEWPORT(0,0,w,h);
-	gamefont_choose_game_font(w,h);
 
 	ogl_init_state();
+	gamefont_choose_game_font(w,h);
 
 	gr_update();
 	
@@ -470,7 +470,7 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf){
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
 
-	buf = (unsigned char*)calloc(w*h*3,sizeof(unsigned char));
+	buf = (unsigned char*)d_calloc(w*h*3,sizeof(unsigned char));
 
 	glReadPixels(0,0,w,h,GL_BGR_EXT,GL_UNSIGNED_BYTE,buf);
 
@@ -538,8 +538,8 @@ void save_screen_shot(int automap_flag)
 	if (!automap_flag && GameArg.OglPrShot && Function_mode == FMODE_GAME)
 	{
 		render_frame(0);
-		gr_set_curfont(Gamefonts[GFONT_MEDIUM_2]);
-		gr_printf(0x8000,FONTSCALE_Y(10),"DXX-Rebirth\n");
+		gr_set_curfont(MEDIUM2_FONT);
+		gr_printf(SWIDTH-FSPACX(3),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
 		glReadBuffer(GL_BACK);
 	}
 	else

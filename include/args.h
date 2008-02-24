@@ -63,7 +63,7 @@ typedef struct Arg
 	float GfxAspectY;
 	int GfxGaugeHudMode;
 	int GfxHudMaxNumDisp;
-	int GfxUseHiresFont;
+	int GfxHiresFNTAvailable;
 	int GfxPersistentDebris;
 	int GfxNoReticle;
 #ifdef OGL

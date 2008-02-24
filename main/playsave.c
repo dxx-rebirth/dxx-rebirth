@@ -42,7 +42,6 @@ static char rcsid[] = "$Id: playsave.c,v 1.1.1.1 2006/03/17 19:42:10 zicodxx Exp
 #include "kconfig.h"
 #include "digi.h"
 #include "newmenu.h"
-#include "joydefs.h"
 #include "palette.h"
 #include "multi.h"
 #include "menu.h"

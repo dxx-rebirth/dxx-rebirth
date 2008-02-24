@@ -411,7 +411,7 @@ void paging_touch_all()
 		gr_palette_load( gr_palette );
 	}
 	
-	show_boxed_message(TXT_LOADING);
+	show_boxed_message(TXT_LOADING, 0);
 
 	mprintf(( 0, "Loading all textures in mine..." ));
 	for (s=0; s<=Highest_segment_index; s++)	{

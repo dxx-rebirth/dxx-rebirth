@@ -191,7 +191,7 @@ void ReadCmdArgs(void)
 		GameArg.GfxHudMaxNumDisp = 3;
 
 	GameArg.GfxPersistentDebris 	= FindArg("-persistentdebris");
-	GameArg.GfxUseHiresFont		= FindArg("-hiresfont" );
+	GameArg.GfxHiresFNTAvailable	= !FindArg("-lowresfont");
 	GameArg.GfxNoReticle	 	= FindArg("-noreticle");
 
 #ifdef OGL

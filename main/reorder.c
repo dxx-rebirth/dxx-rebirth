@@ -44,8 +44,6 @@ void reorder_poll(int nitems, newmenu_item * menus, int *key, int citem)
       w = order_items[citem];
       order_items[citem] = order_items[citem + swap];
       order_items[citem + swap] = w;
-      menus[citem].redraw = 1;
-      menus[citem + swap].redraw = 1;
        if (swap > 0)
         *key = KEY_DOWN;
        else

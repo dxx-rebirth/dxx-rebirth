@@ -131,7 +131,6 @@ static char rcsid[] = "$Id: kmatrix.c,v 1.1.1.1 2006/03/17 19:44:38 zicodxx Exp 
 #include "menu.h"
 #include "player.h"
 #include "screens.h"
-#include "gamefont.h"
 #include "mouse.h"
 #include "joy.h"
 #include "timer.h"
@@ -213,7 +212,7 @@ void kmatrix_draw_names(int *sorted)
 			color = sorted[j];
 
 		x = rescale_x(70 + CENTERING_OFFSET(N_players) + j*25);
-		gr_set_fontcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 		gr_printf( x, rescale_y(40), "%c", Players[sorted[j]].callsign[0] );
 	}
 
@@ -231,7 +230,7 @@ void kmatrix_draw_deaths(int *sorted)
 	
 	y = rescale_y(55 + N_players * 9);
 
-//	gr_set_fontcolor(gr_getcolor(player_rgb[j].r,player_rgb[j].g,player_rgb[j].b),-1 );
+//	gr_set_fontcolor(BM_XRGB(player_rgb[j].r,player_rgb[j].g,player_rgb[j].b),-1 );
 	gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
 
 	x = rescale_x(CENTERING_OFFSET(N_players));
@@ -266,11 +265,11 @@ void kmatrix_redraw()
 	pcx_error = pcx_read_fullscr("STARS.PCX", NULL);
 	Assert(pcx_error == PCX_ERROR_NONE);
 
-	grd_curcanv->cv_font = Gamefonts[GFONT_MEDIUM_3];
+	grd_curcanv->cv_font = MEDIUM3_FONT;
 
 	gr_string( 0x8000, rescale_y(15), TXT_KILL_MATRIX_TITLE	);
 
-	grd_curcanv->cv_font = Gamefonts[GFONT_SMALL];
+	grd_curcanv->cv_font = GAME_FONT;
 
 	multi_get_kill_list(sorted);
 
@@ -284,7 +283,7 @@ void kmatrix_redraw()
 		else
 			color = sorted[i];
 
-		gr_set_fontcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 		kmatrix_draw_item( i, sorted );
 	}
 

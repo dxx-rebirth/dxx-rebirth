@@ -184,57 +184,9 @@ void automap_clear_visited()
 		Automap_visited[i] = 0;
 }
 
-grs_canvas	*name_canv;
 char		name_level[128];
 
-//print to canvas & double height
-grs_canvas *print_to_canvas(char *s,grs_font *font, int fc, int bc)
-{
-	grs_canvas *temp_canv;
-	grs_font *save_font;
-	int w,h,aw;
-	grs_canvas *save_canv;
-
-	save_canv = grd_curcanv;
-
-	save_font = grd_curcanv->cv_font;
-	gr_set_curfont(font);			//set the font we're going to use
-	gr_get_string_size(s,&w,&h,&aw);	//now get the string size
-	gr_set_curfont(save_font);		//restore real font
-
-	temp_canv = gr_create_canvas(w,font->ft_h*2);
-
-	gr_set_current_canvas(temp_canv);
-	gr_set_curfont(font);
-	temp_canv->cv_bitmap.bm_flags |= BM_FLAG_TRANSPARENT;
-	gr_clear_canvas(TRANSPARENCY_COLOR);	//trans color
-	gr_set_fontcolor(fc,bc);
-	gr_uprintf(0,0,s);
-
-	gr_set_current_canvas(save_canv);
-
-	return temp_canv;
-}
-
-//print to buffer, double heights, and blit bitmap to screen
-void modex_printf(int x,int y,char *s,grs_font *font,int color)
-{
-	grs_canvas *temp_canv;
-
-	temp_canv = print_to_canvas(s, font, color, -1);
-
-	gr_bitmapm(x,y,&temp_canv->cv_bitmap);
-
-	gr_free_canvas(temp_canv);
-}
-
-void modex_print_message(int x, int y, char *str)
-{
-	modex_printf(x, y, str, (grs_font *)GFONT_MEDIUM_1,Green_31);
-}
-
-//name for each group.  maybe move somewhere else
-void create_name_canv()
+void name_frame()
 {
 	if (Current_level_num > 0)
 		sprintf(name_level, "%s %i: ",TXT_LEVEL, Current_level_num);
@@ -243,9 +195,9 @@ void create_name_canv()
 
 	strcat(name_level, Current_level_name);
 
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
-	gr_set_curfont((Gamefonts[GFONT_SMALL]));
-	gr_printf(5,5,"%s", name_level);
+	gr_set_curfont(GAME_FONT);
+	gr_set_fontcolor(Green_31,-1);
+	gr_printf((SWIDTH/64),(SHEIGHT/48),"%s", name_level);
 }
 
 void draw_player( object * obj )
@@ -280,9 +232,6 @@ void draw_player( object * obj )
 	automap_draw_line(&sphere_point, &arrow_point);
 }
 
-#define RESCALE_X(x) ((x) * grd_curscreen->sc_canvas.cv_bitmap.bm_w / 640)
-#define RESCALE_Y(y) ((y) * grd_curscreen->sc_canvas.cv_bitmap.bm_h / 480)
-
 void draw_automap(int flip)
 {
 	int i;
@@ -293,14 +242,14 @@ void draw_automap(int flip)
 
 	gr_set_current_canvas(NULL);
 	show_fullscr(&Automap_background);
-	gr_set_curfont((Gamefonts[GFONT_BIG_1]));
+	gr_set_curfont(HUGE_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-	gr_printf(RESCALE_X(80), RESCALE_Y(30), TXT_AUTOMAP);
+	gr_printf((SWIDTH/8), (SHEIGHT/16), TXT_AUTOMAP);
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-	gr_printf(RESCALE_X(130), RESCALE_Y(426), TXT_TURN_SHIP);
-	gr_printf(RESCALE_X(130), RESCALE_Y(443), TXT_SLIDE_UPDOWN);
-	gr_printf(RESCALE_X(130), RESCALE_Y(460), TXT_VIEWING_DISTANCE);
+	gr_printf((SWIDTH/4.923), (SHEIGHT/1.126), TXT_TURN_SHIP);
+	gr_printf((SWIDTH/4.923), (SHEIGHT/1.083), TXT_SLIDE_UPDOWN);
+	gr_printf((SWIDTH/4.923), (SHEIGHT/1.043), TXT_VIEWING_DISTANCE);
 	
 	gr_set_current_canvas(&Automap_view);
 
@@ -323,7 +272,7 @@ void draw_automap(int flip)
 #endif	
 		color = Player_num; // Note link to above if!
 
-	gr_setcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
+	gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
 	draw_player(&Objects[Players[Player_num].objnum]);
 
 	// Draw player(s)...
@@ -336,7 +285,7 @@ void draw_automap(int flip)
 						color = get_team(i);
 					else
 						color = i;
-					gr_setcolor(gr_getcolor(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
+					gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
 					draw_player(&Objects[Players[i].objnum]);
 				}
 			}
@@ -356,9 +305,9 @@ void draw_automap(int flip)
 			if ( Automap_visited[objp->segnum] )	{
 				if ( (objp->id==POW_KEY_RED) || (objp->id==POW_KEY_BLUE) || (objp->id==POW_KEY_GOLD) )	{
 					switch (objp->id) {
-					case POW_KEY_RED:		gr_setcolor(gr_getcolor(63, 5, 5));	break;
-					case POW_KEY_BLUE:	gr_setcolor(gr_getcolor(5, 5, 63)); break;
-					case POW_KEY_GOLD:	gr_setcolor(gr_getcolor(63, 63, 10)); break;
+					case POW_KEY_RED:		gr_setcolor(BM_XRGB(63, 5, 5));	break;
+					case POW_KEY_BLUE:	gr_setcolor(BM_XRGB(5, 5, 63)); break;
+					case POW_KEY_GOLD:	gr_setcolor(BM_XRGB(63, 63, 10)); break;
 					default:
 						Error("Illegal key type: %i", objp->id);
 					}
@@ -372,7 +321,7 @@ void draw_automap(int flip)
 
 	g3_end_frame();
 
-	create_name_canv();
+	name_frame();
 
 	if (flip)
 		gr_flip();
@@ -459,8 +408,7 @@ void do_automap( int key_code )	{
 	if (pcx_error != PCX_ERROR_NONE)
 		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 	gr_remap_bitmap_good(&Automap_background, pal, -1, -1);
-
-	gr_init_sub_canvas(&Automap_view, &grd_curscreen->sc_canvas, RESCALE_X(27), RESCALE_Y(80), RESCALE_X(582), RESCALE_Y(334));
+	gr_init_sub_canvas(&Automap_view, &grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
 
 	while(!done)	{
 		if ( leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-entry_time)>LEAVE_TIME)

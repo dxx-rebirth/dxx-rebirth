@@ -58,6 +58,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "netpkt.h"
 #include "multipow.h"
 #include "vers_id.h"
+#include "gamefont.h"
 
 void network_send_rejoin_sync(int player_num);
 void network_update_netgame(void);
@@ -72,11 +73,6 @@ void network_ping(ubyte flag, int pnum);
 void network_read_pdata_packet( ubyte *data, int short_pos );
 int network_compare_players(netplayer_info *pl1, netplayer_info *pl2);
 void DoRefuseStuff(sequence_packet *their);
-
-#define NETWORK_NEW_LIST
-#ifdef NETWORK_NEW_LIST
-extern int network_join_game_menu();
-#endif
 
 netgame_info Active_games[MAX_ACTIVE_NETGAMES];
 int num_active_games = 0;
@@ -114,10 +110,12 @@ ushort 		my_segments_checksum = 0;
 int restrict_mode = 0;
 
 int IPX_Socket=0;
+int     Network_allow_socket_changes = 1;
 
 sequence_packet My_Seq;
 
 extern obj_position Player_init[MAX_PLAYERS];
+extern ubyte SurfingNet;
 
 //-moved- #define DUMP_CLOSED 0
 //-moved- #define DUMP_FULL 1
@@ -218,7 +216,6 @@ network_endlevel_poll( int nitems, newmenu_item * menus, int * key, int citem )
 		if (previous_state[i] != Players[i].connected)		
 		{
 			sprintf(menus[i].text, "%s %s", Players[i].callsign, CONNECT_STATES(Players[i].connected));
-			menus[i].redraw = 1;
 		}
 		if (Players[i].connected == 1)
 		{
@@ -249,12 +246,10 @@ network_endlevel_poll( int nitems, newmenu_item * menus, int * key, int citem )
 		if (Fuelcen_seconds_left < 0)
 		{
 			sprintf(menus[N_players].text, TXT_REACTOR_EXPLODED);
-			menus[N_players].redraw = 1;
 		}
 		else
 		{
 			sprintf(menus[N_players].text, "%s: %d %s  ", TXT_TIME_REMAINING, Fuelcen_seconds_left, TXT_SECONDS);
-			menus[N_players].redraw = 1;
 		}
 	}
 
@@ -1756,13 +1751,11 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 
 	if (!menus[0].value) {
 			menus[0].value = 1;
-			menus[0].redraw = 1;
 	}
 
 	for (i=1; i<nitems; i++ )	{
 		if ( (i>= N_players) && (menus[i].value) )	{
 			menus[i].value = 0;
-			menus[i].redraw = 1;
 		}
 	}
 
@@ -1772,7 +1765,6 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 			nm++;
 			if ( nm > N_players )	{
 				menus[i].value = 0;
-				menus[i].redraw = 1;
 			}
 		}
 	}
@@ -1784,7 +1776,6 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 			if (menus[i].value == 1) 
 			{
 				menus[i].value = 0;
-				menus[i].redraw = 1;
 				break;
 			}
 	}
@@ -1800,7 +1791,6 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 	if (n < Netgame.numplayers ) 	
 	{
 		sprintf( menus[N_players-1].text, "%d. %-16s", N_players, Netgame.players[N_players-1].callsign );
-		menus[N_players-1].redraw = 1;
 
 		//Begin addition by GF
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);  //A noise to alert you when someone joins a starting game...
@@ -1826,13 +1816,11 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 				menus[i].value = 1;
 			else
 				menus[i].value = 0;
-			menus[i].redraw = 1;
 		}
 		for (i=N_players; i<n; i++ )	
 		{
 			sprintf( menus[i].text, "%d. ", i+1 );		// Clear out the deleted entries...
 			menus[i].value = 0;
-			menus[i].redraw = 1;
 		}
    }
 }
@@ -1967,7 +1955,6 @@ void network_more_options_poll( int nitems, newmenu_item * menus, int * key, int
 	if ( last_cinvul != menus[opt_cinvul].value )   {
 		sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
 		last_cinvul = menus[opt_cinvul].value;
-		menus[opt_cinvul].redraw = 1;
 	}
 }
 
@@ -1978,11 +1965,8 @@ void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 	if (menus[opt_team_anarchy].value) 
 	{
 		menus[opt_closed].value = 1;
-		menus[opt_closed].redraw = 1;
 		menus[opt_closed-1].value = 0;
-		menus[opt_closed-1].redraw = 1;
 		menus[opt_closed+1].value = 0;
-		menus[opt_closed+1].redraw = 1;
 	}
 
 	if (menus[opt_coop].value)
@@ -1992,13 +1976,11 @@ void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 		if (menus[opt_maxnet].value>2) 
 		{
 			menus[opt_maxnet].value=2;
-			menus[opt_maxnet].redraw=1;
 		}
 
 		if (menus[opt_maxnet].max_value>2)
 		{
 			menus[opt_maxnet].max_value=2;
-			menus[opt_maxnet].redraw=1;
 		}
 
 		if (!Netgame.game_flags & NETGAME_FLAG_SHOW_MAP) 
@@ -2019,7 +2001,6 @@ void network_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 	{
 		sprintf( menus[opt_maxnet].text, "Maximum players: %d", menus[opt_maxnet].value+2 );
 		last_maxnet = menus[opt_maxnet].value;
-		menus[opt_maxnet].redraw = 1;
 	}
 }
 
@@ -2211,7 +2192,7 @@ network_find_game(void)
 
 	num_active_games = 0;
 
-	show_boxed_message(TXT_WAIT);
+	show_boxed_message(TXT_WAIT, 0);
 
 	network_send_game_list_request();
 	t1 = timer_get_approx_seconds() + F1_0*2;
@@ -2730,7 +2711,6 @@ void network_start_game(void)
 	
 }
 
-#ifndef NETWORK_NEW_LIST
 void restart_net_searching(newmenu_item * m)
 {
 	int i;
@@ -2739,17 +2719,17 @@ void restart_net_searching(newmenu_item * m)
 
 	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
 
-	for (i = 0; i < MAX_ACTIVE_NETGAMES; i++) {
-		sprintf(m[(2*i)+1].text, "%d.                                       ", i+1);
-		sprintf(m[(2*i)+2].text, " \n");
-		m[(2*i)+1].redraw = 1;
-		m[(2*i)+2].redraw = 1;
+	for (i = 0; i < MAX_ACTIVE_NETGAMES; i++)
+	{
+		sprintf(m[i+2].text, "%d.                                                         ",i+1);
 	}
+
 	Network_games_changed = 1;	
 }
 
 void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 {
+#ifdef todel
 	// Polling loop for Join Game menu
 	static fix t1 = 0;
 	int i, new_socket;
@@ -2767,7 +2747,6 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	
 		if ( network_change_socket(new_socket) )	 {
 			sprintf( menus[0].text, "%s %+d", TXT_CURRENT_IPX_SOCKET, IPX_Socket );
-			menus[0].redraw = 1;
 			restart_net_searching(menus);
 			network_send_game_list_request();
 			return;
@@ -2825,19 +2804,173 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 #endif
 
 		Assert(strlen(menus[(2*i)+2].text) < 70);
-		menus[(2*i)+1].redraw = 1;
-		menus[(2*i)+2].redraw = 1;
 	}
 
 	for (i = num_active_games; i < MAX_ACTIVE_NETGAMES; i++)
 	{
 		sprintf(menus[(2*i)+1].text, "%d.                                       ", i+1);
 		sprintf(menus[(2*i)+2].text, " \n");
-		menus[(2*i)+1].redraw = 1;
-		menus[(2*i)+2].redraw = 1;
+	}
+#endif
+	// Polling loop for Join Game menu
+	static fix t1 = 0;
+	int i, osocket,join_status,temp;
+
+	menus = menus;
+	citem = citem;
+	nitems = nitems;
+	key = key;
+
+	if ( Network_allow_socket_changes ) {
+		osocket = IPX_Socket;
+
+		if ( *key==KEY_PAGEDOWN )       { IPX_Socket--; *key = 0; }
+		if ( *key==KEY_PAGEUP )         { IPX_Socket++; *key = 0; }
+
+		if (IPX_Socket>99)
+			IPX_Socket=99;
+		if (IPX_Socket<-99)
+			IPX_Socket=-99;
+
+		if ( IPX_Socket+IPX_DEFAULT_SOCKET > 0x8000 )
+			IPX_Socket  = 0x8000 - IPX_DEFAULT_SOCKET;
+
+		if ( IPX_Socket+IPX_DEFAULT_SOCKET < 0 )
+			IPX_Socket  = IPX_DEFAULT_SOCKET;
+
+		if (IPX_Socket != osocket )         {
+			sprintf( menus[0].text, "\t%s %+d (PgUp/PgDn to change)", TXT_CURRENT_IPX_SOCKET, IPX_Socket );
+			mprintf(( 0, "Changing to socket %d\n", IPX_Socket ));
+			network_listen();
+			mprintf ((0,"netgood 1!\n"));
+			NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
+			mprintf ((0,"netgood 2!\n"));
+			restart_net_searching(menus);
+			mprintf ((0,"netgood 3!\n"));
+			network_send_game_list_request();
+			mprintf ((0,"netgood 4!\n"));
+			return;
+		}
+	}
+
+	// send a request for game info every 3 seconds
+	if (timer_get_approx_seconds() > t1+F1_0*3) {
+		t1 = timer_get_approx_seconds();
+		network_send_game_list_request();
+	}
+
+	temp=num_active_games;
+
+	network_listen();
+
+	if (!Network_games_changed)
+		return;
+
+	if (temp!=num_active_games)
+		digi_play_sample (SOUND_HUD_MESSAGE,F1_0);
+
+	Network_games_changed = 0;
+	mprintf ((0,"JOIN POLL: I'm looking at %d games!\n",num_active_games));
+
+	// Copy the active games data into the menu options
+	for (i = 0; i < num_active_games; i++)
+	{
+		int game_status = Active_games[i].game_status;
+		int j,x, k,tx,ty,ta,nplayers = 0;
+		char levelname[8],MissName[25],GameName[25],thold[2];
+		thold[1]=0;
+
+		// These next two loops protect against menu skewing
+		// if missiontitle or gamename contain a tab
+
+		for (x=0,tx=0,k=0,j=0;j<15;j++)
+		{
+			if (Active_games[i].mission_title[j]=='\t')
+				continue;
+			thold[0]=Active_games[i].mission_title[j];
+			gr_get_string_size (thold,&tx,&ty,&ta);
+
+			if ((x+=tx)>=FSPACX(55))
+			{
+				MissName[k]=MissName[k+1]=MissName[k+2]='.';
+				k+=3;
+				break;
+			}
+
+			MissName[k++]=Active_games[i].mission_title[j];
+		}
+		MissName[k]=0;
+
+		for (x=0,tx=0,k=0,j=0;j<15;j++)
+		{
+			if (Active_games[i].game_name[j]=='\t')
+				continue;
+			thold[0]=Active_games[i].game_name[j];
+			gr_get_string_size (thold,&tx,&ty,&ta);
+
+			if ((x+=tx)>=FSPACX(55))
+			{
+				GameName[k]=GameName[k+1]=GameName[k+2]='.';
+				k+=3;
+				break;
+			}
+			GameName[k++]=Active_games[i].game_name[j];
+		}
+		GameName[k]=0;
+
+
+		for (j = 0; j < Active_games[i].numplayers; j++)
+			if (Active_games[i].players[j].connected)
+				nplayers++;
+
+		if (Active_games[i].levelnum < 0)
+			sprintf(levelname, "S%d", -Active_games[i].levelnum);
+		else
+			sprintf(levelname, "%d", Active_games[i].levelnum);
+
+		if (game_status == NETSTAT_STARTING)
+		{
+			sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
+					 i+1,GameName,MODE_NAMES(Active_games[i].gamemode),nplayers,
+					 Active_games[i].max_numplayers,MissName,levelname,"Forming");
+		}
+		else if (game_status == NETSTAT_PLAYING)
+		{
+			join_status=can_join_netgame(&Active_games[i]);
+			//		 mprintf ((0,"Joinstatus=%d\n",join_status));
+
+			if (join_status==1)
+				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
+						 i+1,GameName,MODE_NAMES(Active_games[i].gamemode),nplayers,
+						 Active_games[i].max_numplayers,MissName,levelname,"Open");
+			else if (join_status==2)
+				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
+						 i+1,GameName,MODE_NAMES(Active_games[i].gamemode),nplayers,
+						 Active_games[i].max_numplayers,MissName,levelname,"Full");
+			else if (join_status==3)
+				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
+						 i+1,GameName,MODE_NAMES(Active_games[i].gamemode),nplayers,
+						 Active_games[i].max_numplayers,MissName,levelname,"Restrict");
+			else
+				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
+						 i+1,GameName,MODE_NAMES(Active_games[i].gamemode),nplayers,
+						 Active_games[i].max_numplayers,MissName,levelname,"Closed");
+
+		}
+		else
+			sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
+					 i+1,GameName,MODE_NAMES(Active_games[i].gamemode),nplayers,
+					 Active_games[i].max_numplayers,MissName,levelname,"Between");
+
+
+		Assert(strlen(menus[i+2].text) < 100);
+	}
+
+	for (i = num_active_games; i < MAX_ACTIVE_NETGAMES; i++)
+	{
+		sprintf(menus[i+2].text, "%d.                                                     ",i+1);
 	}
 }
-#endif
 
 int
 network_wait_for_sync(void)
@@ -2996,44 +3129,41 @@ network_level_sync(void)
 	return(0);
 }
 
-//moved 2000/02/07 Matt Mueller - clipped stuff from network_join_game into new network_do_join_game to allow easy joining from other funcs too.
-int network_do_join_game(netgame_info *jgame){
-	if (jgame->game_status == NETSTAT_ENDLEVEL)
+void nm_draw_background1(char * filename);
+
+int network_do_join_game(int choice)
+{
+	if (Active_games[choice].game_status == NETSTAT_ENDLEVEL)
 	{
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
 		return 0;
 	}
 
-	if ((jgame->protocol_version != MULTI_PROTO_VERSION) &&
-	    (jgame->protocol_version != MULTI_PROTO_D1X_VER))
+	if ((Active_games[choice].protocol_version != MULTI_PROTO_VERSION) &&
+	    (Active_games[choice].protocol_version != MULTI_PROTO_D1X_VER))
 	{
                 nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
 		return 0;
 	}
+
 #ifndef SHAREWARE
-	if (jgame->protocol_version == MULTI_PROTO_D1X_VER &&
-	    jgame->required_subprotocol > MULTI_PROTO_D1X_MINOR)
+	if (Active_games[choice].protocol_version == MULTI_PROTO_D1X_VER &&
+	    Active_games[choice].required_subprotocol > MULTI_PROTO_D1X_MINOR)
 	{
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, "This game uses features\nnot present in this version.");
 		return 0;
 	}
-	{	
-		// Check for valid mission name
-			mprintf((0, "Loading mission:%s.\n", jgame->mission_name));
-			if (!load_mission_by_name(jgame->mission_name))
-			{
-				nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
 
-                                //add getlevel functionality here - Victor Rachels
-
-				return 0;
-			}
+	if (!load_mission_by_name(Active_games[choice].mission_name))
+	{
+		nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
+		return 0;
 	}
 #endif
 
-	if (!can_join_netgame(jgame))
+	if (!can_join_netgame(&Active_games[choice]))
 	{
-		if (jgame->numplayers == jgame->max_numplayers)
+		if (Active_games[choice].numplayers == Active_games[choice].max_numplayers)
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
 		else
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
@@ -3041,8 +3171,7 @@ int network_do_join_game(netgame_info *jgame){
 	}
 
 	// Choice is valid, prepare to join in
-
-	memcpy(&Netgame, jgame, sizeof(netgame_info));
+	memcpy(&Netgame, &Active_games[choice], sizeof(netgame_info));
 
 	Difficulty_level = Netgame.difficulty;
 	MaxNumNetPlayers = Netgame.max_numplayers;
@@ -3057,13 +3186,10 @@ int network_do_join_game(netgame_info *jgame){
 
 void network_join_game()
 {
-	int choice;
-#ifndef NETWORK_NEW_LIST
-	int i;
+	int choice, i;
 	char menu_text[(MAX_ACTIVE_NETGAMES*2)+1][70];
 	
 	newmenu_item m[((MAX_ACTIVE_NETGAMES)*2)+1];
-#endif
 
 	if ( !Network_active )
 	{
@@ -3077,54 +3203,53 @@ void network_join_game()
 
 	setjmp(LeaveGame);
 
+	Network_send_objects = 0; 
+	Network_rejoined=0;
+
 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
-	
+
+	network_flush();
 	network_listen();  // Throw out old info
 
 	network_send_game_list_request(); // broadcast a request for lists
 
 	num_active_games = 0;
+
+	memset(m, 0, sizeof(newmenu_item)*MAX_ACTIVE_NETGAMES);
 	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
 
-#ifndef NETWORK_NEW_LIST
-	memset(m, 0, sizeof(newmenu_item)*(MAX_ACTIVE_NETGAMES*2));
-	
+	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
+
 	m[0].text = menu_text[0];
 	m[0].type = NM_TYPE_TEXT;
 	if (Network_allow_socket_changes)
-		sprintf( m[0].text, "Current IPX Socket is default%+d", IPX_Socket );
+		sprintf( m[0].text, "\tCurrent IPX Socket is default %+d (PgUp/PgDn to change)", IPX_Socket );
 	else
-		sprintf( m[0].text, "" );
+		strcpy( m[0].text, "" ); //sprintf( m[0].text, "" );
+
+	m[1].text=menu_text[1];
+	m[1].type=NM_TYPE_TEXT;
+	sprintf (m[1].text,"\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
 	for (i = 0; i < MAX_ACTIVE_NETGAMES; i++) {
-		m[2*i+1].text = menu_text[2*i+1];
-		m[2*i+2].text = menu_text[2*i+2];
-		m[2*i+1].type = NM_TYPE_MENU;
-		m[2*i+2].type = NM_TYPE_TEXT;
-		sprintf(m[(2*i)+1].text, "%d.                                       ", i+1);
-		sprintf(m[(2*i)+2].text, " \n");
-		m[(2*i)+1].redraw = 1;
-		m[(2*i)+2].redraw = 1;
+		m[i+2].text = menu_text[i+2];
+		m[i+2].type = NM_TYPE_MENU;
+		sprintf(m[i+2].text, "%d.                                                                  ", i+1);
 	}
 
-	Network_games_changed = 1;	
+	Network_games_changed = 1;
 remenu:
-	choice=newmenu_do1(NULL, TXT_NET_SEARCHING, (MAX_ACTIVE_NETGAMES)*2+1, m, network_join_poll, 0 );
+	SurfingNet=1;
+	nm_draw_background1(Menu_pcx_name);             //load this here so if we abort after loading level, we restore the palette
+	gr_palette_load(gr_palette);
+	choice=newmenu_dotiny("NETGAMES", NULL,MAX_ACTIVE_NETGAMES+2, m, network_join_poll);
+	SurfingNet=0;
 
 	if (choice==-1)	{
 		Network_status = NETSTAT_MENU;
 		return;	// they cancelled		
         }
-	choice--;
-	choice /= 2;
-#else
-remenu:
-	choice = network_join_game_menu();
-	if (choice==-1) {
-		Network_status = NETSTAT_MENU;
-		return;	// they cancelled		
-	}
-#endif
+	choice-=2;
 
 	if (choice >=num_active_games)
 	{
@@ -3132,10 +3257,11 @@ remenu:
 		goto remenu;
 	}
 
+	if (show_game_stats(choice)==0)
+		goto remenu;
+
 	// Choice has been made and looks legit
-
-
-	if (network_do_join_game(&Active_games[choice])==0)
+	if (network_do_join_game(choice)==0)
 		goto remenu;
 
 	return;		// look ma, we're in a game!!!
@@ -3610,6 +3736,190 @@ void DoRefuseStuff (sequence_packet *their)
 			return;
 		}
 	}
+}
+
+// Send request for game information. Resend to keep connection alive.
+// Function arguments not used, but needed to call while nm_messagebox1
+void network_info_req( int nitems, newmenu_item * menus, int * key, int citem )
+{
+	sequence_packet me;
+	static fix nextsend, curtime;
+	ubyte null_addr[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+	menus = menus;
+	citem = citem;
+	nitems = nitems;
+	key = key;
+	curtime=timer_get_fixed_seconds();
+	
+	if (nextsend<curtime)
+	{
+		nextsend=curtime+F1_0*3;
+		memset(&me, 0, sizeof(sequence_packet));
+		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
+		memcpy( me.player.node, NetDrvGetMyLocalAddress(), 6 );
+		memcpy( me.player.server, NetDrvGetMyServerAddress(), 4 );
+		me.type = PID_D1X_GAME_INFO_REQ;//get full info.
+
+		send_sequence_packet( me, null_addr,Active_games[0].players[0].node,NULL);
+	}
+}
+
+void show_game_rules(int choice)
+{
+	int done,k;
+	grs_canvas canvas;
+	int w = FSPACX(280), h = FSPACY(130);
+
+	gr_set_current_canvas(NULL);
+
+	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200));
+
+	game_flush_inputs();
+
+	done = 0;
+
+	while(!done)	{
+		network_info_req( 0, NULL, 0, 0 );
+		timer_delay2(20);
+		gr_set_current_canvas(NULL);
+#ifdef OGL
+		gr_flip();
+		nm_draw_background1(NULL);
+#endif
+		nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
+
+		gr_set_current_canvas(&canvas);
+
+		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
+		grd_curcanv->cv_font = MEDIUM3_FONT;
+	
+		gr_string( 0x8000, FSPACY(35), "NETGAME INFO" );
+	
+		grd_curcanv->cv_font = GAME_FONT;
+	
+
+		gr_printf( FSPACX( 25),FSPACY( 55), "Reactor Life:");
+		gr_printf( FSPACX( 25),FSPACY( 61), "Short Packets:");
+		gr_printf( FSPACX( 25),FSPACY( 67), "Pakets per second:");
+		gr_printf( FSPACX( 25),FSPACY( 73), "Show All Players On Automap:");
+
+		gr_printf( FSPACX( 25),FSPACY(100), "Allowed Objects");
+		gr_printf( FSPACX( 25),FSPACY(110), "Laser Upgrade:");
+		gr_printf( FSPACX( 25),FSPACY(116), "Quad Laser:");
+		gr_printf( FSPACX( 25),FSPACY(122), "Vulcan Cannon:");
+		gr_printf( FSPACX( 25),FSPACY(128), "Spreadfire Cannon:");
+		gr_printf( FSPACX( 25),FSPACY(134), "Plasma Cannon:");
+		gr_printf( FSPACX( 25),FSPACY(140), "Fusion Cannon:");
+		gr_printf( FSPACX(170),FSPACY(110), "Homing Missile:");
+		gr_printf( FSPACX(170),FSPACY(116), "Proximity Bomb:");
+		gr_printf( FSPACX(170),FSPACY(122), "Smart Missile:");
+		gr_printf( FSPACX(170),FSPACY(128), "Mega Missile:");
+		gr_printf( FSPACX( 25),FSPACY(150), "Invulnerability:");
+		gr_printf( FSPACX( 25),FSPACY(156), "Cloak:");
+
+		gr_set_fontcolor(gr_find_closest_color_current(255,255,255),-1);
+		gr_printf( FSPACX(170),FSPACY( 55), "%i Min", Active_games[choice].control_invul_time/F1_0/60);
+		gr_printf( FSPACX(170),FSPACY( 61), "%s", Active_games[choice].flags & NETFLAG_SHORTPACKETS?"ON":"OFF");
+		gr_printf( FSPACX(170),FSPACY( 67), "%i", Active_games[choice].packets_per_sec);
+		gr_printf( FSPACX(170),FSPACY( 73), Active_games[choice].game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+
+
+		gr_printf( FSPACX(130),FSPACY(110), Active_games[choice].flags&NETFLAG_DOLASER?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(116), Active_games[choice].flags&NETFLAG_DOQUAD?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(122), Active_games[choice].flags&NETFLAG_DOVULCAN?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(128), Active_games[choice].flags&NETFLAG_DOSPREAD?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(134), Active_games[choice].flags&NETFLAG_DOPLASMA?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(140), Active_games[choice].flags&NETFLAG_DOFUSION?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(110), Active_games[choice].flags&NETFLAG_DOHOMING?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(116), Active_games[choice].flags&NETFLAG_DOPROXIM?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(122), Active_games[choice].flags&NETFLAG_DOSMART?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(128), Active_games[choice].flags&NETFLAG_DOMEGA?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(150), Active_games[choice].flags&NETFLAG_DOINVUL?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(156), Active_games[choice].flags&NETFLAG_DOCLOAK?"YES":"NO");
+
+		k = key_inkey();
+		switch( k )	{
+			case KEY_PRINT_SCREEN:
+				save_screen_shot(0); k = 0;
+				break;
+			case KEY_ENTER:
+			case KEY_SPACEBAR:
+			case KEY_ESC:
+				done=1;
+				break;
+		}
+	}
+
+// Restore background and exit
+	gr_palette_fade_out( gr_palette, 32, 0 );
+	gr_set_current_canvas(NULL);
+	game_flush_inputs();
+}
+
+int show_game_stats(int choice)
+{
+	char rinfo[512],*info=rinfo;
+	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Unknown"};
+	int c;
+
+	memset(info,0,sizeof(char)*256);
+
+	info+=sprintf(info,"\nConnected to\n\"%s\"\n",Active_games[choice].game_name);
+
+#ifndef SHAREWARE
+	if(!Active_games[choice].mission_title)
+		info+=sprintf(info,"Descent: First Strike");
+	else
+		info+=sprintf(info,Active_games[choice].mission_title);
+
+	info+=sprintf (info," - Lvl %i",Active_games[choice].levelnum);
+#endif
+	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(Active_games[choice].difficulty));
+	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[Active_games[choice].gamemode]);
+	info+=sprintf (info,"\nPlayers: %i/%i",Active_games[choice].numplayers,Active_games[choice].max_numplayers);
+
+	while (1){
+		c=nm_messagebox1("WELCOME", network_info_req, 2, "JOIN GAME", "GAME INFO", rinfo);
+		if (c==0)
+			return 1;
+		else if (c==1)
+			show_game_rules(choice);
+		else
+			return 0;
+	}
+}
+
+int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address)
+{
+	if (setjmp(LeaveGame))
+		return 0;
+
+	num_active_games = 0;
+	Network_games_changed = 0;
+	Network_status = NETSTAT_BROWSING;
+	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
+
+	while (1){
+		network_info_req( 0, NULL, 0, 0 );
+
+		network_listen();
+
+		if (Network_games_changed){
+			if (num_active_games<1){
+				Network_games_changed=0;
+				continue;
+			}
+			if (show_game_stats(0))
+				return 1;
+			else
+				return 0;
+		}
+		if (key_inkey()==KEY_ESC)
+			return 0;
+
+	}
+	return 0;
 }
 
 #endif

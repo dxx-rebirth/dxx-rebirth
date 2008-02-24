@@ -93,7 +93,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "newmenu.h"
 #include "desc_id.h"
 #include "config.h"
-#include "joydefs.h"
 #include "multi.h"
 #include "songs.h"
 #include "cfile.h"
@@ -137,9 +136,9 @@ void show_commandline_help()
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
 	printf( "  -nicefps           %s\n", "Free CPU-cycles. Less CPU load, but game may become choppy");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
-	printf( "  -hogdir <s>        %s\n", "set shared data directory to <dir>");
-	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
-	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
+	printf( "  -hogdir <s>        %s\n", "Set shared data directory to <dir>");
+	printf( "  -nohogdir          %s\n", "Don't try to use shared data directory");
+	printf( "  -use_players_dir   %s\n", "Put player files and saved games in Players subdirectory");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
 	printf( "  -pilot <s>         %s\n", "Select this pilot-file automatically");
@@ -163,11 +162,11 @@ void show_commandline_help()
 #endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
-	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
+	printf( "  -aspect<Y>x<X>     %s\n", "Use specified aspect");
 	printf( "  -hud <n>           %s\n", "Set hud mode.  0=normal 1-3=new");
         printf( "  -hudlines <n>      %s\n", "Number of hud messages to show");
-	printf( "  -hiresfont         %s\n", "use high resolution fonts if available");
 	printf( "  -persistentdebris  %s\n", "Enable persistent debris. Works in singleplayer only");
+	printf( "  -lowresfont        %s\n", "Force to use LowRes fonts");
 	printf( "  -noreticle         %s\n", "Disable reticle");
 
 #ifdef    OGL
@@ -259,7 +258,9 @@ int main(int argc,char *argv[])
 #endif
 			  "\tIn a subdirectory called 'Data'\n"
 			  "Or use the -hogdir option to specify an alternate location.");
-	
+
+	cfile_init("dxx.hog", 0);
+
 	load_text();
 
 	printf(DESCENT_VERSION "\n"
@@ -300,7 +301,7 @@ int main(int argc,char *argv[])
 		PHYSFS_freeList(list);
 	}
 
-	if (SDL_Init(SDL_INIT_VIDEO)<0)
+	if (SDL_Init(SDL_INIT_EVERYTHING/*VIDEO*/)<0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
 
 	atexit(sdl_close);
