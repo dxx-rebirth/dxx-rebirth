@@ -2611,7 +2611,8 @@ void newdemo_goto_end(int FrameCountOnly)
 	NewdemoFrameCount--;
 	cfseek(infile, 4, SEEK_CUR);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
-	newdemo_read_frame_information();           // then the frame information
+	if (!FrameCountOnly)
+		newdemo_read_frame_information();           // then the frame information
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	return;
 }

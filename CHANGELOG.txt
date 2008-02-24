@@ -1,9 +1,13 @@
 D2X-Rebirth Changelog
 
+20080224
+--------
+main/newdemo.c: make sure the right error message is shown if it can't open a demo
+
 20080217
 --------
 misc/hmp2mid.c: don't try and free mid_track_buf if it isn't allocated, if midi conversion doesn't work
-misc/hmp2mid.c: use d_ memory functions in hmp2mid, since I already started to erroneously
+main/netpkt.c, misc/hmp2mid.c: use d_ memory functions in hmp2mid, since I already started to erroneously. Also fixed bug where Mac-hosted games couldn't be started
 
 20080212
 --------
