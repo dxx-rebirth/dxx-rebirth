@@ -1892,7 +1892,6 @@ void do_escort_menu(void)
 
 			case KEY_ESC:
 			case KEY_ENTER:
-				clear_boxed_message();
 				paused=0;
 				break;
 

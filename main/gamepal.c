@@ -45,14 +45,6 @@ char Current_level_palette[FILENAME_LEN];
 
 extern int Color_0_31_0, HUD_color;
 
-//background for boxed messages
-typedef struct bkg {
-	short x, y, w, h;			// The location of the menu.
-	grs_bitmap * bmp;			// The background under the menu.
-} bkg;
-
-extern bkg bg;
-
 char last_palette_loaded[FILENAME_LEN]="";
 char last_palette_loaded_pig[FILENAME_LEN]="";
 
@@ -81,6 +73,8 @@ void remap_fonts_and_menus(int do_fadetable_hack)
 
 	memcpy(last_palette_for_color_fonts,gr_palette,sizeof(last_palette_for_color_fonts));
 }
+
+extern grs_bitmap nm_background;
 
 //load a palette by name. returns 1 if new palette loaded, else 0
 //if used_for_level is set, load pig, etc.
@@ -122,9 +116,6 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 
 		if (Function_mode == FMODE_GAME && !no_change_screen)
 			gr_remap_bitmap_good( &grd_curscreen->sc_canvas.cv_bitmap, old_pal, -1, -1 );
-
-        if (bg.bmp)
-            gr_remap_bitmap_good( bg.bmp, old_pal, -1, -1 );
 
 		if (!gr_palette_faded_out && !no_change_screen)
 			gr_palette_load(gr_palette);

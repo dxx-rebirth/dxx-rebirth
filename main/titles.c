@@ -1051,8 +1051,6 @@ int show_briefing(int screen_num, char *message)
 					gr_flip();
 				show_fullscr(&briefing_bm);
 				redraw_messagestream(streamcount);
-				if (flashing_cursor)
-					gr_printf(Briefing_text_x + FSPACX(7),Briefing_text_y,"_");
 			}
 			if (guy_bitmap_show)
 				show_briefing_bitmap(&guy_bitmap);

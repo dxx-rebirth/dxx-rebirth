@@ -910,7 +910,7 @@ void game_render_frame()
 	play_homing_warning();
 
 	if (VR_render_mode == VR_NONE )
-		game_render_frame_mono(GameArg.DbgUseDoubleBuffer);	 
+		game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
 
 	// Make sure palette is faded in
 	stop_time();
@@ -938,23 +938,18 @@ void draw_guided_crosshair(void)
 	x = grd_curcanv->cv_bitmap.bm_w / 2;
 	y = grd_curcanv->cv_bitmap.bm_h / 2;
 
-	gr_scanline(x-w/2,x+w/2,y);
-	gr_uline(i2f(x),i2f(y-h/2),i2f(x),i2f(y+h/2));
+	gr_uline(i2f(x-1),i2f(y-h/2),i2f(x-1),i2f(y+h/2));
 	gr_uline(i2f(x-w/2),i2f(y),i2f(x+w/2),i2f(y));
 }
-
-typedef struct bkg {
-	short x, y, w, h;			// The location of the menu.
-	grs_bitmap * bmp;			// The background under the menu.
-} bkg;
-
-bkg bg = {0,0,0,0,NULL};
 
 //show a message in a nice little box
 void show_boxed_message(char *msg, int RenderFlag)
 {
 	int w,h,aw;
 	int x,y;
+
+	if (Function_mode==FMODE_GAME && RenderFlag)
+		game_render_frame_mono(0);
 
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( MEDIUM1_FONT );
@@ -964,8 +959,6 @@ void show_boxed_message(char *msg, int RenderFlag)
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;
 
-	if (Function_mode==FMODE_GAME && RenderFlag)
-		game_render_frame_mono(0);
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
 	gr_printf( 0x8000, y, msg );
@@ -973,15 +966,4 @@ void show_boxed_message(char *msg, int RenderFlag)
 #ifdef OGL
 	gr_flip();
 #endif
-}
-
-void clear_boxed_message()
-{
-	if (bg.bmp)
-	{
-		gr_bitmap(bg.x-BORDERX, bg.y-BORDERY, bg.bmp);
-		gr_free_bitmap(bg.bmp);
-		bg.bmp = NULL;
-	}
-	newmenu_close();
 }

@@ -468,11 +468,9 @@ int do_game_pause()
 				break;
 			case KEY_ESC:
 				Function_mode = FMODE_MENU;
-				clear_boxed_message();
 				Game_paused=0;
 				break;
 			case KEY_F1:
- 				clear_boxed_message();
 				show_help();
 				show_boxed_message(TXT_PAUSE, 1);
 				break;
@@ -484,7 +482,6 @@ int do_game_pause()
 		}
 	}
 
-	clear_boxed_message();
 	game_flush_inputs();
 	reset_cockpit();
 	palette_restore();
@@ -1181,7 +1178,6 @@ int HandleSystemKey(int key)
 				songs_play_song(SONG_TITLE,1);
 			else if (Function_mode == FMODE_GAME)
 				songs_play_level_song( Current_level_num );
-			clear_boxed_message();
 			key_init();
 			start_time();
 			#endif

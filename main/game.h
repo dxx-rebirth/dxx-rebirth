@@ -186,9 +186,6 @@ void show_newdemo_help();
 // show a message in a nice little box
 void show_boxed_message(char *msg, int RenderFlag);
 
-// erases message drawn with show_boxed_message()
-void clear_boxed_message();
-
 // turns off rear view & rear view cockpit
 void reset_rear_view(void);
 

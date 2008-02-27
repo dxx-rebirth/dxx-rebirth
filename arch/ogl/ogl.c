@@ -495,16 +495,16 @@ int circle_list_init(int nsides,int type,int mode) {
 	return hand;
 }
 
-float bright_g[4]={	32.0/256,	252.0/256,	32.0/256};
-float dark_g[4]={	32.0/256,	148.0/256,	32.0/256};
-float darker_g[4]={	32.0/256,	128.0/256,	32.0/256};
+float bright_g[4]={	32.0/256,	255.0/256,	32.0/256,	1.0};
+float dark_g[4]={	32.0/256,	138.0/256,	32.0/256,	0.6};
 
 void ogl_draw_reticle(int cross,int primary,int secondary){
-	float scale=(float)Canvas_height/(float)grd_curscreen->sc_h;
+	float scale=(float)grd_curscreen->sc_h/(float)grd_curscreen->sc_h;
+
 	glPushMatrix();
 	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/(float)last_height,0);
 	glScalef(scale/320.0,scale/200.0,scale);//the positions are based upon the standard reticle at 320x200 res.
-	
+	glLineWidth(SWIDTH/320);
 	OGL_DISABLE(TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
 	if (!cross_lh[cross]){
@@ -512,36 +512,36 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 		glNewList(cross_lh[cross], GL_COMPILE_AND_EXECUTE);
 		glBegin(GL_LINES);
 		//cross top left
-		glColor3fv(darker_g);
-		glVertex2f(-4.0,4.0);
+		glColor4fv(dark_g);
+		glVertex2f(-4.0,2.0);
 		if (cross)
-			glColor3fv(bright_g);
+			glColor4fv(bright_g);
 		else
-			glColor3fv(dark_g);
-		glVertex2f(-2.0,2.0);
+			glColor4fv(dark_g);
+		glVertex2f(-2.0,0.0);
 
 		//cross bottom left
-		glColor3fv(dark_g);
-		glVertex2f(-3.0,-2.0);
+		glColor4fv(dark_g);
+		glVertex2f(-3.0,-4.0);
 		if (cross)
-			glColor3fv(bright_g);
-		glVertex2f(-2.0,-1.0);
+			glColor4fv(bright_g);
+		glVertex2f(-2.0,-3.0);
 
 		//cross top right
-		glColor3fv(darker_g);
-		glVertex2f(4.0,4.0);
+		glColor4fv(dark_g);
+		glVertex2f(4.0,2.0);
 		if (cross)
-			glColor3fv(bright_g);
+			glColor4fv(bright_g);
 		else
-			glColor3fv(dark_g);
-		glVertex2f(2.0,2.0);
+			glColor4fv(dark_g);
+		glVertex2f(2.0,0.0);
 
 		//cross bottom right
-		glColor3fv(dark_g);
-		glVertex2f(3.0,-2.0);
+		glColor4fv(dark_g);
+		glVertex2f(3.0,-4.0);
 		if (cross)
 			glColor3fv(bright_g);
-		glVertex2f(2.0,-1.0);
+		glVertex2f(2.0,-3.0);
 
 		glEnd();
 		glEndList();
@@ -551,32 +551,31 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 	if (!primary_lh[primary]){
 		primary_lh[primary]=glGenLists(1);
 		glNewList(primary_lh[primary], GL_COMPILE_AND_EXECUTE);
-		glColor3fv(dark_g);
-		glBegin(GL_LINES);
 		//left primary bar
-		glVertex2f(-14.0,-8.0);
-		glVertex2f(-8.0,-5.0);
-		//right primary bar
-		glVertex2f(14.0,-8.0);
-		glVertex2f(8.0,-5.0);
-		glEnd();
+		glBegin(GL_POLYGON);
 		if (primary==0)
-			glColor3fv(dark_g);
+			glColor4fv(dark_g);
 		else
-			glColor3fv(bright_g);
-		//left upper
-		ogl_drawcircle2(6,GL_POLYGON,1.5,-7.0,1.5,-5.0);
-		//right upper
-		ogl_drawcircle2(6,GL_POLYGON,1.5,7.0,1.5,-5.0);
-		if (primary!=2)
-			glColor3fv(dark_g);
-		else
-			glColor3fv(bright_g);
-		//left lower
-		ogl_drawcircle2(4,GL_POLYGON,1.0,-14.0,1.0,-8.0);
-		//right lower
-		ogl_drawcircle2(4,GL_POLYGON,1.0,14.0,1.0,-8.0);
+			glColor4fv(bright_g);
+		glVertex3f( -5.5f,  -5.0f, 0.0f);
+		glVertex3f( -6.5f,  -7.5f, 0.0f);
+		glColor4fv(dark_g);
+		glVertex3f(-15.0f, -9.5f, 0.0f);
+		glVertex3f(-15.0f, -8.5f, 0.0f);
+		glEnd();
+		//right primary bar
+		glBegin(GL_POLYGON);
 
+		if (primary==0)
+			glColor4fv(dark_g);
+		else
+			glColor4fv(bright_g);
+		glVertex3f( 5.5f,  -5.0f, 0.0f);
+		glVertex3f( 6.5f,  -7.5f, 0.0f);
+		glColor4fv(dark_g);
+		glVertex3f(15.0f, -9.5f, 0.0f);
+		glVertex3f(15.0f, -8.5f, 0.0f);
+		glEnd();
 		glEndList();
 	}else
 		glCallList(primary_lh[primary]);
@@ -587,23 +586,23 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 		if (secondary<=2){
 			//left secondary
 			if (secondary!=1)
-				glColor3fv(darker_g);
+				glColor4fv(dark_g);
 			else
-				glColor3fv(bright_g);
-			ogl_drawcircle2(8,GL_LINE_LOOP,2.0,-10.0,2.0,-1.0);
+				glColor4fv(bright_g);
+			ogl_drawcircle2(16,GL_LINE_LOOP,2.0,-10.0,2.0,-2.0);
 			//right secondary
 			if (secondary!=2)
-				glColor3fv(darker_g);
+				glColor4fv(dark_g);
 			else
-				glColor3fv(bright_g);
-			ogl_drawcircle2(8,GL_LINE_LOOP,2.0,10.0,2.0,-1.0);
+				glColor4fv(bright_g);
+			ogl_drawcircle2(16,GL_LINE_LOOP,2.0,10.0,2.0,-2.0);
 		}else{
 			//bottom/middle secondary
 			if (secondary!=4)
-				glColor3fv(darker_g);
+				glColor4fv(dark_g);
 			else
-				glColor3fv(bright_g);
-			ogl_drawcircle2(8,GL_LINE_LOOP,2.0,0.0,2.0,-7.0);
+				glColor4fv(bright_g);
+			ogl_drawcircle2(16,GL_LINE_LOOP,2.0,0.0,2.0,-8.0);
 		}
 		glEndList();
 	}else
