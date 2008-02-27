@@ -564,8 +564,8 @@ int load_mission(mle *mission)
 
 				n_levels = atoi(v);
 
-				for (i=0;i<n_levels && cfgets(buf,80,mfile);i++) {
-
+				for (i=0;i<n_levels;i++) {
+					cfgets(buf,80,mfile);
 					add_term(buf);
 					if (strlen(buf) <= 12) {
 						strcpy(Level_names[i],buf);
@@ -585,10 +585,10 @@ int load_mission(mle *mission)
 
 				Assert(N_secret_levels <= MAX_SECRET_LEVELS_PER_MISSION);
 
-				for (i=0;i<N_secret_levels && cfgets(buf,80,mfile);i++) {
+				for (i=0;i<N_secret_levels;i++) {
 					char *t;
 
-					
+					cfgets(buf,80,mfile);
 					if ((t=strchr(buf,','))!=NULL) *t++=0;
 					else
 						break;

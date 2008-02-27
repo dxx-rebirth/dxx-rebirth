@@ -87,18 +87,14 @@ void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
 		ubyte *p;
 
 		if (!(c2==0 || c2=='\n')) {
-			int letter2;
-#ifndef OGL
-			letter2 = c2-grd_curcanv->cv_font->ft_minchar;
-#else
-			letter2 = FONTSCALE_X(c2-grd_curcanv->cv_font->ft_minchar)+10;
-#endif
+			int letter2 = c2-grd_curcanv->cv_font->ft_minchar;
+
 			if (INFONT(letter2)) {
 
 				p = find_kern_entry(grd_curcanv->cv_font,(ubyte)letter,letter2);
 
 				if (p)
-					*spacing = p[2];
+					*spacing = FONTSCALE_X(p[2]);
 			}
 		}
 	}

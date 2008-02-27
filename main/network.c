@@ -2200,10 +2200,6 @@ network_find_game(void)
 	while (timer_get_approx_seconds() < t1) // Wait 3 seconds for replies
 		network_listen();
 
-	clear_boxed_message();
-
-//	mprintf((0, "%s %d %s\n", TXT_FOUND, num_active_games, TXT_ACTIVE_GAMES));
-
 	if (num_active_games < MAX_ACTIVE_NETGAMES)
 		return 0;
 	return 1;

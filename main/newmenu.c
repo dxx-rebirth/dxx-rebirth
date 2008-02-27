@@ -175,7 +175,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 
 	Gr_scanline_darkening_level = 2*7;
 	gr_setcolor( BM_XRGB(1,1,1) );
-	for (w=5*BGScaleX;w>0;w--)
+	for (w=5*BGScaleX;w>=0;w--)
 		gr_urect( x2-w, y1+w*(BGScaleY/BGScaleX), x2-w, y2-w*(BGScaleY/BGScaleX) );//right edge
 	gr_setcolor( BM_XRGB(0,0,0) );
 	for (h=5*BGScaleY;h>0;h--)
@@ -319,7 +319,7 @@ void update_cursor( newmenu_item *item, int ScrollOffset)
 		gr_string( x, y, CURSOR_STRING );
 	else {
 		gr_setcolor( BM_XRGB(0,0,0) );
-		gr_rect( x, y, x+FSPACX(7), y+FSPACY(10) );
+		gr_rect( x, y, x+FSPACX(7), y+h );
 	}
 
 }
@@ -540,6 +540,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 	if (nitems < 1 )
 		return -1;
+
+	newmenu_close();
 
         MaxDisplayable=nitems;
 
@@ -1343,8 +1345,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	gr_set_current_canvas( save_canvas );
 	keyd_repeat = old_keyd_repeat;
 
-	newmenu_close();
-
 	game_flush_inputs();
 
 	if (time_stopped)
@@ -1411,20 +1411,26 @@ int nm_messagebox( char *title, int nchoices, ... )
 	return newmenu_do( title, nm_text, nchoices, nm_message_items, NULL );
 }
 
+/* Honestly I think we don't ened this function anymore since PhysFS already takes care about 
+   sorting files. However I keep it since:
+   a) it's just one function
+   b) works with FILENAME_LEN so it doesn'T break if we decide to support more than 8+3 filename length
+   c) I am not sure if PhysFS sorty correctly on all platforms
+*/
 void newmenu_file_sort( int n, char *list )
 {
 	int i, j, incr;
-	char t[14];
+	char t[(FILENAME_LEN+1)];
 
 	incr = n / 2;
 	while( incr > 0 ) {
 		for (i=incr; i<n; i++ ) {
 			j = i - incr;
 			while (j>=0 ) {
-				if (strncmp(&list[j*14], &list[(j+incr)*14], 12) > 0) {
-					memcpy( t, &list[j*14], 13 );
-					memcpy( &list[j*14], &list[(j+incr)*14], 13 );
-					memcpy( &list[(j+incr)*14], t, 13 );
+				if (strncmp(&list[j*(FILENAME_LEN+1)], &list[(j+incr)*(FILENAME_LEN+1)], FILENAME_LEN-1) > 0) {
+					memcpy( t, &list[j*(FILENAME_LEN+1)], FILENAME_LEN );
+					memcpy( &list[j*(FILENAME_LEN+1)], &list[(j+incr)*(FILENAME_LEN+1)], FILENAME_LEN );
+					memcpy( &list[(j+incr)*(FILENAME_LEN+1)], t, FILENAME_LEN );
 					j -= incr;
 				}
 				else
@@ -1438,7 +1444,7 @@ void newmenu_file_sort( int n, char *list )
 void delete_player_saved_games(char * name)
 {
 	int i;
-	char filename[16];
+	char filename[FILENAME_LEN + (GameArg.SysUsePlayersDir?9:1)];
 
 	for (i=0;i<10; i++)
 	{
@@ -1448,7 +1454,7 @@ void delete_player_saved_games(char * name)
 	}
 }
 
-#define MAX_FILES 100
+#define MAX_FILES 300
 
 int MakeNewPlayerFile(int allow_abort);
 
@@ -1468,7 +1474,7 @@ int newmenu_get_filename( char * title, char * type, char * filename, int allow_
 	int demos_deleted=0;
 	int initialized = 0;
 	int exit_value = 0;
-	int w_x, w_y, w_w, w_h, title_height, height;
+	int w_x, w_y, w_w, w_h, title_height, height=0;
 	int box_x, box_y, box_w, box_h;
 #ifdef NEWMENU_MOUSE
 	int mx, my, mz, x1, x2, y1, y2, mouse_state, omouse_state;
@@ -1479,9 +1485,10 @@ int newmenu_get_filename( char * title, char * type, char * filename, int allow_
 	w_x=w_y=w_w=w_h=title_height=0;
 	box_x=box_y=box_w=box_h=0;
 
-	filenames = d_malloc( MAX_FILES * 14 );
+	filenames = d_malloc( MAX_FILES * (FILENAME_LEN+1) );
 	if (filenames==NULL) return 0;
 
+	newmenu_close();
 	citem = 0;
 	keyd_repeat = 1;
 
@@ -1495,7 +1502,7 @@ ReadFileNames:
 	NumFiles=0;
 	
 	if (player_mode)	{
-		strncpy( &filenames[NumFiles*14], TXT_CREATE_NEW, FILENAME_LEN );
+		strncpy( &filenames[NumFiles*(FILENAME_LEN+1)], TXT_CREATE_NEW, FILENAME_LEN );
 		NumFiles++;
 	}
 
@@ -1508,12 +1515,12 @@ ReadFileNames:
 
 		if (NumFiles < MAX_FILES)
 		{
-			strncpy(&filenames[NumFiles*14], *f, FILENAME_LEN);
+			snprintf(&filenames[NumFiles*(FILENAME_LEN+1)],FILENAME_LEN,*f);
 			if (player_mode)
 			{
 				char *p;
 
-				p = strchr(&filenames[NumFiles*14], '.');
+				p = strchr(&filenames[NumFiles*(FILENAME_LEN+1)], '.');
 				if (p)
 					*p = '\0';
 			}
@@ -1555,7 +1562,7 @@ ReadFileNames:
 		box_w = 0;
 		for (i=0; i<NumFiles; i++ ) {
 			int w, h, aw;
-			gr_get_string_size( &filenames[i*14], &w, &h, &aw );		
+			gr_get_string_size( &filenames[i*(FILENAME_LEN+1)], &w, &h, &aw );
 			if ( w > box_w )
 				box_w = w+FSPACX(10);
 		}
@@ -1581,9 +1588,9 @@ ReadFileNames:
 	if ( !player_mode )	{
 		newmenu_file_sort( NumFiles, filenames );
 	} else {
-		newmenu_file_sort( NumFiles-1, &filenames[14] );		// Don't sort first one!
+		newmenu_file_sort( NumFiles-1, &filenames[(FILENAME_LEN+1)] );		// Don't sort first one!
 		for ( i=0; i<NumFiles; i++ )	{
-			if (!stricmp(Players[Player_num].callsign, &filenames[i*14]) )	{
+			if (!stricmp(Players[Player_num].callsign, &filenames[i*(FILENAME_LEN+1)]) )	{
 #ifdef NEWMENU_MOUSE
 				dblclick_flag = 1;
 #endif
@@ -1632,9 +1639,9 @@ ReadFileNames:
 				int x = 1;
 				newmenu_hide_cursor();
 				if (player_mode)
-					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, &filenames[citem*14]+((player_mode && filenames[citem*14]=='$')?1:0) );
+					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, &filenames[citem*(FILENAME_LEN+1)]+((player_mode && filenames[citem*(FILENAME_LEN+1)]=='$')?1:0) );
 				else if (demo_mode)
-					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, &filenames[citem*14]+((demo_mode && filenames[citem*14]=='$')?1:0) );
+					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, &filenames[citem*(FILENAME_LEN+1)]+((demo_mode && filenames[citem*(FILENAME_LEN+1)]=='$')?1:0) );
 				newmenu_show_cursor();
  				if (x==0)	{
 					char * p;
@@ -1642,30 +1649,30 @@ ReadFileNames:
 					int ret;
 					char name[PATH_MAX];
 
-					p = &filenames[(citem*14)+strlen(&filenames[citem*14])];
+					p = &filenames[(citem*(FILENAME_LEN+1))+strlen(&filenames[citem*(FILENAME_LEN+1)])];
 					if (player_mode)
 						*p = '.';
 
 					strcpy(name, demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
-					strcat(name,&filenames[citem*14]);
+					strcat(name,&filenames[citem*(FILENAME_LEN+1)]);
 					
 					ret = !PHYSFS_delete(name);
 					if (player_mode)
 						*p = 0;
 
 					if ((!ret) && player_mode)	{
-						delete_player_saved_games( &filenames[citem*14] );
+						delete_player_saved_games( &filenames[citem*(FILENAME_LEN+1)] );
 						// delete PLX file
-						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", &filenames[citem*14]);
+						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", &filenames[citem*(FILENAME_LEN+1)]);
 						if (cfexist(plxfile))
 							PHYSFS_delete(plxfile);
 					}
 
 					if (ret) {
 						if (player_mode)
-							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, &filenames[citem*14]+((player_mode && filenames[citem*14]=='$')?1:0) );
+							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, &filenames[citem*(FILENAME_LEN+1)]+((player_mode && filenames[citem*(FILENAME_LEN+1)]=='$')?1:0) );
 						else if (demo_mode)
-							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, &filenames[citem*14]+((demo_mode && filenames[citem*14]=='$')?1:0) );
+							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, &filenames[citem*(FILENAME_LEN+1)]+((demo_mode && filenames[citem*(FILENAME_LEN+1)]=='$')?1:0) );
 					} else if (demo_mode)
 						demos_deleted = 1;
 					first_item = -1;
@@ -1726,7 +1733,7 @@ ReadFileNames:
 						if ( cc >= NumFiles ) cc = 0;
 						if ( citem == cc ) break;
 	
-						if ( toupper(filenames[cc*14]) == toupper(ascii) )	{
+						if ( toupper(filenames[cc*(FILENAME_LEN+1)]) == toupper(ascii) )	{
 							citem = cc;
 							break;
 						}
@@ -1768,7 +1775,7 @@ ReadFileNames:
 
 			mouse_get_pos(&mx, &my, &mz);
 			for (i=first_item; i<first_item+NumFiles_displayed; i++ )	{
-				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
+				gr_get_string_size(&filenames[i*(FILENAME_LEN+1)], &w, &h, &aw  );
 				x1 = box_x;
 				x2 = box_x + box_w;
 				y1 = (i-first_item)*LINE_SPACING + box_y;
@@ -1787,7 +1794,7 @@ ReadFileNames:
 		if (!mouse_state && omouse_state) {
 			int w, h, aw;
 
-			gr_get_string_size(&filenames[citem*14], &w, &h, &aw  );
+			gr_get_string_size(&filenames[citem*(FILENAME_LEN+1)], &w, &h, &aw  );
 			mouse_get_pos(&mx, &my, &mz);
 			x1 = box_x;
 			x2 = box_x + box_w;
@@ -1818,7 +1825,7 @@ ReadFileNames:
 					gr_set_curfont(MEDIUM2_FONT);
 				else	
 					gr_set_curfont(MEDIUM1_FONT);
-				gr_get_string_size(&filenames[i*14], &w, &h, &aw  );
+				gr_get_string_size(&filenames[i*(FILENAME_LEN+1)], &w, &h, &aw  );
 
 				gr_setcolor( BM_XRGB(5,5,5));
 				gr_rect( box_x + box_w - FSPACX(1), y-FSPACY(1), box_x + box_w, y + LINE_SPACING);
@@ -1827,12 +1834,10 @@ ReadFileNames:
 				gr_setcolor( BM_XRGB(0,0,0));
 				gr_rect( box_x, y - FSPACY(1), box_x + box_w - FSPACX(1), y + LINE_SPACING);
 
-				gr_string( box_x + FSPACX(5), y, (&filenames[i*14])+((player_mode && filenames[i*14]=='$')?1:0)  );
+				gr_string( box_x + FSPACX(5), y, (&filenames[i*(FILENAME_LEN+1)])+((player_mode && filenames[i*(FILENAME_LEN+1)]=='$')?1:0)  );
 			}
 		}
 	}
-
-	newmenu_close();
 
 #ifdef NEWMENU_MOUSE
 	newmenu_hide_cursor();
@@ -1840,7 +1845,7 @@ ReadFileNames:
 
 ExitFileMenuEarly:
 	if ( citem > -1 )	{
-		strncpy( filename, (&filenames[citem*14])+((player_mode && filenames[citem*14]=='$')?1:0), FILENAME_LEN );
+		strncpy( filename, (&filenames[citem*(FILENAME_LEN+1)])+((player_mode && filenames[citem*(FILENAME_LEN+1)]=='$')?1:0), FILENAME_LEN );
 		exit_value = 1;
 	} else {
 		exit_value = 0;
@@ -1897,6 +1902,8 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 #endif
 
 	keyd_repeat = 1;
+
+	newmenu_close();
 
 	gr_set_current_canvas(NULL);
 
@@ -2106,8 +2113,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 	if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
 		gr_free_bitmap(bg.background);
-
-	newmenu_close();
 
 	return citem;
 }

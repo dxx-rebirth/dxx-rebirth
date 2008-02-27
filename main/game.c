@@ -1373,18 +1373,14 @@ int allowed_to_fire_missile(void)
 	return 1;
 }
 
-typedef struct bkg {
-	short x, y, w, h;	// The location of the menu.
-	grs_bitmap * bmp;	// The background under the menu.
-} bkg;
-
-bkg bg = {0,0,0,0,NULL};
-
 //show a message in a nice little box
 void show_boxed_message(char *msg, int RenderFlag)
 {
 	int w,h,aw;
 	int x,y;
+
+	if (Function_mode==FMODE_GAME && RenderFlag)
+		game_do_render_frame(0);
 
 	gr_set_current_canvas(NULL);
 	gr_set_curfont( MEDIUM1_FONT );
@@ -1394,8 +1390,6 @@ void show_boxed_message(char *msg, int RenderFlag)
 	x = (SWIDTH-w)/2;
 	y = (SHEIGHT-h)/2;
 
-	if (Function_mode==FMODE_GAME && RenderFlag)
-		game_do_render_frame(0);
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
 	gr_printf( 0x8000, y, msg );
@@ -1403,18 +1397,6 @@ void show_boxed_message(char *msg, int RenderFlag)
 #ifdef OGL
 	gr_flip();
 #endif
-}
-
-void clear_boxed_message()
-{
-	if (bg.bmp)
-	{
-		gr_bitmap(bg.x-BORDERX, bg.y-BORDERY, bg.bmp);
-		gr_free_bitmap(bg.bmp);
-		bg.bmp = NULL;
-		gr_update();
-	}
-	newmenu_close();
 }
 
 extern int Death_sequence_aborted;
@@ -1474,11 +1456,9 @@ int do_game_pause()
 				break;
 			case KEY_ESC:
 				Function_mode = FMODE_MENU;
-				clear_boxed_message();
 				Game_paused=0;
 				break;
 			case KEY_F1:
- 				clear_boxed_message();
 				show_help();
 				show_boxed_message(TXT_PAUSE, 1);
 				break;
@@ -1490,7 +1470,6 @@ int do_game_pause()
 		}
 	}
 
-	clear_boxed_message();
 	game_flush_inputs();
 	reset_cockpit();
 	start_time();

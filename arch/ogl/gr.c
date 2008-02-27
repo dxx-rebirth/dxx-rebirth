@@ -539,7 +539,7 @@ void save_screen_shot(int automap_flag)
 	{
 		render_frame(0);
 		gr_set_curfont(MEDIUM2_FONT);
-		gr_printf(SWIDTH-FSPACX(3),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
+		gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
 		glReadBuffer(GL_BACK);
 	}
 	else

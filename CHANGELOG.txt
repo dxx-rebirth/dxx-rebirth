@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080228
+--------
+2d/font.c, arch/ogl/gr.c, arch/ogl/ogl.c, main/game.c, main/game.h, main/gameseq.c, main/gauges.c, main/hud.c, main/mission.c, main/network.c, main/newmenu.c, main/paging.c, main/state.c: Fixed wrong font width spacing, -gl_prshot, mission loading, null-terminatinon in several menus, cockpit glitch; Improved gl_reticle, -noredundancy; Some code cleanup
+
 20080224
 --------
 main/newdemo.c: make sure the right error message is shown if it can't open a demo

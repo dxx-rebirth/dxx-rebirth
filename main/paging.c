@@ -444,8 +444,6 @@ void paging_touch_all()
 
 	mprintf(( 0, "done\n" ));
 
-	clear_boxed_message();
-
 	if ( black_screen )	{
 		gr_palette_clear();
 		gr_clear_canvas( 0 );
