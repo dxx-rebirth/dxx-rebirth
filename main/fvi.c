@@ -373,8 +373,8 @@ int disable_new_fvi_stuff=0;
 int special_check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,segment *seg,int side,int facenum,int nv,fix rad)
 {
 	vms_vector move_vec;
-	fix edge_t,move_t,edge_t2,move_t2,closest_dist;
-	fix edge_len,move_len;
+	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0,closest_dist=0;
+	fix edge_len=0,move_len=0;
 	int vertex_list[6];
 	int num_faces,edgenum;
 	uint edgemask;
@@ -419,7 +419,6 @@ int special_check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,se
 	check_line_to_line(&edge_t,&move_t,edge_v0,&edge_vec,p0,&move_vec);
 
 	//make sure t values are in valid range
-
 	if (move_t<0 || move_t>move_len+rad)
 		return IT_NONE;
 

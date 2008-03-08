@@ -43,7 +43,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Gives state of recorder
 extern int Newdemo_state;
 extern int NewdemoFrameCount;
-extern int Newdemo_game_mode;
 
 extern int Newdemo_vcr_state;
 extern sbyte Newdemo_do_interpolate;

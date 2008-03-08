@@ -118,6 +118,8 @@ extern int init_hoard_data();
 sbyte WasRecorded [MAX_OBJECTS];
 sbyte ViewWasRecorded[MAX_OBJECTS];
 sbyte RenderingWasRecorded[32];
+object DemoRightExtra,DemoLeftExtra;
+ubyte DemoDoRight=0,DemoDoLeft=0;
 
 #define ND_EVENT_EOF                0   // EOF
 #define ND_EVENT_START_DEMO         1   // Followed by 16 character, NULL terminated filename of .SAV file to use
@@ -191,7 +193,6 @@ int Newdemo_vcr_state = 0;
 int Newdemo_start_frame = -1;
 unsigned int Newdemo_size;
 int Newdemo_num_written;
-int Newdemo_game_mode;
 int Newdemo_old_cockpit;
 sbyte Newdemo_no_space;
 sbyte Newdemo_at_eof;
@@ -428,6 +429,8 @@ static void nd_read_shortpos(object *obj)
 	int i;
 	ubyte render_type;
 
+	memset(&sp,0,sizeof(shortpos));
+
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
 		for (i = 0; i < 9; i++)
@@ -452,8 +455,6 @@ object *prev_obj=NULL;      //ptr to last object read in
 
 void nd_read_object(object *obj)
 {
-	int* sig = &(obj->signature);
-
 	memset(obj, 0, sizeof(object));
 
 	/*
@@ -467,7 +468,7 @@ void nd_read_object(object *obj)
 
 	nd_read_byte((sbyte *) &(obj->id));
 	nd_read_byte((sbyte *) &(obj->flags));
-	nd_read_short((short *)sig);
+	nd_read_short((short *)&(obj->signature));
 	nd_read_shortpos(obj);
 
 	if ((obj->type == OBJ_ROBOT) && (obj->id == SPECIAL_REACTOR_ROBOT))
@@ -1498,16 +1499,16 @@ int newdemo_read_demo_start(int rnd_demo)
 	Boss_cloak_start_time=Boss_cloak_end_time=GameTime;
 	JasonPlaybackTotal=0;
 
-	nd_read_int(&Newdemo_game_mode);
+	nd_read_int(&Game_mode);
 
 #ifdef NETWORK
-	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);
-	if (Newdemo_game_mode & GM_TEAM) {
+	change_playernum_to((Game_mode >> 16) & 0x7);
+	if (Game_mode & GM_TEAM) {
 		nd_read_byte((sbyte *) &(Netgame.team_vector));
 		nd_read_string(Netgame.team_name[0]);
 		nd_read_string(Netgame.team_name[1]);
 	}
-	if (Newdemo_game_mode & GM_MULTI) {
+	if (Game_mode & GM_MULTI) {
 
 		multi_new_game();
 		nd_read_byte(&c);
@@ -1521,16 +1522,14 @@ int newdemo_read_demo_start(int rnd_demo)
 			nd_read_string(Players[i].callsign);
 			nd_read_byte(&(Players[i].connected));
 
-			if (Newdemo_game_mode & GM_MULTI_COOP) {
+			if (Game_mode & GM_MULTI_COOP) {
 				nd_read_int(&(Players[i].score));
 			} else {
 				nd_read_short((short *)&(Players[i].net_killed_total));
 				nd_read_short((short *)&(Players[i].net_kills_total));
 			}
 		}
-		Game_mode = Newdemo_game_mode;
 		multi_sort_kill_list();
-		Game_mode = GM_NORMAL;
 	} else
 #endif
 		nd_read_int(&(Players[Player_num].score));      // Note link to above if!
@@ -1619,8 +1618,7 @@ int newdemo_read_frame_information()
 	int done, segnum, side, objnum, soundno, angle, volume, i,shot;
 	object *obj;
 	sbyte c,WhichWindow;
-	static sbyte saved_letter_cockpit;
-	static sbyte saved_rearview_cockpit;
+	static sbyte saved_letter_cockpit, saved_rearview_cockpit, saved_guided_cockpit;
 	object extraobj;
 	static char LastReadValue=101;
 	segment *seg;
@@ -1668,6 +1666,8 @@ int newdemo_read_frame_information()
 					done = -1;
 					break;
 				}
+				// offset to compensate inaccuracy between object and viewer
+				vm_vec_scale_add(&extraobj.pos,&extraobj.pos,&extraobj.orient.fvec,F1_0*5 );
 				nd_render_extras (WhichWindow,&extraobj);
 			}
 			else
@@ -1712,10 +1712,10 @@ int newdemo_read_frame_information()
 
 				obj_link(obj-Objects,segnum);
 #ifdef NETWORK
-				if ((obj->type == OBJ_PLAYER) && (Newdemo_game_mode & GM_MULTI)) {
+				if ((obj->type == OBJ_PLAYER) && (Game_mode & GM_MULTI)) {
 					int player;
 
-					if (Newdemo_game_mode & GM_TEAM)
+					if (Game_mode & GM_TEAM)
 						player = get_team(obj->id);
 					else
 						player = obj->id;
@@ -1777,7 +1777,7 @@ int newdemo_read_frame_information()
 				nd_read_int( &loop_start );
 				nd_read_int( &loop_end );
 				objnum = newdemo_find_object( signature );
-				if ( objnum > -1 )  {   //  @mk, 2/22/96, John told me to.
+				if ( objnum > -1 && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
 					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, max_distance, loop_start, loop_end );
 				}
 			}
@@ -1788,7 +1788,7 @@ int newdemo_read_frame_information()
 				int objnum, signature;
 				nd_read_int( &signature );
 				objnum = newdemo_find_object( signature );
-				if ( objnum > -1 )  {   //  @mk, 2/22/96, John told me to.
+				if ( objnum > -1 && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
 					digi_kill_sound_linked_to_object(objnum);
 				}
 			}
@@ -1891,18 +1891,31 @@ int newdemo_read_frame_information()
 
 			nd_read_string(&(hud_msg[0]));
 			if (nd_bad_read) { done = -1; break; }
-			HUD_init_message( hud_msg );
+			if (Newdemo_vcr_state != ND_STATE_PAUSED)
+				HUD_init_message( hud_msg );
 			break;
 			}
 		case ND_EVENT_START_GUIDED:
 			Newdemo_flying_guided=1;
-			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
+			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
+				saved_guided_cockpit = Cockpit_mode;
+				if (Cockpit_mode == CM_FULL_COCKPIT && 1)
+					select_cockpit(CM_STATUS_BAR);
+			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Newdemo_flying_guided=0;
+				select_cockpit(saved_guided_cockpit);
+			}
 			break;
 		case ND_EVENT_END_GUIDED:
 			Newdemo_flying_guided=0;
-			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
+			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Newdemo_flying_guided=1;
+				saved_guided_cockpit = Cockpit_mode;
+				if (Cockpit_mode == CM_FULL_COCKPIT && 1)
+					select_cockpit(CM_STATUS_BAR);
+			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
+				select_cockpit(saved_guided_cockpit);
+			}
 			break;
 
 		case ND_EVENT_PALETTE_EFFECT: {
@@ -2065,10 +2078,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_CHANGE_COCKPIT: {
 			int dummy;
-
 			nd_read_int (&dummy);
-			select_cockpit (dummy);
-
 			break;
 		}
 		case ND_EVENT_REARVIEW:
@@ -2191,16 +2201,14 @@ int newdemo_read_frame_information()
 			nd_read_byte(&kill);
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Players[pnum].net_kills_total -= kill;
-				if (Newdemo_game_mode & GM_TEAM)
+				if (Game_mode & GM_TEAM)
 					team_kills[get_team(pnum)] -= kill;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[pnum].net_kills_total += kill;
-				if (Newdemo_game_mode & GM_TEAM)
+				if (Game_mode & GM_TEAM)
 					team_kills[get_team(pnum)] += kill;
 			}
-			Game_mode = Newdemo_game_mode;
 			multi_sort_kill_list();
-			Game_mode = GM_NORMAL;
 			break;
 		}
 
@@ -2269,9 +2277,7 @@ int newdemo_read_frame_information()
 				Players[pnum].score -= score;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
 				Players[pnum].score += score;
-			Game_mode = Newdemo_game_mode;
 			multi_sort_kill_list();
-			Game_mode = GM_NORMAL;
 			break;
 		}
 
@@ -2445,21 +2451,17 @@ int newdemo_read_frame_information()
 				}
 
 #ifdef NETWORK
-				Game_mode = Newdemo_game_mode; // more a HACK to get hoard textures working, but not bad to have it anyways
-
-				if (Newdemo_game_mode & GM_HOARD)
+				if (Game_mode & GM_HOARD)
 					init_hoard_data();
 
-				if (Newdemo_game_mode & GM_CAPTURE || Newdemo_game_mode & GM_HOARD)
+				if (Game_mode & GM_CAPTURE || Game_mode & GM_HOARD)
 					multi_apply_goal_textures ();
-
-				Game_mode = 0;
 #endif
 				JustStartedPlayback=0;
 			}
 
 
-			// so says Rob H.!!!			if (Newdemo_game_mode & GM_MULTI) {
+			// so says Rob H.!!!			if (Game_mode & GM_MULTI) {
 			// so says Rob H.!!!				for (i = 0; i < Num_walls; i++) {
 			// so says Rob H.!!!					if (Walls[i].type == WALL_BLASTABLE)
 			// so says Rob H.!!!					{
@@ -2554,7 +2556,7 @@ void newdemo_goto_end(int FrameCountOnly)
 
 	nd_read_short(&frame_length);
 	loc = cftell(infile);
-	if (Newdemo_game_mode & GM_MULTI)
+	if (Game_mode & GM_MULTI)
 		nd_read_byte(&Newdemo_players_cloaked);
 	else
 		nd_read_byte(&bbyte);
@@ -2585,7 +2587,7 @@ void newdemo_goto_end(int FrameCountOnly)
 		update_laser_weapon_info();
 	}
 
-	if (Newdemo_game_mode & GM_MULTI) {
+	if (Game_mode & GM_MULTI) {
 		nd_read_byte(&c);
 		N_players = (int)c;
 		// see newdemo_read_start_demo for explanation of
@@ -2594,7 +2596,7 @@ void newdemo_goto_end(int FrameCountOnly)
 		for (i = 0; i < N_players; i++) {
 			nd_read_string(Players[i].callsign);
 			nd_read_byte(&(Players[i].connected));
-			if (Newdemo_game_mode & GM_MULTI_COOP) {
+			if (Game_mode & GM_MULTI_COOP) {
 				nd_read_int(&(Players[i].score));
 			} else {
 				nd_read_short((short *)&(Players[i].net_killed_total));
@@ -2691,7 +2693,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 				//  Some of this code taken from ai_turn_towards_vector
 				//  Don't do the interpolation on certain render types which don't use an orientation matrix
 
-				if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP) || (render_type == RT_WEAPON_VCLIP))) {
+				if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP))) {
 
 					vms_vector  fvec1, fvec2, rvec1, rvec2;
 					fix         mag1;
@@ -3256,23 +3258,25 @@ void newdemo_start_playback(char * filename)
 		return;
 	}
 
-	// read last frame information and save last FrameCount
-	newdemo_goto_end(1);
-	TotalFrames=NewdemoFrameCount;
-	PHYSFS_seek(infile, 0);
-
 	nd_bad_read = 0;
 #ifdef NETWORK
 	change_playernum_to(0);                 // force playernum to 0
 #endif
 	strncpy(nd_save_callsign, Players[Player_num].callsign, CALLSIGN_LEN);
+	Players[Player_num].lives=0;
 	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
+
+	// read last frame information and save last FrameCount
+	newdemo_goto_end(1);
+	TotalFrames=NewdemoFrameCount;
+	PHYSFS_seek(infile, 0);
+
 	if (newdemo_read_demo_start(rnd_demo)) {
 		PHYSFS_close(infile);
 		return;
 	}
 
-	Game_mode = GM_NORMAL;
+
 	Newdemo_state = ND_STATE_PLAYBACK;
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	Newdemo_old_cockpit = Cockpit_mode;
@@ -3380,9 +3384,6 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 }
 
 #endif
-
-object DemoRightExtra,DemoLeftExtra;
-ubyte DemoDoRight=0,DemoDoLeft=0;
 
 void nd_render_extras (ubyte which,object *obj)
 {

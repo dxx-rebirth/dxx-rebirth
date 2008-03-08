@@ -155,17 +155,17 @@ void show_framerate()
 		int y=GHEIGHT;
 		if (Cockpit_mode==CM_FULL_SCREEN) {
 			if (Game_mode & GM_MULTI)
-				y -= LINE_SPACING * 9;
+				y -= LINE_SPACING * 10;
 			else
 				y -= LINE_SPACING * 5;
 		} else if (Cockpit_mode == CM_STATUS_BAR) {
 			if (Game_mode & GM_MULTI)
-				y -= LINE_SPACING * 5;
+				y -= LINE_SPACING * 6;
 			else
 				y -= LINE_SPACING * 1;
 		} else {
 			if (Game_mode & GM_MULTI)
-				y -= LINE_SPACING * 6;
+				y -= LINE_SPACING * 7;
 			else
 				y -= LINE_SPACING * 2;
 		}
@@ -188,6 +188,7 @@ void show_netplayerinfo()
 	char *eff_strings[]={"trashing","really hurting","seriously effecting","hurting","effecting","tarnishing"};
 	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
 
+	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(255,-1);
 
@@ -256,7 +257,8 @@ void show_netplayerinfo()
 		}
 
 		gr_printf(x+FSPACX(8)*18,y,"%-6d",PingTable[i]);
-		gr_printf(x+FSPACX(8)*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
+		if (i != Player_num)
+			gr_printf(x+FSPACX(8)*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
 	}
 
 	y+=(LINE_SPACING*2)+(LINE_SPACING*(MAX_PLAYERS-N_players));
@@ -433,7 +435,8 @@ void game_draw_hud_stuff()
 
 	render_countdown_gauge();
 
-	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num )	{
+	// this should be made part of hud code some day
+	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && Cockpit_mode != CM_REAR_VIEW)	{
 		int	x = FSPACX(1);
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
@@ -442,17 +445,17 @@ void game_draw_hud_stuff()
 		if (Cruise_speed > 0) {
 			if (Cockpit_mode==CM_FULL_SCREEN) {
 				if (Game_mode & GM_MULTI)
-					y -= LINE_SPACING * 11;
+					y -= LINE_SPACING * 10;
 				else
-					y -= LINE_SPACING * 6;
+					y -= LINE_SPACING * 5;
 			} else if (Cockpit_mode == CM_STATUS_BAR) {
 				if (Game_mode & GM_MULTI)
-					y -= LINE_SPACING * 5;
+					y -= LINE_SPACING * 6;
 				else
 					y -= LINE_SPACING * 1;
 			} else {
 				if (Game_mode & GM_MULTI)
-					y -= LINE_SPACING * 6;
+					y -= LINE_SPACING * 7;
 				else
 					y -= LINE_SPACING * 2;
 			}
@@ -461,16 +464,10 @@ void game_draw_hud_stuff()
 		}
 	}
 
-	if (GameArg.SysFPSIndicator)
+	if (GameArg.SysFPSIndicator && Cockpit_mode != CM_REAR_VIEW)
 		show_framerate();
 
-	if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-		Game_mode = Newdemo_game_mode;
-
 	draw_hud();
-
-	if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-		Game_mode = GM_NORMAL;
 
 	if ( Player_is_dead )
 		player_dead_message();
@@ -562,7 +559,7 @@ ubyte DemoDoingRight=0,DemoDoingLeft=0;
 extern ubyte DemoDoRight,DemoDoLeft;
 extern object DemoRightExtra,DemoLeftExtra;
 
-char DemoWBUType[]={0,WBU_MISSILE,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,WBU_MISSILE};
+char DemoWBUType[]={0,WBU_GUIDED,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,0};
 char DemoRearCheck[]={0,0,0,1,0,0,0};
 char *DemoExtraMessage[]={"PLAYER","GUIDED","MISSILE","REAR","GUIDE-BOT","MARKER","SHIP"};
 
@@ -574,49 +571,51 @@ void show_extra_views()
 	int save_newdemo_state = Newdemo_state;
 	int w;
 
-   if (Newdemo_state==ND_STATE_PLAYBACK)
-    {
-     if (DemoDoLeft)
-      { 
-		 DemoDoingLeft=DemoDoLeft;
-		
-       if (DemoDoLeft==3)
-		 	do_cockpit_window_view(0,ConsoleObject,1,WBU_REAR,"REAR");
-       else
-	      do_cockpit_window_view(0,&DemoLeftExtra,DemoRearCheck[DemoDoLeft],DemoWBUType[DemoDoLeft],DemoExtraMessage[DemoDoLeft]);
-		}
-     else
-		do_cockpit_window_view(0,NULL,0,WBU_WEAPON,NULL);
-
-	  if (DemoDoRight)
+	if (Newdemo_state==ND_STATE_PLAYBACK)
+	{
+		if (DemoDoLeft)
 		{
-		 DemoDoingRight=DemoDoRight;
-		
-       if (DemoDoRight==3)
-		 	do_cockpit_window_view(1,ConsoleObject,1,WBU_REAR,"REAR");
-       else
-   	   do_cockpit_window_view(1,&DemoRightExtra,DemoRearCheck[DemoDoRight],DemoWBUType[DemoDoRight],DemoExtraMessage[DemoDoRight]);
-		} 
-     else
-    	do_cockpit_window_view(1,NULL,0,WBU_WEAPON,NULL);
-	  
-      DemoDoLeft=DemoDoRight=0;
-		DemoDoingLeft=DemoDoingRight=0;
-    
-   	return;
-    } 
+			DemoDoingLeft=DemoDoLeft;
 
-	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) {
+			if (DemoDoLeft==3)
+				do_cockpit_window_view(0,ConsoleObject,1,WBU_REAR,"REAR");
+			else
+				do_cockpit_window_view(0,&DemoLeftExtra,DemoRearCheck[DemoDoLeft],DemoWBUType[DemoDoLeft],DemoExtraMessage[DemoDoLeft]);
+		}
+		else
+			do_cockpit_window_view(0,NULL,0,WBU_WEAPON,NULL);
+	
+		if (DemoDoRight)
+		{
+			DemoDoingRight=DemoDoRight;
+			
+			if (DemoDoRight==3)
+				do_cockpit_window_view(1,ConsoleObject,1,WBU_REAR,"REAR");
+			else
+			{
+				do_cockpit_window_view(1,&DemoRightExtra,DemoRearCheck[DemoDoRight],DemoWBUType[DemoDoRight],DemoExtraMessage[DemoDoRight]);
+			}
+		}
+		else
+			do_cockpit_window_view(1,NULL,0,WBU_WEAPON,NULL);
+		
+		DemoDoLeft=DemoDoRight=0;
+		DemoDoingLeft=DemoDoingRight=0;
+		return;
+	}
+
+	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) 
+	{
 		if (Guided_in_big_window)
-		 {
+		{
 			RenderingType=6+(1<<4);
 			do_cockpit_window_view(1,Viewer,0,WBU_MISSILE,"SHIP");
-		 }
+		}
 		else
-		 {
+		{
 			RenderingType=1+(1<<4);
 			do_cockpit_window_view(1,Guided_missile[Player_num],0,WBU_GUIDED,"GUIDED");
-	    }
+		}
 			
 		did_missile_view=1;
 	}
@@ -628,7 +627,8 @@ void show_extra_views()
 			Guided_missile[Player_num] = NULL;
 		}
 
-		if (Missile_viewer) {		//do missile view
+		if (Missile_viewer) //do missile view
+		{
 			static int mv_sig=-1;
 			if (mv_sig == -1)
 				mv_sig = Missile_viewer->signature;
@@ -716,7 +716,6 @@ void show_extra_views()
 
 int BigWindowSwitch=0;
 extern int force_cockpit_redraw;
-
 void draw_guided_crosshair(void);
 void update_cockpits(int force_redraw);
 
@@ -729,52 +728,47 @@ void game_render_frame_mono(int flip)
 	gr_set_current_canvas(&Screen_3d_window);
 	
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window) {
-		char *msg = "Guided Missile View";
 		object *viewer_save = Viewer;
-		int w,h,aw;
 
-      if (Cockpit_mode==CM_FULL_COCKPIT)
-			{
+		if (Cockpit_mode==CM_FULL_COCKPIT)
+		{
 			 BigWindowSwitch=1;
 			 force_cockpit_redraw=1;
 			 Cockpit_mode=CM_STATUS_BAR;
 			 return;
-		   }
-  
+		}
+
 		Viewer = Guided_missile[Player_num];
 
-  		{
-			update_rendered_data(0, Viewer, 0, 0);
-			render_frame(0, 0);
-  
-			wake_up_rendered_objects(Viewer, 0);
-			Viewer = viewer_save;
+		update_rendered_data(0, Viewer, 0, 0);
+		render_frame(0, 0);
 
-			gr_set_curfont( GAME_FONT );
-			gr_set_fontcolor( BM_XRGB(27,0,0), -1 );
-			gr_get_string_size(msg, &w, &h, &aw );
+		wake_up_rendered_objects(Viewer, 0);
+		Viewer = viewer_save;
 
-			gr_printf(0x8000, FSPACY(1), msg );
+		gr_set_curfont( GAME_FONT );
+		gr_set_fontcolor( BM_XRGB(27,0,0), -1 );
 
-			draw_guided_crosshair();
-		}
+		gr_printf(0x8000, FSPACY(1), "Guided Missile View");
+
+		draw_guided_crosshair();
 
 		HUD_render_message_frame();
 
 		no_draw_hud=1;
 	}
 	else
-	 {	
+	{
 		if (BigWindowSwitch)
-		 {
-		   force_cockpit_redraw=1;
+		{
+			force_cockpit_redraw=1;
 			Cockpit_mode=CM_FULL_COCKPIT;
-		   BigWindowSwitch=0;
+			BigWindowSwitch=0;
 			return;
-		 }
+		}
 		update_rendered_data(0, Viewer, Rear_view, 0);
 		render_frame(0, 0);
-	 }
+	}
 
 	gr_set_current_canvas(&Screen_3d_window);
 
@@ -782,16 +776,8 @@ void game_render_frame_mono(int flip)
 
 	show_extra_views();		//missile view, buddy bot, etc.
 
-	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR) {
-
-		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-			Game_mode = Newdemo_game_mode;
-
+	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
 		render_gauges();
-
-		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-			Game_mode = GM_NORMAL;
-	}
 
 	gr_set_current_canvas(&Screen_3d_window);
 	if (!no_draw_hud)

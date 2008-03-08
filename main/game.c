@@ -290,10 +290,6 @@ void init_cockpit()
 {
 	int x,y,w,h;
 
-	if (Newdemo_state==ND_STATE_RECORDING) {
-		newdemo_record_cockpit_change(Cockpit_mode);
-	}
-
 #ifndef OGL
 	if ((SWIDTH == 320 && SHEIGHT == 200) || (GameArg.GfxHiresGFXAvailable && (SWIDTH == 640 && SHEIGHT == 480)))
 #endif
@@ -330,6 +326,10 @@ void init_cockpit()
 
 		game_init_render_sub_buffers( x, y, w, h );
 		break;
+	}
+
+	if (Newdemo_state==ND_STATE_RECORDING) {
+		newdemo_record_cockpit_change(Cockpit_mode);
 	}
 
 	gr_set_current_canvas(NULL);

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080308
+--------
+main/aipath.c, main/collide.c, main/fvi.c, main/game.c, main/gamecntl.c, main/gamerend.c, main/gauges.c, main/mission.c, main/netdrv.c, main/newdemo.c, main/newdemo.h, main/newmenu.c, main/object.c: Fixed some memory issues; Fixed some HUD element alignment; Only send NetDrv packets if NetDrvInstalled is true; Fixed demo glitches; Actually using Game_mode in demos to make Newdemo_game_mode hacking obsolete
+
 20080228
 --------
 2d/font.c, arch/ogl/gr.c, arch/ogl/ogl.c, main/escort.c, main/game.h, main/gamecntl.c, main/gamepal.c, main/gamerend.c, main/gameseq.c, main/gauges.c, main/hud.c, main/mission.c, main/network.c, main/newmenu.c, main/state.c, main/titles.c: Fixed wrong font width spacing, -gl_prshot, mission loading, null-terminatinon in several menus, cockpit glitch; Improved gl_reticle, -noredundancy; Some code cleanup

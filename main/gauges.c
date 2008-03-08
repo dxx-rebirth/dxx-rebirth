@@ -1658,7 +1658,7 @@ void init_gauges()
 {
 	//draw_gauges_on 	= 1;
 
-	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) || ((Newdemo_state == ND_STATE_PLAYBACK) && (Newdemo_game_mode & GM_MULTI) && !(Newdemo_game_mode & GM_MULTI_COOP)) ) 
+	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) )
 		old_score = -99;
 	else
 		old_score			= -1;
@@ -2333,10 +2333,7 @@ void show_reticle()
 	int use_hires_reticle,ofs,gauge_index;
 
 	if (Newdemo_state==ND_STATE_PLAYBACK && Newdemo_flying_guided)
-	{
-		 draw_guided_crosshair();
 		 return;
-	}
 
 	x = grd_curcanv->cv_bitmap.bm_w/2;
 	y = grd_curcanv->cv_bitmap.bm_h/2;

@@ -148,7 +148,10 @@ void nm_draw_background1(char * filename)
 	if (filename == NULL && Function_mode == FMODE_MENU)
 		filename = Menu_pcx_name;
 	else if (filename == NULL && Function_mode == FMODE_GAME)
+	{
 		game_render_frame_mono(0);
+		gr_set_current_canvas(NULL);
+	}
 
 	if (filename != NULL)
 	{
@@ -192,6 +195,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	static float BGScaleX=1,BGScaleY=1;
 	grs_canvas *tmp,*old;
 	grs_bitmap bg;
+	static ubyte BGPal[768];
 
 #ifndef OGL
 	if (nm_background.bm_data)
@@ -366,7 +370,7 @@ void update_cursor( newmenu_item *item, int ScrollOffset)
 	char * text = item->text;
 
 	Assert(item->type==NM_TYPE_INPUT_MENU || item->type==NM_TYPE_INPUT);
-
+	gr_get_string_size(" ", &w, &h, &aw  );
 	while( *text )	{
 		gr_get_string_size(text, &w, &h, &aw  );
 		if ( w > item->w-10 )
@@ -769,7 +773,10 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		mprintf ((0,"Hey, this is a scroll box!\n"));
 	}
 	else
+	{
 		IsScrollBox=0;
+		MaxOnMenu=i;
+	}
 
 	right_offset=0;
 

@@ -619,7 +619,7 @@ int load_mission(mle *mission)
 	*(mle *) Current_mission = *mission;
 	Current_mission->path = d_strdup(mission->path);
 	Current_mission->filename = Current_mission->path + (mission->filename - mission->path);
-
+	Current_mission->n_secret_levels = 0;
 	Current_mission->enhanced = 0;
 
 	// for Descent 1 missions, load descent.hog

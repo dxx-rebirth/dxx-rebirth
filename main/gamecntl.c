@@ -134,6 +134,7 @@ int	redbook_volume = 255;
 extern int	Speedtest_on;			 // Speedtest global adapted from game.c
 extern int Guided_in_big_window;
 extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
+extern ubyte Newdemo_flying_guided;
 
 #ifndef NDEBUG
 extern int	Mark_count;
@@ -696,7 +697,7 @@ void HandleDemoKey(int key)
 		case KEY_F1:	show_newdemo_help();	break;
 		case KEY_F3:
 				
-			 if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window))
+			 if (!Newdemo_flying_guided)
 				toggle_cockpit();
 			 break;
 
@@ -706,7 +707,7 @@ void HandleDemoKey(int key)
 		MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 			#ifdef NETWORK
-			Show_kill_list = (Show_kill_list+1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
+			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
 			#endif
 			break;
 		case KEY_ESC:

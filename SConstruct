@@ -303,7 +303,7 @@ noasm_sources = [
 env = Environment(ENV = os.environ)
 env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
-env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
+env.Append(CPPFLAGS = ['-Wall'])
 env.Append(CPPDEFINES = [('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"')])
 #env.Append(CPPDEFINES = [('VERSION', '\\"' + str(VERSION) + '\\"')])
 #env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
