@@ -248,6 +248,9 @@ void NetDrvSendPacketData( ubyte * data, int datasize, ubyte *network, ubyte *ad
 {
 	IPXPacket_t ipx_header;
 
+	if (!NetDrvInstalled)
+		return;
+
 	memcpy(ipx_header.Destination.Network, network, 4);
 	memcpy(ipx_header.Destination.Node, immediate_address, 6);
 	ipx_header.PacketType = 4; /* Packet Exchange */
@@ -273,6 +276,9 @@ void NetDrvSendBroadcastPacketData( ubyte * data, int datasize )
 {
 	int i, j;
 	ubyte local_address[6];
+
+	if (!NetDrvInstalled)
+		return;
 
 	// Set to all networks besides mine
 	for (i=0; i<Ipx_num_networks; i++ )
@@ -310,6 +316,9 @@ SkipUser:
 void NetDrvSendInternetworkPacketData( ubyte * data, int datasize, ubyte * server, ubyte *address )
 {
 	ubyte local_address[6];
+
+	if (!NetDrvInstalled)
+		return;
 
 #ifdef WORDS_NEED_ALIGNMENT
 	int zero = 0;

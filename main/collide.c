@@ -232,6 +232,8 @@ void bump_two_objects(object *obj0,object *obj1,int damage_flag)
 	vms_vector	force;
 	object		*t=NULL;
 
+	vm_vec_zero(&force);
+
 	if (obj0->movement_type != MT_PHYSICS)
 		t=obj1;
 	else if (obj1->movement_type != MT_PHYSICS)
@@ -1472,8 +1474,8 @@ void collide_robot_and_materialization_center(object *objp)
 	vms_vector	exit_dir;
 	segment *segp=&Segments[objp->segnum];
 
+	vm_vec_zero(&exit_dir);
 	digi_link_sound_to_pos(SOUND_ROBOT_HIT, objp->segnum, 0, &objp->pos, 0, F1_0);
-//	digi_play_sample( SOUND_ROBOT_HIT, F1_0 );
 
 	if ( Robot_info[objp->id].exp1_vclip_num > -1 )
 		object_create_explosion( objp->segnum, &objp->pos, (objp->size/2*3)/4, Robot_info[objp->id].exp1_vclip_num );

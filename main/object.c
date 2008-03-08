@@ -742,6 +742,7 @@ void init_objects()
 
 	for (i=0;i<MAX_OBJECTS;i++) {
 		free_obj_list[i] = i;
+		memset( &Objects[i], 0, sizeof(object) );
 		Objects[i].type = OBJ_NONE;
 		Objects[i].segnum = -1;
 	}

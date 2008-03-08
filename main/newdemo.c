@@ -150,7 +150,6 @@ int Newdemo_vcr_state = 0;
 int Newdemo_start_frame = -1;
 unsigned int Newdemo_size;
 int Newdemo_num_written;
-int Newdemo_game_mode;
 int Newdemo_old_cockpit;
 sbyte Newdemo_no_space;
 sbyte Newdemo_at_eof;
@@ -388,6 +387,8 @@ static void nd_read_shortpos(object *obj)
 	int i;
 	ubyte render_type;
 
+	memset(&sp,0,sizeof(shortpos));
+
 	render_type = obj->render_type;
 	if (((render_type == RT_POLYOBJ) || (render_type == RT_HOSTAGE) || (render_type == RT_MORPH)) || (obj->type == OBJ_CAMERA)) {
 		for (i = 0; i < 9; i++)
@@ -412,8 +413,6 @@ object *prev_obj=NULL;      //ptr to last object read in
 
 void nd_read_object(object *obj)
 {
-	int* sig = &(obj->signature);
-
 	memset(obj, 0, sizeof(object));
 
 	/*
@@ -427,7 +426,7 @@ void nd_read_object(object *obj)
 
 	nd_read_byte((sbyte *) &(obj->id));
 	nd_read_byte((sbyte *) &(obj->flags));
-	nd_read_short((short *)sig);
+	nd_read_short((short *)&(obj->signature));
 	nd_read_shortpos(obj);
 
 	obj->attached_obj = -1;
@@ -1341,19 +1340,19 @@ int newdemo_read_demo_start(int rnd_demo)
 		return 1;
 	}
 	nd_read_fix(&GameTime);
-	nd_read_int(&Newdemo_game_mode);
+	nd_read_int(&Game_mode);
 JasonPlaybackTotal=0;
 #ifndef NETWORK
-	if (Newdemo_game_mode & GM_MULTI) {
+	if (Game_mode & GM_MULTI) {
 		nm_messagebox( NULL, 1, "Ok", "can't playback net game\nwith this version of code\n" );
 		return 1;
 	}
 #endif
 
 #ifdef NETWORK
-	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);
+	change_playernum_to((Game_mode >> 16) & 0x7);
 #ifdef SHAREWARE
-	if (Newdemo_game_mode & GM_TEAM)
+	if (Game_mode & GM_TEAM)
 		nd_read_byte((sbyte *)&(Netgame.team_vector));
 
 	for (i =0 ; i < MAX_PLAYERS; i++) {
@@ -1361,12 +1360,12 @@ JasonPlaybackTotal=0;
  		Players[i].invulnerable_time = 0;
 	}
 #else
-	if (Newdemo_game_mode & GM_TEAM) {
+	if (Game_mode & GM_TEAM) {
 		nd_read_byte((sbyte *)&(Netgame.team_vector));
 		nd_read_string(Netgame.team_name[0]);
 		nd_read_string(Netgame.team_name[1]);
 	}
-	if (Newdemo_game_mode & GM_MULTI) {
+	if (Game_mode & GM_MULTI) {
 
 		multi_new_game();
 		nd_read_byte((sbyte *)&N_players);
@@ -1376,16 +1375,14 @@ JasonPlaybackTotal=0;
 			nd_read_string(Players[i].callsign);
 			nd_read_byte(&(Players[i].connected));
 
-			if (Newdemo_game_mode & GM_MULTI_COOP) {
+			if (Game_mode & GM_MULTI_COOP) {
 				nd_read_int(&(Players[i].score));
 			} else {
 				nd_read_short((short *)&(Players[i].net_killed_total));
 				nd_read_short((short *)&(Players[i].net_kills_total));
 			}
 		}
-		Game_mode = Newdemo_game_mode;
 		multi_sort_kill_list();
-		Game_mode = GM_NORMAL;
 	} else
 #endif
 #endif	//
@@ -1565,10 +1562,10 @@ int newdemo_read_frame_information()
 
 				obj_link(obj-Objects,segnum);
 				#ifdef NETWORK
-				if ((obj->type == OBJ_PLAYER) && (Newdemo_game_mode & GM_MULTI)) {
+				if ((obj->type == OBJ_PLAYER) && (Game_mode & GM_MULTI)) {
 					int player;
 
-					if (Newdemo_game_mode & GM_TEAM)
+					if (Game_mode & GM_TEAM)
 						player = get_team(obj->id);
 					else
 						player = obj->id;
@@ -1702,7 +1699,8 @@ int newdemo_read_frame_information()
 				 (((unsigned char)hud_msg[3]) << 16) |
 				 (((unsigned char)hud_msg[4]) << 24);
 			#endif
-			hud_message(class, hud_msg);
+			if (Newdemo_vcr_state != ND_STATE_PAUSED)
+				hud_message(class, hud_msg);
 			break;
 		}
 
@@ -1990,16 +1988,14 @@ int newdemo_read_frame_information()
 			nd_read_byte(&kill);
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Players[pnum].net_kills_total -= kill;
- 				if (Newdemo_game_mode & GM_TEAM)
+ 				if (Game_mode & GM_TEAM)
  					team_kills[get_team(pnum)] -= kill;
  			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[pnum].net_kills_total += kill;
- 				if (Newdemo_game_mode & GM_TEAM)
+ 				if (Game_mode & GM_TEAM)
  					team_kills[get_team(pnum)] += kill;
 			}
-			Game_mode = Newdemo_game_mode;
 			multi_sort_kill_list();
-			Game_mode = GM_NORMAL;
 			break;
 		}
 		
@@ -2068,9 +2064,7 @@ int newdemo_read_frame_information()
 				Players[pnum].score -= score;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
 				Players[pnum].score += score;
-			Game_mode = Newdemo_game_mode;
 			multi_sort_kill_list();
-			Game_mode = GM_NORMAL;
 			break;
 		}
 #endif
@@ -2220,7 +2214,7 @@ int newdemo_read_frame_information()
 				nd_read_int( &loop_start );
 				nd_read_int( &loop_end );
 				objnum = newdemo_find_object( signature );
-				if ( objnum > -1 )  {   //  @mk, 2/22/96, John told me to.
+				if ( objnum > -1 && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
 					digi_link_sound_to_object3( soundno, objnum, 1, max_volume, max_distance, loop_start, loop_end );
 				}
 			}
@@ -2231,7 +2225,7 @@ int newdemo_read_frame_information()
 				int objnum, signature;
 				nd_read_int( &signature );
 				objnum = newdemo_find_object( signature );
-				if ( objnum > -1 )  {   //  @mk, 2/22/96, John told me to.
+				if ( objnum > -1 && Newdemo_vcr_state == ND_STATE_PLAYBACK)  {   //  @mk, 2/22/96, John told me to.
 					digi_kill_sound_linked_to_object(objnum);
 				}
 			}
@@ -2294,7 +2288,7 @@ void newdemo_goto_end(int FrameCountOnly)
 		LoadLevel(level);
 		piggy_load_level_data();
 	}
-	if (Newdemo_game_mode & GM_MULTI) {
+	if (Game_mode & GM_MULTI) {
 		cfseek(infile, -10, SEEK_END);
 		nd_read_byte(&Newdemo_players_cloaked);
 		for (i = 0; i < MAX_PLAYERS; i++) {
@@ -2347,7 +2341,7 @@ void newdemo_goto_end(int FrameCountOnly)
 
 	nd_read_short(&frame_length);
 	loc = cftell(infile);
-	if (Newdemo_game_mode & GM_MULTI)
+	if (Game_mode & GM_MULTI)
 		nd_read_byte(&Newdemo_players_cloaked);
 	else
 		nd_read_byte(&bbyte);
@@ -2378,12 +2372,12 @@ void newdemo_goto_end(int FrameCountOnly)
 		update_laser_weapon_info();
 	}
 
-	if (Newdemo_game_mode & GM_MULTI) {
+	if (Game_mode & GM_MULTI) {
 		nd_read_byte((sbyte *)&N_players);
 		for (i = 0; i < N_players; i++) {
 			nd_read_string(Players[i].callsign);
 			nd_read_byte(&(Players[i].connected));
-			if (Newdemo_game_mode & GM_MULTI_COOP) {
+			if (Game_mode & GM_MULTI_COOP) {
 				nd_read_int(&(Players[i].score));
 			} else {
 				nd_read_short((short *)&(Players[i].net_killed_total));
@@ -2479,7 +2473,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 //  Some of this code taken from ai_turn_towards_vector
 //  Don't do the interpolation on certain render types which don't use an orientation matrix
 
-				if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP)  || (render_type == RT_WEAPON_VCLIP))) {
+				if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP))) {
 
 				vms_vector	fvec1, fvec2, rvec1, rvec2;
 				fix			mag1;
@@ -2987,23 +2981,24 @@ void newdemo_start_playback(char * filename)
 		return;
 	}
 
-	// read last frame information and save last FrameCount
-	newdemo_goto_end(1);
-	TotalFrames=NewdemoFrameCount;
-	PHYSFS_seek(infile, 0);
-
 	nd_bad_read = 0;
 #ifdef NETWORK
 	change_playernum_to(0);                 // force playernum to 0
 #endif
 	strncpy(nd_save_callsign, Players[Player_num].callsign, CALLSIGN_LEN);
+	Players[Player_num].lives=0;
 	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
+
+	// read last frame information and save last FrameCount
+	newdemo_goto_end(1);
+	TotalFrames=NewdemoFrameCount;
+	PHYSFS_seek(infile, 0);
+
 	if (newdemo_read_demo_start(rnd_demo)) {
 		PHYSFS_close(infile);
 		return;
 	}
 
-	Game_mode = GM_NORMAL;
 	Newdemo_state = ND_STATE_PLAYBACK;
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	Newdemo_old_cockpit = Cockpit_mode;

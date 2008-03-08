@@ -598,17 +598,17 @@ void show_framerate()
 		int y=GHEIGHT;
 		if (Cockpit_mode==CM_FULL_SCREEN) {
 			if (Game_mode & GM_MULTI)
-				y -= LINE_SPACING * 9;
+				y -= LINE_SPACING * 10;
 			else
 				y -= LINE_SPACING * 4;
 		} else if (Cockpit_mode == CM_STATUS_BAR) {
 			if (Game_mode & GM_MULTI)
-				y -= LINE_SPACING * 5;
+				y -= LINE_SPACING * 6;
 			else
 				y -= LINE_SPACING * 1;
 		} else {
 			if (Game_mode & GM_MULTI)
-				y -= LINE_SPACING * 6;
+				y -= LINE_SPACING * 7;
 			else
 				y -= LINE_SPACING * 2;
 		}
@@ -630,6 +630,7 @@ void show_netplayerinfo()
 	int x=0, y=0, i=0, color=0;
 	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
 
+	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(255,-1);
 
@@ -698,7 +699,8 @@ void show_netplayerinfo()
 		}
 
 		gr_printf(x+FSPACX(8)*18,y,"%-6d",PingTable[i]);
-		gr_printf(x+FSPACX(8)*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
+		if (i != Player_num)
+			gr_printf(x+FSPACX(8)*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
 	}
 
 	y+=LINE_SPACING*2+(LINE_SPACING*(MAX_PLAYERS-N_players));
@@ -958,7 +960,8 @@ void game_draw_hud_stuff()
 
 	render_countdown_gauge();
 
-	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num )	{
+	// this should be made part of hud code some day
+	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && Cockpit_mode != CM_REAR_VIEW)	{
 		int	x = FSPACX(1);
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
@@ -967,17 +970,17 @@ void game_draw_hud_stuff()
 		if (Cruise_speed > 0) {
 			if (Cockpit_mode==CM_FULL_SCREEN) {
 				if (Game_mode & GM_MULTI)
-					y -= LINE_SPACING * 11;
+					y -= LINE_SPACING * 10;
 				else
-					y -= LINE_SPACING * 6;
+					y -= LINE_SPACING * 5;
 			} else if (Cockpit_mode == CM_STATUS_BAR) {
 				if (Game_mode & GM_MULTI)
-					y -= LINE_SPACING * 5;
+					y -= LINE_SPACING * 6;
 				else
 					y -= LINE_SPACING * 1;
 			} else {
 				if (Game_mode & GM_MULTI)
-					y -= LINE_SPACING * 6;
+					y -= LINE_SPACING * 7;
 				else
 					y -= LINE_SPACING * 2;
 			}
@@ -986,20 +989,10 @@ void game_draw_hud_stuff()
 		}
 	}
 
-	if (GameArg.SysFPSIndicator)
+	if (GameArg.SysFPSIndicator && Cockpit_mode != CM_REAR_VIEW)
 		show_framerate();
 
-#ifndef SHAREWARE
-	if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-		Game_mode = Newdemo_game_mode;
-#endif
-
 	draw_hud();
-
-#ifndef SHAREWARE
-	if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-		Game_mode = GM_NORMAL;
-#endif
 
 	if ( Player_is_dead )
 		player_dead_message();
@@ -1017,19 +1010,9 @@ void game_do_render_frame(int flip)
 
 	update_cockpits(0);
 
-	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR) {
-
-#ifndef SHAREWARE
-		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-			Game_mode = Newdemo_game_mode;
-#endif
+	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
 		render_gauges();
 
-#ifndef SHAREWARE
-		if ( (Newdemo_state == ND_STATE_PLAYBACK) )
-			Game_mode = GM_NORMAL;
-#endif
-	}
 	gr_set_current_canvas(&Screen_3d_window);
 	game_draw_hud_stuff();
 
@@ -1919,7 +1902,7 @@ void HandleDemoKey(int key)
 		case KEY_F2:	Config_menu_flag = 1;	break;
 		case KEY_F7:
 #ifdef NETWORK
-			Show_kill_list = (Show_kill_list+1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
+			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
 #endif
 		break;
 		case KEY_BACKSP:

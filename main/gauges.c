@@ -1073,7 +1073,7 @@ void close_gauge_canvases()
 void init_gauges()
 {
 
-	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) || ((Newdemo_state == ND_STATE_PLAYBACK) && (Newdemo_game_mode & GM_MULTI) && !(Newdemo_game_mode & GM_MULTI_COOP)) ) 
+	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) )
 		old_score = -99;
 	else
 		old_score		= -1;
@@ -1945,7 +1945,8 @@ void render_gauges()
 		}
 		draw_energy_bar(energy);
 		draw_numerical_display(shields, energy);
-		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
+		if (!GameArg.GfxGaugeHudMode)
+			show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 		draw_player_ship(cloak, old_cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {

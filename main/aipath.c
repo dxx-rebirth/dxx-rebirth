@@ -342,8 +342,8 @@ int create_path_points(object *objp, int start_seg, int end_seg, point_seg *pseg
 			}
 		}	//	for (sidenum...
 
-		if (qtail<=0)
-			return 0;
+		if (qtail <= 0)
+			break;
 
 		if (qhead >= qtail) {
 			//	Couldn't get to goal, return a path as far as we got, which probably acceptable to the unparticular caller.
@@ -358,14 +358,20 @@ int create_path_points(object *objp, int start_seg, int end_seg, point_seg *pseg
 cpp_done1: ;
 	}	//	while (cur_seg ...
 
-	if (qtail<=0)
-		return 0;
-
-	//	Set qtail to the segment which ends at the goal.
-	while (seg_queue[--qtail].end != end_seg)
-		if (qtail < 0) {
-			return -1;
-		}
+	if (qtail > 0)
+	{
+		//	Set qtail to the segment which ends at the goal.
+		while (seg_queue[--qtail].end != end_seg)
+			if (qtail < 0) {
+				// mprintf((0, "\nNo path!\n"));
+				// printf("UNABLE TO FORM PATH");
+				// Int3();
+// 				*num_points = l_num_points;
+				return -1;
+			}
+	}
+	else
+		qtail = -1;
 
 #ifdef EDITOR
 	N_selected_segs = 0;

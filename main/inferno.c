@@ -259,7 +259,7 @@ int main(int argc,char *argv[])
 			  "\tIn a subdirectory called 'Data'\n"
 			  "Or use the -hogdir option to specify an alternate location.");
 
-	cfile_init("dxx.hog", 0);
+	cfile_init("dxx.zip", 0);
 
 	load_text();
 

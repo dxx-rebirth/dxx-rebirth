@@ -101,7 +101,10 @@ void nm_draw_background1(char * filename)
 	if (filename == NULL && Function_mode == FMODE_MENU)
 		filename = Menu_pcx_name;
 	else if (filename == NULL && Function_mode == FMODE_GAME)
+	{
 		game_do_render_frame(0);
+		gr_set_current_canvas(NULL);
+	}
 
 	if (filename != NULL)
 	{
@@ -303,7 +306,7 @@ void update_cursor( newmenu_item *item, int ScrollOffset)
 	char * text = item->text;
 
 	Assert(item->type==NM_TYPE_INPUT_MENU || item->type==NM_TYPE_INPUT);
-
+	gr_get_string_size(" ", &w, &h, &aw  );
 	while( *text )	{
 		gr_get_string_size(text, &w, &h, &aw  );
 		if ( w > item->w-10 )
@@ -690,7 +693,10 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		mprintf ((0,"Hey, this is a scroll box!\n"));
 	}
 	else
+	{
 		IsScrollBox=0;
+		MaxOnMenu=i;
+	}
 
 	for (i=0; i<nitems; i++ )	{
 		item[i].w = w;
