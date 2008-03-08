@@ -2598,6 +2598,13 @@ void ReadControls()
 		}
 
 		while ((key=key_inkey_time(&key_time)) != 0)	{
+#ifdef NETWORK
+			if ( (Game_mode&GM_MULTI) && (multi_sending_message || multi_defining_message ))	{
+				multi_message_input_sub( key );
+				continue;		//get next key
+			}
+#endif
+
 			if (Player_is_dead)
 				HandleDeathKey(key);
 
@@ -2607,12 +2614,6 @@ void ReadControls()
 				HandleDemoKey(key);
 			else
 			{
-#ifdef NETWORK
-				if ( (Game_mode&GM_MULTI) && (multi_sending_message || multi_defining_message ))	{
-					multi_message_input_sub( key );
-					continue;		//get next key
-				}
-#endif
 				FinalCheatsKey(key);
 				HandleGameKey(key);
 			}
