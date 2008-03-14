@@ -174,7 +174,7 @@ void free_reticle_canvas()
 	reticle_canvas = NULL;
 }
 
-extern void show_reticle(int force_big);
+extern void show_reticle();
 
 // Draw the reticle in 3D for head tracking
 void draw_3d_reticle(fix eye_offset)
@@ -231,7 +231,7 @@ void draw_3d_reticle(fix eye_offset)
 	saved_canvas = grd_curcanv;
 	gr_set_current_canvas(reticle_canvas);
 	gr_clear_canvas( 255 );		// Clear to Xparent
-	show_reticle(1);
+	show_reticle();
 	gr_set_current_canvas(saved_canvas);
 	
 	saved_interp_method=Interpolation_method;

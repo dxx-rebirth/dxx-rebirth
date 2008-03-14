@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080313
+--------
+main/render.c: fix potential bug where show_reticle parameters mismatch
+
 20080308
 --------
 main/aipath.c, main/collide.c, main/fvi.c, main/game.c, main/gauges.c, main/mission.c, main/netdrv.c, main/newdemo.c, main/newdemo.h, main/newmenu.c, main/object.c: Fixed some memory issues; Fixed some HUD element alignment; Only send NetDrv packets if NetDrvInstalled is true; Fixed demo glitches; Actually using Game_mode in demos to make Newdemo_game_mode hacking obsolete
