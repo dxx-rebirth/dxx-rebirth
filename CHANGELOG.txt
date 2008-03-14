@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20080314
 --------
 main/network.c: add prototype for show_game_stats to remove warning
+d1x-rebirth.xcodeproj: update sourcefile list in Mac Xcode project file
 
 20080313
 --------
