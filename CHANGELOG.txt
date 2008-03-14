@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080314
+--------
+main/network.c: add prototype for show_game_stats to remove warning
+
 20080313
 --------
 main/render.c: fix potential bug where show_reticle parameters mismatch

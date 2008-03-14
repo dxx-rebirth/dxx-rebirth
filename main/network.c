@@ -3180,6 +3180,8 @@ int network_do_join_game(int choice)
 	return 1;     // look ma, we're in a game!!!
 }
 
+int show_game_stats(int choice);
+
 void network_join_game()
 {
 	int choice, i;
