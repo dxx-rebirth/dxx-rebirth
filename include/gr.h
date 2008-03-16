@@ -24,11 +24,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
+extern int HiresGFXAvailable;
+
 // #define SWAP_0_255		0			// swap black and white
 #define TRANSPARENCY_COLOR	255			// palette entry of transparency color -- 255 on the PC
 
 #define GR_FADE_LEVELS 34
 #define GR_ACTUAL_FADE_LEVELS 32
+#define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 
 #define SCRNS_DIR "screenshots/"
@@ -56,13 +59,13 @@ old_grs_font;
 
 #define BM_LINEAR   0
 
-#define BM_FLAG_TRANSPARENT		1
-#define BM_FLAG_SUPER_TRANSPARENT	2
-#define BM_FLAG_NO_LIGHTING		4
-#define BM_FLAG_RLE			8	// A run-length encoded bitmap.
-#define BM_FLAG_PAGED_OUT		16	// This bitmap's data is paged out.
-#define BM_FLAG_INITIALIZED 		32
-#define BM_FLAG_COCKPIT_TRANSPARENT	64      // for cockpit - render black parts as alpha
+#define BM_FLAG_TRANSPARENT         1
+#define BM_FLAG_SUPER_TRANSPARENT   2
+#define BM_FLAG_NO_LIGHTING         4
+#define BM_FLAG_RLE                 8   // A run-length encoded bitmap.
+#define BM_FLAG_PAGED_OUT           16  // This bitmap's data is paged out.
+#define BM_FLAG_RLE_BIG             32  // for bitmaps that RLE to > 255 per row (i.e. cockpits)
+#define BM_FLAG_COCKPIT_TRANSPARENT 64  // for cockpit - render black parts as alpha
 
 typedef struct _grs_bitmap {
 	short       bm_x,bm_y;      // Offset from parent's origin

@@ -1091,8 +1091,8 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 			}
 			else if (((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256) || 
 					((bm_flags & BM_FLAG_COCKPIT_TRANSPARENT) && 
-						(y >= 151 && y <= 193 && 
-						((x >= weapon_window_left[y-151].l && x <= weapon_window_left[y-151].r) ||  (x >= weapon_window_right[y-151].l && x <= weapon_window_right[y-151].r))
+						(y >= (HIRESMODE?364:151) && y <= (HIRESMODE?469:193) && 
+						 ((x >= WinBoxLeft[y-(HIRESMODE?364:151)].l && x <= WinBoxLeft[y-(HIRESMODE?364:151)].r) ||  (x >= WinBoxRight[y-(HIRESMODE?364:151)].l && x <= WinBoxRight[y-(HIRESMODE?364:151)].r))
 						)
 					)
 				)
@@ -1376,18 +1376,26 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;
 		unsigned char * sbits;
-		int i;
-		sbits = &bm->bm_data[4 + bm->bm_h];
+		int i, data_offset;
+		
+		data_offset = 1;
+		if (bm->bm_flags & BM_FLAG_RLE_BIG)
+			data_offset = 2;
+		
+		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
 		dbits = decodebuf;
- 
+		
 		for (i=0; i < bm->bm_h; i++ )    {
 			gr_rle_decode(sbits,dbits);
-			sbits += (int)bm->bm_data[4+i];
+			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
+				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
+			else
+				sbits += (int)bm->bm_data[4+i];
 			dbits += bm->bm_w;
 		}
 		buf=decodebuf;
 	}
-
+	
 	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0);
 }
 

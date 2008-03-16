@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080316
+--------
+2d/bitblt.c, 2d/rle.c, arch/ogl/ogl.c, include/gr.h, include/rle.h, main/game.c, main/gauges.c, main/gauges.h, main/inferno.c, main/piggy.c, main/piggy.h, main/titles.c: add support for Mac pigfile (which doesn't include sounds yet)
+
 20080314
 --------
 main/network.c: add prototype for show_game_stats to remove warning

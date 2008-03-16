@@ -687,6 +687,7 @@ int show_briefing(int screen_num, char *message)
 					;
 			} else if (ch == 'T') {
 				tab_stop = get_message_num(&message);
+				tab_stop*=(1+HIRESMODE);
 				prev_ch = 10; // read to eoln
 			} else if (ch == 'R') {
 				if (Robot_canv != NULL)

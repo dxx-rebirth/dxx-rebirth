@@ -123,6 +123,9 @@ int Screen_mode=-1; //game screen or editor screen?
 int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
+
+int HiresGFXAvailable = 0;
+
 void mem_init(void);
 
 #ifdef EDITOR

@@ -30,9 +30,12 @@ static char rcsid[] = "$Id: rle.c,v 1.1.1.1 2006/03/17 19:38:54 zicodxx Exp $";
 #include "grdef.h"
 #include "error.h"
 #include "rle.h"
+#include "byteswap.h"
 
 #define RLE_CODE 			0xE0
 #define NOT_RLE_CODE		31
+
+#define IS_RLE_CODE(x) (((x) & RLE_CODE) == RLE_CODE)
 
 void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 );
 
@@ -425,26 +428,46 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 	int y, d1, d;
 	int doffset;
 	ubyte *rle_data;
-
-	rle_data=d_malloc( /*(bmp->bm_w+1)* bmp->bm_h*/MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) );
-	if (rle_data==NULL) return 0;
-	doffset = 4 + bmp->bm_h;
+	int large_rle = 0;
+	
+	// first must check to see if this is large bitmap.
+	
 	for (y=0; y<bmp->bm_h; y++ )	{
 		d1= gr_rle_getsize( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y] );
-		if ( ((doffset+d1) > bmp->bm_w*bmp->bm_h) || (d1 > 255 ) )	{
+		if (d1 > 255) {
+			large_rle = 1;
+			break;
+		}
+	}
+	
+	rle_data=d_malloc( MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) );
+	if (rle_data==NULL) return 0;
+	if (!large_rle)
+		doffset = 4 + bmp->bm_h;
+	else
+		doffset = 4 + (2 * bmp->bm_h);		// each row of rle'd bitmap has short instead of byte offset now
+	
+	for (y=0; y<bmp->bm_h; y++ )	{
+		d1= gr_rle_getsize( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y] );
+		if ( ((doffset+d1) > bmp->bm_w*bmp->bm_h) || (d1 > (large_rle?32767:255) ) ) {
 			d_free(rle_data);
 			return 0;
 		}
 		d = gr_rle_encode( bmp->bm_w, &bmp->bm_data[bmp->bm_w*y], &rle_data[doffset] );
 		Assert( d==d1 );
 		doffset	+= d;
-		rle_data[y+4] = d;
+		if (large_rle)
+			*((short *)&(rle_data[(y*2)+4])) = (short)d;
+		else
+			rle_data[y+4] = d;
 	}
 	//mprintf( 0, "Bitmap of size %dx%d, (%d bytes) went down to %d bytes\n", bmp->bm_w, bmp->bm_h, bmp->bm_h*bmp->bm_w, doffset );
 	memcpy( 	rle_data, &doffset, 4 );
 	memcpy( 	bmp->bm_data, rle_data, doffset );
 	d_free(rle_data);
 	bmp->bm_flags |= BM_FLAG_RLE;
+	if (large_rle)
+		bmp->bm_flags |= BM_FLAG_RLE_BIG;
 	return 1;
 }
 
@@ -644,3 +667,62 @@ void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *s
 		}
 	}	
 }
+
+/*
+ * swaps entries 0 and 255 in an RLE bitmap without uncompressing it
+ */
+void rle_swap_0_255(grs_bitmap *bmp)
+{
+	int i, j, len, rle_big;
+	unsigned char *ptr, *ptr2, *temp, *start;
+	unsigned short line_size;
+	
+	rle_big = bmp->bm_flags & BM_FLAG_RLE_BIG;
+	
+	temp = d_malloc( MAX_BMP_SIZE(bmp->bm_w, bmp->bm_h) );
+	
+	if (rle_big) {                  // set ptrs to first lines
+		ptr = bmp->bm_data + 4 + 2 * bmp->bm_h;
+		ptr2 = temp + 4 + 2 * bmp->bm_h;
+	} else {
+		ptr = bmp->bm_data + 4 + bmp->bm_h;
+		ptr2 = temp + 4 + bmp->bm_h;
+	}
+	for (i = 0; i < bmp->bm_h; i++) {
+		start = ptr2;
+		if (rle_big)
+			line_size = INTEL_SHORT(*((unsigned short *)&bmp->bm_data[4 + 2 * i]));
+		else
+			line_size = bmp->bm_data[4 + i];
+		for (j = 0; j < line_size; j++) {
+			if ( ! IS_RLE_CODE(ptr[j]) ) {
+				if (ptr[j] == 0) {
+					*ptr2++ = RLE_CODE | 1;
+					*ptr2++ = 255;
+				} else
+					*ptr2++ = ptr[j];
+			} else {
+				*ptr2++ = ptr[j];
+				if ((ptr[j] & NOT_RLE_CODE) == 0)
+					break;
+				j++;
+				if (ptr[j] == 0)
+					*ptr2++ = 255;
+				else if (ptr[j] == 255)
+					*ptr2++ = 0;
+				else
+					*ptr2++ = ptr[j];
+			}
+		}
+		if (rle_big)                // set line size
+			*((unsigned short *)&temp[4 + 2 * i]) = INTEL_SHORT(ptr2 - start);
+		else
+			temp[4 + i] = ptr2 - start;
+		ptr += line_size;           // go to next line
+	}
+	len = ptr2 - temp;
+	*((int *)temp) = len;           // set total size
+	memcpy(bmp->bm_data, temp, len);
+	d_free(temp);
+}
+

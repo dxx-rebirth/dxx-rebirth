@@ -28,9 +28,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //from gauges.c
 
-#define MAX_GAUGE_BMS 80	//	increased from 56 to 80 by a very unhappy MK on 10/24/94.
+#define MAX_GAUGE_BMS_PC 80		//	increased from 56 to 80 by a very unhappy MK on 10/24/94.
+#define MAX_GAUGE_BMS_MAC 85
+#define MAX_GAUGE_BMS (MacPig ? MAX_GAUGE_BMS_MAC : MAX_GAUGE_BMS_PC)
 
-extern bitmap_index Gauges[MAX_GAUGE_BMS];   // Array of all gauge bitmaps.
+extern bitmap_index Gauges[MAX_GAUGE_BMS_MAC];   // Array of all gauge bitmaps.
 
 extern void init_gauge_canvases();
 extern void close_gauge_canvases();
@@ -78,7 +80,11 @@ typedef struct span {
 	int l,r;
 } span;
 
-extern span weapon_window_left[],weapon_window_right[];
+extern span weapon_window_left[],weapon_window_left_hires[],weapon_window_right[],weapon_window_right_hires[];
+
+
+#define WinBoxLeft (HIRESMODE?weapon_window_left_hires:weapon_window_left)
+#define WinBoxRight (HIRESMODE?weapon_window_right_hires:weapon_window_right)
 
 #endif
  

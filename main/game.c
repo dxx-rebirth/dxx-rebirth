@@ -328,9 +328,9 @@ void update_cockpits(int force_redraw)
 		case CM_STATUS_BAR:
 			gr_set_current_canvas(NULL);
 #ifdef OGL
-			ogl_ubitmapm_cs (0, (SHEIGHT*2)/2.72, -1, ((int) ((double) (bm->bm_h) * ((double)SHEIGHT/200) + 0.5)), bm,255, F1_0);
+			ogl_ubitmapm_cs (0, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HIRESMODE?(double)SHEIGHT/480:(double)SHEIGHT/200) + 0.5)), bm,255, F1_0);
 #else
-			gr_ubitmapm(0,146,bm);
+			gr_ubitmapm(0,SHEIGHT-bm->bm_h,bm);
 #endif
 			break;
 		case CM_LETTERBOX:
@@ -364,7 +364,7 @@ void init_cockpit()
 		Cockpit_mode = CM_FULL_SCREEN;
 
 #ifndef OGL
-	if ( Game_screen_mode != SM(320,200) && Cockpit_mode != CM_LETTERBOX) {
+	if ( Game_screen_mode != (HiresGFXAvailable? SM(640,480) : SM(320,200)) && Cockpit_mode != CM_LETTERBOX) {
 		Cockpit_mode = CM_FULL_SCREEN;
 	}
 #endif
@@ -385,7 +385,7 @@ void init_cockpit()
 		break;
 
 	case CM_STATUS_BAR:
-		game_init_render_sub_buffers( 0, 0, SWIDTH, (SHEIGHT*2)/2.72 );
+		game_init_render_sub_buffers( 0, 0, SWIDTH, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
 		break;
 
 	case CM_LETTERBOX:	{

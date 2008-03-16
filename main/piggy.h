@@ -99,6 +99,7 @@ typedef struct bitmap_index
   }
 bitmap_index;
 
+extern int MacPig;
 
 extern ubyte bogus_data[64 * 64];
 

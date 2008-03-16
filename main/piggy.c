@@ -204,6 +204,18 @@ void count_colors( int bnum, grs_bitmap * bmp )
 }
 #endif
 
+void swap_0_255(grs_bitmap *bmp)
+{
+	int i;
+	
+	for (i = 0; i < bmp->bm_h * bmp->bm_w; i++) {
+		if(bmp->bm_data[i] == 0)
+			bmp->bm_data[i] = 255;
+		else if (bmp->bm_data[i] == 255)
+			bmp->bm_data[i] = 0;
+	}
+}
+
 void piggy_get_bitmap_name( int i, char * name )
 {
 	strncpy( name, AllBitmaps[i].name, 12 );
@@ -315,6 +327,7 @@ ubyte bogus_data[64*64];
 grs_bitmap bogus_bitmap;
 ubyte bogus_bitmap_initialized=0;
 digi_sound bogus_sound;
+int MacPig = 0;	// using the Macintosh pigfile?
 
 extern void properties_read_cmp(CFILE * fp);
 #ifdef EDITOR
@@ -420,12 +433,15 @@ int properties_init()
 			// fall through
 		case D1_MAC_PIGSIZE:
 		case D1_MAC_SHARE_PIGSIZE:
+			MacPig = 1;
 		case D1_PIGSIZE:
 		case D1_OEM_PIGSIZE:
 			Pigdata_start = cfile_read_int(Piggy_fp );
 			break;
 	}
 	
+	HiresGFXAvailable = MacPig;	// for now at least
+
 	if (pcshare)
 		retval = PIGGY_PC_SHAREWARE;	// run gamedata_read_tbl in shareware mode
 	else if (GameArg.EdiNoBm || (!cfexist("BITMAPS.TBL") && !cfexist("BITMAPS.BIN")))
@@ -477,10 +493,22 @@ int properties_init()
 		temp_bitmap.bm_flags |= BM_FLAG_PAGED_OUT;
 		temp_bitmap.avg_color = bmh.avg_color;
 
+		if (MacPig)
+		{
+			// HACK HACK HACK!!!!!
+			if (!strnicmp(bmh.name, "cockpit", 7) || !strnicmp(bmh.name, "status", 6) || !strnicmp(bmh.name, "rearview", 8)) {
+				temp_bitmap.bm_w = temp_bitmap.bm_rowsize = 640;
+				if (GameBitmapFlags[i+1] & BM_FLAG_RLE)
+					GameBitmapFlags[i+1] |= BM_FLAG_RLE_BIG;
+			}
+			if (!strnicmp(bmh.name, "cockpit", 7) || !strnicmp(bmh.name, "rearview", 8))
+				temp_bitmap.bm_h = 480;
+		}
+		
 		piggy_register_bitmap( &temp_bitmap, temp_name, 1 );
 	}
 
-	for (i=0; i<N_sounds; i++ )     {
+	for (i=0; !MacPig && i<N_sounds; i++ )     {
 		DiskSoundHeader_read(&sndh, Piggy_fp);
 		
 		//size -= sizeof(DiskSoundHeader);
@@ -506,9 +534,12 @@ int properties_init()
 
 	}
 
-	SoundBits = d_malloc( sbytes + 16 );
-	if ( SoundBits == NULL )
-		Error( "Not enough memory to load DESCENT.PIG sounds\n");
+	if (!MacPig)
+	{
+		SoundBits = d_malloc( sbytes + 16 );
+		if ( SoundBits == NULL )
+			Error( "Not enough memory to load DESCENT.PIG sounds\n");
+	}
 
 #if 1	//def EDITOR
 	Piggy_bitmap_cache_size	= size - header_size - sbytes + 16;
@@ -557,6 +588,11 @@ void piggy_read_sounds(int pc_shareware)
 	int i, sbytes;
 	int lastsize = 0;
 	ubyte * lastbuf = NULL;
+
+	if (MacPig)
+	{
+		return;
+	}
 
 	ptr = SoundBits;
 	sbytes = 0;
@@ -688,6 +724,11 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				piggy_critical_error();
 				goto ReDoIt;
 			}
+			if (MacPig)
+			{
+				rle_swap_0_255(bmp);
+				memcpy(&zsize, bmp->bm_data, 4);
+			}
 			Piggy_bitmap_cache_next += zsize-4;
 		} else {
 			// GET JOHN NOW IF YOU GET THIS ASSERT!!!
@@ -702,6 +743,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				piggy_critical_error();
 				goto ReDoIt;
 			}
+			if (MacPig)
+				swap_0_255(bmp);
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 		}
 	
@@ -1031,8 +1074,8 @@ int piggy_does_bitmap_exist_slow( char * name )
 }
 
 
-#define NUM_GAUGE_BITMAPS 10
-char * gauge_bitmap_names[NUM_GAUGE_BITMAPS] = { "gauge01", "gauge02", "gauge06", "targ01", "targ02", "targ03", "targ04", "targ05", "targ06", "gauge18" };
+#define NUM_GAUGE_BITMAPS 14
+char * gauge_bitmap_names[NUM_GAUGE_BITMAPS] = { "gauge01", "gauge02", "gauge06", "targ01", "targ02", "targ03", "targ04", "targ05", "targ06", "gauge18", "targ01pc", "targ02pc", "targ03pc", "gaug18pc" };
 
 int piggy_is_gauge_bitmap( char * base_name )
 {

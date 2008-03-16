@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "mono.h"
 #include "error.h"
+#include "byteswap.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -469,19 +470,26 @@ void gr_bm_ubitblt00_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 {
 	unsigned char * dbits;
 	unsigned char * sbits;
-
-	int i;
-
-	sbits = &src->bm_data[4 + src->bm_h];
+	int i, data_offset;
+	
+	data_offset = 1;
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+		data_offset = 2;
+	
+	sbits = &src->bm_data[4 + (src->bm_h*data_offset)];
+	
 	for (i=0; i<sy; i++ )
-		sbits += (int)src->bm_data[4+i];
-
+		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
+	
 	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
-
+	
 	// No interlacing, copy the whole buffer.
 	for (i=0; i < h; i++ )    {
 		gr_rle_expand_scanline( dbits, sbits, sx, sx+w-1 );
-		sbits += (int)src->bm_data[4+i+sy];
+		if ( src->bm_flags & BM_FLAG_RLE_BIG )
+			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((i+sy)*data_offset)])));
+		else
+			sbits += (int)(src->bm_data[4+i+sy]);
 		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
 	}
 }
@@ -490,19 +498,25 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 {
 	unsigned char * dbits;
 	unsigned char * sbits;
-
-	int i;
-
-	sbits = &src->bm_data[4 + src->bm_h];
+	int i, data_offset;
+	
+	data_offset = 1;
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+		data_offset = 2;
+	
+	sbits = &src->bm_data[4 + (src->bm_h*data_offset)];
 	for (i=0; i<sy; i++ )
-		sbits += (int)src->bm_data[4+i];
-
+		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
+	
 	dbits = dest->bm_data + (dest->bm_rowsize * dy) + dx;
-
+	
 	// No interlacing, copy the whole buffer.
 	for (i=0; i < h; i++ )    {
 		gr_rle_expand_scanline_masked( dbits, sbits, sx, sx+w-1 );
-		sbits += (int)src->bm_data[4+i+sy];
+		if ( src->bm_flags & BM_FLAG_RLE_BIG )
+			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((i+sy)*data_offset)])));
+		else
+			sbits += (int)(src->bm_data[4+i+sy]);
 		dbits += dest->bm_rowsize << gr_bitblt_dest_step_shift;
 	}
 }
@@ -514,22 +528,29 @@ extern void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, u
 
 
 void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, 
-	grs_bitmap * dest, int masked )
+						 grs_bitmap * dest, int masked )
 {
-	int i;
+	int i, data_offset;
 	register int y1;
 	unsigned char * sbits;
-
+	
 	//mprintf( 0, "SVGA RLE!\n" );
-
-	sbits = &src->bm_data[4 + src->bm_h];
+	
+	data_offset = 1;
+	if (src->bm_flags & BM_FLAG_RLE_BIG)
+		data_offset = 2;
+	
+	sbits = &src->bm_data[4 + (src->bm_h*data_offset)];
 	for (i=0; i<sy; i++ )
-		sbits += (int)src->bm_data[4+i];
-
+		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
+	
 	for (y1=0; y1 < h; y1++ )    {
 		gr_rle_expand_scanline_generic( dest, dx, dy+y1,  sbits, sx, sx+w-1, 
-			masked );
-		sbits += (int)src->bm_data[4+y1+sy];
+										masked );
+		if ( src->bm_flags & BM_FLAG_RLE_BIG )
+			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((y1+sy)*data_offset)])));
+		else
+			sbits += (int)src->bm_data[4+y1+sy];
 	}
 }
 
