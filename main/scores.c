@@ -431,7 +431,6 @@ ReshowScores:
 				// Reset scores...
 				if ( nm_messagebox( NULL, 2,  TXT_NO, TXT_YES, TXT_RESET_HIGH_SCORES )==1 )	{
 					PHYSFS_delete( get_scores_filename() );
-					gr_palette_fade_out( gr_palette, 32, 0 );
 				}
 				goto ReshowScores;
 			}

@@ -152,10 +152,6 @@ void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data);
 void gr_enable_default_palette_loading();
 void gr_disable_default_palette_loading();
 
-// These 4 functions actuall change screen colors.
-extern void gr_pal_fade_out(unsigned char * pal);
-extern void gr_pal_fade_in(unsigned char * pal);
-extern void gr_pal_clear();
 extern void gr_pal_setblock( int start, int number, unsigned char * pal );
 extern void gr_pal_getblock( int start, int number, unsigned char * pal );
 
@@ -438,7 +434,6 @@ extern void gr_sync_display();
 extern void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq );
 //extern void decode_data_asm(ubyte *data, int num_pixels, ubyte *colormap, int *count);
 
-extern void gr_update();
 extern void gr_flip(void);
 extern void gr_set_draw_buffer(int buf);
 

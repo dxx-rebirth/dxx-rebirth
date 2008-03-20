@@ -325,8 +325,6 @@ void draw_automap(int flip)
 
 	if (flip)
 		gr_flip();
-	else
-		gr_update();
 }
 
 #define LEAVE_TIME 0x4000
@@ -375,8 +373,6 @@ void do_automap( int key_code )	{
 	mprintf( (0, "Allocated %d K for automap edge list\n", (sizeof(Edge_info)+sizeof(short))*Max_edges/1024 ));
 
 	gr_set_current_canvas(NULL);
-
-	gr_palette_clear();
 
 	automap_build_edge_list();
 

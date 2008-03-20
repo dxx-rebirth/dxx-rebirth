@@ -288,8 +288,6 @@ void kmatrix_redraw()
 	}
 
 	kmatrix_draw_deaths(sorted);
-
-        gr_update();
 }
 
 #define MAX_VIEW_TIME	F1_0*60
@@ -305,7 +303,6 @@ void kmatrix_view(int network)
 
 	set_screen_mode( SCREEN_MENU );
 
-	gr_palette_fade_in( gr_palette,32, 0);
 	game_flush_inputs();
 
 	done = 0;
@@ -348,13 +345,8 @@ void kmatrix_view(int network)
 			if (key < -1)
 				done = 1;
 		}
-#ifdef OGL
 		gr_flip();
-#endif
 	}
-
-// Restore background and exit
-	gr_palette_fade_out( gr_palette, 32, 0 );
 
 	game_flush_inputs();
 }

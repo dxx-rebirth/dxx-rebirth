@@ -45,7 +45,6 @@
 #endif
 
 int gr_installed = 0;
-void gr_palette_clear(); // Function prototype for gr_init;
 int gl_initialized=0;
 int ogl_fullscreen=0;
 
@@ -98,10 +97,6 @@ void ogl_init_state(void){
 
 	gr_palette_step_up(0,0,0);//in case its left over from in game
 	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
-}
-
-void gr_update()
-{
 }
 
 // Set the buffer to draw to. 0 is front, 1 is back
@@ -181,8 +176,6 @@ int gr_set_mode(u_int32_t mode)
 
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);
-
-	gr_update();
 	
 	return 0;
 }
@@ -360,16 +353,13 @@ int do_pal_step=0;
 
 void ogl_do_palfx(void){
 	OGL_DISABLE(TEXTURE_2D);
-	if (gr_palette_faded_out){
-		glColor3f(0,0,0);
-	}else{
-		if (do_pal_step){
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_ONE,GL_ONE);
-			glColor3f(last_r,last_g,last_b);
-		}else
-			return;
-	}
+
+	if (do_pal_step){
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE,GL_ONE);
+		glColor3f(last_r,last_g,last_b);
+	}else
+		return;
 
 	glBegin(GL_QUADS);
 	glVertex2f(0,0);
@@ -381,20 +371,12 @@ void ogl_do_palfx(void){
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-void gr_palette_clear()
-{
-	gr_palette_faded_out=1;
-}
-
 int ogl_brightness_ok = 0;
 int ogl_brightness_r = 0, ogl_brightness_g = 0, ogl_brightness_b = 0;
 static int old_b_r = 0, old_b_g = 0, old_b_b = 0;
 
 void gr_palette_step_up( int r, int g, int b )
 {
-	if (gr_palette_faded_out)
-		return;
-
 	old_b_r = ogl_brightness_r;
 	old_b_g = ogl_brightness_g;
 	old_b_b = ogl_brightness_b;
@@ -430,21 +412,8 @@ void gr_palette_load( ubyte *pal )
 		if (gr_current_pal[i] > 63) gr_current_pal[i] = 63;
 	}
 
-	gr_palette_faded_out=0;
 	gr_palette_step_up(0, 0, 0); // make ogl_setbrightness_internal get run so that menus get brightened too.
 	init_computed_colors();
-}
-
-int gr_palette_fade_out(ubyte *pal, int nsteps, int allow_keys)
-{
-	gr_palette_faded_out=1;
-	return 0;
-}
-
-int gr_palette_fade_in(ubyte *pal, int nsteps, int allow_keys)
-{
-	gr_palette_faded_out=0;
-	return 0;
 }
 
 void gr_palette_read(ubyte * pal)

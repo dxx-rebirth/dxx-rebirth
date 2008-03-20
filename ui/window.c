@@ -389,9 +389,6 @@ void ui_mega_process()
 	int mx, my, mz;
 	unsigned char k;
 
-#ifdef __LINUX__
-	gr_update();
-#endif
 	switch( Record )
 	{
 	case 0:

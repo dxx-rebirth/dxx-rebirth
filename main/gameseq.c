@@ -709,12 +709,13 @@ void LoadLevel(int level_num)
 
 	level_name = get_level_file(level_num);
 
-	show_boxed_message(TXT_LOADING, 0);
-
 	if (!load_level(level_name))
 		Current_level_num=level_num;
 
 	gr_use_palette_table( "palette.256" );
+
+	show_boxed_message(TXT_LOADING, 0);
+	timer_delay2(1);
 
 	#ifdef NETWORK
 	my_segments_checksum = netmisc_calc_checksum(Segments, sizeof(segment)*(Highest_segment_index+1));
@@ -825,7 +826,7 @@ void DoEndLevelScoreGlitz(int network)
 	char				title[128];
 	int				is_last_level;
 
-	gr_palette_load( gr_palette ); // ZICO - added to be sure right palette is loaded after endgame
+	gr_palette_load( gr_palette );
 
         set_screen_mode(SCREEN_MENU);
 
@@ -893,8 +894,6 @@ void DoEndLevelScoreGlitz(int network)
 
 	Assert(c <= N_GLITZITEMS);
 
-	gr_palette_fade_out(gr_palette, 32, 0);
-
 	time_out_value = timer_get_approx_seconds() + i2f(60*5);
 
 #ifdef NETWORK
@@ -903,17 +902,6 @@ void DoEndLevelScoreGlitz(int network)
 	else
 #endif	// Note link!
 		newmenu_do2(NULL, title, c, m, DoEndLevelScoreGlitzPoll, 0, "MENU.PCX");
-}
-
-//give the player the opportunity to save his game
-void DoEndlevelMenu()
-{
-#ifdef SHAREWARE
-	if (!Cheats_enabled)
-		do_save_game_menu();
-#else
-//No between level saves......!!!	state_save_all(1);
-#endif
 }
 
 //called when the player has finished a level
@@ -1046,9 +1034,6 @@ int AdvanceLevel(int secret_flag)
 			Next_level_num = Secret_level_table[(-Current_level_num)-1]+1;
 		}
 
-		if (!(Game_mode & GM_MULTI))
-			DoEndlevelMenu(); // Let use save their game
-
 		StartNewLevel(Next_level_num);
 
 	}
@@ -1061,18 +1046,13 @@ void
 died_in_mine_message(void)
 {
 	// Tell the player he died in the mine, explain why
-	int old_fmode, pcx_error;
+	int old_fmode;
 
 	if (Game_mode & GM_MULTI)
 		return;
 
-	gr_palette_fade_out(gr_palette, 32, 0);
-
 	gr_set_current_canvas(NULL);
 	
-	pcx_error = pcx_read_bitmap("STARS.PCX",&grd_curcanv->cv_bitmap,grd_curcanv->cv_bitmap.bm_type,NULL);
-	Assert(pcx_error == PCX_ERROR_NONE);
-
 	old_fmode = Function_mode;
 	Function_mode = FMODE_MENU;
 	nm_messagebox(NULL, 1, TXT_OK, TXT_DIED_IN_MINE);
@@ -1299,6 +1279,7 @@ void StartNewLevel(int level_num)
 	GameTime = FrameTime;
 
 	show_boxed_message(TXT_LOADING, 0);
+	timer_delay2(1);
 
 	load_custom_data(get_level_file(level_num));
 

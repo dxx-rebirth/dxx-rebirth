@@ -399,18 +399,10 @@ void paging_touch_walls()
 
 void paging_touch_all()
 {
-	int black_screen;
 	int s;
 	
 	stop_time();
 
-	black_screen = gr_palette_faded_out;
-
-	if ( gr_palette_faded_out )	{
-		gr_clear_canvas( 0 );
-		gr_palette_load( gr_palette );
-	}
-	
 	show_boxed_message(TXT_LOADING, 0);
 
 	mprintf(( 0, "Loading all textures in mine..." ));
@@ -444,10 +436,6 @@ void paging_touch_all()
 
 	mprintf(( 0, "done\n" ));
 
-	if ( black_screen )	{
-		gr_palette_clear();
-		gr_clear_canvas( 0 );
-	}
 	start_time();
 	reset_cockpit();		//force cockpit redraw next time
 

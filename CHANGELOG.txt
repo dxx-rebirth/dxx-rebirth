@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080321
+--------
+2s/palette.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/sdl/gr.c, include/gr.h, include/palette.h, main/automap.c, main/automap.h, main/credits.c, main/endlevel.c, main/game.c, main/gameseq.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/network.c, main/newmenu.c, main/paging.c, main/scores.c, main/switch.c, main/titles.c, ui/window.c: Simplification of palette code; Properly screen clearing in SDL-only build when palette changes; Removed obsolete functions like gr_update (replaced by gr_flip), gr_palette_fade_in/out, gr_palette_clear; Added functionality to render Automap while menu display as well; Improved blocking of some controls code while Automap active; Fixed some compiler warnings
+
 20080316
 --------
 2d/bitblt.c, 2d/rle.c, arch/ogl/ogl.c, include/gr.h, include/rle.h, main/game.c, main/gauges.c, main/gauges.h, main/inferno.c, main/piggy.c, main/piggy.h, main/titles.c: add support for Mac pigfile (which doesn't include sounds yet)

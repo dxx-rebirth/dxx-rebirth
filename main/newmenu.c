@@ -54,6 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "timer.h"
 #include "vers_id.h"
+#include "automap.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -63,7 +64,6 @@ typedef struct bkg {
 	grs_canvas * menu_canvas;
 	grs_bitmap * saved;			// The background under the menu.
 	grs_bitmap * background;
-	int background_is_sub;
 } bkg;
 
 grs_bitmap nm_background, nm_background1;
@@ -73,7 +73,6 @@ ubyte SurfingNet=0;
 #define MESSAGEBOX_TEXT_SIZE 2176   // How many characters in messagebox
 #define MAX_TEXT_WIDTH 	FSPACX(120) // How many pixels wide a input box can be
 
-extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 extern void game_do_render_frame(int flip);
 
 void newmenu_close()	{
@@ -102,25 +101,23 @@ void nm_draw_background1(char * filename)
 		filename = Menu_pcx_name;
 	else if (filename == NULL && Function_mode == FMODE_GAME)
 	{
-		game_do_render_frame(0);
+		if (Automap_active)
+			draw_automap(0);
+		else
+			game_do_render_frame(0);
 		gr_set_current_canvas(NULL);
 	}
 
 	if (filename != NULL)
 	{
 		if (nm_background1.bm_data == NULL) {
-			ubyte newpal[768];
 			atexit( newmenu_close );
 			gr_init_bitmap_data (&nm_background1);
-			pcx_error = pcx_read_bitmap( filename, &nm_background1, BM_LINEAR, newpal );
+			pcx_error = pcx_read_bitmap( filename, &nm_background1, BM_LINEAR, gr_palette );
 			Assert(pcx_error == PCX_ERROR_NONE);
 		}
 		gr_palette_load( gr_palette );
-#ifndef OGL
 		show_fullscr(&nm_background1);
-#else
-		ogl_ubitmapm_cs(0,0,-1,-1,&nm_background1,-1,F1_0);
-#endif
 
 		if (!strcmp(filename,Menu_pcx_name) && Function_mode != FMODE_GAME)
 			nm_draw_copyright();
@@ -139,20 +136,15 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	grs_canvas *tmp,*old;
 	grs_bitmap bg;
 
-#ifndef OGL
-	if (nm_background.bm_data)
-		gr_free_bitmap_data (&nm_background);
-#else
 	if (nm_background.bm_data == NULL)
-#endif
 	{
 		int pcx_error;
-		ubyte newpal[768];
+		ubyte background_palette[768];
 		atexit( newmenu_close );
-		gr_init_bitmap_data (&nm_background);		
-		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP,&nm_background,BM_LINEAR,newpal);
+		gr_init_bitmap_data (&nm_background);
+		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP,&nm_background,BM_LINEAR,background_palette);
 		Assert(pcx_error == PCX_ERROR_NONE);
-		gr_remap_bitmap_good( &nm_background, newpal, -1, -1 );
+		gr_remap_bitmap_good( &nm_background, background_palette, -1, -1 );
 	}
 
 	if ( x1 < 0 ) x1 = 0;
@@ -1337,10 +1329,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			}
 		
 		}
-
-		if ( gr_palette_faded_out )	{
-			gr_palette_fade_in( gr_palette, 32, 0 );
-		}
 	}
 
 	newmenu_hide_cursor();
@@ -1604,6 +1592,8 @@ ReadFileNames:
 			}
 	 	}
 	}
+
+	nm_draw_background1(NULL);
 
 #ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;

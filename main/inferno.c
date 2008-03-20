@@ -411,8 +411,6 @@ int main(int argc,char *argv[])
 		RegisterPlayer();
 
 
-	gr_palette_fade_out( NULL, 32, 0 );
-
 	Game_mode = GM_GAME_OVER;
 
 	while (Function_mode != FMODE_EXIT)

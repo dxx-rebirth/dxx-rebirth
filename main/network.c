@@ -73,6 +73,7 @@ void network_ping(ubyte flag, int pnum);
 void network_read_pdata_packet( ubyte *data, int short_pos );
 int network_compare_players(netplayer_info *pl1, netplayer_info *pl2);
 void DoRefuseStuff(sequence_packet *their);
+int show_game_stats(int choice);
 
 netgame_info Active_games[MAX_ACTIVE_NETGAMES];
 int num_active_games = 0;
@@ -3180,8 +3181,6 @@ int network_do_join_game(int choice)
 	return 1;     // look ma, we're in a game!!!
 }
 
-int show_game_stats(int choice);
-
 void network_join_game()
 {
 	int choice, i;
@@ -3849,8 +3848,6 @@ void show_game_rules(int choice)
 		}
 	}
 
-// Restore background and exit
-	gr_palette_fade_out( gr_palette, 32, 0 );
 	gr_set_current_canvas(NULL);
 	game_flush_inputs();
 }

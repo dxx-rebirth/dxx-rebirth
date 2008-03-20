@@ -244,11 +244,6 @@ int DoMenu()
 		create_main_menu(m, menu_choice, &num_options);	//	may have to change, eg, maybe selected pilot and no save games.
 	} while( Function_mode==FMODE_MENU );
 
-//	if (main_menu_choice != -2)
-//		do_auto_demo = 0;		// No more auto demos
-	if ( Function_mode==FMODE_GAME )	
-		gr_palette_fade_out( gr_palette, 32, 0 );
-
 	return main_menu_choice;
 }
 
@@ -280,7 +275,6 @@ void do_option ( int select)
 			break;
 		#endif
 		case MENU_VIEW_SCORES:
-			gr_palette_fade_out( gr_palette,32,0 );
 			scores_view(-1);
 			break;
 		#ifdef SHAREWARE
@@ -292,7 +286,6 @@ void do_option ( int select)
 			#ifdef EDITOR
 			if (! SafetyCheck()) break;
 			#endif
-			gr_palette_fade_out( gr_palette,32,0);
 			Function_mode = FMODE_EXIT;
 			break;
 		case MENU_NEW_PLAYER:
@@ -329,7 +322,6 @@ void do_option ( int select)
 				new_level_num = atoi(m.text);
 	
 				if (new_level_num!=0 && new_level_num>=Last_secret_level && new_level_num<=Last_level)  {
-					gr_palette_fade_out( gr_palette, 32, 0 );
 					StartNewGame(new_level_num);
 				}
 			}
@@ -576,88 +568,6 @@ extern char *get_level_file(int level_num);
 
 void do_new_game_menu()
 {
-// 	int new_level_num,player_highest_level;
-// 
-// #ifndef SHAREWARE
-// 	int n_missions = build_mission_list(0);
-// 
-// 	if (n_missions > 1) {
-// 		int new_mission_num,i, default_mission;
-// 		char * m[MAX_MISSIONS];
-// 
-// 		default_mission = 0;
-// 		for (i=0;i<n_missions;i++) {
-// 			m[i] = Mission_list[i].mission_name;
-// 			if ( !strcasecmp( m[i], config_last_mission ) )	
-// 				default_mission = i;
-// 		}
-// 
-// 		new_mission_num = newmenu_listbox1( "New Game\n\nSelect mission", n_missions, m, 1, default_mission, NULL );
-// 
-// 		if (new_mission_num == -1)
-// 			return;		//abort!
-// 
-// 		strcpy(config_last_mission, m[new_mission_num]  );
-// 		if (!load_mission(new_mission_num)) {
-// 			nm_messagebox( NULL, 1, TXT_OK, "Error loading Mission file"); 
-// 			return;
-// 		}
-// 	}
-// #endif
-// 
-// 	new_level_num = 1;
-// 
-// 	player_highest_level = get_highest_level();
-// 
-// 	if (player_highest_level > Last_level)
-// 		player_highest_level = Last_level;
-// 
-// 	if (player_highest_level > 1) {
-// 		newmenu_item m[2];
-// 		char info_text[80];
-// 		char num_text[10];
-// 		int choice;
-// 
-// try_again:
-// 		sprintf(info_text,"%s %d",TXT_START_ANY_LEVEL, player_highest_level);
-// 
-// 		m[0].type=NM_TYPE_TEXT; m[0].text = info_text;
-// 		m[1].type=NM_TYPE_INPUT; m[1].text_len = 10; m[1].text = num_text;
-// 
-// 		strcpy(num_text,"1");
-// 
-// 		choice = newmenu_do( NULL, TXT_SELECT_START_LEV, 2, m, NULL );
-// 
-// 		if (choice==-1 || m[1].text[0]==0)
-// 			return;
-// 
-// 		new_level_num = atoi(m[1].text);
-// 
-// 		if (!(new_level_num>0 && new_level_num<=player_highest_level)) {
-// 			m[0].text = TXT_ENTER_TO_CONT;
-// 			nm_messagebox( NULL, 1, TXT_OK, TXT_INVALID_LEVEL); 
-// 			goto try_again;
-// 		}
-// 	}
-// 
-// 	Difficulty_level = Player_default_difficulty;
-// 
-// 	if (!do_difficulty_menu())
-// 		return;
-// 
-// 	gr_palette_fade_out( gr_palette, 32, 0 );
-// 
-// #ifdef PSX_BUILD_TOOLS
-// 	{
-// 		int i;
-// 		for (i=Last_secret_level; i<=Last_level; i++ )	{
-// 			if ( i!=0 )	
-// 				StartNewGame(i);
-// 		}		
-// 	}
-// #endif
-// 
-// 	StartNewGame(new_level_num);
 	int new_level_num,player_highest_level;
 
     if (!select_mission(0, "New Game\n\nSelect mission"))
@@ -704,7 +614,6 @@ try_again:
 	if (!do_difficulty_menu())
 		return;
 
-	gr_palette_fade_out( gr_palette, 32, 0 );
 	StartNewGame(new_level_num);
 
 }

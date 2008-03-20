@@ -117,7 +117,6 @@ int show_title_screen( char * filename, int allow_keys )
 	while (1) {
 		gr_flip();
 		show_fullscr(&title_bm);
-		gr_update();
 
 		if (( local_key_inkey() && allow_keys ) || ( timer_get_fixed_seconds() > timer ))
 		{
@@ -317,15 +316,18 @@ void show_animated_bitmap(void)
 
 	// Only plot every nth frame.
 	if (Door_div_count) {
-#ifdef OGL
+
 		if (Bitmap_name[0] != 0) {
 			bitmap_index bi;
 			bi = piggy_find_bitmap(Bitmap_name);
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
+#ifdef OGL
 			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),(bitmap_ptr->bm_w*(SWIDTH/320)),(bitmap_ptr->bm_h*(SHEIGHT/200)),bitmap_ptr,255,F1_0);
-		}
+#else
+			gr_bitmapm(rescale_x(220), rescale_y(45), bitmap_ptr);
 #endif
+		}
 		Door_div_count--;
 		return;
 	}
@@ -430,9 +432,7 @@ void show_spinning_robot_frame(int robot_num)
 	grs_canvas	*curcanv_save;
 
 	if (robot_num != -1) {
-#ifdef OGL
 		gr_use_palette_table( "palette.256" );
-#endif
 		Robot_angles.h += 150;
 		curcanv_save = grd_curcanv;
 		grd_curcanv = Robot_canv;
@@ -474,8 +474,6 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 	Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
 
-// Draw cursor if there is some delay and caller says to draw cursor
-// added/changed on 9/13/98 by adb to fix messy code and add gr_update
      if (delay)
       {
 	if (cursor_flag && delay) {
@@ -487,8 +485,6 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
                 if (robot_num != -1)
 			show_spinning_robot_frame(robot_num);
                 show_animated_bitmap();
-
-                gr_update();
 
 		while (timer_get_fixed_seconds() < start_time + delay/2);
 
@@ -511,8 +507,8 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 }
 
 //	-----------------------------------------------------------------------------
-//	loads (and - in SDL mode - draws) a briefing screen
-//	for OGL, redrawing of briefing_bm is done in show_briefing
+//	loads a briefing screen
+//	redrawing of briefing_bm is done in show_briefing
 int load_briefing_screen( int screen_num )
 {
 	int	pcx_error;
@@ -574,7 +570,6 @@ void title_save_game()
 #ifndef SHAREWARE
 	state_save_all(1);
 #endif
-	gr_palette_clear();
 	
 	gr_set_current_canvas(save_canv);
 	gr_ubitmap(0,0,&save_canv_data->cv_bitmap);
@@ -617,7 +612,6 @@ void flash_cursor(int cursor_flag)
 
 }
 
-#ifdef OGL
 typedef struct msgstream {
 	int x;
 	int y;
@@ -640,7 +634,6 @@ void redraw_messagestream(int count)
 		gr_printf(messagestream[i].x+1,messagestream[i].y,"%s",msgbuf);
 	}
 }
-#endif
 
 //	-----------------------------------------------------------------------------
 //	Return true if message got aborted by user (pressed ESC), else return false.
@@ -660,9 +653,7 @@ int show_briefing(int screen_num, char *message)
 	int text_ulx = rescale_x(bsp->text_ulx);
 	int text_uly = rescale_y(bsp->text_uly);
 	grs_bitmap	guy_bitmap;
-#ifdef OGL
 	int streamcount=0, guy_bitmap_show=0;
-#endif
 
 	Bitmap_name[0] = 0;
 
@@ -727,11 +718,7 @@ int show_briefing(int screen_num, char *message)
 					iff_error = iff_read_bitmap(bitmap_name, &guy_bitmap, BM_LINEAR, temp_palette);
 					Assert(iff_error == IFF_NO_ERROR);
 					show_briefing_bitmap(&guy_bitmap);
-#ifndef OGL
-					gr_free_bitmap_data (&guy_bitmap);
-#else
 					guy_bitmap_show=1;
-#endif
 				}
 				prev_ch = 10;
 			} else if (ch == 'S') {
@@ -743,8 +730,6 @@ int show_briefing(int screen_num, char *message)
 				start_time = timer_get_approx_seconds();
 				time_out_value = start_time + i2f(60*5); // Wait 1 minute...
 
-				gr_update();
-
 				while ( (keypress = local_key_inkey()) == 0 ) { // Wait for a key
 					if ( timer_get_approx_seconds() > time_out_value ) {
 						keypress = 0;
@@ -753,18 +738,14 @@ int show_briefing(int screen_num, char *message)
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
 					timer_delay2(50);
-#ifdef OGL
 					gr_flip();
 					show_fullscr(&briefing_bm);
 					redraw_messagestream(streamcount);
 					if (guy_bitmap_show)
 						show_briefing_bitmap(&guy_bitmap);
-#endif
 					flash_cursor(flashing_cursor);
 					show_spinning_robot_frame(robot_num);
 					show_animated_bitmap();
-
-					gr_update();
 
 					start_time += KEY_DELAY_DEFAULT/2;
 				}
@@ -814,7 +795,6 @@ int show_briefing(int screen_num, char *message)
 				prev_ch = ch;
 			}
 		} else {
-#ifdef OGL
 			messagestream[streamcount].x = Briefing_text_x;
 			messagestream[streamcount].y = Briefing_text_y;
 			messagestream[streamcount].color = Briefing_text_colors[Current_color];
@@ -829,7 +809,6 @@ int show_briefing(int screen_num, char *message)
 			if (guy_bitmap_show)
 				show_briefing_bitmap(&guy_bitmap);
 			streamcount++;
-#endif
 			prev_ch = ch;
 			Briefing_text_x += show_char_delay(ch, delay_count, robot_num, flashing_cursor);
 
@@ -866,8 +845,6 @@ int show_briefing(int screen_num, char *message)
 			start_time = timer_get_approx_seconds();
 			time_out_value = start_time + i2f(60*5); // Wait 1 minute...
 
-			gr_update();
-
 			while ( (keypress = local_key_inkey()) == 0 ) { // Wait for a key
 				if ( timer_get_approx_seconds() > time_out_value ) {
 					keypress = 0;
@@ -876,18 +853,14 @@ int show_briefing(int screen_num, char *message)
 				while (timer_get_approx_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
 				timer_delay2(50);
-#ifdef OGL
 				gr_flip();
 				show_fullscr(&briefing_bm);
 				redraw_messagestream(streamcount);
 				if (guy_bitmap_show)
 					show_briefing_bitmap(&guy_bitmap);
-#endif
 				flash_cursor(flashing_cursor);
 				show_spinning_robot_frame(robot_num);
 				show_animated_bitmap();
-
-				gr_update();
 
 				start_time += KEY_DELAY_DEFAULT/2;
 			}
@@ -903,18 +876,13 @@ int show_briefing(int screen_num, char *message)
 				done = 1;
 			}
 
-#ifndef OGL
-			load_briefing_screen(screen_num);
-#endif
 			Briefing_text_x = text_ulx;
 			Briefing_text_y = text_uly;
-#ifdef OGL
 			streamcount=0;
 			if (guy_bitmap_show) {
 				gr_free_bitmap_data (&guy_bitmap);
 				guy_bitmap_show=0;
 			}
-#endif
 			delay_count = KEY_DELAY_DEFAULT;
 		}
 	}
@@ -1044,12 +1012,7 @@ int show_briefing_screen( int screen_num, int allow_keys)
 
 	load_briefing_screen(screen_num);
 
-	gr_palette_clear();
-#ifndef OGL
-	show_fullscr(&briefing_bm );
-#endif
 	gr_palette_load(gr_palette);
-	gr_update();
 
 	rval = show_briefing_text(screen_num);
 

@@ -1022,8 +1022,6 @@ void game_do_render_frame(int flip)
 #endif
 	if (flip)
 		gr_flip();
-	else
-		gr_update();
 }
 
 void game_render_frame()
@@ -1031,9 +1029,6 @@ void game_render_frame()
 	set_screen_mode( SCREEN_GAME );
 	play_homing_warning();
         game_do_render_frame(GameArg.DbgUseDoubleBuffer);
-	stop_time();
-	gr_palette_fade_in( gr_palette, 32, 0 );
-	start_time();
 }
 
 void do_photos();
@@ -1376,10 +1371,7 @@ void show_boxed_message(char *msg, int RenderFlag)
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
 	gr_printf( 0x8000, y, msg );
-        gr_update();
-#ifdef OGL
 	gr_flip();
-#endif
 }
 
 extern int Death_sequence_aborted;
@@ -1423,7 +1415,6 @@ int do_game_pause()
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
 	Game_paused=1;
 	show_boxed_message(msg, 1);
-	gr_update();
 
 	while (Game_paused) 
 	{
@@ -1776,9 +1767,6 @@ void game()
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
  		newdemo_stop_playback();
-
-	if (Function_mode != FMODE_EDITOR)
-		gr_palette_fade_out(gr_palette,32,0);	// Fade out before going to menu
 
 	clear_warn_func(game_show_warning);     //don't use this func anymore
 	game_disable_cheats();
