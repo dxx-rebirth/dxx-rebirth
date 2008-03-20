@@ -122,13 +122,11 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.1.1.1 2006/03/17 19:57:54 zicodxx Exp
 
 void StartNewLevelSecret(int level_num, int page_in_textures);
 void InitPlayerPosition(int random_flag);
-void load_stars();
 void returning_to_level_message(void);
 void advancing_to_level_message(void);
 void DoEndGame(void);
 void AdvanceLevel(int secret_flag);
 void filter_objects_from_level();
-void nm_draw_background1(char * filename);
 
 //Current_level_num starts at 1 for the first level
 //-1,-2,-3 are secret levels
@@ -710,9 +708,6 @@ int RegisterPlayer()
 	char filename[14];
 	int allow_abort_flag = 1;
 
-	set_screen_mode(SCREEN_MENU);
-	nm_draw_background1(Menu_pcx_name);
-
 	if ( Players[Player_num].callsign[0] == 0 )	{
 		//---------------------------------------------------------------------
 		// Set default config options in case there is no config file
@@ -785,18 +780,6 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	Last_msg_ycrd = -1;		//so we don't restore backgound under msg
 
-//	WIN(LoadCursorWin(MOUSE_WAIT_CURSOR));
-//	WIN(ShowCursorW());
-
-#if 1 //def OGL
-    gr_palette_load(gr_palette);
-    show_boxed_message(TXT_LOADING, 0);
-	gr_update();
-#else
-	show_boxed_message(TXT_LOADING, 0);
-	gr_palette_load(gr_palette);
-#endif
-
 	load_ret = load_level(level_name);		//actually load the data from disk!
 
 	if (load_ret)
@@ -804,9 +787,10 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	Current_level_num=level_num;
 
-//	load_palette_pig(Current_level_palette);		//load just the pig
-
 	load_palette(Current_level_palette,1,1);		//don't change screen
+
+	show_boxed_message(TXT_LOADING, 0);
+	timer_delay2(1);
 
 	load_endlevel_data(level_num);
 
@@ -923,8 +907,6 @@ void StartNewGame(int start_level)
 extern int network_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem ); // network.c
 #endif
 
-#define STARS_BACKGROUND ((HIRESMODE && cfexist("starsb.pcx"))?"starsb.pcx":cfexist("stars.pcx")?"stars.pcx":"starsb.pcx")
-
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
@@ -1020,8 +1002,6 @@ void DoEndLevelScoreGlitz(int network)
 
 	Assert(c <= N_GLITZITEMS);
 
-	gr_palette_fade_out(gr_palette, 32, 0);
-
 	mprintf((0,"doing menu\n"));
 
 #ifdef NETWORK
@@ -1033,12 +1013,6 @@ void DoEndLevelScoreGlitz(int network)
 		newmenu_do2(NULL, title, c, m, NULL, 0, STARS_BACKGROUND);
 
 	mprintf((0,"done DoEndLevelScoreGlitz\n"));
-}
-
-//give the player the opportunity to save his game
-void DoEndlevelMenu()
-{
-//No between level saves......!!!	state_save_all(1);
 }
 
 //	-----------------------------------------------------------------------------------------------------
@@ -1092,7 +1066,6 @@ void do_secret_message(char *msg)
 {
 	int	old_fmode;
 
-	load_stars();
 	old_fmode = Function_mode;
 	Function_mode = FMODE_MENU;
 	nm_messagebox(NULL, 1, TXT_OK, msg);
@@ -1124,7 +1097,6 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		newdemo_record_start_frame(FrameCount, FrameTime );
 	} else if (Newdemo_state != ND_STATE_PLAYBACK) {
 
-		gr_palette_fade_out(gr_palette, 32, 0);
 		set_screen_mode(SCREEN_MENU);
  
 		if (First_secret_visit) {
@@ -1309,7 +1281,6 @@ void EnterSecretLevel(void)
 	//               briefings
 	if (EMULATING_D1)
 	{
-		gr_palette_fade_out(gr_palette, 32, 0);
 		set_screen_mode(SCREEN_MENU);
 		do_secret_message("Alternate Exit Found!\n\nProceeding to Secret Level!");
 		StartNewLevel(Next_level_num, 0);
@@ -1414,7 +1385,6 @@ void DoEndGame(void)
 	if (PLAYING_BUILTIN_MISSION && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 		gr_set_current_canvas( NULL );
 		gr_clear_canvas(BM_XRGB(0,0,0));
-		gr_palette_clear();
 		load_palette(D2_DEFAULT_PALETTE,0,1);
 		scores_maybe_add_player(0);
 	}
@@ -1486,60 +1456,11 @@ void AdvanceLevel(int secret_flag)
 		  Next_level_num = Current_level_num+1;		//assume go to next normal level
                 }
 		// END NMN
-		if (!(Game_mode & GM_MULTI))
-			DoEndlevelMenu(); // Let use save their game
 
 		StartNewLevel(Next_level_num, 0);
 
 	}
 }
-
-#ifdef MACINTOSH		// horrible hack of a routine to load just the palette from the stars.pcx file
-
-extern char last_palette_loaded[];
-
-void load_stars_palette()
-{
-	int pcx_error;
-	ubyte pal[256*3];
-
-	pcx_error = pcx_read_bitmap_palette(STARS_BACKGROUND,pal);
-	Assert(pcx_error == PCX_ERROR_NONE);
-
-	//@@gr_remap_bitmap_good( bmp, pal, -1, -1 );
-
-
-	{	//remap stuff. this code is kindof a hack
-
-		//now, before we bring up the menu, we need to
-		//do some stuff to make sure the palette is ok.  First, we need to
-		//get our current palette into the 2d's array, so the remapping will
-		//work.  Second, we need to remap the fonts.  Third, we need to fill
-		//in part of the fade tables so the darkening of the menu edges works
-
-		gr_copy_palette(gr_palette, pal, sizeof(gr_palette));
-		remap_fonts_and_menus(1);
-
-	}
-
-	strcpy(last_palette_loaded,"");		//force palette load next time
-}
-#endif
-
-void load_stars()
-{
-//@@	int pcx_error;
-//@@	ubyte pal[256*3];
-//@@
-//@@	pcx_error = pcx_read_bitmap("STARS.PCX",&grd_curcanv->cv_bitmap,grd_curcanv->cv_bitmap.bm_type,pal);
-//@@	Assert(pcx_error == PCX_ERROR_NONE);
-//@@
-//@@	gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
-
-	nm_draw_background1(STARS_BACKGROUND);
-
-}
-
 
 void
 died_in_mine_message(void)
@@ -1550,13 +1471,9 @@ died_in_mine_message(void)
 	if (Game_mode & GM_MULTI)
 		return;
 
-	gr_palette_fade_out(gr_palette, 32, 0);
-
 	set_screen_mode(SCREEN_MENU);		//go into menu mode
 
 	gr_set_current_canvas(NULL);
-
-	load_stars();
 
 	old_fmode = Function_mode;
 	Function_mode = FMODE_MENU;
@@ -1574,13 +1491,9 @@ void returning_to_level_message(void)
 	if (Game_mode & GM_MULTI)
 		return;
 
-	gr_palette_fade_out(gr_palette, 32, 0);
-
 	set_screen_mode(SCREEN_MENU);		//go into menu mode
 
 	gr_set_current_canvas(NULL);
-
-	load_stars();
 
 	old_fmode = Function_mode;
 	Function_mode = FMODE_MENU;
@@ -1602,14 +1515,10 @@ void advancing_to_level_message(void)
 	if (Game_mode & GM_MULTI)
 		return;
 
-	gr_palette_fade_out(gr_palette, 32, 0);
-
 	set_screen_mode(SCREEN_MENU);		//go into menu mode
 
 	gr_set_current_canvas(NULL);
 	
-	load_stars();
-
 	old_fmode = Function_mode;
 	Function_mode = FMODE_MENU;
 	sprintf(msg, "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1);

@@ -608,8 +608,6 @@ void menubar_do( int keypress )
 			state = 0;
 		}
 		last_keypress  = 0;
-
-		gr_update();
 	}
 }
 

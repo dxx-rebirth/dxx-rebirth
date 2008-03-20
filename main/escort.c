@@ -64,10 +64,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-#ifdef OGL
-#include "ogl_init.h"
-#endif
-
 extern void multi_send_stolen_items();
 void say_escort_goal(int goal_num);
 void show_escort_menu(char *msg);
@@ -1866,10 +1862,8 @@ void do_escort_menu(void)
 	show_escort_menu(msg);		//TXT_PAUSE);
 
 	while (paused) {
-#ifdef OGL
 		gr_flip();
 		show_escort_menu(msg);		//TXT_PAUSE);
-#endif
 		key = key_inkey();
 
 		switch (key) {
@@ -1960,7 +1954,6 @@ void show_escort_menu(char *msg)
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
 	gr_ustring( x, y, msg );
-	gr_update();
 
 	reset_cockpit();
 }

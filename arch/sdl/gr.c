@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <math.h>
 #include <SDL/SDL.h>
 #ifdef SDL_IMAGE
 #include <SDL_image.h>
@@ -95,10 +96,7 @@ void BlitRotatedSurface(SDL_Surface *from, SDL_Surface *to)
 }
 #endif
 
-void gr_palette_clear(); // Function prototype for gr_init;
-
-
-void gr_update()
+void gr_flip()
 {
 #ifdef LANDSCAPE
 	screen2 = SDL_DisplayFormat(screen);
@@ -109,11 +107,6 @@ void gr_update()
 #else
 	SDL_Flip(screen);
 #endif
-}
-
-void gr_flip(void)
-{
-	gr_update();
 }
 
 // Set the buffer to draw to. 0 is front, 1 is back
@@ -149,8 +142,6 @@ int gr_set_mode(u_int32_t mode)
 	w=SM_W(mode);
 	h=SM_H(mode);
 	
-	if (screen != NULL) gr_palette_clear();
-
 //added on 11/06/98 by Matt Mueller to set the title bar. (moved from below)
 //sekmu: might wanna copy this litte blurb to one of the text files or something
 //we want to set it here so that X window manager "Style" type commands work
@@ -208,6 +199,7 @@ int gr_set_mode(u_int32_t mode)
 //--moved up--end addition -MM
 
 	gamefont_choose_game_font(w,h);
+	gr_palette_load(gr_palette);
 
 	return 0;
 }
@@ -279,25 +271,7 @@ void gr_close()
 
 static int last_r=0, last_g=0, last_b=0;
 
-void gr_palette_clear()
-{
- SDL_Palette *palette;
- SDL_Color colors[256];
- int ncolors;
 
- palette = screen->format->palette;
-
- if (palette == NULL) {
-    return; // Display is not palettised
- }
-
- ncolors = palette->ncolors;
- memset(colors, 0, ncolors * sizeof(SDL_Color));
-
- SDL_SetColors(screen, colors, 0, 256);
-
- gr_palette_faded_out = 1;
-}
 
 
 void gr_palette_step_up( int r, int g, int b )
@@ -308,8 +282,6 @@ void gr_palette_step_up( int r, int g, int b )
 
  SDL_Palette *palette;
  SDL_Color colors[256];
-
- if (gr_palette_faded_out) return;
 
  if ( (r==last_r) && (g==last_g) && (b==last_b) ) return;
 
@@ -352,10 +324,18 @@ void gr_palette_load( ubyte *pal )
  int i, j;
  SDL_Palette *palette;
  SDL_Color colors[256];
+ ubyte gamma[64];
+
+ if (memcmp(pal,gr_current_pal,768))
+     SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
  for (i=0; i<768; i++ ) {
      gr_current_pal[i] = pal[i];
      if (gr_current_pal[i] > 63) gr_current_pal[i] = 63;
+ }
+
+ if (screen == NULL) {
+    return;
  }
 
  palette = screen->format->palette;
@@ -364,145 +344,25 @@ void gr_palette_load( ubyte *pal )
     return; // Display is not palettised
  }
 
+ for (i=0;i<64;i++)
+     gamma[i] = (int)((pow(((double)(14)/(double)(32)), 1.0)*i) + 0.5);
+
  for (i = 0, j = 0; j < 256; j++) {
+     int c;
+     c = gr_find_closest_color(gamma[gr_palette[j*3]],gamma[gr_palette[j*3+1]],gamma[gr_palette[j*3+2]]);
+     gr_fade_table[14*256+j] = c;
      //changed on 980913 by adb to fix palette problems
      colors[j].r = (min(gr_current_pal[i++] + gr_palette_gamma, 63)) * 4;
      colors[j].g = (min(gr_current_pal[i++] + gr_palette_gamma, 63)) * 4;
      colors[j].b = (min(gr_current_pal[i++] + gr_palette_gamma, 63)) * 4;
      //end changes by adb
  }
+
  SDL_SetColors(screen, colors, 0, 256);
-
- gr_palette_faded_out = 0;
+// SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
  init_computed_colors();
+ gr_remap_color_fonts();
 }
-
-
-
-int gr_palette_fade_out(ubyte *pal, int nsteps, int allow_keys)
-{
- int i, j, k;
- ubyte c;
- fix fade_palette[768];
- fix fade_palette_delta[768];
-
- SDL_Palette *palette;
- SDL_Color fade_colors[256];
-
- if (gr_palette_faded_out) return 0;
-
- palette = screen->format->palette;
- if (palette == NULL) {
-    return -1; // Display is not palettised
- }
-
- if (pal==NULL) pal=gr_current_pal;
-
- for (i=0; i<768; i++ )	{
-     gr_current_pal[i] = pal[i];
-     fade_palette[i] = i2f(pal[i]);
-     fade_palette_delta[i] = fade_palette[i] / nsteps;
- }
- for (j=0; j<nsteps; j++ )	{
-     for (i=0, k = 0; k<256; k++ )	{
-         fade_palette[i] -= fade_palette_delta[i];
-         if (fade_palette[i] > i2f(pal[i] + gr_palette_gamma) )
-            fade_palette[i] = i2f(pal[i] + gr_palette_gamma);
-	 c = f2i(fade_palette[i]);
-         if (c > 63) c = 63;
-         fade_colors[k].r = c * 4;
-         i++;
-
-         fade_palette[i] -= fade_palette_delta[i];
-         if (fade_palette[i] > i2f(pal[i] + gr_palette_gamma) )
-            fade_palette[i] = i2f(pal[i] + gr_palette_gamma);
-	 c = f2i(fade_palette[i]);
-         if (c > 63) c = 63;
-         fade_colors[k].g = c * 4;
-         i++;
-
-         fade_palette[i] -= fade_palette_delta[i];
-         if (fade_palette[i] > i2f(pal[i] + gr_palette_gamma) )
-            fade_palette[i] = i2f(pal[i] + gr_palette_gamma);
-	 c = f2i(fade_palette[i]);
-         if (c > 63) c = 63;
-         fade_colors[k].b = c * 4;
-         i++;
-     }
-
-  SDL_SetColors(screen, fade_colors, 0, 256);
- }
-
- gr_palette_faded_out = 1;
- return 0;
-}
-
-
-
-int gr_palette_fade_in(ubyte *pal, int nsteps, int allow_keys)
-{
- int i, j, k, ncolors;
- ubyte c;
- fix fade_palette[768];
- fix fade_palette_delta[768];
-
- SDL_Palette *palette;
- SDL_Color fade_colors[256];
-
- if (!gr_palette_faded_out) return 0;
-
- palette = screen->format->palette;
-
- if (palette == NULL) {
-    return -1; // Display is not palettised
- }
-
- ncolors = palette->ncolors;
-
- for (i=0; i<768; i++ )	{
-     gr_current_pal[i] = pal[i];
-     fade_palette[i] = 0;
-     fade_palette_delta[i] = i2f(pal[i]) / nsteps;
- }
-
- for (j=0; j<nsteps; j++ )	{
-     for (i=0, k = 0; k<256; k++ )	{
-         fade_palette[i] += fade_palette_delta[i];
-         if (fade_palette[i] > i2f(pal[i] + gr_palette_gamma) )
-            fade_palette[i] = i2f(pal[i] + gr_palette_gamma);
-	 c = f2i(fade_palette[i]);
-         if (c > 63) c = 63;
-         fade_colors[k].r = c * 4;
-         i++;
-
-         fade_palette[i] += fade_palette_delta[i];
-         if (fade_palette[i] > i2f(pal[i] + gr_palette_gamma) )
-            fade_palette[i] = i2f(pal[i] + gr_palette_gamma);
-	 c = f2i(fade_palette[i]);
-         if (c > 63) c = 63;
-         fade_colors[k].g = c * 4;
-         i++;
-
-         fade_palette[i] += fade_palette_delta[i];
-         if (fade_palette[i] > i2f(pal[i] + gr_palette_gamma) )
-            fade_palette[i] = i2f(pal[i] + gr_palette_gamma);
-	 c = f2i(fade_palette[i]);
-         if (c > 63) c = 63;
-         fade_colors[k].b = c * 4;
-         i++;
-     }
-
-  SDL_SetColors(screen, fade_colors, 0, 256);
- }
- //added on 980913 by adb to fix palette problems
- gr_palette_load(pal);
- //end changes by adb
-
- gr_palette_faded_out = 0;
- return 0;
-}
-
-
 
 void gr_palette_read(ubyte * pal)
 {

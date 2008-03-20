@@ -486,7 +486,6 @@ int main(int argc, char *argv[])
 			}
 			#endif
 
-			gr_palette_clear();		//I'm not sure why we need this, but we do
 			DoMenu();
 			#ifdef EDITOR
 			if ( Function_mode == FMODE_EDITOR )	{

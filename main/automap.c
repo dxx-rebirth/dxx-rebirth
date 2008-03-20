@@ -526,8 +526,6 @@ void draw_automap(int flip)
 
 	if (flip)
 		gr_flip();
-	else
-		gr_update();
 }
 
 #define LEAVE_TIME 0x4000
@@ -578,9 +576,6 @@ void do_automap( int key_code )	{
 	mprintf( (0, "Allocated %d K for automap edge list\n", (sizeof(Edge_info)+sizeof(short))*Max_edges/1024 ));
 
 	gr_set_current_canvas(NULL);
-
-	gr_palette_clear();
-
 
 	automap_build_edge_list();
 
@@ -635,7 +630,7 @@ void do_automap( int key_code )	{
 			Controls = saved_control_info;
 		}
 
-		controls_read_all();		
+		controls_read_all();
 
 		if ( Controls.automap_down_count )	{
 			if (leave_mode==0)
@@ -734,7 +729,7 @@ void do_automap( int key_code )	{
 						MarkerMessage[HighlightMarker][0]=0;
 						HighlightMarker = -1;
 					}
-				set_screen_mode(SCREEN_GAME);
+					set_screen_mode(SCREEN_GAME);
 				}
 				break;
 

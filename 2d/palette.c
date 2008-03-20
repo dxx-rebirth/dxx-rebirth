@@ -1,4 +1,3 @@
-/* $Id: palette.c,v 1.1.1.1 2006/03/17 19:51:53 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,6 +12,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
+ *
  * Graphical routines for setting the palette
  *
  */
@@ -33,10 +33,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "mono.h"
 #include "fix.h"
-//added/remove by dph on 1/9/99
-//#include "key.h"
-//end remove
-
 #include "palette.h"
 
 extern int gr_installed;
@@ -59,20 +55,16 @@ ubyte gr_fade_table[256*34];
 
 ubyte gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
-ubyte gr_palette_faded_out = 1;
 
 void gr_palette_set_gamma( int gamma )
 {
 	if ( gamma < 0 ) gamma = 0;
-//added/changed on 10/27/98 by Victor Rachels to increase brightness slider
         if ( gamma > 16 ) gamma = 16;      //was 8
-//end this section change - Victor Rachels
 
 	if (gr_palette_gamma_param != gamma )	{
 		gr_palette_gamma_param = gamma;
 		gr_palette_gamma = gamma;
-		if (!gr_palette_faded_out)
-			gr_palette_load( gr_palette );
+		gr_palette_load( gr_palette );
 	}
 }
 

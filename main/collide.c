@@ -1304,7 +1304,6 @@ void do_final_boss_frame(void)
 	if (Final_boss_countdown_time > 0)
 		return;
 
-	gr_palette_fade_out( gr_palette, 256, 0 );
 	start_endlevel_sequence();		//pretend we hit the exit trigger
 
 }

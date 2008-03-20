@@ -33,6 +33,7 @@ extern void d2x_options_menu();
 
 // name of background bitmap
 #define Menu_pcx_name (cfexist(MENU_PCX_FULL)?MENU_PCX_FULL:(cfexist(MENU_PCX_OEM)?MENU_PCX_OEM:cfexist(MENU_PCX_SHAREWARE)?MENU_PCX_SHAREWARE:MENU_PCX_MAC_SHARE))
+#define STARS_BACKGROUND ((HIRESMODE && cfexist("starsb.pcx"))?"starsb.pcx":cfexist("stars.pcx")?"stars.pcx":"starsb.pcx")
 
 extern void set_detail_level_parameters(int detail_level);
 

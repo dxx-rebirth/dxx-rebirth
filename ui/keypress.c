@@ -136,8 +136,6 @@ int GetKeyCode(char * text)
 
 		if (DoneButton->pressed)
 			break;
-
-		gr_update();
 	}
 
 	ui_close_window(wnd);

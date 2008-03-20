@@ -24,7 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <string.h>
 #include <stdlib.h>
-#include <math.h>
 
 #include "fix.h"
 #include "vecmat.h"
@@ -32,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 #include "palette.h"
 #include "rle.h"
-
 #include "inferno.h"
 #include "gamepal.h"
 #include "mission.h"
@@ -47,34 +45,6 @@ extern int Color_0_31_0, HUD_color;
 
 char last_palette_loaded[FILENAME_LEN]="";
 char last_palette_loaded_pig[FILENAME_LEN]="";
-
-ubyte last_palette_for_color_fonts[768];
-
-void remap_fonts_and_menus(int do_fadetable_hack)
-{
-	nm_remap_background();
-	gr_remap_color_fonts();
-
-	if (do_fadetable_hack) {
-		int i;
-		float g = 1.0;
-		double intensity;
-		ubyte gamma[64];
-
-		intensity = (double)(14)/(double)(32);
-		for (i=0;i<64;i++)
-			gamma[i] = (int)((pow(intensity, 1.0/g)*i) + 0.5);
-		for (i=0;i<256;i++) {
-			int c;
-			c = gr_find_closest_color(gamma[gr_palette[i*3]],gamma[gr_palette[i*3+1]],gamma[gr_palette[i*3+2]]);
-			gr_fade_table[14*256+i] = c;
-		}
-	}
-
-	memcpy(last_palette_for_color_fonts,gr_palette,sizeof(last_palette_for_color_fonts));
-}
-
-extern grs_bitmap nm_background;
 
 //load a palette by name. returns 1 if new palette loaded, else 0
 //if used_for_level is set, load pig, etc.
@@ -117,10 +87,10 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 		if (Function_mode == FMODE_GAME && !no_change_screen)
 			gr_remap_bitmap_good( &grd_curscreen->sc_canvas.cv_bitmap, old_pal, -1, -1 );
 
-		if (!gr_palette_faded_out && !no_change_screen)
+		if (!no_change_screen)
 			gr_palette_load(gr_palette);
 
-		remap_fonts_and_menus(0);
+		newmenu_close(); // palette changed! free menu!
 
 		Color_0_31_0 = -1;		//for gauges
 		HUD_color = -1;

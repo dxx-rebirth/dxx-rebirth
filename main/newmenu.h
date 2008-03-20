@@ -140,7 +140,7 @@ int nm_messagebox_fixedfont(char *title, int nchoices, ...);
 //end this section addition
 
 //should be called whenever the palette changes
-extern void nm_remap_background(void);
+extern void newmenu_close();
 
 # define NEWMENU_MOUSE
 

@@ -516,7 +516,6 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			// -- BOGUS -- IMPOSSIBLE -- if (Game_mode & GM_NETWORK)
 			// -- BOGUS -- IMPOSSIBLE -- 	network_do_frame(1, 1);
 
-			gr_palette_fade_out(gr_palette, 32, 0);
 			EnterSecretLevel();
 			Control_center_destroyed = 0;
 			return 1;

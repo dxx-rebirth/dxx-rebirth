@@ -178,6 +178,7 @@ void ClipRank(ubyte *rank);
 void DoRefuseStuff(sequence_packet *their);
 int  GetNewPlayerNumber(sequence_packet *their);
 void SetAllAllowablesTo(int on);
+int show_game_stats(int choice);
 
 int num_active_games = 0;
 int PacketsPerSec=10;
@@ -3575,6 +3576,84 @@ void network_count_powerups_in_mine(void)
 		  
  }
 
+int network_do_join_game(int choice)
+{
+	if (Active_games[choice].protocol_version != MULTI_PROTO_VERSION)
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
+		return 0;
+	}
+
+	if (Active_games[choice].game_status == NETSTAT_ENDLEVEL)
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
+		return 0;
+	}
+
+	// Check for valid mission name
+	if (!load_mission_by_name(Active_games[choice].mission_name))
+	{
+		nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
+		return 0;
+	}
+
+	if (is_D2_OEM)
+	{
+		My_Seq.player.version_minor|=NETWORK_OEM;
+		if (Active_games[choice].levelnum>8)
+		{
+			nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
+			return 0;
+		}
+	}
+
+	if (is_MAC_SHARE)
+	{
+		if (Active_games[choice].levelnum > 4)
+		{
+			nm_messagebox(NULL, 1, TXT_OK, "This SHAREWARE version only supports\nthe first 4 levels!");
+			return 0;
+		}
+	}
+
+	if (!network_wait_for_all_info (0))
+	{
+		nm_messagebox (TXT_SORRY,1,TXT_OK,"There was a join error!");
+		Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+		Ext_server=NULL;
+		Ext_node=NULL;
+		return 0;
+	}
+
+	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+	Ext_server=NULL;
+	Ext_node=NULL;
+
+	if (!can_join_netgame(&Active_games[choice], &ActiveNetPlayers[choice]))
+	{
+		if (Active_games[0].numplayers == Active_games[0].max_numplayers)
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
+		else
+			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
+		return 0;
+	}
+
+	// Choice is valid, prepare to join in
+	memcpy (&Netgame, &Active_games[choice], sizeof(netgame_info));
+	memcpy (&NetPlayers,TempPlayersInfo,sizeof(AllNetPlayers_info));
+
+	Difficulty_level = Netgame.difficulty;
+	MaxNumNetPlayers = Netgame.max_numplayers;
+	change_playernum_to(1);
+
+	network_set_game_mode(Netgame.gamemode);
+
+	StartNewLevel(Netgame.levelnum, 0);
+
+	return 1;     // look ma, we're in a game!!!
+}
+
+
 void nm_draw_background1(char * filename);
 
 void network_join_game()
@@ -5452,83 +5531,6 @@ int HoardEquipped()
 	return (checked);
 }
 
-int network_do_join_game(int choice)
-{
-	if (Active_games[choice].protocol_version != MULTI_PROTO_VERSION)
-	{
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
-		return 0;
-	}
-
-	if (Active_games[choice].game_status == NETSTAT_ENDLEVEL)
-	{
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
-		return 0;
-	}
-
-	// Check for valid mission name
-	if (!load_mission_by_name(Active_games[choice].mission_name))
-	{
-		nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
-		return 0;
-	}
-
-	if (is_D2_OEM)
-	{
-		My_Seq.player.version_minor|=NETWORK_OEM;
-		if (Active_games[choice].levelnum>8)
-		{
-			nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
-			return 0;
-		}
-	}
-
-	if (is_MAC_SHARE)
-	{
-		if (Active_games[choice].levelnum > 4)
-		{
-			nm_messagebox(NULL, 1, TXT_OK, "This SHAREWARE version only supports\nthe first 4 levels!");
-			return 0;
-		}
-	}
-
-	if (!network_wait_for_all_info (0))
-	{
-		nm_messagebox (TXT_SORRY,1,TXT_OK,"There was a join error!");
-		Network_status = NETSTAT_BROWSING; // We are looking at a game menu
-		Ext_server=NULL;
-		Ext_node=NULL;
-		return 0;
-	}
-
-	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
-	Ext_server=NULL;
-	Ext_node=NULL;
-
-	if (!can_join_netgame(&Active_games[choice], &ActiveNetPlayers[choice]))
-	{
-		if (Active_games[0].numplayers == Active_games[0].max_numplayers)
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
-		else
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
-		return 0;
-	}
-
-	// Choice is valid, prepare to join in
-	memcpy (&Netgame, &Active_games[choice], sizeof(netgame_info));
-	memcpy (&NetPlayers,TempPlayersInfo,sizeof(AllNetPlayers_info));
-
-	Difficulty_level = Netgame.difficulty;
-	MaxNumNetPlayers = Netgame.max_numplayers;
-	change_playernum_to(1);
-
-	network_set_game_mode(Netgame.gamemode);
-
-	StartNewLevel(Netgame.levelnum, 0);
-
-	return 1;     // look ma, we're in a game!!!
-}
-
 // Send request for game information. Resend to keep connection alive.
 // Function arguments not used, but needed to call while nm_messagebox1
 void network_info_req( int nitems, newmenu_item * menus, int * key, int citem )
@@ -5682,9 +5684,6 @@ void show_game_rules(int choice)
 				break;
 		}
 	}
-
-// Restore background and exit
-	gr_palette_fade_out( gr_palette, 32, 0 );
 
 	gr_set_current_canvas(NULL);
 

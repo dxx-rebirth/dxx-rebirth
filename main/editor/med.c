@@ -1372,9 +1372,6 @@ void editor(void)
 		} else {
 			ui_mouse_show();
 		}
-
-		gr_update();
-		
 	}
 
 //	_MARK_("end of editor");//Nuked to compile -KRB

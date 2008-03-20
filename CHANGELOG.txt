@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080321
+--------
+2s/palette.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/sdl/gr.c, include/gr.h, include/palette.h, main/automap.c, main/automap.h, main/collide.c, main/credits.c, main/editor/med.c, main/endlevel.c, main/escort.c, main/game.c, main/gamecntl.c, main/gamepal.c, main/gamepal.h, main/gamerend.c, main/gameseq.c, main/gauges.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/menu.h, main/network.c, main/newmenu.c, main/newmenu.h, main/paging.c, main/scores.c, main/switch.c, main/titles.c, ui/file.c, ui/keypress.c, ui/menu.c, ui/menubar.c, ui/message.c, ui/number.c, ui/popup.c: Simplification of palette code; Properly screen clearing in SDL-only build when palette changes; Removed obsolete functions like gr_update (replaced by gr_flip), gr_palette_fade_in/out, gr_palette_clear; Added functionality to render Automap while menu display as well; Improved blocking of some controls code while Automap active; Fixed some compiler warnings
+
 20080319
 --------
 d2x-rebirth.xcodeproj: update d2x.xcode to build universal binaries (requires Xcode 2.1 or greater), update source file list

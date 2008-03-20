@@ -106,8 +106,6 @@ double ui_input_number( short xc, short yc, char * text, double OrgNumber )
 		ui_window_do_gadgets(wnd);
 
 		if (InputBox->pressed) break;
-
-		gr_update();
 	}
 
 	ui_close_window(wnd);

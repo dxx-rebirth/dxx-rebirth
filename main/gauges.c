@@ -995,7 +995,7 @@ extern grs_bitmap Orb_icons[2];
 void hud_show_orbs (void)
 {
 	if (Game_mode & GM_HOARD) {
-		int x,y;
+		int x=0,y=0;
 		grs_bitmap *bm;
 
 		if (Cockpit_mode == CM_FULL_COCKPIT) {
@@ -1025,9 +1025,7 @@ void hud_show_orbs (void)
 void hud_show_flag(void)
 {
 	if ((Game_mode & GM_CAPTURE) && (Players[Player_num].flags & PLAYER_FLAGS_FLAG)) {
-		int x,y,icon;
-
-		x=y=0;
+		int x=0,y=0,icon;
 
 		if (Cockpit_mode == CM_FULL_COCKPIT) {
 			y=HUD_SCALE_Y(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
@@ -2366,8 +2364,8 @@ void show_reticle()
 		ogl_draw_reticle(cross_bm_num,primary_bm_num,secondary_bm_num);
 	}
 	else
-	{
 #endif
+	{
 		use_hires_reticle = (HIRESMODE != 0);
 		ofs = (use_hires_reticle?0:2);
 		gauge_index = RETICLE_CROSS + cross_bm_num;

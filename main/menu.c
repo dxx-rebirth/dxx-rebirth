@@ -199,8 +199,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 {
 	int     num_options;
 
-	gr_update();
-
 	#ifndef DEMO_ONLY
 	num_options = 0;
 
@@ -264,11 +262,6 @@ int DoMenu()
 		if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
 	} while( Function_mode==FMODE_MENU );
 
-//      if (main_menu_choice != -2)
-//              do_auto_demo = 0;               // No more auto demos
-	if ( Function_mode==FMODE_GAME )
-		gr_palette_fade_out( gr_palette, 32, 0 );
-
 	return main_menu_choice;
 }
 
@@ -300,7 +293,6 @@ void do_option ( int select)
 			break;
 		#endif
 		case MENU_VIEW_SCORES:
-			gr_palette_fade_out( gr_palette,32,0 );
 			scores_view(-1);
 			break;
 #if 1 //def SHAREWARE
@@ -312,7 +304,6 @@ void do_option ( int select)
 			#ifdef EDITOR
 			if (! SafetyCheck()) break;
 			#endif
-			gr_palette_fade_out( gr_palette,32,0);
 			Function_mode = FMODE_EXIT;
 			break;
 		case MENU_NEW_PLAYER:
@@ -349,7 +340,6 @@ void do_option ( int select)
 			new_level_num = atoi(m.text);
 
 			if (new_level_num!=0 && new_level_num>=Last_secret_level && new_level_num<=Last_level)  {
-				gr_palette_fade_out( gr_palette, 32, 0 );
 				StartNewGame(new_level_num);
 			}
 		}
@@ -647,7 +637,6 @@ try_again:
 	if (!do_difficulty_menu())
 		return;
 
-	gr_palette_fade_out( gr_palette, 32, 0 );
 	StartNewGame(new_level_num);
 
 }

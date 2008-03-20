@@ -709,8 +709,6 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 		kc_drawitem( &items[citem], 1 );
 #endif
 
-		gr_update();
-
 		//see if redbook song needs to be restarted
 		songs_check_redbook_repeat();
 
@@ -1047,7 +1045,6 @@ void kc_drawquestion( kc_item *item )
 	x = FSPACX(item->w1+item->x)+((FSPACX(item->w2)-w)/2);
 
 	gr_string( x, FSPACY(item->y), "?" );
-	gr_update();
 }
 
 void kc_change_key( kc_item * item )
@@ -1534,7 +1531,7 @@ void controls_read_all()
 
 #ifdef D2X_KEYS
 	//--------- Read primary weapon select -------------
-	if (!Player_is_dead)
+	if (!Player_is_dead && !Automap_flag)
 	{
 		{
 			int d2x_joystick_state[10];
@@ -1547,31 +1544,31 @@ void controls_read_all()
 			if(key_down_count(kc_d2x[0].value) ||
 			   (joy_get_button_state(kc_d2x[1].value) &&
 				(d2x_joystick_state[0]!=d2x_joystick_ostate[0]) ) )
-				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[0].value >= 2 && kc_d2x[0].value <= 11)) && !Automap_flag) // this (and the following statements) prevents to select weapon if guide-bot shortcut has done and weapon key is mapped from 0 to 9 or Automap is active
+				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[0].value >= 2 && kc_d2x[0].value <= 11))) // this (and the following statements) prevents to select weapon if guide-bot shortcut has done and weapon key is mapped from 0 to 9 or Automap is active
 					do_weapon_select(0,0);
 			//----------------Weapon 2----------------
 			if(key_down_count(kc_d2x[2].value) ||
 			   (joy_get_button_state(kc_d2x[3].value) &&
 				(d2x_joystick_state[1]!=d2x_joystick_ostate[1]) ) )
-				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[2].value >= 2 && kc_d2x[2].value <= 11)) && !Automap_flag)
+				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[2].value >= 2 && kc_d2x[2].value <= 11)))
 					do_weapon_select(1,0);
 			//----------------Weapon 3----------------
 			if(key_down_count(kc_d2x[4].value) ||
 			   (joy_get_button_state(kc_d2x[5].value) &&
 				(d2x_joystick_state[2]!=d2x_joystick_ostate[2]) ) )
-				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[4].value >= 2 && kc_d2x[4].value <= 11)) && !Automap_flag)
+				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[4].value >= 2 && kc_d2x[4].value <= 11)))
 					do_weapon_select(2,0);
 			//----------------Weapon 4----------------
 			if(key_down_count(kc_d2x[6].value) ||
 			   (joy_get_button_state(kc_d2x[7].value) &&
 				(d2x_joystick_state[3]!=d2x_joystick_ostate[3]) ) )
-				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[6].value >= 2 && kc_d2x[6].value <= 11)) && !Automap_flag)
+				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[6].value >= 2 && kc_d2x[6].value <= 11)))
 					do_weapon_select(3,0);
 			//----------------Weapon 5----------------
 			if(key_down_count(kc_d2x[8].value) ||
 			   (joy_get_button_state(kc_d2x[9].value) &&
 				(d2x_joystick_state[4]!=d2x_joystick_ostate[4]) ) )
-				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[8].value >= 2 && kc_d2x[8].value <= 11)) && !Automap_flag)
+				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[8].value >= 2 && kc_d2x[8].value <= 11)))
 					do_weapon_select(4,0);
  
 			//--------- Read secondary weapon select ----------
@@ -1579,31 +1576,31 @@ void controls_read_all()
 			if(key_down_count(kc_d2x[10].value) ||
 			   (joy_get_button_state(kc_d2x[11].value) &&
 				(d2x_joystick_state[5]!=d2x_joystick_ostate[5]) ) )
-				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[10].value >= 2 && kc_d2x[10].value <= 11)) && !Automap_flag)
+				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[10].value >= 2 && kc_d2x[10].value <= 11)))
 					do_weapon_select(0,1);
 			//----------------Weapon 7----------------
 			if(key_down_count(kc_d2x[12].value) ||
 			   (joy_get_button_state(kc_d2x[13].value) &&
 				(d2x_joystick_state[6]!=d2x_joystick_ostate[6]) ) )
-				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[12].value >= 2 && kc_d2x[12].value <= 11)) && !Automap_flag)
+				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[12].value >= 2 && kc_d2x[12].value <= 11)))
 					do_weapon_select(1,1);
 			//----------------Weapon 8----------------
 			if(key_down_count(kc_d2x[14].value) ||
 			   (joy_get_button_state(kc_d2x[15].value) &&
 				(d2x_joystick_state[7]!=d2x_joystick_ostate[7]) ) )
-				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[14].value >= 2 && kc_d2x[14].value <= 11)) && !Automap_flag)
+				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[14].value >= 2 && kc_d2x[14].value <= 11)))
 					do_weapon_select(2,1);
 			//----------------Weapon 9----------------
 			if(key_down_count(kc_d2x[16].value) ||
 			   (joy_get_button_state(kc_d2x[17].value) &&
 				(d2x_joystick_state[8]!=d2x_joystick_ostate[8]) ) )
-				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[16].value >= 2 && kc_d2x[16].value <= 11)) && !Automap_flag)
+				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[16].value >= 2 && kc_d2x[16].value <= 11)))
 					do_weapon_select(3,1);
 			//----------------Weapon 0----------------
 			if(key_down_count(kc_d2x[18].value) ||
 			   (joy_get_button_state(kc_d2x[19].value) &&
 				(d2x_joystick_state[9]!=d2x_joystick_ostate[9]) ) )
-				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[18].value >= 2 && kc_d2x[18].value <= 11)) && !Automap_flag)
+				if (!((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && (kc_d2x[18].value >= 2 && kc_d2x[18].value <= 11)))
 					do_weapon_select(4,1);
 			memcpy(d2x_joystick_ostate,d2x_joystick_state,10*sizeof(int));
 		}

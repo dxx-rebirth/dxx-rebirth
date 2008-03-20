@@ -34,9 +34,4 @@ extern char Current_level_palette[FILENAME_LEN];
 // remapped, and the hardware palette does not get changed
 int load_palette(char *name, int used_for_level, int no_change_screen);
 
-extern ubyte last_palette_for_color_fonts[768];
-
-// remap color font & menu background into the current palette
-void remap_fonts_and_menus(int do_fadetable_hack);
-
 #endif /* _GAMEPAL_H */

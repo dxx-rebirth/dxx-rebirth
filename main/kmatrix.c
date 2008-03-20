@@ -353,10 +353,11 @@ void load_stars(void);
 
 void kmatrix_redraw()
 {
-  int i, color;
+  int i, pcx_error, color;
   int sorted[MAX_NUM_NET_PLAYERS];
 
-  load_stars();
+  pcx_error = pcx_read_fullscr(STARS_BACKGROUND, NULL);
+  Assert(pcx_error == PCX_ERROR_NONE);
 
   if (Game_mode & GM_MULTI_COOP)
   {
@@ -399,9 +400,7 @@ void kmatrix_redraw()
 
   kmatrix_draw_deaths(sorted);
 
-  gr_update();
   gr_palette_load(gr_palette);
-  gr_update();
 }
 
 void kmatrix_redraw_coop()
@@ -436,19 +435,13 @@ void kmatrix_redraw_coop()
 
   kmatrix_draw_deaths(sorted);
 
-  gr_update();
   gr_palette_load(gr_palette);
-  gr_update();
 }
 
 #define MAX_VIEW_TIME       F1_0*15
 #define ENDLEVEL_IDLE_TIME  F1_0*10
 
 fix StartAbortMenuTime;
-
-#ifdef MACINTOSH
-extern void load_stars_palette();
-#endif
 
 extern void network_endlevel_poll3( int nitems, struct newmenu_item * menus, int * key, int citem );
 
@@ -467,14 +460,6 @@ void kmatrix_view(int network)
     digi_kill_sound_linked_to_object (Players[i].objnum);
 
   set_screen_mode( SCREEN_MENU );
-
-#ifdef MACINTOSH
-  if (virtual_memory_on) {
-    load_stars_palette();   // horrible hack to prevent too much paging when doing endlevel syncing
-    gr_clear_canvas( BM_XRGB(0, 0, 0) );
-  } else
-#endif    // note link to above if/else pair
-    load_stars();
 
   WaitingForOthers=0;
 
@@ -666,17 +651,13 @@ void kmatrix_view(int network)
           kmatrix_kills_changed=0;
         }
       }
-#ifdef OGL
 		gr_flip();
-#endif
   }
 
   Players[Player_num].connected=7;
 
   if (network)
     network_send_endlevel_packet();  // make sure
-
-  gr_palette_fade_out( gr_palette, 32, 0 );
 
   game_flush_inputs();
 

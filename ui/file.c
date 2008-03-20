@@ -322,8 +322,6 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 			ui_mouse_show();
 
 		}
-
-		gr_update();
 	}
 
 	//key_flush();

@@ -794,8 +794,6 @@ void game_render_frame_mono(int flip)
 
 	if (flip)
 		gr_flip();
-	else
-		gr_update();
 }
 
 void toggle_cockpit()
@@ -898,11 +896,6 @@ void game_render_frame()
 	if (VR_render_mode == VR_NONE )
 		game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
 
-	// Make sure palette is faded in
-	stop_time();
-	gr_palette_fade_in( gr_palette, 32, 0 );
-	start_time();
-
 	FrameCount++;
 }
 
@@ -948,8 +941,5 @@ void show_boxed_message(char *msg, int RenderFlag)
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 
 	gr_printf( 0x8000, y, msg );
-        gr_update();
-#ifdef OGL
 	gr_flip();
-#endif
 }

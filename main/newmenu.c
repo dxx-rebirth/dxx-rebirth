@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs/physfs.h>
 #endif
 
+#include "automap.h"
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
@@ -125,21 +126,6 @@ void nm_draw_copyright()
 	gr_printf(0x8000,SHEIGHT-(LINE_SPACING*2),DESCENT_VERSION);
 }
 
-ubyte background_palette[768];
-
-//should be called whenever the palette changes
-void nm_remap_background()
-{
-	if (!Newmenu_first_time) {
-		if (!nm_background.bm_data)
-			nm_background.bm_data = d_malloc(nm_background.bm_w * nm_background.bm_h);
-
-		memcpy(nm_background.bm_data,nm_background_save.bm_data,nm_background.bm_w * nm_background.bm_h);
-
-		gr_remap_bitmap_good( &nm_background, background_palette, -1, -1 );
-	}
-}
-
 // Draws the background of menus (i.e. Descent Logo screen)
 void nm_draw_background1(char * filename)
 {
@@ -149,7 +135,10 @@ void nm_draw_background1(char * filename)
 		filename = Menu_pcx_name;
 	else if (filename == NULL && Function_mode == FMODE_GAME)
 	{
-		game_render_frame_mono(0);
+		if (Automap_active)
+			draw_automap(0);
+		else
+			game_render_frame_mono(0);
 		gr_set_current_canvas(NULL);
 	}
 
@@ -157,25 +146,17 @@ void nm_draw_background1(char * filename)
 	{
 		if (nm_background1.bm_data == NULL)
 		{
-			ubyte newpal[768];
 			atexit( newmenu_close );
 			gr_init_bitmap_data (&nm_background1);
-			pcx_error = pcx_read_bitmap( filename, &nm_background1, BM_LINEAR, newpal );
+			pcx_error = pcx_read_bitmap( filename, &nm_background1, BM_LINEAR, gr_palette );
 			Assert(pcx_error == PCX_ERROR_NONE);
-			gr_copy_palette(gr_palette, newpal, sizeof(gr_palette));
-			remap_fonts_and_menus(1);
 			if (!strcmp(filename,Menu_pcx_name) && Function_mode != FMODE_GAME)
 				draw_copyright=1;
 			else
 				draw_copyright=0;
 		}
 		gr_palette_load( gr_palette );
-#ifndef OGL
 		show_fullscr(&nm_background1);
-#else
-		gr_palette_load( gr_palette );
-		ogl_ubitmapm_cs(0,0,-1,-1,&nm_background1,-1,F1_0);
-#endif
 
 		if (draw_copyright)
 			nm_draw_copyright();
@@ -195,22 +176,16 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	static float BGScaleX=1,BGScaleY=1;
 	grs_canvas *tmp,*old;
 	grs_bitmap bg;
-	static ubyte BGPal[768];
 
-#ifndef OGL
-	if (nm_background.bm_data)
-		gr_free_bitmap_data (&nm_background);
-#else
 	if (nm_background.bm_data == NULL)
-#endif
 	{
 		int pcx_error;
+		ubyte background_palette[768];
 		atexit( newmenu_close );
 		gr_init_bitmap_data (&nm_background);		
 		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP,&nm_background,BM_LINEAR,background_palette);
 		Assert(pcx_error == PCX_ERROR_NONE);
 		gr_remap_bitmap_good( &nm_background, background_palette, -1, -1 );
-// gr_remap_bitmap_good( &nm_background, gr_palette, -1, -1 );
 		BGScaleX=((float)SWIDTH/nm_background.bm_w);
 		BGScaleY=((float)SHEIGHT/nm_background.bm_h);
 	}
@@ -617,7 +592,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	int sound_stopped=0,time_stopped=0;
 	int TopChoice,IsScrollBox=0;   // Is this a scrolling box? Set to false at init
 	char *Temp,TempVal;
-	int dont_restore=0;
 	int MaxOnMenu=MAXDISPLAYABLEITEMS;
 	grs_canvas *save_canvas;
 #ifdef NEWMENU_MOUSE
@@ -944,7 +918,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 #endif
 
 		if ( k<-1 ) {
-			dont_restore = (k == -3);		//-3 means don't restore
 			choice = k;
 			k = -1;
 			done = 1;
@@ -1468,10 +1441,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				nm_rstring( &bg, FSPACX(11), sx, sy, "  " );
 		
 		}
-
-		if ( !dont_restore && gr_palette_faded_out ) {
-			gr_palette_fade_in( gr_palette, 32, 0 );
-		}
 	}
 
 	newmenu_hide_cursor();
@@ -1745,6 +1714,8 @@ ReadFileNames:
 			}
 	 	}
 	}
+
+	nm_draw_background1(NULL);
 
 #ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;

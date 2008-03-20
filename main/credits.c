@@ -91,9 +91,7 @@ void credits_show()
 	}
 
 	set_screen_mode(SCREEN_MENU);
-	gr_palette_fade_out( gr_palette,32,0);
 	gr_use_palette_table( "credits.256" );
-	gr_remap_color_fonts();
 	backdrop.bm_data=NULL;
 
 	pcx_error = pcx_read_bitmap(CREDITS_BACKGROUND_FILENAME,&backdrop, BM_LINEAR,backdrop_palette);
@@ -108,8 +106,7 @@ void credits_show()
 
 	gr_set_current_canvas(NULL);
 	show_fullscr(&backdrop);
-	gr_palette_fade_in( gr_palette, 32, 0 );
-
+	gr_palette_load( gr_palette );
 	CreditsOffscreenBuf = gr_create_sub_canvas(grd_curcanv,0,0,SWIDTH,SHEIGHT);
 
 	if (!CreditsOffscreenBuf)
@@ -185,8 +182,6 @@ get_line:;
 				}
 				y += ROW_SPACING;
 			}
-
-			gr_update();
 
 			timer_delay2(25);
 		

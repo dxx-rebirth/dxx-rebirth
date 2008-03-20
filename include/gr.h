@@ -168,12 +168,6 @@ int gr_init_screen(int mode, int w, int h, int x, int y, int rowsize, ubyte *dat
 int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 
-
-// These 4 functions actuall change screen colors.
-
-extern void gr_pal_fade_out(unsigned char * pal);
-extern void gr_pal_fade_in(unsigned char * pal);
-extern void gr_pal_clear(void);
 extern void gr_pal_setblock( int start, int number, unsigned char * pal );
 extern void gr_pal_getblock( int start, int number, unsigned char * pal );
 
@@ -428,7 +422,6 @@ extern void gr_merge_textures_1( ubyte * lower, ubyte * upper, ubyte * dest );
 extern void gr_merge_textures_2( ubyte * lower, ubyte * upper, ubyte * dest );
 extern void gr_merge_textures_3( ubyte * lower, ubyte * upper, ubyte * dest );
 
-extern void gr_update(void);
 extern void gr_flip(void);
 extern void gr_set_draw_buffer(int buf);
 

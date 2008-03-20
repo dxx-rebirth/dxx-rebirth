@@ -117,8 +117,6 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 			choice = -1;
 			break;
 		}
-
-		gr_update();
 	}
 
 	ui_close_window(wnd);

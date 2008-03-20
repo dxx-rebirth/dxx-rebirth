@@ -192,7 +192,6 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	while (1) {
 		gr_flip();
 		show_fullscr(&title_bm);
-		gr_update();
 
 		if (( local_key_inkey() && allow_keys ) || ( timer_get_fixed_seconds() > timer ))
 		{
@@ -426,19 +425,19 @@ void show_animated_bitmap(void)
         grs_canvas      *curcanv_save, *bitmap_canv=0;
 	grs_bitmap	*bitmap_ptr;
 
-// 	gr_use_palette_table( "groupa.256" );
-
 	// Only plot every nth frame.
 	if (Door_div_count) {
-#ifdef OGL
 		if (Bitmap_name[0] != 0) {
 			bitmap_index bi;
 			bi = piggy_find_bitmap(Bitmap_name);
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
+#ifdef OGL
 			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),(bitmap_ptr->bm_w*(SWIDTH/320)),(bitmap_ptr->bm_h*(SHEIGHT/200)),bitmap_ptr,255,F1_0);
-		}
+#else
+			gr_bitmapm(rescale_x(220), rescale_y(45), bitmap_ptr);
 #endif
+		}
 		Door_div_count--;
 		return;
 	}
@@ -589,7 +588,6 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	if (cursor_flag && delay) {
 		gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
 		gr_printf(Briefing_text_x, Briefing_text_y, "_" );
-		gr_update();
 	}
 
 	if ((Bitmap_name[0] != 0) && (delay != 0))
@@ -616,8 +614,6 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	//	Draw the character
 	gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
 	gr_printf(Briefing_text_x+1, Briefing_text_y, message );
-
-	if (delay) gr_update();
 
 	return w;
 }
@@ -714,10 +710,8 @@ void flash_cursor(int cursor_flag)
 		gr_set_fontcolor(Erase_color, -1);
 
 	gr_printf(Briefing_text_x, Briefing_text_y, "_" );
-	gr_update();
 }
 
-#ifdef OGL
 typedef struct msgstream {
 	int x;
 	int y;
@@ -740,7 +734,6 @@ void redraw_messagestream(int count)
 		gr_printf(messagestream[i].x+1,messagestream[i].y,"%s",msgbuf);
 	}
 }
-#endif
 
 //	-----------------------------------------------------------------------------
 //	Return true if message got aborted by user (pressed ESC), else return false.
@@ -764,14 +757,8 @@ int show_briefing(int screen_num, char *message)
 	int hum_channel=-1,printing_channel=-1;
 	int LineAdjustment=1;
 	grs_bitmap  guy_bitmap;
-#ifdef OGL
 	int streamcount=0, guy_bitmap_show=0;
-#endif
 
-// 	if (EMULATING_D1)
-// 		fname = Briefing_screens[screen_num].bs_name;
-// 	else
-// 		fname = CurBriefScreenName;
 	if (EMULATING_D1)
 		strncpy(fname, Briefing_screens[screen_num].bs_name, 15);//fname = Briefing_screens[screen_num].bs_name;
 	else
@@ -936,11 +923,7 @@ int show_briefing(int screen_num, char *message)
 				gr_remap_bitmap_good( &guy_bitmap, temp_palette, -1, -1 );
 
 				show_briefing_bitmap(&guy_bitmap);
-#ifndef OGL
-				d_free(guy_bitmap.bm_data);
-#else
 				guy_bitmap_show=1;
-#endif
 				prev_ch = 10;
 			} else if (ch == 'S') {
 				int keypress;
@@ -951,21 +934,18 @@ int show_briefing(int screen_num, char *message)
 					digi_stop_sound( printing_channel );
 				printing_channel=-1;
 
-				gr_update();
 
 				start_time = timer_get_fixed_seconds();
 				while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
 
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
-#ifdef OGL
 					if (!RobotPlaying)
 						gr_flip();
 					show_fullscr(&briefing_bm);
 					redraw_messagestream(streamcount);
 					if (guy_bitmap_show)
 						show_briefing_bitmap(&guy_bitmap);
-#endif
 					flash_cursor(flashing_cursor);
 
 					if (RobotPlaying)
@@ -1002,7 +982,6 @@ int show_briefing(int screen_num, char *message)
 				}
 				message++;
 				prev_ch = 10;
-				gr_update();
 			}
 		} else if (ch == '\t') {		//	Tab
 			if (Briefing_text_x - bsp->text_ulx < tab_stop)
@@ -1022,9 +1001,7 @@ int show_briefing(int screen_num, char *message)
 					DumbAdjust--;
 				Briefing_text_x = bsp->text_ulx;
 				if (Briefing_text_y > bsp->text_uly + bsp->text_height) {
-#ifndef OGL
 					load_briefing_screen(Briefing_screens[screen_num].bs_name);
-#endif
 					Briefing_text_x = bsp->text_ulx;
 					Briefing_text_y = bsp->text_uly;
 				}
@@ -1041,7 +1018,6 @@ int show_briefing(int screen_num, char *message)
 				load_briefing_screen (HIRESMODE?"end01b.pcx":"end01.pcx");
 			}
 
-#ifdef OGL
 			messagestream[streamcount].x = Briefing_text_x;
 			messagestream[streamcount].y = Briefing_text_y;
 			messagestream[streamcount].color = Briefing_text_colors[Current_color];
@@ -1055,7 +1031,6 @@ int show_briefing(int screen_num, char *message)
 			if (guy_bitmap_show)
 				show_briefing_bitmap(&guy_bitmap);
 			streamcount++;
-#endif
 
 			prev_ch = ch;
 
@@ -1107,14 +1082,12 @@ int show_briefing(int screen_num, char *message)
 			while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
-#ifdef OGL
 				if (!RobotPlaying)
 					gr_flip();
 				show_fullscr(&briefing_bm);
 				redraw_messagestream(streamcount);
 				if (guy_bitmap_show)
 					show_briefing_bitmap(&guy_bitmap);
-#endif
 				flash_cursor(flashing_cursor);
 				if (RobotPlaying)
 					RotateRobot();
@@ -1143,13 +1116,11 @@ int show_briefing(int screen_num, char *message)
 			Briefing_text_x = bsp->text_ulx;
 			Briefing_text_y = bsp->text_uly;
 
-#ifdef OGL
 			streamcount=0;
 			if (guy_bitmap_show) {
 				gr_free_bitmap_data (&guy_bitmap);
 				guy_bitmap_show=0;
 			}
-#endif
 
 			delay_count = KEY_DELAY_DEFAULT;
 		}
@@ -1171,10 +1142,8 @@ int show_briefing(int screen_num, char *message)
 		d_free(bsp);
 	}
 
-#ifdef OGL
 	if (briefing_bm.bm_data != NULL)
 		gr_free_bitmap_data (&briefing_bm);
-#endif
 
 	return rval;
 }
@@ -1320,14 +1289,8 @@ int show_briefing_screen( int screen_num, int allow_keys)
 
 	if (EMULATING_D1) {
 		load_briefing_screen(Briefing_screens[screen_num].bs_name);
-
-		gr_palette_clear();
-#ifndef OGL
 		show_fullscr(&briefing_bm );
-#endif
 		gr_palette_load(gr_palette);
-		gr_update();
-
 	}
 
 	rval = show_briefing_text(screen_num);
@@ -1455,7 +1418,6 @@ void show_order_form()
 	char    exit_screen[16];
 
 	gr_set_current_canvas( NULL );
-	gr_palette_clear();
 
 	key_flush();
 

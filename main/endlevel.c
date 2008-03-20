@@ -362,9 +362,6 @@ void start_endlevel_sequence()
 		}
 	}
 
-	//don't have movie or rendered sequence, fade out
-	gr_palette_fade_out(gr_palette, 32, 0);
-
 	PlayerFinishedLevel(0);		//done with level
 }
 
@@ -537,8 +534,6 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 void stop_endlevel_sequence()
 {
 	Interpolation_method = 0;
-
-	gr_palette_fade_out(gr_palette, 32, 0);
 
 	select_cockpit(cockpit_mode_save);
 

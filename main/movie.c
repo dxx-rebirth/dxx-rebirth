@@ -185,6 +185,7 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 	source_bm.bm_type = BM_LINEAR;
 	source_bm.bm_flags = 0;
 	source_bm.bm_data = buf;
+
 #ifdef OGL
 	glDisable (GL_BLEND);
 
@@ -196,8 +197,6 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 			&source_bm,&grd_curcanv->cv_bitmap,0);
 
 	glEnable (GL_BLEND);
-
-	gr_update();
 	gr_flip();
 #else
 	gr_bm_ubitblt(bufw,bufh,dstx*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),dsty*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
@@ -243,10 +242,7 @@ void show_pause_message(char *msg)
 
 	gr_ustring( 0x8000, y, msg );
 
-	gr_update();
-#ifdef OGL
 	gr_flip();
-#endif
 }
 
 void clear_pause_message()
@@ -306,9 +302,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 		draw_subtitles(frame_num);
 
-		gr_palette_load(gr_palette); // moved this here because of flashing
-
-		gr_update();
+		gr_palette_load(gr_palette);
 
 		key = key_inkey();
 

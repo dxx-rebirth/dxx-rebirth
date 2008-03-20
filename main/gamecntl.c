@@ -453,7 +453,6 @@ int do_game_pause()
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
 	Game_paused=1;
 	show_boxed_message(msg, 1);
-	gr_update();
 
 	while (Game_paused) 
 	{

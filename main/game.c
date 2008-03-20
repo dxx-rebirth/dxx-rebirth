@@ -263,7 +263,6 @@ void reset_palette_add()
 	PaletteRedAdd 		= 0;
 	PaletteGreenAdd	= 0;
 	PaletteBlueAdd		= 0;
-	//gr_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
 }
 
 
@@ -1008,8 +1007,6 @@ void PALETTE_FLASH_ADD(int _dr,int _dg,int _db)
 
 fix	Time_flash_last_played;
 
-
-void game_palette_step_up( int r, int g, int b );
 //	------------------------------------------------------------------------------------
 //	Diminish palette effects towards normal.
 void diminish_palette_towards_normal(void)
@@ -1049,7 +1046,7 @@ void diminish_palette_towards_normal(void)
       	if ( (Newdemo_state==ND_STATE_RECORDING) && (PaletteRedAdd || PaletteGreenAdd || PaletteBlueAdd) )
 	      	newdemo_record_palette_effect(PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
 
-			game_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
+			gr_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
 
 			return;
 		}
@@ -1068,7 +1065,7 @@ void diminish_palette_towards_normal(void)
 	if ( (Newdemo_state==ND_STATE_RECORDING) && (PaletteRedAdd || PaletteGreenAdd || PaletteBlueAdd) )
 		newdemo_record_palette_effect(PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
 
-	game_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
+	gr_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
 
 	//mprintf(0, "%2i %2i %2i\n", PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
 }
@@ -1080,21 +1077,10 @@ void palette_save(void)
 	Redsave = PaletteRedAdd; Bluesave = PaletteBlueAdd; Greensave = PaletteGreenAdd;
 }
 
-extern void gr_palette_step_up_vr( int r, int g, int b, int white, int black );
-
-void game_palette_step_up( int r, int g, int b )
-{
-	if ( VR_use_reg_code )	{
-//		gr_palette_step_up_vr( r, g, b, VR_WHITE_INDEX, VR_BLACK_INDEX );
-	} else {
-		gr_palette_step_up( r, g, b );
-	}
-}
-
 void palette_restore(void)
 {
 	PaletteRedAdd = Redsave; PaletteBlueAdd = Bluesave; PaletteGreenAdd = Greensave;
-	game_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
+	gr_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
 
 	//	Forces flash effect to fixup palette next frame.
 	Time_flash_last_played = 0;
@@ -1529,17 +1515,6 @@ void game()
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
  		newdemo_stop_playback();
-
-	if (Function_mode != FMODE_EDITOR)
-		gr_palette_fade_out(gr_palette,32,0);			// Fade out before going to menu
-
-//@@	if ( (!demo_playing) && (!multi_game) && (Function_mode != FMODE_EDITOR))	{
-//@@		scores_maybe_add_player(Game_aborted);
-//@@	}
-
-#ifdef __MSDOS__
-	//_MARK_("end of game");
-#endif
 
 	clear_warn_func(game_show_warning);     //don't use this func anymore
 
