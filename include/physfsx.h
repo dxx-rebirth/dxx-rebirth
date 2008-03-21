@@ -38,9 +38,9 @@
 #include "args.h"
 #include "ignorecase.h"
 
-// Initialise PhysicsFS, set up basic search paths and add arguments from .ini file(s).
-// The arguments are used to determine the search paths, so the first .ini file must be
-// in the same directory as D1X. A second one can be in the user directory.
+// Initialise PhysicsFS, set up basic search paths and add arguments from .ini file.
+// The .ini file can be in either the user directory or the same directory as the program.
+// The user directory is searched first.
 static inline void PHYSFSX_init(int argc, char *argv[])
 {
 #if defined(__unix__)
@@ -51,7 +51,6 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	PHYSFS_init(argv[0]);
 	PHYSFS_permitSymbolicLinks(1);
 
-	PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
 #if defined(__APPLE__) && defined(__MACH__)	// others?
 	chdir(PHYSFS_getBaseDir());	// make sure relative hogdir and userdir paths work
 #endif
@@ -62,8 +61,6 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 # else
 	path = "~/Library/Preferences/D1X Rebirth/";
 # endif
-
-	PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
 
 	if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
 	{
@@ -109,11 +106,22 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 1);
 #endif
 
+	PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
 	InitArgs( argc,argv );
+	PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
 
 	if (!PHYSFS_getWriteDir())
 	{
+#ifdef macintosh	// Mac OS 9
+		char base_dir[PATH_MAX];
+		
+		strcpy(base_dir, PHYSFS_getBaseDir());
+		if (strstr(base_dir, ".app:Contents:MacOSClassic:"))	// the Mac OS 9 program is still in the .app bundle
+			strncat(base_dir, ":::", PATH_MAX - 1 - strlen(base_dir));	// go outside the .app bundle (the lazy way)
+		PHYSFS_setWriteDir(base_dir);
+#else
 		PHYSFS_setWriteDir(PHYSFS_getBaseDir());
+#endif
 		if (!PHYSFS_getWriteDir())
 			Error("can't set write dir\n");
 		else
