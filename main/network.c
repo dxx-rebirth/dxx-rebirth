@@ -3655,6 +3655,8 @@ int network_do_join_game(int choice)
 
 
 void nm_draw_background1(char * filename);
+int show_game_stats(int choice);
+int network_do_join_game(int choice);
 
 void network_join_game()
 {
