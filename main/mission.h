@@ -21,6 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _MISSION_H
 
 #include "pstypes.h"
+#include "inferno.h"
 
 #define MAX_MISSIONS                    5000 // ZICO - changed from 300 to get more levels in list
 #define MAX_LEVELS_PER_MISSION          30

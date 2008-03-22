@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20080322
 --------
 d1x-rebirth.xcodeproj, INSTALL.txt, SConstruct: make compile instructions clearer for Windows and Mac users, for Mac OS X don't use Sharepath when using SConstruct, handle warnings differently in Xcode
+main/gamefont.c, main/mission.h: scale Mac fonts correctly
 
 20080321
 --------

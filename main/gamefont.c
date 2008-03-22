@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "cfile.h"
 #include "gamefont.h"
+#include "mission.h"
 
 char * Gamefont_filenames_l[] = {
 	"font1-1.fnt", // Font 0
@@ -145,9 +146,18 @@ void addfontconf(int gf, int x, int y, char * fn){
 void gamefont_init()
 {
 	int i;
+	int mac_hog = 0;
 
 	if (Gamefont_installed)
 		return;
+
+	switch (cfile_size("descent.hog"))
+	{
+		case D1_MAC_SHARE_MISSION_HOGSIZE:
+		case D1_MAC_MISSION_HOGSIZE:
+			mac_hog = 1;
+			break;
+	}
 
 	Gamefont_installed = 1;
 
@@ -156,7 +166,10 @@ void gamefont_init()
 
 		if (GameArg.GfxHiresFNTAvailable)
 			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
-		addfontconf(i,320,200,Gamefont_filenames_l[i]);
+		if (mac_hog)
+			addfontconf(i,640,480,Gamefont_filenames_l[i]); // Mac fonts are hires
+		else
+			addfontconf(i,320,200,Gamefont_filenames_l[i]);
 	}
 
 	gamefont_choose_game_font(grd_curscreen->sc_canvas.cv_bitmap.bm_w,grd_curscreen->sc_canvas.cv_bitmap.bm_h);
