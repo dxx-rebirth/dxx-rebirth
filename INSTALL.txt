@@ -1,4 +1,4 @@
-Compiling D1X-Rebirth Sourcecode on a *NIX System
+Compiling D1X-Rebirth Sourcecode
 
 This file describes how to compile D1X-Rebirth from Source.
 
@@ -21,12 +21,14 @@ Requirements
 
 Compiling
 
+For Mac OS X, an Xcode project is available (requires Xcode 2.1 or later). Xcode includes the compiler and OpenGL.
+
 The SConstruct file provides various options to compile this program.
 To get a full list of all available commands, type scons -h within the Source directory.
 
 Currently, the following variables are supported:
 
-'sharepath=DIR'   (*NIX only) use DIR for shared game data. (default: /usr/local/share/games/d1x-rebirth)
+'sharepath=DIR'   (non-Mac OS *NIX only) use DIR for shared game data. (default: /usr/local/share/games/d1x-rebirth)
 'sdl_only=1'      don't include OpenGL, use SDL-only instead
 'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
 'shareware=1'     build SHAREWARE version
@@ -55,6 +57,8 @@ scons install
 
 You can also add the ‘install’ command while compile-time. SCons will compile and install the binary right after that.
 
+For Windows and Mac however, it is instead recommended to manually drag the program to the folder containing the Descent data or use the -hogdir option when running.
+
 To clean up the source directory after installation, type:
 
 scons -c
@@ -64,13 +68,17 @@ Needed files
 
 Since D1X-Rebirth is a Sourceport of the Descent1-Engine you will need the Game-Content data files to run the game.
 
+For non-Mac OS *NIX all files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d1x-rebirth/. For all other systems the files go in the folder containing the application, as with the original version. For *NIX systems (including Mac OS X) there is also the option of placing them in a folder you specify using d1x.ini (see end).
+
 Following files are needed to run the game:
 
 descent.hog
 descent.pig
 
 These files should be located on the Descent1 CD-Rom.
-Note that those files must be lowercase and patched to version 1.4a.
+On non-Mac OS *NIX, those files must be lowercase. The PC version data files need to be patched to version 1.4a.
+
+The above files may go in a subdirectory called 'Data'.
 
 There is a patch suitable for *NIX systems (diff-files) available at:
 http://www.dxx-rebirth.de/download/dxx/res/descent1_patch14a-linux.tar.gz
@@ -78,14 +86,14 @@ http://www.dxx-rebirth.de/download/dxx/res/descent1_patch14a-linux.tar.gz
 Patching can also be done from Windows/DOS using the DOS 1.4a-patch of Parallax, that will patch a common Descent1 installation.
 DOS 1.4a patch: http://www.dxx-rebirth.de/download/dxx/res/descent1_patch14a.exe
 
-Those files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d1x-rebirth/
+For the Mac CD-ROM, the data files will need to be installed from the CD using a Mac system earler than OS X. Classic will work. If you know of any other way, please tell me at chris at icculus.org. No patch is needed for these data files.
 
 To play the Multiplayer levelset “Total Chaos”, also copy the files
 
 chaos.hog
 chaos.msn
 
-to the subdirectory ‘missions/’ in your Sharepath. These files should also be located on the Descent1 CD.
+to the subdirectory ‘missions/’. These files should also be located on the Descent1 CD.
 
 
 Optional files
@@ -99,22 +107,25 @@ Supported content:
       Available at:
       http://www.dxx-rebirth.de/download/dxx/res/d1x-rebirth_hires-briefings_v2.zip
       http://www.dxx-rebirth.de/download/dxx/res/d1x-rebirth_hires-fonts.zip
-      To add those, copy them to subdirectory ‘hires/’ of the Sharepath.
+      To add those, copy them to subdirectory ‘hires/’.
       HiRes Briefings will be used automatically, HiRes Fonts can be activated with command-line switch ‘-hiresfont’.
+      The Mac data files are already hires.
 
     *
       Custom/AddOn missions
-      Those can be found on several websites. Add them to the game by copying them to subdirectoy ‘missions/’ of the Sharepath.
+      Those can be found on several websites. Add them to the game by copying them to subdirectory ‘missions/’. They can also go in subdirectories of 'missions/', unlike with the original version.
 
     *
       Language Packs
       German translation: http://www.dxx-rebirth.de/download/dxx/res/D1XBDE01.zip
-      Copy the txb-files to the Sharepath. Will be activated automatically
+      Copy the txb-files to the Sharepath (non-Mac OS *NIX)/program directory (otherwise). Will be activated automatically
 
 
 Launching the program
 
-After compiling and installing, the program can be launched with the command
+On Windows and Mac OS, simply double-click the program.
+
+After compiling and installing, the program can be launched on *NIX systems with the command
 
 d1x-rebirth-gl
 
@@ -127,8 +138,9 @@ To see a full list of available command-line options append ‘-h’, ‘-?’ t
 d1x.ini
 
 
-The game will create a config-directory in the Home directory of the user called ‘.d1x-rebirth’.
+On *NIX systems, the game will create a config-directory. On non-Mac *NIX systems this will be called ‘.d1x-rebirth’ and reside in the Home directory of the user.
 On Mac OS X this directory will be called ‘D1X Rebirth’, in the Preferences folder in the user’s Library.
+On all other systems (Windows and Mac OS 9) the application directory is used.
 It is used to read/save
 
     *
@@ -140,9 +152,9 @@ It is used to read/save
     *
       Screenshots
     *
-      d1x.ini for parsing command-line arguments
+      d1x.ini for parsing command-line arguments (the config directory is searched first, then the directory containing the program)
 
-Thanks to PhysFS it can also be used as a replacement for Sharepath directory
+Thanks to PhysFS, on *NIX systems data files can also go in here. In addition, demos could be moved from the config directory to the Sharepath/program directory to make them viewable by other users.
 
 
 Appendix
