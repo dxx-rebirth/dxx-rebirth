@@ -2013,7 +2013,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 			};
 			name = Development;
 		};
@@ -2025,6 +2025,7 @@
 					i386,
 				);
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION_i386 = 4.0;
 				GCC_VERSION_ppc = 3.3;
 				MACOSX_DEPLOYMENT_TARGET = 10.1;
