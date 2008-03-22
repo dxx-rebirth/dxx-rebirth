@@ -1,4 +1,4 @@
-Compiling D2X-Rebirth Sourcecode on a *NIX System
+Compiling D2X-Rebirth Sourcecode
 
 This file describes how to compile D2X-Rebirth from Source.
 
@@ -21,12 +21,14 @@ Requirements
 
 Compiling
 
+For Mac OS X, an Xcode project is available (requires Xcode 2.1 or later). Xcode includes the compiler and OpenGL. For Mac OS 9, an MPW Makefile is available. MPW includes the compiler. For the sources to compile, they will need to be made into text files using a typecode changing program, if they were downloaded outside of Mac OS 9 (including Mac OS X). This will also need to be done after any Terminal command (diff, svn update etc) edits the source files.
+
 The SConstruct file provides various options to compile this program.
 To get a full list of all available commands, type scons -h within the Source directory.
 
 Currently, the following variables are supported:
 
-'sharepath=DIR'   (*NIX only) use DIR for shared game data. (default: /usr/local/share/games/d2x-rebirth)
+'sharepath=DIR'   (non-Mac OS *NIX only) use DIR for shared game data. (default: /usr/local/share/games/d2x-rebirth)
 'sdl_only=1'      don't include OpenGL, use SDL-only instead
 'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
 'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
@@ -55,6 +57,8 @@ scons install
 
 You can also add the ‘install’ command while compile-time. SCons will compile and install the binary right after that.
 
+For Windows and Mac however, it is instead recommended to manually drag the program to the folder containing the Descent data instead of using the install command, or use the -hogdir option when running.
+
 To clean up the source directory after installation, type:
 
 scons -c
@@ -63,6 +67,8 @@ scons -c
 Needed files
 
 Since D2X-Rebirth is a Sourceport of the Descent2-Engine you will need the Game-Content data files to run the game.
+
+For non-Mac OS *NIX all data files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d1x-rebirth/. For all other systems the data files go in the folder containing the application, as with the original version. For *NIX systems (including Mac OS X) there is also the option of placing them in a folder you specify using d2x.ini (see end).
 
 Following files are needed to run the game:
 
@@ -80,15 +86,16 @@ intro-h.mvl and/or intro-l.mvl
 other-h.mvl and/or other-l.mvl
 robots-h.mvl and/or robots-l.mvl
 
-These files - except the Movies (*.mvl) - are archived in the file
+With the PC version, these files - except the Movies (*.mvl) - are archived in the file
 
 descent2.sow
 
 on the Descent2 CD-Rom.
-This is an ARJ-archive and can be extracted with an adapted archiver like ‘unarj’ or by installing the game on a Windows/DOS system.
+This is an ARJ-archive and can be extracted with an adapted archiver like ‘unarj’ or by installing the game on a Windows/DOS system. Otherwise, for the Mac CD-ROM, the data files will need to be installed from the CD using a Mac system earler than OS X. Classic will work. If you know of any other way, please tell me at chris at icculus.org.
 
-Those files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d2x-rebirth/.
-Note that those files must be lowercase.
+Note that with non-Mac OS *NIX, the above files must be lowercase.
+
+They may go in a subdirectory called 'Data'.
 
 
 Optional files
@@ -104,24 +111,26 @@ Supported content:
       d2x-h.mvl and/or d2x-l.mvl
       hoard.ham
 
-      to the Sharepath and
+      with the files required above and
 
       d2x.hog
       d2x.mn2
 
-      to ‘missions/’ subdirectory in the Sharepath. All these files should be located on the ‘Vertigo Series’ CD-Rom
+      to ‘missions/’ subdirectory. All these files should be located on the ‘Vertigo Series’ CD-Rom
 
     *
       Custom/AddOn missions
-      Those can be found on several websites. Add them to the game by copying them to subdirectoy ‘missions/’ of the Sharepath.
+      Those can be found on several websites. Add them to the game by copying them to subdirectory ‘missions/’. They can also go in subdirectories of 'missions/', unlike with the original version.
 
     *
       Language Packs
       German translation: http://www.dxx-rebirth.de/download/dxx/res/D2XBDE01.zip
-      Copy the txb-files to the Sharepath. Will be activated automatically
+      Copy the txb-files to the Sharepath (non-Mac OS *NIX)/program directory (otherwise). Will be activated automatically
 
 
 Launching the program
+
+On Windows and Mac OS, simply double-click "D2X-Rebirth".
 
 After compiling and installing, the program can be launched with the command
 
@@ -136,8 +145,9 @@ To see a full list of available command-line options append ‘-h’, ‘-?’ t
 d2x.ini
 
 
-The game will create a config-directory in the Home directory of the user called ‘.d2x-rebirth’.
+On *NIX systems, the game will create a config-directory. On non-Mac *NIX systems this will be called ‘.d2x-rebirth’ and reside in the Home directory of the user.
 On Mac OS X this directory will be called ‘D2X Rebirth’, in the Preferences folder in the user’s Library.
+On all other systems (Windows and Mac OS 9) the application directory is used.
 It is used to read/save
 
     *
@@ -149,9 +159,9 @@ It is used to read/save
     *
       Screenshots
     *
-      d2x.ini for parsing command-line arguments
+      d2x.ini for parsing command-line arguments (the config directory is searched first, then the directory containing the program)
 
-Thanks to PhysFS it can also be used as a replacement for Sharepath directory
+Thanks to PhysFS, on *NIX systems data files can also go in here. In addition, demos could be moved from the config directory to the Sharepath/program directory to make them viewable by other users.
 
 
 Appendix
