@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 INSTALL.txt, SConstruct: make compile instructions clearer for Windows and Mac users, for Mac OS X don't use Sharepath when using SConstruct
 main/network.c: add prototypes for show_game_stats and network_do_join_game to fix warnings
+main/multi.c: allow hoard.ham to go in 'Data' subdirectory
 
 20080321
 --------

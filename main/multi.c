@@ -4784,7 +4784,7 @@ void init_hoard_data()
 	int i,save_pos;
 	extern int Num_bitmap_files,Num_effects,Num_sound_files;
 
-	ifile = cfopen("hoard.ham","rb");
+	ifile = PHYSFSX_openDataFile("hoard.ham");
 	if (ifile == NULL)
 		Error("can't open <hoard.ham>");
 
