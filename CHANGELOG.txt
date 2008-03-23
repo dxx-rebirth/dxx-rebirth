@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080323
+--------
+main/kconfig.c, main/laser.c, main/menu.c, main/newmenu.c, main/playsave.c: Added lock status for mouse axis weapon cycling because of scaled mouse delta; Due to player feedback (any my opinion) making homer turn rate smaller to make them a bit harder to dodge; Preventing write of player data while Demo playback; Small code cleanup and corrections
+
 20080322
 --------
 INSTALL.txt, SConstruct: make compile instructions clearer for Windows and Mac users, for Mac OS X don't use Sharepath when using SConstruct

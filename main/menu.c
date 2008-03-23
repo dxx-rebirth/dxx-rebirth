@@ -72,7 +72,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "powerup.h"
 #include "strutil.h"
-#include "reorder.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -140,6 +139,8 @@ void do_ip_manual_join_menu();
 int UDPConnectManual(char *addr);
 #endif //NETWORK
 extern void newmenu_close();
+extern void ReorderPrimary();
+extern void ReorderSecondary();
 
 //returns the number of demo files on the disk
 int newdemo_count_demos();

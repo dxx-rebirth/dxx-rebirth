@@ -848,11 +848,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 #ifdef NEWMENU_MOUSE
 	mouse_state = omouse_state = 0;
-
-	if (!MenuReordering)
-	{
-		newmenu_show_cursor();
-	}
+	newmenu_show_cursor();
 #endif
 
 	mprintf ((0,"Set to true!\n"));
@@ -897,8 +893,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 #ifdef NEWMENU_MOUSE
 		newmenu_show_cursor();      // possibly hidden
 		omouse_state = mouse_state;
-		if (!MenuReordering)
-			mouse_state = mouse_button_state(0);
+		mouse_state = mouse_button_state(0);
 #endif
 
 		//see if redbook song needs to be restarted
@@ -1409,8 +1404,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			item[i].y-=(LINE_SPACING*ScrollOffset);
 			draw_item( &bg, &item[i], (i==choice && !all_text),TinyMode );
 #ifdef NEWMENU_MOUSE
-			if (!MenuReordering)
-				newmenu_show_cursor();
+			newmenu_show_cursor();
 #endif
 			item[i].y+=(LINE_SPACING*ScrollOffset);
 

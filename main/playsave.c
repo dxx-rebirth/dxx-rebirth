@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strio.h"
 #include "physfsx.h"
 #include "vers_id.h"
+#include "newdemo.h"
 
 #define SAVE_FILE_ID			MAKE_SIG('D','P','L','R')
 
@@ -174,7 +175,24 @@ int read_player_d2x(char *filename)
 		cfgets(line,50,f);
 		word=splitword(line,':');
 		strupr(word);
-		if (strstr(word,"MOUSE"))
+		if (strstr(word,"JOYSTICK"))
+		{
+			d_free(word);
+			cfgets(line,50,f);
+			word=splitword(line,'=');
+			strupr(word);
+	
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				if(!strcmp(word,"DEADZONE"))
+					sscanf(line,"%i",&joy_deadzone);
+				d_free(word);
+				cfgets(line,50,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
+		else if (strstr(word,"MOUSE"))
 		{
 			d_free(word);
 			cfgets(line,50,f);
@@ -188,27 +206,6 @@ int read_player_d2x(char *filename)
 					int tmp;
 					sscanf(line,"%i",&tmp);
 					Config_mouse_sensitivity = (ubyte) tmp;
-				}
-				d_free(word);
-				cfgets(line,50,f);
-				word=splitword(line,'=');
-				strupr(word);
-			}
-		}
-		else if (strstr(word,"JOYSTICK"))
-		{
-			d_free(word);
-			cfgets(line,50,f);
-			word=splitword(line,'=');
-			strupr(word);
-	
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
-			{
-				if(!strcmp(word,"DEADZONE"))
-				{
-					int tmp;
-					sscanf(line,"%d",&tmp);
-					joy_deadzone = tmp;
 				}
 				d_free(word);
 				cfgets(line,50,f);
@@ -298,7 +295,7 @@ ubyte control_type_dos,control_type_win;
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
 {
-	char filename[FILENAME_LEN];
+	char filename[32];
 	PHYSFS_file *file;
 	int id, i;
 	short player_file_version;
@@ -563,6 +560,9 @@ int write_player_file()
 	char filename[FILENAME_LEN];
 	PHYSFS_file *file;
 	int i;
+
+	if ( Newdemo_state == ND_STATE_PLAYBACK )
+		return -1;
 
 	WriteConfigFile();
 
