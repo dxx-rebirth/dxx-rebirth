@@ -66,6 +66,7 @@ extern int digi_link_sound_to_object2( int soundnum, short objnum, int forever, 
 extern int digi_link_sound_to_pos2( int soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance );
 
 extern void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop );
+extern int  digi_music_exists(const char *filename);
 
 extern void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups ); // Volume from 0-0x7fff
 

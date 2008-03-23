@@ -217,6 +217,12 @@ void digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum
     mix_play_music(filename, loop);
   }
 }
+
+int digi_mixer_music_exists(const char *filename)
+{
+	return mix_music_exists(filename);
+}
+
 void digi_mixer_stop_current_song() {
   jukebox_stop(); //stops jukebox as well as standard music
 }

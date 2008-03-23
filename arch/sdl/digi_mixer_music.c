@@ -132,6 +132,27 @@ void mix_play_file(char *filename, int loop) {
   }
 }
 
+
+/*
+ *  See if a music file exists, taking into account possible -music_ext option
+ */
+
+int mix_music_exists(const char *filename)
+{
+	char rel_filename[32];	// just the filename of the actual music file used
+	char music_file[16];
+	char *basedir = "Music";
+
+	if (GameArg.SndExternalMusic)
+	{
+		change_filename_extension(music_file, filename, GameArg.SndExternalMusic);
+		sprintf(rel_filename, "%s/%s", basedir, music_file);
+		return PHYSFS_exists(rel_filename);
+	}
+
+	return PHYSFS_exists(filename);
+}
+
 // What to do when stopping song playback
 void music_hook_stop() {
   Mix_HaltMusic();

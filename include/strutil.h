@@ -29,6 +29,6 @@ void strrev( char *s1 );
 void removeext(const char *filename, char *out);
 
 //give a filename a new extension
-extern void change_filename_extension( char *dest, char *src, char *new_ext );
+extern void change_filename_extension( char *dest, const char *src, char *new_ext );
 
 #endif

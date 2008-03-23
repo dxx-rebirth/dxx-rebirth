@@ -51,6 +51,7 @@ void (*fptr_stop_all_channels)() = NULL;
 void (*fptr_set_digi_volume)(int) = NULL;
 
 void (*fptr_play_midi_song)(char *, char *, char *, int) = NULL;
+int  (*fptr_music_exists)(const char *) = NULL;
 void (*fptr_set_midi_volume)(int) = NULL;
 void (*fptr_stop_current_song)() = NULL;
 void (*fptr_pause_midi)() = NULL;
@@ -74,6 +75,7 @@ void digi_select_system(int n) {
 	fptr_is_channel_playing = digi_mixer_is_channel_playing;
 	fptr_stop_all_channels = digi_mixer_stop_all_channels;
 	fptr_play_midi_song = digi_mixer_play_midi_song;
+	fptr_music_exists = digi_mixer_music_exists;
 	fptr_stop_current_song = digi_mixer_stop_current_song;
 	fptr_pause_midi = digi_mixer_pause_midi;
 	fptr_resume_midi = digi_mixer_resume_midi;
@@ -97,6 +99,7 @@ void digi_select_system(int n) {
         fptr_is_channel_playing = digi_audio_is_channel_playing;
         fptr_stop_all_channels = digi_audio_stop_all_channels;
         fptr_play_midi_song = digi_audio_play_midi_song;
+		fptr_music_exists = PHYSFS_exists;
         fptr_stop_current_song = digi_audio_stop_current_song;
         fptr_pause_midi = digi_audio_pause_midi;
         fptr_resume_midi = digi_audio_resume_midi;
@@ -146,6 +149,7 @@ int  digi_get_max_channels() { return 0; }
 void digi_set_digi_volume(int dvolume) { fptr_set_digi_volume(dvolume); }
 
 void digi_play_midi_song(char * filename, char * melodic_bank, char * drum_bank, int loop ) { fptr_play_midi_song(filename, melodic_bank, drum_bank, loop); }
+int  digi_music_exists(const char *filename) { return fptr_music_exists(filename); }
 void digi_set_midi_volume(int mvolume) { fptr_set_midi_volume(mvolume); }
 void digi_stop_current_song() { fptr_stop_current_song(); }
 void digi_pause_midi() { fptr_pause_midi(); }
