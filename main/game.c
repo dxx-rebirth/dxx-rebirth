@@ -94,7 +94,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "multibot.h"
 #include "gr.h"
-#include "reorder.h"
 #include "hudmsg.h"
 #include "timer.h"
 #include "vers_id.h"
@@ -188,6 +187,8 @@ void	update_cockpits(int force_redraw);
 extern	void newdemo_strip_frames(char *, int);
 extern int HUD_nmessages;
 extern char WaitForRefuseAnswer,RefuseThisPlayer;
+extern void CyclePrimary();
+extern void CycleSecondary();
 
 #define BACKGROUND_NAME "statback.pcx"
 
@@ -2262,7 +2263,6 @@ void HandleGameKey(int key)
 
 #ifndef NDEBUG
 #ifndef RELEASE
-		case KEY_DEBUGGED+KEY_0:	show_weapon_status();	break;
 #ifdef SHOW_EXIT_PATH
 		case KEY_DEBUGGED+KEY_1:	create_special_path();	break;
 #endif
@@ -2400,6 +2400,8 @@ void HandleGameKey(int key)
 
 void do_weapon_stuff()
 {
+	int i;
+
 	if (Controls.fire_flare_down_count)
 		if (allowed_to_fire_flare())
 			Flare_create(ConsoleObject);
@@ -2423,91 +2425,15 @@ void do_weapon_stuff()
 		//end changes - adb
 	}
 
-	if (Controls.cycle_primary_down_count||Controls.cycle_primary_state!=ostate_p)
+	if (Controls.cycle_primary_down_count)
 	{
-		if((Controls.cycle_primary_state!=ostate_p)&&(Controls.cycle_primary_state==0))
-		{
-			ostate_p=Controls.cycle_primary_state;
-		}
-		else      //if(ostate_p!=Controls.cycle_primary_state)
-		{
-			int next_weapon;
-			int weap_val=0;
-			int i=0;
-
-			if(LaserPowSelected&&Primary_weapon==0)
-				next_weapon=LaserPowSelected;
-			else
-				next_weapon=Primary_weapon;
-			weap_val=primary_order[next_weapon];
-			if(highest_primary > 0)
-			{
-				do
-				{
-					if(highest_primary==1&&primary_order[next_weapon]==1)
-					{
-					maybe_select_primary(next_weapon);
-					break;
-					}
-					weap_val--;
-					if(weap_val < 1)
-					weap_val=highest_primary;
-					do
-					{
-					next_weapon++;
-					if(next_weapon >= MAX_PRIMARY_WEAPONS + NEWPRIMS)
-					next_weapon = 0;
-					} while(primary_order[next_weapon]!=weap_val);
-					i++;
-				} while(player_has_weapon(next_weapon,0)!=7&&i<highest_primary);
-			}
-			if((next_weapon!=Primary_weapon)&&(player_has_weapon(next_weapon,0)==7))
-				do_weapon_select(next_weapon,0);
-			Controls.cycle_primary_down_count = 0;
-			ostate_p=Controls.cycle_primary_state;
-		}
+		for (i=0;i<Controls.cycle_primary_down_count;i++)
+			CyclePrimary ();
 	}
-	if (Controls.cycle_secondary_down_count||Controls.cycle_secondary_state!=ostate_s)
+	if (Controls.cycle_secondary_down_count)
 	{
-		if((Controls.cycle_secondary_state!=ostate_s)&&(Controls.cycle_secondary_state==0))
-		{
-			ostate_s=Controls.cycle_secondary_state;
-		}
-		else
-		{
-			int next_weapon;
-			int weap_val=0;
-			int i=0;
-
-			next_weapon=Secondary_weapon;
-			weap_val=secondary_order[next_weapon];
-
-			if(highest_secondary > 0)
-			{
-				do
-				{
-					if(highest_secondary==1&&secondary_order[next_weapon]==1)
-					{
-						maybe_select_secondary(next_weapon);
-						break;
-					}
-					weap_val--;
-					if(weap_val < 1)
-						weap_val=highest_secondary;
-					do
-					{
-						next_weapon++;
-						if(next_weapon >= 5)
-							next_weapon = 0;
-					} while(secondary_order[next_weapon]!=weap_val);
-					i++;
-				} while(player_has_weapon(next_weapon,1)!=7&&i<highest_secondary);
-			}
-			if(next_weapon!=Secondary_weapon)
-				do_weapon_select(next_weapon,1);
-			Controls.cycle_secondary_down_count = 0;
-			ostate_s=Controls.cycle_secondary_state;
-		}
+		for (i=0;i<Controls.cycle_secondary_down_count;i++)
+			CycleSecondary ();
 	}
 }
 

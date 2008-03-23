@@ -49,7 +49,6 @@ static char rcsid[] = "$Id: playsave.c,v 1.1.1.1 2006/03/17 19:42:10 zicodxx Exp
 #include "text.h"
 #include "mono.h"
 #include "state.h"
-#include "reorder.h"
 #include "u_mem.h"
 #include "network.h"
 #include "strutil.h"
@@ -57,6 +56,7 @@ static char rcsid[] = "$Id: playsave.c,v 1.1.1.1 2006/03/17 19:42:10 zicodxx Exp
 #include "vers_id.h"
 #include "byteswap.h"
 #include "physfsx.h"
+#include "newdemo.h"
 
 #define SAVE_FILE_ID			0x44504c52 /* 'DPLR' */
 
@@ -84,8 +84,9 @@ typedef struct hli {
 } __pack__ hli;
 
 int n_highest_levels;
-
 hli highest_levels[MAX_MISSIONS];
+extern ubyte SecondaryOrder[],PrimaryOrder[];
+extern void InitWeaponOrdering();
 
 #define SAVED_GAME_VERSION		8		//increment this every time saved_game struct changes
 
@@ -130,6 +131,8 @@ int new_player_config()
  
 	mct--;
 
+	InitWeaponOrdering ();		//setup default weapon priorities 
+
 	control_choice = Config_control_type;	// Assume keyboard
 
 	for (i=0;i<CONTROL_MAX_TYPES; i++ )
@@ -148,9 +151,6 @@ int new_player_config()
 	highest_levels[0].level_num = 1;	//was highest level in old struct
 	Config_joystick_sensitivity = 8;
 	Config_mouse_sensitivity = 8;
-
-	memcpy(primary_order, default_primary_order, sizeof(primary_order));
-	memcpy(secondary_order, default_secondary_order, sizeof(secondary_order));
 
 	// Default taunt macros
 	#ifdef NETWORK
@@ -174,8 +174,7 @@ int read_player_d1x(char *filename)
 	plyr_read_stats();
 
 	// set defaults for when nothing is specified
-	memcpy(primary_order, default_primary_order, sizeof(primary_order));
-	memcpy(secondary_order, default_secondary_order, sizeof(secondary_order));
+	InitWeaponOrdering ();		//setup default weapon priorities 
 
 	for(i=0;i<MAX_D1X_CONTROLS;i++)
 		kconfig_d1x_settings[i] = default_kconfig_d1x_settings[i];
@@ -190,7 +189,7 @@ int read_player_d1x(char *filename)
 		word=splitword(line,':');
 		strupr(word);
 
-		if (strstr(word,"ADVANCED ORDERING"))
+		if (strstr(word,"WEAPON REORDER"))
 		{
 			d_free(word);
 			cfgets(line,50,f);
@@ -199,9 +198,9 @@ int read_player_d1x(char *filename)
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"PRIMARY"))
-					sscanf(line,"%d,%d,%d,%d,%d",&primary_order[0], &primary_order[1], &primary_order[2], &primary_order[3], &primary_order[4]);
+					sscanf(line,"0x%hhx,0x%hhx,0x%hhx,0x%hhx,0x%hhx,0x%hhx",&PrimaryOrder[0], &PrimaryOrder[1], &PrimaryOrder[2], &PrimaryOrder[3], &PrimaryOrder[4], &PrimaryOrder[5]);
 				else if(!strcmp(word,"SECONDARY"))
-					sscanf(line,"%d,%d,%d,%d,%d",&secondary_order[0], &secondary_order[1], &secondary_order[2], &secondary_order[3], &secondary_order[4]);
+					sscanf(line,"0x%hhx,0x%hhx,0x%hhx,0x%hhx,0x%hhx,0x%hhx",&SecondaryOrder[0], &SecondaryOrder[1], &SecondaryOrder[2], &SecondaryOrder[3], &SecondaryOrder[4], &SecondaryOrder[5]);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -216,15 +215,12 @@ int read_player_d1x(char *filename)
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
-				int kc1,kc2;
 				int i=atoi(word);
 				
 				if(i==0) i=10;
 					i=(i-1)*2;
 		
-				sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-				kconfig_d1x_settings[i]   = kc1;
-				kconfig_d1x_settings[i+1] = kc2;
+				sscanf(line,"0x%hhx,0x%hhx",&kconfig_d1x_settings[i],&kconfig_d1x_settings[i+1]);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -239,46 +235,10 @@ int read_player_d1x(char *filename)
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
-				int kc1, kc2;
 				if(!strcmp(word,"CYCLE PRIMARY"))
-				{
-					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-					kconfig_d1x_settings[20]=kc1;
-					kconfig_d1x_settings[21]=kc2;
-				}
+					sscanf(line,"0x%hhx,0x%hhx",&kconfig_d1x_settings[20],&kconfig_d1x_settings[21]);
 				else if(!strcmp(word,"CYCLE SECONDARY"))
-				{
-					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-					kconfig_d1x_settings[22]=kc1;
-					kconfig_d1x_settings[23]=kc2;
-				}
-				d_free(word);
-				cfgets(line,50,f);
-				word=splitword(line,'=');
-				strupr(word);
-			}
-		}
-		else if (strstr(word,"AUTOSELECT KEYS"))
-		{
-			d_free(word);
-			cfgets(line,50,f);
-			word=splitword(line,'=');
-			strupr(word);
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
-			{
-				int kc1, kc2;
-				if(!strcmp(word,"PRIMARY AUTOSELECT TOGGLE"))
-				{
-					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-					kconfig_d1x_settings[24]=kc1;
-					kconfig_d1x_settings[25]=kc2;
-				}
-				else if(!strcmp(word,"SECONDARY AUTOSELECT TOGGLE"))
-				{
-					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-					kconfig_d1x_settings[26]=kc1;
-					kconfig_d1x_settings[27]=kc2;
-				}
+					sscanf(line,"0x%hhx,0x%hhx",&kconfig_d1x_settings[22],&kconfig_d1x_settings[23]);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -333,11 +293,7 @@ int read_player_d1x(char *filename)
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"MODE"))
-				{
-					int tmp;
-					sscanf(line,"%i",&tmp);
-					Cockpit_mode = (ubyte) tmp;
-				}
+					sscanf(line,"%i",&Cockpit_mode);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -542,13 +498,9 @@ int write_player_d1x(char *filename)
 	if(fout)
 	{
 		PHYSFSX_printf(fout,"[D1X Options]\n");
-		PHYSFSX_printf(fout,"[weapon order]\n");
-		PHYSFSX_printf(fout,"primary=1,2,3,4,5\n");
-		PHYSFSX_printf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[advanced ordering]\n");
-		PHYSFSX_printf(fout,"primary=%d,%d,%d,%d,%d\n",primary_order[0], primary_order[1], primary_order[2],primary_order[3], primary_order[4]);
-		PHYSFSX_printf(fout,"secondary=%d,%d,%d,%d,%d\n",secondary_order[0], secondary_order[1], secondary_order[2],secondary_order[3], secondary_order[4]);
+		PHYSFSX_printf(fout,"[weapon reorder]\n");
+		PHYSFSX_printf(fout,"primary=0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",PrimaryOrder[0], PrimaryOrder[1], PrimaryOrder[2],PrimaryOrder[3], PrimaryOrder[4], PrimaryOrder[5]);
+		PHYSFSX_printf(fout,"secondary=0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",SecondaryOrder[0], SecondaryOrder[1], SecondaryOrder[2],SecondaryOrder[3], SecondaryOrder[4], SecondaryOrder[5]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[weapon keys]\n");
 		PHYSFSX_printf(fout,"1=0x%x,0x%x\n",kconfig_d1x_settings[0],kconfig_d1x_settings[1]);
@@ -565,10 +517,6 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"[cycle keys]\n");
 		PHYSFSX_printf(fout,"cycle primary=0x%x,0x%x\n",kconfig_d1x_settings[20],kconfig_d1x_settings[21]);
 		PHYSFSX_printf(fout,"cycle secondary=0x%x,0x%x\n",kconfig_d1x_settings[22],kconfig_d1x_settings[23]);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[autoselect keys]\n");
-		PHYSFSX_printf(fout,"primary autoselect toggle=0x%x,0x%x\n",kconfig_d1x_settings[24],kconfig_d1x_settings[25]);
-		PHYSFSX_printf(fout,"secondary autoselect toggle=0x%x,0x%x\n",kconfig_d1x_settings[26],kconfig_d1x_settings[27]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[joystick]\n");
 		PHYSFSX_printf(fout,"deadzone=%i\n",joy_deadzone);
@@ -607,10 +555,6 @@ int read_player_file()
 	int shareware_file = -1;
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
-
-	// adb: I hope that this prevents the missing weapon ordering bug
-	memcpy(primary_order, default_primary_order, sizeof(primary_order));
-        memcpy(secondary_order, default_secondary_order, sizeof(secondary_order));
 
 	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	if (!PHYSFS_exists(filename))
@@ -821,18 +765,6 @@ int read_player_file()
 	strcat(filename, ".plx");
 	read_player_d1x(filename);
 
-         {
-		int i;
-		highest_primary=0;
-		highest_secondary=0;
-		for(i=0; i<MAX_PRIMARY_WEAPONS+NEWPRIMS; i++)
-			if(primary_order[i]>0)
-				highest_primary++;
-		for(i=0; i<MAX_SECONDARY_WEAPONS+NEWSECS; i++)
-			if(secondary_order[i]>0)
-				highest_secondary++;
-         }
-
 	if (errno_ret==EZERO)	{
 		kc_set_controls();
 	}
@@ -916,6 +848,9 @@ int write_player_file()
 	PHYSFS_file *file;
 	save_info info;
 	int errno_ret;
+
+	if ( Newdemo_state == ND_STATE_PLAYBACK )
+		return -1;
 
 	errno_ret = WriteConfigFile();
 

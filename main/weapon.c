@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "newdemo.h"
 #include "multi.h"
-#include "reorder.h"
+#include "newmenu.h"
 
 // Convert primary weapons to indices in Weapon_info array.
 ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS] = {0, 11, 12, 13, 14};
@@ -38,6 +38,14 @@ ubyte Secondary_ammo_max[MAX_SECONDARY_WEAPONS] = {20, 10, 10, 5, 5};
 weapon_info Weapon_info[MAX_WEAPON_TYPES];
 int	N_weapon_types=0;
 sbyte	Primary_weapon, Secondary_weapon;
+int POrderList (int num);
+int SOrderList (int num);
+ubyte DefaultPrimaryOrder[] = { 4, 3, 2, 1, 0, 255 };
+ubyte DefaultSecondaryOrder[] = { 4, 3, 1, 0, 255, 2 };
+ubyte PrimaryOrder[] = { 4, 3, 2, 1, 0, 255 };
+ubyte SecondaryOrder[] = { 4, 3, 1, 0, 255, 2 };
+extern ubyte MenuReordering;
+ubyte Cycling=0;
 
 char	*Primary_weapon_names_short[MAX_PRIMARY_WEAPONS] = {
 	"Laser",
@@ -131,6 +139,34 @@ int player_has_weapon(int weapon_num, int secondary_flag)
 	return return_value;
 }
 
+void InitWeaponOrdering ()
+ {
+  // short routine to setup default weapon priorities for new pilots
+
+  int i;
+
+  for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
+	PrimaryOrder[i]=DefaultPrimaryOrder[i];
+  for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
+	SecondaryOrder[i]=DefaultSecondaryOrder[i];
+ }	
+
+void CyclePrimary ()
+{
+	mprintf ((0,"Cycling primary!\n"));
+	Cycling=1;
+	auto_select_weapon (0);
+	Cycling=0;
+}
+
+void CycleSecondary ()
+{
+	mprintf ((0,"Cycling secondary!\n"));
+	Cycling=1;
+	auto_select_weapon (1);
+	Cycling=0;
+}
+
 //	------------------------------------------------------------------------------------
 //	if message flag set, print message saying selected
 void select_weapon(int weapon_num, int secondary_flag, int print_message, int wait_for_rearm)
@@ -143,19 +179,6 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 #endif
 
 	if (!secondary_flag) {
-	
-		//added on 10/9/98 by Victor Rachels to add laser cycle
-		if (weapon_num >= MAX_PRIMARY_WEAPONS)
-		{
-			LaserPowSelected=weapon_num;
-			weapon_num = 0;
-			if(Primary_weapon==0)
-				return;
-		}
-		else if (weapon_num == 0)
-			LaserPowSelected=0;
-		//end this section addition
-
 		if (Primary_weapon != weapon_num) {
 #ifndef FUSION_KEEPS_CHARGE
 			//added 8/6/98 by Victor Rachels to fix fusion charge bug
@@ -256,105 +279,119 @@ void do_weapon_select(int weapon_num, int secondary_flag)
 //	----------------------------------------------------------------------------------------
 //	Automatically select best available weapon if unable to fire current weapon.
 //	Weapon type: 0==primary, 1==secondary
-void auto_select_weapon(int weapon_type) {
-	int i;
-	int *order = weapon_type ? secondary_order : primary_order;
-	int weapon_count = weapon_type ? MAX_SECONDARY_WEAPONS : MAX_PRIMARY_WEAPONS;
-	int best_weapon = -1;
-	int best_order = 0;
+void auto_select_weapon(int weapon_type)
+{
+	int	r;
+	int cutpoint;
+	int looped=0;
 
-	if (player_has_weapon(
-	    weapon_type ? Secondary_weapon : Primary_weapon,
-	    weapon_type) != HAS_ALL)
-	{
-		if ((weapon_type==0) &&
-			(order[VULCAN_INDEX] > 0) &&
-			(player_has_weapon(VULCAN_INDEX,0)==HAS_ALL))
-		{
-			select_weapon(VULCAN_INDEX,0,0,1);
-			return;
-		}
+	if (weapon_type==0) {
+		r = player_has_weapon(Primary_weapon, 0);
+		if (r != HAS_ALL || Cycling) {
+			int	cur_weapon;
+			int	try_again = 1;
+	
+			cur_weapon = POrderList(Primary_weapon);
+			cutpoint = POrderList (255);
+	
+			while (try_again) {
+				cur_weapon++;
 
-		for (i = 0; i < weapon_count; i++)
-			if ((order[i] > best_order) &&
-                            (player_has_weapon(i, weapon_type) == HAS_ALL))
-			{
-				best_weapon = i;
-				best_order = order[i];
+				if (cur_weapon>=cutpoint)
+				{
+					if (looped)
+					{
+						if (!Cycling)
+						{
+							HUD_init_message(TXT_NO_PRIMARY);
+							select_weapon(0, 0, 0, 1);
+						}
+						else
+							select_weapon (Primary_weapon,0,0,1);
+
+						try_again = 0;
+						continue;
+					}
+					cur_weapon=0;
+					looped=1;
+				}
+
+
+				if (cur_weapon==MAX_PRIMARY_WEAPONS)
+					cur_weapon = 0;
+	
+				//	Hack alert!  Because the fusion uses 0 energy at the end (it's got the weird chargeup)
+				//	it looks like it takes 0 to fire, but it doesn't, so never auto-select.
+				// if (PrimaryOrder[cur_weapon] == FUSION_INDEX)
+				//	continue;
+
+				if (PrimaryOrder[cur_weapon] == Primary_weapon) {
+					if (!Cycling)
+					{
+						HUD_init_message(TXT_NO_PRIMARY);
+						//	if (POrderList(0)<POrderList(255))
+						select_weapon(0, 0, 0, 1);
+					}
+					else
+						select_weapon (Primary_weapon,0,0,1);
+
+					try_again = 0;			// Tried all weapons!
+
+				} else if (PrimaryOrder[cur_weapon]!=255 && player_has_weapon(PrimaryOrder[cur_weapon], 0) == HAS_ALL) {
+					select_weapon(PrimaryOrder[cur_weapon], 0, 1, 1 );
+					try_again = 0;
+				}
 			}
-		if (best_weapon >= 0)
-			select_weapon(best_weapon, weapon_type, 1, 1);
-		else if (weapon_type == 0) {
-			hud_message(MSGC_WEAPON_EMPTY, TXT_NO_PRIMARY);
-			select_weapon(0, 0, 0, 1);
-                }
-	}
-}
-
-
-#ifndef RELEASE
-
-//	----------------------------------------------------------------------------------------
-//	Show player which weapons he has, how much ammo...
-//	Looks like a debug screen now because it writes to mono screen, but that will change...
-void show_weapon_status(void)
-{
-	int	i;
-
-	for (i=0; i<MAX_PRIMARY_WEAPONS; i++) {
-		if (Players[Player_num].primary_weapon_flags & (1 << i))
-			mprintf((0, "HAVE"));
-		else
-			mprintf((0, "    "));
-
-		mprintf((0, "  Weapon: %20s, charges: %4i\n", PRIMARY_WEAPON_NAMES(i), Players[Player_num].primary_ammo[i]));
-	}
-
-	mprintf((0, "\n"));
-	for (i=0; i<MAX_SECONDARY_WEAPONS; i++) {
-		if (Players[Player_num].secondary_weapon_flags & (1 << i))
-			mprintf((0, "HAVE"));
-		else
-			mprintf((0, "    "));
-
-		mprintf((0, "  Weapon: %20s, charges: %4i\n", SECONDARY_WEAPON_NAMES(i), Players[Player_num].secondary_ammo[i]));
-	}
-
-	mprintf((0, "\n"));
-	mprintf((0, "\n"));
-}
-
-#endif
-
-//	select primary weapon if it has a higher order than the current weapon
-void maybe_select_primary(int weapon_index)
-{
-	if (primary_order[weapon_index] > 0)
-	{
-		if(LaserPowSelected&&Primary_weapon==0)
-		{
-			if(primary_order[weapon_index] > primary_order[LaserPowSelected])
-				select_weapon(weapon_index, 0, 0, 1);
 		}
-		else if(primary_order[weapon_index] > primary_order[Primary_weapon])
-			select_weapon(weapon_index, 0, 0, 1);
-		else{
-			if((weapon_index==VULCAN_INDEX) &&
-			(player_has_weapon(weapon_index,0)==HAS_ALL) &&
-			(player_has_weapon(Primary_weapon,0)!=HAS_ALL))
-				select_weapon(weapon_index, 0, 0, 1);
+
+	} else {
+
+		Assert(weapon_type==1);
+		r = player_has_weapon(Secondary_weapon, 1);
+		if (r != HAS_ALL || Cycling) {
+			int	cur_weapon;
+			int	try_again = 1;
+	
+			cur_weapon = SOrderList(Secondary_weapon);
+			cutpoint = SOrderList (255);
+
+	
+			while (try_again) {
+				cur_weapon++;
+
+				if (cur_weapon>=cutpoint)
+				{
+					if (looped)
+					{
+						if (!Cycling)
+							HUD_init_message("No secondary weapons selected!");
+						else
+							select_weapon (Secondary_weapon,1,0,1);
+						try_again = 0;
+						continue;
+					}
+					cur_weapon=0;
+					looped=1;
+				}
+
+				if (cur_weapon==MAX_SECONDARY_WEAPONS)
+					cur_weapon = 0;
+
+				if (SecondaryOrder[cur_weapon] == Secondary_weapon) {
+					if (!Cycling)
+						HUD_init_message("No secondary weapons available!");
+					else
+						select_weapon (Secondary_weapon,1,0,1);
+
+					try_again = 0;				// Tried all weapons!
+				} else if (player_has_weapon(SecondaryOrder[cur_weapon], 1) == HAS_ALL) {
+					select_weapon(SecondaryOrder[cur_weapon], 1, 1, 1 );
+					try_again = 0;
+				}
+			}
 		}
 	}
 }
-
-//	select secondary weapon if it has a higher order than the current weapon
-void maybe_select_secondary(int weapon_index)
-{
-	if ((secondary_order[weapon_index] > 0) &&
-		(secondary_order[weapon_index] > secondary_order[Secondary_weapon]))
-		select_weapon(weapon_index, 1, 0, 1);
-}
-
 
 //	---------------------------------------------------------------------
 //	called when one of these weapons is picked up
@@ -363,6 +400,7 @@ void maybe_select_secondary(int weapon_index)
 int pick_up_secondary(int weapon_index,int count)
 {
 	int	num_picked_up;
+	int cutpoint;
 
 	if (Players[Player_num].secondary_ammo[weapon_index] >= Secondary_ammo_max[weapon_index]) {
 		hud_message(MSGC_PICKUP_TOOMUCH, "%s %d %ss!", TXT_ALREADY_HAVE, Players[Player_num].secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
@@ -378,11 +416,10 @@ int pick_up_secondary(int weapon_index,int count)
 		Players[Player_num].secondary_ammo[weapon_index] = Secondary_ammo_max[weapon_index];
 	}
 
-	if(Allow_secondary_cycle)
+	if (Players[Player_num].secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
-		maybe_select_secondary(weapon_index);
-		if ((Players[Player_num].secondary_ammo[Secondary_weapon] == 0) &&
-			(secondary_order[weapon_index] > 0))
+		cutpoint=SOrderList (255);
+		if (SOrderList (weapon_index)<cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (Players[Player_num].secondary_ammo[Secondary_weapon] == 0))   )
 			select_weapon(weapon_index,1, 0, 1);
 	}
 
@@ -398,11 +435,81 @@ int pick_up_secondary(int weapon_index,int count)
 	return 1;
 }
 
+void ReorderPrimary ()
+{
+	newmenu_item m[MAX_PRIMARY_WEAPONS+1];
+	int i;
+
+	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
+	{
+		m[i].type=NM_TYPE_MENU;
+		if (PrimaryOrder[i]==255)
+			m[i].text="--- Never Autoselect below ---";
+		else
+			m[i].text=(char *)PRIMARY_WEAPON_NAMES(PrimaryOrder[i]);
+		m[i].value=PrimaryOrder[i];
+	}
+	MenuReordering=1;
+	i = newmenu_do("Reorder Primary","Shift+Up/Down arrow to move item", i, m, NULL);
+	MenuReordering=0;
+	
+	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
+		PrimaryOrder[i]=m[i].value;
+}
+
+void ReorderSecondary ()
+{
+	newmenu_item m[MAX_SECONDARY_WEAPONS+1];
+	int i;
+
+	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
+	{
+		m[i].type=NM_TYPE_MENU;
+		if (SecondaryOrder[i]==255)
+			m[i].text="--- Never Autoselect below ---";
+		else
+			m[i].text=(char *)SECONDARY_WEAPON_NAMES(SecondaryOrder[i]);
+		m[i].value=SecondaryOrder[i];
+	}
+	MenuReordering=1;
+	i = newmenu_do("Reorder Secondary","Shift+Up/Down arrow to move item", i, m, NULL);
+	MenuReordering=0;
+	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
+		SecondaryOrder[i]=m[i].value;
+}
+
+int POrderList (int num)
+{
+	int i;
+
+	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
+	if (PrimaryOrder[i]==num)
+	{
+		mprintf ((0,"Primary %d has priority of %d!\n",num,i));
+		return (i);
+	}
+	Error ("Primary Weapon is not in order list!!!");
+}
+
+int SOrderList (int num)
+{
+	int i;
+
+	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
+		if (SecondaryOrder[i]==num)
+		{
+			mprintf ((0,"Secondary %d has priority of %d!\n",num,i));
+			return (i);
+		}
+	mprintf ((0,"Error! Secondary Num=%d\n",num));
+	Error ("Secondary Weapon is not in order list!!!");
+}
+
 //called when a primary weapon is picked up
 //returns true if actually picked up
 int pick_up_primary(int weapon_index)
 {
-	ubyte old_flags = Players[Player_num].primary_weapon_flags;
+	int cutpoint;
 	ubyte flag = 1<<weapon_index;
 
 	if (Players[Player_num].primary_weapon_flags & flag) {		//already have
@@ -412,11 +519,10 @@ int pick_up_primary(int weapon_index)
 
 	Players[Player_num].primary_weapon_flags |= flag;
 
-	if (Allow_primary_cycle)
-	{
-		if (!(old_flags & flag))
-			maybe_select_primary(weapon_index);
-	}
+	cutpoint=POrderList (255);
+
+	if (POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(Primary_weapon))
+		select_weapon(weapon_index,0,0,1);
 
 	PALETTE_FLASH_ADD(7,14,21);
 	hud_message(MSGC_PICKUP_OK, "%s!",PRIMARY_WEAPON_NAMES(weapon_index));
@@ -428,6 +534,7 @@ int pick_up_primary(int weapon_index)
 //Return true if ammo picked up, else return false.
 int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 {
+	int cutpoint;
 	int old_ammo=class_flag;		//kill warning
 
 	Assert(class_flag==CLASS_PRIMARY && weapon_index==VULCAN_INDEX);
@@ -439,14 +546,17 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 
 	Players[Player_num].primary_ammo[weapon_index] += ammo_count;
 
-	if (Players[Player_num].primary_ammo[weapon_index] > Primary_ammo_max[weapon_index])
-		Players[Player_num].primary_ammo[weapon_index] = Primary_ammo_max[weapon_index];
+	if (Players[Player_num].primary_ammo[weapon_index] > Primary_ammo_max[weapon_index]) {
+		ammo_count += (Primary_ammo_max[weapon_index] - Players[Player_num].primary_ammo[weapon_index]);
+		Players[Player_num].primary_ammo[weapon_index] =Primary_ammo_max[weapon_index];
+	}
+	cutpoint=POrderList (255);
 
-	if (Players[Player_num].primary_weapon_flags&(1<<weapon_index) && old_ammo==0)
-		if(Allow_primary_cycle) //since this function is vulcan only anyway
-			maybe_select_primary(weapon_index);
+	if (Players[Player_num].primary_weapon_flags&(1<<weapon_index) && weapon_index>Primary_weapon && old_ammo==0 &&
+		POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(Primary_weapon))
+		select_weapon(weapon_index,0,0,1);
 
-	return 1;
+	return 1;	//return amount used
 }
 
 /*

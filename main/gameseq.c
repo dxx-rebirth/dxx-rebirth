@@ -93,7 +93,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "songs.h"
 #include "netpkt.h"
-#include "reorder.h"
 #include "strutil.h"
 
 #ifdef EDITOR
@@ -1277,9 +1276,6 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 void StartNewLevel(int level_num)
 {
 	GameTime = FrameTime;
-
-	show_boxed_message(TXT_LOADING, 0);
-	timer_delay2(1);
 
 	load_custom_data(get_level_file(level_num));
 

@@ -75,7 +75,6 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:43:27 zicodxx Exp $";
 #include "mission.h"
 #include "songs.h"
 #include "config.h"
-#include "reorder.h"
 #include "cfile.h"
 #include "gauges.h"
 #include "hudmsg.h" //for HUD_max_num_disp
@@ -131,6 +130,8 @@ void do_ip_manual_join_menu();
 
 extern int last_joy_time;		//last time the joystick was used
 extern void newmenu_close();
+extern void ReorderPrimary();
+extern void ReorderSecondary();
 
 int Player_default_difficulty; // Last difficulty level chosen by the player
 int Auto_leveling_on = 0;
@@ -934,8 +935,8 @@ void do_options_menu()
 			case  2: input_config();		break;
 			case  5: do_detail_level_menu(); 	break;
 			case  6: change_res();			break;
-			case  8: reorder_primary();		break;
-			case  9: reorder_secondary();		break;
+			case  8: ReorderPrimary();		break;
+			case  9: ReorderSecondary();		break;
 		}
 
 		Auto_leveling_on = m[10].value;

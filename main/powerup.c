@@ -291,13 +291,8 @@ int do_powerup(object *obj)
 				Players[Player_num].laser_level++;
 				powerup_basic(10, 0, 10, LASER_SCORE, "%s %s %d",TXT_LASER,TXT_BOOSTED_TO, Players[Player_num].laser_level+1);
 				update_laser_weapon_info();
+				pick_up_primary (LASER_INDEX);
 				used=1;
-        			if (Allow_primary_cycle){//fix laser select even if autoselect off -MPM
-                                 if(Players[Player_num].flags&PLAYER_FLAGS_QUAD_LASERS)
-                                  maybe_select_primary(9+Players[Player_num].laser_level);
-                                 else
-                                  maybe_select_primary(5+Players[Player_num].laser_level);
-				}
 			}
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
@@ -356,12 +351,6 @@ int do_powerup(object *obj)
 				Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
 				powerup_basic(15, 15, 7, QUAD_FIRE_SCORE, "%s!",TXT_QUAD_LASERS);
 				update_laser_weapon_info();
-                                //added on 10/8/98 by Victor Rachels for quad autoselect
-                                //changed on 10/21/98 by Victor Rachels to add other lasers
-        			if (Allow_primary_cycle)//fix laser select even if autoselect off -MPM
-                                	maybe_select_primary(9+Players[Player_num].laser_level);
-                                //end change
-                                //end this section addition
 				used=1;
 			} else
 				hud_message(MSGC_PICKUP_ALREADY, "%s %s!",TXT_ALREADY_HAVE,TXT_QUAD_LASERS);

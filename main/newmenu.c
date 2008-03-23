@@ -68,6 +68,7 @@ typedef struct bkg {
 
 grs_bitmap nm_background, nm_background1;
 ubyte SurfingNet=0;
+ubyte MenuReordering=0;
 
 #define MAXDISPLAYABLEITEMS 14
 #define MESSAGEBOX_TEXT_SIZE 2176   // How many characters in messagebox
@@ -528,6 +529,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	int sound_stopped=0, time_stopped=0;
 	int MaxOnMenu=MAXDISPLAYABLEITEMS;
 	int TopChoice,IsScrollBox=0;   // Is this a scrolling box? Set to false at init
+	char *Temp,TempVal;
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, dblclick_flag=0;
 	int mx=0, my=0, mz=0, x1 = 0, x2, y1, y2;
@@ -965,7 +967,30 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 				}	
 			}
 			break;
-
+		case KEY_SHIFTED+KEY_UP:
+			if (MenuReordering && choice!=TopChoice)
+			{
+				Temp=item[choice].text;
+				TempVal=item[choice].value;
+				item[choice].text=item[choice-1].text;
+				item[choice].value=item[choice-1].value;
+				item[choice-1].text=Temp;
+				item[choice-1].value=TempVal;
+				choice--;
+			}
+			break;
+		case KEY_SHIFTED+KEY_DOWN:
+			if (MenuReordering && choice!=(nitems-1))
+			{
+				Temp=item[choice].text;
+				TempVal=item[choice].value;
+				item[choice].text=item[choice+1].text;
+				item[choice].value=item[choice+1].value;
+				item[choice+1].text=Temp;
+				item[choice+1].value=TempVal;
+				choice++;
+			}
+			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
 			if ( (choice>-1) && (item[choice].type==NM_TYPE_INPUT_MENU) && (item[choice].group==0))	{

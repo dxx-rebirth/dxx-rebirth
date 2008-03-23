@@ -55,7 +55,6 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:44:27 zicodxx Exp 
 #include "args.h"
 #include "key.h"
 #include "gr.h"
-#include "reorder.h"
 #include "physics.h"
 
 #ifdef OGL
@@ -88,8 +87,6 @@ ubyte Config_mouse_sensitivity = 8;
 
 fix Cruise_speed=0;
 
-int Allow_primary_cycle=1;
-int Allow_secondary_cycle=1;
 extern int Automap_flag;
 
 #define BT_KEY                  0
@@ -300,10 +297,6 @@ kc_item kc_d1x[NUM_D1X_CONTROLS] = {
 	{ 21, 15,131,200, 26, 19, 23, 20, 22,"CYCLE PRIMARY WEAPON", BT_JOY_BUTTON, 255},
 	{ 22, 15,139,142, 26, 20, 24, 21, 23,"CYCLE SECONDARY WEAPON", BT_KEY, 255},
 	{ 23, 15,139,200, 26, 21, 25, 22, 24,"CYCLE SECONDARY WEAPON", BT_JOY_BUTTON, 255},
-	{ 24, 15,147,142, 26, 22, 26, 23, 25,"TOGGLE PRIMARY AUTOSELECT", BT_KEY, 255},
-	{ 25, 15,147,200, 26, 23, 27, 24, 26,"TOGGLE PRIMARY AUTOSELECT", BT_JOY_BUTTON, 255},
-	{ 26, 15,155,142, 26, 24,  1, 25, 27,"TOGGLE SECONDARY AUTOSELECT", BT_KEY, 255},
-	{ 27, 15,155,200, 26, 25,  0, 26,  0,"TOGGLE SECONDARY AUTOSELECT", BT_JOY_BUTTON, 255},
 };
 
 void kc_drawitem( kc_item *item, int is_current );
@@ -1354,8 +1347,6 @@ void kconfig(int n, char * title)
 fix	LastReadTime = 0;
 fix	joy_axis[JOY_MAX_AXES];
 
-int Allow_primary_cycle_ostate = 0;
-int Allow_secondary_cycle_ostate = 0;
 int d1x_joystick_ostate[20]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int Vulcan_kostate = 0;
 int Vulcan_jostate = 0;
@@ -1445,7 +1436,6 @@ void controls_read_all()
 
 	if (!Player_is_dead && !Automap_flag)
 	{
-		{
 		int d1x_joystick_state[10];
 		
 		for(i=0;i<10;i++)
@@ -1456,14 +1446,7 @@ void controls_read_all()
 		if(key_down_count(kc_d1x[0].value) ||
 		(joy_get_button_state(kc_d1x[1].value) &&
 			(d1x_joystick_state[0]!=d1x_joystick_ostate[0]) ) )
-		{
-			int i, valu=0;
 			do_weapon_select(0,0);
-			for(i=MAX_PRIMARY_WEAPONS;i<MAX_PRIMARY_WEAPONS+NEWPRIMS;i++)
-				if(primary_order[i]>primary_order[valu]&&player_has_weapon(i,0))
-					valu = i;
-			LaserPowSelected = valu;
-		}
 		//----------------Weapon 2----------------
 		if(key_down_count(kc_d1x[2].value) ||
 		(joy_get_button_state(kc_d1x[3].value) &&
@@ -1512,67 +1495,6 @@ void controls_read_all()
 			(d1x_joystick_state[9]!=d1x_joystick_ostate[9]) ) )
 			do_weapon_select(4,1);
 		memcpy(d1x_joystick_ostate,d1x_joystick_state,10*sizeof(int));
-		}
-
-		//from keybaord
-		{
-			int Allow_primary_cycle_count=0;
-			int Allow_primary_cycle_jstate=0;
-		
-			if ( kc_d1x[24].value < 255 ) Allow_primary_cycle_count += key_down_count(kc_d1x[24].value);
-			if ( (use_joystick)&&(kc_d1x[25].value < 255) ) Allow_primary_cycle_jstate= joy_get_button_state( kc_d1x[25].value );
-	
-			if (Allow_primary_cycle_count || Allow_primary_cycle_jstate!=Allow_primary_cycle_ostate)
-			{
-				if((Allow_primary_cycle_jstate!=Allow_primary_cycle_ostate)&&(Allow_primary_cycle_jstate==0))
-				Allow_primary_cycle_ostate = Allow_primary_cycle_jstate;
-				else
-				{
-					Allow_primary_cycle = !Allow_primary_cycle;
-					if(!Allow_primary_cycle)
-						hud_message(MSGC_GAME_FEEDBACK, "Primary autoselect Off");
-					else
-						hud_message(MSGC_GAME_FEEDBACK, "Primary autoselect On");
-					Allow_primary_cycle_count = 0;
-					Allow_primary_cycle_ostate = Allow_primary_cycle_jstate;
-				}
-			}
-		}
-	
-		{
-			int Allow_secondary_cycle_count=0;
-			int Allow_secondary_cycle_jstate=0;
-	
-			if ( kc_d1x[26].value < 255 ) Allow_secondary_cycle_count += key_down_count(kc_d1x[26].value);
-			if ( (use_joystick)&&(kc_d1x[27].value < 255) ) Allow_secondary_cycle_jstate= joy_get_button_state( kc_d1x[27].value );
-	
-			if (Allow_secondary_cycle_count || Allow_secondary_cycle_jstate!=Allow_secondary_cycle_ostate)
-			{
-				if((Allow_secondary_cycle_jstate!=Allow_secondary_cycle_ostate)&&(Allow_secondary_cycle_jstate==0))
-					Allow_secondary_cycle_ostate = Allow_secondary_cycle_jstate;
-				else
-				{
-					Allow_secondary_cycle = !Allow_secondary_cycle;
-					if(!Allow_secondary_cycle)
-						hud_message(MSGC_GAME_FEEDBACK, "Secondary autoselect Off");
-					else
-						hud_message(MSGC_GAME_FEEDBACK, "Secondary autoselect On");
-					Allow_secondary_cycle_count = 0;
-					Allow_secondary_cycle_ostate = Allow_secondary_cycle_jstate;
-				}
-			}
-		}
-
-		if ( kc_d1x[20].value < 255 ) Controls.cycle_primary_down_count += key_down_count(kc_d1x[20].value);
-		if ( (use_joystick)&&(kc_d1x[21].value < 255) ) Controls.cycle_primary_state= joy_get_button_state( kc_d1x[21].value );
-		if ( (use_mouse)&&(kc_mouse[27].value < 255) ) Controls.cycle_primary_state = kc_mouse[28].value?(mouse_axis[kc_mouse[27].value]<0):(mouse_axis[kc_mouse[27].value]>0);
-	
-		//Read secondary cycle
-	
-		if ( kc_d1x[22].value < 255 ) Controls.cycle_secondary_down_count += key_down_count(kc_d1x[22].value);
-		if ( (use_joystick)&&(kc_d1x[23].value < 255) ) Controls.cycle_secondary_state= joy_get_button_state( kc_d1x[23].value );
-		if ( (use_mouse)&&(kc_mouse[27].value < 255) ) Controls.cycle_secondary_state = kc_mouse[28].value?(mouse_axis[kc_mouse[27].value]>0):(mouse_axis[kc_mouse[27].value]<0);
-	
 	}
 
 //------------- Read slide_on -------------
@@ -1644,6 +1566,8 @@ void controls_read_all()
 
 	if (!Player_is_dead)
 	{
+		static int mouse_pricycle_lock=0, mouse_seccycle_lock=0;
+
 	//----------- Read vertical_thrust_time -----------------
 	
 		if ( slide_on )	{
@@ -1706,6 +1630,26 @@ void controls_read_all()
 			else
 				Controls.vertical_thrust_time -= (mouse_axis[kc_mouse[19].value]*Config_mouse_sensitivity)/8;
 		}
+
+		//Read primary cycle
+
+		if ( kc_d1x[20].value < 255 )
+			Controls.cycle_primary_down_count += key_down_count(kc_d1x[20].value);
+		if ( (use_joystick)&&(kc_d1x[21].value < 255) )
+			Controls.cycle_primary_down_count += joy_get_button_down_cnt( kc_d1x[21].value );
+		if ( (use_mouse)&&(kc_mouse[27].value < 255) && !mouse_pricycle_lock )
+			Controls.cycle_primary_down_count = kc_mouse[28].value?(mouse_axis[kc_mouse[27].value]<0):(mouse_axis[kc_mouse[27].value]>0);
+		mouse_pricycle_lock=mouse_axis[kc_mouse[27].value];
+
+		//Read secondary cycle
+	
+		if ( kc_d1x[22].value < 255 )
+			Controls.cycle_secondary_down_count += key_down_count(kc_d1x[22].value);
+		if ( (use_joystick)&&(kc_d1x[23].value < 255) )
+			Controls.cycle_secondary_down_count += joy_get_button_down_cnt( kc_d1x[23].value );
+		if ( (use_mouse)&&(kc_mouse[27].value < 255) && !mouse_seccycle_lock)
+			Controls.cycle_secondary_down_count = kc_mouse[28].value?(mouse_axis[kc_mouse[27].value]>0):(mouse_axis[kc_mouse[27].value]<0);
+		mouse_seccycle_lock=mouse_axis[kc_mouse[27].value];
 	}
 
 //---------- Read heading_time -----------
