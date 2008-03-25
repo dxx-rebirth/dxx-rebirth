@@ -174,6 +174,14 @@ int PlayMovie(const char *filename, int must_have)
 void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, uint h, uint dstx, uint dsty)
 {
 	grs_bitmap source_bm;
+	static ubyte old_pal[768];
+
+	if (memcmp(old_pal,gr_palette,768))
+	{
+		memcpy(old_pal,gr_palette,768);
+		return;
+	}
+	memcpy(old_pal,gr_palette,768);
 
 	//mprintf((0,"MovieShowFrame %d,%d  %d,%d  %d,%d  %d,%d\n",bufw,bufh,sx,sy,w,h,dstx,dsty));
 
