@@ -143,11 +143,7 @@ typedef struct {
 #define BRIEFING_OFFSET_NUM	4 // This must correspond to the first level screen (ie, past the bald guy briefing screens)
 #define	SHAREWARE_ENDING_LEVEL_NUM	0x7f
 #define	REGISTERED_ENDING_LEVEL_NUM	0x7e
-#ifdef OGL
 #define Briefing_screens_LH ((SWIDTH >= 640 && SHEIGHT >= 480 && cfexist( "brief01h.pcx"))?Briefing_screens_h:Briefing_screens)
-#else
-#define Briefing_screens_LH Briefing_screens
-#endif
 
 briefing_screen Briefing_screens[] = {
 	{	"brief01.pcx",   0,  1,  13, 140, 290,  59 },
@@ -418,10 +414,15 @@ void show_animated_bitmap(void)
 void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save, *bitmap_canv;
+
 	bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220*((double)SWIDTH/320), 45*((double)SHEIGHT/200), 166, 138);
 	curcanv_save = grd_curcanv;
 	grd_curcanv = bitmap_canv;	
+#ifdef OGL
+	ogl_ubitmapm_cs(0,0,(bmp->bm_w*(SWIDTH/320)),(bmp->bm_h*(SHEIGHT/200)),bmp,255,F1_0);
+#else
 	gr_bitmapm(0, 0, bmp);
+#endif
 	grd_curcanv = curcanv_save;
 	d_free(bitmap_canv);
 }
@@ -432,7 +433,6 @@ void show_spinning_robot_frame(int robot_num)
 	grs_canvas	*curcanv_save;
 
 	if (robot_num != -1) {
-		gr_use_palette_table( "palette.256" );
 		Robot_angles.h += 150;
 		curcanv_save = grd_curcanv;
 		grd_curcanv = Robot_canv;
@@ -508,10 +508,15 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 //	-----------------------------------------------------------------------------
 //	loads a briefing screen
-//	redrawing of briefing_bm is done in show_briefing
 int load_briefing_screen( int screen_num )
 {
 	int	pcx_error;
+
+	if (briefing_bm.bm_data != NULL)
+		gr_free_bitmap_data(&briefing_bm);
+
+	gr_init_bitmap_data(&briefing_bm);
+
 	if ((pcx_error=pcx_read_bitmap( Briefing_screens_LH[screen_num].bs_name, &briefing_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE) {
 		printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens_LH[screen_num].bs_name, pcx_errormsg(pcx_error));
 		Int3();
@@ -711,15 +716,13 @@ int show_briefing(int screen_num, char *message)
 				if (Robot_canv != NULL)
 					{d_free(Robot_canv); Robot_canv=NULL;}
 
-					get_message_name(&message, bitmap_name);
-					strcat(bitmap_name, ".bbm");
-				if (Briefing_screens_LH != Briefing_screens_h) {
-					gr_init_bitmap_data (&guy_bitmap);
-					iff_error = iff_read_bitmap(bitmap_name, &guy_bitmap, BM_LINEAR, temp_palette);
-					Assert(iff_error == IFF_NO_ERROR);
-					show_briefing_bitmap(&guy_bitmap);
-					guy_bitmap_show=1;
-				}
+				get_message_name(&message, bitmap_name);
+				strcat(bitmap_name, ".bbm");
+				gr_init_bitmap_data (&guy_bitmap);
+				iff_error = iff_read_bitmap(bitmap_name, &guy_bitmap, BM_LINEAR, temp_palette);
+				Assert(iff_error == IFF_NO_ERROR);
+				show_briefing_bitmap(&guy_bitmap);
+				guy_bitmap_show=1;
 				prev_ch = 10;
 			} else if (ch == 'S') {
 				int	keypress;
@@ -893,8 +896,6 @@ int show_briefing(int screen_num, char *message)
 
 	if (Robot_canv != NULL)
 		{d_free(Robot_canv); Robot_canv=NULL;}
-
-	gr_use_palette_table("palette.256");
 
 	return rval;
 }

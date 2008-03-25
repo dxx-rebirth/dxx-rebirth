@@ -32,7 +32,17 @@
 #define GL_TEXTURE1_SGIS 0x8360
 #endif
 
+#ifndef GL_TEXTURE_INDEX_SIZE_EXT
+#define GL_TEXTURE_INDEX_SIZE_EXT 0x80ED
+#endif
+
+#ifndef GL_SCISSOR_TEST
 #define GL_SCISSOR_TEST 0x0C11
+#endif
+
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE 0x812F
+#endif
 
 #ifdef _cplusplus
 #define OEXTERN	extern "C"

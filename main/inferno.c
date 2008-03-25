@@ -374,8 +374,8 @@ int main(int argc,char *argv[])
 			strcpy(publisher, "iplogo1.pcx");	// PC. Only down here because it's lowres ;-)
 		
 		show_title_screen( publisher, 1 );
-		show_title_screen( "logo.pcx", 1 );
-		show_title_screen( "descent.pcx", 1 );
+		show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("logoh.pcx"))?"logoh.pcx":"logo.pcx"), 1 );
+		show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("descenth.pcx"))?"descenth.pcx":"descent.pcx"), 1 );
 	}
 
 	key_flush();

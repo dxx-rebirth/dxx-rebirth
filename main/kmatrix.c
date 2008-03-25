@@ -262,7 +262,7 @@ void kmatrix_redraw()
 
 	gr_set_current_canvas(NULL);
 	
-	pcx_error = pcx_read_fullscr("STARS.PCX", NULL);
+	pcx_error = pcx_read_fullscr((((SWIDTH>=640&&SHEIGHT>=480) && cfexist("starsb.pcx"))?"starsb.pcx":"stars.pcx"), NULL);
 	Assert(pcx_error == PCX_ERROR_NONE);
 
 	grd_curcanv->cv_font = MEDIUM3_FONT;

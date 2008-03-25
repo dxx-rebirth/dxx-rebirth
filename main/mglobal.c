@@ -255,5 +255,3 @@ fix	Next_missile_fire_time;			//	Time at which player can next fire his selected
 
 int	Difficulty_level=DEFAULT_DIFFICULTY;	//	Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 int	Detail_level=NUM_DETAIL_LEVELS-2;		//	Detail level in 0..NUM_DETAIL_LEVELS-1, 0 = boringest, NUM_DETAIL_LEVELS = coolest
-
-char	Menu_pcx_name[13] = "menu.pcx";

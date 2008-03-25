@@ -174,7 +174,7 @@ int read_player_d1x(char *filename)
 	plyr_read_stats();
 
 	// set defaults for when nothing is specified
-	InitWeaponOrdering ();		//setup default weapon priorities 
+// 	InitWeaponOrdering ();		//setup default weapon priorities 
 
 	for(i=0;i<MAX_D1X_CONTROLS;i++)
 		kconfig_d1x_settings[i] = default_kconfig_d1x_settings[i];
@@ -197,10 +197,17 @@ int read_player_d1x(char *filename)
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
+				unsigned int wo0=0,wo1=0,wo2=0,wo3=0,wo4=0,wo5=0;
 				if(!strcmp(word,"PRIMARY"))
-					sscanf(line,"0x%hhx,0x%hhx,0x%hhx,0x%hhx,0x%hhx,0x%hhx",&PrimaryOrder[0], &PrimaryOrder[1], &PrimaryOrder[2], &PrimaryOrder[3], &PrimaryOrder[4], &PrimaryOrder[5]);
+				{
+					sscanf(line,"0x%x,0x%x,0x%x,0x%x,0x%x,0x%x",&wo0, &wo1, &wo2, &wo3, &wo4, &wo5);
+					PrimaryOrder[0]=wo0; PrimaryOrder[1]=wo1; PrimaryOrder[2]=wo2; PrimaryOrder[3]=wo3; PrimaryOrder[4]=wo4; PrimaryOrder[5]=wo5;
+				}
 				else if(!strcmp(word,"SECONDARY"))
-					sscanf(line,"0x%hhx,0x%hhx,0x%hhx,0x%hhx,0x%hhx,0x%hhx",&SecondaryOrder[0], &SecondaryOrder[1], &SecondaryOrder[2], &SecondaryOrder[3], &SecondaryOrder[4], &SecondaryOrder[5]);
+				{
+					sscanf(line,"0x%x,0x%x,0x%x,0x%x,0x%x,0x%x",&wo0, &wo1, &wo2, &wo3, &wo4, &wo5);
+					SecondaryOrder[0]=wo0; SecondaryOrder[1]=wo1; SecondaryOrder[2]=wo2; SecondaryOrder[3]=wo3; SecondaryOrder[4]=wo4; SecondaryOrder[5]=wo5;
+				}
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -215,12 +222,15 @@ int read_player_d1x(char *filename)
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
+				int kc1=0,kc2=0;
 				int i=atoi(word);
 				
 				if(i==0) i=10;
 					i=(i-1)*2;
 		
-				sscanf(line,"0x%hhx,0x%hhx",&kconfig_d1x_settings[i],&kconfig_d1x_settings[i+1]);
+				sscanf(line,"0x%x,0x%x",&kc1,&kc2);
+				kconfig_d1x_settings[i]   = kc1;
+				kconfig_d1x_settings[i+1] = kc2;
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -235,10 +245,19 @@ int read_player_d1x(char *filename)
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
+				int kc1=0, kc2=0;
 				if(!strcmp(word,"CYCLE PRIMARY"))
-					sscanf(line,"0x%hhx,0x%hhx",&kconfig_d1x_settings[20],&kconfig_d1x_settings[21]);
+				{
+					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
+					kconfig_d1x_settings[20]=kc1;
+					kconfig_d1x_settings[21]=kc2;
+				}
 				else if(!strcmp(word,"CYCLE SECONDARY"))
-					sscanf(line,"0x%hhx,0x%hhx",&kconfig_d1x_settings[22],&kconfig_d1x_settings[23]);
+				{
+					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
+					kconfig_d1x_settings[22]=kc1;
+					kconfig_d1x_settings[23]=kc2;
+				}
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');

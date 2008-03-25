@@ -47,7 +47,7 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:44:11 zicodxx Exp 
 
 #define ROW_SPACING			(SHEIGHT/17)
 #define NUM_LINES			20 //14
-#define CREDITS_BACKGROUND_FILENAME	"stars.pcx"
+#define CREDITS_BACKGROUND_FILENAME	(((SWIDTH>=640&&SHEIGHT>=480) && cfexist("starsb.pcx"))?"starsb.pcx":"stars.pcx")
 #define CREDITS_FILE 			"credits.tex"
 
 //if filename passed is NULL, show normal credits
