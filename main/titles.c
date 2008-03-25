@@ -531,7 +531,11 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 	bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220, 45, bmp->bm_w, bmp->bm_h);
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
+#ifdef OGL
+	ogl_ubitmapm_cs(0,0,(bmp->bm_w*(SWIDTH/320)),(bmp->bm_h*(SHEIGHT/200)),bmp,255,F1_0);
+#else
 	gr_bitmapm(0, 0, bmp);
+#endif
 	gr_set_current_canvas(curcanv_save);
 
 	d_free(bitmap_canv);
@@ -620,12 +624,9 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 
 //	-----------------------------------------------------------------------------
 //	loads a briefing screen
-//	also takes care for D1 emulation palette remapping in robot screens
-//	for OGL, redrawing of briefing_bm is done in show_briefing
 int load_briefing_screen( char *fname )
 {
 	int pcx_error;
-	ubyte old_pal[256*3];
 
 	if (briefing_bm.bm_data != NULL)
 		gr_free_bitmap_data(&briefing_bm);
@@ -639,15 +640,10 @@ int load_briefing_screen( char *fname )
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
 	}
 
-	memcpy(old_pal,gr_palette,sizeof(old_pal));
-
-	if (EMULATING_D1 && stricmp(fname,"brief03.pcx") == 0)
-	{
-		gr_use_palette_table( "groupa.256" );
-		gr_remap_bitmap_good( &briefing_bm, old_pal, -1, -1 );
-	}
-
 	show_fullscr(&briefing_bm);
+
+	if (EMULATING_D1) // HACK, FIXME: D1 missions should use their own palette (PALETTE.256), but texture replacements not complete
+		gr_use_palette_table("groupa.256");
 
 	gr_palette_load(gr_palette);
 

@@ -216,7 +216,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 
 	Gr_scanline_darkening_level = 2*7;
 	gr_setcolor( BM_XRGB(1,1,1) );
-	for (w=5*BGScaleX;w>=0;w--)
+	for (w=5*BGScaleX;w>0;w--)
 		gr_urect( x2-w, y1+w*(BGScaleY/BGScaleX), x2-w, y2-w*(BGScaleY/BGScaleX) );//right edge
 	gr_setcolor( BM_XRGB(0,0,0) );
 	for (h=5*BGScaleY;h>0;h--)
