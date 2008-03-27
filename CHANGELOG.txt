@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080227
+--------
+d1x-rebirth.xcodeproj, main/bmread.c, main/piggy.c: add support for Mac sounds (converted to RAW format), update Xcode project
+
 20080225
 --------
 include/loadgl.h, main/credits.c, main/gameseq.c, main/inferno.c, main/inferno.h, main/kmatrix.c, main/menu.h, main/mglobal.c, main/newmenu.c, main/playsave.c, main/titles.c: Added definitions for OpenGL fucntions which might not be included in system headers; Use more HiRes content from dxx.zip; Removed briefings palette hacks; Menu right border shadow was too wide; Corrected reading for some PLX content which seemed not to work on all archs

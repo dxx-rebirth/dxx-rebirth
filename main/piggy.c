@@ -591,6 +591,17 @@ void piggy_read_sounds(int pc_shareware)
 
 	if (MacPig)
 	{
+		// Read Mac sounds converted to RAW format (too messy to read them directly from the resource fork code-wise)
+		char soundfile[FILENAME_LEN];
+		extern int ds_load(int skip, char * filename );
+
+		for (i = 0; i < MAX_SOUND_FILES; i++)
+		{
+			sprintf(soundfile, "SND%04d.raw", i);
+			if (ds_load(0, soundfile) == 255)
+				break;
+		}
+
 		return;
 	}
 
@@ -1045,6 +1056,8 @@ void piggy_dump_all()
 
 void piggy_close()
 {
+	int i;
+
 	custom_close();
 
 //added ifndef on 10/04/98 by Matt Mueller to fix crash on exit bug -- killed 2000/02/06 since they don't seem to cause crash anymore.  heh.
@@ -1054,6 +1067,10 @@ void piggy_close()
 
 	if ( SoundBits )
 		d_free( SoundBits );
+
+	for (i = 0; i < Num_sound_files; i++)
+		if (SoundOffset[i] == 0)
+			d_free(GameSounds[i].data);
 //#endif
 //end addition -MM
 	

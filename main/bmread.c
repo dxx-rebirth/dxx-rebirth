@@ -300,14 +300,14 @@ int ds_load(int skip, char * filename )	{
 	}
 
 	removeext( filename, fname );
-	sprintf( rawname, "%s.raw", fname );
+	sprintf( rawname, "Sounds/%s.raw", fname );
 
 	i=piggy_find_sound( fname );
 	if (i!=255)	{
 		return i;
 	}
 
-	cfp = cfopen( rawname, "rb" );
+	cfp = PHYSFSX_openDataFile(rawname);
 
 	if (cfp!=NULL) {
 #ifdef ALLEGRO
@@ -320,8 +320,10 @@ int ds_load(int skip, char * filename )	{
                 cfread( new.data, 1, new.length, cfp );
 #endif
 		cfclose(cfp);
-		mprintf( (0, "S" ));
-		mprintf( (0, "<%s>", rawname ));
+		new.bits = 8;
+		new.freq = 11025;
+		// -- mprintf( (0, "S" ));
+		// -- mprintf( (0, "<%s>", rawname ));
 	} else {
 		mprintf( (1, "Warning: Couldn't find '%s'\n", filename ));
 		return 255;
@@ -422,9 +424,9 @@ int gamedata_read_tbl(int pc_shareware)
 
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
-	InfoFile = cfopen( "BITMAPS.TBL", "rb" );
+	InfoFile = PHYSFSX_openDataFile("BITMAPS.TBL");
 	if (InfoFile == NULL) {
-		InfoFile = cfopen("BITMAPS.BIN", "rb");
+		InfoFile = PHYSFSX_openDataFile("BITMAPS.BIN");
 		if (InfoFile == NULL)
 			Error("Missing BITMAPS.TBL and BITMAPS.BIN file\n");
 		have_bin_tbl = 1;
