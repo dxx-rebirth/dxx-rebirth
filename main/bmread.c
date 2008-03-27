@@ -314,20 +314,22 @@ int ds_load(int skip, char * filename )	{
 	}
 
 	removeext(filename, fname);
-	sprintf(rawname, "%s.%s", fname, (GameArg.SndDigiSampleRate==SAMPLE_RATE_22K) ? "r22" : "raw");
+	sprintf(rawname, "Sounds/%s.%s", fname, (GameArg.SndDigiSampleRate==SAMPLE_RATE_22K) ? "r22" : "raw");
 
 	i=piggy_find_sound( fname );
 	if (i!=255)	{
 		return i;
 	}
 
-	cfp = cfopen( rawname, "rb" );
+	cfp = PHYSFSX_openDataFile(rawname);
 
 	if (cfp!=NULL) {
 		new.length	= cfilelength( cfp );
 		MALLOC( new.data, ubyte, new.length );
 		cfread( new.data, 1, new.length, cfp );
 		cfclose(cfp);
+		new.bits = 8;
+		new.freq = 11025;
 		// -- mprintf( (0, "S" ));
 		// -- mprintf( (0, "<%s>", rawname ));
 	} else {
@@ -408,9 +410,9 @@ int gamedata_read_tbl(int pc_shareware)
 
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
-	InfoFile = cfopen( "BITMAPS.TBL", "rb" );
+	InfoFile = PHYSFSX_openDataFile("BITMAPS.TBL");
 	if (InfoFile == NULL) {
-		InfoFile = cfopen("BITMAPS.BIN", "rb");
+		InfoFile = PHYSFSX_openDataFile("BITMAPS.BIN");
 		if (InfoFile == NULL)
 			return 0;	//missing BITMAPS.TBL and BITMAPS.BIN file
 		have_bin_tbl = 1;

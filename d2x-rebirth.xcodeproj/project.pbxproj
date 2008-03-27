@@ -608,7 +608,6 @@
 		EB0420D10A341042002CC961 /* screens.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = screens.h; sourceTree = "<group>"; };
 		EB0420D20A341042002CC961 /* scores.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = scores.h; sourceTree = "<group>"; };
 		EB0420D30A341042002CC961 /* robot.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = robot.h; sourceTree = "<group>"; };
-		EB0420D40A341042002CC961 /* reorder.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = reorder.h; sourceTree = "<group>"; };
 		EB0420D50A341042002CC961 /* render.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
 		EB0420D60A341042002CC961 /* powerup.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = powerup.h; sourceTree = "<group>"; };
 		EB0420D70A341042002CC961 /* polyobj.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = polyobj.h; sourceTree = "<group>"; };
@@ -1223,7 +1222,6 @@
 				EB0420D70A341042002CC961 /* polyobj.h */,
 				EB0420D60A341042002CC961 /* powerup.h */,
 				EB0420D50A341042002CC961 /* render.h */,
-				EB0420D40A341042002CC961 /* reorder.h */,
 				EB0420D30A341042002CC961 /* robot.h */,
 				EB0420D20A341042002CC961 /* scores.h */,
 				EB0420D10A341042002CC961 /* screens.h */,

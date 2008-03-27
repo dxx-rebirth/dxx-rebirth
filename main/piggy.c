@@ -1666,6 +1666,8 @@ void piggy_dump_all()
 
 void piggy_close()
 {
+	int i;
+
 	piggy_close_file();
 
 	if (BitmapBits)
@@ -1674,6 +1676,10 @@ void piggy_close()
 	if ( SoundBits )
 		d_free( SoundBits );
 
+	for (i = 0; i < Num_sound_files; i++)
+		if (SoundOffset[i] == 0)
+			d_free(GameSounds[i].data);
+	
 	hashtable_free( &AllBitmapsNames );
 	hashtable_free( &AllDigiSndNames );
 

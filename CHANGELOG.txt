@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080227
+--------
+d2x-rebirth.xcodeproj, main/bmread.c, main/piggy.c: allow external sound files to be put in 'Sounds' folder, update Xcode project
+
 20080225
 --------
 include/loadgl.h, main/newmenu.c, main/titles.c: Added definitions for OpenGL fucntions which might not be included in system headers; Cleaned and declared briefings palette hacks (EMULATING_D1 needs work!); Menu right border shadow was too wide;
