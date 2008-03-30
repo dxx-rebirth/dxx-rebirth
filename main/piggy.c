@@ -592,8 +592,25 @@ void piggy_read_sounds(int pc_shareware)
 	if (MacPig)
 	{
 		// Read Mac sounds converted to RAW format (too messy to read them directly from the resource fork code-wise)
-		char soundfile[FILENAME_LEN];
+		char soundfile[32] = "Sounds/sounds.array";
 		extern int ds_load(int skip, char * filename );
+		PHYSFS_file *array = PHYSFSX_openDataFile(soundfile);	// hack for Mac Demo
+
+		if (!array && (cfile_size(DEFAULT_PIGFILE_REGISTERED) == D1_MAC_SHARE_PIGSIZE))
+		{
+			printf("Warning: Missing Sounds/sounds.array for Mac data files");
+			return;
+		}
+		else if (array)
+		{
+			if (PHYSFS_read(array, Sounds, MAX_SOUNDS, 1) != 1)	// make the 'Sounds' index array match with the sounds we're about to read in
+			{
+				printf("Warning: Can't read Sounds/sounds.array: %s", PHYSFS_getLastError());
+				PHYSFS_close(array);
+				return;
+			}
+			PHYSFS_close(array);
+		}
 
 		for (i = 0; i < MAX_SOUND_FILES; i++)
 		{
