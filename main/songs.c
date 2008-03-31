@@ -171,6 +171,9 @@ void songs_play_level_song( int levelnum )
 
 	if ( !Songs_initialized ) songs_init();
 
+	if (cGameSongsAvailable < 1)
+		return;
+
 	if (levelnum < 0)
 		songnum = (-levelnum) % cGameSongsAvailable;
 	else

@@ -1,6 +1,10 @@
 D1X-Rebirth Changelog
 
-20080401
+20080331
+--------
+main/songs.c: fix divide by 0 bug when there is no music available
+
+20080330
 --------
 main/piggy.c: add support for Mac demo sounds
 
