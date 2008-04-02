@@ -56,6 +56,7 @@ extern int Function_mode;			//in game or editor?
 extern int Screen_mode;				//editor screen or game screen?
 extern int start_with_mission;
 extern char *start_with_mission_name;
+extern int MacHog;
 
 #endif
 

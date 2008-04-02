@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080402
+--------
+main/automap.c, main/gamefont.c, main/gamefont.h, main/inferno.c, main/inferno.h: fix up the Mac data automap layout
+
 20080331
 --------
 main/songs.c: fix divide by 0 bug when there is no music available

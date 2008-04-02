@@ -236,6 +236,7 @@ void sdl_close()
 
 extern fix fixed_frametime;
 extern void vfx_set_palette_sub(ubyte *);
+int MacHog = 0;	// using a Mac hogfile?
 #define PROGNAME argv[0]
 
 int main(int argc,char *argv[])
@@ -262,6 +263,14 @@ int main(int argc,char *argv[])
 			  "\tIn a subdirectory called 'Data'\n"
 			  "Or use the -hogdir option to specify an alternate location.");
 
+	switch (cfile_size("descent.hog"))
+	{
+		case D1_MAC_SHARE_MISSION_HOGSIZE:
+		case D1_MAC_MISSION_HOGSIZE:
+			MacHog = 1;	// used for fonts and the Automap
+			break;
+	}
+	
 	cfile_init("dxx.zip", 0);
 
 	load_text();

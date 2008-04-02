@@ -244,12 +244,25 @@ void draw_automap(int flip)
 	show_fullscr(&Automap_background);
 	gr_set_curfont(HUGE_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-	gr_printf((SWIDTH/8), (SHEIGHT/16), TXT_AUTOMAP);
+	if (!MacHog)
+		gr_printf((SWIDTH/8), (SHEIGHT/16), TXT_AUTOMAP);
+	else
+		gr_printf(80*(SWIDTH/640.0), 36*(SHEIGHT/480.0), TXT_AUTOMAP);
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-	gr_printf((SWIDTH/4.923), (SHEIGHT/1.126), TXT_TURN_SHIP);
-	gr_printf((SWIDTH/4.923), (SHEIGHT/1.083), TXT_SLIDE_UPDOWN);
-	gr_printf((SWIDTH/4.923), (SHEIGHT/1.043), TXT_VIEWING_DISTANCE);
+	if (!MacHog)
+	{
+		gr_printf((SWIDTH/4.923), (SHEIGHT/1.126), TXT_TURN_SHIP);
+		gr_printf((SWIDTH/4.923), (SHEIGHT/1.083), TXT_SLIDE_UPDOWN);
+		gr_printf((SWIDTH/4.923), (SHEIGHT/1.043), TXT_VIEWING_DISTANCE);
+	}
+	else
+	{
+		// for the Mac automap they're shown up the top, hence the different layout
+		gr_printf(265*(SWIDTH/640.0), 27*(SHEIGHT/480.0), TXT_TURN_SHIP);
+		gr_printf(265*(SWIDTH/640.0), 44*(SHEIGHT/480.0), TXT_SLIDE_UPDOWN);
+		gr_printf(265*(SWIDTH/640.0), 61*(SHEIGHT/480.0), TXT_VIEWING_DISTANCE);
+	}
 	
 	gr_set_current_canvas(&Automap_view);
 
@@ -404,7 +417,10 @@ void do_automap( int key_code )	{
 	if (pcx_error != PCX_ERROR_NONE)
 		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 	gr_remap_bitmap_good(&Automap_background, pal, -1, -1);
-	gr_init_sub_canvas(&Automap_view, &grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
+	if (!MacHog)
+		gr_init_sub_canvas(&Automap_view, &grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
+	else
+		gr_init_sub_canvas(&Automap_view, &grd_curscreen->sc_canvas, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
 
 	while(!done)	{
 		if ( leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-entry_time)>LEAVE_TIME)

@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // We are interleaving low & high resolution fonts, so to access a
 // font you say fontnum+flag where flag is 0 for lowres, 1 for hires
 
-#define GFONT_BIG_1     0
+#define GFONT_BIG_1     MacPig	// the Mac data doesn't have this in hires, in the automap the scaled/hires one won't fit
 #define GFONT_MEDIUM_1  1
 #define GFONT_MEDIUM_2  2
 #define GFONT_MEDIUM_3  3

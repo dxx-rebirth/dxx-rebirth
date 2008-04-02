@@ -146,18 +146,9 @@ void addfontconf(int gf, int x, int y, char * fn){
 void gamefont_init()
 {
 	int i;
-	int mac_hog = 0;
 
 	if (Gamefont_installed)
 		return;
-
-	switch (cfile_size("descent.hog"))
-	{
-		case D1_MAC_SHARE_MISSION_HOGSIZE:
-		case D1_MAC_MISSION_HOGSIZE:
-			mac_hog = 1;
-			break;
-	}
 
 	Gamefont_installed = 1;
 
@@ -166,8 +157,8 @@ void gamefont_init()
 
 		if (GameArg.GfxHiresFNTAvailable)
 			addfontconf(i,640,480,Gamefont_filenames_h[i]); // ZICO - addition to use D2 fonts if available
-		if (mac_hog)
-			addfontconf(i,640,480,Gamefont_filenames_l[i]); // Mac fonts are hires
+		if (MacHog && (i != 0))
+			addfontconf(i,640,480,Gamefont_filenames_l[i]); // Mac fonts are hires (except for the "big" one)
 		else
 			addfontconf(i,320,200,Gamefont_filenames_l[i]);
 	}
